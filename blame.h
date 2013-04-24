@@ -64,8 +64,9 @@ class Jobs
 public:
     Jobs(const QString& rundir);
     ~Jobs();
-    QList<QPair<QString,long> > snapshot(double t);// sorted by runtime
-    QMap<int,QList<Job*> > processor_snapshot(double t); // sorted by runtime
+    QList<QPair<int, long> > threadtimes(double t) const;
+    QList<QPair<QString,long> > jobtimes(double t) const ;
+    QMap<int,QList<Job*> > processor_snapshot(double t);
 
 private:
     Jobs() {}
@@ -77,7 +78,6 @@ private:
     bool _parse_log_userjobs(const QString& rundir);
     bool _parse_log_trickjobs(const QString &rundir);
     QList<QPair<double, long> >  _parse_log_frame(const QString& rundir);
-
 
     TrickBinaryRiver* _river_userjobs;
     TrickBinaryRiver* _river_frame;

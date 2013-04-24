@@ -2,12 +2,31 @@
 
 #include <stdio.h>
 #include <ctype.h>
+#include <cmath>
 #include <QDir>
 #include <QFile>
 #include <QRegExp>
 #include <QDebug>
 
 #include <stdio.h>
+
+bool threadTimeGreaterThan(const QPair<int,long> &a,
+                            const QPair<int,long> &b)
+{
+    return a.second > b.second;
+}
+
+bool jobTimeGreaterThan(const QPair<QString,long> &a,
+                         const QPair<QString,long> &b)
+{
+    return a.second > b.second;
+}
+
+bool doubleTimeGreaterThan(const QPair<Job*,double> &a,
+                         const QPair<Job*,double> &b)
+{
+    return a.second > b.second;
+}
 
 Jobs::Jobs(const QString &rundir)
 {
@@ -16,12 +35,103 @@ Jobs::Jobs(const QString &rundir)
     _parse_log_trickjobs(rundir);
 
     QList<QPair<double, long> > ovs = _parse_log_frame(rundir);
+
+    fprintf(stderr,"\n\nSnap! Results\n");
+    fprintf(stderr,"------------------------------------------------\n");
+    fprintf(stderr,"Run dir = %s\n",rundir.toAscii().constData());
+    fprintf(stderr,"Num jobs = %d\n",_id_to_job.values().length());
+    fprintf(stderr,"Num frames = %d\n",ovs.length());
+    double sum = 0 ;
+    for ( int ii = 0 ; ii < ovs.length() ; ++ii ) {
+        QPair<double,long> ov = ovs.at(ii);
+        double ot = ov.second;
+        sum += ot;
+    }
+    double avg = sum/ovs.length() ;
+    fprintf(stderr,"Avg frame rate = %.6lf\n",avg/1000000);
+
+    sum = 0 ;
+    for ( int ii = 0 ; ii < ovs.length() ; ++ii ) {
+        QPair<double,long> ov = ovs.at(ii);
+        double ot = ov.second;
+        double vv = (ot-avg)*(ot-avg);
+        sum += vv;
+    }
+    double stddev = sqrt(sum/ovs.length()) ;
+    fprintf(stderr,"Std dev for frame rate = %.6lf\n",stddev/1000000);
+
+    fprintf(stderr,"------------------------------------------------\n");
+    fprintf(stderr,"Top 10 Spikes\n");
+    fprintf(stderr,"    %10s %10s\n", "Time", "Spike");
+
     for ( int ii = 0 ; ii < 10 ; ++ii ) {
         QPair<double,long> ov = ovs.at(ii);
         double tt = ov.first;
         double ot = ov.second;
+        fprintf(stderr,"     %10.6lf %10.6lf\n", tt ,ot/1000000.0);
+    }
+
+    fprintf(stderr,"------------------------------------------------\n");
+    int njobs = 10;
+    fprintf(stderr,"Top %d Job Avg Times\n", njobs);
+    fprintf(stderr,"    %-4s %-10s %-40s\n", "Thread", "AvgTime", "Job");
+    int npoints = _river_userjobs->getNumPoints();
+
+    QList<QPair<Job*,double> > avgtimes;
+    QList<QPair<Job*,double> > maxtimes;
+    foreach ( QString id, _id_to_job.keys() ) {
+        Job* job = _id_to_job.value(id);
+        long sum_rt = 0 ;
+        long max_rt = 0 ;
+        for ( int tidx = 0 ; tidx < npoints ; tidx++ ) {
+            double time = job->timestamps[tidx];
+            if ( time < 1.0 ) {
+                continue;
+            }
+            long rt = (long)job->runtime[tidx];
+            if ( rt > max_rt ) max_rt = rt;
+            sum_rt += rt;
+        }
+        double avg_rt = sum_rt/npoints;
+        avgtimes.append(qMakePair(job,avg_rt/1000000.0));
+        maxtimes.append(qMakePair(job,max_rt/1000000.0));
+    }
+    qSort(avgtimes.begin(), avgtimes.end(), doubleTimeGreaterThan);
+    for ( int ii = 0 ; ii <  njobs; ii++ ) {
+        QPair<Job*,double> avgtime = avgtimes.at(ii);
+        Job* job = avgtime.first;
+        fprintf(stderr,"    %4d %10.6lf %-40s\n",
+                job->thread_id(), avgtime.second,
+                job->job_name().toAscii().constData() );
+
+    }
+    fprintf(stderr,"------------------------------------------------\n");
+    fprintf(stderr,"Top %d Job Max Times\n", njobs);
+    fprintf(stderr,"    %-4s %-10s %-40s\n", "Thread", "MaxTime", "Job");
+    qSort(maxtimes.begin(), maxtimes.end(), doubleTimeGreaterThan);
+    for ( int ii = 0 ; ii <  njobs; ii++ ) {
+        QPair<Job*,double> maxtime = maxtimes.at(ii);
+        Job* job = maxtime.first;
+        fprintf(stderr,"    %4d %10.6lf %-40s\n",
+                job->thread_id(), maxtime.second,
+                job->job_name().toAscii().constData() );
+
+    }
+    fprintf(stderr,"------------------------------------------------\n");
+
+    exit(0);
+
+    for ( int ii = 0 ; ii < 10 ; ++ii ) {
+        QPair<double,long> ov = ovs.at(ii);
+        double tt = ov.first;
+        double ot = ov.second;
+
+        if ( tt < 1.0 ) {
+            continue;
+        }
+
         fprintf(stderr,"Spike at time %g of %g\n", tt ,ot/1000000);
-        QList<QPair<QString,long> > snaps = snapshot(tt);
+        QList<QPair<QString,long> > snaps = jobtimes(tt);
         int tidx = _river_userjobs->getIndexAtTime(&tt);
         fprintf(stderr, "    %-10s %-10s     %-50s\n",
                         "thread",
@@ -29,15 +139,14 @@ Jobs::Jobs(const QString &rundir)
                         "job");
         double total = 0 ;
 
-        //fprintf(stderr,"num jobs= %d\n",_id_to_job.values().length());
-        for ( int jj = 0 ; jj < 20 ; ++jj ) {
+        for ( int jj = 0 ; jj < 10 ; ++jj ) {
             QPair<QString,long> snap = snaps.at(jj);
             Job* job = _id_to_job.value(snap.first);
             double t =  job->runtime[tidx]/1000000;
             double delta = 1.0e-3;
             char format[64];
             if ( t < delta ) {
-                strcpy(format,"    %-10d %-10lf     %-50s\n");
+                strcpy(format,"    %-10d %-10.4lf     %-50s\n");
             } else {
                 strcpy(format,"    %-10d %-10.3lf     %-50s\n");
             }
@@ -57,8 +166,26 @@ Jobs::Jobs(const QString &rundir)
             }
 
         }
-        fprintf(stderr, "    tot=%g %g\n", total, 0.75*ot/1000000);
         fprintf(stderr,"\n\n");
+    }
+
+
+    for ( int ii = 0 ; ii < 10 ; ++ii ) {
+        QPair<double,long> ov = ovs.at(ii);
+        double tt = ov.first;
+        double ot = ov.second;
+        fprintf(stderr,"Spike at time %g of %g\n", tt,ot/1000000);
+        fprintf(stderr, "    %-10s %-10s\n", "thread", "time");
+        QList<QPair<int,long> > ttimes = threadtimes(tt);
+        for ( int ii = 0 ; ii < ttimes.length(); ++ii ) {
+            QPair<int,long> ttime = ttimes.at(ii);
+            double t = ttime.second/1000000.0;
+            if ( t < 1.0e-3 ) {
+                break;
+            }
+            fprintf(stderr,"    %-10d %-10.3lf\n", ttime.first ,t);
+        }
+        fprintf(stderr, "\n\n");
     }
 }
 
@@ -71,13 +198,26 @@ Jobs::~Jobs()
     delete _river_userjobs;
 }
 
-bool runTimeGreaterThan(const QPair<QString,long> &a,
-                     const QPair<QString,long> &b)
+
+QList<QPair<int, long> > Jobs::threadtimes(double t) const
 {
-    return a.second > b.second;
+    QList<QPair<int,long> > runtimes;
+    QMap<int,long> sumtime;
+    int tidx = _river_userjobs->getIndexAtTime(&t);
+    foreach ( QString id, _id_to_job.keys() ) {
+        Job* job = _id_to_job.value(id);
+        long rt = (long)job->runtime[tidx];
+        int thread = job->thread_id();
+        sumtime[thread] += rt;
+    }
+    foreach ( int thread, sumtime.keys() ) {
+        runtimes.append(qMakePair(thread,sumtime.value(thread)));
+    }
+    qSort(runtimes.begin(), runtimes.end(), threadTimeGreaterThan);
+    return runtimes;
 }
 
-QList<QPair<QString, long> > Jobs::snapshot(double t)
+QList<QPair<QString, long> > Jobs::jobtimes(double t) const
 {
     QList<QPair<QString,long> > runtimes;
     int tidx = _river_userjobs->getIndexAtTime(&t);
@@ -86,7 +226,7 @@ QList<QPair<QString, long> > Jobs::snapshot(double t)
         long rt = (long)job->runtime[tidx];
         runtimes.append(qMakePair(id,rt));
     }
-    qSort(runtimes.begin(), runtimes.end(), runTimeGreaterThan);
+    qSort(runtimes.begin(), runtimes.end(), jobTimeGreaterThan);
     return runtimes;
 }
 
@@ -275,9 +415,14 @@ bool Jobs::_parse_log_userjobs(const QString &rundir)
     QString trk = rundir + QString("/log_userjobs.trk");
     QFile file(trk);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "couldn't read file: " << trk;
-        ret = false;
-        return(ret);
+        // Latest version of Trick changed log_userjobs.trk name
+        trk = rundir + QString("/log_frame_userjobs_main.trk");
+        QFile file2(trk);
+        if (!file2.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            qDebug() << "couldn't read file: " << trk;
+            exit(-1);
+            return false;
+        }
     } else {
         file.close();
     }
@@ -307,6 +452,7 @@ bool Jobs::_parse_log_userjobs(const QString &rundir)
         job->runtime = _river_userjobs->getVals(const_cast<char*>
                                                  (param.data.name.c_str()));
 
+        /*
         if ( job->job_name() == "v1553_rws_sim.v1553_TS21_125ms_job" ) {
             double avg = 0 ;
             double sum = 0 ;
@@ -319,6 +465,7 @@ bool Jobs::_parse_log_userjobs(const QString &rundir)
             avg = sum/job->npoints;
             fprintf(stderr, "Avg runtime for v1553_rws job is %g\n", avg);
         }
+        */
     }
 
     return ret;

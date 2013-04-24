@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     Jobs jobs(QString("/home/vetter/dev/For_Keith"));
     //Jobs jobs(QString("/home/vetter/dev/sims/SIM_threads/RUN_test"));
 
-    QList<QPair<QString,long> > rts = jobs.snapshot(30);
+    const QList<QPair<QString,long> > rts = jobs.jobtimes(30);
     for ( int ii = 0 ; ii < rts.length() && ii < 10; ++ii ) {
         QPair<QString,long> rt = rts.at(ii);
         //qDebug() << rt;
