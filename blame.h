@@ -4,6 +4,7 @@
 #include <QString>
 #include <QList>
 #include <QMap>
+#include <QSet>
 #include <QPair>
 #include <QMultiMap>
 #include <QtAlgorithms>
@@ -65,12 +66,12 @@ public:
     Jobs(const QString& rundir);
     ~Jobs();
     QList<QPair<int, long> > threadtimes(double t) const;
-    QList<QPair<QString,long> > jobtimes(double t) const ;
-    QMap<int,QList<Job*> > processor_snapshot(double t);
+    QList<QPair<Job *, long> > jobtimes(double t) const ;
 
 private:
     Jobs() {}
 
+    QList<Job*> _jobs;
     QString _job_logname(const Job* job) const;
     QMap<QString,Job*> _id_to_job;
 
@@ -78,6 +79,8 @@ private:
     bool _parse_log_userjobs(const QString& rundir);
     bool _parse_log_trickjobs(const QString &rundir);
     QList<QPair<double, long> >  _parse_log_frame(const QString& rundir);
+
+    QSet<int> _thread_list();
 
     TrickBinaryRiver* _river_userjobs;
     TrickBinaryRiver* _river_frame;
