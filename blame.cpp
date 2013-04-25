@@ -155,14 +155,13 @@ Jobs::Jobs(const QString &rundir)
     //
     fprintf(stderr,"------------------------------------------------\n");
     fprintf(stderr,"Thread Exec Time Summary\n\n");
-    fprintf(stderr,"    %-4s %-10s %-10s\n", "Thread", "AvgTime", "StdDev");
+    fprintf(stderr,"    %10s %15s %15s %15s\n",
+            "Thread", "AvgTime", "StdDev", "Max");
 
-    QList<QPair<int, double> > avgs = thread_avgs();
-    for ( int ii = 0; ii < avgs.length(); ++ii) {
-        QPair<int,double> avg = avgs.at(ii);
-        int thread = avg.first;
-        double avgtime = avg.second;
-        fprintf(stderr,"    %-4d %-10.6lf %-10.6lf\n", thread, avgtime, 0.0);
+    QList<ThreadStat> stats = thread_stats();
+    foreach ( ThreadStat stat, stats ) {
+        fprintf(stderr,"    %10d %15.6lf %15.6lf %15.6lf\n",
+                stat.thread_id, stat.avg, stat.stdev, stat.max ) ;
     }
     fprintf(stderr,"\n\n");
 
@@ -316,13 +315,17 @@ Jobs::~Jobs()
 }
 
 // Return list of thread_id => (avg,stddev) of exec time
-QList<QPair<int, double> >  Jobs::thread_avgs() const
+QList<ThreadStat> Jobs::thread_stats() const
 {
-    QList<QPair<int,double> > avgs;
+    QList<ThreadStat> stats;
+
+    QList<QList<QPair<int,long> > >* frametimes
+            = new QList<QList<QPair<int,long> > >();
 
     double* tstamps = _river_frame->getTimeStamps();
     int npoints = _river_frame->getNumPoints();
     QMap<int,long> sumtime;
+    QMap<int,long> maxes;
     int count = 0 ;
     for ( int tidx = 0; tidx < npoints; ++tidx) {
 
@@ -331,20 +334,72 @@ QList<QPair<int, double> >  Jobs::thread_avgs() const
             continue;
         }
 
+        QMap<int,long> frames;
         foreach ( Job* job, _jobs ) {
             long rt = (long)(job->runtime[tidx]);
             int thread = job->thread_id();
+            frames[thread] += rt;
             sumtime[thread] += rt;
+        }
+
+        // Save off frame time
+        QList<QPair<int,long> > list_threads;
+        foreach ( int thread, frames.keys() ) {
+            list_threads.append(qMakePair(thread,frames.value(thread)));
+        }
+        frametimes->append(list_threads);
+
+        // maxes
+        if ( maxes.size() == 0 ) {
+            foreach ( int thread, frames.keys() ) {
+                maxes.insert(thread,frames.value(thread));
+            }
+        } else {
+            foreach ( int thread, maxes.keys() ) {
+                long max = maxes.value(thread);
+                long frame = frames.value(thread);
+                if ( frame > max ) {
+                    maxes.insert(thread,frame);
+                }
+            }
         }
 
         count++;
     }
+
+    // Calculate standard deviation
+    QMap<int,double> stddevs;
     foreach ( int thread, sumtime.keys() ) {
-        double avg = (sumtime.value(thread)/count)/1000000.0;
-        avgs.append(qMakePair(thread,avg));
+        stddevs.insert(thread,0.0);
+    }
+    for ( int ii = 0; ii < frametimes->length(); ++ii) {
+        QList<QPair<int,long> >  frametime = frametimes->at(ii);
+        for ( int jj = 0; jj < frametime.length(); ++jj) {
+            QPair<int,long>  threadtime = frametime.at(jj);
+            int thread = threadtime.first;
+            double rt = threadtime.second/1000000.0;
+            double avg = (sumtime.value(thread)/count)/1000000.0;
+            double vv = (avg-rt)*(avg-rt);
+            stddevs[thread] += vv;
+        }
+    }
+    foreach ( int thread, stddevs.keys() ) {
+        stddevs[thread] = sqrt(stddevs.value(thread)/count);
     }
 
-    return avgs;
+    foreach ( int thread, sumtime.keys() ) {
+        ThreadStat stat;
+        stat.thread_id = thread;
+        stat.avg = (sumtime.value(thread)/count)/1000000.0;
+        stat.max = (maxes.value(thread))/1000000.0;
+        stat.stdev = stddevs.value(thread);
+        stats.append(stat);
+    }
+
+
+    delete frametimes;
+
+    return stats;
 }
 
 QList<QPair<int, long> > Jobs::threadtimes(double t) const
