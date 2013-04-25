@@ -40,14 +40,15 @@ Jobs::Jobs(const QString &rundir)
     // Main Summary
     //
     fprintf(stderr,"\n");
-    fprintf(stderr,"**************************************************\n");
-    fprintf(stderr,"*                Snap! Results                   *\n");
-    fprintf(stderr,"**************************************************\n");
-    fprintf(stderr,"\n");
+    fprintf(stderr,
+"************************************************************************\n"
+"*                            Snap! Results                             *\n"
+"************************************************************************\n\n");
 
-    fprintf(stderr,"Run dir = %s\n",rundir.toAscii().constData());
-    fprintf(stderr,"Num jobs = %d\n",_jobs.length());
-    fprintf(stderr,"Num frames = %d\n",ovs.length());
+    fprintf(stderr,"%20s = %s\n",
+            "Run directory", rundir.toAscii().constData());
+    fprintf(stderr,"%20s = %d\n", "Num jobs", _jobs.length());
+    fprintf(stderr,"%20s = %d\n", "Num frames",ovs.length());
 
     //
     // Frame rate(s) (could be multiple e.g. 0.0120, 0.0125)
@@ -82,7 +83,7 @@ Jobs::Jobs(const QString &rundir)
         buf.append(str);
     }
     buf.chop(1); // cut comma
-    fprintf(stderr,"Frame rate(s) = %s\n",buf.toAscii().constData());
+    fprintf(stderr,"%20s = %s\n", "Frame rate(s)",buf.toAscii().constData());
 
     //
     // Avg frame exec time
@@ -94,7 +95,7 @@ Jobs::Jobs(const QString &rundir)
         sum += ot;
     }
     double avg = sum/ovs.length() ;
-    fprintf(stderr,"Avg frame exec time = %.6lf\n",avg/1000000);
+    fprintf(stderr,"%20s = %.6lf\n", "Frame avg",avg/1000000);
 
     //
     // Std dev for frame exec time
@@ -107,17 +108,21 @@ Jobs::Jobs(const QString &rundir)
         sum += vv;
     }
     double stddev = sqrt(sum/ovs.length()) ;
-    fprintf(stderr,"Std dev for frame exec time = %.6lf\n",stddev/1000000);
+    fprintf(stderr,"%20s = %.6lf\n","Frame stddev",stddev/1000000);
 
     //
     // Thread summary
     //
     QSet<int> threads = _thread_list();
-    fprintf(stderr,"Num threads = %d\n",threads.size());
-    fprintf(stderr,"Thread list = ");
+    fprintf(stderr,"%20s = %d\n", "Num threads",threads.size());
+    fprintf(stderr,"%20s = ","Thread list");
     int ii = 0 ;
     int ltid = 0;
     foreach ( int tid, threads ) {
+        if ( ii != 0 && ii%16 == 0 ) {
+            fprintf(stderr,"\n");
+            fprintf(stderr,"%20s   "," ");
+        }
         if ( ii > 0 && tid != ltid+1) {
             fprintf(stderr,"MISSING,");
         }
@@ -140,21 +145,22 @@ Jobs::Jobs(const QString &rundir)
     //
     fprintf(stderr,"------------------------------------------------\n");
     fprintf(stderr,"Top 10 Spikes\n\n");
-    fprintf(stderr,"    %10s %10s\n", "Time", "Spike");
+    fprintf(stderr,"    %15s %15s\n", "Time", "Spike");
 
     for ( int ii = 0 ; ii < 10 ; ++ii ) {
         QPair<double,long> ov = ovs.at(ii);
         double tt = ov.first;
         double ot = ov.second;
-        fprintf(stderr,"     %10.6lf %10.6lf\n", tt ,ot/1000000.0);
+        fprintf(stderr,"     %15.6lf %15.6lf\n", tt ,ot/1000000.0);
     }
     fprintf(stderr,"\n\n");
 
     //
     // Thread Avgs/Stddev
     //
-    fprintf(stderr,"------------------------------------------------\n");
-    fprintf(stderr,"Thread Exec Time Summary\n\n");
+    fprintf(stderr,
+    "-----------------------------------------------------------------\n");
+    fprintf(stderr,"Thread Time Summary\n\n");
     fprintf(stderr,"    %10s %15s %15s %15s\n",
             "Thread", "AvgTime", "StdDev", "Max");
 
@@ -166,12 +172,12 @@ Jobs::Jobs(const QString &rundir)
     fprintf(stderr,"\n\n");
 
     //
-    // Job Exec Time Avgs
+    // Job Time Avgs
     //
     fprintf(stderr,"------------------------------------------------\n");
     int njobs = 10;
-    fprintf(stderr,"Top %d Job Avg Exec Times\n\n", njobs);
-    fprintf(stderr,"    %-4s %-10s %-40s\n", "Thread", "AvgTime", "Job");
+    fprintf(stderr,"Top %d Job Avg Times\n\n", njobs);
+    fprintf(stderr,"    %6s %15s     %-40s\n", "Thread", "AvgTime", "Job");
 
     QList<QPair<Job*,double> > avgtimes;
     QList<QPair<Job*,double> > maxtimes;
@@ -195,7 +201,7 @@ Jobs::Jobs(const QString &rundir)
     for ( int ii = 0 ; ii <  njobs; ii++ ) {
         QPair<Job*,double> avgtime = avgtimes.at(ii);
         Job* job = avgtime.first;
-        fprintf(stderr,"    %4d %10.6lf %-40s\n",
+        fprintf(stderr,"    %6d %15.6lf     %-40s\n",
                 job->thread_id(), avgtime.second,
                 job->job_name().toAscii().constData() );
 
@@ -203,16 +209,16 @@ Jobs::Jobs(const QString &rundir)
     fprintf(stderr,"\n\n");
 
     //
-    // Job Exec Time Maxes
+    // Job Time Maxes
     //
     fprintf(stderr,"------------------------------------------------\n");
-    fprintf(stderr,"Top %d Job Max Exec Times\n\n", njobs);
-    fprintf(stderr,"    %-4s %-10s %-40s\n", "Thread", "MaxTime", "Job");
+    fprintf(stderr,"Top %d Job Max Times\n\n", njobs);
+    fprintf(stderr,"    %6s %10s     %-40s\n", "Thread", "MaxTime", "Job");
     qSort(maxtimes.begin(), maxtimes.end(), doubleTimeGreaterThan);
     for ( int ii = 0 ; ii <  njobs; ii++ ) {
         QPair<Job*,double> maxtime = maxtimes.at(ii);
         Job* job = maxtime.first;
-        fprintf(stderr,"    %4d %10.6lf %-40s\n",
+        fprintf(stderr,"    %6d %10.6lf     %-40s\n",
                 job->thread_id(), maxtime.second,
                 job->job_name().toAscii().constData() );
 
@@ -237,10 +243,10 @@ Jobs::Jobs(const QString &rundir)
         fprintf(stderr,"Spike at time %g of %g\n", tt ,ot/1000000);
         QList<QPair<Job*,long> > snaps = jobtimes(tt);
         int tidx = _river_userjobs->getIndexAtTime(&tt);
-        fprintf(stderr, "    %-10s %-10s     %-50s\n",
-                        "thread",
-                        "time",
-                        "job");
+        fprintf(stderr, "    %6s %15s     %-50s\n",
+                        "Thread",
+                        "Time",
+                        "Job");
         double total = 0 ;
 
         for ( int jj = 0 ; jj < 10 ; ++jj ) {
@@ -253,7 +259,7 @@ Jobs::Jobs(const QString &rundir)
             }
 
             char format[64];
-            strcpy(format,"    %-10d %-10.3lf     %-50s\n");
+            strcpy(format,"    %6d %15.3lf     %-50s\n");
 
             fprintf(stderr,format,
                     job->thread_id(),t,
@@ -289,7 +295,7 @@ Jobs::Jobs(const QString &rundir)
         }
 
         fprintf(stderr,"Spike at time %g of %g\n", tt,ot/1000000);
-        fprintf(stderr, "    %-10s %-10s\n", "thread", "time");
+        fprintf(stderr, "    %6s %15s\n", "Thread", "Time");
         QList<QPair<int,long> > ttimes = threadtimes(tt);
         for ( int ii = 0 ; ii < ttimes.length(); ++ii ) {
             QPair<int,long> ttime = ttimes.at(ii);
@@ -297,7 +303,7 @@ Jobs::Jobs(const QString &rundir)
             if ( t < 1.0e-3 ) {
                 break;
             }
-            fprintf(stderr,"    %-10d %-10.3lf\n", ttime.first ,t);
+            fprintf(stderr,"    %6d %15.3lf\n", ttime.first ,t);
         }
         fprintf(stderr, "\n");
     }
