@@ -86,6 +86,8 @@ private:
     TrickBinaryRiver* _river_frame;
     TrickBinaryRiver* _river_trickjobs;
 
+    void _rpt_summary();
+
 };
 
 #endif // BLAME_H
