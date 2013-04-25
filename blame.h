@@ -10,6 +10,13 @@
 #include <QtAlgorithms>
 
 #include "TrickBinaryRiver.hh"
+class ThreadStat
+{
+    int njobs;
+    double avg;
+    double max;
+    double stdev;
+};
 
 class Job
 {
@@ -66,6 +73,7 @@ public:
     Jobs(const QString& rundir);
     ~Jobs();
     QList<QPair<int, long> > threadtimes(double t) const;
+    QList<QPair<int, double> > thread_avgs() const;
     QList<QPair<Job *, long> > jobtimes(double t) const ;
 
 private:

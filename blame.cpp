@@ -151,6 +151,22 @@ Jobs::Jobs(const QString &rundir)
     fprintf(stderr,"\n\n");
 
     //
+    // Thread Avgs/Stddev
+    //
+    fprintf(stderr,"------------------------------------------------\n");
+    fprintf(stderr,"Thread Exec Time Summary\n\n");
+    fprintf(stderr,"    %-4s %-10s %-10s\n", "Thread", "AvgTime", "StdDev");
+
+    QList<QPair<int, double> > avgs = thread_avgs();
+    for ( int ii = 0; ii < avgs.length(); ++ii) {
+        QPair<int,double> avg = avgs.at(ii);
+        int thread = avg.first;
+        double avgtime = avg.second;
+        fprintf(stderr,"    %-4d %-10.6lf %-10.6lf\n", thread, avgtime, 0.0);
+    }
+    fprintf(stderr,"\n\n");
+
+    //
     // Job Exec Time Avgs
     //
     fprintf(stderr,"------------------------------------------------\n");
@@ -299,6 +315,37 @@ Jobs::~Jobs()
     delete _river_userjobs;
 }
 
+// Return list of thread_id => (avg,stddev) of exec time
+QList<QPair<int, double> >  Jobs::thread_avgs() const
+{
+    QList<QPair<int,double> > avgs;
+
+    double* tstamps = _river_frame->getTimeStamps();
+    int npoints = _river_frame->getNumPoints();
+    QMap<int,long> sumtime;
+    int count = 0 ;
+    for ( int tidx = 0; tidx < npoints; ++tidx) {
+
+        // skip initial part of sim run
+        if ( tstamps[tidx] < 1.0 ) {
+            continue;
+        }
+
+        foreach ( Job* job, _jobs ) {
+            long rt = (long)(job->runtime[tidx]);
+            int thread = job->thread_id();
+            sumtime[thread] += rt;
+        }
+
+        count++;
+    }
+    foreach ( int thread, sumtime.keys() ) {
+        double avg = (sumtime.value(thread)/count)/1000000.0;
+        avgs.append(qMakePair(thread,avg));
+    }
+
+    return avgs;
+}
 
 QList<QPair<int, long> > Jobs::threadtimes(double t) const
 {
@@ -306,7 +353,7 @@ QList<QPair<int, long> > Jobs::threadtimes(double t) const
     QMap<int,long> sumtime;
     int tidx = _river_userjobs->getIndexAtTime(&t);
     foreach ( Job* job, _jobs ) {
-        long rt = (long)job->runtime[tidx];
+        long rt = (long)(job->runtime[tidx]);
         int thread = job->thread_id();
         sumtime[thread] += rt;
     }
