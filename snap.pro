@@ -18,19 +18,19 @@ TEMPLATE = app
 
  unix:DEV  = $(DEV) # UNIX env e.g. in ~/.cshrc setenv DEV /home/vetter/dev
 win32:DEV  = $(DEV) # Windows system environment variable
-      EDGE = $${DEV}/edge
+      RIVER = $${DEV}/snap/river
 
       QMAKE_CXXFLAGS += -m32 -D__STDC_CONSTANT_MACROS
  unix:QMAKE_CXXFLAGS += -fPIC
       QMAKE_LFLAGS   += -m32 -fPIC
  unix:QMAKE_LFLAGS   += -rdynamic
 
-INCLUDEPATH += $${EDGE}/src.dist/plugins/common/libriver
-INCLUDEPATH += $${EDGE}/src.dist/plugins/common/libtvs
+INCLUDEPATH += $${RIVER}/libriver
+INCLUDEPATH += $${RIVER}/libtvs
 
  unix:HOST_CPU = Linux_FC3
 win32:HOST_CPU = Win32
- unix:LIBS += -L$${EDGE}/lib_$${HOST_CPU} -lriver -ltvs -lutils
+ unix:LIBS += -L$${RIVER}/lib_$${HOST_CPU} -lriver -ltvs -lutils
 
 DEFINES += NOSTAT
 
@@ -39,7 +39,7 @@ SOURCES += main.cpp \
 
 HEADERS += DataRiver.hh \
 DataRiverFactory.hh \
-    ../edge/src.dist/plugins/common/libriver/LogData.hh \
-    ../edge/src.dist/plugins/common/libriver/var.hh \
-    ../edge/src.dist/plugins/common/libriver/TrickBinaryRiver.hh \
+    ../river/libriver/LogData.hh \
+    ../river/libriver/var.hh \
+    ../libriver/TrickBinaryRiver.hh \
     snap.h
