@@ -28,6 +28,12 @@ bool doubleTimeGreaterThan(const QPair<Job*,double> &a,
     return a.second > b.second;
 }
 
+bool simObjTimeGreaterThan(const QPair<QString,double> &a,
+                         const QPair<QString,double> &b)
+{
+    return a.second > b.second;
+}
+
 Jobs::Jobs(const QString &rundir)
 {
     //_parse_s_job_execution(rundir);
@@ -179,6 +185,7 @@ Jobs::Jobs(const QString &rundir)
     fprintf(stderr,"Top %d Job Avg Times\n\n", njobs);
     fprintf(stderr,"    %6s %15s     %-40s\n", "Thread", "AvgTime", "Job");
 
+    QMap<Job*,double> job2avgtime;
     QList<QPair<Job*,double> > avgtimes;
     QList<QPair<Job*,double> > maxtimes;
     foreach ( Job* job, _jobs )  {
@@ -194,6 +201,7 @@ Jobs::Jobs(const QString &rundir)
             sum_rt += rt;
         }
         double avg_rt = sum_rt/npoints;
+        job2avgtime.insert(job,avg_rt/1000000.0);
         avgtimes.append(qMakePair(job,avg_rt/1000000.0));
         maxtimes.append(qMakePair(job,max_rt/1000000.0));
     }
@@ -224,6 +232,91 @@ Jobs::Jobs(const QString &rundir)
 
     }
     fprintf(stderr,"\n\n");
+
+    // Get map of sim objects to jobs
+    QMap<QString,QList<Job*>* > simobj2jobs;
+    foreach ( Job* job, _jobs ) {
+        QString sobj = job->sim_object();
+        QList<Job*>* jobs ;
+        if ( simobj2jobs.contains(sobj) ) {
+            jobs = simobj2jobs.value(sobj);
+        } else {
+            jobs = new QList<Job*>();
+            simobj2jobs.insert(sobj,jobs);
+        }
+        jobs->append(job);
+    }
+
+    //
+    // SimObject Time Avgs
+    //
+    fprintf(stderr,"------------------------------------------------\n");
+    QMap<QString,double> simobj2avgtime;
+    for ( int tidx = 0 ; tidx < npoints ; tidx++ ) {
+        foreach ( QString simobj, simobj2jobs.keys() ) {
+            QList<Job*>* jobs = simobj2jobs.value(simobj) ;
+            double sum_simobj_rt = 0.0;
+            foreach ( Job* job, *jobs ) {
+                double time = job->timestamps[tidx];
+                if ( time < 1.0 ) {
+                    continue;
+                }
+                long rt = (long)job->runtime[tidx];
+                sum_simobj_rt += rt;
+            }
+            if ( simobj2avgtime.contains(simobj) ) {
+                simobj2avgtime[simobj] += sum_simobj_rt;
+            } else {
+                simobj2avgtime[simobj] = sum_simobj_rt;
+            }
+        }
+    }
+    foreach ( QString simobj, simobj2jobs.keys() ) {
+        double avg_rt = simobj2avgtime.value(simobj)/npoints;
+        simobj2avgtime[simobj] = avg_rt/1000000.0;
+    }
+
+    QList<QPair<QString,double> > simobj_avgtimes;
+    foreach ( QString simobj, simobj2jobs.keys() ) {
+        simobj_avgtimes.append(qMakePair(simobj,
+                                          simobj2avgtime.value(simobj)));
+    }
+    qSort(simobj_avgtimes.begin(), simobj_avgtimes.end(),
+          simObjTimeGreaterThan);
+
+    // Number of sim objects to report
+    int count = 10 ;
+    if ( simobj_avgtimes.length() > 100 ) {
+        count = simobj_avgtimes.length()/10;
+    } else if ( simobj_avgtimes.length() < 10 ) {
+        count = simobj_avgtimes.length();
+    }
+
+    // Format string to take length of simobject into account
+    char format[256];
+    int maxlen = 0 ;
+    for ( int ii = 0; ii < count; ++ii) {
+        QString sobj = simobj_avgtimes.at(ii).first;
+        if ( sobj.length() > maxlen ) maxlen = sobj.length();
+    }
+
+    // Report
+    fprintf(stderr,"Top Sim Object Avg Times (%d of %d simobjects)\n\n",
+            count,simobj_avgtimes.length());
+    sprintf(format,"    %%%ds %%15s\n",maxlen);
+    fprintf(stderr,format,"SimObject","AvgTime");
+    sprintf(format,"    %%%ds %%15.6lf\n",maxlen);
+    for ( int ii = 0; ii < count; ++ii) {
+        QString sobj = simobj_avgtimes.at(ii).first;
+        double avgtime = simobj_avgtimes.at(ii).second;
+        fprintf(stderr,format,sobj.toAscii().constData(),avgtime);
+    }
+    fprintf(stderr,"\n\n");
+
+    foreach ( QString sobj, simobj2jobs.keys() ) {
+        QList<Job*>* jobs = simobj2jobs.value(sobj);
+        delete jobs;
+    }
 
     //
     // Spike to Job Correlation
@@ -318,6 +411,23 @@ Jobs::~Jobs()
     }
 
     delete _river_userjobs;
+}
+
+QString Job::sim_object() const
+{
+    QString simobj;
+
+    int idx = 0;
+    if ( _job_name.contains(QString("##")) ) {
+        idx = _job_name.indexOf(QChar('#'));
+    } else {
+        idx = _job_name.indexOf(QChar('.'));
+    }
+    if ( idx > 0 ) {
+        simobj = _job_name.mid(0,idx);
+    }
+
+    return simobj;
 }
 
 // Return list of thread_id => (avg,stddev) of exec time

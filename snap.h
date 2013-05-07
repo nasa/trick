@@ -42,6 +42,7 @@ public:
     QString id() const; // logged jobname
     QString job_num() const { return _job_num; }
     QString job_name() const { return _job_name; }
+    QString sim_object() const ;
     int thread_id() const { return _thread_id; }
     int processor_id() const { return _processor_id;}
     double freq() const { return _freq ;}
