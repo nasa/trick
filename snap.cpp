@@ -319,6 +319,63 @@ Jobs::Jobs(const QString &rundir)
     }
 
     //
+    // Job Time Avgs For SimObject
+    //
+#if 0
+    fprintf(stderr,"------------------------------------------------\n");
+    int njobs2 = 5;
+    fprintf(stderr,"Sim Object's Top %d Job Avg Times\n\n", njobs2);
+    QMap<QString,QList<Job*>* > simobj2jobs;
+    foreach ( Job* job, _jobs ) {
+        QString sobj = job->sim_object();
+        QList<Job*>* joblist ;
+        if ( simobj2jobs.contains(sobj) ) {
+            joblist = simobj2jobs.value(sobj);
+        } else {
+            joblist = new QList<Job*>();
+            simobj2jobs.insert(sobj,joblist);
+        }
+        joblist->append(job);
+    }
+    int maxlen = 0 ;
+    foreach ( QString sobj, simobj2jobs.keys() ) {
+        if ( sobj.length() > maxlen ) maxlen = sobj.length();
+    }
+
+    // simobj avg time
+    QMap<QString,double> simobj2avgtime;
+
+    char format[128];
+    sprintf(format,"    %%%ds %%15s %%15s %%-40s\n",maxlen);
+    fprintf(stderr,format,"SimObject", "SimObjAvgTime", "JobAvgTime", "Job");
+    sprintf(format,"    %%%ds\n",maxlen);
+    foreach ( QString sobj, simobj2jobs.keys() ) {
+        fprintf(stderr,format,sobj.toAscii().constData());
+        QList<Job*>* joblist = simobj2jobs.value(sobj);
+        foreach ( Job* job, *joblist ) {
+            //double avgtime = job2avgtime.value(job);
+            QList<QPair<Job*,double> > avgtimes;
+        }
+    }
+    foreach ( QString sobj, simobj2jobs.keys() ) {
+        QList<Job*>* joblist = simobj2jobs.value(sobj);
+        delete joblist;
+    }
+#endif
+
+#if 0
+    for ( int ii = 0 ; ii <  njobs2; ii++ ) {
+        QPair<Job*,double> avgtime = avgtimes.at(ii);
+        Job* job = avgtime.first;
+        job->sim_object();
+        fprintf(stderr,"    %6d %15.6lf     %-40s\n",
+                job->thread_id(), avgtime.second,
+                job->job_name().toAscii().constData() );
+
+    }
+#endif
+
+    //
     // Spike to Job Correlation
     //
     fprintf(stderr,"------------------------------------------------\n");
