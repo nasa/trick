@@ -178,39 +178,55 @@ Jobs::Jobs(const QString &rundir)
     fprintf(stderr,"\n\n");
 
     //
+    // Get and sort stats
+    //
+    QList<QPair<Job*,double> > avgtimes;
+    QList<QPair<Job*,double> > maxtimes;
+    QList<QPair<Job*,double> > stddevtimes;
+    foreach ( Job* job, _jobs )  {
+        avgtimes.append(qMakePair(job,job->avg_runtime()));
+        maxtimes.append(qMakePair(job,job->max_runtime()));
+        stddevtimes.append(qMakePair(job,job->stddev_runtime()));
+    }
+    qSort(avgtimes.begin(), avgtimes.end(), doubleTimeGreaterThan);
+    qSort(maxtimes.begin(), maxtimes.end(), doubleTimeGreaterThan);
+    qSort(stddevtimes.begin(), stddevtimes.end(), doubleTimeGreaterThan);
+
+    //
     // Job Time Avgs
     //
     fprintf(stderr,"------------------------------------------------\n");
     int njobs = 10;
     fprintf(stderr,"Top %d Job Avg Times\n\n", njobs);
-    fprintf(stderr,"    %6s %15s     %-40s\n", "Thread", "AvgTime", "Job");
+    fprintf(stderr,"    %6s %15s %15s    %-40s\n",
+            "Thread", "AvgTime", "Stddev", "Job");
 
-    QMap<Job*,double> job2avgtime;
-    QList<QPair<Job*,double> > avgtimes;
-    QList<QPair<Job*,double> > maxtimes;
-    foreach ( Job* job, _jobs )  {
-        long sum_rt = 0 ;
-        long max_rt = 0 ;
-        for ( int tidx = 0 ; tidx < npoints ; tidx++ ) {
-            double time = job->timestamps[tidx];
-            if ( time < 1.0 ) {
-                continue;
-            }
-            long rt = (long)job->runtime[tidx];
-            if ( rt > max_rt ) max_rt = rt;
-            sum_rt += rt;
-        }
-        double avg_rt = sum_rt/npoints;
-        job2avgtime.insert(job,avg_rt/1000000.0);
-        avgtimes.append(qMakePair(job,avg_rt/1000000.0));
-        maxtimes.append(qMakePair(job,max_rt/1000000.0));
-    }
-    qSort(avgtimes.begin(), avgtimes.end(), doubleTimeGreaterThan);
     for ( int ii = 0 ; ii <  njobs; ii++ ) {
         QPair<Job*,double> avgtime = avgtimes.at(ii);
         Job* job = avgtime.first;
-        fprintf(stderr,"    %6d %15.6lf     %-40s\n",
+        fprintf(stderr,"    %6d %15.6lf %15.6lf     %-40s\n",
                 job->thread_id(), avgtime.second,
+                job->stddev_runtime(),
+                job->job_name().toAscii().constData() );
+
+    }
+    fprintf(stderr,"\n\n");
+
+    //
+    // Job Time Stddev (most erratic)
+    //
+    fprintf(stderr,"------------------------------------------------\n");
+    fprintf(stderr,"Top %d Job Stddev Times\n\n", njobs);
+    fprintf(stderr,"    %6s %15s %15s    %-40s\n",
+            "Thread","Stddev", "AvgTime","Job");
+
+    for ( int ii = 0 ; ii <  njobs; ii++ ) {
+        QPair<Job*,double> stddevtime = stddevtimes.at(ii);
+        Job* job = stddevtime.first;
+        fprintf(stderr,"    %6d %15.6lf %15.6lf     %-40s\n",
+                job->thread_id(),
+                job->stddev_runtime(),
+                job->avg_runtime(),
                 job->job_name().toAscii().constData() );
 
     }
@@ -222,7 +238,6 @@ Jobs::Jobs(const QString &rundir)
     fprintf(stderr,"------------------------------------------------\n");
     fprintf(stderr,"Top %d Job Max Times\n\n", njobs);
     fprintf(stderr,"    %6s %10s     %-40s\n", "Thread", "MaxTime", "Job");
-    qSort(maxtimes.begin(), maxtimes.end(), doubleTimeGreaterThan);
     for ( int ii = 0 ; ii <  njobs; ii++ ) {
         QPair<Job*,double> maxtime = maxtimes.at(ii);
         Job* job = maxtime.first;
@@ -487,6 +502,65 @@ QString Job::sim_object() const
     return simobj;
 }
 
+void Job::_do_stats()
+{
+    if ( npoints == 0 || timestamps == 0 || runtime == 0 ) {
+        fprintf(stderr,"Job::_do_stats() called without setting:");
+        fprintf(stderr," npoints or timestamps or runtime");
+        fprintf(stderr," which come from TrickBinaryRiver\n");
+        exit(-1);
+    }
+
+    long sum_rt = 0 ;
+    long max_rt = 0 ;
+    double sum_vv = 0.0;
+    for ( int tidx = 0 ; tidx < npoints ; tidx++ ) {
+        double time = timestamps[tidx];
+        if ( time < 1.0 ) {
+            continue;
+        }
+        long rt = (long)runtime[tidx];
+        if ( rt > max_rt ) max_rt = rt;
+        sum_rt += rt;
+
+        _avg_runtime = ((double)sum_rt/(double)npoints);
+        sum_vv += (rt-_avg_runtime)*(rt-_avg_runtime); // for stddev
+    }
+
+    _avg_runtime = (sum_rt/npoints)/1000000.0;
+    _max_runtime = (max_rt)/1000000.0;
+    _stddev_runtime = sqrt(sum_vv/npoints)/1000000.0 ;
+}
+
+double Job::avg_runtime()
+{
+
+    if ( ! _is_stats ) {
+        _do_stats();
+    }
+
+    return _avg_runtime;
+}
+
+double Job::max_runtime()
+{
+
+    if ( ! _is_stats ) {
+        _do_stats();
+    }
+
+    return _max_runtime;
+}
+
+double Job::stddev_runtime()
+{
+    if ( ! _is_stats ) {
+        _do_stats();
+    }
+
+    return _stddev_runtime;
+}
+
 // Return list of thread_id => (avg,stddev) of exec time
 QList<ThreadStat> Jobs::thread_stats() const
 {
@@ -614,10 +688,11 @@ Job::Job(const QString& job_name,  // e.g. simbus.SimBus::read_ObcsRouter
          const QString& job_class, // e.g.scheduled
          bool is_enabled,          // e.g. 1
          int phase)                // e.g. 60000
-    : _job_name(job_name),_job_num(job_num), _thread_id(thread_id),
+    : npoints(0), timestamps(0), runtime(0),
+      _job_name(job_name),_job_num(job_num), _thread_id(thread_id),
       _processor_id(processor_id),_freq(freq),_start(start),
       _stop(stop),_job_class(job_class),_is_enabled(is_enabled),
-      _phase(phase)
+      _phase(phase),_is_stats(false)
 {
 }
 
@@ -625,7 +700,8 @@ Job::Job(const QString& job_name,  // e.g. simbus.SimBus::read_ObcsRouter
 // An example logname:
 // JOB_schedbus.SimBus##read_ALDS15_ObcsRouter_C1.1828.00(read_simbus_0.100)
 Job::Job(const QString& log_jobname) :
-    _start(0),_stop(1.0e37),_is_enabled(true),_phase(60000)
+    _start(0),_stop(1.0e37),_is_enabled(true),_phase(60000),
+    _is_stats(false)
 {
     QString qname(log_jobname);
 

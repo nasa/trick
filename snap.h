@@ -52,6 +52,10 @@ public:
     bool is_enabled() const { return _is_enabled ;}
     int phase() const { return _phase ;}
 
+    double avg_runtime();
+    double max_runtime();
+    double stddev_runtime();
+
     // Log jobs info
     int npoints;
     double* timestamps;
@@ -69,6 +73,12 @@ private:
     QString _job_class;
     bool _is_enabled;
     int _phase;
+
+    bool _is_stats;
+    void _do_stats();
+    double _avg_runtime;
+    double _stddev_runtime;
+    double _max_runtime;
 };
 
 class Jobs
