@@ -1,42 +1,53 @@
 #include <QCoreApplication>
+
+#include <string>
+using namespace std;
+
 #include <QDebug>
 #include <QDir>
 #include <stdio.h>
 
 #include "TrickBinaryRiver.hh"
 #include "snap.h"
+#include "options.h"
 
 void usage();
 bool check_rundir(const QString& rundir);
 bool check_file(const QString& fname);
+Options opts;
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-    if ( argc != 2 ) {
-        fprintf(stderr,"snap [error] : wrong number of arguments\n");
+    bool ok;
+
+    double t0;
+    double t1;
+    DougString rundir;
+    opts.add(&t0,"-start",1.0, "start time of run analysis");
+    opts.add(&t1,"-stop",1.0e20, "stop time of run analysis");
+    opts.add(&rundir,"-run", "", "RUN_directory with job timing data");
+    opts.parse(argc,argv, "snap", &ok);
+
+    if ( !ok ) {
         usage();
     }
 
-    QString rundir(argv[1]);
-
-    if ( ! check_rundir(rundir) ) {
+    QString qrundir(rundir.get().c_str());
+    if ( ! check_rundir(qrundir) ) {
         usage();
     }
 
-    //Jobs jobs(QString("/home/vetter/dev/blame/RUN_30_iss_wo_hla"));
-    //Jobs jobs(QString("/home/vetter/dev/For_Keith"));
-    //Jobs jobs(QString("/home/vetter/dev/sims/SIM_threads/RUN_test"));
-    Jobs jobs(rundir);
+    Jobs jobs(qrundir);
 
     return 0;
 }
 
 void usage()
 {
-    fprintf(stderr,"usage: snap <RUN_directory> (");
-    fprintf(stderr,"RUN directory should contain Trick job timing data)\n");
+    string msg = opts.usage();
+    fprintf(stderr,"%s\n",msg.c_str());
     exit(-1);
 }
 

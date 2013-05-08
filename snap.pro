@@ -13,12 +13,12 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
-
  unix:DEFINES += __LINUX__
 
  unix:DEV  = $(DEV) # UNIX env e.g. in ~/.cshrc setenv DEV /home/vetter/dev
 win32:DEV  = $(DEV) # Windows system environment variable
       RIVER = $${DEV}/snap/river
+    OPTIONS = $${DEV}/snap/options
 
       QMAKE_CXXFLAGS += -m32 -D__STDC_CONSTANT_MACROS
  unix:QMAKE_CXXFLAGS += -fPIC
@@ -27,10 +27,12 @@ win32:DEV  = $(DEV) # Windows system environment variable
 
 INCLUDEPATH += $${RIVER}/libriver
 INCLUDEPATH += $${RIVER}/libtvs
+INCLUDEPATH += $${DEV}/options
 
  unix:HOST_CPU = Linux_FC3
 win32:HOST_CPU = Win32
  unix:LIBS += -L$${RIVER}/lib_$${HOST_CPU} -lriver -ltvs -lutils
+ unix:LIBS += $${OPTIONS}/lib_$${HOST_CPU}/liboptions.so.1.0.0
 
 DEFINES += NOSTAT
 
