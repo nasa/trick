@@ -25,9 +25,10 @@ int main(int argc, char *argv[])
     double t0;
     double t1;
     DougString rundir;
+
     opts.add(&t0,"-start",1.0, "start time of run analysis");
     opts.add(&t1,"-stop",1.0e20, "stop time of run analysis");
-    opts.add(&rundir,"-run", "", "RUN_directory with job timing data");
+    opts.add(&rundir,"<RUN_dir>", "", "RUN_directory with job timing data");
     opts.parse(argc,argv, "snap", &ok);
 
     if ( !ok ) {
