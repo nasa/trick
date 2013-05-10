@@ -11,13 +11,10 @@ using namespace std;
 #include "snap.h"
 #include "options.h"
 
-void usage();
-bool check_rundir(const QString& rundir);
-bool check_file(const QString& fname);
-
 Options::func_presetCB_double preset_start;
 Options::func_presetCB_double preset_stop;
 Options::func_presetCB_DougString preset_rundir;
+bool check_file(const QString& fname);
 
 class SnapOptions : public Options
 {
@@ -45,20 +42,14 @@ int main(int argc, char *argv[])
     opts.parse(argc,argv, "snap", &ok);
 
     if ( !ok ) {
-        usage();
+        fprintf(stderr,"%s\n",opts.usage().c_str());
+        exit(-1);
     }
 
     QString rundir(opts.rundir.get().c_str());
     Jobs jobs(rundir);
 
     return 0;
-}
-
-void usage()
-{
-    string msg = opts.usage();
-    fprintf(stderr,"%s\n",msg.c_str());
-    exit(-1);
 }
 
 void preset_start(double* time, const char* sval, int* cok)
