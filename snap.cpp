@@ -879,21 +879,27 @@ QList<QPair<double, long> > Jobs::_parse_log_frame(const QString &rundir)
 
     _river_frame = new TrickBinaryRiver(trk.toAscii().data());
     std::vector<LOG_PARAM> params = _river_frame->getParamList();
-    QString param_overrun("real_time.rt_sync.frame_sched_time");
     int npoints = _river_frame->getNumPoints();
     double* timestamps = _river_frame->getTimeStamps();
     double* overrun = 0 ;
+    QString param_overrun("real_time.rt_sync.frame_sched_time");
     for ( unsigned int ii = 1 ; ii < params.size(); ++ii ) {
 
         LOG_PARAM param = params.at(ii);
 
         QString qparam(param.data.name.c_str());
-        if ( qparam !=  param_overrun ) {
-            continue;
+        if ( qparam ==  param_overrun ) {
+            overrun = _river_frame->getVals(const_cast<char*>
+                                             (param.data.name.c_str()));
+            break;
         }
-
-        overrun = _river_frame->getVals(const_cast<char*>
-                                        (param.data.name.c_str()));
+    }
+    if ( overrun == 0 ) {
+        // Shouldn't happen unless trick renames that param
+        fprintf(stderr,"snap [error]: Couldn't find parameter "
+                        "%s in log_frame.trk\n",
+                param_overrun.toAscii().data());
+        exit(-1);
     }
 
     for ( int ii = 0 ; ii < npoints ; ++ii ) {
