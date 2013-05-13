@@ -34,17 +34,54 @@ bool simObjTimeGreaterThan(const QPair<QString,double> &a,
     return a.second > b.second;
 }
 
-Jobs::Jobs(const QString &rundir)
+BoundedTrickBinaryRiver::BoundedTrickBinaryRiver(
+        char *filename,  double start, double stop) :
+    TrickBinaryRiver(filename),
+    _start(start),
+    _stop(stop),
+    _npoints(0)
+{
+    int np = TrickBinaryRiver::getNumPoints();
+    double *ts = TrickBinaryRiver::getTimeStamps();
+    bool is_first = true;
+    for ( int ii = 0; ii < np; ++ii) {
+        double tt = ts[ii];
+        if ( tt < start - 0.000001 ) {
+            continue;
+        }
+        if ( tt > stop + 0.000001 ) {
+            break;
+        }
+
+        if ( is_first ) {
+            _timestamps = &(ts[ii]);
+            std::vector<LOG_PARAM> params = TrickBinaryRiver::getParamList() ;
+            for ( uint jj = 0; jj < params.size(); ++jj) {
+                LOG_PARAM param = params[jj];
+                double* vals = TrickBinaryRiver::getVals(
+                            const_cast<char*>(param.data.name.c_str()));
+                _vals[const_cast<char*>(param.data.name.c_str())] =  &(vals[ii]);
+
+            }
+            is_first = false ;
+        }
+        _npoints++;
+    }
+}
+
+Jobs::Jobs(const QString &rundir, double start, double stop)
 {
     //_parse_s_job_execution(rundir);
     _parse_log_jobs(rundir,
                     QString("log_trickjobs.trk"),
-                    &_river_trickjobs);
+                    &_river_trickjobs,
+                    start, stop);
     _parse_log_jobs(rundir,
                     QString("log_userjobs.trk"),
-                    &_river_userjobs);
+                    &_river_userjobs,
+                    start, stop);
 
-    QList<QPair<double, long> > ovs = _parse_log_frame(rundir);
+    QList<QPair<double, long> > ovs = _parse_log_frame(rundir, start, stop);
 
     //
     // Main Summary
@@ -57,6 +94,10 @@ Jobs::Jobs(const QString &rundir)
 
     fprintf(stderr,"%20s = %s\n",
             "Run directory", rundir.toAscii().constData());
+    fprintf(stderr,"%20s = %8.3lf\n", "Start time ",
+            _river_frame->getTimeStamps()[0]);
+    fprintf(stderr,"%20s = %8.3lf\n", "Stop time ",
+            _river_frame->getTimeStamps()[_river_frame->getNumPoints()-1]);
     fprintf(stderr,"%20s = %d\n", "Num jobs", _jobs.length());
     fprintf(stderr,"%20s = %d\n", "Num frames",ovs.length());
 
@@ -65,9 +106,9 @@ Jobs::Jobs(const QString &rundir)
     //
     QList<long> rates;
     double* timestamps = _river_frame->getTimeStamps();
-    long ltime = 0;
+    long ltime = (long)(timestamps[0]*1000000);
     int npoints = _river_frame->getNumPoints();
-    for ( int ii = 0 ; ii < npoints ; ii++ ) {
+    for ( int ii = 1 ; ii < npoints ; ii++ ) {
         long tt = (long)(timestamps[ii]*1000000);
         long dt = tt-ltime;
         if ( ! rates.contains(dt) ) {
@@ -277,9 +318,6 @@ Jobs::Jobs(const QString &rundir)
             double sum_simobj_rt = 0.0;
             foreach ( Job* job, *jobs ) {
                 double time = job->timestamps[tidx];
-                if ( time < 1.0 ) {
-                    continue;
-                }
                 long rt = (long)job->runtime[tidx];
                 sum_simobj_rt += rt;
             }
@@ -347,11 +385,6 @@ Jobs::Jobs(const QString &rundir)
         double tt = ov.first;
         double ot = ov.second;
 
-        // Skip initial spikes
-        if ( tt < 1.0 ) {
-            continue;
-        }
-
         fprintf(stderr,"Spike at time %g of %g\n", tt ,ot/1000000);
         QList<QPair<Job*,long> > snaps = _jobtimes(tt);
         int tidx = _river_userjobs->getIndexAtTime(&tt);
@@ -400,11 +433,6 @@ Jobs::Jobs(const QString &rundir)
         QPair<double,long> ov = ovs.at(ii);
         double tt = ov.first;
         double ot = ov.second;
-
-        // Skip initial spikes
-        if ( tt < 1.0 ) {
-            continue;
-        }
 
         fprintf(stderr,"Spike at time %g of %g\n", tt,ot/1000000);
         fprintf(stderr, "    %6s %15s\n", "Thread", "Time");
@@ -522,11 +550,6 @@ QList<ThreadStat> Jobs::_thread_stats() const
     QMap<int,long> maxes;
     int count = 0 ;
     for ( int tidx = 0; tidx < npoints; ++tidx) {
-
-        // skip initial part of sim run
-        if ( tstamps[tidx] < 1.0 ) {
-            continue;
-        }
 
         QMap<int,long> frames;
         foreach ( Job* job, _jobs ) {
@@ -798,7 +821,8 @@ bool Jobs::_parse_s_job_execution(const QString &rundir)
 //
 bool Jobs::_parse_log_jobs(const QString &rundir,
                            const QString& logfilename,
-                           TrickBinaryRiver** river)
+                           TrickBinaryRiver** river,
+                           double start, double stop)
 {
     bool ret = true;
 
@@ -821,7 +845,8 @@ bool Jobs::_parse_log_jobs(const QString &rundir,
         file.close();
     }
 
-    *river = new TrickBinaryRiver(trk.toAscii().data());
+    *river = new BoundedTrickBinaryRiver(trk.toAscii().data(),
+                                         start,stop);
     std::vector<LOG_PARAM> params = (*river)->getParamList();
     for ( unsigned int ii = 1 ; ii < params.size(); ++ii ) {
 
@@ -857,7 +882,8 @@ bool dlGreaterThan(const QPair<double,long> &a,
 }
 
 
-QList<QPair<double, long> > Jobs::_parse_log_frame(const QString &rundir)
+QList<QPair<double, long> >
+    Jobs::_parse_log_frame(const QString &rundir,double start, double stop)
 {
     QList<QPair<double, long> > overruns;
 
@@ -877,7 +903,8 @@ QList<QPair<double, long> > Jobs::_parse_log_frame(const QString &rundir)
         file.close();
     }
 
-    _river_frame = new TrickBinaryRiver(trk.toAscii().data());
+    _river_frame = new BoundedTrickBinaryRiver(trk.toAscii().data(),
+                                               start, stop);
     std::vector<LOG_PARAM> params = _river_frame->getParamList();
     int npoints = _river_frame->getNumPoints();
     double* timestamps = _river_frame->getTimeStamps();

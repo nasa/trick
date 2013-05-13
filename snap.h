@@ -10,6 +10,31 @@
 #include <QtAlgorithms>
 
 #include "TrickBinaryRiver.hh"
+
+class BoundedTrickBinaryRiver : public TrickBinaryRiver {
+  public:
+     BoundedTrickBinaryRiver(char* filename, double start, double stop);
+
+     int start() { return _start ; }
+     int stop() { return _stop ; }
+
+     int getNumPoints() { return _npoints ; }
+     double* getTimeStamps() { return _timestamps ; }
+     double* getVals(const char* param) { return _vals.value(param) ; }
+
+  private:
+     BoundedTrickBinaryRiver(
+                    char* file_name,
+                    vector<Transformation>& transforms=empty_transforms) :
+         TrickBinaryRiver(file_name,empty_transforms){}
+
+     double _start;
+     double _stop;
+     int _npoints;
+     double* _timestamps;
+     QMap<const char*,double*> _vals;
+};
+
 class ThreadStat
 {
   public:
@@ -84,7 +109,7 @@ private:
 class Jobs
 {
 public:
-    Jobs(const QString& rundir);
+    Jobs(const QString& rundir, double start, double stop);
     ~Jobs();
 
 private:
@@ -97,10 +122,10 @@ private:
     bool _parse_s_job_execution(const QString& rundir);
     bool _parse_log_jobs(const QString& rundir,
                          const QString& logfilename,
-                         TrickBinaryRiver **river);
-    bool _parse_log_userjobs(const QString& rundir);
-    bool _parse_log_trickjobs(const QString &rundir);
-    QList<QPair<double, long> >  _parse_log_frame(const QString& rundir);
+                         TrickBinaryRiver **river,
+                         double start, double stop);
+    QList<QPair<double, long> >  _parse_log_frame(const QString& rundir,
+                                                   double start, double stop);
 
     QSet<int> _thread_list();
 

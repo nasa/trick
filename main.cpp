@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
     }
 
     QString rundir(opts.rundir.get().c_str());
-    Jobs jobs(rundir);
+    Jobs jobs(rundir,opts.start,opts.stop);
 
     return 0;
 }
