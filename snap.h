@@ -86,9 +86,6 @@ class Jobs
 public:
     Jobs(const QString& rundir);
     ~Jobs();
-    QList<QPair<int, long> > threadtimes(double t) const;
-    QList<ThreadStat> thread_stats() const;
-    QList<QPair<Job *, long> > jobtimes(double t) const ;
 
 private:
     Jobs() {}
@@ -110,6 +107,10 @@ private:
     TrickBinaryRiver* _river_userjobs;
     TrickBinaryRiver* _river_frame;
     TrickBinaryRiver* _river_trickjobs;
+
+    QList<QPair<int, long> > _threadtimes(double t) const;
+    QList<ThreadStat> _thread_stats() const;
+    QList<QPair<Job *, long> > _jobtimes(double t) const ;
 
     void _rpt_summary();
 

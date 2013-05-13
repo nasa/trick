@@ -174,7 +174,7 @@ Jobs::Jobs(const QString &rundir)
     fprintf(stderr,"    %10s %15s %15s %15s\n",
             "Thread", "AvgTime", "StdDev", "Max");
 
-    QList<ThreadStat> stats = thread_stats();
+    QList<ThreadStat> stats = _thread_stats();
     foreach ( ThreadStat stat, stats ) {
         fprintf(stderr,"    %10d %15.6lf %15.6lf %15.6lf\n",
                 stat.thread_id, stat.avg, stat.stdev, stat.max ) ;
@@ -353,7 +353,7 @@ Jobs::Jobs(const QString &rundir)
         }
 
         fprintf(stderr,"Spike at time %g of %g\n", tt ,ot/1000000);
-        QList<QPair<Job*,long> > snaps = jobtimes(tt);
+        QList<QPair<Job*,long> > snaps = _jobtimes(tt);
         int tidx = _river_userjobs->getIndexAtTime(&tt);
         fprintf(stderr, "    %6s %15s     %-50s\n",
                         "Thread",
@@ -408,7 +408,7 @@ Jobs::Jobs(const QString &rundir)
 
         fprintf(stderr,"Spike at time %g of %g\n", tt,ot/1000000);
         fprintf(stderr, "    %6s %15s\n", "Thread", "Time");
-        QList<QPair<int,long> > ttimes = threadtimes(tt);
+        QList<QPair<int,long> > ttimes = _threadtimes(tt);
         for ( int ii = 0 ; ii < ttimes.length(); ++ii ) {
             QPair<int,long> ttime = ttimes.at(ii);
             double t = ttime.second/1000000.0;
@@ -509,7 +509,7 @@ double Job::stddev_runtime()
 }
 
 // Return list of thread_id => (avg,stddev) of exec time
-QList<ThreadStat> Jobs::thread_stats() const
+QList<ThreadStat> Jobs::_thread_stats() const
 {
     QList<ThreadStat> stats;
 
@@ -596,7 +596,7 @@ QList<ThreadStat> Jobs::thread_stats() const
     return stats;
 }
 
-QList<QPair<int, long> > Jobs::threadtimes(double t) const
+QList<QPair<int, long> > Jobs::_threadtimes(double t) const
 {
     QList<QPair<int,long> > runtimes;
     QMap<int,long> sumtime;
@@ -613,7 +613,7 @@ QList<QPair<int, long> > Jobs::threadtimes(double t) const
     return runtimes;
 }
 
-QList<QPair<Job*, long> > Jobs::jobtimes(double t) const
+QList<QPair<Job*, long> > Jobs::_jobtimes(double t) const
 {
     QList<QPair<Job*,long> > runtimes;
     int tidx = _river_userjobs->getIndexAtTime(&t);
