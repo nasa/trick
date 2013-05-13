@@ -98,6 +98,9 @@ private:
     QMap<QString,Job*> _id_to_job;
 
     bool _parse_s_job_execution(const QString& rundir);
+    bool _parse_log_jobs(const QString& rundir,
+                         const QString& logfilename,
+                         TrickBinaryRiver **river);
     bool _parse_log_userjobs(const QString& rundir);
     bool _parse_log_trickjobs(const QString &rundir);
     QList<QPair<double, long> >  _parse_log_frame(const QString& rundir);

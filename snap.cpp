@@ -37,8 +37,12 @@ bool simObjTimeGreaterThan(const QPair<QString,double> &a,
 Jobs::Jobs(const QString &rundir)
 {
     //_parse_s_job_execution(rundir);
-    _parse_log_userjobs(rundir);
-    _parse_log_trickjobs(rundir);
+    _parse_log_jobs(rundir,
+                    QString("log_trickjobs.trk"),
+                    &_river_trickjobs);
+    _parse_log_jobs(rundir,
+                    QString("log_userjobs.trk"),
+                    &_river_userjobs);
 
     QList<QPair<double, long> > ovs = _parse_log_frame(rundir);
 
@@ -62,7 +66,7 @@ Jobs::Jobs(const QString &rundir)
     QList<long> rates;
     double* timestamps = _river_frame->getTimeStamps();
     long ltime = 0;
-    int npoints = _river_userjobs->getNumPoints();
+    int npoints = _river_frame->getNumPoints();
     for ( int ii = 0 ; ii < npoints ; ii++ ) {
         long tt = (long)(timestamps[ii]*1000000);
         long dt = tt-ltime;
@@ -332,63 +336,6 @@ Jobs::Jobs(const QString &rundir)
         QList<Job*>* jobs = simobj2jobs.value(sobj);
         delete jobs;
     }
-
-    //
-    // Job Time Avgs For SimObject
-    //
-#if 0
-    fprintf(stderr,"------------------------------------------------\n");
-    int njobs2 = 5;
-    fprintf(stderr,"Sim Object's Top %d Job Avg Times\n\n", njobs2);
-    QMap<QString,QList<Job*>* > simobj2jobs;
-    foreach ( Job* job, _jobs ) {
-        QString sobj = job->sim_object();
-        QList<Job*>* joblist ;
-        if ( simobj2jobs.contains(sobj) ) {
-            joblist = simobj2jobs.value(sobj);
-        } else {
-            joblist = new QList<Job*>();
-            simobj2jobs.insert(sobj,joblist);
-        }
-        joblist->append(job);
-    }
-    int maxlen = 0 ;
-    foreach ( QString sobj, simobj2jobs.keys() ) {
-        if ( sobj.length() > maxlen ) maxlen = sobj.length();
-    }
-
-    // simobj avg time
-    QMap<QString,double> simobj2avgtime;
-
-    char format[128];
-    sprintf(format,"    %%%ds %%15s %%15s %%-40s\n",maxlen);
-    fprintf(stderr,format,"SimObject", "SimObjAvgTime", "JobAvgTime", "Job");
-    sprintf(format,"    %%%ds\n",maxlen);
-    foreach ( QString sobj, simobj2jobs.keys() ) {
-        fprintf(stderr,format,sobj.toAscii().constData());
-        QList<Job*>* joblist = simobj2jobs.value(sobj);
-        foreach ( Job* job, *joblist ) {
-            //double avgtime = job2avgtime.value(job);
-            QList<QPair<Job*,double> > avgtimes;
-        }
-    }
-    foreach ( QString sobj, simobj2jobs.keys() ) {
-        QList<Job*>* joblist = simobj2jobs.value(sobj);
-        delete joblist;
-    }
-#endif
-
-#if 0
-    for ( int ii = 0 ; ii <  njobs2; ii++ ) {
-        QPair<Job*,double> avgtime = avgtimes.at(ii);
-        Job* job = avgtime.first;
-        job->sim_object();
-        fprintf(stderr,"    %6d %15.6lf     %-40s\n",
-                job->thread_id(), avgtime.second,
-                job->job_name().toAscii().constData() );
-
-    }
-#endif
 
     //
     // Spike to Job Correlation
@@ -845,100 +792,37 @@ bool Jobs::_parse_s_job_execution(const QString &rundir)
     return ret;
 }
 
-bool Jobs::_parse_log_userjobs(const QString &rundir)
+
+//
+// logfilename e.g. log_trickjobs.trk
+//
+bool Jobs::_parse_log_jobs(const QString &rundir,
+                           const QString& logfilename,
+                           TrickBinaryRiver** river)
 {
     bool ret = true;
 
     QDir dir(rundir);
     if ( ! dir.exists() ) {
         qDebug() << "couldn't find run directory: " << rundir;
+        exit(-1); // hard exit for now
         ret = false;
         return(ret);
     }
 
-    QString trk = rundir + QString("/log_userjobs.trk");
-    QFile file(trk);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        // Latest version of Trick changed log_userjobs.trk name
-        trk = rundir + QString("/log_frame_userjobs_main.trk");
-        QFile file2(trk);
-        if (!file2.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            qDebug() << "couldn't read file: " << trk;
-            exit(-1);
-            return false;
-        }
-    } else {
-        file.close();
-    }
-
-    _river_userjobs = new TrickBinaryRiver(trk.toAscii().data());
-    std::vector<LOG_PARAM> params = _river_userjobs->getParamList();
-    for ( unsigned int ii = 1 ; ii < params.size(); ++ii ) {
-
-        LOG_PARAM param = params.at(ii);
-
-        Job* job = new Job(const_cast<char*>(param.data.name.c_str()));
-
-        QString job_id = job->id();
-
-        if (  _id_to_job.contains(job_id) ) {
-            // Since job already created and most likely has more info
-            // e.g. parsing S_job_execution has more info e.g. phase
-            delete job;
-            job = _id_to_job.value(job_id);
-        } else {
-            // Job (for reasons I don't understand) is not in S_job_execution
-            _id_to_job[job_id] = job;
-            _jobs.append(job);
-        }
-
-        job->npoints = _river_userjobs->getNumPoints();
-        job->timestamps = _river_userjobs->getTimeStamps();
-        job->runtime = _river_userjobs->getVals(const_cast<char*>
-                                                 (param.data.name.c_str()));
-
-        /*
-        if ( job->job_name() == "v1553_rws_sim.v1553_TS21_125ms_job" ) {
-            double avg = 0 ;
-            double sum = 0 ;
-            for ( int ii = 0 ; ii < job->npoints ; ++ii ) {
-                double rt = job->runtime[ii]/1000000;
-                if ( rt < 1 ) {
-                    sum += rt;
-                }
-            }
-            avg = sum/job->npoints;
-            fprintf(stderr, "Avg runtime for v1553_rws job is %g\n", avg);
-        }
-        */
-    }
-
-    return ret;
-}
-
-bool Jobs::_parse_log_trickjobs(const QString &rundir)
-{
-    bool ret = true;
-
-    QDir dir(rundir);
-    if ( ! dir.exists() ) {
-        qDebug() << "couldn't find run directory: " << rundir;
-        ret = false;
-        return(ret);
-    }
-
-    QString trk = rundir + QString("/log_trickjobs.trk");
+    QString trk = rundir + QString("/") + logfilename;
     QFile file(trk);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         qDebug() << "couldn't read file: " << trk;
+        exit(-1); // hard exit for now
         ret = false;
         return(ret);
     } else {
         file.close();
     }
 
-    _river_trickjobs = new TrickBinaryRiver(trk.toAscii().data());
-    std::vector<LOG_PARAM> params = _river_trickjobs->getParamList();
+    *river = new TrickBinaryRiver(trk.toAscii().data());
+    std::vector<LOG_PARAM> params = (*river)->getParamList();
     for ( unsigned int ii = 1 ; ii < params.size(); ++ii ) {
 
         LOG_PARAM param = params.at(ii);
@@ -957,10 +841,10 @@ bool Jobs::_parse_log_trickjobs(const QString &rundir)
             _jobs.append(job);
         }
 
-        job->npoints = _river_trickjobs->getNumPoints();
-        job->timestamps = _river_trickjobs->getTimeStamps();
-        job->runtime = _river_trickjobs->getVals(const_cast<char*>
-                                                 (param.data.name.c_str()));
+        job->npoints = (*river)->getNumPoints();
+        job->timestamps = (*river)->getTimeStamps();
+        job->runtime = (*river)->getVals(const_cast<char*>
+                                       (param.data.name.c_str()));
     }
 
     return ret;
@@ -987,6 +871,7 @@ QList<QPair<double, long> > Jobs::_parse_log_frame(const QString &rundir)
     QFile file(trk);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         qDebug() << "couldn't read file: " << trk;
+        exit(-1);
         return(overruns);
     } else {
         file.close();
@@ -995,7 +880,6 @@ QList<QPair<double, long> > Jobs::_parse_log_frame(const QString &rundir)
     _river_frame = new TrickBinaryRiver(trk.toAscii().data());
     std::vector<LOG_PARAM> params = _river_frame->getParamList();
     QString param_overrun("real_time.rt_sync.frame_sched_time");
-                          //real_time.rt_sync.frame_overrun_time");
     int npoints = _river_frame->getNumPoints();
     double* timestamps = _river_frame->getTimeStamps();
     double* overrun = 0 ;
