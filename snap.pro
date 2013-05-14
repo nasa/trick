@@ -27,12 +27,12 @@ win32:DEV  = $(DEV) # Windows system environment variable
 
 INCLUDEPATH += $${RIVER}/libriver
 INCLUDEPATH += $${RIVER}/libtvs
-INCLUDEPATH += $${DEV}/options
+INCLUDEPATH += $${OPTIONS}
 
  unix:HOST_CPU = Linux_FC3
 win32:HOST_CPU = Win32
  unix:LIBS += -L$${RIVER}/lib_$${HOST_CPU} -lriver -ltvs -lutils
- unix:LIBS += $${OPTIONS}/lib_$${HOST_CPU}/liboptions.so.1.0.0
+ unix:LIBS += -L$${OPTIONS}/lib_$${HOST_CPU} -loptions
 
 DEFINES += NOSTAT
 
