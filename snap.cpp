@@ -527,6 +527,8 @@ void Job::_do_stats()
         exit(-1);
     }
 
+    _is_stats  = true;
+
     long sum_rt = 0 ;
     long max_rt = 0 ;
     double sum_vv = 0.0;
