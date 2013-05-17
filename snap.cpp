@@ -34,12 +34,6 @@ bool simObjTimeGreaterThan(const QPair<QString,double> &a,
     return a.second > b.second;
 }
 
-bool intPairGreaterThan( const QPair<int,int>& a,
-                          const QPair<int,int>& b )
-{
-    return a.second > b.second;
-}
-
 BoundedTrickBinaryRiver::BoundedTrickBinaryRiver(
         char *filename,  double start, double stop) :
     TrickBinaryRiver(filename),
@@ -199,17 +193,45 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
     fprintf(stderr,"\n");
 
     //
+    // Stddev Spikes (a lot of jobs running hot)
+    //
+    QMap<int,double> time2hotjobpercent;
+    QMap<int,double> time2spicyhotjobpercent;
+    double nj = (double)_jobs.size();
+    for ( int ii = 0; ii < npoints; ++ii) {
+        double hcnt = 0.0 ;
+        double shcnt = 0.0 ;
+        foreach ( Job* job, _jobs ) {
+            double rt = job->runtime[ii]/1000000;
+            if ( rt > job->avg_runtime()+job->stddev_runtime() ) {
+                hcnt += 1.0;
+                if ( rt > job->avg_runtime()+2*job->stddev_runtime() ) {
+                    shcnt += 1.0;
+                }
+            }
+        }
+        time2hotjobpercent.insert(ii,100.0*hcnt/nj);
+        time2spicyhotjobpercent.insert(ii,100.0*shcnt/nj);
+    }
+
+    //
     // Spike Summary
     //
     fprintf(stderr,"------------------------------------------------\n");
     fprintf(stderr,"Top 10 Spikes\n\n");
-    fprintf(stderr,"    %15s %15s\n", "Time", "Spike");
+    fprintf(stderr,"    %15s %15s %15s %15s\n",
+            "Time", "Spike", "HotJob%", "SpicyHotJob%");
 
     for ( int ii = 0 ; ii < 10 ; ++ii ) {
         QPair<double,long> ov = ovs.at(ii);
         double tt = ov.first;
         double ot = ov.second;
-        fprintf(stderr,"     %15.6lf %15.6lf\n", tt ,ot/1000000.0);
+        int tidx = _river_frame->getIndexAtTime(&tt);
+        fprintf(stderr,"     %15.6lf %15.6lf %14.0lf%% %14.0lf%%\n",
+                tt ,ot/1000000.0,
+                time2hotjobpercent.value(tidx),
+                time2spicyhotjobpercent.value(tidx));
+
     }
     fprintf(stderr,"\n\n");
 
@@ -284,35 +306,6 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
     }
     fprintf(stderr,"\n\n");
 
-    //
-    // Stddev Spikes (a lot of jobs running hot)
-    //
-    fprintf(stderr,"---------------------------------------------------\n");
-    fprintf(stderr,"When Most Jobs Out Of %d Jobs Exceed Their Own Stddev\n",
-            _jobs.size());
-    fprintf(stderr,"    %15s %15s %15s\n",
-            "Time", "NumJobs", "Percentage");
-    QList<QPair<int,int> > time_jobcnts;
-    for ( int ii = 0; ii < npoints; ++ii) {
-        int cnt = 0 ;
-        foreach ( Job* job, _jobs ) {
-            double rt = job->runtime[ii]/1000000;
-            if ( rt > job->avg_runtime()+job->stddev_runtime() ) {
-                cnt++;
-            }
-        }
-        time_jobcnts.append(qMakePair(ii,cnt));
-    }
-    qSort(time_jobcnts.begin(), time_jobcnts.end(), intPairGreaterThan);
-    for ( int ii = 0; ii < 10; ++ii) {
-        QPair<int,int>  tj = time_jobcnts.at(ii);
-        int tidx = tj.first;
-        int cnt = tj.second;
-        double tt = timestamps[tidx];
-        fprintf(stderr,"    %15.6lf %15d %15.2lf\n",tt,cnt,
-                ((double)cnt/(double)_jobs.size())*100.0);
-    }
-    fprintf(stderr,"\n\n");
 
     //
     // Job Time Maxes
