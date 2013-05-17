@@ -26,7 +26,7 @@ class BoundedTrickBinaryRiver : public TrickBinaryRiver {
      BoundedTrickBinaryRiver(
                     char* file_name,
                     vector<Transformation>& transforms=empty_transforms) :
-         TrickBinaryRiver(file_name,empty_transforms){}
+         TrickBinaryRiver(file_name,transforms){}
 
      double _start;
      double _stop;
@@ -138,6 +138,9 @@ private:
     QList<QPair<Job *, long> > _jobtimes(double t) const ;
 
     void _rpt_summary();
+
+    double _start;
+    double _stop;
 
 };
 
