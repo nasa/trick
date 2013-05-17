@@ -284,40 +284,35 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
     }
     fprintf(stderr,"\n\n");
 
-    // This takes a long time, so only useful if using
-    // -start/-stop for a small period of time
-    // hard-coding that for now
     //
-    // Stddev Spikes (# jobs off by a stddev)
+    // Stddev Spikes (a lot of jobs running hot)
     //
-    if ( _stop - _start < 11.0 ) {
-        fprintf(stderr,"---------------------------------------------------\n");
-        fprintf(stderr,"When Most Jobs Out Of %d Jobs Exceed Their Own Stddev\n",
-                _jobs.size());
-        fprintf(stderr,"    %15s %15s %15s\n",
-                "Time", "NumJobs", "Percentage");
-        QList<QPair<int,int> > time_jobcnts;
-        for ( int ii = 0; ii < npoints; ++ii) {
-            int cnt = 0 ;
-            foreach ( Job* job, _jobs ) {
-                double rt = job->runtime[ii]/1000000;
-                if ( rt > job->avg_runtime()+job->stddev_runtime() ) {
-                    cnt++;
-                }
+    fprintf(stderr,"---------------------------------------------------\n");
+    fprintf(stderr,"When Most Jobs Out Of %d Jobs Exceed Their Own Stddev\n",
+            _jobs.size());
+    fprintf(stderr,"    %15s %15s %15s\n",
+            "Time", "NumJobs", "Percentage");
+    QList<QPair<int,int> > time_jobcnts;
+    for ( int ii = 0; ii < npoints; ++ii) {
+        int cnt = 0 ;
+        foreach ( Job* job, _jobs ) {
+            double rt = job->runtime[ii]/1000000;
+            if ( rt > job->avg_runtime()+job->stddev_runtime() ) {
+                cnt++;
             }
-            time_jobcnts.append(qMakePair(ii,cnt));
         }
-        qSort(time_jobcnts.begin(), time_jobcnts.end(), intPairGreaterThan);
-        for ( int ii = 0; ii < 10; ++ii) {
-            QPair<int,int>  tj = time_jobcnts.at(ii);
-            int tidx = tj.first;
-            int cnt = tj.second;
-            double tt = timestamps[tidx];
-            fprintf(stderr,"    %15.6lf %15d %15.2lf\n",tt,cnt,
-                    ((double)cnt/(double)_jobs.size())*100.0);
-        }
-        fprintf(stderr,"\n\n");
+        time_jobcnts.append(qMakePair(ii,cnt));
     }
+    qSort(time_jobcnts.begin(), time_jobcnts.end(), intPairGreaterThan);
+    for ( int ii = 0; ii < 10; ++ii) {
+        QPair<int,int>  tj = time_jobcnts.at(ii);
+        int tidx = tj.first;
+        int cnt = tj.second;
+        double tt = timestamps[tidx];
+        fprintf(stderr,"    %15.6lf %15d %15.2lf\n",tt,cnt,
+                ((double)cnt/(double)_jobs.size())*100.0);
+    }
+    fprintf(stderr,"\n\n");
 
     //
     // Job Time Maxes
@@ -518,8 +513,14 @@ QString Job::sim_object() const
     return simobj;
 }
 
-void Job::_do_stats()
+inline void Job::_do_stats()
 {
+    if ( _is_stats ) {
+        return ;
+    } else {
+        _is_stats  = true;
+    }
+
     if ( npoints == 0 || timestamps == 0 || runtime == 0 ) {
         fprintf(stderr,"Job::_do_stats() called without setting:");
         fprintf(stderr," npoints or timestamps or runtime");
@@ -527,7 +528,6 @@ void Job::_do_stats()
         exit(-1);
     }
 
-    _is_stats  = true;
 
     long sum_rt = 0 ;
     long max_rt = 0 ;
@@ -552,30 +552,19 @@ void Job::_do_stats()
 
 double Job::avg_runtime()
 {
-
-    if ( ! _is_stats ) {
-        _do_stats();
-    }
-
+    _do_stats();
     return _avg_runtime;
 }
 
 double Job::max_runtime()
 {
-
-    if ( ! _is_stats ) {
-        _do_stats();
-    }
-
+    _do_stats();
     return _max_runtime;
 }
 
 double Job::stddev_runtime()
 {
-    if ( ! _is_stats ) {
-        _do_stats();
-    }
-
+    _do_stats();
     return _stddev_runtime;
 }
 
