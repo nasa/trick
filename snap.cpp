@@ -445,7 +445,7 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
                  QString("trick_sys.sched.advance_sim_time")) {
                 total += t;
             }
-            if ( total > 0.75*ot/1000000 && jj > 4 ) {
+            if ( total > 0.75*ot/1000000.0 && jj > 4 ) {
                 break;
             }
 
