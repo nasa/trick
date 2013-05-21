@@ -34,6 +34,28 @@ bool simObjTimeGreaterThan(const QPair<QString,double> &a,
     return a.second > b.second;
 }
 
+bool long_int_GreaterThan(const QPair<long,int> &a,
+                           const QPair<long,int> &b)
+{
+    return a.second > b.second;
+}
+
+static long _round_10(long a)
+{
+    long r = a;
+
+    if ( a % 10 != 0 ) {
+        for ( int ii = 1; ii < 100; ++ii) {
+            r = a + ii;
+            if ( r % 10 == 0 ) break;
+            r = a - ii;
+            if ( r % 10 == 0 ) break;
+        }
+    }
+
+    return r;
+}
+
 BoundedTrickBinaryRiver::BoundedTrickBinaryRiver(
         char *filename,  double start, double stop) :
     TrickBinaryRiver(filename),
@@ -141,7 +163,7 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
     int npoints = _river_frame->getNumPoints();
     for ( int ii = 1 ; ii < npoints ; ii++ ) {
         long tt = (long)(timestamps[ii]*1000000);
-        long dt = tt-ltime;
+        long dt = _round_10(tt-ltime);
         if ( ! rates.contains(dt) ) {
             // Do fuzzy compare since doubles screw things up
             bool is_equal = false;
@@ -302,15 +324,16 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
     fprintf(stderr,"------------------------------------------------\n");
     int njobs = 10;
     fprintf(stderr,"Top %d Job Avg Times\n\n", njobs);
-    fprintf(stderr,"    %6s %15s %15s    %-40s\n",
-            "Thread", "AvgTime", "Stddev", "Job");
+    fprintf(stderr,"    %6s %15s %15s %15s    %-40s\n",
+            "Thread", "AvgTime", "Stddev", "JobFreq", "JobName");
 
     for ( int ii = 0 ; ii <  njobs; ii++ ) {
         QPair<Job*,double> avgtime = avgtimes.at(ii);
         Job* job = avgtime.first;
-        fprintf(stderr,"    %6d %15.6lf %15.6lf     %-40s\n",
+        fprintf(stderr,"    %6d %15.6lf %15.6lf %15.6lf    %-40s\n",
                 job->thread_id(), avgtime.second,
                 job->stddev_runtime(),
+                job->freq(),
                 job->job_name().toAscii().constData() );
 
     }
@@ -321,16 +344,17 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
     //
     fprintf(stderr,"------------------------------------------------\n");
     fprintf(stderr,"Top %d Job Stddev Times\n\n", njobs);
-    fprintf(stderr,"    %6s %15s %15s    %-40s\n",
-            "Thread","Stddev", "AvgTime","Job");
+    fprintf(stderr,"    %6s %15s %15s %15s    %-40s\n",
+            "Thread","Stddev", "AvgTime","JobFreq","JobName");
 
     for ( int ii = 0 ; ii <  njobs; ii++ ) {
         QPair<Job*,double> stddevtime = stddevtimes.at(ii);
         Job* job = stddevtime.first;
-        fprintf(stderr,"    %6d %15.6lf %15.6lf     %-40s\n",
+        fprintf(stderr,"    %6d %15.6lf %15.6lf %15.6lf    %-40s\n",
                 job->thread_id(),
                 job->stddev_runtime(),
                 job->avg_runtime(),
+                job->freq(),
                 job->job_name().toAscii().constData() );
 
     }
@@ -342,12 +366,14 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
     //
     fprintf(stderr,"------------------------------------------------\n");
     fprintf(stderr,"Top %d Job Max Times\n\n", njobs);
-    fprintf(stderr,"    %6s %10s     %-40s\n", "Thread", "MaxTime", "Job");
+    fprintf(stderr,"    %6s %10s %15s    %-40s\n", "Thread",
+                   "MaxTime", "JobFreq","JobName");
     for ( int ii = 0 ; ii <  njobs; ii++ ) {
         QPair<Job*,double> maxtime = maxtimes.at(ii);
         Job* job = maxtime.first;
-        fprintf(stderr,"    %6d %10.6lf     %-40s\n",
+        fprintf(stderr,"    %6d %10.6lf %15.6lf    %-40s\n",
                 job->thread_id(), maxtime.second,
+                job->freq(),
                 job->job_name().toAscii().constData() );
 
     }
@@ -444,13 +470,14 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
         double tt = ov.first;
         double ot = ov.second;
 
-        fprintf(stderr,"Spike at time %g of %g\n", tt ,ot/1000000);
+        fprintf(stderr,"Spike at time %.4lf of %g\n", tt ,ot/1000000);
         QList<QPair<Job*,long> > snaps = _jobtimes(tt);
         int tidx = _river_userjobs->getIndexAtTime(&tt);
-        fprintf(stderr, "    %6s %15s     %-50s\n",
+        fprintf(stderr, "    %6s %15s %15s    %-50s\n",
                         "Thread",
                         "Time",
-                        "Job");
+                        "JobFreq",
+                        "JobName");
         double total = 0 ;
 
         for ( int jj = 0 ; jj < 10 ; ++jj ) {
@@ -463,10 +490,10 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
             }
 
             char format[64];
-            strcpy(format,"    %6d %15.3lf     %-50s\n");
+            strcpy(format,"    %6d %15.3lf %15.6lf   %-50s\n");
 
             fprintf(stderr,format,
-                    job->thread_id(),t,
+                    job->thread_id(),t,job->freq(),
                     job->job_name().toAscii().constData()) ;
 
 
@@ -553,6 +580,10 @@ inline void Job::_do_stats()
         exit(-1);
     }
 
+    long freq;
+    QMap<long,int> map_freq;
+    long last_nonzero_timestamp = 0 ;
+
     long sum_rt = 0 ;
     long max_rt = 0 ;
     double sum_vv = 0.0;
@@ -562,6 +593,18 @@ inline void Job::_do_stats()
             continue;
         }
         long rt = (long)runtime[tidx];
+
+        if ( tidx > 0 && rt > 0 ) {
+            freq = _round_10((long)(time*1000000.0) - last_nonzero_timestamp);
+            long freq_cnt ;
+            if ( map_freq.contains(freq) ) {
+                freq_cnt = map_freq.value(freq)+1;
+            } else {
+                freq_cnt = 0;
+            }
+            map_freq.insert(freq,freq_cnt);
+            last_nonzero_timestamp = (long)(time*1000000.0);
+        }
 
         if ( rt > max_rt ) max_rt = rt;
         sum_rt += rt;
@@ -573,6 +616,17 @@ inline void Job::_do_stats()
     _avg_runtime = (sum_rt/npoints)/1000000.0;
     _max_runtime = (max_rt)/1000000.0;
     _stddev_runtime = sqrt(sum_vv/npoints)/1000000.0 ;
+
+    // Could be multiple frequencies - choose mode
+    int max_cnt = 0 ;
+    _freq = 0;
+    foreach ( long freq, map_freq.keys() ) {
+        int cnt = map_freq.value(freq);
+        if ( cnt > max_cnt ) {
+            _freq = freq/1000000.0;
+            max_cnt = cnt;
+        }
+    }
 }
 
 double Job::avg_runtime()
