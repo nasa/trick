@@ -120,18 +120,15 @@ private:
     QMap<QString,Job*> _id_to_job;
 
     bool _parse_s_job_execution(const QString& rundir);
-    bool _parse_log_jobs(const QString& rundir,
-                         const QString& logfilename,
-                         TrickBinaryRiver **river,
-                         double start, double stop);
-    QList<QPair<double, long> >  _parse_log_frame(const QString& rundir,
-                                                   double start, double stop);
+    bool _process_job_river( BoundedTrickBinaryRiver *river );
+    QList<QPair<double, long> > _process_frame_river(
+                                    BoundedTrickBinaryRiver *river );
 
     QSet<int> _thread_list();
 
-    TrickBinaryRiver* _river_userjobs;
-    TrickBinaryRiver* _river_frame;
-    TrickBinaryRiver* _river_trickjobs;
+    BoundedTrickBinaryRiver* _river_userjobs;
+    BoundedTrickBinaryRiver* _river_frame;
+    BoundedTrickBinaryRiver* _river_trickjobs;
 
     QList<QPair<int, long> > _threadtimes(double t) const;
     QList<ThreadStat> _thread_stats() const;
@@ -142,6 +139,9 @@ private:
     double _start;
     double _stop;
 
+    BoundedTrickBinaryRiver* _open_river(const QString& rundir,
+                                          const QString& logfilename,
+                                          double start, double stop);
 };
 
 #endif // BLAME_H

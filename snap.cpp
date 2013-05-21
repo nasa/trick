@@ -69,20 +69,50 @@ BoundedTrickBinaryRiver::BoundedTrickBinaryRiver(
     }
 }
 
+BoundedTrickBinaryRiver *Jobs::_open_river(const QString &rundir,
+                                             const QString &logfilename,
+                                            double start, double stop)
+{
+    BoundedTrickBinaryRiver* river;
+
+    QDir dir(rundir);
+    if ( ! dir.exists() ) {
+        qDebug() << "couldn't find run directory: " << rundir;
+        exit(-1); // hard exit for now
+    }
+
+    QString trk = rundir + QString("/") + logfilename;
+    QFile file(trk);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qDebug() << "couldn't read file: " << trk;
+        exit(-1); // hard exit for now
+    } else {
+        file.close();
+    }
+
+    river = new BoundedTrickBinaryRiver(trk.toAscii().data(),
+                                         start,stop);
+
+    return river;
+}
+
 Jobs::Jobs(const QString &rundir, double start, double stop) :
     _start(start),_stop(stop)
 {
-    //_parse_s_job_execution(rundir);
-    _parse_log_jobs(rundir,
-                    QString("log_trickjobs.trk"),
-                    &_river_trickjobs,
-                    start, stop);
-    _parse_log_jobs(rundir,
-                    QString("log_userjobs.trk"),
-                    &_river_userjobs,
-                    start, stop);
+    _river_trickjobs = _open_river(rundir,
+                                   QString("log_trickjobs.trk"),
+                                   start, stop);
+    _river_userjobs = _open_river(rundir,
+                                   QString("log_userjobs.trk"),
+                                   start, stop);
+    _river_frame = _open_river(rundir,
+                                   QString("log_frame.trk"),
+                                   start, stop);
 
-    QList<QPair<double, long> > ovs = _parse_log_frame(rundir, start, stop);
+    _process_job_river(_river_trickjobs);
+    _process_job_river(_river_userjobs);
+
+    QList<QPair<double, long> > ovs = _process_frame_river(_river_frame);
 
     //
     // Main Summary
@@ -487,6 +517,8 @@ Jobs::~Jobs()
     }
 
     delete _river_userjobs;
+    delete _river_frame;
+    delete _river_trickjobs;
 }
 
 QString Job::sim_object() const
@@ -521,7 +553,6 @@ inline void Job::_do_stats()
         exit(-1);
     }
 
-
     long sum_rt = 0 ;
     long max_rt = 0 ;
     double sum_vv = 0.0;
@@ -531,6 +562,7 @@ inline void Job::_do_stats()
             continue;
         }
         long rt = (long)runtime[tidx];
+
         if ( rt > max_rt ) max_rt = rt;
         sum_rt += rt;
 
@@ -843,35 +875,11 @@ bool Jobs::_parse_s_job_execution(const QString &rundir)
 //
 // logfilename e.g. log_trickjobs.trk
 //
-bool Jobs::_parse_log_jobs(const QString &rundir,
-                           const QString& logfilename,
-                           TrickBinaryRiver** river,
-                           double start, double stop)
+bool Jobs::_process_job_river( BoundedTrickBinaryRiver* river )
 {
     bool ret = true;
 
-    QDir dir(rundir);
-    if ( ! dir.exists() ) {
-        qDebug() << "couldn't find run directory: " << rundir;
-        exit(-1); // hard exit for now
-        ret = false;
-        return(ret);
-    }
-
-    QString trk = rundir + QString("/") + logfilename;
-    QFile file(trk);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "couldn't read file: " << trk;
-        exit(-1); // hard exit for now
-        ret = false;
-        return(ret);
-    } else {
-        file.close();
-    }
-
-    *river = new BoundedTrickBinaryRiver(trk.toAscii().data(),
-                                         start,stop);
-    std::vector<LOG_PARAM> params = (*river)->getParamList();
+    std::vector<LOG_PARAM> params = river->getParamList();
     for ( unsigned int ii = 1 ; ii < params.size(); ++ii ) {
 
         LOG_PARAM param = params.at(ii);
@@ -890,9 +898,9 @@ bool Jobs::_parse_log_jobs(const QString &rundir,
             _jobs.append(job);
         }
 
-        job->npoints = (*river)->getNumPoints();
-        job->timestamps = (*river)->getTimeStamps();
-        job->runtime = (*river)->getVals(const_cast<char*>
+        job->npoints = river->getNumPoints();
+        job->timestamps = river->getTimeStamps();
+        job->runtime = river->getVals(const_cast<char*>
                                        (param.data.name.c_str()));
     }
 
@@ -907,31 +915,13 @@ bool dlGreaterThan(const QPair<double,long> &a,
 
 
 QList<QPair<double, long> >
-    Jobs::_parse_log_frame(const QString &rundir,double start, double stop)
+    Jobs::_process_frame_river(BoundedTrickBinaryRiver* river)
 {
     QList<QPair<double, long> > overruns;
 
-    QDir dir(rundir);
-    if ( ! dir.exists() ) {
-        qDebug() << "couldn't find run directory: " << rundir;
-        return(overruns);
-    }
-
-    QString trk = rundir + QString("/log_frame.trk");
-    QFile file(trk);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "couldn't read file: " << trk;
-        exit(-1);
-        return(overruns);
-    } else {
-        file.close();
-    }
-
-    _river_frame = new BoundedTrickBinaryRiver(trk.toAscii().data(),
-                                               start, stop);
-    std::vector<LOG_PARAM> params = _river_frame->getParamList();
-    int npoints = _river_frame->getNumPoints();
-    double* timestamps = _river_frame->getTimeStamps();
+    std::vector<LOG_PARAM> params = river->getParamList();
+    int npoints = river->getNumPoints();
+    double* timestamps = river->getTimeStamps();
     double* overrun = 0 ;
     QString param_overrun("real_time.rt_sync.frame_sched_time");
     for ( unsigned int ii = 1 ; ii < params.size(); ++ii ) {
@@ -940,7 +930,7 @@ QList<QPair<double, long> >
 
         QString qparam(param.data.name.c_str());
         if ( qparam ==  param_overrun ) {
-            overrun = _river_frame->getVals(const_cast<char*>
+            overrun = river->getVals(const_cast<char*>
                                              (param.data.name.c_str()));
             break;
         }
@@ -973,4 +963,5 @@ QSet<int> Jobs::_thread_list()
 
     return threads;
 }
+
 
