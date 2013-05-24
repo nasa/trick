@@ -1,5 +1,6 @@
 #include "snap.h"
 
+
 #include <stdio.h>
 #include <ctype.h>
 #include <cmath>
@@ -896,9 +897,9 @@ bool Jobs::_parse_s_job_execution(const QString &rundir)
         QStringList list =  line.split("|") ;
         if ( list.length() != 9 ) continue ;
 
-        QString job_name; QString job_num; double freq; double start;
-        double stop; QString job_class; bool is_enabled; int phase;
-        int processor_id;
+        QString job_name(""); QString job_num(""); double freq = 0.0; double start = 1.0;
+        double stop = 1.0e20; QString job_class(""); bool is_enabled = true; int phase = 0;
+        int processor_id = -1;
 
         for ( int ii = 0 ; ii < list.size(); ++ii) {
             QString str = list.at(ii).trimmed();

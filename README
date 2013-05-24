@@ -1,0 +1,6 @@
+Build/Run Directions
+
+% qmake snap.pro
+% make
+% ls
+% ./snap  ; # for usage
