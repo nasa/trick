@@ -1,6 +1,6 @@
 Build/Run Directions
 
-% qmake snap.pro
+% qmake snap.pro ; # I used /usr/lib64/qt4/bin/qmake
 % make
 % ls
 % ./snap  ; # for usage
