@@ -38,12 +38,15 @@ class BoundedTrickBinaryRiver : public TrickBinaryRiver {
 class ThreadStat
 {
   public:
-    ThreadStat() : thread_id(0), njobs(0), avg(0), max(0), stdev(0) {}
+    ThreadStat() : thread_id(0), njobs(0), avg(0),
+                   tidx_max(0),max(0), stdev(0) {}
     int thread_id;
     int njobs;
     double avg;
-    double max;
+    int tidx_max;
+    double max ;
     double stdev;
+
 };
 
 class Job
@@ -124,14 +127,14 @@ private:
     QList<QPair<double, long> > _process_frame_river(
                                     BoundedTrickBinaryRiver *river );
 
-    QSet<int> _thread_list();
 
     BoundedTrickBinaryRiver* _river_userjobs;
     BoundedTrickBinaryRiver* _river_frame;
     BoundedTrickBinaryRiver* _river_trickjobs;
 
-    QList<QPair<int, long> > _threadtimes(double t) const;
-    QList<ThreadStat> _thread_stats() const;
+    QSet<int> _thread_list();
+    QMap<int, ThreadStat> _thread_stats() const;
+    QMap<int,QMap<int,long> >  _threadtimes() const; // tidx->(tid->thread_rt)
     QList<QPair<Job *, long> > _jobtimes(double t) const ;
 
     void _rpt_summary();
