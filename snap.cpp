@@ -304,7 +304,7 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
     fprintf(stderr,"    %10s %15s %15s %15s\n",
             "Thread", "ThreadAvg", "ThreadStdDev", "ThreadMax");
 
-    QMap<int,ThreadStat> threadstats = _thread_stats();
+    QMap<int,ThreadStat> threadstats = _thread_stats(threadtimes);
     QList<int> threadids = threadstats.keys();
     qSort(threadids.begin(), threadids.end(),intLessThan);
     foreach ( int threadid, threadids ) {
@@ -699,87 +699,49 @@ QMap<int,QMap<int,long> >  Jobs::_threadtimes() const
     return  tidx_2_thread2runtime;
 }
 
-// Return list of thread_id => (avg,stddev) of exec time
-QMap<int,ThreadStat> Jobs::_thread_stats() const
+// Input is map(tidx)->map(thread_id,runtime)
+// Return list of thread_id => (avg,stddev,max rt.of thread)
+QMap<int,ThreadStat> Jobs::_thread_stats(
+        const QMap<int,QMap<int,long> >&  threadtimes) const
 {
     QMap<int,ThreadStat> stats;
 
-    QList<QList<QPair<int,long> > >* frametimes
-            = new QList<QList<QPair<int,long> > >();
+    QList<int> tidxs = threadtimes.keys();
+    int tidx0 = tidxs.at(0);
+    int ntidxs = tidxs.length();
+    QList<int> threadids = threadtimes.value(tidx0).keys();
 
-    int npoints = _river_frame->getNumPoints();
     QMap<int,long> sumtime;
-    QMap<int,long> maxes;
-    QMap<int,int> tidx_maxes;
-    int count = 0 ;
-    for ( int tidx = 0; tidx < npoints; ++tidx) {
+    foreach ( int threadid, threadids ) {
 
-        QMap<int,long> frames;
-        foreach ( Job* job, _jobs ) {
-            long rt = (long)(job->runtime[tidx]);
-            int thread = job->thread_id();
-            frames[thread] += rt;
-            sumtime[thread] += rt;
-        }
-
-        // Save off frame time
-        QList<QPair<int,long> > list_threads;
-        foreach ( int thread, frames.keys() ) {
-            list_threads.append(qMakePair(thread,frames.value(thread)));
-        }
-        frametimes->append(list_threads);
-
-        // maxes
-        if ( maxes.size() == 0 ) {
-            foreach ( int thread, frames.keys() ) {
-                maxes.insert(thread,frames.value(thread));
-                tidx_maxes.insert(thread,tidx);
-            }
-        } else {
-            foreach ( int thread, maxes.keys() ) {
-                long max = maxes.value(thread);
-                long frame = frames.value(thread);
-                if ( frame > max ) {
-                    maxes.insert(thread,frame);
-                    tidx_maxes.insert(thread,tidx);
-                }
-            }
-        }
-
-        count++;
-    }
-
-    // Calculate standard deviation
-    QMap<int,double> stddevs;
-    foreach ( int thread, sumtime.keys() ) {
-        stddevs.insert(thread,0.0);
-    }
-    for ( int ii = 0; ii < frametimes->length(); ++ii) {
-        QList<QPair<int,long> >  frametime = frametimes->at(ii);
-        for ( int jj = 0; jj < frametime.length(); ++jj) {
-            QPair<int,long>  threadtime = frametime.at(jj);
-            int thread = threadtime.first;
-            double rt = threadtime.second/1000000.0;
-            double avg = (sumtime.value(thread)/count)/1000000.0;
-            double vv = (avg-rt)*(avg-rt);
-            stddevs[thread] += vv;
-        }
-    }
-    foreach ( int thread, stddevs.keys() ) {
-        stddevs[thread] = sqrt(stddevs.value(thread)/count);
-    }
-
-    foreach ( int thread, sumtime.keys() ) {
         ThreadStat stat;
-        stat.thread_id = thread;
-        stat.avg = (sumtime.value(thread)/count)/1000000.0;
-        stat.tidx_max = tidx_maxes.value(thread);
-        stat.max = (maxes.value(thread))/1000000.0;
-        stat.stdev = stddevs.value(thread);
-        stats[thread] = stat;
-    }
+        stat.thread_id = threadid;
+        stat.tidx_max = 0;
+        stat.max = 0.0;
 
-    delete frametimes;
+        sumtime[threadid] = 0 ;
+
+        foreach ( int tidx, tidxs ) {
+            long rt = threadtimes.value(tidx).value(threadid);
+            sumtime[threadid] += rt;
+            if ( rt > stat.max ) {
+                stat.max = rt;
+                stat.tidx_max = tidx;
+            }
+        }
+        stat.max =  (double)stat.max/1000000.0;
+        stat.avg =  (double)(sumtime.value(threadid))/(double)ntidxs/1000000.0;
+
+        // Stddev
+        foreach ( int tidx, tidxs ) {
+            double rt = threadtimes.value(tidx).value(threadid)/1000000.0;
+            double vv = (stat.avg-rt)*(stat.avg-rt);
+            stat.stdev += vv;
+        }
+        stat.stdev = sqrt(stat.stdev/(double)ntidxs);
+
+        stats[threadid] = stat;
+    }
 
     return stats;
 }

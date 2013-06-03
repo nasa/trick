@@ -133,7 +133,8 @@ private:
     BoundedTrickBinaryRiver* _river_trickjobs;
 
     QSet<int> _thread_list();
-    QMap<int, ThreadStat> _thread_stats() const;
+    QMap<int, ThreadStat> _thread_stats(
+        const QMap<int,QMap<int,long> >&  threadtimes) const;
     QMap<int,QMap<int,long> >  _threadtimes() const; // tidx->(tid->thread_rt)
     QList<QPair<Job *, long> > _jobtimes(double t) const ;
 
