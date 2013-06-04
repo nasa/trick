@@ -28,6 +28,11 @@ bool jobTimeGreaterThan(const QPair<Job*,long> &a,
     return a.second > b.second;
 }
 
+bool avgJobTimeGreaterThan(Job* a,Job* b)
+{
+    return a->avg_runtime() > b->avg_runtime();
+}
+
 bool doubleTimeGreaterThan(const QPair<Job*,double> &a,
                             const QPair<Job*,double> &b)
 {
@@ -301,16 +306,70 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
     fprintf(stderr,
     "-----------------------------------------------------------------\n");
     fprintf(stderr,"Thread Time Summary\n\n");
-    fprintf(stderr,"    %10s %15s %15s %15s\n",
-            "Thread", "ThreadAvg", "ThreadStdDev", "ThreadMax");
+    fprintf(stderr,"    %10s %10s %15s %15s %15s\n",
+            "Thread", "NumJobs", "ThreadAvg", "ThreadStdDev", "ThreadMax");
 
     QMap<int,ThreadStat> threadstats = _thread_stats(threadtimes);
     QList<int> threadids = threadstats.keys();
     qSort(threadids.begin(), threadids.end(),intLessThan);
     foreach ( int threadid, threadids ) {
         ThreadStat stat = threadstats[threadid];
-        fprintf(stderr,"    %10d %15.6lf %15.6lf %15.6lf\n",
-                 threadid,stat.avg, stat.stdev, stat.max ) ;
+        fprintf(stderr,"    %10d %10d %15.6lf %15.6lf %15.6lf\n",
+                 threadid,stat.hotjobs.length(),stat.avg, stat.stdev, stat.max);
+    }
+    fprintf(stderr,"\n\n");
+
+    //
+    // Top Jobs Per Thread
+    //
+    fprintf(stderr,
+    "-----------------------------------------------------------------\n");
+    fprintf(stderr,"Top Jobs by Thread\n\n");
+    fprintf(stderr,"    %8s %8s %15s %15s %10s%%     %-50s\n",
+            "Thread", "NumJobs", "ThreadAvg", "JobAvgTime", "Percent", "JobName");
+    foreach ( int threadid, threadids ) {
+        ThreadStat stat = threadstats[threadid];
+        fprintf(stderr,"    %8d %8d %15.6lf ",
+                threadid,stat.hotjobs.length(),stat.avg) ;
+        if ( stat.avg < 0.000005 && stat.hotjobs.length() > 1 ) {
+            fprintf(stderr,"%15s  %10s     %-49s\n", "--","--","--");
+            continue;
+        }
+        double sum = 0;
+        for ( int ii = 0; ii < 5; ++ii) {
+            Job* job = stat.hotjobs.at(ii) ;
+            double percentage = 0.0;
+            if ( stat.avg > 0.0000001 ) {
+                if ( stat.hotjobs.length() == 1 ) {
+                    // Fix round off error.
+                    // If the job has an average above zero
+                    // and the thread has a single job
+                    // this job took 100%, so force it
+                    percentage = 100.0;
+                } else {
+                    percentage = 100.0*job->avg_runtime()/stat.avg;
+                }
+            }
+            sum += percentage;
+            if ( (percentage < 1.0 || (sum > 98.0 && ii > 0)) &&
+                  stat.hotjobs.length() > 1 ) {
+                break;
+            } else {
+                if ( ii > 0 ) {
+                    fprintf(stderr,"    %8s %8s %15s ", "","","");
+                }
+                fprintf(stderr,"%15.6lf ",job->avg_runtime());
+                if ( stat.avg > 0.0000001 ) {
+                    fprintf(stderr,"%10.0lf%%", percentage);
+                } else {
+                    fprintf(stderr," %10s", "--");
+                }
+                fprintf(stderr,"     %-50s\n", job->job_name().toAscii().data());
+            }
+            if ( ii == stat.hotjobs.length()-1 ) {
+                break;
+            }
+        }
     }
     fprintf(stderr,"\n\n");
 
@@ -739,6 +798,14 @@ QMap<int,ThreadStat> Jobs::_thread_stats(
             stat.stdev += vv;
         }
         stat.stdev = sqrt(stat.stdev/(double)ntidxs);
+
+        // List of jobs per thread sorted by runtime
+        foreach ( Job* job, _jobs ) {
+            if ( job->thread_id() == threadid ) {
+                stat.hotjobs.append(job);
+            }
+        }
+        qSort(stat.hotjobs.begin(),stat.hotjobs.end(),avgJobTimeGreaterThan);
 
         stats[threadid] = stat;
     }

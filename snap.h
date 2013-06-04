@@ -11,6 +11,8 @@
 
 #include "TrickBinaryRiver.hh"
 
+class Job;
+
 class BoundedTrickBinaryRiver : public TrickBinaryRiver {
   public:
      BoundedTrickBinaryRiver(char* filename, double start, double stop);
@@ -46,7 +48,7 @@ class ThreadStat
     int tidx_max;
     double max ;
     double stdev;
-
+    QList<Job*> hotjobs; // sorted job list on thread with highest avg run times
 };
 
 class Job
