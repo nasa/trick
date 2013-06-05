@@ -41,13 +41,14 @@ class ThreadStat
 {
   public:
     ThreadStat() : thread_id(0), njobs(0), avg(0),
-                   tidx_max(0),max(0), stdev(0) {}
+                   tidx_max(0),max(0), stdev(0),freq(0.0) {}
     int thread_id;
     int njobs;
     double avg;
     int tidx_max;
     double max ;
     double stdev;
+    double freq;         // assume freq is freq of highest freq job on the thread
     QList<Job*> hotjobs; // sorted job list on thread with highest avg run times
 };
 
