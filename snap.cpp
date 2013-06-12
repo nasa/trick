@@ -456,7 +456,7 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
     for ( int ii = 0 ; ii <  njobs; ii++ ) {
         QPair<Job*,double> maxtime = maxtimes.at(ii);
         Job* job = maxtime.first;
-        int tidx = threadstats[job->thread_id()].tidx_max;
+        int tidx = job->max_timeidx();
         fprintf(stderr,"    %15.6lf %15.6lf %6d %15.6lf %15.6lf    %-40s\n",
                 maxtime.second,
                 _river_frame->getTimeStamps()[tidx],
@@ -705,7 +705,10 @@ inline void Job::_do_stats()
             last_nonzero_timestamp = (long)(time*1000000.0);
         }
 
-        if ( rt > max_rt ) max_rt = rt;
+        if ( rt > max_rt ) {
+            max_rt = rt;
+            _max_tidx = tidx;
+        }
         sum_rt += rt;
 
         _avg_runtime = ((double)sum_rt/(double)npoints);
@@ -738,6 +741,12 @@ double Job::max_runtime()
 {
     _do_stats();
     return _max_runtime;
+}
+
+int Job::max_timeidx()
+{
+    _do_stats();
+    return _max_tidx;
 }
 
 double Job::stddev_runtime()

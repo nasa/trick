@@ -85,6 +85,7 @@ public:
 
     double avg_runtime();
     double max_runtime();
+    int max_timeidx();
     double stddev_runtime();
 
     // Log jobs info
@@ -110,6 +111,7 @@ private:
     double _avg_runtime;
     double _stddev_runtime;
     double _max_runtime;
+    int _max_tidx;
 };
 
 class Jobs
