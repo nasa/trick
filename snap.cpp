@@ -15,6 +15,9 @@
 
 #include <stdio.h>
 
+QString FrameStat::frame_time_name = "real_time.rt_sync.frame_sched_time";
+QString FrameStat::overrun_time_name = "real_time.rt_sync.frame_overrun_time";
+
 bool intLessThan(int a, int b)
 {
     return a < b;
@@ -149,7 +152,8 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
     _process_job_river(_river_trickjobs);
     _process_job_river(_river_userjobs);
 
-    QList<QPair<double, long> > ovs = _process_frame_river(_river_frame);
+    QList<QPair<double, FrameStat> >
+                       framestats = _process_frame_river(_river_frame);
 
     //
     // Main Summary
@@ -167,7 +171,7 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
     fprintf(stderr,"%20s = %8.3lf\n", "Stop time ",
             _river_frame->getTimeStamps()[_river_frame->getNumPoints()-1]);
     fprintf(stderr,"%20s = %d\n", "Num jobs", _jobs.length());
-    fprintf(stderr,"%20s = %d\n", "Num frames",ovs.length());
+    fprintf(stderr,"%20s = %d\n", "Num frames",framestats.length());
 
 
     //
@@ -209,26 +213,23 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
     // Avg frame exec time
     //
     double sum = 0 ;
-    for ( int ii = 0 ; ii < ovs.length() ; ++ii ) {
-        QPair<double,long> ov = ovs.at(ii);
-        double ot = ov.second;
-        sum += ot;
+    for ( int ii = 0 ; ii < framestats.length() ; ++ii ) {
+        sum += framestats.at(ii).second.frame_time;
     }
-    double avg = sum/ovs.length() ;
-    fprintf(stderr,"%20s = %.6lf\n", "Frame avg",avg/1000000);
+    double avg = sum/framestats.length() ;
+    fprintf(stderr,"%20s = %.6lf\n", "Frame avg",avg);
 
     //
     // Std dev for frame exec time
     //
     sum = 0 ;
-    for ( int ii = 0 ; ii < ovs.length() ; ++ii ) {
-        QPair<double,long> ov = ovs.at(ii);
-        double ot = ov.second;
-        double vv = (ot-avg)*(ot-avg);
+    for ( int ii = 0 ; ii < framestats.length() ; ++ii ) {
+        double frametime =  framestats.at(ii).second.frame_time;
+        double vv = (frametime-avg)*(frametime-avg);
         sum += vv;
     }
-    double stddev = sqrt(sum/ovs.length()) ;
-    fprintf(stderr,"%20s = %.6lf\n","Frame stddev",stddev/1000000);
+    double stddev = sqrt(sum/framestats.length()) ;
+    fprintf(stderr,"%20s = %.6lf\n","Frame stddev",stddev);
 
     //
     // Thread summary
@@ -292,12 +293,11 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
             "Time", "Spike", "HotJob%", "SpicyHotJob%");
 
     for ( int ii = 0 ; ii < 10 ; ++ii ) {
-        QPair<double,long> ov = ovs.at(ii);
-        double tt = ov.first;
-        double ot = ov.second;
+        double tt = framestats.at(ii).first;
+        double ft = framestats.at(ii).second.frame_time;
         int tidx = _river_frame->getIndexAtTime(&tt);
         fprintf(stderr,"    %15.6lf %15.6lf %14.0lf%% %14.0lf%%\n",
-                tt ,ot/1000000.0,
+                tt ,ft,
                 time2hotjobpercent.value(tidx),
                 time2spicyhotjobpercent.value(tidx));
 
@@ -559,11 +559,10 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
     fprintf(stderr,"------------------------------------------------\n");
     fprintf(stderr,"Top 10 Spike Job Breakdown\n\n");
     for ( int ii = 0 ; ii < 10 ; ++ii ) {
-        QPair<double,long> ov = ovs.at(ii);
-        double tt = ov.first;
-        double ot = ov.second;
+        double tt = framestats.at(ii).first;
+        double ft = framestats.at(ii).second.frame_time;
 
-        fprintf(stderr,"Spike at time %.4lf of %g\n", tt ,ot/1000000);
+        fprintf(stderr,"Spike at time %.4lf of %g\n", tt ,ft);
         QList<QPair<Job*,long> > snaps = _jobtimes(tt);
         int tidx = _river_userjobs->getIndexAtTime(&tt);
         fprintf(stderr, "    %6s %15s %15s %15s    %-50s\n",
@@ -597,7 +596,7 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
                  QString("trick_sys.sched.advance_sim_time")) {
                 total += rt;
             }
-            if ( total > 0.75*ot/1000000.0 && jj > 4 ) {
+            if ( total > 0.75*ft && jj > 4 ) {
                 break;
             }
 
@@ -611,10 +610,8 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
     fprintf(stderr,"------------------------------------------------\n");
     fprintf(stderr,"Top 10 Spike Thread Breakdown\n\n");
     for ( int ii = 0 ; ii < 10 ; ++ii ) {
-        QPair<double,long> ov = ovs.at(ii);
-        int tidx = _river_frame->getIndexAtTime(&(ov.first));
-        double ot = ov.second;
-
+        double tt = framestats.at(ii).first;
+        int tidx = _river_frame->getIndexAtTime(&tt);
         QList<QPair<int,long> > ttimes;
         QMap<int,long> threadid2runtime = threadtimes.value(tidx);
         QList<int> threadids = threadid2runtime.keys();
@@ -624,7 +621,8 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
         }
         qSort(ttimes.begin(),ttimes.end(),threadTimeGreaterThan);
 
-        fprintf(stderr,"Spike at time %g of %g\n", ov.first,ot/1000000);
+        fprintf(stderr,"Spike at time %g of %g\n",
+                framestats.at(ii).first,framestats.at(ii).second.frame_time);
         fprintf(stderr, "    %6s %15s\n", "Thread", "ThreadTime");
         for ( int ii = 0 ; ii < ttimes.length(); ++ii ) {
             QPair<int,long> ttime = ttimes.at(ii);
@@ -1062,51 +1060,71 @@ bool Jobs::_process_job_river( BoundedTrickBinaryRiver* river )
     return ret;
 }
 
-bool dlGreaterThan(const QPair<double,long> &a,
-                    const QPair<double,long> &b)
+bool dlGreaterThan(const QPair<double,FrameStat> &a,
+                    const QPair<double,FrameStat> &b)
 {
-    return a.second > b.second;
+    return a.second.frame_time > b.second.frame_time;
 }
 
 
-QList<QPair<double, long> >
+QList<QPair<double, FrameStat> >
     Jobs::_process_frame_river(BoundedTrickBinaryRiver* river)
 {
-    QList<QPair<double, long> > overruns;
+    QList<QPair<double, FrameStat> > framestats;
 
     std::vector<LOG_PARAM> params = river->getParamList();
     int npoints = river->getNumPoints();
     double* timestamps = river->getTimeStamps();
-    double* overrun = 0 ;
-    QString param_overrun("real_time.rt_sync.frame_sched_time");
+    double* frame_times = 0 ;
+    double* overrun_times = 0 ;
+    int cnt = 0 ;
     for ( unsigned int ii = 1 ; ii < params.size(); ++ii ) {
 
         LOG_PARAM param = params.at(ii);
 
         QString qparam(param.data.name.c_str());
-        if ( qparam ==  param_overrun ) {
-            overrun = river->getVals(const_cast<char*>
+
+        if ( qparam ==  FrameStat::frame_time_name ) {
+            frame_times = river->getVals(const_cast<char*>
                                              (param.data.name.c_str()));
+            cnt++;
+        } else if ( qparam == FrameStat::overrun_time_name ) {
+            overrun_times = river->getVals(const_cast<char*>
+                                             (param.data.name.c_str()));
+            cnt++;
+        }
+        if ( cnt == 2 ) {
             break;
         }
     }
-    if ( overrun == 0 ) {
+    if ( frame_times == 0 ) {
         // Shouldn't happen unless trick renames that param
         fprintf(stderr,"snap [error]: Couldn't find parameter "
-                        "%s in log_frame.trk\n",
-                param_overrun.toAscii().data());
+                        "%s in %s\n",
+                FrameStat::frame_time_name.toAscii().data(),
+                river->getFileName());
+        exit(-1);
+    }
+    if ( overrun_times == 0 ) {
+        // Shouldn't happen unless trick renames that param
+        fprintf(stderr,"snap [error]: Couldn't find parameter "
+                        "%s in %s\n",
+                FrameStat::overrun_time_name.toAscii().data(),
+                river->getFileName());
         exit(-1);
     }
 
-    for ( int ii = 0 ; ii < npoints ; ++ii ) {
-        double tt = timestamps[ii];
-        long ot = (long) overrun[ii];
-        overruns.append(qMakePair(tt,ot));
+    for ( int tidx = 0 ; tidx < npoints ; ++tidx ) {
+        FrameStat framestat;
+        double tt = timestamps[tidx];
+        framestat.frame_time = frame_times[tidx]/1000000.0;
+        framestat.overrun_time = overrun_times[tidx]/1000000.0;
+        framestats.append(qMakePair(tt,framestat));
     }
 
-    qSort(overruns.begin(), overruns.end(), dlGreaterThan);
+    qSort(framestats.begin(), framestats.end(), dlGreaterThan);
 
-    return overruns;
+    return framestats;
 }
 
 QSet<int> Jobs::_thread_list()

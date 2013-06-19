@@ -37,6 +37,21 @@ class BoundedTrickBinaryRiver : public TrickBinaryRiver {
      QMap<const char*,double*> _vals;
 };
 
+
+class FrameStat
+{
+  public:
+    FrameStat() : frame_time(0), overrun_time(0), is_overrun(false)
+    {}
+
+    static QString frame_time_name;
+    static QString overrun_time_name;
+    double frame_time;
+    double overrun_time;
+    bool is_overrun;
+};
+
+
 class ThreadStat
 {
   public:
@@ -129,7 +144,7 @@ private:
 
     bool _parse_s_job_execution(const QString& rundir);
     bool _process_job_river( BoundedTrickBinaryRiver *river );
-    QList<QPair<double, long> > _process_frame_river(
+    QList<QPair<double, FrameStat> > _process_frame_river(
                                     BoundedTrickBinaryRiver *river );
 
 
