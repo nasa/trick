@@ -46,6 +46,7 @@ class FrameStat
 
     static QString frame_time_name;
     static QString overrun_time_name;
+    static int num_overruns;
     double frame_time;
     double overrun_time;
     bool is_overrun;

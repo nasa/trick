@@ -17,6 +17,7 @@
 
 QString FrameStat::frame_time_name = "real_time.rt_sync.frame_sched_time";
 QString FrameStat::overrun_time_name = "real_time.rt_sync.frame_overrun_time";
+int FrameStat::num_overruns = 0 ;
 
 bool intLessThan(int a, int b)
 {
@@ -172,6 +173,9 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
             _river_frame->getTimeStamps()[_river_frame->getNumPoints()-1]);
     fprintf(stderr,"%20s = %d\n", "Num jobs", _jobs.length());
     fprintf(stderr,"%20s = %d\n", "Num frames",framestats.length());
+    fprintf(stderr,"%20s = %d\n", "Num overruns",FrameStat::num_overruns);
+    fprintf(stderr,"%20s = %.2lf%%\n", "Percentage overruns",
+            100.0*(double)FrameStat::num_overruns/(double)framestats.length());
 
 
     //
@@ -1114,11 +1118,15 @@ QList<QPair<double, FrameStat> >
         exit(-1);
     }
 
+    FrameStat::num_overruns = 0;
     for ( int tidx = 0 ; tidx < npoints ; ++tidx ) {
         FrameStat framestat;
         double tt = timestamps[tidx];
         framestat.frame_time = frame_times[tidx]/1000000.0;
         framestat.overrun_time = overrun_times[tidx]/1000000.0;
+        if ( framestat.overrun_time > 0.0 ) {
+            FrameStat::num_overruns++;
+        }
         framestats.append(qMakePair(tt,framestat));
     }
 
