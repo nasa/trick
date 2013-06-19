@@ -1,3 +1,7 @@
+/*
+ * Snap! Crackle! Pop!
+ */
+
 #include "snap.h"
 
 
