@@ -24,8 +24,8 @@ bool intLessThan(int a, int b)
     return a < b;
 }
 
-bool threadTimeGreaterThan(const QPair<int,long> &a,
-                            const QPair<int,long> &b)
+bool threadTimeGreaterThan(const QPair<int,double> &a,
+                            const QPair<int,double> &b)
 {
     return a.second > b.second;
 }
@@ -239,7 +239,6 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
     // Thread summary
     //
     Threads threads(_jobs);
-    QMap<int,QMap<int,long> >  threadtimes = _threadtimes() ;
     int nthreads = threads.ids().size();
     fprintf(stderr,"%20s = %d\n", "Num threads",nthreads);
     fprintf(stderr,"%20s = ","Thread list");
@@ -319,11 +318,8 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
             "Thread", "NumJobs", "Freq", "NumOverruns", "ThreadAvg", "AvgLoad%",
             "ThreadMax", "MaxLoad%");
 
-    QMap<int,ThreadStat> threadstats = _thread_stats(threadtimes);
-    QList<int> threadids = threadstats.keys();
-    qSort(threadids.begin(), threadids.end(),intLessThan);
-    foreach ( int threadid, threadids ) {
-        ThreadStat stat = threadstats[threadid];
+    QList<int> threadids = threads.ids();
+    foreach ( ThreadStat stat, threads.list() ) {
         double avg_percent = 0.0;
         double max_percent = 0.0;
         if ( stat.freq > 0.0000001 ) {
@@ -332,7 +328,7 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
         }
 
         int num_overruns = 0;
-        if ( threadid == 0 ) {
+        if ( stat.thread_id == 0 ) {
             // the thread 0 overrun count doesn't take into account
             // the executive overhead... just the sum of job runtimes
             num_overruns = FrameStat::num_overruns;
@@ -341,7 +337,7 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
         }
         fprintf(stderr,"    %10d %10d %15.6lf %15d %15.6lf "
                        "%14.0lf%% %15.6lf %14.0lf%%\n",
-                 threadid,stat.hotjobs.length(),stat.freq,
+                 stat.thread_id,stat.jobs.length(),stat.freq,
                  num_overruns, stat.avg,
                  avg_percent, stat.max, max_percent);
     }
@@ -355,20 +351,19 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
     fprintf(stderr,"Top Jobs by Thread\n\n");
     fprintf(stderr,"    %8s %8s %15s %15s %10s%%     %-50s\n",
             "Thread", "NumJobs", "ThreadAvg", "JobAvgTime", "Percent", "JobName");
-    foreach ( int threadid, threadids ) {
-        ThreadStat stat = threadstats[threadid];
+    foreach ( ThreadStat stat, threads.list() ) {
         fprintf(stderr,"    %8d %8d %15.6lf ",
-                threadid,stat.hotjobs.length(),stat.avg) ;
-        if ( stat.avg < 0.000005 && stat.hotjobs.length() > 1 ) {
+                stat.thread_id,stat.jobs.length(),stat.avg) ;
+        if ( stat.avg < 0.000005 && stat.jobs.length() > 1 ) {
             fprintf(stderr,"%15s  %10s     %-49s\n", "--","--","--");
             continue;
         }
         double sum = 0;
         for ( int ii = 0; ii < 5; ++ii) {
-            Job* job = stat.hotjobs.at(ii) ;
+            Job* job = stat.jobs.at(ii) ;
             double percentage = 0.0;
             if ( stat.avg > 0.0000001 ) {
-                if ( stat.hotjobs.length() == 1 ) {
+                if ( stat.jobs.length() == 1 ) {
                     // Fix round off error.
                     // If the job has an average above zero
                     // and the thread has a single job
@@ -380,7 +375,7 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
             }
             sum += percentage;
             if ( (percentage < 1.0 || (sum > 98.0 && ii > 0)) &&
-                  stat.hotjobs.length() > 1 ) {
+                  stat.jobs.length() > 1 ) {
                 break;
             } else {
                 if ( ii > 0 ) {
@@ -394,7 +389,7 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
                 }
                 fprintf(stderr,"     %-50s\n", job->job_name().toAscii().data());
             }
-            if ( ii == stat.hotjobs.length()-1 ) {
+            if ( ii == stat.jobs.length()-1 ) {
                 break;
             }
         }
@@ -432,7 +427,7 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
         fprintf(stderr,"    %15.6lf %6d %15.6lf %15.6lf %15.6lf    %-40s\n",
                 avgtime.second,
                 job->thread_id(),
-                threadstats[job->thread_id()].avg,
+                threads.get(job->thread_id()).avg,
                 job->stddev_runtime(),
                 job->freq(),
                 job->job_name().toAscii().constData() );
@@ -455,7 +450,7 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
         fprintf(stderr,"    %15.6lf %6d %15.6lf %15.6lf %15.6lf    %-40s\n",
                 job->stddev_runtime(),
                 job->thread_id(),
-                threadstats[job->thread_id()].stdev,
+                threads.get(job->thread_id()).stdev,
                 job->avg_runtime(),
                 job->freq(),
                 job->job_name().toAscii().constData() );
@@ -480,7 +475,7 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
                 maxtime.second,
                 _river_frame->getTimeStamps()[tidx],
                 job->thread_id(),
-                threadtimes[tidx].value(job->thread_id())/1000000.0,
+                threads.get(job->thread_id()).runtime(tidx),
                 job->freq(),
                 job->job_name().toAscii().constData() );
 
@@ -600,7 +595,7 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
             fprintf(stderr,
                     "    %6d %15.6lf %15.6lf %15.6lf    %-50s\n",
                     job->thread_id(),
-                    threadtimes[tidx].value(job->thread_id())/1000000.0,
+                    threads.get(job->thread_id()).runtime(tidx),
                     rt,
                     job->freq(),
                     job->job_name().toAscii().constData()) ;
@@ -627,12 +622,10 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
     for ( int ii = 0 ; ii < 10 ; ++ii ) {
         double tt = framestats.at(ii).first;
         int tidx = _river_frame->getIndexAtTime(&tt);
-        QList<QPair<int,long> > ttimes;
-        QMap<int,long> threadid2runtime = threadtimes.value(tidx);
-        QList<int> threadids = threadid2runtime.keys();
-        foreach ( int threadid, threadids ) {
-            ttimes.append(qMakePair(threadid,
-                                    threadid2runtime.value(threadid)));
+
+        QList<QPair<int,double> > ttimes;
+        foreach ( ThreadStat stat, threads.list() ) {
+            ttimes.append(qMakePair(stat.thread_id,stat.runtime(tidx)));
         }
         qSort(ttimes.begin(),ttimes.end(),threadTimeGreaterThan);
 
@@ -640,12 +633,11 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
                 framestats.at(ii).first,framestats.at(ii).second.frame_time);
         fprintf(stderr, "    %6s %15s\n", "Thread", "ThreadTime");
         for ( int ii = 0 ; ii < ttimes.length(); ++ii ) {
-            QPair<int,long> ttime = ttimes.at(ii);
-            double t = ttime.second/1000000.0;
-            if ( t < 1.0e-3 ) {
+            QPair<int,double> ttime = ttimes.at(ii);
+            if ( ttime.second < 1.0e-3 ) {
                 break;
             }
-            fprintf(stderr,"    %6d %15.3lf\n", ttime.first ,t);
+            fprintf(stderr,"    %6d %15.3lf\n", ttime.first ,ttime.second);
         }
         fprintf(stderr, "\n");
     }
@@ -772,93 +764,10 @@ double Job::stddev_runtime()
     return _stddev_runtime;
 }
 
-// Returns map(tidx)->map(thread_id,runtime)
-QMap<int,QMap<int,long> >  Jobs::_threadtimes() const
+double Job::freq()
 {
-    QMap<int,QMap<int,long> > tidx_2_thread2runtime;
-
-    int npoints = _river_frame->getNumPoints();
-    for ( int tidx = 0; tidx < npoints; ++tidx) {
-
-        QMap<int,long> thread2runtime;
-        foreach ( Job* job, _jobs ) {
-            long rt = (long)(job->runtime[tidx]);
-            int thread = job->thread_id();
-            thread2runtime[thread] += rt;
-        }
-
-        tidx_2_thread2runtime[tidx] = thread2runtime;
-    }
-
-    return  tidx_2_thread2runtime;
-}
-
-// Input is map(tidx)->map(thread_id,runtime)
-// Return list of thread_id => (avg,stddev,max rt.of thread)
-QMap<int,ThreadStat> Jobs::_thread_stats(
-        const QMap<int,QMap<int,long> >&  threadtimes) const
-{
-    QMap<int,ThreadStat> stats;
-
-    QList<int> tidxs = threadtimes.keys();
-    int tidx0 = tidxs.at(0);
-    int ntidxs = tidxs.length();
-    QList<int> threadids = threadtimes.value(tidx0).keys();
-
-    foreach ( int threadid, threadids ) {
-
-        ThreadStat stat;
-        stat.thread_id = threadid;
-        stat.tidx_max = 0;
-        stat.max = 0.0;
-
-        // List of jobs per thread sorted by runtime
-        foreach ( Job* job, _jobs ) {
-            if ( job->thread_id() == threadid ) {
-                stat.hotjobs.append(job);
-            }
-        }
-        qSort(stat.hotjobs.begin(),stat.hotjobs.end(),avgJobTimeGreaterThan);
-
-        // Frequency (cycle time) of thread
-        stat.freq = 1.0e20;
-        foreach ( Job* job, stat.hotjobs ) {
-            if ( job->freq() < 0.000001 ) continue;
-            if ( job->freq() < stat.freq ) {
-                stat.freq = job->freq();
-            }
-        }
-        if (stat.freq == 1.0e20) {
-            stat.freq = 0.0;
-        }
-
-        long sumtime = 0 ;
-        foreach ( int tidx, tidxs ) {
-            long rt = threadtimes.value(tidx).value(threadid);
-            sumtime += rt;
-            if ( rt > stat.max ) {
-                stat.max = rt;
-                stat.tidx_max = tidx;
-            }
-            if ( (double)rt/1000000.0 > stat.freq && stat.freq > 0.000001 ) {
-                stat.num_overruns++;
-            }
-        }
-        stat.max =  (double)stat.max/1000000.0;
-        stat.avg =  (double)(sumtime)/(double)ntidxs/1000000.0;
-
-        // Stddev
-        foreach ( int tidx, tidxs ) {
-            double rt = threadtimes.value(tidx).value(threadid)/1000000.0;
-            double vv = (stat.avg-rt)*(stat.avg-rt);
-            stat.stdev += vv;
-        }
-        stat.stdev = sqrt(stat.stdev/(double)ntidxs);
-
-        stats[threadid] = stat;
-    }
-
-    return stats;
+    _do_stats();
+    return _freq;
 }
 
 QList<QPair<Job*, long> > Jobs::_jobtimes(double t) const
@@ -1147,22 +1056,113 @@ QList<QPair<double, FrameStat> >
     return framestats;
 }
 
-Threads::Threads(QList<Job*> jobs)
+void ThreadStat::_do_stats()
 {
-    _ids = _calc_ids(jobs);
+    if ( jobs.size() == 0 ) {
+        return;
+    }
+
+    qSort(jobs.begin(),jobs.end(),avgJobTimeGreaterThan);
+
+    int npoints = jobs.at(0)->npoints;
+    for ( int tidx = 0; tidx < npoints; ++tidx) {
+        double sum_rt = 0.0;
+        foreach ( Job* job, jobs ) {
+            sum_rt += job->runtime[tidx];
+        }
+        _tidx2runtime[tidx] = sum_rt/1000000.0;
+    }
+
+    // Frequency (cycle time) of thread
+    freq = 1.0e20;
+    foreach ( Job* job, jobs ) {
+        if ( job->freq() < 0.000001 ) continue;
+        if ( job->freq() < freq ) {
+            freq = job->freq();
+        }
+    }
+    if (freq == 1.0e20) {
+        freq = 0.0;
+    }
+
+    // Avg,max and (TODO Fix Overruns)
+    double sumtime = 0.0 ;
+    foreach ( int tidx, _tidx2runtime.keys() ) {
+        double rt = _tidx2runtime[tidx];
+        sumtime += rt;
+        if ( rt > max ) {
+            max = rt;
+            tidx_max = tidx;
+        }
+        if ( rt > freq && freq > 0.000001 ) {
+            num_overruns++;
+        }
+    }
+    avg =  sumtime/npoints;
+
+    // Stddev
+    foreach ( int tidx, _tidx2runtime.keys() ) {
+        double rt = _tidx2runtime[tidx];
+        double vv = (avg-rt)*(avg-rt);
+        stdev += vv;
+    }
+    stdev = sqrt(stdev/npoints);
 }
 
-QSet<int> Threads::ids()
+double ThreadStat::runtime(int tidx) const
+{
+    return _tidx2runtime[tidx];
+}
+
+Threads::Threads(const QList<Job*>& jobs) : _jobs(jobs)
+{
+    foreach ( Job* job, _jobs ) {
+
+        int tid = job->thread_id();
+        if ( ! _ids.contains(tid) ) {
+            _ids.append(tid);
+            ThreadStat* stat = new ThreadStat();
+            stat->thread_id = tid;
+            _threads.insert(tid,stat);
+        }
+
+        ThreadStat* stat = _threads.value(tid);
+        stat->jobs.append(job);
+    }
+
+    qSort(_ids.begin(),_ids.end(),intLessThan);
+
+    foreach ( ThreadStat* stat, _threads.values() ) {
+        stat->_do_stats();
+    }
+
+}
+
+Threads::~Threads()
+{
+    foreach ( ThreadStat* stat, _threads.values() ) {
+        delete stat;
+    }
+}
+
+ThreadStat Threads::get(int id) const
+{
+    return *(_threads[id]);
+}
+
+QList<ThreadStat> Threads::list() const
+{
+    QList<ThreadStat> list ;
+
+    foreach ( ThreadStat* stat, _threads.values() ) {
+        list.append(*stat);
+    }
+
+    return list;
+}
+
+QList<int> Threads::ids() const
 {
     return _ids;
 }
 
-QSet<int> Threads::_calc_ids(const QList<Job*>& jobs)
-{
-    QSet<int> ids;
-    foreach ( Job* job, jobs ) {
-        ids.insert(job->thread_id());
-    }
-
-    return ids;
-}

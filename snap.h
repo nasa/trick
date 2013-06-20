@@ -56,30 +56,40 @@ class FrameStat
 class ThreadStat
 {
   public:
-    ThreadStat() : thread_id(0), njobs(0), avg(0),
+    ThreadStat() : thread_id(0), avg(0),
                    tidx_max(0),max(0), stdev(0),freq(0.0),
                    num_overruns(0) {}
     int thread_id;
-    int njobs;
     double avg;
     int tidx_max;
     double max ;
     double stdev;
-    double freq;         // assume freq is freq of highest freq job on the thread
-    QList<Job*> hotjobs; // sorted job list on thread with highest avg run times
+    double freq;      // assume freq is freq of highest freq job on the thread
+    QList<Job*> jobs; // sorted job list on thread with highest avg run times
     int num_overruns;
+
+    void _do_stats(); // make private later
+
+    double runtime(int tidx) const;
+    double runtime(double time) const;
+
+  private:
+    QMap<int,double> _tidx2runtime;
 };
 
 class Threads
 {
   public:
-    Threads(QList<Job*> jobs);
-    QSet<int> ids();
+    Threads(const QList<Job *> &jobs);
+    ~Threads();
+    ThreadStat get(int id) const;
+    QList<int> ids() const;
+    QList<ThreadStat> list() const ;
 
   private:
     QList<Job*> _jobs;
-    QSet<int> _ids;
-    QSet<int> _calc_ids(const QList<Job *> &jobs);
+    QList<int> _ids;
+    QMap<int,ThreadStat*> _threads;
 };
 
 class Job
@@ -106,7 +116,7 @@ public:
     QString sim_object() const ;
     int thread_id() const { return _thread_id; }
     int processor_id() const { return _processor_id;}
-    double freq() const { return _freq ;}
+    double freq() ;
     double start() const { return _start ;}
     double stop()  const{ return _stop ;}
     QString job_class() const { return _job_class ;}
