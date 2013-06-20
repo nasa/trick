@@ -314,8 +314,8 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
     fprintf(stderr,
     "-----------------------------------------------------------------\n");
     fprintf(stderr,"Thread Time Summary\n\n");
-    fprintf(stderr,"    %10s %10s %15s %15s %15s %15s %15s\n",
-            "Thread", "NumJobs", "Freq", "ThreadAvg", "AvgLoad%",
+    fprintf(stderr,"    %10s %10s %15s %15s %15s %15s %15s %15s\n",
+            "Thread", "NumJobs", "Freq", "NumOverruns", "ThreadAvg", "AvgLoad%",
             "ThreadMax", "MaxLoad%");
 
     QMap<int,ThreadStat> threadstats = _thread_stats(threadtimes);
@@ -329,9 +329,19 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
             avg_percent = 100.0*stat.avg/stat.freq;
             max_percent = 100.0*stat.max/stat.freq;
         }
-        fprintf(stderr,"    %10d %10d %15.6lf %15.6lf "
+
+        int num_overruns = 0;
+        if ( threadid == 0 ) {
+            // the thread 0 overrun count doesn't take into account
+            // the executive overhead... just the sum of job runtimes
+            num_overruns = FrameStat::num_overruns;
+        } else {
+            num_overruns = stat.num_overruns;
+        }
+        fprintf(stderr,"    %10d %10d %15.6lf %15d %15.6lf "
                        "%14.0lf%% %15.6lf %14.0lf%%\n",
-                 threadid,stat.hotjobs.length(),stat.freq,stat.avg,
+                 threadid,stat.hotjobs.length(),stat.freq,
+                 num_overruns, stat.avg,
                  avg_percent, stat.max, max_percent);
     }
     fprintf(stderr,"\n\n");
@@ -794,34 +804,12 @@ QMap<int,ThreadStat> Jobs::_thread_stats(
     int ntidxs = tidxs.length();
     QList<int> threadids = threadtimes.value(tidx0).keys();
 
-    QMap<int,long> sumtime;
     foreach ( int threadid, threadids ) {
 
         ThreadStat stat;
         stat.thread_id = threadid;
         stat.tidx_max = 0;
         stat.max = 0.0;
-
-        sumtime[threadid] = 0 ;
-
-        foreach ( int tidx, tidxs ) {
-            long rt = threadtimes.value(tidx).value(threadid);
-            sumtime[threadid] += rt;
-            if ( rt > stat.max ) {
-                stat.max = rt;
-                stat.tidx_max = tidx;
-            }
-        }
-        stat.max =  (double)stat.max/1000000.0;
-        stat.avg =  (double)(sumtime.value(threadid))/(double)ntidxs/1000000.0;
-
-        // Stddev
-        foreach ( int tidx, tidxs ) {
-            double rt = threadtimes.value(tidx).value(threadid)/1000000.0;
-            double vv = (stat.avg-rt)*(stat.avg-rt);
-            stat.stdev += vv;
-        }
-        stat.stdev = sqrt(stat.stdev/(double)ntidxs);
 
         // List of jobs per thread sorted by runtime
         foreach ( Job* job, _jobs ) {
@@ -842,6 +830,29 @@ QMap<int,ThreadStat> Jobs::_thread_stats(
         if (stat.freq == 1.0e20) {
             stat.freq = 0.0;
         }
+
+        long sumtime = 0 ;
+        foreach ( int tidx, tidxs ) {
+            long rt = threadtimes.value(tidx).value(threadid);
+            sumtime += rt;
+            if ( rt > stat.max ) {
+                stat.max = rt;
+                stat.tidx_max = tidx;
+            }
+            if ( (double)rt/1000000.0 > stat.freq && stat.freq > 0.000001 ) {
+                stat.num_overruns++;
+            }
+        }
+        stat.max =  (double)stat.max/1000000.0;
+        stat.avg =  (double)(sumtime)/(double)ntidxs/1000000.0;
+
+        // Stddev
+        foreach ( int tidx, tidxs ) {
+            double rt = threadtimes.value(tidx).value(threadid)/1000000.0;
+            double vv = (stat.avg-rt)*(stat.avg-rt);
+            stat.stdev += vv;
+        }
+        stat.stdev = sqrt(stat.stdev/(double)ntidxs);
 
         stats[threadid] = stat;
     }
