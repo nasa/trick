@@ -70,6 +70,18 @@ class ThreadStat
     int num_overruns;
 };
 
+class Threads
+{
+  public:
+    Threads(QList<Job*> jobs);
+    QSet<int> ids();
+
+  private:
+    QList<Job*> _jobs;
+    QSet<int> _ids;
+    QSet<int> _calc_ids(const QList<Job *> &jobs);
+};
+
 class Job
 {
 public:
@@ -155,7 +167,6 @@ private:
     BoundedTrickBinaryRiver* _river_frame;
     BoundedTrickBinaryRiver* _river_trickjobs;
 
-    QSet<int> _thread_list();
     QMap<int, ThreadStat> _thread_stats(
         const QMap<int,QMap<int,long> >&  threadtimes) const;
     QMap<int,QMap<int,long> >  _threadtimes() const; // tidx->(tid->thread_rt)

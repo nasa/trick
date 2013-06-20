@@ -238,13 +238,14 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
     //
     // Thread summary
     //
+    Threads threads(_jobs);
     QMap<int,QMap<int,long> >  threadtimes = _threadtimes() ;
-    QSet<int> threads = _thread_list();
-    fprintf(stderr,"%20s = %d\n", "Num threads",threads.size());
+    int nthreads = threads.ids().size();
+    fprintf(stderr,"%20s = %d\n", "Num threads",nthreads);
     fprintf(stderr,"%20s = ","Thread list");
     int ii = 0 ;
     int ltid = 0;
-    foreach ( int tid, threads ) {
+    foreach ( int tid, threads.ids() ) {
         if ( ii != 0 && ii%16 == 0 ) {
             fprintf(stderr,"\n");
             fprintf(stderr,"%20s   "," ");
@@ -253,7 +254,7 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
             fprintf(stderr,"MISSING,");
         }
         fprintf(stderr,"%d", tid);
-        if ( ii < threads.size()-1 ) {
+        if ( ii < nthreads-1 ) {
             fprintf(stderr,",");
         }
         ltid = tid;
@@ -1146,14 +1147,22 @@ QList<QPair<double, FrameStat> >
     return framestats;
 }
 
-QSet<int> Jobs::_thread_list()
+Threads::Threads(QList<Job*> jobs)
 {
-    QSet<int> threads;
-    foreach ( Job* job, _jobs ) {
-        threads.insert(job->thread_id());
-    }
-
-    return threads;
+    _ids = _calc_ids(jobs);
 }
 
+QSet<int> Threads::ids()
+{
+    return _ids;
+}
 
+QSet<int> Threads::_calc_ids(const QList<Job*>& jobs)
+{
+    QSet<int> ids;
+    foreach ( Job* job, jobs ) {
+        ids.insert(job->thread_id());
+    }
+
+    return ids;
+}
