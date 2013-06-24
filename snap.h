@@ -95,7 +95,8 @@ class Threads
 class Job
 {
 public:
-    Job(const QString& job_name,  // e.g. simbus.SimBus::read_ObcsRouter
+    Job(BoundedTrickBinaryRiver* river,
+        const QString& job_name,  // e.g. simbus.SimBus::read_ObcsRouter
         const QString& job_num,   // e.g. 1828.00
         int thread_id,            // e.g. 1
         int processor_id,         // e.g. 1
@@ -108,7 +109,7 @@ public:
 
     // job_id is logged job name
     // e.g. JOB_bus.SimBus##read_ObcsRouter_C1.1828.00(read_simbus_0.100)
-    Job(const QString& job_id);
+    Job(BoundedTrickBinaryRiver* river, const char *job_id);
 
     QString id() const; // logged jobname
     QString job_num() const { return _job_num; }
@@ -128,13 +129,17 @@ public:
     int max_timeidx();
     double stddev_runtime();
 
-    // Log jobs info
-    int npoints;
-    double* timestamps;
-    double* runtime;
-
+    BoundedTrickBinaryRiver* river() const { return _river; }
+    inline double* runtime() const { return _runtime; }
+    inline int npoints() const { return _npoints; }
 private:
     Job() {}
+
+    BoundedTrickBinaryRiver* _river;
+    int _npoints;
+    double* _timestamps;
+    double* _runtime;
+
     QString _job_name;
     QString _job_num;   // e.g. 1831.04
     int _thread_id;

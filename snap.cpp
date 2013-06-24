@@ -276,7 +276,7 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
         double hcnt = 0.0 ;
         double shcnt = 0.0 ;
         foreach ( Job* job, _jobs ) {
-            double rt = job->runtime[ii]/1000000;
+            double rt = job->runtime()[ii]/1000000;
             if ( rt > job->avg_runtime()+job->stddev_runtime() ) {
                 hcnt += 1.0;
                 if ( rt > job->avg_runtime()+2*job->stddev_runtime() ) {
@@ -506,7 +506,7 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
             QList<Job*>* jobs = simobj2jobs.value(simobj) ;
             double sum_simobj_rt = 0.0;
             foreach ( Job* job, *jobs ) {
-                long rt = (long)job->runtime[tidx];
+                long rt = (long)job->runtime()[tidx];
                 sum_simobj_rt += rt;
             }
             if ( simobj2avgtime.contains(simobj) ) {
@@ -586,7 +586,7 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
         for ( int jj = 0 ; jj < 10 ; ++jj ) {
             QPair<Job*,long> snap = snaps.at(jj);
             Job* job = snap.first;
-            double rt =  job->runtime[tidx]/1000000;
+            double rt =  job->runtime()[tidx]/1000000;
             double delta = 1.0e-3;
             if ( rt < delta ) {
                 continue;
@@ -681,7 +681,7 @@ inline void Job::_do_stats()
         _is_stats  = true;
     }
 
-    if ( npoints == 0 || timestamps == 0 || runtime == 0 ) {
+    if ( _npoints == 0 || _timestamps == 0 || _runtime == 0 ) {
         fprintf(stderr,"Job::_do_stats() called without setting:");
         fprintf(stderr," npoints or timestamps or runtime");
         fprintf(stderr," which come from TrickBinaryRiver\n");
@@ -695,12 +695,12 @@ inline void Job::_do_stats()
     long sum_rt = 0 ;
     long max_rt = 0 ;
     double sum_vv = 0.0;
-    for ( int tidx = 0 ; tidx < npoints ; tidx++ ) {
-        double time = timestamps[tidx];
+    for ( int tidx = 0 ; tidx < _npoints ; tidx++ ) {
+        double time = _timestamps[tidx];
         if ( time < 1.0 ) {
             continue;
         }
-        long rt = (long)runtime[tidx];
+        long rt = (long)_runtime[tidx];
 
         if ( tidx > 0 && rt > 0 ) {
             freq = _round_10((long)(time*1000000.0) - last_nonzero_timestamp);
@@ -720,13 +720,13 @@ inline void Job::_do_stats()
         }
         sum_rt += rt;
 
-        _avg_runtime = ((double)sum_rt/(double)npoints);
+        _avg_runtime = ((double)sum_rt/(double)_npoints);
         sum_vv += (rt-_avg_runtime)*(rt-_avg_runtime); // for stddev
     }
 
-    _avg_runtime = (sum_rt/npoints)/1000000.0;
+    _avg_runtime = (sum_rt/_npoints)/1000000.0;
     _max_runtime = (max_rt)/1000000.0;
-    _stddev_runtime = sqrt(sum_vv/npoints)/1000000.0 ;
+    _stddev_runtime = sqrt(sum_vv/_npoints)/1000000.0 ;
 
     // Could be multiple frequencies - choose mode
     int max_cnt = 0 ;
@@ -775,14 +775,18 @@ QList<QPair<Job*, long> > Jobs::_jobtimes(double t) const
     QList<QPair<Job*,long> > runtimes;
     int tidx = _river_userjobs->getIndexAtTime(&t);
     foreach ( Job* job, _jobs ) {
-        long rt = (long)job->runtime[tidx];
+        long rt = (long)job->runtime()[tidx];
         runtimes.append(qMakePair(job,rt));
     }
     qSort(runtimes.begin(), runtimes.end(), jobTimeGreaterThan);
     return runtimes;
 }
 
-Job::Job(const QString& job_name,  // e.g. simbus.SimBus::read_ObcsRouter
+// TODO: Untested.  This was going to be used for S_job_execution,
+//       but that was broken.  Keeping this in case snap eventually
+//       uses S_job_execution.
+Job::Job(BoundedTrickBinaryRiver *river,
+         const QString& job_name,  // e.g. simbus.SimBus::read_ObcsRouter
          const QString& job_num,   // e.g. 1828.00
          int thread_id,            // e.g. 1
          int processor_id,         // e.g. 1
@@ -792,23 +796,36 @@ Job::Job(const QString& job_name,  // e.g. simbus.SimBus::read_ObcsRouter
          const QString& job_class, // e.g.scheduled
          bool is_enabled,          // e.g. 1
          int phase)                // e.g. 60000
-    : npoints(0), timestamps(0), runtime(0),
+    : _river(river),_npoints(0), _timestamps(0), _runtime(0),
       _job_name(job_name),_job_num(job_num), _thread_id(thread_id),
       _processor_id(processor_id),_freq(freq),_start(start),
       _stop(stop),_job_class(job_class),_is_enabled(is_enabled),
       _phase(phase),_is_stats(false)
 {
+    if ( river == 0 ) {
+        fprintf(stderr,"This code is not ready to use.\n");
+        fprintf(stderr,"It's eventual use is for S_job_execution.\n");
+        fprintf(stderr,"Exiting!!!\n");
+        exit(-1);
+    }
+    _npoints = river->getNumPoints();
+    _timestamps = river->getTimeStamps();
+    QString logged_jobname = id();
+    _runtime = river->getVals(logged_jobname.toAscii().constData());
 }
 
 // Parse long logname and set job members accordingly
 // An example logname:
 // JOB_schedbus.SimBus##read_ALDS15_ObcsRouter_C1.1828.00(read_simbus_0.100)
-Job::Job(const QString& log_jobname) :
-    _start(0),_stop(1.0e37),_is_enabled(true),_phase(60000),
+Job::Job(BoundedTrickBinaryRiver *river, const char* log_jobname) :
+    _river(river),_start(0),_stop(1.0e37),_is_enabled(true),_phase(60000),
     _is_stats(false)
 {
-    QString qname(log_jobname);
+    _npoints = river->getNumPoints();
+    _timestamps = river->getTimeStamps();
+    _runtime = river->getVals(log_jobname);
 
+    QString qname(log_jobname);
     qname.replace("::","##");
     qname.replace(QRegExp("^JOB_"),"");
     int idx1 = qname.lastIndexOf (QChar('('));
@@ -920,8 +937,14 @@ bool Jobs::_parse_s_job_execution(const QString &rundir)
         QStringList list =  line.split("|") ;
         if ( list.length() != 9 ) continue ;
 
-        QString job_name(""); QString job_num(""); double freq = 0.0; double start = 1.0;
-        double stop = 1.0e20; QString job_class(""); bool is_enabled = true; int phase = 0;
+        QString job_name("");
+        QString job_num("");
+        double freq = 0.0;
+        double start = 1.0;
+        double stop = 1.0e20;
+        QString job_class("");
+        bool is_enabled = true;
+        int phase = 0;
         int processor_id = -1;
 
         for ( int ii = 0 ; ii < list.size(); ++ii) {
@@ -939,7 +962,7 @@ bool Jobs::_parse_s_job_execution(const QString &rundir)
             };
         }
 
-        Job* job = new Job(job_name, job_num, thread_id, processor_id,
+        Job* job = new Job(0, job_name, job_num, thread_id, processor_id,
                             freq, start, stop, job_class, is_enabled,phase);
 
         _id_to_job[job->id()] = job;
@@ -962,7 +985,7 @@ bool Jobs::_process_job_river( BoundedTrickBinaryRiver* river )
 
         LOG_PARAM param = params.at(ii);
 
-        Job* job = new Job(const_cast<char*>(param.data.name.c_str()));
+        Job* job = new Job(river,const_cast<char*>(param.data.name.c_str()));
 
         QString job_id = job->id();
 
@@ -976,10 +999,6 @@ bool Jobs::_process_job_river( BoundedTrickBinaryRiver* river )
             _jobs.append(job);
         }
 
-        job->npoints = river->getNumPoints();
-        job->timestamps = river->getTimeStamps();
-        job->runtime = river->getVals(const_cast<char*>
-                                       (param.data.name.c_str()));
     }
 
     return ret;
@@ -1076,11 +1095,11 @@ void ThreadStat::_do_stats()
         freq = 0.0;
     }
 
-    int npoints = jobs.at(0)->npoints;
+    int npoints = jobs.at(0)->npoints();
     for ( int tidx = 0; tidx < npoints; ++tidx) {
         double sum_rt = 0.0;
         foreach ( Job* job, jobs ) {
-            sum_rt += job->runtime[tidx];
+            sum_rt += job->runtime()[tidx];
         }
         _tidx2runtime[tidx] = sum_rt/1000000.0;
     }
