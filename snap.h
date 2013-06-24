@@ -68,13 +68,22 @@ class ThreadStat
     QList<Job*> jobs; // sorted job list on thread with highest avg run times
     int num_overruns;
 
-    void _do_stats(); // make private later
+    void _do_stats(); // TODO: make private later
 
     double runtime(int tidx) const;
     double runtime(double time) const;
 
+    int nframes() const; // this differs from number of timestamps
+                        //  since frames can span multiple timestamps
+
+    double avg_runtime(Job* job) const ; // avg runtime per thread frame differs
+                                        // from avg job runtime because a job
+                                        // may be called multiple times per frame
+                                        // e.g. a 0.1 job is called 10X if the
+                                        // thread has a 1.0 second AMF frame
+
   private:
-    QMap<int,double> _tidx2runtime;
+    QMap<int,double> _frameidx2runtime;
 };
 
 class Threads
@@ -131,6 +140,7 @@ public:
 
     BoundedTrickBinaryRiver* river() const { return _river; }
     inline double* runtime() const { return _runtime; }
+    inline double* timestamps() const { return _timestamps; }
     inline int npoints() const { return _npoints; }
 private:
     Job() {}

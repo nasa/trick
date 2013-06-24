@@ -370,18 +370,18 @@ Jobs::Jobs(const QString &rundir, double start, double stop) :
                     // this job took 100%, so force it
                     percentage = 100.0;
                 } else {
-                    percentage = 100.0*job->avg_runtime()/stat.avg;
+                    percentage = 100.0*stat.avg_runtime(job)/stat.avg;
                 }
             }
             sum += percentage;
-            if ( (percentage < 1.0 || (sum > 98.0 && ii > 0)) &&
+            if ( (percentage < 0.01 || (sum > 98.0 && ii > 0)) &&
                   stat.jobs.length() > 1 ) {
                 break;
             } else {
                 if ( ii > 0 ) {
                     fprintf(stderr,"    %8s %8s %15s ", "","","");
                 }
-                fprintf(stderr,"%15.6lf ",job->avg_runtime());
+                fprintf(stderr,"%15.6lf ",stat.avg_runtime(job));
                 if ( stat.avg > 0.0000001 ) {
                     fprintf(stderr,"%10.0lf%%", percentage);
                 } else {
@@ -1095,42 +1095,80 @@ void ThreadStat::_do_stats()
         freq = 0.0;
     }
 
-    int npoints = jobs.at(0)->npoints();
+    Job* job0 = jobs.at(0);
+    int npoints = job0->npoints();
+    double* t = job0->timestamps();
+    double tnext = t[0] + freq;
+    double sum_time = 0.0;
+    double frame_time = 0.0;
+    max = 0.0;
+    int last_frameidx = 0 ;
+    bool is_frame_change = true;
+    int nframes = 0 ;
     for ( int tidx = 0; tidx < npoints; ++tidx) {
-        double sum_rt = 0.0;
-        foreach ( Job* job, jobs ) {
-            sum_rt += job->runtime()[tidx];
-        }
-        _tidx2runtime[tidx] = sum_rt/1000000.0;
-    }
 
-    // Avg,max and (TODO Fix Overruns)
-    double sumtime = 0.0 ;
-    foreach ( int tidx, _tidx2runtime.keys() ) {
-        double rt = _tidx2runtime[tidx];
-        sumtime += rt;
-        if ( rt > max ) {
-            max = rt;
-            tidx_max = tidx;
+        if ( freq < 0.000001 ) {
+            is_frame_change = true;
+        } else if ( tnext < t[tidx] ) {
+            tnext += freq;
+            if ( frame_time/1000000.0 > freq ) {
+                num_overruns++;
+            }
+            is_frame_change = true;
         }
-        if ( rt > freq && freq > 0.000001 ) {
-            num_overruns++;
+
+        if ( is_frame_change ) {
+            if ( frame_time > max ) {
+                max = frame_time;
+                tidx_max = last_frameidx;
+            }
+            _frameidx2runtime[last_frameidx] = frame_time/1000000.0;
+            sum_time += frame_time;
+            nframes++;
+            frame_time = 0.0;
+            last_frameidx = tidx;
+            is_frame_change = false;
+        }
+
+        foreach ( Job* job, jobs ) {
+            frame_time += job->runtime()[tidx];
         }
     }
-    avg =  sumtime/npoints;
+    max /= 1000000.0;
+    avg =  sum_time/nframes/1000000.0;
 
     // Stddev
-    foreach ( int tidx, _tidx2runtime.keys() ) {
-        double rt = _tidx2runtime[tidx];
+    foreach ( int tidx, _frameidx2runtime.keys() ) {
+        double rt = _frameidx2runtime[tidx];
         double vv = (avg-rt)*(avg-rt);
         stdev += vv;
     }
-    stdev = sqrt(stdev/npoints);
+    stdev = sqrt(stdev/nframes);
+
 }
 
 double ThreadStat::runtime(int tidx) const
 {
-    return _tidx2runtime[tidx];
+    double rt = -1.0;
+
+    for ( int ii = tidx; ii >= 0 ; --ii) {
+        if ( _frameidx2runtime.contains(ii) ) {
+            rt = _frameidx2runtime[ii];
+            break;
+        }
+    }
+
+    return rt;
+}
+
+int ThreadStat::nframes() const
+{
+    return _frameidx2runtime.keys().size();
+}
+
+double ThreadStat::avg_runtime(Job *job) const
+{
+    return job->avg_runtime()*job->npoints()/nframes();
 }
 
 Threads::Threads(const QList<Job*>& jobs) : _jobs(jobs)
