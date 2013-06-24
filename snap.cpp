@@ -1064,15 +1064,6 @@ void ThreadStat::_do_stats()
 
     qSort(jobs.begin(),jobs.end(),avgJobTimeGreaterThan);
 
-    int npoints = jobs.at(0)->npoints;
-    for ( int tidx = 0; tidx < npoints; ++tidx) {
-        double sum_rt = 0.0;
-        foreach ( Job* job, jobs ) {
-            sum_rt += job->runtime[tidx];
-        }
-        _tidx2runtime[tidx] = sum_rt/1000000.0;
-    }
-
     // Frequency (cycle time) of thread
     freq = 1.0e20;
     foreach ( Job* job, jobs ) {
@@ -1083,6 +1074,15 @@ void ThreadStat::_do_stats()
     }
     if (freq == 1.0e20) {
         freq = 0.0;
+    }
+
+    int npoints = jobs.at(0)->npoints;
+    for ( int tidx = 0; tidx < npoints; ++tidx) {
+        double sum_rt = 0.0;
+        foreach ( Job* job, jobs ) {
+            sum_rt += job->runtime[tidx];
+        }
+        _tidx2runtime[tidx] = sum_rt/1000000.0;
     }
 
     // Avg,max and (TODO Fix Overruns)
