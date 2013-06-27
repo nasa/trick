@@ -48,7 +48,11 @@ bool frameTopJobsGreaterThan(const QPair<double,Job*>& a,
 bool topThreadGreaterThan(const QPair<double,ThreadStat>& a,
                          const QPair<double,ThreadStat>& b)
 {
-    return a.first > b.first;
+    if ( a.second.freq > 0.000001 && b.second.freq > 0.000001 ) {
+        return (a.first/a.second.freq) > (b.first/b.second.freq);
+    } else {
+        return (a.first > b.first);
+    }
 }
 
 bool frameTimeGreaterThan(const FrameStat& a,const FrameStat& b)
