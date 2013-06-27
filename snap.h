@@ -11,6 +11,8 @@
 
 #include "TrickBinaryRiver.hh"
 
+#define TXT(X) X.toAscii().constData()
+
 class Job;
 
 class BoundedTrickBinaryRiver : public TrickBinaryRiver {
@@ -47,22 +49,32 @@ class FrameStat
     static QString frame_time_name;
     static QString overrun_time_name;
     static int num_overruns;
+
+    int timeidx;
+    double timestamp;
     double frame_time;
     double overrun_time;
     bool is_overrun;
+    double hotjobpercentage;
+    double spicyhotjobpercentage;
+
+    // List of top jobs with most runtime for the frame
+    QList<QPair<double,Job*> > topjobs;    // (rt,job)
 };
 
 
 class ThreadStat
 {
   public:
-    ThreadStat() : thread_id(0), avg(0),
-                   tidx_max(0),max(0), stdev(0),freq(0.0),
+    ThreadStat() : thread_id(0), avg_runtime(0),
+                   tidx_max_runtime(0),max_runtime(0), stdev(0),freq(0.0),
                    num_overruns(0) {}
     int thread_id;
-    double avg;
-    int tidx_max;
-    double max ;
+    double avg_runtime;
+    double avg_load;       // this is a percentage
+    int tidx_max_runtime;
+    double max_runtime ;
+    double max_load ;      // this is a percentage
     double stdev;
     double freq;      // assume freq is freq of highest freq job on the thread
     QList<Job*> jobs; // sorted job list on thread with highest avg run times
@@ -71,16 +83,18 @@ class ThreadStat
     void _do_stats(); // TODO: make private later
 
     double runtime(int tidx) const;
-    double runtime(double time) const;
+    double runtime(double timestamp) const;
 
     int nframes() const; // this differs from number of timestamps
                         //  since frames can span multiple timestamps
 
-    double avg_runtime(Job* job) const ; // avg runtime per thread frame differs
-                                        // from avg job runtime because a job
-                                        // may be called multiple times per frame
+    double avg_job_runtime(Job* job) const ; // avg runtime per thread frame
+                                        // differs from avg job runtime because
+                                        // a job  may be called multiple times
+                                        // per frame
                                         // e.g. a 0.1 job is called 10X if the
                                         // thread has a 1.0 second AMF frame
+    double avg_job_load(Job* job) const ;
 
   private:
     QMap<int,double> _frameidx2runtime;
@@ -94,11 +108,42 @@ class Threads
     ThreadStat get(int id) const;
     QList<int> ids() const;
     QList<ThreadStat> list() const ;
+    int size() const { return _threads.keys().size(); }
 
   private:
     QList<Job*> _jobs;
     QList<int> _ids;
     QMap<int,ThreadStat*> _threads;
+};
+
+class SimObject
+{
+  public:
+    SimObject(const QString& name);
+    QString name() const { return _name ; }
+    double avg_runtime;
+    QList<Job*> jobs; // sorted job list on simobject with highest avg run times
+
+    void _do_stats(); // TODO: meant to be only used by SimObjects
+
+  private:
+    SimObject();
+    QString _name;
+
+
+};
+
+class SimObjects
+{
+  public:
+    SimObjects(const QList<Job *> &jobs);
+    ~SimObjects();
+    QList<SimObject> list() const; // sorted by highest avg runtime
+
+  private:
+    SimObjects();
+    QList<Job*> _jobs;
+    QMap<QString,SimObject*> _sim_objects;
 };
 
 class Job
@@ -135,7 +180,7 @@ public:
 
     double avg_runtime();
     double max_runtime();
-    int max_timeidx();
+    double max_timestamp();
     double stddev_runtime();
 
     BoundedTrickBinaryRiver* river() const { return _river; }
@@ -166,45 +211,90 @@ private:
     double _avg_runtime;
     double _stddev_runtime;
     double _max_runtime;
-    int _max_tidx;
+    double _max_timestamp;
 };
 
 class Jobs
 {
 public:
-    Jobs(const QString& rundir, double start, double stop);
+    Jobs(const QString& irundir, double istart, double istop);
     ~Jobs();
+
+    enum SortBy {
+        NoSort,
+        SortByJobAvgTime,
+        SortByJobMaxTime
+    };
+
+    QString rundir() const { return _rundir ; }
+    double start() const { return  _river_frame->getTimeStamps()[0]; }
+    double stop() const  { return _river_frame->getTimeStamps()
+                                 [_river_frame->getNumPoints()-1];}
+    QList<Job *> *jobs(Jobs::SortBy sort_method = SortByJobAvgTime) ;
+    int num_jobs() const { return _jobs.size(); }
+    int num_frames() const { return _frame_stats.size(); }
+    int num_overruns() const { return FrameStat::num_overruns; }
+    double percent_overruns() const { return 100.0*
+                                   (double)num_overruns()/(double)num_frames(); }
+    QString frame_rate() const ; // for now return list of frame rates
+    double frame_avg() const { return _frame_avg; }
+    double frame_stddev() const { return _frame_stddev; }
+
+    int num_threads() const { return _threads->size(); }
+    QString thread_listing() const ;
+
+    QList<SimObject> simobjects() const { return _sim_objects->list(); }
+    Threads* thread_stats() const { return _threads; }
+    const QList<FrameStat>* frame_stats() const { return &_frame_stats; }
 
 private:
     Jobs() {}
 
+
+    QString _rundir;
+    double _start;
+    double _stop;
+
+    double _frame_avg;    void _calc_frame_avg();
+    double _frame_stddev; void _calc_frame_stddev();
+
+    SortBy _curr_sort_method;
     QList<Job*> _jobs;
     QString _job_logname(const Job* job) const;
     QMap<QString,Job*> _id_to_job;
 
+
+    BoundedTrickBinaryRiver* _open_river(const QString& rundir,
+                                          const QString& logfilename,
+                                          double start, double stop);
+    void _process_rivers();
     bool _parse_s_job_execution(const QString& rundir);
     bool _process_job_river( BoundedTrickBinaryRiver *river );
-    QList<QPair<double, FrameStat> > _process_frame_river(
-                                    BoundedTrickBinaryRiver *river );
-
+    QList<FrameStat> _process_frame_river(BoundedTrickBinaryRiver *river);
 
     BoundedTrickBinaryRiver* _river_userjobs;
     BoundedTrickBinaryRiver* _river_frame;
     BoundedTrickBinaryRiver* _river_trickjobs;
 
+    QList<FrameStat>  _frame_stats;
+
+    Threads* _threads;
+    SimObjects* _sim_objects;
     QMap<int, ThreadStat> _thread_stats(
         const QMap<int,QMap<int,long> >&  threadtimes) const;
     QMap<int,QMap<int,long> >  _threadtimes() const; // tidx->(tid->thread_rt)
-    QList<QPair<Job *, long> > _jobtimes(double t) const ;
 
-    void _rpt_summary();
+};
 
-    double _start;
-    double _stop;
+class SnapReport
+{
+  public:
+    SnapReport(Jobs& snap);
+    QString report();
 
-    BoundedTrickBinaryRiver* _open_river(const QString& rundir,
-                                          const QString& logfilename,
-                                          double start, double stop);
+  private:
+    Jobs& _snap;
+
 };
 
 #endif // BLAME_H

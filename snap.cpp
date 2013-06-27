@@ -24,39 +24,36 @@ bool intLessThan(int a, int b)
     return a < b;
 }
 
-bool threadTimeGreaterThan(const QPair<int,double> &a,
-                            const QPair<int,double> &b)
+bool simObjectAvgTimeGreaterThan(const SimObject& a, const SimObject& b)
 {
-    return a.second > b.second;
+    return a.avg_runtime > b.avg_runtime;
 }
 
-bool jobTimeGreaterThan(const QPair<Job*,long> &a,
-                         const QPair<Job*,long> &b)
-{
-    return a.second > b.second;
-}
-
-bool avgJobTimeGreaterThan(Job* a,Job* b)
+bool jobAvgTimeGreaterThan(Job* a,Job* b)
 {
     return a->avg_runtime() > b->avg_runtime();
 }
 
-bool doubleTimeGreaterThan(const QPair<Job*,double> &a,
-                            const QPair<Job*,double> &b)
+bool jobMaxTimeGreaterThan(Job* a,Job* b)
 {
-    return a.second > b.second;
+    return a->max_runtime() > b->max_runtime();
 }
 
-bool simObjTimeGreaterThan(const QPair<QString,double> &a,
-                         const QPair<QString,double> &b)
+bool frameTopJobsGreaterThan(const QPair<double,Job*>& a,
+                           const QPair<double,Job*>& b)
 {
-    return a.second > b.second;
+    return a.first > b.first;
 }
 
-bool long_int_GreaterThan(const QPair<long,int> &a,
-                           const QPair<long,int> &b)
+bool topThreadGreaterThan(const QPair<double,ThreadStat>& a,
+                         const QPair<double,ThreadStat>& b)
 {
-    return a.second > b.second;
+    return a.first > b.first;
+}
+
+bool frameTimeGreaterThan(const FrameStat& a,const FrameStat& b)
+{
+    return a.frame_time > b.frame_time;
 }
 
 static long _round_10(long a)
@@ -137,512 +134,18 @@ BoundedTrickBinaryRiver *Jobs::_open_river(const QString &rundir,
     return river;
 }
 
-Jobs::Jobs(const QString &rundir, double start, double stop) :
-    _start(start),_stop(stop)
+Jobs::Jobs(const QString &irundir, double istart, double istop) :
+    _rundir(irundir), _start(istart),_stop(istop),
+    _frame_avg(0.0),_frame_stddev(0),_curr_sort_method(NoSort)
 {
-    _river_trickjobs = _open_river(rundir,
-                                   QString("log_trickjobs.trk"),
-                                   start, stop);
-    _river_userjobs = _open_river(rundir,
-                                   QString("log_userjobs.trk"),
-                                   start, stop);
-    _river_frame = _open_river(rundir,
-                                   QString("log_frame.trk"),
-                                   start, stop);
+    _process_rivers();        // _jobs list and _frame_stats created
+    qSort(_jobs.begin(), _jobs.end(), jobAvgTimeGreaterThan);
+    _curr_sort_method = SortByJobAvgTime;
+    _calc_frame_avg();        // _frame_avg calculated
+    _calc_frame_stddev();     // _frame_stddev calculated
 
-    _process_job_river(_river_trickjobs);
-    _process_job_river(_river_userjobs);
-
-    QList<QPair<double, FrameStat> >
-                       framestats = _process_frame_river(_river_frame);
-
-    //
-    // Main Summary
-    //
-    fprintf(stderr,"\n");
-    fprintf(stderr,
-"************************************************************************\n"
-"*                            Snap! Results                             *\n"
-"************************************************************************\n\n");
-
-    fprintf(stderr,"%20s = %s\n",
-            "Run directory", rundir.toAscii().constData());
-    fprintf(stderr,"%20s = %8.3lf\n", "Start time ",
-            _river_frame->getTimeStamps()[0]);
-    fprintf(stderr,"%20s = %8.3lf\n", "Stop time ",
-            _river_frame->getTimeStamps()[_river_frame->getNumPoints()-1]);
-    fprintf(stderr,"%20s = %d\n", "Num jobs", _jobs.length());
-    fprintf(stderr,"%20s = %d\n", "Num frames",framestats.length());
-    fprintf(stderr,"%20s = %d\n", "Num overruns",FrameStat::num_overruns);
-    fprintf(stderr,"%20s = %.2lf%%\n", "Percentage overruns",
-            100.0*(double)FrameStat::num_overruns/(double)framestats.length());
-
-
-    //
-    // Frame rate(s) (could be multiple e.g. 0.0120, 0.0125)
-    //
-    QList<long> rates;
-    double* timestamps = _river_frame->getTimeStamps();
-    long ltime = (long)(timestamps[0]*1000000);
-    int npoints = _river_frame->getNumPoints();
-    for ( int ii = 1 ; ii < npoints ; ii++ ) {
-        long tt = (long)(timestamps[ii]*1000000);
-        long dt = _round_10(tt-ltime);
-        if ( ! rates.contains(dt) ) {
-            // Do fuzzy compare since doubles screw things up
-            bool is_equal = false;
-            foreach ( long rate, rates ) {
-                if ( qAbs(dt-rate) < 2 ) {
-                    is_equal = true;
-                    break;
-                }
-            }
-            if ( is_equal == false ) {
-                rates.append(dt);
-            }
-        }
-
-        ltime = tt;
-    }
-    QString buf;
-    foreach ( long rate, rates ) {
-        double drate = rate/1000000.0;
-        QString str =  QString("%1,").arg(drate);
-        buf.append(str);
-    }
-    buf.chop(1); // cut comma
-    fprintf(stderr,"%20s = %s\n", "Frame rate(s)",buf.toAscii().constData());
-
-    //
-    // Avg frame exec time
-    //
-    double sum = 0 ;
-    for ( int ii = 0 ; ii < framestats.length() ; ++ii ) {
-        sum += framestats.at(ii).second.frame_time;
-    }
-    double avg = sum/framestats.length() ;
-    fprintf(stderr,"%20s = %.6lf\n", "Frame avg",avg);
-
-    //
-    // Std dev for frame exec time
-    //
-    sum = 0 ;
-    for ( int ii = 0 ; ii < framestats.length() ; ++ii ) {
-        double frametime =  framestats.at(ii).second.frame_time;
-        double vv = (frametime-avg)*(frametime-avg);
-        sum += vv;
-    }
-    double stddev = sqrt(sum/framestats.length()) ;
-    fprintf(stderr,"%20s = %.6lf\n","Frame stddev",stddev);
-
-    //
-    // Thread summary
-    //
-    Threads threads(_jobs);
-    int nthreads = threads.ids().size();
-    fprintf(stderr,"%20s = %d\n", "Num threads",nthreads);
-    fprintf(stderr,"%20s = ","Thread list");
-    int ii = 0 ;
-    int ltid = 0;
-    foreach ( int tid, threads.ids() ) {
-        if ( ii != 0 && ii%16 == 0 ) {
-            fprintf(stderr,"\n");
-            fprintf(stderr,"%20s   "," ");
-        }
-        if ( ii > 0 && tid != ltid+1) {
-            fprintf(stderr,"MISSING,");
-        }
-        fprintf(stderr,"%d", tid);
-        if ( ii < nthreads-1 ) {
-            fprintf(stderr,",");
-        }
-        ltid = tid;
-        ++ii;
-    }
-    fprintf(stderr,"\n");
-
-    //
-    // End of main summary
-    //
-    fprintf(stderr,"\n");
-
-    //
-    // Stddev Spikes (a lot of jobs running hot)
-    //
-    QMap<int,double> time2hotjobpercent;
-    QMap<int,double> time2spicyhotjobpercent;
-    double nj = (double)_jobs.size();
-    for ( int ii = 0; ii < npoints; ++ii) {
-        double hcnt = 0.0 ;
-        double shcnt = 0.0 ;
-        foreach ( Job* job, _jobs ) {
-            double rt = job->runtime()[ii]/1000000;
-            if ( rt > job->avg_runtime()+job->stddev_runtime() ) {
-                hcnt += 1.0;
-                if ( rt > job->avg_runtime()+2*job->stddev_runtime() ) {
-                    shcnt += 1.0;
-                }
-            }
-        }
-        time2hotjobpercent.insert(ii,100.0*hcnt/nj);
-        time2spicyhotjobpercent.insert(ii,100.0*shcnt/nj);
-    }
-
-    //
-    // Spike Summary
-    //
-    fprintf(stderr,"------------------------------------------------\n");
-    fprintf(stderr,"Top 10 Spikes\n\n");
-    fprintf(stderr,"    %15s %15s %15s %15s\n",
-            "Time", "Spike", "HotJob%", "SpicyHotJob%");
-
-    for ( int ii = 0 ; ii < 10 ; ++ii ) {
-        double tt = framestats.at(ii).first;
-        double ft = framestats.at(ii).second.frame_time;
-        int tidx = _river_frame->getIndexAtTime(&tt);
-        fprintf(stderr,"    %15.6lf %15.6lf %14.0lf%% %14.0lf%%\n",
-                tt ,ft,
-                time2hotjobpercent.value(tidx),
-                time2spicyhotjobpercent.value(tidx));
-
-    }
-    fprintf(stderr,"\n\n");
-
-    //
-    // Thread Summary
-    //
-    fprintf(stderr,
-    "-----------------------------------------------------------------\n");
-    fprintf(stderr,"Thread Time Summary\n\n");
-    fprintf(stderr,"    %10s %10s %15s %15s %15s %15s %15s %15s\n",
-            "Thread", "NumJobs", "Freq", "NumOverruns", "ThreadAvg", "AvgLoad%",
-            "ThreadMax", "MaxLoad%");
-
-    QList<int> threadids = threads.ids();
-    foreach ( ThreadStat stat, threads.list() ) {
-        double avg_percent = 0.0;
-        double max_percent = 0.0;
-        if ( stat.freq > 0.0000001 ) {
-            avg_percent = 100.0*stat.avg/stat.freq;
-            max_percent = 100.0*stat.max/stat.freq;
-        }
-
-        int num_overruns = 0;
-        if ( stat.thread_id == 0 ) {
-            // the thread 0 overrun count doesn't take into account
-            // the executive overhead... just the sum of job runtimes
-            num_overruns = FrameStat::num_overruns;
-        } else {
-            num_overruns = stat.num_overruns;
-        }
-        fprintf(stderr,"    %10d %10d %15.6lf %15d %15.6lf "
-                       "%14.0lf%% %15.6lf %14.0lf%%\n",
-                 stat.thread_id,stat.jobs.length(),stat.freq,
-                 num_overruns, stat.avg,
-                 avg_percent, stat.max, max_percent);
-    }
-    fprintf(stderr,"\n\n");
-
-    //
-    // Top Jobs Per Thread
-    //
-    fprintf(stderr,
-    "-----------------------------------------------------------------\n");
-    fprintf(stderr,"Top Jobs by Thread\n\n");
-    fprintf(stderr,"    %8s %8s %15s %15s %10s%%     %-50s\n",
-            "Thread", "NumJobs", "ThreadAvg", "JobAvgTime", "Percent", "JobName");
-    foreach ( ThreadStat stat, threads.list() ) {
-        fprintf(stderr,"    %8d %8d %15.6lf ",
-                stat.thread_id,stat.jobs.length(),stat.avg) ;
-        if ( stat.avg < 0.000005 && stat.jobs.length() > 1 ) {
-            fprintf(stderr,"%15s  %10s     %-49s\n", "--","--","--");
-            continue;
-        }
-        double sum = 0;
-        for ( int ii = 0; ii < 5; ++ii) {
-            Job* job = stat.jobs.at(ii) ;
-            double percentage = 0.0;
-            if ( stat.avg > 0.0000001 ) {
-                if ( stat.jobs.length() == 1 ) {
-                    // Fix round off error.
-                    // If the job has an average above zero
-                    // and the thread has a single job
-                    // this job took 100%, so force it
-                    percentage = 100.0;
-                } else {
-                    percentage = 100.0*stat.avg_runtime(job)/stat.avg;
-                }
-            }
-            sum += percentage;
-            if ( (percentage < 0.01 || (sum > 98.0 && ii > 0)) &&
-                  stat.jobs.length() > 1 ) {
-                break;
-            } else {
-                if ( ii > 0 ) {
-                    fprintf(stderr,"    %8s %8s %15s ", "","","");
-                }
-                fprintf(stderr,"%15.6lf ",stat.avg_runtime(job));
-                if ( stat.avg > 0.0000001 ) {
-                    fprintf(stderr,"%10.0lf%%", percentage);
-                } else {
-                    fprintf(stderr," %10s", "--");
-                }
-                fprintf(stderr,"     %-50s\n", job->job_name().toAscii().data());
-            }
-            if ( ii == stat.jobs.length()-1 ) {
-                break;
-            }
-        }
-    }
-    fprintf(stderr,"\n\n");
-
-    //
-    // Get and sort stats
-    //
-    QList<QPair<Job*,double> > avgtimes;
-    QList<QPair<Job*,double> > maxtimes;
-    QList<QPair<Job*,double> > stddevtimes;
-    foreach ( Job* job, _jobs )  {
-        avgtimes.append(qMakePair(job,job->avg_runtime()));
-        maxtimes.append(qMakePair(job,job->max_runtime()));
-        stddevtimes.append(qMakePair(job,job->stddev_runtime()));
-    }
-    qSort(avgtimes.begin(), avgtimes.end(), doubleTimeGreaterThan);
-    qSort(maxtimes.begin(), maxtimes.end(), doubleTimeGreaterThan);
-    qSort(stddevtimes.begin(), stddevtimes.end(), doubleTimeGreaterThan);
-
-    //
-    // Job Time Avgs
-    //
-    fprintf(stderr,"------------------------------------------------\n");
-    int njobs = 10;
-    fprintf(stderr,"Top %d Job Avg Times\n\n", njobs);
-    fprintf(stderr,"    %15s %6s %15s %15s %15s    %-40s\n",
-            "JobAvg", "Thread", "ThreadAvgTime",
-            "JobStddev", "JobFreq", "JobName");
-
-    for ( int ii = 0 ; ii <  njobs; ii++ ) {
-        QPair<Job*,double> avgtime = avgtimes.at(ii);
-        Job* job = avgtime.first;
-        fprintf(stderr,"    %15.6lf %6d %15.6lf %15.6lf %15.6lf    %-40s\n",
-                avgtime.second,
-                job->thread_id(),
-                threads.get(job->thread_id()).avg,
-                job->stddev_runtime(),
-                job->freq(),
-                job->job_name().toAscii().constData() );
-
-    }
-    fprintf(stderr,"\n\n");
-
-    //
-    // Job Time Stddev (most erratic)
-    //
-    fprintf(stderr,"------------------------------------------------\n");
-    fprintf(stderr,"Top %d Job Stddev Times\n\n", njobs);
-    fprintf(stderr,"    %15s %6s %15s %15s %15s    %-40s\n",
-            "JobStddev", "Thread","ThreadStddev", "JobAvgTime",
-            "JobFreq","JobName");
-
-    for ( int ii = 0 ; ii <  njobs; ii++ ) {
-        QPair<Job*,double> stddevtime = stddevtimes.at(ii);
-        Job* job = stddevtime.first;
-        fprintf(stderr,"    %15.6lf %6d %15.6lf %15.6lf %15.6lf    %-40s\n",
-                job->stddev_runtime(),
-                job->thread_id(),
-                threads.get(job->thread_id()).stdev,
-                job->avg_runtime(),
-                job->freq(),
-                job->job_name().toAscii().constData() );
-
-    }
-    fprintf(stderr,"\n\n");
-
-
-    //
-    // Job Time Maxes
-    //
-    fprintf(stderr,"------------------------------------------------\n");
-    fprintf(stderr,"Top %d Job Max Times\n\n", njobs);
-    fprintf(stderr,"    %15s %15s %6s %15s %15s    %-40s\n",
-                   "JobMax", "SimTime","Thread", "ThreadTime",
-                   "JobFreq","JobName");
-    for ( int ii = 0 ; ii <  njobs; ii++ ) {
-        QPair<Job*,double> maxtime = maxtimes.at(ii);
-        Job* job = maxtime.first;
-        int tidx = job->max_timeidx();
-        fprintf(stderr,"    %15.6lf %15.6lf %6d %15.6lf %15.6lf    %-40s\n",
-                maxtime.second,
-                _river_frame->getTimeStamps()[tidx],
-                job->thread_id(),
-                threads.get(job->thread_id()).runtime(tidx),
-                job->freq(),
-                job->job_name().toAscii().constData() );
-
-    }
-    fprintf(stderr,"\n\n");
-
-    // Get map of sim objects to jobs
-    QMap<QString,QList<Job*>* > simobj2jobs;
-    foreach ( Job* job, _jobs ) {
-        QString sobj = job->sim_object();
-        QList<Job*>* jobs ;
-        if ( simobj2jobs.contains(sobj) ) {
-            jobs = simobj2jobs.value(sobj);
-        } else {
-            jobs = new QList<Job*>();
-            simobj2jobs.insert(sobj,jobs);
-        }
-        jobs->append(job);
-    }
-
-    //
-    // SimObject Time Avgs
-    //
-    fprintf(stderr,"------------------------------------------------\n");
-    QMap<QString,double> simobj2avgtime;
-    for ( int tidx = 0 ; tidx < npoints ; tidx++ ) {
-        foreach ( QString simobj, simobj2jobs.keys() ) {
-            QList<Job*>* jobs = simobj2jobs.value(simobj) ;
-            double sum_simobj_rt = 0.0;
-            foreach ( Job* job, *jobs ) {
-                long rt = (long)job->runtime()[tidx];
-                sum_simobj_rt += rt;
-            }
-            if ( simobj2avgtime.contains(simobj) ) {
-                simobj2avgtime[simobj] += sum_simobj_rt;
-            } else {
-                simobj2avgtime[simobj] = sum_simobj_rt;
-            }
-        }
-    }
-    foreach ( QString simobj, simobj2jobs.keys() ) {
-        double avg_rt = simobj2avgtime.value(simobj)/npoints;
-        simobj2avgtime[simobj] = avg_rt/1000000.0;
-    }
-
-    QList<QPair<QString,double> > simobj_avgtimes;
-    foreach ( QString simobj, simobj2jobs.keys() ) {
-        simobj_avgtimes.append(qMakePair(simobj,
-                                          simobj2avgtime.value(simobj)));
-    }
-    qSort(simobj_avgtimes.begin(), simobj_avgtimes.end(),
-          simObjTimeGreaterThan);
-
-    // Number of sim objects to report
-    int count = 10 ;
-    if ( simobj_avgtimes.length() > 100 ) {
-        count = simobj_avgtimes.length()/10;
-    } else if ( simobj_avgtimes.length() < 10 ) {
-        count = simobj_avgtimes.length();
-    }
-
-    // Format string to take length of simobject into account
-    char format[256];
-    int maxlen = 0 ;
-    for ( int ii = 0; ii < count; ++ii) {
-        QString sobj = simobj_avgtimes.at(ii).first;
-        if ( sobj.length() > maxlen ) maxlen = sobj.length();
-    }
-
-    // Report
-    fprintf(stderr,"Top Sim Object Avg Times (%d of %d simobjects)\n\n",
-            count,simobj_avgtimes.length());
-    sprintf(format,"    %%%ds %%15s\n",maxlen);
-    fprintf(stderr,format,"SimObject","AvgTime");
-    sprintf(format,"    %%%ds %%15.6lf\n",maxlen);
-    for ( int ii = 0; ii < count; ++ii) {
-        QString sobj = simobj_avgtimes.at(ii).first;
-        double avgtime = simobj_avgtimes.at(ii).second;
-        fprintf(stderr,format,sobj.toAscii().constData(),avgtime);
-    }
-    fprintf(stderr,"\n\n");
-
-    foreach ( QString sobj, simobj2jobs.keys() ) {
-        QList<Job*>* jobs = simobj2jobs.value(sobj);
-        delete jobs;
-    }
-
-    //
-    // Spike to Job Correlation
-    //
-    fprintf(stderr,"------------------------------------------------\n");
-    fprintf(stderr,"Top 10 Spike Job Breakdown\n\n");
-    for ( int ii = 0 ; ii < 10 ; ++ii ) {
-        double tt = framestats.at(ii).first;
-        double ft = framestats.at(ii).second.frame_time;
-
-        fprintf(stderr,"Spike at time %.4lf of %g\n", tt ,ft);
-        QList<QPair<Job*,long> > snaps = _jobtimes(tt);
-        int tidx = _river_userjobs->getIndexAtTime(&tt);
-        fprintf(stderr, "    %6s %15s %15s %15s    %-50s\n",
-                        "Thread",
-                        "ThreadTime",
-                        "JobTime",
-                        "JobFreq",
-                        "JobName");
-        double total = 0 ;
-
-        for ( int jj = 0 ; jj < 10 ; ++jj ) {
-            QPair<Job*,long> snap = snaps.at(jj);
-            Job* job = snap.first;
-            double rt =  job->runtime()[tidx]/1000000;
-            double delta = 1.0e-3;
-            if ( rt < delta ) {
-                continue;
-            }
-
-            fprintf(stderr,
-                    "    %6d %15.6lf %15.6lf %15.6lf    %-50s\n",
-                    job->thread_id(),
-                    threads.get(job->thread_id()).runtime(tidx),
-                    rt,
-                    job->freq(),
-                    job->job_name().toAscii().constData()) ;
-
-
-            // limit printout of jobs
-            if ( job->job_name() !=
-                 QString("trick_sys.sched.advance_sim_time")) {
-                total += rt;
-            }
-            if ( total > 0.75*ft && jj > 4 ) {
-                break;
-            }
-
-        }
-        fprintf(stderr,"\n");
-    }
-
-    //
-    // Spike to Thread Correlation
-    //
-    fprintf(stderr,"------------------------------------------------\n");
-    fprintf(stderr,"Top 10 Spike Thread Breakdown\n\n");
-    for ( int ii = 0 ; ii < 10 ; ++ii ) {
-        double tt = framestats.at(ii).first;
-        int tidx = _river_frame->getIndexAtTime(&tt);
-
-        QList<QPair<int,double> > ttimes;
-        foreach ( ThreadStat stat, threads.list() ) {
-            ttimes.append(qMakePair(stat.thread_id,stat.runtime(tidx)));
-        }
-        qSort(ttimes.begin(),ttimes.end(),threadTimeGreaterThan);
-
-        fprintf(stderr,"Spike at time %g of %g\n",
-                framestats.at(ii).first,framestats.at(ii).second.frame_time);
-        fprintf(stderr, "    %6s %15s\n", "Thread", "ThreadTime");
-        for ( int ii = 0 ; ii < ttimes.length(); ++ii ) {
-            QPair<int,double> ttime = ttimes.at(ii);
-            if ( ttime.second < 1.0e-3 ) {
-                break;
-            }
-            fprintf(stderr,"    %6d %15.3lf\n", ttime.first ,ttime.second);
-        }
-        fprintf(stderr, "\n");
-    }
-
-
+    _threads = new Threads(_jobs);
+    _sim_objects = new SimObjects(_jobs);
 }
 
 Jobs::~Jobs()
@@ -654,6 +157,44 @@ Jobs::~Jobs()
     delete _river_userjobs;
     delete _river_frame;
     delete _river_trickjobs;
+
+    delete _threads;
+    delete _sim_objects;
+}
+
+QList<Job *>* Jobs::jobs(SortBy sort_method)
+{
+    if ( _curr_sort_method != sort_method ) {
+        if ( sort_method == SortByJobAvgTime ) {
+            qSort(_jobs.begin(), _jobs.end(), jobAvgTimeGreaterThan);
+            _curr_sort_method = SortByJobAvgTime;
+        } else if ( sort_method == SortByJobMaxTime ) {
+            qSort(_jobs.begin(), _jobs.end(), jobMaxTimeGreaterThan);
+            _curr_sort_method = SortByJobMaxTime;
+        }
+    }
+
+    return &_jobs;
+}
+
+void Jobs::_process_rivers()
+{
+    _river_trickjobs = _open_river(_rundir,
+                                   QString("log_trickjobs.trk"),
+                                   _start, _stop);
+    _river_userjobs = _open_river(_rundir,
+                                   QString("log_userjobs.trk"),
+                                   _start, _stop);
+    _river_frame = _open_river(_rundir,
+                                   QString("log_frame.trk"),
+                                   _start, _stop);
+
+    _process_job_river(_river_trickjobs);
+    _process_job_river(_river_userjobs);
+
+    _frame_stats = _process_frame_river(_river_frame);
+    qSort(_frame_stats.begin(),_frame_stats.end(),frameTimeGreaterThan);
+
 }
 
 QString Job::sim_object() const
@@ -716,7 +257,7 @@ inline void Job::_do_stats()
 
         if ( rt > max_rt ) {
             max_rt = rt;
-            _max_tidx = tidx;
+            _max_timestamp = time;
         }
         sum_rt += rt;
 
@@ -752,10 +293,10 @@ double Job::max_runtime()
     return _max_runtime;
 }
 
-int Job::max_timeidx()
+double Job::max_timestamp()
 {
     _do_stats();
-    return _max_tidx;
+    return _max_timestamp;
 }
 
 double Job::stddev_runtime()
@@ -768,18 +309,6 @@ double Job::freq()
 {
     _do_stats();
     return _freq;
-}
-
-QList<QPair<Job*, long> > Jobs::_jobtimes(double t) const
-{
-    QList<QPair<Job*,long> > runtimes;
-    int tidx = _river_userjobs->getIndexAtTime(&t);
-    foreach ( Job* job, _jobs ) {
-        long rt = (long)job->runtime()[tidx];
-        runtimes.append(qMakePair(job,rt));
-    }
-    qSort(runtimes.begin(), runtimes.end(), jobTimeGreaterThan);
-    return runtimes;
 }
 
 // TODO: Untested.  This was going to be used for S_job_execution,
@@ -972,6 +501,98 @@ bool Jobs::_parse_s_job_execution(const QString &rundir)
     return ret;
 }
 
+// TODO!!! For now, just make a string of "rates"... probably should take
+//         mode instead and return a single number
+QString Jobs::frame_rate() const
+{
+    QString frame_rates;
+
+    QList<long> rates;
+    double* timestamps = _river_frame->getTimeStamps();
+    long ltime = (long)(timestamps[0]*1000000);
+    int npoints = _river_frame->getNumPoints();
+    for ( int ii = 1 ; ii < npoints ; ii++ ) {
+        long tt = (long)(timestamps[ii]*1000000);
+        long dt = _round_10(tt-ltime);
+        if ( ! rates.contains(dt) ) {
+            // Do fuzzy compare since doubles screw things up
+            bool is_equal = false;
+            foreach ( long rate, rates ) {
+                if ( qAbs(dt-rate) < 2 ) {
+                    is_equal = true;
+                    break;
+                }
+            }
+            if ( is_equal == false ) {
+                rates.append(dt);
+            }
+        }
+
+        ltime = tt;
+    }
+    foreach ( long rate, rates ) {
+        double drate = rate/1000000.0;
+        QString str =  QString("%1,").arg(drate);
+        frame_rates.append(str);
+    }
+    frame_rates.chop(1); // cut comma
+
+    return frame_rates;
+}
+
+QString Jobs::thread_listing() const
+{
+    QString listing;
+
+    QString str;
+
+    int nthreads = _threads->size();
+    int ii = 0 ;
+    int ltid = 0;
+    foreach ( int tid, _threads->ids() ) {
+        if ( ii != 0 && ii%16 == 0 ) {
+            listing += QString("\n");
+            listing += str.sprintf("%20s   "," ");
+        }
+        if ( ii > 0 && tid != ltid+1) {
+            listing += QString("MISSING,");
+        }
+        listing += str.sprintf("%d", tid);
+        if ( ii < nthreads-1 ) {
+            listing += QString(",");
+        }
+        ltid = tid;
+        ++ii;
+    }
+
+    return listing;
+}
+
+void Jobs::_calc_frame_avg()
+{
+    double sum = 0.0 ;
+    for ( int ii = 0 ; ii < _frame_stats.length() ; ++ii ) {
+        sum += _frame_stats.at(ii).frame_time;
+    }
+
+    _frame_avg = sum/_frame_stats.length() ;
+}
+
+void Jobs::_calc_frame_stddev()
+{
+    if ( _frame_avg == 0.0 ) {
+        _calc_frame_avg();
+    }
+
+    double sum = 0.0 ;
+    for ( int ii = 0 ; ii < _frame_stats.length() ; ++ii ) {
+        double frametime =  _frame_stats.at(ii).frame_time;
+        double vv = (frametime-_frame_avg)*(frametime-_frame_avg);
+        sum += vv;
+    }
+
+    _frame_stddev = sqrt(sum/_frame_stats.length()) ;
+}
 
 //
 // logfilename e.g. log_trickjobs.trk
@@ -1004,17 +625,15 @@ bool Jobs::_process_job_river( BoundedTrickBinaryRiver* river )
     return ret;
 }
 
-bool dlGreaterThan(const QPair<double,FrameStat> &a,
-                    const QPair<double,FrameStat> &b)
+bool dlGreaterThan(const FrameStat &a, const FrameStat &b)
 {
-    return a.second.frame_time > b.second.frame_time;
+    return a.frame_time > b.frame_time;
 }
 
 
-QList<QPair<double, FrameStat> >
-    Jobs::_process_frame_river(BoundedTrickBinaryRiver* river)
+QList<FrameStat> Jobs::_process_frame_river(BoundedTrickBinaryRiver* river)
 {
-    QList<QPair<double, FrameStat> > framestats;
+    QList<FrameStat> framestats;
 
     std::vector<LOG_PARAM> params = river->getParamList();
     int npoints = river->getNumPoints();
@@ -1062,15 +681,52 @@ QList<QPair<double, FrameStat> >
     for ( int tidx = 0 ; tidx < npoints ; ++tidx ) {
         FrameStat framestat;
         double tt = timestamps[tidx];
+        framestat.timeidx = tidx;
+        framestat.timestamp = tt;
         framestat.frame_time = frame_times[tidx]/1000000.0;
         framestat.overrun_time = overrun_times[tidx]/1000000.0;
         if ( framestat.overrun_time > 0.0 ) {
             FrameStat::num_overruns++;
         }
-        framestats.append(qMakePair(tt,framestat));
+
+        // Job load percentage (a lot of jobs running hot)
+        double hcnt = 0.0 ;
+        double shcnt = 0.0 ;
+        foreach ( Job* job, _jobs ) {
+            double rt = job->runtime()[tidx]/1000000.0;
+            if ( rt > job->avg_runtime()+job->stddev_runtime() ) {
+                hcnt += 1.0;
+                if ( rt > job->avg_runtime()+2*job->stddev_runtime() ) {
+                    shcnt += 1.0;
+                }
+            }
+
+            // List of top jobs with most runtime for the frame
+            int len = framestat.topjobs.length() ;
+            if ( len < 10 ) {
+                framestat.topjobs.append(qMakePair(rt,job));
+            } else {
+                QPair<double,Job*> ljob = framestat.topjobs.last();
+                double lrt = ljob.second->runtime()[tidx]/1000000.0;
+                if ( rt > lrt ) {
+                    framestat.topjobs.replace(len-1,qMakePair(rt,job));
+                    qSort(framestat.topjobs.begin(),
+                          framestat.topjobs.end(),
+                          frameTopJobsGreaterThan);
+                }
+            }
+        }
+        framestat.hotjobpercentage = 100.0*hcnt/(double)num_jobs();
+        framestat.spicyhotjobpercentage = 100.0*shcnt/(double)num_jobs();
+        qSort(framestat.topjobs.begin(),
+              framestat.topjobs.end(),
+              frameTopJobsGreaterThan);
+
+        framestats.append(framestat);
     }
 
     qSort(framestats.begin(), framestats.end(), dlGreaterThan);
+
 
     return framestats;
 }
@@ -1081,7 +737,7 @@ void ThreadStat::_do_stats()
         return;
     }
 
-    qSort(jobs.begin(),jobs.end(),avgJobTimeGreaterThan);
+    qSort(jobs.begin(),jobs.end(),jobAvgTimeGreaterThan);
 
     // Frequency (cycle time) of thread
     freq = 1.0e20;
@@ -1101,7 +757,7 @@ void ThreadStat::_do_stats()
     double tnext = t[0] + freq;
     double sum_time = 0.0;
     double frame_time = 0.0;
-    max = 0.0;
+    max_runtime = 0.0;
     int last_frameidx = 0 ;
     bool is_frame_change = true;
     int nframes = 0 ;
@@ -1118,9 +774,9 @@ void ThreadStat::_do_stats()
         }
 
         if ( is_frame_change ) {
-            if ( frame_time > max ) {
-                max = frame_time;
-                tidx_max = last_frameidx;
+            if ( frame_time > max_runtime ) {
+                max_runtime = frame_time;
+                tidx_max_runtime = last_frameidx;
             }
             _frameidx2runtime[last_frameidx] = frame_time/1000000.0;
             sum_time += frame_time;
@@ -1134,13 +790,23 @@ void ThreadStat::_do_stats()
             frame_time += job->runtime()[tidx];
         }
     }
-    max /= 1000000.0;
-    avg =  sum_time/nframes/1000000.0;
+    max_runtime /= 1000000.0;
+    avg_runtime = sum_time/nframes/1000000.0;
+    if ( freq > 0.0000001 ) {
+        avg_load = 100.0*avg_runtime/freq;
+        max_load = 100.0*max_runtime/freq;
+    }
+    if ( thread_id == 0 ) {
+        // the thread 0 overrun count doesn't take into account
+        // the executive overhead... just the sum of job runtimes
+        // so override the overrun count for thread 0
+        num_overruns = FrameStat::num_overruns;
+    }
 
     // Stddev
     foreach ( int tidx, _frameidx2runtime.keys() ) {
         double rt = _frameidx2runtime[tidx];
-        double vv = (avg-rt)*(avg-rt);
+        double vv = (avg_runtime-rt)*(avg_runtime-rt);
         stdev += vv;
     }
     stdev = sqrt(stdev/nframes);
@@ -1161,14 +827,46 @@ double ThreadStat::runtime(int tidx) const
     return rt;
 }
 
+double ThreadStat::runtime(double timestamp) const
+{
+    int tidx = jobs.at(0)->river()->getIndexAtTime(&timestamp);
+    double rt = runtime(tidx);
+    return rt;
+}
+
 int ThreadStat::nframes() const
 {
     return _frameidx2runtime.keys().size();
 }
 
-double ThreadStat::avg_runtime(Job *job) const
+double ThreadStat::avg_job_runtime(Job *job) const
 {
     return job->avg_runtime()*job->npoints()/nframes();
+}
+
+//
+// Returns a percent average load of job on thread
+// A load of 0.0 can mean it's negligible
+// If there's only one job on a thread, load is 100% if there's any load
+//
+double ThreadStat::avg_job_load(Job *job) const
+{
+    double load = 0.0;
+
+    if ( avg_runtime > 0.000001 ) {
+        if ( jobs.length() == 1 ) {
+            // Fix round off error.
+            // If the job has an average above zero
+            // and the thread has a single job
+            // this job took 100%, so force it to 100.0
+            load = 100.0;
+        } else {
+            load = 100.0*avg_job_runtime(job)/avg_runtime;
+        }
+    }
+
+    return load;
+
 }
 
 Threads::Threads(const QList<Job*>& jobs) : _jobs(jobs)
@@ -1223,3 +921,367 @@ QList<int> Threads::ids() const
     return _ids;
 }
 
+SimObject::SimObject(const QString& name ) : _name(name)
+{
+}
+
+void SimObject::_do_stats()
+{
+    if ( jobs.size() == 0 ) {
+        return;
+    }
+
+    qSort(jobs.begin(),jobs.end(),jobAvgTimeGreaterThan);
+
+    int npoints = jobs.at(0)->npoints();
+    double sum_time = 0.0;
+    for ( int tidx = 0; tidx < npoints; ++tidx) {
+        foreach ( Job* job, jobs ) {
+            sum_time += job->runtime()[tidx];
+        }
+    }
+    avg_runtime = sum_time/(double)npoints/1000000.0;
+}
+
+SimObjects::SimObjects(const QList<Job *> &jobs) : _jobs(jobs)
+{
+    foreach ( Job* job, _jobs ) {
+
+        QString simobject_name = job->sim_object();
+        if ( ! _sim_objects.keys().contains(simobject_name) ) {
+            SimObject* sobject = new SimObject(simobject_name);
+            _sim_objects.insert(simobject_name,sobject);
+        }
+
+        SimObject* sobject = _sim_objects.value(simobject_name);
+        sobject->jobs.append(job);
+    }
+
+    foreach ( SimObject* sobject, _sim_objects.values() ) {
+        sobject->_do_stats();
+    }
+}
+
+SimObjects::~SimObjects()
+{
+    foreach ( SimObject* sobject, _sim_objects.values() ) {
+        delete sobject;
+    }
+}
+
+QList<SimObject> SimObjects::list() const
+{
+    QList<SimObject> list ;
+
+    foreach ( SimObject* sobject, _sim_objects.values() ) {
+        list.append(*sobject);
+    }
+
+    qSort(list.begin(),list.end(), simObjectAvgTimeGreaterThan);
+
+    return list;
+}
+
+
+SnapReport::SnapReport(Jobs &snap) : _snap(snap)
+{
+}
+
+QString SnapReport::report()
+{
+    QString rpt;
+    QString str;
+
+    int cnt = 0;
+    int max_cnt = 10;
+
+    QString divider("------------------------------------------------\n");
+    QString endsection("\n\n");
+
+    rpt.append(
+"************************************************************************\n"
+"*                            Snap! Results                             *\n"
+"************************************************************************\n\n");
+
+    rpt += str.sprintf("%20s = %s\n", "Run directory ",
+                                     _snap.rundir().toAscii().constData());
+    rpt += str.sprintf("%20s = %8.3lf\n", "Start time ", _snap.start());
+    rpt += str.sprintf("%20s = %8.3lf\n", "Stop time ",_snap.stop());
+    rpt += str.sprintf("%20s = %d\n", "Num jobs", _snap.num_jobs());
+    rpt += str.sprintf("%20s = %d\n", "Num frames",_snap.num_frames());
+    rpt += str.sprintf("%20s = %d\n", "Num overruns",_snap.num_overruns());
+    rpt += str.sprintf("%20s = %.2lf%%\n", "Percentage overruns",
+                                          _snap.percent_overruns());
+    rpt += str.sprintf("%20s = %s\n", "Frame rate(s)",
+                                      _snap.frame_rate().toAscii().constData());
+    rpt += str.sprintf("%20s = %.6lf\n", "Frame avg",_snap.frame_avg());
+    rpt += str.sprintf("%20s = %.6lf\n","Frame stddev",_snap.frame_stddev());
+    rpt += str.sprintf("%20s = %d\n", "Num threads",_snap.num_threads());
+    rpt += str.sprintf("%20s = %s\n","Thread list",
+                                   _snap.thread_listing().toAscii().constData());
+    rpt += endsection;
+
+    //
+    // Spike Summary
+    //
+    const QList<FrameStat>* frame_stats = _snap.frame_stats();
+    rpt += divider;
+    rpt += QString("Top Spikes\n\n");
+    rpt += str.sprintf("    %15s %15s %15s %15s\n",
+                      "Time", "Spike", "HotJob%", "SpicyHotJob%");
+    cnt = 0 ;
+    foreach ( FrameStat frame, *frame_stats ) {
+        if ( ++cnt > max_cnt ) break;
+        double tt = frame.timestamp;
+        double ft = frame.frame_time;
+        rpt += str.sprintf("    %15.6lf %15.6lf %14.0lf%% %14.0lf%%\n",
+                          tt ,ft,
+                          frame.hotjobpercentage,
+                          frame.spicyhotjobpercentage);
+
+    }
+    rpt += endsection;
+
+    //
+    // Thread Summary
+    //
+    rpt += divider;
+    rpt += QString("Thread Time Summary\n\n");
+    rpt += str.sprintf("    %10s %10s %15s %15s %15s %15s %15s %15s\n",
+            "Thread", "NumJobs", "Freq", "NumOverruns", "ThreadAvg", "AvgLoad%",
+            "ThreadMax", "MaxLoad%");
+
+    QList<ThreadStat> threads = _snap.thread_stats()->list() ;
+    foreach ( ThreadStat stat, threads ) {
+        rpt += str.sprintf("    %10d %10d %15.6lf %15d %15.6lf "
+                          "%14.0lf%% %15.6lf %14.0lf%%\n",
+                 stat.thread_id,stat.jobs.length(),stat.freq,
+                 stat.num_overruns, stat.avg_runtime,
+                 stat.avg_load, stat.max_runtime, stat.max_load);
+    }
+    rpt += endsection;
+
+    //
+    // Top Jobs Per Thread
+    //
+    rpt += divider;
+    rpt += QString("Top Jobs by Thread\n\n");
+    rpt += str.sprintf("    %8s %8s %15s %15s %10s%%     %-50s\n",
+           "Thread", "NumJobs", "ThreadAvg", "JobAvgTime", "Percent", "JobName");
+    foreach ( ThreadStat stat, threads ) {
+
+        rpt += str.sprintf("    %8d %8d %15.6lf ",
+                   stat.thread_id,stat.jobs.length(),stat.avg_runtime) ;
+
+        if ( stat.avg_runtime < 0.000005 && stat.jobs.length() > 1 ) {
+            rpt += str.sprintf("%15s  %10s     %-49s\n", "--","--","--");
+            continue;
+        }
+
+        double sum = 0;
+        for ( int ii = 0; ii < 5; ++ii) {
+            Job* job = stat.jobs.at(ii) ;
+            double load = stat.avg_job_load(job);
+            sum += load;
+            if ( (load < 0.01 || (sum > 98.0 && ii > 0)) &&
+                  stat.jobs.length() > 1 ) {
+                break;
+            } else {
+                if ( ii > 0 ) {
+                    rpt += str.sprintf("    %8s %8s %15s ", "","","");
+                }
+                rpt += str.sprintf("%15.6lf ",stat.avg_job_runtime(job));
+                if ( stat.avg_runtime > 0.0000001 ) {
+                    rpt += str.sprintf("%10.0lf%%", load);
+                } else {
+                    rpt += str.sprintf(" %10s", "--");
+                }
+                rpt += str.sprintf("     %-50s\n",
+                                   job->job_name().toAscii().constData());
+            }
+            if ( ii == stat.jobs.length()-1 ) {
+                break;
+            }
+        }
+    }
+    rpt += endsection;
+
+    //
+    // Job Time Avgs
+    //
+    rpt += divider;
+    rpt += str.sprintf("Top Job Avg Times\n\n");
+    rpt += str.sprintf("    %15s %6s %15s %15s    %-40s\n",
+            "JobAvg", "Thread", "ThreadAvgTime", "JobFreq", "JobName");
+
+    QList<Job*>* jobs = _snap.jobs(Jobs::SortByJobAvgTime);
+    cnt = 0 ;
+    foreach ( Job* job, *jobs ) {
+
+        if ( ++cnt > max_cnt ) break;
+
+        rpt += str.sprintf("    %15.6lf %6d %15.6lf %15.6lf    %-40s\n",
+                   job->avg_runtime(),
+                   job->thread_id(),
+                   _snap.thread_stats()->get(job->thread_id()).avg_runtime,
+                   job->freq(),
+                   job->job_name().toAscii().constData() );
+
+    }
+    rpt += endsection;
+
+    //
+    // Job Time Maxes
+    //
+    rpt += divider;
+    rpt += str.sprintf("Top Job Max Times\n\n");
+    rpt += str.sprintf("    %15s %15s %6s %15s %15s    %-40s\n",
+                   "JobMax", "SimTime","Thread", "ThreadTime",
+                   "JobFreq","JobName");
+    jobs = _snap.jobs(Jobs::SortByJobMaxTime);
+    cnt = 0 ;
+    foreach ( Job* job, *jobs ) {
+
+        if ( ++cnt > max_cnt ) break;
+
+        rpt += str.sprintf("    %15.6lf %15.6lf %6d %15.6lf %15.6lf    %-40s\n",
+                job->max_runtime(),
+                job->max_timestamp(),
+                job->thread_id(),
+                _snap.thread_stats()->get(job->thread_id()).
+                                     runtime(job->max_timestamp()),
+                job->freq(),
+                job->job_name().toAscii().constData() );
+
+    }
+    rpt += endsection;
+
+    //
+    // Top 10 Sim Objects
+    //
+    QList<SimObject> simobjects = _snap.simobjects();
+    if ( simobjects.length() > 100 ) {
+        max_cnt = simobjects.length()/10;
+    } else if ( simobjects.length() < 10 ) {
+        max_cnt = simobjects.length();
+    }
+
+    // Format string to take length of simobject into account
+    QString format;
+    int maxlen = 0 ;
+    cnt = 0 ;
+    foreach ( SimObject sobject, simobjects ) {
+        if ( ++cnt > max_cnt ) break;
+        int len = sobject.name().length();
+        if ( len > maxlen ) maxlen = len;
+    }
+
+    rpt += divider;
+    rpt += QString("Top Sim Object Avg Times\n\n");
+    format.sprintf("    %%%ds %%15s\n",maxlen);
+    rpt += str.sprintf(TXT(format),"SimObject","AvgTime");
+    format.sprintf("    %%%ds %%15.6lf\n",maxlen);
+    cnt = 0 ;
+    foreach ( SimObject sobject, simobjects ) {
+        if ( ++cnt > max_cnt ) break;
+        rpt += str.sprintf(TXT(format),TXT(sobject.name()),sobject.avg_runtime);
+    }
+    max_cnt = 10;
+    rpt += endsection;
+
+    //
+    // Spike to Job Correlation
+    //
+    rpt += divider;
+    rpt += QString("Top Spikes Job Breakdown\n\n");
+    cnt = 0 ;
+    foreach ( FrameStat frame, *frame_stats ) {
+
+        if ( ++cnt > max_cnt ) break;
+
+        double tt = frame.timestamp;
+        double ft = frame.frame_time;
+
+        rpt += str.sprintf("Spike at time %.4lf of %g\n", tt ,ft);
+        rpt += str.sprintf( "    %6s %15s %15s %15s    %-50s\n",
+                        "Thread",
+                        "ThreadTime",
+                        "JobTime",
+                        "JobFreq",
+                        "JobName");
+
+        int cnt2 = 0 ;
+        double total = 0 ;
+        for ( int ii = 0; ii < frame.topjobs.length(); ++ii) {
+
+            QPair<double,Job*> topjob = frame.topjobs.at(ii);
+
+            double rt =  topjob.first;
+            Job* job = topjob.second;
+
+            int tidx = frame.timeidx;
+            double delta = 1.0e-3;
+            if ( rt < delta ) {
+                continue;
+            }
+
+            rpt += str.sprintf(
+                    "    %6d %15.6lf %15.6lf %15.6lf    %-50s\n",
+                    job->thread_id(),
+                    _snap.thread_stats()->get(job->thread_id()).runtime(tidx),
+                    rt,
+                    job->freq(),
+                    job->job_name().toAscii().constData()) ;
+
+
+            // limit printout of jobs
+            if (job->job_name() != QString("trick_sys.sched.advance_sim_time")) {
+                total += rt;
+            }
+            if ( total > 0.75*ft && ++cnt2 > 4 ) {
+                break;
+            }
+
+        }
+        rpt += endsection;
+    }
+
+    //
+    // Spike to Thread Correlation
+    //
+    rpt += divider;
+    rpt += QString("Top Spike Thread Breakdown\n\n");
+    cnt = 0 ;
+    foreach ( FrameStat frame, *frame_stats ) {
+
+        if ( ++cnt > max_cnt ) break;
+
+        int tidx =  frame.timeidx;
+        double tt = frame.timestamp;
+        double ft = frame.frame_time;
+
+        QList<QPair<double, ThreadStat> > topthreads;
+        foreach ( ThreadStat thread, threads ) {
+            topthreads.append(qMakePair(thread.runtime(tidx),thread));
+        }
+        qSort(topthreads.begin(),topthreads.end(),topThreadGreaterThan);
+
+        rpt += str.sprintf("Spike at time %g of %g\n",tt,ft);
+        rpt += str.sprintf("    %6s %15s %15s\n", "Thread", "ThreadFreq",
+                                            "ThreadTime");
+        for ( int ii = 0 ; ii < topthreads.length(); ++ii ) {
+            QPair<double,ThreadStat> topthread = topthreads.at(ii);
+            if ( topthread.first < 1.0e-3 ) {
+                break;
+            }
+            rpt += str.sprintf("    %6d %15.6lf %15.6lf\n",
+                               topthread.second.thread_id,
+                               topthread.second.freq,
+                               topthread.first);
+        }
+        rpt += endsection;
+    }
+
+    return rpt;
+
+}
