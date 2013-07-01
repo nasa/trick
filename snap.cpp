@@ -629,12 +629,6 @@ bool Snap::_process_job_river( BoundedTrickBinaryRiver* river )
     return ret;
 }
 
-bool dlGreaterThan(const Frame &a, const Frame &b)
-{
-    return a.frame_time > b.frame_time;
-}
-
-
 QList<Frame> Snap::_process_frame_river(BoundedTrickBinaryRiver* river)
 {
     QList<Frame> frames;
@@ -725,7 +719,7 @@ QList<Frame> Snap::_process_frame_river(BoundedTrickBinaryRiver* river)
         frames.append(frame);
     }
 
-    qSort(frames.begin(), frames.end(), dlGreaterThan);
+    qSort(frames.begin(), frames.end(), frameTimeGreaterThan);
 
 
     return frames;
