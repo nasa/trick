@@ -26,7 +26,7 @@ bool intLessThan(int a, int b)
 
 bool simObjectAvgTimeGreaterThan(const SimObject& a, const SimObject& b)
 {
-    return a.avg_runtime > b.avg_runtime;
+    return a.avg_runtime() > b.avg_runtime();
 }
 
 bool jobAvgTimeGreaterThan(Job* a,Job* b)
@@ -201,7 +201,7 @@ void Snap::_process_rivers()
 
 }
 
-QString Job::sim_object() const
+QString Job::sim_object_name() const
 {
     QString simobj;
 
@@ -921,50 +921,50 @@ QList<int> Threads::ids() const
     return _ids;
 }
 
-SimObject::SimObject(const QString& name ) : _name(name)
+SimObject::SimObject(const QString& name , const QList<Job *> &jobs) :
+    _name(name), _jobs(jobs)
 {
+    _do_stats();
 }
 
 void SimObject::_do_stats()
 {
-    if ( jobs.size() == 0 ) {
+    if ( _jobs.size() == 0 ) {
         return;
     }
 
-    qSort(jobs.begin(),jobs.end(),jobAvgTimeGreaterThan);
+    qSort(_jobs.begin(),_jobs.end(),jobAvgTimeGreaterThan);
 
-    int npoints = jobs.at(0)->npoints();
+    int npoints = _jobs.at(0)->npoints();
     double sum_time = 0.0;
     for ( int tidx = 0; tidx < npoints; ++tidx) {
-        foreach ( Job* job, jobs ) {
+        foreach ( Job* job, _jobs ) {
             sum_time += job->runtime()[tidx];
         }
     }
-    avg_runtime = sum_time/(double)npoints/1000000.0;
+
+    _avg_runtime = sum_time/(double)npoints/1000000.0;
 }
 
-SimObjects::SimObjects(const QList<Job *> &jobs) : _jobs(jobs)
+SimObjects::SimObjects(const QList<Job *> &jobs)
 {
-    foreach ( Job* job, _jobs ) {
+    QMap<QString,QList<Job*> > _sim_object_jobs;
 
-        QString simobject_name = job->sim_object();
-        if ( ! _sim_objects.keys().contains(simobject_name) ) {
-            SimObject* sobject = new SimObject(simobject_name);
-            _sim_objects.insert(simobject_name,sobject);
-        }
-
-        SimObject* sobject = _sim_objects.value(simobject_name);
-        sobject->jobs.append(job);
+    foreach ( Job* job, jobs ) {
+        QString simobject_name = job->sim_object_name();
+        _sim_object_jobs[job->sim_object_name()].append(job);
     }
 
-    foreach ( SimObject* sobject, _sim_objects.values() ) {
-        sobject->_do_stats();
+    foreach ( QString sim_object_name, _sim_object_jobs.keys() ) {
+        SimObject* sobject = new SimObject(sim_object_name,
+                                        _sim_object_jobs.value(sim_object_name));
+        _sim_objects.append(sobject);
     }
 }
 
 SimObjects::~SimObjects()
 {
-    foreach ( SimObject* sobject, _sim_objects.values() ) {
+    foreach ( SimObject* sobject, _sim_objects ) {
         delete sobject;
     }
 }
@@ -973,7 +973,7 @@ QList<SimObject> SimObjects::list() const
 {
     QList<SimObject> list ;
 
-    foreach ( SimObject* sobject, _sim_objects.values() ) {
+    foreach ( SimObject* sobject, _sim_objects ) {
         list.append(*sobject);
     }
 
@@ -1182,13 +1182,15 @@ QString SnapReport::report()
 
     rpt += divider;
     rpt += QString("Top Sim Object Avg Times\n\n");
-    format.sprintf("    %%%ds %%15s\n",maxlen);
-    rpt += str.sprintf(TXT(format),"SimObject","AvgTime");
-    format.sprintf("    %%%ds %%15.6lf\n",maxlen);
+    format.sprintf("    %%%ds %%15s %%10s\n",maxlen);
+    rpt += str.sprintf(TXT(format),"SimObject","AvgTime", "NumJobs");
+    format.sprintf("    %%%ds %%15.6lf %%10d\n",maxlen);
     cnt = 0 ;
     foreach ( SimObject sobject, simobjects ) {
         if ( ++cnt > max_cnt ) break;
-        rpt += str.sprintf(TXT(format),TXT(sobject.name()),sobject.avg_runtime);
+        rpt += str.sprintf(TXT(format),TXT(sobject.name()),
+                           sobject.avg_runtime(),
+                           sobject.jobs().length());
     }
     max_cnt = 10;
     rpt += endsection;

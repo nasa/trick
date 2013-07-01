@@ -119,18 +119,17 @@ class Threads
 class SimObject
 {
   public:
-    SimObject(const QString& name);
+    SimObject(const QString& name, const QList<Job*>& jobs);
     QString name() const { return _name ; }
-    double avg_runtime;
-    QList<Job*> jobs; // sorted job list on simobject with highest avg run times
-
-    void _do_stats(); // TODO: meant to be only used by SimObjects
+    double avg_runtime() const { return _avg_runtime; }
+    QList<Job*> jobs() const { return _jobs; }
 
   private:
     SimObject();
     QString _name;
-
-
+    double _avg_runtime;
+    QList<Job*> _jobs; // sorted job list on simobject w/ highest avg run times
+    void _do_stats();
 };
 
 class SimObjects
@@ -142,8 +141,7 @@ class SimObjects
 
   private:
     SimObjects();
-    QList<Job*> _jobs;
-    QMap<QString,SimObject*> _sim_objects;
+    QList<SimObject*> _sim_objects;
 };
 
 class Job
@@ -168,7 +166,7 @@ public:
     QString id() const; // logged jobname
     QString job_num() const { return _job_num; }
     QString job_name() const { return _job_name; }
-    QString sim_object() const ;
+    QString sim_object_name() const ;
     int thread_id() const { return _thread_id; }
     int processor_id() const { return _processor_id;}
     double freq() ;
