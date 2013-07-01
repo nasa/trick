@@ -139,7 +139,7 @@ BoundedTrickBinaryRiver *Snap::_open_river(const QString &rundir,
 }
 
 Snap::Snap(const QString &irundir, double istart, double istop) :
-    _rundir(irundir), _start(istart),_stop(istop),
+    _rundir(irundir), _start(istart),_stop(istop), _is_realtime(false),
     _frame_avg(0.0),_frame_stddev(0),_curr_sort_method(NoSort)
 {
     _process_rivers();        // _jobs list and _frame_stats created
@@ -681,6 +681,7 @@ QList<FrameStat> Snap::_process_frame_river(BoundedTrickBinaryRiver* river)
         exit(-1);
     }
 
+    _is_realtime = false;
     FrameStat::num_overruns = 0;
     for ( int tidx = 0 ; tidx < npoints ; ++tidx ) {
         FrameStat framestat;
@@ -691,6 +692,9 @@ QList<FrameStat> Snap::_process_frame_river(BoundedTrickBinaryRiver* river)
         framestat.overrun_time = overrun_times[tidx]/1000000.0;
         if ( framestat.overrun_time > 0.0 ) {
             FrameStat::num_overruns++;
+        }
+        if ( !_is_realtime && frame_times[tidx] != 0 ) {
+            _is_realtime = true;
         }
 
         // Job load percentage (a lot of jobs running hot)
@@ -998,6 +1002,13 @@ QString SnapReport::report()
 
     int cnt = 0;
     int max_cnt = 10;
+
+    if ( ! _snap.is_realtime() ) {
+        rpt.append("Oh Snap!!! - The following sim run had realtime disabled!\n");
+        rpt += str.sprintf("          %s\n",_snap.rundir().toAscii().constData());
+        rpt.append("Try again!\n");
+        return rpt;
+    }
 
     QString divider("------------------------------------------------\n");
     QString endsection("\n\n");

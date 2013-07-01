@@ -226,6 +226,7 @@ public:
         SortByJobMaxTime
     };
 
+    bool is_realtime() const { return _is_realtime ; }
     QString rundir() const { return _rundir ; }
     double start() const { return  _river_frame->getTimeStamps()[0]; }
     double stop() const  { return _river_frame->getTimeStamps()
@@ -250,11 +251,11 @@ public:
 private:
     Snap() {}
 
-
     QString _rundir;
     double _start;
     double _stop;
 
+    bool _is_realtime ;
     double _frame_avg;    void _calc_frame_avg();
     double _frame_stddev; void _calc_frame_stddev();
 
