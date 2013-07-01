@@ -214,11 +214,11 @@ private:
     double _max_timestamp;
 };
 
-class Jobs
+class Snap
 {
 public:
-    Jobs(const QString& irundir, double istart, double istop);
-    ~Jobs();
+    Snap(const QString& irundir, double istart, double istop);
+    ~Snap();
 
     enum SortBy {
         NoSort,
@@ -230,7 +230,7 @@ public:
     double start() const { return  _river_frame->getTimeStamps()[0]; }
     double stop() const  { return _river_frame->getTimeStamps()
                                  [_river_frame->getNumPoints()-1];}
-    QList<Job *> *jobs(Jobs::SortBy sort_method = SortByJobAvgTime) ;
+    QList<Job *> *jobs(Snap::SortBy sort_method = SortByJobAvgTime) ;
     int num_jobs() const { return _jobs.size(); }
     int num_frames() const { return _frame_stats.size(); }
     int num_overruns() const { return FrameStat::num_overruns; }
@@ -248,7 +248,7 @@ public:
     const QList<FrameStat>* frame_stats() const { return &_frame_stats; }
 
 private:
-    Jobs() {}
+    Snap() {}
 
 
     QString _rundir;
@@ -289,11 +289,11 @@ private:
 class SnapReport
 {
   public:
-    SnapReport(Jobs& snap);
+    SnapReport(Snap& snap);
     QString report();
 
   private:
-    Jobs& _snap;
+    Snap& _snap;
 
 };
 

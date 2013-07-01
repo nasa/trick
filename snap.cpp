@@ -111,7 +111,7 @@ BoundedTrickBinaryRiver::BoundedTrickBinaryRiver(
     }
 }
 
-BoundedTrickBinaryRiver *Jobs::_open_river(const QString &rundir,
+BoundedTrickBinaryRiver *Snap::_open_river(const QString &rundir,
                                              const QString &logfilename,
                                             double start, double stop)
 {
@@ -138,7 +138,7 @@ BoundedTrickBinaryRiver *Jobs::_open_river(const QString &rundir,
     return river;
 }
 
-Jobs::Jobs(const QString &irundir, double istart, double istop) :
+Snap::Snap(const QString &irundir, double istart, double istop) :
     _rundir(irundir), _start(istart),_stop(istop),
     _frame_avg(0.0),_frame_stddev(0),_curr_sort_method(NoSort)
 {
@@ -152,7 +152,7 @@ Jobs::Jobs(const QString &irundir, double istart, double istop) :
     _sim_objects = new SimObjects(_jobs);
 }
 
-Jobs::~Jobs()
+Snap::~Snap()
 {
     foreach ( Job* job, _jobs ) {
         delete job;
@@ -166,7 +166,7 @@ Jobs::~Jobs()
     delete _sim_objects;
 }
 
-QList<Job *>* Jobs::jobs(SortBy sort_method)
+QList<Job *>* Snap::jobs(SortBy sort_method)
 {
     if ( _curr_sort_method != sort_method ) {
         if ( sort_method == SortByJobAvgTime ) {
@@ -181,7 +181,7 @@ QList<Job *>* Jobs::jobs(SortBy sort_method)
     return &_jobs;
 }
 
-void Jobs::_process_rivers()
+void Snap::_process_rivers()
 {
     _river_trickjobs = _open_river(_rundir,
                                    QString("log_trickjobs.trk"),
@@ -429,7 +429,7 @@ QString Job::id() const
     return logname;
 }
 
-bool Jobs::_parse_s_job_execution(const QString &rundir)
+bool Snap::_parse_s_job_execution(const QString &rundir)
 {
     bool ret = true;
 
@@ -507,7 +507,7 @@ bool Jobs::_parse_s_job_execution(const QString &rundir)
 
 // TODO!!! For now, just make a string of "rates"... probably should take
 //         mode instead and return a single number
-QString Jobs::frame_rate() const
+QString Snap::frame_rate() const
 {
     QString frame_rates;
 
@@ -544,7 +544,7 @@ QString Jobs::frame_rate() const
     return frame_rates;
 }
 
-QString Jobs::thread_listing() const
+QString Snap::thread_listing() const
 {
     QString listing;
 
@@ -572,7 +572,7 @@ QString Jobs::thread_listing() const
     return listing;
 }
 
-void Jobs::_calc_frame_avg()
+void Snap::_calc_frame_avg()
 {
     double sum = 0.0 ;
     for ( int ii = 0 ; ii < _frame_stats.length() ; ++ii ) {
@@ -582,7 +582,7 @@ void Jobs::_calc_frame_avg()
     _frame_avg = sum/_frame_stats.length() ;
 }
 
-void Jobs::_calc_frame_stddev()
+void Snap::_calc_frame_stddev()
 {
     if ( _frame_avg == 0.0 ) {
         _calc_frame_avg();
@@ -601,7 +601,7 @@ void Jobs::_calc_frame_stddev()
 //
 // logfilename e.g. log_trickjobs.trk
 //
-bool Jobs::_process_job_river( BoundedTrickBinaryRiver* river )
+bool Snap::_process_job_river( BoundedTrickBinaryRiver* river )
 {
     bool ret = true;
 
@@ -635,7 +635,7 @@ bool dlGreaterThan(const FrameStat &a, const FrameStat &b)
 }
 
 
-QList<FrameStat> Jobs::_process_frame_river(BoundedTrickBinaryRiver* river)
+QList<FrameStat> Snap::_process_frame_river(BoundedTrickBinaryRiver* river)
 {
     QList<FrameStat> framestats;
 
@@ -987,7 +987,7 @@ QList<SimObject> SimObjects::list() const
 }
 
 
-SnapReport::SnapReport(Jobs &snap) : _snap(snap)
+SnapReport::SnapReport(Snap &snap) : _snap(snap)
 {
 }
 
@@ -1118,7 +1118,7 @@ QString SnapReport::report()
     rpt += str.sprintf("    %15s %6s %15s %15s    %-40s\n",
             "JobAvg", "Thread", "ThreadAvgTime", "JobFreq", "JobName");
 
-    QList<Job*>* jobs = _snap.jobs(Jobs::SortByJobAvgTime);
+    QList<Job*>* jobs = _snap.jobs(Snap::SortByJobAvgTime);
     cnt = 0 ;
     foreach ( Job* job, *jobs ) {
 
@@ -1142,7 +1142,7 @@ QString SnapReport::report()
     rpt += str.sprintf("    %15s %15s %6s %15s %15s    %-40s\n",
                    "JobMax", "SimTime","Thread", "ThreadTime",
                    "JobFreq","JobName");
-    jobs = _snap.jobs(Jobs::SortByJobMaxTime);
+    jobs = _snap.jobs(Snap::SortByJobMaxTime);
     cnt = 0 ;
     foreach ( Job* job, *jobs ) {
 

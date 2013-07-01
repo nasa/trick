@@ -47,8 +47,8 @@ int main(int argc, char *argv[])
     }
 
     QString rundir(opts.rundir.get().c_str());
-    Jobs jobs(rundir,opts.start,opts.stop);
-    SnapReport rpt(jobs);
+    Snap snap(rundir,opts.start,opts.stop);
+    SnapReport rpt(snap);
     fprintf(stderr,"%s",rpt.report().toAscii().constData());
 
     return 0;
