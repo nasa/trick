@@ -698,15 +698,11 @@ QList<FrameStat> Snap::_process_frame_river(BoundedTrickBinaryRiver* river)
         }
 
         // Job load percentage (a lot of jobs running hot)
-        double hcnt = 0.0 ;
-        double shcnt = 0.0 ;
+        double jcnt = 0.0 ;
         foreach ( Job* job, _jobs ) {
             double rt = job->runtime()[tidx]/1000000.0;
-            if ( rt > job->avg_runtime()+job->stddev_runtime() ) {
-                hcnt += 1.0;
-                if ( rt > job->avg_runtime()+2*job->stddev_runtime() ) {
-                    shcnt += 1.0;
-                }
+            if ( rt > job->avg_runtime()+1.50*job->stddev_runtime() ) {
+                jcnt += 1.0;
             }
 
             // List of top jobs with most runtime for the frame
@@ -724,8 +720,7 @@ QList<FrameStat> Snap::_process_frame_river(BoundedTrickBinaryRiver* river)
                 }
             }
         }
-        framestat.hotjobpercentage = 100.0*hcnt/(double)num_jobs();
-        framestat.spicyhotjobpercentage = 100.0*shcnt/(double)num_jobs();
+        framestat.jobloadindex = 100.0*jcnt/(double)num_jobs();
         qSort(framestat.topjobs.begin(),
               framestat.topjobs.end(),
               frameTopJobsGreaterThan);
@@ -1042,17 +1037,14 @@ QString SnapReport::report()
     const QList<FrameStat>* frame_stats = _snap.frame_stats();
     rpt += divider;
     rpt += QString("Top Spikes\n\n");
-    rpt += str.sprintf("    %15s %15s %15s %15s\n",
-                      "Time", "Spike", "HotJob%", "SpicyHotJob%");
+    rpt += str.sprintf("    %15s %15s %15s\n", "Time", "Spike", "JobLoadIndex%");
     cnt = 0 ;
     foreach ( FrameStat frame, *frame_stats ) {
         if ( ++cnt > max_cnt ) break;
         double tt = frame.timestamp;
         double ft = frame.frame_time;
-        rpt += str.sprintf("    %15.6lf %15.6lf %14.0lf%% %14.0lf%%\n",
-                          tt ,ft,
-                          frame.hotjobpercentage,
-                          frame.spicyhotjobpercentage);
+        rpt += str.sprintf("    %15.6lf %15.6lf %14.0lf%%\n",
+                          tt ,ft, frame.jobloadindex);
 
     }
     rpt += endsection;

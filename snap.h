@@ -55,8 +55,8 @@ class FrameStat
     double frame_time;
     double overrun_time;
     bool is_overrun;
-    double hotjobpercentage;
-    double spicyhotjobpercentage;
+    double jobloadindex;   // Percentage of jobs in sim running
+                          // a factor of std devs above normal
 
     // List of top jobs with most runtime for the frame
     QList<QPair<double,Job*> > topjobs;    // (rt,job)
