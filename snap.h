@@ -40,10 +40,10 @@ class BoundedTrickBinaryRiver : public TrickBinaryRiver {
 };
 
 
-class FrameStat
+class Frame
 {
   public:
-    FrameStat() : frame_time(0), overrun_time(0), is_overrun(false)
+    Frame() : frame_time(0), overrun_time(0), is_overrun(false)
     {}
 
     static QString frame_time_name;
@@ -63,10 +63,10 @@ class FrameStat
 };
 
 
-class ThreadStat
+class Thread
 {
   public:
-    ThreadStat() : thread_id(0), avg_runtime(0),
+    Thread() : thread_id(0), avg_runtime(0),
                    tidx_max_runtime(0),max_runtime(0), stdev(0),freq(0.0),
                    num_overruns(0) {}
     int thread_id;
@@ -105,15 +105,15 @@ class Threads
   public:
     Threads(const QList<Job *> &jobs);
     ~Threads();
-    ThreadStat get(int id) const;
+    Thread get(int id) const;
     QList<int> ids() const;
-    QList<ThreadStat> list() const ;
+    QList<Thread> list() const ;
     int size() const { return _threads.keys().size(); }
 
   private:
     QList<Job*> _jobs;
     QList<int> _ids;
-    QMap<int,ThreadStat*> _threads;
+    QMap<int,Thread*> _threads;
 };
 
 class SimObject
@@ -233,8 +233,8 @@ public:
                                  [_river_frame->getNumPoints()-1];}
     QList<Job *> *jobs(Snap::SortBy sort_method = SortByJobAvgTime) ;
     int num_jobs() const { return _jobs.size(); }
-    int num_frames() const { return _frame_stats.size(); }
-    int num_overruns() const { return FrameStat::num_overruns; }
+    int num_frames() const { return _frames.size(); }
+    int num_overruns() const { return Frame::num_overruns; }
     double percent_overruns() const { return 100.0*
                                    (double)num_overruns()/(double)num_frames(); }
     QString frame_rate() const ; // for now return list of frame rates
@@ -245,8 +245,8 @@ public:
     QString thread_listing() const ;
 
     QList<SimObject> simobjects() const { return _sim_objects->list(); }
-    Threads* thread_stats() const { return _threads; }
-    const QList<FrameStat>* frame_stats() const { return &_frame_stats; }
+    Threads* threads() const { return _threads; }
+    const QList<Frame>* frames() const { return &_frames; }
 
 private:
     Snap() {}
@@ -271,20 +271,16 @@ private:
     void _process_rivers();
     bool _parse_s_job_execution(const QString& rundir);
     bool _process_job_river( BoundedTrickBinaryRiver *river );
-    QList<FrameStat> _process_frame_river(BoundedTrickBinaryRiver *river);
+    QList<Frame> _process_frame_river(BoundedTrickBinaryRiver *river);
 
     BoundedTrickBinaryRiver* _river_userjobs;
     BoundedTrickBinaryRiver* _river_frame;
     BoundedTrickBinaryRiver* _river_trickjobs;
 
-    QList<FrameStat>  _frame_stats;
+    QList<Frame>  _frames;
 
     Threads* _threads;
     SimObjects* _sim_objects;
-    QMap<int, ThreadStat> _thread_stats(
-        const QMap<int,QMap<int,long> >&  threadtimes) const;
-    QMap<int,QMap<int,long> >  _threadtimes() const; // tidx->(tid->thread_rt)
-
 };
 
 class SnapReport
