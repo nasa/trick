@@ -56,7 +56,13 @@ INCLUDEPATH += $${OPTIONS}
 
 
 SOURCES += main.cpp \
-    snap.cpp
+    snap.cpp \
+    job.cpp \
+    boundedtrickbinaryriver.cpp \
+    thread.cpp \
+    simobject.cpp \
+    utils.cpp \
+    frame.cpp
 
 HEADERS += \
     river/libriver/DataRiver.hh \
@@ -64,4 +70,10 @@ HEADERS += \
     river/libriver/LogData.hh \
     river/libriver/var.hh \
     river/libriver/TrickBinaryRiver.hh \
-    snap.h
+    snap.h \
+    job.h \
+    boundedtrickbinaryriver.h \
+    thread.h \
+    simobject.h \
+    utils.h \
+    frame.h
