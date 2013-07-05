@@ -62,7 +62,8 @@ SOURCES += main.cpp \
     thread.cpp \
     simobject.cpp \
     utils.cpp \
-    frame.cpp
+    frame.cpp \
+    trickdatamodel.cpp
 
 HEADERS += \
     river/libriver/DataRiver.hh \
@@ -76,4 +77,5 @@ HEADERS += \
     thread.h \
     simobject.h \
     utils.h \
-    frame.h
+    frame.h \
+    trickdatamodel.h
