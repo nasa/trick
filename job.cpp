@@ -145,7 +145,7 @@ Job::Job(BoundedTrickBinaryRiver *river,
          const QString& job_class, // e.g.scheduled
          bool is_enabled,          // e.g. 1
          int phase)                // e.g. 60000
-    : _river(river),_npoints(0), _timestamps(0), _runtime(0),
+    : _npoints(0), _timestamps(0), _runtime(0),
       _job_name(job_name),_job_num(job_num), _thread_id(thread_id),
       _processor_id(processor_id),_freq(freq),_start(start),
       _stop(stop),_job_class(job_class),_is_enabled(is_enabled),
@@ -167,7 +167,7 @@ Job::Job(BoundedTrickBinaryRiver *river,
 // An example logname:
 // JOB_schedbus.SimBus##read_ALDS15_ObcsRouter_C1.1828.00(read_simbus_0.100)
 Job::Job(BoundedTrickBinaryRiver *river, const char* log_jobname) :
-    _river(river),_start(0),_stop(1.0e37),_is_enabled(true),_phase(60000),
+    _start(0),_stop(1.0e37),_is_enabled(true),_phase(60000),
     _is_stats(false)
 {
     _npoints = river->getNumPoints();

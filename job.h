@@ -47,7 +47,6 @@ class Job
     double max_timestamp();
     double stddev_runtime();
 
-    BoundedTrickBinaryRiver* river() const { return _river; }
     inline double* runtime() const { return _runtime; }
     inline double* timestamps() const { return _timestamps; }
     inline int npoints() const { return _npoints; }
@@ -55,7 +54,6 @@ class Job
   private:
     Job() {}
 
-    BoundedTrickBinaryRiver* _river;
     int _npoints;
     double* _timestamps;
     double* _runtime;

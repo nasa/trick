@@ -106,10 +106,16 @@ double Thread::runtime(int tidx) const
 
 double Thread::runtime(double timestamp) const
 {
-    int tidx = jobs.at(0)->river()->getIndexAtTime(&timestamp);
+    int tidx = getIndexAtTime(jobs.at(0)->npoints(),
+                              jobs.at(0)->timestamps(),
+                              timestamp);
+
     double rt = runtime(tidx);
     return rt;
 }
+
+
+
 
 int Thread::nframes() const
 {
