@@ -8,7 +8,8 @@
 #include <QPair>
 #include <QtAlgorithms>
 #include <QDir>
-#include <QDebug>
+#include <QTextStream>
+#include <QBuffer>
 
 #include "boundedtrickbinaryriver.h"
 #include "job.h"
@@ -22,7 +23,7 @@
 class Snap
 {
 public:
-    Snap(const QString& irundir, double istart, double istop);
+    Snap(const QString& irundir, double istart=1.0, double istop=1.0e20);
     ~Snap();
 
     enum SortBy {
@@ -33,13 +34,28 @@ public:
 
     bool is_realtime() const { return _is_realtime ; }
     QString rundir() const { return _rundir ; }
-    double start() const { return  _river_frame->getTimeStamps()[0]; }
-    double stop() const  { return _river_frame->getTimeStamps()
-                                 [_river_frame->getNumPoints()-1];}
+
+    double start() const {
+        if ( _river_frame->getNumPoints() > 0 ) {
+            return  _river_frame->getTimeStamps()[0];
+        } else {
+            return _start;
+        }
+    }
+
+    double stop() const  {
+        if ( _river_frame->getNumPoints() > 0 ) {
+            return _river_frame->getTimeStamps()
+                                 [_river_frame->getNumPoints()-1];
+        } else {
+            return _stop;
+        }
+    }
+
     QList<Job *> *jobs(Snap::SortBy sort_method = SortByJobAvgTime) ;
     int num_jobs() const { return _jobs.size(); }
     int num_frames() const { return _frames.size(); }
-    int num_overruns() const { return Frame::num_overruns; }
+    int num_overruns() const { return _num_overruns; }
     double percent_overruns() const { return 100.0*
                                    (double)num_overruns()/(double)num_frames(); }
     QString frame_rate() const ; // for now return list of frame rates
@@ -55,6 +71,9 @@ public:
 
 private:
     Snap() {}
+
+    QString _err_string;
+    QTextStream _err_stream;
 
     QString _rundir;
     double _start;
@@ -83,6 +102,7 @@ private:
     BoundedTrickBinaryRiver* _river_trickjobs;
 
     QList<Frame>  _frames;
+    int _num_overruns;
 
     Threads* _threads;
     SimObjects* _sim_objects;

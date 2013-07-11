@@ -7,6 +7,7 @@
 #include <cmath>
 #include <QDir>
 #include <QFile>
+#include <stdexcept>
 
 #include "snap.h"
 
@@ -27,8 +28,11 @@ bool topThreadGreaterThan(const QPair<double,Thread>& a,
 }
 
 Snap::Snap(const QString &irundir, double istart, double istop) :
+    _err_stream(&_err_string),
     _rundir(irundir), _start(istart),_stop(istop), _is_realtime(false),
-    _frame_avg(0.0),_frame_stddev(0),_curr_sort_method(NoSort)
+    _frame_avg(0.0),_frame_stddev(0),_curr_sort_method(NoSort),
+    _river_userjobs(0), _river_frame(0), _river_trickjobs(0),
+    _num_overruns(0), _threads(0),_sim_objects(0)
 {
     _process_rivers();        // _jobs list and _frames created
     qSort(_jobs.begin(), _jobs.end(), jobAvgTimeGreaterThan);
@@ -37,6 +41,7 @@ Snap::Snap(const QString &irundir, double istart, double istop) :
     _calc_frame_stddev();     // _frame_stddev calculated
 
     _threads = new Threads(_jobs);
+
     _sim_objects = new SimObjects(_jobs);
 }
 
@@ -46,12 +51,12 @@ Snap::~Snap()
         delete job;
     }
 
-    delete _river_userjobs;
-    delete _river_frame;
-    delete _river_trickjobs;
+    if (_river_userjobs ) delete _river_userjobs;
+    if (_river_frame ) delete _river_frame;
+    if (_river_trickjobs ) delete _river_trickjobs;
 
-    delete _threads;
-    delete _sim_objects;
+    if ( _threads ) delete _threads;
+    if ( _sim_objects ) delete _sim_objects;
 }
 
 QList<Job *>* Snap::jobs(SortBy sort_method)
@@ -77,21 +82,44 @@ BoundedTrickBinaryRiver *Snap::_open_river(const QString &rundir,
 
     QDir dir(rundir);
     if ( ! dir.exists() ) {
-        qDebug() << "couldn't find run directory: " << rundir;
-        exit(-1); // hard exit for now
+        _err_stream << "snap [error]: couldn't find run directory: "
+                    << rundir << "\n";
+        throw std::invalid_argument(_err_string.toAscii().constData());
     }
 
     QString trk = rundir + QString("/") + logfilename;
     QFile file(trk);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "couldn't read file: " << trk;
-        exit(-1); // hard exit for now
+        _err_stream << "snap [error]: couldn't read file: " << trk << "\n";
+        throw std::invalid_argument(_err_string.toAscii().constData());
     } else {
         file.close();
     }
 
-    river = new BoundedTrickBinaryRiver(trk.toAscii().data(),
+    //
+    // If trk file is less than 1000 bytes, it can't be legit
+    //
+    if ( file.size() < 1000 ) {
+        _err_stream << "snap [error]: "
+                    << "suspicious filesize of "
+                    << file.size()
+                    << " for file \""
+                    << trk
+                    << "\""
+                    << "  - bailing like Rob Bailey!!!";
+        throw std::invalid_argument(_err_string.toAscii().constData());
+    }
+
+    try {
+        river = new BoundedTrickBinaryRiver(trk.toAscii().data(),
                                          start,stop);
+    }
+    catch (std::range_error &e) {
+        _err_stream << e.what();
+        _err_stream << "snap [error]: -start or -stop options have bad vals\n";
+        throw std::range_error(_err_string.toAscii().constData());
+    }
+
 
     return river;
 }
@@ -122,17 +150,15 @@ bool Snap::_parse_s_job_execution(const QString &rundir)
 
     QDir dir(rundir);
     if ( ! dir.exists() ) {
-        qDebug() << "couldn't find run directory: " << rundir;
-        ret = false;
-        return(ret);
+        _err_stream  << "snap [error]: couldn't find run directory: " << rundir;
+        throw std::invalid_argument(_err_string.toAscii().constData());
     }
 
     QString fname = rundir + QString("/S_job_execution");
     QFile file(fname);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "couldn't read file: " << fname;
-        ret = false;
-        return(ret);
+        _err_stream << "snap [error]: couldn't read file: " << fname;
+        throw std::invalid_argument(_err_string.toAscii().constData());
     }
 
     QTextStream in(&file);
@@ -320,8 +346,17 @@ QList<Frame> Snap::_process_frame_river(BoundedTrickBinaryRiver* river)
 {
     QList<Frame> frames;
 
-    std::vector<LOG_PARAM> params = river->getParamList();
+    _is_realtime = false;
+
     int npoints = river->getNumPoints();
+    if ( npoints == 0 ) {
+        _err_stream << "snap [error]: file \"" << river->getFileName()
+                    << "\" has no points";
+        throw std::invalid_argument(_err_string.toAscii().constData());
+    }
+
+    std::vector<LOG_PARAM> params = river->getParamList();
+
     double* timestamps = river->getTimeStamps();
     double* frame_times = 0 ;
     double* overrun_times = 0 ;
@@ -345,25 +380,19 @@ QList<Frame> Snap::_process_frame_river(BoundedTrickBinaryRiver* river)
             break;
         }
     }
-    if ( frame_times == 0 ) {
+    if ( frame_times == 0 || overrun_times == 0 ) {
+        QString param  = ( frame_times == 0 ) ?
+                        Frame::frame_time_name : Frame::overrun_time_name ;
         // Shouldn't happen unless trick renames that param
-        fprintf(stderr,"snap [error]: Couldn't find parameter "
-                        "%s in %s\n",
-                Frame::frame_time_name.toAscii().data(),
-                river->getFileName());
-        exit(-1);
-    }
-    if ( overrun_times == 0 ) {
-        // Shouldn't happen unless trick renames that param
-        fprintf(stderr,"snap [error]: Couldn't find parameter "
-                        "%s in %s\n",
-                Frame::overrun_time_name.toAscii().data(),
-                river->getFileName());
-        exit(-1);
+        _err_stream << "snap [error]: Couldn't find parameter "
+                << param
+                << "in file \""
+                << river->getFileName()
+                << "\"";
+        throw std::invalid_argument(_err_string.toAscii().constData());
     }
 
-    _is_realtime = false;
-    Frame::num_overruns = 0;
+    _num_overruns = 0;
     for ( int tidx = 0 ; tidx < npoints ; ++tidx ) {
         Frame frame;
         double tt = timestamps[tidx];
@@ -372,7 +401,7 @@ QList<Frame> Snap::_process_frame_river(BoundedTrickBinaryRiver* river)
         frame.frame_time = frame_times[tidx]/1000000.0;
         frame.overrun_time = overrun_times[tidx]/1000000.0;
         if ( frame.overrun_time > 0.0 ) {
-            Frame::num_overruns++;
+            _num_overruns++;
         }
         if ( !_is_realtime && frame_times[tidx] != 0 ) {
             _is_realtime = true;
@@ -486,6 +515,16 @@ QString SnapReport::report()
 
     QList<Thread> threads = _snap.threads()->list() ;
     foreach ( Thread thread, threads ) {
+
+        // Hard code num overruns for thread 0 :(
+        //
+        // Do this because the thread overrun calc
+        // sums the job times on a thread, but the trick exec
+        // overhead will not show up in that calc
+        if ( thread.thread_id == 0 ) {
+            thread.num_overruns = _snap.num_overruns();
+        }
+
         rpt += str.sprintf("    %10d %10d %15.6lf %15d %15.6lf "
                           "%14.0lf%% %15.6lf %14.0lf%%\n",
                  thread.thread_id,thread.jobs.length(),thread.freq,

@@ -16,7 +16,6 @@ class Frame
 
     static QString frame_time_name;
     static QString overrun_time_name;
-    static int num_overruns;
 
     int timeidx;
     double timestamp;

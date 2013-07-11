@@ -4,6 +4,10 @@
 #include <QMap>
 #include "TrickBinaryRiver.hh"
 
+#include <stdexcept>
+#include <string>
+using namespace std;
+
 class BoundedTrickBinaryRiver : public TrickBinaryRiver {
   public:
      BoundedTrickBinaryRiver(char* filename, double start, double stop);
@@ -13,7 +17,13 @@ class BoundedTrickBinaryRiver : public TrickBinaryRiver {
 
      int getNumPoints() { return _npoints ; }
      double* getTimeStamps() { return _timestamps ; }
-     double* getVals(const char* param) { return _vals.value(param) ; }
+     double* getVals(const char* param) {
+         if ( _npoints > 0 ) {
+             return _vals.value(param) ;
+         } else {
+             return 0;
+         }
+     }
 
   private:
      BoundedTrickBinaryRiver(

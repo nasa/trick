@@ -73,12 +73,6 @@ void Thread::_do_stats()
         avg_load = 100.0*avg_runtime/freq;
         max_load = 100.0*max_runtime/freq;
     }
-    if ( thread_id == 0 ) {
-        // the thread 0 overrun count doesn't take into account
-        // the executive overhead... just the sum of job runtimes
-        // so override the overrun count for thread 0
-        num_overruns = Frame::num_overruns;
-    }
 
     // Stddev
     foreach ( int tidx, _frameidx2runtime.keys() ) {

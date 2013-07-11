@@ -1,5 +1,11 @@
 #include <QCoreApplication>
 
+#ifdef TEST
+// To include test, snap.pro CONFIG += qtestlib
+#include <QtTest/QtTest>
+#include "test/testsnap.h"
+#endif
+
 #include <string>
 using namespace std;
 
@@ -26,6 +32,7 @@ class SnapOptions : public Options
 
 SnapOptions opts;
 
+#ifndef TEST
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
@@ -47,12 +54,19 @@ int main(int argc, char *argv[])
     }
 
     QString rundir(opts.rundir.get().c_str());
-    Snap snap(rundir,opts.start,opts.stop);
-    SnapReport rpt(snap);
-    fprintf(stderr,"%s",rpt.report().toAscii().constData());
+    try {
+        Snap snap(rundir,opts.start,opts.stop);
+        SnapReport rpt(snap);
+        fprintf(stderr,"%s",rpt.report().toAscii().constData());
+    } catch (std::exception &e) {
+        fprintf(stderr,"\n%s\n",e.what());
+        fprintf(stderr,"%s\n",opts.usage().c_str());
+        exit(-1);
+    }
 
     return 0;
 }
+#endif
 
 void preset_start(double* time, const char* sval, int* cok)
 {

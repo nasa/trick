@@ -6,9 +6,19 @@
 #include <QMap>
 #include <QVariant>
 #include <QAbstractItemModel>
+#include <QDir>
 #include <QFile>
 #include <QDataStream>
+#include <QTextStream>
 #include <QPair>
+
+class TrickType
+{
+  public:
+    qint32 id;
+    qint32 size;
+    QString name;
+};
 
 class TrickDataModel : QAbstractItemModel
 {
@@ -28,7 +38,8 @@ class TrickDataModel : QAbstractItemModel
     enum TrickRole
     {
         TrickRoleParamName = Qt::UserRole+0,
-        TrickRoleUnit = Qt::UserRole+1
+        TrickRoleUnit = Qt::UserRole+1,
+        TrickRoleType = Qt::UserRole+2
     };
 
     TrickDataModel(TrickVersion version = TrickVersion07,
@@ -36,7 +47,8 @@ class TrickDataModel : QAbstractItemModel
 
     ~TrickDataModel();
 
-    bool write(const QString &trk);
+    bool write_log_header(const QString &log_name, const QString &rundir);
+    bool write_binary_trk(const QString &log_name, const QString &rundir);
 
     QModelIndex index(int row, int column,
                       const QModelIndex &pidx = QModelIndex()) const;
@@ -53,8 +65,14 @@ class TrickDataModel : QAbstractItemModel
     bool insertRows(int row, int count,
                        const QModelIndex &pidx = QModelIndex());
 
+    bool removeRows(int row, int count,
+                       const QModelIndex &pidx = QModelIndex());
+
     bool insertColumns(int column, int count,
                        const QModelIndex &pidx = QModelIndex());
+
+    bool removeColumns(int column, int count, const QModelIndex &pidx
+                                                               = QModelIndex());
 
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     bool setHeaderData(int sect, Qt::Orientation orientation,
@@ -68,12 +86,13 @@ class TrickDataModel : QAbstractItemModel
 
     QList<QString> _name;
     QList<QString> _unit;
+    QList<QString> _type;
     QList<QList<QVariant*>* > _data;
 
-    void _write_param_header(QDataStream &out, int col);
-    void _write_param_data(QDataStream &out, int row, int col);
-    void _write_qstring(const QString& str, QDataStream &out);
-    QPair<qint32,qint32> _tricktype(const QVariant& val);
+    void _write_binary_param(QDataStream &out, int col);
+    void _write_binary_param_data(QDataStream &out, int row, int col);
+    void _write_binary_qstring(const QString& str, QDataStream &out);
+    TrickType _tricktype(int col);
 };
 
 #endif // PARAM_H

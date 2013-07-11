@@ -4,15 +4,20 @@
 #
 #-------------------------------------------------
 
+CONFIG += core
+CONFIG += console
+CONFIG -= gui
+CONFIG -= app_bundle
+
 CONFIG += cmdline_build
 #CONFIG += force_32bit   # if this set, change Projects build to Linux_FC3
+#CONFIG += qtestlib
 
-QT  += core
-QT  -= gui
+qtestlib {
+     DEFINES += TEST
+}
 
 TARGET = snap
-CONFIG   += console
-CONFIG   -= app_bundle
 
 TEMPLATE = app
 
@@ -55,7 +60,9 @@ INCLUDEPATH += $${OPTIONS}
  unix:LIBS += -L$${OPTIONS}/lib_$${HOST_CPU} -loptions
 
 
-SOURCES += main.cpp \
+SOURCES += \
+    test/testsnap.cpp \
+    main.cpp \
     snap.cpp \
     job.cpp \
     boundedtrickbinaryriver.cpp \
@@ -66,6 +73,7 @@ SOURCES += main.cpp \
     trickdatamodel.cpp
 
 HEADERS += \
+    test/testsnap.h \
     river/libriver/DataRiver.hh \
     river/libriver/DataRiverFactory.hh \
     river/libriver/LogData.hh \

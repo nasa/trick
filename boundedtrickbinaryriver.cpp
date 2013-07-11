@@ -1,12 +1,23 @@
 #include "boundedtrickbinaryriver.h"
 
+#include <QString>
+
 BoundedTrickBinaryRiver::BoundedTrickBinaryRiver(
         char *filename,  double start, double stop) :
     TrickBinaryRiver(filename),
     _start(start),
     _stop(stop),
-    _npoints(0)
+    _npoints(0),
+    _timestamps(0)
 {
+    // start time greater than first timestamp?
+    QString qs = QString("BoundedTrickBinaryRiver [range error]: "
+                         "start=%1 stop=%2 filename=\"%3\"\n").
+            arg(start).arg(stop).arg(filename);
+    if ( start > stop ) {
+        throw std::range_error(qs.toAscii().constData());
+    }
+
     int np = TrickBinaryRiver::getNumPoints();
     double *ts = TrickBinaryRiver::getTimeStamps();
     bool is_first = true;
@@ -15,9 +26,10 @@ BoundedTrickBinaryRiver::BoundedTrickBinaryRiver(
         if ( tt < start - 0.000001 ) {
             continue;
         }
-        if ( tt > stop + 0.000001 ) {
+        if ( tt > stop + 0.000001 && is_first == false ) {
             break;
         }
+        _stop = tt;
 
         if ( is_first ) {
             _timestamps = &(ts[ii]);
@@ -32,5 +44,9 @@ BoundedTrickBinaryRiver::BoundedTrickBinaryRiver(
             is_first = false ;
         }
         _npoints++;
+    }
+
+    if ( _timestamps == 0 ) {
+        throw std::range_error(qs.toAscii().constData());
     }
 }
