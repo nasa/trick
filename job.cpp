@@ -180,7 +180,7 @@ Job::Job(BoundedTrickBinaryRiver *river, const char* log_jobname) :
     int idx1 = qname.lastIndexOf (QChar('('));
     int idx2 = qname.lastIndexOf (QChar(')'));
     int idx3 = qname.lastIndexOf (QChar('_'));
-    if ( idx3 > idx1 && isdigit(qname.at(idx3+1).isDigit()) ) {
+    if ( (idx3 > idx1) && qname.at(idx3+1).isDigit() ) {
         // frequency specified e.g. (read_simbus_0.100)
         _job_class = qname.mid(idx1+1,idx3-idx1-1);
         _freq = qname.mid(idx3+1,idx2-idx3-1).toDouble();
