@@ -131,44 +131,11 @@ double Job::freq()
     return _freq;
 }
 
-// TODO: Untested.  This was going to be used for S_job_execution,
-//       but that was broken.  Keeping this in case snap eventually
-//       uses S_job_execution.
-Job::Job(BoundedTrickBinaryRiver *river,
-         const QString& job_name,  // e.g. simbus.SimBus::read_ObcsRouter
-         const QString& job_num,   // e.g. 1828.00
-         int thread_id,            // e.g. 1
-         int processor_id,         // e.g. 1
-         double freq,              // e.g. 0.100
-         double start,             // e.g. 0.0
-         double stop,              // e.g. 1.0e37
-         const QString& job_class, // e.g.scheduled
-         bool is_enabled,          // e.g. 1
-         int phase)                // e.g. 60000
-    : _npoints(0), _timestamps(0), _runtime(0),
-      _job_name(job_name),_job_num(job_num), _thread_id(thread_id),
-      _processor_id(processor_id),_freq(freq),_start(start),
-      _stop(stop),_job_class(job_class),_is_enabled(is_enabled),
-      _phase(phase),_is_stats(false)
-{
-    if ( river == 0 ) {
-        fprintf(stderr,"This code is not ready to use.\n");
-        fprintf(stderr,"It's eventual use is for S_job_execution.\n");
-        fprintf(stderr,"Exiting!!!\n");
-        exit(-1);
-    }
-    _npoints = river->getNumPoints();
-    _timestamps = river->getTimeStamps();
-    QString logged_jobname = id();
-    _runtime = river->getVals(logged_jobname.toAscii().constData());
-}
-
 // Parse long logname and set job members accordingly
 // An example logname:
 // JOB_schedbus.SimBus##read_ALDS15_ObcsRouter_C1.1828.00(read_simbus_0.100)
 Job::Job(BoundedTrickBinaryRiver *river, const char* log_jobname) :
-    _start(0),_stop(1.0e37),_is_enabled(true),_phase(60000),
-    _is_stats(false)
+     _is_stats(false)
 {
     _npoints = river->getNumPoints();
     _timestamps = river->getTimeStamps();

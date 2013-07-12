@@ -141,82 +141,8 @@ void Snap::_process_rivers()
 
     _frames = _process_frame_river(_river_frame);
     qSort(_frames.begin(),_frames.end(),frameTimeGreaterThan);
-
 }
 
-bool Snap::_parse_s_job_execution(const QString &rundir)
-{
-    bool ret = true;
-
-    QDir dir(rundir);
-    if ( ! dir.exists() ) {
-        _err_stream  << "snap [error]: couldn't find run directory: " << rundir;
-        throw std::invalid_argument(_err_string.toAscii().constData());
-    }
-
-    QString fname = rundir + QString("/S_job_execution");
-    QFile file(fname);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        _err_stream << "snap [error]: couldn't read file: " << fname;
-        throw std::invalid_argument(_err_string.toAscii().constData());
-    }
-
-    QTextStream in(&file);
-    int thread_id = -2;
-    while (!in.atEnd()) {
-        QString line = in.readLine();
-        if ( line.startsWith("=====") )  {
-            thread_id = -1;
-            continue;
-        }
-        if ( line.startsWith("Integration Loop") )  {
-            thread_id = 0;
-            continue;
-        }
-        if ( line.startsWith("Thread") )  {
-            QStringList list = line.split(QRegExp("\\W+"));
-            thread_id = list[1].toInt() ;
-            continue;
-        }
-        if ( thread_id < 0 ) continue ;
-
-        QStringList list =  line.split("|") ;
-        if ( list.length() != 9 ) continue ;
-
-        QString job_name("");
-        QString job_num("");
-        double freq = 0.0;
-        double start = 1.0;
-        double stop = 1.0e20;
-        QString job_class("");
-        bool is_enabled = true;
-        int phase = 0;
-        int processor_id = -1;
-
-        for ( int ii = 0 ; ii < list.size(); ++ii) {
-            QString str = list.at(ii).trimmed();
-            switch (ii) {
-            case 0: is_enabled = str.toInt() ? true : false; break;
-            case 1: processor_id = str.toInt(); break;
-            case 2: job_class = str; break;
-            case 3: phase = str.toInt(); break;
-            case 4: start = str.toDouble(); break;
-            case 5: freq = str.toDouble(); break;
-            case 6: stop = str.toDouble(); break;
-            case 7: job_num = str; break;
-            case 8: job_name = str; break;
-            };
-        }
-
-        Job* job = new Job(0, job_name, job_num, thread_id, processor_id,
-                            freq, start, stop, job_class, is_enabled,phase);
-
-        _id_to_job[job->id()] = job;
-        _jobs.append(job);
-    }
-
-    return ret;
-}
 
 // TODO!!! For now, just make a string of "rates"... probably should take
 //         mode instead and return a single number
