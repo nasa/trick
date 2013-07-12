@@ -88,6 +88,13 @@ private slots:
     void job_sobject();
     void job_threadid();
     void job_class();
+    void job_npoints1();
+    void job_npoints2();
+    void job_npoints3();
+    void gettimebyidx1();
+    void job_timestamps1();
+    void job_timestamps2();
+    void job_runtime1();
     void cleanupTestCase() {}
 };
 
@@ -714,6 +721,62 @@ void TestSnap::job_class()
     QString rundir = _run(4);
     Snap snap(rundir);
     QCOMPARE(snap.jobs()->at(1)->job_class(),QString("scheduled"));
+}
+
+void TestSnap::job_npoints1()
+{
+    QString rundir = _run(4);
+    Snap snap(rundir);
+    QCOMPARE(snap.jobs()->at(1)->npoints(),snap.num_frames());
+}
+
+void TestSnap::job_npoints2()
+{
+    QString rundir = _run(4);
+    Snap snap(rundir,10.01,49.999);
+    QCOMPARE(snap.jobs()->at(1)->npoints(),snap.num_frames());
+}
+
+void TestSnap::job_npoints3()
+{
+    QString rundir = _run(4);
+    Snap snap(rundir,9.48,50.123);
+    QCOMPARE(snap.jobs()->at(1)->npoints(),snap.num_frames());
+}
+
+void TestSnap::gettimebyidx1()
+{
+    QString rundir = _run(4);
+    Snap snap(rundir,0,1.0e20);
+    int ntimestamps = snap.num_frames();
+    double* timestamps = snap.jobs()->at(0)->timestamps();
+    QCOMPARE(getIndexAtTime(ntimestamps,timestamps,89.7),897); // kacc
+}
+
+void TestSnap::job_timestamps1()
+{
+    QString rundir = _run(4);
+    Snap snap(rundir);
+    QCOMPARE(snap.jobs()->at(0)->timestamps()[0],1.0);
+}
+
+void TestSnap::job_timestamps2()
+{
+    QString rundir = _run(4);
+    Snap snap(rundir,9.48,50.123);
+    int last_idx = snap.num_frames()-1;
+    QCOMPARE(snap.jobs()->at(1)->timestamps()[last_idx],50.1);
+}
+
+void TestSnap::job_runtime1()
+{
+    QString rundir = _run(4);
+    Snap snap(rundir);
+    int ntimestamps = snap.num_frames();
+    double* timestamps = snap.jobs()->at(0)->timestamps();
+    int tidx = getIndexAtTime(ntimestamps,timestamps,89.0);
+    double* rt = snap.jobs()->at(0)->runtime();
+    QCOMPARE(rt[tidx],1.0+sin(89.0));
 }
 
 QTEST_APPLESS_MAIN(TestSnap)
