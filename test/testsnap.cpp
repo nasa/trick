@@ -82,6 +82,12 @@ private slots:
     void frame_avg1();
     void frame_avg2();
     void frame_stddev1();
+    void jobid();
+    void job_num();
+    void job_name();
+    void job_sobject();
+    void job_threadid();
+    void job_class();
     void cleanupTestCase() {}
 };
 
@@ -143,16 +149,17 @@ void TestSnap::_create_log_userjobs(TrickDataModel &model,
 
     // Timestamp,sin(time)
     double tt = start;
-    QModelIndex idx[njobs];
     int rc = 0 ;
     while ( tt <= stop+1.0e-9 ) {
         model.insertRows(rc,1);
         for ( int ii = 0; ii < njobs+1; ++ii) {
-            idx[ii] = model.index(rc,ii);
+            QModelIndex idx = model.index(rc,ii);
             if ( ii == 0 ) {
-                model.setData(idx[ii],QVariant(tt));
+                model.setData(idx,QVariant(tt));
             } else {
-                model.setData(idx[ii],QVariant(sin(tt)));
+                if ( rc%10 == 0 ) { // since freq 1.000 show runtime every 10th
+                    model.setData(idx,QVariant(1.0+sin(tt)));
+                }
             }
         }
         tt += freq;
@@ -209,7 +216,7 @@ void TestSnap::_create_log_frame(
             if ( ii == 0 ) {
                 model.setData(idx[ii],QVariant(tt));
             } else {
-                model.setData(idx[ii],QVariant(sin(tt)));
+                model.setData(idx[ii],QVariant(1.0+sin(tt)));
             }
         }
         tt += freq;
@@ -276,7 +283,7 @@ void TestSnap::_create_log_trickjobs(TrickDataModel &model,
             switch (ii)
             {
             case 0:  model.setData(idx[ii],QVariant(tt)); break;
-            default: model.setData(idx[ii],QVariant(1.0e-5*sin(tt))); break;
+            default: model.setData(idx[ii],QVariant(1.0e-5*1.0+sin(tt))); break;
             };
         }
         tt += freq;
@@ -661,6 +668,52 @@ void TestSnap::frame_stddev1()
     Snap snap(rundir,0);
 
     QCOMPARE(snap.frame_stddev(),stddev);
+}
+
+void TestSnap::jobid()
+{
+    QString rundir = _run(4);
+    Snap snap(rundir,0);
+    QCOMPARE(snap.jobs()->at(0)->id(),
+             QString("JOB_s1.x.a_C1.2500.1(scheduled_1.000)"));
+}
+
+void TestSnap::job_num()
+{
+    QString rundir = _run(4);
+    Snap snap(rundir,50,51);
+
+    QCOMPARE(snap.jobs()->at(0)->job_num(),QString("2500.1"));
+}
+
+void TestSnap::job_name()
+{
+    QString rundir = _run(4);
+    Snap snap(rundir);
+
+    QCOMPARE(snap.jobs()->at(1)->job_name(),QString("s1.x.a"));
+}
+
+void TestSnap::job_sobject()
+{
+    QString rundir = _run(4);
+    Snap snap(rundir);
+
+    QCOMPARE(snap.jobs()->at(1)->sim_object_name(), QString("s1"));
+}
+
+void TestSnap::job_threadid()
+{
+    QString rundir = _run(4);
+    Snap snap(rundir);
+    QCOMPARE(snap.jobs()->at(1)->thread_id(),1);
+}
+
+void TestSnap::job_class()
+{
+    QString rundir = _run(4);
+    Snap snap(rundir);
+    QCOMPARE(snap.jobs()->at(1)->job_class(),QString("scheduled"));
 }
 
 QTEST_APPLESS_MAIN(TestSnap)
