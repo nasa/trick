@@ -14,11 +14,15 @@ CONFIG += cmdline_build
 #CONFIG += qtestlib
 
 qtestlib {
-     DEFINES += TEST
+    DEFINES += TEST
+    QT += gui
+    greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 }
 
-TARGET = snap
+FORMS  += \
+    qplot/qplotmainwindow.ui
 
+TARGET = snap
 TEMPLATE = app
 
 cmdline_build {
@@ -70,7 +74,9 @@ SOURCES += \
     simobject.cpp \
     utils.cpp \
     frame.cpp \
-    trickdatamodel.cpp
+    trickdatamodel.cpp \
+    qplot/qcustomplot.cpp \
+    qplot/qplotmainwindow.cpp
 
 HEADERS += \
     test/testsnap.h \
@@ -86,4 +92,6 @@ HEADERS += \
     simobject.h \
     utils.h \
     frame.h \
-    trickdatamodel.h
+    trickdatamodel.h \
+    qplot/qcustomplot.h \
+    qplot/qplotmainwindow.h

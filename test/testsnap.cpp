@@ -2,6 +2,9 @@
 
 #ifdef TEST
 
+#include <QApplication>
+#include "qplot/qplotmainwindow.h"
+
 #include <stdexcept>
 #include <cstdlib>          // for rand() and RAND_MAX def
 
@@ -10,15 +13,18 @@
 #include "snap.h"
 #include "trickdatamodel.h"
 #include "utils.h"
+#include "qplot/qplotmainwindow.h"
 
 class TestSnap: public QObject
 {
     Q_OBJECT
 
 public:
-    TestSnap();
+    TestSnap(QPlotMainWindow &qplot);
 
 private:
+    QPlotMainWindow& _qplot;
+
     QString _testdir;
 
     bool _is_generate_rundata;
@@ -95,11 +101,15 @@ private slots:
     void job_timestamps1();
     void job_timestamps2();
     void job_runtime1();
+    void job_avgtime();
+    void job_max();
+    void job_stddev();
     void cleanupTestCase() {}
 };
 
-TestSnap::TestSnap()
+TestSnap::TestSnap(QPlotMainWindow& qplot) : _qplot(qplot)
 {
+
 }
 
 QString TestSnap::_run(int ii)
@@ -324,6 +334,8 @@ void TestSnap::initTestCase()
     _create_log_frame(_log_frame,0,100,0.1);
     _create_log_trickjobs(_log_trickjobs,0,100,0.1);
     _create_log_userjobs(_log_userjobs,0,100,0.1,5);
+
+
 }
 
 void TestSnap::empty_run1()
@@ -779,7 +791,136 @@ void TestSnap::job_runtime1()
     QCOMPARE(rt[tidx],1.0+sin(89.0));
 }
 
-QTEST_APPLESS_MAIN(TestSnap)
+void TestSnap::job_avgtime()
+{
+    QString rundir = _run(5);
+
+    for ( int cc = 1; cc < _log_userjobs.columnCount(); ++cc) {
+        for ( int rr = 0; rr < _log_userjobs.rowCount(); ++rr) {
+            QModelIndex idx = _log_userjobs.index(rr,cc);
+            double val = 100000.0*(double)cc;
+            _log_userjobs.setData(idx,QVariant(val));
+        }
+    }
+    _write_logs(rundir);
+
+    Snap snap(rundir,0);
+
+    //
+    // avg is 0.1*column (reverse order to see if sort works)
+    //
+    QList<Job*>* jobs = snap.jobs(Snap::SortByJobAvgTime);
+    for ( int ii = 0; ii < jobs->size(); ++ii) {
+        Job* job = jobs->at(ii);
+        if ( job->sim_object_name() != QString("s1") ) continue ;
+        QCOMPARE(job->avg_runtime(),0.1*(double)(5-ii));
+    }
+
+    return;
+}
+
+void TestSnap::job_max()
+{
+    QString rundir = _run(6);
+
+    // Put max at 10 seconds for job in column 1, 20 seconds column 2 etc.
+    for ( int cc = 1; cc < _log_userjobs.columnCount(); ++cc) {
+        double sf = (double)qrand();// make scale random num between 0.0-0.5
+        sf = 0.5*sf/(double)RAND_MAX;
+        for ( int rr = 0; rr < _log_userjobs.rowCount(); ++rr) {
+            QModelIndex idx = _log_userjobs.index(rr,0);
+            double tt = _log_userjobs.data(idx).toDouble();
+            idx = _log_userjobs.index(rr,cc);
+            double val = sf*1000000.0*sin(tt);
+            _log_userjobs.setData(idx,QVariant(val));
+        }
+    }
+    for ( int cc = 1; cc < _log_userjobs.columnCount(); ++cc) {
+        QModelIndex idx = _log_userjobs.index(cc*100,cc); //10sec,20sec...
+        double val = cc*1000000.0; // make max 1.0,2.0,3.0... etc.
+        _log_userjobs.setData(idx,QVariant(val));
+    }
+
+    _write_logs(rundir);
+
+    for ( int cc = 1; cc < _log_userjobs.columnCount(); ++cc) {
+        _qplot.addTrickGraph(_log_userjobs,cc);
+    }
+
+    Snap snap(rundir,0);
+
+    //
+    // max is 5.0,4.0,3.0,2.0,1.0 seconds at 50,40,30,20,10 seconds respectively
+    //
+    QList<Job*>* jobs = snap.jobs();
+    for ( int ii = 0; ii < jobs->size(); ++ii) {
+        Job* job = jobs->at(ii);
+        if ( job->sim_object_name() != QString("s1") ) continue ;
+        QCOMPARE(job->max_runtime(),1.0*(double)(5-ii));
+        QCOMPARE(job->max_timestamp(),10.0*(double)(5-ii));
+
+    }
+
+    return;
+}
+
+void TestSnap::job_stddev()
+{
+    QString rundir = _run(6);
+
+    // Check stddev for job5
+    double rc = (double)_log_userjobs.rowCount();
+    double sum = 0.0 ;
+    for ( int rr = 0; rr < _log_userjobs.rowCount(); ++rr) {
+        QModelIndex idx = _log_userjobs.index(rr,5);
+        double val = _log_userjobs.data(idx).toDouble()/1000000.0;
+        sum += val;
+    }
+    double avg = sum/rc;
+
+    sum = 0.0;
+    for ( int rr = 0; rr < _log_userjobs.rowCount(); ++rr) {
+        QModelIndex idx = _log_userjobs.index(rr,5);
+        double val = _log_userjobs.data(idx).toDouble()/1000000.0;
+        sum += (avg-val)*(avg-val);
+    }
+    double stddev = qSqrt(sum/rc);
+
+    Snap snap(rundir,0); // start must be at 0 to match calc above
+
+    QList<Job*>* jobs = snap.jobs();
+    Job* job = jobs->at(0);
+    QCOMPARE(job->stddev_runtime(),stddev);
+
+    return;
+}
+
+int main(int argc, char *argv[])
+{
+    QApplication app(argc, argv);
+    QPlotMainWindow qplot;
+    qplot.show();
+    QTEST_DISABLE_KEYPAD_NAVIGATION
+    TestSnap tc(qplot);
+    int ret = QTest::qExec(&tc, 0, argv);
+    if ( ret == 0 ) {
+        app.exec();
+    }
+
+    return ret;
+}
+
+#if 0
+QTEST_MAIN(TestSnap)
+int main(int argc, char *argv[])
+{
+  QApplication a(argc, argv);
+  MainWindow w;
+  w.show();
+
+  return a.exec();
+}
+#endif
 #include "testsnap.moc"
 
 #endif
