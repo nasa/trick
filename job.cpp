@@ -3,6 +3,7 @@
 #include <QRegExp>
 #include <stdio.h>
 #include <cmath>
+#include <QtCore/qmath.h>
 
 #include "utils.h"
 
@@ -55,13 +56,13 @@ inline void Job::_do_stats()
 
     long sum_rt = 0 ;
     long max_rt = 0 ;
-    double sum_vv = 0.0;
     for ( int tidx = 0 ; tidx < _npoints ; tidx++ ) {
         double time = _timestamps[tidx];
-        if ( time < 1.0 ) {
+        long rt = (long)_runtime[tidx];
+        if ( time < 1.0 && rt > 2000000.0) {
+            // Throw out bad points at start of sim
             continue;
         }
-        long rt = (long)_runtime[tidx];
 
         if ( tidx > 0 && rt > 0 ) {
             freq = round_10((long)(time*1000000.0) - last_nonzero_timestamp);
@@ -80,14 +81,10 @@ inline void Job::_do_stats()
             _max_timestamp = time;
         }
         sum_rt += rt;
-
-        _avg_runtime = ((double)sum_rt/(double)_npoints);
-        sum_vv += (rt-_avg_runtime)*(rt-_avg_runtime); // for stddev
     }
 
     _avg_runtime = (sum_rt/_npoints)/1000000.0;
     _max_runtime = (max_rt)/1000000.0;
-    _stddev_runtime = sqrt(sum_vv/_npoints)/1000000.0 ;
 
     // Could be multiple frequencies - choose mode
     int max_cnt = 0 ;
@@ -122,6 +119,27 @@ double Job::max_timestamp()
 double Job::stddev_runtime()
 {
     _do_stats();
+
+    if ( _is_stddev ) {
+        return _stddev_runtime;
+    } else {
+        _is_stddev = true;
+    }
+
+    double sum_vv = 0.0;
+    for ( int tidx = 0 ; tidx < _npoints ; tidx++ ) {
+        double time = _timestamps[tidx];
+        double rt = _runtime[tidx];
+        if ( time < 1.0 && rt > 2000000.0) {
+            // Throw out bad points at start of sim
+            continue;
+        }
+        rt = rt/1000000.0;
+        sum_vv += (rt-_avg_runtime)*(rt-_avg_runtime);
+    }
+
+    _stddev_runtime = qSqrt(sum_vv/_npoints) ;
+
     return _stddev_runtime;
 }
 
@@ -135,7 +153,7 @@ double Job::freq()
 // An example logname:
 // JOB_schedbus.SimBus##read_ALDS15_ObcsRouter_C1.1828.00(read_simbus_0.100)
 Job::Job(BoundedTrickBinaryRiver *river, const char* log_jobname) :
-     _is_stats(false)
+     _is_stats(false),_is_stddev(false)
 {
     _npoints = river->getNumPoints();
     _timestamps = river->getTimeStamps();

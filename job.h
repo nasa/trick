@@ -28,7 +28,7 @@ class Job
     double avg_runtime();
     double max_runtime();
     double max_timestamp();
-    double stddev_runtime();
+    double stddev_runtime(); // TODO: make unit test
 
     inline double* runtime() const { return _runtime; }
     inline double* timestamps() const { return _timestamps; }
@@ -48,6 +48,7 @@ class Job
     QString _job_class;
 
     bool _is_stats;
+    bool _is_stddev;
     void _do_stats();
     double _avg_runtime;
     double _stddev_runtime;
