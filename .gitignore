@@ -3,3 +3,4 @@ snap.pro.user.1.3
 Makefile
 build_*
 snap
+test/runs/*
