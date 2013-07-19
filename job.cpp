@@ -86,14 +86,16 @@ inline void Job::_do_stats()
     _avg_runtime = (sum_rt/_npoints)/1000000.0;
     _max_runtime = (max_rt)/1000000.0;
 
-    // Could be multiple frequencies - choose mode
-    int max_cnt = 0 ;
-    _freq = 0;
-    foreach ( long freq, map_freq.keys() ) {
-        int cnt = map_freq.value(freq);
-        if ( cnt > max_cnt ) {
-            _freq = freq/1000000.0;
-            max_cnt = cnt;
+    if ( _npoints > 1 ) {
+        int max_cnt = 0 ;
+        _freq = 0;
+        // Could be multiple frequencies - choose mode
+        foreach ( long freq, map_freq.keys() ) {
+            int cnt = map_freq.value(freq);
+            if ( cnt > max_cnt ) {
+                _freq = freq/1000000.0;
+                max_cnt = cnt;
+            }
         }
     }
 }

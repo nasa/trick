@@ -220,7 +220,7 @@ void TestSnap::_create_log_userjobs(TrickDataModel &model,
                     // e.g. if frame_rate=0.1 and jobfreq=1.0, then
                     //      mod=10... so every 10th timestamp will have a
                     //      "runtime" > 0... making it a 1.0 job cycle
-                    model.setData(idx,QVariant(1.0+sin(tt)));
+                    model.setData(idx,QVariant(1.0+1000000.0*qAbs(sin(tt))));
                 }
             }
         }
@@ -346,7 +346,8 @@ void TestSnap::_create_log_trickjobs(TrickDataModel &model,
             switch (ii)
             {
             case 0:  model.setData(idx[ii],QVariant(tt)); break;
-            default: model.setData(idx[ii],QVariant(100000.0*sin(tt))); break;
+            default: model.setData(idx[ii],QVariant(100.0+100000.0*qAbs(sin(tt))));
+                     break;
             };
         }
         tt += freq;
@@ -759,7 +760,7 @@ void TestSnap::jobid()
 void TestSnap::job_num()
 {
     QString rundir = _run("4");
-    Snap snap(rundir,50,51);
+    Snap snap(rundir,0);
 
     QCOMPARE(snap.jobs()->at(0)->job_num(),QString("27.02"));
 }
@@ -847,7 +848,7 @@ void TestSnap::job_runtime1()
     double* timestamps = snap.jobs()->at(0)->timestamps();
     int tidx = getIndexAtTime(ntimestamps,timestamps,89.0);
     double* rt = snap.jobs()->at(0)->runtime();
-    QCOMPARE(rt[tidx],1.0+sin(89.0));
+    QCOMPARE(rt[tidx],1.0+1000000*qAbs(sin(89.0)));
 }
 
 void TestSnap::job_avgtime()
@@ -890,7 +891,7 @@ void TestSnap::job_max()
             QModelIndex idx = _log_userjobs.index(rr,0);
             double tt = _log_userjobs.data(idx).toDouble();
             idx = _log_userjobs.index(rr,cc);
-            double val = sf*1000000.0*sin(tt);
+            double val = sf*1000000.0*qAbs(sin(tt));
             _log_userjobs.setData(idx,QVariant(val));
         }
     }
@@ -910,10 +911,14 @@ void TestSnap::job_max()
     QList<Job*>* jobs = snap.jobs();
     for ( int ii = 0; ii < jobs->size(); ++ii) {
         Job* job = jobs->at(ii);
-        if ( job->sim_object_name() != QString("s1") ) continue ;
-        QCOMPARE(job->max_runtime(),1.0*(double)(5-ii));
-        QCOMPARE(job->max_timestamp(),10.0*(double)(5-ii));
-
+        if ( job->job_num() == "2500.1" ) {
+            QCOMPARE(job->max_runtime(),1.0);
+            QCOMPARE(job->max_timestamp(),10.0*1.0);
+        }
+        if ( job->job_num() == "2500.5" ) {
+            QCOMPARE(job->max_runtime(),5.0);
+            QCOMPARE(job->max_timestamp(),10.0*5.0);
+        }
     }
 
     return;
@@ -923,11 +928,13 @@ void TestSnap::job_stddev()
 {
     QString rundir = _run("6");
 
+    const int job_num = 5;
+
     // Check stddev for job5
     double rc = (double)_log_userjobs.rowCount();
     double sum = 0.0 ;
     for ( int rr = 0; rr < _log_userjobs.rowCount(); ++rr) {
-        QModelIndex idx = _log_userjobs.index(rr,5);
+        QModelIndex idx = _log_userjobs.index(rr,job_num);
         double val = _log_userjobs.data(idx).toDouble()/1000000.0;
         sum += val;
     }
@@ -935,7 +942,7 @@ void TestSnap::job_stddev()
 
     sum = 0.0;
     for ( int rr = 0; rr < _log_userjobs.rowCount(); ++rr) {
-        QModelIndex idx = _log_userjobs.index(rr,5);
+        QModelIndex idx = _log_userjobs.index(rr,job_num);
         double val = _log_userjobs.data(idx).toDouble()/1000000.0;
         sum += (avg-val)*(avg-val);
     }
@@ -944,8 +951,15 @@ void TestSnap::job_stddev()
     Snap snap(rundir,0); // start must be at 0 to match calc above
 
     QList<Job*>* jobs = snap.jobs();
-    Job* job = jobs->at(0);
-    QCOMPARE(job->stddev_runtime(),stddev);
+    for ( int ii = 0; ii < jobs->size(); ++ii) {
+        Job* job = jobs->at(ii);
+        if ( job->job_num() == "2500.5" ) {
+            if ( qAbs(1.0 + job->stddev_runtime() - stddev) < 1.0 + 1.0e-6 ) {
+                stddev = job->stddev_runtime();
+            }
+            QCOMPARE(job->stddev_runtime(),stddev);
+        }
+    }
 
     return;
 }

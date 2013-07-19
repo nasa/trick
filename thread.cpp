@@ -17,17 +17,38 @@ void Thread::_do_stats()
     qSort(jobs.begin(),jobs.end(),jobAvgTimeGreaterThan);
 
     // Frequency (cycle time) of thread
-    // Guess that the freq is the job
-    // with max cycle time
+    //
+    // For now (waiting on trick13) guess the thread freq by:
+    //   thread0:
+    //              It's the same as sim frame time which
+    //              can be determined by the job:
+    //                       trick_sys.sched.advance_sim_time
+    //   threads1-N:
+    //              Guess that the thread freq is the same freq of the job
+    //              with max cycle time
     freq = -1.0e20;
     foreach ( Job* job, jobs ) {
-        if ( job->freq() < 0.000001 ) continue;
-        if ( job->freq() > freq ) {
-            freq = job->freq();
+        if ( thread_id == 0 ) {
+            if ( job->job_name() == "trick_sys.sched.advance_sim_time" ) {
+                freq = job->freq();
+                break;
+            }
+        } else {
+            if ( job->freq() < 0.000001 ) continue;
+            if ( job->freq() > freq ) {
+                freq = job->freq();
+            }
         }
     }
     if (freq == -1.0e20) {
         freq = 0.0;
+    }
+    if ( thread_id == 0 && freq == 0.0 ) {
+        QString msg;
+        msg += "snap [error]: couldn't find job";
+        msg += " trick_sys.sched.advance_sim_time.";
+        msg += " Cannot determine thread0's frequency.";
+        throw std::runtime_error(msg.toAscii().constData());
     }
 
     Job* job0 = jobs.at(0);
