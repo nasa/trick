@@ -249,7 +249,7 @@ bool Snap::_process_job_river( BoundedTrickBinaryRiver* river )
 
         LOG_PARAM param = params.at(ii);
 
-        Job* job = new Job(river,const_cast<char*>(param.data.name.c_str()));
+        Job* job = new Job(const_cast<char*>(param.data.name.c_str()),river);
 
         QString job_id = job->id();
 

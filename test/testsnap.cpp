@@ -14,16 +14,16 @@
 #include "trickdatamodel.h"
 #include "utils.h"
 #include "qplot/qplotmainwindow.h"
+QPlotMainWindow* qplot;
 
 class TestSnap: public QObject
 {
     Q_OBJECT
 
 public:
-    TestSnap(QPlotMainWindow &qplot);
+    TestSnap();
 
 private:
-    QPlotMainWindow& _qplot;
 
     bool _is_generate_rundata;
 
@@ -37,8 +37,8 @@ private:
     bool _write_logs(// writes log_frame/userjobs/trickjobs.trk/header
             const QString& rundir);
 
-    void _create_log_userjobs(TrickDataModel &model,
-                              double start, double stop, double freq, int njobs);
+    void _create_log_userjobs(TrickDataModel &model, double start, double stop,
+                                    double frame_rate, const QList<Job> &jobs);
     void _create_log_frame(TrickDataModel &model,
                               double start, double stop, double freq);
     void _create_log_trickjobs(TrickDataModel &model,
@@ -103,12 +103,13 @@ private slots:
     void job_avgtime();
     void job_max();
     void job_stddev();
+    void job_freq();
+    void thread1();
     void cleanupTestCase() {}
 };
 
-TestSnap::TestSnap(QPlotMainWindow& qplot) : _qplot(qplot)
+TestSnap::TestSnap()
 {
-
 }
 
 QString TestSnap::_run(const QString& runname)
@@ -172,20 +173,24 @@ bool TestSnap::_write_logs(const QString &rundir)
 void TestSnap::_create_log_userjobs(TrickDataModel &model,
                                     double start,
                                     double stop,
-                                    double freq,
-                                    int njobs)
+                                    double frame_rate,
+                                    const QList<Job>& jobs)
 {
+    int ncols = model.columnCount();
+    if ( ncols > 0 ) {
+        model.removeColumns(0,ncols);
+    }
 
     model.insertColumns(0,1);
     model.setHeaderData(
         0,Qt::Horizontal,
         QVariant(QString("sys.exec.out.time")),
         TrickDataModel::TrickRoleParamName);
+    model.insertColumns(1,jobs.size());
 
-    model.insertColumns(1,njobs);
-    for ( int ii = 1; ii < njobs+1; ++ii) {
-        QString jobname = QString("JOB_s1.x.a_C1.2500.%1(scheduled_1.000)")
-                          .arg(ii);
+    int ii = 1;
+    foreach ( Job job, jobs ) {
+        QString jobname = job.id();
         model.setHeaderData(
                     ii,Qt::Horizontal,
                     QVariant(jobname), TrickDataModel::TrickRoleParamName);
@@ -195,24 +200,31 @@ void TestSnap::_create_log_userjobs(TrickDataModel &model,
         model.setHeaderData(
                     ii,Qt::Horizontal,QVariant(QString("double")),
                     TrickDataModel::TrickRoleType);
+        ii++;
     }
 
-    // Timestamp,sin(time)
+    // Set timestamp and "runtime" for job
     double tt = start;
     int rc = 0 ;
     while ( tt <= stop+1.0e-9 ) {
         model.insertRows(rc,1);
-        for ( int ii = 0; ii < njobs+1; ++ii) {
+        for ( int ii = 0; ii < jobs.size()+1; ++ii) {
             QModelIndex idx = model.index(rc,ii);
             if ( ii == 0 ) {
                 model.setData(idx,QVariant(tt));
             } else {
-                if ( rc%10 == 0 ) { // since freq 1.000 show runtime every 10th
+                Job job = jobs.at(ii-1);
+                double jobfreq = job.freq();
+                int mod = (int)(jobfreq/frame_rate);
+                if ( rc%mod == 0 ) {
+                    // e.g. if frame_rate=0.1 and jobfreq=1.0, then
+                    //      mod=10... so every 10th timestamp will have a
+                    //      "runtime" > 0... making it a 1.0 job cycle
                     model.setData(idx,QVariant(1.0+sin(tt)));
                 }
             }
         }
-        tt += freq;
+        tt += frame_rate;
         rc++;
     }
 }
@@ -272,6 +284,7 @@ void TestSnap::_create_log_frame(
         tt += freq;
         rc++;
     }
+
 }
 
 void TestSnap::_create_log_trickjobs(TrickDataModel &model,
@@ -322,7 +335,7 @@ void TestSnap::_create_log_trickjobs(TrickDataModel &model,
                QString("s"));
 
     // Timestamp+5params
-    const int nparams = 6;
+    const int nparams = 7;
     double tt = start;
     QModelIndex idx[nparams];
     int rc = 0 ;
@@ -333,7 +346,7 @@ void TestSnap::_create_log_trickjobs(TrickDataModel &model,
             switch (ii)
             {
             case 0:  model.setData(idx[ii],QVariant(tt)); break;
-            default: model.setData(idx[ii],QVariant(1.0e-5*1.0+sin(tt))); break;
+            default: model.setData(idx[ii],QVariant(100000.0*sin(tt))); break;
             };
         }
         tt += freq;
@@ -363,7 +376,15 @@ void TestSnap::initTestCase()
 
     _create_log_frame(_log_frame,0,100,0.1);
     _create_log_trickjobs(_log_trickjobs,0,100,0.1);
-    _create_log_userjobs(_log_userjobs,0,100,0.1,5);
+
+    QList<Job> jobs;
+    int njobs = 5;
+    for ( int ii = 1; ii < njobs+1; ++ii) {
+        QString jname = QString("JOB_s1.x.a_C1.2500.%1(scheduled_1.000)").arg(ii);
+        Job job(jname.toAscii().constData());
+        jobs.append(job);
+    }
+    _create_log_userjobs(_log_userjobs,0,100,0.1,jobs);
 }
 
 void TestSnap::empty_run1()
@@ -730,8 +751,9 @@ void TestSnap::jobid()
 {
     QString rundir = _run("4");
     Snap snap(rundir,0);
+
     QCOMPARE(snap.jobs()->at(0)->id(),
-             QString("JOB_s1.x.a_C1.2500.1(scheduled_1.000)"));
+             QString("JOB_trick_ip.ip.process_event.27.02(automatic_0.100)"));
 }
 
 void TestSnap::job_num()
@@ -739,7 +761,7 @@ void TestSnap::job_num()
     QString rundir = _run("4");
     Snap snap(rundir,50,51);
 
-    QCOMPARE(snap.jobs()->at(0)->job_num(),QString("2500.1"));
+    QCOMPARE(snap.jobs()->at(0)->job_num(),QString("27.02"));
 }
 
 void TestSnap::job_name()
@@ -880,10 +902,6 @@ void TestSnap::job_max()
 
     _write_logs(rundir);
 
-    for ( int cc = 1; cc < _log_userjobs.columnCount(); ++cc) {
-        _qplot.addTrickGraph(_log_userjobs,cc);
-    }
-
     Snap snap(rundir,0);
 
     //
@@ -932,20 +950,157 @@ void TestSnap::job_stddev()
     return;
 }
 
+void TestSnap::thread1()
+{
+    QString rundir = _run("7");
+
+    QList<Job> jobs;
+    Job j1("JOB_s1.x.a_C1.1001.0(scheduled_1.000)");
+    Job j2("JOB_s1.x.b_C1.1000.5(scheduled_0.500)");
+    Job j3("JOB_s1.x.c_C1.1000.2(scheduled_0.200)");
+    Job j4("JOB_s1.x.d_C1.1000.1(scheduled_0.100)");
+    Job j5("JOB_s2.x.e_C2.2000.1(scheduled_0.100)");
+    Job j6("JOB_s3.x.f_C3.3000.1(scheduled_0.200)");
+    Job j7("JOB_s3.x.g_C3.3000.1(scheduled_0.200)");
+    jobs << j1 << j2 << j3 << j4 << j5 << j6 << j7;
+
+    double frame_rate = 0.1;
+    double start = 0;
+    double stop = 100.0;
+
+    _create_log_userjobs(_log_userjobs,start,stop,frame_rate,jobs);
+
+    // Alter runtimes for C1-C3 to be a constant of 0.01 seconds
+    double tt = start;
+    int rc = 0 ;
+    while ( tt <= stop+1.0e-9 ) {
+        for ( int ii = 1; ii < jobs.size()+1; ++ii) {
+            QModelIndex idx = _log_userjobs.index(rc,ii);
+            Job job = jobs.at(ii-1);
+            double jobfreq = job.freq();
+            int mod = (int)(jobfreq/frame_rate);
+            if ( rc%mod == 0 ) {
+                // Runtime set to 0.01 seconds (10 thousand microseconds)
+                _log_userjobs.setData(idx,QVariant(10000.0));
+            }
+        }
+        tt += frame_rate;
+        rc++;
+    }
+
+    for ( int cc = 1; cc < _log_userjobs.columnCount(); ++cc) {
+        QString jobname = _log_userjobs.headerData(cc,Qt::Horizontal,
+                                  TrickDataModel::TrickRoleParamName).toString();
+        Job job(jobname.toAscii().constData());
+
+        if ( job.thread_id() == 1 ) {
+            qplot->addTrickGraph(_log_userjobs,cc);
+        }
+    }
+
+    _write_logs(rundir);
+
+    Snap snap(rundir,start,stop);
+
+    QCOMPARE(snap.num_threads(),4);
+
+    QList<Thread> threads = snap.threads()->list();
+    int tid = 0;
+    foreach ( Thread thread, threads ) {
+
+        // Thread Id
+        QCOMPARE(thread.thread_id,tid);
+
+        // Freq
+        if ( tid == 0 ) {
+            QCOMPARE(thread.freq,0.1);
+        } else if ( tid == 1 ) {
+            QCOMPARE(thread.freq,1.0);
+        } else if ( tid == 2 ) {
+            QCOMPARE(thread.freq,0.1);
+        } else if ( tid == 3 ) {
+            QCOMPARE(thread.freq,0.2);
+        }
+
+        // Num Jobs on thread
+        if ( tid == 0 ) {
+            QCOMPARE(thread.jobs.size(),6);
+        } else if ( tid == 1 ) {
+            QCOMPARE(thread.jobs.size(),4);
+        } else if ( tid == 2 ) {
+            QCOMPARE(thread.jobs.size(),1);
+        } else if ( tid == 3 ) {
+            QCOMPARE(thread.jobs.size(),2);
+        }
+
+        // Num frames
+        if ( tid == 0 ) {
+            QCOMPARE(thread.nframes(),1000);
+        } else if ( tid == 1 ) {
+            QCOMPARE(thread.nframes(),100);
+        } else if ( tid == 2 ) {
+            QCOMPARE(thread.nframes(),1000);
+        } else if ( tid == 3 ) {
+            QCOMPARE(thread.nframes(),500);
+        }
+
+        // Runtime
+        double sum = 0.0;
+        foreach ( Job* job, thread.jobs ) {
+            double rt = (0.01)*(thread.freq)/job->freq();
+            sum += rt;
+        }
+        // Duplicate lines because failure prints line number
+        if ( tid == 1 ) {
+            QCOMPARE(thread.runtime(45.0),sum);
+        } else if ( tid == 2 ) {
+            QCOMPARE(thread.runtime(45.0),sum);
+        } else if ( tid == 3 ) {
+            QCOMPARE(thread.runtime(45.0),sum);
+        }
+
+        // Check start and stop times
+        if ( tid == 1 ) {
+            QCOMPARE(thread.runtime(start),sum);
+            QCOMPARE(thread.runtime(stop),sum);
+        }
+
+        // Avg Runtime should be sum since I made runtime constant 0.01
+        if ( tid == 1 ) {
+            QCOMPARE(thread.avg_runtime,sum);
+        } else if ( tid == 2 ) {
+            QCOMPARE(thread.avg_runtime,sum);
+        } else if ( tid == 3 ) {
+            QCOMPARE(thread.avg_runtime,sum);
+        }
+
+        tid++;
+    }
+}
+
+// TODO
+void TestSnap::job_freq()
+{
+}
+
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    QPlotMainWindow qplot;
-    qplot.show();
+
+    qplot = new QPlotMainWindow;
+    qplot->show();
+
     QTEST_DISABLE_KEYPAD_NAVIGATION
-    TestSnap tc(qplot);
+    TestSnap tc;
     int ret = QTest::qExec(&tc, 0, argv);
-    if ( ret == 0 ) {
+    if ( true && ret == 0 ) {
         app.exec();
     }
 
     return ret;
 }
+
 
 #if 0
 QTEST_MAIN(TestSnap)

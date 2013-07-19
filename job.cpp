@@ -145,19 +145,23 @@ double Job::stddev_runtime()
 
 double Job::freq()
 {
-    _do_stats();
+    if ( _timestamps ) {
+        _do_stats();
+    }
     return _freq;
 }
 
 // Parse long logname and set job members accordingly
 // An example logname:
 // JOB_schedbus.SimBus##read_ALDS15_ObcsRouter_C1.1828.00(read_simbus_0.100)
-Job::Job(BoundedTrickBinaryRiver *river, const char* log_jobname) :
-     _is_stats(false),_is_stddev(false)
+Job::Job(const char* log_jobname, BoundedTrickBinaryRiver *river)  :
+     _npoints(0),_timestamps(0),_runtime(0),_is_stats(false),_is_stddev(false)
 {
-    _npoints = river->getNumPoints();
-    _timestamps = river->getTimeStamps();
-    _runtime = river->getVals(log_jobname);
+    if ( river ) {
+        _npoints = river->getNumPoints();
+        _timestamps = river->getTimeStamps();
+        _runtime = river->getVals(log_jobname);
+    }
 
     QString qname(log_jobname);
     qname.replace("::","##");

@@ -15,7 +15,7 @@ class Job
   public:
     // job_id is logged job name
     // e.g. JOB_bus.SimBus##read_ObcsRouter_C1.1828.00(read_simbus_0.100)
-    Job(BoundedTrickBinaryRiver* river, const char *job_id);
+    Job(const char *job_id, BoundedTrickBinaryRiver* river=0);
 
     QString id() const; // logged jobname
     QString job_num() const { return _job_num; }
