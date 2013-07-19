@@ -17,14 +17,16 @@ void Thread::_do_stats()
     qSort(jobs.begin(),jobs.end(),jobAvgTimeGreaterThan);
 
     // Frequency (cycle time) of thread
-    freq = 1.0e20;
+    // Guess that the freq is the job
+    // with max cycle time
+    freq = -1.0e20;
     foreach ( Job* job, jobs ) {
         if ( job->freq() < 0.000001 ) continue;
-        if ( job->freq() < freq ) {
+        if ( job->freq() > freq ) {
             freq = job->freq();
         }
     }
-    if (freq == 1.0e20) {
+    if (freq == -1.0e20) {
         freq = 0.0;
     }
 
@@ -37,12 +39,11 @@ void Thread::_do_stats()
     max_runtime = 0.0;
     int last_frameidx = 0 ;
     bool is_frame_change = true;
-    int nframes = 0 ;
     for ( int tidx = 0; tidx < npoints; ++tidx) {
 
         if ( freq < 0.000001 ) {
             is_frame_change = true;
-        } else if ( tnext < t[tidx] ) {
+        } else if ( t[tidx]+1.0e-6 > tnext ) {
             tnext += freq;
             if ( frame_time/1000000.0 > freq ) {
                 num_overruns++;
@@ -57,7 +58,6 @@ void Thread::_do_stats()
             }
             _frameidx2runtime[last_frameidx] = frame_time/1000000.0;
             sum_time += frame_time;
-            nframes++;
             frame_time = 0.0;
             last_frameidx = tidx;
             is_frame_change = false;
@@ -68,7 +68,7 @@ void Thread::_do_stats()
         }
     }
     max_runtime /= 1000000.0;
-    avg_runtime = sum_time/nframes/1000000.0;
+    avg_runtime = sum_time/(double)this->nframes()/1000000.0;
     if ( freq > 0.0000001 ) {
         avg_load = 100.0*avg_runtime/freq;
         max_load = 100.0*max_runtime/freq;
@@ -80,7 +80,7 @@ void Thread::_do_stats()
         double vv = (avg_runtime-rt)*(avg_runtime-rt);
         stdev += vv;
     }
-    stdev = sqrt(stdev/nframes);
+    stdev = sqrt(stdev/(double)this->nframes());
 
 }
 
