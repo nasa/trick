@@ -480,7 +480,9 @@ QString SnapReport::report()
         for ( int ii = 0; ii < 5; ++ii) {
             Job* job = thread.jobs.at(ii) ;
             double load = thread.avg_job_load(job);
-            sum += load;
+            if ( job->job_name() == "real_time.rt_sync.rt_monitor" ) {
+                sum += load;
+            }
             if ( (load < 0.01 || (sum > 98.0 && ii > 0)) &&
                   thread.jobs.length() > 1 ) {
                 break;
