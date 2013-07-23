@@ -1,5 +1,5 @@
 #include "qplotmainwindow.h"
-#include "ui_qplotwidget.h"
+#include "ui_qplotmainwindow.h"
 
 QPlotMainWindow::QPlotMainWindow(QWidget *parent) :
     QMainWindow(parent),
