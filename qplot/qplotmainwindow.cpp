@@ -280,7 +280,7 @@ void QPlotMainWindow::addTrickGraph(const TrickDataModel& model, int column)
 
     ui->customPlot->addGraph();
     QString param = model.headerData(column,Qt::Horizontal,
-                                  TrickDataModel::TrickRoleParamName).toString();
+                                  TrickDataModel::ParamName).toString();
     ui->customPlot->graph()->setName(param);
     ui->customPlot->graph()->setData(x, y);
 

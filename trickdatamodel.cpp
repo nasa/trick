@@ -2,6 +2,10 @@
 
 #include <stdlib.h>
 
+const int TrickDataModel::TRICK_DOUBLE = 11;
+const int TrickDataModel::TRICK_LONG_LONG = 14;
+const int TrickDataModel::TRICK_UNSIGNED_LONG_LONG = 15;
+
 TrickDataModel::TrickDataModel(TrickVersion version,
                                Endianness endianness) :
         QAbstractItemModel(),
@@ -21,6 +25,9 @@ TrickDataModel::~TrickDataModel()
         delete col;
     }
 
+    foreach ( Param* param, _params ) {
+        delete param;
+    }
 }
 
 
@@ -208,17 +215,16 @@ bool TrickDataModel::insertColumns(int column, int count,
     // Meta data for "roles" :(
     //
     for ( int ii = column; ii < column+count; ++ii) {
-        QString name = QString("Parameter%1").arg(ii);
-        QString unit("--");
-        QString tricktype("double");
+        Param* param = new Param;
+        param->name = QString("Parameter%1").arg(ii);
+        param->unit = "--";
+        param->type = TRICK_DOUBLE;
         if ( ii == 0 ) {
-            name = "sys.exec.out.time";
-            unit = "s";
-            tricktype = "double";
+            param->name = "sys.exec.out.time";
+            param->unit = "s";
+            param->type = TRICK_DOUBLE;
         }
-        _name.insert(ii,name);
-        _unit.insert(ii,unit);
-        _type.insert(ii,tricktype);
+        _params.insert(ii,param);
     }
 
     int nrows = rowCount(pidx) ;
@@ -263,6 +269,9 @@ bool TrickDataModel::removeColumns(int column, int count, const QModelIndex &pid
         }
         delete col;
         _data.removeAt(ii);
+
+        delete _params.at(ii);
+        _params.removeAt(ii);
     }
 
     endRemoveColumns();
@@ -279,12 +288,15 @@ QVariant TrickDataModel::headerData(int sect,
         ret = QAbstractItemModel::headerData(sect,orientation,role);
     } else {
         if (orientation == Qt::Horizontal && sect >= 0 && sect < columnCount()) {
+            Param* param = _params.at(sect);
             switch (role)
             {
-            case TrickRoleParamName: ret = QVariant(_name.at(sect)); break;
-            case      TrickRoleUnit: ret = QVariant(_unit.at(sect)); break;
-            case      TrickRoleType: ret = QVariant(_type.at(sect)); break;
-            default:                                                break;
+            case ParamName: ret = QVariant(param->name); break;
+            case ParamUnit: ret = QVariant(param->unit); break;
+            case ParamType: ret = QVariant(param->type); break;
+            case ParamSize: ret = QVariant(param->size); break;
+            default:
+                break;
             };
         }
     }
@@ -298,21 +310,32 @@ bool TrickDataModel::setHeaderData(int sect, Qt::Orientation orientation,
     bool ret = false;
 
     if ( role < Qt::UserRole ) {
+        // TODO: Need to implement this since the
+        // QAbstractItemModel::setHeaderData() is a no-op and always
+        // returns false
         ret = QAbstractItemModel::setHeaderData(sect,orientation,val,role);
     } else {
         if (orientation == Qt::Horizontal && sect >= 0 && sect < columnCount()) {
+            Param* param = _params[sect];
             if ( val.type() == QVariant::String ) {
                 switch (role)
                 {
-                case TrickRoleParamName:
-                    _name.replace(sect,val.toString()); ret = true; break;
-                case TrickRoleUnit:
-                    _unit.replace(sect,val.toString()); ret = true; break;
-                case TrickRoleType:
-                    _type.replace(sect,val.toString()); ret = true; break;
+                case ParamName: param->name = val.toString(); ret = true; break;
+                case ParamUnit: param->unit = val.toString(); ret = true; break;
 
-                default:                                           break;
+                default:
+                    break;
                 };
+            }
+            if ( val.type() == QVariant::Int ) {
+                switch (role)
+                {
+                case ParamSize: param->size = val.toInt(); ret = true; break;
+                case ParamType: param->type = val.toInt(); ret = true; break;
+
+                default:
+                    break;
+                }
             }
         }
     }
@@ -351,9 +374,9 @@ bool TrickDataModel::write_log_header(const QString &log_name,
         out << "\t";
         out << _tricktype(col).name;
         out << "\t";
-        out <<  headerData(col,Qt::Horizontal,TrickRoleUnit).toString();
+        out <<  headerData(col,Qt::Horizontal,ParamUnit).toString();
         out << "\t";
-        out <<  headerData(col,Qt::Horizontal,TrickRoleParamName).toString();
+        out <<  headerData(col,Qt::Horizontal,ParamName).toString();
         out << "\n";
 
     }
@@ -413,7 +436,7 @@ bool TrickDataModel::write_binary_trk(const QString &log_name,
     //
     // Sanity check for "sys.exec.out.time"
     //
-    QString systime = headerData(0,Qt::Horizontal,TrickRoleParamName).toString();
+    QString systime = headerData(0,Qt::Horizontal,ParamName).toString();
     if ( systime != "sys.exec.out.time" ) {
         fprintf(stderr,"snap [error]: holy cow, %s changed to %s\n",
                 "sys.exec.out.time", systime.toAscii().constData());
@@ -442,20 +465,187 @@ bool TrickDataModel::write_binary_trk(const QString &log_name,
     return ret;
 }
 
+bool TrickDataModel::load_binary_trk(const QString &log_name,
+                                      const QString& rundir)
+{
+    bool ret = true;
+
+    QString fname = QString("%1.trk").arg(log_name);
+    fname = rundir + "/" + fname;
+
+    QFile file(fname);
+
+    if (!file.open(QIODevice::ReadOnly)) {
+        fprintf(stderr,"Snap: [error] could not open %s\n",
+                fname.toAscii().constData());
+        return false;
+    }
+    QDataStream in(&file);
+
+    if ( _endianess == LittleEndian ) {
+        in.setByteOrder(QDataStream::LittleEndian);
+    } else {
+        in.setByteOrder(QDataStream::BigEndian);
+    }
+
+
+    //
+    // Trick-version-endian (10 bytes)
+    //
+    char data[1024];
+    in.readRawData(data,6); // Trick-
+    in.readRawData(data,2); // version
+    if ( data[0] == '1' && data[1] == '0' ) {
+        _trick_version = TrickVersion10;
+    } else {
+        _trick_version = TrickVersion07;
+    }
+    in.readRawData(data,1) ; // -
+    in.readRawData(data,1) ; // L or B (endian)
+    if ( data[0] == 'L' ) {
+        _endianess = LittleEndian;
+    } else {
+        _endianess = BigEndian;
+    }
+
+    //
+    // Number of parameters (4 byte integer)
+    //
+    qint32 nparams;
+    in >> nparams;
+
+    //
+    // Read param header info (name,unit,type,bytesize)
+    //
+    int record_size = 0 ;
+    int col = columnCount();
+    insertColumns(col,nparams);
+    for ( int cc = 0; cc < nparams; ++cc) {
+        _load_binary_param(in,col+cc);
+        record_size += headerData(col+cc,Qt::Horizontal,ParamSize).toInt();
+    }
+
+    // Sanity check.  The bytes remaining should be a multiple of the record size
+    qint64 nbytes = file.bytesAvailable();
+    if ( nbytes % record_size != 0 ) {
+        // TODO: throw runtime exception
+        fprintf(stderr,"snap [error]: trk file %s is corrupt!\n",
+                file.fileName().toAscii().constData());
+        exit(-1);
+    }
+
+    // Calc number of data records in trk file
+    qint64 num_records = nbytes/(qint64)record_size;
+
+    // Allocate rows
+    if ( rowCount() > 0 ) {
+        // TODO: throw runtime exception
+        fprintf(stderr,"snap [bad scoobies]: row count should be zero!\n");
+        exit(-1);
+    }
+    insertRows(0,num_records);
+
+    //
+    // Read param data
+    //
+    for ( int ii = 0; ii < rowCount(); ++ii) {
+        for ( int jj = 0; jj < columnCount(); ++jj) {
+            _load_binary_param_data(in,ii,jj);
+        }
+    }
+
+    file.close();
+
+    return ret;
+}
+
 void TrickDataModel::_write_binary_param(QDataStream& out, int col)
 {
     // Param name
-    QString param =  headerData(col,Qt::Horizontal,TrickRoleParamName).toString();
+    QString param =  headerData(col,Qt::Horizontal,ParamName).toString();
     _write_binary_qstring(param,out);
 
     // Param unit
-    QString unit =  headerData(col,Qt::Horizontal,TrickRoleUnit).toString();
+    QString unit =  headerData(col,Qt::Horizontal,ParamUnit).toString();
     _write_binary_qstring(unit,out);
 
     // Param type
     TrickType tricktype = _tricktype(col);
     out << tricktype.id;
     out << tricktype.size;
+}
+
+void TrickDataModel::_load_binary_param_data(QDataStream &in, int row, int col)
+{
+    int trick_type = headerData(col,Qt::Horizontal,ParamType).toInt();
+    QModelIndex idx = index(row,col);
+
+    switch ( trick_type ) {
+
+    case TRICK_DOUBLE :
+    {
+        double val;
+        in >> val;
+        setData(idx,val);
+        break;
+    }
+
+    case TRICK_UNSIGNED_LONG_LONG :
+    {
+        unsigned long long val;
+        in >> val;
+        setData(idx,val);
+        break;
+    }
+
+    case TRICK_LONG_LONG :
+    {
+        long long val;
+        in >> val;
+        setData(idx,val);
+        break;
+    }
+
+    default :
+    {
+        fprintf(stderr,"snap [error]: can't handle trick type \"%d\"\n",
+                trick_type);
+        exit(-1);
+    }
+
+    }
+
+}
+
+// Returns byte size of parameter
+void TrickDataModel::_load_binary_param(QDataStream& in, int col)
+{
+    qint32 sz;
+
+    // Param name
+    in >> sz;
+    char* param_name = new char[sz+1];
+    in.readRawData(param_name,sz);
+    param_name[sz] = '\0';
+    setHeaderData(col,Qt::Horizontal,param_name,ParamName);
+    delete[] param_name;
+
+    // Param unit
+    in >> sz;
+    char* param_unit = new char[sz+1];
+    in.readRawData(param_unit,sz);
+    param_unit[sz] = '\0';
+    setHeaderData(col,Qt::Horizontal,param_unit,ParamUnit);
+    delete[] param_unit;
+
+    // Param type
+    qint32 param_type;
+    in >> param_type;
+    setHeaderData(col,Qt::Horizontal,param_type,ParamType);
+
+    // Param bytesize
+    in >> sz;
+    setHeaderData(col,Qt::Horizontal,sz,ParamSize);
 }
 
 void TrickDataModel::_write_binary_param_data(QDataStream& out, int row, int col)
@@ -473,8 +663,6 @@ void TrickDataModel::_write_binary_param_data(QDataStream& out, int row, int col
                 val.typeName());
         exit(-1);
     }
-
-
 }
 
 void TrickDataModel::_write_binary_qstring(const QString &str, QDataStream& out)
@@ -483,6 +671,7 @@ void TrickDataModel::_write_binary_qstring(const QString &str, QDataStream& out)
     out << size_str;
     out.writeRawData(str.toAscii().constData(),str.size());
 }
+
 
 // MemoryManager/include/parameter_types.h
 #if 0

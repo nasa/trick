@@ -17,6 +17,7 @@
 #include "simobject.h"
 #include "frame.h"
 #include "utils.h"
+#include "snaptable.h"
 
 #define TXT(X) X.toAscii().constData()
 
@@ -69,6 +70,8 @@ public:
     Threads* threads() const { return _threads; }
     const QList<Frame>* frames() const { return &_frames; }
 
+    QList<SnapTable*> tables;
+
 private:
     Snap() {}
 
@@ -106,6 +109,12 @@ private:
 
     Threads* _threads;
     SimObjects* _sim_objects;
+
+    SnapTable* _create_table_summary();
+    SnapTable* _create_table_spikes();
+    SnapTable* _create_table_thread_summary();
+    SnapTable* _create_table_top_jobs();
+
 };
 
 class SnapReport

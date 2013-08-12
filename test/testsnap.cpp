@@ -185,7 +185,7 @@ void TestSnap::_create_log_userjobs(TrickDataModel &model,
     model.setHeaderData(
         0,Qt::Horizontal,
         QVariant(QString("sys.exec.out.time")),
-        TrickDataModel::TrickRoleParamName);
+        TrickDataModel::ParamName);
     model.insertColumns(1,jobs.size());
 
     int ii = 1;
@@ -193,13 +193,13 @@ void TestSnap::_create_log_userjobs(TrickDataModel &model,
         QString jobname = job.id();
         model.setHeaderData(
                     ii,Qt::Horizontal,
-                    QVariant(jobname), TrickDataModel::TrickRoleParamName);
+                    QVariant(jobname), TrickDataModel::ParamName);
         model.setHeaderData(
                     ii,Qt::Horizontal,QVariant(QString("s")),
-                    TrickDataModel::TrickRoleUnit);
+                    TrickDataModel::ParamUnit);
         model.setHeaderData(
                     ii,Qt::Horizontal,QVariant(QString("double")),
-                    TrickDataModel::TrickRoleType);
+                    TrickDataModel::ParamType);
         ii++;
     }
 
@@ -363,11 +363,11 @@ void TestSnap::_add_param(TrickDataModel &model, int col,
     model.insertColumns(col,1);
     model.setHeaderData(
             col,Qt::Horizontal,
-                QVariant(pname), TrickDataModel::TrickRoleParamName);
+                QVariant(pname), TrickDataModel::ParamName);
     model.setHeaderData(
-            col,Qt::Horizontal,QVariant(unit), TrickDataModel::TrickRoleUnit);
+            col,Qt::Horizontal,QVariant(unit), TrickDataModel::ParamUnit);
     model.setHeaderData(
-            col,Qt::Horizontal,QVariant(type), TrickDataModel::TrickRoleType);
+            col,Qt::Horizontal,QVariant(type), TrickDataModel::ParamType);
 }
 
 void TestSnap::initTestCase()
@@ -1004,7 +1004,7 @@ void TestSnap::thread1()
 
     for ( int cc = 1; cc < _log_userjobs.columnCount(); ++cc) {
         QString jobname = _log_userjobs.headerData(cc,Qt::Horizontal,
-                                  TrickDataModel::TrickRoleParamName).toString();
+                                  TrickDataModel::ParamName).toString();
         Job job(jobname.toAscii().constData());
 
         if ( job.thread_id() == 1 ) {

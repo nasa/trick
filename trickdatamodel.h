@@ -12,21 +12,34 @@
 #include <QTextStream>
 #include <QPair>
 
+class Param
+{
+  public:
+    QString name;
+    QString unit;
+    int     type;      // e.g. TRICK_DOUBLE
+    int size;
+};
+
 class TrickType
 {
   public:
     qint32 id;
-    qint32 size;
     QString name;
+    qint32 size;
 };
 
 class TrickDataModel : QAbstractItemModel
 {
   public:
+    static const int TRICK_DOUBLE;
+    static const int TRICK_LONG_LONG;
+    static const int TRICK_UNSIGNED_LONG_LONG;
 
     enum TrickVersion
     {
-        TrickVersion07
+        TrickVersion07,
+        TrickVersion10
     };
 
     enum Endianness
@@ -37,9 +50,10 @@ class TrickDataModel : QAbstractItemModel
 
     enum TrickRole
     {
-        TrickRoleParamName = Qt::UserRole+0,
-        TrickRoleUnit = Qt::UserRole+1,
-        TrickRoleType = Qt::UserRole+2
+        ParamName      = Qt::UserRole+0,
+        ParamUnit      = Qt::UserRole+1,
+        ParamType = Qt::UserRole+2,
+        ParamSize      = Qt::UserRole+3
     };
 
     TrickDataModel(TrickVersion version = TrickVersion07,
@@ -49,6 +63,8 @@ class TrickDataModel : QAbstractItemModel
 
     bool write_log_header(const QString &log_name, const QString &rundir);
     bool write_binary_trk(const QString &log_name, const QString &rundir);
+
+    bool load_binary_trk(const QString &log_name, const QString &rundir);
 
     QModelIndex index(int row, int column,
                       const QModelIndex &pidx = QModelIndex()) const;
@@ -84,12 +100,12 @@ class TrickDataModel : QAbstractItemModel
     TrickVersion _trick_version;
     enum Endianness _endianess;
 
-    QList<QString> _name;
-    QList<QString> _unit;
-    QList<QString> _type;
+    QList<Param*> _params;
     QList<QList<QVariant*>* > _data;
 
+    void _load_binary_param(QDataStream &in, int col);
     void _write_binary_param(QDataStream &out, int col);
+    void _load_binary_param_data(QDataStream &in, int row, int col);
     void _write_binary_param_data(QDataStream &out, int row, int col);
     void _write_binary_qstring(const QString& str, QDataStream &out);
     TrickType _tricktype(int col);

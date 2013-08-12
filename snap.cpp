@@ -43,6 +43,16 @@ Snap::Snap(const QString &irundir, double istart, double istop) :
     _threads = new Threads(_jobs);
 
     _sim_objects = new SimObjects(_jobs);
+
+    SnapTable* table_summary = _create_table_summary();
+    SnapTable* table_spikes = _create_table_spikes();
+    SnapTable* table_threads = _create_table_thread_summary();
+    SnapTable* table_jobs = _create_table_top_jobs();
+
+    tables.append(table_summary);
+    tables.append(table_spikes);
+    tables.append(table_threads);
+    tables.append(table_jobs);
 }
 
 Snap::~Snap()
@@ -57,6 +67,180 @@ Snap::~Snap()
 
     if ( _threads ) delete _threads;
     if ( _sim_objects ) delete _sim_objects;
+}
+
+SnapTable* Snap::_create_table_summary()
+{
+    SnapTable* table = new SnapTable("Snap Summary");
+
+    table->insertColumns(0,1);
+
+    int r = 0 ;
+    table->insertRows(r,1);
+    table->setHeaderData(r,Qt::Vertical,QVariant("Run directory"));
+    table->setData(table->index(r,0),QVariant(rundir()));
+    r++;
+
+    table->insertRows(r,1);
+    table->setHeaderData(r,Qt::Vertical,QVariant("Start time"));
+    table->setData(table->index(r,0),QVariant(start()));
+    r++;
+
+    table->insertRows(r,1);
+    table->setHeaderData(r,Qt::Vertical,QVariant("Stop time"));
+    table->setData(table->index(r,0),QVariant(stop()));
+    r++;
+
+    table->insertRows(r,1);
+    table->setHeaderData(r,Qt::Vertical,QVariant("Num jobs"));
+    table->setData(table->index(r,0),QVariant(num_jobs()));
+    r++;
+
+    table->insertRows(r,1);
+    table->setHeaderData(r,Qt::Vertical,QVariant("Num frames"));
+    table->setData(table->index(r,0),QVariant(num_frames()));
+    r++;
+
+    table->insertRows(r,1);
+    table->setHeaderData(r,Qt::Vertical,QVariant("Num overruns"));
+    table->setData(table->index(r,0),QVariant(num_overruns()));
+    r++;
+
+    table->insertRows(r,1);
+    table->setHeaderData(r,Qt::Vertical,QVariant("Percentage overruns"));
+    table->setData(table->index(r,0),QVariant(percent_overruns()));
+    r++;
+
+    table->insertRows(r,1);
+    table->setHeaderData(r,Qt::Vertical,QVariant("Frame rate(s)"));
+    table->setData(table->index(r,0),QVariant(frame_rate()));
+    r++;
+
+    table->insertRows(r,1);
+    table->setHeaderData(r,Qt::Vertical,QVariant("Frame avg"));
+    table->setData(table->index(r,0),QVariant(frame_avg()));
+    r++;
+
+    table->insertRows(r,1);
+    table->setHeaderData(r,Qt::Vertical,QVariant("Frame stddev"));
+    table->setData(table->index(r,0),QVariant(frame_stddev()));
+    r++;
+
+    table->insertRows(r,1);
+    table->setHeaderData(r,Qt::Vertical,QVariant("Num threads"));
+    table->setData(table->index(r,0),QVariant(num_threads()));
+    r++;
+
+    table->insertRows(r,1);
+    table->setHeaderData(r,Qt::Vertical,QVariant("Thread list"));
+    table->setData(table->index(r,0),QVariant(thread_listing()));
+    r++;
+
+    return table;
+}
+
+//
+// Top Ten Spikes
+//
+SnapTable* Snap::_create_table_spikes()
+{
+    SnapTable* table = new SnapTable("Top Ten Spikes");
+    table->insertColumns(0,3);
+    int max_cnt = 10;
+    int cnt = 0 ;
+    foreach ( Frame frame, _frames ) {
+        if ( ++cnt > max_cnt ) break;
+        double tt = frame.timestamp;
+        double ft = frame.frame_time;
+        int row = table->rowCount();
+        table->insertRows(row,1);
+        table->setHeaderData(0,Qt::Horizontal,QVariant("Time"));
+        table->setData(table->index(row,0),QVariant(tt));
+        table->setHeaderData(1,Qt::Horizontal,QVariant("Frame"));
+        table->setData(table->index(row,1),QVariant(ft));
+        table->setHeaderData(2,Qt::Horizontal,QVariant("Job Load Index"));
+        table->setData(table->index(row,2),QVariant(frame.jobloadindex));
+    }
+
+    return table;
+}
+
+//
+// Thread Summary
+//
+SnapTable *Snap::_create_table_thread_summary()
+{
+    SnapTable* table = new SnapTable("Thread Summary");
+
+    table->insertColumns(0,8);
+    table->setHeaderData(0,Qt::Horizontal,QVariant("ThreadID"));
+    table->setHeaderData(1,Qt::Horizontal,QVariant("NumJobs"));
+    table->setHeaderData(2,Qt::Horizontal,QVariant("Freq"));
+    table->setHeaderData(3,Qt::Horizontal,QVariant("NumOverruns"));
+    table->setHeaderData(4,Qt::Horizontal,QVariant("ThreadAvg"));
+    table->setHeaderData(5,Qt::Horizontal,QVariant("AvgLoad%"));
+    table->setHeaderData(6,Qt::Horizontal,QVariant("ThreadMax"));
+    table->setHeaderData(7,Qt::Horizontal,QVariant("MaxLoad%"));
+
+    table->insertRows(0,num_threads());
+    int row = 0 ;
+    QList<Thread> threads = _threads->list() ;
+    foreach ( Thread thread, threads ) {
+
+        // Hard code num overruns for thread 0 :(
+        //
+        // Do this because the thread overrun calc
+        // sums the job times on a thread, but the trick exec
+        // overhead will not show up in that calc
+        if ( thread.thread_id == 0 ) {
+            thread.num_overruns = num_overruns();
+        }
+
+        table->setData(table->index(row,0),QVariant(thread.thread_id));
+        table->setData(table->index(row,1),QVariant(thread.jobs.length()));
+        table->setData(table->index(row,2),QVariant(thread.freq));
+        table->setData(table->index(row,3),QVariant(thread.num_overruns));
+        table->setData(table->index(row,4),QVariant(thread.avg_runtime));
+        table->setData(table->index(row,5),QVariant(thread.avg_load));
+        table->setData(table->index(row,6),QVariant(thread.max_runtime));
+        table->setData(table->index(row,7),QVariant(thread.max_load));
+
+        row++;
+    }
+
+    return table;
+}
+
+//
+// Job Time Avgs
+//
+SnapTable *Snap::_create_table_top_jobs()
+{
+    SnapTable* table = new SnapTable("Top Jobs");
+
+    table->insertColumns(0,5);
+    table->setHeaderData(0,Qt::Horizontal,QVariant("JobAvg"));
+    table->setHeaderData(1,Qt::Horizontal,QVariant("Thread"));
+    table->setHeaderData(2,Qt::Horizontal,QVariant("ThreadAvgTime"));
+    table->setHeaderData(3,Qt::Horizontal,QVariant("JobFreq"));
+    table->setHeaderData(4,Qt::Horizontal,QVariant("JobName"));
+
+    QList<Job*>* jobs = this->jobs(Snap::SortByJobAvgTime);
+    int max_cnt = 10;
+    int cnt = 0 ;
+    foreach ( Job* job, *jobs ) {
+        if ( ++cnt > max_cnt ) break;
+        int row = table->rowCount();
+        table->insertRows(row,1);
+        table->setData(table->index(row,0),QVariant(job->avg_runtime()));
+        table->setData(table->index(row,1),QVariant(job->thread_id()));
+        table->setData(table->index(row,2),
+                       QVariant(threads()->get(job->thread_id()).avg_runtime));
+        table->setData(table->index(row,3),QVariant(job->freq()));
+        table->setData(table->index(row,4),
+                       QVariant(job->job_name().toAscii().constData()));
+    }
+    return table;
 }
 
 QList<Job *>* Snap::jobs(SortBy sort_method)

@@ -76,7 +76,8 @@ SOURCES += \
     frame.cpp \
     trickdatamodel.cpp \
     qplot/qcustomplot.cpp \
-    qplot/qplotmainwindow.cpp
+    qplot/qplotmainwindow.cpp \
+    snaptable.cpp
 
 HEADERS += \
     test/testsnap.h \
@@ -94,4 +95,5 @@ HEADERS += \
     frame.h \
     trickdatamodel.h \
     qplot/qcustomplot.h \
-    qplot/qplotmainwindow.h
+    qplot/qplotmainwindow.h \
+    snaptable.h
