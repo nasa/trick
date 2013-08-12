@@ -12,11 +12,18 @@ CONFIG -= app_bundle
 CONFIG += cmdline_build
 #CONFIG += force_32bit   # if this set, change Projects build to Linux_FC3
 #CONFIG += qtestlib
+#CONFIG += snapgui
 
 qtestlib {
     DEFINES += TEST
     QT += gui
     greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
+}
+
+snapgui {
+    DEFINES += SNAPGUI
+    QT += gui
+    CONFIG -= console
 }
 
 FORMS  += \
@@ -77,7 +84,8 @@ SOURCES += \
     trickdatamodel.cpp \
     qplot/qcustomplot.cpp \
     qplot/qplotmainwindow.cpp \
-    snaptable.cpp
+    snaptable.cpp \
+    snapwindow.cpp
 
 HEADERS += \
     test/testsnap.h \
@@ -96,4 +104,5 @@ HEADERS += \
     trickdatamodel.h \
     qplot/qcustomplot.h \
     qplot/qplotmainwindow.h \
-    snaptable.h
+    snaptable.h \
+    snapwindow.h

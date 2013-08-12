@@ -1,4 +1,10 @@
+#ifdef SNAPGUI
+#include <QApplication>
+#include <snapwindow.h>
+#else
 #include <QCoreApplication>
+#endif
+
 
 #ifdef TEST
 // To include test, snap.pro CONFIG += qtestlib
@@ -35,7 +41,9 @@ SnapOptions opts;
 #ifndef TEST
 int main(int argc, char *argv[])
 {
+#ifndef SNAPGUI
     QCoreApplication a(argc, argv);
+#endif
 
     bool ok;
 
@@ -58,6 +66,13 @@ int main(int argc, char *argv[])
         Snap snap(rundir,opts.start,opts.stop);
         SnapReport rpt(snap);
         fprintf(stderr,"%s",rpt.report().toAscii().constData());
+#ifdef SNAPGUI
+        QApplication::setGraphicsSystem("raster");
+        QApplication a(argc, argv);
+        SnapWindow* w = new SnapWindow(&snap);
+        w->show();
+        return a.exec();
+#endif
     } catch (std::exception &e) {
         fprintf(stderr,"\n%s\n",e.what());
         fprintf(stderr,"%s\n",opts.usage().c_str());
