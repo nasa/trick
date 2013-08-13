@@ -95,7 +95,21 @@ SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
     tv3->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
     tv3->verticalHeader()->hide();
     //lay->addWidget(tv3,2,0,1,2);
-    tab->addTab(tv3,"Jobs Culprits");
+    tab->addTab(tv3,"Job Culprits");
+
+    QTableView* tv4 = new QTableView();
+    tv4->setModel(_snap->tables.at(4));
+    tv4->setSortingEnabled(false);
+    tv4->setSelectionBehavior(QAbstractItemView::SelectRows);
+    tv4->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    tv4->setSelectionMode(QAbstractItemView::SingleSelection);
+    tv4->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    tv4->setShowGrid(true);
+    tv4->setCurrentIndex(QModelIndex());
+    tv4->horizontalHeader()->setStretchLastSection(false);
+    tv4->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+    tv4->verticalHeader()->hide();
+    tab->addTab(tv4,"Sim Objects");
 
     QDockWidget* dock2 = new QDockWidget;
     dock2->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);

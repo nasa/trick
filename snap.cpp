@@ -32,7 +32,7 @@ Snap::Snap(const QString &irundir, double istart, double istop) :
     _rundir(irundir), _start(istart),_stop(istop), _is_realtime(false),
     _frame_avg(0.0),_frame_stddev(0),_curr_sort_method(NoSort),
     _river_userjobs(0), _river_frame(0), _river_trickjobs(0),
-    _num_overruns(0), _threads(0),_sim_objects(0)
+    _num_overruns(0), _threads(0),_simobjects(0)
 {
     _process_rivers();        // _jobs list and _frames created
     qSort(_jobs.begin(), _jobs.end(), jobAvgTimeGreaterThan);
@@ -42,17 +42,19 @@ Snap::Snap(const QString &irundir, double istart, double istop) :
 
     _threads = new Threads(_jobs);
 
-    _sim_objects = new SimObjects(_jobs);
+    _simobjects = new SimObjects(_jobs);
 
-    SnapTable* table_summary = _create_table_summary();
-    SnapTable* table_spikes = _create_table_spikes();
-    SnapTable* table_threads = _create_table_thread_summary();
-    SnapTable* table_jobs = _create_table_top_jobs();
+    SnapTable* table_summary  = _create_table_summary();
+    SnapTable* table_spikes   = _create_table_spikes();
+    SnapTable* table_threads  = _create_table_thread_summary();
+    SnapTable* table_jobs     = _create_table_top_jobs();
+    SnapTable* table_sobjects = _create_table_sim_objects();
 
     tables.append(table_summary);
     tables.append(table_spikes);
     tables.append(table_threads);
     tables.append(table_jobs);
+    tables.append(table_sobjects);
 }
 
 Snap::~Snap()
@@ -66,7 +68,7 @@ Snap::~Snap()
     if (_river_trickjobs ) delete _river_trickjobs;
 
     if ( _threads ) delete _threads;
-    if ( _sim_objects ) delete _sim_objects;
+    if ( _simobjects ) delete _simobjects;
 }
 
 SnapTable* Snap::_create_table_summary()
@@ -257,6 +259,39 @@ SnapTable *Snap::_create_table_top_jobs()
         table->setData(table->index(row,4),
                        QVariant(job->job_name().toAscii().constData()));
     }
+    return table;
+}
+
+SnapTable *Snap::_create_table_sim_objects()
+{
+    SnapTable* table = new SnapTable("Sim Objects");
+
+    table->insertColumns(0,3);
+    table->setHeaderData(0,Qt::Horizontal,QVariant("SimObject"));
+    table->setHeaderData(1,Qt::Horizontal,QVariant("AvgTime"));
+    table->setHeaderData(1,Qt::Horizontal,QVariant("%.6lf"),SnapTable::Format);
+    table->setHeaderData(2,Qt::Horizontal,QVariant("NumJobs"));
+
+    int nrows;
+    QList<SimObject> simobjects = _simobjects->list();
+    if ( simobjects.length() > 100 ) {
+        nrows = simobjects.length()/10;
+    } else if ( simobjects.length() < 10 ) {
+        nrows = simobjects.length();
+    }
+
+    int row = 0 ;
+    foreach ( SimObject sobject, simobjects ) {
+        if ( row > nrows ) break;
+        table->insertRows(row,1);
+        QVariant sname = sobject.name();
+        QVariant njobs = sobject.jobs().length();
+        table->setData(table->index(row,0),sname);
+        table->setData(table->index(row,1),QVariant(sobject.avg_runtime()));
+        table->setData(table->index(row,2),njobs);
+        row++;
+    }
+
     return table;
 }
 

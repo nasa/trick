@@ -19,6 +19,7 @@ class SimObject
     void _do_stats();
 };
 
+// TODO: Can't I just inherit off of QList?
 class SimObjects
 {
   public:

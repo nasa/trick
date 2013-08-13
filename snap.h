@@ -66,7 +66,7 @@ public:
     int num_threads() const { return _threads->size(); }
     QString thread_listing() const ;
 
-    QList<SimObject> simobjects() const { return _sim_objects->list(); }
+    QList<SimObject> simobjects() const { return _simobjects->list(); }
     Threads* threads() const { return _threads; }
     const QList<Frame>* frames() const { return &_frames; }
 
@@ -108,12 +108,13 @@ private:
     int _num_overruns;
 
     Threads* _threads;
-    SimObjects* _sim_objects;
+    SimObjects* _simobjects;
 
     SnapTable* _create_table_summary();
     SnapTable* _create_table_spikes();
     SnapTable* _create_table_thread_summary();
     SnapTable* _create_table_top_jobs();
+    SnapTable* _create_table_sim_objects();
 
 };
 
