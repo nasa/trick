@@ -211,10 +211,17 @@ bool TrickDataModel::insertColumns(int column, int count,
         beginInsertColumns(pidx,column+1,column+count);
     }
 
-    //
-    // Meta data for "roles" :(
-    //
+    int nrows = rowCount(pidx) ;
+
     for ( int ii = column; ii < column+count; ++ii) {
+        QList<QVariant*>* col = new QList<QVariant*>;
+        for ( int jj = 0; jj < nrows; ++jj) {
+            QVariant* val = new QVariant;
+            col->append(val);
+        }
+        _data.insert(ii,col);
+
+        // Meta data for "roles"
         Param* param = new Param;
         param->name = QString("Parameter%1").arg(ii);
         param->unit = "--";
@@ -225,17 +232,6 @@ bool TrickDataModel::insertColumns(int column, int count,
             param->type = TRICK_DOUBLE;
         }
         _params.insert(ii,param);
-    }
-
-    int nrows = rowCount(pidx) ;
-
-    for ( int ii = 0; ii < count; ++ii) {
-        QList<QVariant*>* col = new QList<QVariant*>;
-        for ( int jj = 0; jj < nrows; ++jj) {
-            QVariant* val = new QVariant;
-            col->append(val);
-        }
-        _data.insert(column,col);
     }
 
     endInsertColumns();
@@ -282,12 +278,22 @@ bool TrickDataModel::removeColumns(int column, int count, const QModelIndex &pid
 QVariant TrickDataModel::headerData(int sect,
                                     Qt::Orientation orientation, int role) const
 {
+    if ( sect < 0 ) return QVariant();
+
+    if ( orientation == Qt::Horizontal && sect >= columnCount()) {
+        return QVariant();
+    }
+    if ( orientation == Qt::Vertical && sect >= rowCount()) {
+        return QVariant();
+    }
+
     QVariant ret;
+
 
     if ( role < Qt::UserRole ) {
         ret = QAbstractItemModel::headerData(sect,orientation,role);
     } else {
-        if (orientation == Qt::Horizontal && sect >= 0 && sect < columnCount()) {
+        if (orientation == Qt::Horizontal) {
             Param* param = _params.at(sect);
             switch (role)
             {
@@ -307,6 +313,15 @@ QVariant TrickDataModel::headerData(int sect,
 bool TrickDataModel::setHeaderData(int sect, Qt::Orientation orientation,
                                    const QVariant &val, int role)
 {
+    if ( sect < 0 ) return false;
+
+    if ( orientation == Qt::Horizontal && sect >= columnCount()) {
+        return false;
+    }
+    if ( orientation == Qt::Vertical && sect >= rowCount()) {
+        return false;
+    }
+
     bool ret = false;
 
     if ( role < Qt::UserRole ) {
@@ -315,14 +330,13 @@ bool TrickDataModel::setHeaderData(int sect, Qt::Orientation orientation,
         // returns false
         ret = QAbstractItemModel::setHeaderData(sect,orientation,val,role);
     } else {
-        if (orientation == Qt::Horizontal && sect >= 0 && sect < columnCount()) {
+        if (orientation == Qt::Horizontal) {
             Param* param = _params[sect];
             if ( val.type() == QVariant::String ) {
                 switch (role)
                 {
                 case ParamName: param->name = val.toString(); ret = true; break;
                 case ParamUnit: param->unit = val.toString(); ret = true; break;
-
                 default:
                     break;
                 };
@@ -332,7 +346,6 @@ bool TrickDataModel::setHeaderData(int sect, Qt::Orientation orientation,
                 {
                 case ParamSize: param->size = val.toInt(); ret = true; break;
                 case ParamType: param->type = val.toInt(); ret = true; break;
-
                 default:
                     break;
                 }

@@ -3,6 +3,12 @@
 
 #include <QAbstractTableModel>
 
+struct Role
+{
+    QString format;
+    int alignment;
+};
+
 class SnapTable : public QAbstractTableModel
 {
   Q_OBJECT
@@ -14,9 +20,9 @@ class SnapTable : public QAbstractTableModel
     void  setTableName (const QString& name) { _tableName = name ; }
 
   public:
-    enum Role
+    enum SnapRole
     {
-        RoleStringFormat = Qt::UserRole+0,
+        Format = Qt::UserRole+0
     };
 
     explicit SnapTable(const QString &tableName, QObject *parent = 0);
@@ -51,12 +57,13 @@ class SnapTable : public QAbstractTableModel
 
   private:
 
+    Qt::Orientation _orientation;  // for meta data e.g. precision
     QString _tableName;
     QList<QList<QVariant*>* > _data;
     QList<QVariant*> _col_headers;
     QList<QVariant*> _row_headers;
-    QList<QVariant*> _row_format;
-    QList<QVariant*> _col_format;
+    QList<Role*> _row_roles;
+    QList<Role*> _col_roles;
     
 signals:
     

@@ -83,11 +83,13 @@ SnapTable* Snap::_create_table_summary()
 
     table->insertRows(r,1);
     table->setHeaderData(r,Qt::Vertical,QVariant("Start time"));
+    table->setHeaderData(r,Qt::Vertical,QVariant("%.3lf"),SnapTable::Format);
     table->setData(table->index(r,0),QVariant(start()));
     r++;
 
     table->insertRows(r,1);
     table->setHeaderData(r,Qt::Vertical,QVariant("Stop time"));
+    table->setHeaderData(r,Qt::Vertical,QVariant("%.3lf"),SnapTable::Format);
     table->setData(table->index(r,0),QVariant(stop()));
     r++;
 
@@ -108,6 +110,7 @@ SnapTable* Snap::_create_table_summary()
 
     table->insertRows(r,1);
     table->setHeaderData(r,Qt::Vertical,QVariant("Percentage overruns"));
+    table->setHeaderData(r,Qt::Vertical,QVariant("%.0lf%%"),SnapTable::Format);
     table->setData(table->index(r,0),QVariant(percent_overruns()));
     r++;
 
@@ -118,11 +121,13 @@ SnapTable* Snap::_create_table_summary()
 
     table->insertRows(r,1);
     table->setHeaderData(r,Qt::Vertical,QVariant("Frame avg"));
+    table->setHeaderData(r,Qt::Vertical,QVariant("%.6lf"),SnapTable::Format);
     table->setData(table->index(r,0),QVariant(frame_avg()));
     r++;
 
     table->insertRows(r,1);
     table->setHeaderData(r,Qt::Vertical,QVariant("Frame stddev"));
+    table->setHeaderData(r,Qt::Vertical,QVariant("%.6lf"),SnapTable::Format);
     table->setData(table->index(r,0),QVariant(frame_stddev()));
     r++;
 
@@ -157,8 +162,10 @@ SnapTable* Snap::_create_table_spikes()
         table->setHeaderData(0,Qt::Horizontal,QVariant("Time"));
         table->setData(table->index(row,0),QVariant(tt));
         table->setHeaderData(1,Qt::Horizontal,QVariant("Frame"));
+        table->setHeaderData(1,Qt::Horizontal,QVariant("%.6lf"),SnapTable::Format);
         table->setData(table->index(row,1),QVariant(ft));
         table->setHeaderData(2,Qt::Horizontal,QVariant("Job Load Index"));
+        table->setHeaderData(2,Qt::Horizontal,QVariant("%.0lf%%"),SnapTable::Format);
         table->setData(table->index(row,2),QVariant(frame.jobloadindex));
     }
 
@@ -176,11 +183,16 @@ SnapTable *Snap::_create_table_thread_summary()
     table->setHeaderData(0,Qt::Horizontal,QVariant("ThreadID"));
     table->setHeaderData(1,Qt::Horizontal,QVariant("NumJobs"));
     table->setHeaderData(2,Qt::Horizontal,QVariant("Freq"));
+    table->setHeaderData(2,Qt::Horizontal,QVariant("%.6lf"),SnapTable::Format);
     table->setHeaderData(3,Qt::Horizontal,QVariant("NumOverruns"));
     table->setHeaderData(4,Qt::Horizontal,QVariant("ThreadAvg"));
+    table->setHeaderData(4,Qt::Horizontal,QVariant("%.6lf"),SnapTable::Format);
     table->setHeaderData(5,Qt::Horizontal,QVariant("AvgLoad%"));
+    table->setHeaderData(5,Qt::Horizontal,QVariant("%.0lf%%"),SnapTable::Format);
     table->setHeaderData(6,Qt::Horizontal,QVariant("ThreadMax"));
+    table->setHeaderData(6,Qt::Horizontal,QVariant("%.6lf"),SnapTable::Format);
     table->setHeaderData(7,Qt::Horizontal,QVariant("MaxLoad%"));
+    table->setHeaderData(7,Qt::Horizontal,QVariant("%.0lf%%"),SnapTable::Format);
 
     table->insertRows(0,num_threads());
     int row = 0 ;
@@ -220,10 +232,15 @@ SnapTable *Snap::_create_table_top_jobs()
 
     table->insertColumns(0,5);
     table->setHeaderData(0,Qt::Horizontal,QVariant("JobAvg"));
+    table->setHeaderData(0,Qt::Horizontal,QVariant("%.6lf"),SnapTable::Format);
     table->setHeaderData(1,Qt::Horizontal,QVariant("Thread"));
     table->setHeaderData(2,Qt::Horizontal,QVariant("ThreadAvgTime"));
+    table->setHeaderData(2,Qt::Horizontal,QVariant("%.6lf"),SnapTable::Format);
     table->setHeaderData(3,Qt::Horizontal,QVariant("JobFreq"));
+    table->setHeaderData(3,Qt::Horizontal,QVariant("%.6lf"),SnapTable::Format);
     table->setHeaderData(4,Qt::Horizontal,QVariant("JobName"));
+    int align = (Qt::AlignLeft | Qt::AlignVCenter);
+    table->setHeaderData(4,Qt::Horizontal,QVariant(align),Qt::TextAlignmentRole);
 
     QList<Job*>* jobs = this->jobs(Snap::SortByJobAvgTime);
     int max_cnt = 10;

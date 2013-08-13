@@ -52,7 +52,7 @@ class TrickDataModel : QAbstractItemModel
     {
         ParamName      = Qt::UserRole+0,
         ParamUnit      = Qt::UserRole+1,
-        ParamType = Qt::UserRole+2,
+        ParamType      = Qt::UserRole+2,
         ParamSize      = Qt::UserRole+3
     };
 

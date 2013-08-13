@@ -47,7 +47,8 @@ SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
     tableView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     tableView->setShowGrid(true);
     tableView->setCurrentIndex(QModelIndex());
-    tableView->horizontalHeader()->setStretchLastSection(true);
+    tableView->horizontalHeader()->setStretchLastSection(false);
+    tableView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
     tableView->horizontalHeader()->hide();
     //lay->addWidget(tableView,0,0,1,1);
     tab->addTab(tableView,"Summary");
@@ -61,7 +62,7 @@ SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
     tv->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     tv->setShowGrid(true);
     tv->setCurrentIndex(QModelIndex());
-    tv->horizontalHeader()->setStretchLastSection(true);
+    tv->horizontalHeader()->setStretchLastSection(false);
     tv->verticalHeader()->hide();
     //lay->addWidget(tv,0,1,1,1);
     tab->addTab(tv,"Spikes");
@@ -75,7 +76,8 @@ SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
     tv2->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     tv2->setShowGrid(true);
     tv2->setCurrentIndex(QModelIndex());
-    tv2->horizontalHeader()->setStretchLastSection(true);
+    tv2->horizontalHeader()->setStretchLastSection(false);
+    tv2->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
     tv2->verticalHeader()->hide();
     //lay->addWidget(tv2,1,0,1,2);
     tab->addTab(tv2,"Thread Info");
@@ -89,7 +91,8 @@ SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
     tv3->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     tv3->setShowGrid(true);
     tv3->setCurrentIndex(QModelIndex());
-    tv3->horizontalHeader()->setStretchLastSection(true);
+    tv3->horizontalHeader()->setStretchLastSection(false);
+    tv3->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
     tv3->verticalHeader()->hide();
     //lay->addWidget(tv3,2,0,1,2);
     tab->addTab(tv3,"Jobs Culprits");
