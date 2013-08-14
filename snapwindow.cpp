@@ -10,6 +10,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
+#include <QSplitter>
 
 #include "trickdatamodel.h"
 
@@ -21,22 +22,24 @@ SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
     createMenu();
 
     // Central Widget
+    QSplitter* s = new QSplitter;
+    setCentralWidget(s);
+
     QFrame* frame = new QFrame;
     frame->setObjectName(QString::fromUtf8("frame"));
     frame->setFrameShape(QFrame::StyledPanel);
     //frame->setFrameShadow(QFrame::Sunken);
     frame->setLineWidth(1);
     frame->setMidLineWidth(0);
-    setCentralWidget(frame);
-
+    s->addWidget(frame);
 
     QGridLayout* lay = new QGridLayout(frame);
-    lay->setSpacing(6);
-    lay->setContentsMargins(11, 11, 11, 11);
+    lay->setSpacing(0);
+    lay->setContentsMargins(12, 12, 12, 12);
     lay->setObjectName(QString::fromUtf8("verticalLayout"));
 
     QTabWidget* tab = new QTabWidget(frame);
-    lay->addWidget(tab,0,1,1,1);
+    lay->addWidget(tab,0,0,1,1);
 
     tableView = new QTableView();
     tableView->setModel(_snap->tables.at(0));
@@ -50,7 +53,6 @@ SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
     tableView->horizontalHeader()->setStretchLastSection(false);
     tableView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
     tableView->horizontalHeader()->hide();
-    //lay->addWidget(tableView,0,0,1,1);
     tab->addTab(tableView,"Summary");
 
     QTableView* tv = new QTableView();
@@ -64,7 +66,6 @@ SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
     tv->setCurrentIndex(QModelIndex());
     tv->horizontalHeader()->setStretchLastSection(false);
     tv->verticalHeader()->hide();
-    //lay->addWidget(tv,0,1,1,1);
     tab->addTab(tv,"Spikes");
 
     QTableView* tv2 = new QTableView();
@@ -79,7 +80,6 @@ SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
     tv2->horizontalHeader()->setStretchLastSection(false);
     tv2->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
     tv2->verticalHeader()->hide();
-    //lay->addWidget(tv2,1,0,1,2);
     tab->addTab(tv2,"Thread Info");
 
     QTableView* tv3 = new QTableView();
@@ -94,7 +94,6 @@ SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
     tv3->horizontalHeader()->setStretchLastSection(false);
     tv3->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
     tv3->verticalHeader()->hide();
-    //lay->addWidget(tv3,2,0,1,2);
     tab->addTab(tv3,"Job Culprits");
 
     QTableView* tv4 = new QTableView();
@@ -111,18 +110,21 @@ SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
     tv4->verticalHeader()->hide();
     tab->addTab(tv4,"Sim Objects");
 
-    QDockWidget* dock2 = new QDockWidget;
-    dock2->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    //dock2->setWidget(tv3);
-    //addDockWidget(Qt::RightDockWidgetArea, dock2);
+    QSizePolicy sizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+    QFrame* f2 = new QFrame;
+    f2->setSizePolicy(sizePolicy);
+    s->addWidget(f2);
 
-    QCustomPlot* plot = new QCustomPlot;
+    QGridLayout* lay2 = new QGridLayout(f2);
+    lay2->setSpacing(0);
+    lay2->setContentsMargins(0, 0, 0, 0);
+    lay2->setObjectName(QString::fromUtf8("layout2"));
+
+    QCustomPlot* plot = new QCustomPlot(f2);
+    lay2->addWidget(plot,0,0,1,1);
+
+    plot->setSizePolicy(sizePolicy);
     plot->setNoAntialiasingOnDrag(true);
-
-    QDockWidget* dock = new QDockWidget;
-    dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    dock->setWidget(plot);
-    addDockWidget(Qt::RightDockWidgetArea, dock);
 
     plot->plotLayout()->insertRow(0);
     plot->plotLayout()->addElement(0, 0, new QCPPlotTitle(plot, ""));
@@ -193,51 +195,20 @@ SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
     // Resize main window
     //
     resize(1200,700);
+    this->show();
+
+    // Resize main frame
+    int w = 0;
+    int ncols = _snap->tables.at(3)->columnCount();
+    for ( int ii = 0; ii < ncols; ++ii) {
+        w += tv3->columnWidth(ii);
+    }
+    w += frame->contentsMargins().left();
+    w += frame->contentsMargins().right();
+    int margins = frame->frameRect().width() - frame->childrenRect().width();
+    w += margins;
+    frame->setMaximumWidth(w+8);
 }
-    /*
-    centralWidget = new QWidget(QPlotMainWindow);
-        verticalLayout = new QVBoxLayout(centralWidget);
-        verticalLayout->setSpacing(6);
-        verticalLayout->setContentsMargins(11, 11, 11, 11);
-        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-        frame_2 = new QFrame(centralWidget);
-        frame_2->setObjectName(QString::fromUtf8("frame_2"));
-        frame_2->setFrameShape(QFrame::StyledPanel);
-        frame_2->setFrameShadow(QFrame::Sunken);
-        frame_2->setLineWidth(1);
-        frame_2->setMidLineWidth(0);
-        verticalLayout_3 = new QVBoxLayout(frame_2);
-        verticalLayout_3->setSpacing(0);
-        verticalLayout_3->setContentsMargins(0, 0, 0, 0);
-        verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
-        customPlot = new QCustomPlot(frame_2);
-        customPlot->setObjectName(QString::fromUtf8("customPlot"));
-        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(customPlot->sizePolicy().hasHeightForWidth());
-        customPlot->setSizePolicy(sizePolicy);
-
-        verticalLayout_3->addWidget(customPlot);
-
-
-        verticalLayout->addWidget(frame_2);
-
-        frame = new QFrame(centralWidget);
-        frame->setObjectName(QString::fromUtf8("frame"));
-        frame->setFrameShape(QFrame::StyledPanel);
-        frame->setFrameShadow(QFrame::Raised);
-        verticalLayout_2 = new QVBoxLayout(frame);
-        verticalLayout_2->setSpacing(6);
-        verticalLayout_2->setContentsMargins(11, 11, 11, 11);
-        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
-        label = new QLabel(frame);
-        label->setObjectName(QString::fromUtf8("label"));
-
-        verticalLayout_2->addWidget(label);
-        */
-
-
     /*
           //ui->customPlot->setInteractions(QCP::iRangeZoom |
                                    //QCP::iRangeDrag | QCP::iSelectAxes |

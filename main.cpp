@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
         QApplication::setGraphicsSystem("raster");
         QApplication a(argc, argv);
         SnapWindow* w = new SnapWindow(&snap);
-        w->show();
+        //w->show();
         return a.exec();
 #endif
     } catch (std::exception &e) {
