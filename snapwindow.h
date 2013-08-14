@@ -26,19 +26,12 @@ private:
 
     void createMenu();
     QMenuBar* _menuBar;
-    //QGroupBox *horizontalGroupBox;
-    //QGroupBox *gridGroupBox;
-    //QGroupBox *formGroupBox;
-    //QTextEdit *smallEditor;
-    //QTextEdit *bigEditor;
-    //QLabel *labels[NumGridRows];
-    //QLineEdit *lineEdits[NumGridRows];
-    //QPushButton *buttons[NumButtons];
-    //QDialogButtonBox *buttonBox;
-
     QMenu *_fileMenu;
     QAction *_exitAction;
 
+    QList<QTableView*> _tvs;
+    QTableView *_create_table_view(QAbstractItemModel* model,
+                                   Qt::Orientation orientation);
     void _zoom_to_fit(QCustomPlot* plot,
                       double xmin, double xmax, double ymin, double ymax);
 

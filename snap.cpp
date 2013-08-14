@@ -73,7 +73,7 @@ Snap::~Snap()
 
 SnapTable* Snap::_create_table_summary()
 {
-    SnapTable* table = new SnapTable("Snap Summary");
+    SnapTable* table = new SnapTable("Summary");
 
     table->insertColumns(0,1);
 
@@ -151,7 +151,7 @@ SnapTable* Snap::_create_table_summary()
 //
 SnapTable* Snap::_create_table_spikes()
 {
-    SnapTable* table = new SnapTable("Top Ten Spikes");
+    SnapTable* table = new SnapTable("Spikes");
     table->insertColumns(0,3);
     int max_cnt = 10;
     int cnt = 0 ;
@@ -179,7 +179,7 @@ SnapTable* Snap::_create_table_spikes()
 //
 SnapTable *Snap::_create_table_thread_summary()
 {
-    SnapTable* table = new SnapTable("Thread Summary");
+    SnapTable* table = new SnapTable("Threads");
 
     table->insertColumns(0,8);
     table->setHeaderData(0,Qt::Horizontal,QVariant("ThreadID"));
@@ -230,7 +230,7 @@ SnapTable *Snap::_create_table_thread_summary()
 //
 SnapTable *Snap::_create_table_top_jobs()
 {
-    SnapTable* table = new SnapTable("Top Jobs");
+    SnapTable* table = new SnapTable("Job Culprits");
 
     table->insertColumns(0,5);
     table->setHeaderData(0,Qt::Horizontal,QVariant("JobAvg"));

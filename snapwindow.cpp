@@ -41,74 +41,13 @@ SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
     QTabWidget* tab = new QTabWidget(frame);
     lay->addWidget(tab,0,0,1,1);
 
-    tableView = new QTableView();
-    tableView->setModel(_snap->tables.at(0));
-    tableView->setSortingEnabled(false);
-    tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    tableView->setSelectionMode(QAbstractItemView::SingleSelection);
-    tableView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    tableView->setShowGrid(true);
-    tableView->setCurrentIndex(QModelIndex());
-    tableView->horizontalHeader()->setStretchLastSection(false);
-    tableView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-    tableView->horizontalHeader()->hide();
-    tab->addTab(tableView,"Summary");
-
-    QTableView* tv = new QTableView();
-    tv->setModel(_snap->tables.at(1));
-    tv->setSortingEnabled(false);
-    tv->setSelectionBehavior(QAbstractItemView::SelectRows);
-    tv->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    tv->setSelectionMode(QAbstractItemView::SingleSelection);
-    tv->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    tv->setShowGrid(true);
-    tv->setCurrentIndex(QModelIndex());
-    tv->horizontalHeader()->setStretchLastSection(false);
-    tv->verticalHeader()->hide();
-    tab->addTab(tv,"Spikes");
-
-    QTableView* tv2 = new QTableView();
-    tv2->setModel(_snap->tables.at(2));
-    tv2->setSortingEnabled(false);
-    tv2->setSelectionBehavior(QAbstractItemView::SelectRows);
-    tv2->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    tv2->setSelectionMode(QAbstractItemView::SingleSelection);
-    tv2->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    tv2->setShowGrid(true);
-    tv2->setCurrentIndex(QModelIndex());
-    tv2->horizontalHeader()->setStretchLastSection(false);
-    tv2->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-    tv2->verticalHeader()->hide();
-    tab->addTab(tv2,"Thread Info");
-
-    QTableView* tv3 = new QTableView();
-    tv3->setModel(_snap->tables.at(3));
-    tv3->setSortingEnabled(false);
-    tv3->setSelectionBehavior(QAbstractItemView::SelectRows);
-    tv3->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    tv3->setSelectionMode(QAbstractItemView::SingleSelection);
-    tv3->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    tv3->setShowGrid(true);
-    tv3->setCurrentIndex(QModelIndex());
-    tv3->horizontalHeader()->setStretchLastSection(false);
-    tv3->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-    tv3->verticalHeader()->hide();
-    tab->addTab(tv3,"Job Culprits");
-
-    QTableView* tv4 = new QTableView();
-    tv4->setModel(_snap->tables.at(4));
-    tv4->setSortingEnabled(false);
-    tv4->setSelectionBehavior(QAbstractItemView::SelectRows);
-    tv4->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    tv4->setSelectionMode(QAbstractItemView::SingleSelection);
-    tv4->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    tv4->setShowGrid(true);
-    tv4->setCurrentIndex(QModelIndex());
-    tv4->horizontalHeader()->setStretchLastSection(false);
-    tv4->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-    tv4->verticalHeader()->hide();
-    tab->addTab(tv4,"Sim Objects");
+    for ( int ii = 0; ii < _snap->tables.size(); ++ii) {
+        QTableView* tv = _create_table_view(_snap->tables.at(ii),
+                                            _snap->tables.at(ii)->orientation());
+        _tvs.append(tv);
+        QString title = _snap->tables.at(ii)->tableName();
+        tab->addTab(tv,title);
+    }
 
     QSizePolicy sizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     QFrame* f2 = new QFrame;
@@ -197,11 +136,13 @@ SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
     resize(1200,700);
     this->show();
 
-    // Resize main frame
+    //
+    // Hack to resize notebook of tables to correct size
+    //
     int w = 0;
     int ncols = _snap->tables.at(3)->columnCount();
     for ( int ii = 0; ii < ncols; ++ii) {
-        w += tv3->columnWidth(ii);
+        w += _tvs.at(3)->columnWidth(ii);  // Job Culprits
     }
     w += frame->contentsMargins().left();
     w += frame->contentsMargins().right();
@@ -263,6 +204,28 @@ void SnapWindow::createMenu()
     _menuBar->addMenu(_fileMenu);
     setMenuWidget(_menuBar);
     //connect(_exitAction, SIGNAL(triggered()), this, SLOT(accept()));
+}
+
+QTableView* SnapWindow::_create_table_view(QAbstractItemModel *model,
+                                           Qt::Orientation orientation)
+{
+    QTableView* tv = new QTableView();
+    tv->setModel(model);
+    tv->setSortingEnabled(false);
+    tv->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    tv->setSelectionMode(QAbstractItemView::SingleSelection);
+    tv->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    tv->setShowGrid(true);
+    tv->setCurrentIndex(QModelIndex());
+    tv->horizontalHeader()->setStretchLastSection(false);
+    tv->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+    tv->setSelectionBehavior(QAbstractItemView::SelectRows);
+
+    if ( orientation == Qt::Horizontal ) {
+        tv->verticalHeader()->hide();
+    }
+
+    return tv;
 }
 
 void SnapWindow::_zoom_to_fit(QCustomPlot* plot,

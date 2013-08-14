@@ -18,6 +18,7 @@ class SnapTable : public QAbstractTableModel
     // leaning toward QSqlTableModel
     QString  tableName () const { return _tableName ; }
     void  setTableName (const QString& name) { _tableName = name ; }
+    Qt::Orientation orientation() { return _orientation ; }
 
   public:
     enum SnapRole
