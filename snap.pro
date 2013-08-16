@@ -86,7 +86,10 @@ SOURCES += \
     qplot/qplotmainwindow.cpp \
     snaptable.cpp \
     snapwindow.cpp \
-    snapplot.cpp
+    snapplot.cpp \
+    timeit_linux.cpp \
+    timeit.cpp \
+    timeit_win32.cpp
 
 HEADERS += \
     test/testsnap.h \
@@ -107,4 +110,7 @@ HEADERS += \
     qplot/qplotmainwindow.h \
     snaptable.h \
     snapwindow.h \
-    snapplot.h
+    snapplot.h \
+    timeit.h \
+    timeit_linux.h \
+    timeit_win32.h
