@@ -230,9 +230,9 @@ SnapTable *Snap::_create_table_thread_summary()
 //
 SnapTable *Snap::_create_table_top_jobs()
 {
-    SnapTable* table = new SnapTable("Job Culprits");
+    SnapTable* table = new SnapTable("Top Jobs");
 
-    table->insertColumns(0,5);
+    table->insertColumns(0,6);
     table->setHeaderData(0,Qt::Horizontal,QVariant("JobAvg"));
     table->setHeaderData(0,Qt::Horizontal,QVariant("%.6lf"),SnapTable::Format);
     table->setHeaderData(1,Qt::Horizontal,QVariant("Thread"));
@@ -243,6 +243,8 @@ SnapTable *Snap::_create_table_top_jobs()
     table->setHeaderData(4,Qt::Horizontal,QVariant("JobName"));
     int align = (Qt::AlignLeft | Qt::AlignVCenter);
     table->setHeaderData(4,Qt::Horizontal,QVariant(align),Qt::TextAlignmentRole);
+    table->setHeaderData(5,Qt::Horizontal,QVariant("JobId"));
+    table->setHeaderData(5,Qt::Horizontal,QVariant(align),Qt::TextAlignmentRole);
 
     QList<Job*>* jobs = this->jobs(Snap::SortByJobAvgTime);
     int max_cnt = 10;
@@ -258,6 +260,8 @@ SnapTable *Snap::_create_table_top_jobs()
         table->setData(table->index(row,3),QVariant(job->freq()));
         table->setData(table->index(row,4),
                        QVariant(job->job_name().toAscii().constData()));
+        table->setData(table->index(row,5),
+                       QVariant(job->log_name().toAscii().constData()));
     }
     return table;
 }
@@ -487,7 +491,7 @@ bool Snap::_process_job_river( BoundedTrickBinaryRiver* river )
 
         Job* job = new Job(const_cast<char*>(param.data.name.c_str()),river);
 
-        QString job_id = job->id();
+        QString job_id = job->log_name();
 
         if (  _id_to_job.contains(job_id) ) {
             // Since job already created and most likely has more info

@@ -85,7 +85,8 @@ SOURCES += \
     qplot/qcustomplot.cpp \
     qplot/qplotmainwindow.cpp \
     snaptable.cpp \
-    snapwindow.cpp
+    snapwindow.cpp \
+    snapplot.cpp
 
 HEADERS += \
     test/testsnap.h \
@@ -105,4 +106,5 @@ HEADERS += \
     qplot/qcustomplot.h \
     qplot/qplotmainwindow.h \
     snaptable.h \
-    snapwindow.h
+    snapwindow.h \
+    snapplot.h

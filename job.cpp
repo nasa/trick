@@ -157,7 +157,9 @@ double Job::freq()
 // An example logname:
 // JOB_schedbus.SimBus##read_ALDS15_ObcsRouter_C1.1828.00(read_simbus_0.100)
 Job::Job(const char* log_jobname, BoundedTrickBinaryRiver *river)  :
-     _npoints(0),_timestamps(0),_runtime(0),_is_stats(false),_is_stddev(false)
+     _npoints(0),_timestamps(0),_runtime(0),
+     _log_name(log_jobname),
+     _is_stats(false),_is_stddev(false)
 {
     if ( river ) {
         _npoints = river->getNumPoints();
@@ -207,32 +209,8 @@ Job::Job(const char* log_jobname, BoundedTrickBinaryRiver *river)  :
     _job_name = qname.mid(0,idx6);
 }
 
-QString Job::id() const
+QString Job::log_name() const
 {
-    char buf[256];                     // freq rouned to 3 decimal places
-    QString logname = "JOB_";
-    logname += _job_name;
-    logname = logname.replace("::","##");
-
-     // hope it is thread_id and not processor id (TODO)
-    if ( _thread_id != 0 ) {
-        logname += "_C";
-        QString tid = QString("%1").arg(_thread_id);
-        logname += tid;
-    }
-
-    logname += ".";
-    logname += _job_num;
-    logname += "(";
-    logname += _job_class;
-    if ( _freq > -0.5 ) {
-        // Some jobs have no freqency spec in the id
-        logname += "_";
-        sprintf(buf,"%.3lf",_freq);
-        logname += QString(buf);
-    }
-    logname += ")";
-
-    return logname;
+    return _log_name;
 }
 
