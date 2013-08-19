@@ -71,7 +71,6 @@ int main(int argc, char *argv[])
         QApplication a(argc, argv);
         SnapWindow* w = new SnapWindow(&snap);
         Q_UNUSED(w);
-        //w->show();
         return a.exec();
 #endif
     } catch (std::exception &e) {

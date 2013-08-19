@@ -10,7 +10,12 @@
 #include <QFile>
 #include <QDataStream>
 #include <QTextStream>
-#include <QPair>
+
+// inserting into a list
+#include <iostream>
+#include <list>
+#include <vector>
+using namespace std;
 
 class Param
 {
@@ -96,16 +101,15 @@ class TrickDataModel : QAbstractItemModel
 
   private:
 
-
     TrickVersion _trick_version;
     enum Endianness _endianess;
 
     QList<Param*> _params;
-    QList<QList<QVariant*>* > _data;
+    vector<vector<QVariant>* > _data;
+    vector<vector<QVariant>* >::iterator _idata;
 
     void _load_binary_param(QDataStream &in, int col);
     void _write_binary_param(QDataStream &out, int col);
-    void _load_binary_param_data(QDataStream &in, int row, int col);
     void _write_binary_param_data(QDataStream &out, int row, int col);
     void _write_binary_qstring(const QString& str, QDataStream &out);
     TrickType _tricktype(int col);

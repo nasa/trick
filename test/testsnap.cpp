@@ -426,9 +426,9 @@ void TestSnap::is_realtime0()
 {
     QString rundir = _run("0");
 
-    for ( int ii = 0; ii < _log_frame.rowCount(); ++ii) {
-        for ( int jj = 1; jj < _log_frame.columnCount(); ++jj) {
-            QModelIndex idx = _log_frame.index(ii,jj);
+    for ( int row = 0; row < _log_frame.rowCount(); ++row) {
+        for ( int col = 1; col < _log_frame.columnCount(); ++col) {
+            QModelIndex idx = _log_frame.index(row,col);
             _log_frame.setData(idx,QVariant(0.0));
         }
     }

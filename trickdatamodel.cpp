@@ -6,6 +6,7 @@ const int TrickDataModel::TRICK_DOUBLE = 11;
 const int TrickDataModel::TRICK_LONG_LONG = 14;
 const int TrickDataModel::TRICK_UNSIGNED_LONG_LONG = 15;
 
+
 TrickDataModel::TrickDataModel(TrickVersion version,
                                Endianness endianness) :
         QAbstractItemModel(),
@@ -16,15 +17,9 @@ TrickDataModel::TrickDataModel(TrickVersion version,
 
 TrickDataModel::~TrickDataModel()
 {
-    for ( int ii = 0; ii < _data.size(); ++ii) {
-        QList<QVariant*>* col = _data.at(ii);
-        for ( int jj = 0; jj < col->size(); ++jj) {
-            QVariant* val = col->at(jj);
-            delete val;
-        }
-        delete col;
+    for ( _idata =_data.begin(); _idata !=_data.end(); ++_idata) {
+        delete (*_idata);
     }
-
     foreach ( Param* param, _params ) {
         delete param;
     }
@@ -57,7 +52,7 @@ int TrickDataModel::rowCount(const QModelIndex &pidx) const
 {
     int nrows = 0 ;
 
-    if ( ! pidx.isValid() && !_data.isEmpty() ) {
+    if ( ! pidx.isValid() && !_data.empty() ) {
         // root
         nrows = _data.at(0)->size();
     }
@@ -85,8 +80,7 @@ QVariant TrickDataModel::data(const QModelIndex &idx, int role) const
         int col = idx.column();
 
         if ( role == Qt::DisplayRole ) {
-            QVariant* dptr = _data.at(col)->at(row);
-            val = *dptr;
+            val = _data.at(col)->at(row);
         }
     }
 
@@ -105,9 +99,8 @@ bool TrickDataModel::setData(const QModelIndex &idx,
     int col = idx.column();
 
     if ( role == Qt::EditRole ) {
-        QVariant* dptr = _data.at(col)->at(row);
-        *dptr = value;
-        dataChanged(idx,idx);
+        (*_data.at(col))[row] = value;
+        emit dataChanged(idx,idx);
     } else {
         ret = false;
     }
@@ -123,22 +116,20 @@ bool TrickDataModel::insertRows(int row, int count, const QModelIndex &pidx)
         return false;
     }
 
-    if ( row == 0 ) {
-        beginInsertRows(pidx,0,count-1);
-    } else {
-        beginInsertRows(pidx,row+1,row+count);
+    if ( columnCount() == 0 ) {
+        fprintf(stderr,"snap [error]: attempting to insert rows into a table"
+                 " with no columns.  Use insertColumns() before insertRows()\n");
+        return false;
     }
 
-    for ( int ii = 0; ii < count; ++ii) {
-        for ( int jj = 0; jj < columnCount(); ++jj) {
-            QList<QVariant*>* col = _data.at(jj);
-            QVariant* val = new QVariant(0.0);
-            col->insert(row,val);
-        }
+    beginInsertRows(pidx,row,row+count-1);
+
+    for ( _idata =_data.begin(); _idata !=_data.end(); ++_idata) {
+        vector<QVariant>* col = (*_idata);
+        col->insert(col->begin()+row,count,QVariant(0.0));
     }
 
     endInsertRows();
-
 
     return ret;
 }
@@ -161,17 +152,9 @@ bool TrickDataModel::removeRows(int row, int count, const QModelIndex &pidx)
 
     beginRemoveRows(pidx,row,row+count-1);
 
-    for ( int cc = 0; cc < columnCount(pidx); ++cc) {
-        QList<QVariant*>* col = _data[cc];
-        int row_start = row+count-1;
-        if ( row_start >= rowCount(pidx) ) {
-            row_start = rowCount(pidx)-1;
-        }
-        for ( int rr = row_start; rr >= row; --rr) {
-            QVariant* row_val = col->at(rr);
-            delete row_val;
-            col->removeAt(rr);
-        }
+    for ( _idata =_data.begin(); _idata !=_data.end(); ++_idata) {
+        vector<QVariant>* col = (*_idata);
+        col->erase(col->begin()+row,col->begin()+row+count);
     }
 
     endRemoveRows();
@@ -214,12 +197,9 @@ bool TrickDataModel::insertColumns(int column, int count,
     int nrows = rowCount(pidx) ;
 
     for ( int ii = column; ii < column+count; ++ii) {
-        QList<QVariant*>* col = new QList<QVariant*>;
-        for ( int jj = 0; jj < nrows; ++jj) {
-            QVariant* val = new QVariant;
-            col->append(val);
-        }
-        _data.insert(ii,col);
+
+        vector<QVariant>* col = new vector<QVariant>(nrows);
+        _data.insert(_data.begin()+column,col);
 
         // Meta data for "roles"
         Param* param = new Param;
@@ -257,15 +237,13 @@ bool TrickDataModel::removeColumns(int column, int count, const QModelIndex &pid
 
     beginRemoveColumns(pidx,column,column+count-1);
 
-    int nrows = rowCount(pidx) ;
-    for ( int ii = column+count-1; ii >= column; --ii) {
-        QList<QVariant*>* col = _data[ii];
-        for ( int jj = 0; jj < nrows; ++jj) {
-            delete col->at(jj);
-        }
-        delete col;
-        _data.removeAt(ii);
+    for ( _idata = _data.begin()+column+count-1; _idata >=_data.begin()+column;
+          --_idata) {
+        delete (*_idata);
+    }
+    _data.erase(_data.begin()+column,_data.begin()+column+count);
 
+    for ( int ii = column+count-1; ii >= column; --ii) {
         delete _params.at(ii);
         _params.removeAt(ii);
     }
@@ -561,13 +539,59 @@ bool TrickDataModel::load_binary_trk(const QString &log_name,
     //
     // Read param data
     //
-    for ( int ii = 0; ii < rowCount(); ++ii) {
-        for ( int jj = 0; jj < columnCount(); ++jj) {
-            _load_binary_param_data(in,ii,jj);
+    int paramtype;
+    vector<int> paramtypes;
+    int ncols = columnCount();
+
+    for ( int row = 0; row < rowCount(); ++row) {
+
+        for ( int col = 0; col < ncols; ++col) {
+
+            if ( row == 0 ) {
+                paramtype = headerData(col,Qt::Horizontal,ParamType).toInt();
+                paramtypes.push_back(paramtype);
+            } else {
+                paramtype = paramtypes.at(col);
+            }
+
+            switch (paramtype) {
+
+            case TRICK_DOUBLE : {
+                double val;
+                in >> val;
+                (*_data.at(col))[row] = val;
+                break;
+            }
+
+            case TRICK_UNSIGNED_LONG_LONG : {
+                unsigned long long val;
+                in >> val;
+                (*_data.at(col))[row] = val;
+                break;
+            }
+
+            case TRICK_LONG_LONG : {
+                long long val;
+                in >> val;
+                (*_data.at(col))[row] = val;
+                break;
+            }
+
+            default :
+            {
+                fprintf(stderr,"snap [error]: can't handle trick type \"%d\"\n",
+                        paramtype);
+                exit(-1);
+            }
+
+            }
         }
     }
-
     file.close();
+
+    QModelIndex idx1 = index(0,0);
+    QModelIndex idx2 = index(rowCount(),ncols);
+    emit dataChanged(idx1,idx2);
 
     return ret;
 }
@@ -586,48 +610,6 @@ void TrickDataModel::_write_binary_param(QDataStream& out, int col)
     TrickType tricktype = _tricktype(col);
     out << tricktype.id;
     out << tricktype.size;
-}
-
-void TrickDataModel::_load_binary_param_data(QDataStream &in, int row, int col)
-{
-    int trick_type = headerData(col,Qt::Horizontal,ParamType).toInt();
-    QModelIndex idx = index(row,col);
-
-    switch ( trick_type ) {
-
-    case TRICK_DOUBLE :
-    {
-        double val;
-        in >> val;
-        setData(idx,val);
-        break;
-    }
-
-    case TRICK_UNSIGNED_LONG_LONG :
-    {
-        unsigned long long val;
-        in >> val;
-        setData(idx,val);
-        break;
-    }
-
-    case TRICK_LONG_LONG :
-    {
-        long long val;
-        in >> val;
-        setData(idx,val);
-        break;
-    }
-
-    default :
-    {
-        fprintf(stderr,"snap [error]: can't handle trick type \"%d\"\n",
-                trick_type);
-        exit(-1);
-    }
-
-    }
-
 }
 
 // Returns byte size of parameter
