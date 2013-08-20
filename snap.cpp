@@ -11,11 +11,6 @@
 
 #include "snap.h"
 
-bool frameTopJobsGreaterThan(const QPair<double,Job*>& a,
-                           const QPair<double,Job*>& b)
-{
-    return a.first > b.first;
-}
 
 bool topThreadGreaterThan(const QPair<double,Thread>& a,
                          const QPair<double,Thread>& b)
@@ -157,8 +152,8 @@ SnapTable* Snap::_create_table_spikes()
     int cnt = 0 ;
     foreach ( Frame frame, _frames ) {
         if ( ++cnt > max_cnt ) break;
-        double tt = frame.timestamp;
-        double ft = frame.frame_time;
+        double tt = frame.timestamp();
+        double ft = frame.frame_time();
         int row = table->rowCount();
         table->insertRows(row,1);
         table->setHeaderData(0,Qt::Horizontal,QVariant("Time"));
@@ -168,7 +163,7 @@ SnapTable* Snap::_create_table_spikes()
         table->setData(table->index(row,1),QVariant(ft));
         table->setHeaderData(2,Qt::Horizontal,QVariant("Job Load Index"));
         table->setHeaderData(2,Qt::Horizontal,QVariant("%.0lf%%"),SnapTable::Format);
-        table->setData(table->index(row,2),QVariant(frame.jobloadindex));
+        table->setData(table->index(row,2),QVariant(frame.jobloadindex()));
     }
 
     return table;
@@ -380,7 +375,6 @@ void Snap::_process_rivers()
     _process_job_river(_river_userjobs);
 
     _frames = _process_frame_river(_river_frame);
-    qSort(_frames.begin(),_frames.end(),frameTimeGreaterThan);
 }
 
 
@@ -455,7 +449,7 @@ void Snap::_calc_frame_avg()
 {
     double sum = 0.0 ;
     foreach ( Frame frame, _frames ) {
-        sum += frame.frame_time;
+        sum += frame.frame_time();
     }
 
     _frame_avg = sum/_frames.length() ;
@@ -469,7 +463,7 @@ void Snap::_calc_frame_stddev()
 
     double sum = 0.0 ;
     foreach ( Frame frame, _frames ) {
-        double frametime =  frame.frame_time;
+        double frametime =  frame.frame_time();
         double vv = (frametime-_frame_avg)*(frametime-_frame_avg);
         sum += vv;
     }
@@ -560,52 +554,25 @@ QList<Frame> Snap::_process_frame_river(BoundedTrickBinaryRiver* river)
 
     _num_overruns = 0;
     for ( int tidx = 0 ; tidx < npoints ; ++tidx ) {
-        Frame frame;
-        double tt = timestamps[tidx];
-        frame.timeidx = tidx;
-        frame.timestamp = tt;
-        frame.frame_time = frame_times[tidx]/1000000.0;
-        frame.overrun_time = overrun_times[tidx]/1000000.0;
-        if ( frame.overrun_time > 0.0 ) {
+        Frame frame(&_jobs,tidx,timestamps[tidx],
+                    frame_times[tidx]/1000000.0,
+                    overrun_times[tidx]/1000000.0);
+
+        if ( frame.overrun_time() > 0.0 ) {
             _num_overruns++;
         }
         if ( !_is_realtime && frame_times[tidx] != 0 ) {
             _is_realtime = true;
         }
 
-        // Job load percentage (a lot of jobs running hot)
-        double jcnt = 0.0 ;
-        foreach ( Job* job, _jobs ) {
-            double rt = job->runtime()[tidx]/1000000.0;
-            if ( rt > job->avg_runtime()+1.50*job->stddev_runtime() ) {
-                jcnt += 1.0;
-            }
-
-            // List of top jobs with most runtime for the frame
-            int len = frame.topjobs.length() ;
-            if ( len < 10 ) {
-                frame.topjobs.append(qMakePair(rt,job));
-            } else {
-                QPair<double,Job*> ljob = frame.topjobs.last();
-                double lrt = ljob.second->runtime()[tidx]/1000000.0;
-                if ( rt > lrt ) {
-                    frame.topjobs.replace(len-1,qMakePair(rt,job));
-                    qSort(frame.topjobs.begin(),
-                          frame.topjobs.end(),
-                          frameTopJobsGreaterThan);
-                }
-            }
-        }
-        frame.jobloadindex = 100.0*jcnt/(double)num_jobs();
-        qSort(frame.topjobs.begin(),frame.topjobs.end(),frameTopJobsGreaterThan);
         frames.append(frame);
     }
 
     qSort(frames.begin(), frames.end(), frameTimeGreaterThan);
 
-
     return frames;
 }
+
 
 SnapReport::SnapReport(Snap &snap) : _snap(snap)
 {
@@ -662,10 +629,10 @@ QString SnapReport::report()
     cnt = 0 ;
     foreach ( Frame frame, *frames ) {
         if ( ++cnt > max_cnt ) break;
-        double tt = frame.timestamp;
-        double ft = frame.frame_time;
+        double tt = frame.timestamp();
+        double ft = frame.frame_time();
         rpt += str.sprintf("    %15.6lf %15.6lf %14.0lf%%\n",
-                          tt ,ft, frame.jobloadindex);
+                          tt ,ft, frame.jobloadindex());
 
     }
     rpt += endsection;
@@ -841,8 +808,8 @@ QString SnapReport::report()
 
         if ( ++cnt > max_cnt ) break;
 
-        double tt = frame.timestamp;
-        double ft = frame.frame_time;
+        double tt = frame.timestamp();
+        double ft = frame.frame_time();
 
         rpt += str.sprintf("Spike at time %.4lf of %g\n", tt ,ft);
         rpt += str.sprintf( "    %6s %15s %15s %15s    %-50s\n",
@@ -854,14 +821,14 @@ QString SnapReport::report()
 
         int cnt2 = 0 ;
         double total = 0 ;
-        for ( int ii = 0; ii < frame.topjobs.length(); ++ii) {
+        for ( int ii = 0; ii < frame.topjobs()->length(); ++ii) {
 
-            QPair<double,Job*> topjob = frame.topjobs.at(ii);
+            QPair<double,Job*> topjob = frame.topjobs()->at(ii);
 
             double rt =  topjob.first;
             Job* job = topjob.second;
 
-            int tidx = frame.timeidx;
+            int tidx = frame.timeidx();
             double delta = 1.0e-3;
             if ( rt < delta ) {
                 continue;
@@ -898,9 +865,9 @@ QString SnapReport::report()
 
         if ( ++cnt > max_cnt ) break;
 
-        int tidx =  frame.timeidx;
-        double tt = frame.timestamp;
-        double ft = frame.frame_time;
+        int tidx =  frame.timeidx();
+        double tt = frame.timestamp();
+        double ft = frame.frame_time();
 
         QList<QPair<double, Thread> > topthreads;
         foreach ( Thread thread, threads ) {
