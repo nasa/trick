@@ -86,6 +86,10 @@ SnapCurve* SnapPlot::addCurve(TrickDataModel* model,
 
 bool SnapPlot::removeCurve(int index)
 {
+    if ( index < 0 || index >= _curves.size() ) {
+        return false;
+    }
+
     bool ret;
     SnapCurve* curve = _curves.at(index);
     ret = removePlottable(curve);

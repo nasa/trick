@@ -38,7 +38,7 @@ class SnapPlot : public QCustomPlot
                        const QColor& color=Qt::blue);
     bool removeCurve(int index);
     //int clearCurves();
-    //int curveCount() const;
+    int curveCount() const { return _curves.size(); }
 
     void zoomToFit();
 

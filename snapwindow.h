@@ -9,6 +9,7 @@
 #include <QGridLayout>
 #include <QTableView>
 #include <QAction>
+#include <QProgressBar>
 
 #include "snap.h"
 #include "snapplot.h"
@@ -17,12 +18,14 @@
 class SnapWindow : public QMainWindow
 {
     Q_OBJECT
+
 public:
     explicit SnapWindow(Snap *snap, QWidget *parent = 0);
     ~SnapWindow();
 
 private:
     Snap* _snap;
+    QProgressBar* _bar;
     QGridLayout* _layout;
 
     void createMenu();
@@ -42,11 +45,11 @@ private:
 
 signals:
     
-public slots:
-
 private slots:
     void _update_job_plot(const QModelIndex& idx);
-    
+    void _finishedLoading();
+    void _trkFinished();
+
 };
 
 #endif // SNAPGUI

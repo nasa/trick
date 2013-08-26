@@ -1,10 +1,11 @@
 #ifdef SNAPGUI
 #include <QApplication>
+#include <QObject>
+#include <QThread>
 #include <snapwindow.h>
 #else
 #include <QCoreApplication>
 #endif
-
 
 #ifdef TEST
 // To include test, snap.pro CONFIG += qtestlib
@@ -38,6 +39,21 @@ class SnapOptions : public Options
 
 SnapOptions opts;
 
+class StartUpThread : public QThread
+{
+  public:
+    StartUpThread(Snap* snap, QObject* parent=0) : QThread(parent), _snap(snap) {}
+
+    void run()
+    {
+        _snap->load();
+    }
+
+  private:
+    Snap* _snap;
+};
+
+
 #ifndef TEST
 int main(int argc, char *argv[])
 {
@@ -62,16 +78,22 @@ int main(int argc, char *argv[])
     }
 
     QString rundir(opts.rundir.get().c_str());
+
     try {
-        Snap snap(rundir,opts.start,opts.stop);
-        SnapReport rpt(snap);
-        fprintf(stderr,"%s",rpt.report().toAscii().constData());
 #ifdef SNAPGUI
         QApplication::setGraphicsSystem("raster");
         QApplication a(argc, argv);
+        Snap snap(rundir,opts.start,opts.stop,true);
         SnapWindow* w = new SnapWindow(&snap);
-        Q_UNUSED(w);
+        StartUpThread* loader = new StartUpThread(&snap);
+        qApp->connect(qApp,SIGNAL(aboutToQuit()), loader,SLOT(quit()));
+        loader->start();
+        w->show();
         return a.exec();
+#else
+        Snap snap(rundir,opts.start,opts.stop);
+        SnapReport rpt(snap);
+        fprintf(stderr,"%s",rpt.report().toAscii().constData());
 #endif
     } catch (std::exception &e) {
         fprintf(stderr,"\n%s\n",e.what());

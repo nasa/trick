@@ -1,6 +1,7 @@
 #ifndef BLAME_H
 #define BLAME_H
 
+#include <QObject>
 #include <QString>
 #include <QList>
 #include <QMap>
@@ -10,6 +11,8 @@
 #include <QDir>
 #include <QTextStream>
 #include <QBuffer>
+#include <QPropertyAnimation>
+#include <QThread>
 
 #include "boundedtrickbinaryriver.h"
 #include "job.h"
@@ -21,10 +24,19 @@
 
 #define TXT(X) X.toAscii().constData()
 
-class Snap
+class Snap : public QObject
 {
+    Q_OBJECT
+    Q_PROPERTY(int progress
+               READ getProgress
+               WRITE setProgress
+               NOTIFY progressChanged)
+
+friend class LoadThread;
+
 public:
-    Snap(const QString& irundir, double istart=1.0, double istop=1.0e20);
+    Snap(const QString& irundir, double istart=1.0, double istop=1.0e20,
+         bool is_delay_load=false);
     ~Snap();
 
     enum SortBy {
@@ -32,6 +44,8 @@ public:
         SortByJobAvgTime,
         SortByJobMaxTime
     };
+
+    void load();
 
     bool is_realtime() const { return _is_realtime ; }
     QString rundir() const { return _rundir ; }
@@ -72,6 +86,14 @@ public:
 
     QList<SnapTable*> tables;
 
+    int getProgress() const { return _progress; }
+    void setProgress(int p) { _progress = p ;
+                              emit progressChanged(p); }
+
+signals:
+    void progressChanged(int v);
+    void finishedLoading();
+
 private:
     Snap() {}
 
@@ -92,7 +114,7 @@ private:
     QMap<QString,Job*> _id_to_job;
 
 
-    BoundedTrickBinaryRiver* _open_river(const QString& rundir,
+    BoundedTrickBinaryRiver* _create_river(const QString& rundir,
                                           const QString& logfilename,
                                           double start, double stop);
     void _process_rivers();
@@ -110,11 +132,28 @@ private:
     Threads* _threads;
     SimObjects* _simobjects;
 
-    SnapTable* _create_table_summary();
-    SnapTable* _create_table_spikes();
-    SnapTable* _create_table_thread_summary();
-    SnapTable* _create_table_top_jobs();
-    SnapTable* _create_table_sim_objects();
+    SnapTable* _table_summary;
+    void _create_table_summary();
+    void _set_data_table_summary();
+
+    SnapTable* _table_spikes;
+    void _create_table_spikes();
+    void _set_data_table_spikes();
+
+    SnapTable* _table_thread_summary;
+    void _create_table_thread_summary();
+    void _set_data_table_thread_summary();
+
+    SnapTable* _table_top_jobs;
+    void _create_table_top_jobs();
+    void _set_data_table_top_jobs();
+
+    SnapTable* _table_sim_objects;
+    void _create_table_sim_objects();
+    void _set_data_table_sim_objects();
+
+    int _progress;
+    void _load();
 
 };
 
@@ -127,6 +166,67 @@ class SnapReport
   private:
     Snap& _snap;
 
+};
+
+class AnimationThread : public QThread
+{
+  public:
+    AnimationThread(QPropertyAnimation* anim,
+                      int duration, int start, int stop,
+                      QObject* parent=0) :
+        QThread(parent), _anim(anim),
+        _duration(duration),
+        _start(start),
+        _stop(stop)
+    {}
+
+    void run()
+    {
+        QEasingCurve ez(QEasingCurve::InQuad);
+        _anim->setEasingCurve(ez);
+        _anim->setDuration(_duration);
+        _anim->setStartValue(_start);
+        _anim->setEndValue(_stop);
+        _anim->start();
+        exec();
+    }
+
+  private:
+    QPropertyAnimation* _anim;
+    int _duration;
+    int _start;
+    int _stop;
+};
+
+class LoadThread : public QThread
+{
+  public:
+    LoadThread(Snap* snap,
+              int expectedDuration,                // ms
+              int startProgress, int stopProgress, // 0-100
+              QObject* parent=0) :
+        QThread(parent), _snap(snap),
+        _duration(expectedDuration),
+        _start(startProgress),
+        _stop(stopProgress)
+    {
+    }
+
+    void run()
+    {
+        QPropertyAnimation* anim = new QPropertyAnimation(_snap,"progress");
+        AnimationThread* t = new AnimationThread(anim,_duration,_start,_stop);
+        t->start();
+        _snap->_load();
+        anim->stop();
+        t->quit();
+    }
+
+  protected:
+    Snap* _snap;
+    int _duration;
+    int _start;
+    int _stop;
 };
 
 #endif // BLAME_H

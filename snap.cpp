@@ -11,7 +11,6 @@
 
 #include "snap.h"
 
-
 bool topThreadGreaterThan(const QPair<double,Thread>& a,
                          const QPair<double,Thread>& b)
 {
@@ -22,15 +21,39 @@ bool topThreadGreaterThan(const QPair<double,Thread>& a,
     }
 }
 
-Snap::Snap(const QString &irundir, double istart, double istop) :
+Snap::Snap(const QString &irundir, double istart, double istop,
+           bool is_delay_load) :
     _err_stream(&_err_string),
     _rundir(irundir), _start(istart),_stop(istop), _is_realtime(false),
     _frame_avg(0.0),_frame_stddev(0),_curr_sort_method(NoSort),
     _river_userjobs(0), _river_frame(0), _river_trickjobs(0),
-    _num_overruns(0), _threads(0),_simobjects(0)
+    _num_overruns(0), _threads(0),_simobjects(0),_progress(0)
+{
+
+    _create_table_summary();
+    _create_table_spikes();
+    _create_table_thread_summary();
+    _create_table_top_jobs();
+    _create_table_sim_objects();
+
+    if ( ! is_delay_load ) {
+        _load();
+    }
+}
+
+void Snap::load()
+{
+    LoadThread t(this,15000,0,100); // TODO: estimate loading time instead
+    t.start();                      //      of hard-coded 15sec
+    t.wait();
+    emit finishedLoading();
+}
+
+void Snap::_load()
 {
     _process_rivers();        // _jobs list and _frames created
     qSort(_jobs.begin(), _jobs.end(), jobAvgTimeGreaterThan);
+
     _curr_sort_method = SortByJobAvgTime;
     _calc_frame_avg();        // _frame_avg calculated
     _calc_frame_stddev();     // _frame_stddev calculated
@@ -39,17 +62,12 @@ Snap::Snap(const QString &irundir, double istart, double istop) :
 
     _simobjects = new SimObjects(_jobs);
 
-    SnapTable* table_summary  = _create_table_summary();
-    SnapTable* table_spikes   = _create_table_spikes();
-    SnapTable* table_threads  = _create_table_thread_summary();
-    SnapTable* table_jobs     = _create_table_top_jobs();
-    SnapTable* table_sobjects = _create_table_sim_objects();
+    _set_data_table_summary();
+    _set_data_table_spikes();
+    _set_data_table_thread_summary();
+    _set_data_table_top_jobs();
+    _set_data_table_sim_objects();
 
-    tables.append(table_summary);
-    tables.append(table_spikes);
-    tables.append(table_threads);
-    tables.append(table_jobs);
-    tables.append(table_sobjects);
 }
 
 Snap::~Snap()
@@ -66,10 +84,13 @@ Snap::~Snap()
     if ( _simobjects ) delete _simobjects;
 }
 
-SnapTable* Snap::_create_table_summary()
-{
-    SnapTable* table = new SnapTable("Summary");
 
+void Snap::_create_table_summary()
+{
+    _table_summary = new SnapTable("Summary");
+    tables.append(_table_summary);
+
+    SnapTable* table = _table_summary;
     table->insertColumns(0,1);
 
     int r = 0 ;
@@ -81,73 +102,94 @@ SnapTable* Snap::_create_table_summary()
     table->insertRows(r,1);
     table->setHeaderData(r,Qt::Vertical,QVariant("Start time"));
     table->setHeaderData(r,Qt::Vertical,QVariant("%.3lf"),SnapTable::Format);
-    table->setData(table->index(r,0),QVariant(start()));
     r++;
 
     table->insertRows(r,1);
     table->setHeaderData(r,Qt::Vertical,QVariant("Stop time"));
     table->setHeaderData(r,Qt::Vertical,QVariant("%.3lf"),SnapTable::Format);
-    table->setData(table->index(r,0),QVariant(stop()));
     r++;
 
     table->insertRows(r,1);
     table->setHeaderData(r,Qt::Vertical,QVariant("Num jobs"));
-    table->setData(table->index(r,0),QVariant(num_jobs()));
     r++;
 
     table->insertRows(r,1);
     table->setHeaderData(r,Qt::Vertical,QVariant("Num frames"));
-    table->setData(table->index(r,0),QVariant(num_frames()));
     r++;
 
     table->insertRows(r,1);
     table->setHeaderData(r,Qt::Vertical,QVariant("Num overruns"));
-    table->setData(table->index(r,0),QVariant(num_overruns()));
     r++;
 
     table->insertRows(r,1);
     table->setHeaderData(r,Qt::Vertical,QVariant("Percentage overruns"));
     table->setHeaderData(r,Qt::Vertical,QVariant("%.0lf%%"),SnapTable::Format);
-    table->setData(table->index(r,0),QVariant(percent_overruns()));
     r++;
 
     table->insertRows(r,1);
     table->setHeaderData(r,Qt::Vertical,QVariant("Frame rate(s)"));
-    table->setData(table->index(r,0),QVariant(frame_rate()));
     r++;
 
     table->insertRows(r,1);
     table->setHeaderData(r,Qt::Vertical,QVariant("Frame avg"));
     table->setHeaderData(r,Qt::Vertical,QVariant("%.6lf"),SnapTable::Format);
-    table->setData(table->index(r,0),QVariant(frame_avg()));
     r++;
 
     table->insertRows(r,1);
     table->setHeaderData(r,Qt::Vertical,QVariant("Frame stddev"));
     table->setHeaderData(r,Qt::Vertical,QVariant("%.6lf"),SnapTable::Format);
-    table->setData(table->index(r,0),QVariant(frame_stddev()));
     r++;
 
     table->insertRows(r,1);
     table->setHeaderData(r,Qt::Vertical,QVariant("Num threads"));
-    table->setData(table->index(r,0),QVariant(num_threads()));
     r++;
 
     table->insertRows(r,1);
     table->setHeaderData(r,Qt::Vertical,QVariant("Thread list"));
-    table->setData(table->index(r,0),QVariant(thread_listing()));
     r++;
+}
 
-    return table;
+void Snap::_set_data_table_summary()
+{
+    int r = 0 ;
+
+    SnapTable* table = _table_summary;
+
+    table->setData(table->index(r,0),QVariant(rundir())); r++;
+    table->setData(table->index(r,0),QVariant(start())); r++;
+    table->setData(table->index(r,0),QVariant(stop())); r++;
+    table->setData(table->index(r,0),QVariant(num_jobs())); r++;
+    table->setData(table->index(r,0),QVariant(num_frames())); r++;
+    table->setData(table->index(r,0),QVariant(num_overruns())); r++;
+    table->setData(table->index(r,0),QVariant(percent_overruns())); r++;
+    table->setData(table->index(r,0),QVariant(frame_rate())); r++;
+    table->setData(table->index(r,0),QVariant(frame_avg())); r++;
+    table->setData(table->index(r,0),QVariant(frame_stddev())); r++;
+    table->setData(table->index(r,0),QVariant(num_threads())); r++;
+    table->setData(table->index(r,0),QVariant(thread_listing())); r++;
 }
 
 //
 // Top Ten Spikes
 //
-SnapTable* Snap::_create_table_spikes()
+void Snap::_create_table_spikes()
 {
-    SnapTable* table = new SnapTable("Spikes");
+    _table_spikes = new SnapTable("Spikes");
+    tables.append(_table_spikes);
+    SnapTable* table = _table_spikes;
+
     table->insertColumns(0,3);
+    table->setHeaderData(0,Qt::Horizontal,QVariant("Time"));
+    table->setHeaderData(1,Qt::Horizontal,QVariant("Frame"));
+    table->setHeaderData(1,Qt::Horizontal,QVariant("%.6lf"),SnapTable::Format);
+    table->setHeaderData(2,Qt::Horizontal,QVariant("Job Load Index"));
+    table->setHeaderData(2,Qt::Horizontal,QVariant("%.0lf%%"),SnapTable::Format);
+}
+
+void Snap::_set_data_table_spikes()
+{
+    SnapTable* table = _table_spikes;
+
     int max_cnt = 10;
     int cnt = 0 ;
     foreach ( Frame frame, _frames ) {
@@ -156,25 +198,20 @@ SnapTable* Snap::_create_table_spikes()
         double ft = frame.frame_time();
         int row = table->rowCount();
         table->insertRows(row,1);
-        table->setHeaderData(0,Qt::Horizontal,QVariant("Time"));
         table->setData(table->index(row,0),QVariant(tt));
-        table->setHeaderData(1,Qt::Horizontal,QVariant("Frame"));
-        table->setHeaderData(1,Qt::Horizontal,QVariant("%.6lf"),SnapTable::Format);
         table->setData(table->index(row,1),QVariant(ft));
-        table->setHeaderData(2,Qt::Horizontal,QVariant("Job Load Index"));
-        table->setHeaderData(2,Qt::Horizontal,QVariant("%.0lf%%"),SnapTable::Format);
         table->setData(table->index(row,2),QVariant(frame.jobloadindex()));
     }
-
-    return table;
 }
 
 //
 // Thread Summary
 //
-SnapTable *Snap::_create_table_thread_summary()
+void Snap::_create_table_thread_summary()
 {
-    SnapTable* table = new SnapTable("Threads");
+    _table_thread_summary = new SnapTable("Threads");
+    tables.append(_table_thread_summary);
+    SnapTable* table = _table_thread_summary;
 
     table->insertColumns(0,8);
     table->setHeaderData(0,Qt::Horizontal,QVariant("ThreadID"));
@@ -190,6 +227,11 @@ SnapTable *Snap::_create_table_thread_summary()
     table->setHeaderData(6,Qt::Horizontal,QVariant("%.6lf"),SnapTable::Format);
     table->setHeaderData(7,Qt::Horizontal,QVariant("MaxLoad%"));
     table->setHeaderData(7,Qt::Horizontal,QVariant("%.0lf%%"),SnapTable::Format);
+}
+
+void Snap::_set_data_table_thread_summary()
+{
+    SnapTable* table = _table_thread_summary;
 
     table->insertRows(0,num_threads());
     int row = 0 ;
@@ -216,16 +258,16 @@ SnapTable *Snap::_create_table_thread_summary()
 
         row++;
     }
-
-    return table;
 }
 
 //
 // Job Time Avgs
 //
-SnapTable *Snap::_create_table_top_jobs()
+void Snap::_create_table_top_jobs()
 {
-    SnapTable* table = new SnapTable("Top Jobs");
+    _table_top_jobs  = new SnapTable("Top Jobs");
+    SnapTable* table = _table_top_jobs;
+    tables.append(_table_top_jobs);
 
     table->insertColumns(0,6);
     table->setHeaderData(0,Qt::Horizontal,QVariant("JobAvg"));
@@ -241,6 +283,11 @@ SnapTable *Snap::_create_table_top_jobs()
     table->setHeaderData(5,Qt::Horizontal,QVariant("JobId"));
     table->setHeaderData(5,Qt::Horizontal,QVariant(align),Qt::TextAlignmentRole);
 
+}
+
+void Snap::_set_data_table_top_jobs()
+{
+    SnapTable* table = _table_top_jobs;
     QList<Job*>* jobs = this->jobs(Snap::SortByJobAvgTime);
     int max_cnt = 10;
     int cnt = 0 ;
@@ -258,18 +305,24 @@ SnapTable *Snap::_create_table_top_jobs()
         table->setData(table->index(row,5),
                        QVariant(job->log_name().toAscii().constData()));
     }
-    return table;
 }
 
-SnapTable *Snap::_create_table_sim_objects()
+void Snap::_create_table_sim_objects()
 {
-    SnapTable* table = new SnapTable("Sim Objects");
+    _table_sim_objects = new SnapTable("Sim Objects");
+    SnapTable* table = _table_sim_objects;
+    tables.append(_table_sim_objects);
 
     table->insertColumns(0,3);
     table->setHeaderData(0,Qt::Horizontal,QVariant("SimObject"));
     table->setHeaderData(1,Qt::Horizontal,QVariant("AvgTime"));
     table->setHeaderData(1,Qt::Horizontal,QVariant("%.6lf"),SnapTable::Format);
     table->setHeaderData(2,Qt::Horizontal,QVariant("NumJobs"));
+}
+
+void Snap::_set_data_table_sim_objects()
+{
+    SnapTable* table = _table_sim_objects;
 
     int nrows;
     QList<SimObject> simobjects = _simobjects->list();
@@ -290,8 +343,6 @@ SnapTable *Snap::_create_table_sim_objects()
         table->setData(table->index(row,2),njobs);
         row++;
     }
-
-    return table;
 }
 
 QList<Job *>* Snap::jobs(SortBy sort_method)
@@ -309,7 +360,7 @@ QList<Job *>* Snap::jobs(SortBy sort_method)
     return &_jobs;
 }
 
-BoundedTrickBinaryRiver *Snap::_open_river(const QString &rundir,
+BoundedTrickBinaryRiver *Snap::_create_river(const QString &rundir,
                                              const QString &logfilename,
                                             double start, double stop)
 {
@@ -347,7 +398,7 @@ BoundedTrickBinaryRiver *Snap::_open_river(const QString &rundir,
 
     try {
         river = new BoundedTrickBinaryRiver(trk.toAscii().data(),
-                                         start,stop);
+                                            start,stop);
     }
     catch (std::range_error &e) {
         _err_stream << e.what();
@@ -361,13 +412,13 @@ BoundedTrickBinaryRiver *Snap::_open_river(const QString &rundir,
 
 void Snap::_process_rivers()
 {
-    _river_trickjobs = _open_river(_rundir,
+    _river_trickjobs = _create_river(_rundir,
                                    QString("log_trickjobs.trk"),
                                    _start, _stop);
-    _river_userjobs = _open_river(_rundir,
+    _river_userjobs = _create_river(_rundir,
                                    QString("log_userjobs.trk"),
                                    _start, _stop);
-    _river_frame = _open_river(_rundir,
+    _river_frame = _create_river(_rundir,
                                    QString("log_frame.trk"),
                                    _start, _stop);
 
@@ -480,23 +531,11 @@ bool Snap::_process_job_river( BoundedTrickBinaryRiver* river )
 
     std::vector<LOG_PARAM> params = river->getParamList();
     for ( unsigned int ii = 1 ; ii < params.size(); ++ii ) {
-
         LOG_PARAM param = params.at(ii);
-
         Job* job = new Job(const_cast<char*>(param.data.name.c_str()),river);
-
         QString job_id = job->log_name();
-
-        if (  _id_to_job.contains(job_id) ) {
-            // Since job already created and most likely has more info
-            // e.g. parsing S_job_execution has more info e.g. phase
-            delete job;
-            job = _id_to_job.value(job_id);
-        } else {
-            _id_to_job[job_id] = job;
-            _jobs.append(job);
-        }
-
+        _id_to_job[job_id] = job;
+        _jobs.append(job);
     }
 
     return ret;
