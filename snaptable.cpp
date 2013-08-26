@@ -9,14 +9,16 @@ SnapTable::SnapTable(const QString& tableName, QObject *parent) :
 
 SnapTable::~SnapTable()
 {
-    for ( int ii = 0; ii < _data.size(); ++ii) {
-        delete _col_headers.at(ii);
-        delete _col_roles.at(ii);
-        QList<QVariant*>* col = _data.at(ii);
-        for ( int jj = 0; jj < col->size(); ++jj) {
-            delete col->at(jj);
-            delete _row_headers.at(jj);
-            delete _row_roles.at(jj);
+    for ( int c = 0; c < _data.size(); ++c) {
+        delete _col_headers.at(c);
+        delete _col_roles.at(c);
+        QList<QVariant*>* col = _data.at(c);
+        for ( int r = 0; r < col->size(); ++r) {
+            delete col->at(r);
+            if ( c == 0 ) {
+                delete _row_headers.at(r);
+                delete _row_roles.at(r);
+            }
         }
         delete col;
     }
