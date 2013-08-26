@@ -27,6 +27,7 @@ private:
     Snap* _snap;
     QProgressBar* _bar;
     QGridLayout* _layout;
+    QGridLayout* _left_lay ;
 
     void createMenu();
     QMenuBar* _menuBar;

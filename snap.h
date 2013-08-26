@@ -85,6 +85,7 @@ public:
     const QList<Frame>* frames() const { return &_frames; }
 
     QList<SnapTable*> tables;
+    SnapTable* jobTableAtTime(double time);
 
     int getProgress() const { return _progress; }
     void setProgress(int p) { _progress = p ;

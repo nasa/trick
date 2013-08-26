@@ -496,6 +496,73 @@ QString Snap::thread_listing() const
     return listing;
 }
 
+SnapTable* Snap::jobTableAtTime(double time)
+{
+    QString title = QString("Top Jobs At Time %1").arg(time);
+    SnapTable* table = new SnapTable(title);
+
+    int c = 0 ;
+    table->insertColumns(c,6);
+    table->setHeaderData(c,Qt::Horizontal,QVariant("Job Id")); c++; // c++ :)
+    table->setHeaderData(c,Qt::Horizontal,QVariant("Job Name")); c++;
+    table->setHeaderData(c,Qt::Horizontal,QVariant("Job Freq")); c++;
+    table->setHeaderData(c,Qt::Horizontal,QVariant("Job Time")); c++;
+    table->setHeaderData(c,Qt::Horizontal,QVariant("Thread Id")); c++;
+    table->setHeaderData(c,Qt::Horizontal,QVariant("Thread Time")); c++;
+
+    // Find frame at given time
+    // Even though it's a linear search it's okay (for now)
+    // because frame should be at beginning of list
+    Frame frame(0,0,0,0,0); //bogus
+    int tidx = getIndexAtTime(_river_frame->getNumPoints(),
+                              _river_frame->getTimeStamps(),
+                              time);
+    for ( int ii = 0; ii < _frames.size(); ++ii) {
+        frame = _frames.at(ii);
+        if ( frame.timeidx() == tidx ) {
+            break;
+        }
+    }
+
+    double ft = frame.frame_time();
+
+    int r = 0 ;
+    int cnt = 0 ;
+    double total = 0 ;
+    for ( int ii = 0; ii < frame.topjobs()->length(); ++ii) {
+
+        QPair<double,Job*> topjob = frame.topjobs()->at(ii);
+
+        double rt =  topjob.first;
+        Job* job = topjob.second;
+
+        double delta = 1.0e-3;
+        if ( rt < delta ) {
+            break;
+        }
+
+        table->insertRows(r,1);
+        table->setData(table->index(r,0),QVariant(job->log_name()));
+        table->setData(table->index(r,1),QVariant(job->job_name()));
+        table->setData(table->index(r,2),QVariant(job->freq()));
+        table->setData(table->index(r,3),QVariant(rt));
+        table->setData(table->index(r,4),QVariant(job->thread_id()));
+        table->setData(table->index(r,5),
+                       QVariant(threads()->get(job->thread_id()).runtime(tidx)));
+        r++;
+
+        // limit printout of jobs
+        if (job->job_name() != QString("trick_sys.sched.advance_sim_time")) {
+            total += rt;
+        }
+        if ( total > 0.75*ft && ++cnt > 4 ) {
+            break;
+        }
+    }
+
+    return table;
+}
+
 void Snap::_calc_frame_avg()
 {
     double sum = 0.0 ;

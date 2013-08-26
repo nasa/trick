@@ -55,30 +55,16 @@ SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
     frame->setMidLineWidth(0);
     s->addWidget(frame);
 
-    QGridLayout* lay = new QGridLayout(frame);
-    lay->setSpacing(0);
-    lay->setContentsMargins(12, 12, 12, 12);
-    lay->setObjectName(QString::fromUtf8("verticalLayout"));
+    _left_lay = new QGridLayout(frame);
+    _left_lay->setSpacing(0);
+    _left_lay->setContentsMargins(12, 12, 12, 12);
+    _left_lay->setObjectName(QString::fromUtf8("verticalLayout"));
 
     //
     // Left side panel
     //
     QTabWidget* tab = new QTabWidget(frame);
-    lay->addWidget(tab,0,0,1,1);
-
-    QProgressBar* bar = new QProgressBar;
-    _bar = bar;
-    bar->setMinimum(0);
-    bar->setMaximum(100);
-    QString fmt("Loading: ");
-    fmt += _snap->rundir();
-    bar->setFormat(fmt);
-    bar->setTextVisible(true);
-    lay->addWidget(bar,1,0,1,1);
-    connect(_snap, SIGNAL(progressChanged(int)),
-            bar, SLOT(setValue(int)));
-    connect(_snap, SIGNAL(finishedLoading()),
-            this, SLOT(_finishedLoading()));
+    _left_lay->addWidget(tab,0,0,1,1);
 
     for ( int ii = 0; ii < _snap->tables.size(); ++ii) {
         QTableView* tv = _create_table_view(_snap->tables.at(ii),
@@ -96,6 +82,24 @@ SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
                     SLOT(_update_job_plot(QModelIndex)));
         }
     }
+
+
+    // Left side bottom - progress bar for loading
+    QProgressBar* bar = new QProgressBar;
+    _bar = bar;
+    bar->setMinimum(0);
+    bar->setMaximum(100);
+    QString fmt("Loading: ");
+    fmt += _snap->rundir();
+    bar->setFormat(fmt);
+    bar->setTextVisible(true);
+    _left_lay->addWidget(bar,1,0,1,1);
+    connect(_snap, SIGNAL(progressChanged(int)),
+            bar, SLOT(setValue(int)));
+    connect(_snap, SIGNAL(finishedLoading()),
+            this, SLOT(_finishedLoading()));
+    _left_lay->addWidget(bar,2,0,1,1);
+
 
     //
     // Right side panel
@@ -238,6 +242,12 @@ void SnapWindow::_trkFinished()
     QModelIndex idx = _userjobs->index(0,1);
     _plot_jobs->addCurve(_userjobs,0,1);
     _plot_jobs->zoomToFit();
+
+    // Left side middle
+    SnapTable* table = _snap->jobTableAtTime(64.08);
+    QTableView* tv = _create_table_view(table,table->orientation());
+    tv->hideColumn(0);
+    _left_lay->addWidget(tv,1,0,1,1);
 }
 
 
