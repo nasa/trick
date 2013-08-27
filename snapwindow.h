@@ -35,8 +35,9 @@ private:
     QAction *_exitAction;
 
     QList<QTableView*> _tvs;
-    QTableView *_create_table_view(QAbstractItemModel* model,
-                                   Qt::Orientation orientation);
+    QTableView *_create_table_view(SnapTable* model);
+    SnapTable* _curr_job_table;
+    QTableView* _curr_job_tv;
 
     TrickDataModel* _frames;
     TrickDataModel* _userjobs;
@@ -48,6 +49,7 @@ signals:
     
 private slots:
     void _update_job_plot(const QModelIndex& idx);
+    void _update_job_table(const QModelIndex& idx);
     void _finishedLoading();
     void _trkFinished();
 

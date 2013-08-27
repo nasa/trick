@@ -11,6 +11,7 @@
 #include <QHBoxLayout>
 #include <QGridLayout>
 #include <QSplitter>
+#include <QSortFilterProxyModel>
 
 class LoadTrickBinaryThread : public QThread
 {
@@ -37,7 +38,9 @@ class LoadTrickBinaryThread : public QThread
 
 
 SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
-    QMainWindow(parent),_snap(snap)
+    QMainWindow(parent),_snap(snap),
+    _curr_job_table(0),
+    _curr_job_tv(0)
 {
     setWindowTitle(tr("Snap!"));
 
@@ -67,8 +70,7 @@ SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
     _left_lay->addWidget(tab,0,0,1,1);
 
     for ( int ii = 0; ii < _snap->tables.size(); ++ii) {
-        QTableView* tv = _create_table_view(_snap->tables.at(ii),
-                                            _snap->tables.at(ii)->orientation());
+        QTableView* tv = _create_table_view(_snap->tables.at(ii));
         tv->setTextElideMode(Qt::ElideMiddle);
         _tvs.append(tv);
         QString title = _snap->tables.at(ii)->tableName();
@@ -80,6 +82,11 @@ SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
                     SIGNAL(currentChanged(QModelIndex, QModelIndex)),
                     this,
                     SLOT(_update_job_plot(QModelIndex)));
+        } else if ( title == "Spikes" ) {
+            connect(tv->selectionModel(),
+                    SIGNAL(currentChanged(QModelIndex, QModelIndex)),
+                    this,
+                    SLOT(_update_job_table(QModelIndex)));
         }
     }
 
@@ -210,8 +217,35 @@ void SnapWindow::_update_job_plot(const QModelIndex &idx)
     _plot_jobs->zoomToFit();
 }
 
-QTableView* SnapWindow::_create_table_view(QAbstractItemModel *model,
-                                           Qt::Orientation orientation)
+void SnapWindow::_update_job_table(const QModelIndex &idx)
+{
+    QModelIndex time_idx = idx.model()->index(idx.row(),0);
+    double time = idx.model()->data(time_idx).toDouble();
+
+    if ( _curr_job_table ) {
+        delete _curr_job_table;
+        _curr_job_table = _snap->jobTableAtTime(time);
+        _curr_job_tv->setModel(_curr_job_table);
+    } else {
+        _curr_job_table = _snap->jobTableAtTime(time);
+        _curr_job_tv = _create_table_view(_curr_job_table);
+        _left_lay->addWidget(_curr_job_tv,1,0,1,1);
+    }
+
+    _curr_job_tv->hideColumn(0);
+    _curr_job_tv->setSortingEnabled(true);
+    _curr_job_tv->sortByColumn(1,Qt::AscendingOrder);
+
+    static QSortFilterProxyModel *proxyModel = 0;
+    if ( proxyModel ) {
+        delete proxyModel;
+    }
+    proxyModel = new QSortFilterProxyModel(this);
+    proxyModel->setSourceModel(_curr_job_table);
+    _curr_job_tv->setModel(proxyModel);
+}
+
+QTableView* SnapWindow::_create_table_view(SnapTable *model)
 {
     QTableView* tv = new QTableView();
     tv->setModel(model);
@@ -225,7 +259,7 @@ QTableView* SnapWindow::_create_table_view(QAbstractItemModel *model,
     tv->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
     tv->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-    if ( orientation == Qt::Horizontal ) {
+    if ( model->orientation() == Qt::Horizontal ) {
         tv->verticalHeader()->hide();
     }
 
@@ -242,12 +276,6 @@ void SnapWindow::_trkFinished()
     QModelIndex idx = _userjobs->index(0,1);
     _plot_jobs->addCurve(_userjobs,0,1);
     _plot_jobs->zoomToFit();
-
-    // Left side middle
-    SnapTable* table = _snap->jobTableAtTime(64.08);
-    QTableView* tv = _create_table_view(table,table->orientation());
-    tv->hideColumn(0);
-    _left_lay->addWidget(tv,1,0,1,1);
 }
 
 
