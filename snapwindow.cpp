@@ -69,9 +69,10 @@ SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
     QTabWidget* tab = new QTabWidget(frame);
     _left_lay->addWidget(tab,0,0,1,1);
 
+
+
     for ( int ii = 0; ii < _snap->tables.size(); ++ii) {
         QTableView* tv = _create_table_view(_snap->tables.at(ii));
-        tv->setTextElideMode(Qt::ElideMiddle);
         _tvs.append(tv);
         QString title = _snap->tables.at(ii)->tableName();
         tab->addTab(tv,title);
@@ -83,6 +84,9 @@ SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
                     this,
                     SLOT(_update_topjob_plot(QModelIndex)));
         } else if ( title == "Spikes" ) {
+            _spike_tab_idx = ii;
+            connect(tab,SIGNAL(currentChanged(int)),
+                    this,SLOT(_tab_clicked(int)));
             connect(tv->selectionModel(),
                     SIGNAL(currentChanged(QModelIndex, QModelIndex)),
                     this,
@@ -271,12 +275,24 @@ QTableView* SnapWindow::_create_table_view(SnapTable *model)
     tv->horizontalHeader()->setStretchLastSection(false);
     tv->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
     tv->setSelectionBehavior(QAbstractItemView::SelectRows);
+    tv->setTextElideMode(Qt::ElideMiddle);
 
     if ( model->orientation() == Qt::Horizontal ) {
         tv->verticalHeader()->hide();
     }
 
     return tv;
+}
+
+void SnapWindow::_tab_clicked(int idx)
+{
+    if ( _curr_job_tv ) {
+        if ( idx == _spike_tab_idx ) {
+            _curr_job_tv->show();
+        } else {
+            _curr_job_tv->hide();
+        }
+    }
 }
 
 void SnapWindow::_finishedLoading()

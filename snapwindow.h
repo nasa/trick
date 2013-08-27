@@ -46,9 +46,12 @@ private:
 
     SnapPlot* _plot_jobs ;
 
+    int _spike_tab_idx;
+
 signals:
     
 private slots:
+    void _tab_clicked(int idx);
     void _update_spikejob_plot(const QModelIndex& idx);
     void _update_topjob_plot(const QModelIndex& idx);
     void __update_job_plot(const QModelIndex& idx);
