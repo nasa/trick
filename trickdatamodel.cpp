@@ -122,6 +122,13 @@ bool TrickDataModel::insertRows(int row, int count, const QModelIndex &pidx)
         return false;
     }
 
+    int rc = rowCount(pidx);
+    if ( rc == 0 || row < 0 ) {
+        row = 0 ;
+    } else if ( row >= rc ) {
+        row = rc;
+    }
+
     beginInsertRows(pidx,row,row+count-1);
 
     for ( _idata =_data.begin(); _idata !=_data.end(); ++_idata) {

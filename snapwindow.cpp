@@ -69,8 +69,6 @@ SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
     QTabWidget* tab = new QTabWidget(frame);
     _left_lay->addWidget(tab,0,0,1,1);
 
-
-
     for ( int ii = 0; ii < _snap->tables.size(); ++ii) {
         QTableView* tv = _create_table_view(_snap->tables.at(ii));
         _tvs.append(tv);
@@ -91,6 +89,8 @@ SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
                     SIGNAL(currentChanged(QModelIndex, QModelIndex)),
                     this,
                     SLOT(_update_job_table(QModelIndex)));
+        } else if ( title == "Summary" ) {
+            tv->setSortingEnabled(false);
         }
     }
 
@@ -154,8 +154,8 @@ SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
     //
     // Resize main window
     //
-    resize(1200,700);
-    frame->setMaximumWidth(700);
+    resize(1600,800);
+    frame->setMaximumWidth(800);
 
     //
     // Hack to resize notebook of tables to correct size
@@ -265,8 +265,6 @@ void SnapWindow::_update_job_table(const QModelIndex &idx)
 QTableView* SnapWindow::_create_table_view(SnapTable *model)
 {
     QTableView* tv = new QTableView();
-    tv->setModel(model);
-    tv->setSortingEnabled(false);
     tv->setEditTriggers(QAbstractItemView::NoEditTriggers);
     tv->setSelectionMode(QAbstractItemView::SingleSelection);
     tv->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -276,6 +274,11 @@ QTableView* SnapWindow::_create_table_view(SnapTable *model)
     tv->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
     tv->setSelectionBehavior(QAbstractItemView::SelectRows);
     tv->setTextElideMode(Qt::ElideMiddle);
+
+    tv->setSortingEnabled(true);
+    QSortFilterProxyModel* proxyModel = new QSortFilterProxyModel(this);
+    proxyModel->setSourceModel(model);
+    tv->setModel(proxyModel);
 
     if ( model->orientation() == Qt::Horizontal ) {
         tv->verticalHeader()->hide();

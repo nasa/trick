@@ -84,6 +84,7 @@ QVariant SnapTable::data(const QModelIndex &idx, int role) const
                     QString str;
                     double d = val.toDouble();
                     val = str.sprintf(prole->format.toAscii().constData(),d);
+                    val.convert(QVariant::Double); // for sorting by type double
                 }
             }
         } else if ( role == Qt::TextAlignmentRole ) {
@@ -123,14 +124,18 @@ bool SnapTable::insertRows(int row, int count, const QModelIndex &pidx)
         return false;
     }
 
-    if ( row == 0 ) {
-        beginInsertRows(pidx,0,count-1);
-    } else {
-        beginInsertRows(pidx,row+1,row+count);
+    int rc = rowCount(pidx);
+    if ( rc == 0 || row < 0 ) {
+        row = 0 ;
+    } else if ( row >= rc ) {
+        row = rc;
     }
 
+    beginInsertRows(pidx,row,row+count-1);
+
     for ( int ii = 0; ii < count; ++ii) {
-        for ( int jj = 0; jj < columnCount(); ++jj) {
+        int cc = columnCount();
+        for ( int jj = 0; jj < cc; ++jj) {
             QList<QVariant*>* col = _data.at(jj);
             QVariant* val = new QVariant(QString(""));
             col->insert(row,val);

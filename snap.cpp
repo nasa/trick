@@ -183,7 +183,7 @@ void Snap::_create_table_spikes()
     table->setHeaderData(1,Qt::Horizontal,QVariant("Frame"));
     table->setHeaderData(1,Qt::Horizontal,QVariant("%.6lf"),SnapTable::Format);
     table->setHeaderData(2,Qt::Horizontal,QVariant("Job Load Index"));
-    table->setHeaderData(2,Qt::Horizontal,QVariant("%.0lf%%"),SnapTable::Format);
+    table->setHeaderData(2,Qt::Horizontal,QVariant("%.0lf"),SnapTable::Format);
 }
 
 void Snap::_set_data_table_spikes()
@@ -196,11 +196,12 @@ void Snap::_set_data_table_spikes()
         if ( ++cnt > max_cnt ) break;
         double tt = frame.timestamp();
         double ft = frame.frame_time();
+        double jl = frame.jobloadindex();
         int row = table->rowCount();
         table->insertRows(row,1);
         table->setData(table->index(row,0),QVariant(tt));
         table->setData(table->index(row,1),QVariant(ft));
-        table->setData(table->index(row,2),QVariant(frame.jobloadindex()));
+        table->setData(table->index(row,2),QVariant(jl));
     }
 }
 
