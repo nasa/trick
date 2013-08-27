@@ -10,6 +10,7 @@
 #include <QTableView>
 #include <QAction>
 #include <QProgressBar>
+#include <QList>
 
 #include "snap.h"
 #include "snapplot.h"
@@ -48,7 +49,9 @@ private:
 signals:
     
 private slots:
-    void _update_job_plot(const QModelIndex& idx);
+    void _update_spikejob_plot(const QModelIndex& idx);
+    void _update_topjob_plot(const QModelIndex& idx);
+    void __update_job_plot(const QModelIndex& idx);
     void _update_job_table(const QModelIndex& idx);
     void _finishedLoading();
     void _trkFinished();

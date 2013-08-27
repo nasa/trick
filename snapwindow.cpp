@@ -81,7 +81,7 @@ SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
             connect(tv->selectionModel(),
                     SIGNAL(currentChanged(QModelIndex, QModelIndex)),
                     this,
-                    SLOT(_update_job_plot(QModelIndex)));
+                    SLOT(_update_topjob_plot(QModelIndex)));
         } else if ( title == "Spikes" ) {
             connect(tv->selectionModel(),
                     SIGNAL(currentChanged(QModelIndex, QModelIndex)),
@@ -189,31 +189,39 @@ void SnapWindow::createMenu()
     //connect(_exitAction, SIGNAL(triggered()), this, SLOT(accept()));
 }
 
-void SnapWindow::_update_job_plot(const QModelIndex &idx)
+void SnapWindow::_update_spikejob_plot(const QModelIndex &idx)
 {
+    QModelIndex jidx = idx.model()->index(idx.row(),0);
+    __update_job_plot(jidx);
+}
 
+void SnapWindow::_update_topjob_plot(const QModelIndex &idx)
+{
     QModelIndex jidx = idx.model()->index(idx.row(),5);
-    QString jobname = idx.model()->data(jidx).toString();
-    for ( int ii = 0; ii < _userjobs->columnCount(); ++ii) {
-        QString name = _userjobs->headerData
-                        (ii,Qt::Horizontal,TrickDataModel::ParamName).toString();
-        if ( name == jobname ) {
-            if ( _plot_jobs->curveCount() > 0 ) {
-                _plot_jobs->removeCurve(0);
+    __update_job_plot(jidx);
+}
+
+void SnapWindow::__update_job_plot(const QModelIndex &idx)
+{
+    QString jobname = idx.model()->data(idx).toString();
+
+    QList<TrickDataModel*> models;
+    models.append(_userjobs);
+    models.append(_trickjobs);
+
+    foreach ( TrickDataModel* model, models ) {
+        for ( int ii = 0; ii < model->columnCount(); ++ii) {
+            QString name = model->headerData
+                    (ii,Qt::Horizontal,TrickDataModel::ParamName).toString();
+            if ( name == jobname ) {
+                if ( _plot_jobs->curveCount() > 0 ) {
+                    _plot_jobs->removeCurve(0);
+                }
+                _plot_jobs->addCurve(model,0,ii);
             }
-            _plot_jobs->addCurve(_userjobs,0,ii);
         }
     }
-    for ( int ii = 0; ii < _trickjobs->columnCount(); ++ii) {
-        QString name = _trickjobs->headerData
-                        (ii,Qt::Horizontal,TrickDataModel::ParamName).toString();
-        if ( name == jobname ) {
-            if ( _plot_jobs->curveCount() > 0 ) {
-                _plot_jobs->removeCurve(0);
-            }
-            _plot_jobs->addCurve(_trickjobs,0,ii);
-        }
-    }
+
     _plot_jobs->zoomToFit();
 }
 
@@ -243,6 +251,11 @@ void SnapWindow::_update_job_table(const QModelIndex &idx)
     proxyModel = new QSortFilterProxyModel(this);
     proxyModel->setSourceModel(_curr_job_table);
     _curr_job_tv->setModel(proxyModel);
+
+    connect(_curr_job_tv->selectionModel(),
+            SIGNAL(currentChanged(QModelIndex, QModelIndex)),
+            this,
+            SLOT(_update_spikejob_plot(QModelIndex)));
 }
 
 QTableView* SnapWindow::_create_table_view(SnapTable *model)
