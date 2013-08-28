@@ -216,7 +216,7 @@ void SnapWindow::__update_job_plot(const QModelIndex &idx)
     foreach ( TrickDataModel* model, models ) {
         for ( int ii = 0; ii < model->columnCount(); ++ii) {
             QString name = model->headerData
-                    (ii,Qt::Horizontal,TrickDataModel::ParamName).toString();
+                    (ii,Qt::Horizontal,Param::Name).toString();
             if ( name == jobname ) {
                 if ( _plot_jobs->curveCount() > 0 ) {
                     _plot_jobs->removeCurve(0);

@@ -42,7 +42,7 @@ SnapCurve::SnapCurve(QCPAxis* xaxis, QCPAxis* yaxis,
     // Set curve name
     //
     QString param = model->headerData(ycol,Qt::Horizontal,
-                                  TrickDataModel::ParamName).toString();
+                                     Param::Name).toString();
     setName(param);
 }
 

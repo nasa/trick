@@ -280,15 +280,7 @@ QVariant TrickDataModel::headerData(int sect,
     } else {
         if (orientation == Qt::Horizontal) {
             Param* param = _params.at(sect);
-            switch (role)
-            {
-            case ParamName: ret = QVariant(param->name); break;
-            case ParamUnit: ret = QVariant(param->unit); break;
-            case ParamType: ret = QVariant(param->type); break;
-            case ParamSize: ret = QVariant(param->size); break;
-            default:
-                break;
-            };
+            ret = param->value(role);
         }
     }
 
@@ -317,24 +309,7 @@ bool TrickDataModel::setHeaderData(int sect, Qt::Orientation orientation,
     } else {
         if (orientation == Qt::Horizontal) {
             Param* param = _params[sect];
-            if ( val.type() == QVariant::String ) {
-                switch (role)
-                {
-                case ParamName: param->name = val.toString(); ret = true; break;
-                case ParamUnit: param->unit = val.toString(); ret = true; break;
-                default:
-                    break;
-                };
-            }
-            if ( val.type() == QVariant::Int ) {
-                switch (role)
-                {
-                case ParamSize: param->size = val.toInt(); ret = true; break;
-                case ParamType: param->type = val.toInt(); ret = true; break;
-                default:
-                    break;
-                }
-            }
+            ret = param->setValue(role,val);
         }
     }
 
@@ -372,9 +347,9 @@ bool TrickDataModel::write_log_header(const QString &log_name,
         out << "\t";
         out << _tricktype(col).name;
         out << "\t";
-        out <<  headerData(col,Qt::Horizontal,ParamUnit).toString();
+        out <<  headerData(col,Qt::Horizontal,Param::Unit).toString();
         out << "\t";
-        out <<  headerData(col,Qt::Horizontal,ParamName).toString();
+        out <<  headerData(col,Qt::Horizontal,Param::Name).toString();
         out << "\n";
 
     }
@@ -434,7 +409,7 @@ bool TrickDataModel::write_binary_trk(const QString &log_name,
     //
     // Sanity check for "sys.exec.out.time"
     //
-    QString systime = headerData(0,Qt::Horizontal,ParamName).toString();
+    QString systime = headerData(0,Qt::Horizontal,Param::Name).toString();
     if ( systime != "sys.exec.out.time" ) {
         fprintf(stderr,"snap [error]: holy cow, %s changed to %s\n",
                 "sys.exec.out.time", systime.toAscii().constData());
@@ -520,7 +495,7 @@ bool TrickDataModel::load_binary_trk(const QString &log_name,
     insertColumns(col,nparams);
     for ( int cc = 0; cc < nparams; ++cc) {
         _load_binary_param(in,col+cc);
-        record_size += headerData(col+cc,Qt::Horizontal,ParamSize).toInt();
+        record_size += headerData(col+cc,Qt::Horizontal,Param::Size).toInt();
     }
 
     // Sanity check.  The bytes remaining should be a multiple of the record size
@@ -555,7 +530,7 @@ bool TrickDataModel::load_binary_trk(const QString &log_name,
         for ( int col = 0; col < ncols; ++col) {
 
             if ( row == 0 ) {
-                paramtype = headerData(col,Qt::Horizontal,ParamType).toInt();
+                paramtype = headerData(col,Qt::Horizontal,Param::Type).toInt();
                 paramtypes.push_back(paramtype);
             } else {
                 paramtype = paramtypes.at(col);
@@ -606,11 +581,11 @@ bool TrickDataModel::load_binary_trk(const QString &log_name,
 void TrickDataModel::_write_binary_param(QDataStream& out, int col)
 {
     // Param name
-    QString param =  headerData(col,Qt::Horizontal,ParamName).toString();
+    QString param =  headerData(col,Qt::Horizontal,Param::Name).toString();
     _write_binary_qstring(param,out);
 
     // Param unit
-    QString unit =  headerData(col,Qt::Horizontal,ParamUnit).toString();
+    QString unit =  headerData(col,Qt::Horizontal,Param::Unit).toString();
     _write_binary_qstring(unit,out);
 
     // Param type
@@ -629,7 +604,7 @@ void TrickDataModel::_load_binary_param(QDataStream& in, int col)
     char* param_name = new char[sz+1];
     in.readRawData(param_name,sz);
     param_name[sz] = '\0';
-    setHeaderData(col,Qt::Horizontal,param_name,ParamName);
+    setHeaderData(col,Qt::Horizontal,param_name,Param::Name);
     delete[] param_name;
 
     // Param unit
@@ -637,17 +612,17 @@ void TrickDataModel::_load_binary_param(QDataStream& in, int col)
     char* param_unit = new char[sz+1];
     in.readRawData(param_unit,sz);
     param_unit[sz] = '\0';
-    setHeaderData(col,Qt::Horizontal,param_unit,ParamUnit);
+    setHeaderData(col,Qt::Horizontal,param_unit,Param::Unit);
     delete[] param_unit;
 
     // Param type
     qint32 param_type;
     in >> param_type;
-    setHeaderData(col,Qt::Horizontal,param_type,ParamType);
+    setHeaderData(col,Qt::Horizontal,param_type,Param::Type);
 
     // Param bytesize
     in >> sz;
-    setHeaderData(col,Qt::Horizontal,sz,ParamSize);
+    setHeaderData(col,Qt::Horizontal,sz,Param::Size);
 }
 
 void TrickDataModel::_write_binary_param_data(QDataStream& out, int row, int col)

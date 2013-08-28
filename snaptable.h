@@ -3,10 +3,48 @@
 
 #include <QAbstractTableModel>
 
-struct Role
+class Role
 {
+  public:
+    Role() :
+        format(QString("")),
+        alignment(Qt::AlignRight | Qt::AlignVCenter)
+    {}
+
     QString format;
     int alignment;
+
+    enum Roles
+    {
+        Format = Qt::UserRole+0,
+    };
+
+    QVariant value(int role)
+    {
+        QVariant ret;
+
+        switch (role)
+        {
+        case Qt::TextAlignmentRole: ret = QVariant(alignment); break;
+        default: break;
+        };
+
+        return ret;
+    }
+
+    bool setValue(int role, QVariant val)
+    {
+        bool ret = false;
+
+        switch (role)
+        {
+        case Format: format = val.toString(); ret = true; break;
+        case Qt::TextAlignmentRole: alignment = val.toInt(); ret = true; break;
+        default: break;
+        };
+
+        return ret;
+    }
 };
 
 class SnapTable : public QAbstractTableModel
@@ -21,10 +59,6 @@ class SnapTable : public QAbstractTableModel
     Qt::Orientation orientation() { return _orientation ; }
 
   public:
-    enum SnapRole
-    {
-        Format = Qt::UserRole+0
-    };
 
     explicit SnapTable(const QString &tableName, QObject *parent = 0);
     ~SnapTable();
@@ -58,7 +92,7 @@ class SnapTable : public QAbstractTableModel
 
   private:
 
-    Qt::Orientation _orientation;  // for meta data e.g. precision
+    Qt::Orientation _orientation;  // for meta data e.g. format
     QString _tableName;
     QList<QList<QVariant*>* > _data;
     QList<QVariant*> _col_headers;

@@ -185,7 +185,7 @@ void TestSnap::_create_log_userjobs(TrickDataModel &model,
     model.setHeaderData(
         0,Qt::Horizontal,
         QVariant(QString("sys.exec.out.time")),
-        TrickDataModel::ParamName);
+        Param::Name);
     model.insertColumns(1,jobs.size());
 
     int ii = 1;
@@ -193,13 +193,13 @@ void TestSnap::_create_log_userjobs(TrickDataModel &model,
         QString jobname = job.log_name();
         model.setHeaderData(
                     ii,Qt::Horizontal,
-                    QVariant(jobname), TrickDataModel::ParamName);
+                    QVariant(jobname), Param::Name);
         model.setHeaderData(
                     ii,Qt::Horizontal,QVariant(QString("s")),
-                    TrickDataModel::ParamUnit);
+                    Param::Unit);
         model.setHeaderData(
                     ii,Qt::Horizontal,QVariant(QString("double")),
-                    TrickDataModel::ParamType);
+                    Param::Type);
         ii++;
     }
 
@@ -363,11 +363,11 @@ void TestSnap::_add_param(TrickDataModel &model, int col,
     model.insertColumns(col,1);
     model.setHeaderData(
             col,Qt::Horizontal,
-                QVariant(pname), TrickDataModel::ParamName);
+                QVariant(pname), Param::Name);
     model.setHeaderData(
-            col,Qt::Horizontal,QVariant(unit), TrickDataModel::ParamUnit);
+            col,Qt::Horizontal,QVariant(unit), Param::Unit);
     model.setHeaderData(
-            col,Qt::Horizontal,QVariant(type), TrickDataModel::ParamType);
+            col,Qt::Horizontal,QVariant(type), Param::Type);
 }
 
 void TestSnap::initTestCase()
@@ -1004,7 +1004,7 @@ void TestSnap::thread1()
 
     for ( int cc = 1; cc < _log_userjobs.columnCount(); ++cc) {
         QString jobname = _log_userjobs.headerData(cc,Qt::Horizontal,
-                                  TrickDataModel::ParamName).toString();
+                                  Param::Name).toString();
         Job job(jobname.toAscii().constData());
 
         if ( job.thread_id() == 1 ) {

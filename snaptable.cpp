@@ -1,4 +1,5 @@
 #include "snaptable.h"
+#include <stdio.h>
 
 SnapTable::SnapTable(const QString& tableName, QObject *parent) :
     QAbstractTableModel(parent),
@@ -79,12 +80,14 @@ QVariant SnapTable::data(const QModelIndex &idx, int role) const
         if ( role == Qt::DisplayRole ) {
             QVariant* dptr = _data.at(col)->at(row);
             val = *dptr;
-            if ( val.type() == QVariant::Double ) {
-                if ( prole->format.size() > 0 ) {
-                    QString str;
-                    double d = val.toDouble();
+            if ( !prole->format.isEmpty() && val.type() == QVariant::Double ) {
+                QString str;
+                double d = val.toDouble();
+                val = str.sprintf(prole->format.toAscii().constData(),d);
+                bool r = val.convert(QVariant::Double); // for sorting by double
+                if ( r == false ) {
+                    // formatted val might not be a double e.g. 48%
                     val = str.sprintf(prole->format.toAscii().constData(),d);
-                    val.convert(QVariant::Double); // for sorting by type double
                 }
             }
         } else if ( role == Qt::TextAlignmentRole ) {
@@ -142,9 +145,7 @@ bool SnapTable::insertRows(int row, int count, const QModelIndex &pidx)
             QVariant* row_header = new QVariant(QString(""));
             _row_headers.insert(row,row_header);
 
-            Role* role = new Role;
-            role->format = QString("");
-            role->alignment = (Qt::AlignRight | Qt::AlignVCenter);
+            Role* role = new Role();
             _row_roles.insert(row,role);
         }
     }
@@ -239,9 +240,7 @@ bool SnapTable::insertColumns(int column, int count,
         }
         _data.insert(ii,col);
         _col_headers.insert(ii,new QVariant);
-        Role* role = new Role;
-        role->format = QString("");
-        role->alignment = (Qt::AlignRight | Qt::AlignVCenter);
+        Role* role = new Role();
         _col_roles.insert(ii,role);
     }
 
@@ -319,13 +318,7 @@ QVariant SnapTable::headerData(int sect, Qt::Orientation orientation,
             prole = _row_roles.at(sect);
         }
 
-        switch (role)
-        {
-        case Format: ret = QVariant(prole->format); break;
-        case Qt::TextAlignmentRole:
-                     ret = QVariant(prole->alignment); break;
-        default: break;
-        };
+        ret = prole->value(role);
     }
 
     return ret;
@@ -363,14 +356,7 @@ bool SnapTable::setHeaderData(int sect, Qt::Orientation orientation,
 
         _orientation = orientation;  // for now, last setHeader call sets orient
 
-        switch (role)
-        {
-        case Format: prole->format = val.toString(); ret = true; break;
-        case Qt::TextAlignmentRole:
-                     prole->alignment = val.toInt(); ret = true; break;
-        default:
-            break;
-        };
+        ret = prole->setValue(role,val);
     }
 
     if ( ret ) {
