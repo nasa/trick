@@ -2,6 +2,8 @@
 #define SNAPTABLE_H
 
 #include <QAbstractTableModel>
+#include <vector>
+using namespace std;
 
 class Role
 {
@@ -17,6 +19,7 @@ class Role
     enum Roles
     {
         Format = Qt::UserRole+0,
+        FastData = Qt::UserRole+1
     };
 
     QVariant value(int role)
@@ -94,7 +97,8 @@ class SnapTable : public QAbstractTableModel
 
     Qt::Orientation _orientation;  // for meta data e.g. format
     QString _tableName;
-    QList<QList<QVariant*>* > _data;
+    vector<vector<QVariant>* > _data;
+    vector<vector<QVariant>* >::iterator _idata;
     QList<QVariant*> _col_headers;
     QList<QVariant*> _row_headers;
     QList<Role*> _row_roles;

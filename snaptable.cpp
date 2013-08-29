@@ -10,20 +10,13 @@ SnapTable::SnapTable(const QString& tableName, QObject *parent) :
 
 SnapTable::~SnapTable()
 {
-    for ( int c = 0; c < _data.size(); ++c) {
-        delete _col_headers.at(c);
-        delete _col_roles.at(c);
-        QList<QVariant*>* col = _data.at(c);
-        for ( int r = 0; r < col->size(); ++r) {
-            delete col->at(r);
-            if ( c == 0 ) {
-                delete _row_headers.at(r);
-                delete _row_roles.at(r);
-            }
-        }
-        delete col;
+    for ( _idata =_data.begin(); _idata !=_data.end(); ++_idata) {
+        delete (*_idata);
     }
-
+    foreach ( QVariant* var, _col_headers ) { delete var; }
+    foreach ( QVariant* var, _row_headers ) { delete var; }
+    foreach ( Role* role, _col_roles ) { delete role; }
+    foreach ( Role* role, _row_roles ) { delete role; }
 }
 
 
@@ -43,7 +36,7 @@ int SnapTable::rowCount(const QModelIndex &pidx) const
 {
     int nrows = 0 ;
 
-    if ( ! pidx.isValid() && !_data.isEmpty() ) {
+    if ( ! pidx.isValid() && !_data.empty() ) {
         // root
         nrows = _data.at(0)->size();
     }
@@ -64,6 +57,13 @@ int SnapTable::columnCount(const QModelIndex &pidx) const
 
 QVariant SnapTable::data(const QModelIndex &idx, int role) const
 {
+    if ( role == Role::FastData ) {
+        // always qt::horizontal
+        // no checks
+        // just fast
+        return _data.at(idx.column())->at(idx.row());
+    }
+
     QVariant val;
 
     if ( idx.isValid() ) {
@@ -78,8 +78,7 @@ QVariant SnapTable::data(const QModelIndex &idx, int role) const
         }
 
         if ( role == Qt::DisplayRole ) {
-            QVariant* dptr = _data.at(col)->at(row);
-            val = *dptr;
+            val = _data.at(col)->at(row);
             if ( !prole->format.isEmpty() && val.type() == QVariant::Double ) {
                 QString str;
                 double d = val.toDouble();
@@ -109,9 +108,8 @@ bool SnapTable::setData(const QModelIndex &idx, const QVariant &value, int role)
     int col = idx.column();
 
     if ( role == Qt::EditRole ) {
-        QVariant* dptr = _data.at(col)->at(row);
-        *dptr = value;
-        dataChanged(idx,idx);
+        (*_data.at(col))[row] = value;
+        emit dataChanged(idx,idx);
     } else {
         ret = false;
     }
@@ -136,12 +134,15 @@ bool SnapTable::insertRows(int row, int count, const QModelIndex &pidx)
 
     beginInsertRows(pidx,row,row+count-1);
 
+    for ( _idata =_data.begin(); _idata !=_data.end(); ++_idata) {
+        vector<QVariant>* col = (*_idata);
+        col->insert(col->begin()+row,count,QVariant(0.0));
+    }
+
+    // TODO: insert roles/headers above after changing them to vectors
     for ( int ii = 0; ii < count; ++ii) {
         int cc = columnCount();
         for ( int jj = 0; jj < cc; ++jj) {
-            QList<QVariant*>* col = _data.at(jj);
-            QVariant* val = new QVariant(QString(""));
-            col->insert(row,val);
             QVariant* row_header = new QVariant(QString(""));
             _row_headers.insert(row,row_header);
 
@@ -174,17 +175,18 @@ bool SnapTable::removeRows(int row, int count, const QModelIndex &pidx)
 
     beginRemoveRows(pidx,row,row+count-1);
 
+    for ( _idata =_data.begin(); _idata !=_data.end(); ++_idata) {
+        vector<QVariant>* col = (*_idata);
+        col->erase(col->begin()+row,col->begin()+row+count);
+    }
+
+    // TODO: make stuff vectors! and do like above
     for ( int cc = 0; cc < columnCount(pidx); ++cc) {
-        QList<QVariant*>* col = _data[cc];
         int row_start = row+count-1;
         if ( row_start >= rowCount(pidx) ) {
             row_start = rowCount(pidx)-1;
         }
         for ( int rr = row_start; rr >= row; --rr) {
-            QVariant* row_val = col->at(rr);
-            delete row_val;
-            col->removeAt(rr);
-
             delete _row_headers.at(rr);
             _row_headers.removeAt(rr);
 
@@ -234,11 +236,9 @@ bool SnapTable::insertColumns(int column, int count,
     int nrows = rowCount(pidx) ;
 
     for ( int ii = column; ii < column+count; ++ii) {
-        QList<QVariant*>* col = new QList<QVariant*>;
-        for ( int jj = 0; jj < nrows; ++jj) {
-            col->append(new QVariant);
-        }
-        _data.insert(ii,col);
+        vector<QVariant>* col = new vector<QVariant>(nrows);
+        _data.insert(_data.begin()+column,col);
+
         _col_headers.insert(ii,new QVariant);
         Role* role = new Role();
         _col_roles.insert(ii,role);
@@ -267,15 +267,13 @@ bool SnapTable::removeColumns(int column, int count, const QModelIndex &pidx)
 
     beginRemoveColumns(pidx,column,column+count-1);
 
-    int nrows = rowCount(pidx) ;
-    for ( int ii = column+count-1; ii >= column; --ii) {
-        QList<QVariant*>* col = _data[ii];
-        for ( int jj = 0; jj < nrows; ++jj) {
-            delete col->at(jj);
-        }
-        delete col;
-        _data.removeAt(ii);
+    for ( _idata = _data.begin()+column+count-1; _idata >=_data.begin()+column;
+          --_idata) {
+        delete (*_idata);
+    }
+    _data.erase(_data.begin()+column,_data.begin()+column+count);
 
+    for ( int ii = column+count-1; ii >= column; --ii) {
         delete _col_headers.at(ii);
         _col_headers.removeAt(ii);
 
