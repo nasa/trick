@@ -105,6 +105,8 @@ private slots:
     void job_stddev();
     void job_freq();
     void thread1();
+    void run_rm2000();
+    void benchmark_rm2000();
     void cleanupTestCase() {}
 };
 
@@ -1089,6 +1091,39 @@ void TestSnap::thread1()
         }
 
         tid++;
+    }
+}
+
+//
+// If this fails, remember that the expected result has "vetter"
+// hard coded in the run directory (TODO: fix this!)
+//
+void TestSnap::run_rm2000()
+{
+    QString rundir = QDir::currentPath() + "/test/runs/RUN_rm2000";
+    Snap snap(rundir);
+    SnapReport rpt(snap);
+    QString actual_rpt = rpt.report();
+
+    QString fname = QDir::currentPath() +
+                         "/test/runs/RUN_rm2000/expected-rm2000.rpt";
+    QFile file(fname);
+
+    if (!file.open(QIODevice::ReadOnly)) {
+        fprintf(stderr,"Snap: [error] could not open %s\n",
+                fname.toAscii().constData());
+        exit(-1);
+    }
+    QString expected_rpt = file.readAll();
+
+    QCOMPARE(actual_rpt,expected_rpt);
+}
+
+void TestSnap::benchmark_rm2000()
+{
+    QBENCHMARK_ONCE {
+        QString rundir = QDir::currentPath() + "/test/runs/RUN_rm2000";
+        Snap snap(rundir);
     }
 }
 

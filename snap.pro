@@ -11,7 +11,7 @@ CONFIG -= app_bundle
 
 CONFIG += cmdline_build
 #CONFIG += force_32bit   # if this set, change Projects build to Linux_FC3
-#CONFIG += qtestlib
+CONFIG += qtestlib
 #CONFIG += snapgui
 
 qtestlib {
