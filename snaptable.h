@@ -18,11 +18,10 @@ class Role
 
     enum Roles
     {
-        Format = Qt::UserRole+0,
-        FastData = Qt::UserRole+1
+        Format = Qt::UserRole+0
     };
 
-    QVariant value(int role)
+    virtual QVariant value(int role)
     {
         QVariant ret;
 
@@ -35,7 +34,7 @@ class Role
         return ret;
     }
 
-    bool setValue(int role, QVariant val)
+    virtual bool setValue(int role, QVariant val)
     {
         bool ret = false;
 
@@ -63,42 +62,51 @@ class SnapTable : public QAbstractTableModel
 
   public:
 
-    explicit SnapTable(const QString &tableName, QObject *parent = 0);
+    explicit SnapTable(const QString &tableName=QString(), QObject *parent = 0);
     ~SnapTable();
 
-    QModelIndex index(int row, int column,
+    virtual QModelIndex parent(const QModelIndex & index) const;
+    virtual QModelIndex index(int row, int column,
                       const QModelIndex &pidx = QModelIndex()) const;
 
-    int rowCount(const QModelIndex & pidx = QModelIndex() ) const;
-    int columnCount(const QModelIndex & pidx = QModelIndex() ) const;
-    QVariant data (const QModelIndex & index, int role = Qt::DisplayRole ) const;
-    bool setData (const QModelIndex & idx,
+    virtual int rowCount(const QModelIndex & pidx = QModelIndex() ) const;
+    virtual int columnCount(const QModelIndex & pidx = QModelIndex() ) const;
+    virtual QVariant data (const QModelIndex & index, int role = Qt::DisplayRole ) const;
+    virtual bool setData (const QModelIndex & idx,
                   const QVariant & value,
                   int role = Qt::EditRole );
 
-    bool insertRows(int row, int count,
+    virtual bool insertRows(int row, int count,
                        const QModelIndex &pidx = QModelIndex());
 
-    bool removeRows(int row, int count,
+    virtual bool removeRows(int row, int count,
                        const QModelIndex &pidx = QModelIndex());
 
-    bool insertColumns(int column, int count,
+    virtual bool insertColumns(int column, int count,
                        const QModelIndex &pidx = QModelIndex());
 
-    bool removeColumns(int column, int count, const QModelIndex &pidx
+    virtual bool removeColumns(int column, int count, const QModelIndex &pidx
                                                                = QModelIndex());
 
-    QVariant headerData(int section, Qt::Orientation orientation,
+    virtual QVariant headerData(int section, Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const;
-    bool setHeaderData(int sect, Qt::Orientation orientation,
+    virtual bool setHeaderData(int sect, Qt::Orientation orientation,
                        const QVariant &val, int role=Qt::EditRole);
+
+  protected:
+    virtual bool _hasColumnRoles() { return true; }
+    virtual Role* _createColumnRole();
+    virtual bool _hasRowRoles() { return true; }
+    virtual Role* _createRowRole();
+
+  protected:
+    vector<vector<QVariant>* > _data;
+    vector<vector<QVariant>* >::iterator _idata;
 
   private:
 
     Qt::Orientation _orientation;  // for meta data e.g. format
     QString _tableName;
-    vector<vector<QVariant>* > _data;
-    vector<vector<QVariant>* >::iterator _idata;
     QList<QVariant*> _col_headers;
     QList<QVariant*> _row_headers;
     QList<Role*> _row_roles;

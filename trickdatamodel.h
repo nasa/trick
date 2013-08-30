@@ -5,7 +5,6 @@
 #include <QList>
 #include <QMap>
 #include <QVariant>
-#include <QAbstractItemModel>
 #include <QDir>
 #include <QFile>
 #include <QDataStream>
@@ -17,7 +16,9 @@
 #include <vector>
 using namespace std;
 
-class Param
+#include "snaptable.h"
+
+class Param : public Role
 {
   public:
     Param() :
@@ -90,7 +91,7 @@ class TrickType
     qint32 size;
 };
 
-class TrickDataModel : QAbstractItemModel
+class TrickDataModel : public SnapTable
 {
   public:
     static const int TRICK_DOUBLE;
@@ -114,38 +115,17 @@ class TrickDataModel : QAbstractItemModel
 
     ~TrickDataModel();
 
+    QVariant data (const QModelIndex & index, int role = Qt::DisplayRole ) const;
+
     bool write_log_header(const QString &log_name, const QString &rundir);
     bool write_binary_trk(const QString &log_name, const QString &rundir);
 
     bool load_binary_trk(const QString &log_name, const QString &rundir);
 
-    QModelIndex index(int row, int column,
-                      const QModelIndex &pidx = QModelIndex()) const;
-
-    QModelIndex parent(const QModelIndex & index) const;
-
-    int rowCount(const QModelIndex & pidx = QModelIndex() ) const;
-    int columnCount(const QModelIndex & pidx = QModelIndex() ) const;
-    QVariant data (const QModelIndex & index, int role = Qt::DisplayRole ) const;
-    bool setData (const QModelIndex & idx,
-                  const QVariant & value,
-                  int role = Qt::EditRole );
-
-    bool insertRows(int row, int count,
-                       const QModelIndex &pidx = QModelIndex());
-
-    bool removeRows(int row, int count,
-                       const QModelIndex &pidx = QModelIndex());
-
-    bool insertColumns(int column, int count,
-                       const QModelIndex &pidx = QModelIndex());
-
-    bool removeColumns(int column, int count, const QModelIndex &pidx
-                                                               = QModelIndex());
-
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-    bool setHeaderData(int sect, Qt::Orientation orientation,
-                       const QVariant &val, int role);
+  protected:
+    bool _hasColumnRoles() { return true; }
+    bool _hasRowRoles() { return false; }
+    Role* _createColumnRole();
 
   private:
 
@@ -153,8 +133,6 @@ class TrickDataModel : QAbstractItemModel
     enum Endianness _endianess;
 
     QList<Param*> _params;
-    vector<vector<QVariant>* > _data;
-    vector<vector<QVariant>* >::iterator _idata;
 
     void _load_binary_param(QDataStream &in, int col);
     void _write_binary_param(QDataStream &out, int col);

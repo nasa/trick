@@ -19,6 +19,16 @@ SnapTable::~SnapTable()
     foreach ( Role* role, _row_roles ) { delete role; }
 }
 
+QModelIndex SnapTable::parent(const QModelIndex &index) const
+{
+    if ( !index.isValid() ) {
+        return index; // get rid of compiler warning of unused param
+    } else {
+        QModelIndex rootidx = QModelIndex();
+        return rootidx;
+    }
+}
+
 
 QModelIndex SnapTable::index(int row, int column,
                                   const QModelIndex &pidx) const
@@ -57,13 +67,6 @@ int SnapTable::columnCount(const QModelIndex &pidx) const
 
 QVariant SnapTable::data(const QModelIndex &idx, int role) const
 {
-    if ( role == Role::FastData ) {
-        // always qt::horizontal
-        // no checks
-        // just fast
-        return _data.at(idx.column())->at(idx.row());
-    }
-
     QVariant val;
 
     if ( idx.isValid() ) {
@@ -140,14 +143,16 @@ bool SnapTable::insertRows(int row, int count, const QModelIndex &pidx)
     }
 
     // TODO: insert roles/headers above after changing them to vectors
-    for ( int ii = 0; ii < count; ++ii) {
-        int cc = columnCount();
-        for ( int jj = 0; jj < cc; ++jj) {
-            QVariant* row_header = new QVariant(QString(""));
-            _row_headers.insert(row,row_header);
+    if ( _hasRowRoles() ) {
+        for ( int ii = 0; ii < count; ++ii) {
+            int cc = columnCount();
+            for ( int jj = 0; jj < cc; ++jj) {
+                QVariant* row_header = new QVariant(QString(""));
+                _row_headers.insert(row,row_header);
 
-            Role* role = new Role();
-            _row_roles.insert(row,role);
+                Role* role = _createRowRole();
+                _row_roles.insert(row,role);
+            }
         }
     }
 
@@ -240,7 +245,7 @@ bool SnapTable::insertColumns(int column, int count,
         _data.insert(_data.begin()+column,col);
 
         _col_headers.insert(ii,new QVariant);
-        Role* role = new Role();
+        Role* role = _createColumnRole();
         _col_roles.insert(ii,role);
     }
 
@@ -362,4 +367,16 @@ bool SnapTable::setHeaderData(int sect, Qt::Orientation orientation,
     }
 
     return ret;
+}
+
+Role *SnapTable::_createColumnRole()
+{
+    Role* role = new Role();
+    return role;
+}
+
+Role *SnapTable::_createRowRole()
+{
+    Role* role = new Role();
+    return role;
 }
