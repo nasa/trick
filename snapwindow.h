@@ -93,6 +93,7 @@ private:
     SnapTable* _model_threads;
     QList<TrickDataModel*> _trick_models;
 
+    SnapPlot* _plot_frame;
     SnapPlot* _plot_jobs ;
 
     int _spike_tab_idx;
@@ -105,6 +106,8 @@ private slots:
     void _update_topjob_plot(const QModelIndex& idx);
     void _update_thread_plot(const QModelIndex& idx);
     void __update_job_plot(const QModelIndex& idx);
+    void _update_plot_jobs_xrange(const QCPRange& range);
+    void _update_plot_frame_xrange(const QCPRange& range);
     void _update_job_table(const QModelIndex& idx);
     void _finishedLoading();
     void _trkFinished();

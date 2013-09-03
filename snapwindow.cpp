@@ -122,12 +122,12 @@ SnapWindow::SnapWindow(const QString& rundir,
 
     _frames = new TrickDataModel ;
     _frames->load_binary_trk("log_frame", _snap->rundir());
-    SnapPlot* plot = new SnapPlot(f2);
-    lay2->addWidget(plot,0,0,1,1);
-    plot->addCurve(_frames,0,1,1.0e-6);
-    plot->xAxis->setLabel("Time (s)");
-    plot->yAxis->setLabel("Frame Scheduled Time (s)");
-    plot->zoomToFit();
+    _plot_frame = new SnapPlot(f2);
+    lay2->addWidget(_plot_frame,0,0,1,1);
+    _plot_frame->addCurve(_frames,0,1,1.0e-6);
+    _plot_frame->xAxis->setLabel("Time (s)");
+    _plot_frame->yAxis->setLabel("Frame Scheduled Time (s)");
+    _plot_frame->zoomToFit();
 
     _userjobs = new TrickDataModel ;
     _trick_models.append(_userjobs);
@@ -140,6 +140,11 @@ SnapWindow::SnapWindow(const QString& rundir,
     _plot_jobs->xAxis->setLabel("Time (s)");
     _plot_jobs->yAxis->setLabel("Job Time (s)");
     _plot_jobs->zoomToFit();
+    connect(_plot_frame->xAxis,SIGNAL(rangeChanged(QCPRange)),
+            this,SLOT(_update_plot_jobs_xrange(QCPRange)));
+    connect(_plot_jobs->xAxis,SIGNAL(rangeChanged(QCPRange)),
+            this,SLOT(_update_plot_frame_xrange(QCPRange)));
+
 
     _trickjobs = new TrickDataModel ;
     _trick_models.append(_trickjobs);
@@ -227,7 +232,17 @@ void SnapWindow::__update_job_plot(const QModelIndex &idx)
         }
     }
 
-    _plot_jobs->zoomToFit();
+    _plot_jobs->zoomToFit(_plot_frame->xAxis->range());
+}
+
+void SnapWindow::_update_plot_jobs_xrange(const QCPRange &xrange)
+{
+    _plot_jobs->zoomToFit(xrange);
+}
+
+void SnapWindow::_update_plot_frame_xrange(const QCPRange &xrange)
+{
+    _plot_frame->zoomToFit(xrange);
 }
 
 void SnapWindow::_update_thread_plot(const QModelIndex &idx)
@@ -253,7 +268,7 @@ void SnapWindow::_update_thread_plot(const QModelIndex &idx)
     }
     _plot_jobs->addCurve(_model_threads,0,col);
     _plot_jobs->yAxis->setLabel("Thread Time (s)");
-    _plot_jobs->zoomToFit();
+    _plot_jobs->zoomToFit(_plot_frame->xAxis->range());
 }
 
 void SnapWindow::_update_job_table(const QModelIndex &idx)

@@ -103,42 +103,59 @@ bool SnapPlot::removeCurve(int index)
     return ret;
 }
 
-void SnapPlot::zoomToFit()
+void SnapPlot::zoomToFit(const QCPRange& xrange)
+{
+    if ( xrange.lower == 0 && xrange.upper == 0 ) {
+        _fitXRange();
+    } else {
+        xAxis->setRange(xrange);
+    }
+    _fitYRange();
+    axisRect()->setupFullAxesBox();
+    replot();
+}
+
+void SnapPlot::_fitXRange()
 {
     double xmin = 1.0e20;
-    double ymin = 1.0e20;
     double xmax = -1.0e20;
-    double ymax = -1.0e20;
     foreach ( SnapCurve* curve, _curves ) {
         if ( curve->xmin() < xmin ) xmin = curve->xmin();
-        if ( curve->ymin() < ymin ) ymin = curve->ymin();
         if ( curve->xmax() > xmax ) xmax = curve->xmax();
-        if ( curve->ymax() > ymax ) ymax = curve->ymax();
     }
 
     // At least show +/- 10% of outside range
     double xp = 0.10*qAbs(xmax - xmin) ;
-    double yp = 0.10*qAbs(ymax - ymin) ;
     xmin = xmin-xp;
-    ymin = ymin-yp;
     for ( int ii = 0; ii < 3; ++ii) {
         if ( xmin - ii*xp < 0 ) {
             xmin = xmin - ii*xp;
             break;
         }
     }
+    xAxis->setRange(xmin,xmax+xp);
+}
+
+void SnapPlot::_fitYRange()
+{
+    double ymin = 1.0e20;
+    double ymax = -1.0e20;
+    foreach ( SnapCurve* curve, _curves ) {
+        if ( curve->ymin() < ymin ) ymin = curve->ymin();
+        if ( curve->ymax() > ymax ) ymax = curve->ymax();
+    }
+
+    // At least show +/- 10% of outside range
+    double yp = 0.10*qAbs(ymax - ymin) ;
+    ymin = ymin-yp;
     for ( int ii = 0; ii < 3 ; ++ii) {
         if ( ymin - ii*yp < 0 ) {
             ymin = ymin - ii*yp;
             break;
         }
     }
-    xAxis->setRange(xmin,xmax+xp);
     yAxis->setRange(ymin,ymax+yp);
-    axisRect()->setupFullAxesBox();
-    replot();
 }
-
 
 
 void SnapPlot::mousePressEvent(QMouseEvent *event)

@@ -29,7 +29,6 @@ class SnapCurve : public QCPCurve
     double _xmax;
     double _ymax;
     double _ysf;
-
 };
 
 class SnapPlot : public QCustomPlot
@@ -46,7 +45,7 @@ class SnapPlot : public QCustomPlot
     //int clearCurves();
     int curveCount() const { return _curves.size(); }
 
-    void zoomToFit();
+    void zoomToFit(const QCPRange& xrange=QCPRange());
 
 protected:
     virtual void mousePressEvent(QMouseEvent *event);
@@ -59,6 +58,9 @@ protected:
 
     QPoint _origin;
     QRubberBand* _rubber_band;
+
+    void _fitXRange();
+    void _fitYRange();
 
 
 };
