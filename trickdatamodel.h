@@ -35,10 +35,10 @@ class Param : public Role
 
     enum Roles
     {
-        Name      = Qt::UserRole+0,
-        Unit      = Qt::UserRole+1,
-        Type      = Qt::UserRole+2,
-        Size      = Qt::UserRole+3
+        Name      = Qt::UserRole+20,
+        Unit      = Qt::UserRole+21,
+        Type      = Qt::UserRole+22,
+        Size      = Qt::UserRole+23
     };
 
     QVariant value(int role)

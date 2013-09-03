@@ -18,7 +18,8 @@ class Role
 
     enum Roles
     {
-        Format = Qt::UserRole+0
+        Format     = Qt::UserRole+0,
+        EditNoEmitDataChange = Qt::UserRole+1   // no signals emitted w/ change
     };
 
     virtual QVariant value(int role)
@@ -74,7 +75,7 @@ class SnapTable : public QAbstractTableModel
     virtual QVariant data (const QModelIndex & index, int role = Qt::DisplayRole ) const;
     virtual bool setData (const QModelIndex & idx,
                   const QVariant & value,
-                  int role = Qt::EditRole );
+                  int role = Role::EditNoEmitDataChange );
 
     virtual bool insertRows(int row, int count,
                        const QModelIndex &pidx = QModelIndex());
@@ -91,7 +92,7 @@ class SnapTable : public QAbstractTableModel
     virtual QVariant headerData(int section, Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const;
     virtual bool setHeaderData(int sect, Qt::Orientation orientation,
-                       const QVariant &val, int role=Qt::EditRole);
+                       const QVariant &val, int role=Role::EditNoEmitDataChange);
 
   protected:
     virtual bool _hasColumnRoles() { return true; }

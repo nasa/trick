@@ -35,6 +35,7 @@ Snap::Snap(const QString &irundir, double istart, double istop,
     _create_table_thread_summary();
     _create_table_top_jobs();
     _create_table_sim_objects();
+    _create_table_thread_runtimes();
 
     if ( ! is_delay_load ) {
         _load();
@@ -46,6 +47,7 @@ void Snap::load()
     LoadThread t(this,15000,0,100); // TODO: estimate loading time instead
     t.start();                      //      of hard-coded 15sec
     t.wait();
+    t.quit();
     emit finishedLoading();
 }
 
@@ -67,7 +69,7 @@ void Snap::_load()
     _set_data_table_thread_summary();
     _set_data_table_top_jobs();
     _set_data_table_sim_objects();
-
+    _set_data_table_thread_runtimes();
 }
 
 Snap::~Snap()
@@ -325,12 +327,10 @@ void Snap::_set_data_table_sim_objects()
 {
     SnapTable* table = _table_sim_objects;
 
-    int nrows;
     QList<SimObject> simobjects = _simobjects->list();
-    if ( simobjects.length() > 100 ) {
-        nrows = simobjects.length()/10;
-    } else if ( simobjects.length() < 10 ) {
-        nrows = simobjects.length();
+    int nrows = simobjects.size();
+    if ( simobjects.size() > 100 ) {
+        nrows = simobjects.size()/10;
     }
 
     int row = 0 ;
@@ -338,11 +338,55 @@ void Snap::_set_data_table_sim_objects()
         if ( row > nrows ) break;
         table->insertRows(row,1);
         QVariant sname = sobject.name();
-        QVariant njobs = sobject.jobs().length();
+        QVariant njobs = sobject.jobs().size();
         table->setData(table->index(row,0),sname);
         table->setData(table->index(row,1),QVariant(sobject.avg_runtime()));
         table->setData(table->index(row,2),njobs);
         row++;
+    }
+}
+
+// Done after snap loads timing data
+void Snap::_create_table_thread_runtimes()
+{
+    _table_thread_runtimes = new SnapTable("Thread Runtimes");
+    SnapTable* table = _table_thread_runtimes;
+    tables.append(_table_thread_runtimes);
+
+    int c = 0 ;
+    table->insertColumns(c,1);
+    table->setHeaderData(c,Qt::Horizontal,QString("sys.exec.out.time"));
+}
+
+void Snap::_set_data_table_thread_runtimes()
+{
+    SnapTable* table = _table_thread_runtimes;
+
+    int c = 1 ;
+    QList<Thread> threads = _threads->list();
+    foreach ( Thread thread, threads ) {
+        table->insertColumns(c,1);
+        QString thread_name = QString("Thread_%1").arg(thread.thread_id) ;
+        table->setHeaderData(c,Qt::Horizontal,QVariant(thread_name));
+        c++;
+    }
+
+    int nrows = num_frames();
+    table->insertRows(0,nrows);
+
+    c = 0 ;
+    double* timestamps = _river_frame->getTimeStamps();
+    for ( int r = 0; r < nrows; ++r) {
+        QModelIndex idx = table->index(r,c);
+        table->setData(idx,timestamps[r]);
+    }
+
+    foreach ( Thread thread, threads ) {
+        c++;
+        for ( int r = 0; r < nrows; ++r) {
+            QModelIndex idx = table->index(r,c);
+            table->setData(idx,thread.runtime(r));
+        }
     }
 }
 

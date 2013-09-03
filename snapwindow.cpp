@@ -13,38 +13,23 @@
 #include <QSplitter>
 #include <QSortFilterProxyModel>
 
-class LoadTrickBinaryThread : public QThread
-{
-  public:
-    LoadTrickBinaryThread(TrickDataModel* m,
-                   const QString& logname, const QString& rundir,
-                   QObject* parent=0) :
-        QThread(parent),
-        _m(m),
-        _logname(logname),
-        _rundir(rundir)
-    {}
-
-    void run()
-    {
-        _m->load_binary_trk(_logname,_rundir);
-    }
-
-  private:
-    TrickDataModel* _m;
-    QString _logname;
-    QString _rundir;
-};
 
 
-SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
-    QMainWindow(parent),_snap(snap),
+SnapWindow::SnapWindow(const QString& rundir,
+                       double start,double stop,
+                       QWidget *parent) :
+    QMainWindow(parent),
     _curr_job_table(0),
     _curr_job_tv(0)
 {
     setWindowTitle(tr("Snap!"));
 
     createMenu();
+
+    _snap = new Snap(rundir,start,stop,true);
+    _startup_thread = new StartUpThread(_snap);
+    qApp->connect(qApp,SIGNAL(aboutToQuit()), _startup_thread,SLOT(quit()));
+    _startup_thread->start();
 
     // Central Widget
     QSplitter* s = new QSplitter;
@@ -70,6 +55,10 @@ SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
     _left_lay->addWidget(tab,0,0,1,1);
 
     for ( int ii = 0; ii < _snap->tables.size(); ++ii) {
+        if ( _snap->tables.at(ii)->tableName() == "Thread Runtimes" ) {
+            _model_threads = _snap->tables.at(ii);
+            continue;
+        }
         QTableView* tv = _create_table_view(_snap->tables.at(ii));
         _tvs.append(tv);
         QString title = _snap->tables.at(ii)->tableName();
@@ -91,6 +80,11 @@ SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
                     SLOT(_update_job_table(QModelIndex)));
         } else if ( title == "Summary" ) {
             tv->setSortingEnabled(false);
+        } else if ( title == "Threads" ) {
+            connect(tv->selectionModel(),
+                    SIGNAL(currentChanged(QModelIndex, QModelIndex)),
+                    this,
+                    SLOT(_update_thread_plot(QModelIndex)));
         }
     }
 
@@ -127,17 +121,18 @@ SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
     lay2->setObjectName(QString::fromUtf8("layout2"));
 
     _frames = new TrickDataModel ;
-    _frames->load_binary_trk("log_frame", snap->rundir());
+    _frames->load_binary_trk("log_frame", _snap->rundir());
     SnapPlot* plot = new SnapPlot(f2);
     lay2->addWidget(plot,0,0,1,1);
-    plot->addCurve(_frames,0,1);
+    plot->addCurve(_frames,0,1,1.0e-6);
     plot->xAxis->setLabel("Time (s)");
     plot->yAxis->setLabel("Frame Scheduled Time (s)");
     plot->zoomToFit();
 
     _userjobs = new TrickDataModel ;
+    _trick_models.append(_userjobs);
     LoadTrickBinaryThread* loader = new LoadTrickBinaryThread(_userjobs,
-                                                "log_userjobs",snap->rundir());
+                                                "log_userjobs",_snap->rundir());
     connect(loader,SIGNAL(finished()), this,SLOT(_trkFinished()));
     loader->start();
     _plot_jobs = new SnapPlot(f2);
@@ -147,9 +142,10 @@ SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
     _plot_jobs->zoomToFit();
 
     _trickjobs = new TrickDataModel ;
-    LoadTrickBinaryThread* trickloader = new LoadTrickBinaryThread(_trickjobs,
-                                                 "log_trickjobs",snap->rundir());
-    trickloader->start();
+    _trick_models.append(_trickjobs);
+    _trickloader = new LoadTrickBinaryThread(_trickjobs,
+                                            "log_trickjobs",_snap->rundir());
+    _trickloader->start();
 
     //
     // Resize main window
@@ -177,9 +173,17 @@ SnapWindow::SnapWindow(Snap *snap, QWidget *parent) :
 
 SnapWindow::~SnapWindow()
 {
+    _startup_thread->quit();
+    delete _startup_thread;
+
+    _trickloader->quit();
+    delete _trickloader;
+
     delete _frames;
     delete _userjobs;
     delete _trickjobs;
+
+    delete _snap;
 }
 
 
@@ -209,11 +213,7 @@ void SnapWindow::__update_job_plot(const QModelIndex &idx)
 {
     QString jobname = idx.model()->data(idx).toString();
 
-    QList<TrickDataModel*> models;
-    models.append(_userjobs);
-    models.append(_trickjobs);
-
-    foreach ( TrickDataModel* model, models ) {
+    foreach ( TrickDataModel* model, _trick_models ) {
         for ( int ii = 0; ii < model->columnCount(); ++ii) {
             QString name = model->headerData
                     (ii,Qt::Horizontal,Param::Name).toString();
@@ -221,11 +221,38 @@ void SnapWindow::__update_job_plot(const QModelIndex &idx)
                 if ( _plot_jobs->curveCount() > 0 ) {
                     _plot_jobs->removeCurve(0);
                 }
-                _plot_jobs->addCurve(model,0,ii);
+                _plot_jobs->addCurve(model,0,ii,1.0e-6);
+                _plot_jobs->yAxis->setLabel("Job Time (s)");
             }
         }
     }
 
+    _plot_jobs->zoomToFit();
+}
+
+void SnapWindow::_update_thread_plot(const QModelIndex &idx)
+{
+    QModelIndex thread_idx = idx.model()->index(idx.row(),0);
+    int tid = idx.model()->data(thread_idx).toInt();
+    QString thread_name = QString("Thread_%1").arg(tid);
+    int col = -1 ;
+    for ( int c = 1; c < _model_threads->columnCount(); ++c) {
+        QString name = _model_threads->headerData(c,Qt::Horizontal).toString();
+        if ( name == thread_name ) {
+            col = c ;
+            break;
+        }
+    }
+    if ( col < 0 ) {
+        qDebug() << "snap [bad scoobies]: this shouldn't happen";
+        qDebug() << "     probably means thread runtime headerData() has changed";
+    }
+
+    if ( _plot_jobs->curveCount() > 0 ) {
+        _plot_jobs->removeCurve(0);
+    }
+    _plot_jobs->addCurve(_model_threads,0,col);
+    _plot_jobs->yAxis->setLabel("Thread Time (s)");
     _plot_jobs->zoomToFit();
 }
 
@@ -306,7 +333,7 @@ void SnapWindow::_finishedLoading()
 void SnapWindow::_trkFinished()
 {
     QModelIndex idx = _userjobs->index(0,1);
-    _plot_jobs->addCurve(_userjobs,0,1);
+    _plot_jobs->addCurve(_userjobs,0,1,1.0e-6);
     _plot_jobs->zoomToFit();
 }
 

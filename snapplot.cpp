@@ -3,8 +3,10 @@
 #include "snapplot.h"
 
 SnapCurve::SnapCurve(QCPAxis* xaxis, QCPAxis* yaxis,
-                     TrickDataModel* model,
-                     int xcol, int ycol, const QColor &color) :
+                     SnapTable* model,
+                     int xcol, int ycol,
+                     double y_scalefactor,
+                     const QColor &color) :
     QCPCurve(xaxis,yaxis)
 {
     QPen graphPen;
@@ -24,25 +26,26 @@ SnapCurve::SnapCurve(QCPAxis* xaxis, QCPAxis* yaxis,
 
     _ymin = 1.0e20;
     _ymax = -1.0e20;
-    QVector<double> x(n), y(n);
+    _x.resize(n);
+    _y.resize(n);
     for ( int i = 0; i < n; ++i )
     {
         QModelIndex ix = model->index(i,xcol);
 
         QModelIndex iy = model->index(i,ycol);
 
-        x[i] = model->data(ix).toDouble();
-        y[i] = model->data(iy).toDouble()/1000000.0;
-        _ymin = qMin(_ymin,y[i]);
-        _ymax = qMax(_ymax,y[i]);
+        _x[i] = model->data(ix).toDouble();
+        _y[i] = y_scalefactor*model->data(iy).toDouble();
+        _ymin = qMin(_ymin,_y.at(i));
+        _ymax = qMax(_ymax,_y.at(i));
     }
-    setData(x, y);
+    setData(_x, _y);
 
     //
     // Set curve name
     //
     QString param = model->headerData(ycol,Qt::Horizontal,
-                                     Param::Name).toString();
+                                     Qt::DisplayRole).toString();
     setName(param);
 }
 
@@ -71,11 +74,13 @@ SnapPlot::SnapPlot(QWidget* parent) :
                     QCP::iSelectLegend | QCP::iSelectPlottables);
 }
 
-SnapCurve* SnapPlot::addCurve(TrickDataModel* model,
+SnapCurve* SnapPlot::addCurve(SnapTable* model,
                               int xcol, int ycol,
+                              double y_scalefactor,
                               const QColor& color)
 {
-    SnapCurve *curve = new SnapCurve(xAxis, yAxis, model, xcol, ycol, color);
+    SnapCurve *curve = new SnapCurve(xAxis, yAxis, model, xcol, ycol,
+                                     y_scalefactor, color);
     _curves.append(curve);
     addPlottable(curve);
     replot();

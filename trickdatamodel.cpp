@@ -337,6 +337,7 @@ void TrickDataModel::_load_binary_param(QDataStream& in, int col)
     in.readRawData(param_name,sz);
     param_name[sz] = '\0';
     setHeaderData(col,Qt::Horizontal,param_name,Param::Name);
+    setHeaderData(col,Qt::Horizontal,param_name,Qt::EditRole);
     delete[] param_name;
 
     // Param unit

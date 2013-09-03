@@ -4,6 +4,7 @@
 #ifdef SNAPGUI
 
 #include <QRubberBand>
+#include <QVector>
 #include "qplot/qcustomplot.h"
 #include "trickdatamodel.h"
 
@@ -11,7 +12,8 @@ class SnapCurve : public QCPCurve
 {
   public:
     SnapCurve(QCPAxis* xaxis, QCPAxis* yaxis,
-              TrickDataModel *model, int xcol, int ycol,
+              SnapTable *model, int xcol, int ycol,
+              double y_scalefactor=1.0,
               const QColor& color=Qt::blue);
 
     double xmin() { return _xmin; }
@@ -20,10 +22,13 @@ class SnapCurve : public QCPCurve
     double ymax() { return _ymax; }
 
   private:
+    QVector<double> _x;
+    QVector<double> _y;
     double _xmin;
     double _ymin;
     double _xmax;
     double _ymax;
+    double _ysf;
 
 };
 
@@ -33,8 +38,9 @@ class SnapPlot : public QCustomPlot
     SnapPlot(QWidget* parent=0);
 
    //SnapCurve*    curve(int index) const;
-    SnapCurve* addCurve(TrickDataModel *model,
+    SnapCurve* addCurve(SnapTable *model,
                        int xcol, int ycol,
+                        double y_scalefactor=1.0,
                        const QColor& color=Qt::blue);
     bool removeCurve(int index);
     //int clearCurves();

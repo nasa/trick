@@ -39,20 +39,6 @@ class SnapOptions : public Options
 
 SnapOptions opts;
 
-class StartUpThread : public QThread
-{
-  public:
-    StartUpThread(Snap* snap, QObject* parent=0) : QThread(parent), _snap(snap) {}
-
-    void run()
-    {
-        _snap->load();
-    }
-
-  private:
-    Snap* _snap;
-};
-
 
 #ifndef TEST
 int main(int argc, char *argv[])
@@ -83,11 +69,7 @@ int main(int argc, char *argv[])
 #ifdef SNAPGUI
         QApplication::setGraphicsSystem("raster");
         QApplication a(argc, argv);
-        Snap snap(rundir,opts.start,opts.stop,true);
-        SnapWindow* w = new SnapWindow(&snap);
-        StartUpThread* loader = new StartUpThread(&snap);
-        qApp->connect(qApp,SIGNAL(aboutToQuit()), loader,SLOT(quit()));
-        loader->start();
+        SnapWindow* w = new SnapWindow(rundir,opts.start,opts.stop);
         w->show();
         return a.exec();
 #else

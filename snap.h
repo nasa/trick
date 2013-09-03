@@ -12,6 +12,7 @@
 #include <QTextStream>
 #include <QBuffer>
 #include <QPropertyAnimation>
+#include <QEasingCurve>
 #include <QThread>
 
 #include "boundedtrickbinaryriver.h"
@@ -153,6 +154,10 @@ private:
     void _create_table_sim_objects();
     void _set_data_table_sim_objects();
 
+    SnapTable* _table_thread_runtimes;
+    void _create_table_thread_runtimes();
+    void _set_data_table_thread_runtimes();
+
     int _progress;
     void _load();
 
@@ -221,6 +226,7 @@ class LoadThread : public QThread
         _snap->_load();
         anim->stop();
         t->quit();
+        delete anim;
     }
 
   protected:

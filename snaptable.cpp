@@ -110,9 +110,11 @@ bool SnapTable::setData(const QModelIndex &idx, const QVariant &value, int role)
     int row = idx.row();
     int col = idx.column();
 
-    if ( role == Qt::EditRole ) {
+    if ( role == Qt::EditRole || role == Role::EditNoEmitDataChange ) {
         (*_data.at(col))[row] = value;
-        emit dataChanged(idx,idx);
+        if ( role != Role::EditNoEmitDataChange ) {
+            emit dataChanged(idx,idx);
+        }
     } else {
         ret = false;
     }
@@ -186,17 +188,19 @@ bool SnapTable::removeRows(int row, int count, const QModelIndex &pidx)
     }
 
     // TODO: make stuff vectors! and do like above
-    for ( int cc = 0; cc < columnCount(pidx); ++cc) {
-        int row_start = row+count-1;
-        if ( row_start >= rowCount(pidx) ) {
-            row_start = rowCount(pidx)-1;
-        }
-        for ( int rr = row_start; rr >= row; --rr) {
-            delete _row_headers.at(rr);
-            _row_headers.removeAt(rr);
+    if ( _hasRowRoles() ) {
+        for ( int cc = 0; cc < columnCount(pidx); ++cc) {
+            int row_start = row+count-1;
+            if ( row_start >= rowCount(pidx) ) {
+                row_start = rowCount(pidx)-1;
+            }
+            for ( int rr = row_start; rr >= row; --rr) {
+                delete _row_headers.at(rr);
+                _row_headers.removeAt(rr);
 
-            delete _row_roles.at(rr);
-            _row_roles.removeAt(rr);
+                delete _row_roles.at(rr);
+                _row_roles.removeAt(rr);
+            }
         }
     }
 
@@ -227,18 +231,16 @@ bool SnapTable::insertColumns(int column, int count,
         return false;
     }
 
-    if ( column > columnCount() ) {
-        column = columnCount() ;
+    int cc = columnCount(pidx);
+    if ( cc == 0 || column < 0 ) {
+        column = 0 ;
+    } else if ( column >= cc ) {
+        column = cc;
     }
-
-    if ( column == 0 ) {
-        beginInsertColumns(pidx,0,count-1);
-    } else {
-        beginInsertColumns(pidx,column+1,column+count);
-    }
-
 
     int nrows = rowCount(pidx) ;
+
+    beginInsertColumns(pidx,column,column+count-1);
 
     for ( int ii = column; ii < column+count; ++ii) {
         vector<QVariant>* col = new vector<QVariant>(nrows);
@@ -341,7 +343,7 @@ bool SnapTable::setHeaderData(int sect, Qt::Orientation orientation,
 
     bool ret = false;
 
-    if ( role == Qt::EditRole ) {
+    if ( role == Qt::EditRole || role == Role::EditNoEmitDataChange) {
         ret = true;
         if ( orientation == Qt::Horizontal ) {
             _col_headers.at(sect)->setValue(val);
@@ -362,7 +364,7 @@ bool SnapTable::setHeaderData(int sect, Qt::Orientation orientation,
         ret = prole->setValue(role,val);
     }
 
-    if ( ret ) {
+    if ( ret && role != Role::EditNoEmitDataChange ) {
         emit headerDataChanged(orientation,sect,sect);
     }
 

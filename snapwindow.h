@@ -3,6 +3,7 @@
 
 #ifdef SNAPGUI
 
+#include <QApplication>
 #include <QMainWindow>
 #include <QMenu>
 #include <QMenuBar>
@@ -16,16 +17,60 @@
 #include "snapplot.h"
 #include "trickdatamodel.h"
 
+#include "timeit_linux.h"
+
+class StartUpThread : public QThread
+{
+  public:
+    StartUpThread(Snap* snap, QObject* parent=0) : QThread(parent), _snap(snap) {}
+
+    void run()
+    {
+        TimeItLinux t; t.start();
+        _snap->load();
+        t.snap("snaploadtime=");
+    }
+
+  private:
+    Snap* _snap;
+};
+
+class LoadTrickBinaryThread : public QThread
+{
+  public:
+    LoadTrickBinaryThread(TrickDataModel* m,
+                   const QString& logname, const QString& rundir,
+                   QObject* parent=0) :
+        QThread(parent),
+        _m(m),
+        _logname(logname),
+        _rundir(rundir)
+    {}
+
+    void run()
+    {
+        _m->load_binary_trk(_logname,_rundir);
+    }
+
+  private:
+    TrickDataModel* _m;
+    QString _logname;
+    QString _rundir;
+};
+
 class SnapWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit SnapWindow(Snap *snap, QWidget *parent = 0);
+    explicit SnapWindow(const QString& rundir,
+                       double start,double stop,
+                       QWidget *parent = 0);
     ~SnapWindow();
 
 private:
     Snap* _snap;
+    StartUpThread* _startup_thread;
     QProgressBar* _bar;
     QGridLayout* _layout;
     QGridLayout* _left_lay ;
@@ -35,6 +80,8 @@ private:
     QMenu *_fileMenu;
     QAction *_exitAction;
 
+    LoadTrickBinaryThread* _trickloader ;
+
     QList<QTableView*> _tvs;
     QTableView *_create_table_view(SnapTable* model);
     SnapTable* _curr_job_table;
@@ -43,6 +90,8 @@ private:
     TrickDataModel* _frames;
     TrickDataModel* _userjobs;
     TrickDataModel* _trickjobs;
+    SnapTable* _model_threads;
+    QList<TrickDataModel*> _trick_models;
 
     SnapPlot* _plot_jobs ;
 
@@ -54,6 +103,7 @@ private slots:
     void _tab_clicked(int idx);
     void _update_spikejob_plot(const QModelIndex& idx);
     void _update_topjob_plot(const QModelIndex& idx);
+    void _update_thread_plot(const QModelIndex& idx);
     void __update_job_plot(const QModelIndex& idx);
     void _update_job_table(const QModelIndex& idx);
     void _finishedLoading();
