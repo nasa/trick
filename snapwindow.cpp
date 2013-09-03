@@ -302,6 +302,18 @@ void SnapWindow::_update_job_table(const QModelIndex &idx)
             SIGNAL(currentChanged(QModelIndex, QModelIndex)),
             this,
             SLOT(_update_spikejob_plot(QModelIndex)));
+
+    // Programmatically select top job in spike
+    // so it will automatically plot
+    QItemSelectionModel* sm = _curr_job_tv->selectionModel();
+    QAbstractItemModel* m = _curr_job_tv->model();
+    QModelIndex sidx = m->index(0,0);
+    sm->select(sidx,
+               QItemSelectionModel::ClearAndSelect|QItemSelectionModel::Rows);
+    _curr_job_tv->setCurrentIndex(sidx);
+
+    // Zoom in around spike
+    _plot_frame->zoomToFit(QCPRange(time-5.0,time+5.0));
 }
 
 QTableView* SnapWindow::_create_table_view(SnapTable *model)
