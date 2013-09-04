@@ -40,7 +40,7 @@ class SnapPlot : public QCustomPlot
     SnapCurve* addCurve(SnapTable *model,
                        int xcol, int ycol,
                         double y_scalefactor=1.0,
-                       const QColor& color=Qt::blue);
+                       const QColor& color=QColor(43,68,171));
     bool removeCurve(int index);
     //int clearCurves();
     int curveCount() const { return _curves.size(); }
@@ -61,11 +61,8 @@ protected:
 
     void _fitXRange();
     void _fitYRange();
-
-
 };
 
 #endif // SNAPGUI
-
 #endif
 
