@@ -16,6 +16,8 @@
 #include "snap.h"
 #include "snapplot.h"
 #include "trickdatamodel.h"
+#include "timelineloader.h"
+#include "timelineplot.h"
 
 #include "timeit_linux.h"
 

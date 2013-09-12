@@ -13,6 +13,7 @@ CONFIG += cmdline_build
 #CONFIG += force_32bit   # if this set, change Projects build to Linux_FC3
 #CONFIG += qtestlib
 #CONFIG += snapgui
+#CONFIG += timeline  # this is a dev thing; must use RUN_iss* for 64.08s spike
 
 qtestlib {
     DEFINES += TEST
@@ -22,6 +23,16 @@ qtestlib {
 
 snapgui {
     DEFINES += SNAPGUI
+    QT += gui
+    CONFIG -= console
+}
+
+timeline {
+    # This is dev thing
+    # A set of graphs around the 64.08 second spike is hardcoded
+    # inside timelineplot.cpp.
+    DEFINES += SNAPGUI
+    DEFINES += TIMELINE
     QT += gui
     CONFIG -= console
 }
@@ -89,7 +100,9 @@ SOURCES += \
     snapplot.cpp \
     timeit_linux.cpp \
     timeit.cpp \
-    timeit_win32.cpp
+    timeit_win32.cpp \
+    timelineloader.cpp \
+    timelineplot.cpp
 
 HEADERS += \
     test/testsnap.h \
@@ -113,4 +126,6 @@ HEADERS += \
     snapplot.h \
     timeit.h \
     timeit_linux.h \
-    timeit_win32.h
+    timeit_win32.h \
+    timelineloader.h \
+    timelineplot.h

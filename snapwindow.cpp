@@ -129,6 +129,17 @@ SnapWindow::SnapWindow(const QString& rundir,
     _plot_frame->yAxis->setLabel("Frame Scheduled Time (s)");
     _plot_frame->zoomToFit();
 
+    //
+    // timeline test (development!)
+    //
+#ifdef TIMELINE
+    _plot_frame->hide();
+    QString csv("log_timeline.csv");
+    csv = rundir + "/" + csv;
+    TimeLinePlot* plot_timeline = new TimeLinePlot(csv);
+    lay2->addWidget(plot_timeline,0,0,1,1);
+#endif
+
     _userjobs = new TrickDataModel ;
     _trick_models.append(_userjobs);
     LoadTrickBinaryThread* loader = new LoadTrickBinaryThread(_userjobs,
@@ -313,7 +324,11 @@ void SnapWindow::_update_job_table(const QModelIndex &idx)
     _curr_job_tv->setCurrentIndex(sidx);
 
     // Zoom in around spike
+#ifndef TIMELINE
     _plot_frame->zoomToFit(QCPRange(time-5.0,time+5.0));
+#else
+    _plot_frame->zoomToFit(QCPRange(time-0.01,time+0.01));
+#endif
 }
 
 QTableView* SnapWindow::_create_table_view(SnapTable *model)
