@@ -104,7 +104,7 @@ class SnapTable : public QAbstractTableModel
     vector<vector<QVariant>* > _data;
     vector<vector<QVariant>* >::iterator _idata;
 
-  private:
+  protected:
 
     Qt::Orientation _orientation;  // for meta data e.g. format
     QString _tableName;

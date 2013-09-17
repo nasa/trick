@@ -120,14 +120,16 @@ SnapWindow::SnapWindow(const QString& rundir,
     lay2->setContentsMargins(0, 0, 0, 0);
     lay2->setObjectName(QString::fromUtf8("layout2"));
 
-    _frames = new TrickDataModel ;
-    _frames->load_binary_trk("log_frame", _snap->rundir());
+    QString fname = _snap->rundir() + "/log_frame.trk";
+    _frames = new TrickModel(fname) ;
     _plot_frame = new SnapPlot(f2);
     lay2->addWidget(_plot_frame,0,0,1,1);
+
     _plot_frame->addCurve(_frames,0,1,1.0e-6);
     _plot_frame->xAxis->setLabel("Time (s)");
     _plot_frame->yAxis->setLabel("Frame Scheduled Time (s)");
     _plot_frame->zoomToFit();
+
 
     //
     // timeline test (development!)
@@ -140,12 +142,11 @@ SnapWindow::SnapWindow(const QString& rundir,
     lay2->addWidget(plot_timeline,0,0,1,1);
 #endif
 
-    _userjobs = new TrickDataModel ;
+    fname = rundir + "/log_userjobs.trk";
+    _timer.start();
+    _userjobs = new TrickModel(fname) ;
+    _timer.snap("load_userjobs=");
     _trick_models.append(_userjobs);
-    LoadTrickBinaryThread* loader = new LoadTrickBinaryThread(_userjobs,
-                                                "log_userjobs",_snap->rundir());
-    connect(loader,SIGNAL(finished()), this,SLOT(_trkFinished()));
-    loader->start();
     _plot_jobs = new SnapPlot(f2);
     lay2->addWidget(_plot_jobs,1,0,1,1);
     _plot_jobs->xAxis->setLabel("Time (s)");
@@ -157,11 +158,9 @@ SnapWindow::SnapWindow(const QString& rundir,
             this,SLOT(_update_plot_frame_xrange(QCPRange)));
 
 
-    _trickjobs = new TrickDataModel ;
+    fname = rundir + "/log_trickjobs.trk";
+    _trickjobs = new TrickModel(fname);
     _trick_models.append(_trickjobs);
-    _trickloader = new LoadTrickBinaryThread(_trickjobs,
-                                            "log_trickjobs",_snap->rundir());
-    _trickloader->start();
 
     //
     // Resize main window
@@ -191,9 +190,6 @@ SnapWindow::~SnapWindow()
 {
     _startup_thread->quit();
     delete _startup_thread;
-
-    _trickloader->quit();
-    delete _trickloader;
 
     delete _frames;
     delete _userjobs;
@@ -229,7 +225,7 @@ void SnapWindow::__update_job_plot(const QModelIndex &idx)
 {
     QString jobname = idx.model()->data(idx).toString();
 
-    foreach ( TrickDataModel* model, _trick_models ) {
+    foreach ( TrickModel* model, _trick_models ) {
         for ( int ii = 0; ii < model->columnCount(); ++ii) {
             QString name = model->headerData
                     (ii,Qt::Horizontal,Param::Name).toString();
@@ -237,7 +233,9 @@ void SnapWindow::__update_job_plot(const QModelIndex &idx)
                 if ( _plot_jobs->curveCount() > 0 ) {
                     _plot_jobs->removeCurve(0);
                 }
+                //_timer.start();
                 _plot_jobs->addCurve(model,0,ii,1.0e-6);
+                //_timer.snap("addCurve=");
                 _plot_jobs->yAxis->setLabel("Job Time (s)");
             }
         }
@@ -371,14 +369,5 @@ void SnapWindow::_finishedLoading()
 {
     _bar->hide();
 }
-
-void SnapWindow::_trkFinished()
-{
-    QModelIndex idx = _userjobs->index(0,1);
-    _plot_jobs->addCurve(_userjobs,0,1,1.0e-6);
-    _plot_jobs->zoomToFit();
-}
-
-
 
 #endif // SNAPGUI

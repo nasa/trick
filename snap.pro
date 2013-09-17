@@ -102,7 +102,8 @@ SOURCES += \
     timeit.cpp \
     timeit_win32.cpp \
     timelineloader.cpp \
-    timelineplot.cpp
+    timelineplot.cpp \
+    trickmodel.cpp
 
 HEADERS += \
     test/testsnap.h \
@@ -128,4 +129,5 @@ HEADERS += \
     timeit_linux.h \
     timeit_win32.h \
     timelineloader.h \
-    timelineplot.h
+    timelineplot.h \
+    trickmodel.h

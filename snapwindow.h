@@ -15,7 +15,7 @@
 
 #include "snap.h"
 #include "snapplot.h"
-#include "trickdatamodel.h"
+#include "trickmodel.h"
 #include "timelineloader.h"
 #include "timelineplot.h"
 
@@ -35,29 +35,6 @@ class StartUpThread : public QThread
 
   private:
     Snap* _snap;
-};
-
-class LoadTrickBinaryThread : public QThread
-{
-  public:
-    LoadTrickBinaryThread(TrickDataModel* m,
-                   const QString& logname, const QString& rundir,
-                   QObject* parent=0) :
-        QThread(parent),
-        _m(m),
-        _logname(logname),
-        _rundir(rundir)
-    {}
-
-    void run()
-    {
-        _m->load_binary_trk(_logname,_rundir);
-    }
-
-  private:
-    TrickDataModel* _m;
-    QString _logname;
-    QString _rundir;
 };
 
 class SnapWindow : public QMainWindow
@@ -82,23 +59,23 @@ private:
     QMenu *_fileMenu;
     QAction *_exitAction;
 
-    LoadTrickBinaryThread* _trickloader ;
-
     QList<QTableView*> _tvs;
     QTableView *_create_table_view(SnapTable* model);
     SnapTable* _curr_job_table;
     QTableView* _curr_job_tv;
 
-    TrickDataModel* _frames;
-    TrickDataModel* _userjobs;
-    TrickDataModel* _trickjobs;
+    TrickModel* _frames;
+    TrickModel* _userjobs;
+    TrickModel* _trickjobs;
     SnapTable* _model_threads;
-    QList<TrickDataModel*> _trick_models;
+    QList<TrickModel*> _trick_models;
 
     SnapPlot* _plot_frame;
     SnapPlot* _plot_jobs ;
 
     int _spike_tab_idx;
+
+    TimeItLinux _timer;
 
 signals:
     
@@ -112,8 +89,6 @@ private slots:
     void _update_plot_frame_xrange(const QCPRange& range);
     void _update_job_table(const QModelIndex& idx);
     void _finishedLoading();
-    void _trkFinished();
-
 };
 
 #endif // SNAPGUI
