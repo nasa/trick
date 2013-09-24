@@ -4,43 +4,18 @@
 #ifdef SNAPGUI
 
 #include <QRubberBand>
-#include <QVector>
 #include "qplot/qcustomplot.h"
-#include "trickdatamodel.h"
-
-class SnapCurve : public QCPCurve
-{
-  public:
-    SnapCurve(QCPAxis* xaxis, QCPAxis* yaxis,
-              SnapTable *model, int xcol, int ycol,
-              double y_scalefactor=1.0,
-              const QColor& color=Qt::blue);
-
-    double xmin() { return _xmin; }
-    double xmax() { return _xmax; }
-    double ymin() { return _ymin; }
-    double ymax() { return _ymax; }
-
-  private:
-    QVector<double> _x;
-    QVector<double> _y;
-    double _xmin;
-    double _ymin;
-    double _xmax;
-    double _ymax;
-    double _ysf;
-};
+#include "trickmodel.h"
+#include "trickcurve.h"
 
 class SnapPlot : public QCustomPlot
 {
   public:
     SnapPlot(QWidget* parent=0);
 
-   //SnapCurve*    curve(int index) const;
-    SnapCurve* addCurve(SnapTable *model,
-                       int xcol, int ycol,
-                        double y_scalefactor=1.0,
-                       const QColor& color=QColor(43,68,171));
+    TrickCurve *addCurve(TrickModel *model,
+                        int tcol, int xcol, int ycol,
+                        double valueScaleFactor=1.0);
     bool removeCurve(int index);
     //int clearCurves();
     int curveCount() const { return _curves.size(); }
@@ -53,7 +28,7 @@ protected:
     virtual void mouseReleaseEvent(QMouseEvent *event);
 
   private:
-    QList<SnapCurve*> _curves;
+    QList<TrickCurve*> _curves;
     void _set_interactions();
 
     QPoint _origin;

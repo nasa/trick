@@ -2,53 +2,6 @@
 
 #include "snapplot.h"
 
-SnapCurve::SnapCurve(QCPAxis* xaxis, QCPAxis* yaxis,
-                     SnapTable* model,
-                     int xcol, int ycol,
-                     double y_scalefactor,
-                     const QColor &color) :
-    QCPCurve(xaxis,yaxis)
-{
-    QPen graphPen;
-    graphPen.setColor(color);
-    graphPen.setWidthF(0);
-    setPen(graphPen);
-    setAntialiased(false);
-
-    //
-    // Set curve data
-    //
-    int n = model->rowCount(); // number of points in graph
-    QModelIndex idx = model->index(0,0);
-    _xmin =  model->data(idx).toDouble();
-    idx = model->index(n-1,0);
-    _xmax =  model->data(idx).toDouble();
-
-    _ymin = 1.0e20;
-    _ymax = -1.0e20;
-    _x.resize(n);
-    _y.resize(n);
-    for ( int i = 0; i < n; ++i )
-    {
-        QModelIndex ix = model->index(i,xcol);
-
-        QModelIndex iy = model->index(i,ycol);
-
-        _x[i] = model->data(ix).toDouble();
-        _y[i] = y_scalefactor*model->data(iy).toDouble();
-        _ymin = qMin(_ymin,_y.at(i));
-        _ymax = qMax(_ymax,_y.at(i));
-    }
-    setData(_x, _y);
-
-    //
-    // Set curve name
-    //
-    QString param = model->headerData(ycol,Qt::Horizontal,
-                                     Qt::DisplayRole).toString();
-    setName(param);
-}
-
 SnapPlot::SnapPlot(QWidget* parent) :
     QCustomPlot(parent),
     _rubber_band(0)
@@ -74,18 +27,15 @@ SnapPlot::SnapPlot(QWidget* parent) :
                     QCP::iSelectLegend | QCP::iSelectPlottables);
 }
 
-SnapCurve* SnapPlot::addCurve(SnapTable* model,
+TrickCurve* SnapPlot::addCurve(TrickModel* model, int tcol,
                               int xcol, int ycol,
-                              double y_scalefactor,
-                              const QColor& color)
+                              double valueScaleFactor )
 {
-    SnapCurve *curve = new SnapCurve(xAxis, yAxis, model, xcol, ycol,
-                                     y_scalefactor, color);
+    TrickCurve *curve = new TrickCurve(xAxis, yAxis);
+    curve->setData(model, tcol, xcol, ycol);
+    curve->setValueScaleFactor(valueScaleFactor);
     _curves.append(curve);
     addPlottable(curve);
-    replot();
-
-    //_zoom_to_fit(plot,_xaxis_min,_xaxis_max,_yaxis_min,_yaxis_max);
     return curve;
 }
 
@@ -96,15 +46,16 @@ bool SnapPlot::removeCurve(int index)
     }
 
     bool ret;
-    SnapCurve* curve = _curves.at(index);
+    TrickCurve* curve = _curves.at(index);
     ret = removePlottable(curve);
     _curves.removeAt(index);
-    replot();
     return ret;
 }
 
 void SnapPlot::zoomToFit(const QCPRange& xrange)
 {
+    QCPRange r0 = xAxis->range();
+
     if ( xrange.lower == 0 && xrange.upper == 0 ) {
         _fitXRange();
     } else {
@@ -112,16 +63,22 @@ void SnapPlot::zoomToFit(const QCPRange& xrange)
     }
     _fitYRange();
     axisRect()->setupFullAxesBox();
-    replot();
+
+    if ( qAbs(xrange.lower-r0.lower) > 0.000001 ||
+         qAbs(xrange.upper-r0.upper) > 0.000001 ) {
+        replot();
+    }
 }
 
 void SnapPlot::_fitXRange()
 {
     double xmin = 1.0e20;
     double xmax = -1.0e20;
-    foreach ( SnapCurve* curve, _curves ) {
-        if ( curve->xmin() < xmin ) xmin = curve->xmin();
-        if ( curve->xmax() > xmax ) xmax = curve->xmax();
+    bool isValidRange;
+    foreach ( TrickCurve* curve, _curves ) {
+        QCPRange xrange = curve->xRange(isValidRange);
+        if ( xrange.lower < xmin ) xmin = xrange.lower;
+        if ( xrange.upper > xmax ) xmax = xrange.upper;
     }
 
     // At least show +/- 10% of outside range
@@ -140,9 +97,11 @@ void SnapPlot::_fitYRange()
 {
     double ymin = 1.0e20;
     double ymax = -1.0e20;
-    foreach ( SnapCurve* curve, _curves ) {
-        if ( curve->ymin() < ymin ) ymin = curve->ymin();
-        if ( curve->ymax() > ymax ) ymax = curve->ymax();
+    bool isValidRange;
+    foreach ( TrickCurve* curve, _curves ) {
+        QCPRange yrange = curve->yRange(isValidRange);
+        if ( yrange.lower < ymin ) ymin = yrange.lower;
+        if ( yrange.upper > ymax ) ymax = yrange.upper;
     }
 
     // At least show +/- 10% of outside range
@@ -204,9 +163,8 @@ void SnapPlot::mouseReleaseEvent(QMouseEvent *event)
         double gymax = (double)geom.bottom();
         double ymin = yAxis->pixelToCoord(gymax); // screen flip
         double ymax = yAxis->pixelToCoord(gymin); // screen flip
-        xAxis->setRange(xmin,xmax);
         yAxis->setRange(ymin,ymax);
-        replot();
+        xAxis->setRange(xmin,xmax);
         _rubber_band->hide();
     }
 

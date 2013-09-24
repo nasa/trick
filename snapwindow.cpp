@@ -125,11 +125,10 @@ SnapWindow::SnapWindow(const QString& rundir,
     _plot_frame = new SnapPlot(f2);
     lay2->addWidget(_plot_frame,0,0,1,1);
 
-    _plot_frame->addCurve(_frames,0,1,1.0e-6);
+    _plot_frame->addCurve(_frames,0,0,1,1.0e-6);
     _plot_frame->xAxis->setLabel("Time (s)");
     _plot_frame->yAxis->setLabel("Frame Scheduled Time (s)");
     _plot_frame->zoomToFit();
-
 
     //
     // timeline test (development!)
@@ -151,7 +150,6 @@ SnapWindow::SnapWindow(const QString& rundir,
     lay2->addWidget(_plot_jobs,1,0,1,1);
     _plot_jobs->xAxis->setLabel("Time (s)");
     _plot_jobs->yAxis->setLabel("Job Time (s)");
-    _plot_jobs->zoomToFit();
     connect(_plot_frame->xAxis,SIGNAL(rangeChanged(QCPRange)),
             this,SLOT(_update_plot_jobs_xrange(QCPRange)));
     connect(_plot_jobs->xAxis,SIGNAL(rangeChanged(QCPRange)),
@@ -233,15 +231,14 @@ void SnapWindow::__update_job_plot(const QModelIndex &idx)
                 if ( _plot_jobs->curveCount() > 0 ) {
                     _plot_jobs->removeCurve(0);
                 }
-                //_timer.start();
-                _plot_jobs->addCurve(model,0,ii,1.0e-6);
-                //_timer.snap("addCurve=");
+                _plot_jobs->addCurve(model,0,0,ii,1.0e-6);
                 _plot_jobs->yAxis->setLabel("Job Time (s)");
             }
         }
     }
 
     _plot_jobs->zoomToFit(_plot_frame->xAxis->range());
+    _plot_jobs->replot();
 }
 
 void SnapWindow::_update_plot_jobs_xrange(const QCPRange &xrange)
@@ -275,7 +272,14 @@ void SnapWindow::_update_thread_plot(const QModelIndex &idx)
     if ( _plot_jobs->curveCount() > 0 ) {
         _plot_jobs->removeCurve(0);
     }
-    _plot_jobs->addCurve(_model_threads,0,col);
+    // TODO:!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // thread is missing plot since using TrickModel and not SnapTable.
+    // Need to put iterator in SnapTable so TrickCurve can use both
+    // models the same way for getting data.
+    // Also, need valueScalefactor in addCurve (see below)
+    // and the valueScalefactor has to be in the iterator
+
+    //_plot_jobs->addCurve(_model_threads,0,0,col,1.0e-6);
     _plot_jobs->yAxis->setLabel("Thread Time (s)");
     _plot_jobs->zoomToFit(_plot_frame->xAxis->range());
 }
@@ -307,6 +311,13 @@ void SnapWindow::_update_job_table(const QModelIndex &idx)
     proxyModel->setSourceModel(_curr_job_table);
     _curr_job_tv->setModel(proxyModel);
 
+    // Zoom in around spike
+#ifndef TIMELINE
+    _plot_frame->zoomToFit(QCPRange(time-5.0,time+5.0));
+#else
+    _plot_frame->zoomToFit(QCPRange(time-0.01,time+0.01));
+#endif
+
     connect(_curr_job_tv->selectionModel(),
             SIGNAL(currentChanged(QModelIndex, QModelIndex)),
             this,
@@ -321,12 +332,6 @@ void SnapWindow::_update_job_table(const QModelIndex &idx)
                QItemSelectionModel::ClearAndSelect|QItemSelectionModel::Rows);
     _curr_job_tv->setCurrentIndex(sidx);
 
-    // Zoom in around spike
-#ifndef TIMELINE
-    _plot_frame->zoomToFit(QCPRange(time-5.0,time+5.0));
-#else
-    _plot_frame->zoomToFit(QCPRange(time-0.01,time+0.01));
-#endif
 }
 
 QTableView* SnapWindow::_create_table_view(SnapTable *model)

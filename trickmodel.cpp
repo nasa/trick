@@ -1,9 +1,9 @@
 #include "trickmodel.h"
 #include <stdio.h>
 
-const int TrickModel::TRICK_DOUBLE = 11;
-const int TrickModel::TRICK_LONG_LONG = 14;
-const int TrickModel::TRICK_UNSIGNED_LONG_LONG = 15;
+const int TrickModel::TRICK_DOUBLE             = DEF_TRICK_DOUBLE;
+const int TrickModel::TRICK_LONG_LONG          = DEF_TRICK_LONG_LONG;
+const int TrickModel::TRICK_UNSIGNED_LONG_LONG = DEF_TRICK_UNSIGNED_LONG_LONG;
 
 TrickModel::TrickModel(const QString& trkfile,
                      const QString& tableName, QObject *parent) :
@@ -56,7 +56,6 @@ bool TrickModel::_load_trick_header()
         _endianess = BigEndian;
         in.setByteOrder(QDataStream::BigEndian);
     }
-
 
     //
     // Number of parameters (4 byte integer)
@@ -134,10 +133,20 @@ qint32 TrickModel::_load_binary_param(QDataStream& in, int col)
 
 TrickModel::~TrickModel()
 {
-    // TODO: unmap? close _fd?
     munmap(_mem, _fstat.st_size);
     close(_fd);
 }
+
+TrickModelIterator TrickModel::begin(int tcol, int xcol, int ycol) const
+{
+    return TrickModelIterator(0,this,tcol,xcol,ycol);
+}
+
+TrickModelIterator TrickModel::end(int tcol, int xcol, int ycol) const
+{
+    return TrickModelIterator(this->rowCount(),this,tcol,xcol,ycol);
+}
+
 
 int TrickModel::rowCount(const QModelIndex &pidx) const
 {
@@ -157,6 +166,7 @@ int TrickModel::columnCount(const QModelIndex &pidx) const
     }
 }
 
+
 // TODO: byteswap like
 //      dp = (double *)(address) ;
 //      value = _swap ? trick_byteswap_double(*dp) : *dp ;
@@ -169,36 +179,10 @@ QVariant TrickModel::data(const QModelIndex &idx, int role) const
         int col = idx.column();
 
         if ( role == Qt::DisplayRole ) {
-
             qint64 _pos_data = row*_row_size + _col2offset.value(col);
             const char* addr = &(_data[_pos_data]);
-
             int paramtype =  _paramtypes.at(col);
-            switch (paramtype) {
-
-            case TRICK_DOUBLE : {
-                val = *((double*)(addr));
-                break;
-            }
-
-            case TRICK_UNSIGNED_LONG_LONG : {
-                val = *((unsigned long long*)(addr));
-                break;
-            }
-
-            case TRICK_LONG_LONG : {
-                val = *((long long*)(addr));
-                break;
-            }
-
-            default :
-            {
-                fprintf(stderr,"snap [error]: can't handle trick type \"%d\"\n",
-                        paramtype);
-                exit(-1);
-            }
-
-            }
+            val = _toDouble(addr,paramtype);
         }
     }
 
@@ -256,3 +240,4 @@ Role* TrickModel::_createColumnRole()
     Param* param = new Param;
     return param;
 }
+
