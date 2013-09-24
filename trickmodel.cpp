@@ -36,12 +36,6 @@ bool TrickModel::_load_trick_header()
     }
     QDataStream in(&file);
 
-    if ( _endianess == LittleEndian ) {
-        in.setByteOrder(QDataStream::LittleEndian);
-    } else {
-        in.setByteOrder(QDataStream::BigEndian);
-    }
-
     //
     // Trick-version-endian (10 bytes)
     //
@@ -57,9 +51,12 @@ bool TrickModel::_load_trick_header()
     in.readRawData(data,1) ; // L or B (endian)
     if ( data[0] == 'L' ) {
         _endianess = LittleEndian;
+        in.setByteOrder(QDataStream::LittleEndian);
     } else {
         _endianess = BigEndian;
+        in.setByteOrder(QDataStream::BigEndian);
     }
+
 
     //
     // Number of parameters (4 byte integer)
