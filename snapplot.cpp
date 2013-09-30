@@ -4,7 +4,9 @@
 
 SnapPlot::SnapPlot(QWidget* parent) :
     QCustomPlot(parent),
-    _rubber_band(0)
+    _rubber_band(0),
+    _isXRangeCalculated(false),
+    _isYRangeCalculated(false)
 {
     QSizePolicy sizePolicy(QSizePolicy::MinimumExpanding,
                            QSizePolicy::MinimumExpanding);
@@ -36,6 +38,28 @@ TrickCurve* SnapPlot::addCurve(TrickModel* model, int tcol,
     curve->setValueScaleFactor(valueScaleFactor);
     _curves.append(curve);
     addPlottable(curve);
+
+    // Reset ranges
+    bool isValid;
+    double xmin = curve->xRange(isValid).lower;
+    double xmax = curve->xRange(isValid).upper;
+    double ymin = curve->yRange(isValid).lower;
+    double ymax = curve->yRange(isValid).upper;
+    if ( xmin < _xrange.lower ) {
+        _xrange.lower = xmin;
+    }
+    if ( xmax > _xrange.upper ) {
+        _xrange.upper = xmax;
+    }
+    if ( ymin < _yrange.lower ) {
+        _yrange.lower = ymin;
+    }
+    if ( ymax > _yrange.upper ) {
+        _yrange.upper = ymax;
+    }
+    _isXRangeCalculated = true;
+    _isYRangeCalculated = true;
+
     return curve;
 }
 
@@ -49,6 +73,8 @@ bool SnapPlot::removeCurve(int index)
     TrickCurve* curve = _curves.at(index);
     ret = removePlottable(curve);
     _curves.removeAt(index);
+    _isXRangeCalculated = false ;
+    _isYRangeCalculated = false ;
     return ret;
 }
 
@@ -72,14 +98,10 @@ void SnapPlot::zoomToFit(const QCPRange& xrange)
 
 void SnapPlot::_fitXRange()
 {
-    double xmin = 1.0e20;
-    double xmax = -1.0e20;
     bool isValidRange;
-    foreach ( TrickCurve* curve, _curves ) {
-        QCPRange xrange = curve->xRange(isValidRange);
-        if ( xrange.lower < xmin ) xmin = xrange.lower;
-        if ( xrange.upper > xmax ) xmax = xrange.upper;
-    }
+    QCPRange xrange = xRange(isValidRange);
+    double xmin = xrange.lower;
+    double xmax = xrange.upper;
 
     // At least show +/- 10% of outside range
     double xp = 0.10*qAbs(xmax - xmin) ;
@@ -93,16 +115,28 @@ void SnapPlot::_fitXRange()
     xAxis->setRange(xmin,xmax+xp);
 }
 
+QCPRange SnapPlot::xRange(bool& isValidRange)
+{
+    if ( ! _isXRangeCalculated ) {
+        _isXRangeCalculated = true;
+        double xmin = 1.0e20;
+        double xmax = -1.0e20;
+        foreach ( TrickCurve* curve, _curves ) {
+            QCPRange range = curve->xRange(isValidRange);
+            if ( range.lower < xmin ) xmin = range.lower;
+            if ( range.upper > xmax ) xmax = range.upper;
+        }
+        _xrange = QCPRange(xmin,xmax);
+    }
+    return _xrange;
+}
+
 void SnapPlot::_fitYRange()
 {
-    double ymin = 1.0e20;
-    double ymax = -1.0e20;
     bool isValidRange;
-    foreach ( TrickCurve* curve, _curves ) {
-        QCPRange yrange = curve->yRange(isValidRange);
-        if ( yrange.lower < ymin ) ymin = yrange.lower;
-        if ( yrange.upper > ymax ) ymax = yrange.upper;
-    }
+    QCPRange yrange = yRange(isValidRange);
+    double ymin = yrange.lower;
+    double ymax = yrange.upper;
 
     // At least show +/- 10% of outside range
     double yp = 0.10*qAbs(ymax - ymin) ;
@@ -114,6 +148,18 @@ void SnapPlot::_fitYRange()
         }
     }
     yAxis->setRange(ymin,ymax+yp);
+}
+
+QCPRange SnapPlot::yRange(bool& isValidRange)
+{
+    double ymin = 1.0e20;
+    double ymax = -1.0e20;
+    foreach ( TrickCurve* curve, _curves ) {
+        QCPRange range = curve->yRange(isValidRange);
+        if ( range.lower < ymin ) ymin = range.lower;
+        if ( range.upper > ymax ) ymax = range.upper;
+    }
+    return QCPRange(ymin,ymax);
 }
 
 
