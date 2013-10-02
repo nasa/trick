@@ -22,6 +22,9 @@ class SnapPlot : public QCustomPlot
 
     void zoomToFit(const QCPRange& xrange=QCPRange());
 
+    virtual QCPRange xDataRange(bool& isValidRange);
+    virtual QCPRange yDataRange(bool& isValidRange);
+
 protected:
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseMoveEvent(QMouseEvent *event);
@@ -36,6 +39,11 @@ protected:
 
     void _fitXRange();
     void _fitYRange();
+
+    bool _isXRangeCalculated;
+    bool _isYRangeCalculated;
+    QCPRange _xrange;
+    QCPRange _yrange;
 };
 
 #endif // SNAPGUI

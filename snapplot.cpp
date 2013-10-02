@@ -45,17 +45,17 @@ TrickCurve* SnapPlot::addCurve(TrickModel* model, int tcol,
     double xmax = curve->xRange(isValid).upper;
     double ymin = curve->yRange(isValid).lower;
     double ymax = curve->yRange(isValid).upper;
-    if ( xmin < _xrange.lower ) {
-        _xrange.lower = xmin;
+    if ( xmin < mXDataRange.lower ) {
+        mXDataRange.lower = xmin;
     }
-    if ( xmax > _xrange.upper ) {
-        _xrange.upper = xmax;
+    if ( xmax > mXDataRange.upper ) {
+        mXDataRange.upper = xmax;
     }
-    if ( ymin < _yrange.lower ) {
-        _yrange.lower = ymin;
+    if ( ymin < mYDataRange.lower ) {
+        mYDataRange.lower = ymin;
     }
-    if ( ymax > _yrange.upper ) {
-        _yrange.upper = ymax;
+    if ( ymax > mYDataRange.upper ) {
+        mYDataRange.upper = ymax;
     }
     _isXRangeCalculated = true;
     _isYRangeCalculated = true;
@@ -99,7 +99,7 @@ void SnapPlot::zoomToFit(const QCPRange& xrange)
 void SnapPlot::_fitXRange()
 {
     bool isValidRange;
-    QCPRange xrange = xRange(isValidRange);
+    QCPRange xrange = xDataRange(isValidRange);
     double xmin = xrange.lower;
     double xmax = xrange.upper;
 
@@ -115,7 +115,7 @@ void SnapPlot::_fitXRange()
     xAxis->setRange(xmin,xmax+xp);
 }
 
-QCPRange SnapPlot::xRange(bool& isValidRange)
+QCPRange SnapPlot::xDataRange(bool& isValidRange)
 {
     if ( ! _isXRangeCalculated ) {
         _isXRangeCalculated = true;
@@ -126,15 +126,15 @@ QCPRange SnapPlot::xRange(bool& isValidRange)
             if ( range.lower < xmin ) xmin = range.lower;
             if ( range.upper > xmax ) xmax = range.upper;
         }
-        _xrange = QCPRange(xmin,xmax);
+        mXDataRange = QCPRange(xmin,xmax);
     }
-    return _xrange;
+    return mXDataRange;
 }
 
 void SnapPlot::_fitYRange()
 {
     bool isValidRange;
-    QCPRange yrange = yRange(isValidRange);
+    QCPRange yrange = yDataRange(isValidRange);
     double ymin = yrange.lower;
     double ymax = yrange.upper;
 
@@ -150,18 +150,22 @@ void SnapPlot::_fitYRange()
     yAxis->setRange(ymin,ymax+yp);
 }
 
-QCPRange SnapPlot::yRange(bool& isValidRange)
+QCPRange SnapPlot::yDataRange(bool& isValidRange)
 {
-    double ymin = 1.0e20;
-    double ymax = -1.0e20;
-    foreach ( TrickCurve* curve, _curves ) {
-        QCPRange range = curve->yRange(isValidRange);
-        if ( range.lower < ymin ) ymin = range.lower;
-        if ( range.upper > ymax ) ymax = range.upper;
+    if ( ! _isYRangeCalculated ) {
+        _isYRangeCalculated = true;
+        double ymin = 1.0e20;
+        double ymax = -1.0e20;
+        foreach ( TrickCurve* curve, _curves ) {
+            QCPRange range = curve->yRange(isValidRange);
+            if ( range.lower < ymin ) ymin = range.lower;
+            if ( range.upper > ymax ) ymax = range.upper;
+        }
+        mYDataRange = QCPRange(ymin,ymax);
     }
-    return QCPRange(ymin,ymax);
-}
 
+    return mYDataRange;
+}
 
 void SnapPlot::mousePressEvent(QMouseEvent *event)
 {
@@ -191,7 +195,7 @@ void SnapPlot::mousePressEvent(QMouseEvent *event)
 
 void SnapPlot::mouseMoveEvent(QMouseEvent *event)
 {
-    if ( event->button() == Qt::NoButton && _rubber_band ){
+    if ( event->buttons() == Qt::MidButton && _rubber_band ){
         _rubber_band->setGeometry(QRect(_origin, event->pos()).normalized());
     }
     QCustomPlot::mouseMoveEvent(event);

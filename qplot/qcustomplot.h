@@ -1513,6 +1513,8 @@ public:
   bool noAntialiasingOnDrag() const { return mNoAntialiasingOnDrag; }
   QCP::PlottingHints plottingHints() const { return mPlottingHints; }
   Qt::KeyboardModifier multiSelectModifier() const { return mMultiSelectModifier; }
+  virtual QCPRange xDataRange() { return mXDataRange; } // Keith added this
+  virtual QCPRange yDataRange() { return mYDataRange; } // Keith added this
 
   // setters:
   void setViewport(const QRect &rect);
@@ -1652,7 +1654,9 @@ protected:
   QPoint mMousePressPos;
   QCPLayoutElement *mMouseEventElement;
   bool mReplotting;
-  
+  QCPRange mXDataRange; // Keith added this
+  QCPRange mYDataRange; // Keith added this
+
   // reimplemented virtual methods:
   virtual QSize minimumSizeHint() const;
   virtual QSize sizeHint() const;
