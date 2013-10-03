@@ -1,10 +1,6 @@
 #include "trickmodel.h"
 #include <stdio.h>
 
-const int TrickModel::TRICK_DOUBLE             = DEF_TRICK_DOUBLE;
-const int TrickModel::TRICK_LONG_LONG          = DEF_TRICK_LONG_LONG;
-const int TrickModel::TRICK_UNSIGNED_LONG_LONG = DEF_TRICK_UNSIGNED_LONG_LONG;
-
 TrickModel::TrickModel(const QString& trkfile,
                      const QString& tableName, QObject *parent) :
     SnapTable(tableName,parent),

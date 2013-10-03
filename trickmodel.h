@@ -16,15 +16,12 @@
 #include <vector>
 #include "snaptable.h"
 #include "trickdatamodel.h"
+#include "trick_types.h"
 using namespace std;
 
 class TrickModel;
 class TrickModelIterator;
 
-// Had to do this for inline switch statement
-#define DEF_TRICK_DOUBLE             11
-#define DEF_TRICK_LONG_LONG          14
-#define DEF_TRICK_UNSIGNED_LONG_LONG 15
 
 class TrickModel : public SnapTable
 {
@@ -33,9 +30,6 @@ class TrickModel : public SnapTable
   friend class TrickModelIterator;
 
   public:
-    static const int TRICK_DOUBLE;
-    static const int TRICK_LONG_LONG;
-    static const int TRICK_UNSIGNED_LONG_LONG;
 
     enum TrickVersion
     {
@@ -108,24 +102,63 @@ class TrickModel : public SnapTable
 
     inline double _toDouble(const char* addr, int paramtype) const
     {
-        switch (paramtype) {
-            case DEF_TRICK_DOUBLE:
+        if ( _trick_version == TrickVersion07 ) {
+            switch (paramtype) {
+            case TRICK_07_DOUBLE:
             {
                 return *((double*)(addr));
             }
-            case DEF_TRICK_UNSIGNED_LONG_LONG:
+            case TRICK_07_UNSIGNED_LONG_LONG:
             {
                 return (double) *((unsigned long long*)(addr));
             }
-            case DEF_TRICK_LONG_LONG:
+            case TRICK_07_LONG_LONG:
             {
                 return (double) *((long long*)(addr));
+            }
+            case TRICK_07_FLOAT:
+            {
+                return (double) *((float*)(addr));
+            }
+            case TRICK_07_INTEGER:
+            {
+                return (double) *((int*)(addr));
             }
             default:
             {
                 fprintf(stderr,"snap [error]: can't handle trick type \"%d\"\n",
                         paramtype);
                 exit(-1);
+            }
+            }
+        } else {
+            switch (paramtype) {
+            case TRICK_10_DOUBLE:
+            {
+                return *((double*)(addr));
+            }
+            case TRICK_10_UNSIGNED_LONG_LONG:
+            {
+                return (double) *((unsigned long long*)(addr));
+            }
+            case TRICK_10_LONG_LONG:
+            {
+                return (double) *((long long*)(addr));
+            }
+            case TRICK_10_FLOAT:
+            {
+                return (double) *((float*)(addr));
+            }
+            case TRICK_10_INTEGER:
+            {
+                return (double) *((int*)(addr));
+            }
+            default:
+            {
+                fprintf(stderr,"snap [error]: can't handle trick type \"%d\"\n",
+                        paramtype);
+                exit(-1);
+            }
             }
         }
     }
@@ -209,12 +242,12 @@ class TrickModelIterator
 
     inline bool operator==(const TrickModelIterator &o) const
     {
-        return i == o.i && _tco == o._tco && _xco == o._xco && _yco == o._yco ;
+        return (i == o.i && _tco == o._tco && _xco == o._xco && _yco == o._yco);
     }
 
     inline bool operator!=(const TrickModelIterator &o) const
     {
-        return i != o.i || _tco != o._tco || _xco != o._xco || _yco != o._yco ;
+        return (i != o.i || _tco != o._tco || _xco != o._xco || _yco != o._yco);
     }
 
     inline TrickModelIterator &operator++() {
