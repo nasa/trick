@@ -45,18 +45,11 @@ TrickCurve* SnapPlot::addCurve(TrickModel* model, int tcol,
     double xmax = curve->xRange(isValid).upper;
     double ymin = curve->yRange(isValid).lower;
     double ymax = curve->yRange(isValid).upper;
-    if ( xmin < mXDataRange.lower ) {
-        mXDataRange.lower = xmin;
-    }
-    if ( xmax > mXDataRange.upper ) {
-        mXDataRange.upper = xmax;
-    }
-    if ( ymin < mYDataRange.lower ) {
-        mYDataRange.lower = ymin;
-    }
-    if ( ymax > mYDataRange.upper ) {
-        mYDataRange.upper = ymax;
-    }
+    int sz = _curves.size();
+    if ( sz == 1 || xmin < mXDataRange.lower ) mXDataRange.lower = xmin;
+    if ( sz == 1 || xmax > mXDataRange.upper ) mXDataRange.upper = xmax;
+    if ( sz == 1 || ymin < mYDataRange.lower ) mYDataRange.lower = ymin;
+    if ( sz == 1 || ymax > mYDataRange.upper ) mYDataRange.upper = ymax;
     _isXRangeCalculated = true;
     _isYRangeCalculated = true;
 
