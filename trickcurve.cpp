@@ -124,6 +124,7 @@ void TrickCurve::drawLegendIcon(QCPPainter *painter, const QRectF &rect) const
 */
 void TrickCurve::getCurveData(QVector<QPointF> *lineData) const
 {
+    _model->map();
     /* Extended sides of axis rect R divide space into 9 regions:
      1__|_4_|__7
      2__|_R_|__8
@@ -282,6 +283,7 @@ void TrickCurve::getCurveData(QVector<QPointF> *lineData) const
                                        (_model->end(_tcol,_xcol,_ycol)-1).y()));
     }
 
+    _model->unmap();
 }
 
 // Calculates the (minimum) distance (in pixels) the curve's representation
@@ -289,6 +291,7 @@ void TrickCurve::getCurveData(QVector<QPointF> *lineData) const
 // the curve was clicked or not, e.g. in selectTest.
 double TrickCurve::pointDistance(const QPointF &pixelPoint) const
 {
+    _model->map();
     if (_model->rowCount() == 0) {
         qDebug() << Q_FUNC_INFO
                  << "requested point distance on curve"
@@ -313,6 +316,7 @@ double TrickCurve::pointDistance(const QPointF &pixelPoint) const
             minDistSqr = currentDistSqr;
     }
     delete lineData;
+    _model->unmap();
     return sqrt(minDistSqr);
 }
 
@@ -378,6 +382,7 @@ QCPRange TrickCurve::yRange(bool &validRange, SignDomain inSignDomain)
 /* inherits documentation from base class */
 QCPRange TrickCurve::getKeyRange(bool &validRange, SignDomain inSignDomain) const
 {
+    _model->map();
     QCPRange range;
     bool haveLower = false;
     bool haveUpper = false;
@@ -405,12 +410,14 @@ QCPRange TrickCurve::getKeyRange(bool &validRange, SignDomain inSignDomain) cons
     }
 
     validRange = haveLower && haveUpper;
+    _model->unmap();
     return range;
 }
 
 /* inherits documentation from base class */
 QCPRange TrickCurve::getValueRange(bool &validRange, SignDomain inSignDomain) const
 {
+    _model->map();
     QCPRange range;
     bool haveLower = false;
     bool haveUpper = false;
@@ -439,5 +446,6 @@ QCPRange TrickCurve::getValueRange(bool &validRange, SignDomain inSignDomain) co
     }
 
     validRange = haveLower && haveUpper;
+    _model->unmap();
     return range;
 }

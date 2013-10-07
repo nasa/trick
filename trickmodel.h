@@ -13,6 +13,7 @@
 #include <QMap>
 #include <QFile>
 #include <QDataStream>
+#include <QDebug>
 #include <vector>
 #include "snaptable.h"
 #include "trickdatamodel.h"
@@ -48,6 +49,8 @@ class TrickModel : public SnapTable
                        QObject *parent = 0);
     ~TrickModel();
 
+    void map();
+    void unmap();
     TrickModelIterator begin(int tcol, int xcol, int ycol) const;
     TrickModelIterator end(int tcol, int xcol, int ycol) const;
 
@@ -90,10 +93,14 @@ class TrickModel : public SnapTable
     qint32 _ncols;
     QMap<int,qint64> _col2offset;
 
+    int _pos_beg_data;
     char* _mem;
     char* _data;
     int _fd;
     struct stat _fstat;
+
+    QString _err_string;
+    QTextStream _err_stream;
 
     bool _load_trick_header();
     qint32 _load_binary_param(QDataStream& in, int col);

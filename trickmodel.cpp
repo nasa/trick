@@ -1,22 +1,18 @@
 #include "trickmodel.h"
 #include <stdio.h>
+#include <stdexcept>
 
 TrickModel::TrickModel(const QString& trkfile,
                      const QString& tableName, QObject *parent) :
     SnapTable(tableName,parent),
     _trkfile(trkfile),
-    _tableName(tableName)
+    _tableName(tableName),
+    _nrows(0), _row_size(0), _ncols(0), _pos_beg_data(0),
+    _mem(0), _data(0), _fd(-1),
+    _err_stream(&_err_string)
 {
-    _fd = open(trkfile.toAscii().constData(), O_RDONLY);
-    fstat(_fd, &_fstat);
-
-    _mem = (char*)mmap(NULL,_fstat.st_size,PROT_READ,MAP_SHARED,_fd,0);
-
-    if (_mem == MAP_FAILED) {
-        // TODO: throw error
-    }
-
     _load_trick_header();
+    map();
 }
 
 bool TrickModel::_load_trick_header()
@@ -26,9 +22,9 @@ bool TrickModel::_load_trick_header()
     QFile file(_trkfile);
 
     if (!file.open(QIODevice::ReadOnly)) {
-        fprintf(stderr,"Snap: [error] could not open %s\n",
-                _trkfile.toAscii().constData());
-        return false;
+        _err_stream << "snap [error]: could not open "
+                    << _trkfile << "\n";
+        throw std::runtime_error(_err_string.toAscii().constData());
     }
     QDataStream in(&file);
 
@@ -73,8 +69,8 @@ bool TrickModel::_load_trick_header()
     }
 
     // Save address of start location of data in _data
-    int pos_beg_data = file.pos();
-    _data = &_mem[pos_beg_data];
+    // It will be mapped to _data address in map()
+    _pos_beg_data = file.pos();
 
     // Sanity check.  The bytes remaining should be a multiple of the record size
     qint64 nbytes = file.bytesAvailable();
@@ -127,10 +123,39 @@ qint32 TrickModel::_load_binary_param(QDataStream& in, int col)
     return sz;
 }
 
-TrickModel::~TrickModel()
+void TrickModel::map()
+{
+    if ( _data ) return; // already mapped
+
+    _fd = open(_trkfile.toAscii().constData(), O_RDONLY);
+    if ( _fd < 0 ) {
+        _err_stream << "snap [error]: TrickModel could not open "
+                    << _trkfile << "\n";
+        throw std::runtime_error(_err_string.toAscii().constData());
+    }
+    fstat(_fd, &_fstat);
+
+    _mem = (char*)mmap(NULL,_fstat.st_size,PROT_READ,MAP_SHARED,_fd,0);
+
+    if (_mem == MAP_FAILED) {
+        _err_stream << "snap [error]: TrickModel couldn't allocate memory for : "
+                    << _trkfile << "\n";
+        throw std::runtime_error(_err_string.toAscii().constData());
+    }
+
+    _data = &_mem[_pos_beg_data];
+}
+
+void TrickModel::unmap()
 {
     munmap(_mem, _fstat.st_size);
     close(_fd);
+    _data = 0 ;
+}
+
+TrickModel::~TrickModel()
+{
+    unmap();
 }
 
 TrickModelIterator TrickModel::begin(int tcol, int xcol, int ycol) const

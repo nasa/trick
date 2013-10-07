@@ -13,6 +13,8 @@ class SnapPlot : public QCustomPlot
   public:
     SnapPlot(QWidget* parent=0);
 
+    TrickCurve* addCurve(TrickModel* model, const QString& yparam,
+                         double valueScaleFactor=1.0);
     TrickCurve *addCurve(TrickModel *model,
                         int tcol, int xcol, int ycol,
                         double valueScaleFactor=1.0);
