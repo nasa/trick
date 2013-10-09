@@ -13,6 +13,7 @@ CONFIG += cmdline_build
 #CONFIG += force_32bit   # if this set, change Projects build to Linux_FC3
 #CONFIG += qtestlib
 #CONFIG += snapgui
+#CONFIG += monte
 #CONFIG += timeline  # this is a dev thing; must use RUN_iss* for 64.08s spike
 
 qtestlib {
@@ -26,6 +27,30 @@ snapgui {
     QT += gui
     CONFIG -= console
 }
+
+monte {
+    DEFINES += SNAPGUI
+    DEFINES += MONTECARLO
+    QT += gui
+    QT += xml
+    CONFIG -= console
+
+SOURCES += \
+    monte.cpp \
+    plotpage.cpp \
+    plot.cpp \
+    dp.cpp \
+    montewindow.cpp
+
+HEADERS +=  \
+    monte.h \
+    trick_types.h \
+    plotpage.h \
+    plot.h \
+    dp.h \
+    montewindow.h
+}
+
 
 timeline {
     # This is dev thing

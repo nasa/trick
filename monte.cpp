@@ -44,13 +44,13 @@ bool Monte::setDir(const QString &montedir)
     _runs = mdir.entryList(filters, QDir::Dirs);
     if ( _runs.empty() ) {
         _err_stream << "snap [error]: no RUN dirs in "
-                    << montedir << "\n";
+                    << _montedir << "\n";
         throw std::invalid_argument(_err_string.toAscii().constData());
     }
 
     // Get RUN_00000
     QString run0 = _runs.at(0);
-    QDir rundir0(montedir + "/" + run0);
+    QDir rundir0(_montedir + "/" + run0);
 
     //
     // Make a list of trk log files from RUN_00000
@@ -67,7 +67,7 @@ bool Monte::setDir(const QString &montedir)
     }
     if ( trks.empty() ) {
         _err_stream << "snap [error]: no trk logfiles found in "
-                    << montedir << "\n";
+                    << _montedir << "\n";
         throw std::invalid_argument(_err_string.toAscii().constData());
     }
 
@@ -75,7 +75,7 @@ bool Monte::setDir(const QString &montedir)
     // Make list of params from RUN_00000
     //
     foreach (QString ftrk, trks.values()) {
-        QString trk(montedir + "/" + run0 + "/" + ftrk);
+        QString trk(_montedir + "/" + run0 + "/" + ftrk);
         TrickModel* m = new TrickModel(trk,trk);
         int ncols = m->columnCount();
         for ( int col = 0; col < ncols; ++col) {
@@ -95,7 +95,7 @@ bool Monte::setDir(const QString &montedir)
     foreach (QString ftrk, trks.values()) {
         QStringList params;
         foreach ( QString run, _runs ) {
-            QDir rundir(montedir + "/" + run);
+            QDir rundir(_montedir + "/" + run);
             if ( ! rundir.exists(ftrk) ) {
                 _err_stream << "snap [error]: monte carlo runs are "
                             << "inconsistent. " << _runs.at(0)
@@ -104,7 +104,7 @@ bool Monte::setDir(const QString &montedir)
                             << run << " does not.";
                 throw std::invalid_argument(_err_string.toAscii().constData());
             }
-            QString trk(montedir + "/" + run + "/" + ftrk);
+            QString trk(_montedir + "/" + run + "/" + ftrk);
             TrickModel* m = new TrickModel(trk,trk);
             int ncols = m->columnCount();
             if ( run == _runs.at(0) ) {

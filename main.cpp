@@ -2,7 +2,8 @@
 #include <QApplication>
 #include <QObject>
 #include <QThread>
-#include <snapwindow.h>
+#include "snapwindow.h"
+#include "montewindow.h"
 #else
 #include <QCoreApplication>
 #endif
@@ -23,6 +24,9 @@ using namespace std;
 #include "TrickBinaryRiver.hh"
 #include "snap.h"
 #include "options.h"
+#ifdef MONTECARLO
+#include "dp.h"
+#endif
 
 Options::func_presetCB_double preset_start;
 Options::func_presetCB_double preset_stop;
@@ -69,7 +73,11 @@ int main(int argc, char *argv[])
 #ifdef SNAPGUI
         QApplication::setGraphicsSystem("raster");
         QApplication a(argc, argv);
+#ifdef MONTECARLO
+        MonteWindow* w = new MonteWindow();
+#else
         SnapWindow* w = new SnapWindow(rundir,opts.start,opts.stop);
+#endif
         w->show();
         return a.exec();
 #else
