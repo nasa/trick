@@ -13,8 +13,8 @@ Monte::Monte(const QString& dirname) :
 
 Monte::~Monte()
 {
-    foreach (QString ftrk, _trk2models.keys()) {
-        QList<TrickModel*>* models = _trk2models.value(ftrk);
+    foreach (QString ftrk, _ftrk2models.keys()) {
+        QList<TrickModel*>* models = _ftrk2models.value(ftrk);
         foreach(TrickModel* model, *models) {
             delete model;
         }
@@ -83,7 +83,7 @@ bool Monte::setDir(const QString &montedir)
                                           Qt::Horizontal,Param::Name).toString();
             if ( ! _params.contains(param) ) {
                 _params.append(param);
-                _param2trk.insert(param,ftrk);
+                _param2ftrk.insert(param,ftrk);
             }
         }
         delete m;
@@ -91,9 +91,11 @@ bool Monte::setDir(const QString &montedir)
 
     //
     // Make sure all runs have same trks and params
+    // Also, map ftrk to list of models
     //
     foreach (QString ftrk, trks.values()) {
         QStringList params;
+        _ftrk2models.insert(ftrk,new QList<TrickModel*>);
         foreach ( QString run, _runs ) {
             QDir rundir(_montedir + "/" + run);
             if ( ! rundir.exists(ftrk) ) {
@@ -142,91 +144,15 @@ bool Monte::setDir(const QString &montedir)
                     }
                 }
             }
-            delete m;
+            _ftrk2models.value(ftrk)->append(m);
+            m->unmap();
         }
     }
 
-#if 0
-    int ii = 0 ;
-    foreach (QString ftrk, trks.values()) {
-        QList<TrickModel*>* models = new QList<TrickModel*>;
-        _trk2models.insert(ftrk,models);
-        foreach ( QString run, _runs ) {
-            QString trk(montedir + "/" + run + "/" + ftrk);
-            ii++;
-            qDebug() << trk << ii;
-            TrickModel* m = new TrickModel(trk,trk);
-            models->append(m);
-            //delete m;
-        }
-    }
-#endif
-
-#if 0
-    TimeItLinux t; t.start();
-    foreach ( QString run, runs ) {
-        QString rundir(dir + "/" + run + "/");
-        foreach (QString ftrk, trks.values()) {
-            QString trk(rundir + ftrk);
-            TrickModel* m = new TrickModel(trk,trk);
-            int ncols = m->columnCount();
-            for ( int col = 1; col < ncols; ++col) {
-                const TrickModelIterator e = m->end(0,0,col);
-                for (it = m->begin(0,0,col); it != e; ++it) {
-                    x = it.x();
-                    y = it.y();
-                }
-            }
-            delete m;
-        }
-    }
-    t.snap("t=");
-#endif
-
-#if 0
-    QSet<QString>::const_iterator i = trks.constBegin();
-     while (i != trks.constEnd()) {
-         qDebug() << *i;
-         ++i;
-     }
-
-    TimeItLinux t; t.start();
-     TrickModelIterator it;
-     double x;
-     double y;
-     foreach ( QString run, runs ) {
-         QString rundir(dir + "/" + run + "/");
-         foreach (QString ftrk, trks.values()) {
-             QString trk(rundir + ftrk);
-             TrickModel* m = new TrickModel(trk,trk);
-             int ncols = m->columnCount();
-             for ( int col = 1; col < ncols; ++col) {
-                 const TrickModelIterator e = m->end(0,0,col);
-                 for (it = m->begin(0,0,col); it != e; ++it) {
-                     x = it.x();
-                     y = it.y();
-                 }
-             }
-             delete m;
-         }
-     }
-     t.snap("t=");
-#endif
-
-     return ok;
+    return ok;
 }
 
-QList<TrickModel*> Monte::models(const QString &param)
+QList<TrickModel *> *Monte::models(const QString &param)
 {
-    QList<TrickModel*> list_models;
-
-    QString ftrk = _param2trk.value(param);
-    foreach ( QString run, _runs ) {
-        QString trk(_montedir + "/" + run + "/" + ftrk);
-        TrickModel* m = new TrickModel(trk,trk);
-        m->unmap();
-        list_models.append(m);
-    }
-
-    return list_models;
+    return _ftrk2models.value(_param2ftrk.value(param));
 }

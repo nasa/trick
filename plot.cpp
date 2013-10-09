@@ -1,6 +1,7 @@
 #ifdef SNAPGUI
 
 #include "plot.h"
+#include "timeit_linux.h"
 
 Plot::Plot(DPPlot* dpplot, QCustomPlot *plotwidget) :
     QCPAxisRect(plotwidget),
@@ -32,10 +33,9 @@ void Plot::setData(Monte *monte)
 {
     foreach (DPCurve* curve, _dpplot->curves() ) {
         QString yparam = curve->y()->name();
-        QList<TrickModel*> models = monte->models(yparam);
-        for ( int ii = 0; ii < monte->nruns(); ++ii) {
-            TrickModel* m = models.at(ii);
-            addCurve(m,yparam);
+        QList<TrickModel*>* models = monte->models(yparam);
+        foreach (TrickModel* model, *models ) {
+            addCurve(model,yparam);
         }
     }
 }
