@@ -33,8 +33,7 @@ public:
         _tcol = 0;
         _xcol = 0;
         _ycol = 0;
-        _isXRangeCalculated = false;
-        _isYRangeCalculated = false;
+        _isRangesCalculated = false;
     }
 
 protected:
@@ -66,8 +65,8 @@ protected:
 private:
     TrickCurve();
     double _valueScaleFactor;
-    bool _isXRangeCalculated;
-    bool _isYRangeCalculated;
+    bool _isRangesCalculated;
+    void _calcXYRanges(); // sets _xrange,_yrange
     QCPRange _xrange;
     QCPRange _yrange;
 };

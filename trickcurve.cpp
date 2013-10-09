@@ -4,7 +4,7 @@
 TrickCurve::TrickCurve(QCPAxis *keyAxis, QCPAxis *valueAxis) :
     QCPAbstractPlottable(keyAxis, valueAxis) ,
     _model(0),_valueScaleFactor(1.0),
-    _isXRangeCalculated(false),_isYRangeCalculated(false)
+    _isRangesCalculated(false)
 {
     setAntialiased(false);
     mPen.setColor(QColor(50, 100, 212));
@@ -360,10 +360,7 @@ QPointF TrickCurve::outsideCoordsToPixels(double key, double value, int region,
 //
 QCPRange TrickCurve::xRange(bool &validRange, SignDomain inSignDomain)
 {
-    if ( ! _isXRangeCalculated ) {
-        _xrange = getKeyRange(validRange,inSignDomain);
-        _isXRangeCalculated = true;
-    }
+    _calcXYRanges();
     return _xrange;
 }
 
@@ -372,11 +369,50 @@ QCPRange TrickCurve::xRange(bool &validRange, SignDomain inSignDomain)
 //
 QCPRange TrickCurve::yRange(bool &validRange, SignDomain inSignDomain)
 {
-    if ( ! _isYRangeCalculated ) {
-        _yrange = getValueRange(validRange,inSignDomain);
-        _isYRangeCalculated = true;
-    }
+    _calcXYRanges();
     return _yrange;
+}
+
+void TrickCurve::_calcXYRanges()
+{
+    if ( _isRangesCalculated ) {
+        return;
+    }
+    _isRangesCalculated = true;
+
+    _model->map();
+
+    double currX;
+    double currY;
+
+    TrickModelIterator it = _model->begin(_tcol,_xcol,_ycol);
+    const TrickModelIterator e = _model->end(_tcol,_xcol,_ycol);
+    _xrange.lower = it.x();
+    _xrange.upper = it.x();
+    _yrange.lower = it.y();
+    _yrange.upper = it.y();
+    while (it != e) {
+
+        currX = it.x();
+        currY = it.y();
+
+        if (currX < _xrange.lower) {
+            _xrange.lower = currX;
+        }
+        if (currX > _xrange.upper) {
+            _xrange.upper = currX;
+        }
+        if (currY < _yrange.lower) {
+            _yrange.lower = currY;
+        }
+        if (currY > _yrange.upper) {
+            _yrange.upper = currY;
+        }
+
+        ++it;
+    }
+
+    _model->unmap();
 }
 
 /* inherits documentation from base class */
