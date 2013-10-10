@@ -115,10 +115,14 @@ void Plot::zoomToFit(const QCPRange& xrange)
     _fitYRange();
     setupFullAxesBox();
 
+#if 0
+    // This was useful, but the replot hurt on loading
+    // Keeping this commented out for now
     if ( qAbs(xrange.lower-r0.lower) > 0.000001 ||
          qAbs(xrange.upper-r0.upper) > 0.000001 ) {
         _plotwidget->replot();
     }
+#endif
 }
 
 void Plot::_fitXRange()

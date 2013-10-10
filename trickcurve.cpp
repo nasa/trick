@@ -3,7 +3,9 @@
 
 TrickCurve::TrickCurve(QCPAxis *keyAxis, QCPAxis *valueAxis) :
     QCPAbstractPlottable(keyAxis, valueAxis) ,
-    _model(0),_valueScaleFactor(1.0),
+    _is_first_draw(true),
+    _model(0),
+    _valueScaleFactor(1.0),
     _isRangesCalculated(false)
 {
     setAntialiased(false);
@@ -51,45 +53,54 @@ void TrickCurve::draw(QCPPainter *painter)
 {
     if (_model == 0 || _model->rowCount() == 0 ) return;
 
-    // allocate line vector:
-    QVector<QPointF> *lineData = new QVector<QPointF>;
-
-    // fill with curve data:
-    getCurveData(lineData);
-
-    // draw curve fill:
-    if (mainBrush().style() != Qt::NoBrush && mainBrush().color().alpha() != 0)
-    {
-        applyFillAntialiasingHint(painter);
-        painter->setPen(Qt::NoPen);
-        painter->setBrush(mainBrush());
-        painter->drawPolygon(QPolygonF(*lineData));
+    //
+    // On first draw, create QPainterPath from curve data
+    //
+    if ( _is_first_draw ) {
+        _is_first_draw = false;
+        _model->map();
+        TrickModelIterator it(_valueScaleFactor);
+        const TrickModelIterator e = _model->end(_tcol,_xcol,_ycol);
+        it = _model->begin(_tcol,_xcol,_ycol);
+        _painterPath.moveTo(it.x(),it.y());
+        for (; it != e; ++it) {
+            _painterPath.lineTo(it.x(),it.y());
+        }
+        _model->unmap();
     }
 
-    // draw curve line:
+    //
+    // Draw curve!
+    //
     if (mLineStyle != lsNone &&
-        mainPen().style() != Qt::NoPen && mainPen().color().alpha() != 0)
-    {
+        mainPen().style() != Qt::NoPen && mainPen().color().alpha() != 0) {
+
+        //
+        // Create transform from coord to pixel for painter
+        //
+        double xl = keyAxis()->range().lower;
+        double xu = keyAxis()->range().upper;
+        double yl = valueAxis()->range().lower;
+        double yu = valueAxis()->range().upper;
+        double wx = (xu-xl);
+        double wy = (yu-yl);
+        QRect r = keyAxis()->axisRect()->rect();
+        double mx = (r.width())/wx;
+        double my = (r.height())/wy;
+        QTransform M(mx,               0.0,
+                     0.0,              -my,
+                     -mx*xl+r.left(),  my*yl+r.bottom());
+
+        // Paint!
         applyDefaultAntialiasingHint(painter);
         painter->setPen(mainPen());
         painter->setBrush(Qt::NoBrush);
-        // if drawing solid line and not in PDF,
-        // use much faster line drawing instead of polyline:
-        if (mParentPlot->plottingHints().testFlag(QCP::phFastPolylines) &&
-                painter->pen().style() == Qt::SolidLine &&
-                !painter->modes().testFlag(QCPPainter::pmVectorized) &&
-                !painter->modes().testFlag(QCPPainter::pmNoCaching))
-        {
-            for (int i=1; i<lineData->size(); ++i)
-                painter->drawLine(lineData->at(i-1), lineData->at(i));
-        } else
-        {
-            painter->drawPolyline(QPolygonF(*lineData));
-        }
+        painter->save();
+        painter->setRenderHint(QPainter::NonCosmeticDefaultPen);
+        painter->setTransform(M);
+        painter->drawPath(_painterPath);
+        painter->restore();
     }
-
-    // free allocated line data:
-    delete lineData;
 }
 
 /* inherits documentation from base class */
@@ -360,6 +371,8 @@ QPointF TrickCurve::outsideCoordsToPixels(double key, double value, int region,
 //
 QCPRange TrickCurve::xRange(bool &validRange, SignDomain inSignDomain)
 {
+    Q_UNUSED(validRange);
+    Q_UNUSED(inSignDomain);
     _calcXYRanges();
     return _xrange;
 }
@@ -369,6 +382,8 @@ QCPRange TrickCurve::xRange(bool &validRange, SignDomain inSignDomain)
 //
 QCPRange TrickCurve::yRange(bool &validRange, SignDomain inSignDomain)
 {
+    Q_UNUSED(validRange);
+    Q_UNUSED(inSignDomain);
     _calcXYRanges();
     return _yrange;
 }

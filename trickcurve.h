@@ -38,10 +38,6 @@ public:
 
 protected:
     // property members:
-    TrickModel* _model;
-    int _tcol;
-    int _xcol;
-    int _ycol;
 
     LineStyle mLineStyle;
 
@@ -64,6 +60,12 @@ protected:
 
 private:
     TrickCurve();
+    bool _is_first_draw;
+    QPainterPath _painterPath;
+    TrickModel* _model;
+    int _tcol;
+    int _xcol;
+    int _ycol;
     double _valueScaleFactor;
     bool _isRangesCalculated;
     void _calcXYRanges(); // sets _xrange,_yrange

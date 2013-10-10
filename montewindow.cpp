@@ -66,12 +66,12 @@ MonteWindow::MonteWindow(QWidget *parent) :
     _plot_monte = new PlotPage(page,f2);
     lay2->addWidget(_plot_monte,1,0,1,1);
 
-    //QString dir("/home/vetter/dev/SET_Series30xx/");
-    //dir += "MONTE_RUN_M_3027_i15T_i350T_IDSS-N1_iLIDS-DTS4C1.1000r";
-    QString dir("/home/vetter/dev/SIM_tim");
+    //QString dir("/home/vetter/dev/SIM_tim");
+    QString dir("/home/vetter/dev/SET_Series30xx/");
+    dir += "MONTE_RUN_M_3027_i15T_i350T_IDSS-N1_iLIDS-DTS4C1.1000r";
 
-    Monte monte(dir);
-    _plot_monte->setData(&monte);
+    Monte* monte = new Monte(dir);
+    _plot_monte->setData(monte);
 
     //
     // Resize main window
