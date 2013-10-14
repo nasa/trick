@@ -15,7 +15,7 @@
 
 #include "snap.h"
 #include "snapplot.h"
-#include "plotpage.h"
+#include "plot.h"
 #include "trickmodel.h"
 #include "timelineloader.h"
 #include "timelineplot.h"
@@ -40,7 +40,7 @@ private:
     QMenuBar* _menuBar;
     QMenu *_fileMenu;
     QAction *_exitAction;
-    PlotPage* _plot_monte ;
+    Plot* _plot_monte ;
     TimeItLinux _timer;
 
 signals:

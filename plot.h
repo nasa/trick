@@ -7,11 +7,11 @@
 #include "trickmodel.h"
 #include "monte.h"
 
-class PlotPage : public QCustomPlot
+class Plot : public QCustomPlot
 {
     Q_OBJECT
 public:
-    explicit PlotPage(DPPage* page, QWidget* parent=0);
+    explicit Plot(DPPage* page, QWidget* parent=0);
     void setData(Monte *monte);
 
 protected:

@@ -1,4 +1,4 @@
-#include "plotpage.h"
+#include "plot.h"
 
 //_plot_monte->plotLayout()->clear(); // let's start from scratch and remove the default axis rect
 //_plot_monte->plotLayout()->addElement(1, 0, new QCPAxisRect(_plot_monte));
@@ -9,7 +9,7 @@
 //subLayout->setColumnStretchFactor(0, 3); // left axis rect shall have 60% of width
 //subLayout->setColumnStretchFactor(1, 2); // right one only 40% (3:2 = 60:40)
 
-PlotPage::PlotPage(DPPage* page, QWidget* parent) :
+Plot::Plot(DPPage* page, QWidget* parent) :
     QCustomPlot(parent),
     _dppage(page)
 {
@@ -31,7 +31,7 @@ PlotPage::PlotPage(DPPage* page, QWidget* parent) :
     }
 }
 
-void PlotPage::setData(Monte *monte)
+void Plot::setData(Monte *monte)
 {
     foreach (AxisRect* plot, _plots) {
         plot->setData(monte);
@@ -39,27 +39,27 @@ void PlotPage::setData(Monte *monte)
     }
 }
 
-void PlotPage::mousePressEvent(QMouseEvent *event)
+void Plot::mousePressEvent(QMouseEvent *event)
 {
     QCustomPlot::mousePressEvent(event);
 }
 
-void PlotPage::mouseMoveEvent(QMouseEvent *event)
+void Plot::mouseMoveEvent(QMouseEvent *event)
 {
     QCustomPlot::mouseMoveEvent(event);
 }
 
-void PlotPage::mouseReleaseEvent(QMouseEvent *event)
+void Plot::mouseReleaseEvent(QMouseEvent *event)
 {
     QCustomPlot::mouseReleaseEvent(event);
 }
 
-void PlotPage::draw(QCPPainter *painter)
+void Plot::draw(QCPPainter *painter)
 {
     QCustomPlot::draw(painter);
 }
 
-void PlotPage::_lay1(DPPage *page)
+void Plot::_lay1(DPPage *page)
 {
     plotLayout()->clear();
 
@@ -70,7 +70,7 @@ void PlotPage::_lay1(DPPage *page)
     plotLayout()->addElement(0,0,_plots.at(0));
 }
 
-void PlotPage::_lay6(DPPage *page)
+void Plot::_lay6(DPPage *page)
 {
     plotLayout()->clear();
     plotLayout()->insertColumn(0);

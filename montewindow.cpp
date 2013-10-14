@@ -41,7 +41,7 @@ MonteWindow::MonteWindow(QWidget *parent) :
     dpf += "DP_cat.xml";
     DPProduct dp(dpf);
     DPPage* page = dp.pages().at(0);
-    _plot_monte = new PlotPage(page);
+    _plot_monte = new Plot(page);
     s->addWidget(_plot_monte);
 
     //QString dir("/home/vetter/dev/SIM_tim");
