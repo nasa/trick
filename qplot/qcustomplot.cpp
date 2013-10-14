@@ -17419,8 +17419,7 @@ void QCPAxisRect::mousePressEvent(QMouseEvent *event)
 
 /*! \internal
   
-  Event handler for when the mouse is moved on the axis rect.
-If range dragging was activated in a
+  Event handler for when the mouse is moved on the axis rect. If range dragging was activated in a
   preceding \ref mousePressEvent, the range is moved accordingly.
   
   \see mousePressEvent, mouseReleaseEvent
@@ -17434,50 +17433,12 @@ void QCPAxisRect::mouseMoveEvent(QMouseEvent *event)
     {
       if (QCPAxis *rangeDragHorzAxis = mRangeDragHorzAxis.data())
       {
-        // Keith changed this for squishing axis (instead of just panning),
-        // when grabbing extremity of plot.
-        if (rangeDragHorzAxis->mScaleType == QCPAxis::stLinear) {
-            double drag_start_xpix = mDragStart.x();
-            double drag_end_xpix = event->pos().x();
-            double drag_start_xcoord = rangeDragHorzAxis->
-                                       pixelToCoord(drag_start_xpix);
-            double drag_start_xaxis_lower_coord = mDragStartHorzRange.lower;
-            double drag_start_xaxis_upper_coord = mDragStartHorzRange.upper;
-            double drag_end_xcoord = rangeDragHorzAxis->
-                                       pixelToCoord(drag_end_xpix);
-            double drag_diff_xcoord = drag_start_xcoord-drag_end_xcoord;
-            bool is_drag_motion_left = ( drag_diff_xcoord > 0 ) ? true : false;
-            QCPRange datarange = mParentPlot->xDataRange();
-            double lower = drag_start_xaxis_lower_coord+drag_diff_xcoord;
-            double upper = drag_start_xaxis_upper_coord+drag_diff_xcoord;
-            double diffdata = datarange.upper-datarange.lower;
-            if ( is_drag_motion_left ) {
-                if ( upper < diffdata*1.02 ) {
-                    // Quit dragging axis where data stops
-                    if ( drag_start_xpix > left()+width()*0.88 ) {
-                        // If drag begins on right extremity,
-                        // fix lower range and drag in right
-                        rangeDragHorzAxis->setRange(
-                                    drag_start_xaxis_lower_coord,upper);
-                    } else {
-                        rangeDragHorzAxis->setRange(lower,upper);
-                    }
-                }
-            } else {
-                double dlower = -diffdata*0.02;
-                if ( dlower < lower ) {
-                    // Quit dragging axis where data stops
-                    if (drag_start_xpix < left()+width()*0.12 ) {
-                        // If drag begins on left extremity,
-                        // fix right range and drag in left
-                        rangeDragHorzAxis->setRange(
-                                    lower,drag_start_xaxis_upper_coord);
-                    } else {
-                        rangeDragHorzAxis->setRange(lower,upper);
-                    }
-                }
-            }
-        } else if (rangeDragHorzAxis->mScaleType == QCPAxis::stLogarithmic) {
+        if (rangeDragHorzAxis->mScaleType == QCPAxis::stLinear)
+        {
+          double diff = rangeDragHorzAxis->pixelToCoord(mDragStart.x()) - rangeDragHorzAxis->pixelToCoord(event->pos().x());
+          rangeDragHorzAxis->setRange(mDragStartHorzRange.lower+diff, mDragStartHorzRange.upper+diff);
+        } else if (rangeDragHorzAxis->mScaleType == QCPAxis::stLogarithmic)
+        {
           double diff = rangeDragHorzAxis->pixelToCoord(mDragStart.x()) / rangeDragHorzAxis->pixelToCoord(event->pos().x());
           rangeDragHorzAxis->setRange(mDragStartHorzRange.lower*diff, mDragStartHorzRange.upper*diff);
         }

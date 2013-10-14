@@ -71,6 +71,8 @@ private:
     void _calcXYRanges(); // sets _xrange,_yrange
     QCPRange _xrange;
     QCPRange _yrange;
+
+friend class Plot;
 };
 
 

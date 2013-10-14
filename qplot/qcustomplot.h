@@ -73,7 +73,10 @@ class QCPLayer;
 class QCPPlotTitle;
 class QCPLegend;
 class QCPAbstractLegendItem;
-class QCPAbstractItem; 
+class QCPAbstractItem;
+
+// Keith needs a friend
+class Plot;
 
 
 /*! \file */
@@ -1196,6 +1199,7 @@ private:
   friend class QCustomPlot;
   friend class QCPGrid;
   friend class QCPAxisRect;
+  friend class Plot;
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(QCPAxis::SelectableParts)
 Q_DECLARE_OPERATORS_FOR_FLAGS(QCPAxis::AxisTypes)
