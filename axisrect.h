@@ -56,6 +56,8 @@ protected:
     bool _isYRangeCalculated;
     QCPRange _xDataRange;
     QCPRange _yDataRange;
+
+    QString _abbreviate(const QString& label,int maxlen=35);
 };
 
 #endif // SNAPGUI

@@ -16,18 +16,38 @@ AxisRect::AxisRect(DPPlot* dpplot, QCustomPlot *plotwidget) :
 
     // If a single curve, make axis labels from curve name
     if ( dpplot->curves().size() == 1 ) {
-        QString xlabel = dpplot->curves().at(0)->x()->label();
-        if ( xlabel == "sys.exec.out.time" ) {
-            xlabel = "Time";
-        }
+        QString xlabel = _abbreviate(dpplot->curves().at(0)->x()->label());
         _xAxis->setLabel(xlabel);
-        _yAxis->setLabel(dpplot->curves().at(0)->y()->label());
+        QString ylabel = _abbreviate(dpplot->curves().at(0)->y()->label());
+        _yAxis->setLabel(ylabel);
     }
 }
 
 AxisRect::~AxisRect()
 {
 }
+
+QString AxisRect::_abbreviate(const QString &label, int maxlen)
+{
+    if ( label == "sys.exec.out.time" ) {
+        return "Time";
+    }
+
+    QString abbr = label.right(maxlen);
+    int idx = label.size()-1;
+    while ( idx > 0 ) {
+        idx = label.lastIndexOf('.',idx);
+        QString str = label.mid(idx+1) ;
+        idx--;
+        if ( str.size() > maxlen ) {
+            break;
+        }
+        abbr = str;
+    }
+
+    return abbr;
+}
+
 
 void AxisRect::setData(Monte *monte)
 {
@@ -69,15 +89,12 @@ TrickCurve* AxisRect::addCurve(TrickModel* model, int tcol,
     _plotwidget->addPlottable(curve);
 
     // Reset ranges
-    // TODO: this is broken since can't see mXYDataRanges
     bool isValid;
     double xmin = curve->xRange(isValid).lower;
     double xmax = curve->xRange(isValid).upper;
     double ymin = curve->yRange(isValid).lower;
     double ymax = curve->yRange(isValid).upper;
     int sz = _curves.size();
-
-    // TODO: this is broken since can't see mXYDataRanges
     if ( sz == 1 || xmin < _xDataRange.lower ) _xDataRange.lower = xmin;
     if ( sz == 1 || xmax > _xDataRange.upper ) _xDataRange.upper = xmax;
     if ( sz == 1 || ymin < _yDataRange.lower ) _yDataRange.lower = ymin;
@@ -114,15 +131,6 @@ void AxisRect::zoomToFit(const QCPRange& xrange)
     }
     _fitYRange();
     setupFullAxesBox();
-
-#if 0
-    // This was useful, but the replot hurt on loading
-    // Keeping this commented out for now
-    if ( qAbs(xrange.lower-r0.lower) > 0.000001 ||
-         qAbs(xrange.upper-r0.upper) > 0.000001 ) {
-        _plotwidget->replot();
-    }
-#endif
 }
 
 void AxisRect::_fitXRange()
