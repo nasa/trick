@@ -72,7 +72,7 @@ private:
     QCPRange _xrange;
     QCPRange _yrange;
 
-friend class Plot;
+friend class AxisRect;
 };
 
 

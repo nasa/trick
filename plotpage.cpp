@@ -33,7 +33,7 @@ PlotPage::PlotPage(DPPage* page, QWidget* parent) :
 
 void PlotPage::setData(Monte *monte)
 {
-    foreach (Plot* plot, _plots) {
+    foreach (AxisRect* plot, _plots) {
         plot->setData(monte);
         plot->zoomToFit();
     }
@@ -64,7 +64,7 @@ void PlotPage::_lay1(DPPage *page)
     plotLayout()->clear();
 
     for ( int ii = 0; ii < page->plots().size(); ++ii) {
-        _plots.append(new Plot(page->plots().at(ii),this));
+        _plots.append(new AxisRect(page->plots().at(ii),this));
     }
 
     plotLayout()->addElement(0,0,_plots.at(0));
@@ -78,7 +78,7 @@ void PlotPage::_lay6(DPPage *page)
     plotLayout()->insertRow(1);
 
     for ( int ii = 0; ii < page->plots().size(); ++ii) {
-        _plots.append(new Plot(page->plots().at(ii),this));
+        _plots.append(new AxisRect(page->plots().at(ii),this));
     }
 
     plotLayout()->addElement(0,0,_plots.at(0));

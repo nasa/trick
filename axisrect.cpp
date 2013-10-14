@@ -1,9 +1,9 @@
 #ifdef SNAPGUI
 
-#include "plot.h"
+#include "axisrect.h"
 #include "timeit_linux.h"
 
-Plot::Plot(DPPlot* dpplot, QCustomPlot *plotwidget) :
+AxisRect::AxisRect(DPPlot* dpplot, QCustomPlot *plotwidget) :
     QCPAxisRect(plotwidget),
     _plotwidget(plotwidget),
     _dpplot(dpplot),
@@ -25,11 +25,11 @@ Plot::Plot(DPPlot* dpplot, QCustomPlot *plotwidget) :
     }
 }
 
-Plot::~Plot()
+AxisRect::~AxisRect()
 {
 }
 
-void Plot::setData(Monte *monte)
+void AxisRect::setData(Monte *monte)
 {
     foreach (DPCurve* curve, _dpplot->curves() ) {
         QString yparam = curve->y()->name();
@@ -41,7 +41,7 @@ void Plot::setData(Monte *monte)
 }
 
 
-TrickCurve* Plot::addCurve(TrickModel* model, const QString& yparam,
+TrickCurve* AxisRect::addCurve(TrickModel* model, const QString& yparam,
                               double valueScaleFactor )
 {
     TrickCurve* curve = 0 ;
@@ -58,7 +58,7 @@ TrickCurve* Plot::addCurve(TrickModel* model, const QString& yparam,
     return curve;
 }
 
-TrickCurve* Plot::addCurve(TrickModel* model, int tcol,
+TrickCurve* AxisRect::addCurve(TrickModel* model, int tcol,
                               int xcol, int ycol,
                               double valueScaleFactor )
 {
@@ -88,7 +88,7 @@ TrickCurve* Plot::addCurve(TrickModel* model, int tcol,
     return curve;
 }
 
-bool Plot::removeCurve(int index)
+bool AxisRect::removeCurve(int index)
 {
     if ( index < 0 || index >= _curves.size() ) {
         return false;
@@ -103,7 +103,7 @@ bool Plot::removeCurve(int index)
     return ret;
 }
 
-void Plot::zoomToFit(const QCPRange& xrange)
+void AxisRect::zoomToFit(const QCPRange& xrange)
 {
     QCPRange r0 = _xAxis->range();
 
@@ -125,7 +125,7 @@ void Plot::zoomToFit(const QCPRange& xrange)
 #endif
 }
 
-void Plot::_fitXRange()
+void AxisRect::_fitXRange()
 {
     bool isValidRange;
     QCPRange xrange = xDataRange(isValidRange);
@@ -144,7 +144,7 @@ void Plot::_fitXRange()
     _xAxis->setRange(xmin,xmax+xp);
 }
 
-QCPRange Plot::xDataRange(bool& isValidRange)
+QCPRange AxisRect::xDataRange(bool& isValidRange)
 {
     if ( ! _isXRangeCalculated ) {
         _isXRangeCalculated = true;
@@ -161,7 +161,7 @@ QCPRange Plot::xDataRange(bool& isValidRange)
     return _xDataRange;
 }
 
-void Plot::_fitYRange()
+void AxisRect::_fitYRange()
 {
     bool isValidRange;
     QCPRange yrange = yDataRange(isValidRange);
@@ -180,7 +180,7 @@ void Plot::_fitYRange()
     _yAxis->setRange(ymin,ymax+yp);
 }
 
-QCPRange Plot::yDataRange(bool& isValidRange)
+QCPRange AxisRect::yDataRange(bool& isValidRange)
 {
     if ( ! _isYRangeCalculated ) {
         _isYRangeCalculated = true;
@@ -197,7 +197,7 @@ QCPRange Plot::yDataRange(bool& isValidRange)
     return _yDataRange;
 }
 
-void Plot::mousePressEvent(QMouseEvent *event)
+void AxisRect::mousePressEvent(QMouseEvent *event)
 {
     if ( event->button() == Qt::MidButton ){
         _origin = event->pos();
@@ -223,7 +223,7 @@ void Plot::mousePressEvent(QMouseEvent *event)
     QCPAxisRect::mousePressEvent(event);
 }
 
-void Plot::mouseMoveEvent(QMouseEvent *event)
+void AxisRect::mouseMoveEvent(QMouseEvent *event)
 {
     if ( event->buttons() == Qt::MidButton && _rubber_band ){
         _rubber_band->setGeometry(QRect(_origin, event->pos()).normalized());
@@ -324,7 +324,7 @@ void Plot::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
-void Plot::mouseReleaseEvent(QMouseEvent *event)
+void AxisRect::mouseReleaseEvent(QMouseEvent *event)
 {
     if ( event->button() == Qt::MidButton && _rubber_band ) {
         QRect geom = _rubber_band->geometry();

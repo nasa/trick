@@ -2,7 +2,7 @@
 #define PLOTPAGE_H
 
 #include "qplot/qcustomplot.h"
-#include "plot.h"
+#include "axisrect.h"
 #include "dp.h"
 #include "trickmodel.h"
 #include "monte.h"
@@ -24,7 +24,7 @@ private:
     DPPage* _dppage;
     void _lay1(DPPage* page);
     void _lay6(DPPage* page);
-    QList<Plot*> _plots;
+    QList<AxisRect*> _plots;
 
     
 signals:

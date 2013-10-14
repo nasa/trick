@@ -11,11 +11,11 @@
 #include "trickmodel.h"
 #include "monte.h"
 
-class Plot : public QCPAxisRect
+class AxisRect : public QCPAxisRect
 {
   public:
-    Plot(DPPlot* dpplot, QCustomPlot* plotwidget);
-    ~Plot();
+    AxisRect(DPPlot* dpplot, QCustomPlot* plotwidget);
+    ~AxisRect();
 
     void setData(Monte* monte);
 
