@@ -18,9 +18,11 @@ protected:
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseMoveEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
+    virtual void draw(QCPPainter* painter);
 
 private:
     DPPage* _dppage;
+    void _lay1(DPPage* page);
     void _lay6(DPPage* page);
     QList<Plot*> _plots;
 

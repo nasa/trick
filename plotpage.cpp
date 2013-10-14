@@ -23,7 +23,12 @@ PlotPage::PlotPage(DPPage* page, QWidget* parent) :
     setNoAntialiasingOnDrag(true);
     setAutoAddPlottableToLegend(false);
 
-    _lay6(page);
+    int sz = page->plots().size() ;
+    switch ( sz )
+    {
+        case 1: _lay1(page); break;
+        case 6: _lay6(page); break;
+    }
 }
 
 void PlotPage::setData(Monte *monte)
@@ -47,6 +52,22 @@ void PlotPage::mouseMoveEvent(QMouseEvent *event)
 void PlotPage::mouseReleaseEvent(QMouseEvent *event)
 {
     QCustomPlot::mouseReleaseEvent(event);
+}
+
+void PlotPage::draw(QCPPainter *painter)
+{
+    QCustomPlot::draw(painter);
+}
+
+void PlotPage::_lay1(DPPage *page)
+{
+    plotLayout()->clear();
+
+    for ( int ii = 0; ii < page->plots().size(); ++ii) {
+        _plots.append(new Plot(page->plots().at(ii),this));
+    }
+
+    plotLayout()->addElement(0,0,_plots.at(0));
 }
 
 void PlotPage::_lay6(DPPage *page)
