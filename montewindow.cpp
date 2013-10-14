@@ -17,7 +17,6 @@ MonteWindow::MonteWindow(QWidget *parent) :
     QMainWindow(parent)
 {
     setWindowTitle(tr("Snap!"));
-
     createMenu();
 
     // Central Widget
@@ -25,37 +24,22 @@ MonteWindow::MonteWindow(QWidget *parent) :
     setCentralWidget(s);
 
     //
-    // Right side panel
+    // Monte Carlo Plot Page Widget
     //
-    QSizePolicy sizePolicy(QSizePolicy::MinimumExpanding,
-                           QSizePolicy::MinimumExpanding);
-#if 0
-    QGridLayout* lay2 = new QGridLayout(f2);
-    lay2->setContentsMargins(0, 0, 0, 0);
-    lay2->setSpacing(0);
-    lay2->addWidget(_plot_monte,1,0,1,1);
-#endif
-
-    QString dpf("/home/vetter/dev/");
-    dpf += "SET_Series30xx/DP_Product/";
-    dpf += "DP_cat.xml";
-    DPProduct dp(dpf);
+    QString dpfile("/home/vetter/dev/");
+    dpfile += "SET_Series30xx/DP_Product/";
+    dpfile += "DP_cat6.xml";
+    DPProduct dp(dpfile);
+    QString montedir("/home/vetter/dev/SET_Series30xx/");
+    montedir += "MONTE_RUN_M_3027_i15T_i350T_IDSS-N1_iLIDS-DTS4C1.1000r";
+    Monte* monte = new Monte(montedir);
     DPPage* page = dp.pages().at(0);
-    _plot_monte = new Plot(page);
+    _plot_monte = new PlotPage(page);
+    _plot_monte->setData(monte);
     s->addWidget(_plot_monte);
 
-    //QString dir("/home/vetter/dev/SIM_tim");
-    QString dir("/home/vetter/dev/SET_Series30xx/");
-    dir += "MONTE_RUN_M_3027_i15T_i350T_IDSS-N1_iLIDS-DTS4C1.1000r";
-
-    Monte* monte = new Monte(dir);
-    _plot_monte->setData(monte);
-
-    //
     // Resize main window
-    //
     resize(1600,800);
-    //frame->setMaximumWidth(800);
 }
 
 MonteWindow::~MonteWindow()

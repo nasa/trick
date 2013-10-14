@@ -1,5 +1,5 @@
-#ifndef PLOT_H
-#define PLOT_H
+#ifndef AXISRECT_H
+#define AXISRECT_H
 
 #ifdef SNAPGUI
 

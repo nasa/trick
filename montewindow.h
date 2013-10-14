@@ -8,18 +8,10 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QGridLayout>
-#include <QTableView>
-#include <QAction>
-#include <QProgressBar>
 #include <QList>
 
-#include "snap.h"
-#include "snapplot.h"
-#include "plot.h"
-#include "trickmodel.h"
-#include "timelineloader.h"
-#include "timelineplot.h"
 #include "monte.h"
+#include "plotpage.h"
 #include "dp.h"
 
 #include "timeit_linux.h"
@@ -40,7 +32,7 @@ private:
     QMenuBar* _menuBar;
     QMenu *_fileMenu;
     QAction *_exitAction;
-    Plot* _plot_monte ;
+    PlotPage* _plot_monte ;
     TimeItLinux _timer;
 
 signals:

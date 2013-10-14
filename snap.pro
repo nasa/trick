@@ -127,7 +127,8 @@ SOURCES += \
     trickmodel.cpp \
     trickcurve.cpp \
     axisrect.cpp \
-    plot.cpp
+    plot.cpp \
+    plotpage.cpp
 
 HEADERS += \
     test/testsnap.h \
@@ -157,4 +158,5 @@ HEADERS += \
     trickmodel.h \
     trickcurve.h \
     axisrect.h \
-    plot.h
+    plot.h \
+    plotpage.h
