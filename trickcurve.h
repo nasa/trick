@@ -33,7 +33,7 @@ public:
         _tcol = 0;
         _xcol = 0;
         _ycol = 0;
-        _isRangesCalculated = false;
+        _isPainterPathCreated = false;
     }
 
 protected:
@@ -60,15 +60,14 @@ protected:
 
 private:
     TrickCurve();
-    bool _is_first_draw;
+    bool _isPainterPathCreated;
     QPainterPath _painterPath;
+    void _createPainterPath();
     TrickModel* _model;
     int _tcol;
     int _xcol;
     int _ycol;
     double _valueScaleFactor;
-    bool _isRangesCalculated;
-    void _calcXYRanges(); // sets _xrange,_yrange
     QCPRange _xrange;
     QCPRange _yrange;
 

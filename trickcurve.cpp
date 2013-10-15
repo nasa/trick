@@ -3,10 +3,9 @@
 
 TrickCurve::TrickCurve(QCPAxis *keyAxis, QCPAxis *valueAxis) :
     QCPAbstractPlottable(keyAxis, valueAxis) ,
-    _is_first_draw(true),
+    _isPainterPathCreated(false),
     _model(0),
-    _valueScaleFactor(1.0),
-    _isRangesCalculated(false)
+    _valueScaleFactor(1.0)
 {
     setAntialiased(false);
     mPen.setColor(QColor(50, 100, 212));
@@ -21,6 +20,7 @@ TrickCurve::TrickCurve(QCPAxis *keyAxis, QCPAxis *valueAxis) :
 
     setLineStyle(lsLine);
 }
+
 
 TrickCurve::~TrickCurve()
 { }
@@ -47,6 +47,7 @@ void TrickCurve::setData(TrickModel *model, int tcol, int xcol, int ycol)
    _tcol = tcol;
    _xcol = xcol;
    _ycol = ycol;
+    _createPainterPath();
 }
 
 void TrickCurve::draw(QCPPainter *painter)
@@ -56,17 +57,8 @@ void TrickCurve::draw(QCPPainter *painter)
     //
     // On first draw, create QPainterPath from curve data
     //
-    if ( _is_first_draw ) {
-        _is_first_draw = false;
-        _model->map();
-        TrickModelIterator it(_valueScaleFactor);
-        const TrickModelIterator e = _model->end(_tcol,_xcol,_ycol);
-        it = _model->begin(_tcol,_xcol,_ycol);
-        _painterPath.moveTo(it.x(),it.y());
-        for (; it != e; ++it) {
-            _painterPath.lineTo(it.x(),it.y());
-        }
-        _model->unmap();
+    if ( !_isPainterPathCreated) {
+        _createPainterPath();
     }
 
     //
@@ -101,6 +93,23 @@ void TrickCurve::draw(QCPPainter *painter)
         painter->drawPath(_painterPath);
         painter->restore();
     }
+}
+
+void TrickCurve::_createPainterPath()
+{
+    _isPainterPathCreated = true;
+
+    _model->map();
+
+    TrickModelIterator it = _model->begin(_tcol,_xcol,_ycol);
+    const TrickModelIterator e = _model->end(_tcol,_xcol,_ycol);
+    _painterPath.moveTo(it.x(),it.y());
+    while (it != e) {
+        _painterPath.lineTo(it.x(),it.y());
+        ++it;
+    }
+
+    _model->unmap();
 }
 
 /* inherits documentation from base class */
@@ -373,8 +382,9 @@ QCPRange TrickCurve::xRange(bool &validRange, SignDomain inSignDomain)
 {
     Q_UNUSED(validRange);
     Q_UNUSED(inSignDomain);
-    _calcXYRanges();
-    return _xrange;
+    return QCPRange(
+                _painterPath.boundingRect().left(),
+                _painterPath.boundingRect().right());
 }
 
 //
@@ -384,50 +394,9 @@ QCPRange TrickCurve::yRange(bool &validRange, SignDomain inSignDomain)
 {
     Q_UNUSED(validRange);
     Q_UNUSED(inSignDomain);
-    _calcXYRanges();
-    return _yrange;
-}
-
-void TrickCurve::_calcXYRanges()
-{
-    if ( _isRangesCalculated ) {
-        return;
-    }
-    _isRangesCalculated = true;
-
-    _model->map();
-
-    double currX;
-    double currY;
-
-    TrickModelIterator it = _model->begin(_tcol,_xcol,_ycol);
-    const TrickModelIterator e = _model->end(_tcol,_xcol,_ycol);
-    _xrange.lower = it.x();
-    _xrange.upper = it.x();
-    _yrange.lower = it.y();
-    _yrange.upper = it.y();
-    while (it != e) {
-
-        currX = it.x();
-        currY = it.y();
-
-        if (currX < _xrange.lower) {
-            _xrange.lower = currX;
-        }
-        if (currX > _xrange.upper) {
-            _xrange.upper = currX;
-        }
-        if (currY < _yrange.lower) {
-            _yrange.lower = currY;
-        }
-        if (currY > _yrange.upper) {
-            _yrange.upper = currY;
-        }
-
-        ++it;
-    }
-
-    _model->unmap();
+    return QCPRange(
+                _painterPath.boundingRect().top(),
+                _painterPath.boundingRect().bottom());
 }
 
 /* inherits documentation from base class */
