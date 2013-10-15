@@ -9,7 +9,8 @@ AxisRect::AxisRect(DPPlot* dpplot, QCustomPlot *plotwidget) :
     _dpplot(dpplot),
     _rubber_band(0),
     _isXRangeCalculated(false),
-    _isYRangeCalculated(false)
+    _isYRangeCalculated(false),
+    _keyPressMoveFactor(.08)
 {
     _xAxis = axis(QCPAxis::atBottom);
     _yAxis = axis(QCPAxis::atLeft);
@@ -351,5 +352,93 @@ void AxisRect::mouseReleaseEvent(QMouseEvent *event)
 
     QCPAxisRect::mouseReleaseEvent(event);
 }
+
+void AxisRect::keyPressEvent(QKeyEvent *event)
+{
+    switch (event->key()) {
+    case Qt::Key_Left: _keyPressLeft(); break;
+    case Qt::Key_Right: _keyPressRight();break;
+    case Qt::Key_Up:_keyPressUp(); break;
+    case Qt::Key_Down: _keyPressDown();break;
+    case Qt::Key_Plus: _keyPressZoomIn();break;
+    case Qt::Key_Minus: _keyPressZoomOut();break;
+    case Qt::Key_H: _keyPressLeft();break;
+    case Qt::Key_L: _keyPressRight();break;
+    case Qt::Key_J: _keyPressDown();break;
+    case Qt::Key_K: _keyPressUp();break;
+    case Qt::Key_I: _keyPressZoomIn();break;
+    case Qt::Key_O: _keyPressZoomOut();break;
+    case Qt::Key_A: _keyPressZoomIn();break;
+    case Qt::Key_S: _keyPressZoomOut();break;
+    case Qt::Key_Space: zoomToFit(); mParentPlot->replot(); break;
+    case Qt::Key_Escape: zoomToFit(); mParentPlot->replot(); break;
+    default: ; // do nothing
+    }
+}
+
+void AxisRect::_keyPressLeft()
+{
+    QCPRange _xrange = _xAxis->range();
+    double sz = _xrange.size();
+    double dx = sz*_keyPressMoveFactor;
+
+    _xAxis->setRange(_xrange.lower-dx,_xrange.upper-dx);
+    mParentPlot->replot();
+}
+
+void AxisRect::_keyPressRight()
+{
+    QCPRange _xrange = _xAxis->range();
+    double sz = _xrange.size();
+    double dx = sz*_keyPressMoveFactor;
+    _xAxis->setRange(_xrange.lower+dx,_xrange.upper+dx);
+    mParentPlot->replot();
+}
+
+void AxisRect::_keyPressUp()
+{
+    QCPRange _yrange = _yAxis->range();
+    double sz = _yrange.size();
+    double dy = sz*_keyPressMoveFactor;
+    _yAxis->setRange(_yrange.lower+dy,_yrange.upper+dy);
+    mParentPlot->replot();
+}
+
+void AxisRect::_keyPressDown()
+{
+    QCPRange _yrange = _yAxis->range();
+    double sz = _yrange.size();
+    double dy = sz*_keyPressMoveFactor;
+    _yAxis->setRange(_yrange.lower-dy,_yrange.upper-dy);
+    mParentPlot->replot();
+}
+
+void AxisRect::_keyPressZoomIn()
+{
+    QCPRange _xrange = _xAxis->range();
+    QCPRange _yrange = _yAxis->range();
+    double sx = _xrange.size();
+    double sy = _yrange.size();
+    double dx = sx*_keyPressMoveFactor;
+    double dy = sy*_keyPressMoveFactor;
+    _xAxis->setRange(_xrange.lower+dx,_xrange.upper-dx);
+    _yAxis->setRange(_yrange.lower+dy,_yrange.upper-dy);
+    mParentPlot->replot();
+}
+
+void AxisRect::_keyPressZoomOut()
+{
+    QCPRange _xrange = _xAxis->range();
+    QCPRange _yrange = _yAxis->range();
+    double sx = _xrange.size();
+    double sy = _yrange.size();
+    double dx = sx*_keyPressMoveFactor;
+    double dy = sy*_keyPressMoveFactor;
+    _xAxis->setRange(_xrange.lower-dx,_xrange.upper+dx);
+    _yAxis->setRange(_yrange.lower-dy,_yrange.upper+dy);
+    mParentPlot->replot();
+}
+
+
 
 #endif // SNAPGUI

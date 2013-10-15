@@ -15,9 +15,13 @@ public:
     explicit Plot(DPPlot *plot, QWidget* parent=0);
     void setData(Monte *monte);
 
+protected:
+    void keyPressEvent(QKeyEvent *event);
+
 private:
     DPPlot* _dpplot;
     AxisRect* _axisrect;
+    QCPLayoutElement* _keyEventElement;
 
     
 signals:

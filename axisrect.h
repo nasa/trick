@@ -37,6 +37,7 @@ protected:
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseMoveEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
+    virtual void keyPressEvent(QKeyEvent *event);
 
   private:
     QCustomPlot* _plotwidget;
@@ -58,6 +59,16 @@ protected:
     QCPRange _yDataRange;
 
     QString _abbreviate(const QString& label,int maxlen=35);
+
+    double _keyPressMoveFactor;
+    void _keyPressLeft();
+    void _keyPressRight();
+    void _keyPressUp();
+    void _keyPressDown();
+    void _keyPressZoomIn();
+    void _keyPressZoomOut();
+
+    friend class Plot;
 };
 
 #endif // SNAPGUI
