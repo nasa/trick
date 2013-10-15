@@ -335,18 +335,22 @@ void AxisRect::mouseMoveEvent(QMouseEvent *event)
 
 void AxisRect::mouseReleaseEvent(QMouseEvent *event)
 {
+
     if ( event->button() == Qt::MidButton && _rubber_band ) {
         QRect geom = _rubber_band->geometry();
-        double gxmin = (double)geom.left();
-        double gxmax = (double)geom.right();
-        double xmin = _xAxis->pixelToCoord(gxmin);
-        double xmax = _xAxis->pixelToCoord(gxmax);
-        double gymin = (double)geom.top();
-        double gymax = (double)geom.bottom();
-        double ymin = _yAxis->pixelToCoord(gymax); // screen flip
-        double ymax = _yAxis->pixelToCoord(gymin); // screen flip
-        _yAxis->setRange(ymin,ymax);
-        _xAxis->setRange(xmin,xmax);
+        if ( geom.width() > 20 && geom.height() > 20 ) {
+            // If rubberband too small, normally by accidental click, don't zoom
+            double gxmin = (double)geom.left();
+            double gxmax = (double)geom.right();
+            double xmin = _xAxis->pixelToCoord(gxmin);
+            double xmax = _xAxis->pixelToCoord(gxmax);
+            double gymin = (double)geom.top();
+            double gymax = (double)geom.bottom();
+            double ymin = _yAxis->pixelToCoord(gymax); // screen flip
+            double ymax = _yAxis->pixelToCoord(gymin); // screen flip
+            _yAxis->setRange(ymin,ymax);
+            _xAxis->setRange(xmin,xmax);
+        }
         _rubber_band->hide();
     }
 
