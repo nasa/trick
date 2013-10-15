@@ -9,6 +9,10 @@
 #include <QMenuBar>
 #include <QGridLayout>
 #include <QList>
+#include <QFileSystemModel>
+#include <QTreeView>
+#include <QFileInfo>
+#include <QTabWidget>
 
 #include "monte.h"
 #include "plotpage.h"
@@ -34,6 +38,17 @@ private:
     QAction *_exitAction;
     PlotPage* _plot_monte ;
     TimeItLinux _timer;
+    QFileSystemModel* _treemodel ;
+    QTreeView* _treeview ;
+    QTabWidget* _nb;
+    Monte* _monte;
+    void _createMontePages(const QString& dpfile, const QString& datadir);
+    bool _isDP(const QString& fp);
+    bool _isRUN(const QString& fp);
+    bool _isMONTE(const QString& fp);
+
+private slots:
+     void _slotDirTreeClicked(const QModelIndex& idx);
 
 signals:
 };
