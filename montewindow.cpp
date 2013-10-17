@@ -95,7 +95,6 @@ void MonteWindow::_createMontePages(const QString& dpfile,
     DPProduct dp(dpfile);
     //Monte* monte = new Monte(montedir);
     DPPage* page = dp.pages().at(0);
-    // Qt::BusyCursor
     QCursor currCursor = this->cursor();
     this->setCursor(QCursor(Qt::WaitCursor));
     PlotPage* plot = new PlotPage(page);
