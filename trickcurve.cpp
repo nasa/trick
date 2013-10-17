@@ -13,12 +13,17 @@ TrickCurve::TrickCurve(QCPAxis *keyAxis, QCPAxis *valueAxis) :
     mPen.setWidthF(0);
     mBrush.setColor(QColor(50, 100, 212));
     mBrush.setStyle(Qt::NoBrush);
+
+    setSelectable(true);
     mSelectedPen = mPen;
     mSelectedPen.setWidthF(0);
-    mSelectedPen.setColor(QColor(80, 80, 255)); // lighter than Qt::blue of mPen
-    mSelectedBrush = mBrush;
+    mSelectedPen.setColor(QColor(254, 50, 12));
+    mSelectedBrush.setStyle(Qt::NoBrush);
 
     setLineStyle(lsLine);
+
+    connect(this,SIGNAL(selectionChanged(bool)),
+            this,SLOT(_slotSelectionChanged(bool)));
 }
 
 
@@ -30,14 +35,65 @@ void TrickCurve::setLineStyle(TrickCurve::LineStyle style)
     mLineStyle = style;
 }
 
-double TrickCurve::selectTest(const QPointF &pos,
+double TrickCurve::selectTest(const QPointF &pt,
                             bool onlySelectable, QVariant *details) const
 {
     Q_UNUSED(details)
-    if ((onlySelectable && !mSelectable) || _model->rowCount() > 0 )
-        return -1;
 
-    return pointDistance(pos);
+    if ((onlySelectable && !mSelectable)) return -1;
+
+    double minD = 1.0e20; // this is returned if not within 50x50 rect about pt
+
+    QTransform P = _coordToPixelTransform();
+    QTransform C = P.inverted();
+
+    // Make path of 50x50 rect centered at pt
+    QPainterPath path;
+    QRectF rect(pt.x()-25,
+                pt.y()-25,
+                50,50);
+    rect = C.mapRect(rect);
+    path.addRect(rect);
+
+    if ( _painterPath.intersects(path) ) {
+        int ec = _painterPath.elementCount()-1;
+        for ( int ii = 0; ii < ec; ++ii) {
+            QPointF p1(_painterPath.elementAt(ii).x,
+                       _painterPath.elementAt(ii).y);
+            p1 = P.map(p1);
+            QPointF p2(_painterPath.elementAt(ii+1).x,
+                       _painterPath.elementAt(ii+1).y);
+            p2 = P.map(p2);
+            qreal d = qSqrt(TrickCurve::_distSquaredLineSegmentToPoint(p1,p2,pt));
+            if ( d < minD ) {
+                minD = d;
+            }
+        }
+    }
+
+    return minD;
+}
+
+//
+// Taken from RealTime Collision Detection by Christer Ericson
+//
+double TrickCurve::_distSquaredLineSegmentToPoint(const QPointF &l0,
+                                               const QPointF &l1,
+                                               const QPointF &pt)
+{
+    QVector2D a(l0);
+    QVector2D b(l1);
+    QVector2D c(pt);
+    QVector2D ab = b - a ;
+    QVector2D ac = c - a ;
+    QVector2D bc = c - b ;
+
+    double e = QVector2D::dotProduct(ac,ab);
+    if ( e <= 0 ) return QVector2D::dotProduct(ac,ac);
+    double f = QVector2D::dotProduct(ab,ab);
+    if ( e >= f ) return QVector2D::dotProduct(bc,bc);
+
+    return QVector2D::dotProduct(ac,ac)-e*e/f;
 }
 
 void TrickCurve::setData(TrickModel *model, int tcol, int xcol, int ycol)
@@ -67,29 +123,16 @@ void TrickCurve::draw(QCPPainter *painter)
     if (mLineStyle != lsNone &&
         mainPen().style() != Qt::NoPen && mainPen().color().alpha() != 0) {
 
-        //
-        // Create transform from coord to pixel for painter
-        //
-        double xl = keyAxis()->range().lower;
-        double xu = keyAxis()->range().upper;
-        double yl = valueAxis()->range().lower;
-        double yu = valueAxis()->range().upper;
-        double wx = (xu-xl);
-        double wy = (yu-yl);
-        QRect r = keyAxis()->axisRect()->rect();
-        double mx = (r.width())/wx;
-        double my = (r.height())/wy;
-        QTransform M(mx,               0.0,
-                     0.0,              -my,
-                     -mx*xl+r.left(),  my*yl+r.bottom());
-
-        // Paint!
+        if ( mSelected ) {
+            painter->setPen(selectedPen());
+        } else {
+            painter->setPen(mainPen());
+        }
         applyDefaultAntialiasingHint(painter);
-        painter->setPen(mainPen());
+        painter->setRenderHint(QPainter::NonCosmeticDefaultPen);
         painter->setBrush(Qt::NoBrush);
         painter->save();
-        painter->setRenderHint(QPainter::NonCosmeticDefaultPen);
-        painter->setTransform(M);
+        painter->setTransform(_coordToPixelTransform());
         painter->drawPath(_painterPath);
         painter->restore();
     }
@@ -110,6 +153,14 @@ void TrickCurve::_createPainterPath()
     }
 
     _model->unmap();
+}
+
+void TrickCurve::_slotSelectionChanged(bool sel)
+{
+    // raise selected curve above others so that it is painted on top
+    if ( sel == true ) {
+        layer()->raiseChild(this);
+    }
 }
 
 /* inherits documentation from base class */

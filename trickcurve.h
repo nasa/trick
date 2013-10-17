@@ -1,6 +1,7 @@
 #ifndef TRICKCURVE_H
 #define TRICKCURVE_H
 
+#include <QVector2D>
 #include "qplot/qcustomplot.h"
 #include "trickmodel.h"
 #include "timeit_linux.h"
@@ -20,7 +21,7 @@ public:
     QCPRange xRange(bool &validRange, SignDomain inSignDomain=sdBoth);
     QCPRange yRange(bool &validRange, SignDomain inSignDomain=sdBoth);
 
-    virtual double selectTest(const QPointF &pos,
+    virtual double selectTest(const QPointF &pt,
                               bool onlySelectable, QVariant *details=0) const;
 
     void setData(TrickModel* model, int tcol, int xcol, int ycol);
@@ -35,6 +36,10 @@ public:
         _ycol = 0;
         _isPainterPathCreated = false;
     }
+
+    static double _distSquaredLineSegmentToPoint(const QPointF &l0,
+                                               const QPointF &l1,
+                                               const QPointF &pt);
 
 protected:
     // property members:
@@ -55,14 +60,32 @@ protected:
     QPointF outsideCoordsToPixels(double key, double value,
                                   int region, QRect axisRect) const;
 
-    friend class QCustomPlot;
-    friend class QCPLegend;
 
 private:
     TrickCurve();
     bool _isPainterPathCreated;
     QPainterPath _painterPath;
     void _createPainterPath();
+    inline QTransform _coordToPixelTransform() const
+    {
+        //
+        // Create transform from coord to pixel for painter
+        //
+        double xl = keyAxis()->range().lower;
+        double xu = keyAxis()->range().upper;
+        double yl = valueAxis()->range().lower;
+        double yu = valueAxis()->range().upper;
+        double wx = (xu-xl);
+        double wy = (yu-yl);
+        QRect r = keyAxis()->axisRect()->rect();
+        double mx = (r.width())/wx;
+        double my = (r.height())/wy;
+
+        return  QTransform (  mx,               0.0,
+                              0.0,               -my,
+                              -mx*xl+r.left(),   my*yl+r.bottom());
+    }
+
     TrickModel* _model;
     int _tcol;
     int _xcol;
@@ -71,7 +94,12 @@ private:
     QCPRange _xrange;
     QCPRange _yrange;
 
-friend class AxisRect;
+private slots:
+    void _slotSelectionChanged(bool sel);
+
+    friend class AxisRect;
+    friend class QCustomPlot;
+    friend class QCPLegend;
 };
 
 

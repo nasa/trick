@@ -389,6 +389,14 @@ public:
   QString name() const { return mName; }
   int index() const { return mIndex; }
   QList<QCPLayerable*> children() const { return mChildren; }
+
+  // Keith hack
+  void raiseChild(QCPLayerable* child) {
+      int idx = mChildren.indexOf(child);
+      if ( idx > 0 ) {
+          mChildren.move(idx,mChildren.size()-1);
+      }
+  }
   
 protected:
   // property members:
