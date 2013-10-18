@@ -42,7 +42,8 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     _treeview->hideColumn(2);
     _treeview->hideColumn(3);
     QStringList filters;
-    filters  << "DP_*" << "RUN_*" << "SET_*" << "MONTE_*" << "SIM_*";
+    //filters  << "DP_*" << "RUN_*" << "SET_*" << "MONTE_*" << "SIM_*";
+    filters  << "DP_*" << "SET_*";
     _treemodel->setNameFilters(filters);
     _treemodel->setNameFilterDisables(false);
     _treemodel->setFilter(QDir::Dirs|QDir::Files);
