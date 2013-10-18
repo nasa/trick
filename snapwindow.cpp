@@ -212,8 +212,8 @@ void SnapWindow::createMenu()
     _fileMenu = new QMenu(tr("&File"), this);
     _exitAction = _fileMenu->addAction(tr("E&xit"));
     _menuBar->addMenu(_fileMenu);
+    connect(_exitAction, SIGNAL(triggered()),this, SLOT(close()));
     setMenuWidget(_menuBar);
-    //connect(_exitAction, SIGNAL(triggered()), this, SLOT(accept()));
 }
 
 void SnapWindow::_update_spikejob_plot(const QModelIndex &idx)
