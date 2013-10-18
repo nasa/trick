@@ -28,11 +28,19 @@ using namespace std;
 #include "dp.h"
 #endif
 
+
+#ifdef MONTECARLO
+Options::func_presetCB_DougString preset_montedir;
+class SnapOptions : public Options
+{
+  public:
+    DougString montedir;
+};
+#else
 Options::func_presetCB_double preset_start;
 Options::func_presetCB_double preset_stop;
 Options::func_presetCB_DougString preset_rundir;
 bool check_file(const QString& fname);
-
 class SnapOptions : public Options
 {
   public:
@@ -40,6 +48,7 @@ class SnapOptions : public Options
     double stop;
     DougString rundir;
 };
+#endif
 
 SnapOptions opts;
 
@@ -53,6 +62,11 @@ int main(int argc, char *argv[])
 
     bool ok;
 
+#ifdef MONTECARLO
+    opts.add(&opts.montedir,"<MONTE_dir>", "",
+             "MONTE_directory with RUNs",
+             preset_montedir);
+#else
     opts.add(&opts.start,"-start",1.0, "start time of run analysis",
              preset_start);
     opts.add(&opts.stop,"-stop",1.0e20, "stop time of run analysis",
@@ -60,6 +74,7 @@ int main(int argc, char *argv[])
     opts.add(&opts.rundir,"<RUN_dir>", "",
              "RUN_directory with job timing data",
              preset_rundir);
+#endif
     opts.parse(argc,argv, "snap", &ok);
 
     if ( !ok ) {
@@ -67,14 +82,17 @@ int main(int argc, char *argv[])
         exit(-1);
     }
 
+#ifndef MONTECARLO
     QString rundir(opts.rundir.get().c_str());
+#endif
 
     try {
 #ifdef SNAPGUI
         QApplication::setGraphicsSystem("raster");
         QApplication a(argc, argv);
 #ifdef MONTECARLO
-        MonteWindow* w = new MonteWindow();
+        QString montedir(opts.montedir.get().c_str());
+        MonteWindow* w = new MonteWindow(montedir);
 #else
         SnapWindow* w = new SnapWindow(rundir,opts.start,opts.stop);
 #endif
@@ -95,6 +113,24 @@ int main(int argc, char *argv[])
 }
 #endif
 
+#ifdef MONTECARLO
+void preset_montedir(DougString* curr_montedir,const char* new_montedir,int* cok)
+{
+    Q_UNUSED(curr_montedir);
+
+    *cok = (int) true;
+
+    QString montedir(new_montedir);
+
+    QDir dir(montedir);
+    if ( ! dir.exists() ) {
+        fprintf(stderr,"snap [error] : couldn't find monte directory: \"%s\".\n",
+                       montedir.toAscii().constData());
+        *cok = (int)false;
+        return;
+    }
+}
+#else
 void preset_start(double* time, const char* sval, int* cok)
 {
     *cok = (int) true;
@@ -180,3 +216,4 @@ bool check_file(const QString& fname)
 
     return true;
 }
+#endif

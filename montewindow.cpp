@@ -15,8 +15,9 @@
 #include <QFileSystemModel>
 #include <QTreeView>
 
-MonteWindow::MonteWindow(QWidget *parent) :
-    QMainWindow(parent)
+MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
+    QMainWindow(parent),
+    _montedir(montedir)
 {
     setWindowTitle(tr("Snap!"));
     createMenu();
@@ -28,12 +29,13 @@ MonteWindow::MonteWindow(QWidget *parent) :
     //
     // DPs, SETs, RUNs, SIMs, MONTE Dir Tree
     //
-    QDir setdir("/home/vetter/dev/SET_Series30xx");
+    QDir topdir(_montedir);
+    topdir.cdUp();
     _treemodel = new QFileSystemModel;
-    _treemodel->setRootPath(setdir.path());
+    _treemodel->setRootPath(topdir.path());
     _treeview = new QTreeView(s);
     _treeview->setModel(_treemodel);
-    _treeview->setRootIndex(_treemodel->index(setdir.path()));
+    _treeview->setRootIndex(_treemodel->index(topdir.path()));
     //_treeview->setSelectionMode(QAbstractItemView::MultiSelection);
     //_treeview->setSelectionMode(QAbstractItemView::ExtendedSelection);
     _treeview->hideColumn(1);
@@ -51,9 +53,7 @@ MonteWindow::MonteWindow(QWidget *parent) :
     // Monte Carlo Plot Page Widget
     //
     _nb = new QTabWidget;
-    QString montedir("/home/vetter/dev/SET_Series30xx/");
-    montedir += "MONTE_RUN_M_3027_i15T_i350T_IDSS-N1_iLIDS-DTS4C1.1000r";
-    _monte = new Monte(montedir);
+    _monte = new Monte(_montedir);
     s->addWidget(_nb);
 
     // Size main window
