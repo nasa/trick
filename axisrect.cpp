@@ -26,6 +26,9 @@ AxisRect::AxisRect(DPPlot* dpplot, QCustomPlot *plotwidget) :
 
 AxisRect::~AxisRect()
 {
+    foreach ( TrickCurveModel* cm, _curve_models ) {
+        delete cm;
+    }
 }
 
 QString AxisRect::_abbreviate(const QString &label, int maxlen)
@@ -71,7 +74,10 @@ TrickCurve* AxisRect::addCurve(TrickModel* model, const QString& yparam,
     for ( int col = 0; col < ncols; ++col) {
         if (yparam ==
             model->headerData(col,Qt::Horizontal,Param::Name).toString())  {
-            curve = addCurve(model,0,0,col,valueScaleFactor);
+            TrickCurveModel* cm = new TrickCurveModel(model,0,0,col,
+                                                      yparam, valueScaleFactor);
+            _curve_models.append(cm);
+            curve = addCurve(cm);
             break;
         }
     }
@@ -79,13 +85,10 @@ TrickCurve* AxisRect::addCurve(TrickModel* model, const QString& yparam,
     return curve;
 }
 
-TrickCurve* AxisRect::addCurve(TrickModel* model, int tcol,
-                              int xcol, int ycol,
-                              double valueScaleFactor )
+TrickCurve* AxisRect::addCurve(TrickCurveModel* model)
 {
     TrickCurve *curve = new TrickCurve(_xAxis,_yAxis);
-    curve->setData(model, tcol, xcol, ycol);
-    curve->setValueScaleFactor(valueScaleFactor);
+    curve->setData(model);
     _curves.append(curve);
     _plotwidget->addPlottable(curve);
 

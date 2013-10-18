@@ -96,13 +96,10 @@ double TrickCurve::_distSquaredLineSegmentToPoint(const QPointF &l0,
     return QVector2D::dotProduct(ac,ac)-e*e/f;
 }
 
-void TrickCurve::setData(TrickModel *model, int tcol, int xcol, int ycol)
+void TrickCurve::setData(TrickCurveModel *model)
 {
    _model = model;
-   setName(model->headerData(ycol,Qt::Horizontal,Param::Name).toString());
-   _tcol = tcol;
-   _xcol = xcol;
-   _ycol = ycol;
+   setName(model->headerData(2,Qt::Horizontal,Param::Name).toString());
     _createPainterPath();
 }
 
@@ -144,8 +141,8 @@ void TrickCurve::_createPainterPath()
 
     _model->map();
 
-    TrickModelIterator it = _model->begin(_tcol,_xcol,_ycol);
-    const TrickModelIterator e = _model->end(_tcol,_xcol,_ycol);
+    TrickModelIterator it = _model->begin();
+    const TrickModelIterator e = _model->end();
     _painterPath.moveTo(it.x(),it.y());
     while (it != e) {
         _painterPath.lineTo(it.x(),it.y());
@@ -227,8 +224,8 @@ void TrickCurve::getCurveData(QVector<QPointF> *lineData) const
     bool firstPoint = true; // first point must always be drawn,
                            // to make sure fill works correctly
 
-    const TrickModelIterator e = _model->end(_tcol,_xcol,_ycol);
-    for (it = _model->begin(_tcol,_xcol,_ycol); it != e; ++it) {
+    const TrickModelIterator e = _model->end();
+    for (it = _model->begin(); it != e; ++it) {
 
         x = it.x();
         y = it.y();
@@ -350,8 +347,8 @@ void TrickCurve::getCurveData(QVector<QPointF> *lineData) const
     if (lastRegion != 5 && mBrush.style() != Qt::NoBrush &&
         _model->rowCount()>0) {
 
-        lineData->append(coordsToPixels((_model->end(_tcol,_xcol,_ycol)-1).x(),
-                                       (_model->end(_tcol,_xcol,_ycol)-1).y()));
+        lineData->append(coordsToPixels((_model->end()-1).x(),
+                                       (_model->end()-1).y()));
     }
 
     _model->unmap();
@@ -370,8 +367,8 @@ double TrickCurve::pointDistance(const QPointF &pixelPoint) const
         return 500;
     }
     if (_model->rowCount() == 1) {
-        QPointF dataPoint = coordsToPixels(_model->begin(_tcol,_xcol,_ycol).x(),
-                                          _model->begin(_tcol,_xcol,_ycol).y());
+        QPointF dataPoint = coordsToPixels(_model->begin().x(),
+                                          _model->begin().y());
         return QVector2D(dataPoint-pixelPoint).length();
     }
 
@@ -460,8 +457,8 @@ QCPRange TrickCurve::getKeyRange(bool &validRange, SignDomain inSignDomain) cons
 
     double current;
 
-    TrickModelIterator it = _model->begin(_tcol,_xcol,_ycol);
-    const TrickModelIterator e = _model->end(_tcol,_xcol,_ycol);
+    TrickModelIterator it = _model->begin();
+    const TrickModelIterator e = _model->end();
     while (it != e) {
         current = it.x();
         if (inSignDomain == sdBoth ||
@@ -495,9 +492,9 @@ QCPRange TrickCurve::getValueRange(bool &validRange, SignDomain inSignDomain) co
 
     double current;
 
-    TrickModelIterator it = _model->begin(_tcol,_xcol,_ycol);
+    TrickModelIterator it = _model->begin();
     it.setValueScaleFactor(_valueScaleFactor);
-    const TrickModelIterator e = _model->end(_tcol,_xcol,_ycol);
+    const TrickModelIterator e = _model->end();
     while (it != e) {
         current = it.y();
         if (inSignDomain == sdBoth ||

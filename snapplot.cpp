@@ -29,6 +29,13 @@ SnapPlot::SnapPlot(QWidget* parent) :
                     QCP::iSelectLegend | QCP::iSelectPlottables);
 }
 
+SnapPlot::~SnapPlot()
+{
+    foreach ( TrickCurveModel* cm, _curve_models ) {
+        delete cm;
+    }
+}
+
 TrickCurve* SnapPlot::addCurve(TrickModel* model, const QString& yparam,
                               double valueScaleFactor )
 {
@@ -39,7 +46,10 @@ TrickCurve* SnapPlot::addCurve(TrickModel* model, const QString& yparam,
         if (yparam ==
             model->headerData(col,Qt::Horizontal,Param::Name).toString())  {
 
-            curve = addCurve(model,0,0,col,valueScaleFactor);
+            TrickCurveModel* cm = new TrickCurveModel(model,0,0,col,yparam,
+                                                      valueScaleFactor);
+            _curve_models.append(cm);
+            curve = addCurve(cm);
             break;
         }
     }
@@ -47,15 +57,16 @@ TrickCurve* SnapPlot::addCurve(TrickModel* model, const QString& yparam,
     return curve;
 }
 
-TrickCurve* SnapPlot::addCurve(TrickModel* model, int tcol,
-                              int xcol, int ycol,
-                              double valueScaleFactor )
+TrickCurve* SnapPlot::addCurve(TrickCurveModel* model)
 {
     TrickCurve *curve = new TrickCurve(xAxis, yAxis);
-    curve->setData(model, tcol, xcol, ycol);
-    curve->setValueScaleFactor(valueScaleFactor);
+    curve->setData(model);
     _curves.append(curve);
     addPlottable(curve);
+
+    // Legend label
+    QString label = model->headerData(2,Qt::Horizontal,Param::Name).toString();
+    curve->setName(label);
 
     // Reset ranges
     bool isValid;

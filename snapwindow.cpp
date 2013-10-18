@@ -121,11 +121,16 @@ SnapWindow::SnapWindow(const QString& rundir,
     lay2->setObjectName(QString::fromUtf8("layout2"));
 
     QString fname = _snap->rundir() + "/log_frame.trk";
-    _frames = new TrickModel(fname) ;
+    _model_frames = new TrickModel(fname) ;
     _plot_frame = new SnapPlot(f2);
+
     lay2->addWidget(_plot_frame,0,0,1,1);
 
-    _plot_frame->addCurve(_frames,0,0,1,1.0e-6);
+    TrickCurveModel* frame_curve = new TrickCurveModel(_model_frames,0,0,1,
+                                                       "Frame Scheduled Time",
+                                                       1.0e-6);
+
+    _plot_frame->addCurve(frame_curve);
     _plot_frame->xAxis->setLabel("Time (s)");
     _plot_frame->yAxis->setLabel("Frame Scheduled Time (s)");
     _plot_frame->zoomToFit();
@@ -143,9 +148,9 @@ SnapWindow::SnapWindow(const QString& rundir,
 
     fname = rundir + "/log_userjobs.trk";
     _timer.start();
-    _userjobs = new TrickModel(fname) ;
+    _model_userjobs = new TrickModel(fname) ;
     _timer.snap("load_userjobs=");
-    _trick_models.append(_userjobs);
+    _trick_models.append(_model_userjobs);
     _plot_jobs = new SnapPlot(f2);
     lay2->addWidget(_plot_jobs,1,0,1,1);
     _plot_jobs->xAxis->setLabel("Time (s)");
@@ -157,8 +162,8 @@ SnapWindow::SnapWindow(const QString& rundir,
 
 
     fname = rundir + "/log_trickjobs.trk";
-    _trickjobs = new TrickModel(fname);
-    _trick_models.append(_trickjobs);
+    _model_trickjobs = new TrickModel(fname);
+    _trick_models.append(_model_trickjobs);
 
     //
     // Resize main window
@@ -189,9 +194,13 @@ SnapWindow::~SnapWindow()
     _startup_thread->quit();
     delete _startup_thread;
 
-    delete _frames;
-    delete _userjobs;
-    delete _trickjobs;
+    delete _model_frames;
+    delete _model_userjobs;
+    delete _model_trickjobs;
+
+    foreach (TrickCurveModel* cm, _curve_models ) {
+        delete cm;
+    }
 
     delete _snap;
 }
@@ -231,7 +240,10 @@ void SnapWindow::__update_job_plot(const QModelIndex &idx)
                 if ( _plot_jobs->curveCount() > 0 ) {
                     _plot_jobs->removeCurve(0);
                 }
-                _plot_jobs->addCurve(model,0,0,ii,1.0e-6);
+                TrickCurveModel* cm  = new TrickCurveModel(model,0,0,ii,
+                                                           name,1.0e-6);
+                _curve_models.append(cm);
+                _plot_jobs->addCurve(cm);
                 _plot_jobs->yAxis->setLabel("Job Time (s)");
             }
         }

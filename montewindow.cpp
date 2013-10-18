@@ -29,11 +29,11 @@ MonteWindow::MonteWindow(QWidget *parent) :
     // DPs, SETs, RUNs, SIMs, MONTE Dir Tree
     //
     QDir setdir("/home/vetter/dev/SET_Series30xx");
-    QFileSystemModel *model = new QFileSystemModel;
-    model->setRootPath(setdir.path());
+    _treemodel = new QFileSystemModel;
+    _treemodel->setRootPath(setdir.path());
     _treeview = new QTreeView(s);
-    _treeview->setModel(model);
-    _treeview->setRootIndex(model->index(setdir.path()));
+    _treeview->setModel(_treemodel);
+    _treeview->setRootIndex(_treemodel->index(setdir.path()));
     //_treeview->setSelectionMode(QAbstractItemView::MultiSelection);
     //_treeview->setSelectionMode(QAbstractItemView::ExtendedSelection);
     _treeview->hideColumn(1);
@@ -41,9 +41,9 @@ MonteWindow::MonteWindow(QWidget *parent) :
     _treeview->hideColumn(3);
     QStringList filters;
     filters  << "DP_*" << "RUN_*" << "SET_*" << "MONTE_*" << "SIM_*";
-    model->setNameFilters(filters);
-    model->setNameFilterDisables(false);
-    model->setFilter(QDir::Dirs|QDir::Files);
+    _treemodel->setNameFilters(filters);
+    _treemodel->setNameFilterDisables(false);
+    _treemodel->setFilter(QDir::Dirs|QDir::Files);
     connect(_treeview,SIGNAL(clicked(QModelIndex)),
             this, SLOT(_slotDirTreeClicked(QModelIndex)));
 
@@ -67,6 +67,7 @@ MonteWindow::MonteWindow(QWidget *parent) :
 
 MonteWindow::~MonteWindow()
 {
+    delete _treemodel;
 }
 
 void MonteWindow::createMenu()

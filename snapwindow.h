@@ -15,7 +15,7 @@
 
 #include "snap.h"
 #include "snapplot.h"
-#include "trickmodel.h"
+#include "trickcurvemodel.h"
 #include "timelineloader.h"
 #include "timelineplot.h"
 
@@ -64,11 +64,12 @@ private:
     SnapTable* _curr_job_table;
     QTableView* _curr_job_tv;
 
-    TrickModel* _frames;
-    TrickModel* _userjobs;
-    TrickModel* _trickjobs;
+    TrickModel* _model_frames;
+    TrickModel* _model_userjobs;
+    TrickModel* _model_trickjobs;
     SnapTable* _model_threads;
     QList<TrickModel*> _trick_models;
+    QList<TrickCurveModel*> _curve_models;
 
     SnapPlot* _plot_frame;
     SnapPlot* _plot_jobs ;

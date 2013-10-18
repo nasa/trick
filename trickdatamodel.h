@@ -1,5 +1,5 @@
-#ifndef PARAM_H
-#define PARAM_H
+#ifndef TRICKDATAMODEL_H
+#define TRICKDATAMODEL_H
 
 #include <QString>
 #include <QList>
@@ -17,71 +17,7 @@
 using namespace std;
 
 #include "snaptable.h"
-
-class Param : public Role
-{
-  public:
-    Param() :
-        name(QString("")),
-        unit(QString("--")),
-        type(0),             // void
-        size(0)
-    {}
-
-    QString name;
-    QString unit;
-    int     type;      // e.g. TRICK_DOUBLE
-    int     size;
-
-    enum Roles
-    {
-        Name      = Qt::UserRole+20,
-        Unit      = Qt::UserRole+21,
-        Type      = Qt::UserRole+22,
-        Size      = Qt::UserRole+23
-    };
-
-    QVariant value(int role)
-    {
-        QVariant ret;
-
-        switch (role)
-        {
-        case Name: ret = QVariant(name); break;
-        case Unit: ret = QVariant(unit); break;
-        case Type: ret = QVariant(type); break;
-        case Size: ret = QVariant(size); break;
-        default:
-            break;
-        };
-
-        return ret;
-    }
-
-    bool setValue(int role, QVariant val)
-    {
-        bool ret = false;
-
-        if ( val.type() == QVariant::String ) {
-            switch (role)
-            {
-            case Name: name = val.toString(); ret = true; break;
-            case Unit: unit = val.toString(); ret = true; break;
-            default: break;
-            };
-        }
-        if ( val.type() == QVariant::Int ) {
-            switch (role)
-            {
-            case Size: size = val.toInt(); ret = true; break;
-            case Type: type = val.toInt(); ret = true; break;
-            default: break;
-            }
-        }
-
-        return ret;
-    }
-};
+#include "roleparam.h"
 
 class TrickType
 {
@@ -141,4 +77,4 @@ class TrickDataModel : public SnapTable
     TrickType _tricktype(int col);
 };
 
-#endif // PARAM_H
+#endif // TRICKDATAMODEL_H

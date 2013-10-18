@@ -3,7 +3,7 @@
 
 #include <QVector2D>
 #include "qplot/qcustomplot.h"
-#include "trickmodel.h"
+#include "trickcurvemodel.h"
 #include "timeit_linux.h"
 
 class QCP_LIB_DECL TrickCurve : public QCPAbstractPlottable
@@ -24,16 +24,13 @@ public:
     virtual double selectTest(const QPointF &pt,
                               bool onlySelectable, QVariant *details=0) const;
 
-    void setData(TrickModel* model, int tcol, int xcol, int ycol);
+    void setData(TrickCurveModel* model);
     void setValueScaleFactor(double sf) { _valueScaleFactor = sf; }
     double valueScaleFactor() { return _valueScaleFactor; }
 
     virtual void clearData()
     {
         _model = 0 ;
-        _tcol = 0;
-        _xcol = 0;
-        _ycol = 0;
         _isPainterPathCreated = false;
     }
 
@@ -86,10 +83,7 @@ private:
                               -mx*xl+r.left(),   my*yl+r.bottom());
     }
 
-    TrickModel* _model;
-    int _tcol;
-    int _xcol;
-    int _ycol;
+    TrickCurveModel* _model;
     double _valueScaleFactor;
     QCPRange _xrange;
     QCPRange _yrange;

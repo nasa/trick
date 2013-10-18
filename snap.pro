@@ -25,6 +25,7 @@ qtestlib {
 snapgui {
     DEFINES += SNAPGUI
     QT += gui
+    QT += xml
     CONFIG -= console
 }
 
@@ -35,18 +36,12 @@ monte {
     QT += xml
     CONFIG -= console
 
-SOURCES += \
-    monte.cpp \
-    dp.cpp \
-    montewindow.cpp
+    SOURCES += \
+        montewindow.cpp
 
-HEADERS +=  \
-    monte.h \
-    trick_types.h \
-    dp.h \
-    montewindow.h
+    HEADERS += \
+        montewindow.h
 }
-
 
 timeline {
     # This is dev thing
@@ -56,6 +51,35 @@ timeline {
     DEFINES += TIMELINE
     QT += gui
     CONFIG -= console
+}
+
+snapgui|monte|timeline {
+
+SOURCES += \
+    timelineloader.cpp \
+    timelineplot.cpp \
+    monte.cpp \
+    dp.cpp \
+    trickmodel.cpp \
+    trickcurve.cpp \
+    axisrect.cpp \
+    plot.cpp \
+    plotpage.cpp \
+    trickcurvemodel.cpp
+
+HEADERS +=  \
+    monte.h \
+    trick_types.h \
+    dp.h \
+    trick_types.h \
+    timelineloader.h \
+    timelineplot.h \
+    trickmodel.h \
+    trickcurve.h \
+    axisrect.h \
+    plot.h \
+    plotpage.h \
+    trickcurvemodel.h
 }
 
 FORMS  += \
@@ -121,14 +145,7 @@ SOURCES += \
     snapplot.cpp \
     timeit_linux.cpp \
     timeit.cpp \
-    timeit_win32.cpp \
-    timelineloader.cpp \
-    timelineplot.cpp \
-    trickmodel.cpp \
-    trickcurve.cpp \
-    axisrect.cpp \
-    plot.cpp \
-    plotpage.cpp
+    timeit_win32.cpp
 
 HEADERS += \
     test/testsnap.h \
@@ -152,11 +169,4 @@ HEADERS += \
     snapplot.h \
     timeit.h \
     timeit_linux.h \
-    timeit_win32.h \
-    timelineloader.h \
-    timelineplot.h \
-    trickmodel.h \
-    trickcurve.h \
-    axisrect.h \
-    plot.h \
-    plotpage.h
+    timeit_win32.h

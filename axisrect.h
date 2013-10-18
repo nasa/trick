@@ -21,9 +21,7 @@ class AxisRect : public QCPAxisRect
 
     TrickCurve* addCurve(TrickModel* model, const QString& yparam,
                          double valueScaleFactor=1.0);
-    TrickCurve *addCurve(TrickModel *model,
-                        int tcol, int xcol, int ycol,
-                        double valueScaleFactor=1.0);
+    TrickCurve *addCurve(TrickCurveModel *model);
     bool removeCurve(int index);
     //int clearCurves();
     int curveCount() const { return _curves.size(); }
@@ -45,6 +43,7 @@ protected:
     QCPAxis* _xAxis;
     QCPAxis* _yAxis;
     QList<TrickCurve*> _curves;
+    QList<TrickCurveModel*> _curve_models;
     void _set_interactions();
 
     QPoint _origin;

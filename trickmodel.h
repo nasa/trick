@@ -16,13 +16,12 @@
 #include <QDebug>
 #include <vector>
 #include "snaptable.h"
-#include "trickdatamodel.h"
 #include "trick_types.h"
+#include "roleparam.h"
 using namespace std;
 
 class TrickModel;
 class TrickModelIterator;
-
 
 class TrickModel : public SnapTable
 {
@@ -193,8 +192,9 @@ class TrickModelIterator
 
     inline TrickModelIterator(int row, // iterator pos
                               const TrickModel* model,
-                              int tcol, int xcol, int ycol):
-        i(row),_valueScaleFactor(1.0),_model(model),
+                              int tcol, int xcol, int ycol,
+                              double yScaleFactor=1.0):
+        i(row),_valueScaleFactor(yScaleFactor),_model(model),
         _row_size(model->_row_size),_data(model->_data),
         _tcol(tcol), _xcol(xcol), _ycol(ycol),
         _tco(_model->_col2offset.value(tcol)),
