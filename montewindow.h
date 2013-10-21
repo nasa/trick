@@ -10,6 +10,7 @@
 #include <QGridLayout>
 #include <QList>
 #include <QFileSystemModel>
+#include <QItemSelectionModel>
 #include <QTreeView>
 #include <QFileInfo>
 #include <QTabWidget>
@@ -40,9 +41,10 @@ private:
     PlotPage* _plot_monte ;
     TimeItLinux _timer;
     QFileSystemModel* _treemodel ;
+    QItemSelectionModel* _selectModel;
     QTreeView* _treeview ;
     QTabWidget* _nb;
-    Monte* _monte;
+    MonteModel* _monteModel;
     void _createMontePages(const QString& dpfile, const QString& datadir);
     bool _isDP(const QString& fp);
     bool _isRUN(const QString& fp);

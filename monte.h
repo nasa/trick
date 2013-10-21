@@ -18,9 +18,9 @@ class Monte
     Monte(const QString &dirname=QString());
     ~Monte();
     bool setDir(const QString& montedir);
-    QStringList params() { return _params; }
+    QStringList params() const { return _params; }
+    QStringList runs() const { return _runs; }
     QList<TrickModel*>* models(const QString& param);
-    int nruns() { return _runs.size(); }
 
   private:
     QString _montedir;

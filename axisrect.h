@@ -9,7 +9,7 @@
 #include "trickcurve.h"
 #include "dp.h"
 #include "trickmodel.h"
-#include "monte.h"
+#include "montemodel.h"
 
 class AxisRect : public QCPAxisRect
 {
@@ -17,7 +17,7 @@ class AxisRect : public QCPAxisRect
     AxisRect(DPPlot* dpplot, QCustomPlot* plotwidget);
     ~AxisRect();
 
-    void setData(Monte* monte);
+    void setData(MonteModel *monteModel);
 
     TrickCurve* addCurve(TrickModel* model, const QString& yparam,
                          double valueScaleFactor=1.0);

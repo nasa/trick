@@ -101,6 +101,7 @@ qint32 TrickModel::_load_binary_param(QDataStream& in, int col)
     param_name[sz] = '\0';
     setHeaderData(col,Qt::Horizontal,param_name,Param::Name);
     setHeaderData(col,Qt::Horizontal,param_name,Qt::EditRole);
+    _param2column.insert(QString(param_name),col);
     delete[] param_name;
 
     // Param unit

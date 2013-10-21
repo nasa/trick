@@ -9,8 +9,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include <QAbstractTableModel>
-#include <QMap>
+#include <QHash>
 #include <QFile>
 #include <QDataStream>
 #include <QDebug>
@@ -50,6 +49,10 @@ class TrickModel : public SnapTable
 
     void map();
     void unmap();
+    int paramColumn(const QString& param) const
+    {
+        return _param2column.value(param);
+    }
     TrickModelIterator begin(int tcol, int xcol, int ycol) const;
     TrickModelIterator end(int tcol, int xcol, int ycol) const;
 
@@ -86,11 +89,12 @@ class TrickModel : public SnapTable
     TrickVersion _trick_version;
     enum Endianness _endianess;
     vector<int> _paramtypes;
+    QHash<QString,int> _param2column;
 
     int _nrows;
     int _row_size;
     qint32 _ncols;
-    QMap<int,qint64> _col2offset;
+    QHash<int,qint64> _col2offset;
 
     int _pos_beg_data;
     char* _mem;

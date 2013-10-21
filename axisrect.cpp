@@ -53,13 +53,15 @@ QString AxisRect::_abbreviate(const QString &label, int maxlen)
 }
 
 
-void AxisRect::setData(Monte *monte)
+void AxisRect::setData(MonteModel *monteModel)
 {
-    foreach (DPCurve* curve, _dpplot->curves() ) {
-        QString yparam = curve->y()->name();
-        QList<TrickModel*>* models = monte->models(yparam);
-        foreach (TrickModel* model, *models ) {
-            addCurve(model,yparam);
+    foreach (DPCurve* dpCurve, _dpplot->curves() ) {
+        int ycol = monteModel->paramColumn(dpCurve->y()->name());
+        int rc = monteModel->rowCount();
+        for ( int r = 0; r < rc; ++r ) {
+            QModelIndex idx = monteModel->index(r,ycol);
+            TrickCurveModel* curve = monteModel->curve(idx);
+            addCurve(curve);
         }
     }
 }

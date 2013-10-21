@@ -21,10 +21,10 @@ PlotPage::PlotPage(DPPage *page, QWidget *parent) :
     this->setLayout(_grid);
 }
 
-void PlotPage::setData(Monte *monte)
+void PlotPage::setData(MonteModel *monteModel)
 {
     foreach (Plot* plot, _plots) {
-        plot->setData(monte);
+        plot->setData(monteModel);
     }
 }
 

@@ -54,7 +54,7 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     // Monte Carlo Plot Page Widget
     //
     _nb = new QTabWidget;
-    _monte = new Monte(_montedir);
+    _monteModel = new MonteModel(_montedir);
     s->addWidget(_nb);
 
     // Size main window
@@ -69,6 +69,7 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
 MonteWindow::~MonteWindow()
 {
     delete _treemodel;
+    delete _monteModel;
 }
 
 void MonteWindow::createMenu()
@@ -101,7 +102,7 @@ void MonteWindow::_createMontePages(const QString& dpfile,
     QCursor currCursor = this->cursor();
     this->setCursor(QCursor(Qt::WaitCursor));
     PlotPage* plot = new PlotPage(page);
-    plot->setData(_monte);
+    plot->setData(_monteModel);
     _nb->addTab(plot,QFileInfo(dpfile).baseName());
     int idx = _nb->count()-1;
     _nb->setCurrentIndex(idx);
@@ -114,6 +115,7 @@ void MonteWindow::_slotDirTreeClicked(const QModelIndex &idx)
 {
     Q_UNUSED(idx);
 
+    //TimeItLinux t; t.start();
     QModelIndexList idxs =  _treeview->selectionModel()->selectedRows();
     foreach ( QModelIndex idx, idxs ) {
         QString fn = _treemodel->fileName(idx);
@@ -124,6 +126,7 @@ void MonteWindow::_slotDirTreeClicked(const QModelIndex &idx)
         } else if ( _isMONTE(fp) ) {
         }
     }
+    //t.snap("PlotLoadTime=");
 }
 
 bool MonteWindow::_isDP(const QString& fp)

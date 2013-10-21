@@ -22,9 +22,9 @@ Plot::Plot(DPPlot* plot, QWidget* parent) :
     plotLayout()->addElement(0,0,_axisrect);
 }
 
-void Plot::setData(Monte *monte)
+void Plot::setData(MonteModel *monteModel)
 {
-    _axisrect->setData(monte);
+    _axisrect->setData(monteModel);
     _axisrect->zoomToFit();
 }
 

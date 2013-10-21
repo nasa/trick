@@ -14,7 +14,7 @@ class PlotPage : public QWidget
     Q_OBJECT
 public:
     explicit PlotPage(DPPage* page, QWidget *parent = 0);
-    void setData(Monte *monte);
+    void setData(MonteModel *monteModel);
 
 signals:
     

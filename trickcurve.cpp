@@ -99,7 +99,8 @@ double TrickCurve::_distSquaredLineSegmentToPoint(const QPointF &l0,
 void TrickCurve::setData(TrickCurveModel *model)
 {
    _model = model;
-   setName(model->headerData(2,Qt::Horizontal,Param::Name).toString());
+   QString yparam = model->headerData(2,Qt::Horizontal,Param::Name).toString();
+   setName(yparam);
     _createPainterPath();
 }
 

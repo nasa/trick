@@ -145,7 +145,8 @@ SOURCES += \
     snapplot.cpp \
     timeit_linux.cpp \
     timeit.cpp \
-    timeit_win32.cpp
+    timeit_win32.cpp \
+    montemodel.cpp
 
 HEADERS += \
     test/testsnap.h \
@@ -169,4 +170,5 @@ HEADERS += \
     snapplot.h \
     timeit.h \
     timeit_linux.h \
-    timeit_win32.h
+    timeit_win32.h \
+    montemodel.h

@@ -13,7 +13,7 @@ class Plot : public QCustomPlot
 
 public:
     explicit Plot(DPPlot *plot, QWidget* parent=0);
-    void setData(Monte *monte);
+    void setData(MonteModel *monteModel);
 
 protected:
     void keyPressEvent(QKeyEvent *event);
