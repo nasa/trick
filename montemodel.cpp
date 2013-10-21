@@ -85,7 +85,13 @@ QVariant MonteModel::data(const QModelIndex &idx, int role) const
 
     if ( idx.isValid() ) {
         if ( role == Qt::DisplayRole ) {
-            val = QString("MonteModel->data() not implemented");
+            QString run = headerData(idx.row(),
+                               Qt::Vertical,
+                               Qt::DisplayRole).toString();
+            QString param = headerData(idx.column(),
+                               Qt::Horizontal,
+                               Qt::DisplayRole).toString();
+            val = run + ":" + param;
         }
     }
 
