@@ -26,16 +26,6 @@ TrickCurveModel *MonteModel::curve(const QModelIndex &idx) const
     QList<TrickModel*>* models = _monte->models(yparam);
     TrickModel* tm = models->at(idx.row());
     int ycol = tm->paramColumn(yparam) ;
-    for ( ; ycol < tm->columnCount(); ++ycol) {
-        if ( tm->headerData(ycol,Qt::Horizontal,Param::Name) == yparam ) {
-            break;
-        }
-    }
-    int d = tm->paramColumn(yparam);
-    if ( d != ycol ) {
-        qDebug() << "die!";
-        exit(-1);
-    }
     return new TrickCurveModel(tm,0,0,ycol,yparam);
 }
 
