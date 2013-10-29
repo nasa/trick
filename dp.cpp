@@ -118,18 +118,18 @@ DPVar::DPVar(const QDomElement &e) :
 {
     QDomElement el = e;
 
-    _name = el.text();
+    _name = el.text().simplified();
 
     QString label("label");
     if ( el.hasAttribute(label) ) {
-        _label = el.attributeNode(label).value();
+        _label = el.attributeNode(label).value().simplified();
     } else {
         _label = _name;
     }
 
     QString unit("units");
     if ( el.hasAttribute(unit) ) {
-        _unit = el.attributeNode(unit).value();
+        _unit = el.attributeNode(unit).value().simplified();
 
     }
 }
