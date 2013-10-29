@@ -5,6 +5,7 @@
 #include <QScrollBar>
 #include <QTabWidget>
 #include <QHash>
+#include <QGridLayout>
 #include "plotpage.h"
 #include "montemodel.h"
 
@@ -21,6 +22,7 @@ public:
     virtual void scrollTo(const QModelIndex &index,
                           ScrollHint hint = EnsureVisible);
     virtual QModelIndex indexAt(const QPoint &point) const;
+    virtual void setSelectionModel(QItemSelectionModel* selectionModel);
 
 protected:
     virtual QModelIndex moveCursor(CursorAction cursorAction,
@@ -44,15 +46,24 @@ protected:
 signals:
     
 public slots:
+    void  setCurrentIndex( const QModelIndex & index );
+
 
 protected slots:
     void rowsInserted(const QModelIndex &pidx, int start, int end);
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
+private slots:
+    void currentSelectChanged(const QModelIndex &currIdx,
+                                   const QModelIndex &prevIdx);
+    void currentTabChanged(int currIdx);
+
 private:
     MonteModel* _monteModel;
     QTabWidget* _nb;
 
+    QHash<int,QModelIndex> _nbidx2idx;
+    QHash<QModelIndex,int> _idx2nbIdx;
     QHash<QModelIndex,QFrame*> _frames;
     QHash<QModelIndex,QGridLayout*> _grids ;
     QHash<QModelIndex,Plot*> _plots ;

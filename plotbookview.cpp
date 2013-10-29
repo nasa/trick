@@ -19,11 +19,18 @@ void PlotBookView::setData(MonteModel *monteModel)
     _monteModel = monteModel;
 }
 
+//
+// This is really bogus right now
+//
 QRect PlotBookView::visualRect(const QModelIndex &index) const
 {
-    //QRect rect = itemRect(index);
-    qDebug() << viewport()->rect();
-    return viewport()->rect();
+    QRect rect;
+    QFrame* f = _frames.value(index);
+    if ( f )  {
+        rect = f->rect();
+    }
+
+    return rect;
 #if 0
     if (rect.isValid())
         return QRect(rect.left() - horizontalScrollBar()->value(),
@@ -44,8 +51,19 @@ void PlotBookView::scrollTo(const QModelIndex &index,
 QModelIndex PlotBookView::indexAt(const QPoint &point) const
 {
     // TODO
-    qDebug() << "MOOOOOOOOOOOOOOOOOOOOOOOO";
+    qDebug() << "indexAt!";
     return QModelIndex();
+}
+
+void PlotBookView::setSelectionModel(QItemSelectionModel *selectionModel)
+{
+    connect(selectionModel,
+            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+            this,
+            SLOT(currentSelectChanged(QModelIndex,QModelIndex)));
+    connect(_nb, SIGNAL(currentChanged(int)),
+            this, SLOT(currentTabChanged(int)));
+    QAbstractItemView::setSelectionModel(selectionModel);
 }
 
 QModelIndex PlotBookView::moveCursor(QAbstractItemView::CursorAction cursorAction,
@@ -73,24 +91,71 @@ bool PlotBookView::isIndexHidden(const QModelIndex &index) const
 void PlotBookView::setSelection(const QRect &rect,
                                 QItemSelectionModel::SelectionFlags command)
 {
+    qDebug() << "setSelection!!";
 }
 
+//
+// This is really bogus right now
+//
 QRegion PlotBookView::visualRegionForSelection(
                                const QItemSelection &selection) const
 {
+    QModelIndexList idxs = selection.indexes();
+    foreach ( QModelIndex idx, idxs ) {
+        QFrame* f = _frames.value(idx);
+        if ( f ) {
+            return QRegion(f->rect());
+        }
+        break; // do first one for now
+    }
+    return QRegion();
 }
 
+//
+// This is really bogus right now
+//
 QItemSelectionModel::SelectionFlags PlotBookView::selectionCommand(
                            const QModelIndex &index, const QEvent *event) const
 {
+    return QItemSelectionModel::Select;
 }
 
+void PlotBookView::setCurrentIndex(const QModelIndex &index)
+{
+    QAbstractItemView::setCurrentIndex(index);
+}
+
+//
+// This is really bogus right now
+//
 void PlotBookView::dataChanged(const QModelIndex &topLeft,
                           const QModelIndex &bottomRight)
 {
-    //qDebug() << "dchanged=" << topLeft ;
     QAbstractItemView::dataChanged(topLeft, bottomRight);
     viewport()->update();
+}
+
+void PlotBookView::currentSelectChanged(const QModelIndex &currIdx,
+                                  const QModelIndex &prevIdx)
+{
+    QModelIndex pidx = model()->parent(currIdx);
+
+    QModelIndex pageIdx(currIdx);
+    while ( pageIdx.parent().isValid() ) {
+        pageIdx = pageIdx.parent();
+    }
+
+    _nb->setCurrentIndex(_idx2nbIdx.value(pageIdx));
+}
+
+void PlotBookView::currentTabChanged(int currIdx)
+{
+    if ( ! selectionModel() ) {
+        return;
+    }
+
+    QModelIndex idx = _nbidx2idx.value(currIdx);
+    selectionModel()->setCurrentIndex(idx,QItemSelectionModel::ClearAndSelect);
 }
 
 void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
@@ -111,7 +176,10 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             grid->setSpacing(0);
             _grids.insert(idx,grid);
             _nb->addTab(frame,QFileInfo(dpfile).baseName());
-            _nb->setCurrentIndex(_nb->count()-1);
+            int nbIdx = _nb->count()-1;
+            _idx2nbIdx.insert(idx,nbIdx);
+            _nbidx2idx.insert(nbIdx,idx);
+            _nb->setCurrentIndex(nbIdx);
             _nb->setAttribute(Qt::WA_AlwaysShowToolTips, true);
         } else if ( ! gpidx.isValid() ) {
             // Plot

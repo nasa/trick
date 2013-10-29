@@ -27,21 +27,23 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     setCentralWidget(s);
 
     //
-    // Model which holds data for notebook view of pages of plots
+    // Create model which represents pages of plots
+    // Also, create select model for the above
     //
     _bookOfPlotsModel = new QStandardItemModel(0,1,parent);
-    //_bookTreeView = new QTreeView(s);
-    //_bookTreeView->setModel(_bookOfPlotsModel);
-    //_bookTreeView->setHeaderHidden(true);
+    _selectModel = new QItemSelectionModel(_bookOfPlotsModel);
 
     //
     // DPs, SETs, RUNs, SIMs, MONTE Dir Tree
     //
+    QFrame* frame = new QFrame(s);
+    QGridLayout* grid = new QGridLayout(frame);
     QDir topdir(_montedir);
     topdir.cdUp();
     _treemodel = new QFileSystemModel;
     _treemodel->setRootPath(topdir.path());
-    _treeview = new QTreeView(s);
+    _treeview = new QTreeView(frame);
+    grid->addWidget(_treeview,0,0);
     _treeview->setModel(_treemodel);
     _treeview->setRootIndex(_treemodel->index(topdir.path()));
     //_treeview->setSelectionMode(QAbstractItemView::MultiSelection);
@@ -59,12 +61,22 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
             this, SLOT(_slotDirTreeClicked(QModelIndex)));
 
     //
+    // For Tim, show tree view of book of plots
+    //
+    _bookTreeView = new QTreeView(frame);
+    _bookTreeView->setModel(_bookOfPlotsModel);
+    _bookTreeView->setHeaderHidden(true);
+    _bookTreeView->setSelectionModel(_selectModel);
+    grid->addWidget(_bookTreeView,1,0);
+
+    //
     // Create Plot Tabbed Notebook View Widget
     //
     _monteModel = new MonteModel(_montedir);
     _plotBookView = new PlotBookView(s);
     _plotBookView->setModel(_bookOfPlotsModel);
     _plotBookView->setData(_monteModel);
+    _plotBookView->setSelectionModel(_selectModel);
     s->addWidget(_plotBookView);
 
     // Size main window
@@ -99,16 +111,20 @@ void MonteWindow::createMenu()
 void MonteWindow::_createMontePages(const QString& dpfile)
 {
     //
-    // If already created, just make page current
+    // If already created, make page current
     //
     QStandardItem *rootItem = _bookOfPlotsModel->invisibleRootItem();
     for ( int row = 0; row < rootItem->rowCount(); ++row) {
         QModelIndex pageIdx = _bookOfPlotsModel->index(row,0);
         QString pageName = _bookOfPlotsModel->data(pageIdx).toString();
         if ( pageName == dpfile ) {
-            qDebug() << pageName << dpfile;
+            _selectModel->setCurrentIndex(pageIdx,
+                                          QItemSelectionModel::ClearAndSelect);
+                                          //QItemSelectionModel::Current);
+            return;
         }
     }
+
 
     QCursor currCursor = this->cursor();
     this->setCursor(QCursor(Qt::WaitCursor));
