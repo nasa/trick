@@ -158,7 +158,10 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 grid->addWidget(plot,3,0,1,2);
                 break;
             }
-            default: break;
+            default: {
+                qDebug() << "snap limitation: 7 plots max on DP :(";
+                qDebug() << "snap will probably crash now!";
+            }
             }
 
         } else if ( ! g2pidx.isValid() ) {
