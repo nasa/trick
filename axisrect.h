@@ -3,6 +3,7 @@
 
 #ifdef SNAPGUI
 
+#include <QAbstractItemModel>
 #include <QRubberBand>
 #include "qplot/qcustomplot.h"
 #include "trickmodel.h"
@@ -15,6 +16,7 @@ class AxisRect : public QCPAxisRect
 {
   public:
     AxisRect(DPPlot* dpplot, QCustomPlot* plotwidget);
+    AxisRect(const QModelIndex& plotIdx, QCustomPlot* plotwidget);
     ~AxisRect();
 
     void setData(MonteModel *monteModel);

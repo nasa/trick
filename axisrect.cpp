@@ -24,6 +24,29 @@ AxisRect::AxisRect(DPPlot* dpplot, QCustomPlot *plotwidget) :
     }
 }
 
+AxisRect::AxisRect(const QModelIndex& plotIdx, QCustomPlot* plotwidget) :
+    QCPAxisRect(plotwidget),
+    _plotwidget(plotwidget),
+    _rubber_band(0),
+    _isXRangeCalculated(false),
+    _isYRangeCalculated(false),
+    _keyPressMoveFactor(.08)
+{
+    _xAxis = axis(QCPAxis::atBottom);
+    _yAxis = axis(QCPAxis::atLeft);
+
+    // If a single curve, make axis labels from curve name
+    const QAbstractItemModel* m = plotIdx.model();
+    if ( m->rowCount() == 1 ) {
+        QModelIndex xIdx = m->index(0,0,plotIdx);
+        QModelIndex yIdx = m->index(0,0,plotIdx);
+        QString xlabel = _abbreviate(m->data(xIdx).toString());
+        QString ylabel = _abbreviate(m->data(yIdx).toString());
+        _xAxis->setLabel(xlabel);
+        _yAxis->setLabel(ylabel);
+    }
+}
+
 AxisRect::~AxisRect()
 {
     foreach ( TrickCurveModel* cm, _curve_models ) {
