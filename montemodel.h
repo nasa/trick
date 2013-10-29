@@ -38,6 +38,7 @@ class MonteModel : public QAbstractItemModel
                        QObject *parent = 0);
     ~MonteModel();
 
+    QString dir() const { return _dir ; }
     virtual QModelIndex parent(const QModelIndex & index) const;
     virtual QModelIndex index(int row, int column,
                       const QModelIndex &pidx = QModelIndex()) const;
@@ -49,6 +50,7 @@ class MonteModel : public QAbstractItemModel
 
     // See comment at top of file
     TrickCurveModel* curve(const QModelIndex& idx) const;
+    TrickCurveModel* curve(int row, const QString& param) const;
 
     // Convenience for getting column by param name
     int paramColumn(const QString& param);
@@ -59,6 +61,7 @@ class MonteModel : public QAbstractItemModel
 
   private:
 
+    QString _dir;
     Monte* _monte;
     QStringList _params;
     QHash<QString,int> _param2column;

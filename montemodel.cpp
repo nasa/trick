@@ -3,6 +3,7 @@
 
 MonteModel::MonteModel(const QString &monteDir,
                        QObject *parent):
+    _dir(monteDir),
     QAbstractItemModel(parent)
 {
     _monte = new Monte(monteDir);
@@ -27,6 +28,14 @@ TrickCurveModel *MonteModel::curve(const QModelIndex &idx) const
     TrickModel* tm = models->at(idx.row());
     int ycol = tm->paramColumn(yparam) ;
     return new TrickCurveModel(tm,0,0,ycol,yparam);
+}
+
+TrickCurveModel *MonteModel::curve(int row, const QString &param) const
+{
+    QList<TrickModel*>* models = _monte->models(param);
+    TrickModel* tm = models->at(row);
+    int ycol = tm->paramColumn(param) ;
+    return new TrickCurveModel(tm,0,0,ycol,param);
 }
 
 int MonteModel::paramColumn(const QString &param)
