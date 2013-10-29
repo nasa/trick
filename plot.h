@@ -13,6 +13,8 @@ class Plot : public QCustomPlot
 
 public:
     explicit Plot(DPPlot *plot, QWidget* parent=0);
+    explicit Plot(const QModelIndex& plotIdx, QWidget* parent=0);
+    TrickCurve *addCurve(TrickCurveModel *model);
     void setData(MonteModel *monteModel);
 
 protected:
