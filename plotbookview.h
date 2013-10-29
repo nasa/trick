@@ -57,6 +57,7 @@ private slots:
     void currentSelectChanged(const QModelIndex &currIdx,
                                    const QModelIndex &prevIdx);
     void currentTabChanged(int currIdx);
+    void currentCustomPlotCurveChanged(TrickCurve *curve);
 
 private:
     MonteModel* _monteModel;

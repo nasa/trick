@@ -158,6 +158,7 @@ void TrickCurve::_slotSelectionChanged(bool sel)
     // raise selected curve above others so that it is painted on top
     if ( sel == true ) {
         layer()->raiseChild(this);
+        emit selectionChanged(this);
     }
 }
 

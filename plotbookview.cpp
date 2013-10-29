@@ -179,6 +179,13 @@ void PlotBookView::currentTabChanged(int currIdx)
     selectionModel()->setCurrentIndex(idx,QItemSelectionModel::ClearAndSelect);
 }
 
+void PlotBookView::currentCustomPlotCurveChanged(TrickCurve* curve)
+{
+    QModelIndex curveIdx = _curves.key(curve);
+    selectionModel()->setCurrentIndex(curveIdx,
+                                      QItemSelectionModel::ClearAndSelect);
+}
+
 void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
 {
     QModelIndex gpidx = model()->parent(pidx);
@@ -266,6 +273,8 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 Plot* plot = _plots.value(gpidx);
                 TrickCurve* curve = plot->addCurve(curveModel);
                 _curves.insert(pidx,curve);
+                connect(curve,SIGNAL(selectionChanged(TrickCurve*)),
+                        this,SLOT(currentCustomPlotCurveChanged(TrickCurve*)));
             }
         }
     }

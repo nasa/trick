@@ -94,6 +94,9 @@ private slots:
     friend class AxisRect;
     friend class QCustomPlot;
     friend class QCPLegend;
+
+  signals:
+    void selectionChanged( TrickCurve* curve);
 };
 
 
