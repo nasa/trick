@@ -27,6 +27,14 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     setCentralWidget(s);
 
     //
+    // Model which holds data for notebook view of pages of plots
+    //
+    _bookOfPlotsModel = new QStandardItemModel(0,1,parent);
+    //_bookTreeView = new QTreeView(s);
+    //_bookTreeView->setModel(_bookOfPlotsModel);
+    //_bookTreeView->setHeaderHidden(true);
+
+    //
     // DPs, SETs, RUNs, SIMs, MONTE Dir Tree
     //
     QDir topdir(_montedir);
@@ -51,11 +59,13 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
             this, SLOT(_slotDirTreeClicked(QModelIndex)));
 
     //
-    // Monte Carlo Plot Page Widget
+    // Create Plot Tabbed Notebook View Widget
     //
-    _nb = new QTabWidget;
     _monteModel = new MonteModel(_montedir);
-    s->addWidget(_nb);
+    _plotBookView = new PlotBookView(s);
+    _plotBookView->setModel(_bookOfPlotsModel);
+    _plotBookView->setData(_monteModel);
+    s->addWidget(_plotBookView);
 
     // Size main window
     QList<int> sizes;
@@ -70,6 +80,7 @@ MonteWindow::~MonteWindow()
 {
     delete _treemodel;
     delete _monteModel;
+    delete _bookOfPlotsModel;
 }
 
 void MonteWindow::createMenu()
@@ -82,32 +93,67 @@ void MonteWindow::createMenu()
     setMenuWidget(_menuBar);
 }
 
-    //
-    // Monte Carlo Plot Page Widget
-    //
-void MonteWindow::_createMontePages(const QString& dpfile,
-                           const QString& montedir)
+//
+// Monte Carlo Plot Page Widget
+//
+void MonteWindow::_createMontePages(const QString& dpfile)
 {
-    int c = _nb->count();
-    for ( int i = 0; i < c; ++i) {
-        if ( _nb->tabToolTip(i) == dpfile ) {
-            _nb->setCurrentIndex(i);
-            return;
+    //
+    // If already created, just make page current
+    //
+    QStandardItem *rootItem = _bookOfPlotsModel->invisibleRootItem();
+    for ( int row = 0; row < rootItem->rowCount(); ++row) {
+        QModelIndex pageIdx = _bookOfPlotsModel->index(row,0);
+        QString pageName = _bookOfPlotsModel->data(pageIdx).toString();
+        if ( pageName == dpfile ) {
+            qDebug() << pageName << dpfile;
         }
     }
 
-    DPProduct dp(dpfile);
-    //Monte* monte = new Monte(montedir);
-    DPPage* page = dp.pages().at(0);
     QCursor currCursor = this->cursor();
     this->setCursor(QCursor(Qt::WaitCursor));
-    PlotPage* plot = new PlotPage(page);
-    plot->setData(_monteModel);
-    _nb->addTab(plot,QFileInfo(dpfile).baseName());
-    int idx = _nb->count()-1;
-    _nb->setCurrentIndex(idx);
-    _nb->setAttribute(Qt::WA_AlwaysShowToolTips, true);
-    _nb->setTabToolTip(idx,dpfile);
+
+    DPProduct dp(dpfile);
+    int numRuns = _monteModel->rowCount();
+    int pageNum = 0 ;
+    foreach (DPPage* page, dp.pages() ) {
+        QString pageTitle = dpfile;
+        if ( pageNum > 0 ) {
+            pageTitle += QString("_%0").arg(pageNum);
+        }
+        QStandardItem *pageItem = new QStandardItem(pageTitle);
+        rootItem->appendRow(pageItem);
+        foreach (DPPlot* plot, page->plots() ) {
+            QString plotTitle = _descrPlotTitle(plot);
+            QStandardItem *plotItem = new QStandardItem(plotTitle);
+            pageItem->appendRow(plotItem);
+            foreach (DPCurve* dpcurve, plot->curves() ) {
+                for ( int run = 0; run < numRuns; ++run) {
+                    QString curveTitle = QString("Curve_%0").arg(run);
+                    QStandardItem *curveItem = new QStandardItem(curveTitle);
+                    plotItem->appendRow(curveItem);
+
+                    QString tName = dpcurve->t()->name();
+                    QString xName = dpcurve->x()->name();
+                    QString yName = dpcurve->y()->name();
+                    QString runName = _monteModel->headerData(run,Qt::Vertical).
+                                                   toString();
+
+                    QStandardItem *tItem   = new QStandardItem(tName);
+                    QStandardItem *xItem   = new QStandardItem(xName);
+                    QStandardItem *yItem   = new QStandardItem(yName);
+                    QStandardItem *runItem = new QStandardItem(runName);
+
+                    curveItem->appendRow(tItem);
+                    curveItem->appendRow(xItem);
+                    curveItem->appendRow(yItem);
+                    curveItem->appendRow(runItem);
+                }
+            }
+        }
+        pageNum++;
+    }
+
     this->setCursor(currCursor);
 }
 
@@ -121,12 +167,13 @@ void MonteWindow::_slotDirTreeClicked(const QModelIndex &idx)
         QString fn = _treemodel->fileName(idx);
         QString fp = _treemodel->filePath(idx);
         if ( _isDP(fp) ) {
-            _createMontePages(fp,fp);
+            _createMontePages(fp);
         } else if ( _isRUN(fp) ) {
         } else if ( _isMONTE(fp) ) {
         }
     }
     //t.snap("PlotLoadTime=");
+
 }
 
 bool MonteWindow::_isDP(const QString& fp)
@@ -145,6 +192,44 @@ bool MonteWindow::_isMONTE(const QString &fp)
 {
     QFileInfo fi(fp);
     return ( fi.baseName().left(6) == "MONTE_" && fi.isDir() ) ;
+}
+
+QString MonteWindow::_descrPlotTitle(DPPlot *plot)
+{
+    QString plotTitle = "Plot_";
+    if ( plot->title() != "Plot" )  {
+        plotTitle += plot->title();
+    } else {
+        QStringList vars;
+        foreach ( DPCurve* curve, plot->curves() ) {
+            vars.append(curve->y()->name());
+        }
+        QString var0 = vars.at(0);
+        int dotCnt = 0 ;
+        QString sub;
+        for ( int i = 1 ; i < var0.size(); ++i) {
+            sub = var0.right(i);
+            if ( sub.at(0) == '.' ) {
+                dotCnt++;
+            }
+            bool is = true;
+            foreach ( QString var, vars ) {
+                if ( ! var.endsWith(sub) ) {
+                    is = false;
+                    break;
+                }
+            }
+            if ( ! is || dotCnt == 2 ) {
+                break;
+            }
+        }
+        if ( dotCnt == 2 ) {
+            sub.remove(0,1);
+        }
+        plotTitle += sub;
+    }
+
+    return plotTitle;
 }
 
 #endif // SNAPGUI2

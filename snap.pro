@@ -146,7 +146,8 @@ SOURCES += \
     timeit_linux.cpp \
     timeit.cpp \
     timeit_win32.cpp \
-    montemodel.cpp
+    montemodel.cpp \
+    plotbookview.cpp
 
 HEADERS += \
     test/testsnap.h \
@@ -171,4 +172,5 @@ HEADERS += \
     timeit.h \
     timeit_linux.h \
     timeit_win32.h \
-    montemodel.h
+    montemodel.h \
+    plotbookview.h
