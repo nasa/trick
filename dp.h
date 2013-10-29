@@ -52,7 +52,7 @@ class DPPage
 {
 public:
     DPPage(const QDomElement& e);
-    QString title();
+    QString title() const { return _title ; }
     QList<DPPlot*> plots() { return _plots; }
 private:
     QString _title;
