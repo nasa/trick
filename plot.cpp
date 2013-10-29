@@ -45,8 +45,9 @@ Plot::Plot(const QModelIndex& plotIdx, QWidget* parent) :
 
 TrickCurve *Plot::addCurve(TrickCurveModel *model)
 {
-    _axisrect->addCurve(model);
+    TrickCurve* curve = _axisrect->addCurve(model);
     _axisrect->zoomToFit();
+    return curve;
 }
 
 void Plot::setData(MonteModel *monteModel)

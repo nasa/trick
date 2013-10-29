@@ -67,6 +67,7 @@ private:
     QHash<QModelIndex,QFrame*> _frames;
     QHash<QModelIndex,QGridLayout*> _grids ;
     QHash<QModelIndex,Plot*> _plots ;
+    QHash<QModelIndex,TrickCurve*> _curves ;
 };
 
 #endif // PLOTBOOKVIEW_H

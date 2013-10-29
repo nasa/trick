@@ -140,12 +140,33 @@ void PlotBookView::currentSelectChanged(const QModelIndex &currIdx,
 {
     QModelIndex pidx = model()->parent(currIdx);
 
+    //
+    // Update notebook widget index
+    //
+    int level = 0 ;
     QModelIndex pageIdx(currIdx);
     while ( pageIdx.parent().isValid() ) {
         pageIdx = pageIdx.parent();
+        level++;
     }
-
     _nb->setCurrentIndex(_idx2nbIdx.value(pageIdx));
+
+    //
+    // If currIdx is a curve index, select curve
+    //
+    if ( level == 2 ) {
+        TrickCurve* prevCurve = _curves.value(prevIdx);
+        if ( prevCurve ) {
+            prevCurve->setSelected(false);
+        }
+        TrickCurve* currCurve = _curves.value(currIdx);
+        if ( currCurve ) {
+            currCurve->setSelected(true);
+            QModelIndex plotIdx = currIdx.parent();
+            Plot* plot = _plots.value(plotIdx);
+            plot->replot();
+        }
+    }
 }
 
 void PlotBookView::currentTabChanged(int currIdx)
@@ -243,7 +264,8 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 TrickCurveModel* curveModel = _monteModel->curve(pidx.row(),
                                                                 yparam);
                 Plot* plot = _plots.value(gpidx);
-                plot->addCurve(curveModel);
+                TrickCurve* curve = plot->addCurve(curveModel);
+                _curves.insert(pidx,curve);
             }
         }
     }
