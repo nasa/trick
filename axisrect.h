@@ -59,7 +59,7 @@ protected:
     QCPRange _xDataRange;
     QCPRange _yDataRange;
 
-    QString _abbreviate(const QString& label,int maxlen=35);
+    static QString _abbreviate(const QString& label,int maxlen=35);
 
     double _keyPressMoveFactor;
     void _keyPressLeft();

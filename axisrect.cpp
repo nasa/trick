@@ -34,17 +34,6 @@ AxisRect::AxisRect(const QModelIndex& plotIdx, QCustomPlot* plotwidget) :
 {
     _xAxis = axis(QCPAxis::atBottom);
     _yAxis = axis(QCPAxis::atLeft);
-
-    // If a single curve, make axis labels from curve name
-    const QAbstractItemModel* m = plotIdx.model();
-    if ( m->rowCount() == 1 ) {
-        QModelIndex xIdx = m->index(0,0,plotIdx);
-        QModelIndex yIdx = m->index(0,0,plotIdx);
-        QString xlabel = _abbreviate(m->data(xIdx).toString());
-        QString ylabel = _abbreviate(m->data(yIdx).toString());
-        _xAxis->setLabel(xlabel);
-        _yAxis->setLabel(ylabel);
-    }
 }
 
 AxisRect::~AxisRect()
@@ -74,7 +63,6 @@ QString AxisRect::_abbreviate(const QString &label, int maxlen)
 
     return abbr;
 }
-
 
 void AxisRect::setData(MonteModel *monteModel)
 {
@@ -113,6 +101,9 @@ TrickCurve* AxisRect::addCurve(TrickModel* model, const QString& yparam,
 TrickCurve* AxisRect::addCurve(TrickCurveModel* model)
 {
     TrickCurve *curve = new TrickCurve(_xAxis,_yAxis);
+    QString yparam = model->headerData(2,Qt::Horizontal).toString();
+    _xAxis->setLabel("Time");
+    _yAxis->setLabel(_abbreviate(yparam));
     curve->setData(model);
     _curves.append(curve);
     _plotwidget->addPlottable(curve);
