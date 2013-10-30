@@ -22,57 +22,71 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     setWindowTitle(tr("Snap!"));
     createMenu();
 
-    // Central Widget
+    // Central Widget and main layout
     QSplitter* s = new QSplitter;
     setCentralWidget(s);
+    QFrame* lframe = new QFrame(s);
+    QGridLayout* lgrid = new QGridLayout(lframe);
+    _nbDPParam = new QTabWidget(lframe);
+    lgrid->addWidget(_nbDPParam,0,0);
+    _nbDPParam->setAttribute(Qt::WA_AlwaysShowToolTips, false);
 
     //
-    // Create model which represents pages of plots
-    // Also, create select model for the above
+    // Create models
     //
     _bookOfPlotsModel = new QStandardItemModel(0,1,parent);
     _selectModel = new QItemSelectionModel(_bookOfPlotsModel);
+    _monteModel = new MonteModel(_montedir);
+    _paramsModel = _createParamsModel(_monteModel);;
+    _selectParamModel = new QItemSelectionModel(_paramsModel);
 
     //
-    // DPs, SETs, RUNs, SIMs, MONTE Dir Tree
+    // DP Model/TreeView
     //
-    QFrame* frame = new QFrame(s);
-    QGridLayout* grid = new QGridLayout(frame);
     QDir topdir(_montedir);
     topdir.cdUp();
     _treemodel = new QFileSystemModel;
     _treemodel->setRootPath(topdir.path());
-    _treeview = new QTreeView(frame);
-    grid->addWidget(_treeview,0,0);
+    _treeview = new QTreeView(lframe);
     _treeview->setModel(_treemodel);
     _treeview->setRootIndex(_treemodel->index(topdir.path()));
-    //_treeview->setSelectionMode(QAbstractItemView::MultiSelection);
-    //_treeview->setSelectionMode(QAbstractItemView::ExtendedSelection);
     _treeview->hideColumn(1);
     _treeview->hideColumn(2);
     _treeview->hideColumn(3);
     QStringList filters;
-    //filters  << "DP_*" << "RUN_*" << "SET_*" << "MONTE_*" << "SIM_*";
     filters  << "DP_*" << "SET_*";
     _treemodel->setNameFilters(filters);
     _treemodel->setNameFilterDisables(false);
     _treemodel->setFilter(QDir::Dirs|QDir::Files);
     connect(_treeview,SIGNAL(clicked(QModelIndex)),
             this, SLOT(_slotDirTreeClicked(QModelIndex)));
+    _nbDPParam->addTab(_treeview,"DP");
+
+    //
+    // Param list view
+    //
+    _paramListView = new QListView(lframe);
+    _paramListView->setModel(_paramsModel);
+    _paramListView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    _paramListView->setSelectionModel(_selectParamModel);
+    _nbDPParam->addTab(_paramListView,"Vars");
+    connect(_selectParamModel,
+            SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this,
+            SLOT(_selectParamChanged(QItemSelection,QItemSelection)));
 
     //
     // For Tim, show tree view of book of plots
     //
-    _bookTreeView = new QTreeView(frame);
+    _bookTreeView = new QTreeView(lframe);
     _bookTreeView->setModel(_bookOfPlotsModel);
     _bookTreeView->setHeaderHidden(true);
     _bookTreeView->setSelectionModel(_selectModel);
-    grid->addWidget(_bookTreeView,1,0);
+    lgrid->addWidget(_bookTreeView,1,0);
 
     //
     // Create Plot Tabbed Notebook View Widget
     //
-    _monteModel = new MonteModel(_montedir);
     _plotBookView = new PlotBookView(s);
     _plotBookView->setModel(_bookOfPlotsModel);
     _plotBookView->setData(_monteModel);
@@ -173,6 +187,30 @@ void MonteWindow::_createMontePages(const QString& dpfile)
     this->setCursor(currCursor);
 }
 
+//
+// Just a simple list of params grabbed off the MonteModel col headerData
+//
+QStandardItemModel *MonteWindow::_createParamsModel(MonteModel *mm)
+{
+    QStandardItemModel* pm = new QStandardItemModel(0,1,this);
+
+    QStringList paramList;
+    for ( int c = 1; c < mm->columnCount(); ++c) {
+        QString param = mm->headerData(c,Qt::Horizontal).toString();
+        paramList.append(param);
+    }
+
+    paramList.sort();
+
+    QStandardItem *rootItem = pm->invisibleRootItem();
+    for ( int i = 0; i < paramList.size(); ++i) {
+        QStandardItem *paramItem = new QStandardItem(paramList.at(i));
+        rootItem->appendRow(paramItem);
+    }
+
+    return pm;
+}
+
 void MonteWindow::_slotDirTreeClicked(const QModelIndex &idx)
 {
     Q_UNUSED(idx);
@@ -190,6 +228,72 @@ void MonteWindow::_slotDirTreeClicked(const QModelIndex &idx)
     }
     //t.snap("PlotLoadTime=");
 
+}
+
+void MonteWindow::_selectParamChanged(const QItemSelection &currSelection,
+                                      const QItemSelection &prevSelection)
+{
+    // Find or Create "QP" Quick Product
+    QModelIndex qpIndex;
+    int rc = _bookOfPlotsModel->rowCount();
+    for ( int r = 0; r < rc; ++r) {
+        QModelIndex dpIdx = _bookOfPlotsModel->index(r,0);
+        QString dpName = _bookOfPlotsModel->data(dpIdx).toString();
+        if ( dpName == "QP" ) {
+            qpIndex = dpIdx;
+            break;
+        }
+    }
+    QStandardItem* qpItem = 0;
+    if ( ! qpIndex.isValid() ) {
+        QStandardItem *rootItem = _bookOfPlotsModel->invisibleRootItem();
+        qpItem = new QStandardItem("QP");
+        rootItem->appendRow(qpItem);
+    } else {
+        qpItem = _bookOfPlotsModel->itemFromIndex(qpIndex);
+    }
+
+    foreach ( QModelIndex idx, prevSelection.indexes() ) {
+        qDebug() << "<<" << _paramsModel->data(idx).toString();
+    }
+
+    //
+    // Add selected curves
+    //
+    int nPlots = qpItem->rowCount();
+    if ( nPlots > 7 ) {
+        qDebug() << "Sorry!  This is demo only! No support for 8+ plots!";
+        exit(-1);
+    }
+    foreach ( QModelIndex idx, currSelection.indexes() ) {
+
+        QString plotName = QString("QPlot_%0").arg(nPlots);
+        QStandardItem* qPlotItem = new QStandardItem(plotName);
+        qpItem->appendRow(qPlotItem);
+
+        for ( int r = 0; r < _monteModel->rowCount(); ++r) {
+            QString curveName = QString("Curve_%0").arg(r);
+            QStandardItem *curveItem = new QStandardItem(curveName);
+            qPlotItem->appendRow(curveItem);
+
+            QString tName("sys.exec.out.time");
+            QString xName("sys.exec.out.time");
+            QString yName = _paramsModel->data(idx).toString();
+            QString runName = _monteModel->headerData(r,Qt::Vertical).toString();
+
+            QStandardItem *tItem   = new QStandardItem(tName);
+            QStandardItem *xItem   = new QStandardItem(xName);
+            QStandardItem *yItem   = new QStandardItem(yName);
+            QStandardItem *runItem = new QStandardItem(runName);
+
+            curveItem->appendRow(tItem);
+            curveItem->appendRow(xItem);
+            curveItem->appendRow(yItem);
+            curveItem->appendRow(runItem);
+        }
+
+        nPlots++;
+    }
 }
 
 bool MonteWindow::_isDP(const QString& fp)

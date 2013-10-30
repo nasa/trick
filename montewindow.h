@@ -13,6 +13,7 @@
 #include <QFileSystemModel>
 #include <QItemSelectionModel>
 #include <QTreeView>
+#include <QListView>
 #include <QFileInfo>
 #include <QTabWidget>
 #include <QStringList>
@@ -44,13 +45,18 @@ private:
     PlotPage* _plot_monte ;
     TimeItLinux _timer;
     QStandardItemModel* _bookOfPlotsModel;
+    QTabWidget* _nbDPParam;
+    QItemSelectionModel* _selectParamModel;
     QTreeView* _bookTreeView ;
+    QListView* _paramListView ;
     QFileSystemModel* _treemodel ;
     QItemSelectionModel* _selectModel;
     QTreeView* _treeview ;
     PlotBookView* _plotBookView;
     MonteModel* _monteModel;
+    QStandardItemModel* _paramsModel;
     void _createMontePages(const QString& dpfile);
+    QStandardItemModel* _createParamsModel(MonteModel* mm);
     bool _isDP(const QString& fp);
     bool _isRUN(const QString& fp);
     bool _isMONTE(const QString& fp);
@@ -59,6 +65,8 @@ private:
 
 private slots:
      void _slotDirTreeClicked(const QModelIndex& idx);
+     void _selectParamChanged(const QItemSelection& currSelection,
+                              const QItemSelection& prevSelection);
 
 signals:
 };
