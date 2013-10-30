@@ -263,7 +263,7 @@ void MonteWindow::_selectParamChanged(const QItemSelection &currSelection,
     int nPlots = qpItem->rowCount();
     if ( nPlots > 7 ) {
         qDebug() << "Sorry!  This is demo only! No support for 8+ plots!";
-        exit(-1);
+        return;
     }
     foreach ( QModelIndex idx, currSelection.indexes() ) {
 
