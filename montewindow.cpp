@@ -215,7 +215,7 @@ void MonteWindow::_slotDirTreeClicked(const QModelIndex &idx)
 {
     Q_UNUSED(idx);
 
-    //TimeItLinux t; t.start();
+    TimeItLinux t; t.start();
     QModelIndexList idxs =  _treeview->selectionModel()->selectedRows();
     foreach ( QModelIndex idx, idxs ) {
         QString fn = _treemodel->fileName(idx);
@@ -225,8 +225,10 @@ void MonteWindow::_slotDirTreeClicked(const QModelIndex &idx)
         } else if ( _isRUN(fp) ) {
         } else if ( _isMONTE(fp) ) {
         }
+        QString msg(fn);
+        msg += " t=";
+        t.snap(msg.toAscii().constData());
     }
-    //t.snap("PlotLoadTime=");
 
 }
 
