@@ -50,6 +50,7 @@ timeline {
     DEFINES += SNAPGUI
     DEFINES += TIMELINE
     QT += gui
+    QT += xml
     CONFIG -= console
 }
 
