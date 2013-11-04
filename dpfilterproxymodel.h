@@ -11,6 +11,7 @@ class DPFilterProxyModel : public QSortFilterProxyModel
 public:
     explicit DPFilterProxyModel(QObject *parent = 0);
 
+
 protected:
     bool filterAcceptsRow(int row, const QModelIndex &pidx) const;
     bool filterAcceptsColumn(int col, const QModelIndex &pidx) const;

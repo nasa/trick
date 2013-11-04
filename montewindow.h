@@ -61,6 +61,7 @@ private:
     QFileSystemModel* _dpModel ;
     DPFilterProxyModel* _dpFilterModel;
     QTreeView* _dpTreeView ;
+    QLineEdit* _dpSearchBox;
 
     QStandardItemModel* _plotModel;
     QTreeView* _plotTreeView ;
@@ -79,7 +80,8 @@ private slots:
      void _slotDirTreeClicked(const QModelIndex& idx);
      void _selectVarChanged(const QItemSelection& currSelection,
                               const QItemSelection& prevSelection);
-     void _searchBoxTextChanged(const QString& rx);
+     void _varsSearchBoxTextChanged(const QString& rx);
+     void _dpSearchBoxTextChanged(const QString& rx);
 signals:
 };
 

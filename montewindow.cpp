@@ -55,12 +55,12 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     _nbDPVars->setAttribute(Qt::WA_AlwaysShowToolTips, false);
 
     //
-    // DP Model/TreeView
+    // DP File/Sys Model and Filter Proxy Model
     //
     QDir topdir(_montedir);
     topdir.cdUp();
     _dpModel = new QFileSystemModel;
-    _dpModel->setRootPath(topdir.path());
+    QModelIndex dpRootIdx = _dpModel->setRootPath(topdir.path());
     QStringList filters;
     filters  << "DP_*" << "SET_*"; // _dpFilterModel does additional filtering
     _dpModel->setNameFilters(filters);
@@ -72,17 +72,27 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     QRegExp dprx(QString(".*"));  // DP_ and SET_ are filtered by _dpModel
     _dpFilterModel->setFilterRegExp(dprx);
     _dpFilterModel->setFilterKeyColumn(0);
-    _dpTreeView = new QTreeView(lframe);
+
+    //
+    // DP TreeView with Search Box
+    //
+    QFrame* dpFrame = new QFrame(lframe);
+    QGridLayout* dpGridLayout = new QGridLayout(dpFrame);
+    _dpSearchBox = new QLineEdit(dpFrame);
+    connect(_dpSearchBox,SIGNAL(textChanged(QString)),
+            this,SLOT(_dpSearchBoxTextChanged(QString)));
+    dpGridLayout->addWidget(_dpSearchBox,0,0);
+    _dpTreeView = new QTreeView(dpFrame);
     _dpTreeView->setModel(_dpFilterModel);
-    QModelIndex rootIdx = _dpModel->index(topdir.path());
-    QModelIndex proxyRootIdx = _dpFilterModel->mapFromSource(rootIdx);
+    QModelIndex proxyRootIdx = _dpFilterModel->mapFromSource(dpRootIdx);
     _dpTreeView->setRootIndex(proxyRootIdx);
     _dpTreeView->hideColumn(1);
     _dpTreeView->hideColumn(2);
     _dpTreeView->hideColumn(3);
+    dpGridLayout->addWidget(_dpTreeView,1,0);
     connect(_dpTreeView,SIGNAL(clicked(QModelIndex)),
             this, SLOT(_slotDirTreeClicked(QModelIndex)));
-    _nbDPVars->addTab(_dpTreeView,"DP");
+    _nbDPVars->addTab(dpFrame,"DP");
 
     //
     // Vars view (list of searchable trick recorded vars)
@@ -91,7 +101,7 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     QGridLayout* varsGridLayout = new QGridLayout(frameVars);
     _varsSearchBox = new QLineEdit(frameVars);
     connect(_varsSearchBox,SIGNAL(textChanged(QString)),
-            this,SLOT(_searchBoxTextChanged(QString)));
+            this,SLOT(_varsSearchBoxTextChanged(QString)));
     varsGridLayout->addWidget(_varsSearchBox,0,0);
 
     _varsListView = new QListView(frameVars);
@@ -331,9 +341,15 @@ void MonteWindow::_selectVarChanged(const QItemSelection &currSelection,
     }
 }
 
-void MonteWindow::_searchBoxTextChanged(const QString &rx)
+void MonteWindow::_varsSearchBoxTextChanged(const QString &rx)
 {
     _varsFilterModel->setFilterRegExp(rx);
+}
+
+void MonteWindow::_dpSearchBoxTextChanged(const QString &rx)
+{
+    _dpTreeView->expandAll();
+    _dpFilterModel->setFilterRegExp(rx);
 }
 
 bool MonteWindow::_isDP(const QString& fp)
