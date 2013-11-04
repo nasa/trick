@@ -7,11 +7,14 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QMenuBar>
+#include <QLineEdit>
 #include <QGridLayout>
 #include <QList>
 #include <QStandardItemModel>
 #include <QFileSystemModel>
 #include <QItemSelectionModel>
+#include <QSortFilterProxyModel>
+#include <QRegExp>
 #include <QTreeView>
 #include <QListView>
 #include <QFileInfo>
@@ -44,19 +47,26 @@ private:
     QAction *_exitAction;
     PlotPage* _plot_monte ;
     TimeItLinux _timer;
-    QStandardItemModel* _bookOfPlotsModel;
-    QTabWidget* _nbDPParam;
-    QItemSelectionModel* _selectParamModel;
-    QTreeView* _bookTreeView ;
-    QListView* _paramListView ;
-    QFileSystemModel* _treemodel ;
-    QItemSelectionModel* _selectModel;
-    QTreeView* _treeview ;
+
+    QTabWidget* _nbDPVars;
+
+    QStandardItemModel* _createVarsModel(MonteModel* mm);
+    QStandardItemModel* _varsModel;
+    QSortFilterProxyModel* _varsFilterModel;
+    QItemSelectionModel* _varsSelectModel;
+    QLineEdit* _varsSearchBox;
+    QListView* _varsListView ;
+
+    QFileSystemModel* _dpModel ;
+    QTreeView* _dpTreeView ;
+
+    QStandardItemModel* _plotModel;
+    QTreeView* _plotTreeView ;
     PlotBookView* _plotBookView;
+    QItemSelectionModel* _plotSelectModel;
+
     MonteModel* _monteModel;
-    QStandardItemModel* _paramsModel;
     void _createMontePages(const QString& dpfile);
-    QStandardItemModel* _createParamsModel(MonteModel* mm);
     bool _isDP(const QString& fp);
     bool _isRUN(const QString& fp);
     bool _isMONTE(const QString& fp);
@@ -65,9 +75,9 @@ private:
 
 private slots:
      void _slotDirTreeClicked(const QModelIndex& idx);
-     void _selectParamChanged(const QItemSelection& currSelection,
+     void _selectVarChanged(const QItemSelection& currSelection,
                               const QItemSelection& prevSelection);
-
+     void _searchBoxTextChanged(const QString& rx);
 signals:
 };
 

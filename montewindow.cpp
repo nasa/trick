@@ -27,70 +27,94 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     setCentralWidget(s);
     QFrame* lframe = new QFrame(s);
     QGridLayout* lgrid = new QGridLayout(lframe);
-    _nbDPParam = new QTabWidget(lframe);
-    lgrid->addWidget(_nbDPParam,0,0);
-    _nbDPParam->setAttribute(Qt::WA_AlwaysShowToolTips, false);
 
     //
     // Create models
     //
-    _bookOfPlotsModel = new QStandardItemModel(0,1,parent);
-    _selectModel = new QItemSelectionModel(_bookOfPlotsModel);
+    _plotModel = new QStandardItemModel(0,1,parent);
+    _plotSelectModel = new QItemSelectionModel(_plotModel);
     _monteModel = new MonteModel(_montedir);
-    _paramsModel = _createParamsModel(_monteModel);;
-    _selectParamModel = new QItemSelectionModel(_paramsModel);
+
+    //
+    // Vars Model for list of recorded trick vars (params)
+    //
+    _varsModel = _createVarsModel(_monteModel);;
+    _varsFilterModel = new QSortFilterProxyModel;
+    _varsFilterModel->setDynamicSortFilter(true);
+    _varsFilterModel->setSourceModel(_varsModel);
+    QRegExp rx(QString(".*"));
+    _varsFilterModel->setFilterRegExp(rx);
+    _varsFilterModel->setFilterKeyColumn(0);
+    _varsSelectModel = new QItemSelectionModel(_varsFilterModel);
+
+
+    //
+    // Left tabbed notebook widget for DP&Vars
+    //
+    _nbDPVars = new QTabWidget(lframe);
+    lgrid->addWidget(_nbDPVars,1,0);
+    _nbDPVars->setAttribute(Qt::WA_AlwaysShowToolTips, false);
 
     //
     // DP Model/TreeView
     //
     QDir topdir(_montedir);
     topdir.cdUp();
-    _treemodel = new QFileSystemModel;
-    _treemodel->setRootPath(topdir.path());
-    _treeview = new QTreeView(lframe);
-    _treeview->setModel(_treemodel);
-    _treeview->setRootIndex(_treemodel->index(topdir.path()));
-    _treeview->hideColumn(1);
-    _treeview->hideColumn(2);
-    _treeview->hideColumn(3);
+    _dpModel = new QFileSystemModel;
+    _dpModel->setRootPath(topdir.path());
+    _dpTreeView = new QTreeView(lframe);
+    _dpTreeView->setModel(_dpModel);
+    _dpTreeView->setRootIndex(_dpModel->index(topdir.path()));
+    _dpTreeView->hideColumn(1);
+    _dpTreeView->hideColumn(2);
+    _dpTreeView->hideColumn(3);
     QStringList filters;
     filters  << "DP_*" << "SET_*";
-    _treemodel->setNameFilters(filters);
-    _treemodel->setNameFilterDisables(false);
-    _treemodel->setFilter(QDir::Dirs|QDir::Files);
-    connect(_treeview,SIGNAL(clicked(QModelIndex)),
+    _dpModel->setNameFilters(filters);
+    _dpModel->setNameFilterDisables(false);
+    _dpModel->setFilter(QDir::Dirs|QDir::Files);
+    connect(_dpTreeView,SIGNAL(clicked(QModelIndex)),
             this, SLOT(_slotDirTreeClicked(QModelIndex)));
-    _nbDPParam->addTab(_treeview,"DP");
+    _nbDPVars->addTab(_dpTreeView,"DP");
 
     //
-    // Param list view
+    // Vars view (list of searchable trick recorded vars)
     //
-    _paramListView = new QListView(lframe);
-    _paramListView->setModel(_paramsModel);
-    _paramListView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    _paramListView->setSelectionModel(_selectParamModel);
-    _nbDPParam->addTab(_paramListView,"Vars");
-    connect(_selectParamModel,
+    QFrame* frameVars = new QFrame(lframe);
+    QGridLayout* varsGridLayout = new QGridLayout(frameVars);
+    _varsSearchBox = new QLineEdit(frameVars);
+    connect(_varsSearchBox,SIGNAL(textChanged(QString)),
+            this,SLOT(_searchBoxTextChanged(QString)));
+    varsGridLayout->addWidget(_varsSearchBox,0,0);
+
+    _varsListView = new QListView(frameVars);
+    _varsListView->setModel(_varsFilterModel);
+    _varsListView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    _varsListView->setSelectionModel(_varsSelectModel);
+    varsGridLayout->addWidget(_varsListView,1,0);
+    _nbDPVars->addTab(frameVars,"Vars");
+
+    connect(_varsSelectModel,
             SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this,
-            SLOT(_selectParamChanged(QItemSelection,QItemSelection)));
+            SLOT(_selectVarChanged(QItemSelection,QItemSelection)));
 
     //
     // For Tim, show tree view of book of plots
     //
-    _bookTreeView = new QTreeView(lframe);
-    _bookTreeView->setModel(_bookOfPlotsModel);
-    _bookTreeView->setHeaderHidden(true);
-    _bookTreeView->setSelectionModel(_selectModel);
-    lgrid->addWidget(_bookTreeView,1,0);
+    _plotTreeView = new QTreeView(lframe);
+    _plotTreeView->setModel(_plotModel);
+    _plotTreeView->setHeaderHidden(true);
+    _plotTreeView->setSelectionModel(_plotSelectModel);
+    lgrid->addWidget(_plotTreeView,2,0);
 
     //
     // Create Plot Tabbed Notebook View Widget
     //
     _plotBookView = new PlotBookView(s);
-    _plotBookView->setModel(_bookOfPlotsModel);
+    _plotBookView->setModel(_plotModel);
     _plotBookView->setData(_monteModel);
-    _plotBookView->setSelectionModel(_selectModel);
+    _plotBookView->setSelectionModel(_plotSelectModel);
     s->addWidget(_plotBookView);
 
     // Size main window
@@ -104,9 +128,9 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
 
 MonteWindow::~MonteWindow()
 {
-    delete _treemodel;
+    delete _dpModel;
     delete _monteModel;
-    delete _bookOfPlotsModel;
+    delete _plotModel;
 }
 
 void MonteWindow::createMenu()
@@ -127,12 +151,12 @@ void MonteWindow::_createMontePages(const QString& dpfile)
     //
     // If already created, make page current
     //
-    QStandardItem *rootItem = _bookOfPlotsModel->invisibleRootItem();
+    QStandardItem *rootItem = _plotModel->invisibleRootItem();
     for ( int row = 0; row < rootItem->rowCount(); ++row) {
-        QModelIndex pageIdx = _bookOfPlotsModel->index(row,0);
-        QString pageName = _bookOfPlotsModel->data(pageIdx).toString();
+        QModelIndex pageIdx = _plotModel->index(row,0);
+        QString pageName = _plotModel->data(pageIdx).toString();
         if ( pageName == dpfile ) {
-            _selectModel->setCurrentIndex(pageIdx,
+            _plotSelectModel->setCurrentIndex(pageIdx,
                                           QItemSelectionModel::ClearAndSelect);
                                           //QItemSelectionModel::Current);
             return;
@@ -188,24 +212,24 @@ void MonteWindow::_createMontePages(const QString& dpfile)
 }
 
 //
-// Just a simple list of params grabbed off the MonteModel col headerData
+// Just a simple list of vars grabbed off the MonteModel col headerData
 //
-QStandardItemModel *MonteWindow::_createParamsModel(MonteModel *mm)
+QStandardItemModel *MonteWindow::_createVarsModel(MonteModel *mm)
 {
     QStandardItemModel* pm = new QStandardItemModel(0,1,this);
 
-    QStringList paramList;
+    QStringList varList;
     for ( int c = 1; c < mm->columnCount(); ++c) {
-        QString param = mm->headerData(c,Qt::Horizontal).toString();
-        paramList.append(param);
+        QString var = mm->headerData(c,Qt::Horizontal).toString();
+        varList.append(var);
     }
 
-    paramList.sort();
+    varList.sort();
 
     QStandardItem *rootItem = pm->invisibleRootItem();
-    for ( int i = 0; i < paramList.size(); ++i) {
-        QStandardItem *paramItem = new QStandardItem(paramList.at(i));
-        rootItem->appendRow(paramItem);
+    for ( int i = 0; i < varList.size(); ++i) {
+        QStandardItem *varItem = new QStandardItem(varList.at(i));
+        rootItem->appendRow(varItem);
     }
 
     return pm;
@@ -216,10 +240,10 @@ void MonteWindow::_slotDirTreeClicked(const QModelIndex &idx)
     Q_UNUSED(idx);
 
     TimeItLinux t; t.start();
-    QModelIndexList idxs =  _treeview->selectionModel()->selectedRows();
+    QModelIndexList idxs =  _dpTreeView->selectionModel()->selectedRows();
     foreach ( QModelIndex idx, idxs ) {
-        QString fn = _treemodel->fileName(idx);
-        QString fp = _treemodel->filePath(idx);
+        QString fn = _dpModel->fileName(idx);
+        QString fp = _dpModel->filePath(idx);
         if ( _isDP(fp) ) {
             _createMontePages(fp);
         } else if ( _isRUN(fp) ) {
@@ -232,15 +256,15 @@ void MonteWindow::_slotDirTreeClicked(const QModelIndex &idx)
 
 }
 
-void MonteWindow::_selectParamChanged(const QItemSelection &currSelection,
+void MonteWindow::_selectVarChanged(const QItemSelection &currSelection,
                                       const QItemSelection &prevSelection)
 {
     // Find or Create "QP" Quick Product
     QModelIndex qpIndex;
-    int rc = _bookOfPlotsModel->rowCount();
+    int rc = _plotModel->rowCount();
     for ( int r = 0; r < rc; ++r) {
-        QModelIndex dpIdx = _bookOfPlotsModel->index(r,0);
-        QString dpName = _bookOfPlotsModel->data(dpIdx).toString();
+        QModelIndex dpIdx = _plotModel->index(r,0);
+        QString dpName = _plotModel->data(dpIdx).toString();
         if ( dpName == "QP" ) {
             qpIndex = dpIdx;
             break;
@@ -248,15 +272,15 @@ void MonteWindow::_selectParamChanged(const QItemSelection &currSelection,
     }
     QStandardItem* qpItem = 0;
     if ( ! qpIndex.isValid() ) {
-        QStandardItem *rootItem = _bookOfPlotsModel->invisibleRootItem();
+        QStandardItem *rootItem = _plotModel->invisibleRootItem();
         qpItem = new QStandardItem("QP");
         rootItem->appendRow(qpItem);
     } else {
-        qpItem = _bookOfPlotsModel->itemFromIndex(qpIndex);
+        qpItem = _plotModel->itemFromIndex(qpIndex);
     }
 
     foreach ( QModelIndex idx, prevSelection.indexes() ) {
-        qDebug() << "<<" << _paramsModel->data(idx).toString();
+        qDebug() << "<<" << _varsFilterModel->data(idx).toString();
     }
 
     //
@@ -280,7 +304,7 @@ void MonteWindow::_selectParamChanged(const QItemSelection &currSelection,
 
             QString tName("sys.exec.out.time");
             QString xName("sys.exec.out.time");
-            QString yName = _paramsModel->data(idx).toString();
+            QString yName = _varsFilterModel->data(idx).toString();
             QString runName = _monteModel->headerData(r,Qt::Vertical).toString();
 
             QStandardItem *tItem   = new QStandardItem(tName);
@@ -296,6 +320,11 @@ void MonteWindow::_selectParamChanged(const QItemSelection &currSelection,
 
         nPlots++;
     }
+}
+
+void MonteWindow::_searchBoxTextChanged(const QString &rx)
+{
+    _varsFilterModel->setFilterRegExp(rx);
 }
 
 bool MonteWindow::_isDP(const QString& fp)
