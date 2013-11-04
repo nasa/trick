@@ -25,6 +25,7 @@
 #include "plotpage.h"
 #include "dp.h"
 #include "plotbookview.h"
+#include "dpfilterproxymodel.h"
 
 #include "timeit_linux.h"
 
@@ -58,6 +59,7 @@ private:
     QListView* _varsListView ;
 
     QFileSystemModel* _dpModel ;
+    DPFilterProxyModel* _dpFilterModel;
     QTreeView* _dpTreeView ;
 
     QStandardItemModel* _plotModel;

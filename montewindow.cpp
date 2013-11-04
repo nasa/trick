@@ -47,7 +47,6 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     _varsFilterModel->setFilterKeyColumn(0);
     _varsSelectModel = new QItemSelectionModel(_varsFilterModel);
 
-
     //
     // Left tabbed notebook widget for DP&Vars
     //
@@ -62,17 +61,25 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     topdir.cdUp();
     _dpModel = new QFileSystemModel;
     _dpModel->setRootPath(topdir.path());
-    _dpTreeView = new QTreeView(lframe);
-    _dpTreeView->setModel(_dpModel);
-    _dpTreeView->setRootIndex(_dpModel->index(topdir.path()));
-    _dpTreeView->hideColumn(1);
-    _dpTreeView->hideColumn(2);
-    _dpTreeView->hideColumn(3);
     QStringList filters;
-    filters  << "DP_*" << "SET_*";
+    filters  << "DP_*" << "SET_*"; // _dpFilterModel does additional filtering
     _dpModel->setNameFilters(filters);
     _dpModel->setNameFilterDisables(false);
     _dpModel->setFilter(QDir::Dirs|QDir::Files);
+    _dpFilterModel = new DPFilterProxyModel;
+    _dpFilterModel->setDynamicSortFilter(true);
+    _dpFilterModel->setSourceModel(_dpModel);
+    QRegExp dprx(QString(".*"));  // DP_ and SET_ are filtered by _dpModel
+    _dpFilterModel->setFilterRegExp(dprx);
+    _dpFilterModel->setFilterKeyColumn(0);
+    _dpTreeView = new QTreeView(lframe);
+    _dpTreeView->setModel(_dpFilterModel);
+    QModelIndex rootIdx = _dpModel->index(topdir.path());
+    QModelIndex proxyRootIdx = _dpFilterModel->mapFromSource(rootIdx);
+    _dpTreeView->setRootIndex(proxyRootIdx);
+    _dpTreeView->hideColumn(1);
+    _dpTreeView->hideColumn(2);
+    _dpTreeView->hideColumn(3);
     connect(_dpTreeView,SIGNAL(clicked(QModelIndex)),
             this, SLOT(_slotDirTreeClicked(QModelIndex)));
     _nbDPVars->addTab(_dpTreeView,"DP");
@@ -243,8 +250,9 @@ void MonteWindow::_slotDirTreeClicked(const QModelIndex &idx)
     TimeItLinux t; t.start();
     QModelIndexList idxs =  _dpTreeView->selectionModel()->selectedRows();
     foreach ( QModelIndex idx, idxs ) {
-        QString fn = _dpModel->fileName(idx);
-        QString fp = _dpModel->filePath(idx);
+        QModelIndex srcIdx = _dpFilterModel->mapToSource(idx);
+        QString fn = _dpModel->fileName(srcIdx);
+        QString fp = _dpModel->filePath(srcIdx);
         if ( _isDP(fp) ) {
             _createMontePages(fp);
         } else if ( _isRUN(fp) ) {
@@ -281,7 +289,7 @@ void MonteWindow::_selectVarChanged(const QItemSelection &currSelection,
     }
 
     foreach ( QModelIndex idx, prevSelection.indexes() ) {
-        qDebug() << "<<" << _varsFilterModel->data(idx).toString();
+        //qDebug() << "<<" << _varsFilterModel->data(idx).toString();
     }
 
     //

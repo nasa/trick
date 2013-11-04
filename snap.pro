@@ -148,7 +148,8 @@ SOURCES += \
     timeit.cpp \
     timeit_win32.cpp \
     montemodel.cpp \
-    plotbookview.cpp
+    plotbookview.cpp \
+    dpfilterproxymodel.cpp
 
 HEADERS += \
     test/testsnap.h \
@@ -174,4 +175,5 @@ HEADERS += \
     timeit_linux.h \
     timeit_win32.h \
     montemodel.h \
-    plotbookview.h
+    plotbookview.h \
+    dpfilterproxymodel.h
