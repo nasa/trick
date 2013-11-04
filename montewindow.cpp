@@ -128,6 +128,7 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
 
 MonteWindow::~MonteWindow()
 {
+    delete _varsFilterModel;
     delete _dpModel;
     delete _monteModel;
     delete _plotModel;
