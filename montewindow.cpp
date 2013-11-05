@@ -86,13 +86,15 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     _dpTreeView->setModel(_dpFilterModel);
     QModelIndex proxyRootIdx = _dpFilterModel->mapFromSource(dpRootIdx);
     _dpTreeView->setRootIndex(proxyRootIdx);
-    _dpTreeView->hideColumn(1);
-    _dpTreeView->hideColumn(2);
-    _dpTreeView->hideColumn(3);
     dpGridLayout->addWidget(_dpTreeView,1,0);
     connect(_dpTreeView,SIGNAL(clicked(QModelIndex)),
             this, SLOT(_slotDirTreeClicked(QModelIndex)));
     _nbDPVars->addTab(dpFrame,"DP");
+
+    // This doesn't work :( Can't hide timestamp column
+    for ( int col = 1; col < _dpModel->columnCount(); ++col) {
+        _dpTreeView->hideColumn(col);
+    }
 
     //
     // Vars view (list of searchable trick recorded vars)
@@ -256,6 +258,7 @@ QStandardItemModel *MonteWindow::_createVarsModel(MonteModel *mm)
 void MonteWindow::_slotDirTreeClicked(const QModelIndex &idx)
 {
     Q_UNUSED(idx);
+
 
     TimeItLinux t; t.start();
     QModelIndexList idxs =  _dpTreeView->selectionModel()->selectedRows();
