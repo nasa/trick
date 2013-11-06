@@ -44,6 +44,13 @@ protected:
     DPPlot* _dpplot;
     QCPAxis* _xAxis;
     QCPAxis* _yAxis;
+    QPen _currPen;
+    QList<QColor> _createColorBands(int nBands, bool isMonte);
+    QList<QColor> _colorBandsNormal;
+    QList<QColor> _colorBandsMonte;
+    int _red;
+    int _green;
+    int _blue;
     QList<TrickCurve*> _curves;
     QList<TrickCurveModel*> _curve_models;
     void _set_interactions();

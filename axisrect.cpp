@@ -34,6 +34,8 @@ AxisRect::AxisRect(const QModelIndex& plotIdx, QCustomPlot* plotwidget) :
 {
     _xAxis = axis(QCPAxis::atBottom);
     _yAxis = axis(QCPAxis::atLeft);
+    _colorBandsNormal = _createColorBands(9,false);
+    _colorBandsMonte = _createColorBands(10,true);
 }
 
 AxisRect::~AxisRect()
@@ -107,6 +109,30 @@ TrickCurve* AxisRect::addCurve(TrickCurveModel* model)
     curve->setData(model);
     _curves.append(curve);
     _plotwidget->addPlottable(curve);
+    int nCurves = _curves.size();
+
+    // Color curves
+    // Make bands of color for plots with lots of curves
+    QList<QColor> colorBands = _colorBandsMonte ;
+    if ( nCurves < 10 ) {
+        colorBands = _colorBandsNormal;
+    }
+    int nBands = colorBands.size();
+    int nCurvesPerBand =  qRound((double)nCurves/(double)nBands);
+    nCurvesPerBand = ( nCurvesPerBand == 0 ) ? 1 : nCurvesPerBand;
+    int cnt = 0 ;
+    int currBand = 0 ;
+    foreach ( TrickCurve* curve, _curves ) {
+        if ( cnt % nCurvesPerBand ==  0 ) {
+            if ( currBand % nBands == 0 ) {
+                currBand = 0 ;
+            }
+            _currPen.setColor(colorBands.at(currBand));
+            currBand++;
+        }
+        curve->setPen(_currPen);
+        cnt++;
+    }
 
     // Reset ranges
     bool isValid;
@@ -397,6 +423,52 @@ void AxisRect::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Escape: zoomToFit(); mParentPlot->replot(); break;
     default: ; // do nothing
     }
+}
+
+QList<QColor> AxisRect::_createColorBands(int nBands, bool isMonte)
+{
+    QList<QColor> colorBands;
+
+    QColor blue(48,85,200);
+    QColor green(0,240,0);
+    QColor magenta(222,77,203);
+    QColor aqua(119,214,222);
+    QColor orange(183,120,71);
+    QColor burntorange(177,79,0);
+    QColor yellow(222,222,10);
+    QColor pink(255,192,255);
+    QColor gray(145,170,192);
+    QColor medblue(49,140,250);
+    QColor black(0,0,0);
+
+    if ( isMonte && nBands >= 10 ) {
+
+        // This is for banding a monte carlo which has many curves
+
+        int hBeg = 10; int hEnd = 230;
+        int dh = qRound((double)(hEnd-hBeg)/(nBands-1.0));
+        int dh2 = dh/2;
+        int s = qRound(0.75*255);
+        int v = qRound(0.87*255);
+        for ( int h = hBeg; h <= hEnd; h+=dh) {
+            colorBands << QColor::fromHsv(h,s,v);
+        }
+        colorBands.removeFirst();
+        colorBands.prepend(burntorange);
+
+    } else {
+
+        // This is for a smaller number of curves
+        colorBands << blue << green << magenta
+                   << aqua << orange << yellow
+                   << gray << pink << medblue;
+
+        for ( int i = 0 ; i < nBands-10; ++i ) {
+            colorBands.removeLast();
+        }
+    }
+
+    return colorBands;
 }
 
 void AxisRect::_keyPressLeft()
