@@ -24,10 +24,13 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     createMenu();
 
     // Central Widget and main layout
-    QSplitter* s = new QSplitter;
-    setCentralWidget(s);
-    QFrame* lframe = new QFrame(s);
+    QSplitter* msplit = new QSplitter;
+    setCentralWidget(msplit);
+    QFrame* lframe = new QFrame(msplit);
     QGridLayout* lgrid = new QGridLayout(lframe);
+    QSplitter* lsplit = new QSplitter(lframe);
+    lsplit->setOrientation(Qt::Vertical);
+    lgrid->addWidget(lsplit,0,0);
 
     //
     // Create models
@@ -51,8 +54,8 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     //
     // Left tabbed notebook widget for DP&Vars
     //
-    _nbDPVars = new QTabWidget(lframe);
-    lgrid->addWidget(_nbDPVars,1,0);
+    _nbDPVars = new QTabWidget(lsplit);
+    lsplit->addWidget(_nbDPVars);
     _nbDPVars->setAttribute(Qt::WA_AlwaysShowToolTips, false);
 
     //
@@ -77,7 +80,7 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     //
     // DP TreeView with Search Box
     //
-    QFrame* dpFrame = new QFrame(lframe);
+    QFrame* dpFrame = new QFrame(lsplit);
     QGridLayout* dpGridLayout = new QGridLayout(dpFrame);
     _dpSearchBox = new QLineEdit(dpFrame);
     connect(_dpSearchBox,SIGNAL(textChanged(QString)),
@@ -100,7 +103,7 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     //
     // Vars view (list of searchable trick recorded vars)
     //
-    QFrame* frameVars = new QFrame(lframe);
+    QFrame* frameVars = new QFrame(lsplit);
     QGridLayout* varsGridLayout = new QGridLayout(frameVars);
     _varsSearchBox = new QLineEdit(frameVars);
     connect(_varsSearchBox,SIGNAL(textChanged(QString)),
@@ -121,27 +124,27 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     //
     // For Tim, show tree view of book of plots
     //
-    _plotTreeView = new QTreeView(lframe);
+    _plotTreeView = new QTreeView(lsplit);
     _plotTreeView->setModel(_plotModel);
     _plotTreeView->setHeaderHidden(true);
     _plotTreeView->setSelectionModel(_plotSelectModel);
-    lgrid->addWidget(_plotTreeView,2,0);
+    lsplit->addWidget(_plotTreeView);
 
     //
     // Create Plot Tabbed Notebook View Widget
     //
-    _plotBookView = new PlotBookView(s);
+    _plotBookView = new PlotBookView(msplit);
     _plotBookView->setModel(_plotModel);
     _plotBookView->setData(_monteModel);
     _plotBookView->setSelectionModel(_plotSelectModel);
-    s->addWidget(_plotBookView);
+    msplit->addWidget(_plotBookView);
 
     // Size main window
     QList<int> sizes;
     sizes << 420 << 1180;
-    s->setSizes(sizes);
-    s->setStretchFactor(0,0);
-    s->setStretchFactor(1,1);
+    msplit->setSizes(sizes);
+    msplit->setStretchFactor(0,0);
+    msplit->setStretchFactor(1,1);
     resize(1600,900);
 }
 
