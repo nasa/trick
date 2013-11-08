@@ -17,7 +17,8 @@
 
 MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     QMainWindow(parent),
-    _montedir(montedir)
+    _montedir(montedir),
+    _currQPIdx(0)
 {
     setWindowTitle(tr("Snap!"));
     createMenu();
@@ -108,11 +109,10 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
 
     _varsListView = new QListView(frameVars);
     _varsListView->setModel(_varsFilterModel);
-    _varsListView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    _varsListView->setSelectionModel(_varsSelectModel);
     varsGridLayout->addWidget(_varsListView,1,0);
     _nbDPVars->addTab(frameVars,"Vars");
-
+    _varsListView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    _varsListView->setSelectionModel(_varsSelectModel);
     connect(_varsSelectModel,
             SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this,
@@ -278,70 +278,153 @@ void MonteWindow::_slotDirTreeClicked(const QModelIndex &idx)
 
 }
 
-void MonteWindow::_selectVarChanged(const QItemSelection &currSelection,
-                                      const QItemSelection &prevSelection)
+// TODO: if multiselect, do smart groupings i.e.
+//       plot like variables together e.g. a.b[0].forceX, a.b[1].forceX
+void MonteWindow::_selectVarChanged(const QItemSelection &currVarSelection,
+                                      const QItemSelection &prevVarSelection)
 {
-    // Find or Create "QP" Quick Product
-    QModelIndex qpIndex;
-    int rc = _plotModel->rowCount();
-    for ( int r = 0; r < rc; ++r) {
-        QModelIndex dpIdx = _plotModel->index(r,0);
-        QString dpName = _plotModel->data(dpIdx).toString();
-        if ( dpName == "QP" ) {
-            qpIndex = dpIdx;
-            break;
-        }
-    }
-    QStandardItem* qpItem = 0;
-    if ( ! qpIndex.isValid() ) {
-        QStandardItem *rootItem = _plotModel->invisibleRootItem();
-        qpItem = new QStandardItem("QP");
-        rootItem->appendRow(qpItem);
-    } else {
-        qpItem = _plotModel->itemFromIndex(qpIndex);
-    }
-
-    foreach ( QModelIndex idx, prevSelection.indexes() ) {
-        //qDebug() << "<<" << _varsFilterModel->data(idx).toString();
-    }
-
-    //
-    // Add selected curves
-    //
-    int nPlots = qpItem->rowCount();
-    if ( nPlots > 7 ) {
-        qDebug() << "Sorry!  This is demo only! No support for 8+ plots!";
+    if ( currVarSelection.size() == 0 ) {
+        // TODO: handle deselection (prevSelection)
         return;
     }
-    foreach ( QModelIndex idx, currSelection.indexes() ) {
 
-        QString plotName = QString("QPlot_%0").arg(nPlots);
-        QStandardItem* qPlotItem = new QStandardItem(plotName);
-        qpItem->appendRow(qPlotItem);
+    QModelIndex qpIdx; // for new or selected qp page
+    QModelIndexList selIdxs = _varsSelectModel->selection().indexes();
 
-        for ( int r = 0; r < _monteModel->rowCount(); ++r) {
-            QString curveName = QString("Curve_%0").arg(r);
-            QStandardItem *curveItem = new QStandardItem(curveName);
-            qPlotItem->appendRow(curveItem);
+    if ( selIdxs.size() == 1 ) {
 
-            QString tName("sys.exec.out.time");
-            QString xName("sys.exec.out.time");
-            QString yName = _varsFilterModel->data(idx).toString();
-            QString runName = _monteModel->headerData(r,Qt::Vertical).toString();
+        //
+        // Single selection
+        //
 
-            QStandardItem *tItem   = new QStandardItem(tName);
-            QStandardItem *xItem   = new QStandardItem(xName);
-            QStandardItem *yItem   = new QStandardItem(yName);
-            QStandardItem *runItem = new QStandardItem(runName);
+        QString yName = _varsFilterModel->data(selIdxs.at(0)).toString();
+        qpIdx = _findPageWithCurve(yName) ;
 
-            curveItem->appendRow(tItem);
-            curveItem->appendRow(xItem);
-            curveItem->appendRow(yItem);
-            curveItem->appendRow(runItem);
+        if ( ! qpIdx.isValid() ) {
+            // No current plot associated with var selection,
+            // create a single page with one plot
+            QStandardItem* qpItem = _createQPItem();
+            qpIdx = _plotModel->indexFromItem(qpItem);
+            _addPlotOfVarQPItem(qpItem,currVarSelection.indexes().at(0));
+        } else {
+            // at bottom of func, select page done for all cases
         }
 
-        nPlots++;
+    } else {
+
+        //
+        // Multiple items selected.
+        //
+
+        // Get or create qp page
+        QModelIndex currIndex = _plotSelectModel->currentIndex();
+        if ( currIndex.isValid() && !currIndex.parent().isValid() ) {
+            // currIndex is a page since it's valid and parent root
+            QString pageTitle = _plotModel->data(currIndex).toString();
+            if ( pageTitle.left(2) == "QP" ) {
+                qpIdx = currIndex;
+            }
+        }
+        QStandardItem* qpItem = 0;
+        if ( ! qpIdx.isValid() ) {
+            qpItem = _createQPItem();
+            qpIdx = _plotModel->indexFromItem(qpItem);
+        } else {
+            qpItem = _plotModel->itemFromIndex(qpIdx);
+        }
+
+        QModelIndexList currIdxs = currVarSelection.indexes();
+        while ( ! currIdxs.isEmpty() ) {
+            QModelIndex idx = currIdxs.takeFirst();
+            if ( qpItem->rowCount() >= 6 ) {
+                qpItem = _createQPItem();
+                qpIdx = _plotModel->indexFromItem(qpItem);
+            }
+            _addPlotOfVarQPItem(qpItem,idx);
+        }
     }
+
+    _plotSelectModel->setCurrentIndex(qpIdx,
+                                     QItemSelectionModel::ClearAndSelect);
+}
+
+QStandardItem* MonteWindow::_createQPItem()
+{
+    QStandardItem* qpItem;
+    QStandardItem *rootItem = _plotModel->invisibleRootItem();
+    QString qpItemName = QString("QP_%0").arg(_currQPIdx++);
+    qpItem = new QStandardItem(qpItemName);
+    rootItem->appendRow(qpItem);
+    return qpItem;
+}
+
+void MonteWindow::_addPlotOfVarQPItem(QStandardItem* qpItem,
+                          const QModelIndex &varIdx)
+{
+    int nPlots = qpItem->rowCount();
+
+    QString tName("sys.exec.out.time");
+    QString xName("sys.exec.out.time");
+    QString yName = _varsFilterModel->data(varIdx).toString();
+
+    QString plotName = QString("QPlot_%0").arg(nPlots);
+    QStandardItem* qPlotItem = new QStandardItem(plotName);
+    qpItem->appendRow(qPlotItem);
+
+    for ( int r = 0; r < _monteModel->rowCount(); ++r) {
+
+        QString runName = _monteModel->headerData(r,Qt::Vertical).toString();
+
+        //
+        // Create curve
+        //
+        QString curveName = QString("Curve_%0").arg(r);
+        QStandardItem *curveItem = new QStandardItem(curveName);
+        qPlotItem->appendRow(curveItem);
+
+        QStandardItem *tItem   = new QStandardItem(tName);
+        QStandardItem *xItem   = new QStandardItem(xName);
+        QStandardItem *yItem   = new QStandardItem(yName);
+        QStandardItem *runItem = new QStandardItem(runName);
+
+        curveItem->appendRow(tItem);
+        curveItem->appendRow(xItem);
+        curveItem->appendRow(yItem);
+        curveItem->appendRow(runItem);
+    }
+}
+
+// Search (albeit ugly) for yparam
+QModelIndex MonteWindow::_findPageWithCurve(const QString &curveName)
+{
+    QModelIndex pageIdx;
+
+    bool isExists = false;
+    QStandardItem *rootItem = _plotModel->invisibleRootItem();
+    for ( int pg = 0; pg < rootItem->rowCount(); ++pg) {
+        QModelIndex pgIdx = _plotModel->index(pg,0);
+        for ( int p = 0; p < _plotModel->rowCount(pgIdx); ++p) {
+            QModelIndex pIdx = _plotModel->index(p,0,pgIdx);
+            // Only search one curve since assuming monte carlo runs
+            // where all curves will have same param list
+            if ( _plotModel->rowCount(pIdx) > 0 ) {
+                QModelIndex cIdx = _plotModel->index(0,0,pIdx);
+                for ( int y = 0; y < _plotModel->rowCount(cIdx); ++y) {
+                    QModelIndex yIdx = _plotModel->index(y,0,cIdx);
+                    if ( curveName == _plotModel->data(yIdx).toString() ) {
+                        isExists = true;
+                        pageIdx = pgIdx;
+                        break;
+                    }
+                    if (isExists) break;
+                }
+            }
+            if (isExists) break;
+        }
+        if (isExists) break;
+    }
+
+    return pageIdx;
 }
 
 void MonteWindow::_varsSearchBoxTextChanged(const QString &rx)

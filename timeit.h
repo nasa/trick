@@ -8,6 +8,14 @@ class TimeIt
 {
 public:
     TimeIt();
+
+    long snap()
+    {
+        long elapsed = stop();
+        start();
+        return elapsed;
+    }
+
     void snap(const char* msg)
     {
         qDebug() << msg << stop()/1000000.0;

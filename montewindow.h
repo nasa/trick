@@ -67,6 +67,7 @@ private:
     QTreeView* _plotTreeView ;
     PlotBookView* _plotBookView;
     QItemSelectionModel* _plotSelectModel;
+    int _currQPIdx;
 
     MonteModel* _monteModel;
     void _createMontePages(const QString& dpfile);
@@ -76,10 +77,15 @@ private:
 
     QString _descrPlotTitle(DPPlot* plot);
 
+    QStandardItem* _createQPItem();
+    void _addPlotOfVarQPItem(QStandardItem* qpItem,
+                          const QModelIndex &varIdx);
+    QModelIndex _findPageWithCurve(const QString& curveName);
+
 private slots:
      void _slotDirTreeClicked(const QModelIndex& idx);
-     void _selectVarChanged(const QItemSelection& currSelection,
-                              const QItemSelection& prevSelection);
+     void _selectVarChanged(const QItemSelection& currVarSelection,
+                              const QItemSelection& prevVarSelection);
      void _varsSearchBoxTextChanged(const QString& rx);
      void _dpSearchBoxTextChanged(const QString& rx);
 signals:
