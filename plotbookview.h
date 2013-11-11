@@ -56,20 +56,25 @@ protected slots:
 
 private slots:
     void currentSelectChanged(const QModelIndex &currIdx,
-                                   const QModelIndex &prevIdx);
-    void currentTabChanged(int currIdx);
+                              const QModelIndex &prevIdx);
+    void currentTabChanged(int currTabId);
     void currentCustomPlotCurveChanged(TrickCurve *curve);
 
 private:
     MonteModel* _monteModel;
     QTabWidget* _nb;
 
-    QHash<int,QModelIndex> _nbidx2idx;
-    QHash<QModelIndex,int> _idx2nbIdx;
-    QHash<QModelIndex,QFrame*> _frames;
-    QHash<QModelIndex,QGridLayout*> _grids ;
-    QHash<QModelIndex,Plot*> _plots ;
-    QHash<QModelIndex,TrickCurve*> _curves ;
+    QVector<QWidget*> _pages;
+    QVector<QGridLayout*> _grids;
+    QHash<QWidget*,QGridLayout*> _page2grid;
+    QHash<QWidget*,QVector<Plot*> >  _page2Plots;
+    QHash<Plot*, QVector<TrickCurve*> > _plot2Curves;
+
+    inline QWidget* _idx2Page(const QModelIndex& idx) const;
+    inline Plot* _idx2Plot(const QModelIndex& idx) const;
+    inline TrickCurve* _idx2Curve(const QModelIndex& idx) const;
+    inline QModelIndex _curve2Idx(TrickCurve* curve);
+    inline QModelIndex _nbId2Idx(int id) const;
 };
 
 #endif // PLOTBOOKVIEW_H

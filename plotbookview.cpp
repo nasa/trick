@@ -20,37 +20,35 @@ void PlotBookView::setData(MonteModel *monteModel)
 }
 
 //
-// This is really bogus right now
+// This is bogus.  Untested.  And don't really know what it is.
+// For now just return frame rect
 //
 QRect PlotBookView::visualRect(const QModelIndex &index) const
 {
     QRect rect;
-    QFrame* f = _frames.value(index);
-    if ( f )  {
-        rect = f->rect();
+    if ( model() && index.isValid()) {
+        QWidget* page = _idx2Page(index);
+        if ( page )  {
+            rect = page->rect();
+        }
     }
 
     return rect;
-#if 0
-    if (rect.isValid())
-        return QRect(rect.left() - horizontalScrollBar()->value(),
-                     rect.top() - verticalScrollBar()->value(),
-                     rect.width(), rect.height());
-    else
-        return rect;
-#endif
 }
 
 void PlotBookView::scrollTo(const QModelIndex &index,
                             QAbstractItemView::ScrollHint hint)
 {
     // TODO
+    Q_UNUSED(index);
+    Q_UNUSED(hint);
     update();
 }
 
 QModelIndex PlotBookView::indexAt(const QPoint &point) const
 {
     // TODO
+    Q_UNUSED(point);
     qDebug() << "indexAt!";
     return QModelIndex();
 }
@@ -70,6 +68,8 @@ QModelIndex PlotBookView::moveCursor(QAbstractItemView::CursorAction cursorActio
                                      Qt::KeyboardModifiers modifiers)
 {
     // TODO
+    Q_UNUSED(cursorAction);
+    Q_UNUSED(modifiers);
     return QModelIndex();
 }
 
@@ -83,14 +83,19 @@ int PlotBookView::verticalOffset() const
     return verticalScrollBar()->value();
 }
 
+// TODO
 bool PlotBookView::isIndexHidden(const QModelIndex &index) const
 {
-    return false; // TODO
+    Q_UNUSED(index);
+    return false;
 }
 
+// TODO
 void PlotBookView::setSelection(const QRect &rect,
                                 QItemSelectionModel::SelectionFlags command)
 {
+    Q_UNUSED(rect);
+    Q_UNUSED(command);
     qDebug() << "setSelection!!";
 }
 
@@ -102,9 +107,9 @@ QRegion PlotBookView::visualRegionForSelection(
 {
     QModelIndexList idxs = selection.indexes();
     foreach ( QModelIndex idx, idxs ) {
-        QFrame* f = _frames.value(idx);
-        if ( f ) {
-            return QRegion(f->rect());
+        QWidget* page = _idx2Page(idx);
+        if ( page ) {
+            return QRegion(page->rect());
         }
         break; // do first one for now
     }
@@ -117,6 +122,8 @@ QRegion PlotBookView::visualRegionForSelection(
 QItemSelectionModel::SelectionFlags PlotBookView::selectionCommand(
                            const QModelIndex &index, const QEvent *event) const
 {
+    Q_UNUSED(index);
+    Q_UNUSED(event);
     return QItemSelectionModel::Select;
 }
 
@@ -138,8 +145,6 @@ void PlotBookView::dataChanged(const QModelIndex &topLeft,
 void PlotBookView::currentSelectChanged(const QModelIndex &currIdx,
                                   const QModelIndex &prevIdx)
 {
-    QModelIndex pidx = model()->parent(currIdx);
-
     //
     // Update notebook widget index
     //
@@ -149,39 +154,42 @@ void PlotBookView::currentSelectChanged(const QModelIndex &currIdx,
         pageIdx = pageIdx.parent();
         level++;
     }
-    _nb->setCurrentIndex(_idx2nbIdx.value(pageIdx));
+    _nb->setCurrentIndex(pageIdx.row()); // modelIdx.row == tabbedWidgetIndex
 
     //
     // If currIdx is a curve index, select curve
     //
     if ( level == 2 ) {
-        TrickCurve* prevCurve = _curves.value(prevIdx);
+        TrickCurve* prevCurve = _idx2Curve(prevIdx);
         if ( prevCurve ) {
             prevCurve->setSelected(false);
         }
-        TrickCurve* currCurve = _curves.value(currIdx);
+        TrickCurve* currCurve = _idx2Curve(currIdx);
         if ( currCurve ) {
             currCurve->setSelected(true);
             QModelIndex plotIdx = currIdx.parent();
-            Plot* plot = _plots.value(plotIdx);
+            Plot* plot = _idx2Plot(plotIdx);
             plot->replot();
         }
     }
 }
 
-void PlotBookView::currentTabChanged(int currIdx)
+void PlotBookView::currentTabChanged(int currTab)
 {
     if ( ! selectionModel() ) {
         return;
     }
 
-    QModelIndex idx = _nbidx2idx.value(currIdx);
+    QModelIndex idx = _nbId2Idx(currTab);
     selectionModel()->setCurrentIndex(idx,QItemSelectionModel::ClearAndSelect);
 }
 
 void PlotBookView::currentCustomPlotCurveChanged(TrickCurve* curve)
 {
-    QModelIndex curveIdx = _curves.key(curve);
+    if ( model() == 0 ) {
+        return;
+    }
+    QModelIndex curveIdx = _curve2Idx(curve);
     selectionModel()->setCurrentIndex(curveIdx,
                                       QItemSelectionModel::ClearAndSelect);
 }
@@ -198,23 +206,21 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             // Page (below root idx)
             QString dpfile = model()->data(idx).toString();
             QFrame* frame = new QFrame;
-            _frames .insert(idx,frame);
+            _pages.append(frame);
             QGridLayout* grid = new QGridLayout(frame);
             grid->setContentsMargins(0, 0, 0, 0);
             grid->setSpacing(0);
-            _grids.insert(idx,grid);
+            _grids.append(grid);
             _nb->addTab(frame,QFileInfo(dpfile).baseName());
             int nbIdx = _nb->count()-1;
-            _idx2nbIdx.insert(idx,nbIdx);
-            _nbidx2idx.insert(nbIdx,idx);
             _nb->setCurrentIndex(nbIdx);
             _nb->setAttribute(Qt::WA_AlwaysShowToolTips, true);
         } else if ( ! gpidx.isValid() ) {
             // Plot
-            QFrame* frame = _frames.value(pidx);
-            QGridLayout* grid = _grids.value(pidx) ;
-            Plot* plot = new Plot(idx,frame);
-            _plots .insert(idx,plot);
+            QWidget* page = _idx2Page(pidx);
+            QGridLayout* grid = _grids.at(pidx.row()) ;
+            Plot* plot = new Plot(idx,page);
+            _page2Plots[page].append(plot);
             int nPlots = model()->rowCount(pidx);
             switch ( nPlots ) {
             case 1: {
@@ -270,9 +276,9 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 QString yparam = model()->data(yidx).toString();
                 TrickCurveModel* curveModel = _monteModel->curve(pidx.row(),
                                                                 yparam);
-                Plot* plot = _plots.value(gpidx);
+                Plot* plot = _idx2Plot(gpidx);
                 TrickCurve* curve = plot->addCurve(curveModel);
-                _curves.insert(pidx,curve);
+                _plot2Curves[plot].append(curve);
                 connect(curve,SIGNAL(selectionChanged(TrickCurve*)),
                         this,SLOT(currentCustomPlotCurveChanged(TrickCurve*)));
             }
@@ -402,4 +408,70 @@ void PlotBookView::rowsAboutToBeRemoved(const QModelIndex &pidx,
             // t,x,y,run
         }
     }
+}
+
+QModelIndex PlotBookView::_curve2Idx(TrickCurve *curve)
+{
+    Plot* parentPlot = static_cast<Plot*>(curve->parentPlot());
+    QWidget* parentPage = parentPlot->parentWidget();
+    int rowPage = _pages.indexOf(parentPage);
+    int rowPlot = _page2Plots.value(parentPage).indexOf(parentPlot);
+    int rowCurve = _plot2Curves.value(parentPlot).indexOf(curve);
+    QModelIndex pageIdx = model()->index(rowPage,0);
+
+    QModelIndex plotIdx = model()->index(rowPlot,0,pageIdx);
+    QModelIndex curveIdx = model()->index(rowCurve,0,plotIdx);
+    return curveIdx;
+}
+
+QWidget *PlotBookView::_idx2Page(const QModelIndex &idx) const
+{
+    if ( !idx.isValid() ) return 0;
+
+    QModelIndex pageIdx(idx);
+    while ( pageIdx.parent().isValid() ) {
+        pageIdx = pageIdx.parent();
+    }
+    QWidget* page = _pages.at(pageIdx.row());
+    return page;
+}
+
+Plot *PlotBookView::_idx2Plot(const QModelIndex &idx) const
+{
+    if ( !idx.isValid() || !idx.parent().isValid() ) {
+        // root or page
+        return 0;
+    }
+
+    Plot* plot = 0 ;
+    QWidget* page = _idx2Page(idx);
+    if ( page ) {
+        QModelIndex plotIdx(idx);
+        while ( plotIdx.parent().parent().isValid() ) {
+            plotIdx = plotIdx.parent();
+        }
+        plot = _page2Plots.value(page).at(plotIdx.row());
+    }
+    return plot;
+}
+
+TrickCurve *PlotBookView::_idx2Curve(const QModelIndex &idx) const
+{
+    TrickCurve* curve = 0 ;
+    Plot* plot = _idx2Plot(idx);
+    if ( plot ) {
+        curve = _plot2Curves.value(plot).at(idx.row());
+    }
+    return curve;
+}
+
+QModelIndex PlotBookView::_nbId2Idx(int id) const
+{
+    QModelIndex idx ;
+
+    if ( model() ) {
+        idx = model()->index(id,0);
+    }
+
+    return idx;
 }
