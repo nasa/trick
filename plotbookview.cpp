@@ -279,3 +279,127 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
         }
     }
 }
+
+//
+// This is a start.  I realized I should not depend on QModelIndexes
+// as keys in private maps.  Going to keep this for now.
+//
+void PlotBookView::rowsAboutToBeRemoved(const QModelIndex &pidx,
+                                        int start, int end)
+{
+    QModelIndex gpidx = model()->parent(pidx);
+    QModelIndex g2pidx = model()->parent(gpidx);
+    QModelIndex g3pidx = model()->parent(g2pidx);
+
+    for ( int row = start; row < end+1; ++row) {
+
+        QModelIndex idxToRemove = model()->index(row,0,pidx);
+
+        if ( ! pidx.isValid() ) {
+            // Page
+        } else if ( ! gpidx.isValid() ) {
+            // Plot
+#if 0
+            QFrame* frame = _frames.value(pidx);
+            QGridLayout* grid = _grids.value(pidx) ;
+
+            int nCurves = model()->rowCount(idxToRemove);
+
+            model()->removeRows(0,nCurves,idxToRemove);
+
+            Plot* plot = _plots.value(idxToRemove);
+            grid->removeWidget(plot);
+            delete plot;
+
+            QList<QWidget*> plots;
+            QWidget* p;
+            int nPlots = grid->count();
+            for ( int i = nPlots-1; i >= 0 ; --i ) {
+                p = grid->takeAt(i)->widget();
+                plots << p;
+            }
+
+            switch (nPlots)
+            {
+            case 0:
+            {
+                break;
+            }
+            case 1:
+            {
+                grid->addWidget(plots.at(0),0,0);
+                break;
+            }
+            case 2:
+            {
+                grid->addWidget(plots.at(0),0,0);
+                grid->addWidget(plots.at(1),0,1);
+                break;
+            }
+            case 3:
+            {
+                grid->addWidget(plots.at(0),0,0);
+                grid->addWidget(plots.at(1),0,1);
+                grid->addWidget(plots.at(2),0,2);
+                break;
+            }
+            case 4:
+            {
+                grid->addWidget(plots.at(0),0,0);
+                grid->addWidget(plots.at(1),0,1);
+                grid->addWidget(plots.at(2),1,0);
+                grid->addWidget(plots.at(3),1,1);
+                break;
+            }
+            case 5:
+            {
+                grid->addWidget(plots.at(0),0,0);
+                grid->addWidget(plots.at(1),0,1);
+                grid->addWidget(plots.at(2),1,0);
+                grid->addWidget(plots.at(3),1,1);
+                grid->addWidget(plots.at(4),2,0,1,2);
+                break;
+            }
+            case 6:
+            {
+                grid->addWidget(plots.at(0),0,0);
+                grid->addWidget(plots.at(1),0,1);
+                grid->addWidget(plots.at(2),1,0);
+                grid->addWidget(plots.at(3),1,1);
+                grid->addWidget(plots.at(4),2,0);
+                grid->addWidget(plots.at(4),2,1);
+                break;
+            }
+            case 7:
+            {
+                grid->addWidget(plots.at(0),0,0);
+                grid->addWidget(plots.at(1),0,1);
+                grid->addWidget(plots.at(2),1,0);
+                grid->addWidget(plots.at(3),1,1);
+                grid->addWidget(plots.at(4),2,0);
+                grid->addWidget(plots.at(4),2,1);
+                grid->addWidget(plots.at(0),3,0,1,2);
+                break;
+            }
+            default:
+            {
+                qDebug() << "snap [error]: can't handle more than 7 plots!";
+            }
+            }
+#endif
+
+        } else if ( ! g2pidx.isValid() ) {
+            // Curve
+#if 0
+            Plot* plot = _plots.value(pidx);
+            TrickCurve* curve = _curves.value(idxToRemove);
+            disconnect(curve,SIGNAL(selectionChanged(TrickCurve*)));
+            plot->removePlottable(curve);
+            plot->replot();
+            _curves.remove(idxToRemove);
+#endif
+        } else if ( ! g3pidx.isValid() ) {
+            // t,x,y,run
+        }
+    }
+}

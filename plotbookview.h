@@ -51,6 +51,7 @@ public slots:
 
 protected slots:
     void rowsInserted(const QModelIndex &pidx, int start, int end);
+    void rowsAboutToBeRemoved(const QModelIndex &pidx, int start, int end);
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
 private slots:
