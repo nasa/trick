@@ -59,10 +59,12 @@ private slots:
                               const QModelIndex &prevIdx);
     void currentTabChanged(int currTabId);
     void currentCustomPlotCurveChanged(TrickCurve *curve);
+    void tabCloseRequested(int tabId);
 
 private:
     MonteModel* _monteModel;
     QTabWidget* _nb;
+    bool _isTabCloseRequested;
 
     QVector<QWidget*> _pages;
     QVector<QGridLayout*> _grids;

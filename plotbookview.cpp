@@ -3,9 +3,13 @@
 
 PlotBookView::PlotBookView(QWidget *parent) :
     QAbstractItemView(parent),
-    _monteModel(0)
+    _monteModel(0),
+    _isTabCloseRequested(false)
 {
     _nb = new QTabWidget(parent);
+    _nb->setTabsClosable(true);
+    connect(_nb,SIGNAL(tabCloseRequested(int)),
+            this,SLOT(tabCloseRequested(int)));
 }
 
 PlotBookView::~PlotBookView()
@@ -194,6 +198,15 @@ void PlotBookView::currentCustomPlotCurveChanged(TrickCurve* curve)
                                       QItemSelectionModel::ClearAndSelect);
 }
 
+void PlotBookView::tabCloseRequested(int tabId)
+{
+    if ( model() == 0 ) return;
+
+    _isTabCloseRequested = true;
+    model()->removeRow(tabId);
+    _isTabCloseRequested = false;
+}
+
 void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
 {
     QModelIndex gpidx = model()->parent(pidx);
@@ -304,7 +317,10 @@ void PlotBookView::rowsAboutToBeRemoved(const QModelIndex &pidx,
             _pages.remove(idx.row());
             _page2grid.remove(page);
             _page2Plots.remove(page);
-            _nb->removeTab(idx.row());
+            if ( ! _isTabCloseRequested ) {
+                // Tab widget will remove its own tab
+                _nb->removeTab(idx.row());
+            }
             page->deleteLater();
         } else if ( ! gpidx.isValid() ) {
             // Plot
