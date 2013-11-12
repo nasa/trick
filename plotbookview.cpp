@@ -286,10 +286,6 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
     }
 }
 
-//
-// This is a start.  I realized I should not depend on QModelIndexes
-// as keys in private maps.  Going to keep this for now.
-//
 void PlotBookView::rowsAboutToBeRemoved(const QModelIndex &pidx,
                                         int start, int end)
 {
