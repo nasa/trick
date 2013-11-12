@@ -299,30 +299,37 @@ void PlotBookView::rowsAboutToBeRemoved(const QModelIndex &pidx,
 
     for ( int row = start; row < end+1; ++row) {
 
-        QModelIndex idxToRemove = model()->index(row,0,pidx);
+        QModelIndex idx = model()->index(row,0,pidx);
 
         if ( ! pidx.isValid() ) {
             // Page
+            QWidget* page = _idx2Page(idx);
+            _grids.remove(idx.row());
+            _pages.remove(idx.row());
+            _page2grid.remove(page);
+            _page2Plots.remove(page);
+            _nb->removeTab(idx.row());
+            page->deleteLater();
         } else if ( ! gpidx.isValid() ) {
             // Plot
-#if 0
-            QFrame* frame = _frames.value(pidx);
-            QGridLayout* grid = _grids.value(pidx) ;
+            QWidget* page = _idx2Page(pidx);
+            QGridLayout* grid = static_cast<QGridLayout*>(page->layout());
 
-            int nCurves = model()->rowCount(idxToRemove);
-
-            model()->removeRows(0,nCurves,idxToRemove);
-
-            Plot* plot = _plots.value(idxToRemove);
+            Plot* plot = _idx2Plot(idx);
+            QVector<TrickCurve*> curves = _plot2Curves.value(plot);
+            foreach ( TrickCurve* curve, curves ) {
+                disconnect(curve,SIGNAL(selectionChanged(TrickCurve*)));
+            }
+            _page2Plots[page].remove(idx.row());
+            _plot2Curves.remove(plot);
             grid->removeWidget(plot);
             delete plot;
 
             QList<QWidget*> plots;
-            QWidget* p;
             int nPlots = grid->count();
             for ( int i = nPlots-1; i >= 0 ; --i ) {
-                p = grid->takeAt(i)->widget();
-                plots << p;
+                QWidget* plot = grid->takeAt(i)->widget();
+                plots << plot;
             }
 
             switch (nPlots)
@@ -339,14 +346,14 @@ void PlotBookView::rowsAboutToBeRemoved(const QModelIndex &pidx,
             case 2:
             {
                 grid->addWidget(plots.at(0),0,0);
-                grid->addWidget(plots.at(1),0,1);
+                grid->addWidget(plots.at(1),1,0);
                 break;
             }
             case 3:
             {
                 grid->addWidget(plots.at(0),0,0);
-                grid->addWidget(plots.at(1),0,1);
-                grid->addWidget(plots.at(2),0,2);
+                grid->addWidget(plots.at(1),1,0);
+                grid->addWidget(plots.at(2),2,0);
                 break;
             }
             case 4:
@@ -373,7 +380,7 @@ void PlotBookView::rowsAboutToBeRemoved(const QModelIndex &pidx,
                 grid->addWidget(plots.at(2),1,0);
                 grid->addWidget(plots.at(3),1,1);
                 grid->addWidget(plots.at(4),2,0);
-                grid->addWidget(plots.at(4),2,1);
+                grid->addWidget(plots.at(5),2,1);
                 break;
             }
             case 7:
@@ -383,8 +390,8 @@ void PlotBookView::rowsAboutToBeRemoved(const QModelIndex &pidx,
                 grid->addWidget(plots.at(2),1,0);
                 grid->addWidget(plots.at(3),1,1);
                 grid->addWidget(plots.at(4),2,0);
-                grid->addWidget(plots.at(4),2,1);
-                grid->addWidget(plots.at(0),3,0,1,2);
+                grid->addWidget(plots.at(5),2,1);
+                grid->addWidget(plots.at(6),3,0,1,2);
                 break;
             }
             default:
@@ -392,18 +399,14 @@ void PlotBookView::rowsAboutToBeRemoved(const QModelIndex &pidx,
                 qDebug() << "snap [error]: can't handle more than 7 plots!";
             }
             }
-#endif
-
         } else if ( ! g2pidx.isValid() ) {
             // Curve
-#if 0
-            Plot* plot = _plots.value(pidx);
-            TrickCurve* curve = _curves.value(idxToRemove);
+            Plot* plot = _idx2Plot(pidx);
+            TrickCurve* curve = _idx2Curve(idx);
             disconnect(curve,SIGNAL(selectionChanged(TrickCurve*)));
             plot->removePlottable(curve);
+            _plot2Curves[plot].remove(idx.row());
             plot->replot();
-            _curves.remove(idxToRemove);
-#endif
         } else if ( ! g3pidx.isValid() ) {
             // t,x,y,run
         }
