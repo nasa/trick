@@ -49,12 +49,29 @@ void PlotBookView::scrollTo(const QModelIndex &index,
     update();
 }
 
+// For now, return index for a plot at point
+// Point is relative to page
 QModelIndex PlotBookView::indexAt(const QPoint &point) const
 {
-    // TODO
-    Q_UNUSED(point);
-    qDebug() << "indexAt!";
-    return QModelIndex();
+    if ( !model() ) return QModelIndex();
+
+    QModelIndex idx;
+    QWidget* page = _nb->currentWidget();
+    QGridLayout* grid = _page2grid.value(page);
+
+    for ( int i = 0; i < grid->count(); ++i) {
+        QWidget* w = grid->itemAt(i)->widget();
+        if ( ! w->isVisible() ) {
+            continue;
+        }
+        if ( w->geometry().contains(point) ) {
+            Plot* plot = static_cast<Plot*>(w);
+            idx = _plot2Idx(plot);
+            break;
+        }
+    }
+
+    return idx;
 }
 
 void PlotBookView::setSelectionModel(QItemSelectionModel *selectionModel)
@@ -87,11 +104,15 @@ int PlotBookView::verticalOffset() const
     return verticalScrollBar()->value();
 }
 
-// TODO
+// TODO: Untested
 bool PlotBookView::isIndexHidden(const QModelIndex &index) const
 {
-    Q_UNUSED(index);
-    return false;
+    bool isHidden = false;
+    Plot* plot = _idx2Plot(index);
+    if ( plot ) {
+        isHidden = plot->isVisible();
+    }
+    return isHidden;
 }
 
 // TODO
@@ -129,6 +150,37 @@ QItemSelectionModel::SelectionFlags PlotBookView::selectionCommand(
     Q_UNUSED(index);
     Q_UNUSED(event);
     return QItemSelectionModel::Select;
+}
+
+//
+// This takes makes the plot at idx the only plot on the page
+//
+void PlotBookView::maximize(const QModelIndex &idx)
+{
+    if ( _isPlotIdx(idx) ) {
+
+        QGridLayout* grid = _idx2Grid(idx);
+        Plot* plot = _idx2Plot(idx);
+
+        for ( int i = 0; i < grid->count(); ++i) {
+            QWidget* w = grid->itemAt(i)->widget();
+            if ( w != plot ) {
+                w->setVisible(false);
+            } else {
+                w->setVisible(true);
+            }
+        }
+    }
+}
+
+void PlotBookView::minimize(const QModelIndex &idx)
+{
+    if ( _isPlotIdx(idx) ) {
+        QGridLayout* grid = _idx2Grid(idx);
+        for ( int i = 0; i < grid->count(); ++i) {
+            grid->itemAt(i)->widget()->setVisible(true);
+        }
+    }
 }
 
 void PlotBookView::setCurrentIndex(const QModelIndex &index)
@@ -207,6 +259,38 @@ void PlotBookView::tabCloseRequested(int tabId)
     _isTabCloseRequested = false;
 }
 
+void PlotBookView::doubleClick(QMouseEvent *event)
+{
+    if ( !model() ) return ;
+
+    QPoint globalPageOrigin(_nb->mapToGlobal(QPoint(0,0)));
+    QPoint pagePos = event->globalPos()-globalPageOrigin;
+    QModelIndex plotIdx = indexAt(pagePos);
+    if ( _isPlotIdx(plotIdx) ) {
+        QModelIndex pageIdx = plotIdx.parent();
+        int rc = model()->rowCount(pageIdx);
+        bool isExpanded = false;
+        for ( int r = 0; r < rc; ++r) {
+            QModelIndex idx = model()->index(r,0,pageIdx);
+            if ( idx != plotIdx ) {
+                Plot* plot = _idx2Plot(idx);
+                if ( plot->isVisible() ) {
+                    isExpanded = false;
+                } else {
+                    isExpanded = true;
+                }
+                break;
+            }
+        }
+
+        if ( isExpanded ) {
+            minimize(plotIdx);
+        } else {
+            maximize(plotIdx);
+        }
+    }
+}
+
 void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
 {
     QModelIndex gpidx = model()->parent(pidx);
@@ -218,13 +302,14 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
         if ( ! pidx.isValid() ) {
             // Page (below root idx)
             QString dpfile = model()->data(idx).toString();
-            QFrame* frame = new QFrame;
-            _pages.append(frame);
-            QGridLayout* grid = new QGridLayout(frame);
+            QFrame* page = new QFrame;
+            _pages.append(page);
+            QGridLayout* grid = new QGridLayout(page);
             grid->setContentsMargins(0, 0, 0, 0);
             grid->setSpacing(0);
+            _page2grid.insert(page,grid);
             _grids.append(grid);
-            _nb->addTab(frame,QFileInfo(dpfile).baseName());
+            _nb->addTab(page,QFileInfo(dpfile).baseName());
             int nbIdx = _nb->count()-1;
             _nb->setCurrentIndex(nbIdx);
             _nb->setAttribute(Qt::WA_AlwaysShowToolTips, true);
@@ -233,6 +318,8 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             QWidget* page = _idx2Page(pidx);
             QGridLayout* grid = _grids.at(pidx.row()) ;
             Plot* plot = new Plot(idx,page);
+            connect(plot,SIGNAL(mouseDoubleClick(QMouseEvent*)),
+                    this,SLOT(doubleClick(QMouseEvent*)));
             _page2Plots[page].append(plot);
             int nPlots = model()->rowCount(pidx);
             switch ( nPlots ) {
@@ -427,14 +514,9 @@ void PlotBookView::rowsAboutToBeRemoved(const QModelIndex &pidx,
 
 QModelIndex PlotBookView::_curve2Idx(TrickCurve *curve)
 {
-    Plot* parentPlot = static_cast<Plot*>(curve->parentPlot());
-    QWidget* parentPage = parentPlot->parentWidget();
-    int rowPage = _pages.indexOf(parentPage);
-    int rowPlot = _page2Plots.value(parentPage).indexOf(parentPlot);
-    int rowCurve = _plot2Curves.value(parentPlot).indexOf(curve);
-    QModelIndex pageIdx = model()->index(rowPage,0);
-
-    QModelIndex plotIdx = model()->index(rowPlot,0,pageIdx);
+    Plot* plot = static_cast<Plot*>(curve->parentPlot());
+    QModelIndex plotIdx = _plot2Idx(plot);
+    int rowCurve = _plot2Curves.value(plot).indexOf(curve);
     QModelIndex curveIdx = model()->index(rowCurve,0,plotIdx);
     return curveIdx;
 }
@@ -449,6 +531,13 @@ QWidget *PlotBookView::_idx2Page(const QModelIndex &idx) const
     }
     QWidget* page = _pages.at(pageIdx.row());
     return page;
+}
+
+QGridLayout *PlotBookView::_idx2Grid(const QModelIndex &idx) const
+{
+    QWidget* page = _idx2Page(idx);
+    QGridLayout* grid = _page2grid.value(page);
+    return grid;
 }
 
 Plot *PlotBookView::_idx2Plot(const QModelIndex &idx) const
@@ -489,4 +578,41 @@ QModelIndex PlotBookView::_nbId2Idx(int id) const
     }
 
     return idx;
+}
+
+QModelIndex PlotBookView::_page2Idx(QWidget *page) const
+{
+    if ( !model() || !page) return QModelIndex();
+
+    QModelIndex idx;
+    int row = _pages.indexOf(page);
+    if ( row >= 0 ) {
+        idx = model()->index(row,0);
+    }
+    return idx;
+}
+
+QModelIndex PlotBookView::_plot2Idx(Plot *plot) const
+{
+    if ( !model() || !plot ) return QModelIndex();
+
+    QModelIndex plotIdx;
+
+    QWidget* page = plot->parentWidget();
+    int rowPage = _pages.indexOf(page);
+    int rowPlot = _page2Plots.value(page).indexOf(plot);
+    QModelIndex pageIdx = model()->index(rowPage,0);
+    plotIdx = model()->index(rowPlot,0,pageIdx);
+
+    return plotIdx;
+}
+
+bool PlotBookView::_isPlotIdx(const QModelIndex &idx)
+{
+    if ( idx.isValid() && idx.parent().isValid() &&
+         !idx.parent().parent().isValid() ) {
+        return true;
+    } else {
+        return false;
+    }
 }

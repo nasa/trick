@@ -128,6 +128,7 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     _plotTreeView->setModel(_plotModel);
     _plotTreeView->setHeaderHidden(true);
     _plotTreeView->setSelectionModel(_plotSelectModel);
+    //_plotTreeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     lsplit->addWidget(_plotTreeView);
 
     //
@@ -286,8 +287,9 @@ void MonteWindow::_slotDirTreeClicked(const QModelIndex &idx)
 void MonteWindow::_selectVarChanged(const QItemSelection &currVarSelection,
                                       const QItemSelection &prevVarSelection)
 {
+    Q_UNUSED(prevVarSelection); // TODO: handle deselection (prevSelection)
+
     if ( currVarSelection.size() == 0 ) {
-        // TODO: handle deselection (prevSelection)
         return;
     }
 

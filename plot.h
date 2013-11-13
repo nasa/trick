@@ -24,12 +24,6 @@ private:
     DPPlot* _dpplot;
     AxisRect* _axisrect;
     QCPLayoutElement* _keyEventElement;
-
-    
-signals:
-    
-public slots:
-    
 };
 
 #endif // PLOTPAGE_H

@@ -46,8 +46,9 @@ protected:
 signals:
     
 public slots:
-    void  setCurrentIndex( const QModelIndex & index );
-
+    void maximize(const QModelIndex & idx );
+    void minimize(const QModelIndex & idx );
+    void setCurrentIndex( const QModelIndex & index );
 
 protected slots:
     void rowsInserted(const QModelIndex &pidx, int start, int end);
@@ -60,6 +61,7 @@ private slots:
     void currentTabChanged(int currTabId);
     void currentCustomPlotCurveChanged(TrickCurve *curve);
     void tabCloseRequested(int tabId);
+    void doubleClick(QMouseEvent* event);
 
 private:
     MonteModel* _monteModel;
@@ -73,10 +75,15 @@ private:
     QHash<Plot*, QVector<TrickCurve*> > _plot2Curves;
 
     inline QWidget* _idx2Page(const QModelIndex& idx) const;
+    inline QGridLayout* _idx2Grid(const QModelIndex& idx) const;
     inline Plot* _idx2Plot(const QModelIndex& idx) const;
     inline TrickCurve* _idx2Curve(const QModelIndex& idx) const;
     inline QModelIndex _curve2Idx(TrickCurve* curve);
     inline QModelIndex _nbId2Idx(int id) const;
+    inline QModelIndex _page2Idx(QWidget* page) const;
+    inline QModelIndex _plot2Idx(Plot* plot) const;
+
+    inline bool _isPlotIdx(const QModelIndex& idx);
 };
 
 #endif // PLOTBOOKVIEW_H
