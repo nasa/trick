@@ -152,6 +152,16 @@ QItemSelectionModel::SelectionFlags PlotBookView::selectionCommand(
     return QItemSelectionModel::Select;
 }
 
+void PlotBookView::keyPressEvent(QKeyEvent *event)
+{
+    switch (event->key()) {
+    case Qt::Key_Up:_selectNextCurve(); break;
+    case Qt::Key_Down: _selectPrevCurve();break;
+    default: ; // do nothing
+    }
+    QAbstractItemView::keyPressEvent(event);
+}
+
 //
 // This takes makes the plot at idx the only plot on the page
 //
@@ -291,6 +301,32 @@ void PlotBookView::doubleClick(QMouseEvent *event)
     }
 }
 
+// UNUSED currently, but keep in case
+void PlotBookView::curveSelected(QCPAbstractPlottable *plottable, QMouseEvent *e)
+{
+    Q_UNUSED(plottable);
+    Q_UNUSED(e);
+#if 0
+    TrickCurve* curve = static_cast<TrickCurve*>(plottable);
+    QModelIndex curveIdx = _curve2Idx(curve);
+#endif
+    return;
+}
+
+void PlotBookView::plotKeyPress(QKeyEvent *e)
+{
+    switch (e->key()) {
+    case Qt::Key_Up:{
+        _selectPrevCurve();
+        break;
+    }
+    case Qt::Key_Down: {
+        _selectNextCurve();
+        break;
+    }
+    }
+}
+
 void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
 {
     QModelIndex gpidx = model()->parent(pidx);
@@ -320,6 +356,12 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             Plot* plot = new Plot(idx,page);
             connect(plot,SIGNAL(mouseDoubleClick(QMouseEvent*)),
                     this,SLOT(doubleClick(QMouseEvent*)));
+            connect(plot,
+                    SIGNAL(plottableClick(QCPAbstractPlottable*,QMouseEvent*)),
+                    this,
+                    SLOT(curveSelected(QCPAbstractPlottable*,QMouseEvent*)));
+            connect(plot, SIGNAL(keyPress(QKeyEvent*)),
+                    this, SLOT(plotKeyPress(QKeyEvent*)));
             _page2Plots[page].append(plot);
             int nPlots = model()->rowCount(pidx);
             switch ( nPlots ) {
@@ -614,5 +656,52 @@ bool PlotBookView::_isPlotIdx(const QModelIndex &idx)
         return true;
     } else {
         return false;
+    }
+}
+
+bool PlotBookView::_isCurveIdx(const QModelIndex &idx)
+{
+    if ( idx.isValid() && idx.parent().isValid() &&
+         idx.parent().parent().isValid() &&
+         !idx.parent().parent().parent().isValid() ) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+void PlotBookView::_selectNextCurve()
+{
+    if ( ! selectionModel() || !model() ) return ;
+
+    QModelIndex currIdx = selectionModel()->currentIndex();
+    if ( _isCurveIdx(currIdx) ) {
+        QModelIndex plotIdx = currIdx.parent();
+        int currRow = currIdx.row();
+        int nextRow = currRow+1;
+        if ( nextRow >= model()->rowCount(plotIdx) ) {
+            nextRow = currRow;
+        }
+        QModelIndex nextCurveIdx = model()->index(nextRow,0,plotIdx);
+        selectionModel()->setCurrentIndex(nextCurveIdx,
+                                         QItemSelectionModel::ClearAndSelect);
+    }
+}
+
+void PlotBookView::_selectPrevCurve()
+{
+    if ( ! selectionModel() || !model() ) return ;
+
+    QModelIndex currIdx = selectionModel()->currentIndex();
+    if ( _isCurveIdx(currIdx) ) {
+        QModelIndex plotIdx = currIdx.parent();
+        int currRow = currIdx.row();
+        int nextRow = currRow-1;
+        if ( nextRow < 0 ) {
+            nextRow = 0;
+        }
+        QModelIndex nextCurveIdx = model()->index(nextRow,0,plotIdx);
+        selectionModel()->setCurrentIndex(nextCurveIdx,
+                                         QItemSelectionModel::ClearAndSelect);
     }
 }

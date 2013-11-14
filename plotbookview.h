@@ -43,6 +43,8 @@ protected:
 
 protected:
 
+    virtual void keyPressEvent (QKeyEvent* event);
+
 signals:
     
 public slots:
@@ -62,6 +64,8 @@ private slots:
     void currentCustomPlotCurveChanged(TrickCurve *curve);
     void tabCloseRequested(int tabId);
     void doubleClick(QMouseEvent* event);
+    void curveSelected(QCPAbstractPlottable* plottable, QMouseEvent* e);
+    void plotKeyPress(QKeyEvent* e);
 
 private:
     MonteModel* _monteModel;
@@ -84,6 +88,10 @@ private:
     inline QModelIndex _plot2Idx(Plot* plot) const;
 
     inline bool _isPlotIdx(const QModelIndex& idx);
+    inline bool _isCurveIdx(const QModelIndex& idx);
+
+    void _selectNextCurve();
+    void _selectPrevCurve();
 };
 
 #endif // PLOTBOOKVIEW_H

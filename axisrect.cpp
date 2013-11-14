@@ -405,16 +405,12 @@ void AxisRect::mouseReleaseEvent(QMouseEvent *event)
 void AxisRect::keyPressEvent(QKeyEvent *event)
 {
     switch (event->key()) {
-    case Qt::Key_Left: _keyPressLeft(); break;
-    case Qt::Key_Right: _keyPressRight();break;
-    case Qt::Key_Up:_keyPressUp(); break;
-    case Qt::Key_Down: _keyPressDown();break;
     case Qt::Key_Plus: _keyPressZoomIn();break;
     case Qt::Key_Minus: _keyPressZoomOut();break;
-    case Qt::Key_H: _keyPressLeft();break;
-    case Qt::Key_L: _keyPressRight();break;
-    case Qt::Key_J: _keyPressDown();break;
-    case Qt::Key_K: _keyPressUp();break;
+    case Qt::Key_H: _keyPressMoveLeft();break;
+    case Qt::Key_L: _keyPressMoveRight();break;
+    case Qt::Key_J: _keyPressMoveDown();break;
+    case Qt::Key_K: _keyPressMoveUp();break;
     case Qt::Key_I: _keyPressZoomIn();break;
     case Qt::Key_O: _keyPressZoomOut();break;
     case Qt::Key_A: _keyPressZoomIn();break;
@@ -491,7 +487,7 @@ QList<QColor> AxisRect::_createColorBands(int nBands, bool isMonte)
     return colorBands;
 }
 
-void AxisRect::_keyPressLeft()
+void AxisRect::_keyPressMoveLeft()
 {
     QCPRange _xrange = _xAxis->range();
     double sz = _xrange.size();
@@ -501,7 +497,7 @@ void AxisRect::_keyPressLeft()
     mParentPlot->replot();
 }
 
-void AxisRect::_keyPressRight()
+void AxisRect::_keyPressMoveRight()
 {
     QCPRange _xrange = _xAxis->range();
     double sz = _xrange.size();
@@ -510,7 +506,7 @@ void AxisRect::_keyPressRight()
     mParentPlot->replot();
 }
 
-void AxisRect::_keyPressUp()
+void AxisRect::_keyPressMoveUp()
 {
     QCPRange _yrange = _yAxis->range();
     double sz = _yrange.size();
@@ -519,7 +515,7 @@ void AxisRect::_keyPressUp()
     mParentPlot->replot();
 }
 
-void AxisRect::_keyPressDown()
+void AxisRect::_keyPressMoveDown()
 {
     QCPRange _yrange = _yAxis->range();
     double sz = _yrange.size();

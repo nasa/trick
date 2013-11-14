@@ -58,6 +58,7 @@ void Plot::setData(MonteModel *monteModel)
 
 void Plot::keyPressEvent(QKeyEvent *event)
 {
-  _axisrect->keyPressEvent(event);
-  QWidget::keyPressEvent(event);
+    emit keyPress(event);
+    _axisrect->keyPressEvent(event);
+    QWidget::keyPressEvent(event);
 }

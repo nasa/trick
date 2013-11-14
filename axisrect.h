@@ -70,10 +70,10 @@ protected:
     static QString _abbreviate(const QString& label,int maxlen=35);
 
     double _keyPressMoveFactor;
-    void _keyPressLeft();
-    void _keyPressRight();
-    void _keyPressUp();
-    void _keyPressDown();
+    void _keyPressMoveLeft();
+    void _keyPressMoveRight();
+    void _keyPressMoveUp();
+    void _keyPressMoveDown();
     void _keyPressZoomIn();
     void _keyPressZoomOut();
 

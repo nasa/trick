@@ -20,6 +20,9 @@ public:
 protected:
     void keyPressEvent(QKeyEvent *event);
 
+signals:
+    void keyPress(QKeyEvent* e);
+
 private:
     DPPlot* _dpplot;
     AxisRect* _axisrect;
