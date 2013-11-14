@@ -425,6 +425,26 @@ void AxisRect::keyPressEvent(QKeyEvent *event)
     }
 }
 
+void AxisRect::wheelEvent(QWheelEvent *event)
+{
+    int delta = event->delta();
+    QCPRange xrange = _xAxis->range();
+    QCPRange yrange = _yAxis->range();
+    double sx = xrange.size();
+    double sy = yrange.size();
+    double dx = sx*_keyPressMoveFactor;
+    double dy = sy*_keyPressMoveFactor;
+    if ( delta < 0 ) {
+        // Zoom out
+        dx = -dx;
+        dy = -dy;
+    }
+    _xAxis->setRange(xrange.lower+dx,xrange.upper-dx);
+    _yAxis->setRange(yrange.lower+dy,yrange.upper-dy);
+
+    mParentPlot->replot();
+}
+
 QList<QColor> AxisRect::_createColorBands(int nBands, bool isMonte)
 {
     QList<QColor> colorBands;
