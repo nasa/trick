@@ -78,6 +78,27 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     _dpFilterModel->setFilterKeyColumn(0);
 
     //
+    // Vars view (list of searchable trick recorded vars)
+    //
+    QFrame* frameVars = new QFrame(lsplit);
+    QGridLayout* varsGridLayout = new QGridLayout(frameVars);
+    _varsSearchBox = new QLineEdit(frameVars);
+    connect(_varsSearchBox,SIGNAL(textChanged(QString)),
+            this,SLOT(_varsSearchBoxTextChanged(QString)));
+    varsGridLayout->addWidget(_varsSearchBox,0,0);
+
+    _varsListView = new QListView(frameVars);
+    _varsListView->setModel(_varsFilterModel);
+    varsGridLayout->addWidget(_varsListView,1,0);
+    _nbDPVars->addTab(frameVars,"Vars");
+    _varsListView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    _varsListView->setSelectionModel(_varsSelectModel);
+    connect(_varsSelectModel,
+            SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this,
+            SLOT(_selectVarChanged(QItemSelection,QItemSelection)));
+
+    //
     // DP TreeView with Search Box
     //
     QFrame* dpFrame = new QFrame(lsplit);
@@ -100,26 +121,6 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
         _dpTreeView->hideColumn(col);
     }
 
-    //
-    // Vars view (list of searchable trick recorded vars)
-    //
-    QFrame* frameVars = new QFrame(lsplit);
-    QGridLayout* varsGridLayout = new QGridLayout(frameVars);
-    _varsSearchBox = new QLineEdit(frameVars);
-    connect(_varsSearchBox,SIGNAL(textChanged(QString)),
-            this,SLOT(_varsSearchBoxTextChanged(QString)));
-    varsGridLayout->addWidget(_varsSearchBox,0,0);
-
-    _varsListView = new QListView(frameVars);
-    _varsListView->setModel(_varsFilterModel);
-    varsGridLayout->addWidget(_varsListView,1,0);
-    _nbDPVars->addTab(frameVars,"Vars");
-    _varsListView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    _varsListView->setSelectionModel(_varsSelectModel);
-    connect(_varsSelectModel,
-            SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this,
-            SLOT(_selectVarChanged(QItemSelection,QItemSelection)));
 
     //
     // For Tim, show tree view of book of plots
