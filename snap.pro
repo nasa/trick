@@ -176,4 +176,5 @@ HEADERS += \
     timeit_win32.h \
     montemodel.h \
     plotbookview.h \
-    dpfilterproxymodel.h
+    dpfilterproxymodel.h \
+    numsortitem.h

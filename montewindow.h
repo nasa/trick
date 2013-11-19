@@ -16,6 +16,7 @@
 #include <QSortFilterProxyModel>
 #include <QRegExp>
 #include <QTreeView>
+#include <QTableView>
 #include <QListView>
 #include <QFileInfo>
 #include <QTabWidget>
@@ -39,6 +40,7 @@ public:
 
 private:
     QString _montedir;
+    Monte* _monte;
     QGridLayout* _layout;
     QGridLayout* _left_lay ;
 
@@ -75,6 +77,10 @@ private:
     bool _isRUN(const QString& fp);
     bool _isMONTE(const QString& fp);
 
+    QStandardItemModel* _monteInputsModel; // from monte_runs file
+    QTableView* _monteInputsView ;
+    QItemSelectionModel* _monteInputsSelectModel;
+
     QString _descrPlotTitle(DPPlot* plot);
 
     QStandardItem* _createQPItem();
@@ -83,11 +89,16 @@ private:
     QModelIndex _findPageWithCurve(const QString& curveName);
 
 private slots:
-     void _slotDirTreeClicked(const QModelIndex& idx);
-     void _selectVarChanged(const QItemSelection& currVarSelection,
+     void _dpTreeViewClicked(const QModelIndex& idx);
+     void _dpSearchBoxTextChanged(const QString& rx);
+     void _varsSelectModelSelectionChanged(
+                              const QItemSelection& currVarSelection,
                               const QItemSelection& prevVarSelection);
      void _varsSearchBoxTextChanged(const QString& rx);
-     void _dpSearchBoxTextChanged(const QString& rx);
+     void _monteInputsSelectModelCurrentChanged(const QModelIndex& curr,
+                                     const QModelIndex& prev);
+     void _monteInputsViewHeaderSectionClicked(int section);
+     void _plotBookViewCurveClicked(const QModelIndex& curveIdx);
 signals:
 };
 

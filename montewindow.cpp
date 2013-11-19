@@ -37,7 +37,9 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     //
     _plotModel = new QStandardItemModel(0,1,parent);
     _plotSelectModel = new QItemSelectionModel(_plotModel);
-    _monteModel = new MonteModel(_montedir);
+    _monte = new Monte(_montedir);
+    _monteModel = new MonteModel(_monte);
+    _monteInputsModel = _monte->inputModel();
 
     //
     // Vars Model for list of recorded trick vars (params)
@@ -96,7 +98,7 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     connect(_varsSelectModel,
             SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this,
-            SLOT(_selectVarChanged(QItemSelection,QItemSelection)));
+            SLOT(_varsSelectModelSelectionChanged(QItemSelection,QItemSelection)));
 
     //
     // DP TreeView with Search Box
@@ -113,7 +115,7 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     _dpTreeView->setRootIndex(proxyRootIdx);
     dpGridLayout->addWidget(_dpTreeView,1,0);
     connect(_dpTreeView,SIGNAL(clicked(QModelIndex)),
-            this, SLOT(_slotDirTreeClicked(QModelIndex)));
+            this, SLOT(_dpTreeViewClicked(QModelIndex)));
     _nbDPVars->addTab(dpFrame,"DP");
 
     // This doesn't work :( Can't hide timestamp column
@@ -125,12 +127,36 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     //
     // For Tim, show tree view of book of plots
     //
-    _plotTreeView = new QTreeView(lsplit);
-    _plotTreeView->setModel(_plotModel);
-    _plotTreeView->setHeaderHidden(true);
-    _plotTreeView->setSelectionModel(_plotSelectModel);
+    //_plotTreeView = new QTreeView(lsplit);
+    //_plotTreeView->setModel(_plotModel);
+    //_plotTreeView->setHeaderHidden(true);
+    //_plotTreeView->setSelectionModel(_plotSelectModel);
     //_plotTreeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    lsplit->addWidget(_plotTreeView);
+    //lsplit->addWidget(_plotTreeView);
+
+    //
+    // Monte inputs view
+    //
+    _monteInputsView = new QTableView(lsplit);
+    _monteInputsView->setModel(_monteInputsModel);
+    _monteInputsView->setSortingEnabled(true);
+    _monteInputsView->sortByColumn(0,Qt::AscendingOrder);
+    _monteInputsView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    lsplit->addWidget(_monteInputsView);
+    _monteInputsView->setTextElideMode(Qt::ElideNone);
+    QHeaderView* headerView = _monteInputsView->horizontalHeader();
+    headerView->setTextElideMode(Qt::ElideLeft);
+    headerView->setResizeMode(QHeaderView::ResizeToContents);
+    connect(headerView,SIGNAL(sectionClicked(int)),
+            this,SLOT(_monteInputsViewHeaderSectionClicked(int)));
+    _monteInputsSelectModel = new QItemSelectionModel(_monteInputsModel);
+    _monteInputsView->setSelectionModel(_monteInputsSelectModel);
+    _monteInputsView->setSelectionMode(QAbstractItemView::SingleSelection);
+    _monteInputsView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    connect(_monteInputsSelectModel,
+            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+            this,
+            SLOT(_monteInputsSelectModelCurrentChanged(QModelIndex,QModelIndex)));
 
     //
     // Create Plot Tabbed Notebook View Widget
@@ -140,6 +166,8 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     _plotBookView->setData(_monteModel);
     _plotBookView->setSelectionModel(_plotSelectModel);
     msplit->addWidget(_plotBookView);
+    connect(_plotBookView,SIGNAL(curveClicked(QModelIndex)),
+            this,SLOT(_plotBookViewCurveClicked(QModelIndex)));
 
     // Size main window
     QList<int> sizes;
@@ -260,7 +288,7 @@ QStandardItemModel *MonteWindow::_createVarsModel(MonteModel *mm)
     return pm;
 }
 
-void MonteWindow::_slotDirTreeClicked(const QModelIndex &idx)
+void MonteWindow::_dpTreeViewClicked(const QModelIndex &idx)
 {
     Q_UNUSED(idx);
 
@@ -285,7 +313,7 @@ void MonteWindow::_slotDirTreeClicked(const QModelIndex &idx)
 
 // TODO: if multiselect, do smart groupings i.e.
 //       plot like variables together e.g. a.b[0].forceX, a.b[1].forceX
-void MonteWindow::_selectVarChanged(const QItemSelection &currVarSelection,
+void MonteWindow::_varsSelectModelSelectionChanged(const QItemSelection &currVarSelection,
                                       const QItemSelection &prevVarSelection)
 {
     Q_UNUSED(prevVarSelection); // TODO: handle deselection (prevSelection)
@@ -442,6 +470,83 @@ void MonteWindow::_dpSearchBoxTextChanged(const QString &rx)
 {
     _dpTreeView->expandAll();
     _dpFilterModel->setFilterRegExp(rx);
+}
+
+void MonteWindow::_monteInputsSelectModelCurrentChanged(const QModelIndex &curr,
+                                             const QModelIndex &prev)
+{
+    Q_UNUSED(prev);
+
+    if ( ! curr.model() ) return ;
+
+    // Get runId for this selection
+    const QAbstractItemModel* m = curr.model();
+    QModelIndex runIdx = m->index(curr.row(),0);
+    int runId = m->data(runIdx).toInt();
+
+    // Build a selection of all curves that this RUN maps to
+    QItemSelection runSelection;
+    int nPages = _plotModel->rowCount();
+    for ( int pageRow = 0; pageRow < nPages; ++pageRow) {
+        QModelIndex pageIdx = _plotModel->index(pageRow,0);
+        int nPlots = _plotModel->rowCount(pageIdx);
+        for ( int plotRow = 0; plotRow < nPlots; ++plotRow) {
+            QModelIndex plotIdx = _plotModel->index(plotRow,0,pageIdx);
+            QModelIndex curveIdx = _plotModel->index(runId,0,plotIdx);
+            QItemSelection curveSelection(curveIdx,curveIdx);
+            runSelection.merge(curveSelection,
+                               QItemSelectionModel::Select);
+        }
+    }
+
+    // Make the selection
+    _plotSelectModel->select(runSelection,QItemSelectionModel::Select);
+}
+
+void MonteWindow::_monteInputsViewHeaderSectionClicked(int section)
+{
+    Q_UNUSED(section);
+
+    QModelIndexList selIdxs = _plotSelectModel->selectedIndexes();
+    if ( selIdxs.size() == 1 ) {
+        QModelIndex selIdx = selIdxs.at(0);
+        int runId = selIdx.row();
+        int rc = _monteInputsModel->rowCount();
+        for ( int i = 0; i < rc; ++i) {
+            // With sorted models it is necessary to search for index with runId
+            QModelIndex idx = _monteInputsModel->index(i,0);
+            if ( runId == _monteInputsModel->data(idx).toInt() ) {
+                _monteInputsView->scrollTo(idx,
+                                           QAbstractItemView::PositionAtCenter);
+                break;
+            }
+        }
+    }
+}
+
+// Select run associated with curve
+void MonteWindow::_plotBookViewCurveClicked(const QModelIndex &curveIdx)
+{
+    if ( !curveIdx.isValid() || !curveIdx.parent().isValid() ||
+         !curveIdx.parent().parent().isValid() ||
+         curveIdx.parent().parent().parent().isValid() ) {
+        // not a curve idx
+        return;
+    }
+
+    int runId = curveIdx.row();
+    int rc = _monteInputsModel->rowCount();
+    for ( int i = 0; i < rc; ++i) {
+        // With sorted models it is necessary to search for index with runId
+        QModelIndex idx = _monteInputsModel->index(i,0);
+        if ( runId == _monteInputsModel->data(idx).toInt() ) {
+            _monteInputsView->setCurrentIndex(idx);
+            _monteInputsView->scrollTo(idx,
+                                       QAbstractItemView::PositionAtCenter);
+            break;
+        }
+    }
+
 }
 
 bool MonteWindow::_isDP(const QString& fp)

@@ -9,8 +9,10 @@
 #include <QSet>
 #include <QHash>
 #include <QList>
+#include <QStandardItemModel>
 #include <stdexcept>
 #include "trickmodel.h"
+#include "numsortitem.h"
 
 class Monte
 {
@@ -21,6 +23,7 @@ class Monte
     QStringList params() const { return _params; }
     QStringList runs() const { return _runs; }
     QList<TrickModel*>* models(const QString& param);
+    QStandardItemModel* inputModel();   // rows:monteinputvars cols:values
 
   private:
     QString _montedir;

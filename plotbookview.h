@@ -46,7 +46,8 @@ protected:
     virtual void keyPressEvent (QKeyEvent* event);
 
 signals:
-    
+    void curveClicked(const QModelIndex& idx);
+
 public slots:
     void maximize(const QModelIndex & idx );
     void minimize(const QModelIndex & idx );
@@ -58,13 +59,15 @@ protected slots:
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
 private slots:
-    void currentSelectChanged(const QModelIndex &currIdx,
+    void plotBookViewCurrentChanged(const QModelIndex &currIdx,
                               const QModelIndex &prevIdx);
-    void currentTabChanged(int currTabId);
-    void currentCustomPlotCurveChanged(TrickCurve *curve);
+    void plotBookViewSelectionChanged(const QItemSelection& curr,
+                          const QItemSelection& prev);
+    void plotBookViewTabWidgetCurrentChanged(int currTabId);
+    void selectionChangedTrickCurve(TrickCurve *curve);
     void tabCloseRequested(int tabId);
     void doubleClick(QMouseEvent* event);
-    void curveSelected(QCPAbstractPlottable* plottable, QMouseEvent* e);
+    void slotCurveClicked(QCPAbstractPlottable* plottable, QMouseEvent* e);
     void plotKeyPress(QKeyEvent* e);
 
 private:

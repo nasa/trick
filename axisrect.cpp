@@ -468,6 +468,7 @@ QList<QColor> AxisRect::_createColorBands(int nBands, bool isMonte)
         int v = qRound(0.87*255);
         for ( int h = hBeg; h <= hEnd; h+=dh) {
             colorBands << QColor::fromHsv(h,s,v);
+            //colorBands << blue;
         }
         colorBands.removeFirst();
         colorBands.prepend(burntorange);

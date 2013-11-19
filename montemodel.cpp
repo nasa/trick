@@ -1,12 +1,11 @@
 #include "montemodel.h"
 #include <stdexcept>
 
-MonteModel::MonteModel(const QString &monteDir,
+MonteModel::MonteModel(Monte* monte,
                        QObject *parent):
-    _dir(monteDir),
+    _monte(monte),
     QAbstractItemModel(parent)
 {
-    _monte = new Monte(monteDir);
     _params = _monte->params();
     int col = 0 ;
     foreach ( QString param, _params ) {

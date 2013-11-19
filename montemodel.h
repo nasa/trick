@@ -34,11 +34,10 @@ class MonteModel : public QAbstractItemModel
 
   public:
 
-    explicit MonteModel(const QString& monteDir,
+    explicit MonteModel(Monte* monte,
                        QObject *parent = 0);
     ~MonteModel();
 
-    QString dir() const { return _dir ; }
     virtual QModelIndex parent(const QModelIndex & index) const;
     virtual QModelIndex index(int row, int column,
                       const QModelIndex &pidx = QModelIndex()) const;
@@ -61,7 +60,6 @@ class MonteModel : public QAbstractItemModel
 
   private:
 
-    QString _dir;
     Monte* _monte;
     QStringList _params;
     QHash<QString,int> _param2column;
