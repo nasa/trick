@@ -12,6 +12,7 @@
 class PlotBookView : public QAbstractItemView
 {
     Q_OBJECT
+
 public:
     explicit PlotBookView(QWidget *parent = 0);
     ~PlotBookView();
@@ -40,18 +41,12 @@ protected:
     virtual QItemSelectionModel::SelectionFlags selectionCommand(
                               const QModelIndex &index,
                               const QEvent *event = 0) const;
-
-protected:
-
     virtual void keyPressEvent (QKeyEvent* event);
-
-signals:
-    void curveClicked(const QModelIndex& idx);
 
 public slots:
     void maximize(const QModelIndex & idx );
     void minimize(const QModelIndex & idx );
-    void setCurrentIndex( const QModelIndex & index );
+    void selectRun(int runId);
 
 protected slots:
     void rowsInserted(const QModelIndex &pidx, int start, int end);
@@ -67,13 +62,13 @@ private slots:
     void selectionChangedTrickCurve(TrickCurve *curve);
     void tabCloseRequested(int tabId);
     void doubleClick(QMouseEvent* event);
-    void slotCurveClicked(QCPAbstractPlottable* plottable, QMouseEvent* e);
     void plotKeyPress(QKeyEvent* e);
 
 private:
     MonteModel* _monteModel;
     QTabWidget* _nb;
     bool _isTabCloseRequested;
+    int _currSelectedRun;
 
     QVector<QWidget*> _pages;
     QVector<QGridLayout*> _grids;

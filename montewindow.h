@@ -98,7 +98,8 @@ private slots:
      void _monteInputsSelectModelCurrentChanged(const QModelIndex& curr,
                                      const QModelIndex& prev);
      void _monteInputsViewHeaderSectionClicked(int section);
-     void _plotBookViewCurveClicked(const QModelIndex& curveIdx);
+     void _plotSelectModelSelectionChanged(const QItemSelection& currSel,
+                                          const QItemSelection& prevSel);
 signals:
 };
 

@@ -38,6 +38,10 @@ public:
                                                const QPointF &l1,
                                                const QPointF &pt);
 
+public slots:
+
+  void setSelected(bool selected);
+
 protected:
     // property members:
 
@@ -50,6 +54,11 @@ protected:
                                  SignDomain inSignDomain=sdBoth) const;
     virtual QCPRange getValueRange(bool &validRange,
                                    SignDomain inSignDomain=sdBoth) const;
+    virtual void selectEvent(QMouseEvent *event,
+                             bool additive,
+                             const QVariant &details,
+                             bool *selectionStateChanged);
+    virtual void deselectEvent(bool *selectionStateChanged);
 
     // non-virtual methods:
     void getCurveData(QVector<QPointF> *lineData) const;
@@ -89,14 +98,12 @@ private:
     QCPRange _yrange;
 
 private slots:
-    void _slotSelectionChanged(bool sel);
-
     friend class AxisRect;
     friend class QCustomPlot;
     friend class QCPLegend;
 
-  signals:
-    void selectionChanged( TrickCurve* curve);
+signals:
+    void selectionChanged(TrickCurve* curve);
 };
 
 

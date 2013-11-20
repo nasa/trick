@@ -21,9 +21,6 @@ TrickCurve::TrickCurve(QCPAxis *keyAxis, QCPAxis *valueAxis) :
     mSelectedBrush.setStyle(Qt::NoBrush);
 
     setLineStyle(lsLine);
-
-    connect(this,SIGNAL(selectionChanged(bool)),
-            this,SLOT(_slotSelectionChanged(bool)));
 }
 
 
@@ -96,6 +93,7 @@ double TrickCurve::_distSquaredLineSegmentToPoint(const QPointF &l0,
     return QVector2D::dotProduct(ac,ac)-e*e/f;
 }
 
+
 void TrickCurve::setData(TrickCurveModel *model)
 {
    _model = model;
@@ -151,15 +149,6 @@ void TrickCurve::_createPainterPath()
     }
 
     _model->unmap();
-}
-
-void TrickCurve::_slotSelectionChanged(bool sel)
-{
-    // raise selected curve above others so that it is painted on top
-    if ( sel == true ) {
-        layer()->raiseChild(this);
-        emit selectionChanged(this);
-    }
 }
 
 /* inherits documentation from base class */
@@ -518,4 +507,31 @@ QCPRange TrickCurve::getValueRange(bool &validRange, SignDomain inSignDomain) co
     validRange = haveLower && haveUpper;
     _model->unmap();
     return range;
+}
+
+void TrickCurve::setSelected(bool selected)
+{
+    if ( mSelected != selected ) {
+        layer()->raiseChild(this);
+        mSelected = selected;
+        emit selectionChanged(this);
+    }
+}
+
+void TrickCurve::selectEvent(QMouseEvent *event,
+                             bool additive,
+                             const QVariant &details,
+                             bool *selectionStateChanged)
+{
+    Q_UNUSED(event)
+    Q_UNUSED(additive)
+    Q_UNUSED(details)
+    Q_UNUSED(selectionStateChanged);
+    setSelected(true);
+}
+
+void TrickCurve::deselectEvent(bool *selectionStateChanged)
+{
+    Q_UNUSED(selectionStateChanged);
+    setSelected(false);
 }

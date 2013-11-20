@@ -4,7 +4,8 @@
 PlotBookView::PlotBookView(QWidget *parent) :
     QAbstractItemView(parent),
     _monteModel(0),
-    _isTabCloseRequested(false)
+    _isTabCloseRequested(false),
+    _currSelectedRun(-1)
 {
     _nb = new QTabWidget(parent);
     _nb->setTabsClosable(true);
@@ -84,8 +85,10 @@ void PlotBookView::setSelectionModel(QItemSelectionModel *selectionModel)
             SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this,
             SLOT(plotBookViewSelectionChanged(QItemSelection,QItemSelection)));
+    /*
     connect(_nb, SIGNAL(currentChanged(int)),
             this, SLOT(plotBookViewTabWidgetCurrentChanged(int)));
+        */
     QAbstractItemView::setSelectionModel(selectionModel);
 }
 
@@ -197,9 +200,38 @@ void PlotBookView::minimize(const QModelIndex &idx)
     }
 }
 
-void PlotBookView::setCurrentIndex(const QModelIndex &index)
+void PlotBookView::selectRun(int runId)
 {
-    QAbstractItemView::setCurrentIndex(index);
+    if ( !model() || !selectionModel() ) return ;
+    if ( model()->rowCount() <= 0 ) return;
+    QModelIndex page0Idx = model()->index(0,0);
+    if ( model()->rowCount(page0Idx) <= 0 ) return ;
+
+    // If run already selected, do not reselect
+    if ( runId == _currSelectedRun ) {
+        return;
+    }
+    _currSelectedRun = runId;
+
+
+    // Build a selection of all curves that this RUN maps to
+    QItemSelection runSelection;
+    int nPages = model()->rowCount();
+    for ( int pageRow = 0; pageRow < nPages; ++pageRow) {
+        QModelIndex pageIdx = model()->index(pageRow,0);
+        int nPlots = model()->rowCount(pageIdx);
+        for ( int plotRow = 0; plotRow < nPlots; ++plotRow) {
+            QModelIndex plotIdx = model()->index(plotRow,0,pageIdx);
+            QModelIndex curveIdx = model()->index(runId,0,plotIdx);
+            QItemSelection curveSelection(curveIdx,curveIdx);
+            runSelection.merge(curveSelection, QItemSelectionModel::Select);
+        }
+    }
+
+    // Make the selection
+    selectionModel()->select(runSelection,QItemSelectionModel::ClearAndSelect);
+    selectionModel()->setCurrentIndex(runSelection.indexes().at(0),
+                                      QItemSelectionModel::ClearAndSelect);
 }
 
 //
@@ -215,31 +247,31 @@ void PlotBookView::dataChanged(const QModelIndex &topLeft,
 void PlotBookView::plotBookViewCurrentChanged(const QModelIndex &currIdx,
                                   const QModelIndex &prevIdx)
 {
+    Q_UNUSED(prevIdx);
+
     //
     // Update notebook widget index
     //
     int level = 0 ;
-    QModelIndex pageIdx(currIdx);
-    while ( pageIdx.parent().isValid() ) {
-        pageIdx = pageIdx.parent();
+    QModelIndex idx(currIdx);
+    while ( idx.parent().isValid() ) {
+        idx = idx.parent();
         level++;
     }
-    _nb->setCurrentIndex(pageIdx.row()); // modelIdx.row == tabbedWidgetIndex
+
+    // If page selection updated, make tab widget page current
+    if ( level == 0 ) {
+        _nb->setCurrentIndex(idx.row()); // modelIdx.row == tabbedWidgetIndex
+    }
 
     //
     // If currIdx is a curve index, select curve
     //
     if ( level == 2 ) {
-        TrickCurve* prevCurve = _idx2Curve(prevIdx);
-        if ( prevCurve ) {
-            prevCurve->setSelected(false);
-        }
         TrickCurve* currCurve = _idx2Curve(currIdx);
         if ( currCurve ) {
-            currCurve->setSelected(true);
-            QModelIndex plotIdx = currIdx.parent();
-            Plot* plot = _idx2Plot(plotIdx);
-            plot->replot();
+            int runId = currIdx.row();
+            selectRun(runId);
         }
     }
 }
@@ -247,6 +279,8 @@ void PlotBookView::plotBookViewCurrentChanged(const QModelIndex &currIdx,
 void PlotBookView::plotBookViewSelectionChanged(const QItemSelection &curr,
                                     const QItemSelection &prev)
 {
+    if ( curr.isEmpty() ) return;
+
     foreach ( QModelIndex prevIdx, prev.indexes() ) {
         TrickCurve* prevCurve = _idx2Curve(prevIdx);
         if ( prevCurve ) {
@@ -277,12 +311,17 @@ void PlotBookView::plotBookViewTabWidgetCurrentChanged(int currTab)
 
 void PlotBookView::selectionChangedTrickCurve(TrickCurve* curve)
 {
-    if ( model() == 0 ) {
+    if ( model() == 0 || selectionModel() == 0 )  {
         return;
     }
-    QModelIndex curveIdx = _curve2Idx(curve);
-    selectionModel()->setCurrentIndex(curveIdx,
-                                      QItemSelectionModel::ClearAndSelect);
+
+    if ( curve->selected() ) {
+
+        QModelIndex curveIdx = _curve2Idx(curve);
+
+        selectionModel()->setCurrentIndex(curveIdx,
+                                         QItemSelectionModel::ClearAndSelect);
+    }
 }
 
 void PlotBookView::tabCloseRequested(int tabId)
@@ -324,15 +363,6 @@ void PlotBookView::doubleClick(QMouseEvent *event)
             maximize(plotIdx);
         }
     }
-}
-
-void PlotBookView::slotCurveClicked(QCPAbstractPlottable *plottable,
-                                     QMouseEvent *e)
-{
-    Q_UNUSED(e);
-    TrickCurve* curve = static_cast<TrickCurve*>(plottable);
-    QModelIndex curveIdx = _curve2Idx(curve);
-    emit curveClicked(curveIdx);
 }
 
 void PlotBookView::plotKeyPress(QKeyEvent *e)
@@ -378,10 +408,6 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             Plot* plot = new Plot(idx,page);
             connect(plot,SIGNAL(mouseDoubleClick(QMouseEvent*)),
                     this,SLOT(doubleClick(QMouseEvent*)));
-            connect(plot,
-                    SIGNAL(plottableClick(QCPAbstractPlottable*,QMouseEvent*)),
-                    this,
-                    SLOT(slotCurveClicked(QCPAbstractPlottable*,QMouseEvent*)));
             connect(plot, SIGNAL(keyPress(QKeyEvent*)),
                     this, SLOT(plotKeyPress(QKeyEvent*)));
             _page2Plots[page].append(plot);
@@ -706,7 +732,7 @@ void PlotBookView::_selectNextCurve()
         }
         QModelIndex nextCurveIdx = model()->index(nextRow,0,plotIdx);
         selectionModel()->setCurrentIndex(nextCurveIdx,
-                                         QItemSelectionModel::ClearAndSelect);
+                                 QItemSelectionModel::ClearAndSelect);
     }
 }
 
@@ -718,12 +744,12 @@ void PlotBookView::_selectPrevCurve()
     if ( _isCurveIdx(currIdx) ) {
         QModelIndex plotIdx = currIdx.parent();
         int currRow = currIdx.row();
-        int nextRow = currRow-1;
-        if ( nextRow < 0 ) {
-            nextRow = 0;
+        int prevRow = currRow-1;
+        if ( prevRow < 0 ) {
+            prevRow = 0;
         }
-        QModelIndex nextCurveIdx = model()->index(nextRow,0,plotIdx);
-        selectionModel()->setCurrentIndex(nextCurveIdx,
+        QModelIndex prevCurveIdx = model()->index(prevRow,0,plotIdx);
+        selectionModel()->setCurrentIndex(prevCurveIdx,
                                          QItemSelectionModel::ClearAndSelect);
     }
 }

@@ -165,9 +165,11 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     _plotBookView->setModel(_plotModel);
     _plotBookView->setData(_monteModel);
     _plotBookView->setSelectionModel(_plotSelectModel);
+    connect(_plotSelectModel,
+            SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this,
+            SLOT(_plotSelectModelSelectionChanged(QItemSelection,QItemSelection)));
     msplit->addWidget(_plotBookView);
-    connect(_plotBookView,SIGNAL(curveClicked(QModelIndex)),
-            this,SLOT(_plotBookViewCurveClicked(QModelIndex)));
 
     // Size main window
     QList<int> sizes;
@@ -472,6 +474,18 @@ void MonteWindow::_dpSearchBoxTextChanged(const QString &rx)
     _dpFilterModel->setFilterRegExp(rx);
 }
 
+
+void MonteWindow::_monteInputsViewHeaderSectionClicked(int section)
+{
+    Q_UNUSED(section);
+
+    QModelIndexList selIdxs = _monteInputsSelectModel->selectedIndexes();
+    if ( selIdxs.size() > 0 ) {
+        QModelIndex idx = selIdxs.at(0);
+        _monteInputsView->scrollTo(idx, QAbstractItemView::PositionAtCenter);
+    }
+}
+
 void MonteWindow::_monteInputsSelectModelCurrentChanged(const QModelIndex &curr,
                                              const QModelIndex &prev)
 {
@@ -479,74 +493,53 @@ void MonteWindow::_monteInputsSelectModelCurrentChanged(const QModelIndex &curr,
 
     if ( ! curr.model() ) return ;
 
-    // Get runId for this selection
-    const QAbstractItemModel* m = curr.model();
-    QModelIndex runIdx = m->index(curr.row(),0);
-    int runId = m->data(runIdx).toInt();
-
-    // Build a selection of all curves that this RUN maps to
-    QItemSelection runSelection;
-    int nPages = _plotModel->rowCount();
-    for ( int pageRow = 0; pageRow < nPages; ++pageRow) {
-        QModelIndex pageIdx = _plotModel->index(pageRow,0);
-        int nPlots = _plotModel->rowCount(pageIdx);
-        for ( int plotRow = 0; plotRow < nPlots; ++plotRow) {
-            QModelIndex plotIdx = _plotModel->index(plotRow,0,pageIdx);
-            QModelIndex curveIdx = _plotModel->index(runId,0,plotIdx);
-            QItemSelection curveSelection(curveIdx,curveIdx);
-            runSelection.merge(curveSelection,
-                               QItemSelectionModel::Select);
-        }
-    }
-
-    // Make the selection
-    _plotSelectModel->select(runSelection,QItemSelectionModel::Select);
+    QModelIndex runIdx = curr.model()->index(curr.row(),0);
+    int runId = curr.model()->data(runIdx).toInt();
+    _plotBookView->selectRun(runId);
 }
 
-void MonteWindow::_monteInputsViewHeaderSectionClicked(int section)
-{
-    Q_UNUSED(section);
 
-    QModelIndexList selIdxs = _plotSelectModel->selectedIndexes();
-    if ( selIdxs.size() == 1 ) {
-        QModelIndex selIdx = selIdxs.at(0);
-        int runId = selIdx.row();
+void MonteWindow::_plotSelectModelSelectionChanged(const QItemSelection &currSel,
+                                                 const QItemSelection &prevSel)
+{
+    Q_UNUSED(prevSel);
+
+    QModelIndex curveIdx;
+    if ( currSel.indexes().size() > 0 ) {
+        curveIdx = currSel.indexes().at(0);
+    }
+
+    bool isCurveIdx = false;
+    if ( curveIdx.isValid() && curveIdx.parent().isValid()
+         && curveIdx.parent().parent().isValid()
+         && !curveIdx.parent().parent().parent().isValid()  ) {
+
+            isCurveIdx = true;
+    }
+
+    if ( isCurveIdx ) {
+
+        int runId = curveIdx.row();
+
+        // Since model could be sorted, search for row with runId.
+        // Assuming that runId is in column 0.
         int rc = _monteInputsModel->rowCount();
-        for ( int i = 0; i < rc; ++i) {
-            // With sorted models it is necessary to search for index with runId
-            QModelIndex idx = _monteInputsModel->index(i,0);
-            if ( runId == _monteInputsModel->data(idx).toInt() ) {
-                _monteInputsView->scrollTo(idx,
-                                           QAbstractItemView::PositionAtCenter);
+        int runRow = 0 ;
+        for ( runRow = 0; runRow < rc; ++runRow) {
+            QModelIndex runIdx = _monteInputsModel->index(runRow,0);
+            if ( runId == _monteInputsModel->data(runIdx).toInt() ) {
                 break;
             }
         }
-    }
-}
 
-// Select run associated with curve
-void MonteWindow::_plotBookViewCurveClicked(const QModelIndex &curveIdx)
-{
-    if ( !curveIdx.isValid() || !curveIdx.parent().isValid() ||
-         !curveIdx.parent().parent().isValid() ||
-         curveIdx.parent().parent().parent().isValid() ) {
-        // not a curve idx
-        return;
+        QModelIndex midx = _monteInputsModel->index(runRow,0);
+        _monteInputsSelectModel->select(midx,
+                                       QItemSelectionModel::ClearAndSelect|
+                                       QItemSelectionModel::Rows);
+        _monteInputsSelectModel->setCurrentIndex(midx,
+                                       QItemSelectionModel::ClearAndSelect|
+                                       QItemSelectionModel::Rows);
     }
-
-    int runId = curveIdx.row();
-    int rc = _monteInputsModel->rowCount();
-    for ( int i = 0; i < rc; ++i) {
-        // With sorted models it is necessary to search for index with runId
-        QModelIndex idx = _monteInputsModel->index(i,0);
-        if ( runId == _monteInputsModel->data(idx).toInt() ) {
-            _monteInputsView->setCurrentIndex(idx);
-            _monteInputsView->scrollTo(idx,
-                                       QAbstractItemView::PositionAtCenter);
-            break;
-        }
-    }
-
 }
 
 bool MonteWindow::_isDP(const QString& fp)
