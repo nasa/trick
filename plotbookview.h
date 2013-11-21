@@ -54,6 +54,8 @@ protected slots:
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
 private slots:
+    void _plotSelectModelCurrentChanged(const QModelIndex& currIdx,
+                                       const QModelIndex& prevIdx);
     void _plotBookViewSelectionChanged(const QItemSelection& curr,
                           const QItemSelection& prev);
     void tabCloseRequested(int tabId);
@@ -82,6 +84,7 @@ private:
     inline QModelIndex _page2Idx(QWidget* page) const;
     inline QModelIndex _plot2Idx(Plot* plot) const;
 
+    inline bool _isPageIdx(const QModelIndex& idx);
     inline bool _isPlotIdx(const QModelIndex& idx);
     inline bool _isCurveIdx(const QModelIndex& idx);
 

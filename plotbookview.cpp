@@ -78,6 +78,10 @@ QModelIndex PlotBookView::indexAt(const QPoint &point) const
 void PlotBookView::setSelectionModel(QItemSelectionModel *selectionModel)
 {
     connect(selectionModel,
+            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+            this,
+            SLOT(_plotSelectModelCurrentChanged(QModelIndex,QModelIndex)));
+    connect(selectionModel,
             SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this,
             SLOT(_plotBookViewSelectionChanged(QItemSelection,QItemSelection)));
@@ -202,6 +206,14 @@ void PlotBookView::dataChanged(const QModelIndex &topLeft,
     viewport()->update();
 }
 
+void PlotBookView::_plotSelectModelCurrentChanged(const QModelIndex &currIdx,
+                                                 const QModelIndex &prevIdx)
+{
+    Q_UNUSED(prevIdx);
+    if ( _isPageIdx(currIdx) ) {
+        _nb->setCurrentIndex(currIdx.row());
+    }
+}
 
 void PlotBookView::selectRun(int runId)
 {
@@ -675,7 +687,12 @@ QModelIndex PlotBookView::_plot2Idx(Plot *plot) const
     QModelIndex pageIdx = model()->index(rowPage,0);
     plotIdx = model()->index(rowPlot,0,pageIdx);
 
-    return plotIdx;
+         return plotIdx;
+}
+
+bool PlotBookView::_isPageIdx(const QModelIndex &idx)
+{
+    return (idx.isValid() && !idx.parent().isValid()) ;
 }
 
 bool PlotBookView::_isPlotIdx(const QModelIndex &idx)
