@@ -54,14 +54,11 @@ protected slots:
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
 private slots:
-    void plotBookViewCurrentChanged(const QModelIndex &currIdx,
-                              const QModelIndex &prevIdx);
-    void plotBookViewSelectionChanged(const QItemSelection& curr,
+    void _plotBookViewSelectionChanged(const QItemSelection& curr,
                           const QItemSelection& prev);
-    void plotBookViewTabWidgetCurrentChanged(int currTabId);
-    void selectionChangedTrickCurve(TrickCurve *curve);
     void tabCloseRequested(int tabId);
     void doubleClick(QMouseEvent* event);
+    void _slotCurveClicked(TrickCurve* curve);
     void plotKeyPress(QKeyEvent* e);
 
 private:

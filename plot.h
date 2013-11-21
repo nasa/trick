@@ -22,6 +22,10 @@ protected:
 
 signals:
     void keyPress(QKeyEvent* e);
+    void curveClicked(TrickCurve* curve);
+
+private slots:
+    void _slotPlottableClick(QCPAbstractPlottable* plottable, QMouseEvent* e);
 
 private:
     DPPlot* _dpplot;

@@ -54,18 +54,12 @@ protected:
                                  SignDomain inSignDomain=sdBoth) const;
     virtual QCPRange getValueRange(bool &validRange,
                                    SignDomain inSignDomain=sdBoth) const;
-    virtual void selectEvent(QMouseEvent *event,
-                             bool additive,
-                             const QVariant &details,
-                             bool *selectionStateChanged);
-    virtual void deselectEvent(bool *selectionStateChanged);
 
     // non-virtual methods:
     void getCurveData(QVector<QPointF> *lineData) const;
     double pointDistance(const QPointF &pixelPoint) const;
     QPointF outsideCoordsToPixels(double key, double value,
                                   int region, QRect axisRect) const;
-
 
 private:
     TrickCurve();

@@ -517,21 +517,3 @@ void TrickCurve::setSelected(bool selected)
         emit selectionChanged(this);
     }
 }
-
-void TrickCurve::selectEvent(QMouseEvent *event,
-                             bool additive,
-                             const QVariant &details,
-                             bool *selectionStateChanged)
-{
-    Q_UNUSED(event)
-    Q_UNUSED(additive)
-    Q_UNUSED(details)
-    Q_UNUSED(selectionStateChanged);
-    setSelected(true);
-}
-
-void TrickCurve::deselectEvent(bool *selectionStateChanged)
-{
-    Q_UNUSED(selectionStateChanged);
-    setSelected(false);
-}
