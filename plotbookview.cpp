@@ -11,6 +11,9 @@ PlotBookView::PlotBookView(QWidget *parent) :
     _nb->setTabsClosable(true);
     connect(_nb,SIGNAL(tabCloseRequested(int)),
             this,SLOT(tabCloseRequested(int)));
+    connect(_nb,SIGNAL(currentChanged(int)),
+            this,SLOT(tabCurrentChanged(int)));
+
 }
 
 PlotBookView::~PlotBookView()
@@ -265,7 +268,11 @@ void PlotBookView::_plotBookViewSelectionChanged(const QItemSelection &curr,
             currCurve->setSelected(true);
             QModelIndex plotIdx = currIdx.parent();
             Plot* plot = _idx2Plot(plotIdx);
-            plot->replot();
+
+            // If plot is on current page (not hidden) replot
+            if ( plot->isVisible() ) {
+                plot->replot();
+            }
         }
     }
 }
@@ -323,6 +330,22 @@ void PlotBookView::tabCloseRequested(int tabId)
     _isTabCloseRequested = true;
     model()->removeRow(tabId);
     _isTabCloseRequested = false;
+}
+
+void PlotBookView::tabCurrentChanged(int tabId)
+{
+    if ( !model() ) return;
+
+    QModelIndex pageIdx = model()->index(tabId,0);
+    int nPlots = model()->rowCount(pageIdx);
+    for ( int plotRow = 0; plotRow < nPlots; ++plotRow) {
+        QModelIndex plotIdx = model()->index(plotRow,0,pageIdx);
+        Plot* plot = _idx2Plot(plotIdx);
+        if ( plot ) {
+            plot->replot();
+        }
+    }
+
 }
 
 void PlotBookView::doubleClick(QMouseEvent *event)

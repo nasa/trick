@@ -59,6 +59,7 @@ private slots:
     void _plotBookViewSelectionChanged(const QItemSelection& curr,
                           const QItemSelection& prev);
     void tabCloseRequested(int tabId);
+    void tabCurrentChanged(int tabId);
     void doubleClick(QMouseEvent* event);
     void _slotCurveClicked(TrickCurve* curve);
     void plotKeyPress(QKeyEvent* e);
