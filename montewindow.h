@@ -58,13 +58,13 @@ private:
     QSortFilterProxyModel* _varsFilterModel;
     QItemSelectionModel* _varsSelectModel;
     QLineEdit* _varsSearchBox;
-    QListView* _varsListView ;
     void _updateVarSelection(const QModelIndex& pageIdx);
 
     QFileSystemModel* _dpModel ;
     DPFilterProxyModel* _dpFilterModel;
     QTreeView* _dpTreeView ;
     QLineEdit* _dpSearchBox;
+    QListView* _varsListView ;
     void _updateDPSelection(const QModelIndex& pageIdx);
 
     QStandardItemModel* _plotModel;

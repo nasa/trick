@@ -591,6 +591,7 @@ void MonteWindow::_updateVarSelection(const QModelIndex& pageIdx)
         _isSkip = true;
         _varsSelectModel->select(varSelection,
                                  QItemSelectionModel::ClearAndSelect);
+        _varsListView->scrollTo(varSelection.indexes().at(0));
         _isSkip = false;
     }
 }
