@@ -18,7 +18,8 @@
 MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     QMainWindow(parent),
     _montedir(montedir),
-    _currQPIdx(0)
+    _currQPIdx(0),
+    _isSkip(false)
 {
     setWindowTitle(tr("Snap!"));
     createMenu();
@@ -169,6 +170,10 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
             SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this,
             SLOT(_plotSelectModelSelectionChanged(QItemSelection,QItemSelection)));
+    connect(_plotSelectModel,
+            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+            this,
+            SLOT(_plotSelectModelCurrentChanged(QModelIndex,QModelIndex)));
     msplit->addWidget(_plotBookView);
 
     // Size main window
@@ -313,16 +318,13 @@ void MonteWindow::_dpTreeViewClicked(const QModelIndex &idx)
 
 }
 
-// TODO: if multiselect, do smart groupings i.e.
-//       plot like variables together e.g. a.b[0].forceX, a.b[1].forceX
 void MonteWindow::_varsSelectModelSelectionChanged(const QItemSelection &currVarSelection,
                                       const QItemSelection &prevVarSelection)
 {
     Q_UNUSED(prevVarSelection); // TODO: handle deselection (prevSelection)
 
-    if ( currVarSelection.size() == 0 ) {
-        return;
-    }
+    if ( currVarSelection.size() == 0 ) return;
+    if ( _isSkip ) return;
 
     QModelIndex qpIdx; // for new or selected qp page
     QModelIndexList selIdxs = _varsSelectModel->selection().indexes();
@@ -336,9 +338,11 @@ void MonteWindow::_varsSelectModelSelectionChanged(const QItemSelection &currVar
         QString yName = _varsFilterModel->data(selIdxs.at(0)).toString();
         qpIdx = _findPageWithCurve(yName) ;
 
-        if ( ! qpIdx.isValid() ) {
-            // No current plot associated with var selection,
-            // create a single page with one plot
+        if ( ! qpIdx.isValid() || qpIdx.model()->rowCount(qpIdx) > 1 ) {
+            // If  1. No current plot associated with var selection OR
+            //     2. Variable selected is part of a page with multiple plots.
+            // Then:
+            //     Create a single page with one plot
             QStandardItem* qpItem = _createQPItem();
             qpIdx = _plotModel->indexFromItem(qpItem);
             _addPlotOfVarQPItem(qpItem,currVarSelection.indexes().at(0));
@@ -539,6 +543,69 @@ void MonteWindow::_plotSelectModelSelectionChanged(const QItemSelection &currSel
         _monteInputsSelectModel->setCurrentIndex(midx,
                                        QItemSelectionModel::ClearAndSelect|
                                        QItemSelectionModel::Rows);
+    }
+}
+
+//
+// If page (tab) changed in plot book view, update DP tree and Var list
+//
+void MonteWindow::_plotSelectModelCurrentChanged(const QModelIndex &currIdx,
+                                                const QModelIndex &prevIdx)
+{
+    Q_UNUSED(prevIdx);
+
+    if ( currIdx.isValid() && !currIdx.parent().isValid() ) {
+        QModelIndex pageIdx = currIdx;
+        QString pageTitle = pageIdx.model()->data(pageIdx).toString();
+        if ( pageTitle.left(2) == "QP" ) {
+            _updateVarSelection(pageIdx);
+        } else {
+            _updateDPSelection(pageIdx);
+        }
+    }
+}
+
+void MonteWindow::_updateVarSelection(const QModelIndex& pageIdx)
+{
+    _nbDPVars->setCurrentIndex(0); // set tabbed notebook page to Var page
+
+    const QAbstractItemModel* m = pageIdx.model();
+    int nPlots = m->rowCount(pageIdx);
+    QItemSelection varSelection;
+    for ( int plotRow = 0; plotRow < nPlots; ++plotRow) {
+        QModelIndex plotIdx = m->index(plotRow,0,pageIdx);
+        QModelIndex curveIdx = m->index(0,0,plotIdx);
+        QModelIndex yVarIdx = m->index(2,0,curveIdx);
+        QString yVarName = m->data(yVarIdx).toString();
+        for ( int i = 0; i < _varsFilterModel->rowCount(); ++i) {
+            QModelIndex varIdx = _varsFilterModel->index(i,0);
+            QString name = _varsFilterModel->data(varIdx).toString();
+            if ( name == yVarName ) {
+                QItemSelection itemSel(varIdx,varIdx);
+                varSelection.merge(itemSel, QItemSelectionModel::Select);
+                break;
+            }
+        }
+    }
+    if ( varSelection.size() > 0 ) {
+        _isSkip = true;
+        _varsSelectModel->select(varSelection,
+                                 QItemSelectionModel::ClearAndSelect);
+        _isSkip = false;
+    }
+}
+
+void MonteWindow::_updateDPSelection(const QModelIndex &pageIdx)
+{
+    _nbDPVars->setCurrentIndex(1); // set tabbed notebook page to DP page
+
+    QString dpPath = pageIdx.model()->data(pageIdx).toString();
+    QModelIndex dpIdx = _dpModel->index(dpPath); // not on help page!
+    if ( dpIdx.isValid() ) {
+        QModelIndex dpProxyIdx = _dpFilterModel->mapFromSource(dpIdx);
+        _dpTreeView->selectionModel()->setCurrentIndex(
+                    dpProxyIdx,
+                    QItemSelectionModel::ClearAndSelect);
     }
 }
 

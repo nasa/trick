@@ -59,17 +59,20 @@ private:
     QItemSelectionModel* _varsSelectModel;
     QLineEdit* _varsSearchBox;
     QListView* _varsListView ;
+    void _updateVarSelection(const QModelIndex& pageIdx);
 
     QFileSystemModel* _dpModel ;
     DPFilterProxyModel* _dpFilterModel;
     QTreeView* _dpTreeView ;
     QLineEdit* _dpSearchBox;
+    void _updateDPSelection(const QModelIndex& pageIdx);
 
     QStandardItemModel* _plotModel;
     QTreeView* _plotTreeView ;
     PlotBookView* _plotBookView;
     QItemSelectionModel* _plotSelectModel;
     int _currQPIdx;
+    bool _isSkip; // Hack City :(
 
     MonteModel* _monteModel;
     void _createMontePages(const QString& dpfile);
@@ -100,6 +103,8 @@ private slots:
      void _monteInputsViewHeaderSectionClicked(int section);
      void _plotSelectModelSelectionChanged(const QItemSelection& currSel,
                                           const QItemSelection& prevSel);
+     void _plotSelectModelCurrentChanged(const QModelIndex& currIdx,
+                                        const QModelIndex& prevIdx);
 signals:
 };
 

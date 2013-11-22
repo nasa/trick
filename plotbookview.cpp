@@ -346,6 +346,8 @@ void PlotBookView::tabCurrentChanged(int tabId)
         }
     }
 
+    selectionModel()->setCurrentIndex(pageIdx,
+                                      QItemSelectionModel::ClearAndSelect);
 }
 
 void PlotBookView::doubleClick(QMouseEvent *event)
