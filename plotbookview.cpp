@@ -254,6 +254,7 @@ void PlotBookView::_plotBookViewSelectionChanged(const QItemSelection &curr,
                                     const QItemSelection &prev)
 {
     if ( curr.isEmpty() ) return;
+    if ( _isPageIdx(curr.indexes().at(0)) ) return; // when tab changes, noop
 
     foreach ( QModelIndex prevIdx, prev.indexes() ) {
         TrickCurve* prevCurve = _idx2Curve(prevIdx);
