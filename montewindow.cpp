@@ -475,6 +475,18 @@ int MonteWindow::currSelectedRun()
             break;
         }
     }
+    if ( runId < 0 ) {
+        // If no curve selected in plotSelectModel, try monteInput selection
+        QItemSelection monteInputSel = _monteInputsSelectModel->selection();
+        if ( monteInputSel.size() > 0 ) {
+            QModelIndex selIdx = monteInputSel.indexes().at(0);
+            bool ok = false;
+            runId = _monteInputsModel->data(selIdx).toInt(&ok);
+            if ( !ok ) {
+                runId = -1;
+            }
+        }
+    }
     return runId;
 }
 
