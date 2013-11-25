@@ -75,7 +75,7 @@ private:
     bool _isSkip; // Hack City :(
 
     MonteModel* _monteModel;
-    void _createMontePages(const QString& dpfile);
+    void _createDPPages(const QString& dpfile);
     bool _isDP(const QString& fp);
     bool _isRUN(const QString& fp);
     bool _isMONTE(const QString& fp);
@@ -87,9 +87,12 @@ private:
     QString _descrPlotTitle(DPPlot* plot);
 
     QStandardItem* _createQPItem();
-    void _addPlotOfVarQPItem(QStandardItem* qpItem,
+    void _addPlotOfVarToPageItem(QStandardItem* qpItem,
                           const QModelIndex &varIdx);
-    QModelIndex _findPageWithCurve(const QString& curveName);
+    QModelIndex _findSinglePlotPageWithCurve(const QString& curveName);
+
+    void _selectCurrentRunOnPageItem(QStandardItem* pageItem);
+    int currSelectedRun();
 
 private slots:
      void _dpTreeViewClicked(const QModelIndex& idx);

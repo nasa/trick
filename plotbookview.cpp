@@ -87,8 +87,28 @@ void PlotBookView::setSelectionModel(QItemSelectionModel *selectionModel)
     connect(selectionModel,
             SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this,
-            SLOT(_plotBookViewSelectionChanged(QItemSelection,QItemSelection)));
+            SLOT(_plotSelectModelSelectChanged(QItemSelection,QItemSelection)));
     QAbstractItemView::setSelectionModel(selectionModel);
+}
+
+QModelIndex PlotBookView::currentPageIndex()
+{
+
+    QModelIndex pageIdx;
+
+    int pageId = _nb->currentIndex();
+
+    if ( pageId >= 0 && model() ) {
+        pageIdx = model()->index(pageId,0);
+    }
+
+    return pageIdx;
+
+}
+
+void PlotBookView::setCurrentPage(int pageId)
+{
+    _nb->setCurrentIndex(pageId);
 }
 
 QModelIndex PlotBookView::moveCursor(QAbstractItemView::CursorAction cursorAction,
@@ -225,13 +245,6 @@ void PlotBookView::selectRun(int runId)
     QModelIndex page0Idx = model()->index(0,0);
     if ( model()->rowCount(page0Idx) <= 0 ) return ;
 
-    // If run already selected, do not reselect
-    if ( runId == _currSelectedRun ) {
-        return;
-    }
-    _currSelectedRun = runId;
-
-
     // Build a selection of all curves that this RUN maps to
     QItemSelection runSelection;
     int nPages = model()->rowCount();
@@ -250,7 +263,7 @@ void PlotBookView::selectRun(int runId)
     selectionModel()->select(runSelection,QItemSelectionModel::ClearAndSelect);
 }
 
-void PlotBookView::_plotBookViewSelectionChanged(const QItemSelection &curr,
+void PlotBookView::_plotSelectModelSelectChanged(const QItemSelection &curr,
                                     const QItemSelection &prev)
 {
     if ( curr.isEmpty() ) return;
@@ -276,6 +289,7 @@ void PlotBookView::_plotBookViewSelectionChanged(const QItemSelection &curr,
             }
         }
     }
+
 }
 
 void PlotBookView::_slotCurveClicked(TrickCurve *curve)
@@ -346,9 +360,6 @@ void PlotBookView::tabCurrentChanged(int tabId)
             plot->replot();
         }
     }
-
-    selectionModel()->setCurrentIndex(pageIdx,
-                                      QItemSelectionModel::ClearAndSelect);
 }
 
 void PlotBookView::doubleClick(QMouseEvent *event)

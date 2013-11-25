@@ -8,6 +8,7 @@
 #include <QGridLayout>
 #include "plotpage.h"
 #include "montemodel.h"
+#include "utils.h"
 
 class PlotBookView : public QAbstractItemView
 {
@@ -24,6 +25,8 @@ public:
                           ScrollHint hint = EnsureVisible);
     virtual QModelIndex indexAt(const QPoint &point) const;
     virtual void setSelectionModel(QItemSelectionModel* selectionModel);
+    QModelIndex currentPageIndex();
+    void setCurrentPage(int pageId);
 
 protected:
     virtual QModelIndex moveCursor(CursorAction cursorAction,
@@ -56,7 +59,7 @@ protected slots:
 private slots:
     void _plotSelectModelCurrentChanged(const QModelIndex& currIdx,
                                        const QModelIndex& prevIdx);
-    void _plotBookViewSelectionChanged(const QItemSelection& curr,
+    void _plotSelectModelSelectChanged(const QItemSelection& curr,
                           const QItemSelection& prev);
     void tabCloseRequested(int tabId);
     void tabCurrentChanged(int tabId);
