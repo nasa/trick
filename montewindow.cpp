@@ -117,6 +117,9 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     dpGridLayout->addWidget(_dpTreeView,1,0);
     connect(_dpTreeView,SIGNAL(clicked(QModelIndex)),
             this, SLOT(_dpTreeViewClicked(QModelIndex)));
+    connect(_dpTreeView->selectionModel(),
+            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+            this, SLOT(_dpTreeViewCurrentChanged(QModelIndex,QModelIndex)));
     _nbDPVars->addTab(dpFrame,"DP");
 
     // This doesn't work :( Can't hide timestamp column
@@ -310,6 +313,13 @@ void MonteWindow::_dpTreeViewClicked(const QModelIndex &idx)
         QString msg = fn + " t=";
         t.snap(msg.toAscii().constData());
     }
+}
+
+void MonteWindow::_dpTreeViewCurrentChanged(const QModelIndex &currIdx,
+                                            const QModelIndex &prevIdx)
+{
+    Q_UNUSED(prevIdx);
+    _dpTreeViewClicked(currIdx);
 }
 
 void MonteWindow::_varsSelectModelSelectionChanged(const QItemSelection &currVarSelection,
