@@ -96,6 +96,7 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     _nbDPVars->addTab(frameVars,"Vars");
     _varsListView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     _varsListView->setSelectionModel(_varsSelectModel);
+    _varsListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     connect(_varsSelectModel,
             SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this,
