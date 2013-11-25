@@ -46,3 +46,61 @@ int _idxAtTimeBinarySearch (double* timestamps,
                 }
         }
 }
+
+void printSelection(const QString& title, const QItemSelection& sel,
+                    int indentLevel)
+{
+    QString indent;
+    for ( int i = 0; i < indentLevel; ++i) {
+        indent += " ";
+    }
+    QString t = indent + "selection=";
+    t  += title;
+
+    if ( sel.indexes().size() == 0 ) {
+        qDebug() << t.toAscii().constData() << "(null)";
+    } else if ( sel.indexes().size() == 1 ) {
+        QString label = stringify(sel.indexes().at(0));
+        qDebug() << t.toAscii().constData() << label.toAscii().constData();
+    } else {
+        qDebug() << t.toAscii().constData() ;
+        foreach ( QModelIndex idx, sel.indexes() ) {
+            QString label = stringify(idx);
+            label.prepend("    ");
+            label.prepend(indent);
+            qDebug() << label.toAscii().constData();
+        }
+    }
+}
+
+QString stringify(const QModelIndex& idx)
+{
+    int level = 0 ;
+    QModelIndex i = idx;
+    while ( i.parent().isValid() ) {
+        i = i.parent();
+        level++;
+    }
+    QString s;
+    switch ( level ) {
+    case 0: {
+        s = "page";
+        break;
+    }
+    case 1: {
+        s = stringify(idx.parent());
+        s += "plot";
+        break;
+    }
+    case 2: {
+        s = stringify(idx.parent());
+        s += "curve";
+        break;
+    }
+    default: {}// nada
+    }
+
+    s += QString("(%0,%1)").arg(idx.row()).arg(idx.column());
+
+    return s;
+}
