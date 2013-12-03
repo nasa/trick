@@ -312,7 +312,7 @@ void MonteWindow::_dpTreeViewClicked(const QModelIndex &idx)
             }
         }
         QString msg = fn + " t=";
-        t.snap(msg.toAscii().constData());
+        /* uncomment to see load time */ // t.snap(msg.toAscii().constData());
     }
 }
 
