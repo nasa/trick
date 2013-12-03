@@ -103,9 +103,19 @@ TrickCurve* AxisRect::addCurve(TrickModel* model, const QString& yparam,
 TrickCurve* AxisRect::addCurve(TrickCurveModel* model)
 {
     TrickCurve *curve = new TrickCurve(_xAxis,_yAxis);
+    QString xAxisLabel("Time");
+    QString xunit = model->headerData(0,Qt::Horizontal,Param::Unit).toString();
+    xAxisLabel += " (";
+    xAxisLabel += xunit;
+    xAxisLabel += ")";
+    _xAxis->setLabel(xAxisLabel);
     QString yparam = model->headerData(2,Qt::Horizontal).toString();
-    _xAxis->setLabel("Time");
-    _yAxis->setLabel(_abbreviate(yparam));
+    QString yunit = model->headerData(2,Qt::Horizontal,Param::Unit).toString();
+    QString yAxisLabel = _abbreviate(yparam);
+    yAxisLabel += " (";
+    yAxisLabel += yunit;
+    yAxisLabel += ")";
+    _yAxis->setLabel(yAxisLabel);
     curve->setData(model);
     _curves.append(curve);
     _plotwidget->addPlottable(curve);
