@@ -170,6 +170,10 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     _plotBookView->setModel(_plotModel);
     _plotBookView->setData(_monteModel);
     _plotBookView->setSelectionModel(_plotSelectModel);
+    connect(_plotModel,
+            SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+            this,
+            SLOT(_plotModelRowsAboutToBeRemoved(QModelIndex,int,int)));
     connect(_plotSelectModel,
             SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this,
@@ -624,6 +628,12 @@ void MonteWindow::_plotSelectModelCurrentChanged(const QModelIndex &currIdx,
             _updateDPSelection(pageIdx);
         }
     }
+}
+
+void MonteWindow::_plotModelRowsAboutToBeRemoved(const QModelIndex &pidx,
+                                                 int start, int end)
+{
+    _varsSelectModel->clear();
 }
 
 void MonteWindow::_updateVarSelection(const QModelIndex& pageIdx)

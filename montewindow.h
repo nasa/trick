@@ -112,7 +112,8 @@ private slots:
                                           const QItemSelection& prevSel);
      void _plotSelectModelCurrentChanged(const QModelIndex& currIdx,
                                         const QModelIndex& prevIdx);
-signals:
+     void _plotModelRowsAboutToBeRemoved(const QModelIndex& pidx,
+                                         int start, int end);
 };
 
 #endif // SNAPGUI
