@@ -253,7 +253,15 @@ void PlotBookView::selectRun(int runId)
         int nPlots = model()->rowCount(pageIdx);
         for ( int plotRow = 0; plotRow < nPlots; ++plotRow) {
             QModelIndex plotIdx = model()->index(plotRow,0,pageIdx);
-            QModelIndex curveIdx = model()->index(runId,0,plotIdx);
+            QModelIndex curvesIdx;
+            for ( int i = 0; i < plotIdx.model()->rowCount(plotIdx); ++i) {
+                QModelIndex idx = plotIdx.model()->index(i,0,plotIdx);
+                if ( plotIdx.model()->data(idx).toString() == "Curves" ) {
+                    curvesIdx = idx;
+                    break;
+                }
+            }
+            QModelIndex curveIdx = model()->index(runId,0,curvesIdx);
             QItemSelection curveSelection(curveIdx,curveIdx);
             runSelection.merge(curveSelection, QItemSelectionModel::Select);
         }
@@ -414,6 +422,7 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
     QModelIndex gpidx = model()->parent(pidx);
     QModelIndex g2pidx = model()->parent(gpidx);
     QModelIndex g3pidx = model()->parent(g2pidx);
+    QModelIndex g4pidx = model()->parent(g3pidx);
 
     for ( int row = start; row < end+1; ++row) {
         QModelIndex idx = model()->index(row,0,pidx);
@@ -435,7 +444,7 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             // Plot
             QWidget* page = _idx2Page(pidx);
             QGridLayout* grid = _grids.at(pidx.row()) ;
-            Plot* plot = new Plot(idx,page);
+            Plot* plot = new Plot(page);
             connect(plot,SIGNAL(mouseDoubleClick(QMouseEvent*)),
                     this,SLOT(doubleClick(QMouseEvent*)));
             connect(plot, SIGNAL(keyPress(QKeyEvent*)),
@@ -489,8 +498,30 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             }
 
         } else if ( ! g2pidx.isValid() ) {
-            // Curve
+
+            if ( idx.row() == 0 ) {
+                // X axis label
+                QString xAxisLabel = model()->data(idx).toString();
+                Plot* plot = _idx2Plot(pidx);
+                plot->setXAxisLabel(xAxisLabel);
+            } else if ( idx.row() == 1 ) {
+                // Y axis label
+                QString yAxisLabel = model()->data(idx).toString();
+                Plot* plot = _idx2Plot(pidx);
+                plot->setYAxisLabel(yAxisLabel);
+            } else if ( idx.row() == 2 ) {
+                //Curves (do nothing)
+            } else {
+                qDebug() << "snap [bad scoobies]: this should not happen.";
+                qDebug() << "     montewindow.cpp creates a model ";
+                qDebug() << "     in MonteWindow::_createDPPage().";
+                qDebug() << "     which doesn't match this.";
+                qDebug() << "     Sorry if the msg doesn't help!!!";
+                exit(-1);
+            }
         } else if ( ! g3pidx.isValid() ) {
+            // Curve (do nothing)
+        } else if ( ! g4pidx.isValid() ) {
             // t,x,y,run
             if ( idx.row() == 3 ) {
                 // Run
@@ -501,6 +532,20 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 Plot* plot = _idx2Plot(gpidx);
                 TrickCurve* curve = plot->addCurve(curveModel);
                 _plot2Curves[plot].append(curve);
+
+                QString xunit = curveModel->headerData
+                                       (0,Qt::Horizontal,Param::Unit).toString();
+                QModelIndex xAxisLabelIdx = model()->index(0,0,g2pidx);
+                QString xAxisLabel = _appendUnitToAxisLabel(xAxisLabelIdx,xunit);
+                plot->setXAxisLabel(xAxisLabel);
+                model()->setData(xAxisLabelIdx,xAxisLabel);
+
+                QString yunit = curveModel->headerData
+                                       (2,Qt::Horizontal,Param::Unit).toString();
+                QModelIndex yAxisLabelIdx = model()->index(1,0,g2pidx);
+                QString yAxisLabel = _appendUnitToAxisLabel(yAxisLabelIdx,yunit);
+                plot->setYAxisLabel(yAxisLabel);
+                model()->setData(yAxisLabelIdx,yAxisLabel);
             }
         }
     }
@@ -512,6 +557,7 @@ void PlotBookView::rowsAboutToBeRemoved(const QModelIndex &pidx,
     QModelIndex gpidx = model()->parent(pidx);
     QModelIndex g2pidx = model()->parent(gpidx);
     QModelIndex g3pidx = model()->parent(g2pidx);
+    QModelIndex g4pidx = model()->parent(g3pidx);
 
     for ( int row = start; row < end+1; ++row) {
 
@@ -619,14 +665,19 @@ void PlotBookView::rowsAboutToBeRemoved(const QModelIndex &pidx,
             }
             }
         } else if ( ! g2pidx.isValid() ) {
-            // Curve
+            // 0:xAxisLabel, 1:yAxisLabel, 2:Curves
+            if ( idx.row() == 2 ) {
+                // TODO Curves: remove all curves
+            }
+        } else if ( ! g3pidx.isValid() ) {
+            // Curve (TODO: untested)
             Plot* plot = _idx2Plot(pidx);
             TrickCurve* curve = _idx2Curve(idx);
             disconnect(curve,SIGNAL(selectionChanged(TrickCurve*)));
             plot->removePlottable(curve);
             _plot2Curves[plot].remove(idx.row());
             plot->replot();
-        } else if ( ! g3pidx.isValid() ) {
+        } else if ( ! g4pidx.isValid() ) {
             // t,x,y,run
         }
     }
@@ -637,7 +688,19 @@ QModelIndex PlotBookView::_curve2Idx(TrickCurve *curve)
     Plot* plot = static_cast<Plot*>(curve->parentPlot());
     QModelIndex plotIdx = _plot2Idx(plot);
     int rowCurve = _plot2Curves.value(plot).indexOf(curve);
-    QModelIndex curveIdx = model()->index(rowCurve,0,plotIdx);
+    QModelIndex curvesIdx;
+    for ( int i = 0; i < plotIdx.model()->rowCount(plotIdx); ++i) {
+        QModelIndex idx = plotIdx.model()->index(i,0,plotIdx);
+        if ( plotIdx.model()->data(idx).toString() == "Curves" ) {
+            curvesIdx = idx;
+            break;
+        }
+    }
+    if ( !curvesIdx.isValid() ) {
+        qDebug() << "snap [bad scoobies]: \"Curves\" item not found.";
+        exit(-1);
+    }
+    QModelIndex curveIdx = model()->index(rowCurve,0,curvesIdx);
     return curveIdx;
 }
 
@@ -724,7 +787,7 @@ QModelIndex PlotBookView::_plot2Idx(Plot *plot) const
     QModelIndex pageIdx = model()->index(rowPage,0);
     plotIdx = model()->index(rowPlot,0,pageIdx);
 
-         return plotIdx;
+    return plotIdx;
 }
 
 bool PlotBookView::_isPageIdx(const QModelIndex &idx)
@@ -744,12 +807,37 @@ bool PlotBookView::_isPlotIdx(const QModelIndex &idx)
 
 bool PlotBookView::_isCurveIdx(const QModelIndex &idx)
 {
-    if ( idx.isValid() && idx.parent().isValid() &&
-         idx.parent().parent().isValid() &&
-         !idx.parent().parent().parent().isValid() ) {
+    if ( model()->data(idx.parent()).toString() == "Curves" ) {
         return true;
     } else {
         return false;
     }
 }
 
+QString PlotBookView::_appendUnitToAxisLabel(const QModelIndex axisLabelIdx,
+                                            const QString& unit ) const
+{
+    QString axisLabel =  model()->data(axisLabelIdx).toString();
+    QString curveUnit = unit;
+
+    if ( axisLabel.contains('(') ) {
+        // assumes that label parens are for units
+        QString labelUnit;
+        int a = axisLabel.lastIndexOf('(');
+        int b = axisLabel.lastIndexOf(')');
+        if ( b > 0 ) {
+            labelUnit = axisLabel.mid(a+1,b-a-1);
+        }
+        if ( labelUnit != curveUnit && labelUnit !="--" ) {
+            // units not the same across curves, so make unit (--)
+            axisLabel.replace(a+1,labelUnit.size(),"--");
+        }
+    } else {
+
+        axisLabel += " (";
+        axisLabel += curveUnit;
+        axisLabel += ")";
+    }
+
+    return axisLabel;
+}

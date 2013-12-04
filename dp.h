@@ -42,10 +42,15 @@ class DPPlot
 public:
     DPPlot(const QDomElement& e);
     QString title() { return _title ; }
+    QString xAxisLabel();
+    QString yAxisLabel();
     QList<DPCurve*> curves() { return _curves; }
 private:
     QString _title;
+    QString _xAxisLabel;
+    QString _yAxisLabel;
     QList<DPCurve*> _curves;
+    static QString _abbreviate(const QString& label,int maxlen=35);
 };
 
 class DPPage

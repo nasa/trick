@@ -94,6 +94,9 @@ private:
 
     void _selectNextCurve();
     void _selectPrevCurve();
+
+    QString _appendUnitToAxisLabel(const QModelIndex axisLabelIdx,
+                                 const QString &unit ) const;
 };
 
 #endif // PLOTBOOKVIEW_H

@@ -73,10 +73,72 @@ DPPlot::DPPlot(const QDomElement &e)
             } else if ( tag == "curve" ) {
                 DPCurve* curve = new DPCurve(e);
                 _curves.append(curve);
+            } else if ( tag == "xaxis" ) {
+                QDomElement labelElement = e.firstChildElement("label");
+                if ( !labelElement.isNull() ) {
+                    _xAxisLabel = labelElement.text();
+                }
+            } else if ( tag == "yaxis" ) {
+                QDomElement labelElement = e.firstChildElement("label");
+                if ( !labelElement.isNull() ) {
+                    _yAxisLabel = labelElement.text();
+                }
             }
         }
         n = n.nextSibling();
     }
+}
+
+QString DPPlot::xAxisLabel()
+{
+    QString label = _xAxisLabel;
+
+    if ( label.isEmpty() ) {
+        // create label from curve0
+        if ( _curves.size() > 0 ) {
+            DPCurve* curve0 = _curves.at(0);
+            label = _abbreviate(curve0->x()->name());
+        }
+    }
+
+    return label;
+}
+
+QString DPPlot::yAxisLabel()
+{
+    QString label = _yAxisLabel;
+
+    if ( label.isEmpty() ) {
+        // create label from curve0
+        if ( _curves.size() > 0 ) {
+            DPCurve* curve0 = _curves.at(0);
+            label = _abbreviate(curve0->y()->name());
+        }
+    }
+
+    return label;
+}
+
+
+QString DPPlot::_abbreviate(const QString &label, int maxlen)
+{
+    if ( label == "sys.exec.out.time" ) {
+        return "Time";
+    }
+
+    QString abbr = label.right(maxlen);
+    int idx = label.size()-1;
+    while ( idx > 0 ) {
+        idx = label.lastIndexOf('.',idx);
+        QString str = label.mid(idx+1) ;
+        idx--;
+        if ( str.size() > maxlen ) {
+            break;
+        }
+        abbr = str;
+    }
+
+    return abbr;
 }
 
 

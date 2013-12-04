@@ -14,17 +14,9 @@ AxisRect::AxisRect(DPPlot* dpplot, QCustomPlot *plotwidget) :
 {
     _xAxis = axis(QCPAxis::atBottom);
     _yAxis = axis(QCPAxis::atLeft);
-
-    // If a single curve, make axis labels from curve name
-    if ( dpplot->curves().size() == 1 ) {
-        QString xlabel = _abbreviate(dpplot->curves().at(0)->x()->label());
-        _xAxis->setLabel(xlabel);
-        QString ylabel = _abbreviate(dpplot->curves().at(0)->y()->label());
-        _yAxis->setLabel(ylabel);
-    }
 }
 
-AxisRect::AxisRect(const QModelIndex& plotIdx, QCustomPlot* plotwidget) :
+AxisRect::AxisRect(QCustomPlot* plotwidget) :
     QCPAxisRect(plotwidget),
     _plotwidget(plotwidget),
     _rubber_band(0),
@@ -45,27 +37,6 @@ AxisRect::~AxisRect()
     }
 }
 
-QString AxisRect::_abbreviate(const QString &label, int maxlen)
-{
-    if ( label == "sys.exec.out.time" ) {
-        return "Time";
-    }
-
-    QString abbr = label.right(maxlen);
-    int idx = label.size()-1;
-    while ( idx > 0 ) {
-        idx = label.lastIndexOf('.',idx);
-        QString str = label.mid(idx+1) ;
-        idx--;
-        if ( str.size() > maxlen ) {
-            break;
-        }
-        abbr = str;
-    }
-
-    return abbr;
-}
-
 void AxisRect::setData(MonteModel *monteModel)
 {
     foreach (DPCurve* dpCurve, _dpplot->curves() ) {
@@ -78,7 +49,6 @@ void AxisRect::setData(MonteModel *monteModel)
         }
     }
 }
-
 
 TrickCurve* AxisRect::addCurve(TrickModel* model, const QString& yparam,
                               double valueScaleFactor )
@@ -103,19 +73,6 @@ TrickCurve* AxisRect::addCurve(TrickModel* model, const QString& yparam,
 TrickCurve* AxisRect::addCurve(TrickCurveModel* model)
 {
     TrickCurve *curve = new TrickCurve(_xAxis,_yAxis);
-    QString xAxisLabel("Time");
-    QString xunit = model->headerData(0,Qt::Horizontal,Param::Unit).toString();
-    xAxisLabel += " (";
-    xAxisLabel += xunit;
-    xAxisLabel += ")";
-    _xAxis->setLabel(xAxisLabel);
-    QString yparam = model->headerData(2,Qt::Horizontal).toString();
-    QString yunit = model->headerData(2,Qt::Horizontal,Param::Unit).toString();
-    QString yAxisLabel = _abbreviate(yparam);
-    yAxisLabel += " (";
-    yAxisLabel += yunit;
-    yAxisLabel += ")";
-    _yAxis->setLabel(yAxisLabel);
     curve->setData(model);
     _curves.append(curve);
     _plotwidget->addPlottable(curve);
@@ -473,7 +430,6 @@ QList<QColor> AxisRect::_createColorBands(int nBands, bool isMonte)
 
         int hBeg = 10; int hEnd = 230;
         int dh = qRound((double)(hEnd-hBeg)/(nBands-1.0));
-        int dh2 = dh/2;
         int s = qRound(0.75*255);
         int v = qRound(0.87*255);
         for ( int h = hBeg; h <= hEnd; h+=dh) {

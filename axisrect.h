@@ -16,7 +16,7 @@ class AxisRect : public QCPAxisRect
 {
   public:
     AxisRect(DPPlot* dpplot, QCustomPlot* plotwidget);
-    AxisRect(const QModelIndex& plotIdx, QCustomPlot* plotwidget);
+    AxisRect(QCustomPlot* plotwidget);
     ~AxisRect();
 
     void setData(MonteModel *monteModel);
@@ -66,8 +66,6 @@ protected:
     bool _isYRangeCalculated;
     QCPRange _xDataRange;
     QCPRange _yDataRange;
-
-    static QString _abbreviate(const QString& label,int maxlen=35);
 
     double _keyPressMoveFactor;
     void _keyPressMoveLeft();

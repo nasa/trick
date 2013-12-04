@@ -87,12 +87,14 @@ private:
     QString _descrPlotTitle(DPPlot* plot);
 
     QStandardItem* _createQPItem();
-    void _addPlotOfVarToPageItem(QStandardItem* qpItem,
+    void _addPlotOfVarToPageItem(QStandardItem* pageItem,
                           const QModelIndex &varIdx);
     QModelIndex _findSinglePlotPageWithCurve(const QString& curveName);
 
     void _selectCurrentRunOnPageItem(QStandardItem* pageItem);
     int currSelectedRun();
+
+    bool _isCurveIdx(const QModelIndex& idx) const;
 
 private slots:
      void _dpTreeViewClicked(const QModelIndex& idx);

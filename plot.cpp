@@ -25,7 +25,7 @@ Plot::Plot(DPPlot* plot, QWidget* parent) :
             this,SLOT(_slotPlottableClick(QCPAbstractPlottable*,QMouseEvent*)));
 }
 
-Plot::Plot(const QModelIndex& plotIdx, QWidget* parent) :
+Plot::Plot(QWidget* parent) :
     QCustomPlot(parent)
 {
     setFocusPolicy(Qt::StrongFocus);
@@ -40,7 +40,7 @@ Plot::Plot(const QModelIndex& plotIdx, QWidget* parent) :
     setNoAntialiasingOnDrag(true);
     setAutoAddPlottableToLegend(false);
 
-    _axisrect = new AxisRect(plotIdx,this);
+    _axisrect = new AxisRect(this);
 
     plotLayout()->clear();
     plotLayout()->addElement(0,0,_axisrect);
@@ -60,6 +60,16 @@ void Plot::setData(MonteModel *monteModel)
 {
     _axisrect->setData(monteModel);
     _axisrect->zoomToFit();
+}
+
+void Plot::setXAxisLabel(const QString &label)
+{
+    _axisrect->_xAxis->setLabel(label);
+}
+
+void Plot::setYAxisLabel(const QString &label)
+{
+    _axisrect->_yAxis->setLabel(label);
 }
 
 void Plot::keyPressEvent(QKeyEvent *event)

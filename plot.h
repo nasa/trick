@@ -13,9 +13,11 @@ class Plot : public QCustomPlot
 
 public:
     explicit Plot(DPPlot *plot, QWidget* parent=0);
-    explicit Plot(const QModelIndex& plotIdx, QWidget* parent=0);
+    explicit Plot(QWidget* parent=0);
     TrickCurve *addCurve(TrickCurveModel *model);
     void setData(MonteModel *monteModel);
+    void setXAxisLabel(const QString& label);
+    void setYAxisLabel(const QString& label);
 
 protected:
     void keyPressEvent(QKeyEvent *event);

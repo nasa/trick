@@ -227,14 +227,27 @@ void MonteWindow::_createDPPages(const QString& dpfile)
         QStandardItem *pageItem = new QStandardItem(pageTitle);
         rootItem->appendRow(pageItem);
         foreach (DPPlot* plot, page->plots() ) {
+
             QString plotTitle = _descrPlotTitle(plot);
             QStandardItem *plotItem = new QStandardItem(plotTitle);
             pageItem->appendRow(plotItem);
+
+            QString xAxisLabel = plot->xAxisLabel();
+            QStandardItem *xAxisLabelItem = new QStandardItem(xAxisLabel);
+            plotItem->appendRow(xAxisLabelItem);
+
+            QString yAxisLabel = plot->yAxisLabel();
+            QStandardItem *yAxisLabelItem = new QStandardItem(yAxisLabel);
+            plotItem->appendRow(yAxisLabelItem);
+
+            QStandardItem *curvesItem = new QStandardItem("Curves");
+            plotItem->appendRow(curvesItem);
+
             foreach (DPCurve* dpcurve, plot->curves() ) {
                 for ( int run = 0; run < numRuns; ++run) {
                     QString curveTitle = QString("Curve_%0").arg(run);
                     QStandardItem *curveItem = new QStandardItem(curveTitle);
-                    plotItem->appendRow(curveItem);
+                    curvesItem->appendRow(curveItem);
 
                     QString tName = dpcurve->t()->name();
                     QString xName = dpcurve->x()->name();
@@ -312,7 +325,8 @@ void MonteWindow::_dpTreeViewClicked(const QModelIndex &idx)
             }
         }
         QString msg = fn + " t=";
-        /* uncomment to see load time */ // t.snap(msg.toAscii().constData());
+
+        t.snap(msg.toAscii().constData()); /* uncomment to see load time */
     }
 }
 
@@ -375,18 +389,27 @@ QStandardItem* MonteWindow::_createQPItem()
     return qpItem;
 }
 
-void MonteWindow::_addPlotOfVarToPageItem(QStandardItem* qpItem,
+void MonteWindow::_addPlotOfVarToPageItem(QStandardItem* pageItem,
                           const QModelIndex &varIdx)
 {
-    int nPlots = qpItem->rowCount();
+    int nPlots = pageItem->rowCount();
 
     QString tName("sys.exec.out.time");
     QString xName("sys.exec.out.time");
     QString yName = _varsFilterModel->data(varIdx).toString();
 
-    QString plotName = QString("QPlot_%0").arg(nPlots);
-    QStandardItem* qPlotItem = new QStandardItem(plotName);
-    qpItem->appendRow(qPlotItem);
+    QString plotTitle = QString("QPlot_%0").arg(nPlots);
+    QStandardItem* plotItem = new QStandardItem(plotTitle);
+    pageItem->appendRow(plotItem);
+
+    QStandardItem *xAxisLabelItem = new QStandardItem(xName);
+    plotItem->appendRow(xAxisLabelItem);
+
+    QStandardItem *yAxisLabelItem = new QStandardItem(yName);
+    plotItem->appendRow(yAxisLabelItem);
+
+    QStandardItem *curvesItem = new QStandardItem("Curves");
+    plotItem->appendRow(curvesItem);
 
     for ( int r = 0; r < _monteModel->rowCount(); ++r) {
 
@@ -397,7 +420,7 @@ void MonteWindow::_addPlotOfVarToPageItem(QStandardItem* qpItem,
         //
         QString curveName = QString("Curve_%0").arg(r);
         QStandardItem *curveItem = new QStandardItem(curveName);
-        qPlotItem->appendRow(curveItem);
+        curvesItem->appendRow(curveItem);
 
         QStandardItem *tItem   = new QStandardItem(tName);
         QStandardItem *xItem   = new QStandardItem(xName);
@@ -454,7 +477,19 @@ void MonteWindow::_selectCurrentRunOnPageItem(QStandardItem* pageItem)
         QModelIndex pageIdx = _plotModel->indexFromItem(pageItem);
         for ( int i = 0; i < _plotModel->rowCount(pageIdx); ++i ) {
             QModelIndex plotIdx = pageIdx.model()->index(i,0,pageIdx);
-            QModelIndex curveIdx = pageIdx.model()->index(runId,0,plotIdx);
+            QModelIndex curvesIdx;
+            for ( int j = 0; j < plotIdx.model()->rowCount(plotIdx); ++j) {
+                QModelIndex idx = plotIdx.model()->index(j,0,plotIdx);
+                if ( plotIdx.model()->data(idx).toString() == "Curves" ) {
+                    curvesIdx = idx;
+                    break;
+                }
+            }
+            if ( !curvesIdx.isValid() ) {
+                qDebug() << "snap [bad scoobies]: \"Curves\" item not found.";
+                exit(-1);
+            }
+            QModelIndex curveIdx = pageIdx.model()->index(runId,0,curvesIdx);
             if ( ! currSel.contains(curveIdx) ) {
                 QItemSelection curveSel(curveIdx,curveIdx) ;
                 _plotSelectModel->select(curveSel,QItemSelectionModel::Select);
@@ -468,10 +503,7 @@ int MonteWindow::currSelectedRun()
     int runId = -1;
     QItemSelection currSel = _plotSelectModel->selection();
     foreach ( QModelIndex i , currSel.indexes() ) {
-        if ( i.isValid() && i.parent().isValid() &&
-             i.parent().parent().isValid() &&
-             !i.parent().parent().parent().isValid() ) {
-            // Index maps to a curve
+        if ( _isCurveIdx(i) ) {
             runId = i.row();
             break;
         }
@@ -489,6 +521,19 @@ int MonteWindow::currSelectedRun()
         }
     }
     return runId;
+}
+
+// _plotModel will have a curve on a branch like this:
+//           root->page->plot->curves->curvei
+//
+bool MonteWindow::_isCurveIdx(const QModelIndex &idx) const
+{
+    if ( idx.model() != _plotModel ) return false;
+    if ( idx.model()->data(idx.parent()).toString() != "Curves" ) {
+        return false;
+    } else {
+        return true;
+    }
 }
 
 void MonteWindow::_varsSearchBoxTextChanged(const QString &rx)
@@ -537,15 +582,7 @@ void MonteWindow::_plotSelectModelSelectionChanged(const QItemSelection &currSel
         curveIdx = currSel.indexes().at(0);
     }
 
-    bool isCurveIdx = false;
-    if ( curveIdx.isValid() && curveIdx.parent().isValid()
-         && curveIdx.parent().parent().isValid()
-         && !curveIdx.parent().parent().parent().isValid()  ) {
-
-            isCurveIdx = true;
-    }
-
-    if ( isCurveIdx ) {
+    if ( _isCurveIdx(curveIdx) ) {
 
         int runId = curveIdx.row();
 
