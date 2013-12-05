@@ -23,7 +23,6 @@
 #include <QStringList>
 
 #include "monte.h"
-#include "plotpage.h"
 #include "dp.h"
 #include "plotbookview.h"
 #include "dpfilterproxymodel.h"
