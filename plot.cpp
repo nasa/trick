@@ -54,11 +54,20 @@ void Plot::keyPressEvent(QKeyEvent *event)
     QWidget::keyPressEvent(event);
 }
 
+void Plot::mouseReleaseEvent(QMouseEvent *event)
+{
+    _isPlottableClicked = false;
+    QCustomPlot::mouseReleaseEvent(event);
+    if ( ! _isPlottableClicked ) {
+        emit curveClicked(0);
+    }
+}
 
 void Plot::_slotPlottableClick(QCPAbstractPlottable *plottable, QMouseEvent *e)
 {
     Q_UNUSED(plottable);
     Q_UNUSED(e);
+    _isPlottableClicked = true;
     TrickCurve* curve = static_cast<TrickCurve*>(plottable);
     emit curveClicked(curve);
 }

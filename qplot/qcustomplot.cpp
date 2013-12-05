@@ -10265,7 +10265,8 @@ void QCustomPlot::mouseReleaseEvent(QMouseEvent *event)
           QList<QCPLayerable*> layerables = mLayers.at(i)->children();
           for (int k=0; k<layerables.size(); ++k)
           {
-            if (layerables.at(k) != clickedLayerable && mInteractions.testFlag(layerables.at(k)->selectionCategory()))
+            if (layerables.at(k) != clickedLayerable &&
+                  mInteractions.testFlag(layerables.at(k)->selectionCategory()))
             {
               bool selChanged = false;
               layerables.at(k)->deselectEvent(&selChanged);

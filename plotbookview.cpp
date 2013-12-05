@@ -274,13 +274,23 @@ void PlotBookView::selectRun(int runId)
 void PlotBookView::_plotSelectModelSelectChanged(const QItemSelection &curr,
                                     const QItemSelection &prev)
 {
-    if ( curr.isEmpty() ) return;
-    if ( _isPageIdx(curr.indexes().at(0)) ) return; // when tab changes, noop
+    if ( curr.indexes().size() > 0 ) {
+         // when tab changes, noop
+        if ( _isPageIdx(curr.indexes().at(0)) ) return;
+    }
 
     foreach ( QModelIndex prevIdx, prev.indexes() ) {
         TrickCurve* prevCurve = _idx2Curve(prevIdx);
         if ( prevCurve ) {
             prevCurve->setSelected(false);
+            if ( curr.indexes().size() == 0 ) {
+                // If curr > 0, replot done in next block
+                QModelIndex plotIdx = prevIdx.parent();
+                Plot* plot = _idx2Plot(plotIdx);
+                if ( plot->isVisible() ) {
+                        plot->replot();
+                }
+            }
         }
     }
 
@@ -302,9 +312,14 @@ void PlotBookView::_plotSelectModelSelectChanged(const QItemSelection &curr,
 
 void PlotBookView::_slotCurveClicked(TrickCurve *curve)
 {
-    QModelIndex curveIdx = _curve2Idx(curve);
-    int runId = curveIdx.row();
-    selectRun(runId);
+    if ( curve == 0 ) {
+        // Deselect
+        selectionModel()->clear();
+    } else {
+        QModelIndex curveIdx = _curve2Idx(curve);
+        int runId = curveIdx.row();
+        selectRun(runId);
+    }
 }
 
 void PlotBookView::_selectNextCurve()

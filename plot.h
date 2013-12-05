@@ -20,6 +20,7 @@ public:
 
 protected:
     void keyPressEvent(QKeyEvent *event);
+    virtual void mouseReleaseEvent(QMouseEvent *event);
 
 signals:
     void keyPress(QKeyEvent* e);
@@ -32,6 +33,7 @@ private:
     DPPlot* _dpplot;
     AxisRect* _axisrect;
     QCPLayoutElement* _keyEventElement;
+    bool _isPlottableClicked;
 };
 
 #endif // PLOTPAGE_H
