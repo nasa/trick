@@ -65,7 +65,6 @@ SOURCES += \
     trickcurve.cpp \
     axisrect.cpp \
     plot.cpp \
-    plotpage.cpp \
     trickcurvemodel.cpp
 
 HEADERS +=  \
@@ -79,7 +78,6 @@ HEADERS +=  \
     trickcurve.h \
     axisrect.h \
     plot.h \
-    plotpage.h \
     trickcurvemodel.h
 }
 

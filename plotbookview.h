@@ -6,7 +6,7 @@
 #include <QTabWidget>
 #include <QHash>
 #include <QGridLayout>
-#include "plotpage.h"
+#include "plot.h"
 #include "montemodel.h"
 #include "utils.h"
 

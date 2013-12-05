@@ -48,7 +48,6 @@ private:
     QMenuBar* _menuBar;
     QMenu *_fileMenu;
     QAction *_exitAction;
-    PlotPage* _plot_monte ;
     TimeItLinux _timer;
 
     QTabWidget* _nbDPVars;
