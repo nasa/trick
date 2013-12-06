@@ -397,7 +397,20 @@ public:
           mChildren.move(idx,mChildren.size()-1);
       }
   }
-  
+
+  // Keith hack ii
+  int indexOfChild(QCPLayerable* child) {
+       return mChildren.indexOf(child);
+  }
+
+  // Keith hack ii
+  int moveChild(QCPLayerable* child, int toIdx) {
+      int fromIdx = mChildren.indexOf(child);
+      if ( fromIdx > 0 && toIdx > 0 && toIdx < mChildren.size()-1 ) {
+          mChildren.move(fromIdx,toIdx);
+      }
+  }
+
 protected:
   // property members:
   QCustomPlot *mParentPlot;

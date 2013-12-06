@@ -28,12 +28,18 @@ signals:
 
 private slots:
     void _slotPlottableClick(QCPAbstractPlottable* plottable, QMouseEvent* e);
+    void _slotPlottableDoubleClick(QCPAbstractPlottable* plottable,QMouseEvent*e);
+    void _slotMouseDoubleClick(QMouseEvent *event);
 
 private:
     DPPlot* _dpplot;
     AxisRect* _axisrect;
     QCPLayoutElement* _keyEventElement;
     bool _isPlottableClicked;
+    TrickCurve* _lastSelectedCurve ;
+    TrickCurve* _lastEmittedCurve ;
+    TrickCurve* _lastDoubleClickedCurve ;
+    bool _isDoubleClick;
 };
 
 #endif // PLOTPAGE_H

@@ -91,6 +91,8 @@ private:
     QCPRange _xrange;
     QCPRange _yrange;
 
+    int _deselectedLayerIdx;
+
 private slots:
     friend class AxisRect;
     friend class QCustomPlot;

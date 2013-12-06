@@ -581,6 +581,14 @@ void MonteWindow::_plotSelectModelSelectionChanged(const QItemSelection &currSel
 {
     Q_UNUSED(prevSel);
 
+    if ( currSel.indexes().size() == 0 && prevSel.indexes().size() > 0 ) {
+        // Deselecting a curve: so,
+        //     1. deselect run in monte selection too
+        //     2. deselect vars
+        _monteInputsSelectModel->clear();
+        _varsSelectModel->clear();
+    }
+
     QModelIndex curveIdx;
     if ( currSel.indexes().size() > 0 ) {
         curveIdx = currSel.indexes().at(0);

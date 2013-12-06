@@ -512,7 +512,12 @@ QCPRange TrickCurve::getValueRange(bool &validRange, SignDomain inSignDomain) co
 void TrickCurve::setSelected(bool selected)
 {
     if ( mSelected != selected ) {
-        layer()->raiseChild(this);
+        if ( selected == true ) {
+            _deselectedLayerIdx = layer()->indexOfChild(this);
+            layer()->raiseChild(this);
+        } else {
+            layer()->moveChild(this,_deselectedLayerIdx);
+        }
         mSelected = selected;
         emit selectionChanged(this);
     }
