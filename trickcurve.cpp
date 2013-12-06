@@ -124,14 +124,41 @@ void TrickCurve::draw(QCPPainter *painter)
         } else {
             painter->setPen(mainPen());
         }
-        applyDefaultAntialiasingHint(painter);
-        painter->setRenderHint(QPainter::NonCosmeticDefaultPen);
-        painter->setBrush(Qt::NoBrush);
-        painter->save();
-        painter->setTransform(_coordToPixelTransform());
-        painter->drawPath(_painterPath);
-        painter->restore();
+
+        if ( painter->modes().testFlag(QCPPainter::pmVectorized) ) {
+            painter->drawPath(_scaledPainterPath()); // PDF
+        } else {
+            painter->save();
+            painter->setTransform(_coordToPixelTransform());
+            painter->drawPath(_painterPath);
+            painter->restore();
+        }
     }
+}
+
+QPainterPath TrickCurve::_scaledPainterPath()
+{
+    QPainterPath path;
+
+    _model->map();
+
+    QTransform t = _coordToPixelTransform();
+
+    TrickModelIterator it = _model->begin();
+    const TrickModelIterator e = _model->end();
+    QPointF pt0(it.x(),it.y());
+    pt0 = t.map(pt0);
+    path.moveTo(pt0.x(),pt0.y());
+    while (it != e) {
+        QPointF pt(it.x(),it.y());
+        pt = t.map(pt);
+        path.lineTo(pt.x(),pt.y());
+        ++it;
+    }
+
+    _model->unmap();
+
+    return path;
 }
 
 void TrickCurve::_createPainterPath()

@@ -66,6 +66,7 @@ private:
     bool _isPainterPathCreated;
     QPainterPath _painterPath;
     void _createPainterPath();
+    QPainterPath _scaledPainterPath();
     inline QTransform _coordToPixelTransform() const
     {
         //
