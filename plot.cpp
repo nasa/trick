@@ -101,11 +101,13 @@ void Plot::_slotPlottableClick(QCPAbstractPlottable *plottable, QMouseEvent *e)
 
 void Plot::_slotPlottableDoubleClick(QCPAbstractPlottable *plottable, QMouseEvent *e)
 {
+    Q_UNUSED(e);
     _lastDoubleClickedCurve = static_cast<TrickCurve*>(plottable);
 }
 
 void Plot::_slotMouseDoubleClick(QMouseEvent *event)
 {
+    Q_UNUSED(event);
     _lastDoubleClickedCurve = 0 ;
     _isDoubleClick = true;
 }
