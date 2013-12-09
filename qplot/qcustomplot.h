@@ -404,7 +404,7 @@ public:
   }
 
   // Keith hack ii
-  int moveChild(QCPLayerable* child, int toIdx) {
+  void moveChild(QCPLayerable* child, int toIdx) {
       int fromIdx = mChildren.indexOf(child);
       if ( fromIdx > 0 && toIdx > 0 && toIdx < mChildren.size()-1 ) {
           mChildren.move(fromIdx,toIdx);

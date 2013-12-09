@@ -21,6 +21,7 @@
 #include <QFileInfo>
 #include <QTabWidget>
 #include <QStringList>
+#include <QFileDialog>
 
 #include "monte.h"
 #include "dp.h"
@@ -46,6 +47,7 @@ private:
     void createMenu();
     QMenuBar* _menuBar;
     QMenu *_fileMenu;
+    QAction *_pdfAction;
     QAction *_exitAction;
     TimeItLinux _timer;
 
@@ -112,6 +114,7 @@ private slots:
                                         const QModelIndex& prevIdx);
      void _plotModelRowsAboutToBeRemoved(const QModelIndex& pidx,
                                          int start, int end);
+     void _savePdf();
 };
 
 #endif // SNAPGUI

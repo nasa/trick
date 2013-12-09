@@ -111,6 +111,11 @@ void PlotBookView::setCurrentPage(int pageId)
     _nb->setCurrentIndex(pageId);
 }
 
+void PlotBookView::savePdf(const QString &fileName)
+{
+    qDebug() << "TODO: Either delete me or implement me. PlotBookView::savePdf()";
+}
+
 QModelIndex PlotBookView::moveCursor(QAbstractItemView::CursorAction cursorAction,
                                      Qt::KeyboardModifiers modifiers)
 {

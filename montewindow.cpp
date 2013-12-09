@@ -205,8 +205,10 @@ void MonteWindow::createMenu()
 {
     _menuBar = new QMenuBar;
     _fileMenu = new QMenu(tr("&File"), this);
+    _pdfAction = _fileMenu->addAction(tr("P&DF"));
     _exitAction = _fileMenu->addAction(tr("E&xit"));
     _menuBar->addMenu(_fileMenu);
+    connect(_pdfAction, SIGNAL(triggered()),this, SLOT(_savePdf()));
     connect(_exitAction, SIGNAL(triggered()),this, SLOT(close()));
     setMenuWidget(_menuBar);
 }
@@ -329,7 +331,6 @@ void MonteWindow::_dpTreeViewClicked(const QModelIndex &idx)
             }
         }
         QString msg = fn + " t=";
-
         t.snap(msg.toAscii().constData()); /* uncomment to see load time */
     }
 }
@@ -641,6 +642,9 @@ void MonteWindow::_plotSelectModelCurrentChanged(const QModelIndex &currIdx,
 void MonteWindow::_plotModelRowsAboutToBeRemoved(const QModelIndex &pidx,
                                                  int start, int end)
 {
+    Q_UNUSED(pidx);
+    Q_UNUSED(start);
+    Q_UNUSED(end);
     _varsSelectModel->clear();
 }
 
@@ -743,6 +747,20 @@ QString MonteWindow::_descrPlotTitle(DPPlot *plot)
     }
 
     return plotTitle;
+}
+
+void MonteWindow::_savePdf()
+{
+    qDebug() << "Implement me! MonteWindow::_savePdf!" ;
+
+    QString fname = QFileDialog::getSaveFileName(this,
+                                                 QString("PDF"),
+                                                 QString(""),
+                                                 tr("files (*.pdf)"));
+
+    if ( ! fname.isEmpty() ) {
+        _plotBookView->savePdf(fname);
+    }
 }
 
 #endif // SNAPGUI2

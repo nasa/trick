@@ -27,6 +27,7 @@ public:
     virtual void setSelectionModel(QItemSelectionModel* selectionModel);
     QModelIndex currentPageIndex();
     void setCurrentPage(int pageId);
+    void savePdf(const QString& fileName);
 
 protected:
     virtual QModelIndex moveCursor(CursorAction cursorAction,
