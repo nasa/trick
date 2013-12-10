@@ -8,7 +8,7 @@ Plot::Plot(QWidget* parent) :
     _isDoubleClick(false)
 
 {
-    setFocusPolicy(Qt::StrongFocus);
+    setFocusPolicy(Qt::ClickFocus);
 
     setInteractions(QCP::iRangeDrag | QCP::iSelectAxes |
                     QCP::iSelectLegend);

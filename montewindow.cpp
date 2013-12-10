@@ -58,6 +58,7 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     // Left tabbed notebook widget for DP&Vars
     //
     _nbDPVars = new QTabWidget(lsplit);
+    _nbDPVars->setFocusPolicy(Qt::ClickFocus);
     lsplit->addWidget(_nbDPVars);
     _nbDPVars->setAttribute(Qt::WA_AlwaysShowToolTips, false);
 
@@ -97,6 +98,7 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     _varsListView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     _varsListView->setSelectionModel(_varsSelectModel);
     _varsListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    _varsListView->setFocusPolicy(Qt::ClickFocus);
     connect(_varsSelectModel,
             SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this,
@@ -115,6 +117,7 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     _dpTreeView->setModel(_dpFilterModel);
     QModelIndex proxyRootIdx = _dpFilterModel->mapFromSource(dpRootIdx);
     _dpTreeView->setRootIndex(proxyRootIdx);
+    _dpTreeView->setFocusPolicy(Qt::ClickFocus);
     dpGridLayout->addWidget(_dpTreeView,1,0);
     connect(_dpTreeView,SIGNAL(clicked(QModelIndex)),
             this, SLOT(_dpTreeViewClicked(QModelIndex)));
@@ -158,6 +161,8 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     _monteInputsView->setSelectionModel(_monteInputsSelectModel);
     _monteInputsView->setSelectionMode(QAbstractItemView::SingleSelection);
     _monteInputsView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    _monteInputsView->setFocusPolicy(Qt::ClickFocus);
+    _monteInputsView->setTabKeyNavigation(false);
     connect(_monteInputsSelectModel,
             SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this,

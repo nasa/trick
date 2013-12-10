@@ -7,13 +7,14 @@ PlotBookView::PlotBookView(QWidget *parent) :
     _isTabCloseRequested(false),
     _currSelectedRun(-1)
 {
+    this->setFocusPolicy(Qt::ClickFocus);
     _nb = new QTabWidget(parent);
     _nb->setTabsClosable(true);
+    _nb->setFocusPolicy(Qt::StrongFocus);
     connect(_nb,SIGNAL(tabCloseRequested(int)),
             this,SLOT(tabCloseRequested(int)));
     connect(_nb,SIGNAL(currentChanged(int)),
             this,SLOT(tabCurrentChanged(int)));
-
 }
 
 PlotBookView::~PlotBookView()
@@ -588,7 +589,6 @@ void PlotBookView::_selectPrevCurve()
         }
     }
 }
-
 
 void PlotBookView::tabCloseRequested(int tabId)
 {
