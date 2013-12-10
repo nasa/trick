@@ -56,6 +56,11 @@ void Plot::setYAxisLabel(const QString &label)
     _axisrect->_yAxis->setLabel(label);
 }
 
+void Plot::drawMe(QCPPainter *painter)
+{
+    QCustomPlot::draw(painter);
+}
+
 void Plot::keyPressEvent(QKeyEvent *event)
 {
     emit keyPress(event);

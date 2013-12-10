@@ -17,6 +17,8 @@ public:
     void setData(MonteModel *monteModel);
     void setXAxisLabel(const QString& label);
     void setYAxisLabel(const QString& label);
+    AxisRect* axisRect() { return _axisrect; }
+    void drawMe(QCPPainter *painter);
 
 protected:
     void keyPressEvent(QKeyEvent *event);

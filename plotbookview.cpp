@@ -111,9 +111,233 @@ void PlotBookView::setCurrentPage(int pageId)
     _nb->setCurrentIndex(pageId);
 }
 
-void PlotBookView::savePdf(const QString &fileName)
+bool PlotBookView::savePdf(const QString &fileName)
 {
-    qDebug() << "TODO: Either delete me or implement me. PlotBookView::savePdf()";
+    QPrinter printer(QPrinter::ScreenResolution);
+    printer.setOutputFileName(fileName);
+    printer.setOutputFormat(QPrinter::PdfFormat);
+    printer.setFullPage(true);
+    //printer.setPaperSize(QPrinter::A4);
+    printer.setPaperSize(QSizeF(1200,900),QPrinter::DevicePixel);
+    //printer.setOrientation(QPrinter::Landscape);
+
+    QCPPainter printpainter;
+    if (! printpainter.begin(&printer)) {
+        return false;
+    }
+    printpainter.setMode(QCPPainter::pmVectorized);
+    printpainter.setMode(QCPPainter::pmNoCaching);
+    printpainter.setMode(QCPPainter::pmNonCosmetic,false);
+    QRect printerRect = QRect(0,0,printer.width(),printer.height());
+    printpainter.setWindow(printerRect);
+    printpainter.fillRect(printerRect, QBrush(Qt::white));
+
+    for ( int pageId = 0; pageId < _pages.size(); ++pageId) {
+
+        QWidget* page = _pages.at(pageId);
+        QVector<Plot*> plots = _page2Plots.value(page);
+        QVector<QRect> origPlotViewports;
+        foreach (Plot* plot, plots ) {
+            origPlotViewports.append(plot->viewport());
+            plot->setViewport(printerRect);
+        }
+
+        // This is hackish and I'm afraid a comment would only confuse, but here
+        // goes. Plotbookview's page is a Qt QGrid of QCustomplot Widgets.
+        // QCustomPlot can make a "page", but for interactive use,
+        // I found it better to use Qt's QGrid.  When printing it is better
+        // to use QCustomPlot's layout.  The following switch statement
+        // adds empty cells, later restored, in each plot's internal grid layout.
+        switch ( plots.size() )
+        {
+        case 1:
+        {
+            QRect plotRect(0,0,printer.width(),printer.height());
+            plots.at(0)->axisRect()->setOuterRect(plotRect);
+            break;
+        }
+        case 2:
+        {
+            QRect plotRect(0,0,printer.width(),printer.height()/2);
+            plots.at(0)->plotLayout()->insertRow(1);
+            plots.at(0)->axisRect()->setOuterRect(plotRect);
+            plots.at(1)->plotLayout()->insertRow(0);
+            plots.at(1)->axisRect()->setOuterRect(plotRect);
+            break;
+        }
+        case 3:
+        {
+            QRect plotRect(0,0,printer.width(),printer.height()/3);
+
+            plots.at(0)->plotLayout()->insertRow(1);
+            plots.at(0)->plotLayout()->insertRow(1);
+            plots.at(0)->axisRect()->setOuterRect(plotRect);
+
+            plots.at(1)->plotLayout()->insertRow(0);
+            plots.at(1)->plotLayout()->insertRow(2);
+            plots.at(1)->axisRect()->setOuterRect(plotRect);
+
+            plots.at(2)->plotLayout()->insertRow(0);
+            plots.at(2)->plotLayout()->insertRow(0);
+            plots.at(2)->axisRect()->setOuterRect(plotRect);
+            break;
+        }
+        case 4:
+        {
+            QRect plotRect(0,0,printer.width()/2,printer.height()/2);
+
+            plots.at(0)->plotLayout()->insertRow(1);
+            plots.at(0)->plotLayout()->insertColumn(1);
+            plots.at(0)->axisRect()->setOuterRect(plotRect);
+
+            plots.at(1)->plotLayout()->insertRow(1);
+            plots.at(1)->plotLayout()->insertColumn(0);
+            plots.at(1)->axisRect()->setOuterRect(plotRect);
+
+            plots.at(2)->plotLayout()->insertRow(0);
+            plots.at(2)->plotLayout()->insertColumn(1);
+            plots.at(2)->axisRect()->setOuterRect(plotRect);
+
+            plots.at(3)->plotLayout()->insertRow(0);
+            plots.at(3)->plotLayout()->insertColumn(0);
+            plots.at(3)->axisRect()->setOuterRect(plotRect);
+            break;
+        }
+        case 5:
+        {
+            QRect plotRect(0,0,printer.width()/2,printer.height()/3);
+
+            plots.at(0)->plotLayout()->insertRow(1);
+            plots.at(0)->plotLayout()->insertRow(1);
+            plots.at(0)->plotLayout()->insertColumn(1);
+            plots.at(0)->axisRect()->setOuterRect(plotRect);
+
+            plots.at(1)->plotLayout()->insertRow(1);
+            plots.at(1)->plotLayout()->insertRow(1);
+            plots.at(1)->plotLayout()->insertColumn(0);
+            plots.at(1)->axisRect()->setOuterRect(plotRect);
+
+            plots.at(2)->plotLayout()->insertRow(0);
+            plots.at(2)->plotLayout()->insertRow(2);
+            plots.at(2)->plotLayout()->insertColumn(1);
+            plots.at(2)->axisRect()->setOuterRect(plotRect);
+
+            plots.at(3)->plotLayout()->insertRow(0);
+            plots.at(3)->plotLayout()->insertRow(2);
+            plots.at(3)->plotLayout()->insertColumn(0);
+            plots.at(3)->axisRect()->setOuterRect(plotRect);
+
+            plotRect.setWidth(printer.width());
+            plots.at(4)->plotLayout()->insertRow(0);
+            plots.at(4)->plotLayout()->insertRow(0);
+            plots.at(4)->axisRect()->setOuterRect(plotRect);
+            break;
+        }
+        case 6:
+        {
+            QRect plotRect(0,0,printer.width()/2,printer.height()/3);
+
+            plots.at(0)->plotLayout()->insertRow(1);
+            plots.at(0)->plotLayout()->insertRow(1);
+            plots.at(0)->plotLayout()->insertColumn(1);
+            plots.at(0)->axisRect()->setOuterRect(plotRect);
+
+            plots.at(1)->plotLayout()->insertRow(1);
+            plots.at(1)->plotLayout()->insertRow(1);
+            plots.at(1)->plotLayout()->insertColumn(0);
+            plots.at(1)->axisRect()->setOuterRect(plotRect);
+
+            plots.at(2)->plotLayout()->insertRow(0);
+            plots.at(2)->plotLayout()->insertRow(2);
+            plots.at(2)->plotLayout()->insertColumn(1);
+            plots.at(2)->axisRect()->setOuterRect(plotRect);
+
+            plots.at(3)->plotLayout()->insertRow(0);
+            plots.at(3)->plotLayout()->insertRow(2);
+            plots.at(3)->plotLayout()->insertColumn(0);
+            plots.at(3)->axisRect()->setOuterRect(plotRect);
+
+            plots.at(4)->plotLayout()->insertRow(0);
+            plots.at(4)->plotLayout()->insertRow(0);
+            plots.at(4)->plotLayout()->insertColumn(1);
+            plots.at(4)->axisRect()->setOuterRect(plotRect);
+
+            plots.at(5)->plotLayout()->insertRow(0);
+            plots.at(5)->plotLayout()->insertRow(0);
+            plots.at(5)->plotLayout()->insertColumn(0);
+            plots.at(5)->axisRect()->setOuterRect(plotRect);
+            break;
+        }
+        case 7:
+        {
+            QRect plotRect(0,0,printer.width()/2,printer.height()/4);
+
+            plots.at(0)->plotLayout()->insertRow(1);
+            plots.at(0)->plotLayout()->insertRow(1);
+            plots.at(0)->plotLayout()->insertRow(1);
+            plots.at(0)->plotLayout()->insertColumn(1);
+            plots.at(0)->axisRect()->setOuterRect(plotRect);
+
+            plots.at(1)->plotLayout()->insertRow(1);
+            plots.at(1)->plotLayout()->insertRow(1);
+            plots.at(1)->plotLayout()->insertRow(1);
+            plots.at(1)->plotLayout()->insertColumn(0);
+            plots.at(1)->axisRect()->setOuterRect(plotRect);
+
+            plots.at(2)->plotLayout()->insertRow(0);
+            plots.at(2)->plotLayout()->insertRow(2);
+            plots.at(2)->plotLayout()->insertRow(2);
+            plots.at(2)->plotLayout()->insertColumn(1);
+            plots.at(2)->axisRect()->setOuterRect(plotRect);
+
+            plots.at(3)->plotLayout()->insertRow(0);
+            plots.at(3)->plotLayout()->insertRow(2);
+            plots.at(3)->plotLayout()->insertRow(2);
+            plots.at(3)->plotLayout()->insertColumn(0);
+            plots.at(3)->axisRect()->setOuterRect(plotRect);
+
+            plots.at(4)->plotLayout()->insertRow(0);
+            plots.at(4)->plotLayout()->insertRow(0);
+            plots.at(4)->plotLayout()->insertRow(3);
+            plots.at(4)->plotLayout()->insertColumn(1);
+            plots.at(4)->axisRect()->setOuterRect(plotRect);
+
+            plots.at(5)->plotLayout()->insertRow(0);
+            plots.at(5)->plotLayout()->insertRow(0);
+            plots.at(5)->plotLayout()->insertRow(3);
+            plots.at(5)->plotLayout()->insertColumn(0);
+            plots.at(5)->axisRect()->setOuterRect(plotRect);
+
+            plotRect.setWidth(printer.width());
+            plots.at(6)->plotLayout()->insertRow(0);
+            plots.at(6)->plotLayout()->insertRow(0);
+            plots.at(6)->plotLayout()->insertRow(0);
+            plots.at(6)->axisRect()->setOuterRect(plotRect);
+            break;
+        }
+        default:
+        {
+        }
+        }
+
+        // Draw then restore plot layout
+        int plotId = 0 ;
+        foreach (Plot* plot, plots ) {
+            plot->drawMe(&printpainter);
+            plot->setViewport(origPlotViewports.at(plotId));
+            plot->plotLayout()->simplify();  // get rid of empty cells
+            plotId++;
+        }
+
+        // Insert new page in pdf booklet
+        if ( pageId < _pages.size()-1 ) {
+            printer.newPage();
+        }
+    }
+
+    printpainter.end();
+
+    return true;
 }
 
 QModelIndex PlotBookView::moveCursor(QAbstractItemView::CursorAction cursorAction,

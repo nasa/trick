@@ -27,7 +27,7 @@ public:
     virtual void setSelectionModel(QItemSelectionModel* selectionModel);
     QModelIndex currentPageIndex();
     void setCurrentPage(int pageId);
-    void savePdf(const QString& fileName);
+    bool savePdf(const QString& fileName);
 
 protected:
     virtual QModelIndex moveCursor(CursorAction cursorAction,
@@ -98,6 +98,7 @@ private:
 
     QString _appendUnitToAxisLabel(const QModelIndex axisLabelIdx,
                                  const QString &unit ) const;
+
 };
 
 #endif // PLOTBOOKVIEW_H

@@ -205,7 +205,7 @@ void MonteWindow::createMenu()
 {
     _menuBar = new QMenuBar;
     _fileMenu = new QMenu(tr("&File"), this);
-    _pdfAction = _fileMenu->addAction(tr("P&DF"));
+    _pdfAction = _fileMenu->addAction(tr("Save As P&DF"));
     _exitAction = _fileMenu->addAction(tr("E&xit"));
     _menuBar->addMenu(_fileMenu);
     connect(_pdfAction, SIGNAL(triggered()),this, SLOT(_savePdf()));
@@ -751,10 +751,8 @@ QString MonteWindow::_descrPlotTitle(DPPlot *plot)
 
 void MonteWindow::_savePdf()
 {
-    qDebug() << "Implement me! MonteWindow::_savePdf!" ;
-
     QString fname = QFileDialog::getSaveFileName(this,
-                                                 QString("PDF"),
+                                                 QString("Save As PDF"),
                                                  QString(""),
                                                  tr("files (*.pdf)"));
 
