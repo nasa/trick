@@ -3,8 +3,8 @@
 
 MonteModel::MonteModel(Monte* monte,
                        QObject *parent):
-    _monte(monte),
-    QAbstractItemModel(parent)
+    QAbstractItemModel(parent),
+    _monte(monte)
 {
     _params = _monte->params();
     int col = 0 ;

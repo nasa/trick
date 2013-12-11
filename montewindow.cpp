@@ -15,9 +15,12 @@
 #include <QFileSystemModel>
 #include <QTreeView>
 
-MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
+MonteWindow::MonteWindow(const QString &montedir,
+                         int beginRun, int endRun, QWidget *parent) :
     QMainWindow(parent),
     _montedir(montedir),
+    _beginRun(beginRun),
+    _endRun(endRun),
     _currQPIdx(0),
     _isSkip(false)
 {
@@ -38,7 +41,7 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     //
     _plotModel = new QStandardItemModel(0,1,parent);
     _plotSelectModel = new QItemSelectionModel(_plotModel);
-    _monte = new Monte(_montedir);
+    _monte = new Monte(_montedir,_beginRun,_endRun);
     _monteModel = new MonteModel(_monte);
     _monteInputsModel = _monte->inputModel();
 
@@ -163,6 +166,7 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     _monteInputsView->setSelectionBehavior(QAbstractItemView::SelectRows);
     _monteInputsView->setFocusPolicy(Qt::ClickFocus);
     _monteInputsView->setTabKeyNavigation(false);
+    _monteInputsView->verticalHeader()->hide();
     connect(_monteInputsSelectModel,
             SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this,

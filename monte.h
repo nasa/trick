@@ -17,17 +17,20 @@
 class Monte
 {
   public:
-    Monte(const QString &dirname=QString());
+    Monte(const QString &dirname, int beginRun=0, int endRun=1.0e6);
     ~Monte();
     bool setDir(const QString& montedir);
     QStringList params() const { return _params; }
-    QStringList runs() const { return _runs; }
+    QStringList runs() const { return _runsSubset; }
     QList<TrickModel*>* models(const QString& param);
     QStandardItemModel* inputModel();   // rows:monteinputvars cols:values
 
   private:
     QString _montedir;
+    int _beginRun;
+    int _endRun;
     QStringList _runs;
+    QStringList _runsSubset; // subset bounds are [_beginRun,_endRun]
     QMap<QString,QString> _param2ftrk;
     QStringList _params;
     QHash<QString,QList<TrickModel*>* > _ftrk2models;

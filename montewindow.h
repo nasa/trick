@@ -35,11 +35,15 @@ class MonteWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MonteWindow(const QString& montedir, QWidget *parent = 0);
+    explicit MonteWindow(const QString& montedir,
+                         int beginRun, int endRun,
+                         QWidget *parent = 0);
     ~MonteWindow();
 
 private:
     QString _montedir;
+    int _beginRun;
+    int _endRun;
     Monte* _monte;
     QGridLayout* _layout;
     QGridLayout* _left_lay ;

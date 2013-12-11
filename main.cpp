@@ -31,10 +31,14 @@ using namespace std;
 
 #ifdef MONTECARLO
 Options::func_presetCB_DougString preset_montedir;
+Options::func_presetCB_uint preset_beginRun;
+Options::func_presetCB_uint preset_endRun;
 class SnapOptions : public Options
 {
   public:
     DougString montedir;
+    unsigned int beginRun;
+    unsigned int endRun;
 };
 #else
 Options::func_presetCB_double preset_start;
@@ -66,6 +70,12 @@ int main(int argc, char *argv[])
     opts.add(&opts.montedir,"<MONTE_dir>", "",
              "MONTE_directory with RUNs",
              preset_montedir);
+    opts.add(&opts.beginRun,"-beginRun",0,
+             "begin run (inclusive) in set of RUNs to plot",
+             preset_beginRun);
+    opts.add(&opts.endRun,"-endRun",100000,
+             "end run (inclusive) in set of RUNs to plot",
+             preset_endRun);
 #else
     opts.add(&opts.start,"-start",1.0, "start time of run analysis",
              preset_start);
@@ -92,7 +102,7 @@ int main(int argc, char *argv[])
         QApplication a(argc, argv);
 #ifdef MONTECARLO
         QString montedir(opts.montedir.get().c_str());
-        MonteWindow* w = new MonteWindow(montedir);
+        MonteWindow* w = new MonteWindow(montedir,opts.beginRun,opts.endRun);
 #else
         SnapWindow* w = new SnapWindow(rundir,opts.start,opts.stop);
 #endif
@@ -128,6 +138,46 @@ void preset_montedir(DougString* curr_montedir,const char* new_montedir,int* cok
                        montedir.toAscii().constData());
         *cok = (int)false;
         return;
+    }
+}
+
+void preset_beginRun(uint* beginRunId, const char* sval, int* cok)
+{
+    *cok = (int) true;
+
+    bool ok;
+    uint runId;
+    Options::str_to_uint(sval, &runId, &ok);
+
+    if ( ok ) {
+        // Start time should be less than stop time
+        if ( runId > opts.endRun ) {
+            fprintf(stderr,"snap [error] : option -beginRun, set to %d, "
+                    "must be greater than "
+                    " -endRun which is set to %d\n",
+                    runId, opts.endRun);
+            *cok = false;
+        }
+    }
+}
+
+void preset_endRun(uint* endRunId, const char* sval, int* cok)
+{
+    *cok = (int) true;
+
+    bool ok;
+    uint runId;
+    Options::str_to_uint(sval, &runId, &ok);
+
+    if ( ok ) {
+        // Start time should be less than stop time
+        if ( runId < opts.beginRun ) {
+            fprintf(stderr,"snap [error] : option -endRun, set to %d, "
+                    "must be greater than "
+                    "-beginRun which is set to %d\n",
+                    runId,opts.beginRun);
+            *cok = false;
+        }
     }
 }
 #else
