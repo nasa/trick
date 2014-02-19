@@ -5,7 +5,6 @@
 #include <QDataStream>
 #include "snaptable.h"
 #include "trickmodel.h"
-#include "trick_types.h"
 
 class TrickCurveModel;
 
