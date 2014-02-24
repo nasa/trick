@@ -2,5 +2,11 @@ Build/Run Directions
 
 % qmake snap.pro ; # I used /usr/lib64/qt4/bin/qmake
 % make
-% ls
-% ./snap  ; # for usage
+% ls bin/*
+% ls lib/* 
+% setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:<mypath>/snap/lib
+% bin/monte 
+    or
+% bin/snap 
+    or
+% bin/snapx

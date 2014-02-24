@@ -1,6 +1,14 @@
 snap.pro.user
 snap.pro.user.1.3
+snapx/snapx.pro.user
+libsnaprt/libsnaprt.pro.user
+monte/monte.pro.user
 Makefile
-build_*
+build
 snap
 test/runs/*
+bin/*
+lib/libopts*
+lib/libqplot*
+lib/libsnapdata.so*
+lib/libsnaprt.so*
