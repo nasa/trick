@@ -43,4 +43,4 @@ OTHER_FILES +=
 INCLUDEPATH += $$PWD/..
 DEPENDPATH += $$PWD/../libsnapdata
 
-unix:!macx:!symbian: LIBS += -L$$OUT_PWD/../lib -lsnapdata -lopts -lqplot
+unix:!macx:!symbian: LIBS += -L$$PWD/../lib -lsnapdata -lopts -lqplot
