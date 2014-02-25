@@ -15,13 +15,14 @@
 #include <QEasingCurve>
 #include <QThread>
 
-#include "boundedtrickbinaryriver.h"
 #include "job.h"
 #include "thread.h"
 #include "simobject.h"
 #include "frame.h"
 #include "utils.h"
 #include "libsnapdata/snaptable.h"
+#include "libsnapdata/trickmodel.h"
+#include "libsnapdata/trickcurvemodel.h"
 
 #define TXT(X) X.toAscii().constData()
 
@@ -53,7 +54,7 @@ public:
 
     double start() const {
         if ( _river_frame->getNumPoints() > 0 ) {
-            return  _river_frame->getTimeStamps()[0];
+            return _modelFrame->startTime();
         } else {
             return _start;
         }
@@ -61,8 +62,7 @@ public:
 
     double stop() const  {
         if ( _river_frame->getNumPoints() > 0 ) {
-            return _river_frame->getTimeStamps()
-                                 [_river_frame->getNumPoints()-1];
+            return _modelFrame->stopTime();
         } else {
             return _stop;
         }
@@ -119,13 +119,19 @@ private:
     BoundedTrickBinaryRiver* _create_river(const QString& rundir,
                                           const QString& logfilename,
                                           double start, double stop);
+    TrickModel* _createModel(const QString& rundir,
+                             const QString& logfilename,
+                             double start, double stop);
     void _process_rivers();
     bool _parse_s_job_execution(const QString& rundir);
     bool _process_job_river( BoundedTrickBinaryRiver *river );
-    QList<Frame> _process_frame_river(BoundedTrickBinaryRiver *river);
+    //bool _process_job_river( TrickModel* model);
+    QList<Frame> _process_frame_river(TrickModel* model);
 
     BoundedTrickBinaryRiver* _river_userjobs;
+    TrickModel* _modelUserJobs;
     BoundedTrickBinaryRiver* _river_frame;
+    TrickModel* _modelFrame;
     BoundedTrickBinaryRiver* _river_trickjobs;
 
     QList<Frame>  _frames;

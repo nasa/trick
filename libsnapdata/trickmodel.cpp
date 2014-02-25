@@ -3,10 +3,13 @@
 #include <stdexcept>
 
 TrickModel::TrickModel(const QString& trkfile,
-                     const QString& tableName, QObject *parent) :
+                      const QString& tableName,
+                      double startTime, double stopTime, QObject *parent) :
     SnapTable(tableName,parent),
     _trkfile(trkfile),
     _tableName(tableName),
+    _startTime(startTime),
+    _stopTime(stopTime),
     _nrows(0), _row_size(0), _ncols(0), _pos_beg_data(0),
     _mem(0), _data(0), _fd(-1),
     _err_stream(&_err_string)
@@ -36,9 +39,14 @@ bool TrickModel::_load_trick_header()
     in.readRawData(data,2); // version
     if ( data[0] == '1' && data[1] == '0' ) {
         _trick_version = TrickVersion10;
-    } else {
+    } else if ( data[0] == '0' && data[1] == '7' ) {
         _trick_version = TrickVersion07;
+    } else {
+        _err_stream << "snap [error]: unrecognized file or Trick version: "
+                    << _trkfile << "\n";
+        throw std::runtime_error(_err_string.toAscii().constData());
     }
+
     in.readRawData(data,1) ; // -
     in.readRawData(data,1) ; // L or B (endian)
     if ( data[0] == 'L' ) {
@@ -68,21 +76,54 @@ bool TrickModel::_load_trick_header()
         _paramtypes.push_back(paramtype);
     }
 
-    // Save address of start location of data in _data
-    // It will be mapped to _data address in map()
-    _pos_beg_data = file.pos();
-
     // Sanity check.  The bytes remaining should be a multiple of the record size
     qint64 nbytes = file.bytesAvailable();
     if ( nbytes % _row_size != 0 ) {
-        // TODO: throw runtime exception
-        fprintf(stderr,"snap [error]: trk file %s is corrupt!\n",
-                file.fileName().toAscii().constData());
-        exit(-1);
+        _err_stream << "snap [error]: trk file \""
+                    << file.fileName() << "\" is corrupt!\n";
+        throw std::runtime_error(_err_string.toAscii().constData());
     }
 
-    // Calc number of data records in trk file
+    int maxRows = nbytes/_row_size;
+
+    // Sanity check.  First column must be sys.exec.out.time
+    int timeCol = 0 ;
+    QString timeName = headerData(timeCol,Qt::Horizontal).toString();
+    if ( timeName != "sys.exec.out.time" ) {
+        _err_stream << "snap [error]: first element in trk file "
+                    << "was not sys.exec.out.time.  Aborting.\n";
+        throw std::runtime_error(_err_string.toAscii().constData());
+    }
+
+    // Save address of begin location of data for map()
+    // Also, calc number of rows (timestamped records between start & stop time)
+    _pos_beg_data = file.pos();
     _nrows = nbytes/(qint64)_row_size;
+    if  (_startTime != 0.0 || _stopTime != 1.0e20 ) {
+        bool isStart = false;
+        double inputStopTime = _stopTime;
+        _nrows = 0 ;
+        for ( int i = 0 ; i < maxRows ; ++i ) {
+            double timeStamp;
+            in >> timeStamp;
+            in.skipRawData(_row_size-sizeof(double));
+            if ( !isStart && timeStamp >= _startTime-1.0e-9 ) {
+                _pos_beg_data = file.pos()-_row_size;
+                _startTime = timeStamp;
+                isStart = true;
+            }
+            if ( isStart && timeStamp <= inputStopTime+1.0e-9 ) {
+                _nrows++;
+                _stopTime = timeStamp;
+            } else if ( timeStamp > _stopTime ) {
+                if ( isStart && _nrows == 0 ) {
+                    _stopTime = timeStamp;
+                    _nrows++; // odd case!
+                }
+                break;
+            }
+        }
+    }
 
     file.close();
 

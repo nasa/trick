@@ -44,8 +44,13 @@ class TrickModel : public SnapTable
 
     explicit TrickModel(const QString &trkfile,
                        const QString &tableName=QString(),
+                        double startTime=0.0,
+                        double stopTime=1.0e20,
                        QObject *parent = 0);
     ~TrickModel();
+
+    double startTime() { return _startTime; }
+    double stopTime() { return _stopTime; }
 
     void map();
     void unmap();
@@ -85,18 +90,20 @@ class TrickModel : public SnapTable
 
     QString _trkfile;
     QString _tableName;
+    double _startTime;
+    double _stopTime;
 
     TrickVersion _trick_version;
     enum Endianness _endianess;
     vector<int> _paramtypes;
     QHash<QString,int> _param2column;
 
-    int _nrows;
-    int _row_size;
+    qint64 _nrows;
+    qint64 _row_size;
     qint32 _ncols;
     QHash<int,qint64> _col2offset;
 
-    int _pos_beg_data;
+    qint64 _pos_beg_data;
     char* _mem;
     char* _data;
     int _fd;

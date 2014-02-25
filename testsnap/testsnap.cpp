@@ -1091,8 +1091,7 @@ void TestSnap::thread1()
 //
 void TestSnap::run_rm2000()
 {
-    QCOMPARE(1,1);
-    return;
+    //QCOMPARE(1,1); return;
     QString rundir = testRunsDir() + "/RUN_rm2000";
     Snap snap(rundir);
     SnapReport rpt(snap);
@@ -1121,12 +1120,13 @@ void TestSnap::run_rm2000()
 
 void TestSnap::benchmark_rm2000()
 {
-    QCOMPARE(1,1); return;
+    //QCOMPARE(1,1); return;
     QBENCHMARK_ONCE {
         QString rundir = testRunsDir() + "/RUN_rm2000";
         Snap snap(rundir);
     }
 }
+
 
 // TODO
 void TestSnap::job_freq()

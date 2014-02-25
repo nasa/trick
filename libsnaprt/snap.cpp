@@ -26,7 +26,8 @@ Snap::Snap(const QString &irundir, double istart, double istop,
     _err_stream(&_err_string),
     _rundir(irundir), _start(istart),_stop(istop), _is_realtime(false),
     _frame_avg(0.0),_frame_stddev(0),_curr_sort_method(NoSort),
-    _river_userjobs(0), _river_frame(0), _river_trickjobs(0),
+    _river_userjobs(0), _modelUserJobs(0), _river_frame(0),
+    _modelFrame(0),_river_trickjobs(0),
     _num_overruns(0), _threads(0),_simobjects(0),_progress(0)
 {
 
@@ -79,7 +80,9 @@ Snap::~Snap()
     }
 
     if (_river_userjobs ) delete _river_userjobs;
+    if (_modelUserJobs ) delete _modelUserJobs;
     if (_river_frame ) delete _river_frame;
+    if (_modelFrame ) delete _modelFrame;
     if (_river_trickjobs ) delete _river_trickjobs;
 
     if ( _threads ) delete _threads;
@@ -455,22 +458,82 @@ BoundedTrickBinaryRiver *Snap::_create_river(const QString &rundir,
     return river;
 }
 
+TrickModel *Snap::_createModel(const QString &rundir,
+                               const QString &logfilename,
+                               double start, double stop)
+{
+    TrickModel* model;
+
+    QDir dir(rundir);
+    if ( ! dir.exists() ) {
+        _err_stream << "snap [error]: couldn't find run directory: "
+                    << rundir << "\n";
+        throw std::invalid_argument(_err_string.toAscii().constData());
+    }
+
+    QString trk = rundir + QString("/") + logfilename;
+    QFile file(trk);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        _err_stream << "snap [error]: couldn't read file: " << trk << "\n";
+        throw std::invalid_argument(_err_string.toAscii().constData());
+    } else {
+        file.close();
+    }
+
+    //
+    // If trk file is less than 1000 bytes, it can't be legit
+    //
+    if ( file.size() < 1000 ) {
+        _err_stream << "snap [error]: "
+                    << "suspicious filesize of "
+                    << file.size()
+                    << " for file \""
+                    << trk
+                    << "\""
+                    << "  - bailing like Rob Bailey!!!";
+        throw std::invalid_argument(_err_string.toAscii().constData());
+    }
+
+    try {
+        model = new TrickModel(trk.toAscii().data(),
+                               trk,start,stop);
+    }
+    catch (std::range_error &e) {
+        _err_stream << e.what();
+        _err_stream << "snap [error]: -start or -stop options have bad vals\n";
+        throw std::range_error(_err_string.toAscii().constData());
+    }
+
+
+    return model;
+}
+
 void Snap::_process_rivers()
 {
     _river_trickjobs = _create_river(_rundir,
                                    QString("log_trickjobs.trk"),
                                    _start, _stop);
+
+
     _river_userjobs = _create_river(_rundir,
                                    QString("log_userjobs.trk"),
                                    _start, _stop);
+
+    _modelUserJobs = _createModel(_rundir,
+                                   QString("log_userjobs.trk"),
+                                   _start, _stop);
+
     _river_frame = _create_river(_rundir,
                                    QString("log_frame.trk"),
                                    _start, _stop);
+    _modelFrame = _createModel(_rundir,
+                               QString("log_frame.trk"),
+                               _start, _stop);
 
     _process_job_river(_river_trickjobs);
     _process_job_river(_river_userjobs);
 
-    _frames = _process_frame_river(_river_frame);
+    _frames = _process_frame_river(_modelFrame);
 }
 
 
@@ -653,77 +716,87 @@ bool Snap::_process_job_river( BoundedTrickBinaryRiver* river )
     return ret;
 }
 
-QList<Frame> Snap::_process_frame_river(BoundedTrickBinaryRiver* river)
+// Future
+#if 0
+bool Snap::_process_job_river(TrickModel* model )
+{
+    bool ret = true;
+
+    int nParams = model->columnCount();
+    for ( int i = 1 ; i < nParams; ++i ) {
+        QString param = model->headerData(i,Qt::Horizontal).toString();
+        Job* job = new Job(param,model);
+        QString job_id = job->log_name();
+        _id_to_job[job_id] = job;
+        _jobs.append(job);
+    }
+
+    return ret;
+}
+#endif
+
+QList<Frame> Snap::_process_frame_river(TrickModel* model)
 {
     QList<Frame> frames;
 
     _is_realtime = false;
 
-    int npoints = river->getNumPoints();
+    int npoints = model->rowCount();
     if ( npoints == 0 ) {
-        _err_stream << "snap [error]: file \"" << river->getFileName()
+        _err_stream << "snap [error]: file \"" << model->tableName()
                     << "\" has no points";
         throw std::invalid_argument(_err_string.toAscii().constData());
     }
 
-    std::vector<LOG_PARAM> params = river->getParamList();
+    int frameTimeCol = -1;
+    int overrunTimeCol = -1;
+    int nParams = model->columnCount();
+    for ( int i = 0 ; i < nParams; ++i ) {
 
-    double* timestamps = river->getTimeStamps();
-    double* frame_times = 0 ;
-    double* overrun_times = 0 ;
-    int cnt = 0 ;
-    for ( unsigned int ii = 1 ; ii < params.size(); ++ii ) {
+        QString param = model->headerData(i,Qt::Horizontal).toString();
 
-        LOG_PARAM param = params.at(ii);
-
-        QString qparam(param.data.name.c_str());
-
-        if ( qparam ==  Frame::frame_time_name ) {
-            frame_times = river->getVals(const_cast<char*>
-                                             (param.data.name.c_str()));
-            cnt++;
-        } else if ( qparam == Frame::overrun_time_name ) {
-            overrun_times = river->getVals(const_cast<char*>
-                                             (param.data.name.c_str()));
-            cnt++;
+        if ( param ==  Frame::frame_time_name ) {
+            frameTimeCol = i;
+        } else if ( param == Frame::overrun_time_name ) {
+            overrunTimeCol = i;
         }
-        if ( cnt == 2 ) {
+        if ( frameTimeCol > 0 && overrunTimeCol > 0 ) {
             break;
         }
     }
-    if ( frame_times == 0 || overrun_times == 0 ) {
-        QString param  = ( frame_times == 0 ) ?
+    if ( frameTimeCol < 0 || overrunTimeCol < 0 ) {
+        QString param  = ( frameTimeCol  < 0 ) ?
                         Frame::frame_time_name : Frame::overrun_time_name ;
         // Shouldn't happen unless trick renames that param
         _err_stream << "snap [error]: Couldn't find parameter "
                 << param
-                << "in file \""
-                << river->getFileName()
+                << " in file \""
+                << model->tableName()
                 << "\"";
         throw std::invalid_argument(_err_string.toAscii().constData());
     }
 
+    TrickModelIterator it = model->begin(0,frameTimeCol,overrunTimeCol);
+    const TrickModelIterator e = model->end(0,frameTimeCol,overrunTimeCol);
     _num_overruns = 0;
-    for ( int tidx = 0 ; tidx < npoints ; ++tidx ) {
-        Frame frame(&_jobs,tidx,timestamps[tidx],
-                    frame_times[tidx]/1000000.0,
-                    overrun_times[tidx]/1000000.0);
-
+    int tidx = 0 ;
+    while (it != e) {
+        Frame frame(&_jobs,tidx,it.t(), it.x()/1000000.0, it.y()/1000000.0);
         if ( frame.overrun_time() > 0.0 ) {
             _num_overruns++;
         }
-        if ( !_is_realtime && frame_times[tidx] != 0 ) {
+        if ( !_is_realtime && it.x() != 0 ) {
             _is_realtime = true;
         }
-
         frames.append(frame);
+        ++it;
+        ++tidx;
     }
 
     qSort(frames.begin(), frames.end(), frameTimeGreaterThan);
 
     return frames;
 }
-
 
 SnapReport::SnapReport(Snap &snap) : _snap(snap)
 {
