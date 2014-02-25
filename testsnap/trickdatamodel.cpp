@@ -18,7 +18,10 @@ TrickDataModel::TrickDataModel(TrickVersion version,
 TrickDataModel::~TrickDataModel()
 {
     for ( _idata =_data.begin(); _idata !=_data.end(); ++_idata) {
-        delete (*_idata);
+        if ( *_idata ) {
+            delete (*_idata);
+            *_idata = 0 ;
+        }
     }
     foreach ( Param* param, _params ) {
         delete param;

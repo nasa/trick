@@ -11,7 +11,10 @@ SnapTable::SnapTable(const QString& tableName, QObject *parent) :
 SnapTable::~SnapTable()
 {
     for ( _idata =_data.begin(); _idata !=_data.end(); ++_idata) {
-        delete (*_idata);
+        if ( *_idata ) {
+            delete (*_idata);
+            *_idata = 0 ;
+        }
     }
     foreach ( QVariant* var, _col_headers ) { delete var; }
     foreach ( QVariant* var, _row_headers ) { delete var; }
