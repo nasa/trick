@@ -17,7 +17,6 @@ SOURCES += \
     simobject.cpp  \
     thread.cpp  \
     job.cpp  \
-    boundedtrickbinaryriver.cpp  \
     frame.cpp  \
     snap.cpp \
     utils.cpp
@@ -25,7 +24,6 @@ SOURCES += \
 
 HEADERS += \
     job.h  \
-    boundedtrickbinaryriver.h  \
     simobject.h  \
     snap.h  \
     thread.h  \
@@ -44,4 +42,4 @@ unix:!symbian {
 INCLUDEPATH += $$PWD/..
 DEPENDPATH += $$PWD/../libsnapdata
 
-unix:!macx:!symbian: LIBS += -L$$PWD/../lib -lriver -ltvs -lutils -lsnapdata
+unix:!macx:!symbian: LIBS += -L$$PWD/../lib -lsnapdata

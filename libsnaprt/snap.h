@@ -120,10 +120,10 @@ private:
     TrickModel* _createModel(const QString& rundir,
                              const QString& logfilename,
                              double start, double stop);
-    void _process_rivers();
+    void _process_models();
     bool _parse_s_job_execution(const QString& rundir);
-    QList<Frame> _process_frame_river(TrickModel* model);
-    bool _process_job_river(TrickModel* model);
+    QList<Frame> _process_frames(TrickModel* model);
+    bool _process_jobs(TrickModel* model);
 
     TrickModel* _modelTrickJobs;
     TrickModel* _modelUserJobs;

@@ -53,7 +53,7 @@ void Snap::load()
 
 void Snap::_load()
 {
-    _process_rivers();        // _jobs list and _frames created
+    _process_models();        // _jobs list and _frames created
     qSort(_jobs.begin(), _jobs.end(), jobAvgTimeGreaterThan);
 
     _curr_sort_method = SortByJobAvgTime;
@@ -466,7 +466,7 @@ TrickModel *Snap::_createModel(const QString &rundir,
     return model;
 }
 
-void Snap::_process_rivers()
+void Snap::_process_models()
 {
     _modelTrickJobs = _createModel(_rundir,
                                    QString("log_trickjobs.trk"),
@@ -480,10 +480,10 @@ void Snap::_process_rivers()
                                QString("log_frame.trk"),
                                _start, _stop);
 
-    _process_job_river(_modelTrickJobs);
-    _process_job_river(_modelUserJobs);
+    _process_jobs(_modelTrickJobs);
+    _process_jobs(_modelUserJobs);
 
-    _frames = _process_frame_river(_modelFrame);
+    _frames = _process_frames(_modelFrame);
 }
 
 
@@ -650,7 +650,7 @@ void Snap::_calc_frame_stddev()
     _frame_stddev = sqrt(sum/_frames.length()) ;
 }
 
-bool Snap::_process_job_river(TrickModel* model )
+bool Snap::_process_jobs(TrickModel* model )
 {
     bool ret = true;
 
@@ -668,7 +668,7 @@ bool Snap::_process_job_river(TrickModel* model )
     return ret;
 }
 
-QList<Frame> Snap::_process_frame_river(TrickModel* model)
+QList<Frame> Snap::_process_frames(TrickModel* model)
 {
     QList<Frame> frames;
 

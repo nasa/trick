@@ -28,7 +28,7 @@ OTHER_FILES +=
 
 
 INCLUDEPATH += $$PWD/..
+DEPENDPATH += $$PWD/../libsnaprt
 DEPENDPATH += $$PWD/../libsnapdata
 
 unix:!macx:!symbian: LIBS += -L$$PWD/../lib  -lopts -lsnaprt -lsnapdata
-unix:!macx:!symbian: LIBS += -L$$PWD/../lib -lriver -ltvs -lutils 
