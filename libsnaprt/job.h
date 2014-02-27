@@ -2,8 +2,7 @@
 #define JOB_H
 
 #include <QString>
-
-#include "boundedtrickbinaryriver.h"
+#include "libsnapdata/trickcurvemodel.h"
 
 class Job;
 
@@ -15,7 +14,8 @@ class Job
   public:
     // job_id is logged job name
     // e.g. JOB_bus.SimBus##read_ObcsRouter_C1.1828.00(read_simbus_0.100)
-    Job(const char *job_id, BoundedTrickBinaryRiver* river=0);
+    Job(TrickCurveModel* curve);
+    Job(const QString& jobId);
 
     QString log_name() const; // trick binary logged jobname
     QString job_num() const { return _job_num; }
@@ -30,16 +30,16 @@ class Job
     double max_timestamp();
     double stddev_runtime(); // TODO: make unit test
 
-    inline double* runtime() const { return _runtime; }
-    inline double* timestamps() const { return _timestamps; }
+    inline TrickCurveModel* curve() const { return _curve; }
     inline int npoints() const { return _npoints; }
 
-  private:
+private:
     Job() {}
 
+    void _parseJobId(const QString& jobId);
+
+    TrickCurveModel* _curve;
     int _npoints;
-    double* _timestamps;
-    double* _runtime;
 
     QString _log_name;
     QString _job_name;

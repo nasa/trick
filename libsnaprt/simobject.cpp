@@ -21,9 +21,13 @@ void SimObject::_do_stats()
 
     int npoints = _jobs.at(0)->npoints();
     double sum_time = 0.0;
-    for ( int tidx = 0; tidx < npoints; ++tidx) {
-        foreach ( Job* job, _jobs ) {
-            sum_time += job->runtime()[tidx];
+    foreach ( Job* job, _jobs ) {
+        TrickCurveModel* curve = job->curve();
+        TrickModelIterator it = curve->begin();
+        const TrickModelIterator e = curve->end();
+        while (it != e) {
+            sum_time += it.x();
+            ++it;
         }
     }
 

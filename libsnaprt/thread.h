@@ -4,6 +4,7 @@
 #include "job.h"
 #include "frame.h"
 #include "utils.h"
+#include <stdexcept>
 
 class Thread
 {

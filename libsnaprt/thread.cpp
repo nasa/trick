@@ -52,19 +52,23 @@ void Thread::_do_stats()
     }
 
     Job* job0 = jobs.at(0);
-    int npoints = job0->npoints();
-    double* t = job0->timestamps();
-    double tnext = t[0] + freq;
+    TrickCurveModel* curve = job0->curve();
+    TrickModelIterator it = curve->begin();
+    const TrickModelIterator e = curve->end();
+    double tnext = it.t() + freq;
     double sum_time = 0.0;
     double frame_time = 0.0;
     max_runtime = 0.0;
     int last_frameidx = 0 ;
     bool is_frame_change = true;
-    for ( int tidx = 0; tidx < npoints; ++tidx) {
+    int tidx = 0 ;
+    TrickModelIterator it2;
+
+    while (it != e) {
 
         if ( freq < 0.000001 ) {
             is_frame_change = true;
-        } else if ( t[tidx]+1.0e-6 > tnext ) {
+        } else if ( it.t()+1.0e-6 > tnext ) {
             tnext += freq;
             if ( frame_time/1000000.0 > freq ) {
                 num_overruns++;
@@ -85,9 +89,14 @@ void Thread::_do_stats()
         }
 
         foreach ( Job* job, jobs ) {
-            frame_time += job->runtime()[tidx];
+            it2 = job->curve()->begin();
+            frame_time += it2[tidx].x();
         }
+
+        tidx++;
+        ++it;
     }
+
     max_runtime /= 1000000.0;
     avg_runtime = sum_time/(double)this->nframes()/1000000.0;
     if ( freq > 0.0000001 ) {
@@ -121,16 +130,10 @@ double Thread::runtime(int tidx) const
 
 double Thread::runtime(double timestamp) const
 {
-    int tidx = getIndexAtTime(jobs.at(0)->npoints(),
-                              jobs.at(0)->timestamps(),
-                              timestamp);
-
+    int tidx = jobs.at(0)->curve()->indexAtTime(timestamp);
     double rt = runtime(tidx);
     return rt;
 }
-
-
-
 
 int Thread::nframes() const
 {

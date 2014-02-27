@@ -43,10 +43,10 @@ inline void Job::_do_stats()
         _is_stats  = true;
     }
 
-    if ( _npoints == 0 || _timestamps == 0 || _runtime == 0 ) {
-        fprintf(stderr,"Job::_do_stats() called without setting:");
-        fprintf(stderr," npoints or timestamps or runtime");
-        fprintf(stderr," which come from TrickBinaryRiver\n");
+    if ( ! _curve ) {
+        // TODO: throw exception
+        fprintf(stderr,"snap [error]: Job::_do_stats() called without setting:");
+        fprintf(stderr," curve\n");
         exit(-1);
     }
 
@@ -56,9 +56,14 @@ inline void Job::_do_stats()
 
     long sum_rt = 0 ;
     long max_rt = 0 ;
-    for ( int tidx = 0 ; tidx < _npoints ; tidx++ ) {
-        double time = _timestamps[tidx];
-        long rt = (long)_runtime[tidx];
+    TrickModelIterator it = _curve->begin();
+    const TrickModelIterator e = _curve->end();
+    int tidx = 0;
+    while (it != e) {
+
+        double time = it.t();
+        long rt = (long)it.x();
+
         if ( time < 1.0 && rt > 2000000.0) {
             // Throw out bad points at start of sim
             continue;
@@ -80,7 +85,11 @@ inline void Job::_do_stats()
             max_rt = rt;
             _max_timestamp = time;
         }
+
         sum_rt += rt;
+
+        ++tidx;
+        ++it;
     }
 
     _avg_runtime = (sum_rt/_npoints)/1000000.0;
@@ -128,16 +137,19 @@ double Job::stddev_runtime()
         _is_stddev = true;
     }
 
+    TrickModelIterator it = _curve->begin();
+    const TrickModelIterator e = _curve->end();
     double sum_vv = 0.0;
-    for ( int tidx = 0 ; tidx < _npoints ; tidx++ ) {
-        double time = _timestamps[tidx];
-        double rt = _runtime[tidx];
+    while (it != e) {
+        double time = it.t();
+        double rt = it.x();
         if ( time < 1.0 && rt > 2000000.0) {
             // Throw out bad points at start of sim
             continue;
         }
         rt = rt/1000000.0;
         sum_vv += (rt-_avg_runtime)*(rt-_avg_runtime);
+        ++it;
     }
 
     _stddev_runtime = qSqrt(sum_vv/_npoints) ;
@@ -145,58 +157,39 @@ double Job::stddev_runtime()
     return _stddev_runtime;
 }
 
-double Job::freq()
+void Job::_parseJobId(const QString &jobId)
 {
-    if ( _timestamps ) {
-        _do_stats();
-    }
-    return _freq;
-}
+    QString name(jobId);
 
-// Parse long logname and set job members accordingly
-// An example logname:
-// JOB_schedbus.SimBus##read_ALDS15_ObcsRouter_C1.1828.00(read_simbus_0.100)
-Job::Job(const char* log_jobname, BoundedTrickBinaryRiver *river)  :
-     _npoints(0),_timestamps(0),_runtime(0),
-     _log_name(log_jobname),
-     _is_stats(false),_is_stddev(false)
-{
-    if ( river ) {
-        _npoints = river->getNumPoints();
-        _timestamps = river->getTimeStamps();
-        _runtime = river->getVals(log_jobname);
-    }
-
-    QString qname(log_jobname);
-    qname.replace("::","##");
-    qname.replace(QRegExp("^JOB_"),"");
-    int idx1 = qname.lastIndexOf (QChar('('));
-    int idx2 = qname.lastIndexOf (QChar(')'));
-    int idx3 = qname.lastIndexOf (QChar('_'));
-    if ( (idx3 > idx1) && qname.at(idx3+1).isDigit() ) {
+    name.replace("::","##");
+    name.replace(QRegExp("^JOB_"),"");
+    int idx1 = name.lastIndexOf (QChar('('));
+    int idx2 = name.lastIndexOf (QChar(')'));
+    int idx3 = name.lastIndexOf (QChar('_'));
+    if ( (idx3 > idx1) && name.at(idx3+1).isDigit() ) {
         // frequency specified e.g. (read_simbus_0.100)
-        _job_class = qname.mid(idx1+1,idx3-idx1-1);
-        _freq = qname.mid(idx3+1,idx2-idx3-1).toDouble();
+        _job_class = name.mid(idx1+1,idx3-idx1-1);
+        _freq = name.mid(idx3+1,idx2-idx3-1).toDouble();
     } else {
         // frequency not specified e.g. (derivative)
-        _job_class = qname.mid(idx1+1,idx2-idx1-1);
+        _job_class = name.mid(idx1+1,idx2-idx1-1);
         _freq = -1.0;
     }
 
     // e.g. 1828.00 from example name
-    int idx4 = qname.lastIndexOf(QChar('.'),idx1);
-    int idx5 = qname.lastIndexOf(QChar('.'),idx4-1);
-    _job_num = qname.mid(idx5+1,idx1-idx5-1);
+    int idx4 = name.lastIndexOf(QChar('.'),idx1);
+    int idx5 = name.lastIndexOf(QChar('.'),idx4-1);
+    _job_num = name.mid(idx5+1,idx1-idx5-1);
 
     // child/thread id
     _thread_id = 0 ;
     QString stid;
     int idx6;
     for ( idx6 = idx5-1 ; idx6 > 0 ; idx6-- ) {
-        if ( isdigit(qname.at(idx6).toAscii()) ) {
-            stid.prepend(qname.at(idx6));
+        if ( isdigit(name.at(idx6).toAscii()) ) {
+            stid.prepend(name.at(idx6));
         } else {
-            if ( qname.at(idx6) == 'C' && qname.at(idx6-1) == '_' ) {
+            if ( name.at(idx6) == 'C' && name.at(idx6-1) == '_' ) {
                 _thread_id = stid.toInt();
                 idx6--;
             } else {
@@ -206,7 +199,41 @@ Job::Job(const char* log_jobname, BoundedTrickBinaryRiver *river)  :
         }
     }
 
-    _job_name = qname.mid(0,idx6);
+    _job_name = name.mid(0,idx6);
+}
+
+double Job::freq()
+{
+    if ( _curve ) {
+        _do_stats();
+    }
+    return _freq;
+}
+
+// Parse long logname and set job members accordingly
+// An example logname:
+// JOB_schedbus.SimBus##read_ALDS15_ObcsRouter_C1.1828.00(read_simbus_0.100)
+
+Job::Job(TrickCurveModel* curve) :
+     _curve(curve),_npoints(0),
+     _is_stats(false),_is_stddev(false)
+{
+    if ( !curve ) {
+        return;
+    }
+
+    _npoints = curve->rowCount();
+    _log_name = curve->tableName();
+
+    _parseJobId(_log_name);
+}
+
+Job::Job(const QString &jobId) :
+     _curve(0),_npoints(0),
+     _log_name(jobId),
+     _is_stats(false),_is_stddev(false)
+{
+    _parseJobId(_log_name);
 }
 
 QString Job::log_name() const

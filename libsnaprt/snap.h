@@ -53,7 +53,7 @@ public:
     QString rundir() const { return _rundir ; }
 
     double start() const {
-        if ( _river_frame->getNumPoints() > 0 ) {
+        if ( _modelFrame->rowCount() > 0 ) {
             return _modelFrame->startTime();
         } else {
             return _start;
@@ -61,7 +61,7 @@ public:
     }
 
     double stop() const  {
-        if ( _river_frame->getNumPoints() > 0 ) {
+        if ( _modelFrame->rowCount() > 0 ) {
             return _modelFrame->stopTime();
         } else {
             return _stop;
@@ -112,27 +112,22 @@ private:
 
     SortBy _curr_sort_method;
     QList<Job*> _jobs;
+    QList<TrickCurveModel*> _curves;
     QString _job_logname(const Job* job) const;
     QMap<QString,Job*> _id_to_job;
 
 
-    BoundedTrickBinaryRiver* _create_river(const QString& rundir,
-                                          const QString& logfilename,
-                                          double start, double stop);
     TrickModel* _createModel(const QString& rundir,
                              const QString& logfilename,
                              double start, double stop);
     void _process_rivers();
     bool _parse_s_job_execution(const QString& rundir);
-    bool _process_job_river( BoundedTrickBinaryRiver *river );
-    //bool _process_job_river( TrickModel* model);
     QList<Frame> _process_frame_river(TrickModel* model);
+    bool _process_job_river(TrickModel* model);
 
-    BoundedTrickBinaryRiver* _river_userjobs;
+    TrickModel* _modelTrickJobs;
     TrickModel* _modelUserJobs;
-    BoundedTrickBinaryRiver* _river_frame;
     TrickModel* _modelFrame;
-    BoundedTrickBinaryRiver* _river_trickjobs;
 
     QList<Frame>  _frames;
     int _num_overruns;
@@ -166,7 +161,6 @@ private:
 
     int _progress;
     void _load();
-
 };
 
 class SnapReport

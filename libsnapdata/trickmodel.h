@@ -60,6 +60,7 @@ class TrickModel : public SnapTable
     }
     TrickModelIterator begin(int tcol, int xcol, int ycol) const;
     TrickModelIterator end(int tcol, int xcol, int ycol) const;
+    int indexAtTime(double time, int tcol=0);
 
     virtual int rowCount(const QModelIndex & pidx = QModelIndex() ) const;
     virtual int columnCount(const QModelIndex & pidx = QModelIndex() ) const;
@@ -109,11 +110,15 @@ class TrickModel : public SnapTable
     int _fd;
     struct stat _fstat;
 
+    TrickModelIterator* _iteratorTimeIndex;
+
     QString _err_string;
     QTextStream _err_stream;
 
     bool _load_trick_header();
     qint32 _load_binary_param(QDataStream& in, int col);
+    int _idxAtTimeBinarySearch (TrickModelIterator& it,
+                               int low, int high, double time);
 
   private:
 
@@ -318,6 +323,11 @@ class TrickModelIterator
     inline TrickModelIterator operator-(int j) const { return operator+(-j); }
     inline TrickModelIterator &operator+=(int j) { return *this = *this + j; }
     inline TrickModelIterator &operator-=(int j) { return *this = *this - j; }
+
+    inline TrickModelIterator &operator [](int n) {
+        i = n;
+        return *this;
+    }
 
   private:
 

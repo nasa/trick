@@ -378,7 +378,7 @@ void TestSnap::initTestCase()
     int njobs = 5;
     for ( int ii = 1; ii < njobs+1; ++ii) {
         QString jname = QString("JOB_s1.x.a_C1.2500.%1(scheduled_1.000)").arg(ii);
-        Job job(jname.toAscii().constData());
+        Job job(jname);
         jobs.append(job);
     }
     _create_log_userjobs(_log_userjobs,0,100,0.1,jobs);
@@ -816,35 +816,34 @@ void TestSnap::gettimebyidx1()
 {
     QString rundir = _run("4");
     Snap snap(rundir,0,1.0e20);
-    int ntimestamps = snap.num_frames();
-    double* timestamps = snap.jobs()->at(0)->timestamps();
-    QCOMPARE(getIndexAtTime(ntimestamps,timestamps,89.7),897); // kacc
+    TrickCurveModel* curve = snap.jobs()->at(0)->curve();
+    QCOMPARE(curve->indexAtTime(89.7),897); // kacc
 }
 
 void TestSnap::job_timestamps1()
 {
     QString rundir = _run("4");
     Snap snap(rundir);
-    QCOMPARE(snap.jobs()->at(0)->timestamps()[0],1.0);
+    QCOMPARE(snap.jobs()->at(0)->curve()->begin().t(),1.0);
 }
 
 void TestSnap::job_timestamps2()
 {
     QString rundir = _run("4");
     Snap snap(rundir,9.48,50.123);
-    int last_idx = snap.num_frames()-1;
-    QCOMPARE(snap.jobs()->at(1)->timestamps()[last_idx],50.1);
+    TrickModelIterator it = snap.jobs()->at(1)->curve()->begin();
+    int npoints = snap.jobs()->at(1)->curve()->rowCount();
+    QCOMPARE(it[npoints-1].t(),50.1);
 }
 
 void TestSnap::job_runtime1()
 {
     QString rundir = _run("4");
     Snap snap(rundir);
-    int ntimestamps = snap.num_frames();
-    double* timestamps = snap.jobs()->at(0)->timestamps();
-    int tidx = getIndexAtTime(ntimestamps,timestamps,89.0);
-    double* rt = snap.jobs()->at(0)->runtime();
-    QCOMPARE(rt[tidx],1.0+1000000*qAbs(sin(89.0)));
+    TrickCurveModel* curve = snap.jobs()->at(0)->curve();
+    int tidx = curve->indexAtTime(89.0);
+    TrickModelIterator it = curve->begin();
+    QCOMPARE(it[tidx].x(),1.0+1000000*qAbs(sin(89.0)));
 }
 
 void TestSnap::job_avgtime()
@@ -960,6 +959,11 @@ void TestSnap::job_stddev()
     return;
 }
 
+// TODO
+void TestSnap::job_freq()
+{
+}
+
 void TestSnap::thread1()
 {
     QString rundir = _run("7");
@@ -996,13 +1000,6 @@ void TestSnap::thread1()
         }
         tt += frame_rate;
         rc++;
-    }
-
-    for ( int cc = 1; cc < _log_userjobs.columnCount(); ++cc) {
-        QString jobname = _log_userjobs.headerData(cc,Qt::Horizontal,
-                                  Param::Name).toString();
-        Job job(jobname.toAscii().constData());
-
     }
 
     _write_logs(rundir);
@@ -1066,21 +1063,6 @@ void TestSnap::thread1()
             QCOMPARE(thread.runtime(45.0),sum);
         }
 
-        // Check start and stop times
-        if ( tid == 1 ) {
-            QCOMPARE(thread.runtime(start),sum);
-            QCOMPARE(thread.runtime(stop),sum);
-        }
-
-        // Avg Runtime should be sum since I made runtime constant 0.01
-        if ( tid == 1 ) {
-            QCOMPARE(thread.avg_runtime,sum);
-        } else if ( tid == 2 ) {
-            QCOMPARE(thread.avg_runtime,sum);
-        } else if ( tid == 3 ) {
-            QCOMPARE(thread.avg_runtime,sum);
-        }
-
         tid++;
     }
 }
@@ -1127,11 +1109,6 @@ void TestSnap::benchmark_rm2000()
     }
 }
 
-
-// TODO
-void TestSnap::job_freq()
-{
-}
 
 QTEST_APPLESS_MAIN(TestSnap);
 

@@ -54,7 +54,8 @@ void Frame::_calc_topjobs()
     double jcnt = 0.0 ;
     foreach ( Job* job, *_jobs ) {
 
-        double rt = job->runtime()[_tidx]/1000000.0;
+        double rt = job->curve()->begin()[_tidx].x()/1000000.0;
+
         if ( rt > job->avg_runtime()+1.50*job->stddev_runtime() ) {
             // Job Load Index
             jcnt += 1.0;
@@ -69,7 +70,7 @@ void Frame::_calc_topjobs()
                 qSort(_topjobs.begin(), _topjobs.end(), frameTopJobsGreaterThan);
             }
             QPair<double,Job*> ljob = _topjobs.last();
-            double lrt = ljob.second->runtime()[_tidx]/1000000.0;
+            double lrt = ljob.second->curve()->begin()[_tidx].x()/1000000.0;
             if ( rt > lrt ) {
                 _topjobs.replace(len-1,qMakePair(rt,job));
                 qSort(_topjobs.begin(), _topjobs.end(), frameTopJobsGreaterThan);

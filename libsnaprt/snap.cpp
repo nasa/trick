@@ -26,8 +26,7 @@ Snap::Snap(const QString &irundir, double istart, double istop,
     _err_stream(&_err_string),
     _rundir(irundir), _start(istart),_stop(istop), _is_realtime(false),
     _frame_avg(0.0),_frame_stddev(0),_curr_sort_method(NoSort),
-    _river_userjobs(0), _modelUserJobs(0), _river_frame(0),
-    _modelFrame(0),_river_trickjobs(0),
+    _modelTrickJobs(0), _modelUserJobs(0), _modelFrame(0),
     _num_overruns(0), _threads(0),_simobjects(0),_progress(0)
 {
 
@@ -78,12 +77,13 @@ Snap::~Snap()
     foreach ( Job* job, _jobs ) {
         delete job;
     }
+    foreach ( TrickCurveModel* curve, _curves ) {
+        delete curve;
+    }
 
-    if (_river_userjobs ) delete _river_userjobs;
+    if (_modelTrickJobs ) delete _modelTrickJobs;
     if (_modelUserJobs ) delete _modelUserJobs;
-    if (_river_frame ) delete _river_frame;
     if (_modelFrame ) delete _modelFrame;
-    if (_river_trickjobs ) delete _river_trickjobs;
 
     if ( _threads ) delete _threads;
     if ( _simobjects ) delete _simobjects;
@@ -377,18 +377,26 @@ void Snap::_set_data_table_thread_runtimes()
     int nrows = num_frames();
     table->insertRows(0,nrows);
 
+    int r = 0;
     c = 0 ;
-    double* timestamps = _river_frame->getTimeStamps();
-    for ( int r = 0; r < nrows; ++r) {
+    TrickModelIterator it = _modelFrame->begin(0,1,1);
+    const TrickModelIterator e = _modelFrame->end(0,1,1);
+    while (it != e) {
         QModelIndex idx = table->index(r,c);
-        table->setData(idx,timestamps[r]);
+        table->setData(idx,it.t());
+        ++r;
+        ++it;
     }
 
     foreach ( Thread thread, threads ) {
         c++;
-        for ( int r = 0; r < nrows; ++r) {
+        it = _modelFrame->begin(0,1,1);
+        r = 0;
+        while ( it != e ) {
             QModelIndex idx = table->index(r,c);
             table->setData(idx,thread.runtime(r));
+            ++r;
+            ++it;
         }
     }
 }
@@ -406,56 +414,6 @@ QList<Job *>* Snap::jobs(SortBy sort_method)
     }
 
     return &_jobs;
-}
-
-BoundedTrickBinaryRiver *Snap::_create_river(const QString &rundir,
-                                             const QString &logfilename,
-                                            double start, double stop)
-{
-    BoundedTrickBinaryRiver* river;
-
-    QDir dir(rundir);
-    if ( ! dir.exists() ) {
-        _err_stream << "snap [error]: couldn't find run directory: "
-                    << rundir << "\n";
-        throw std::invalid_argument(_err_string.toAscii().constData());
-    }
-
-    QString trk = rundir + QString("/") + logfilename;
-    QFile file(trk);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        _err_stream << "snap [error]: couldn't read file: " << trk << "\n";
-        throw std::invalid_argument(_err_string.toAscii().constData());
-    } else {
-        file.close();
-    }
-
-    //
-    // If trk file is less than 1000 bytes, it can't be legit
-    //
-    if ( file.size() < 1000 ) {
-        _err_stream << "snap [error]: "
-                    << "suspicious filesize of "
-                    << file.size()
-                    << " for file \""
-                    << trk
-                    << "\""
-                    << "  - bailing like Rob Bailey!!!";
-        throw std::invalid_argument(_err_string.toAscii().constData());
-    }
-
-    try {
-        river = new BoundedTrickBinaryRiver(trk.toAscii().data(),
-                                            start,stop);
-    }
-    catch (std::range_error &e) {
-        _err_stream << e.what();
-        _err_stream << "snap [error]: -start or -stop options have bad vals\n";
-        throw std::range_error(_err_string.toAscii().constData());
-    }
-
-
-    return river;
 }
 
 TrickModel *Snap::_createModel(const QString &rundir,
@@ -510,28 +468,20 @@ TrickModel *Snap::_createModel(const QString &rundir,
 
 void Snap::_process_rivers()
 {
-    _river_trickjobs = _create_river(_rundir,
+    _modelTrickJobs = _createModel(_rundir,
                                    QString("log_trickjobs.trk"),
-                                   _start, _stop);
-
-
-    _river_userjobs = _create_river(_rundir,
-                                   QString("log_userjobs.trk"),
                                    _start, _stop);
 
     _modelUserJobs = _createModel(_rundir,
                                    QString("log_userjobs.trk"),
                                    _start, _stop);
 
-    _river_frame = _create_river(_rundir,
-                                   QString("log_frame.trk"),
-                                   _start, _stop);
     _modelFrame = _createModel(_rundir,
                                QString("log_frame.trk"),
                                _start, _stop);
 
-    _process_job_river(_river_trickjobs);
-    _process_job_river(_river_userjobs);
+    _process_job_river(_modelTrickJobs);
+    _process_job_river(_modelUserJobs);
 
     _frames = _process_frame_river(_modelFrame);
 }
@@ -543,12 +493,14 @@ QString Snap::frame_rate() const
 {
     QString frame_rates;
 
+    TrickModelIterator it = _modelFrame->begin(0,1,1);
+    const TrickModelIterator e = _modelFrame->end(0,1,1);
     QList<long> rates;
-    double* timestamps = _river_frame->getTimeStamps();
-    long ltime = (long)(timestamps[0]*1000000);
-    int npoints = _river_frame->getNumPoints();
-    for ( int ii = 1 ; ii < npoints ; ii++ ) {
-        long tt = (long)(timestamps[ii]*1000000);
+    long ltime = (long)(it.t()*1000000);
+    int npoints = _modelFrame->rowCount();
+    ++it;
+    while (it != e) {
+        long tt = (long)(it.t()*1000000);
         long dt = round_10(tt-ltime);
         if ( ! rates.contains(dt) ) {
             // Do fuzzy compare since doubles screw things up
@@ -565,7 +517,9 @@ QString Snap::frame_rate() const
         }
 
         ltime = tt;
+        ++it;
     }
+
     foreach ( long rate, rates ) {
         double drate = rate/1000000.0;
         QString str =  QString("%1,").arg(drate);
@@ -622,9 +576,8 @@ SnapTable* Snap::jobTableAtTime(double time)
     // Even though it's a linear search it's okay (for now)
     // because frame should be at beginning of list
     Frame frame(0,0,0,0,0); //bogus
-    int tidx = getIndexAtTime(_river_frame->getNumPoints(),
-                              _river_frame->getTimeStamps(),
-                              time);
+    int tidx = _modelFrame->indexAtTime(time);
+
     for ( int ii = 0; ii < _frames.size(); ++ii) {
         frame = _frames.at(ii);
         if ( frame.timeidx() == tidx ) {
@@ -697,35 +650,16 @@ void Snap::_calc_frame_stddev()
     _frame_stddev = sqrt(sum/_frames.length()) ;
 }
 
-//
-// logfilename e.g. log_trickjobs.trk
-//
-bool Snap::_process_job_river( BoundedTrickBinaryRiver* river )
-{
-    bool ret = true;
-
-    std::vector<LOG_PARAM> params = river->getParamList();
-    for ( unsigned int ii = 1 ; ii < params.size(); ++ii ) {
-        LOG_PARAM param = params.at(ii);
-        Job* job = new Job(const_cast<char*>(param.data.name.c_str()),river);
-        QString job_id = job->log_name();
-        _id_to_job[job_id] = job;
-        _jobs.append(job);
-    }
-
-    return ret;
-}
-
-// Future
-#if 0
 bool Snap::_process_job_river(TrickModel* model )
 {
     bool ret = true;
 
     int nParams = model->columnCount();
     for ( int i = 1 ; i < nParams; ++i ) {
-        QString param = model->headerData(i,Qt::Horizontal).toString();
-        Job* job = new Job(param,model);
+        QString jobId = model->headerData(i,Qt::Horizontal).toString();
+        TrickCurveModel* curve = new TrickCurveModel(model,0,i,i,jobId);
+        _curves.append(curve);
+        Job* job = new Job(curve);
         QString job_id = job->log_name();
         _id_to_job[job_id] = job;
         _jobs.append(job);
@@ -733,7 +667,6 @@ bool Snap::_process_job_river(TrickModel* model )
 
     return ret;
 }
-#endif
 
 QList<Frame> Snap::_process_frame_river(TrickModel* model)
 {

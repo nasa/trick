@@ -23,6 +23,7 @@ class TrickCurveModel : public SnapTable
 
     void map(){ _trickmodel->map(); }
     void unmap() { _trickmodel->unmap(); }
+    int indexAtTime(double time) { return _trickmodel->indexAtTime(time); }
 
     TrickModelIterator begin() const;
     TrickModelIterator end() const;

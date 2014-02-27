@@ -11,11 +11,12 @@ TrickModel::TrickModel(const QString& trkfile,
     _startTime(startTime),
     _stopTime(stopTime),
     _nrows(0), _row_size(0), _ncols(0), _pos_beg_data(0),
-    _mem(0), _data(0), _fd(-1),
+    _mem(0), _data(0), _fd(-1), _iteratorTimeIndex(0),
     _err_stream(&_err_string)
 {
     _load_trick_header();
     map();
+    _iteratorTimeIndex = new TrickModelIterator(0,this,0,0,0);
 }
 
 bool TrickModel::_load_trick_header()
@@ -123,7 +124,17 @@ bool TrickModel::_load_trick_header()
                 break;
             }
         }
+
+        if ( !isStart ) {
+            _err_stream << "snap [error]: startTime of "
+                        << _startTime
+                        << " specified by user "
+                        << "exceeded all timestamps in file:\n    "
+                        << _trkfile;
+            throw std::range_error(_err_string.toAscii().constData());
+        }
     }
+
 
     file.close();
 
@@ -197,6 +208,7 @@ void TrickModel::unmap()
 
 TrickModel::~TrickModel()
 {
+    delete _iteratorTimeIndex;
     unmap();
 }
 
@@ -210,6 +222,33 @@ TrickModelIterator TrickModel::end(int tcol, int xcol, int ycol) const
     return TrickModelIterator(this->rowCount(),this,tcol,xcol,ycol);
 }
 
+int TrickModel::indexAtTime(double time, int tcol)
+{
+    return _idxAtTimeBinarySearch(*_iteratorTimeIndex,0,rowCount()-1,time);
+}
+
+
+int TrickModel::_idxAtTimeBinarySearch (TrickModelIterator& it,
+                                       int low, int high, double time)
+{
+        if (high <= 0 ) {
+                return 0;
+        }
+        if (low >= high) {
+                return ( it[high].t() > time ) ? high-1 : high;
+        } else {
+                int mid = (low + high)/2;
+                if (time == it[mid].t()) {
+                        return mid;
+                } else if ( time < it[mid].t() ) {
+                        return _idxAtTimeBinarySearch(it,
+                                                      low, mid-1, time);
+                } else {
+                        return _idxAtTimeBinarySearch(it,
+                                                      mid+1, high, time);
+                }
+        }
+}
 
 int TrickModel::rowCount(const QModelIndex &pidx) const
 {
