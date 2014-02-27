@@ -8,6 +8,10 @@
 #include "libsnaprt/snap.h"
 #include "trickdatamodel.h"
 
+//#define TEST_NON_RM2000
+#define TEST_RM2000_RPT
+//#define TEST_RM2000_BENCHMARK
+
 QString testRunsDir()
 {
     QString dirName = QDir::currentPath() + "/../testsnap/runs/";
@@ -54,6 +58,8 @@ private:
 
 private slots:
     void initTestCase();
+
+#ifdef TEST_NON_RM2000
     void empty_run1();
     void empty_run2();
     void is_realtime0();
@@ -108,8 +114,13 @@ private slots:
     void job_stddev();
     void job_freq();
     void thread1();
+#endif
+#ifdef TEST_RM2000_RPT
     void run_rm2000();
+#endif
+#ifdef TEST_RM2000_BENCHMARK
     void benchmark_rm2000();
+#endif
     void cleanupTestCase() {}
 };
 
@@ -384,6 +395,7 @@ void TestSnap::initTestCase()
     _create_log_userjobs(_log_userjobs,0,100,0.1,jobs);
 }
 
+#ifdef TEST_NON_RM2000
 void TestSnap::empty_run1()
 {
     QString rundir = _run("empty1");
@@ -1066,14 +1078,15 @@ void TestSnap::thread1()
         tid++;
     }
 }
+#endif
 
+#ifdef TEST_RM2000_RPT
 //
 // If this fails, remember that the expected result has "vetter"
 // hard coded in the run directory (TODO: fix this!)
 //
 void TestSnap::run_rm2000()
 {
-    //QCOMPARE(1,1); return;
     QString rundir = testRunsDir() + "/RUN_rm2000";
     Snap snap(rundir);
     SnapReport rpt(snap);
@@ -1099,15 +1112,17 @@ void TestSnap::run_rm2000()
 
     QCOMPARE(actual_rpt,expected_rpt);
 }
+#endif
 
+#ifdef TEST_RM2000_BENCHMARK
 void TestSnap::benchmark_rm2000()
 {
-    //QCOMPARE(1,1); return;
     QBENCHMARK_ONCE {
         QString rundir = testRunsDir() + "/RUN_rm2000";
         Snap snap(rundir);
     }
 }
+#endif
 
 
 QTEST_APPLESS_MAIN(TestSnap);
