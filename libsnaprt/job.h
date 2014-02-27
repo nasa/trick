@@ -49,7 +49,6 @@ private:
     QString _job_class;
 
     bool _is_stats;
-    bool _is_stddev;
     void _do_stats();
     double _avg_runtime;
     double _stddev_runtime;

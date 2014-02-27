@@ -8,9 +8,9 @@
 #include "libsnaprt/snap.h"
 #include "trickdatamodel.h"
 
-//#define TEST_NON_RM2000
+#define TEST_NON_RM2000
 #define TEST_RM2000_RPT
-//#define TEST_RM2000_BENCHMARK
+#define TEST_RM2000_BENCHMARK
 
 QString testRunsDir()
 {

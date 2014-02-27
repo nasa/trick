@@ -497,7 +497,6 @@ QString Snap::frame_rate() const
     const TrickModelIterator e = _modelFrame->end(0,1,1);
     QList<long> rates;
     long ltime = (long)(it.t()*1000000);
-    int npoints = _modelFrame->rowCount();
     ++it;
     while (it != e) {
         long tt = (long)(it.t()*1000000);

@@ -54,11 +54,12 @@ inline void Job::_do_stats()
     QMap<long,int> map_freq;
     long last_nonzero_timestamp = 0 ;
 
+    long sum_squares = 0 ;
     long sum_rt = 0 ;
     long max_rt = 0 ;
     TrickModelIterator it = _curve->begin();
     const TrickModelIterator e = _curve->end();
-    int tidx = 0;
+    int cnt = 0;
     while (it != e) {
 
         double time = it.t();
@@ -69,7 +70,7 @@ inline void Job::_do_stats()
             continue;
         }
 
-        if ( tidx > 0 && rt > 0 ) {
+        if ( cnt > 0 && rt > 0 ) {
             freq = round_10((long)(time*1000000.0) - last_nonzero_timestamp);
             long freq_cnt ;
             if ( map_freq.contains(freq) ) {
@@ -86,14 +87,20 @@ inline void Job::_do_stats()
             _max_timestamp = time;
         }
 
+        sum_squares += rt*rt;
         sum_rt += rt;
 
-        ++tidx;
+        ++cnt;
         ++it;
     }
 
-    _avg_runtime = (sum_rt/_npoints)/1000000.0;
+    double ss = (double)sum_squares;
+    double s = (double)sum_rt;
+    double n = (double)cnt;
+
     _max_runtime = (max_rt)/1000000.0;
+    _avg_runtime = (s/n)/1000000.0;
+    _stddev_runtime = qSqrt(ss/n - s*s/(n*n))/1000000.0 ;
 
     if ( _npoints > 1 ) {
         int max_cnt = 0 ;
@@ -130,30 +137,6 @@ double Job::max_timestamp()
 double Job::stddev_runtime()
 {
     _do_stats();
-
-    if ( _is_stddev ) {
-        return _stddev_runtime;
-    } else {
-        _is_stddev = true;
-    }
-
-    TrickModelIterator it = _curve->begin();
-    const TrickModelIterator e = _curve->end();
-    double sum_vv = 0.0;
-    while (it != e) {
-        double time = it.t();
-        double rt = it.x();
-        if ( time < 1.0 && rt > 2000000.0) {
-            // Throw out bad points at start of sim
-            continue;
-        }
-        rt = rt/1000000.0;
-        sum_vv += (rt-_avg_runtime)*(rt-_avg_runtime);
-        ++it;
-    }
-
-    _stddev_runtime = qSqrt(sum_vv/_npoints) ;
-
     return _stddev_runtime;
 }
 
@@ -216,7 +199,7 @@ double Job::freq()
 
 Job::Job(TrickCurveModel* curve) :
      _curve(curve),_npoints(0),
-     _is_stats(false),_is_stddev(false)
+     _is_stats(false)
 {
     if ( !curve ) {
         return;
@@ -231,7 +214,7 @@ Job::Job(TrickCurveModel* curve) :
 Job::Job(const QString &jobId) :
      _curve(0),_npoints(0),
      _log_name(jobId),
-     _is_stats(false),_is_stddev(false)
+     _is_stats(false)
 {
     _parseJobId(_log_name);
 }

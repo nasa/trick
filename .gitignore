@@ -12,3 +12,4 @@ lib/libopts*
 lib/libqplot*
 lib/libsnapdata.so*
 lib/libsnaprt.so*
+testsnap/runs
