@@ -5,7 +5,6 @@ libsnaprt/libsnaprt.pro.user
 monte/monte.pro.user
 Makefile
 build
-snap
 test/runs/*
 bin/*
 lib/libopts*
