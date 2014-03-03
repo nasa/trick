@@ -188,20 +188,20 @@ void TrickModel::map()
     }
     fstat(_fd, &_fstat);
 
-    _mem = (char*)mmap(NULL,_fstat.st_size,PROT_READ,MAP_SHARED,_fd,0);
+    _mem = (ptrdiff_t)mmap(NULL,_fstat.st_size,PROT_READ,MAP_SHARED,_fd,0);
 
-    if (_mem == MAP_FAILED) {
+    if ( (void*)_mem == MAP_FAILED ) {
         _err_stream << "snap [error]: TrickModel couldn't allocate memory for : "
                     << _trkfile << "\n";
         throw std::runtime_error(_err_string.toAscii().constData());
     }
 
-    _data = &_mem[_pos_beg_data];
+    _data = _mem + _pos_beg_data;
 }
 
 void TrickModel::unmap()
 {
-    munmap(_mem, _fstat.st_size);
+    munmap((void*)_mem, _fstat.st_size);
     close(_fd);
     _data = 0 ;
 }
@@ -281,7 +281,7 @@ QVariant TrickModel::data(const QModelIndex &idx, int role) const
 
         if ( role == Qt::DisplayRole ) {
             qint64 _pos_data = row*_row_size + _col2offset.value(col);
-            const char* addr = &(_data[_pos_data]);
+            ptrdiff_t addr = _data+_pos_data;
             int paramtype =  _paramtypes.at(col);
             val = _toDouble(addr,paramtype);
         }

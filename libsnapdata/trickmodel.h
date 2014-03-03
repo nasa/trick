@@ -105,8 +105,8 @@ class TrickModel : public SnapTable
     QHash<int,qint64> _col2offset;
 
     qint64 _pos_beg_data;
-    char* _mem;
-    char* _data;
+    ptrdiff_t _mem;
+    ptrdiff_t _data;
     int _fd;
     struct stat _fstat;
 
@@ -122,7 +122,7 @@ class TrickModel : public SnapTable
 
   private:
 
-    inline double _toDouble(const char* addr, int paramtype) const
+    inline double _toDouble(ptrdiff_t addr, int paramtype) const
     {
         if ( _trick_version == TrickVersion07 ) {
             switch (paramtype) {
@@ -226,18 +226,18 @@ class TrickModelIterator
 
     inline double t() const
     {
-        return _model->_toDouble(&_data[i*_row_size+_tco],_ttype);
+        return _model->_toDouble(_data+i*_row_size+_tco,_ttype);
     }
 
     inline double x() const
     {
-        return _model->_toDouble(&_data[i*_row_size+_xco],_xtype);
+        return _model->_toDouble(_data+i*_row_size+_xco,_xtype);
     }
 
     inline double y() const
     {
         return _valueScaleFactor*_model->_toDouble
-                                (&_data[i*_row_size+_yco],_ytype);
+                                (_data+i*_row_size+_yco,_ytype);
     }
 
     inline TrickModelIterator& operator=(const TrickModelIterator &o)
@@ -335,7 +335,7 @@ class TrickModelIterator
     double _valueScaleFactor;
     const TrickModel* _model;
     int _row_size;
-    char* _data;
+    ptrdiff_t _data;
     int _tcol;
     int _xcol;
     int _ycol;
