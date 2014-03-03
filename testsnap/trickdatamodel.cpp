@@ -2,10 +2,9 @@
 
 #include <stdlib.h>
 
-// TODO: Think these are wrong e.g. TRICK_DOUBLE is 10 for TRICK07
-const int TrickDataModel::TRICK_DOUBLE = 11;
-const int TrickDataModel::TRICK_LONG_LONG = 14;
-const int TrickDataModel::TRICK_UNSIGNED_LONG_LONG = 15;
+const int TrickDataModel::TRICK_DOUBLE = 10;
+const int TrickDataModel::TRICK_LONG_LONG = 13;
+const int TrickDataModel::TRICK_UNSIGNED_LONG_LONG = 14;
 
 
 TrickDataModel::TrickDataModel(TrickVersion version,
