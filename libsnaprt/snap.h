@@ -125,8 +125,8 @@ private:
     QList<Frame> _process_frames(TrickModel* model);
     bool _process_jobs(TrickModel* model);
 
-    TrickModel* _modelTrickJobs;
-    TrickModel* _modelUserJobs;
+    TrickModel* _trickJobModel;
+    QList<TrickModel*> _userJobModels;
     TrickModel* _modelFrame;
 
     QList<Frame>  _frames;

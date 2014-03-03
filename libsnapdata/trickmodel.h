@@ -60,7 +60,7 @@ class TrickModel : public SnapTable
     }
     TrickModelIterator begin(int tcol, int xcol, int ycol) const;
     TrickModelIterator end(int tcol, int xcol, int ycol) const;
-    int indexAtTime(double time, int tcol=0);
+    int indexAtTime(double time);
 
     virtual int rowCount(const QModelIndex & pidx = QModelIndex() ) const;
     virtual int columnCount(const QModelIndex & pidx = QModelIndex() ) const;

@@ -127,11 +127,7 @@ void preset_rundir(DougString* curr_rundir, const char* new_rundir, bool* ok)
         *ok = false;
         return;
     }
-    QString file_userjobs  = rundir + QString("/log_userjobs.trk");
-    if ( ! check_file(file_userjobs) ) {
-        *ok = false;
-        return;
-    }
+
 }
 
 bool check_file(const QString& fname)
@@ -139,7 +135,7 @@ bool check_file(const QString& fname)
     QFile file(fname);
     if ( ! file.exists() || !(file.permissions()&QFile::ReadUser) ) {
         fprintf(stderr,"snap [error] : can't read or find file %s\n",
-                         fname.toAscii().constData());
+                fname.toAscii().constData());
         return false;
     }
 

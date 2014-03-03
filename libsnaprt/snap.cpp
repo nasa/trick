@@ -26,7 +26,7 @@ Snap::Snap(const QString &irundir, double istart, double istop,
     _err_stream(&_err_string),
     _rundir(irundir), _start(istart),_stop(istop), _is_realtime(false),
     _frame_avg(0.0),_frame_stddev(0),_curr_sort_method(NoSort),
-    _modelTrickJobs(0), _modelUserJobs(0), _modelFrame(0),
+    _trickJobModel(0),_modelFrame(0),
     _num_overruns(0), _threads(0),_simobjects(0),_progress(0)
 {
 
@@ -81,8 +81,10 @@ Snap::~Snap()
         delete curve;
     }
 
-    if (_modelTrickJobs ) delete _modelTrickJobs;
-    if (_modelUserJobs ) delete _modelUserJobs;
+    if (_trickJobModel ) delete _trickJobModel;
+    foreach ( TrickModel* m, _userJobModels ) {
+        delete m;
+    }
     if (_modelFrame ) delete _modelFrame;
 
     if ( _threads ) delete _threads;
@@ -468,21 +470,34 @@ TrickModel *Snap::_createModel(const QString &rundir,
 
 void Snap::_process_models()
 {
-    _modelTrickJobs = _createModel(_rundir,
+    _trickJobModel = _createModel(_rundir,
                                    QString("log_trickjobs.trk"),
                                    _start, _stop);
 
-    _modelUserJobs = _createModel(_rundir,
-                                   QString("log_userjobs.trk"),
-                                   _start, _stop);
+    // Trick 13 splits userjobs into separate files
+    QDir dir(_rundir);
+    QStringList filter;
+    filter << "*userjobs*.trk";
+    dir.setNameFilters(filter);
+    QStringList userjobs = dir.entryList(QDir::Files);
+    foreach ( QString userjob, userjobs ) {
+        TrickModel* userJobModel =  _createModel(_rundir,userjob,_start, _stop);
+        _userJobModels.append(userJobModel);
+    }
+    if ( _userJobModels.isEmpty() ) {
+        _err_stream << "snap [error]: no *userjob*.trk files found in "
+                    << "directory " << _rundir;
+        throw std::invalid_argument(_err_string.toAscii().constData());
+    }
 
     _modelFrame = _createModel(_rundir,
                                QString("log_frame.trk"),
                                _start, _stop);
 
-    _process_jobs(_modelTrickJobs);
-    _process_jobs(_modelUserJobs);
-
+    _process_jobs(_trickJobModel);
+    foreach ( TrickModel* userJobModel, _userJobModels ) {
+        _process_jobs(userJobModel);
+    }
     _frames = _process_frames(_modelFrame);
 }
 

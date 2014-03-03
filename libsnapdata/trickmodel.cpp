@@ -222,11 +222,10 @@ TrickModelIterator TrickModel::end(int tcol, int xcol, int ycol) const
     return TrickModelIterator(this->rowCount(),this,tcol,xcol,ycol);
 }
 
-int TrickModel::indexAtTime(double time, int tcol)
+int TrickModel::indexAtTime(double time)
 {
     return _idxAtTimeBinarySearch(*_iteratorTimeIndex,0,rowCount()-1,time);
 }
-
 
 int TrickModel::_idxAtTimeBinarySearch (TrickModelIterator& it,
                                        int low, int high, double time)

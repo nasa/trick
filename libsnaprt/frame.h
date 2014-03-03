@@ -3,6 +3,7 @@
 
 #include <QList>
 #include <QPair>
+#include <QHash>
 #include "job.h"
 
 class Frame;

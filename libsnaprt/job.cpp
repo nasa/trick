@@ -17,6 +17,8 @@ bool jobMaxTimeGreaterThan(Job* a,Job* b)
     return a->max_runtime() > b->max_runtime();
 }
 
+QString Job::_err_string;
+QTextStream Job::_err_stream(&Job::_err_string);
 
 QString Job::sim_object_name() const
 {
@@ -164,25 +166,47 @@ void Job::_parseJobId(const QString &jobId)
     int idx5 = name.lastIndexOf(QChar('.'),idx4-1);
     _job_num = name.mid(idx5+1,idx1-idx5-1);
 
-    // child/thread id
-    _thread_id = 0 ;
-    QString stid;
-    int idx6;
-    for ( idx6 = idx5-1 ; idx6 > 0 ; idx6-- ) {
-        if ( isdigit(name.at(idx6).toAscii()) ) {
-            stid.prepend(name.at(idx6));
-        } else {
-            if ( name.at(idx6) == 'C' && name.at(idx6-1) == '_' ) {
-                _thread_id = stid.toInt();
-                idx6--;
-            } else {
-                idx6++;
-            }
-            break;
+    //
+    // child/thread id + job name
+    //
+    // For Trick 13, the job frame_userjobs_CX.frame_sched_time has id X
+    //
+    if ( jobId.startsWith("frame_userjobs_C") &&
+         jobId.endsWith("frame_sched_time") ) {
+
+        name = name.remove(".frame_sched_time");
+        _job_name = name.trimmed();
+        QString strThreadId = name.remove(QString("frame_userjobs_C"));
+        bool ok = false;
+        _thread_id = strThreadId.toDouble(&ok);
+        if ( !ok ) {
+            _err_stream << "snap [bad scoobies]: Couldn't determine thread_id "
+                        << "from jobId \"" << jobId << "\"";
+            throw std::runtime_error(_err_string.toAscii().constData());
         }
+
+    } else {
+
+        _thread_id = 0 ;
+        QString stid;
+        int idx6;
+        for ( idx6 = idx5-1 ; idx6 > 0 ; idx6-- ) {
+            if ( isdigit(name.at(idx6).toAscii()) ) {
+                stid.prepend(name.at(idx6));
+            } else {
+                if ( name.at(idx6) == 'C' && name.at(idx6-1) == '_' ) {
+                    _thread_id = stid.toInt();
+                    idx6--;
+                } else {
+                    idx6++;
+                }
+                break;
+            }
+        }
+
+        _job_name = name.mid(0,idx6);
     }
 
-    _job_name = name.mid(0,idx6);
 }
 
 double Job::freq()

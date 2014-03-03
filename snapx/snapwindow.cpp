@@ -10,6 +10,7 @@
 #include <QGridLayout>
 #include <QSplitter>
 #include <QSortFilterProxyModel>
+#include <QFileInfo>
 
 SnapWindow::SnapWindow(const QString& rundir,
                        double start,double stop,
@@ -143,6 +144,13 @@ SnapWindow::SnapWindow(const QString& rundir,
 #endif
 
     fname = rundir + "/log_userjobs.trk";
+    if ( QFileInfo(fname).exists() ) {
+        _model_userjobs = new TrickModel(fname) ;
+    } else {
+        // Trick 13
+        fname = _snap->rundir() + "/log_frame_userjobs_main.trk";
+        _model_userjobs = new TrickModel(fname) ;
+    }
     _timer.start();
     _model_userjobs = new TrickModel(fname) ;
     _timer.snap("load_userjobs=");

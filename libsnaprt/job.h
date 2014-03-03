@@ -2,6 +2,9 @@
 #define JOB_H
 
 #include <QString>
+#include <QTextStream>
+#include <stdexcept>
+
 #include "libsnapdata/trickcurvemodel.h"
 
 class Job;
@@ -54,6 +57,11 @@ private:
     double _stddev_runtime;
     double _max_runtime;
     double _max_timestamp;
+
+    static QString _err_string;
+    static QTextStream _err_stream;
+
+    int _threadId();
 };
 
 #endif // JOB_H

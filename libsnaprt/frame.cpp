@@ -51,10 +51,21 @@ void Frame::_calc_topjobs()
 {
     const int count = 10; // top ten for now
 
+    QHash<int,int> threadIdToTimeIdx;
+
     double jcnt = 0.0 ;
     foreach ( Job* job, *_jobs ) {
 
-        double rt = job->curve()->begin()[_tidx].x()/1000000.0;
+        int threadId = job->thread_id();
+        int tidx;
+        if ( threadIdToTimeIdx.contains(threadId) ) {
+            tidx = threadIdToTimeIdx.value(threadId);
+        } else {
+            tidx = job->curve()->indexAtTime(_timestamp);
+            threadIdToTimeIdx.insert(threadId,tidx);
+        }
+
+        double rt = job->curve()->begin()[tidx].x()/1000000.0;
 
         if ( rt > job->avg_runtime()+1.50*job->stddev_runtime() ) {
             // Job Load Index
@@ -70,7 +81,8 @@ void Frame::_calc_topjobs()
                 qSort(_topjobs.begin(), _topjobs.end(), frameTopJobsGreaterThan);
             }
             QPair<double,Job*> ljob = _topjobs.last();
-            double lrt = ljob.second->curve()->begin()[_tidx].x()/1000000.0;
+            int ltidx = threadIdToTimeIdx.value(ljob.second->thread_id());
+            double lrt = ljob.second->curve()->begin()[ltidx].x()/1000000.0;
             if ( rt > lrt ) {
                 _topjobs.replace(len-1,qMakePair(rt,job));
                 qSort(_topjobs.begin(), _topjobs.end(), frameTopJobsGreaterThan);
