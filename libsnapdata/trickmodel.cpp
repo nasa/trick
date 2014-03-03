@@ -125,11 +125,11 @@ bool TrickModel::_load_trick_header()
             }
         }
 
-        if ( !isStart ) {
+        if ( !isStart && maxRows > 0 ) {
             _err_stream << "snap [error]: startTime of "
                         << _startTime
                         << " specified by user "
-                        << "exceeded all timestamps in file:\n    "
+                        << "exceeded all timestamps in non-empty file:\n    "
                         << _trkfile;
             throw std::range_error(_err_string.toAscii().constData());
         }

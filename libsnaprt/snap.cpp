@@ -441,9 +441,9 @@ TrickModel *Snap::_createModel(const QString &rundir,
     }
 
     //
-    // If trk file is less than 1000 bytes, it can't be legit
+    // If trk file is less than 50 bytes, it can't be legit
     //
-    if ( file.size() < 1000 ) {
+    if ( file.size() < 50 ) {
         _err_stream << "snap [error]: "
                     << "suspicious filesize of "
                     << file.size()
@@ -459,7 +459,7 @@ TrickModel *Snap::_createModel(const QString &rundir,
                                trk,start,stop);
     }
     catch (std::range_error &e) {
-        _err_stream << e.what();
+        _err_stream << e.what() << "\n\n";
         _err_stream << "snap [error]: -start or -stop options have bad vals\n";
         throw std::range_error(_err_string.toAscii().constData());
     }
@@ -482,7 +482,10 @@ void Snap::_process_models()
     QStringList userjobs = dir.entryList(QDir::Files);
     foreach ( QString userjob, userjobs ) {
         TrickModel* userJobModel =  _createModel(_rundir,userjob,_start, _stop);
-        _userJobModels.append(userJobModel);
+        if ( userJobModel->rowCount() > 0 ) {
+            // log*CX*.trk has no timing data (this happens in Trick 13)
+            _userJobModels.append(userJobModel);
+        }
     }
     if ( _userJobModels.isEmpty() ) {
         _err_stream << "snap [error]: no *userjob*.trk files found in "
