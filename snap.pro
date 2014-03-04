@@ -14,3 +14,6 @@ SUBDIRS = libopts \
           snap \
           snapx \
           testsnap
+
+OTHER_FILES += \
+    testsnap.supp

@@ -114,12 +114,12 @@ private slots:
     void job_stddev();
     void job_freq();
     void thread1();
-#endif
 #ifdef TEST_RM2000_RPT
     void run_rm2000();
 #endif
 #ifdef TEST_RM2000_BENCHMARK
     void benchmark_rm2000();
+#endif
 #endif
     void cleanupTestCase() {}
 };
