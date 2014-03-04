@@ -16,4 +16,5 @@ SUBDIRS = libopts \
           testsnap
 
 OTHER_FILES += \
-    snap.supp
+    snap.supp \
+    monte.supp
