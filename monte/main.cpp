@@ -53,8 +53,8 @@ int main(int argc, char *argv[])
         QApplication::setGraphicsSystem("raster");
         QApplication a(argc, argv);
         QString montedir(opts.montedir.get().c_str());
-        MonteWindow* w = new MonteWindow(montedir,opts.beginRun,opts.endRun);
-        w->show();
+        MonteWindow w(montedir,opts.beginRun,opts.endRun);
+        w.show();
         return a.exec();
     } catch (std::exception &e) {
         fprintf(stderr,"\n%s\n",e.what());

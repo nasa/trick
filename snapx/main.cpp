@@ -52,8 +52,8 @@ int main(int argc, char *argv[])
     try {
         QApplication::setGraphicsSystem("raster");
         QApplication a(argc, argv);
-        SnapWindow* w = new SnapWindow(rundir,opts.start,opts.stop);
-        w->show();
+        SnapWindow w(rundir,opts.start,opts.stop);
+        w.show();
         return a.exec();
     } catch (std::exception &e) {
         fprintf(stderr,"\n%s\n",e.what());
