@@ -87,6 +87,10 @@ Snap::~Snap()
     }
     if (_modelFrame ) delete _modelFrame;
 
+    foreach ( SnapTable* table, tables ) {
+        delete table;
+    }
+
     if ( _threads ) delete _threads;
     if ( _simobjects ) delete _simobjects;
 }
@@ -485,6 +489,8 @@ void Snap::_process_models()
         if ( userJobModel->rowCount() > 0 ) {
             // log*CX*.trk has no timing data (this happens in Trick 13)
             _userJobModels.append(userJobModel);
+        } else {
+            delete userJobModel;
         }
     }
     if ( _userJobModels.isEmpty() ) {
