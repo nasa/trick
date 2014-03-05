@@ -27,6 +27,8 @@ QString Job::sim_object_name() const
     int idx = 0;
     if ( _job_name.contains(QString("##")) ) {
         idx = _job_name.indexOf(QChar('#'));
+    } else if ( _job_name.startsWith("frame_userjobs_C") ) {
+        simobj = "frame_log";
     } else {
         idx = _job_name.indexOf(QChar('.'));
     }
@@ -34,6 +36,7 @@ QString Job::sim_object_name() const
         simobj = _job_name.mid(0,idx);
     }
 
+    qDebug() << "job=" << _job_name << "so=" << simobj;
     return simobj;
 }
 
