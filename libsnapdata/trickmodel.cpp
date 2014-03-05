@@ -201,9 +201,11 @@ void TrickModel::map()
 
 void TrickModel::unmap()
 {
-    munmap((void*)_mem, _fstat.st_size);
-    close(_fd);
-    _data = 0 ;
+    if ( _data ) {
+        munmap((void*)_mem, _fstat.st_size);
+        close(_fd);
+        _data = 0 ;
+    }
 }
 
 TrickModel::~TrickModel()
