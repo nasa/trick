@@ -2,7 +2,7 @@ QT       += gui
 
 TARGET = snapdata
 TEMPLATE = lib
-#CONFIG+= staticlib
+CONFIG+= staticlib
 
 DEFINES += SNAPDATA_LIBRARY
 

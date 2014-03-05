@@ -7,8 +7,5 @@ Makefile
 build
 test/runs/*
 bin/*
-lib/libopts*
-lib/libqplot*
-lib/libsnapdata.so*
-lib/libsnaprt.so*
+lib/*
 testsnap/runs

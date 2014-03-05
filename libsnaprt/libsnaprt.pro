@@ -2,7 +2,7 @@ QT       -= gui
 
 TARGET = snaprt
 TEMPLATE = lib
-#CONFIG += staticlib
+CONFIG += staticlib
 
 QMAKE_EXT_CPP += .c
 

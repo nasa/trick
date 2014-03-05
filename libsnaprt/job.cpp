@@ -36,7 +36,6 @@ QString Job::sim_object_name() const
         simobj = _job_name.mid(0,idx);
     }
 
-    qDebug() << "job=" << _job_name << "so=" << simobj;
     return simobj;
 }
 

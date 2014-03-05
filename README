@@ -1,12 +1,7 @@
 Build/Run Directions
 
-% qmake snap.pro ; # I used /usr/lib64/qt4/bin/qmake
+% qmake      ; # Use qt4, e.g. /usr/lib64/qt4/bin/qmake
 % make
-% ls bin/*
-% ls lib/* 
-% setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:<mypath>/snap/lib
-% bin/monte 
-    or
-% bin/snap 
-    or
-% bin/snapx
+% bin/snap   
+% bin/snapx  ; # Gui version of snap
+% bin/monte  ; # View trick monte carlo data
