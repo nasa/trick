@@ -3,6 +3,10 @@ QT  += gui
 
 CONFIG -= app_bundle
 
+release {
+    QMAKE_CXXFLAGS_RELEASE -= -g
+}
+
 TARGET = snapx
 
 QMAKE_EXT_CPP += .c

@@ -5,6 +5,10 @@ QT  += xml
 
 CONFIG -= app_bundle
 
+release {
+    QMAKE_CXXFLAGS_RELEASE -= -g
+}
+
 TARGET = monte
 
 QMAKE_EXT_CPP += .c

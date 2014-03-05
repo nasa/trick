@@ -4,6 +4,10 @@ QT  += gui
 CONFIG += qtestlib
 CONFIG -= app_bundle
 
+release {
+    QMAKE_CXXFLAGS_RELEASE -= -g
+}
+
 TARGET = testsnap
 
 QMAKE_EXT_CPP += .c

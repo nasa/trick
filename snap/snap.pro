@@ -4,6 +4,10 @@ QT  -= gui
 
 CONFIG -= app_bundle
 
+release {
+    QMAKE_CXXFLAGS_RELEASE -= -g
+}
+
 TARGET = snap
 
 QMAKE_EXT_CPP += .c
