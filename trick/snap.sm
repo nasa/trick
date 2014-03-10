@@ -1,0 +1,15 @@
+class Snap : public Trick::SimObject {
+
+    public:
+
+        SnapFrameLog frame ;
+
+        Snap() {
+            {TRK} ("initialization") frame.log_on() ;
+            {TRK} ("instrumentation") frame.log_start(curr_job) ;
+            {TRK} ("instrumentation") frame.log_stop(curr_job) ;
+            {TRK} P65535 ("shutdown") frame.log_shutdown() ;
+        }
+};
+
+Snap snap ;
