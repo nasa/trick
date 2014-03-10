@@ -5,7 +5,7 @@
 #include <QTextStream>
 #include <QHash>
 #include "trickcurvemodel.h"
-#include "monte.h"
+#include "runs.h"
 
 //
 // Monte carlo model
@@ -34,7 +34,7 @@ class MonteModel : public QAbstractItemModel
 
   public:
 
-    explicit MonteModel(Monte* monte,
+    explicit MonteModel(Runs* runs,
                        QObject *parent = 0);
     ~MonteModel();
 
@@ -60,10 +60,10 @@ class MonteModel : public QAbstractItemModel
 
   private:
 
-    Monte* _monte;
+    Runs* _runs;
     QStringList _params;
     QHash<QString,int> _param2column;
-    QStringList _runs;
+    QStringList _runDirs;
 
     QString _err_string;
     QTextStream _err_stream;

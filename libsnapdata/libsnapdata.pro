@@ -7,6 +7,9 @@ release {
     CONFIG += staticlib
     QMAKE_CXXFLAGS_RELEASE -= -g
 }
+debug {
+    CONFIG -= staticlib
+}
 
 DEFINES += SNAPDATA_LIBRARY
 
@@ -28,7 +31,8 @@ SOURCES += \
     trickcurvemodel.cpp \
     timeit.cpp \
     timeit_linux.cpp \
-    timeit_win32.cpp 
+    timeit_win32.cpp \ 
+    runs.cpp
 
 
 HEADERS += \
@@ -43,7 +47,8 @@ HEADERS += \
     numsortitem.h \
     timeit.h \
     timeit_linux.h \
-    timeit_win32.h 
+    timeit_win32.h \ 
+    runs.h
 
 
 unix:!symbian {

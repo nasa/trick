@@ -13,6 +13,7 @@ SUBDIRS = libopts \
           monte \
           snap \
           snapx \
+          snapq \
           testsnap
 
 OTHER_FILES += \

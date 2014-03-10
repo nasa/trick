@@ -1,29 +1,29 @@
 #include "montemodel.h"
 #include <stdexcept>
 
-MonteModel::MonteModel(Monte* monte,
-                       QObject *parent):
+MonteModel::MonteModel(Runs *runs, QObject *parent) :
     QAbstractItemModel(parent),
-    _monte(monte)
+    _runs(runs)
 {
-    _params = _monte->params();
+    _params = runs->params();
     int col = 0 ;
     foreach ( QString param, _params ) {
         _param2column.insert(param,col);
         col++;
     }
-    _runs = _monte->runs();
+    _runDirs = _runs->runs();
 }
 
 MonteModel::~MonteModel()
 {
-    delete _monte;
+    // TODO!!!! the caller should delete runs passed in
+    //delete _runs;
 }
 
 TrickCurveModel *MonteModel::curve(const QModelIndex &idx) const
 {
     QString yparam = _params.at(idx.column());
-    QList<TrickModel*>* models = _monte->models(yparam);
+    QList<TrickModel*>* models = _runs->models(yparam);
     TrickModel* tm = models->at(idx.row());
     int ycol = tm->paramColumn(yparam) ;
     return new TrickCurveModel(tm,0,0,ycol,yparam);
@@ -31,7 +31,7 @@ TrickCurveModel *MonteModel::curve(const QModelIndex &idx) const
 
 TrickCurveModel *MonteModel::curve(int row, const QString &param) const
 {
-    QList<TrickModel*>* models = _monte->models(param);
+    QList<TrickModel*>* models = _runs->models(param);
     TrickModel* tm = models->at(row);
     int ycol = tm->paramColumn(param) ;
     return new TrickCurveModel(tm,0,0,ycol,param);
@@ -69,7 +69,7 @@ QModelIndex MonteModel::index(int row, int column,
 int MonteModel::rowCount(const QModelIndex &pidx) const
 {
     if ( ! pidx.isValid() ) {
-        return _runs.size();
+        return _runDirs.size();
     } else {
         return 0;
     }
@@ -80,7 +80,7 @@ int MonteModel::columnCount(const QModelIndex &pidx) const
     int ncols = 0 ;
 
     if ( ! pidx.isValid() ) {
-        ncols = _monte->params().size();
+        ncols = _runs->params().size();
     }
 
     return ncols;
@@ -124,7 +124,7 @@ QVariant MonteModel::headerData(int sect, Qt::Orientation orientation,
         if ( orientation == Qt::Horizontal ) {
             ret = _params.at(sect);
         } else {
-            ret = _runs.at(sect);
+            ret = _runDirs.at(sect);
         }
     }
 
