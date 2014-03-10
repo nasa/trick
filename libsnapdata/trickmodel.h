@@ -148,7 +148,9 @@ class TrickModel : public SnapTable
             }
             default:
             {
-                fprintf(stderr,"snap [error]: can't handle trick type \"%d\"\n",
+                fprintf(stderr,
+                        "snap [error]: can't handle trick type \"%d\"\n"
+                        "              Look in trick_types.h for type.\n",
                         paramtype);
                 exit(-1);
             }
@@ -177,7 +179,9 @@ class TrickModel : public SnapTable
             }
             default:
             {
-                fprintf(stderr,"snap [error]: can't handle trick type \"%d\"\n",
+                fprintf(stderr,
+                        "snap [error]: can't handle trick type \"%d\"\n"
+                        "              Look in trick_types.h for type\n.",
                         paramtype);
                 exit(-1);
             }
