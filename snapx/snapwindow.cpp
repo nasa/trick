@@ -117,7 +117,7 @@ SnapWindow::SnapWindow(const QString& rundir,
     lay2->setContentsMargins(0, 0, 0, 0);
     lay2->setObjectName(QString::fromUtf8("layout2"));
 
-    QString fname = _snap->rundir() + "/log_frame.trk";
+    QString fname = _snap->fileNameLogFrame();
     _model_frames = new TrickModel(fname) ;
     _plot_frame = new SnapPlot(f2);
 
@@ -143,18 +143,14 @@ SnapWindow::SnapWindow(const QString& rundir,
     lay2->addWidget(plot_timeline,0,0,1,1);
 #endif
 
-    fname = rundir + "/log_userjobs.trk";
-    if ( QFileInfo(fname).exists() ) {
-        _model_userjobs = new TrickModel(fname) ;
-    } else {
-        // Trick 13
-        fname = _snap->rundir() + "/log_frame_userjobs_main.trk";
-        _model_userjobs = new TrickModel(fname) ;
-    }
     _timer.start();
-    _model_userjobs = new TrickModel(fname) ;
+    QStringList fnames = _snap->fileNamesUserJobs();
+    foreach ( QString fname, fnames ) {
+        TrickModel* m = new TrickModel(fname);
+        _models_userjobs.append(m);
+        _trick_models.append(m);
+    }
     _timer.snap("load_userjobs=");
-    _trick_models.append(_model_userjobs);
     _plot_jobs = new SnapPlot(f2);
     lay2->addWidget(_plot_jobs,1,0,1,1);
     _plot_jobs->xAxis->setLabel("Time (s)");
@@ -165,7 +161,8 @@ SnapWindow::SnapWindow(const QString& rundir,
             this,SLOT(_update_plot_frame_xrange(QCPRange)));
 
 
-    fname = rundir + "/log_trickjobs.trk";
+    fname = _snap->fileNameTrickJobs();
+
     _model_trickjobs = new TrickModel(fname);
     _trick_models.append(_model_trickjobs);
 
@@ -199,7 +196,9 @@ SnapWindow::~SnapWindow()
     delete _startup_thread;
 
     delete _model_frames;
-    delete _model_userjobs;
+    foreach ( TrickModel* m, _models_userjobs ) {
+        delete m;
+    }
     delete _model_trickjobs;
 
     foreach (TrickCurveModel* cm, _curve_models ) {
@@ -244,6 +243,7 @@ void SnapWindow::__update_job_plot(const QModelIndex &idx)
                 if ( _plot_jobs->curveCount() > 0 ) {
                     _plot_jobs->removeCurve(0);
                 }
+
                 TrickCurveModel* cm  = new TrickCurveModel(model,0,0,ii,
                                                            name,1.0e-6);
                 _curve_models.append(cm);

@@ -422,23 +422,14 @@ QList<Job *>* Snap::jobs(SortBy sort_method)
     return &_jobs;
 }
 
-TrickModel *Snap::_createModel(const QString &rundir,
-                               const QString &logfilename,
+TrickModel *Snap::_createModel( const QString &trk,
                                double start, double stop)
 {
     TrickModel* model;
 
-    QDir dir(rundir);
-    if ( ! dir.exists() ) {
-        _err_stream << "snap [error]: couldn't find run directory: "
-                    << rundir << "\n";
-        throw std::invalid_argument(_err_string.toAscii().constData());
-    }
-
-    QString trk = rundir + QString("/") + logfilename;
     QFile file(trk);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        _err_stream << "snap [error]: couldn't read file: " << trk << "\n";
+        _err_stream << "snap [error]: couldn't read/open file: " << trk << "\n";
         throw std::invalid_argument(_err_string.toAscii().constData());
     } else {
         file.close();
@@ -474,18 +465,12 @@ TrickModel *Snap::_createModel(const QString &rundir,
 
 void Snap::_process_models()
 {
-    _trickJobModel = _createModel(_rundir,
-                                   QString("log_trickjobs.trk"),
-                                   _start, _stop);
+    _setLogFileNames();
+    _trickJobModel = _createModel(_fileNameTrickJobs, _start, _stop);
 
     // Trick 13 splits userjobs into separate files
-    QDir dir(_rundir);
-    QStringList filter;
-    filter << "*userjobs*.trk";
-    dir.setNameFilters(filter);
-    QStringList userjobs = dir.entryList(QDir::Files);
-    foreach ( QString userjob, userjobs ) {
-        TrickModel* userJobModel =  _createModel(_rundir,userjob,_start, _stop);
+    foreach ( QString userJob, _fileNamesUserJobs ) {
+        TrickModel* userJobModel =  _createModel(userJob,_start, _stop);
         if ( userJobModel->rowCount() > 0 ) {
             // log*CX*.trk has no timing data (this happens in Trick 13)
             _userJobModels.append(userJobModel);
@@ -493,15 +478,8 @@ void Snap::_process_models()
             delete userJobModel;
         }
     }
-    if ( _userJobModels.isEmpty() ) {
-        _err_stream << "snap [error]: no *userjob*.trk files found in "
-                    << "directory " << _rundir;
-        throw std::invalid_argument(_err_string.toAscii().constData());
-    }
 
-    _modelFrame = _createModel(_rundir,
-                               QString("log_frame.trk"),
-                               _start, _stop);
+    _modelFrame = _createModel(_fileNameLogFrame, _start, _stop);
 
     _process_jobs(_trickJobModel);
     foreach ( TrickModel* userJobModel, _userJobModels ) {
@@ -1073,4 +1051,46 @@ QString SnapReport::report()
 
     return rpt;
 
+}
+
+
+void Snap::_setLogFileNames()
+{
+    _fileNameTrickJobs = _rundir + "/log_trickjobs.trk";
+    if ( !QFileInfo(_fileNameTrickJobs).exists() ) {
+        _fileNameTrickJobs = _rundir + "/log_snap_trickjobs.trk";
+        if ( !QFileInfo(_fileNameTrickJobs).exists() ) {
+            _err_stream << "snap [error]: cannot find log_trickjobs.trk or "
+                        << "log_snap_trickjobs.trk files n "
+                        << "directory " << _rundir;
+            throw std::invalid_argument(_err_string.toAscii().constData());
+        }
+    }
+
+    // Trick 13 splits userjobs into separate files
+    QDir dir(_rundir);
+    QStringList filter;
+    filter << "*userjobs*.trk";
+    dir.setNameFilters(filter);
+    QStringList userJobs = dir.entryList(QDir::Files);
+    foreach ( QString userJob, userJobs ) {
+        QString path = _rundir + "/" + userJob;
+        _fileNamesUserJobs << path;
+    }
+    if ( _fileNamesUserJobs.isEmpty() ) {
+        _err_stream << "snap [error]: no *userjob*.trk files found in "
+                    << "directory " << _rundir;
+        throw std::invalid_argument(_err_string.toAscii().constData());
+    }
+
+    _fileNameLogFrame = _rundir + "/log_frame.trk";
+    if ( !QFileInfo(_fileNameLogFrame).exists() ) {
+        _fileNameLogFrame = _rundir + "/log_snap_frame.trk";
+        if ( !QFileInfo(_fileNameLogFrame).exists() ) {
+            _err_stream << "snap [error]: cannot find log_frame.trk or "
+                        << "log_snap_frame.trk files n "
+                        << "directory " << _rundir;
+            throw std::invalid_argument(_err_string.toAscii().constData());
+        }
+    }
 }

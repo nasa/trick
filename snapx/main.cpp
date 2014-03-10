@@ -116,18 +116,6 @@ void preset_rundir(DougString* curr_rundir, const char* new_rundir, bool* ok)
         *ok = false;
         return;
     }
-
-    QString file_logframe  = rundir + QString("/log_frame.trk");
-    if ( ! check_file(file_logframe) ) {
-        *ok = false;
-        return;
-    }
-    QString file_trickjobs = rundir + QString("/log_trickjobs.trk");
-    if ( ! check_file(file_trickjobs) ) {
-        *ok = false;
-        return;
-    }
-
 }
 
 bool check_file(const QString& fname)

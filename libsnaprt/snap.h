@@ -47,6 +47,10 @@ public:
         SortByJobMaxTime
     };
 
+    QString fileNameLogFrame() { return _fileNameLogFrame; }
+    QString fileNameTrickJobs() { return _fileNameTrickJobs; }
+    QStringList fileNamesUserJobs() { return _fileNamesUserJobs; }
+
     void load();
 
     bool is_realtime() const { return _is_realtime ; }
@@ -103,6 +107,12 @@ private:
     QTextStream _err_stream;
 
     QString _rundir;
+
+    void _setLogFileNames();
+    QString _fileNameLogFrame;
+    QString _fileNameTrickJobs;
+    QStringList _fileNamesUserJobs;
+
     double _start;
     double _stop;
 
@@ -117,8 +127,7 @@ private:
     QMap<QString,Job*> _id_to_job;
 
 
-    TrickModel* _createModel(const QString& rundir,
-                             const QString& logfilename,
+    TrickModel* _createModel(const QString& trk,
                              double start, double stop);
     void _process_models();
     bool _parse_s_job_execution(const QString& rundir);

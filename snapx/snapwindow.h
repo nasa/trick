@@ -64,7 +64,7 @@ private:
     QTableView* _curr_job_tv;
 
     TrickModel* _model_frames;
-    TrickModel* _model_userjobs;
+    QList<TrickModel*> _models_userjobs;
     TrickModel* _model_trickjobs;
     SnapTable* _model_threads;
     QList<TrickModel*> _trick_models;
