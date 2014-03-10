@@ -3,13 +3,14 @@
 #include "timeit_linux.h"
 
 Monte::Monte(const QString& dirname, int beginRun, int endRun) :
+    Runs(),
     _montedir(dirname),
     _beginRun(beginRun),
     _endRun(endRun),
     _err_stream(&_err_string)
 {
     if ( ! dirname.isEmpty() ) {
-        setDir(dirname);
+        _setDir(dirname);
     }
     if ( _beginRun < 0 ) {
         _err_stream << "snap [error]: Monte::Monte() constructor has "
@@ -29,7 +30,7 @@ Monte::~Monte()
     }
 }
 
-bool Monte::setDir(const QString &montedir)
+bool Monte::_setDir(const QString &montedir)
 {
     bool ok = true;
     _montedir = montedir;

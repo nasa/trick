@@ -13,13 +13,13 @@
 #include <stdexcept>
 #include "trickmodel.h"
 #include "numsortitem.h"
+#include "runs.h"
 
-class Monte
+class Monte : public Runs
 {
   public:
     Monte(const QString &dirname, int beginRun=0, int endRun=1.0e6);
     ~Monte();
-    bool setDir(const QString& montedir);
     QStringList params() const { return _params; }
     QStringList runs() const { return _runsSubset; }
     QList<TrickModel*>* models(const QString& param);
@@ -36,6 +36,8 @@ class Monte
     QHash<QString,QList<TrickModel*>* > _ftrk2models;
     QString _err_string;
     QTextStream _err_stream;
+
+    bool _setDir(const QString& montedir);
 };
 
 
