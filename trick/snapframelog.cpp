@@ -136,8 +136,12 @@ int SnapFrameLog::log_on()
                 //
                 // Since there are normally a bazillion SimBus jobs
                 // which normally do not affect real-time - skip them
+                // Do the same for obcs data exchange
                 //
-                if (!all_jobs_vector[ii]->name.compare(dot, 8, ".SimBus.")) {
+                if (!all_jobs_vector[ii]->name.compare(dot, 7, ".SimBus")) {
+                    continue;
+                }
+                if (!all_jobs_vector[ii]->name.compare(0,8,"obcsData")) {
                     continue;
                 }
 
