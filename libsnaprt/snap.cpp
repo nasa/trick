@@ -767,9 +767,14 @@ QString SnapReport::report()
     rpt += str.sprintf("%20s = %8.3lf\n", "Stop time ",_snap.stop());
     rpt += str.sprintf("%20s = %d\n", "Num jobs", _snap.num_jobs());
     rpt += str.sprintf("%20s = %d\n", "Num frames",_snap.num_frames());
-    rpt += str.sprintf("%20s = %d\n", "Num overruns",_snap.num_overruns());
-    rpt += str.sprintf("%20s = %.2lf%%\n", "Percentage overruns",
-                                          _snap.percent_overruns());
+    if ( _snap.is_realtime() ) {
+        rpt += str.sprintf("%20s = %d\n", "Num overruns",_snap.num_overruns());
+        rpt += str.sprintf("%20s = %.2lf%%\n", "Percentage overruns",
+                            _snap.percent_overruns());
+    } else {
+        rpt += str.sprintf("%20s = %s\n", "Num overruns",
+                                         "Not applicable since non-realtime run");
+    }
     rpt += str.sprintf("%20s = %s\n", "Frame rate(s)",
                                       _snap.frame_rate().toAscii().constData());
     if ( _snap.is_realtime() ) {
@@ -777,7 +782,7 @@ QString SnapReport::report()
         rpt += str.sprintf("%20s = %.6lf\n","Frame stddev",_snap.frame_stddev());
     } else {
         rpt += str.sprintf("%20s = %s\n", "Frame avg",
-                                         "Unmeasured since non-realtime run");
+                                         "Not measured since non-realtime run");
     }
     rpt += str.sprintf("%20s = %d\n", "Num threads",_snap.num_threads());
     rpt += str.sprintf("%20s = %s\n","Thread list",
