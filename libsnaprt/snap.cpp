@@ -744,12 +744,14 @@ QString SnapReport::report()
     int cnt = 0;
     int max_cnt = 10;
 
+    /*
     if ( ! _snap.is_realtime() ) {
         rpt.append("Oh Snap!!! - The following sim run had realtime disabled!\n");
         rpt += str.sprintf("          %s\n",_snap.rundir().toAscii().constData());
         rpt.append("Try again!\n");
         return rpt;
     }
+    */
 
     QString divider("------------------------------------------------\n");
     QString endsection("\n\n");
@@ -770,8 +772,13 @@ QString SnapReport::report()
                                           _snap.percent_overruns());
     rpt += str.sprintf("%20s = %s\n", "Frame rate(s)",
                                       _snap.frame_rate().toAscii().constData());
-    rpt += str.sprintf("%20s = %.6lf\n", "Frame avg",_snap.frame_avg());
-    rpt += str.sprintf("%20s = %.6lf\n","Frame stddev",_snap.frame_stddev());
+    if ( _snap.is_realtime() ) {
+        rpt += str.sprintf("%20s = %.6lf\n", "Frame avg",_snap.frame_avg());
+        rpt += str.sprintf("%20s = %.6lf\n","Frame stddev",_snap.frame_stddev());
+    } else {
+        rpt += str.sprintf("%20s = %s\n", "Frame avg",
+                                         "Unmeasured since non-realtime run");
+    }
     rpt += str.sprintf("%20s = %d\n", "Num threads",_snap.num_threads());
     rpt += str.sprintf("%20s = %s\n","Thread list",
                                    _snap.thread_listing().toAscii().constData());
