@@ -37,27 +37,35 @@ TimeLinePlot::TimeLinePlot(const QString &csv_file, QWidget* parent) :
     QCPGraph* g2;
     QCPGraph* g3;
 
-    g0 = _add_timeline_graph(this, QString("Real-time Sync"),
-                             Qt::gray,_timeline_loader,0,30.10,
-                             y0,y0+dy,63.0,65.0,true);
+    double t0 = 75.0;
+    double t1 = 80.0;
+    int td0 = 2;  int j0 = 478.91;
+    int td1 = 3;  int j1 = 479.31;
+    int td2 = 11; int j2 = 482.70;
+    int td3 = 11; int j3 = 482.75;
+
+    g0 = _add_timeline_graph(this, QString("g0"),
+                             Qt::gray,_timeline_loader,
+                             td0,j0,y0,y0+dy,t0,t1,true);
     y0 += dy;
 
-    g1 = _add_timeline_graph(this,QString("graphics_if.updata.dcomm"),
+    g1 = _add_timeline_graph(this,QString("g1"),
                              Qt::green, _timeline_loader,
-                             0,41.18,y0,y0+dy,63.0,65.0);
+                             td1,j1,y0,y0+dy,t0,t1);
     y0 += dy;
 
-    g2 = _add_timeline_graph(this,QString("Thread 5"),
+    g2 = _add_timeline_graph(this,QString("g2"),
                              Qt::blue,_timeline_loader,
-                             5,-1,y0,y0+dy,63.0,65.0);
+                             td2,j2,y0,y0+dy,t0,t1);
     y0 += dy;
 
-    g3 = _add_timeline_graph(this,QString("Thread 6"),
+    g3 = _add_timeline_graph(this,QString("g3"),
                              Qt::red,_timeline_loader,
-                             6,-1,y0,y0+dy,63.0,65.0);
+                             td3,j3,y0,y0+dy,t0,t1);
     y0 += dy;
 
-    QCPRange xrange(63.96,64.25);
+    //QCPRange xrange(63.96,64.25);
+    QCPRange xrange(t0,t1);
     this->xAxis->setRange(xrange);
     QCPRange yrange(0,y0);
     this->yAxis->setRange(yrange);
@@ -70,13 +78,18 @@ TimeLinePlot::TimeLinePlot(const QString &csv_file, QWidget* parent) :
     tics.append(3.5);
     this->yAxis->setTickVector(tics);
     QVector<QString> tic_labels;
-    tic_labels.append("T0");
-    tic_labels.append("J(30.18)");
-    tic_labels.append("T5");
-    tic_labels.append("T6");
+    QString s0 = QString("T%1-J%2").arg(td0).arg(j0);
+    QString s1 = QString("T%1-J%2").arg(td1).arg(j1);
+    QString s2 = QString("T%1-J%2").arg(td2).arg(j2);
+    QString s3 = QString("T%1-J%2").arg(td3).arg(j3);
+    tic_labels.append(s0);
+    tic_labels.append(s1);
+    tic_labels.append(s2);
+    tic_labels.append(s3);
     this->yAxis->setTickVectorLabels(tic_labels);
     //this->axisRect()->setupFullAxesBox();
 
+#if 0
     QCPGraph* g01 = new QCPGraph(this->xAxis,this->yAxis);
     this->addPlottable(g01);
     double t = 0.0;
@@ -97,6 +110,7 @@ TimeLinePlot::TimeLinePlot(const QString &csv_file, QWidget* parent) :
     this->xAxis2->setTickVector(x);
     this->xAxis2->setTickLengthIn(424);
     //this->xAxis2->setTickVectorLabels(tic_labels);
+#endif
 
     /*
     g->setName(curvename);
@@ -125,11 +139,13 @@ TimeLinePlot::~TimeLinePlot()
     delete _timeline_loader;
 }
 
-QCPGraph* TimeLinePlot::_add_timeline_graph(QCustomPlot *plot, QString curvename, QColor color,
-        TimeLineLoader *tl,
-        int tid, double jid,
-        double y0, double y1,
-        double beg_time, double end_time, bool is_exclude_jid)
+QCPGraph* TimeLinePlot::_add_timeline_graph(QCustomPlot *plot,
+                             QString curvename, QColor color,
+                             TimeLineLoader *tl,
+                             int tid, double jid,
+                             double y0, double y1,
+                             double beg_time, double end_time,
+                             bool is_exclude_jid )
 {
     QCPGraph *g= new QCPGraph(plot->xAxis,plot->yAxis);
     plot->addPlottable(g);
