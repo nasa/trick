@@ -6,6 +6,8 @@
 #include "utils.h"
 #include <stdexcept>
 
+#include <QTextStream>
+
 class Threads;
 
 class Thread
@@ -13,27 +15,25 @@ class Thread
   friend class Threads;
 
   public:
-    Thread(int threadId=-1);
+    Thread();
 
-    void setThreadId(int id) { _threadId = id ; }
-    int threadId() const { return _threadId; }
-
-    QList<Job*> jobs() { return _jobs; }
-    void addJob(Job* job) { _jobs.append(job); }
-    Job* jobAtIndex(int idx) const { return _jobs.at(idx); }
-
-    int numJobs() const { return _jobs.size() ; }
-    double avgRunTime() const { return avg_runtime; }
-    double runtime(int tidx) const;
-    double runtime(double timestamp) const;
-    double avgLoad() const { return avg_load; }
-    int timeIdxAtMaxRunTime() const { return tidx_max_runtime; }
-    double maxRunTime() const { return max_runtime ; }
-    double maxLoad() const { return max_load ; }
-    double stdDeviation() const { return stdev; }
-    double frequency() const { return freq; }
-    int numOverruns() const { return num_overruns; }
+    void addJob(Job* job);  // all jobs added must have same threadId
     void setNumOverruns(int n) { num_overruns = n ; } // TODO: thread should calculate this, not snap so delete this and you will not have this long comment ya big dummy
+
+    QList<Job*> jobs()               const { return _jobs; }
+    Job*   jobAtIndex(int idx)       const { return _jobs.at(idx); }
+    int    numJobs()                 const { return _jobs.size() ; }
+    int    threadId()                const { return _threadId; }
+    double avgRunTime()              const { return avg_runtime; }
+    double runtime(int tidx)         const;
+    double runtime(double timestamp)  const;
+    double avgLoad()                 const { return avg_load; }
+    int    timeIdxAtMaxRunTime()     const { return tidx_max_runtime; }
+    double maxRunTime()              const { return max_runtime ; }
+    double maxLoad()                 const { return max_load ; }
+    double stdDeviation()            const { return stdev; }
+    double frequency()               const { return freq; }
+    int    numOverruns()             const { return num_overruns; }
 
     int nframes() const; // this differs from number of timestamps
                         //  since frames can span multiple timestamps
@@ -47,6 +47,7 @@ class Thread
     double avg_job_load(Job* job) const ;
 
   private:
+
     int _threadId;
     QList<Job*> _jobs;
 
@@ -60,6 +61,9 @@ class Thread
     int num_overruns;
 
     void _do_stats(); // TODO: make private later
+
+    static QString _err_string;
+    static QTextStream _err_stream;
 
 
   private:

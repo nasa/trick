@@ -2,16 +2,37 @@
 
 #include <cmath>
 
+
+QString Thread::_err_string;
+QTextStream Thread::_err_stream(&Thread::_err_string);
+
 static bool intLessThan(int a, int b)
 {
     return a < b;
 }
 
-Thread::Thread(int threadId) :
-     _threadId(threadId), avg_runtime(0),
+Thread::Thread() :
+     _threadId(-1), avg_runtime(0),
      tidx_max_runtime(0),max_runtime(0), stdev(0),freq(0.0),
      num_overruns(0)
 {
+}
+
+void Thread::addJob(Job* job)
+{
+    if ( !_jobs.isEmpty() && _threadId != job->thread_id() ) {
+        _err_stream << "snap [bad scoobies]: Thread::addJob() called with "
+                    << "job with threadId that doesn't match other jobs. "
+                    << "Conflicing jobs are:\n    "  << _jobs.at(0)->job_name()
+                    << "\nand\n    " << job->job_name() ;
+        throw std::runtime_error(_err_string.toAscii().constData());
+    }
+
+    if ( _jobs.isEmpty() ) {
+        _threadId = job->thread_id();
+    }
+
+    _jobs.append(job);
 }
 
 void Thread::_do_stats()
@@ -183,7 +204,7 @@ Threads::Threads(const QList<Job*>& jobs) : _jobs(jobs)
         int tid = job->thread_id();
         if ( ! _ids.contains(tid) ) {
             _ids.append(tid);
-            Thread* thread = new Thread(tid);
+            Thread* thread = new Thread;
             _threads.insert(tid,thread);
         }
 
