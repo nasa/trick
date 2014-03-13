@@ -54,7 +54,14 @@ public:
     void load();
 
     bool is_realtime() const { return _is_realtime ; }
-    QString rundir() const { return _rundir ; }
+
+    QString rundir() const {
+        QString dir(_rundir);
+        if (dir.endsWith('/') ) {
+            dir.chop(1);
+        }
+        return dir ;
+    }
 
     double start() const {
         if ( _modelFrame->rowCount() > 0 ) {
