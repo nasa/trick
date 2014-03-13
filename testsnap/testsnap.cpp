@@ -1025,28 +1025,28 @@ void TestSnap::thread1()
     foreach ( Thread thread, threads ) {
 
         // Thread Id
-        QCOMPARE(thread.thread_id,tid);
+        QCOMPARE(thread.threadId(),tid);
 
         // Freq
         if ( tid == 0 ) {
-            QCOMPARE(thread.freq,0.1);
+            QCOMPARE(thread.frequency(),0.1);
         } else if ( tid == 1 ) {
-            QCOMPARE(thread.freq,1.0);
+            QCOMPARE(thread.frequency(),1.0);
         } else if ( tid == 2 ) {
-            QCOMPARE(thread.freq,0.1);
+            QCOMPARE(thread.frequency(),0.1);
         } else if ( tid == 3 ) {
-            QCOMPARE(thread.freq,0.2);
+            QCOMPARE(thread.frequency(),0.2);
         }
 
         // Num Jobs on thread
         if ( tid == 0 ) {
-            QCOMPARE(thread.jobs.size(),6);
+            QCOMPARE(thread.numJobs(),6);
         } else if ( tid == 1 ) {
-            QCOMPARE(thread.jobs.size(),4);
+            QCOMPARE(thread.numJobs(),4);
         } else if ( tid == 2 ) {
-            QCOMPARE(thread.jobs.size(),1);
+            QCOMPARE(thread.numJobs(),1);
         } else if ( tid == 3 ) {
-            QCOMPARE(thread.jobs.size(),2);
+            QCOMPARE(thread.numJobs(),2);
         }
 
         // Num frames
@@ -1062,8 +1062,8 @@ void TestSnap::thread1()
 
         // Runtime
         double sum = 0.0;
-        foreach ( Job* job, thread.jobs ) {
-            double rt = (0.01)*(thread.freq)/job->freq();
+        foreach ( Job* job, thread.jobs() ) {
+            double rt = (0.01)*(thread.frequency())/job->freq();
             sum += rt;
         }
         // Duplicate lines because failure prints line number

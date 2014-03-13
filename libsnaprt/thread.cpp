@@ -7,14 +7,20 @@ static bool intLessThan(int a, int b)
     return a < b;
 }
 
+Thread::Thread(int threadId) :
+     _threadId(threadId), avg_runtime(0),
+     tidx_max_runtime(0),max_runtime(0), stdev(0),freq(0.0),
+     num_overruns(0)
+{
+}
 
 void Thread::_do_stats()
 {
-    if ( jobs.size() == 0 ) {
+    if ( _jobs.size() == 0 ) {
         return;
     }
 
-    qSort(jobs.begin(),jobs.end(),jobAvgTimeGreaterThan);
+    qSort(_jobs.begin(),_jobs.end(),jobAvgTimeGreaterThan);
 
     // Frequency (cycle time) of thread
     //
@@ -27,8 +33,8 @@ void Thread::_do_stats()
     //              Guess that the thread freq is the same freq of the job
     //              with max cycle time
     freq = -1.0e20;
-    foreach ( Job* job, jobs ) {
-        if ( thread_id == 0 ) {
+    foreach ( Job* job, _jobs ) {
+        if ( _threadId == 0 ) {
             if ( job->job_name() == "trick_sys.sched.advance_sim_time" ) {
                 freq = job->freq();
                 break;
@@ -43,7 +49,7 @@ void Thread::_do_stats()
     if (freq == -1.0e20) {
         freq = 0.0;
     }
-    if ( thread_id == 0 && freq == 0.0 ) {
+    if ( _threadId == 0 && freq == 0.0 ) {
         QString msg;
         msg += "snap [error]: couldn't find job";
         msg += " trick_sys.sched.advance_sim_time.";
@@ -51,7 +57,7 @@ void Thread::_do_stats()
         throw std::runtime_error(msg.toAscii().constData());
     }
 
-    Job* job0 = jobs.at(0);
+    Job* job0 = _jobs.at(0);
     TrickCurveModel* curve = job0->curve();
     TrickModelIterator it = curve->begin();
     const TrickModelIterator e = curve->end();
@@ -88,7 +94,7 @@ void Thread::_do_stats()
             is_frame_change = false;
         }
 
-        foreach ( Job* job, jobs ) {
+        foreach ( Job* job, _jobs ) {
             it2 = job->curve()->begin();
             frame_time += it2[tidx].x();
         }
@@ -130,7 +136,7 @@ double Thread::runtime(int tidx) const
 
 double Thread::runtime(double timestamp) const
 {
-    int tidx = jobs.at(0)->curve()->indexAtTime(timestamp);
+    int tidx = _jobs.at(0)->curve()->indexAtTime(timestamp);
     double rt = runtime(tidx);
     return rt;
 }
@@ -155,7 +161,7 @@ double Thread::avg_job_load(Job *job) const
     double load = 0.0;
 
     if ( avg_runtime > 0.000001 ) {
-        if ( jobs.length() == 1 ) {
+        if ( _jobs.length() == 1 ) {
             // Fix round off error.
             // If the job has an average above zero
             // and the thread has a single job
@@ -177,13 +183,12 @@ Threads::Threads(const QList<Job*>& jobs) : _jobs(jobs)
         int tid = job->thread_id();
         if ( ! _ids.contains(tid) ) {
             _ids.append(tid);
-            Thread* thread = new Thread();
-            thread->thread_id = tid;
+            Thread* thread = new Thread(tid);
             _threads.insert(tid,thread);
         }
 
         Thread* thread = _threads.value(tid);
-        thread->jobs.append(job);
+        thread->addJob(job);
     }
 
     qSort(_ids.begin(),_ids.end(),intLessThan);
