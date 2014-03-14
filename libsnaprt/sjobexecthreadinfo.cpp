@@ -14,6 +14,20 @@ SJobExecThreadInfo::SJobExecThreadInfo(const QString &runDir, int threadId) :
     _freq(0.0)
 {
     _sJobExecutionFileName = _runDir + "/S_job_execution";
+    _calcThreadInfo();
+}
+
+void SJobExecThreadInfo::setThreadId(int threadId)
+{
+    _threadId = threadId;
+    _calcThreadInfo();
+}
+
+void SJobExecThreadInfo::_calcThreadInfo()
+{
+    if ( _threadId < 0 ) {
+        return;
+    }
 
     QFile file(_sJobExecutionFileName);
 
@@ -22,7 +36,6 @@ SJobExecThreadInfo::SJobExecThreadInfo(const QString &runDir, int threadId) :
     }
 
     QTextStream in(&file);
-
     QString line = in.readLine();
     if ( line != "Thread information" ) {
         return;
@@ -142,43 +155,3 @@ SJobExecThreadInfo::SJobExecThreadInfo(const QString &runDir, int threadId) :
 
     file.close();
 }
-
-#if 0
-// Guess frequency (cycle time) of thread
-//
-// If Trick 13, use S_job_execution if possible
-// Else Use this
-//
-// Guess the thread freq by:
-//   thread0:
-//              It's the same as sim frame time which
-//              can be determined by the job:
-//                       trick_sys.sched.advance_sim_time
-//   threads1-N:
-//              Guess that the thread freq is the same freq of the job
-//              with max cycle time
-double Thread::_calcFrequency()
-{
-    double f;
-
-    f = -1.0e20;
-    foreach ( Job* job, _jobs ) {
-        if ( _threadId == 0 ) {
-            if ( job->job_name() == "trick_sys.sched.advance_sim_time" ) {
-                f = job->freq();
-                break;
-            }
-        } else {
-            if ( job->freq() < 0.000001 ) continue;
-            if ( job->freq() > f ) {
-                f = job->freq();
-            }
-        }
-    }
-    if (f == -1.0e20) {
-        f = 0.0;
-    }
-
-    return f;
-}
-#endif

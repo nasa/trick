@@ -12,7 +12,9 @@ class SJobExecThreadInfo
 {
   public:
 
-    SJobExecThreadInfo(const QString& runDir, int threadId);
+    SJobExecThreadInfo(const QString& runDir, int threadId=-1);
+
+    void setThreadId(int threadId);
 
     bool    hasInfo()     const { return _hasInfo; }
     int     threadId()    const { return _threadId; }
@@ -29,6 +31,8 @@ class SJobExecThreadInfo
     double _freq;
     QString _sJobExecutionFileName;
     QString _rtCPUNumber;
+
+    void _calcThreadInfo();
 
     static QString _err_string;
     static QTextStream _err_stream;

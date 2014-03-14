@@ -11,7 +11,7 @@ static bool intLessThan(int a, int b)
 }
 
 Thread::Thread(const QString &runDir) :
-    _runDir(runDir), _threadId(-1),
+    _runDir(runDir), _threadId(-1), _sJobExecThreadInfo(runDir),
     avg_runtime(0),avg_load(0), tidx_max_runtime(0),
     max_runtime(0), max_load(0),stdev(0),freq(0.0),
     num_overruns(0)
@@ -20,7 +20,6 @@ Thread::Thread(const QString &runDir) :
 
 Thread::~Thread()
 {
-    //delete _sJobExecThreadInfo;
 }
 
 void Thread::addJob(Job* job)
@@ -35,7 +34,7 @@ void Thread::addJob(Job* job)
 
     if ( _jobs.isEmpty() ) {
         _threadId = job->thread_id();
-        _sJobExecThreadInfo = new SJobExecThreadInfo(_runDir,_threadId);
+        _sJobExecThreadInfo.setThreadId(_threadId);
     }
 
     _jobs.append(job);
@@ -49,8 +48,8 @@ void Thread::_do_stats()
 
     qSort(_jobs.begin(),_jobs.end(),jobAvgTimeGreaterThan);
 
-    if ( _sJobExecThreadInfo->hasInfo() ) {
-        freq = _sJobExecThreadInfo->frequency();
+    if ( _sJobExecThreadInfo.hasInfo() ) {
+        freq = _sJobExecThreadInfo.frequency();
     } else {
         freq = _calcFrequency();
     }

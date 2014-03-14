@@ -57,7 +57,7 @@ class Thread
 
     QString _runDir;
     int _threadId;
-    SJobExecThreadInfo* _sJobExecThreadInfo;
+    SJobExecThreadInfo _sJobExecThreadInfo;
     QList<Job*> _jobs;
 
     double avg_runtime;
