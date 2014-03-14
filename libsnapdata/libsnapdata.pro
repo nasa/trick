@@ -3,12 +3,10 @@ QT       += gui
 TARGET = snapdata
 TEMPLATE = lib
 
+CONFIG += staticlib
+
 release {
-    CONFIG += staticlib
     QMAKE_CXXFLAGS_RELEASE -= -g
-}
-debug {
-    CONFIG -= staticlib
 }
 
 DEFINES += SNAPDATA_LIBRARY

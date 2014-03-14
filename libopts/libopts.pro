@@ -3,8 +3,9 @@ QT       -= gui
 TARGET = opts
 TEMPLATE = lib
 
+CONFIG += staticlib
+
 release {
-    CONFIG+= staticlib
     QMAKE_CXXFLAGS_RELEASE -= -g
 }
 
