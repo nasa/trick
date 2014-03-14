@@ -2,7 +2,6 @@
 
 #include <cmath>
 
-
 QString Thread::_err_string;
 QTextStream Thread::_err_stream(&Thread::_err_string);
 
@@ -11,11 +10,17 @@ static bool intLessThan(int a, int b)
     return a < b;
 }
 
-Thread::Thread() :
-     _threadId(-1), avg_runtime(0),
-     tidx_max_runtime(0),max_runtime(0), stdev(0),freq(0.0),
-     num_overruns(0)
+Thread::Thread(const QString &runDir) :
+    _runDir(runDir), _threadId(-1),
+    avg_runtime(0),avg_load(0), tidx_max_runtime(0),
+    max_runtime(0), max_load(0),stdev(0),freq(0.0),
+    num_overruns(0)
 {
+}
+
+Thread::~Thread()
+{
+    //delete _sJobExecThreadInfo;
 }
 
 void Thread::addJob(Job* job)
@@ -30,6 +35,7 @@ void Thread::addJob(Job* job)
 
     if ( _jobs.isEmpty() ) {
         _threadId = job->thread_id();
+        _sJobExecThreadInfo = new SJobExecThreadInfo(_runDir,_threadId);
     }
 
     _jobs.append(job);
@@ -43,33 +49,12 @@ void Thread::_do_stats()
 
     qSort(_jobs.begin(),_jobs.end(),jobAvgTimeGreaterThan);
 
-    // Frequency (cycle time) of thread
-    //
-    // For now (waiting on trick13) guess the thread freq by:
-    //   thread0:
-    //              It's the same as sim frame time which
-    //              can be determined by the job:
-    //                       trick_sys.sched.advance_sim_time
-    //   threads1-N:
-    //              Guess that the thread freq is the same freq of the job
-    //              with max cycle time
-    freq = -1.0e20;
-    foreach ( Job* job, _jobs ) {
-        if ( _threadId == 0 ) {
-            if ( job->job_name() == "trick_sys.sched.advance_sim_time" ) {
-                freq = job->freq();
-                break;
-            }
-        } else {
-            if ( job->freq() < 0.000001 ) continue;
-            if ( job->freq() > freq ) {
-                freq = job->freq();
-            }
-        }
+    if ( _sJobExecThreadInfo->hasInfo() ) {
+        freq = _sJobExecThreadInfo->frequency();
+    } else {
+        freq = _calcFrequency();
     }
-    if (freq == -1.0e20) {
-        freq = 0.0;
-    }
+
     if ( _threadId == 0 && freq == 0.0 ) {
         QString msg;
         msg += "snap [error]: couldn't find job";
@@ -141,6 +126,46 @@ void Thread::_do_stats()
 
 }
 
+
+
+// Guess frequency (cycle time) of thread
+//
+// If Trick 13, use S_job_execution if possible
+// Else Use this
+//
+// Guess the thread freq by:
+//   thread0:
+//              It's the same as sim frame time which
+//              can be determined by the job:
+//                       trick_sys.sched.advance_sim_time
+//   threads1-N:
+//              Guess that the thread freq is the same freq of the job
+//              with max cycle time
+double Thread::_calcFrequency()
+{
+    double fq;
+
+    fq = -1.0e20;
+    foreach ( Job* job, _jobs ) {
+        if ( _threadId == 0 ) {
+            if ( job->job_name() == "trick_sys.sched.advance_sim_time" ) {
+                fq = job->freq();
+                break;
+            }
+        } else {
+            if ( job->freq() < 0.000001 ) continue;
+            if ( job->freq() > fq ) {
+                fq = job->freq();
+            }
+        }
+    }
+    if (fq == -1.0e20) {
+        fq = 0.0;
+    }
+
+    return fq;
+}
+
 double Thread::runtime(int tidx) const
 {
     double rt = -1.0;
@@ -169,7 +194,12 @@ int Thread::nframes() const
 
 double Thread::avg_job_runtime(Job *job) const
 {
-    return job->avg_runtime()*job->npoints()/nframes();
+    double rt = 0.0;
+    int nFrames = nframes();
+    if ( nFrames > 0 ) {
+        rt = job->avg_runtime()*job->npoints()/nframes();
+    }
+    return rt;
 }
 
 //
@@ -197,14 +227,14 @@ double Thread::avg_job_load(Job *job) const
 
 }
 
-Threads::Threads(const QList<Job*>& jobs) : _jobs(jobs)
+Threads::Threads(const QString &runDir, const QList<Job*>& jobs) : _jobs(jobs)
 {
     foreach ( Job* job, _jobs ) {
 
         int tid = job->thread_id();
         if ( ! _ids.contains(tid) ) {
             _ids.append(tid);
-            Thread* thread = new Thread;
+            Thread* thread = new Thread(runDir);
             _threads.insert(tid,thread);
         }
 
@@ -247,4 +277,3 @@ QList<int> Threads::ids() const
 {
     return _ids;
 }
-

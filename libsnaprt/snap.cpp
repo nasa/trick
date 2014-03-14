@@ -60,7 +60,7 @@ void Snap::_load()
     _calc_frame_avg();        // _frame_avg calculated
     _calc_frame_stddev();     // _frame_stddev calculated
 
-    _threads = new Threads(_jobs);
+    _threads = new Threads(_rundir,_jobs);
 
     _simobjects = new SimObjects(_jobs);
 

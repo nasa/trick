@@ -4,18 +4,25 @@
 #include "job.h"
 #include "frame.h"
 #include "utils.h"
+#include "sjobexecthreadinfo.h"
 #include <stdexcept>
 
+#include <QString>
+#include <QStringList>
 #include <QTextStream>
+#include <QDataStream>
+#include <QRegExp>
 
 class Threads;
+
 
 class Thread
 {
   friend class Threads;
 
   public:
-    Thread();
+    Thread(const QString& runDir);
+    ~Thread();
 
     void addJob(Job* job);  // all jobs added must have same threadId
     void setNumOverruns(int n) { num_overruns = n ; } // TODO: thread should calculate this, not snap so delete this and you will not have this long comment ya big dummy
@@ -48,7 +55,9 @@ class Thread
 
   private:
 
+    QString _runDir;
     int _threadId;
+    SJobExecThreadInfo* _sJobExecThreadInfo;
     QList<Job*> _jobs;
 
     double avg_runtime;
@@ -61,6 +70,7 @@ class Thread
     int num_overruns;
 
     void _do_stats(); // TODO: make private later
+    double _calcFrequency() ;
 
     static QString _err_string;
     static QTextStream _err_stream;
@@ -73,7 +83,7 @@ class Thread
 class Threads
 {
   public:
-    Threads(const QList<Job *> &jobs);
+    Threads(const QString& runDir, const QList<Job *> &jobs);
     ~Threads();
     Thread get(int id) const;
     QList<int> ids() const;
@@ -81,6 +91,7 @@ class Threads
     int size() const { return _threads.keys().size(); }
 
   private:
+    QString _runDir;
     QList<Job*> _jobs;
     QList<int> _ids;
     QMap<int,Thread*> _threads;
