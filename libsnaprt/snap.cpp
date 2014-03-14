@@ -856,7 +856,7 @@ QString SnapReport::report()
         double sum = 0;
         for ( int ii = 0; ii < 5; ++ii) {
             Job* job = thread.jobAtIndex(ii) ;
-            double load = thread.avg_job_load(job);
+            double load = thread.avgJobLoad(job);
             if ( job->job_name() == "real_time.rt_sync.rt_monitor" ) {
                 sum += load;
             }
@@ -867,7 +867,7 @@ QString SnapReport::report()
                 if ( ii > 0 ) {
                     rpt += str.sprintf("    %8s %8s %15s ", "","","");
                 }
-                rpt += str.sprintf("%15.6lf ",thread.avg_job_runtime(job));
+                rpt += str.sprintf("%15.6lf ",thread.avgJobRuntime(job));
                 if ( thread.avgRunTime() > 0.0000001 ) {
                     rpt += str.sprintf("%10.0lf%%", load);
                 } else {

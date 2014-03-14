@@ -12,9 +12,9 @@ static bool intLessThan(int a, int b)
 
 Thread::Thread(const QString &runDir) :
     _runDir(runDir), _threadId(-1), _sJobExecThreadInfo(runDir),
-    avg_runtime(0),avg_load(0), tidx_max_runtime(0),
-    max_runtime(0), max_load(0),stdev(0),freq(0.0),
-    num_overruns(0)
+    _avg_runtime(0),_avg_load(0), _tidx_max_runtime(0),
+    _max_runtime(0), _max_load(0),_stdev(0),_freq(0.0),
+    _num_overruns(0)
 {
 }
 
@@ -49,12 +49,12 @@ void Thread::_do_stats()
     qSort(_jobs.begin(),_jobs.end(),jobAvgTimeGreaterThan);
 
     if ( _sJobExecThreadInfo.hasInfo() ) {
-        freq = _sJobExecThreadInfo.frequency();
+        _freq = _sJobExecThreadInfo.frequency();
     } else {
-        freq = _calcFrequency();
+        _freq = _calcFrequency();
     }
 
-    if ( _threadId == 0 && freq == 0.0 ) {
+    if ( _threadId == 0 && _freq == 0.0 ) {
         QString msg;
         msg += "snap [error]: couldn't find job";
         msg += " trick_sys.sched.advance_sim_time.";
@@ -66,10 +66,10 @@ void Thread::_do_stats()
     TrickCurveModel* curve = job0->curve();
     TrickModelIterator it = curve->begin();
     const TrickModelIterator e = curve->end();
-    double tnext = it.t() + freq;
+    double tnext = it.t() + _freq;
     double sum_time = 0.0;
     double frame_time = 0.0;
-    max_runtime = 0.0;
+    _max_runtime = 0.0;
     int last_frameidx = 0 ;
     bool is_frame_change = true;
     int tidx = 0 ;
@@ -77,20 +77,20 @@ void Thread::_do_stats()
 
     while (it != e) {
 
-        if ( freq < 0.000001 ) {
+        if ( _freq < 0.000001 ) {
             is_frame_change = true;
         } else if ( it.t()+1.0e-6 > tnext ) {
-            tnext += freq;
-            if ( frame_time/1000000.0 > freq ) {
-                num_overruns++;
+            tnext += _freq;
+            if ( frame_time/1000000.0 > _freq ) {
+                _num_overruns++;
             }
             is_frame_change = true;
         }
 
         if ( is_frame_change ) {
-            if ( frame_time > max_runtime ) {
-                max_runtime = frame_time;
-                tidx_max_runtime = last_frameidx;
+            if ( frame_time > _max_runtime ) {
+                _max_runtime = frame_time;
+                _tidx_max_runtime = last_frameidx;
             }
             _frameidx2runtime[last_frameidx] = frame_time/1000000.0;
             sum_time += frame_time;
@@ -108,20 +108,20 @@ void Thread::_do_stats()
         ++it;
     }
 
-    max_runtime /= 1000000.0;
-    avg_runtime = sum_time/(double)this->nframes()/1000000.0;
-    if ( freq > 0.0000001 ) {
-        avg_load = 100.0*avg_runtime/freq;
-        max_load = 100.0*max_runtime/freq;
+    _max_runtime /= 1000000.0;
+    _avg_runtime = sum_time/(double)this->numFrames()/1000000.0;
+    if ( _freq > 0.0000001 ) {
+        _avg_load = 100.0*_avg_runtime/_freq;
+        _max_load = 100.0*_max_runtime/_freq;
     }
 
     // Stddev
     foreach ( int tidx, _frameidx2runtime.keys() ) {
         double rt = _frameidx2runtime[tidx];
-        double vv = (avg_runtime-rt)*(avg_runtime-rt);
-        stdev += vv;
+        double vv = (_avg_runtime-rt)*(_avg_runtime-rt);
+        _stdev += vv;
     }
-    stdev = sqrt(stdev/(double)this->nframes());
+    _stdev = sqrt(_stdev/(double)this->numFrames());
 
 }
 
@@ -142,27 +142,27 @@ void Thread::_do_stats()
 //              with max cycle time
 double Thread::_calcFrequency()
 {
-    double fq;
+    double freq;
 
-    fq = -1.0e20;
+    freq = -1.0e20;
     foreach ( Job* job, _jobs ) {
         if ( _threadId == 0 ) {
             if ( job->job_name() == "trick_sys.sched.advance_sim_time" ) {
-                fq = job->freq();
+                freq = job->freq();
                 break;
             }
         } else {
             if ( job->freq() < 0.000001 ) continue;
-            if ( job->freq() > fq ) {
-                fq = job->freq();
+            if ( job->freq() > freq ) {
+                freq = job->freq();
             }
         }
     }
-    if (fq == -1.0e20) {
-        fq = 0.0;
+    if (freq == -1.0e20) {
+        freq = 0.0;
     }
 
-    return fq;
+    return freq;
 }
 
 double Thread::runtime(int tidx) const
@@ -186,17 +186,17 @@ double Thread::runtime(double timestamp) const
     return rt;
 }
 
-int Thread::nframes() const
+int Thread::numFrames() const
 {
     return _frameidx2runtime.keys().size();
 }
 
-double Thread::avg_job_runtime(Job *job) const
+double Thread::avgJobRuntime(Job *job) const
 {
     double rt = 0.0;
-    int nFrames = nframes();
+    int nFrames = numFrames();
     if ( nFrames > 0 ) {
-        rt = job->avg_runtime()*job->npoints()/nframes();
+        rt = job->avg_runtime()*job->npoints()/nFrames;
     }
     return rt;
 }
@@ -206,11 +206,11 @@ double Thread::avg_job_runtime(Job *job) const
 // A load of 0.0 can mean it's negligible
 // If there's only one job on a thread, load is 100% if there's any load
 //
-double Thread::avg_job_load(Job *job) const
+double Thread::avgJobLoad(Job *job) const
 {
     double load = 0.0;
 
-    if ( avg_runtime > 0.000001 ) {
+    if ( _avg_runtime > 0.000001 ) {
         if ( _jobs.length() == 1 ) {
             // Fix round off error.
             // If the job has an average above zero
@@ -218,7 +218,7 @@ double Thread::avg_job_load(Job *job) const
             // this job took 100%, so force it to 100.0
             load = 100.0;
         } else {
-            load = 100.0*avg_job_runtime(job)/avg_runtime;
+            load = 100.0*avgJobRuntime(job)/_avg_runtime;
         }
     }
 

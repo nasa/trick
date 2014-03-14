@@ -9,6 +9,7 @@
 #include "libsnaprt/snap.h"
 #include "trickdatamodel.h"
 
+
 #define TEST_NON_RM2000
 #define TEST_RM2000_RPT
 #define TEST_RM2000_BENCHMARK
@@ -1052,13 +1053,13 @@ void TestSnap::thread1()
 
         // Num frames
         if ( tid == 0 ) {
-            QCOMPARE(thread.nframes(),1000);
+            QCOMPARE(thread.numFrames(),1000);
         } else if ( tid == 1 ) {
-            QCOMPARE(thread.nframes(),100);
+            QCOMPARE(thread.numFrames(),100);
         } else if ( tid == 2 ) {
-            QCOMPARE(thread.nframes(),1000);
+            QCOMPARE(thread.numFrames(),1000);
         } else if ( tid == 3 ) {
-            QCOMPARE(thread.nframes(),500);
+            QCOMPARE(thread.numFrames(),500);
         }
 
         // Runtime
