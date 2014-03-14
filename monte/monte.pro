@@ -48,3 +48,8 @@ INCLUDEPATH += $$PWD/..
 DEPENDPATH += $$PWD/../libsnapdata
 
 unix:!macx:!symbian: LIBS += -L$$PWD/../lib -lsnapdata -lopts -lqplot
+
+PRE_TARGETDEPS += $$PWD/../lib/libsnaprt.a
+PRE_TARGETDEPS += $$PWD/../lib/libsnapdata.a
+PRE_TARGETDEPS += $$PWD/../lib/libopts.a
+PRE_TARGETDEPS += $$PWD/../lib/libqplot.a
