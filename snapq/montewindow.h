@@ -22,7 +22,7 @@
 #include <QFileDialog>
 
 #include "libsnapdata/runs.h"
-#include "dp.h"
+#include "libqplot/dp.h"
 #include "libqplot/plotbookview.h"
 #include "dpfilterproxymodel.h"
 
