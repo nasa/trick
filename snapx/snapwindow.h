@@ -13,7 +13,6 @@
 #include <QList>
 
 #include "libsnaprt/snap.h"
-#include "snapplot.h"
 #include "libsnapdata/trickcurvemodel.h"
 #include "timelineloader.h"
 #include "timelineplot.h"
