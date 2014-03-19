@@ -17,6 +17,7 @@
 #include "libsnapdata/trickcurvemodel.h"
 #include "timelineloader.h"
 #include "timelineplot.h"
+#include "libqplot/plot.h"
 
 #include "libsnapdata/timeit_linux.h"
 
@@ -70,8 +71,8 @@ private:
     QList<TrickModel*> _trick_models;
     QList<TrickCurveModel*> _curve_models;
 
-    SnapPlot* _plot_frame;
-    SnapPlot* _plot_jobs ;
+    Plot* _plot_frame;
+    Plot* _plot_jobs ;
 
     int _spike_tab_idx;
 

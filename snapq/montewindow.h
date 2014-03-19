@@ -23,7 +23,7 @@
 
 #include "libsnapdata/runs.h"
 #include "dp.h"
-#include "plotbookview.h"
+#include "libqplot/plotbookview.h"
 #include "dpfilterproxymodel.h"
 
 #include "libsnapdata/timeit_linux.h"

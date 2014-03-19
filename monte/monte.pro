@@ -23,22 +23,12 @@ RCC_DIR     = $$BUILDDIR/rcc
 UI_DIR      = $$BUILDDIR/ui
 
 SOURCES += main.cpp \
-    trickcurve.cpp \
-    axisrect.cpp \
     montewindow.cpp \
-    dp.cpp \
-    plot.cpp \
-    plotbookview.cpp \
     dpfilterproxymodel.cpp
 
     
 HEADERS += \
-    plot.h \
-    dp.h \
     dpfilterproxymodel.h \
-    axisrect.h \
-    plotbookview.h \
-    trickcurve.h \
     montewindow.h
 
 OTHER_FILES += 

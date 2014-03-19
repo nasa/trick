@@ -11,7 +11,7 @@ using namespace std;
 
 #include "montewindow.h"
 #include "libopts/options.h"
-#include "dp.h"
+#include "libqplot/dp.h"
 
 
 Options::func_presetCB_DougString preset_montedir;

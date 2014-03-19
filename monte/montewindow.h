@@ -22,8 +22,8 @@
 #include <QFileDialog>
 
 #include "libsnapdata/monte.h"
-#include "dp.h"
-#include "plotbookview.h"
+#include "libqplot/dp.h"
+#include "libqplot/plotbookview.h"
 #include "dpfilterproxymodel.h"
 
 #include "libsnapdata/timeit_linux.h"

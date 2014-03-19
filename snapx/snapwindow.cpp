@@ -119,7 +119,7 @@ SnapWindow::SnapWindow(const QString& rundir,
 
     QString fname = _snap->fileNameLogFrame();
     _model_frames = new TrickModel(fname) ;
-    _plot_frame = new SnapPlot(f2);
+    _plot_frame = new Plot(f2);
 
     lay2->addWidget(_plot_frame,0,0,1,1);
 
@@ -128,9 +128,12 @@ SnapWindow::SnapWindow(const QString& rundir,
                                                        1.0e-6);
 
     _plot_frame->addCurve(frame_curve);
-    _plot_frame->xAxis->setLabel("Time (s)");
-    _plot_frame->yAxis->setLabel("Frame Scheduled Time (s)");
-    _plot_frame->zoomToFit();
+    _plot_frame->axisRect()->axis(QCPAxis::atBottom)->
+            setLabel("Time (s)");
+    _plot_frame->axisRect()->axis(QCPAxis::atLeft)->
+            setLabel("Frame Scheduled Time (s)");
+    _plot_frame->axisRect()->zoomToFit();
+    _plot_frame->replot();
 
     //
     // timeline test (development!)
@@ -151,13 +154,17 @@ SnapWindow::SnapWindow(const QString& rundir,
         _trick_models.append(m);
     }
     _timer.snap("load_userjobs=");
-    _plot_jobs = new SnapPlot(f2);
+    _plot_jobs = new Plot(f2);
+
     lay2->addWidget(_plot_jobs,1,0,1,1);
-    _plot_jobs->xAxis->setLabel("Time (s)");
-    _plot_jobs->yAxis->setLabel("Job Time (s)");
-    connect(_plot_frame->xAxis,SIGNAL(rangeChanged(QCPRange)),
-            this,SLOT(_update_plot_jobs_xrange(QCPRange)));
-    connect(_plot_jobs->xAxis,SIGNAL(rangeChanged(QCPRange)),
+    _plot_jobs->axisRect()->axis(QCPAxis::atBottom)->setLabel("Time (s)");
+    _plot_jobs->axisRect()->axis(QCPAxis::atLeft)->setLabel("Job Time (s)");
+    connect(_plot_frame->axisRect()->axis(QCPAxis::atBottom),
+            SIGNAL(rangeChanged(QCPRange)),
+            this,
+            SLOT(_update_plot_jobs_xrange(QCPRange)));
+    connect(_plot_jobs->axisRect()->axis(QCPAxis::atBottom),
+            SIGNAL(rangeChanged(QCPRange)),
             this,SLOT(_update_plot_frame_xrange(QCPRange)));
 
 
@@ -235,36 +242,64 @@ void SnapWindow::__update_job_plot(const QModelIndex &idx)
 {
     QString jobname = idx.model()->data(idx).toString();
 
+    QCPRange currRange;
+
     foreach ( TrickModel* model, _trick_models ) {
         for ( int ii = 0; ii < model->columnCount(); ++ii) {
             QString name = model->headerData
                     (ii,Qt::Horizontal,Param::Name).toString();
             if ( name == jobname ) {
-                if ( _plot_jobs->curveCount() > 0 ) {
-                    _plot_jobs->removeCurve(0);
+                currRange = _plot_jobs->axisRect()->
+                                axis(QCPAxis::atBottom)->range();
+                if ( _plot_jobs->axisRect()->curveCount() > 0 ) {
+                    _plot_jobs->axisRect()->removeCurve(0);
                 }
 
                 TrickCurveModel* cm  = new TrickCurveModel(model,0,0,ii,
                                                            name,1.0e-6);
+                // Y-axis just says "Job Time (s)"
                 _curve_models.append(cm);
-                _plot_jobs->addCurve(cm);
-                _plot_jobs->yAxis->setLabel("Job Time (s)");
+                TrickCurve* curve = _plot_jobs->addCurve(cm);
+                _plot_jobs->axisRect()->axis(QCPAxis::atLeft)->
+                        setLabel("Job Time (s)");
+
+                //
+                // Put name of job at top right of jobs plot
+                //
+                QCPPlotTitle *title = new QCPPlotTitle(_plot_jobs);
+                name  = name.remove("JOB_");
+                title->setText(name);
+                title->setFont(QFont("sans", 10, QFont::Normal));
+                QCPLayoutInset* inset = _plot_jobs->axisRect()->insetLayout();
+                if ( inset->elementCount() > 0 ) {
+                    QCPLayoutElement* el = inset->takeAt(0);
+                    if ( el ) {
+                        delete el;
+                    }
+                }
+                inset->addElement(title,Qt::AlignTop | Qt::AlignRight);
+
+                break;
             }
         }
     }
 
-    _plot_jobs->zoomToFit(_plot_frame->xAxis->range());
-    _plot_jobs->replot();
+    if ( currRange.size() > 0 ) {
+        _plot_jobs->axisRect()->zoomToFit(currRange);
+        _plot_jobs->replot();
+    }
 }
 
 void SnapWindow::_update_plot_jobs_xrange(const QCPRange &xrange)
 {
-    _plot_jobs->zoomToFit(xrange);
+    _plot_jobs->axisRect()->zoomToFit(xrange);
+    _plot_jobs->replot();
 }
 
 void SnapWindow::_update_plot_frame_xrange(const QCPRange &xrange)
 {
-    _plot_frame->zoomToFit(xrange);
+    _plot_frame->axisRect()->zoomToFit(xrange);
+    _plot_frame->replot();
 }
 
 void SnapWindow::_update_thread_plot(const QModelIndex &idx)
@@ -285,8 +320,8 @@ void SnapWindow::_update_thread_plot(const QModelIndex &idx)
         qDebug() << "     probably means thread runtime headerData() has changed";
     }
 
-    if ( _plot_jobs->curveCount() > 0 ) {
-        _plot_jobs->removeCurve(0);
+    if ( _plot_jobs->axisRect()->curveCount() > 0 ) {
+        _plot_jobs->axisRect()->removeCurve(0);
     }
     // TODO:!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     // thread is missing plot since using TrickModel and not SnapTable.
@@ -296,8 +331,10 @@ void SnapWindow::_update_thread_plot(const QModelIndex &idx)
     // and the valueScalefactor has to be in the iterator
 
     //_plot_jobs->addCurve(_model_threads,0,0,col,1.0e-6);
-    _plot_jobs->yAxis->setLabel("Thread Time (s)");
-    _plot_jobs->zoomToFit(_plot_frame->xAxis->range());
+    _plot_jobs->axisRect()->axis(QCPAxis::atLeft)->setLabel("Thread Time (s)");
+    QCPRange range = _plot_frame->axisRect()->axis(QCPAxis::atBottom)->range();
+    _plot_jobs->axisRect()->zoomToFit(range);
+    _plot_jobs->replot();
 }
 
 void SnapWindow::_update_job_table(const QModelIndex &idx)
@@ -329,9 +366,11 @@ void SnapWindow::_update_job_table(const QModelIndex &idx)
 
     // Zoom in around spike
 #ifndef TIMELINE
-    _plot_frame->zoomToFit(QCPRange(time-5.0,time+5.0));
+    _plot_frame->axisRect()->zoomToFit(QCPRange(time-5.0,time+5.0));
+    _plot_frame->replot();
 #else
     _plot_frame->zoomToFit(QCPRange(time-0.01,time+0.01));
+    _plot_frame->replot();
 #endif
 
     connect(_curr_job_tv->selectionModel(),

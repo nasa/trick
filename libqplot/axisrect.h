@@ -3,7 +3,7 @@
 
 #include <QAbstractItemModel>
 #include <QRubberBand>
-#include "libqplot/qcustomplot.h"
+#include "qcustomplot.h"
 #include "libsnapdata/montemodel.h"
 #include "libsnapdata/trickmodel.h"
 #include "trickcurve.h"

@@ -1,5 +1,6 @@
 QT  += core
 QT  += gui
+QT  += xml
 
 CONFIG -= app_bundle
 
@@ -22,18 +23,14 @@ UI_DIR      = $$BUILDDIR/ui
 
 SOURCES += main.cpp \
     timelineloader.cpp \
-    snapplot.cpp \
     timelineplot.cpp \
-    snapwindow.cpp \
-    trickcurve.cpp
+    snapwindow.cpp
 
     
 HEADERS += \
     timelineloader.h \
-    snapplot.h \
     timelineplot.h \
-    snapwindow.h \
-    trickcurve.h
+    snapwindow.h
 
 OTHER_FILES += 
 
