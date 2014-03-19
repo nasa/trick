@@ -35,19 +35,6 @@ AxisRect::~AxisRect()
     }
 }
 
-void AxisRect::setData(MonteModel *monteModel)
-{
-    foreach (DPCurve* dpCurve, _dpplot->curves() ) {
-        int ycol = monteModel->paramColumn(dpCurve->y()->name());
-        int rc = monteModel->rowCount();
-        for ( int r = 0; r < rc; ++r ) {
-            QModelIndex idx = monteModel->index(r,ycol);
-            TrickCurveModel* curve = monteModel->curve(idx);
-            addCurve(curve);
-        }
-    }
-}
-
 TrickCurve* AxisRect::addCurve(TrickModel* model, const QString& yparam,
                               double valueScaleFactor )
 {

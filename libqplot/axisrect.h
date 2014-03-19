@@ -16,8 +16,6 @@ class AxisRect : public QCPAxisRect
     AxisRect(QCustomPlot* plotwidget);
     ~AxisRect();
 
-    void setData(MonteModel *monteModel);
-
     TrickCurve* addCurve(TrickModel* model, const QString& yparam,
                          double valueScaleFactor=1.0);
     TrickCurve *addCurve(TrickCurveModel *model);
