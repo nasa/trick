@@ -22,26 +22,6 @@ AxisRect::~AxisRect()
     }
 }
 
-TrickCurve* AxisRect::addCurve(TrickModel* model, const QString& yparam,
-                              double valueScaleFactor )
-{
-    TrickCurve* curve = 0 ;
-
-    int ncols = model->columnCount();
-    for ( int col = 0; col < ncols; ++col) {
-        if (yparam ==
-            model->headerData(col,Qt::Horizontal,Param::Name).toString())  {
-            TrickCurveModel* cm = new TrickCurveModel(model,0,0,col,
-                                                      yparam, valueScaleFactor);
-            _curve_models.append(cm);
-            curve = addCurve(cm);
-            break;
-        }
-    }
-
-    return curve;
-}
-
 TrickCurve* AxisRect::addCurve(TrickCurveModel* model)
 {
     TrickCurve *curve = new TrickCurve(_xAxis,_yAxis);
