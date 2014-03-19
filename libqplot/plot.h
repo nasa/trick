@@ -3,7 +3,6 @@
 
 #include "libqplot/qcustomplot.h"
 #include "axisrect.h"
-#include "dp.h"
 #include "libsnapdata/trickmodel.h"
 #include "libsnapdata/montemodel.h"
 #include "libsnapdata/monte.h"
@@ -34,7 +33,6 @@ private slots:
     void _slotMouseDoubleClick(QMouseEvent *event);
 
 private:
-    DPPlot* _dpplot;
     AxisRect* _axisrect;
     QCPLayoutElement* _keyEventElement;
     bool _isPlottableClicked;

@@ -1,19 +1,6 @@
 #include "axisrect.h"
 #include "libsnapdata/timeit_linux.h"
 
-AxisRect::AxisRect(DPPlot* dpplot, QCustomPlot *plotwidget) :
-    QCPAxisRect(plotwidget),
-    _plotwidget(plotwidget),
-    _dpplot(dpplot),
-    _rubber_band(0),
-    _isXRangeCalculated(false),
-    _isYRangeCalculated(false),
-    _keyPressMoveFactor(.08)
-{
-    _xAxis = axis(QCPAxis::atBottom);
-    _yAxis = axis(QCPAxis::atLeft);
-}
-
 AxisRect::AxisRect(QCustomPlot* plotwidget) :
     QCPAxisRect(plotwidget),
     _plotwidget(plotwidget),

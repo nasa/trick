@@ -7,12 +7,10 @@
 #include "libsnapdata/montemodel.h"
 #include "libsnapdata/trickmodel.h"
 #include "trickcurve.h"
-#include "dp.h"
 
 class AxisRect : public QCPAxisRect
 {
   public:
-    AxisRect(DPPlot* dpplot, QCustomPlot* plotwidget);
     AxisRect(QCustomPlot* plotwidget);
     ~AxisRect();
 
@@ -37,7 +35,6 @@ protected:
 
   private:
     QCustomPlot* _plotwidget;
-    DPPlot* _dpplot;
     QCPAxis* _xAxis;
     QCPAxis* _yAxis;
     QPen _currPen;
