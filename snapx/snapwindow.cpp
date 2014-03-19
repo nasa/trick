@@ -127,7 +127,8 @@ SnapWindow::SnapWindow(const QString& rundir,
                                                        "Frame Scheduled Time",
                                                        1.0e-6);
 
-    _plot_frame->addCurve(frame_curve);
+    TrickCurve* curve = _plot_frame->axisRect()->addCurve(frame_curve);
+    Q_UNUSED(curve);
     _plot_frame->axisRect()->axis(QCPAxis::atBottom)->
             setLabel("Time (s)");
     _plot_frame->axisRect()->axis(QCPAxis::atLeft)->
@@ -259,7 +260,7 @@ void SnapWindow::__update_job_plot(const QModelIndex &idx)
                                                            name,1.0e-6);
                 // Y-axis just says "Job Time (s)"
                 _curve_models.append(cm);
-                TrickCurve* curve = _plot_jobs->addCurve(cm);
+                TrickCurve* curve = _plot_jobs->axisRect()->addCurve(cm);
                 _plot_jobs->axisRect()->axis(QCPAxis::atLeft)->
                         setLabel("Job Time (s)");
 

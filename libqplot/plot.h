@@ -15,8 +15,6 @@ class Plot : public QCustomPlot
 
 public:
     explicit Plot(QWidget* parent=0);
-    TrickCurve *addCurve(TrickCurveModel *model);
-    void setData(MonteModel *monteModel);
     void setXAxisLabel(const QString& label);
     void setYAxisLabel(const QString& label);
     AxisRect* axisRect() { return _axisrect; }

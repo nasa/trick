@@ -774,7 +774,8 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 TrickCurveModel* curveModel = _monteModel->curve(pidx.row(),
                                                                 yparam);
                 Plot* plot = _idx2Plot(gpidx);
-                TrickCurve* curve = plot->addCurve(curveModel);
+                TrickCurve* curve = plot->axisRect()->addCurve(curveModel);
+                plot->axisRect()->zoomToFit();
                 _plot2Curves[plot].append(curve);
 
                 QString xunit = curveModel->headerData

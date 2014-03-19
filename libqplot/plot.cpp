@@ -33,19 +33,6 @@ Plot::Plot(QWidget* parent) :
             this,SLOT(_slotMouseDoubleClick(QMouseEvent*)));
 }
 
-TrickCurve *Plot::addCurve(TrickCurveModel *model)
-{
-    TrickCurve* curve = _axisrect->addCurve(model);
-    _axisrect->zoomToFit();
-    return curve;
-}
-
-void Plot::setData(MonteModel *monteModel)
-{
-    _axisrect->setData(monteModel);
-    _axisrect->zoomToFit();
-}
-
 void Plot::setXAxisLabel(const QString &label)
 {
     _axisrect->_xAxis->setLabel(label);
