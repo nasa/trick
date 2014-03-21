@@ -36,8 +36,9 @@ class Runs
     QStringList _params;
     QHash<QString,QList<TrickModel*>* > _paramToModels;
     QList<TrickModel*> _models;
-    QString _err_string;
-    QTextStream _err_stream;
+
+    static QString _err_string;
+    static QTextStream _err_stream;
 };
 
 

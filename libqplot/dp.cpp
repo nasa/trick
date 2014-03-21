@@ -1,7 +1,9 @@
 #include "dp.h"
 
-DPProduct::DPProduct(const QString &xmlfile) :
-    _err_stream(&_err_string)
+QString DPProduct::_err_string;
+QTextStream DPProduct::_err_stream(&DPProduct::_err_string);
+
+DPProduct::DPProduct(const QString &xmlfile)
 {
     _doc = new QDomDocument(xmlfile);
     QFile file(xmlfile);
@@ -142,8 +144,11 @@ QString DPPlot::_abbreviate(const QString &label, int maxlen)
 }
 
 
-DPCurve::DPCurve(const QDomElement &e) :
-    _err_stream(&_err_string)
+
+QString DPCurve::_err_string;
+QTextStream DPCurve::_err_stream(&DPCurve::_err_string);
+
+DPCurve::DPCurve(const QDomElement &e)
 {
     int count = 0;
     QDomNode n = e.firstChild();

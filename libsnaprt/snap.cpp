@@ -21,9 +21,11 @@ bool topThreadGreaterThan(const QPair<double,Thread>& a,
     }
 }
 
+QString Snap::_err_string;
+QTextStream Snap::_err_stream(&Snap::_err_string);
+
 Snap::Snap(const QString &irundir, double istart, double istop,
            bool is_delay_load) :
-    _err_stream(&_err_string),
     _rundir(irundir), _start(istart),_stop(istop), _is_realtime(false),
     _frame_avg(0.0),_frame_stddev(0),_curr_sort_method(NoSort),
     _trickJobModel(0),_modelFrame(0),

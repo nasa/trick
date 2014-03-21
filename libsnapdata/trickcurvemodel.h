@@ -65,9 +65,6 @@ class TrickCurveModel : public SnapTable
     int _ycol;
     double _yScaleFactor;
 
-    QString _err_string;
-    QTextStream _err_stream;
-
 signals:
     
 public slots:

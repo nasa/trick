@@ -33,8 +33,8 @@ private:
     DPVar* _t;
     DPVar* _x;
     DPVar* _y;
-    QString _err_string;
-    QTextStream _err_stream;
+    static QString _err_string;
+    static QTextStream _err_stream;
 };
 
 class DPPlot
@@ -77,9 +77,9 @@ public:
 private:
     QDomDocument* _doc;
     QString _title;
-    QString _err_string;
-    QTextStream _err_stream;
     QList<DPPage*> _pages;
+    static QString _err_string;
+    static QTextStream _err_stream;
 };
 
 #endif // DPPLOT_H

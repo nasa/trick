@@ -112,8 +112,8 @@ class TrickModel : public SnapTable
 
     TrickModelIterator* _iteratorTimeIndex;
 
-    QString _err_string;
-    QTextStream _err_stream;
+    static QString _err_string;
+    static QTextStream _err_stream;
 
     bool _load_trick_header();
     qint32 _load_binary_param(QDataStream& in, int col);

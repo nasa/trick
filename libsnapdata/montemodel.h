@@ -65,9 +65,6 @@ class MonteModel : public QAbstractItemModel
     QHash<QString,int> _param2column;
     QStringList _runDirs;
 
-    QString _err_string;
-    QTextStream _err_stream;
-
 signals:
 
 public slots:

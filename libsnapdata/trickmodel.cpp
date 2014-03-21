@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <stdexcept>
 
+QString TrickModel::_err_string;
+QTextStream TrickModel::_err_stream(&TrickModel::_err_string);
+
 TrickModel::TrickModel(const QString& trkfile,
                       const QString& tableName,
                       double startTime, double stopTime, QObject *parent) :
@@ -11,8 +14,7 @@ TrickModel::TrickModel(const QString& trkfile,
     _startTime(startTime),
     _stopTime(stopTime),
     _nrows(0), _row_size(0), _ncols(0), _pos_beg_data(0),
-    _mem(0), _data(0), _fd(-1), _iteratorTimeIndex(0),
-    _err_stream(&_err_string)
+    _mem(0), _data(0), _fd(-1), _iteratorTimeIndex(0)
 {
     _load_trick_header();
     map();

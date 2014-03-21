@@ -175,8 +175,8 @@ private:
     int _progress;
     void _load();
 
-    QString _err_string;
-    QTextStream _err_stream;
+    static QString _err_string;
+    static QTextStream _err_stream;
 };
 
 class SnapReport

@@ -2,19 +2,20 @@
 #include <QDebug>
 #include "timeit_linux.h"
 
+QString Runs::_err_string;
+QTextStream Runs::_err_stream(&Runs::_err_string);
+
 Runs::Runs() :
     _runs(QStringList()),
     _startTime(0),
-    _stopTime(1.0e20),
-    _err_stream(&_err_string)
+    _stopTime(1.0e20)
 {
 }
 
 Runs::Runs(const QStringList &runDirs, double startTime, double stopTime) :
     _runs(runDirs),
     _startTime(startTime),
-    _stopTime(stopTime),
-    _err_stream(&_err_string)
+    _stopTime(stopTime)
 {
     if ( runDirs.isEmpty() ) {
         return;

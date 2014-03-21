@@ -34,8 +34,8 @@ class Monte : public Runs
     QMap<QString,QString> _param2ftrk;
     QStringList _params;
     QHash<QString,QList<TrickModel*>* > _ftrk2models;
-    QString _err_string;
-    QTextStream _err_stream;
+    static QString _err_string;
+    static QTextStream _err_stream;
 
     bool _setDir(const QString& montedir);
 };

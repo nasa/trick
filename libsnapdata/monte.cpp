@@ -2,12 +2,14 @@
 #include <QDebug>
 #include "timeit_linux.h"
 
+QString Monte::_err_string;
+QTextStream Monte::_err_stream(&Monte::_err_string);
+
 Monte::Monte(const QString& dirname, int beginRun, int endRun) :
     Runs(),
     _montedir(dirname),
     _beginRun(beginRun),
-    _endRun(endRun),
-    _err_stream(&_err_string)
+    _endRun(endRun)
 {
     if ( ! dirname.isEmpty() ) {
         _setDir(dirname);
