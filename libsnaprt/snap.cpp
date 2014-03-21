@@ -715,7 +715,11 @@ QList<Frame> Snap::_process_frames(TrickModel* model)
     _num_overruns = 0;
     int tidx = 0 ;
     while (it != e) {
-        Frame frame(&_jobs,tidx,it.t(), it.x()/1000000.0, it.y()/1000000.0);
+        double x = it.x()/1000000.0;
+        double y = it.y()/1000000.0;
+        if ( x < 0 ) x = 0.0;
+        if ( y < 0 ) y = 0.0;
+        Frame frame(&_jobs,tidx,it.t(), x, y);
         if ( frame.overrun_time() > 0.0 ) {
             _num_overruns++;
         }

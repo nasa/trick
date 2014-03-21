@@ -67,6 +67,10 @@ void Frame::_calc_topjobs()
 
         double rt = job->curve()->begin()[tidx].x()/1000000.0;
 
+        if ( rt < 0 ) {
+            rt = 0.0;
+        }
+
         if ( rt > job->avg_runtime()+1.50*job->stddev_runtime() ) {
             // Job Load Index
             jcnt += 1.0;

@@ -69,7 +69,11 @@ inline void Job::_do_stats()
         double time = it.t();
         long rt = (long)it.x();
 
-        if ( time < 1.0 && rt > 2000000.0) {
+        if ( rt < 0 ) {
+            rt =  0.0;
+        }
+
+        if ( time < 1.0 && rt > 2000000.0 ) {
             // Throw out bad points at start of sim
             continue;
         }

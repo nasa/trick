@@ -110,9 +110,6 @@ signals:
 private:
     Snap() {}
 
-    QString _err_string;
-    QTextStream _err_stream;
-
     QString _rundir;
 
     void _setLogFileNames();
@@ -177,6 +174,9 @@ private:
 
     int _progress;
     void _load();
+
+    QString _err_string;
+    QTextStream _err_stream;
 };
 
 class SnapReport

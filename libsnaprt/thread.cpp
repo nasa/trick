@@ -101,7 +101,11 @@ void Thread::_do_stats()
 
         foreach ( Job* job, _jobs ) {
             it2 = job->curve()->begin();
-            frame_time += it2[tidx].x();
+            double ft = it2[tidx].x();
+            if ( ft < 0 ) {
+                ft = 0.0;
+            }
+            frame_time += ft;
         }
 
         tidx++;
