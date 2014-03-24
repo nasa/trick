@@ -228,8 +228,9 @@ void AxisRect::mouseMoveEvent(QMouseEvent *event)
                     double lower = drag_start_xaxis_lower_coord+drag_diff_xcoord;
                     double upper = drag_start_xaxis_upper_coord+drag_diff_xcoord;
                     double diffdata = _xDataRange.upper-_xDataRange.lower;
+                    double epsilon = diffdata*0.02;
                     if ( is_drag_motion_left ) {
-                        if ( upper < diffdata*1.02 ) {
+                        if ( upper < _xDataRange.upper+epsilon ) {
                             // Quit dragging axis where data stops
                             if ( drag_start_xpix > left()+width()*0.88 ) {
                                 // If drag begins on right extremity,
@@ -241,8 +242,7 @@ void AxisRect::mouseMoveEvent(QMouseEvent *event)
                             }
                         }
                     } else {
-                        double dlower = -diffdata*0.02;
-                        if ( dlower < lower ) {
+                        if ( _xDataRange.lower-epsilon < lower ) {
                             // Quit dragging axis where data stops
                             if (drag_start_xpix < left()+width()*0.12 ) {
                                 // If drag begins on left extremity,
