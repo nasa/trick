@@ -243,15 +243,15 @@ void SnapWindow::__update_job_plot(const QModelIndex &idx)
 {
     QString jobname = idx.model()->data(idx).toString();
 
-    QCPRange currRange;
-
     foreach ( TrickModel* model, _trick_models ) {
+
         for ( int ii = 0; ii < model->columnCount(); ++ii) {
+
             QString name = model->headerData
                     (ii,Qt::Horizontal,Param::Name).toString();
+
             if ( name == jobname ) {
-                currRange = _plot_jobs->axisRect()->
-                                axis(QCPAxis::atBottom)->range();
+
                 if ( _plot_jobs->axisRect()->curveCount() > 0 ) {
                     _plot_jobs->axisRect()->removeCurve(0);
                 }
@@ -285,8 +285,11 @@ void SnapWindow::__update_job_plot(const QModelIndex &idx)
         }
     }
 
-    if ( currRange.size() > 0 ) {
-        _plot_jobs->axisRect()->zoomToFit(currRange);
+    QCPRange rangeFrame = _plot_frame->
+                                 axisRect()->axis(QCPAxis::atBottom)->range();
+
+    if ( rangeFrame.size() > 0 ) {
+        _plot_jobs->axisRect()->zoomToFit(rangeFrame);
         _plot_jobs->replot();
     }
 }
