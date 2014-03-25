@@ -43,11 +43,32 @@ void SJobExecThreadInfo::_calcThreadInfo()
 
     _hasInfo = true;
 
+    bool isFinishedReading = false;
+    QRegExp typeRgx(" *Type = *");
+    QRegExp cpuNumRgx("\\s*rt_cpu_number\\s*=\\s*");
     QString threadName = QString("Thread %1").arg(_threadId);
 
     //
     // Reading top part of S_job_execution
     // Thread _threadID
+    while (1) {
+        QString line = in.readLine();
+        if (line.isNull()) {
+            _err_stream << "snap [bad scoobies]: "
+                        << "parse error.  Couldn't find line "
+                        << threadName
+                        << " at top of file "
+                        << _sJobExecutionFileName ;
+            throw std::runtime_error(
+                        _err_string.toAscii().constData());
+        }
+
+        if ( line == threadName ) { // Thread _threadId e.g. "Thread 9"
+            break;
+        }
+    }
+
+    // Read thread info
     //     Type = foo
     //     rt_cpu_number = #
     while (1) {
@@ -55,14 +76,12 @@ void SJobExecThreadInfo::_calcThreadInfo()
         QString line = in.readLine();
         if (line.isNull()) { break; }
 
-        if ( line == threadName ) { // Thread _threadId e.g. "Thread 9"
+        if ( line.contains(typeRgx) ) {
 
             //
             // Type = foo
             //
-            line = in.readLine();
-            if (line.isNull()) { break; }
-            line = line.remove(QRegExp(" *Type = *"));
+            line = line.remove(typeRgx);
             if ( line == "asynchronous" ) {
                 _kind = "Asynchronous";
                 _freq = 1.0e20;
@@ -86,11 +105,11 @@ void SJobExecThreadInfo::_calcThreadInfo()
 
             }
 
+        } else if ( line.contains(cpuNumRgx) ) {
+
             //
             // rt_cpu_number = #
-            line = in.readLine();
-            if (line.isNull()) { break; }
-            line = line.remove(QRegExp("\\s*rt_cpu_number\\s*=\\s*"));
+            line = line.remove(cpuNumRgx);
             bool ok = true;
             int cpuNum = line.toInt(&ok);
             Q_UNUSED(cpuNum);
@@ -99,7 +118,7 @@ void SJobExecThreadInfo::_calcThreadInfo()
             } else {
                 _err_stream << "snap [bad scoobies]: "
                             << "parse error.  Couldn't determine "
-                            << "rtCPUNum for thread " << _threadId
+                            << "rt_cpu_number for thread " << _threadId
                             << " in file "
                             << _sJobExecutionFileName << ". "
                             << "Token is \"" << line << "\"";
@@ -107,6 +126,10 @@ void SJobExecThreadInfo::_calcThreadInfo()
                             _err_string.toAscii().constData());
             }
 
+            isFinishedReading = true;
+        }
+
+        if ( isFinishedReading ) {
             //
             // Quit reading
             //
