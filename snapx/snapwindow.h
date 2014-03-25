@@ -73,6 +73,9 @@ private:
     Plot* _plot_frame;
     Plot* _plot_jobs ;
 
+    QVector<double> _times;
+    QVector<double> _vals;
+
     int _spike_tab_idx;
 
     TimeItLinux _timer;

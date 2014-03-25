@@ -26,6 +26,22 @@ TrickCurve* AxisRect::addCurve(TrickCurveModel* model)
 {
     TrickCurve *curve = new TrickCurve(_xAxis,_yAxis);
     curve->setData(model);
+    _addCurve(curve);
+    return curve;
+}
+
+TrickCurve* AxisRect::addCurve(const QVector<double> *t,
+                               const QVector<double> *v)
+{
+    TrickCurve *curve = new TrickCurve(_xAxis,_yAxis);
+    curve->setData(t,v);
+    _addCurve(curve);
+    return curve;
+}
+
+// TODO: this is hackish to support different data types
+void AxisRect::_addCurve(TrickCurve *curve)
+{
     _curves.append(curve);
     _plotwidget->addPlottable(curve);
     int nCurves = _curves.size();
@@ -67,7 +83,6 @@ TrickCurve* AxisRect::addCurve(TrickCurveModel* model)
     _isXRangeCalculated = true;
     _isYRangeCalculated = true;
 
-    return curve;
 }
 
 bool AxisRect::removeCurve(int index)
@@ -468,3 +483,4 @@ void AxisRect::_keyPressZoomOut()
     _yAxis->setRange(_yrange.lower-dy,_yrange.upper+dy);
     mParentPlot->replot();
 }
+

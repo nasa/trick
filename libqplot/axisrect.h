@@ -15,6 +15,7 @@ class AxisRect : public QCPAxisRect
     ~AxisRect();
 
     TrickCurve *addCurve(TrickCurveModel *model);
+    TrickCurve *addCurve(const QVector<double> *t, const QVector<double> *v);
     bool removeCurve(int index);
     //int clearCurves();
     int curveCount() const { return _curves.size(); }
@@ -45,6 +46,7 @@ protected:
     QList<TrickCurve*> _curves;
     QList<TrickCurveModel*> _curve_models;
     void _set_interactions();
+    void _addCurve(TrickCurve* curve);
 
     QPoint _origin;
     QRubberBand* _rubber_band;

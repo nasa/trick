@@ -5,6 +5,8 @@ TrickCurve::TrickCurve(QCPAxis *keyAxis, QCPAxis *valueAxis) :
     QCPAbstractPlottable(keyAxis, valueAxis) ,
     _isPainterPathCreated(false),
     _model(0),
+    _timeVec(0),
+    _valVec(0),
     _valueScaleFactor(1.0)
 {
     setAntialiased(false);
@@ -99,18 +101,33 @@ void TrickCurve::setData(TrickCurveModel *model)
    _model = model;
    QString yparam = model->headerData(2,Qt::Horizontal,Param::Name).toString();
    setName(yparam);
-    _createPainterPath();
+   _createPainterPath(model);
+}
+
+void TrickCurve::setData(const QVector<double> *t, const QVector<double> *v)
+{
+   _timeVec = t;
+   _valVec = v;
+   _createPainterPath(t,v);
 }
 
 void TrickCurve::draw(QCPPainter *painter)
 {
-    if (_model == 0 || _model->rowCount() == 0 ) return;
+    if ( (_model == 0 || _model->rowCount() == 0) &&
+         (_timeVec == 0 || _valVec == 0 ) ) {
+        return;
+    }
 
     //
     // On first draw, create QPainterPath from curve data
     //
     if ( !_isPainterPathCreated) {
-        _createPainterPath();
+        // Hack on data type
+        if ( _model ) {
+            _createPainterPath(_model);
+        } else {
+            _createPainterPath(_timeVec,_valVec);
+        }
     }
 
     //
@@ -126,7 +143,13 @@ void TrickCurve::draw(QCPPainter *painter)
         }
 
         if ( painter->modes().testFlag(QCPPainter::pmVectorized) ) {
-            painter->drawPath(_scaledPainterPath()); // PDF
+            // Make PDF
+            // hack - need inheritance and class business, but for now - lazy
+            if ( _model ) {
+                painter->drawPath(_scaledPainterPath(_model));
+            } else {
+                painter->drawPath(_scaledPainterPath(_timeVec,_valVec));
+            }
         } else {
             painter->save();
             painter->setTransform(_coordToPixelTransform());
@@ -136,16 +159,16 @@ void TrickCurve::draw(QCPPainter *painter)
     }
 }
 
-QPainterPath TrickCurve::_scaledPainterPath()
+QPainterPath TrickCurve::_scaledPainterPath(TrickCurveModel* model)
 {
     QPainterPath path;
 
-    _model->map();
+    model->map();
 
     QTransform t = _coordToPixelTransform();
 
-    TrickModelIterator it = _model->begin();
-    const TrickModelIterator e = _model->end();
+    TrickModelIterator it = model->begin();
+    const TrickModelIterator e = model->end();
     QPointF pt0(it.x(),it.y());
     pt0 = t.map(pt0);
     path.moveTo(pt0.x(),pt0.y());
@@ -156,14 +179,35 @@ QPainterPath TrickCurve::_scaledPainterPath()
         ++it;
     }
 
-    _model->unmap();
+    model->unmap();
 
     return path;
 }
 
-void TrickCurve::_createPainterPath()
+QPainterPath TrickCurve::_scaledPainterPath(const QVector<double> *t,
+                                           const QVector<double> *v)
+{
+    QPainterPath path;
+
+    QTransform M = _coordToPixelTransform();
+
+    QPointF pt0(t->at(0),v->at(0));
+    pt0 = M.map(pt0);
+    path.moveTo(pt0.x(),pt0.y());
+    for ( int i = 0; i < t->size(); ++i) {
+        QPointF pt(t->at(i),v->at(i));
+        pt = M.map(pt);
+        path.lineTo(pt.x(),pt.y());
+    }
+
+    return path;
+}
+
+void TrickCurve::_createPainterPath(TrickCurveModel *model)
 {
     _isPainterPathCreated = true;
+
+    _model = model;
 
     _model->map();
 
@@ -176,6 +220,20 @@ void TrickCurve::_createPainterPath()
     }
 
     _model->unmap();
+}
+
+void TrickCurve::_createPainterPath(const QVector<double> *t,
+                                   const QVector<double> *v)
+{
+    _isPainterPathCreated = true;
+
+    _timeVec = t;
+    _valVec = v;
+
+    _painterPath.moveTo(t->at(0),v->at(0));
+    for ( int i = 1; i < t->size(); ++i) {
+        _painterPath.lineTo(t->at(i),v->at(i));
+    }
 }
 
 /* inherits documentation from base class */
@@ -210,6 +268,8 @@ void TrickCurve::drawLegendIcon(QCPPainter *painter, const QRectF &rect) const
 */
 void TrickCurve::getCurveData(QVector<QPointF> *lineData) const
 {
+    qDebug() << "snap [error]: getCurveData() should not be called";
+    exit(-1);
     _model->map();
     /* Extended sides of axis rect R divide space into 9 regions:
      1__|_4_|__7
@@ -377,6 +437,13 @@ void TrickCurve::getCurveData(QVector<QPointF> *lineData) const
 // the curve was clicked or not, e.g. in selectTest.
 double TrickCurve::pointDistance(const QPointF &pixelPoint) const
 {
+    if ( !_model ) {
+        qDebug() << "snap [bogasity]: this should not be called if _model = 0"
+                 << "Hopefully it's not because you are using the bogus "
+                 << "QVector<double>t,v stuff";
+        exit(-1);
+    }
+
     _model->map();
     if (_model->rowCount() == 0) {
         qDebug() << Q_FUNC_INFO
@@ -460,6 +527,7 @@ QCPRange TrickCurve::yRange(bool &validRange, SignDomain inSignDomain)
 {
     Q_UNUSED(validRange);
     Q_UNUSED(inSignDomain);
+
     return QCPRange(
                 _painterPath.boundingRect().top(),
                 _painterPath.boundingRect().bottom());
@@ -468,6 +536,13 @@ QCPRange TrickCurve::yRange(bool &validRange, SignDomain inSignDomain)
 /* inherits documentation from base class */
 QCPRange TrickCurve::getKeyRange(bool &validRange, SignDomain inSignDomain) const
 {
+    if ( !_model ) {
+        qDebug() << "snap [bogasity]: this should not be called if _model = 0"
+                 << "Hopefully it's not because you are using the bogus "
+                 << "QVector<double>t,v stuff";
+        exit(-1);
+    }
+
     _model->map();
     QCPRange range;
     bool haveLower = false;
@@ -503,6 +578,13 @@ QCPRange TrickCurve::getKeyRange(bool &validRange, SignDomain inSignDomain) cons
 /* inherits documentation from base class */
 QCPRange TrickCurve::getValueRange(bool &validRange, SignDomain inSignDomain) const
 {
+    if ( !_model ) {
+        qDebug() << "snap [bogasity]: this should not be called if _model = 0"
+                 << "Hopefully it's not because you are using the bogus "
+                 << "QVector<double>t,v stuff";
+        exit(-1);
+    }
+
     _model->map();
     QCPRange range;
     bool haveLower = false;

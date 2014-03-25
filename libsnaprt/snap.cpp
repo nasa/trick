@@ -452,8 +452,7 @@ TrickModel *Snap::_createModel( const QString &trk,
     }
 
     try {
-        model = new TrickModel(trk.toAscii().data(),
-                               trk,start,stop);
+        model = new TrickModel(trk,trk,start,stop);
     }
     catch (std::range_error &e) {
         _err_stream << e.what() << "\n\n";

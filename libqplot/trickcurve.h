@@ -24,7 +24,12 @@ public:
     virtual double selectTest(const QPointF &pt,
                               bool onlySelectable, QVariant *details=0) const;
 
+    // TODO: Using two kinds of data causes ugly code,
+    //       but keeping it for now because it was the most simple, fast
+    //       way to do it.  I'll most likely regret doing this :(
     void setData(TrickCurveModel* model);
+    void setData(const QVector<double> *t, const QVector<double> *v);
+
     void setValueScaleFactor(double sf) { _valueScaleFactor = sf; }
     double valueScaleFactor() { return _valueScaleFactor; }
 
@@ -65,8 +70,11 @@ private:
     TrickCurve();
     bool _isPainterPathCreated;
     QPainterPath _painterPath;
-    void _createPainterPath();
-    QPainterPath _scaledPainterPath();
+    void _createPainterPath(TrickCurveModel* model);
+    void _createPainterPath(const QVector<double> *t, const QVector<double> *v);
+    QPainterPath _scaledPainterPath(TrickCurveModel *model);
+    QPainterPath _scaledPainterPath(const QVector<double> *t,
+                                   const QVector<double> *v);
     inline QTransform _coordToPixelTransform() const
     {
         //
@@ -88,6 +96,8 @@ private:
     }
 
     TrickCurveModel* _model;
+    const QVector<double> *_timeVec;
+    const QVector<double> *_valVec;
     double _valueScaleFactor;
     QCPRange _xrange;
     QCPRange _yrange;

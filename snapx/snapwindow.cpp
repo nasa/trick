@@ -28,6 +28,20 @@ SnapWindow::SnapWindow(const QString& rundir,
     qApp->connect(qApp,SIGNAL(aboutToQuit()), _startup_thread,SLOT(quit()));
     _startup_thread->start();
 
+    // TODO: An UGLY workaround for the slim chance that the start up thread
+    //       doesn't get it's job done in time.  I really want to fix this.
+    //       To induce the problem, comment out this sleep(1) and put
+    //       a sleep(2) in snapwindow.h at top of run() method like so
+    //
+    //       void run()
+    //       {
+    //           sleep(2);
+    //           TimeItLinux t; t.start();
+    //           _snap->load();
+    //           t.snap("snaploadtime=");
+    //       }
+    sleep(1);
+
     // Central Widget
     QSplitter* s = new QSplitter;
     setCentralWidget(s);
@@ -150,7 +164,7 @@ SnapWindow::SnapWindow(const QString& rundir,
     _timer.start();
     QStringList fnames = _snap->fileNamesUserJobs();
     foreach ( QString fname, fnames ) {
-        TrickModel* m = new TrickModel(fname);
+        TrickModel* m = new TrickModel(fname,fname);
         _models_userjobs.append(m);
         _trick_models.append(m);
     }
@@ -261,6 +275,7 @@ void SnapWindow::__update_job_plot(const QModelIndex &idx)
                 // Y-axis just says "Job Time (s)"
                 _curve_models.append(cm);
                 TrickCurve* curve = _plot_jobs->axisRect()->addCurve(cm);
+                Q_UNUSED(curve);
                 _plot_jobs->axisRect()->axis(QCPAxis::atLeft)->
                         setLabel("Job Time (s)");
 
@@ -327,15 +342,46 @@ void SnapWindow::_update_thread_plot(const QModelIndex &idx)
     if ( _plot_jobs->axisRect()->curveCount() > 0 ) {
         _plot_jobs->axisRect()->removeCurve(0);
     }
-    // TODO:!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // thread is missing plot since using TrickModel and not SnapTable.
-    // Need to put iterator in SnapTable so TrickCurve can use both
-    // models the same way for getting data.
-    // Also, need valueScalefactor in addCurve (see below)
-    // and the valueScalefactor has to be in the iterator
 
-    //_plot_jobs->addCurve(_model_threads,0,0,col,1.0e-6);
-    _plot_jobs->axisRect()->axis(QCPAxis::atLeft)->setLabel("Thread Time (s)");
+    //
+    // Add thread runtime curve to plot
+    //
+    QCPLayoutInset* inset = _plot_jobs->axisRect()->insetLayout();
+    if ( inset->elementCount() > 0 ) {
+        QCPLayoutElement* el = inset->takeAt(0);
+        if ( el ) {
+            delete el;
+        }
+    }
+
+#if 0
+    //
+    // Add all thread's jobs runtime curves to plot
+    // This is a hack and will leak memory... just saving it
+    QString threadTrk = QString("log_frame_userjobs_C%1.trk").arg(col);
+    foreach ( TrickModel* m, _models_userjobs ) {
+        if ( m->tableName().endsWith(threadTrk) ) {
+            for ( int c = 1 ; c < m->columnCount(); ++c ) {
+                TrickCurveModel* curve = new TrickCurveModel(m,0,0,c,
+                                     m->headerData(c,Qt::Horizontal).toString());
+                _plot_jobs->axisRect()->addCurve(curve);
+            }
+            break;
+        }
+    }
+#endif
+    _times.clear();
+    _vals.clear();
+    for ( int i = 0; i < _model_threads->rowCount(); ++i) {
+        QModelIndex tIdx = _model_threads->index(i,0);
+        QModelIndex vIdx = _model_threads->index(i,col);
+        _times.append(_model_threads->data(tIdx).toDouble());
+        _vals.append(_model_threads->data(vIdx).toDouble());
+    }
+
+    _plot_jobs->axisRect()->addCurve(&_times,&_vals);
+    QString yLabel = QString("Thread %1 Run Time (s)").arg(col);
+    _plot_jobs->axisRect()->axis(QCPAxis::atLeft)->setLabel(yLabel);
     QCPRange range = _plot_frame->axisRect()->axis(QCPAxis::atBottom)->range();
     _plot_jobs->axisRect()->zoomToFit(range);
     _plot_jobs->replot();
