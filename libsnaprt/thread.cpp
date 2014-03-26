@@ -100,6 +100,14 @@ void Thread::_do_stats()
         }
 
         foreach ( Job* job, _jobs ) {
+            if ( job->job_name().startsWith("frame_userjobs_C") ) {
+                // For Trick 13
+                // Do not use child frame scheduling time for frame time sum.
+                // Snap reports the sum of the userjobs, not the frame
+                // scheduling time since the frame scheduling time includes
+                // executive overhead (e.g. the frame logging itself).
+                continue;
+            }
             it2 = job->curve()->begin();
             double ft = it2[tidx].x();
             if ( ft < 0 ) {
