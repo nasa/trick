@@ -81,7 +81,7 @@ public:
 
     QList<Job *> *jobs(Snap::SortBy sort_method = SortByJobAvgTime) ;
     int num_jobs() const { return _jobs.size(); }
-    int num_frames() const { return _frames.size(); }
+    int num_frames() const { return _numFrames; }
     int num_overruns() const { return _num_overruns; }
     double percent_overruns() const { return 100.0*
                                    (double)num_overruns()/(double)num_frames(); }
@@ -89,7 +89,7 @@ public:
     double frame_avg() const { return _frame_avg; }
     double frame_stddev() const { return _frame_stddev; }
 
-    int num_threads() const { return _threads->size(); }
+    int num_threads() const { return _threads->hash()->size(); }
     QString thread_listing() const ;
 
     QList<SimObject> simobjects() const { return _simobjects->list(); }
@@ -121,8 +121,6 @@ private:
     double _stop;
 
     bool _is_realtime ;
-    double _frame_avg;    void _calc_frame_avg();
-    double _frame_stddev; void _calc_frame_stddev();
 
     SortBy _curr_sort_method;
     QList<Job*> _jobs;
@@ -144,6 +142,9 @@ private:
 
     QList<Frame>  _frames;
     int _num_overruns;
+    int _numFrames;
+    double _frame_avg;    double _calc_frame_avg();
+    double _frame_stddev; double _calc_frame_stddev(double frameAvg);
 
     Threads* _threads;
     SimObjects* _simobjects;
@@ -167,10 +168,6 @@ private:
     SnapTable* _table_sim_objects;
     void _create_table_sim_objects();
     void _set_data_table_sim_objects();
-
-    SnapTable* _table_thread_runtimes;
-    void _create_table_thread_runtimes();
-    void _set_data_table_thread_runtimes();
 
     int _progress;
     void _load();

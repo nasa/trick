@@ -66,7 +66,6 @@ private:
     TrickModel* _model_frames;
     QList<TrickModel*> _models_userjobs;
     TrickModel* _model_trickjobs;
-    SnapTable* _model_threads;
     QList<TrickModel*> _trick_models;
     QList<TrickCurveModel*> _curve_models;
 
@@ -92,6 +91,7 @@ private slots:
     void _update_plot_frame_xrange(const QCPRange& range);
     void _update_job_table(const QModelIndex& idx);
     void _finishedLoading();
+    void _postLoad();
 };
 
 #endif // MAINWINDOW_H

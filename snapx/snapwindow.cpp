@@ -26,6 +26,7 @@ SnapWindow::SnapWindow(const QString& rundir,
     _snap = new Snap(rundir,start,stop,true);
     _startup_thread = new StartUpThread(_snap);
     qApp->connect(qApp,SIGNAL(aboutToQuit()), _startup_thread,SLOT(quit()));
+    qApp->connect(_startup_thread,SIGNAL(finished()), this,SLOT(_postLoad()));
     _startup_thread->start();
 
     // TODO: An UGLY workaround for the slim chance that the start up thread
@@ -66,10 +67,7 @@ SnapWindow::SnapWindow(const QString& rundir,
     _left_lay->addWidget(tab,0,0,1,1);
 
     for ( int ii = 0; ii < _snap->tables.size(); ++ii) {
-        if ( _snap->tables.at(ii)->tableName() == "Thread Runtimes" ) {
-            _model_threads = _snap->tables.at(ii);
-            continue;
-        }
+
         QTableView* tv = _create_table_view(_snap->tables.at(ii));
         _tvs.append(tv);
         QString title = _snap->tables.at(ii)->tableName();
@@ -187,6 +185,7 @@ SnapWindow::SnapWindow(const QString& rundir,
 
     _model_trickjobs = new TrickModel(fname);
     _trick_models.append(_model_trickjobs);
+
 
     //
     // Resize main window
@@ -321,39 +320,6 @@ void SnapWindow::_update_plot_frame_xrange(const QCPRange &xrange)
     _plot_frame->replot();
 }
 
-void SnapWindow::_update_thread_plot(const QModelIndex &idx)
-{
-    QModelIndex thread_idx = idx.model()->index(idx.row(),0);
-    int tid = idx.model()->data(thread_idx).toInt();
-    QString thread_name = QString("Thread_%1").arg(tid);
-    int col = -1 ;
-    for ( int c = 1; c < _model_threads->columnCount(); ++c) {
-        QString name = _model_threads->headerData(c,Qt::Horizontal).toString();
-        if ( name == thread_name ) {
-            col = c ;
-            break;
-        }
-    }
-    if ( col < 0 ) {
-        qDebug() << "snap [bad scoobies]: this shouldn't happen";
-        qDebug() << "     probably means thread runtime headerData() has changed";
-    }
-
-    if ( _plot_jobs->axisRect()->curveCount() > 0 ) {
-        _plot_jobs->axisRect()->removeCurve(0);
-    }
-
-    //
-    // Add thread runtime curve to plot
-    //
-    QCPLayoutInset* inset = _plot_jobs->axisRect()->insetLayout();
-    if ( inset->elementCount() > 0 ) {
-        QCPLayoutElement* el = inset->takeAt(0);
-        if ( el ) {
-            delete el;
-        }
-    }
-
 #if 0
     //
     // Add all thread's jobs runtime curves to plot
@@ -370,17 +336,39 @@ void SnapWindow::_update_thread_plot(const QModelIndex &idx)
         }
     }
 #endif
+void SnapWindow::_update_thread_plot(const QModelIndex &idx)
+{
+    QModelIndex thread_idx = idx.model()->index(idx.row(),0);
+    int tid = idx.model()->data(thread_idx).toInt();
+    QString thread_name = QString("Thread_%1").arg(tid);
+    SnapTable* model_thread = _snap->threads()->hash()->value(tid)->runtimeCurve();
+
+    if ( _plot_jobs->axisRect()->curveCount() > 0 ) {
+        _plot_jobs->axisRect()->removeCurve(0);
+    }
+
+    //
+    // Add thread runtime curve to plot
+    //
+    QCPLayoutInset* inset = _plot_jobs->axisRect()->insetLayout();
+    if ( inset->elementCount() > 0 ) {
+        QCPLayoutElement* el = inset->takeAt(0);
+        if ( el ) {
+            delete el;
+        }
+    }
+
     _times.clear();
     _vals.clear();
-    for ( int i = 0; i < _model_threads->rowCount(); ++i) {
-        QModelIndex tIdx = _model_threads->index(i,0);
-        QModelIndex vIdx = _model_threads->index(i,col);
-        _times.append(_model_threads->data(tIdx).toDouble());
-        _vals.append(_model_threads->data(vIdx).toDouble());
+    for ( int i = 0; i < model_thread->rowCount(); ++i) {
+        QModelIndex tIdx = model_thread->index(i,0);
+        QModelIndex vIdx = model_thread->index(i,1);
+        _times.append(model_thread->data(tIdx).toDouble());
+        _vals.append(model_thread->data(vIdx).toDouble());
     }
 
     _plot_jobs->axisRect()->addCurve(&_times,&_vals);
-    QString yLabel = QString("Thread %1 Run Time (s)").arg(col);
+    QString yLabel = QString("Thread %1 Run Time (s)").arg(tid);
     _plot_jobs->axisRect()->axis(QCPAxis::atLeft)->setLabel(yLabel);
     QCPRange range = _plot_frame->axisRect()->axis(QCPAxis::atBottom)->range();
     _plot_jobs->axisRect()->zoomToFit(range);
@@ -478,5 +466,10 @@ void SnapWindow::_tab_clicked(int idx)
 void SnapWindow::_finishedLoading()
 {
     _bar->hide();
+}
+
+void SnapWindow::_postLoad()
+{
+    // I put this hook in thinking I might need it later
 }
 

@@ -5,6 +5,7 @@
 #include "frame.h"
 #include "utils.h"
 #include "sjobexecthreadinfo.h"
+#include "libsnapdata/snaptable.h"
 #include <stdexcept>
 
 #include <QString>
@@ -34,6 +35,7 @@ class Thread
     double avgRunTime()              const { return _avg_runtime; }
     double runtime(int tidx)         const;
     double runtime(double timestamp)  const;
+    SnapTable* runtimeCurve()         const { return _runtimeCurve; }
     double avgLoad()                 const { return _avg_load; }
     int    timeIdxAtMaxRunTime()     const { return _tidx_max_runtime; }
     double maxRunTime()              const { return _max_runtime ; }
@@ -52,6 +54,7 @@ class Thread
                                         // e.g. a 0.1 job is called 10X if the
                                         // thread has a 1.0 second AMF frame
     double avgJobLoad(Job* job) const ;
+
 
   private:
 
@@ -75,9 +78,9 @@ class Thread
     static QString _err_string;
     static QTextStream _err_stream;
 
-
-  private:
     QMap<int,double> _frameidx2runtime;
+
+    SnapTable* _runtimeCurve; // t,runtime curve
 };
 
 class Threads
@@ -85,10 +88,7 @@ class Threads
   public:
     Threads(const QString& runDir, const QList<Job *> &jobs);
     ~Threads();
-    Thread get(int id) const;
-    QList<int> ids() const;
-    QList<Thread> list() const ;
-    int size() const { return _threads.keys().size(); }
+    const QMap<int,Thread*>* hash() { return &_threads; }
 
   private:
     QString _runDir;

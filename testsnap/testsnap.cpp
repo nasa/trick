@@ -629,8 +629,11 @@ void TestSnap::num_overruns2()
 
 void TestSnap::num_overruns3()
 {
+    // since 0-49.1 is "non-realtime",
+    // numOverruns is set by sum of job times on thread0
+    // exceeding frame time of thread0
     Snap snap(_run("1"),0,49.1);
-    QCOMPARE(snap.num_overruns(),0);
+    QCOMPARE(snap.num_overruns(),439);
 }
 
 void TestSnap::num_overruns4()
@@ -642,13 +645,13 @@ void TestSnap::num_overruns4()
 void TestSnap::num_overruns5()
 {
     Snap snap(_run("1"),50.1,53);
-    QCOMPARE(snap.num_overruns(),0);
+    QCOMPARE(snap.num_overruns(),25);
 }
 
 void TestSnap::num_overruns6()
 {
     Snap snap(_run("0"));
-    QCOMPARE(snap.num_overruns(),0);
+    QCOMPARE(snap.num_overruns(),886);
 }
 
 void TestSnap::num_overruns7()
@@ -1022,62 +1025,61 @@ void TestSnap::thread1()
 
     QCOMPARE(snap.num_threads(),4);
 
-    QList<Thread> threads = snap.threads()->list();
-    int tid = 0;
-    foreach ( Thread thread, threads ) {
+    int tid = 0 ;
 
-        // Thread Id
-        QCOMPARE(thread.threadId(),tid);
+    foreach ( Thread* thread, snap.threads()->hash()->values() ) {
+
+        QCOMPARE(thread->threadId(),tid);
 
         // Freq
         if ( tid == 0 ) {
-            QCOMPARE(thread.frequency(),0.1);
+            QCOMPARE(thread->frequency(),0.1);
         } else if ( tid == 1 ) {
-            QCOMPARE(thread.frequency(),1.0);
+            QCOMPARE(thread->frequency(),1.0);
         } else if ( tid == 2 ) {
-            QCOMPARE(thread.frequency(),0.1);
+            QCOMPARE(thread->frequency(),0.1);
         } else if ( tid == 3 ) {
-            QCOMPARE(thread.frequency(),0.2);
+            QCOMPARE(thread->frequency(),0.2);
         }
 
         // Num Jobs on thread
         if ( tid == 0 ) {
-            QCOMPARE(thread.numJobs(),6);
+            QCOMPARE(thread->numJobs(),6);
         } else if ( tid == 1 ) {
-            QCOMPARE(thread.numJobs(),4);
+            QCOMPARE(thread->numJobs(),4);
         } else if ( tid == 2 ) {
-            QCOMPARE(thread.numJobs(),1);
+            QCOMPARE(thread->numJobs(),1);
         } else if ( tid == 3 ) {
-            QCOMPARE(thread.numJobs(),2);
+            QCOMPARE(thread->numJobs(),2);
         }
 
         // Num frames
         if ( tid == 0 ) {
-            QCOMPARE(thread.numFrames(),1000);
+            QCOMPARE(thread->numFrames(),1000);
         } else if ( tid == 1 ) {
-            QCOMPARE(thread.numFrames(),100);
+            QCOMPARE(thread->numFrames(),100);
         } else if ( tid == 2 ) {
-            QCOMPARE(thread.numFrames(),1000);
+            QCOMPARE(thread->numFrames(),1000);
         } else if ( tid == 3 ) {
-            QCOMPARE(thread.numFrames(),500);
+            QCOMPARE(thread->numFrames(),500);
         }
 
         // Runtime
         double sum = 0.0;
-        foreach ( Job* job, thread.jobs() ) {
-            double rt = (0.01)*(thread.frequency())/job->freq();
+        foreach ( Job* job, thread->jobs() ) {
+            double rt = (0.01)*(thread->frequency())/job->freq();
             sum += rt;
         }
         // Duplicate lines because failure prints line number
         if ( tid == 1 ) {
-            QCOMPARE(thread.runtime(45.0),sum);
+            QCOMPARE(thread->runtime(45.0),sum);
         } else if ( tid == 2 ) {
-            QCOMPARE(thread.runtime(45.0),sum);
+            QCOMPARE(thread->runtime(45.0),sum);
         } else if ( tid == 3 ) {
-            QCOMPARE(thread.runtime(45.0),sum);
+            QCOMPARE(thread->runtime(45.0),sum);
         }
 
-        tid++;
+        ++tid;
     }
 }
 #endif
@@ -1125,7 +1127,6 @@ void TestSnap::benchmark_rm2000()
     }
 }
 #endif
-
 
 QTEST_APPLESS_MAIN(TestSnap);
 

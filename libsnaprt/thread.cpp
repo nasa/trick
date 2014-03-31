@@ -14,12 +14,15 @@ Thread::Thread(const QString &runDir) :
     _runDir(runDir), _threadId(-1), _sJobExecThreadInfo(runDir),
     _avg_runtime(0),_avg_load(0), _tidx_max_runtime(0),
     _max_runtime(0), _max_load(0),_stdev(0),_freq(0.0),
-    _num_overruns(0)
+    _num_overruns(0),_runtimeCurve(0)
 {
 }
 
 Thread::~Thread()
 {
+    if ( _runtimeCurve ) {
+        delete _runtimeCurve;
+    }
 }
 
 void Thread::addJob(Job* job)
@@ -46,6 +49,7 @@ void Thread::_do_stats()
         return;
     }
 
+
     qSort(_jobs.begin(),_jobs.end(),jobAvgTimeGreaterThan);
 
     if ( _sJobExecThreadInfo.hasInfo() ) {
@@ -62,19 +66,54 @@ void Thread::_do_stats()
         throw std::runtime_error(msg.toAscii().constData());
     }
 
+    //
+    // Count number of frames
+    //
     Job* job0 = _jobs.at(0);
     TrickCurveModel* curve = job0->curve();
     TrickModelIterator it = curve->begin();
     const TrickModelIterator e = curve->end();
-    double tnext = it.t() + _freq;
+    int frameCnt = 0;
+    if ( _freq < 0.000001 ) {
+        frameCnt = curve->rowCount();
+    } else {
+        double tnext = it.t() + _freq;
+        frameCnt = 1;
+        while (it != e) {
+            if (it.t()+1.0e-6 > tnext) {
+                tnext += _freq;
+                ++frameCnt ;
+            }
+            ++it;
+        }
+    }
+
+    //
+    // Create table with frameCnt number of rows
+    //
+    QString tableName = QString("Thread %1 Runtime").arg(_threadId);
+    _runtimeCurve = new SnapTable(tableName);
+    _runtimeCurve->insertColumns(0,2);
+    _runtimeCurve->setHeaderData(0,Qt::Horizontal,QString("sys.exec.out.time"));
+    _runtimeCurve->setHeaderData(1,Qt::Horizontal,QString("ThreadRunTime"));
+    _runtimeCurve->insertRows(0,frameCnt);
+
+    //
+    // Calc frame runtimes (sum of jobs runtimes per frame), num overruns etc.
+    //
+    bool is_frame_change = true;
     double sum_time = 0.0;
     double frame_time = 0.0;
     _max_runtime = 0.0;
     int last_frameidx = 0 ;
-    bool is_frame_change = true;
     int tidx = 0 ;
+    int rowCount = 0 ;
     TrickModelIterator it2;
 
+    it = curve->begin();
+    double tnext = it.t() + _freq;
+
+    _num_overruns = 0;
     while (it != e) {
 
         if ( _freq < 0.000001 ) {
@@ -92,7 +131,13 @@ void Thread::_do_stats()
                 _max_runtime = frame_time;
                 _tidx_max_runtime = last_frameidx;
             }
-            _frameidx2runtime[last_frameidx] = frame_time/1000000.0;
+            double ft = frame_time/1000000.0;
+            _frameidx2runtime[last_frameidx] = ft;
+            QModelIndex timeIdx = _runtimeCurve->index(rowCount,0);
+            QModelIndex valIdx = _runtimeCurve->index(rowCount,1);
+            ++rowCount;
+            _runtimeCurve->setData(timeIdx,it.t());
+            _runtimeCurve->setData(valIdx,ft);
             sum_time += frame_time;
             frame_time = 0.0;
             last_frameidx = tidx;
@@ -266,25 +311,4 @@ Threads::~Threads()
     foreach ( Thread* thread, _threads.values() ) {
         delete thread;
     }
-}
-
-Thread Threads::get(int id) const
-{
-    return *(_threads[id]);
-}
-
-QList<Thread> Threads::list() const
-{
-    QList<Thread> list ;
-
-    foreach ( Thread* thread, _threads.values() ) {
-        list.append(*thread);
-    }
-
-    return list;
-}
-
-QList<int> Threads::ids() const
-{
-    return _ids;
 }

@@ -11,11 +11,11 @@
 
 #include "snap.h"
 
-bool topThreadGreaterThan(const QPair<double,Thread>& a,
-                         const QPair<double,Thread>& b)
+bool topThreadGreaterThan(const QPair<double,Thread*>& a,
+                         const QPair<double,Thread*>& b)
 {
-    if ( a.second.frequency() > 0.000001 && b.second.frequency() > 0.000001 ) {
-        return (a.first/a.second.frequency()) > (b.first/b.second.frequency());
+    if ( a.second->frequency() > 0.000001 && b.second->frequency() > 0.000001 ) {
+        return (a.first/a.second->frequency()) > (b.first/b.second->frequency());
     } else {
         return (a.first > b.first);
     }
@@ -27,9 +27,9 @@ QTextStream Snap::_err_stream(&Snap::_err_string);
 Snap::Snap(const QString &irundir, double istart, double istop,
            bool is_delay_load) :
     _rundir(irundir), _start(istart),_stop(istop), _is_realtime(false),
-    _frame_avg(0.0),_frame_stddev(0),_curr_sort_method(NoSort),
-    _trickJobModel(0),_modelFrame(0),
-    _num_overruns(0), _threads(0),_simobjects(0),_progress(0)
+    _curr_sort_method(NoSort), _trickJobModel(0),_modelFrame(0),
+    _num_overruns(0), _numFrames(0), _frame_avg(0.0),_frame_stddev(0),
+    _threads(0),_simobjects(0),_progress(0)
 {
 
     _create_table_summary();
@@ -37,7 +37,6 @@ Snap::Snap(const QString &irundir, double istart, double istop,
     _create_table_thread_summary();
     _create_table_top_jobs();
     _create_table_sim_objects();
-    _create_table_thread_runtimes();
 
     if ( ! is_delay_load ) {
         _load();
@@ -59,10 +58,29 @@ void Snap::_load()
     qSort(_jobs.begin(), _jobs.end(), jobAvgTimeGreaterThan);
 
     _curr_sort_method = SortByJobAvgTime;
-    _calc_frame_avg();        // _frame_avg calculated
-    _calc_frame_stddev();     // _frame_stddev calculated
 
     _threads = new Threads(_rundir,_jobs);
+
+    if ( _is_realtime ) {
+        // num overruns already calculated in _process_frames()
+        _numFrames    = _frames.size();
+        _frame_avg    = _calc_frame_avg();
+        _frame_stddev = _calc_frame_stddev(_frame_avg);
+    } else {
+        // If not real-time, _modelFrame cannot be used to
+        // calculate number of overruns etc. since
+        // log_frame.trk will not log that information
+        // So, instead, use thread0
+        foreach ( Thread* thread, threads()->hash()->values() ) {
+            if ( thread->threadId() == 0 ) {
+                _num_overruns = thread->numOverruns();
+                _numFrames    = thread->numFrames();
+                _frame_avg    = thread->avgRunTime();
+                _frame_stddev = thread->stdDeviation();
+                break;
+            }
+        }
+    }
 
     _simobjects = new SimObjects(_jobs);
 
@@ -71,7 +89,6 @@ void Snap::_load()
     _set_data_table_thread_summary();
     _set_data_table_top_jobs();
     _set_data_table_sim_objects();
-    _set_data_table_thread_runtimes();
 }
 
 Snap::~Snap()
@@ -249,26 +266,16 @@ void Snap::_set_data_table_thread_summary()
 
     table->insertRows(0,num_threads());
     int row = 0 ;
-    QList<Thread> threads = _threads->list() ;
-    foreach ( Thread thread, threads ) {
+    foreach ( Thread* thread, _threads->hash()->values() ) {
 
-        // Hard code num overruns for thread 0 :(
-        //
-        // Do this because the thread overrun calc
-        // sums the job times on a thread, but the trick exec
-        // overhead will not show up in that calc
-        if ( thread.threadId() == 0 ) {
-            thread.setNumOverruns(num_overruns());
-        }
-
-        table->setData(table->index(row,0),QVariant(thread.threadId()));
-        table->setData(table->index(row,1),QVariant(thread.numJobs()));
-        table->setData(table->index(row,2),QVariant(thread.frequency()));
-        table->setData(table->index(row,3),QVariant(thread.numOverruns()));
-        table->setData(table->index(row,4),QVariant(thread.avgRunTime()));
-        table->setData(table->index(row,5),QVariant(thread.avgLoad()));
-        table->setData(table->index(row,6),QVariant(thread.maxRunTime()));
-        table->setData(table->index(row,7),QVariant(thread.maxLoad()));
+        table->setData(table->index(row,0),QVariant(thread->threadId()));
+        table->setData(table->index(row,1),QVariant(thread->numJobs()));
+        table->setData(table->index(row,2),QVariant(thread->frequency()));
+        table->setData(table->index(row,3),QVariant(thread->numOverruns()));
+        table->setData(table->index(row,4),QVariant(thread->avgRunTime()));
+        table->setData(table->index(row,5),QVariant(thread->avgLoad()));
+        table->setData(table->index(row,6),QVariant(thread->maxRunTime()));
+        table->setData(table->index(row,7),QVariant(thread->maxLoad()));
 
         row++;
     }
@@ -312,7 +319,8 @@ void Snap::_set_data_table_top_jobs()
         table->setData(table->index(row,0),QVariant(job->avg_runtime()));
         table->setData(table->index(row,1),QVariant(job->thread_id()));
         table->setData(table->index(row,2),
-                       QVariant(threads()->get(job->thread_id()).avgRunTime()));
+                       QVariant(threads()->hash()->
+                                value(job->thread_id())->avgRunTime()));
         table->setData(table->index(row,3),QVariant(job->freq()));
         table->setData(table->index(row,4),
                        QVariant(job->job_name().toAscii().constData()));
@@ -354,58 +362,6 @@ void Snap::_set_data_table_sim_objects()
         table->setData(table->index(row,1),QVariant(sobject.avg_runtime()));
         table->setData(table->index(row,2),njobs);
         row++;
-    }
-}
-
-// Done after snap loads timing data
-void Snap::_create_table_thread_runtimes()
-{
-    _table_thread_runtimes = new SnapTable("Thread Runtimes");
-    SnapTable* table = _table_thread_runtimes;
-    tables.append(_table_thread_runtimes);
-
-    int c = 0 ;
-    table->insertColumns(c,1);
-    table->setHeaderData(c,Qt::Horizontal,QString("sys.exec.out.time"));
-}
-
-void Snap::_set_data_table_thread_runtimes()
-{
-    SnapTable* table = _table_thread_runtimes;
-
-    int c = 1 ;
-    QList<Thread> threads = _threads->list();
-    foreach ( Thread thread, threads ) {
-        table->insertColumns(c,1);
-        QString thread_name = QString("Thread_%1").arg(thread.threadId()) ;
-        table->setHeaderData(c,Qt::Horizontal,QVariant(thread_name));
-        c++;
-    }
-
-    int nrows = num_frames();
-    table->insertRows(0,nrows);
-
-    int r = 0;
-    c = 0 ;
-    TrickModelIterator it = _modelFrame->begin(0,1,1);
-    const TrickModelIterator e = _modelFrame->end(0,1,1);
-    while (it != e) {
-        QModelIndex idx = table->index(r,c);
-        table->setData(idx,it.t());
-        ++r;
-        ++it;
-    }
-
-    foreach ( Thread thread, threads ) {
-        c++;
-        it = _modelFrame->begin(0,1,1);
-        r = 0;
-        while ( it != e ) {
-            QModelIndex idx = table->index(r,c);
-            table->setData(idx,thread.runtime(r));
-            ++r;
-            ++it;
-        }
     }
 }
 
@@ -480,13 +436,14 @@ void Snap::_process_models()
         }
     }
 
-    _modelFrame = _createModel(_fileNameLogFrame, _start, _stop);
 
     _process_jobs(_trickJobModel);
     foreach ( TrickModel* userJobModel, _userJobModels ) {
         _process_jobs(userJobModel);
     }
-    _frames = _process_frames(_modelFrame);
+
+    _modelFrame = _createModel(_fileNameLogFrame, _start, _stop);
+    _frames = _process_frames(_modelFrame); // _is_realtime set here
 }
 
 
@@ -538,10 +495,10 @@ QString Snap::thread_listing() const
 
     QString str;
 
-    int nthreads = _threads->size();
+    int nthreads = _threads->hash()->size();
     int ii = 0 ;
     int ltid = 0;
-    foreach ( int tid, _threads->ids() ) {
+    foreach ( int tid, _threads->hash()->keys() ) {
         if ( ii != 0 && ii%16 == 0 ) {
             listing += QString("\n");
             listing += str.sprintf("%20s   "," ");
@@ -611,7 +568,8 @@ SnapTable* Snap::jobTableAtTime(double time)
         table->setData(table->index(r,3),QVariant(rt));
         table->setData(table->index(r,4),QVariant(job->thread_id()));
         table->setData(table->index(r,5),
-                       QVariant(threads()->get(job->thread_id()).runtime(tidx)));
+                       QVariant(threads()->hash()->value(job->thread_id())->
+                                runtime(tidx)));
         r++;
 
         // limit printout of jobs
@@ -626,30 +584,30 @@ SnapTable* Snap::jobTableAtTime(double time)
     return table;
 }
 
-void Snap::_calc_frame_avg()
+double Snap::_calc_frame_avg()
 {
     double sum = 0.0 ;
     foreach ( Frame frame, _frames ) {
         sum += frame.frame_time();
     }
 
-    _frame_avg = sum/_frames.length() ;
+    return sum/_frames.length() ;
 }
 
-void Snap::_calc_frame_stddev()
+double Snap::_calc_frame_stddev(double frameAvg)
 {
-    if ( _frame_avg == 0.0 ) {
-        _calc_frame_avg();
+    if ( frameAvg == 0.0 ) {
+        return 0.0;
     }
 
     double sum = 0.0 ;
     foreach ( Frame frame, _frames ) {
         double frametime =  frame.frame_time();
-        double vv = (frametime-_frame_avg)*(frametime-_frame_avg);
+        double vv = (frametime-frameAvg)*(frametime-frameAvg);
         sum += vv;
     }
 
-    _frame_stddev = sqrt(sum/_frames.length()) ;
+    return sqrt(sum/_frames.length()) ;
 }
 
 bool Snap::_process_jobs(TrickModel* model )
@@ -772,14 +730,9 @@ QString SnapReport::report()
     rpt += str.sprintf("%20s = %8.3lf\n", "Stop time ",_snap.stop());
     rpt += str.sprintf("%20s = %d\n", "Num jobs", _snap.num_jobs());
     rpt += str.sprintf("%20s = %d\n", "Num frames",_snap.num_frames());
-    if ( _snap.is_realtime() ) {
-        rpt += str.sprintf("%20s = %d\n", "Num overruns",_snap.num_overruns());
-        rpt += str.sprintf("%20s = %.2lf%%\n", "Percentage overruns",
+    rpt += str.sprintf("%20s = %d\n", "Num overruns",_snap.num_overruns());
+    rpt += str.sprintf("%20s = %.2lf%%\n", "Percentage overruns",
                             _snap.percent_overruns());
-    } else {
-        rpt += str.sprintf("%20s = %s\n", "Num overruns",
-                                         "Not applicable since non-realtime run");
-    }
     rpt += str.sprintf("%20s = %s\n", "Frame rate(s)",
                                       _snap.frame_rate().toAscii().constData());
     if ( _snap.is_realtime() ) {
@@ -821,23 +774,22 @@ QString SnapReport::report()
             "Thread", "NumJobs", "Freq", "NumOverruns", "ThreadAvg", "AvgLoad%",
             "ThreadMax", "MaxLoad%");
 
-    QList<Thread> threads = _snap.threads()->list() ;
-    foreach ( Thread thread, threads ) {
+    foreach ( Thread* thread, _snap.threads()->hash()->values() ) {
 
         // Hard code num overruns for thread 0 :(
         //
         // Do this because the thread overrun calc
         // sums the job times on a thread, but the trick exec
         // overhead will not show up in that calc
-        if ( thread.threadId() == 0 ) {
-            thread.setNumOverruns(_snap.num_overruns());
+        if ( thread->threadId() == 0 && _snap.is_realtime()) {
+            thread->setNumOverruns(_snap.num_overruns());
         }
 
         rpt += str.sprintf("    %10d %10d %15.6lf %15d %15.6lf "
                           "%14.0lf%% %15.6lf %14.0lf%%\n",
-                 thread.threadId(),thread.numJobs(),thread.frequency(),
-                 thread.numOverruns(), thread.avgRunTime(),
-                 thread.avgLoad(), thread.maxRunTime(), thread.maxLoad());
+                 thread->threadId(),thread->numJobs(),thread->frequency(),
+                 thread->numOverruns(), thread->avgRunTime(),
+                 thread->avgLoad(), thread->maxRunTime(), thread->maxLoad());
     }
     rpt += endsection;
 
@@ -848,32 +800,32 @@ QString SnapReport::report()
     rpt += QString("Top Jobs by Thread\n\n");
     rpt += str.sprintf("    %8s %8s %15s %15s %10s%%     %-50s\n",
            "Thread", "NumJobs", "ThreadAvg", "JobAvgTime", "Percent", "JobName");
-    foreach ( Thread thread, threads ) {
+    foreach ( Thread* thread, _snap.threads()->hash()->values() ) {
 
         rpt += str.sprintf("    %8d %8d %15.6lf ",
-                   thread.threadId(), thread.numJobs(),thread.avgRunTime());
+                   thread->threadId(), thread->numJobs(),thread->avgRunTime());
 
-        if ( thread.avgRunTime() < 0.000005 && thread.numJobs() > 1 ) {
+        if ( thread->avgRunTime() < 0.000005 && thread->numJobs() > 1 ) {
             rpt += str.sprintf("%15s  %10s     %-49s\n", "--","--","--");
             continue;
         }
 
         double sum = 0;
         for ( int ii = 0; ii < 5; ++ii) {
-            Job* job = thread.jobAtIndex(ii) ;
-            double load = thread.avgJobLoad(job);
+            Job* job = thread->jobAtIndex(ii) ;
+            double load = thread->avgJobLoad(job);
             if ( job->job_name() == "real_time.rt_sync.rt_monitor" ) {
                 sum += load;
             }
             if ( (load < 0.01 || (sum > 98.0 && ii > 0)) &&
-                  thread.numJobs() > 1 ) {
+                  thread->numJobs() > 1 ) {
                 break;
             } else {
                 if ( ii > 0 ) {
                     rpt += str.sprintf("    %8s %8s %15s ", "","","");
                 }
-                rpt += str.sprintf("%15.6lf ",thread.avgJobRuntime(job));
-                if ( thread.avgRunTime() > 0.0000001 ) {
+                rpt += str.sprintf("%15.6lf ",thread->avgJobRuntime(job));
+                if ( thread->avgRunTime() > 0.0000001 ) {
                     rpt += str.sprintf("%10.0lf%%", load);
                 } else {
                     rpt += str.sprintf(" %10s", "--");
@@ -881,7 +833,7 @@ QString SnapReport::report()
                 rpt += str.sprintf("     %-50s\n",
                                    job->job_name().toAscii().constData());
             }
-            if ( ii == thread.numJobs()-1 ) {
+            if ( ii == thread->numJobs()-1 ) {
                 break;
             }
         }
@@ -905,7 +857,7 @@ QString SnapReport::report()
         rpt += str.sprintf("    %15.6lf %6d %15.6lf %15.6lf    %-40s\n",
                    job->avg_runtime(),
                    job->thread_id(),
-                   _snap.threads()->get(job->thread_id()).avgRunTime(),
+                   _snap.threads()->hash()->value(job->thread_id())->avgRunTime(),
                    job->freq(),
                    job->job_name().toAscii().constData() );
 
@@ -930,7 +882,7 @@ QString SnapReport::report()
                 job->max_runtime(),
                 job->max_timestamp(),
                 job->thread_id(),
-                _snap.threads()->get(job->thread_id()).
+                _snap.threads()->hash()->value(job->thread_id())->
                                      runtime(job->max_timestamp()),
                 job->freq(),
                 job->job_name().toAscii().constData() );
@@ -1012,7 +964,8 @@ QString SnapReport::report()
             rpt += str.sprintf(
                     "    %6d %15.6lf %15.6lf %15.6lf    %-50s\n",
                     job->thread_id(),
-                    _snap.threads()->get(job->thread_id()).runtime(tidx),
+                    _snap.threads()->hash()->
+                                    value(job->thread_id())->runtime(tidx),
                     rt,
                     job->freq(),
                     job->job_name().toAscii().constData()) ;
@@ -1044,9 +997,9 @@ QString SnapReport::report()
         double tt = frame.timestamp();
         double ft = frame.frame_time();
 
-        QList<QPair<double, Thread> > topthreads;
-        foreach ( Thread thread, threads ) {
-            topthreads.append(qMakePair(thread.runtime(tidx),thread));
+        QList<QPair<double, Thread*> > topthreads;
+        foreach ( Thread* thread, _snap.threads()->hash()->values() ) {
+            topthreads.append(qMakePair(thread->runtime(tidx),thread));
         }
         qSort(topthreads.begin(),topthreads.end(),topThreadGreaterThan);
 
@@ -1054,13 +1007,13 @@ QString SnapReport::report()
         rpt += str.sprintf("    %6s %15s %15s\n", "Thread", "ThreadFreq",
                                             "ThreadTime");
         for ( int ii = 0 ; ii < topthreads.length(); ++ii ) {
-            QPair<double,Thread> topthread = topthreads.at(ii);
+            QPair<double,Thread*> topthread = topthreads.at(ii);
             if ( topthread.first < 1.0e-3 ) {
                 break;
             }
             rpt += str.sprintf("    %6d %15.6lf %15.6lf\n",
-                               topthread.second.threadId(),
-                               topthread.second.frequency(),
+                               topthread.second->threadId(),
+                               topthread.second->frequency(),
                                topthread.first);
         }
         rpt += endsection;
