@@ -1,6 +1,7 @@
 #include "thread.h"
 
 #include <cmath>
+#include <QtCore/qmath.h>
 
 QString Thread::_err_string;
 QTextStream Thread::_err_stream(&Thread::_err_string);
@@ -103,6 +104,7 @@ void Thread::_do_stats()
     //
     bool is_frame_change = true;
     double sum_time = 0.0;
+    double sum_squares = 0 ;
     double frame_time = 0.0;
     _max_runtime = 0.0;
     int last_frameidx = 0 ;
@@ -139,6 +141,7 @@ void Thread::_do_stats()
             _runtimeCurve->setData(timeIdx,it.t());
             _runtimeCurve->setData(valIdx,ft);
             sum_time += frame_time;
+            sum_squares += ft*ft;
             frame_time = 0.0;
             last_frameidx = tidx;
             is_frame_change = false;
@@ -165,21 +168,17 @@ void Thread::_do_stats()
         ++it;
     }
 
+    double ss = sum_squares;
+    double s = sum_time;
+    double n = (double)rowCount;
+
     _max_runtime /= 1000000.0;
-    _avg_runtime = sum_time/(double)this->numFrames()/1000000.0;
+    _avg_runtime = (s/n)/1000000.0;
+    _stdev       = qSqrt(ss/n - s*s/(n*n))/1000000.0 ;
     if ( _freq > 0.0000001 ) {
         _avg_load = 100.0*_avg_runtime/_freq;
         _max_load = 100.0*_max_runtime/_freq;
     }
-
-    // Stddev
-    foreach ( int tidx, _frameidx2runtime.keys() ) {
-        double rt = _frameidx2runtime[tidx];
-        double vv = (_avg_runtime-rt)*(_avg_runtime-rt);
-        _stdev += vv;
-    }
-    _stdev = sqrt(_stdev/(double)this->numFrames());
-
 }
 
 
