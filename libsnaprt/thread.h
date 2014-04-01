@@ -13,6 +13,7 @@
 #include <QTextStream>
 #include <QDataStream>
 #include <QRegExp>
+#include <QFileInfo>
 
 class Threads;
 
@@ -23,10 +24,10 @@ class Thread
 
   public:
     Thread(const QString& runDir);
+    Thread(const QString &runDir, double startTime=0.0, double stopTime=1.0e20);
     ~Thread();
 
     void addJob(Job* job);  // all jobs added must have same threadId
-    void setNumOverruns(int n) { _num_overruns = n ; } // TODO: thread should calculate this, not snap so delete this and you will not have this long comment ya big dummy
 
     QList<Job*> jobs()               const { return _jobs; }
     Job*   jobAtIndex(int idx)       const { return _jobs.at(idx); }
@@ -59,6 +60,8 @@ class Thread
   private:
 
     QString _runDir;
+    double _startTime;
+    double _stopTime;
     int _threadId;
     SJobExecThreadInfo _sJobExecThreadInfo;
     QList<Job*> _jobs;
@@ -81,12 +84,22 @@ class Thread
     QMap<int,double> _frameidx2runtime;
 
     SnapTable* _runtimeCurve; // t,runtime curve
+
+    TrickModel* _frameModel;
+    int _frameModelRunTimeCol;
+    int _frameModelOverrunTimeCol;
+    bool _frameModelIsRealTime;
+    void _frameModelSet();
+    void _frameModelCalcIsRealTime();
+
+    int _calcNumFrames();
 };
 
 class Threads
 {
   public:
-    Threads(const QString& runDir, const QList<Job *> &jobs);
+    Threads(const QString& runDir, const QList<Job *> &jobs,
+            double startTime=0.0, double stopTime=1.0e20);
     ~Threads();
     const QMap<int,Thread*>* hash() { return &_threads; }
 
@@ -95,6 +108,8 @@ class Threads
     QList<Job*> _jobs;
     QList<int> _ids;
     QMap<int,Thread*> _threads;
+    double _startTime ;
+    double _stopTime ;
 };
 
 #endif // THREAD_H

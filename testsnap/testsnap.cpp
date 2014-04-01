@@ -10,9 +10,12 @@
 #include "trickdatamodel.h"
 
 
-#define TEST_NON_RM2000
-#define TEST_RM2000_RPT
-#define TEST_RM2000_BENCHMARK
+//#define TEST_CUSTOM
+#ifndef TEST_CUSTOM
+    #define TEST_NON_RM2000
+    #define TEST_RM2000_RPT
+    #define TEST_RM2000_BENCHMARK
+#endif
 
 QString testRunsDir()
 {
@@ -61,6 +64,10 @@ private:
 private slots:
     void initTestCase();
 
+#ifdef TEST_CUSTOM
+    // For example, to isolate one test place code for test here
+    void num_overruns3();
+#endif
 #ifdef TEST_NON_RM2000
     void empty_run1();
     void empty_run2();
@@ -1055,7 +1062,7 @@ void TestSnap::thread1()
 
         // Num frames
         if ( tid == 0 ) {
-            QCOMPARE(thread->numFrames(),1000);
+            QCOMPARE(thread->numFrames(),1001);
         } else if ( tid == 1 ) {
             QCOMPARE(thread->numFrames(),100);
         } else if ( tid == 2 ) {
@@ -1125,6 +1132,17 @@ void TestSnap::benchmark_rm2000()
         QString rundir = testRunsDir() + "/RUN_rm2000";
         Snap snap(rundir);
     }
+}
+#endif
+#ifdef TEST_CUSTOM
+// For example, to isolate one test place code for test here
+void TestSnap::num_overruns3()
+{
+    // since 0-49.1 is "non-realtime",
+    // numOverruns is set by sum of job times on thread0
+    // exceeding frame time of thread0
+    Snap snap(_run("1"),0,49.1);
+    QCOMPARE(snap.num_overruns(),439);
 }
 #endif
 

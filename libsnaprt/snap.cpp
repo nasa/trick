@@ -59,26 +59,15 @@ void Snap::_load()
 
     _curr_sort_method = SortByJobAvgTime;
 
-    _threads = new Threads(_rundir,_jobs);
+    _threads = new Threads(_rundir,_jobs,_start,_stop);
 
-    if ( _is_realtime ) {
-        // num overruns already calculated in _process_frames()
-        _numFrames    = _frames.size();
-        _frame_avg    = _calc_frame_avg();
-        _frame_stddev = _calc_frame_stddev(_frame_avg);
-    } else {
-        // If not real-time, _modelFrame cannot be used to
-        // calculate number of overruns etc. since
-        // log_frame.trk will not log that information
-        // So, instead, use thread0
-        foreach ( Thread* thread, threads()->hash()->values() ) {
-            if ( thread->threadId() == 0 ) {
-                _num_overruns = thread->numOverruns();
-                _numFrames    = thread->numFrames();
-                _frame_avg    = thread->avgRunTime();
-                _frame_stddev = thread->stdDeviation();
-                break;
-            }
+    foreach ( Thread* thread, threads()->hash()->values() ) {
+        if ( thread->threadId() == 0 ) {
+            _num_overruns = thread->numOverruns();
+            _numFrames    = thread->numFrames();
+            _frame_avg    = thread->avgRunTime();
+            _frame_stddev = thread->stdDeviation();
+            break;
         }
     }
 
@@ -775,15 +764,6 @@ QString SnapReport::report()
             "ThreadMax", "MaxLoad%");
 
     foreach ( Thread* thread, _snap.threads()->hash()->values() ) {
-
-        // Hard code num overruns for thread 0 :(
-        //
-        // Do this because the thread overrun calc
-        // sums the job times on a thread, but the trick exec
-        // overhead will not show up in that calc
-        if ( thread->threadId() == 0 && _snap.is_realtime()) {
-            thread->setNumOverruns(_snap.num_overruns());
-        }
 
         rpt += str.sprintf("    %10d %10d %15.6lf %15d %15.6lf "
                           "%14.0lf%% %15.6lf %14.0lf%%\n",
