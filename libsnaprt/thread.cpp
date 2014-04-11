@@ -76,7 +76,7 @@ void Thread::_do_stats()
         _frameModelCalcIsRealTime();
     }
 
-    int frameCnt = _calcNumFrames();
+    _frameCount = _calcNumFrames();
 
     //
     // Create table with frameCnt number of rows
@@ -86,7 +86,7 @@ void Thread::_do_stats()
     _runtimeCurve->insertColumns(0,2);
     _runtimeCurve->setHeaderData(0,Qt::Horizontal,QString("sys.exec.out.time"));
     _runtimeCurve->setHeaderData(1,Qt::Horizontal,QString("ThreadRunTime"));
-    _runtimeCurve->insertRows(0,frameCnt);
+    _runtimeCurve->insertRows(0,_frameCount);
 
     double sum_time = 0.0;
     double sum_squares = 0 ;
@@ -137,8 +137,7 @@ void Thread::_do_stats()
                 _max_runtime = ft;
                 _tidx_max_runtime = tidx;
             }
-            _frameidx2runtime[tidx] = ft;
-            _jobtimestamp2frameidx[it.t()] = tidx;
+            _jobtimestamp2frametime[it.t()] = ft;
             QModelIndex timeIdx = _runtimeCurve->index(rowCount,0);
             QModelIndex valIdx = _runtimeCurve->index(rowCount,1);
             ++rowCount;
@@ -223,9 +222,8 @@ void Thread::_do_stats()
                 _tidx_max_runtime = frameidx;
             }
 
-            _frameidx2runtime[frameidx] = ft;
             foreach ( double t, jobTimeStampsAcrossFrame ) {
-                _jobtimestamp2frameidx[t] = frameidx;
+                _jobtimestamp2frametime[t] = ft;
             }
 
             QModelIndex timeIdx = _runtimeCurve->index(rowCount,0);
@@ -420,14 +418,23 @@ void Thread::_frameModelCalcIsRealTime()
 
 double Thread::runtime(double timestamp) const
 {
-    int frameidx = _jobtimestamp2frameidx.value(timestamp);
-    double rt = _frameidx2runtime.value(frameidx);
-    return rt;
+    double frameTime = _jobtimestamp2frametime.value(timestamp,-1.0) ;
+    if ( frameTime == -1.0 ) {
+        // Using a double as a hash key doesn't always work. Most of the
+        // time it does, so keep with the O(1) lookup. Do this slow lookup
+        // as last resort.
+        foreach ( double t, _jobtimestamp2frametime.keys() ) {
+            if ( timestamp-1.0e-9 < t && t < timestamp+1.0e-9 ) {
+                frameTime = _jobtimestamp2frametime.value(t);
+            }
+        }
+    }
+    return frameTime;
 }
 
 int Thread::numFrames() const
 {
-    return _frameidx2runtime.keys().size();
+    return _frameCount;
 }
 
 double Thread::avgJobRuntime(Job *job) const

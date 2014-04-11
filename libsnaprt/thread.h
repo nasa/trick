@@ -83,8 +83,7 @@ class Thread
     static QString _err_string;
     static QTextStream _err_stream;
 
-    QMap<int,double> _frameidx2runtime;
-    QMap<double,int> _jobtimestamp2frameidx;
+    QMap<double,double> _jobtimestamp2frametime;
 
     SnapTable* _runtimeCurve; // t,runtime curve
 
@@ -95,7 +94,7 @@ class Thread
     void _frameModelSet();
     void _frameModelCalcIsRealTime();
 
-    int _calcNumFrames();
+    int _frameCount; int _calcNumFrames();
 };
 
 class Threads
