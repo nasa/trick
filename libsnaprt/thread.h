@@ -37,7 +37,6 @@ class Thread
     int    numJobs()                 const { return _jobs.size() ; }
     int    threadId()                const { return _threadId; }
     double avgRunTime()              const { return _avg_runtime; }
-    double runtime(int tidx)         const;
     double runtime(double timestamp)  const;
     SnapTable* runtimeCurve()         const { return _runtimeCurve; }
     double avgLoad()                 const { return _avg_load; }

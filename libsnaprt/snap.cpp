@@ -502,7 +502,7 @@ SnapTable* Snap::jobTableAtTime(double time)
         }
     }
 
-    double ft = frame.frame_time();
+    double ft = _thread0->runtime(time);
 
     int r = 0 ;
     int cnt = 0 ;
@@ -527,7 +527,7 @@ SnapTable* Snap::jobTableAtTime(double time)
         table->setData(table->index(r,4),QVariant(job->thread_id()));
         table->setData(table->index(r,5),
                        QVariant(threads()->hash()->value(job->thread_id())->
-                                runtime(tidx)));
+                                runtime(time)));
         r++;
 
         // limit printout of jobs
@@ -857,7 +857,6 @@ QString SnapReport::report()
             double rt =  topjob.first;
             Job* job = topjob.second;
 
-            int tidx = frame.timeidx();
             double delta = 1.0e-3;
             if ( rt < delta ) {
                 continue;
@@ -867,7 +866,7 @@ QString SnapReport::report()
                     "    %6d %15.6lf %15.6lf %15.6lf    %-50s\n",
                     job->thread_id(),
                     _snap.threads()->hash()->
-                                    value(job->thread_id())->runtime(tidx),
+                          value(job->thread_id())->runtime(tt),
                     rt,
                     job->freq(),
                     job->job_name().toAscii().constData()) ;
@@ -895,13 +894,12 @@ QString SnapReport::report()
 
         if ( ++cnt > max_cnt ) break;
 
-        int tidx =  frame.timeidx();
         double tt = frame.timestamp();
         double ft = frame.frame_time();
 
         QList<QPair<double, Thread*> > topthreads;
         foreach ( Thread* thread, _snap.threads()->hash()->values() ) {
-            topthreads.append(qMakePair(thread->runtime(tidx),thread));
+            topthreads.append(qMakePair(thread->runtime(tt),thread));
         }
         qSort(topthreads.begin(),topthreads.end(),topThreadGreaterThan);
 

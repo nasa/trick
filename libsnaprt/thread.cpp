@@ -418,20 +418,6 @@ void Thread::_frameModelCalcIsRealTime()
     }
 }
 
-double Thread::runtime(int tidx) const
-{
-    double rt = -1.0;
-
-    for ( int ii = tidx; ii >= 0 ; --ii) {
-        if ( _frameidx2runtime.contains(ii) ) {
-            rt = _frameidx2runtime[ii];
-            break;
-        }
-    }
-
-    return rt;
-}
-
 double Thread::runtime(double timestamp) const
 {
     int frameidx = _jobtimestamp2frameidx.value(timestamp);
