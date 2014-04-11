@@ -14,8 +14,7 @@ class Frame
 {
   public:
     Frame(QList<Job*>* jobs, int timeidx,
-          double timestamp, double frame_time,
-          double overrun_time);
+          double timestamp, double frame_time);
 
     static QString frame_time_name;
     static QString overrun_time_name;
@@ -23,8 +22,6 @@ class Frame
     int timeidx() const { return _tidx; }
     double timestamp() const { return _timestamp; }
     double frame_time() const { return _frame_time; }
-    double overrun_time() const { return _overrun_time; }
-    bool is_overrun() { return _is_overrun; }
     double jobloadindex();   // Percentage of jobs in sim running
                              // a factor of std devs above normal
 
@@ -39,8 +36,6 @@ class Frame
     int _tidx;
     double _timestamp;
     double _frame_time;
-    double _overrun_time;
-    bool _is_overrun;
     double _jobloadindex;   // Percentage of jobs in sim running
                            // a factor of std devs above normal
 

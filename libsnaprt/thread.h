@@ -29,6 +29,9 @@ class Thread
 
     void addJob(Job* job);  // all jobs added must have same threadId
 
+    double startTime()              const { return _startTime; }
+    double stopTime()              const { return _stopTime; }
+    bool   isRealTime()             const { return _frameModelIsRealTime; }
     QList<Job*> jobs()               const { return _jobs; }
     Job*   jobAtIndex(int idx)       const { return _jobs.at(idx); }
     int    numJobs()                 const { return _jobs.size() ; }
@@ -75,13 +78,14 @@ class Thread
     double _freq;      // assume freq is freq of highest freq job on the thread
     int _num_overruns;
 
-    void _do_stats(); // TODO: make private later
+    void _do_stats();
     double _calcFrequency() ;
 
     static QString _err_string;
     static QTextStream _err_stream;
 
     QMap<int,double> _frameidx2runtime;
+    QMap<double,int> _jobtimestamp2frameidx;
 
     SnapTable* _runtimeCurve; // t,runtime curve
 

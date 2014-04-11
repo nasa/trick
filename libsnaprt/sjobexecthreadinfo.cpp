@@ -140,6 +140,10 @@ void SJobExecThreadInfo::_calcThreadInfo()
     //
     // Get Main thread frame time (thread0:trick_sys.sched.advance_sim_time )
     //
+    // TODO: I don't think Trick reports the freq of advance_sim_time
+    //       correctly in S_job_execution because the snapq curve
+    //       of advance_sim_time is not (at least in RUN_orlando) the
+    //       S_job_execution freq... but I'm keeping this
     if ( _threadId == 0 ) {
 
         while (1) {

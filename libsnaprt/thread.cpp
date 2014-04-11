@@ -54,10 +54,9 @@ void Thread::_do_stats()
 
     qSort(_jobs.begin(),_jobs.end(),jobAvgTimeGreaterThan);
 
-    if ( _sJobExecThreadInfo.hasInfo() ) {
-        _freq = _sJobExecThreadInfo.frequency();
-    } else {
-        _freq = _calcFrequency();
+    _freq = _calcFrequency();
+    if ( _freq == 0 ) {
+        return; // Nothing to calculate, so return
     }
 
     if ( _threadId == 0 && _freq == 0.0 ) {
@@ -94,6 +93,20 @@ void Thread::_do_stats()
     int rowCount = 0 ;
     if ( _threadId == 0 && _frameModelIsRealTime ) {
 
+        TrickCurveModel* timeToSyncWithAMFChildrenCurve = 0;
+        foreach ( Job* job, _jobs ) {
+            if ( job->job_name().contains("advance_sim_time") ) {
+                timeToSyncWithAMFChildrenCurve = job->curve();
+                break;
+            }
+        }
+        if ( timeToSyncWithAMFChildrenCurve == 0 ) {
+            _err_stream << "snap [bad scoobies]: cannot find advance_sim_time "
+                        <<   " parameter for thread0 frame calculation."
+                        << "  Trick may have changed the name.";
+            throw std::runtime_error(_err_string.toAscii().constData());
+        }
+        TrickModelIterator iamf = timeToSyncWithAMFChildrenCurve->begin();
 
         TrickModelIterator it = _frameModel->begin(0,
                                                    _frameModelRunTimeCol,
@@ -106,28 +119,43 @@ void Thread::_do_stats()
         int tidx = 0 ;
         while (it != e) {
 
-            double ot = it.y()/1000000.0;
-            if ( ot < 0 ) ot = 0.0;
-            if ( ot > 0.0 ) _num_overruns++;
+            // If overrun time is above 0, tally an overrun.
+            double ov = it.y()/1000000.0;
+            if ( ov > 0.0 ) _num_overruns++;
 
-            double ft = it.x()/1000000.0;
+            // Snap calculates frame time (ft) by excluding executive
+            // time waiting to sync with wall clock but includes
+            // the sync with amf children
+            int amfIdx  = timeToSyncWithAMFChildrenCurve->indexAtTime(it.t());
+            double timeToSyncWithAMFChildren = iamf[amfIdx].y()/1000000.0;
+            double frameSchedTime = it.x()/1000000.0;
+            double ft = frameSchedTime + timeToSyncWithAMFChildren;
+
+
             if ( ft < 0 ) ft = 0.0;
             if ( ft > _max_runtime ) {
                 _max_runtime = ft;
                 _tidx_max_runtime = tidx;
             }
             _frameidx2runtime[tidx] = ft;
+            _jobtimestamp2frameidx[it.t()] = tidx;
             QModelIndex timeIdx = _runtimeCurve->index(rowCount,0);
             QModelIndex valIdx = _runtimeCurve->index(rowCount,1);
             ++rowCount;
             _runtimeCurve->setData(timeIdx,it.t());
             _runtimeCurve->setData(valIdx,ft);
-            sum_time += it.x();
+            sum_time += ft*1000000.0;
             sum_squares += ft*ft;
 
             ++it;
             ++tidx;
         }
+
+        QModelIndex idx0 = _runtimeCurve->index(0,0);
+        _startTime = _runtimeCurve->data(idx0).toDouble();
+        int rc = _runtimeCurve->rowCount();
+        QModelIndex idxLast = _runtimeCurve->index(rc-1,0);
+        _stopTime = _runtimeCurve->data(idxLast).toDouble();
 
     } else {
         //
@@ -137,67 +165,83 @@ void Thread::_do_stats()
         TrickCurveModel* curve = job0->curve();
         TrickModelIterator it = curve->begin();
         const TrickModelIterator e = curve->end();
-        bool is_frame_change = true;
         double frame_time = 0.0;
         _max_runtime = 0.0;
-        int last_frameidx = 0 ;
+        int frameidx = 0 ;
         int tidx = 0 ;
         TrickModelIterator it2;
 
         it = curve->begin();
+        _startTime = it.t();
         double tnext = it.t() + _freq;
+        double epsilon = 1.0e-6;
 
         _num_overruns = 0;
         while (it != e) {
 
-            if ( _freq < 0.000001 ) {
-                is_frame_change = true;
-            } else if ( it.t()+1.0e-6 > tnext ) {
-                tnext += _freq;
-                if ( frame_time/1000000.0 > _freq ) {
-                    _num_overruns++;
+            double frameTimeStamp = it.t();
+            QList<double> jobTimeStampsAcrossFrame;
+            while ( it != e && it.t()+epsilon < tnext ) {
+
+                jobTimeStampsAcrossFrame.append(it.t());
+
+                foreach ( Job* job, _jobs ) {
+
+                    if ( job->job_name().startsWith("frame_userjobs_C") ) {
+                        // For Trick 13
+                        // Do not use child frame scheduling time for frame
+                        // time sum.  Snap reports the sum of the userjobs,
+                        // not the frame scheduling time since the frame
+                        // scheduling time includes executive overhead
+                        // (e.g. the frame logging itself).
+                        continue;
+                    }
+
+                    it2 = job->curve()->begin();
+                    double ft = it2[tidx].x();
+                    if ( ft < 0 ) {
+                        ft = 0.0;
+                    }
+                    frame_time += ft;
                 }
-                is_frame_change = true;
+                ++tidx;
+                ++it;
+
+                if ( _freq < epsilon ) {
+                    break;
+                }
             }
 
-            if ( is_frame_change ) {
-                double ft = frame_time/1000000.0;
-                if ( ft > _max_runtime ) {
-                    _max_runtime = ft;
-                    _tidx_max_runtime = last_frameidx;
-                }
-                _frameidx2runtime[last_frameidx] = ft;
-                QModelIndex timeIdx = _runtimeCurve->index(rowCount,0);
-                QModelIndex valIdx = _runtimeCurve->index(rowCount,1);
-                ++rowCount;
-                _runtimeCurve->setData(timeIdx,it.t());
-                _runtimeCurve->setData(valIdx,ft);
-                sum_time += frame_time;
-                sum_squares += ft*ft;
-                frame_time = 0.0;
-                last_frameidx = tidx;
-                is_frame_change = false;
+            double ft = frame_time/1000000.0;
+
+            if ( ft > _freq ) {
+                _num_overruns++;
             }
 
-            foreach ( Job* job, _jobs ) {
-                if ( job->job_name().startsWith("frame_userjobs_C") ) {
-                    // For Trick 13
-                    // Do not use child frame scheduling time for frame time sum.
-                    // Snap reports the sum of the userjobs, not the frame
-                    // scheduling time since the frame scheduling time includes
-                    // executive overhead (e.g. the frame logging itself).
-                    continue;
-                }
-                it2 = job->curve()->begin();
-                double ft = it2[tidx].x();
-                if ( ft < 0 ) {
-                    ft = 0.0;
-                }
-                frame_time += ft;
+            if ( ft > _max_runtime ) {
+                _max_runtime = ft;
+                _tidx_max_runtime = frameidx;
             }
 
-            tidx++;
-            ++it;
+            _frameidx2runtime[frameidx] = ft;
+            foreach ( double t, jobTimeStampsAcrossFrame ) {
+                _jobtimestamp2frameidx[t] = frameidx;
+            }
+
+            QModelIndex timeIdx = _runtimeCurve->index(rowCount,0);
+            QModelIndex valIdx = _runtimeCurve->index(rowCount,1);
+            ++rowCount;
+            _runtimeCurve->setData(timeIdx,frameTimeStamp);
+            _runtimeCurve->setData(valIdx,ft);
+            sum_time += frame_time;
+            sum_squares += ft*ft;
+            frame_time = 0.0;
+            frameidx++;
+            tnext += _freq;
+        }
+
+        if ( rowCount > 0 ) {
+            _stopTime = it[rowCount-1].t();
         }
     }
 
@@ -207,30 +251,33 @@ void Thread::_do_stats()
 
     _avg_runtime = (s/n)/1000000.0;
     _stdev       = qSqrt(ss/n - (s*s/(n*n))*(1.0e-12));
+
     if ( _freq > 0.0000001 ) {
         _avg_load = 100.0*_avg_runtime/_freq;
         _max_load = 100.0*_max_runtime/_freq;
     }
 }
 
-
-
-// Guess frequency (cycle time) of thread
-//
-// If Trick 13, use S_job_execution if possible
-// Else Use this
 //
 // Guess the thread freq by:
-//   thread0:
-//              It's the same as sim frame time which
-//              can be determined by the job:
-//                       trick_sys.sched.advance_sim_time
-//   threads1-N:
-//              Guess that the thread freq is the same freq of the job
-//              with max cycle time
+//
+//   If thread0:
+//              freq = freq of job trick_sys.sched.advance_sim_time
+//   If threads1-N:
+//              If Trick 13:
+//                    Use S_job_execution
+//              Else
+//                    Guess that the thread freq is the same freq of the job
+//                    with max cycle time
+//
 double Thread::_calcFrequency()
 {
     double freq;
+
+    if ( _sJobExecThreadInfo.hasInfo() && _threadId > 0 ) {
+        _freq = _sJobExecThreadInfo.frequency();
+        return _freq;
+    }
 
     freq = -1.0e20;
     foreach ( Job* job, _jobs ) {
@@ -387,8 +434,8 @@ double Thread::runtime(int tidx) const
 
 double Thread::runtime(double timestamp) const
 {
-    int tidx = _jobs.at(0)->curve()->indexAtTime(timestamp);
-    double rt = runtime(tidx);
+    int frameidx = _jobtimestamp2frameidx.value(timestamp);
+    double rt = _frameidx2runtime.value(frameidx);
     return rt;
 }
 
@@ -451,8 +498,19 @@ Threads::Threads(const QString &runDir, const QList<Job*>& jobs,
 
     qSort(_ids.begin(),_ids.end(),intLessThan);
 
+    bool isRealTime = false;
     foreach ( Thread* thread, _threads.values() ) {
         thread->_do_stats();
+        if ( thread->threadId() == 0 && thread->isRealTime()) {
+            isRealTime = true;
+        }
+    }
+
+    // If thread0 is realtime, set the other threads to realtime too
+    if ( isRealTime ) {
+        foreach ( Thread* thread, _threads.values() ) {
+            thread->_frameModelIsRealTime = true;
+        }
     }
 
 }

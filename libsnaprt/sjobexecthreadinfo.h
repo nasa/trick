@@ -18,7 +18,7 @@ class SJobExecThreadInfo
 
     bool    hasInfo()     const { return _hasInfo; }
     int     threadId()    const { return _threadId; }
-    double  frequency()   const { return _freq; }
+    double  frequency()   const { return _freq; }  // TODO: Trick bug on thread0
     QString kind()        const { return _kind; }
     QString rtCPUNumber() const { return _rtCPUNumber; }
 

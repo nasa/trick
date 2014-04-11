@@ -64,16 +64,16 @@ public:
     }
 
     double start() const {
-        if ( _modelFrame->rowCount() > 0 ) {
-            return _modelFrame->startTime();
+        if ( _thread0 ) {
+            return _thread0->startTime();
         } else {
             return _start;
         }
     }
 
     double stop() const  {
-        if ( _modelFrame->rowCount() > 0 ) {
-            return _modelFrame->stopTime();
+        if ( _thread0 ) {
+            return _thread0->stopTime();
         } else {
             return _stop;
         }
@@ -85,7 +85,7 @@ public:
     int num_overruns() const { return _num_overruns; }
     double percent_overruns() const { return 100.0*
                                    (double)num_overruns()/(double)num_frames(); }
-    QString frame_rate() const ; // for now return list of frame rates
+    double frame_rate() const ; // for now return list of frame rates
     double frame_avg() const { return _frame_avg; }
     double frame_stddev() const { return _frame_stddev; }
 
@@ -133,12 +133,13 @@ private:
                              double start, double stop);
     void _process_models();
     bool _parse_s_job_execution(const QString& rundir);
-    QList<Frame> _process_frames(TrickModel* model);
+    QList<Frame> _process_frames();
     bool _process_jobs(TrickModel* model);
 
     TrickModel* _trickJobModel;
     QList<TrickModel*> _userJobModels;
     TrickModel* _modelFrame;
+    Thread* _thread0;  // main thread
 
     QList<Frame>  _frames;
     int _num_overruns;

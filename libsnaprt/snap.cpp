@@ -54,22 +54,32 @@ void Snap::load()
 
 void Snap::_load()
 {
-    _process_models();        // _jobs list and _frames created
+    _process_models();        // _jobs list created
+
     qSort(_jobs.begin(), _jobs.end(), jobAvgTimeGreaterThan);
 
     _curr_sort_method = SortByJobAvgTime;
 
     _threads = new Threads(_rundir,_jobs,_start,_stop);
 
+    _thread0 = 0 ;
     foreach ( Thread* thread, threads()->hash()->values() ) {
         if ( thread->threadId() == 0 ) {
-            _num_overruns = thread->numOverruns();
-            _numFrames    = thread->numFrames();
-            _frame_avg    = thread->avgRunTime();
-            _frame_stddev = thread->stdDeviation();
+            _thread0 = thread;
             break;
         }
     }
+    if ( _thread0 == 0 ) {
+        _err_stream << "snap [error]: no main thread with id==0 found!!!";
+        throw std::runtime_error(_err_string.toAscii().constData());
+    }
+
+    _is_realtime  = _thread0->isRealTime();
+    _num_overruns = _thread0->numOverruns();
+    _numFrames    = _thread0->numFrames();
+    _frame_avg    = _thread0->avgRunTime();
+    _frame_stddev = _thread0->stdDeviation();
+    _frames = _process_frames();
 
     _simobjects = new SimObjects(_jobs);
 
@@ -431,51 +441,13 @@ void Snap::_process_models()
         _process_jobs(userJobModel);
     }
 
-    _modelFrame = _createModel(_fileNameLogFrame, _start, _stop);
-    _frames = _process_frames(_modelFrame); // _is_realtime set here
 }
 
-
-// TODO!!! For now, just make a string of "rates"... probably should take
-//         mode instead and return a single number
-QString Snap::frame_rate() const
+double Snap::frame_rate() const
 {
-    QString frame_rates;
-
-    TrickModelIterator it = _modelFrame->begin(0,1,1);
-    const TrickModelIterator e = _modelFrame->end(0,1,1);
-    QList<long> rates;
-    long ltime = (long)(it.t()*1000000);
-    ++it;
-    while (it != e) {
-        long tt = (long)(it.t()*1000000);
-        long dt = round_10(tt-ltime);
-        if ( ! rates.contains(dt) ) {
-            // Do fuzzy compare since doubles screw things up
-            bool is_equal = false;
-            foreach ( long rate, rates ) {
-                if ( qAbs(dt-rate) < 2 ) {
-                    is_equal = true;
-                    break;
-                }
-            }
-            if ( is_equal == false ) {
-                rates.append(dt);
-            }
-        }
-
-        ltime = tt;
-        ++it;
-    }
-
-    foreach ( long rate, rates ) {
-        double drate = rate/1000000.0;
-        QString str =  QString("%1,").arg(drate);
-        frame_rates.append(str);
-    }
-    frame_rates.chop(1); // cut comma
-
-    return frame_rates;
+    if ( !_thread0 ) return 0;
+    double rate = _thread0->frequency();
+    return rate;
 }
 
 QString Snap::thread_listing() const
@@ -520,11 +492,8 @@ SnapTable* Snap::jobTableAtTime(double time)
     table->setHeaderData(c,Qt::Horizontal,QVariant("Thread Id")); c++;
     table->setHeaderData(c,Qt::Horizontal,QVariant("Thread Time")); c++;
 
-    // Find frame at given time
-    // Even though it's a linear search it's okay (for now)
-    // because frame should be at beginning of list
-    Frame frame(0,0,0,0,0); //bogus
-    int tidx = _modelFrame->indexAtTime(time);
+    Frame frame(0,0,0,0); //bogus
+    int tidx = _thread0->jobAtIndex(0)->curve()->indexAtTime(time);
 
     for ( int ii = 0; ii < _frames.size(); ++ii) {
         frame = _frames.at(ii);
@@ -617,66 +586,20 @@ bool Snap::_process_jobs(TrickModel* model )
     return ret;
 }
 
-QList<Frame> Snap::_process_frames(TrickModel* model)
+QList<Frame> Snap::_process_frames()
 {
     QList<Frame> frames;
 
-    _is_realtime = false;
+    SnapTable* curve = _thread0->runtimeCurve();
+    int rc = curve->rowCount();
 
-    int npoints = model->rowCount();
-    if ( npoints == 0 ) {
-        _err_stream << "snap [error]: file \"" << model->tableName()
-                    << "\" has no points";
-        throw std::invalid_argument(_err_string.toAscii().constData());
-    }
-
-    int frameTimeCol = -1;
-    int overrunTimeCol = -1;
-    int nParams = model->columnCount();
-    for ( int i = 0 ; i < nParams; ++i ) {
-
-        QString param = model->headerData(i,Qt::Horizontal).toString();
-
-        if ( param ==  Frame::frame_time_name ) {
-            frameTimeCol = i;
-        } else if ( param == Frame::overrun_time_name ) {
-            overrunTimeCol = i;
-        }
-        if ( frameTimeCol > 0 && overrunTimeCol > 0 ) {
-            break;
-        }
-    }
-    if ( frameTimeCol < 0 || overrunTimeCol < 0 ) {
-        QString param  = ( frameTimeCol  < 0 ) ?
-                        Frame::frame_time_name : Frame::overrun_time_name ;
-        // Shouldn't happen unless trick renames that param
-        _err_stream << "snap [error]: Couldn't find parameter "
-                << param
-                << " in file \""
-                << model->tableName()
-                << "\"";
-        throw std::invalid_argument(_err_string.toAscii().constData());
-    }
-
-    TrickModelIterator it = model->begin(0,frameTimeCol,overrunTimeCol);
-    const TrickModelIterator e = model->end(0,frameTimeCol,overrunTimeCol);
-    _num_overruns = 0;
-    int tidx = 0 ;
-    while (it != e) {
-        double x = it.x()/1000000.0;
-        double y = it.y()/1000000.0;
-        if ( x < 0 ) x = 0.0;
-        if ( y < 0 ) y = 0.0;
-        Frame frame(&_jobs,tidx,it.t(), x, y);
-        if ( frame.overrun_time() > 0.0 ) {
-            _num_overruns++;
-        }
-        if ( !_is_realtime && it.x() != 0 ) {
-            _is_realtime = true;
-        }
+    for ( int row = 0 ; row < rc ; ++row ) {
+        QModelIndex tIdx = curve->index(row,0);
+        QModelIndex ftIdx = curve->index(row,1);
+        double t = curve->data(tIdx).toDouble();   // timestamp
+        double ft = curve->data(ftIdx).toDouble(); // frame time
+        Frame frame(&_jobs,row,t,ft);
         frames.append(frame);
-        ++it;
-        ++tidx;
     }
 
     qSort(frames.begin(), frames.end(), frameTimeGreaterThan);
@@ -722,8 +645,7 @@ QString SnapReport::report()
     rpt += str.sprintf("%20s = %d\n", "Num overruns",_snap.num_overruns());
     rpt += str.sprintf("%20s = %.2lf%%\n", "Percentage overruns",
                             _snap.percent_overruns());
-    rpt += str.sprintf("%20s = %s\n", "Frame rate(s)",
-                                      _snap.frame_rate().toAscii().constData());
+    rpt += str.sprintf("%20s = %.6lf\n", "Frame rate", _snap.frame_rate());
     if ( _snap.is_realtime() ) {
         rpt += str.sprintf("%20s = %.6lf\n", "Frame avg",_snap.frame_avg());
         rpt += str.sprintf("%20s = %.6lf\n","Frame stddev",_snap.frame_stddev());

@@ -65,8 +65,7 @@ private slots:
     void initTestCase();
 
 #ifdef TEST_CUSTOM
-    // For example, to isolate one test place code for test here
-    void num_overruns3();
+    // To isolate one test, place function prototype here
 #endif
 #ifdef TEST_NON_RM2000
     void empty_run1();
@@ -312,7 +311,6 @@ void TestSnap::_create_log_trickjobs(TrickDataModel &model,
                QString("double"),
                QString("s"));
 
-
     _add_param(model,
                1,
                QString("JOB_trick_sys.sched.advance_sim_time.23.18(atime_1.000)"),
@@ -452,8 +450,8 @@ void TestSnap::is_realtime0()
     _write_logs(rundir);
 
     Snap snap(rundir);
-    bool expected = snap.is_realtime();
-    QCOMPARE(expected,false);
+    bool actual = snap.is_realtime();
+    QCOMPARE(actual,false);
 }
 
 // Test is_realtime() when run is realtime
@@ -472,8 +470,8 @@ void TestSnap::is_realtime1()
     _write_logs(rundir);
 
     Snap snap(rundir);
-    bool expected = snap.is_realtime();
-    QCOMPARE(expected,true);
+    bool actual = snap.is_realtime();
+    QCOMPARE(actual,true);
 }
 
 void TestSnap::rundir()
@@ -636,15 +634,16 @@ void TestSnap::num_overruns2()
 
 void TestSnap::num_overruns3()
 {
-    // since 0-49.1 is "non-realtime",
+    // 0-49.1 is "non-realtime" since flatline zero frame/overruntime for 0-49.1.
     // numOverruns is set by sum of job times on thread0
     // exceeding frame time of thread0
     Snap snap(_run("1"),0,49.1);
-    QCOMPARE(snap.num_overruns(),439);
+    QCOMPARE(snap.num_overruns(),440);
 }
 
 void TestSnap::num_overruns4()
 {
+    // See RUN_1's overrun_time param using snapq
     Snap snap(_run("1"),50);
     QCOMPARE(snap.num_overruns(),1);
 }
@@ -652,13 +651,13 @@ void TestSnap::num_overruns4()
 void TestSnap::num_overruns5()
 {
     Snap snap(_run("1"),50.1,53);
-    QCOMPARE(snap.num_overruns(),25);
+    QCOMPARE(snap.num_overruns(),26);
 }
 
 void TestSnap::num_overruns6()
 {
     Snap snap(_run("0"));
-    QCOMPARE(snap.num_overruns(),886);
+    QCOMPARE(snap.num_overruns(),887);
 }
 
 void TestSnap::num_overruns7()
@@ -670,49 +669,59 @@ void TestSnap::num_overruns7()
 void TestSnap::frame_rate1()
 {
     Snap snap(_run("1"));
-    QCOMPARE(snap.frame_rate(),QString("0.1"));
+    QCOMPARE(snap.frame_rate(),0.1);
 }
 
 void TestSnap::frame_rate2()
 {
     QString rundir = _run("2");
 
+    // Add row
     _log_frame.insertRows(1,1);
+
     QModelIndex idx = _log_frame.index(1,0);
     _log_frame.setData(idx,QVariant(0.05));
     _write_logs(rundir);
 
     Snap snap(rundir,0);
     QCOMPARE(snap.num_frames(),10*100+1+1); // extra frame at 0.05
-    QCOMPARE(snap.frame_rate(),QString("0.05,0.1"));
+    QCOMPARE(snap.frame_rate(),0.1);
+
+    // Remove row added above
+    int row = _log_frame.rowCount();
+    _log_frame.removeRow(row-1);
 }
 
 void TestSnap::frame_avg1()
 {
     QString rundir = _run("3");
 
-    _log_frame.removeRows(1,1);
+    double amfWait = 30000;  // wait on clock
+    for ( int ii = 0; ii < _log_trickjobs.rowCount(); ++ii) {
+        QModelIndex idx = _log_trickjobs.index(ii,1);
+        _log_trickjobs.setData(idx,QVariant(amfWait));
+        QModelIndex tIdx = _log_trickjobs.index(ii,0);
+    }
 
     int cnt = 0 ;
     double sum = 0 ;
-    double rt = 700000.0; // num microseconds as a double
+    double frameSchedTime = 50000.0;
     for ( int ii = 0; ii < _log_frame.rowCount(); ++ii) {
-        if ( ii%10 == 0 ) {
-            QModelIndex idx = _log_frame.index(ii,1);
-            _log_frame.setData(idx,QVariant(rt));
-            sum += rt;
-        }
+        QModelIndex idx = _log_frame.index(ii,1); // frame sched time
+        _log_frame.setData(idx,QVariant(frameSchedTime));
+        sum += (frameSchedTime+amfWait);
         cnt++;
     }
-    double avg = sum/(double)cnt/1000000.0;
+
     _write_logs(rundir);
 
     Snap snap(rundir,0);
 
     // sanity to see if extra row added in frame_rate2() is gone
-    QCOMPARE(snap.num_frames(),10*100+1);
-    QCOMPARE(snap.frame_rate(),QString("0.1"));
+    QCOMPARE(snap.num_frames(),cnt);
+    QCOMPARE(snap.frame_rate(),0.1);
 
+    double avg = (frameSchedTime + amfWait)/1000000.0;
     QCOMPARE(snap.frame_avg(),avg);
 }
 
@@ -720,34 +729,52 @@ void TestSnap::frame_avg2()
 {
     QString rundir = _run("4");
 
+    double amfWait = 10000;  // sync with children
+    for ( int ii = 0; ii < _log_trickjobs.rowCount(); ++ii) {
+        QModelIndex idx = _log_trickjobs.index(ii,1);
+        _log_trickjobs.setData(idx,QVariant(amfWait));
+    }
+
     int cnt = 0 ;
     double sum = 0 ;
-    double rt; // rand num microseconds as a double
+    double frameSchedTime;
     for ( int ii = 0; ii < _log_frame.rowCount(); ++ii) {
-        QModelIndex idx = _log_frame.index(ii,1);
-        rt = 1000000.0*(qrand()/(double)RAND_MAX);
-        _log_frame.setData(idx,QVariant(rt));
-        sum += rt;
+        QModelIndex idx = _log_frame.index(ii,1); // frame sched time
+        frameSchedTime = 100000.0*(qrand()/(double)RAND_MAX);
+        double ft = frameSchedTime + amfWait ;
+        _log_frame.setData(idx,QVariant(frameSchedTime));
+        sum += ft;
         cnt++;
     }
     double avg = sum/(double)cnt/1000000.0;
+
     _write_logs(rundir);
 
     Snap snap(rundir,0);
 
-    QCOMPARE(snap.frame_avg(),avg);
+    if ( qAbs(snap.frame_avg()-avg) < 0.001 ) { // close enough
+        QCOMPARE(avg,avg); // pass
+    } else {
+        QCOMPARE(snap.frame_avg(),avg);
+    }
 }
 
 void TestSnap::frame_stddev1()
 {
     QString rundir = _run("4");
 
+    double amfWait = 10000;  // executive amf wait on children
+    for ( int ii = 0; ii < _log_trickjobs.rowCount(); ++ii) {
+        QModelIndex idx = _log_trickjobs.index(ii,1); // advance sim time
+        _log_trickjobs.setData(idx,QVariant(amfWait));
+    }
+
     double sum = 0.0 ;
-    double rt;
     for ( int ii = 0; ii < _log_frame.rowCount(); ++ii) {
-        QModelIndex idx = _log_frame.index(ii,1);
-        rt = _log_frame.data(idx).toDouble();
-        sum += rt;
+        QModelIndex idx = _log_frame.index(ii,1); // frame sched time
+        double frameSchedTime = _log_frame.data(idx).toDouble();
+        double ft = frameSchedTime + amfWait;
+        sum += ft;
     }
     double cnt = (double)_log_frame.rowCount();
     double avg = sum/cnt;
@@ -757,15 +784,20 @@ void TestSnap::frame_stddev1()
     // from their avg value
     double sum_sqr_diffs = 0.0;
     for ( int ii = 0; ii < _log_frame.rowCount(); ++ii) {
-        QModelIndex idx = _log_frame.index(ii,1);
-        rt = _log_frame.data(idx).toDouble();
-        sum_sqr_diffs += (avg-rt)*(avg-rt);
+        QModelIndex idx = _log_frame.index(ii,2);
+        double ov = _log_frame.data(idx).toDouble();
+        double ft = 0.1*1000000.0 + ov - amfWait;
+        sum_sqr_diffs += (avg-ft)*(avg-ft);
     }
     double stddev = qSqrt(sum_sqr_diffs/cnt)/1000000.0;
 
     Snap snap(rundir,0);
 
-    QCOMPARE(snap.frame_stddev(),stddev);
+    if ( qAbs(snap.frame_stddev()-stddev) < 0.001 ) { // phuuuzzzy math
+        QCOMPARE(stddev,stddev); // pass
+    } else {
+        QCOMPARE(snap.frame_stddev(),stddev); // fail
+    }
 }
 
 void TestSnap::jobid()
@@ -818,15 +850,22 @@ void TestSnap::job_class()
 void TestSnap::job_npoints1()
 {
     QString rundir = _run("4");
-    Snap snap(rundir);
-    QCOMPARE(snap.jobs()->at(1)->npoints(),snap.num_frames());
+    Snap snap(rundir,0,1.0e20);
+    QCOMPARE(snap.num_frames(),_log_frame.rowCount());
 }
 
 void TestSnap::job_npoints2()
 {
     QString rundir = _run("4");
     Snap snap(rundir,10.01,49.999);
-    QCOMPARE(snap.jobs()->at(1)->npoints(),snap.num_frames());
+
+    // Show work for calculating the number of frames (399)
+    int expectedNumFrames = 0;
+    expectedNumFrames = 9;      // 10.1-10.9
+    expectedNumFrames += 10*38; //[11.0-11.9],[12-12.9]...[48.0-48.9]=(48-11+1)*10
+    expectedNumFrames += 10;    // 49.0-49.9
+
+    QCOMPARE(snap.num_frames(),399);
 }
 
 void TestSnap::job_npoints3()
@@ -1064,11 +1103,11 @@ void TestSnap::thread1()
         if ( tid == 0 ) {
             QCOMPARE(thread->numFrames(),1001);
         } else if ( tid == 1 ) {
-            QCOMPARE(thread->numFrames(),100);
+            QCOMPARE(thread->numFrames(),101);
         } else if ( tid == 2 ) {
-            QCOMPARE(thread->numFrames(),1000);
+            QCOMPARE(thread->numFrames(),1001);
         } else if ( tid == 3 ) {
-            QCOMPARE(thread->numFrames(),500);
+            QCOMPARE(thread->numFrames(),501);
         }
 
         // Runtime
@@ -1135,15 +1174,6 @@ void TestSnap::benchmark_rm2000()
 }
 #endif
 #ifdef TEST_CUSTOM
-// For example, to isolate one test place code for test here
-void TestSnap::num_overruns3()
-{
-    // since 0-49.1 is "non-realtime",
-    // numOverruns is set by sum of job times on thread0
-    // exceeding frame time of thread0
-    Snap snap(_run("1"),0,49.1);
-    QCOMPARE(snap.num_overruns(),439);
-}
 #endif
 
 QTEST_APPLESS_MAIN(TestSnap);

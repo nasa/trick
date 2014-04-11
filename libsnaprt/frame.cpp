@@ -17,17 +17,13 @@ bool frameTimeGreaterThan(const Frame& a,const Frame& b)
 
 Frame::Frame(QList<Job *> *jobs,
              int timeidx,  double timestamp,
-             double frame_time, double overrun_time) :
+             double frame_time) :
     _jobs(jobs),
     _tidx(timeidx),
     _timestamp(timestamp),
     _frame_time(frame_time),
-    _overrun_time(overrun_time),
     _jobloadindex(0.0)
 {
-    if ( overrun_time > 0.0 ) {
-        _is_overrun = true;
-    }
 }
 
 double Frame::jobloadindex()
