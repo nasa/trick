@@ -122,6 +122,7 @@ private slots:
     void job_stddev();
     void job_freq();
     void thread1();
+    void orlando();
 #endif
 #ifdef TEST_RM2000_RPT
     void run_rm2000();
@@ -1127,6 +1128,34 @@ void TestSnap::thread1()
 
         ++tid;
     }
+}
+
+void TestSnap::orlando()
+{
+    QString rundir = testRunsDir() + "/RUN_orlando";
+    Snap snap(rundir);
+    SnapReport rpt(snap);
+    QString actual_rpt = rpt.report();
+    int i = actual_rpt.indexOf("Run directory");
+    i = actual_rpt.indexOf('=',i);
+    int j = actual_rpt.indexOf("/RUN_orlando",i);
+    actual_rpt = actual_rpt.remove(i+2,j-i-1);
+    if ( i < 0 || j < 0 ) {
+        QFAIL("Snap: [error] run_rm2000 rpt doesn't have correct "
+                       "\"Run directory = .../RUN_orlando\" line.\n");
+    }
+
+    QString fname = testRunsDir() + "/RUN_orlando/expected-orlando.rpt";
+    QFile file(fname);
+
+    if (!file.open(QIODevice::ReadOnly)) {
+        fprintf(stderr,"Snap: [error] could not open %s\n",
+                fname.toAscii().constData());
+        exit(-1);
+    }
+    QString expected_rpt = file.readAll();
+
+    QCOMPARE(actual_rpt,expected_rpt);
 }
 #endif
 
