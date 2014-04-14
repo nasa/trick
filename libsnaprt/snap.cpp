@@ -644,19 +644,19 @@ QString SnapReport::report()
                                      _snap.rundir().toAscii().constData());
     rpt += str.sprintf("%20s = %8.3lf\n", "Start time ", _snap.start());
     rpt += str.sprintf("%20s = %8.3lf\n", "Stop time ",_snap.stop());
+    QString yesNo("Yes");
+    if ( !_snap.is_realtime() ) {
+        yesNo = QString("No");
+    }
+    rpt += str.sprintf("%20s = %s\n", "Real-time ",yesNo.toAscii().constData());
     rpt += str.sprintf("%20s = %d\n", "Num jobs", _snap.num_jobs());
     rpt += str.sprintf("%20s = %d\n", "Num frames",_snap.num_frames());
     rpt += str.sprintf("%20s = %d\n", "Num overruns",_snap.num_overruns());
     rpt += str.sprintf("%20s = %.2lf%%\n", "Percentage overruns",
                             _snap.percent_overruns());
     rpt += str.sprintf("%20s = %.6lf\n", "Frame rate", _snap.frame_rate());
-    if ( _snap.is_realtime() ) {
-        rpt += str.sprintf("%20s = %.6lf\n", "Frame avg",_snap.frame_avg());
-        rpt += str.sprintf("%20s = %.6lf\n","Frame stddev",_snap.frame_stddev());
-    } else {
-        rpt += str.sprintf("%20s = %s\n", "Frame avg",
-                                         "Not measured since non-realtime run");
-    }
+    rpt += str.sprintf("%20s = %.6lf\n", "Frame avg",_snap.frame_avg());
+    rpt += str.sprintf("%20s = %.6lf\n","Frame stddev",_snap.frame_stddev());
     rpt += str.sprintf("%20s = %d\n", "Num threads",_snap.num_threads());
     rpt += str.sprintf("%20s = %s\n","Thread list",
                                    _snap.thread_listing().toAscii().constData());

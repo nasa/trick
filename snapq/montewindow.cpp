@@ -550,6 +550,7 @@ void MonteWindow::_plotSelectModelSelectionChanged(const QItemSelection &currSel
 
     if ( _isCurveIdx(curveIdx) ) {
         int runId = curveIdx.row();
+        Q_UNUSED(runId);
     }
 }
 
