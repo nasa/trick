@@ -418,15 +418,24 @@ void Thread::_frameModelCalcIsRealTime()
 
 double Thread::runtime(double timestamp) const
 {
+    if ( _jobtimestamp2frametime.empty() ) return -1.0;
+
     double frameTime = _jobtimestamp2frametime.value(timestamp,-1.0) ;
+
     if ( frameTime == -1.0 ) {
-        // Using a double as a hash key doesn't always work. Most of the
-        // time it does, so keep with the O(1) lookup. Do this slow lookup
-        // as last resort.
+        // If timestamp a bit off or if timestamp
+        // not on frame boundary, the timestamp hash key will not work.
+        // Resort to O(n) lookup.
+        double lastTime = _jobtimestamp2frametime.keys().at(0);
         foreach ( double t, _jobtimestamp2frametime.keys() ) {
             if ( timestamp-1.0e-9 < t && t < timestamp+1.0e-9 ) {
                 frameTime = _jobtimestamp2frametime.value(t);
+                break;
+            } else if ( t > timestamp ) {
+                frameTime = _jobtimestamp2frametime.value(lastTime);
+                break;
             }
+            lastTime = t;
         }
     }
     return frameTime;
