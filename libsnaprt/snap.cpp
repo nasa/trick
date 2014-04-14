@@ -575,6 +575,10 @@ bool Snap::_process_jobs(TrickModel* model )
     int nParams = model->columnCount();
     for ( int i = 1 ; i < nParams; ++i ) {
         QString jobId = model->headerData(i,Qt::Horizontal).toString();
+        if ( jobId.startsWith("frame_userjobs_C") &&
+             jobId.endsWith("frame_sched_time") ) {
+            continue;
+        }
         TrickCurveModel* curve = new TrickCurveModel(model,0,i,i,jobId);
         _curves.append(curve);
         Job* job = new Job(curve);
