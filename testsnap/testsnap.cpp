@@ -9,10 +9,14 @@
 #include "libsnaprt/snap.h"
 #include "trickdatamodel.h"
 
+QString getActualReport(const QString& runDir); // e.g. RUN_rm2000
+QString getExpectedReport(const QString& runDir,       // e.g. RUN_iss
+                         const QString& rptFileName); // e.g. expected-iss.rpt
 
 //#define TEST_CUSTOM
 #ifndef TEST_CUSTOM
     #define TEST_NON_RM2000
+    #define TEST_ISS_RPT
     #define TEST_RM2000_RPT
     #define TEST_RM2000_BENCHMARK
 #endif
@@ -122,7 +126,10 @@ private slots:
     void job_stddev();
     void job_freq();
     void thread1();
-    void orlando();
+    void run_orlando();
+#endif
+#ifdef TEST_ISS_RPT
+    void run_iss();
 #endif
 #ifdef TEST_RM2000_RPT
     void run_rm2000();
@@ -1130,35 +1137,24 @@ void TestSnap::thread1()
     }
 }
 
-void TestSnap::orlando()
+void TestSnap::run_orlando()
 {
-    QString rundir = testRunsDir() + "/RUN_orlando";
-    Snap snap(rundir);
-    SnapReport rpt(snap);
-    QString actual_rpt = rpt.report();
-    int i = actual_rpt.indexOf("Run directory");
-    i = actual_rpt.indexOf('=',i);
-    int j = actual_rpt.indexOf("/RUN_orlando",i);
-    actual_rpt = actual_rpt.remove(i+2,j-i-1);
-    if ( i < 0 || j < 0 ) {
-        QFAIL("Snap: [error] run_rm2000 rpt doesn't have correct "
-                       "\"Run directory = .../RUN_orlando\" line.\n");
-    }
-
-    QString fname = testRunsDir() + "/RUN_orlando/expected-orlando.rpt";
-    QFile file(fname);
-
-    if (!file.open(QIODevice::ReadOnly)) {
-        fprintf(stderr,"Snap: [error] could not open %s\n",
-                fname.toAscii().constData());
-        exit(-1);
-    }
-    QString expected_rpt = file.readAll();
-
-    QCOMPARE(actual_rpt,expected_rpt);
+    QString actualReport = getActualReport("RUN_orlando");
+    QString expectedReport = getExpectedReport("RUN_orlando",
+                                              "expected-orlando.rpt");
+    QCOMPARE(actualReport,expectedReport);
 }
 #endif
 
+#ifdef TEST_ISS_RPT
+void TestSnap::run_iss()
+{
+    QString actualReport = getActualReport("RUN_trick13_iss");
+    QString expectedReport = getExpectedReport("RUN_trick13_iss",
+                                              "expected-iss.rpt");
+    QCOMPARE(actualReport,expectedReport);
+}
+#endif
 #ifdef TEST_RM2000_RPT
 //
 // If this fails, remember that the expected result has "vetter"
@@ -1166,30 +1162,10 @@ void TestSnap::orlando()
 //
 void TestSnap::run_rm2000()
 {
-    QString rundir = testRunsDir() + "/RUN_rm2000";
-    Snap snap(rundir);
-    SnapReport rpt(snap);
-    QString actual_rpt = rpt.report();
-    int i = actual_rpt.indexOf("Run directory");
-    i = actual_rpt.indexOf('=',i);
-    int j = actual_rpt.indexOf("/RUN_rm2000",i);
-    actual_rpt = actual_rpt.remove(i+2,j-i-1);
-    if ( i < 0 || j < 0 ) {
-        QFAIL("Snap: [error] run_rm2000 rpt doesn't have correct "
-                       "\"Run directory = .../RUN_rm2000\" line.\n");
-    }
-
-    QString fname = testRunsDir() + "/RUN_rm2000/expected-rm2000.rpt";
-    QFile file(fname);
-
-    if (!file.open(QIODevice::ReadOnly)) {
-        fprintf(stderr,"Snap: [error] could not open %s\n",
-                fname.toAscii().constData());
-        exit(-1);
-    }
-    QString expected_rpt = file.readAll();
-
-    QCOMPARE(actual_rpt,expected_rpt);
+    QString actualReport = getActualReport("RUN_rm2000");
+    QString expectedReport = getExpectedReport("RUN_rm2000",
+                                              "expected-rm2000.rpt");
+    QCOMPARE(actualReport,expectedReport);
 }
 #endif
 
@@ -1202,6 +1178,50 @@ void TestSnap::benchmark_rm2000()
     }
 }
 #endif
+
+QString getActualReport(const QString& runDir) // e.g. RUN_rm2000
+
+{
+    QString actual_rpt;
+
+    QString rundir = testRunsDir() + "/" + runDir;
+    Snap snap(rundir);
+    SnapReport rpt(snap);
+    actual_rpt = rpt.report();
+    int i = actual_rpt.indexOf("Run directory");
+    i = actual_rpt.indexOf('=',i);
+    int j = actual_rpt.indexOf(QString("/")+runDir,i);
+    actual_rpt = actual_rpt.remove(i+2,j-i-1);
+    if ( i < 0 || j < 0 ) {
+        QString errMsg = "snap [error]: actual report ";
+        errMsg += "for " + runDir + " test ";
+        errMsg += "has bad \"RUN directory = RUN_foo\" line.";
+        qDebug() << errMsg;
+        exit(-1);
+    }
+
+    return actual_rpt;
+}
+
+QString getExpectedReport(const QString& runDir, // e.g. RUN_rm2000
+                         const QString& rptFileName) // e.g. expected-iss.rpt
+{
+    QString expectedReport;
+
+    QString fname = testRunsDir() + "/" + runDir + "/" + rptFileName;
+    QFile file(fname);
+
+    if (!file.open(QIODevice::ReadOnly)) {
+        fprintf(stderr,"Snap: [error] could not open %s\n",
+                fname.toAscii().constData());
+        exit(-1);
+    }
+
+    expectedReport = file.readAll();
+
+    return expectedReport;
+}
+
 #ifdef TEST_CUSTOM
 #endif
 
