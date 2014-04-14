@@ -360,14 +360,17 @@ void SnapWindow::_update_thread_plot(const QModelIndex &idx)
 
     _times.clear();
     _vals.clear();
-    for ( int i = 0; i < model_thread->rowCount(); ++i) {
-        QModelIndex tIdx = model_thread->index(i,0);
-        QModelIndex vIdx = model_thread->index(i,1);
-        _times.append(model_thread->data(tIdx).toDouble());
-        _vals.append(model_thread->data(vIdx).toDouble());
+    if ( model_thread ) {
+        for ( int i = 0; i < model_thread->rowCount(); ++i) {
+            QModelIndex tIdx = model_thread->index(i,0);
+            QModelIndex vIdx = model_thread->index(i,1);
+            _times.append(model_thread->data(tIdx).toDouble());
+            _vals.append(model_thread->data(vIdx).toDouble());
+        }
+
+        _plot_jobs->axisRect()->addCurve(&_times,&_vals);
     }
 
-    _plot_jobs->axisRect()->addCurve(&_times,&_vals);
     QString yLabel = QString("Thread %1 Run Time (s)").arg(tid);
     _plot_jobs->axisRect()->axis(QCPAxis::atLeft)->setLabel(yLabel);
     QCPRange range = _plot_frame->axisRect()->axis(QCPAxis::atBottom)->range();
