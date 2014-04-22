@@ -72,11 +72,11 @@ MonteWindow::MonteWindow(const QString &montedir,
     _dpModel = new QFileSystemModel;
     QModelIndex dpRootIdx = _dpModel->setRootPath(topdir.path());
     QStringList filters;
-    filters  << "DP_*" << "SET_*"; // _dpFilterModel does additional filtering
+    //filters  << "DP_*" << "SET_*"; // _dpFilterModel does additional filtering
     _dpModel->setNameFilters(filters);
     _dpModel->setNameFilterDisables(false);
-    _dpModel->setFilter(QDir::Dirs|QDir::Files);
-    _dpFilterModel = new DPFilterProxyModel;
+    _dpModel->setFilter(QDir::Dirs|QDir::Files|QDir::NoDotAndDotDot);
+    _dpFilterModel = new DPFilterProxyModel(_monteModel);
     _dpFilterModel->setDynamicSortFilter(true);
     _dpFilterModel->setSourceModel(_dpModel);
     QRegExp dprx(QString(".*"));  // DP_ and SET_ are filtered by _dpModel
@@ -316,7 +316,7 @@ void MonteWindow::_dpTreeViewClicked(const QModelIndex &idx)
 {
     Q_UNUSED(idx);
 
-    TimeItLinux t; t.start();
+    //TimeItLinux t; t.start();
     QModelIndexList idxs =  _dpTreeView->selectionModel()->selectedRows();
     foreach ( QModelIndex idx, idxs ) {
         QModelIndex srcIdx = _dpFilterModel->mapToSource(idx);
@@ -339,7 +339,7 @@ void MonteWindow::_dpTreeViewClicked(const QModelIndex &idx)
             }
         }
         QString msg = fn + " t=";
-        t.snap(msg.toAscii().constData()); /* uncomment to see load time */
+        //t.snap(msg.toAscii().constData()); /* uncomment to see load time */
     }
 }
 
@@ -703,8 +703,15 @@ void MonteWindow::_updateDPSelection(const QModelIndex &pageIdx)
 
 bool MonteWindow::_isDP(const QString& fp)
 {
+    bool ret = false ;
     QFileInfo fi(fp);
-    return (fi.baseName().left(3) == "DP_" && fi.suffix() == "xml" );
+    if ( (fi.baseName().left(3) == "DP_" && fi.suffix() == "xml" ) ) {
+        ret = true;
+    } else if ( fi.baseName().left(3) == "DP_" &&
+                fi.suffix().isEmpty() && fi.isFile()) {
+        ret = true;
+    }
+    return ret;
 }
 
 bool MonteWindow::_isRUN(const QString &fp)

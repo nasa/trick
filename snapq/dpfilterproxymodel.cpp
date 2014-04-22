@@ -63,7 +63,9 @@ bool DPFilterProxyModel::_isAccept(const QModelIndex &idx,
         isAccept = true;
     } else {
         QString path = m->filePath(idx);
-        if ( path.contains(rx) && m->fileInfo(idx).suffix() == "xml" ) {
+        if ( path.contains(rx) && (m->fileInfo(idx).suffix() == "xml" ||
+             ((m->fileInfo(idx).fileName().startsWith("DP_") &&
+              m->fileInfo(idx).isFile()))) ) {
             isAccept = true;
         }
     }

@@ -629,8 +629,15 @@ void MonteWindow::_updateDPSelection(const QModelIndex &pageIdx)
 
 bool MonteWindow::_isDP(const QString& fp)
 {
+    bool ret = false ;
     QFileInfo fi(fp);
-    return (fi.baseName().left(3) == "DP_" && fi.suffix() == "xml" );
+    if ( (fi.baseName().left(3) == "DP_" && fi.suffix() == "xml" ) ) {
+        ret = true;
+    } else if ( fi.baseName().left(3) == "DP_" &&
+                fi.suffix().isEmpty() && fi.isFile()) {
+        ret = true;
+    }
+    return ret;
 }
 
 bool MonteWindow::_isRUN(const QString &fp)
@@ -685,10 +692,14 @@ QString MonteWindow::_descrPlotTitle(DPPlot *plot)
 
 void MonteWindow::_savePdf()
 {
+    QString* selectedFilter = new QString;
     QString fname = QFileDialog::getSaveFileName(this,
-                                                 QString("Save As PDF"),
-                                                 QString(""),
-                                                 tr("files (*.pdf)"));
+                                              QString("Save As PDF"),
+                                              QString(""),
+                                              tr("files (*.pdf)"),
+                                              selectedFilter,
+                                              QFileDialog::DontUseNativeDialog);
+    delete selectedFilter;
 
     if ( ! fname.isEmpty() ) {
         _plotBookView->savePdf(fname);

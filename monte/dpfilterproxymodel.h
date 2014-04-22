@@ -4,12 +4,19 @@
 #include <QSortFilterProxyModel>
 #include <QFileSystemModel>
 #include <QRegExp>
+#include <QString>
+#include <QHash>
+
+#include "libsnapdata/montemodel.h"
+#include "libsnapdata/timeit_linux.h"
+#include "libqplot/dp.h"
 
 class DPFilterProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 public:
-    explicit DPFilterProxyModel(QObject *parent = 0);
+    explicit DPFilterProxyModel( MonteModel* monteModel,
+                                 QObject *parent = 0);
 
 
 protected:
@@ -20,9 +27,15 @@ signals:
 public slots:
 
 private:
+    MonteModel* _monteModel;
+    QHash<QString,int> _modelParams;
+    static QHash<QString,bool> _acceptedDPFileCache; // static to get around const
+
     bool _isAccept(const QModelIndex& idx,
                    QFileSystemModel* m,
                    const QRegExp& rx) const;
+
+
     
 };
 
