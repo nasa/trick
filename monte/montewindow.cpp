@@ -279,17 +279,26 @@ void MonteWindow::_createDPPages(const QString& dpfile)
                     QString tName = dpcurve->t()->name();
                     QString xName = dpcurve->x()->name();
                     QString yName = dpcurve->y()->name();
+                    QString tUnit = dpcurve->t()->unit();
+                    QString xUnit = dpcurve->x()->unit();
+                    QString yUnit = dpcurve->y()->unit();
                     QString runName = _monteModel->headerData(run,Qt::Vertical).
                                                    toString();
 
-                    QStandardItem *tItem   = new QStandardItem(tName);
-                    QStandardItem *xItem   = new QStandardItem(xName);
-                    QStandardItem *yItem   = new QStandardItem(yName);
-                    QStandardItem *runItem = new QStandardItem(runName);
+                    QStandardItem *tItem       = new QStandardItem(tName);
+                    QStandardItem *xItem       = new QStandardItem(xName);
+                    QStandardItem *yItem       = new QStandardItem(yName);
+                    QStandardItem *tUnitItem   = new QStandardItem(tUnit);
+                    QStandardItem *xUnitItem   = new QStandardItem(xUnit);
+                    QStandardItem *yUnitItem   = new QStandardItem(yUnit);
+                    QStandardItem *runItem     = new QStandardItem(runName);
 
                     curveItem->appendRow(tItem);
                     curveItem->appendRow(xItem);
                     curveItem->appendRow(yItem);
+                    curveItem->appendRow(tUnitItem);
+                    curveItem->appendRow(xUnitItem);
+                    curveItem->appendRow(yUnitItem);
                     curveItem->appendRow(runItem);
                 }
             }
@@ -448,14 +457,20 @@ void MonteWindow::_addPlotOfVarToPageItem(QStandardItem* pageItem,
         QStandardItem *curveItem = new QStandardItem(curveName);
         curvesItem->appendRow(curveItem);
 
-        QStandardItem *tItem   = new QStandardItem(tName);
-        QStandardItem *xItem   = new QStandardItem(xName);
-        QStandardItem *yItem   = new QStandardItem(yName);
-        QStandardItem *runItem = new QStandardItem(runName);
+        QStandardItem *tItem       = new QStandardItem(tName);
+        QStandardItem *xItem       = new QStandardItem(xName);
+        QStandardItem *yItem       = new QStandardItem(yName);
+        QStandardItem *tUnitItem   = new QStandardItem("--");
+        QStandardItem *xUnitItem   = new QStandardItem("--");
+        QStandardItem *yUnitItem   = new QStandardItem("--");
+        QStandardItem *runItem     = new QStandardItem(runName);
 
         curveItem->appendRow(tItem);
         curveItem->appendRow(xItem);
         curveItem->appendRow(yItem);
+        curveItem->appendRow(tUnitItem);
+        curveItem->appendRow(xUnitItem);
+        curveItem->appendRow(yUnitItem);
         curveItem->appendRow(runItem);
     }
 }

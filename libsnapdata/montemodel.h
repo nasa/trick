@@ -48,8 +48,10 @@ class MonteModel : public QAbstractItemModel
                            int role = Qt::DisplayRole ) const;
 
     // See comment at top of file
-    TrickCurveModel* curve(const QModelIndex& idx) const;
-    TrickCurveModel* curve(int row, const QString& param) const;
+    TrickCurveModel* curve(const QModelIndex& idx,
+                           double yScaleFactor=1.0) const;
+    TrickCurveModel* curve(int row, const QString& param,
+                           double yScaleFactor=1.0) const;
 
     // Convenience for getting column by param name
     int paramColumn(const QString& param);

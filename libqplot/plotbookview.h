@@ -8,6 +8,7 @@
 #include <QGridLayout>
 #include "plot.h"
 #include "libsnapdata/montemodel.h"
+#include "libsnapdata/unit.h"
 
 class PlotBookView : public QAbstractItemView
 {

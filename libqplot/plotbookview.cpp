@@ -766,13 +766,30 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
         } else if ( ! g3pidx.isValid() ) {
             // Curve (do nothing)
         } else if ( ! g4pidx.isValid() ) {
-            // t,x,y,run
-            if ( idx.row() == 3 ) {
+            // t,x,y,tunit,xunit,yunit,run
+            if ( idx.row() == 6 ) {   // 6 is the idx row for run name
                 // Run
                 QModelIndex yidx = model()->index(2,0,pidx);
                 QString yparam = model()->data(yidx).toString();
                 TrickCurveModel* curveModel = _monteModel->curve(pidx.row(),
-                                                                yparam);
+                                                                 yparam);
+
+                //
+                // Y param: Convert to DP unit if not equal to model unit
+                //
+                QString yunit = curveModel->headerData
+                                       (2,Qt::Horizontal,Param::Unit).toString();
+                QModelIndex yDPUnitidx = model()->index(5,0,pidx);
+                QString yDPUnit = model()->data(yDPUnitidx).toString();
+                if ( yunit != yDPUnit && yDPUnit != "--" && yunit != "--" ) {
+                    double sf = Unit::convert(1.0,
+                                             yunit.toAscii().constData(),
+                                             yDPUnit.toAscii().constData());
+                    delete curveModel;
+                    curveModel = _monteModel->curve(pidx.row(),yparam,sf);
+                    yunit = yDPUnit;
+                }
+
                 Plot* plot = _idx2Plot(gpidx);
                 TrickCurve* curve = plot->axisRect()->addCurve(curveModel);
                 plot->axisRect()->zoomToFit();
@@ -785,8 +802,6 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 plot->setXAxisLabel(xAxisLabel);
                 model()->setData(xAxisLabelIdx,xAxisLabel);
 
-                QString yunit = curveModel->headerData
-                                       (2,Qt::Horizontal,Param::Unit).toString();
                 QModelIndex yAxisLabelIdx = model()->index(1,0,g2pidx);
                 QString yAxisLabel = _appendUnitToAxisLabel(yAxisLabelIdx,yunit);
                 plot->setYAxisLabel(yAxisLabel);
