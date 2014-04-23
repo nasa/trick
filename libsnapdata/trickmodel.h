@@ -207,14 +207,19 @@ class TrickModelIterator
     typedef const double *pointer;
     typedef const double &reference;
 
-    inline TrickModelIterator(double yScaleFactor=1.0) :
-        i(0),_yScaleFactor(yScaleFactor)  {}
+    inline TrickModelIterator(double xScaleFactor=1.0,double yScaleFactor=1.0) :
+        i(0),
+        _xScaleFactor(xScaleFactor),_yScaleFactor(yScaleFactor)
+        {}
 
     inline TrickModelIterator(int row, // iterator pos
                               const TrickModel* model,
                               int tcol, int xcol, int ycol,
+                              double xScaleFactor=1.0,
                               double yScaleFactor=1.0):
-        i(row),_yScaleFactor(yScaleFactor),_model(model),
+        i(row),
+        _xScaleFactor(xScaleFactor),_yScaleFactor(yScaleFactor),
+        _model(model),
         _row_size(model->_row_size),_data(model->_data),
         _tcol(tcol), _xcol(xcol), _ycol(ycol),
         _tco(_model->_col2offset.value(tcol)),
@@ -226,8 +231,6 @@ class TrickModelIterator
     {
     }
 
-    void setYScaleFactor(double sf) { _yScaleFactor = sf; }
-
     inline double t() const
     {
         return _model->_toDouble(_data+i*_row_size+_tco,_ttype);
@@ -235,13 +238,12 @@ class TrickModelIterator
 
     inline double x() const
     {
-        return _model->_toDouble(_data+i*_row_size+_xco,_xtype);
+        return _xScaleFactor*_model->_toDouble(_data+i*_row_size+_xco,_xtype);
     }
 
     inline double y() const
     {
-        return _yScaleFactor*_model->_toDouble
-                                (_data+i*_row_size+_yco,_ytype);
+        return _yScaleFactor*_model->_toDouble(_data+i*_row_size+_yco,_ytype);
     }
 
     inline TrickModelIterator& operator=(const TrickModelIterator &o)
@@ -336,6 +338,7 @@ class TrickModelIterator
   private:
 
     int i;
+    double _xScaleFactor;
     double _yScaleFactor;
     const TrickModel* _model;
     int _row_size;

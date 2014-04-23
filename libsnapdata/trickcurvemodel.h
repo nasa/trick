@@ -17,6 +17,7 @@ class TrickCurveModel : public SnapTable
     explicit TrickCurveModel(TrickModel* trickmodel,
                              int tcol, int xcol, int ycol,
                        const QString &tableName=QString(),
+                             double xScaleFactor=1.0,
                              double yScaleFactor=1.0,
                        QObject *parent = 0);
     ~TrickCurveModel();
@@ -63,6 +64,7 @@ class TrickCurveModel : public SnapTable
     int _tcol;
     int _xcol;
     int _ycol;
+    double _xScaleFactor;
     double _yScaleFactor;
 
 signals:

@@ -49,8 +49,10 @@ class MonteModel : public QAbstractItemModel
 
     // See comment at top of file
     TrickCurveModel* curve(const QModelIndex& idx,
+                           double xScaleFactor=1.0,
                            double yScaleFactor=1.0) const;
     TrickCurveModel* curve(int row, const QString& param,
+                           double xScaleFactor=1.0,
                            double yScaleFactor=1.0) const;
 
     // Convenience for getting column by param name

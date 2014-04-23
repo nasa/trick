@@ -21,22 +21,26 @@ MonteModel::~MonteModel()
 }
 
 TrickCurveModel *MonteModel::curve(const QModelIndex &idx,
+                                   double xScaleFactor,
                                   double yScaleFactor) const
 {
     QString yparam = _params.at(idx.column());
     QList<TrickModel*>* models = _runs->models(yparam);
     TrickModel* tm = models->at(idx.row());
     int ycol = tm->paramColumn(yparam) ;
-    return new TrickCurveModel(tm,0,0,ycol,yparam,yScaleFactor);
+    return new TrickCurveModel(tm,0,0,ycol,yparam,
+                               xScaleFactor,yScaleFactor);
 }
 
 TrickCurveModel *MonteModel::curve(int row, const QString &param,
+                                   double xScaleFactor,
                                    double yScaleFactor) const
 {
     QList<TrickModel*>* models = _runs->models(param);
     TrickModel* tm = models->at(row);
     int ycol = tm->paramColumn(param) ;
-    return new TrickCurveModel(tm,0,0,ycol,param,yScaleFactor);
+    return new TrickCurveModel(tm,0,0,ycol,param,
+                               xScaleFactor,yScaleFactor);
 }
 
 int MonteModel::paramColumn(const QString &param)
