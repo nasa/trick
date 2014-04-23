@@ -137,7 +137,8 @@ SnapWindow::SnapWindow(const QString& rundir,
 
     TrickCurveModel* frame_curve = new TrickCurveModel(_model_frames,0,0,1,
                                                        "Frame Scheduled Time",
-                                                       1.0e-6);
+                                                       1.0,     // x scale
+                                                       1.0e-6); // y scale
 
     TrickCurve* curve = _plot_frame->axisRect()->addCurve(frame_curve);
     Q_UNUSED(curve);
@@ -270,7 +271,9 @@ void SnapWindow::__update_job_plot(const QModelIndex &idx)
                 }
 
                 TrickCurveModel* cm  = new TrickCurveModel(model,0,0,ii,
-                                                           name,1.0e-6);
+                                                           name,
+                                                           1.0,    // x scale
+                                                           1.0e-6); // y scale
                 // Y-axis just says "Job Time (s)"
                 _curve_models.append(cm);
                 TrickCurve* curve = _plot_jobs->axisRect()->addCurve(cm);
