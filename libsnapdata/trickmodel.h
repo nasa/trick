@@ -207,14 +207,14 @@ class TrickModelIterator
     typedef const double *pointer;
     typedef const double &reference;
 
-    inline TrickModelIterator(double valueScaleFactor=1.0) :
-        i(0),_valueScaleFactor(valueScaleFactor)  {}
+    inline TrickModelIterator(double yScaleFactor=1.0) :
+        i(0),_yScaleFactor(yScaleFactor)  {}
 
     inline TrickModelIterator(int row, // iterator pos
                               const TrickModel* model,
                               int tcol, int xcol, int ycol,
                               double yScaleFactor=1.0):
-        i(row),_valueScaleFactor(yScaleFactor),_model(model),
+        i(row),_yScaleFactor(yScaleFactor),_model(model),
         _row_size(model->_row_size),_data(model->_data),
         _tcol(tcol), _xcol(xcol), _ycol(ycol),
         _tco(_model->_col2offset.value(tcol)),
@@ -226,7 +226,7 @@ class TrickModelIterator
     {
     }
 
-    void setValueScaleFactor(double sf) { _valueScaleFactor = sf; }
+    void setYScaleFactor(double sf) { _yScaleFactor = sf; }
 
     inline double t() const
     {
@@ -240,7 +240,7 @@ class TrickModelIterator
 
     inline double y() const
     {
-        return _valueScaleFactor*_model->_toDouble
+        return _yScaleFactor*_model->_toDouble
                                 (_data+i*_row_size+_yco,_ytype);
     }
 
@@ -336,7 +336,7 @@ class TrickModelIterator
   private:
 
     int i;
-    double _valueScaleFactor;
+    double _yScaleFactor;
     const TrickModel* _model;
     int _row_size;
     ptrdiff_t _data;
