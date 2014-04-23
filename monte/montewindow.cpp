@@ -224,6 +224,19 @@ void MonteWindow::createMenu()
 //
 // Monte Carlo Plot Page Widget
 //
+// The PlotBookView's model is _plotModel.
+// The _plotModel tree has to mesh (hard-coded basically) with
+// PlotBookView::rowInserted()'s tree.
+//
+// For instance, in PlotBookView::rowInserted() there is a line:
+//        } else if ( ! g2pidx.isValid() ) {
+//            if ( idx.row() == 0 ) {
+//            // X axis label
+//
+// which corresponds to _createDPPages (note it's the 0th row below plot):
+//
+//        plotItem->appendRow(xAxisLabelItem);
+//
 void MonteWindow::_createDPPages(const QString& dpfile)
 {
     QStandardItem *rootItem = _plotModel->invisibleRootItem();
