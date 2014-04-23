@@ -30,8 +30,6 @@ public:
     void setData(TrickCurveModel* model);
     void setData(const QVector<double> *t, const QVector<double> *v);
 
-    void seYValueScaleFactor(double sf) { _yScaleFactor = sf; }
-    double yScaleFactor() { return _yScaleFactor; }
 
     virtual void clearData()
     {
@@ -98,7 +96,6 @@ private:
     TrickCurveModel* _model;
     const QVector<double> *_timeVec;
     const QVector<double> *_valVec;
-    double _yScaleFactor;
     QCPRange _xrange;
     QCPRange _yrange;
 

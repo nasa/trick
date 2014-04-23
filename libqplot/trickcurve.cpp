@@ -6,8 +6,7 @@ TrickCurve::TrickCurve(QCPAxis *keyAxis, QCPAxis *valueAxis) :
     _isPainterPathCreated(false),
     _model(0),
     _timeVec(0),
-    _valVec(0),
-    _yScaleFactor(1.0)
+    _valVec(0)
 {
     setAntialiased(false);
     mPen.setColor(QColor(50, 100, 212));
@@ -290,7 +289,7 @@ void TrickCurve::getCurveData(QVector<QPointF> *lineData) const
     QRect axisRect = mKeyAxis.data()->axisRect()->rect() &
                      mValueAxis.data()->axisRect()->rect();
     lineData->reserve(_model->rowCount());
-    TrickModelIterator it(_yScaleFactor);
+    TrickModelIterator it;
     int lastRegion = 5;
     int currentRegion = 5;
     double RLeft = keyAxis->range().lower;
@@ -593,7 +592,6 @@ QCPRange TrickCurve::getValueRange(bool &validRange, SignDomain inSignDomain) co
     double current;
 
     TrickModelIterator it = _model->begin();
-    it.setYScaleFactor(_yScaleFactor);
     const TrickModelIterator e = _model->end();
     while (it != e) {
         current = it.y();
