@@ -84,7 +84,7 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     _dpModel->setNameFilters(filters);
     _dpModel->setNameFilterDisables(false);
     _dpModel->setFilter(QDir::Dirs|QDir::Files);
-    _dpFilterModel = new DPFilterProxyModel;
+    _dpFilterModel = new DPFilterProxyModel(_monteModel);
     _dpFilterModel->setDynamicSortFilter(true);
     _dpFilterModel->setSourceModel(_dpModel);
     QRegExp dprx(QString(".*"));  // DP_ and SET_ are filtered by _dpModel

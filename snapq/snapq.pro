@@ -23,12 +23,10 @@ RCC_DIR     = $$BUILDDIR/rcc
 UI_DIR      = $$BUILDDIR/ui
 
 SOURCES += main.cpp \
-    montewindow.cpp \
-    dpfilterproxymodel.cpp
+    montewindow.cpp
 
     
 HEADERS += \
-    dpfilterproxymodel.h \
     montewindow.h
 
 OTHER_FILES += 

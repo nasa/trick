@@ -24,7 +24,7 @@
 #include "libsnapdata/monte.h"
 #include "libqplot/dp.h"
 #include "libqplot/plotbookview.h"
-#include "dpfilterproxymodel.h"
+#include "libqplot/dpfilterproxymodel.h"
 
 #include "libsnapdata/timeit_linux.h"
 

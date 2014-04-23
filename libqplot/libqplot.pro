@@ -27,7 +27,8 @@ SOURCES += \
     dp.cpp  \
     plot.cpp  \
     trickcurve.cpp \
-    plotbookview.cpp
+    plotbookview.cpp \
+    dpfilterproxymodel.cpp
 
 HEADERS += \
     qcustomplot.h \
@@ -35,7 +36,8 @@ HEADERS += \
     dp.h \
     plot.h \
     trickcurve.h \
-    plotbookview.h
+    plotbookview.h \
+    dpfilterproxymodel.h
 
 
 
