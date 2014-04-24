@@ -48,10 +48,13 @@ class MonteModel : public QAbstractItemModel
                            int role = Qt::DisplayRole ) const;
 
     // See comment at top of file
-    TrickCurveModel* curve(const QModelIndex& idx,
+    TrickCurveModel* curve(const QModelIndex& xIdx,
+                           const QModelIndex& yIdx,
                            double xScaleFactor=1.0,
                            double yScaleFactor=1.0) const;
-    TrickCurveModel* curve(int row, const QString& param,
+    TrickCurveModel* curve(int row,
+                           const QString& xparam,
+                           const QString& yparam,
                            double xScaleFactor=1.0,
                            double yScaleFactor=1.0) const;
 
@@ -68,6 +71,9 @@ class MonteModel : public QAbstractItemModel
     QStringList _params;
     QHash<QString,int> _param2column;
     QStringList _runDirs;
+
+    static QString _err_string;
+    static QTextStream _err_stream;
 
 signals:
 

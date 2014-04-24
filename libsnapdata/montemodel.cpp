@@ -1,6 +1,9 @@
 #include "montemodel.h"
 #include <stdexcept>
 
+QString MonteModel::_err_string;
+QTextStream MonteModel::_err_stream(&MonteModel::_err_string);
+
 MonteModel::MonteModel(Runs *runs, QObject *parent) :
     QAbstractItemModel(parent),
     _runs(runs)
@@ -20,26 +23,51 @@ MonteModel::~MonteModel()
     //delete _runs;
 }
 
-TrickCurveModel *MonteModel::curve(const QModelIndex &idx,
-                                   double xScaleFactor,
-                                  double yScaleFactor) const
-{
-    QString yparam = _params.at(idx.column());
-    QList<TrickModel*>* models = _runs->models(yparam);
-    TrickModel* tm = models->at(idx.row());
-    int ycol = tm->paramColumn(yparam) ;
-    return new TrickCurveModel(tm,0,0,ycol,yparam,
-                               xScaleFactor,yScaleFactor);
-}
-
-TrickCurveModel *MonteModel::curve(int row, const QString &param,
+TrickCurveModel *MonteModel::curve(const QModelIndex &xIdx,
+                                   const QModelIndex &yIdx,
                                    double xScaleFactor,
                                    double yScaleFactor) const
 {
-    QList<TrickModel*>* models = _runs->models(param);
+    QString yparam = _params.at(yIdx.column());
+    QList<TrickModel*>* models = _runs->models(yparam);
+    TrickModel* tm = models->at(yIdx.row());
+    int ycol = tm->paramColumn(yparam) ;
+
+    QString xparam = _params.at(xIdx.column());
+    int xcol = tm->paramColumn(xparam) ;
+    if ( xcol < 0 ) {
+        _err_stream << "snap [error]: MonteModel::curve() called with bad "
+                    << "xparam:\n" << xparam << "\nMaybe it's a cross plot "
+                    << "where x is not in same model as y:.\n"
+                    << yparam ;
+        throw std::runtime_error(_err_string.toAscii().constData());
+    }
+
+    return new TrickCurveModel(tm,0,xcol,ycol,yparam,
+                               xScaleFactor,yScaleFactor);
+}
+
+TrickCurveModel *MonteModel::curve(int row,
+                                   const QString &xparam,
+                                   const QString &yparam,
+                                   double xScaleFactor,
+                                   double yScaleFactor) const
+{
+    QList<TrickModel*>* models = _runs->models(yparam);
     TrickModel* tm = models->at(row);
-    int ycol = tm->paramColumn(param) ;
-    return new TrickCurveModel(tm,0,0,ycol,param,
+    int ycol = tm->paramColumn(yparam) ;
+
+    int xcol = tm->paramColumn(xparam) ;
+    if ( xcol < 0 ) {
+        _err_stream << "snap [error]: MonteModel::curve() called with bad "
+                    << "xy pairing.   Maybe it's a cross plot "
+                    << "where x is not in same model as y:.\n"
+                    << "x=" << xparam << "\n"
+                    << "y=" << yparam << "\n";
+        throw std::runtime_error(_err_string.toAscii().constData());
+    }
+
+    return new TrickCurveModel(tm,0,xcol,ycol,yparam,
                                xScaleFactor,yScaleFactor);
 }
 

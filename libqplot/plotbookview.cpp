@@ -770,9 +770,13 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             if ( idx.row() == 6 ) {   // 6 is the idx row for run name
 
                 // Run
+                QModelIndex xidx = model()->index(1,0,pidx);
+                QString xparam = model()->data(xidx).toString();
                 QModelIndex yidx = model()->index(2,0,pidx);
                 QString yparam = model()->data(yidx).toString();
+
                 TrickCurveModel* curveModel = _monteModel->curve(pidx.row(),
+                                                                 xparam,
                                                                  yparam);
                 //
                 // xunit and calc x scale if DP unit not equal to model unit
@@ -780,10 +784,11 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 bool isXScale = false;
                 double xScaleFactor = 1.0;
                 QString xunit = curveModel->headerData
-                                       (0,Qt::Horizontal,Param::Unit).toString();
-                QModelIndex xDPUnitidx = model()->index(4,0,pidx);
-                QString xDPUnit = model()->data(xDPUnitidx).toString();
-                if ( xunit != xDPUnit && xDPUnit != "--" && xunit != "--" ) {
+                                       (1,Qt::Horizontal,Param::Unit).toString();
+                QModelIndex xDPUnitIdx = model()->index(4,0,pidx);
+                QString xDPUnit = model()->data(xDPUnitIdx).toString();
+                if ( !xDPUnit.isEmpty() && xunit != xDPUnit &&
+                     xDPUnit != "--" && xunit != "--" ) {
                     isXScale = true;
                     xScaleFactor = Unit::convert(1.0,
                                              xunit.toAscii().constData(),
@@ -799,9 +804,10 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 double yScaleFactor = 1.0;
                 QString yunit = curveModel->headerData
                                        (2,Qt::Horizontal,Param::Unit).toString();
-                QModelIndex yDPUnitidx = model()->index(5,0,pidx);
-                QString yDPUnit = model()->data(yDPUnitidx).toString();
-                if ( yunit != yDPUnit && yDPUnit != "--" && yunit != "--" ) {
+                QModelIndex yDPUnitIdx = model()->index(5,0,pidx);
+                QString yDPUnit = model()->data(yDPUnitIdx).toString();
+                if ( !yDPUnit.isEmpty() &&
+                     yunit != yDPUnit && yDPUnit != "--" && yunit != "--" ) {
                     isYScale = true;
                     yScaleFactor = Unit::convert(1.0,
                                              yunit.toAscii().constData(),
@@ -812,7 +818,8 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 // Set scale factor for either x or y units
                 if ( isXScale || isYScale ) {
                     delete curveModel;
-                    curveModel = _monteModel->curve(pidx.row(),yparam,
+                    curveModel = _monteModel->curve(pidx.row(),
+                                                    xparam, yparam,
                                                     xScaleFactor, yScaleFactor);
                 }
 

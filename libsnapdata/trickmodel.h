@@ -56,7 +56,7 @@ class TrickModel : public SnapTable
     void unmap();
     int paramColumn(const QString& param) const
     {
-        return _param2column.value(param);
+        return _param2column.value(param,-1);
     }
     TrickModelIterator begin(int tcol, int xcol, int ycol) const;
     TrickModelIterator end(int tcol, int xcol, int ycol) const;
