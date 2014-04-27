@@ -9,8 +9,8 @@ release {
 }
 
 TARGET = snapx
-
-QMAKE_EXT_CPP += .c
+target.path = $$PREFIX/bin
+INSTALLS += target
 
 TEMPLATE = app
 

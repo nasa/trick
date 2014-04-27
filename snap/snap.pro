@@ -9,8 +9,9 @@ release {
 }
 
 TARGET = snap
+target.path = $$PREFIX/bin
+INSTALLS += target
 
-QMAKE_EXT_CPP += .c
 
 TEMPLATE = app
 

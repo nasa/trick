@@ -10,8 +10,6 @@ release {
 
 TARGET = testsnap
 
-QMAKE_EXT_CPP += .c
-
 TEMPLATE = app
 
 DESTDIR = $$PWD/../bin

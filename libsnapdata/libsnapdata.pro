@@ -11,8 +11,6 @@ release {
 
 DEFINES += SNAPDATA_LIBRARY
 
-QMAKE_EXT_CPP += .c
-
 DESTDIR = $$PWD/../lib
 BUILDDIR = $$PWD/../build/libdata
 OBJECTS_DIR = $$BUILDDIR/obj
@@ -55,7 +53,7 @@ unix:!symbian {
     maemo5 {
         target.path = /opt/usr/lib
     } else {
-        target.path = /usr/lib
+        target.path = $$OBJECTS_DIR
     }
     INSTALLS += target
 }
