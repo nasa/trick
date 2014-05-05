@@ -11,7 +11,7 @@ LANGUAGE:
 ASSUMPTIONS AND LIMITATIONS:
     ((None))
 LIBRARY DEPENDENCY:
-    ((../src/snapframelog.cpp))
+    ((snapframelog.cpp))
 PROGRAMMERS:
     (((Keith)))
 *******************************************************************************/
@@ -27,6 +27,8 @@ class SnapFrameLog {
     SnapFrameLog();
     ~SnapFrameLog();
 
+    void addJob(std::string jobName, unsigned int instance = 1);
+
     int log_start(Trick::JobData * curr_job);
     int log_stop(Trick::JobData * curr_job);
     int log_on();
@@ -37,6 +39,7 @@ class SnapFrameLog {
 
     bool frame_log_flag;                      /**< trick_io(*io) trick_units(--) */
 
+    std::vector < Trick::JobData *> userSpecJobs;
     std::vector < Trick::FrameDataRecordGroup * >drg_users; /**< trick_io(**) */
     Trick::FrameDataRecordGroup * drg_trick;  /**<  trick_io(*io) trick_units(--) */
     Trick::FrameDataRecordGroup * drg_frame;  /**<  trick_io(*io) trick_units(--) */

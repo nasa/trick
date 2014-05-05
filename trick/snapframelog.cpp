@@ -88,7 +88,13 @@ int SnapFrameLog::log_on()
         return (0);
     }
 
-    exec_get_all_jobs_vector(all_jobs_vector);
+    if(userSpecJobs.size() > 0) {
+       addJob("real_time.rt_sync.rt_monitor");
+       addJob("trick_sys.sched.advance_sim_time");
+       all_jobs_vector = userSpecJobs;
+    } else {
+       exec_get_all_jobs_vector(all_jobs_vector);
+    }
     num_threads = exec_get_num_threads();
 
     if (drg_frame == NULL) {
@@ -305,4 +311,17 @@ int SnapFrameLog::log_off()
 int SnapFrameLog::log_shutdown()
 {
     return (0);
+}
+
+void SnapFrameLog::addJob(std::string jobName, unsigned int instance) {
+  Trick::JobData * job = exec_get_job( jobName.c_str(), instance );
+  if( job != 0x0 )
+  {
+     userSpecJobs.push_back( job );
+  } else
+  {
+     std::stringstream ss;
+     ss << "Could not find job " << jobName << " instance id = " << instance << " for JobDataTask";
+     exec_terminate( __FUNCTION__, ss.str().c_str() );
+  }
 }
