@@ -4,7 +4,6 @@ TARGET = snaprt
 TEMPLATE = lib
 
 CONFIG += staticlib
-CONFIG += debug
 
 release {
     QMAKE_CXXFLAGS_RELEASE -= -g

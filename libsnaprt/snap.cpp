@@ -309,7 +309,7 @@ void Snap::_set_data_table_top_jobs()
 {
     SnapTable* table = _table_top_jobs;
     QList<Job*>* jobs = this->jobs(Snap::SortByJobAvgTime);
-    int max_cnt = 10;
+    int max_cnt = 50;
     int cnt = 0 ;
     foreach ( Job* job, *jobs ) {
         if ( ++cnt > max_cnt ) break;
