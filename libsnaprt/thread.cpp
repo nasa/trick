@@ -186,7 +186,7 @@ void Thread::_do_stats()
 
                 foreach ( Job* job, _jobs ) {
 
-                    if ( job->job_name().startsWith("frame_userjobs_C") ) {
+                    if ( job->isFrameTimerJob() ) {
                         // For Trick 13
                         // Do not use child frame scheduling time for frame
                         // time sum.  Snap reports the sum of the userjobs,

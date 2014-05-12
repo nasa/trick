@@ -20,6 +20,8 @@ class Job
     Job(TrickCurveModel* curve);
     Job(const QString& jobId);
 
+    bool isFrameTimerJob() { return _isFrameTimerJob; }
+
     QString log_name() const; // trick binary logged jobname
     QString job_num() const { return _job_num; }
     QString job_name() const { return _job_name; }
@@ -43,6 +45,7 @@ private:
 
     TrickCurveModel* _curve;
     int _npoints;
+    bool _isFrameTimerJob;
 
     QString _log_name;
     QString _job_name;

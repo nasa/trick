@@ -27,7 +27,8 @@ QString Job::sim_object_name() const
     int idx = 0;
     if ( _job_name.contains(QString("##")) ) {
         idx = _job_name.indexOf(QChar('#'));
-    } else if ( _job_name.startsWith("frame_userjobs_C") ) {
+    } else if ( _job_name.startsWith("frame_userjobs_C") ||
+                _job_name.startsWith("snap_userjobs_C") ) {
         simobj = "frame_log";
     } else {
         idx = _job_name.indexOf(QChar('.'));
@@ -172,17 +173,28 @@ void Job::_parseJobId(const QString &jobId)
     int idx5 = name.lastIndexOf(QChar('.'),idx4-1);
     _job_num = name.mid(idx5+1,idx1-idx5-1);
 
+    if ( (jobId.startsWith("frame_userjobs_C") ||
+         jobId.startsWith("snap_userjobs_C")) &&
+         jobId.endsWith("frame_sched_time") ) {
+        _isFrameTimerJob = true;
+    }
+
     //
     // child/thread id + job name
     //
-    // For Trick 13, the job frame_userjobs_CX.frame_sched_time has id X
+    // For Trick 13, the job frame|snap_userjobs_CX.frame_sched_time has id X
     //
-    if ( jobId.startsWith("frame_userjobs_C") &&
-         jobId.endsWith("frame_sched_time") ) {
+    if ( _isFrameTimerJob ) {
 
         name = name.remove(".frame_sched_time");
         _job_name = name.trimmed();
-        QString strThreadId = name.remove(QString("frame_userjobs_C"));
+
+        QString strThreadId;
+        if ( _job_name.startsWith("snap") ) {
+             strThreadId = name.remove(QString("snap_userjobs_C"));
+        } else {
+             strThreadId = name.remove(QString("frame_userjobs_C"));
+        }
         bool ok = false;
         _thread_id = strThreadId.toDouble(&ok);
         if ( !ok ) {
@@ -212,7 +224,6 @@ void Job::_parseJobId(const QString &jobId)
 
         _job_name = name.mid(0,idx6);
     }
-
 }
 
 double Job::freq()
@@ -228,7 +239,7 @@ double Job::freq()
 // JOB_schedbus.SimBus##read_ALDS15_ObcsRouter_C1.1828.00(read_simbus_0.100)
 
 Job::Job(TrickCurveModel* curve) :
-     _curve(curve),_npoints(0),
+     _curve(curve),_npoints(0),_isFrameTimerJob(false),
      _is_stats(false)
 {
     if ( !curve ) {
