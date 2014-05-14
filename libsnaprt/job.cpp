@@ -111,7 +111,7 @@ inline void Job::_do_stats()
     _avg_runtime = (s/n)/1000000.0;
     _stddev_runtime = qSqrt(ss/n - s*s/(n*n))/1000000.0 ;
 
-    if ( _npoints > 1 ) {
+    if ( _npoints > 1 && _job_name != "trick_sys.sched.advance_sim_time" ) {
         int max_cnt = 0 ;
         _freq = 0;
         // Could be multiple frequencies - choose mode
