@@ -17,6 +17,7 @@
 #include "sim_services/CommandLineArguments/include/command_line_protos.h"
 #include "sim_services/Message/include/message_proto.h"
 #include "sim_services/MemoryManager/include/memorymanager_c_intf.h"
+#include "sim_services/ScheduledJobQueue/include/ScheduledJobQueueInstrument.hh"
 
 //Constructor.
 SnapFrameLog::SnapFrameLog()
@@ -49,6 +50,9 @@ int SnapFrameLog::log_start(Trick::JobData * curr_job)
     if (job != NULL) {
         job->rt_start_time = clock_time();
     }
+
+    //std::cout << "Frame logging on for " << job->name << std::endl;
+    
 
     return (0);
 
@@ -273,8 +277,20 @@ int SnapFrameLog::log_on()
 
     /** @li Insert frame log clock jobs in queue before and after all jobs
             we want to log the time of. */
-    exec_instrument_before("snap.frame.log_start");
-    exec_instrument_after("snap.frame.log_stop");
+    if(userSpecJobs.size() > 0) {
+        Trick::JobData * snapBeforeJob = exec_get_job( "snap.frame.log_start", 1 );
+        Trick::JobData * snapAfterob = exec_get_job( "snap.frame.log_stop", 1 );
+        for(std::vector<Trick::JobData *>::iterator it = userSpecJobs.begin(), end = userSpecJobs.end(); it != end; ++it) {
+            Trick::JobData * targetJob = *it;
+            Trick::ScheduledJobQueueInstrument * snapBeforeJobInstr = new Trick::ScheduledJobQueueInstrument(snapBeforeJob, targetJob);
+            Trick::ScheduledJobQueueInstrument * snapAfterJobInstr = new Trick::ScheduledJobQueueInstrument(snapAfterob, targetJob);
+            targetJob->add_inst_before(snapBeforeJobInstr);
+            targetJob->add_inst_after(snapAfterJobInstr);
+        }
+    } else {
+      exec_instrument_before("snap.frame.log_start");
+      exec_instrument_after("snap.frame.log_stop");
+    }
 
     /** @li Turn frame log flag on. */
     frame_log_flag = true;
