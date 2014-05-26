@@ -173,6 +173,7 @@ void Job::_parseJobId(const QString &jobId)
     int idx5 = name.lastIndexOf(QChar('.'),idx4-1);
     _job_num = name.mid(idx5+1,idx1-idx5-1);
 
+    _isFrameTimerJob = false;
     if ( (jobId.startsWith("frame_userjobs_C") ||
          jobId.startsWith("snap_userjobs_C")) &&
          jobId.endsWith("frame_sched_time") ) {
@@ -253,7 +254,7 @@ Job::Job(TrickCurveModel* curve) :
 }
 
 Job::Job(const QString &jobId) :
-     _curve(0),_npoints(0),
+     _curve(0),_npoints(0),_isFrameTimerJob(false),
      _log_name(jobId),
      _is_stats(false)
 {
