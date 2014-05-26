@@ -111,8 +111,12 @@ inline void Job::_do_stats()
     _avg_runtime = (s/n)/1000000.0;
     _stddev_runtime = qSqrt(ss/n - s*s/(n*n))/1000000.0 ;
 
-    if ( _npoints > 1 && _job_name != "trick_sys.sched.advance_sim_time" ) {
+    //
+    // (re)Calculate job frequency
+    //
+    if ( _npoints > 1 ) {
         int max_cnt = 0 ;
+        double savedFreq = _freq;
         _freq = 0;
         // Could be multiple frequencies - choose mode
         foreach ( long freq, map_freq.keys() ) {
@@ -121,6 +125,15 @@ inline void Job::_do_stats()
                 _freq = freq/1000000.0;
                 max_cnt = cnt;
             }
+        }
+
+        if ( _job_name == "trick_sys.sched.advance_sim_time" && _freq == 0 ) {
+            // With Orlando's RUN I found that I couldn't trust
+            // the advance_sim_time value, HOWEVER!, with Thomas' RUN
+            // I found that if the above fails to find a frequency
+            // to go ahead and fall back on the freq as specified in the
+            // S_job_execution
+            _freq = savedFreq;
         }
     }
 }
