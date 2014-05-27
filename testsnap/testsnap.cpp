@@ -730,7 +730,7 @@ void TestSnap::frame_avg1()
     QCOMPARE(snap.num_frames(),cnt);
     QCOMPARE(snap.frame_rate(),0.1);
 
-    double avg = (frameSchedTime + amfWait)/1000000.0;
+    double avg = (frameSchedTime - amfWait)/1000000.0;
     QCOMPARE(snap.frame_avg(),avg);
 }
 
@@ -750,7 +750,7 @@ void TestSnap::frame_avg2()
     for ( int ii = 0; ii < _log_frame.rowCount(); ++ii) {
         QModelIndex idx = _log_frame.index(ii,1); // frame sched time
         frameSchedTime = 100000.0*(qrand()/(double)RAND_MAX);
-        double ft = frameSchedTime + amfWait ;
+        double ft = frameSchedTime - amfWait ;
         _log_frame.setData(idx,QVariant(frameSchedTime));
         sum += ft;
         cnt++;
@@ -782,7 +782,7 @@ void TestSnap::frame_stddev1()
     for ( int ii = 0; ii < _log_frame.rowCount(); ++ii) {
         QModelIndex idx = _log_frame.index(ii,1); // frame sched time
         double frameSchedTime = _log_frame.data(idx).toDouble();
-        double ft = frameSchedTime + amfWait;
+        double ft = frameSchedTime - amfWait;
         sum += ft;
     }
     double cnt = (double)_log_frame.rowCount();
@@ -793,9 +793,9 @@ void TestSnap::frame_stddev1()
     // from their avg value
     double sum_sqr_diffs = 0.0;
     for ( int ii = 0; ii < _log_frame.rowCount(); ++ii) {
-        QModelIndex idx = _log_frame.index(ii,2);
-        double ov = _log_frame.data(idx).toDouble();
-        double ft = 0.1*1000000.0 + ov - amfWait;
+        QModelIndex idx = _log_frame.index(ii,1);
+        double frameSchedTime = _log_frame.data(idx).toDouble();
+        double ft = frameSchedTime - amfWait;
         sum_sqr_diffs += (avg-ft)*(avg-ft);
     }
     double stddev = qSqrt(sum_sqr_diffs/cnt)/1000000.0;

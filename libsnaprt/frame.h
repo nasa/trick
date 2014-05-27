@@ -16,8 +16,8 @@ class Frame
     Frame(QList<Job*>* jobs, int timeidx,
           double timestamp, double frame_time);
 
-    static QString frame_time_name;
-    static QString overrun_time_name;
+    static QString frame_sched_time;
+    static QString frame_overrun_time;
 
     int timeidx() const { return _tidx; }
     double timestamp() const { return _timestamp; }

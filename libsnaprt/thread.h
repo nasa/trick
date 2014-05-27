@@ -88,8 +88,8 @@ class Thread
     SnapTable* _runtimeCurve; // t,runtime curve
 
     TrickModel* _frameModel;
-    int _frameModelRunTimeCol;
-    int _frameModelOverrunTimeCol;
+    int _frameSchedTimeCol;
+    int _frameOverrunTimeCol;
     bool _frameModelIsRealTime;
     void _frameModelSet();
     void _frameModelCalcIsRealTime();

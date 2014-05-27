@@ -109,11 +109,11 @@ void Thread::_do_stats()
         TrickModelIterator iamf = timeToSyncWithAMFChildrenCurve->begin();
 
         TrickModelIterator it = _frameModel->begin(0,
-                                                   _frameModelRunTimeCol,
-                                                   _frameModelOverrunTimeCol);
+                                                   _frameSchedTimeCol,
+                                                   _frameOverrunTimeCol);
         const TrickModelIterator e = _frameModel->end(0,
-                                                   _frameModelRunTimeCol,
-                                                   _frameModelOverrunTimeCol);
+                                                   _frameSchedTimeCol,
+                                                   _frameOverrunTimeCol);
         _num_overruns = 0;
         _max_runtime = 0.0;
         int tidx = 0 ;
@@ -123,14 +123,14 @@ void Thread::_do_stats()
             double ov = it.y()/1000000.0;
             if ( ov > 0.0 ) _num_overruns++;
 
+            // Get frame time, which excludes waitOnWallClock & waitOnAMFChidren
             // Snap calculates frame time (ft) by excluding executive
             // time waiting to sync with wall clock but includes
             // the sync with amf children
             int amfIdx  = timeToSyncWithAMFChildrenCurve->indexAtTime(it.t());
             double timeToSyncWithAMFChildren = iamf[amfIdx].y()/1000000.0;
             double frameSchedTime = it.x()/1000000.0;
-            double ft = frameSchedTime + timeToSyncWithAMFChildren;
-
+            double ft = frameSchedTime - timeToSyncWithAMFChildren;
 
             if ( ft < 0 ) ft = 0.0;
             if ( ft > _max_runtime ) {
@@ -329,26 +329,26 @@ void Thread::_frameModelSet()
         throw std::invalid_argument(_err_string.toAscii().constData());
     }
 
-    int frameTimeCol = -1;
-    int overrunTimeCol = -1;
+    int frameSchedTimeCol = -1;
+    int frameOverrunTimeCol = -1;
     int nParams = _frameModel->columnCount();
     for ( int i = 0 ; i < nParams; ++i ) {
 
         QString param = _frameModel->headerData(i,Qt::Horizontal).toString();
 
-        if ( param ==  Frame::frame_time_name ) {
-            frameTimeCol = i;
-        } else if ( param == Frame::overrun_time_name ) {
-            overrunTimeCol = i;
+        if ( param ==  Frame::frame_sched_time ) {
+            frameSchedTimeCol = i;
+        } else if ( param == Frame::frame_overrun_time ) {
+            frameOverrunTimeCol = i;
         }
-        if ( frameTimeCol > 0 && overrunTimeCol > 0 ) {
+        if ( frameSchedTimeCol > 0 && frameOverrunTimeCol > 0 ) {
             break;
         }
     }
-    if ( frameTimeCol < 0 || overrunTimeCol < 0 ) {
+    if ( frameSchedTimeCol < 0 || frameOverrunTimeCol < 0 ) {
 
-        QString param  = ( frameTimeCol  < 0 ) ?
-                    Frame::frame_time_name : Frame::overrun_time_name ;
+        QString param  = ( frameSchedTimeCol  < 0 ) ?
+                    Frame::frame_sched_time : Frame::frame_overrun_time ;
         // Shouldn't happen unless trick renames that param
         _err_stream << "snap [error]: Couldn't find parameter "
                         << param
@@ -358,8 +358,8 @@ void Thread::_frameModelSet()
             throw std::invalid_argument(_err_string.toAscii().constData());
     }
 
-    _frameModelRunTimeCol = frameTimeCol;
-    _frameModelOverrunTimeCol = overrunTimeCol;
+    _frameSchedTimeCol = frameSchedTimeCol;
+    _frameOverrunTimeCol = frameOverrunTimeCol;
 
 
 }
@@ -400,11 +400,11 @@ void Thread::_frameModelCalcIsRealTime()
     if ( _frameModel == 0 ) return;
 
     TrickModelIterator it = _frameModel->begin(0,
-                                               _frameModelRunTimeCol,
-                                               _frameModelOverrunTimeCol);
+                                               _frameSchedTimeCol,
+                                               _frameOverrunTimeCol);
     const TrickModelIterator e = _frameModel->end(0,
-                                               _frameModelRunTimeCol,
-                                               _frameModelOverrunTimeCol);
+                                               _frameSchedTimeCol,
+                                               _frameOverrunTimeCol);
     _num_overruns = 0;
     while (it != e) {
         double ft = it.x();

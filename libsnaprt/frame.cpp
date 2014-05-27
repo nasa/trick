@@ -1,7 +1,7 @@
 #include "frame.h"
 
-QString Frame::frame_time_name = "real_time.rt_sync.frame_sched_time";
-QString Frame::overrun_time_name = "real_time.rt_sync.frame_overrun_time";
+QString Frame::frame_sched_time = "real_time.rt_sync.frame_sched_time";
+QString Frame::frame_overrun_time = "real_time.rt_sync.frame_overrun_time";
 
 bool frameTopJobsGreaterThan(const QPair<double,Job*>& a,
                            const QPair<double,Job*>& b)
