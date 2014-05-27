@@ -266,7 +266,7 @@ void SnapWindow::__update_job_plot(const QModelIndex &idx)
 
             if ( name == jobname ) {
 
-                if ( _plot_jobs->axisRect()->curveCount() > 0 ) {
+                while ( _plot_jobs->axisRect()->curveCount() > 0 ) {
                     _plot_jobs->axisRect()->removeCurve(0);
                 }
 
@@ -344,9 +344,10 @@ void SnapWindow::_update_thread_plot(const QModelIndex &idx)
     QModelIndex thread_idx = idx.model()->index(idx.row(),0);
     int tid = idx.model()->data(thread_idx).toInt();
     QString thread_name = QString("Thread_%1").arg(tid);
-    SnapTable* model_thread = _snap->threads()->hash()->value(tid)->runtimeCurve();
+    Thread* thread = _snap->threads()->hash()->value(tid);
+    SnapTable* model_thread = thread->runtimeCurve();
 
-    if ( _plot_jobs->axisRect()->curveCount() > 0 ) {
+    while ( _plot_jobs->axisRect()->curveCount() > 0 ) {
         _plot_jobs->axisRect()->removeCurve(0);
     }
 
@@ -360,7 +361,6 @@ void SnapWindow::_update_thread_plot(const QModelIndex &idx)
             delete el;
         }
     }
-
     _times.clear();
     _vals.clear();
     if ( model_thread ) {
@@ -373,6 +373,21 @@ void SnapWindow::_update_thread_plot(const QModelIndex &idx)
 
         _plot_jobs->axisRect()->addCurve(&_times,&_vals);
     }
+
+    //
+    // Add flatline curve of thread freq (cycle time) to plot
+    //
+    _freqTimes.clear();
+    _freqVals.clear();
+    QModelIndex tBeginIdx = model_thread->index(0,0);
+    QModelIndex tEndIdx = model_thread->index(model_thread->rowCount()-1,0);
+    double tBegin = model_thread->data(tBeginIdx).toDouble();
+    double tEnd = model_thread->data(tEndIdx).toDouble();
+    _freqTimes.append(tBegin);
+    _freqTimes.append(tEnd);
+    _freqVals.append(thread->frequency());
+    _freqVals.append(thread->frequency());
+    _plot_jobs->axisRect()->addCurve(&_freqTimes,&_freqVals);
 
     QString yLabel = QString("Thread %1 Run Time (s)").arg(tid);
     _plot_jobs->axisRect()->axis(QCPAxis::atLeft)->setLabel(yLabel);

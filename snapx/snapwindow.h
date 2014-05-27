@@ -74,6 +74,8 @@ private:
 
     QVector<double> _times;
     QVector<double> _vals;
+    QVector<double> _freqTimes;
+    QVector<double> _freqVals;
 
     int _spike_tab_idx;
 
