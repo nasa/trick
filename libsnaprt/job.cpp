@@ -274,7 +274,7 @@ Job::Job(const QString &jobId) :
     _parseJobId(_log_name);
 }
 
-QString Job::log_name() const
+QString Job::job_id() const
 {
     return _log_name;
 }

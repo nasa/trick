@@ -214,7 +214,7 @@ void TestSnap::_create_log_userjobs(TrickDataModel &model,
 
     int ii = 1;
     foreach ( Job job, jobs ) {
-        QString jobname = job.log_name();
+        QString jobname = job.job_id();
         model.setHeaderData(
                     ii,Qt::Horizontal,
                     QVariant(jobname), Param::Name);
@@ -814,7 +814,7 @@ void TestSnap::jobid()
     QString rundir = _run("4");
     Snap snap(rundir,0);
 
-    QCOMPARE(snap.jobs()->at(0)->log_name(),
+    QCOMPARE(snap.jobs()->at(0)->job_id(),
              QString("JOB_trick_ip.ip.process_event.27.02(automatic_1.000)"));
 }
 

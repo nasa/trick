@@ -324,7 +324,7 @@ void Snap::_set_data_table_top_jobs()
         table->setData(table->index(row,4),
                        QVariant(job->job_name().toAscii().constData()));
         table->setData(table->index(row,5),
-                       QVariant(job->log_name().toAscii().constData()));
+                       QVariant(job->job_id().toAscii().constData()));
     }
 }
 
@@ -520,7 +520,7 @@ SnapTable* Snap::jobTableAtTime(double time)
         }
 
         table->insertRows(r,1);
-        table->setData(table->index(r,0),QVariant(job->log_name()));
+        table->setData(table->index(r,0),QVariant(job->job_id()));
         table->setData(table->index(r,1),QVariant(job->job_name()));
         table->setData(table->index(r,2),QVariant(job->freq()));
         table->setData(table->index(r,3),QVariant(rt));
@@ -582,7 +582,7 @@ bool Snap::_process_jobs(TrickModel* model )
             delete job;
             continue;
         }
-        QString job_id = job->log_name();
+        QString job_id = job->job_id();
         _id_to_job[job_id] = job;
         _jobs.append(job);
     }

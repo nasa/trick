@@ -18,17 +18,17 @@ class Job
     // job_id is logged job name
     // e.g. JOB_bus.SimBus##read_ObcsRouter_C1.1828.00(read_simbus_0.100)
     Job(TrickCurveModel* curve);
-    Job(const QString& jobId);
+    Job(const QString& job_id);
 
     bool isFrameTimerJob() { return _isFrameTimerJob; }
 
-    QString log_name() const; // trick binary logged jobname
+    QString job_id() const; // trick binary logged jobname
     QString job_num() const { return _job_num; }
     QString job_name() const { return _job_name; }
+    QString job_class() const { return _job_class ;}
     QString sim_object_name() const ;
     int thread_id() const { return _thread_id; }
     double freq() ;
-    QString job_class() const { return _job_class ;}
 
     double avg_runtime();
     double max_runtime();
@@ -41,7 +41,7 @@ class Job
 private:
     Job() {}
 
-    void _parseJobId(const QString& jobId);
+    void _parseJobId(const QString& job_id);
 
     TrickCurveModel* _curve;
     int _npoints;
