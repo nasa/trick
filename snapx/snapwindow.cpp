@@ -255,38 +255,61 @@ void SnapWindow::_update_topjob_plot(const QModelIndex &idx)
 
 void SnapWindow::__update_job_plot(const QModelIndex &idx)
 {
-    QString jobname = idx.model()->data(idx).toString();
+    QString jobId = idx.model()->data(idx).toString();
+
+
+    Job* job = 0;
+    foreach (Job* jobObj, *_snap->jobs() ) {
+        if ( jobObj->job_id() == jobId ) {
+            job = jobObj;
+            break;
+        }
+    }
 
     foreach ( TrickModel* model, _trick_models ) {
 
         for ( int ii = 0; ii < model->columnCount(); ++ii) {
 
-            QString name = model->headerData
+            QString paramJobID = model->headerData
                     (ii,Qt::Horizontal,Param::Name).toString();
 
-            if ( name == jobname ) {
+            if ( paramJobID == jobId ) {
 
                 while ( _plot_jobs->axisRect()->curveCount() > 0 ) {
                     _plot_jobs->axisRect()->removeCurve(0);
                 }
 
                 TrickCurveModel* cm  = new TrickCurveModel(model,0,0,ii,
-                                                           name,
+                                                           paramJobID,
                                                            1.0,    // x scale
                                                            1.0e-6); // y scale
                 // Y-axis just says "Job Time (s)"
                 _curve_models.append(cm);
                 TrickCurve* curve = _plot_jobs->axisRect()->addCurve(cm);
-                Q_UNUSED(curve);
                 _plot_jobs->axisRect()->axis(QCPAxis::atLeft)->
                         setLabel("Job Time (s)");
+
+                // Put flatline curve of job freq on plot
+                if ( job ) {
+                    _freqTimes.clear();
+                    _freqVals.clear();
+                    bool ok;
+                    QCPRange timeRange = curve->xRange(ok);
+                    _freqTimes.append(timeRange.lower);
+                    _freqTimes.append(timeRange.upper);
+                    _freqVals.append(job->freq());
+                    _freqVals.append(job->freq());
+                    TrickCurve* c = _plot_jobs->axisRect()->
+                                    addCurve(&_freqTimes,&_freqVals);
+                    Q_UNUSED(c);
+                }
 
                 //
                 // Put name of job at top right of jobs plot
                 //
                 QCPPlotTitle *title = new QCPPlotTitle(_plot_jobs);
-                name  = name.remove("JOB_");
-                title->setText(name);
+                QString plotTitle = paramJobID.remove("JOB_");
+                title->setText(plotTitle);
                 title->setFont(QFont("sans", 10, QFont::Normal));
                 QCPLayoutInset* inset = _plot_jobs->axisRect()->insetLayout();
                 if ( inset->elementCount() > 0 ) {
