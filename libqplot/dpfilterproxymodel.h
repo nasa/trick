@@ -17,6 +17,9 @@ public:
     explicit DPFilterProxyModel( MonteModel* monteModel,
                                  QObject *parent = 0);
 
+    explicit DPFilterProxyModel( const QStringList& params,
+                                 QObject *parent = 0);
+
 protected:
     bool filterAcceptsRow(int row, const QModelIndex &pidx) const;
     bool filterAcceptsColumn(int col, const QModelIndex &pidx) const;

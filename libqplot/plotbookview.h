@@ -28,6 +28,7 @@ public:
     QModelIndex currentPageIndex();
     void setCurrentPage(int pageId);
     bool savePdf(const QString& fileName);
+    void showCurveDiff(bool isShow) { _isShowCurveDiff = isShow; }
 
 protected:
     virtual QModelIndex moveCursor(CursorAction cursorAction,
@@ -73,6 +74,7 @@ private:
     QTabWidget* _nb;
     bool _isTabCloseRequested;
     int _currSelectedRun;
+    bool _isShowCurveDiff;
 
     QVector<QWidget*> _pages;
     QVector<QGridLayout*> _grids;

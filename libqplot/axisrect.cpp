@@ -17,9 +17,6 @@ AxisRect::AxisRect(QCustomPlot* plotwidget) :
 
 AxisRect::~AxisRect()
 {
-    foreach ( TrickCurveModel* cm, _curve_models ) {
-        delete cm;
-    }
 }
 
 TrickCurve* AxisRect::addCurve(TrickCurveModel* model)
@@ -37,6 +34,77 @@ TrickCurve* AxisRect::addCurve(const QVector<double> *t,
     curve->setData(t,v);
     _addCurve(curve);
     return curve;
+}
+
+void AxisRect::showCurveDiff()
+{
+    if ( _curves.size() != 2 ) {
+        qDebug() << "snap [error]: there must be exactly two curves "
+                    "on a plot when calling showCurveDiff() " ;
+        return;
+    }
+    _diffCurveTimes.clear();
+    _diffCurveVals.clear();
+
+    double max = 0;
+    TrickCurveModel *model1 =  _curves.at(0)->_model ;
+    TrickCurveModel *model2 =  _curves.at(1)->_model ;
+    if ( model1 != 0 && model2 != 0 ) {
+        model1->map();
+        model2->map();
+
+        TrickModelIterator it1 = model1->begin();
+        TrickModelIterator it2 = model2->begin();
+        const TrickModelIterator e1 = model1->end();
+        const TrickModelIterator e2 = model2->end();
+        while (it1 != e1 && it2 != e2) {
+            double t1 = it1.t();
+            while ( 1 ) {
+                if ( it2 == e2 ) { break; }
+                double t2 = it2.t();
+                if ( qAbs(t2-t1) < 0.000000001 ) {
+                    double d = it1.y() - it2.y();
+                    _diffCurveTimes.append(t2);
+                    _diffCurveVals.append(d);
+                    ++it2;
+                    break;
+                } else if ( t2 > t1 ) {
+                    ++it2;
+                    break;
+                }
+            }
+            ++it1;
+
+        }
+
+        model1->unmap();
+        model2->unmap();
+
+    } else {
+        // TODO: Support QVector data and model mixed with QVector data
+    }
+
+
+    _curves.at(0)->setLineStyle(TrickCurve::lsNone);
+    _curves.at(1)->setLineStyle(TrickCurve::lsNone);
+    _curves.at(0)->_isPainterPathCreated = false ;
+    _curves.at(1)->_isPainterPathCreated = false ;
+    _isYRangeCalculated = false ;
+    TrickCurve* curve = addCurve(&_diffCurveTimes,&_diffCurveVals);
+
+    bool isValid;
+    double xmin = curve->xRange(isValid).lower;
+    double xmax = curve->xRange(isValid).upper;
+    double ymin = curve->yRange(isValid).lower;
+    double ymax = curve->yRange(isValid).upper;
+    _xDataRange.lower = xmin;
+    _xDataRange.upper = xmax;
+    _yDataRange.lower = ymin;
+    _yDataRange.upper = ymax;
+    _isXRangeCalculated = true ;
+    _isYRangeCalculated = true ;
+    zoomToFit();
+
 }
 
 // TODO: this is hackish to support different data types

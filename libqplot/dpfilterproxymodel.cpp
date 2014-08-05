@@ -16,6 +16,16 @@ DPFilterProxyModel::DPFilterProxyModel(MonteModel *monteModel,
     }
 }
 
+DPFilterProxyModel::DPFilterProxyModel(const QStringList& params,
+                                       QObject *parent) :
+    QSortFilterProxyModel(parent),
+    _monteModel(0)
+{
+    foreach (QString param, params) {
+        _modelParams.insert(param,0);
+    }
+}
+
 bool DPFilterProxyModel::filterAcceptsRow(int row,
                                           const QModelIndex &pidx) const
 {

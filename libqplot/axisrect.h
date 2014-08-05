@@ -19,11 +19,14 @@ class AxisRect : public QCPAxisRect
     bool removeCurve(int index);
     //int clearCurves();
     int curveCount() const { return _curves.size(); }
-
     void zoomToFit(const QCPRange& xrange=QCPRange());
+
+    void showCurveDiff();
+    //void hideCurveDiff();
 
     virtual QCPRange xDataRange(bool& isValidRange);
     virtual QCPRange yDataRange(bool& isValidRange);
+
 
 protected:
     virtual void mousePressEvent(QMouseEvent *event);
@@ -44,9 +47,10 @@ protected:
     int _green;
     int _blue;
     QList<TrickCurve*> _curves;
-    QList<TrickCurveModel*> _curve_models;
     void _set_interactions();
     void _addCurve(TrickCurve* curve);
+    QVector<double> _diffCurveTimes;
+    QVector<double> _diffCurveVals;
 
     QPoint _origin;
     QRubberBand* _rubber_band;

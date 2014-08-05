@@ -5,7 +5,8 @@ PlotBookView::PlotBookView(QWidget *parent) :
     QAbstractItemView(parent),
     _monteModel(0),
     _isTabCloseRequested(false),
-    _currSelectedRun(-1)
+    _currSelectedRun(-1),
+    _isShowCurveDiff(false)
 {
     this->setFocusPolicy(Qt::ClickFocus);
     _nb = new QTabWidget(parent);
@@ -837,6 +838,10 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 QString yAxisLabel = _appendUnitToAxisLabel(yAxisLabelIdx,yunit);
                 plot->setYAxisLabel(yAxisLabel);
                 model()->setData(yAxisLabelIdx,yAxisLabel);
+
+                if ( pidx.row() == 1 && _isShowCurveDiff ) {
+                    plot->axisRect()->showCurveDiff();
+                }
             }
         }
     }

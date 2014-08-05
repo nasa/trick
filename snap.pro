@@ -27,6 +27,7 @@ SUBDIRS = libopts \
           snap \
           snapx \
           snapq \
+          snapdiff \
           testsnap
 
 OTHER_FILES += \
@@ -52,6 +53,11 @@ snapq.depends += snaprt
 snapq.depends += snapdata
 snapq.depends += opts
 snapq.depends += qplot
+
+snapdiff.depends += snaprt
+snapdiff.depends += snapdata
+snapdiff.depends += opts
+snapdiff.depends += qplot
 
 testsnap.depends += snaprt
 testsnap.depends += snapdata
