@@ -33,6 +33,7 @@ class TrickDataModel : public SnapTable
     static const int TRICK_DOUBLE;
     static const int TRICK_LONG_LONG;
     static const int TRICK_UNSIGNED_LONG_LONG;
+    static const int TRICK_ENUMERATED;
 
     enum TrickVersion
     {

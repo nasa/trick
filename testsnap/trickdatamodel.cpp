@@ -5,6 +5,7 @@
 const int TrickDataModel::TRICK_DOUBLE = 10;
 const int TrickDataModel::TRICK_LONG_LONG = 13;
 const int TrickDataModel::TRICK_UNSIGNED_LONG_LONG = 14;
+const int TrickDataModel::TRICK_ENUMERATED = 102;
 
 
 TrickDataModel::TrickDataModel(TrickVersion version,
@@ -284,6 +285,13 @@ bool TrickDataModel::load_binary_trk(const QString &log_name,
 
             case TRICK_LONG_LONG : {
                 long long val;
+                in >> val;
+                (*_data.at(col))[row] = val;
+                break;
+            }
+
+            case TRICK_ENUMERATED : {
+                int val;
                 in >> val;
                 (*_data.at(col))[row] = val;
                 break;

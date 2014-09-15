@@ -143,13 +143,14 @@ class TrickModel : public SnapTable
                 return (double) *((float*)(addr));
             }
             case TRICK_07_INTEGER:
+            case TRICK_07_ENUMERATED:
             {
                 return (double) *((int*)(addr));
             }
             default:
             {
                 fprintf(stderr,
-                        "snap [error]: can't handle trick type \"%d\"\n"
+                        "snap [error]: can't handle trick 07 type \"%d\"\n"
                         "              Look in trick_types.h for type.\n",
                         paramtype);
                 exit(-1);
@@ -180,7 +181,7 @@ class TrickModel : public SnapTable
             default:
             {
                 fprintf(stderr,
-                        "snap [error]: can't handle trick type \"%d\"\n"
+                        "snap [error]: can't handle trick 10 type \"%d\"\n"
                         "              Look in trick_types.h for type\n.",
                         paramtype);
                 exit(-1);
