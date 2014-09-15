@@ -53,9 +53,6 @@ int main(int argc, char *argv[])
         QApplication::setGraphicsSystem("raster");
         QApplication a(argc, argv);
         QString rundir(opts.montedir.get().c_str());
-        QStringList s;
-        s.append(rundir);
-        Runs runs(s);
         MonteWindow w(rundir);
         w.show();
         return a.exec();
