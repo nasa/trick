@@ -785,15 +785,16 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             // Curve (do nothing)
         } else if ( ! g4pidx.isValid() ) {
             // t,x,y,tunit,xunit,yunit,run
-            if ( idx.row() == 6 ) {   // 6 is the idx row for run name
+            if ( idx.row() == 6 ) {   // 6 is the idx row the run id
 
                 // Run
+                int runID = model()->data(idx).toInt();
                 QModelIndex xidx = model()->index(1,0,pidx);
                 QString xparam = model()->data(xidx).toString();
                 QModelIndex yidx = model()->index(2,0,pidx);
                 QString yparam = model()->data(yidx).toString();
 
-                TrickCurveModel* curveModel = _monteModel->curve(pidx.row(),
+                TrickCurveModel* curveModel = _monteModel->curve(runID,
                                                                  xparam,
                                                                  yparam);
                 //
@@ -836,7 +837,7 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 // Set scale factor for either x or y units
                 if ( isXScale || isYScale ) {
                     delete curveModel;
-                    curveModel = _monteModel->curve(pidx.row(),
+                    curveModel = _monteModel->curve(runID,
                                                     xparam, yparam,
                                                     xScaleFactor, yScaleFactor);
                 }

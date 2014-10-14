@@ -282,8 +282,6 @@ void MonteWindow::_createDPPages(const QString& dpfile)
                     QString tUnit = dpcurve->t()->unit();
                     QString xUnit = dpcurve->x()->unit();
                     QString yUnit = dpcurve->y()->unit();
-                    QString runName = _monteModel->headerData(run,Qt::Vertical).
-                                                   toString();
 
                     QStandardItem *tItem       = new QStandardItem(tName);
                     QStandardItem *xItem       = new QStandardItem(xName);
@@ -291,7 +289,8 @@ void MonteWindow::_createDPPages(const QString& dpfile)
                     QStandardItem *tUnitItem   = new QStandardItem(tUnit);
                     QStandardItem *xUnitItem   = new QStandardItem(xUnit);
                     QStandardItem *yUnitItem   = new QStandardItem(yUnit);
-                    QStandardItem *runItem     = new QStandardItem(runName);
+                    QStandardItem *runIDItem   = new QStandardItem(
+                                                     QString("%0").arg(run));
 
                     curveItem->appendRow(tItem);
                     curveItem->appendRow(xItem);
@@ -299,7 +298,7 @@ void MonteWindow::_createDPPages(const QString& dpfile)
                     curveItem->appendRow(tUnitItem);
                     curveItem->appendRow(xUnitItem);
                     curveItem->appendRow(yUnitItem);
-                    curveItem->appendRow(runItem);
+                    curveItem->appendRow(runIDItem);
                 }
             }
             _selectCurrentRunOnPageItem(pageItem);
@@ -448,8 +447,6 @@ void MonteWindow::_addPlotOfVarToPageItem(QStandardItem* pageItem,
 
     for ( int r = 0; r < _monteModel->rowCount(); ++r) {
 
-        QString runName = _monteModel->headerData(r,Qt::Vertical).toString();
-
         //
         // Create curve
         //
@@ -463,7 +460,7 @@ void MonteWindow::_addPlotOfVarToPageItem(QStandardItem* pageItem,
         QStandardItem *tUnitItem   = new QStandardItem("--");
         QStandardItem *xUnitItem   = new QStandardItem("--");
         QStandardItem *yUnitItem   = new QStandardItem("--");
-        QStandardItem *runItem     = new QStandardItem(runName);
+        QStandardItem *runIDItem   = new QStandardItem(QString("%0").arg(r));
 
         curveItem->appendRow(tItem);
         curveItem->appendRow(xItem);
@@ -471,7 +468,7 @@ void MonteWindow::_addPlotOfVarToPageItem(QStandardItem* pageItem,
         curveItem->appendRow(tUnitItem);
         curveItem->appendRow(xUnitItem);
         curveItem->appendRow(yUnitItem);
-        curveItem->appendRow(runItem);
+        curveItem->appendRow(runIDItem);
     }
 }
 

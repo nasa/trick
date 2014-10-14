@@ -47,7 +47,7 @@ void msg(const QString& str, bool isPrint=false)
 extern DPProduct* product;
 
 bool isXYPair = false;
-bool isFirstYVar = false;
+bool isXVar = false;
 DPPage* currPage = 0;
 DPPlot* currPlot = 0;
 DPCurve* currCurve = 0;
@@ -97,7 +97,7 @@ QString dpFileName() {
 
 statements:
         | statements program
-        | statements { isXYPair = false; isFirstYVar = false; } plot_section
+        | statements { isXYPair = false; isXVar = false; } plot_section
         | statements table_section
         ;
 
@@ -257,13 +257,31 @@ plot: DP_PLOT DP_FLOAT ':' DP_STR {
                 //currPlot->setStopTime($4);
                 msg("page->setStopTime() not supported");
         }
-        | plot { if ( !isXYPair ) {
-                     currCurve = currPlot->addCurve();
-                     isFirstYVar = true;
+        | plot {
+                   if ( !isXYPair ) {
+                       currCurve = currPlot->addCurve();
+                       isXVar = true;
+                   }
                }
-            } x_var
-        | plot { if ( !isFirstYVar ) { currCurve = currPlot->addCurve(); }
-            } y_var { isXYPair = false ; isFirstYVar = false; }
+
+               x_var
+
+        | plot {
+                 if ( !isXVar ) {
+                     currCurve = currPlot->addCurve();
+                     currXVar = currCurve->setXVarName("sys.exec.out.time");
+                     currXVar->setUnit("s");
+                     currXVar->setLabel("time");
+                 }
+               }
+
+               y_var
+
+               {
+                   isXYPair = false ;
+                   isXVar = false;
+               }
+
         | plot curve 
         ;
 
