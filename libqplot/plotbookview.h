@@ -3,6 +3,7 @@
 
 #include <QAbstractItemView>
 #include <QScrollBar>
+#include <QPushButton>
 #include <QTabWidget>
 #include <QHash>
 #include <QGridLayout>
@@ -65,11 +66,16 @@ private slots:
                           const QItemSelection& prev);
     void tabCloseRequested(int tabId);
     void tabCurrentChanged(int tabId);
+    void _closeAllPlots();
     void doubleClick(QMouseEvent* event);
     void _slotCurveClicked(TrickCurve* curve);
     void plotKeyPress(QKeyEvent* e);
 
 private:
+    QFrame* _bookFrame;
+    QGridLayout* _bookGridLayout ;
+    QPushButton* _buttonCloseAll;
+
     MonteModel* _monteModel;
     QTabWidget* _nb;
     bool _isTabCloseRequested;

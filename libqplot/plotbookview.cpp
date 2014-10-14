@@ -8,14 +8,23 @@ PlotBookView::PlotBookView(QWidget *parent) :
     _currSelectedRun(-1),
     _isShowCurveDiff(false)
 {
+    _bookFrame = new QFrame(parent);
+    _bookGridLayout = new QGridLayout(_bookFrame);
+
+    _buttonCloseAll = new QPushButton("Close All",_bookFrame);
+    connect(_buttonCloseAll,SIGNAL(clicked()),
+            this,SLOT(_closeAllPlots()));
+    _bookGridLayout->addWidget(_buttonCloseAll,1,0);
+
     this->setFocusPolicy(Qt::ClickFocus);
-    _nb = new QTabWidget(parent);
+    _nb = new QTabWidget(_bookFrame);
     _nb->setTabsClosable(true);
     _nb->setFocusPolicy(Qt::StrongFocus);
     connect(_nb,SIGNAL(tabCloseRequested(int)),
             this,SLOT(tabCloseRequested(int)));
     connect(_nb,SIGNAL(currentChanged(int)),
             this,SLOT(tabCurrentChanged(int)));
+    _bookGridLayout->addWidget(_nb,0,0);
 }
 
 PlotBookView::~PlotBookView()
@@ -612,6 +621,14 @@ void PlotBookView::tabCurrentChanged(int tabId)
         if ( plot ) {
             plot->replot();
         }
+    }
+}
+
+void PlotBookView::_closeAllPlots()
+{
+    int nTabs = model()->rowCount();
+    for ( int i = nTabs ; i >= 0; --i ) {
+        tabCloseRequested(i);
     }
 }
 
