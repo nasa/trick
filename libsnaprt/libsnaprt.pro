@@ -23,7 +23,8 @@ SOURCES += \
     frame.cpp  \
     snap.cpp \
     utils.cpp \
-    sjobexecthreadinfo.cpp
+    sjobexecthreadinfo.cpp \
+    versionnumber.cpp
 
 
 HEADERS += \
@@ -33,7 +34,8 @@ HEADERS += \
     thread.h  \
     frame.h \
     utils.h \
-    sjobexecthreadinfo.h
+    sjobexecthreadinfo.h \
+    versionnumber.h
 
 unix:!symbian {
     maemo5 {

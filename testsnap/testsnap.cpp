@@ -7,6 +7,7 @@
 #include <QtTest/QtTest>
 #include <QDir>
 #include "libsnaprt/snap.h"
+#include "libsnaprt/versionnumber.h"
 #include "trickdatamodel.h"
 
 QString getActualReport(const QString& runDir); // e.g. RUN_rm2000
@@ -72,6 +73,7 @@ private slots:
     // To isolate one test, place function prototype here
 #endif
 #ifdef TEST_NON_RM2000
+    void versionnumber();
     void empty_run1();
     void empty_run2();
     void is_realtime0();
@@ -412,6 +414,51 @@ void TestSnap::initTestCase()
 }
 
 #ifdef TEST_NON_RM2000
+void TestSnap::versionnumber()
+{
+
+    VersionNumber v1("Trick-13.4.0-123");
+    VersionNumber v11("Trick-13.4.0-123");
+    VersionNumber v2("Trick-13.5.dev-123");
+    VersionNumber v3("13.4.dev-123");
+    VersionNumber v4("13.4.0-123");
+    VersionNumber v41("13.4.0-1234");
+
+    QCOMPARE(v1.major(),13);
+    QCOMPARE(v1.minor(),4);
+    QCOMPARE(v1.patch(),0);
+    QCOMPARE(v1.revision(),123);
+
+    QCOMPARE(v2.major(),13);
+    QCOMPARE(v2.minor(),5);
+    QCOMPARE(v2.patch(),-1);
+    QCOMPARE(v2.revision(),123);
+
+    QCOMPARE(v1 < v11,false);
+    QCOMPARE(v1 <= v11,true);
+    QCOMPARE(v1 == v11,true);
+    QCOMPARE(v1 != v11,false);
+
+    QCOMPARE(v1 < v2,true);
+    QCOMPARE(v1 <= v2,true);
+    QCOMPARE(v1 == v2,false);
+
+    QCOMPARE(v3 != v4,true);
+    QCOMPARE(v3 < v4,true);
+    QCOMPARE(v3 > v4,false);
+
+    QCOMPARE(v4 < v41,true);
+    QCOMPARE(v4 != v41,true);
+
+    QString vs("22.33.44-90");
+    VersionNumber vsn(vs);
+    QString vd("22.33.dev-90");
+    VersionNumber vdn(vd);
+
+    QCOMPARE(vs,vsn.toString());
+    QCOMPARE(vd,vdn.toString());
+}
+
 void TestSnap::empty_run1()
 {
     QString rundir = _run("empty1");
