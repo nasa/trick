@@ -163,7 +163,7 @@ void SJobExecThreadInfo::_calcThreadInfo()
             bool ok = true;
             int cpuNum = line.toInt(&ok);
             Q_UNUSED(cpuNum);
-            if ( ok || line == "unassigned" ) {
+            if ( ok || line == "unassigned" || line == "none assigned" ) {
                 _rtCPUNumber = line;
             } else {
                 _err_stream << "snap [bad scoobies]: "
