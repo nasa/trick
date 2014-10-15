@@ -10,6 +10,7 @@
 #include <stdexcept>
 
 #include "snap.h"
+#include "versionnumber.h"
 
 bool topThreadGreaterThan(const QPair<double,Thread*>& a,
                          const QPair<double,Thread*>& b)
@@ -930,12 +931,17 @@ QString SnapReport::report()
 
 void Snap::_setLogFileNames()
 {
-    _fileNameTrickJobs = _rundir + "/log_trickjobs.trk";
+    if ( TrickVersion(_rundir).versionNumber() < VersionNumber("13.4.dev-0") ) {
+        _fileNameTrickJobs = _rundir + "/log_trickjobs.trk";
+    } else {
+        _fileNameTrickJobs = _rundir + "/log_frame_trickjobs.trk";
+    }
+
     if ( !QFileInfo(_fileNameTrickJobs).exists() ) {
         _fileNameTrickJobs = _rundir + "/log_snap_trickjobs.trk";
         if ( !QFileInfo(_fileNameTrickJobs).exists() ) {
-            _err_stream << "snap [error]: cannot find log_trickjobs.trk or "
-                        << "log_snap_trickjobs.trk files n "
+            _err_stream << "snap [error]: cannot find " << _fileNameTrickJobs
+                        << " or log_snap_trickjobs.trk files in "
                         << "directory " << _rundir;
             throw std::invalid_argument(_err_string.toAscii().constData());
         }
