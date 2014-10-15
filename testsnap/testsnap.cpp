@@ -130,6 +130,7 @@ private slots:
     void thread1();
     void run_orlando();
     void run_tbrain();
+    void run_trick13_4();
 #endif
 #ifdef TEST_ISS_RPT
     void run_iss();
@@ -1200,6 +1201,15 @@ void TestSnap::run_tbrain()
                                               "expected-tbrain.rpt");
     QCOMPARE(actualReport,expectedReport);
 }
+
+void TestSnap::run_trick13_4()
+{
+    QString actualReport = getActualReport("RUN_trick13_htv");
+    //QString expectedReport = getExpectedReport("RUN_tbrain",
+                                              //"expected-tbrain.rpt");
+    //QCOMPARE(actualReport,expectedReport);
+}
+
 #endif
 
 #ifdef TEST_ISS_RPT

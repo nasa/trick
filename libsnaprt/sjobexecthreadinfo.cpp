@@ -14,6 +14,7 @@ SJobExecThreadInfo::SJobExecThreadInfo(const QString &runDir, int threadId) :
     _freq(0.0)
 {
     _sJobExecutionFileName = _runDir + "/S_job_execution";
+    _trickVersion = _calcTrickVersion();
     _calcThreadInfo();
 }
 
@@ -21,6 +22,47 @@ void SJobExecThreadInfo::setThreadId(int threadId)
 {
     _threadId = threadId;
     _calcThreadInfo();
+}
+
+// Uses S_run_summary if present
+// If there is no S_run_summary, hack on s_job_exec file
+VersionNumber SJobExecThreadInfo::_calcTrickVersion() const
+{
+    VersionNumber v;
+
+    QString sRunSummary = _runDir + "/S_run_summary";
+    QFile file(sRunSummary);
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text )) {
+        QTextStream in(&file);
+        while (1) {
+            QString line = in.readLine();
+            if ( line.startsWith("Trick version") ) {
+                v = VersionNumber(line);
+                break;
+            }
+        }
+
+        file.close();
+
+    } else {
+        // S_run_summary DNE, so use S_job_execution and send back a hack
+        QFile sjob(_sJobExecutionFileName);
+
+        if (sjob.open(QIODevice::ReadOnly | QIODevice::Text )) {
+            QTextStream in(&file);
+            QString line = in.readLine();
+            if ( line == "Thread information" ) {
+                line = in.readLine(); // hack
+                if ( line.startsWith("Trick::Threads") ) {
+                    v = VersionNumber("13.4.0-0");
+                } else {
+                    v = VersionNumber("13.0.0-0");
+                }
+            }
+        }
+    }
+
+    return v;
 }
 
 void SJobExecThreadInfo::_calcThreadInfo()
@@ -44,9 +86,19 @@ void SJobExecThreadInfo::_calcThreadInfo()
     _hasInfo = true;
 
     bool isFinishedReading = false;
-    QRegExp typeRgx(" *Type = *");
-    QRegExp cpuNumRgx("\\s*rt_cpu_number\\s*=\\s*");
-    QString threadName = QString("Thread %1").arg(_threadId);
+
+    QRegExp typeRgx;
+    QRegExp cpuNumRgx;
+    QString threadName;
+    if ( _trickVersion >= VersionNumber("13.4.dev-0") ) {
+        typeRgx = QRegExp(" *process_type = *");
+        cpuNumRgx = QRegExp("\\s*cpus\\s*=\\s*");
+        threadName = QString("Trick::Threads (Child_%1)").arg(_threadId);
+    } else {
+        typeRgx = QRegExp(" *Type = *");
+        cpuNumRgx = QRegExp("\\s*rt_cpu_number\\s*=\\s*");
+        threadName = QString("Thread %1").arg(_threadId);
+    }
 
     //
     // Reading top part of S_job_execution
@@ -69,8 +121,6 @@ void SJobExecThreadInfo::_calcThreadInfo()
     }
 
     // Read thread info
-    //     Type = foo
-    //     rt_cpu_number = #
     while (1) {
 
         QString line = in.readLine();
@@ -108,7 +158,7 @@ void SJobExecThreadInfo::_calcThreadInfo()
         } else if ( line.contains(cpuNumRgx) ) {
 
             //
-            // rt_cpu_number = #
+            // rt_cpu_number = # (or cpus)
             line = line.remove(cpuNumRgx);
             bool ok = true;
             int cpuNum = line.toInt(&ok);

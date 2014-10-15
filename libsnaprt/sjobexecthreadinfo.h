@@ -7,6 +7,7 @@
 #include <QTextStream>
 #include <QRegExp>
 #include <QFile>
+#include "versionnumber.h"
 
 class SJobExecThreadInfo
 {
@@ -31,8 +32,10 @@ class SJobExecThreadInfo
     double _freq;
     QString _sJobExecutionFileName;
     QString _rtCPUNumber;
+    VersionNumber _trickVersion;
 
     void _calcThreadInfo();
+    VersionNumber _calcTrickVersion() const ;
 
     static QString _err_string;
     static QTextStream _err_stream;

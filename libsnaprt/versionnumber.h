@@ -21,11 +21,11 @@
 class VersionNumber
 {
 public:
+    VersionNumber(); // invalid version
     VersionNumber(const QString& s);
+    VersionNumber(int major, int minor, int patch, int revision);
 
-    VersionNumber(int major, int minor, int patch, int revision) :
-        _major(major), _minor(minor), _patch(patch),
-        _revision(revision) {}
+    bool isValid() { return _isValid; }
 
     QString toString();
 
@@ -42,7 +42,7 @@ public:
     bool operator>=(const VersionNumber& o) const;
 
 private:
-    VersionNumber();
+    bool _isValid;
     int _major;
     int _minor;
     int _patch;

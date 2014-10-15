@@ -3,9 +3,27 @@
 QString VersionNumber::_err_string;
 QTextStream VersionNumber::_err_stream(&VersionNumber::_err_string);
 
-VersionNumber::VersionNumber(const QString &s) :
-    _major(0),_minor(0),_patch(0),_revision(0)
+VersionNumber::VersionNumber() :
+    _isValid(false),_major(0),_minor(0),_patch(0),_revision(0)
 {
+}
+
+VersionNumber::VersionNumber(int major, int minor, int patch, int revision) :
+        _isValid(false), _major(major), _minor(minor), _patch(patch),
+        _revision(revision)
+{
+    if ( major >= 0 && minor >= 0 && patch >= -1 && revision >= 0 ) {
+        _isValid = true;
+    }
+}
+
+VersionNumber::VersionNumber(const QString &s) :
+    _isValid(false), _major(0),_minor(0),_patch(0),_revision(0)
+{
+    if ( s.isEmpty() ) {
+        return;
+    }
+
     QString sNum;
     for ( int i = 0 ; i < s.length(); ++i ) {
         if ( s.at(i).isDigit() ) {
@@ -42,6 +60,8 @@ VersionNumber::VersionNumber(const QString &s) :
                 _revision = l3.at(1).toInt(&ok);
             }
         }
+    } else {
+        ok = false;
     }
 
     if ( !ok) {
@@ -50,6 +70,8 @@ VersionNumber::VersionNumber(const QString &s) :
                     << s << "\"";
         throw std::runtime_error(_err_string.toAscii().constData());
     }
+
+    _isValid = true;
 }
 
 QString VersionNumber::toString()
@@ -98,9 +120,4 @@ bool VersionNumber::operator> (const VersionNumber& o) const
 bool VersionNumber::operator>= (const VersionNumber& o) const
 {
     return ( (*this > o || *this == o) ) ;
-}
-
-VersionNumber::VersionNumber() :
-    _major(0),_minor(0),_patch(0),_revision(0)
-{
 }
