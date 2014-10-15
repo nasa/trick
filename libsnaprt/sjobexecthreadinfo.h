@@ -35,7 +35,6 @@ class SJobExecThreadInfo
     VersionNumber _trickVersion;
 
     void _calcThreadInfo();
-    VersionNumber _calcTrickVersion() const ;
 
     static QString _err_string;
     static QTextStream _err_stream;

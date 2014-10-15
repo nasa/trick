@@ -2,6 +2,8 @@
 
 QString VersionNumber::_err_string;
 QTextStream VersionNumber::_err_stream(&VersionNumber::_err_string);
+QString TrickVersion::_err_string;
+QTextStream TrickVersion::_err_stream(&TrickVersion::_err_string);
 
 VersionNumber::VersionNumber() :
     _isValid(false),_major(0),_minor(0),_patch(0),_revision(0)
@@ -120,4 +122,63 @@ bool VersionNumber::operator> (const VersionNumber& o) const
 bool VersionNumber::operator>= (const VersionNumber& o) const
 {
     return ( (*this > o || *this == o) ) ;
+}
+
+
+TrickVersion::TrickVersion()
+{
+}
+
+TrickVersion::TrickVersion(const QString &runDir)
+{
+    _versionNumber = _calcTrickVersion(runDir);
+}
+
+// Uses S_run_summary if present
+//
+// If there is no S_run_summary, there is a hack to send 13.3 or 13.4
+// based on S_job_execution
+//
+// TODO: make this robust if no S_run_summary present
+//
+VersionNumber TrickVersion::_calcTrickVersion(const QString& runDir) const
+{
+    VersionNumber v;
+
+    QString sRunSummary = runDir + "/S_run_summary";
+
+    QFile file(sRunSummary);
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text )) {
+        QTextStream in(&file);
+        while (1) {
+            QString line = in.readLine();
+            if ( line.startsWith("Trick version") ) {
+                v = VersionNumber(line);
+                break;
+            }
+        }
+
+        file.close();
+
+    } else {
+        // S_run_summary DNE, so use S_job_execution and send back a hack
+        QString sJobExecutionFileName = runDir + "/S_job_execution";
+        QFile sjob(sJobExecutionFileName);
+        if (sjob.open(QIODevice::ReadOnly | QIODevice::Text )) {
+            QTextStream in(&file);
+            QString line = in.readLine();
+            if ( line == "Thread information" ) {
+                line = in.readLine(); // hack
+                if ( line.startsWith("Trick::Threads") ) {
+                    v = VersionNumber("13.4.0-0");
+                } else {
+                    // This is just a way to say Pre 13.4
+                    // It could very well be trick 10.0 (TODO)
+                    v = VersionNumber("13.0.0-0");
+                }
+            }
+        }
+    }
+
+    return v;
 }

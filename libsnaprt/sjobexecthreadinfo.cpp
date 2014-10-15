@@ -14,7 +14,7 @@ SJobExecThreadInfo::SJobExecThreadInfo(const QString &runDir, int threadId) :
     _freq(0.0)
 {
     _sJobExecutionFileName = _runDir + "/S_job_execution";
-    _trickVersion = _calcTrickVersion();
+    _trickVersion = TrickVersion(_runDir).versionNumber();
     _calcThreadInfo();
 }
 
@@ -24,46 +24,6 @@ void SJobExecThreadInfo::setThreadId(int threadId)
     _calcThreadInfo();
 }
 
-// Uses S_run_summary if present
-// If there is no S_run_summary, hack on s_job_exec file
-VersionNumber SJobExecThreadInfo::_calcTrickVersion() const
-{
-    VersionNumber v;
-
-    QString sRunSummary = _runDir + "/S_run_summary";
-    QFile file(sRunSummary);
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text )) {
-        QTextStream in(&file);
-        while (1) {
-            QString line = in.readLine();
-            if ( line.startsWith("Trick version") ) {
-                v = VersionNumber(line);
-                break;
-            }
-        }
-
-        file.close();
-
-    } else {
-        // S_run_summary DNE, so use S_job_execution and send back a hack
-        QFile sjob(_sJobExecutionFileName);
-
-        if (sjob.open(QIODevice::ReadOnly | QIODevice::Text )) {
-            QTextStream in(&file);
-            QString line = in.readLine();
-            if ( line == "Thread information" ) {
-                line = in.readLine(); // hack
-                if ( line.startsWith("Trick::Threads") ) {
-                    v = VersionNumber("13.4.0-0");
-                } else {
-                    v = VersionNumber("13.0.0-0");
-                }
-            }
-        }
-    }
-
-    return v;
-}
 
 void SJobExecThreadInfo::_calcThreadInfo()
 {

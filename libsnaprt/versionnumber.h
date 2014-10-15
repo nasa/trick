@@ -4,6 +4,7 @@
 #include <QString>
 #include <QStringList>
 #include <QTextStream>
+#include <QFile>
 #include <stdexcept>
 
 // Version = 2.1.0.4
@@ -47,6 +48,21 @@ private:
     int _minor;
     int _patch;
     int _revision;
+    static QString _err_string;
+    static QTextStream _err_stream;
+};
+
+class TrickVersion
+{
+public:
+    TrickVersion(); // invalid version
+    TrickVersion(const QString& runDir);
+
+    VersionNumber versionNumber() { return _versionNumber; }
+
+private:
+    VersionNumber _versionNumber;
+    VersionNumber _calcTrickVersion(const QString& runDir) const;
     static QString _err_string;
     static QTextStream _err_stream;
 };
