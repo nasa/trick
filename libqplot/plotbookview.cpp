@@ -15,6 +15,18 @@ PlotBookView::PlotBookView(QWidget *parent) :
     connect(_buttonCloseAll,SIGNAL(clicked()),
             this,SLOT(_closeAllPlots()));
     _bookGridLayout->addWidget(_buttonCloseAll,1,0);
+    _buttonToggleDiff = new QPushButton("Toggle Diff",_bookFrame);
+    connect(_buttonToggleDiff,SIGNAL(clicked()),
+            this,SLOT(_toggleDiffPlots()));
+
+     _buttonLayout = new QHBoxLayout;
+     _buttonLayout->addWidget(_buttonCloseAll);
+     _buttonLayout->addWidget(_buttonToggleDiff);
+     _buttonFrame = new QFrame(_bookFrame);
+     _buttonFrame->setLayout(_buttonLayout);
+    _bookGridLayout->addWidget(_buttonFrame,1,0);
+    _buttonToggleDiff->setHidden(true);
+
 
     this->setFocusPolicy(Qt::ClickFocus);
     _nb = new QTabWidget(_bookFrame);
@@ -351,6 +363,13 @@ bool PlotBookView::savePdf(const QString &fileName)
     return true;
 }
 
+void PlotBookView::showCurveDiff(bool isShow)
+{
+    _isShowCurveDiff = isShow;
+    _buttonToggleDiff->setHidden(false);
+
+}
+
 QModelIndex PlotBookView::moveCursor(QAbstractItemView::CursorAction cursorAction,
                                      Qt::KeyboardModifiers modifiers)
 {
@@ -632,6 +651,17 @@ void PlotBookView::_closeAllPlots()
     }
 }
 
+void PlotBookView::_toggleDiffPlots()
+{
+    foreach ( QWidget* page, _pages ) {
+        QVector<Plot*> plots = _page2Plots.value(page);
+        foreach ( Plot* plot, plots ) {
+            AxisRect* axisRect = (AxisRect*) plot->axisRect();
+            axisRect->toggleCurveDiff();
+        }
+    }
+}
+
 void PlotBookView::doubleClick(QMouseEvent *event)
 {
     if ( !model() ) return ;
@@ -674,6 +704,10 @@ void PlotBookView::plotKeyPress(QKeyEvent *e)
     }
     case Qt::Key_Down: {
         _selectNextCurve();
+        break;
+    }
+    case Qt::Key_Space:{
+        _toggleDiffPlots();
         break;
     }
     }

@@ -22,7 +22,7 @@ class AxisRect : public QCPAxisRect
     void zoomToFit(const QCPRange& xrange=QCPRange());
 
     void showCurveDiff();
-    //void hideCurveDiff();
+    void toggleCurveDiff();
 
     virtual QCPRange xDataRange(bool& isValidRange);
     virtual QCPRange yDataRange(bool& isValidRange);
@@ -51,6 +51,7 @@ protected:
     void _addCurve(TrickCurve* curve);
     QVector<double> _diffCurveTimes;
     QVector<double> _diffCurveVals;
+    bool _isDiffPlot;
 
     QPoint _origin;
     QRubberBand* _rubber_band;

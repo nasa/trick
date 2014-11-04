@@ -4,6 +4,7 @@
 AxisRect::AxisRect(QCustomPlot* plotwidget) :
     QCPAxisRect(plotwidget),
     _plotwidget(plotwidget),
+    _isDiffPlot(false),
     _rubber_band(0),
     _isXRangeCalculated(false),
     _isYRangeCalculated(false),
@@ -43,6 +44,7 @@ void AxisRect::showCurveDiff()
                     "on a plot when calling showCurveDiff() " ;
         return;
     }
+    _isDiffPlot = true;
     _diffCurveTimes.clear();
     _diffCurveVals.clear();
 
@@ -105,6 +107,30 @@ void AxisRect::showCurveDiff()
     _isYRangeCalculated = true ;
     zoomToFit();
 
+}
+
+void AxisRect::toggleCurveDiff()
+{
+    if ( !_isDiffPlot ) return;
+
+    bool isDiff = (_curves.at(0)->lineStyle() == TrickCurve::lsNone &&
+                   _curves.at(2)->lineStyle() == TrickCurve::lsLine );
+    bool isCompDiff = (_curves.at(0)->lineStyle() == TrickCurve::lsLine &&
+                   _curves.at(2)->lineStyle() == TrickCurve::lsLine );
+    if ( isDiff ) {
+        // Compare+Error
+        _curves.at(0)->setLineStyle(TrickCurve::lsLine);
+        _curves.at(1)->setLineStyle(TrickCurve::lsLine);
+        _curves.at(2)->setLineStyle(TrickCurve::lsLine);
+    } else if ( isCompDiff ) {
+        // Error
+        _curves.at(0)->setLineStyle(TrickCurve::lsNone);
+        _curves.at(1)->setLineStyle(TrickCurve::lsNone);
+        _curves.at(2)->setLineStyle(TrickCurve::lsLine);
+    }
+    _isYRangeCalculated = false ;
+    _fitYRange();
+    mParentPlot->replot();
 }
 
 // TODO: this is hackish to support different data types
@@ -170,8 +196,6 @@ bool AxisRect::removeCurve(int index)
 
 void AxisRect::zoomToFit(const QCPRange& xrange)
 {
-    QCPRange r0 = _xAxis->range();
-
     if ( xrange.lower == 0 && xrange.upper == 0 ) {
         _fitXRange();
     } else {
@@ -207,6 +231,9 @@ QCPRange AxisRect::xDataRange(bool& isValidRange)
         double xmin = 1.0e20;
         double xmax = -1.0e20;
         foreach ( TrickCurve* curve, _curves ) {
+            if ( curve->lineStyle() == TrickCurve::lsNone ) {
+                continue;
+            }
             QCPRange range = curve->xRange(isValidRange);
             if ( range.lower < xmin ) xmin = range.lower;
             if ( range.upper > xmax ) xmax = range.upper;
@@ -243,6 +270,9 @@ QCPRange AxisRect::yDataRange(bool& isValidRange)
         double ymin = 1.0e20;
         double ymax = -1.0e20;
         foreach ( TrickCurve* curve, _curves ) {
+            if ( curve->lineStyle() == TrickCurve::lsNone ) {
+                continue;
+            }
             QCPRange range = curve->yRange(isValidRange);
             if ( range.lower < ymin ) ymin = range.lower;
             if ( range.upper > ymax ) ymax = range.upper;
@@ -417,7 +447,6 @@ void AxisRect::keyPressEvent(QKeyEvent *event)
     case Qt::Key_O: _keyPressZoomOut();break;
     case Qt::Key_A: _keyPressZoomIn();break;
     case Qt::Key_S: _keyPressZoomOut();break;
-    case Qt::Key_Space: zoomToFit(); mParentPlot->replot(); break;
     case Qt::Key_Escape: zoomToFit(); mParentPlot->replot(); break;
     default: ; // do nothing
     }

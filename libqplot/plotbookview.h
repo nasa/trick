@@ -7,6 +7,7 @@
 #include <QTabWidget>
 #include <QHash>
 #include <QGridLayout>
+#include <QHBoxLayout>
 #include "plot.h"
 #include "libsnapdata/montemodel.h"
 #include "libsnapdata/unit.h"
@@ -29,7 +30,7 @@ public:
     QModelIndex currentPageIndex();
     void setCurrentPage(int pageId);
     bool savePdf(const QString& fileName);
-    void showCurveDiff(bool isShow) { _isShowCurveDiff = isShow; }
+    void showCurveDiff(bool isShow) ;
 
 protected:
     virtual QModelIndex moveCursor(CursorAction cursorAction,
@@ -67,6 +68,7 @@ private slots:
     void tabCloseRequested(int tabId);
     void tabCurrentChanged(int tabId);
     void _closeAllPlots();
+    void _toggleDiffPlots();
     void doubleClick(QMouseEvent* event);
     void _slotCurveClicked(TrickCurve* curve);
     void plotKeyPress(QKeyEvent* e);
@@ -74,7 +76,11 @@ private slots:
 private:
     QFrame* _bookFrame;
     QGridLayout* _bookGridLayout ;
+
+    QFrame* _buttonFrame;
+    QHBoxLayout* _buttonLayout;
     QPushButton* _buttonCloseAll;
+    QPushButton* _buttonToggleDiff;
 
     MonteModel* _monteModel;
     QTabWidget* _nb;
