@@ -82,7 +82,7 @@ void Snap::_load()
     _frame_stddev = _thread0->stdDeviation();
     _frames = _process_frames();
 
-    _simobjects = new SimObjects(_jobs);
+    _simobjects = new SimObjects(_jobs,frame_rate());
 
     _set_data_table_summary();
     _set_data_table_spikes();

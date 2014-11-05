@@ -6,7 +6,7 @@
 class SimObject
 {
   public:
-    SimObject(const QString& name, const QList<Job*>& jobs);
+    SimObject(const QString& name, const QList<Job*>& jobs, double frameRate);
     QString name() const { return _name ; }
     double avg_runtime() const { return _avg_runtime; }
     double min_runtime() const { return _min_runtime; }
@@ -17,6 +17,9 @@ class SimObject
   private:
     SimObject();
     QString _name;
+    QList<Job*> _jobs; // sorted job list on simobject w/ highest avg run times
+    double _frameRate;
+    double _cycleTime;
     QVector<double> *_timeStamps;
     QVector<double> *_runTimes;
     double _avg_runtime;
@@ -25,7 +28,6 @@ class SimObject
     double _max_runtime;
     double _max_timestamp;
     double _stddev_runtime;
-    QList<Job*> _jobs; // sorted job list on simobject w/ highest avg run times
     void _do_stats();
 };
 
@@ -33,7 +35,7 @@ class SimObject
 class SimObjects
 {
   public:
-    SimObjects(const QList<Job *> &jobs);
+    SimObjects(const QList<Job *> &jobs, double frameRate);
     ~SimObjects();
     QList<SimObject> list() const; // sorted by highest avg runtime
 

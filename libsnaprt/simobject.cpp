@@ -7,8 +7,9 @@ bool simObjectAvgTimeGreaterThan(const SimObject& a, const SimObject& b)
     return a.avg_runtime() > b.avg_runtime();
 }
 
-SimObject::SimObject(const QString& name , const QList<Job *> &jobs) :
-    _name(name), _jobs(jobs)
+SimObject::SimObject(const QString& name , const QList<Job *> &jobs,
+                     double frameRate) :
+    _name(name), _jobs(jobs), _frameRate(frameRate)
 {
     _timeStamps = new QVector<double>;
     _runTimes = new QVector<double>;
@@ -28,19 +29,74 @@ void SimObject::_do_stats()
     long max_rt = 0 ;
     long min_rt = LONG_MAX;
 
+    // Get begin/end timestamps
+    double begTimeStamp = 0.0;
+    double endTimeStamp = 0;
     TrickCurveModel* curve0 = _jobs.at(0)->curve();
     const TrickModelIterator e0 = curve0->end();
     TrickModelIterator it0 = curve0->begin();
+    bool isFirst = true;
     while (it0 != e0) {
-        double timeStamp = it0.t();
+        if ( isFirst ) {
+            begTimeStamp = it0.t();
+            isFirst = false;
+        }
+        endTimeStamp = it0.t();
+        ++it0;
+    }
+
+    // Determine cycle (freq) of SimObject
+    // Default cycleTime to frameRate (passed in)
+    // If all jobs have higher cycleTimes than
+    // frameRate passed in, set cycleTime to
+    // freq of job with minimum freq
+    _cycleTime = _frameRate;
+    double minCycle = 1.0e20;
+    foreach ( Job* job, _jobs ) {
+        if ( job->freq() < minCycle ) {
+            minCycle = job->freq();
+        }
+    }
+    if ( minCycle > _frameRate ) {
+        _cycleTime = minCycle;
+    }
+
+    // The reason for the complexity
+    // is accounting for jobs on the SimObject
+    // with different frequencies.
+    // SimObjects really have no frequency (cycle time).
+    // This algorithm sums up job run times for a
+    // frame rate guess.
+    QHash<Job*,int> currentJobTimeIdx;
+    foreach ( Job* job, _jobs ) {
+        currentJobTimeIdx.insert(job,0);
+    }
+    double timeStamp = begTimeStamp;
+    long iTimeStamp = (long)(timeStamp*1000000);
+    long iFrameRate = (long)(_cycleTime*1000000);
+    while ( timeStamp < endTimeStamp ) {
+
         _timeStamps->append(timeStamp);
 
+        double nextTime = timeStamp+_cycleTime;
         double rt = 0;
         foreach ( Job* job, _jobs ) {
-            int tidx = job->curve()->indexAtTime(timeStamp);
-            double jrt = job->curve()->begin()[tidx].x();
-            rt += jrt;
+            int tidx = currentJobTimeIdx.value(job);
+            const TrickModelIterator e = job->curve()->end();
+            TrickModelIterator it = job->curve()->begin()[tidx];
+            while ( it != e ) {
+                double t = it.t();
+                if ( t < nextTime-1.0e-9 ) {
+                    rt += it.x();
+                } else {
+                    break;
+                }
+                ++tidx;
+                ++it;
+            }
+            currentJobTimeIdx.insert(job,tidx);
         }
+
         _runTimes->append(rt/1000000.0);
 
         long irt = (long)rt;
@@ -55,7 +111,8 @@ void SimObject::_do_stats()
         sum_squares += irt*irt;
         sum_rt += irt;
 
-        ++it0;
+        iTimeStamp += iFrameRate;
+        timeStamp = ((double)iTimeStamp)/1000000.0;
     }
 
     double ss = (double)sum_squares;
@@ -68,18 +125,18 @@ void SimObject::_do_stats()
     _stddev_runtime = qSqrt(ss/n - s*s/(n*n))/1000000.0 ;
 }
 
-SimObjects::SimObjects(const QList<Job *> &jobs)
+SimObjects::SimObjects(const QList<Job *> &jobs, double frameRate)
 {
     QMap<QString,QList<Job*> > _sim_object_jobs;
 
     foreach ( Job* job, jobs ) {
-        QString simobject_name = job->sim_object_name();
         _sim_object_jobs[job->sim_object_name()].append(job);
     }
 
     foreach ( QString sim_object_name, _sim_object_jobs.keys() ) {
         SimObject* sobject = new SimObject(sim_object_name,
-                                        _sim_object_jobs.value(sim_object_name));
+                                        _sim_object_jobs.value(sim_object_name),
+                                        frameRate);
         _sim_objects.append(sobject);
     }
 }
