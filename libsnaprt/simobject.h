@@ -9,12 +9,22 @@ class SimObject
     SimObject(const QString& name, const QList<Job*>& jobs);
     QString name() const { return _name ; }
     double avg_runtime() const { return _avg_runtime; }
+    double min_runtime() const { return _min_runtime; }
+    double max_runtime() const { return _max_runtime; }
+    double stddev_runtime() const { return _stddev_runtime; }
     QList<Job*> jobs() const { return _jobs; }
 
   private:
     SimObject();
     QString _name;
+    QVector<double> *_timeStamps;
+    QVector<double> *_runTimes;
     double _avg_runtime;
+    double _min_runtime;
+    double _min_timestamp;
+    double _max_runtime;
+    double _max_timestamp;
+    double _stddev_runtime;
     QList<Job*> _jobs; // sorted job list on simobject w/ highest avg run times
     void _do_stats();
 };

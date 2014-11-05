@@ -335,11 +335,14 @@ void Snap::_create_table_sim_objects()
     SnapTable* table = _table_sim_objects;
     tables.append(_table_sim_objects);
 
-    table->insertColumns(0,3);
+    table->insertColumns(0,6);
     table->setHeaderData(0,Qt::Horizontal,QVariant("SimObject"));
     table->setHeaderData(1,Qt::Horizontal,QVariant("AvgTime"));
     table->setHeaderData(1,Qt::Horizontal,QVariant("%.6lf"),Role::Format);
     table->setHeaderData(2,Qt::Horizontal,QVariant("NumJobs"));
+    table->setHeaderData(3,Qt::Horizontal,QVariant("MinTime"));
+    table->setHeaderData(4,Qt::Horizontal,QVariant("MaxTime"));
+    table->setHeaderData(5,Qt::Horizontal,QVariant("Variance"));
 }
 
 void Snap::_set_data_table_sim_objects()
@@ -361,6 +364,9 @@ void Snap::_set_data_table_sim_objects()
         table->setData(table->index(row,0),sname);
         table->setData(table->index(row,1),QVariant(sobject.avg_runtime()));
         table->setData(table->index(row,2),njobs);
+        table->setData(table->index(row,3),QVariant(sobject.min_runtime()));
+        table->setData(table->index(row,4),QVariant(sobject.max_runtime()));
+        table->setData(table->index(row,5),QVariant(sobject.stddev_runtime()));
         row++;
     }
 }
