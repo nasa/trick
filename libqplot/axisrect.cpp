@@ -251,16 +251,36 @@ void AxisRect::_fitYRange()
     double ymin = yrange.lower;
     double ymax = yrange.upper;
 
-    // At least show +/- 10% of outside range
-    double yp = 0.10*qAbs(ymax - ymin) ;
-    ymin = ymin-yp;
-    for ( int ii = 0; ii < 3 ; ++ii) {
-        if ( ymin - ii*yp < 0 ) {
-            ymin = ymin - ii*yp;
-            break;
+    double dy = qAbs(ymax-ymin);
+    if ( dy < 1.0e-24 ) {
+        // Handle flatline (and consider flatline +-1.0e-24)
+        double d = 1.0e-15;
+        if ( qAbs(ymin) > 1.0e-15 ) {
+            // If flatline is not on x-axis (0)
+            // then put a larger bound on it
+            if ( qAbs(ymin) < 1.0 ) {
+                // Flatline is between [-1,1]
+                d = 0.1;
+            } else {
+                d = log10(qAbs(ymin));
+            }
         }
+        ymin -= d;
+        ymax += d;
+    } else {
+        // At least show +/- 10% of outside range
+        double yp = 0.10*dy;
+        ymin = ymin-yp;
+        for ( int ii = 0; ii < 3 ; ++ii) {
+            if ( ymin - ii*yp < 0 ) {
+                ymin = ymin - ii*yp;
+                break;
+            }
+        }
+        ymax = ymax+yp;
     }
-    _yAxis->setRange(ymin,ymax+yp);
+
+    _yAxis->setRange(ymin,ymax);
 }
 
 QCPRange AxisRect::yDataRange(bool& isValidRange)
