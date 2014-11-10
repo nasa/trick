@@ -100,6 +100,7 @@ private:
     QCPRange _yrange;
 
     int _deselectedLayerIdx;
+    void _addFlatLineLabel(QCPPainter* painter);
 
 private slots:
     friend class AxisRect;

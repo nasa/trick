@@ -155,6 +155,12 @@ void TrickCurve::draw(QCPPainter *painter)
             painter->drawPath(_painterPath);
             painter->restore();
         }
+
+        // If flatline curve, add y value label
+        double dy = _painterPath.boundingRect().height();
+        if ( dy < 1.0e-24 ) {
+            _addFlatLineLabel(painter);
+        }
     }
 }
 
@@ -200,6 +206,21 @@ QPainterPath TrickCurve::_scaledPainterPath(const QVector<double> *t,
     }
 
     return path;
+}
+
+// Adds a text label above curve of y-value (assumed flatlined)
+void TrickCurve::_addFlatLineLabel(QCPPainter *painter)
+{
+    QRectF valueRect = _painterPath.boundingRect();
+    double x = qMax(valueRect.left(),keyAxis()->range().lower);
+    double y = valueRect.y();
+    valueRect.moveTo(x,y);
+    QRectF pixelRect = _coordToPixelTransform().mapRect(valueRect);
+    QPointF pix = pixelRect.topLeft();
+    pix.setX(pix.x()+15.0);
+    pix.setY(pix.y()-5.0);
+    QString yStr = QString().sprintf("%.8lf",y);
+    painter->drawText(pix,yStr);
 }
 
 void TrickCurve::_createPainterPath(TrickCurveModel *model)
