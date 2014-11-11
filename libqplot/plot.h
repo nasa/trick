@@ -14,6 +14,7 @@ class Plot : public QCustomPlot
 
 public:
     explicit Plot(QWidget* parent=0);
+    void setTitle(const QString& title);
     void setXAxisLabel(const QString& label);
     void setYAxisLabel(const QString& label);
     AxisRect* axisRect() { return _axisrect; }
@@ -33,6 +34,8 @@ private slots:
     void _slotMouseDoubleClick(QMouseEvent *event);
 
 private:
+    QCPItemText* _titleItem;
+
     AxisRect* _axisrect;
     QCPLayoutElement* _keyEventElement;
     bool _isPlottableClicked;

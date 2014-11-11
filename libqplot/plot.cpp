@@ -2,6 +2,7 @@
 
 Plot::Plot(QWidget* parent) :
     QCustomPlot(parent),
+    _titleItem(0),
     _lastSelectedCurve(0),
     _lastEmittedCurve(0),
     _lastDoubleClickedCurve(0),
@@ -25,12 +26,24 @@ Plot::Plot(QWidget* parent) :
     plotLayout()->clear();
     plotLayout()->addElement(0,0,_axisrect);
 
+    _titleItem = new QCPItemText(this);
+    _titleItem->position->setType(QCPItemPosition::ptAxisRectRatio);
+    _titleItem->position->setAxisRect(_axisrect);
+    _titleItem->position->setCoords(0.5,0.025);
+    _titleItem->setPositionAlignment(Qt::AlignHCenter);
+    _titleItem->setText("");
+
     connect(this,SIGNAL(plottableClick(QCPAbstractPlottable*,QMouseEvent*)),
             this,SLOT(_slotPlottableClick(QCPAbstractPlottable*,QMouseEvent*)));
     connect(this,SIGNAL(plottableDoubleClick(QCPAbstractPlottable*,QMouseEvent*)),
             this,SLOT(_slotPlottableDoubleClick(QCPAbstractPlottable*,QMouseEvent*)));
     connect(this,SIGNAL(mouseDoubleClick(QMouseEvent*)),
             this,SLOT(_slotMouseDoubleClick(QMouseEvent*)));
+}
+
+void Plot::setTitle(const QString &title)
+{
+    _titleItem->setText(title);
 }
 
 void Plot::setXAxisLabel(const QString &label)
