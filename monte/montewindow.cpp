@@ -270,6 +270,10 @@ void MonteWindow::_createDPPages(const QString& dpfile)
             QStandardItem *curvesItem = new QStandardItem("Curves");
             plotItem->appendRow(curvesItem);
 
+            QString title = plot->title();
+            QStandardItem *titleItem = new QStandardItem(title);
+            plotItem->appendRow(titleItem);
+
             foreach (DPCurve* dpcurve, plot->curves() ) {
                 for ( int run = 0; run < numRuns; ++run) {
                     QString curveTitle = QString("Curve_%0").arg(run);

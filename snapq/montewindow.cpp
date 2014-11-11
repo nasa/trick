@@ -239,6 +239,10 @@ void MonteWindow::_createDPPages(const QString& dpfile)
             QStandardItem *curvesItem = new QStandardItem("Curves");
             plotItem->appendRow(curvesItem);
 
+            QString title = plot->title();
+            QStandardItem *titleItem = new QStandardItem(title);
+            plotItem->appendRow(titleItem);
+
             int curveId = -1;
             foreach (DPCurve* dpcurve, plot->curves() ) {
                 ++curveId;
@@ -416,6 +420,9 @@ void MonteWindow::_addPlotOfVarToPageItem(QStandardItem* pageItem,
 
     QStandardItem *curvesItem = new QStandardItem("Curves");
     plotItem->appendRow(curvesItem);
+
+    QStandardItem *titleItem = new QStandardItem("");
+    plotItem->appendRow(titleItem);
 
     for ( int r = 0; r < _monteModel->rowCount(); ++r) {
 

@@ -830,6 +830,11 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 plot->setYAxisLabel(yAxisLabel);
             } else if ( idx.row() == 2 ) {
                 //Curves (do nothing)
+            } else if ( idx.row() == 3 ) {
+                // Plot Title
+                QString title = model()->data(idx).toString();
+                Plot* plot = _idx2Plot(pidx);
+                plot->setTitle(title);
             } else {
                 qDebug() << "snap [bad scoobies]: this should not happen.";
                 qDebug() << "     montewindow.cpp creates a model ";
