@@ -134,29 +134,49 @@ void PlotBookView::setCurrentPage(int pageId)
     _nb->setCurrentIndex(pageId);
 }
 
+//
+// To speed up printing and reduce pdf size,
+// instead of printing directly to the pdf,
+// print pixmaps of curves to pdf
+//
 bool PlotBookView::savePdf(const QString &fileName)
 {
-    QPrinter printer(QPrinter::ScreenResolution);
-    printer.setOutputFileName(fileName);
-    printer.setOutputFormat(QPrinter::PdfFormat);
-    printer.setFullPage(true);
+    //
+    // Init pdf printer/painter
+    //
+    QPrinter pdfPrinter(QPrinter::ScreenResolution);
+    pdfPrinter.setOutputFileName(fileName);
+    pdfPrinter.setOutputFormat(QPrinter::PdfFormat);
+    pdfPrinter.setFullPage(true);
+    pdfPrinter.setPaperSize(QSizeF(1200,900),QPrinter::DevicePixel);
     //printer.setPaperSize(QPrinter::A4);
-    printer.setPaperSize(QSizeF(1200,900),QPrinter::DevicePixel);
     //printer.setOrientation(QPrinter::Landscape);
-
-    QCPPainter printpainter;
-    if (! printpainter.begin(&printer)) {
+    QCPPainter pdfPainter;
+    pdfPainter.setMode(QCPPainter::pmVectorized);
+    pdfPainter.setMode(QCPPainter::pmNoCaching);
+    pdfPainter.setMode(QCPPainter::pmNonCosmetic,false);
+    QRect printerRect = QRect(0,0,pdfPrinter.width(),pdfPrinter.height());
+    if (! pdfPainter.begin(&pdfPrinter)) {
         return false;
     }
-    printpainter.setMode(QCPPainter::pmVectorized);
-    printpainter.setMode(QCPPainter::pmNoCaching);
-    printpainter.setMode(QCPPainter::pmNonCosmetic,false);
-    QRect printerRect = QRect(0,0,printer.width(),printer.height());
-    printpainter.setWindow(printerRect);
-    printpainter.fillRect(printerRect, QBrush(Qt::white));
+    pdfPainter.setWindow(printerRect);
+
+    //
+    // Init pixmap printer/painter
+    //
+    QPixmap pixPrinter(1200,900);
+    QCPPainter pixPainter;
+    pixPainter.setMode(QCPPainter::pmNoCaching);
+    pixPainter.setMode(QCPPainter::pmNonCosmetic,false);
+    if (! pixPainter.begin(&pixPrinter)) {
+        pdfPainter.end();
+        return false;
+    }
+    pixPainter.setWindow(printerRect);
 
     for ( int pageId = 0; pageId < _pages.size(); ++pageId) {
 
+        pixPainter.fillRect(printerRect, QBrush(Qt::white));
         QWidget* page = _pages.at(pageId);
         QVector<Plot*> plots = _page2Plots.value(page);
         QVector<QRect> origPlotViewports;
@@ -165,8 +185,7 @@ bool PlotBookView::savePdf(const QString &fileName)
             plot->setViewport(printerRect);
         }
 
-        // This is hackish and I'm afraid a comment would only confuse, but here
-        // goes. Plotbookview's page is a Qt QGrid of QCustomplot Widgets.
+        // Plotbookview's page is a Qt QGrid of QCustomplot Widgets.
         // QCustomPlot can make a "page", but for interactive use,
         // I found it better to use Qt's QGrid.  When printing it is better
         // to use QCustomPlot's layout.  The following switch statement
@@ -175,13 +194,13 @@ bool PlotBookView::savePdf(const QString &fileName)
         {
         case 1:
         {
-            QRect plotRect(0,0,printer.width(),printer.height());
+            QRect plotRect(0,0,pdfPrinter.width(),pdfPrinter.height());
             plots.at(0)->axisRect()->setOuterRect(plotRect);
             break;
         }
         case 2:
         {
-            QRect plotRect(0,0,printer.width(),printer.height()/2);
+            QRect plotRect(0,0,pdfPrinter.width(),pdfPrinter.height()/2);
             plots.at(0)->plotLayout()->insertRow(1);
             plots.at(0)->axisRect()->setOuterRect(plotRect);
             plots.at(1)->plotLayout()->insertRow(0);
@@ -190,7 +209,7 @@ bool PlotBookView::savePdf(const QString &fileName)
         }
         case 3:
         {
-            QRect plotRect(0,0,printer.width(),printer.height()/3);
+            QRect plotRect(0,0,pdfPrinter.width(),pdfPrinter.height()/3);
 
             plots.at(0)->plotLayout()->insertRow(1);
             plots.at(0)->plotLayout()->insertRow(1);
@@ -207,7 +226,7 @@ bool PlotBookView::savePdf(const QString &fileName)
         }
         case 4:
         {
-            QRect plotRect(0,0,printer.width()/2,printer.height()/2);
+            QRect plotRect(0,0,pdfPrinter.width()/2,pdfPrinter.height()/2);
 
             plots.at(0)->plotLayout()->insertRow(1);
             plots.at(0)->plotLayout()->insertColumn(1);
@@ -228,7 +247,7 @@ bool PlotBookView::savePdf(const QString &fileName)
         }
         case 5:
         {
-            QRect plotRect(0,0,printer.width()/2,printer.height()/3);
+            QRect plotRect(0,0,pdfPrinter.width()/2,pdfPrinter.height()/3);
 
             plots.at(0)->plotLayout()->insertRow(1);
             plots.at(0)->plotLayout()->insertRow(1);
@@ -250,7 +269,7 @@ bool PlotBookView::savePdf(const QString &fileName)
             plots.at(3)->plotLayout()->insertColumn(0);
             plots.at(3)->axisRect()->setOuterRect(plotRect);
 
-            plotRect.setWidth(printer.width());
+            plotRect.setWidth(pdfPrinter.width());
             plots.at(4)->plotLayout()->insertRow(0);
             plots.at(4)->plotLayout()->insertRow(0);
             plots.at(4)->axisRect()->setOuterRect(plotRect);
@@ -258,7 +277,7 @@ bool PlotBookView::savePdf(const QString &fileName)
         }
         case 6:
         {
-            QRect plotRect(0,0,printer.width()/2,printer.height()/3);
+            QRect plotRect(0,0,pdfPrinter.width()/2,pdfPrinter.height()/3);
 
             plots.at(0)->plotLayout()->insertRow(1);
             plots.at(0)->plotLayout()->insertRow(1);
@@ -293,7 +312,7 @@ bool PlotBookView::savePdf(const QString &fileName)
         }
         case 7:
         {
-            QRect plotRect(0,0,printer.width()/2,printer.height()/4);
+            QRect plotRect(0,0,pdfPrinter.width()/2,pdfPrinter.height()/4);
 
             plots.at(0)->plotLayout()->insertRow(1);
             plots.at(0)->plotLayout()->insertRow(1);
@@ -331,7 +350,7 @@ bool PlotBookView::savePdf(const QString &fileName)
             plots.at(5)->plotLayout()->insertColumn(0);
             plots.at(5)->axisRect()->setOuterRect(plotRect);
 
-            plotRect.setWidth(printer.width());
+            plotRect.setWidth(pdfPrinter.width());
             plots.at(6)->plotLayout()->insertRow(0);
             plots.at(6)->plotLayout()->insertRow(0);
             plots.at(6)->plotLayout()->insertRow(0);
@@ -346,19 +365,23 @@ bool PlotBookView::savePdf(const QString &fileName)
         // Draw then restore plot layout
         int plotId = 0 ;
         foreach (Plot* plot, plots ) {
-            plot->drawMe(&printpainter);
+            plot->drawMe(&pixPainter);
             plot->setViewport(origPlotViewports.at(plotId));
             plot->plotLayout()->simplify();  // get rid of empty cells
             plotId++;
         }
 
+        // Draw pixmap on current page in pdf booklet
+        pdfPainter.drawPixmap(0,0,pixPrinter);
+
         // Insert new page in pdf booklet
         if ( pageId < _pages.size()-1 ) {
-            printer.newPage();
+            pdfPrinter.newPage();
         }
     }
 
-    printpainter.end();
+    pdfPainter.end();
+    pixPainter.end();
 
     return true;
 }
