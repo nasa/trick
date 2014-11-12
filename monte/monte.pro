@@ -23,11 +23,13 @@ RCC_DIR     = $$BUILDDIR/rcc
 UI_DIR      = $$BUILDDIR/ui
 
 SOURCES += main.cpp \
-    montewindow.cpp
+    montewindow.cpp \
+    monteinputsview.cpp
 
     
 HEADERS += \
-    montewindow.h
+    montewindow.h \
+    monteinputsview.h
 
 OTHER_FILES += 
 

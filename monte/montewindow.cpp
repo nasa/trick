@@ -1,5 +1,5 @@
-
 #include "montewindow.h"
+#include "monteinputsview.h"
 
 #include <QDockWidget>
 #include <QTabWidget>
@@ -42,7 +42,6 @@ MonteWindow::MonteWindow(const QString &montedir,
     _plotSelectModel = new QItemSelectionModel(_plotModel);
     _monte = new Monte(_montedir,_beginRun,_endRun);
     _monteModel = new MonteModel(_monte);
-    _monteInputsModel = _monte->inputModel();
 
     //
     // Vars Model for list of recorded trick vars (params)
@@ -144,32 +143,6 @@ MonteWindow::MonteWindow(const QString &montedir,
     //_plotTreeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     //lsplit->addWidget(_plotTreeView);
 
-    //
-    // Monte inputs view
-    //
-    _monteInputsView = new QTableView(lsplit);
-    _monteInputsView->setModel(_monteInputsModel);
-    _monteInputsView->setSortingEnabled(true);
-    _monteInputsView->sortByColumn(0,Qt::AscendingOrder);
-    _monteInputsView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    lsplit->addWidget(_monteInputsView);
-    _monteInputsView->setTextElideMode(Qt::ElideNone);
-    QHeaderView* headerView = _monteInputsView->horizontalHeader();
-    headerView->setTextElideMode(Qt::ElideLeft);
-    headerView->setResizeMode(QHeaderView::ResizeToContents);
-    connect(headerView,SIGNAL(sectionClicked(int)),
-            this,SLOT(_monteInputsViewHeaderSectionClicked(int)));
-    _monteInputsSelectModel = new QItemSelectionModel(_monteInputsModel);
-    _monteInputsView->setSelectionModel(_monteInputsSelectModel);
-    _monteInputsView->setSelectionMode(QAbstractItemView::SingleSelection);
-    _monteInputsView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    _monteInputsView->setFocusPolicy(Qt::ClickFocus);
-    _monteInputsView->setTabKeyNavigation(false);
-    _monteInputsView->verticalHeader()->hide();
-    connect(_monteInputsSelectModel,
-            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this,
-            SLOT(_monteInputsSelectModelCurrentChanged(QModelIndex,QModelIndex)));
 
     //
     // Create Plot Tabbed Notebook View Widget
@@ -191,6 +164,13 @@ MonteWindow::MonteWindow(const QString &montedir,
             this,
             SLOT(_plotSelectModelCurrentChanged(QModelIndex,QModelIndex)));
     msplit->addWidget(_plotBookView);
+
+    //
+    // Monte inputs view
+    //
+    _monteInputsView = new MonteInputsView(_plotBookView,lsplit);
+    _monteInputsView->setModel(_monte->inputModel());
+    lsplit->addWidget(_monteInputsView);
 
     // Size main window
     QList<int> sizes;
@@ -543,7 +523,7 @@ void MonteWindow::_selectCurrentRunOnPageItem(QStandardItem* pageItem)
 int MonteWindow::currSelectedRun()
 {
     int runId = -1;
-    QItemSelection currSel = _plotSelectModel->selection();
+    QItemSelection currSel = _monteInputsView->selectionModel()->selection();
     foreach ( QModelIndex i , currSel.indexes() ) {
         if ( _isCurveIdx(i) ) {
             runId = i.row();
@@ -552,11 +532,12 @@ int MonteWindow::currSelectedRun()
     }
     if ( runId < 0 ) {
         // If no curve selected in plotSelectModel, try monteInput selection
-        QItemSelection monteInputSel = _monteInputsSelectModel->selection();
+        QItemSelection monteInputSel = _monteInputsView->
+                                               selectionModel()->selection();
         if ( monteInputSel.size() > 0 ) {
             QModelIndex selIdx = monteInputSel.indexes().at(0);
             bool ok = false;
-            runId = _monteInputsModel->data(selIdx).toInt(&ok);
+            runId = _monteInputsView->model()->data(selIdx).toInt(&ok);
             if ( !ok ) {
                 runId = -1;
             }
@@ -594,7 +575,8 @@ void MonteWindow::_monteInputsViewHeaderSectionClicked(int section)
 {
     Q_UNUSED(section);
 
-    QModelIndexList selIdxs = _monteInputsSelectModel->selectedIndexes();
+    QModelIndexList selIdxs = _monteInputsView->
+                                       selectionModel()->selectedIndexes();
     if ( selIdxs.size() > 0 ) {
         QModelIndex idx = selIdxs.at(0);
         _monteInputsView->scrollTo(idx, QAbstractItemView::PositionAtCenter);
@@ -623,7 +605,7 @@ void MonteWindow::_plotSelectModelSelectionChanged(const QItemSelection &currSel
         // Deselecting a curve: so,
         //     1. deselect run in monte selection too
         //     2. deselect vars
-        _monteInputsSelectModel->clear();
+        _monteInputsView->selectionModel()->clear();
         _varsSelectModel->clear();
     }
 
@@ -638,20 +620,20 @@ void MonteWindow::_plotSelectModelSelectionChanged(const QItemSelection &currSel
 
         // Since model could be sorted, search for row with runId.
         // Assuming that runId is in column 0.
-        int rc = _monteInputsModel->rowCount();
+        int rc = _monteInputsView->model()->rowCount();
         int runRow = 0 ;
         for ( runRow = 0; runRow < rc; ++runRow) {
-            QModelIndex runIdx = _monteInputsModel->index(runRow,0);
-            if ( runId == _monteInputsModel->data(runIdx).toInt() ) {
+            QModelIndex runIdx = _monteInputsView->model()->index(runRow,0);
+            if ( runId == _monteInputsView->model()->data(runIdx).toInt() ) {
                 break;
             }
         }
 
-        QModelIndex midx = _monteInputsModel->index(runRow,0);
-        _monteInputsSelectModel->select(midx,
+        QModelIndex midx = _monteInputsView->model()->index(runRow,0);
+        _monteInputsView->selectionModel()->select(midx,
                                        QItemSelectionModel::ClearAndSelect|
                                        QItemSelectionModel::Rows);
-        _monteInputsSelectModel->setCurrentIndex(midx,
+        _monteInputsView->selectionModel()->setCurrentIndex(midx,
                                        QItemSelectionModel::ClearAndSelect|
                                        QItemSelectionModel::Rows);
     }

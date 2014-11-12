@@ -82,9 +82,7 @@ private:
     bool _isRUN(const QString& fp);
     bool _isMONTE(const QString& fp);
 
-    QStandardItemModel* _monteInputsModel; // from monte_runs file
     QTableView* _monteInputsView ;
-    QItemSelectionModel* _monteInputsSelectModel;
 
     QString _descrPlotTitle(DPPlot* plot);
 
