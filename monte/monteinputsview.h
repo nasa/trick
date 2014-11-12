@@ -10,6 +10,7 @@ class MonteInputsView : public QTableView
 public:
     explicit MonteInputsView(PlotBookView* plotBookView, QWidget *parent = 0);
     virtual void setModel(QAbstractItemModel *model);
+    int currSelectedRun();
 
 private:
     PlotBookView* _plotBookView;

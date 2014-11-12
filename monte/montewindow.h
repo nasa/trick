@@ -21,6 +21,7 @@
 #include <QStringList>
 #include <QFileDialog>
 
+#include "monteinputsview.h"
 #include "libsnapdata/monte.h"
 #include "libqplot/dp.h"
 #include "libqplot/plotbookview.h"
@@ -82,7 +83,7 @@ private:
     bool _isRUN(const QString& fp);
     bool _isMONTE(const QString& fp);
 
-    QTableView* _monteInputsView ;
+    MonteInputsView* _monteInputsView ;
 
     QString _descrPlotTitle(DPPlot* plot);
 
@@ -92,7 +93,6 @@ private:
     QModelIndex _findSinglePlotPageWithCurve(const QString& curveName);
 
     void _selectCurrentRunOnPageItem(QStandardItem* pageItem);
-    int currSelectedRun();
 
     bool _isCurveIdx(const QModelIndex& idx) const;
 

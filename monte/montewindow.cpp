@@ -493,7 +493,7 @@ QModelIndex MonteWindow::_findSinglePlotPageWithCurve(const QString &curveName)
 
 void MonteWindow::_selectCurrentRunOnPageItem(QStandardItem* pageItem)
 {
-    int runId = currSelectedRun();
+    int runId = _monteInputsView->currSelectedRun();
     if ( runId >= 0 ) {
         QItemSelection currSel = _plotSelectModel->selection();
         QModelIndex pageIdx = _plotModel->indexFromItem(pageItem);
@@ -520,31 +520,6 @@ void MonteWindow::_selectCurrentRunOnPageItem(QStandardItem* pageItem)
     }
 }
 
-int MonteWindow::currSelectedRun()
-{
-    int runId = -1;
-    QItemSelection currSel = _monteInputsView->selectionModel()->selection();
-    foreach ( QModelIndex i , currSel.indexes() ) {
-        if ( _isCurveIdx(i) ) {
-            runId = i.row();
-            break;
-        }
-    }
-    if ( runId < 0 ) {
-        // If no curve selected in plotSelectModel, try monteInput selection
-        QItemSelection monteInputSel = _monteInputsView->
-                                               selectionModel()->selection();
-        if ( monteInputSel.size() > 0 ) {
-            QModelIndex selIdx = monteInputSel.indexes().at(0);
-            bool ok = false;
-            runId = _monteInputsView->model()->data(selIdx).toInt(&ok);
-            if ( !ok ) {
-                runId = -1;
-            }
-        }
-    }
-    return runId;
-}
 
 // _plotModel will have a curve on a branch like this:
 //           root->page->plot->curves->curvei
