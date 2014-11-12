@@ -1,6 +1,7 @@
 #include "trickmodel.h"
 #include <stdio.h>
 #include <stdexcept>
+#include <unistd.h>
 
 QString TrickModel::_err_string;
 QTextStream TrickModel::_err_stream(&TrickModel::_err_string);
