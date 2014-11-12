@@ -1,4 +1,5 @@
 #include "snapwindow.h"
+#include <unistd.h>   // used for sleep()
 
 #include <QDockWidget>
 #include <QTabWidget>
