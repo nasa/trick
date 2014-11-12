@@ -70,7 +70,7 @@ private:
     void _updateDPSelection(const QModelIndex& pageIdx);
 
     QStandardItemModel* _plotModel;
-    QTreeView* _plotTreeView ;
+    //QTreeView* _plotTreeView ;
     PlotBookView* _plotBookView;
     QItemSelectionModel* _plotSelectModel;
     int _currQPIdx;
@@ -105,9 +105,6 @@ private slots:
                               const QItemSelection& currVarSelection,
                               const QItemSelection& prevVarSelection);
      void _varsSearchBoxTextChanged(const QString& rx);
-     void _monteInputsSelectModelCurrentChanged(const QModelIndex& curr,
-                                     const QModelIndex& prev);
-     void _monteInputsViewHeaderSectionClicked(int section);
      void _plotSelectModelSelectionChanged(const QItemSelection& currSel,
                                           const QItemSelection& prevSel);
      void _plotSelectModelCurrentChanged(const QModelIndex& currIdx,

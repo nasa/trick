@@ -570,32 +570,6 @@ void MonteWindow::_dpSearchBoxTextChanged(const QString &rx)
     _dpFilterModel->setFilterRegExp(rx);
 }
 
-
-void MonteWindow::_monteInputsViewHeaderSectionClicked(int section)
-{
-    Q_UNUSED(section);
-
-    QModelIndexList selIdxs = _monteInputsView->
-                                       selectionModel()->selectedIndexes();
-    if ( selIdxs.size() > 0 ) {
-        QModelIndex idx = selIdxs.at(0);
-        _monteInputsView->scrollTo(idx, QAbstractItemView::PositionAtCenter);
-    }
-}
-
-void MonteWindow::_monteInputsSelectModelCurrentChanged(const QModelIndex &curr,
-                                             const QModelIndex &prev)
-{
-    Q_UNUSED(prev);
-
-    if ( ! curr.model() ) return ;
-
-    QModelIndex runIdx = curr.model()->index(curr.row(),0);
-    int runId = curr.model()->data(runIdx).toInt();
-    _plotBookView->selectRun(runId);
-}
-
-
 void MonteWindow::_plotSelectModelSelectionChanged(const QItemSelection &currSel,
                                                  const QItemSelection &prevSel)
 {
