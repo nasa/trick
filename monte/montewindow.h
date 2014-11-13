@@ -25,7 +25,7 @@
 #include "libsnapdata/monte.h"
 #include "libqplot/dp.h"
 #include "libqplot/plotbookview.h"
-#include "libqplot/dpfilterproxymodel.h"
+#include "libqplot/dptreewidget.h"
 
 #include "libsnapdata/timeit_linux.h"
 
@@ -64,10 +64,7 @@ private:
     QListView* _varsListView ;
     void _updateVarSelection(const QModelIndex& pageIdx);
 
-    QFileSystemModel* _dpModel ;
-    DPFilterProxyModel* _dpFilterModel;
-    QTreeView* _dpTreeView ;
-    QLineEdit* _dpSearchBox;
+    DPTreeWidget* _dpTreeWidget;
     void _updateDPSelection(const QModelIndex& pageIdx);
 
     QStandardItemModel* _plotModel;
@@ -78,8 +75,6 @@ private:
     bool _isSkip; // Hack City :(
 
     MonteModel* _monteModel;
-    void _createDPPages(const QString& dpfile);
-    bool _isDP(const QString& fp);
     bool _isRUN(const QString& fp);
     bool _isMONTE(const QString& fp);
 
@@ -97,10 +92,6 @@ private:
     bool _isCurveIdx(const QModelIndex& idx) const;
 
 private slots:
-     void _dpTreeViewClicked(const QModelIndex& idx);
-     void _dpTreeViewCurrentChanged(const QModelIndex &currIdx,
-                                           const QModelIndex &prevIdx);
-     void _dpSearchBoxTextChanged(const QString& rx);
      void _varsSelectModelSelectionChanged(
                               const QItemSelection& currVarSelection,
                               const QItemSelection& prevVarSelection);

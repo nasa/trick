@@ -26,6 +26,7 @@ SOURCES += \
     plot.cpp  \
     trickcurve.cpp \
     plotbookview.cpp \
+    dptreewidget.cpp \
     dpfilterproxymodel.cpp
 
 HEADERS += \
@@ -35,6 +36,7 @@ HEADERS += \
     plot.h \
     trickcurve.h \
     plotbookview.h \
+    dptreewidget.h \
     dpfilterproxymodel.h
 
 

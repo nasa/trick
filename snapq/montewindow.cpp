@@ -73,25 +73,6 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     _nbDPVars->setAttribute(Qt::WA_AlwaysShowToolTips, false);
 
     //
-    // DP File/Sys Model and Filter Proxy Model
-    //
-    QDir topdir(_montedir);
-    topdir.cdUp();
-    _dpModel = new QFileSystemModel;
-    QModelIndex dpRootIdx = _dpModel->setRootPath(topdir.path());
-    QStringList filters;
-    filters  << "DP_*" << "SET_*"; // _dpFilterModel does additional filtering
-    _dpModel->setNameFilters(filters);
-    _dpModel->setNameFilterDisables(false);
-    _dpModel->setFilter(QDir::Dirs|QDir::Files);
-    _dpFilterModel = new DPFilterProxyModel(_monteModel);
-    _dpFilterModel->setDynamicSortFilter(true);
-    _dpFilterModel->setSourceModel(_dpModel);
-    QRegExp dprx(QString(".*"));  // DP_ and SET_ are filtered by _dpModel
-    _dpFilterModel->setFilterRegExp(dprx);
-    _dpFilterModel->setFilterKeyColumn(0);
-
-    //
     // Vars view (list of searchable trick recorded vars)
     //
     QFrame* frameVars = new QFrame(lsplit);
@@ -115,32 +96,13 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
             SLOT(_varsSelectModelSelectionChanged(QItemSelection,QItemSelection)));
 
     //
-    // DP TreeView with Search Box
+    // DP Tree Widget Tab in Vars/DP Notebook
     //
-    QFrame* dpFrame = new QFrame(lsplit);
-    QGridLayout* dpGridLayout = new QGridLayout(dpFrame);
-    _dpSearchBox = new QLineEdit(dpFrame);
-    connect(_dpSearchBox,SIGNAL(textChanged(QString)),
-            this,SLOT(_dpSearchBoxTextChanged(QString)));
-    dpGridLayout->addWidget(_dpSearchBox,0,0);
-    _dpTreeView = new QTreeView(dpFrame);
-    _dpTreeView->setModel(_dpFilterModel);
-    QModelIndex proxyRootIdx = _dpFilterModel->mapFromSource(dpRootIdx);
-    _dpTreeView->setRootIndex(proxyRootIdx);
-    _dpTreeView->setFocusPolicy(Qt::ClickFocus);
-    dpGridLayout->addWidget(_dpTreeView,1,0);
-    connect(_dpTreeView,SIGNAL(clicked(QModelIndex)),
-            this, SLOT(_dpTreeViewClicked(QModelIndex)));
-    connect(_dpTreeView->selectionModel(),
-            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(_dpTreeViewCurrentChanged(QModelIndex,QModelIndex)));
-    _nbDPVars->addTab(dpFrame,"DP");
-
-    // This doesn't work :( Can't hide timestamp column
-    for ( int col = 1; col < _dpModel->columnCount(); ++col) {
-        _dpTreeView->hideColumn(col);
-    }
-
+    QFrame* frameDP = new QFrame(lsplit);
+    _dpTreeWidget = new  DPTreeWidget(_montedir,_monteModel,
+                                      _plotModel,_plotSelectModel,
+                                      frameDP);
+    _nbDPVars->addTab(frameDP,"DP");
 
     //
     // For Tim, show tree view of book of plots
@@ -186,7 +148,6 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
 MonteWindow::~MonteWindow()
 {
     delete _varsFilterModel;
-    delete _dpModel;
     delete _monteModel;
     delete _plotModel;
 }
@@ -201,88 +162,6 @@ void MonteWindow::createMenu()
     connect(_pdfAction, SIGNAL(triggered()),this, SLOT(_savePdf()));
     connect(_exitAction, SIGNAL(triggered()),this, SLOT(close()));
     setMenuWidget(_menuBar);
-}
-
-//
-// Monte Carlo Plot Page Widget
-//
-void MonteWindow::_createDPPages(const QString& dpfile)
-{
-    QStandardItem *rootItem = _plotModel->invisibleRootItem();
-    QCursor currCursor = this->cursor();
-    this->setCursor(QCursor(Qt::WaitCursor));
-
-    DPProduct dp(dpfile);
-    int numRuns = _monteModel->rowCount();
-    int pageNum = 0 ;
-    foreach (DPPage* page, dp.pages() ) {
-        QString pageTitle = dpfile;
-        if ( pageNum > 0 ) {
-            pageTitle += QString("_%0").arg(pageNum);
-        }
-        QStandardItem *pageItem = new QStandardItem(pageTitle);
-        rootItem->appendRow(pageItem);
-        foreach (DPPlot* plot, page->plots() ) {
-
-            QString plotTitle = _descrPlotTitle(plot);
-            QStandardItem *plotItem = new QStandardItem(plotTitle);
-            pageItem->appendRow(plotItem);
-
-            QString xAxisLabel = plot->xAxisLabel();
-            QStandardItem *xAxisLabelItem = new QStandardItem(xAxisLabel);
-            plotItem->appendRow(xAxisLabelItem);
-
-            QString yAxisLabel = plot->yAxisLabel();
-            QStandardItem *yAxisLabelItem = new QStandardItem(yAxisLabel);
-            plotItem->appendRow(yAxisLabelItem);
-
-            QStandardItem *curvesItem = new QStandardItem("Curves");
-            plotItem->appendRow(curvesItem);
-
-            QString title = plot->title();
-            QStandardItem *titleItem = new QStandardItem(title);
-            plotItem->appendRow(titleItem);
-
-            int curveId = -1;
-            foreach (DPCurve* dpcurve, plot->curves() ) {
-                ++curveId;
-                for ( int run = 0; run < numRuns; ++run) {
-                    QString curveTitle = QString("Curve_%0_%1").
-                                         arg(curveId).arg(run);
-                    QStandardItem *curveItem = new QStandardItem(curveTitle);
-                    curvesItem->appendRow(curveItem);
-
-                    QString tName = dpcurve->t()->name();
-                    QString xName = dpcurve->x()->name();
-                    QString yName = dpcurve->y()->name();
-                    QString tUnit = dpcurve->t()->unit();
-                    QString xUnit = dpcurve->x()->unit();
-                    QString yUnit = dpcurve->y()->unit();
-
-                    QStandardItem *tItem       = new QStandardItem(tName);
-                    QStandardItem *xItem       = new QStandardItem(xName);
-                    QStandardItem *yItem       = new QStandardItem(yName);
-                    QStandardItem *tUnitItem   = new QStandardItem(tUnit);
-                    QStandardItem *xUnitItem   = new QStandardItem(xUnit);
-                    QStandardItem *yUnitItem   = new QStandardItem(yUnit);
-                    QStandardItem *runIDItem   = new QStandardItem(
-                                                     QString("%0").arg(run));
-
-                    curveItem->appendRow(tItem);
-                    curveItem->appendRow(xItem);
-                    curveItem->appendRow(yItem);
-                    curveItem->appendRow(tUnitItem);
-                    curveItem->appendRow(xUnitItem);
-                    curveItem->appendRow(yUnitItem);
-                    curveItem->appendRow(runIDItem);
-                }
-            }
-            _selectCurrentRunOnPageItem(pageItem);
-        }
-        pageNum++;
-    }
-
-    this->setCursor(currCursor);
 }
 
 //
@@ -307,44 +186,6 @@ QStandardItemModel *MonteWindow::_createVarsModel(MonteModel *mm)
     }
 
     return pm;
-}
-
-void MonteWindow::_dpTreeViewClicked(const QModelIndex &idx)
-{
-    Q_UNUSED(idx);
-
-    TimeItLinux t; t.start();
-    QModelIndexList idxs =  _dpTreeView->selectionModel()->selectedRows();
-    foreach ( QModelIndex idx, idxs ) {
-        QModelIndex srcIdx = _dpFilterModel->mapToSource(idx);
-        QString fn = _dpModel->fileName(srcIdx);
-        QString fp = _dpModel->filePath(srcIdx);
-        if ( _isDP(fp) ) {
-            bool isCreated = false;
-            for ( int row = 0; row < _plotModel->rowCount(); ++row) {
-                QModelIndex pageIdx = _plotModel->index(row,0);
-                QString pageName = _plotModel->data(pageIdx).toString();
-                if ( pageName == fp ) {
-                    _plotSelectModel->setCurrentIndex(pageIdx,
-                                                   QItemSelectionModel::Select);
-                    isCreated = true;
-                    break;
-                }
-            }
-            if ( !isCreated ) {
-                _createDPPages(fp);
-            }
-        }
-        QString msg = fn + " t=";
-        t.snap(msg.toAscii().constData()); /* uncomment to see load time */
-    }
-}
-
-void MonteWindow::_dpTreeViewCurrentChanged(const QModelIndex &currIdx,
-                                            const QModelIndex &prevIdx)
-{
-    Q_UNUSED(prevIdx);
-    _dpTreeViewClicked(currIdx);
 }
 
 void MonteWindow::_varsSelectModelSelectionChanged(const QItemSelection &currVarSelection,
@@ -546,12 +387,6 @@ void MonteWindow::_varsSearchBoxTextChanged(const QString &rx)
     _varsFilterModel->setFilterRegExp(rx);
 }
 
-void MonteWindow::_dpSearchBoxTextChanged(const QString &rx)
-{
-    _dpTreeView->expandAll();
-    _dpFilterModel->setFilterRegExp(rx);
-}
-
 
 void MonteWindow::_plotSelectModelSelectionChanged(const QItemSelection &currSel,
                                                  const QItemSelection &prevSel)
@@ -637,6 +472,7 @@ void MonteWindow::_updateVarSelection(const QModelIndex& pageIdx)
 
 void MonteWindow::_updateDPSelection(const QModelIndex &pageIdx)
 {
+#if 0
     _nbDPVars->setCurrentIndex(1); // set tabbed notebook page to DP page
 
     QString dpPath = pageIdx.model()->data(pageIdx).toString();
@@ -647,19 +483,7 @@ void MonteWindow::_updateDPSelection(const QModelIndex &pageIdx)
                     dpProxyIdx,
                     QItemSelectionModel::ClearAndSelect);
     }
-}
-
-bool MonteWindow::_isDP(const QString& fp)
-{
-    bool ret = false ;
-    QFileInfo fi(fp);
-    if ( (fi.baseName().left(3) == "DP_" && fi.suffix() == "xml" ) ) {
-        ret = true;
-    } else if ( fi.baseName().left(3) == "DP_" &&
-                fi.suffix().isEmpty() && fi.isFile()) {
-        ret = true;
-    }
-    return ret;
+#endif
 }
 
 bool MonteWindow::_isRUN(const QString &fp)
@@ -672,44 +496,6 @@ bool MonteWindow::_isMONTE(const QString &fp)
 {
     QFileInfo fi(fp);
     return ( fi.baseName().left(6) == "MONTE_" && fi.isDir() ) ;
-}
-
-QString MonteWindow::_descrPlotTitle(DPPlot *plot)
-{
-    QString plotTitle = "Plot_";
-    if ( plot->title() != "Plot" )  {
-        plotTitle += plot->title();
-    } else {
-        QStringList vars;
-        foreach ( DPCurve* curve, plot->curves() ) {
-            vars.append(curve->y()->name());
-        }
-        QString var0 = vars.at(0);
-        int dotCnt = 0 ;
-        QString sub;
-        for ( int i = 1 ; i < var0.size(); ++i) {
-            sub = var0.right(i);
-            if ( sub.at(0) == '.' ) {
-                dotCnt++;
-            }
-            bool is = true;
-            foreach ( QString var, vars ) {
-                if ( ! var.endsWith(sub) ) {
-                    is = false;
-                    break;
-                }
-            }
-            if ( ! is || dotCnt == 2 ) {
-                break;
-            }
-        }
-        if ( dotCnt == 2 ) {
-            sub.remove(0,1);
-        }
-        plotTitle += sub;
-    }
-
-    return plotTitle;
 }
 
 void MonteWindow::_savePdf()
