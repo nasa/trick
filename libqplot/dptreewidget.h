@@ -1,14 +1,13 @@
 #ifndef DPTREEWIDGET_H
 #define DPTREEWIDGET_H
 
-#include <QFrame>
 #include <QGridLayout>
 #include <QLineEdit>
 #include <QTreeView>
 #include <QFileSystemModel>
 #include <QFileInfo>
-#include "dpfilterproxymodel.h"
 #include "dp.h"
+#include "dpfilterproxymodel.h"
 #include "libsnapdata/montemodel.h"
 
 // Data Products TreeView with Search Box
@@ -20,7 +19,7 @@ public:
     explicit DPTreeWidget(const QString& dirName,
                           MonteModel* monteModel,
                           QStandardItemModel* plotModel,
-                          QItemSelectionModel*  _plotSelectModel,
+                          QItemSelectionModel*  plotSelectModel,
                           QWidget *parent = 0);
     ~DPTreeWidget();
     

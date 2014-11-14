@@ -21,11 +21,12 @@
 #include <QStringList>
 #include <QFileDialog>
 
-#include "monteinputsview.h"
 #include "libsnapdata/monte.h"
 #include "libqplot/dp.h"
 #include "libqplot/plotbookview.h"
 #include "libqplot/dptreewidget.h"
+#include "libqplot/varswidget.h"
+#include "libqplot/monteinputsview.h"
 
 #include "libsnapdata/timeit_linux.h"
 
@@ -58,10 +59,7 @@ private:
 
     QStandardItemModel* _createVarsModel(MonteModel* mm);
     QStandardItemModel* _varsModel;
-    QSortFilterProxyModel* _varsFilterModel;
-    QItemSelectionModel* _varsSelectModel;
-    QLineEdit* _varsSearchBox;
-    QListView* _varsListView ;
+    VarsWidget* _varsWidget;
     void _updateVarSelection(const QModelIndex& pageIdx);
 
     DPTreeWidget* _dpTreeWidget;
@@ -71,8 +69,6 @@ private:
     //QTreeView* _plotTreeView ;
     PlotBookView* _plotBookView;
     QItemSelectionModel* _plotSelectModel;
-    int _currQPIdx;
-    bool _isSkip; // Hack City :(
 
     MonteModel* _monteModel;
     bool _isRUN(const QString& fp);
@@ -80,22 +76,11 @@ private:
 
     MonteInputsView* _monteInputsView ;
 
-    QString _descrPlotTitle(DPPlot* plot);
-
-    QStandardItem* _createQPItem();
-    void _addPlotOfVarToPageItem(QStandardItem* pageItem,
-                          const QModelIndex &varIdx);
-    QModelIndex _findSinglePlotPageWithCurve(const QString& curveName);
-
     void _selectCurrentRunOnPageItem(QStandardItem* pageItem);
 
     bool _isCurveIdx(const QModelIndex& idx) const;
 
 private slots:
-     void _varsSelectModelSelectionChanged(
-                              const QItemSelection& currVarSelection,
-                              const QItemSelection& prevVarSelection);
-     void _varsSearchBoxTextChanged(const QString& rx);
      void _plotSelectModelSelectionChanged(const QItemSelection& currSel,
                                           const QItemSelection& prevSel);
      void _plotSelectModelCurrentChanged(const QModelIndex& currIdx,

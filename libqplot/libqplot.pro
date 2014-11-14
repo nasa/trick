@@ -27,7 +27,9 @@ SOURCES += \
     trickcurve.cpp \
     plotbookview.cpp \
     dptreewidget.cpp \
-    dpfilterproxymodel.cpp
+    dpfilterproxymodel.cpp \
+    varswidget.cpp \
+    monteinputsview.cpp
 
 HEADERS += \
     qcustomplot.h \
@@ -37,7 +39,9 @@ HEADERS += \
     trickcurve.h \
     plotbookview.h \
     dptreewidget.h \
-    dpfilterproxymodel.h
+    dpfilterproxymodel.h \
+    varswidget.h \
+    monteinputsview.h
 
 
 
