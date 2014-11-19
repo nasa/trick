@@ -9,10 +9,13 @@ using namespace std;
 #include <QDir>
 #include <stdio.h>
 
-#include "montewindow.h"
 #include "libopts/options.h"
+#include "libsnapdata/monte.h"
+#include "libsnapdata/montemodel.h"
 #include "libqplot/dp.h"
+#include "libqplot/plotmainwindow.h"
 
+QStandardItemModel* createVarsModel(MonteModel *mm);
 
 Options::func_presetCB_DougString preset_montedir;
 Options::func_presetCB_uint preset_beginRun;
@@ -24,7 +27,6 @@ class SnapOptions : public Options
     unsigned int beginRun;
     unsigned int endRun;
 };
-
 SnapOptions opts;
 
 
@@ -52,8 +54,11 @@ int main(int argc, char *argv[])
     try {
         QApplication::setGraphicsSystem("raster");
         QApplication a(argc, argv);
-        QString montedir(opts.montedir.get().c_str());
-        MonteWindow w(montedir,opts.beginRun,opts.endRun);
+        QString monteDir(opts.montedir.get().c_str());
+        Monte monte(monteDir,opts.beginRun,opts.endRun);
+        MonteModel monteModel(&monte);
+        QStandardItemModel* varsModel = createVarsModel(&monteModel);
+        PlotMainWindow w(monteDir, &monteModel, varsModel, monte.inputModel());
         w.show();
         return a.exec();
     } catch (std::exception &e) {
@@ -118,4 +123,28 @@ void preset_endRun(uint* endRunId, const char* sval, bool* ok)
             *ok = false;
         }
     }
+}
+
+//
+// Just a simple list of vars grabbed off the MonteModel col headerData
+//
+QStandardItemModel* createVarsModel(MonteModel *mm)
+{
+    QStandardItemModel* pm = new QStandardItemModel(0,1);
+
+    QStringList varList;
+    for ( int c = 1; c < mm->columnCount(); ++c) {
+        QString var = mm->headerData(c,Qt::Horizontal).toString();
+        varList.append(var);
+    }
+
+    varList.sort();
+
+    QStandardItem *rootItem = pm->invisibleRootItem();
+    for ( int i = 0; i < varList.size(); ++i) {
+        QStandardItem *varItem = new QStandardItem(varList.at(i));
+        rootItem->appendRow(varItem);
+    }
+
+    return pm;
 }

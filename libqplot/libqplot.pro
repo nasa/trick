@@ -29,7 +29,8 @@ SOURCES += \
     dptreewidget.cpp \
     dpfilterproxymodel.cpp \
     varswidget.cpp \
-    monteinputsview.cpp
+    monteinputsview.cpp \
+    plotmainwindow.cpp
 
 HEADERS += \
     qcustomplot.h \
@@ -41,7 +42,8 @@ HEADERS += \
     dptreewidget.h \
     dpfilterproxymodel.h \
     varswidget.h \
-    monteinputsview.h
+    monteinputsview.h \
+    plotmainwindow.h
 
 
 

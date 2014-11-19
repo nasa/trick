@@ -22,12 +22,10 @@ MOC_DIR     = $$BUILDDIR/moc
 RCC_DIR     = $$BUILDDIR/rcc
 UI_DIR      = $$BUILDDIR/ui
 
-SOURCES += main.cpp \
-    montewindow.cpp
+SOURCES += main.cpp
 
     
-HEADERS += \
-    montewindow.h
+HEADERS +=
 
 OTHER_FILES += 
 

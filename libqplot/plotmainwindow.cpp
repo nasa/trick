@@ -1,7 +1,3 @@
-
-#include "montewindow.h"
-
-#include <QDockWidget>
 #include <QTabWidget>
 #include <QTableView>
 #include <QHeaderView>
@@ -10,13 +6,21 @@
 #include <QHBoxLayout>
 #include <QGridLayout>
 #include <QSplitter>
-#include <QSortFilterProxyModel>
 #include <QFileSystemModel>
 #include <QTreeView>
 
-MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
-    QMainWindow(parent),
-    _montedir(montedir)
+#include "plotmainwindow.h"
+
+PlotMainWindow::PlotMainWindow(const QString &dpDir, MonteModel* monteModel,
+        QStandardItemModel* varsModel,
+        QStandardItemModel *monteInputsModel,
+        QWidget *parent) :
+    _dpDir(dpDir),
+    _monteModel(monteModel),
+    _varsModel(varsModel),
+    _monteInputsModel(monteInputsModel),
+    _monteInputsView(0),
+    QMainWindow(parent)
 {
     setWindowTitle(tr("Snap!"));
     createMenu();
@@ -30,44 +34,19 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     lsplit->setOrientation(Qt::Vertical);
     lgrid->addWidget(lsplit,0,0);
 
-    //
     // Create models
-    //
     _plotModel = new QStandardItemModel(0,1,parent);
     _plotSelectModel = new QItemSelectionModel(_plotModel);
-    QStringList runDirs;
-    runDirs.append(_montedir);
-#if 0
-    QString setDir("/home/vetter/dev/SET_Series30xx");
-    QString monteDir = setDir + '/' +
-                      "MONTE_RUN_M_3027_i15T_i350T_IDSS-N1_iLIDS-DTS4C1.1000r";
-    QString run0 = monteDir + "/RUN_00000";
-    QString run1 = monteDir + "/RUN_00001";
-    QString run2 = monteDir + "/RUN_00002";
-    QString run3 = monteDir + "/RUN_00003";
-    runDirs << run0 << run1 << run2 << run3;
-#endif
-    _runs = new Runs(runDirs);
-    _monteModel = new MonteModel(_runs);
 
-    //
-    // For Tim, show tree view of book of plots
-    //
-    //_plotTreeView = new QTreeView(lsplit);
-    //_plotTreeView->setModel(_plotModel);
-    //_plotTreeView->setHeaderHidden(true);
-    //_plotTreeView->setSelectionModel(_plotSelectModel);
-    //_plotTreeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    //lsplit->addWidget(_plotTreeView);
-
-
-    //
     // Create Plot Tabbed Notebook View Widget
-    //
     _plotBookView = new PlotBookView(msplit);
     _plotBookView->setModel(_plotModel);
     _plotBookView->setData(_monteModel);
     _plotBookView->setSelectionModel(_plotSelectModel);
+    if ( _monteModel->rowCount() == 2 ) {
+        // Two runs - show diff/coplot
+        _plotBookView->showCurveDiff(true);
+    }
     connect(_plotModel,
             SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
             this,
@@ -82,9 +61,13 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
             SLOT(_plotSelectModelCurrentChanged(QModelIndex,QModelIndex)));
     msplit->addWidget(_plotBookView);
 
-    //
+    // Monte inputs view (widget added later)
+    if ( _monteInputsModel ) {
+        _monteInputsView = new MonteInputsView(_plotBookView,lsplit);
+        _monteInputsView->setModel(_monteInputsModel);
+    }
+
     // Vars/DP Notebook
-    //
     _nbDPVars = new QTabWidget(lsplit);
     _nbDPVars->setFocusPolicy(Qt::ClickFocus);
     lsplit->addWidget(_nbDPVars);
@@ -95,16 +78,21 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     QFrame* varsFrame = new QFrame(lsplit);
     _varsWidget = new VarsWidget(_varsModel, _monteModel, _plotModel,
                                   _plotSelectModel, _plotBookView,
-                                 0,
+                                 _monteInputsView,
                                  varsFrame);
     _nbDPVars->addTab(varsFrame,"Vars");
 
     // DP Tab
-    QFrame* frameDP = new QFrame(lsplit);
-    _dpTreeWidget = new  DPTreeWidget(_montedir,_monteModel,
-                                      _plotModel,_plotSelectModel,
-                                      frameDP);
-    _nbDPVars->addTab(frameDP,"DP");
+    QFrame* _dpFrame = new QFrame(lsplit);
+    _dpTreeWidget = new  DPTreeWidget(_dpDir,_monteModel, _plotModel,
+                                      _plotSelectModel, _dpFrame);
+    _nbDPVars->addTab(_dpFrame,"DP");
+
+    // Vars/DP needs monteInputsView, but needs to be added after Vars/DP
+    if ( _monteInputsModel ) {
+        lsplit->addWidget(_monteInputsView);
+    }
+
 
     // Size main window
     QList<int> sizes;
@@ -115,13 +103,12 @@ MonteWindow::MonteWindow(const QString &montedir, QWidget *parent) :
     resize(1600,900);
 }
 
-MonteWindow::~MonteWindow()
+PlotMainWindow::~PlotMainWindow()
 {
-    delete _monteModel;
     delete _plotModel;
 }
 
-void MonteWindow::createMenu()
+void PlotMainWindow::createMenu()
 {
     _menuBar = new QMenuBar;
     _fileMenu = new QMenu(tr("&File"), this);
@@ -133,10 +120,11 @@ void MonteWindow::createMenu()
     setMenuWidget(_menuBar);
 }
 
+
 //
 // Just a simple list of vars grabbed off the MonteModel col headerData
 //
-QStandardItemModel *MonteWindow::_createVarsModel(MonteModel *mm)
+QStandardItemModel *PlotMainWindow::_createVarsModel(MonteModel *mm)
 {
     QStandardItemModel* pm = new QStandardItemModel(0,1,this);
 
@@ -157,14 +145,10 @@ QStandardItemModel *MonteWindow::_createVarsModel(MonteModel *mm)
     return pm;
 }
 
-
-
-
-
 // _plotModel will have a curve on a branch like this:
 //           root->page->plot->curves->curvei
 //
-bool MonteWindow::_isCurveIdx(const QModelIndex &idx) const
+bool PlotMainWindow::_isCurveIdx(const QModelIndex &idx) const
 {
     if ( idx.model() != _plotModel ) return false;
     if ( idx.model()->data(idx.parent()).toString() != "Curves" ) {
@@ -174,8 +158,7 @@ bool MonteWindow::_isCurveIdx(const QModelIndex &idx) const
     }
 }
 
-
-void MonteWindow::_plotSelectModelSelectionChanged(const QItemSelection &currSel,
+void PlotMainWindow::_plotSelectModelSelectionChanged(const QItemSelection &currSel,
                                                  const QItemSelection &prevSel)
 {
     Q_UNUSED(prevSel);
@@ -184,24 +167,49 @@ void MonteWindow::_plotSelectModelSelectionChanged(const QItemSelection &currSel
         // Deselecting a curve: so,
         //     1. deselect run in monte selection too
         //     2. deselect vars
+        if ( _monteInputsView ) {
+            _monteInputsView->selectionModel()->clear();
+        }
         _varsWidget->clearSelection();
     }
 
-    QModelIndex curveIdx;
-    if ( currSel.indexes().size() > 0 ) {
-        curveIdx = currSel.indexes().at(0);
-    }
+    if ( _monteInputsView ) {
 
-    if ( _isCurveIdx(curveIdx) ) {
-        int runId = curveIdx.row();
-        Q_UNUSED(runId);
+        QModelIndex curveIdx;
+        if ( currSel.indexes().size() > 0 ) {
+            curveIdx = currSel.indexes().at(0);
+        }
+
+        if ( _isCurveIdx(curveIdx) ) {
+
+            int runId = curveIdx.row();
+
+            // Since model could be sorted, search for row with runId.
+            // Assuming that runId is in column 0.
+            int rc = _monteInputsView->model()->rowCount();
+            int runRow = 0 ;
+            for ( runRow = 0; runRow < rc; ++runRow) {
+                QModelIndex runIdx = _monteInputsView->model()->index(runRow,0);
+                if (runId == _monteInputsView->model()->data(runIdx).toInt()) {
+                    break;
+                }
+            }
+
+            QModelIndex midx = _monteInputsView->model()->index(runRow,0);
+            _monteInputsView->selectionModel()->select(midx,
+                                          QItemSelectionModel::ClearAndSelect|
+                                          QItemSelectionModel::Rows);
+            _monteInputsView->selectionModel()->setCurrentIndex(midx,
+                                          QItemSelectionModel::ClearAndSelect|
+                                          QItemSelectionModel::Rows);
+        }
     }
 }
 
 //
 // If page (tab) changed in plot book view, update DP tree and Var list
 //
-void MonteWindow::_plotSelectModelCurrentChanged(const QModelIndex &currIdx,
+void PlotMainWindow::_plotSelectModelCurrentChanged(const QModelIndex &currIdx,
                                                 const QModelIndex &prevIdx)
 {
     Q_UNUSED(prevIdx);
@@ -217,7 +225,7 @@ void MonteWindow::_plotSelectModelCurrentChanged(const QModelIndex &currIdx,
     }
 }
 
-void MonteWindow::_plotModelRowsAboutToBeRemoved(const QModelIndex &pidx,
+void PlotMainWindow::_plotModelRowsAboutToBeRemoved(const QModelIndex &pidx,
                                                  int start, int end)
 {
     Q_UNUSED(pidx);
@@ -226,13 +234,13 @@ void MonteWindow::_plotModelRowsAboutToBeRemoved(const QModelIndex &pidx,
     _varsWidget->clearSelection();
 }
 
-void MonteWindow::_updateVarSelection(const QModelIndex& pageIdx)
+void PlotMainWindow::_updateVarSelection(const QModelIndex& pageIdx)
 {
     _nbDPVars->setCurrentIndex(0); // set tabbed notebook page to Var page
     _varsWidget->updateSelection(pageIdx);
 }
 
-void MonteWindow::_updateDPSelection(const QModelIndex &pageIdx)
+void PlotMainWindow::_updateDPSelection(const QModelIndex &pageIdx)
 {
 #if 0
     _nbDPVars->setCurrentIndex(1); // set tabbed notebook page to DP page
@@ -248,28 +256,25 @@ void MonteWindow::_updateDPSelection(const QModelIndex &pageIdx)
 #endif
 }
 
-bool MonteWindow::_isRUN(const QString &fp)
+bool PlotMainWindow::_isRUN(const QString &fp)
 {
     QFileInfo fi(fp);
     return ( fi.baseName().left(4) == "RUN_" && fi.isDir() ) ;
 }
 
-bool MonteWindow::_isMONTE(const QString &fp)
+bool PlotMainWindow::_isMONTE(const QString &fp)
 {
     QFileInfo fi(fp);
     return ( fi.baseName().left(6) == "MONTE_" && fi.isDir() ) ;
 }
 
-void MonteWindow::_savePdf()
+
+void PlotMainWindow::_savePdf()
 {
-    QString* selectedFilter = new QString;
     QString fname = QFileDialog::getSaveFileName(this,
-                                              QString("Save As PDF"),
-                                              QString(""),
-                                              tr("files (*.pdf)"),
-                                              selectedFilter,
-                                              QFileDialog::DontUseNativeDialog);
-    delete selectedFilter;
+                                                 QString("Save As PDF"),
+                                                 QString(""),
+                                                 tr("files (*.pdf)"));
 
     if ( ! fname.isEmpty() ) {
         _plotBookView->savePdf(fname);

@@ -1,52 +1,47 @@
-#ifndef _SNAPD_H_
-#define _SNAPD_H_
+#ifndef PLOTMAINWINDOW_H
+#define PLOTMAINWINDOW_H
 
-#include <QApplication>
 #include <QMainWindow>
 #include <QMenu>
 #include <QMenuBar>
-#include <QLineEdit>
+#include <QFrame>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QGridLayout>
+#include <QSplitter>
 #include <QList>
 #include <QStandardItemModel>
-#include <QFileSystemModel>
-#include <QItemSelectionModel>
-#include <QSortFilterProxyModel>
-#include <QRegExp>
-#include <QTreeView>
-#include <QTableView>
-#include <QListView>
 #include <QFileInfo>
-#include <QTabWidget>
 #include <QStringList>
 #include <QFileDialog>
 
-#include "libsnapdata/runs.h"
+#include "libsnapdata/monte.h"
 #include "libqplot/dp.h"
 #include "libqplot/plotbookview.h"
 #include "libqplot/dptreewidget.h"
 #include "libqplot/varswidget.h"
+#include "libqplot/monteinputsview.h"
 
 #include "libsnapdata/timeit_linux.h"
 
-class SnapDiff : public QMainWindow
+class PlotMainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit SnapDiff(const QString& run1,
-                      const QString& run2,
-                         QWidget *parent = 0);
-    ~SnapDiff();
+    explicit PlotMainWindow( const QString& dpDir,
+                             MonteModel* monteModel,
+                             QStandardItemModel* varsModel,
+                             QStandardItemModel* monteInputsModel=0,
+                             QWidget *parent = 0);
+    ~PlotMainWindow();
 
 private:
-    QString _run1;
-    QString _run2;
-    Runs *_runs1;
-    Runs *_runs2;
-    Runs *_runs;
-    QStringList _commonParams;
-
+    const QString& _dpDir;
+    MonteModel* _monteModel;
+    QStandardItemModel* _varsModel;
+    QStandardItemModel* _monteInputsModel;
+    MonteInputsView* _monteInputsView;
     QGridLayout* _layout;
     QGridLayout* _left_lay ;
 
@@ -59,23 +54,24 @@ private:
 
     QTabWidget* _nbDPVars;
 
-    QStandardItemModel* _createVarsModel(const QStringList &params);
-    QStandardItemModel* _varsModel;
+    QStandardItemModel* _createVarsModel(MonteModel* mm);
     VarsWidget* _varsWidget;
     void _updateVarSelection(const QModelIndex& pageIdx);
 
-    DPTreeWidget* _dpTreeWidget ;
+    DPTreeWidget* _dpTreeWidget;
     void _updateDPSelection(const QModelIndex& pageIdx);
 
     QStandardItemModel* _plotModel;
-    QTreeView* _plotTreeView ;
+    //QTreeView* _plotTreeView ;
     PlotBookView* _plotBookView;
     QItemSelectionModel* _plotSelectModel;
 
-    MonteModel* _monteModel;
     bool _isRUN(const QString& fp);
     bool _isMONTE(const QString& fp);
-    bool _isCurveIdx(const QModelIndex &idx) const;
+
+    void _selectCurrentRunOnPageItem(QStandardItem* pageItem);
+
+    bool _isCurveIdx(const QModelIndex& idx) const;
 
 private slots:
      void _plotSelectModelSelectionChanged(const QItemSelection& currSel,
@@ -87,5 +83,4 @@ private slots:
      void _savePdf();
 };
 
-#endif // MAINWINDOW_H
-
+#endif // PLOTMAINWINDOW_H

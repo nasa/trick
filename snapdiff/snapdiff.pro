@@ -22,12 +22,10 @@ MOC_DIR     = $$BUILDDIR/moc
 RCC_DIR     = $$BUILDDIR/rcc
 UI_DIR      = $$BUILDDIR/ui
 
-SOURCES += main.cpp \
-    snapd.cpp
+SOURCES += main.cpp
 
     
-HEADERS += \
-    snapd.h
+HEADERS +=
 
 OTHER_FILES += 
 

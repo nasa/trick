@@ -11,9 +11,11 @@ using namespace std;
 
 #include "snapd.h"
 #include "libsnapdata/runs.h"
+#include "libqplot/plotmainwindow.h"
 
 void dircheck(const QString& dirName);
 void usage(const QString& msg=QString());
+QStandardItemModel* createVarsModel(const QString& run1, const QString& run2);
 
 int main(int argc, char *argv[])
 {
@@ -29,11 +31,19 @@ int main(int argc, char *argv[])
         QString run2(argv[2]);
         dircheck(run1);
         dircheck(run2);
-        QStringList s;
-        s.append(run1);
-        s.append(run2);
-        SnapDiff w(run1,run2);
+
+        QStringList runList;
+        runList.append(run1);
+        runList.append(run2);
+        Runs runs(runList);
+        MonteModel monteModel(&runs);
+
+        QStandardItemModel* varsModel = createVarsModel(run1,run2);
+
+        PlotMainWindow w(run1, &monteModel, varsModel);
+
         w.show();
+
         return a.exec();
     } catch (std::exception &e) {
         fprintf(stderr,"\n%s\n",e.what());
@@ -62,3 +72,31 @@ void dircheck(const QString& dirName)
     }
 }
 
+//
+// List of vars from the MonteModel col headerData
+//
+QStandardItemModel* createVarsModel(const QString& run1, const QString& run2)
+{
+    QStringList commonParams;
+    QStringList s1; s1 << run1 ;
+    Runs runs1(s1);
+    QStringList s2; s2 << run2 ;
+    Runs runs2(s2);
+    QStringList params1 = runs1.params();
+    foreach ( QString param2, runs2.params() ) {
+        if ( params1.contains(param2) ) {
+            commonParams.append(param2);
+        }
+    }
+    commonParams.sort();
+
+    QStandardItemModel* pm = new QStandardItemModel(0,1);
+
+    QStandardItem *rootItem = pm->invisibleRootItem();
+    for ( int i = 0; i < commonParams.size(); ++i) {
+        QStandardItem *varItem = new QStandardItem(commonParams.at(i));
+        rootItem->appendRow(varItem);
+    }
+
+    return pm;
+}
