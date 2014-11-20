@@ -9,7 +9,6 @@ using namespace std;
 #include <QDir>
 #include <stdio.h>
 
-#include "snapd.h"
 #include "libsnapdata/runs.h"
 #include "libqplot/plotmainwindow.h"
 
@@ -73,7 +72,7 @@ void dircheck(const QString& dirName)
 }
 
 //
-// List of vars from the MonteModel col headerData
+// List model of vars common between both runs
 //
 QStandardItemModel* createVarsModel(const QString& run1, const QString& run2)
 {
