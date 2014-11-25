@@ -3,12 +3,15 @@
 
 #include <stdexcept>
 #include <cstdlib>          // for rand() and RAND_MAX def
+#include <string.h>         // strdup
+#include <stdlib.h>         // malloc
 
 #include <QtTest/QtTest>
 #include <QDir>
 #include "libsnaprt/snap.h"
 #include "libsnaprt/versionnumber.h"
 #include "trickdatamodel.h"
+#include "libopts2/options2.h"
 
 QString getActualReport(const QString& runDir); // e.g. RUN_rm2000
 QString getExpectedReport(const QString& runDir,       // e.g. RUN_iss
@@ -16,6 +19,7 @@ QString getExpectedReport(const QString& runDir,       // e.g. RUN_iss
 
 //#define TEST_CUSTOM
 #ifndef TEST_CUSTOM
+    #define TEST_OPTS
     #define TEST_NON_RM2000
     #define TEST_ISS_RPT
     #define TEST_RM2000_RPT
@@ -71,6 +75,9 @@ private slots:
 
 #ifdef TEST_CUSTOM
     // To isolate one test, place function prototype here
+#endif
+#ifdef TEST_OPTS
+    void testOpts();
 #endif
 #ifdef TEST_NON_RM2000
     void versionnumber();
@@ -413,6 +420,108 @@ void TestSnap::initTestCase()
     }
     _create_log_userjobs(_log_userjobs,0,100,0.1,jobs);
 }
+
+#ifdef TEST_OPTS
+
+class TestOptions : public Options2
+{
+public:
+    QString montedir;
+    uint beginRun;
+    uint endRun;
+    double pi;
+};
+TestOptions opts;
+
+void TestSnap::testOpts()
+{
+    Option::FPresetQString presetMontedir;
+    Option::FPresetUInt presetBeginRun;
+    Option::FPresetUInt presetEndRun;
+    Option::FPresetDouble presetPi;
+    Option::FPostsetDouble postsetPi;
+
+
+    opts.add("<MONTE_dir>", &opts.montedir, "",
+             "MONTE_directory with RUNs",
+             presetMontedir);
+    opts.add("-beginRun", &opts.beginRun,0,
+             "begin run (inclusive) in set of RUNs to plot",
+             presetBeginRun);
+    opts.add("-endRun", &opts.endRun,(uint)1.0e6,
+             "end run (inclusive) in set of RUNs to plot",
+             presetEndRun);
+    opts.add("<-pi:{1}>", &opts.pi,M_PI,
+             "test for pi!", presetPi, postsetPi);
+
+    QStringList l;
+    l << "testsnap(argv[0])"
+      << "MONTE_dog"
+      << "-beginRun" <<  "10"
+      << "-endRun" << "100"
+      << "-pi" << "180.0";
+
+    int argc = l.size();
+    char** argv = (char**)malloc(l.size()*sizeof(char*));
+    int i = 0;
+    foreach ( QString s, l ) {
+        argv[i] = strdup(s.toAscii().constData());
+        ++i;
+    }
+
+    bool ok;
+    opts.parse(argc,argv, QString("testsnap"), &ok);
+
+    QCOMPARE(opts.montedir, QString("MONTE_dog"));
+    QCOMPARE(opts.beginRun, (uint)10);
+    QCOMPARE(opts.endRun,   (uint)100);
+
+    if ( !ok ) {
+        fprintf(stderr,"%s\n",opts.usage().toAscii().constData());
+    }
+
+    // Clean Mem
+    i = 0;
+    foreach ( QString s, l )  free(argv[i++]);
+}
+
+void presetPi(double* beginPi, double  pi, bool* ok)
+{
+    *ok = true;
+    QCOMPARE(*beginPi,M_PI);
+    QCOMPARE(pi,180.0);
+}
+
+void postsetPi(double* pi, bool* ok)
+{
+    *ok = true;
+    QCOMPARE(*pi,180.0);
+}
+
+void presetMontedir(QString* beginMonteDir,
+                      const QString& monteDir, bool* ok)
+{
+    *ok = true;
+    QCOMPARE(*beginMonteDir,QString(""));
+    QCOMPARE(monteDir,QString("MONTE_dog"));
+}
+
+void presetBeginRun(uint* beginRunId, uint runId, bool* ok)
+{
+    *ok = true;
+    QCOMPARE(*beginRunId,(uint)0);
+    QCOMPARE(runId,(uint)10);
+}
+
+void presetEndRun(uint* endRunId, uint toSetRunId, bool* ok)
+{
+    *ok = true;
+    QCOMPARE(*endRunId,(uint)1.0e6);
+    QCOMPARE(toSetRunId,(uint)100);
+}
+
+
+#endif
 
 #ifdef TEST_NON_RM2000
 void TestSnap::versionnumber()

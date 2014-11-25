@@ -9,19 +9,20 @@ using namespace std;
 #include <QDir>
 #include <stdio.h>
 
-#include "libopts/options.h"
+#include "libopts2/options2.h"
 #include "libsnapdata/runs.h"
 #include "libqplot/plotmainwindow.h"
 
 QStandardItemModel* createVarsModel(MonteModel *monteModel);
 
-Options::func_presetCB_DougString preset_montedir;
-Options::func_presetCB_uint preset_beginRun;
-Options::func_presetCB_uint preset_endRun;
-class SnapOptions : public Options
+Option::FPresetQString presetMontedir;
+Option::FPresetUInt presetBeginRun;
+Option::FPresetUInt presetEndRun;
+
+class SnapOptions : public Options2
 {
   public:
-    DougString montedir;
+    QString montedir;
     unsigned int beginRun;
     unsigned int endRun;
 };
@@ -34,19 +35,19 @@ int main(int argc, char *argv[])
 
     bool ok;
 
-    opts.add(&opts.montedir,"<RUN_dir>", "",
+    opts.add("<RUN_dir>", &opts.montedir, "",
              "RUN_directory with RUNs",
-             preset_montedir);
-    opts.add(&opts.beginRun,"-beginRun",0,
+             presetMontedir);
+    opts.add("-beginRun",&opts.beginRun,0,
              "begin run (inclusive) in set of RUNs to plot",
-             preset_beginRun);
-    opts.add(&opts.endRun,"-endRun",100000,
+             presetBeginRun);
+    opts.add("-endRun",&opts.endRun,100000,
              "end run (inclusive) in set of RUNs to plot",
-             preset_endRun);
-    opts.parse(argc,argv, "snapq", &ok);
+             presetEndRun);
+    opts.parse(argc,argv, QString("snapq"), &ok);
 
     if ( !ok ) {
-        fprintf(stderr,"%s\n",opts.usage().c_str());
+        fprintf(stderr,"%s\n",opts.usage().toAscii().constData());
         exit(-1);
     }
 
@@ -54,7 +55,7 @@ int main(int argc, char *argv[])
         QApplication::setGraphicsSystem("raster");
         QApplication a(argc, argv);
 
-        QString runDir(opts.montedir.get().c_str());
+        QString runDir(opts.montedir);
 
         QStringList runDirs;
         runDirs.append(runDir);
@@ -68,14 +69,15 @@ int main(int argc, char *argv[])
         return a.exec();
     } catch (std::exception &e) {
         fprintf(stderr,"\n%s\n",e.what());
-        fprintf(stderr,"%s\n",opts.usage().c_str());
+        fprintf(stderr,"%s\n",opts.usage().toAscii().constData());
         exit(-1);
     }
 
     return 0;
 }
 
-void preset_montedir(DougString* curr_montedir,const char* new_montedir,bool* ok)
+void presetMontedir(QString* curr_montedir,
+                     const QString& new_montedir,bool* ok)
 {
     Q_UNUSED(curr_montedir);
 
@@ -90,12 +92,11 @@ void preset_montedir(DougString* curr_montedir,const char* new_montedir,bool* ok
     }
 }
 
-void preset_beginRun(uint* beginRunId, const char* sval, bool* ok)
+void presetBeginRun(uint* beginRunId, uint runId, bool* ok)
 {
     Q_UNUSED(beginRunId);
 
-    uint runId;
-    Options::str_to_uint(sval, &runId, ok);
+    *ok = true;
 
     if ( *ok ) {
         // Start time should be less than stop time
@@ -109,14 +110,11 @@ void preset_beginRun(uint* beginRunId, const char* sval, bool* ok)
     }
 }
 
-void preset_endRun(uint* endRunId, const char* sval, bool* ok)
+void presetEndRun(uint* endRunId, uint runId, bool* ok)
 {
     Q_UNUSED(endRunId);
 
     *ok = true;
-
-    uint runId;
-    Options::str_to_uint(sval, &runId, ok);
 
     if ( *ok ) {
         // Start time should be less than stop time
