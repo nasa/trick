@@ -9,7 +9,7 @@ using namespace std;
 #include <QDir>
 #include <stdio.h>
 
-#include "libopts2/options2.h"
+#include "libopts/options.h"
 #include "libsnapdata/monte.h"
 #include "libsnapdata/montemodel.h"
 #include "libqplot/dp.h"
@@ -21,7 +21,7 @@ Option::FPresetQString presetMontedir;
 Option::FPresetUInt presetBeginRun;
 Option::FPresetUInt presetEndRun;
 
-class SnapOptions : public Options2
+class SnapOptions : public Options
 {
   public:
     QString montedir;

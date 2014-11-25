@@ -1,5 +1,5 @@
-#ifndef OPTIONS2_H
-#define OPTIONS2_H
+#ifndef OPTIONS_H
+#define OPTIONS_H
 
 #include <QObject>
 #include <QString>
@@ -117,11 +117,11 @@ private:
 //          e.g. add("<Monte_dir>:{1}|<RUN_dir>:+",...);
 //          also, should only root options can have infinite num of values?
 //
-class Options2
+class Options
 {
 public:
-    Options2();
-    ~Options2();
+    Options();
+    ~Options();
 
     void add(const QString& nameSpec,
              QString* varPtr, const QString& defaultValue,
@@ -156,4 +156,4 @@ private:
 } ;
 
     
-#endif // OPTIONS2_H
+#endif // OPTIONS_H

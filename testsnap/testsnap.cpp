@@ -11,7 +11,7 @@
 #include "libsnaprt/snap.h"
 #include "libsnaprt/versionnumber.h"
 #include "trickdatamodel.h"
-#include "libopts2/options2.h"
+#include "libopts/options.h"
 
 QString getActualReport(const QString& runDir); // e.g. RUN_rm2000
 QString getExpectedReport(const QString& runDir,       // e.g. RUN_iss
@@ -423,7 +423,7 @@ void TestSnap::initTestCase()
 
 #ifdef TEST_OPTS
 
-class TestOptions : public Options2
+class TestOptions : public Options
 {
 public:
     QString montedir;

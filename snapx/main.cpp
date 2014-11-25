@@ -11,13 +11,13 @@ using namespace std;
 #include <stdio.h>
 
 #include "libsnaprt/snap.h"
-#include "libopts2/options2.h"
+#include "libopts/options.h"
 
 Option::FPresetDouble preset_start;
 Option::FPresetDouble preset_stop;
 Option::FPresetQString preset_rundir;
 bool check_file(const QString& fname);
-class SnapOptions : public Options2
+class SnapOptions : public Options
 {
   public:
     double start;
@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 
     bool ok;
 
-    opts.add("-start", &opts.start,1.0, "start time of run analysis",
+    opts.add("-start", &opts.start, 1.0, "start time of run analysis",
              preset_start);
     opts.add("-stop", &opts.stop,1.0e20, "stop time of run analysis",
              preset_stop);

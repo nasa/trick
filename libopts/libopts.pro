@@ -1,6 +1,6 @@
 QT       -= gui
 
-TARGET = opts2
+TARGET = opts
 TEMPLATE = lib
 
 CONFIG += staticlib
@@ -11,17 +11,17 @@ release {
 
 
 DESTDIR = $$PWD/../lib
-BUILDDIR = $$PWD/../build/options2
+BUILDDIR = $$PWD/../build/options
 OBJECTS_DIR = $$BUILDDIR/obj
 MOC_DIR     = $$BUILDDIR/moc
 RCC_DIR     = $$BUILDDIR/rcc
 UI_DIR      = $$BUILDDIR/ui
 
 SOURCES += \
-    options2.cpp
+    options.cpp
 
 HEADERS += \
-    options2.h
+    options.h
 
 unix:!symbian {
     maemo5 {

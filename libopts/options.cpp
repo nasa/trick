@@ -1,4 +1,4 @@
-#include "options2.h"
+#include "options.h"
 #include <stdio.h>
 #include <QDebug>
 
@@ -261,19 +261,19 @@ void Option::setValue(const QVariantList &vals)
     exit(-1);
 }
 
-Options2::Options2() :
+Options::Options() :
     _nRootOptions(0)
 {
 }
 
-Options2::~Options2()
+Options::~Options()
 {
     foreach ( Option* opt, _opts ) {
         delete opt;
     }
 }
 
-QString Options2::usage()
+QString Options::usage()
 {
     QString u;
     QTextStream s(&u);
@@ -292,7 +292,7 @@ QString Options2::usage()
     return u;
 }
 
-void Options2::_addOption(const QString &nameSpec,
+void Options::_addOption(const QString &nameSpec,
                              void* varAddr,
                              const QVariant& defaultValue,
                              const QString &info,
@@ -315,7 +315,7 @@ void Options2::_addOption(const QString &nameSpec,
 }
 
 // TODO: ret error or throw
-void Options2::add(const QString &nameSpec,
+void Options::add(const QString &nameSpec,
                    QString *varPtr, const QString& defaultValue,
                    const QString &info,
                    Option::FPresetQString* presetCB,
@@ -330,7 +330,7 @@ void Options2::add(const QString &nameSpec,
 }
 
 // TODO: ret error or throw
-void Options2::add(const QString &nameSpec, double *varPtr,
+void Options::add(const QString &nameSpec, double *varPtr,
                    double defaultValue, const QString &info,
                    Option::FPresetDouble* presetCB,
                    Option::FPostsetDouble* postsetCB)
@@ -344,7 +344,7 @@ void Options2::add(const QString &nameSpec, double *varPtr,
 }
 
 // TODO: ret error or throw
-void Options2::add(const QString &nameSpec, uint *varPtr,
+void Options::add(const QString &nameSpec, uint *varPtr,
                    uint defaultValue, const QString &info,
                    Option::FPresetUInt* presetCB,
                    Option::FPostsetUInt* postsetCB)
@@ -357,7 +357,7 @@ void Options2::add(const QString &nameSpec, uint *varPtr,
     }
 }
 
-void Options2::parse(int argc, char **argv, const QString& programName,
+void Options::parse(int argc, char **argv, const QString& programName,
                      bool *ok)
 {
     *ok = true;
@@ -484,7 +484,7 @@ void Options2::parse(int argc, char **argv, const QString& programName,
     }
 }
 
-QVariantList Options2::_extractOptValsFromArgs(Option *opt,
+QVariantList Options::_extractOptValsFromArgs(Option *opt,
                                               const QStringList& s,
                                                bool* ok)
 {

@@ -19,7 +19,7 @@ INSTALL_LIBDIR = $${INSTALL_PREFIX}/lib
 
 CONFIG += ordered
 TEMPLATE = subdirs
-SUBDIRS = libopts2 \
+SUBDIRS = libopts \
           libqplot \
           libsnapdata \
           libsnaprt \
@@ -36,12 +36,12 @@ OTHER_FILES += \
 
 monte.depends += snaprt
 monte.depends += snapdata
-monte.depends += opts2
+monte.depends += opts
 monte.depends += qplot
 
 snap.depends += snaprt
 snap.depends += snapdata
-snap.depends += opts2
+snap.depends += opts
 snap.depends += qplot
 
 snapx.depends += snaprt
@@ -51,15 +51,15 @@ snapx.depends += qplot
 
 snapq.depends += snaprt
 snapq.depends += snapdata
-snapq.depends += opts2
+snapq.depends += opts
 snapq.depends += qplot
 
 snapdiff.depends += snaprt
 snapdiff.depends += snapdata
-snapdiff.depends += opts2
+snapdiff.depends += opts
 snapdiff.depends += qplot
 
 testsnap.depends += snaprt
 testsnap.depends += snapdata
-testsnap.depends += opts2
+testsnap.depends += opts
 testsnap.depends += qplot
