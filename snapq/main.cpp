@@ -15,14 +15,14 @@ using namespace std;
 
 QStandardItemModel* createVarsModel(MonteModel *monteModel);
 
-Option::FPresetQString presetMontedir;
+Option::FPresetQStringList presetRunDirs;
 Option::FPresetUInt presetBeginRun;
 Option::FPresetUInt presetEndRun;
 
 class SnapOptions : public Options
 {
   public:
-    QString montedir;
+    QStringList runDirs;
     unsigned int beginRun;
     unsigned int endRun;
 };
@@ -35,9 +35,9 @@ int main(int argc, char *argv[])
 
     bool ok;
 
-    opts.add("<RUN_dir>", &opts.montedir, "",
+    opts.add("<RUN_dir>:1", &opts.runDirs, QStringList(),
              "RUN_directory with RUNs",
-             presetMontedir);
+             presetRunDirs);
     opts.add("-beginRun",&opts.beginRun,0,
              "begin run (inclusive) in set of RUNs to plot",
              presetBeginRun);
@@ -55,15 +55,11 @@ int main(int argc, char *argv[])
         QApplication::setGraphicsSystem("raster");
         QApplication a(argc, argv);
 
-        QString runDir(opts.montedir);
-
-        QStringList runDirs;
-        runDirs.append(runDir);
-        Runs runs(runDirs);
+        Runs runs(opts.runDirs);
         MonteModel monteModel(&runs);
         QStandardItemModel* varsModel = createVarsModel(&monteModel);
 
-        PlotMainWindow w(runDir, &monteModel, varsModel);
+        PlotMainWindow w(opts.runDirs.at(0), &monteModel, varsModel);
 
         w.show();
         return a.exec();
@@ -76,19 +72,19 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-void presetMontedir(QString* curr_montedir,
-                     const QString& new_montedir,bool* ok)
+void presetRunDirs(QStringList* defRunDirs,
+                   const QStringList& runDirs,bool* ok)
 {
-    Q_UNUSED(curr_montedir);
+    Q_UNUSED(defRunDirs);
 
-    QString montedir(new_montedir);
-
-    QDir dir(montedir);
-    if ( ! dir.exists() ) {
-        fprintf(stderr,"snap [error] : couldn't find monte directory: \"%s\".\n",
-                       montedir.toAscii().constData());
-        *ok = false;
-        return;
+    foreach ( QString dirName, runDirs ) {
+        QDir dir(dirName);
+        if ( ! dir.exists() ) {
+            fprintf(stderr,"snapq [error] : couldn't find directory: \"%s\".\n",
+                    dirName.toAscii().constData());
+            *ok = false;
+            return;
+        }
     }
 }
 
