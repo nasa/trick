@@ -38,7 +38,7 @@ void Quantifier::set(const QString &spec)
         _max = 1;
     } else if ( s == "+" ) {
         _min = 1;
-        _min = UINT_MAX;
+        _max = UINT_MAX;
     } else if ( s.startsWith("{") && s.endsWith("}") ) {
         // {m,n} or {n}
         s = s.remove(0,1);
@@ -450,6 +450,7 @@ void Options::parse(int argc, char **argv, const QString& programName,
     foreach ( Option* opt, _opts.values() ) {
         if ( opt->isRootOption() ) {
             rootOption = opt;
+            qDebug() << "MOOOOOO" << opt->name() << opt->valueQuantifier().min() ;
         }
     }
     if ( rootOption ) {
