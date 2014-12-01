@@ -102,14 +102,17 @@ Option::Option(const QString &nameSpec,
     _addrInt(0),
     _addrUInt(0),
     _addrQString(0),
+    _addrQStringList(0),
     _fpresetDouble(0),
     _fpresetInt(0),
     _fpresetUInt(0),
     _fpresetQString(0),
+    _fpresetQStringList(0),
     _fpostsetDouble(0),
     _fpostsetInt(0),
     _fpostsetUInt(0),
-    _fpostsetQString(0)
+    _fpostsetQString(0),
+    _fpostsetQStringList(0)
 {
     // Remove wspace
     QString name = nameSpec;
@@ -152,6 +155,16 @@ Option::Option(const QString &nameSpec,
         _addrQString = (QString*) addr;
         _fpresetQString = (FPresetQString*)presetCB;
         _fpostsetQString = (FPostsetQString*)postsetCB;
+    } else if ( _defaultValue.type() == QVariant::StringList ) {
+        _addrQStringList = (QStringList*) addr;
+        _fpresetQStringList = (FPresetQStringList*)presetCB;
+        _fpostsetQStringList = (FPostsetQStringList*)postsetCB;
+    } else {
+        qDebug() << "Bad scoobies: default value "
+                 << _defaultValue.toString()
+                 << " given to Option::Option() constructor has an unsupported "
+                    "type of " << QString(_defaultValue.typeName());
+        exit(-1);
     }
 }
 
@@ -222,33 +235,41 @@ void Option::setValue(const QVariant &val, bool* ok)
         if ( _fpresetInt ) {
             _fpresetInt(_addrInt, val.toInt(), ok);
         }
-        *_addrInt = val.toInt();
-        if ( _fpostsetInt ) {
+        if ( *ok ) *_addrInt = val.toInt();
+        if ( _fpostsetInt && *ok) {
             _fpostsetInt(_addrInt, ok);
         }
     } else if ( val.type() == QVariant::UInt ) {
         if (_fpresetUInt) {
             _fpresetUInt(_addrUInt, val.toUInt(), ok);
         }
-        *_addrUInt = val.toUInt();
-        if ( _fpostsetUInt ) {
+        if ( *ok ) *_addrUInt = val.toUInt();
+        if ( _fpostsetUInt && *ok) {
             _fpostsetUInt(_addrUInt, ok);
         }
     } else if ( val.type() == QVariant::Double ) {
         if ( _fpresetDouble ) {
             _fpresetDouble(_addrDouble, val.toDouble(), ok);
         }
-        *_addrDouble = val.toDouble();
-        if ( _fpostsetDouble ) {
+        if ( *ok) *_addrDouble = val.toDouble();
+        if ( _fpostsetDouble && *ok) {
             _fpostsetDouble(_addrDouble, ok);
         }
     } else if ( val.type() == QVariant::String ) {
         if ( _fpresetQString ) {
             _fpresetQString(_addrQString, val.toString(), ok);
         }
-        *_addrQString = val.toString();
-        if ( _fpostsetQString ) {
+        if ( *ok) *_addrQString = val.toString();
+        if ( _fpostsetQString && *ok) {
             _fpostsetQString(_addrQString, ok);
+        }
+    } else if ( val.type() == QVariant::StringList ) {
+        if ( _fpresetQStringList ) {
+            _fpresetQStringList(_addrQStringList, val.toStringList(), ok);
+        }
+        if ( *ok) *_addrQStringList = val.toStringList();
+        if ( _fpostsetQStringList && *ok) {
+            _fpostsetQStringList(_addrQStringList, ok);
         }
     } else {
         qDebug() << "Bad scoobies... bad type to Option::setValue()";
@@ -320,6 +341,20 @@ void Options::add(const QString &nameSpec,
                    const QString &info,
                    Option::FPresetQString* presetCB,
                    Option::FPostsetQString *postsetCB)
+{
+    QVariant v(defaultValue);
+    _addOption(nameSpec,varPtr,v,info,(void*)presetCB,(void*)postsetCB);
+
+    if ( varPtr ) {
+        *varPtr = defaultValue;
+    }
+}
+
+void Options::add(const QString &nameSpec,
+                  QStringList *varPtr,  const QStringList &defaultValue,
+                  const QString &info,
+                  Option::FPresetQStringList *presetCB,
+                  Option::FPostsetQStringList *postsetCB)
 {
     QVariant v(defaultValue);
     _addOption(nameSpec,varPtr,v,info,(void*)presetCB,(void*)postsetCB);
@@ -476,10 +511,19 @@ void Options::parse(int argc, char **argv, const QString& programName,
     // Set the parsed value of the option to the
     // variable that is associated with the option
     foreach ( Option* opt, opt2vals.keys() ) {
-        QVariantList v = opt2vals.value(opt);
-        if ( v.size() > 0 ) {
-            // TODO: multiple values
-            opt->setValue(opt2vals.value(opt).at(0),ok);
+        if ( opt->type() == QVariant::StringList ) {
+            QStringList list;
+            foreach ( QVariant v, opt2vals.value(opt) ) {
+                list.append(v.toString());
+            }
+            QVariant vlist(list);
+            opt->setValue(vlist,ok);
+        } else {
+            QVariantList v = opt2vals.value(opt);
+            if ( v.size() > 0 ) {
+                // TODO: multiple values
+                opt->setValue(opt2vals.value(opt).at(0),ok);
+            }
         }
     }
 }
@@ -514,6 +558,8 @@ QVariantList Options::_extractOptValsFromArgs(Option *opt,
         } else if ( opt->type() == QVariant::Double ) {
             double v = valString.toDouble(ok);
             if ( *ok ) listVals << QVariant(v);
+        } else if ( opt->type() == QVariant::StringList ) {
+            if ( *ok ) listVals << QVariant(valString);
         } else {
             // string
             listVals << QVariant(valString);

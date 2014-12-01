@@ -34,11 +34,15 @@ public:
     typedef void(FPresetInt)(      int* varPtr,    int val, bool* ok);
     typedef void(FPresetUInt)(    uint* varPtr,   uint val, bool* ok);
     typedef void(FPresetQString)(QString* varPtr, const QString& val, bool* ok);
+    typedef void(FPresetQStringList)(QStringList* varPtr,
+                                     const QStringList& val,
+                                     bool* ok);
 
     typedef void(FPostsetDouble)(double* varPtr,  bool* ok);
     typedef void(FPostsetInt)(      int* varPtr,  bool* ok);
     typedef void(FPostsetUInt)(    uint* varPtr,  bool* ok);
     typedef void(FPostsetQString)(QString* varPtr, bool* ok);
+    typedef void(FPostsetQStringList)(QStringList* varPtr, bool* ok);
 
 public:
     Option(const QString& nameSpec,   // e.g. <-point:{2,3}>
@@ -85,16 +89,19 @@ private:
     int* _addrInt;
     uint* _addrUInt;
     QString* _addrQString;
+    QStringList* _addrQStringList;
 
     // Pre/post function pointers
     FPresetDouble* _fpresetDouble;
     FPresetInt* _fpresetInt;
     FPresetUInt* _fpresetUInt;
     FPresetQString* _fpresetQString;
+    FPresetQStringList* _fpresetQStringList;
     FPostsetDouble* _fpostsetDouble;
     FPostsetInt* _fpostsetInt;
     FPostsetUInt* _fpostsetUInt;
     FPostsetQString* _fpostsetQString;
+    FPostsetQStringList* _fpostsetQStringList;
 };
 
 
@@ -128,6 +135,11 @@ public:
              const QString& info,
              Option::FPresetQString* presetCB=0,
              Option::FPostsetQString* postsetCB=0);
+    void add(const QString& nameSpec,
+             QStringList* varPtr, const QStringList& defaultValue,
+             const QString& info,
+             Option::FPresetQStringList* presetCB=0,
+             Option::FPostsetQStringList* postsetCB=0);
     void add(const QString& nameSpec,
              double* varPtr,  double defaultValue,
              const QString& info,

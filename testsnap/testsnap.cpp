@@ -430,6 +430,7 @@ public:
     uint beginRun;
     uint endRun;
     double pi;
+    QStringList stringlist;
 };
 TestOptions opts;
 
@@ -440,7 +441,10 @@ void TestSnap::testOpts()
     Option::FPresetUInt presetEndRun;
     Option::FPresetDouble presetPi;
     Option::FPostsetDouble postsetPi;
-
+    Option::FPresetQStringList presetStringList;
+    Option::FPostsetQStringList postsetStringList;
+    QStringList deflist;
+    deflist << "a" << "b" << "c";
 
     opts.add("<MONTE_dir>", &opts.montedir, "",
              "MONTE_directory with RUNs",
@@ -453,13 +457,17 @@ void TestSnap::testOpts()
              presetEndRun);
     opts.add("<-pi:{1}>", &opts.pi,M_PI,
              "test for pi!", presetPi, postsetPi);
+    opts.add("<-stringlist:{3}>", &opts.stringlist,deflist,
+             "test string list!",
+             presetStringList, postsetStringList);
 
     QStringList l;
     l << "testsnap(argv[0])"
       << "MONTE_dog"
       << "-beginRun" <<  "10"
       << "-endRun" << "100"
-      << "-pi" << "180.0";
+      << "-pi" << "180.0"
+      << "-stringlist" << "x" << "y" << "z";
 
     int argc = l.size();
     char** argv = (char**)malloc(l.size()*sizeof(char*));
@@ -518,6 +526,25 @@ void presetEndRun(uint* endRunId, uint toSetRunId, bool* ok)
     *ok = true;
     QCOMPARE(*endRunId,(uint)1.0e6);
     QCOMPARE(toSetRunId,(uint)100);
+}
+
+void presetStringList(QStringList* list, const QStringList& toSetList, bool* ok)
+{
+    *ok = true;
+    QCOMPARE(list->at(0),QString("a"));
+    QCOMPARE(list->at(1),QString("b"));
+    QCOMPARE(list->at(2),QString("c"));
+    QCOMPARE(toSetList.at(0),QString("x"));
+    QCOMPARE(toSetList.at(1),QString("y"));
+    QCOMPARE(toSetList.at(2),QString("z"));
+}
+
+void postsetStringList(QStringList* list, bool* ok)
+{
+    *ok = true;
+    QCOMPARE(list->at(0),QString("x"));
+    QCOMPARE(list->at(1),QString("y"));
+    QCOMPARE(list->at(2),QString("z"));
 }
 
 
