@@ -23,7 +23,6 @@ SUBDIRS = libopts \
           libqplot \
           libsnapdata \
           libsnaprt \
-          monte \
           snap \
           snapx \
           snapq \

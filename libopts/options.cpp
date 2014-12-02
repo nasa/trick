@@ -525,6 +525,9 @@ void Options::parse(int argc, char **argv, const QString& programName,
                 opt->setValue(opt2vals.value(opt).at(0),ok);
             }
         }
+        if ( !*ok ) {
+            return;
+        }
     }
 }
 

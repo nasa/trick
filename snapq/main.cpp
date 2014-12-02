@@ -14,7 +14,7 @@ using namespace std;
 #include "libqplot/plotmainwindow.h"
 
 QStandardItemModel* createSingleRunVarsModel(MonteModel *monteModel);
-QStandardItemModel* createTwoRunsVarsModel(const QString& run1,
+QStandardItemModel* createDiffVarsModel(const QString& run1,
                                            const QString& run2);
 
 Option::FPresetQStringList presetRunDirs;
@@ -34,51 +34,78 @@ SnapOptions opts;
 
 int main(int argc, char *argv[])
 {
-
     bool ok;
+    int ret = -1;
 
-    opts.add("<RUN_dir>:{1,2}", &opts.runDirs, QStringList(),
-             "RUN_directories with RUNs",
+    opts.add("<MONTE_dir|RUN_dir>:{1,2}", &opts.runDirs, QStringList(),
+             "MONTE_dir or RUN_directories with RUNs",
              presetRunDirs);
     opts.add("-beginRun",&opts.beginRun,0,
-             "begin run (inclusive) in set of RUNs to plot",
+             "begin run (inclusive) in set of Monte carlo RUNs",
              presetBeginRun);
     opts.add("-endRun",&opts.endRun,100000,
-             "end run (inclusive) in set of RUNs to plot",
+             "end run (inclusive) in set of Monte carlo RUNs",
              presetEndRun);
     opts.parse(argc,argv, QString("snapq"), &ok);
 
     if ( !ok ) {
-        fprintf(stderr,"%s\n",opts.usage().toAscii().constData());
-        exit(-1);
+        qDebug() << opts.usage();
+        return -1;
     }
 
     try {
+
         QApplication::setGraphicsSystem("raster");
         QApplication a(argc, argv);
 
-        Runs runs(opts.runDirs);
-        MonteModel monteModel(&runs);
-
-        QStandardItemModel* varsModel = 0;
+        bool isMonte = false;
         if ( opts.runDirs.size() == 1 ) {
-            varsModel = createSingleRunVarsModel(&monteModel);
-        } else if ( opts.runDirs.size() == 2 ) {
-            varsModel = createTwoRunsVarsModel(opts.runDirs.at(0),
-                                               opts.runDirs.at(1));
+            QFileInfo fileInfo(opts.runDirs.at(0));
+            if ( fileInfo.fileName().startsWith("MONTE_") ) {
+                isMonte = true;
+            }
         }
 
-        PlotMainWindow w(opts.runDirs.at(0), &monteModel, varsModel);
+        MonteModel* monteModel = 0;
+        QStandardItemModel* varsModel = 0;
+        QStandardItemModel* monteInputsModel = 0;
+        Runs* runs = 0;
 
+        if ( isMonte ) {
+            Monte* monte = new Monte(opts.runDirs.at(0),
+                                     opts.beginRun,opts.endRun);
+            monteInputsModel = monte->inputModel();
+            monteModel = new MonteModel(monte);
+            varsModel = createSingleRunVarsModel(monteModel);
+        } else {
+
+            runs = new Runs(opts.runDirs);
+            monteModel = new MonteModel(runs);
+            if ( opts.runDirs.size() == 1 ) {
+                varsModel = createSingleRunVarsModel(monteModel);
+            } else if ( opts.runDirs.size() == 2 ) {
+                varsModel = createDiffVarsModel(opts.runDirs.at(0),
+                                                opts.runDirs.at(1));
+            }
+        }
+
+        PlotMainWindow w(opts.runDirs.at(0),
+                         monteModel, varsModel, monteInputsModel);
         w.show();
-        return a.exec();
+        ret = a.exec();
+
+        delete varsModel;
+        delete monteModel;
+        delete monteInputsModel;
+        delete runs;
+
     } catch (std::exception &e) {
         fprintf(stderr,"\n%s\n",e.what());
         fprintf(stderr,"%s\n",opts.usage().toAscii().constData());
         exit(-1);
     }
 
-    return 0;
+    return ret;
 }
 
 void presetRunDirs(QStringList* defRunDirs,
@@ -95,23 +122,31 @@ void presetRunDirs(QStringList* defRunDirs,
             return;
         }
     }
+
+    if ( runDirs.size() > 1 ) {
+        foreach ( QString dirName, runDirs ) {
+            QFileInfo info(dirName);
+            if ( info.fileName().startsWith("MONTE_") ) {
+                fprintf(stderr,"snapq [error] : when plotting a MONTE dir "
+                        "only one MONTE dir can be specified with no "
+                        "additional RUNs\n");
+                *ok = false;
+                return;
+            }
+        }
+    }
 }
 
 void presetBeginRun(uint* beginRunId, uint runId, bool* ok)
 {
     Q_UNUSED(beginRunId);
 
-    *ok = true;
-
-    if ( *ok ) {
-        // Start time should be less than stop time
-        if ( runId > opts.endRun ) {
-            fprintf(stderr,"snap [error] : option -beginRun, set to %d, "
-                    "must be greater than "
-                    " -endRun which is set to %d\n",
-                    runId, opts.endRun);
-            *ok = false;
-        }
+    if ( runId > opts.endRun ) {
+        fprintf(stderr,"snap [error] : option -beginRun, set to %d, "
+                "must be greater than "
+                " -endRun which is set to %d\n",
+                runId, opts.endRun);
+        *ok = false;
     }
 }
 
@@ -119,17 +154,12 @@ void presetEndRun(uint* endRunId, uint runId, bool* ok)
 {
     Q_UNUSED(endRunId);
 
-    *ok = true;
-
-    if ( *ok ) {
-        // Start time should be less than stop time
-        if ( runId < opts.beginRun ) {
-            fprintf(stderr,"snap [error] : option -endRun, set to %d, "
-                    "must be greater than "
-                    "-beginRun which is set to %d\n",
-                    runId,opts.beginRun);
-            *ok = false;
-        }
+    if ( runId < opts.beginRun ) {
+        fprintf(stderr,"snap [error] : option -endRun, set to %d, "
+                "must be greater than "
+                "-beginRun which is set to %d\n",
+                runId,opts.beginRun);
+        *ok = false;
     }
 }
 
@@ -160,7 +190,7 @@ QStandardItemModel* createSingleRunVarsModel(MonteModel *monteModel)
 //
 // List model of vars common between both runs
 //
-QStandardItemModel* createTwoRunsVarsModel(const QString& run1,
+QStandardItemModel* createDiffVarsModel(const QString& run1,
                                            const QString& run2)
 {
     QStringList commonParams;
