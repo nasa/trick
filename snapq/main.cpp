@@ -13,7 +13,9 @@ using namespace std;
 #include "libsnapdata/runs.h"
 #include "libqplot/plotmainwindow.h"
 
-QStandardItemModel* createVarsModel(MonteModel *monteModel);
+QStandardItemModel* createSingleRunVarsModel(MonteModel *monteModel);
+QStandardItemModel* createTwoRunsVarsModel(const QString& run1,
+                                           const QString& run2);
 
 Option::FPresetQStringList presetRunDirs;
 Option::FPresetUInt presetBeginRun;
@@ -35,8 +37,8 @@ int main(int argc, char *argv[])
 
     bool ok;
 
-    opts.add("<RUN_dir>:1", &opts.runDirs, QStringList(),
-             "RUN_directory with RUNs",
+    opts.add("<RUN_dir>:{1,2}", &opts.runDirs, QStringList(),
+             "RUN_directories with RUNs",
              presetRunDirs);
     opts.add("-beginRun",&opts.beginRun,0,
              "begin run (inclusive) in set of RUNs to plot",
@@ -57,7 +59,14 @@ int main(int argc, char *argv[])
 
         Runs runs(opts.runDirs);
         MonteModel monteModel(&runs);
-        QStandardItemModel* varsModel = createVarsModel(&monteModel);
+
+        QStandardItemModel* varsModel = 0;
+        if ( opts.runDirs.size() == 1 ) {
+            varsModel = createSingleRunVarsModel(&monteModel);
+        } else if ( opts.runDirs.size() == 2 ) {
+            varsModel = createTwoRunsVarsModel(opts.runDirs.at(0),
+                                               opts.runDirs.at(1));
+        }
 
         PlotMainWindow w(opts.runDirs.at(0), &monteModel, varsModel);
 
@@ -127,7 +136,7 @@ void presetEndRun(uint* endRunId, uint runId, bool* ok)
 //
 // List of vars from the MonteModel column headerData
 //
-QStandardItemModel* createVarsModel(MonteModel *monteModel)
+QStandardItemModel* createSingleRunVarsModel(MonteModel *monteModel)
 {
     QStandardItemModel* varsModel = new QStandardItemModel(0,1);
 
@@ -146,4 +155,34 @@ QStandardItemModel* createVarsModel(MonteModel *monteModel)
     }
 
     return varsModel;
+}
+
+//
+// List model of vars common between both runs
+//
+QStandardItemModel* createTwoRunsVarsModel(const QString& run1,
+                                           const QString& run2)
+{
+    QStringList commonParams;
+    QStringList s1; s1 << run1 ;
+    Runs runs1(s1);
+    QStringList s2; s2 << run2 ;
+    Runs runs2(s2);
+    QStringList params1 = runs1.params();
+    foreach ( QString param2, runs2.params() ) {
+        if ( params1.contains(param2) ) {
+            commonParams.append(param2);
+        }
+    }
+    commonParams.sort();
+
+    QStandardItemModel* pm = new QStandardItemModel(0,1);
+
+    QStandardItem *rootItem = pm->invisibleRootItem();
+    for ( int i = 0; i < commonParams.size(); ++i) {
+        QStandardItem *varItem = new QStandardItem(commonParams.at(i));
+        rootItem->appendRow(varItem);
+    }
+
+    return pm;
 }

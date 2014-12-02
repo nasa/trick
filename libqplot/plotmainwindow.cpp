@@ -15,12 +15,12 @@ PlotMainWindow::PlotMainWindow(const QString &dpDir, MonteModel* monteModel,
         QStandardItemModel* varsModel,
         QStandardItemModel *monteInputsModel,
         QWidget *parent) :
+    QMainWindow(parent),
     _dpDir(dpDir),
     _monteModel(monteModel),
     _varsModel(varsModel),
     _monteInputsModel(monteInputsModel),
-    _monteInputsView(0),
-    QMainWindow(parent)
+    _monteInputsView(0)
 {
     setWindowTitle(tr("Snap!"));
     createMenu();
@@ -74,7 +74,7 @@ PlotMainWindow::PlotMainWindow(const QString &dpDir, MonteModel* monteModel,
     _nbDPVars->setAttribute(Qt::WA_AlwaysShowToolTips, false);
 
     // Vars Tab
-    _varsModel = _createVarsModel(_monteModel);;
+    _varsModel = varsModel;
     QFrame* varsFrame = new QFrame(lsplit);
     _varsWidget = new VarsWidget(_varsModel, _monteModel, _plotModel,
                                   _plotSelectModel, _plotBookView,
@@ -118,31 +118,6 @@ void PlotMainWindow::createMenu()
     connect(_pdfAction, SIGNAL(triggered()),this, SLOT(_savePdf()));
     connect(_exitAction, SIGNAL(triggered()),this, SLOT(close()));
     setMenuWidget(_menuBar);
-}
-
-
-//
-// Just a simple list of vars grabbed off the MonteModel col headerData
-//
-QStandardItemModel *PlotMainWindow::_createVarsModel(MonteModel *mm)
-{
-    QStandardItemModel* pm = new QStandardItemModel(0,1,this);
-
-    QStringList varList;
-    for ( int c = 1; c < mm->columnCount(); ++c) {
-        QString var = mm->headerData(c,Qt::Horizontal).toString();
-        varList.append(var);
-    }
-
-    varList.sort();
-
-    QStandardItem *rootItem = pm->invisibleRootItem();
-    for ( int i = 0; i < varList.size(); ++i) {
-        QStandardItem *varItem = new QStandardItem(varList.at(i));
-        rootItem->appendRow(varItem);
-    }
-
-    return pm;
 }
 
 // _plotModel will have a curve on a branch like this:
@@ -242,6 +217,7 @@ void PlotMainWindow::_updateVarSelection(const QModelIndex& pageIdx)
 
 void PlotMainWindow::_updateDPSelection(const QModelIndex &pageIdx)
 {
+    Q_UNUSED(pageIdx);
 #if 0
     _nbDPVars->setCurrentIndex(1); // set tabbed notebook page to DP page
 

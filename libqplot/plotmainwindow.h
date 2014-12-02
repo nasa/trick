@@ -54,7 +54,6 @@ private:
 
     QTabWidget* _nbDPVars;
 
-    QStandardItemModel* _createVarsModel(MonteModel* mm);
     VarsWidget* _varsWidget;
     void _updateVarSelection(const QModelIndex& pageIdx);
 
