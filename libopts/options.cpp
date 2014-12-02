@@ -450,7 +450,6 @@ void Options::parse(int argc, char **argv, const QString& programName,
     foreach ( Option* opt, _opts.values() ) {
         if ( opt->isRootOption() ) {
             rootOption = opt;
-            qDebug() << "MOOOOOO" << opt->name() << opt->valueQuantifier().min() ;
         }
     }
     if ( rootOption ) {
