@@ -18,6 +18,7 @@ QStandardItemModel* createDiffVarsModel(const QString& run1,
                                            const QString& run2);
 
 Option::FPresetQStringList presetRunDirs;
+Option::FPostsetQStringList postsetRunDirs;
 Option::FPresetUInt presetBeginRun;
 Option::FPresetUInt presetEndRun;
 
@@ -39,7 +40,7 @@ int main(int argc, char *argv[])
 
     opts.add("<MONTE_dir|RUN_dir>:{1,2}", &opts.runDirs, QStringList(),
              "MONTE_dir or RUN_directories with RUNs",
-             presetRunDirs);
+             presetRunDirs, postsetRunDirs);
     opts.add("-beginRun",&opts.beginRun,0,
              "begin run (inclusive) in set of Monte carlo RUNs",
              presetBeginRun);
@@ -137,6 +138,14 @@ void presetRunDirs(QStringList* defRunDirs,
     }
 }
 
+// Remove trailing /s on dir names
+void postsetRunDirs (QStringList* runDirs, bool* ok)
+{
+    Q_UNUSED(ok);
+    QStringList dirs = runDirs->replaceInStrings(QRegExp("/*$"), "");
+    Q_UNUSED(dirs);
+}
+
 void presetBeginRun(uint* beginRunId, uint runId, bool* ok)
 {
     Q_UNUSED(beginRunId);
@@ -216,3 +225,4 @@ QStandardItemModel* createDiffVarsModel(const QString& run1,
 
     return pm;
 }
+
