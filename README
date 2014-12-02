@@ -2,6 +2,6 @@ Build/Run Directions
 
 % qmake      ; # Use qt4, e.g. /usr/lib64/qt4/bin/qmake
 % make
-% bin/snap   
-% bin/snapx  ; # Gui version of snap
-% bin/monte  ; # View trick monte carlo data
+% bin/snap                     ; # Realtime text report
+% bin/snapx                    ; # Gui version of snap real-time report
+% bin/snapq RUN_dir|MONTE_dir  ; # View trick run or monte carlo data
