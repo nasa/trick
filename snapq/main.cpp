@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     bool ok;
     int ret = -1;
 
-    opts.add("<MONTE_dir|RUN_dir>:+", &opts.runDirs, QStringList(),
+    opts.add("<MONTE_dir|RUN_dirs>:+", &opts.runDirs, QStringList(),
              "MONTE_dir or RUN_directories with RUNs",
              presetRunDirs, postsetRunDirs);
     opts.add("-beginRun",&opts.beginRun,0,
@@ -82,6 +82,17 @@ int main(int argc, char *argv[])
             runs = new Runs(opts.runDirs);
             monteModel = new MonteModel(runs);
             varsModel = createVarsModel(opts.runDirs);
+        }
+
+        // Any parameters common between runs?
+        if ( varsModel->rowCount() == 1 ) {
+            QModelIndex idx0 = varsModel->index(0,0);
+            QString param = varsModel->data(idx0).toString();
+            if ( param == "sys.exec.out.time" ) {
+                qDebug() << "snap [error]: No common parameters found between "
+                            "runs.  Aborting.";
+                return -1;
+            }
         }
 
         PlotMainWindow w(opts.runDirs.at(0),
