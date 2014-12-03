@@ -1,6 +1,6 @@
 #include <QApplication>
 #include <QObject>
-#include <QThread>
+#include <QSet>
 
 #include <string>
 using namespace std;
@@ -13,9 +13,7 @@ using namespace std;
 #include "libsnapdata/runs.h"
 #include "libqplot/plotmainwindow.h"
 
-QStandardItemModel* createSingleRunVarsModel(MonteModel *monteModel);
-QStandardItemModel* createDiffVarsModel(const QString& run1,
-                                           const QString& run2);
+QStandardItemModel* createVarsModel(const QStringList& runDirs);
 
 Option::FPresetQStringList presetRunDirs;
 Option::FPostsetQStringList postsetRunDirs;
@@ -38,7 +36,7 @@ int main(int argc, char *argv[])
     bool ok;
     int ret = -1;
 
-    opts.add("<MONTE_dir|RUN_dir>:{1,2}", &opts.runDirs, QStringList(),
+    opts.add("<MONTE_dir|RUN_dir>:+", &opts.runDirs, QStringList(),
              "MONTE_dir or RUN_directories with RUNs",
              presetRunDirs, postsetRunDirs);
     opts.add("-beginRun",&opts.beginRun,0,
@@ -77,17 +75,13 @@ int main(int argc, char *argv[])
                                      opts.beginRun,opts.endRun);
             monteInputsModel = monte->inputModel();
             monteModel = new MonteModel(monte);
-            varsModel = createSingleRunVarsModel(monteModel);
+            QString run0 =  opts.runDirs.at(0) + "/" + monte->runs().at(0);
+            QStringList runDirs; runDirs << run0;
+            varsModel = createVarsModel(runDirs);
         } else {
-
             runs = new Runs(opts.runDirs);
             monteModel = new MonteModel(runs);
-            if ( opts.runDirs.size() == 1 ) {
-                varsModel = createSingleRunVarsModel(monteModel);
-            } else if ( opts.runDirs.size() == 2 ) {
-                varsModel = createDiffVarsModel(opts.runDirs.at(0),
-                                                opts.runDirs.at(1));
-            }
+            varsModel = createVarsModel(opts.runDirs);
         }
 
         PlotMainWindow w(opts.runDirs.at(0),
@@ -172,46 +166,27 @@ void presetEndRun(uint* endRunId, uint runId, bool* ok)
     }
 }
 
-//
-// List of vars from the MonteModel column headerData
-//
-QStandardItemModel* createSingleRunVarsModel(MonteModel *monteModel)
+QStandardItemModel* createVarsModel(const QStringList& runDirs)
 {
-    QStandardItemModel* varsModel = new QStandardItemModel(0,1);
+    if ( runDirs.isEmpty() ) return 0;
 
-    QStringList varList;
-    for ( int c = 1; c < monteModel->columnCount(); ++c) {
-        QString var = monteModel->headerData(c,Qt::Horizontal).toString();
-        varList.append(var);
-    }
-
-    varList.sort();
-
-    QStandardItem *rootItem = varsModel->invisibleRootItem();
-    for ( int i = 0; i < varList.size(); ++i) {
-        QStandardItem *varItem = new QStandardItem(varList.at(i));
-        rootItem->appendRow(varItem);
-    }
-
-    return varsModel;
-}
-
-//
-// List model of vars common between both runs
-//
-QStandardItemModel* createDiffVarsModel(const QString& run1,
-                                           const QString& run2)
-{
     QStringList commonParams;
-    QStringList s1; s1 << run1 ;
-    Runs runs1(s1);
-    QStringList s2; s2 << run2 ;
-    Runs runs2(s2);
-    QStringList params1 = runs1.params();
-    foreach ( QString param2, runs2.params() ) {
-        if ( params1.contains(param2) ) {
-            commonParams.append(param2);
+
+    QSet<QString> paramSet;
+    foreach ( QString runDir, runDirs ) {
+        QStringList runList;
+        runList << runDir;
+        Runs run(runList);
+        QSet<QString> runParamSet = run.params().toSet();
+        if ( paramSet.isEmpty() ) {
+            paramSet = runParamSet;
+        } else {
+            paramSet = paramSet.intersect(runParamSet);
         }
+    }
+
+    foreach ( QString param, paramSet ) {
+        commonParams << param;
     }
     commonParams.sort();
 
@@ -225,4 +200,3 @@ QStandardItemModel* createDiffVarsModel(const QString& run1,
 
     return pm;
 }
-
