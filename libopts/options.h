@@ -34,6 +34,7 @@ public:
     typedef void(FPresetInt)(      int* varPtr,    int val, bool* ok);
     typedef void(FPresetUInt)(    uint* varPtr,   uint val, bool* ok);
     typedef void(FPresetQString)(QString* varPtr, const QString& val, bool* ok);
+    typedef void(FPresetBool)(bool* varPtr, const bool& val, bool* ok);
     typedef void(FPresetQStringList)(QStringList* varPtr,
                                      const QStringList& val,
                                      bool* ok);
@@ -42,6 +43,7 @@ public:
     typedef void(FPostsetInt)(      int* varPtr,  bool* ok);
     typedef void(FPostsetUInt)(    uint* varPtr,  bool* ok);
     typedef void(FPostsetQString)(QString* varPtr, bool* ok);
+    typedef void(FPostsetBool)(bool* varPtr, bool* ok);
     typedef void(FPostsetQStringList)(QStringList* varPtr, bool* ok);
 
 public:
@@ -89,6 +91,7 @@ private:
     int* _addrInt;
     uint* _addrUInt;
     QString* _addrQString;
+    bool* _addrBool;
     QStringList* _addrQStringList;
 
     // Pre/post function pointers
@@ -96,11 +99,13 @@ private:
     FPresetInt* _fpresetInt;
     FPresetUInt* _fpresetUInt;
     FPresetQString* _fpresetQString;
+    FPresetBool* _fpresetBool;
     FPresetQStringList* _fpresetQStringList;
     FPostsetDouble* _fpostsetDouble;
     FPostsetInt* _fpostsetInt;
     FPostsetUInt* _fpostsetUInt;
     FPostsetQString* _fpostsetQString;
+    FPostsetBool* _fpostsetBool;
     FPostsetQStringList* _fpostsetQStringList;
 };
 
@@ -136,6 +141,11 @@ public:
              Option::FPresetQString* presetCB=0,
              Option::FPostsetQString* postsetCB=0);
     void add(const QString& nameSpec,
+             bool* varPtr, const bool& defaultValue,
+             const QString& info,
+             Option::FPresetBool* presetCB=0,
+             Option::FPostsetBool* postsetCB=0);
+    void add(const QString& nameSpec,
              QStringList* varPtr, const QStringList& defaultValue,
              const QString& info,
              Option::FPresetQStringList* presetCB=0,
@@ -165,6 +175,7 @@ private:
                        void* presetCB=0,
                        void* postsetCB=0);
     QVariantList _extractOptValsFromArgs(Option* opt, const QStringList &s, bool *ok);
+    bool _stringToBool(const QString& s, bool *ok);
 } ;
 
     

@@ -431,6 +431,9 @@ public:
     uint endRun;
     double pi;
     QStringList stringlist;
+    bool yesNo;
+    bool openClose;
+    bool oneZero;
 };
 TestOptions opts;
 
@@ -460,6 +463,9 @@ void TestSnap::testOpts()
     opts.add("<-stringlist:{3}>", &opts.stringlist,deflist,
              "test string list!",
              presetStringList, postsetStringList);
+    opts.add("<-yesNo:{1}>", &opts.yesNo, false, "test bool!");
+    opts.add("-openClose:{1}", &opts.openClose, true, "test bool!");
+    opts.add("<-oneZero:{1}>", &opts.oneZero, false, "test bool!");
 
     QStringList l;
     l << "testsnap(argv[0])"
@@ -467,7 +473,9 @@ void TestSnap::testOpts()
       << "-beginRun" <<  "10"
       << "-endRun" << "100"
       << "-pi" << "180.0"
-      << "-stringlist" << "x" << "y" << "z";
+      << "-stringlist" << "x" << "y" << "z"
+      << "-yesNo" << "YeS"
+      << "-oneZero" << "0";
 
     int argc = l.size();
     char** argv = (char**)malloc(l.size()*sizeof(char*));
@@ -483,6 +491,9 @@ void TestSnap::testOpts()
     QCOMPARE(opts.montedir, QString("MONTE_dog"));
     QCOMPARE(opts.beginRun, (uint)10);
     QCOMPARE(opts.endRun,   (uint)100);
+    QCOMPARE(opts.yesNo, true);
+    QCOMPARE(opts.openClose, true);
+    QCOMPARE(opts.oneZero, false);
 
     if ( !ok ) {
         fprintf(stderr,"%s\n",opts.usage().toAscii().constData());
@@ -546,7 +557,6 @@ void postsetStringList(QStringList* list, bool* ok)
     QCOMPARE(list->at(1),QString("y"));
     QCOMPARE(list->at(2),QString("z"));
 }
-
 
 #endif
 

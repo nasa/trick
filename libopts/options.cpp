@@ -107,11 +107,13 @@ Option::Option(const QString &nameSpec,
     _fpresetInt(0),
     _fpresetUInt(0),
     _fpresetQString(0),
+    _fpresetBool(0),
     _fpresetQStringList(0),
     _fpostsetDouble(0),
     _fpostsetInt(0),
     _fpostsetUInt(0),
     _fpostsetQString(0),
+    _fpostsetBool(0),
     _fpostsetQStringList(0)
 {
     // Remove wspace
@@ -155,6 +157,10 @@ Option::Option(const QString &nameSpec,
         _addrQString = (QString*) addr;
         _fpresetQString = (FPresetQString*)presetCB;
         _fpostsetQString = (FPostsetQString*)postsetCB;
+    } else if ( _defaultValue.type() == QVariant::Bool ) {
+        _addrBool = (bool*) addr;
+        _fpresetBool = (FPresetBool*)presetCB;
+        _fpostsetBool = (FPostsetBool*)postsetCB;
     } else if ( _defaultValue.type() == QVariant::StringList ) {
         _addrQStringList = (QStringList*) addr;
         _fpresetQStringList = (FPresetQStringList*)presetCB;
@@ -263,6 +269,14 @@ void Option::setValue(const QVariant &val, bool* ok)
         if ( _fpostsetQString && *ok) {
             _fpostsetQString(_addrQString, ok);
         }
+    } else if ( val.type() == QVariant::Bool ) {
+        if ( _fpresetBool ) {
+            _fpresetBool(_addrBool, val.toBool(), ok);
+        }
+        if ( *ok) *_addrBool = val.toBool();
+        if ( _fpostsetBool && *ok) {
+            _fpostsetBool(_addrBool, ok);
+        }
     } else if ( val.type() == QVariant::StringList ) {
         if ( _fpresetQStringList ) {
             _fpresetQStringList(_addrQStringList, val.toStringList(), ok);
@@ -351,6 +365,20 @@ void Options::add(const QString &nameSpec,
 }
 
 void Options::add(const QString &nameSpec,
+                  bool *varPtr, const bool &defaultValue,
+                  const QString &info,
+                  Option::FPresetBool *presetCB,
+                  Option::FPostsetBool *postsetCB)
+{
+    QVariant v(defaultValue);
+    _addOption(nameSpec,varPtr,v,info,(void*)presetCB,(void*)postsetCB);
+
+    if ( varPtr ) {
+        *varPtr = defaultValue;
+    }
+}
+
+void Options::add(const QString &nameSpec,
                   QStringList *varPtr,  const QStringList &defaultValue,
                   const QString &info,
                   Option::FPresetQStringList *presetCB,
@@ -416,6 +444,7 @@ void Options::parse(int argc, char **argv, const QString& programName,
                         programName.toAscii().constData(),
                         opt->nameSpec().toAscii().constData());
                 *ok = false;
+                return;
             }
         }
     }
@@ -499,6 +528,9 @@ void Options::parse(int argc, char **argv, const QString& programName,
             } else if ( rootOption->type() == QVariant::Double ) {
                 double v = s.toDouble(ok);
                 if ( *ok ) rootVals << QVariant(v);
+            } else if ( rootOption->type() == QVariant::Bool ) {
+                bool v = _stringToBool(s,ok);
+                if ( *ok ) rootVals << QVariant(v);
             } else {
                 // string
                 rootVals << QVariant(s);
@@ -563,13 +595,16 @@ QVariantList Options::_extractOptValsFromArgs(Option *opt,
             if ( *ok ) listVals << QVariant(v);
         } else if ( opt->type() == QVariant::StringList ) {
             if ( *ok ) listVals << QVariant(valString);
+        } else if ( opt->type() == QVariant::Bool ) {
+            bool v = _stringToBool(valString,ok);
+            if ( *ok ) listVals << QVariant(v);
         } else {
             // string
             listVals << QVariant(valString);
         }
         if ( ! *ok && j < opt->valueQuantifier().min() ) {
             fprintf(stderr, "Option=\"%s\" is of type %s but "
-                            "had value \"%s\" which is wrong type",
+                            "had value \"%s\" which is wrong type\n",
                             opt->nameSpec().toAscii().constData(),
                             opt->defaultValue().typeName(),
                             valString.toAscii().constData());
@@ -590,4 +625,42 @@ QVariantList Options::_extractOptValsFromArgs(Option *opt,
     return listVals;
 }
 
+bool Options::_stringToBool(const QString &s, bool* ok)
+{
+    bool ret = false;
+    *ok = false;
+    if ( s.compare("true",Qt::CaseInsensitive) == 0 ||
+         s.compare("yes",Qt::CaseInsensitive) == 0 ||
+         s.compare("ok",Qt::CaseInsensitive) == 0 ||
+         s.compare("on",Qt::CaseInsensitive) == 0 ||
+         s.compare("connect",Qt::CaseInsensitive) == 0 ||
+         s.compare("active",Qt::CaseInsensitive) == 0 ||
+         s.compare("go",Qt::CaseInsensitive) == 0 ||
+         s.compare("high",Qt::CaseInsensitive) == 0 ||
+         s.compare("enable",Qt::CaseInsensitive) == 0 ||
+         s.compare("open",Qt::CaseInsensitive) == 0 ||
+         s.compare("forward",Qt::CaseInsensitive) == 0 ||
+         s.compare("good",Qt::CaseInsensitive) == 0 ||
+         s.compare("1",Qt::CaseInsensitive) == 0 ) {
 
+        *ok = true;
+        ret = true;
+    } else if ( s.compare("false",Qt::CaseInsensitive) == 0 ||
+                s.compare("no",Qt::CaseInsensitive) == 0 ||
+                s.compare("off",Qt::CaseInsensitive) == 0 ||
+                s.compare("inactive",Qt::CaseInsensitive) == 0 ||
+                s.compare("backward",Qt::CaseInsensitive) == 0 ||
+                s.compare("bad",Qt::CaseInsensitive) == 0 ||
+                s.compare("disconnect",Qt::CaseInsensitive) == 0 ||
+                s.compare("inactive",Qt::CaseInsensitive) == 0 ||
+                s.compare("stop",Qt::CaseInsensitive) == 0 ||
+                s.compare("low",Qt::CaseInsensitive) == 0 ||
+                s.compare("disable",Qt::CaseInsensitive) == 0 ||
+                s.compare("closed",Qt::CaseInsensitive) == 0 ||
+                s.compare("0",Qt::CaseInsensitive) == 0 ) {
+        *ok = true;
+        ret = false;
+    }
+
+    return ret;
+}
