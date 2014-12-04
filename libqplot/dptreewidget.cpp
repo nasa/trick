@@ -35,10 +35,11 @@ DPTreeWidget::DPTreeWidget(const QString &dirName,
             SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this, SLOT(_dpTreeViewCurrentChanged(QModelIndex,QModelIndex)));
 
-    // This doesn't work :( Can't hide timestamp column
     for ( int col = 1; col < _dpModel->columnCount(); ++col) {
         _dpTreeView->hideColumn(col);
     }
+    _dpTreeView->expandAll();
+    _dpTreeView->resizeColumnToContents(0);
 }
 
 DPTreeWidget::~DPTreeWidget()
@@ -52,7 +53,16 @@ DPTreeWidget::~DPTreeWidget()
 void DPTreeWidget::_setupModel()
 {
     _dir = new QDir(_dirName);
+
+    // Change directory from RUN/MONTE dir to DP_Product dir
     _dir->cdUp();
+    QStringList dpDirFilter;
+    dpDirFilter << "DP_Product";
+    QStringList dpdirs = _dir->entryList(dpDirFilter);
+    if ( !dpdirs.isEmpty() ) {
+        _dir->cd(dpdirs.at(0));
+    }
+
     _dpModel = new QFileSystemModel;
     _dpModelRootIdx = _dpModel->setRootPath(_dir->path());
     QStringList filters;
