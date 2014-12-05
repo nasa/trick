@@ -20,10 +20,10 @@ QString getExpectedReport(const QString& runDir,       // e.g. RUN_iss
 //#define TEST_CUSTOM
 #ifndef TEST_CUSTOM
     #define TEST_OPTS
-    #define TEST_NON_RM2000
-    #define TEST_ISS_RPT
-    #define TEST_RM2000_RPT
-    #define TEST_RM2000_BENCHMARK
+    //#define TEST_NON_RM2000
+    //#define TEST_ISS_RPT
+    //#define TEST_RM2000_RPT
+    //#define TEST_RM2000_BENCHMARK
 #endif
 
 QString testRunsDir()
@@ -434,6 +434,10 @@ public:
     bool yesNo;
     bool openClose;
     bool oneZero;
+    bool openDoor;
+    bool closeGate;
+    bool feedJR;
+    bool independent;
 };
 TestOptions opts;
 
@@ -466,6 +470,9 @@ void TestSnap::testOpts()
     opts.add("<-yesNo:{1}>", &opts.yesNo, false, "test bool!");
     opts.add("-openClose:{1}", &opts.openClose, true, "test bool!");
     opts.add("<-oneZero:{1}>", &opts.oneZero, false, "test bool!");
+    opts.add("-openDoor:{0}", &opts.openDoor, false, "test bool!");
+    opts.add("-feedJR:{0}", &opts.feedJR, false, "test bool!");
+    opts.add("-independent:{0}", &opts.independent, false, "test bool!");
 
     QStringList l;
     l << "testsnap(argv[0])"
@@ -475,7 +482,10 @@ void TestSnap::testOpts()
       << "-pi" << "180.0"
       << "-stringlist" << "x" << "y" << "z"
       << "-yesNo" << "YeS"
-      << "-oneZero" << "0";
+      << "-openDoor"
+      << "-oneZero" << "0"
+      << "-feedJR"
+      << "-independent" ;
 
     int argc = l.size();
     char** argv = (char**)malloc(l.size()*sizeof(char*));
@@ -494,6 +504,9 @@ void TestSnap::testOpts()
     QCOMPARE(opts.yesNo, true);
     QCOMPARE(opts.openClose, true);
     QCOMPARE(opts.oneZero, false);
+    QCOMPARE(opts.openDoor, true);
+    QCOMPARE(opts.feedJR, true);
+    QCOMPARE(opts.independent, true);
 
     if ( !ok ) {
         fprintf(stderr,"%s\n",opts.usage().toAscii().constData());

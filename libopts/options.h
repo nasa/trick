@@ -174,7 +174,8 @@ private:
                        const QString& info,
                        void* presetCB=0,
                        void* postsetCB=0);
-    QVariantList _extractOptValsFromArgs(Option* opt, const QStringList &s, bool *ok);
+    QVariantList _extractOptValsFromArgs(Option* opt, const QStringList &s,
+                                         bool *ok);
     bool _stringToBool(const QString& s, bool *ok);
 } ;
 

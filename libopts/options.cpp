@@ -454,7 +454,7 @@ void Options::parse(int argc, char **argv, const QString& programName,
     QHash<Option*,QVariantList> opt2vals;
     foreach ( Option* opt, _opts.values() ) {
         if ( opt->isRootOption() ) continue;
-        QVariantList v = _extractOptValsFromArgs(opt, args,ok);
+        QVariantList v = _extractOptValsFromArgs(opt, args, ok);
         opt2vals.insert(opt,v);
     }
     if ( !*ok) return;
@@ -467,6 +467,18 @@ void Options::parse(int argc, char **argv, const QString& programName,
         int i = rootStringVals.indexOf(opt->name());
         if ( i >= 0 ) {
             int nVals = opt2vals.value(opt).size();
+            if ( nVals == 0 ) {
+                // A boolean option may not have a "value"
+                // In this case, the value is implicitly true
+                if ( opt->type() == QVariant::Bool ) {
+                    opt->setValue(QVariant(true),ok);
+                } else {
+                    qDebug() << "Option " << opt->name()
+                             << " does not have a value specified.";
+                    *ok = false;
+                }
+                if ( !*ok ) return;
+            }
             for ( int j = nVals + i; j >= i; --j ) {
                 rootStringVals.removeAt(j);
             }
@@ -641,6 +653,7 @@ bool Options::_stringToBool(const QString &s, bool* ok)
          s.compare("open",Qt::CaseInsensitive) == 0 ||
          s.compare("forward",Qt::CaseInsensitive) == 0 ||
          s.compare("good",Qt::CaseInsensitive) == 0 ||
+         s.compare("independent",Qt::CaseInsensitive) == 0 ||
          s.compare("1",Qt::CaseInsensitive) == 0 ) {
 
         *ok = true;
@@ -652,11 +665,11 @@ bool Options::_stringToBool(const QString &s, bool* ok)
                 s.compare("backward",Qt::CaseInsensitive) == 0 ||
                 s.compare("bad",Qt::CaseInsensitive) == 0 ||
                 s.compare("disconnect",Qt::CaseInsensitive) == 0 ||
-                s.compare("inactive",Qt::CaseInsensitive) == 0 ||
                 s.compare("stop",Qt::CaseInsensitive) == 0 ||
                 s.compare("low",Qt::CaseInsensitive) == 0 ||
                 s.compare("disable",Qt::CaseInsensitive) == 0 ||
                 s.compare("closed",Qt::CaseInsensitive) == 0 ||
+                s.compare("dependent",Qt::CaseInsensitive) == 0 ||
                 s.compare("0",Qt::CaseInsensitive) == 0 ) {
         *ok = true;
         ret = false;
