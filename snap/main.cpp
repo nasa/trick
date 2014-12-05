@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     opts.add("<RUN_dir>", &opts.rundir,"",
              "RUN_directory with job timing data",
              preset_rundir);
-    opts.parse(argc,argv, "snapx", &ok);
+    opts.parse(argc,argv, "snap", &ok);
 
     if ( !ok ) {
         fprintf(stderr,"%s\n",opts.usage().toAscii().constData());
