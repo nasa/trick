@@ -8,14 +8,14 @@ release {
     QMAKE_CXXFLAGS_RELEASE -= -g
 }
 
-TARGET = snapx
+TARGET = snap
 target.path = $$PREFIX/bin
 INSTALLS += target
 
 TEMPLATE = app
 
 DESTDIR = $$PWD/../bin
-BUILDDIR = $$PWD/../build/snapx
+BUILDDIR = $$PWD/../build/snap
 OBJECTS_DIR = $$BUILDDIR/obj
 MOC_DIR     = $$BUILDDIR/moc
 RCC_DIR     = $$BUILDDIR/rcc

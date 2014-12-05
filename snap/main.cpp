@@ -20,6 +20,7 @@ bool check_file(const QString& fname);
 class SnapOptions : public Options
 {
   public:
+    bool textReport;
     double start;
     double stop;
     QString rundir;
@@ -33,6 +34,7 @@ int main(int argc, char *argv[])
 
     bool ok;
 
+    opts.add("-textReport:{0,1}", &opts.textReport, false, "print text report");
     opts.add("-start", &opts.start, 1.0, "start time of run analysis",
              preset_start);
     opts.add("-stop", &opts.stop,1.0e20, "stop time of run analysis",
@@ -48,11 +50,17 @@ int main(int argc, char *argv[])
     }
 
     try {
-        QApplication::setGraphicsSystem("raster");
-        QApplication a(argc, argv);
-        SnapWindow w(opts.rundir,opts.start,opts.stop);
-        w.show();
-        return a.exec();
+        if ( opts.textReport ) {
+            Snap snap(opts.rundir,opts.start,opts.stop);
+            SnapReport rpt(snap);
+            fprintf(stderr,"%s",rpt.report().toAscii().constData());
+        } else {
+            QApplication::setGraphicsSystem("raster");
+            QApplication a(argc, argv);
+            SnapWindow w(opts.rundir,opts.start,opts.stop);
+            w.show();
+            return a.exec();
+        }
     } catch (std::exception &e) {
         fprintf(stderr,"\n%s\n",e.what());
         fprintf(stderr,"%s\n",opts.usage().toAscii().constData());

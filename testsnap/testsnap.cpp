@@ -20,10 +20,10 @@ QString getExpectedReport(const QString& runDir,       // e.g. RUN_iss
 //#define TEST_CUSTOM
 #ifndef TEST_CUSTOM
     #define TEST_OPTS
-    //#define TEST_NON_RM2000
-    //#define TEST_ISS_RPT
-    //#define TEST_RM2000_RPT
-    //#define TEST_RM2000_BENCHMARK
+    #define TEST_NON_RM2000
+    #define TEST_ISS_RPT
+    #define TEST_RM2000_RPT
+    #define TEST_RM2000_BENCHMARK
 #endif
 
 QString testRunsDir()
