@@ -61,22 +61,23 @@ void AxisRect::showCurveDiff()
         const TrickModelIterator e2 = model2->end();
         while (it1 != e1 && it2 != e2) {
             double t1 = it1.t();
-            while ( 1 ) {
-                if ( it2 == e2 ) { break; }
-                double t2 = it2.t();
-                if ( qAbs(t2-t1) < 0.000000001 ) {
-                    double d = it1.y() - it2.y();
-                    _diffCurveTimes.append(t2);
-                    _diffCurveVals.append(d);
+            double t2 = it2.t();
+            if ( qAbs(t2-t1) < 0.000001 ) {
+                double d = it1.y() - it2.y();
+                _diffCurveTimes.append(t2);
+                _diffCurveVals.append(d);
+                ++it1;
+                ++it2;
+            } else {
+                if ( t1 < t2 ) {
+                    ++it1;
+                } else if ( t2 < t1 ) {
                     ++it2;
-                    break;
-                } else if ( t2 > t1 ) {
-                    ++it2;
-                    break;
+                } else {
+                    fprintf(stderr, "Bad Scoobies in axisrect showCurvDiff()");
+                    exit(-1);
                 }
             }
-            ++it1;
-
         }
 
         model1->unmap();
