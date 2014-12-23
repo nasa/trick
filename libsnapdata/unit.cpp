@@ -31,6 +31,10 @@
  * in 2013 and see how fragile it is.  It was really the ability to not
  * use operators that made this so messy.  For instance, one can say kgm/s2.
  * If I redo this, I'll use a lexxer.
+ *
+ * I just looked at this comment in 2014
+ * and totally agree that it needs to go,
+ * especially in light of Tim using delimiters
  */
 
 
@@ -52,10 +56,10 @@ const char *const Unit::_unitStrings[NUM_UNIT_TYPES][MAX_UNITS_FOR_TYPE] = {
         {"N", "kN", "oz", "lbf", ""},   // Force
         {"v", "kv", ""},        // Voltage
         {"amp", "mamp", ""},    // Current
-        {"ohm", ""},            // Resistance
+        {"ohm", "mohm", ""},    // Resistance
         {"C", "K", "R", "F", ""},       // Temperature
         {"dB", ""},             // Sound
-        {"--", "cnt", "one", ""}        // Unitless
+        {"--", "cnt", "one", "1", ""}        // Unitless
 };
 
 /**
@@ -130,6 +134,7 @@ const double Unit::_conversions[NUM_UNIT_TYPES][MAX_UNITS_FOR_TYPE] = {
         // Resistance
         {
          1.000000000000,        // ohm -> ohm 
+         0.0010000000000000,    // ohm -> mohm
          0.0                    // ohm -> ""
          },
 
@@ -151,7 +156,8 @@ const double Unit::_conversions[NUM_UNIT_TYPES][MAX_UNITS_FOR_TYPE] = {
         {
          1.0,                   // -- -> --
          1.0,                   // -- -> cnt
-         1.0                    // -- -> one
+         1.0,                   // -- -> one
+         1.0                    // -- -> 1
          }
 };
 
@@ -274,9 +280,9 @@ int Unit::_getNextPrimitiveOrOperand()
                 // Found a primitive unit type
                 if (_isPrimitive(str)) {
 
-                        // "sl", "rev" , "day" , "dB" , "min", "amp", "ms"
+                        // sl,rev,day,dB,min,amp,mm,ms,mohm,min
                         // have conflicts with
-                        // "s",  "r"   , "d"   , "d"  , "mi" , "am", "m"
+                        // s ,r  ,d  ,d ,mi ,am ,m ,m ,m,  ,m
                         if (!strcmp(str, "s")) {
                                 k = i + 1;
                                 if (k < lenUnitName && _unitName[i + 1] == 'l') {
@@ -287,10 +293,33 @@ int Unit::_getNextPrimitiveOrOperand()
                                 }
                         } else if (!strcmp(str, "m")) {
                                 k = i + 1;
-                                if (k < lenUnitName && _unitName[i + 1] == 's') {
+                                if (k < lenUnitName &&
+                                        (_unitName[i + 1] == 's' ||
+                                         _unitName[i + 1] == 'm' ) ) {
                                         // ms -vs- s conflict (ms wins)
-                                        strcpy(str, "ms");
+                                        // or
+                                        // mm -vs- m (mm wins)
+                                        if ( _unitName[i+1] == 's' ) {
+                                            strcpy(str, "ms");
+                                        } else {
+                                            strcpy(str, "mm");
+                                        }
                                         i = i + 1;
+                                } else if ( i+2 < lenUnitName &&
+                                            _unitName[i+1] == 'i' &&
+                                            _unitName[i+2] == 'n' ) {
+                                    strcpy(str, "min");
+                                    i = i+2;
+                                } else {
+                                    k = i + 3;
+                                        if (k < lenUnitName
+                                            && _unitName[i + 1] == 'o'
+                                            && _unitName[i + 2] == 'h'
+                                            && _unitName[i + 3] == 'm' ) {
+                                                // mohm beats m ohm
+                                                strcpy(str, "mohm");
+                                                i = i + 3;
+                                        }
                                 }
                         } else if (!strcmp(str, "r")) {
                                 k = i + 2;
@@ -375,7 +404,7 @@ bool Unit::_canConvert(Unit * u)
                 ret2 = this->_getNextPrimitiveOrOperand();
 
                 if (ret1 != ret2) {
-                        // u & this are different lengths so not same
+                        // u & this have different number of primitive units/ops
                         return (false);
                 }
 
@@ -399,7 +428,43 @@ bool Unit::_canConvert(Unit * u)
                             this->_getPrimitiveType(this->_currPrimitive)) {
                                 continue;
                         } else {
+                            // This is a complete hack because I'm going to
+                            // either rewrite this thing, use the Tricklab
+                            // version or get something off the internet
+                            //
+                            // The hack is  because people use N*m and
+                            // by convention write the English unit
+                            // "backwards" as ft*lbf
+                            //
+                            // All this does is check if next operand is *,
+                            // and allows commutativity
+
+                            int tPrev0 = u->_getPrimitiveType(u->_currPrimitive);
+                            int tPrev1 = _getPrimitiveType(_currPrimitive);
+
+                            ret1 = u->_getNextPrimitiveOrOperand();
+                            ret2 = this->_getNextPrimitiveOrOperand();
+                            if (ret1 != ret2) return (false);
+
+                            // Next primitive must be * operand
+                            if ( strcmp(u->_currPrimitive,"*") ||
+                                 strcmp(this->_currPrimitive,"*") ) {
                                 return (false);
+                            }
+
+                            ret1 = u->_getNextPrimitiveOrOperand();
+                            ret2 = this->_getNextPrimitiveOrOperand();
+                            if (ret1 != ret2) return (false);
+
+                            int tNext0 = u->_getPrimitiveType(u->_currPrimitive);
+                            int tNext1 = _getPrimitiveType(_currPrimitive);
+
+                            if ( tPrev0 == tNext1 && tPrev1 == tNext0 ) {
+                                // e.g. N*m ~ ft*lbf which is convertable
+                                continue;
+                            }
+
+                            return (false);
                         }
                 }
         }
@@ -428,17 +493,15 @@ int Unit::isUnit(const char *unitStr)
                 if (unitStr[i] == '*' || unitStr[i] == '/' ||
                     unitStr[i] == '2' || unitStr[i] == '3') {
 
-
                         if (i == 0) {
                                 // Error: Units don't start with *,/,2,3
                                 return (0);
-
                         }
 
                         prevChar = unitStr[i - 1];
 
-                        if (isalpha(prevChar)) {
-                                // OK: E.g. NM2, NMs2/ft
+                        if (isalpha(prevChar) || prevChar == '1' ) {
+                                // OK: E.g. NM2, NMs2/ft, 1/s
                                 continue;
 
                         } else {
@@ -466,9 +529,9 @@ int Unit::isUnit(const char *unitStr)
                 // Found a primitive unit type
                 if (_isPrimitive(str)) {
 
-                        // "sl", "rev" , "day" , "dB" , "min", "amp" 
-                        // have conflicts with 
-                        // "s",  "r"   , "d"   , "d"  , "mi" , "am"
+                        // sl,rev,day,dB,min,amp,mm,ms,mohm
+                        // have conflicts with
+                        // s ,r  ,d  ,d ,mi ,am ,m ,m ,m
                         if (!strcmp(str, "s")) {
                                 k = i + 1;
                                 if (k < lenUnitStr && unitStr[i + 1] == 'l') {
@@ -476,6 +539,35 @@ int Unit::isUnit(const char *unitStr)
                                         // (slugs win)
                                         strcpy(str, "sl");
                                         i = i + 1;
+                                }
+                        } else if (!strcmp(str, "m")) {
+                                k = i + 1;
+                                if (k < lenUnitStr &&
+                                        (unitStr[i + 1] == 's'||
+                                         unitStr[i + 1] == 'm' ) ) {
+                                        // ms -vs- m conflict
+                                        // mm -vs- m conflict
+                                        if ( unitStr[i+1] == 's' ) {
+                                            strcpy(str, "ms");
+                                        } else {
+                                            strcpy(str, "mm");
+                                        }
+                                        i = i + 1;
+                                } else if ( i+2 < lenUnitStr &&
+                                            _unitName[i+1] == 'i' &&
+                                            _unitName[i+2] == 'n' ) {
+                                    strcpy(str, "min");
+                                    i = i+2;
+                                } else {
+                                        k = i + 3;
+                                        if (k < lenUnitStr
+                                            && _unitName[i + 1] == 'o'
+                                            && _unitName[i + 2] == 'h'
+                                            && _unitName[i + 3] == 'm' ) {
+                                                // mohm beats m ohm
+                                                strcpy(str, "mohm");
+                                                i = i + 3;
+                                        }
                                 }
                         } else if (!strcmp(str, "r")) {
                                 k = i + 2;
