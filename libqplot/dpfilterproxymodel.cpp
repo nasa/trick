@@ -4,18 +4,6 @@
 // static to get around const
 QHash<QString,bool> DPFilterProxyModel::_acceptedDPFileCache;
 
-// Filter for DPs that have params in paramList
-DPFilterProxyModel::DPFilterProxyModel(MonteModel *monteModel,
-                                       QObject *parent) :
-    QSortFilterProxyModel(parent),
-    _monteModel(monteModel)
-{
-    for ( int i = 0 ; i < _monteModel->columnCount(); ++i ) {
-        QString paramName = _monteModel->headerData(i).toString();
-        _modelParams.insert(paramName,0);
-    }
-}
-
 DPFilterProxyModel::DPFilterProxyModel(const QStringList& params,
                                        QObject *parent) :
     QSortFilterProxyModel(parent),

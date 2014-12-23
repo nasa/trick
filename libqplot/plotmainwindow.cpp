@@ -84,7 +84,8 @@ PlotMainWindow::PlotMainWindow(const QString &dpDir, MonteModel* monteModel,
 
     // DP Tab
     QFrame* _dpFrame = new QFrame(lsplit);
-    _dpTreeWidget = new  DPTreeWidget(_dpDir,_monteModel, _plotModel,
+    _dpTreeWidget = new  DPTreeWidget(_dpDir,_varsModel,
+                                      _monteModel, _plotModel,
                                       _plotSelectModel, _dpFrame);
     _nbDPVars->addTab(_dpFrame,"DP");
 

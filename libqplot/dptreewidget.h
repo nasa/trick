@@ -16,7 +16,8 @@ class DPTreeWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit DPTreeWidget(const QString& dirName,
+    explicit DPTreeWidget(const QString& dpDirName,
+                          QStandardItemModel* dpVarsModel,
                           MonteModel* monteModel,
                           QStandardItemModel* plotModel,
                           QItemSelectionModel*  plotSelectModel,
@@ -28,7 +29,8 @@ signals:
 public slots:
 
 private:
-    QString _dirName;
+    QString _dpDirName;
+    QStandardItemModel* _dpVarsModel;
     QDir* _dir;
     MonteModel* _monteModel;
     QStandardItemModel* _plotModel;

@@ -1,12 +1,14 @@
 #include "dptreewidget.h"
 
-DPTreeWidget::DPTreeWidget(const QString &dirName,
+DPTreeWidget::DPTreeWidget(const QString &dpDirName,
+                           QStandardItemModel *dpVarsModel,
                            MonteModel* monteModel,
                            QStandardItemModel *plotModel,
                            QItemSelectionModel *plotSelectModel,
                            QWidget *parent) :
     QWidget(parent),
-    _dirName(dirName),
+    _dpDirName(dpDirName),
+    _dpVarsModel(dpVarsModel),
     _monteModel(monteModel),
     _plotModel(plotModel),
     _plotSelectModel(plotSelectModel),
@@ -52,7 +54,7 @@ DPTreeWidget::~DPTreeWidget()
 //
 void DPTreeWidget::_setupModel()
 {
-    _dir = new QDir(_dirName);
+    _dir = new QDir(_dpDirName);
 
     // Change directory from RUN/MONTE dir to DP_Product dir
     _dir->cdUp();
@@ -70,7 +72,17 @@ void DPTreeWidget::_setupModel()
     _dpModel->setNameFilters(filters);
     _dpModel->setNameFilterDisables(false);
     _dpModel->setFilter(QDir::Dirs|QDir::Files|QDir::NoDotAndDotDot);
-    _dpFilterModel = new DPFilterProxyModel(_monteModel);
+
+    // The dp filter models takes a list of params that are common between runs.
+    // Only DP_files which have params which are in all runs will show in tree
+    QStringList dpParams;
+    for (int i = 0; i < _dpVarsModel->rowCount(); ++i ) {
+        QModelIndex idx = _dpVarsModel->index(i,0);
+        QString param = _dpVarsModel->data(idx).toString();
+        dpParams.append(param);
+    }
+    _dpFilterModel = new DPFilterProxyModel(dpParams);
+
     _dpFilterModel->setDynamicSortFilter(true);
     _dpFilterModel->setSourceModel(_dpModel);
     QRegExp dprx(QString(".*"));  // DP_ and SET_ are filtered by _dpModel

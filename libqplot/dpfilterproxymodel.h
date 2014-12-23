@@ -14,9 +14,6 @@ class DPFilterProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 public:
-    explicit DPFilterProxyModel( MonteModel* monteModel,
-                                 QObject *parent = 0);
-
     explicit DPFilterProxyModel( const QStringList& params,
                                  QObject *parent = 0);
 
