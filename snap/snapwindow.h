@@ -14,8 +14,6 @@
 
 #include "libsnaprt/snap.h"
 #include "libsnapdata/trickcurvemodel.h"
-#include "timelineloader.h"
-#include "timelineplot.h"
 #include "libqplot/plot.h"
 
 #include "libsnapdata/timeit_linux.h"

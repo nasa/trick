@@ -24,14 +24,10 @@ RCC_DIR     = $$BUILDDIR/rcc
 UI_DIR      = $$BUILDDIR/ui
 
 SOURCES += main.cpp \
-    timelineloader.cpp \
-    timelineplot.cpp \
     snapwindow.cpp
 
     
 HEADERS += \
-    timelineloader.h \
-    timelineplot.h \
     snapwindow.h
 
 OTHER_FILES += 
