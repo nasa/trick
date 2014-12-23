@@ -4,6 +4,8 @@ QT       += xml
 TARGET = qplot
 TEMPLATE = lib
 
+include($$PWD/../snap.pri)
+
 CONFIG += staticlib
 
 INCLUDEPATH += $$PWD/..

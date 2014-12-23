@@ -8,6 +8,8 @@ release {
     QMAKE_CXXFLAGS_RELEASE -= -g
 }
 
+include($$PWD/../snap.pri)
+
 TARGET = snap
 target.path = $$PREFIX/bin
 INSTALLS += target

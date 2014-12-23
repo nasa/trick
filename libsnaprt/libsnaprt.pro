@@ -5,6 +5,8 @@ TEMPLATE = lib
 
 CONFIG += staticlib
 
+include($$PWD/../snap.pri)
+
 release {
     QMAKE_CXXFLAGS_RELEASE -= -g
 }

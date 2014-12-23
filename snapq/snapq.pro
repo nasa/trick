@@ -5,6 +5,8 @@ QT  += xml
 
 CONFIG -= app_bundle
 
+include($$PWD/../snap.pri)
+
 release {
     QMAKE_CXXFLAGS_RELEASE -= -g
 }
