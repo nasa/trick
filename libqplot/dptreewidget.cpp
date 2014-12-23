@@ -76,6 +76,8 @@ void DPTreeWidget::_setupModel()
     // The dp filter models takes a list of params that are common between runs.
     // Only DP_files which have params which are in all runs will show in tree
     QStringList dpParams;
+    dpParams << "sys.exec.out.time";  // this is always common, but may not be
+                                      // in dpVarsModel - so add it
     for (int i = 0; i < _dpVarsModel->rowCount(); ++i ) {
         QModelIndex idx = _dpVarsModel->index(i,0);
         QString param = _dpVarsModel->data(idx).toString();

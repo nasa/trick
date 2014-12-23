@@ -197,6 +197,9 @@ QStandardItemModel* createVarsModel(const QStringList& runDirs)
     }
 
     foreach ( QString param, paramSet ) {
+        // Don't add sys.exec.out.time to list since
+        // there's no need to plot sys.exec.out.time
+        if ( param == "sys.exec.out.time" ) continue;
         commonParams << param;
     }
     commonParams.sort();
