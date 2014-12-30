@@ -721,8 +721,6 @@ int Unit::_isOperand(const char *str)
 
 double Unit::convert(double value, const char *from, const char *to)
 {
-    double ret;
-
     Unit fromUnit(from);
     Unit toUnit(to);
 

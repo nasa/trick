@@ -48,7 +48,6 @@ void AxisRect::showCurveDiff()
     _diffCurveTimes.clear();
     _diffCurveVals.clear();
 
-    double max = 0;
     TrickCurveModel *model1 =  _curves.at(0)->_model ;
     TrickCurveModel *model2 =  _curves.at(1)->_model ;
     if ( model1 != 0 && model2 != 0 ) {
