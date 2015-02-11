@@ -165,7 +165,12 @@ int main( int argc , char * argv[] ) {
 
     // Tell the compiler to use our ICGASTconsumer
     ICGASTConsumer *astConsumer = new ICGASTConsumer(ci, hsd, cs, pa);
+#if (__clang_major__ == 3) && (__clang_minor__ >= 6)
+    std::unique_ptr<clang::ASTConsumer> unique_ast(astConsumer) ;
+    ci.setASTConsumer(std::move(unique_ast));
+#else
     ci.setASTConsumer(astConsumer);
+#endif
     ci.createASTContext();
     ci.createSema(clang::TU_Prefix, NULL);
 
