@@ -1,6 +1,6 @@
-![trick_logo](https://raw.github.com/nasa/Trick/master/trick-0.png)
+## Coming Soon.
 
-## Coming Soon
+![trick_logo](https://raw.github.com/nasa/Trick/master/trick-0.png)
 
 The Trick Simulation Environment is developed at the NASA Johnson Space Center.
 Trick's flexible feature set enables Trick to build applications used during
@@ -12,6 +12,6 @@ hardware in the loop training.
 ## Installing Trick
 
 The [Installing Trick](https://github.com/nasa/Trick/wiki/Installing-Trick)
-wiki page details instructions to install Trick.
+wiki page includes instructions to install Trick.
 
 
