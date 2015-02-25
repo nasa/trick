@@ -1,0 +1,10 @@
+config.status.*
+config_*.mk
+object_*
+io_src
+lib_Linux_*
+lib_Darwin_*
+*.lex.c
+*.tab.c
+*.tab.h
+*.swp
