@@ -1,0 +1,36 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (Lists out the other object files that are not included from C++ headers)
+LIBRARY DEPENDENCIES:
+(
+)
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+##include "Satellite/include/Satellite.hh"
+##include "Satellite/include/SatGraphicsComm.hh"
+
+class OrbitSimObject : public Trick::SimObject {
+    public:
+        SatGraphicsComm sat_graph_comm;
+        Planet planet ;
+        Satellite satellite ;
+
+        OrbitSimObject() {
+
+            ("initialization") sat_graph_comm.connect() ;
+            ("initialization") satellite.initialize( &planet) ;
+            ("initialization") sat_graph_comm.send_packet( &satellite) ;
+
+            ("derivative")     satellite.compute_state_deriv() ;
+            ("integration") trick_ret = satellite.compute_state() ;
+
+            (0.1, "scheduled") satellite.print_state() ;
+            (0.1, "scheduled") sat_graph_comm.send_packet( &satellite) ;
+
+        }
+};
+
+OrbitSimObject dyn ;
+
+IntegLoop dyn_integloop (0.1) dyn;

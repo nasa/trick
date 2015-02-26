@@ -1,0 +1,20 @@
+
+/*
+ * $Id:$
+ */
+
+#ifndef __BC635CLOCK_SM__
+#define __BC635CLOCK_SM__
+
+##include "sim_services/Clock/include/BC635Clock.hh"
+
+class BC635SimObject : public Trick::SimObject {
+    public:
+        Trick::BC635Clock bc635 ;
+        BC635SimObject() { }
+}
+
+BC635SimObject trick_bc635 ;
+
+#endif
+

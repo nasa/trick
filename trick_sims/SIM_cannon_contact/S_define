@@ -1,0 +1,43 @@
+/*
+ * $Id: S_define.contact 1003 2010-08-25 21:18:24Z dpanter $
+ */
+
+/************************TRICK HEADER*************************
+PURPOSE:
+    (This S_define is used with RUN_integ input file)
+LIBRARY DEPENDENCIES:
+    (
+     (cannon/gravity/src/cannon_default_data.c)
+     (cannon/gravity/src/cannon_init.c)
+     (cannon/gravity/src/cannon_deriv_impact.c)
+     (cannon/gravity/src/cannon_integ.c)
+     (cannon/gravity/src/cannon_impact.c)
+    )
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "cannon/gravity/include/cannon.h"
+##include "cannon/gravity/include/cannon_contact_proto.h"
+
+class CannonSimObject : public Trick::SimObject {
+
+    public:
+        CANNON      cannon ;
+
+        CannonSimObject() {
+            ("default_data") cannon_default_data( &cannon ) ;
+
+            ("initialization") cannon_init( &cannon ) ;
+
+            ("derivative") cannon_deriv_impact( &cannon ) ;
+            ("integration") trick_ret = cannon_integ( &cannon ) ;
+
+            ("dynamic_event") cannon_impact( &cannon) ;
+        }
+} ;
+
+// Instantiations
+CannonSimObject dyn ;
+
+IntegLoop dyn_integloop (0.01) dyn;

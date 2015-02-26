@@ -1,0 +1,29 @@
+No title specified
+
+TABLES:
+
+    TABLE 1: ""
+
+        VARIABLE: "sys.exec.out.time"
+            UNITS: "s"
+            LABEL: "time"
+
+        VARIABLE: "dyn.test3.s"
+            UNITS: "--"
+            LABEL: "s"
+
+        VARIABLE: "dyn.test3.i"
+            UNITS: "--"
+            LABEL: "i"
+
+        VARIABLE: "dyn.test3.ui"
+            UNITS: "--"
+            LABEL: "ui"
+
+        VARIABLE: "dyn.test3.l"
+            UNITS: "--"
+            LABEL: "l"
+
+        VARIABLE: "dyn.test3.f"
+            UNITS: "--"
+            LABEL: "f"

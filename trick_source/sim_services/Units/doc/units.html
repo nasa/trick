@@ -1,0 +1,242 @@
+<html>
+
+<head>
+<meta name="GENERATOR" content="Microsoft FrontPage 5.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>C++ Units</title>
+</head>
+
+<body>
+
+<p><b><font face="Arial"><font size="4">C++ Units</font><br>
+</font></b><font face="Arial" size="2">by <a href="../index.html">Calum Grant</a></font></p>
+<p><font face="Arial" size="2">Units home page: <a href="index.html">
+http://calumgrant.net/units</a></font></p>
+<p><b><font face="Arial">Introduction</font></b></p>
+<blockquote>
+  <p><font face="Arial" size="2">This library is for engineers and scientists 
+  who deal with physical quantities.&nbsp; Units provide a safety net that check 
+  the validity of formulae at compile-time and ensure that different units are 
+  converted where necessary.&nbsp; A large number of physical quantities are 
+  provided by the library, including all SI units.</font></p>
+  <p><font face="Arial" size="2">This library is for software engineers.&nbsp; 
+  By giving a quantity a unit, it prevents the wrong value being assigned to the 
+  wrong thing, or passing the wrong value to the wrong argument of a function.&nbsp; 
+  Units documentation a program - <i>int</i> is not descriptive, but <i>apples</i> is.</font></p>
+  <p><font face="Arial" size="2">The library uses templates and generative 
+  programming techniques to handle units at compile time, so there is no 
+  run-time overhead.&nbsp; Many units are predefined and it is straightforward 
+  to add your own.</font></p>
+  <p><font face="Arial" size="2">The library is installed by copying the file
+  <a href="units.hpp">units.hpp</a> into your include directory.&nbsp; To use the library</font></p>
+  <blockquote>
+    <pre>#include &quot;units.hpp&quot;</pre>
+  </blockquote>
+</blockquote>
+<p><b><font face="Arial">Using built in units</font></b></p>
+<blockquote>
+  <p><font face="Arial" size="2">The built in physical quantities are in the 
+  namespace <i>units::values</i>, so for the purposes of this tutorial, assume 
+  that</font></p>
+  <blockquote>
+    <pre>using namespace units::values;</pre>
+  </blockquote>
+  <p><font face="Arial" size="2">has been written somewhere near the top of the 
+  file.&nbsp; This namespace gives you access to the following physical 
+  quantities:</font></p>
+  <ul>
+    <li><font face="Arial" size="2">No unit: <i>unit, percent, dozen, 
+    bakers_dozen</i></font></li>
+    <li><font face="Arial" size="2">Mass: <i>kg, g, mg, lb, oz, tonne</i></font></li>
+    <li><font face="Arial" size="2">Time: <i>s, ms, minute, hour, day, week</i></font></li>
+    <li><font face="Arial" size="2">Calendar: <i>month, year, century, 
+    millennium</i></font></li>
+    <li><font face="Arial" size="2">Distance: <i>m, cm, mm, km, inch, foot, 
+    yard, mile, nautical_mile</i></font></li>
+    <li><font face="Arial" size="2">Temperature: <i>K, Celsius, Fahrenheit</i></font></li>
+    <li><font face="Arial" size="2">Force: <i>N</i></font></li>
+    <li><font face="Arial" size="2">Pressure: <i>Pa, kPa, psi, millibar</i></font></li>
+    <li><font face="Arial" size="2">Energy: <i>J</i></font></li>
+    <li><font face="Arial" size="2">Power: <i>W</i></font></li>
+    <li><font face="Arial" size="2">Area: <i>m2, hectare, are, inch2, acre</i></font></li>
+    <li><font face="Arial" size="2">Volume: <i>cm3, ml, cl, liter, dl, m3</i></font></li>
+    <li><font face="Arial" size="2">Velocity: <i>mph, kph, meters_per_second, 
+    knot, mach</i></font></li>
+    <li><font face="Arial" size="2">Angle: <i>rad, degree, grad, degree_minute, 
+    degree_second</i></font></li>
+    <li><font face="Arial" size="2">Other units: <i>A, mol, cd, rad, sr, Hz, C, 
+    V, F, Ohm, S, Wb, T, H, lm, lx, Bq, Gy, Sv, kat, rpm</i></font></li>
+  </ul>
+  <p><font size="2" face="Arial">The naming convention is to use the symbol of 
+  the SI unit.&nbsp; For other units, the  name is used since there are no 
+  standard symbols.</font></p>
+  <p><font face="Arial" size="2">The built-in values are all doubles, however 
+  you can change this (see next section).&nbsp; The physical quantities behave 
+  exactly as normal doubles, except that they check the units and perform 
+  conversion where necessary.</font></p>
+  <p><font face="Arial" size="2">A value can be constructed from a number, 
+  another value, or the default constructor which initializes the value to zero.&nbsp; 
+  When constructing from another value, the other value must be compatible or 
+  you will get a compile-time error:</font></p>
+  <blockquote>
+    <pre>m x;		// x = 0
+m y(10);	// y = 10
+m z(cm(250));	// z = 2.5
+m w(s(3));	// Compile-time error: incompatible units
+
+kph(mph(70))	// Convert miles per hour to km per hour</pre>
+  </blockquote>
+  <p><font face="Arial" size="2">Assignment is only possible from another value, 
+  and the value must be compatible:</font></p>
+  <blockquote>
+    <pre>x = 10;         // Compile-time error: 10 of what?
+x = cm(200);    // Ok: x = 2.0
+x = s(3)        // Compile-time error: incompatible units</pre>
+  </blockquote>
+  <p><font face="Arial" size="2">The number in the value can be obtained using 
+  the <i>get() </i>method:</font></p>
+  <blockquote>
+    <pre>x.get();        // Get current value of x
+cm(m(5)).get()  // 500</pre>
+  </blockquote>
+  <p><font face="Arial" size="2">The normal arithmetic operators are supported:
+  <i>+, -, *, /, /=, *=, ++, --</i>.&nbsp; There are some restrictions however.&nbsp; 
+  You can only add or subtract compatible values.&nbsp; You can multiply or 
+  divide by any other value, which returns a value with a unit with the correct 
+  type (multiplied or divided).&nbsp; The <i>*=</i> and <i>/=</i> operators can 
+  only take a number (in general if you multiply by another unit the type will 
+  be different).&nbsp; e.g.</font></p>
+  <blockquote>
+    <pre>miles x = m(1) + cm(10);	// Add two distances
+m2 area = foot(10) * yard(3);	// Converts to meters squared
+s timer;
+timer += 10;			// Compile-time error: add 10 of what
+timer += s(10);			// Ok: add 10 seconds to timer
+liter v = hectare(1) * mm(1);	// Ok
+H h(  m(4)*m(8)*kg(2)/s(2)/s(4)/A(1)/A(2) ); // A complex (but valid) formula
+s(10) + m(4);			// Compile-time error: Can't add time and distance</pre>
+  </blockquote>
+  <p><font face="Arial" size="2">The comparison operators (<i>==, !=, &lt;, &lt;=, &gt;, 
+  &gt;=</i>) also convert between units implicitly:</font></p>
+  <blockquote>
+    <pre>minutes(2) &gt; s(70)     	// true</pre>
+  </blockquote>
+  <p><font face="Arial" size="2">Writing a value to a stream (using <i>operator 
+  &lt;&lt;</i>) displays the unit after the value.&nbsp; Many of the built in units 
+  have names, otherwise the text is generated, as in the following example:</font></p>
+  <pre>    std::cout &lt;&lt; &quot;Flow rate is &quot; &lt;&lt; m3(mile(1)*inch(80)*foot(9))/s(minute(5));
+    // Output: Flow rate is 29.9026 (m)^3.(s)^-1</pre>
+  <p><font face="Arial" size="2">The <i>units::sqrt</i> function provides a 
+  square root - which also takes the root of the unit of course.</font></p>
+  <blockquote>
+    <pre>m a, b, c;
+c = units::sqrt( a*a + b*b );</pre>
+  </blockquote>
+  <p><font face="Arial" size="2">You can  take an arbitrary rational 
+  power of a number using the <i>units::raise</i> template, however you must 
+  specify the power at compile time so that the compiler knows the unit of the return 
+  value. e.g.</font></p>
+  <blockquote>
+    <pre>units::raise&lt;3,1&gt;(m(2)) == m(2)*m(2)*m(2)</pre>
+  </blockquote>
+  <p><font face="Arial" size="2">There are some trigonometric functions (<i>units::sin</i>,
+  <i>units::cos</i> and <i>units::tan</i>) which take an angle.&nbsp; You can 
+  supply any unit of angle to the function and the function will convert to 
+  radians.&nbsp; e.g.</font></p>
+  <blockquote>
+    <pre>units::tan( degree(45) );</pre>
+  </blockquote>
+    <p><font face="Arial" size="2">There are a number of constants available in 
+    the <i>units::constants</i> namespace.&nbsp; These are</font></p>
+  <ul>
+    <li><i><font face="Arial" size="2">k, mu, NA, G0, e0, me, eV, e, F, alpha, 
+    inv_alpha, u0, phi0, R, G, h, h_bar, mp, Rinf, c, rho, pi, lightyear, g</font></i></li>
+  </ul>
+    <p><font face="Arial" size="2">Example:</font></p>
+    <blockquote>
+    <pre>N attractive_force = units::constants::G * kg(1) * kg(2) / m(3) / m(5);</pre>
+  </blockquote>
+</blockquote>
+<p><b><font face="Arial">Creating new units</font></b></p>
+<blockquote>
+  <pre><font face="sans-serif" size="2">Values with units are provided by the <i>units::value&lt;&gt;</i> class template, declared as follows:</font> </pre>
+  <blockquote>
+    <pre>template&lt;typename Value, typename Unit&gt;
+class value; </pre>
+  </blockquote>
+  <p><font face="sans-serif" size="2">The predefined units (as used in the 
+  previous section) are declared in the <i>units::units</i> namespace.&nbsp; So 
+  you can reuse any of these units but provide a different type, e.g.</font></p>
+  <blockquote>
+    <pre>units::value&lt;float, units::units::m&gt; length;</pre>
+  </blockquote>
+  <p><font face="sans-serif" size="2">The unit can be any type, so to create a 
+  new unit, just create a new type:</font> </p>
+  <blockquote>
+    <pre>struct apples;
+struct oranges; 
+typedef units::value&lt;int, apples&gt;  apples_t; 
+typedef units::value&lt;int, oranges&gt; oranges_t; </pre>
+  </blockquote>
+  <pre><font face="sans-serif" size="2">The new value will be protected from interoperating with naked numbers or other types of unit:</font></pre>
+  <blockquote>
+    <pre>apples_t n(5); 
+n = oranges_t(3); &nbsp; &nbsp; &nbsp; &nbsp;// Compile-time error 
+n = apples_t(10); &nbsp; &nbsp; &nbsp; &nbsp;// Ok </pre>
+  </blockquote>
+</blockquote>
+<p><b><font face="sans-serif">Displaying units</font> </b></p>
+<blockquote>
+  <p><font face="sans-serif" size="2">When a value is output (using <i>
+  operator&lt;&lt;</i>), it appends the unit to the stream. &nbsp;By default the unit will 
+  display the text <i>&quot;units&quot;</i>. &nbsp;You can change this by declaring the name of the 
+  unit with the <i>UNITS_DISPLAY_NAME</i> macro, which takes the unit as its 
+  first parameter, and its name as its second parameter. &nbsp;e.g.</font> </p>
+  <blockquote>
+    <pre>UNITS_DISPLAY_NAME( apples, &quot;apples&quot; ); 
+UNITS_DISPLAY_NAME( oranges, &quot;oranges&quot; ); </pre>
+    <pre>std::cout &lt;&lt; oranges_t(2);   // Output: 2 oranges</pre>
+  </blockquote>
+</blockquote>
+<p><b><font face="sans-serif">Converting between units</font> </b></p>
+<blockquote>
+  <p><font face="sans-serif" size="2">A unit can be defined in terms of other 
+  units. &nbsp;The templates <i>units::scale, units::translate, units::pow</i> and <i>
+  units::compose</i> provide a means of constructing new units which can be 
+  converted from and to another unit.</font></p>
+  <p><font face="sans-serif" size="2">The <i>units::scale&lt;&gt;</i> template 
+  constructs a unit which is a multiple of another:</font></p>
+  <blockquote>
+    <pre>struct penny;
+typedef units::scale&lt;penny, 4&gt; farthing;      // Multiply penny * 4 to get farthings
+typedef units::scale&lt;penny, 1, 12&gt; shilling;  // Multiply penny by 1/12 to get shillings
+typedef units::scale&lt;shilling, 1, 20&gt; pound;
+typedef units::scale&lt;penny, 1, 30&gt; half_crown;
+typedef units::scale&lt;half_crown, 1, 2&gt; crown;</pre>
+    <pre>std::cout &lt;&lt; &quot;There are &quot; &lt;&lt; penny(pound(1)).get() &lt;&lt; &quot; old pence in the pound\n&quot;;</pre>
+  </blockquote>
+    <p><font face="Arial" size="2">The <i>units::translate&lt;&gt;</i> template 
+    constructs a unit which is offset from another:</font></p>
+    <blockquote>
+      <pre>typedef units::translate&lt;units::units::K, -27315, 100&gt; Celcius;   
+// Celcius = K - 27315/100</pre>
+  </blockquote>
+  <p><font face="Arial" size="2">The <i>units::pow&lt;&gt;</i> template constructs a unit 
+  which is a power of another unit:</font></p>
+  <blockquote>
+    <pre>typedef units::pow&lt;units::units::m, 3&gt; m3;    // One cubic meter</pre>
+  </blockquote>
+  <p><font face="Arial" size="2">Finally the <i>units::compose&lt;&gt;</i> template 
+  creates a unit which  multiplies two other units:</font></p>
+    <blockquote>
+      <pre>typedef units::compose&lt;power, time&gt; energy;
+typedef units::compose&lt; units::units::m, units::pow&lt;units::units::s, -1&gt; &gt; meters_per_second;</pre>
+  </blockquote>
+  <p><font face="Arial" size="2">The conversion operators are able to analyse 
+  the type of the unit and generate a conversion function automatically!</font></p>
+</blockquote>
+
+</body>
+
+</html>

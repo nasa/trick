@@ -1,0 +1,29 @@
+global DR_GROUP_ID
+global drg
+try:
+    if DR_GROUP_ID >= 0:
+        DR_GROUP_ID += 1
+except NameError:
+    DR_GROUP_ID = 0
+    drg = []
+
+drg.append(trick.DRBinary("DR_typesBINARY"))
+drg[DR_GROUP_ID].set_freq(trick.DR_Always)
+drg[DR_GROUP_ID].set_cycle(0.1)
+drg[DR_GROUP_ID].set_single_prec_only(False)
+drg[DR_GROUP_ID].add_variable("drx.drt.a")
+drg[DR_GROUP_ID].add_variable("drx.drt.b")
+drg[DR_GROUP_ID].add_variable("drx.drt.c")
+drg[DR_GROUP_ID].add_variable("drx.drt.d")
+drg[DR_GROUP_ID].add_variable("drx.drt.e")
+drg[DR_GROUP_ID].add_variable("drx.drt.f")
+drg[DR_GROUP_ID].add_variable("drx.drt.g")
+drg[DR_GROUP_ID].add_variable("drx.drt.h")
+drg[DR_GROUP_ID].add_variable("drx.drt.i")
+drg[DR_GROUP_ID].add_variable("drx.drt.j")
+drg[DR_GROUP_ID].add_variable("drx.drt.k")
+drg[DR_GROUP_ID].add_variable("drx.drt.l")
+drg[DR_GROUP_ID].add_variable("drx.drt.m")
+drg[DR_GROUP_ID].add_variable("drx.drt.n")
+trick.add_data_record_group(drg[DR_GROUP_ID], trick.DR_Buffer)
+drg[DR_GROUP_ID].enable()

@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='ISO-8859-1'  ?>
+
+<!DOCTYPE toc
+  PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp TOC Version 2.0//EN"
+         "http://java.sun.com/products/javahelp/toc_2_0.dtd">
+<toc version="2.0">
+<tocitem text="Trick DP" image="toplevelfolder">
+
+   <tocitem text="Introduction to Trick DP" target="trickdp.intro"/>
+   <tocitem text="General Usage" target="trickdp.generalusage" />    
+   <tocitem text="How to Organize Data" target="trickdp.howtoorganize"/>
+   <tocitem text="Importing Data" target="trickdp.importingdata"/>
+   <tocitem text="Quickplot" target="trickdp.quickplot"/>
+   <tocitem text="Using Gnuplot" target="trickdp.usinggnuplot"/>
+   <tocitem text="FAQ" target="trickdp.faq"/>
+
+</tocitem>
+</toc>

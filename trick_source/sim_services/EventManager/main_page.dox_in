@@ -1,0 +1,29 @@
+/**
+@anchor Event_Manager
+@page LEVEL2 Event Manager
+
+This page describes the methods available in the Trick::EventManager and Trick::EventProcessor class.
+@note <b>See @ref Input_File "Input File" for detailed information on the syntax of the input processor file. </b>
+
+@section LEVEL3 User accessible routines
+
+These commands are for adding and removing events from the Event Manager
+
+@li Event * @link Trick::EventManager::get_event() get_event() @endlink
+@li int @link Trick::EventManager::add_event( Trick::Event * in_event) add_event( Trick::Event * in_event ) @endlink
+@li int @link Trick::EventManager::add_event_before( Trick::Event * in_event) add_event_after( Trick::Event * in_event, std::string target_name, unsigned int target_inst ) @endlink
+@li int @link Trick::EventManager::add_event_after( Trick::Event * in_event) add_event_before( Trick::Event * in_event, std::string target_name, unsigned int target_inst ) @endlink
+@li int @link Trick::EventManager::remove_event( Trick::Event * in_event) remove_event( Trick::Event * in_event ) @endlink
+
+@anchor Event_Processing
+@section LEVEL3 Event Processing Flow
+
+The next set of flowcharts details how the %Trick Event Processor processes events. 
+
+@image html ../../../doxygen/images/event_flowchart/event_processing.jpg
+@image rtf ../../../doxygen/images/event_flowchart/event_processing.jpg
+<center><b>Figure IP_1 Input Processor Event Processing</b></center>
+
+Each thread in the simulation has an event processing job.
+
+*/

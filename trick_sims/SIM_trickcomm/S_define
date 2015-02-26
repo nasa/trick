@@ -1,0 +1,63 @@
+/*
+ * $Id: S_define.trick_comm
+ */
+
+/************************TRICK HEADER*************************
+PURPOSE:
+    ( This S_define is to be used with RUN_trickcomm input file )
+LIBRARY_DEPENDENCY:
+    (
+     (cannon/gravity/src/cannon_deriv_impact.c)
+     (cannon/gravity/src/cannon_integ.c)       
+     (cannon/gravity/src/cannon_impact.c)       
+     (cannon/gravity/src/cannon_init.c)
+     (cannon/gravity/src/cannon_default_data.c)
+     (cannon/gravity/src/cannon_init_comm.c)
+     (cannon/gravity/src/cannon_send_position.c)
+    )
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+
+##include "cannon/gravity/include/cannon.h"
+##include "cannon/gravity/include/cannon_comm_proto.h"
+
+/*class ServerSimObject : public Trick::SimObject {
+
+    public:
+        
+        ServerSimObject() {
+            ("initialization") main() ;
+        }
+} ;
+
+ServerSimObject server ;
+*/
+class CannonSimObject : public Trick::SimObject {
+
+    public:
+        CANNON      cannon ;
+
+        CannonSimObject() {
+            ("default_data") cannon_default_data( &cannon ) ;
+
+            ("initialization") cannon_init( &cannon ) ;
+            ("initialization") cannon_init_comm( &cannon ) ;
+            ("initialization") cannon_send_position( &cannon ) ;
+
+            ("derivative") cannon_deriv_impact( &cannon ) ;
+            ("integration") trick_ret = cannon_integ( &cannon ) ;
+
+            ("dynamic_event") cannon_impact( &cannon) ;
+
+            (0.01, "scheduled") cannon_send_position( &cannon ) ;
+        }
+
+} ;
+
+// Instantiations
+CannonSimObject dyn ;
+
+IntegLoop dyn_integloop (0.01) dyn ;
+

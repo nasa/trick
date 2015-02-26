@@ -1,0 +1,50 @@
+/*
+ * $Id: S_define 1141 2010-10-08 18:41:23Z lin $
+ */
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "stl_checkpoint/include/STLCheckpoint.hh"
+##include "stl_checkpoint/include/STLCompanion.hh"
+
+/* This object tests having 2 of the same type of object containing STLs in the same sim_object.
+   The checkpoints use the name of the objects to give the STLs unique and identifiable names
+   in the checkpoint. */
+
+class theSimObject : public Trick::SimObject {
+
+    public:
+        STLCheckpoint stlc ;
+        STLCheckpoint stlc2 ;
+        STLCompanion gc ;
+
+        /** Constructor to add the jobs */
+        theSimObject() : stlc(std::string("Petunia")) , stlc2() {
+
+            (1.0, "scheduled") stlc.speak() ;
+
+            ("checkpoint") gc.checkpoint(&stlc, name + std::string("_stlc")) ;
+            ("checkpoint") gc.checkpoint(&stlc2, name + std::string("_stlc2")) ;
+
+            ("post_checkpoint") gc.post_checkpoint(&stlc, name + std::string("_stlc")) ;
+            ("post_checkpoint") gc.post_checkpoint(&stlc2, name + std::string("_stlc2")) ;
+
+            ("restart") gc.restart(&stlc, name + std::string("_stlc")) ;
+            ("restart") gc.restart(&stlc2, name + std::string("_stlc2")) ;
+        }
+
+} ;
+
+// Multiple simobjects
+theSimObject the_object ;
+theSimObject the_object2 ;
+
+// Connect objects
+void create_connections() {
+
+    // Set the default termination time
+    trick_sys.sched.set_terminate_time(10.0) ;
+    trick_sys.sched.set_freeze_frame(0.10) ;
+
+}
+

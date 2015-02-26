@@ -1,0 +1,791 @@
+#!/usr/bin/env perl
+
+#==============================================================================
+#
+#         Name: start_sim 
+#
+#     Synopsis: start_sim -n <SIM_name> -i <RUN_directory_name>/<in_file>
+#
+#  Description: Run any simulation from any path
+#
+#  Assumptions: 1)  Must be a Trick installed user 
+#
+#     Examples: start_sim SIM_cannon RUN_test
+#
+#   Created By: Warwick Woodard, L-3 Communications 05/01/2008 
+#
+#==============================================================================
+
+# $Id: start_sim 301 2009-08-20 13:37:27Z wwoodard $
+
+use lib $ENV{"TRICK_HOME"} . "/bin/pm" ;
+use gte ;
+#use strict ;
+require $ENV{"TRICK_HOME"} . "/bin/pm/XML/Parser.pm" ;
+use XML::Simple ;
+use Data::Dumper ;
+
+
+my @element_stack;
+my $record_index;
+my $fh;
+my $DATA_PATH;
+my $INCLUDE_PATH;
+
+
+my $usage="
+Name:
+    start_sim - run any simulation from any path
+    
+    Additional options from S_main_<host_cpu>.exe (above)
+    are also available for use with start_sim.
+       
+    Options specific to start_sim command:
+    (Note: start_sim can run without options)
+        -s, -sim, -name  <SIM_name>
+                name of trick directory system that holds the simulation
+        -i, -input  <input_file>
+                simulation input file to use
+        -nexiom, -nexcsims  <XML_input_file>
+                parse a NExIOM input file and generate a nexcsims.d data file,
+                then auto load nexcsims.d after standard input file is read
+        -user_home, -u  <USER_HOME_path>
+                overwrite default value for the location of sims (full path)
+        -freq  <#.##>
+                overwrite data recording cycle time (>= 0.01 sec)
+        -ddd, -debug
+                start simulation using the data display debugger (DDD)
+        -gdb
+                start simulation using the GNU debugger
+        -echo
+                send start_sim script print statements to terminal
+        -h, -help, --help
+                display this help and exit
+        
+Usage:
+    start_sim [-s <SIM_name>] [-i <input_file>] [option(s)...]
+    
+Examples:
+    % start_sim -s SIM_cannon -i RUN_grav/input
+    % start_sim
+    % start_sim -O \$HOME/my_log_files/
+    % start_sim -nexiom nexiom_input.xml
+" ;
+
+
+# Local Variables
+my $name="";                # Name of Trick directory system that holds simulation
+my $input="";               # Simulation Input File
+my $use_input=1;            # Input file required for S_MAIN_*.exe
+my $nexiom_format=0;        # Input file is in XML format, create XML output
+my $nexiom_input="";        # Filename of the nexiom input parameters (XML format)
+my $nexiom_output="";       # Filename of the nexiom output (Datatable format)
+my $freq=0.0;               # Overwrite data recording rate (>= 0.01 sec)
+my $user_home="";           # Overwrite default location of $TRICK_USER_HOME
+my $echo_ON=0;              # Print the generated start command to screen
+my $help=0;                 # Print usage text to screen
+my $DDD=0;                  # Start simulation in ddd Flag
+my $GDB=0;                  # Start simulation in gdb Flag
+my $options="";             # Additional options to pass along to S_MAIN_*.exe
+my $default_host_cpu="Linux_3.4_234_x86_64";# Given in case TRICK_HOST_CPU is undef
+
+
+my $kernel_name;
+open $fh, "uname -s |";
+{
+  local $/;
+  $kernel_name = trim(<$fh>);  # remove whitespace
+}
+close $fh;
+my $redirect="";
+if  ( substr($kernel_name,0,4) eq "IRIX" ) {
+    $redirect=" > /dev/null ";  # Redirect outputs away from the screen
+}
+
+
+# IMPORTANT: Do not create options that could be used by S_MAIN.exe
+while ( @ARGV > 0 ) {
+    my $argc  = $ARGV[0];  # Copy current argument
+    my $argc2 = $ARGV[1];
+    
+    if (( $argc eq "-name" ) ||
+        ( $argc eq "-sim" ) ||
+        ( $argc eq "-s" )) {
+        shift; $name=$argc2;
+    } elsif (( $argc eq "-input" ) ||
+             ( $argc eq "-i" ) ||
+             ( $argc eq "-run" )) {
+        shift; $input=$argc2;
+    } elsif (( $argc eq "-frequency" ) ||
+             ( $argc eq "-freq" ) ||
+             ( $argc eq "-f" )) {
+        shift; $freq=$argc2;
+    } elsif (( $argc eq "-user_home" ) ||
+             ( $argc eq "-user" ) ||
+             ( $argc eq "-u" )) {
+        shift; $user_home=$argc2;
+    } elsif (( $argc eq "-debug" ) ||
+             ( $argc eq "-ddd" )) {
+        $DDD=1;
+    } elsif (( $argc eq "-gdb" )) {
+        $GDB=1;
+    } elsif (( $argc eq "-echo" ) ||
+             ( $argc eq "-print" )) {
+        $echo_ON=1;
+    } elsif (( $argc eq "-help" ) ||
+             ( $argc eq "-h" ) ||
+             ( $argc eq "help" ) ||
+             ( $argc eq "-x" )) {
+        $help=1;
+        $options = $options." -help";
+    } elsif (( $argc eq "-nexiom" ) ||
+             ( $argc eq "-nexcsims" )) {
+        $nexiom_format=1;
+        shift;
+        $nexiom_input=$argc2;
+    } else {
+        if  (( $argc eq "sie" ) ||
+             ( $argc eq "trick_version" ) ||
+             ( $argc eq "-V" ) ||
+             ( $argc eq "--version" )) {
+            # Don't run sim; generate files or print info to screen.
+            $use_input = 0;
+            # Save option.
+            $options = $options." ".$argc;
+        } elsif  ( substr($argc,0,1) eq "-" ) {
+            # Add two backslashes to support Debug argument parsing.
+            # Otherwise some arguments are saved as internal ddd/gdb
+            # commands and not passed along to S_MAIN.exe
+            $options = $options." ".$argc."\\\\";
+        } else {
+            # Leave argument as is and append to previous option(s).
+            $options = $options." ".$argc;
+        }
+    }
+    
+    shift;
+}
+
+
+# Executable name is a product of host_cpu description.
+my $S_MAIN_EXE;
+if ( defined($ENV{"TRICK_HOST_CPU"}) ) {
+    # Set "S_MAIN_EXE" equal to "S_main_" + the environment variable TRICK_HOST_CPU
+    $S_MAIN_EXE = "S_main_".$ENV{"TRICK_HOST_CPU"} .".exe";  # concatenate strings
+} else {
+    # If TRICK_HOST_CPU is undef, then "S_MAIN_EXE" is equal to "S_main_" plus
+    # local variable default_host_cpu (set above).
+    $S_MAIN_EXE = "S_main_".$default_host_cpu .".exe";  # concatenate strings
+}
+if ( $echo_ON == 1 ) {
+    print "debug: setting S_MAIN_EXE equal to \"$S_MAIN_EXE\"\n";
+}
+
+
+# If $user_home is not null, copy value
+if ( $user_home ne "" ) {
+    # If $user_home input is not null, test if path exists
+    if ( ! -d $user_home ) {
+        # An invalid sim path was provided; clear variable
+        $user_home="";
+    }
+}
+
+my $userid;
+open $fh, "whoami |";
+{
+    local $/;
+    $userid = trim(<$fh>);  # remove whitespace
+}
+close $fh;
+
+
+my $trick_sims;
+if ( $user_home ne "" ) {
+    # Set "trick_sims" equal to the variable $user_home.
+    $trick_sims = $user_home;
+} elsif ( defined($ENV{"TRICK_USER_HOME"}) ) {
+    # If $user_home not set, set "trick_sims" equal to the env var TRICK_USER_HOME.
+    $trick_sims = $ENV{"TRICK_USER_HOME"};
+} elsif ( defined($ENV{"HOME"}) ) {
+    # If TRICK_USER_HOME is undef, then set "trick_sims" equal to $HOME/trick_sims.
+    $trick_sims = $ENV{"HOME"}."/trick_sims";  # concatenate strings
+} else {
+    # If HOME is undefined then default "trick_sims" to /users/<userid>/trick_sims.
+    $trick_sims = "/users/".$userid."/trick_sims";  # concatenate strings
+}
+if ( $echo_ON == 1 ) {
+    print "debug: setting trick_sims equal to \"$trick_sims\"\n";
+}
+
+
+my $pwd_;
+if ( defined($ENV{"PWD"}) ) {
+    # Set "pwd_" equal to the envirnment variable PWD.
+    $pwd_ = $ENV{"PWD"};
+} elsif ( defined($ENV{"cwd"}) ) {
+    # If PWD is undef, then set "pwd_" equal to the envirnment variable cwd.
+    $pwd_ = $ENV{"cwd"};
+} else {
+    # If cwd is undefined, then execute `pwd`.
+    open $fh, "pwd |";
+    {
+      local $/;
+      $pwd_ = trim(<$fh>);  # remove whitespace
+    }
+    close $fh;
+}
+
+
+# which Simulation to use
+# Possible Scenarios:
+# 1. SIM_name was provided by user
+# 2. SIM_name was not entered but current path is within a simulation directory
+# 3. SIM_name was not entered & current path is not within any simulation dir
+my $sim_="SIM";
+if ( $name ne "" ) {
+    # If $name is not null, copy value
+    $sim_ = $name;
+    if ( substr($name,0,1) eq "/" ) {
+        # If the full path of the simulation directory was entered,
+        # then separate into two parts
+        my $last_slash = rindex($name, "\/");
+        if ( -e substr($name,0,$last_slash) ) {
+            # if path exists, copy all chars prior to the last forward slash
+            $trick_sims = substr($name,0,$last_slash);
+        }
+        $sim_=substr($name,($last_slash+1));  # copy all chars after the last forward slash
+    }
+} elsif ( ($nexiom_format == 1)  &&  ($nexiom_input ne "") ) {
+    # If $nexiom_input is not null, parse file
+    $sim_ = process_nexiom_input( $nexiom_input, "name");
+    if ( substr($sim_,0,1) eq "/" ) {
+        # If the full path of the simulation directory was entered,
+        # then separate into two parts
+        my $last_slash = rindex($sim_, "\/");
+        if ( -e substr($sim_,0,$last_slash) ) {
+            # if path exists, copy all chars prior to the last forward slash
+            $trick_sims = substr($sim_,0,$last_slash);
+        }
+        $sim_=substr($sim_,($last_slash+1));  # copy all chars after the last forward slash
+    }
+} else {
+    # $name is null, search the current path to determine if
+    # this script was executed within a simulation directory.
+    # If not, default to the simulation directory with the
+    # most recent time stamp.
+    if  ( `echo $pwd_ | grep $sim_ $redirect` ) {
+        # Script was executed within a Trick simulation directory
+        my $last_slash = rindex($pwd_, $sim_) - 1;
+        $trick_sims = substr($pwd_,0,$last_slash);  # Copy section of path PRIOR to SIM_name
+        $sim_=substr($pwd_,($last_slash+1));  # Copy section of path AFTER trick_sims
+        # Copy portion of SIM_name PRIOR to first slash (if any)
+        # This would imply that the path of execution was nested
+        # down past the simulation directory path
+        if ( index($sim_, "\/") != -1 ) {
+            my $new_slash = index($sim_, "\/");
+            $sim_ = substr($sim_,0,$new_slash);
+        }
+    } else {
+        # Script was executed outside of a Trick simulation directory
+        # List, then sort (comma delimited) all SIM_names by mod time
+        open $fh, "ls -vtmBd ".$trick_sims."/".$sim_."* ".$redirect." |";
+        {
+          local $/;
+          $sim_ = trim(<$fh>);  # remove whitespace
+        }
+        close $fh;
+        # Copy the single SIM_name PRIOR to the first comma (if any)
+        if ( index($sim_, ",") != -1 ) {
+            my $first_comma = index($sim_, ",");
+            $sim_ = substr($sim_,0,$first_comma);
+        }
+        # Results show full path; 
+        # strip off everything up to and including the last slash
+        my $last_slash = rindex($sim_, "\/");
+        $sim_=substr($sim_,($last_slash+1));  # copy all chars after the last forward slash
+    }
+}
+my $NAME = $trick_sims."/".$sim_ ;
+if ( $echo_ON == 1 ) {
+    print "debug: setting NAME equal to \"$NAME\"\n";
+}
+if ( ! -e $NAME ) {
+    print "\e[31mError:\e[00m SIM directory... \n\"$NAME\" \n...does not exists.\n";
+    if ( $nexiom_format == 1 ) {
+        print "         Please overwrite NExIOM value by adding \"-s <SIM_name>\"\n";
+        print "         (e.g. \"start_sim -nexiom <XML_input_file> -s <SIM_name>\" )\n";
+    }
+    print "         \e[34mPlease set <SIM_name> to one of the following:\e[00m\n";
+    system("ls -vtmBd ".$trick_sims."/*SIM*");
+    print "Type \"start_sim -help\" for more info.\n";
+    exit
+}
+
+
+# where to find S_default.dat
+$DATA_PATH=$NAME;
+
+# where to look for input file's #includes
+$INCLUDE_PATH=$NAME;
+
+
+# Which input file to use
+# Possible Scenarios:
+# 1. input_file was provided by user
+# 2. input_file was not entered, but current path is within a RUN directory
+# 3. input_file was not entered & current path is not within any RUN dir
+my $run_ = "RUN";
+my $in_ = "input";
+if ( $input ne "" ) {
+    # If $input is not null, copy value
+    if ( `echo $input | grep "\/" $redirect ` ) {
+        # A run directory AND input file name was provided
+        my $last_slash = rindex($input, "\/");
+        $run_ = substr($input,0,$last_slash);  # Copy section of path PRIOR to $input's last slash
+        if ( rindex($run_, "\/") != -1 ) {
+            my $new_slash = rindex($run_, "\/");
+            $run_=substr($run_,($new_slash+1));  # Copy section of path AFTER $run_'s last slash
+        }
+        $in_=substr($input,($last_slash+1));  # Copy section of path AFTER $input's last slash
+    } else {
+        # A path was not provided, but an input file name was.
+        $in_ = $input;
+        if ( -e $input ) {
+            # Assume that this script is being executed in the desired RUN dir.
+            my $last_slash = rindex($pwd_, "\/");
+            $run_=substr($pwd_,($last_slash+1));  # Copy section of path AFTER $pwd_'s last slash
+        } else {
+            # The input file does not exist in current working directory.
+            # Search for it in the RUN directories with recent time stamps.
+            # List, then sort (comma delimited) all RUN_names by mod time
+            open $fh, "ls -vtmBd ".$NAME."/".$run_."* ".$redirect." |";
+            {
+              local $/;
+              $run_ = trim(<$fh>);  # remove whitespace
+            }
+            close $fh;
+            # Copy the single RUN_name PRIOR to the first comma (if any)
+            if ( index($run_, ",") != -1 ) {
+                my $first_comma = index($run_, ",");
+                $run_ = substr($run_,0,$first_comma);
+            }
+            # Results show full path; strip off everything from first to last slash
+            my $last_slash = rindex($run_, "\/");
+            $run_=substr($run_,($last_slash+1));  # copy all chars after the last forward slash
+        }
+    }
+} else {
+    if  ( `echo $pwd_ | grep $run_ $redirect ` ) {
+        my $name_slash = rindex($pwd_, $sim_);  # Find string index where simulation's name begins
+        my $next_slash = index($pwd_, "\/", $name_slash);  # Find string index where simulation's name ends
+        $run_=substr($pwd_,($next_slash+1));  # Copy section of path AFTER $NAME
+        # Copy portion of results PRIOR to first slash (if any)
+        # This would imply that the path of execution was nested
+        # down past the RUN directory path
+        if ( index($run_, "\/") != -1 ) {
+            my $new_slash = index($run_, "\/");
+            $run_ = substr($run_,0,$new_slash);
+        }
+    } else {
+        # Script was executed outside of a RUN directory
+        # List, then sort (comma delimited) all RUN_names by mod time
+        open $fh, "ls -vtmBd ".$NAME."/".$run_."* ".$redirect." |";
+        {
+          local $/;
+          $run_ = trim(<$fh>);  # remove whitespace
+        }
+        close $fh;
+        # Copy the single RUN_name PRIOR to the first comma (if any)
+        if ( index($run_, ",") != -1 ) {
+            my $first_comma = index($run_, ",");
+            $run_ = substr($run_,0,$first_comma);
+        }
+        # Results show full path; strip off everything from first to last slash
+        my $last_slash = rindex($run_, "\/");
+        $run_=substr($run_,($last_slash+1));  # copy all chars after the last forward slash
+    }
+}
+
+my $INPUT="";
+if ( $use_input == 0 ) {
+    # Execute S_MAIN_*.exe without an input file (e.g. sie, --version, etc.)
+} else {
+    $INPUT=$NAME."/".$run_."/".$in_;
+}
+if ( $echo_ON  == 1 ) {
+    print "debug: setting INPUT equal to \"$INPUT\"\n";
+}
+if ( (! -e $INPUT)  &&  ($use_input!=0) ) {
+    print "\e[31mError:\e[00m Input file... \n\"$INPUT\" \n...is not a valid file name.\n";
+    if ( $nexiom_format == 1 ) {
+        print "         Please overwrite NExIOM value by adding \"-i <input_file>\"\n";
+    }
+    printf "         \e[34mPlease set <input_file> to a valid input file name\e[00m\n";
+    printf "         \e[34mfrom one of the following directories:\e[00m\n";
+    system("ls -vtmBd ".$NAME."/RUN*");
+    print "Type \"start_sim -help\" for more info.\n";
+    exit;
+}
+
+
+my $CMD = $NAME."/".$S_MAIN_EXE."  ".$INPUT."  ".$options ;
+if ( ! -e $NAME."/".$S_MAIN_EXE ) {
+    print "\n" ;
+    print "\e[31mError: \"$S_MAIN_EXE\" does not exist.\e[00m\n";
+    print "      \e[33mThe executable that you were expecting may not have \e[00m\n";
+    print "      \e[33mbeen created yet, or maybe was created on a different \e[00m\n";
+    print "      \e[33mplatform and will not run on this one.[00m\n";
+    print "File(s) Found:\n";
+    print "\e[34m";
+    system("ls -apv S_main_*");
+    print "\e[00m";
+    print "Try running CP, then start_sim again.\n\n";
+    exit;
+} else {
+    if ( $help == 1 ) {
+        # First print help info from S_main_*.exe.  Defined in file:
+        # $TRICK_HOME/trick_source/sim_services/exec/process_sim_args.c
+        system($NAME."/".$S_MAIN_EXE."  ".$options);
+        # Now append start_sim specific help info.
+        print "$usage\n";
+        exit;
+    } else {
+        if ( $nexiom_format == 1 ) {
+            $nexiom_output = process_nexiom_input( $nexiom_input );
+            # strip off everything up to and including the last slash 
+            my $last_slash = rindex($nexiom_output, "\/");
+            $nexiom_output = substr($nexiom_output,($last_slash+1));
+            if ( $echo_ON == 1 ) {
+                #print "setting NExIOM output file to \"$nexiom_output\"\n";
+            }
+            #$CMD = $CMD." -auto -nexiom ".$nexiom_output;
+            $CMD = $CMD." -auto -nexiom ";
+        }
+        if ( $DDD == 1 ) {
+            # Prepend command with ddd
+            $CMD = "ddd --args ".$CMD;
+        } elsif ( $GDB == 1 ) {
+            # Prepend command with gdb
+            $CMD = "gdb --args ".$CMD;
+        }
+    }
+}
+
+
+# START THE SIM!!!
+if ( $echo_ON == 1 ) {
+    print "starting the simulation:\n";
+    print "   \"$CMD\"\n\n";
+}
+system("cd ".$NAME."; ".$CMD);
+
+
+
+
+#######################################################################
+########################  DECLARE SUBROUTINES  ########################
+#######################################################################
+sub process_nexiom_input {
+
+    # PARSE NExIOM INPUT FILE 
+    my ($infile, $tag) ;
+    my ($value, $outfile) ;
+   
+    # If two arguments received (input_filename, XML tag)
+    if ( $_[1] ) {
+        # save input_filename and XML tag strings
+        ($infile, $tag) = handle_nexiom_args($_[0], $_[1]) ; 
+    
+    # One argument received (input_filename)
+    } else {
+        # save input_filename; XML tag is null
+        ($infile, $tag) = handle_nexiom_args($_[0], 0) ; 
+    }
+
+    # If an XML tag was provided 
+    if ( $tag ) {
+       # Save the value of the first occurrence of this XML tag.
+       $value = get_tag_val($infile, $tag) ;
+       # This value is most commonly used as the NExIOM default SIM directory name.
+       return $value;
+       
+    # No XML tag provided 
+    } else {
+       # Translate input file to "nexcsims.d"
+       $outfile=generate_data_files($infile) ;
+       return $outfile;
+    }
+
+}
+
+sub handle_nexiom_args($$) {
+
+    my ( $infile, $tag ) ;
+
+    $infile  = $_[0] ;
+    $tag  = $_[1] ;
+
+    # Exit script if input_file does not exist 
+    if ( ! -e $infile ) {
+       print "ERROR: Can't find NExIOM input file \"$infile\" \n" ;
+       print "File does not exist: $infile \n" ;
+       exit
+    }
+
+    return $infile, $tag ;
+}
+
+sub get_tag_val($$) {
+
+    my ( $file ) = $_[0] ;
+    my ( $tag ) = $_[1] ;
+    my $value ;
+
+    # Parse XML contents to hashref, $data 
+    my $data = XML::Simple::XMLin($file) ;
+    # Find first occurrence of XML tag (i.e. <foo="bar">)
+    if ( ! ($value = $data->{$tag}) ) {
+        # Couldn't find this XML tag, so clear $value
+        $value = "" ;
+    }
+
+    return $value ;
+}
+
+sub generate_data_files($) {
+   
+    my ( $file ) = $_[0] ;
+    my $results;
+    my $record_name;
+    $record_index = 0;  # counter for the number of vars to data record
+    
+    # Save the value of the first occurrence of this XML tag.
+    if ( ! ($results = get_tag_val($file,"results")) ) {
+        # Couldn't find this XML tag, so provide default value
+        $results = "nexiom_output.xml" ;
+    }
+    # strip off everything up to and including the last slash
+    my $last_slash = rindex($results, "\/");
+    $record_name=substr($results,($last_slash+1));  # copy all chars after the last forward slash
+
+    # create/overwrite nexcsims.d data file
+    open (FILE, ">".$DATA_PATH."/Modified_data/nexcsims.d");
+    close FILE;
+
+    # create/overwrite nexcsims.dr recording file
+    open (DR_FILE, ">".$DATA_PATH."/Modified_data/nexcsims.dr");
+    # Insert header declarations
+    print  DR_FILE "#ifndef DR_GROUP_ID\n";
+    print  DR_FILE "    #define DR_GROUP_ID sys.exec.record.num_group\n";
+    print  DR_FILE "#else\n";
+    print  DR_FILE "    DR_GROUP_ID -- ;\n";
+    print  DR_FILE "#endif\n\n";
+    print  DR_FILE "sys.exec.record.group[DR_GROUP_ID].name = \"$record_name\" ;\n";
+    if ( $freq > 0.0 ) {
+        print  DR_FILE "sys.exec.record.group[DR_GROUP_ID].cycle = $freq ;\n";
+    }
+    print  DR_FILE "sys.exec.record.group[DR_GROUP_ID].record = Yes ;\n";
+    print  DR_FILE "sys.exec.record.group[DR_GROUP_ID].format = DR_Binary ;\n";
+    close DR_FILE;
+
+    # Create a new XML::Parser object, $parser 
+    my $parser = XML::Parser->new(
+        Handlers => {
+            # 'Start' handler - references the start subroutine (hand-written below)
+            Start=>\&start,
+            # 'End' handler - reference the end subroutine (hand-written below)
+            End=>\&end,
+        }
+    );
+    $parser->parsefile($file);
+
+    # Append footer to recording file
+    open (DR_FILE, ">>".$DATA_PATH."/Modified_data/nexcsims.dr");
+    print  DR_FILE "\nDR_GROUP_ID ++ ;\n";
+    close DR_FILE;
+
+    return $results ;
+}
+
+sub start {
+
+    # Called by generate_data_files()
+    my ( $expat, $element, %attrval ) = @_;
+
+    my ( $i, $j, $k );
+    my $dimension_counter = 0;
+    my @array_of_arrays = ();
+    my $pos = 1;
+
+    # Search for <InputParameters> tag to build an input data file
+    if ( $element eq "Parameter" and $element_stack[ -1 ] eq "InputParameters" ) {
+
+        # Append variables to data file
+        open (FILE, ">>".$DATA_PATH."/Modified_data/nexcsims.d");
+
+        # Translate the NExIOM variable name to a local variable name
+        my ($in_variable, @arrays) = find_sim_var( $attrval{name}, "in" ) ;
+        # Determine if var is scalar, single dimension array, double (matrix), etc
+        # If @arrays list is empty, then this variable is scalar
+        $dimension_counter = @arrays;  
+
+        for ( $i = 0;  $i < $dimension_counter;  $i++ ) {
+            push @array_of_arrays, [1..$arrays[$i]];
+        }
+
+        $pos = 1;  # default array size
+        my $iter = make_permutation(@array_of_arrays);
+        while (my @elements = $iter->() ){
+            print  FILE "$in_variable";
+            if ($dimension_counter >= 1) {
+                foreach (@elements) {
+                    $pos = $_ - 1;  # decrease array position by 1 for C code
+                    print  FILE "[$pos]";  # append array index to variable
+                }
+            }
+            if( exists $attrval{units} ) {
+                # Identify what units this parameter's value will be given in
+                print  FILE " \{$attrval{units}\}";
+            }
+            # Retrieve the value being assigned to this parameter
+            print  FILE " = $attrval{value};\n";
+        }
+
+        close FILE;
+
+    # Search for <OutputParameters> tag to build a data recording file
+    } elsif ( $element eq "Parameter" and $element_stack[ -1 ] eq "OutputParameters" ) {
+
+        # Append variables to recording file
+        open (DR_FILE, ">>".$DATA_PATH."/Modified_data/nexcsims.dr");
+        
+        # Translate the NExIOM variable name to a local variable name
+        my ($out_variable, @arrays) = find_sim_var( $attrval{name}, "out" ) ;
+        # Determine if var is scalar, single dimension array, double (matrix), etc
+        # If @arrays list is empty, then this variable is scalar
+        $dimension_counter = @arrays;  
+
+        for ( $i = 0;  $i < $dimension_counter;  $i++ ) {
+            # Create an array of integers from 1 to n,
+            # then populate that array into an array list.
+
+            # Example: given a multi-dimensional array that is of size 2 x 10 x ?,
+            # produce this array list =>  ([1..2], [1..10], [1..?], etc... )
+
+            push @array_of_arrays, [1..$arrays[$i]];
+        }
+
+        $pos = 1;  # default array size
+        my $iter = make_permutation(@array_of_arrays);
+        while (my @elements = $iter->() ){
+            print  DR_FILE "sys.exec.record.group[DR_GROUP_ID].ref".
+                    "[$record_index] = \"$out_variable";
+            if ($dimension_counter >= 1) {
+                foreach (@elements) {
+                    $pos = $_ - 1;  # decrease array position by 1 for C code
+                    print  DR_FILE "[$pos]";  # append array index to variable
+                }
+            }
+            # End string with closed quote, semi-colon & newline
+            print  DR_FILE "\" ;\n";  # write to data recording file
+            $record_index++;
+        }
+
+        close DR_FILE;
+    }
+
+    push @element_stack, $element;
+}
+
+sub end {
+
+    my ( $expat, $element ) = @_;
+
+    pop @element_stack;
+}
+
+sub find_sim_var {
+
+    # Use a mappping file to find which simulation variable
+    # is equivalent to this nexiom input variable name.
+    my $nexiom_variable = my $new_variable = shift;
+    my $in_out = shift;
+    my ($from, $to, @slots);
+
+    if ((defined $in_out)  &&  ($in_out eq "out")) {
+        open (MAP_FILE, $INCLUDE_PATH."/nexiom_output.map");
+    } else {
+        open (MAP_FILE, $INCLUDE_PATH."/nexiom_input.map");
+    }
+
+    while (<MAP_FILE>) {
+        chomp;  # read file until another newline character is found
+
+        # Copy values (assume data is comma delimited)
+        ($from, $to, @slots) = split(",");
+        $from = trim($from);  # remove whitespace
+        $to = trim($to);  # remove whitespace
+        # Values in the output mapping file are opposite/backwards
+        if ((defined $in_out)  &&  ($in_out eq "out")) {
+            # Swap from & to values
+            ($from, $to) = ($to, $from);
+        }
+        foreach (@slots) {
+            $_ = int(trim($_));  # save array demensions (if any)
+        }
+
+        # Search for the nexiom variable name
+        if( $nexiom_variable eq $from ) {
+            # Cross mapping found.  Rename to local simulation name.
+            $new_variable = $to ;
+            last;  # break out of loop
+        } elsif( $nexiom_variable eq $to ) {
+            # No cross mapping needed.  Leave variable name as is.
+            $new_variable = $nexiom_variable ;
+            last;  # break out of loop
+        } else {
+            # clear tmp values prior to parsing next line of MAP_FILE
+            ($from, $to, $#slots) = ( "", "", -1);
+        }
+    }
+
+    close (MAP_FILE);
+
+    my @found_it = ($new_variable, @slots) ;
+    return @found_it ;
+}
+
+sub make_permutation{
+    my @refs = @_;
+    my @arrayindexes = ();
+    foreach (@refs){
+        push @arrayindexes,[$_,0,$#{$_}];
+    }
+
+    return sub {
+        return if $arrayindexes[0]->[1] > $arrayindexes[0]->[2];
+        my @elements =  map { $_->[0]->[ $_->[1]] } @arrayindexes;
+        # Check for out of bounds....
+        $arrayindexes[$#arrayindexes]->[1]++;
+        for (my $i = $#arrayindexes; $i > 0; $i--) {
+            if ($arrayindexes[$i]->[1] > $arrayindexes[$i]->[2]) {
+                $arrayindexes[$i]->[1] = 0;
+                $arrayindexes[$i-1]->[1]++;
+            } else {
+                last;
+            }
+        }
+        return @elements;
+
+    };
+}
+
+sub trim($)
+{
+    # Remove whitespaces
+    my $string = $_[0];
+    $string =~ s/^\s+//;
+    $string =~ s/\s+$//;
+    return $string;
+}

@@ -1,0 +1,31 @@
+No title specified
+
+PLOTS:
+
+PAGE 1: "Page"
+
+    PLOT 1: "Plot"
+        Y_AXIS_FORMAT: "%g"
+
+        X_variable: "sys.exec.out.time"
+            UNITS: "s"
+            TIME_NAME: "sys.exec.out.time"
+            LABEL: "sys.exec.out.time"
+
+        Y_variable: "dyn.test3.d1"
+            UNITS: "--"
+            LABEL: "dyn.test3.d1"
+            TIME_NAME: "sys.exec.out.time"
+
+    PLOT 2: "Plot"
+        Y_AXIS_FORMAT: "%g"
+
+        X_variable: "sys.exec.out.time"
+            UNITS: "s"
+            TIME_NAME: "sys.exec.out.time"
+            LABEL: "sys.exec.out.time"
+
+        Y_variable: "dyn.test3.d2"
+            UNITS: "--"
+            LABEL: "dyn.test3.d2"
+            TIME_NAME: "sys.exec.out.time"

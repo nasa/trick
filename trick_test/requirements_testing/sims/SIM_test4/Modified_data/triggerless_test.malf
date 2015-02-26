@@ -1,0 +1,6 @@
+BEGIN_MALFUNCTION triggerless_test {
+	ACTION {
+		INSERT_BEFORE: dyn.test4_sched2(&dyn.test4);
+		printf("Wao...\n");
+	}
+};

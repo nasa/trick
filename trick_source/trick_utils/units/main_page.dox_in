@@ -1,0 +1,50 @@
+/**
+@page LEVEL2 Units
+
+The measurement units field for each parameter requires the following syntax:
+
+( <units_spec> )
+
+Each units specification may be a units primitive,
+or a combination of units primitives.
+A units primitive in the Metric system may also be combined with a prefix to
+specify decimal multiples and submultiples, such as mm for millimeters, km for
+kilometers, etc.
+
+The rules for combining units primitives are as follows:
+
+<units_product>[/<units_product>[/<units_product>...]] where <units_product> is defined as:
+
+<units_primitive>[2|3][ *<units_primitive>[2|3] [ *<units_primitive>[2|3] ...] ]
+
+Where the units primitives are:
+
+ - @subpage UNITS_TIME "Units of Time"<br>
+ - @subpage UNITS_LENGTH "Units of Length"<br>
+ - @subpage UNITS_ANGLE "Units of Angle"<br>
+ - @subpage UNITS_MASS "Units of Mass"<br>
+ - @subpage UNITS_FORCE "Units of Force"<br>
+ - @subpage UNITS_ELECTRIC_POTENTIAL "Units of Electric Potential"<br>
+ - @subpage UNITS_ELECTRIC_CURRENT "Units of Electric Current"<br>
+ - @subpage UNITS_ELECTRIC_RESISTANCE "Units of Electric Resistance"<br>
+ - @subpage UNITS_TEMPERATURE "Units of Temperature"<br>
+ - @subpage UNITS_GAIN "Units of Gain"<br>
+ - @subpage UNITS_ENERGY "Units of Energy"<br>
+ - @subpage UNITS_POWER "Units of Power"<br>
+ - @subpage UNITS_PRESSURE "Units of Pressure"<br>
+ - @subpage UNITS_UNITLESS "Unitless"<br>
+
+@attention Use of \"\--\" is not allowed for any parameter that should have a measurement units specification.
+
+Maximum exponent of 3 is allowed for measurement units.
+
+For example, the following all represent the same units specification:
+
+- m/s2
+- m/s*s
+- m/s/s
+
+Also, see the following units conversion interfaces:
+- @ref Unit "Unit Class"
+- @ref UNITS_C_INTF "Units C Interface"
+*/

@@ -1,0 +1,33 @@
+/**
+@anchor DataProducts 
+
+@page LEVEL1 Data Products
+
+The Data Products (DP) is a simulation data post processor designed to allow
+visualization of data recorded in the Trick simulation.
+
+The data products can plot ASCII, Binary & HDF5 data. HDF5 is 
+the new data format supported since Trick 10.
+
+Normally, a user will create DP formatted files for viewing by using the trick_dp and quickplot (trick_qp) GUIs 
+(see @ref DPGUIs "6.4 Data Products GUIs"), and will not have to worry about DP file formats as well as
+the underlying Trick applications @c “fxplot” or @c “gxplot”, which do the work of displaying 
+plots and tables. However, there are times that a user may want to program scripts or 
+do something command line and need to know the usage of these internal applications.
+There are two basic DP programs for displaying data: @c fxplot, and @c gxplot. 
+@c “fxplot” creates X-Y plots using a 3rd party Fermi-Lab plot widget as well as creates 
+ASCII tabular data. @c “gxplot” uses gnuplot for generating report quality plots. 
+
+The usage for @c fxplot and @c gxplot are seen below:
+
+<tt><b>UNIX Prompt></b> fxplot <session_file></tt><br>
+<tt><b>UNIX Prompt></b> gxplot <session_file></tt><br>
+
+This session is arranged as following:
+
+@li @ref DPSessionFileFormat "6.1 DP Session File Format" 
+@li @ref DPProductFileFormat "6.2 DP Product File Format"
+@li @ref DPPlotPrinting "6.3 Plot Printing"
+@li @ref DPGUIs "6.4 Data Products GUIs"
+
+*/

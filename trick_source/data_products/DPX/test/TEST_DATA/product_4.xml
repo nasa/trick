@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE product PUBLIC "-//Tricklab//DTD Product V1.0//EN" "../../XML/DTD/Product.dtd">
+
+<!-- Description: Plot of Y(t) vs. t, with attributes, titles, labels, units -->
+
+<product version="1.0">
+   <title>Solar Elevation</title>
+   <page>
+      <title>Solar Elevation for a Day</title>
+      <plot grid="yes"
+            grid_color="blue"
+            font="-*-new century schoolbook-bold-r-*--12-*-*-*-*-*-*-*"
+            background_color="#eef0ff">
+         <title>Sun Elevation vs. Time</title>
+         <xaxis>
+            <label>Time</label>
+            <units>hr</units>
+         </xaxis>
+         <yaxis>
+            <label>Elevation</label>
+            <units>d</units>
+         </yaxis>
+         <curve>  
+            <var>sys.exec.out.time</var>
+            <var line_color="red" line_style="dash">sun_predictor.sun.solar_elevation</var>
+         </curve>  
+      </plot>
+   </page>
+</product>

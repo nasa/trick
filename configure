@@ -1,0 +1,958 @@
+#!/bin/bash
+
+# configure script for Trick
+# type configure --help for usage
+
+# $Id: configure 3785 2015-01-26 14:12:13Z alin $
+
+ver_out=""
+ver_min=""
+ver_url=""
+prefix=/usr/local
+cc=/usr/bin/cc
+cxx=/usr/bin/c++
+ld=/usr/bin/c++
+llvm=""
+llvm_min_ver=3.1
+llvm_config="llvm-config"
+python=/usr/bin/python
+javac=javac
+perl=/usr/bin/perl
+flex=/usr/bin/flex
+flex_min_ver=2.5.33
+bison=/usr/bin/bison
+bfd=""
+bfd_min_ver=2.20
+libxml=""
+swig=""
+swig_min_ver=1.3.29
+gtest=""
+motif=""
+hdf5=""
+dmtcp=""
+er7_utils=""
+fermi_ware=""
+dmtcp_min_ver=1.2.4
+tprocte=""
+bc635=""
+java_min_ver=1.6.0
+no_create=0
+dev=0
+help=0
+lsb_release=/usr/bin/lsb_release
+
+# Get the path this script is running
+abspath=$(cd ${0%/*} 2>&1 /dev/null && echo $PWD/${0##*/})
+TRICK_HOME=`dirname "$abspath"`
+
+TRICK_HOST_TYPE=`uname -s`
+
+###################### Beginning of Internal Functions #########################
+function check_cc_version() {
+    ver=`$cc -dumpversion 2>&1 /dev/null`
+    maj_ver=`echo "$ver"| perl -ne 'if (/(\d+)\.(\d+)/) {print $1;} ;'`
+    min_ver=`echo "$ver"| perl -ne 'if (/(\d+)\.(\d+)/) {print $2;} ;'`
+    if [ $maj_ver == 4 -a $min_ver == 1 ] ; then
+        echo "Warning: Trick will work with GCC 4.1.x but will display errors during compiliation."
+        echo "         Consider updating GCC"
+        return 0
+    else
+        return 0
+    fi
+    return 0
+}
+################################################################################
+function check_flex_version() {
+    ver=`$flex --version 2>&1 /dev/null`
+    ver=`echo "$ver"|sed -n '/[0-9]\.[0-9]*$/p'`
+    ver_out=`echo "$ver"|sed 's/[_a-zA-Z\/ ]//g'`
+    ver_min=$flex_min_ver
+    if echo $ver_out $ver_min | sed 's/[.a-z]/ /g' | awk -F " " \
+    '{ if (($1 <  $4)  || \
+            ($1 == $4 && $2 <  $5)  || \
+            ($1 == $4 && $2 == $5 && $3 < $6)) \
+    exit 0; else exit 1;}'
+    then
+        ver_url="(http://flex.sourceforge.net)"
+        return 1
+    fi
+    return 0
+}
+################################################################################
+function check_swig_version() {
+    ver=`$test_ver_prog -version 2>&1 /dev/null`
+    ver=`echo "$ver"|sed -n '/[0-9]\.[0-9]*$/p'`
+    ver_out=`echo "$ver"|sed 's/SWIG Version //g'`
+    ver_min=$swig_min_ver
+    if echo $ver_out $ver_min | sed 's/[.a-z]/ /g' | awk -F " " \
+    '{ if (($1 <  $4)  || \
+            ($1 == $4 && $2 <  $5)  || \
+            ($1 == $4 && $2 == $5 && $3 < $6)) \
+    exit 0; else exit 1;}'
+    then
+        ver_url="(http://swig.sourceforge.net)"
+        return 1
+    fi
+    return 0
+}
+################################################################################
+function check_java_version() {
+    ver=`java -version 2>&1 /dev/null`
+    ver=`echo "$ver"|sed -n '/[0-9]\.[0-9_"]*$/p'`
+    ver=`echo "$ver"|sed 's/java version \"//g'`
+    ver_out=`echo "$ver"|sed 's/[_a-zA-Z].*//g'`
+    ver_min=$java_min_ver
+    if echo $ver_out $ver_min | sed 's/[.a-z]/ /g' | awk -F " " \
+    '{ if (($1 <  $4)  || \
+            ($1 == $4 && $2 <  $5)  || \
+            ($1 == $4 && $2 == $5 && $3 < $6)) \
+    exit 0; else exit 1;}'
+    then
+        ver_url="(http://www.java.com/en)"
+        return 1
+    fi
+    return 0
+}
+################################################################################
+function check_dmtcp_version() {
+    ver=`${dmtcp}/bin/dmtcp_checkpoint --version 2>&1`
+    ver=`echo "$ver"|sed -n '/[0-9]\.[0-9_"]*$/p'`
+    ver_out=`echo "$ver"|sed 's/[_a-zA-Z\()+/ ]//g'`
+    ver_min=$dmtcp_min_ver
+    if echo $ver_out $ver_min | sed 's/[.a-z]/ /g' | awk -F " " \
+    '{ if (($1 <  $4)  || \
+            ($1 == $4 && $2 <  $5)  || \
+            ($1 == $4 && $2 == $5 && $3 < $6)) \
+    exit 0; else exit 1;}'
+    then
+        ver_url="(http://dmtcp.sourceforge.net)"
+        return 1
+    fi
+    return 0
+}
+################################################################################
+function check_bfd_version() {
+    ver=`${bfd}/bin/objdump --version | perl -n -e 'if (/(\d+\.\d+)/) { print $1; }'`
+    ver_min=$bfd_min_ver
+    if echo $ver $ver_min | sed 's/[.a-z]/ /g' | awk -F " " \
+    '{ if (($1 <  $3)  || \
+            ($1 == $3 && $2 < $4)) \
+    exit 0; else exit 1;}'
+    then
+        ver_url="(http://www.gun.org/software/binutils)"
+        return 1
+    fi
+    return 0
+}
+################################################################################
+function check_llvm_version() {
+    ver=`$test_ver_prog --version 2>&1 /dev/null`
+    ver=`echo "$ver"|sed -n '/[0-9]\.[0-9]*$/p'`
+    ver_out=`echo "$ver"|sed 's/[_a-zA-Z].*//g'`
+    ver_min=$llvm_min_ver
+    if echo $ver_out $ver_min | sed 's/[.a-z]/ /g' | awk -F " " \
+    '{ if (($1 <  $3)  || \
+            ($1 == $3 && $2 < $4)) \
+    exit 0; else exit 1;}'
+    then
+        ver_url="(http://www.llvm.org)"
+        return 1
+    fi
+    return 0
+}
+################################################################################
+function check_avail() {
+for d in ${dir[*]}
+do
+    if test -e "$d/$prog"
+    then
+        if test -n "$ver_check"
+        then
+            test_ver_prog="$d/$prog"
+            $ver_check
+            if test $? -eq 0
+            then
+                return_dir=$d
+                return  0
+            fi
+        else
+            return  0
+        fi
+    fi
+done
+return 1
+}
+################################################################################
+function check_exists() {
+    echo -n "checking for $1 $2... "
+    if [ -e "$2" ] ; then
+        echo "yes"
+        return 0
+    fi
+    echo "no"
+    error_exit
+}
+################################################################################
+function search_exists() {
+for d in ${dir[*]}
+do
+    if [ -e "$d/$1" ] ; then
+        return_dir=$d
+        return 0
+    fi
+done
+return 1
+}
+################################################################################
+function error_exit() {
+
+    # STDERR warning
+    echo "[33m"  >&2
+    if [ "$ver_url" != "" ] ; then
+        echo "version $ver_min or later is required."  >&2
+        echo "info @ $ver_url"  >&2
+    fi
+    #echo "Enter \"$0 --help\" for more options."  >&2
+    #echo "[00m"  >&2
+
+    echo "[31mConfigure failed[0m"
+    exit 1
+}
+
+###################### End of Internal Functions ###############################
+
+# Loop through all args.  Copied from autoconfig scripts
+for arg
+do
+    # If the previous option needs an argument, assign it.
+    if test -n "$prev"; then
+        eval "$prev=\$arg"
+        prev=
+        continue
+    fi
+
+    optarg=`expr "x$arg" : 'x[^=]*=\(.*\)'`
+
+    case $arg in
+       --bc635)
+           prev=bc635 ;;
+       --bc635=*)
+           bc635=$optarg ;;
+       --bfd)
+           prev=bfd ;;
+       --bfd=*)
+           bfd=$optarg ;;
+       --bison | --yacc)
+           prev=bison ;;
+       --bison=* | --yacc=*)
+           bison=$optarg ;;
+       --cc)
+           prev=cc ;;
+       --cc=*)
+           cc=$optarg ;;
+       --cxx)
+           prev=cxx ;;
+       --cxx=*)
+           cxx=$optarg ;;
+       --dmtcp)
+           prev=dmtcp ;;
+       --dmtcp=*)
+           dmtcp=$optarg ;;
+       --er7-utils)
+           prev=er7_utils ;;
+       --er7-utils=*)
+           er7_utils=$optarg ;;
+       --fermi-ware)
+           prev=fermi_ware ;;
+       --fermi-ware=*)
+           fermi_ware=$optarg ;;
+       --flex | --lex)
+           prev=flex ;;
+       --flex=* | --lex=*)
+           flex=$optarg ;;
+       --gsl)
+           prev=gsl ;;
+       --gsl=*)
+           gsl=$optarg ;;
+       --gtest)
+           prev=gtest ;;
+       --gtest=*)
+           gtest=$optarg ;;
+       --hdf5)
+           prev=hdf5 ;;
+       --hdf5=*)
+           hdf5=$optarg ;;
+       --javac)
+           prev=javac ;;
+       --javac=*)
+           javac=$optarg ;;
+       --ld)
+           prev=ld ;;
+       --ld=*)
+           ld=$optarg ;;
+       --llvm)
+           prev=llvm ;;
+       --llvm=*)
+           llvm=$optarg ;;
+       --llvm-config)
+           prev=llvm_config ;;
+       --llvm-config=*)
+           llvm_config=$optarg ;;
+       --motif)
+           prev=motif ;;
+       --motif=*)
+           motif=$optarg ;;
+       --perl)
+           prev=perl ;;
+       --perl=*)
+           perl=$optarg ;;
+       --prefix)
+           prev=prefix ;;
+       --prefix=*)
+           prefix=$optarg ;;
+       --python)
+           prev=python ;;
+       --python=*)
+           python=$optarg ;;
+       --no_create)
+           no_create=1 ;;
+       --swig)
+           prev=swig ;;
+       --swig=*)
+           swig=$optarg ;;
+       --std=*)
+           std=$optarg ;;
+       --tprocte)
+           prev=tprocte ;;
+       --tprocte=*)
+           tprocte=$optarg ;;
+       --dev)
+           dev=1 ;;
+       --help | -help | -h)
+           help=1 ;;
+       *)
+           echo $1: unknown argument
+           help=1 ;;
+    esac
+done
+
+# If help requested, print it, otherwise write out config to config.mk
+if [ $help -eq 1 ] ; then
+    cat <<EOF
+'`basename $0`' configures Trick and verifies prerequisites are installed.
+
+Usage: $0 [OPTION]...
+
+Defaults for each option are specified in brackets. If a default path fails,
+try setting the option equal to "" and `basename $0` will attempt to find a path,
+or provide desired path.
+
+Configuration:
+  [1m--bfd[0m=/path/to/bfd.h          Specify the Binary File Descriptor's header
+                                file directory. The BFD library is part of the
+                                binutils-dev package installation.
+                                This is a Linux only flag.
+                                [$bfd]
+
+  [1m--cc[0m=/path/to/cc              Specify an alternative C compiler
+                                [$cc]
+
+  [1m--cxx[0m=/path/to/c++            Specify an alternative C++ compiler
+                                [$cxx]
+
+  [1m--dmtcp[0m=/root/of/dmtcp        Specify a root location for Distributed Multi-
+                                Threaded CheckPointing include files and libs
+                                [$dmtcp]
+
+  [1m--fermi-ware[0m=/path/to/fermi-ware   Specify the fermi-ware directory
+                                [$gsl]
+
+  [1m--gsl[0m=/path/to/gsl_home       Specify the GNU Scientific Library home
+                                directory
+                                [$gsl]
+
+  [1m--hdf5[0m=/root/of/hdf5          Specify a root location for Hierarchical Data
+                                Format include files and libs
+                                [$hdf5]
+
+  [1m--javac[0m=/path/to/javac      Specify an alternative javac compiler to use
+                                [$javac]
+
+  [1m--ld[0m=/path/to/ld              Specify an alternative linker.
+                                [$ld]
+
+  [1m--libxml[0m=/path/to/libxml      Specify the library directory that contains
+                                libxml2.a
+                                [$libxml]
+
+  [1m--llvm[0m=/path/to/llvm_root     Specify the LLVM root directory
+                                [$llvm]
+
+  [1m--llvm-config[0m=exe_name        Specify the llvm-config executable name
+                                [$llvm_config]
+
+  [1m--motif[0m=/path/to/motif_home   Specify the Motif home directory.
+                                [$motif]
+
+  [1m--perl[0m=/path/to/perl          Specify an alternative Perl program to use
+                                [$perl]
+
+  [1m--python[0m=/path/to/python      Specify an alternative Python interpreter to use
+                                [$python]
+
+  [1m--swig[0m=/path/to/swig          Specify an alternative SWIG program to use
+                                [$swig]
+
+  [1m--std[0m=compilerFlag            Specify which version of -std=c++0x or -std=c++11 compile flag
+                                [$std]
+
+  [1m--help, -h[0m                    Display this help and exit
+
+Optional External Clock directories:
+
+  [1m--bc635[0m=/root/of/bc635        Specify a root location for BC635 driver
+                                directory
+                                [$bc635]
+
+  [1m--tprocte[0m=/root/of/tprocte    Specify a root location for TPRO CTE headers
+                                [$tprocte]
+
+Trick Developer options:
+
+  [1m--dev[0m                         Check for developer prerequisites. Defaults on
+                                if svn repository detected.
+
+  [1m--bison[0m=/path/to/bison        Specify an alternative GNU Bison program to use
+                                [$bison]
+
+  [1m--flex[0m=/path/to/flex          Specify an alternative Flex program to use
+                                [$flex]
+
+  [1m--gtest[0m=/root/of/gtest        Specify a root location for Google Test
+                                include files and libs (internal Trick use)
+                                [$gtest]
+
+Report bugs to <alexander.s.lin@nasa.gov>.
+EOF
+    exit
+fi
+
+hostname=`hostname -s`
+if [ $no_create == 0 ] ; then
+cat > ${TRICK_HOME}/config.status.${hostname} << EOF
+#!/bin/bash
+# Generated by configure.
+# Run this script to call configure with same arguments as the previous run
+# The "--no_create" argument tells the configure script not to overwrite this file.
+
+echo "./configure $*"
+./configure $* --no_create
+EOF
+chmod +x config.status.${hostname}
+fi
+
+if [ $TRICK_HOST_TYPE = "Darwin" ] ; then
+    echo -n "checking for Xcode... "
+    if [ -e "/usr/bin/xcode-select" ] ; then
+        xcode_dir=`/usr/bin/xcode-select -print-path`
+        if [ -e "$xcode_dir" ] ; then
+            echo "yes"
+        else
+            echo "[33mA problem was detected in the Xcode installation.[00m"
+            error_exit
+        fi
+    else
+        echo "[33mPlease install Xcode.  Xcode is a free download in the Apple App store.[00m"
+        error_exit
+    fi
+fi
+
+# These list of directories include the default locations for fink (/sw) and Macports (/opt/local).
+std_dir=("/usr" "/usr/local" "/sw" "/opt/local")
+std_lib_dir=("/usr/lib" "/usr/lib64" "/usr/lib/i386-linux-gnu" "/usr/lib/x86_64-linux-gnu" "/usr/local/lib" "/sw/lib" "/opt/local/lib" "/usr/lib/arm-linux-gnueabihf")
+
+if [ "$cc" != "" ] ; then
+    check_exists "C compiler" $cc
+else
+    dir=${std_dir[*]}
+    echo -n "checking for C compiler... "
+    prog="bin/cc"
+    search_exists $prog ${dir[*]}
+    if [ $? -eq 0 ] ; then
+        cc=$return_dir/$prog
+        echo "$cc"
+    else
+        echo "no"
+        error_exit
+    fi
+fi
+check_cc_version
+
+if [ "$cxx" != "" ] ; then
+    check_exists "C++ compiler" $cxx
+else
+    dir=${std_dir[*]}
+    echo -n "checking for C++ compiler... "
+    prog="bin/c++"
+    search_exists $prog ${dir[*]}
+    if [ $? -eq 0 ] ; then
+        cxx=$return_dir/$prog
+        echo "$cxx"
+    else
+        echo "no"
+        error_exit
+    fi
+fi
+
+if [ "$ld" != "" ] ; then
+    check_exists "Linker" $ld
+else
+    dir=${std_dir[*]}
+    echo -n "checking for Linker... "
+    prog="bin/c++"
+    search_exists $prog ${dir[*]}
+    if [ $? -eq 0 ] ; then
+        ld=$return_dir/$prog
+        echo "$ld"
+    else
+        echo "no"
+        error_exit
+    fi
+fi
+
+if [ "$perl" != "" ] ; then
+    check_exists "Perl program" $perl
+else
+    dir=${std_dir[*]}
+    echo -n "checking for Perl program... "
+    prog="bin/perl"
+    search_exists $prog ${dir[*]}
+    if [ $? -eq 0 ] ; then
+        perl=$return_dir/$prog
+        echo "$perl"
+    else
+        echo "no"
+        error_exit
+    fi
+fi
+
+if [ "$python" != "" ] ; then
+    check_exists "Python interpreter" $python
+else
+    dir=${std_dir[*]}
+    echo -n "checking for Python interpreter... "
+    prog="bin/python"
+    search_exists $prog ${dir[*]}
+    if [ $? -eq 0 ] ; then
+        python=$return_dir/$prog
+        echo "$python"
+    else
+        echo "no"
+        error_exit
+    fi
+fi
+
+if [ "$swig" != "" ] ; then
+    check_exists "SWIG program" $swig
+    if [ $? -eq 0 ] ; then
+        echo -n "checking for SWIG version >= $swig_min_ver... "
+        check_swig_version
+        if [ $? -eq 0 ] ; then
+            echo "yes"
+        else
+            echo "no"
+            error_exit
+        fi
+    else
+        echo "no"
+        error_exit
+    fi
+else
+    echo -n "checking for SWIG version >= $swig_min_ver... "
+    dir=${std_dir[*]}
+    prog="bin/swig"
+    ver_check="check_swig_version"
+    check_avail $prog ${dir[*]}
+    if [ $? -eq 0 ] ; then
+        swig=$return_dir/$prog
+        echo "yes"
+    else
+        echo "no"
+        error_exit
+    fi
+fi
+
+if [ "$libxml" != "" ] ; then
+    check_exists "Libxml directory" "$libxml/libxml2.a"
+else
+    dir=${std_lib_dir[*]}
+    echo -n "checking for XML library home... "
+    search_exists "libxml2.a"
+    if [ $? -eq 1 ] ; then
+        search_exists "libxml2.so"
+        if [ $? -eq 1 ] ; then
+            search_exists "libxml2.dylib"
+        fi
+    fi
+    if [ $? -eq 0 ] ; then
+        libxml=$return_dir
+        echo "$libxml"
+        if [ $libxml == "/usr/lib" -o "$libxml" == "/usr/lib64" ] ; then
+            libxml="-lxml2"
+        else
+            libxml="-L$return_dir -lxml2"
+        fi
+    else
+        echo " [33mPlease install XML library using your OS distribution package manager.[00m"
+        error_exit
+    fi
+fi
+
+if [ "$motif" != "" ] ; then
+    dir=$motif
+    echo -n "checking for Openmotif devel home $motif/include/Xm... "
+    search_exists "include/Xm"
+    if [ $? -eq 0 ] ; then
+        echo "yes"
+    else
+        echo "no"
+        error_exit
+    fi
+else
+    dir=${std_dir[*]}
+    echo -n "checking for Openmotif devel home... "
+    search_exists "include/Xm"
+    if [ $? -eq 0 ] ; then
+        motif=$return_dir
+        echo "$motif/include/Xm"
+    else
+        echo "no"
+        error_exit
+    fi
+fi
+
+echo -n "checking for Java version >= $java_min_ver... "
+check_java_version
+if [ $? -eq 0 ] ; then
+    echo "yes"
+else
+    echo " [33mPlease install JRE using your OS distribution package manager.[00m"
+fi
+
+if [ "$bfd" != "" ] ; then
+    dir=$bfd
+    echo -n "checking for binutils-devel $bfd/include/bfd.h... "
+    search_exists "include/bfd.h"
+    if [ $? -eq 0 ] ; then
+        check_bfd_version
+        if [ $? -eq 0 ] ; then
+            echo "yes"
+        else
+            echo "no"
+            error_exit
+        fi
+    else
+        #don't exit if missing
+        echo "not available"
+    fi
+fi
+
+# OPTIONAL PACKAGES.
+if [ "$dmtcp" != "" ] ; then
+    check_exists "DMTCP dmtcpaware dir" "$dmtcp/dmtcpaware"
+    echo -n "checking for DMTCP version >= $dmtcp_min_ver... "
+    check_dmtcp_version
+    if [ $? -eq 0 ] ; then
+        echo "yes"
+    else
+        echo " [33mPlease update DMTCP package.[00m"
+        error_exit
+    fi
+fi
+if [ "$gsl" != "" ] ; then
+    check_exists "GNU Scientific Library include directory" "$gsl/include/gsl"
+fi
+if [ "$hdf5" != "" ] ; then
+    check_exists "HDF5 include files" "$hdf5/include/hdf5.h"
+fi
+if [ "$tprocte" != "" ] ; then
+    check_exists "TPRO-CTE include files" "$tprocte/h/tpro.h"
+fi
+if [ "$bc635" != "" ] ; then
+    check_exists "BC635 include files" "$bc635/sample/bcuser.h"
+fi
+
+# If this TRICK_HOME is from our repository.
+if [ -e "$TRICK_HOME/.git" -o $dev == 1 ] ; then
+
+    echo "Trick subversion repository detected. Additional developer configuration continuing"
+
+    # go ahead and set dev to 1.
+    dev=1
+
+    if [ "$llvm" != "" ] ; then
+        check_exists "$llvm_config" "$llvm/bin/$llvm_config"
+        if [ $? -eq 0 ] ; then
+            echo -n "checking for $llvm_config version >= $llvm_min_ver... "
+            check_llvm_version
+            if [ $? -eq 0 ] ; then
+                echo "yes"
+            else
+                echo "no"
+                error_exit
+            fi
+        else
+            echo "no"
+            error_exit
+        fi
+    else
+        echo -n "checking for $llvm_config version >= $llvm_min_ver... "
+        dir=${std_dir[*]}
+        prog="bin/$llvm_config"
+        ver_check="check_llvm_version"
+        check_avail $prog ${dir[*]}
+        if [ $? -eq 0 ] ; then
+            llvm=$return_dir
+            echo "$llvm/bin/$llvm_config"
+        else
+            echo "no"
+            error_exit
+        fi
+    fi
+
+    check_exists "clang compiler" `$llvm/bin/$llvm_config --bindir`/clang
+    check_exists "clang header files" `$llvm/bin/$llvm_config --includedir`/clang
+    check_exists "clang library" `$llvm/bin/$llvm_config --libdir`/libclang.a
+
+    if [ "$gtest" != "" ] ; then
+        check_exists "Google Test" "$gtest/include/gtest"
+    else
+        dir=${std_dir[*]}
+        echo -n "checking for Google Test... "
+        search_exists "include/gtest"
+        if [ $? -eq 0 ] ; then
+            gtest=$return_dir
+            echo "$gtest/include/gtest"
+        else
+            echo "no"
+            echo "[33mWarning: Please install the Google Test package[00m"
+        fi
+    fi
+
+    if [ "$flex" != "" ] ; then
+        check_exists "Flex program" $flex
+        if [ $? -eq 0 ] ; then
+            echo -n "checking for Flex version >= $flex_min_ver... "
+            check_flex_version
+            if [ $? -eq 0 ] ; then
+                echo "yes"
+            else
+                echo "no"
+                error_exit
+            fi
+        else
+            echo "no"
+            error_exit
+        fi
+    else
+        echo -n "checking for Flex version >= $flex_min_ver... "
+        dir=${std_dir[*]}
+        prog="bin/flex"
+        ver_check="check_flex_version"
+        check_avail $prog ${dir[*]}
+        if [ $? -eq 0 ] ; then
+            flex=$return_dir/$prog
+            echo "yes"
+        else
+            echo "no"
+            error_exit
+        fi
+    fi
+
+    if [ "$bison" != "" ] ; then
+        check_exists "GNU Bison program" $bison
+    else
+        dir=${std_dir[*]}
+        echo -n "checking for GNU Bison program... "
+        prog="bin/bison"
+        search_exists $prog ${dir[*]}
+        if [ $? -eq 0 ] ; then
+            bison=$return_dir/$prog
+            echo "$bison"
+        else
+            echo "no"
+            error_exit
+        fi
+    fi
+
+fi
+
+echo "# This file was autogenerated on" `date +"%B %d, %G."` > ${TRICK_HOME}/config_${TRICK_HOST_TYPE}.mk  #Overwrite file
+
+# sed/awk in a different location in Linux and MacOSX.
+if test $TRICK_HOST_TYPE = "Linux"
+then
+sed="/bin/sed"
+awk="/bin/awk"
+elif test $TRICK_HOST_TYPE = "Darwin"
+then
+sed="/usr/bin/sed"
+awk="/usr/bin/awk"
+else
+sed="/bin/sed"
+awk="/bin/awk"
+fi
+
+cat >> ${TRICK_HOME}/config_${TRICK_HOST_TYPE}.mk << EOF
+
+SHELL  := /bin/sh
+AWK    := $awk
+SED    := $sed
+CD     := cd
+MV     := /bin/mv
+RM     := /bin/rm
+CP     := /bin/cp
+PWD    = \$(shell /bin/pwd)
+
+CC     = $cc
+CXX    = $cxx
+LD     = $ld
+PERL   = $perl
+LEX    = $flex
+YACC   = $bison
+SWIG   = $swig
+PYTHON = $python
+JAVAC  = $javac
+LLVM_HOME = $llvm
+LLVM_CONFIG = $llvm_config
+
+DEVELOPER = $dev
+HDF5   = $hdf5
+DMTCP  = $dmtcp
+TPROCTE  = $tprocte
+BC635  = $bc635
+GSL_HOME = $gsl
+GTEST_HOME = $gtest
+
+LIBXML = $libxml
+MOTIF_HOME = $motif
+FERMI_WARE_HOME = $fermi_ware
+ER7_UTILS_HOME = $er7_utils
+
+# experimental, default to 0
+HAVE_ZEROCONF = 0
+
+PREFIX = $prefix
+CONFIG_MK = 1
+
+TRICK_RANLIB =
+
+PYTHON_VERSION := \$(shell \$(PYTHON) -V 2>&1 | \$(SED) -e 's/Python //' -e 's/\([0-9]\.[0-9]*\).*/\1/')
+HAVE_PYTHON_CONFIG := \$(shell test -e \${PYTHON}-config && echo "1")
+
+ifeq (\$(HAVE_PYTHON_CONFIG),1)
+
+# Get python-config ver
+FIRSTLINE := \$(shell head -n 1 \${PYTHON}-config | \$(SED) -e 's/\#\\!//')
+
+# In python 2.7+ python-config changed to a shell script
+ifneq (\$(FIRSTLINE),/bin/sh)
+PYCONFIG_VER := \$(shell \$(FIRSTLINE) -V 2>&1 | \$(SED) -e 's/Python //' -e 's/\([0-9]\.[0-9]*\).*/\1/')
+# if there is a python/python-config version mismatch, don't use the config
+ifneq (\$(PYTHON_VERSION),\$(PYCONFIG_VER))
+HAVE_PYTHON_CONFIG = 0
+endif
+endif
+
+# if running python-config produces a Traceback error, don't use the config
+PYCONFIG_ERR := \$(shell test -n "\`\${PYTHON}-config --include 2>&1 /dev/null | grep Traceback\`" && echo "1")
+ifeq (\$(PYCONFIG_ERR),1)
+HAVE_PYTHON_CONFIG = 0
+endif
+
+endif
+
+ifeq (\$(HAVE_PYTHON_CONFIG),1)
+PYTHON_INCLUDES := \$(shell \${PYTHON}-config --includes)
+PYTHON_LIB := \$(shell \${PYTHON}-config --libs)
+else
+PYTHON_INCLUDES := -I/usr/include/python\${PYTHON_VERSION}
+PYTHON_LIB := -lpython\${PYTHON_VERSION}
+endif
+
+EOF
+
+if test $TRICK_HOST_TYPE = "Linux"
+then
+
+    cat >> ${TRICK_HOME}/config_${TRICK_HOST_TYPE}.mk << EOF
+BFD_HOME := $bfd
+
+SHARED_LIB_OPT := -shared
+
+ifeq (\$(MAKELEVEL),0)
+export TRICK_LDFLAGS += -Wl,--export-dynamic
+export TRICK_EXEC_LINK_LIBS += -lm -lrt -lpthread -ldl -lz \$(PYTHON_LIB)
+endif
+
+LD_WHOLE_ARCHIVE := -Wl,-whole-archive
+LD_NO_WHOLE_ARCHIVE := -Wl,-no-whole-archive
+
+ifneq (\$(DMTCP),)
+TRICK_EXEC_LINK_LIBS += -L\$(DMTCP)/dmtcpaware -ldmtcpaware
+endif
+
+ifneq (\$(TPROCTE),)
+TRICK_ADDITIONAL_CXXFLAGS += -D_TPRO_CTE -I\$(TPROCTE)/h
+TRICK_EXEC_LINK_LIBS += \$(TPROCTE)/lib/libtpro.a
+endif
+
+ifneq (\$(BC635),)
+# BC635 driver ver 118 and earlier do not have proper include and lib dirs.
+TRICK_ADDITIONAL_CXXFLAGS += -D_BC635 -DLINUX -I\$(BC635)/sample
+TRICK_EXEC_LINK_LIBS += \$(BC635)/sample/bcsdklib.a
+endif
+
+ifeq (\$(HAVE_ZEROCONF),1)
+TRICK_EXEC_LINK_LIBS += -lavahi-client
+endif
+
+# Check BFD library version
+ifneq (\$(BFD_HOME),)
+HAVE_BFD := 1
+TRICK_EXEC_LINK_LIBS += -lbfd
+endif
+
+# determine if -std=c++0x or -std=c++11 compile flags are desired
+ifeq "$std" "c++0x"
+TRICK_ADDITIONAL_CXXFLAGS += -std=c++0x -D_HAVE_TR1_RANDOM
+endif
+
+ifeq "$std" "c++11"
+TRICK_ADDITIONAL_CXXFLAGS += -std=c++11 -D_HAVE_STL_RANDOM
+endif
+
+EOF
+
+elif test $TRICK_HOST_TYPE = "Darwin"
+then
+
+    cat >> ${TRICK_HOME}/config_${TRICK_HOST_TYPE}.mk << EOF
+
+HAVE_BFD := 0
+
+SHARED_LIB_OPT := -dynamiclib -Wl,-undefined,dynamic_lookup
+
+TRICK_LDFLAGS +=
+LD_WHOLE_ARCHIVE := -Wl,-all_load
+LD_NO_WHOLE_ARCHIVE :=
+TRICK_EXEC_LINK_LIBS += -lm -lpthread -ldl -lz \$(PYTHON_LIB)
+
+EOF
+
+fi
+
+echo ""
+echo "[32mTrick is ready to compile.[0m"
+echo "Ready to run \"make\"."
+

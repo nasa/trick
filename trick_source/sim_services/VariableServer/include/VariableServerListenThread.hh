@@ -1,0 +1,82 @@
+/*
+    PURPOSE:
+        (VariableServerListenThread)
+*/
+
+/*
+ * $Id:$
+ */
+
+#ifndef _VARIABLESERVERLISTENTHREAD_HH_
+#define _VARIABLESERVERLISTENTHREAD_HH_
+
+#include <string>
+#include <iostream>
+#include "trick_utils/comm/include/tc.h"
+#include "sim_services/ThreadBase/include/ThreadBase.hh"
+
+namespace Trick {
+
+/**
+  This class runs the variable server listen loop.
+  @author Alex Lin
+ */
+    class VariableServerListenThread : public Trick::ThreadBase {
+
+        friend class InputProcessor ;
+        friend void  init_attrTrick__VariableServerListenThread() ;
+
+        public:
+            VariableServerListenThread() ;
+            virtual ~VariableServerListenThread() ;
+
+            const char * get_hostname() ;
+
+            unsigned short get_port() ;
+            void set_port(unsigned short in_port) ;
+
+            std::string get_user_tag() ;
+            void set_user_tag(std::string in_tag) ;
+
+            void set_source_address(const char * address) ;
+            std::string get_source_address() ;
+
+            bool get_broadcast() ;
+            void set_broadcast(bool in_broadcast) ;
+
+            virtual int init_listen_device() ;
+            virtual int check_and_move_listen_device() ;
+
+            void create_tcp_socket(const char * address, unsigned short in_port ) ;
+
+            virtual void * thread_body() ;
+
+            int restart() ;
+
+            virtual void dump( std::ostream & oss = std::cout ) ;
+
+        protected:
+            /** Requested variable server source address\n */
+            std::string source_address ;       /**<  trick_units(--) */
+
+            /** Requested variable server port number.\n */
+            unsigned short port ;       /**<  trick_units(--) */
+
+            /** User requested specific port number\n */
+            bool user_port_requested ;  /**<  trick_units(--) */
+
+            /** User defined unique tag to easily identify this variable server port.\n */
+            std::string user_tag;          /**<  trick_units(--) */
+
+            /** Turn on/off broadcasting of variable server port.\n */
+            bool broadcast ;       /**<  trick_units(--) */
+
+            /** The listen device\n */
+            TCDevice listen_dev;        /**<  trick_io(**) */
+
+    } ;
+
+}
+
+#endif
+

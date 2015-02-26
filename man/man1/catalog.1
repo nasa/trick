@@ -1,0 +1,124 @@
+.TH CATALOG 1 "May 17, 2000" "Trick" "Trick User's Manual"
+.SH NAME
+catalog \- view and/or delete items from the Trick module catalog
+.SH SYNOPSIS
+\fBcatalog\fP [\fB-c\fP \fImodule_class_search_name\fP] |
+   [\fB-d\fP<\fBm\fP|\fBs\fP|\fBe\fP|\fBp\fP> <\fIid_number\fP> [\fI-noconfirm\fP]] |
+   [\fB-e\fP [\fIenumerated_type_search_name\fP]] |
+   [\fB-initialize\fP] |
+   [\fB-m\fP[\fBS\fP] [\fImodule_search_name\fP]] |
+   [\fB-o\fP \fImodule_id_number\fP]
+   [\fB-rebuild\fP] |
+   [\fB-repair\fP] |
+   [\fB-s\fP [\fIstructure_search_name\fP]] |
+   [\fB-h\fP] |
+   [\fB-i\fP] |
+   [\fB-versions\fP] |
+   [\fB-v\fP] |
+   [\fB-b\fP] |
+   [\fB-a\fP] |
+   [\fB-p\fP [<\fIsearch_string\fP>]]
+
+.SH DESCRIPTION
+\fBcatalog\fP is a view port into the module catalog (which is stored in binary
+format).  Executed without arguments, \fBcatalog\fP lists all enumerated types,
+data structure typedefs, and modules in the catalog.
+.SS Options
+.TP
+\fB-c\fP
+List all modules in the catalog whose classification contains 
+\fImodule_class_search_name\fP string (case sensitive).
+.TP
+\fB-d\fP
+If \fIversion_dir\fP is supplied, \fBcatalog\fP deletes all enumerated types,
+structures and modules associated with the specified version directory.  The
+\fIversion_dir\fP is specified relative to \fB${TRICK_HOME}/module_source\fP.
+If \fBm\fP, or \fBs\fP, or \fBe\fP are supplied with an \fIid_number\fP, the 
+specified module, data structure, or enumerated type is deleted from the 
+catalog.
+.TP
+\fB-e\fP
+List all enumerated types in the catalog, or if
+\fIenumerated_type_search_name\fP is supplied, list all enumerated types
+which contain \fIenumerated_type_search_name\fP search string (case sensitive).
+.TP
+\fB-initialize\fP
+Create a master catalog file in the current directory, including
+various required paths to sim_services, etc.
+.TP
+\fB-i\fP
+Same as catalog -initialize
+.TP
+\fB-m\fP
+List all modules in the catalog, or if \fImodule_search_name\fP is supplied,
+list all modules which contain \fImodule_search_name\fP search string (case sensitive).
+.TP
+\fB-o\fP
+Lists complete (nested) list of object dependencies for the specified
+\fImodule_id_number\fP.
+.TP
+\fB-rebuild\fP
+Look through all include paths found in the user's \fB${TRICK_CFLAGS}\fP environment
+variable for catalog files.  Any which are found are added to the master
+catalog in the current directory.
+.TP
+\fB-b\fP
+Same as catalog -rebuild
+.TP
+\fB-repair\fP
+Look through all entries in the current catalog file, and delete those
+paths which do not contain catalog directories.
+.TP
+\fB-s\fP
+List all data structure typedefs in the catalog, or if
+\fIstructure_search_name\fP is supplied, list all data structure typedefs
+which contain \fIstructure_search_name\fP search string (case sensitive).
+.TP
+\fB-h\fP
+Echo catalog help screen.
+.TP
+\fB-versions\fP
+Lists the current version and owner of all catalog database files within the current list of catalog directories.
+.TP
+\fB-v\fP
+Same as catalog -versions.
+.TP
+\fB-a\fP
+Echo ALL catalog source directories, modules, enumerated types, structure types to the screen.
+.TP
+\fB-p\fP
+Echo all source directories to the screen.  If the <\fIsearch_string\fP> argument is included, only those directory names which contain <\fIsearch_string\fP> are echoed.
+.TP
+.SH FILES
+.TP
+\fIcatalog/depends\fP
+Contains dependency information.
+.TP
+\fIcatalog/enumerated\fP
+Contains information about the enumerated data types.
+.TP
+\fIcatalog/modules\fP
+Contains information about the modules.
+.TP
+\fIcatalog/structures\fP
+Contains information about the data structures.
+.SH "SEE ALSO"
+All Trick model developers and users should go through the tutorial found
+in the \fITrick Simulation Environment User Training Materials\fP.
+The canonical reference for all Trick commands, files and utilities is the
+\fITrick Simulation Environment User's Guide\fP.  Information specific to a
+given release of Trick tools is contained in the \fITrick Simulation
+Environment Version Description\fP for that release.
+.PP
+\fBCP\fP(1), \fBICG\fP(1), \fBMIS\fP(1)
+.\" .SH DIAGNOSTICS
+.\" How to determine why the command failed.
+.SH BUGS
+Known bugs will be placed in the \fIVersion Description Document\fP located in
+$TRICK_HOME/docs area.  If you would like to report a bug, contact
+vetter@lincom-asg.com.
+.SH AUTHORS
+The \fBcatalog\fP command was written by Rob Bailey and is maintained by the
+Trick development staff.  This man page was written by Rick Sykes,
+address all discrepancies to sykes@lincom-asg.com.
+

@@ -1,0 +1,157 @@
+/**
+@page LEVEL2 Trick Environment
+
+@anchor Trick_Environment
+
+A very important part of building %Trick simulations is understanding the environment and
+how to manipulate it.  %Trick maintains a list of variables.  Each variable has a default
+value that may be overridden by setting the value in the environment.  %Trick resolves these
+variables by a call to a function called "gte". You can type in "${TRICK_HOME}/bin/gte"
+on the command line to see what the "Trick environment" is.
+
+A %Trick simulation may run with no UNIX environment. However, for simulation development,
+there is a set of UNIX variables that may be in your UNIX environment. For instance, you
+may have TRICK_CFLAGS defined.
+
+The user’s environment is very important to building a correct simulation and it can be
+complex at times. If you have questions, please contact a %Trick representative.
+
+@section LEVEL3 TRICK_CFLAGS and TRICK_CXXFLAGS
+
+The contents of TRICK_CFLAGS is included on the command line with each C file compilation.
+Similiarly, TRICK_CXXFLAGS is included for each C++ file. Each contain header file search
+directories, macro define variables, and compiler flags.
+
+For building a simulation, a user must be proficient at tweaking TRICK_CFLAGS and TRICK_CXXFLAGS.
+There are a several ways to do this.
+
+TRICK_CXXFLAGS works exactly like TRICK_CFLAGS.
+
+<b>Example 1:</b> Add "-I/user/mooo/trick_models" to the environment variable.
+TRICK_CFLAGS is currently...
+
+<tt><b>UNIX Prompt></b> echo $TRICK_CFLAGS</tt><br>
+<tt>-Wall</tt>
+
+Now we need to edit the shell startup file where TRICK_CFLAGS is defined.
+
+Add the following line for bash.
+
+<tt>TRICK_CFLAGS="$TRICK_CFLAGS -I/user/mooo/trick_models"</tt>
+
+Add the following line for [t]csh.
+
+<tt>setenv TRICK_CFLAGS "$TRICK_CFLAGS -I/user/mooo/trick_models"</tt>
+
+Now source your shell startup file and voila!...
+
+For bash:<br>
+<tt><b>UNIX Prompt></b> . ~/.bash_profile</tt><br>
+<tt><b>UNIX Prompt></b> echo $TRICK_CFLAGS</tt><br>
+-Wall -I/user/mooo/trick_models
+
+For [t]csh:<br>
+<tt><b>UNIX Prompt></b> source ~/.cshrc</tt><br>
+<tt><b>UNIX Prompt></b> echo $TRICK_CFLAGS</tt><br>
+-Wall -I/user/mooo/trick_models
+
+<b>Example 2:</b> Add "-I/user/mooo/trick_models" through the simulation S_overrides.mk file
+
+~e need to edit the S_overrides.mk file in the simulation to be built.
+
+Add the following line.
+
+<tt>TRICK_CFLAGS="$TRICK_CFLAGS -I/user/mooo/trick_models"</tt>
+
+This will not show up in the current shell environment, but will be set for each command that
+the makefile executtes.
+
+@section LEVEL3 TRICK_CONVERT_SWIG_FLAGS
+
+TRICK_CONVERT_SWIG_FLAGS contains flags sent to the convert_swig utility.  Currently the flags only
+support "-s" which allows convert_swig to process STLs.
+
+@section LEVEL3 TRICK_EDITOR
+
+TRICK_EDITOR defaults to an empty string.  With TRICK_EDITOR is set, when CP encounters an error it
+brings up the S_define file automatically using the TRICK_EDITOR command.
+
+@section LEVEL3 TRICK_EXCLUDE
+
+A colon separated list of directories to skip when processing files.
+
+It is possible to instruct all CP functions to skip entire directories using the environment variable
+TRICK_EXCLUDE.  Set this variable to a colon separated list of directories which you
+wish CP to bypass.  All header files found in TRICK_EXCLUDE will not be processed.  All source code
+files found in TRICK_EXCLDUE will not be compiled or linked into the simulation.
+
+This feature is useful to bring in packages as a library.
+
+@section LEVEL3 TRICK_FORCE_32BIT
+
+To force %Trick to compile in 32-bit on 64-bit systems, set the TRICK_FORCE_32BIT environment
+variable to 1. Setting this variable appends "-m32" automatically to TRICK_CFLAGS and TRICK_CXXFLAGS.
+
+@section LEVEL3 TRICK_HOST_CPU
+
+%Trick determines a system specific suffix to append to object code directory names.  By default
+this is determined automatically by %Trick. The user may override this by setting the TRICK_HOST_CPU
+environment variable.
+
+@section LEVEL3 TRICK_HOST_TYPE
+
+%Trick determines the current OS type.  The user may override this by setting the TRICK_HOST_TYPE.
+It is rare to set this variable.
+
+@section LEVEL3 TRICK_ICG_EXCLUDE
+
+A colon separated list of directories to skip when processing header files.
+
+It is possible to instruct ICG to skip entire directories using the environment variable
+TRICK_ICG_EXCLUDE.  Set this variable to a colon separated list of directories which you
+wish ICG to bypass.  This is useful when there is code which you do not wish %Trick to have
+any knowledge of (i.e. you don’t need any of the parameters recorded or input processable).
+
+@section LEVEL3 TRICK_LDFLAGS
+
+TRICK_LDFLAGS include linker flags.  TRICK_LDFLAGS is used when linking the simulation executable.
+It is rare to set this variable.
+
+@section LEVEL3 TRICK_MAKE
+
+This variable has been deprecated.
+
+@section LEVEL3 TRICK_SFLAGS
+
+TRICK_SFLAGS includes header file search directories and macro define variables.
+TRICK_SFLAGS is used when parsing the S_define file.
+
+@section LEVEL3 TRICK_USER_LINK_LIBS
+
+Additional library and library directories to include when linking a simulation.
+
+An example of adding a library search path, a library to be searched for, and a full
+path library.
+
+bash<br>
+<tt>export TRICK_USER_LINK_LIBS="-L/full/path/to/libs -lfile1 /another/path/to/a/libfile2.a"</tt>
+
+[t]csh<br>
+<tt>setenv TRICK_USER_LINK_LIBS "-L/full/path/to/libs -lfile1 /another/path/to/a/libfile2.a"</tt>
+
+@section LEVEL3 MAKEFLAGS
+
+MAKEFLAGS is not a %Trick environment variable.  It is used with the GNU make utility.
+Invoking make with the -j flag allows make to compile more than one file simultaneously.
+Dramatic speedups in compiling can be achieved when using multiple processors.
+
+<tt><b>UNIX Prompt></b> setenv MAKEFLAGS –j10</tt>
+
+(circa 2007?) We have used the parallel make to build %Trick on an 8 core system in a
+gee-whiz time of only 25 seconds!  In the year 2016, or thereabouts, %Trick will be compiled
+in 1 second.  Imagine that!!! Of course, we are assuming that there will be such a thing
+as %Trick...  By then, hopefully, %Trick will be written in a language that needs no compilation.
+So really, make will be a thing of the past...  And this section will not exist in the
+User’s Guide!  Assuming of course that the editor, at that time, actually reads the thing.
+
+*/

@@ -1,0 +1,50 @@
+/**
+
+@page LEVEL2 Real-Time Clock Design
+
+@section LEVEL3 Base Real-Time Clock
+
+The base Clock object provides an interface for the following operations.  The
+base Clock does not implement the following operations.  
+
+-# Initializing the clock hardware
+-# Resetting the clock (setting the reference time)
+-# Getting the current real time
+-# Spinning on the clock<br>
+   Spinning on the clock means to continually check the clock waiting for real-time to
+   catch up to the desired simulation elapsed time. 
+-# Stopping the clock
+
+@section LEVEL3 Gettimeofday Clock
+
+The GetTimeOfDayClock is a clock object that derives from the the Base Real-Time Clock.  The
+GetTimeOfDayClock uses system clock as the real-time clock.
+
+The GetTimeOfDayClock implements the interface laid out by the base clock class
+
+@section LEVEL4 Initializing the Clock
+
+@copydetails Trick::GetTimeOfDayClock::clock_init()
+Trick::GetTimeOfDayClock::clock_init()
+
+@section LEVEL4 Resetting the Clock (setting the reference time)
+
+@copydetails Trick::GetTimeOfDayClock::clock_reset()
+Trick::GetTimeOfDayClock::clock_reset()
+
+@section LEVEL4 Getting the Current Real Time
+
+@copydetails Trick::GetTimeOfDayClock::clock_time()
+Trick::GetTimeOfDayClock::clock_time()
+
+@section LEVEL4 Spinning on the Clock 
+
+@copydetails Trick::GetTimeOfDayClock::clock_spin()
+Trick::GetTimeOfDayClock::clock_spin()
+
+@section LEVEL4 Stopping the Clock 
+
+@copydetails Trick::GetTimeOfDayClock::clock_stop()
+Trick::GetTimeOfDayClock::clock_stop()
+
+*/

@@ -1,0 +1,9 @@
+object_${TRICK_HOST_CPU}/Clock.o: src/Clock.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Clock/include/Clock.hh 
+object_${TRICK_HOST_CPU}/GetTimeOfDayClock.o: src/GetTimeOfDayClock.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Clock/include/GetTimeOfDayClock.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Clock/include/Clock.hh \
+ ${TRICK_HOME}/trick_source/sim_services/include/release.h 
+object_${TRICK_HOST_CPU}/clock_c_intf.o: src/clock_c_intf.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Clock/include/Clock.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Clock/include/clock_proto.h 

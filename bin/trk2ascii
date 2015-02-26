@@ -1,0 +1,11 @@
+#!/bin/bash
+
+TRICK_HOST_CPU=`${TRICK_HOME}/bin/gte TRICK_HOST_CPU`
+TRK2ASCII="${TRICK_HOME}/trick_source/data_products/Apps/Trk2csv/object_${TRICK_HOST_CPU}/trk2ascii"
+
+if [ -f ${TRK2ASCII} ] ; then
+    ${TRK2ASCII} $@
+else
+    echo "${TRK2ASCII} has not been built"
+fi
+

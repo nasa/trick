@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE product PUBLIC "-//Tricklab//DTD Product V1.0//EN" "../../XML/DTD/Product.dtd">
+
+<!-- Description: Page with multiple plots with DTD inconsistencies. -->
+
+<product version="1.0">
+   <page vcells="3">
+      <title>Page of Squiggles</title>
+      <plot background_color="#bbbbff">
+         <title>Pitch</title>
+         <curve>
+         	<!-- INCONSISTENT HERE -->
+			<label>this is a curve</label>
+            <var>sys.exec.out.time</var>
+            <var>pitch</var>
+         </curve>
+      </plot>
+      <plot background_color="#bbffbb">
+         <curve>
+            <var>sys.exec.out.time</var>
+            <var>roll</var>
+         </curve>
+      </plot>
+      <plot background_color="#ffbbbb">
+         <curve>
+            <var>sys.exec.out.time</var>
+            <var>yaw</var>
+         </curve>
+      </plot>
+   </page>
+</product>

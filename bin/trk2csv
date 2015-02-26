@@ -1,0 +1,11 @@
+#!/bin/bash
+
+TRICK_HOST_CPU=`${TRICK_HOME}/bin/gte TRICK_HOST_CPU`
+TRK2CSV="${TRICK_HOME}/trick_source/data_products/Apps/Trk2csv/object_${TRICK_HOST_CPU}/trk2csv"
+
+if [ -f ${TRK2CSV} ] ; then
+    ${TRK2CSV} $@
+else
+    echo "${TRK2CSV} has not been built"
+fi
+

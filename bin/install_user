@@ -1,0 +1,21 @@
+#! /usr/bin/perl
+# install_user tells users to add Trick's bin to their path.
+
+# $Id: install_user 3792 2015-02-03 21:51:57Z alin $
+use File::Basename ;
+use Cwd 'abs_path';
+
+$trick_bin = dirname(abs_path($0)) ;
+$trick_home = dirname($trick_bin) ;
+
+$shell = (getpwent())[8] ;
+
+print "Add this line to the end of your " ;
+if ( $shell =~ /csh/ ) {
+   print ".cshrc\n" ;
+   print "setenv PATH \"\${PATH}:$trick_home/bin\"\n" ;
+} else {
+   print ".bashrc\n" ;
+   print "export PATH=\"\${PATH}:$trick_home/bin\"\n" ;
+}
+

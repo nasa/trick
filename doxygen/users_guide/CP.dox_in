@@ -1,0 +1,158 @@
+/**
+@page LEVEL2 Making the Simulation.
+
+@section LEVEL3 Simulation Compilation Environment Variables
+
+TRICK_CFLAGS and TRICK_CXXFLAGS affect where model source files are searched for and
+how the files are compiled.  See section @ref Trick_Environment for more information
+to how to set TRICK_CFLAGS and TRICK_CXXFLAGS when compiling a simulation.
+
+@section LEVEL3 Making the Simulation for the First Time.
+
+Make and the makefiles contain all of the magic of building a simulation. When a
+simulation is ready to be built for the very first time run we run the
+configuration processor script (CP) in the simulation directory.
+
+<tt><b>UNIX prompt></b> CP</tt>
+
+CP creates a small makefile and calls make to start the simulation build process.
+The small makefile does not change and is the same from simulation to simulation.
+It can be copied from another simulation directory and the CP step may be skipped.
+From this point CP does not need to be run again, all compilations use "make".
+
+When make is invoked, the first rule it executes is to parse the S_define file.
+The parser from this point will be referred to as CP.  CP was the main compilation
+command before %Trick 10.  Using the S_define file created by the user, the CP
+finds all source code related to the simulation, builds the code using a C compiler,
+and puts it all together to make one executable.  In its processing it
+gathers/generates all the IO source code, default data, recursive
+header/object dependencies and external library dependencies.
+
+After the initial CP is run, when there are changes made to model source code or
+the S_define file, they are recompiled using make.
+
+<tt><b>UNIX prompt></b> make</tt>
+
+@section LEVEL3 How Trick Finds Simulation Source Code
+
+%Trick must compile a list of all of the source code required to create the
+simulation described in the S_define file.  %Trick does this by creating a list
+of required header files, and the automatic I/O souce code it must build to go
+with those header files, and the model source code files.
+
+Header files are searched for starting from the S_define file.  Any file that is
+double pound "##" included in the S_define file is automatically included in the
+list of header files.  Each header file is recursively parsed to determine all
+lower level header files on which the top level header is dependent on.  Doing this
+for all double pound files gives us the full list of header files.
+
+Model source files are found through LIBRARY DEPENDENCIES.  Starting in the S_define
+file, any LIBRARY DEPENDENCIES listed are searched for. See
+@ref S_define_Library_Dependencies for more information on how to add dependencies
+in the S_define file. All of the header files gathered from the previous step are
+also searched for library dependencies.  Finally all model source code found from
+the previous steps is recursively searched for additional dependencies.
+See @ref Library_Dependencies for more information on how to add dependencies to
+model source code.  Rules to compile all of these files are written to the makefile.
+
+@section LEVEL3 Changing Simulation Compilation through Makefile Overrides
+
+Sometimes a programmer may want %Trick to pick up specific compiler flags or some
+special makefile rule for building a model or building the simulation.  %Trick allows the
+programmer to override the default Makefile rules with a facility we are calling
+“makefile overrides”.
+
+For overrides in model directories, a user can create a file called “makefile_overrides”.
+In this file s/he can override any of the rules that are within the Makefile.  When a
+make_build command is issued, this makefile_overrides file is looked for and if it is
+present, it is included from the Makefile.  The rules contained in the overrides file are
+then read in when make is called.
+
+This same file is looked for in each directory when a CP is performed.  Each
+“makefile_overrides” file in this case is read into memory and certain rules are translated
+so only those files in that directory are affected.  Instead of just including these files
+(where there can be multiple files), all of the translated output is inserted into the Makefile.
+
+For overrides in sim directories, there is a sim specific overrides file called
+“S_overrides.mk”.  If this file is present in the sim directory, it is included after the
+directory specific overrides.  The rules in this file are the last word in how things are
+going to compile.
+
+@section LEVEL4 Example Of How To Optimize A Model 
+
+- Go to model dir to optimize
+
+<tt><b>UNIX Prompt></b> cd /user/me/trick_models/ball/L1</tt>
+
+- Edit a file called “makefile_overrides” with the following line:
+
+<tt>objects: TRICK_CFLAGS += -O3</tt>
+
+- Do a make_build
+
+<tt><b>UNIX Prompt></b>make_build</tt>
+
+After make_build, look at Makefile.  There is a line
+“include makefile_overrides”.  This is what will pick up the optimization flag.
+
+- Build the model.
+
+<tt><b>UNIX Prompt></b> make</tt>
+
+That’s it.
+
+@section LEVEL4 Example Of How To Add a Pre-compiled Library to the Simulation
+
+- Go to simulation dir.
+
+<tt><b>UNIX Prompt></b> cd /user/me/trick_sims/SIM_ball_L1</tt>
+
+- Edit a file called “S_overrides.mk". Append to the TRICK_USER_LINK_LIBS variable.
+
+<tt>TRICK_USER_LINK_LIBS = -L/path/to/library -lmy_lib</tt>
+
+@section LEVEL4 Example Of How To Exclude a Directory from ICG during CP
+
+- Go to simulation dir.
+
+<tt><b>UNIX Prompt></b> cd /user/me/trick_sims/SIM_ball_L1</tt>
+
+- Edit a file called “S_overrides.mk”. Append to the TRICK_ICG_EXCLDUE variable.
+
+<tt>TRICK_ICG_EXCLUDE += /path/to/exclude:/another/path/to/exclude</tt>
+
+@section LEVEL4 Example Of How To Exclude a Directory from most CP processing
+
+- Edit a file called “S_overrides.mk”. Append to the TRICK_EXCLDUE variable.
+
+<tt>TRICK_EXCLUDE += /path/to/exclude:/another/path/to/exclude</tt>
+
+@section LEVEL3 Cleaning Up
+
+There are several levels of clean.
+
+<tt><b>UNIX Prompt></b> make clean</tt>
+
+Clean tries to remove only object files directly related to the current simulation.
+It will remove all of the generated files in the simulation directory.  Clean
+also selectively removes model object files used to link this simulation.
+
+<tt><b>UNIX Prompt></b> make real_clean</tt>
+
+Real_clean is equivalent to clean.
+
+<tt><b>UNIX Prompt></b> make spotless</tt>
+
+Spotless is less discriminate in the files it removes.  In addition to all
+of the files that clean removes, spotless will remove complete model object
+directories where any file included in the simulation was found.
+
+<tt><b>UNIX Prompt></b> make apocalypse</tt>
+
+Apocalypse is a special case rule when simulation libraries are used to build
+a simulation.  See section @ref Simulation_Libraries for more information
+about.  In addition to all of files that spotless removes, apocalype will
+run the spotless rule on any simulation directory the current simulation
+includes.
+
+*/

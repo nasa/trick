@@ -1,0 +1,48 @@
+/*
+ * $Id: main_page.dox_in 3332 2013-12-12 18:09:43Z dcvillar $
+ */
+
+/**
+@page design Trick Design
+
+@subpage d01 "1 Introduction"<br>
+@subpage d02 "2 Building a Simulation"<br>
+@subpage d0201 "2.1 Interface Code Generator"<br>
+@subpage d0202 "2.2 Convert Swig"<br>
+@subpage d03 "3 Running a Simulation"<br>
+@subpage d0301 "3.1 Simulation Executive"<br>
+@subpage d0302 "3.2 Scheduled Job Queue"<br>
+@subpage d0303 "3.3 Real-Time Synchronization"<br>
+@subpage d0304 "3.4 Real-Time Clock"<br>
+@subpage d0305 "3.5 Sleep Timer"<br>
+@subpage d0306 "3.6 Data Recording"<br>
+@subpage d0307 "3.7 Command Line Arguments"<br>
+@subpage d0308 "3.8 Monte Carlo and Optimization"<br>
+@subpage d0309 "3.9 Integrator"<br>
+@subpage d04 "4 Data Products"<br>
+
+*/
+
+// section 1
+#include "introduction.dox_in"
+
+// section 2
+#include "build_sim.dox_in"
+#include "codegen/Interface_Code_Gen/design.dox_in"
+#include "convert_swig.dox_in"
+
+// section 3
+#include "run_sim.dox_in"
+#include "sim_services/Executive/design.dox_in"
+#include "sim_services/ScheduledJobQueue/design.dox_in"
+#include "sim_services/RealtimeSync/design.dox_in"
+#include "sim_services/Clock/design.dox_in"
+#include "sim_services/Timer/design.dox_in"
+#include "sim_services/DataRecord/design.dox_in"
+#include "sim_services/CommandLineArguments/design.dox_in"
+#include "sim_services/MonteCarlo/design.dox_in"
+#include "sim_services/Integrator/design.dox_in"
+
+// section 4
+#include "data_products.dox_in"
+

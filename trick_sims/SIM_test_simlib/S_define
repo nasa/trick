@@ -1,0 +1,15 @@
+/*
+ * $Id: S_define 1599 2011-05-09 22:05:50Z lin $
+ */
+
+/************************TRICK HEADER*************************
+PURPOSE:
+    (This comment lists out the other object files that are not included from c++ headers)
+LIBRARY DEPENDENCIES:
+    (
+        (sim_lib SIM_Ball++_L1)
+    )
+*************************************************************/
+
+#include "SIM_Ball++_L1/S_define"
+

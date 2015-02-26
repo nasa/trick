@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE product PUBLIC "-//Tricklab//DTD Product V1.0//EN" "../../XML/DTD/Product.dtd">
+<product version="1.0" background_color="#885588">
+
+<!-- Description: Multiple Tables and multiple pages with plots -->
+
+      <table>
+         <title>My Two Column Table</title>
+         <column format="%24.10f">
+            <label>Time</label>
+            <var>sys.exec.out.time</var>
+         </column>
+         <column format="%16.5q">
+            <label>Azimuth</label>
+            <units>d</units>
+            <var line_color = "#323200">sun_predictor.sun.solar_azimuth</var>
+         </column>
+         <column format="%16.5f">
+            <label>Elevation</label>
+            <units>d</units>
+            <var line_color = "#323200">sun_predictor.sun.solar_elevation</var>
+         </column>
+      </table>
+      <page>
+         <title>Solar Elevation for a Day</title>
+         <plot grid="yes"
+               font="-*-new century schoolbook-bold-r-*--12-*-*-*-*-*-*-*">
+            <title>Sun Elevation vs. Time</title>
+            <xaxis>
+               <label>Time</label>
+               <units>hr</units>
+            </xaxis>
+            <yaxis>
+               <label>Elevation</label>
+               <units>d</units>
+            </yaxis>
+            <curve>
+               <var>sys.exec.out.time</var>
+               <var line_color = "#323200">sun_predictor.sun.solar_elevation</var>
+            </curve>
+         </plot>
+      </page>
+      <page>
+         <plot grid="yes"
+               font="-*-new century schoolbook-bold-r-*--12-*-*-*-*-*-*-*"
+               background_color="#fffff0">
+            <title>Sun Elevation vs. Azimuth</title>
+            <xaxis>
+               <label>Azimuth</label>
+               <units>d</units>
+            </xaxis>
+            <yaxis>
+               <label>Elevation</label>
+               <units>d</units>
+            </yaxis>
+            <curve>
+               <var>sun_predictor.sun.solar_azimuth</var>
+               <var line_color = "#323200">sun_predictor.sun.solar_elevation</var>
+            </curve>
+         </plot>
+      </page>
+
+      <table background_color="#ffeebb">
+         <title>Four Column Table</title>
+         <column format="%24.10f">
+            <units>s</units>
+            <var>sys.exec.out.time</var>
+         </column>
+         <column format="%16.5f">
+            <label>Seconds</label>
+            <var line_color = "#323200">sun_predictor.sun.local_time.sec</var>
+         </column>
+         <column format="%16.5f">
+            <label>Day</label>
+            <var line_color = "#323200">sun_predictor.sun.local_time.day</var>
+         </column>
+         <column format="%16.5f">
+         	<label>Month</label>
+            <var line_color = "#323200">sun_predictor.sun.local_time.month</var>
+         </column>
+         <column format="%16.5f">
+         	<label>Year</label>
+            <var line_color = "#323200">sun_predictor.sun.local_time.year</var>
+         </column>
+      </table>
+
+</product>

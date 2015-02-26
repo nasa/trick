@@ -1,0 +1,11 @@
+object_${TRICK_HOST_CPU}/ScheduledJobQueue.o: src/ScheduledJobQueue.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueueInstrument.hh \
+ ${TRICK_HOME}/trick_source/sim_services/include/TrickConstant.hh 
+object_${TRICK_HOST_CPU}/ScheduledJobQueueInstrument.o: src/ScheduledJobQueueInstrument.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueueInstrument.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh 

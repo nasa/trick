@@ -1,0 +1,362 @@
+<!-- $Id: installing_trick.dox_in 3336 2013-12-12 21:11:50Z alin $ -->
+
+/**
+@page LEVEL1 Installing Trick
+
+This section discusses the %Trick system hardware and software requirements and preparations
+necessary for a %Trick installation. It also goes into a step-by-step explanation of how to install
+trick. To obtain a %Trick software release, login as a %Trick user on the %Trick website:
+http://trick.jsc.nasa.gov, and download an installer.
+
+@section LEVEL2 Trick System Hardware and Software Requirements
+
+%Trick runs on PCs running Linux and Macs running OSX. In
+general any System V/POSIX compatible UNIX workstation with Motif X Windows should accept the
+%Trick software with very little source code porting because %Trick C++ source code is written for
+ANSI (function prototyping required) UNIX compilers.
+
+@section LEVEL2 Disk Space and Run-Time Memory Requirements
+
+The current %Trick Release with the "Ball" tutorial requires approximately 350 MB.
+External simulation packages may require several gigabytes.  When users
+are developing simulations, their additional disk requirements will vary based on the size of
+the simulation.
+
+Simulation run-time memory or Random Access Memory (RAM) requirements depend greatly on the
+models within the simulation. As of this writing in 2010, we recommend systems with 4Gb of RAM.
+
+@section LEVEL2 Prerequisite Packages
+
+%Trick makes use of some free third party utilities. All the following products are used by %Trick
+and may installed as part of your OS distribution or can be downloaded from the internet.
+
+<center>
+<table>
+<tr><th>Product</th><th>Version</th><th>Description</th></tr>
+<tr><td>gcc and g++</td><td>4.0+</td><td>Compiler</td>
+<tr><td>java</td><td>1.6</td><td>Java virtual machine used for %Trick GUIs</td>
+<tr><td>make</td><td>3.78+</td><td>Handles all makes within %Trick</td>
+<tr><td>openmotif</td><td>2.2.0</td><td>X Window stuff</td>
+<tr><td>perl</td><td>5.6+</td><td>Used for CP, ICG, MIS and various utilities</td>
+<tr><td>python</td><td>2.2.3+</td><td>Used for input processor</td>
+<tr><td>swig</td><td>1.3.29+</td><td>Used for input processor interface</td>
+</table>
+<b>Table 2.  Third Party Dependencies</b>
+</center>
+
+@section LEVEL3 Installing Linux Prerequisites
+
+Each Linux distribution has their own method for installing packages.
+RedHat/Centos/Scientific distributions use <b>yum</b>. Most of the prerequisite packages are
+included in the development libraries and tools.  These packages may already be installed
+on your machine.  If not, they may be installed with the following two commands (as root).
+
+@section LEVEL4 Development Tools
+
+For RedHat/Centos/Scientific 6.x installations
+
+<tt><b>UNIX Prompt></b>yum groupinstall "Development Tools"</tt><br>
+
+For RedHat/Centos/Scientific 5.x installations
+
+<tt><b>UNIX Prompt></b>yum groupinstall "Development Libraries"</tt><br>
+<tt><b>UNIX Prompt></b>yum groupinstall "Development Tools"</tt><br>
+
+@section LEVEL4 Clang/LLVM
+
+Clang is require to build the Interface Code Generator (ICG).
+
+RHEL/CentOS/Scientific Linux pre-built packages are provided on the
+<a href="https://trick.jsc.nasa.gov/download/gnu/download_gnu.php"> freeware page.</a>
+These binary packages are based on LLVM 3.1.
+
+@section LEVEL4 OpenMotif
+
+Use yum to install openmotif and the openmotif development libraries.
+
+<tt><b>UNIX Prompt></b>yum install openmotif openmotif-devel</tt><br>
+
+Other linux distributions may require additional packages to be installed and may not use
+<b>yum</b> to install them.
+
+@section LEVEL4 Java
+
+To compile Trick from source the Java Development Kit is required.  At the time of this writing Trick
+requires JDK 1.6 or greater.
+
+For machines not needing to build Trick from source, download and install
+<a href="http://java.com/en/download/index.jsp">Java Runtine Environment (JRE)</a>.
+
+@section LEVEL3 Installing MacOSX 10.8 and 10.9 Prerequisites
+
+Macs require several additional development tools to build %Trick.  All of these are freely available
+off the web.  Websites and installation procedures may change over time.  These instructions are
+current as of December 12, 2013.
+
+@section LEVEL4 XCode
+
+Install Xcode from the AppStore.  Xcode contains many of the the compiler and related tools
+to compile %Trick.  %Trick requires the command line tools within Xcode to be installed.  After Xcode is installed,
+the command line tools may be installed under Preferences...->Downloads.
+
+@section LEVEL4 Clang/LLVM
+
+Clang is require to build the Interface Code Generator (ICG).
+
+The Mac binary package may be found on the <a href="http://llvm.org/releases/download.html">LLVM website.</a>
+
+As of this writing ICG compiles using either clang/llvm version 3.1 or 3.3.
+
+@section LEVEL4 XQuartz
+
+X11 is no longer included with Mac OSX.  Download <a href="http://xquartz.macosforge.org">XQuartz</a> that
+provides X11 capabilities for MacOSX.
+
+@section LEVEL4 Java
+
+To compile %Trick from source the Java Development Kit is required.  At the time of this writing %Trick
+requires JDK 1.6 or greater.
+
+For machines not needing to build %Trick from source, download and install
+<a href="http://java.com/en/download/index.jsp">Java Runtine Environment (JRE)</a>.
+
+@section LEVEL4 Fink
+
+Fink provides a collection of open source software to MacOSX.  Several development tools required
+by %Trick may be installed through <a href="http://www.finkproject.org">Fink</a>.
+
+Fink uses rsync as part of it's update process.  If you are behind a firewall, rsync may be disabled.
+Fink may use CVS as an alternative to rsync.  To switch to CVS try this.
+
+<tt><b>UNIX Prompt></b>fink selfupdate-cvs</tt><br>
+
+MacPorts is another project similar to Fink and may provide equivalent packages.
+Using MacPorts or compiling OpenMotif from source may require editting %Trick Makefiles to add
+the directories to the OpenMotif header files and libraries.
+
+@section LEVEL4 SWIG
+
+SWIG may be installed through fink.
+
+<tt><b>UNIX Prompt></b>fink install swig</tt><br>
+
+@section LEVEL4 OpenMotif
+
+OpenMotif may be installed multiple ways, but Fink is the preferred way for %Trick.  %Trick searches for
+the Openmotif header files and libraries in the locations where Fink installs files.
+
+Install Openmotif using fink.
+
+<tt><b>UNIX Prompt></b>fink install openmotif4</tt><br>
+<tt><b>UNIX Prompt></b>fink install openmotif4-shlib</tt><br>
+
+@section LEVEL4 Gnuplot
+
+Gnuplot is not a requirement to run %Trick.  It is an optional alternative plotting package.  Installing
+gnuplot through fink will include a very large number of depenent packages.
+
+<tt><b>UNIX Prompt></b>fink install gnuplot</tt><br>
+
+@section LEVEL2 Trick Installation
+
+This section describes how to install the *.exe self-inflating executable.
+
+@par Get the %Trick self inflating executable off of the %Trick website.
+-# Go to <a href="http://trick.jsc.nasa.gov">http://trick.jsc.nasa.gov</a> and login. Register for
+   a user account if you are not a %Trick user.
+-# Click on the “Download” tab and then the link to “%Trick”.
+-# The latest release and documentation is maintained there. The installer should look something
+   like “trick_<version>.exe”.
+-# Download the installer.
+
+@par Run the %Trick self inflating install package
+-# <tt><b>UNIX Prompt></b> chmod +x trick_<version>.exe</tt>
+-# <tt><b>UNIX Prompt></b> ./trick_<version>.exe</tt>
+-# Answer the questions that it asks you.
+-# Answer "n" to the question, "Do you want this script to compile after extraction?" if you want
+   to modify the configuration options of the installation.  See the next section for configuration
+   options.
+-# %Trick will be expanded into the ${TRICK_HOME} directory that you specify.
+
+@section LEVEL2 Changing Configuration Options for Trick Installations.
+
+To change the configuration options start in the ${TRICK_HOME} directory.
+
+@code
+# The options are listed below
+UNIX Prompt> ./configure [OPTIONS]
+
+# Run confiugre with the help argument to see all available options.
+UNIX Prompt> ./configure --help
+@endcode
+
+The configuration script allows the user to specify the location of many of the compilation tools
+and libraries that Trick uses. Here are the current options in alphabetical order.
+
+@section LEVEL3 Binary File Descriptor Library
+
+--bfd=/path/to/bfd/home [/usr]
+
+The Binary File Descriptor (BFD) library translates addresses to function and file names.  It is used
+with the sim_services/UnbalanceMem class.  This option is a Linux only feature.
+
+The BFD library is found in the binutils-devel rpm on RHEL systems.
+
+@section LEVEL3 Bison
+
+--bison=/path/to/bison [/usr/bin/bison]
+
+Bison is parser generator.  Bison is only required for Trick developers.
+
+@section LEVEL3  C compiler
+
+--cc=/path/to/cc [/usr/bin/cc]
+
+The C compiler.  This specifies the default C compiler. The TRICK_CC environment variable overrides
+this value.
+
+@section LEVEL3  C++ compiler
+
+--cxx=/path/to/cxx [/usr/bin/c++]
+
+The C++ compiler.  This specifies the default C++ compiler. The TRICK_CPPC environment variable overrides
+this value.
+
+@section LEVEL3 Distributed MultiThreaded Checkpointing
+
+--dmtcp=/path/to/dmtcp []
+
+The Distributed MultiThreaded Checkpointing (DMTCP) feature is an optional checkpoining tool used by Trick.
+
+@section LEVEL3 Flex
+
+--flex=/path/to/flex [/usr/bin/flex]
+
+Flex is the fast lexical analyser generator.  Flex is only required for Trick developers.
+
+@section LEVEL3 GNU Scientific Library
+
+--gsl=/path/to/gsl []
+
+The GNU scientific library provides random number generators used by the Trick math library. It is an optional
+package.
+
+@section LEVEL3 Google Test
+
+--gtest=/path/to/gtest []
+
+The Google Test application is used in Trick unit testing.  Gtest is only required for Trick developers.
+
+@section LEVEL3 Linker
+
+--ld=/path/to/ld [/usr/bin/c++]
+
+The linker defaults to the same as the C++ compiler.
+
+@section LEVEL3 Motif
+
+--motif=/path/to/motif [/usr or /sw]
+
+The openmotif home location.  Motif is a required package for Trick compiles.
+
+@section LEVEL3 Perl
+
+--perl=/path/to/perl [/usr/bin/perl]
+
+Specify an alternative perl Interpreter.
+
+@section LEVEL3 Python
+
+--python=/path/to/python [/usr/bin/python]
+
+Specify an alternative python Interpreter.
+
+@section LEVEL3 SWIG
+
+--swig=/path/to/swig [/usr/bin/swig]
+
+The location of the SWIG executable.  SWIG 1.3.29 or greater is required for Trick to compile.
+
+@section LEVEL3 TPRO Central Timing Equipment
+
+--tprocte=/path/to/tprocte []
+
+The location of the TPRO Central Timing Equipment (CTE) home directory.  The TPRO software is an
+optional package to use with Trick.
+
+@section LEVEL2 Recompiling Trick After Installing
+To re-compile %Trick post-install:
+
+<tt><b>UNIX Prompt></b> cd ${TRICK_HOME}</tt><br>
+<tt><b>UNIX Prompt></b> make clean</tt><br>
+<tt><b>UNIX Prompt></b> make</tt>
+
+@section LEVEL2 Trick Environment Variables
+
+Now that %Trick has been extracted and built into the desired location, the user must set
+his/her environment to run %Trick. %Trick runs with [t]csh and bash
+
+@section LEVEL3 Required Environment Variables
+
+TRICK_HOME is the only required environment variable.  TRICK_HOME is set to the root of
+the %Trick distribution.  Setting TRICK_HOME may be done in any number of startup files read
+by your shell of choice.
+
+@verbatim
+# bash
+export TRICK_HOME=/path/to/trick
+
+# [t]csh
+setenv TRICK_HOME "/path/to/trick"
+@endverbatim
+
+@section LEVEL3 Optional Environment Variables
+
+There are many environment variables that control the compilation and running of %Trick.  These
+environment varaibles may be set in your login startup file of choice. The most important
+environment variablse are listed below.  See section @ref Trick_Environment for more information
+on other environment varaibles.
+
+@section LEVEL4 Adding ${TRICK_HOME}/bin to PATH
+
+${TRICK_HOME}/bin can be added to the PATH environment variable for convenience.  It is not necessary
+for compiling or running sims.
+
+@verbatim
+# bash
+PATH="${PATH}:/path/to/trick"
+
+# [t]csh
+setenv PATH "${PATH}:/path/to/trick"
+@endverbatim
+
+@section LEVEL4 TRICK_CFLAGS
+
+TRICK_CFLAGS includes header file search directories, macro define variables, and compiler flags.
+TRICK_CFLAGS is used with each C file compilation.
+
+@verbatim
+# sets debug symbols on and activate lots of compiler warnings and a model include path
+# bash
+export TRICK_CFLAGS="-g -Wall -Wextra -I/path/to/my/models"
+
+# [t]csh
+setenv TRICK_CFLAGS "-g -Wall -Wextra -I/path/to/my/models"
+@endverbatim
+
+@section LEVEL4 TRICK_CXXFLAGS
+
+TRICK_CXXFLAGS includes header file search directories, macro define variables, and compiler flags.
+TRICK_CXXFLAGS is used with each C++ file compilation.
+
+@verbatim
+# sets debug symbols on and activate lots of compiler warnings
+# bash
+export TRICK_CXXFLAGS="-g -Wall -Wextra -I/path/to/my/models"
+
+# [t]csh
+setenv TRICK_CXXFLAGS "-g -Wall -Wextra -I/path/to/my/models"
+@endverbatim
+
+*/
+

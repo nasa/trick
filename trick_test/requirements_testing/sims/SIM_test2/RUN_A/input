@@ -1,0 +1,79 @@
+#include "S_default.dat"
+
+#define CLOCK 0
+#define MASTER 1
+#define CHILD1 2
+#define CHILD2 3
+#define CHILD3 4
+
+// *****************************************************
+// DATA RECORDING 
+// *****************************************************
+#ifndef DR_GROUP_ID
+#define DR_GROUP_ID sys.exec.record.num_group
+#endif
+
+sys.exec.record.group[DR_GROUP_ID].record           = Yes ;
+sys.exec.record.group[DR_GROUP_ID].name             = "auto" ;
+sys.exec.record.group[DR_GROUP_ID].format           = DR_Fixed_Ascii ;
+sys.exec.record.group[DR_GROUP_ID].freq             = DR_Always ;
+sys.exec.record.group[DR_GROUP_ID].cycle {s}        = 0.1 ;
+sys.exec.record.group[DR_GROUP_ID].ref[0] =
+    "parent.sched.msd.analytic.pos" ,
+    "parent.sched.msd.analytic.vel" ,
+    "parent.sched.msd.numeric.pos" ,
+    "parent.sched.msd.numeric.vel" ,
+    "parent.sched.msd.delta_pos" ,
+    "parent.sched.msd.delta_vel" ;
+
+DR_GROUP_ID++ ;    /* add 1 to DR_GROUP_ID, THIS SETS DR_GROUP_ID UP
+                    * FOR THE NEXT DATA RECORDING FILE */
+
+// *****************************************************
+// REAL-TIME CONTROL
+// *****************************************************
+sys.exec.in.rt_software_frame {s} = 0.01 ;
+sys.exec.in.rt_itimer = No ;
+sys.exec.in.rt_itimer_pause = No ;
+sys.exec.in.rt_itimer_frame {s} = 0.01 ;
+
+sys.exec.in.rt_cpu_number[MASTER]   = 1 ;
+sys.exec.in.rt_lock_memory[MASTER]  = Yes ;
+sys.exec.in.rt_nond_pri[MASTER]     = Yes ;
+sys.exec.in.rt_priority[MASTER]     = 1 ;
+sys.exec.in.rt_lock_to_cpu[MASTER]  = Yes ;
+
+// *****************************************************
+// Start the simulation in freeze mode.
+// *****************************************************
+sys.exec.in.enable_freeze = Yes ;
+sys.exec.work.freeze_command = Yes ;
+
+// *****************************************************
+// Use the sim_control panel 
+// *****************************************************
+sys.exec.sim_com.monitor_on = Yes ;
+
+sys.exec.in.frame_log = Yes ;
+sys.exec.in.frame_log_max_samples = 5000 ;
+
+sys.exec.rt_log.group[2].record = Yes ;
+
+sys.exec.in.echo_job = Yes;
+
+// *****************************************************
+//  Mass-Spring-Damper parameters
+// *****************************************************
+parent.sched.msd.params.initial_pos   =  5.0 ;
+parent.sched.msd.params.initial_vel   =  0.0 ;
+parent.sched.msd.params.mass          =  1.0 ;
+parent.sched.msd.params.damping_const =  0.3 ;
+parent.sched.msd.params.spring_const  = 10.0 ;
+
+// *****************************************************
+// Dump a checkpoint at simulation time = 1.0 seconds.
+// *****************************************************
+checkpoint = 1;
+
+// Stop the simulation after 10 seconds.
+stop = 10;

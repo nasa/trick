@@ -1,0 +1,68 @@
+SHELL = /bin/sh
+RM = rm -rf
+CC = gcc
+CPP = g++
+
+INCDIRS = -I include
+
+SRCDIR = src
+OBJDIR = obj
+LIBDIR = lib
+
+CFLAGS = -g \
+         -Wall \
+         -Wshadow \
+         -Wconversion \
+         -Wextra \
+         -Wno-unused-parameter \
+         -Wno-missing-braces \
+         -Wno-unused-variable
+
+LIBNAME = libtrick_integ.a
+
+CPP_OBJS = ${OBJDIR}/ABM_Integrator.o \
+          ${OBJDIR}/Euler_Cromer_Integrator.o\
+          ${OBJDIR}/Euler_Integrator.o\
+          ${OBJDIR}/Integrator.o\
+          ${OBJDIR}/MM4_Integrator.o\
+          ${OBJDIR}/NL2_Integrator.o\
+          ${OBJDIR}/RK2_Integrator.o\
+          ${OBJDIR}/RK4_Integrator.o\
+          ${OBJDIR}/RKF45_Integrator.o\
+          ${OBJDIR}/RKF78_Integrator.o\
+          ${OBJDIR}/RKG4_Integrator.o\
+          ${OBJDIR}/getIntegrator.o
+
+C_OBJS =  ${OBJDIR}/regula_falsi.o\
+          ${OBJDIR}/reset_regula_falsi.o
+
+LIBOBJS = ${C_OBJS} ${CPP_OBJS}
+
+.cpp.o:
+	${CPP} ${CFLAGS} ${INCDIRS} -c $<
+.c.o:
+	${CPP} ${CFLAGS} ${INCDIRS} -c $<
+
+all: ${LIBDIR}/${LIBNAME}
+
+$(CPP_OBJS): ${OBJDIR}/%.o : ${SRCDIR}/%.cpp
+	$(CPP) $(CFLAGS) ${INCDIRS} -c $< -o $@
+
+$(C_OBJS): ${OBJDIR}/%.o : ${SRCDIR}/%.c
+	$(CC) $(CFLAGS) ${INCDIRS} -c $< -o $@
+
+${LIBDIR}/${LIBNAME}: ${OBJDIR} ${LIBDIR} ${LIBOBJS}
+	ar -r $@ ${LIBOBJS}
+
+${OBJDIR}:
+	mkdir -p ${OBJDIR}
+
+${LIBDIR}:
+	mkdir -p ${LIBDIR}
+
+clean:
+	${RM} *~
+	${RM} ${OBJDIR}
+
+spotless: clean
+	${RM} ${LIBDIR}

@@ -1,0 +1,26 @@
+/**************************TRICK HEADER***********************
+PURPOSE: ( S_define )
+LIBRARY DEPENDENCIES:
+(
+     (test/dr/src/DR.cpp)
+	 (test/dr/src/DR_default_data.cpp)
+)
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "test/dr/include/DR.hh"
+
+class testSimObject : public Trick::SimObject {
+	public:
+		DRTypes drt;
+
+		testSimObject() {
+			("default_data") drt.init();
+		}
+};
+
+// Instantiations
+testSimObject drx;
+
+

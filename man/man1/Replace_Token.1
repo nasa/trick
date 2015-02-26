@@ -1,0 +1,37 @@
+.TH Replace_Token.sh 1 "May 17, 2000" "Trick" "Trick User's Manual"
+.SH NAME
+Replace_Token.sh \- Resolve tokens in an HTML file
+.SH SYNOPSIS
+\fBReplace_Token.sh\fP [\fIdirectory_name\fP]
+.SH DESCRIPTION
+\fBReplace_Token.sh\fP is a bourne shell script whick executes Replace_Token.  
+\fBReplace_Token\fP resolves tokens in .token files created by Create_Token.sh
+and converts them to proper .html files.  With no arguments \fBReplace_Token.sh\fP 
+will recursively convert all .token files to .html files starting in the 
+current distrctory on the local machine.  If called with a directory name 
+\fBReplace_Token.sh\fP will use that directory name as the starting directory.
+.SH FILES
+.TP
+.SH DEPENDENCY
+.TP
+\fBDependencies\fP: /bin/sh, echo, find
+.TP
+.SH "SEE ALSO"
+All Trick model developers and users should go through the tutorial found
+in the \fITrick Simulation Environment User Training Materials\fP.
+The canonical reference for all Trick commands, files and utilities is the
+\fITrick Simulation Environment User's Guide\fP.  Information specific to a
+given release of Trick tools is contained in the \fITrick Simulation
+Environment Version Description\fP for that release.
+.PP
+.\" .SH DIAGNOSTICS
+.\" How to determine why the command failed.
+.SH BUGS
+Known bugs will be placed in the \fIVersion Description Document\fP located in
+$TRICK_HOME/docs area.  If you would like to report a bug, contact
+vetter@lincom-asg.com.
+.SH AUTHORS
+The \fBReplace_Token.sh\fP command was written by Greg Alexander and is maintained by the
+Trick development staff.  This man page was written by Greg Alexander,
+address all discrepancies to grega@lincom-asg.com.
+

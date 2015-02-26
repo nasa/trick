@@ -1,0 +1,62 @@
+object_${TRICK_HOST_CPU}/MessageTCDevice.o: src/MessageTCDevice.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/MessageTCDevice.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/MessageSubscriber.hh \
+ ${TRICK_HOME}/trick_source/trick_utils/comm/include/tc.h \
+ ${TRICK_HOME}/trick_source/trick_utils/comm/include/trick_byteswap.h \
+ ${TRICK_HOME}/trick_source/trick_utils/comm/include/trick_error_hndlr.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_type.h \
+ ${TRICK_HOME}/trick_source/sim_services/MonteCarlo/include/montecarlo_c_intf.h \
+ ${TRICK_HOME}/trick_source/trick_utils/comm/include/tc_proto.h \
+ ${TRICK_HOME}/trick_source/trick_utils/comm/include/tc.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/attributes.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/parameter_types.h \
+ ${TRICK_HOME}/trick_source/trick_utils/comm/include/tc_proto.h 
+object_${TRICK_HOST_CPU}/Playback_c_intf.o: src/Playback_c_intf.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/PlaybackPublisher.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/MessageSubscriber.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/MessageFile.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_type.h 
+object_${TRICK_HOST_CPU}/MessageFile.o: src/MessageFile.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/MessageFile.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/MessageSubscriber.hh \
+ ${TRICK_HOME}/trick_source/sim_services/CommandLineArguments/include/command_line_protos.h 
+object_${TRICK_HOST_CPU}/MessageCout.o: src/MessageCout.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/MessageCout.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/MessageSubscriber.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_type.h 
+object_${TRICK_HOST_CPU}/message_publish_standalone.o: src/message_publish_standalone.cpp 
+object_${TRICK_HOST_CPU}/PlaybackPublisher.o: src/PlaybackPublisher.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/PlaybackPublisher.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/MessageSubscriber.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_type.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h 
+object_${TRICK_HOST_CPU}/Message_c_intf.o: src/Message_c_intf.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/MessagePublisher.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/MessageSubscriber.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/MessageCout.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/MessageFile.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/MessageTCDevice.hh \
+ ${TRICK_HOME}/trick_source/trick_utils/comm/include/tc.h \
+ ${TRICK_HOME}/trick_source/trick_utils/comm/include/trick_byteswap.h \
+ ${TRICK_HOME}/trick_source/trick_utils/comm/include/trick_error_hndlr.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_type.h 
+object_${TRICK_HOST_CPU}/MessageSubscriber.o: src/MessageSubscriber.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/MessageSubscriber.hh 
+object_${TRICK_HOST_CPU}/MessageLCout.o: src/MessageLCout.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/MessageLCout.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/MessageSubscriber.hh 
+object_${TRICK_HOST_CPU}/MessagePublisher.o: src/MessagePublisher.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/MessagePublisher.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/MessageSubscriber.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_type.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h 
+object_${TRICK_HOST_CPU}/PlaybackFile.o: src/PlaybackFile.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/PlaybackFile.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/MessageSubscriber.hh \
+ ${TRICK_HOME}/trick_source/sim_services/CommandLineArguments/include/command_line_protos.h 

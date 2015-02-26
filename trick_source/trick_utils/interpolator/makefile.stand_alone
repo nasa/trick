@@ -1,0 +1,57 @@
+
+# $Id: makefile.stand_alone 2311 2012-04-13 21:02:35Z wwoodard $
+
+#
+# This makefile is used to build trick utils standalone.
+# That is, without Trick.
+#
+
+TRICK_HOST_CPU := $(shell uname -s)
+
+CC = cc
+CPP = c++
+
+INTERP_INC_DIR = include
+
+OBJ_DIR   = object_${TRICK_HOST_CPU}
+INTERP_LIB  = $(OBJ_DIR)/libtrick_interp.a
+
+FLAGS = -g -I../include -D_REENTRANT -DSTAND_ALONE
+CFLAGS = ${FLAGS} -I./include
+CPPFLAGS = ${FLAGS} -I./include
+
+trick: start
+
+start: $(INTERP_LIB)
+	@ echo "[32m$(INTERP_LIB) is up to date[00m"
+
+real_clean: clean
+
+clean:
+	/bin/rm -rf $(OBJ_DIR)
+
+#=======================================================================
+# INTERP
+
+SRC_DIR = src
+
+INTERP_OBJECTS = $(OBJ_DIR)/Interpolator.o
+
+$(INTERP_LIB): $(INTERP_OBJECTS)
+	ar cr $(INTERP_LIB) $?
+	@ if [ "${TRICK_RANLIB}" != "" ] ; then \
+         echo ${TRICK_RANLIB} $(INTERP_LIB) ; \
+         ${TRICK_RANLIB} $(INTERP_LIB) ; \
+      fi
+
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
+
+$(OBJ_DIR)/Interpolator.o: ${SRC_DIR}/Interpolator.cpp | $(OBJ_DIR)
+	$(CC) ${CFLAGS} -c src/Interpolator.cpp -o $@
+
+#----------------------------
+# Header Dependencies
+
+$(OBJ_DIR)/Interpolator.o:       ${INTERP_INC_DIR}/Interpolator.hh
+

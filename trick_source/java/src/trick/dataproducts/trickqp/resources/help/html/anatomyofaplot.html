@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Anatomy of A Plot</title>
+</head>
+<body BGCOLOR="#ffffff">
+<H1>Anatomy of A Plot</H1>
+<pre>
+
+Trick plots multiple plots on a "page" and multiple curves on a "plot".
+A "page" may have a number of plots and a "plot" may have a number of curves.
+
+In plots:
+     Each plot has one or more curves. 
+
+In curves:
+     A curve has to be in a plot.
+     Each curve has exactly one X variable and one Y variable.
+     Or each curve may have one or more varcase (pair of X and Y variables).
+     Each varcase has exactly one X variable and one Y variable.
+     When a curve already has a variable, it can't add varcase. 
+     When a curve already has a varcase, it can't add a variable. 
+          In this case, the variable has to be added in the contained varcase.
+     Variables have their own attributes such as unit, scale factor, line style, etc. 
+
+In varcase:
+     A varcase is used to indicate that two or more variable names mean the same thing.
+     If the data for a curve can't be found for the first name, try the second and so forth.
+
+Settings for page, plot and variables are accessed within the property notebook on the bottom right.
+A DP spec may have multiple "pages".
+
+</pre>
+</body>
+</html>

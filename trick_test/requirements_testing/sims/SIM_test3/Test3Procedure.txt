@@ -1,0 +1,206 @@
+TEST 3 - Data Recording
+
+PURPOSE: Demonstrate by testing and inspection that Trick provides a data recording
+         capability during simulation runs.
+
+Trick is required to provide the ability to record simulation data. How the data is recorded
+is specified in one or more Log groups. A Log group is a collection of variables
+whose time tagged values are recorded to a disk file in a specified manner. The
+specifications include:
+
+1) The rate at which the data is logged
+2) The format in which the data is logged.
+3) Whether data is recorded at each timestep or only when the values of it's variables change.
+4) When the data is written to disk:
+    a) asynchronously (DR_Buffer {synonymous with DR_thread_buffer}) 
+    b) synchronously (DR_No_Buffer) and
+    c) at the end of the simulation run {DR_ring_buffer}. 
+
+The purpose of this procedure is to demonstrate and verify these requirements by
+inspection and by testing, using a test-simulation designed specifically for this
+purpose.
+
+
+Requirements References:
+
+Trick-080 3.1.2.10 Data Recording
+Trick-081 3.1.2.10.1 DR_Buffer 
+Trick-082 3.1.2.10.2 DR_Thread_Buffer 
+Trick-083 3.1.2.10.3 DR_Ring_Buffer 
+Trick-084 3.1.2.10.3.1 DR_Ring_Buffer
+Trick-085 3.1.2.11 DR_No_Buffer
+Trick-086 3.1.2.12 One or more variables
+Trick-087 3.1.2.12.1 Freq
+Trick-088 3.1.2.12.2 Changes
+Trick-089 3.1.2.12.3 Multiple log groups
+Trick-090 3.1.2.12.4 Realtime Performance
+Trick-091 3.1.2.12.5 Time tagged
+
+Procedure Steps:
+
+1) Change to simulation directory and list it's contents : 
+
+    % cd $TRICK_HOME/trick_test/requirements_testing/sims/SIM_test3/
+
+2) Build the test simulation:
+
+    % CP
+
+    Expected result(s): CP completes successfully. You should see:
+
+    === Simulation make complete ===
+
+3) Run the test simulation as follows:
+
+   % S_main_{$TRICK_HOST_CPU}.exe RUN_A/input
+
+    Expected result(s):
+            a) the sim_control panel appears,
+            b) the sim is in Freeze mode
+            c) Run Elapsed Time (RET) is equal to 0.00.
+
+4) In a new terminal window, cd to RUN_A/
+
+   [] Verify that the following log files have been created, one for each group
+      specified in Modified_data/test3.dr as well as RT performance logs when
+      sys.exec.in.frame_log = Yes;:
+
+log_Group0.trk    log_Group2.trk    log_Group4.trk    log_frame.trk     log_mem_stats.trk
+log_Group1.trk    log_Group3.trk    log_Group5.trk    log_jobs.trk
+
+[Trick-089]
+
+The next two steps must be completed within 30 seconds. Read these steps before performing them.
+
+5) On the sim control panel press Start.
+
+6) In the RUN_A directory, type ls -l every couple of seconds, until the
+ simulation completes, to verify that:
+
+[] log_Group0.trk and log_Group1.trk are increasing in size over time.
+   [Trick-081, Trick-082]
+
+[] The size of log_Group2.trk does not change until the sim finishes running,
+   after 30 seconds. [Trick-083, Trick-084]
+
+7) Close the new terminal, opened in step 4, if you like.
+
+8) When the simulation completes, press Exit on the sim control panel.
+
+   [] The sim control panel disappears.
+
+7) Using trick_dp, select SIM_test3/RUN_A and DP_test3_table, and then
+    press the "Tabular data" button. 
+
+ [] Verify using the table that appears that, as specified in Modified_data/test3_A.dr:
+
+    [] dyn.test3.l and dyn.test3.f (specified in "Group3") are both logged [Trick-086]
+
+    [] dyn.test3.s was logged every 0.1 seconds [Trick-087, Trick-089] 
+    [] dyn.test3.i was logged every 0.2 seconds [Trick-087, Trick-089]
+    [] dyn.test3.ui was logged every 0.3 seconds [Trick-087, Trick-089]
+    [] dyn.test3.l was logged every 0.5 seconds [Trick-087, Trick-089]
+    [] dyn.test3.f was logged every 0.5 seconds [Trick-087, Trick-089]
+
+
+8) Press Exit Tables in the small window.
+
+Setting sys.exec.in.frame_log = Yes enables simulation performance profiling, as described
+in section 7.3 of the Trick User's Guide.
+
+9) Using trick_dp, select SIM_test3/RUN_A, and the following data product specifications
+    that are automatically generated for display of real-time performance data.
+
+        DP_rt_frame
+        DP_rt_timer
+        DP_rt_jobs
+
+10) Select the "Single" plot icon.
+
+    [] Verify that these display real-time perfomance data of the Trick executive
+       and model jobs in the simulation. [Trick-090]
+
+11) Exit plots
+
+   The plots disappear.
+
+12) Deselect the "DP_rt_frame", "DP_rt_timer" and "DP_rt_jobs" data product specifications.
+
+The next couple of steps demonstrate the ability to log variable data only when another
+(or the same) variable changes. This is described in section 7.4.2 of the Trick User's
+Guide.
+
+For comparison, we'll first look at normal data recording, with
+sys.exec.record.group[#].freq = DR_Always. Then, the same data will be recorded
+with sys.exec.record.group[#].freq = DR_Changes.
+
+Note that RUN_A/input includes Modified_data/test3_A.dr and that in test3_A.dr,
+in the "Group5" specification, that dyn.test3.d1 is recorded with DR_Always.
+
+13) Using trick_dp, select SIM_test3/RUN_A and DP_test3_dr_changes, and then
+    press the "Single" plot button. 
+
+    [] Observe that the plot of dyn.test3.d1 represents a sine curve.
+    [] Observe that the plot of dyn.test3.d2 represents a sawtooth pattern. It changes
+       between 0 and 1, 2 and 3, 4 and 5, etc., and it doesn't change
+       between 1 and 2, 3 and 4, 5 and 6, etc.
+
+
+14) Exit Plots
+
+   The plots disappear.
+
+15) Close trick_dp.
+
+
+Note that RUN_B/input includes Modified_data/test3_A.dr and that in test3_A.dr,
+in the "Group5" specification, that dyn.test3.d1 is recorded with DR_Always.
+
+16) Run the simulation again using RUN_B/input :
+    % S_main_{$TRICK_HOST_CPU}.exe RUN_B/input
+
+    Expected result(s):
+    Simulation runs to completion.
+
+    DIAGNOSTIC: Simulation reached input termination time.
+
+17) Using trick_dp, select SIM_test3/RUN_B and DP_test3_dr_changes, and then
+   press the "Single" plot button. 
+
+   Verify that:
+   [] between 0 and 1, 2 and 3, 4 and 5, etc., where dyn.test3.d2 is changing,
+      dyn.test3.d1 (the sine curve) was logged.
+   [] between 1 and 2, 3 and 4, 5 and 6, etc., where dyn.test3.d2 is not changing,
+      dyn.test3.d1 was not logged (the negative part of the sine curve is cut off) .
+   [Trick-088]
+
+18) Close trick_dp.
+
+19) In order to see by inspection that DR_Thread_Buffer uses a fixed size buffer in memory,
+open $TRICK_HOME/trick_source/sim_services/exec/data_record_init.c
+
+Search for "switch (G->buffering)", then for case "case DR_Thread_Buffer".
+
+[] Verify that the buffer for the group is allocated using calloc() and that
+it's size is determined the number of records that will fit within the max_buffer_size.
+[Req. Trick-081]
+
+20) In order to see by inspection that DR_Thread_Buffer writes to disk using a separate thread of execution, open $TRICK_HOME/trick_source/sim_services/exec/exec_init_data_recording.c.
+
+Search for occurances of "start_writer".  You'll see a number of places where it's set to 1.
+
+[] Verify that start_writer is set on the condition that buffering is set to
+   DR_Thread_buffer (or synonymously DR_Buffer). [Trick-082] 
+
+[] Verify that on the condition that start_writer is true (non-zero) that pthread_create is called, to start a dr_writer thread. [Trick-082]
+
+21) In order to see by inspection that DR_No_Buffer writes to disk directly rather than
+ using a separate thread, open $TRICK_HOME/trick_source/sim_services/exec/data_record.c.
+
+Search for "switch (G->buffering)", then for case "case DR_No_Buffer".
+
+[] Verify that for the case of DR_No_Buffer, data_record() writes data to the
+   data recording file (G->fp) directly. Compare to the cases of DR_Thread_buffer
+   or DR_ring_buffer which let the writer thread do the writing to disk. [Trick-085]
+
+END OF TEST.

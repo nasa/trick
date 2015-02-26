@@ -1,0 +1,10 @@
+log_Ball byte_order is in ASCII
+log_Ball	double	     s	sys.exec.out.time
+log_Ball	double	     m	ball.obj.state.output.position[0]
+log_Ball	double	     m	ball.obj.state.output.position[1]
+log_Ball	double	   m/s	ball.obj.state.output.velocity[0]
+log_Ball	double	   m/s	ball.obj.state.output.velocity[1]
+log_Ball	double	  m/s2	ball.obj.state.output.acceleration[0]
+log_Ball	double	  m/s2	ball.obj.state.output.acceleration[1]
+log_Ball	double	     N	ball.obj.state.output.external_force[0]
+log_Ball	double	     N	ball.obj.state.output.external_force[1]

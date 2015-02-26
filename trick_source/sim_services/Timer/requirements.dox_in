@@ -1,0 +1,26 @@
+/**
+
+@page LEVEL3 Sleep Timer Requirements
+
+<b>LEVEL4</b> Trick shall provide a framework to use a sleep timer.
+
+<b>LEVEL4</b> The framework shall provide a base timer class that provides the
+following interface
+
+<b>LEVEL5</b> Initialize the timer
+
+<b>LEVEL5</b> Start the timer
+
+<b>LEVEL5</b> Reset the clock
+
+<b>LEVEL5</b> Wait on the timer to expire
+
+<b>LEVEL5</b> Stop the timer
+
+<b>LEVEL5</b> Shutdown the timer
+
+<b>LEVEL4</b> Trick shall provide a sleep timer based on the system itimer
+(ITimer timer).
+
+*/
+

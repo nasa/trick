@@ -1,0 +1,13 @@
+drg = []
+drg.append(trick.DRAscii("cannon_aero"))
+#drg[0] = trick.DRAscii("cannon_aero")
+drg[0].set_freq(trick.DR_Always)
+drg[0].set_cycle(0.01)
+
+drg[0].add_variable("dyn.baseball.pos[0]")
+drg[0].add_variable("dyn.baseball.pos[1]")
+#drg[0].add_variable("dyn.baseball.pos[2]")
+
+trick.add_data_record_group( drg[0], trick.DR_Buffer )
+drg[0].enable()
+

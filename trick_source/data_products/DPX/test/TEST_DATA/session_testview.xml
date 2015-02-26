@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE session  PUBLIC "-//Tricklab//DTD Session V1.0//EN" "../../XML/DTD/Session.dtd">
+<session version="1.0" presentation="SIMPLE">
+	<tstart>0</tstart>
+   	<tstop>1000.0</tstop>
+    <frequency>100.0</frequency>
+    <run timename="this.is.a.time.variable">
+    	<dir>../TEST_DATA/RUN_BINARY</dir>
+    </run>
+    <product_files>
+    	<file>product_testview.xml</file>
+    </product_files>
+</session>
+

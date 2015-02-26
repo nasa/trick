@@ -1,0 +1,5 @@
+object_${TRICK_HOST_CPU}/collect.o: src/collect.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/include/collect_macros.h \
+ ${TRICK_HOME}/trick_source/sim_services/include/exec_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h 

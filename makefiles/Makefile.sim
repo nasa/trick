@@ -1,0 +1,47 @@
+
+include ${TRICK_HOME}/makefiles/Makefile.common
+
+.NOTPARALLEL: all test
+
+export TRICK_ICG_EXCLUDE
+
+# Use /bin/bash as the shell so we can use PIPESTATUS
+SHELL = /bin/bash
+
+ifeq ($(MAKECMDGOALS), debug)
+ TRICK_CPFLAGS += --debug
+endif
+
+all : ${TRICK_HOME}/lib_${TRICK_HOST_CPU}/libtrick.a Makefile_sim
+	@/bin/cp ${TRICK_HOME}/bin/MAKE_out_header.txt MAKE_out
+	@$(MAKE) --no-print-directory -f Makefile_sim ICG 2>&1 | tee -a MAKE_out ; exit $${PIPESTATUS[0]}
+	@$(MAKE) --no-print-directory -f Makefile_sim convert_swig 2>&1 | tee -a MAKE_out ; exit $${PIPESTATUS[0]}
+	@$(MAKE) --no-print-directory -f Makefile_sim all 2>&1 | tee -a MAKE_out ; exit $${PIPESTATUS[0]}
+
+test : ${TRICK_HOME}/lib_${TRICK_HOST_CPU}/libtrick.a Makefile_sim
+	@/bin/cp ${TRICK_HOME}/bin/MAKE_out_header.txt MAKE_out
+	@$(MAKE) --no-print-directory -f Makefile_sim ICG 2>&1 | tee -a MAKE_out ; exit $${PIPESTATUS[0]}
+	@$(MAKE) --no-print-directory -f Makefile_sim convert_swig 2>&1 | tee -a MAKE_out ; exit $${PIPESTATUS[0]}
+	@$(MAKE) --no-print-directory -f Makefile_sim test_all 2>&1 | tee -a MAKE_out ; exit $${PIPESTATUS[0]}
+
+debug : all
+
+${TRICK_HOME}/lib_${TRICK_HOST_CPU}/libtrick.a:
+	@echo "Cannot find $@.  Please build Trick for this platfrom"
+	@exit -1
+
+Makefile_sim: S_define
+	@/bin/rm -rf lib_${TRICK_HOST_CPU} object_${TRICK_HOST_CPU}
+	@${TRICK_HOME}/bin/C3PO $(TRICK_CPFLAGS)
+
+S_define:
+
+model_dirs:
+	@${TRICK_HOME}/bin/C3PO -z
+
+tidy clean real_clean spotless apocalypse sie ICG force_ICG help convert_swig S_define_exp:
+	@if [ -f Makefile_sim ] ; then $(MAKE) --no-print-directory -f Makefile_sim $@ ; else echo "No Makefile_sim found" ; fi
+
+# Dependencies to other files that may cause a re-CP
+-include object_${TRICK_HOST_CPU}/S_define.deps
+

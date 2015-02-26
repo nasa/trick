@@ -1,0 +1,686 @@
+object_${TRICK_HOST_CPU}/Exec_exception.o: src/Exec_exception.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Exec_exception.hh 
+object_${TRICK_HOST_CPU}/Executive.o: src/Executive.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/include/TrickConstant.hh 
+object_${TRICK_HOST_CPU}/Executive_add_depends_on_job.o: src/Executive_add_depends_on_job.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_type.h 
+object_${TRICK_HOST_CPU}/Executive_add_jobs_to_queue.o: src/Executive_add_jobs_to_queue.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.hh \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/memorymanager_c_intf.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/parameter_types.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/attributes.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/reference.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/value.h \
+ ${TRICK_HOME}/trick_source/trick_utils/trick_adt/include/dllist.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/var.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/io_alloc.h \
+ ${TRICK_HOME}/trick_source/sim_services/include/TrickConstant.hh 
+object_${TRICK_HOST_CPU}/Executive_add_scheduled_job_class.o: \
+ src/Executive_add_scheduled_job_class.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h 
+object_${TRICK_HOST_CPU}/Executive_add_sim_object.o: src/Executive_add_sim_object.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h 
+object_${TRICK_HOST_CPU}/Executive_advance_sim_time.o: src/Executive_advance_sim_time.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/include/release.h 
+object_${TRICK_HOST_CPU}/Executive_c_intf.o: src/Executive_c_intf.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Exec_exception.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.hh 
+object_${TRICK_HOST_CPU}/Executive_call_default_data.o: src/Executive_call_default_data.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Exec_exception.hh 
+object_${TRICK_HOST_CPU}/Executive_call_initialization.o: src/Executive_call_initialization.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Exec_exception.hh 
+object_${TRICK_HOST_CPU}/Executive_call_input_processor.o: src/Executive_call_input_processor.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Exec_exception.hh 
+object_${TRICK_HOST_CPU}/Executive_check_all_job_cycle_times.o: \
+ src/Executive_check_all_job_cycle_times.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_type.h \
+ ${TRICK_HOME}/trick_source/sim_services/include/TrickConstant.hh 
+object_${TRICK_HOST_CPU}/Executive_check_all_jobs_handled.o: \
+ src/Executive_check_all_jobs_handled.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_type.h 
+object_${TRICK_HOST_CPU}/Executive_checkpoint.o: src/Executive_checkpoint.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/memorymanager_c_intf.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/parameter_types.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/attributes.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/reference.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/value.h \
+ ${TRICK_HOME}/trick_source/trick_utils/trick_adt/include/dllist.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/var.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/io_alloc.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManagerWrapper/include/checkpoint_stl.hh \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManagerWrapper/include/checkpoint_sequence_stl.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_type.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManagerWrapper/include/checkpoint_map.hh \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManagerWrapper/include/checkpoint_stack.hh \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManagerWrapper/include/checkpoint_sequence_stl.hh \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManagerWrapper/include/checkpoint_queue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManagerWrapper/include/checkpoint_pair.hh 
+object_${TRICK_HOST_CPU}/Executive_clear_scheduled_queues.o: \
+ src/Executive_clear_scheduled_queues.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h 
+object_${TRICK_HOST_CPU}/Executive_create_threads.o: src/Executive_create_threads.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h 
+object_${TRICK_HOST_CPU}/Executive_fpe_handler.o: src/Executive_fpe_handler.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_type.h 
+object_${TRICK_HOST_CPU}/Executive_freeze.o: src/Executive_freeze.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/include/TrickConstant.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_type.h 
+object_${TRICK_HOST_CPU}/Executive_freeze_loop.o: src/Executive_freeze_loop.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Exec_exception.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_type.h 
+object_${TRICK_HOST_CPU}/Executive_get_curr_job.o: src/Executive_get_curr_job.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h 
+object_${TRICK_HOST_CPU}/Executive_get_job.o: src/Executive_get_job.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h 
+object_${TRICK_HOST_CPU}/Executive_get_job_cycle.o: src/Executive_get_job_cycle.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h 
+object_${TRICK_HOST_CPU}/Executive_get_process_id.o: src/Executive_get_process_id.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h 
+object_${TRICK_HOST_CPU}/Executive_get_sim_time.o: src/Executive_get_sim_time.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h 
+object_${TRICK_HOST_CPU}/Executive_init.o: src/Executive_init.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Exec_exception.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.h 
+object_${TRICK_HOST_CPU}/Executive_init_freeze_scheduled.o: \
+ src/Executive_init_freeze_scheduled.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h 
+object_${TRICK_HOST_CPU}/Executive_init_signal_handlers.o: src/Executive_init_signal_handlers.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h 
+object_${TRICK_HOST_CPU}/Executive_instrument_job.o: src/Executive_instrument_job.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h 
+object_${TRICK_HOST_CPU}/Executive_loop.o: src/Executive_loop.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Exec_exception.hh 
+object_${TRICK_HOST_CPU}/Executive_loop_multi_thread.o: src/Executive_loop_multi_thread.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Exec_exception.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/include/release.h 
+object_${TRICK_HOST_CPU}/Executive_loop_single_thread.o: src/Executive_loop_single_thread.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Exec_exception.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.h 
+object_${TRICK_HOST_CPU}/Executive_post_checkpoint.o: src/Executive_post_checkpoint.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/memorymanager_c_intf.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/parameter_types.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/attributes.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/reference.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/value.h \
+ ${TRICK_HOME}/trick_source/trick_utils/trick_adt/include/dllist.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/var.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/io_alloc.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManagerWrapper/include/checkpoint_stl.hh \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManagerWrapper/include/checkpoint_sequence_stl.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_type.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManagerWrapper/include/checkpoint_map.hh \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManagerWrapper/include/checkpoint_stack.hh \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManagerWrapper/include/checkpoint_sequence_stl.hh \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManagerWrapper/include/checkpoint_queue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManagerWrapper/include/checkpoint_pair.hh 
+object_${TRICK_HOST_CPU}/Executive_process_sim_args.o: src/Executive_process_sim_args.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/CommandLineArguments/include/command_line_protos.h 
+object_${TRICK_HOST_CPU}/Executive_register_scheduler.o: src/Executive_register_scheduler.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h 
+object_${TRICK_HOST_CPU}/Executive_restart.o: src/Executive_restart.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_type.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/memorymanager_c_intf.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/parameter_types.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/attributes.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/reference.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/value.h \
+ ${TRICK_HOME}/trick_source/trick_utils/trick_adt/include/dllist.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/var.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/io_alloc.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManagerWrapper/include/checkpoint_stl.hh \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManagerWrapper/include/checkpoint_sequence_stl.hh \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManagerWrapper/include/checkpoint_map.hh \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManagerWrapper/include/checkpoint_stack.hh \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManagerWrapper/include/checkpoint_sequence_stl.hh \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManagerWrapper/include/checkpoint_queue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManagerWrapper/include/checkpoint_pair.hh 
+object_${TRICK_HOST_CPU}/Executive_run.o: src/Executive_run.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/Message_proto.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/MessageSubscriber.hh 
+object_${TRICK_HOST_CPU}/Executive_set_job_cycle.o: src/Executive_set_job_cycle.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h 
+object_${TRICK_HOST_CPU}/Executive_set_job_onoff.o: src/Executive_set_job_onoff.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_type.h 
+object_${TRICK_HOST_CPU}/Executive_set_lock_memory.o: src/Executive_set_lock_memory.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_type.h 
+object_${TRICK_HOST_CPU}/Executive_set_simobject_onoff.o: src/Executive_set_simobject_onoff.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h 
+object_${TRICK_HOST_CPU}/Executive_set_thread_amf_cycle_time.o: \
+ src/Executive_set_thread_amf_cycle_time.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h 
+object_${TRICK_HOST_CPU}/Executive_set_thread_async_wait.o: \
+ src/Executive_set_thread_async_wait.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h 
+object_${TRICK_HOST_CPU}/Executive_set_thread_cpu_affinity.o: \
+ src/Executive_set_thread_cpu_affinity.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h 
+object_${TRICK_HOST_CPU}/Executive_set_thread_priority.o: src/Executive_set_thread_priority.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h 
+object_${TRICK_HOST_CPU}/Executive_set_thread_process_type.o: \
+ src/Executive_set_thread_process_type.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h 
+object_${TRICK_HOST_CPU}/Executive_set_time_tic_value.o: src/Executive_set_time_tic_value.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/include/TrickConstant.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_type.h 
+object_${TRICK_HOST_CPU}/Executive_shutdown.o: src/Executive_shutdown.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Exec_exception.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_type.h \
+ ${TRICK_HOME}/trick_source/sim_services/include/release.h 
+object_${TRICK_HOST_CPU}/Executive_signal_handler.o: src/Executive_signal_handler.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_type.h 
+object_${TRICK_HOST_CPU}/Executive_stop.o: src/Executive_stop.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Exec_exception.hh 
+object_${TRICK_HOST_CPU}/Executive_terminate.o: src/Executive_terminate.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.h 
+object_${TRICK_HOST_CPU}/Executive_write_s_job_execution.o: \
+ src/Executive_write_s_job_execution.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/CommandLineArguments/include/command_line_protos.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_type.h 
+object_${TRICK_HOST_CPU}/Executive_write_s_run_summary.o: src/Executive_write_s_run_summary.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/CommandLineArguments/include/command_line_protos.h \
+ ${TRICK_HOME}/trick_source/sim_services/Environment/include/env_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_type.h 
+object_${TRICK_HOST_CPU}/Threads.o: src/Threads.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh 
+object_${TRICK_HOST_CPU}/Threads_child.o: src/Threads_child.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/Message_proto.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/MessageSubscriber.hh \
+ ${TRICK_HOME}/trick_source/sim_services/include/release.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/include/TrickConstant.hh 
+object_${TRICK_HOST_CPU}/Threads_create_new_thread.o: src/Threads_create_new_thread.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh 
+object_${TRICK_HOST_CPU}/Threads_set_amf_cycle_tics.o: src/Threads_set_amf_cycle_tics.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh 
+object_${TRICK_HOST_CPU}/Threads_set_async_wait.o: src/Threads_set_async_wait.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh 
+object_${TRICK_HOST_CPU}/Threads_set_cpu_affinity.o: src/Threads_set_cpu_affinity.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_type.h 
+object_${TRICK_HOST_CPU}/Threads_set_priority.o: src/Threads_set_priority.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_type.h 
+object_${TRICK_HOST_CPU}/Threads_set_process_type.o: src/Threads_set_process_type.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh 
+object_${TRICK_HOST_CPU}/child_handler.o: src/child_handler.cpp 
+object_${TRICK_HOST_CPU}/child_stub.o: src/child_stub.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh 
+object_${TRICK_HOST_CPU}/fpe_handler.o: src/fpe_handler.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.hh 
+object_${TRICK_HOST_CPU}/sig_hand.o: src/sig_hand.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.hh 

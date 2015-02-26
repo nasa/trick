@@ -1,0 +1,38 @@
+/**
+@page LEVEL1 Applicable and Reference Documents
+
+@section LEVEL2 Applicable Documents
+The following documents are reference documents utilized in the development of this
+SRS.  These documents do not form a part of this SRS and are not controlled by their
+reference herein.
+
+<center>
+<table>
+<tr><th>Document Number</th><th>Revision/ Release Date</th><th>Document Title</th></tr>
+<tr><td></td><td></td><td></td></tr>
+</table>
+</center>
+ 
+@section LEVEL2 Reference Documents
+The following documents are reference documents utilized in the development of this SRS.
+These documents do not form a part of this SRS and are not controlled by their reference
+herein.
+
+<center>
+<table>
+<tr><th>Document Number</th><th>Revision/ Release Date</th><th>Document Title</th></tr>
+<tr><td></td><td></td><td></td></tr>
+</table>
+</center>
+ 
+@section LEVEL2 Order of Precedence
+In the event of a conflict between the text of this specification and an applicable
+document cited herein, the text of this specification takes precedence.
+
+All specifications, standards, exhibits, drawings or other documents that are invoked
+as "applicable" in this specification are incorporated as cited.  All documents that are
+referred to by an applicable document are considered to be for guidance and information
+only, with the exception of  Interface Control Documents (ICD) which will have their
+applicable documents considered to be incorporated as cited.
+
+*/

@@ -1,0 +1,91 @@
+#!/usr/bin/perl
+
+#
+# $Id: trick_version 2716 2012-11-15 21:49:55Z alin $
+
+use File::Basename ;
+use Cwd 'abs_path';
+use strict;
+
+my @all_lines ;
+my $file_contents ;
+my ($current_version , $thread_version , $service_issues ) ;
+my ($trick_bin , $trick_home ) ;
+
+if ( !exists $ENV{"TRICK_HOME"} ) {
+    $trick_bin = dirname(abs_path($0)) ;
+    $trick_home = dirname($trick_bin) ;
+
+    # set TRICK_HOME based on the value of trick_home
+    $ENV{TRICK_HOME} = $trick_home ;
+}
+
+
+my $trick_ver_txt = "$ENV{\"TRICK_HOME\"}/bin/trick_ver.txt" ;
+open FILE, "$trick_ver_txt" or
+           die "trick_version: Couldn't find $trick_ver_txt\n" ;
+@all_lines = <FILE> ;
+close FILE ;
+$file_contents  = join  "" , @all_lines ;
+
+($current_version) = $file_contents =~ /current_version\s*=\s*"([^"]+)"/ ;
+($thread_version) = $file_contents =~ /thread_version\s*=\s*"([^"]+)"/ ;
+($service_issues) = $file_contents =~ /service_issues\s*=\s*"(.+)"/s ;
+
+$current_version =~ s/^trick-// ;
+
+if ( grep /^-s(ervice)?$/ , @ARGV ) {
+    print "Enter Title: (<CTRL-D> to end input)\n" ;
+    my $new_serv_iss_title = "      Title: " ;
+    while ( <STDIN> ) {
+        $new_serv_iss_title .= "$_" ;
+    }
+
+    #indent the input by 13 spaces but not last one
+    $new_serv_iss_title =~ s/\n+$//s ;
+    $new_serv_iss_title =~ s/\n/\n             /g ;
+
+    print "Enter Description: (<CTRL-D> to end input)\n" ;
+    my $new_serv_iss_desc = "Description: " ;
+    while ( <STDIN> ) {
+        $new_serv_iss_desc .= "$_" ;
+    }
+
+    #indent the input by 13 spaces but not last one
+    $new_serv_iss_desc =~ s/\n+$//s ;
+    $new_serv_iss_desc =~ s/\n/\n             /g ;
+
+    open FILE, "> $trick_ver_txt" or
+                    die "trick_version: Couldn't find $trick_ver_txt\n" ;
+    print FILE "current_version = \"$current_version\" 
+    thread_version = \"$thread_version\"
+    service_issues = \"$service_issues
+    $new_serv_iss_title
+    $new_serv_iss_desc\"\n" ;
+  
+}
+elsif ( grep /^-y(ear)?$/ , @ARGV ) {
+    $current_version =~ s/\..*$// ;
+    print "$current_version\n" ;
+}
+elsif ( grep /^-m(inor)?$/ , @ARGV ) {
+    $current_version =~ s/.*?\.// ;
+    $current_version =~ s/\..*$// ;
+    print "$current_version\n" ;
+}
+elsif ( grep /^-v(ersion)?$/ , @ARGV ) {
+    print "$current_version\n" ;
+}
+elsif ( grep /^-f(ull)?$/ , @ARGV ) {
+    $thread_version =~ s/^\d+\.// ; 
+    print "$current_version" , "-$thread_version\n" ;
+}
+else {
+    $thread_version =~ s/^\d+\.// ; 
+    print "\nVersion : $current_version" , "-$thread_version\n\n" ;
+    print 
+"Service Issues
+-------------------------------------------------------" ;
+
+    print "$service_issues\n\n" ;
+}

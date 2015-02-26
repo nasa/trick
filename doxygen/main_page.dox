@@ -1,0 +1,9 @@
+/**
+@mainpage Trick Documentation
+
+-# @subpage users_guide "User's Guide"
+-# @subpage requirements "Requirements Document"
+-# @subpage design "Design Document"
+
+*/
+

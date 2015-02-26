@@ -1,0 +1,19 @@
+#include "S_default.dat" 
+#include "Modified_data/test3_A.dr"
+#include "Modified_data/realtime.d"
+
+// *****************************************************
+// Start the simulation in freeze mode.
+// *****************************************************
+sys.exec.in.enable_freeze = Yes ;
+sys.exec.work.freeze_command = Yes ;
+
+// *****************************************************
+// Use the sim_control panel
+// *****************************************************
+sys.exec.sim_com.monitor_on = Yes;
+
+// *****************************************************
+// Stop the simulation after 30 seconds.
+// *****************************************************
+stop = 30;

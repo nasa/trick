@@ -1,0 +1,38 @@
+/**************************TRICK HEADER***********************
+PURPOSE: ( S_define )
+LIBRARY DEPENDENCIES:
+(
+     (test/varserv/src/VS.cpp)
+	 (test/varserv/src/VS_init.cpp)
+	 (test/varserv/src/VS_default_data.cpp)
+	 (test/varserv/src/VS_commands.cpp)
+	 (test/varserv/src/VS_tests.cpp)
+	 (test/varserv/src/VS_shutdown.cpp)
+)
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "test/varserv/include/VS.hh"
+
+class testSimObject : public Trick::SimObject {
+	public:
+		VSTest vst;
+
+		testSimObject() {
+			("default_data") vst.default_vars();
+			("initialization") vst.init();
+			("initialization") vst.testAddRemove();
+			("initialization") vst.testExists();
+			("initialization") vst.testPause();
+			("initialization") vst.testOther();	
+			//(1.0, "scheduled") trick_ret = vst.testing();
+
+			("shutdown") vst.shutdown();
+		}
+};
+
+// Instantiations
+testSimObject vsx;
+
+

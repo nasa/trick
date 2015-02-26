@@ -1,0 +1,59 @@
+#! /usr/bin/perl
+
+#
+# Usage: mis_dep <src file>
+#
+# Description: Given a source file, this program will find all library
+#              dependencies that this source file's object will depend on.
+#              The dependency tree is built using the library dependencies
+#              from the TRICK HEADERs in the source files.  TRICK_CFLAGS
+#              are used to actually find all files in the dependency tree.
+
+# $Id: mis_dep 49 2009-02-02 22:37:59Z lin $
+
+use lib $ENV{"TRICK_HOME"} . "/bin/pm" ;
+use Cwd ;
+use File::Basename ;
+use strict ;
+use mis_dep ;
+
+my ($all_mis_depends, %rcs_tags) ;
+my ($k , $a) ;
+my @all_depends ;
+my %temp_hash ;
+my $wd ;
+
+# prepend current dir name if none given 
+$wd = cwd() ;
+foreach (@ARGV) {
+    $_ = $wd . "/" . $_  if ( !/^\// ) ;
+}
+
+$all_mis_depends = mis_dep(\%rcs_tags , @ARGV) ;
+
+print "\n" ;
+foreach $a ( sort keys %$all_mis_depends ) {
+    traverse_tree($a, 0, %{$$all_mis_depends{$a}} );
+    print "\n" ;
+}
+
+foreach $a ( sort keys %$all_mis_depends ) {
+
+    print "[32m$a[00m\n";
+    @all_depends = () ;
+
+    # push all depends for all files onto one array 
+    foreach $k ( sort keys %{$$all_mis_depends{$a}} ) {
+        if ( $k ne "last_look" ) {
+            push @all_depends , @{$$all_mis_depends{$a}{$k}} ;
+        }
+    }
+
+    # remove duplicate elements
+    %temp_hash = {};
+    @all_depends = grep ++$temp_hash{$_} < 2, @all_depends ;
+
+    foreach $k ( sort @all_depends ) {
+        print "[33m   $k[00m\n";
+    }
+}

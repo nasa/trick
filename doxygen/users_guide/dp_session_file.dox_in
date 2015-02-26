@@ -1,0 +1,130 @@
+/**
+@anchor DPSessionFileFormat
+
+@page LEVEL2 DP Session File Format 
+
+
+Since Trick 10, the DP Session file is changed to XML format. The Session XML Document 
+Type Definitions(DTD) is defined as following:
+
+@see @ref DataProducts "Data Products"
+
+<center>@anchor session_dtd @b Session.dtd</center>
+
+@verbatim
+
+<!-- Trick DP Session definition -->
+<!-- V 1.0 -->
+
+<!ELEMENT tstart        (#PCDATA)>
+<!ELEMENT tstop         (#PCDATA)>
+<!ELEMENT frequency     (#PCDATA)>
+<!ELEMENT file          (#PCDATA)>
+<!ELEMENT dir           (#PCDATA)>
+<!ELEMENT timename      (#PCDATA)>
+<!ELEMENT run           (dir)>
+<!ELEMENT product_files (file+)>
+<!ELEMENT session       ((tstart|tstop|frequency)*, run+, product_files)>
+
+<!ATTLIST run timename              CDATA #IMPLIED>
+
+<!ATTLIST session version           CDATA #REQUIRED>
+
+<!-- session@presentation attribute
+     
+     "simple"     - One curve per plot. #plots = #runs x #plot_specifications
+     "comparison" - Multiple runs per plot. 
+     "delta"      - difference of two runs.
+     "contrast"   - some weird thing Danny dreamed up.
+-->
+<!ATTLIST session presentation      CDATA #REQUIRED>
+
+<!-- session@mode attribute
+     Indicates a restriction on what in a DP file.
+
+     "plot"   - means that only the plots described in a DP file may be created.
+     "table"  - means that only tables described in a DP file may be created.
+      default - all plots and tables in the DP may be created.
+-->
+<!ATTLIST session mode              CDATA #IMPLIED>
+
+<!ATTLIST session device            CDATA #IMPLIED>
+<!ATTLIST session gnuplot_terminal  CDATA #IMPLIED>
+<!ATTLIST session machine           CDATA #IMPLIED>
+<!ATTLIST session port              CDATA #IMPLIED>
+@endverbatim\n
+
+
+The <b>@c session</b> element is required and is the root element of the Session XML file. 
+It encloses all the other elements.
+
+The optional <b>@c tstart, @c tstop</b> child elements of <b>@c session</b> specify the data 
+within this range gets plotted. 
+
+The optional <b>@c frequency </b> child element of <b>@c session</b> specifies the delta time 
+between data points for display purposes. If it is smaller than the delta time of the recorded data 
+or if it is not defined, then the recorded data frequency is used. If it is greater than the recorded 
+data delta time, then it is used. It is specified in seconds.
+
+The required <b>@c run</b> child element of @c session can occur once or more times. 
+It specifies a simulation RUN_ directory as <b>@c dir</b> stated from which to retrieve data.
+
+By default, the time name for each run is @c sys.exec.out.time, however, an optional attribute of each 
+<b>@c run - @c timename</b> can be specified if a different name other than 
+the default one is desired.
+
+The required <b>@c product_files</b>  child element of <b>@c session</b> can only occur once. 
+It specifies product specification file(s) to use for this session. Any number (but at least one) 
+of product specification files may be specified through its <b>@c file</b> element. In other words, 
+it can have one or more <b>@c file</b>  elements. In general the product specification files specify 
+the type of product parameters to display for the product, and the display attributes for each parameter. 
+Product specification files are discussed in greater detail in Section @ref DPProductFileFormat "6.2 DP Product File Format".
+
+The required <b>@c version</b> attribute of <b>@c session</b> specifies the version of this file.
+
+The required <b>@c presentation</b>  attribute of <b>@c session</b> is only useful when more than 
+one data set is specified. It can be <b>@c Simple|Comparison|Delta|Contrast</b>. The <b>@c Simple</b>  
+option will display the data products independently for all data sets specified. The <b>@c Comparison</b> option 
+will display the data from all data sets in the same display. The <b>@c Delta</b> option subtracts 
+the nth data set data from the first data set data and presents the result for data sets 2 through n in 
+the same display. <b>@c Simple</b> is the default option.
+
+@anchor session_device The <b>@c device</b> attribute of <b>@c session</b> specifies the visualization device 
+for data output. By default, the output data is displayed on the user's current login terminal screen. 
+Device types are currently <b>@c Terminal (default), @c Printer, and @c File</b>.
+@li In order for Printer to work, you need to set your system variables as stated in @ref DPPlotPrinting "6.3 Plot Printing".
+
+The <b>@c gnuplot_terminal</b> attribute of <b>@c session</b> instructs gnuplot to use the given 
+terminal device for output. The terminals supported are <b>@c X11, @c postscript @c color, @c postscript, @c png, @c eps, and @c aqua
+(@c X11 is the default)</b>. The “postscript” terminal yields black-n-white printable files. The @c png will create 
+an image in Portable Network Graphics format. The @c aqua terminal is for Macintosh and uses native Aqua for plot display.
+
+The optional <b>@c machine, @c port</b> attributes of <b>@c session</b> specify the name of a machine and the port
+number for plotting.
+
+
+@section LEVEL3 DP Session File Example
+
+@verbatim
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<!DOCTYPE session PUBLIC "-//Tricklab//DTD Session V1.0//EN" "Session.dtd">
+<session device="Terminal" gnuplot_terminal="" mode="Plot" presentation="Simple" version="1.0">
+    <tstart>-1.0E20</tstart>
+    <tstop>1.0E20</tstop>
+    <frequency>0.0</frequency>
+    <run>
+        <dir>/users/hchen/trick_sims/trunk/SIM_Ball++_L1/RUN_realtime</dir>
+    </run>
+    <run>
+        <dir>/users/hchen/trick_sims/trunk/SIM_Ball++_L1/RUN_test</dir>
+    </run>
+    <product_files>
+        <file>/users/hchen/trick_sims/trunk/SIM_Ball++_L1/DP_Product/DP_test_4.xml</file>
+        <file>/users/hchen/trick_sims/trunk/SIM_Ball++_L1/DP_Product/DP_test_5.xml</file>
+    </product_files>
+</session>
+@endverbatim
+
+@see @ref session_dtd "Session.dtd"
+
+*/

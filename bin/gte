@@ -1,0 +1,11 @@
+#!/usr/bin/perl
+
+# $Id: gte 3590 2014-06-26 21:14:38Z alin $
+
+use FindBin qw($RealBin);
+use lib "$RealBin/pm" ;
+use gte ;
+use strict ;
+
+print gte(@ARGV) ;
+

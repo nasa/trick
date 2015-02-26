@@ -1,0 +1,73 @@
+/*
+  This sim object replaces the default trick_sys sim_object.  It replaces the
+  Trick::Executive or Trick::MonteCarlo object named sched to a SegmentedExecutive.
+  The object is copied from default_trick_sys.sm and the user should pull in
+  any changes to the trick_sys object.
+
+  All of the jobs are the same as the default executive with one addition, the
+  top_of_frame job sched.segment_switch.
+*/
+
+#ifndef _SEGMENTEDEXECUTIVE_SM_
+#define _SEGMENTEDEXECUTIVE_SM_
+
+##include "SegmentedExecutive/include/Segment.hh"
+##include "SegmentedExecutive/include/SegmentedExecutive.hh"
+
+/* Segmented Executive */
+class SysSimObject : public Trick::SimObject {
+
+    public:
+        // Use our segment aware executive!
+        Trick::SegmentedExecutive sched ;
+        Trick::Environment env ;
+
+        SysSimObject() {
+
+            {TRK} P0 ("default_data") sched.process_sim_args() ;
+
+            {TRK} ("default_data") sched.get_freeze_job(name + ".sched") ;
+            {TRK} P65534 ("initialization") exec_collect_init() ;
+            {TRK} P65534 ("initialization") sched.write_s_job_execution(NULL) ;
+            {TRK} P65534 ("initialization") sched.write_s_run_summary(NULL) ;
+            {TRK} P65535 ("initialization") sched.check_all_jobs_handled() ;
+            {TRK} P65535 ("initialization") sched.check_all_job_cycle_times() ;
+            {TRK} P65535 ("initialization") sched.create_threads() ;
+            {TRK} P65535 ("initialization") sched.async_freeze_to_exec_command() ;
+
+            // This is an additional job when using a segmented executive
+            {TRK} P65535 ("initialization") sched.gather_segmented_jobs() ;
+
+            {TRK} P0 ("checkpoint") sched.checkpoint() ;
+            {TRK} P0 ("post_checkpoint") sched.post_checkpoint() ;
+            {TRK} P0 ("restart") sched.restart() ;
+
+#ifndef TRICK_NO_DMTCP
+            {TRK} ("dmtcp_restart") sched.write_s_job_execution(NULL) ;
+            {TRK} ("dmtcp_restart") sched.write_s_run_summary(NULL) ;
+#endif
+
+            // This is an additional job when using a segmentd executive
+            {TRK} ("top_of_frame") sched.segment_switch() ;
+
+            {TRK} ("system_moding") sched.sched_freeze_to_exec_command(false) ;
+            {TRK} ("end_of_frame") sched.sched_freeze_to_exec_command(true) ;
+            {TRK} ("end_of_frame") sched.async_freeze_to_exec_command() ;
+
+            ("freeze_init") sched.init_freeze_scheduled() ;
+
+            // required job to advance sim time
+            {TRK} ("system_advance_sim_time") sched.advance_sim_time() ;
+        }
+
+    private:
+        // This object is not copyable
+        void operator =(const SysSimObject &) {};
+}
+
+SysSimObject trick_sys ;
+
+// define TRICK_NO_EXECUTIVE to exclude the default trick_sys object in default_sim_objects.sm
+#define TRICK_NO_EXECUTIVE
+
+#endif

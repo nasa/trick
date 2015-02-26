@@ -1,0 +1,101 @@
+
+# $Id: makefile.stand_alone 1897 2011-08-29 21:06:19Z wwoodard $
+
+#
+# This makefile is used to build trick utils standalone.
+# That is, without Trick.
+#
+
+TRICK_HOST_CPU := $(shell uname -s)
+
+CC = cc
+SRC_DIR = src/
+OBJ_DIR = object_${TRICK_HOST_CPU}
+COMM_LIB = $(OBJ_DIR)/libtrick_comm.a
+ERR_LIB = $(OBJ_DIR)/libtrick_err_hndlr.a
+STUBS_LIB = $(OBJ_DIR)/libtrick_stubs.a
+
+FLAGS = -g -I../include -D_REENTRANT -DSTAND_ALONE
+
+trick: start
+
+start: trick_comm
+	@ if [ -f "$(SRC_DIR)/trick_error_hndlr.c" ] ; then \
+         $(MAKE) trick_error_hndlr_lib ; \
+      fi
+	@ if [ -f "$(SRC_DIR)/stubs.c" ] ; then \
+         $(MAKE) trick_stubs_lib ; \
+      fi
+	@ echo "[32mcomm libraries are up to date[00m"
+
+trick_comm: $(COMM_LIB)
+
+trick_error_hndlr_lib: $(ERR_LIB)
+
+trick_stubs_lib: $(STUBS_LIB)
+
+real_clean: clean
+
+clean:
+	/bin/rm -rf $(OBJ_DIR)
+
+#=======================================================================
+# COMM
+
+SRC_DIR = src
+
+COMM_OBJECTS =  \
+	$(OBJ_DIR)/tc_accept.o \
+	$(OBJ_DIR)/tc_blockio.o \
+	$(OBJ_DIR)/tc_broadcast_conninfo.o \
+	$(OBJ_DIR)/tc_clock_init.o \
+	$(OBJ_DIR)/tc_clock_time.o \
+	$(OBJ_DIR)/tc_connect.o \
+	$(OBJ_DIR)/tc_dev_copy.o \
+	$(OBJ_DIR)/tc_disconnect.o \
+	$(OBJ_DIR)/tc_error.o \
+	$(OBJ_DIR)/tc_init.o \
+	$(OBJ_DIR)/tc_isValid.o \
+	$(OBJ_DIR)/tc_listen.o \
+	$(OBJ_DIR)/tc_multiconnect.o \
+	$(OBJ_DIR)/tc_pending.o \
+	$(OBJ_DIR)/tc_read.o \
+	$(OBJ_DIR)/tc_read_byteswap.o \
+	$(OBJ_DIR)/tc_set_blockio.o \
+	$(OBJ_DIR)/tc_write_byteswap.o \
+	$(OBJ_DIR)/tc_write.o \
+	$(OBJ_DIR)/tc_init_mcast_client.o \
+	$(OBJ_DIR)/tc_init_mcast_server.o \
+	$(OBJ_DIR)/tc_init_udp_client.o \
+	$(OBJ_DIR)/tc_init_udp_server.o \
+	$(OBJ_DIR)/trick_bswap_buffer.o \
+	$(OBJ_DIR)/trick_byteswap.o \
+	$(OBJ_DIR)/trick_error_hndlr.o
+
+$(COMM_LIB) : $(COMM_OBJECTS)
+	ar cr $(COMM_LIB) $?
+	@ if [ "`uname -s`" = "Darwin" ] ; then \
+         echo ranlib $(COMM_LIB) ; \
+         ranlib $(COMM_LIB) ; \
+      fi
+
+$(ERR_LIB) : $(OBJ_DIR)/trick_error_hndlr.o
+	ar cr $(ERR_LIB) $?
+	@ if [ "`uname -s`" = "Darwin" ] ; then \
+         echo ranlib $(ERR_LIB) ; \
+         ranlib $(ERR_LIB) ; \
+      fi
+
+$(STUBS_LIB) : $(OBJ_DIR)/stubs.o
+	ar cr $(STUBS_LIB) $?
+	@ if [ "`uname -s`" = "Darwin" ] ; then \
+         echo ranlib $(STUBS_LIB) ; \
+         ranlib $(STUBS_LIB) ; \
+      fi
+
+$(OBJ_DIR) :
+	mkdir -p $(OBJ_DIR)
+
+$(COMM_OBJECTS) $(OBJ_DIR)/stubs.o : $(OBJ_DIR)/%.o : $(SRC_DIR)/%.c | $(OBJ_DIR)
+	$(CC) $(FLAGS) -c $< -o $@
+

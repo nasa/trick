@@ -1,0 +1,27 @@
+#include "S_default.dat" 
+
+sys.exec.in.frame_log = Yes;
+
+sys.exec.in.rt_software_frame {s} = 1.0;
+sys.exec.in.rt_itimer = Yes;
+sys.exec.in.rt_itimer_pause = Yes;
+sys.exec.in.rt_itimer_frame {s} = 1.0;
+
+// Enable the sim control panel
+sys.exec.sim_com.monitor_on = Yes;
+
+// Start the simulation in freeze mode 
+sys.exec.in.enable_freeze = Yes;
+sys.exec.work.freeze_command = Yes;
+
+// Requirement 3.1.2.9.3
+sys.exec.in.pre_init_checkpoint = Yes;
+
+// Requirement 3.1.2.9.4
+sys.exec.in.post_init_checkpoint = Yes;
+
+// Requirement 3.1.2.9.5
+sys.exec.in.end_checkpoint = Yes;
+
+stop = 10.0;
+

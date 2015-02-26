@@ -1,0 +1,52 @@
+#!/usr/bin/perl
+
+# $Id: depend_cp 495 2010-01-15 00:57:37Z wwoodard $
+
+use Cwd 'abs_path' ;
+use File::Basename;
+use strict ;
+
+my $full_path ;
+my $dir ;
+my $dir_no_src ;
+my $file_base ;
+my $word ;
+my $cont ;
+
+#$full_path = abs_path(@ARGV[0]) ;
+$full_path = abs_path(dirname(@ARGV[0])) . "/" . basename(@ARGV[0]) ;
+
+$dir = dirname($full_path) ;
+($dir_no_src = $dir) =~ s/\/src$// ;
+
+$file_base = basename($full_path) ;
+$file_base =~ s/\.[^\.]+$// ; 
+
+open FILE, "$dir_no_src/object_$ENV{TRICK_HOST_CPU}/${file_base}.d" or die "Could not open $dir_no_src/object_$ENV{TRICK_HOST_CPU}/${file_base}.d" ;
+
+open OUTFILE, "> $dir_no_src/object_$ENV{TRICK_HOST_CPU}/${file_base}.dep" or die "Could not open $dir_no_src/object_$ENV{TRICK_HOST_CPU}/${file_base}.dep" ;
+
+while ( <FILE> ) {
+    next if ( /^#/ ) ;
+    next if ( /^\s+\\/ ) ;
+
+    $cont = 0 ;
+    foreach $word ( split ) {
+
+        if ( $word eq "\\" ) {
+            $word = "\\\n" ;
+            $cont = 1 ;
+        }
+        else {
+            if ( $word !~ /^\// and $dir ne "\/" ) {
+                $word = "$dir/$word" ;
+            }
+            $word = abs_path($word) ;
+        }
+        print OUTFILE "$word " ;
+    }
+    if ( $cont == 0 ) {
+        print OUTFILE "\n" ;
+    }
+}
+

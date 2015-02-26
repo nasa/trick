@@ -1,0 +1,57 @@
+/*
+ * $Id: S_define.integ 1003 2010-08-25 21:18:24Z dpanter $
+ */
+
+#include "sim_objects/default_trick_sys.sm"
+##include "cannon/integ/include/cannon.h"
+##include "cannon/integ/include/cannon_integ_proto.h"
+
+class CannonSimObject : public Trick::SimObject {
+
+    public:
+        CANNON      cannon ;
+
+        CannonSimObject() {
+            ("default_data") cannon_default_data( &cannon ) ;
+
+            ("initialization") cannon_init( &cannon ) ;
+
+            ("derivative") cannon_deriv( &cannon ) ;
+            ("integration") trick_ret = cannon_integ( &cannon ) ;
+        }
+} ;
+
+class Cannon1SimObject : public Trick::SimObject {
+
+    public:
+        CANNON      cannon1 ;
+        Trick::JobData *dyn_ptr;
+
+        Cannon1SimObject() {
+            ("derivative") cannon_deriv2( &cannon1 ) ;
+
+        }
+} ;  
+
+class Cannon2SimObject : public Trick::SimObject {
+
+    public:
+        CANNON      cannon2 ;
+
+        Cannon2SimObject() {
+            ("default_data") cannon_default_data( &cannon2 ) ;
+
+            ("initialization") cannon_init( &cannon2 ) ;
+
+            ("integration") trick_ret = cannon_integ2( &cannon2 ) ;
+
+        }
+} ;  
+
+// Instantiations
+CannonSimObject dyn ;
+Cannon1SimObject dyn1 ;
+Cannon2SimObject dyn2 ;
+IntegLoop dyn_integloop (0.5) dyn;
+IntegLoop dyn1_integloop (2.0) dyn1, dyn2;
+

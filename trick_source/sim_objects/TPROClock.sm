@@ -1,0 +1,20 @@
+
+/*
+ * $Id:$
+ */
+
+#ifndef __TPROCLOCK_SM__
+#define __TPROCLOCK_SM__
+
+##include "sim_services/Clock/include/TPROCTEClock.hh"
+
+class TPROSimObject : public Trick::SimObject {
+    public:
+        Trick::TPROCTEClock tpro_cte ;
+        TPROSimObject() { }
+}
+
+TPROSimObject trick_tpro ;
+
+#endif
+

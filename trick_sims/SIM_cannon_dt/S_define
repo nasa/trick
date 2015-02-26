@@ -1,0 +1,38 @@
+/*
+ * $Id: S_define.dt 1003 2010-08-25 21:18:24Z dpanter $ 
+ */
+
+/************************TRICK HEADER*************************
+PURPOSE:
+    (This S_define is used with the RUN_dt input file)
+LIBRARY_DEPENDENCY:
+    (
+     (cannon/gravity/src/cannon_dt.c)
+     (cannon/gravity/src/cannon_init.c)
+     (cannon/gravity/src/cannon_default_data.c)
+    )
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+
+##include "cannon/gravity/include/cannon.h"
+##include "cannon/gravity/include/cannon_dt_proto.h"
+
+class CannonSimObject : public Trick::SimObject {
+
+    public:
+        CANNON      cannon ;
+
+        CannonSimObject() {
+            ("default_data") cannon_default_data( &cannon ) ;
+
+            ("initialization") cannon_init( &cannon ) ;
+
+            (0.01, "scheduled") cannon_dt( &cannon ) ;
+        }
+
+} ;
+
+// Instantiations
+CannonSimObject dyn ;

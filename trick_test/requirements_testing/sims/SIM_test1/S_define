@@ -1,0 +1,19 @@
+sim_object {
+	sim_services/include: EXECUTIVE exec (sim_services/include/executive.d);
+
+	(automatic) sim_services/input_processor:
+		input_processor(INPUT_PROCESSOR* IP = &sys.exec.ip);
+} sys;
+
+sim_object {
+	test1: TEST1 test1 (test1/include/test1.d);
+
+	(initialization) test1:
+		test1_init(TEST1* T = &dyn.test1);
+
+	(1.00, scheduled) test1:
+		test1_cyclic(TEST1* T = &dyn.test1);
+
+	(shutdown) test1:
+		test1_shutdown(TEST1* T = &dyn.test1);
+} dyn;

@@ -1,0 +1,138 @@
+/*
+ * $Id: S_define 2553 2012-08-30 22:00:40Z alin $
+ */
+
+/************************TRICK HEADER*************************
+PURPOSE:
+    (This is an example of how to replace the default executive
+     with one that understands sim segments)
+LIBRARY DEPENDENCIES:
+    (
+    )
+*************************************************************/
+
+// Include the experimental Segmented Executive.  Must be included before default_trick_sys.sm
+#include "sim_objects/SegmentedExecutive.sm"
+#include "sim_objects/default_trick_sys.sm"
+
+##include "Ball++/L1/include/Ball.hh"
+
+/**
+  This class is the base ball class
+ */
+class ballSimObject : public Trick::SimObject {
+
+    public:
+        /** The actual ball object */
+        Ball obj ;
+
+        /** Constructor to add the jobs */
+        ballSimObject() {
+            ("default_data") obj.force.default_data() ;
+            ("default_data") obj.state.default_data() ;
+
+            ("initialization") obj.state_init() ;
+
+            ("derivative") obj.force_field() ;
+            ("derivative") obj.state_deriv() ;
+            ("integration") trick_ret = obj.state_integ() ;
+            ("post_integration") print_me() ;
+
+            {BLUE} (10.0, "scheduled") trick_ret = obj.state_print() ;
+            {BLUE} (1.0, "freeze_scheduled") trick_ret = obj.state_print() ;
+
+            ("shutdown") obj.shutdown() ;
+        }
+
+        int print_me() {
+            message_publish(MSG_NORMAL, "integration run\n") ;
+            return 0 ;
+        }
+
+} ;
+
+// Instantiations
+ballSimObject ball ;
+
+collect ball.obj.state.work.external_force = {ball.obj.force.output.force[0]};
+IntegLoopSimObject my_integ_loop(0.01, &ball, (void *)NULL);
+
+class fswSimObject : public Trick::SimObject {
+
+    public:
+        fswSimObject() {
+            (0.1 , "scheduled") scheduled_1() ;
+            (0.1 , "scheduled") scheduled_2() ;
+        }
+
+        int scheduled_1() {
+            message_publish(MSG_NORMAL, "running %s\n" , __func__ ) ;
+            return 0 ;
+        }
+        int scheduled_2() {
+            message_publish(MSG_NORMAL, "running %s\n" , __func__ ) ;
+            return 0 ;
+        }
+} ;
+
+fswSimObject fsw ;
+
+// Includes a derived Segment class, SegmentA
+##include "SegmentedExecutive/include/ExampleSegments.hh"
+
+class segmentSimObject : public Trick::SimObject {
+
+    public:
+        Trick::Segment pn ;
+        SegmentA pa ;
+        SegmentB pb ;
+
+        segmentSimObject( Trick::SegmentedExecutive & sched , Trick::IntegLoopScheduler & integ_sched ) :
+         pn("None") ,
+         pa("A", "segment_a_enter", "segment_a_exit", integ_sched) ,
+         pb("B", "segment_b_enter", "segment_b_exit", integ_sched) {
+            /* Segments must be added to the executive during sim_object construction, not jobs */
+            sched.add_segment(&pn) ;
+            sched.add_segment(&pa) ;
+            sched.add_segment(&pb) ;
+
+            ("segment_a_enter") print_A_enter() ;
+            ("segment_a_exit") print_A_exit() ;
+            ("segment_b_enter") print_B_enter() ;
+        }
+
+        int print_A_enter() {
+            message_publish(MSG_NORMAL, "calling segment A enter job\n") ;
+            return 0 ;
+        }
+        int print_A_exit() {
+            message_publish(MSG_NORMAL, "calling segment A exit job\n") ;
+            return 0 ;
+        }
+        int print_B_enter() {
+            message_publish(MSG_NORMAL, "calling segment B enter job\n") ;
+            return 0 ;
+        }
+
+    private:
+        segmentSimObject &operator=(const segmentSimObject &);
+
+} ;
+
+segmentSimObject segments(trick_sys.sched, my_integ_loop.integ_sched) ;
+
+// Connect objects
+void create_connections() {
+
+    // Set the default termination time
+    exec_set_terminate_time(300.0) ;
+    trick_sys.sched.set_freeze_frame(0.10) ;
+
+    // Set a default integrator. This statement in create connections allows this
+    // sim to run without an input file.
+    my_integ_loop.getIntegrator(Runge_Kutta_2, 4);
+
+    fsw.add_tag("A") ;
+    fsw.add_tag_to_job("B", "scheduled_2") ;
+}
+

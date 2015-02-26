@@ -1,0 +1,127 @@
+/**
+@page users_guide Trick User's Guide
+
+@subpage u01 "1 Introduction"<br>
+
+@subpage u02 "2 Overview and Purpose of Functions"<br>
+
+@subpage u03 "3 Installing Trick"<br>
+
+@subpage u04 "4 Building a Simulation"<br>
+@subpage u0401 "4.1 Model Source Code"<br>
+@subpage u0402 "4.2 Trick Environment"<br>
+@subpage u0403 "4.3 Simulation Definition File (S_define)"<br>
+@subpage u0404 "4.4 Making the Simulation"<br>
+
+@subpage u05 "5 Running a Simulation (S_main_${TRICK_HOST_CPU}.exe)"<br>
+@subpage u0501 "5.1 Input File"<br>
+@subpage u0502 "5.2 Runtime GUIs"<br>
+@subpage u0503 "5.3 Runtime Output"<br>
+
+@subpage u06   "6 Data Products (DP)"<br>
+@subpage u0601 "6.1 DP Session File Format"<br>
+@subpage u0602 "6.2 DP Product File Format"<br>
+@subpage u0603 "6.3 Plot Printing"<br>
+@subpage u0604 "6.4 Data Products GUIs"<br>
+
+@subpage u07   "7 Simulation Capabilities"<br>
+@subpage u0701 "7.1 Executive Scheduler"<br>
+@subpage u0702 "7.2 Input Processor"<br>
+@subpage u0703 "7.3 Event Manager"<br>
+@subpage u0704 "7.4 Real-time"<br>
+@subpage u0705 "7.5 Real-time Clock"<br>
+@subpage u0706 "7.6 Real-time Sleep Timer"<br>
+@subpage u0707 "7.7 Real-time Injector"<br>
+@subpage u0708 "7.8 Monte Carlo"<br>
+@subpage u0709 "7.9 Master Slave"<br>
+@subpage u0710 "7.10 Data Record"<br>
+@subpage u0711 "7.11 Checkpoints"<br>
+@subpage u0712 "7.12 MemoryManager"<br>
+@subpage u0713 "7.13 Integrator"<br>
+@subpage u0714 "7.14 Frame Logging"<br>
+@subpage u0715 "7.15 Debug Pause"<br>
+@subpage u0716 "7.16 Echo Jobs"<br>
+@subpage u0717 "7.17 Variable Server"<br>
+@subpage u0718 "7.18 Status Message System"<br>
+@subpage u0719 "7.19 Command Line Arguments"<br>
+@subpage u0720 "7.20 Environment (Unix Shell)"<br>
+@subpage u0721 "7.21 Standard Template Library checkpointing"<br>
+
+@subpage u08   "8 Simulation Utilities"<br>
+@subpage u0801 "8.1 Trickcomm"<br>
+@subpage u0802 "8.2 Units Conversion"<br>
+@subpage u0803 "8.3 Math Utilities"<br>
+@subpage u0804 "8.4 Abstract Data Types"<br>
+
+@subpage u09 "9 Miscellaneous Trick Tools"<br>
+
+@subpage u10 "10 Converting From Trick 7 To Trick 10"<br>
+
+*/
+
+// section 1
+#include "introduction.dox_in"
+
+// section 2
+#include "overview.dox_in"
+
+// section 3
+#include "installing_trick.dox_in"
+
+// section 4
+#include "building_simulation.dox_in"
+#include "model_source_code.dox_in"
+#include "trick_env.dox_in"
+#include "S_define.dox_in"
+#include "CP.dox_in"
+
+// section 5
+#include "S_main.dox_in"
+#include "input_file.dox_in"
+#include "sim_services/ExternalApplications/main_page.dox_in"
+#include "runtime_output.dox_in"
+
+// section 6
+#include "data_products.dox_in"
+#include "dp_session_file.dox_in"
+#include "dp_product_file.dox_in"
+#include "dp_printing.dox_in"
+#include "dp_guis.dox_in"
+
+// section 7
+#include "simulation_capabilities.dox_in"
+#include "sim_services/Executive/main_page.dox_in"
+#include "sim_services/InputProcessor/main_page.dox_in"
+#include "sim_services/EventManager/main_page.dox_in"
+#include "sim_services/RealtimeSync/main_page.dox_in"
+#include "sim_services/Clock/main_page.dox_in"
+#include "sim_services/Timer/main_page.dox_in"
+#include "sim_services/RealtimeInjector/main_page.dox_in"
+#include "sim_services/MonteCarlo/main_page.dox_in"
+#include "sim_services/MasterSlave/main_page.dox_in"
+#include "sim_services/DataRecord/main_page.dox_in"
+#include "sim_services/MemoryManagerWrapper/main_page.dox_in"
+#include "sim_services/MemoryManager/main_page.dox_in"
+#include "sim_services/Integrator/main_page.dox_in"
+#include "sim_services/FrameLog/main_page.dox_in"
+#include "sim_services/DebugPause/main_page.dox_in"
+#include "sim_services/EchoJobs/main_page.dox_in"
+#include "sim_services/VariableServer/main_page.dox_in"
+#include "sim_services/Message/main_page.dox_in"
+#include "sim_services/CommandLineArguments/main_page.dox_in"
+#include "sim_services/Environment/main_page.dox_in"
+#include "sim_services/STL/main_page.dox_in"
+
+// section 8
+#include "simulation_utilities.dox_in"
+#include "trick_utils/comm/main_page.dox_in"
+#include "trick_utils/units/main_page.dox_in"
+#include "trick_utils/math/main_page.dox_in"
+#include "trick_utils/trick_adt/main_page.dox_in"
+
+// section 9
+#include "misc_utils.dox_in"
+
+// section 10
+#include "appendix_a.dox_in"
+

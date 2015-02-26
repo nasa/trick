@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="trick.tv"
+           xmlns="trick.tv"
+           elementFormDefault="qualified">
+
+        <xs:complexType name="bounds">
+            <xs:sequence>
+
+                <xs:element name="lower">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:decimal" />
+                    </xs:simpleType>
+                </xs:element>
+
+                <xs:element name="upper">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:decimal" />
+                    </xs:simpleType>
+                </xs:element>
+
+            </xs:sequence>
+        </xs:complexType>
+
+    <!-- The root element, representing an instance of Trick View. -->
+    <xs:element name="trickview">
+        <xs:complexType>
+            <xs:sequence>
+
+                <!-- Determines if variables are automatically set when loaded. -->
+                <xs:element name="set" type="xs:boolean" minOccurs="0"/>
+
+                <!-- Period at which variables are updated. -->
+                <xs:element name="cycle" minOccurs="0">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:decimal">
+                            <xs:minInclusive value="0"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+
+                <!-- Represents a single variable in the Variable Table. -->
+                <xs:element name="variable" minOccurs="0" maxOccurs="unbounded"> 
+                    <xs:complexType>
+                        <xs:sequence>
+
+                            <xs:element name="name" type="xs:string"/>
+
+                            <xs:element name="value" type="xs:string"/>
+
+                            <xs:element name="units" type="xs:string"/>
+
+                            <xs:element name="format">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                        <xs:enumeration value="Decimal"/>
+                                        <xs:enumeration value="Octal"/>
+                                        <xs:enumeration value="Hexidecimal"/>
+                                        <xs:enumeration value="Boolean"/>
+                                        <xs:enumeration value="Enumeration"/>
+                                        <xs:enumeration value="String"/>
+                                        <xs:enumeration value="Character"/>
+                                        <xs:enumeration value="Unknown"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+
+                            <xs:element name="type">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                        <xs:enumeration value="FIXED"/>
+                                        <xs:enumeration value="FLOATING"/>
+                                        <xs:enumeration value="CHARACTER"/>
+                                        <xs:enumeration value="STRING"/>
+                                        <xs:enumeration value="BOOLEAN"/>
+                                        <xs:enumeration value="ENUMERATION"/>
+                                        <xs:enumeration value="UNKNOWN"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+
+                            <xs:element name="enumeration" type="xs:string" minOccurs="0"/>
+
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+
+                <!-- Represents a Stripchart's state. -->
+                <xs:element name="stripchart" minOccurs="0" maxOccurs="unbounded"> 
+                    <xs:complexType>
+                        <xs:sequence>
+
+                            <xs:element name="title" type="xs:string"/>
+
+                            <xs:element name="dependentVariable" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+
+                            <xs:element name="domainVariable" type="xs:string"/>
+
+                            <xs:element name="mode">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                        <xs:enumeration value="ALL"/>
+                                        <xs:enumeration value="STRIP"/>
+                                        <xs:enumeration value="FIXED"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+
+                            <xs:element name="axes" minOccurs="0">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="domain" type="bounds"/>
+                                        <xs:element name="range" type="bounds"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+
+                            <xs:element name="scrollWidth">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:decimal">
+                                        <xs:minInclusive value="0"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+
+                            <xs:element name="lines" type="xs:boolean"/>
+
+                            <xs:element name="points" type="xs:boolean"/>
+
+                            <xs:element name="legend" type="xs:boolean"/>
+
+                            <xs:element name="bounds" minOccurs="0">
+                                <xs:complexType>
+                                    <xs:sequence>
+
+                                        <xs:element name="x">
+                                            <xs:simpleType>
+                                                <xs:restriction base="xs:decimal" />
+                                            </xs:simpleType>
+                                        </xs:element>
+
+                                        <xs:element name="y">
+                                            <xs:simpleType>
+                                                <xs:restriction base="xs:decimal" />
+                                            </xs:simpleType>
+                                        </xs:element>
+
+                                        <xs:element name="width">
+                                            <xs:simpleType>
+                                                <xs:restriction base="xs:decimal">
+                                                    <xs:minInclusive value="0"/>
+                                                </xs:restriction>
+                                            </xs:simpleType>
+                                        </xs:element>
+
+                                        <xs:element name="height">
+                                            <xs:simpleType>
+                                                <xs:restriction base="xs:decimal">
+                                                    <xs:minInclusive value="0"/>
+                                                </xs:restriction>
+                                            </xs:simpleType>
+                                        </xs:element>
+
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

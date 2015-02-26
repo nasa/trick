@@ -1,0 +1,39 @@
+/**
+ @page placement_new_init Initializing MemoryManager Objects With placement new Operator
+ 
+In C++, there are actually three versions of the new operator.
+
+The first version (and the most commonly used) is used to 1) allocate a new
+object and then 2) initialize that object. This version allocates memory for
+the specified type, to its right and then calls either a default constructor or
+a non-default constructor to initialize the object. If the allocation fails,
+new throws a BAD_ALLOC exception.
+
+\attention Constructors do not allocate memory. They only initialize memory.
+
+Example:
+\code
+BAR *B = new BAR;
+\endcode
+The second version is very similar to the first except that it returns NULL on
+an allocation failure rather than throwing an exception.
+
+Example:
+\code
+BAR *B = new(nothrow) BAR;
+\endcode
+
+The third version (called "placement new") DOES NOT allocate memory. It only
+performs initialization of an object to which it is given a pointer, by calling
+a specified constructor.
+
+Using this third version of new, we can initialize MemoryManager allocated
+objects with non-default constructors. Note that the MemoryManager always calls
+the default constructor when allocating a C++ class object.
+
+Example:
+\code
+BAR *D = (BAR*)trick_MM.declare_var("BAR mydbl");
+D = new (D) BAR(a, b);
+\endcode
+*/

@@ -1,0 +1,67 @@
+
+# $Id: makefile.stand_alone 1771 2011-07-14 13:53:25Z wwoodard $
+
+#
+# This makefile is used to build trick utils standalone.
+# That is, without Trick.
+#
+
+TRICK_HOST_CPU := $(shell uname -s)
+
+CC = cc
+CPP = c++
+
+UNITS_INC_DIR = include
+
+OBJ_DIR   = object_${TRICK_HOST_CPU}
+UNITS_LIB  = $(OBJ_DIR)/libtrick_units.a
+
+FLAGS = -g -I../include -D_REENTRANT -DSTAND_ALONE
+CFLAGS = ${FLAGS} -I./include
+CPPFLAGS = ${FLAGS} -I./include
+
+trick: start
+
+start: $(UNITS_LIB)
+	@ echo "[32m$(UNITS_LIB) is up to date[00m"
+
+real_clean: clean
+
+clean:
+	/bin/rm -rf $(OBJ_DIR)
+
+#=======================================================================
+# UNITS
+
+SRC_DIR = src
+
+UNITS_OBJECTS = $(OBJ_DIR)/units_conv.o \
+    $(OBJ_DIR)/UCFn.o \
+    $(OBJ_DIR)/Unit.o
+
+$(UNITS_LIB): $(UNITS_OBJECTS)
+	ar cr $(UNITS_LIB) $?
+	@ if [ "${TRICK_RANLIB}" != "" ] ; then \
+         echo ${TRICK_RANLIB} $(UNITS_LIB) ; \
+         ${TRICK_RANLIB} $(UNITS_LIB) ; \
+      fi
+
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
+
+$(OBJ_DIR)/units_conv.o: ${SRC_DIR}/units_conv.c | $(OBJ_DIR)
+	$(CC) ${CFLAGS} -c src/units_conv.c -o $@
+
+$(OBJ_DIR)/UCFn.o: ${SRC_DIR}/UCFn.cpp | $(OBJ_DIR)
+	$(CPP) ${CPPFLAGS} -c src/UCFn.cpp -o $@
+
+$(OBJ_DIR)/Unit.o: ${SRC_DIR}/Unit.cpp | $(OBJ_DIR)
+	$(CPP) ${CPPFLAGS} -c src/Unit.cpp -o $@
+
+#----------------------------
+# Header Dependencies
+
+$(OBJ_DIR)/UCFn.o:       ${UNITS_INC_DIR}/UCFn.hh
+$(OBJ_DIR)/Unit.o:       ${UNITS_INC_DIR}/Unit.hh ${UNITS_INC_DIR}/units_conv.h
+$(OBJ_DIR)/units_conv.o: ${UNITS_INC_DIR}/units_conv.h
+

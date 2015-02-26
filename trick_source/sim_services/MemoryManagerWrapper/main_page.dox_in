@@ -1,0 +1,122 @@
+
+/**
+@page LEVEL2 Checkpoints (Trick Memory Manager Wrapper)
+
+The MemoryManagerWrapper class coordinates checkpoint operations within a Trick simulation.
+When a Trick simulation performs a checkpoint, both the Executive and the MemoryManager have
+responsibilities.  The Executive must execute the "checkpoint" and "post-checkpoint" jobs. The
+MemoryManager must dump a representation of the memory state to a file.  The MemoryManagerWrapper
+ensures harmony by initiating each of these checkpoint operations at the appropriate time.
+
+When the user turns on the Trick checkpointing feature using one of the @ref chk_routines "User accessible routines" below, Trick will drop a simulation state image checkpoint file which
+represents the state of the simulation at a certain point in time. This is an ASCII file with the values of every @e checkpointable
+simulation structure / class variable (see @ref chk_data "Checkpointable data" below). Checkpoint files may be used
+for debugging purposes or to re-initialize the simulation to a state other than the initial simulation state.
+
+Checkpoint files are output to the simulation RUN directory.
+
+@section LEVEL3 User accessible routines
+@anchor chk_routines
+
+@li int @link Trick::MemoryManagerWrapper::checkpoint(std::string,bool,std::string) checkpoint() ; @endlink
+@li int @link Trick::MemoryManagerWrapper::checkpoint(double) checkpoint( double in_time ) ; @endlink
+@li int checkpoint( const char * file_name ) ;
+@li int checkpoint_cpu( int in_cpu_num ) ;
+@li int checkpoint_end(int yes_no) ;
+@li const char * @link Trick::MemoryManagerWrapper::get_output_file checkpoint_get_output_file() ; @endlink
+@li int checkpoint_objects( const char * file_name, const char * objects ) ;
+@li int checkpoint_pre_init(int yes_no) ;
+@li int checkpoint_post_init(int yes_no) ;
+@li int checkpoint_safestore( double in_time ) ;
+@li int checkpoint_safestore_set_enabled(int yes_no) ;
+@li int load_checkpoint( const char * file_name ) ;
+
+@section LEVEL3 Checkpointable data
+@anchor chk_data
+First and foremost, a variable can only be checkpointable if it is in a header flie (.h/.hh) processed by ICG, which is automatically invoked when you CP your simulation.
+So your Trick header comment in the .h/.hh file must NOT have "ICG:(No)" specified. Also the variable's i/o specification
+(in the Trick comment beside the declare) must NOT be "**" or "*i".
+
+@section LEVEL4 C primitive data
+The following variables are checkpointable:
+@li any C primitive type (@e char, @e int, @e double, etc.)
+@li a pointer to a C primitive type that was allocated using Trick::MemoryManager
+@li any arrayed variable of the above types
+
+@section LEVEL4 C++ data
+In addition to C primitives, the C++ standard data types @e string and @e bool are also checkpointable.
+
+C++ Standard Template Library (STL) container types (@e vector, @e map, etc.) are inherently not checkpointable because the way that the C++ compiler stores them in memory is hidden.
+However, they can be checkpointed with a little help; the user simply must invoke Trick's CHECKPOINT_STL macro. (The macro will invoke Trick code behind the scenes
+that will create checkpoint/restart class jobs which essentially copy the specified STL data to/from a checkpointable array.) The following STL types can be checkpointed
+via CHECKPOINT_STL: @e deque, @e list, @e map, @e multimap, @e multiset, @e pair, @e priority_queue, @e queue, @e set, @e stack, @e vector.
+
+In the S_define file, the syntax to checkpoint an STL variable is:
+@code CHECKPOINT_STL(<stl_variable_name>) ; @endcode
+
+In the following example, the MyClass class contains a vector named my_double_vector:
+@code
+class MySimObject : public Trick::SimObject {
+
+    public:
+        MyClass stlc ;
+
+        MySimObject() {
+
+            (1.0, "scheduled") stlc.update() ;
+            CHECKPOINT_STL(stlc.my_double_vector) ;
+        }
+
+} ;
+MySimObject the_object ;
+@endcode
+
+Trick creates a unique name for the array that my_double_vector is copied to. So for the example above, the checkpoint file would contain something like this:
+@code
+double the_object_stlc_my_double_vector_[3];
+.
+.
+the_object_stlc_my_double_vector_ =
+    {4, 5, 6};
+@endcode
+
+In case there are circumstances in which you need to call the Trick STL checkpoint code directly, see the following Trick source code:
+@li @link trick_source/sim_services/MemoryManagerWrapper/include/stl_s_define_macro.hh stl_s_define_macro.hh @endlink - the macro definition
+@li @link trick_source/sim_services/MemoryManagerWrapper/include/checkpoint_stl.hh checkpoint_stl.hh @endlink - include all stl code headers
+@li @link trick_source/sim_services/MemoryManagerWrapper/include/checkpoint_map.hh checkpoint_map.hh @endlink,
+    @link trick_source/sim_services/MemoryManagerWrapper/src/checkpoint_map.cpp checkpoint_map.cpp @endlink - @e map, @e multimap source code
+@li @link trick_source/sim_services/MemoryManagerWrapper/include/checkpoint_pair.hh checkpoint_pair.hh @endlink,
+    @link trick_source/sim_services/MemoryManagerWrapper/src/checkpoint_pair.cpp checkpoint_pair.cpp @endlink - @e pair source code
+@li @link trick_source/sim_services/MemoryManagerWrapper/include/checkpoint_queue.hh checkpoint_queue.hh @endlink,
+    @link trick_source/sim_services/MemoryManagerWrapper/src/checkpoint_queue.cpp checkpoint_queue.cpp @endlink - @e queue, @e priority_queue source code
+@li @link trick_source/sim_services/MemoryManagerWrapper/include/checkpoint_sequence_stl.hh checkpoint_sequence_stl.hh @endlink,
+    @link trick_source/sim_services/MemoryManagerWrapper/src/checkpoint_sequence_stl.cpp checkpoint_sequence_stl.cpp @endlink - @e vector, @e list, @e deque, @e set, @e multiset source code
+@li @link trick_source/sim_services/MemoryManagerWrapper/include/checkpoint_stack.hh checkpoint_stack.hh @endlink,
+    @link trick_source/sim_services/MemoryManagerWrapper/src/checkpoint_stack.cpp checkpoint_stack.cpp @endlink - @e stack source code
+
+@section LEVEL4 C++ private data
+For a class that has private data, if you want that data to be checkpointed you have to give Trick access to it by adding a couple of friend statements to your class.
+The syntax for this is:
+@code 
+friend class InputProcessor ;
+friend void init_attr<this_class_name> ;
+@endcode
+
+So if your MyClass class contains private data that you want to checkpoint, the MyClass class declaration would look something like this:
+@code
+class MyClass {
+    friend class InputProcessor ;
+    friend void init_attrMyClass ;
+    private:
+    .
+    .
+    public:
+    .
+    .
+}
+@endcode
+
+@b NOTE: if you have private data in a @b base class that is inherited in a @b derived class, you must instead make that data @e protected (not private) in the @b base class.
+
+ */
+

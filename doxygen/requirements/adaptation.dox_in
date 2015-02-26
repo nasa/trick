@@ -1,0 +1,9 @@
+
+/**
+@page LEVEL2 Adaptation Requirements
+
+LEVEL3 Trick source code shall use a POSIX compliant API when accessing POSIX
+threads (pthreads), mutual exclusions (mutexes), signals, interrupts, and
+clock routines. [Trick-151]
+
+*/

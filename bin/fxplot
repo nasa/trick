@@ -1,0 +1,11 @@
+#!/bin/bash
+
+TRICK_HOST_CPU=`${TRICK_HOME}/bin/gte TRICK_HOST_CPU`
+FXPLOT="${TRICK_HOME}/trick_source/data_products/DPX/APPS/FXPLOT/object_${TRICK_HOST_CPU}/fxplot"
+
+if [ -f ${FXPLOT} ] ; then
+    ${FXPLOT} $@
+else
+    echo "${FXPLOT} has not been built"
+fi
+

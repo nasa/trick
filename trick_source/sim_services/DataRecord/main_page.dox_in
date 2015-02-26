@@ -1,0 +1,222 @@
+/**
+
+@page LEVEL2 Data Recording
+
+Data Recording provides the capability to specify any number of data recording groups,
+each with an unlimited number of parameter references, and with each group recording
+at different frequencies to different files in different formats. 
+ 
+All data is written to the simulation output directory. @see @ref output_dir "Output Directory"
+
+@section LEVEL3 Format of Recording Groups
+
+Trick allows recording in three different formats. Each recording group is readable by
+different external tools outside of Trick.
+
+- @e DRAscii - Human readable and compatible with Excel.\n
+- @e DRBinary - Readable by previous Trick data products.\n
+- @e DRHDF5 - Readable by Matlab.
+
+DRHDF5 recording support is off by default.  To enable DRHDF5 support Trick must be built with HDF5 support.
+Go to http://www.hdf5group.org and download the latest pre-built hdf5 package for your system. Source packages are
+available as well.  We recomment getting the static library packages above the shared.  Static packages make 
+your executable larger, but you will not have to deal with LD_LIBRARY issues.  The HDF5 package may be installed
+anywhere on your system.  To tell Trick you have HDF5 run ${TRICK_HOME}/configure --hdf5=/path/to/hdf5.
+Re-compile Trick to enable HDF5 support.
+
+@section LEVEL3 Creating a New Recording Group
+
+To create a new recording group, in the Python input file instantiate a new group by format name:
+<tt><variable_name> = trick.<data_record_format>() ;</tt>
+For example:
+
+@code
+drg = trick.DRBinary() ;
+@endcode
+
+Note: drg is just an example name.  Any name may be used. 
+
+@anchor S_7_8_3
+@section LEVEL3 Adding a Variable To Be Recorded
+
+To add variables to the recording group call the <tt>drg.add_variable("<string_of_variable_name">)</tt> method of the recording group.
+For example:
+@code
+drg.add_variable("ball.obj.state.output.position[0]")
+drg.add_variable("ball.obj.state.output.position[1]")
+@endcode
+
+An optional alias may also be specified in the method as <tt>drg.add_variable("<string_of_variable_name"> [, "<alias>"])</tt>.  
+If an alias is present as a second argument, the alias name will be used in the data recording file instead of the actual variable name.
+For example:
+@code
+drg.add_variable("ball.obj.state.output.position[0]", "x_pos")
+drg.add_variable("ball.obj.state.output.position[1]", "y_pos")
+@endcode
+
+@section LEVEL3 Changing the Recording Rate
+
+To change the recording rate call the <tt>set_cycle()</tt> method of the recording group.
+
+@code
+drg.set_cycle(0.01) 
+@endcode
+
+@section LEVEL3 Buffering Techniques
+
+Data recording groups have three buffering options:
+
+- @e DR_Buffer - the group will save recorded data to a buffer and use a separate thread to write recorded 
+data to disk.  This will have little impact to the performance of the simulation.  The downside
+is that if the simulation crashes, the most recent recorded points may not be written to disk in time.
+DR_Buffer is the default buffering technique. (For backwards compatibility, DR_Buffer can also be called DR_Thread_Buffer).
+
+- @e DR_No_Buffer - the group will write recorded data straight to disk.  All data is guaranteed to be written
+to disk at simulation termination time.  The downside of this method is that it is performed in
+the main thread of the simulation and could impact real-time performance.
+
+- @e DR_Ring_Buffer - the group will save a set number of records in memory and write this data to disk during
+a graceful simulation termination.  The advantage of this method is that there is only a set, usually
+small, number of records written.  The downside of this method is that if the simulation terminates
+ungracefully, all recorded data may be lost.
+
+To set the buffering technique call the <tt>set_buffer_type(trick.<buffering_option>)</tt> method of the recording group.
+For example:
+@code
+drg.set_buffer_type(trick.DR_Buffer) 
+@endcode
+
+All buffering options (except for DR_No_Buffer) have a maximum amount of memory allocated to
+holding data.  See Trick::DataRecordGroup::set_max_buffer_size for buffer size information.
+
+
+@section LEVEL3 Recording Frequency: Always or Only When Data Changes
+
+Data recording groups have three recording frequency options:
+
+- @e DR_Always - the group will record the variable value(s) at every recording cycle. (This is the default).
+
+- @e DR_Changes - the group will record the variable value(s) only when a particular watched parameter (or parameters) value changes.
+
+- @e DR_Changes_Step - like DR_Changes, except that a before and after value will be recorded for each variable,
+creating a stair step effect (instead of point-to-point) when plotted.
+
+To set the recording frequency call the <tt>set_freq(trick.<frequency_option>)</tt> method of the recording group. For example:
+@code
+drg.set_freq(trick.DR_Changes)
+@endcode
+
+For DR_Changes or DR_Changes_Step, to specify parameter(s) to watch that will control when the variables added with <tt>add_variable</tt> are recorded,
+call the <tt>add_change_variable(string)</tt> method of the recording group. For example:
+
+@code
+drg.add_change_variable("ball.obj.state.output.velocity[0]") 
+@endcode
+
+So if we assume the <tt>add_variable</tt> statements from the example in @ref S_7_8_3 "7.8.3" combined with the above <tt>add_change_variable</tt> statement,
+then <tt>ball.obj.state.output.position[0]</tt> and <tt>ball.obj.state.output.position[1]</tt> will be recorded only when
+<tt>ball.obj.state.output.velocity[0]</tt> changes. Multiple parameters may be watched by adding more change variables, in which case
+data will be recorded when any of the watched variable values change.
+
+@section LEVEL3 Turn Off/On and Record Individual Recording Groups
+
+At any time during the simulation, model code or the input processor can turn on/off individual
+recording groups as well as record a single point of data.
+
+@code
+/* C code */
+dr_enable_group("<group_name">) ;
+dr_disable_group("<group_name">) ;
+dr_record_now_group("<group_name">) ;
+@endcode
+
+This is the Python input file version:
+
+@code
+# Python code 
+trick.dr_enable_group("<group_name">) ;  # same as <group_name>.enable()
+trick.dr_disable_group("<group_name">) ; # same as <group_name>.disable()
+trick.dr_record_now_group("<group_name">) ;
+@endcode
+
+@section LEVEL3 Changing the thread Data Recording runs on.
+
+To change the thread that the data recording group runs on use the DataRecordGroup::set_thread
+method.  The thread number follows the same numbering as the child threads in the S_define file.
+This must be done before the add_data_record_group function is called.  Trick does not
+provide data locks for data record groups.  It is up to the user to ensure that the data
+recorded on *any* thread (including the master) is ready in order for data recording to
+record a time homogeneous set of data.
+
+@code
+drg.set_thread(<thread_number>)
+@endcode
+
+
+@section LEVEL3 Example Data Recording Group
+
+This is an example of a data recording group in the input file
+
+@code
+# Data recording HDF5 test
+drg0 = trick.DRHDF5("Ball")
+drg0.add_variable("ball.obj.state.output.position[0]") 
+drg0.add_variable("ball.obj.state.output.position[1]") 
+drg0.add_variable("ball.obj.state.output.velocity[0]") 
+drg0.add_variable("ball.obj.state.output.velocity[1]") 
+drg0.add_variable("ball.obj.state.output.acceleration[0]") 
+drg0.add_variable("ball.obj.state.output.acceleration[1]") 
+drg0.set_cycle(0.01)
+drg0.freq = trick.DR_Always
+trick.add_data_record_group(drg0, trick.DR_Buffer)
+
+# This line is to tell python not to free this memory when drg0 goes out of scope
+drg0.thisown = 0
+@endcode
+
+@section LEVEL3 User accessible routines
+Create a new data recording group:
+@li Trick::DRAscii::DRAscii(string in_name)
+@li Trick::DRBinary::DRBinary(string in_name)
+@li Trick::DRHDF5::DRHDF5(string in_name)
+
+This list of routines is for all recording formats:
+
+@li int dr_disable_group( const char * in_name )
+@li int dr_enable_group( const char * in_name )
+@li int dr_record_now_group( const char * in_name )
+
+@li int Trick::DataRecordGroup::add_variable
+@li int Trick::DataRecordGroup::add_change_variable
+@li int Trick::DataRecordGroup::disable
+@li int Trick::DataRecordGroup::enable
+@li int Trick::DataRecordGroup::set_cycle
+@li int Trick::DataRecordGroup::set_freq
+@li int Trick::DataRecordGroup::set_job_class
+@li int Trick::DataRecordGroup::set_max_buffer_size
+
+This list of routines provide some additional configuration for DR_Ascii format only:
+
+@li int Trick::DRAscii::set_ascii_double_format
+@li int Trick::DRAscii::set_ascii_float_format
+@li int Trick::DRAscii::set_delimiter
+@li int Trick::DataRecordGroup::set_single_prec_only
+
+@section LEVEL3 DRAscii Recording Format
+
+@copydoc Trick::DRAscii
+
+@section LEVEL3 DRBinary Recording Format
+
+@copydoc Trick::DRBinary
+
+@section LEVEL3 DRHDF5 Recording Format
+
+@copydoc Trick::DRHDF5
+
+@section LEVEL3 Related Pages
+Requirements\n
+Design 
+
+*/
+

@@ -1,0 +1,29 @@
+import trick
+from trick.sim_objects import *
+
+def main():
+
+    trick.sim_control_panel_set_enabled(True)
+    trick.exec_set_freeze_command(True)
+
+    trick.real_time_enable()
+    trick.exec_set_software_frame(0.0125)
+
+    trick.frame_log_on()
+
+    trick.dmtcp_checkpoint("test_checkpoint")
+
+    trick.dmtcp_checkpoint(0)
+    trick.dmtcp_checkpoint(3)
+    trick.dmtcp_checkpoint(9)
+
+    trick.add_read(25, "trick.dmtcp_checkpoint()")
+    trick.dmtcp_checkpoint_safestore_set_enabled(True)
+    trick.dmtcp_checkpoint_safestore(15)
+
+
+    my_integ_loop.getIntegrator(trick.Runge_Kutta_2, 4);
+
+
+if __name__ == "__main__":
+   main()

@@ -1,0 +1,152 @@
+
+# $Id: makefile.stand_alone 2600 2012-09-18 23:05:53Z wwoodard $
+
+#
+# This makefile is used to build trick utils standalone.
+# That is, without Trick.
+#
+
+TRICK_HOST_CPU := $(shell uname -s)
+
+CC = cc
+OBJ_DIR = object_${TRICK_HOST_CPU}
+MATH_LIB = $(OBJ_DIR)/libtrick_math.a
+STUBS_LIB = $(OBJ_DIR)/libtrick_stubs.a
+
+FLAGS = -g -I../include -D_REENTRANT -DSTAND_ALONE -I../../
+
+trick: start
+
+start: $(MATH_LIB)
+	@ if [ -d "$(STUBS_DIR)" ] ; then \
+         $(MAKE) trick_stubs_lib ; \
+      fi
+	@ echo "[32mmath libraries are up to date[00m"
+
+trick_stubs_lib: $(STUBS_LIB)
+
+real_clean: clean
+
+clean:
+	/bin/rm -rf $(OBJ_DIR)
+	@ for i in $(GSL_DIRS) ; do \
+         $(MAKE) -C $$i clean ; \
+    done
+
+#=======================================================================
+# MATH
+
+SRC_DIR = src
+
+STUBS_DIR = ../comm/src
+
+MATH_OBJECTS =  \
+    $(OBJ_DIR)/LUD_inv.o \
+    $(OBJ_DIR)/LUT_inv.o \
+    $(OBJ_DIR)/LU_bksb.o \
+    $(OBJ_DIR)/LU_dcmp.o \
+    $(OBJ_DIR)/dLU_Choleski.o \
+    $(OBJ_DIR)/dLU_solver.o \
+    $(OBJ_DIR)/dS_function.o \
+    $(OBJ_DIR)/deuler_123.o \
+    $(OBJ_DIR)/deuler_132.o \
+    $(OBJ_DIR)/deuler_213.o \
+    $(OBJ_DIR)/deuler_231.o \
+    $(OBJ_DIR)/deuler_312.o \
+    $(OBJ_DIR)/deuler_321.o \
+    $(OBJ_DIR)/dm_add.o \
+    $(OBJ_DIR)/dm_copy.o \
+    $(OBJ_DIR)/dm_ident.o \
+    $(OBJ_DIR)/dm_init.o \
+    $(OBJ_DIR)/dm_invert.o \
+    $(OBJ_DIR)/dm_invert_symm.o \
+    $(OBJ_DIR)/dm_orthonormal.o \
+    $(OBJ_DIR)/dm_print.o \
+    $(OBJ_DIR)/dm_scale.o \
+    $(OBJ_DIR)/dm_sub.o \
+    $(OBJ_DIR)/dm_trans.o \
+    $(OBJ_DIR)/dmtxm.o \
+    $(OBJ_DIR)/dmtxmt.o \
+    $(OBJ_DIR)/dmtxv.o \
+    $(OBJ_DIR)/dmxm.o \
+    $(OBJ_DIR)/dmxmt.o \
+    $(OBJ_DIR)/dmxv.o \
+    $(OBJ_DIR)/drandom_gaussian.o \
+    $(OBJ_DIR)/dsingle_axis_rot.o \
+    $(OBJ_DIR)/dv_add.o \
+    $(OBJ_DIR)/dv_copy.o \
+    $(OBJ_DIR)/dv_cross.o \
+    $(OBJ_DIR)/dv_dot.o \
+    $(OBJ_DIR)/dv_init.o \
+    $(OBJ_DIR)/dv_mag.o \
+    $(OBJ_DIR)/dv_norm.o \
+    $(OBJ_DIR)/dv_print.o \
+    $(OBJ_DIR)/dv_scale.o \
+    $(OBJ_DIR)/dv_skew.o \
+    $(OBJ_DIR)/dv_store.o \
+    $(OBJ_DIR)/dv_sub.o \
+    $(OBJ_DIR)/dvxm.o \
+    $(OBJ_DIR)/dvxv_add.o \
+    $(OBJ_DIR)/dvxv_sub.o \
+    $(OBJ_DIR)/eigen_hh_red.o \
+    $(OBJ_DIR)/eigen_jacobi.o \
+    $(OBJ_DIR)/eigen_jacobi_4.o \
+    $(OBJ_DIR)/eigen_ql.o \
+    $(OBJ_DIR)/euler_matrix.o \
+    $(OBJ_DIR)/gauss_rnd_bell.o \
+    $(OBJ_DIR)/gauss_rnd_pseudo.o \
+    $(OBJ_DIR)/mat_copy.o \
+    $(OBJ_DIR)/mat_permute.o \
+    $(OBJ_DIR)/mat_print.o \
+    $(OBJ_DIR)/mat_to_quat.o \
+    $(OBJ_DIR)/mat_trans.o \
+    $(OBJ_DIR)/matxmat.o \
+    $(OBJ_DIR)/matxtrans.o \
+    $(OBJ_DIR)/matxvec.o \
+    $(OBJ_DIR)/quat_mult.o \
+    $(OBJ_DIR)/quat_norm.o \
+    $(OBJ_DIR)/quat_norm_integ.o \
+    $(OBJ_DIR)/quat_to_mat.o \
+    $(OBJ_DIR)/rand_num.o \
+    $(OBJ_DIR)/roundoff.o \
+    $(OBJ_DIR)/tm_print_error.o \
+    $(OBJ_DIR)/transxmat.o \
+    $(OBJ_DIR)/transxtrans.o \
+    $(OBJ_DIR)/transxvec.o \
+    $(OBJ_DIR)/trick_gsl_rand.o \
+    $(OBJ_DIR)/trns_fnct_1o.o \
+    $(OBJ_DIR)/trns_fnct_2o.o \
+    $(OBJ_DIR)/uniform_rnd_1.o \
+    $(OBJ_DIR)/uniform_rnd_triple.o \
+    $(OBJ_DIR)/vec_print.o \
+    $(OBJ_DIR)/wave_form.o
+
+STUBS_OBJECTS = \
+    $(OBJ_DIR)/stubs.o
+
+$(MATH_LIB) : $(MATH_OBJECTS) $(GSL_OBJECTS)
+	ar cr $(MATH_LIB) $?
+	@ if [ "`uname -s`" = "Darwin" ] ; then \
+         echo ranlib $(MATH_LIB) ; \
+         ranlib $(MATH_LIB) ; \
+      fi
+
+$(STUBS_LIB) : $(OBJ_DIR)/stubs.o
+	ar cr $(STUBS_LIB) $?
+	@ if [ "`uname -s`" = "Darwin" ] ; then \
+         echo ranlib $(STUBS_LIB) ; \
+         ranlib $(STUBS_LIB) ; \
+      fi
+
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
+
+$(MATH_OBJECTS) : $(OBJ_DIR)/%.o : $(SRC_DIR)/%.c | $(OBJ_DIR)
+	$(CC) $(FLAGS) -c $? -o $@
+
+
+# Stubs routines
+
+$(STUBS_OBJECTS) : $(OBJ_DIR)/%.o : $(STUBS_DIR)/stubs.c | $(OBJ_DIR)
+	$(CC) $(FLAGS) -c $? -o $@
+

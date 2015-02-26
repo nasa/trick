@@ -1,0 +1,367 @@
+#! /usr/bin/perl
+
+# $Id: CP 1740 2011-07-07 18:38:25Z lin $
+
+use File::Basename ;
+use Cwd ;
+use strict ;
+use Data::Dumper ;
+use Getopt::Long ;
+use Pod::Usage ;
+use Pod::Text ;
+use Cwd 'abs_path';
+
+use FindBin qw($Bin);
+use lib "$Bin/pm" ;
+
+use parse_s_define ;
+use get_headers ;
+use ICG ;
+use MIS ;
+use mis_dep ;
+use make_makefile ;
+use make_swig_makefile ;
+use make_no_swig_makefile ;
+use gte ;
+use s_source ;
+use auto_doc ;
+use default_data ;
+use trick_print ;
+use trick_version ;
+
+my %sim ;
+my $cwd = cwd();
+my $saved_cflags ;
+my (@paths , $cc , $cc_found) ;
+my $make_cmd; 
+
+# override the print format for help message
+*Pod::Text::seq_i = sub { return "[04m" . $_[1] . "[00m" } ;
+
+# set stdout to unbuffered so we see printout immediately.
+$| = 1 ;
+
+# set default verbose level
+$sim{args}{v} = 2 ;
+$sim{args}{o} = "CP_out" ;
+$sim{args}{p} = 1 ;
+
+#--------------------------------------------------------------
+# Process command line arguments
+Getopt::Long::Configure ("bundling");
+GetOptions ( "d" => \$sim{args}{d} ,
+         "e" => \$sim{args}{e} ,
+         "f" => \$sim{args}{f} ,
+         "model_dirs|z" => \$sim{args}{z} ,
+         "no_python|p" => sub { $sim{args}{p} = 0 } ,
+         "debug|g" => sub { $sim{args}{v} = 3 ; } ,
+         "help|h|?" => \$sim{args}{h} ,
+         "m" => \$sim{args}{m} ,
+         "outfile|o=s" => \$sim{args}{o} ,
+         "r" => \$sim{args}{r} ,
+         "s" => \$sim{args}{s} ,
+         "t" => \$sim{args}{t} ,
+         "verbose|v=i" => \$sim{args}{v}
+       ) or pod2usage(1) ;
+
+pod2usage(1) if $sim{args}{h} ;
+
+$ENV{TRICK_HOST_CPU} = gte("TRICK_HOST_CPU") ;
+chomp $ENV{TRICK_HOST_CPU} ;
+
+# look to see if TRICK_CC set properly
+@paths = split /:/ , $ENV{PATH} ;
+$cc = gte("TRICK_CC") ;
+chomp $cc ;
+$cc =~ s/.*?ccache\s+// ;
+$cc_found = 0 ;
+foreach my $p ( @paths ) {
+    if ( -x "$p/$cc" or -x $cc ) {
+        $cc_found = 1 ;
+        last ;
+    }
+}
+
+if ( $cc_found == 0 ) {
+    trick_print( $sim{fh}, "CP can't find TRICK_CC = $cc.\n", "title_red", $sim{args}{v} ) ;
+    exit ;
+}
+
+# Get Trick version
+my ($version, $thread) = get_trick_version() ;
+$thread =~ s/\d+\.// ;
+
+local *OUTFILE ;
+open OUTFILE , ">$sim{args}{o}" or warn "CP cannot open $sim{args}{o} for writing\n" ;
+$sim{fh} = *OUTFILE ;
+print OUTFILE "Output for $0 version $version-$thread at " . localtime() . "\n\n" ;
+
+
+if ( !( $sim{args}{e} || $sim{args}{s} || $sim{args}{m} || $sim{args}{d} ) ) {
+    $sim{args}{e} = $sim{args}{s} = $sim{args}{m} = $sim{args}{d} = 1 ;
+}
+
+# if no python is specified, turn off the python InputProcessor sim_object in S_define.
+if ( $sim{args}{p} == 0 ) {
+    $ENV{TRICK_SFLAGS} .= " -DTRICK_NO_INPUTPROCESSOR" ;
+}
+
+#--------------------------------------------------------------
+# Parse the S_define file
+
+trick_print($sim{fh}, "Parsing S_define..." , "title_cyan" , $sim{args}{v}) ;
+trick_print($sim{fh}, "\n" , "title_white" , $sim{args}{v}) if ( $sim{args}{v} != 1 ) ;
+
+parse_s_define(\%sim) ;
+
+trick_print( $sim{fh}, "\nCompleted parsing S_define\n\n" , "normal_green" , $ sim{args}{v} ) ;
+
+#--------------------------------------------------------------
+# If this is CP -z|model_dirs, print model dirs and exit
+if ( $sim{args}{z} ) {
+    my %model_dirs ;
+    foreach ( keys %{$sim{headers_full_path}} ) {
+        $model_dirs{dirname($_)} = 1 ;
+    }
+    foreach ( @{$sim{mis_entry_files}} ) {
+        $model_dirs{dirname($_)} = 1 ;
+    }
+    trick_print($sim{fh}, "Model directory listing\n", "title_cyan", $sim{args}{v});
+    foreach ( sort keys %model_dirs ) {
+        trick_print($sim{fh}, "$_\n", "normal_white", $sim{args}{v});
+    }
+    exit ;
+}
+
+#--------------------------------------------------------------
+# Make S_source.c 
+
+if ($sim{args}{s}) {
+    trick_print($sim{fh}, "Creating S_source.c...", "title_cyan", $sim{args}{v});
+    s_source( \%sim ) ;
+    trick_print($sim{fh}, " Complete\n", "title_green", $sim{args}{v}) ;
+}
+
+#--------------------------------------------------------------
+# Get all headers used by the sim and their modification dates
+get_headers(\%sim, abs_path("S_source.hh")) ;
+
+#--------------------------------------------------------------
+# ICG all headers that S_define references
+# ICG will return:
+#      -> Hash of types (used to create S_source.c)
+#        %types{type_name} -> {name,value,xml}
+#        value == 102 means enumerated type
+#        value == 103 means struct type
+#      -> Hash of dependencies (used to create Makefile) 
+my @files_to_mis ;
+my ($new_mis_depends_ref , $rcs_tags_ref) ;
+my @mis_entry_files ;
+my @headers_to_ICG ;
+my @all_headers_to_ICG ;
+
+chdir ($cwd) ;
+
+trick_print($sim{fh}, "Determining structure dependencies.\n" , "normal_cyan" , $sim{args}{v}) ;
+
+@all_headers_to_ICG = (sort keys %{$sim{headers_full_path}}) ;
+foreach ( @all_headers_to_ICG ) {
+    if ( !/trick_source/ ) {
+        push @headers_to_ICG , $_ ;
+    }
+}
+if ( scalar @headers_to_ICG ) {
+    trick_print( $sim{fh}, "ICG'ing header files to get all header file dependencies..." , "title_cyan" , $sim{args}{v} ) ;
+    trick_print( $sim{fh}, "\n" , "title_white" , $sim{args}{v} ) if ( $sim{args}{v} != 1 ) ;
+}
+
+my @defs ;
+my @temp_array = ( abs_path("S_source.hh")) ;
+ICG ( @temp_array , "CP" , \@defs, \%sim ) ;
+if ( $sim{args}{v} == 1 ) {
+    print " [32mComplete[00m\n" ;
+}
+
+if ( scalar @headers_to_ICG ) {
+    trick_print( $sim{fh}, "\nAll header file dependencies found.\n" , "normal_green" , $sim{args}{v} ) ;
+}
+
+foreach my $h ( @all_headers_to_ICG ) {
+    # push the header dependencies for c++ files onto the lists for mis processing
+    foreach ( keys %{$sim{all_icg_depends}{$h}} ) {
+        if ( exists $sim{head_deps}{$_} and defined $sim{head_deps}{$_}{files} ) {
+            push @mis_entry_files , @{$sim{head_deps}{$_}{files}} ;
+            push @{$sim{mis_entry_files}} , @{$sim{head_deps}{$_}{files}} ;
+        }
+    }
+}
+
+trick_print( $sim{fh}, "Determining module dependencies.\n", "normal_cyan" , $sim{args}{v}) ;
+
+push @mis_entry_files , (grep !/trick_source/ , @{$sim{mis_entry_files}}) ;
+foreach ( @mis_entry_files ) {
+    if ( ! exists $sim{src_only}{$_} ) {
+        if ( !/trick_source/ ) {
+            push @files_to_mis , $_ ;
+        }
+    }
+}
+
+my %temp_hash ;
+@files_to_mis = grep ++$temp_hash{$_} < 2, @files_to_mis ;
+
+$new_mis_depends_ref = mis_dep(\%sim , @files_to_mis) ;
+
+# Add the object only listings 
+mis_catalog_dep(\%sim , $new_mis_depends_ref) ;
+
+foreach my $k ( keys %$new_mis_depends_ref ) {
+    $sim{all_mis_depends}{$k} = $$new_mis_depends_ref{$k} ;
+}
+
+my @all_src_files ;
+foreach my $n ( @{$sim{mis_entry_files}} ) {
+    foreach my $k ( grep !/last_look/ , 
+            (keys %{$sim{all_mis_depends}{$n}}) ) {
+
+        push @all_src_files , 
+             @{$sim{all_mis_depends}{$n}{$k}} ;
+    }
+}
+undef %temp_hash ;
+@all_src_files = grep ++$temp_hash{$_} < 2, @all_src_files ;
+@all_src_files = grep !/trick_source|\.a$|^\-/ , @all_src_files ;
+
+# TODO: Add back at some time before release
+#trick_print($sim{fh}, "MIS-ing all src files... ", "title_cyan" , $sim{args}{v}) ;
+#trick_print($sim{fh}, "\n" , "title_white" , $sim{args}{v}) if ( $sim{args}{v} != 1 ) ;
+#mis_all_c(\@all_src_files , \%sim ) ;
+
+if ( $sim{args}{v} == 1 ) {
+    print " [32mComplete[00m\n" ;
+}
+trick_print($sim{fh}, "\nMIS complete\n\n" , "normal_green" , $sim{args}{v}) ;
+
+if ( $sim{args}{v} > 3 ) {
+    chdir ($cwd) ;
+    $Data::Dumper::Indent = 1 ;
+    open FILE, ">sim_info" or die "Couldn't open sim_info\n";
+    print FILE Data::Dumper->Dump([\%sim], ["*sim_info"]) , "\n" ;
+    close FILE ;
+}
+
+#--------------------------------------------------------------
+# Make Default Data 
+
+if ($sim{args}{d}) {
+    chdir ($cwd) ;
+    trick_print($sim{fh}, "Creating Default_data...", "title_cyan" , $sim{args}{v}) ;
+    make_default_data( \%sim ) ;
+    trick_print($sim{fh}, " Complete\n", "title_green", $sim{args}{v}) ;
+     
+    chdir ($cwd) ;
+    trick_print($sim{fh}, "Creating S_document.xml...", "title_cyan", $sim{args}{v}) ;
+    print_xml_CP( \%sim ) ;
+    trick_print( $sim{fh}, " Complete\n", "title_green", $sim{args}{v}) ;
+}
+
+#--------------------------------------------------------------
+# Make Makefile 
+
+if ($sim{args}{m}) {
+    trick_print($sim{fh}, "Creating New Makefile... ", "title_cyan" , $sim{args}{v}) ;
+    make_makefile( \@temp_array , \%sim , $cwd) ;
+    trick_print($sim{fh}, " Complete\n" , "title_green" , $sim{args}{v}) ;
+
+    if ( $sim{args}{p} == 1 ) {
+        trick_print($sim{fh}, "Creating SWIG Makefile... ", "title_cyan" , $sim{args}{v}) ;
+        make_swig_makefile( \@temp_array , \%sim , $cwd) ;
+        trick_print($sim{fh}, " Complete\n" , "title_green" , $sim{args}{v}) ;
+    } else {
+        trick_print($sim{fh}, "Creating No-python Makefile... ", "title_cyan" , $sim{args}{v}) ;
+        make_no_swig_makefile() ;
+        trick_print($sim{fh}, " Complete\n" , "title_green" , $sim{args}{v}) ;
+    }
+}
+
+close OUTFILE ;
+
+################################################################################
+# END MAIN
+################################################################################
+
+__END__
+
+=head1 NAME
+
+CP - Trick Configuration Processor
+
+=head1 SYNOPSIS
+
+CP [-defghmprsz?] [--debug] [--help] [-o I<outfile>] [--outfile=I<outfile>] 
+[-v I<level>] [--verbose=I<level>] [--model_dirs]
+
+=head1 DESCRIPTION
+
+See the Trick User's guide for B<CP>
+
+=head1 OPTIONS
+   
+=over 8
+
+=item B<-d>
+
+S_default.dat and Default_data (Default data files)
+
+=item B<-e>
+
+S_main_\${TRICK_HOST_CPU}.exe (Master executable)
+
+=item B<-f>
+
+Force CP to process S_define without catalog/cache
+
+=item B<-g> | B<--debug>
+
+Set the verbose level to 3
+
+=item B<-h> | B<-?> | B<--help>
+
+Print this help message
+
+=item B<-m>
+
+Makefile (Simulation make file)
+
+=item B<-o> I<file_name> | B<--outfile>=I<outfile>
+
+output all CP output to an external file
+
+=item B<-p>
+
+Create a simulation without python input processor.
+
+=item B<-s>
+
+S_source.c (Simulation specific executive source code)
+
+=item B<-r>
+
+S_sie.resource (Smart Input Editor data base)
+
+=item B<-v> I<level> | B<--verbose>=I<level>
+
+Set the verbose level.  Valid entries are 0-3.
+
+=item B<-z> | B<--model_dirs>
+
+Print out the model directories this S_define depends on.
+
+=item B<-DTRICK_VER=x.x>
+
+Note: -DTRICK_VER=x.x is automatically used when parsing header files and the S_define file
+
+=back
+
+=cut
+

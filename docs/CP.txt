@@ -1,0 +1,207 @@
+
+# Here is the layout of the variable "sim", mostly seen as $$sim_ref throughout the code generators.  
+# Use this as a reference to find what you need.  It was up to date as of 07/2005
+
+%sim -- master structure holding all information needed to build a sim (CP)
+        %all_icg_depends -- dependencies of all header files (read_cache)
+                %<file_name> -- name of header file 
+        @{%all_jobs} -- list of jobs in S_define (handle_jobs)
+                @{%jobs} --  list of jobs in the object (copy of @{%objs}{@{%jobs}} , handle_jobs)
+                        class -- job class
+                        child -- child spec
+                        cycle -- cycle
+                        @depends -- list of dependencies
+                        @{%exports} -- list of imports
+                                tag -- struct type of export
+                                struct -- struct instance of export
+                        file -- full path of file function appears in
+                        @{%func_args} -- arguments of job
+                                inout -- inout
+                                struct -- structure
+                                s_source_arg -- argument
+                        @{%imports} -- list of imports
+                                tag -- struct type of import
+                                struct -- struct instance of import
+                        integ_object -- object to integrate job with
+                        job_idx -- index of job in object
+                        jobname -- name of job
+                        language -- c, c+, or java (handle_jobs)
+                        mem_func_name -- compressed prototype name
+                        object -- object this job appears
+                        ov_class -- override class from S_define
+                        phase -- phase
+                        phase_assigned -- equals 1 if phase is present (get_exec_joblist)
+                        return_var -- return variable
+                        start -- start
+                        stop -- stop
+                        tag -- job tag
+        %all_mis_depends -- dependencies of all source files (read_cache)
+        %args -- command line arguments (CP main)
+                d -- default data
+                e -- master executable
+                f -- force not to use catalog
+                h -- help message
+                m -- makefile
+                o -- output file
+                r -- S_sie.resource
+                s -- S_source.c
+                v -- verbose
+                z -- model directoriez this S_define depends on.
+        %cat_deps -- dependencies read from a directory catalog (find_module)
+                $<dir_name> -- name of dir
+        @{%collect} -- list of collects  (handle_collects)
+                name -- collect variable 
+                num_params -- number of collected variable 
+                @params -- list of collected variables 
+        %dir_cat -- directory catalogs read (find_module) ***looks like we need to set this var in find_module***
+                $<dir_name> -- name of dir
+        %dir_src_only -- directories that we only have object code (find_module)
+                $<dir_name> -- name of dir
+        @enums -- list of enumerations in the sim (get_enums_and_structs)
+        env_last -- deprecated ***remove from get_exec_joblist***
+        @exec_joblist -- list of jobs in exec order (get_exec_joblist)
+        fh -- file handle (CP main)
+        @{%freeze} -- list of freeze cycle times. ***why is this a list?*** (handle_freeze)
+        %head_deps -- extra c++ header dependencies (read_cache)
+                %<file_name> -- file_name
+                        last_look -- last look 
+                        files -- files found in Trick header
+        %headers_full_path -- header files used in current S_define (handle_struct)
+                $<file_name> -- full path of file
+        %headers_icged -- header files icged (handle_jobs)
+                $<file_name> -- full path of file set to 1 when header marked to ICG (handle_jobs)
+        %headers_lang -- languages of the header files processed by ICG (ICG)
+                $<file_name> -- suffix of header file
+        %icg_types -- catalog of structures (read_cache)
+                %<struct_name> -- name of struct/class
+                        %dne -- paths that did not exist last time CP was run (check_catalog_struct, find_struct)
+                                $<path> -- full path from TRICK_CFLAGS and rel_path in S_define
+                        %files -- all header files struct was found (check_catalog_struct)
+                                %<file_name> -- full path of header file
+                                        abstract -- we have a c++ abstract class
+                                        bname -- bitfield name to use
+                                        bvalue -- bitfield type to use 
+                                        class -- c++ class if applicable
+                                        def_construct -- c++ default constructor for this class
+                                        @enums -- list of enumerations if applicable ( name , value ) pair
+                                        file -- file name ***redundant?***
+                                        file_time -- stat of file
+                                        @inherit_class -- list of classes we inherit from
+                                        lang -- language
+                                        @member_func -- list of member functions
+                                        name -- name
+                                        name_nospace -- name without spaces
+                                        %param_classes -- not sure
+                                                $<class_name> -- not sure
+                                        p_found -- list of pointer variable within struct/class
+                                        template_name -- name of template used for this class
+                                        value -- parameter type value 0-14, 102,103
+                                        virtual -- we have a c++ virtual class
+                                        xml -- xml file the docs go
+                        lang -- "java" only language currently set, but is only one tested as well (find_struct)
+                        last_look -- time when CP last used this structure (check_catalog_struct, find_struct)
+                        %num_files -- number of files in the directory last time CP was run (check_catalog_struct, find_struct)
+                                $<path> -- full path from TRICK_CFLAGS and rel_path in S_define
+                        ss -- 1 if struct in sim_services
+        @inc_paths -- include paths from TRICK_CFLAGS (parse_s_define)
+        @{%integ} -- list of objects in S_define integrate statements (handle_integ)
+                name -- all names as it appears in S_define
+                @name_list -- split list of names
+                cycle -- cycle
+                child -- child
+        @integ_list -- list of integ jobs in exec order (get_exec_joblist)
+        %jobs_by_class -- all jobs in S_define sorted by class (get_exec_joblist)
+                @{$<job_class_name>} -- contains list of jobs of that class
+        lang -- total language of sim (s_source)
+        line_num -- line number of S_define file (parse_s_define)
+        @mis_entry_files -- list of top level source files used in S_define (handle_jobs, find_module, ICG)
+        %module_entries -- catalog of modules (read_cache)
+                %<function_name> -- compressed prototype name
+                        %dne -- paths that did not exist last time CP was run (check_catalog_struct, find_struct)
+                                $<path> -- full path from TRICK_CFLAGS and rel_path in S_define
+                        %files -- files this function appears in 
+                                %<file_name> -- file name 
+                                        class -- job class 
+                                        file_time -- file time 
+                                        @{%func_args} -- list of arguments
+                                                array -- array dims of argument
+                                                comment -- comment
+                                                cpp_const -- argument has const modifier
+                                                cpp_ref -- argument has & modifier
+                                                cpp_template -- argument is a template
+                                                desc -- description piece of comment
+                                                inout -- inout
+                                                name -- name of argument
+                                                optional -- optional default value
+                                                pointers -- pointer dimensions
+                                                type -- type
+                                                unit -- unit piece of comment
+                                        language -- language
+                                        return_type -- return type
+                        last_look -- last time CP accessed this part of catalog
+                        %num_files -- number of files in the directory last time CP was run (check_catalog_struct, find_struct)
+                                $<path> -- full path from TRICK_CFLAGS and rel_path in S_define
+        num_jobs -- total number of jobs in S_define (handle_jobs)
+        num_children -- total number of children in S_define (check_children)
+        @{%objs} -- list of objects in S_define (handle_sim_object)
+                objname -- name of sim_object
+                need_integ -- 1 if sim_object needs integration
+                num_jobs -- number of jobs in sim_object (handle_jobs)
+                @{%jobs} --  list of jobs in the object
+                        class -- job class
+                        child -- child spec
+                        cycle -- cycle
+                        @depends -- list of dependencies
+                        @{%exports} -- list of imports
+                                tag -- struct type of export
+                                struct -- struct instance of export
+                        file -- full path of file function appears in
+                        @{%func_args} -- arguments of job
+                                inout -- inout
+                                struct -- structure
+                                s_source_arg -- argument
+                        @{%imports} -- list of imports
+                                tag -- struct type of import
+                                struct -- struct instance of import
+                        integ_object -- object to integrate job with
+                        job_idx -- index of job in object
+                        jobname -- name of job
+                        language -- c, c+, or java (handle_jobs)
+                        mem_func_name -- compressed prototype name
+                        object -- object this job appears
+                        ov_class -- override class from S_define
+                        phase -- phase
+                        phase_assigned -- equals 1 if phase is present (get_exec_joblist)
+                        return_type -- return type
+                        return_var -- return variable
+                        start -- start
+                        stop -- stop
+                        tag -- job tag
+                @{%structs} --  list of structures in the object
+                        strname -- name of structure
+                        tagname -- instance name
+                        array -- array dims
+                        pointers -- pointer dims
+                        con_info -- constructor info
+                        file -- file that contains the version we are going to use
+                        @def_data -- default data files
+        %preparse_objs -- first parse of structs/classes in S_define (preparse_structs)
+                %<object_name> -- name of sim_object in s_define
+                        %<struct_name> -- name of struct/class in S_define
+                                rel_path -- relative path given in S_define
+                                type -- struct/class type 
+        %rcs_tags -- rcs tags for all files (read_cache)
+               %<file_name> -- name of file
+                       date -- date of file
+                       file_name -- name of file again ***seems redundant***
+                       owner -- owner of file
+                       ver -- version of file
+        %src_only -- files that we only have object code (find_module)
+                $<file_name> -- name of file
+        %structnames -- all structs used in sim (handle_struct)
+            %<struct_name> -- hash containing full path of header
+        %structs -- hash of references into $sim{icg_types} pointing to all structs used in sim (get_enums_and_structs)
+            $<struct_name> -- contains reference into $sim{icg_types}{files}{$<file_name>} corresponding to struct_name
+        user_code -- listing of user code from S_define (handle_user_code)
+        @vars -- variables defined in S_define file (handle_vars)
+

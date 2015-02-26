@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<!DOCTYPE product PUBLIC "-//Tricklab//DTD Product V1.0//EN" "Product.dtd">
+<product background_color="#ede9e3" foreground_color="#000000" version="1.0">
+    <title>Page</title>
+    <tstart>-1.0E20</tstart>
+    <tstop>1.0E20</tstop>
+    <frequency>0.0</frequency>
+    <page background_color="#ede9e3" foreground_color="#000000" hcells="0" vcells="0">
+        <title>Ball X,Y Total External Forces</title>
+        <plot background_color="#ede9e3" foreground_color="#000000" grid="Yes" grid_color="#ffffff">
+            <title>Ball X,Y External Forces</title>
+            <curve>
+                <var units="s">sys.exec.out.time</var>
+                <var gnuplot_line_style="lines" label="external_force" line_color="#ff0000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="N">ball.state.output.external_force[0]</var>
+            </curve>
+            <curve>
+                <var units="s">sys.exec.out.time</var>
+                <var gnuplot_line_style="lines" label="Y Force" line_color="#0000ff" line_style="Med_Fine_Dash" symbol_size="Tiny" symbol_style="None" units="N">ball.state.output.external_force[1]</var>
+            </curve>
+        </plot>
+        <plot background_color="#ede9e3" foreground_color="#000000" grid="Yes" grid_color="#ffffff">
+            <title>Ball Force Cross Plot</title>
+            <xaxis>
+                <label>X Force</label>
+            </xaxis>
+            <yaxis>
+                <label>Y Force</label>
+            </yaxis>
+            <curve>
+                <var label="X Force" units="N">ball.state.output.external_force[0]</var>
+                <var units="N">ball.state.output.external_force[1]</var>
+            </curve>
+        </plot>
+    </page>
+</product>

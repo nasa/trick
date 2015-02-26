@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<!DOCTYPE product PUBLIC "-//Tricklab//DTD Product V1.0//EN" "Product.dtd">
+<product background_color="#ede9e3" foreground_color="#000000" version="1.0">
+    <tstart>-1.0E20</tstart>
+    <tstop>1.0E20</tstop>
+    <frequency>0.0</frequency>
+    <page background_color="#ede9e3" foreground_color="#000000" hcells="0" vcells="0">
+        <title>Page</title>
+        <plot background_color="#ede9e3" foreground_color="#000000" grid="Yes" grid_color="#ffffff">
+            <title>Plot</title>
+            <curve>
+                <var units="s">sys.exec.out.time</var>
+                <var units="m">ball.state.out.position[0]</var>
+            </curve>
+        </plot>
+    </page>
+    <table>
+        <title>Table</title>
+        <column>
+            <units>--</units>
+            <var units="s">sys.exec.out.time</var>
+        </column>
+        <column>
+            <units>--</units>
+            <var units="m">ball.state.out.position[0]</var>
+        </column>
+    </table>
+</product>

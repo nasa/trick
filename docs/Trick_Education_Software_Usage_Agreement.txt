@@ -1,0 +1,118 @@
+Trick Educational Software Usage Agreement - March 2006
+
+The Trick Simulation Environment (Trick) is a jointly developed software
+project between NASA and its supporting contractors. Trick software has been
+developed and is currently owned and being maintained by NASA under NASA
+government contracts. 
+
+Authorization to use Trick software including access to source code may be
+granted for educational projects by the following NASA organization:
+
+    Andre Sylvester - Branch Chief
+    Simulation and Graphics Branch - Mail Code ER7
+    Automation, Robotics & Simulation Division
+    NASA, Johnson Space Center, 
+    2101 NASA Parkway, Houston, TX  77058
+
+    NASA Trick Lab Manager: Alex Lin, alexander.s.lin@nasa.gov, (281)244-5306
+    Trick Lab Website: http://trick.jsc.nasa.gov
+
+Any unauthorized use of Trick software including source code, object code or 
+executables is strictly prohibited. 
+
+The following terms apply to all files associated with the Trick software
+unless explicitly disclaimed in individual files or directories.
+
+1. DEFINITIONS
+
+A. "Contributor" means Government Agency, as the developer of the
+Original Software, and any entity that makes a Modification.
+B. "Distribution" means conveyance or transfer of the Subject
+Software, regardless of means, to another.
+E. "Larger Work" means computer software that combines Subject
+Software, or portions thereof, with software separate from the Subject
+Software that is not governed by the terms of this Agreement.
+F.  "Modification" means any alteration of, including addition to or
+deletion from, the substance or structure of either the Original
+Software or Subject Software.  However, the
+act of including Subject Software as part of a Larger Work does not in 
+and of itself constitute a Modification.
+G. "Original Software" means the computer software first released under 
+this Agreement by Government Agency with Government Agency designation 
+NASA/JSC and entitled Trick, including source code, object code and 
+accompanying documentation, if any.
+H. "Recipient" means anyone who acquires the Subject Software under
+this Agreement, including all Contributors.
+I. "Redistribution" means Distribution of the Subject Software after a
+Modification has been made.
+J. "Reproduction" means the making of a counterpart, image or copy of
+the Subject Software.
+K. "Sale" means the exchange of the Subject Software for money or
+equivalent value.
+L. "Subject Software" means the Original Software, Modifications, or
+any respective parts thereof.
+M. "Use" means the application or employment of the Subject Software
+for any purpose.
+
+2. DISCLAIMER OF WARRANTIES AND LIABILITIES; WAIVER AND INDEMNIFICATION
+
+A. No Warranty: TRICK SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY
+WARRANTY OF ANY KIND, EXPRESSED, IMPLIED, OR STATUTORY,
+INCLUDING, BUT NOT LIMITED TO, ANY WARRANTY THAT THE TRICK SOFTWARE
+WILL CONFORM TO SPECIFICATIONS, ANY IMPLIED WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR FREEDOM FROM
+INFRINGEMENT, ANY WARRANTY THAT THE TRICK SOFTWARE WILL BE ERROR
+FREE, OR ANY WARRANTY THAT DOCUMENTATION, IF PROVIDED, WILL CONFORM TO
+THE TRICK SOFTWARE. THIS AGREEMENT DOES NOT, IN ANY MANNER,
+CONSTITUTE AN ENDORSEMENT BY GOVERNMENT AGENCY OR ANY PRIOR RECIPIENT
+OF ANY RESULTS, RESULTING DESIGNS, HARDWARE, SOFTWARE PRODUCTS OR ANY
+OTHER APPLICATIONS RESULTING FROM USE OF THE TRICK SOFTWARE.
+FURTHER, GOVERNMENT AGENCY DISCLAIMS ALL WARRANTIES AND LIABILITIES
+REGARDING THIRD-PARTY SOFTWARE, IF PRESENT IN THE ORIGINAL SOFTWARE,
+AND DISTRIBUTES IT "AS IS."
+
+B. Waiver and Indemnity: RECIPIENT AGREES TO WAIVE ANY AND ALL CLAIMS
+AGAINST THE UNITED STATES GOVERNMENT, ITS CONTRACTORS AND
+SUBCONTRACTORS, AS WELL AS ANY PRIOR RECIPIENT.  IF RECIPIENT'S USE OF
+THE TRICK SOFTWARE RESULTS IN ANY LIABILITIES, DEMANDS, DAMAGES,
+EXPENSES OR LOSSES ARISING FROM SUCH USE, INCLUDING ANY DAMAGES FROM
+PRODUCTS BASED ON, OR RESULTING FROM, RECIPIENT'S USE OF THE TRICK
+SOFTWARE, RECIPIENT SHALL INDEMNIFY AND HOLD HARMLESS THE UNITED
+STATES GOVERNMENT, ITS CONTRACTORS AND SUBCONTRACTORS, AS WELL AS ANY
+PRIOR RECIPIENT, TO THE EXTENT PERMITTED BY LAW.  RECIPIENT'S SOLE
+REMEDY FOR ANY SUCH MATTER SHALL BE THE IMMEDIATE, UNILATERAL
+TERMINATION OF THIS AGREEMENT.
+
+3. OBLIGATIONS OF AUTHORIZED RECIPIENTS OF TRICK
+
+A. Distribution or Redistribution of the Trick Software must be made 
+under this Agreement.
+1. All Recipients of Trick software must register with NASA's 
+Simulation and Graphics Branch of the Automation, Simulation and 
+Robotics Division. This registration can be done with email, 
+website or a letter (See authorization agency information above). 
+The registration must contain the following information:
+    - Point of contact: Name, email, phone and Agency/Company
+    - Description of educational work being performed with Trick
+2. Distribution or Redistribution of Trick Software by the Recipient 
+is not allowed.
+
+
+B. Any Modifications to Trick Software source code must be made under 
+this Agreement.
+
+1. Whenever a Recipient Modifies any Trick Software, the Recipient 
+must characterize its alteration of the Trick Software as a 
+modified custom version of Trick and must identify itself as the 
+originator of its Modification in a manner that reasonably allows 
+identification of the originator of the Modification.  The 
+Contributor must include a file (e.g., a change log file) that 
+describes the alterations made and the date of the alterations 
+and identifies Contributor as originator of the alterations.
+
+The name Trick is copyrighted by LinCom Corporation (now L3-Com Titan
+Corporation).  
+Trick - Copyright © 1996, 1997 LinCom Corporation, Houston, TX
+All rights reserved.
+
+

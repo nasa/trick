@@ -1,0 +1,17 @@
+trigger
+ ( condition | job )
+  insert_(before | after)
+  hold(Yes| No)
+
+Action:
+    variable
+    call
+    job
+    action
+
+MALFUNCTION_CMD <malfunction_name> MANUAL_ON ;
+MALFUNCTION_CMD <malfunction_name> MANUAL_OFF ;
+MALFUNCTION_CMD <malfunction_name> REMOVE_MANUAL ;
+MALFUNCTION_CMD <malfunction_name> DISABLE_TRIGGER ;
+MALFUNCTION_CMD <malfunction_name> DISABLE_TRIGGER ;
+

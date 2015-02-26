@@ -1,0 +1,6 @@
+object_${TRICK_HOST_CPU}/ITimer.o: src/ITimer.cpp include/ITimer.hh include/Timer.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h 
+object_${TRICK_HOST_CPU}/it_handler.o: src/it_handler.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Timer/include/ITimer.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Timer/include/Timer.hh 

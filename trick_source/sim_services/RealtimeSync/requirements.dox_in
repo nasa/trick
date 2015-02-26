@@ -1,0 +1,46 @@
+/**
+
+@page LEVEL3 Realtime Synchronization Requirements
+  
+<b>LEVEL4</b> Trick shall be capable of synchronizing simulation time to a
+real-time clock. 
+
+<b>LEVEL4</b> Trick shall be capable of running non-real-time.
+[@anchor rt_non_real_time rt_non_real_time] 
+
+<b>LEVEL4</b> Trick shall provide the capability to switch between real-time and
+non-real-time execution.
+[@anchor rt_enable rt_enable]
+[@anchor rt_disable rt_disable]
+
+<b>LEVEL4</b> Trick shall detect when the current simulation job execution frame
+takes longer than the real-time frame (overrun).
+[@anchor rt_detect_overrun rt_detect_overrun]
+
+<b>LEVEL4</b> Trick shall provide the option to respond to simulation overruns by
+
+<b>LEVEL5</b> continuing to next frame of execution,
+
+<b>LEVEL5</b> freezing, [@anchor rt_overrun_freeze rt_overrun_freeze]
+
+<b>LEVEL5</b> or terminating.  [@anchor rt_overrun_terminate rt_overrun_terminate] 
+
+<b>LEVEL4</b> The overrun criteria to cause a response shall be either:
+[@anchor rt_overrun_criteria rt_overrun_criteria] 
+
+<b>LEVEL5</b> A single large overrun of a user specified size (in seconds), or 
+
+<b>LEVEL5</b> a user specified number of overruns is detected
+
+<b>LEVEL4</b> Trick shall detect when the current simulation job execution frame is
+equal to or shorter than the real-time frame (underrun).
+[@anchor rt_detect_underrun rt_detect_underrun]
+
+<b>LEVEL4</b> Trick shall wait for real-time to catch up to the 
+simulation time before starting the next frame of execution during an underrun.
+
+<b>LEVEL4</b> Trick shall provide the option to release the processor (sleep) during
+an underrun.
+
+*/
+

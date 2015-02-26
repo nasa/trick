@@ -1,0 +1,43 @@
+object_${TRICK_HOST_CPU}/AttributesMap.o: src/AttributesMap.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Sie/include/AttributesMap.hh \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/attributes.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/parameter_types.h \
+ ${TRICK_HOME}/trick_source/sim_services/CommandLineArguments/include/command_line_protos.h 
+object_${TRICK_HOST_CPU}/EnumAttributesMap.o: src/EnumAttributesMap.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Sie/include/EnumAttributesMap.hh \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/attributes.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/parameter_types.h \
+ ${TRICK_HOME}/trick_source/sim_services/CommandLineArguments/include/command_line_protos.h 
+object_${TRICK_HOST_CPU}/Sie.o: src/Sie.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Sie/include/Sie.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Sie/include/AttributesMap.hh \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/attributes.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/parameter_types.h \
+ ${TRICK_HOME}/trick_source/sim_services/Sie/include/EnumAttributesMap.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
+ ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/reference.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/value.h \
+ ${TRICK_HOME}/trick_source/trick_utils/trick_adt/include/dllist.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/memorymanager_c_intf.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/var.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/io_alloc.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
+ ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/CommandLineArguments/include/command_line_protos.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/MemoryManager.hh \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/mm_error.h \
+ ${TRICK_HOME}/trick_source/sim_services/CheckPointAgent/include/CheckPointAgent.hh \
+ ${TRICK_HOME}/trick_source/trick_utils/units/include/UCFn.hh 
+object_${TRICK_HOST_CPU}/sie_c_intf.o: src/sie_c_intf.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/Sie/include/Sie.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Sie/include/AttributesMap.hh \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/attributes.h \
+ ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/parameter_types.h \
+ ${TRICK_HOME}/trick_source/sim_services/Sie/include/EnumAttributesMap.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Sie/include/sie_c_intf.h 

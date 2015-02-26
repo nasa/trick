@@ -1,0 +1,37 @@
+Setting up a Trick sim iPhone application:
+1. Make a new project in Xcode. Name it whatever you like.
+2. Delete from the project the files in the Classes group that were automatically created.
+3. Basically, you want to make this project reference everything from the iTrick project. Import all the classes (by reference, don't copy them) and all the other resource files needed (gifs, nib files, c files, sie.xml, etc).
+4. Add the necessary Frameworks (MessageUI and AVFoundation).
+5. Cross-compile Trick and the chosen sim (see below). The libtrick.a library may be added by reference. The sim files (lib_sim_objs.a, S_checksums.o, S_source.o) MUST be copied into the project directory (don't ask me why).
+6. Sim-specific environment variables must be manually set from within the startStandAloneSim method of the StandAloneViewController class using the setenv C function.
+7. From the master menu bar, click Project -> Edit Project Settings. Click the Build tab. Under Linking, add -lstdc++ to Other Linker Flags. Under Search Paths, add the path to your trick_source directory to Header Search Paths.
+8. Compile the project in Xcode. Pray.
+9. Any time Trick is rebuilt, you don't need to fiddle with anything in Xcode if you added the library by reference. When you recompile a sim, you must remove the three files from the project and copy over the new ones. You must also clean and rebuild the project for the changes to take effect (since you're replacing files by files of the same name, they don't get flagged for re-linking).
+
+Cross-compiling Trick for the iPhone OS 3.0:
+#Device:
+setenv TRICK_CC /Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/gcc-4.
+2
+setenv TRICK_CPPC /Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/g++-
+4.2
+setenv TRICK_CFLAGS "-I /Users/guest/trick_models -arch armv6 -isysroot /Develo
+per/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS3.0.sdk"
+setenv TRICK_USER_LINK_LIBS ""
+
+#Simulator:
+setenv TRICK_CC /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin
+/gcc-4.2
+setenv TRICK_CPPC /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/b
+in/g++-4.2
+setenv TRICK_CFLAGS "-I /Users/guest/trick_models -isysroot /Developer/Platform
+s/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.0.sdk -arch i386"
+setenv TRICK_USER_LINK_LIBS ""
+
+#Debug
+setenv TRICK_CFLAGS "${TRICK_CFLAGS} -ggdb"
+
+#JEOD
+#setenv TRICK_CFLAGS "${TRICK_CFLAGS} -I/Users/guest/jeod/trunk/models"
+#setenv JEOD_HOME /Users/guest/jeod/trunk
+#setenv TRICK_USER_LINK_LIBS "-lstdc++"}

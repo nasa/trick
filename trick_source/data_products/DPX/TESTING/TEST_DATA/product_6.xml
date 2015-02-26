@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE product PUBLIC "-//Tricklab//DTD Product V1.0//EN" "Product.dtd">
+<product version="1.0">
+
+<!-- Description: Table with attributes. -->
+
+   <title>Table of Sun Positions</title>
+      <table foreground_color="#00ff00" background_color="#556677" >
+         <title>Sun Azimuth vs. Time</title>
+         <column format="%24.10f">
+            <label>Time</label>
+            <units>s</units>
+            <var>sys.exec.out.time</var>
+         </column>
+         <column format="%16.5q">
+            <label>Azimuth</label>
+            <units>d</units>
+            <var>sun_predictor.sun.solar_azimuth</var>
+         </column>
+         <column format="%24.10f">
+            <label>Hours</label>
+            <units>hr</units>
+            <var>sys.exec.out.time</var>
+         </column>
+         <column format="%16.5f">
+            <label>Elevation</label>
+            <units>d</units>
+            <var>sun_predictor.sun.solar_elevation</var>
+         </column>
+      </table>
+</product>

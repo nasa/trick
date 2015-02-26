@@ -1,0 +1,18 @@
+object_${TRICK_HOST_CPU}/RealtimeSync_c_intf.o: src/RealtimeSync_c_intf.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/RealtimeSync/include/RealtimeSync.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Clock/include/Clock.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Timer/include/Timer.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Timer/include/Timer.hh 
+object_${TRICK_HOST_CPU}/RealtimeSync.o: src/RealtimeSync.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/RealtimeSync/include/RealtimeSync.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Clock/include/Clock.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Timer/include/Timer.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Timer/include/Timer.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.h \
+ ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
+ ${TRICK_HOME}/trick_source/sim_services/Message/include/message_proto.h 
+object_${TRICK_HOST_CPU}/RealtimeSync_c_intf.o: src/RealtimeSync_c_intf.cpp \
+ ${TRICK_HOME}/trick_source/sim_services/RealtimeSync/include/RealtimeSync.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Clock/include/Clock.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Timer/include/Timer.hh \
+ ${TRICK_HOME}/trick_source/sim_services/Timer/include/Timer.hh 

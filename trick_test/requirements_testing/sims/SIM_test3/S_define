@@ -1,0 +1,14 @@
+sim_object {
+	sim_services/include: EXECUTIVE exec (sim_services/include/executive.d);
+
+	(automatic) sim_services/input_processor:
+		input_processor(INPUT_PROCESSOR* IP = &sys.exec.ip);
+} sys;
+
+sim_object {
+	test3: TEST3 test3 (test3/include/test3.d);
+
+	(0.01, scheduled) test3:
+		test3_sched(TEST3  * T   = &dyn.test3,
+                            double *time = &sys.exec.out.time );
+} dyn;
