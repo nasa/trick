@@ -1,5 +1,3 @@
-## Coming Soon.
-
 ![trick_logo](https://raw.github.com/nasa/Trick/master/trick-0.png)
 
 The Trick Simulation Environment is developed at the NASA Johnson Space Center.
