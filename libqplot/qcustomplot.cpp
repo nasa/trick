@@ -5707,7 +5707,18 @@ void QCPAxis::draw(QCPPainter *painter)
       QTransform oldTransform = painter->transform();
       painter->translate((origin.x()-margin-labelBounds.height()), origin.y());
       painter->rotate(-90);
-      painter->drawText(0, 0, mAxisRect->height(), labelBounds.height(), Qt::TextDontClip | Qt::AlignCenter, mLabel);
+      /* Keith changed this to elide label */
+      /* Begin Keith Change */
+      QFontMetrics fm(getLabelFont());
+      QString elideLabel = fm.elidedText (mLabel, Qt::ElideLeft,
+                                          mAxisRect->height());
+      painter->drawText(0, 0, mAxisRect->height(), labelBounds.height(),
+                        Qt::TextDontClip | Qt::AlignCenter,
+                        elideLabel);
+      //painter->drawText(0, 0, mAxisRect->height(),
+      //                  labelBounds.height(),
+      //                  Qt::TextDontClip | Qt::AlignCenter, mLabel);
+      /* End Keith Change */
       painter->setTransform(oldTransform);
     }
     else if (mAxisType == atRight)
