@@ -34,10 +34,20 @@ public:
                              QStandardItemModel* varsModel,
                              QStandardItemModel* monteInputsModel=0,
                              QWidget *parent = 0);
+
+    explicit PlotMainWindow( const QStringList& dpFiles,
+                             MonteModel* monteModel,
+                             QStandardItemModel* varsModel,
+                             QStandardItemModel* monteInputsModel=0,
+                             QWidget *parent = 0);
+
+     void savePdf(const QString& fname);
+
     ~PlotMainWindow();
 
 private:
     const QString& _dpDir;
+    const QStringList& _dpFiles;
     MonteModel* _monteModel;
     QStandardItemModel* _varsModel;
     QStandardItemModel* _monteInputsModel;

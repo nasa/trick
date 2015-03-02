@@ -22,6 +22,13 @@ public:
                           QStandardItemModel* plotModel,
                           QItemSelectionModel*  plotSelectModel,
                           QWidget *parent = 0);
+
+    explicit DPTreeWidget(const QStringList& dpFiles,
+                          QStandardItemModel* dpVarsModel,
+                          MonteModel* monteModel,
+                          QStandardItemModel* plotModel,
+                          QItemSelectionModel*  plotSelectModel,
+                          QWidget *parent = 0);
     ~DPTreeWidget();
     
 signals:
@@ -30,6 +37,7 @@ public slots:
 
 private:
     QString _dpDirName;
+    QStringList _dpFiles;
     QStandardItemModel* _dpVarsModel;
     QDir* _dir;
     MonteModel* _monteModel;
