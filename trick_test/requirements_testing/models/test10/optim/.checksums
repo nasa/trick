@@ -1,7 +1,0 @@
-3416 35 ./src/amoeba.c
-29228 1 ./src/cannon_init_amoeba.c
-14437 3 ./src/cannon_post_master.c
-47141 2 ./src/cannon_post_slave.c
-30034 8 ./src/cannon_pre_master.c
-54259 2 ./src/cannon_pre_slave.c
-5447 6 ./include/amoeba.h

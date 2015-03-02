@@ -1,9 +1,0 @@
-<!-- Trick Requirements definition -->
-<!-- V 1.0 -->
-
-<!ELEMENT requirement		(#PCDATA | requirement)*>
-
-<!ATTLIST requirement statement		CDATA #IMPLIED>
-<!ATTLIST requirement tag		    CDATA #IMPLIED>
-<!ATTLIST requirement note		    CDATA #IMPLIED>
-<!ATTLIST requirement verify        CDATA #IMPLIED>
