@@ -19,17 +19,7 @@ object_${TRICK_HOST_CPU}/IntegLoopManager.o: src/IntegLoopManager.cpp \
  src/../include/IntegJobClassId.hh src/../include/IntegLoopScheduler.hh \
  src/../include/IntegLoopManager.hh src/../include/Integrator.hh \
  src/../include/IntegAlgorithms.hh \
- src/../er7_algorithms/ABM_Integrator.hh \
  ${TRICK_HOME}/trick_source/sim_services/Integrator/include/Integrator.hh \
- src/../er7_algorithms/Euler_Cromer_Integrator.hh \
- src/../er7_algorithms/Euler_Integrator.hh \
- src/../er7_algorithms/MM4_Integrator.hh \
- src/../er7_algorithms/NL2_Integrator.hh \
- src/../er7_algorithms/RK2_Integrator.hh \
- src/../er7_algorithms/RK4_Integrator.hh \
- src/../er7_algorithms/RKF45_Integrator.hh \
- src/../er7_algorithms/RKF78_Integrator.hh \
- src/../er7_algorithms/RKG4_Integrator.hh \
  ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/MemoryManager.hh \
  ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/mm_error.h \
  ${TRICK_HOME}/trick_source/sim_services/CheckPointAgent/include/CheckPointAgent.hh \
@@ -59,17 +49,7 @@ object_${TRICK_HOST_CPU}/IntegLoopScheduler.o: src/IntegLoopScheduler.cpp \
  ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/var.h \
  ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/io_alloc.h \
  src/../include/IntegAlgorithms.hh \
- src/../er7_algorithms/ABM_Integrator.hh \
  ${TRICK_HOME}/trick_source/sim_services/Integrator/include/Integrator.hh \
- src/../er7_algorithms/Euler_Cromer_Integrator.hh \
- src/../er7_algorithms/Euler_Integrator.hh \
- src/../er7_algorithms/MM4_Integrator.hh \
- src/../er7_algorithms/NL2_Integrator.hh \
- src/../er7_algorithms/RK2_Integrator.hh \
- src/../er7_algorithms/RK4_Integrator.hh \
- src/../er7_algorithms/RKF45_Integrator.hh \
- src/../er7_algorithms/RKF78_Integrator.hh \
- src/../er7_algorithms/RKG4_Integrator.hh \
  src/../include/IntegLoopManager.hh src/../include/IntegJobClassId.hh \
  ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.h \
  ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
@@ -94,17 +74,7 @@ object_${TRICK_HOST_CPU}/IntegLoopSimObject.o: src/IntegLoopSimObject.cpp \
  ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/var.h \
  ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/io_alloc.h \
  ${TRICK_HOME}/trick_source/sim_services/Integrator/include/IntegAlgorithms.hh \
- ${TRICK_HOME}/trick_source/sim_services/Integrator/er7_algorithms/ABM_Integrator.hh \
  ${TRICK_HOME}/trick_source/sim_services/Integrator/include/Integrator.hh \
- ${TRICK_HOME}/trick_source/sim_services/Integrator/er7_algorithms/Euler_Cromer_Integrator.hh \
- ${TRICK_HOME}/trick_source/sim_services/Integrator/er7_algorithms/Euler_Integrator.hh \
- ${TRICK_HOME}/trick_source/sim_services/Integrator/er7_algorithms/MM4_Integrator.hh \
- ${TRICK_HOME}/trick_source/sim_services/Integrator/er7_algorithms/NL2_Integrator.hh \
- ${TRICK_HOME}/trick_source/sim_services/Integrator/er7_algorithms/RK2_Integrator.hh \
- ${TRICK_HOME}/trick_source/sim_services/Integrator/er7_algorithms/RK4_Integrator.hh \
- ${TRICK_HOME}/trick_source/sim_services/Integrator/er7_algorithms/RKF45_Integrator.hh \
- ${TRICK_HOME}/trick_source/sim_services/Integrator/er7_algorithms/RKF78_Integrator.hh \
- ${TRICK_HOME}/trick_source/sim_services/Integrator/er7_algorithms/RKG4_Integrator.hh \
  ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.hh \
  ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
  ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \

@@ -18,7 +18,9 @@
     #define INTEG_FREE(p) free(p)
 #endif
 
+#ifdef USE_ER7_UTILS_INTEGRATORS
 #include "er7_utils/integration/core/include/integration_technique.hh"
+#endif
 
 /** 
  *  Below are the supported types of integration schemes.

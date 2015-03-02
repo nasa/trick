@@ -184,16 +184,20 @@ $(ER7_UTILS_DIRS): TRICK_CXXFLAGS += -Wno-unused-parameter
 $(ER7_UTILS_DIRS): make_er7_makefiles icg_sim_serv
 	@ $(MAKE) -C $@ trick
 
+ifeq ($(USE_ER7_UTILS_INTEGRATORS), 1)
 .PHONY: make_er7_makefiles
 make_er7_makefiles:
 	@for i in $(ER7_UTILS_DIRS) ; do \
 	   $(CP) ${TRICK_HOME}/trick_source/sim_services/Executive/Makefile $$i; \
 	done
 
+icg_sim_serv: | make_er7_makefiles
+endif
+
 # 1.1.1.4 Generate interface code (using ICG) for the specified sim_services
 # header files.
 .PHONY: icg_sim_serv
-icg_sim_serv: $(ICG_EXE) | make_er7_makefiles
+icg_sim_serv: $(ICG_EXE)
 	${TRICK_HOME}/bin/ICG -s ${TRICK_CXXFLAGS} ${TRICK_HOME}/trick_source/sim_services/include/files_to_ICG.hh
 
 # 1.1.1.4.1 Build the Interface Code Generator (ICG) executable.

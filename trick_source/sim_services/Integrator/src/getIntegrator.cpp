@@ -19,11 +19,13 @@ Programmers:
 #include "sim_services/MemoryManager/include/memorymanager_c_intf.h"
 #include "sim_services/Message/include/message_proto.h"
 
+#ifdef USE_ER7_UTILS_INTEGRATORS
 // Interface includes
 #include "er7_utils/interface/include/alloc.hh"
 
 // Integration includes
 #include "er7_utils/integration/core/include/integrator_constructor_factory.hh"
+#endif
 
 // Local includes
 #include "../include/Integrator.hh"

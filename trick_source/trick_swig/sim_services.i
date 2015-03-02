@@ -144,11 +144,13 @@
 #include "sim_services/include/Flag.h"
 #include "trick_utils/units/include/Unit.hh"
 
+#ifdef USE_ER7_UTILS_INTEGRATORS
 #include "er7_utils/integration/core/include/integrator_constructor_factory.hh"
 #include "er7_utils/integration/core/include/integrable_object.hh"
 #include "er7_utils/integration/core/include/base_integration_group.hh"
 #include "er7_utils/trick/integration/include/first_order_ode_integrator.hh"
 #include "er7_utils/trick/integration/include/second_order_ode_integrator.hh"
+#endif
 
 %}
 
