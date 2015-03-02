@@ -10,6 +10,11 @@
 #include "sim_services/MemoryManager/include/reference.h"
 #include "sim_services/SimObject/include/JobData.hh"
 
+#ifdef SWIG
+// SWIG macros are not normally run on classes in sim_services.  We can add the the processed code manually
+%trick_swig_class_typemap(Trick::IPPythonEvent, Trick__IPPythonEvent)
+#endif
+
 namespace Trick {
 
     class IPPython ;
@@ -425,5 +430,11 @@ int ippython_manual_on(std::string event_name) ;
 int ippython_manual_fire(std::string event_name) ;
 int ippython_manual_off(std::string event_name) ;
 int ippython_manual_done(std::string event_name) ;
+
+#ifdef SWIG
+// SWIG macros are not normally run on classes in sim_services.  We can add the the processed code manually
+%trick_cast_as(Trick::IPPythonEvent, Trick__IPPythonEvent)
+#endif
+
 #endif
 
