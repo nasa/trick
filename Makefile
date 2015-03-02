@@ -106,10 +106,13 @@ SWIG_OBJS = $(addsuffix /object_$(TRICK_HOST_CPU)/*.o ,$(SWIG_DIRS))
 #-------------------------------------------------------------------------------
 # Specify where to find units tests.
 #-------------------------------------------------------------------------------
-UNIT_TEST_DIRS = \
+UNIT_TEST_DIRS := \
     $(wildcard ${TRICK_HOME}/trick_source/sim_services/*/test) \
     $(wildcard ${TRICK_HOME}/trick_source/trick_utils/*/test) \
     ${TRICK_HOME}/trick_source/data_products/DPX/test/unit_test
+ifeq ($(USE_ER7_UTILS_INTEGRATORS), 0)
+  UNIT_TEST_DIRS := $(filter-out %Integrator/test,$(UNIT_TEST_DIRS))
+endif
 
 #-------------------------------------------------------------------------------
 # FIXME:
@@ -259,7 +262,7 @@ premade:
 #                                   TESTING
 ################################################################################
 # This target runs Trick's Unit-tests and simulation-tests.
-test: unit_test sim_test requirements
+test: unit_test sim_test
 	@ echo "All tests completed sucessfully"
 
 .PHONY: $(UNIT_TEST_DIRS)
@@ -271,8 +274,8 @@ unit_test: $(UNIT_TEST_DIRS)
 sim_test:
 	@ $(MAKE) -C trick_sims test
 
-requirements:
-	@ $(MAKE) -C trick_test/requirements_docs install
+#requirements:
+#	@ $(MAKE) -C trick_test/requirements_docs install
 
 ################################################################################
 #                                 CLEAN Targets
@@ -337,14 +340,14 @@ clean_java:
 
 # FIXME: Seems to me that the for loop below should be removed and that the
 #        'clean' target in trick_sims/makefile should be doing this. --Penn
-clean_test: clean_unit_test clean_requirements
+clean_test: clean_unit_test
 	-@ $(MAKE) -C trick_sims clean
 	@for i in $(MODEL_DIRS) ; do \
 	   cd $$i ; /bin/rm -rf io_src object_* swig xml ; \
 	done
 
-clean_requirements:
-	@ $(MAKE) -C trick_test/requirements_docs clean
+#clean_requirements:
+#	@ $(MAKE) -C trick_test/requirements_docs clean
 
 clean_stand_alone_utils:
 	@ $(MAKE) -C ${TRICK_HOME}/trick_source/trick_utils clean_stand_alone
