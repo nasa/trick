@@ -81,10 +81,11 @@ TRICK_CXXFLAGS += -DHAVE_ZEROCONF
 endif
 
 export USE_ER7_UTILS_INTEGRATORS := 0
-ifneq ("$(wildcard $(ER7_UTILS_HOME))","")  # if the er7_utils directory exists
+ifneq ("$(wildcard $(TRICK_HOME)/trick_source/er7_utils)","")  # if the er7_utils directory exists
+  ER7_UTILS_HOME := $(TRICK_HOME)/trick_source/er7_utils
   USE_ER7_UTILS_INTEGRATORS := 1
-  TRICK_CFLAGS += -DUSE_ER7_UTILS_INTEGRATORS -I${ER7_UTILS_HOME}/..
-  TRICK_CXXFLAGS += -DUSE_ER7_UTILS_INTEGRATORS -I${ER7_UTILS_HOME}/..
+  TRICK_CFLAGS += -DUSE_ER7_UTILS_INTEGRATORS
+  TRICK_CXXFLAGS += -DUSE_ER7_UTILS_INTEGRATORS
 endif
 
 endif #TRICK_MAKE_COMMON

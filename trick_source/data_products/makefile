@@ -14,8 +14,8 @@ LIBDIRS = Var \
     Log \
     EQParse
 
-ifneq ($(FERMI_WARE_HOME),)
-LIBDIRS += $(FERMI_WARE_HOME)
+ifneq ("$(wildcard fermi-ware)","")
+LIBDIRS += fermi-ware
 endif
 
 APPDIRS = DPX \

@@ -2,9 +2,11 @@ config.status.*
 config_*.mk
 object_*
 io_src
+swig
 lib_Linux_*
 lib_Darwin_*
 *.lex.c
 *.tab.c
 *.tab.h
 *.swp
+Makefile_jsc_dirs

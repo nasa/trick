@@ -30,8 +30,6 @@ gtest=""
 motif=""
 hdf5=""
 dmtcp=""
-er7_utils=""
-fermi_ware=""
 dmtcp_min_ver=1.2.4
 tprocte=""
 bc635=""
@@ -258,14 +256,6 @@ do
            prev=dmtcp ;;
        --dmtcp=*)
            dmtcp=$optarg ;;
-       --er7-utils)
-           prev=er7_utils ;;
-       --er7-utils=*)
-           er7_utils=$optarg ;;
-       --fermi-ware)
-           prev=fermi_ware ;;
-       --fermi-ware=*)
-           fermi_ware=$optarg ;;
        --flex | --lex)
            prev=flex ;;
        --flex=* | --lex=*)
@@ -685,7 +675,7 @@ fi
 # If this TRICK_HOME is from our repository.
 if [ -e "$TRICK_HOME/.git" -o $dev == 1 ] ; then
 
-    echo "Trick subversion repository detected. Additional developer configuration continuing"
+    echo "Trick development repository detected. Additional developer configuration continuing"
 
     # go ahead and set dev to 1.
     dev=1
@@ -836,8 +826,6 @@ GTEST_HOME = $gtest
 
 LIBXML = $libxml
 MOTIF_HOME = $motif
-FERMI_WARE_HOME = $fermi_ware
-ER7_UTILS_HOME = $er7_utils
 
 # experimental, default to 0
 HAVE_ZEROCONF = 0

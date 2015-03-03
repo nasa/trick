@@ -154,7 +154,7 @@ ICG_EXE := ${TRICK_HOME}/trick_source/codegen/Interface_Code_Gen/ICG_$(shell una
 ################################################################################
 # DEFAULT TARGET
 # 1 Build Trick-core and Trick Data-products.
-all: no_dp dp
+all: no_dp dp java
 	@ echo ; echo "[32mTrick compilation complete:[00m" ; date
 
 #-------------------------------------------------------------------------------
@@ -187,13 +187,13 @@ $(ER7_UTILS_DIRS): TRICK_CXXFLAGS += -Wno-unused-parameter
 $(ER7_UTILS_DIRS): make_er7_makefiles icg_sim_serv
 	@ $(MAKE) -C $@ trick
 
-ifeq ($(USE_ER7_UTILS_INTEGRATORS), 1)
 .PHONY: make_er7_makefiles
 make_er7_makefiles:
 	@for i in $(ER7_UTILS_DIRS) ; do \
 	   $(CP) ${TRICK_HOME}/trick_source/sim_services/Executive/Makefile $$i; \
 	done
 
+ifeq ($(USE_ER7_UTILS_INTEGRATORS), 1)
 icg_sim_serv: | make_er7_makefiles
 endif
 
@@ -282,7 +282,7 @@ sim_test:
 ################################################################################
 
 
-clean: clean_sim_serv clean_utils clean_swig clean_dp clean_ICG
+clean: clean_sim_serv clean_utils clean_swig clean_dp clean_ICG clean_java
 	@/bin/rm -rf $(TRICK_BIN_DIR)
 	@/bin/rm -rf $(TRICK_LIB_DIR)
 
@@ -515,3 +515,5 @@ ICG: $(ICG_EXE)
 trick_lib:
 	${TRICK_CPPC} $(SHARED_LIB_OPT) -o $(TRICK_LIB) $(SIM_SERV_OBJS) $(ER7_UTILS_OBJS) $(UTILS_OBJS) $(SWIG_OBJS)
 
+# For NASA/JSC developers include optional rules
+-include Makefile_jsc_dirs

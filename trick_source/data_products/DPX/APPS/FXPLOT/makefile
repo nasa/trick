@@ -11,7 +11,7 @@ DPX_DIR = ../..
 
 CFLAGS = -g -Wall
 
-INCDIRS = -I${DPX_DIR} -I../../.. -I/usr/include/libxml2 -I$(MOTIF_HOME)/include -I$(FERMI_WARE_HOME)
+INCDIRS = -I${DPX_DIR} -I../../.. -I/usr/include/libxml2 -I$(MOTIF_HOME)/include -I$(TRICK_HOME)/trick_source/data_products/fermi-ware
 
 OBJDIR = object_${TRICK_HOST_CPU}
 LIBDIR = ${DPX_DIR}/lib_${TRICK_HOST_CPU}
@@ -38,7 +38,7 @@ endif
 
 DP_LIBS       = -L../../../lib_${TRICK_HOST_CPU} -llog -lvar -leqparse -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} -ltrick_units
 DPX_LIBS      = -L${DPX_DIR}/lib_${TRICK_HOST_CPU} -lDPC -lDPM
-FERMI_WARE_LIB = $(FERMI_WARE_HOME)/object_${TRICK_HOST_CPU}/libfermi.a
+FERMI_WARE_LIB = $(TRICK_HOME)/trick_source/data_products/fermi-ware/object_${TRICK_HOST_CPU}/libfermi.a
 
 ALL_LIBS = $(DPX_LIBS) $(FERMI_WARE_LIB) ${DP_LIBS} ${TRICK_UNIT_LIBS} $(LIBXML) ${HDF5_LIBRARY} -ldl $(FERMI_WARE_DIR)
 

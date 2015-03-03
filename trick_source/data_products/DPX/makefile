@@ -14,7 +14,7 @@ LIBDIRS = DPM \
 
 APPDIRS = APPS/GXPLOT
 
-ifneq ($(FERMI_WARE_HOME),)
+ifneq ("$(wildcard ${TRICK_HOME}/trick_source/data_products/fermi-ware)","")
 APPDIRS += APPS/FXPLOT
 endif
 
