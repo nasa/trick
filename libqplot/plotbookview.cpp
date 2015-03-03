@@ -284,24 +284,24 @@ bool PlotBookView::savePdf(const QString &fileName)
             plots.at(0)->plotLayout()->insertColumn(1);
             plots.at(0)->axisRect()->setOuterRect(plotRect);
 
-            plots.at(1)->plotLayout()->insertRow(1);
-            plots.at(1)->plotLayout()->insertRow(1);
-            plots.at(1)->plotLayout()->insertColumn(0);
+            plots.at(1)->plotLayout()->insertRow(0);
+            plots.at(1)->plotLayout()->insertRow(2);
+            plots.at(1)->plotLayout()->insertColumn(1);
             plots.at(1)->axisRect()->setOuterRect(plotRect);
 
             plots.at(2)->plotLayout()->insertRow(0);
-            plots.at(2)->plotLayout()->insertRow(2);
+            plots.at(2)->plotLayout()->insertRow(0);
             plots.at(2)->plotLayout()->insertColumn(1);
             plots.at(2)->axisRect()->setOuterRect(plotRect);
 
-            plots.at(3)->plotLayout()->insertRow(0);
-            plots.at(3)->plotLayout()->insertRow(2);
+            plots.at(3)->plotLayout()->insertRow(1);
+            plots.at(3)->plotLayout()->insertRow(1);
             plots.at(3)->plotLayout()->insertColumn(0);
             plots.at(3)->axisRect()->setOuterRect(plotRect);
 
             plots.at(4)->plotLayout()->insertRow(0);
-            plots.at(4)->plotLayout()->insertRow(0);
-            plots.at(4)->plotLayout()->insertColumn(1);
+            plots.at(4)->plotLayout()->insertRow(2);
+            plots.at(4)->plotLayout()->insertColumn(0);
             plots.at(4)->axisRect()->setOuterRect(plotRect);
 
             plots.at(5)->plotLayout()->insertRow(0);
@@ -800,9 +800,19 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 break;
             }
             case 6: {
+                QWidget* w1 = grid->itemAtPosition(0,0)->widget();
+                QWidget* w2 = grid->itemAtPosition(0,1)->widget();
+                QWidget* w3 = grid->itemAtPosition(1,0)->widget();
+                QWidget* w4 = grid->itemAtPosition(1,1)->widget();
                 QWidget* w5 = grid->itemAtPosition(2,0)->widget();
+                grid->removeWidget(w2);
+                grid->removeWidget(w3);
+                grid->removeWidget(w4);
                 grid->removeWidget(w5);
-                grid->addWidget(w5,2,0);
+                grid->addWidget(w2,1,0);
+                grid->addWidget(w3,2,0);
+                grid->addWidget(w4,0,1);
+                grid->addWidget(w5,1,1);
                 grid->addWidget(plot,2,1);
                 break;
             }
