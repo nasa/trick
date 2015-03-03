@@ -9,7 +9,7 @@ is to provide a common set of simulation capabilities allowing the domain expert
 to concentrate on their domain specific models, rather than simulation-specific
 functions like an job ordering, input file processing, or data recording.
 
-## Installing Trick
+### Installing Trick
 
 The [Installing Trick](https://github.com/nasa/Trick/wiki/Installing-Trick)
 wiki page includes instructions to install Trick.
