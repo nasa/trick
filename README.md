@@ -14,4 +14,9 @@ functions like an job ordering, input file processing, or data recording.
 The [Installing Trick](https://github.com/nasa/Trick/wiki/Installing-Trick)
 wiki page includes instructions to install Trick.
 
+### User's Guide
+
+The full [User's Guide](https://github.com/nasa/Trick/wiki/Users-Guide) is in
+the wiki pages.
+
 
