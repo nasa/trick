@@ -305,7 +305,7 @@ clean_er7_utils: make_er7_makefiles
 clean_utils:
 	@ $(MAKE) -C ${TRICK_HOME}/trick_source/trick_utils real_clean
 
-clean_swig: make_er7_makefiles
+clean_swig:
 	@for i in $(SWIG_DIRS) ; do \
 	   $(MAKE) -C $$i real_clean ; \
 	done
@@ -366,36 +366,40 @@ install: copy_files
 
 .PHONY: copy_files
 copy_files: ${PREFIX}/trick/trick-$(TRICK_VERSION) copy_trick_source
-	@ cp -r ${TRICK_HOME}/bin ${PREFIX}/trick/trick-$(TRICK_VERSION)
-	@ cp ${TRICK_HOME}/config_Linux.mk ${PREFIX}/trick/trick-$(TRICK_VERSION)
-	@ cp -r ${TRICK_HOME}/docs ${PREFIX}/trick/trick-$(TRICK_VERSION)
-	@ cp -r ${TRICK_HOME}/lib_${TRICK_HOST_CPU} ${PREFIX}/trick/trick-$(TRICK_VERSION)
-	@ cp -r ${TRICK_HOME}/makefiles ${PREFIX}/trick/trick-$(TRICK_VERSION)
-	@ cp -r ${TRICK_HOME}/man ${PREFIX}/trick/trick-$(TRICK_VERSION)
+	cp -r ${TRICK_HOME}/bin ${PREFIX}/trick/trick-$(TRICK_VERSION)
+	cp ${TRICK_HOME}/config_Linux.mk ${PREFIX}/trick/trick-$(TRICK_VERSION)
+	cp -r ${TRICK_HOME}/docs ${PREFIX}/trick/trick-$(TRICK_VERSION)
+	cp -r ${TRICK_HOME}/lib_${TRICK_HOST_CPU} ${PREFIX}/trick/trick-$(TRICK_VERSION)
+	cp -r ${TRICK_HOME}/makefiles ${PREFIX}/trick/trick-$(TRICK_VERSION)
+	cp -r ${TRICK_HOME}/man ${PREFIX}/trick/trick-$(TRICK_VERSION)
 
 ${PREFIX}/trick/trick-$(TRICK_VERSION) :
-	@ mkdir -p $@
+	mkdir -p $@
 
 ###########
 
-copy_trick_source: copy_codegen copy_er7_utils_dirs copy_sim_objects copy_sim_serv_dirs copy_utils_dirs copy_swig
+copy_trick_source: copy_codegen copy_sim_objects copy_sim_serv_dirs copy_utils_dirs copy_swig
+
+ifeq ($(USE_ER7_UTILS_INTEGRATORS), 1)
+copy_trick_source: copy_er7_utils_dirs
+endif
 
 ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source : ${PREFIX}/trick/trick-$(TRICK_VERSION)
-	@ mkdir -p $@
+	mkdir -p $@
 
 ###########
 
 copy_codegen: ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/codegen/Interface_Code_Gen
-	@ cp ${TRICK_HOME}/trick_source/codegen/Interface_Code_Gen/ICG_* ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/codegen/Interface_Code_Gen
-	@ cp -r ${TRICK_HOME}/trick_source/codegen/Interface_Code_Gen/lib ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/codegen/Interface_Code_Gen
+	cp ${TRICK_HOME}/trick_source/codegen/Interface_Code_Gen/ICG_* ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/codegen/Interface_Code_Gen
+	cp -r ${TRICK_HOME}/trick_source/codegen/Interface_Code_Gen/lib ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/codegen/Interface_Code_Gen
 
 ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/codegen/Interface_Code_Gen : ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source
-	@ mkdir -p $@
+	mkdir -p $@
 
 ###########
 
 copy_sim_objects: ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source
-	@ cp -r ${TRICK_HOME}/trick_source/sim_objects ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source
+	cp -r ${TRICK_HOME}/trick_source/sim_objects ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source
 
 ###########
 
@@ -403,10 +407,10 @@ BARE_ER7_UTILS_DIRS = $(patsubst ${TRICK_HOME}/trick_source/er7_utils/%,%,$(ER7_
 TARGET_ER7_UTILS_DIRS = $(addprefix ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/er7_utils/,$(BARE_ER7_UTILS_DIRS))
 
 ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/er7_utils : ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source
-	@ mkdir -p $@
+	mkdir -p $@
 
 $(TARGET_ER7_UTILS_DIRS): ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/er7_utils
-	@ mkdir -p $@
+	mkdir -p $@
 
 copy_er7_utils_dirs: $(TARGET_ER7_UTILS_DIRS)
 	@for i in $(BARE_ER7_UTILS_DIRS) ; do \
@@ -421,15 +425,15 @@ TARGET_SIM_SERV_DIRS = $(addprefix ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_
 TARGET_SIM_SERV_DIRS += ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/sim_services/include
 
 ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/sim_services : ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source
-	@ mkdir -p $@
+	mkdir -p $@
 
 $(TARGET_SIM_SERV_DIRS): ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/sim_services
-	@ mkdir -p $@
+	mkdir -p $@
 
 copy_sim_serv_dirs: $(TARGET_SIM_SERV_DIRS)
-	@ cp ${TRICK_HOME}/trick_source/sim_services/include/*.h ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/sim_services/include
-	@ cp ${TRICK_HOME}/trick_source/sim_services/include/*.hh ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/sim_services/include
-	@for i in $(BARE_SIM_SERV_DIRS) ; do \
+	cp ${TRICK_HOME}/trick_source/sim_services/include/*.h ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/sim_services/include
+	cp ${TRICK_HOME}/trick_source/sim_services/include/*.hh ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/sim_services/include
+	for i in $(BARE_SIM_SERV_DIRS) ; do \
 	   cp -r ${TRICK_HOME}/trick_source/sim_services/$$i/include ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/sim_services/$$i ; \
 	done
 
@@ -439,13 +443,13 @@ BARE_UTILS_DIRS = $(notdir $(UTILS_DIRS))
 TARGET_UTILS_DIRS = $(addprefix ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/trick_utils/,$(BARE_UTILS_DIRS))
 
 ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/trick_utils : ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source
-	@ mkdir -p $@
+	mkdir -p $@
 
 $(TARGET_UTILS_DIRS): ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/trick_utils
-	@ mkdir -p $@
+	mkdir -p $@
 
 copy_utils_dirs: $(TARGET_UTILS_DIRS)
-	@for i in $(BARE_UTILS_DIRS) ; do \
+	for i in $(BARE_UTILS_DIRS) ; do \
 	   cp -r ${TRICK_HOME}/trick_source/trick_utils/$$i/include ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/trick_utils/$$i ; \
 	done
 
@@ -456,11 +460,11 @@ TARGET_SWIG_DIRS = \
  ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/trick_swig/swig_${TRICK_HOST_CPU}
 
 $(TARGET_SWIG_DIRS): ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source
-	@ mkdir -p $@
+	mkdir -p $@
 
 copy_swig: $(TARGET_SWIG_DIRS)
-	@ cp ${TRICK_HOME}/trick_source/trick_swig/*.py ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/trick_swig
-	@ cp ${TRICK_HOME}/trick_source/trick_swig/swig_${TRICK_HOST_CPU}/*.py ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/trick_swig/swig_${TRICK_HOST_CPU}
+	cp ${TRICK_HOME}/trick_source/trick_swig/*.py ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/trick_swig
+	cp ${TRICK_HOME}/trick_source/trick_swig/swig_${TRICK_HOST_CPU}/*.py ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/trick_swig/swig_${TRICK_HOST_CPU}
 
 ###########
 
@@ -473,7 +477,7 @@ uninstall:
 ifeq ($(TRICK_HOST_TYPE),Linux)
 ALTERNATIVES := $(shell which alternatives || which update-alternatives)
 
-#install: set_alternatives
+install: set_alternatives
 .PHONY: set_alternatives
 set_alternatives: copy_files
 	- ${ALTERNATIVES} --install /usr/local/bin/CP trick ${PREFIX}/trick/trick-$(TRICK_VERSION)/bin/CP 10 \
@@ -487,7 +491,7 @@ set_alternatives: copy_files
   --slave /usr/local/bin/trick_version trick_version /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick_version \
   --slave /usr/local/bin/tv tv /usr/local/trick/trick-$(TRICK_VERSION)/bin/tv
 
-#uninstall: remove_alternatives
+uninstall: remove_alternatives
 .PHONY: remove_alternatives
 remove_alternatives:
 	- ${ALTERNATIVES} --remove trick ${PREFIX}/trick/trick-$(TRICK_VERSION)/bin/CP
