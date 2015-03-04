@@ -21,7 +21,7 @@ the wiki pages.
 
 ### Tutorial
 
-A [tutorial](docs/tutorial.pdf) to how to start using Trick can be found in the docs directory.
+The Trick tutorial explaining how to start using Trick can be found in the docs directory.
 
 ### License
 
