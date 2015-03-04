@@ -2,8 +2,11 @@
 
 # trick_dp that determines trick_home based on execution location of this script.
 
+use FindBin qw($Bin);
+use lib "$Bin/pm" ;
 use File::Basename ;
 use Cwd 'abs_path';
+use gte ;
 
 if ( ! exists $ENV{TRICK_HOME} ) {
     $trick_bin = dirname(abs_path($0)) ;
@@ -12,6 +15,9 @@ if ( ! exists $ENV{TRICK_HOME} ) {
     # set TRICK_HOME based on the value of trick_home
     $ENV{TRICK_HOME} = $trick_home ;
 }
+$host_cpu = gte("TRICK_HOST_CPU") ;
+chomp($host_cpu) ;
+$ENV{TRICK_HOST_CPU} = $host_cpu ;
 
 if ( $^O eq "darwin" ) {
     $command = "java -classpath $ENV{TRICK_HOME}/bin/java/dist/*:$ENV{TRICK_HOME}/bin/java/lib/*:$ENV{TRICK_HOME}/bin/java/lib/ \\

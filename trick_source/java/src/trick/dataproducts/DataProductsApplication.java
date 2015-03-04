@@ -71,7 +71,7 @@ public abstract class DataProductsApplication extends TrickApplication {
     public SessionRun runToConfigure;
 
     public String sessionFile;
-        
+
     public File fileDevice;
 
     //========================================
@@ -88,7 +88,7 @@ public abstract class DataProductsApplication extends TrickApplication {
     protected JRadioButtonMenuItem fermiRadioButton;
     protected JRadioButtonMenuItem javaRadioButton;
     protected JRadioButtonMenuItem gnuplotRadioButton;
-    
+
     protected JToggleButton gnuplotButton;
 
     protected String plotDevice = Session.DEVICE_OPTIONS[Session.TERMINAL_DEVICE];
@@ -97,19 +97,21 @@ public abstract class DataProductsApplication extends TrickApplication {
 
     protected static String TEMP_DP_FILE         = "/tmp/DP_" + System.getenv("USER") + ".xml";
     protected static String TEMP_SESSION_FILE    = "/tmp/Session_" + System.getenv("USER") + ".xml";
-    
-    
+
+    protected boolean fermiExists ;
+
     //========================================
     //  Private Data
     //========================================
     private String plotCommand;
-    
+
     // Options are: "Simple", "Comparison", "Delta", "Contrast"
     private String preferredPresentation;
-    
+
     // Options are: "Plot", "Table".
     private String displayMode;
-    
+
+
     //========================================
     //  Constructors
     //========================================
@@ -122,30 +124,30 @@ public abstract class DataProductsApplication extends TrickApplication {
      * Sets the preferred presentation.
      */
     public void setPreferredPresentation(String pt) {
-    	preferredPresentation = pt;
+        preferredPresentation = pt;
     }
-    
+
     /**
      * Gets the preferred presentation.
      */
     public String getPreferredPresentation() {
-    	return preferredPresentation;
+        return preferredPresentation;
     }
-    
+
     /**
      * Sets preferred display mode.
      */
     public void setDisplayMode(String md) {
-    	displayMode = md;
+        displayMode = md;
     }
-    
+
     /**
      * Gets preferred display mode.
      */
     public String getDisplayMode() {
-    	return displayMode;
+        return displayMode;
     }
-    
+
     /**
      * Gets the common bottom component if this is what you want.
      *
@@ -234,12 +236,16 @@ public abstract class DataProductsApplication extends TrickApplication {
     public void toggleGnuplot() {
         if (gnuplotButton.isSelected()) {
             gnuplotButton.setIcon(resourceMap.getIcon("gnuplot.on.icon"));
-            gnuplotRadioButton.setSelected(true);           
+            gnuplotRadioButton.setSelected(true);
             getAction("selectGnuplotTerminal").setEnabled(true);
         } else {
             gnuplotButton.setIcon(resourceMap.getIcon("gnuplot.off.icon"));
             if (gnuplotRadioButton.isSelected()) {
-            	fermiRadioButton.setSelected(true);   
+                if ( fermiExists ) {
+                    fermiRadioButton.setSelected(true);
+                } else {
+                    javaRadioButton.setSelected(true);
+                }
             }
             getAction("selectGnuplotTerminal").setEnabled(false);
         }
@@ -258,7 +264,7 @@ public abstract class DataProductsApplication extends TrickApplication {
         getAction("selectGnuplotTerminal").setEnabled(true);
         toggleGnuplot();
     }
-    
+
     @Action
     public void selectJavaPlot() {
         gnuplotButton.setSelected(false);
@@ -327,7 +333,7 @@ public abstract class DataProductsApplication extends TrickApplication {
      */
     @Override
     protected void initialize(String[] args) {
-        super.initialize(args);       
+        super.initialize(args);
     }
 
     /**
@@ -360,19 +366,30 @@ public abstract class DataProductsApplication extends TrickApplication {
 
         fermiRadioButton = new JRadioButtonMenuItem();
         fermiRadioButton.setAction(getAction("selectFermi"));
-        fermiRadioButton.setSelected(true);
 
         javaRadioButton = new JRadioButtonMenuItem(getAction("selectJavaPlot"));
-        
+
+        String fermi_exe = UIUtils.getTrickHome() + "/trick_source/data_products/DPX/APPS/FXPLOT/object_" + UIUtils.getTrickHostCPU() + "/fxplot" ;
+        File f = new File(fermi_exe) ;
+        fermiExists = f.exists() ;
+
+        if ( fermiExists ) {
+            fermiRadioButton.setSelected(true);
+        } else {
+            javaRadioButton.setSelected(true);
+        }
+
         gnuplotRadioButton = new JRadioButtonMenuItem();
         gnuplotRadioButton.setAction(getAction("selectGnuplot"));
 
         radioButtonGroup = new ButtonGroup();
-        radioButtonGroup.add(fermiRadioButton);
+        if ( fermiExists ) {
+            radioButtonGroup.add(fermiRadioButton);
+        }
         radioButtonGroup.add(javaRadioButton);
         radioButtonGroup.add(gnuplotRadioButton);
-        
-        
+
+
         View view = getMainView();
         view.setComponent(createMainPanel());
         view.setMenuBar(createMenuBar());
@@ -388,7 +405,7 @@ public abstract class DataProductsApplication extends TrickApplication {
      * @return a {@link JComponent} as the main panel.
      */
     @Override
-	protected JComponent createMainPanel() {
+    protected JComponent createMainPanel() {
 
         JXMultiSplitPane msp = new JXMultiSplitPane();
 
@@ -463,7 +480,7 @@ public abstract class DataProductsApplication extends TrickApplication {
             gnuplotTerminal = Session.GNUPLOT_TERMINAL_OPTIONS[Session.X11_GNUPLOT_TERMINAL];
         }
     }
-    
+
     /**
      * Helper method for setting plot device.
      *
@@ -478,7 +495,7 @@ public abstract class DataProductsApplication extends TrickApplication {
             plotDevice = Session.DEVICE_OPTIONS[Session.TERMINAL_DEVICE];
         }
     }
-    
+
     /**
      * Resets all commond fields if available.
      */
@@ -557,49 +574,49 @@ public abstract class DataProductsApplication extends TrickApplication {
      * @param sessionFile    The session used for plotting.
      */
     public void launchPlotProgram(String sessionFile) {
-    	if (fermiRadioButton.isSelected()) {
-    		plotCommand = resourceMap.getString("fxplot.command");
-    	} else if (javaRadioButton.isSelected()) {
-    		plotCommand = resourceMap.getString("jxplot.command");
-    	} else if (gnuplotRadioButton.isSelected()) {
-    		plotCommand = resourceMap.getString("gxplot.command");
-    	}
-        
+        if (fermiRadioButton.isSelected()) {
+            plotCommand = resourceMap.getString("fxplot.command");
+        } else if (javaRadioButton.isSelected()) {
+            plotCommand = resourceMap.getString("jxplot.command");
+        } else if (gnuplotRadioButton.isSelected()) {
+            plotCommand = resourceMap.getString("gxplot.command");
+        }
+
         plotCommand = UIUtils.getTrickBin() + File.separator + plotCommand;
         (new LaunchPlotProcessTask(plotCommand, sessionFile)).execute();
     }
-    
+
     /**
      * Launches a process with specified parameters.
      *
      * @param command     The operating system program and arguments.
      */
     public void launchPlotProcess(String... command) throws Exception{
-    	if (command == null || command.length < 0) {
-    		printStatusMessage("No plotting command specified!\n");
-    		return;
-    	}
-        if (plotDevice.equals(Session.DEVICE_OPTIONS[Session.FILE_DEVICE])) {       	
-        	printStatusMessage("Generating postscript file(s) ...\n");
+        if (command == null || command.length < 0) {
+            printStatusMessage("No plotting command specified!\n");
+            return;
+        }
+        if (plotDevice.equals(Session.DEVICE_OPTIONS[Session.FILE_DEVICE])) {
+            printStatusMessage("Generating postscript file(s) ...\n");
         } else {
             printStatusMessage("===>>>Launching " + command[0] + "<<<===\n");
-    	}
+        }
         ProcessBuilder pb = new ProcessBuilder(command);
-        
+
         captureProcessMessage(pb.start());
     }
-    
+
     /**
      * Redirects runtime process messages from screen to GUI status area.
-     * 
+     *
      * @param runtimeProcess The runtime process from which screen messages is generated.
      */
     public void captureProcessMessage(Process runtimeProcess) {
-        try {            
+        try {
             if (runtimeProcess == null) {
                 return;
             }
-            
+
             BufferedReader stdInput = new BufferedReader(new InputStreamReader(runtimeProcess.getInputStream()));
 
             BufferedReader stdError = new BufferedReader(new InputStreamReader(runtimeProcess.getErrorStream()));
@@ -626,10 +643,10 @@ public abstract class DataProductsApplication extends TrickApplication {
     public void printStatusMessage(String msg) {
         statusArea.append(msg);
     }
-    
-    
+
+
     private class LaunchPlotProcessTask extends SwingWorker<Void, Void> {
-    	private String[] processCommand;
+        private String[] processCommand;
         public LaunchPlotProcessTask(String... command) {
             this.processCommand = command;
         }
@@ -637,10 +654,10 @@ public abstract class DataProductsApplication extends TrickApplication {
         @Override
         public Void doInBackground() {
             try {
-				launchPlotProcess(processCommand);
-			} catch (Exception e) {
-				printStatusMessage("Error launching plotting process!\n");
-			}
+                launchPlotProcess(processCommand);
+            } catch (Exception e) {
+                printStatusMessage("Error launching plotting process!\n");
+            }
             return null;
         }
 
@@ -648,5 +665,5 @@ public abstract class DataProductsApplication extends TrickApplication {
         public void done() {
         }
     }
-    
+
 }
