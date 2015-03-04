@@ -51,7 +51,7 @@ private:
     bool _isSkip; // Hack City :(
 
     QModelIndex _findSinglePlotPageWithCurve(const QString& curveName);
-    QStandardItem* _createQPItem();
+    QStandardItem* _createPageItem();
     void _addPlotOfVarToPageItem(QStandardItem* pageItem,
                                  const QModelIndex &varIdx);
     void _selectCurrentRunOnPageItem(QStandardItem* pageItem);

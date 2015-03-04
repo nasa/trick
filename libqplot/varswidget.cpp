@@ -57,21 +57,21 @@ void VarsWidget::_varsSelectModelSelectionChanged(
     if ( currVarSelection.size() == 0 ) return;
     if ( _isSkip ) return;
 
-    QModelIndex qpIdx; // for new or selected qp page
+    QModelIndex pageIdx; // for new or selected qp page
     QModelIndexList selIdxs = _varsSelectModel->selection().indexes();
 
     if ( selIdxs.size() == 1 ) { // Single selection
 
         QString yName = _varsFilterModel->data(selIdxs.at(0)).toString();
-        qpIdx = _findSinglePlotPageWithCurve(yName) ;
+        pageIdx = _findSinglePlotPageWithCurve(yName) ;
 
-        if ( ! qpIdx.isValid() ) {
+        if ( ! pageIdx.isValid() ) {
             // No page with single plot of selected var, so create plot of var
-            QStandardItem* qpItem = _createQPItem();
-            _addPlotOfVarToPageItem(qpItem,currVarSelection.indexes().at(0));
-            _selectCurrentRunOnPageItem(qpItem);
+            QStandardItem* pageItem = _createPageItem();
+            _addPlotOfVarToPageItem(pageItem,currVarSelection.indexes().at(0));
+            _selectCurrentRunOnPageItem(pageItem);
         } else {
-            _plotBookView->setCurrentPage(qpIdx.row());
+            _plotBookView->setCurrentPage(pageIdx.row());
         }
 
     } else {  // Multiple items selected.
@@ -81,7 +81,7 @@ void VarsWidget::_varsSelectModelSelectionChanged(
         while ( ! currVarIdxs.isEmpty() ) {
             QModelIndex varIdx = currVarIdxs.takeFirst();
             if ( pageItem->rowCount() >= 6 ) {
-                pageItem = _createQPItem();
+                pageItem = _createPageItem();
                 pageIdx = _plotModel->indexFromItem(pageItem);
                 _plotBookView->setCurrentPage(pageIdx.row());
             }
@@ -98,27 +98,36 @@ void VarsWidget::_varsSearchBoxTextChanged(const QString &rx)
 
 QModelIndex VarsWidget::_findSinglePlotPageWithCurve(const QString& curveName)
 {
-    QModelIndex retIdx;
+    QModelIndex retPageIdx;
 
     bool isExists = false;
     QStandardItem *rootItem = _plotModel->invisibleRootItem();
     for ( int pageId = 0; pageId < rootItem->rowCount(); ++pageId) {
         QModelIndex pageIdx = _plotModel->index(pageId,0);
-        if ( _plotModel->rowCount(pageIdx) > 1 ) continue;
-        for ( int plotId = 0; plotId < _plotModel->rowCount(pageIdx); ++plotId) {
+        int rc = _plotModel->rowCount(pageIdx);
+        // Start at 1 to skip over page title
+        for ( int plotId = 1; plotId < rc; ++plotId) {
             QModelIndex plotIdx = _plotModel->index(plotId,0,pageIdx);
-            // Only search one curve since assuming monte carlo runs
-            // where all curves will have same param list
-            if ( _plotModel->rowCount(plotIdx) > 0 ) {
-                QModelIndex curveIdx = _plotModel->index(0,0,plotIdx);
-                for ( int y = 0; y < _plotModel->rowCount(curveIdx); ++y) {
-                    QModelIndex yIdx = _plotModel->index(y,0,curveIdx);
-                    if ( curveName == _plotModel->data(yIdx).toString() ) {
-                        retIdx = pageIdx;
-                        isExists = true;
-                        break;
-                    }
-                    if (isExists) break;
+            int plotRowCount = _plotModel->rowCount(plotIdx);
+            for ( int j = 0; j < plotRowCount; ++j ) {
+                // Note that 2 is hardcoded because the plotItem has:
+                //    xaxislabel,yaxislabel then curves
+                int curvesRow = 2;
+                QModelIndex curvesIdx = _plotModel->index(curvesRow,0,plotIdx);
+                int curvesRowCount = _plotModel->rowCount(curvesIdx);
+                isExists = true;
+                for ( int k = 0 ; k < curvesRowCount; ++k ) {
+                    QModelIndex curveIdx = _plotModel->index(k,0,curvesIdx);
+                    // Note that 2 is hardcoded since a curve has:
+                    //     t,x,y,tunit,yunit,runId
+                    int yRow = 2;
+                    QModelIndex yIdx =  _plotModel->index(yRow,0,curveIdx);
+                    QString yName =  _plotModel->data(yIdx).toString();
+                    isExists = isExists && (yName == curveName);
+                }
+                if ( isExists ) {
+                    retPageIdx = pageIdx;
+                    break;
                 }
             }
             if (isExists) break;
@@ -126,7 +135,7 @@ QModelIndex VarsWidget::_findSinglePlotPageWithCurve(const QString& curveName)
         if (isExists) break;
     }
 
-    return retIdx;
+    return retPageIdx;
 }
 
 void VarsWidget::updateSelection(const QModelIndex& pageIdx)
@@ -134,7 +143,19 @@ void VarsWidget::updateSelection(const QModelIndex& pageIdx)
     const QAbstractItemModel* m = pageIdx.model();
     int nPlots = m->rowCount(pageIdx);
     QItemSelection varSelection;
-    for ( int plotRow = 0; plotRow < nPlots; ++plotRow) {
+
+    // start at 1 to skip over title item
+    // This must change if the model changes
+    // This assumes:
+    //         PageItem
+    //              PageTitleItem (1 skips over this)
+    //              Plot1
+    //              .
+    //              PlotN
+    int rc = pageIdx.model()->rowCount(pageIdx);
+    int nSkip = 1;
+
+    for ( int plotRow = nSkip; plotRow < rc; ++plotRow) {
         QModelIndex plotIdx = m->index(plotRow,0,pageIdx);
         QModelIndex curveIdx = m->index(0,0,plotIdx);
         QModelIndex yVarIdx = m->index(2,0,curveIdx);
@@ -163,20 +184,23 @@ void VarsWidget::clearSelection()
     _varsSelectModel->clear();
 }
 
-QStandardItem* VarsWidget::_createQPItem()
+QStandardItem* VarsWidget::_createPageItem()
 {
-    QStandardItem* qpItem;
+    QStandardItem* pageItem;
     QStandardItem *rootItem = _plotModel->invisibleRootItem();
-    QString qpItemName = QString("QP_%0").arg(_currQPIdx++);
-    qpItem = new QStandardItem(qpItemName);
-    rootItem->appendRow(qpItem);
-    return qpItem;
+    QString pageItemName = QString("QP_%0").arg(_currQPIdx++);
+    pageItem = new QStandardItem(pageItemName);
+    rootItem->appendRow(pageItem);
+    QStandardItem* pageTitleItem = new QStandardItem(pageItemName);
+    pageItem->appendRow(pageTitleItem);
+    return pageItem;
 }
 
 void VarsWidget::_addPlotOfVarToPageItem(QStandardItem* pageItem,
                                          const QModelIndex &varIdx)
 {
-    int nPlots = pageItem->rowCount();
+    // The -1 is because a pageItem has a pageTitle followed by plotItems
+    int nPlots = pageItem->rowCount()-1;
 
     QString tName("sys.exec.out.time");
     QString xName("sys.exec.out.time");
@@ -231,7 +255,16 @@ void VarsWidget::_selectCurrentRunOnPageItem(QStandardItem* pageItem)
     if ( runId >= 0 ) {
         QItemSelection currSel = _plotSelectModel->selection();
         QModelIndex pageIdx = _plotModel->indexFromItem(pageItem);
-        for ( int i = 0; i < _plotModel->rowCount(pageIdx); ++i ) {
+        // start at 1 to skip over title item
+        // This must change if the model changes
+        // This assumes:
+        //         PageItem
+        //              PageTitleItem (1 skips over this)
+        //              Plot1
+        //              .
+        //              PlotN
+        int nSkip = 1;
+        for ( int i = nSkip; i < _plotModel->rowCount(pageIdx); ++i ) {
             QModelIndex plotIdx = pageIdx.model()->index(i,0,pageIdx);
             QModelIndex curvesIdx;
             for ( int j = 0; j < plotIdx.model()->rowCount(plotIdx); ++j) {

@@ -205,12 +205,14 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
     int numRuns = _monteModel->rowCount();
     int pageNum = 0 ;
     foreach (DPPage* page, dp.pages() ) {
-        QString pageTitle = dpfile;
+        QString pageName = dpfile;
         if ( pageNum > 0 ) {
-            pageTitle += QString("_%0").arg(pageNum);
+            pageName += QString("_%0").arg(pageNum);
         }
-        QStandardItem *pageItem = new QStandardItem(pageTitle);
+        QStandardItem *pageItem = new QStandardItem(pageName);
         rootItem->appendRow(pageItem);
+        QStandardItem *pageTitleItem = new QStandardItem(page->title());
+        pageItem->appendRow(pageTitleItem);
         foreach (DPPlot* plot, page->plots() ) {
 
             QString plotTitle = _descrPlotTitle(plot);

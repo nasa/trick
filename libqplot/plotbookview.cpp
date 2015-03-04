@@ -173,7 +173,6 @@ bool PlotBookView::savePdf(const QString &fileName)
         return false;
     }
     pixPainter.setWindow(printerRect);
-
     for ( int pageId = 0; pageId < _pages.size(); ++pageId) {
 
         pixPainter.fillRect(printerRect, QBrush(Qt::white));
@@ -532,8 +531,9 @@ void PlotBookView::selectRun(int runId)
     int nPages = model()->rowCount();
     for ( int pageRow = 0; pageRow < nPages; ++pageRow) {
         QModelIndex pageIdx = model()->index(pageRow,0);
-        int nPlots = model()->rowCount(pageIdx);
-        for ( int plotRow = 0; plotRow < nPlots; ++plotRow) {
+        int rc = model()->rowCount(pageIdx);
+        // Start at 1 to skip page title
+        for ( int plotRow = 1; plotRow < rc; ++plotRow) {
             QModelIndex plotIdx = model()->index(plotRow,0,pageIdx);
             QModelIndex curvesIdx;
             for ( int i = 0; i < plotIdx.model()->rowCount(plotIdx); ++i) {
@@ -656,10 +656,8 @@ void PlotBookView::tabCurrentChanged(int tabId)
     if ( !model() ) return;
 
     QModelIndex pageIdx = model()->index(tabId,0);
-    int nPlots = model()->rowCount(pageIdx);
-    for ( int plotRow = 0; plotRow < nPlots; ++plotRow) {
-        QModelIndex plotIdx = model()->index(plotRow,0,pageIdx);
-        Plot* plot = _idx2Plot(plotIdx);
+    QWidget* page = _idx2Page(pageIdx);
+    foreach (Plot* plot, _page2Plots.value(page) ) {
         if ( plot ) {
             plot->replot();
         }
@@ -695,8 +693,23 @@ void PlotBookView::doubleClick(QMouseEvent *event)
     if ( _isPlotIdx(plotIdx) ) {
         QModelIndex pageIdx = plotIdx.parent();
         int rc = model()->rowCount(pageIdx);
+
+        // n is to take the page title etc. into account
+        // since the page can have children other than plots
+        // this assumes the model is like:
+        //         page
+        //             page title
+        //             page child2
+        //             ...
+        //             plot0
+        //             plot1
+        //             ...
+        //             plotn
+        QWidget* page = _idx2Page(pageIdx);
+        int n = rc - _page2Plots.value(page).size();
+
         bool isExpanded = false;
-        for ( int r = 0; r < rc; ++r) {
+        for ( int r = n; r < rc; ++r) {
             QModelIndex idx = model()->index(r,0,pageIdx);
             if ( idx != plotIdx ) {
                 Plot* plot = _idx2Plot(idx);
@@ -759,10 +772,13 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             int nbIdx = _nb->count()-1;
             _nb->setCurrentIndex(nbIdx);
             _nb->setAttribute(Qt::WA_AlwaysShowToolTips, true);
-        } else if ( ! gpidx.isValid() ) {
-            // Plot
+        } else if ( ! gpidx.isValid() && row == 0 ) {
+            // Page title (row 0)
+            //qDebug() << "PAGE TITLE=" << model()->data(idx).toString();
+        } else if ( ! gpidx.isValid() && row >= 1 ) {
+            // Plot (note that row 0 is the page title)
             QWidget* page = _idx2Page(pidx);
-            QGridLayout* grid = _grids.at(pidx.row()) ;
+            QGridLayout* grid = _grids.at(pidx.row());
             Plot* plot = new Plot(page);
             connect(plot,SIGNAL(mouseDoubleClick(QMouseEvent*)),
                     this,SLOT(doubleClick(QMouseEvent*)));
@@ -771,7 +787,7 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             connect(plot, SIGNAL(curveClicked(TrickCurve*)),
                     this, SLOT(_slotCurveClicked(TrickCurve*)));
             _page2Plots[page].append(plot);
-            int nPlots = model()->rowCount(pidx);
+            int nPlots = _page2Plots[page].size();
             switch ( nPlots ) {
             case 1: {
                 grid->addWidget(plot,0,0);
@@ -800,7 +816,6 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 break;
             }
             case 6: {
-                QWidget* w1 = grid->itemAtPosition(0,0)->widget();
                 QWidget* w2 = grid->itemAtPosition(0,1)->widget();
                 QWidget* w3 = grid->itemAtPosition(1,0)->widget();
                 QWidget* w4 = grid->itemAtPosition(1,1)->widget();
@@ -971,7 +986,8 @@ void PlotBookView::rowsAboutToBeRemoved(const QModelIndex &pidx,
             foreach ( TrickCurve* curve, curves ) {
                 disconnect(curve,SIGNAL(selectionChanged(TrickCurve*)));
             }
-            _page2Plots[page].remove(idx.row());
+            int plotId = _page2Plots[page].indexOf(plot);
+            _page2Plots[page].remove(plotId);
             _plot2Curves.remove(plot);
             grid->removeWidget(plot);
             delete plot;
@@ -1123,7 +1139,22 @@ Plot *PlotBookView::_idx2Plot(const QModelIndex &idx) const
         while ( plotIdx.parent().parent().isValid() ) {
             plotIdx = plotIdx.parent();
         }
-        plot = _page2Plots.value(page).at(plotIdx.row());
+        QModelIndex pageIdx = plotIdx.parent();
+
+        // n is to take the page title etc. into account
+        // since the page can have children other than plots
+        // this assumes the model is like:
+        //         page
+        //             page title
+        //             page child2
+        //             ...
+        //             plot0
+        //             plot1
+        //             ...
+        //             plotn
+        int n = pageIdx.model()->rowCount(pageIdx)-_page2Plots[page].size();
+
+        plot = _page2Plots.value(page).at(plotIdx.row()-n);
     }
     return plot;
 }
@@ -1169,8 +1200,22 @@ QModelIndex PlotBookView::_plot2Idx(Plot *plot) const
 
     QWidget* page = plot->parentWidget();
     int rowPage = _pages.indexOf(page);
-    int rowPlot = _page2Plots.value(page).indexOf(plot);
     QModelIndex pageIdx = model()->index(rowPage,0);
+
+    // n is to take the page title etc. into account
+    // since the page can have children other than plots
+    // this assumes the model is like:
+    //         page
+    //             page title
+    //             page child2
+    //             ...
+    //             plot0
+    //             plot1
+    //             ...
+    //             plotn
+    int n = pageIdx.model()->rowCount(pageIdx)-_page2Plots[page].size();
+    int rowPlot = _page2Plots.value(page).indexOf(plot)+n;
+
     plotIdx = model()->index(rowPlot,0,pageIdx);
 
     return plotIdx;
