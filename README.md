@@ -19,4 +19,10 @@ wiki page includes instructions to install Trick.
 The full [User's Guide](https://github.com/nasa/Trick/wiki/Users-Guide) is in
 the wiki pages.
 
+### Tutorial
 
+The Trick tutorial explaining how to start using Trick can be found in the docs directory.
+
+### License
+
+Trick is released under the NASA Open Source Agreement Version 1.3 [license](LICENSE).
