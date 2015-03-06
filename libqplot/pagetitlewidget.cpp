@@ -16,6 +16,7 @@ PageTitleWidget::PageTitleWidget(QWidget *parent) :
     _titleGrid = new QGridLayout(_titleFrame);
 
     _label = new QLabel(_titleFrame);
+    _label->setTextFormat(Qt::RichText);
     _label->setText("");
     _label->setAlignment(Qt::AlignHCenter| Qt::AlignVCenter);
     _titleGrid->addWidget(_label,0,0);
@@ -25,5 +26,5 @@ PageTitleWidget::PageTitleWidget(QWidget *parent) :
 
 void PageTitleWidget::setTitle(const QString &title)
 {
-    _label->setText(title);
+    _label->setText("<big>" + title + "</big>");
 }
