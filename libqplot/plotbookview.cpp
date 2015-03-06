@@ -141,47 +141,57 @@ void PlotBookView::setCurrentPage(int pageId)
 //
 bool PlotBookView::savePdf(const QString &fileName)
 {
-    //
-    // Init pdf printer/painter
-    //
+    // Page size and title header size
+    int ww = 1200;
+    int hh = 900;
+
+    // Setup pdf printer
     QPrinter pdfPrinter(QPrinter::ScreenResolution);
     pdfPrinter.setOutputFileName(fileName);
     pdfPrinter.setOutputFormat(QPrinter::PdfFormat);
     pdfPrinter.setFullPage(true);
-    pdfPrinter.setPaperSize(QSizeF(1200,900),QPrinter::DevicePixel);
+    pdfPrinter.setPaperSize(QSizeF(ww,hh),QPrinter::DevicePixel);
+    QRect printerRect = QRect(0,0,pdfPrinter.width(),pdfPrinter.height());
     //printer.setPaperSize(QPrinter::A4);
     //printer.setOrientation(QPrinter::Landscape);
+
+    // Setup Painter
     QCPPainter pdfPainter;
     pdfPainter.setMode(QCPPainter::pmVectorized);
     pdfPainter.setMode(QCPPainter::pmNoCaching);
     pdfPainter.setMode(QCPPainter::pmNonCosmetic,false);
-    QRect printerRect = QRect(0,0,pdfPrinter.width(),pdfPrinter.height());
     if (! pdfPainter.begin(&pdfPrinter)) {
         return false;
     }
     pdfPainter.setWindow(printerRect);
 
-    //
-    // Init pixmap printer/painter
-    //
-    QPixmap pixPrinter(1200,900);
+    // Init pixmap for printer/painter
+    QPixmap pixmap(ww,hh);
     QCPPainter pixPainter;
     pixPainter.setMode(QCPPainter::pmNoCaching);
     pixPainter.setMode(QCPPainter::pmNonCosmetic,false);
-    if (! pixPainter.begin(&pixPrinter)) {
+    if (! pixPainter.begin(&pixmap)) {
         pdfPainter.end();
         return false;
     }
     pixPainter.setWindow(printerRect);
+
+
     for ( int pageId = 0; pageId < _pages.size(); ++pageId) {
 
-        pixPainter.fillRect(printerRect, QBrush(Qt::white));
         QWidget* page = _pages.at(pageId);
+
+        PageTitleWidget* pw = _page2pagewidget.value(page);
+        int heightHeader = pw->height();
+
         QVector<Plot*> plots = _page2Plots.value(page);
         QVector<QRect> origPlotViewports;
         foreach (Plot* plot, plots ) {
             origPlotViewports.append(plot->viewport());
-            plot->setViewport(printerRect);
+            QRect pageRect = QRect(0,heightHeader,
+                                   pdfPrinter.width(),
+                                   pdfPrinter.height()-heightHeader);
+            plot->setViewport(pageRect);
         }
 
         // Plotbookview's page is a Qt QGrid of QCustomplot Widgets.
@@ -193,173 +203,143 @@ bool PlotBookView::savePdf(const QString &fileName)
         {
         case 1:
         {
-            QRect plotRect(0,0,pdfPrinter.width(),pdfPrinter.height());
-            plots.at(0)->axisRect()->setOuterRect(plotRect);
             break;
         }
         case 2:
         {
-            QRect plotRect(0,0,pdfPrinter.width(),pdfPrinter.height()/2);
             plots.at(0)->plotLayout()->insertRow(1);
-            plots.at(0)->axisRect()->setOuterRect(plotRect);
             plots.at(1)->plotLayout()->insertRow(0);
-            plots.at(1)->axisRect()->setOuterRect(plotRect);
             break;
         }
         case 3:
         {
-            QRect plotRect(0,0,pdfPrinter.width(),pdfPrinter.height()/3);
-
             plots.at(0)->plotLayout()->insertRow(1);
             plots.at(0)->plotLayout()->insertRow(1);
-            plots.at(0)->axisRect()->setOuterRect(plotRect);
 
             plots.at(1)->plotLayout()->insertRow(0);
             plots.at(1)->plotLayout()->insertRow(2);
-            plots.at(1)->axisRect()->setOuterRect(plotRect);
 
             plots.at(2)->plotLayout()->insertRow(0);
             plots.at(2)->plotLayout()->insertRow(0);
-            plots.at(2)->axisRect()->setOuterRect(plotRect);
             break;
         }
         case 4:
         {
-            QRect plotRect(0,0,pdfPrinter.width()/2,pdfPrinter.height()/2);
-
             plots.at(0)->plotLayout()->insertRow(1);
             plots.at(0)->plotLayout()->insertColumn(1);
-            plots.at(0)->axisRect()->setOuterRect(plotRect);
 
             plots.at(1)->plotLayout()->insertRow(1);
             plots.at(1)->plotLayout()->insertColumn(0);
-            plots.at(1)->axisRect()->setOuterRect(plotRect);
 
             plots.at(2)->plotLayout()->insertRow(0);
             plots.at(2)->plotLayout()->insertColumn(1);
-            plots.at(2)->axisRect()->setOuterRect(plotRect);
 
             plots.at(3)->plotLayout()->insertRow(0);
             plots.at(3)->plotLayout()->insertColumn(0);
-            plots.at(3)->axisRect()->setOuterRect(plotRect);
             break;
         }
         case 5:
         {
-            QRect plotRect(0,0,pdfPrinter.width()/2,pdfPrinter.height()/3);
-
             plots.at(0)->plotLayout()->insertRow(1);
             plots.at(0)->plotLayout()->insertRow(1);
             plots.at(0)->plotLayout()->insertColumn(1);
-            plots.at(0)->axisRect()->setOuterRect(plotRect);
 
             plots.at(1)->plotLayout()->insertRow(1);
             plots.at(1)->plotLayout()->insertRow(1);
             plots.at(1)->plotLayout()->insertColumn(0);
-            plots.at(1)->axisRect()->setOuterRect(plotRect);
 
             plots.at(2)->plotLayout()->insertRow(0);
             plots.at(2)->plotLayout()->insertRow(2);
             plots.at(2)->plotLayout()->insertColumn(1);
-            plots.at(2)->axisRect()->setOuterRect(plotRect);
 
             plots.at(3)->plotLayout()->insertRow(0);
             plots.at(3)->plotLayout()->insertRow(2);
             plots.at(3)->plotLayout()->insertColumn(0);
-            plots.at(3)->axisRect()->setOuterRect(plotRect);
 
-            plotRect.setWidth(pdfPrinter.width());
             plots.at(4)->plotLayout()->insertRow(0);
             plots.at(4)->plotLayout()->insertRow(0);
-            plots.at(4)->axisRect()->setOuterRect(plotRect);
             break;
         }
         case 6:
         {
-            QRect plotRect(0,0,pdfPrinter.width()/2,pdfPrinter.height()/3);
 
             plots.at(0)->plotLayout()->insertRow(1);
             plots.at(0)->plotLayout()->insertRow(1);
             plots.at(0)->plotLayout()->insertColumn(1);
-            plots.at(0)->axisRect()->setOuterRect(plotRect);
 
             plots.at(1)->plotLayout()->insertRow(0);
             plots.at(1)->plotLayout()->insertRow(2);
             plots.at(1)->plotLayout()->insertColumn(1);
-            plots.at(1)->axisRect()->setOuterRect(plotRect);
 
             plots.at(2)->plotLayout()->insertRow(0);
             plots.at(2)->plotLayout()->insertRow(0);
             plots.at(2)->plotLayout()->insertColumn(1);
-            plots.at(2)->axisRect()->setOuterRect(plotRect);
 
             plots.at(3)->plotLayout()->insertRow(1);
             plots.at(3)->plotLayout()->insertRow(1);
             plots.at(3)->plotLayout()->insertColumn(0);
-            plots.at(3)->axisRect()->setOuterRect(plotRect);
 
             plots.at(4)->plotLayout()->insertRow(0);
             plots.at(4)->plotLayout()->insertRow(2);
             plots.at(4)->plotLayout()->insertColumn(0);
-            plots.at(4)->axisRect()->setOuterRect(plotRect);
 
             plots.at(5)->plotLayout()->insertRow(0);
             plots.at(5)->plotLayout()->insertRow(0);
             plots.at(5)->plotLayout()->insertColumn(0);
-            plots.at(5)->axisRect()->setOuterRect(plotRect);
             break;
         }
         case 7:
         {
-            QRect plotRect(0,0,pdfPrinter.width()/2,pdfPrinter.height()/4);
-
             plots.at(0)->plotLayout()->insertRow(1);
             plots.at(0)->plotLayout()->insertRow(1);
             plots.at(0)->plotLayout()->insertRow(1);
             plots.at(0)->plotLayout()->insertColumn(1);
-            plots.at(0)->axisRect()->setOuterRect(plotRect);
 
             plots.at(1)->plotLayout()->insertRow(1);
             plots.at(1)->plotLayout()->insertRow(1);
             plots.at(1)->plotLayout()->insertRow(1);
             plots.at(1)->plotLayout()->insertColumn(0);
-            plots.at(1)->axisRect()->setOuterRect(plotRect);
 
             plots.at(2)->plotLayout()->insertRow(0);
             plots.at(2)->plotLayout()->insertRow(2);
             plots.at(2)->plotLayout()->insertRow(2);
             plots.at(2)->plotLayout()->insertColumn(1);
-            plots.at(2)->axisRect()->setOuterRect(plotRect);
 
             plots.at(3)->plotLayout()->insertRow(0);
             plots.at(3)->plotLayout()->insertRow(2);
             plots.at(3)->plotLayout()->insertRow(2);
             plots.at(3)->plotLayout()->insertColumn(0);
-            plots.at(3)->axisRect()->setOuterRect(plotRect);
 
             plots.at(4)->plotLayout()->insertRow(0);
             plots.at(4)->plotLayout()->insertRow(0);
             plots.at(4)->plotLayout()->insertRow(3);
             plots.at(4)->plotLayout()->insertColumn(1);
-            plots.at(4)->axisRect()->setOuterRect(plotRect);
 
             plots.at(5)->plotLayout()->insertRow(0);
             plots.at(5)->plotLayout()->insertRow(0);
             plots.at(5)->plotLayout()->insertRow(3);
             plots.at(5)->plotLayout()->insertColumn(0);
-            plots.at(5)->axisRect()->setOuterRect(plotRect);
 
-            plotRect.setWidth(pdfPrinter.width());
             plots.at(6)->plotLayout()->insertRow(0);
             plots.at(6)->plotLayout()->insertRow(0);
             plots.at(6)->plotLayout()->insertRow(0);
-            plots.at(6)->axisRect()->setOuterRect(plotRect);
             break;
         }
         default:
         {
         }
         }
+
+        // Clear background first
+        pixmap.fill(Qt::white);
+
+        // Draw header i.e the PageTitleWidget
+        QRect geom = pw->geometry();
+        pw->setGeometry(0,0,ww,pw->height());
+        pw->render(&pixmap);
+        pw->setGeometry(geom); // restore widget geometry (probably not needed)
+        pixPainter.end();
+        pixPainter.begin(&pixmap);
 
         // Draw then restore plot layout
         int plotId = 0 ;
@@ -370,8 +350,8 @@ bool PlotBookView::savePdf(const QString &fileName)
             plotId++;
         }
 
-        // Draw pixmap on current page in pdf booklet
-        pdfPainter.drawPixmap(0,0,pixPrinter);
+        // Draw plots and title header pixmap onto pdf canvas
+        pdfPainter.drawPixmap(0,0,pixmap);
 
         // Insert new page in pdf booklet
         if ( pageId < _pages.size()-1 ) {
@@ -762,10 +742,19 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             // Page (below root idx)
             QString dpfile = model()->data(idx).toString();
             QFrame* page = new QFrame;
+            QPalette pal(palette());
+            pal.setColor(QPalette::Background, Qt::white);
+            page->setAutoFillBackground(true);
+            page->setPalette(pal);
             _pages.append(page);
             QGridLayout* grid = new QGridLayout(page);
             grid->setContentsMargins(0, 0, 0, 0);
             grid->setSpacing(0);
+
+            PageTitleWidget* pw = new PageTitleWidget(page);
+            _page2pagewidget.insert(page,pw);
+            grid->addWidget(pw,0,0,1,100);
+
             _page2grid.insert(page,grid);
             _grids.append(grid);
             _nb->addTab(page,QFileInfo(dpfile).baseName());
@@ -774,7 +763,12 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             _nb->setAttribute(Qt::WA_AlwaysShowToolTips, true);
         } else if ( ! gpidx.isValid() && row == 0 ) {
             // Page title (row 0)
-            //qDebug() << "PAGE TITLE=" << model()->data(idx).toString();
+            QWidget* page = _idx2Page(pidx);
+            PageTitleWidget* pw = _page2pagewidget.value(page);
+            QString title = model()->data(idx).toString();
+            if ( !title.startsWith("QP_")  && title != "Page" ) {
+                pw->setTitle(title);
+            }
         } else if ( ! gpidx.isValid() && row >= 1 ) {
             // Plot (note that row 0 is the page title)
             QWidget* page = _idx2Page(pidx);
@@ -790,49 +784,49 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             int nPlots = _page2Plots[page].size();
             switch ( nPlots ) {
             case 1: {
-                grid->addWidget(plot,0,0);
-                break;
-            }
-            case 2: {
                 grid->addWidget(plot,1,0);
                 break;
             }
-            case 3: {
+            case 2: {
                 grid->addWidget(plot,2,0);
                 break;
             }
+            case 3: {
+                grid->addWidget(plot,3,0);
+                break;
+            }
             case 4: {
-                QWidget* w2 = grid->itemAtPosition(1,0)->widget();
-                QWidget* w3 = grid->itemAtPosition(2,0)->widget();
+                QWidget* w2 = grid->itemAtPosition(2,0)->widget();
+                QWidget* w3 = grid->itemAtPosition(3,0)->widget();
                 grid->removeWidget(w2);
                 grid->removeWidget(w3);
-                grid->addWidget(w2,0,1);
-                grid->addWidget(w3,1,0);
-                grid->addWidget(plot,1,1);
+                grid->addWidget(w2,1,1);
+                grid->addWidget(w3,2,0);
+                grid->addWidget(plot,2,1);
                 break;
             }
             case 5: {
-                grid->addWidget(plot,2,0,1,2);
+                grid->addWidget(plot,3,0,1,2);
                 break;
             }
             case 6: {
-                QWidget* w2 = grid->itemAtPosition(0,1)->widget();
-                QWidget* w3 = grid->itemAtPosition(1,0)->widget();
-                QWidget* w4 = grid->itemAtPosition(1,1)->widget();
-                QWidget* w5 = grid->itemAtPosition(2,0)->widget();
+                QWidget* w2 = grid->itemAtPosition(1,1)->widget();
+                QWidget* w3 = grid->itemAtPosition(2,0)->widget();
+                QWidget* w4 = grid->itemAtPosition(2,1)->widget();
+                QWidget* w5 = grid->itemAtPosition(3,0)->widget();
                 grid->removeWidget(w2);
                 grid->removeWidget(w3);
                 grid->removeWidget(w4);
                 grid->removeWidget(w5);
-                grid->addWidget(w2,1,0);
-                grid->addWidget(w3,2,0);
-                grid->addWidget(w4,0,1);
-                grid->addWidget(w5,1,1);
-                grid->addWidget(plot,2,1);
+                grid->addWidget(w2,2,0);
+                grid->addWidget(w3,3,0);
+                grid->addWidget(w4,1,1);
+                grid->addWidget(w5,2,1);
+                grid->addWidget(plot,3,1);
                 break;
             }
             case 7: {
-                grid->addWidget(plot,3,0,1,2);
+                grid->addWidget(plot,4,0,1,2);
                 break;
             }
             default: {

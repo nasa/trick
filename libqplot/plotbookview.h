@@ -8,6 +8,7 @@
 #include <QHash>
 #include <QGridLayout>
 #include <QHBoxLayout>
+#include "pagetitlewidget.h"
 #include "plot.h"
 #include "libsnapdata/montemodel.h"
 #include "libsnapdata/unit.h"
@@ -91,6 +92,7 @@ private:
     QVector<QWidget*> _pages;
     QVector<QGridLayout*> _grids;
     QHash<QWidget*,QGridLayout*> _page2grid;
+    QHash<QWidget*,PageTitleWidget*> _page2pagewidget;
     QHash<QWidget*,QVector<Plot*> >  _page2Plots;
     QHash<Plot*, QVector<TrickCurve*> > _plot2Curves;
 
