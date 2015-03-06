@@ -80,7 +80,8 @@ void VarsWidget::_varsSelectModelSelectionChanged(
         QModelIndexList currVarIdxs = currVarSelection.indexes();
         while ( ! currVarIdxs.isEmpty() ) {
             QModelIndex varIdx = currVarIdxs.takeFirst();
-            if ( pageItem->rowCount() >= 6 ) {
+            // The +1 is for the page title --- I have to unhack this!!!
+            if ( pageItem->rowCount() >= 6+1 ) {
                 pageItem = _createPageItem();
                 pageIdx = _plotModel->indexFromItem(pageItem);
                 _plotBookView->setCurrentPage(pageIdx.row());
