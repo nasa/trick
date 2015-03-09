@@ -12,13 +12,14 @@
 #include "plot.h"
 #include "libsnapdata/montemodel.h"
 #include "libsnapdata/unit.h"
+#include "libqplot/plotbookmodel.h"
 
 class PlotBookView : public QAbstractItemView
 {
     Q_OBJECT
 
 public:
-    explicit PlotBookView(QWidget *parent = 0);
+    explicit PlotBookView(PlotBookModel* plotModel, QWidget *parent = 0);
     ~PlotBookView();
 
     void setData(MonteModel* monteModel);
@@ -32,6 +33,10 @@ public:
     void setCurrentPage(int pageId);
     bool savePdf(const QString& fileName);
     void showCurveDiff(bool isShow) ;
+
+private:
+    explicit PlotBookView(QWidget *parent = 0);
+
 
 protected:
     virtual QModelIndex moveCursor(CursorAction cursorAction,
@@ -75,6 +80,7 @@ private slots:
     void plotKeyPress(QKeyEvent* e);
 
 private:
+    PlotBookModel* _plotModel;
     QFrame* _bookFrame;
     QGridLayout* _bookGridLayout ;
 

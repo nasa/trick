@@ -40,8 +40,7 @@ PlotMainWindow::PlotMainWindow(const QString &dpDir, MonteModel* monteModel,
     _plotSelectModel = new QItemSelectionModel(_plotModel);
 
     // Create Plot Tabbed Notebook View Widget
-    _plotBookView = new PlotBookView(msplit);
-    _plotBookView->setModel(_plotModel);
+    _plotBookView = new PlotBookView(_plotModel, msplit);
     _plotBookView->setData(_monteModel);
     _plotBookView->setSelectionModel(_plotSelectModel);
     if ( _monteModel->rowCount() == 2 ) {
@@ -134,8 +133,7 @@ PlotMainWindow::PlotMainWindow(const QStringList &dpFiles, MonteModel* monteMode
     _plotSelectModel = new QItemSelectionModel(_plotModel);
 
     // Create Plot Tabbed Notebook View Widget
-    _plotBookView = new PlotBookView(msplit);
-    _plotBookView->setModel(_plotModel);
+    _plotBookView = new PlotBookView(_plotModel, msplit);
     _plotBookView->setData(_monteModel);
     _plotBookView->setSelectionModel(_plotSelectModel);
     if ( _monteModel->rowCount() == 2 ) {

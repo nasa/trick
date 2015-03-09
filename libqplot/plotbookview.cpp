@@ -1,13 +1,16 @@
 #include "plotbookview.h"
 #include <QDebug>
 
-PlotBookView::PlotBookView(QWidget *parent) :
+PlotBookView::PlotBookView(PlotBookModel *plotModel, QWidget *parent) :
     QAbstractItemView(parent),
+    _plotModel(plotModel),
     _monteModel(0),
     _isTabCloseRequested(false),
     _currSelectedRun(-1),
     _isShowCurveDiff(false)
 {
+    setModel(_plotModel);
+
     _bookFrame = new QFrame(parent);
     _bookGridLayout = new QGridLayout(_bookFrame);
 
@@ -37,6 +40,17 @@ PlotBookView::PlotBookView(QWidget *parent) :
     connect(_nb,SIGNAL(currentChanged(int)),
             this,SLOT(tabCurrentChanged(int)));
     _bookGridLayout->addWidget(_nb,0,0);
+}
+
+// This is private
+PlotBookView::PlotBookView(QWidget *parent) :
+    QAbstractItemView(parent),
+    _plotModel(0),
+    _monteModel(0),
+    _isTabCloseRequested(false),
+    _currSelectedRun(-1),
+    _isShowCurveDiff(false)
+{
 }
 
 PlotBookView::~PlotBookView()
@@ -511,10 +525,7 @@ void PlotBookView::selectRun(int runId)
     int nPages = model()->rowCount();
     for ( int pageRow = 0; pageRow < nPages; ++pageRow) {
         QModelIndex pageIdx = model()->index(pageRow,0);
-        int rc = model()->rowCount(pageIdx);
-        // Start at 1 to skip page title
-        for ( int plotRow = 1; plotRow < rc; ++plotRow) {
-            QModelIndex plotIdx = model()->index(plotRow,0,pageIdx);
+        foreach ( QModelIndex plotIdx, _plotModel->plotIdxs(pageIdx) ) {
             QModelIndex curvesIdx;
             for ( int i = 0; i < plotIdx.model()->rowCount(plotIdx); ++i) {
                 QModelIndex idx = plotIdx.model()->index(i,0,plotIdx);
@@ -672,25 +683,8 @@ void PlotBookView::doubleClick(QMouseEvent *event)
     QModelIndex plotIdx = indexAt(pagePos);
     if ( _isPlotIdx(plotIdx) ) {
         QModelIndex pageIdx = plotIdx.parent();
-        int rc = model()->rowCount(pageIdx);
-
-        // n is to take the page title etc. into account
-        // since the page can have children other than plots
-        // this assumes the model is like:
-        //         page
-        //             page title
-        //             page child2
-        //             ...
-        //             plot0
-        //             plot1
-        //             ...
-        //             plotn
-        QWidget* page = _idx2Page(pageIdx);
-        int n = rc - _page2Plots.value(page).size();
-
         bool isExpanded = false;
-        for ( int r = n; r < rc; ++r) {
-            QModelIndex idx = model()->index(r,0,pageIdx);
+        foreach ( QModelIndex idx, _plotModel->plotIdxs(pageIdx) ) {
             if ( idx != plotIdx ) {
                 Plot* plot = _idx2Plot(idx);
                 if ( plot->isVisible() ) {
