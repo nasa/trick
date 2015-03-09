@@ -507,8 +507,8 @@ QList<QColor> AxisRect::_createColorBands(int nBands, bool isMonte)
     QList<QColor> colorBands;
 
     QColor blue(48,85,200);
-    QColor green(0,240,0);
-    QColor magenta(222,77,203);
+    QColor green(60,180,45);
+    QColor red(200,30,30);
     QColor aqua(119,214,222);
     QColor orange(183,120,71);
     QColor burntorange(177,79,0);
@@ -536,7 +536,7 @@ QList<QColor> AxisRect::_createColorBands(int nBands, bool isMonte)
     } else {
 
         // This is for a smaller number of curves
-        colorBands << blue << green << magenta
+        colorBands << blue << green << red
                    << aqua << orange << yellow
                    << gray << pink << medblue;
 
