@@ -36,7 +36,7 @@ PlotMainWindow::PlotMainWindow(const QString &dpDir, MonteModel* monteModel,
     lgrid->addWidget(lsplit,0,0);
 
     // Create models
-    _plotModel = new QStandardItemModel(0,1,parent);
+    _plotModel = new PlotBookModel(0,1,parent);
     _plotSelectModel = new QItemSelectionModel(_plotModel);
 
     // Create Plot Tabbed Notebook View Widget
@@ -130,7 +130,7 @@ PlotMainWindow::PlotMainWindow(const QStringList &dpFiles, MonteModel* monteMode
     lgrid->addWidget(lsplit,0,0);
 
     // Create models
-    _plotModel = new QStandardItemModel(0,1,parent);
+    _plotModel = new PlotBookModel(0,1,parent);
     _plotSelectModel = new QItemSelectionModel(_plotModel);
 
     // Create Plot Tabbed Notebook View Widget

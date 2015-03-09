@@ -3,7 +3,7 @@
 DPTreeWidget::DPTreeWidget(const QString &dpDirName,
                            QStandardItemModel *dpVarsModel,
                            MonteModel* monteModel,
-                           QStandardItemModel *plotModel,
+                           PlotBookModel *plotModel,
                            QItemSelectionModel *plotSelectModel,
                            QWidget *parent) :
     QWidget(parent),
@@ -48,7 +48,7 @@ DPTreeWidget::DPTreeWidget(const QString &dpDirName,
 DPTreeWidget::DPTreeWidget(const QStringList &dpFiles,
                            QStandardItemModel *dpVarsModel,
                            MonteModel* monteModel,
-                           QStandardItemModel *plotModel,
+                           PlotBookModel *plotModel,
                            QItemSelectionModel *plotSelectModel,
                            QWidget *parent) :
     QWidget(parent),

@@ -18,6 +18,7 @@
 #include "libsnapdata/monte.h"
 #include "libqplot/dp.h"
 #include "libqplot/plotbookview.h"
+#include "libqplot/plotbookmodel.h"
 #include "libqplot/dptreewidget.h"
 #include "libqplot/varswidget.h"
 #include "libqplot/monteinputsview.h"
@@ -70,7 +71,7 @@ private:
     DPTreeWidget* _dpTreeWidget;
     void _updateDPSelection(const QModelIndex& pageIdx);
 
-    QStandardItemModel* _plotModel;
+    PlotBookModel* _plotModel;
     //QTreeView* _plotTreeView ;
     PlotBookView* _plotBookView;
     QItemSelectionModel* _plotSelectModel;

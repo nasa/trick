@@ -11,6 +11,7 @@
 #include "dp.h"
 #include "libsnapdata/montemodel.h"
 #include "plotbookview.h"
+#include "plotbookmodel.h"
 #include "monteinputsview.h"
 
 class VarsWidget : public QWidget
@@ -19,7 +20,7 @@ class VarsWidget : public QWidget
 public:
     explicit VarsWidget( QStandardItemModel* varsModel,
                           MonteModel* monteModel,
-                          QStandardItemModel* plotModel,
+                          PlotBookModel* plotModel,
                           QItemSelectionModel*  plotSelectModel,
                           PlotBookView* plotBookView,
                           MonteInputsView* monteInputsView,
@@ -36,7 +37,7 @@ public slots:
 private:
     QStandardItemModel* _varsModel;
     MonteModel* _monteModel;
-    QStandardItemModel* _plotModel;
+    PlotBookModel* _plotModel;
     QItemSelectionModel*  _plotSelectModel;
     PlotBookView* _plotBookView;
     MonteInputsView* _monteInputsView;

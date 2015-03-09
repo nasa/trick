@@ -2,7 +2,7 @@
 
 VarsWidget::VarsWidget(QStandardItemModel* varsModel,
                        MonteModel *monteModel,
-                       QStandardItemModel *plotModel,
+                       PlotBookModel *plotModel,
                        QItemSelectionModel *plotSelectModel,
                        PlotBookView* plotBookView,
                        MonteInputsView *monteInputsView,

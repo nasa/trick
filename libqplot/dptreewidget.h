@@ -9,6 +9,7 @@
 #include "dp.h"
 #include "dpfilterproxymodel.h"
 #include "libsnapdata/montemodel.h"
+#include "libqplot/plotbookmodel.h"
 
 // Data Products TreeView with Search Box
 
@@ -19,14 +20,14 @@ public:
     explicit DPTreeWidget(const QString& dpDirName,
                           QStandardItemModel* dpVarsModel,
                           MonteModel* monteModel,
-                          QStandardItemModel* plotModel,
+                          PlotBookModel* plotModel,
                           QItemSelectionModel*  plotSelectModel,
                           QWidget *parent = 0);
 
     explicit DPTreeWidget(const QStringList& dpFiles,
                           QStandardItemModel* dpVarsModel,
                           MonteModel* monteModel,
-                          QStandardItemModel* plotModel,
+                          PlotBookModel* plotModel,
                           QItemSelectionModel*  plotSelectModel,
                           QWidget *parent = 0);
     ~DPTreeWidget();
@@ -41,7 +42,7 @@ private:
     QStandardItemModel* _dpVarsModel;
     QDir* _dir;
     MonteModel* _monteModel;
-    QStandardItemModel* _plotModel;
+    PlotBookModel* _plotModel;
     QItemSelectionModel*  _plotSelectModel;
     QGridLayout* _gridLayout ;
     QLineEdit* _searchBox;

@@ -737,7 +737,9 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
     QModelIndex g4pidx = model()->parent(g3pidx);
 
     for ( int row = start; row < end+1; ++row) {
+
         QModelIndex idx = model()->index(row,0,pidx);
+
         if ( ! pidx.isValid() ) {
             // Page (below root idx)
             QString dpfile = model()->data(idx).toString();

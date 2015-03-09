@@ -33,7 +33,8 @@ SOURCES += \
     varswidget.cpp \
     monteinputsview.cpp \
     plotmainwindow.cpp \
-    pagetitlewidget.cpp
+    pagetitlewidget.cpp \
+    plotbookmodel.cpp
 
 HEADERS += \
     qcustomplot.h \
@@ -47,7 +48,8 @@ HEADERS += \
     varswidget.h \
     monteinputsview.h \
     plotmainwindow.h \
-    pagetitlewidget.h
+    pagetitlewidget.h \
+    plotbookmodel.h
 
 
 
