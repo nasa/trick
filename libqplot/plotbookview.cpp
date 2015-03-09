@@ -1130,21 +1130,11 @@ Plot *PlotBookView::_idx2Plot(const QModelIndex &idx) const
             plotIdx = plotIdx.parent();
         }
         QModelIndex pageIdx = plotIdx.parent();
-
-        // n is to take the page title etc. into account
-        // since the page can have children other than plots
-        // this assumes the model is like:
-        //         page
-        //             page title
-        //             page child2
-        //             ...
-        //             plot0
-        //             plot1
-        //             ...
-        //             plotn
-        int n = pageIdx.model()->rowCount(pageIdx)-_page2Plots[page].size();
-
-        plot = _page2Plots.value(page).at(plotIdx.row()-n);
+        QModelIndexList plotIdxs = _plotModel->plotIdxs(pageIdx);
+        int iPlot = plotIdxs.indexOf(plotIdx);
+        if ( iPlot >= 0 ) {
+            plot = _page2Plots.value(page).at(iPlot);
+        }
     }
     return plot;
 }
@@ -1187,27 +1177,14 @@ QModelIndex PlotBookView::_plot2Idx(Plot *plot) const
     if ( !model() || !plot ) return QModelIndex();
 
     QModelIndex plotIdx;
-
     QWidget* page = plot->parentWidget();
     int rowPage = _pages.indexOf(page);
     QModelIndex pageIdx = model()->index(rowPage,0);
-
-    // n is to take the page title etc. into account
-    // since the page can have children other than plots
-    // this assumes the model is like:
-    //         page
-    //             page title
-    //             page child2
-    //             ...
-    //             plot0
-    //             plot1
-    //             ...
-    //             plotn
-    int n = pageIdx.model()->rowCount(pageIdx)-_page2Plots[page].size();
-    int rowPlot = _page2Plots.value(page).indexOf(plot)+n;
-
-    plotIdx = model()->index(rowPlot,0,pageIdx);
-
+    QModelIndexList plotIdxs = _plotModel->plotIdxs(pageIdx);
+    int iPlot =  _page2Plots.value(page).indexOf(plot);
+    if ( iPlot >= 0 ) {
+        plotIdx = plotIdxs.at(iPlot);
+    }
     return plotIdx;
 }
 
