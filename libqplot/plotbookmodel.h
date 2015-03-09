@@ -10,6 +10,7 @@ class PlotBookModel : public QStandardItemModel
 public:
     explicit PlotBookModel(QObject *parent = 0);
     explicit PlotBookModel( int rows, int columns, QObject * parent = 0 );
+    QModelIndexList plotIdxs(const QModelIndex& pageIdx) const ;
 
 
 signals:
