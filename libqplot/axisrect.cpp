@@ -114,16 +114,26 @@ void AxisRect::toggleCurveDiff()
     if ( !_isDiffPlot ) return;
 
     bool isDiff = (_curves.at(0)->lineStyle() == TrickCurve::lsNone &&
+                   _curves.at(1)->lineStyle() == TrickCurve::lsNone &&
                    _curves.at(2)->lineStyle() == TrickCurve::lsLine );
+    bool isComp = (_curves.at(0)->lineStyle() == TrickCurve::lsLine &&
+                   _curves.at(1)->lineStyle() == TrickCurve::lsLine &&
+                   _curves.at(2)->lineStyle() == TrickCurve::lsNone );
     bool isCompDiff = (_curves.at(0)->lineStyle() == TrickCurve::lsLine &&
-                   _curves.at(2)->lineStyle() == TrickCurve::lsLine );
+                       _curves.at(1)->lineStyle() == TrickCurve::lsLine &&
+                       _curves.at(2)->lineStyle() == TrickCurve::lsLine );
     if ( isDiff ) {
-        // Compare+Error
+        // Diff->Compare
+        _curves.at(0)->setLineStyle(TrickCurve::lsLine);
+        _curves.at(1)->setLineStyle(TrickCurve::lsLine);
+        _curves.at(2)->setLineStyle(TrickCurve::lsNone);
+    } else if ( isComp ) {
+        // Compare->Compare+Diff
         _curves.at(0)->setLineStyle(TrickCurve::lsLine);
         _curves.at(1)->setLineStyle(TrickCurve::lsLine);
         _curves.at(2)->setLineStyle(TrickCurve::lsLine);
     } else if ( isCompDiff ) {
-        // Error
+        // Compare+Diff->Diff
         _curves.at(0)->setLineStyle(TrickCurve::lsNone);
         _curves.at(1)->setLineStyle(TrickCurve::lsNone);
         _curves.at(2)->setLineStyle(TrickCurve::lsLine);
