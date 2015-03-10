@@ -772,10 +772,6 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             }
             if ( !_titles.at(1).isEmpty() ) {
                     pw->setTitle2(_titles.at(1));
-            } else if ( _monteModel ) {
-                if ( !_monteModel->runs()->parentDir().isEmpty() ) {
-                    pw->setTitle2(_monteModel->runs()->parentDir());
-                }
             }
             if ( !_titles.at(2).isEmpty() ) {
                 pw->setTitle3(_titles.at(2));
@@ -892,23 +888,6 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 TrickCurveModel* curveModel = _monteModel->curve(runID,
                                                                  xparam,
                                                                  yparam);
-
-                if ( _monteModel ) {
-                    if ( _monteModel->runs()->parentDir().isEmpty() ) {
-                        QWidget* page = _idx2Page(idx);
-                        PageTitleWidget* pw = _page2pagewidget.value(page);
-                        QString runDir = _monteModel->runs()->runs().at(runID);
-                        if ( !_titles.at(1).isEmpty() ) {
-                            pw->setTitle2(_titles.at(1));
-                        } else  if ( pw->title2().isEmpty() ) {
-                            pw->setTitle2(runDir);
-                        } else {
-                            QString title = pw->title2();
-                            title = title + ",\n" + runDir;
-                            pw->setTitle2(title);
-                        }
-                    }
-                }
 
                 //
                 // xunit and calc x scale if DP unit not equal to model unit

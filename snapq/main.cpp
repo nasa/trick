@@ -105,7 +105,18 @@ int main(int argc, char *argv[])
 
         // Make a list of titles
         QStringList titles;
-        titles << opts.title1 << opts.title2 << opts.title3 << opts.title4;
+        QString subtitle = opts.title2;
+        if ( subtitle.isEmpty() ) {
+            if ( isMonte )  {
+                subtitle = opts.runDirs.at(0);
+            } else {
+                foreach ( QString runDir, opts.runDirs ) {
+                    subtitle += runDir + ",\n";
+                }
+                subtitle.chop(2);
+            }
+        }
+        titles << opts.title1 << subtitle << opts.title3 << opts.title4;
 
         PlotMainWindow w(opts.runDirs.at(0), titles,
                          monteModel, varsModel, monteInputsModel);

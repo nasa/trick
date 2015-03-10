@@ -13,7 +13,6 @@ Runs::Runs() :
 }
 
 Runs::Runs(const QStringList &runDirs, double startTime, double stopTime) :
-    _parentDir(QString()),
     _runs(runDirs),
     _startTime(startTime),
     _stopTime(stopTime)
@@ -121,9 +120,4 @@ bool Runs::_setDirs(const QStringList &dirs)
 QList<TrickModel *> *Runs::models(const QString &param)
 {
     return _paramToModels.value(param);
-}
-
-void Runs::_setParentDir(const QString &parentDir)
-{
-    _parentDir = parentDir;
 }
