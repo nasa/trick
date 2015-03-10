@@ -19,7 +19,9 @@ class PlotBookView : public QAbstractItemView
     Q_OBJECT
 
 public:
-    explicit PlotBookView(PlotBookModel* plotModel, QWidget *parent = 0);
+    explicit PlotBookView(PlotBookModel* plotModel,
+                          const QStringList& titles,
+                          QWidget *parent = 0);
     ~PlotBookView();
 
     void setData(MonteModel* monteModel);
@@ -80,6 +82,7 @@ private slots:
     void plotKeyPress(QKeyEvent* e);
 
 private:
+    QStringList _titles;       // override for page title,subtitle etc.
     PlotBookModel* _plotModel;
     QFrame* _bookFrame;
     QGridLayout* _bookGridLayout ;

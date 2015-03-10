@@ -31,12 +31,14 @@ class PlotMainWindow : public QMainWindow
 
 public:
     explicit PlotMainWindow( const QString& dpDir,
+                             const QStringList& titles,
                              MonteModel* monteModel,
                              QStandardItemModel* varsModel,
                              QStandardItemModel* monteInputsModel=0,
                              QWidget *parent = 0);
 
     explicit PlotMainWindow( const QStringList& dpFiles,
+                             const QStringList& titles,
                              MonteModel* monteModel,
                              QStandardItemModel* varsModel,
                              QStandardItemModel* monteInputsModel=0,

@@ -24,6 +24,10 @@ class SnapOptions : public Options
   public:
     QString pdfOutFile;
     QStringList rundps;
+    QString title1;
+    QString title2;
+    QString title3;
+    QString title4;
 };
 
 SnapOptions opts;
@@ -38,6 +42,10 @@ int main(int argc, char *argv[])
     opts.add("<RUN_dirs and DP_files>:*", &opts.rundps, QStringList(),
              "List of RUN dirs and DP files",
              presetRunsDPs, postsetRunsDPs);
+    opts.add("-t1",&opts.title1,"Snap Plot", "Main title");
+    opts.add("-t2",&opts.title2,"", "Subtitle");
+    opts.add("-t3",&opts.title3,"", "User title");
+    opts.add("-t4",&opts.title4,"", "Date title");
     opts.add("-pdf", &opts.pdfOutFile, QString("out.pdf"),
              "Name of pdf output file");
     opts.parse(argc,argv, QString("snapp"), &ok);
@@ -70,7 +78,11 @@ int main(int argc, char *argv[])
         monteModel = new MonteModel(runs);
         varsModel = createVarsModel(runDirs);
 
-        PlotMainWindow w(dps,
+        // Make a list of titles
+        QStringList titles;
+        titles << opts.title1 << opts.title2 << opts.title3 << opts.title4;
+
+        PlotMainWindow w(dps, titles,
                          monteModel, varsModel, monteInputsModel);
         w.savePdf(opts.pdfOutFile);
 

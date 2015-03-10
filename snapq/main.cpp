@@ -26,6 +26,10 @@ class SnapOptions : public Options
     QStringList runDirs;
     unsigned int beginRun;
     unsigned int endRun;
+    QString title1;
+    QString title2;
+    QString title3;
+    QString title4;
 };
 
 SnapOptions opts;
@@ -39,6 +43,10 @@ int main(int argc, char *argv[])
     opts.add("<MONTE_dir|RUN_dirs>:+", &opts.runDirs, QStringList(),
              "MONTE_dir or RUN_directories with RUNs",
              presetRunDirs, postsetRunDirs);
+    opts.add("-t1",&opts.title1,"Snap Plot", "Main title");
+    opts.add("-t2",&opts.title2,"", "Subtitle");
+    opts.add("-t3",&opts.title3,"", "User title");
+    opts.add("-t4",&opts.title4,"", "Date title");
     opts.add("-beginRun",&opts.beginRun,0,
              "begin run (inclusive) in set of Monte carlo RUNs",
              presetBeginRun);
@@ -95,7 +103,11 @@ int main(int argc, char *argv[])
             }
         }
 
-        PlotMainWindow w(opts.runDirs.at(0),
+        // Make a list of titles
+        QStringList titles;
+        titles << opts.title1 << opts.title2 << opts.title3 << opts.title4;
+
+        PlotMainWindow w(opts.runDirs.at(0), titles,
                          monteModel, varsModel, monteInputsModel);
         w.show();
         ret = a.exec();

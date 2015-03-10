@@ -1,8 +1,9 @@
 #include "plotbookview.h"
 #include <QDebug>
 
-PlotBookView::PlotBookView(PlotBookModel *plotModel, QWidget *parent) :
+PlotBookView::PlotBookView(PlotBookModel *plotModel, const QStringList &titles, QWidget *parent) :
     QAbstractItemView(parent),
+    _titles(titles),
     _plotModel(plotModel),
     _monteModel(0),
     _isTabCloseRequested(false),
@@ -762,15 +763,25 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             QWidget* page = _idx2Page(pidx);
             PageTitleWidget* pw = _page2pagewidget.value(page);
             QString title = model()->data(idx).toString();
-            if ( !title.startsWith("QP_")  && title != "Page" ) {
+            if ( !_titles.at(0).isEmpty() ) {
+                pw->setTitle1(_titles.at(0));
+            } else if ( !title.startsWith("QP_")  && title != "Page" ) {
                 pw->setTitle1(title);
             } else {
                 pw->setTitle1("Snap Plot");
             }
-            if ( _monteModel ) {
+            if ( !_titles.at(1).isEmpty() ) {
+                    pw->setTitle2(_titles.at(1));
+            } else if ( _monteModel ) {
                 if ( !_monteModel->runs()->parentDir().isEmpty() ) {
                     pw->setTitle2(_monteModel->runs()->parentDir());
                 }
+            }
+            if ( !_titles.at(2).isEmpty() ) {
+                pw->setTitle3(_titles.at(2));
+            }
+            if ( !_titles.at(3).isEmpty() ) {
+                pw->setTitle4(_titles.at(3));
             }
         } else if ( ! gpidx.isValid() && row >= 1 ) {
             // Plot (note that row 0 is the page title)
@@ -887,10 +898,12 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                         QWidget* page = _idx2Page(idx);
                         PageTitleWidget* pw = _page2pagewidget.value(page);
                         QString runDir = _monteModel->runs()->runs().at(runID);
-                        QString title = pw->title2();
-                        if ( title.isEmpty() ) {
+                        if ( !_titles.at(1).isEmpty() ) {
+                            pw->setTitle2(_titles.at(1));
+                        } else  if ( pw->title2().isEmpty() ) {
                             pw->setTitle2(runDir);
                         } else {
+                            QString title = pw->title2();
                             title = title + ",\n" + runDir;
                             pw->setTitle2(title);
                         }
