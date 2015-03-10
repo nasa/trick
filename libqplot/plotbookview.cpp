@@ -763,7 +763,7 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             PageTitleWidget* pw = _page2pagewidget.value(page);
             QString title = model()->data(idx).toString();
             if ( !title.startsWith("QP_")  && title != "Page" ) {
-                pw->setTitle(title);
+                pw->setTitle1(title);
             }
         } else if ( ! gpidx.isValid() && row >= 1 ) {
             // Plot (note that row 0 is the page title)
