@@ -73,9 +73,12 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.namespace.QName;
+import javax.xml.transform.stream.StreamSource;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -411,10 +414,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
 
         // Initialize the JAXB elements.
         try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(TVBean.class,
-              TVBoolean.class, TVByte.class, TVDouble.class, TVEnumeration.class,
-              TVFloat.class, TVInteger.class, TVLong.class, TVShort.class,
-              TVString.class);
+            JAXBContext jaxbContext = JAXBContext.newInstance("trick.tv");
             marshaller = jaxbContext.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             unmarshaller = jaxbContext.createUnmarshaller();
@@ -1767,13 +1767,13 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
      * @param display whether or not to replace the current variable table contents with those in the file
      * @param set whether or not to send the values in the file to the Variable Server
      */
-    void openFile(File file, boolean display, boolean set) {
+    protected void openFile(File file, boolean display, boolean set) {
         try {
             openFileAsBinary(file, display, set);
         }
         catch (Exception binaryException) {
             try {
-                restoreState((TVBean)unmarshaller.unmarshal(file), display, set);
+                restoreState((TVBean)unmarshaller.unmarshal(new StreamSource(file), TVBean.class).getValue(), display, set);
             }
             catch (Exception exception) {
                 JOptionPane.showMessageDialog(getMainFrame(), exception,
@@ -1856,9 +1856,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
      * @param display whether or not to display the data
      * @param set whether or not to set the data's values
      */
-    protected void restoreState(TVBean tvBean, boolean display, boolean set)
-      throws IOException, ClassNotFoundException, InstantiationException,
-      IllegalAccessException, JAXBException {
+    protected void restoreState(TVBean tvBean, boolean display, boolean set) {
         if (display) {
             removeAllStripCharts();
             removeAllVariables();
@@ -1950,18 +1948,27 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
             if (!file.exists() || (JOptionPane.showConfirmDialog(getMainFrame(),"Overwrite existing file?",
               "File Already Exists", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)) {
                 try {
-                    marshaller.marshal(new TVBean(this), file);
+                    saveState(file);
                 }
-                catch (JAXBException jaxbException) {
-                    JOptionPane.showMessageDialog(getMainFrame(), jaxbException,
+                catch (Exception exception) {
+                    JOptionPane.showMessageDialog(getMainFrame(), exception,
                       "Failed to Save State", JOptionPane.ERROR_MESSAGE);
-                    jaxbException.printStackTrace(System.err);
+                    exception.printStackTrace(System.err);
                 }
             }
             else {
                 saveFile();
             }
         }
+    }
+
+    /**
+     * saves the variable table and strip charts to <code>file</code>
+     *
+     * @param file the target
+     */
+    protected void saveState(File file) throws JAXBException {
+        marshaller.marshal(new JAXBElement<TVBean>(new QName("trickView"), TVBean.class, new TVBean(this)), file);
     }
 
     /**

@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.jdesktop.swingx.JXFrame;
@@ -23,8 +22,6 @@ import trick.common.utils.vs.Variable;
 import trick.sie.utils.SieEnumeration;
 import trick.stripchart.StripChart;
 
-@XmlRootElement(name = "trickView")
-@XmlType(name = "trickView")
 public class TVBean {
 
     public double cyclePeriod;
