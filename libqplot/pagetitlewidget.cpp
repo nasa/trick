@@ -23,7 +23,7 @@ PageTitleWidget::PageTitleWidget(QWidget *parent) :
     _titleGrid->addWidget(_title1,0,0);
 
     _title2 = new QLabel(_titleFrame);
-    _title2->setTextFormat(Qt::RichText);
+    _title2->setTextFormat(Qt::PlainText);
     _title2->setText("");
     _title2->setAlignment(Qt::AlignHCenter| Qt::AlignVCenter);
     _titleGrid->addWidget(_title2,1,0);
@@ -57,7 +57,9 @@ void PageTitleWidget::setTitle1(const QString &title)
 
 void PageTitleWidget::setTitle2(const QString &title)
 {
-    _title2->setText("(" + title + ")");
+    if ( !title.isEmpty() ) {
+        _title2->setText("(" + title + ")");
+    }
 }
 
 void PageTitleWidget::setTitle3(const QString &title)
@@ -68,4 +70,14 @@ void PageTitleWidget::setTitle3(const QString &title)
 void PageTitleWidget::setTitle4(const QString &title)
 {
     _title4->setText(title);
+}
+
+QString PageTitleWidget::title2()
+{
+    QString title = _title2->text();
+    if ( title.startsWith("(") ) {
+        title = title.replace(0,1,"");
+        title.chop(1);
+    }
+    return title;
 }

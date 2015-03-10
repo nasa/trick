@@ -764,6 +764,13 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             QString title = model()->data(idx).toString();
             if ( !title.startsWith("QP_")  && title != "Page" ) {
                 pw->setTitle1(title);
+            } else {
+                pw->setTitle1("Snap Plot");
+            }
+            if ( _monteModel ) {
+                if ( !_monteModel->runs()->parentDir().isEmpty() ) {
+                    pw->setTitle2(_monteModel->runs()->parentDir());
+                }
             }
         } else if ( ! gpidx.isValid() && row >= 1 ) {
             // Plot (note that row 0 is the page title)
@@ -874,6 +881,22 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 TrickCurveModel* curveModel = _monteModel->curve(runID,
                                                                  xparam,
                                                                  yparam);
+
+                if ( _monteModel ) {
+                    if ( _monteModel->runs()->parentDir().isEmpty() ) {
+                        QWidget* page = _idx2Page(idx);
+                        PageTitleWidget* pw = _page2pagewidget.value(page);
+                        QString runDir = _monteModel->runs()->runs().at(runID);
+                        QString title = pw->title2();
+                        if ( title.isEmpty() ) {
+                            pw->setTitle2(runDir);
+                        } else {
+                            title = title + ",\n" + runDir;
+                            pw->setTitle2(title);
+                        }
+                    }
+                }
+
                 //
                 // xunit and calc x scale if DP unit not equal to model unit
                 //

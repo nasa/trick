@@ -65,6 +65,8 @@ class MonteModel : public QAbstractItemModel
                                 Qt::Orientation orientation=Qt::Horizontal,
                                 int role=Qt::DisplayRole) const;
 
+    Runs* runs() { return _runs ; }
+
   private:
 
     Runs* _runs;

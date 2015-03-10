@@ -25,6 +25,8 @@ public:
     void setTitle3(const QString& title);
     void setTitle4(const QString& title);
 
+    QString title2();
+
 signals:
     
 public slots:

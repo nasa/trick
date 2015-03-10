@@ -11,6 +11,7 @@ Monte::Monte(const QString& dirname, int beginRun, int endRun) :
     _beginRun(beginRun),
     _endRun(endRun)
 {
+    _setParentDir(dirname);
     if ( ! dirname.isEmpty() ) {
         _setDir(dirname);
     }
