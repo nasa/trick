@@ -179,16 +179,30 @@ bool PlotBookView::savePdf(const QString &fileName)
     QRect paintRect = QRect(0,0,pdfPrinter.width(),pdfPrinter.height());
     pdfPainter.setWindow(paintRect);
 
-    // Init pixmap for printer/painter
-    QPixmap pixmap(ww,hh);
-    QCPPainter pixPainter;
-    pixPainter.setMode(QCPPainter::pmNoCaching);
-    pixPainter.setMode(QCPPainter::pmNonCosmetic,false);
-    if (! pixPainter.begin(&pixmap)) {
+    // Init pixmap for header
+    QRect headerRect(0,0,ww,heightHeader);
+    QPixmap pixmapHeader(ww,heightHeader);
+    QCPPainter pixPainterHeader;
+    pixPainterHeader.setMode(QCPPainter::pmNoCaching);
+    pixPainterHeader.setMode(QCPPainter::pmNonCosmetic,false);
+    if (! pixPainterHeader.begin(&pixmapHeader)) {
         pdfPainter.end();
         return false;
     }
-    pixPainter.setWindow(paintRect);
+    pixPainterHeader.setWindow(headerRect);
+
+    // Init pixmap for plots
+    QRect plotsRect(0,heightHeader,ww,hh-heightHeader);
+    QPixmap pixmapPlots(ww,hh-heightHeader);
+    QCPPainter pixPainterPlots;
+    pixPainterPlots.setMode(QCPPainter::pmNoCaching);
+    pixPainterPlots.setMode(QCPPainter::pmNonCosmetic,false);
+    if (! pixPainterPlots.begin(&pixmapPlots)) {
+        pdfPainter.end();
+        pixPainterHeader.end();
+        return false;
+    }
+    pixPainterPlots.setWindow(plotsRect);
 
     for ( int pageId = 0; pageId < _pages.size(); ++pageId) {
 
@@ -199,36 +213,31 @@ bool PlotBookView::savePdf(const QString &fileName)
         QVector<QRect> origPlotViewports;
         foreach (Plot* plot, plots ) {
             origPlotViewports.append(plot->viewport());
-            QRect pageRect = QRect(0,heightHeader,
-                                   pdfPrinter.width(),
-                                   pdfPrinter.height()-heightHeader);
-            plot->setViewport(pageRect);
+            plot->setViewport(plotsRect);
         }
 
         _layoutPdfPlots(plots);
 
-        // Clear background first
-        pixmap.fill(Qt::white);
-
-        // Draw header i.e the PageTitleWidget
-        QRect geom = pw->geometry();
-        pw->setGeometry(0,0,ww,heightHeader);
-        pw->render(&pixmap);
-        pw->setGeometry(geom); // restore widget geometry (probably not needed)
-        pixPainter.end();
-        pixPainter.begin(&pixmap);
-
-        // Draw then restore plot layout
+        // Draw plots (and restore plot layout)
+        pixmapPlots.fill(Qt::white);
         int plotId = 0 ;
         foreach (Plot* plot, plots ) {
-            plot->drawMe(&pixPainter);
+            plot->drawMe(&pixPainterPlots);
             plot->setViewport(origPlotViewports.at(plotId));
             plot->plotLayout()->simplify();  // get rid of empty cells
             plotId++;
         }
+        pdfPainter.drawPixmap(0,heightHeader,pixmapPlots);
 
-        // Draw plots and title header pixmap onto pdf canvas
-        pdfPainter.drawPixmap(0,0,pixmap);
+        // Draw header (resize for offscreen rendering)
+        pixmapHeader.fill(Qt::white);
+        pixPainterHeader.end();
+        pw->setFixedWidth(ww);
+        pw->setFixedHeight(heightHeader);
+        pw->render(&pixmapHeader);
+        pw->setFixedSize(QSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX));
+        pdfPainter.drawPixmap(0,0,pixmapHeader);
+        pixPainterHeader.begin(&pixmapHeader);
 
         // Insert new page in pdf booklet
         if ( pageId < _pages.size()-1 ) {
@@ -237,7 +246,8 @@ bool PlotBookView::savePdf(const QString &fileName)
     }
 
     pdfPainter.end();
-    pixPainter.end();
+    pixPainterHeader.end();
+    pixPainterPlots.end();
 
     return true;
 }
