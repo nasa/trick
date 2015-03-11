@@ -159,6 +159,7 @@ bool PlotBookView::savePdf(const QString &fileName)
     // Page size and title header size
     int ww = 1200;
     int hh = 900;
+    int heightHeader = 75;
 
     // Setup pdf printer
     QPrinter pdfPrinter(QPrinter::ScreenResolution);
@@ -193,7 +194,6 @@ bool PlotBookView::savePdf(const QString &fileName)
 
         QWidget* page = _pages.at(pageId);
         PageTitleWidget* pw = _page2pagewidget.value(page);
-        int heightHeader = pw->height();
 
         QVector<Plot*> plots = _page2Plots.value(page);
         QVector<QRect> origPlotViewports;
@@ -212,7 +212,7 @@ bool PlotBookView::savePdf(const QString &fileName)
 
         // Draw header i.e the PageTitleWidget
         QRect geom = pw->geometry();
-        pw->setGeometry(0,0,ww,pw->height());
+        pw->setGeometry(0,0,ww,heightHeader);
         pw->render(&pixmap);
         pw->setGeometry(geom); // restore widget geometry (probably not needed)
         pixPainter.end();
