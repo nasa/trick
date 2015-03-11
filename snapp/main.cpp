@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
     int ret = -1;
 
 
-    opts.add("<RUN_dirs and DP_files>:*", &opts.rundps, QStringList(),
+    opts.add("<RUN_dirs and DP_files>:+", &opts.rundps, QStringList(),
              "List of RUN dirs and DP files",
              presetRunsDPs, postsetRunsDPs);
     opts.add("-t1",&opts.title1,"Snap Plot", "Main title");
