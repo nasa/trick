@@ -124,6 +124,8 @@ private:
     QString _appendUnitToAxisLabel(const QModelIndex axisLabelIdx,
                                  const QString &unit ) const;
 
+    void _layoutPdfPlots(const QVector<Plot*>& plots);
+
 };
 
 #endif // PLOTBOOKVIEW_H

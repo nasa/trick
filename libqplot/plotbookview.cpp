@@ -209,6 +209,45 @@ bool PlotBookView::savePdf(const QString &fileName)
             plot->setViewport(pageRect);
         }
 
+        _layoutPdfPlots(plots);
+
+        // Clear background first
+        pixmap.fill(Qt::white);
+
+        // Draw header i.e the PageTitleWidget
+        QRect geom = pw->geometry();
+        pw->setGeometry(0,0,ww,pw->height());
+        pw->render(&pixmap);
+        pw->setGeometry(geom); // restore widget geometry (probably not needed)
+        pixPainter.end();
+        pixPainter.begin(&pixmap);
+
+        // Draw then restore plot layout
+        int plotId = 0 ;
+        foreach (Plot* plot, plots ) {
+            plot->drawMe(&pixPainter);
+            plot->setViewport(origPlotViewports.at(plotId));
+            plot->plotLayout()->simplify();  // get rid of empty cells
+            plotId++;
+        }
+
+        // Draw plots and title header pixmap onto pdf canvas
+        pdfPainter.drawPixmap(0,0,pixmap);
+
+        // Insert new page in pdf booklet
+        if ( pageId < _pages.size()-1 ) {
+            pdfPrinter.newPage();
+        }
+    }
+
+    pdfPainter.end();
+    pixPainter.end();
+
+    return true;
+}
+
+void PlotBookView::_layoutPdfPlots(const QVector<Plot*>& plots)
+{
         // Plotbookview's page is a Qt QGrid of QCustomplot Widgets.
         // QCustomPlot can make a "page", but for interactive use,
         // I found it better to use Qt's QGrid.  When printing it is better
@@ -344,40 +383,6 @@ bool PlotBookView::savePdf(const QString &fileName)
         {
         }
         }
-
-        // Clear background first
-        pixmap.fill(Qt::white);
-
-        // Draw header i.e the PageTitleWidget
-        QRect geom = pw->geometry();
-        pw->setGeometry(0,0,ww,pw->height());
-        pw->render(&pixmap);
-        pw->setGeometry(geom); // restore widget geometry (probably not needed)
-        pixPainter.end();
-        pixPainter.begin(&pixmap);
-
-        // Draw then restore plot layout
-        int plotId = 0 ;
-        foreach (Plot* plot, plots ) {
-            plot->drawMe(&pixPainter);
-            plot->setViewport(origPlotViewports.at(plotId));
-            plot->plotLayout()->simplify();  // get rid of empty cells
-            plotId++;
-        }
-
-        // Draw plots and title header pixmap onto pdf canvas
-        pdfPainter.drawPixmap(0,0,pixmap);
-
-        // Insert new page in pdf booklet
-        if ( pageId < _pages.size()-1 ) {
-            pdfPrinter.newPage();
-        }
-    }
-
-    pdfPainter.end();
-    pixPainter.end();
-
-    return true;
 }
 
 void PlotBookView::showCurveDiff(bool isShow)
