@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     opts.add("<MONTE_dir|RUN_dirs>:+", &opts.runDirs, QStringList(),
              "MONTE_dir or RUN_directories with RUNs",
              presetRunDirs, postsetRunDirs);
-    opts.add("-t1",&opts.title1,"Snap Plot", "Main title");
+    opts.add("-t1",&opts.title1,"", "Main title");
     opts.add("-t2",&opts.title2,"", "Subtitle");
     opts.add("-t3",&opts.title3,"", "User title");
     opts.add("-t4",&opts.title4,"", "Date title");

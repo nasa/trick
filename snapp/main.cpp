@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     opts.add("<RUN_dirs and DP_files>:+", &opts.rundps, QStringList(),
              "List of RUN dirs and DP files",
              presetRunsDPs, postsetRunsDPs);
-    opts.add("-t1",&opts.title1,"Snap Plot", "Main title");
+    opts.add("-t1",&opts.title1,"", "Main title");
     opts.add("-t2",&opts.title2,"", "Subtitle");
     opts.add("-t3",&opts.title3,"", "User title");
     opts.add("-t4",&opts.title4,"", "Date title");
