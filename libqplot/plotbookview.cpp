@@ -166,9 +166,6 @@ bool PlotBookView::savePdf(const QString &fileName)
     pdfPrinter.setOutputFormat(QPrinter::PdfFormat);
     pdfPrinter.setFullPage(true);
     pdfPrinter.setPaperSize(QSizeF(ww,hh),QPrinter::DevicePixel);
-    QRect printerRect = QRect(0,0,pdfPrinter.width(),pdfPrinter.height());
-    //printer.setPaperSize(QPrinter::A4);
-    //printer.setOrientation(QPrinter::Landscape);
 
     // Setup Painter
     QCPPainter pdfPainter;
@@ -178,7 +175,8 @@ bool PlotBookView::savePdf(const QString &fileName)
     if (! pdfPainter.begin(&pdfPrinter)) {
         return false;
     }
-    pdfPainter.setWindow(printerRect);
+    QRect paintRect = QRect(0,0,pdfPrinter.width(),pdfPrinter.height());
+    pdfPainter.setWindow(paintRect);
 
     // Init pixmap for printer/painter
     QPixmap pixmap(ww,hh);
@@ -189,13 +187,11 @@ bool PlotBookView::savePdf(const QString &fileName)
         pdfPainter.end();
         return false;
     }
-    pixPainter.setWindow(printerRect);
-
+    pixPainter.setWindow(paintRect);
 
     for ( int pageId = 0; pageId < _pages.size(); ++pageId) {
 
         QWidget* page = _pages.at(pageId);
-
         PageTitleWidget* pw = _page2pagewidget.value(page);
         int heightHeader = pw->height();
 
