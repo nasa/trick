@@ -22,6 +22,8 @@ Option::FPostsetQStringList postsetRunsDPs;
 class SnapOptions : public Options
 {
   public:
+    unsigned int beginRun;
+    unsigned int endRun;
     QString pdfOutFile;
     QStringList rundps;
     QString title1;
@@ -32,6 +34,8 @@ class SnapOptions : public Options
 
 SnapOptions opts;
 
+Option::FPresetUInt presetBeginRun;
+Option::FPresetUInt presetEndRun;
 
 int main(int argc, char *argv[])
 {
@@ -42,11 +46,17 @@ int main(int argc, char *argv[])
     opts.add("<RUN_dirs and DP_files>:+", &opts.rundps, QStringList(),
              "List of RUN dirs and DP files",
              presetRunsDPs, postsetRunsDPs);
+    opts.add("-beginRun",&opts.beginRun,0,
+             "begin run (inclusive) in set of Monte carlo RUNs",
+             presetBeginRun);
+    opts.add("-endRun",&opts.endRun,100000,
+             "end run (inclusive) in set of Monte carlo RUNs",
+             presetEndRun);
     opts.add("-t1",&opts.title1,"", "Main title");
     opts.add("-t2",&opts.title2,"", "Subtitle");
     opts.add("-t3",&opts.title3,"", "User title");
     opts.add("-t4",&opts.title4,"", "Date title");
-    opts.add("-pdf", &opts.pdfOutFile, QString("out.pdf"),
+    opts.add("-pdf", &opts.pdfOutFile, QString(""),
              "Name of pdf output file");
     opts.parse(argc,argv, QString("snapp"), &ok);
 
@@ -60,6 +70,16 @@ int main(int argc, char *argv[])
         QApplication::setGraphicsSystem("raster");
         QApplication a(argc, argv);
 
+        MonteModel* monteModel = 0;
+        QStandardItemModel* varsModel = 0;
+        QStandardItemModel* monteInputsModel = 0;
+        Runs* runs = 0;
+
+        bool isPdf = false;
+        if ( !opts.pdfOutFile.isEmpty() ) {
+            isPdf = true;
+        }
+
         QStringList dps;
         QStringList runDirs;
         foreach ( QString f, opts.rundps ) {
@@ -69,14 +89,28 @@ int main(int argc, char *argv[])
                 runDirs << f;
             }
         }
-        MonteModel* monteModel = 0;
-        QStandardItemModel* varsModel = 0;
-        QStandardItemModel* monteInputsModel = 0;
-        Runs* runs = 0;
 
-        runs = new Runs(runDirs);
-        monteModel = new MonteModel(runs);
-        varsModel = createVarsModel(runDirs);
+        bool isMonte = false;
+        if ( runDirs.size() == 1 ) {
+            QFileInfo fileInfo(runDirs.at(0));
+            if ( fileInfo.fileName().startsWith("MONTE_") ) {
+                isMonte = true;
+            }
+        }
+
+
+        if ( isMonte ) {
+            Monte* monte = new Monte(runDirs.at(0),opts.beginRun,opts.endRun);
+            monteInputsModel = monte->inputModel();
+            monteModel = new MonteModel(monte);
+            QString run0 = runDirs.at(0) + "/" + monte->runs().at(0);
+            QStringList runDirs0; runDirs0 << run0;
+            varsModel = createVarsModel(runDirs0);
+        } else {
+            runs = new Runs(runDirs);
+            monteModel = new MonteModel(runs);
+            varsModel = createVarsModel(runDirs);
+        }
 
         // Make a list of titles
         QStringList titles;
@@ -89,9 +123,23 @@ int main(int argc, char *argv[])
         }
         titles << opts.title1 << subtitle << opts.title3 << opts.title4;
 
-        PlotMainWindow w(dps, titles,
-                         monteModel, varsModel, monteInputsModel);
-        w.savePdf(opts.pdfOutFile);
+        if ( isPdf ) {
+            PlotMainWindow w(dps, titles,
+                             monteModel, varsModel, monteInputsModel);
+            w.savePdf(opts.pdfOutFile);
+        } else {
+            if ( dps.size() > 0 ) {
+                PlotMainWindow w(dps, titles,
+                                 monteModel, varsModel, monteInputsModel);
+                w.show();
+                ret = a.exec();
+            } else {
+                PlotMainWindow w(runDirs.at(0), titles,
+                                 monteModel, varsModel, monteInputsModel);
+                w.show();
+                ret = a.exec();
+            }
+        }
 
         delete varsModel;
         delete monteModel;
@@ -169,3 +217,30 @@ QStandardItemModel* createVarsModel(const QStringList& runDirs)
 
     return pm;
 }
+
+void presetBeginRun(uint* beginRunId, uint runId, bool* ok)
+{
+    Q_UNUSED(beginRunId);
+
+    if ( runId > opts.endRun ) {
+        fprintf(stderr,"snap [error] : option -beginRun, set to %d, "
+                "must be greater than "
+                " -endRun which is set to %d\n",
+                runId, opts.endRun);
+        *ok = false;
+    }
+}
+
+void presetEndRun(uint* endRunId, uint runId, bool* ok)
+{
+    Q_UNUSED(endRunId);
+
+    if ( runId < opts.beginRun ) {
+        fprintf(stderr,"snap [error] : option -endRun, set to %d, "
+                "must be greater than "
+                "-beginRun which is set to %d\n",
+                runId,opts.beginRun);
+        *ok = false;
+    }
+}
+
