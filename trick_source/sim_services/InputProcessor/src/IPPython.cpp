@@ -179,48 +179,10 @@ int Trick::IPPython::restart() {
     return 0 ;
 }
 
-#ifdef PYTHON_PROTECT_HANG
-/*
-  There is a bug I believe in glibc that causes Py_Finalize to hang while
-  freeing memory at shutdown.  This only happens in SIM_aero_fast on CentOS 5.x
-  machines.  This modified shutdown code gives 2 seconds for PyFinalize to complete.
-  If it doesn't a SIGALRM is fired and we handle it by exiting the sim immediately.
-
-  I added a check in the makefile of this directory to check for python
-  version 2.4 and define PYTHON_PROTECT_HANG if it is.  I used the python
-  version because it is available and only is present on CentOS 5.x machines.
-
-  Once we have moved past CentOS 5.x we can remove this ugly block of code
-
-  Alex 02/07/2012
-*/
-static void protect_ip_hang(int sig) {
-    (void)sig ;
-    fprintf(stderr,"Python shutdown hung... exiting now.\n") ;
-    _exit(0) ;
-}
-
-int Trick::IPPython::shutdown() {
-
-    if ( Py_IsInitialized() ) {
-
-        static struct sigaction sigact;
-        sigact.sa_handler = (void (*)(int)) protect_ip_hang;
-        sigaction(SIGALRM, &sigact, NULL) ;
-        alarm(2) ;
-
-        Py_Finalize();
-
-        alarm(0) ;
-    }
-    return(0) ;
-}
-#else
 int Trick::IPPython::shutdown() {
     if ( Py_IsInitialized() ) {
         Py_Finalize();
     }
     return(0) ;
 }
-#endif
 
