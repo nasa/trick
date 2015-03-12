@@ -94,6 +94,14 @@ int main(int argc, char *argv[])
             }
         }
 
+        // If outputting to pdf, you must have a DP file
+        if ( isPdf && (dps.size() == 0 || runDirs.size() == 0) ) {
+            fprintf(stderr,
+                    "snap [error] : when using the -pdf option you must "
+                    "specify a DP product file and RUN directory\n");
+            exit(-1);
+        }
+
         bool isMonte = false;
         if ( runDirs.size() == 1 ) {
             QFileInfo fileInfo(runDirs.at(0));
