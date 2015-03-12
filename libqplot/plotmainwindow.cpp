@@ -12,6 +12,7 @@
 #include "plotmainwindow.h"
 
 PlotMainWindow::PlotMainWindow(
+        const QString &presentation,
         const QString &dpDir,
         const QStringList& titles,
         MonteModel* monteModel,
@@ -19,6 +20,7 @@ PlotMainWindow::PlotMainWindow(
         QStandardItemModel *monteInputsModel,
         QWidget *parent) :
     QMainWindow(parent),
+    _presentation(presentation),
     _dpDir(dpDir),
     _dpFiles(QStringList()),
     _monteModel(monteModel),
@@ -46,8 +48,8 @@ PlotMainWindow::PlotMainWindow(
     _plotBookView = new PlotBookView(_plotModel, titles, msplit);
     _plotBookView->setData(_monteModel);
     _plotBookView->setSelectionModel(_plotSelectModel);
-    if ( _monteModel->rowCount() == 2 ) {
-        // Two runs - show diff/coplot
+    if ( _monteModel->rowCount() == 2 && _presentation != "compare" ) {
+        // Two runs, and presentation is not compare - show diff/coplot
         _plotBookView->showCurveDiff(true);
     }
     connect(_plotModel,
@@ -108,6 +110,7 @@ PlotMainWindow::PlotMainWindow(
 }
 
 PlotMainWindow::PlotMainWindow(
+        const QString &presentation,
         const QStringList &dpFiles,
         const QStringList& titles,
         MonteModel* monteModel,
@@ -115,6 +118,7 @@ PlotMainWindow::PlotMainWindow(
         QStandardItemModel *monteInputsModel,
         QWidget *parent) :
     QMainWindow(parent),
+    _presentation(presentation),
     _dpDir(QString()),
     _dpFiles(dpFiles),
     _monteModel(monteModel),
@@ -142,8 +146,8 @@ PlotMainWindow::PlotMainWindow(
     _plotBookView = new PlotBookView(_plotModel, titles, msplit);
     _plotBookView->setData(_monteModel);
     _plotBookView->setSelectionModel(_plotSelectModel);
-    if ( _monteModel->rowCount() == 2 ) {
-        // Two runs - show diff/coplot
+    if ( _monteModel->rowCount() == 2 && _presentation != "compare" ) {
+        // Two runs, and presentation is not compare - show diff/coplot
         _plotBookView->showCurveDiff(true);
     }
     connect(_plotModel,

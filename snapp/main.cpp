@@ -22,6 +22,7 @@ Option::FPostsetQStringList postsetRunsDPs;
 class SnapOptions : public Options
 {
   public:
+    QString presentation;
     unsigned int beginRun;
     unsigned int endRun;
     QString pdfOutFile;
@@ -34,6 +35,7 @@ class SnapOptions : public Options
 
 SnapOptions opts;
 
+Option::FPresetQString presetPresentation;
 Option::FPresetUInt presetBeginRun;
 Option::FPresetUInt presetEndRun;
 
@@ -42,10 +44,12 @@ int main(int argc, char *argv[])
     bool ok;
     int ret = -1;
 
-
     opts.add("<RUN_dirs and DP_files>:+", &opts.rundps, QStringList(),
              "List of RUN dirs and DP files",
              presetRunsDPs, postsetRunsDPs);
+    opts.add("-pres",&opts.presentation,"error",
+             "present plot with two curves as compare or error (default)",
+             presetPresentation);
     opts.add("-beginRun",&opts.beginRun,0,
              "begin run (inclusive) in set of Monte carlo RUNs",
              presetBeginRun);
@@ -124,17 +128,18 @@ int main(int argc, char *argv[])
         titles << opts.title1 << subtitle << opts.title3 << opts.title4;
 
         if ( isPdf ) {
-            PlotMainWindow w(dps, titles,
+            PlotMainWindow w(opts.presentation, dps, titles,
                              monteModel, varsModel, monteInputsModel);
             w.savePdf(opts.pdfOutFile);
         } else {
             if ( dps.size() > 0 ) {
-                PlotMainWindow w(dps, titles,
+                PlotMainWindow w(opts.presentation, dps, titles,
                                  monteModel, varsModel, monteInputsModel);
                 w.show();
                 ret = a.exec();
             } else {
-                PlotMainWindow w(runDirs.at(0), titles,
+
+                PlotMainWindow w(opts.presentation, runDirs.at(0), titles,
                                  monteModel, varsModel, monteInputsModel);
                 w.show();
                 ret = a.exec();
@@ -244,3 +249,14 @@ void presetEndRun(uint* endRunId, uint runId, bool* ok)
     }
 }
 
+void presetPresentation(QString* presVar, const QString& pres, bool* ok)
+{
+    Q_UNUSED(presVar);
+
+    if ( pres != "error" && pres != "compare" ) {
+        fprintf(stderr,"snap [error] : option -presentation, set to \"%s\", "
+                "should be \"error\" or \"compare\"\n",
+                pres.toAscii().constData());
+        *ok = false;
+    }
+}

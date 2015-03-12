@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
         }
         titles << opts.title1 << subtitle << opts.title3 << opts.title4;
 
-        PlotMainWindow w(opts.runDirs.at(0), titles,
+        PlotMainWindow w(QString("error"), opts.runDirs.at(0), titles,
                          monteModel, varsModel, monteInputsModel);
         w.show();
         ret = a.exec();

@@ -30,14 +30,16 @@ class PlotMainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit PlotMainWindow( const QString& dpDir,
+    explicit PlotMainWindow( const QString& presentation,
+                             const QString& dpDir,
                              const QStringList& titles,
                              MonteModel* monteModel,
                              QStandardItemModel* varsModel,
                              QStandardItemModel* monteInputsModel=0,
                              QWidget *parent = 0);
 
-    explicit PlotMainWindow( const QStringList& dpFiles,
+    explicit PlotMainWindow( const QString& presentation,
+                             const QStringList& dpFiles,
                              const QStringList& titles,
                              MonteModel* monteModel,
                              QStandardItemModel* varsModel,
@@ -49,6 +51,7 @@ public:
     ~PlotMainWindow();
 
 private:
+     const QString& _presentation;
     const QString& _dpDir;
     const QStringList& _dpFiles;
     MonteModel* _monteModel;
