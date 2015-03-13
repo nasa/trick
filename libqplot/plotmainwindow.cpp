@@ -14,6 +14,7 @@
 PlotMainWindow::PlotMainWindow(
         const QString &presentation,
         const QString &dpDir,
+        const QStringList& dpFiles,
         const QStringList& titles,
         MonteModel* monteModel,
         QStandardItemModel* varsModel,
@@ -22,104 +23,6 @@ PlotMainWindow::PlotMainWindow(
     QMainWindow(parent),
     _presentation(presentation),
     _dpDir(dpDir),
-    _dpFiles(QStringList()),
-    _monteModel(monteModel),
-    _varsModel(varsModel),
-    _monteInputsModel(monteInputsModel),
-    _monteInputsView(0)
-{
-    setWindowTitle(tr("Snap!"));
-    createMenu();
-
-    // Central Widget and main layout
-    QSplitter* msplit = new QSplitter;
-    setCentralWidget(msplit);
-    QFrame* lframe = new QFrame(msplit);
-    QGridLayout* lgrid = new QGridLayout(lframe);
-    QSplitter* lsplit = new QSplitter(lframe);
-    lsplit->setOrientation(Qt::Vertical);
-    lgrid->addWidget(lsplit,0,0);
-
-    // Create models
-    _plotModel = new PlotBookModel(0,1,parent);
-    _plotSelectModel = new QItemSelectionModel(_plotModel);
-
-    // Create Plot Tabbed Notebook View Widget
-    _plotBookView = new PlotBookView(_plotModel, titles, msplit);
-    _plotBookView->setData(_monteModel);
-    _plotBookView->setSelectionModel(_plotSelectModel);
-    if ( _monteModel->rowCount() == 2 && _presentation != "compare" ) {
-        // Two runs, and presentation is not compare - show diff/coplot
-        _plotBookView->showCurveDiff(true);
-    }
-    connect(_plotModel,
-            SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
-            this,
-            SLOT(_plotModelRowsAboutToBeRemoved(QModelIndex,int,int)));
-    connect(_plotSelectModel,
-            SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this,
-            SLOT(_plotSelectModelSelectionChanged(QItemSelection,QItemSelection)));
-    connect(_plotSelectModel,
-            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this,
-            SLOT(_plotSelectModelCurrentChanged(QModelIndex,QModelIndex)));
-    msplit->addWidget(_plotBookView);
-
-    // Monte inputs view (widget added later)
-    if ( _monteInputsModel ) {
-        _monteInputsView = new MonteInputsView(_plotBookView,lsplit);
-        _monteInputsView->setModel(_monteInputsModel);
-    }
-
-    // Vars/DP Notebook
-    _nbDPVars = new QTabWidget(lsplit);
-    _nbDPVars->setFocusPolicy(Qt::ClickFocus);
-    lsplit->addWidget(_nbDPVars);
-    _nbDPVars->setAttribute(Qt::WA_AlwaysShowToolTips, false);
-
-    // Vars Tab
-    _varsModel = varsModel;
-    QFrame* varsFrame = new QFrame(lsplit);
-    _varsWidget = new VarsWidget(_varsModel, _monteModel, _plotModel,
-                                  _plotSelectModel, _plotBookView,
-                                 _monteInputsView,
-                                 varsFrame);
-    _nbDPVars->addTab(varsFrame,"Vars");
-
-    // DP Tab
-    QFrame* _dpFrame = new QFrame(lsplit);
-    _dpTreeWidget = new  DPTreeWidget(_dpDir,_varsModel,
-                                      _monteModel, _plotModel,
-                                      _plotSelectModel, _dpFrame);
-    _nbDPVars->addTab(_dpFrame,"DP");
-
-    // Vars/DP needs monteInputsView, but needs to be added after Vars/DP
-    if ( _monteInputsModel ) {
-        lsplit->addWidget(_monteInputsView);
-    }
-
-
-    // Size main window
-    QList<int> sizes;
-    sizes << 420 << 1180;
-    msplit->setSizes(sizes);
-    msplit->setStretchFactor(0,0);
-    msplit->setStretchFactor(1,1);
-    resize(1600,900);
-}
-
-PlotMainWindow::PlotMainWindow(
-        const QString &presentation,
-        const QStringList &dpFiles,
-        const QStringList& titles,
-        MonteModel* monteModel,
-        QStandardItemModel* varsModel,
-        QStandardItemModel *monteInputsModel,
-        QWidget *parent) :
-    QMainWindow(parent),
-    _presentation(presentation),
-    _dpDir(QString()),
     _dpFiles(dpFiles),
     _monteModel(monteModel),
     _varsModel(varsModel),
@@ -187,7 +90,7 @@ PlotMainWindow::PlotMainWindow(
 
     // DP Tab
     QFrame* _dpFrame = new QFrame(lsplit);
-    _dpTreeWidget = new  DPTreeWidget(_dpFiles,_varsModel,
+    _dpTreeWidget = new  DPTreeWidget(_dpDir, _dpFiles, _varsModel,
                                       _monteModel, _plotModel,
                                       _plotSelectModel, _dpFrame);
     _nbDPVars->addTab(_dpFrame,"DP");

@@ -1,6 +1,7 @@
 #include "dptreewidget.h"
 
 DPTreeWidget::DPTreeWidget(const QString &dpDirName,
+                           const QStringList &dpFiles,
                            QStandardItemModel *dpVarsModel,
                            MonteModel* monteModel,
                            PlotBookModel *plotModel,
@@ -25,50 +26,6 @@ DPTreeWidget::DPTreeWidget(const QString &dpDirName,
             this,SLOT(_searchBoxTextChanged(QString)));
     _gridLayout->addWidget(_searchBox,0,0);
 
-
-    _dpTreeView = new QTreeView(parent);
-    _dpTreeView->setModel(_dpFilterModel);
-    QModelIndex proxyRootIdx = _dpFilterModel->mapFromSource(_dpModelRootIdx);
-    _dpTreeView->setRootIndex(proxyRootIdx);
-    _dpTreeView->setFocusPolicy(Qt::ClickFocus);
-    _gridLayout->addWidget(_dpTreeView,1,0);
-    connect(_dpTreeView,SIGNAL(clicked(QModelIndex)),
-            this, SLOT(_dpTreeViewClicked(QModelIndex)));
-    connect(_dpTreeView->selectionModel(),
-            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(_dpTreeViewCurrentChanged(QModelIndex,QModelIndex)));
-
-    for ( int col = 1; col < _dpModel->columnCount(); ++col) {
-        _dpTreeView->hideColumn(col);
-    }
-    _dpTreeView->expandAll();
-    _dpTreeView->resizeColumnToContents(0);
-}
-
-DPTreeWidget::DPTreeWidget(const QStringList &dpFiles,
-                           QStandardItemModel *dpVarsModel,
-                           MonteModel* monteModel,
-                           PlotBookModel *plotModel,
-                           QItemSelectionModel *plotSelectModel,
-                           QWidget *parent) :
-    QWidget(parent),
-    _dpDirName("."),
-    _dpFiles(dpFiles),
-    _dpVarsModel(dpVarsModel),
-    _monteModel(monteModel),
-    _plotModel(plotModel),
-    _plotSelectModel(plotSelectModel),
-    _gridLayout(0),
-    _searchBox(0)
-{
-    _setupModel();
-
-    _gridLayout = new QGridLayout(parent);
-
-    _searchBox = new QLineEdit(parent);
-    connect(_searchBox,SIGNAL(textChanged(QString)),
-            this,SLOT(_searchBoxTextChanged(QString)));
-    _gridLayout->addWidget(_searchBox,0,0);
 
     _dpTreeView = new QTreeView(parent);
     _dpTreeView->setModel(_dpFilterModel);

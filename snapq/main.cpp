@@ -136,19 +136,19 @@ int main(int argc, char *argv[])
         titles << opts.title1 << subtitle << opts.title3 << opts.title4;
 
         if ( isPdf ) {
-            PlotMainWindow w(opts.presentation, dps, titles,
+            PlotMainWindow w(opts.presentation, QString(), dps, titles,
                              monteModel, varsModel, monteInputsModel);
             w.savePdf(opts.pdfOutFile);
         } else {
             if ( dps.size() > 0 ) {
-                PlotMainWindow w(opts.presentation, dps, titles,
+                PlotMainWindow w(opts.presentation, ".", dps, titles,
                                  monteModel, varsModel, monteInputsModel);
                 w.show();
                 ret = a.exec();
             } else {
 
-                PlotMainWindow w(opts.presentation, runDirs.at(0), titles,
-                                 monteModel, varsModel, monteInputsModel);
+                PlotMainWindow w(opts.presentation, runDirs.at(0), QStringList(),
+                               titles, monteModel, varsModel, monteInputsModel);
                 w.show();
                 ret = a.exec();
             }

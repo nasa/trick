@@ -18,13 +18,7 @@ class DPTreeWidget : public QWidget
     Q_OBJECT
 public:
     explicit DPTreeWidget(const QString& dpDirName,
-                          QStandardItemModel* dpVarsModel,
-                          MonteModel* monteModel,
-                          PlotBookModel* plotModel,
-                          QItemSelectionModel*  plotSelectModel,
-                          QWidget *parent = 0);
-
-    explicit DPTreeWidget(const QStringList& dpFiles,
+                          const QStringList& dpFiles,
                           QStandardItemModel* dpVarsModel,
                           MonteModel* monteModel,
                           PlotBookModel* plotModel,
