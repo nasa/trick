@@ -252,6 +252,8 @@ sub make_swig_makefile($$$) {
     print MAKEFILE "\t\$(SWIG_MODULE_OBJECTS)\\\n" ;
     print MAKEFILE "\t\$(SIM_SWIG_OBJECTS)\n\n" ;
 
+    print MAKEFILE "\$(ALL_SWIG_OBJECTS) : | \$(LIB_DIR) \$(OBJECT_DIR)\n\n" ;
+
     print MAKEFILE "# SWIG_PY_OBJECTS is a convienince list to modify rules for compilation\n" ;
     print MAKEFILE "SWIG_PY_OBJECTS =" ;
     foreach my $f ( @temp_array2 ) {
