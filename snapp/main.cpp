@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        // If outputting to pdf, you must have a DP file
+        // If outputting to pdf, you must have a DP file and RUN dir
         if ( isPdf && (dps.size() == 0 || runDirs.size() == 0) ) {
             fprintf(stderr,
                     "snap [error] : when using the -pdf option you must "
