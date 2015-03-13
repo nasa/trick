@@ -25,7 +25,6 @@ SUBDIRS = libopts \
           libsnaprt \
           snap \
           snapq \
-          snapp \
           testsnap
 
 OTHER_FILES += \

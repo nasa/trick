@@ -7,6 +7,7 @@ using namespace std;
 
 #include <QDebug>
 #include <QDir>
+#include <QFileInfo>
 #include <stdio.h>
 
 #include "libopts/options.h"
@@ -15,17 +16,17 @@ using namespace std;
 
 QStandardItemModel* createVarsModel(const QStringList& runDirs);
 
-Option::FPresetQStringList presetRunDirs;
-Option::FPostsetQStringList postsetRunDirs;
-Option::FPresetUInt presetBeginRun;
-Option::FPresetUInt presetEndRun;
+Option::FPresetQStringList presetRunsDPs;
+Option::FPostsetQStringList postsetRunsDPs;
 
 class SnapOptions : public Options
 {
   public:
-    QStringList runDirs;
+    QString presentation;
     unsigned int beginRun;
     unsigned int endRun;
+    QString pdfOutFile;
+    QStringList rundps;
     QString title1;
     QString title2;
     QString title3;
@@ -34,25 +35,33 @@ class SnapOptions : public Options
 
 SnapOptions opts;
 
+Option::FPresetQString presetPresentation;
+Option::FPresetUInt presetBeginRun;
+Option::FPresetUInt presetEndRun;
 
 int main(int argc, char *argv[])
 {
     bool ok;
     int ret = -1;
 
-    opts.add("<MONTE_dir|RUN_dirs>:+", &opts.runDirs, QStringList(),
-             "MONTE_dir or RUN_directories with RUNs",
-             presetRunDirs, postsetRunDirs);
-    opts.add("-t1",&opts.title1,"", "Main title");
-    opts.add("-t2",&opts.title2,"", "Subtitle");
-    opts.add("-t3",&opts.title3,"", "User title");
-    opts.add("-t4",&opts.title4,"", "Date title");
+    opts.add("<RUN_dirs and DP_files>:+", &opts.rundps, QStringList(),
+             "List of RUN dirs and DP files",
+             presetRunsDPs, postsetRunsDPs);
+    opts.add("-pres",&opts.presentation,"error",
+             "present plot with two curves as compare or error (default)",
+             presetPresentation);
     opts.add("-beginRun",&opts.beginRun,0,
              "begin run (inclusive) in set of Monte carlo RUNs",
              presetBeginRun);
     opts.add("-endRun",&opts.endRun,100000,
              "end run (inclusive) in set of Monte carlo RUNs",
              presetEndRun);
+    opts.add("-t1",&opts.title1,"", "Main title");
+    opts.add("-t2",&opts.title2,"", "Subtitle");
+    opts.add("-t3",&opts.title3,"", "User title");
+    opts.add("-t4",&opts.title4,"", "Date title");
+    opts.add("-pdf", &opts.pdfOutFile, QString(""),
+             "Name of pdf output file");
     opts.parse(argc,argv, QString("snapq"), &ok);
 
     if ( !ok ) {
@@ -65,63 +74,85 @@ int main(int argc, char *argv[])
         QApplication::setGraphicsSystem("raster");
         QApplication a(argc, argv);
 
-        bool isMonte = false;
-        if ( opts.runDirs.size() == 1 ) {
-            QFileInfo fileInfo(opts.runDirs.at(0));
-            if ( fileInfo.fileName().startsWith("MONTE_") ) {
-                isMonte = true;
-            }
-        }
-
         MonteModel* monteModel = 0;
         QStandardItemModel* varsModel = 0;
         QStandardItemModel* monteInputsModel = 0;
         Runs* runs = 0;
 
-        if ( isMonte ) {
-            Monte* monte = new Monte(opts.runDirs.at(0),
-                                     opts.beginRun,opts.endRun);
-            monteInputsModel = monte->inputModel();
-            monteModel = new MonteModel(monte);
-            QString run0 =  opts.runDirs.at(0) + "/" + monte->runs().at(0);
-            QStringList runDirs; runDirs << run0;
-            varsModel = createVarsModel(runDirs);
-        } else {
-            runs = new Runs(opts.runDirs);
-            monteModel = new MonteModel(runs);
-            varsModel = createVarsModel(opts.runDirs);
+        bool isPdf = false;
+        if ( !opts.pdfOutFile.isEmpty() ) {
+            isPdf = true;
         }
 
-        // Any parameters common between runs?
-        if ( varsModel->rowCount() == 1 ) {
-            QModelIndex idx0 = varsModel->index(0,0);
-            QString param = varsModel->data(idx0).toString();
-            if ( param == "sys.exec.out.time" ) {
-                qDebug() << "snap [error]: No common parameters found between "
-                            "runs.  Aborting.";
-                return -1;
+        QStringList dps;
+        QStringList runDirs;
+        foreach ( QString f, opts.rundps ) {
+            if ( f.startsWith("DP_") ) {
+                dps << f;
+            } else {
+                runDirs << f;
             }
+        }
+
+        // If outputting to pdf, you must have a DP file and RUN dir
+        if ( isPdf && (dps.size() == 0 || runDirs.size() == 0) ) {
+            fprintf(stderr,
+                    "snap [error] : when using the -pdf option you must "
+                    "specify a DP product file and RUN directory\n");
+            exit(-1);
+        }
+
+        bool isMonte = false;
+        if ( runDirs.size() == 1 ) {
+            QFileInfo fileInfo(runDirs.at(0));
+            if ( fileInfo.fileName().startsWith("MONTE_") ) {
+                isMonte = true;
+            }
+        }
+
+
+        if ( isMonte ) {
+            Monte* monte = new Monte(runDirs.at(0),opts.beginRun,opts.endRun);
+            monteInputsModel = monte->inputModel();
+            monteModel = new MonteModel(monte);
+            QString run0 = runDirs.at(0) + "/" + monte->runs().at(0);
+            QStringList runDirs0; runDirs0 << run0;
+            varsModel = createVarsModel(runDirs0);
+        } else {
+            runs = new Runs(runDirs);
+            monteModel = new MonteModel(runs);
+            varsModel = createVarsModel(runDirs);
         }
 
         // Make a list of titles
         QStringList titles;
         QString subtitle = opts.title2;
         if ( subtitle.isEmpty() ) {
-            if ( isMonte )  {
-                subtitle = opts.runDirs.at(0);
-            } else {
-                foreach ( QString runDir, opts.runDirs ) {
-                    subtitle += runDir + ",\n";
-                }
-                subtitle.chop(2);
+            foreach ( QString runDir, runDirs ) {
+                subtitle += runDir + ",\n";
             }
+            subtitle.chop(2);
         }
         titles << opts.title1 << subtitle << opts.title3 << opts.title4;
 
-        PlotMainWindow w(QString("error"), opts.runDirs.at(0), titles,
-                         monteModel, varsModel, monteInputsModel);
-        w.show();
-        ret = a.exec();
+        if ( isPdf ) {
+            PlotMainWindow w(opts.presentation, dps, titles,
+                             monteModel, varsModel, monteInputsModel);
+            w.savePdf(opts.pdfOutFile);
+        } else {
+            if ( dps.size() > 0 ) {
+                PlotMainWindow w(opts.presentation, dps, titles,
+                                 monteModel, varsModel, monteInputsModel);
+                w.show();
+                ret = a.exec();
+            } else {
+
+                PlotMainWindow w(opts.presentation, runDirs.at(0), titles,
+                                 monteModel, varsModel, monteInputsModel);
+                w.show();
+                ret = a.exec();
+            }
+        }
 
         delete varsModel;
         delete monteModel;
@@ -137,67 +168,29 @@ int main(int argc, char *argv[])
     return ret;
 }
 
-void presetRunDirs(QStringList* defRunDirs,
-                   const QStringList& runDirs,bool* ok)
+void presetRunsDPs(QStringList* defRunDirs,
+                   const QStringList& rundps,bool* ok)
 {
     Q_UNUSED(defRunDirs);
 
-    foreach ( QString dirName, runDirs ) {
-        QDir dir(dirName);
-        if ( ! dir.exists() ) {
-            fprintf(stderr,"snapq [error] : couldn't find directory: \"%s\".\n",
-                    dirName.toAscii().constData());
+    foreach ( QString f, rundps ) {
+        QFileInfo fi(f);
+        if ( !fi.exists() ) {
+            fprintf(stderr,
+                    "snapq [error] : couldn't find file/directory: \"%s\".\n",
+                    f.toAscii().constData());
             *ok = false;
             return;
-        }
-    }
-
-    if ( runDirs.size() > 1 ) {
-        foreach ( QString dirName, runDirs ) {
-            QFileInfo info(dirName);
-            if ( info.fileName().startsWith("MONTE_") ) {
-                fprintf(stderr,"snapq [error] : when plotting a MONTE dir "
-                        "only one MONTE dir can be specified with no "
-                        "additional RUNs\n");
-                *ok = false;
-                return;
-            }
         }
     }
 }
 
 // Remove trailing /s on dir names
-void postsetRunDirs (QStringList* runDirs, bool* ok)
+void postsetRunsDPs (QStringList* rundps, bool* ok)
 {
     Q_UNUSED(ok);
-    QStringList dirs = runDirs->replaceInStrings(QRegExp("/*$"), "");
+    QStringList dirs = rundps->replaceInStrings(QRegExp("/*$"), "");
     Q_UNUSED(dirs);
-}
-
-void presetBeginRun(uint* beginRunId, uint runId, bool* ok)
-{
-    Q_UNUSED(beginRunId);
-
-    if ( runId > opts.endRun ) {
-        fprintf(stderr,"snap [error] : option -beginRun, set to %d, "
-                "must be greater than "
-                " -endRun which is set to %d\n",
-                runId, opts.endRun);
-        *ok = false;
-    }
-}
-
-void presetEndRun(uint* endRunId, uint runId, bool* ok)
-{
-    Q_UNUSED(endRunId);
-
-    if ( runId < opts.beginRun ) {
-        fprintf(stderr,"snap [error] : option -endRun, set to %d, "
-                "must be greater than "
-                "-beginRun which is set to %d\n",
-                runId,opts.beginRun);
-        *ok = false;
-    }
 }
 
 QStandardItemModel* createVarsModel(const QStringList& runDirs)
@@ -236,4 +229,42 @@ QStandardItemModel* createVarsModel(const QStringList& runDirs)
     }
 
     return pm;
+}
+
+void presetBeginRun(uint* beginRunId, uint runId, bool* ok)
+{
+    Q_UNUSED(beginRunId);
+
+    if ( runId > opts.endRun ) {
+        fprintf(stderr,"snap [error] : option -beginRun, set to %d, "
+                "must be greater than "
+                " -endRun which is set to %d\n",
+                runId, opts.endRun);
+        *ok = false;
+    }
+}
+
+void presetEndRun(uint* endRunId, uint runId, bool* ok)
+{
+    Q_UNUSED(endRunId);
+
+    if ( runId < opts.beginRun ) {
+        fprintf(stderr,"snap [error] : option -endRun, set to %d, "
+                "must be greater than "
+                "-beginRun which is set to %d\n",
+                runId,opts.beginRun);
+        *ok = false;
+    }
+}
+
+void presetPresentation(QString* presVar, const QString& pres, bool* ok)
+{
+    Q_UNUSED(presVar);
+
+    if ( pres != "error" && pres != "compare" ) {
+        fprintf(stderr,"snap [error] : option -presentation, set to \"%s\", "
+                "should be \"error\" or \"compare\"\n",
+                pres.toAscii().constData());
+        *ok = false;
+    }
 }
