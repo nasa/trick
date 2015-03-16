@@ -4,7 +4,7 @@ import java.math.BigInteger;
 
 public class VSShort extends VSValue<Short> {
 
-    protected VSShort() {
+    public VSShort() {
         this((short)0);
     }
 

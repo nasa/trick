@@ -2,7 +2,7 @@ package trick.common.utils.vs;
 
 public class VSBoolean extends VSValue<Boolean> {
 
-    protected VSBoolean() {
+    public VSBoolean() {
         this(false);
     }
 

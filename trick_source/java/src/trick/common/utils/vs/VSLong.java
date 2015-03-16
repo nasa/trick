@@ -4,7 +4,7 @@ import java.math.BigInteger;
 
 public class VSLong extends VSValue<Long> {
 
-    protected VSLong() {
+    public VSLong() {
         this(0);
     }
 

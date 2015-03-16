@@ -2,7 +2,7 @@ package trick.common.utils.vs;
 
 public class VSString extends VSValue<String> {
 
-    protected VSString() {}
+    public VSString() {}
 
     public VSString(String value) {
         super(value);

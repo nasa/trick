@@ -4,7 +4,7 @@ import java.math.BigInteger;
 
 public class VSInteger extends VSValue<Integer> {
 
-    protected VSInteger() {
+    public VSInteger() {
         this(0);
     }
 

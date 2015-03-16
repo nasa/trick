@@ -2,7 +2,7 @@ package trick.common.utils.vs;
 
 public class VSDouble extends VSValue<Double> {
 
-    protected VSDouble() {
+    public VSDouble() {
         this(0);
     }
 

@@ -2,7 +2,7 @@ package trick.common.utils.vs;
 
 public class VSFloat extends VSValue<Float> {
 
-    protected VSFloat() {
+    public VSFloat() {
         this(0);
     }
 

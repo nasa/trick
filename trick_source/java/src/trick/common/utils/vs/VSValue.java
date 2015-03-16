@@ -30,7 +30,8 @@ public abstract class VSValue<T> implements VariableServerFluent, Cloneable {
 
     @Override
     public String toString() {
-        return value.toString();
+        // This method works even when value is null.
+        return String.valueOf(value);
     }
 
     @Override

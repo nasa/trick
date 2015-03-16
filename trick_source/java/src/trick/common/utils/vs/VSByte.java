@@ -4,7 +4,7 @@ import java.math.BigInteger;
 
 public class VSByte extends VSValue<Byte> {
 
-    protected VSByte() {
+    public VSByte() {
         this((byte)0);
     }
 
