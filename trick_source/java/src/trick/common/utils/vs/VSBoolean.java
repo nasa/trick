@@ -15,4 +15,10 @@ public class VSBoolean extends VSValue<Boolean> {
         setValue(Integer.parseInt(string.trim()) != 0);
     }
 
+
+    @Override
+    public String toString() {
+        return getValue() ? "True" : "False";
+    }
+
 }
