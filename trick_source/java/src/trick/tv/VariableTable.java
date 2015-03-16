@@ -460,7 +460,7 @@ public class VariableTable extends JXTable {
             Variable<? extends TrickViewFluent> variable = variables.get(rowIndex);
             switch (columnIndex) {
                 case 0:
-                    return variable.getName();
+                    return variable.name;
                 case 1:
                     switch (variable.getState()) {
                         case Invalid:

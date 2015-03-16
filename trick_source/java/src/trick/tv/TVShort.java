@@ -99,11 +99,13 @@ public class TVShort extends VSShort implements TrickViewFluent<TVShort.Format> 
         }
     };
 
-    public boolean unsigned = false;
+    public final boolean unsigned;
 
     Format format = Format.Decimal;
 
-    public TVShort() {}
+    public TVShort() {
+        this(false);
+    }
 
     public TVShort(boolean unsigned) {
         this.unsigned = unsigned;
@@ -111,6 +113,7 @@ public class TVShort extends VSShort implements TrickViewFluent<TVShort.Format> 
 
     public TVShort(short value) {
         super(value);
+        unsigned = false;
     }
 
     public Class<Format> getFormatClass() {
@@ -135,12 +138,12 @@ public class TVShort extends VSShort implements TrickViewFluent<TVShort.Format> 
 
     @Override
     public String toVariableServer() {
-        return Format.Decimal.format(value, unsigned);
+        return Format.Decimal.format(getValue(), unsigned);
     }
 
     @Override
     public String toString() {
-        return format.format(value, unsigned);
+        return format.format(getValue(), unsigned);
     }
 
 }

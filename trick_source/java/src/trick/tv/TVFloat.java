@@ -96,7 +96,7 @@ public class TVFloat extends VSFloat implements TrickViewFluent<TVFloat.Format> 
 
     @Override
     public String toString() {
-        return format.format(value);
+        return format.format(getValue());
     }
 
 }

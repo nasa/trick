@@ -1,6 +1,37 @@
 package trick.common.utils.vs;
 
-public abstract class VSValue implements VariableServerFluent, Cloneable {
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
+public abstract class VSValue<T> implements VariableServerFluent, Cloneable {
+
+    @XmlElement
+    private T value;
+
+    protected VSValue() {}
+
+    protected VSValue(T value) {
+        setValue(value);
+    }
+
+    public T getValue() {
+        return value;
+    }
+
+    protected void setValue(T value) {
+        this.value = value;
+    }
+
+    @Override
+    public String toVariableServer() {
+        return toString();
+    }
+
+    @Override
+    public String toString() {
+        return value.toString();
+    }
 
     @Override
     public VSValue clone() {

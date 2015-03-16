@@ -99,11 +99,13 @@ public class TVInteger extends VSInteger implements TrickViewFluent<TVInteger.Fo
         }
     };
 
-    public boolean unsigned = false;
+    public final boolean unsigned;
 
     Format format = Format.Decimal;
 
-    public TVInteger() {}
+    public TVInteger() {
+        this(false);
+    }
 
     public TVInteger(boolean unsigned) {
         this.unsigned = unsigned;
@@ -111,6 +113,7 @@ public class TVInteger extends VSInteger implements TrickViewFluent<TVInteger.Fo
 
     public TVInteger(int value) {
         super(value);
+        unsigned = false;
     }
 
     public Class<Format> getFormatClass() {
@@ -135,12 +138,12 @@ public class TVInteger extends VSInteger implements TrickViewFluent<TVInteger.Fo
 
     @Override
     public String toVariableServer() {
-        return Format.Decimal.format(value, unsigned);
+        return Format.Decimal.format(getValue(), unsigned);
     }
 
     @Override
     public String toString() {
-        return format.format(value, unsigned);
+        return format.format(getValue(), unsigned);
     }
 
 }

@@ -121,42 +121,11 @@ import trick.tv.VariableTable.Position;
  */
 public class TVApplication extends RunTimeTrickApplication implements VariableListener {
 
-    @Deprecated
-    private enum Mode {ALL, STRIP, FIXED};
-
-    @Deprecated
-    private enum VariableType {FIXED, FLOATING, CHARACTER, STRING, BOOLEAN, ENUMERATION, UNKNOWN};
-
-    @Deprecated
-    private enum Format {
-
-        DECIMAL("Decimal"),
-        OCTAL("Octal"),
-        HEXIDECIMAL("Hexidecimal"),
-        BOOLEAN("Boolean"),
-        ENUMERATION("Enumeration"),
-        STRING("String"),
-        CHARACTER("Character"),
-        UNKNOWN("Unknown");
-
-        private String name;
-
-        private Format(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String toString() {
-            return name;
-        }
-
-    }
-
     /** simulation time tic value */
     double timeTicValue;
 
     /** simulation time tic count */
-    VSLong timeTicCount = new VSLong();
+    VSLong timeTicCount = new VSLong(0);
 
     /** simulation time */
     protected Variable<TVDouble> simulationTime =
@@ -1262,7 +1231,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
     @SuppressWarnings("unchecked") // I know what I'm doing.
     protected void addVariable(Variable<? extends TrickViewFluent> variable, boolean applyDefaults) {
         // TV relies on time_tics being the first tracked variable, so don't let users manipulate it.
-        if (!variable.getName().equals("trick_sys.sched.time_tics")) {
+        if (!variable.name.equals("trick_sys.sched.time_tics")) {
             try {
                 if (applyDefaults || variable.getValue().getFormat() == null) {
                     variable.getValue().setFormat(Enum.valueOf(variable.getValue().getFormatClass(),
@@ -1769,83 +1738,12 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
      */
     protected void openFile(File file, boolean display, boolean set) {
         try {
-            openFileAsBinary(file, display, set);
+            restoreState((TVBean)unmarshaller.unmarshal(new StreamSource(file), TVBean.class).getValue(), display, set);
         }
-        catch (Exception binaryException) {
-            try {
-                restoreState((TVBean)unmarshaller.unmarshal(new StreamSource(file), TVBean.class).getValue(), display, set);
-            }
-            catch (Exception exception) {
-                JOptionPane.showMessageDialog(getMainFrame(), exception,
-                  "Failed to Restore State", JOptionPane.ERROR_MESSAGE);
-                exception.printStackTrace(System.err);
-            }
-        }
-    }
-
-    /**
-     * gets the value of the first descendent of the specified element with the specified tag name
-     *
-     * @return the value of the first descendent of the specified element with the specified tag name, or null
-     */
-    @Deprecated
-    String getElementValue(Element element, String tag) {
-        NodeList nodeList = element.getElementsByTagName(tag);
-        if (nodeList.getLength() > 0) {
-            Node node = nodeList.item(0).getFirstChild();
-            if (node != null) {
-                return node.getNodeValue();
-            }
-        }
-        return null;
-    }
-
-    /**
-     * attempts to open the file a binary serialization, displaying and setting the variable as specified
-     *
-     * @param file the file to be opened
-     * @param display whether or not to replace the current variable table contents with those in the file
-     * @param set whether or not to send the values in the file to the Variable Server
-     */
-    @SuppressWarnings("unchecked") // readObject returns an Object which must be cast
-    @Deprecated
-    protected void openFileAsBinary(File file, boolean display, boolean set)
-      throws IOException, ClassNotFoundException {
-        ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(file));
-
-        ArrayList<Variable<TrickViewFluent>> variables =
-          (ArrayList<Variable<TrickViewFluent>>)objectInputStream.readObject();
-
-        if (display) {
-            removeAllStripCharts();
-            removeAllVariables();
-            for (Variable<TrickViewFluent> variable : variables) {
-                addVariable(variable);
-            }
-            setCyclePeriod(((Double)objectInputStream.readObject()).doubleValue());
-        }
-
-        if (set && getConnectionState()) {
-            try {
-                for (Variable variable : variables) {
-                    variable.sendValueToVariableServer(variableServerConnection);
-                }
-            }
-            catch (IOException ioException) {
-                disconnect(ioException);
-            }
-        }
-
-        if (display) {
-            try {
-                for (StripChart stripChart : stripChartManager.loadStripCharts(objectInputStream)) {
-                    launchStripChart(stripChart, (Rectangle)objectInputStream.readObject());
-                }
-            }
-            catch (IllegalArgumentException illegalArgumentException) {
-                JOptionPane.showMessageDialog(getMainFrame(), illegalArgumentException,
-                  "Strip Chart Error", JOptionPane.ERROR_MESSAGE);
-            }
+        catch (Exception exception) {
+            JOptionPane.showMessageDialog(getMainFrame(), exception,
+              "Failed to Restore State", JOptionPane.ERROR_MESSAGE);
+            exception.printStackTrace(System.err);
         }
     }
 
@@ -1883,7 +1781,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
 
                     Variable domainVariable = simulationTime;
                     for (Variable variable : tvBean.variables) {
-                        if (variable.getName().equals(stripChartBean.domainVariable)) {
+                        if (variable.name.equals(stripChartBean.domainVariable)) {
                             domainVariable = variable;
                             break;
                         }
@@ -1892,7 +1790,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
                     ArrayList<Variable> plottedVariables = new ArrayList<Variable>();
                     for (String plottedVariable : stripChartBean.plottedVariables) {
                         for (Variable variable : tvBean.variables) {
-                            if (variable.getName().equals(plottedVariable)) {
+                            if (variable.name.equals(plottedVariable)) {
                                 plottedVariables.add(variable);
                                 break;
                             }
@@ -2126,7 +2024,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
 
             for (Variable variable : pendingVariables) {
                 // If any variables are indexable, launch the dialog.
-                if (pattern.matcher(variable.getName()).find()) {
+                if (pattern.matcher(variable.name).find()) {
                     northPanel.removeAll();
                     for (Variable<TrickViewFluent> var : pendingVariables) {
                         northPanel.add(new VariablePanel(var));
@@ -2186,7 +2084,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
             public VariablePanel(Variable<TrickViewFluent> variable) {
                 super(new GridBagLayout());
                 this.variable = variable;
-                matcher = pattern.matcher(variable.getName());
+                matcher = pattern.matcher(variable.name);
                 add(new JXButton(new AbstractAction() {
                     {
                     putValue(NAME, "Remove");
@@ -2204,7 +2102,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
                 }));
                 add(Box.createHorizontalStrut(5));
 
-                segments = pattern.split(variable.getName());
+                segments = pattern.split(variable.name);
                 while (matcher.find()) {
                     int arraySize = Integer.parseInt(matcher.group());
                     indices.add(arraySize == 0 ? new IndexTextField() : new DoubleComboBox(arraySize));

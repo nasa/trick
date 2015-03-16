@@ -1,0 +1,42 @@
+#!/usr/bin/python
+
+import sys
+import xml.etree.ElementTree as ET
+
+arguments = sys.argv[1:]
+if len(arguments) == 0:
+    print 'A utility script for converting TV files from Trick 13 to Trick 15.'
+    print 'usage: convert_tv_file <files>'
+else:
+    types = (
+        ('Boolean',     'boolean'),
+        ('Byte',        'byte'),
+        ('Double',      'double'),
+        ('Enumeration', 'string'),
+        ('Float',       'float'),
+        ('Integer',     'int'),
+        ('Long',        'long'),
+        ('Short',       'short'),
+        ('String',      'string')
+    )
+
+    for file in arguments:
+        print 'Converting ' + file
+        tree = ET.parse(file)
+        root = tree.getroot()
+
+        for variable in root.findall('variable'):
+            for type in types:
+                value = variable.find('tv' + type[0])
+                if value is not None:
+                    value = value.find('value')
+                    value.set('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance')
+                    value.set('xmlns:xs', 'http://www.w3.org/2001/XMLSchema')
+                    value.set('xsi:type', 'xs:' + type[1])
+                    break
+
+        if file.endswith('.tv'):
+            file = file[:-3]
+        newFile = file + '_15.tv'
+        tree.write(newFile)
+        print 'Converted to ' + newFile

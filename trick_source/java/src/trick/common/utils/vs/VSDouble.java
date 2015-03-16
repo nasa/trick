@@ -1,37 +1,23 @@
 package trick.common.utils.vs;
 
-import javax.xml.bind.annotation.XmlRootElement;
+public class VSDouble extends VSValue<Double> {
 
-@XmlRootElement
-public class VSDouble extends VSValue {
-
-    private static final long serialVersionUID = -2895628958106970334L;
-
-    public double value;
-
-    public VSDouble() {}
-
-    public VSDouble(double value) {
-        this.value = value;
+    protected VSDouble() {
+        this(0);
     }
 
-    public double getValue() {
-        return value;
+    public VSDouble(double value) {
+        super(value);
     }
 
     @Override
     public void fromVariableServer(String string) {
-        value = Double.parseDouble(string.trim());
+        setValue(Double.parseDouble(string.trim()));
     }
 
     @Override
     public String toVariableServer() {
-        return Double.toString(value);
-    }
-
-    @Override
-    public String toString() {
-        return Double.toString(value);
+        return toString();
     }
 
 }

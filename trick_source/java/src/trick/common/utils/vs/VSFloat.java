@@ -1,37 +1,18 @@
 package trick.common.utils.vs;
 
-import javax.xml.bind.annotation.XmlRootElement;
+public class VSFloat extends VSValue<Float> {
 
-@XmlRootElement
-public class VSFloat extends VSValue {
-
-    private static final long serialVersionUID = -4629816234119061148L;
-
-    public float value;
-
-    public VSFloat() {}
-
-    public VSFloat(float value) {
-        this.value = value;
+    protected VSFloat() {
+        this(0);
     }
 
-    public float getValue() {
-        return value;
+    public VSFloat(float value) {
+        super(value);
     }
 
     @Override
     public void fromVariableServer(String string) {
-        value = Float.parseFloat(string.trim());
-    }
-
-    @Override
-    public String toVariableServer() {
-        return Float.toString(value);
-    }
-
-    @Override
-    public String toString() {
-        return Float.toString(value);
+        setValue(Float.parseFloat(string.trim()));
     }
 
 }

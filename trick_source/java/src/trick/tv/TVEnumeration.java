@@ -18,18 +18,13 @@ import trick.common.utils.vs.VSValue;
 import trick.sie.utils.SieEnumeration;
 
 @XmlRootElement
-public class TVEnumeration extends VSValue implements TrickViewFluent<TVEnumeration.Format> {
-
-    private static final long serialVersionUID = 4708597538833537404L;
+public class TVEnumeration extends VSValue<String> implements TrickViewFluent<TVEnumeration.Format> {
 
     @XmlType(name = "")
     public enum Format {
 
         Enumeration {
             public String format(String value, SieEnumeration enumeration) {
-                if (enumeration == null) {
-                    return "<error, reload me>";
-                }
                 for (String key : enumeration.pairs.keySet()) {
                     if (enumeration.pairs.get(key).equals(value)) {
                         return key;
@@ -42,9 +37,6 @@ public class TVEnumeration extends VSValue implements TrickViewFluent<TVEnumerat
         public abstract String format(String value, SieEnumeration enumeration);
 
     }
-
-    @XmlElement(required = true)
-    public String value;
 
     @XmlElement(required = true)
     @XmlIDREF
@@ -93,15 +85,15 @@ public class TVEnumeration extends VSValue implements TrickViewFluent<TVEnumerat
 
     public TVEnumeration(SieEnumeration enumeration, String value) {
         this.enumeration = enumeration;
-        this.value = value;
+        setValue(value);
     }
 
     public void fromVariableServer(String string) {
-        value = string;
+        setValue(string);
     }
 
     public String toVariableServer() {
-        return value;
+        return getValue();
     }
 
     public Class<Format> getFormatClass() {
@@ -128,13 +120,9 @@ public class TVEnumeration extends VSValue implements TrickViewFluent<TVEnumerat
         return enumeration;
     }
 
-    public String getValue() {
-        return value;
-    }
-
     @Override
     public String toString() {
-        return format.format(value, enumeration);
+        return format.format(getValue(), enumeration);
     }
 
 }

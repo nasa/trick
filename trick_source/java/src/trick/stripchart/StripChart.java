@@ -138,7 +138,7 @@ public class StripChart extends JXPanel {
         settingsPanel = new JXPanel(new GridBagLayout()) {{
 
             final ValueAxis domainAxis = plot.getDomainAxis();
-            domainAxis.setLabel(domainVariable.getName());
+            domainAxis.setLabel(domainVariable.name);
 
             final JRadioButton allRadioButton = new JRadioButton(new AbstractAction() {
                 {

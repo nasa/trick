@@ -96,7 +96,7 @@ public class TVDouble extends VSDouble implements TrickViewFluent<TVDouble.Forma
 
     @Override
     public String toString() {
-        return format.format(value);
+        return format.format(getValue());
     }
 
 }

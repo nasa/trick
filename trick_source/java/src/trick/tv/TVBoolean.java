@@ -23,7 +23,7 @@ public class TVBoolean extends VSBoolean implements TrickViewFluent<TVBoolean.Fo
 
         Boolean {
             public String format(boolean value) {
-                return java.lang.Boolean.toString(value);
+                return value ? "True" : "False";
             }
         };
 
@@ -89,7 +89,7 @@ public class TVBoolean extends VSBoolean implements TrickViewFluent<TVBoolean.Fo
 
     @Override
     public String toString() {
-        return format.format(value);
+        return format.format(getValue());
     }
 
     static class BooleanRenderer extends JCheckBox implements TableCellRenderer {

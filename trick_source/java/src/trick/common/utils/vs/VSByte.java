@@ -2,38 +2,19 @@ package trick.common.utils.vs;
 
 import java.math.BigInteger;
 
-import javax.xml.bind.annotation.XmlRootElement;
+public class VSByte extends VSValue<Byte> {
 
-@XmlRootElement
-public class VSByte extends VSValue {
-
-    private static final long serialVersionUID = 8405472938103497097L;
-
-    public byte value;
-
-    public VSByte() {}
-
-    public VSByte(byte value) {
-        this.value = value;
+    protected VSByte() {
+        this((byte)0);
     }
 
-    public byte getValue() {
-        return value;
+    public VSByte(byte value) {
+        super(value);
     }
 
     @Override
     public void fromVariableServer(String string) {
-        value = new BigInteger(string.trim(), 10).byteValue();
-    }
-
-    @Override
-    public String toVariableServer() {
-        return Byte.toString(value);
-    }
-
-    @Override
-    public String toString() {
-        return Byte.toString(value);
+        setValue(new BigInteger(string.trim(), 10).byteValue());
     }
 
 }

@@ -85,9 +85,9 @@ public class TVBean {
         public StripChartBean() {}
 
         public StripChartBean(StripChart stripChart) {
-            domainVariable = stripChart.getDomainVariable().getName();
+            domainVariable = stripChart.getDomainVariable().name;
             for (Variable variable : stripChart.getPlottedVariables()) {
-                plottedVariables.add(variable.getName());
+                plottedVariables.add(variable.name);
             }
             mode = stripChart.getMode();
             fixedAutoRange = stripChart.getFixedAutoRange();

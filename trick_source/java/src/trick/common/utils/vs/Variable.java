@@ -9,7 +9,6 @@ import java.io.Serializable;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlElementRefs;
 
 import trick.common.utils.VariableServerConnection;
 
@@ -20,34 +19,22 @@ import trick.common.utils.VariableServerConnection;
  */
 public class Variable<T extends VariableServerFluent> implements Serializable, Cloneable {
 
-    private static final long serialVersionUID = 4529167759720494026L;
-
     /** possible states */
     public enum State {Unknown, Invalid, Valid};
 
     /** name */
-    @XmlElement(required = true)
     public final String name;
 
     /** value */
-    @XmlElementRefs({
-        @XmlElementRef(type=VSValue.class),
-        @XmlElementRef(type=VSBoolean.class),
-        @XmlElementRef(type=VSByte.class),
-        @XmlElementRef(type=VSDouble.class),
-        @XmlElementRef(type=VSFloat.class),
-        @XmlElementRef(type=VSInteger.class),
-        @XmlElementRef(type=VSLong.class),
-        @XmlElementRef(type=VSShort.class),
-        @XmlElementRef(type=VSString.class)
-    })
+    @XmlElementRef(type=VSValue.class)
     public final T value;
 
     /** units */
-    String units;
+    private String units;
 
     /** state */
-    State state = State.Unknown;
+    @XmlElement
+    private State state = State.Unknown;
 
     /**
      * constructor
@@ -78,30 +65,6 @@ public class Variable<T extends VariableServerFluent> implements Serializable, C
     private Variable() {
         name = null;
         value = null;
-    }
-
-    /**
-    * sets this <code>Variable</code>'s value to <code>value</code>
-    *
-    * @param value the value to be set, expressed in Variable Server format
-    */
-    public void setValue(String value) {
-        if (value.equals("BAD_REF")) {
-            state = State.Invalid;
-        }
-        else {
-            this.value.fromVariableServer(value);
-            state = State.Valid;
-        }
-    }
-
-    /**
-    * sets this <code>Variable</code>'s units to <code>units</code>
-    *
-    * @param units the units to be set
-    */
-    public void setUnits(String units) {
-        this.units = units;
     }
 
     /**
@@ -146,6 +109,69 @@ public class Variable<T extends VariableServerFluent> implements Serializable, C
     }
 
     /**
+    * sets this <code>Variable</code>'s value to <code>value</code>
+    *
+    * @param value the value to be set, expressed in Variable Server format
+    */
+    public void setValue(String value) {
+        if (value.equals("BAD_REF")) {
+            state = State.Invalid;
+        }
+        else {
+            this.value.fromVariableServer(value);
+            state = State.Valid;
+        }
+    }
+
+    /**
+     * returns the value
+     *
+     * @return the value
+     */
+    public T getValue() {
+        return value;
+    }
+
+    /**
+    * sets this <code>Variable</code>'s units to <code>units</code>
+    *
+    * @param units the units to be set
+    */
+    public void setUnits(String units) {
+        this.units = units;
+    }
+
+    /**
+     * returns the units
+     *
+     * @return the units
+     */
+    public String getUnits() {
+        return units;
+    }
+
+    /**
+     * provided for JAXB compatibility
+     */
+    private void setState(State state) {
+        this.state = state;
+    }
+
+    /**
+     * returns the state
+     *
+     * @return the state
+     */
+    public State getState() {
+        return state;
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+
+    /**
      * Equality among <code>Variable</code>s requires only that their names
      * be equal as implemented by <code>String.equals</code>.
      *
@@ -169,43 +195,6 @@ public class Variable<T extends VariableServerFluent> implements Serializable, C
         return name.hashCode();
     }
 
-    /**
-     * returns the value
-     *
-     * @return the value
-     */
-    public T getValue() {
-        return value;
-    }
-
-    /**
-     * returns the state
-     *
-     * @return the state
-     */
-    public State getState() {
-        return state;
-    }
-
-    /**
-     * returns the name
-     *
-     * @return the name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * returns the units
-     *
-     * @return the units
-     */
-    @XmlElement(required = true)
-    public String getUnits() {
-        return units;
-    }
-
     @Override
     @SuppressWarnings("unchecked")
     public Variable<T> clone() {
@@ -218,11 +207,6 @@ public class Variable<T extends VariableServerFluent> implements Serializable, C
         catch (Exception e) {
             return null;
         }
-    }
-
-    @Override
-    public String toString() {
-        return name;
     }
 
 }

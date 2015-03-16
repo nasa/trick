@@ -82,7 +82,7 @@ public class TVString extends VSString implements TrickViewFluent<TVString.Forma
 
     @Override
     public String toString() {
-        return format.format(value);
+        return format.format(getValue());
     }
 
 }

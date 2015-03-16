@@ -70,7 +70,7 @@ public class StripChartManager {
                 Double.parseDouble(variable.getValue().toVariableServer());
             }
             catch (NumberFormatException numberFormatException) {
-                throw new IllegalArgumentException(variable.getName() + " cannot be parsed as a double.\n" +
+                throw new IllegalArgumentException(variable.name + " cannot be parsed as a double.\n" +
                   numberFormatException, numberFormatException);
             }
 

@@ -9,4 +9,5 @@ lib_Darwin_*
 *.tab.c
 *.tab.h
 *.swp
+*.dox
 Makefile_jsc_dirs

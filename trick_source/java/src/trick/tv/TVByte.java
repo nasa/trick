@@ -118,11 +118,13 @@ public class TVByte extends VSByte implements TrickViewFluent<TVByte.Format> {
         }
     };
 
-    public boolean unsigned = false;
+    public final boolean unsigned;
 
     Format format = Format.Decimal;
 
-    public TVByte() {}
+    public TVByte() {
+        this(false);
+    }
 
     public TVByte(boolean unsigned) {
         this.unsigned = unsigned;
@@ -130,6 +132,7 @@ public class TVByte extends VSByte implements TrickViewFluent<TVByte.Format> {
 
     public TVByte(byte value) {
         super(value);
+        unsigned = false;
     }
 
     public Class<Format> getFormatClass() {
@@ -154,12 +157,12 @@ public class TVByte extends VSByte implements TrickViewFluent<TVByte.Format> {
 
     @Override
     public String toVariableServer() {
-        return Format.Decimal.format(value, unsigned);
+        return Format.Decimal.format(getValue(), unsigned);
     }
 
     @Override
     public String toString() {
-        return format.format(value, unsigned);
+        return format.format(getValue(), unsigned);
     }
 
 }
