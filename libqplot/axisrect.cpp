@@ -1,5 +1,6 @@
 #include "axisrect.h"
 #include "libsnapdata/timeit_linux.h"
+#include <QBrush>
 
 AxisRect::AxisRect(QCustomPlot* plotwidget) :
     QCPAxisRect(plotwidget),
@@ -12,6 +13,17 @@ AxisRect::AxisRect(QCustomPlot* plotwidget) :
 {
     _xAxis = axis(QCPAxis::atBottom);
     _yAxis = axis(QCPAxis::atLeft);
+
+    // Make the grid lighter
+    QCPGrid* xgrid = _xAxis->grid();
+    QCPGrid* ygrid = _yAxis->grid();
+    QPen penLightDot(QBrush(QColor(225,225,225),Qt::Dense1Pattern), 1.0, Qt::DotLine);
+    QPen penLightSolid(QBrush(QColor(225,225,225),Qt::Dense1Pattern), 1.0);
+    xgrid->setPen(penLightDot);
+    ygrid->setPen(penLightDot);
+    xgrid->setZeroLinePen(penLightSolid);
+    ygrid->setZeroLinePen(penLightSolid);
+
     _colorBandsNormal = _createColorBands(9,false);
     _colorBandsMonte = _createColorBands(10,true);
 }
