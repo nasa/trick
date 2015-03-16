@@ -159,7 +159,16 @@ bool PlotBookView::savePdf(const QString &fileName)
     // Page size and title header size
     int ww = 1200;
     int hh = 900;
-    int heightHeader = 75;
+
+    // Header height
+    int heightHeader = 0;
+    for ( int pageId = 0; pageId < _pages.size(); ++pageId) {
+        QWidget* page = _pages.at(pageId);
+        PageTitleWidget* pw = _page2pagewidget.value(page);
+        if ( pw->sizeHint().height() > heightHeader ) {
+            heightHeader = pw->height() ;
+        }
+    }
 
     // Setup pdf printer
     QPrinter pdfPrinter(QPrinter::ScreenResolution);

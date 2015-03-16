@@ -138,6 +138,7 @@ int main(int argc, char *argv[])
         if ( isPdf ) {
             PlotMainWindow w(opts.presentation, QString(), dps, titles,
                              monteModel, varsModel, monteInputsModel);
+            w.show(); // layout widgets
             w.savePdf(opts.pdfOutFile);
         } else {
             if ( dps.size() > 0 ) {
