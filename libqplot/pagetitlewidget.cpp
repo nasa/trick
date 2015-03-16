@@ -14,19 +14,21 @@ PageTitleWidget::PageTitleWidget(QWidget *parent) :
 
     _titleFrame->setAutoFillBackground(true);
     _titleGrid = new QGridLayout(_titleFrame);
-    _titleGrid->setColumnStretch(0,6);
+    _titleGrid->setColumnStretch(0,1);
+    _titleGrid->setColumnStretch(1,8);
+    _titleGrid->setColumnStretch(2,1);
 
     _title1 = new QLabel(_titleFrame);
     _title1->setTextFormat(Qt::RichText);
     _title1->setText("");
     _title1->setAlignment(Qt::AlignHCenter| Qt::AlignVCenter);
-    _titleGrid->addWidget(_title1,0,0);
+    _titleGrid->addWidget(_title1,0,1);
 
     _title2 = new QLabel(_titleFrame);
     _title2->setTextFormat(Qt::PlainText);
     _title2->setText("");
     _title2->setAlignment(Qt::AlignHCenter| Qt::AlignVCenter);
-    _titleGrid->addWidget(_title2,1,0);
+    _titleGrid->addWidget(_title2,1,1);
 
     // Default to username
     QFileInfo f(".");
@@ -35,7 +37,7 @@ PageTitleWidget::PageTitleWidget(QWidget *parent) :
     _title3->setTextFormat(Qt::PlainText);
     _title3->setText("User: " + userName);
     _title3->setAlignment(Qt::AlignRight| Qt::AlignVCenter);
-    _titleGrid->addWidget(_title3,0,1);
+    _titleGrid->addWidget(_title3,0,2);
 
     // Default to date
     QDate date = QDate::currentDate();
@@ -45,7 +47,7 @@ PageTitleWidget::PageTitleWidget(QWidget *parent) :
     _title4->setTextFormat(Qt::PlainText);
     _title4->setText(dateStr);
     _title4->setAlignment(Qt::AlignRight| Qt::AlignVCenter);
-    _titleGrid->addWidget(_title4,1,1);
+    _titleGrid->addWidget(_title4,1,2);
 
     _mainLayout->addWidget(_titleFrame);
 }
