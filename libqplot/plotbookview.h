@@ -32,7 +32,7 @@ public:
     virtual QModelIndex indexAt(const QPoint &point) const;
     virtual void setSelectionModel(QItemSelectionModel* selectionModel);
     QModelIndex currentPageIndex();
-    void setCurrentPage(int pageId);
+    void setCurrentPage(const QModelIndex &pageIdx);
     bool savePdf(const QString& fileName);
     void showCurveDiff(bool isShow) ;
 
@@ -99,7 +99,6 @@ private:
     bool _isShowCurveDiff;
 
     QVector<QWidget*> _pages;
-    QVector<QGridLayout*> _grids;
     QHash<QWidget*,QGridLayout*> _page2grid;
     QHash<QWidget*,PageTitleWidget*> _page2pagewidget;
     QHash<QWidget*,QVector<Plot*> >  _page2Plots;

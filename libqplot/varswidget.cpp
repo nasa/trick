@@ -71,7 +71,7 @@ void VarsWidget::_varsSelectModelSelectionChanged(
             _addPlotOfVarToPageItem(pageItem,currVarSelection.indexes().at(0));
             _selectCurrentRunOnPageItem(pageItem);
         } else {
-            _plotBookView->setCurrentPage(pageIdx.row());
+            _plotBookView->setCurrentPage(pageIdx);
         }
 
     } else {  // Multiple items selected.
@@ -83,7 +83,7 @@ void VarsWidget::_varsSelectModelSelectionChanged(
             if ( _plotModel->plotIdxs(pageIdx).size() >= 6 ) {
                 pageItem = _createPageItem();
                 pageIdx = _plotModel->indexFromItem(pageItem);
-                _plotBookView->setCurrentPage(pageIdx.row());
+                _plotBookView->setCurrentPage(pageIdx);
             }
             _addPlotOfVarToPageItem(pageItem,varIdx);
             _selectCurrentRunOnPageItem(pageItem);

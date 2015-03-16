@@ -36,6 +36,7 @@ PlotBookView::PlotBookView(PlotBookModel *plotModel, const QStringList &titles, 
     _nb = new QTabWidget(_bookFrame);
     _nb->setTabsClosable(true);
     _nb->setFocusPolicy(Qt::StrongFocus);
+    _nb->setMovable(true);
     connect(_nb,SIGNAL(tabCloseRequested(int)),
             this,SLOT(tabCloseRequested(int)));
     connect(_nb,SIGNAL(currentChanged(int)),
@@ -131,22 +132,27 @@ void PlotBookView::setSelectionModel(QItemSelectionModel *selectionModel)
 
 QModelIndex PlotBookView::currentPageIndex()
 {
-
     QModelIndex pageIdx;
-
-    int pageId = _nb->currentIndex();
-
-    if ( pageId >= 0 && model() ) {
-        pageIdx = model()->index(pageId,0);
-    }
-
+    QWidget* page = _nb->currentWidget();
+    pageIdx = _page2Idx(page);
     return pageIdx;
-
 }
 
-void PlotBookView::setCurrentPage(int pageId)
+void PlotBookView::setCurrentPage(const QModelIndex& pageIdx)
 {
-    _nb->setCurrentIndex(pageId);
+    int pageId = -1;
+    QWidget* page = _pages.at(pageIdx.row());
+    for ( int i = 0 ; i < _nb->count(); ++i ) {
+        QWidget* w = _nb->widget(i);
+        if ( w == page ) {
+            pageId = i;
+            break;
+        }
+    }
+    if ( pageId >= 0 ) {
+        _nb->setCurrentIndex(pageId);
+    }
+
 }
 
 //
@@ -162,8 +168,8 @@ bool PlotBookView::savePdf(const QString &fileName)
 
     // Header height
     int heightHeader = 0;
-    for ( int pageId = 0; pageId < _pages.size(); ++pageId) {
-        QWidget* page = _pages.at(pageId);
+    for ( int i = 0 ; i < _nb->count(); ++i ) {
+        QWidget* page = _nb->widget(i);
         PageTitleWidget* pw = _page2pagewidget.value(page);
         if ( pw->sizeHint().height() > heightHeader ) {
             heightHeader = pw->height() ;
@@ -213,9 +219,9 @@ bool PlotBookView::savePdf(const QString &fileName)
     }
     pixPainterPlots.setWindow(plotsRect);
 
-    for ( int pageId = 0; pageId < _pages.size(); ++pageId) {
+    for ( int pageId = 0 ; pageId < _nb->count(); ++pageId ) {
 
-        QWidget* page = _pages.at(pageId);
+        QWidget* page = _nb->widget(pageId);
         PageTitleWidget* pw = _page2pagewidget.value(page);
 
         QVector<Plot*> plots = _page2Plots.value(page);
@@ -530,7 +536,7 @@ void PlotBookView::_plotSelectModelCurrentChanged(const QModelIndex &currIdx,
 {
     Q_UNUSED(prevIdx);
     if ( _isPageIdx(currIdx) ) {
-        _nb->setCurrentIndex(currIdx.row());
+        setCurrentPage(currIdx);
     }
 }
 
@@ -773,7 +779,6 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             grid->addWidget(pw,0,0,1,100);
 
             _page2grid.insert(page,grid);
-            _grids.append(grid);
             _nb->addTab(page,QFileInfo(dpfile).baseName());
             int nbIdx = _nb->count()-1;
             _nb->setCurrentIndex(nbIdx);
@@ -802,7 +807,7 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
         } else if ( ! gpidx.isValid() && row >= 1 ) {
             // Plot (note that row 0 is the page title)
             QWidget* page = _idx2Page(pidx);
-            QGridLayout* grid = _grids.at(pidx.row());
+            QGridLayout* grid = _page2grid.value(page);
             Plot* plot = new Plot(page);
             connect(plot,SIGNAL(mouseDoubleClick(QMouseEvent*)),
                     this,SLOT(doubleClick(QMouseEvent*)));
@@ -992,7 +997,6 @@ void PlotBookView::rowsAboutToBeRemoved(const QModelIndex &pidx,
         if ( ! pidx.isValid() ) {
             // Page
             QWidget* page = _idx2Page(idx);
-            _grids.remove(idx.row());
             _pages.remove(idx.row());
             _page2grid.remove(page);
             _page2Plots.remove(page);
