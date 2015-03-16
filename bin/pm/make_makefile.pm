@@ -371,6 +371,8 @@ S_OBJECT_FILES = \$(OBJECT_DIR)/S_source.o \\
  \$(OBJECT_DIR)/io_S_source.o \\
  \$(OBJECT_DIR)/class_map.o \\
  \$(OBJECT_DIR)/enum_map.o
+
+\$(S_OBJECT_FILES) : | \$(LIB_DIR) \$(OBJECT_DIR)
 \n" ;
 
     # print some comments for all of the directories used
