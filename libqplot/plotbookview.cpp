@@ -166,10 +166,14 @@ bool PlotBookView::savePdf(const QString &fileName)
     int ww = 1200;
     int hh = 900;
 
+    // Save current widget
+    QWidget* originalPage = _nb->currentWidget();
+
     // Header height
     int heightHeader = 0;
     for ( int i = 0 ; i < _nb->count(); ++i ) {
         QWidget* page = _nb->widget(i);
+        _nb->setCurrentWidget(page);  // for layout when offscreen
         PageTitleWidget* pw = _page2pagewidget.value(page);
         if ( pw->sizeHint().height() > heightHeader ) {
             heightHeader = pw->height() ;
@@ -263,6 +267,8 @@ bool PlotBookView::savePdf(const QString &fileName)
     pdfPainter.end();
     pixPainterHeader.end();
     pixPainterPlots.end();
+
+    _nb->setCurrentWidget(originalPage);
 
     return true;
 }
