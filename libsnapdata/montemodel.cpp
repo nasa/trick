@@ -47,6 +47,7 @@ TrickCurveModel *MonteModel::curve(const QModelIndex &xIdx,
                                xScaleFactor,yScaleFactor);
 }
 
+
 TrickCurveModel *MonteModel::curve(int row,
                                    const QString &xparam,
                                    const QString &yparam,
@@ -54,6 +55,11 @@ TrickCurveModel *MonteModel::curve(int row,
                                    double yScaleFactor) const
 {
     QList<TrickModel*>* models = _runs->models(yparam);
+    if ( models == 0 ) {
+        _err_stream << "snap [error]: parameter \""
+                    << yparam << "\" does not exist in RUN data";
+        throw std::runtime_error(_err_string.toAscii().constData());
+    }
     TrickModel* tm = models->at(row);
     int ycol = tm->paramColumn(yparam) ;
 
