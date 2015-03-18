@@ -1,6 +1,7 @@
 #include "axisrect.h"
 #include "libsnapdata/timeit_linux.h"
 #include <QBrush>
+#include <float.h>
 
 AxisRect::AxisRect(QCustomPlot* plotwidget) :
     QCPAxisRect(plotwidget),
@@ -9,6 +10,10 @@ AxisRect::AxisRect(QCustomPlot* plotwidget) :
     _rubber_band(0),
     _isXRangeCalculated(false),
     _isYRangeCalculated(false),
+    _xMinRange(-DBL_MAX),
+    _xMaxRange(DBL_MAX),
+    _yMinRange(-DBL_MAX),
+    _yMaxRange(DBL_MAX),
     _keyPressMoveFactor(.08)
 {
     _xAxis = axis(QCPAxis::atBottom);
@@ -227,6 +232,26 @@ void AxisRect::zoomToFit(const QCPRange& xrange)
     setupFullAxesBox();
 }
 
+void AxisRect::setXMinRange(double xMin)
+{
+    _xMinRange = xMin;
+}
+
+void AxisRect::setXMaxRange(double xMax)
+{
+    _xMaxRange = xMax;
+}
+
+void AxisRect::setYMinRange(double yMin)
+{
+    _yMinRange = yMin;
+}
+
+void AxisRect::setYMaxRange(double yMax)
+{
+    _yMaxRange = yMax;
+}
+
 void AxisRect::_fitXRange()
 {
     bool isValidRange;
@@ -243,7 +268,18 @@ void AxisRect::_fitXRange()
             break;
         }
     }
-    _xAxis->setRange(xmin,xmax+xp);
+
+    // If xmin/max range set via setXMin/Max(), override xmin/max
+    if ( _xMinRange > -1.0e20 ) {
+        xmin = _xMinRange;
+    }
+    if ( _xMaxRange < 1.0e20 ) {
+        xmax = _xMaxRange;
+    } else {
+        xmax = xmax+xp;
+    }
+
+    _xAxis->setRange(xmin,xmax);
 }
 
 QCPRange AxisRect::xDataRange(bool& isValidRange)
@@ -301,6 +337,15 @@ void AxisRect::_fitYRange()
         }
         ymax = ymax+yp;
     }
+
+    // Override ymin/ymax if explicity set by setYMin/Max()
+    if ( _yMinRange > -1.0e20 ) {
+        ymin = _yMinRange;
+    }
+    if ( _yMaxRange < 1.0e20 ) {
+        ymax = _yMaxRange;
+    }
+
 
     _yAxis->setRange(ymin,ymax);
 }

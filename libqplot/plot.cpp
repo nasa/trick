@@ -56,6 +56,26 @@ void Plot::setYAxisLabel(const QString &label)
     _axisrect->_yAxis->setLabel(label);
 }
 
+void Plot::setXMinRange(double xMin)
+{
+    _axisrect->setXMinRange(xMin);
+}
+
+void Plot::setXMaxRange(double xMax)
+{
+    _axisrect->setXMaxRange(xMax);
+}
+
+void Plot::setYMinRange(double yMin)
+{
+    _axisrect->setYMinRange(yMin);
+}
+
+void Plot::setYMaxRange(double yMax)
+{
+    _axisrect->setYMaxRange(yMax);
+}
+
 void Plot::drawMe(QCPPainter *painter)
 {
     QCustomPlot::draw(painter);

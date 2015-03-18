@@ -895,6 +895,26 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 QString title = model()->data(idx).toString();
                 Plot* plot = _idx2Plot(pidx);
                 plot->setTitle(title);
+            } else if ( idx.row() == 4 ) {
+                // Plot xMin
+                double xMin = model()->data(idx).toDouble();
+                Plot* plot = _idx2Plot(pidx);
+                plot->setXMinRange(xMin);
+            } else if ( idx.row() == 5 ) {
+                // Plot xMax
+                double xMax = model()->data(idx).toDouble();
+                Plot* plot = _idx2Plot(pidx);
+                plot->setXMaxRange(xMax);
+            } else if ( idx.row() == 6 ) {
+                // Plot yMin
+                double yMin = model()->data(idx).toDouble();
+                Plot* plot = _idx2Plot(pidx);
+                plot->setYMinRange(yMin);
+            } else if ( idx.row() == 7 ) {
+                // Plot yMax
+                double yMax = model()->data(idx).toDouble();
+                Plot* plot = _idx2Plot(pidx);
+                plot->setYMaxRange(yMax);
             } else {
                 qDebug() << "snap [bad scoobies]: this should not happen.";
                 qDebug() << "     montewindow.cpp creates a model ";

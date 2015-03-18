@@ -20,6 +20,10 @@ class AxisRect : public QCPAxisRect
     //int clearCurves();
     int curveCount() const { return _curves.size(); }
     void zoomToFit(const QCPRange& xrange=QCPRange());
+    void setXMinRange(double xMin);
+    void setXMaxRange(double xMax);
+    void setYMinRange(double yMin);
+    void setYMaxRange(double yMax);
 
     void showCurveDiff();
     void toggleCurveDiff();
@@ -63,6 +67,10 @@ protected:
     bool _isYRangeCalculated;
     QCPRange _xDataRange;
     QCPRange _yDataRange;
+    double _xMinRange;
+    double _xMaxRange;
+    double _yMinRange;
+    double _yMaxRange;
 
     double _keyPressMoveFactor;
     void _keyPressMoveLeft();

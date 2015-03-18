@@ -191,6 +191,30 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             QStandardItem *titleItem = new QStandardItem(title);
             plotItem->appendRow(titleItem);
 
+            double xMin = plot->xMinRange();
+            QString xMinStr = QString("%1").arg(xMin);
+            QStandardItem *xMinItem = new QStandardItem(xMinStr);
+            xMinItem->setData(xMin);
+            plotItem->appendRow(xMinItem);
+
+            double xMax = plot->xMaxRange();
+            QString xMaxStr = QString("%1").arg(xMax);
+            QStandardItem *xMaxItem = new QStandardItem(xMaxStr);
+            xMaxItem->setData(xMax);
+            plotItem->appendRow(xMaxItem);
+
+            double yMin = plot->yMinRange();
+            QString yMinStr = QString("%1").arg(yMin);
+            QStandardItem *yMinItem = new QStandardItem(yMinStr);
+            yMinItem->setData(yMin);
+            plotItem->appendRow(yMinItem);
+
+            double yMax = plot->yMaxRange();
+            QString yMaxStr = QString("%1").arg(yMax);
+            QStandardItem *yMaxItem = new QStandardItem(yMaxStr);
+            yMaxItem->setData(yMax);
+            plotItem->appendRow(yMaxItem);
+
             int curveId = -1;
             foreach (DPCurve* dpcurve, plot->curves() ) {
                 ++curveId;

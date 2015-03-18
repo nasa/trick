@@ -17,6 +17,10 @@ public:
     void setTitle(const QString& title);
     void setXAxisLabel(const QString& label);
     void setYAxisLabel(const QString& label);
+    void setXMinRange(double xMin);
+    void setXMaxRange(double xMax);
+    void setYMinRange(double yMin);
+    void setYMaxRange(double yMax);
     AxisRect* axisRect() { return _axisrect; }
     void drawMe(QCPPainter *painter);
 

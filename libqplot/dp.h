@@ -12,6 +12,7 @@
 #include <QRegExp>
 #include <QDebug>
 #include <stdexcept>
+#include <float.h>
 
 #include "product_lexer.h"
 #include "product_parser.h"
@@ -62,16 +63,28 @@ public:
     QString title() { return _title ; }
     QString xAxisLabel();
     QString yAxisLabel();
+    double xMinRange();
+    double xMaxRange();
+    double yMinRange();
+    double yMaxRange();
     QList<DPCurve*> curves() { return _curves; }
 
     DPCurve* addCurve();
     void setXAxisLabel(const char* label) { _xAxisLabel = label ; }
     void setYAxisLabel(const char* label) { _yAxisLabel = label ; }
+    void setXMinRange(double xMin);
+    void setXMaxRange(double xMax);
+    void setYMinRange(double yMin);
+    void setYMaxRange(double yMax);
 
 private:
     QString _title;
     QString _xAxisLabel;
     QString _yAxisLabel;
+    double _xMinRange;
+    double _xMaxRange;
+    double _yMinRange;
+    double _yMaxRange;
     QList<DPCurve*> _curves;
     static QString _abbreviate(const QString& label,int maxlen=35);
 };

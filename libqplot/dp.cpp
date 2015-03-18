@@ -172,8 +172,27 @@ DPPlot *DPPage::addPlot(const char *title)
     return plot;
 }
 
-DPPlot::DPPlot(const QDomElement &e)
+DPPlot::DPPlot(const QDomElement &e) :
+    _xMinRange(-DBL_MAX),
+    _xMaxRange(DBL_MAX),
+    _yMinRange(-DBL_MAX),
+    _yMaxRange(DBL_MAX)
 {
+    QDomElement el = e;
+
+    if ( el.hasAttribute("xmin") ) {
+        _xMinRange = el.attributeNode("xmin").value().simplified().toDouble();
+    }
+    if ( el.hasAttribute("xmax") ) {
+        _xMaxRange = el.attributeNode("xmax").value().simplified().toDouble();
+    }
+    if ( el.hasAttribute("ymin") ) {
+        _yMinRange = el.attributeNode("ymin").value().simplified().toDouble();
+    }
+    if ( el.hasAttribute("ymax") ) {
+        _yMaxRange = el.attributeNode("ymax").value().simplified().toDouble();
+    }
+
     QDomNode n = e.firstChild();
     while(!n.isNull()) {
         QDomElement e = n.toElement();
@@ -200,7 +219,12 @@ DPPlot::DPPlot(const QDomElement &e)
     }
 }
 
-DPPlot::DPPlot(const char *title) : _title(title)
+DPPlot::DPPlot(const char *title) :
+    _title(title),
+    _xMinRange(-DBL_MAX),
+    _xMaxRange(DBL_MAX),
+    _yMinRange(-DBL_MAX),
+    _yMaxRange(DBL_MAX)
 {
 }
 
@@ -234,6 +258,45 @@ QString DPPlot::yAxisLabel()
     return label;
 }
 
+double DPPlot::xMinRange()
+{
+    return _xMinRange;
+}
+
+double DPPlot::xMaxRange()
+{
+    return _xMaxRange;
+}
+
+double DPPlot::yMinRange()
+{
+    return _yMinRange;
+}
+
+double DPPlot::yMaxRange()
+{
+    return _yMaxRange;
+}
+
+void DPPlot::setXMinRange(double xMin)
+{
+    _xMinRange = xMin;
+}
+
+void DPPlot::setXMaxRange(double xMax)
+{
+    _xMaxRange = xMax;
+}
+
+void DPPlot::setYMinRange(double yMin)
+{
+    _yMinRange = yMin;
+}
+
+void DPPlot::setYMaxRange(double yMax)
+{
+    _yMaxRange = yMax;
+}
 
 DPCurve *DPPlot::addCurve()
 {

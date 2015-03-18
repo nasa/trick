@@ -214,12 +214,10 @@ plot: DP_PLOT DP_FLOAT ':' DP_STR {
                 msg("page->setXLogScale() not supported");
         }
         | plot DP_X_MIN_RANGE ':' DP_FLOAT {
-                //currPlot->setXMinRange($4);
-                msg("page->setXMinRange() not supported");
+                currPlot->setXMinRange($4);
         }
         | plot DP_X_MAX_RANGE ':' DP_FLOAT {
-                //currPlot->setXMaxRange($4);
-                msg("page->setXMaxRange() not supported");
+                currPlot->setXMaxRange($4);
         }
         | plot DP_Y_AXIS_LABEL ':' DP_STR {
                 currPlot->setYAxisLabel($4);
@@ -233,12 +231,10 @@ plot: DP_PLOT DP_FLOAT ':' DP_STR {
                 msg("page->setYAxisFormat() not supported");
         }
         | plot DP_Y_MIN_RANGE ':' DP_FLOAT {
-                //currPlot->setYMinRange($4);
-                msg("page->setYMinRange() not supported");
+                currPlot->setYMinRange($4);
         }
         | plot DP_Y_MAX_RANGE ':' DP_FLOAT {
-                //currPlot->setYMaxRange($4);
-                msg("page->setYMaxRange() not supported");
+                currPlot->setYMaxRange($4);
         }
         | plot DP_GRID ':' DP_STR  {
                 //currPlot->setGrid($4);
