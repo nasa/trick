@@ -1,7 +1,5 @@
 package default_data ;
 
-# $Id: default_data.pm 2384 2012-05-14 20:58:18Z alin $
-
 use Exporter ();
 @ISA = qw(Exporter);
 @EXPORT = qw(make_default_data);
@@ -46,7 +44,7 @@ sub make_default_data($) {
 
     #---------------------------
     # Print version - date
-    printf S_DEF "\n// \$Id: default_data.pm 2384 2012-05-14 20:58:18Z alin $year/%02d/%02d %02d\:%02d\:%02d $login\n",
+    printf S_DEF "\n// Created $year/%02d/%02d %02d\:%02d\:%02d $login\n",
      $mon , $mday , $hour , $min , $sec ;
 
     print S_DEF "

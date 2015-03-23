@@ -1,8 +1,8 @@
 /*********************************** TRICK HEADER **************************
 PURPOSE:                     (Test Baseball)
 ***************************************************************************/
-#ifndef _cannon_aero_h_
-#define _cannon_aero_h_
+#ifndef CANNON_AERO_H
+#define CANNON_AERO_H
 
 #include "sim_services/include/regula_falsi.h"
 

@@ -1,11 +1,7 @@
-/**
- @file
- $Id$
- */
-
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
 #include "sim_services/MemoryManager/include/bitfield_proto.h"
-#include "sim_services/MemoryManager/include/message_proto.h"
+#include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 void Trick::MemoryManager::clear_rvalue( void* base_address, ATTRIBUTES* attr, int curr_dim, int offset) {
 

@@ -1,6 +1,6 @@
 
-#ifndef _JIT_INPUT_FILE_PROTO_HH_
-#define _JIT_INPUT_FILE_PROTO_HH_
+#ifndef JIT_INPUT_FILE_PROTO_HH
+#define JIT_INPUT_FILE_PROTO_HH
 
 #include <string>
 

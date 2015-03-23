@@ -1,4 +1,4 @@
-/* 
+/*
    PURPOSE: (The Trick simulation child executive processing.)
 
    REFERENCE: ((None))
@@ -8,10 +8,6 @@
    PROGRAMMERS:
       (((Robert W. Bailey) (LinCom) (October 1993) (--) (Realtime))
        ((Eddie J. Paddock) (MDSSC) (April 1992) (--) (Realtime)))
- */
-
-/*
- * $Id: Threads_child.cpp 3553 2014-06-11 19:26:39Z alin $
  */
 
 #include <iostream>

@@ -1,8 +1,4 @@
 
-/* 
- * $Id:$
- */
-
 #include "sim_services/Executive/include/Executive.hh"
 
 int Trick::Executive::set_thread_rt_semaphores(unsigned int thread_id , bool yes_no) {

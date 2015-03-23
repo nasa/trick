@@ -1,24 +1,3 @@
-/*******************************************************************************
-*                                                                              *
-* Trick Simulation Environment Software                                        *
-*                                                                              *
-* Copyright (c) 1996,1997 LinCom Corporation, Houston, TX                      *
-* All rights reserved.                                                         *
-*                                                                              *
-* Copyrighted by LinCom Corporation and proprietary to it. Any unauthorized    *
-* use of Trick Software including source code, object code or executables is   *
-* strictly prohibited and LinCom assumes no liability for such actions or      *
-* results thereof.                                                             *
-*                                                                              *
-* Trick Software has been developed under NASA Government Contracts and        *
-* access to it may be granted for Government work by the following contact:    *
-*                                                                              *
-* Contact: Charles Gott, Branch Chief                                          *
-*          Simulation and Graphics Branch                                      *
-*          Automation, Robotics, & Simulation Division                         *
-*          NASA, Johnson Space Center, Houston, TX                             *
-*                                                                              *
-*******************************************************************************/
 /*
 PURPOSE: (Trick error handler function type definition)
 
@@ -29,12 +8,8 @@ PROGRAMMERS:
        (Changed error level enumeration)))
 */
 
-/*
- * $Id: trick_error_hndlr.h 1489 2011-04-07 18:00:04Z penn $
- */
-
-#ifndef _TRICK_ERROR_HNDLR_H_
-#define _TRICK_ERROR_HNDLR_H_
+#ifndef TRICK_ERROR_HNDLR_H
+#define TRICK_ERROR_HNDLR_H
 
 #include <stdio.h>
 #include <stdlib.h>

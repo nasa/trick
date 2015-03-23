@@ -1,13 +1,6 @@
-/* 
- * $Id: MessageLCout.hh 3383 2014-01-22 23:18:15Z alin $
- */
 
-/**
- * @file MessageLCout.hh
- */
-
-#ifndef _EXECMESSAGELCOUT_HH_
-#define _EXECMESSAGELCOUT_HH_
+#ifndef MESSAGELCOUT_HH
+#define MESSAGELCOUT_HH
 
 #include <iostream>
 #include <map>

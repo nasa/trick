@@ -9,7 +9,6 @@
 
 /*
    %error-verbose
- * $Id: input_parser.y 3637 2014-08-18 16:55:20Z jpenn1 $
  */
 
 #include <iostream>
@@ -20,7 +19,8 @@
 #include "sim_services/MemoryManager/include/vval.h"
 #include "sim_services/MemoryManager/include/value.h"
 #include "sim_services/MemoryManager/include/var.h"
-#include "sim_services/MemoryManager/include/message_proto.h"
+#include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 #include "input_parser.tab.h"
 
     using namespace std;

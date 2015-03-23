@@ -1,7 +1,3 @@
-/**
- @file
- $Id: MemoryManager_set_debug_level.cpp 3569 2014-06-23 22:46:47Z jpenn1 $
- */
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
 
 void Trick::MemoryManager::set_debug_level(int level) {

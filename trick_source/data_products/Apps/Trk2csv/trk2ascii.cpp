@@ -1,16 +1,3 @@
-/*
- *  $Log: trk2ascii.cpp,v $
- *  Revision 1.3  2008-07-23 12:25:14-05  wwoodard
- *  G..4-800  Create a title for xml format.
- *
- *  Revision 1.2  2008-07-23 11:50:43-05  wwoodard
- *  G..4-800  Stop XML output from producung an empty <Row></Row>.
- *
- *  Revision 1.1  2008-07-17 12:43:14   wwoodard
- *  Initial revision
- *
- */
-
 
 #include <vector>
 #include <iostream>

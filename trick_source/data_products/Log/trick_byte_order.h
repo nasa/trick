@@ -1,6 +1,6 @@
 
-#ifndef _TRICK_BYTE_ORDER_H
-#define _TRICK_BYTE_ORDER_H
+#ifndef TRICK_BYTE_ORDER_H
+#define TRICK_BYTE_ORDER_H
 
 #define TRICK_BIG_ENDIAN    (char)0x00
 #define TRICK_LITTLE_ENDIAN (char)0x01

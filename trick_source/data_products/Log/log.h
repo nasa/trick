@@ -1,31 +1,6 @@
-/*******************************************************************************
-                                                                              
- Trick Simulation Environment Software                                       
-                                                                              
- Copyright (c) 1996,1997 LinCom Corporation, Houston, TX                      
- All rights reserved.                                                         
-                                                                              
- Copyrighted by LinCom Corporation and proprietary to it. Any unauthorized    
- use of Trick Software including source code, object code or executables is   
- strictly prohibited and LinCom assumes no liability for such actions or      
- results thereof.                                                             
-                                                                              
- Trick Software has been developed under NASA Government Contracts and        
- access to it may be granted for Government work by the following contact:    
-                                                                              
- Contact: Charles Gott, Branch Chief                                          
-          Simulation and Graphics Branch                                      
-          Automation, Robotics, & Simulation Division                         
-          NASA, Johnson Space Center, Houston, TX                             
-                                                                             
-*******************************************************************************/
-
-/*
- * $Id: log.h 571 2010-02-22 19:36:38Z wwoodard $
- */
 
 /**
-    Class to access Trick logged data 
+    Class to access Trick logged data
     @author Keith Vetter
     @version May 2002
 */
@@ -53,7 +28,7 @@ using namespace std;
 
 
 /**
- * Low level access to individual log binary data files 
+ * Low level access to individual log binary data files
  */
 class LogData {
 
@@ -79,7 +54,7 @@ class LogData {
         int printCurrRecord();
         int getParamIdx(const char *param);
          Var::enumType getType(int vIdx);
-        int getSize(int vIdx);          // TODO: getValByteSize 
+        int getSize(int vIdx);          // TODO: getValByteSize
         Unit *getUnit(char *param);     // Get unit for associated param
         char *getBinaryFileName();
 
@@ -94,20 +69,20 @@ class LogData {
         int getValueAtTime( int timeIdx, double time,
                             int valIdx,  double* value );
 
-        int getNumVars();       
-        void setNumVars(int n); 
+        int getNumVars();
+        void setNumVars(int n);
 
-        /* Variable is variable as seen in log file 
+        /* Variable is variable as seen in log file
          * E.g. Variable x[2].y[0-2]
          */
          vector < Var * >vars;
 
         /* Endian that data was logged in
-         * 0: little endian 1: big endian 
+         * 0: little endian 1: big endian
          */
         int dataByteOrder;
 
-        /* Byte order of machine running program 
+        /* Byte order of machine running program
          * 0: little endian 1: big endian
          */
         int machineByteOrder;
@@ -122,7 +97,7 @@ class LogData {
         FILE * fp_;             // File pointer to current binary file
         char *binFilePath_;     // Path to binary file
         char *binFileName_;     // Root binary file name
-        char *currRecord_;      // Stores current record 
+        char *currRecord_;      // Stores current record
         int sizeRecord_;        // Holds current size of record
         int convertToDouble_;   // 1: All parms converted to double
 
@@ -132,7 +107,7 @@ class LogData {
         int countNumBinaryFiles(char *pathToBinaryData);
 
         /*
-         * Then following is a series of variables that define the 
+         * Then following is a series of variables that define the
          * attributes of each value in a record
          * The arrays are sized in LogData::InitValSizeAndType()
          */
@@ -153,11 +128,11 @@ class LogData {
         } currVal_;
 
         int nVals_;             // Number of values in a record
-        int currValIdx_;        // Idx of current value in record 
+        int currValIdx_;        // Idx of current value in record
         unsigned char *currValPtr_;     // Curr read loc in curr rec
-        int *varVal_;           // Variable index for each val 
+        int *varVal_;           // Variable index for each val
         int *sizeVal_;          // Byte size each value in record
-        double *scaleVal_;      // Scale factor for variables 
+        double *scaleVal_;      // Scale factor for variables
         double *biasVal_;       // Bias for variables
         double *unitVal_;       // Unit scale factor variables
         double *maxVal_;        // Max value for variables
@@ -174,7 +149,7 @@ class LogData {
         int nBinFiles_;         // Num binary files in this log
         int open_;              // Log open for reading?
 
-        /* 
+        /*
          * For grabbing stats out of the entire data file
          */
 
@@ -229,7 +204,7 @@ class LogGroup {
                             double *timeMax, double *max);
 
         // Get value of a parameter at a given time stamp
-        int getValueAtTime( const char *paramName, 
+        int getValueAtTime( const char *paramName,
                             double time, double* value);
 
         int setScaleFactor(int logIdx, int paramIdx, double factor);
@@ -244,7 +219,7 @@ class LogGroup {
       private:
          FILE * fp_;
         int parseLogHeaders();
-        bool is04BinaryHeader_(const char*); 
+        bool is04BinaryHeader_(const char*);
         int open(char *);          // Open log groups for reading given bin file
 
         int getHeaders();          // Get list of headers in binary data area
@@ -267,7 +242,7 @@ class LogGroup {
 class IterPreserveTime {
 
       public:
-        
+
         IterPreserveTime( LogGroup* lg, set<int>& logIndices,
                           double freq, double startTime, double stoptime);
         ~IterPreserveTime();
@@ -284,10 +259,10 @@ class IterPreserveTime {
         LogGroup* lg_ ;
 
         // The iterator needs to know the log members that it is going
-        // to need to iterate over.  I could just do iterate over -all- 
-        // each time a getNextRecord() occurs.  But this can waste a 
-        // lot of time when there is a mix of groups 
-        // with high/low frequencies. 
+        // to need to iterate over.  I could just do iterate over -all-
+        // each time a getNextRecord() occurs.  But this can waste a
+        // lot of time when there is a mix of groups
+        // with high/low frequencies.
         // (e.g Maybe log_frame is logged at 0.0001 and log_ball is logged
         // at 0.1 --- you don't want to have to spin through frame data
         // when you aren't even viewing it.)
@@ -295,24 +270,24 @@ class IterPreserveTime {
         set<int>::const_iterator logIdx_ ;
 
         int* timeIdx_ ;         // Time idx for each log member
-        bool* eof_ ;            // EOF status for each log member 
+        bool* eof_ ;            // EOF status for each log member
         double* currTime_ ;     // Holds curr time for each log member
         double frequency_ ;     // Time frequency to step through data
         double startTime_ ;     // Start time to begin iterating through data
-        double stopTime_ ;      // Stop time to stop iterating through data 
+        double stopTime_ ;      // Stop time to stop iterating through data
 
         double nextFrequencyCheck_ ;
         double frequencyMultiple_ ; // Used to calc next freq check
 };
 
 /**
- * Iterate over runs (right now only 2 supported) 
- * keeping time stamp same while stepping 
+ * Iterate over runs (right now only 2 supported)
+ * keeping time stamp same while stepping
  */
 class IterMultiRun {
 
       public:
-        
+
         IterMultiRun( LogGroup* lg1, set<int>& logIndices1,
                       LogGroup* lg2, set<int>& logIndices2,
                       double freq, double startTime, double stoptime);
@@ -335,7 +310,7 @@ class IterMultiRun {
         IterPreserveTime* iter2_ ;
 
         double startTime_ ;     // Start time to begin iterating through data
-        double stopTime_ ;      // Stop time to stop iterating through data 
+        double stopTime_ ;      // Stop time to stop iterating through data
 };
 
 class LogMultiGroup {
@@ -351,7 +326,7 @@ class LogMultiGroup {
         // Convert all data to doubles
         int convertToDoubleYes();
 
-        // Set factors for scaling, biasing... 
+        // Set factors for scaling, biasing...
         int setScaleFactor(const char* paramName, double factor);
         int setBias(const char* paramName, double bias);
         int setUnit(const char* paramName, Unit * u);
@@ -376,8 +351,8 @@ class LogMultiGroup {
 class IterOverLogGroups {
 
       public:
-        
-        IterOverLogGroups( LogMultiGroup* lmg, 
+
+        IterOverLogGroups( LogMultiGroup* lmg,
                                             vector<string>& runDirs,
                                             vector<string>& paramNames );
 
@@ -396,10 +371,10 @@ class IterOverLogGroups {
         LogMultiGroup* lmg_ ;
 
         // The iterator needs to know the individual log groups that it is going
-        // to need to iterate over.  I could just do iterate over -all- 
-        // each time a getNextRecord() occurs.  But this can waste a 
+        // to need to iterate over.  I could just do iterate over -all-
+        // each time a getNextRecord() occurs.  But this can waste a
         // lot of time when you are only wanting to iterate over two runs
-        // for an error plot or something similar. 
+        // for an error plot or something similar.
         vector< LogGroup* > iterLogGroups_ ;
 
         // For each parameter (e.g. ball.state.out.pos)
@@ -409,7 +384,7 @@ class IterOverLogGroups {
                 int logIdx ;
                 int varIdx ;
         } ParamIdx ;
-        map<string, ParamIdx*> paramMap_ ; 
+        map<string, ParamIdx*> paramMap_ ;
 
         // For the entire multi group, each run
         // has a param->idx mapping
@@ -419,7 +394,7 @@ class IterOverLogGroups {
         // logIdx = runs_[1]["ball.state.out.pos"]->logIdx ;
         // This simply means that in run 1's data set, parameter
         // with name "ball.state.out.pos" resides in logIdx.
-        vector< map< string, ParamIdx* > > runs_ ; 
+        vector< map< string, ParamIdx* > > runs_ ;
 
         // Iterator for array of LogGroups in LogMultiGroup
         vector< LogGroup* >::const_iterator lgIterator_;
@@ -433,11 +408,11 @@ class IterOverLogGroups {
         map < string, LogGroup* > runDirName2lg_ ;
 
         int* timeIdx_ ;         // Time idx for each log member
-        bool* eof_ ;            // EOF status for each log member 
+        bool* eof_ ;            // EOF status for each log member
         double* currTime_ ;     // Holds curr time for each log member
         double frequency_ ;     // Time frequency to step through data
         double startTime_ ;     // Start time to begin iterating through data
-        double stopTime_ ;      // Stop time to stop iterating through data 
+        double stopTime_ ;      // Stop time to stop iterating through data
 
         double nextFrequencyCheck_ ;
 };

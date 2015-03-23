@@ -1,6 +1,3 @@
-/*
- * $Id: MonteCarlo_slave_funcs.cpp $
- */
 
 #include "sim_services/MonteCarlo/include/MonteCarlo.hh"
 

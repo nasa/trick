@@ -1,7 +1,5 @@
 package auto_doc;
 
-# $Id: auto_doc.pm 1375 2011-02-01 23:32:36Z wwoodard $
-
 # Note:
 # Firefox 3 fails to process XSLT files if they are on the local hard drive plus
 # outside of the current XML file's path (or descendant paths). Users may need

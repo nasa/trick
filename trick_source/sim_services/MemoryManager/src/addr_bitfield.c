@@ -1,7 +1,3 @@
-/** 
- @file
- $Id$
-*/
 #include "sim_services/include/attributes.h"
 #include "sim_services/MemoryManager/include/bitfield_proto.h"
 

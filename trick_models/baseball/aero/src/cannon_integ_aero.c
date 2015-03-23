@@ -2,10 +2,6 @@
 PURPOSE:                     (Cannon integration)
 ***************************************************************************/
 
-/*
- * $Id: cannon_integ_aero.c 737 2010-06-14 20:47:08Z wwoodard $
- */
-
 #include "sim_services/Integrator/include/integrator_c_intf.h"
 #include "../include/cannon_aero.h"
 

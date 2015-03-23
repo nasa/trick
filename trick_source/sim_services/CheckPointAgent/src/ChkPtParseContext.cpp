@@ -1,7 +1,3 @@
-/**
- @file
- $Id: ChkPtParseContext.cpp 3637 2014-08-18 16:55:20Z jpenn1 $
- */
 #include <stdio.h>
 #include <stdlib.h>
 #include "sim_services/CheckPointAgent/include/ChkPtParseContext.hh"

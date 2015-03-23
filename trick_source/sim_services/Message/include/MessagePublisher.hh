@@ -1,13 +1,6 @@
-/* 
- * $Id: MessagePublisher.hh 3530 2014-05-15 16:13:05Z alin $
- */
 
-/**
- * @file MessagePublisher.hh
- */
-
-#ifndef _MESSAGEPUBLISHER_HH_
-#define _MESSAGEPUBLISHER_HH_
+#ifndef MESSAGEPUBLISHER_HH
+#define MESSAGEPUBLISHER_HH
 
 #include <string>
 #include <list>

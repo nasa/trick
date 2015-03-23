@@ -2,8 +2,8 @@
     PURPOSE: (Illustrate how to checkpoint STLs)
 */
 
-#ifndef __CHECKPOINT_TRICK_PAIR_HH__
-#define __CHECKPOINT_TRICK_PAIR_HH__
+#ifndef CHECKPOINT_TRICK_PAIR_HH
+#define CHECKPOINT_TRICK_PAIR_HH
 
 #include <string>
 #include <algorithm>

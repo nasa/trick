@@ -1,4 +1,4 @@
-/* 
+/*
    PURPOSE: (ICDS nomalized gaussian random number generator - Box Muller)
 
    REFERENCE: ((ICDS))
@@ -13,10 +13,6 @@
 
    PROGRAMMERS: (((Ray Li) (LMES/DUAL) (96 Nov) (1.0) (ICDS random number generator)) ((Robert Gay) (LinCom) (May 1998) 
    (--) (Trick format)) ((Robert Gay) (Titan-LinCom) (Aug 2001) (--) (Updates to put routines into trick math))) */
-
-/* 
- * $Id: gauss_rnd_bell.c 49 2009-02-02 22:37:59Z lin $
- */
 
 #include "../include/rand_generator.h"
 #include "../include/trick_math.h"

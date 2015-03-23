@@ -1,8 +1,6 @@
-/*
- * $Id: MemoryManager_realloc.cpp 3642 2014-08-21 17:03:58Z jpenn1 $
- */
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
-#include "sim_services/MemoryManager/include/message_proto.h"
+#include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 #include <dlfcn.h>
 #include <stdlib.h>
 

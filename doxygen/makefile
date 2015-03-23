@@ -1,4 +1,3 @@
-# $Id: makefile 3443 2014-02-21 14:49:26Z alin $
 
 export TRICK_DOCS = $(TRICK_HOME)/docs
 export TRICK_RELEASE = $(shell $(TRICK_HOME)/bin/trick_version -v)

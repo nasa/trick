@@ -1,6 +1,3 @@
-/*
- * $Id: Executive_freeze_loop.cpp 3050 2013-06-19 19:13:39Z alin $
- */
 
 #include <iostream>
 #include <sstream>
@@ -9,6 +6,7 @@
 #include "sim_services/Executive/include/Exec_exception.hh"
 #include "sim_services/Executive/include/exec_proto.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 /**
 @details

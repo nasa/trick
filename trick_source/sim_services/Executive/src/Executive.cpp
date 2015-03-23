@@ -1,8 +1,4 @@
 
-/* 
- * $Id: Executive.cpp 3638 2014-08-18 19:37:31Z alin $
- */
-
 #include <iostream>
 #include <math.h>
 

@@ -21,13 +21,8 @@ PROGRAMMERS:
      ((Edwin Z. Crues)(Titan Systems Corp.)(Jan 2002)(Crude C++ translation)))
 *******************************************************************************/
 
-/*
- * $Id: BallState.hh 3383 2014-01-22 23:18:15Z alin $
- */
-
-
-#ifndef _BALL_STATE_HH_
-#define _BALL_STATE_HH_
+#ifndef BALLSTATE_HH
+#define BALLSTATE_HH
 
 /** @class BallStateInput
     @brief ball state input parameters

@@ -1,5 +1,5 @@
-#ifndef _FRAMELOG_PROTO_H_
-#define _FRAMELOG_PROTO_H_
+#ifndef FRAMELOG_PROTO_H
+#define FRAMELOG_PROTO_H
 
 
 #ifdef __cplusplus
@@ -11,8 +11,8 @@ int frame_log_off() ;
 int frame_log_set_max_samples(int num) ;
 
 #ifdef __cplusplus
-}        
-#endif  
+}
+#endif
 
 #endif
 

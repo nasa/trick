@@ -1,9 +1,5 @@
 
 /*
- * $Id: default_trick_sys.sm 3793 2015-02-04 15:42:53Z alin $
- */
-
-/*
 Each SimObject may be turned off individually with the following lines in the S_define.
 Turing off the Executive, MemoryManager, or CommandLineArguments without providing
 a replacement SimObject will create an uncompilable sim.
@@ -30,8 +26,8 @@ a replacement SimObject will create an uncompilable sim.
 
 */
 
-#ifndef __DEFAULT_TRICK_SYS__
-#define __DEFAULT_TRICK_SYS__
+#ifndef DEFAULT_TRICK_SYS_SM
+#define DEFAULT_TRICK_SYS_SM
 
 ##include <sstream>
 ##include <cstdarg>

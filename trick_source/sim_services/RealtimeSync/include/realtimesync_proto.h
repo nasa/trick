@@ -1,9 +1,6 @@
-/*
- * $Id: realtimesync_proto.h 2640 2012-09-28 15:39:38Z alin $
- */
 
-#ifndef _REALTIMESYNC_PROTO_H_
-#define _REALTIMESYNC_PROTO_H_
+#ifndef REALTIMESYNC_PROTO_H
+#define REALTIMESYNC_PROTO_H
 
 #ifdef __cplusplus
 #include "sim_services/Clock/include/Clock.hh"

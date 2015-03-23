@@ -16,46 +16,6 @@ PROGRAMMERS:
     (((Robert W. Bailey) (LinCom) (9/1/90 (Trick-CR-00000) (Initial Release)))
 */
 
-/*
- * $Log: ip_test.d,v $
- * Revision 7.3  2007-01-08 11:22:17-06  dstrauss
- * Bugs in parsing new units specs
- *
- * Revision 7.2  2006-08-31 13:59:12-05  hchen
- * SIM_test_ip error - convert the old style of allocation statements to the new style and update the file due to the variable units changed to units_test
- *
- * Revision 7.1  2006-06-22 14:14:14-05  lin
- * Bump version number for 07
- *
- * Revision 5.2  2004-09-07 11:48:42-05  lin
- * New #define handling does not pass SIM_test_ip
- *
- * Revision 5.1  2004-08-05 13:06:55-05  lin
- * Bump
- *
- * Revision 4.3  2004/02/18 21:54:41  lin
- * remove "STRING" as the special case for "char *"
- *
- * Revision 4.2  2004/01/15 22:36:42  lin
- * test sims do not work
- *
- * Revision 4.1  2003/10/21 21:49:19  lin
- * Bump version number for 04
- *
- * Revision 1.5  2003/06/09 21:03:13  vetter
- * Forget Fortran For 4
- *
- * Revision 1.4  2003/05/29 18:57:21  vetter
- * Add Bitfield Test To IP Test
- *
- * Revision 1.3  2003/03/14 20:16:51  lin
- * Try and rewrite ip_alloc scheme to remove extra 8 byte requirement
- *
- * Revision 1.2  2002/10/07 15:16:27  lin
- * Add rcs version info to all trick_models files
- *
- */
- 
 #define TWO     (2.00000000)
 #define TWO2    ((4*2.0)-6.00000000)
 #define THREE   3.00000000

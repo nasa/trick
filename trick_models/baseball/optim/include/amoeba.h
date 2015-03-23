@@ -5,8 +5,8 @@
  * http://www.research.ibm.com/infoecon/paps/html/amec99_bundle/node8.html
  */
 
-#ifndef __amoeba__
-#define __amoeba__
+#ifndef AMOEBA_H
+#define AMOEBA_H
 
 #define AMOEBA_ALPHA 1.0     /* reflection constant */ 
 #define AMOEBA_BETA  1.0     /* expansion constant */ 

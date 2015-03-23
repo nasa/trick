@@ -1,14 +1,10 @@
-/* 
-    PURPOSE: 
-        (Output test results in JUnit format) 
+/*
+    PURPOSE:
+        (Output test results in JUnit format)
 */
 
-/* 
- * $Id:$
- */
-
-#ifndef _UNITTESTOUTPUT_HH_
-#define _UNITTESTOUTPUT_HH_
+#ifndef UNITTEST_HH
+#define UNITTEST_HH
 
 #include <string>
 #include <fstream>
@@ -36,7 +32,7 @@ namespace Trick {
 
             TestCase(std::string test_case_name , std::string in_failure_string) ;
     } ;
-    
+
     class TestSuite {
         public:
             unsigned int num_failures ;

@@ -1,6 +1,3 @@
-/*
- * $Id: swig_macros.hh 1669 2011-06-06 22:02:34Z wwoodard $
- */
 
 //These appear in some files but not in others.  define them if we have to.
 

@@ -2,10 +2,6 @@
    PURPOSE: (Master for master/slave syncrhonization)
  */
 
-/*
- *  $Id: MasterSlave_add_slave.cpp 401 2009-11-13 20:21:13Z wwoodard $
- */
-
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -24,6 +20,7 @@
 #include "sim_services/CommandLineArguments/include/command_line_protos.h"
 #include "sim_services/include/unix_commands.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 #include "sim_services/Environment/include/env_proto.h"
 #include "sim_services/CheckPointRestart/include/CheckPointRestart_c_intf.hh" // for checkpoint_get_output_file
 

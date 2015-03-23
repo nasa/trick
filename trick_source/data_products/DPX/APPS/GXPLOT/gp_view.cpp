@@ -1,7 +1,3 @@
-/*
- * $Id: gp_view.cpp 3243 2013-09-24 18:55:48Z alin $
- */
-
 
 #include <stdio.h>    // for snprintf
 #include <stdlib.h>   // for atoi

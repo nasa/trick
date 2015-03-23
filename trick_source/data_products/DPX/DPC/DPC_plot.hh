@@ -1,6 +1,3 @@
-/*
- * $Id: DPC_plot.hh 3462 2014-03-26 18:34:26Z hchen3 $
- */
 
 #ifndef DPC_PLOT_HH
 #define DPC_PLOT_HH
@@ -13,7 +10,6 @@
 /**
  * DPC_plot represents a 2-D data plot.
  * @author John M. Penn
- * @version $Id: DPC_plot.hh 3462 2014-03-26 18:34:26Z hchen3 $
  */
 
 class DPC_plot {

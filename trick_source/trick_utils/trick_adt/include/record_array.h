@@ -1,10 +1,6 @@
 
-/*
- * $Id: record_array.h 49 2009-02-02 22:37:59Z lin $
- */
-
-#ifndef _RECORD_ARRAY_H
-#define _RECORD_ARRAY_H
+#ifndef RECORD_ARRAY_H
+#define RECORD_ARRAY_H
 
 #include "sizedata.h"
 

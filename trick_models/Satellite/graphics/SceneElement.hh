@@ -1,5 +1,5 @@
-#ifndef _DISPLAY_MODEL_
-#define _DISPLAY_MODEL_
+#ifndef SCENEELEMENT_HH
+#define SCENEELEMENT_HH
 
 class SceneElement {
 

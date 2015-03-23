@@ -1,12 +1,10 @@
-/*
- * $Id: MonteCarlo_initialize_sockets.cpp $
- */
 
 #include <sys/stat.h>
 #include <libgen.h>
 
 #include "sim_services/MonteCarlo/include/MonteCarlo.hh"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 #include "trick_utils/comm/include/tc_proto.h"
 
 /** @par Detailed Design: */

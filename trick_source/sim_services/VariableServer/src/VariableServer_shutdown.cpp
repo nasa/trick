@@ -1,6 +1,3 @@
-/*
- * $Id:$
- */
 
 #include "sim_services/VariableServer/include/VariableServer.hh"
 

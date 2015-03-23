@@ -1,4 +1,3 @@
-# $Id: shortcuts.py 3717 2014-10-28 21:34:49Z dstrauss $
 
 """
 Create shortcuts or aliases for difficult to remember Input File commands

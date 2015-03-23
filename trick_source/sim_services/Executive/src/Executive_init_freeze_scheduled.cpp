@@ -1,6 +1,3 @@
-/* 
- * $Id:$
- */
 
 #include "sim_services/Executive/include/Executive.hh"
 

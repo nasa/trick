@@ -1,7 +1,5 @@
 package edit ;
 
-# $Id: edit.pm 2014 2011-10-31 18:33:09Z lin $
-
 use Exporter ();
 @ISA = qw(Exporter);
 @EXPORT = qw(edit_only edit_and_exit);

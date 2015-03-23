@@ -1,6 +1,4 @@
 
-# $Id: amoeba.py 1120 2010-09-30 16:56:22Z dpanter $
-
 """
 Allocate and initialize first simplex to begin Amoeba algorithm
 """

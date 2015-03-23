@@ -1,6 +1,3 @@
-/*
- * $Id: swig_int.cpp 3765 2014-12-04 19:58:52Z alin $
- */
 
 #include <iostream>
 #include "trick_swig/swig_macros.hh"

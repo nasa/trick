@@ -1,6 +1,3 @@
-/*
- * $Id: DPC_product.hh 1900 2011-08-29 21:55:41Z penn $
- */
 
 #ifndef DPC_PRODUCT_HH
 #define DPC_PRODUCT_HH
@@ -18,7 +15,6 @@
  * DPC_product represents a collection of DPC_pages (each of which
  * may contain DPC_plots) and DPC_tables.
  * @author John M. Penn
- * @version $Id: DPC_product.hh 1900 2011-08-29 21:55:41Z penn $
  */
 class DPC_product {
 

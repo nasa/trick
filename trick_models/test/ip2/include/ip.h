@@ -5,12 +5,8 @@ ASSUMPTIONS AND LIMITATIONS: (Autocreated by trick_ui)
 PROGRAMMERS:                 ((lin) (Thu Feb 27 14:57:16 CST 2003))
 ***************************************************************************/
 
-/*
- * $Id: ip.h 1268 2010-11-17 14:15:53Z wwoodard $
- */
-
-#ifndef _ip_h_
-#define _ip_h_
+#ifndef IP_H
+#define IP_H
 
 #include "sim_services/include/Flag.h"
 

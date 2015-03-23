@@ -1,6 +1,3 @@
-/*
- * $Id: regula_falsi.c 1925 2011-09-06 13:40:27Z dpanter $
- */
 
 #include <math.h>
 

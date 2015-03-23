@@ -1,6 +1,6 @@
 
-#ifndef _PRINTFILECONTENTS13_HH_
-#define _PRINTFILECONTENTS13_HH_
+#ifndef PRINTFILECONTENTS13_HH
+#define PRINTFILECONTENTS13_HH
 
 #include <string>
 #include <vector>

@@ -1,8 +1,4 @@
 /*
- * $Id: S_define 1141 2010-10-08 18:41:23Z lin $
- */
-
-/*
   This sim demonstrates the use of Trick STLs.  Trick includes
   checkpointable versions of all the STL constructs.
 */

@@ -1,7 +1,3 @@
-/*
- * $Id: SimDPTree.java 3601 2014-07-23 21:13:49Z hchen3 $
- *
- */
 
 package trick.dataproducts.utils;
 

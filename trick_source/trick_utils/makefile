@@ -1,6 +1,4 @@
 
-# $Id: makefile 3159 2013-08-15 22:43:46Z lmlandry $
-
 #
 # This makefile is used to build trick utils standalone.
 # That is, without Trick.

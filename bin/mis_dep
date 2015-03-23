@@ -9,8 +9,6 @@
 #              from the TRICK HEADERs in the source files.  TRICK_CFLAGS
 #              are used to actually find all files in the dependency tree.
 
-# $Id: mis_dep 49 2009-02-02 22:37:59Z lin $
-
 use lib $ENV{"TRICK_HOME"} . "/bin/pm" ;
 use Cwd ;
 use File::Basename ;

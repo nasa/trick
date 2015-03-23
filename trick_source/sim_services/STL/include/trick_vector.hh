@@ -1,6 +1,6 @@
 
-#ifndef _TRICK_VECTOR_HH_
-#define _TRICK_VECTOR_HH_
+#ifndef TRICK_VECTOR_HH
+#define TRICK_VECTOR_HH
 
 #include <string>
 #include <vector>

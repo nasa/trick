@@ -1,19 +1,15 @@
-/* 
+/*
    PURPOSE: (Floating point exception handler)
 
    PROGRAMMERS: (((Robert W. Bailey) (LinCom) (April 1992) (--) (Realtime)))
- */
-
-/* 
- * $Id: fpe_handler.cpp 2317 2012-04-16 16:13:19Z alin $
  */
 
 #include <string.h>
 #include <stdio.h>
 #include <signal.h>
 
-/* 
- * FPE specific headers 
+/*
+ * FPE specific headers
  */
 #ifdef __linux
 #include <fenv.h>
@@ -41,7 +37,6 @@ void fpe_sig_handler(int sig __attribute__ ((unused)), siginfo_t * sip __attribu
     siginfo_t * sip = NULL ;
 #endif
 
-    E->fpe_handler(sip) ; 
-
+    E->fpe_handler(sip) ;
 
 }

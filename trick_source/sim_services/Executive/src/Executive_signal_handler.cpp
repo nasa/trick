@@ -14,10 +14,6 @@
    PROGRAMMERS: (((Eddie J. Paddock) (MDSSC) (April 1992) (--) (Realtime)) ((Scott Killingsworth) (LinCom) (September
    1997) (--) (Issue #1016))) */
 
-/*
- * $Id: sig_hand.cpp 547 2010-02-05 23:14:35Z lin $
- */
-
 #include <stdlib.h>
 #include <signal.h>
 #include <setjmp.h>

@@ -1,6 +1,3 @@
-/*
- * $Id: TrickChartTheme.java 3107 2013-07-03 18:53:42Z hchen3 $
- */
 
 package trick.dataproducts.plot.utils;
 

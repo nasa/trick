@@ -1,6 +1,3 @@
-/*
- * $Id: MM_write_var_unittest.cc 3736 2014-11-06 23:23:02Z jpenn1 $
- */
 
 #include <gtest/gtest.h>
 #include "sim_services/MemoryManager/include/MemoryManager.hh"

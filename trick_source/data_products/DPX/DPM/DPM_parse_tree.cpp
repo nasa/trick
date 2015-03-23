@@ -1,6 +1,3 @@
-/*
- * $Id: DPM_parse_tree.cpp 3242 2013-09-24 15:15:01Z alin $
- */
 
 #include <DPM/DPM_parse_tree.hh>
 

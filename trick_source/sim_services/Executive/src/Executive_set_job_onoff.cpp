@@ -1,12 +1,9 @@
 
-/*
- * $Id: Executive_set_job_onoff.cpp 2489 2012-07-16 20:12:27Z dstrauss $
- */
-
 #include <iostream>
 
 #include "sim_services/Executive/include/Executive.hh"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 int Trick::Executive::set_job_onoff(std::string job_name, int instance_num , int on) {
 

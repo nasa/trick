@@ -1,6 +1,6 @@
 
-#ifndef _HEADER_SEARCH_DIRS_HH_
-#define _HEADER_SEARCH_DIRS_HH_
+#ifndef HEADERSEARCHDIRS_HH
+#define HEADERSEARCHDIRS_HH
 
 #include <map>
 #include <vector>

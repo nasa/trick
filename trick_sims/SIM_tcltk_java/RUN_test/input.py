@@ -1,6 +1,4 @@
 
-# $Id: input.py 1012 2010-08-26 21:00:09Z dpanter $
-
 execfile("Modified_data/cannon_aero.dr")
 execfile("Modified_data/realtime_jet.py")
 

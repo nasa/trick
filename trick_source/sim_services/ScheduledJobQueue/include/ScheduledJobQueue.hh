@@ -3,17 +3,8 @@
         (Class to hold queue of scheduled jobs)
 */
 
-/*
- * $Id: PriorityJobQueues.hh 403 2009-11-16 16:13:20Z lin $
- */
-
-
-/**
- * @file ScheduledJobQueue.hh
- */
-
-#ifndef _SCHEDULEDJOBQUEUE_HH_
-#define _SCHEDULEDJOBQUEUE_HH_
+#ifndef SCHEDULEDJOBQUEUE_HH
+#define SCHEDULEDJOBQUEUE_HH
 
 #include <string>
 

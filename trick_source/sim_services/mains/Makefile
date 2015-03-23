@@ -1,6 +1,4 @@
 
-# $Id$
-
 include ${TRICK_HOME}/makefiles/Makefile.common
 
 LIB_DIR = ${TRICK_HOME}/lib_${TRICK_HOST_CPU}

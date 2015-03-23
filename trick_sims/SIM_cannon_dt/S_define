@@ -1,7 +1,3 @@
-/*
- * $Id: S_define.dt 1003 2010-08-25 21:18:24Z dpanter $ 
- */
-
 /************************TRICK HEADER*************************
 PURPOSE:
     (This S_define is used with the RUN_dt input file)

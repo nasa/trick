@@ -1,9 +1,7 @@
-/*
- * $Id: MonteCarlo_receive_results.cpp $
- */
 
 #include "sim_services/MonteCarlo/include/MonteCarlo.hh"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 #include "trick_utils/comm/include/tc_proto.h"
 
 /**
@@ -20,7 +18,7 @@ void Trick::MonteCarlo::receive_results() {
 
     FD_ZERO(&rfds);
     select_time = timeout_time;
-    
+
     // add data listen device
     FD_SET(data_listen_device.socket, &rfds);
     max_socket = data_listen_device.socket;

@@ -1,7 +1,3 @@
-/*
- @file
- $Id: MemoryManager_strdup.cpp 541 2010-02-02 21:21:17Z penn $
- */
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
 
 /**

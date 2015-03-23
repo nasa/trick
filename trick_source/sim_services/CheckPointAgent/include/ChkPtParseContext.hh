@@ -1,8 +1,5 @@
 #ifndef CHKPT_PARSE_CONTEXT_H
 #define CHKPT_PARSE_CONTEXT_H
-/*
- * $Id: ChkPtParseContext.hh 3637 2014-08-18 16:55:20Z jpenn1 $
- */
 
 #include <iostream>
 #include <unistd.h>

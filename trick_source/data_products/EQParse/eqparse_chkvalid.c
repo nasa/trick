@@ -1,8 +1,8 @@
 /*
  * Author  : Peter Mosbach
  * Date    : August 2003
- * Desc    : Check if the inputs are valid and set eqperrno if not. 
- *           
+ * Desc    : Check if the inputs are valid and set eqperrno if not.
+ *
  */
 
 #include <stdio.h>

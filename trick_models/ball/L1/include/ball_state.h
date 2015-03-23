@@ -1,6 +1,3 @@
-/*
- * $Id: ball_state.h 2665 2012-10-15 21:42:36Z alin $
- */
 
 /** TRICK HEADER **************************************************************
 @file
@@ -17,8 +14,8 @@ PROGRAMMERS:
 *******************************************************************************/
 
 
-#ifndef _BALL_STATE_H_
-#define _BALL_STATE_H_
+#ifndef BALL_STATE_H
+#define BALL_STATE_H
 
 /** @struct BSTATE_IN
     @brief ball state input parameters

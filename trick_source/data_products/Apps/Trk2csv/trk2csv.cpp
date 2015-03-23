@@ -1,8 +1,3 @@
-/*
- * Revision 9.1  2008/07/14 15:00:00  wwoodard
- * Insert revision comments
- *
- */
 
 #include <vector>
 #include <iostream>

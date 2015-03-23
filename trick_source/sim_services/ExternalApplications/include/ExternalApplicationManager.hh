@@ -2,8 +2,8 @@
     PURPOSE: (Manager for external applications.)
 */
 
-#ifndef _EXTERNAL_APPLICATION_MANAGER_HH_
-#define _EXTERNAL_APPLICATION_MANAGER_HH_
+#ifndef EXTERNAL_APPLICATION_MANAGER_HH
+#define EXTERNAL_APPLICATION_MANAGER_HH
 
 #include <vector>
 

@@ -1,9 +1,6 @@
-/*
- * $Id: DPV_view.hh 639 2010-04-14 15:54:53Z wwoodard $
- */
 
-#ifndef DPC_PEER_HH
-#define DPC_PEER_HH
+#ifndef DPC_VIEW_HH
+#define DPC_VIEW_HH
 #include <stddef.h> // for NULL
 
 typedef void *DPV_pointer;

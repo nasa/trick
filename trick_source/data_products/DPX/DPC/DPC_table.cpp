@@ -1,6 +1,3 @@
-/*
- * $Id: DPC_table.cpp 3313 2013-11-21 21:34:59Z lmlandry $
- */
 
 #include "DPC/DPC_table.hh"
 #include "DPM/DPM_var.hh"

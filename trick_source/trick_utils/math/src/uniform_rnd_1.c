@@ -1,23 +1,19 @@
-/* 
-   PURPOSE: (ICDS uniform random number generator.  Almost a copy of ICDS' random number generator.  See code comments 
+/*
+   PURPOSE: (ICDS uniform random number generator.  Almost a copy of ICDS' random number generator.  See code comments
    for any differences.)
 
    REFERENCE: ((ICDS))
 
-   ASSUMPTIONS AND LIMITATIONS: ((If the user wants repeatability, a non zero seed should be used. If the user wants a 
+   ASSUMPTIONS AND LIMITATIONS: ((If the user wants repeatability, a non zero seed should be used. If the user wants a
    random seed, a zero seed should be used.))
 
    CLASS: (scheduled)
 
    LIBRARY DEPENDENCY: ((uniform_rnd_1.o))
 
-   PROGRAMMERS: (((Ray Li) (LMES/DUAL) (96 Nov) (1.0) (ICDS random number generator)) ((Robert Gay) (LinCom) (May 1998) 
+   PROGRAMMERS: (((Ray Li) (LMES/DUAL) (96 Nov) (1.0) (ICDS random number generator)) ((Robert Gay) (LinCom) (May 1998)
    (--) (Trick format)) ((David Hammen) (Titan-LinCom) (April 2001) (Renamed ICDS_Get_CPU_Time to total_CPU_time and
    made it local)) ((Robert Gay) (Titan-LinCom) (Aug 2001) (--) (Updates to put routines into trick math))) */
-
-/* 
- *  $Id: uniform_rnd_1.c 49 2009-02-02 22:37:59Z lin $
- */
 
 #include <math.h>
 #if __Lynx__

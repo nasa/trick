@@ -1,5 +1,5 @@
-#ifndef _SATELLITE_MODEL_
-#define _SATELLITE_MODEL_
+#ifndef GRAPHICS_MODELS_H
+#define GRAPHICS_MODELS_H
 
 #ifdef __cplusplus
 extern "C" {

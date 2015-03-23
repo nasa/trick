@@ -1,6 +1,3 @@
-/*
- * $Id: TCConnectTest.cpp 3368 2013-12-19 22:34:06Z jpenn1 $
- */
 
 #include <gtest/gtest.h>
 

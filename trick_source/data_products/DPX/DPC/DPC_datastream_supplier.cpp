@@ -1,7 +1,3 @@
-/*
- * $Id: DPC_datastream_supplier.cpp 1746 2011-07-08 22:01:36Z penn $
- */
-
 #include "DPC/DPC_datastream_supplier.hh"
 #include "DPC/DPC_TimeCstrDataStream.hh"
 #include "DPC/DPC_UnitConvDataStream.hh"

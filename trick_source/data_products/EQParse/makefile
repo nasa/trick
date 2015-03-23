@@ -1,6 +1,4 @@
 
-# $Id: makefile 3242 2013-09-24 15:15:01Z alin $
-
 include ${TRICK_HOME}/makefiles/Makefile.common
 
 CC        = cc

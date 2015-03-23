@@ -1,6 +1,3 @@
-/*
- * $Id: MonteVarRandom.cpp
- */
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
@@ -14,10 +11,10 @@ Trick::MonteVarRandom::MonteVarRandom(std::string in_name, Distribution in_distr
     this->name = in_name;
     this->distribution = in_distribution;
     this->unit = in_unit;
-    
+
     // perform this init in all cases, in case fall back to Trick-coded distributions
     trick_gsl_rand_init(&randist);
-    
+
     if (NO_ENGINE != engineType) {
         // minimum set of randist defaults when using C++11 distributions
         randist.mu = 0.0;

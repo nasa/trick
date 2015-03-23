@@ -8,8 +8,8 @@ PURPOSE:
 @endverbatim
 *******************************************************************************/
 
-#ifndef _BALL_HH_
-#define _BALL_HH_
+#ifndef BALL_HH
+#define BALL_HH
 
 #include <iostream>
 #include <stdio.h>

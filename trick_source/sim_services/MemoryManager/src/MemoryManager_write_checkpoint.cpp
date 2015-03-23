@@ -1,14 +1,10 @@
-/**
- @file
- $Id$
- */
-
 #include <fstream>
 #include <string.h>
 #include <stdlib.h>  // free()
 #include <algorithm> // std::sort()
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
-#include "sim_services/MemoryManager/include/message_proto.h"
+#include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 // GreenHills stuff
 #if ( __ghs )

@@ -1,6 +1,3 @@
-/*
- * $Id: MM_resize_array_unittest.cc 3742 2014-11-10 22:07:15Z jpenn1 $
- */
 
 #include <gtest/gtest.h>
 #include "sim_services/MemoryManager/include/MemoryManager.hh"

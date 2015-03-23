@@ -1,7 +1,3 @@
-/**
- @file
- $Id: MemoryManager_is_alloced.cpp 3642 2014-08-21 17:03:58Z jpenn1 $
- */
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
 
 int Trick::MemoryManager::is_alloced(void *addr) {

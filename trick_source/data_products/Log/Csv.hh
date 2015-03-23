@@ -1,4 +1,7 @@
 
+#ifndef CSV_HH
+#define CSV_HH
+
 #include <stdio.h>
 #include "DataStream.hh"
 
@@ -23,3 +26,5 @@ class Csv : public DataStream {
 } ;
 
 int CsvLocateParam( char * file_name , char * param_name ) ;
+
+#endif

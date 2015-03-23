@@ -1,6 +1,6 @@
 
-#ifndef _ENV_PROTO_H_
-#define _ENV_PROTO_H_
+#ifndef ENV_PROTO_H
+#define ENV_PROTO_H
 
 #include <stdio.h>
 

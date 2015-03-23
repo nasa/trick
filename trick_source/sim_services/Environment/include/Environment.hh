@@ -1,14 +1,10 @@
-/* 
-    PURPOSE: 
-        (Trick compiletime environment variables) 
+/*
+    PURPOSE:
+        (Trick compiletime environment variables)
 */
 
-/* 
- * $Id: Executive.hh 775 2010-06-29 23:04:51Z lin $
- */
-
-#ifndef _ENVIRONMENT_HH_
-#define _ENVIRONMENT_HH_
+#ifndef ENVIRONMENT_HH
+#define ENVIRONMENT_HH
 
 #include <string>
 #include <map>
@@ -26,7 +22,7 @@ namespace Trick {
      * @date June 2010
      *
      */
-    
+
     class Environment {
 
         protected:

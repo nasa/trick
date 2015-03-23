@@ -1,6 +1,6 @@
 
-#ifndef _DEBUGPAUSE_PROTO_H_
-#define _DEBUGPAUSE_PROTO_H_
+#ifndef DEBUGPAUSE_PROTO_H
+#define DEBUGPAUSE_PROTO_H
 
 #ifdef __cplusplus
 extern "C" {

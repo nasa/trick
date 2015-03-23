@@ -5,10 +5,6 @@ PROGRAMMERS:
      ((Alex Lin) (NASA) (August 2010) (--) (c++ port)))
 */
 
-/*
- * $Id:$
- */
-
 #include "sim_services/Timer/include/Timer.hh"
 
 Trick::Timer::Timer() : enabled(false) , active(false) {}

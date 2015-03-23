@@ -1,17 +1,13 @@
 /*
-  PURPOSE:                     (Abstract Base Class for subclass object to hold a 
+  PURPOSE:                     (Abstract Base Class for subclass object to hold a
                                 Pseudo-Random Number engine and associated distribution)
   REFERENCE:                   (Trick Users Guide)
   ASSUMPTIONS AND LIMITATIONS: (None)
   PROGRAMMERS:                 ((Matt Jessick) (LZT) (10/2014))
 */
 
-/*
- * $Id: StlRandomGenerator.hh $
- */
-
-#ifndef _STLRANDOMGENERATOR_HH_
-#define _STLRANDOMGENERATOR_HH_
+#ifndef STLRANDOMGENERATOR_HH
+#define STLRANDOMGENERATOR_HH
 
 
 // TEMPORARY placement for standalone /////////////////
@@ -23,8 +19,8 @@
             TRICK_GSL_FLAT,
             TRICK_GSL_POISSON
         } TRICK_GSL_TYPE;
-        
-        
+
+
         typedef union {
 
             unsigned int ui ;     /* -- unsigned integer return */

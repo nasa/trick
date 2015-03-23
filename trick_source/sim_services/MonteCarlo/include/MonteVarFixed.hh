@@ -5,12 +5,8 @@
   PROGRAMMERS:                 ((Keith Vetter) (LinCom) (7/2003))
 */
 
-/*
- * $Id: MonteVarFixed.hh $
- */
-
-#ifndef _MONTEVARFIXED_HH_
-#define _MONTEVARFIXED_HH_
+#ifndef MONTEVARFIXED_HH
+#define MONTEVARFIXED_HH
 
 #include <string>
 

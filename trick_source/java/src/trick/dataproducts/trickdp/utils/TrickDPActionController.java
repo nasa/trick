@@ -1,7 +1,3 @@
-/*
- * $Id: TrickDPActionController.java 3776 2015-01-20 21:11:23Z alin $
- *
- */
 
 //========================================
 //	Package

@@ -1,4 +1,3 @@
-<!-- $Id: build.xml 3776 2015-01-20 21:11:23Z alin $ -->
 <project name="trick" default="dist" basedir=".">
     <description>
         Build file for Trick JAVA resources

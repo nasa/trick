@@ -1,11 +1,5 @@
-/*
- * $Id: tbtest.cpp 639 2010-04-14 15:54:53Z wwoodard $
- */
 
 #include "DPV_textbuffer.hh"
-
-
-
 
 #include <iostream>
 

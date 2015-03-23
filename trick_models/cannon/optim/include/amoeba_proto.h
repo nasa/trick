@@ -5,8 +5,8 @@
  * http://www.research.ibm.com/infoecon/paps/html/amec99_bundle/node8.html
  */
 
-#ifndef __amoeba_proto__
-#define __amoeba_proto__
+#ifndef AMOEBA_PROTO_H
+#define AMOEBA_PROTO_H
 
 #include "amoeba.h"
 #include "cannon/aero/include/cannon_aero.h"

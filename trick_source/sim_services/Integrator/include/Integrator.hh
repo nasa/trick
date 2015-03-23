@@ -1,8 +1,5 @@
-/*
- * $Id: Integrator.hh 3780 2015-01-21 21:45:23Z jpenn1 $
- */
-#ifndef Integrator_hh
-#define Integrator_hh
+#ifndef INTEGRATOR_HH
+#define INTEGRATOR_HH
 /**
  PURPOSE: (Integrator Base Class)
  */

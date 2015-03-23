@@ -1,4 +1,7 @@
 
+#ifndef ICGASTCONSUMER_HH
+#define ICGASTCONSUMER_HH
+
 #include "clang/AST/ASTConsumer.h"
 #include "clang/Sema/SemaConsumer.h"
 #include "TranslationUnitVisitor.hh"
@@ -45,3 +48,4 @@ class ICGASTConsumer : public clang::SemaConsumer {
 
 };
 
+#endif

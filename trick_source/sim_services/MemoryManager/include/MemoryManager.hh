@@ -1,8 +1,6 @@
-#ifndef _MEMORYMANAGEMENT_HH_
-#define _MEMORYMANAGEMENT_HH_
-/* 
- * $Id: MemoryManager.hh 3711 2014-10-28 19:43:54Z alin $
- */
+#ifndef MEMORYMANAGEMENT_HH
+#define MEMORYMANAGEMENT_HH
+
 #include <map>
 #include <string>
 #include <vector>

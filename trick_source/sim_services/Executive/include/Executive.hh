@@ -3,12 +3,8 @@
         (Trick runtime simulation executive scheduler.)
 */
 
-/*
- * $Id: Executive.hh 3558 2014-06-17 19:26:19Z alin $
- */
-
-#ifndef _EXECUTIVE_HH_
-#define _EXECUTIVE_HH_
+#ifndef EXECUTIVE_HH
+#define EXECUTIVE_HH
 
 #include <iostream>
 #include <string>

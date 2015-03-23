@@ -1,4 +1,7 @@
 
+#ifndef PRINTATTRIBUTESFACTORY_HH
+#define PRINTATTRIBUTESFACTORY_HH
+
 #include <iostream>
 #include <fstream>
 
@@ -13,3 +16,4 @@ bool validAttributesVersion( int attr_version ) ;
  */
 PrintFileContentsBase * createFileContents( int attr_version ) ;
 
+#endif

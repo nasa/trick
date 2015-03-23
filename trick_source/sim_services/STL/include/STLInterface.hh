@@ -1,6 +1,6 @@
 
-#ifndef _STLINTERFACE_HH_
-#define _STLINTERFACE_HH_
+#ifndef STLINTERFACE_HH
+#define STLINTERFACE_HH
 
 #include <string>
 

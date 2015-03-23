@@ -1,7 +1,5 @@
 #! /usr/bin/perl
 
-# $Id: CP 1740 2011-07-07 18:38:25Z lin $
-
 use File::Basename ;
 use Cwd ;
 use strict ;

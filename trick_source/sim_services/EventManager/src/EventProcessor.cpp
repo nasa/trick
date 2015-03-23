@@ -7,15 +7,12 @@
    PROGRAMMERS: ( Alex Lin NASA 2014 )
 */
 
-/*
- * $Id:$
- */
-
 #include <iostream>
 
 #include "sim_services/EventManager/include/EventProcessor.hh"
 #include "sim_services/include/TrickConstant.hh"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 /**
 @details

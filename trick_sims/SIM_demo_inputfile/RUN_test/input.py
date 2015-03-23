@@ -1,6 +1,4 @@
 
-# $Id: input.py 3537 2014-05-27 22:49:43Z alin $
-
 """
 This is the ball sim complete with integration loop converted to python
 This input file demonstrates the ability to create an entire simulation in an input file.

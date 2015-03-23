@@ -1,5 +1,5 @@
-#ifndef __EQPARSE_PROTO_H__
-#define __EQPARSE_PROTO_H__
+#ifndef EQPARSE_PROTO_H
+#define EQPARSE_PROTO_H
 
 #include "eqparse_stack.h"
 

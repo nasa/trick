@@ -1,7 +1,3 @@
-/*
- @file
- $Id: MemoryManager_ref_var.cpp 1981 2011-10-13 14:43:54Z dstrauss $
- */
 #include <string.h>
 #include <stdio.h>
 #include "sim_services/MemoryManager/include/MemoryManager.hh"

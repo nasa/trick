@@ -1,8 +1,4 @@
 
-/*
- * $Id: Threads.cpp 3504 2014-04-29 21:33:23Z alin $
- */
-
 #include <iostream>
 #include <stdio.h>
 #include <signal.h>
@@ -15,6 +11,7 @@
 
 #include "sim_services/ThreadBase/include/ThreadBase.hh"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 Trick::ThreadBase::ThreadBase(std::string in_name) :
  name(in_name) ,

@@ -1,6 +1,3 @@
-/*
- * $Id: MM_declare_var_2_unittest.cc 3642 2014-08-21 17:03:58Z jpenn1 $
- */
 
 #include <gtest/gtest.h>
 #include "MM_test.hh"

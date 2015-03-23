@@ -8,12 +8,8 @@ ICG_IGNORE_TYPES:
 
 *******************************************************************************/
 
-/*
- * $Id: BallState.hh 2519 2012-08-09 20:10:44Z alin $
- */
-
-#ifndef _EMBEDDEDCLASSES_HH_
-#define _EMBEDDEDCLASSES_HH_
+#ifndef EMBEDDEDCLASSES_HH
+#define EMBEDDEDCLASSES_HH
 
 /** @class BallStateInput
     @brief ball state input parameters

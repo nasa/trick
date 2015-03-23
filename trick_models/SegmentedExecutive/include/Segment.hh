@@ -6,8 +6,8 @@ LIBRARY_DEPENDENCIES:
     (SegmentedExecutive/src/Segment.cpp)
 */
 
-#ifndef _SEGMENT_HH_
-#define _SEGMENT_HH_
+#ifndef SEGMENT_HH
+#define SEGMENT_HH
 
 #include <string>
 #include <map>

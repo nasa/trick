@@ -1,13 +1,10 @@
-/** 
- @file
- $Id: ClassicCheckPointerAgent.cpp 3759 2014-11-20 00:51:54Z jpenn1 $
-*/
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
 #include "sim_services/MemoryManager/include/parameter_types.h"
 #include "sim_services/MemoryManager/include/io_alloc.h"
 #include "sim_services/MemoryManager/include/wcs_ext.h"
 #include "sim_services/MemoryManager/include/bitfield_proto.h"
-#include "sim_services/MemoryManager/include/message_proto.h"
+#include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 #include "sim_services/CheckPointAgent/include/ClassicCheckPointAgent.hh"
 #include "sim_services/CheckPointAgent/include/ChkPtParseContext.hh"

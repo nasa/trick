@@ -1,12 +1,9 @@
 
-/* 
- * $Id:$
- */
-
 #include "sim_services/Executive/include/Executive.hh"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
-#if __linux 
+#if __linux
 
 #include <sys/mman.h>
 #include <errno.h>

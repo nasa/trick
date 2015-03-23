@@ -1,9 +1,6 @@
-/*
- * $Id: swig_int.hh 3765 2014-12-04 19:58:52Z alin $
- */
 
-#ifndef __SWIG_INT_HH__
-#define __SWIG_INT_HH__
+#ifndef SWIG_INT_HH
+#define SWIG_INT_HH
 
 #include <string>
 

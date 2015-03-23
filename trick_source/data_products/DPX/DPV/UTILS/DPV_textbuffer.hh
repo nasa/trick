@@ -1,6 +1,3 @@
-/*
- * $Id: DPV_textbuffer.hh 3274 2013-10-29 23:06:24Z jpenn1 $
- */
 
 #ifndef DPV_TEXTBUF_HH
 #define DPV_TEXTBUF_HH

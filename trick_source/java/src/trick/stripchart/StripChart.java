@@ -1,6 +1,3 @@
-/*
- * $Id: StripChart.java 3489 2014-04-14 19:42:09Z hchen3 $
- */
 
 package trick.stripchart;
 

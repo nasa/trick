@@ -21,12 +21,8 @@ PROGRAMMERS:
 @endverbatim
 *******************************************************************************/
 
-/*
- * $Id: NoICG.hh 1670 2011-06-06 22:13:14Z wwoodard $
- */
-
-#ifndef _NOICG_HH_
-#define _NOICG_HH_
+#ifndef NOICG_HH
+#define NOICG_HH
 
 class DoNotICG {
 

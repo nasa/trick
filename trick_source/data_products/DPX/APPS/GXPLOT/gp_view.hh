@@ -1,6 +1,6 @@
-/*
- * $Id: gp_view.hh 639 2010-04-14 15:54:53Z wwoodard $
- */
+
+#ifndef GP_VIEW_HH
+#define GP_VIEW_HH
 
 #include "DPV/DPV_view.hh"
 #include <Xm/Xm.h>
@@ -71,3 +71,5 @@ private:
   int height;
 
 };
+
+#endif

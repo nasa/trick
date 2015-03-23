@@ -1,6 +1,3 @@
-/*
- * $Id: MonteCarlo_spawn_slaves.cpp  $
- */
 
 #include <sstream>
 #include <stdlib.h>
@@ -9,6 +6,7 @@
 #include "sim_services/CommandLineArguments/include/command_line_protos.h"
 #include "sim_services/include/unix_commands.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 /**
  * @par Detailed Design:

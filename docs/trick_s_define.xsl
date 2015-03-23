@@ -3,17 +3,6 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="html"/>
 
-<!--
-   $Id: trick_s_define.xsl 1375 2011-02-01 23:32:36Z wwoodard $
-
-   Revision 1.2  2005-07-19 12:40:07-05  vetter
-   XML Autogen Polishing
-
-   Revision 1.1  2004-12-15 16:03:30-06  lin
-   Initial revision
-
--->
-
 <xsl:template match="/">
 <style>
     td { border-style: inset; border-color: lightgray; border-width: 1px; }

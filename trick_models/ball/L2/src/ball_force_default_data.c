@@ -21,10 +21,6 @@ PROGRAMMERS:
     (((Your Name) (Company Name) (Date) (Trick tutorial)))
 *******************************************************************************/
 
-/*
- * $Id: ball_force_default_data.c 876 2010-07-29 19:50:57Z wwoodard $
- */
-
      /* SYSTEM INCLUDE FILES */
 #include <math.h>
 

@@ -1,8 +1,4 @@
 
-/* 
- * $Id: Threads.cpp 3577 2014-06-25 20:04:57Z alin $
- */
-
 #include <iostream>
 #include <sstream>
 #include <stdio.h>

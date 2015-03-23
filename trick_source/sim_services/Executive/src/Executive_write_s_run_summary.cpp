@@ -1,8 +1,4 @@
 
-/*
- * $Id: Executive_write_s_run_summary.cpp 1911 2011-08-31 15:19:32Z lin $
- */
-
 #include <iostream>
 
 #include <stdio.h>
@@ -14,6 +10,7 @@
 #include "sim_services/CommandLineArguments/include/command_line_protos.h"
 #include "sim_services/Environment/include/env_proto.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 /**
 @details

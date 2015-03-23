@@ -1,7 +1,5 @@
 package parse_s_define ;
 
-# $Id: parse_s_define.pm 3676 2014-10-03 16:13:01Z dbankier $
-
 use Exporter ();
 @ISA = qw(Exporter);
 @EXPORT = qw(parse_s_define handle_sim_object handle_integ_loop handle_collects

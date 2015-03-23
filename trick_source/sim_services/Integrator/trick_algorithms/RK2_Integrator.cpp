@@ -1,6 +1,3 @@
-/**
- $Id: RK2_Integrator.cpp 1925 2011-09-06 13:40:27Z dpanter $
-*/
 
 #include "RK2_Integrator.hh"
 #include <iostream>

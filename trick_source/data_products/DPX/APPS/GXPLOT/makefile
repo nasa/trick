@@ -1,6 +1,4 @@
 
-# $Id: makefile 3163 2013-08-16 22:30:39Z tdowlen $
-
 include ${TRICK_HOME}/makefiles/Makefile.common
 
 RM = rm -rf

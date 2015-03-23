@@ -1,6 +1,3 @@
-/*
- * $Id: Executive_init.cpp 3477 2014-04-03 15:04:24Z alin $
- */
 
 #include <iostream>
 #include <stdlib.h>

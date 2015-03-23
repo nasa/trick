@@ -1,6 +1,6 @@
 
-#ifndef _PRINTATTRIBUTES_HH_
-#define _PRINTATTRIBUTES_HH_
+#ifndef PRINTATTRIBUTES_HH
+#define PRINTATTRIBUTES_HH
 
 #include <iostream>
 #include <fstream>

@@ -1,6 +1,3 @@
-/*
- * $Id: DPC_plot.cpp 3462 2014-03-26 18:34:26Z hchen3 $
- */
 
 #include <string.h>
 #include <float.h>

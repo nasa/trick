@@ -1,6 +1,3 @@
-/*
- * $Id: DPM_component.hh 1842 2011-08-01 00:02:00Z penn $
- */
 
 #ifndef DPM_COMPONENT_HH
 #define DPM_COMPONENT_HH

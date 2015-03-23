@@ -1,6 +1,3 @@
-/*
- * $Id: DPM_relation.cpp 3277 2013-11-05 17:01:23Z lmlandry $
- */
 
 #include <string.h>
 

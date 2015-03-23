@@ -1,12 +1,9 @@
-/** 
- @file
- $Id: MemoryManager_ref_assignment.cpp 3556 2014-06-17 15:58:09Z alin $
-*/
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
 #include "sim_services/MemoryManager/include/bitfield_proto.h"
 #include "sim_services/MemoryManager/include/vval.h"
 #include "sim_services/MemoryManager/include/wcs_ext.h"
-#include "sim_services/MemoryManager/include/message_proto.h"
+#include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 #include "trick_utils/units/include/Unit.hh"
 #include "trick_utils/units/include/UCFn.hh"
 #include <limits.h>

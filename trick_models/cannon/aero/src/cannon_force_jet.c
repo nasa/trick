@@ -2,10 +2,6 @@
 PURPOSE:                     ( Jet fire force )
 ***************************************************************************/
 
-/*
- * $Id: cannon_force_jet.c 876 2010-07-29 19:50:57Z wwoodard $
- */
-
 #include "../include/cannon_aero.h"
 
 int cannon_force_jet(

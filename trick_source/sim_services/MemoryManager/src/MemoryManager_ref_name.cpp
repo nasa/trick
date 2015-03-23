@@ -1,33 +1,8 @@
-/*******************************************************************************
-*                                                                              *
-* Trick Simulation Environment Software                                        *
-*                                                                              *
-* Copyright (c) 1996,1997 LinCom Corporation, Houston, TX                      *
-* All rights reserved.                                                         *
-*                                                                              *
-* Copyrighted by LinCom Corporation and proprietary to it. Any unauthorized    *
-* use of Trick Software including source code, object code or executables is   *
-* strictly prohibited and LinCom assumes no liability for such actions or      *
-* results thereof.                                                             *
-*                                                                              *
-* Trick Software has been developed under NASA Government Contracts and        *
-* access to it may be granted for Government work by the following contact:    *
-*                                                                              *
-* Contact: Charles Gott, Branch Chief                                          *
-*          Simulation and Graphics Branch                                      *
-*          Automation, Robotics, & Simulation Division                         *
-*          NASA, Johnson Space Center, Houston, TX                             *
-*                                                                              *
-*******************************************************************************/
 /* 
    PURPOSE: (Construct a parse tree representation of a parameter reference name from the input file.)
 
-   PROGRAMMERS: (((Robert W. Bailey) (LinCom) (7/95) (CR#600) (--)) ((Robert W. Bailey) (LinCom Corp) (Feb 1991) (v1.0) 
+   PROGRAMMERS: (((Robert W. Bailey) (LinCom) (7/95) (CR#600) (--)) ((Robert W. Bailey) (LinCom Corp) (Feb 1991) (v1.0)
    (Initial Release.))) */
-
-/* 
- * $Id: MemoryManager_ref_name.cpp 3556 2014-06-17 15:58:09Z alin $
- */
 
 #include <string.h>
 
@@ -36,15 +11,16 @@
 #include "sim_services/MemoryManager/include/reference.h"
 #include "sim_services/MemoryManager/include/parameter_types.h"
 #include "sim_services/MemoryManager/include/mm_error.h"
-#include "sim_services/MemoryManager/include/message_proto.h"
+#include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 //FIXME TODO make a error file
 /////// MM_NO_ERROR 0
-#define MM_PARAMETER_NAME 1 
+#define MM_PARAMETER_NAME 1
 #define MM_INPUT_NOT_ALLOWED 2
 
 
-int Trick::MemoryManager::ref_name(REF2 * R, char *name) {                      
+int Trick::MemoryManager::ref_name(REF2 * R, char *name) {
 
     int ii;
     char *addr;

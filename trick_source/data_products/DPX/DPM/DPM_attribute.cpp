@@ -1,6 +1,3 @@
-/*
- * $Id: DPM_attribute.cpp 1842 2011-08-01 00:02:00Z penn $
- */
 
 #include "DPM_attribute.hh"
 #include <strings.h>

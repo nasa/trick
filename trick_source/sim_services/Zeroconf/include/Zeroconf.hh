@@ -4,12 +4,8 @@
         (Test Zeroconf publishing.)
 */
 
-/*
- * $Id:$
- */
-
-#ifndef _ZEROCONF_HH_
-#define _ZEROCONF_HH_
+#ifndef ZEROCONF_HH
+#define ZEROCONF_HH
 
 #include <string>
 #ifdef HAVE_ZEROCONF

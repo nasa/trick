@@ -1,9 +1,5 @@
 /* implementation of record array */
 
-/* 
- * $Id: record_array.c 49 2009-02-02 22:37:59Z lin $
- */
-
 #include "record_array.h"
 #include <stdlib.h>
 

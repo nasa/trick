@@ -1,9 +1,6 @@
-/*
- * $Id: DPC_UnitConvDataStream.hh 3274 2013-10-29 23:06:24Z jpenn1 $
- */
 
-#ifndef DPC_UNIT_CONV_DATASTREAM_HH
-#define DPC_UNIT_CONV_DATASTREAM_HH
+#ifndef DPC_UNITCONVDATASTREAM_HH
+#define DPC_UNITCONVDATASTREAM_HH
 
 #include <string>
 #include "../../units/include/Unit.hh"

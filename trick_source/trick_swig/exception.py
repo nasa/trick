@@ -1,4 +1,3 @@
-# $Id:$
 
 """
 Overrides the default exception handler with our own.

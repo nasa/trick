@@ -1,6 +1,4 @@
 
-# $Id: input.py 2553 2012-08-30 22:00:40Z alin $
-
 # This one of several ways to include files from the input file
 execfile("Modified_data/auto_test.dr")
 execfile("Modified_data/data_record.dr")

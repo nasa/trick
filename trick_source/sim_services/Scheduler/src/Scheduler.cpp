@@ -1,11 +1,3 @@
-/*
- * $Id: Scheduler.cpp 3558 2014-06-17 19:26:19Z alin $
- */
-
-
-/**
- * @file Scheduler.cpp
- */
 
 #include "sim_services/Scheduler/include/Scheduler.hh"
 

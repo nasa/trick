@@ -1,12 +1,7 @@
 /***************** queue functions ***************/
 
-/*
- * $Id: lqueue.h 49 2009-02-02 22:37:59Z lin $
- */
-
-
-#ifndef _LQUEUE_H
-#define _LQUEUE_H
+#ifndef LQUEUE_H
+#define LQUEUE_H
 
 
 #include "dllist.h"

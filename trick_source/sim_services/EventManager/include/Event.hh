@@ -1,5 +1,5 @@
-#ifndef _EVENT_HH_
-#define _EVENT_HH_
+#ifndef EVENT_HH
+#define EVENT_HH
 
 #include <string>
 #include "sim_services/include/mm_macros.hh"

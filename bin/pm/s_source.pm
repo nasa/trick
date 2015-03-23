@@ -1,7 +1,5 @@
 package s_source ;
 
-# $Id: s_source.pm 3711 2014-10-28 19:43:54Z alin $
-
 use Exporter ();
 @ISA = qw(Exporter);
 @EXPORT = qw(s_source);
@@ -34,8 +32,7 @@ sub s_source($) {
 
     #---------------------------
     # Print version - date
-    my ($temp) = "Id:" ;
-    printf S_SOURCE "\n/* \$$temp S_source.cpp auto $year/%02d/%02d %02d\:%02d\:%02d $login \$ */\n",
+    printf S_SOURCE "\n/* Created $year/%02d/%02d %02d\:%02d\:%02d $login \$ */\n",
      $mon , $mday , $hour , $min , $sec ;
 
     #---------------------------

@@ -6,10 +6,6 @@ PROGRAMMERS:
      ((Alex Lin) (NASA) (April 2009) (--) (c++ port)))
 */
 
-/*
- * $Id: DRBinary.cpp 3610 2014-07-28 22:10:43Z alin $
- */
-
 #include <iostream>
 #include <stdlib.h>
 #include <string.h>

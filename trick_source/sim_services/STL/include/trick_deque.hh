@@ -1,6 +1,6 @@
 
-#ifndef _TRICK_DEQUE_HH_
-#define _TRICK_DEQUE_HH_
+#ifndef TRICK_DEQUE_HH
+#define TRICK_DEQUE_HH
 
 #include <string>
 #include <deque>

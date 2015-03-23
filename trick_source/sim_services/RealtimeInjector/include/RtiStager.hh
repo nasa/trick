@@ -3,8 +3,8 @@
         (Real Time Injector)
 */
 
-#ifndef _RTISTAGER_HH
-#define _RTISTAGER_HH
+#ifndef RTISTAGER_HH
+#define RTISTAGER_HH
 
 #include <map>
 #include <vector>
@@ -12,8 +12,6 @@
 #include "RtiEvent.hh"
 #include "RtiList.hh"
 #include "RtiExec.hh"
-//#include "sim_services/Message/include/message_proto.h"
-//#include "sim_services/MemoryManager/include/memorymanager_c_intf.h"
 
 namespace Trick {
 

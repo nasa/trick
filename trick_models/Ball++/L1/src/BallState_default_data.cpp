@@ -24,23 +24,6 @@ PROGRAMMERS:
      ((Edwin Z. Crues)(Titan Systems Corp.)(Jan 2002)(Crude C++ translation)))
 *******************************************************************************/
 
-/*
- * $Id: BallState_default_data.cpp 3383 2014-01-22 23:18:15Z alin $
- *
- * Revision 5.2  2006-04-13 14:39:41-05  jkowing
- * Export functions to header files.
- *
- * Revision 5.1  2004-08-05 13:06:23-05  lin
- * Bump
- *
- * Revision 4.1  2003/10/21 21:49:42  lin
- * Bump version number for 04
- *
- * Revision 1.2  2002/10/07 15:15:57  lin
- * Add rcs version info to all trick_models files
- *
- */
-
 #include <stdlib.h>
 
 /* Model include files. */

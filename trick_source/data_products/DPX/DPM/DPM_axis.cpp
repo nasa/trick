@@ -1,6 +1,3 @@
-/*
- * $Id: DPM_axis.cpp 1842 2011-08-01 00:02:00Z penn $
- */
 
 #include "DPM_axis.hh"
 #include "../../trick_utils/units/include/Unit.hh"

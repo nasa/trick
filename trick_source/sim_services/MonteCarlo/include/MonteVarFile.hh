@@ -5,12 +5,8 @@
   PROGRAMMERS:                 ((Keith Vetter) (LinCom) (7/2003))
 */
 
-/*
- * $Id: MonteVarFile.hh $
- */
-
-#ifndef _MONTEVARFILE_HH_
-#define _MONTEVARFILE_HH_
+#ifndef MONTEVARFILE_HH
+#define MONTEVARFILE_HH
 
 #include <iostream>
 #include <fstream>

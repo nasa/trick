@@ -1,13 +1,10 @@
-/*
- @file
- $Id: MemoryManager_map_external_object.cpp 3642 2014-08-21 17:03:58Z jpenn1 $
- */
 #include <sstream>
 #include <stdlib.h>
 
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
 #include "sim_services/MemoryManager/include/ADefParseContext.hh"
-#include "sim_services/MemoryManager/include/message_proto.h"
+#include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 /**
  @par Description:

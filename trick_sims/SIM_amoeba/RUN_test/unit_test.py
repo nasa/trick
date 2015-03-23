@@ -1,5 +1,4 @@
 
-# $Id: input.py 1120 2010-09-30 16:56:22Z dpanter $
 import math
 from trick.unit_test import *
 

@@ -1,6 +1,3 @@
-/*
- * $Id: RealtimeSync_c_intf.cpp 2640 2012-09-28 15:39:38Z alin $
- */
 
 #include <stdio.h>
 #include "sim_services/RealtimeSync/include/RealtimeSync.hh"

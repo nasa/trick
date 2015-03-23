@@ -1,6 +1,3 @@
-/* 
- * $Id
- */
 
 package trick.dataproducts.plot.utils.editor;
 

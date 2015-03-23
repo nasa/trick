@@ -1,24 +1,20 @@
-/* 
-    PURPOSE: 
-        (Trick runtime simulation executive parameter definition.) 
-    REFERENCE: 
-        (((Bailey, R.W, and Paddock, E.J.) (Trick Simulation Environment) 
-          (NASA:JSC #37943) 
+/*
+    PURPOSE:
+        (Trick runtime simulation executive parameter definition.)
+    REFERENCE:
+        (((Bailey, R.W, and Paddock, E.J.) (Trick Simulation Environment)
+          (NASA:JSC #37943)
           (JSC / Engineering Directorate / Automation and Robotics Division)
-          (June 1994) (--))) 
+          (June 1994) (--)))
     ASSUMPTIONS AND LIMITATIONS:
-        ((Only 64 levels of nested input data file inclusion.)) 
-    PROGRAMMERS: 
-        (((Robert W. Bailey) (LinCom) (4/92) (--) (Realtime)) 
+        ((Only 64 levels of nested input data file inclusion.))
+    PROGRAMMERS:
+        (((Robert W. Bailey) (LinCom) (4/92) (--) (Realtime))
          ((Robert W. Bailey) (LinCom) (6/1/91) (Trick-CR-00000) (Initial Release)))
 */
 
-/* 
- * $Id:$
- */
-
-#ifndef _COMMANDLINEPROTOS_H_
-#define _COMMANDLINEPROTOS_H_
+#ifndef COMMAND_LINE_PROTOS_H
+#define COMMAND_LINE_PROTOS_H
 
 #ifdef __cplusplus
 extern "C" {

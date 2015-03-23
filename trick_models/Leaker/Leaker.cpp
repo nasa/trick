@@ -1,6 +1,3 @@
-/*
-  * $Id:$
- */
 #include <vector>
 #include <stdlib.h>
 #include <string.h>

@@ -1,6 +1,3 @@
-/*
- * $Id: StripChart.cpp 2126 2012-01-17 22:08:56Z dbankie $
- */
 
 #include <string>
 

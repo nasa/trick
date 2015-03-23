@@ -1,7 +1,5 @@
 #!/usr/bin/perl
 
-# $Id: default_data_convert 401 2009-11-13 20:21:13Z wwoodard $
-
 use File::Basename ;
 use strict ;
 use Cwd ;

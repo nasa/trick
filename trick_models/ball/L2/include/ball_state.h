@@ -14,12 +14,8 @@ PROGRAMMERS:
     (((Your name) (Your Company) (Date) (Trick Tutorial)))
 *******************************************************************************/
 
-/*
- * $Id: ball_state.h 1947 2011-09-16 13:34:28Z jturnage $
- */
-
-#ifndef _BALL_STATE_H_
-#define _BALL_STATE_H_
+#ifndef BALL_STATE_H
+#define BALL_STATE_H
 
 #include "sim_services/Integrator/include/regula_falsi.h"
 

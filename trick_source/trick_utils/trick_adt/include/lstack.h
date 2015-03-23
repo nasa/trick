@@ -1,11 +1,7 @@
 /************** stack functions *****************/
 
-/*
- * $Id: lstack.h 49 2009-02-02 22:37:59Z lin $
- */
-
-#ifndef _LSTACK_H
-#define _LSTACK_H
+#ifndef LSTACK_H
+#define LSTACK_H
 
 
 #include "dllist.h"

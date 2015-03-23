@@ -1,7 +1,6 @@
 #! /usr/bin/perl
 # install_user tells users to add Trick's bin to their path.
 
-# $Id: install_user 3792 2015-02-03 21:51:57Z alin $
 use File::Basename ;
 use Cwd 'abs_path';
 

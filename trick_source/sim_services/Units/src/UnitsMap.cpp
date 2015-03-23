@@ -1,10 +1,3 @@
-/*
- * $Id: UnitsMap.cpp 3404 2014-02-04 15:25:09Z alin $
- */
-
-/**
- * @file UnitsMap.cpp
- */
 
 #include <iostream>
 #include <string.h>

@@ -3,12 +3,8 @@
         (Trick Threads implementation)
 */
 
-/*
- * $Id:$
- */
-
-#ifndef _THREADBASE_HH_
-#define _THREADBASE_HH_
+#ifndef THREADBASE_HH
+#define THREADBASE_HH
 
 #include <stdio.h>
 #include <pthread.h>

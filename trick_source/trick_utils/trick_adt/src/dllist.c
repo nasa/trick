@@ -1,8 +1,4 @@
 
-/* 
- * $Id: dllist.c 49 2009-02-02 22:37:59Z lin $
- */
-
 #include <stdlib.h>
 #include <stdio.h>
 #include "dllist.h"

@@ -2,10 +2,6 @@
 # Makefile for Data Products Libs And Apps
 #
 
-#
-# $Id: makefile 1899 2011-08-29 21:55:23Z wwoodard $
-#
-
 include ${TRICK_HOME}/makefiles/Makefile.common
 
 LIB_DIR = lib_${TRICK_HOST_CPU}

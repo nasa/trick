@@ -1,6 +1,4 @@
 
-# $Id: inline.py 757 2010-06-22 18:40:57Z wwoodard $
-
 execfile("Modified_data/cannon_aero.dr")
 
 trick.mc_set_enabled(1)

@@ -8,8 +8,8 @@
    Trick STLs work with gcc 4.4 on Linux.
    Trick STLs do not work with Apple clang/llvm 4.2.
  */
-#ifndef _STL_SM_
-#define _STL_SM_
+#ifndef STL_SM
+#define STL_SM
 
 ##include "sim_services/STL/include/STLManager.hh"
 

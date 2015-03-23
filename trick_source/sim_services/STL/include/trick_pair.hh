@@ -1,6 +1,6 @@
 
-#ifndef _TRICK_PAIR_HH_
-#define _TRICK_PAIR_HH_
+#ifndef TRICK_PAIR_HH
+#define TRICK_PAIR_HH
 
 #include <string>
 #include <utility>

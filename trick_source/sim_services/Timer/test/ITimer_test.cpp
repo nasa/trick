@@ -1,6 +1,3 @@
-/* 
- * $Id: ITimer_test.cpp 2934 2013-06-25 14:35:02Z lmlandry $
- */
 /* Listed requirements are under requirement Trick-163 (3.7.5.2) */
 /*		Real-time control shall be able to use a system clock source */
 

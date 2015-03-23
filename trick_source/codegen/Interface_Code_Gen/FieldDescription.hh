@@ -1,6 +1,6 @@
 
-#ifndef _FIELDVALUES_HH_
-#define _FIELDVALUES_HH_
+#ifndef FIELDVALUES_HH
+#define FIELDVALUES_HH
 
 #include <string>
 #include <map>

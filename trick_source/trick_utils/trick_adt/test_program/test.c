@@ -1,14 +1,4 @@
 
-/*
- * $Log: test.c,v $
- * Revision 5.1  2004-08-05 13:10:02-05  lin
- * Bump
- *
- * Revision 4.2  2004/01/16 21:32:22  lin
- * Add a log to all files
- *
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "../bst.h"

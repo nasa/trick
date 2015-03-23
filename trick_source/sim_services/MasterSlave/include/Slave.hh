@@ -1,23 +1,19 @@
-/* 
-    PURPOSE: 
-        (Slave object for master/slave synchronization) 
+/*
+    PURPOSE:
+        (Slave object for master/slave synchronization)
 */
 
-/* 
- * $Id: Slave.hh 3429 2014-02-11 22:59:50Z dstrauss $
- */
-
-#ifndef _SLAVE_HH_
-#define _SLAVE_HH_
+#ifndef SLAVE_HH
+#define SLAVE_HH
 
 #include "sim_services/MasterSlave/include/MSConnect.hh"
 
 namespace Trick {
 
     /**
-     * This class is the slave of a master/slave connection.  The slave 
+     * This class is the slave of a master/slave connection.  The slave
      * communicates with the master at the end of frame and mode transitions.
-     * 
+     *
      * @author Robert W. Bailey from 1991-1992
      * @author Many other Trick developers of the past
      * @author Alexander S. Lin, refactor into c++ classes
@@ -28,7 +24,7 @@ namespace Trick {
 
     class Slave {
 
-        public: 
+        public:
             /**
              @brief Constructor that sets the slave enabled flag to false.
              */
@@ -53,7 +49,7 @@ namespace Trick {
                  Also used to send slave's dmtcp checkpoint file name to master when loading dmtcp checkpoint.\n **/
             char chkpnt_name[256];            /**< trick_units(--) */
 
-            /** @userdesc True means terminate the slave if it loses synchronization with the master.\n 
+            /** @userdesc True means terminate the slave if it loses synchronization with the master.\n
                 False (default) means freeze the slave if it loses synchronization with the master,
                       in which case the master will also freeze.\n
                 A loss of synchronization occurs when communication takes longer than sync_wait_limit.\n */
@@ -62,7 +58,7 @@ namespace Trick {
             /** The time period (in seconds) that the slave's connection will wait to read sync data
               from the master (and vice versa); this value is set by reading it from the master.\n
               The default is 0.0, which to an MSSocket connection means infinite (non-blocking).\n */
-            double sync_wait_limit ;         /**< trick_units(s) */ 
+            double sync_wait_limit ;         /**< trick_units(s) */
 
             /** Connection to the master.\n */
             Trick::MSConnect * connection ;   /**< trick_io(**) trick_units(--) */
@@ -71,7 +67,7 @@ namespace Trick {
              @brief @userdesc Command to set the slave's connection type to the master.  Each slave may have a different connection type.
              @par Python Usage:
              @code <master_slave_sim_obj>.<slave_obj>.set_connection_type(<in_connection>) @endcode
-             @param in_connection - A Trick::MSConnect derived class pointer (like MSSocket) that defines connection type to use 
+             @param in_connection - A Trick::MSConnect derived class pointer (like MSSocket) that defines connection type to use
              @return always 0
              */
             int set_connection_type(Trick::MSConnect * in_connection) ;
@@ -133,7 +129,6 @@ namespace Trick {
              @return always 0
              */
             int shutdown() ;
-           
 
     } ;
 

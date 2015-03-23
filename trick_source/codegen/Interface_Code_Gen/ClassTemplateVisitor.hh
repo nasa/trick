@@ -1,6 +1,6 @@
 
-#ifndef _CLASSTEMPLATEVISITOR_HH_
-#define _CLASSTEMPLATEVISITOR_HH_
+#ifndef CLASSTEMPLATEVISITOR_HH
+#define CLASSTEMPLATEVISITOR_HH
 
 #include <string>
 #include <set>

@@ -1,6 +1,4 @@
 
-# $Id: Makefile.common 3788 2015-02-02 20:24:00Z jpenn1 $
-
 ifeq ( $(shell test -e ${TRICK_HOME}/trick_source/er7_utils),0)
    $(info ER7 Utils Exists#########)
 endif

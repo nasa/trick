@@ -1,7 +1,3 @@
-/*
- * $Id: DataTransferHandler.java 3771 2014-12-11 20:37:29Z hchen3 $
- */
-
 
 package trick.dataproducts.trickqp.utils;
 

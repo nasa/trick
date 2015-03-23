@@ -5,20 +5,13 @@ PROGRAMMERS:
      ((Alex Lin) (NASA) (April 2009) (--) (c++ port)))
 */
 
-/*
- * $Id: RealtimeSync.cpp 3523 2014-05-13 21:00:37Z alin $
- */
-
-/**
- * @file RealtimeSync.cpp
- */
-
 #include <stdio.h>
 #include <iostream>
 #include "sim_services/RealtimeSync/include/RealtimeSync.hh"
 #include "sim_services/Executive/include/exec_proto.h"
 #include "sim_services/Executive/include/sim_mode.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 #include "sim_services/include/TrickConstant.hh"
 
 Trick::RealtimeSync * the_rts = NULL ;

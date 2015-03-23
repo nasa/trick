@@ -1,5 +1,5 @@
-#ifndef _SAT_GRAPHICS_COMM_H_
-#define _SAT_GRAPHICS_COMM_H_
+#ifndef SATGRAPHICSCOMM_HH
+#define SATGRAPHICSCOMM_HH
 /********************************* TRICK HEADER *******************************
 PURPOSE:
       ()

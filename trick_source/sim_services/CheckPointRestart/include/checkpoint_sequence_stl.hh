@@ -1,10 +1,10 @@
 
 /*
-    PURPOSE: (Helpers to checkpoint STLs) 
+    PURPOSE: (Helpers to checkpoint STLs)
 */
 
-#ifndef __CHECKPOINT_SEQUENCE_STL_HH__
-#define __CHECKPOINT_SEQUENCE_STL_HH__
+#ifndef CHECKPOINT_SEQUENCE_STL_HH
+#define CHECKPOINT_SEQUENCE_STL_HH
 
 #include <string>
 #include <vector>

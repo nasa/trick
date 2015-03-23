@@ -1,6 +1,3 @@
-/*
- * $Id: DPM_relation.hh 2289 2012-04-05 15:08:56Z hchen3 $
- */
 
 #ifndef DPM_RELATION_HH
 #define DPM_RELATION_HH

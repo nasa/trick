@@ -2,12 +2,8 @@
     PURPOSE: (Class for starting Malfunctions Trick View.)
 */
 
-/*
- * $Id: MalfunctionsTrickView.hh 2126 2012-01-17 22:08:56Z dbankie $
- */
-
-#ifndef _MALFUNCTIONSTRICKVIEW_HH_
-#define _MALFUNCTIONSTRICKVIEW_HH_
+#ifndef MALFUNCTIONSTRICKVIEW_HH
+#define MALFUNCTIONSTRICKVIEW_HH
 
 #include "sim_services/ExternalApplications/include/ExternalApplication.hh"
 

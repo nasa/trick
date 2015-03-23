@@ -1,4 +1,3 @@
-# $Id: makefile 3747 2014-11-12 22:49:16Z dstrauss $
 
 export TRICK_HOST_CPU := $(shell $(TRICK_HOME)/bin/gte TRICK_HOST_CPU)
 

@@ -1,24 +1,3 @@
-/******************************************************************************
-*                                                                             *
-* Trick Simulation Environment Software                                       *
-*                                                                             *
-* Copyright (c) 1996,1997 LinCom Corporation, Houston, TX                     *
-* All rights reserved.                                                        *
-*                                                                             *
-* Copyrighted by LinCom Corporation and proprietary to it. Any unauthorized   *
-* use of Trick Software including source code, object code or executables is  *
-* strictly prohibited and LinCom assumes no liability for such actions or     *
-* results thereof.                                                            *
-*                                                                             *
-* Trick Software has been developed under NASA Government Contracts and       *
-* access to it may be granted for Government work by the following contact:   *
-*                                                                             *
-* Contact: Charles Gott, Branch Chief                                         *
-*          Flight Robotic Systems Branch                                      *
-*          Automation, Robotics, & Simulation Division                        *
-*          NASA, Johnson Space Center, Houston, TX                            *
-*                                                                             *
-******************************************************************************/
 /* 
    PURPOSE: (Check for data which is configured in the input files but was not mapped to any imports or exports from
    the S_define file.)
@@ -34,10 +13,6 @@
    PROGRAMMERS: (((Edwin Z. Crues) (LinCom Corp) (April 2000) (--) (created))
     ((Jane Falgout)(Titan Corp)(?)(--)(brought into trick))
     ((John Bullock)(Titan Corp)(July 2002)(--)(Changed error level enumeration))) */
-
-/* 
- *  $Id: trick_error_hndlr.c 1489 2011-04-07 18:00:04Z penn $
- */
 
 #include <stdio.h>
 #include <stdlib.h>

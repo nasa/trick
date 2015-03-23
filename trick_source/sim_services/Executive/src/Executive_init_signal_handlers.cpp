@@ -1,8 +1,4 @@
 
-/*
- * $Id: Executive_init_signal_handlers.cpp 2881 2013-03-29 20:33:30Z alin $
- */
-
 #include <signal.h>
 #include <errno.h>
 

@@ -3,8 +3,8 @@
         (Real Time Injector)
 */
 
-#ifndef _RTIEXEC_HH
-#define _RTIEXEC_HH
+#ifndef RTIEXEC_HH
+#define RTIEXEC_HH
 
 #include <vector>
 

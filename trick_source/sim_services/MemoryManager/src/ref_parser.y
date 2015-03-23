@@ -8,7 +8,6 @@
 /*
    %debug
    %error-verbose
- * $Id: ref_parser.y 3642 2014-08-21 17:03:58Z jpenn1 $
  */
 
 #include <iostream>
@@ -19,7 +18,8 @@
 #include "sim_services/MemoryManager/include/vval.h"
 #include "sim_services/MemoryManager/include/value.h"
 #include "sim_services/MemoryManager/include/var.h"
-#include "sim_services/MemoryManager/include/message_proto.h"
+#include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 #include "ref_parser.tab.h"
 
     using namespace std;

@@ -1,6 +1,3 @@
-/*
- * $Id: DPM_column.cpp 3277 2013-11-05 17:01:23Z lmlandry $
- */
 
 #include "DPM_column.hh"
 #include "../../trick_utils/units/include/Unit.hh"

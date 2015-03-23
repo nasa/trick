@@ -5,12 +5,8 @@ PROGRAMMERS:
     (((Derek Bankieris) (NASA) (2009)))
 */
 
-/*
- * $Id: DRHDF5.hh 3610 2014-07-28 22:10:43Z alin $
- */
-
-#ifndef _DRHDF5_HH_
-#define _DRHDF5_HH_
+#ifndef DRHDF5_HH
+#define DRHDF5_HH
 
 #include <pthread.h>
 #include <string>

@@ -5,17 +5,13 @@ PROGRAMMERS:
     (((Alex Lin) (NASA) (2009)))
 */
 
-/*
- * $Id: Timer.hh 2640 2012-09-28 15:39:38Z alin $
- */
-
-#ifndef _TIMER_HH_
-#define _TIMER_HH_
+#ifndef TIMER_HH
+#define TIMER_HH
 
 namespace Trick {
 
     /**
-     * This class is a virtual base class for maintaining real time synchronization 
+     * This class is a virtual base class for maintaining real time synchronization
      * in a Trick simulation.  The base class provides entry names for a realtime timer
      * which derivative classes must fill in.  Time values are based in tics where
      * there are 1000000 tics/second

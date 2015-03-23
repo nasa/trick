@@ -1,6 +1,3 @@
-/*
- * $Id: VariableServerThread.cpp 432 2009-12-07 22:10:08Z hchen $
- */
 
 #include <iostream>
 #include <string.h>

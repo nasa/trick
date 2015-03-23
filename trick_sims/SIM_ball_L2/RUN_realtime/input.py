@@ -1,6 +1,4 @@
 
-# $Id: input.py 1182 2010-10-25 19:18:04Z wwoodard $
-
 execfile("Modified_data/data_record.dr")
 execfile("Modified_data/realtime.py")
 

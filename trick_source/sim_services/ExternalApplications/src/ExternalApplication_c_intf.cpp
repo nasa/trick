@@ -1,6 +1,3 @@
-/*
- * $Id: ExternalApplication_c_intf.cpp 3592 2014-07-01 16:01:00Z hchen3 $
- */
 
 #include <iostream>
 #include <string>

@@ -4,10 +4,6 @@
    PROGRAMMERS: (((Robert W. Bailey) (LinCom) (April 1992) (--) (Realtime)))
  */
 
-/*
- * $Id: fpe_handler.cpp 775 2010-06-29 23:04:51Z lin $
- */
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

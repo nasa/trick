@@ -1,6 +1,3 @@
-/*
- * $Id: ctrl_test.cpp 639 2010-04-14 15:54:53Z wwoodard $
- */
 
 #include <stdio.h>
 #include <libxml/parser.h>

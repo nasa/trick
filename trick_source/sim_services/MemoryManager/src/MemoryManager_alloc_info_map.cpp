@@ -1,9 +1,6 @@
-/*
- @file
- $Id: MemoryManager_alloc_info_map.cpp 3711 2014-10-28 19:43:54Z alin $
- */
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
-#include "sim_services/MemoryManager/include/message_proto.h"
+#include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 #include <sstream>
 
 ALLOC_INFO* Trick::MemoryManager::get_alloc_info_of( void* addr) {

@@ -1,6 +1,3 @@
-/*
- * $Id: table_view_node.cpp 1582 2011-05-05 20:30:21Z lin $
- */
 
 #include <Xm/Xm.h>
 #include <Xm/DialogS.h>

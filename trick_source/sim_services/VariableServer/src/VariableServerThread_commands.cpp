@@ -1,9 +1,7 @@
-/*
- * $Id: VariableServerThread.cpp 432 2009-12-07 22:10:08Z hchen $
- */
 
 #include <string.h>
 #include <iostream>
+#include <stdlib.h>
 #include "sim_services/VariableServer/include/VariableServer.hh"
 #include "sim_services/VariableServer/include/variable_server_message_types.h"
 #include "sim_services/MemoryManager/include/memorymanager_c_intf.h"
@@ -12,9 +10,9 @@
 #include "sim_services/CommandLineArguments/include/command_line_protos.h"
 #include "trick_utils/units/include/Unit.hh"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 #include "sim_services/include/TrickConstant.hh"
 #include "sim_services/Sie/include/sie_c_intf.h"
-#include <stdlib.h> /* calloc, free */
 
 int Trick::VariableServerThread::bad_ref_int = 0 ;
 

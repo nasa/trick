@@ -1,8 +1,4 @@
 
-/*
- * $Id: Executive_write_s_job_execution.cpp 3553 2014-06-11 19:26:39Z alin $
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,6 +9,7 @@
 #include "sim_services/Executive/include/Executive.hh"
 #include "sim_services/CommandLineArguments/include/command_line_protos.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 /**
 @details

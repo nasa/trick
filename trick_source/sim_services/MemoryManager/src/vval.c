@@ -1,7 +1,3 @@
-/* 
- * $Id: vval.c 555 2010-02-10 22:48:55Z penn $
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

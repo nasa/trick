@@ -3,13 +3,8 @@
         (Enumeration of the Variable Message types)
 */
 
-/*
- * $Id:$
- */
-
-#ifndef _VARIABLESERVERMESSAGETYPES_HH_
-#define _VARIABLESERVERMESSAGETYPES_HH_
-
+#ifndef VARIABLE_SERVER_MESSAGE_TYPES_H
+#define VARIABLE_SERVER_MESSAGE_TYPES_H
 
 typedef enum {
     VS_IP_ERROR = -1,

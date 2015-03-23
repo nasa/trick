@@ -11,12 +11,8 @@ LIBRARY DEPENDENCY:
 @endverbatim
 *******************************************************************************/
 
-/*
- * $Id: Thread1.h 2200 2012-02-23 22:26:02Z alin $
- */
-
-#ifndef THREAD_1_H_
-#define THREAD_1_H_
+#ifndef THREAD_1_H
+#define THREAD_1_H
 
 class Thread1
 {

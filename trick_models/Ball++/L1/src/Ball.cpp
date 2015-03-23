@@ -20,23 +20,6 @@ PROGRAMMERS:
      ((Edwin Z. Crues)(Titan Systems Corp.)(Jan 2002)(Crude C++ translation)))
 *******************************************************************************/
 
-/*
- * $Id: Ball.cpp 3383 2014-01-22 23:18:15Z alin $
- *
- * Revision 5.2  2006-05-02 10:13:31-05  lin
- * Remove deprecated C++ code in SIM_Ball++_L1 code
- *
- * Revision 5.1  2004-08-05 13:06:22-05  lin
- * Bump
- *
- * Revision 4.1  2003/10/21 21:49:40  lin
- * Bump version number for 04
- *
- * Revision 1.2  2002/10/07 15:15:55  lin
- * Add rcs version info to all trick_models files
- *
- */
-
 /* System include files. */
 #include <iostream>
 

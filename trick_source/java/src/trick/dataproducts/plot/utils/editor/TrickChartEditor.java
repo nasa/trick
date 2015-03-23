@@ -1,6 +1,3 @@
-/* 
- * $Id: TrickChartEditor.java 3349 2013-12-17 15:05:20Z hchen3 $
- */
 
 package trick.dataproducts.plot.utils.editor;
 

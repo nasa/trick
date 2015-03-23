@@ -1,6 +1,3 @@
-/*
- * $Id: MonteVarFixed.cpp $
- */
 #include <sstream>
 
 #include "sim_services/MonteCarlo/include/MonteVarFixed.hh"

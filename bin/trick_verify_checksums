@@ -1,7 +1,5 @@
 #!/usr/bin/perl -w
 
-# $Id: trick_verify_checksums 3231 2013-09-17 19:41:41Z alin $
-
 use strict;
 use File::Find;
 use Cwd;

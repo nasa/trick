@@ -1,5 +1,5 @@
-#ifndef MM_ERROR_TYPE_H
-#define MM_ERROR_TYPE_H
+#ifndef MM_ERROR_H
+#define MM_ERROR_H
 
     typedef enum {
         MM_OK,

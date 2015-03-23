@@ -1,5 +1,5 @@
-#ifndef _ABM_INTEGRATOR_HH_
-#define _ABM_INTEGRATOR_HH_
+#ifndef ABM_INTEGRATOR_HH
+#define ABM_INTEGRATOR_HH
 #include "../include/Integrator.hh"
 /**
  PURPOSE: (Integrator using ABM method.)

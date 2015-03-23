@@ -1,6 +1,3 @@
-/*
- * $Id: BC635Clock_test.cpp 6601 2013-06-24 (Lindsay Landry)
- */
 
 /******************NOTES**********************************************
  * The BC635 clock requires special hardware to work. These tests

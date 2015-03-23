@@ -1,7 +1,4 @@
 
-# $Id$
-
-
 ''' Ensure variable is defined '''
 try:
     DR_GROUP_ID

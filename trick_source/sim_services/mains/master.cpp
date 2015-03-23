@@ -8,10 +8,6 @@ ASSUMPTIONS AND LIMITATIONS: (It all starts here)
 PROGRAMMERS:                 ( (Robert W. Bailey) (LinCom) (April 1992) )
 */
 
-/*
- * $Id: master.cpp 1757 2011-07-13 15:21:36Z lin $
- */
-
 #include <iostream>
 #include <locale.h>
 

@@ -1,7 +1,3 @@
-/*
- * $Id: SessionRunTransferHandler.java 2770 2013-01-17 20:18:45Z hchen3 $
- */
-
 
 package trick.dataproducts.utils;
 

@@ -13,12 +13,8 @@
          ((Robert W. Bailey) (LinCom) (6/1/91) (Trick-CR-00000) (Initial Release)))
 */
 
-/*
- * $Id: IPPython.hh 3537 2014-05-27 22:49:43Z alin $
- */
-
-#ifndef _IPPYTHON_HH_
-#define _IPPYTHON_HH_
+#ifndef IPPYTHON_HH
+#define IPPYTHON_HH
 
 #include <string>
 #include <pthread.h>

@@ -2,12 +2,8 @@
     PURPOSE: (Class for starting Trick Stripchart.)
 */
 
-/*
- * $Id: StripChart.hh 2127 2012-01-17 22:28:32Z dbankie $
- */
-
-#ifndef _STRIPCHART_HH_
-#define _STRIPCHART_HH_
+#ifndef STRIPCHART_HH
+#define STRIPCHART_HH
 
 #include "sim_services/ExternalApplications/include/ExternalApplication.hh"
 

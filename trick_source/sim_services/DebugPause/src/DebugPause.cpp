@@ -9,6 +9,7 @@
 
 #include "sim_services/DebugPause/include/DebugPause.hh"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 #include "sim_services/Executive/include/exec_proto.h"
 #include "sim_services/Executive/include/exec_proto.hh"
 

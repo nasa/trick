@@ -1,5 +1,5 @@
-#ifndef _RKF45_INTEGRATOR_HH_
-#define _RKF45_INTEGRATOR_HH_
+#ifndef RKF45_INTEGRATOR_HH
+#define RKF45_INTEGRATOR_HH
 #include "../include/Integrator.hh"
 /**
  PURPOSE: (Integrator using Runge Kutta Fehlberg 45 method.)

@@ -1,9 +1,6 @@
-/*
- * $Id: RefParseContext.hh 2977 2013-05-13 20:20:08Z alin $
- */
 
-#ifndef REF_PARSE_CONTEXT_H
-#define REF_PARSE_CONTEXT_H
+#ifndef REFPARSECONTEXT_HH
+#define REFPARSECONTEXT_HH
 
 #include <iostream>
 #include <unistd.h>

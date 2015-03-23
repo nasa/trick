@@ -1,6 +1,3 @@
-/*
- * $Id: gp_view_plot_node.cpp 3274 2013-10-29 23:06:24Z jpenn1 $
- */
 
 #include <math.h>
 #include <stdio.h>    // for snprintf

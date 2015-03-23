@@ -1,6 +1,3 @@
-/*
- * $Id: gp_view_plot_node.hh 639 2010-04-14 15:54:53Z wwoodard $
- */
 
 #ifndef GP_VIEW_PLOT_NODE_HH
 #define GP_VIEW_PLOT_NODE_HH

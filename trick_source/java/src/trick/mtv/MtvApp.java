@@ -1,7 +1,6 @@
 /*
  * The MTV main application
  * @author dstrauss
- * $Id: MtvApp.java 3537 2014-05-27 22:49:43Z alin $
  */
 
 package trick.mtv;

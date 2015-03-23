@@ -5,12 +5,8 @@ ASSUMPTIONS AND LIMITATIONS: ( None )
 PROGRAMMERS:                 ( (Keith Vetter) (Titan) (8-20-2002) )
 *******************************************************************************/
 
-/*
- * $Id: dp.h 1115 2010-09-29 23:36:35Z wwoodard $
- */
- 
-#ifndef _DATA_PRODUCTS_H_
-#define _DATA_PRODUCTS_H_
+#ifndef DP_H
+#define DP_H
 
 typedef struct {
 

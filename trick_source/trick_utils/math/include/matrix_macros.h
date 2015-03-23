@@ -1,24 +1,3 @@
-/*******************************************************************************
-*                                                                              *
-* Trick Simulation Environment Software                                        *
-*                                                                              *
-* Copyright (c) 1996,1997 LinCom Corporation, Houston, TX                      *
-* All rights reserved.                                                         *
-*                                                                              *
-* Copyrighted by LinCom Corporation and proprietary to it. Any unauthorized    *
-* use of Trick Software including source code, object code or executables is   *
-* strictly prohibited and LinCom assumes no liability for such actions or      *
-* results thereof.                                                             *
-*                                                                              *
-* Trick Software has been developed under NASA Government Contracts and        *
-* access to it may be granted for Government work by the following contact:    *
-*                                                                              *
-* Contact: Charles Gott, Branch Chief                                          *
-*          Simulation and Graphics Branch                                      *
-*          Automation, Robotics, & Simulation Division                         *
-*          NASA, Johnson Space Center, Houston, TX                             *
-*                                                                              *
-*******************************************************************************/
 /*
 PURPOSE:
     (Matrix math in line code macros)
@@ -35,10 +14,6 @@ PROGRAMMERS:
      ((Les Quiocho) (NASA/JSC/ER3) (February 97) (Cleanup)))
      ((John M. Penn) (L3) (Aug 2010) (Documented for Doxygen)))
 */
-
-/*
- * $Id: matrix_macros.h 1062 2010-09-08 21:55:54Z penn $
- */
 
 /**
 @page MATRIX_MACROS Matrix Macros

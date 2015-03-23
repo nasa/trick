@@ -1,6 +1,3 @@
-/*
- * $Id: MonteCarlo_master_init.cpp $
- */
 
 #include <sys/stat.h>
 #include <libgen.h>

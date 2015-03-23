@@ -81,8 +81,8 @@
 extern "C" {
 #endif
 int trick_test_add_parent(const char * in_test_suite_name,
-			   		 const char * in_test_case,
-			   		 const char * par_num ) ;
+                          const char * in_test_case,
+                          const char * par_num ) ;
 
 int add_test_result( const char * in_test_suite_name ,
                      const char * in_test_case ,

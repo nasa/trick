@@ -1,6 +1,4 @@
 
-# $Id: makefile.stand_alone 1771 2011-07-14 13:53:25Z wwoodard $
-
 #
 # This makefile is used to build trick utils standalone.
 # That is, without Trick.

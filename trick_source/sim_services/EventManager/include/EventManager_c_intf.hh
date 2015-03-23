@@ -1,6 +1,6 @@
 
-#ifndef _EVENTMANAGER_C_INTF_HH_
-#define _EVENTMANAGER_C_INTF_HH_
+#ifndef EVENTMANAGER_C_INTF_HH
+#define EVENTMANAGER_C_INTF_HH
 
 #include "sim_services/EventManager/include/Event.hh"
 

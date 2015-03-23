@@ -1,6 +1,3 @@
-/*
- * $Id: MonteCarlo_run_queue.cpp 2148 2012-01-24 20:08:09Z lin $
- */
 
 #include <iostream>
 #include <sys/resource.h>

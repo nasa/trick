@@ -7,12 +7,8 @@ PROGRAMMERS:
     (((David Hammen) (Odyssey) (2013)))
 */
 
-/*
- * $Id: IntegLoopManager.hh 723 2010-06-02 21:14:02Z dpanter  $
- */
-
-#ifndef _INTEGLOOPMANAGER_HH
-#define _INTEGLOOPMANAGER_HH
+#ifndef INTEGLOOPMANAGER_HH
+#define INTEGLOOPMANAGER_HH
 
 // Trick includes
 #include "sim_services/SimObject/include/SimObject.hh"

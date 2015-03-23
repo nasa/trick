@@ -14,19 +14,6 @@ PROGRAMMERS:
    (((Your Name) (Company Name) (Date) (Trick tutorial)))
 *******************************************************************************/
 
-/*
- * $Log: ball_state.d,v $
- * Revision 5.1  2004-08-05 13:06:28-05  lin
- * Bump
- *
- * Revision 4.1  2003/10/21 21:49:37  lin
- * Bump version number for 04
- *
- * Revision 3.2  2002/10/07 15:16:03  lin
- * Add rcs version info to all trick_models files
- *
- */
-
 BSTATE.input.mass {kg} = 10.0 ;
 BSTATE.input.speed {M/s} = 3.5 ;
 BSTATE.input.elevation {d} = 45.0 ;

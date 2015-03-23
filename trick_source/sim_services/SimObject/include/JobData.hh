@@ -6,12 +6,8 @@ PROGRAMMERS:
     ((Alex Lin) (NASA) (May 2009) (OO))
 */
 
-/*
- * $Id: JobData.hh 3573 2014-06-24 21:36:38Z alin $
- */
-
-#ifndef _JOBDATA_HH_
-#define _JOBDATA_HH_
+#ifndef JOBDATA_HH
+#define JOBDATA_HH
 
 #include <string>
 #include <vector>

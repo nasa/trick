@@ -1,6 +1,6 @@
 
-#ifndef _DATASTREAM_H_
-#define _DATASTREAM_H_
+#ifndef DATASTREAM_HH
+#define DATASTREAM_HH
 
 #include <iostream>
 using namespace std;

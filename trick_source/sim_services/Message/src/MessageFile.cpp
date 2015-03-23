@@ -1,6 +1,3 @@
-/*
- * $Id: MessageFile.cpp 3530 2014-05-15 16:13:05Z alin $
- */
 
 #include <iostream>
 #include <unistd.h>

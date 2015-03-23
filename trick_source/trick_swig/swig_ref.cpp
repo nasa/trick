@@ -1,6 +1,3 @@
-/*
- * $Id: swig_ref.cpp 3630 2014-08-13 22:10:08Z alin $
- */
 
 #include <iostream>
 #include <sstream>

@@ -1,6 +1,3 @@
-/*
- * $Id: DPC_delta_curve.cpp 2781 2013-01-23 17:24:09Z hchen3 $
- */
 
 #include "DPC/DPC_delta_curve.hh"
 #include "math.h"

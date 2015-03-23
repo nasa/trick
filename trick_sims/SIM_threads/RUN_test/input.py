@@ -1,4 +1,3 @@
-# $Id: input.py 3386 2014-01-23 17:28:18Z alin $
 
 import os
 

@@ -1,6 +1,3 @@
-/*
- * $Id: product_view_node.hh 2806 2013-02-06 15:04:12Z hchen3 $
- */
 
 #ifndef PRODUCT_VIEW_NODE_HH
 #define PRODUCT_VIEW_NODE_HH

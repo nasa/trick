@@ -1,7 +1,3 @@
-/** 
- @file
- $Id: RefParseContext.cpp 2977 2013-05-13 20:20:08Z alin $
-*/
 #include <stdio.h>
 #include <stdlib.h>
 #include "sim_services/MemoryManager/include/RefParseContext.hh"

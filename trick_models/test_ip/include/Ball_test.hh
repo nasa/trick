@@ -20,12 +20,8 @@ PROGRAMMERS:
 @endverbatim
 *******************************************************************************/
 
-/*
- * $Id: Ball_test.hh 3480 2014-04-03 16:30:45Z alin $
- */
-
-#ifndef _BALL_ALEX_HH_
-#define _BALL_ALEX_HH_
+#ifndef BALL_TEST_HH
+#define BALL_TEST_HH
 
 // System include files.
 #include <string>

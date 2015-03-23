@@ -3,8 +3,8 @@
   This is the 1D array/pointer support code for SWIG
  */
 
-#ifndef SWIG_INT_TEMPLATES
-#define SWIG_INT_TEMPLATES
+#ifndef SWIG_INT_TEMPLATES_HH
+#define SWIG_INT_TEMPLATES_HH
 
 template< class S , typename T > static int convert_and_set( T & output , void * my_argp , std::string to_units ) {
     int ret = 0 ;

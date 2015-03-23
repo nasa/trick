@@ -1,6 +1,6 @@
 
-#ifndef _TRICK_STACK_HH_
-#define _TRICK_STACK_HH_
+#ifndef TRICK_STACK_HH
+#define TRICK_STACK_HH
 
 #include <string>
 #include <stack>

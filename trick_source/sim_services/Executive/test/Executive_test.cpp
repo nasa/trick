@@ -1,6 +1,3 @@
-/*
- * $Id: Executive_test.cpp 3553 2014-06-11 19:26:39Z alin $
- */
 
 #include <iostream>
 #include <sys/types.h>

@@ -1,3 +1,7 @@
+
+#ifndef SCENE_HH
+#define SCENE_HH
+
 #include "Camera.hh"
 #include "SceneElement.hh"
 #include <vector>
@@ -12,3 +16,4 @@ typedef struct {
 //    ElementState satellite2;
 } Comm_packet;
 
+#endif

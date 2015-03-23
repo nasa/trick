@@ -1,12 +1,9 @@
 
-/* 
- * $Id:$
- */
-
 #include <iostream>
 
 #include "sim_services/Executive/include/Executive.hh"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 int Trick::Executive::set_job_cycle(std::string job_name, int instance_num, double in_cycle) {
 

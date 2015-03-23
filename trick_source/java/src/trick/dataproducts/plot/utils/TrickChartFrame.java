@@ -1,6 +1,3 @@
-/*
- * $Id: TrickChartFrame.java 3531 2014-05-16 16:32:51Z hchen3 $
- */
 package trick.dataproducts.plot.utils;
 
 import java.awt.Dimension;

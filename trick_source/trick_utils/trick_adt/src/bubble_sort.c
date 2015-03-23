@@ -13,10 +13,6 @@ PROGRAMMERS:
    (((Edwin Z. Crues) (LinCom) (10 Oct 97) (Trickified for RGPS work)))
 ***************************************************************************/
 
-/* 
- * $Id: bubble_sort.c 49 2009-02-02 22:37:59Z lin $
- */
-
 #include "dllist.h"
 #include <stdio.h>
 

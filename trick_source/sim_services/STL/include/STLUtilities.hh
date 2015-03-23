@@ -1,6 +1,6 @@
 
-#ifndef _STLUTILITIES_HH_
-#define _STLUTILITIES_HH_
+#ifndef STLUTILITIES_HH
+#define STLUTILITIES_HH
 
 #include <string>
 

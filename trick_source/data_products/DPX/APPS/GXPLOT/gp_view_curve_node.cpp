@@ -1,6 +1,3 @@
-/*
- * $Id: gp_view_curve_node.cpp 3274 2013-10-29 23:06:24Z jpenn1 $
- */
 
 #include <string>
 #include <iostream>

@@ -1,6 +1,3 @@
-/*
- * $Id: DPC_page.cpp 1900 2011-08-29 21:55:41Z penn $
- */
 
 #include "DPC/DPC_page.hh"
 #include <stdio.h>

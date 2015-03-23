@@ -2,12 +2,8 @@
     PURPOSE: (Class for starting Monte Monitor.)
 */
 
-/*
- * $Id: MonteMonitor.hh 2126 2012-01-17 22:08:56Z dbankie $
- */
-
-#ifndef _MONTEMONITOR_HH_
-#define _MONTEMONITOR_HH_
+#ifndef MONTEMONITOR_HH
+#define MONTEMONITOR_HH
 
 #include "sim_services/ExternalApplications/include/ExternalApplication.hh"
 

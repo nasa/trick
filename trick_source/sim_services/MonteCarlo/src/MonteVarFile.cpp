@@ -1,6 +1,3 @@
-/*
- * $Id: MonteVarFile.cpp $
- */
 #include <sstream>
 #include <stdlib.h>
 #include <string.h>
@@ -19,7 +16,7 @@ Trick::MonteVarFile::MonteVarFile(std::string in_name, std::string in_file_name,
     input_file_stream = new std::ifstream(file_name.c_str(), std::ifstream::in);
     if (input_file_stream->fail()) { 
         char string[100];
-        sprintf(string, "Trick:MonteVarFile the input file \"%s\" failed to open", file_name.c_str());                           
+        sprintf(string, "Trick:MonteVarFile the input file \"%s\" failed to open", file_name.c_str());
         exec_terminate_with_return(-1, __FILE__, __LINE__, string);
    }
     buffer = new char[4096];
@@ -77,7 +74,7 @@ std::string Trick::MonteVarFile::get_next_value() {
         }
     }
     char string[100];
-    sprintf(string, "Trick:MonteVarFile the input file \"%s\" is not open for reading", file_name.c_str());                           
+    sprintf(string, "Trick:MonteVarFile the input file \"%s\" is not open for reading", file_name.c_str());
     exec_terminate_with_return(-1, __FILE__, __LINE__, string);
 
     return NULL;

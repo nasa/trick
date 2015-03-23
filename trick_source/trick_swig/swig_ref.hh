@@ -1,6 +1,6 @@
 
-#ifndef __SWIG_REF_HH__
-#define __SWIG_REF_HH__
+#ifndef SWIG_REF_HH
+#define SWIG_REF_HH
 
 #include <string>
 #include "sim_services/MemoryManager/include/reference.h"

@@ -1,35 +1,16 @@
 /*
 PURPOSE: (Units Conversion Package C Language Interface)
- 
+
 PROGRAMMERS:
-    (((John M. Penn) (L-3Com/Titan) (May 2006) (v1.0) 
-      (Initial Release))) 
+    (((John M. Penn) (L-3Com/Titan) (May 2006) (v1.0)
+      (Initial Release)))
 */
 
-/*
- * $Log: units_conv.h,v $
- * Revision 7.4  2008-05-20 11:33:43-05  lin
- * Remove warnings, part 3
- *
- * Revision 7.3  2006-11-08 15:53:59-06  penn
- * The requirement for operators in units (07) will have to be eased for old logs files.
- *
- * Revision 7.2  2006-10-10 12:56:08-05  penn
- * Upgrade the units package: add prefixes
- *
- * Revision 1.2  2006-06-01 09:24:15-05  lin
- * Units package using a malloc where it should use a calloc
- *
- * Revision 1.1  2006-05-02 13:00:06-05  penn
- * Initial revision
- *
- *
- */
 #ifndef UNITS_CONV_H
 #define UNITS_CONV_H
 
 /* --- Grammar for units specification strings ---
- * 
+ *
  * units_specifier ->   units_product / units_specifier
  *                    | units_product
  *                    .

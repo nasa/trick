@@ -1,17 +1,13 @@
 /*
-PURPOSE: 
+PURPOSE:
     (For master/slave sim, this implements the connection as shared memory)
 PROGRAMMERS:
     (((Eddie J. Paddock) (LinCom) (April 1996) (--) (Initial Version))
      ((Danny Strauss) (L3) (September 2012) (--) (--)))
 */
 
-/*
- * $Id: Slave.hh 411 2009-11-17 21:34:25Z lin $
- */
-
-#ifndef _MSSHAREDMEM_HH_
-#define _MSSHAREDMEM_HH_
+#ifndef MSSHAREDMEM_HH
+#define MSSHAREDMEM_HH
 
 #include "trick_utils/shm/include/tsm.h"
 #include "sim_services/MasterSlave/include/MSConnect.hh"

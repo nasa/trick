@@ -1,6 +1,3 @@
-/*
- * $Id: ExternalApplication.cpp 3171 2013-08-20 20:36:59Z dbankier $
- */
 
 #include <sstream>
 #include <iostream>

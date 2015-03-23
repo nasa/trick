@@ -1,7 +1,5 @@
 #!/usr/bin/perl
 
-# $Id: convert_swig 3762 2014-12-04 19:48:35Z alin $
-
 use FindBin qw($Bin);
 use strict ;
 use Getopt::Long;

@@ -5,10 +5,6 @@
       ((Alex Lin) (NASA) (6/02) (DR_changes upgrade)))
  */
 
-/*
- * $Id: DataRecordDispatcher.cpp 3577 2014-06-25 20:04:57Z alin $
- */
-
 #include <iostream>
 #include <sstream>
 #include <stdlib.h>
@@ -28,6 +24,7 @@
 #include "sim_services/Executive/include/exec_proto.h"
 #include "sim_services/Executive/include/exec_proto.hh"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 #include "sim_services/CommandLineArguments/include/command_line_protos.h"
 
 Trick::DataRecordDispatcher * the_drd = NULL ;

@@ -6,12 +6,8 @@ PROGRAMMERS:
     ((Alex Lin) (NASA) (May 2009) (OO))
 */
 
-/*
- * $Id: InstrumentBase.hh 3537 2014-05-27 22:49:43Z alin $
- */
-
-#ifndef _INSTRUMENTBASE_HH_
-#define _INSTRUMENTBASE_HH_
+#ifndef INSTRUMENTBASE_HH
+#define INSTRUMENTBASE_HH
 
 #include <string>
 #include "sim_services/SimObject/include/JobData.hh"

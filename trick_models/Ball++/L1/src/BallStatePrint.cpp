@@ -22,20 +22,6 @@ PROGRAMMERS:
      ((Edwin Z. Crues)(Titan Systems Corp.)(Jan 2002)(Crude C++ translation)))
 *******************************************************************************/
 
-/*
-  * $Id: BallStatePrint.cpp 1633 2011-05-20 16:38:11Z lin $
- *
- * Revision 5.1  2004-08-05 13:06:22-05  lin
- * Bump
- *
- * Revision 4.1  2003/10/21 21:49:41  lin
- * Bump version number for 04
- *
- * Revision 1.2  2002/10/07 15:15:56  lin
- * Add rcs version info to all trick_models files
- *
- */
-
 /* System include files. */
 #include <math.h>
 #include <iostream>

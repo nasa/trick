@@ -1,6 +1,6 @@
 
-#ifndef _TRICK_STL_MANAGER_HH_
-#define _TRICK_STL_MANAGER_HH_
+#ifndef STL_MANAGER_HH
+#define STL_MANAGER_HH
 
 #include <vector>
 #include "sim_services/STL/include/STLInterface.hh"

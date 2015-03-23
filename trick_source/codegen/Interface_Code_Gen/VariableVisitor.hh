@@ -1,6 +1,6 @@
 
-#ifndef _VARIABLEVISITOR_HH_
-#define _VARIABLEVISITOR_HH_
+#ifndef VARIABLEVISITOR_HH
+#define VARIABLEVISITOR_HH
 
 #include <string>
 #include <set>

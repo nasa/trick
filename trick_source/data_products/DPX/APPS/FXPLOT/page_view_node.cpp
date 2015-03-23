@@ -1,6 +1,3 @@
-/*
- * $Id: page_view_node.cpp 2793 2013-01-31 15:40:41Z hchen3 $
- */
 
 #include <Xm/Xm.h>
 #include <Xm/DialogS.h>

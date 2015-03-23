@@ -3,7 +3,6 @@ PURPOSE:    ( Contact )
 *****************************************************************************/
 #include <stdio.h>
 #include "../include/cannon.h"
-//#include "sim_services/Integrator/include/regula_falsi.h"
 #include "sim_services/Integrator/include/integrator_c_intf.h"
 
 double cannon_impact( CANNON* C )

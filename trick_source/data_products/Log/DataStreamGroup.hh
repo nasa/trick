@@ -1,6 +1,6 @@
 
-#ifndef _DATASTREAMGROUP_H_
-#define _DATASTREAMGROUP_H_
+#ifndef DATASTREAMGROUP_HH
+#define DATASTREAMGROUP_HH
 
 #include <iostream>
 #include <vector>

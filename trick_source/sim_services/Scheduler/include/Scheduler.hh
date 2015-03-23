@@ -1,18 +1,10 @@
-/* 
-    PURPOSE: 
-        (Trick runtime simulation executive scheduler.) 
+/*
+    PURPOSE:
+        (Trick runtime simulation executive scheduler.)
 */
 
-/* 
- * $Id: Scheduler.hh 3558 2014-06-17 19:26:19Z alin $
- */
-
-/**
- * @file Scheduler.hh
- */
-
-#ifndef _SCHEDULER_HH_
-#define _SCHEDULER_HH_
+#ifndef SCHEDULER_HH
+#define SCHEDULER_HH
 
 #include <string>
 #include <map>

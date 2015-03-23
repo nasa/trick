@@ -1,11 +1,3 @@
-/*
- * $Id: ScheduledJobQueue.cpp 3525 2014-05-14 14:11:00Z alin $
- */
-
-
-/**
- * @file ScheduledJobQueue.cpp
- */
 
 #include <iostream>
 #include <sstream>

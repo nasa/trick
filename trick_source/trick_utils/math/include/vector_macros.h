@@ -18,9 +18,6 @@ PROGRAMMERS:
      ((John M. Penn) (L3) (Aug 2010) (Document with doxygen)))
 */
 
-/*
- * $Id: vector_macros.h 1028 2010-08-28 00:04:23Z penn $
- */
 
 /**
 @page VECTOR_MACROS Vector Macros
@@ -34,8 +31,8 @@ This set of macros operates on vectors. Parameters to the macros are as follows:
 - Matrix parameters are expected to be of type float[3,3] or double[3,3];
 */
 
-#ifndef _VECTOR_MACROS_H_
-#define _VECTOR_MACROS_H_
+#ifndef VECTOR_MACROS_H
+#define VECTOR_MACROS_H
 
 #include <stdio.h>
 #include <math.h>

@@ -1,7 +1,3 @@
-/*
- * $Id: S_define 1599 2011-05-09 22:05:50Z lin $
- */
-
 #include "sim_objects/default_trick_sys.sm"
 
 ##include "test_ip/include/TemplateTest.hh"

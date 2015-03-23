@@ -1,10 +1,3 @@
-/*
- * $Id:$
- */
-
-/**
- * @file
- */
 
 #include <stdlib.h>
 

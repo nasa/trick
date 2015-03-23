@@ -1,6 +1,3 @@
-/*
- * $Id: DPM_session.cpp 2806 2013-02-06 15:04:12Z hchen3 $
- */
 
 #include <string.h>
 

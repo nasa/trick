@@ -1,7 +1,3 @@
-/*
- * $Id: SimControlActionController.java 2640 2012-09-28 15:39:38Z alin $
- *
- */
 
 //========================================
 //	Package

@@ -1,6 +1,3 @@
-/*
- * $Id: AttributesMap.cpp 2073 2011-12-09 21:05:52Z lin $
- */
 
 #include "sim_services/Sie/include/Sie.hh"
 #include "sim_services/Sie/include/sie_c_intf.h"

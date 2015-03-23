@@ -1,6 +1,4 @@
 
-# $Id: input_processor_tests.py 757 2010-06-22 18:40:57Z wwoodard $
-
 read = 2.0
 
 /*=== FLOATING POINT, INTEGER, AND VOID #define CAPABILITIES ===*/

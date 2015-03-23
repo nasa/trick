@@ -18,10 +18,6 @@ PROGRAMMERS:
     (((Your Name) (Company Name) (Date) (Trick tutorial)))
 */
 
-/*
- * $Id: ball_right_wall.c 898 2010-08-04 17:19:46Z penn $
- */
-
 #include <stdio.h>
 #include "sim_services/Integrator/include/regula_falsi.h"
 #include "sim_services/Integrator/include/integrator_c_intf.h"

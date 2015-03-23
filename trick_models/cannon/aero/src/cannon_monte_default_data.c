@@ -1,7 +1,3 @@
-/*
- * $Id: cannon_aero.d 608 2010-03-22 15:15:51Z wwoodard $
- */
-
 /*********************************************************
 PURPOSE: (Set the default data values)
 LIBRARY_DEPENDENCY: ((cannon_aero_default_data.o))

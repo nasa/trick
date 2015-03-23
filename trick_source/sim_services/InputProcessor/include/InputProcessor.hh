@@ -3,12 +3,8 @@
         (Trick runtime simulation executive parameter definition.)
 */
 
-/*
- * $Id: InputProcessor.hh 3537 2014-05-27 22:49:43Z alin $
- */
-
-#ifndef _INPUTPROCESSOR_HH_
-#define _INPUTPROCESSOR_HH_
+#ifndef INPUTPROCESSOR_HH
+#define INPUTPROCESSOR_HH
 
 #include <string>
 

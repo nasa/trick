@@ -1,11 +1,9 @@
-/*
- * $Id: VariableServerThread.cpp 3529 2014-05-15 15:04:03Z alin $
- */
 
 #include <stdlib.h>
 #include "sim_services/VariableServer/include/VariableServerThread.hh"
 #include "trick_utils/comm/include/tc_proto.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 int Trick::VariableServerThread::create_udp_socket(const char * address, unsigned short in_port) {
     listen_dev = &connection ;

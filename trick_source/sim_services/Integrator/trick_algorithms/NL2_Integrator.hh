@@ -1,5 +1,5 @@
-#ifndef _NL2_INTEGRATOR_HH_
-#define _NL2_INTEGRATOR_HH_
+#ifndef NL2_INTEGRATOR_HH
+#define NL2_INTEGRATOR_HH
 #include "../include/Integrator.hh"
 /**
  PURPOSE: (Integrator using Nystrom Lear 2 method.)
@@ -23,7 +23,7 @@ namespace Trick {
 
         void set_first_step_deriv(bool first_step);
 
-        Integrator_type get_Integrator_type() { return(Nystrom_Lear_2); } ;    
+        Integrator_type get_Integrator_type() { return(Nystrom_Lear_2); } ;
     };
 }
 #endif

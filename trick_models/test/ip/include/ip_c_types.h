@@ -21,24 +21,8 @@ PROGRAMMERS:
     (((Robert W. Bailey) (LinCom) (10/1/90) (Trick-CR-00000) (Initial Release)))
 */
 
-/*
- * $Log: ip_c_types.h,v $
- * Revision 5.1  2004-08-05 13:06:55-05  lin
- * Bump
- *
- * Revision 4.1  2003/10/21 21:49:19  lin
- * Bump version number for 04
- *
- * Revision 1.3  2003/05/29 18:57:16  vetter
- * Add Bitfield Test To IP Test
- *
- * Revision 1.2  2002/10/07 15:16:26  lin
- * Add rcs version info to all trick_models files
- *
- */
- 
-#ifndef _IP_C_TYPES
-#define _IP_C_TYPES
+#ifndef IP_C_TYPES_H
+#define IP_C_TYPES_H
 
 #define TWO 2         /* THE Value 2 */
 

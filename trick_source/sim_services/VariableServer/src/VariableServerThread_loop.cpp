@@ -1,6 +1,3 @@
-/*
- * $Id: VariableServerThread.cpp 432 2009-12-07 22:10:08Z hchen $
- */
 
 #include <stdio.h>
 #include <string.h>
@@ -14,6 +11,7 @@
 #include "sim_services/InputProcessor/include/input_processor_proto.h"
 #include "trick_utils/comm/include/tc_proto.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 #include "sim_services/RealtimeSync/include/realtimesync_proto.h"
 #include "sim_services/Executive/include/Exec_exception.hh"
 #include "sim_services/Executive/include/exec_proto.h"

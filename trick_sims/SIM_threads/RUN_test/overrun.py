@@ -1,4 +1,3 @@
-# $Id: overrun.py 2201 2012-02-23 23:22:22Z alin $
 
 execfile("RUN_test/input.py")
 

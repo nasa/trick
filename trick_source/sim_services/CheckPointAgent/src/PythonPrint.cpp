@@ -1,7 +1,3 @@
-/** 
- @file
- $Id: ClassicCheckPointerAgent.cpp 1213 2010-11-01 21:30:01Z penn $
-*/
 #include <string>
 #include <cstring>
 #include <iostream>
@@ -14,7 +10,8 @@
 #include "sim_services/MemoryManager/include/memorymanager_c_intf.h"
 #include "sim_services/MemoryManager/include/parameter_types.h"
 #include "sim_services/MemoryManager/include/bitfield_proto.h"
-#include "sim_services/MemoryManager/include/message_proto.h"
+#include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 // MEMBER FUNCTION
 bool Trick::PythonPrint::input_perm_check(ATTRIBUTES * attr __attribute__((unused))) {

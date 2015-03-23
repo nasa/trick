@@ -1,5 +1,5 @@
-#ifndef _EULER_INTEGRATOR_HH_
-#define _EULER_INTEGRATOR_HH_
+#ifndef EULER_INTEGRATOR_HH
+#define EULER_INTEGRATOR_HH
 #include "../include/Integrator.hh"
 /**
  PURPOSE: (Integrator using Euler method.)

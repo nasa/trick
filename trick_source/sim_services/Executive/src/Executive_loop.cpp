@@ -1,8 +1,4 @@
 
-/* 
- * $Id: Executive_loop.cpp 2919 2013-04-16 18:49:02Z alin $
- */
-
 #include <stdlib.h>
 
 #include "sim_services/Executive/include/Executive.hh"

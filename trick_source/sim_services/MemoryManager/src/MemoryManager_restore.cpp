@@ -1,16 +1,12 @@
-/** 
- @file
- $Id: MemoryManager_restore.cpp 2373 2012-05-10 21:49:03Z wwoodard $
-*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <sstream>
+#include <fstream>
 
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
 #include "sim_services/CheckPointAgent/include/ClassicCheckPointAgent.hh"
-#include "sim_services/MemoryManager/include/message_proto.h"
-//#include <iostream>
-#include <fstream>
+#include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 int Trick::MemoryManager::read_checkpoint( std::istream *is) {
 

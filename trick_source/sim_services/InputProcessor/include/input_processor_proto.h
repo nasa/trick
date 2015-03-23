@@ -7,12 +7,8 @@ ICG:
     (No)
 */
 
-/*
- * $Id: input_processor_proto.h 3630 2014-08-13 22:10:08Z alin $
- */
-
-#ifndef INPUT_PROCESSOR_PROTO_DEFINED
-#define INPUT_PROCESSOR_PROTO_DEFINED
+#ifndef INPUT_PROCESSOR_PROTO_H
+#define INPUT_PROCESSOR_PROTO_H
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,6 +1,3 @@
-/*
- * $Id: TCBlockioTest.cpp 3370 2013-12-20 17:29:05Z jpenn1 $
- */
 
 #include <gtest/gtest.h>
 #include "trick_utils/comm/include/tc.h"

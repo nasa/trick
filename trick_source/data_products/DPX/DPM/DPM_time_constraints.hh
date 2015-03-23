@@ -1,6 +1,3 @@
-/*
- * $Id: DPM_time_constraints.hh 639 2010-04-14 15:54:53Z wwoodard $
- */
 
 #ifndef DPM_TIME_CONSTRAINTS_HH
 #define DPM_TIME_CONSTRAINTS_HH

@@ -8,10 +8,6 @@ PROGRAMMERS:
      ((Alex Lin) (NASA) (April 2009) (--) (c++ port)))
 */
 
-/*
- * $Id: GetTimeOfDayClock.cpp 3725 2014-10-30 23:09:53Z alin $
- */
-
 #ifdef __APPLE__
 #include <sys/time.h>
 #else

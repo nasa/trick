@@ -13,12 +13,8 @@
          ((Robert W. Bailey) (LinCom) (6/1/91) (Trick-CR-00000) (Initial Release)))
 */
 
-/*
- * $Id:$
- */
-
-#ifndef _EVENTMANAGER_HH_
-#define _EVENTMANAGER_HH_
+#ifndef EVENTMANAGER_HH
+#define EVENTMANAGER_HH
 
 #include <string>
 #include <vector>

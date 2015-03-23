@@ -1,4 +1,4 @@
-/* 
+/*
    PURPOSE: (Uniform random number sequence generator - Triple LCG)
 
    REFERENCE: (((Vetterling, W. T.) (Tuekolsky, S. A.) (Press, W. H.) (Flannery, B. P.) (Numerical Recipes in C)
@@ -10,16 +10,13 @@
 
    LIBRARY DEPENDENCY: ((uniform_rnd_triple.o))
 
-   PROGRAMMERS: (((Robert Gay) (LinCom) (May 1998) (--) (Trick format)) ((Robert Gay) (Titan-LinCom) (Aug 2001) (--)
-   (Updates to put routines into trick math))) */
-
-/* 
- * $Id: uniform_rnd_triple.c 2535 2012-08-22 18:14:37Z dcvillar $
+   PROGRAMMERS:
+    (((Robert Gay) (LinCom) (May 1998) (--) (Trick format))
+     ((Robert Gay) (Titan-LinCom) (Aug 2001) (--) (Updates to put routines into trick math)))
  */
 
 #include "../include/rand_generator.h"
 #include "../include/trick_math.h"
-#include "sim_services/Message/include/message_proto.h"
 
 #define M1  259200
 #define IA1 7141
@@ -68,7 +65,7 @@ double uniform_rnd_triple(      /* Return: Random number */
     /* Use the third sequence to get an integer between 1 and 97. */
     j = 1 + ((97 * G->ix3) / M3);
     if (j > 97 || j < 1) {
-        message_publish(MSG_ERROR, "trick_utils/math/uniform_rnd_triple.c\n" "Out of table range...");
+        fprintf(stderr, "trick_utils/math/uniform_rnd_triple.c\n" "Out of table range...");
         return (0);
     }
 

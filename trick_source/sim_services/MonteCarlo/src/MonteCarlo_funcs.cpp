@@ -1,12 +1,10 @@
-/*
- * $Id: MonteCarlo_funcs.cpp  $
- */
 
 #include "sim_services/MonteCarlo/include/MonteCarlo.hh"
 #include "sim_services/MemoryManager/include/memorymanager_c_intf.h"
 #include "sim_services/CommandLineArguments/include/command_line_protos.h"
 #include "trick_utils/comm/include/tc_proto.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 #include "sim_services/Executive/include/exec_proto.h"
 #include "sim_services/Executive/include/Exec_exception.hh"
 

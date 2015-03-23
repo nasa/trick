@@ -1,31 +1,8 @@
-/*******************************************************************************
-*                                                                              *
-* Trick Simulation Environment Software                                        *
-*                                                                              *
-* Copyright (c) 2006 L-3 Communications, Houston, TX                           *
-* All rights reserved.                                                         *
-*                                                                              *
-* Copyrighted by L-3 Communications and proprietary to it. Any unauthorized    *
-* use of Trick Software including source code, object code or executables is   *
-* strictly prohibited and L-3 assumes no liability for such actions or      *
-* results thereof.                                                             *
-*                                                                              *
-* Trick Software has been developed under NASA Government Contracts and        *
-* access to it may be granted for Government work by the following contact:    *
-*                                                                              *
-* Contact: Charles Gott, Branch Chief                                          *
-*          Simulation and Graphics Branch                                      *
-*          Automation, Robotics, & Simulation Division                         *
-*          NASA, Johnson Space Center, Houston, TX                             *
-*                                                                              *
-*******************************************************************************/
-/* 
-   PURPOSE: ( Functions to convert narrow (char) strings to wide (wchar_t) strings and vice-versa, as well as functions 
+/*
+   PURPOSE: ( Functions to convert narrow (char) strings to wide (wchar_t) strings and vice-versa, as well as functions
    to determine the number of characters that would result, without actually performing a conversion.)
 
    PROGRAMMERS: (((John M. Penn) (L-3 Communications) (08/2006))) */
-
-/* $Id: wcs_ext.c 2317 2012-04-16 16:13:19Z alin $ */
 
 #if !( __Lynx__ || __sgi || __INTERIX)
 

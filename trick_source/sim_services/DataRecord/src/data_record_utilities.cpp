@@ -6,10 +6,6 @@ PROGRAMMERS:
      ((Alex Lin) (NASA) (April 2009) (--) (c++ port)))
 */
 
-/*
- * $Id: data_record_utilities.cpp 3523 2014-05-13 21:00:37Z alin $
- */
-
 #include "sim_services/DataRecord/include/data_record_proto.h"
 #include "sim_services/DataRecord/include/DataRecordDispatcher.hh"
 #include "sim_services/DataRecord/include/DataRecordGroup.hh"

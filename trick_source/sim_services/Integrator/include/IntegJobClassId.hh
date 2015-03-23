@@ -6,8 +6,8 @@ PROGRAMMERS:
     (((John Penn)(L3)   (2010)))
 */
 
-#ifndef JOB_CLASS_ID
-#define JOB_CLASS_ID
+#ifndef INTEGJOBCLASSID_HH
+#define INTEGJOBCLASSID_HH
 
 namespace Trick {
     enum {

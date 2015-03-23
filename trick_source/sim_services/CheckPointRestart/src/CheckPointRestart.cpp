@@ -1,10 +1,3 @@
-/*
- * $Id:$
- */
-
-/**
- * @file CheckPointRestart.cpp
- */
 
 #include <iostream>
 #include <iomanip>
@@ -28,6 +21,7 @@
 #include "sim_services/Executive/include/exec_proto.h"
 #include "sim_services/CommandLineArguments/include/command_line_protos.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 #include "sim_services/include/TrickConstant.hh"
 #include "sim_services/CheckPointRestart/include/checkpoint_stl.hh"
 

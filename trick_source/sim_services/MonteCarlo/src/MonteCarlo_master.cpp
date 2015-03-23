@@ -1,6 +1,3 @@
-/*
- * $Id: MonteCarlo_master.cpp $
- */
 
 #include "sim_services/MonteCarlo/include/MonteCarlo.hh"
 #include "sim_services/Executive/include/Exec_exception.hh"
@@ -22,10 +19,10 @@ int Trick::MonteCarlo::master() {
         while (num_results < actual_num_runs) {
 
             /**
-             * <ul><li> Spawn any uninitialized slaves. 
+             * <ul><li> Spawn any uninitialized slaves.
              */
             spawn_slaves();
-        
+
             /** <li> Receive any finished runs. */
             receive_results();
 

@@ -8,10 +8,6 @@ PROGRAMMERS:
      ((Alex Lin) (NASA) (April 2009) (--) (c++ port)))
 */
 
-/*
- * $Id: ITimer.cpp 3242 2013-09-24 15:15:01Z alin $
- */
-
 #include <iostream>
 #include <sstream>
 

@@ -1,5 +1,5 @@
-#ifndef _TEST_VIEW_H_
-#define _TEST_VIEW_H_
+#ifndef TEST_VIEW_HH
+#define TEST_VIEW_HH
 
 #include <sstream>
 #include "string.h"

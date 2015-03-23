@@ -8,10 +8,6 @@
 
 %{
 /*
- * $Id: input_parser.l 3653 2014-09-15 18:03:34Z jpenn1 $
- */
-
-/*
  * This is a debug macro which is used to echo every character parsed by the
  * lex.
  */

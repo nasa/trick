@@ -1,5 +1,3 @@
-<!-- $Id: Product.dtd 2289 2012-04-05 15:08:56Z hchen3 $ -->
-
 <!-- Trick DP Product definition -->
 <!-- V 1.0 -->
 <!ELEMENT fname       (#PCDATA)>

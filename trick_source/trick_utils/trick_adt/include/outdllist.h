@@ -1,10 +1,6 @@
 
-/*
- * $Id: outdllist.h 49 2009-02-02 22:37:59Z lin $
- */
-
-#ifndef _DLLIST_H
-#define _DLLIST_H
+#ifndef OUTDLLIST_H
+#define OUTDLLIST_H
 
 #include <assert.h>
 

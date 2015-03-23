@@ -1,9 +1,9 @@
 /*
-    PURPOSE: (Illustrate how to checkpoint STLs) 
+    PURPOSE: (Illustrate how to checkpoint STLs)
 */
 
-#ifndef __CHECKPOINT_TRICK_MAP_HH__
-#define __CHECKPOINT_TRICK_MAP_HH__
+#ifndef CHECKPOINT_TRICK_MAP_HH
+#define CHECKPOINT_TRICK_MAP_HH
 
 #include <string>
 #include <algorithm>

@@ -2,10 +2,6 @@
    PURPOSE: (Slave for master/slave synchronization)
  */
 
-/*
- *  $Id: Slave.cpp 3667 2014-09-25 19:06:12Z dstrauss $
- */
-
 #include <iostream>
 #include <iomanip> // for setprecision
 #include <sstream>
@@ -16,6 +12,7 @@
 #include "sim_services/MasterSlave/include/Slave.hh"
 #include "sim_services/Executive/include/exec_proto.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 #include "sim_services/CheckPointRestart/include/CheckPointRestart_c_intf.hh" // for checkpoint
 #include "sim_services/CommandLineArguments/include/command_line_protos.h" // output dir get/set
 

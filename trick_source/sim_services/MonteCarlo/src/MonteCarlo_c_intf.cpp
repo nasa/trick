@@ -1,6 +1,3 @@
-/*
- * $Id: montecarlo_c_intf.c $
- */
 
 #include "sim_services/MonteCarlo/include/MonteCarlo.hh"
 #include "sim_services/CommandLineArguments/include/CommandLineArguments.hh"

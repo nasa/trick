@@ -8,12 +8,8 @@ PROGRAMMERS:
     (((David Hammen) (Odyssey) (2013)))
 */
 
-/*
- * $Id: IntegLoopSimObject.hh 723 2010-06-02 21:14:02Z wwoodard $
- */
-
-#ifndef _INTEGLOOPSCHEDULER_HH_
-#define _INTEGLOOPSCHEDULER_HH_
+#ifndef INTEGLOOPSCHEDULER_HH
+#define INTEGLOOPSCHEDULER_HH
 
 
 // Local includes

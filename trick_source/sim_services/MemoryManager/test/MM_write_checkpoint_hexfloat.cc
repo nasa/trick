@@ -1,6 +1,3 @@
-/*
- * $Id: MM_write_checkpoint_hexfloat.cc 2563 2012-09-05 21:08:27Z jpenn1 $
- */
 
 #include <gtest/gtest.h>
 #define private public

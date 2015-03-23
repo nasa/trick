@@ -9,8 +9,8 @@ Programmers:
 
 *******************************************************************************/
 
-#ifndef TRICK_ER7_EULER_CROMER_INTEGRATOR_HH
-#define TRICK_ER7_EULER_CROMER_INTEGRATOR_HH
+#ifndef EULER_CROMER_INTEGRATOR_HH
+#define EULER_CROMER_INTEGRATOR_HH
 
 #include <cstring>
 

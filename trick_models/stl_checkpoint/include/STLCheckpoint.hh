@@ -5,8 +5,8 @@
     )
 */
 
-#ifndef __STLCHECKPOINT_HH__
-#define __STLCHECKPOINT_HH__
+#ifndef STLCHECKPOINT_HH
+#define STLCHECKPOINT_HH
 
 #include <map>
 #include <vector>

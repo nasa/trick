@@ -3,12 +3,8 @@
         (VariableServer)
 */
 
-/*
- * $Id: VariableServer.hh 3663 2014-09-23 22:22:58Z dstrauss $
- */
-
-#ifndef _VARIABLESERVER_HH_
-#define _VARIABLESERVER_HH_
+#ifndef VARIABLESERVER_HH
+#define VARIABLESERVER_HH
 
 #include <map>
 #include <queue>

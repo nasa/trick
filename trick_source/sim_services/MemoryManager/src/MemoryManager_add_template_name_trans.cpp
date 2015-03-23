@@ -1,7 +1,3 @@
-/**
- @file
- $Id:$
- */
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
 
 /**

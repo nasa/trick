@@ -1,5 +1,4 @@
 
-# $Id: makefile 2359 2012-05-03 17:34:22Z wwoodard $
 include ${TRICK_HOME}/makefiles/Makefile.common
 
 SHELL = /bin/sh

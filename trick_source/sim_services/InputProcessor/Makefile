@@ -1,6 +1,4 @@
 
-# $Id: Makefile 3634 2014-08-14 14:41:45Z alin $
-
 include ${TRICK_HOME}/makefiles/Makefile.common
 
 # override the trick lib file for this directory.

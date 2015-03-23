@@ -3,16 +3,8 @@
         (Sie creator)
 */
 
-/*
- * $Id:$
- */
-
-/**
- * @file Sie.hh
- */
-
-#ifndef _SIE_HH_
-#define _SIE_HH_
+#ifndef SIE_HH
+#define SIE_HH
 
 #include <string>
 #include <fstream>

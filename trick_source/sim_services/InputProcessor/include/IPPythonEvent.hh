@@ -1,9 +1,6 @@
-/*
- * $Id: IPPythonEvent.hh 634 2010-04-07 22:02:04Z dstrauss $
- */
 
-#ifndef _IPPYTHONEVENT_HH_
-#define _IPPYTHONEVENT_HH_
+#ifndef IPPYTHONEVENT_HH
+#define IPPYTHONEVENT_HH
 
 #include <string>
 #include "sim_services/EventManager/include/Event.hh"

@@ -1,6 +1,3 @@
-/*
- * $Id: DPM_parse_tree.hh 1842 2011-08-01 00:02:00Z penn $
- */
 
 #ifndef DPM_PARSE_TREE_HH
 #define DPM_PARSE_TREE_HH

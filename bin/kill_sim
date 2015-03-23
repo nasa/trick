@@ -1,8 +1,5 @@
 #!/bin/sh
 
-#
-# $Id: kill_sim 2477 2012-06-27 17:50:59Z wwoodard $
-
 if  [ `uname -s` = "SunOS" ]
     then MY_UID=`/usr/xpg4/bin/id -u`
 else

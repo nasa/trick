@@ -3,12 +3,8 @@
         (VariableServerThread)
 */
 
-/*
- * $Id:$
- */
-
-#ifndef _VARIABLESERVERTHREAD_HH_
-#define _VARIABLESERVERTHREAD_HH_
+#ifndef VARIABLESERVERTHREAD_HH
+#define VARIABLESERVERTHREAD_HH
 
 #include <vector>
 #include <string>

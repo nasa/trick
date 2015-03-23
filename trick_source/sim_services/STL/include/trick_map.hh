@@ -1,6 +1,6 @@
 
-#ifndef _TRICK_MAP_HH_
-#define _TRICK_MAP_HH_
+#ifndef TRICK_MAP_HH
+#define TRICK_MAP_HH
 
 #include <string>
 #include <map>

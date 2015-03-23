@@ -3,12 +3,8 @@
         (Enumeration of the Variable Message types)
 */
 
-/*
- * $Id:$
- */
-
-#ifndef _VARIABLESERVERSYNCTYPES_HH_
-#define _VARIABLESERVERSYNCTYPES_HH_
+#ifndef VARIABLE_SERVER_SYNC_TYPES_HH
+#define VARIABLE_SERVER_SYNC_TYPES_HH
 
 typedef enum {
     VS_COPY_ASYNC = 0,

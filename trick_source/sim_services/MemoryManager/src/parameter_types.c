@@ -1,6 +1,3 @@
-/*
- * $Id$
- */
 // Is this function used anywhere? (Alex 10/27/14)
 
 #include "sim_services/MemoryManager/include/parameter_types.h"

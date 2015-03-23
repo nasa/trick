@@ -28,13 +28,8 @@ PROGRAMMERS:
 @endverbatim
 *******************************************************************************/
 
-/*
- * $Id: Ball.hh 2502 2012-07-25 20:36:40Z alin $
- */
-
-
-#ifndef _BALL_HH_
-#define _BALL_HH_
+#ifndef BALL_HH
+#define BALL_HH
 
 // System include files.
 

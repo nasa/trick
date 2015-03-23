@@ -7,10 +7,6 @@ LIBRARY DEPENDENCY:          ( dp.o )
 PROGRAMMERS:                 ( (Keith Vetter) (Titan) (8-20-2002) )
 *******************************************************************************/
 
-/*
- * $Id: dp.c 1115 2010-09-29 23:36:35Z wwoodard $
- */
- 
 #include "../include/dp.h"
 
 

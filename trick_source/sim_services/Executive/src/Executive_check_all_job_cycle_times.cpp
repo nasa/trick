@@ -1,11 +1,8 @@
 
-/*
- * $Id:$
- */
-
 #include <math.h>
 #include "sim_services/Executive/include/Executive.hh"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 #include "sim_services/include/TrickConstant.hh"
 
 /**

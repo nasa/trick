@@ -3,12 +3,8 @@
         (JSONVariableServerThread)
 */
 
-/*
- * $Id:$
- */
-
-#ifndef _JSONVARIABLESERVERTHREAD_HH_
-#define _JSONVARIABLESERVERTHREAD_HH_
+#ifndef JSONVARIABLESERVERTHREAD_HH
+#define JSONVARIABLESERVERTHREAD_HH
 
 #include <pthread.h>
 #include "trick_utils/comm/include/tc.h"

@@ -21,13 +21,8 @@ PROGRAMMERS:
      ((Edwin Z. Crues)(Titan Systems Corp.)(Jan 2002)(Crude C++ translation)))
 */
 
-/*
- * $Id: BallForce.hh 2873 2013-03-27 20:59:08Z alin $
- */
-
-
-#ifndef _BALL_FORCE_HH_
-#define _BALL_FORCE_HH_
+#ifndef BALLFORCE_HH
+#define BALLFORCE_HH
 
 /** @class BallForceInput
     @brief ball force input params

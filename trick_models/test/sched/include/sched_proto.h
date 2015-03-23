@@ -23,8 +23,8 @@
                                                      )
 *************************************************************/
 
-#ifndef _sched_proto_h_
-#define _sched_proto_h_
+#ifndef SCHED_PROTO_H
+#define SCHED_PROTO_H
 #include "sched.h"
 
 #ifdef __cplusplus

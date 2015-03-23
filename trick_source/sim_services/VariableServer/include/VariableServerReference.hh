@@ -3,12 +3,8 @@
         (VariableServerReference)
 */
 
-/*
- * $Id:$
- */
-
-#ifndef _VARIABLESERVERREFERENCE_HH_
-#define _VARIABLESERVERREFERENCE_HH_
+#ifndef VARIABLESERVERREFERENCE_HH
+#define VARIABLESERVERREFERENCE_HH
 
 #include "sim_services/MemoryManager/include/reference.h"
 #include "trick_utils/units/include/UCFn.hh"

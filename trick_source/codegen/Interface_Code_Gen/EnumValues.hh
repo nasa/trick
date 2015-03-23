@@ -1,10 +1,6 @@
 
-/*
- * $Id:$
- */
-
-#ifndef _ENUMVALUES_HH_
-#define _ENUMVALUES_HH_
+#ifndef ENUMVALUES_HH
+#define ENUMVALUES_HH
 
 #include <string>
 #include <vector>

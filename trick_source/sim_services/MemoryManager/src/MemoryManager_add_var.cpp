@@ -1,9 +1,3 @@
-/** 
-@file
-@verbatim
-$Id: MemoryManager_add_var.cpp 3669 2014-09-25 22:29:58Z jpenn1 $
-@endverbatim
-*/
 
 #include <string.h>
 #include <ctype.h>
@@ -14,7 +8,8 @@ $Id: MemoryManager_add_var.cpp 3669 2014-09-25 22:29:58Z jpenn1 $
 #include "sim_services/MemoryManager/include/value.h"
 #include "sim_services/MemoryManager/include/vval.h"
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
-#include "sim_services/MemoryManager/include/message_proto.h"
+#include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 void* Trick::MemoryManager::add_var( TRICK_TYPE   type,
                                      const char*  class_name,

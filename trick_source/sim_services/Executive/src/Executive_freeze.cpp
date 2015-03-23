@@ -1,6 +1,3 @@
-/* 
- * $Id: Executive_freeze.cpp 2149 2012-01-25 19:25:35Z lin $
- */
 
 #include <iostream>
 #include <sstream>
@@ -9,6 +6,7 @@
 #include "sim_services/Executive/include/Executive.hh"
 #include "sim_services/Executive/include/exec_proto.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 int Trick::Executive::get_freeze_job(std::string sim_object_name) {
     freeze_job = get_job(sim_object_name + ".sched_freeze_to_exec_command") ;

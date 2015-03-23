@@ -1,6 +1,3 @@
-/*
- * $Id: DPC_standard_plot.hh 1843 2011-08-01 20:19:57Z penn $
- */
 
 #ifndef DPC_STANDARD_PLOT_HH
 #define DPC_STANDARD_PLOT_HH
@@ -15,7 +12,6 @@
 /**
  * This class represents a data plot.
  * @author John M. Penn
- * @version $Id: DPC_standard_plot.hh 1843 2011-08-01 20:19:57Z penn $
  */
 class DPC_standard_plot: public DPC_plot {
 

@@ -2,12 +2,8 @@
     PURPOSE: (Monte Carlo C interface.)
 */
 
-/*
- * $Id: montecarlo_c_intf.h $
- */
-
-#ifndef _MONTECARLO_C_INTF_H_
-#define _MONTECARLO_C_INTF_H_
+#ifndef MONTECARLO_C_INTF_H
+#define MONTECARLO_C_INTF_H
 
 #include "trick_utils/comm/include/tc_proto.h"
 

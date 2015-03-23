@@ -1,6 +1,3 @@
-/*
- * $Id: gp_colors.cpp 802 2010-07-09 23:01:11Z lin $
- */
 
 #include <stdio.h>
 #include <string>

@@ -1,5 +1,5 @@
-#ifndef __EQPARSE_H__
-#define __EQPARSE_H__
+#ifndef EQPARSE_H
+#define EQPARSE_H
 
 #include "eqparse_protos.h"
 

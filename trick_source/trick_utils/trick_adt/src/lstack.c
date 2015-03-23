@@ -1,10 +1,5 @@
 /******** implementation of LSTACK *************/
 
-/* 
- * $Id: lstack.c 49 2009-02-02 22:37:59Z lin $
- */
-
-
 #include <stdlib.h>
 #include "lstack.h"
 #include "dllist.h"

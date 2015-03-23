@@ -2,12 +2,8 @@
      PURPOSE: (Monte Carlo simulation.)
 */
 
-/*
- * $Id: MonteCarlo.hh 3383 2014-01-22 23:18:15Z alin $
- */
-
-#ifndef _MONTE_CARLO_HH_
-#define _MONTE_CARLO_HH_
+#ifndef MONTECARLO_HH
+#define MONTECARLO_HH
 
 #include <deque>
 #include <vector>

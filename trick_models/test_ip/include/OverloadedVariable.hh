@@ -1,6 +1,6 @@
 
-#ifndef _OVERLOAD_VAR_
-#define _OVERLOAD_VAR_
+#ifndef OVERLOADEDVARIABLE_HH
+#define OVERLOADEDVARIABLE_HH
 
 /*
    This inheritance heirarchy tests the case where a variable name is overloaded

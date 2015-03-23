@@ -1,6 +1,4 @@
 
-# $Id: input.py 757 2010-06-22 18:40:57Z wwoodard $
-
 from trick.unit_test import *
 
 if trick.mc_get_slave_id() == 0:

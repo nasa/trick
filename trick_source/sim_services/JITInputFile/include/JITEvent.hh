@@ -5,8 +5,8 @@ LIBRARY DEPENDENCY:
     ((../src/JITEvent.cpp))
 */
 
-#ifndef _JITCYCLICEVENT_HH_
-#define _JITCYCLICEVENT_HH_
+#ifndef JITEVENT_HH
+#define JITEVENT_HH
 
 #include <functional>
 #include <iostream>

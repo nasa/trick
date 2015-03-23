@@ -1,4 +1,7 @@
 
+#ifndef MATLAB4_HH
+#define MATLAB4_HH
+
 #include <stdio.h>
 #include "DataStream.hh"
 
@@ -40,3 +43,5 @@ class MatLab4 : public DataStream {
 } ;
 
 int MatLab4LocateParam( char *file_name , char * param_name , char * time_name ) ;
+
+#endif

@@ -1,7 +1,3 @@
-/* 
- * $Id: MemoryManager_ref_dim.cpp 3627 2014-08-12 23:21:09Z jpenn1 $
- */
-
 #include <stdio.h>
 #include <sys/types.h>
 #include <string.h>
@@ -11,7 +7,8 @@
 #include "sim_services/MemoryManager/include/attributes.h"
 #include "sim_services/MemoryManager/include/reference.h"
 #include "sim_services/MemoryManager/include/parameter_types.h"
-#include "sim_services/MemoryManager/include/message_proto.h"
+#include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 /*
  Updates R, a reference to an arrayed object, to a reference to the indexed sub-element of that arrayed object.

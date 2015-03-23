@@ -1,7 +1,3 @@
-/*
- * $Id: DPRemoteCallInterface.java 1776 2011-07-14 19:40:01Z hchen $
- *
- */
 
 //========================================
 //  Package
