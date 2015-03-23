@@ -659,6 +659,10 @@ namespace Trick {
             int alloc_info_map_counter ;     /**< ** counter to assign unique ids to allocations as they are added to map */
             int extern_alloc_info_map_counter ; /**< ** counter to assign unique ids to allocations as they are added to map */
 
+            void emitMessage( std::string s);
+            void emitError( std::string s);
+            void emitWarning( std::string s);
+
             void write_checkpoint( std::ostream& out_s, std::vector<ALLOC_INFO*>& dependencies);
 
             /**

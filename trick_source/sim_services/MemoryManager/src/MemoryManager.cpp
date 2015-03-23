@@ -94,3 +94,21 @@ Trick::MemoryManager::~MemoryManager() {
     }
     alloc_info_map.clear() ;
 }
+
+#include <sstream>
+void Trick::MemoryManager::emitMessage( std::string s) {
+    std::cout << s << std::endl;
+}
+
+void Trick::MemoryManager::emitError( std::string s) {
+    std::stringstream ss;
+    ss << "Error: " << s << std::endl;
+    emitMessage( ss.str() );
+}
+
+void Trick::MemoryManager::emitWarning( std::string s) {
+    std::stringstream ss;
+    ss << "Warning: " << s << std::endl;
+    emitMessage( ss.str() );
+}
+
