@@ -16,6 +16,7 @@ PROGRAMMERS:
 
 #include "sim_services/Clock/include/GetTimeOfDayClock.hh"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 /**
 @details

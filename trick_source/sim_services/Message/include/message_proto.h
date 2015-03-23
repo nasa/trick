@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include "message_type.h"
 
 #ifdef __cplusplus
 extern "C" {
