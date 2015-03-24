@@ -235,15 +235,22 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
           } SB ;
        } ;
     */
-    if ( rt->getDecl()->getIdentifier() == NULL ) {
+    //std::cout << "hasNameForLinkage " << rt->getDecl()->hasNameForLinkage() << std::endl ;
+    if ( rt->getDecl()->hasNameForLinkage() ) {
+        if ( rt->getDecl()->getDeclName() ) {
+            //std::cout << "getDeclName " << rt->getDecl()->getDeclName().getAsString() << std::endl ;
+            fdes->setTypeName(rt->getDecl()->getQualifiedNameAsString()) ;
+        } else {
+            //std::cout << "getTypedefNameForAnonDecl " << rt->getDecl()->getTypedefNameForAnonDecl() << std::endl ;
+            fdes->setTypeName(rt->getDecl()->getTypedefNameForAnonDecl()->getQualifiedNameAsString()) ;
+        }
+    } else {
         //rt->getDecl()->dump() ; std::cout << std::endl ;
         // io_src code not possible for anonymous struct/unions.  Set the I/O to 0 to ignore it.
         if ( debug_level >= 3 ) {
             std::cout << "FieldVisitor VisitRecordType found anonymous type, setIO = 0" << std::endl ;
         }
         fdes->setIO(0) ;
-    } else {
-        fdes->setTypeName(rt->getDecl()->getQualifiedNameAsString()) ;
     }
 
     fdes->setEnumString("TRICK_STRUCTURED") ;
