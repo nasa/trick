@@ -165,12 +165,10 @@ page_options:
                 msg("page->setGnuplotPageOrientation() not supported");
         }
         | page_options DP_START ':' DP_FLOAT {
-                //currPage->setStartTime($4);
-                msg("page->setStartTime() not supported");
+                currPage->setStartTime($4);
         }
         | page_options DP_STOP ':' DP_FLOAT {
-                //currPage->setStopTime($4);
-                msg("page->setStopTime() not supported");
+                currPage->setStopTime($4);
         }
         | page_options DP_FOREGROUND_COLOR ':' DP_STR  {
                 //product->getCurrPage()->setForegroundColor($4);
@@ -245,12 +243,10 @@ plot: DP_PLOT DP_FLOAT ':' DP_STR {
                 msg("page->setGridColor() not supported");
         }
         | plot DP_START ':' DP_FLOAT {
-                //currPlot->setStartTime($4);
-                msg("page->setStartTime() not supported");
+                currPlot->setStartTime($4);
         }
         | plot DP_STOP ':' DP_FLOAT {
-                //currPlot->setStopTime($4);
-                msg("page->setStopTime() not supported");
+                currPlot->setStopTime($4);
         }
         | plot {
                    if ( !isXYPair ) {

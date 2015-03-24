@@ -1,6 +1,7 @@
 #ifndef TRICKCURVE_H
 #define TRICKCURVE_H
 
+#include <float.h>
 #include <QVector2D>
 #include "libqplot/qcustomplot.h"
 #include "libsnapdata/trickcurvemodel.h"
@@ -24,11 +25,13 @@ public:
     virtual double selectTest(const QPointF &pt,
                               bool onlySelectable, QVariant *details=0) const;
 
-    // TODO: Using two kinds of data causes ugly code,
-    //       but keeping it for now because it was the most simple, fast
-    //       way to do it.  I'll most likely regret doing this :(
-    void setData(TrickCurveModel* model);
-    void setData(const QVector<double> *t, const QVector<double> *v);
+    void setData(TrickCurveModel* model,
+                 double startTime=-DBL_MAX, double stopTime=DBL_MAX);
+    void setData(const QVector<double> *t, const QVector<double> *v,
+                 double startTime=-DBL_MAX, double stopTime=DBL_MAX);
+
+    void setStartTime(double startTime);
+    void setStopTime(double stopTime);
 
 
     virtual void clearData()
@@ -96,6 +99,8 @@ private:
     TrickCurveModel* _model;
     const QVector<double> *_timeVec;
     const QVector<double> *_valVec;
+    double _startTime;
+    double _stopTime;
     QCPRange _xrange;
     QCPRange _yrange;
 

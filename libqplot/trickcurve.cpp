@@ -6,7 +6,9 @@ TrickCurve::TrickCurve(QCPAxis *keyAxis, QCPAxis *valueAxis) :
     _isPainterPathCreated(false),
     _model(0),
     _timeVec(0),
-    _valVec(0)
+    _valVec(0),
+    _startTime(-DBL_MAX),
+    _stopTime(DBL_MAX)
 {
     setAntialiased(false);
     mPen.setColor(QColor(50, 100, 212));
@@ -95,19 +97,49 @@ double TrickCurve::_distSquaredLineSegmentToPoint(const QPointF &l0,
 }
 
 
-void TrickCurve::setData(TrickCurveModel *model)
+void TrickCurve::setData(TrickCurveModel *model,
+                         double startTime, double stopTime)
 {
    _model = model;
+   _startTime = startTime;
+   _stopTime = stopTime;
    QString yparam = model->headerData(2,Qt::Horizontal,Param::Name).toString();
    setName(yparam);
    _createPainterPath(model);
 }
 
-void TrickCurve::setData(const QVector<double> *t, const QVector<double> *v)
+void TrickCurve::setData(const QVector<double> *t, const QVector<double> *v,
+                         double startTime, double stopTime)
 {
    _timeVec = t;
    _valVec = v;
+   _startTime = startTime;
+   _stopTime = stopTime;
    _createPainterPath(t,v);
+}
+
+void TrickCurve::setStartTime(double startTime)
+{
+    if ( _startTime == startTime ) return;
+
+    _startTime = startTime;
+    if ( _model ) {
+        _createPainterPath(_model);
+    } else if ( !_timeVec->empty() )  {
+        _createPainterPath(_timeVec, _valVec);
+    }
+}
+
+void TrickCurve::setStopTime(double stopTime)
+{
+    if ( _stopTime == stopTime ) return;
+
+    _stopTime = stopTime;
+    if ( _model ) {
+        _createPainterPath(_model);
+    } else if ( !_timeVec->empty() )  {
+        _createPainterPath(_timeVec, _valVec);
+    }
 }
 
 void TrickCurve::draw(QCPPainter *painter)
@@ -226,6 +258,7 @@ void TrickCurve::_addFlatLineLabel(QCPPainter *painter)
 void TrickCurve::_createPainterPath(TrickCurveModel *model)
 {
     _isPainterPathCreated = true;
+    _painterPath = QPainterPath();
 
     _model = model;
 
@@ -233,10 +266,31 @@ void TrickCurve::_createPainterPath(TrickCurveModel *model)
 
     TrickModelIterator it = _model->begin();
     const TrickModelIterator e = _model->end();
-    _painterPath.moveTo(it.x(),it.y());
-    while (it != e) {
-        _painterPath.lineTo(it.x(),it.y());
-        ++it;
+
+    if ( _startTime == -DBL_MAX && _stopTime == -DBL_MAX ) {
+        _painterPath.moveTo(it.x(),it.y());
+        while (it != e) {
+            _painterPath.lineTo(it.x(),it.y());
+            ++it;
+        }
+    } else {
+        while (it != e) {
+            double t = it.t();
+            if ( t >= _startTime ) {
+                _painterPath.moveTo(it.x(),it.y());
+                break;
+            }
+            ++it;
+        }
+        while (it != e) {
+            double t = it.t();
+            if ( t <= _stopTime ) {
+                _painterPath.lineTo(it.x(),it.y());
+            } else {
+                break;
+            }
+            ++it;
+        }
     }
 
     _model->unmap();
@@ -246,13 +300,34 @@ void TrickCurve::_createPainterPath(const QVector<double> *t,
                                    const QVector<double> *v)
 {
     _isPainterPathCreated = true;
+    _painterPath = QPainterPath();
 
     _timeVec = t;
     _valVec = v;
 
-    _painterPath.moveTo(t->at(0),v->at(0));
-    for ( int i = 1; i < t->size(); ++i) {
-        _painterPath.lineTo(t->at(i),v->at(i));
+    if ( _startTime == -DBL_MAX && _stopTime == -DBL_MAX ) {
+        _painterPath.moveTo(t->at(0),v->at(0));
+        for ( int i = 1; i < t->size(); ++i) {
+            _painterPath.lineTo(t->at(i),v->at(i));
+        }
+    } else {
+        int i = 0;
+        for ( i = 0; i < t->size(); ++i) {
+            double time = t->at(i);
+            if ( time >= _startTime ) {
+                _painterPath.moveTo(t->at(i),v->at(i));
+                break;
+            }
+        }
+        ++i;
+        for ( ; i < t->size(); ++i) {
+            double time = t->at(i);
+            if ( time <= _stopTime ) {
+                _painterPath.lineTo(t->at(i),v->at(i));
+            } else {
+                break;
+            }
+        }
     }
 }
 

@@ -21,6 +21,8 @@ public:
     void setXMaxRange(double xMax);
     void setYMinRange(double yMin);
     void setYMaxRange(double yMax);
+    void setStartTime(double startTime);
+    void setStopTime(double stopTime);
     AxisRect* axisRect() { return _axisrect; }
     void drawMe(QCPPainter *painter);
 

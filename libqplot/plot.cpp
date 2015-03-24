@@ -76,6 +76,16 @@ void Plot::setYMaxRange(double yMax)
     _axisrect->setYMaxRange(yMax);
 }
 
+void Plot::setStartTime(double startTime)
+{
+    _axisrect->setStartTime(startTime);
+}
+
+void Plot::setStopTime(double stopTime)
+{
+    _axisrect->setStopTime(stopTime);
+}
+
 void Plot::drawMe(QCPPainter *painter)
 {
     QCustomPlot::draw(painter);

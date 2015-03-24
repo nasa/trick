@@ -67,6 +67,8 @@ public:
     double xMaxRange();
     double yMinRange();
     double yMaxRange();
+    double startTime();
+    double stopTime();
     QList<DPCurve*> curves() { return _curves; }
 
     DPCurve* addCurve();
@@ -76,6 +78,8 @@ public:
     void setXMaxRange(double xMax);
     void setYMinRange(double yMin);
     void setYMaxRange(double yMax);
+    void setStartTime(double startTime);
+    void setStopTime(double stopTime);
 
 private:
     QString _title;
@@ -85,6 +89,8 @@ private:
     double _xMaxRange;
     double _yMinRange;
     double _yMaxRange;
+    double _startTime;
+    double _stopTime;
     QList<DPCurve*> _curves;
     static QString _abbreviate(const QString& label,int maxlen=35);
 };
@@ -97,9 +103,16 @@ public:
     QString title() const { return _title ; }
     QList<DPPlot*> plots() { return _plots; }
     DPPlot* addPlot(const char* title);
+
+    double startTime();
+    double stopTime();
+    void setStartTime(double startTime);
+    void setStopTime(double stopTime);
 private:
     QString _title;
     QList<DPPlot*> _plots;
+    double _startTime;
+    double _stopTime;
 };
 
 class DPProduct

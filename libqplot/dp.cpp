@@ -143,7 +143,9 @@ QStringList DPProduct::paramList(const QString &fileName)
     return params;
 }
 
-DPPage::DPPage(const QDomElement &e)
+DPPage::DPPage(const QDomElement &e) :
+    _startTime(-DBL_MAX),
+    _stopTime(DBL_MAX)
 {
     QDomNode n = e.firstChild();
     while(!n.isNull()) {
@@ -155,6 +157,10 @@ DPPage::DPPage(const QDomElement &e)
             } else if ( tag == "plot" ) {
                 DPPlot* plot = new DPPlot(e);
                 _plots.append(plot);
+            } else if ( tag == "tstart" ) {
+                _startTime = e.text().toDouble();
+            } else if ( tag == "tstop" ) {
+                _stopTime = e.text().toDouble();
             }
         }
         n = n.nextSibling();
@@ -172,11 +178,33 @@ DPPlot *DPPage::addPlot(const char *title)
     return plot;
 }
 
+double DPPage::startTime()
+{
+    return _startTime;
+}
+
+double DPPage::stopTime()
+{
+    return _stopTime;
+}
+
+void DPPage::setStartTime(double startTime)
+{
+    _startTime = startTime;
+}
+
+void DPPage::setStopTime(double stopTime)
+{
+    _stopTime = stopTime;
+}
+
 DPPlot::DPPlot(const QDomElement &e) :
     _xMinRange(-DBL_MAX),
     _xMaxRange(DBL_MAX),
     _yMinRange(-DBL_MAX),
-    _yMaxRange(DBL_MAX)
+    _yMaxRange(DBL_MAX),
+    _startTime(-DBL_MAX),
+    _stopTime(DBL_MAX)
 {
     QDomElement el = e;
 
@@ -213,6 +241,10 @@ DPPlot::DPPlot(const QDomElement &e) :
                 if ( !labelElement.isNull() ) {
                     _yAxisLabel = labelElement.text();
                 }
+            } else if ( tag == "tstart" ) {
+                _startTime = e.text().toDouble();
+            } else if ( tag == "tstop" ) {
+                _stopTime = e.text().toDouble();
             }
         }
         n = n.nextSibling();
@@ -224,7 +256,9 @@ DPPlot::DPPlot(const char *title) :
     _xMinRange(-DBL_MAX),
     _xMaxRange(DBL_MAX),
     _yMinRange(-DBL_MAX),
-    _yMaxRange(DBL_MAX)
+    _yMaxRange(DBL_MAX),
+    _startTime(-DBL_MAX),
+    _stopTime(DBL_MAX)
 {
 }
 
@@ -278,6 +312,16 @@ double DPPlot::yMaxRange()
     return _yMaxRange;
 }
 
+double DPPlot::startTime()
+{
+    return _startTime;
+}
+
+double DPPlot::stopTime()
+{
+    return _stopTime;
+}
+
 void DPPlot::setXMinRange(double xMin)
 {
     _xMinRange = xMin;
@@ -296,6 +340,16 @@ void DPPlot::setYMinRange(double yMin)
 void DPPlot::setYMaxRange(double yMax)
 {
     _yMaxRange = yMax;
+}
+
+void DPPlot::setStartTime(double startTime)
+{
+    _startTime = startTime;
+}
+
+void DPPlot::setStopTime(double stopTime)
+{
+    _stopTime = stopTime;
 }
 
 DPCurve *DPPlot::addCurve()

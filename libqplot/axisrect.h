@@ -24,6 +24,8 @@ class AxisRect : public QCPAxisRect
     void setXMaxRange(double xMax);
     void setYMinRange(double yMin);
     void setYMaxRange(double yMax);
+    void setStartTime(double startTime);
+    void setStopTime(double stopTime);
 
     void showCurveDiff();
     void toggleCurveDiff();
@@ -71,6 +73,8 @@ protected:
     double _xMaxRange;
     double _yMinRange;
     double _yMaxRange;
+    double _startTime;
+    double _stopTime;
 
     double _keyPressMoveFactor;
     void _keyPressMoveLeft();

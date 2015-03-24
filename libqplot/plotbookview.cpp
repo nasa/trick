@@ -915,6 +915,16 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 double yMax = model()->data(idx).toDouble();
                 Plot* plot = _idx2Plot(pidx);
                 plot->setYMaxRange(yMax);
+            } else if ( idx.row() == 8 ) {
+                // Plot start time
+                double startTime = model()->data(idx).toDouble();
+                Plot* plot = _idx2Plot(pidx);
+                plot->setStartTime(startTime);
+            } else if ( idx.row() == 9 ) {
+                // Plot stop time
+                double stopTime = model()->data(idx).toDouble();
+                Plot* plot = _idx2Plot(pidx);
+                plot->setStopTime(stopTime);
             } else {
                 qDebug() << "snap [bad scoobies]: this should not happen.";
                 qDebug() << "     montewindow.cpp creates a model ";

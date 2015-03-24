@@ -14,6 +14,8 @@ AxisRect::AxisRect(QCustomPlot* plotwidget) :
     _xMaxRange(DBL_MAX),
     _yMinRange(-DBL_MAX),
     _yMaxRange(DBL_MAX),
+    _startTime(-DBL_MAX),
+    _stopTime(DBL_MAX),
     _keyPressMoveFactor(.08)
 {
     _xAxis = axis(QCPAxis::atBottom);
@@ -40,7 +42,7 @@ AxisRect::~AxisRect()
 TrickCurve* AxisRect::addCurve(TrickCurveModel* model)
 {
     TrickCurve *curve = new TrickCurve(_xAxis,_yAxis);
-    curve->setData(model);
+    curve->setData(model,_startTime,_stopTime);
     _addCurve(curve);
     return curve;
 }
@@ -49,7 +51,7 @@ TrickCurve* AxisRect::addCurve(const QVector<double> *t,
                                const QVector<double> *v)
 {
     TrickCurve *curve = new TrickCurve(_xAxis,_yAxis);
-    curve->setData(t,v);
+    curve->setData(t,v,_startTime,_stopTime);
     _addCurve(curve);
     return curve;
 }
@@ -250,6 +252,22 @@ void AxisRect::setYMinRange(double yMin)
 void AxisRect::setYMaxRange(double yMax)
 {
     _yMaxRange = yMax;
+}
+
+void AxisRect::setStartTime(double startTime)
+{
+    _startTime = startTime;
+    foreach (TrickCurve* curve, _curves ) {
+        curve->setStartTime(startTime);
+    }
+}
+
+void AxisRect::setStopTime(double stopTime)
+{
+    _stopTime = stopTime;
+    foreach (TrickCurve* curve, _curves ) {
+        curve->setStopTime(stopTime);
+    }
 }
 
 void AxisRect::_fitXRange()

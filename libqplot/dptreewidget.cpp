@@ -215,6 +215,18 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             yMaxItem->setData(yMax);
             plotItem->appendRow(yMaxItem);
 
+            double startTime = plot->startTime();
+            QString startTimeStr = QString("%1").arg(startTime);
+            QStandardItem *plotStartTime = new QStandardItem(startTimeStr);
+            plotStartTime->setData(startTime);
+            plotItem->appendRow(plotStartTime);
+
+            double stopTime = plot->stopTime();
+            QString stopTimeStr = QString("%1").arg(stopTime);
+            QStandardItem *plotStopTime = new QStandardItem(stopTimeStr);
+            plotStopTime->setData(stopTime);
+            plotItem->appendRow(plotStopTime);
+
             int curveId = -1;
             foreach (DPCurve* dpcurve, plot->curves() ) {
                 ++curveId;
