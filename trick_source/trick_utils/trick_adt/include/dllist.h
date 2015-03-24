@@ -6,30 +6,8 @@
 
 /*********** doubly linked list types *************/
 
-/*
- * $Log: dllist.h,v $
- * Revision 7.3  2008-05-20 11:33:41-05  lin
- * Remove warnings, part 3
- *
- * Revision 7.2  2007-12-04 17:11:27-06  penn
- * Deal with the dire, inquitous, and even nefarious warnings from a whole heap of -W flags
- *
- * Revision 7.1  2006-06-22 14:09:06-05  lin
- * Bump version number for 07
- *
- * Revision 5.3  2005-03-17 11:22:09-06  lin
- * Finish 8 Space Indent
- *
- * Revision 5.2  2004-11-03 15:00:12-06  lin
- * Investigate using aio_write
- *
- * Revision 4.2  2004/01/16 21:32:18  lin
- * Add a log to all files
- *
- */
-
-#ifndef _DLLIST_H
-#define _DLLIST_H
+#ifndef DLLIST_H
+#define DLLIST_H
 
 #include <assert.h>
 

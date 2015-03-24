@@ -1,16 +1,12 @@
 /*
-PURPOSE: 
+PURPOSE:
     (For master/slave sim, this is slave info)
 */
 
-/*
- * $Id: Slave.hh 411 2009-11-17 21:34:25Z lin $
- */
+#ifndef MSCONNECT_HH
+#define MSCONNECT_HH
 
-#ifndef _MSCONNECT_HH_
-#define _MSCONNECT_HH_
-
-#include <string> 
+#include <string>
 
 #include "sim_services/MasterSlave/include/ms_sim_mode.h"
 
@@ -18,9 +14,9 @@ namespace Trick {
 
     /**
      * This class is the base class of the connection between master and slaves.
-     * It defines the master/slave connection calls as well as the calls used by 
-     * both sides to send the time and mode commands.  
-     * 
+     * It defines the master/slave connection calls as well as the calls used by
+     * both sides to send the time and mode commands.
+     *
      * @author Eddie J. Paddock (Apr 1996)
      * @author Scott Killingsworth (Sep 1997)
      * @author Many other Trick developers of the past
@@ -42,7 +38,7 @@ namespace Trick {
 
             /**
              @brief Sets the wait time limit for communications between the master and slaves.
-             @param in_limit - the desired wait limit.  
+             @param in_limit - the desired wait limit.
              @return always 0
              */
             virtual int set_sync_wait_limit(double in_limit) = 0 ;

@@ -1,7 +1,5 @@
 #!/usr/bin/perl
 
-# $Id: depend_cp 495 2010-01-15 00:57:37Z wwoodard $
-
 use Cwd ;
 use File::Basename;
 use strict ;

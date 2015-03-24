@@ -1,9 +1,5 @@
-/*
- * $Id: message_proto.h 1635 2011-05-23 14:39:16Z dstrauss $
- */
-
-#ifndef _MESSAGE_TYPE_H_
-#define _MESSAGE_TYPE_H_
+#ifndef MESSAGE_TYPE_H
+#define MESSAGE_TYPE_H
 
 #ifdef __cplusplus
 extern "C" {

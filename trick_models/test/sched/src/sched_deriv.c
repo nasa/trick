@@ -7,10 +7,6 @@ LIBRARY DEPENDENCY:          ( sched_deriv.o )
 PROGRAMMERS:                 ( (Keith Vetter) (Titan) (8-20-2002) (Trick tutorial) )
 *******************************************************************************/
 
-/*
- * $Id: sched_deriv.c 737 2010-06-14 20:47:08Z wwoodard $
- */
-
 #include "../include/sched.h"
 
 

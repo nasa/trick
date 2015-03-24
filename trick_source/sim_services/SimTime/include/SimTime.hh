@@ -1,6 +1,6 @@
 
-#ifndef _TIME_HH_
-#define _TIME_HH_
+#ifndef SIMTIME_HH
+#define SIMTIME_HH
 
 #include "time_offset.h"
 

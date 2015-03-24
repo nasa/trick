@@ -1,6 +1,3 @@
-/*
- * $Id: DPC_delta_curve.hh 1843 2011-08-01 20:19:57Z penn $
- */
 
 #ifndef DPC_DELTA_CURVE_HH
 #define DPC_DELTA_CURVE_HH
@@ -14,7 +11,6 @@
 /**
  * This class provides all of the data necessary to represent a curve of a plot.
  * @author John M. Penn
- * @version $Id: DPC_delta_curve.hh 1843 2011-08-01 20:19:57Z penn $
  */
 class DPC_delta_curve: public DPC_curve {
 

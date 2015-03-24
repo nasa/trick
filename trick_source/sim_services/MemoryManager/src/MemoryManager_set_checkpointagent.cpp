@@ -1,9 +1,6 @@
-/**
- @file
- $Id$
- */
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
-#include "sim_services/MemoryManager/include/message_proto.h"
+#include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 Trick::CheckPointAgent * Trick::MemoryManager::get_CheckPointAgent() {
     return currentCheckPointAgent ;

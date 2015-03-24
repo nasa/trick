@@ -1,6 +1,4 @@
 
-# $Id: Makefile 2170 2012-02-07 22:22:36Z lin $
-
 include ${TRICK_HOME}/makefiles/Makefile.common
 include ${TRICK_HOME}/makefiles/Makefile.tricklib
 

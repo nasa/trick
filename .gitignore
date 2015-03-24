@@ -11,3 +11,4 @@ lib_Darwin_*
 *.swp
 *.dox
 Makefile_jsc_dirs
+.DS_Store

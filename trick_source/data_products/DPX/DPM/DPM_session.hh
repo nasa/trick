@@ -1,6 +1,3 @@
-/*
- * $Id: DPM_session.hh 2806 2013-02-06 15:04:12Z hchen3 $
- */
 
 #ifndef DPM_SESSION_HH
 #define DPM_SESSION_HH

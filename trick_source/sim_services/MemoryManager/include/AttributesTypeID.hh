@@ -1,6 +1,6 @@
 
-#ifndef __ATTRIBUTESTYPEID__
-#define __ATTRIBUTESTYPEID__
+#ifndef ATTRIBUTESTYPEID_HH
+#define ATTRIBUTESTYPEID_HH
 #include <string>
 #include <string.h>
 #include <iostream>

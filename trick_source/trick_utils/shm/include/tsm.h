@@ -1,24 +1,3 @@
-/*******************************************************************************
-*                                                                              *
-* Trick Simulation Environment Software                                        *
-*                                                                              *
-* Copyright (c) 1996,1997 LinCom Corporation, Houston, TX                      *
-* All rights reserved.                                                         *
-*                                                                              *
-* Copyrighted by LinCom Corporation and proprietary to it. Any unauthorized    *
-* use of Trick Software including source code, object code or executables is   *
-* strictly prohibited and LinCom assumes no liability for such actions or      *
-* results thereof.                                                             *
-*                                                                              *
-* Trick Software has been developed under NASA Government Contracts and        *
-* access to it may be granted for Government work by the following contact:    *
-*                                                                              *
-* Contact: Charles Gott, Branch Chief                                          *
-*          Simulation and Graphics Branch                                      *
-*          Automation, Robotics, & Simulation Division                         *
-*          NASA, Johnson Space Center, Houston, TX                             *
-*                                                                              *
-*******************************************************************************/
 /*
 PURPOSE:
      (Specify the trick shared memory library API and structure definition)
@@ -26,12 +5,8 @@ PROGRAMMERS:
      (((Danny Strauss) (L3) (Sep 2012) (--) (Initial Version)))
 */
 
-/*
- *  $Id: tc.h 2002 2011-10-20 21:05:12Z marnold $
- */
-
-#ifndef _tsm_h
-#define _tsm_h
+#ifndef TSM_H
+#define TSM_H
 
 #include  <stdio.h>
 #include  <stdlib.h>

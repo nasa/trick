@@ -1,6 +1,3 @@
-/*
- * $Id: Integrator_unittest.cc 3783 2015-01-23 20:40:44Z jpenn1 $
- */
 
 #include <gtest/gtest.h>
 

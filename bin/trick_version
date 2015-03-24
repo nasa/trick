@@ -1,8 +1,5 @@
 #!/usr/bin/perl
 
-#
-# $Id: trick_version 2716 2012-11-15 21:49:55Z alin $
-
 use File::Basename ;
 use Cwd 'abs_path';
 use strict;

@@ -7,12 +7,8 @@ LIBRARY_DEPENDENCIES:
     ((../src/InputProcessSimObject.cpp))
 */
 
-/*
- * $Id: IntegSimObject.hh 416 2009-11-18 22:32:12Z lin $
- */
-
-#ifndef _INPUTPROCESSSIMOBJECT_HH_
-#define _INPUTPROCESSSIMOBJECT_HH_
+#ifndef INPUTPROCESSSIMOBJECT_HH
+#define INPUTPROCESSSIMOBJECT_HH
 
 #include <vector>
 #include <string>

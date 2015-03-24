@@ -1,6 +1,3 @@
-/*
- * $Id: sched.d 1104 2010-09-24 21:56:51Z wwoodard $
- */
 
 SCHEDULE.pos        = 5.0 ;
 SCHEDULE.vel        = 0.0 ;

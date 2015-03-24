@@ -1,6 +1,3 @@
-/* 
- * $Id:$
- */
 
 #include <iostream>
 #include <string.h>
@@ -8,6 +5,7 @@
 #include "sim_services/Executive/include/Executive.hh"
 #include "sim_services/Executive/include/exec_proto.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 #include "sim_services/MemoryManager/include/memorymanager_c_intf.h"
 #include "sim_services/CheckPointRestart/include/checkpoint_stl.hh"
 #include "sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh"

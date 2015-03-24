@@ -1,7 +1,5 @@
 package trick_print ;
 
-# $Id: trick_print.pm 49 2009-02-02 22:37:59Z lin $
-
 use Exporter ();
 @ISA = qw(Exporter);
 @EXPORT = qw(trick_print);

@@ -1,6 +1,3 @@
-/*
- * $Id: table_view_node.hh 639 2010-04-14 15:54:53Z wwoodard $
- */
 
 #ifndef TABLE_VIEW_NODE_HH
 #define TABLE_VIEW_NODE_HH

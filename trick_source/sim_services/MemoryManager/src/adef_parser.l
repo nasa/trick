@@ -7,10 +7,6 @@
 
 %{
 /*
- * $Id$
- */
-
-/*
  * This is a debug macro which is used to echo every character parsed by the
  * lex.
  */

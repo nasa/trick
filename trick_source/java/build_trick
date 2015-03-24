@@ -18,12 +18,6 @@
 #               build_trick javadoc
 #
 #=================================================================
-#
-#
-# $Id: build_trick 3425 2014-02-07 22:48:14Z alin $
-#
-#================================================================
-
 
 # Get the relative path to where this file is located
 BUILD_TRICK_DIR=`dirname $0`

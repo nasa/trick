@@ -2,12 +2,8 @@
     PURPOSE: (ExternalApplication C interface.)
 */
 
-/*
- * $Id: external_application_c_intf.h 3592 2014-07-01 16:01:00Z hchen3 $
- */
-
-#ifndef _APPLICATION_C_INTF_H_
-#define _APPLICATION_C_INTF_H_
+#ifndef EXTERNAL_APPLICATION_C_INTF_H
+#define EXTERNAL_APPLICATION_C_INTF_H
 
 #ifdef __cplusplus
 extern "C" {

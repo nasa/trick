@@ -9,8 +9,8 @@ PROGRAMMERS:                 ( (Lindsay Landry) (L3) (9-12-2013) )
 #include "trick_utils/comm/include/tc.h"
 #include "trick_utils/comm/include/tc_proto.h"
 
-#ifndef _VAR_SERVER_H_
-#define _VAR_SERVER_H_
+#ifndef VS_HH
+#define VS_HH
 class VSTest { 
 	public:
 

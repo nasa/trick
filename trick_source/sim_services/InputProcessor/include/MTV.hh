@@ -1,9 +1,6 @@
-/*
- * $Id: IPPythonEvent.hh 634 2010-04-07 22:02:04Z dstrauss $
- */
 
-#ifndef _MTV_HH_
-#define _MTV_HH_
+#ifndef MTV_HH
+#define MTV_HH
 
 #include <string>
 #include "sim_services/InputProcessor/include/IPPythonEvent.hh"

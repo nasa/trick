@@ -1,9 +1,5 @@
-/*
- * $Id: message_proto.h 3530 2014-05-15 16:13:05Z alin $
- */
-
-#ifndef _MESSAGE_PROTO_H_
-#define _MESSAGE_PROTO_H_
+#ifndef MESSAGE_PROTO_H
+#define MESSAGE_PROTO_H
 
 #include <stdio.h>
 #include <stdarg.h>

@@ -1,5 +1,3 @@
-# $Id: input.py 2126 2012-01-17 22:08:56Z dbankie $
-
 trick_sys.sched.set_enable_freeze(True)
 
 """ Sim Control Panel """

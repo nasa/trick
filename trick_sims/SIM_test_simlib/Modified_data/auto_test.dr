@@ -1,6 +1,4 @@
 
-# $Id: auto_test.dr 1154 2010-10-15 18:38:48Z wwoodard $
-
 ''' Ensure variable is defined '''
 try:
     DR_GROUP_ID

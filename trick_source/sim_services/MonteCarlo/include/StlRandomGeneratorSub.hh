@@ -1,8 +1,6 @@
 // NOTE: This file is intended to be included into the StlRandomGenerator.hh header
-
-/*
- * $Id: StlRandomGeneratorSub.hh $
- */
+#ifndef STLRANDOMGENERATORSUB_HH
+#define STLRANDOMGENERATORSUB_HH
 
 #ifdef _HAVE_STL_RANDOM
 
@@ -266,5 +264,7 @@ StlRandomGeneratorSub<std::ranlux64_base_01,
 {
     distribution = std::poisson_distribution<STL_POISSON_TEMPLATE_TYPES>(a);
 }
+
+#endif
 
 #endif

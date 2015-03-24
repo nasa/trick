@@ -18,6 +18,7 @@ Programmers:
 // Trick includes
 #include "sim_services/MemoryManager/include/memorymanager_c_intf.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 #ifdef USE_ER7_UTILS_INTEGRATORS
 // Interface includes

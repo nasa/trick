@@ -9,8 +9,8 @@ Programmers:
 
 *******************************************************************************/
 
-#ifndef TRICK_ER7_NL2_INTEGRATOR_HH
-#define TRICK_ER7_NL2_INTEGRATOR_HH
+#ifndef NL2_INTEGRATOR_HH
+#define NL2_INTEGRATOR_HH
 
 #include "er7_utils/integration/nl2/include/nl2_integrator_constructor.hh"
 #include "er7_utils/trick/integration/include/second_order_ode_integrator.hh"

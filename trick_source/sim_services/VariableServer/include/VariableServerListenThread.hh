@@ -3,12 +3,8 @@
         (VariableServerListenThread)
 */
 
-/*
- * $Id:$
- */
-
-#ifndef _VARIABLESERVERLISTENTHREAD_HH_
-#define _VARIABLESERVERLISTENTHREAD_HH_
+#ifndef VARIABLESERVERLISTENTHREAD_HH
+#define VARIABLESERVERLISTENTHREAD_HH
 
 #include <string>
 #include <iostream>

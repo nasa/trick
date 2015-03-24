@@ -1,7 +1,3 @@
-/*
- $Id$
- */
-
 #include <stdlib.h>
 #include <iostream>
 
@@ -9,7 +5,8 @@
 #include <dlfcn.h>
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
 #include "sim_services/MemoryManager/include/ADefParseContext.hh"
-#include "sim_services/MemoryManager/include/message_proto.h"
+#include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 /**
  @page examples_declare_var Examples of declare_var

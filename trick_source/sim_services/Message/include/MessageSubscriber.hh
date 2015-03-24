@@ -1,14 +1,6 @@
-/* 
- * $Id: MessageSubscriber.hh 3553 2014-06-11 19:26:39Z alin $
- */
 
-
-/**
- * @file MessageSubscriber.hh
- */
-
-#ifndef _MESSAGESUBSCRIBER_HH_
-#define _MESSAGESUBSCRIBER_HH_
+#ifndef MESSAGESUBSCRIBER_HH
+#define MESSAGESUBSCRIBER_HH
 
 #include <streambuf>
 #include <iostream>

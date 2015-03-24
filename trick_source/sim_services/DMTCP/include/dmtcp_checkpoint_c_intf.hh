@@ -1,19 +1,10 @@
-/* 
-    PURPOSE: 
-        (DMTCP C interface) 
+/*
+    PURPOSE:
+        (DMTCP C interface)
 */
 
-/* 
- * $Id: dmtcp_checkpoint_c_intf.hh 2475 2012-06-25 16:19:26Z mbhatta $
- */
-
-/**
- * @file dmtcp_checkpoint_c_intf.hh
- */
-
-
-#ifndef _DMTCPPROTO_HH_
-#define _DMTCPPROTO_HH_
+#ifndef DMTCP_CHECKPOINT_C_INTF_HH
+#define DMTCP_CHECKPOINT_C_INTF_HH
 
 #ifdef _DMTCP
 #include "dmtcpaware.h"

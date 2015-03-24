@@ -7,10 +7,6 @@
       ((Scott Killingsworth) (LinCom) (September 1997) (--) (Issue #1016)))
  */
 
-/* 
- *  $Id: Executive_shutdown.cpp 3639 2014-08-18 19:56:58Z alin $
- */
-
 #include <stdlib.h>
 #include <fcntl.h>
 #include <iomanip>
@@ -19,6 +15,7 @@
 #include "sim_services/Executive/include/Executive.hh"
 #include "sim_services/Executive/include/Exec_exception.hh"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 #include "sim_services/include/release.h"
 
 /**

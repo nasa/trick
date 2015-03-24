@@ -1,6 +1,4 @@
 
-# $Id: unit_test.py 757 2010-06-22 18:40:57Z wwoodard $
-
 dyn.baseball.pos[0] = 16.0
 dyn.baseball.pos[1] = 0.1 
 dyn.baseball.pos[2] = 2.0 

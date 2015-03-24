@@ -9,17 +9,8 @@
         (((Alex Lin) (NASA) (1/12) (--) (--)))
 */
 
-/*
- * $Id:$
- */
-
-/**
- * @file UnitsMap.hh
- * Provides a map of variables and their units.
- */
-
-#ifndef _PRIMITIVEATTRIBUTESMAP_HH_
-#define _PRIMITIVEATTRIBUTESMAP_HH_
+#ifndef PRIMITIVEATTRIBUTESMAP_HH
+#define PRIMITIVEATTRIBUTESMAP_HH
 
 #include <map>
 #include <string>

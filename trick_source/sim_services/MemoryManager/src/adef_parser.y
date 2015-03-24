@@ -8,7 +8,6 @@
 /*
    %debug
    %error-verbose
-   $Id$
 */
 
 #include <iostream>
@@ -19,7 +18,8 @@
 #include "sim_services/MemoryManager/include/value.h"
 #include "sim_services/MemoryManager/include/var.h"
 #include "sim_services/MemoryManager/include/ADefParseContext.hh"
-#include "sim_services/MemoryManager/include/message_proto.h"
+#include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 #include "adef_parser.tab.h"
 
     using namespace std;

@@ -1,7 +1,3 @@
-/** 
- @file
- $Id: MemoryManager.cpp 3775 2015-01-20 20:36:36Z dbankier $
-*/
 #include <dlfcn.h>
 #include <stdlib.h>
 #include "sim_services/MemoryManager/include/MemoryManager.hh"

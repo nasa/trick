@@ -1,8 +1,4 @@
 
-/* 
- * $Id:$
- */
-
 #include <iostream>
 
 #include "sim_services/Executive/include/Executive.hh"

@@ -1,7 +1,3 @@
-/*
- * $Id: S_define.amoeba 1120 2010-09-30 16:56:22Z dpanter $
- */
-
 /************************TRICK HEADER*************************
 PURPOSE:
     (This comment lists out the other object files that are not included from c++ headers)

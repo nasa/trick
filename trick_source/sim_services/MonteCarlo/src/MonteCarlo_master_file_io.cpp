@@ -1,12 +1,10 @@
-/*
- * $Id: MonteCarlo_master_file_io.cpp $
- */
 
 #include <sys/stat.h>
 #include <libgen.h>
 
 #include "sim_services/MonteCarlo/include/MonteCarlo.hh"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 #include "sim_services/CommandLineArguments/include/command_line_protos.h"
 
 /** @par Detailed Design: */
@@ -14,20 +12,20 @@ int Trick::MonteCarlo::construct_run_directory() {
     /** <ul><li> Construct the run directory. */
     run_directory = command_line_args_get_user_output_dir();
     if (run_directory.empty()) {
-    	std::string run_base_directory = command_line_args_get_output_dir();
-    	if (run_base_directory.empty()) {
-    		if (verbosity >= ERROR) {
-    			message_publish(MSG_ERROR, "Monte [Master] Could not get the output directory.\n") ;
-    	    }
-    	    return -1;
-    	}
-    	std::size_t path_separator_pos = run_base_directory.find_last_of("/");
-    	if (path_separator_pos != std::string::npos) {
-    		// "/" is included
-    		run_base_directory = run_base_directory.substr(0, path_separator_pos + 1);
-    	} else {
-    		run_base_directory = "";
-    	}
+        std::string run_base_directory = command_line_args_get_output_dir();
+        if (run_base_directory.empty()) {
+            if (verbosity >= ERROR) {
+                message_publish(MSG_ERROR, "Monte [Master] Could not get the output directory.\n") ;
+            }
+            return -1;
+        }
+        std::size_t path_separator_pos = run_base_directory.find_last_of("/");
+        if (path_separator_pos != std::string::npos) {
+            // "/" is included
+            run_base_directory = run_base_directory.substr(0, path_separator_pos + 1);
+        } else {
+            run_base_directory = "";
+        }
 
         run_directory = basename((char *)command_line_args_get_output_dir());
         if (run_directory.empty()) {

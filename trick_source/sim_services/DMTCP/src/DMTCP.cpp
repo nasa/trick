@@ -1,12 +1,5 @@
-/*
- * $Id: DMTCP.cpp 2475 2012-06-25 16:19:26Z mbhatta $
- */
 
-/**
- * @file DMTCP.cpp
- */
-
-#include <iostream> 
+#include <iostream>
 #include <libgen.h>
 #include <sys/types.h>
 #include <sys/stat.h>

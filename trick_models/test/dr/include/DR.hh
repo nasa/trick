@@ -8,8 +8,8 @@
 #include <string>
 
 
-#ifndef _DATA_RECORD_H_
-#define _DATA_RECORD_H_
+#ifndef DR_HH
+#define DR_HH
 
 typedef enum {
 	ONE			= 1,

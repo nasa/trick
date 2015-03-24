@@ -7,13 +7,8 @@ PURPOSE:
 @endverbatim
 *******************************************************************************/
 
-/*
- * $Id:$
- */
-
-
-#ifndef _ALLOCTEST_HH_
-#define _ALLOCTEST_HH_
+#ifndef ALLOCTEST_HH
+#define ALLOCTEST_HH
 
 // System include files.
 

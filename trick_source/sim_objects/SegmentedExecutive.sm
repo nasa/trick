@@ -8,8 +8,8 @@
   top_of_frame job sched.segment_switch.
 */
 
-#ifndef _SEGMENTEDEXECUTIVE_SM_
-#define _SEGMENTEDEXECUTIVE_SM_
+#ifndef SEGMENTEDEXECUTIVE_SM
+#define SEGMENTEDEXECUTIVE_SM
 
 ##include "SegmentedExecutive/include/Segment.hh"
 ##include "SegmentedExecutive/include/SegmentedExecutive.hh"

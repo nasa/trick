@@ -3,10 +3,6 @@
    PROGRAMMERS: (((Alex Lin) (NASA) (5/13)))
 */
 
-/*
- * $Id:$
- */
-
 #include <stdlib.h>
 
 #include "sim_services/MemoryManager/include/reference.h"

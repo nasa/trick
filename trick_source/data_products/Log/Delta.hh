@@ -1,8 +1,8 @@
 // The delta stream returns the difference between
 // two streams designated with the <var:run> syntax
 
-#ifndef _DELTA_H_
-#define _DELTA_H_
+#ifndef DELTA_HH
+#define DELTA_HH
 
 #include <stdio.h>
 #include "DataStream.hh"

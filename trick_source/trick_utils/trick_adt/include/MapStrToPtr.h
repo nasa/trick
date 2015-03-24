@@ -1,5 +1,5 @@
-#ifndef _MAPSTRTOPTR_H
-#define _MAPSTRTOPTR_H
+#ifndef MAPSTRTOPTR_H
+#define MAPSTRTOPTR_H
 
 
 /************************************
@@ -15,22 +15,7 @@ PURPOSE:  This data structure uses a hash table to map strings to pointers.  Com
           time required to retrieve an element from the map will increase much less than O(n) as in
           the case of can array.  An alternative data structure that may give better performance in
           some circumstances is the binary tree.
-**************************************************/      
-
-/*
- * $Log: MapStrToPtr.h,v $
- * Revision 5.2  2005-03-17 11:22:08-06  lin
- * Finish 8 Space Indent
- *
- * Revision 5.1  2004-08-05 13:09:57-05  lin
- * Bump
- *
- * Revision 4.2  2004/01/16 21:32:17  lin
- * Add a log to all files
- *
- */
-
-
+**************************************************/
 
 #include <stdlib.h>
 #include "dllist.h"

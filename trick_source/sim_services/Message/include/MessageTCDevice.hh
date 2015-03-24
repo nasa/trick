@@ -1,12 +1,5 @@
-/* 
- * $Id: MessageTCDevice.hh 3553 2014-06-11 19:26:39Z alin $
- */
-
-/**
- * @file MessageTCDevice.hh
- */
-#ifndef _EXECMESSAGETCDEVICE_HH_
-#define _EXECMESSAGETCDEVICE_HH_
+#ifndef MESSAGETCDEVICE_HH
+#define MESSAGETCDEVICE_HH
 
 #include <pthread.h>
 #include <vector>

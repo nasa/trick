@@ -6,12 +6,8 @@ PROGRAMMERS:
     ((Alex Lin) (NASA) (May 2009) (OO))
 */
 
-/*
- * $Id: JobData.hh 411 2009-11-17 21:34:25Z lin $
- */
-
-#ifndef _SCHEDULEDQUEUEINSTRUMENT_HH_
-#define _SCHEDULEDQUEUEINSTRUMENT_HH_
+#ifndef SCHEDULEDQUEUEINSTRUMENT_HH
+#define SCHEDULEDQUEUEINSTRUMENT_HH
 
 #include <string>
 

@@ -7,12 +7,7 @@ LIBRARY DEPENDENCY:          ( sched_environment.o )
 PROGRAMMERS:                 ( (Keith Vetter) (Titan) (8-20-2002) )
 *******************************************************************************/
 
-/*
- * $Id: sched_environment.c 737 2010-06-14 20:47:08Z wwoodard $
- */
-
 #include "../include/sched.h"
-
 
 int sched_environment(
                   /* RETURN: -- Always return zero */

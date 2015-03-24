@@ -1,8 +1,4 @@
 
-/*
- * $Id: DataStreamFactory.cpp 3338 2013-12-12 22:05:46Z lmlandry $
- */
-
 #include "DataStreamFactory.hh"
 
 DataStreamFactory::~DataStreamFactory()

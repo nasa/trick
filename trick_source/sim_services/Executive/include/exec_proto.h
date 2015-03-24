@@ -1,10 +1,6 @@
 
-/*
- * $Id: exec_proto.h 3523 2014-05-13 21:00:37Z alin $
- */
-
-#ifndef _EXEC_PROTO_H_
-#define _EXEC_PROTO_H_
+#ifndef EXEC_PROTO_H
+#define EXEC_PROTO_H
 
 #include "sim_services/Executive/include/sim_mode.h"
 

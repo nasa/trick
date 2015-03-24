@@ -1,8 +1,6 @@
-/*
- * $Id: MemoryManager_get_type_attributes.cpp 3622 2014-08-08 01:04:00Z jpenn1 $
- */
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
-#include "sim_services/MemoryManager/include/message_proto.h"
+#include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 int Trick::MemoryManager::get_type_attributes( TRICK_TYPE& type,
                                                std::string user_type_name,

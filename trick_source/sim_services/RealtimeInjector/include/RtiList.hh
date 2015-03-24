@@ -3,8 +3,8 @@
         (Real Time Injector)
 */
 
-#ifndef _RTILIST_HH
-#define _RTILIST_HH
+#ifndef RTILIST_HH
+#define RTILIST_HH
 
 #include <vector>
 #include "RtiEvent.hh"

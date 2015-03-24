@@ -2,8 +2,6 @@
 # This provides the default Trick environment for Trick users.
 # Users may override any variable within their .Trick_user_cshrc
 
-# $Id: Trick.cshrc 1963 2011-10-06 21:22:03Z wwoodard $
-
 #################################################################
 # Is Trick installed where TRICK_HOME is?
 #################################################################

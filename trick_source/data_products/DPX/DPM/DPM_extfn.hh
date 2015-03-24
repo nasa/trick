@@ -1,6 +1,3 @@
-/*
- * $Id: DPM_extfn.hh 1842 2011-08-01 00:02:00Z penn $
- */
 
 #ifndef DPM_EXTFN_HH
 #define DPM_EXTFN_HH

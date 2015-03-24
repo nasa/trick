@@ -1,7 +1,3 @@
-/*
- * $Id: QPRemoteCallInterface.java 1774 2011-07-14 16:47:14Z hchen $
- *
- */
 
 //========================================
 //  Package

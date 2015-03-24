@@ -3,16 +3,8 @@
         (DMTCP)
 */
 
-/*
- * $Id: DMTCP.hh 2566 2012-09-06 22:01:28Z mbhatta $
- */
-
-/**
- * @file DMTCP.hh
- */
-
-#ifndef _DMTCP_HH_
-#define _DMTCP_HH_
+#ifndef DMTCP_HH
+#define DMTCP_HH
 
 #ifdef _DMTCP
 #include "dmtcpaware.h"

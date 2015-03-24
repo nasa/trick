@@ -7,10 +7,6 @@ LIBRARY DEPENDENCY:          ( sched_integ.o )
 PROGRAMMERS:                 ( (Keith Vetter) (Titan) (8-20-2002) (Trick tutorial) )
 *******************************************************************************/
 
-/*
- * $Id: sched_integ.c 745 2010-06-17 19:28:30Z wwoodard $
- */
-
 #include <stdio.h>
 
 #include "sim_services/Integrator/include/integrator_c_intf.h"

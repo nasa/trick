@@ -1,8 +1,4 @@
 
-/* 
- * $Id: MapStrToPtr.c 49 2009-02-02 22:37:59Z lin $
- */
-
 #include <string.h>
 #include <stdio.h>
 #include <assert.h>

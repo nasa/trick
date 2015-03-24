@@ -1,6 +1,3 @@
-/*
- * $Id: DPC_product.cpp 1900 2011-08-29 21:55:41Z penn $
- */
 
 #include "DPC/DPC_product.hh"
 #include "DPM/DPM_parse_tree.hh"

@@ -1,7 +1,5 @@
 package gte ;
 
-# $Id: gte.pm 3570 2014-06-24 21:30:38Z alin $
-
 use File::Basename ;
 use Cwd 'abs_path';
 use Exporter ();

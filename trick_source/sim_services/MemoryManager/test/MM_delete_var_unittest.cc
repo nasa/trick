@@ -1,6 +1,3 @@
-/*
- * $Id$
- */
 
 #include <gtest/gtest.h>
 #include "sim_services/MemoryManager/include/MemoryManager.hh"

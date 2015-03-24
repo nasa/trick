@@ -22,10 +22,6 @@ PROGRAMMERS:
      ((Edwin Z. Crues)(Titan Systems Corp.)(Jan 2002)(Crude C++ translation)))
 *******************************************************************************/
 
-/*
- * $Id:$
- */
-
 #include "sim_services/UnitTest/include/trick_tests.h"
 
 /* Model include files. */

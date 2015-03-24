@@ -1,9 +1,6 @@
-/*
- * $Id: DPC_TimeCstrDataStream.hh 3340 2013-12-12 22:52:26Z lmlandry $
- */
 
-#ifndef DPC_TIME_CSTR_DATASTREAM_HH
-#define DPC_TIME_CSTR_DATASTREAM_HH
+#ifndef DPC_TIMECSTRDATASTREAM_HH
+#define DPC_TIMECSTRDATASTREAM_HH
 #include <iostream> // FOR DEBUGGING
 
 #include <string>
@@ -19,7 +16,6 @@
  *  (period = 1/frequency)
  *
  * @author John M. Penn
- * @version $Id: DPC_TimeCstrDataStream.hh 3340 2013-12-12 22:52:26Z lmlandry $
  */
 class DPC_TimeCstrDataStream : public DataStream {
 

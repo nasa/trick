@@ -6,10 +6,6 @@ PROGRAMMERS:
      ((Alex Lin) (NASA) (April 2009) (--) (c++ port)))
 */
 
-/*
- * $Id$
- */
-
 #include <stdlib.h>
 
 #include "sim_services/Clock/include/Clock.hh"

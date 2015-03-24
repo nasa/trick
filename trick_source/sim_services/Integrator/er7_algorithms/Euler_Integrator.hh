@@ -9,8 +9,8 @@ Programmers:
 
 *******************************************************************************/
 
-#ifndef TRICK_ER7_EULER_INTEGRATOR_HH
-#define TRICK_ER7_EULER_INTEGRATOR_HH
+#ifndef EULER_INTEGRATOR_HH
+#define EULER_INTEGRATOR_HH
 
 #include "er7_utils/integration/euler/include/euler_integrator_constructor.hh"
 #include "er7_utils/trick/integration/include/first_order_ode_integrator.hh"

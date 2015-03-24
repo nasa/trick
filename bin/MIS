@@ -1,7 +1,5 @@
 #!/usr/bin/perl
 
-# $Id: MIS 385 2009-10-30 15:10:03Z lin $
-
 use strict ;
 use FindBin qw($Bin);
 use lib "$Bin/pm" ;

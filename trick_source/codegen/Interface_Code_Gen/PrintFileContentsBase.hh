@@ -1,6 +1,6 @@
 
-#ifndef _PRINTFILECONTENTSBASE_HH_
-#define _PRINTFILECONTENTSBASE_HH_
+#ifndef PRINTFILECONTENTSBASE_HH
+#define PRINTFILECONTENTSBASE_HH
 
 #include <string>
 #include <vector>

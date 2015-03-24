@@ -5,12 +5,8 @@
   PROGRAMMERS:                 ((Keith Vetter) (LinCom) (7/2003))
 */
 
-/*
- * $Id: MonteVarRandom.hh $
- */
-
-#ifndef _MONTEVARRANDOM_HH_
-#define _MONTEVARRANDOM_HH_
+#ifndef MONTEVARRANDOM_HH
+#define MONTEVARRANDOM_HH
 
 #include <string>
 
@@ -40,33 +36,33 @@ namespace Trick {
         ///
         enum StlEngine {
             NO_ENGINE                = 0, /**< -- This selection causes the Trick hand coded fallback algorithms to be used */
-            
+
             TRICK_DEFAULT_ENGINE     = 1, /**< -- std::ranlux_base_01 for TR1, std::mt19937 for _HAVE_STD_RANDOM */
-            
+
 #ifdef _HAVE_TR1_RANDOM
             RANLUX_BASE_01_ENGINE    = 2, /**< -- TR1 only std::ranlux_base_01 Engine, note: replaced for c++11 */
             RANLUX_64_BASE_01_ENGINE = 3, /**< -- TR1 only std::ranlux64_base_01 Engine, note: replaced for c++11 */
 #endif
-        
+
 #ifdef _HAVE_STL_RANDOM
             // NOTE: MINSTD_RAND_ENGINE and MT19937_ENGINE return out of canonical range
             // for (at least) GCC 4.4.7,so are not provided for _HAVE_TR1_RANDOM
-            
+
             MINSTD_RAND_ENGINE       = 2, /**< -- std::minstd_rand Minimal Standard Linear Congruential Engine */
             MT19937_ENGINE           = 3, /**< -- std::mt19937 Mersenne Twister Engine */
-            
+
             MT19937_64_ENGINE        = 4, /**< -- std::mt19937_64  64 bit Mersenne Twister Engine. Not available TR1 */
-            
+
             RANLUX_24_BASE_ENGINE    = 5, /**< -- std::ranlux24_base Engine */
             RANLUX_44_BASE_ENGINE    = 6, /**< -- std::ranlux48_base Engine */
-            
+
             RANLUX_24_ENGINE         = 7, /**< -- std::ranlux24 Engine */
             RANLUX_44_ENGINE         = 8, /**< -- std::ranlux48 Engine */
-            
+
             KNUTH_B_ENGINE           = 9  /**< -- std::knuth_b Engine */
 #endif
         };
-        
+
         /** A random distribution. */
         enum Distribution {
             GAUSSIAN = TRICK_GSL_GAUSS, /**< Gaussian distribution */
@@ -85,7 +81,7 @@ namespace Trick {
         TRICK_GSL_RANDIST randist; /**< \n trick_units(**) */
 
         StlRandomGenerator* stlGenPtr; /**< trick_units(**) STL pseudo-random number generator */
-        
+
         public:
         /**
          * Constructs a MonteVarRandom with the given name, distribution, and units.
@@ -101,7 +97,7 @@ namespace Trick {
          * Destructor
          */
         ~MonteVarRandom();
-        
+
         /**
          * Sets the seed.
          *
@@ -169,15 +165,15 @@ namespace Trick {
          * @return value of the absolute minimum, taking into account all options (relative or absolute input)
          */
         double get_absolute_min() const { return (randist.rel_min) ? (randist.mu + randist.min) : randist.min; }
-        
+
         /**
          * @return value of the absolute maximum, taking into account all options (relative or absolute input)
          */
         double get_absolute_max() const { return (randist.rel_max) ? (randist.mu + randist.max) : randist.max; }
-        
+
         protected:
         virtual std::string get_next_value();
-        
+
         /**
          * updates the STL randomization subobject when settings are changed, maintaining consistency
          */

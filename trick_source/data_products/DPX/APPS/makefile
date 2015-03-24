@@ -1,6 +1,4 @@
 
-# $Id: makefile 640 2010-04-14 16:25:51Z wwoodard $
-
 SHELL = /bin/sh
 
 all: apps

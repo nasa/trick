@@ -1,6 +1,6 @@
 
-#ifndef _TRICK_SET_HH_
-#define _TRICK_SET_HH_
+#ifndef TRICK_SET_HH
+#define TRICK_SET_HH
 
 #include <string>
 #include <set>

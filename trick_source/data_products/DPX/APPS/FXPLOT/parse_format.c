@@ -1,6 +1,3 @@
-/*
- * $Id: parse_format.c 639 2010-04-14 15:54:53Z wwoodard $
- */
 
 #include <ctype.h>
 #include <stdio.h>

@@ -1,6 +1,3 @@
-/*
- * $Id: DPC_TimeCstrDataStream.cpp 3340 2013-12-12 22:52:26Z lmlandry $
- */
 
 // NOTES:
 // Both the current and next time/value pair in a DataStream are kept

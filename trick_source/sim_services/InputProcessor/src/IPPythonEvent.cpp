@@ -1,4 +1,4 @@
-/* 
+/*
    PURPOSE: ( Python input processor event capability )
    REFERENCE: ( Trick Simulation Environment )
    ASSUMPTIONS AND LIMITATIONS: ( None )
@@ -6,10 +6,6 @@
    LIBRARY DEPENDENCY: ( None )
    PROGRAMMERS: ( Alex Lin NASA 2009 )
 */
-
-/* 
- * $Id: IPPythonEvent.cpp 634 2010-04-07 22:02:04Z dstrauss $
- */
 
 #include <iostream>
 #include <string>
@@ -21,6 +17,7 @@
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
 #include "sim_services/Executive/include/exec_proto.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 #include "sim_services/MemoryManager/include/memorymanager_c_intf.h"
 #include "sim_services/Executive/include/exec_proto.hh"
 

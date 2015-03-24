@@ -5,12 +5,8 @@ PROGRAMMERS:
     (((Alex Lin) (NASA) (2009)))
 */
 
-/*
- * $Id: Clock.hh 3722 2014-10-30 19:18:42Z alin $
- */
-
-#ifndef _CLOCK_HH_
-#define _CLOCK_HH_
+#ifndef CLOCK_HH
+#define CLOCK_HH
 
 #include <string>
 

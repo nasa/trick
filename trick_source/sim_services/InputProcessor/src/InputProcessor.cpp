@@ -1,4 +1,4 @@
-/* 
+/*
    PURPOSE: ( Handle the simulation command line args )
 
    REFERENCE: ( Trick Simulation Environment )
@@ -10,10 +10,6 @@
    LIBRARY DEPENDENCY: ( None )
 
    PROGRAMMERS: ( Keith Vetter LinCom 6/2003 ) */
-
-/* 
- * $Id: InputProcessor.cpp 2316 2012-04-16 15:12:23Z alin $
- */
 
 #include <iostream>
 #include <string.h>

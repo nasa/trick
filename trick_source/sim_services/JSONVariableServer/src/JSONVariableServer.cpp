@@ -7,6 +7,7 @@
 #include "sim_services/JSONVariableServer/include/JSONVariableServerThread.hh"
 #include "trick_utils/comm/include/tc_proto.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 Trick::JSONVariableServer::JSONVariableServer() :
  Trick::ThreadBase("JSONVarServLis"),

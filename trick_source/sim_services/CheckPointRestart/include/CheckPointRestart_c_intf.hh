@@ -1,18 +1,10 @@
-/* 
-    PURPOSE: 
-        (Memory Manager Wrapper C interface) 
+/*
+    PURPOSE:
+        (Memory Manager Wrapper C interface)
 */
 
-/* 
- * $Id: CheckPointRestart_c_intf.hh 3417 2014-02-07 15:55:32Z alin $
- */
-
-/**
- * @file
- */
-
-#ifndef _CHECKPOINTRESTARTCINTF_HH_
-#define _CHECKPOINTRESTARTCINTF_HH_
+#ifndef CHECKPOINTRESTART_C_INTF_HH
+#define CHECKPOINTRESTART_C_INTF_HH
 
 #ifdef __cplusplus
 extern "C" {

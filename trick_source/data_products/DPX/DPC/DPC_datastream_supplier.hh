@@ -1,6 +1,3 @@
-/*
- * $Id: DPC_datastream_supplier.hh 3242 2013-09-24 15:15:01Z alin $
- */
 
 #ifndef DPC_DATASTREAM_SUPPLIER_HH
 #define DPC_DATASTREAM_SUPPLIER_HH
@@ -18,7 +15,6 @@
 /**
  * This class attempts to supply DataStreams according to a set of specifications.
  * @author John M. Penn
- * @version $Id: DPC_datastream_supplier.hh 3242 2013-09-24 15:15:01Z alin $
  */
 class DPC_datastream_supplier {
 

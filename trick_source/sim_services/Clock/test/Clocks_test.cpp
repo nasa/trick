@@ -1,7 +1,7 @@
 #include <iostream>
 #include <sys/types.h>
 #include <signal.h>
- 
+
 #include "gtest/gtest.h"
 #include "sim_services/Clock/include/Clock.hh"
 #include "sim_services/Clock/include/clock_proto.h"
@@ -13,7 +13,7 @@
 namespace Trick {
 
 class ClocksTest : public ::testing::Test {
-	
+
 	protected:
 		Trick::GetTimeOfDayClock timclk;
 

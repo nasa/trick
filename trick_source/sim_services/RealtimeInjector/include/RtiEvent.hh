@@ -1,5 +1,5 @@
-#ifndef _RTI_EVENT_H
-#define _RTI_EVENT_H
+#ifndef RTIEVENT_H
+#define RTIEVENT_H
 
 #include <string>
 #include <sstream>
@@ -9,6 +9,7 @@
 #include "sim_services/MemoryManager/include/bitfield_proto.h"
 #include "sim_services/MemoryManager/include/memorymanager_c_intf.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 namespace Trick {
 

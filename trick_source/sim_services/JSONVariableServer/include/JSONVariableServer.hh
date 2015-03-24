@@ -3,12 +3,8 @@
         (JSONVariableServer)
 */
 
-/*
- * $Id: JSONVariableServer.hh 3574 2014-06-25 15:33:53Z alin $
- */
-
-#ifndef _JSONVARIABLESERVER_HH_
-#define _JSONVARIABLESERVER_HH_
+#ifndef JSONVARIABLESERVER_HH
+#define JSONVARIABLESERVER_HH
 
 #include <string>
 #include <iostream>

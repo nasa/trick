@@ -1,6 +1,3 @@
-/*
- * $Id: vval.h 401 2009-11-13 20:21:13Z wwoodard $
- */
 
 #ifndef VVAL_H
 #define VVAL_H

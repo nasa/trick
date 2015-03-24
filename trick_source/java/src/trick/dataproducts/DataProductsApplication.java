@@ -1,7 +1,3 @@
-/*
- * $Id: DataProductsApplication.java 3761 2014-12-04 18:48:47Z hchen3 $
- *
- */
 
 //========================================
 //    Package

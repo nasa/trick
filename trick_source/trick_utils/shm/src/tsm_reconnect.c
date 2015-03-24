@@ -1,8 +1,4 @@
 /*
- *  $Id:$
- */
-
-/*
  * Reconnect to a disconnected shared memory segment - get it and attach to it
  */
 #include "../include/tsm.h"

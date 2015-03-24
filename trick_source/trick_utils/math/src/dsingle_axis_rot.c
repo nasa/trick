@@ -1,25 +1,4 @@
-/******************************************************************************
-*                                                                             *
-* Trick Simulation Environment Software                                       *
-*                                                                             *
-* Copyright (c) 1996,1997 LinCom Corporation, Houston, TX                     *
-* All rights reserved.                                                        *
-*                                                                             *
-* Copyrighted by LinCom Corporation and proprietary to it. Any unauthorized   *
-* use of Trick Software including source code, object code or executables is  *
-* strictly prohibited and LinCom assumes no liability for such actions or     *
-* results thereof.                                                            *
-*                                                                             *
-* Trick Software has been developed under NASA Government Contracts and       *
-* access to it may be granted for Government work by the following contact:   *
-*                                                                             *
-* Contact: Charles Gott, Branch Chief                                         *
-*          Simulation and Graphics Branch 
-*          Automation, Robotics, & Simulation Division                        *
-*          NASA, Johnson Space Center, Houston, TX                            *
-*                                                                             *
-******************************************************************************/
-/* 
+/*
    PURPOSE: (Convert a transformation matrix to a single axis rotation about a unit vector OR visa versa.)
 
    ASSUMPTIONS AND LIMITATIONS: ((Orthonormal, right-handed coordinate transformations))
@@ -30,7 +9,7 @@
    following manner:
 
    [GAMMA] = CR*[I] + (1 - CR)*U*UT - SR*[UA] where: GAMMA is the transformation matrix: SYSTEM 1 => SYSTEM 2. CR is
-   the cosine of the single axis rotation, SR is the sine " " " " " , I is the identity matrix, U is the unit vector to 
+   the cosine of the single axis rotation, SR is the sine " " " " " , I is the identity matrix, U is the unit vector to
    ratate about, UT is the transpose of U, and UA is the alternate (skew) symmetric matrix of U.
 
    3) Working the problem backwards is based on the following: 1) trace([GAMMA]) = 2*CR + 1 2) SR*UA =
@@ -46,10 +25,6 @@
    Relation (2) most accurately defines the rotation angle but relation (3) best defines the rotation axis when the
    rotation angle exceeds 135 degrees. This condition exists when cosphi is negative and larger in magnitude than
    sinphi. */
-
-/* 
- * $Id: dsingle_axis_rot.c 49 2009-02-02 22:37:59Z lin $
- */
 
 #include <math.h>
 #include <stdio.h>

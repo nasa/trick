@@ -1,6 +1,6 @@
 
-#ifndef _CLASSVISITOR_HH_
-#define _CLASSVISITOR_HH_
+#ifndef CLASSVISITOR_HH
+#define CLASSVISITOR_HH
 
 #include <string>
 #include <map>

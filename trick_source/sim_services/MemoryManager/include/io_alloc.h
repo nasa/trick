@@ -1,8 +1,5 @@
-#ifndef _IP_ALLOC_H_
-#define _IP_ALLOC_H_
-/*
- * $Id: io_alloc.h 3707 2014-10-28 15:05:50Z alin $
- */
+#ifndef IO_ALLOC_H
+#define IO_ALLOC_H
 #include "sim_services/MemoryManager/include/attributes.h"
 #include "sim_services/MemoryManager/include/parameter_types.h"
 

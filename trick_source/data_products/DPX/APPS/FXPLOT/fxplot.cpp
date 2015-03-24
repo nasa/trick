@@ -1,7 +1,3 @@
-/*
- * $Id: fxplot.cpp 3243 2013-09-24 18:55:48Z alin $
- */
-
 #include <stdexcept>
 #include <iostream>
 #include <string>

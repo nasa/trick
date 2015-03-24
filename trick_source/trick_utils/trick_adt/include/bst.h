@@ -1,25 +1,6 @@
 
-/*
- * $Log: bst.h,v $
- * Revision 7.2  2008-05-20 11:33:41-05  lin
- * Remove warnings, part 3
- *
- * Revision 7.1  2006-06-22 14:09:05-05  lin
- * Bump version number for 07
- *
- * Revision 5.2  2005-03-17 11:22:09-06  lin
- * Finish 8 Space Indent
- *
- * Revision 5.1  2004-08-05 13:09:57-05  lin
- * Bump
- *
- * Revision 4.2  2004/01/16 21:32:18  lin
- * Add a log to all files
- *
- */
-
-#ifndef _BST_H
-#define _BST_H
+#ifndef BST_H
+#define BST_H
 
 #include <stdio.h>
 

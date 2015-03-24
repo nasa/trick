@@ -11,21 +11,8 @@ PROGRAMMERS:
     ((Keith Vetter) (LinCom) (November 2001))
 *******************************************************************************/
 
-/*
- * $Log: test.h,v $
- * Revision 5.1  2004-08-05 13:06:53-05  lin
- * Bump
- *
- * Revision 4.1  2003/10/21 21:49:21  lin
- * Bump version number for 04
- *
- * Revision 3.3  2002/10/07 15:16:24  lin
- * Add rcs version info to all trick_models files
- *
- */
- 
-#ifndef _TEST_H_
-#define _TEST_H_
+#ifndef TEST_H
+#define TEST_H
 
 typedef struct { /* A ------------------------------------------------*/
 

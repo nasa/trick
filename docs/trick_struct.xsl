@@ -4,23 +4,6 @@
 xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="html"/>
 
-<!--
-   $Id: trick_struct.xsl 1375 2011-02-01 23:32:36Z wwoodard $
-
-   Revision 7.2  2008-04-14 14:04:28-05  hchen
-   The memeber columns are empty when the auto-generated header xml is viewed
-
-   Revision 7.1  2006-06-22 14:15:19-05  lin
-   Bump version number for 07
-
-   Revision 1.2  2005-07-19 12:40:07-05  vetter
-   XML Autogen Polishing
-
-   Revision 1.1  2004-12-15 16:03:30-06  lin
-   Initial revision
-
--->
-
 <xsl:template match="/">
 <style>
 td { border-style: inset; border-color: lightgray; border-width: 1px; }

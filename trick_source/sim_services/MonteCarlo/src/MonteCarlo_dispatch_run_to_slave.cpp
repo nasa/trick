@@ -1,6 +1,3 @@
-/*
- * $Id: MonteCarlo_dispatch_run_to_slave.cpp $
- */
 
 #include <iomanip>
 #include <sstream>
@@ -8,6 +5,7 @@
 #include "sim_services/MonteCarlo/include/MonteCarlo.hh"
 #include "trick_utils/comm/include/tc_proto.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 void Trick::MonteCarlo::dispatch_run_to_slave(MonteRun *in_run, MonteSlave *in_slave) {
     if (in_slave && in_run) {

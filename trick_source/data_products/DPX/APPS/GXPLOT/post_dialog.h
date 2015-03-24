@@ -1,6 +1,3 @@
-/*
- * $Id: post_dialog.h 1582 2011-05-05 20:30:21Z lin $
- */
 
 #ifndef POST_DIALOG_H
 #define POST_DIALOG_H

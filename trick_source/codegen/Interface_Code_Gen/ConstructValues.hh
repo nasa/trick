@@ -1,10 +1,6 @@
 
-/*
- * $Id:$
- */
-
-#ifndef _CONSTRUCTVALUES_HH_
-#define _CONSTRUCTVALUES_HH_
+#ifndef CONSTRUCTVALUES_HH
+#define CONSTRUCTVALUES_HH
 
 #include <string>
 #include <vector>

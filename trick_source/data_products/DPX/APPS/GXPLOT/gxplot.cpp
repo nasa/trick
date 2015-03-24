@@ -1,6 +1,3 @@
-/*
- * $Id: gxplot.cpp 2459 2012-06-20 20:40:25Z wwoodard $
- */
 
 #include <stdio.h>
 #include <string.h>

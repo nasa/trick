@@ -1,6 +1,4 @@
 
-# $Id: Makefile 2277 2012-04-03 14:38:27Z alin $
-
 ifdef TRICK_HOME
 ifneq ($(STAND_ALONE), 1)
 

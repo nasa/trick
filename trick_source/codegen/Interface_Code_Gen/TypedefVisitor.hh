@@ -1,6 +1,6 @@
 
-#ifndef _TYPEDEFVISITOR_HH_
-#define _TYPEDEFVISITOR_HH_
+#ifndef TYPEDEFVISITOR_HH
+#define TYPEDEFVISITOR_HH
 
 #include <string>
 #include <set>

@@ -1,13 +1,10 @@
-/*
- * $Id: cannon_comm_proto.h 1496 2011-04-12 12:27:43Z wwoodard $
- */
 
 /*************************************************************************
 PURPOSE:      (Cannonball Prototypes)
 **************************************************************************/
 
-#ifndef _cannon_proto_h_
-#define _cannon_proto_h_
+#ifndef CANNON_COMM_PROTO_H
+#define CANNON_COMM_PROTO_H
 #include <stdio.h>
 #include "cannon.h"
 

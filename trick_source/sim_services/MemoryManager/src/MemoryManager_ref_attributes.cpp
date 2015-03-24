@@ -1,7 +1,3 @@
-/*
- @file
- $Id: MemoryManager_ref_attributes.cpp 2977 2013-05-13 20:20:08Z alin $
- */
 
 #include <string.h>
 #include <stdio.h>

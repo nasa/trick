@@ -1,11 +1,8 @@
-/* 
+/*
    PURPOSE: (Units Conversion C Language Interface)
 
    PROGRAMMERS: (((John M. Penn) (L-3Com/Titan) (May 2006) (v1.0) (Initial Release))) */
 
-/* 
- * $Id: units_conv.c 3706 2014-10-28 14:58:44Z alin $
- */
 #include <stdio.h>
 #include <string.h>
 #include "units_conv.h"

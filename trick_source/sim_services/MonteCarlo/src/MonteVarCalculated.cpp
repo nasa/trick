@@ -1,11 +1,9 @@
-/*
- * $Id: MonteVarCalculated.cpp $
- */
 #include <iostream>
 
 #include "sim_services/MonteCarlo/include/MonteVarCalculated.hh"
 #include "sim_services/MemoryManager/include/memorymanager_c_intf.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 Trick::MonteVarCalculated::MonteVarCalculated(std::string in_name, std::string in_unit) {
     this->name = in_name;

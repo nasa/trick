@@ -1,7 +1,3 @@
-/*
- * $Id: AttributesMap.cpp 2073 2011-12-09 21:05:52Z lin $
- */
-
 #include <iostream>
 #include <fstream>
 #include <algorithm>

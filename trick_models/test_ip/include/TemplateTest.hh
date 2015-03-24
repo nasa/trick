@@ -20,21 +20,8 @@ PROGRAMMERS:
 @endverbatim
 *******************************************************************************/
 
-/*
- * $Log: Ball.hh,v $
- * Revision 5.1  2004-08-05 13:06:21-05  lin
- * Bump
- *
- * Revision 4.1  2003/10/21 21:49:42  lin
- * Bump version number for 04
- *
- * Revision 1.2  2002/10/07 15:15:53  lin
- * Add rcs version info to all trick_models files
- *
- */
-
-#ifndef _TEMPLATETEST_HH_
-#define _TEMPLATETEST_HH_
+#ifndef TEMPLATETEST_HH
+#define TEMPLATETEST_HH
 
 template <class A, class B>
 class TTT {

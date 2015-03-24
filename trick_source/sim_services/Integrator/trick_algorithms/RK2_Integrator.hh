@@ -2,8 +2,8 @@
 PURPOSE:
     (Integrator using Runga Kutta 2 method.)
 */
-#ifndef _RK2_INTEGRATOR_HH_
-#define _RK2_INTEGRATOR_HH_
+#ifndef RK2_INTEGRATOR_HH
+#define RK2_INTEGRATOR_HH
 #include "../include/Integrator.hh"
 namespace Trick {
 

@@ -1,7 +1,5 @@
 package make_no_swig_makefile ;
 
-# $Id: make_makefile.pm 591 2010-03-09 21:17:48Z lin $
-
 use Exporter ();
 @ISA = qw(Exporter);
 @EXPORT = qw(make_no_swig_makefile);

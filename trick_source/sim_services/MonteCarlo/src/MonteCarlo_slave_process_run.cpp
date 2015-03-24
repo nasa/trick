@@ -1,6 +1,3 @@
-/*
- * $Id: MonteCarlo_slave_process_run.cpp $
- */
 
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -11,6 +8,7 @@
 #include "sim_services/CommandLineArguments/include/command_line_protos.h"
 #include "sim_services/InputProcessor/include/input_processor_proto.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 #include "trick_utils/comm/include/tc_proto.h"
 
 /** @par Detailed Design: */

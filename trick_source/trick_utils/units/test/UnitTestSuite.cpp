@@ -1,4 +1,3 @@
-/* $Id: */
 
 #include <gtest/gtest.h>
 #include "../include/Unit.hh"
@@ -7,20 +6,20 @@
 
 /*********************FIXME**********************************************************************************
  * 1. The behavior of the conversion between composite units containing
- * temperature (an offest) is defined arbitrarily in the source code, namely, that conversion 
- * between units of temperature occurs first within a product containing 
+ * temperature (an offest) is defined arbitrarily in the source code, namely, that conversion
+ * between units of temperature occurs first within a product containing
  * temperature, and the offset of the temperature conversion is ignored
- * within a ratio containing temperature. 
+ * within a ratio containing temperature.
  * This presents a problem for a user who wants to use a behavior which differs
- * from that described above. Realisitically, the impact of this 
- * problem is minimal since the use of temperature in composite units rarely occurs 
+ * from that described above. Realisitically, the impact of this
+ * problem is minimal since the use of temperature in composite units rarely occurs
  * in application.
  *
  * 2. The use of Unit::CONVERSION_ERROR as the only exception for unit is misleading.
  * Unit::CONVERSION_ERROR is thrown during invalid unit conversions, but also when
  * initializing invalid units. Possible solutions include a broader reaching name
  * or the inclusion of another exception.
- * 
+ *
  * 3. The use of multiplication in denominator of a ratio violates order of operations
  * kg*m/s*s = kg*m/s/s. It is misleading since multiplication seems to equate to division.
  * A possible solution would be to allow the multiplication in the denominator within parentheses.
@@ -66,9 +65,9 @@ void units_requirements(bool isThrow) {
   Trick::RequirementScribe req;
 
   if (isThrow) {
-	req.add_requirement("3321868560");
+    req.add_requirement("3321868560");
   } else {
-  	req.add_requirement("1724238641");
+      req.add_requirement("1724238641");
   }
 
 }
@@ -92,7 +91,7 @@ void test_conversion_no_throw(std::string unitString1, std::string unitString2, 
 {
   ASSERT_NO_THROW(Unit unit1(unitString1.c_str()));
   ASSERT_NO_THROW(Unit unit2(unitString2.c_str()));
-  
+
   Unit unit1(unitString1.c_str());
   Unit unit2(unitString2.c_str());
   UCFn *cf = (UCFn*) NULL;
@@ -113,7 +112,7 @@ void test_conversion_no_expect(std::string unitString1, std::string unitString2)
 {
   ASSERT_NO_THROW(Unit unit1(unitString1.c_str()));
   ASSERT_NO_THROW(Unit unit2(unitString2.c_str()));
-  
+
   Unit unit1(unitString1.c_str());
   Unit unit2(unitString2.c_str());
   UCFn *cf = (UCFn*) NULL;
@@ -126,14 +125,14 @@ void test_conversion_no_expect(std::string unitString1, std::string unitString2)
 
 void test_temperature_conversion(std::string unitString,
                              double temperature,
-                             double expected_Celsius = 0.0, 
+                             double expected_Celsius = 0.0,
                              double expected_Kelvin = 0.0,
                              double expected_Fahrenheit = 0.0,
-                             double expected_Rankine = 0.0, 
+                             double expected_Rankine = 0.0,
                              double tolerance = TOL)
 {
   ASSERT_NO_THROW(Unit unit(unitString.c_str()));
-  
+
   Unit unit(unitString.c_str());
 
   double temp_Celsius = unit.Convert_to(temperature, "C");
@@ -151,7 +150,7 @@ void test_conversion_throw(std::string unitString1, std::string unitString2)
 {
   ASSERT_NO_THROW(Unit unit1(unitString1.c_str()));
   ASSERT_NO_THROW(Unit unit2(unitString2.c_str()));
-  
+
   Unit unit1(unitString1.c_str());
   Unit unit2(unitString2.c_str());
   UCFn* cf = (UCFn*) NULL;
@@ -170,14 +169,14 @@ void test_conversion_throw(std::string unitString1, std::string unitString2)
 }
 
 class UnitConversion : public ::testing::Test {
-	
-	protected:
-		Trick::RequirementScribe testReq;
 
-		UnitConversion() {}
-		~UnitConversion() {}
-		virtual void SetUp() {}
-		virtual void TearDown() {}
+    protected:
+        Trick::RequirementScribe testReq;
+
+        UnitConversion() {}
+        ~UnitConversion() {}
+        virtual void SetUp() {}
+        virtual void TearDown() {}
 
 };
 
@@ -219,7 +218,7 @@ TEST_F(UnitConversion, DayToSecond)
 
 //Length Conversion
 
-TEST_F(UnitConversion, MeterToMeter) 
+TEST_F(UnitConversion, MeterToMeter)
 {
   test_conversion_no_throw("m", "m", 0.0, 1.0, TOL);
 }
@@ -304,7 +303,7 @@ TEST_F(UnitConversion, KilofootToFeet)
 
 //Angle Conversion
 
-TEST_F(UnitConversion, RadToRad) 
+TEST_F(UnitConversion, RadToRad)
 {
   test_conversion_no_throw("r", "r", 0.0, 1.0, TOL);
 }
@@ -568,7 +567,7 @@ TEST_F(UnitConversion, InvMinutesToInvSeconds)
 }
 
 //Due to the arbitrary definition of the behavior of converstions of
-//composite units with temperature, no assertions are given as to the value of 
+//composite units with temperature, no assertions are given as to the value of
 //the conversion function for such conversions. The tests only validate that
 //conversions are valid and throw no exeption.
 
@@ -648,7 +647,7 @@ TEST_F(UnitConversion, FootPoundsToNewtonMeters)
 
 TEST_F(UnitConversion, FootPoundsToNewtonMetersWithConvertTo)
 {
-  testReq.add_requirement("2060756805");  
+  testReq.add_requirement("2060756805");
 
   ASSERT_NO_THROW(Unit NewtonMeter("N*m"));
   Unit NewtonMeter("N*m");

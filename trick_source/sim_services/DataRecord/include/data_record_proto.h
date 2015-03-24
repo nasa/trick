@@ -1,10 +1,6 @@
 
-/*
- * $Id: data_record_proto.h 3523 2014-05-13 21:00:37Z alin $
- */
-
-#ifndef _DATA_RECORD_PROTO_H
-#define _DATA_RECORD_PROTO_H
+#ifndef DATA_RECORD_PROTO_H
+#define DATA_RECORD_PROTO_H
 
 #ifdef __cplusplus
 #include "sim_services/DataRecord/include/DataRecordGroup.hh"

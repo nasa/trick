@@ -2,10 +2,6 @@
 PURPOSE: (Send position to server)
 *****************************************************************************/
 
-/*
- * $Id: cannon_send_position.c 876 2010-07-29 19:50:57Z wwoodard $
- */
-
 #include "../include/cannon.h"
 
 int cannon_send_position(

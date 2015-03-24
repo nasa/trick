@@ -1,6 +1,3 @@
-/*
- * $Id: MonteCarlo_test.cpp 2934 2013-04-23 14:35:02Z dcvillar $
- */
 
 #define protected public
 

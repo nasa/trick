@@ -1,6 +1,3 @@
-/*
- * $Id: StlRandomGeneratorSub.hh $
- */
 
 #include <stdexcept>
 #include "sim_services/MonteCarlo/include/StlRandomGenerator.hh"

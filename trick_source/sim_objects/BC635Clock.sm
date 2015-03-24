@@ -1,10 +1,6 @@
 
-/*
- * $Id:$
- */
-
-#ifndef __BC635CLOCK_SM__
-#define __BC635CLOCK_SM__
+#ifndef BC635CLOCK_SM
+#define BC635CLOCK_SM
 
 ##include "sim_services/Clock/include/BC635Clock.hh"
 

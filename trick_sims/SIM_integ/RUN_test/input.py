@@ -1,6 +1,4 @@
 
-# $Id: input.py 757 2010-06-22 18:40:57Z wwoodard $
-
 # new setIntegrator function to set the Integrator.
 dyn_integloop.getIntegrator(trick.Runge_Kutta_4, 4)
 dyn1_integloop.getIntegrator(trick.Runge_Kutta_4, 4)

@@ -1,6 +1,6 @@
 
-#ifndef _VARIABLE_SERVER_PROTO_H_
-#define _VARIABLE_SERVER_PROTO_H_
+#ifndef VARIABLE_SERVER_PROTO_H
+#define VARIABLE_SERVER_PROTO_H
 
 #ifdef __cplusplus
 extern "C" {

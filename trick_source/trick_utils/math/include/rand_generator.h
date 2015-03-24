@@ -13,10 +13,6 @@ PROGRAMMERS:
      ((Robert Gay) (Titan-LinCom) (Aug 2001) (--) (removed test params)))
 */
 
-/*
- * $Id: rand_generator.h 3751 2014-11-13 21:19:18Z mjessick $
- */
-
 #ifndef RAND_GENERATOR_H
 #define RAND_GENERATOR_H
 

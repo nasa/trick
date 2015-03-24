@@ -1,14 +1,11 @@
-/*
- $Id$
- */
-
 #include <stdlib.h>
 #include <iostream>
 
 #include <sstream>
 #include <dlfcn.h>
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
-#include "sim_services/MemoryManager/include/message_proto.h"
+#include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 // MEMBER FUNCTION
 int Trick::MemoryManager::delete_var(void* address, bool destroy ) {

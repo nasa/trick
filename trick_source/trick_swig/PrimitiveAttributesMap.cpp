@@ -1,10 +1,3 @@
-/*
- * $Id:$
- */
-
-/**
- * @file PrimitiveAttributesMap.cpp
- */
 
 #include <string.h>
 #include "PrimitiveAttributesMap.hh"

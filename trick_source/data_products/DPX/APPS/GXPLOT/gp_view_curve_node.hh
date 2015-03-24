@@ -1,6 +1,3 @@
-/*
- * $Id: gp_view_curve_node.hh 3274 2013-10-29 23:06:24Z jpenn1 $
- */
 
 #ifndef GP_VIEW_CURVE_NODE_HH
 #define GP_VIEW_CURVE_NODE_HH

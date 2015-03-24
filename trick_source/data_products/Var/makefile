@@ -1,6 +1,4 @@
 
-# $Id: makefile 1831 2011-07-27 21:34:24Z lin $
-
 include ${TRICK_HOME}/makefiles/Makefile.common
 
 CC        = c++ 

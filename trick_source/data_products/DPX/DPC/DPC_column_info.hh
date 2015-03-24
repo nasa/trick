@@ -1,6 +1,3 @@
-/*
- * $Id: DPC_column_info.hh 3313 2013-11-21 21:34:59Z lmlandry $
- */
 
 #ifndef DPC_COLUMN_INFO_HH
 #define DPC_COLUMN_INFO_HH

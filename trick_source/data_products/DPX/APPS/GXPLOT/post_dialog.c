@@ -1,6 +1,3 @@
-/*
- * $Id: post_dialog.c 1582 2011-05-05 20:30:21Z lin $
- */
 
 #include "post_dialog.h"
 

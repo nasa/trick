@@ -1,6 +1,3 @@
-/*
- * $Id: TCDevCopyTest.cpp 2034 2011-11-09 18:30:27Z marnold $
- */
 
 #include <gtest/gtest.h>
 

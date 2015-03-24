@@ -7,8 +7,8 @@
     )
 */
 
-#ifndef __STLCOMPANION_HH__
-#define __STLCOMPANION_HH__
+#ifndef STLCOMPANION_HH
+#define STLCOMPANION_HH
 
 #include <string>
 

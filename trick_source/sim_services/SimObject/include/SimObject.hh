@@ -6,11 +6,8 @@ PROGRAMMERS:
     ((Alex Lin) (NASA) (May 2009) (OO))
 */
 
-/*
- * $Id: SimObject.hh 3383 2014-01-22 23:18:15Z alin $
- */
-#ifndef _SIMOBJECT_HH_
-#define _SIMOBJECT_HH_
+#ifndef SIMOBJECT_HH
+#define SIMOBJECT_HH
 
 #include <string>
 #include <vector>

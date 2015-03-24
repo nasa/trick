@@ -5,6 +5,7 @@
 #include "sim_services/EchoJobs/include/EchoJobs.hh"
 #include "sim_services/Executive/include/exec_proto.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 Trick::EchoJobs * the_ej = NULL ;
 

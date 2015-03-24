@@ -5,8 +5,8 @@
     )
 */
 
-#ifndef __STLCHECKPOINT_HH__
-#define __STLCHECKPOINT_HH__
+#ifndef TRICKSTLCHECKPOINT_HH_
+#define TRICKSTLCHECKPOINT_HH_
 
 #include <string>
 #include "sim_services/STL/include/trick_vector.hh"

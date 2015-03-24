@@ -1,6 +1,6 @@
 
-#ifndef _TRICK_QUEUE_HH_
-#define _TRICK_QUEUE_HH_
+#ifndef TRICK_QUEUE_HH
+#define TRICK_QUEUE_HH
 
 #include <string>
 #include <queue>

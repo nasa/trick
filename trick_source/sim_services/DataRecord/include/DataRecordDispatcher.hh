@@ -5,12 +5,8 @@ PROGRAMMERS:
     (((Alex Lin) (NASA) (2009)))
 */
 
-/*
- * $Id: DataRecordDispatcher.hh 3553 2014-06-11 19:26:39Z alin $
- */
-
-#ifndef _DATARECORDTHREADED_HH_
-#define _DATARECORDTHREADED_HH_
+#ifndef DATARECORDDISPATCHER_HH
+#define DATARECORDDISPATCHER_HH
 
 #include <iostream>
 #include <pthread.h>

@@ -1,6 +1,4 @@
 
-# $Id: sun_pred.d 1178 2010-10-25 16:18:54Z wwoodard $
-
 SUN_PRED.observer_latitude  = 29.55298;
 SUN_PRED.observer_longitude = 95.09379;
 SUN_PRED.observer_offset_from_UTC = -6;

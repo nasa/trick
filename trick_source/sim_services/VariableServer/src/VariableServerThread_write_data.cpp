@@ -2,9 +2,6 @@
 PURPOSE:      (Allows clients to get and set Trick parameters)
 PROGRAMMERS: (((Alex Lin) (NASA) (8/06) (--)))
 */
-/*
- * $Id: VariableServerThread_write_data.cpp 3656 2014-09-18 13:14:02Z alin $
- */
 
 #include <iostream>
 #include <pthread.h>
@@ -15,6 +12,7 @@ PROGRAMMERS: (((Alex Lin) (NASA) (8/06) (--)))
 #include "trick_utils/comm/include/trick_byteswap.h"
 #include "trick_utils/comm/include/tc_proto.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 
 extern "C" {

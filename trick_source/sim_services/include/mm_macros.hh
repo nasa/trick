@@ -1,4 +1,7 @@
 
+#ifndef MM_MACORS_HH
+#define MM_MACORS_HH
+
 #include <stdlib.h>
 #include <new>
 #include "sim_services/MemoryManager/include/memorymanager_c_intf.h"
@@ -41,3 +44,4 @@
         } ;
 #endif
 
+#endif

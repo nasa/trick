@@ -1,4 +1,4 @@
-/* 
+/*
    PURPOSE: (Set up device for UDP communication as a server.)
 
    REFERENCE: ((None))

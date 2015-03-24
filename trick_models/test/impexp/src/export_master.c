@@ -15,19 +15,6 @@ PROGRAMMERS:
     ((Keith Vetter) (LinCom) (November 2001)) 
 *******************************************************************************/
 
-/*
- * $Log: export_master.c,v $
- * Revision 5.1  2004-08-05 13:06:53-05  lin
- * Bump
- *
- * Revision 4.1  2003/10/21 21:49:20  lin
- * Bump version number for 04
- *
- * Revision 3.2  2002/10/07 15:16:25  lin
- * Add rcs version info to all trick_models files
- *
- */
- 
      /* GLOBAL DATA STRUCTURE DECLARATIONS */
 #include "../include/test.h"
 

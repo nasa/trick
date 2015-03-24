@@ -1,6 +1,3 @@
-/*
- * $Id: StripchartApplication.java 3519 2014-05-12 18:36:01Z dstrauss $
- */
 
 //========================================
 //    Package

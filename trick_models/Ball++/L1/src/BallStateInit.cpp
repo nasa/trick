@@ -22,20 +22,6 @@ PROGRAMMERS:
      ((Edwin Z. Crues)(Titan Systems Corp.)(Jan 2002)(Crude C++ translation)))
 *******************************************************************************/
 
-/*
- * $Id: BallStateInit.cpp 627 2010-03-30 16:21:13Z wwoodard $
- *
- * Revision 5.1  2004-08-05 13:06:22-05  lin
- * Bump
- *
- * Revision 4.1  2003/10/21 21:49:41  lin
- * Bump version number for 04
- *
- * Revision 1.2  2002/10/07 15:15:56  lin
- * Add rcs version info to all trick_models files
- *
- */
-
 /* System include files. */
 #include <math.h>
 

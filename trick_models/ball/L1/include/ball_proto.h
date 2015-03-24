@@ -21,8 +21,8 @@ DEFAULT DATA:
     )
 *************************************************************/
 
-#ifndef _BALL_PROTO_H_
-#define _BALL_PROTO_H_
+#ifndef BALL_PROTO_H
+#define BALL_PROTO_H
 
 #include "ball/L1/include/ball_state.h"
 #include "ball/L1/include/ball_force.h"

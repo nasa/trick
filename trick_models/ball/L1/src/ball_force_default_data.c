@@ -5,10 +5,6 @@ PROGRAMMERS:
     (((Your Name) (Company Name) (Date) (Trick tutorial)))
 *******************************************************************************/
 
-/*
- * $Id: ball_force_default_data.c 931 2010-08-10 20:32:30Z lin $
- */
-
 #include <stdio.h>
 #include "ball/L1/include/ball_force.h"
 #include "ball/L1/include/ball_proto.h"

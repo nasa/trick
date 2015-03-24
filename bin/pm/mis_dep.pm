@@ -1,7 +1,5 @@
 package mis_dep ;
 
-# $Id: mis_dep.pm 3041 2013-06-19 15:55:06Z alin $
-
 use Exporter ();
 @ISA = qw(Exporter);
 @EXPORT = qw(mis_dep mis_catalog_dep traverse_tree);

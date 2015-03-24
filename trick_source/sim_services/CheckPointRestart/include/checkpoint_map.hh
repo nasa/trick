@@ -1,12 +1,12 @@
 /*
-    PURPOSE: (Illustrate how to checkpoint STLs) 
+    PURPOSE: (Illustrate how to checkpoint STLs)
     LIBRARY_DEPENDENCIES: (
       (checkpoint_map.o)
     )
 */
 
-#ifndef __CHECKPOINT_MAP_HH__
-#define __CHECKPOINT_MAP_HH__
+#ifndef CHECKPOINT_MAP_HH
+#define CHECKPOINT_MAP_HH
 
 #include <map>
 #include <string>

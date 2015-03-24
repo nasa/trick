@@ -1,6 +1,3 @@
-/*
- * $Id: SimControlPanel.cpp 3592 2014-07-01 16:01:00Z hchen3 $
- */
 
 #include <string>
 

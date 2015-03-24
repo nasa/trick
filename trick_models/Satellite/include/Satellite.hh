@@ -1,5 +1,5 @@
-#ifndef _BODY_H_
-#define _BODY_H_
+#ifndef SATELLITE_HH
+#define SATELLITE_HH
 /********************************* TRICK HEADER *******************************
 PURPOSE:
       ()

@@ -11,12 +11,8 @@
          ((Robert W. Bailey) (LinCom) (6/1/91) (Trick-CR-00000) (Initial Release)))
 */
 
-/*
- * $Id: MasterSlave.hh 500 2010-01-21 16:13:12Z lin $
- */
-
-#ifndef _MASTER_HH_
-#define _MASTER_HH_
+#ifndef MASTER_HH
+#define MASTER_HH
 
 #include <vector>
 #include <queue>

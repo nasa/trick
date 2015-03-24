@@ -5,8 +5,8 @@
  * http://www.research.ibm.com/infoecon/paps/html/amec99_bundle/node8.html
  */
 
-#ifndef __optim_proto__
-#define __optim_proto__
+#ifndef OPTIM_PROTO_H
+#define OPTIM_PROTO_H
 
 #ifdef __cplusplus
 extern "C" {

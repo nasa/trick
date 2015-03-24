@@ -1,5 +1,3 @@
-# $Id: input.py 1703 2011-06-17 20:52:09Z wwoodard $
-
 import os
 
 def main():

@@ -1,8 +1,5 @@
-/*
- * $Id: attributes.h 3556 2014-06-17 15:58:09Z alin $
- */
-#ifndef _ATTRIBUTES_H_
-#define _ATTRIBUTES_H_
+#ifndef ATTRIBUTES_H
+#define ATTRIBUTES_H
 
 #include <stddef.h>
 #include "sim_services/MemoryManager/include/parameter_types.h"

@@ -1,9 +1,5 @@
 /* ////////////// BST.CPP ////////////////// */
 
-/* 
- * $Id: bst.c 49 2009-02-02 22:37:59Z lin $
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>

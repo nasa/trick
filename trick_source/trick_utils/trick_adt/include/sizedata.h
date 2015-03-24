@@ -3,12 +3,8 @@ by defining a INT8,INT16, and INT32 type for use as 8,16,and 32 bit
 integers.  These won't work well with i/o like printf, but are useful 
 for transfering binary data from one machine to another. */
 
-/*
- *  $Id: sizedata.h 49 2009-02-02 22:37:59Z lin $
- */
-
-#ifndef _SIZEDATA_H
-#define _SIZEDATA_H
+#ifndef SIZEDATA_H
+#define SIZEDATA_H
 #include <limits.h>
 
 #ifdef __cplusplus

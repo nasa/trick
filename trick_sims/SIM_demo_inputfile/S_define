@@ -1,7 +1,3 @@
-/*
- * $Id: S_define 3537 2014-05-27 22:49:43Z alin $
- */
-
 /************************TRICK HEADER*************************
 PURPOSE:
     (This comment lists out the other object files that are not included from c++ headers)

@@ -1,6 +1,3 @@
-/*
- * $Id: DPC_page.hh 1900 2011-08-29 21:55:41Z penn $
- */
 
 #ifndef DPC_PAGE_HH
 #define DPC_PAGE_HH
@@ -17,7 +14,6 @@
 /**
  * DPC_page is a container for DPC_plot objects.
  * @author John M. Penn
- * @version $Id: DPC_page.hh 1900 2011-08-29 21:55:41Z penn $
  */
 class DPC_page {
 

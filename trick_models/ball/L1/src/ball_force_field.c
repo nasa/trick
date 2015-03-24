@@ -22,10 +22,6 @@ PROGRAMMERS:
     (((Your Name) (Company Name) (Date) (Trick tutorial)))
 *******************************************************************************/
 
-/*
- * $Id: ball_force_field.c 931 2010-08-10 20:32:30Z lin $
- */
-
      /* SYSTEM INCLUDE FILES */
 #include <math.h>
 

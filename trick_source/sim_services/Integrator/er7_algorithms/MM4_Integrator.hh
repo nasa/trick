@@ -9,8 +9,8 @@ Programmers:
 
 *******************************************************************************/
 
-#ifndef TRICK_ER7_MM4_INTEGRATOR_HH
-#define TRICK_ER7_MM4_INTEGRATOR_HH
+#ifndef MM4_INTEGRATOR_HH
+#define MM4_INTEGRATOR_HH
 
 #include "er7_utils/integration/mm4/include/mm4_integrator_constructor.hh"
 #include "er7_utils/trick/integration/include/second_order_ode_integrator.hh"

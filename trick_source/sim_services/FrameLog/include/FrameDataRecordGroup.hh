@@ -5,12 +5,8 @@ PROGRAMMERS:
     (((Alex Lin) (NASA) (10/2012)))
 */
 
-/*
- * $Id: FrameLog.hh 2299 2012-04-11 16:13:59Z dstrauss $
- */
-
-#ifndef _FRAMEDATARECORDGROUP_HH_
-#define _FRAMEDATARECORDGROUP_HH_
+#ifndef FRAMEDATARECORDGROUP_HH
+#define FRAMEDATARECORDGROUP_HH
 
 #include <vector>
 #include <string>

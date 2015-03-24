@@ -6,8 +6,8 @@ LIBRARY_DEPENDENCIES:
     (SegmentedExecutive/src/ExampleSegments.cpp)
 */
 
-#ifndef _EXAMPLESEGMENTS_HH_
-#define _EXAMPLESEGMENTS_HH_
+#ifndef EXAMPLESEGMENTS_HH
+#define EXAMPLESEGMENTS_HH
 
 #include "SegmentedExecutive/include/Segment.hh"
 #include "sim_services/Integrator/include/IntegLoopScheduler.hh"

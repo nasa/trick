@@ -1,17 +1,13 @@
 /*
-PURPOSE: 
+PURPOSE:
     (For master/slave sim, this is slave info)
 PROGRAMMERS:
     (((Eddie J. Paddock) (LinCom) (April 1996) (--) (Initial Version))
      ((Scott Killingsworth) (LinCom) (September 1997) (--) (--)))
 */
 
-/*
- * $Id: Slave.hh 411 2009-11-17 21:34:25Z lin $
- */
-
-#ifndef _MSSOCKET_HH_
-#define _MSSOCKET_HH_
+#ifndef MSSOCKET_HH
+#define MSSOCKET_HH
 
 #include "trick_utils/comm/include/tc.h"
 #include "sim_services/MasterSlave/include/MSConnect.hh"
@@ -20,9 +16,9 @@ namespace Trick {
 
     /**
      * This class is socket based MSConnect class to connect master and slaves.
-     * It defines the master/slave connection calls as well as the calls used by 
-     * both sides to send the time and mode commands.  
-     * 
+     * It defines the master/slave connection calls as well as the calls used by
+     * both sides to send the time and mode commands.
+     *
      * @author Eddie J. Paddock (Apr 1996)
      * @author Scott Killingsworth (Sep 1997)
      * @author Many other Trick developers of the past
@@ -50,7 +46,7 @@ namespace Trick {
              @brief Sets the wait time limit for communications between the master and slaves.
              Any @c in_limit <= 0.0 means an infinite wait limit, i.e. regular non-blocking.
              Calls tc_blockio (and tc_set_blockio_timeout_limit when @c in_limit > 0).
-             @param in_limit - the desired wait limit.  
+             @param in_limit - the desired wait limit.
              @return always 0
              */
             virtual int set_sync_wait_limit(double in_limit) ;

@@ -1,6 +1,6 @@
 
-#ifndef _CLOCK_PROTO_H_
-#define _CLOCK_PROTO_H_
+#ifndef CLOCK_PROTO_H
+#define CLOCK_PROTO_H
 
 #ifdef __cplusplus
 extern "C" {

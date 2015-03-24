@@ -1,6 +1,4 @@
 
-# $Id: Makefile 3244 2013-09-24 19:16:44Z alin $
-
 include ${TRICK_HOME}/makefiles/Makefile.common
 include ${TRICK_HOME}/makefiles/Makefile.tricklib
 -include Makefile_deps

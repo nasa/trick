@@ -1,6 +1,3 @@
-/*
- * $Id: TrickTableFrame.java 3496 2014-04-17 19:48:51Z hchen3 $
- */
 package trick.dataproducts.plot.utils;
 
 import java.awt.BorderLayout;

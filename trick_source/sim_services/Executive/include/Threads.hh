@@ -3,12 +3,8 @@
         (Trick Threads implementation)
 */
 
-/*
- * $Id: Threads.hh 3562 2014-06-18 16:32:31Z alin $
- */
-
-#ifndef _THREAD_HH_
-#define _THREAD_HH_
+#ifndef THREADS_HH
+#define THREADS_HH
 
 #include <queue>
 #include <pthread.h>

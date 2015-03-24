@@ -1,6 +1,3 @@
-/*
- * $Id: DPM_time_constraints.cpp 102 2009-03-17 17:28:22Z penn $
- */
 
 #include "DPM_time_constraints.hh"
 #include "float.h"

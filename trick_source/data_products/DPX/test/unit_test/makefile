@@ -1,6 +1,4 @@
 
-# $Id: makefile 2396 2012-05-17 21:31:31Z wwoodard $
-
 include ${TRICK_HOME}/makefiles/Makefile.common
 
 ifneq ($(HDF5),)

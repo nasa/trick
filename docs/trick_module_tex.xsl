@@ -4,20 +4,6 @@
 xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="text"/>
 
-<!--
-   $Id: trick_module_tex.xsl 1375 2011-02-01 23:32:36Z wwoodard $
-
-   Revision 7.2  2007-12-12 10:20:28-06  lin
-   Add a new "REQUIREMENT" field to the Trick header
-
-   Revision 7.1  2006-06-22 14:15:30-05  lin
-   Bump version number for 07
-
-   Revision 1.1  2005-10-07 10:15:15-05  lin
-   Initial revision
-
--->
-
 <xsl:template match="/file">
     <xsl:apply-templates select="file_name"/>
     <xsl:apply-templates select="trick_header"/>

@@ -19,10 +19,6 @@ PROGRAMMERS:
     (((Your Name) (Company Name) (Date) (Trick tutorial)))
 *******************************************************************************/
 
-/*
- * $Id: ball_control.c 906 2010-08-04 22:34:01Z lin $
- */
-
 #include <math.h> /* FOR M_ABS() function */
 
 #include "sim_services/Executive/include/exec_proto.h" /* For exec_get_job_cycle() */

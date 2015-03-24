@@ -1,6 +1,3 @@
-/*
- * $Id: gp_view_product_node.cpp 1582 2011-05-05 20:30:21Z lin $
- */
 
 #include "gp_view_product_node.hh"
 

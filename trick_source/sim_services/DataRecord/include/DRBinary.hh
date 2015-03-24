@@ -5,12 +5,8 @@ PROGRAMMERS:
     (((Alex Lin) (NASA) (2009)))
 */
 
-/*
- * $Id: DRBinary.hh 3610 2014-07-28 22:10:43Z alin $
- */
-
-#ifndef _DRBINARY_HH_
-#define _DRBINARY_HH_
+#ifndef DRBINARY_HH
+#define DRBINARY_HH
 
 #include <stdio.h>
 #include <string>

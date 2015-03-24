@@ -1,10 +1,3 @@
-/*
- * $Id: dmtcp_checkpoint_c_intf.cpp 2475 2012-06-25 16:19:26Z mbhatta $
- */
-
-/**
- * @file dmtcp_checkpoint_c_intf.cpp 
- */
 
 #include <iostream>
 

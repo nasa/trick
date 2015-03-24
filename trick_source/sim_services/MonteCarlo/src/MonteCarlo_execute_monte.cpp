@@ -1,11 +1,9 @@
-/*
- * $Id: MonteCarlo_init.cpp $
- */
 
 #include <sys/resource.h>
 
 #include "sim_services/MonteCarlo/include/MonteCarlo.hh"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 /** @par Detailed Design: */
 int Trick::MonteCarlo::execute_monte() {

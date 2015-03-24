@@ -5,8 +5,8 @@ LIBRARY DEPENDENCY:
     ((../src/JITInputFile.cpp))
 */
 
-#ifndef _JITINPUTFILE_HH_
-#define _JITINPUTFILE_HH_
+#ifndef JITINPUTFILE_HH
+#define JITINPUTFILE_HH
 
 #include <string>
 #include <queue>

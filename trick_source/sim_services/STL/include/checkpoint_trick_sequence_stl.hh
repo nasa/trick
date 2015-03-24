@@ -3,8 +3,8 @@
     PURPOSE: (Helpers to checkpoint STLs)
 */
 
-#ifndef __CHECKPOINT_TRICK_SEQUENCE_STL_HH__
-#define __CHECKPOINT_TRICK_SEQUENCE_STL_HH__
+#ifndef CHECKPOINT_TRICK_SEQUENCE_STL_HH
+#define CHECKPOINT_TRICK_SEQUENCE_STL_HH
 
 #include <string>
 #include <iostream>

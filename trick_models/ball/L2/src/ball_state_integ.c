@@ -23,10 +23,6 @@ PROGRAMMERS:
     (((Your Name) (Company Name) (Date) (Trick tutorial)))
 *******************************************************************************/
 
-/*
- * $Id: ball_state_integ.c 757 2010-06-22 18:40:57Z wwoodard $
- */
-
 #include <stdio.h>
 
 /* GLOBAL DATA STRUCTURE DECLARATIONS */

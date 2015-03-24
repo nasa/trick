@@ -1,7 +1,3 @@
-/**
- @file
- $Id: MemoryManager_add_attr_info.cpp 1907 2011-08-30 16:28:50Z penn $
- */
 #include <iostream>
 #include <algorithm>
 #include <dlfcn.h>
@@ -12,7 +8,8 @@
 
 #include "sim_services/SimObject/include/SimObject.hh"
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
-#include "sim_services/MemoryManager/include/message_proto.h"
+#include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 /**
  *

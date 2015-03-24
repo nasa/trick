@@ -1,6 +1,3 @@
-/*
- * $Id: MonteCarlo.cpp $
- */
 #include "sim_services/MonteCarlo/include/MonteCarlo.hh"
 #include "trick_utils/comm/include/tc_proto.h"
 

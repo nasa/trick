@@ -1,5 +1,5 @@
-#ifndef _THRUSTER_H_
-#define _THRUSTER_H_
+#ifndef THRUSTER_HH
+#define THRUSTER_HH
 /********************************* TRICK HEADER *******************************
 PURPOSE:
       ()

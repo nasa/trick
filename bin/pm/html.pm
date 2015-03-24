@@ -1,7 +1,5 @@
 package html ;
 
-# $Id: html.pm 3177 2013-08-22 14:39:36Z alin $
-
 use Exporter ();
 use File::Basename ;
 @ISA = qw(Exporter);

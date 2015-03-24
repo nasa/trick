@@ -1,6 +1,6 @@
 
-#ifndef _INTEG_LOOP_SIMOBJECT_
-#define _INTEG_LOOP_SIMOBJECT_
+#ifndef INTEG_LOOP_SIMOBJECT_HH
+#define INTEG_LOOP_SIMOBJECT_HH
 
 #include "sim_services/Integrator/include/IntegLoopScheduler.hh"
 #include "sim_services/Integrator/include/Integrator.hh"

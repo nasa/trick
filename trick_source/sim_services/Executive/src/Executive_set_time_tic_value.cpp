@@ -1,14 +1,11 @@
 
-/* 
- * $Id: Executive.cpp 2093 2012-01-04 21:43:11Z lin $
- */
-
 #include <iostream>
 #include <math.h>
 
 #include "sim_services/Executive/include/Executive.hh"
 #include "sim_services/include/TrickConstant.hh"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 int Trick::Executive::set_time_tic_value(int in_tics) {
 

@@ -3,8 +3,6 @@
 # configure script for Trick
 # type configure --help for usage
 
-# $Id: configure 3785 2015-01-26 14:12:13Z alin $
-
 ver_out=""
 ver_min=""
 ver_url=""

@@ -1,6 +1,3 @@
-/*
- * $Id: plot_view_node.cpp 3462 2014-03-26 18:34:26Z hchen3 $
- */
 
 #include <Xm/Xm.h>
 #include <Xm/Form.h>

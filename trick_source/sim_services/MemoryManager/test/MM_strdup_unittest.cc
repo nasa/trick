@@ -1,6 +1,3 @@
-/*
- * $Id: MM_strdup_unittest.cc 3642 2014-08-21 17:03:58Z jpenn1 $
- */
 
 #include <gtest/gtest.h>
 #include "sim_services/MemoryManager/include/MemoryManager.hh"

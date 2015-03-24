@@ -1,6 +1,3 @@
-/*
- * $Id: DPC_standard_plot.cpp 1843 2011-08-01 20:19:57Z penn $
- */
 
 #include "DPC/DPC_standard_plot.hh"
 #include "DPC/DPC_std_curve.hh"

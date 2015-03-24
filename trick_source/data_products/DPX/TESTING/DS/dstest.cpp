@@ -1,8 +1,4 @@
 
-/*
- * $Id: dstest.cpp 511 2010-01-26 20:35:47Z wwoodard $
- */
-
 #include "trick_utils/units/include/Unit.hh"
 #include "Log/DataStream.hh"
 #include "Log/DataStreamFactory.hh"

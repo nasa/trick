@@ -1,6 +1,4 @@
 
-# $Id: realtime_jet.py 1012 2010-08-26 21:00:09Z dpanter $
-
 trick.frame_log_on()
 trick.real_time_enable()
 trick.exec_set_software_frame(0.01)

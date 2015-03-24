@@ -1,8 +1,4 @@
 
-/* 
- * $Id:$
- */
-
 #include "sim_services/Executive/include/Executive.hh"
 
 int Trick::Executive::set_thread_cpu_affinity(unsigned int thread_id , int cpu_num) {

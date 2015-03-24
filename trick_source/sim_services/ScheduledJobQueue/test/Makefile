@@ -1,4 +1,3 @@
-# $Id: Makefile 3298 2013-11-14 20:30:13Z alin $
 
 #SYNOPSIS:
 #

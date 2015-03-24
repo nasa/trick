@@ -1,6 +1,3 @@
-/*
- * $Id: MemoryManager_make_reference_attr.cpp 3556 2014-06-17 15:58:09Z alin $
- */
 
 #include <stdlib.h>
 

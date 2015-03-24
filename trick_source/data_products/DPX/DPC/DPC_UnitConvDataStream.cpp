@@ -1,6 +1,3 @@
-/*
- * $Id: DPC_UnitConvDataStream.cpp 3274 2013-10-29 23:06:24Z jpenn1 $
- */
 
 #include "DPC/DPC_UnitConvDataStream.hh"
 

@@ -6,17 +6,13 @@ PROGRAMMERS:
      ((Scott Killingsworth) (LinCom) (September 1997) (--) (--)))
 */
 
-/*
- * $Id: sim_mode.h 3026 2013-06-17 18:37:13Z dstrauss $
- */
-
 /**
  * @class MS_SIM_COMMAND sim_mode.h
  * The MS_SIM_COMMAND enumeration represents the TRICK simulation commmands.
  */
 
-#ifndef _MS_SIMMODE_HH_
-#define _MS_SIMMODE_HH_
+#ifndef MS_SIMMODE_HH
+#define MS_SIMMODE_HH
 
 #define MS_ERROR_TIME -1000000000
 #define MS_ERROR_PORT -1

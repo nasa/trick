@@ -1,8 +1,4 @@
 
-/* 
- * $Id: lqueue.c 49 2009-02-02 22:37:59Z lin $
- */
-
 /*************** implementation of the queue ***************/
 
 #include <stdlib.h>

@@ -1,8 +1,8 @@
 
 /* This provides %trick_units_functions that generically is used to wrap all units definintions in units.hh */
 
-#ifndef _TRICK_SWIG_UNITS_I_
-#define _TRICK_SWIG_UNITS_I_
+#ifndef UNITS_ATTACH_I
+#define UNITS_ATTACH_I
 
 %inline %{
 #include "trick_utils/units/include/Unit.hh"

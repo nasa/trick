@@ -1,14 +1,10 @@
 /*
 PURPOSE: (Units Conversion C++ Language Interface)
- 
-PROGRAMMERS:
-    (((John M. Penn) (L-3Com/Titan) (May 2006) (v1.0) 
-      (Initial Release))) 
-*/
 
-/*
- * $Id: Unit.cpp 2310 2012-04-13 19:56:58Z alin $
- */
+PROGRAMMERS:
+    (((John M. Penn) (L-3Com/Titan) (May 2006) (v1.0)
+      (Initial Release)))
+*/
 
 #include <string>
 #include "Unit.hh"

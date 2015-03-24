@@ -1,7 +1,5 @@
-#ifndef TRICK_INTERPOLATOR_H
-#define TRICK_INTERPOLATOR_H
-
-/* $Id: Interpolator.hh 2311 2012-04-13 21:02:35Z wwoodard $ */
+#ifndef INTERPOLATOR_HH
+#define INTERPOLATOR_HH
 
 #include <stdexcept>
 

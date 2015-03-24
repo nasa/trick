@@ -1,5 +1,5 @@
-#ifndef _RKF78_INTEGRATOR_HH_
-#define _RKF78_INTEGRATOR_HH_
+#ifndef RKF78_INTEGRATOR_HH
+#define RKF78_INTEGRATOR_HH
 #include "../include/Integrator.hh"
 /**
  PURPOSE: (Integrator using Runga Kutta Fehlberg 78 method.)

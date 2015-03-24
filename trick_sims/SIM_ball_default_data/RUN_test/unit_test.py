@@ -1,4 +1,3 @@
-# $Id: unit_test.py 1185 2010-10-25 22:09:41Z wwoodard $
 
 execfile("RUN_test/input.py")
 

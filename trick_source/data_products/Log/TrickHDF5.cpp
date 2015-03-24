@@ -1,8 +1,4 @@
 
-/*
- * $Id: TrickHDF5.cpp 2224 2012-03-08 15:27:09Z alin $
- */
-
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>

@@ -7,10 +7,6 @@ PROGRAMMERS:
      ((Alex Lin) (NASA) (April 2009) (--) (c++ port)))
 */
 
-/*
- * $Id: DRAscii.cpp 3616 2014-07-30 23:22:00Z jpenn1 $
- */
-
 #include <iostream>
 #include <stdlib.h>
 #include <string.h>
@@ -19,6 +15,7 @@ PROGRAMMERS:
 #include "sim_services/CommandLineArguments/include/command_line_protos.h"
 #include "sim_services/MemoryManager/include/memorymanager_c_intf.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 #include "sim_services/MemoryManager/include/bitfield_proto.h"
 
 Trick::DRAscii::DRAscii( std::string in_name ) : Trick::DataRecordGroup( in_name ) {

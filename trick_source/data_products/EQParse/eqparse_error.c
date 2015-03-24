@@ -18,7 +18,7 @@ char *eqperror(int code)
 	char* errorprintout ;
 
        errorprintout = ( char* ) malloc ( 128 ) ;
- 
+
 	sprintf(errorprintout,"\nError %d in eqparse.c:",code) ;
 	switch (code){
 		case 1:

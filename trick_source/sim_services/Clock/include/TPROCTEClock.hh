@@ -6,12 +6,8 @@ PROGRAMMERS:
 */
 
 
-/*
- * $Id: GetTimeOfDayClock.hh 2120 2012-01-13 19:22:58Z lin $
- */
-
-#ifndef _TPROCTECLOCK_HH_
-#define _TPROCTECLOCK_HH_
+#ifndef TPROCTECLOCK_HH
+#define TPROCTECLOCK_HH
 
 #include <string>
 #include "sim_services/Clock/include/Clock.hh"

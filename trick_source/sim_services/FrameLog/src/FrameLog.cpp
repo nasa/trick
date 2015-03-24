@@ -15,6 +15,7 @@
 #include "sim_services/DataRecord/include/data_record_proto.h"
 #include "sim_services/CommandLineArguments/include/command_line_protos.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 Trick::FrameLog * the_fl = NULL ;
 

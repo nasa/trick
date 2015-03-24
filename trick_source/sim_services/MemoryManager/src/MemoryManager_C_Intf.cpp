@@ -2,7 +2,8 @@
 #include <iostream>
 #include "sim_services/MemoryManager/include/memorymanager_c_intf.h"
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
-#include "sim_services/MemoryManager/include/message_proto.h"
+#include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 /* Global singleton pointer to the memory manager. */
 extern Trick::MemoryManager* trick_MM;

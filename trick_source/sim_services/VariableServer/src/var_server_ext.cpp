@@ -4,6 +4,7 @@
 #include "sim_services/VariableServer/include/VariableServer.hh"
 #include "sim_services/Executive/include/exec_proto.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 #include "sim_services/MemoryManager/include/memorymanager_c_intf.h"
 
 extern Trick::VariableServer * the_vs ;

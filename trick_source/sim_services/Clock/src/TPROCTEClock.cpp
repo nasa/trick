@@ -5,15 +5,11 @@ PROGRAMMERS:
     (((Alex Lin) (NASA) (Feb 2012) (--) (--)))
 */
 
-/*
- * $Id:$
- */
-
-
 #include <stdio.h>
 
 #include "sim_services/Clock/include/TPROCTEClock.hh"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 #include "sim_services/include/release.h"
 
 /**

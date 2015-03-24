@@ -1,4 +1,4 @@
-/* 
+/*
    PURPOSE: ( Handle the simulation command line args )
 
    REFERENCE: ( Trick Simulation Environment )
@@ -10,10 +10,6 @@
    LIBRARY DEPENDENCY: ( None )
 
    PROGRAMMERS: ( Keith Vetter LinCom 6/2003 ) */
-
-/* 
- * $Id: CommandLineArguments.cpp 401 2009-11-13 20:21:13Z wwoodard $
- */
 
 #include <iostream>
 #include "sim_services/CommandLineArguments/include/CommandLineArguments.hh"

@@ -1,7 +1,3 @@
-/** 
- @file
- $Id: MemoryManager_ref_allocate.cpp 3243 2013-09-24 18:55:48Z alin $
-*/
 #include <iostream>
 #include <sys/types.h>
 #include <string.h>
@@ -9,7 +5,8 @@
 #include "sim_services/MemoryManager/include/attributes.h"
 #include "sim_services/MemoryManager/include/reference.h"
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
-#include "sim_services/MemoryManager/include/message_proto.h"
+#include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 int Trick::MemoryManager::ref_allocate(REF2 * R , int num ) {
 

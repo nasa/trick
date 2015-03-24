@@ -9,8 +9,8 @@ PROGRAMMERS:
    (((Edwin Z. Crues) (NASA) (Nov 2009) (--) (Initial version.)))
 *******************************************************************************/
 
-#ifndef _TARGET_BODY_H_
-#define _TARGET_BODY_H_
+#ifndef TARGET_BODY_H
+#define TARGET_BODY_H
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,5 +1,5 @@
-#ifndef _FILES_TO_ICG_HH_
-#define _FILES_TO_ICG_HH_
+#ifndef FILES_TO_ICG_HH
+#define FILES_TO_ICG_HH
 
 #include "trick_utils/math/include/reference_frame.h"
 #include "sim_services/Clock/include/GetTimeOfDayClock.hh"

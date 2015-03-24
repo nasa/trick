@@ -1,30 +1,5 @@
-/******************************************************************************
-*                                                                             *
-* Trick Simulation Environment Software                                       *
-*                                                                             *
-* Copyright (c) 1996,1997 LinCom Corporation, Houston, TX                     *
-* All rights reserved.                                                        *
-*                                                                             *
-* Copyrighted by LinCom Corporation and proprietary to it. Any unauthorized   *
-* use of Trick Software including source code, object code or executables is  *
-* strictly prohibited and LinCom assumes no liability for such actions or     *
-* results thereof.                                                            *
-*                                                                             *
-* Trick Software has been developed under NASA Government Contracts and       *
-* access to it may be granted for Government work by the following contact:   *
-*                                                                             *
-* Contact: Charles Gott, Branch Chief                                         *
-*          Flight Robotic Systems Branch                                      *
-*          Automation, Robotics, & Simulation Division                        *
-*          NASA, Johnson Space Center, Houston, TX                            *
-*                                                                             *
-******************************************************************************/
 
-/* 
- *  $Id: tc_isValid.c 3368 2013-12-19 22:34:06Z jpenn1 $
- */
-
-/* 
+/*
  * Check to see if a device is valid
  */
 

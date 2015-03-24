@@ -1,10 +1,6 @@
 
-/*
- * $Id:$
- */
-
-#ifndef __TPROCLOCK_SM__
-#define __TPROCLOCK_SM__
+#ifndef TPROCLOCK_SM
+#define TPROCLOCK_SM
 
 ##include "sim_services/Clock/include/TPROCTEClock.hh"
 

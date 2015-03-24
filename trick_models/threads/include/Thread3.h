@@ -11,12 +11,8 @@ LIBRARY DEPENDENCY:
 @endverbatim
 *******************************************************************************/
 
-/*
- * $Id: Thread3.h 1707 2011-06-20 16:50:19Z wwoodard $
- */
-
-#ifndef THREAD_3_H_
-#define THREAD_3_H_
+#ifndef THREAD_3_H
+#define THREAD_3_H
 
 class Thread3
 {

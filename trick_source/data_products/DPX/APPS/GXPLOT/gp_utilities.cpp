@@ -1,6 +1,3 @@
-/*
- * $Id: gp_utilities.cpp 3242 2013-09-24 15:15:01Z alin $
- */
 
 #include <stdio.h>
 #include <string>

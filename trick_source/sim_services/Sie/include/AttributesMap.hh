@@ -1,15 +1,10 @@
 
-/*
- * $Id:$
- */
-
 /**
- * @file AttributesMap.hh
  * Provides a map of class/struct attributes and enumeration attributes
  */
 
-#ifndef _ATTRIBUTESMAP_HH_
-#define _ATTRIBUTESMAP_HH_
+#ifndef ATTRIBUTESMAP_HH
+#define ATTRIBUTESMAP_HH
 
 #include <map>
 #include <string>

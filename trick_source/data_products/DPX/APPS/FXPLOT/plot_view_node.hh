@@ -1,6 +1,3 @@
-/*
- * $Id: plot_view_node.hh 639 2010-04-14 15:54:53Z wwoodard $
- */
 
 #ifndef PLOT_VIEW_NODE_HH
 #define PLOT_VIEW_NODE_HH

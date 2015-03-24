@@ -4,26 +4,6 @@
 xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="html"/>
 
-<!--
-   $Id: trick_module.xsl 1375 2011-02-01 23:32:36Z wwoodard $
-
-   Revision 7.2  2007-12-12 10:20:27-06  lin
-   Add a new "REQUIREMENT" field to the Trick header
-
-   Revision 7.1  2006-06-22 14:15:18-05  lin
-   Bump version number for 07
-
-   Revision 1.3  2006-05-15 09:32:29-05  lin
-   Xml documeentation has some bugs
-
-   Revision 1.2  2005-07-19 12:40:06-05  vetter
-   XML Autogen Polishing
-
-   Revision 1.1  2004-12-15 15:59:42-06  lin
-   Initial revision
-:
--->
-
 <xsl:template match="/">
 <style>
     td { border-style: inset; border-color: lightgray; border-width: 1px; }

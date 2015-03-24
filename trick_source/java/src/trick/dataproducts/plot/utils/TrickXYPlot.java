@@ -1,6 +1,3 @@
-/*
- * $Id: TrickXYPlot.java 3795 2015-02-11 19:35:28Z alin $
- */
 
 package trick.dataproducts.plot.utils;
 

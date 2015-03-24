@@ -9,6 +9,7 @@
 // Trick includes
 #include "sim_services/Executive/include/exec_proto.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 // System includes
 #include <iostream>

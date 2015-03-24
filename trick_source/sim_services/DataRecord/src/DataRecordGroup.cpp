@@ -1,8 +1,4 @@
 
-/*
- * $Id: DataRecordGroup.cpp 3713 2014-10-28 19:48:38Z alin $
- */
-
 #include <string>
 #include <iostream>
 #include <sstream>
@@ -20,6 +16,7 @@
 #include "sim_services/MemoryManager/include/reference.h"
 #include "sim_services/MemoryManager/include/memorymanager_c_intf.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 /**
 @details

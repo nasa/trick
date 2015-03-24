@@ -1,6 +1,3 @@
-/*
- * $Id: PlaybackFile.cpp 1884 2011-08-25 18:36:19Z lin $
- */
 
 #include <iostream>
 #include <unistd.h>

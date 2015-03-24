@@ -1,6 +1,6 @@
 
-#ifndef _TRICK_LIST_HH_
-#define _TRICK_LIST_HH_
+#ifndef TRICK_LIST_HH
+#define TRICK_LIST_HH
 
 #include <string>
 #include <list>

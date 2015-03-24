@@ -1,4 +1,3 @@
-/* $Id: */
 
 #include <gtest/gtest.h>
 #include "../include/units_conv.h"

@@ -5,12 +5,8 @@ PROGRAMMERS:
     (((Alex Lin) (NASA) (2009)))
 */
 
-/*
- * $Id: DataRecordGroup.hh 3610 2014-07-28 22:10:43Z alin $
- */
-
-#ifndef _DATARECORDGROUP_HH_
-#define _DATARECORDGROUP_HH_
+#ifndef DATARECORDGROUP_HH
+#define DATARECORDGROUP_HH
 
 #include <vector>
 #include <string>

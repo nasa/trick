@@ -1,6 +1,6 @@
 
-#ifndef _MASTER_PROTO_H_
-#define _MASTER_PROTO_H_
+#ifndef MASTER_PROTO_H
+#define MASTER_PROTO_H
 
 #ifdef __cplusplus
 extern "C" {

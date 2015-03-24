@@ -1,40 +1,21 @@
 /*
 PURPOSE: (Units Conversion Package C++ Language Interface)
- 
+
 PROGRAMMERS:
-    (((John M. Penn) (L-3Com/Titan) (May 2006) (v1.0) 
-      (Initial Release))) 
+    (((John M. Penn) (L-3Com/Titan) (May 2006) (v1.0)
+      (Initial Release)))
 */
 
-/*
- * $Log: Unit.hh,v $
- * Revision 1.5  2006-05-09 14:31:48-05  penn
- * In the new Units package, change getUnitname to getUnitName
- *
- * Revision 1.4  2006-05-09 10:09:47-05  lin
- * gcc 4.1 doesn't like trick_source/data_products/Log/log.h
- *
- * Revision 1.3  2006-05-03 16:15:15-05  penn
- * Add a setUnitName method to the new units conversion class
- *
- * Revision 1.2  2006-05-02 18:21:56-05  penn
- * Add a get_name method to the Unit class
- *
- * Revision 1.1  2006-05-02 13:00:06-05  penn
- * Initial revision
- *
- *
- */
 #ifndef UNIT_HH
 #define UNIT_HH
 #include "units_conv.h"
 #include "UCFn.hh"
 
 /**
- * Unit (of measurement) class. 
+ * Unit (of measurement) class.
  */
 class Unit {
- 
+
  public:
 #ifndef SWIG
     class CONVERSION_ERROR {}; // Exception Class
@@ -50,7 +31,7 @@ class Unit {
      Initialize the Unit object from the given units specifier.
      Throw an exception if the specifier is invalid.
      */
-    std::string setUnitName(const char *units_spec);             // Throws CONVERSION_ERROR        
+    std::string setUnitName(const char *units_spec);             // Throws CONVERSION_ERROR
 
     /**
      Return the units specifier of this Unit object.
@@ -84,7 +65,7 @@ class Unit {
 #endif
 
  private:
-     
+
     std::string  units_name;
     Units_t *units;
 

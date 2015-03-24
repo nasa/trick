@@ -1,5 +1,5 @@
-#ifndef _EVENTINSTRUMENT_HH_
-#define _EVENTINSTRUMENT_HH_
+#ifndef EVENTINSTRUMENT_HH
+#define EVENTINSTRUMENT_HH
 
 #include <string>
 #include "sim_services/EventManager/include/Event.hh"

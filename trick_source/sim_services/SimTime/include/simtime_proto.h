@@ -1,6 +1,6 @@
 
-#ifndef _SIMTIME_PROTO_H_
-#define _SIMTIME_PROTO_H_
+#ifndef SIMTIME_PROTO_H
+#define SIMTIME_PROTO_H
 
 #include "time_offset.h"
 

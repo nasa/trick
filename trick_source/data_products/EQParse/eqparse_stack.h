@@ -1,5 +1,5 @@
-#ifndef __EQPARSE_STACK_H__
-#define __EQPARSE_STACK_H__
+#ifndef EQPARSE_STACK_H
+#define EQPARSE_STACK_H
 
 #ifdef __cplusplus
 extern "C" {

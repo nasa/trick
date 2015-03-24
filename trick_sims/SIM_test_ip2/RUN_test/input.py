@@ -1,6 +1,4 @@
 
-# $Id: input.py 1269 2010-11-17 14:40:58Z wwoodard $
-
 from array import *
 
 """

@@ -1,6 +1,6 @@
 
-#ifndef _TIME_OFFSET_H_
-#define _TIME_OFFSET_H_
+#ifndef TIME_OFFSET_H
+#define TIME_OFFSET_H
 
 #ifdef __cplusplus
 extern "C" {

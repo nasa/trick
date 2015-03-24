@@ -1,6 +1,4 @@
 
-# $Id: input.py 3710 2014-10-28 19:22:35Z alin $
-
 # Data recording test
 drg0 = trick.DRBinary("Ball")
 for param in [ 'position' , 'velocity' , 'acceleration' , 'external_force' ] :

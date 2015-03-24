@@ -1,6 +1,4 @@
-/** 
- @file
- $Id$
+/**
  @page ADEF_Syntax Allocation Declaration Syntax
 
  An allocation declaration string is used to declare type information for a chunk of memory.
@@ -18,13 +16,13 @@
 Example Allocation Declaration strings:
 
  - "double"
- - "double[3]" 
- - "double*[3]" 
- - "char[3][4]" 
- - "int narf" 
- - "int *baz[3]" 
- - "VEHICLE truck" 
- - "FOO::BAR zortz[2][5]" 
+ - "double[3]"
+ - "double*[3]"
+ - "char[3][4]"
+ - "int narf"
+ - "int *baz[3]"
+ - "VEHICLE truck"
+ - "FOO::BAR zortz[2][5]"
 
 
  \b Syntax of an Allocation Declaration String:
@@ -68,16 +66,16 @@ Example Allocation Declaration strings:
 #include <stdlib.h>
 #include "sim_services/MemoryManager/include/ADefParseContext.hh"
 
-/** 
- Constructor 
+/**
+ Constructor
  */
 Trick::ADefParseContext::ADefParseContext( std::istream* in_is ) {
    init_scanner();
    this->is = in_is;
 }
 
-/** 
- Destructor 
+/**
+ Destructor
  */
 Trick::ADefParseContext::~ADefParseContext() {
     destroy_scanner();

@@ -1,7 +1,4 @@
 
-# $Id: data_record.dr 3709 2014-10-28 18:11:32Z alin $
-
-
 ''' Ensure variable is defined '''
 try:
     DR_GROUP_ID

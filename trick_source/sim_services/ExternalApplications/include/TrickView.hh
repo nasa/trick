@@ -2,12 +2,8 @@
     PURPOSE: (Class for starting Trick View.)
 */
 
-/*
- * $Id: TrickView.hh 2754 2013-01-09 14:45:49Z dbankier $
- */
-
-#ifndef _TRICKVIEW_HH_
-#define _TRICKVIEW_HH_
+#ifndef TRICKVIEW_HH
+#define TRICKVIEW_HH
 
 #include <string>
 #include "sim_services/ExternalApplications/include/ExternalApplication.hh"

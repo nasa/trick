@@ -1,4 +1,7 @@
 
+#ifndef COMMENTSAVER_HH
+#define COMMENTSAVER_HH
+
 #include <map>
 #include <set>
 
@@ -89,3 +92,5 @@ class CommentSaver : public clang::CommentHandler {
         /** Store Trick header comments so we don't have to look them up over and over */
         std::map < std::string , std::string > trick_header_comments ;
 } ;
+
+#endif

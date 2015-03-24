@@ -1,6 +1,3 @@
-/*
- * $Id$
- */
 
 #include "gtest/gtest.h"
 #include "MM_test.hh"

@@ -23,10 +23,6 @@ PROGRAMMERS:
      ((Edwin Z. Crues)(Titan Systems Corp.)(Jan 2002)(Crude C++ translation)))
 *******************************************************************************/
 
-/*
- * $Id: BallForce_default_data.cpp 3383 2014-01-22 23:18:15Z alin $
- */
-
 /* System include files. */
 #include <stdexcept>
 #include <math.h>

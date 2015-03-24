@@ -4,15 +4,12 @@
    PROGRAMMERS: ((Alex Lin) (NASA) (May 2004))
  */
 
-/*
- * $Id: trick_gsl_rand.c 3685 2014-10-14 15:12:59Z mjessick $
- */
-
 #include <stdio.h>
 #include <limits.h>
 #include <float.h>
 #include "../include/rand_generator.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 #if _HAVE_GSL
 #include "gsl/gsl_randist.h"

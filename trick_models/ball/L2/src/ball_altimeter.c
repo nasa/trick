@@ -17,22 +17,6 @@ PROGRAMMERS:
     (((Your Name) (Company Name) (Date) (Trick tutorial)))
 *******************************************************************************/
 
-/*
- * $Log: ball_altimeter.c,v $
- * Revision 5.2  2005-01-31 15:45:46-06  lin
- * remove "register" keyword
- *
- * Revision 5.1  2004-08-05 13:06:28-05  lin
- * Bump
- *
- * Revision 4.1  2003/10/21 21:49:33  lin
- * Bump version number for 04
- *
- * Revision 3.3  2002/10/07 15:16:04  lin
- * Add rcs version info to all trick_models files
- *
- */
-
     /*=== Prototype for drandom_gaussian() ===*/
 #include "trick_utils/math/include/trick_math_proto.h"
 

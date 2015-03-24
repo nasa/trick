@@ -1,6 +1,3 @@
-/*
- * $Id: VariableServerThread.cpp 3663 2014-09-23 22:22:58Z dstrauss $
- */
 
 #include <stdlib.h>
 #include "sim_services/VariableServer/include/VariableServerThread.hh"

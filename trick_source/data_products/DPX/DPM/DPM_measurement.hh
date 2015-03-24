@@ -1,6 +1,3 @@
-/*
- * $Id: DPM_measurement.hh 1842 2011-08-01 00:02:00Z penn $
- */
 
 #ifndef DPM_MEASUREMENT_HH
 #define DPM_MEASUREMENT_HH

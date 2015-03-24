@@ -5,11 +5,6 @@ PROGRAMMERS:
      ((Warwick Woodard) (NASA) (February 2010) (--) (Initial version))
 */
 
-/*
- * $Id: DRHDF5.cpp 3610 2014-07-28 22:10:43Z alin $
- */
-
-
 #include <iostream>
 #include <stdlib.h>
 

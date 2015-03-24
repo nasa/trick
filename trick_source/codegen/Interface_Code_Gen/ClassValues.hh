@@ -1,10 +1,6 @@
 
-/*
- * $Id:$
- */
-
-#ifndef _CLASSVALUES_HH_
-#define _CLASSVALUES_HH_
+#ifndef CLASSVALUES_HH
+#define CLASSVALUES_HH
 
 #include <string>
 #include <vector>

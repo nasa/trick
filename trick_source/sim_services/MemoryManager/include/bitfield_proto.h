@@ -1,5 +1,5 @@
-#ifndef _H_BITFIELD_PROTO_
-#define _H_BITFIELD_PROTO_
+#ifndef BITFIELD_PROTO_H
+#define BITFIELD_PROTO_H
 
 #include "sim_services/MemoryManager/include/attributes.h"
 

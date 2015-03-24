@@ -1,7 +1,6 @@
 
-/*
- * $Id: TrickHDF5.hh 2217 2012-03-06 18:57:50Z hchen $
- */
+#ifndef TRICKHDF5_HH
+#define TRICKHDF5_HH
 
 #include <stdio.h>
 #include <vector>
@@ -37,3 +36,5 @@ class TrickHDF5 : public DataStream {
 
 int HDF5LocateParam( const char * file_name , const char * param_name ) ;
 int HDF5LocateParam( string file_name , string param_name ) ;
+
+#endif

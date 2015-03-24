@@ -1,5 +1,5 @@
-#ifndef _EXTERNAL_PROGRAM_H_
-#define _EXTERNAL_PROGRAM_H_
+#ifndef EXTERNAL_PROGRAM_HH
+#define EXTERNAL_PROGRAM_HH
 
 #include "DataStream.hh"
 #include "DataStreamGroup.hh"

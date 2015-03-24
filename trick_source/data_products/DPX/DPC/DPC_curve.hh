@@ -1,6 +1,3 @@
-/*
- * $Id: DPC_curve.hh 1900 2011-08-29 21:55:41Z penn $
- */
 
 #ifndef DPC_CURVE_HH
 #define DPC_CURVE_HH
@@ -13,7 +10,6 @@
 /**
  * This class provides all of the data necessary to represent a curve of a plot.
  * @author John M. Penn
- * @version $Id: DPC_curve.hh 1900 2011-08-29 21:55:41Z penn $
  */
 class DPC_curve {
 

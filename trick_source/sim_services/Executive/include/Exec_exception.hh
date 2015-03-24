@@ -3,12 +3,8 @@
         (Trick executive exception class )
 */
 
-/*
- * $Id: Exec_exception.hh 2184 2012-02-14 19:37:28Z lin $
- */
-
-#ifndef _EXEC_EXCEPTION_HH_
-#define _EXEC_EXCEPTION_HH_
+#ifndef EXEC_EXCEPTION_HH
+#define EXEC_EXCEPTION_HH
 
 #include <stdexcept>
 #include <string>

@@ -1,6 +1,4 @@
 
-# $Id: Makefile 3633 2014-08-13 22:59:00Z alin $
-
 #SYNOPSIS:
 #
 #   make [all]  - makes everything.

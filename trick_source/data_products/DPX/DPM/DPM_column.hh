@@ -1,6 +1,3 @@
-/*
- * $Id: DPM_column.hh 1842 2011-08-01 00:02:00Z penn $
- */
 
 #ifndef DPM_COLUMN_HH
 #define DPM_COLUMN_HH

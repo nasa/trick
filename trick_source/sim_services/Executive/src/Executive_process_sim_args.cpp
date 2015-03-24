@@ -11,10 +11,6 @@
 
    PROGRAMMERS: ( Keith Vetter LinCom 6/2003 ) */
 
-/*
- * $Id: Executive_process_sim_args.cpp 2944 2013-04-23 22:42:15Z alin $
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

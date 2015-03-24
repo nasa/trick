@@ -11,8 +11,6 @@
 # 'doxygen' - Generate HTML User's Guide.
 # 'test'    - Run Unit-tests and Simulation Tests.
 
-# $Id: Makefile 3796 2015-02-11 19:53:36Z alin $
-
 export TRICK_HOME = $(CURDIR)
 
 # Include the build configuration information.

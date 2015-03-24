@@ -1,4 +1,3 @@
-# $Id: realtime.py 2126 2012-01-17 22:08:56Z dbankie $
 
 trick.frame_log_on()
 real_time.rt_sync.enable()

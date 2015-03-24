@@ -5,6 +5,7 @@
 #include "sim_services/MemoryManager/include/memorymanager_c_intf.h"
 #include "sim_services/MemoryManager/include/wcs_ext.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 Trick::VariableReference::VariableReference(REF2 * in_ref ) {
 

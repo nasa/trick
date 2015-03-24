@@ -1,7 +1,3 @@
-/*
- * $Id: sun_pred_slow_display.c 1178 2010-10-25 16:18:54Z wwoodard $
- */
-
 /********************************* TRICK HEADER *******************************
 PURPOSE:
       (Predict the path of the SUN across the sky.)

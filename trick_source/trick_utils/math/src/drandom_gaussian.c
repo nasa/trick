@@ -1,35 +1,11 @@
-/*******************************************************************************
-*                                                                              *
-* Trick Simulation Environment Software                                        *
-*                                                                              *
-* Copyright (c) 1996,1997 LinCom Corporation, Houston, TX                      *
-* All rights reserved.                                                         *
-*                                                                              *
-* Copyrighted by LinCom Corporation and proprietary to it. Any unauthorized    *
-* use of Trick Software including source code, object code or executables is   *
-* strictly prohibited and LinCom assumes no liability for such actions or      *
-* results thereof.                                                             *
-*                                                                              *
-* Trick Software has been developed under NASA Government Contracts and        *
-* access to it may be granted for Government work by the following contact:    *
-*                                                                              *
-* Contact: Charles Gott, Branch Chief                                          *
-*          Simulation and Graphics Branch                                      *
-*          Automation, Robotics, & Simulation Division                         *
-*          NASA, Johnson Space Center, Houston, TX                             *
-*                                                                              *
-*******************************************************************************/
-/* 
+/*
    PURPOSE: (Generate a random number consistent with a Gaussian distribution.)
 
    ASSUMPTIONS AND LIMITATIONS: ((State spaces for independent processes requiring random numbers are not tracked.)
    (Range is specified in standard deviations; i.e. if a range of 3 sigma is specified, then NO numbers greater than
-   the plus/minus 3 sigma value will be returned.) (Automatic Seed)) PROGRAMMERS: (((Robert W. Bailey) (LinCom Corp)
-   (4/15/91) (Trick-CR-00009) (SAFR Model))) */
+   the plus/minus 3 sigma value will be returned.) (Automatic Seed))
 
-/* 
- *  $Id: drandom_gaussian.c 49 2009-02-02 22:37:59Z lin $
- */
+   PROGRAMMERS: (((Robert W. Bailey) (LinCom Corp) (4/15/91) (Trick-CR-00009) (SAFR Model))) */
 
 #include <stdlib.h>
 

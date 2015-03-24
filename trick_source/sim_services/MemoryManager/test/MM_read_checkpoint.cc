@@ -1,6 +1,3 @@
-/*
- * $Id: MM_read_checkpoint.cc 3660 2014-09-22 18:56:53Z jpenn1 $
- */
 
 #include <gtest/gtest.h>
 #include "sim_services/MemoryManager/include/MemoryManager.hh"

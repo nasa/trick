@@ -1,7 +1,7 @@
-/* 
+/*
    PURPOSE: (Normalize a quaternion properly for all types of integration schemes.)
 
-   REFERENCE: ((Flight Control - Ascent Flight Phase) (FSSR STS 83-0008A, Section 4.7.11 QUAT_NORM) (Volume 1, June 30, 
+   REFERENCE: ((Flight Control - Ascent Flight Phase) (FSSR STS 83-0008A, Section 4.7.11 QUAT_NORM) (Volume 1, June 30,
    1985))
 
    ASSUMPTIONS AND LIMITATIONS: ((None))
@@ -13,10 +13,6 @@
    PROGRAMMERS: (((M Schira) (McDonnell Douglas) (Jan 1993) (v1.0) (Init Release)) ((Robert Gay) (Titan-LinCom) (June
    2001) (RPOC/CRV) (Removed rotation vector sign switch to work with all integration schemes, like rk4)))
 
- */
-
-/* 
- * $Id: quat_norm_integ.c 49 2009-02-02 22:37:59Z lin $
  */
 
 #include "../include/trick_math.h"

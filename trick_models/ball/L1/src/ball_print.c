@@ -9,10 +9,6 @@ PROGRAMMERS:
     (((Your Name) (Company Name) (Date) (Trick tutorial)))
 *******************************************************************************/
 
-/*
- * $Id: ball_print.c 2665 2012-10-15 21:42:36Z alin $
- */
-
      /* GLOBAL DATA STRUCTURE DECLARATIONS */
 #include <stdio.h>
 #include "ball/L1/include/ball_state.h"

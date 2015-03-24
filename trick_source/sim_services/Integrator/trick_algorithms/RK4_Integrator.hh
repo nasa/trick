@@ -1,5 +1,5 @@
-#ifndef _RK4_INTEGRATOR_HH_
-#define _RK4_INTEGRATOR_HH_
+#ifndef RK4_INTEGRATOR_HH
+#define RK4_INTEGRATOR_HH
 #include "../include/Integrator.hh"
 /**
  PURPOSE: (Integrator using Runga Kutta 4 method.)

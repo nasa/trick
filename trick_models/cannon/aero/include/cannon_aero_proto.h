@@ -2,12 +2,8 @@
 PURPOSE:                     (Test Baseball)
 ***************************************************************************/
 
-/*
- * $Id: cannon_aero.h 876 2010-07-29 19:50:57Z wwoodard $
- */
-
-#ifndef _cannon_aero_proto_h_
-#define _cannon_aero_proto_h_
+#ifndef CANNON_AERO_PROTO_H
+#define CANNON_AERO_PROTO_H
 
 #include "cannon_aero.h"
 

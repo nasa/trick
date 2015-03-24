@@ -1,6 +1,3 @@
-/*
- * $Id: DPC_std_curve.cpp 1896 2011-08-29 19:31:08Z dpanter $
- */
 
 #include "DPC/DPC_std_curve.hh"
 #include "math.h"

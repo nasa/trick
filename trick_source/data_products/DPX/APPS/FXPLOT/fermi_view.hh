@@ -1,6 +1,6 @@
-/*
- * $Id: fermi_view.hh 1900 2011-08-29 21:55:41Z penn $
- */
+
+#ifndef FERMI_VIEW_HH
+#define FERMI_VIEW_HH
 
 #include "DPV/DPV_view.hh"
 #include <Xm/Xm.h>
@@ -76,3 +76,5 @@ private:
   int height;
 
 };
+
+#endif

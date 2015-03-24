@@ -1,7 +1,5 @@
 package MIS ;
 
-# $Id: MIS.pm 2384 2012-05-14 20:58:18Z alin $
-
 use Exporter ();
 @ISA = qw(Exporter);
 @EXPORT = qw(mis_c mis_all_c process_args);

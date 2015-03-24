@@ -1,6 +1,3 @@
-/*
- * $Id: DPM_var.hh 1842 2011-08-01 00:02:00Z penn $
- */
 
 #ifndef DPM_VAR_HH
 #define DPM_VAR_HH

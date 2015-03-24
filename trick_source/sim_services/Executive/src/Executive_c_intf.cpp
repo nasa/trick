@@ -1,8 +1,4 @@
 
-/*
- * $Id: Executive_c_intf.cpp 3558 2014-06-17 19:26:19Z alin $
- */
-
 #include <iostream>
 #include <vector>
 #include <string>

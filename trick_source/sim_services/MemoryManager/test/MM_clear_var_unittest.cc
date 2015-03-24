@@ -1,6 +1,3 @@
-/*
- * $Id$
- */
 
 #include "gtest/gtest.h"
 #define private public

@@ -1,10 +1,3 @@
-/*
- * $Id:$
- */
-
-/**
- * @file
- */
 
 #include <stdlib.h>
 
@@ -12,6 +5,7 @@
 #include "sim_services/CheckPointRestart/include/CheckPointRestart_c_intf.hh"
 #include "sim_services/MemoryManager/include/memorymanager_c_intf.h"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 /** Global singleton pointer to the CheckPointRestart. */
 extern Trick::CheckPointRestart * the_cpr ;

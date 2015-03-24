@@ -1,6 +1,6 @@
 
-#ifndef _ICGUTILITIES_H_
-#define _ICGUTILITIES_H_
+#ifndef UTILITIES_HH
+#define UTILITIES_HH
 
 #include "clang/Frontend/CompilerInstance.h"
 #include "clang/Basic/FileManager.h"

@@ -1,6 +1,3 @@
-/**
- * $Id: SieTemplate.java 3716 2014-10-28 20:38:28Z dbankier $
- */
 
 package trick.sie.utils;
 

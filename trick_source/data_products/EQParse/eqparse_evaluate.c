@@ -3,7 +3,7 @@
  * Date    : August 2003
  * Desc    : Evaluate the postfix form of the infix input
  *           (it's a well known algorithm)
- *           
+ *
  */
 
 #include <stdio.h>

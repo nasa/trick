@@ -1,5 +1,5 @@
-#ifndef _MM_TEST_H_
-#define _MM_TEST_H_
+#ifndef MM_TEST_HH
+#define MM_TEST_HH
 
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
 

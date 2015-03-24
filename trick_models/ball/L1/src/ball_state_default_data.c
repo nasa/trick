@@ -5,10 +5,6 @@ PROGRAMMERS:
    (((Your Name) (Company Name) (Date) (Trick tutorial)))
 *******************************************************************************/
 
-/*
- * $Id: ball_state_default_data.c 931 2010-08-10 20:32:30Z lin $
- */
-
 #include "trick_utils/units/include/constant.h"
 #include "ball/L1/include/ball_state.h"
 #include "ball/L1/include/ball_proto.h"

@@ -1,4 +1,4 @@
-/* 
+/*
    PURPOSE: (This function switches on signal type to act on specific signal. This function performs the signal
    handling for both master and child processes.)
 
@@ -13,10 +13,6 @@
 
    PROGRAMMERS: (((Eddie J. Paddock) (MDSSC) (April 1992) (--) (Realtime)) ((Scott Killingsworth) (LinCom) (September
    1997) (--) (Issue #1016))) */
-
-/* 
- * $Id: sig_hand.cpp 2881 2013-03-29 20:33:30Z alin $
- */
 
 #include <iostream>
 #include <sstream>

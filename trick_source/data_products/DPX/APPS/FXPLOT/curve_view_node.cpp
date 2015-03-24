@@ -1,6 +1,3 @@
-/*
- * $Id: curve_view_node.cpp 3243 2013-09-24 18:55:48Z alin $
- */
 
 #include <iostream>
 #include <string>

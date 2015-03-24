@@ -2,12 +2,8 @@
     PURPOSE: (Class for starting the Sim Control Panel.)
 */
 
-/*
- * $Id: SimControlPanel.hh 3592 2014-07-01 16:01:00Z hchen3 $
- */
-
-#ifndef _SIMCONTROLPANEL_HH_
-#define _SIMCONTROLPANEL_HH_
+#ifndef SIMCONTROLPANEL_HH
+#define SIMCONTROLPANEL_HH
 
 #include "sim_services/ExternalApplications/include/ExternalApplication.hh"
 

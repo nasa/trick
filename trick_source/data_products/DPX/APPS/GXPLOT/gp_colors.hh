@@ -1,6 +1,3 @@
-/*
- * $Id: gp_colors.hh 3274 2013-10-29 23:06:24Z jpenn1 $
- */
 
 #ifndef GNUPLOT_COLORS_HH
 #define GNUPLOT_COLORS_HH

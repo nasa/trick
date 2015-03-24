@@ -3,11 +3,6 @@
 
 /* PURPOSE: Localize all unix system user commands used in 'C' routines */
 
-/*
- * $Id: unix_commands.h 646 2010-04-28 21:50:31Z lin $
- */
-
-
 #ifndef _UNIX_COMMANDS
 #define _UNIX_COMMANDS
 

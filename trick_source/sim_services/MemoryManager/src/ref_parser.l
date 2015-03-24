@@ -6,9 +6,6 @@
 %option noyywrap
 
 %{
-/*
- * $Id: ref_parser.l 1839 2011-07-31 22:26:04Z penn $
- */
 
 /*
  * This is a debug macro which is used to echo every character parsed by the

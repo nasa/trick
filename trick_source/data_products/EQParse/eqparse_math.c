@@ -1,7 +1,7 @@
 /*
  * Author  : Peter Mosbach & Keith Vetter
  * Date    : August 2003
- * Desc    : Math functions for equation parser. 
+ * Desc    : Math functions for equation parser.
  *           The inverse error algorithm was originally
  *           a piece of FORTRAN 90 code that we found on the
  *           internet.

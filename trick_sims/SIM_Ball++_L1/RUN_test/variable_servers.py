@@ -1,6 +1,4 @@
 
-# $Id
-
 import trick
 import socket
 

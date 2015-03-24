@@ -1,8 +1,4 @@
 
-/*
- * $Id: TrickBinary.cpp 3616 2014-07-30 23:22:00Z jpenn1 $
- */
-
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>

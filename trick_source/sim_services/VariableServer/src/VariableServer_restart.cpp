@@ -1,6 +1,3 @@
-/*
- * $Id:$
- */
 
 #include "sim_services/VariableServer/include/VariableServer.hh"
 #include "sim_services/Message/include/message_proto.h"

@@ -1,7 +1,3 @@
-/*
- * $Id: SimRunTree.java 3292 2013-11-11 20:04:14Z hchen3 $
- *
- */
 
 package trick.dataproducts.utils;
 

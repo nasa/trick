@@ -19,33 +19,8 @@ PROGRAMMERS:
     (((Robert W. Bailey) (LinCom) (10/1/90) (Trick-CR-00000) (Initial Release)))
 */
 
-/*
- * $Log: ip_test.h,v $
- * Revision 7.3  2007-01-08 11:22:22-06  dstrauss
- * Bugs in parsing new units specs
- *
- * Revision 7.2  2006-08-31 13:56:38-05  hchen
- * SIM_test_ip error - change the variable name units to units_test due to sys conflict
- *
- * Revision 7.1  2006-06-22 14:14:15-05  lin
- * Bump version number for 07
- *
- * Revision 5.1  2004-08-05 13:06:55-05  lin
- * Bump
- *
- * Revision 4.1  2003/10/21 21:49:20  lin
- * Bump version number for 04
- *
- * Revision 1.3  2003/05/29 18:57:23  vetter
- * Add Bitfield Test To IP Test
- *
- * Revision 1.2  2002/10/07 15:16:27  lin
- * Add rcs version info to all trick_models files
- *
- */
- 
-#ifndef _IP_TEST_H_
-#define _IP_TEST_H_
+#ifndef IP_TEST_H
+#define IP_TEST_H
 
 /*=== THESE DEFINES ARE PARSED AND USABLE IN ARRAY DIMENSIONS ===*/
 #define TWO 2         /* THE Value 2 */

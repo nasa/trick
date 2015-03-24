@@ -1,9 +1,7 @@
-/*
- * $Id: MonteCarlo_dryrun.cpp $
- */
 
 #include "sim_services/MonteCarlo/include/MonteCarlo.hh"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 /** @par Detailed Design: */
 void Trick::MonteCarlo::dryrun() {

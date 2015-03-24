@@ -17,22 +17,6 @@ PROGRAMMERS:
         (Initial Release.)))
 */
 
-/*
- * $Log: ip_test.c,v $
- * Revision 5.2  2005-01-31 15:45:54-06  lin
- * remove "register" keyword
- *
- * Revision 5.1  2004-08-05 13:06:55-05  lin
- * Bump
- *
- * Revision 4.1  2003/10/21 21:49:19  lin
- * Bump version number for 04
- *
- * Revision 1.2  2002/10/07 15:16:28  lin
- * Add rcs version info to all trick_models files
- *
- */
- 
 #include <stdio.h>
 #include <stdlib.h>
 #include "../include/ip_test.h"

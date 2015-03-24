@@ -9,8 +9,8 @@ Programmers:
 
 *******************************************************************************/
 
-#ifndef TRICK_ER7_RKF78_INTEGRATOR_HH
-#define TRICK_ER7_RKF78_INTEGRATOR_HH
+#ifndef RKF78_INTEGRATOR_HH
+#define RKF78_INTEGRATOR_HH
 
 #include "er7_utils/integration/rkf78/include/rkf78_integrator_constructor.hh"
 #include "er7_utils/trick/integration/include/first_order_ode_integrator.hh"

@@ -1,8 +1,4 @@
 
-/*
- * $Id:$
- */
-
 #include <iostream>
 #include <iomanip>
 

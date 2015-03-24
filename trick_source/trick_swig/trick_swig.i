@@ -1,6 +1,3 @@
-/*
- * $Id: trick_swig.i 3396 2014-01-27 23:16:58Z alin $
- */
 
 /* include support for STLs */
 %include "std_list.i"

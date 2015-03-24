@@ -9,13 +9,8 @@ PROGRAMMERS:
 
 */
 
-
-/*
- * $Id: ITimer.hh 2640 2012-09-28 15:39:38Z alin $
- */
-
-#ifndef _ITIMER_HH_
-#define _ITIMER_HH_
+#ifndef ITIMER_HH
+#define ITIMER_HH
 
 #include <time.h>
 #include <sys/time.h>

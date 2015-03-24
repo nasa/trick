@@ -1,6 +1,3 @@
-/*
- * $Id: gp_view_page_node.cpp 2470 2012-06-21 18:55:23Z wwoodard $
- */
 
 #include <stdio.h>    // for snprintf
 #include <string>

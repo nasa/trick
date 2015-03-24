@@ -4,17 +4,6 @@
 xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="text"/>
 
-<!--
-   $Id: trick_struct_tex.xsl 1375 2011-02-01 23:32:36Z wwoodard $
-
-   Revision 1.2  2006-03-16 15:23:12-06  vetter
-   LaTex XSLT Converter Needs To Escape Underscores
-
-   Revision 1.1  2005-10-07 10:15:16-05  lin
-   Initial revision
-
--->
-
 <xsl:template match="/file">
     <xsl:apply-templates select="file_name"/>
     <xsl:apply-templates select="trick_header"/>

@@ -1,6 +1,6 @@
 
-#ifndef _ENUMVISITOR_HH_
-#define _ENUMVISITOR_HH_
+#ifndef ENUMVISITOR_HH
+#define ENUMVISITOR_HH
 
 #include <string>
 #include <map>

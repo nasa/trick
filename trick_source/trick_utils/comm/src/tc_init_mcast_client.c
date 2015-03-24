@@ -1,4 +1,4 @@
-/* 
+/*
    PURPOSE: (Set up device for mcast communication as a client.)
 
    REFERENCE: ((None))

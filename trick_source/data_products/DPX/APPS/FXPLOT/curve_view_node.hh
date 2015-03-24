@@ -1,6 +1,3 @@
-/*
- * $Id: curve_view_node.hh 639 2010-04-14 15:54:53Z wwoodard $
- */
 
 #ifndef CURVE_VIEW_NODE_HH
 #define CURVE_VIEW_NODE_HH

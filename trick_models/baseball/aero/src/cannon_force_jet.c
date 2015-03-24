@@ -2,16 +2,6 @@
 PURPOSE:                     ( Jet fire force )
 ***************************************************************************/
 
-/*
- * $Log: cannon_force_jet.c,v $
- * Revision 7.1  2006-06-22 14:14:48-05  lin
- * Bump version number for 07
- *
- * Revision 5.2  2004-08-18 10:49:42-05  lin
- * Cleanup cannon_force_jet() In Tutorial
- *
- */
-
 #include "../include/cannon_aero.h"
 
 int cannon_force_jet(

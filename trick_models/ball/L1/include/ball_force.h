@@ -1,6 +1,3 @@
-/*
- * $Id: ball_force.h 757 2010-06-22 18:40:57Z wwoodard $
- */
 
 /** TRICK HEADER **************************************************************
 @file
@@ -20,8 +17,8 @@ PROGRAMMERS:
 
 #include <pthread.h>
 
-#ifndef _BALL_FORCE_H_
-#define _BALL_FORCE_H_
+#ifndef BALL_FORCE_H
+#define BALL_FORCE_H
 
 /** @struct BFORCE_IN
     @brief ball force input parameters

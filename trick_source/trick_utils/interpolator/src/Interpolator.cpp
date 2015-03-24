@@ -1,4 +1,3 @@
-/* $Id: Interpolator.cpp 2311 2012-04-13 21:02:35Z wwoodard $ */
 
 #include <iostream>
 #include <sstream>

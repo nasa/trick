@@ -1,18 +1,11 @@
-/* 
- @file
- $Id: MemoryManager_io_src_intf.cpp 3599 2014-07-07 22:37:20Z jpenn1 $
- */
-
-//nclude <stdio.h>
-//nclude <stdlib.h>
-//nclude <iostream>
 
 #include <sstream>
 // Provides stringstream.
 #include <dlfcn.h>
 // Provides dlsym().
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
-#include "sim_services/MemoryManager/include/message_proto.h"
+#include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 // MEMBER FUNCTION: void* Trick::MemoryManager::io_src_allocate_class(const char* class_name, int num);
 

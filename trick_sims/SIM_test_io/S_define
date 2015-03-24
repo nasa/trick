@@ -1,7 +1,3 @@
-/*
- * $Id: S_define 3540 2014-05-29 21:29:38Z alin $
- */
-
 /************************TRICK HEADER*************************
 PURPOSE:
     (Test the io attributes of variables)

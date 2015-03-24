@@ -22,6 +22,7 @@ Programmers:
 // Trick includes
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 #include "sim_services/Executive/include/exec_proto.hh"
 #include "sim_services/Executive/include/exec_proto.h"
 

@@ -1,7 +1,3 @@
-/*
- * $Id: S_define.jet 
- */
-
 /************************TRICK HEADER*************************
 PURPOSE:
     (This S_define works with the jet simulation (RUN_jet_event, Run_jet_call, RUN_jet_read, & RUN_jet_nofire input files))

@@ -1,6 +1,3 @@
-/*
- * $Id: DPC_std_curve.hh 1843 2011-08-01 20:19:57Z penn $
- */
 
 #ifndef DPC_STD_CURVE_HH
 #define DPC_STD_CURVE_HH
@@ -15,7 +12,6 @@
 /**
  * This class provides all of the data necessary to represent a curve of a plot.
  * @author John M. Penn
- * @version $Id: DPC_std_curve.hh 1843 2011-08-01 20:19:57Z penn $
  */
 class DPC_std_curve: public DPC_curve {
 

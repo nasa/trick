@@ -9,8 +9,8 @@ PROGRAMMERS:
    (((Edwin Z. Crues) (NASA) (Nov 2009) (--) (Initial version.)))
 *******************************************************************************/
 
-#ifndef _target_proto_h_
-#define _target_proto_h_
+#ifndef TARGET_PROTO_H
+#define TARGET_PROTO_H
 #include "target_body.h"
 #include "trick_utils/comm/include/tc_proto.h"
 

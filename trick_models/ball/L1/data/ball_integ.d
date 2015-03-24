@@ -12,25 +12,6 @@ PROGRAMMERS:
     (((Your Name) (Company Name) (Date) (Trick tutorial)))
 *******************************************************************************/
 
-/*
- * $Log: ball_integ.d,v $
- * Revision 7.2  2006-08-28 09:58:28-05  lin
- * Convert the old style allocation statements we have in included sims
- *
- * Revision 7.1  2006-06-22 14:15:03-05  lin
- * Bump version number for 07
- *
- * Revision 5.1  2004-08-05 13:06:24-05  lin
- * Bump
- *
- * Revision 4.1  2003/10/21 21:49:40  lin
- * Bump version number for 04
- *
- * Revision 3.2  2002/10/07 15:15:58  lin
- * Add rcs version info to all trick_models files
- *
- */
-
 #define NUM_STEP        12  /* use up to 12 intermediate steps:
                                8th order RK Fehlberg */
 #define NUM_VARIABLES   4   /* x,y position state and x,y velocity state */

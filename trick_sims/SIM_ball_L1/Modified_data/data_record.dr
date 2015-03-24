@@ -1,6 +1,4 @@
 
-# $Id: data_record.dr 931 2010-08-10 20:32:30Z lin $
-
 drg0 = trick.DRBinary("Ball1") 
 drg0.set_freq(trick.DR_Always)
 drg0.enable()

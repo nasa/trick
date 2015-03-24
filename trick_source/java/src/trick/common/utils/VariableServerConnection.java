@@ -1,6 +1,3 @@
-/*
- * $Id: VariableServerConnection.java 3760 2014-12-04 17:23:32Z dbankier $
- */
 
 package trick.common.utils;
 

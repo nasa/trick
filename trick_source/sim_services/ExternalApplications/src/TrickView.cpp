@@ -1,6 +1,3 @@
-/*
- * $Id: TrickView.cpp 2754 2013-01-09 14:45:49Z dbankier $
- */
 
 #include <string>
 #include <iostream>

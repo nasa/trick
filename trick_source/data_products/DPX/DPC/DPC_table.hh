@@ -1,6 +1,3 @@
-/*
- * $Id: DPC_table.hh 2202 2012-02-24 16:19:56Z hchen $
- */
 
 #ifndef DPC_TABLE_HH
 #define DPC_TABLE_HH
@@ -21,7 +18,6 @@ typedef struct {
 /**
  * This class represents a data table.
  * @author John M. Penn
- * @version $Id: DPC_table.hh 2202 2012-02-24 16:19:56Z hchen $
  */
 class DPC_table {
 

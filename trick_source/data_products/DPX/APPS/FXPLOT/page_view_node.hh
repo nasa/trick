@@ -1,6 +1,3 @@
-/*
- * $Id: page_view_node.hh 2793 2013-01-31 15:40:41Z hchen3 $
- */
 
 #ifndef PAGE_VIEW_NODE_HH
 #define PAGE_VIEW_NODE_HH

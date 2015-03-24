@@ -1,6 +1,3 @@
-/*
- * $Id: MM_alloc_deps.cc 1741 2011-07-07 19:25:51Z wwoodard $
- */
 
 #include <gtest/gtest.h>
 #define private public

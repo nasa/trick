@@ -9,13 +9,8 @@ PROGRAMMERS:
 
 */
 
-
-/*
- * $Id: GetTimeOfDayClock.hh 3723 2014-10-30 22:38:22Z alin $
- */
-
-#ifndef _GETTIMEOFDAYCLOCK_HH_
-#define _GETTIMEOFDAYCLOCK_HH_
+#ifndef GETTIMEOFDAYCLOCK_HH
+#define GETTIMEOFDAYCLOCK_HH
 
 #ifdef __linux
 #include <time.h>

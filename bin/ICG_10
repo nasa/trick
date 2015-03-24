@@ -1,39 +1,5 @@
 #!/usr/bin/perl
 
-#
-# $Id: ICG_10 3006 2013-06-07 21:10:59Z dstrauss $
-# Revision 7.3  2006-09-20 14:50:44-05  hua
-# Update ICG -u to include dual system units and prefix list
-#
-# Revision 7.2  2006-07-26 10:00:46-05  hua
-# ICG -u Measurement Units Summary Incomplete
-#
-# Revision 7.1  2006-06-22 14:15:34-05  lin
-# Bump version number for 07
-#
-# Revision 5.3  2006-03-29 16:09:54-06  lin
-# add -DTRICK_VER=x to ICG -help
-#
-# Revision 5.2  2005-11-08 14:53:28-06  vetter
-# 8 space indent bin directory
-#
-# Revision 5.1  2004-08-05 11:29:12-05  lin
-# Bump
-#
-# Revision 4.6  2004/03/09 22:36:44  lin
-# trick_version -v is messed up.
-#
-# Revision 4.5  2004/02/10 21:59:35  lin
-# make the CP, ICG, MIS help messages prettier
-#
-# Revision 4.4  2004/01/28 17:13:06  lin
-# Cut error message out of CP down to 1 line.
-#
-# Revision 4.3  2004/01/16 21:34:33  lin
-# Can't Compile 04 With g++3
-#
-#
-
 use FindBin qw($Bin);
 use strict ;
 use Getopt::Long;

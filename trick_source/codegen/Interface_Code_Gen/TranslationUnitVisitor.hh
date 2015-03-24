@@ -1,6 +1,6 @@
 
-#ifndef _TRANSLATIONUNITVISITOR_HH_
-#define _TRANSLATIONUNITVISITOR_HH_
+#ifndef TRANSLATIONUNITVISITOR_HH
+#define TRANSLATIONUNITVISITOR_HH
 
 #include <string>
 #include <vector>

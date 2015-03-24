@@ -1,6 +1,4 @@
 
-# $Id: Makefile.tricklib 3634 2014-08-14 14:41:45Z alin $
-
 ifeq ($(wildcard src),src)
 SRC_DIR := src/
 CD_CMD := cd ./src ;

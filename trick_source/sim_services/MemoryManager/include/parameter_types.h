@@ -1,8 +1,5 @@
-#ifndef _H_PARAMETER_TYPE
-#define _H_PARAMETER_TYPE
-/*
- * $Id: parameter_types.h 3637 2014-08-18 16:55:20Z jpenn1 $
- */
+#ifndef PARAMETER_TYPES_H
+#define PARAMETER_TYPES_H
 
 #ifdef __cplusplus
 extern "C" {

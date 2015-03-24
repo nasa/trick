@@ -1,7 +1,5 @@
 package ICG ;
 
-# $Id: ICG.pm 3641 2014-08-20 22:23:15Z alin $
-
 use Exporter ();
 @ISA = qw(Exporter);
 use vars qw($arg_lang);

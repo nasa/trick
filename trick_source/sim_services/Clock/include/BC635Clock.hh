@@ -5,13 +5,8 @@ PROGRAMMERS:
      ((Alex Lin) (NASA) (April 2009) (--) (port to c++)))
 */
 
-
-/*
- * $Id: GetTimeOfDayClock.hh 2120 2012-01-13 19:22:58Z lin $
- */
-
-#ifndef _BC635CLOCK_HH_
-#define _BC635CLOCK_HH_
+#ifndef BC635CLOCK_HH
+#define BC635CLOCK_HH
 
 #include <string>
 #include "sim_services/Clock/include/Clock.hh"

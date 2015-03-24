@@ -13,12 +13,8 @@
          ((Robert W. Bailey) (LinCom) (6/1/91) (Trick-CR-00000) (Initial Release)))
 */
 
-/*
- * $Id:$
- */
-
-#ifndef _EVENTPROCESSOR_HH_
-#define _EVENTPROCESSOR_HH_
+#ifndef EVENTPROCESSOR_HH
+#define EVENTPROCESSOR_HH
 
 #include <queue>
 #include <set>

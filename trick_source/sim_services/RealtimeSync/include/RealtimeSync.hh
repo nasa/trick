@@ -5,13 +5,8 @@ PROGRAMMERS:
     (((Alex Lin) (NASA) (2009)))
 */
 
-/*
- * $Id: RealtimeSync.hh 2640 2012-09-28 15:39:38Z alin $
- */
-
-
-#ifndef _REALTIMESYNC_HH_
-#define _REALTIMESYNC_HH_
+#ifndef REALTIMESYNC_HH
+#define REALTIMESYNC_HH
 
 #include "sim_services/Clock/include/Clock.hh"
 #include "sim_services/Timer/include/Timer.hh"

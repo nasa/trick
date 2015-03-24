@@ -1,29 +1,10 @@
-/* 
-    PURPOSE: 
-        (Trick runtime simulation executive parameter definition.) 
-    REFERENCE: 
-        (((Bailey, R.W, and Paddock, E.J.) (Trick Simulation Environment) 
-          (NASA:JSC #37943) 
-          (JSC / Engineering Directorate / Automation and Robotics Division)
-          (June 1994) (--))) 
-    ASSUMPTIONS AND LIMITATIONS:
-        ((Only 64 levels of nested input data file inclusion.)) 
-    PROGRAMMERS: 
-        (((Robert W. Bailey) (LinCom) (4/92) (--) (Realtime)) 
-         ((Robert W. Bailey) (LinCom) (6/1/91) (Trick-CR-00000) (Initial Release)))
+/*
+    PURPOSE:
+        (UnitsMap)
 */
 
-/* 
- * $Id: UnitsMap.hh 2073 2011-12-09 21:05:52Z lin $
- */
-
-/**
- * @file UnitsMap.hh
- * Provides a map of variables and their units.
- */
-
-#ifndef _UNITSMAP_HH_
-#define _UNITSMAP_HH_
+#ifndef UNITSMAP_HH
+#define UNITSMAP_HH
 
 #include <map>
 #include <string>
@@ -36,7 +17,7 @@ namespace Trick {
  */
 
     class UnitsMap {
-        
+
         public:
             /**
              * Returns a pointer to the singleton Trick::UnitsMap instance.

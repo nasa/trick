@@ -1,6 +1,3 @@
-/**
- * $Id: FileTreeNode.java 2745 2012-12-19 14:57:36Z hchen3 $
- */
 
 package trick.dataproducts.utils;
 

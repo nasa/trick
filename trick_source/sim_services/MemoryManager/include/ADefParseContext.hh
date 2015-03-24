@@ -1,8 +1,6 @@
-#ifndef ADEF_PARSE_CONTEXT_H
-#define ADEF_PARSE_CONTEXT_H
-/*
- * $Id$
- */
+#ifndef ADEFPARSECONTEXT_HH
+#define ADEFPARSECONTEXT_HH
+
 #include <iostream>
 #include <unistd.h>
 

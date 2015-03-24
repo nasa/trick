@@ -21,22 +21,6 @@ PROGRAMMERS:
     (((Your Name) (Company Name) (Date) (Trick tutorial)))
 *******************************************************************************/
 
-/*
- * $Log: ball_state_init.c,v $
- * Revision 5.2  2005-01-31 15:45:49-06  lin
- * remove "register" keyword
- *
- * Revision 5.1  2004-08-05 13:06:31-05  lin
- * Bump
- *
- * Revision 4.1  2003/10/21 21:49:35  lin
- * Bump version number for 04
- *
- * Revision 3.2  2002/10/07 15:16:07  lin
- * Add rcs version info to all trick_models files
- *
- */
-
      /* SYSTEM INCLUDE FILES */
 #include <math.h>
 

@@ -7,10 +7,6 @@
    PROGRAMMERS: ( Alex Lin NASA 2009 )
 */
 
-/*
- * $Id: IPPython.cpp 3492 2014-04-17 12:45:31Z dbankier $
- */
-
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -23,6 +19,7 @@
 #include "sim_services/Executive/include/exec_proto.h"
 #include "sim_services/Executive/include/exec_proto.hh"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 Trick::EventManager * the_em ;
 

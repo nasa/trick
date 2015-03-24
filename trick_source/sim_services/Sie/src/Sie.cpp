@@ -1,10 +1,3 @@
-/*
- * $Id: MemoryManagerWrapper_sie.cpp 3223 2013-09-12 14:31:11Z alin $
- */
-
-/**
- * @file
- */
 
 #include <iostream>
 #include <algorithm>

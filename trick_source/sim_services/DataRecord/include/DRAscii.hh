@@ -5,12 +5,8 @@ PROGRAMMERS:
     (((Alex Lin) (NASA) (2009)))
 */
 
-/*
- * $Id: DRAscii.hh 3610 2014-07-28 22:10:43Z alin $
- */
-
-#ifndef _DRASCII_HH_
-#define _DRASCII_HH_
+#ifndef DRASCII_HH
+#define DRASCII_HH
 
 #include <string>
 

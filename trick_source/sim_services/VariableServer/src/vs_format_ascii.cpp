@@ -3,10 +3,6 @@ PURPOSE:      (Allows clients to get and set Trick parameters)
 PROGRAMMERS: (((Keith Vetter) (LinCom) (September 2001) (--)))
 */
 
-/*
- *  $Id: vs_format_ascii.cpp 3616 2014-07-30 23:22:00Z jpenn1 $
- */
-
 #include <iostream>
 #include <stdlib.h>
 #include <string.h>

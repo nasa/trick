@@ -1,8 +1,4 @@
 
-/* 
- * $Id:$
- */
-
 #include "sim_services/Executive/include/Executive.hh"
 
 int Trick::Executive::set_thread_priority(unsigned int thread_id , unsigned int req_priority) {
@@ -17,7 +13,7 @@ int Trick::Executive::set_thread_priority(unsigned int thread_id , unsigned int 
         /** @li Call Trick::Thread::set_thread_process_type with the proces_type if the thread exists  */
         threads[thread_id]->set_priority(req_priority) ;
     }
-    
+
     return(ret) ;
 
 }

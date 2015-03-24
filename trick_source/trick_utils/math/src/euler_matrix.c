@@ -1,35 +1,10 @@
-/*******************************************************************************
-*                                                                              *
-* Trick Simulation Environment Software                                        *
-*                                                                              *
-* Copyright (c) 1996,1997 LinCom Corporation, Houston, TX                      *
-* All rights reserved.                                                         *
-*                                                                              *
-* Copyrighted by LinCom Corporation and proprietary to it. Any unauthorized    *
-* use of Trick Software including source code, object code or executables is   *
-* strictly prohibited and LinCom assumes no liability for such actions or      *
-* results thereof.                                                             *
-*                                                                              *
-* Trick Software has been developed under NASA Government Contracts and        *
-* access to it may be granted for Government work by the following contact:    *
-*                                                                              *
-* Contact: Charles Gott, Branch Chief                                          *
-*          Simulation and Graphics Branch                                      *
-*          Automation, Robotics, & Simulation Division                         *
-*          NASA, Johnson Space Center, Houston, TX                             *
-*                                                                              *
-*******************************************************************************/
-/* 
+/*
    PURPOSE: (Generate a transformation matrix using a mutually exculsive Euler angle sequence OR generate a mutually
    exclusive Euler angle sequence using a coordinate transformation matrix.)
 
    ASSUMPTIONS AND LIMITATIONS: ((Euler angle sequences must be mutually exclusive, no duplicate axes))
 
    PROGRAMMERS: (((Robert W. Bailey) (LinCom Corp) (2/1/91) (Trick-CR-00000) (Initial Release))) */
-
-/* 
- * $Id: euler_matrix.c 49 2009-02-02 22:37:59Z lin $
- */
 
 #include "../include/reference_frame.h"
 #include "../include/trick_math.h"

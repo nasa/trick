@@ -1,6 +1,6 @@
 
-#ifndef _FIELDVISITOR_HH_
-#define _FIELDVISITOR_HH_
+#ifndef FIELDVISITOR_HH
+#define FIELDVISITOR_HH
 
 #include "clang/Frontend/CompilerInstance.h"
 #include "clang/AST/RecursiveASTVisitor.h"

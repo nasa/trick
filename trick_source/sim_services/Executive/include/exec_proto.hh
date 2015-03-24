@@ -1,6 +1,6 @@
 
-#ifndef _EXEC_PROTO_HH_
-#define _EXEC_PROTO_HH_
+#ifndef EXEC_PROTO_HH
+#define EXEC_PROTO_HH
 
 #include "sim_services/Executive/include/Executive.hh"
 #include "sim_services/SimObject/include/SimObject.hh"

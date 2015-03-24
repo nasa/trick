@@ -5,8 +5,6 @@
 # This script will run under 5.00x but the results
 # are not reliable.  Under perl 5.6.0 it works well.
 
-# $Id: trick_make_checksums 49 2009-02-02 22:37:59Z lin $
-
 use strict;
 use File::Find;
 use Cwd;

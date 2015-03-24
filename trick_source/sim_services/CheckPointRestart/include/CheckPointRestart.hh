@@ -3,16 +3,8 @@
         (CheckPointRestart)
 */
 
-/*
- * $Id:
- */
-
-/**
- * @file CheckPointRestart.hh
- */
-
-#ifndef _MMWRAPPER_HH_
-#define _MMWRAPPER_HH_
+#ifndef MMWRAPPER_HH
+#define MMWRAPPER_HH
 
 #include <string>
 #include <vector>

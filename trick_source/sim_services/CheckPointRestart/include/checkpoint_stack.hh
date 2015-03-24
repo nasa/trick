@@ -1,10 +1,10 @@
 
 /*
-    PURPOSE: (Helpers to checkpoint STLs) 
+    PURPOSE: (Helpers to checkpoint STLs)
 */
 
-#ifndef __CHECKPOINT_STACK_HH__
-#define __CHECKPOINT_STACK_HH__
+#ifndef CHECKPOINT_STACK_HH
+#define CHECKPOINT_STACK_HH
 
 #include <stack>
 #include <algorithm>

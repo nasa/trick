@@ -1,5 +1,5 @@
-#ifndef _PLANET_H_
-#define _PLANET_H_
+#ifndef PLANET_HH
+#define PLANET_HH
 /********************************* TRICK HEADER *******************************
 PURPOSE:
       ()

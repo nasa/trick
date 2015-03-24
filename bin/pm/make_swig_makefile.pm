@@ -1,7 +1,5 @@
 package make_swig_makefile ;
 
-# $Id: make_makefile.pm 591 2010-03-09 21:17:48Z lin $
-
 use Exporter ();
 use trick_version ;
 use File::Path ;

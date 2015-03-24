@@ -1,7 +1,3 @@
-/*
- * $Id: S_define.trick_comm
- */
-
 /************************TRICK HEADER*************************
 PURPOSE:
     ( This S_define is to be used with RUN_trickcomm input file )

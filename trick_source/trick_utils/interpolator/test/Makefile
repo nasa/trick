@@ -1,6 +1,4 @@
 
-# $Id$
-
 #SYNOPSIS:
 #
 #   make [all]  - makes everything.

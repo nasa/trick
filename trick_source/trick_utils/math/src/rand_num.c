@@ -1,4 +1,4 @@
-/* 
+/*
    PURPOSE: (Switching logic for selected random number sequence generator)
 
    ASSUMPTIONS AND LIMITATIONS: ((Option 0: Uniform - Single Linear Congruential Generator) (Option 1: Uniform - Triple 
@@ -9,10 +9,6 @@
 
    PROGRAMMERS: (((Robert Gay) (LinCom Corp) (May 1998) (--) (--)) ((Robert Gay) (Titan-LinCom) (Aug 2001) (--)
    (Updates to put routines into trick math))) */
-
-/* 
- * $Id: rand_num.c 49 2009-02-02 22:37:59Z lin $
- */
 
 #include <stdio.h>
 #include "../include/trick_math.h"

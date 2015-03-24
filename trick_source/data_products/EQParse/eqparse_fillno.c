@@ -1,9 +1,9 @@
 /*
  * Author  : Peter Mosbach
  * Date    : August 2003
- * Desc    : Extract the numbers from the input and store in as long 
+ * Desc    : Extract the numbers from the input and store in as long
  *           in a long stack
- *           
+ *
  */
 
 #include <stdio.h>
@@ -33,8 +33,8 @@ stack fillno(stack1 * no, stack stk, double value)
                 i = 0;
                 tmp_no = NULL;
                 num = strcpy(num, emptynum);
-                /* 
-                 * Increment i while the input is digit & put the 
+                /*
+                 * Increment i while the input is digit & put the
                  * digit in a stack
                  */
                 while (!empty((stk = pop(stk, &ch))) &&

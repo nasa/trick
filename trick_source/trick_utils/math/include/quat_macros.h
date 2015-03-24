@@ -9,10 +9,6 @@ PROGRAMMERS:
     (((David Hammen) (Odyssey) (May 2005) (RDLaa07016) (Initial release.)))
 */
 
-/*
- * $Id: quat_macros.h 1028 2010-08-28 00:04:23Z penn $
- */
-
 /**
 @page QUATERNIAN_MACROS Quaternian Macros
 

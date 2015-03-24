@@ -7,10 +7,6 @@
    PROGRAMMERS: ( Alex Lin NASA 2009 )
 */
 
-/*
- * $Id: IPPython.cpp 3791 2015-02-03 21:48:43Z alin $
- */
-
 #include <Python.h>
 #include <iostream>
 #include <sstream>

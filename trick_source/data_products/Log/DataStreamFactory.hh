@@ -1,10 +1,6 @@
 
-/*
- * $Id: DataStreamFactory.hh 3327 2013-12-10 17:02:13Z lmlandry $
- */
-
-#ifndef _DATA_STREAM_FACTORY_
-#define _DATA_STREAM_FACTORY_
+#ifndef DATASTREAMFACTORY_HH
+#define DATASTREAMFACTORY_HH
 
 #include <stdio.h>
 #include <stdlib.h>

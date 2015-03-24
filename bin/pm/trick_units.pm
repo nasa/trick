@@ -1,7 +1,5 @@
 package trick_units ;
 
-# $Id: trick_units.pm 3449 2014-02-25 22:07:15Z dstrauss $
-
 %units_info = (
 "s" => ["seconds", "Standard", "Time"],
 "ps" => ["pico-seconds", "Standard", "Time"],

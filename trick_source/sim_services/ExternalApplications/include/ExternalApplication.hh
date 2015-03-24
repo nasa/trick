@@ -2,12 +2,8 @@
     PURPOSE: (Abstract base class for external applications.)
 */
 
-/*
- * $Id: ExternalApplication.hh 3171 2013-08-20 20:36:59Z dbankier $
- */
-
-#ifndef _EXTERNAL_APPLICATION_HH_
-#define _EXTERNAL_APPLICATION_HH_
+#ifndef EXTERNAL_APPLICATION_HH
+#define EXTERNAL_APPLICATION_HH
 
 #include <string>
 #include <sstream>

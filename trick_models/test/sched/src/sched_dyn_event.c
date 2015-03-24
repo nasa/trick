@@ -8,10 +8,6 @@ LIBRARY DEPENDENCY:          (sched_dyn_event.o)
 PROGRAMMERS:                 ( Keith Vetter a.k.a brillo )
 *****************************************************************************/
 
-/*
- * $Id: sched_dyn_event.c 1104 2010-09-24 21:56:51Z wwoodard $
- */
-
 #include <stdio.h>
 #include "../include/sched.h"
 

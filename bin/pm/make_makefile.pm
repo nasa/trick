@@ -1,7 +1,5 @@
 package make_makefile ;
 
-# $Id: make_makefile.pm 3778 2015-01-20 22:49:51Z alin $
-
 use Exporter ();
 @ISA = qw(Exporter);
 @EXPORT = qw(make_makefile);

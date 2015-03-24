@@ -2,12 +2,8 @@
 PURPOSE:                     (Test Baseball)
 ***************************************************************************/
 
-/*
- * $Id: cannon_aero.h 1084 2010-09-20 14:50:52Z dpanter $
- */
-
-#ifndef _cannon_aero_h_
-#define _cannon_aero_h_
+#ifndef CANNON_AERO_H
+#define CANNON_AERO_H
 
 #include "sim_services/Integrator/include/regula_falsi.h"
 #include "sim_services/include/Flag.h"          

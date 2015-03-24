@@ -1,13 +1,10 @@
 
-/* 
- * $Id:
- */
-
 #include <iostream>
 #include <fstream>
 
 #include "sim_services/UnitTest/include/UnitTest.hh"
 #include "sim_services/Message/include/message_proto.h"
+#include "sim_services/Message/include/message_type.h"
 
 Trick::UnitTest * the_unit_test_output ;
 
@@ -35,16 +32,16 @@ int Trick::TestSuite::add_test_results(std::string in_test_case_name , std::stri
 }
 
 int Trick::TestSuite::add_test_requirements(std::string test_case , std::string par_num) {
-	unsigned int jj;
-	TestCase * curr_case ;	
+    unsigned int jj;
+    TestCase * curr_case ;
 
-	for (jj = 0 ; jj != test_results.size() ; jj++ ) {	
-		curr_case = test_results[jj] ;
-		if (curr_case->name == test_case) {
-			curr_case->parent = par_num;
-		}
-	}
-	return(0);
+    for (jj = 0 ; jj != test_results.size() ; jj++ ) {
+        curr_case = test_results[jj] ;
+        if (curr_case->name == test_case) {
+            curr_case->parent = par_num;
+        }
+    }
+    return(0);
 }
 
 void Trick::TestSuite::delete_test_results() {
@@ -74,7 +71,7 @@ int Trick::UnitTest::add_test_results(std::string in_test_suite_name , std::stri
     if ( enabled ) {
         test_suites[in_test_suite_name].add_test_results(in_test_case , in_failure_string) ;
         if ( in_failure_string.compare("") ) {
-            message_publish(MSG_ERROR, "[  FAILED  ] %s:%s %s\n", 
+            message_publish(MSG_ERROR, "[  FAILED  ] %s:%s %s\n",
              in_test_suite_name.c_str() , in_test_case.c_str() , in_failure_string.c_str()) ;
         } else {
             message_publish(MSG_NORMAL,  "\033[32m[       OK ]\033[0m %s:%s\n", in_test_suite_name.c_str() , in_test_case.c_str() ) ;
@@ -85,9 +82,9 @@ int Trick::UnitTest::add_test_results(std::string in_test_suite_name , std::stri
 }
 
 int Trick::UnitTest::add_test_requirements(std::string in_test_suite_name, std::string in_test_case, std::string par_num) {
-	if ( enabled ) {
-		test_suites[in_test_suite_name].add_test_requirements(in_test_case , par_num) ;
-	}
+    if ( enabled ) {
+        test_suites[in_test_suite_name].add_test_requirements(in_test_case , par_num) ;
+    }
        return 0 ;
 }
 
@@ -138,8 +135,8 @@ int Trick::UnitTest::write_output() {
                 out << "    <testcase name=\"" << curr_case->name << "\" status=\"" << curr_case->status ;
                 out << "\" time=\"0\" classname=\"" << it->first << "\"" ;
 
-				// parent stuff goes here
-				out << " parent=\"" << curr_case->parent << "\"" ;
+                // parent stuff goes here
+                out << " parent=\"" << curr_case->parent << "\"" ;
 
                 if ( curr_case->failure_string.compare("") ) {
                     out << " >" << std::endl  ;

@@ -1,5 +1,5 @@
-#ifndef _MM4_INTEGRATOR_HH_
-#define _MM4_INTEGRATOR_HH_
+#ifndef MM4_INTEGRATOR_HH
+#define MM4_INTEGRATOR_HH
 #include "../include/Integrator.hh"
 /**
  PURPOSE: (Integrator using Modified Midpoint method.)
