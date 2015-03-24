@@ -19,7 +19,7 @@ import java.net.UnknownHostException;
  *
  * @author Derek Bankieris
  */
-public class VariableServerConnection {
+public class VariableServerConnection implements AutoCloseable {
 
     /** maximum binary packet size sent by the Variable Server */
     public static final int maximumPacketSize = 8192;
