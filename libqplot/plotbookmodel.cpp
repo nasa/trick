@@ -14,8 +14,8 @@ QModelIndexList PlotBookModel::plotIdxs(const QModelIndex &pageIdx) const
 {
     QModelIndexList idxs;
     int rc = rowCount(pageIdx);
-    // Start at 1 since that is the page title
-    for ( int i = 1 ; i < rc; ++i ) {
+    // Start at 3 because page title=0, startTime=1, stopTime=2
+    for ( int i = 3 ; i < rc; ++i ) {
         idxs.append(index(i,0,pageIdx));
     }
 

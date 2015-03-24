@@ -167,7 +167,10 @@ DPPage::DPPage(const QDomElement &e) :
     }
 }
 
-DPPage::DPPage(const char *title) : _title(title)
+DPPage::DPPage(const char *title) :
+    _title(title),
+    _startTime(-DBL_MAX),
+    _stopTime(DBL_MAX)
 {
 }
 

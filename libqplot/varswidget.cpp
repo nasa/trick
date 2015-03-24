@@ -174,8 +174,22 @@ QStandardItem* VarsWidget::_createPageItem()
     QString pageItemName = QString("QP_%0").arg(_currQPIdx++);
     pageItem = new QStandardItem(pageItemName);
     rootItem->appendRow(pageItem);
+
     QStandardItem* pageTitleItem = new QStandardItem(pageItemName);
     pageItem->appendRow(pageTitleItem);
+
+    double pageStartTime = -DBL_MAX;
+    QString pageStartTimeStr = QString("%1").arg(pageStartTime);
+    QStandardItem *pageStartTimeItem = new QStandardItem(pageStartTimeStr);
+    pageStartTimeItem->setData(pageStartTime);
+    pageItem->appendRow(pageStartTimeItem);
+
+    double pageStopTime = DBL_MAX;
+    QString pageStopTimeStr = QString("%1").arg(pageStopTime);
+    QStandardItem *pageStopTimeItem = new QStandardItem(pageStopTimeStr);
+    pageStopTimeItem->setData(pageStopTime);
+    pageItem->appendRow(pageStopTimeItem);
+
     return pageItem;
 }
 

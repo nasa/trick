@@ -810,8 +810,18 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             if ( !_titles.at(3).isEmpty() ) {
                 pw->setTitle4(_titles.at(3));
             }
-        } else if ( ! gpidx.isValid() && row >= 1 ) {
-            // Plot (note that row 0 is the page title)
+        } else if ( ! gpidx.isValid() && row == 1 ) {
+            // Page start time
+            QWidget* page = _idx2Page(pidx);
+            double pageStartTime = model()->data(idx).toDouble();
+            _page2startTime.insert(page,pageStartTime);
+        } else if ( ! gpidx.isValid() && row == 2 ) {
+            // Page stop time
+            QWidget* page = _idx2Page(pidx);
+            double pageStopTime = model()->data(idx).toDouble();
+            _page2stopTime.insert(page,pageStopTime);
+        } else if ( ! gpidx.isValid() && row >= 3 ) {
+            // Plot
             QWidget* page = _idx2Page(pidx);
             QGridLayout* grid = _page2grid.value(page);
             Plot* plot = new Plot(page);
@@ -917,14 +927,26 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 plot->setYMaxRange(yMax);
             } else if ( idx.row() == 8 ) {
                 // Plot start time
-                double startTime = model()->data(idx).toDouble();
+                QWidget* page = _idx2Page(pidx);
                 Plot* plot = _idx2Plot(pidx);
-                plot->setStartTime(startTime);
+                double plotStartTime = model()->data(idx).toDouble();
+                double pageStartTime = _page2startTime.value(page);
+                if ( plotStartTime < -1.0e30 ) {
+                    plot->setStartTime(pageStartTime);
+                } else {
+                    plot->setStartTime(plotStartTime);
+                }
             } else if ( idx.row() == 9 ) {
                 // Plot stop time
-                double stopTime = model()->data(idx).toDouble();
+                QWidget* page = _idx2Page(pidx);
                 Plot* plot = _idx2Plot(pidx);
-                plot->setStopTime(stopTime);
+                double plotStopTime = model()->data(idx).toDouble();
+                double pageStopTime = _page2stopTime.value(page);
+                if ( plotStopTime > 1.0e30 ) {
+                    plot->setStopTime(pageStopTime);
+                } else {
+                    plot->setStopTime(plotStopTime);
+                }
             } else {
                 qDebug() << "snap [bad scoobies]: this should not happen.";
                 qDebug() << "     montewindow.cpp creates a model ";
@@ -1036,6 +1058,8 @@ void PlotBookView::rowsAboutToBeRemoved(const QModelIndex &pidx,
             _pages.remove(idx.row());
             _page2grid.remove(page);
             _page2Plots.remove(page);
+            _page2startTime.remove(page);
+            _page2stopTime.remove(page);
             if ( ! _isTabCloseRequested ) {
                 // Tab widget will remove its own tab
                 _nb->removeTab(idx.row());
@@ -1205,8 +1229,7 @@ Plot *PlotBookView::_idx2Plot(const QModelIndex &idx) const
             plotIdx = plotIdx.parent();
         }
         QModelIndex pageIdx = plotIdx.parent();
-        QModelIndexList plotIdxs = _plotModel->plotIdxs(pageIdx);
-        int iPlot = plotIdxs.indexOf(plotIdx);
+        int iPlot = _plotModel->plotIdxs(pageIdx).indexOf(plotIdx);
         if ( iPlot >= 0 ) {
             plot = _page2Plots.value(page).at(iPlot);
         }

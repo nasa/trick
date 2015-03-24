@@ -168,8 +168,22 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
         }
         QStandardItem *pageItem = new QStandardItem(pageName);
         rootItem->appendRow(pageItem);
+
         QStandardItem *pageTitleItem = new QStandardItem(page->title());
         pageItem->appendRow(pageTitleItem);
+
+        double pageStartTime = page->startTime();
+        QString pageStartTimeStr = QString("%1").arg(pageStartTime);
+        QStandardItem *pageStartTimeItem = new QStandardItem(pageStartTimeStr);
+        pageStartTimeItem->setData(pageStartTime);
+        pageItem->appendRow(pageStartTimeItem);
+
+        double pageStopTime = page->stopTime();
+        QString pageStopTimeStr = QString("%1").arg(pageStopTime);
+        QStandardItem *pageStopTimeItem = new QStandardItem(pageStopTimeStr);
+        pageStopTimeItem->setData(pageStopTime);
+        pageItem->appendRow(pageStopTimeItem);
+
         foreach (DPPlot* plot, page->plots() ) {
 
             QString plotTitle = _descrPlotTitle(plot);

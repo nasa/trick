@@ -102,6 +102,8 @@ private:
     QHash<QWidget*,QGridLayout*> _page2grid;
     QHash<QWidget*,PageTitleWidget*> _page2pagewidget;
     QHash<QWidget*,QVector<Plot*> >  _page2Plots;
+    QHash<QWidget*,double> _page2startTime;
+    QHash<QWidget*,double> _page2stopTime;
     QHash<Plot*, QVector<TrickCurve*> > _plot2Curves;
 
     inline QWidget* _idx2Page(const QModelIndex& idx) const;
