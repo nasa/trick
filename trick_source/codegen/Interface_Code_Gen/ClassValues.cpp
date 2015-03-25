@@ -29,6 +29,9 @@ ClassValues::~ClassValues() {
 void ClassValues::addFieldDescription(FieldDescription * in_fdes) {
     field_descripts.push_back(in_fdes) ;
 
+// This section creates code that clang on the Mac cannot compile.
+// So, we cannot handle overloaded names on the Mac.
+#ifndef __APPLE__
     // Test to see if the new field overloads a field of the same name.  If it does
     // then fully qualify the name of the inherited field (the one already in field_name_to_info).
     std::map< std::string , FieldDescription * >::iterator mit = field_name_to_info_map.find(in_fdes->getName()) ;
@@ -40,6 +43,7 @@ void ClassValues::addFieldDescription(FieldDescription * in_fdes) {
             field_name_to_info_map.erase(mit) ;
         }
     }
+#endif
 
     field_name_to_info_map[in_fdes->getName()] = in_fdes ;
 }
@@ -48,6 +52,9 @@ void ClassValues::addInheritedFieldDescriptions(std::vector<FieldDescription *> 
     // Make a copy of all of the FieldDescription variables.
     field_descripts.insert(field_descripts.end(), in_fdes.begin() , in_fdes.end()) ;
 
+// This section creates code that clang on the Mac cannot compile.
+// So, we cannot handle overloaded names on the Mac.
+#ifndef __APPLE__
     std::vector<FieldDescription *>::iterator fdit ;
     // Loop through the incoming inherited variable names
     for ( fdit = in_fdes.begin() ; fdit != in_fdes.end() ; fdit++ ) {
@@ -84,6 +91,7 @@ void ClassValues::addInheritedFieldDescriptions(std::vector<FieldDescription *> 
             }
         }
     }
+#endif
 
 }
 
