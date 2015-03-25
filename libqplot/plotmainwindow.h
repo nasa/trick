@@ -14,6 +14,8 @@
 #include <QFileInfo>
 #include <QStringList>
 #include <QFileDialog>
+#include <QLineEdit>
+#include <QSizePolicy>
 
 #include "libsnapdata/monte.h"
 #include "libqplot/dp.h"
@@ -22,6 +24,7 @@
 #include "libqplot/dptreewidget.h"
 #include "libqplot/varswidget.h"
 #include "libqplot/monteinputsview.h"
+#include "libqplot/rangeinput.h"
 
 #include "libsnapdata/timeit_linux.h"
 
@@ -89,6 +92,9 @@ private slots:
      void _plotModelRowsAboutToBeRemoved(const QModelIndex& pidx,
                                          int start, int end);
      void _savePdf();
+
+     void _startTimeChanged(double startTime);
+     void _stopTimeChanged(double stopTime);
 };
 
 #endif // PLOTMAINWINDOW_H

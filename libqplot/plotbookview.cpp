@@ -527,12 +527,25 @@ void PlotBookView::minimize(const QModelIndex &idx)
     }
 }
 
-//
-// This is really bogus right now
-//
 void PlotBookView::dataChanged(const QModelIndex &topLeft,
                           const QModelIndex &bottomRight)
 {
+    // See if start/stop time changed
+    if ( topLeft == bottomRight && !topLeft.parent().parent().isValid() ) {
+        int row = topLeft.row();
+        if ( row == 1 || row == 2 ) {
+            QWidget* page = _idx2Page(topLeft);
+            foreach ( Plot* plot, _page2Plots.value(page) ) {
+                if ( row == 1 ) {
+                    plot->setStartTime(model()->data(topLeft).toDouble());
+                } else if ( row == 2 ) {
+                    plot->setStopTime(model()->data(topLeft).toDouble());
+                }
+                plot->axisRect()->zoomToFit();
+                plot->replot();
+            }
+        }
+    }
     QAbstractItemView::dataChanged(topLeft, bottomRight);
     viewport()->update();
 }

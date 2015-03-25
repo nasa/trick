@@ -100,6 +100,19 @@ PlotMainWindow::PlotMainWindow(
         lsplit->addWidget(_monteInputsView);
     }
 
+    // Start/Stop times input
+    RangeInput* rangeInput = new RangeInput(this);
+    QSizePolicy sp(QSizePolicy::Preferred,QSizePolicy::Preferred);
+    rangeInput->setSizePolicy(sp);
+    lsplit->addWidget(rangeInput);
+    lsplit->setStretchFactor(0,1);
+    lsplit->setStretchFactor(1,0);
+    connect(rangeInput,SIGNAL(minChanged(double)),
+            this, SLOT(_startTimeChanged(double)));
+    connect(rangeInput,SIGNAL(maxChanged(double)),
+            this, SLOT(_stopTimeChanged(double)));
+
+
 
     // Size main window
     QList<int> sizes;
@@ -267,5 +280,30 @@ void PlotMainWindow::_savePdf()
 
     if ( ! fname.isEmpty() ) {
         _plotBookView->savePdf(fname);
+    }
+}
+
+void PlotMainWindow::_startTimeChanged(double startTime)
+{
+    QStandardItem* rootItem = _plotModel->invisibleRootItem();
+
+    int rc = rootItem->rowCount();
+    for ( int i = 0; i < rc; ++i ) {
+        QStandardItem* pageItem = rootItem->child(i);
+        QStandardItem* startTimeItem = pageItem->child(1);
+        QModelIndex startTimeIdx =  _plotModel->indexFromItem(startTimeItem);
+        _plotModel->setData(startTimeIdx,startTime);
+    }
+}
+
+void PlotMainWindow::_stopTimeChanged(double stopTime)
+{
+    QStandardItem* rootItem = _plotModel->invisibleRootItem();
+    int rc = rootItem->rowCount();
+    for ( int i = 0; i < rc; ++i ) {
+        QStandardItem* pageItem = rootItem->child(i);
+        QStandardItem* stopTimeItem = pageItem->child(2);
+        QModelIndex stopTimeIdx =  _plotModel->indexFromItem(stopTimeItem);
+        _plotModel->setData(stopTimeIdx,stopTime);
     }
 }

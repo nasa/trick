@@ -34,7 +34,8 @@ SOURCES += \
     monteinputsview.cpp \
     plotmainwindow.cpp \
     pagetitlewidget.cpp \
-    plotbookmodel.cpp
+    plotbookmodel.cpp \
+    rangeinput.cpp
 
 HEADERS += \
     qcustomplot.h \
@@ -49,7 +50,8 @@ HEADERS += \
     monteinputsview.h \
     plotmainwindow.h \
     pagetitlewidget.h \
-    plotbookmodel.h
+    plotbookmodel.h \
+    rangeinput.h
 
 
 

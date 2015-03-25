@@ -256,6 +256,11 @@ void AxisRect::setYMaxRange(double yMax)
 
 void AxisRect::setStartTime(double startTime)
 {
+    if ( startTime == _startTime ) return;
+
+    _isXRangeCalculated = false;
+    _isYRangeCalculated = false;
+
     _startTime = startTime;
     foreach (TrickCurve* curve, _curves ) {
         curve->setStartTime(startTime);
@@ -264,6 +269,11 @@ void AxisRect::setStartTime(double startTime)
 
 void AxisRect::setStopTime(double stopTime)
 {
+    if ( stopTime == _stopTime ) return;
+
+    _isXRangeCalculated = false;
+    _isYRangeCalculated = false;
+
     _stopTime = stopTime;
     foreach (TrickCurve* curve, _curves ) {
         curve->setStopTime(stopTime);
