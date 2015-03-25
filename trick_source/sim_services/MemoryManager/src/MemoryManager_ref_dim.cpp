@@ -1,14 +1,13 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <string.h>
+#include <sstream>
 
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
 #include "sim_services/MemoryManager/include/vval.h"
 #include "sim_services/MemoryManager/include/attributes.h"
 #include "sim_services/MemoryManager/include/reference.h"
 #include "sim_services/MemoryManager/include/parameter_types.h"
-#include "sim_services/Message/include/message_proto.h"
-#include "sim_services/Message/include/message_type.h"
 
 /*
  Updates R, a reference to an arrayed object, to a reference to the indexed sub-element of that arrayed object.
@@ -19,14 +18,14 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
     int item_size;
 
     if (R->ref_type != REF_ADDRESS) {
-        message_publish(MSG_ERROR, "Memory Manager ERROR: Attempt to index into a non-address reference is bogus in ref_dim.\n") ;
+        emitError("Attempt to index into a non-address reference is bogus in ref_dim.") ;
         return (1);
     }
 
     R->num_index_left--;
     if (R->num_index_left < 0) {
         /* if we have too many dimensions, flag an error */
-        message_publish(MSG_ERROR, "Memory Manager ERROR: Too many dimensions in ref_dim.\n") ;
+        emitError("Too many dimensions in ref_dim.\n") ;
         return (TRICK_PARAMETER_ARRAY_SIZE);
     }
 
@@ -44,7 +43,7 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
         }
         /* for fixed dimensions, we can check the validity of the index value */
         if (vval_int(V) >= R->attr->index[R->num_index].size || vval_int(V) < 0) {
-            message_publish(MSG_ERROR, "Memory Manager ERROR: Array index out of bounds.\n") ;
+            emitError("Memory Manager ERROR: Array index out of bounds.") ;
             return (TRICK_PARAMETER_ARRAY_SIZE);
         }
 
@@ -79,7 +78,9 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
         // Dereference the pointer.
         R->address = *(void**)R->address;
         if ( R->address == NULL) {
-            message_publish(MSG_ERROR, "Memory Manager ERROR: Reference (%s) address is NULL in ref_dim.\n", R->reference) ;
+            std::stringstream message;
+            message << "Reference (" << R->reference << ") address is NULL in ref_dim.";
+            emitError(message.str());
             return(TRICK_PARAMETER_ADDRESS_NULL) ;
         }
     }

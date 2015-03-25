@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <algorithm>
 #include <dlfcn.h>
 
@@ -8,8 +9,6 @@
 
 #include "sim_services/SimObject/include/SimObject.hh"
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
-#include "sim_services/Message/include/message_proto.h"
-#include "sim_services/Message/include/message_type.h"
 
 /**
  *
@@ -83,9 +82,11 @@ int Trick::MemoryManager::add_attr_info( std::string & user_type_string , ATTRIB
     }
 
     if ( size_func == NULL)  {
-        message_publish(MSG_WARNING, "Memory Manager WARNING (%s:%d): Couldn't find an io_src_sizeof_ function for type %s [%s()].\n",
-                                   file_name , line_num ,
-                                   user_type_string.c_str(), size_func_name.c_str()) ;
+        std::stringstream message;
+        message << "(" << file_name << ":" << line_num 
+            << "): Couldn't find an io_src_sizeof_ function for type"
+            << user_type_string.c_str() << "[" << size_func_name.c_str() << "()].";
+        emitWarning(message.str());
     }
 
     // Attempt to find an attributes list for the named user type.
@@ -110,8 +111,10 @@ int Trick::MemoryManager::add_attr_info( std::string & user_type_string , ATTRIB
         if ( init_sub_attr != NULL ) {     // If the initialization function was found,
             (*init_sub_attr)() ;           // then call it.
         } else {  
-            message_publish(MSG_WARNING, "Memory Manager WARNING: ATTRIBUTES init routine for type \"%s\" not found.\n",
-                                       user_type_name.c_str()) ;
+            std::stringstream message;
+            message << " ATTRIBUTES init routine for type \""
+                    << user_type_name.c_str() << "\" not found.";
+            emitWarning(message.str());
             return(1) ;
         }
 
@@ -139,9 +142,9 @@ int Trick::MemoryManager::add_attr_info( std::string & user_type_string , ATTRIB
 
             // otherwise ...
             } else {
-
-                // Declare an ERROR condition.
-                message_publish(MSG_WARNING, "Memory Manager WARNING: ATTRIBUTES for type %s not found.\n", user_type_name.c_str()) ;
+                std::stringstream message;
+                message << "ATTRIBUTES for type \"" << user_type_name.c_str() << "\" not found.";
+                emitWarning(message.str());
                 return(1) ;
             }
         } else {

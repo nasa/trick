@@ -5,14 +5,13 @@
    (Initial Release.))) */
 
 #include <string.h>
+#include <sstream>
 
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
 #include "sim_services/MemoryManager/include/attributes.h"
 #include "sim_services/MemoryManager/include/reference.h"
 #include "sim_services/MemoryManager/include/parameter_types.h"
 #include "sim_services/MemoryManager/include/mm_error.h"
-#include "sim_services/Message/include/message_proto.h"
-#include "sim_services/Message/include/message_type.h"
 
 //FIXME TODO make a error file
 /////// MM_NO_ERROR 0
@@ -33,9 +32,11 @@ int Trick::MemoryManager::ref_name(REF2 * R, char *name) {
     }
 
     if (R->address == NULL) {
-        message_publish(MSG_ERROR, "Memory Manager ERROR: Since the value of the pointer \"%s\" is NULL,\n"
-                                   "    a legitimate address can't be calculated for \"%s.%s\" in ref_name.\n",
-                        R->reference, R->reference, name);
+        std::stringstream message;
+        message << "ref_name: Because the address of \"" << R->reference
+                << "\" is NULL, a legitimate address can't be calculated for \""
+                << R->reference << "." << name << "\".";
+        emitError(message.str());
         return (MM_PARAMETER_NAME);
     }
 

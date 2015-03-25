@@ -638,6 +638,9 @@ namespace Trick {
             VARIABLE_MAP_ITER variable_map_end() { return variable_map.end() ; } ;
 
             int debug_level; /**< -- Debug level */
+            static void emitMessage( std::string s);
+            static void emitError( std::string s);
+            static void emitWarning( std::string s);
 
         private:
 
@@ -658,6 +661,7 @@ namespace Trick {
 
             int alloc_info_map_counter ;     /**< ** counter to assign unique ids to allocations as they are added to map */
             int extern_alloc_info_map_counter ; /**< ** counter to assign unique ids to allocations as they are added to map */
+
 
             void write_checkpoint( std::ostream& out_s, std::vector<ALLOC_INFO*>& dependencies);
 
