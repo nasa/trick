@@ -7,7 +7,6 @@ use Getopt::Long ;
 use Pod::Usage ;
 use Pod::Text ;
 use File::Basename ;
-use Data::Dumper ;
 use Cwd ;
 use Cwd 'abs_path' ;
 use mis_dep ;
