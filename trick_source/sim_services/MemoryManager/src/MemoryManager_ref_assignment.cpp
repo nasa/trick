@@ -2,11 +2,10 @@
 #include "sim_services/MemoryManager/include/bitfield_proto.h"
 #include "sim_services/MemoryManager/include/vval.h"
 #include "sim_services/MemoryManager/include/wcs_ext.h"
-#include "sim_services/Message/include/message_proto.h"
-#include "sim_services/Message/include/message_type.h"
 #include "trick_utils/units/include/Unit.hh"
 #include "trick_utils/units/include/UCFn.hh"
 #include <limits.h>
+#include <sstream>
 
 int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, int curr_dim, int offset, V_TREE* v_tree, UCFn* cf) {
 
@@ -18,13 +17,13 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
       switch (attr->type) {
 
            case TRICK_CHARACTER :
-           case TRICK_UNSIGNED_CHARACTER : 
+           case TRICK_UNSIGNED_CHARACTER :
                assign_addr = (char*)base_addr + offset * sizeof(char);
                if (v_tree && v_tree->v_data) {
                    *(char*)assign_addr = vval_char(v_tree->v_data);
                } else {
                    *(char*)assign_addr = '\0';
-               } 
+               }
                if (debug_level) {
                    std::cout << std::endl << "Assignment: *(char*)" << (void*)assign_addr
                              << " = ";
@@ -68,19 +67,12 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
            case TRICK_UNSIGNED_INTEGER :
                assign_addr = (char*)base_addr + offset * sizeof(int);
                if (v_tree && v_tree->v_data) {
-                   int input_value; 
+                   int input_value;
                    input_value = vval_int(v_tree->v_data);
                    if (cf == NULL) {
                        *(int *)assign_addr = input_value;
                    } else {
-                       int assign_value; 
-                       assign_value = (int)(input_value * cf->C[1] + cf->C[0]);
-                       if ((assign_value <= INT_MAX) && (assign_value >= INT_MIN)) {
-                           *(int *)assign_addr = (int)assign_value;
-                       } else {
-                           *(int *)assign_addr = input_value;
-                           message_publish(MSG_ERROR, "Memory Manager ERROR: Unit conversion makes value too large to be assigned. Ignoring\n") ;
-                       }
+                       *(int *)assign_addr = input_value * cf->C[1] + cf->C[0];
                    }
                } else {
                    *(int *)assign_addr = 0;
@@ -123,10 +115,12 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
                            std::cout.flush();
                        }
                    } else {
-                       message_publish(MSG_ERROR, "Memory Manager ERROR: Enumeration of size %d is not supported.\n", attr->size) ;
+                       std::stringstream message;
+                       message << "Enumeration of size " << attr->size << " is not supported.";
+                       emitError(message.str());
                    }
                } else {
-                   message_publish(MSG_ERROR, "Memory Manager ERROR: v_tree data is corrupt.\n") ;
+                   emitError("v_tree data appears to be corrupted.");
                }
                break;
            case TRICK_LONG :
@@ -138,15 +132,8 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
                    if (cf == NULL) {
                        *(long *)assign_addr = input_value;
                    } else {
-                       double assign_value; 
-                       assign_value = input_value * cf->C[1] + cf->C[0];
-                       if ((assign_value <= LONG_MAX) && (assign_value >= LONG_MIN)) {
-                           *(long *)assign_addr = (long)assign_value;
-                       } else {
-                           *(long *)assign_addr = input_value;
-                           message_publish(MSG_ERROR, "Memory Manager ERROR: Unit conversion makes value too large to be assigned. Ignoring\n") ;
-                       }
-                   } 
+                       *(long *)assign_addr = input_value * cf->C[1] + cf->C[0];
+                   }
                } else {
                    *(long *)assign_addr = 0;
                }
@@ -227,9 +214,10 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
                        *(unsigned char*)assign_addr = insert_bitfield_any(
                            *(unsigned char*)assign_addr, input_value, attr->size, attr->index[0].start, attr->index[0].size);
                    } else {
-                       message_publish(MSG_ERROR, "Memory Manager INTERNAL ERROR:\n"
-                                              "Unhandled bitfield struct size (%d) in bitfield assignment.\n", attr->size) ;
-                   } 
+                       std::stringstream message;
+                       message << "Unhandled bitfield struct size (" << attr->size << ") in bitfield assignment.";
+                       emitError(message.str());
+                   }
                    if (debug_level) {
                        std::cout << std::endl << "Assignment: "
                                  << "Within the " << attr->size << " byte struct at " << (void*)assign_addr
@@ -268,7 +256,9 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
                }
                break;
            default:
-               message_publish(MSG_ERROR, "Memory Manager ERROR: Unhandled Type (%d) in assignment.\n", attr->type) ;
+               std::stringstream message;
+               message << "Unhandled Type (" << attr->type << ") in assignment.";
+               emitError(message.str());
                return (1);
                break;
       }
@@ -314,7 +304,7 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
                    if (rhs_len <= size_of_curr_dim ) {
                        strcpy((char*)assign_addr, v_tree->v_data->value.cp);
                    } else {
-                       message_publish(MSG_ERROR, "Memory Manager: char array is too small for the attempted string assignment.\n") ;
+                       emitError("Memory Manager: char array is too small for the attempted string assignment.");
                        return (1);
                    }
                } else {
@@ -332,7 +322,10 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
                        if (rhs_len <= size_of_curr_dim ) {
                            wcscpy((wchar_t*)assign_addr, v_tree->v_data->value.wcp);
                        } else {
-                           message_publish(MSG_ERROR, "Memory Manager: wchar_t array is too small for the attempted string assignment.\n") ;
+                           std::stringstream message;
+                           message << "wchar_t array at [" << (void*)assign_addr
+                                   << "] is to small for the attempted string assignment." ;
+                           emitError(message.str());
                            return (1);
                        }
                } else if ((v_tree) &&
@@ -343,7 +336,10 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
                        if (rhs_len <= size_of_curr_dim ) {
                            ncs_to_wcs( v_tree->v_data->value.cp, (wchar_t*)assign_addr, rhs_len);
                        } else {
-                           message_publish(MSG_ERROR, "Memory Manager: wchar_t array is too small for the attempted string assignment.\n") ;
+                           std::stringstream message;
+                           message << "wchar_t array at [" << (void*)assign_addr
+                                   << "] is too small for the attempted string assignment." ;
+                           emitError(message.str());
                            return (1);
                        }
                } else {
@@ -379,7 +375,7 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
            }
        }
    } else {
-        message_publish(MSG_ERROR, "Memory Manager ERROR - bad reference.\n") ;
+        emitError("This is bad. In assign_recursive(), remaining_dimensions is negative.");
         return (1);
    }
    return (0);
@@ -401,7 +397,9 @@ int Trick::MemoryManager::ref_assignment( REF2* R, V_TREE* V) {
             delete from_units;
             delete to_units;
         } catch (Unit::CONVERSION_ERROR) {
-            message_publish(MSG_ERROR, "Memory Manager ERROR: Can't convert \"%s\" to \"%s\".\n", R->units, R->attr->units) ;
+            std::stringstream message;
+            message << "Can't convert \"" << R->units << "\" to \"" << R->attr->units << "\".";
+            emitError(message.str());
             cf = NULL;
             return TRICK_UNITS_CONVERSION_ERROR ;
         }

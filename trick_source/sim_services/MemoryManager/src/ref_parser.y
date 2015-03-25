@@ -18,8 +18,6 @@
 #include "sim_services/MemoryManager/include/vval.h"
 #include "sim_services/MemoryManager/include/value.h"
 #include "sim_services/MemoryManager/include/var.h"
-#include "sim_services/Message/include/message_proto.h"
-#include "sim_services/Message/include/message_type.h"
 #include "ref_parser.tab.h"
 
     using namespace std;
@@ -27,10 +25,9 @@
     int REF_lex( YYSTYPE* lvalp, YYLTYPE* llocp, void* scanner );
  
     void REF_error( YYLTYPE* locp, RefParseContext* context __attribute__ ((unused)) , const char* err) {
-        std::stringstream ss;
-        ss << "MemoryManager ERROR: Syntax error " << locp->first_line << " : " << err 
-           << std::endl;
-        message_publish(MSG_ERROR, ss.str().c_str() );
+        std::stringstream message;
+        message << "Syntax error: " << locp->first_line << " : " << err ;
+        Trick::MemoryManager::emitError(message.str());
     }
 
 #define scanner context->scanner
@@ -94,11 +91,9 @@ param: NAME {
     $$.ref_type = REF_ADDRESS;
     $$.create_add_path = 1 ;
     $$.address_path = DLL_Create() ;
-  
-    // Get the address and attrs of the variable. 
+
+    // Get the address and attrs of the variable.
     if ((ret = context->mem_mgr->ref_var( &$$, $1)) != MM_OK) {
-        //don't print error, because var_exists command relies on this call 
-        //message_publish(MSG_ERROR, "Memory Manager ERROR: Call to ref_var( R, %s) failed.\n", $1);
         return ( ret);
     }
     // save the reference attributes allocated by ref_var so we can delete it after ref_name is called.
@@ -109,7 +104,7 @@ param: NAME {
 
 }
 | '&' NAME {
-    /* 
+    /*
      * This rule handles the first name with a preceding address character.
      * Only parameters and vars are allowed to have a preceding "&" char.
      */
@@ -123,13 +118,12 @@ param: NAME {
       $$.ref_type = REF_ADDRESS;
       $$.create_add_path = 1 ;
       $$.address_path = DLL_Create() ;
-  
-    // Get the address and attrs of the variable. 
+
+    // Get the address and attrs of the variable.
     if ((ret = context->mem_mgr->ref_var( &$$, $2)) != MM_OK) {
-        std::stringstream ss;
-        ss << "MemoryManager ERROR: Invalid reference: \"" << $2 << "\"."
-           << std::endl;
-        message_publish(MSG_ERROR, ss.str().c_str() );
+        std::stringstream message;
+        message << "MemoryManager ERROR: Invalid reference: \"" << $2 << "\".";
+        Trick::MemoryManager::emitError(message.str());
         return ( ret);
     }
     // save the reference attributes allocated by ref_var so we can delete it after ref_name is called.
@@ -162,10 +156,9 @@ param: NAME {
 
     /* Check to see if previous parameter specified enough dimensions. */
     if ($$.num_index != $$.attr->num_index) {
-        std::stringstream ss;
-        ss << "Memory Manager ERROR: Dimension mismatch."
-           << std::endl;
-        message_publish(MSG_ERROR, ss.str().c_str() );
+        std::stringstream message;
+        message << "Dimension mismatch.";
+        Trick::MemoryManager::emitError(message.str());
         return (MM_PARAMETER_ARRAY_DIM);
     }
 

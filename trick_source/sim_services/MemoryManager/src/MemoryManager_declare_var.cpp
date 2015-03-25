@@ -5,8 +5,6 @@
 #include <dlfcn.h>
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
 #include "sim_services/MemoryManager/include/ADefParseContext.hh"
-#include "sim_services/Message/include/message_proto.h"
-#include "sim_services/Message/include/message_type.h"
 
 /**
  @page examples_declare_var Examples of declare_var
@@ -71,9 +69,9 @@ void* Trick::MemoryManager::declare_var( TRICK_TYPE type,
         pthread_mutex_lock(&mm_mutex);
         variable_pos = variable_map.find( var_name);
         if (variable_pos != variable_map.end()) {
-            std::stringstream ss;
-            ss << "Memory Manager ERROR: Variable \""<< var_name <<"\" already declared.\n";
-            message_publish(MSG_ERROR, ss.str().c_str() );
+            std::stringstream message;
+            message << "Variable \""<< var_name <<"\" already declared.\n";
+            emitError(message.str());
             pthread_mutex_unlock(&mm_mutex);
             return ((void*)NULL);
         }
@@ -90,26 +88,25 @@ void* Trick::MemoryManager::declare_var( TRICK_TYPE type,
         n_elems = n_elems * cdims[ii];
     }
     if (n_elems == 0) {
-        std::stringstream ss;
-        ss << "Memory Manager ERROR: In the following declaration, ";
-        ss << "one or more of the constrained dimensions is zero." ;
-        ss << std::endl;
+        std::stringstream message;
+        message << "In the following declaration, ";
+        message << "one or more of the constrained dimensions is zero." ;
+        message << std::endl;
 
         // Print declaration.
-        ss << make_decl_string( type, user_type_name, n_stars, var_name, n_cdims, cdims);
-        ss << std::endl;
-        message_publish(MSG_ERROR, ss.str().c_str() ) ;
+        message << make_decl_string( type, user_type_name, n_stars, var_name, n_cdims, cdims);
+        emitError(message.str()) ;
         return ((void*)NULL);
     }
 
     /** @li From the TRICK_TYPE, user_type_name and the number of pointers (asterisks),
             determine the size and the attributes of an element. */
     if ( get_type_attributes(type, user_type_name, n_stars, sub_attr, size) != 0) {
-        std::stringstream ss;
-        ss << "Memory Manager ERROR: get_type_attributes failed for type: ";
-        ss << trickTypeCharString(type, user_type_name.c_str());
-        ss << std::endl;
-        message_publish(MSG_ERROR, ss.str().c_str() ) ;
+        std::stringstream message;
+        message << "get_type_attributes failed for type: ";
+        message << trickTypeCharString(type, user_type_name.c_str());
+        message << std::endl;
+        emitError(message.str()) ;
 
         return ((void*)NULL);
     }
@@ -120,12 +117,11 @@ void* Trick::MemoryManager::declare_var( TRICK_TYPE type,
          (n_stars == 0 ) ) {
 
         if ((address = io_src_allocate_class( user_type_name.c_str(), n_elems)) == NULL) {
-            std::stringstream ss;
-            ss << "Memory Manager ERROR: io_src_allocate_class (";
-            ss << user_type_name << "," << n_elems ;
-            ss << ") failed to allocate any memory.";
-            ss << std::endl;
-            message_publish(MSG_ERROR, ss.str().c_str() ) ;
+            std::stringstream message;
+            message << "io_src_allocate_class (";
+            message << user_type_name << "," << n_elems ;
+            message << ") failed to allocate any memory.";
+            emitError(message.str()) ;
 
             return ((void*)NULL);
         }
@@ -145,7 +141,7 @@ void* Trick::MemoryManager::declare_var( TRICK_TYPE type,
         language = Language_CPP;
     } else {
         if ( (address = calloc( (size_t)n_elems, (size_t)size ) ) == NULL) {
-            message_publish(MSG_ERROR, "Memory Manager ERROR: Out of memory.\n") ;
+            emitError("Out of memory.") ;
             return ((void*)NULL);
         }
         language = Language_C;
@@ -194,7 +190,7 @@ void* Trick::MemoryManager::declare_var( TRICK_TYPE type,
         }
         pthread_mutex_unlock(&mm_mutex);
     } else {
-        message_publish(MSG_ERROR, "Memory Manager ERROR: Out of memory.\n") ;
+        emitError("Out of memory.\n") ;
         return ((void*)NULL);
     }
 
@@ -246,7 +242,9 @@ void* Trick::MemoryManager::declare_var( const char *alloc_definition) {
             /** @li Delete the parse context. */
             delete( context);
         } else {
-            message_publish(MSG_ERROR, "Memory Manager: Invalid declaration (failed to parse): \"%s\".\n", alloc_definition) ;
+            std::stringstream message;
+            message << "Invalid declaration (failed to parse): \"" << alloc_definition << "\".";
+            emitError(message.str());
         }
     }
     /** @li Return the address of the allocation. */
@@ -296,7 +294,9 @@ void* Trick::MemoryManager::declare_var( const char *element_definition, int n_e
             /** @li Delete the parse context. */
             delete( context);
         } else {
-            message_publish(MSG_ERROR, "Memory Manager ERROR: declare_var( \"%s\",%d).\n", element_definition, n_elems) ;
+            std::stringstream message;
+            message << "declare_var( \"" << element_definition << "\"," << n_elems <<").";
+            emitError(message.str());
         }
     }
     /** @li Return the address of the allocation. */
@@ -323,13 +323,15 @@ void* Trick::MemoryManager::declare_operatornew_var( std::string user_type_name,
     /** @li From the TRICK_TYPE, user_type_name and the number of pointers (asterisks),
             determine the size and the attributes of an element. */
     if ( get_type_attributes(type, user_type_name, 0, sub_attr, size_ref ) != 0) {
-        message_publish(MSG_ERROR, "Memory Manager ERROR: get_type_attributes failed for type: %d %s.\n",
-                                    TRICK_STRUCTURED, user_type_name.c_str()) ;
+        std::stringstream message;
+        message << "get_type_attributes failed for type: " << TRICK_STRUCTURED
+                << " " << user_type_name.c_str() << ".";
+        emitError(message.str());
         return ((void*)NULL);
     }
 
     if ( (address = calloc( 1, alloc_size ) ) == NULL) {
-        message_publish(MSG_ERROR, "Memory Manager ERROR: Out of memory.\n") ;
+        emitError("Out of memory.") ;
         return ((void*)NULL);
     }
 
@@ -362,7 +364,7 @@ void* Trick::MemoryManager::declare_operatornew_var( std::string user_type_name,
         alloc_info_map[address] = new_alloc;
         pthread_mutex_unlock(&mm_mutex);
     } else {
-        message_publish(MSG_ERROR, "Memory Manager ERROR: Out of memory.\n") ;
+        emitError("Out of memory.") ;
         return ((void*)NULL);
     }
 
@@ -404,7 +406,9 @@ size_t Trick::MemoryManager::sizeof_type( const char* var_definition) {
                 n_elems *= context->cdims[ii];
             }
         } else {
-            message_publish(MSG_ERROR, "Memory Manager: Invalid variable definition \"%s\" in sizeof_type.\n", var_definition) ;
+            std::stringstream message;
+            message << "Invalid variable definition \"" << var_definition << "\" in sizeof_type.";
+            emitError(message.str());
         }
         delete( context);
     }

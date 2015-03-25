@@ -3,8 +3,6 @@
 
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
 #include "sim_services/MemoryManager/include/ADefParseContext.hh"
-#include "sim_services/Message/include/message_proto.h"
-#include "sim_services/Message/include/message_type.h"
 
 /**
  @par Description:
@@ -35,7 +33,7 @@ void* Trick::MemoryManager::
 
     /** @li Validate Parameters. The address can't be NULL.*/
     if (address == NULL) {
-        message_publish(MSG_ERROR, "Memory Manager ERROR: declare_extern_var called with NULL address.\n") ;
+        emitError("declare_extern_var() called with NULL address.");
         return ((void*)NULL);
     }
 
@@ -44,7 +42,9 @@ void* Trick::MemoryManager::
         pthread_mutex_lock(&mm_mutex);
         variable_pos = variable_map.find( var_name);
         if (variable_pos != variable_map.end()) {
-            message_publish(MSG_ERROR, "Memory Manager ERROR: Variable \"%s\" already declared.\n", var_name.c_str()) ;
+            std::stringstream message;
+            message << "Variable \""<< var_name <<"\" already declared.";
+            emitError(message.str());
             pthread_mutex_unlock(&mm_mutex);
             return ((void*)NULL);
         }
@@ -62,15 +62,21 @@ void* Trick::MemoryManager::
         n_elems = n_elems * cdims[ii];
     }
     if (n_elems == 0) {
-        // FIXME: This Error message needs to improved.
-        message_publish(MSG_ERROR, "Memory Manager ERROR: One or more of the constrained dimensions is zero.\n") ;
+        std::stringstream message;
+        message << "declare_extern_var() can't register \"" << var_name 
+                << "\" because one or more of its constrained dimensions "
+                << "is zero, thus making its total size zero.";
+        emitError(message.str());
         return ((void*)NULL);
     }
 
     /** @li From the TRICK_TYPE, user_type_name and the number of pointers (asterisks),
             determine the size and the attributes of an element. */
     if ( get_type_attributes(type, user_type_name, n_stars, sub_attr, size) != 0) {
-        message_publish(MSG_ERROR, "Memory Manager ERROR: get_type_attributes failed for type %d %s.\n", type, user_type_name.c_str()) ;
+        std::stringstream message;
+        message << "get_type_attributes failed for type "
+                << type << " \"" << user_type_name << "\".";
+        emitError(message.str());
         return ((void*)NULL);
     }
 
@@ -123,7 +129,7 @@ void* Trick::MemoryManager::
         }
         pthread_mutex_unlock(&mm_mutex);
     } else {
-        message_publish(MSG_ERROR, "Memory Manager ERROR: Out of memory.\n") ;
+        emitError("Out of memory.") ;
         return ((void*)NULL);
     }
 
@@ -179,7 +185,9 @@ void* Trick::MemoryManager::
             /** @li Delete the parse context. */
             delete( context);
         } else {
-            message_publish(MSG_ERROR, "Memory Manager: Invalid declaration \"%s\".\n", alloc_definition) ;
+            std::stringstream message;
+            message << "Invalid declaration \"" << alloc_definition << "\".";
+            emitError(message.str());
         }
     }
     /** @li Return the address. */
@@ -232,7 +240,10 @@ void* Trick::MemoryManager::
             /** @li Delete the parse context. */
             delete( context);
         } else {
-            message_publish(MSG_ERROR, "Memory Manager ERROR: declare_extern_var( \"%s\",%d).\n", element_definition, n_elems) ;
+            std::stringstream message;
+            message << "declare_extern_var( \"" << element_definition
+                    << "\"," << n_elems << ") failed.";
+            emitError(message.str());
         }
     }
     /** @li Return the address of the allocation. */

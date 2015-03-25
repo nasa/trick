@@ -1,6 +1,4 @@
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
-#include "sim_services/Message/include/message_proto.h"
-#include "sim_services/Message/include/message_type.h"
 #include <sstream>
 
 ALLOC_INFO* Trick::MemoryManager::get_alloc_info_of( void* addr) {
@@ -37,10 +35,9 @@ int Trick::MemoryManager::set_name_at( void* addr , const char * name ) {
         variable_pos = variable_map.find(name);
         if (variable_pos != variable_map.end()) {
             std::stringstream ss;
-            ss << "Memory Manager ERROR: Call to set_name_at() failed because a variable named \""
-               << name <<"\" already exists."
-               << std::endl ;
-            message_publish(MSG_ERROR, ss.str().c_str() );
+            ss << "Call to set_name_at() failed because a variable named \""
+               << name << "\" already exists.";
+            emitError(ss.str());
             pthread_mutex_unlock(&mm_mutex);
             ret = -1 ;
         } else {

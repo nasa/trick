@@ -6,11 +6,10 @@
  */
 
 #include <iostream>
+#include <sstream>
 #include <dlfcn.h>
 
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
-#include "sim_services/Message/include/message_proto.h"
-#include "sim_services/Message/include/message_type.h"
 
 /* This routine only returns the size if ptr points to the beginning of the allocation area */
 int Trick::MemoryManager::add_shared_library_symbols(const char * file_name) {
@@ -21,7 +20,9 @@ int Trick::MemoryManager::add_shared_library_symbols(const char * file_name) {
     if ( new_handle != NULL ) {
         dlhandles.push_back(new_handle) ;
     } else {
-        message_publish(MSG_ERROR, "Memory Manager ERROR: add_shared_library_symbols could not find library file: %s.\n", file_name) ;
+        std::stringstream message;
+        message << "add_shared_library_symbols could not find library file: \"" << file_name << "\".";
+        emitError(message.str());
     }
 
     return 0 ;

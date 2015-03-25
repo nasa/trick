@@ -1,8 +1,7 @@
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
-#include "sim_services/Message/include/message_proto.h"
-#include "sim_services/Message/include/message_type.h"
 #include <dlfcn.h>
 #include <stdlib.h>
+#include <sstream>
 
 // PRIVATE MEMBER FUNCTION
 void Trick::MemoryManager::recursive_array_copy( void *s_base,
@@ -65,22 +64,23 @@ void* Trick::MemoryManager::resize_array( void *address, int n_cdims, int *cdims
     alloc_info = get_alloc_info_at( address);
 
     if (alloc_info == NULL) {
-        message_publish(MSG_ERROR, "Memory Manager ERROR: Address passed to resize_array is NULL.\n") ;
+        emitError("Address passed to resize_array is NULL.") ;
         pthread_mutex_unlock(&mm_mutex);
         return ( (void*)NULL);
     }
 
     if (alloc_info->stcl != TRICK_LOCAL) {
-        message_publish(MSG_ERROR, "Memory Manager ERROR: Cannot resize the array variable at address %p "
-                                   "because it did not allocate it.\n", address) ;
+        std::stringstream message;
+        message << "Cannot resize the array at [" << address << "] because it's EXTERN.";
+        emitError(message.str());
         pthread_mutex_unlock(&mm_mutex);
         return ( (void*)NULL);
     }
 
     if (alloc_info->type == TRICK_STRING) {
-        message_publish(MSG_ERROR, "Memory Manager resize_array ERROR: at address %p."
-                                   " Arrays of STL strings are not supported."
-                                   " Consider using a vector of strings.\n", address) ;
+        std::stringstream message;
+        message << "resize_array doesn't support STL strings.";
+        emitError(message.str());
         pthread_mutex_unlock(&mm_mutex);
         return ( (void*)NULL);
     }
@@ -99,13 +99,17 @@ void* Trick::MemoryManager::resize_array( void *address, int n_cdims, int *cdims
         are the same as those in the proposed re-allocation.*/
     if (n_cdims != pre_n_cdims) {
         if (pre_n_cdims == 0) {
-            message_publish(MSG_ERROR, "Memory Manager resize_array ERROR: The object at address %p is not an array.\n"
-                                       "If you want to be able to resize it then\n"
-                                       "declare it as an array (of one) in the first place.\n", address) ;
+            std::stringstream message;
+            message << "resize_array: The object at address [" << address
+                    << "] is not an array. If you want to be able to resize "
+                    << "it then declare it as an array (of at least one).";
+            emitError(message.str());
         } else {
-            message_publish(MSG_ERROR, "Memory Manager resize_array ERROR: The number of dimensions specified, \"%d\",\n"
-                                       "doesn't match the number of (non-pointer) dimensions of the object, \"%d\",\n"
-                                       "at address %p\n.", n_cdims, pre_n_cdims, address) ;
+            std::stringstream message;
+            message << "resize_array: The number of dimensions specified, [" << n_cdims
+                    << "], doesn't match the number of dimensions of the object at "
+                    << address <<", [" << pre_n_cdims << "].";
+            emitError(message.str());
         }
         return ( (void*)NULL);
     } 
@@ -116,7 +120,7 @@ void* Trick::MemoryManager::resize_array( void *address, int n_cdims, int *cdims
         new_n_elems = new_n_elems * cdims[ii];
     }
     if (new_n_elems == 0) {
-        message_publish(MSG_ERROR, "Memory Manager ERROR: One or more of the constrained dimensions is zero.\n") ;
+        emitError("One or more of the constrained dimensions is zero.");
         return ((void*)NULL);
     }
 
@@ -127,8 +131,9 @@ void* Trick::MemoryManager::resize_array( void *address, int n_cdims, int *cdims
          (alloc_info->num_index == n_cdims) ) {
 
         if ((new_address = io_src_allocate_class( alloc_info->user_type_name, new_n_elems)) == NULL) {
-            message_publish(MSG_ERROR, "Memory Manager ERROR: io_src_allocate_class(%s,%d) failed to allocate any memory.\n",
-                      alloc_info->user_type_name, new_n_elems) ;
+            std::stringstream message;
+            message << "io_src_allocate_class(" << alloc_info->user_type_name << "," << new_n_elems << ") failed to allocate any memory.";
+            emitError(message.str());
             pthread_mutex_unlock(&mm_mutex);
             return ((void*)NULL);
         }  
@@ -140,7 +145,7 @@ void* Trick::MemoryManager::resize_array( void *address, int n_cdims, int *cdims
         }
     } else {
         if ( (new_address = calloc( (size_t)new_n_elems, (size_t)alloc_info->size ) ) == NULL) {
-            message_publish(MSG_ERROR, "Memory Manager ERROR: Out of memory.\n") ;
+            emitError("Out of memory.") ;
             pthread_mutex_unlock(&mm_mutex);
             return ((void*)NULL);
         }
@@ -210,7 +215,9 @@ void* Trick::MemoryManager::resize_array( const char* name, int n_cdims, int *cd
         pthread_mutex_unlock(&mm_mutex);
         return( resize_array( alloc_info->start, n_cdims, cdims));
     } else {
-        message_publish(MSG_ERROR, "Memory Manager ERROR: Cannot resize variable \"%s\" because it doesn't exist.\n", name) ;
+        std::stringstream message;
+        message << "Cannot resize variable \"" << name << "\" because it doesn't exist.";
+        emitError(message.str());
     }
     pthread_mutex_unlock(&mm_mutex);
     return NULL ;
