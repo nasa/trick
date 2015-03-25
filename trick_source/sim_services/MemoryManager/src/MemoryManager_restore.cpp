@@ -17,7 +17,6 @@ int Trick::MemoryManager::read_checkpoint( std::istream *is) {
     }
 
     if (currentCheckPointAgent->restore( is) !=0 ) {
-       std::stringstream;
        emitError("Checkpoint restore failed.") ;
     }
 
