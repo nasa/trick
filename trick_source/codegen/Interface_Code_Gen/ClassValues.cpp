@@ -28,6 +28,19 @@ ClassValues::~ClassValues() {
 
 void ClassValues::addFieldDescription(FieldDescription * in_fdes) {
     field_descripts.push_back(in_fdes) ;
+
+    // Test to see if the new field overloads a field of the same name.  If it does
+    // then fully qualify the name of the inherited field (the one already in field_name_to_info).
+    std::map< std::string , FieldDescription * >::iterator mit = field_name_to_info_map.find(in_fdes->getName()) ;
+    if ( mit != field_name_to_info_map.end() ) {
+        // If the matched variable is inherited, qualify it with its container class name.
+        if ( (*mit).second->isInherited() ) {
+            (*mit).second->setName( (*mit).second->getContainerClass() + "::" + (*mit).second->getName() ) ;
+            field_name_to_info_map[(*mit).second->getName()] = (*mit).second ;
+            field_name_to_info_map.erase(mit) ;
+        }
+    }
+
     field_name_to_info_map[in_fdes->getName()] = in_fdes ;
 }
 
