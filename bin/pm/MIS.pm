@@ -7,7 +7,6 @@ use Exporter ();
 use strict ;
 use lib $ENV{"TRICK_HOME"} . "/bin/pm" ;
 use File::Basename ;
-use Data::Dumper ;
 use Cwd ;
 use Cwd 'abs_path' ;
 use html ;

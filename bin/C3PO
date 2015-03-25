@@ -3,7 +3,6 @@
 use File::Basename ;
 use Cwd ;
 use strict ;
-use Data::Dumper ;
 use Getopt::Long ;
 use Pod::Usage ;
 use Pod::Text ;
@@ -230,23 +229,10 @@ undef %temp_hash ;
 @all_src_files = grep ++$temp_hash{$_} < 2, @all_src_files ;
 @all_src_files = grep !/trick_source|\.a$|^\-/ , @all_src_files ;
 
-# TODO: Add back at some time before release
-#trick_print($sim{fh}, "MIS-ing all src files... ", "title_cyan" , $sim{args}{v}) ;
-#trick_print($sim{fh}, "\n" , "title_white" , $sim{args}{v}) if ( $sim{args}{v} != 1 ) ;
-#mis_all_c(\@all_src_files , \%sim ) ;
-
 if ( $sim{args}{v} == 1 ) {
     print " [32mComplete[00m\n" ;
 }
 trick_print($sim{fh}, "\nMIS complete\n\n" , "normal_green" , $sim{args}{v}) ;
-
-if ( $sim{args}{v} > 3 ) {
-    chdir ($cwd) ;
-    $Data::Dumper::Indent = 1 ;
-    open FILE, ">sim_info" or die "Couldn't open sim_info\n";
-    print FILE Data::Dumper->Dump([\%sim], ["*sim_info"]) , "\n" ;
-    close FILE ;
-}
 
 #--------------------------------------------------------------
 # Make Default Data 

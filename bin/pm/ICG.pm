@@ -14,7 +14,6 @@ use MIS ;
 use html ;
 use trick_print ;
 use trick_version ;
-use Data::Dumper ;
 use Cwd 'abs_path';
 
 ##############################################################################
