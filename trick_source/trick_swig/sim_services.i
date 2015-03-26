@@ -82,6 +82,7 @@
 #include "sim_services/Integrator/include/IntegLoopManager.hh"
 #include "sim_services/Integrator/include/IntegLoopSimObject.hh"
 #include "sim_services/Integrator/include/Integrator.hh"
+#include "sim_services/Integrator/include/regula_falsi.h"
 
 #ifdef USE_ER7_UTILS_INTEGRATORS
 #  include "sim_services/Integrator/er7_algorithms/ABM_Integrator.hh"
