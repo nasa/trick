@@ -21,9 +21,6 @@ namespace Trick {
         int integrate();
 
         Integrator_type get_Integrator_type() { return(ABM_Method); };
-    
-        double time;
-        double time_0;
 
         int counter;
         int primed;
