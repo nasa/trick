@@ -18,18 +18,7 @@ Desired outputs are:
 * Time of touchdown.
 
 ##### Gravity
-<math xmlns="http://www.w3.org/1998/Math/MathML">
-<mrow>
-    <msub>
-        <mi>F</mi>
-        <mi>g</mi>
-    </msub>
-    <mo>=</mo>
-    <mi>m</mi>
-    <mo>&InvisibleTimes;</mo>
-    <mi>g</mi>
-</mrow>
-</math>
+![Fgrav=m*g](images/force_of_gravity.png)
 
 Where:
 
@@ -37,33 +26,7 @@ Where:
 * g = acceleration of gravity.
 
 ##### Drag
-<math xmlns="http://www.w3.org/1998/Math/MathML">
-    <mrow>
-        <msub>
-            <mi>F</mi>
-            <mi>d</mi>
-        </msub>
-        <mo>=</mo>
-        <mfrac>
-            <mn>1</mn>
-            <mn>2</mn>
-        </mfrac>
-        <mo>&InvisibleTimes;</mo>
-        <mi>&#0961;</mi>
-        <mo>&InvisibleTimes;</mo>
-        <msup>
-            <mi>v</mi>
-            <mn>2</mn>
-        </msup>
-        <mo>&InvisibleTimes;</mo>
-        <msub>
-            <mi>C</mi>
-            <mi>d</mi>
-        </msub>
-        <mo>&InvisibleTimes;</mo>
-        <mi>A</mi>
-    </mrow>
-</math>
+![Fdrag=0.5*Cdrag*rho*v^2*A](images/force_of_drag.png)
 
 Where:
 
