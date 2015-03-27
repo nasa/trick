@@ -13,7 +13,6 @@ PROGRAMMERS:
 // http://www.engineeringtoolbox.com/standard-atmosphere-d_604.html
 // U.S Standard Atmosphere Air Properties in SI Units
 #define NUM_ELEMENTS 21
-
 // Units = meters (above sea level).
 const double altitude_array[NUM_ELEMENTS] = {
  -1000.0,     0.0,  1000.0,  2000.0,  3000.0,  4000.0,  5000.0,  6000.0,
@@ -33,78 +32,43 @@ const double gravity_array[NUM_ELEMENTS] = {
 9.684, 9.654, 9.624, 9.594, 9.564
 };
 
-const double Parachutist::crossSectionalArea_freefall  =  0.75 ;
-const double Parachutist::crossSectionalArea_parachute = 30.00;
-const double Parachutist::cooefficientOfDrag_freefall  =  0.75;
-const double Parachutist::cooefficientOfDrag_parachute =  1.30;
-
 int Parachutist::default_data() {
 
-    position = 38969.3; //38969.3 meters = 127852 feet
+    altitude = 38969.3; //38969.3 meters = 127852 feet
     velocity = 0.0;
-    acceleration = 0.0;
-    parachuteDeploymentStartTime = 259; /* 4 minutes, 19 seconds*/
-    parachuteDeploymentDuration  = 3;
-    crossSectionalArea = crossSectionalArea_freefall;
-    cooefficientOfDrag = cooefficientOfDrag_freefall;
+    area = 0.75;
+    Cd = 0.75;
     touchDown = false;
     mass = 82.0;
-
     return (0);
 }
 
 int Parachutist::state_init() {
-    parachuteDeploymentEndTime = parachuteDeploymentStartTime + parachuteDeploymentDuration;
-    return (0);
-}
-
-#include "sim_services/Executive/include/exec_proto.h"
-int Parachutist::parachute_control() {
-
-    double currentTime =  exec_get_sim_time();
-
-    if ((currentTime >  parachuteDeploymentStartTime) &&
-        (currentTime <= parachuteDeploymentEndTime)) {
-        cooefficientOfDragRate = (cooefficientOfDrag_parachute - cooefficientOfDrag_freefall)
-                / parachuteDeploymentDuration;
-        crossSectionalAreaRate = (crossSectionalArea_parachute - crossSectionalArea_freefall)
-                / parachuteDeploymentDuration;
-    } else {
-        cooefficientOfDragRate = 0.0;
-        crossSectionalAreaRate = 0.0;
-    }
     return (0);
 }
 
 int Parachutist::state_deriv() {
 
-   // Calculate the force of gravity.
-#if 1
-   double g = 9.81;
-#else
-   double g = interpolate( position, altitude_array, gravity_array, NUM_ELEMENTS );
-#endif
+// Calculate the forces and acceleration.
 
+   // Calculate Force of gravity.
+   double g = interpolate( altitude, altitude_array, gravity_array, NUM_ELEMENTS );
    double Force_gravity = mass * -g;
 
-   // Calculate the force of drag.
-   double air_density = interpolate( position, altitude_array, air_density_array, NUM_ELEMENTS );
-   double Force_drag = cooefficientOfDrag * 0.5 * air_density * velocity * velocity * crossSectionalArea;
+   // Calculate Force of drag.
+   double air_density = interpolate( altitude, altitude_array, air_density_array, NUM_ELEMENTS );
+   double Force_drag = Cd * 0.5 * air_density * velocity * velocity * area;
 
-   // Sum the forces and calculate acceleration.
+   // Calculate Total Force.
    double Force_total;
-
-   // If skydiver has touched down then set state derivatives to zero.
-   if ( touchDown ) {
+   if ( !touchDown ) {
+       Force_total = Force_gravity + Force_drag ;
+       acceleration = Force_total / mass;
+   } else {
        Force_total = 0.0;
        velocity = 0.0;
        acceleration = 0.0;
-   } else {
-       Force_total = Force_gravity + Force_drag ;
-       acceleration = Force_total / mass;
    }
-
-   /* RETURN: -- Always return zero. */
    return(0);
 }
 
@@ -112,39 +76,20 @@ int Parachutist::state_deriv() {
 int Parachutist::state_integ() {
 
    int integration_step;
-
-   load_state( &position,
-               &velocity,
-               &cooefficientOfDrag,
-               &crossSectionalArea,
-               (double*)0
-             );
-
-   load_deriv ( &velocity,
-                &acceleration,
-                &cooefficientOfDragRate,
-                &crossSectionalAreaRate,
-                (double*)0
-              );
-
+   load_state( &altitude, &velocity, (double*)0);
+   load_deriv ( &velocity, &acceleration, (double*)0);
    integration_step = integrate();
-
-   unload_state( &position,
-                 &velocity,
-                 &cooefficientOfDrag,
-                 &crossSectionalArea,
-                 (double*)0
-               );
+   unload_state( &altitude, &velocity, (double*)0);
 
    return(integration_step);
 }
 
-double Parachutist::touch_down() {
+double Parachutist::touch_down(double groundAltitude) {
     double tgo ;
     double now ;
 
     /* error function: how far the skydiver is above ground */
-    rf.error = position ;
+    rf.error = altitude - groundAltitude ;
 
     now = get_integ_time() ;
     tgo = regula_falsi( now, &rf ) ;

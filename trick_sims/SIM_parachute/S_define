@@ -13,6 +13,7 @@ class ParachutistSimObject : public Trick::SimObject {
 
     public:
     Parachutist parachutist;
+    double groundAltitude;
 
     ParachutistSimObject() {
 
@@ -20,8 +21,7 @@ class ParachutistSimObject : public Trick::SimObject {
         ("initialization")  parachutist.state_init() ;
         ("derivative")      parachutist.state_deriv() ;
         ("integration") trick_ret = parachutist.state_integ() ;
-        ("dynamic_event")   parachutist.touch_down() ;
-        (0.02, "scheduled") parachutist.parachute_control();
+        ("dynamic_event")   parachutist.touch_down(groundAltitude) ;
     }
 } ;
 

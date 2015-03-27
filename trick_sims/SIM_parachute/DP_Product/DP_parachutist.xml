@@ -10,7 +10,7 @@
             <title>Plot</title>
             <curve>
                 <var units="s">sys.exec.out.time</var>
-                <var units="m">dyn.parachutist.position</var>
+                <var units="m">dyn.parachutist.altitude</var>
             </curve>
         </plot>
     </page>
