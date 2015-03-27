@@ -45,22 +45,25 @@ specific altitudes.
 #### Parachute Deployment
 Parachute deployment is modeled, using a Trick event (in input.py) that simply increasing skydiver's
 
-1) cross-sectional area and
-2) coefficient of drag.
+1. cross-sectional area and
+2. coefficient of drag.
 
 at the specified time.
 
-### Jump Scenario
-dyn.groundAltitude = 1000
-dyn.parachutist.altitude = 38969.6 meters
-dyn.parachutist.velocity = 0.0
-dyn.parachutist.area = 0.75
-dyn.parachutist.Cd = 0.75
-dyn.parachutist.mass = 82.0
+### Felix Baumgartner Jump Scenario
 
-# At 4 minutes and 19 seconds, pop the chute.
-dyn.parachutist.Cd = 1.3
-dyn.parachutist.area = 30.0
+* dyn.groundAltitude = 1000
+* dyn.parachutist.altitude = 38969.6 meters
+* dyn.parachutist.velocity = 0.0
+* dyn.parachutist.area = 0.75
+* dyn.parachutist.Cd = 0.75
+* dyn.parachutist.mass = 82.0
+
+At 4 minutes and 19 seconds, pop the chute:
+
+* dyn.parachutist.Cd = 1.3
+* dyn.parachutist.area = 30.0
+
 
 #### Results
 
