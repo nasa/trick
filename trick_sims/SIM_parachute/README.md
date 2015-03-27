@@ -43,10 +43,11 @@ From these data we interpolate, to approximate the air density and gravity at
 specific altitudes.
 
 #### Parachute Deployment
-Parachute deployment is modeled, using a Trick event (in input.py) that simply increasing skydiver's
+Parachute deployment is modeled, using a Trick event (in input.py) that simply
+increases the skydiver's
 
-1. cross-sectional area and
-2. coefficient of drag.
+1. cross-sectional area (A) and
+2. coefficient of drag (C<sub>d</sub>).
 
 at the specified time.
 
@@ -67,6 +68,9 @@ At 4 minutes and 19 seconds, pop the chute:
 
 #### Results
 
+##### Altitude vs Time
 ![Plot of Altitude vs Time](images/plot_altitude_vs_time.png "Altitude vs. Time")
+
+##### Velocity vs Time
 ![Plot of Velocity vs Time](images/plot_velocity_vs_time.png "Velocity vs. Time")
 
