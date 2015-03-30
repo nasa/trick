@@ -101,9 +101,7 @@ QModelIndex VarsWidget::_findSinglePlotPageWithCurve(const QString& curveName)
     QModelIndex retPageIdx;
 
     bool isExists = false;
-    QStandardItem *rootItem = _plotModel->invisibleRootItem();
-    for ( int pageId = 0; pageId < rootItem->rowCount(); ++pageId) {
-        QModelIndex pageIdx = _plotModel->index(pageId,0);
+    foreach ( QModelIndex pageIdx, _plotModel->pageIdxs() ) {
         foreach ( QModelIndex plotIdx, _plotModel->plotIdxs(pageIdx) ) {
             int plotRowCount = _plotModel->rowCount(plotIdx);
             for ( int j = 0; j < plotRowCount; ++j ) {

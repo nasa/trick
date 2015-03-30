@@ -114,8 +114,7 @@ void DPTreeWidget::_dpTreeViewClicked(const QModelIndex &idx)
         QString fp = _dpModel->filePath(srcIdx);
         if ( _isDP(fp) ) {
             bool isCreated = false;
-            for ( int row = 0; row < _plotModel->rowCount(); ++row) {
-                QModelIndex pageIdx = _plotModel->index(row,0);
+            foreach (QModelIndex pageIdx, _plotModel->pageIdxs() ) {
                 QString pageName = _plotModel->data(pageIdx).toString();
                 if ( pageName == fp ) {
                     _plotSelectModel->setCurrentIndex(pageIdx,

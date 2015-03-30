@@ -10,6 +10,20 @@ PlotBookModel::PlotBookModel(int rows, int columns, QObject *parent) :
 {
 }
 
+QModelIndexList PlotBookModel::pageIdxs() const
+{
+    QModelIndexList idxs;
+    QStandardItem* rootItem = this->invisibleRootItem();
+    for ( int i = 0; i < rootItem->rowCount(); ++i ) {
+        QStandardItem* item = rootItem->child(i);
+        QString itemText = item->text();
+        if ( itemText == "start" || itemText == "stop" ) continue;
+        QModelIndex idx = this->indexFromItem(item);
+        idxs.append(idx);
+    }
+    return idxs;
+}
+
 QModelIndexList PlotBookModel::plotIdxs(const QModelIndex &pageIdx) const
 {
     QModelIndexList idxs;
