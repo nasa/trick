@@ -690,8 +690,7 @@ void PlotBookView::tabCurrentChanged(int tabId)
 {
     if ( !model() ) return;
 
-    QModelIndex pageIdx = model()->index(tabId,0);
-    QWidget* page = _idx2Page(pageIdx);
+    QWidget* page = _nb->widget(tabId);
     foreach (Plot* plot, _page2Plots.value(page) ) {
         if ( plot ) {
             plot->replot();
