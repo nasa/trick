@@ -141,7 +141,7 @@ QModelIndex PlotBookView::currentPageIndex()
 void PlotBookView::setCurrentPage(const QModelIndex& pageIdx)
 {
     int pageId = -1;
-    QWidget* page = _pages.at(pageIdx.row());
+    QWidget* page = _idx2Page(pageIdx);
     for ( int i = 0 ; i < _nb->count(); ++i ) {
         QWidget* w = _nb->widget(i);
         if ( w == page ) {
