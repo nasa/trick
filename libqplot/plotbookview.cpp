@@ -705,7 +705,7 @@ void PlotBookView::tabCurrentChanged(int tabId)
 
 void PlotBookView::_closeAllPlots()
 {
-    int nTabs = model()->rowCount();
+    int nTabs = _nb->count();
     for ( int i = nTabs ; i >= 0; --i ) {
         tabCloseRequested(i);
     }
