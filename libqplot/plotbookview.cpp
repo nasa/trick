@@ -782,7 +782,7 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
 
         QModelIndex idx = model()->index(row,0,pidx);
 
-        if ( ! pidx.isValid() ) {
+        if ( _isPageIdx(idx) ) {
             // Page (below root idx)
             QString dpfile = model()->data(idx).toString();
             QFrame* page = new QFrame;
@@ -1067,7 +1067,7 @@ void PlotBookView::rowsAboutToBeRemoved(const QModelIndex &pidx,
 
         QModelIndex idx = model()->index(row,0,pidx);
 
-        if ( ! pidx.isValid() ) {
+        if ( _isPageIdx(idx) ) {
             // Page
             QWidget* page = _idx2Page(idx);
             _pages.remove(idx.row());
