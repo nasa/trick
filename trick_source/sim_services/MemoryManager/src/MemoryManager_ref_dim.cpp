@@ -29,42 +29,27 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
         return (TRICK_PARAMETER_ARRAY_SIZE);
     }
 
-    /* if current dimension is a fixed dimension */
-    if (R->attr->index[R->num_index].size != 0) {
-
-        /* Set the size of the element we are going to parse */
-        if (R->attr->index[(R->attr->num_index - 1)].size == 0) {
-            /* last dimension is a pointer, set item_size to sizeof pointer */
+    /*Calculate the size of the items in this array. */
+    item_size =  R->attr->size;
+    for (jj = (R->attr->num_index - 1); jj > R->num_index; jj--) {
+        if (R->attr->index[jj].size > 0) {
+            item_size *= R->attr->index[jj].size;
+        } else {
             item_size = sizeof(void *);
             R->pointer_present = 1 ;
-        } else {
-            /* all dimensions are fixed, set item_size to sizeof element */
-            item_size = R->attr->size;
         }
-        /* for fixed dimensions, we can check the validity of the index value */
+    }
+
+    /* if current dimension is a constrained ... */
+    if (R->attr->index[R->num_index].size != 0) {
+
+        /* for constrained dimensions, we can check the validity of the index value */
         if (vval_int(V) >= R->attr->index[R->num_index].size || vval_int(V) < 0) {
             emitError("Memory Manager ERROR: Array index out of bounds.") ;
             return (TRICK_PARAMETER_ARRAY_SIZE);
         }
 
-        /* loop through all dimensions backwards, multiply the size of each dimension up to our current dimension
-           (R->num_index) */
-        for (jj = (R->attr->num_index - 1); jj > R->num_index; jj--) {
-            if (R->attr->index[jj].size > 0) {
-                item_size *= R->attr->index[jj].size;
-            }
-        }
-
     } else {
-
-        R->pointer_present = 1 ;
-
-        // Current dimension is a pointer.
-        if (R->num_index == (R->attr->num_index - 1)) {
-            item_size = R->attr->size;
-        } else {
-            item_size = sizeof(void *);
-        }
 
         if ( R->create_add_path ) {
             ADDRESS_NODE * address_node ;
@@ -86,7 +71,7 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
     }
 
     if ( R->create_add_path ) {
-        
+
         ADDRESS_NODE * address_node ;
 
         if ( vval_int(V) > 0 ) {
