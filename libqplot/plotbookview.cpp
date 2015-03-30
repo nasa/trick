@@ -568,9 +568,7 @@ void PlotBookView::selectRun(int runId)
 
     // Build a selection of all curves that this RUN maps to
     QItemSelection runSelection;
-    int nPages = model()->rowCount();
-    for ( int pageRow = 0; pageRow < nPages; ++pageRow) {
-        QModelIndex pageIdx = model()->index(pageRow,0);
+    foreach ( QModelIndex pageIdx, _plotModel->pageIdxs() ) {
         foreach ( QModelIndex plotIdx, _plotModel->plotIdxs(pageIdx) ) {
             QModelIndex curvesIdx;
             for ( int i = 0; i < plotIdx.model()->rowCount(plotIdx); ++i) {
