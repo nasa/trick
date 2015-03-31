@@ -111,7 +111,6 @@ private:
     inline Plot* _idx2Plot(const QModelIndex& idx) const;
     inline TrickCurve* _idx2Curve(const QModelIndex& idx) const;
     inline QModelIndex _curve2Idx(TrickCurve* curve);
-    inline QModelIndex _nbId2Idx(int id) const;
     inline QModelIndex _page2Idx(QWidget* page) const;
     inline QModelIndex _plot2Idx(Plot* plot) const;
 

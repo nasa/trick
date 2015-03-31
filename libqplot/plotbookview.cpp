@@ -1262,17 +1262,6 @@ TrickCurve *PlotBookView::_idx2Curve(const QModelIndex &idx) const
     return curve;
 }
 
-QModelIndex PlotBookView::_nbId2Idx(int id) const
-{
-    QModelIndex idx ;
-
-    if ( model() ) {
-        idx = model()->index(id,0);
-    }
-
-    return idx;
-}
-
 QModelIndex PlotBookView::_page2Idx(QWidget *page) const
 {
     if ( !model() || !page) return QModelIndex();
