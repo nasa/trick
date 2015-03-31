@@ -99,6 +99,7 @@ private:
     bool _isShowCurveDiff;
 
     QVector<QWidget*> _pages;
+    QHash<QWidget*,QModelIndex> _page2idx;
     QHash<QWidget*,QGridLayout*> _page2grid;
     QHash<QWidget*,PageTitleWidget*> _page2pagewidget;
     QHash<QWidget*,QVector<Plot*> >  _page2Plots;
@@ -111,7 +112,6 @@ private:
     inline Plot* _idx2Plot(const QModelIndex& idx) const;
     inline TrickCurve* _idx2Curve(const QModelIndex& idx) const;
     inline QModelIndex _curve2Idx(TrickCurve* curve);
-    inline QModelIndex _page2Idx(QWidget* page) const;
     inline QModelIndex _plot2Idx(Plot* plot) const;
 
     inline bool _isPageIdx(const QModelIndex& idx);
