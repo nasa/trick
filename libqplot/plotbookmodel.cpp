@@ -1,13 +1,16 @@
 #include "plotbookmodel.h"
+#include <float.h>
 
 PlotBookModel::PlotBookModel(QObject *parent) :
     QStandardItemModel(parent)
 {
+    _initModel();
 }
 
 PlotBookModel::PlotBookModel(int rows, int columns, QObject *parent) :
     QStandardItemModel(rows,columns,parent)
 {
+    _initModel();
 }
 
 QModelIndexList PlotBookModel::pageIdxs() const
@@ -34,4 +37,24 @@ QModelIndexList PlotBookModel::plotIdxs(const QModelIndex &pageIdx) const
     }
 
     return idxs;
+}
+
+bool PlotBookModel::isPageIdx(const QModelIndex &idx) const
+{
+    // rows 0,1 are start/stop time
+    return (idx.isValid() && !idx.parent().isValid()
+            && idx.row() != 0 && idx.row() != 1 ) ;
+}
+
+void PlotBookModel::_initModel()
+{
+    QStandardItem *rootItem = invisibleRootItem();
+
+    QStandardItem *startItem = new QStandardItem("start");
+    startItem->setData(-DBL_MAX);
+    rootItem->appendRow(startItem);
+
+    QStandardItem *stopItem = new QStandardItem("stop");
+    stopItem->setData(DBL_MAX);
+    rootItem->appendRow(stopItem);
 }

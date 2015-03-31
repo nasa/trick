@@ -12,11 +12,15 @@ public:
     explicit PlotBookModel( int rows, int columns, QObject * parent = 0 );
     QModelIndexList pageIdxs() const ;
     QModelIndexList plotIdxs(const QModelIndex& pageIdx) const ;
+    bool isPageIdx(const QModelIndex& idx) const ;
 
 
 signals:
     
 public slots:
+
+private:
+    void _initModel();
     
 };
 

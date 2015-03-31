@@ -563,7 +563,7 @@ void PlotBookView::selectRun(int runId)
 {
     if ( !model() || !selectionModel() ) return ;
     if ( model()->rowCount() <= 0 ) return;
-    QModelIndex page0Idx = model()->index(0,0);
+    QModelIndex page0Idx = _plotModel->pageIdxs().at(0);
     if ( model()->rowCount(page0Idx) <= 0 ) return ;
 
     // Build a selection of all curves that this RUN maps to
@@ -804,6 +804,8 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             int nbIdx = _nb->count()-1;
             _nb->setCurrentIndex(nbIdx);
             _nb->setAttribute(Qt::WA_AlwaysShowToolTips, true);
+        } else if ( !pidx.isValid()  && (row == 0 || row == 1) ) {
+            // session start/stop time
         } else if ( ! gpidx.isValid() && row == 0 ) {
             // Page title (row 0)
             QWidget* page = _idx2Page(pidx);
@@ -1070,7 +1072,8 @@ void PlotBookView::rowsAboutToBeRemoved(const QModelIndex &pidx,
         if ( _isPageIdx(idx) ) {
             // Page
             QWidget* page = _idx2Page(idx);
-            _pages.remove(idx.row());
+            int row = _plotModel->pageIdxs().indexOf(idx);
+            _pages.remove(row);
             _page2grid.remove(page);
             _page2Plots.remove(page);
             _page2startTime.remove(page);
@@ -1214,11 +1217,18 @@ QWidget *PlotBookView::_idx2Page(const QModelIndex &idx) const
 {
     if ( !idx.isValid() ) return 0;
 
+    // if this is start/stop time
+    if ( !idx.parent().isValid() && !_plotModel->isPageIdx(idx) ) {
+        return 0;
+    }
+
     QModelIndex pageIdx(idx);
     while ( pageIdx.parent().isValid() ) {
         pageIdx = pageIdx.parent();
     }
-    QWidget* page = _pages.at(pageIdx.row());
+    int r = _plotModel->pageIdxs().indexOf(pageIdx);
+    QWidget* page = _pages.at(r);
+
     return page;
 }
 
@@ -1269,7 +1279,7 @@ QModelIndex PlotBookView::_page2Idx(QWidget *page) const
     QModelIndex idx;
     int row = _pages.indexOf(page);
     if ( row >= 0 ) {
-        idx = model()->index(row,0);
+        idx = _plotModel->pageIdxs().at(row);
     }
     return idx;
 }
@@ -1281,7 +1291,7 @@ QModelIndex PlotBookView::_plot2Idx(Plot *plot) const
     QModelIndex plotIdx;
     QWidget* page = plot->parentWidget();
     int rowPage = _pages.indexOf(page);
-    QModelIndex pageIdx = model()->index(rowPage,0);
+    QModelIndex pageIdx = _plotModel->pageIdxs().at(rowPage);
     QModelIndexList plotIdxs = _plotModel->plotIdxs(pageIdx);
     int iPlot =  _page2Plots.value(page).indexOf(plot);
     if ( iPlot >= 0 ) {
@@ -1292,7 +1302,7 @@ QModelIndex PlotBookView::_plot2Idx(Plot *plot) const
 
 bool PlotBookView::_isPageIdx(const QModelIndex &idx)
 {
-    return (idx.isValid() && !idx.parent().isValid()) ;
+    return _plotModel->isPageIdx(idx);
 }
 
 bool PlotBookView::_isPlotIdx(const QModelIndex &idx)
