@@ -134,7 +134,7 @@ QModelIndex PlotBookView::currentPageIndex()
 {
     QModelIndex pageIdx;
     QWidget* page = _nb->currentWidget();
-    pageIdx = _page2idx.value(page);
+    pageIdx = _page2Idx(page);
     return pageIdx;
 }
 
@@ -683,7 +683,7 @@ void PlotBookView::tabCloseRequested(int tabId)
 
     _isTabCloseRequested = true;
     QWidget* page = _nb->widget(tabId);
-    QModelIndex pageIdx = _page2idx.value(page);
+    QModelIndex pageIdx = _page2Idx(page);
     if ( pageIdx.isValid() ) {
         int row = pageIdx.row();
         model()->removeRow(row);
@@ -799,7 +799,6 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             _page2pagewidget.insert(page,pw);
             grid->addWidget(pw,0,0,1,100);
 
-            _page2idx.insert(page,idx);
             _page2grid.insert(page,grid);
             _nb->addTab(page,QFileInfo(dpfile).baseName());
             int nbIdx = _nb->count()-1;
@@ -1072,7 +1071,6 @@ void PlotBookView::rowsAboutToBeRemoved(const QModelIndex &pidx,
             // Page
             QWidget* page = _idx2Page(idx);
             _pages.remove(idx.row());
-            _page2idx.remove(page);
             _page2grid.remove(page);
             _page2Plots.remove(page);
             _page2startTime.remove(page);
@@ -1262,6 +1260,18 @@ TrickCurve *PlotBookView::_idx2Curve(const QModelIndex &idx) const
         curve = _plot2Curves.value(plot).at(idx.row());
     }
     return curve;
+}
+
+QModelIndex PlotBookView::_page2Idx(QWidget *page) const
+{
+    if ( !model() || !page) return QModelIndex();
+
+    QModelIndex idx;
+    int row = _pages.indexOf(page);
+    if ( row >= 0 ) {
+        idx = model()->index(row,0);
+    }
+    return idx;
 }
 
 QModelIndex PlotBookView::_plot2Idx(Plot *plot) const
