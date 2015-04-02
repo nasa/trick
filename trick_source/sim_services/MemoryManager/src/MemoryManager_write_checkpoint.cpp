@@ -1,10 +1,9 @@
 #include <fstream>
+#include <sstream>
 #include <string.h>
 #include <stdlib.h>  // free()
 #include <algorithm> // std::sort()
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
-#include "sim_services/Message/include/message_proto.h"
-#include "sim_services/Message/include/message_type.h"
 
 // GreenHills stuff
 #if ( __ghs )
@@ -43,7 +42,7 @@ void Trick::MemoryManager::write_checkpoint( std::ostream& out_s, std::vector<AL
                 /** @b NOTE: We should not write declarations for external
                     anonymous variables, because we should not reload them.*/
             } else {
-                message_publish(MSG_ERROR, "Memory Manager INTERNAL ERROR: Allocation storage class is messed up.\n") ;
+                emitError("write_checkpoint: This is bad. ALLOC_INFO object is messed up.\n") ;
             }
         } else {
             currentCheckPointAgent->write_decl( out_s, alloc_info);
@@ -111,7 +110,9 @@ void Trick::MemoryManager::write_checkpoint(const char* filename) {
     if (outfile.is_open()) {
         write_checkpoint( outfile);
     } else {
-        message_publish(MSG_ERROR, "Memory Manager ERROR: Couldn't open \"%s\".\n", filename) ;
+        std::stringstream message;
+        message << "Couldn't open \"" << filename << "\".";
+        emitError(message.str());
     }
 }
 
@@ -136,8 +137,9 @@ void Trick::MemoryManager::write_checkpoint(const char* filename, const char* va
     if (out_s.is_open()) {
         write_checkpoint( out_s, var_name);
     } else {
-        std::cerr << "ERROR: Couldn't open \""<< filename <<"\"." << std::endl;
-        std::cerr.flush();
+        std::stringstream message;
+        message << "Couldn't open \"" << filename << "\".";
+        emitError(message.str());
     }
 }
 

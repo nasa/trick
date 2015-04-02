@@ -1,8 +1,7 @@
 #include <fstream>
+#include <sstream>
 #include <string.h>
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
-#include "sim_services/Message/include/message_proto.h"
-#include "sim_services/Message/include/message_type.h"
 
 // GreenHills stuff
 #if ( __ghs )
@@ -16,7 +15,7 @@ void Trick::MemoryManager::write_composite_var( std::ostream& out_s,
                                                 ATTRIBUTES*   attr_list) {
 
     if (attr_list == NULL) {
-        message_publish(MSG_ERROR, "Memory Manager ERROR: attr_list = NULL in write_composite_var.\n") ;
+        emitError("write_composite_var: attr_list = NULL.") ;
         return;
     }
 
@@ -52,7 +51,7 @@ void Trick::MemoryManager::write_array_var( std::ostream& out_s,
                                             int           offset) {
 
     if (attr == NULL) {
-        message_publish(MSG_ERROR, "Memory Manager ERROR: attr = NULL in write_array_var().\n") ;
+        emitError("write_array_var: attr_list = NULL.") ;
         return;
     }
 
@@ -141,8 +140,9 @@ void Trick::MemoryManager::write_var( std::ostream& out_s, const char* var_name 
         alloc_info = pos->second;
         write_var( out_s, alloc_info );
     } else {
-        message_publish(MSG_ERROR, "Memory Manager ERROR: write_var(\"%s\") failed "
-                                   "because the given name isn't known by the MemoryManager.", var_name) ;
+        std::stringstream message;
+        message << "write_var(\"" << var_name << "\") failed. No such variable is being managed.";
+        emitError(message.str());
     }
     pthread_mutex_unlock(&mm_mutex);
 }
@@ -157,8 +157,9 @@ void Trick::MemoryManager::write_var( std::ostream& out_s, void* address) {
     if (alloc_info != NULL) {
         write_var( out_s, alloc_info );
     } else {
-        message_publish(MSG_ERROR, "Memory Manager ERROR: write_var(%p) failed "
-                                   "because no variable is being managed at that address.\n", address) ;
+        std::stringstream message;
+        message << "write_var(" << address << ") failed. No such variable is being managed.";
+        emitError(message.str());
     }
     pthread_mutex_unlock(&mm_mutex);
 }

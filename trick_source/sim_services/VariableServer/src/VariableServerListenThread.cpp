@@ -184,12 +184,27 @@ void * Trick::VariableServerListenThread::thread_body() {
     return NULL ;
 }
 
+#include <fcntl.h>
+
 int Trick::VariableServerListenThread::restart() {
 
     int ret ;
 
     if ( user_port_requested ) {
-        printf("user_port_requested set %d", port) ;
+
+        char hname[80];
+        static struct sockaddr_in s_in;
+        gethostname(hname, (size_t) 80);
+        // Test to see if the restart address is on this machine.  If it is not, it's not an error, clear source address
+        if ( strcmp( source_address.c_str(), hname )) {
+            if (! inet_pton(AF_INET, source_address.c_str(), (struct in_addr *)&s_in.sin_addr.s_addr) ) {
+                //printf("clearing source_address\n") ;
+                source_address.clear() ;
+            }
+        }
+
+        printf("variable server restart user_port requested set %d\n", port) ;
+
         tc_disconnect(&listen_dev) ;
         ret = tc_init_with_connection_info(&listen_dev, AF_INET, SOCK_STREAM, source_address.c_str(), port) ;
         if (ret != TC_SUCCESS) {

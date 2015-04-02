@@ -5,8 +5,6 @@
 
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
 #include "sim_services/CheckPointAgent/include/ClassicCheckPointAgent.hh"
-#include "sim_services/Message/include/message_proto.h"
-#include "sim_services/Message/include/message_type.h"
 
 int Trick::MemoryManager::read_checkpoint( std::istream *is) {
 
@@ -19,7 +17,7 @@ int Trick::MemoryManager::read_checkpoint( std::istream *is) {
     }
 
     if (currentCheckPointAgent->restore( is) !=0 ) {
-       message_publish(MSG_ERROR, "Memory Manager ERROR: Checkpoint restore failed.\n") ;
+       emitError("Checkpoint restore failed.") ;
     }
 
     // Go through all of the allocations that have been created looking
@@ -60,7 +58,9 @@ int Trick::MemoryManager::read_checkpoint(const char* filename ) {
     if (infile.is_open()) {
         return ( read_checkpoint( &infile ));
     } else {
-        message_publish(MSG_ERROR, "Memory Manager ERROR: Couldn't open \"%s\".\n", filename) ;
+        std::stringstream message;
+        message << "Couldn't open \"" << filename << "\".";
+        emitError(message.str());
     }
     return 1;
 }
@@ -80,7 +80,7 @@ int Trick::MemoryManager::read_checkpoint_from_string(const char* s ) {
         }
         return ( read_checkpoint( &ss )); 
     } else {
-        message_publish(MSG_ERROR, "Memory Manager ERROR: Checkpoint string is NULL.\n") ;
+        emitError("Checkpoint string is NULL.") ;
     }
     return 1;
 }

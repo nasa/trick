@@ -4,14 +4,14 @@
 #include <sstream>
 #include <dlfcn.h>
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
-#include "sim_services/Message/include/message_proto.h"
-#include "sim_services/Message/include/message_type.h"
 
 // MEMBER FUNCTION
 int Trick::MemoryManager::delete_var(void* address, bool destroy ) {
 
     if (address == 0) {
-        message_publish(MSG_ERROR, "Memory Manager ERROR: Cannot delete memory at NULL.\n") ;
+        std::stringstream message;
+        message << "Cannot delete memory at NULL.";
+        emitError(message.str());
         return 1;
     }
 
@@ -64,10 +64,10 @@ int Trick::MemoryManager::delete_var(void* address, bool destroy ) {
         free(alloc_info);
 
     } else {
-        message_publish(MSG_WARNING,
-                     "WARNING: The Trick MemoryManager cannot delete memory at address %p \n"
-                     "because the MemoryManager did not allocate it, nor does the\n"
-                     "MemoryManager know anything about it.\n", address) ;
+        std::stringstream message;
+        message << "The MemoryManager cannot delete memory at address ["
+                << address << "] because it has no record of it.";
+        emitWarning(message.str());
         return 1 ;
     }
 
@@ -89,7 +89,10 @@ int Trick::MemoryManager::delete_var( const char* name) {
         pthread_mutex_unlock(&mm_mutex);
         return( delete_var( alloc_info->start));
     } else {
-        message_publish(MSG_ERROR, "Memory Manager ERROR: Cannot delete variable \"%s\" because it doesn't exist.\n", name) ;
+        std::stringstream message;
+        message << "Cannot delete variable \"" << name
+                << "\" because it doesn't exist." ;
+        emitError(message.str());
     }
     pthread_mutex_unlock(&mm_mutex);
     return 1;

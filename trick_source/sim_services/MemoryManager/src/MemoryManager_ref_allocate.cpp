@@ -1,12 +1,11 @@
 #include <iostream>
 #include <sys/types.h>
 #include <string.h>
+#include <sstream>
 
 #include "sim_services/MemoryManager/include/attributes.h"
 #include "sim_services/MemoryManager/include/reference.h"
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
-#include "sim_services/Message/include/message_proto.h"
-#include "sim_services/Message/include/message_type.h"
 
 int Trick::MemoryManager::ref_allocate(REF2 * R , int num ) {
 
@@ -16,15 +15,15 @@ int Trick::MemoryManager::ref_allocate(REF2 * R , int num ) {
 
     /** @li Validate Parameters.*/
     if (R == NULL) {
-        message_publish(MSG_ERROR, "Memory Manager ERROR: R is NULL in call to ref_allocate(R,num).\n") ;
+        emitError("R is NULL in call to ref_allocate(R,num).") ;
         return (1);
     }
     if (R->attr == NULL) {
-        message_publish(MSG_ERROR, "Memory Manager ERROR: R->attr is NULL in call to ref_allocate(R,num).\n") ;
+        emitError("R->attr is NULL in call to ref_allocate(R,num).") ;
         return (1);
     }
     if (num <= 0) {
-        message_publish(MSG_ERROR, "Memory Manager ERROR: num is <= 0 in call to ref_allocate(R,num).\n") ;
+        emitError("num is <= 0 in call to ref_allocate(R,num).") ;
         return (1);
     }
 

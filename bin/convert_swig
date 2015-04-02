@@ -12,7 +12,6 @@ use Cwd 'abs_path' ;
 use gte ;
 use get_headers ;
 use trick_version ;
-use Digest::MD5 qw(md5_hex) ;
 
 ##
 ## ================================================================================
@@ -414,7 +413,8 @@ sub process_file($$) {
 
 ##      Generate a module name and path for the SWIG interface file.
 
-        my $md5_sum = md5_hex($f) ;
+        my ( $dev, $inode ) = stat($f) ;
+        my $uniq_file_id = "${dev}_$inode" ;
 
         my ($out_dir) = dirname($f) ;
         $out_file = basename($f) ;
@@ -441,7 +441,10 @@ sub process_file($$) {
 
         open OUT, ">$out_file" ;
 
-        print OUT "\%module m$md5_sum\n\n" ;
+        print OUT "\%module m$uniq_file_id\n\n" ;
+        print OUT "\%pythoncode \%{
+# Processed from $f
+\%}\n" ;
         print OUT "/* $in_file */\n" ;
 
         print OUT "#include \"trick_swig/trick_swig.i\"\n\n" ;

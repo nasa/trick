@@ -1,7 +1,6 @@
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
 #include "sim_services/MemoryManager/include/bitfield_proto.h"
-#include "sim_services/Message/include/message_proto.h"
-#include "sim_services/Message/include/message_type.h"
+#include <sstream>
 
 void Trick::MemoryManager::clear_rvalue( void* base_address, ATTRIBUTES* attr, int curr_dim, int offset) {
 
@@ -49,8 +48,8 @@ void Trick::MemoryManager::clear_rvalue( void* base_address, ATTRIBUTES* attr, i
                    final_address = (char*)base_address + offset * sizeof(short);
                    *(short*)final_address = 0;
                } else {
-                   message_publish(MSG_ERROR, "Memory Manager INTERNAL-ERROR: Unexpected size of ENUMERATION type.\n") ;
-               } 
+                   emitError("INTERNAL-ERROR - Unexpected size of ENUMERATION type.") ;
+               }
                break;
            case TRICK_LONG :
            case TRICK_UNSIGNED_LONG :
@@ -83,8 +82,9 @@ void Trick::MemoryManager::clear_rvalue( void* base_address, ATTRIBUTES* attr, i
                    *(unsigned char*)final_address = insert_bitfield_any(
                        *(unsigned char*)final_address, 0, attr->size, attr->index[0].start, attr->index[0].size);
                } else {
-                   message_publish(MSG_ERROR, "Memory Manager INTERNAL ERROR - Unhandled bitfield struct size (%d) "
-                                              "in bitfield assignment.\n", attr->size) ;
+                   std::stringstream message;
+                   message << "INTERNAL - Unhandled bitfield struct size (" << attr->size << ") in bitfield assignment.";
+                   emitError(message.str());
                }
                break;
            case TRICK_FILE_PTR :
@@ -96,7 +96,9 @@ void Trick::MemoryManager::clear_rvalue( void* base_address, ATTRIBUTES* attr, i
                *(std::string*)final_address = "";
                break;
            default :
-               message_publish(MSG_ERROR, "Memory Manager ERROR: Unhandled Type (%d).\n", (int)attr->type) ;
+               std::stringstream message;
+               message << "Unhandled Type (" << (int)attr->type << ").";
+               emitError(message.str());
                break;
         }
 
@@ -132,7 +134,9 @@ void Trick::MemoryManager::clear_rvalue( void* base_address, ATTRIBUTES* attr, i
        }
 
     } else {
-        message_publish(MSG_ERROR, "Memory Manager INTERNAL-ERROR: Remaining dimensions are negative!?.\n") ;
+        std::stringstream message;
+        message << "This is bad. Remaining dimensions are negative!?.";
+        emitError(message.str());
     }
 }
 
@@ -230,8 +234,10 @@ void Trick::MemoryManager::clear_var( void* address) {
         }
         free_reference_attr( reference_attr);
     } else {
-        message_publish(MSG_ERROR, "Memory Manager ERROR: Cannot clear the variable at address %p\n"
-                                   "because memory manager knows nothing about it.\n", address) ;
+        std::stringstream message;
+        message << "Cannot clear the variable at address " << address
+                << "because memory manager knows nothing about it." ;
+        emitError(message.str());
     }
     pthread_mutex_unlock(&mm_mutex);
 }
@@ -251,8 +257,10 @@ void Trick::MemoryManager::clear_var( const char* name) {
         pthread_mutex_unlock(&mm_mutex);
         clear_var( alloc_info->start);
     } else {
-        message_publish(MSG_ERROR, "Memory Manager ERROR: Cannot clear variable \"%s\"\n"
-                                   "because it doesn't exist.\n", name) ;
+        std::stringstream message;
+        message << "Can't clear variable \"" << name 
+                << "\" because it doesn't exist.";
+        emitError(message.str());
     }
     pthread_mutex_unlock(&mm_mutex);
 }

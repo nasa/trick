@@ -8,8 +8,6 @@
 #include "sim_services/MemoryManager/include/value.h"
 #include "sim_services/MemoryManager/include/vval.h"
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
-#include "sim_services/Message/include/message_proto.h"
-#include "sim_services/Message/include/message_type.h"
 
 void* Trick::MemoryManager::add_var( TRICK_TYPE   type,
                                      const char*  class_name,
@@ -36,8 +34,8 @@ void* Trick::MemoryManager::add_var( TRICK_TYPE   type,
     variable_pos = variable_map.find( var_declare->name);
     if (variable_pos != variable_map.end()) {
         std::stringstream ss;
-        ss << "Memory Manager: Variable \""<<  var_declare->name << "\" is already declared.\n";
-        message_publish(MSG_ERROR, ss.str().c_str() ) ;
+        ss << "Variable \""<<  var_declare->name << "\" is already declared.\n";
+        emitError(ss.str());
         pthread_mutex_unlock(&mm_mutex);
         return ((void*)NULL);
     }
@@ -54,11 +52,10 @@ void* Trick::MemoryManager::add_var( TRICK_TYPE   type,
     /** @li Call declare_var to create a named-allocation. */
     if ((address = declare_var( type, class_name_string, n_stars, var_declare->name, n_cdims, cdims)) == NULL) {
         std::stringstream ss;
-        ss << "Memory Manager ERROR: Declaration \"" ;
+        ss << "Declaration \"" ;
         ss << make_decl_string( type, class_name_string, n_stars, var_declare->name, n_cdims, cdims);
         ss << "\" failed.";
-        ss << std::endl;
-        message_publish(MSG_ERROR, ss.str().c_str() ) ;
+        emitError( ss.str()) ;
         return ((void*)NULL);
     }
 

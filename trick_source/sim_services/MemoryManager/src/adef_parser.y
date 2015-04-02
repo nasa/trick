@@ -18,8 +18,6 @@
 #include "sim_services/MemoryManager/include/value.h"
 #include "sim_services/MemoryManager/include/var.h"
 #include "sim_services/MemoryManager/include/ADefParseContext.hh"
-#include "sim_services/Message/include/message_proto.h"
-#include "sim_services/Message/include/message_type.h"
 #include "adef_parser.tab.h"
 
     using namespace std;
@@ -27,7 +25,9 @@
     int ADEF_lex( YYSTYPE* lvalp, YYLTYPE* llocp, void* scanner );
  
     void ADEF_error( YYLTYPE* locp, Trick::ADefParseContext* context, const char* err) {
-       message_publish(MSG_ERROR, "Memory Manager adef_parser PARSE-ERROR %d : %s\n", locp->first_line, err) ;
+       std::stringstream message;
+       message << "adef_parser PARSE-ERROR " << locp->first_line << ": " << err << ".";
+       Trick::MemoryManager::emitError(message.str());
     }
 
 #define scanner context->scanner

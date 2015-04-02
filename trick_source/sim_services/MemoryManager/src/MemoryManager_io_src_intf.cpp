@@ -4,8 +4,6 @@
 #include <dlfcn.h>
 // Provides dlsym().
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
-#include "sim_services/Message/include/message_proto.h"
-#include "sim_services/Message/include/message_type.h"
 
 // MEMBER FUNCTION: void* Trick::MemoryManager::io_src_allocate_class(const char* class_name, int num);
 
@@ -48,7 +46,10 @@ void* Trick::MemoryManager::io_src_allocate_class(const char* class_name, int nu
     } else {
         const char* msg = dlerror();
         addr = NULL;
-        message_publish(MSG_ERROR, "Memory Manager ERROR: Couldn't find function %s().\n%s\n", alloc_fn_name,msg);
+        std::stringstream message;
+        message << "Couldn't find function \"" << alloc_fn_name << "()\". "
+                << "dlerror= " << msg;
+        emitError(message.str());
     }
     return (addr);
 }
@@ -80,7 +81,10 @@ void Trick::MemoryManager::io_src_destruct_class(ALLOC_INFO * alloc_info) {
             (*destruct)(alloc_info->start, alloc_info->num) ;
         } else {
             const char* msg = dlerror();
-            message_publish(MSG_ERROR, "Memory Manager ERROR: Couldn't find function %s().\n%s\n", destruct_fn_name,msg);
+            std::stringstream message;
+            message << "Couldn't find function \"" << destruct_fn_name << "()\". "
+                    << "dlerror= " << msg;
+            emitError(message.str());
         }
     }
 }
@@ -111,7 +115,10 @@ void Trick::MemoryManager::io_src_delete_class(ALLOC_INFO * alloc_info) {
             (*delete_fn)(alloc_info->start) ;
         } else {
             const char* msg = dlerror();
-            message_publish(MSG_ERROR, "Memory Manager ERROR: Couldn't find function %s().\n%s\n", delete_fn_name,msg);
+            std::stringstream message;
+            message << "Couldn't find function \"" << delete_fn_name << "()\". "
+                    << "dlerror= " << msg;
+            emitError(message.str());
         }
     }
 }
@@ -148,7 +155,10 @@ size_t Trick::MemoryManager::io_src_sizeof_user_type( const char* user_type_name
     } else {
         const char* msg = dlerror();
         class_size = 0;
-        message_publish(MSG_ERROR, "Memory Manager ERROR: Couldn't find function %s().\n%s\n", size_fn_name,msg);
+        std::stringstream message;
+        message << "Couldn't find function \"" << size_fn_name << "()\". "
+                << "dlerror= " << msg;
+        emitError(message.str());
     }
     return (class_size);
 }

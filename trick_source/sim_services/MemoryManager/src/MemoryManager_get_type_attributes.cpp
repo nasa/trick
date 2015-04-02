@@ -1,6 +1,5 @@
 #include "sim_services/MemoryManager/include/MemoryManager.hh"
-#include "sim_services/Message/include/message_proto.h"
-#include "sim_services/Message/include/message_type.h"
+#include <sstream>
 
 int Trick::MemoryManager::get_type_attributes( TRICK_TYPE& type,
                                                std::string user_type_name,
@@ -68,7 +67,9 @@ int Trick::MemoryManager::get_type_attributes( TRICK_TYPE& type,
                 size = sizeof(void*);
             } else {
                 if ((size = io_src_sizeof_user_type( user_type_name.c_str())) == 0) {
-                    message_publish(MSG_ERROR, "Memory Manager ERROR: size of type \"%s\" not found.\n", user_type_name.c_str()) ;
+                    std::stringstream message;
+                    message << "size of type \"" << user_type_name.c_str() <<"\" not found.\n";
+                    emitError(message.str());
                     return (1);
                 }
             }
@@ -86,7 +87,9 @@ int Trick::MemoryManager::get_type_attributes( TRICK_TYPE& type,
         } break;
 
         default: {
-            message_publish(MSG_ERROR, "Memory Manager ERROR: Unknown Trick data-type: %d.\n", type) ;
+            std::stringstream message;
+            message << "Unknown data-type \"" << type << "\"." ;
+            emitError(message.str());
             return (1);
         } break;
     }

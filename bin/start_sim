@@ -21,8 +21,6 @@ use gte ;
 #use strict ;
 require $ENV{"TRICK_HOME"} . "/bin/pm/XML/Parser.pm" ;
 use XML::Simple ;
-use Data::Dumper ;
-
 
 my @element_stack;
 my $record_index;

@@ -1,0 +1,30 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    ( Simulate a skydiver jump from very high altitude. )
+LIBRARY DEPENDENCIES:
+    ((parachute/src/Parachutist.cpp))
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "parachute/include/Parachutist.hh"
+
+class ParachutistSimObject : public Trick::SimObject {
+
+    public:
+    Parachutist parachutist;
+    double groundAltitude;
+
+    ParachutistSimObject() {
+
+        ("default_data")    parachutist.default_data() ;
+        ("initialization")  parachutist.state_init() ;
+        ("derivative")      parachutist.state_deriv() ;
+        ("integration") trick_ret = parachutist.state_integ() ;
+        ("dynamic_event")   parachutist.touch_down(groundAltitude) ;
+    }
+} ;
+
+ParachutistSimObject dyn ;
+
+IntegLoop dyn_integloop(0.02) dyn;
