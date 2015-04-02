@@ -1,26 +1,12 @@
-
 package trick.stripchart;
 
-/** Deprecated imports to be removed in the next release. ********************/
-import java.awt.Font;
-import java.awt.Paint;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.title.TextTitle;
-import org.jfree.data.Range;
 import org.jfree.data.xy.XYSeries;
 
 import trick.common.utils.vs.Variable;
-/*****************************************************************************/
 
 /**
  * manages any number of strip charts and their accompanying data
@@ -219,133 +205,6 @@ public class StripChartManager {
      */
     public void releaseStripChart(StripChart stripChart) {
         stripCharts.remove(stripChart);
-    }
-
-    /**
-     * saves the state of the strip charts
-     *
-     * @param objectOutputStream the save destination
-     */
-    @Deprecated
-    public void saveStripCharts(ObjectOutputStream objectOutputStream) throws IOException {
-        objectOutputStream.writeObject(new ArrayList<Variable>(valueLogs.keySet()));
-        objectOutputStream.writeObject(new Integer(stripCharts.size()));
-        for (StripChart stripChart : stripCharts) {
-            objectOutputStream.writeObject(stripChart.getDomainVariable());
-            objectOutputStream.writeObject(stripChart.getPlottedVariables());
-
-            objectOutputStream.writeObject(stripChart.getMode());
-            objectOutputStream.writeObject(new Double(stripChart.getFixedAutoRange()));
-            objectOutputStream.writeObject(new Boolean(stripChart.areLinesVisible()));
-            objectOutputStream.writeObject(new Boolean(stripChart.arePointsVisible()));
-            objectOutputStream.writeObject(new Boolean(stripChart.isLegendVisible()));
-
-            objectOutputStream.writeObject(stripChart.areSettingsVisible());
-
-            JFreeChart chart = stripChart.getChart();
-            objectOutputStream.writeObject(new Boolean(chart.getAntiAlias()));
-            objectOutputStream.writeObject(chart.getBackgroundPaint());
-
-            TextTitle textTitle = stripChart.getTitle();
-            if (textTitle != null) {
-                objectOutputStream.writeObject(Boolean.TRUE);
-                objectOutputStream.writeObject(textTitle.getText());
-                objectOutputStream.writeObject(textTitle.getFont());
-                objectOutputStream.writeObject(textTitle.getPaint());
-            }
-            else {
-                objectOutputStream.writeObject(Boolean.FALSE);
-            }
-
-            XYPlot plot = chart.getXYPlot();
-            objectOutputStream.writeObject(plot.getOrientation());
-            objectOutputStream.writeObject(plot.getOutlinePaint());
-            objectOutputStream.writeObject(plot.getBackgroundPaint());
-
-            for (ValueAxis axis : new ValueAxis[] {plot.getDomainAxis(), plot.getRangeAxis()}) {
-                objectOutputStream.writeObject(axis.getLabel());
-                objectOutputStream.writeObject(axis.getLabelFont());
-                objectOutputStream.writeObject(axis.getLabelPaint());
-                objectOutputStream.writeObject(axis.isTickMarksVisible());
-                objectOutputStream.writeObject(axis.isTickLabelsVisible());
-                objectOutputStream.writeObject(axis.getTickLabelFont());
-                objectOutputStream.writeObject(axis.getTickLabelPaint());
-            }
-
-            if (stripChart.getMode() == StripChart.Mode.Fixed) {
-                objectOutputStream.writeObject(stripChart.getDomainBounds());
-                objectOutputStream.writeObject(stripChart.getRangeBounds());
-            }
-        }
-    }
-
-    /**
-     * restores a set of strip charts
-     *
-     * @param objectInputStream the source of the strip charts
-     *
-     * @return the restored strip charts
-     */
-    @SuppressWarnings("unchecked")
-    @Deprecated
-    public ArrayList<StripChart> loadStripCharts(ObjectInputStream objectInputStream)
-      throws IOException, ClassNotFoundException {
-        for (Variable variable : (ArrayList<Variable>)objectInputStream.readObject()) {
-            addVariable(variable);
-        }
-
-        ArrayList<StripChart> loadedStripCharts = new ArrayList<StripChart>();
-        int count = ((Integer)objectInputStream.readObject()).intValue();
-        while (count-- > 0) {
-            StripChart stripChart = createStripChart(
-              (Variable)objectInputStream.readObject(),
-              (ArrayList<Variable>)objectInputStream.readObject(),
-              (StripChart.Mode)objectInputStream.readObject(),
-              ((Double)objectInputStream.readObject()).doubleValue(),
-              ((Boolean)objectInputStream.readObject()).booleanValue(),
-              ((Boolean)objectInputStream.readObject()).booleanValue(),
-              ((Boolean)objectInputStream.readObject()).booleanValue());
-
-            stripChart.setSettingsVisible(((Boolean)(objectInputStream.readObject())).booleanValue());
-
-            JFreeChart chart = stripChart.getChart();
-            chart.setAntiAlias(((Boolean)objectInputStream.readObject()).booleanValue());
-            chart.setBackgroundPaint((Paint)objectInputStream.readObject());
-
-            if (((Boolean)objectInputStream.readObject()).booleanValue()) {
-                TextTitle textTitle = stripChart.getTitle();
-                textTitle.setText((String)objectInputStream.readObject());
-                textTitle.setFont((Font)objectInputStream.readObject());
-                textTitle.setPaint((Paint)objectInputStream.readObject());
-            }
-            else {
-                stripChart.getChart().setTitle((TextTitle)null);
-            }
-
-            XYPlot plot = stripChart.getChart().getXYPlot();
-            plot.setOrientation((PlotOrientation)objectInputStream.readObject());
-            plot.setOutlinePaint((Paint)objectInputStream.readObject());
-            plot.setBackgroundPaint((Paint)objectInputStream.readObject());
-
-            for (ValueAxis axis : new ValueAxis[] {plot.getDomainAxis(), plot.getRangeAxis()}) {
-                axis.setLabel((String)objectInputStream.readObject());
-                axis.setLabelFont((Font)objectInputStream.readObject());
-                axis.setLabelPaint((Paint)objectInputStream.readObject());
-                axis.setTickMarksVisible(((Boolean)objectInputStream.readObject()).booleanValue());
-                axis.setTickLabelsVisible(((Boolean)objectInputStream.readObject()).booleanValue());
-                axis.setTickLabelFont((Font)objectInputStream.readObject());
-                axis.setTickLabelPaint((Paint)objectInputStream.readObject());
-            }
-
-            if (stripChart.getMode() == StripChart.Mode.Fixed) {
-                stripChart.setDomainBounds((Range)objectInputStream.readObject());
-                stripChart.setRangeBounds((Range)objectInputStream.readObject());
-            }
-
-            loadedStripCharts.add(stripChart);
-        }
-
-        return loadedStripCharts;
     }
 
     /**

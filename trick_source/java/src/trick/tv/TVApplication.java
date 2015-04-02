@@ -1,11 +1,9 @@
 package trick.tv;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -21,10 +19,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.StringReader;
 import java.lang.reflect.ParameterizedType;
 import java.net.URI;
@@ -70,7 +66,6 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -91,11 +86,6 @@ import org.jdesktop.swingx.JXFrame;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.JXTextField;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.title.TextTitle;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import trick.common.RunTimeTrickApplication;
@@ -711,14 +701,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
                 fill = BOTH;
             }};
 
-            //add(new JXLabel("Sorting: "), constraints);
             add(comboBox, constraints);
-
-            /*constraints.gridy = 1;
-            constraints.gridx = 0;
-            constraints.gridwidth = GridBagConstraints.REMAINDER;
-
-            add(new JXButton(" Edit Filters "), constraints);*/
 
             settingsDialog.addBecomingVisibleListener(new BecomingVisibleListener() {
                 @Override
@@ -1367,7 +1350,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
 
             addWindowListener(new WindowAdapter() {
                 @Override
-				public void windowClosed(WindowEvent windowEvent) {
+                public void windowClosed(WindowEvent windowEvent) {
                     if (stripChartsOnly && stripChartManager.getStripChartCount() == 0) {
                         exit();
                     }
@@ -1799,27 +1782,8 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
 
                     StripChart stripChart = stripChartManager.createStripChart(
                       domainVariable, plottedVariables, stripChartBean.mode, stripChartBean.fixedAutoRange,
-                      stripChartBean.areLinesVisible, stripChartBean.arePointsVisible,
-                      stripChartBean.isLegendVisible);
-
-                    stripChart.setSettingsVisible(stripChartBean.areSettingsVisible);
-                    JFreeChart chart = stripChart.getChart();
-                    chart.setAntiAlias(stripChartBean.isAntiAliased);
-                    if (stripChartBean.isBackgroundSet) {
-                        chart.setBackgroundPaint(new Color(stripChartBean.backgroundRgb));
-                    }
-
-                    if (stripChartBean.title != null) {
-                        TextTitle textTitle = stripChart.getTitle();
-                        textTitle.setText(stripChartBean.title.text);
-                        textTitle.setFont(new Font(stripChartBean.title.font.name,
-                            stripChartBean.title.font.style,
-                            stripChartBean.title.font.size));
-                        textTitle.setPaint(new Color(stripChartBean.title.rgb));
-                    }
-                    else {
-                        chart.setTitle((TextTitle)null);
-                    }
+                      stripChartBean.areLinesVisible, stripChartBean.arePointsVisible, stripChartBean.isLegendVisible);
+                    stripChartBean.restore(stripChart);
 
                     launchStripChart(stripChart, new Rectangle(
                       stripChartBean.bounds.x, stripChartBean.bounds.y,

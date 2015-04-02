@@ -56,8 +56,6 @@ import trick.common.utils.vs.Variable;
  */
 public class StripChart extends JXPanel {
 
-    private static final long serialVersionUID = -1568655620576675021L;
-
     /** available display modes */
     public enum Mode {All, Strip, Fixed};
 
@@ -96,7 +94,7 @@ public class StripChart extends JXPanel {
      * @param rangeVariables the dependent variables
      * @param allVariables all variables available for plotting
      * @param mode the initial mode
-     * @param autoRange the widge of the range when in auto-range mode
+     * @param autoRange the width of the range when in auto-range mode
      * @param linesVisible the visibility of the lines
      * @param pointsVisible the visibility of the points
      * @param legendVisible the visibility of the legend
@@ -105,7 +103,7 @@ public class StripChart extends JXPanel {
     @SuppressWarnings("deprecation")
     StripChart(StripChartManager stripChartManager, final Variable domainVariable,
       Collection<Variable> rangeVariables, Collection<Variable> allVariables,
-      final Mode mode, double autoRange, final boolean linesVisisble,
+      final Mode mode, double autoRange, final boolean linesVisible,
       final boolean pointsVisible, final boolean legendVisible) {
 
         this.stripChartManager = stripChartManager;
@@ -270,7 +268,7 @@ public class StripChart extends JXPanel {
                         renderer.setBaseLinesVisible(((JCheckBox)event.getSource()).isSelected());
                     }
                 }) {{
-                    setSelected(linesVisisble);
+                    setSelected(linesVisible);
                     fireActionPerformed(new ActionEvent(this, 0, ""));
                 }}, constraints);
 

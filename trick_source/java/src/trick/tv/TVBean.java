@@ -120,6 +120,32 @@ public class TVBean {
             this.bounds = new BoundsBean(bounds.x, bounds.y, bounds.width, bounds.height);
         }
 
+        public void restore(StripChart stripChart) {
+            stripChart.setSettingsVisible(areSettingsVisible);
+
+            JFreeChart chart = stripChart.getChart();
+            chart.setAntiAlias(isAntiAliased);
+            if (isBackgroundSet) {
+                chart.setBackgroundPaint(new Color(backgroundRgb));
+            }
+
+            if (title != null) {
+                title.restore(stripChart.getTitle());
+            }
+            else {
+                chart.setTitle((TextTitle)null);
+            }
+
+            XYPlot plot = chart.getXYPlot();
+            plot.setOrientation(isHorizontal ? PlotOrientation.HORIZONTAL : PlotOrientation.VERTICAL);
+            plot.setOutlinePaint(new Color(outlineRgb));
+            plot.setBackgroundPaint(new Color(plotBackgroundRgb));
+
+            boolean restoreRange = mode == StripChart.Mode.Fixed;
+            domainAxis.restore(plot.getDomainAxis(), restoreRange);
+            rangeAxis.restore(plot.getRangeAxis(), restoreRange);
+        }
+
         @XmlType(name = "title")
         public static class TitleBean {
 
@@ -135,6 +161,12 @@ public class TVBean {
                 text = textTitle.getText();
                 font = new FontBean(textTitle.getFont());
                 rgb = ((Color)textTitle.getPaint()).getRGB();
+            }
+
+            public void restore(TextTitle title) {
+                title.setText(text);
+                title.setFont(font.restore());
+                title.setPaint(new Color(rgb));
             }
 
         }
@@ -153,6 +185,10 @@ public class TVBean {
                 name = font.getName();
                 style = font.getStyle();
                 size = font.getSize();
+            }
+
+            public Font restore() {
+                return new Font(name, style, size);
             }
 
         }
@@ -186,6 +222,19 @@ public class TVBean {
                 range = new RangeBean(axis.getRange());
             }
 
+            public void restore(ValueAxis axis, boolean restoreRange) {
+                axis.setLabel(label);
+                axis.setLabelFont(font.restore());
+                axis.setLabelPaint(new Color(rgb));
+                axis.setTickMarksVisible(areTickMarksVisible);
+                axis.setTickLabelsVisible(areTickLabelsVisible);
+                axis.setTickLabelFont(tickLabelFont.restore());
+                axis.setTickLabelPaint(new Color(tickLabelRgb));
+                if (restoreRange) {
+                    axis.setRange(range.restore());
+                }
+            }
+
             @XmlType(name = "range")
             public static class RangeBean {
 
@@ -197,6 +246,10 @@ public class TVBean {
                 public RangeBean(Range range) {
                     lower = range.getLowerBound();
                     upper = range.getUpperBound();
+                }
+
+                public Range restore() {
+                    return new Range(lower, upper);
                 }
 
             }
