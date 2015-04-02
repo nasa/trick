@@ -14,6 +14,8 @@ public:
     QModelIndexList plotIdxs(const QModelIndex& pageIdx) const ;
     bool isPageIdx(const QModelIndex& idx) const ;
 
+    QModelIndex sessionStartIdx() const ;
+    QModelIndex sessionStopIdx() const ;
 
 signals:
     

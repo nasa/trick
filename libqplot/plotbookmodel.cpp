@@ -17,10 +17,8 @@ QModelIndexList PlotBookModel::pageIdxs() const
 {
     QModelIndexList idxs;
     QStandardItem* rootItem = this->invisibleRootItem();
-    for ( int i = 0; i < rootItem->rowCount(); ++i ) {
+    for ( int i = 2; i < rootItem->rowCount(); ++i ) {  // 2 for start/stop time
         QStandardItem* item = rootItem->child(i);
-        QString itemText = item->text();
-        if ( itemText == "start" || itemText == "stop" ) continue;
         QModelIndex idx = this->indexFromItem(item);
         idxs.append(idx);
     }
@@ -39,6 +37,22 @@ QModelIndexList PlotBookModel::plotIdxs(const QModelIndex &pageIdx) const
     return idxs;
 }
 
+QModelIndex PlotBookModel::sessionStartIdx() const
+{
+    QStandardItem *rootItem = invisibleRootItem();
+    QStandardItem *startItem = rootItem->child(0);
+    QModelIndex startIdx = indexFromItem(startItem);
+    return startIdx;
+}
+
+QModelIndex PlotBookModel::sessionStopIdx() const
+{
+    QStandardItem *rootItem = invisibleRootItem();
+    QStandardItem *stopItem = rootItem->child(1);
+    QModelIndex stopIdx = indexFromItem(stopItem);
+    return stopIdx;
+}
+
 bool PlotBookModel::isPageIdx(const QModelIndex &idx) const
 {
     // rows 0,1 are start/stop time
@@ -53,8 +67,12 @@ void PlotBookModel::_initModel()
     QStandardItem *startItem = new QStandardItem("start");
     startItem->setData(-DBL_MAX);
     rootItem->appendRow(startItem);
+    QModelIndex startIdx = indexFromItem(startItem);
+    setData(startIdx,-DBL_MAX);
 
     QStandardItem *stopItem = new QStandardItem("stop");
     stopItem->setData(DBL_MAX);
     rootItem->appendRow(stopItem);
+    QModelIndex stopIdx = indexFromItem(stopItem);
+    setData(stopIdx,DBL_MAX);
 }

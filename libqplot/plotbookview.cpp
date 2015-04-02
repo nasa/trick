@@ -530,7 +530,36 @@ void PlotBookView::minimize(const QModelIndex &idx)
 void PlotBookView::dataChanged(const QModelIndex &topLeft,
                           const QModelIndex &bottomRight)
 {
-    // See if start/stop time changed
+
+    if ( !topLeft.isValid() ) return;
+
+    // See if session start time changed
+    QModelIndex startIdx = _plotModel->sessionStartIdx();
+    if ( topLeft == bottomRight && topLeft == startIdx ) {
+        foreach ( QModelIndex pageIdx, _plotModel->pageIdxs() ) {
+            QWidget* page = _idx2Page(pageIdx);
+            foreach ( Plot* plot, _page2Plots.value(page) ) {
+                plot->setStartTime(model()->data(topLeft).toDouble());
+                plot->axisRect()->zoomToFit();
+                plot->replot();
+            }
+        }
+    }
+
+    // See if session stop time changed
+    QModelIndex stopIdx  = _plotModel->sessionStopIdx();
+    if ( topLeft == bottomRight && topLeft == stopIdx ) {
+        foreach ( QModelIndex pageIdx, _plotModel->pageIdxs() ) {
+            QWidget* page = _idx2Page(pageIdx);
+            foreach ( Plot* plot, _page2Plots.value(page) ) {
+                plot->setStopTime(model()->data(topLeft).toDouble());
+                plot->axisRect()->zoomToFit();
+                plot->replot();
+            }
+        }
+    }
+
+    // See if page start/stop time changed
     if ( topLeft == bottomRight && !topLeft.parent().parent().isValid() ) {
         int row = topLeft.row();
         if ( row == 1 || row == 2 ) {
@@ -842,6 +871,12 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             QWidget* page = _idx2Page(pidx);
             QGridLayout* grid = _page2grid.value(page);
             Plot* plot = new Plot(page);
+            QModelIndex sIdx = _plotModel->sessionStartIdx();
+            double sessionStartTime = _plotModel->data(sIdx).toDouble();
+            plot->setStartTime(sessionStartTime);
+            sIdx = _plotModel->sessionStopIdx();
+            double sessionStopTime = _plotModel->data(sIdx).toDouble();
+            plot->setStopTime(sessionStopTime);
             connect(plot,SIGNAL(mouseDoubleClick(QMouseEvent*)),
                     this,SLOT(doubleClick(QMouseEvent*)));
             connect(plot, SIGNAL(keyPress(QKeyEvent*)),
@@ -946,23 +981,31 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 // Plot start time
                 QWidget* page = _idx2Page(pidx);
                 Plot* plot = _idx2Plot(pidx);
+                QModelIndex sIdx = _plotModel->sessionStartIdx();
+                double sessionStartTime = _plotModel->data(sIdx).toDouble();
                 double plotStartTime = model()->data(idx).toDouble();
                 double pageStartTime = _page2startTime.value(page);
-                if ( plotStartTime < -1.0e30 ) {
-                    plot->setStartTime(pageStartTime);
-                } else {
+                if ( sessionStartTime > -1.0e30 ) {
+                    plot->setStartTime(sessionStartTime);
+                } else if ( plotStartTime > -1.0e30 ) {
                     plot->setStartTime(plotStartTime);
+                } else if ( pageStartTime > -1.0e30 ) {
+                    plot->setStartTime(pageStartTime);
                 }
             } else if ( idx.row() == 9 ) {
                 // Plot stop time
                 QWidget* page = _idx2Page(pidx);
                 Plot* plot = _idx2Plot(pidx);
+                QModelIndex sIdx = _plotModel->sessionStopIdx();
+                double sessionStopTime = _plotModel->data(sIdx).toDouble();
                 double plotStopTime = model()->data(idx).toDouble();
                 double pageStopTime = _page2stopTime.value(page);
-                if ( plotStopTime > 1.0e30 ) {
-                    plot->setStopTime(pageStopTime);
-                } else {
+                if ( sessionStopTime < 1.0e30 ) {
+                    plot->setStopTime(sessionStopTime);
+                } else if ( plotStopTime < 1.0e30 ) {
                     plot->setStopTime(plotStopTime);
+                } else if ( pageStopTime < 1.0e30 ) {
+                    plot->setStopTime(pageStopTime);
                 }
             } else {
                 qDebug() << "snap [bad scoobies]: this should not happen.";

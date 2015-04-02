@@ -285,25 +285,16 @@ void PlotMainWindow::_savePdf()
 
 void PlotMainWindow::_startTimeChanged(double startTime)
 {
-    QStandardItem* rootItem = _plotModel->invisibleRootItem();
-
-    int rc = rootItem->rowCount();
-    for ( int i = 0; i < rc; ++i ) {
-        QStandardItem* pageItem = rootItem->child(i);
-        QStandardItem* startTimeItem = pageItem->child(1);
-        QModelIndex startTimeIdx =  _plotModel->indexFromItem(startTimeItem);
-        _plotModel->setData(startTimeIdx,startTime);
+    QModelIndex startIdx = _plotModel->sessionStartIdx();
+    if ( startIdx.isValid() ) {
+        _plotModel->setData(startIdx,startTime);
     }
 }
 
 void PlotMainWindow::_stopTimeChanged(double stopTime)
 {
-    QStandardItem* rootItem = _plotModel->invisibleRootItem();
-    int rc = rootItem->rowCount();
-    for ( int i = 0; i < rc; ++i ) {
-        QStandardItem* pageItem = rootItem->child(i);
-        QStandardItem* stopTimeItem = pageItem->child(2);
-        QModelIndex stopTimeIdx =  _plotModel->indexFromItem(stopTimeItem);
-        _plotModel->setData(stopTimeIdx,stopTime);
+    QModelIndex stopIdx = _plotModel->sessionStopIdx();
+    if ( stopIdx.isValid() ) {
+        _plotModel->setData(stopIdx,stopTime);
     }
 }
