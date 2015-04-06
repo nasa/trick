@@ -28,7 +28,7 @@ extern Trick::MemoryManager * trick_MM ;
 /* static variables in the IPPythonEvent class */
 Trick::IPPython * Trick::IPPythonEvent::ip ;
 Trick::MTV * Trick::IPPythonEvent::mtv ;
-bool Trick::IPPythonEvent::info_msg ;
+bool Trick::IPPythonEvent::info_msg = false ;
 
 Trick::condition_t::condition_t() {
     enabled = 0 ;
@@ -56,7 +56,6 @@ Trick::IPPythonEvent::IPPythonEvent() {
     is_user_event = true ;
     manual = false ;
     manual_fired = false ;
-    info_msg = false ;
     condition_count = 0 ;
     cond_all = false ;
     action_count = 0 ;
