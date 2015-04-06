@@ -1,12 +1,12 @@
 #!/usr/bin/perl
 
-use FindBin qw($Bin);
+use FindBin qw($RealBin);
 use strict ;
 use Getopt::Long;
 use Pod::Usage;
 use Pod::Text;
 use Text::Balanced qw ( extract_bracketed );
-use lib "$Bin/pm" ;
+use lib "$RealBin/pm" ;
 use File::Basename ;
 use Cwd 'abs_path' ;
 use gte ;

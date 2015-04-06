@@ -2,8 +2,8 @@
 
 # trick_dp that determines trick_home based on execution location of this script.
 
-use FindBin qw($Bin);
-use lib "$Bin/pm" ;
+use FindBin qw($RealBin);
+use lib "$RealBin/pm" ;
 use File::Basename ;
 use Cwd 'abs_path';
 use gte ;

@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 
 use strict ;
-use FindBin qw($Bin);
-use lib "$Bin/pm" ;
+use FindBin qw($RealBin);
+use lib "$RealBin/pm" ;
 use Getopt::Long ;
 use Pod::Usage ;
 use Pod::Text ;

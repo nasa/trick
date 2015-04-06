@@ -4,8 +4,8 @@ use File::Basename ;
 use strict ;
 use Cwd ;
 
-use FindBin qw($Bin);
-use lib "$Bin/pm" ;
+use FindBin qw($RealBin);
+use lib "$RealBin/pm" ;
 
 use cp_cache ;
 
