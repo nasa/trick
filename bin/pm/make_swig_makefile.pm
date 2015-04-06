@@ -13,6 +13,7 @@ use gte ;
 use trick_print ;
 use Cwd ;
 use Cwd 'abs_path';
+use Digest::MD5 qw(md5_hex) ;
 use strict ;
 
 sub make_swig_makefile($$$) {
@@ -35,12 +36,9 @@ sub make_swig_makefile($$$) {
     my ($version, $thread, $year) ;
     my ($swig_module_i, $swig_module_source, $py_wrappers) ;
     my $s_source_full_path = abs_path("S_source.hh") ;
+    my $s_source_md5 = md5_hex($s_source_full_path) ;
     my $s_library_swig = ".S_library_swig" ;
     my $s_library_swig_ext = ".S_library_swig_ext" ;
-    my ( $dev, $inode ) ;
-
-    ( $dev, $inode ) = stat($s_source_full_path) ;
-    my $s_source_uniq_id = "${dev}_$inode" ;
 
     ($version, $thread) = get_trick_version() ;
     ($year) = $version =~ /^(\d+)/ ;
@@ -314,9 +312,7 @@ sub make_swig_makefile($$$) {
             push @{$python_modules{"root"}} , $f ;
         }
 
-        ( $dev, $inode ) = stat($f) ;
-        my $uniq_id = "${dev}_$inode" ;
-
+        my $md5_sum = md5_hex($f) ;
         # check if .sm file was accidentally ##included instead of #included
         if ( rindex($swig_f,".sm") != -1 ) {
            trick_print($$sim_ref{fh}, "\nError: $swig_f should be in a #include not a ##include  \n\n", "title_red", $$sim_ref{args}{v}) ;
@@ -330,8 +326,8 @@ sub make_swig_makefile($$$) {
         $swig_dirs{$swig_dir} = 1 ;
 
         $swig_module_i .= "\\\n    $swig_f" ;
-        $swig_module_source .= "\\\n    $swig_dir/py_${swig_file_only}.cpp\\\n    $swig_dir/m${uniq_id}.py" ;
-        $py_wrappers .= " \\\n    $swig_sim_dir/${swig_module_dir}m${uniq_id}.py" ;
+        $swig_module_source .= "\\\n    $swig_dir/py_${swig_file_only}.cpp\\\n    $swig_dir/m${md5_sum}.py" ;
+        $py_wrappers .= " \\\n    $swig_sim_dir/${swig_module_dir}m${md5_sum}.py" ;
 
         if ( ! exists $$sim_ref{sim_lib_swig_files}{$f} ) {
             print MAKEFILE "$swig_object_dir/py_${swig_file_only}.o : $swig_f\n" ;
@@ -345,14 +341,14 @@ sub make_swig_makefile($$$) {
         }
 
         if ( $swig_module_dir ne "" ) {
-            print MAKEFILE "$swig_sim_dir/${swig_module_dir}m${uniq_id}.py : | $swig_sim_dir/$swig_module_dir\n" ;
+            print MAKEFILE "$swig_sim_dir/${swig_module_dir}m${md5_sum}.py : | $swig_sim_dir/$swig_module_dir\n" ;
         }
         if ( ! exists $$sim_ref{sim_lib_swig_files}{$f} ) {
-            print MAKEFILE "$swig_sim_dir/${swig_module_dir}m${uniq_id}.py : | $swig_object_dir/py_${swig_file_only}.o\n" ;
+            print MAKEFILE "$swig_sim_dir/${swig_module_dir}m${md5_sum}.py : | $swig_object_dir/py_${swig_file_only}.o\n" ;
         } else {
-            print MAKEFILE "$swig_sim_dir/${swig_module_dir}m${uniq_id}.py :\n" ;
+            print MAKEFILE "$swig_sim_dir/${swig_module_dir}m${md5_sum}.py :\n" ;
         }
-        print MAKEFILE "\t/bin/cp $swig_dir/m${uniq_id}.py \$@\n\n" ;
+        print MAKEFILE "\t/bin/cp $swig_dir/m${md5_sum}.py \$@\n\n" ;
 
         $ii++ ;
     }
@@ -470,10 +466,8 @@ clean_swig:\n" ;
     print INITSWIGFILE "extern \"C\" {\n\n" ;
     foreach $f ( @temp_array2 ) {
 
-        ( $dev, $inode ) = stat($f) ;
-        my $uniq_id = "${dev}_$inode" ;
-
-        print INITSWIGFILE "void init_m${uniq_id}(void) ; /* $f */\n" ;
+        my $md5_sum = md5_hex($f) ;
+        print INITSWIGFILE "void init_m${md5_sum}(void) ; /* $f */\n" ;
     }
     print INITSWIGFILE "void init_sim_services(void) ;\n" ;
     print INITSWIGFILE "void init_top(void) ;\n" ;
@@ -484,13 +478,11 @@ clean_swig:\n" ;
     print INITSWIGFILE "\nvoid init_swig_modules(void) {\n\n" ;
     foreach $f ( @temp_array2 ) {
         next if ( $f =~ /S_source.hh/ ) ;
-        ( $dev, $inode ) = stat($f) ;
-        my $uniq_id = "${dev}_$inode" ;
-
-        print INITSWIGFILE "    init_m${uniq_id}() ;\n" ;
+        my $md5_sum = md5_hex($f) ;
+        print INITSWIGFILE "    init_m${md5_sum}() ;\n" ;
     }
 
-    print INITSWIGFILE "    init_m${s_source_uniq_id}() ;\n" ;
+    print INITSWIGFILE "    init_m${s_source_md5}() ;\n" ;
 
     print INITSWIGFILE "    init_sim_services() ;\n" ;
     print INITSWIGFILE "    init_top() ;\n" ;
@@ -531,19 +523,17 @@ clean_swig:\n" ;
 
     foreach $f ( @{$python_modules{"root"}} ) {
         next if ( $f =~ /S_source.hh/ ) ;
-        ( $dev, $inode ) = stat($f) ;
-        my $uniq_id = "${dev}_$inode" ;
-
+        my $md5_sum = md5_hex($f) ;
         print INITFILE "# $f\n" ;
-        print INITFILE "import _m${uniq_id}\n" ;
-        print INITFILE "from m${uniq_id} import *\n" ;
+        print INITFILE "import _m${md5_sum}\n" ;
+        print INITFILE "from m${md5_sum} import *\n" ;
         print INITFILE "combine_cvars(all_cvars, cvar)\n" ;
         print INITFILE "cvar = None\n\n" ;
     }
 
     print INITFILE "# S_source.hh\n" ;
-    print INITFILE "import _m${s_source_uniq_id}\n" ;
-    print INITFILE "from m${s_source_uniq_id} import *\n\n" ;
+    print INITFILE "import _m${s_source_md5}\n" ;
+    print INITFILE "from m${s_source_md5} import *\n\n" ;
     print INITFILE "import _top\n" ;
     print INITFILE "import top\n\n" ;
     print INITFILE "import _swig_double\n" ;
@@ -568,12 +558,10 @@ clean_swig:\n" ;
         open INITFILE , ">$swig_sim_dir/$temp_str/__init__.py" or return ;
         foreach $f ( @{$python_modules{$m}} ) {
             next if ( $f =~ /S_source.hh/ ) ;
-            ( $dev, $inode ) = stat($f) ;
-            my $uniq_id = "${dev}_$inode" ;
-
+            my $md5_sum = md5_hex($f) ;
             print INITFILE "# $f\n" ;
-            print INITFILE "import _m${uniq_id}\n" ;
-            print INITFILE "from m${uniq_id} import *\n\n" ;
+            print INITFILE "import _m${md5_sum}\n" ;
+            print INITFILE "from m${md5_sum} import *\n\n" ;
         }
         close INITFILE ;
 
