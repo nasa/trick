@@ -1,3 +1,4 @@
+include ${TRICK_HOME}/makefiles/Makefile.common
 CPP      = g++
 CC       = gcc
 
