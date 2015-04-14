@@ -26,13 +26,16 @@ public:
     QString name() { return _name; }
     QString label() { return _label; }
     QString unit() { return _unit; }
+    QString lineColor() { return _lineColor; }
 
     void setLabel(const char* label) { _label = label; }
     void setUnit(const char* unit) { _unit = unit; }
+    void setLineColor(const char* lineColor) { _lineColor = lineColor; }
 private:
     QString _name;
     QString _label;
     QString _unit;
+    QString _lineColor;
 };
 
 class DPCurve
@@ -47,10 +50,15 @@ public:
 
     DPVar* setXVarName(const char* name);
     DPVar* setYVarName(const char* name);
+
+    QString lineColor();
+    void setLineColor(const char* lineColor);
+
 private:
     DPVar* _t;
     DPVar* _x;
     DPVar* _y;
+    QString _color;
     static QString _err_string;
     static QTextStream _err_stream;
 };

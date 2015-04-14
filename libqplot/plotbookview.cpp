@@ -1095,6 +1095,14 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 if ( pidx.row() == 1 && _isShowCurveDiff ) {
                     plot->axisRect()->showCurveDiff();
                 }
+            } else if ( idx.row() == 7 ) {   // 7 is the row for line color
+                TrickCurve* curve =  _idx2Curve(pidx);
+                QString colorStr = model()->data(idx).toString();
+                if ( ! colorStr.isEmpty() ) {
+                    QColor color(colorStr);
+                    QPen pen(color);
+                    curve->setPen(pen);
+                }
             }
         }
     }

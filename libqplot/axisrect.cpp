@@ -171,25 +171,26 @@ void AxisRect::_addCurve(TrickCurve *curve)
 
     // Color curves
     // Make bands of color for plots with lots of curves
-    QList<QColor> colorBands = _colorBandsMonte ;
     if ( nCurves < 10 ) {
-        colorBands = _colorBandsNormal;
-    }
-    int nBands = colorBands.size();
-    int nCurvesPerBand =  qRound((double)nCurves/(double)nBands);
-    nCurvesPerBand = ( nCurvesPerBand == 0 ) ? 1 : nCurvesPerBand;
-    int cnt = 0 ;
-    int currBand = 0 ;
-    foreach ( TrickCurve* curve, _curves ) {
-        if ( cnt % nCurvesPerBand ==  0 ) {
-            if ( currBand % nBands == 0 ) {
-                currBand = 0 ;
-            }
-            _currPen.setColor(colorBands.at(currBand));
-            currBand++;
-        }
+        _currPen.setColor(_colorBandsNormal.at(nCurves-1));
         curve->setPen(_currPen);
-        cnt++;
+    } else  {
+        int nBands = _colorBandsMonte.size();
+        int nCurvesPerBand =  qRound((double)nCurves/(double)nBands);
+        nCurvesPerBand = ( nCurvesPerBand == 0 ) ? 1 : nCurvesPerBand;
+        int cnt = 0 ;
+        int currBand = 0 ;
+        foreach ( TrickCurve* crv, _curves ) {
+            if ( cnt % nCurvesPerBand ==  0 ) {
+                if ( currBand % nBands == 0 ) {
+                    currBand = 0 ;
+                }
+                _currPen.setColor(_colorBandsMonte.at(currBand));
+                currBand++;
+            }
+            crv->setPen(_currPen);
+            cnt++;
+        }
     }
 
     // Reset ranges

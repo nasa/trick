@@ -389,7 +389,7 @@ QString DPPlot::_abbreviate(const QString &label, int maxlen)
 QString DPCurve::_err_string;
 QTextStream DPCurve::_err_stream(&DPCurve::_err_string);
 
-DPCurve::DPCurve(const QDomElement &e) : _t(0),_x(0),_y(0)
+DPCurve::DPCurve(const QDomElement &e) : _t(0), _x(0), _y(0)
 {
     int count = 0;
     QDomNode n = e.firstChild();
@@ -399,6 +399,7 @@ DPCurve::DPCurve(const QDomElement &e) : _t(0),_x(0),_y(0)
             QString tag = e.tagName();
             if ( tag == "var" ) {
                 DPVar* var = new DPVar(e);
+                setLineColor(var->lineColor().toAscii().constData());
                 if ( count == 0 ) {
                     _t = var; // hack for now since DP xml has no t,x,y
                     _x = var;
@@ -432,6 +433,7 @@ DPVar *DPCurve::setYVarName(const char *name)
     return _y;
 }
 
+
 DPVar* DPCurve::t() {
     if ( !_t ) {
         _t = new DPVar("sys.exec.out.time");
@@ -461,6 +463,16 @@ DPVar *DPCurve::y()
     return _y;
 }
 
+void DPCurve::setLineColor(const char *color)
+{
+    _color = QString(color);
+}
+
+QString DPCurve::lineColor()
+{
+    return _color;
+}
+
 DPVar::DPVar(const QDomElement &e) :
     _name(QString()),
     _label(QString()),
@@ -480,7 +492,11 @@ DPVar::DPVar(const QDomElement &e) :
     QString unit("units");
     if ( el.hasAttribute(unit) ) {
         _unit = el.attributeNode(unit).value().simplified();
+    }
 
+    QString lineColor("line_color");
+    if ( el.hasAttribute(lineColor) ) {
+        _lineColor = el.attributeNode(lineColor).value().simplified();
     }
 }
 

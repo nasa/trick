@@ -255,6 +255,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                     QString tUnit = dpcurve->t()->unit();
                     QString xUnit = dpcurve->x()->unit();
                     QString yUnit = dpcurve->y()->unit();
+                    QString color = dpcurve->lineColor();
 
                     QStandardItem *tItem       = new QStandardItem(tName);
                     QStandardItem *xItem       = new QStandardItem(xName);
@@ -264,6 +265,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                     QStandardItem *yUnitItem   = new QStandardItem(yUnit);
                     QStandardItem *runIDItem   = new QStandardItem(
                                                      QString("%0").arg(run));
+                    QStandardItem *colorItem   = new QStandardItem(color);
 
                     curveItem->appendRow(tItem);
                     curveItem->appendRow(xItem);
@@ -272,6 +274,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                     curveItem->appendRow(xUnitItem);
                     curveItem->appendRow(yUnitItem);
                     curveItem->appendRow(runIDItem);
+                    curveItem->appendRow(colorItem);
                 }
             }
             // TODO: does this need to be here???

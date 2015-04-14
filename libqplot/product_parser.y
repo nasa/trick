@@ -343,8 +343,7 @@ y_var: DP_Y_VARIABLE ':' DP_STR {
                 msg("plot->setLineStyle() not supported");
         }
         | y_var DP_LINE_COLOR ':' DP_STR {
-                //currCurve->setLineColor($4);
-                msg("plot->setLineColor() not supported");
+                currCurve->setLineColor($4);
         }
         | y_var DP_SYMBOL_STYLE ':' DP_STR {
                 //currCurve->setLineSymbol($4);
@@ -392,8 +391,7 @@ curve: DP_CURVE ':' {
                 msg("plot->setLineStyle() not supported");
         }
         | curve DP_LINE_COLOR ':' DP_STR {
-                //currCurve->setLineColor($4);
-                msg("plot->setLineColor() not supported");
+                currCurve->setLineColor($4);
         }
         | curve DP_SYMBOL_STYLE ':' DP_STR {
                 //currCurve->setLineSymbol($4);
