@@ -1018,7 +1018,7 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
         } else if ( ! g3pidx.isValid() ) {
             // Curve (do nothing)
         } else if ( ! g4pidx.isValid() ) {
-            // t,x,y,tunit,xunit,yunit,run
+            // t,x,y,tunit,xunit,yunit,run,line_color
             if ( idx.row() == 6 ) {   // 6 is the idx row the run id
 
                 // Run
@@ -1101,7 +1101,9 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 if ( ! colorStr.isEmpty() ) {
                     QColor color(colorStr);
                     QPen pen(color);
-                    curve->setPen(pen);
+                    // TODO: Need fix for not coloring lines when coplotting
+                    //       So commenting out the following line for now
+                    // curve->setPen(pen);
                 }
             }
         }
