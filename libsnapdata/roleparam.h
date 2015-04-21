@@ -27,6 +27,8 @@ class Param : public Role
         size(0)
     {}
 
+    virtual ~Param() {}        // Destructor does nothing
+
     QString name;
     QString unit;
     int     type;      // e.g. TRICK_DOUBLE
