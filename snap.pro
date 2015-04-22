@@ -26,6 +26,7 @@ SUBDIRS = libopts \
           snap \
           snapq \
           csv2trk \
+          trk2csv \
           testsnap
 
 OTHER_FILES += \
