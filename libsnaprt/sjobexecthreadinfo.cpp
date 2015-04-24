@@ -53,12 +53,14 @@ void SJobExecThreadInfo::_calcThreadInfo()
     if ( _trickVersion >= VersionNumber("13.4.dev-0") ) {
         typeRgx = QRegExp(" *process_type = *");
         cpuNumRgx = QRegExp("\\s*cpus\\s*=\\s*");
-        threadName = QString("Trick::Threads (Child_%1)").arg(_threadId);
+        threadName = QString("Trick::Threads");
     } else {
         typeRgx = QRegExp(" *Type = *");
         cpuNumRgx = QRegExp("\\s*rt_cpu_number\\s*=\\s*");
         threadName = QString("Thread %1").arg(_threadId);
     }
+
+    int currThread = -1;
 
     //
     // Reading top part of S_job_execution
@@ -75,8 +77,17 @@ void SJobExecThreadInfo::_calcThreadInfo()
                         _err_string.toAscii().constData());
         }
 
-        if ( line == threadName ) { // Thread _threadId e.g. "Thread 9"
-            break;
+        if ( _trickVersion >= VersionNumber("13.4.dev-0") ) {
+            if(line.contains(threadName)) {
+                ++currThread;
+                if(currThread == _threadId) {
+                    break;
+                }
+            }
+        } else {
+            if ( line == threadName ) { // Thread _threadId e.g. "Thread 9"
+                break;
+            }
         }
     }
 
