@@ -56,7 +56,7 @@ class Unit {
 
       private:
 
-#define NUM_UNIT_TYPES      11  // Types are time,length ...
+#define NUM_UNIT_TYPES      12  // Types are time,length ...
 #define MAX_UNITS_FOR_TYPE  12  // Length has 10 units including null str
 #define MAX_LEN_UNIT_STR    32  // Don't do NMs2gdB... for over 32 chars
 

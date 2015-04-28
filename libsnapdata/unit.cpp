@@ -48,18 +48,19 @@
  * Unit strings
  */
 const char *const Unit::_unitStrings[NUM_UNIT_TYPES][MAX_UNITS_FOR_TYPE] = {
-        {"s", "min", "hr", "day", "ms", "us", ""},  // Time
-        {"m", "M", "ft", "in", "mm", "cm",   // Length
+        {"s", "min", "hr", "day", "ms", "us", ""},      // Time
+        {"m", "M", "ft", "in", "mm", "cm",              // Length
          "km", "yd", "mi", "nm", "kft", ""},
         {"r", "d", "as", "am", "rev", "mr", ""},        // Angle
-        {"kg", "sl", "lbm", "g", "mt", ""},     // Mass
-        {"N", "kN", "oz", "lbf", ""},   // Force
-        {"v", "kv", ""},        // Voltage
-        {"amp", "mamp", ""},    // Current
-        {"ohm", "mohm", ""},    // Resistance
-        {"C", "K", "R", "F", ""},       // Temperature
-        {"dB", ""},             // Sound
-        {"--", "cnt", "one", "1", ""}        // Unitless
+        {"kg", "sl", "lbm", "g", "mt", ""},             // Mass
+        {"N", "kN", "oz", "lbf", ""},                   // Force
+        {"v", "kv", ""},                                // Voltage
+        {"amp", "mamp", ""},                            // Current
+        {"ohm", "mohm", ""},                            // Resistance
+        {"C", "K", "R", "F", ""},                       // Temperature
+        {"dB", ""},                                     // Sound
+        {"J", "mJ", "uJ", "kJ", "MJ", ""},              // Energy
+        {"--", "cnt", "one", "1", ""}                   // Unitless
 };
 
 /**
@@ -150,6 +151,15 @@ const double Unit::_conversions[NUM_UNIT_TYPES][MAX_UNITS_FOR_TYPE] = {
         {
          1.000000000000,        // dB -> dB 
          0.0                    // dB -> ""
+         },
+
+        // Energy
+        {
+         1.000000000000,        // J->J
+         0.001000000000,        // J->mJ
+         0.000000100000,        // J->uJ
+         1000.000000000,        // J->kJ
+         1000000.000000         // J->MJ
          },
 
         // Unitless
@@ -295,12 +305,16 @@ int Unit::_getNextPrimitiveOrOperand()
                                 k = i + 1;
                                 if (k < lenUnitName &&
                                         (_unitName[i + 1] == 's' ||
-                                         _unitName[i + 1] == 'm' ) ) {
+                                         _unitName[i + 1] == 'm' ||
+                                         _unitName[i + 1] == 'J' )) {
                                         // ms -vs- s conflict (ms wins)
                                         // or
                                         // mm -vs- m (mm wins)
                                         if ( _unitName[i+1] == 's' ) {
                                             strcpy(str, "ms");
+                                        } else if ( _unitName[i+1] == 'J' ) {
+                                            // mJ is millijoules, not m*J
+                                            strcpy(str, "mJ");
                                         } else {
                                             strcpy(str, "mm");
                                         }
@@ -321,6 +335,13 @@ int Unit::_getNextPrimitiveOrOperand()
                                                 i = i + 3;
                                         }
                                 }
+                        } else if (!strcmp(str, "M")) {
+                            k = i + 1;
+                            if (k < lenUnitName && _unitName[i + 1] == 'J') {
+                                // MJ is Megajoules, not M*J
+                                strcpy(str, "MJ");
+                                i = i + 1;
+                            }
                         } else if (!strcmp(str, "r")) {
                                 k = i + 2;
                                 if (k < lenUnitName && _unitName[i + 1] == 'e'
@@ -336,7 +357,6 @@ int Unit::_getNextPrimitiveOrOperand()
                                         strcpy(str, "dB");
                                         i = i + 1;
                                 } else {
-                                        k = i + 2;
                                         if (k < lenUnitName
                                             && _unitName[i + 1] == 'a'
                                             && _unitName[i + 2] == 'y') {
@@ -544,11 +564,15 @@ int Unit::isUnit(const char *unitStr)
                                 k = i + 1;
                                 if (k < lenUnitStr &&
                                         (unitStr[i + 1] == 's'||
-                                         unitStr[i + 1] == 'm' ) ) {
+                                         unitStr[i + 1] == 'm' ||
+                                         unitStr[i + 1] == 'J' ) ) {
                                         // ms -vs- m conflict
+                                        // mJ -vs- m conflict
                                         // mm -vs- m conflict
                                         if ( unitStr[i+1] == 's' ) {
                                             strcpy(str, "ms");
+                                        } else if ( unitStr[i+1] == 'J' ) {
+                                            strcpy(str, "mJ");
                                         } else {
                                             strcpy(str, "mm");
                                         }
@@ -569,6 +593,13 @@ int Unit::isUnit(const char *unitStr)
                                                 i = i + 3;
                                         }
                                 }
+                        } else if (!strcmp(str, "M")) {
+                            k = i + 1;
+                            if (k < lenUnitStr && unitStr[i + 1] == 'J') {
+                                // MJ is Megajoules, not M*J
+                                strcpy(str, "MJ");
+                                i = i + 1;
+                            }
                         } else if (!strcmp(str, "r")) {
                                 k = i + 2;
                                 if (k < lenUnitStr && unitStr[i + 1] == 'e'
