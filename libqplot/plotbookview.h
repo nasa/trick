@@ -125,6 +125,8 @@ private:
                                  const QString &unit ) const;
 
     void _layoutPdfPlots(const QVector<Plot*>& plots);
+    bool _savePdfVectorized(const QString& fileName);
+    bool _savePdfPixmapped(const QString& fileName);
 
 };
 

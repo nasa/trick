@@ -155,12 +155,119 @@ void PlotBookView::setCurrentPage(const QModelIndex& pageIdx)
 
 }
 
+bool PlotBookView::savePdf(const QString &fileName)
+{
+    bool isVectorize = true;
+    for ( int pageId = 0; pageId < _pages.size(); ++pageId) {
+        QWidget* page = _pages.at(pageId);
+        QVector<Plot*> plots = _page2Plots.value(page);
+        foreach (Plot* plot, plots ) {
+            int nCurves = plot->axisRect()->curveCount();
+            if ( nCurves > 10 ) {
+                isVectorize = false;
+                break;
+            }
+        }
+    }
+
+    bool ret = false;
+    if ( isVectorize ) {
+        ret = _savePdfVectorized(fileName);
+    } else {
+        ret = _savePdfPixmapped(fileName);
+    }
+
+    return ret;
+}
+
+bool PlotBookView::_savePdfVectorized(const QString &fileName)
+{
+    // Page size and title header size
+    int ww = 1200;
+    int hh = 900;
+
+    // Save current widget
+    QWidget* originalPage = _nb->currentWidget();
+
+    // Header height
+    int heightHeader = 0;
+    for ( int i = 0 ; i < _nb->count(); ++i ) {
+        QWidget* page = _nb->widget(i);
+        _nb->setCurrentWidget(page);  // for layout when offscreen
+        PageTitleWidget* pw = _page2pagewidget.value(page);
+        if ( pw->sizeHint().height() > heightHeader ) {
+            heightHeader = pw->height() ;
+        }
+    }
+
+    // Plots rect
+    QRect plotsRect(0,heightHeader,ww,hh-heightHeader);
+
+    QPrinter printer(QPrinter::ScreenResolution);
+    printer.setOutputFileName(fileName);
+    printer.setOutputFormat(QPrinter::PdfFormat);
+    printer.setFullPage(true);
+    //printer.setPaperSize(QPrinter::A4);
+    printer.setPaperSize(QSizeF(ww,hh),QPrinter::DevicePixel);
+    //printer.setOrientation(QPrinter::Landscape);
+
+    QCPPainter printpainter;
+    if (! printpainter.begin(&printer)) {
+        return false;
+    }
+    printpainter.setMode(QCPPainter::pmVectorized);
+    printpainter.setMode(QCPPainter::pmNoCaching);
+    printpainter.setMode(QCPPainter::pmNonCosmetic,false);
+    QRect printerRect = QRect(0,0,printer.width(),printer.height());
+    printpainter.setWindow(printerRect);
+    printpainter.fillRect(printerRect, QBrush(Qt::white));
+
+    for ( int pageId = 0; pageId < _pages.size(); ++pageId) {
+
+        QWidget* page = _pages.at(pageId);
+        QVector<Plot*> plots = _page2Plots.value(page);
+        QVector<QRect> origPlotViewports;
+        foreach (Plot* plot, plots ) {
+            origPlotViewports.append(plot->viewport());
+            plot->setViewport(plotsRect);
+        }
+
+        _layoutPdfPlots(plots);
+
+        // Draw then restore plot layout
+        int plotId = 0 ;
+        foreach (Plot* plot, plots ) {
+            plot->drawMe(&printpainter);
+            plot->setViewport(origPlotViewports.at(plotId));
+            plot->plotLayout()->simplify();  // get rid of empty cells
+            plotId++;
+        }
+
+        // Draw header (resize for offscreen rendering)
+        PageTitleWidget* pw = _page2pagewidget.value(page);
+        pw->setFixedWidth(ww);
+        pw->setFixedHeight(heightHeader);
+        pw->render(&printpainter);
+
+        // Insert new page in pdf booklet
+        if ( pageId < _pages.size()-1 ) {
+            printer.newPage();
+        }
+    }
+
+    printpainter.end();
+
+    _nb->setCurrentWidget(originalPage);
+
+    return true;
+}
+
 //
 // To speed up printing and reduce pdf size,
 // instead of printing directly to the pdf,
 // print pixmaps of curves to pdf
 //
-bool PlotBookView::savePdf(const QString &fileName)
+bool PlotBookView::_savePdfPixmapped(const QString &fileName)
 {
     // Page size and title header size
     int ww = 1200;
