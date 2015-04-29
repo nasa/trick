@@ -725,12 +725,14 @@ public abstract class TrickApplication extends SingleFrameApplication implements
      * @param arguments the parameters to pass to the application
      */
     protected static void launchTrickApplication(String executable, String arguments) {
+        if ( System.getProperty("os.name").startsWith("Windows") ) {
+            executable = executable + ".bat" ;
+        }
         try {
             ProcessBuilder process = new ProcessBuilder(UIUtils.getTrickBin() +
               File.separator + executable,  arguments);
-            // TODO: Uncomment these when we move to Java 1.7 again
-            //process.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-            //process.redirectError(ProcessBuilder.Redirect.INHERIT);
+            process.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+            process.redirectError(ProcessBuilder.Redirect.INHERIT);
             process.start();
         } catch (IOException ioException) {
             ioException.printStackTrace();
