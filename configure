@@ -33,7 +33,7 @@ tprocte=""
 bc635=""
 java_min_ver=1.6.0
 no_create=0
-dev=0
+dev=1
 help=0
 lsb_release=/usr/bin/lsb_release
 
