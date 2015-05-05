@@ -1,5 +1,6 @@
 .gitattributes export-ignore
 .gitignore export-ignore
+make_changelog export-ignore
 Basics_of_Program_Memory_and_Variables.ppt export-ignore
 Compiling_and_Linking_Overview.ppt export-ignore
 Trick_Advanced_Topics.pptx export-ignore
