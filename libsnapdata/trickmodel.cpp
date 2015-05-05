@@ -1,4 +1,5 @@
 #include "trickmodel.h"
+#include <QStringList>
 #include <stdio.h>
 #include <stdexcept>
 #include <unistd.h>
@@ -93,9 +94,12 @@ bool TrickModel::_load_trick_header()
     // Sanity check.  First column must be sys.exec.out.time
     int timeCol = 0 ;
     QString timeName = headerData(timeCol,Qt::Horizontal).toString();
-    if ( timeName != "sys.exec.out.time" ) {
+    QStringList timeNameList = timeName.split('.');
+    timeName = timeNameList.last();
+    timeName = timeName.toLower();
+    if ( timeName != "time" ) {
         _err_stream << "snap [error]: first element in trk file "
-                    << "was not sys.exec.out.time.  Aborting.\n";
+                    << "was not *.time.  Aborting.\n";
         throw std::runtime_error(_err_string.toAscii().constData());
     }
 

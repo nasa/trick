@@ -197,8 +197,8 @@ void VarsWidget::_addPlotOfVarToPageItem(QStandardItem* pageItem,
     // The -1 is because a pageItem has a pageTitle followed by plotItems
     int nPlots = pageItem->rowCount()-1;
 
-    QString tName("sys.exec.out.time");
-    QString xName("sys.exec.out.time");
+    QString tName = _monteModel->headerData(0).toString();
+    QString xName(tName);
     QString yName = _varsFilterModel->data(varIdx).toString();
 
     QString plotTitle = QString("QPlot_%0").arg(nPlots);
