@@ -172,7 +172,10 @@ bool PlotBookView::savePdf(const QString &fileName)
 
     bool ret = false;
     if ( isVectorize ) {
-        ret = _savePdfVectorized(fileName);
+        // Vectorizing causes huge pdfs. Use pixmaps for now
+        // but leave in hook for vectorizing.
+        //ret = _savePdfVectorized(fileName);
+        ret = _savePdfPixmapped(fileName);
     } else {
         ret = _savePdfPixmapped(fileName);
     }
