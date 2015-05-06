@@ -10,6 +10,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QRegExp>
+#include <QHash>
 #include <QDebug>
 #include <stdexcept>
 #include <float.h>
@@ -139,6 +140,7 @@ public:
 
     // Made for speed and used when filtering for params in DP
     static QStringList paramList(const QString& fileName);
+    static QStringList paramList(const QStringList& dpFileNames);
 
 private:
     QString _fileName;

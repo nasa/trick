@@ -15,6 +15,8 @@ using namespace std;
 #include "libqplot/plotmainwindow.h"
 
 QStandardItemModel* createVarsModel(const QStringList& runDirs);
+bool writeTrk(const QString& ftrk,
+              QStringList& paramList, MonteModel* monteModel);
 
 Option::FPresetQStringList presetRunsDPs;
 Option::FPostsetQStringList postsetRunsDPs;
@@ -26,6 +28,7 @@ class SnapOptions : public Options
     unsigned int beginRun;
     unsigned int endRun;
     QString pdfOutFile;
+    QString trkOutFile;
     QStringList rundps;
     QString title1;
     QString title2;
@@ -62,6 +65,8 @@ int main(int argc, char *argv[])
     opts.add("-t4",&opts.title4,"", "Date title");
     opts.add("-pdf", &opts.pdfOutFile, QString(""),
              "Name of pdf output file");
+    opts.add("-trk", &opts.trkOutFile, QString(""),
+             "Produce *.trk with variables from DP_Products");
     opts.parse(argc,argv, QString("snapq"), &ok);
 
     if ( !ok ) {
@@ -79,9 +84,21 @@ int main(int argc, char *argv[])
         QStandardItemModel* monteInputsModel = 0;
         Runs* runs = 0;
 
+        bool isTrk = false;
+        if ( !opts.trkOutFile.isEmpty() ) {
+            isTrk = true;
+        }
+
         bool isPdf = false;
         if ( !opts.pdfOutFile.isEmpty() ) {
             isPdf = true;
+        }
+
+        if ( isPdf && isTrk ) {
+            fprintf(stderr,
+                    "snap [error] : you may not use the -pdf and -trk "
+                    "options together.");
+            exit(-1);
         }
 
         QStringList dps;
@@ -102,6 +119,14 @@ int main(int argc, char *argv[])
             exit(-1);
         }
 
+        // If outputting to trk, you must have a DP file and RUN dir
+        if ( isTrk && (dps.size() == 0 || runDirs.size() == 0) ) {
+            fprintf(stderr,
+                    "snap [error] : when using the -trk option you must "
+                    "specify a DP product file and RUN directory\n");
+            exit(-1);
+        }
+
         bool isMonte = false;
         if ( runDirs.size() == 1 ) {
             QFileInfo fileInfo(runDirs.at(0));
@@ -109,7 +134,6 @@ int main(int argc, char *argv[])
                 isMonte = true;
             }
         }
-
 
         if ( isMonte ) {
             Monte* monte = new Monte(runDirs.at(0),opts.beginRun,opts.endRun);
@@ -140,6 +164,18 @@ int main(int argc, char *argv[])
                              monteModel, varsModel, monteInputsModel);
             w.show();
             w.savePdf(opts.pdfOutFile);
+        } else if ( isTrk ) {
+
+            QStringList params = DPProduct::paramList(dps);
+
+            if ( monteModel->rowCount() == 1 ) {
+                writeTrk(opts.trkOutFile, params, monteModel);
+            } else {
+                fprintf(stderr, "snap [error]: Only one RUN allowed with "
+                                 "the -trk option.\n");
+                exit(-1);
+            }
+
         } else {
             if ( dps.size() > 0 ) {
                 PlotMainWindow w(opts.presentation, ".", dps, titles,
@@ -268,4 +304,97 @@ void presetPresentation(QString* presVar, const QString& pres, bool* ok)
                 pres.toAscii().constData());
         *ok = false;
     }
+}
+
+bool writeTrk(const QString& ftrk,
+              QStringList& paramList, MonteModel* monteModel)
+{
+    QFileInfo ftrki(ftrk);
+    if ( ftrki.exists() ) {
+        fprintf(stderr, "snapq [error]: Will not overwrite %s\n",
+                ftrk.toAscii().constData());
+        return false;
+    }
+
+    fprintf(stdout, "\nsnap [info]: extracting the following params "
+                    "into %s:\n\n",
+                    ftrk.toAscii().constData());
+    foreach ( QString param, paramList ) {
+        fprintf(stdout, "    %s\n", param.toAscii().constData());
+    }
+    fprintf(stdout, "\n");
+
+    //
+    // Make param list
+    //
+    QString timeParam = paramList.first();
+    QList<Param> params;
+    foreach ( QString yParam, paramList ) {
+        Param p;
+        p.name = yParam;
+        TrickCurveModel* c = monteModel->curve(0,timeParam,yParam);
+        if ( !c) {
+            fprintf(stderr, "snap [error]: could not find param \"%s\"\n",
+                    yParam.toAscii().constData());
+            exit(-1);
+        }
+        QString unit = c->headerData(2,Qt::Horizontal,Param::Unit).toString();
+        p.unit = unit;
+        p.type = TRICK_07_DOUBLE;
+        p.size = sizeof(double);
+        params.append(p);
+    }
+
+    // Open trk file for writing
+    QFile trk(ftrk);
+    if (!trk.open(QIODevice::WriteOnly)) {
+        fprintf(stderr,"snap: [error] could not open %s\n",
+                ftrk.toAscii().constData());
+        return false;
+    }
+    QDataStream out(&trk);
+
+    // Write Trk Header
+    TrickModel::writeTrkHeader(out,params);
+
+    //
+    // Write param values
+    //
+    TrickCurveModel* tCurve = monteModel->curve(0,timeParam,timeParam);
+    int rc = tCurve->rowCount();
+    for ( int i = 0; i < rc; ++i ) {
+        int j = 0;
+        double timeStamp = 0.0;
+        foreach ( QString yParam, paramList ) {
+            TrickCurveModel* c = monteModel->curve(0,timeParam,yParam);
+            c->map();
+            TrickModelIterator it = c->begin();
+            // Ensure timestamps the same
+            // If a RUN has multiple trks with diff freq yield error
+            if ( j == 0 ) {
+                timeStamp = it[i].t();
+            } else {
+                double t = it[i].t();
+                if ( qAbs(timeStamp-t) > 1.0e-9 ) {
+                    fprintf(stderr,"snap: [error] Params are logged with "
+                                   "different frequencies, cannot create "
+                                   "trk file.  Aborting.\n\n");
+                    trk.close();
+                    trk.remove();
+                    return false;
+                }
+            }
+            double val = it[i].y();
+            out << val;
+            c->unmap();
+            ++j;
+        }
+    }
+
+    //
+    // Clean up
+    //
+    trk.close();
+
+    return true;
 }

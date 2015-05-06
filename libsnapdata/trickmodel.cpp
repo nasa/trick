@@ -236,6 +236,50 @@ int TrickModel::indexAtTime(double time)
     return _idxAtTimeBinarySearch(*_iteratorTimeIndex,0,rowCount()-1,time);
 }
 
+void TrickModel::writeTrkHeader(QDataStream &out, const QList<Param>& params)
+{
+    // Make it little endian
+    out.setByteOrder(QDataStream::LittleEndian);
+
+    //
+    // Trick-version-endian (10 bytes)
+    //
+    out.writeRawData("Trick-",6) ;
+    out.writeRawData("07",2) ;
+    out.writeRawData("-",1) ;
+    out.writeRawData("L",1) ; // little endian
+
+    //
+    // Num params recorded (4 bytes - int)
+    //
+    qint32 nparams = (qint32)(params.size());
+    out << nparams;
+
+    //
+    // Write trick header param info
+    //
+    foreach ( Param p, params ) {
+        TrickModel::_write_binary_param(out,p);
+    }
+}
+
+void TrickModel::_write_binary_param(QDataStream& out, const Param& p)
+{
+    // Write name, unit and type info
+    TrickModel::_write_binary_qstring(out, p.name);
+    TrickModel::_write_binary_qstring(out, p.unit);
+    qint32 t = (qint32)p.type; out << t;
+    qint32 s = (qint32)p.size; out << s;
+}
+
+
+void TrickModel::_write_binary_qstring(QDataStream& out, const QString &str)
+{
+    qint32 size_str = (qint32) str.size();
+    out << size_str;
+    out.writeRawData(str.toAscii().constData(),str.size());
+}
+
 int TrickModel::_idxAtTimeBinarySearch (TrickModelIterator& it,
                                        int low, int high, double time)
 {

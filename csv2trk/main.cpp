@@ -20,9 +20,6 @@ using namespace std;
 #include "libsnapdata/trick_types.h"
 
 bool convert2trk(const QString& f);
-void write_binary_param(QDataStream& out, const Param& p);
-void write_binary_qstring(const QString &str, QDataStream& out);
-
 
 class SnapOptions : public Options
 {
@@ -151,29 +148,8 @@ bool convert2trk(const QString& f)
     }
     QDataStream out(&trk);
 
-    // Make it little endian
-    out.setByteOrder(QDataStream::LittleEndian);
-
-    //
-    // Trick-version-endian (10 bytes)
-    //
-    out.writeRawData("Trick-",6) ;
-    out.writeRawData("07",2) ;
-    out.writeRawData("-",1) ;
-    out.writeRawData("L",1) ; // little endian
-
-    //
-    // Num params recorded (4 bytes - int)
-    //
-    qint32 nparams = (qint32)(params.size());
-    out << nparams;
-
-    //
-    // Write trick header param info
-    //
-    foreach ( Param p, params ) {
-        write_binary_param(out,p);
-    }
+    // Write trk header
+    TrickModel::writeTrkHeader(out,params);
 
     //
     // Write param values
@@ -204,21 +180,4 @@ bool convert2trk(const QString& f)
     file.close();
 
     return true;
-}
-
-void write_binary_param(QDataStream& out, const Param& p)
-{
-    // Write name, unit and type info
-    write_binary_qstring(p.name,out);
-    write_binary_qstring(p.unit,out);
-    qint32 t = (qint32)p.type; out << t;
-    qint32 s = (qint32)p.size; out << s;
-}
-
-
-void write_binary_qstring(const QString &str, QDataStream& out)
-{
-    qint32 size_str = (qint32) str.size();
-    out << size_str;
-    out.writeRawData(str.toAscii().constData(),str.size());
 }

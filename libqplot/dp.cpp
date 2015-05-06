@@ -112,7 +112,7 @@ QStringList DPProduct::paramList(const QString &fileName)
     } else if ( finfo.isFile() && finfo.suffix().isEmpty() &&
                 finfo.fileName().startsWith("DP_") ) {
 
-        // Trick 05 DP_Product files
+        // Trick 05/07 DP_Product files
 
         QFile file(fileName);
 
@@ -126,7 +126,7 @@ QStringList DPProduct::paramList(const QString &fileName)
         QString inString = in.readAll();
 
         int idx = 0;
-        QRegExp rx("[XY]_Variable",Qt::CaseInsensitive);
+        QRegExp rx("([XY]_Variable)|(Variable)\\s*:",Qt::CaseInsensitive);
         while ( 1 ) {
             idx = inString.indexOf(rx,idx);
             if ( idx < 0 ) break;
@@ -138,6 +138,43 @@ QStringList DPProduct::paramList(const QString &fileName)
         }
 
         file.close();
+    }
+
+    return params;
+}
+
+QStringList DPProduct::paramList(const QStringList &dpFileNames)
+{
+    QStringList params;
+
+    QHash<QString,int> paramHash;
+    foreach ( QString dpFileName, dpFileNames ) {
+        foreach ( QString param, DPProduct::paramList(dpFileName) ) {
+            paramHash.insert(param,0);
+        }
+    }
+
+    params = paramHash.keys();
+    params.sort();
+
+    int timeIdx = params.indexOf("sys.exec.out.time");
+    if ( timeIdx > 0 ) {
+        params.move(timeIdx,0);
+    } else {
+        timeIdx = params.indexOf("time");
+        if ( timeIdx > 0 ) {
+            params.move(timeIdx,0);
+        } else {
+            QRegExp rx("*time$") ;
+            rx.setCaseSensitivity(Qt::CaseInsensitive);
+            timeIdx = params.indexOf(rx);
+            if ( timeIdx > 0 ) {
+                params.move(timeIdx,0);
+            } else {
+                // Last resort, add sys.exec.out.time
+                params.insert(0,"sys.exec.out.time");
+            }
+        }
     }
 
     return params;

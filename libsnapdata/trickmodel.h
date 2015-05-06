@@ -62,6 +62,8 @@ class TrickModel : public SnapTable
     TrickModelIterator end(int tcol, int xcol, int ycol) const;
     int indexAtTime(double time);
 
+    static void writeTrkHeader(QDataStream &out, const QList<Param>& params);
+
     virtual int rowCount(const QModelIndex & pidx = QModelIndex() ) const;
     virtual int columnCount(const QModelIndex & pidx = QModelIndex() ) const;
     virtual QVariant data (const QModelIndex & index,
@@ -119,6 +121,9 @@ class TrickModel : public SnapTable
     qint32 _load_binary_param(QDataStream& in, int col);
     int _idxAtTimeBinarySearch (TrickModelIterator& it,
                                int low, int high, double time);
+
+    static void _write_binary_param(QDataStream& out, const Param& p);
+    static void _write_binary_qstring(QDataStream& out, const QString& str);
 
   private:
 
