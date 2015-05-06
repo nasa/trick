@@ -344,6 +344,11 @@ bool writeTrk(const QString& ftrk,
         p.size = sizeof(double);
         params.append(p);
     }
+    if ( params.size() < 2 ) {
+        fprintf(stderr,"snap: [error] Could not find any params in RUN that "
+                       "are in DP files\n\n");
+        return false;
+    }
 
     // Open trk file for writing
     QFile trk(ftrk);
@@ -360,13 +365,20 @@ bool writeTrk(const QString& ftrk,
     //
     // Write param values
     //
-    TrickCurveModel* tCurve = monteModel->curve(0,timeParam,timeParam);
+    QString yParam0 = paramList.at(1);
+    TrickCurveModel* tCurve = monteModel->curve(0,timeParam,yParam0);
     int rc = tCurve->rowCount();
     for ( int i = 0; i < rc; ++i ) {
         int j = 0;
         double timeStamp = 0.0;
         foreach ( QString yParam, paramList ) {
-            TrickCurveModel* c = monteModel->curve(0,timeParam,yParam);
+            TrickCurveModel* c = 0;
+            if ( j == 0 ) {
+                // Timestamp is in first curve
+                c = monteModel->curve(0,timeParam,yParam0);
+            } else {
+                c = monteModel->curve(0,timeParam,yParam);
+            }
             c->map();
             TrickModelIterator it = c->begin();
             // Ensure timestamps the same
@@ -384,7 +396,12 @@ bool writeTrk(const QString& ftrk,
                     return false;
                 }
             }
-            double val = it[i].y();
+            double val = 0.0;
+            if ( j == 0 ) {
+                val = timeStamp;
+            } else {
+                val = it[i].y();
+            }
             out << val;
             c->unmap();
             ++j;
