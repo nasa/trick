@@ -702,6 +702,8 @@ void PlotBookView::selectRun(int runId)
 {
     if ( !model() || !selectionModel() ) return ;
     if ( model()->rowCount() <= 0 ) return;
+    if (_plotModel->pageIdxs().empty()) return;
+
     QModelIndex page0Idx = _plotModel->pageIdxs().at(0);
     if ( model()->rowCount(page0Idx) <= 0 ) return ;
 
