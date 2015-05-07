@@ -19,27 +19,31 @@ using namespace std;
 #include "libsnapdata/csv.h"
 #include "libsnapdata/trick_types.h"
 
-bool convert2trk(const QString& f);
+bool convert2trk(const QString& csvFileName, const QString &trkFileName);
 
 class SnapOptions : public Options
 {
   public:
-    QStringList csvFiles;
+    QString csvFile;
+    QString trkOutFile;
 };
 
 SnapOptions opts;
 
-Option::FPresetQStringList presetCsvFiles;
-Option::FPostsetQStringList postsetCsvFiles;
+Option::FPresetQString presetCsvFile;
+Option::FPostsetQString postsetCsvFile;
+Option::FPresetQString presetTrkOutputFile;
 
 int main(int argc, char *argv[])
 {
     bool ok;
     int ret = -1;
 
-    opts.add("<csv file list>:+", &opts.csvFiles, QStringList(),
-             "List of csv files",
-             presetCsvFiles, postsetCsvFiles);
+    opts.add("<csv file>", &opts.csvFile, QString(""),
+             "csv file to convert to a trk",
+             presetCsvFile, postsetCsvFile);
+    opts.add("-trk", &opts.trkOutFile, QString(""),
+             "Name of trk outputfile");
     opts.parse(argc,argv, QString("csv2trk"), &ok);
 
     if ( !ok ) {
@@ -50,12 +54,14 @@ int main(int argc, char *argv[])
     try {
 
         QApplication a(argc, argv);
-        foreach ( QString f, opts.csvFiles ) {
-            bool ret = convert2trk(f);
-            if ( !ret )  {
-                fprintf(stderr, "csv2trk [error]: Aborting!\n");
-                exit(-1);
-            }
+        if ( opts.trkOutFile.isEmpty() ) {
+            QFileInfo fi(opts.csvFile);
+            opts.trkOutFile = QString("%1.trk").arg(fi.baseName());
+        }
+        bool ret = convert2trk(opts.csvFile, opts.trkOutFile);
+        if ( !ret )  {
+            fprintf(stderr, "csv2trk [error]: Aborting!\n");
+            exit(-1);
         }
 
     } catch (std::exception &e) {
@@ -67,35 +73,33 @@ int main(int argc, char *argv[])
     return ret;
 }
 
-void presetCsvFiles(QStringList* ignoreMe, const QStringList& csvs,bool* ok)
+void presetCsvFile(QString* ignoreMe, const QString& csv,bool* ok)
 {
     Q_UNUSED(ignoreMe);
 
-    foreach ( QString f, csvs ) {
-        QFileInfo fi(f);
-        if ( !fi.exists() ) {
-            fprintf(stderr,
-                    "csv2trk [error] : Couldn't find file/directory: \"%s\".\n",
-                    f.toAscii().constData());
-            *ok = false;
-            return;
-        }
+    QFileInfo fi(csv);
+    if ( !fi.exists() ) {
+        fprintf(stderr,
+                "csv2trk [error] : Couldn't find file/directory: \"%s\".\n",
+                csv.toAscii().constData());
+        *ok = false;
+        return;
     }
 }
 
 // Placeholder
-void postsetCsvFiles (QStringList* csvs, bool* ok)
+void postsetCsvFile(QString* csvs, bool* ok)
 {
     Q_UNUSED(csvs);
     Q_UNUSED(ok);
 }
 
-bool convert2trk(const QString& f)
+bool convert2trk(const QString& csvFileName, const QString& trkFileName)
 {
-    QFile file(f);
+    QFile file(csvFileName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
         fprintf(stderr, "csv2trk [error]: Cannot read file %s!",
-                f.toAscii().constData());
+                csvFileName.toAscii().constData());
     }
     CSV csv(&file);
 
@@ -104,7 +108,7 @@ bool convert2trk(const QString& f)
     QStringList list = csv.parseLine() ;
     if ( list.size() == 1 && list.at(0).isEmpty() ) {
         fprintf(stderr, "csv2trk [error]: Empty csv file \"%s\"",
-                f.toAscii().constData());
+                csvFileName.toAscii().constData());
         return false;
     }
     foreach ( QString s, list ) {
@@ -129,21 +133,18 @@ bool convert2trk(const QString& f)
         params.append(p);
     }
 
-    QFileInfo fi(f);
-    QString ftrk = QString("%1.trk").arg(fi.baseName());
-    QFileInfo ftrki(ftrk);
+    QFileInfo ftrki(trkFileName);
     if ( ftrki.exists() ) {
         fprintf(stderr, "csv2trk [error]: Will not overwrite %s\n",
-                ftrk.toAscii().constData());
+                trkFileName.toAscii().constData());
         return false;
     }
-    // TODO: make sure we don't overwrite an existing *.trk
 
-    QFile trk(ftrk);
+    QFile trk(trkFileName);
 
     if (!trk.open(QIODevice::WriteOnly)) {
         fprintf(stderr,"Snap: [error] could not open %s\n",
-                ftrk.toAscii().constData());
+                trkFileName.toAscii().constData());
         return false;
     }
     QDataStream out(&trk);
@@ -163,7 +164,7 @@ bool convert2trk(const QString& f)
             bool ok;
             double val = s.toDouble(&ok);
             if ( !ok ) {
-                QFileInfo fi(f);
+                QFileInfo fi(csvFileName);
                 fprintf(stderr,
                  "csv2trk [error]: Bad value \"%s\" on line %d in file %s\n",
                         s.toAscii().constData(),
@@ -180,4 +181,17 @@ bool convert2trk(const QString& f)
     file.close();
 
     return true;
+}
+
+void presetTrkOutputFile(QString* v, const QString& ftrk, bool* ok)
+{
+    Q_UNUSED(v);
+
+    QFileInfo ftrki(ftrk);
+    if ( ftrki.exists() ) {
+        fprintf(stderr, "snapq [error]: %s exists, will not overwrite\n",
+                ftrk.toAscii().constData());
+        *ok = false;
+    }
+    *ok = true;
 }
