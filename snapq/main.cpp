@@ -1,6 +1,8 @@
 #include <QApplication>
 #include <QObject>
 #include <QSet>
+#include <QHash>
+#include <QString>
 
 #include <string>
 using namespace std;
@@ -362,43 +364,102 @@ bool writeTrk(const QString& ftrk,
     // Write Trk Header
     TrickModel::writeTrkHeader(out,params);
 
-    //
-    // Write param values
-    //
+    // Make list of curves and create hash of next times
     QString yParam0 = paramList.at(1);
-    TrickCurveModel* tCurve = monteModel->curve(0,timeParam,yParam0);
-    int rc = tCurve->rowCount();
-    for ( int i = 0; i < rc; ++i ) {
-        int j = 0;
-        double timeStamp = 0.0;
-        foreach ( QString yParam, paramList ) {
-            TrickCurveModel* c = 0;
-            if ( j == 0 ) {
-                // Timestamp is in first curve
-                c = monteModel->curve(0,timeParam,yParam0);
-            } else {
-                c = monteModel->curve(0,timeParam,yParam);
-            }
+    QList<TrickCurveModel*> curves;
+    QHash<TrickCurveModel*,int> curve2idx;
+    QHash<TrickCurveModel*,int> curve2rc;
+    int j = 0;
+    foreach ( QString yParam, paramList ) {
+        TrickCurveModel* c = 0;
+        if ( j == 0 ) {
+            // Timestamp is in first curve
+            c = monteModel->curve(0,timeParam,yParam0);
+        } else {
+            c = monteModel->curve(0,timeParam,yParam);
+        }
+        curves.append(c);
+        curve2idx.insert(c,0);
+        int rc = c->rowCount();
+        if ( rc == 0 ) {
+            // No data
+            fprintf(stderr, "snap [error]: no data found in %s\n",
+                    c->tableName().toAscii().constData());
+            return false;
+        }
+        curve2rc.insert(c,c->rowCount());
+        ++j;
+    }
+
+    //
+    // Write out time=0 values
+    //
+    j = 0;
+    foreach ( TrickCurveModel* c, curves ) {
+        c->map();
+        TrickModelIterator it = c->begin();
+        int i = curve2idx.value(c);
+        double val = 0.0;
+        if ( j == 0 ) {
+            val = it[i].t();
+        } else {
+            val = it[i].y();
+        }
+        out << val;
+        c->unmap();
+        ++j;
+    }
+
+    while ( 1 ) {
+
+        //
+        // Calc next time
+        //
+        bool isFinished = true;
+        double nextTime = 1.0e20;
+        foreach ( TrickCurveModel* c, curves ) {
             c->map();
             TrickModelIterator it = c->begin();
-            // Ensure timestamps the same
-            // If a RUN has multiple trks with diff freq yield error
-            if ( j == 0 ) {
-                timeStamp = it[i].t();
+            int i = curve2idx.value(c);
+            double t;
+            if ( i+1 < curve2rc.value(c) ) {
+                t = it[i+1].t();
+                isFinished = false;
             } else {
-                double t = it[i].t();
-                if ( qAbs(timeStamp-t) > 1.0e-9 ) {
-                    fprintf(stderr,"snap: [error] Params are logged with "
-                                   "different frequencies, cannot create "
-                                   "trk file.  Aborting.\n\n");
-                    trk.close();
-                    trk.remove();
-                    return false;
+                t = 1.0e30;
+            }
+            if ( t < nextTime ) {
+                nextTime = t;
+            }
+            c->unmap();
+        }
+        if ( isFinished ) {
+            break;
+        }
+
+        // Increment curve idx if curve's next time matches nextTime
+        foreach ( TrickCurveModel* c, curves ) {
+            c->map();
+            int i = curve2idx.value(c);
+            TrickModelIterator it = c->begin();
+            if ( i+1 < curve2rc.value(c) ) {
+                double t = it[i+1].t();
+                if ( qAbs(nextTime-t) < 1.0e-9 ) {
+                    curve2idx[c] = i+1;
                 }
             }
+            c->unmap();
+        }
+
+        // Write the values
+        int j = 0;
+        foreach ( TrickCurveModel* c, curves ) {
+            c->map();
+            TrickModelIterator it = c->begin();
+            int i = curve2idx.value(c);
             double val = 0.0;
             if ( j == 0 ) {
-                val = timeStamp;
+                val = nextTime;
             } else {
                 val = it[i].y();
             }
