@@ -43,7 +43,8 @@ int main(int argc, char *argv[])
              "csv file to convert to a trk",
              presetCsvFile, postsetCsvFile);
     opts.add("-trk", &opts.trkOutFile, QString(""),
-             "Name of trk outputfile");
+             "Name of trk outputfile",
+             presetTrkOutputFile);
     opts.parse(argc,argv, QString("csv2trk"), &ok);
 
     if ( !ok ) {
@@ -187,11 +188,11 @@ void presetTrkOutputFile(QString* v, const QString& ftrk, bool* ok)
 {
     Q_UNUSED(v);
 
+    *ok = true;
     QFileInfo ftrki(ftrk);
     if ( ftrki.exists() ) {
         fprintf(stderr, "snapq [error]: %s exists, will not overwrite\n",
                 ftrk.toAscii().constData());
         *ok = false;
     }
-    *ok = true;
 }

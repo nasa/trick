@@ -21,26 +21,31 @@ using namespace std;
 //#include "libsnapdata/csv.h"
 //#include "libsnapdata/trick_types.h"
 
-bool convert2csv(const QString& f);
+bool convert2csv(const QString& ftrk, const QString &fcsv);
 
 class SnapOptions : public Options
 {
   public:
-    QStringList trkFiles;
+    QString trkFile;
+    QString csvOutFile;
 };
 
 SnapOptions opts;
 
-Option::FPresetQStringList presetTrkFiles;
-Option::FPostsetQStringList postsetTrkFiles;
+Option::FPresetQString presetTrkFile;
+Option::FPostsetQString postsetTrkFile;
+Option::FPresetQString presetCsvFile;
 
 int main(int argc, char *argv[])
 {
     bool ok;
 
-    opts.add("<trk file list>:+", &opts.trkFiles, QStringList(),
-             "List of trk files",
-             presetTrkFiles, postsetTrkFiles);
+    opts.add("<trk file>", &opts.trkFile, QString(),
+             "Trk file to convert to csv",
+             presetTrkFile, postsetTrkFile);
+    opts.add("-csv", &opts.csvOutFile, QString(),
+             "Name of csv outputfile",
+             presetCsvFile);
     opts.parse(argc,argv, QString("trk2csv"), &ok);
 
     if ( !ok ) {
@@ -51,12 +56,14 @@ int main(int argc, char *argv[])
     try {
 
         QApplication a(argc, argv);
-        foreach ( QString f, opts.trkFiles ) {
-            bool ret = convert2csv(f);
-            if ( !ret )  {
-                fprintf(stderr, "trk2csv [error]: Aborting!\n");
-                exit(-1);
-            }
+        if ( opts.csvOutFile.isEmpty() ) {
+            QFileInfo fi(opts.trkFile);
+            opts.csvOutFile = QString("%1.csv").arg(fi.baseName());
+        }
+        bool ret = convert2csv(opts.trkFile, opts.csvOutFile);
+        if ( !ret )  {
+            fprintf(stderr, "trk2csv [error]: Aborting!\n");
+            exit(-1);
         }
 
     } catch (std::exception &e) {
@@ -68,36 +75,45 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-void presetTrkFiles(QStringList* ignoreMe, const QStringList& trks,bool* ok)
+void presetTrkFile(QString* ignoreMe, const QString& trk, bool* ok)
 {
     Q_UNUSED(ignoreMe);
 
-    foreach ( QString f, trks ) {
-        QFileInfo fi(f);
-        if ( !fi.exists() ) {
-            fprintf(stderr,
-                    "trk2csv [error] : Couldn't find file: \"%s\".\n",
-                    f.toAscii().constData());
-            *ok = false;
-            return;
-        }
+    QFileInfo fi(trk);
+    if ( !fi.exists() ) {
+        fprintf(stderr,
+                "trk2csv [error] : Couldn't find file: \"%s\".\n",
+                trk.toAscii().constData());
+        *ok = false;
+        return;
     }
 }
 
 // Placeholder
-void postsetTrkFiles (QStringList* trks, bool* ok)
+void postsetTrkFile (QString* trk, bool* ok)
 {
-    Q_UNUSED(trks);
+    Q_UNUSED(trk);
     Q_UNUSED(ok);
 }
 
-bool convert2csv(const QString& f)
+void presetCsvFile(QString* v, const QString& fcsv, bool* ok)
 {
-    TrickModel m(f);
 
-    // Make csv file name based on trk file name
-    QFileInfo fi(f);
-    QString fcsv = QString("%1.csv").arg(fi.baseName());
+    Q_UNUSED(v);
+
+    *ok = true;
+    QFileInfo fcsvi(fcsv);
+    if ( fcsvi.exists() ) {
+        fprintf(stderr, "snapq [error]: %s exists, will not overwrite\n",
+                fcsv.toAscii().constData());
+        *ok = false;
+    }
+}
+
+bool convert2csv(const QString& ftrk, const QString& fcsv)
+{
+    TrickModel m(ftrk);
+
     QFileInfo fcsvi(fcsv);
     if ( fcsvi.exists() ) {
         fprintf(stderr, "trk2csv [error]: Will not overwrite %s\n",
