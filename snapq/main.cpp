@@ -379,7 +379,7 @@ bool writeTrk(const QString& ftrk,
             c = monteModel->curve(0,timeParam,yParam);
         }
         curves.append(c);
-        curve2idx.insert(c,0);
+        curve2idx.insert(c,-1);
         int rc = c->rowCount();
         if ( rc == 0 ) {
             // No data
@@ -388,25 +388,6 @@ bool writeTrk(const QString& ftrk,
             return false;
         }
         curve2rc.insert(c,c->rowCount());
-        ++j;
-    }
-
-    //
-    // Write out time=0 values
-    //
-    j = 0;
-    foreach ( TrickCurveModel* c, curves ) {
-        c->map();
-        TrickModelIterator it = c->begin();
-        int i = curve2idx.value(c);
-        double val = 0.0;
-        if ( j == 0 ) {
-            val = it[i].t();
-        } else {
-            val = it[i].y();
-        }
-        out << val;
-        c->unmap();
         ++j;
     }
 
@@ -457,6 +438,10 @@ bool writeTrk(const QString& ftrk,
             c->map();
             TrickModelIterator it = c->begin();
             int i = curve2idx.value(c);
+            if ( i < 0 ) {
+                // This is for the case when curves begin at different times
+                i = 0;
+            }
             double val = 0.0;
             if ( j == 0 ) {
                 val = nextTime;
