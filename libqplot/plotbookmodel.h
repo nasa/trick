@@ -17,6 +17,39 @@ public:
     QModelIndex sessionStartIdx() const ;
     QModelIndex sessionStopIdx() const ;
 
+    enum IdxEnum
+    {
+        Invalid,
+        Page,
+            SessionStartTime,
+            SessionStopTime,
+            PageTitle,
+            PageStartTime,
+            PageStopTime,
+                Plot,
+                    PlotXAxisLabel,
+                    PlotYAxisLabel,
+                    Curves,
+                        Curve,
+                            CurveTime,
+                            CurveX,
+                            CurveY,
+                            CurveTimeUnit,
+                            CurveXUnit,
+                            CurveYUnit,
+                            CurveRun,
+                            CurveLineColor,
+                    PlotTitle,
+                    PlotXMin,
+                    PlotXMax,
+                    PlotYMin,
+                    PlotYMax,
+                    PlotStartTime,
+                    PlotStopTime
+    };
+
+    IdxEnum indexEnum(const QModelIndex& idx);
+
 signals:
     
 public slots:

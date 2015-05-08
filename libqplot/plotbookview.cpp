@@ -383,6 +383,7 @@ bool PlotBookView::_savePdfPixmapped(const QString &fileName)
     return true;
 }
 
+
 void PlotBookView::_layoutPdfPlots(const QVector<Plot*>& plots)
 {
         // Plotbookview's page is a Qt QGrid of QCustomplot Widgets.
@@ -643,48 +644,32 @@ void PlotBookView::dataChanged(const QModelIndex &topLeft,
 
     if ( !topLeft.isValid() ) return;
 
-    // See if session start time changed
-    QModelIndex startIdx = _plotModel->sessionStartIdx();
-    if ( topLeft == bottomRight && topLeft == startIdx ) {
-        foreach ( QModelIndex pageIdx, _plotModel->pageIdxs() ) {
-            QWidget* page = _idx2Page(pageIdx);
-            foreach ( Plot* plot, _page2Plots.value(page) ) {
-                plot->setStartTime(model()->data(topLeft).toDouble());
-                plot->axisRect()->zoomToFit();
-                plot->replot();
-            }
-        }
-    }
+    if ( topLeft == bottomRight ) {
 
-    // See if session stop time changed
-    QModelIndex stopIdx  = _plotModel->sessionStopIdx();
-    if ( topLeft == bottomRight && topLeft == stopIdx ) {
-        foreach ( QModelIndex pageIdx, _plotModel->pageIdxs() ) {
-            QWidget* page = _idx2Page(pageIdx);
-            foreach ( Plot* plot, _page2Plots.value(page) ) {
-                plot->setStopTime(model()->data(topLeft).toDouble());
-                plot->axisRect()->zoomToFit();
-                plot->replot();
-            }
-        }
-    }
+        QModelIndex idx = topLeft;
+        PlotBookModel::IdxEnum e = _plotModel->indexEnum(idx);
 
-    // See if page start/stop time changed
-    if ( topLeft == bottomRight && !topLeft.parent().parent().isValid() ) {
-        int row = topLeft.row();
-        if ( row == 1 || row == 2 ) {
-            QWidget* page = _idx2Page(topLeft);
-            foreach ( Plot* plot, _page2Plots.value(page) ) {
-                if ( row == 1 ) {
-                    plot->setStartTime(model()->data(topLeft).toDouble());
-                } else if ( row == 2 ) {
-                    plot->setStopTime(model()->data(topLeft).toDouble());
+        if ( e == PlotBookModel::SessionStartTime ||
+             e == PlotBookModel::SessionStopTime ||
+             e == PlotBookModel::PageStartTime ||
+             e == PlotBookModel::PageStopTime ) {
+
+            foreach ( QModelIndex pageIdx, _plotModel->pageIdxs() ) {
+                QWidget* page = _idx2Page(pageIdx);
+                foreach ( Plot* plot, _page2Plots.value(page) ) {
+                    if ( e == PlotBookModel::SessionStartTime ||
+                         e == PlotBookModel::PageStartTime ) {
+                        plot->setStartTime(model()->data(idx).toDouble());
+                    } else {
+                        plot->setStopTime(model()->data(idx).toDouble());
+                    }
+                    plot->axisRect()->zoomToFit();
+                    plot->replot();
                 }
-                plot->axisRect()->zoomToFit();
-                plot->replot();
             }
         }
     }
+
     QAbstractItemView::dataChanged(topLeft, bottomRight);
     viewport()->update();
 }
@@ -916,308 +901,245 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
 {
     QModelIndex gpidx = model()->parent(pidx);
     QModelIndex g2pidx = model()->parent(gpidx);
-    QModelIndex g3pidx = model()->parent(g2pidx);
-    QModelIndex g4pidx = model()->parent(g3pidx);
 
     for ( int row = start; row < end+1; ++row) {
 
         QModelIndex idx = model()->index(row,0,pidx);
 
-        if ( _isPageIdx(idx) ) {
-            // Page (below root idx)
-            QString dpfile = model()->data(idx).toString();
-            QFrame* page = new QFrame;
-            QPalette pal(palette());
-            pal.setColor(QPalette::Background, Qt::white);
-            page->setAutoFillBackground(true);
-            page->setPalette(pal);
-            _pages.append(page);
-            QGridLayout* grid = new QGridLayout(page);
-            grid->setContentsMargins(0, 0, 0, 0);
-            grid->setSpacing(0);
+        PlotBookModel::IdxEnum e = _plotModel->indexEnum(idx);
 
-            PageTitleWidget* pw = new PageTitleWidget(page);
-            _page2pagewidget.insert(page,pw);
-            grid->addWidget(pw,0,0,1,100);
+        switch (e) {
 
-            _page2grid.insert(page,grid);
-            _nb->addTab(page,QFileInfo(dpfile).baseName());
-            int nbIdx = _nb->count()-1;
-            _nb->setCurrentIndex(nbIdx);
-            _nb->setAttribute(Qt::WA_AlwaysShowToolTips, true);
-        } else if ( !pidx.isValid()  && (row == 0 || row == 1) ) {
-            // session start/stop time
-        } else if ( ! gpidx.isValid() && row == 0 ) {
-            // Page title (row 0)
-            QWidget* page = _idx2Page(pidx);
-            PageTitleWidget* pw = _page2pagewidget.value(page);
+        case PlotBookModel::Page : {
+            QString dpFileName = model()->data(idx).toString();
+            _insertPage(dpFileName);
+            break;
+        }
+
+        case PlotBookModel::SessionStartTime : { break; }
+        case PlotBookModel::SessionStopTime : { break; }
+
+        case PlotBookModel::PageTitle : {
             QString title = model()->data(idx).toString();
-            if ( !_titles.at(0).isEmpty() ) {
-                pw->setTitle1(_titles.at(0));
-            } else if ( !title.startsWith("QP_")  && title != "Page" ) {
-                pw->setTitle1(title);
-            } else {
-                pw->setTitle1("Snap Plot");
-            }
-            if ( !_titles.at(1).isEmpty() ) {
-                    pw->setTitle2(_titles.at(1));
-            }
-            if ( !_titles.at(2).isEmpty() ) {
-                pw->setTitle3(_titles.at(2));
-            }
-            if ( !_titles.at(3).isEmpty() ) {
-                pw->setTitle4(_titles.at(3));
-            }
-        } else if ( ! gpidx.isValid() && row == 1 ) {
-            // Page start time
+            QWidget* page = _idx2Page(pidx);
+            _insertPageTitle(page,title);
+            break;
+        }
+
+        case PlotBookModel::PageStartTime : {
             QWidget* page = _idx2Page(pidx);
             double pageStartTime = model()->data(idx).toDouble();
             _page2startTime.insert(page,pageStartTime);
-        } else if ( ! gpidx.isValid() && row == 2 ) {
-            // Page stop time
+            break;
+        }
+
+        case PlotBookModel::PageStopTime : {
             QWidget* page = _idx2Page(pidx);
             double pageStopTime = model()->data(idx).toDouble();
             _page2stopTime.insert(page,pageStopTime);
-        } else if ( ! gpidx.isValid() && row >= 3 ) {
-            // Plot
+            break;
+        }
+
+        case PlotBookModel::Plot : {
             QWidget* page = _idx2Page(pidx);
-            QGridLayout* grid = _page2grid.value(page);
-            Plot* plot = new Plot(page);
             QModelIndex sIdx = _plotModel->sessionStartIdx();
             double sessionStartTime = _plotModel->data(sIdx).toDouble();
-            plot->setStartTime(sessionStartTime);
             sIdx = _plotModel->sessionStopIdx();
             double sessionStopTime = _plotModel->data(sIdx).toDouble();
-            plot->setStopTime(sessionStopTime);
-            connect(plot,SIGNAL(mouseDoubleClick(QMouseEvent*)),
-                    this,SLOT(doubleClick(QMouseEvent*)));
-            connect(plot, SIGNAL(keyPress(QKeyEvent*)),
-                    this, SLOT(plotKeyPress(QKeyEvent*)));
-            connect(plot, SIGNAL(curveClicked(TrickCurve*)),
-                    this, SLOT(_slotCurveClicked(TrickCurve*)));
-            _page2Plots[page].append(plot);
-            int nPlots = _page2Plots[page].size();
-            switch ( nPlots ) {
-            case 1: {
-                grid->addWidget(plot,1,0);
-                break;
-            }
-            case 2: {
-                grid->addWidget(plot,2,0);
-                break;
-            }
-            case 3: {
-                grid->addWidget(plot,3,0);
-                break;
-            }
-            case 4: {
-                QWidget* w2 = grid->itemAtPosition(2,0)->widget();
-                QWidget* w3 = grid->itemAtPosition(3,0)->widget();
-                grid->removeWidget(w2);
-                grid->removeWidget(w3);
-                grid->addWidget(w2,1,1);
-                grid->addWidget(w3,2,0);
-                grid->addWidget(plot,2,1);
-                break;
-            }
-            case 5: {
-                grid->addWidget(plot,3,0,1,2);
-                break;
-            }
-            case 6: {
-                QWidget* w2 = grid->itemAtPosition(1,1)->widget();
-                QWidget* w3 = grid->itemAtPosition(2,0)->widget();
-                QWidget* w4 = grid->itemAtPosition(2,1)->widget();
-                QWidget* w5 = grid->itemAtPosition(3,0)->widget();
-                grid->removeWidget(w2);
-                grid->removeWidget(w3);
-                grid->removeWidget(w4);
-                grid->removeWidget(w5);
-                grid->addWidget(w2,2,0);
-                grid->addWidget(w3,3,0);
-                grid->addWidget(w4,1,1);
-                grid->addWidget(w5,2,1);
-                grid->addWidget(plot,3,1);
-                break;
-            }
-            case 7: {
-                grid->addWidget(plot,4,0,1,2);
-                break;
-            }
-            default: {
-                qDebug() << "snap limitation: 7 plots max on DP :(";
-                qDebug() << "snap will probably crash now!";
-            }
-            }
+            _insertPlot(page,sessionStartTime,sessionStopTime);
+            break;
+        }
 
-        } else if ( ! g2pidx.isValid() ) {
+        case PlotBookModel::PlotXAxisLabel : {
+            QString xAxisLabel = model()->data(idx).toString();
+            Plot* plot = _idx2Plot(pidx);
+            plot->setXAxisLabel(xAxisLabel);
+            break;
+        }
 
-            if ( idx.row() == 0 ) {
-                // X axis label
-                QString xAxisLabel = model()->data(idx).toString();
-                Plot* plot = _idx2Plot(pidx);
-                plot->setXAxisLabel(xAxisLabel);
-            } else if ( idx.row() == 1 ) {
-                // Y axis label
-                QString yAxisLabel = model()->data(idx).toString();
-                Plot* plot = _idx2Plot(pidx);
-                plot->setYAxisLabel(yAxisLabel);
-            } else if ( idx.row() == 2 ) {
-                //Curves (do nothing)
-            } else if ( idx.row() == 3 ) {
-                // Plot Title
-                QString title = model()->data(idx).toString();
-                Plot* plot = _idx2Plot(pidx);
-                plot->setTitle(title);
-            } else if ( idx.row() == 4 ) {
-                // Plot xMin
-                double xMin = model()->data(idx).toDouble();
-                Plot* plot = _idx2Plot(pidx);
-                plot->setXMinRange(xMin);
-            } else if ( idx.row() == 5 ) {
-                // Plot xMax
-                double xMax = model()->data(idx).toDouble();
-                Plot* plot = _idx2Plot(pidx);
-                plot->setXMaxRange(xMax);
-            } else if ( idx.row() == 6 ) {
-                // Plot yMin
-                double yMin = model()->data(idx).toDouble();
-                Plot* plot = _idx2Plot(pidx);
-                plot->setYMinRange(yMin);
-            } else if ( idx.row() == 7 ) {
-                // Plot yMax
-                double yMax = model()->data(idx).toDouble();
-                Plot* plot = _idx2Plot(pidx);
-                plot->setYMaxRange(yMax);
-            } else if ( idx.row() == 8 ) {
-                // Plot start time
-                QWidget* page = _idx2Page(pidx);
-                Plot* plot = _idx2Plot(pidx);
-                QModelIndex sIdx = _plotModel->sessionStartIdx();
-                double sessionStartTime = _plotModel->data(sIdx).toDouble();
-                double plotStartTime = model()->data(idx).toDouble();
-                double pageStartTime = _page2startTime.value(page);
-                if ( sessionStartTime > -1.0e30 ) {
-                    plot->setStartTime(sessionStartTime);
-                } else if ( plotStartTime > -1.0e30 ) {
-                    plot->setStartTime(plotStartTime);
-                } else if ( pageStartTime > -1.0e30 ) {
-                    plot->setStartTime(pageStartTime);
-                }
-            } else if ( idx.row() == 9 ) {
-                // Plot stop time
-                QWidget* page = _idx2Page(pidx);
-                Plot* plot = _idx2Plot(pidx);
-                QModelIndex sIdx = _plotModel->sessionStopIdx();
-                double sessionStopTime = _plotModel->data(sIdx).toDouble();
-                double plotStopTime = model()->data(idx).toDouble();
-                double pageStopTime = _page2stopTime.value(page);
-                if ( sessionStopTime < 1.0e30 ) {
-                    plot->setStopTime(sessionStopTime);
-                } else if ( plotStopTime < 1.0e30 ) {
-                    plot->setStopTime(plotStopTime);
-                } else if ( pageStopTime < 1.0e30 ) {
-                    plot->setStopTime(pageStopTime);
-                }
-            } else {
-                qDebug() << "snap [bad scoobies]: this should not happen.";
-                qDebug() << "     montewindow.cpp creates a model ";
-                qDebug() << "     in MonteWindow::_createDPPage().";
-                qDebug() << "     which doesn't match this.";
-                qDebug() << "     Sorry if the msg doesn't help!!!";
-                exit(-1);
-            }
-        } else if ( ! g3pidx.isValid() ) {
-            // Curve (do nothing)
-        } else if ( ! g4pidx.isValid() ) {
-            // t,x,y,tunit,xunit,yunit,run,line_color
-            if ( idx.row() == 6 ) {   // 6 is the idx row the run id
+        case PlotBookModel::PlotYAxisLabel : {
+            QString yAxisLabel = model()->data(idx).toString();
+            Plot* plot = _idx2Plot(pidx);
+            plot->setYAxisLabel(yAxisLabel);
+            break;
+        }
 
-                // Run
-                int runID = model()->data(idx).toInt();
-                QModelIndex xidx = model()->index(1,0,pidx);
-                QString xparam = model()->data(xidx).toString();
-                QModelIndex yidx = model()->index(2,0,pidx);
-                QString yparam = model()->data(yidx).toString();
+        case PlotBookModel::Curves : { break; }
+        case PlotBookModel::Curve : { break; }
+        case PlotBookModel::CurveTime : { break; }
+        case PlotBookModel::CurveX : { break; }
+        case PlotBookModel::CurveY : { break; }
+        case PlotBookModel::CurveTimeUnit : { break; }
+        case PlotBookModel::CurveXUnit : { break; }
+        case PlotBookModel::CurveYUnit : { break; }
 
-                TrickCurveModel* curveModel = _monteModel->curve(runID,
-                                                                 xparam,
-                                                                 yparam);
+        case PlotBookModel::CurveRun : {
+            int runID = model()->data(idx).toInt();
+            QModelIndex xidx = model()->index(1,0,pidx);
+            QString xparam = model()->data(xidx).toString();
+            QModelIndex yidx = model()->index(2,0,pidx);
+            QString yparam = model()->data(yidx).toString();
 
-                //
-                // xunit and calc x scale if DP unit not equal to model unit
-                //
-                bool isXScale = false;
-                double xScaleFactor = 1.0;
-                QString xunit = curveModel->headerData
-                                       (1,Qt::Horizontal,Param::Unit).toString();
-                QModelIndex xDPUnitIdx = model()->index(4,0,pidx);
-                QString xDPUnit = model()->data(xDPUnitIdx).toString();
-                if ( !xDPUnit.isEmpty() && xunit != xDPUnit &&
-                     xDPUnit != "--" && xunit != "--" ) {
-                    isXScale = true;
-                    xScaleFactor = Unit::convert(1.0,
+            TrickCurveModel* curveModel = _monteModel->curve(runID,
+                                                             xparam,
+                                                             yparam);
+
+            //
+            // xunit and calc x scale if DP unit not equal to model unit
+            //
+            bool isXScale = false;
+            double xScaleFactor = 1.0;
+            QString xunit = curveModel->headerData
+                    (1,Qt::Horizontal,Param::Unit).toString();
+            QModelIndex xDPUnitIdx = model()->index(4,0,pidx);
+            QString xDPUnit = model()->data(xDPUnitIdx).toString();
+            if ( !xDPUnit.isEmpty() && xunit != xDPUnit &&
+                 xDPUnit != "--" && xunit != "--" ) {
+                isXScale = true;
+                xScaleFactor = Unit::convert(1.0,
                                              xunit.toAscii().constData(),
                                              xDPUnit.toAscii().constData());
-                    xunit = xDPUnit;
-                }
+                xunit = xDPUnit;
+            }
 
 
-                //
-                // yunit and calc y scale if DP unit not equal to model unit
-                //
-                bool isYScale = false;
-                double yScaleFactor = 1.0;
-                QString yunit = curveModel->headerData
-                                       (2,Qt::Horizontal,Param::Unit).toString();
-                QModelIndex yDPUnitIdx = model()->index(5,0,pidx);
-                QString yDPUnit = model()->data(yDPUnitIdx).toString();
-                if ( !yDPUnit.isEmpty() &&
-                     yunit != yDPUnit && yDPUnit != "--" && yunit != "--" ) {
-                    isYScale = true;
-                    yScaleFactor = Unit::convert(1.0,
+            //
+            // yunit and calc y scale if DP unit not equal to model unit
+            //
+            bool isYScale = false;
+            double yScaleFactor = 1.0;
+            QString yunit = curveModel->headerData
+                    (2,Qt::Horizontal,Param::Unit).toString();
+            QModelIndex yDPUnitIdx = model()->index(5,0,pidx);
+            QString yDPUnit = model()->data(yDPUnitIdx).toString();
+            if ( !yDPUnit.isEmpty() &&
+                 yunit != yDPUnit && yDPUnit != "--" && yunit != "--" ) {
+                isYScale = true;
+                yScaleFactor = Unit::convert(1.0,
                                              yunit.toAscii().constData(),
                                              yDPUnit.toAscii().constData());
-                    yunit = yDPUnit;
-                }
-
-                // Set scale factor for either x or y units
-                if ( isXScale || isYScale ) {
-                    delete curveModel;
-                    curveModel = _monteModel->curve(runID,
-                                                    xparam, yparam,
-                                                    xScaleFactor, yScaleFactor);
-                }
-
-                Plot* plot = _idx2Plot(gpidx);
-                TrickCurve* curve = plot->axisRect()->addCurve(curveModel);
-                plot->axisRect()->zoomToFit();
-                _plot2Curves[plot].append(curve);
-
-                QModelIndex xAxisLabelIdx = model()->index(0,0,g2pidx);
-                QString xAxisLabel = _appendUnitToAxisLabel(xAxisLabelIdx,xunit);
-                plot->setXAxisLabel(xAxisLabel);
-                model()->setData(xAxisLabelIdx,xAxisLabel);
-
-                QModelIndex yAxisLabelIdx = model()->index(1,0,g2pidx);
-                QString yAxisLabel = _appendUnitToAxisLabel(yAxisLabelIdx,yunit);
-                plot->setYAxisLabel(yAxisLabel);
-                model()->setData(yAxisLabelIdx,yAxisLabel);
-
-                if ( pidx.row() == 1 && _isShowCurveDiff ) {
-                    plot->axisRect()->showCurveDiff();
-                }
-            } else if ( idx.row() == 7 ) {   // 7 is the row for line color
-                TrickCurve* curve =  _idx2Curve(pidx);
-                QString colorStr = model()->data(idx).toString();
-                if ( ! colorStr.isEmpty() ) {
-                    QColor color(colorStr);
-                    QPen pen(color);
-                    // TODO: Need fix for not coloring lines when coplotting
-                    //       So commenting out the following line for now
-                    // curve->setPen(pen);
-                }
+                yunit = yDPUnit;
             }
+
+            // Set scale factor for either x or y units
+            if ( isXScale || isYScale ) {
+                delete curveModel;
+                curveModel = _monteModel->curve(runID,
+                                                xparam, yparam,
+                                                xScaleFactor, yScaleFactor);
+            }
+
+            Plot* plot = _idx2Plot(gpidx);
+            TrickCurve* curve = plot->axisRect()->addCurve(curveModel);
+            plot->axisRect()->zoomToFit();
+            _plot2Curves[plot].append(curve);
+
+            QModelIndex xAxisLabelIdx = model()->index(0,0,g2pidx);
+            QString xAxisLabel = _appendUnitToAxisLabel(xAxisLabelIdx,xunit);
+            plot->setXAxisLabel(xAxisLabel);
+            model()->setData(xAxisLabelIdx,xAxisLabel);
+
+            QModelIndex yAxisLabelIdx = model()->index(1,0,g2pidx);
+            QString yAxisLabel = _appendUnitToAxisLabel(yAxisLabelIdx,yunit);
+            plot->setYAxisLabel(yAxisLabel);
+            model()->setData(yAxisLabelIdx,yAxisLabel);
+
+            if ( pidx.row() == 1 && _isShowCurveDiff ) {
+                plot->axisRect()->showCurveDiff();
+            }
+
+            break;
+        }
+
+        case PlotBookModel::CurveLineColor : {
+            TrickCurve* curve =  _idx2Curve(pidx);
+            QString colorStr = model()->data(idx).toString();
+            if ( ! colorStr.isEmpty() ) {
+                QColor color(colorStr);
+                QPen pen(color);
+                // TODO: Need fix for not coloring lines when coplotting
+                //       So commenting out the following line for now
+                // curve->setPen(pen);
+            }
+            break;
+        }
+
+        case PlotBookModel::PlotTitle : {
+            QString title = model()->data(idx).toString();
+            Plot* plot = _idx2Plot(pidx);
+            plot->setTitle(title);
+            break;
+        }
+
+        case PlotBookModel::PlotXMin : {
+            double xMin = model()->data(idx).toDouble();
+            Plot* plot = _idx2Plot(pidx);
+            plot->setXMinRange(xMin);
+            break;
+        }
+
+        case PlotBookModel::PlotXMax : {
+            double xMax = model()->data(idx).toDouble();
+            Plot* plot = _idx2Plot(pidx);
+            plot->setXMaxRange(xMax);
+            break;
+        }
+
+        case PlotBookModel::PlotYMin : {
+            double yMin = model()->data(idx).toDouble();
+            Plot* plot = _idx2Plot(pidx);
+            plot->setYMinRange(yMin);
+            break;
+        }
+
+        case PlotBookModel::PlotYMax : {
+            double yMax = model()->data(idx).toDouble();
+            Plot* plot = _idx2Plot(pidx);
+            plot->setYMaxRange(yMax);
+            break;
+        }
+
+        case PlotBookModel::PlotStartTime : {
+            QWidget* page = _idx2Page(pidx);
+            Plot* plot = _idx2Plot(pidx);
+            QModelIndex sIdx = _plotModel->sessionStartIdx();
+            double sessionStartTime = _plotModel->data(sIdx).toDouble();
+            double plotStartTime = model()->data(idx).toDouble();
+            double pageStartTime = _page2startTime.value(page);
+            if ( sessionStartTime > -1.0e30 ) {
+                plot->setStartTime(sessionStartTime);
+            } else if ( plotStartTime > -1.0e30 ) {
+                plot->setStartTime(plotStartTime);
+            } else if ( pageStartTime > -1.0e30 ) {
+                plot->setStartTime(pageStartTime);
+            }
+            break;
+        }
+
+        case PlotBookModel::PlotStopTime : {
+            QWidget* page = _idx2Page(pidx);
+            Plot* plot = _idx2Plot(pidx);
+            QModelIndex sIdx = _plotModel->sessionStopIdx();
+            double sessionStopTime = _plotModel->data(sIdx).toDouble();
+            double plotStopTime = model()->data(idx).toDouble();
+            double pageStopTime = _page2stopTime.value(page);
+            if ( sessionStopTime < 1.0e30 ) {
+                plot->setStopTime(sessionStopTime);
+            } else if ( plotStopTime < 1.0e30 ) {
+                plot->setStopTime(plotStopTime);
+            } else if ( pageStopTime < 1.0e30 ) {
+                plot->setStopTime(pageStopTime);
+            }
+            break;
+        }
+
+        case PlotBookModel::Invalid : {
+            qDebug() << "snap [bad scoobies] : PlotBookView::rowInserted() "
+                      "received bad model index " << idx ;
+            exit(-1);
+            break;
+        }
+
         }
     }
 }
@@ -1225,16 +1147,15 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
 void PlotBookView::rowsAboutToBeRemoved(const QModelIndex &pidx,
                                         int start, int end)
 {
-    QModelIndex gpidx = model()->parent(pidx);
-    QModelIndex g2pidx = model()->parent(gpidx);
-    QModelIndex g3pidx = model()->parent(g2pidx);
-    QModelIndex g4pidx = model()->parent(g3pidx);
-
     for ( int row = start; row < end+1; ++row) {
 
         QModelIndex idx = model()->index(row,0,pidx);
 
-        if ( _isPageIdx(idx) ) {
+        PlotBookModel::IdxEnum e = _plotModel->indexEnum(idx);
+
+        switch (e) {
+
+        case PlotBookModel::Page : {
             // Page
             QWidget* page = _idx2Page(idx);
             int row = _plotModel->pageIdxs().indexOf(idx);
@@ -1248,7 +1169,11 @@ void PlotBookView::rowsAboutToBeRemoved(const QModelIndex &pidx,
                 _nb->removeTab(idx.row());
             }
             page->deleteLater();
-        } else if ( ! gpidx.isValid() ) {
+            break;
+        }
+
+        case PlotBookModel::Plot : {
+
             // Plot
             QWidget* page = _idx2Page(pidx);
             QGridLayout* grid = static_cast<QGridLayout*>(page->layout());
@@ -1338,21 +1263,19 @@ void PlotBookView::rowsAboutToBeRemoved(const QModelIndex &pidx,
                 qDebug() << "snap [error]: can't handle more than 7 plots!";
             }
             }
-        } else if ( ! g2pidx.isValid() ) {
-            // 0:xAxisLabel, 1:yAxisLabel, 2:Curves
-            if ( idx.row() == 2 ) {
-                // TODO Curves: remove all curves
-            }
-        } else if ( ! g3pidx.isValid() ) {
-            // Curve (TODO: untested)
+            break;
+        }
+
+        case PlotBookModel::Curve : {
+            // TODO: untested
             Plot* plot = _idx2Plot(pidx);
             TrickCurve* curve = _idx2Curve(idx);
             disconnect(curve,SIGNAL(selectionChanged(TrickCurve*)));
             plot->removePlottable(curve);
             _plot2Curves[plot].remove(idx.row());
             plot->replot();
-        } else if ( ! g4pidx.isValid() ) {
-            // t,x,y,run
+
+        }
         }
     }
 }
@@ -1515,4 +1438,128 @@ QString PlotBookView::_appendUnitToAxisLabel(const QModelIndex axisLabelIdx,
     }
 
     return axisLabel;
+}
+
+void PlotBookView::_insertPage(const QString &dpFileName)
+{
+    // Page background
+    QPalette pal(palette());
+    pal.setColor(QPalette::Background, Qt::white);
+
+    // Create/configure page widget
+    QFrame* page = new QFrame;
+    page->setAutoFillBackground(true);
+    page->setPalette(pal);
+    _pages.append(page);
+
+    // Create/configure gridlayout for page
+    QGridLayout* grid = new QGridLayout(page);
+    grid->setContentsMargins(0, 0, 0, 0);
+    grid->setSpacing(0);
+    _page2grid.insert(page,grid);
+
+    // Add Title Widget to page
+    PageTitleWidget* pw = new PageTitleWidget(page);
+    _page2pagewidget.insert(page,pw);
+    grid->addWidget(pw,0,0,1,100);
+
+    // Add Page to Notebook and make this page current (show page)
+    _nb->addTab(page,QFileInfo(dpFileName).baseName());
+    int nbIdx = _nb->count()-1;
+    _nb->setCurrentIndex(nbIdx);
+    _nb->setAttribute(Qt::WA_AlwaysShowToolTips, true);
+}
+
+void PlotBookView::_insertPageTitle(QWidget *page, const QString &title)
+{
+    PageTitleWidget* pw = _page2pagewidget.value(page);
+    if ( !_titles.at(0).isEmpty() ) {
+        pw->setTitle1(_titles.at(0));
+    } else if ( !title.startsWith("QP_")  && title != "Page" ) {
+        pw->setTitle1(title);
+    } else {
+        pw->setTitle1("Snap Plot");
+    }
+    if ( !_titles.at(1).isEmpty() ) {
+        pw->setTitle2(_titles.at(1));
+    }
+    if ( !_titles.at(2).isEmpty() ) {
+        pw->setTitle3(_titles.at(2));
+    }
+    if ( !_titles.at(3).isEmpty() ) {
+        pw->setTitle4(_titles.at(3));
+    }
+}
+
+void PlotBookView::_insertPlot(QWidget *page,
+                               double startTime, double stopTime)
+{
+
+    // Create/configure plot
+    Plot* plot = new Plot(page);
+    plot->setStartTime(startTime);
+    plot->setStopTime(stopTime);
+    connect(plot,SIGNAL(mouseDoubleClick(QMouseEvent*)),
+            this,SLOT(doubleClick(QMouseEvent*)));
+    connect(plot, SIGNAL(keyPress(QKeyEvent*)),
+            this, SLOT(plotKeyPress(QKeyEvent*)));
+    connect(plot, SIGNAL(curveClicked(TrickCurve*)),
+            this, SLOT(_slotCurveClicked(TrickCurve*)));
+    _page2Plots[page].append(plot);
+
+
+    QGridLayout* grid = _page2grid.value(page);
+    int nPlots = _page2Plots[page].size();
+    switch ( nPlots ) {
+    case 1: {
+        grid->addWidget(plot,1,0);
+        break;
+    }
+    case 2: {
+        grid->addWidget(plot,2,0);
+        break;
+    }
+    case 3: {
+        grid->addWidget(plot,3,0);
+        break;
+    }
+    case 4: {
+        QWidget* w2 = grid->itemAtPosition(2,0)->widget();
+        QWidget* w3 = grid->itemAtPosition(3,0)->widget();
+        grid->removeWidget(w2);
+        grid->removeWidget(w3);
+        grid->addWidget(w2,1,1);
+        grid->addWidget(w3,2,0);
+        grid->addWidget(plot,2,1);
+        break;
+    }
+    case 5: {
+        grid->addWidget(plot,3,0,1,2);
+        break;
+    }
+    case 6: {
+        QWidget* w2 = grid->itemAtPosition(1,1)->widget();
+        QWidget* w3 = grid->itemAtPosition(2,0)->widget();
+        QWidget* w4 = grid->itemAtPosition(2,1)->widget();
+        QWidget* w5 = grid->itemAtPosition(3,0)->widget();
+        grid->removeWidget(w2);
+        grid->removeWidget(w3);
+        grid->removeWidget(w4);
+        grid->removeWidget(w5);
+        grid->addWidget(w2,2,0);
+        grid->addWidget(w3,3,0);
+        grid->addWidget(w4,1,1);
+        grid->addWidget(w5,2,1);
+        grid->addWidget(plot,3,1);
+        break;
+    }
+    case 7: {
+        grid->addWidget(plot,4,0,1,2);
+        break;
+    }
+    default: {
+        qDebug() << "snap limitation: 7 plots max on DP :(";
+        qDebug() << "snap will probably crash now!";
+    }
+    }
 }
