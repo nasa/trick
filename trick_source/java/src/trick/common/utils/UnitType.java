@@ -84,11 +84,11 @@ public enum UnitType {
     Pressure(new ArrayList<Unit>() {{
         add(new Unit("atmospheres", "atm", false, 0.0, 101325.00000));
         add(new Unit("pascals", "Pa", true, 0.0, 1.0));
+        add(new Unit("pounds-sq-inch", "psi", false, 0.0, 249.08891));
         add(new Unit("milli-meters-mercury", "mmHg", false, 0.0, MILLI*133322.387415));
         add(new Unit("inches-mercury", "inHg", false, 0.0, 3386.389));
         add(new Unit("milli-meters-water", "mmWater", false, 0.0, MILLI*9806.65));
         add(new Unit("inches-water", "inWater", false, 0.0, 249.08891));
-        add(new Unit("pounds-sq-inch", "psi", false, 0.0, 249.08891));
     }}),
 
     Resistance(new ArrayList<Unit>() {{
