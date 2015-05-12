@@ -54,6 +54,8 @@ private:
     QStandardItemModel* _varsModel;
     QStandardItemModel* _monteInputsModel;
     MonteInputsView* _monteInputsView;
+    QHeaderView* _monteInputsHeaderView;
+
     QGridLayout* _layout;
     QGridLayout* _left_lay ;
 
@@ -95,6 +97,7 @@ private slots:
 
      void _startTimeChanged(double startTime);
      void _stopTimeChanged(double stopTime);
+     void _monteInputsHeaderViewClicked(int section);
 };
 
 #endif // PLOTMAINWINDOW_H

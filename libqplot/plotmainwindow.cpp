@@ -8,6 +8,7 @@
 #include <QSplitter>
 #include <QFileSystemModel>
 #include <QTreeView>
+#include <QHash>
 
 #include "plotmainwindow.h"
 
@@ -71,6 +72,10 @@ PlotMainWindow::PlotMainWindow(
     if ( _monteInputsModel ) {
         _monteInputsView = new MonteInputsView(_plotBookView,lsplit);
         _monteInputsView->setModel(_monteInputsModel);
+        _monteInputsHeaderView = _monteInputsView->horizontalHeader();
+        connect(_monteInputsHeaderView,SIGNAL(sectionClicked(int)),
+            this,SLOT(_monteInputsHeaderViewClicked(int)));
+
     }
 
     // Vars/DP Notebook
@@ -297,4 +302,42 @@ void PlotMainWindow::_stopTimeChanged(double stopTime)
     if ( stopIdx.isValid() ) {
         _plotModel->setData(stopIdx,stopTime);
     }
+}
+
+void PlotMainWindow::_monteInputsHeaderViewClicked(int section)
+{
+    Q_UNUSED(section);
+
+    if ( !_plotModel ) return;
+
+    QHash<int,QString> run2color;
+    int rc = _monteInputsModel->rowCount();
+    qreal sH = 0.1;
+    qreal eH = 1.0-sH;
+    qreal m = (eH-sH)/rc;
+    for ( int i = 0; i < rc; ++i ) {
+        QModelIndex runIdx = _monteInputsModel->index(i,0);
+        int runId = _monteInputsModel->data(runIdx).toInt();
+        qreal h = m*i + sH;
+        QColor c = QColor::fromHsvF(h,1,0.85);
+        QString s = c.name();
+        run2color.insert(runId, s);
+    }
+
+    QModelIndexList pageIdxs = _plotModel->pageIdxs();
+    foreach ( QModelIndex pageIdx, pageIdxs ) {
+        QModelIndexList plotIdxs = _plotModel->plotIdxs(pageIdx);
+        foreach ( QModelIndex plotIdx, plotIdxs ) {
+            QModelIndex curvesIdx = _plotModel->curvesIdx(plotIdx);
+            QModelIndexList curveIdxs = _plotModel->curveIdxs(curvesIdx);
+            foreach ( QModelIndex curveIdx, curveIdxs ) {
+                QModelIndex runIdx = _plotModel->index(6,0,curveIdx);
+                int runId = _plotModel->data(runIdx).toInt();
+                QModelIndex colorIdx = _plotModel->curveLineColorIdx(curveIdx);
+                _plotModel->setData(colorIdx, run2color.value(runId));
+            }
+        }
+    }
+
+    _plotBookView->replot();
 }

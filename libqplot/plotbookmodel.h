@@ -10,9 +10,15 @@ class PlotBookModel : public QStandardItemModel
 public:
     explicit PlotBookModel(QObject *parent = 0);
     explicit PlotBookModel( int rows, int columns, QObject * parent = 0 );
+
     QModelIndexList pageIdxs() const ;
     QModelIndexList plotIdxs(const QModelIndex& pageIdx) const ;
+    QModelIndex curvesIdx(const QModelIndex& plotIdx) const ;
+    QModelIndexList curveIdxs(const QModelIndex& curvesIdx) const ;
+    QModelIndex curveLineColorIdx(const QModelIndex& curveIdx) const ;
+
     bool isPageIdx(const QModelIndex& idx) const ;
+    bool isCurveLineColorIdx(const QModelIndex& idx) const;
 
     QModelIndex sessionStartIdx() const ;
     QModelIndex sessionStopIdx() const ;

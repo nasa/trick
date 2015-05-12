@@ -37,6 +37,31 @@ QModelIndexList PlotBookModel::plotIdxs(const QModelIndex &pageIdx) const
     return idxs;
 }
 
+QModelIndex PlotBookModel::curvesIdx(const QModelIndex &plotIdx) const
+{
+    QModelIndex idx;
+    idx = index(2,0,plotIdx);  // 2 because 0,1 are axis labels
+    return idx;
+}
+
+QModelIndexList PlotBookModel::curveIdxs(const QModelIndex &curvesIdx) const
+{
+    QModelIndexList idxs;
+    int rc = rowCount(curvesIdx);
+    for ( int i = 0 ; i < rc; ++i ) {
+        idxs.append(index(i,0,curvesIdx));
+    }
+
+    return idxs;
+}
+
+QModelIndex PlotBookModel::curveLineColorIdx(const QModelIndex &curveIdx) const
+{
+    QModelIndex idx;
+    idx = index(7,0,curveIdx);
+    return idx;
+}
+
 QModelIndex PlotBookModel::sessionStartIdx() const
 {
     QStandardItem *rootItem = invisibleRootItem();
@@ -59,6 +84,15 @@ bool PlotBookModel::isPageIdx(const QModelIndex &idx) const
     // rows 0,1 are start/stop time
     return (idx.isValid() && !idx.parent().isValid()
             && idx.row() != 0 && idx.row() != 1 ) ;
+}
+
+bool PlotBookModel::isCurveLineColorIdx(const QModelIndex &idx) const
+{
+    if ( idx.row() != 7) return false;
+
+    QModelIndex gpidx = idx.parent().parent();
+    QString gpString = data(gpidx).toString();
+    return (gpString == "Curves" );
 }
 
 void PlotBookModel::_initModel()

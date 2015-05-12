@@ -35,6 +35,7 @@ public:
     void setCurrentPage(const QModelIndex &pageIdx);
     bool savePdf(const QString& fileName);
     void showCurveDiff(bool isShow) ;
+    void replot();
 
 private:
     explicit PlotBookView(QWidget *parent = 0);

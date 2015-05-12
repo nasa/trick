@@ -530,6 +530,15 @@ void PlotBookView::showCurveDiff(bool isShow)
 
 }
 
+void PlotBookView::replot()
+{
+    foreach ( QWidget* page, _pages ) {
+        foreach ( Plot* plot, _page2Plots.value(page) ) {
+            plot->replot();
+        }
+    }
+}
+
 QModelIndex PlotBookView::moveCursor(QAbstractItemView::CursorAction cursorAction,
                                      Qt::KeyboardModifiers modifiers)
 {
@@ -667,6 +676,11 @@ void PlotBookView::dataChanged(const QModelIndex &topLeft,
                     plot->replot();
                 }
             }
+        } else if ( e == PlotBookModel::CurveLineColor ) {
+            TrickCurve* curve = _idx2Curve(idx.parent());
+            QColor color(_plotModel->data(idx).toString());
+            QPen pen(color);
+            curve->setPen(pen);
         }
     }
 
@@ -1052,14 +1066,17 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
         }
 
         case PlotBookModel::CurveLineColor : {
-            TrickCurve* curve =  _idx2Curve(pidx);
             QString colorStr = model()->data(idx).toString();
-            if ( ! colorStr.isEmpty() ) {
-                QColor color(colorStr);
-                QPen pen(color);
-                // TODO: Need fix for not coloring lines when coplotting
-                //       So commenting out the following line for now
-                // curve->setPen(pen);
+            TrickCurve* curve =  _idx2Curve(pidx);
+            if ( colorStr.isEmpty() ) {
+                QString color = curve->pen().color().name();
+                model()->setData(idx,color);
+            } else {
+                if ( !_isShowCurveDiff ) {
+                    QColor color(colorStr);
+                    QPen pen(color);
+                    curve->setPen(pen);
+                }
             }
             break;
         }
