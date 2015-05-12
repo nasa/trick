@@ -2,6 +2,7 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <stdio.h>
+#include <sstream>
 
 #include "sim_services/MonteCarlo/include/MonteCarlo.hh"
 #include "sim_services/Executive/include/Exec_exception.hh"
@@ -108,9 +109,10 @@ int Trick::MonteCarlo::slave_process_run() {
                 exit(MonteRun::NO_PERM);
             }
         }
-        char new_output[128];
-        sprintf(new_output, "%s/monte_input", output_dir.c_str());
-        FILE *fp = fopen(new_output, "w");
+
+        std::stringstream ss_monte_input << output_dir << "/monte_input";
+        FILE *fp = fopen(ss_monte_input.str().c_str(), "w");
+
         fprintf(fp,
           "# This run can be executed in stand alone (non-Monte Carlo) mode by running\n"
           "# the S_main executable with this file specified as the input file.\n\n");
@@ -121,10 +123,10 @@ int Trick::MonteCarlo::slave_process_run() {
         delete [] input;
 
         /** <li> redirect stdout and stderr to files in the run directory */
-        sprintf(new_output, "%s/stdout", output_dir.c_str());
-        freopen(new_output, "w", stdout);
-        sprintf(new_output, "%s/stderr", output_dir.c_str());
-        freopen(new_output, "w", stderr);
+        std::stringstream ss_stdout << output_dir << "/stdout";
+        freopen(ss_stdout.str().c_str(), "w", stdout);
+        std::stringstream ss_stderr << output_dir << "/stderr";
+        freopen(ss_stderr.str().c_str(), "w", stderr);
 
         /** <li> Run the pre run jobs. */
         run_queue(&slave_pre_queue, "in slave_pre queue") ;
