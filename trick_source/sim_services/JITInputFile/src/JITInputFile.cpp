@@ -24,8 +24,16 @@
 
 Trick::JITInputFile * the_jit = NULL ;
 
+//TODO: Move JITLibInfo code into the JITLibInfo object.
+
 Trick::JITInputFile::JITInputFile() {
     the_jit = this ;
+
+    JITLibInfo li ;
+    li.library_name = "S_main" ;
+    li.handle = dlopen( NULL , RTLD_LAZY ) ;
+    file_to_libinfo_map["S_main"] = li ;
+
 }
 
 /**
@@ -246,9 +254,21 @@ int Trick::JITInputFile::add_library(std::string lib_name) {
     // Add library name to map
     JITLibInfo li ;
     li.library_name = lib_name ;
+    li.handle = dlopen( li.library_name.c_str() , RTLD_LAZY ) ;
     file_to_libinfo_map[lib_name] = li ;
 
     return 0 ;
+}
+
+void * Trick::JITInputFile::find_symbol(std::string sym) {
+    std::map< std::string , JITLibInfo >::iterator it ;
+    for ( it = file_to_libinfo_map.begin() ; it != file_to_libinfo_map.end() ; it++ ) {
+        void * ret = (*it).second.find_symbol(sym) ;
+        if (ret != NULL) {
+            return ret ;
+        }
+    }
+    return NULL ;
 }
 
 /**
