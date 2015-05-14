@@ -3,7 +3,7 @@
 
 #include <QString>
 #include <QTextStream>
-#include <QHash>
+#include <QStandardItemModel>
 #include "trickcurvemodel.h"
 #include "runs.h"
 
@@ -28,7 +28,7 @@
 // QModelIdx idx(runi,yparamj)
 // TrickCurveModel* curve = monteModel->curve(idx);
 //
-class MonteModel : public QAbstractItemModel
+class MonteModel : public QStandardItemModel
 {
   Q_OBJECT
 
@@ -38,16 +38,6 @@ class MonteModel : public QAbstractItemModel
                        QObject *parent = 0);
     ~MonteModel();
 
-    virtual QModelIndex parent(const QModelIndex & index) const;
-    virtual QModelIndex index(int row, int column,
-                      const QModelIndex &pidx = QModelIndex()) const;
-
-    virtual int rowCount(const QModelIndex & pidx = QModelIndex() ) const;
-    virtual int columnCount(const QModelIndex & pidx = QModelIndex() ) const;
-    virtual QVariant data (const QModelIndex & idx,
-                           int role = Qt::DisplayRole ) const;
-
-    // See comment at top of file
     TrickCurveModel* curve(const QModelIndex& xIdx,
                            const QModelIndex& yIdx,
                            double xScaleFactor=1.0,
@@ -58,20 +48,14 @@ class MonteModel : public QAbstractItemModel
                            double xScaleFactor=1.0,
                            double yScaleFactor=1.0) const;
 
-    // Convenience for getting column by param name
-    int paramColumn(const QString& param);
-
     virtual QVariant headerData(int sect,
                                 Qt::Orientation orientation=Qt::Horizontal,
                                 int role=Qt::DisplayRole) const;
-
-    Runs* runs() { return _runs ; }
 
   private:
 
     Runs* _runs;
     QStringList _params;
-    QHash<QString,int> _param2column;
     QStringList _runDirs;
 
     static QString _err_string;

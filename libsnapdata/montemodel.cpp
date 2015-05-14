@@ -4,17 +4,21 @@
 QString MonteModel::_err_string;
 QTextStream MonteModel::_err_stream(&MonteModel::_err_string);
 
-MonteModel::MonteModel(Runs *runs, QObject *parent) :
-    QAbstractItemModel(parent),
+MonteModel::MonteModel(Runs *runs, QObject *parent) : QStandardItemModel(parent),
     _runs(runs)
 {
     _params = runs->params();
-    int col = 0 ;
-    foreach ( QString param, _params ) {
-        _param2column.insert(param,col);
-        col++;
-    }
     _runDirs = _runs->runs();
+
+    foreach ( QString run, _runDirs ) {
+        QList<QStandardItem*> items;
+        foreach ( QString param, _params ) {
+            QString s = run + ":" + param ;
+            QStandardItem* item = new QStandardItem(s);
+            items.append(item);
+        }
+        appendRow(items);
+    }
 }
 
 MonteModel::~MonteModel()
@@ -75,75 +79,6 @@ TrickCurveModel *MonteModel::curve(int row,
 
     return new TrickCurveModel(tm,0,xcol,ycol,yparam,
                                xScaleFactor,yScaleFactor);
-}
-
-int MonteModel::paramColumn(const QString &param)
-{
-    return _param2column.value(param);
-}
-
-
-QModelIndex MonteModel::parent(const QModelIndex &index) const
-{
-    if ( !index.isValid() ) {
-        return index; // get rid of compiler warning of unused param
-    } else {
-        QModelIndex rootidx = QModelIndex();
-        return rootidx;
-    }
-}
-
-
-QModelIndex MonteModel::index(int row, int column,
-                                  const QModelIndex &pidx) const
-{
-    QModelIndex idx = QModelIndex();
-
-    if ( !pidx.isValid() && row < rowCount() && column < columnCount() ) {
-        idx = createIndex(row,column);
-    }
-
-    return idx;
-}
-
-int MonteModel::rowCount(const QModelIndex &pidx) const
-{
-    if ( ! pidx.isValid() ) {
-        return _runDirs.size();
-    } else {
-        return 0;
-    }
-}
-
-int MonteModel::columnCount(const QModelIndex &pidx) const
-{
-    int ncols = 0 ;
-
-    if ( ! pidx.isValid() ) {
-        ncols = _runs->params().size();
-    }
-
-    return ncols;
-}
-
-QVariant MonteModel::data(const QModelIndex &idx, int role) const
-{
-    QVariant val;
-
-
-    if ( idx.isValid() ) {
-        if ( role == Qt::DisplayRole ) {
-            QString run = headerData(idx.row(),
-                               Qt::Vertical,
-                               Qt::DisplayRole).toString();
-            QString param = headerData(idx.column(),
-                               Qt::Horizontal,
-                               Qt::DisplayRole).toString();
-            val = run + ":" + param;
-        }
-    }
-
-    return val;
 }
 
 QVariant MonteModel::headerData(int sect, Qt::Orientation orientation,
