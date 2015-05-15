@@ -15,6 +15,7 @@
 #include "sim_services/InputProcessor/include/IPPython.hh"
 #include "sim_services/InputProcessor/include/IPPythonEvent.hh"
 #include "sim_services/InputProcessor/include/MTV.hh"
+#include "sim_services/JITInputFile/include/JITEvent.hh"
 #include "sim_services/JITInputFile/include/JITInputFile.hh"
 #include "sim_services/JSONVariableServer/include/JSONVariableServer.hh"
 #include "sim_services/JSONVariableServer/include/JSONVariableServerThread.hh"

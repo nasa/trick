@@ -35,28 +35,40 @@ int jit_add_library(std::string lib_name ) {
     return -1 ;
 }
 
-int jit_add_read( unsigned int thread_id , double in_time , int (*func_ptr)(void) ) {
-    Trick::JITEvent * event = new Trick::JITEvent(func_ptr, "jit_read_event" , 0) ;
+void * jit_find_symbol(std::string sym ) {
+    if ( the_jit != NULL ) {
+        return the_jit->find_symbol(sym) ;
+    }
+    return NULL ;
+}
+
+int jit_add_read( unsigned int thread_id , double in_time , std::string func_name ) {
+    Trick::JITEvent * event = (Trick::JITEvent *)TMM_declare_var_1d("Trick::JITEvent", 1) ;
+    new (event) Trick::JITEvent(func_name, "jit_read_event" , 0) ;
     event->set_thread(thread_id) ;
     event->set_next_tics((long long)round(in_time * exec_get_time_tic_value())) ;
     return event_manager_add_event(event) ;
 }
 
-int jit_add_read( double in_time , int (*func_ptr)(void) ) {
-    return jit_add_read( 0 , in_time , func_ptr) ;
+int jit_add_read( double in_time , std::string func_name) {
+    return jit_add_read( 0 , in_time , func_name) ;
 }
 
-int jit_add_event( int (*func_ptr)(void), std::string name , double cycle ) {
-    Trick::JITEvent * my_event = new Trick::JITEvent( func_ptr, name , cycle ) ;
-    return event_manager_add_event(my_event) ;
+int jit_add_event( std::string func_name, std::string name , double cycle ) {
+    Trick::JITEvent * event = (Trick::JITEvent *)TMM_declare_var_1d("Trick::JITEvent", 1) ;
+    new (event) Trick::JITEvent(func_name , name , cycle ) ;
+    return event_manager_add_event(event) ;
 }
 
-int jit_add_event_before( int (*func_ptr)(void), std::string name , std::string target_name , unsigned int target_inst ) {
-    Trick::JITEvent * my_event = new Trick::JITEvent( func_ptr, name ) ;
-    return event_manager_add_event_before(my_event, target_name , target_inst) ;
+int jit_add_event_before( std::string func_name , std::string name , std::string target_name , unsigned int target_inst ) {
+    Trick::JITEvent * event = (Trick::JITEvent *)TMM_declare_var_1d("Trick::JITEvent", 1) ;
+    new (event) Trick::JITEvent(func_name , name ) ;
+    return event_manager_add_event_before(event, target_name , target_inst) ;
 }
 
-int jit_add_event_after( int (*func_ptr)(void), std::string name , std::string target_name , unsigned int target_inst ) {
-    Trick::JITEvent * my_event = new Trick::JITEvent( func_ptr, name ) ;
-    return event_manager_add_event_after(my_event, target_name , target_inst) ;
+int jit_add_event_after( std::string func_name, std::string name , std::string target_name , unsigned int target_inst ) {
+    Trick::JITEvent * event = (Trick::JITEvent *)TMM_declare_var_1d("Trick::JITEvent", 1) ;
+    new (event) Trick::JITEvent(func_name , name ) ;
+    return event_manager_add_event_after(event, target_name , target_inst) ;
 }
+

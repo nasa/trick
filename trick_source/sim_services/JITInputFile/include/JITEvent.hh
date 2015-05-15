@@ -12,6 +12,7 @@ LIBRARY DEPENDENCY:
 #include <iostream>
 #include <string>
 
+#include "sim_services/include/mm_macros.hh"
 #include "sim_services/EventManager/include/Event.hh"
 
 namespace Trick {
@@ -26,8 +27,12 @@ namespace Trick {
  */
 class JITEvent : public Trick::Event {
 
+    TRICK_MM_FRIENDS(Trick__JITEvent)
+
     public:
-        JITEvent(int(*in_func_ptr)(void), std::string in_name = "JIT_no_name" , double in_cycle = 1.0) ;
+        JITEvent() ;
+
+        JITEvent(std::string func_name, std::string in_name = "JIT_no_name" , double in_cycle = 1.0) ;
 
         /** calls the function_ptr job */
         virtual int process( long long curr_time ) ;
@@ -38,13 +43,16 @@ class JITEvent : public Trick::Event {
         /** called when the event is removed from the event manager */
         virtual void remove() {} ;
 
-        virtual void restart() {} ;
+        virtual void restart() ;
 
+        std::string func_name ;
 
     protected:
 
+        void get_func_ptr_from_name() ;
+
         /** pointer to funtion to run when event fires */
-        int (*func_ptr)(void) ;
+        int (*func_ptr)(void) ; // trick_io(**)
 
 } ;
 

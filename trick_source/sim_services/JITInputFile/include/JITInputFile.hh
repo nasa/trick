@@ -8,6 +8,7 @@ LIBRARY DEPENDENCY:
 #ifndef JITINPUTFILE_HH
 #define JITINPUTFILE_HH
 
+#include <dlfcn.h>
 #include <string>
 #include <queue>
 #include <map>
@@ -34,6 +35,8 @@ struct JITLibInfo {
 
     /** handle returned by dlopen to the library */
     void * handle ;
+
+    void * find_symbol(std::string sym) { return dlsym(handle, sym.c_str()) ; }
 } ;
 
 /**
@@ -94,6 +97,7 @@ class JITInputFile {
         */
         int add_library(std::string lib_name) ;
 
+        void * find_symbol(std::string sym) ;
     private:
         /** C++ input file from the command line if one was specified. */
         std::string input_file ;
