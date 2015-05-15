@@ -110,7 +110,8 @@ int Trick::MonteCarlo::slave_process_run() {
             }
         }
 
-        std::stringstream ss_monte_input << output_dir << "/monte_input";
+        std::stringstream ss_monte_input;
+        ss_monte_input << output_dir << "/monte_input";
         FILE *fp = fopen(ss_monte_input.str().c_str(), "w");
 
         fprintf(fp,
@@ -123,9 +124,11 @@ int Trick::MonteCarlo::slave_process_run() {
         delete [] input;
 
         /** <li> redirect stdout and stderr to files in the run directory */
-        std::stringstream ss_stdout << output_dir << "/stdout";
+        std::stringstream ss_stdout;
+        ss_stdout << output_dir << "/stdout";
         freopen(ss_stdout.str().c_str(), "w", stdout);
-        std::stringstream ss_stderr << output_dir << "/stderr";
+        std::stringstream ss_stderr;
+        ss_stderr << output_dir << "/stderr";
         freopen(ss_stderr.str().c_str(), "w", stderr);
 
         /** <li> Run the pre run jobs. */
