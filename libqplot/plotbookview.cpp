@@ -1003,8 +1003,7 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             //
             bool isXScale = false;
             double xScaleFactor = 1.0;
-            QString xunit = curveModel->headerData
-                    (1,Qt::Horizontal,Param::Unit).toString();
+            QString xunit = curveModel->x().unit();
             QModelIndex xDPUnitIdx = model()->index(4,0,pidx);
             QString xDPUnit = model()->data(xDPUnitIdx).toString();
             if ( !xDPUnit.isEmpty() && xunit != xDPUnit &&
@@ -1022,8 +1021,7 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             //
             bool isYScale = false;
             double yScaleFactor = 1.0;
-            QString yunit = curveModel->headerData
-                    (2,Qt::Horizontal,Param::Unit).toString();
+            QString yunit = curveModel->y().unit();
             QModelIndex yDPUnitIdx = model()->index(5,0,pidx);
             QString yDPUnit = model()->data(yDPUnitIdx).toString();
             if ( !yDPUnit.isEmpty() &&

@@ -2,13 +2,15 @@
 #define TRICK_CURVEMODEL_H
 
 #include <QDebug>
+#include <QAbstractTableModel>
 #include <QDataStream>
 #include "snaptable.h"
 #include "trickmodel.h"
+#include "parameter.h"
 
 class TrickCurveModel;
 
-class TrickCurveModel : public SnapTable
+class TrickCurveModel : public QAbstractTableModel
 {
   Q_OBJECT
 
@@ -22,48 +24,33 @@ class TrickCurveModel : public SnapTable
                        QObject *parent = 0);
     ~TrickCurveModel();
 
+    QString  tableName () const { return _tableName ; }
+
+    Parameter t() const { return _t ; }
+    Parameter x() const { return _x ; }
+    Parameter y() const { return _y ; }
+
     void map(){ _trickmodel->map(); }
     void unmap() { _trickmodel->unmap(); }
-    int indexAtTime(double time) { return _trickmodel->indexAtTime(time); }
-
     TrickModelIterator begin() const;
     TrickModelIterator end() const;
+    int indexAtTime(double time) { return _trickmodel->indexAtTime(time); }
 
     virtual int rowCount(const QModelIndex & pidx = QModelIndex() ) const;
     virtual int columnCount(const QModelIndex & pidx = QModelIndex() ) const;
-
     virtual QVariant data (const QModelIndex & index,
-                           int role = Qt::DisplayRole ) const
-    {
-        return _trickmodel->data(index,role);
-    }
-
-    virtual bool setData (const QModelIndex & idx,
-                  const QVariant & value,
-                  int role = Role::EditNoEmitDataChange )
-    {
-        return _trickmodel->setData(idx,value,role);
-    }
-
-    virtual bool insertRows(int row, int count,
-                       const QModelIndex &pidx = QModelIndex());
-    virtual bool removeRows(int row, int count,
-                       const QModelIndex &pidx = QModelIndex());
-    virtual bool insertColumns(int column, int count,
-                       const QModelIndex &pidx = QModelIndex());
-    virtual bool removeColumns(int column, int count, const QModelIndex &pidx
-                                                               = QModelIndex());
-  protected:
-    bool _hasColumnRoles() { return true; }
-    bool _hasRowRoles() { return false; }
-    Role* _createColumnRole();
+                           int role = Qt::DisplayRole ) const ;
 
   private:
 
     TrickModel* _trickmodel;
+    Parameter _t;
+    Parameter _x;
+    Parameter _y;
     int _tcol;
     int _xcol;
     int _ycol;
+    QString _tableName;
     double _xScaleFactor;
     double _yScaleFactor;
 

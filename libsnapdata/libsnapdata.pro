@@ -32,7 +32,8 @@ SOURCES += \
     timeit_win32.cpp \ 
     runs.cpp \
     unit.cpp \
-    csv.cpp
+    csv.cpp \
+    parameter.cpp
 
 
 HEADERS += \
@@ -50,7 +51,8 @@ HEADERS += \
     timeit_win32.h \ 
     runs.h \
     unit.h \
-    csv.h
+    csv.h \
+    parameter.h
 
 
 unix:!symbian {

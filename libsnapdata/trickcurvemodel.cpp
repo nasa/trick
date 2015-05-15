@@ -7,41 +7,37 @@ TrickCurveModel::TrickCurveModel(TrickModel* trickmodel,
                                 const QString &tableName,
                                 double xScaleFactor, double yScaleFactor,
                                 QObject *parent) :
-    SnapTable(tableName,parent),
+    QAbstractTableModel(parent),
     _trickmodel(trickmodel),
     _tcol(tcol),
     _xcol(xcol),
     _ycol(ycol),
+    _tableName(tableName),
     _xScaleFactor(xScaleFactor),
     _yScaleFactor(yScaleFactor)
 {
-    QList<int> cols;
-    cols << tcol << xcol << ycol ;
-    int c = 0 ;
-    foreach ( int col, cols ) {
 
-        Role* role = _createColumnRole();
-        _col_headers.insert(c,new QVariant);
-        _col_roles.insert(c,role);
+    Qt::Orientation h = Qt::Horizontal;
 
-        QVariant name = _trickmodel->headerData(col,Qt::Horizontal,Param::Name);
-        QVariant unit = _trickmodel->headerData(col,Qt::Horizontal,Param::Unit);
-        QVariant type = _trickmodel->headerData(col,Qt::Horizontal,Param::Type);
-        QVariant size = _trickmodel->headerData(col,Qt::Horizontal,Param::Size);
-        setHeaderData(c,Qt::Horizontal,name,Qt::DisplayRole);
-        setHeaderData(c,Qt::Horizontal,name,Qt::EditRole);
-        setHeaderData(c,Qt::Horizontal,name,Param::Name);
-        setHeaderData(c,Qt::Horizontal,unit,Param::Unit);
-        setHeaderData(c,Qt::Horizontal,type,Param::Type);
-        setHeaderData(c,Qt::Horizontal,size,Param::Size);
+    _t.setName(_trickmodel->headerData(tcol,h,Param::Name).toString());
+    _t.setUnit(_trickmodel->headerData(tcol,h,Param::Unit).toString());
+    _t.setType(_trickmodel->headerData(tcol,h,Param::Type).toInt());
+    _t.setSize(_trickmodel->headerData(tcol,h,Param::Size).toInt());
 
-        c++;
-    }
+    _x.setName(_trickmodel->headerData(xcol,h,Param::Name).toString());
+    _x.setUnit(_trickmodel->headerData(xcol,h,Param::Unit).toString());
+    _x.setType(_trickmodel->headerData(xcol,h,Param::Type).toInt());
+    _x.setSize(_trickmodel->headerData(xcol,h,Param::Size).toInt());
+
+    _y.setName(_trickmodel->headerData(ycol,h,Param::Name).toString());
+    _y.setUnit(_trickmodel->headerData(ycol,h,Param::Unit).toString());
+    _y.setType(_trickmodel->headerData(ycol,h,Param::Type).toInt());
+    _y.setSize(_trickmodel->headerData(ycol,h,Param::Size).toInt());
 }
 
+// Destructor does not delete _trickModel
 TrickCurveModel::~TrickCurveModel()
 {
-    // nothing to do since model is not owned by TrickCurveModel
 }
 
 TrickModelIterator TrickCurveModel::begin() const
@@ -76,47 +72,8 @@ int TrickCurveModel::columnCount(const QModelIndex &pidx) const
     }
 }
 
+QVariant TrickCurveModel::data (const QModelIndex & index, int role ) const
 
-// read only for now
-bool TrickCurveModel::insertRows(int row, int count, const QModelIndex &pidx)
 {
-    Q_UNUSED(row);
-    Q_UNUSED(count);
-    Q_UNUSED(pidx);
-    return false;
+    return _trickmodel->data(index,role);
 }
-
-// read only for now
-bool TrickCurveModel::removeRows(int row, int count, const QModelIndex &pidx)
-{
-    Q_UNUSED(row);
-    Q_UNUSED(count);
-    Q_UNUSED(pidx);
-    return false;
-}
-
-// read only for now
-bool TrickCurveModel::insertColumns(int column, int count,
-                                   const QModelIndex &pidx)
-{
-    Q_UNUSED(column);
-    Q_UNUSED(count);
-    Q_UNUSED(pidx);
-    return false;
-}
-
-// read only for now
-bool TrickCurveModel::removeColumns(int column, int count, const QModelIndex &pidx)
-{
-    Q_UNUSED(column);
-    Q_UNUSED(count);
-    Q_UNUSED(pidx);
-    return false;
-}
-
-Role* TrickCurveModel::_createColumnRole()
-{
-    Param* param = new Param;
-    return param;
-}
-
