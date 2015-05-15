@@ -13,16 +13,18 @@
 #include <QFile>
 #include <QDataStream>
 #include <QDebug>
+#include <QAbstractTableModel>
 #include <vector>
 #include "snaptable.h"
 #include "trick_types.h"
+#include "parameter.h"
 #include "roleparam.h"
 using namespace std;
 
 class TrickModel;
 class TrickModelIterator;
 
-class TrickModel : public SnapTable
+class TrickModel : public QAbstractTableModel
 {
   Q_OBJECT
 
@@ -49,6 +51,11 @@ class TrickModel : public SnapTable
                        QObject *parent = 0);
     ~TrickModel();
 
+    QString  tableName () const { return _tableName ; }
+
+    Parameter param(int col) const ;
+
+
     double startTime() { return _startTime; }
     double stopTime() { return _stopTime; }
 
@@ -68,26 +75,6 @@ class TrickModel : public SnapTable
     virtual int columnCount(const QModelIndex & pidx = QModelIndex() ) const;
     virtual QVariant data (const QModelIndex & index,
                            int role = Qt::DisplayRole ) const;
-    virtual bool setData (const QModelIndex & idx,
-                  const QVariant & value,
-                  int role = Role::EditNoEmitDataChange );
-
-    virtual bool insertRows(int row, int count,
-                       const QModelIndex &pidx = QModelIndex());
-
-    virtual bool removeRows(int row, int count,
-                       const QModelIndex &pidx = QModelIndex());
-
-    virtual bool insertColumns(int column, int count,
-                       const QModelIndex &pidx = QModelIndex());
-
-    virtual bool removeColumns(int column, int count, const QModelIndex &pidx
-                                                               = QModelIndex());
-
-  protected:
-    bool _hasColumnRoles() { return true; }
-    bool _hasRowRoles() { return false; }
-    Role* _createColumnRole();
 
   private:
 
@@ -95,6 +82,8 @@ class TrickModel : public SnapTable
     QString _tableName;
     double _startTime;
     double _stopTime;
+
+    QHash<int,Parameter*> _col2param;   // ordered by column
 
     TrickVersion _trick_version;
     enum Endianness _endianess;

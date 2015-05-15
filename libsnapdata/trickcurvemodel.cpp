@@ -16,23 +16,9 @@ TrickCurveModel::TrickCurveModel(TrickModel* trickmodel,
     _xScaleFactor(xScaleFactor),
     _yScaleFactor(yScaleFactor)
 {
-
-    Qt::Orientation h = Qt::Horizontal;
-
-    _t.setName(_trickmodel->headerData(tcol,h,Param::Name).toString());
-    _t.setUnit(_trickmodel->headerData(tcol,h,Param::Unit).toString());
-    _t.setType(_trickmodel->headerData(tcol,h,Param::Type).toInt());
-    _t.setSize(_trickmodel->headerData(tcol,h,Param::Size).toInt());
-
-    _x.setName(_trickmodel->headerData(xcol,h,Param::Name).toString());
-    _x.setUnit(_trickmodel->headerData(xcol,h,Param::Unit).toString());
-    _x.setType(_trickmodel->headerData(xcol,h,Param::Type).toInt());
-    _x.setSize(_trickmodel->headerData(xcol,h,Param::Size).toInt());
-
-    _y.setName(_trickmodel->headerData(ycol,h,Param::Name).toString());
-    _y.setUnit(_trickmodel->headerData(ycol,h,Param::Unit).toString());
-    _y.setType(_trickmodel->headerData(ycol,h,Param::Type).toInt());
-    _y.setSize(_trickmodel->headerData(ycol,h,Param::Size).toInt());
+    _t = _trickmodel->param(tcol);
+    _x = _trickmodel->param(xcol);
+    _y = _trickmodel->param(ycol);
 }
 
 // Destructor does not delete _trickModel

@@ -89,8 +89,7 @@ bool Monte::_setDir(const QString &montedir)
         TrickModel* m = new TrickModel(trk,trk);
         int ncols = m->columnCount();
         for ( int col = 0; col < ncols; ++col) {
-            QString param = m->headerData(col,
-                                          Qt::Horizontal,Param::Name).toString();
+            QString param = m->param(col).name();
             if ( ! _params.contains(param) ) {
                 _params.append(param);
                 _param2ftrk.insert(param,ftrk);
@@ -143,8 +142,7 @@ bool Monte::_setDir(const QString &montedir)
             if ( run == beginRunDir ) {
                 params.clear();
                 for ( int col = 0; col < ncols; ++col) {
-                    QString param = m->headerData(col,
-                                        Qt::Horizontal,Param::Name).toString();
+                    QString param = m->param(col).name();
                     params.append(param);
                 }
             } else {
@@ -160,8 +158,7 @@ bool Monte::_setDir(const QString &montedir)
                                                 constData());
                 }
                 for ( int col = 0; col < ncols; ++col) {
-                    QString param = m->headerData(col,
-                                         Qt::Horizontal,Param::Name).toString();
+                    QString param = m->param(col).name();
                     if ( param != params.at(col) ) {
                         _err_stream << "snap [error]: monte carlo runs are "
                                     << "inconsistent. " << beginRunDir << "/"

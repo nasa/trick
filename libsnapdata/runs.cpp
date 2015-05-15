@@ -81,7 +81,7 @@ bool Runs::_setDirs(const QStringList &dirs)
         _models.append(m);
         int ncols = m->columnCount();
         for ( int col = 0; col < ncols; ++col) {
-            QString p = m->headerData(col,Qt::Horizontal,Param::Name).toString();
+            QString p = m->param(col).name();
             ptrkToModel.insert(qMakePair(p,trk),m);
             if ( ! _params.contains(p) ) {
                 _params.append(p);

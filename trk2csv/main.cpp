@@ -133,8 +133,8 @@ bool convert2csv(const QString& ftrk, const QString& fcsv)
     // Write csv param list (top line in csv file)
     int cc = m.columnCount();
     for ( int i = 0; i < cc; ++i) {
-        QString pName = m.headerData(i,Qt::Horizontal,Param::Name).toString();
-        QString pUnit = m.headerData(i,Qt::Horizontal,Param::Unit).toString();
+        QString pName = m.param(i).name();
+        QString pUnit = m.param(i).unit();
         out << pName << " {" << pUnit << "}";
         if ( i < cc-1 ) {
             out << ",";

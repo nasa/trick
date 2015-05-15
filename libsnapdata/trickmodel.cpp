@@ -10,7 +10,7 @@ QTextStream TrickModel::_err_stream(&TrickModel::_err_string);
 TrickModel::TrickModel(const QString& trkfile,
                       const QString& tableName,
                       double startTime, double stopTime, QObject *parent) :
-    SnapTable(tableName,parent),
+    QAbstractTableModel(parent),
     _trkfile(trkfile),
     _tableName(tableName),
     _startTime(startTime),
@@ -72,13 +72,10 @@ bool TrickModel::_load_trick_header()
     //
     _row_size = 0 ;
     for ( int cc = 0; cc < _ncols; ++cc) {
-        _col_headers.insert(cc,new QVariant);
-        Role* role = _createColumnRole();
-        _col_roles.insert(cc,role);
         _col2offset[cc] = _row_size;
         _row_size += _load_binary_param(in,cc);
-        int paramtype = headerData(cc,Qt::Horizontal,Param::Type).toInt();
-        _paramtypes.push_back(paramtype);
+        Parameter* p = _col2param.value(cc);
+        _paramtypes.push_back(p->type());
     }
 
     // Sanity check.  The bytes remaining should be a multiple of the record size
@@ -93,7 +90,8 @@ bool TrickModel::_load_trick_header()
 
     // Sanity check.  First column must be sys.exec.out.time
     int timeCol = 0 ;
-    QString timeName = headerData(timeCol,Qt::Horizontal).toString();
+    Parameter* tParam = _col2param.value(timeCol);
+    QString timeName = tParam->name();
     QStringList timeNameList = timeName.split('.');
     timeName = timeNameList.last();
     timeName = timeName.toLower();
@@ -151,6 +149,8 @@ bool TrickModel::_load_trick_header()
 // Returns byte size of parameter
 qint32 TrickModel::_load_binary_param(QDataStream& in, int col)
 {
+    Parameter* param  = new Parameter();
+
     qint32 sz;
 
     // Param name
@@ -158,8 +158,7 @@ qint32 TrickModel::_load_binary_param(QDataStream& in, int col)
     char* param_name = new char[sz+1];
     in.readRawData(param_name,sz);
     param_name[sz] = '\0';
-    setHeaderData(col,Qt::Horizontal,param_name,Param::Name);
-    setHeaderData(col,Qt::Horizontal,param_name,Qt::EditRole);
+    param->setName(param_name);
     _param2column.insert(QString(param_name),col);
     delete[] param_name;
 
@@ -168,17 +167,20 @@ qint32 TrickModel::_load_binary_param(QDataStream& in, int col)
     char* param_unit = new char[sz+1];
     in.readRawData(param_unit,sz);
     param_unit[sz] = '\0';
-    setHeaderData(col,Qt::Horizontal,param_unit,Param::Unit);
+    param->setUnit(param_unit);
     delete[] param_unit;
 
     // Param type
     qint32 param_type;
     in >> param_type;
-    setHeaderData(col,Qt::Horizontal,param_type,Param::Type);
+    param->setType(param_type);
 
     // Param bytesize
     in >> sz;
-    setHeaderData(col,Qt::Horizontal,sz,Param::Size);
+    param->setSize(sz);
+
+    // Store param in hash
+    _col2param.insert(col,param);
 
     return sz;
 }
@@ -219,6 +221,14 @@ TrickModel::~TrickModel()
 {
     delete _iteratorTimeIndex;
     unmap();
+    foreach ( Parameter* param, _col2param.values() ) {
+        delete param;
+    }
+}
+
+Parameter TrickModel::param(int col) const
+{
+    return *(_col2param.value(col));
 }
 
 TrickModelIterator TrickModel::begin(int tcol, int xcol, int ycol) const
@@ -342,56 +352,3 @@ QVariant TrickModel::data(const QModelIndex &idx, int role) const
 
     return val;
 }
-
-// mmap is read only for now
-bool TrickModel::setData(const QModelIndex &idx, const QVariant &value, int role)
-{
-    Q_UNUSED(idx);
-    Q_UNUSED(value);
-    Q_UNUSED(role);
-    return false;
-}
-
-// mmap is read only for now
-bool TrickModel::insertRows(int row, int count, const QModelIndex &pidx)
-{
-    Q_UNUSED(row);
-    Q_UNUSED(count);
-    Q_UNUSED(pidx);
-    return false;
-}
-
-// mmap is read only for now
-bool TrickModel::removeRows(int row, int count, const QModelIndex &pidx)
-{
-    Q_UNUSED(row);
-    Q_UNUSED(count);
-    Q_UNUSED(pidx);
-    return false;
-}
-
-// mmap is read only for now
-bool TrickModel::insertColumns(int column, int count,
-                                   const QModelIndex &pidx)
-{
-    Q_UNUSED(column);
-    Q_UNUSED(count);
-    Q_UNUSED(pidx);
-    return false;
-}
-
-// mmap is read only for now
-bool TrickModel::removeColumns(int column, int count, const QModelIndex &pidx)
-{
-    Q_UNUSED(column);
-    Q_UNUSED(count);
-    Q_UNUSED(pidx);
-    return false;
-}
-
-Role* TrickModel::_createColumnRole()
-{
-    Param* param = new Param;
-    return param;
-}
-

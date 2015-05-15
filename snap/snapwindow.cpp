@@ -271,8 +271,7 @@ void SnapWindow::__update_job_plot(const QModelIndex &idx)
 
         for ( int ii = 0; ii < model->columnCount(); ++ii) {
 
-            QString paramJobID = model->headerData
-                    (ii,Qt::Horizontal,Param::Name).toString();
+            QString paramJobID = model->param(ii).name();
 
             if ( paramJobID == jobId ) {
 
@@ -356,7 +355,7 @@ void SnapWindow::_update_plot_frame_xrange(const QCPRange &xrange)
         if ( m->tableName().endsWith(threadTrk) ) {
             for ( int c = 1 ; c < m->columnCount(); ++c ) {
                 TrickCurveModel* curve = new TrickCurveModel(m,0,0,c,
-                                     m->headerData(c,Qt::Horizontal).toString());
+                                     m->param(c).name());
                 _plot_jobs->axisRect()->addCurve(curve);
             }
             break;
