@@ -103,7 +103,7 @@ void TrickCurve::setData(TrickCurveModel *model,
    _model = model;
    _startTime = startTime;
    _stopTime = stopTime;
-   QString yparam = model->headerData(2,Qt::Horizontal,Param::Name).toString();
+   QString yparam = model->y().name();
    setName(yparam);
    _createPainterPath(model);
 }
