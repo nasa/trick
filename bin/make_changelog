@@ -2,8 +2,8 @@
 import subprocess
 
 # These releases tags should be kept in chronological order, latest first.
-releases = ['15.0.beta',
-            'HEAD']
+releases = ['15.0.0.changelog',
+            '15.0.beta']
 
 # Create a markdown version of the changelog.
 def make_md_changelog():
