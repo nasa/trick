@@ -30,15 +30,12 @@ else
      XLIBS += -lXm -lXt -lX11
 endif
 
-ifneq ($(HDF5),)
-HDF5_LIBRARY = -L$(HDF5)/lib -L$(HDF5)/lib64 -lhdf5_hl -lhdf5 -lsz
-endif
-
 DP_LIBS       = -L../../../lib_${TRICK_HOST_CPU} -llog -lvar -leqparse -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} -ltrick_units
 DPX_LIBS      = -L${DPX_DIR}/lib_${TRICK_HOST_CPU} -lDPC -lDPM
 FERMI_WARE_LIB = $(TRICK_HOME)/trick_source/data_products/fermi-ware/object_${TRICK_HOST_CPU}/libfermi.a
 
-ALL_LIBS = $(DPX_LIBS) $(FERMI_WARE_LIB) ${DP_LIBS} ${TRICK_UNIT_LIBS} $(LIBXML) ${HDF5_LIBRARY} -ldl $(FERMI_WARE_DIR)
+#HDF5_LIB is assigned in Makefile.common
+ALL_LIBS = $(DPX_LIBS) $(FERMI_WARE_LIB) ${DP_LIBS} ${TRICK_UNIT_LIBS} $(LIBXML) ${HDF5_LIB} -ldl $(FERMI_WARE_DIR)
 
 #############################################################################
 ##                            MODEL TARGETS                                ##
