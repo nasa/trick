@@ -73,7 +73,7 @@ void Trick::MonteCarlo::write_to_run_files(std::string file_name) {
             fprintf(run_header_file, "\nvar%zu = trick.MonteVarFile(\"%s\", \"%s\", %zu, \"%s\")\n",
               i, variables[i]->name.c_str(), file_name.c_str(), i + 2, variables[i]->unit.c_str());
         }
-        fprintf(run_header_file, "trick_sys.sched.add_variable(var%zu)\n", i);
+        fprintf(run_header_file, "trick_mc.mc.add_variable(var%zu)\n", i);
         fprintf(run_data_file, "%s  ", variables[i]->name.c_str());
     }
 
