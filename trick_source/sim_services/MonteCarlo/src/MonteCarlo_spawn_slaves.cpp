@@ -85,13 +85,13 @@ void Trick::MonteCarlo::default_slave_dispatch_pre_text(Trick::MonteSlave* slave
             case TRICK_USER_REMOTE_SH:
                 if (slave_to_init->user_remote_shell.empty()) {
                     slave_to_init->user_remote_shell = unix_ssh;
-                    buffer = slave_to_init->user_remote_shell;
                     if (verbosity >= ERROR) {
                         message_publish(MSG_WARNING, "Monte: TRICK_USER_REMOTE_SH specified for Slave %s:%d, but no shell given.\n" 
                                                      "Defaulting to %s.\n", 
                                         machine_name.c_str(), slave_to_init->id, slave_to_init->user_remote_shell.c_str()) ;
                     }
                 }
+                buffer = slave_to_init->user_remote_shell;
             break;
             default:
                 buffer = unix_ssh;
