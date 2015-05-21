@@ -72,6 +72,7 @@ int Trick::DRBinary::format_specific_init() {
     /* Check to see if data is being recorded in little endian
      * byte order, and add little endian line if so.
      */
+    byte_order_union.l = 1 ;
     if (byte_order_union.c[sizeof(long)-1] != 1) {
         write( fp , "Trick-10-L", (size_t)10 ) ;
     } else {
