@@ -353,6 +353,7 @@ clean_stand_alone_utils:
 clean_stand_alone: clean_stand_alone_utils
 
 clean_objs_for_rpm: clean_sim_serv clean_er7_utils clean_utils
+	@ $(MAKE) -C ${TRICK_HOME}/trick_source/java clean_obj
 
 clean_gui: clean_java
 

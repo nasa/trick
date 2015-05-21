@@ -60,5 +60,8 @@ clean:
 	rm -rf ${RESOURCES_DIR}
 	rm -rf ${TEST_REPORTS_DIR}
 
+clean_obj:
+	rm -rf ${BUILD_DIR}
+
 clean_docs:
 	rm -rf ${DOCS_API_DIR}
