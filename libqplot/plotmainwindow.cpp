@@ -43,12 +43,11 @@ PlotMainWindow::PlotMainWindow(
     lgrid->addWidget(lsplit,0,0);
 
     // Create models
-    _plotModel = new PlotBookModel(0,1,parent);
+    _plotModel = new PlotBookModel(monteModel,0,1,parent);
     _plotSelectModel = new QItemSelectionModel(_plotModel);
 
     // Create Plot Tabbed Notebook View Widget
     _plotBookView = new PlotBookView(_plotModel, titles, msplit);
-    _plotBookView->setData(_monteModel);
     _plotBookView->setSelectionModel(_plotSelectModel);
     if ( _monteModel->rowCount() == 2 && _presentation != "compare" ) {
         // Two runs, and presentation is not compare - show diff/coplot

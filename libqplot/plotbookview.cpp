@@ -1,11 +1,11 @@
 #include "plotbookview.h"
+#include "libsnapdata/trickcurvemodel.h"
 #include <QDebug>
 
 PlotBookView::PlotBookView(PlotBookModel *plotModel, const QStringList &titles, QWidget *parent) :
     QAbstractItemView(parent),
     _titles(titles),
     _plotModel(plotModel),
-    _monteModel(0),
     _isTabCloseRequested(false),
     _currSelectedRun(-1),
     _isShowCurveDiff(false)
@@ -48,7 +48,6 @@ PlotBookView::PlotBookView(PlotBookModel *plotModel, const QStringList &titles, 
 PlotBookView::PlotBookView(QWidget *parent) :
     QAbstractItemView(parent),
     _plotModel(0),
-    _monteModel(0),
     _isTabCloseRequested(false),
     _currSelectedRun(-1),
     _isShowCurveDiff(false)
@@ -59,11 +58,6 @@ PlotBookView::~PlotBookView()
 {
     // I think, not sure, the grids, plots frames are deleted with notebook
     // so nothing to do
-}
-
-void PlotBookView::setData(MonteModel *monteModel)
-{
-    _monteModel = monteModel;
 }
 
 //
@@ -656,6 +650,7 @@ void PlotBookView::dataChanged(const QModelIndex &topLeft,
     if ( topLeft == bottomRight ) {
 
         QModelIndex idx = topLeft;
+
         PlotBookModel::IdxEnum e = _plotModel->indexEnum(idx);
 
         if ( e == PlotBookModel::SessionStartTime ||
@@ -986,60 +981,13 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
         case PlotBookModel::CurveTimeUnit : { break; }
         case PlotBookModel::CurveXUnit : { break; }
         case PlotBookModel::CurveYUnit : { break; }
-
-        case PlotBookModel::CurveRun : {
-            int runID = model()->data(idx).toInt();
-            QModelIndex xidx = model()->index(1,0,pidx);
-            QString xparam = model()->data(xidx).toString();
-            QModelIndex yidx = model()->index(2,0,pidx);
-            QString yparam = model()->data(yidx).toString();
-
-            TrickCurveModel* curveModel = _monteModel->curve(runID,
-                                                             xparam,
-                                                             yparam);
-
-            //
-            // xunit and calc x scale if DP unit not equal to model unit
-            //
-            bool isXScale = false;
-            double xScaleFactor = 1.0;
+        case PlotBookModel::CurveRunID : { break; }
+        case PlotBookModel::CurveData : {
+            QVariant v = model()->data(idx);
+            TrickCurveModel* curveModel;
+            curveModel = QVariantToPtr<TrickCurveModel>::convert(v);
             QString xunit = curveModel->x().unit();
-            QModelIndex xDPUnitIdx = model()->index(4,0,pidx);
-            QString xDPUnit = model()->data(xDPUnitIdx).toString();
-            if ( !xDPUnit.isEmpty() && xunit != xDPUnit &&
-                 xDPUnit != "--" && xunit != "--" ) {
-                isXScale = true;
-                xScaleFactor = Unit::convert(1.0,
-                                             xunit.toAscii().constData(),
-                                             xDPUnit.toAscii().constData());
-                xunit = xDPUnit;
-            }
-
-
-            //
-            // yunit and calc y scale if DP unit not equal to model unit
-            //
-            bool isYScale = false;
-            double yScaleFactor = 1.0;
             QString yunit = curveModel->y().unit();
-            QModelIndex yDPUnitIdx = model()->index(5,0,pidx);
-            QString yDPUnit = model()->data(yDPUnitIdx).toString();
-            if ( !yDPUnit.isEmpty() &&
-                 yunit != yDPUnit && yDPUnit != "--" && yunit != "--" ) {
-                isYScale = true;
-                yScaleFactor = Unit::convert(1.0,
-                                             yunit.toAscii().constData(),
-                                             yDPUnit.toAscii().constData());
-                yunit = yDPUnit;
-            }
-
-            // Set scale factor for either x or y units
-            if ( isXScale || isYScale ) {
-                delete curveModel;
-                curveModel = _monteModel->curve(runID,
-                                                xparam, yparam,
-                                                xScaleFactor, yScaleFactor);
-            }
 
             Plot* plot = _idx2Plot(gpidx);
             TrickCurve* curve = plot->axisRect()->addCurve(curveModel);
@@ -1049,17 +997,14 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             QModelIndex xAxisLabelIdx = model()->index(0,0,g2pidx);
             QString xAxisLabel = _appendUnitToAxisLabel(xAxisLabelIdx,xunit);
             plot->setXAxisLabel(xAxisLabel);
-            model()->setData(xAxisLabelIdx,xAxisLabel);
 
             QModelIndex yAxisLabelIdx = model()->index(1,0,g2pidx);
             QString yAxisLabel = _appendUnitToAxisLabel(yAxisLabelIdx,yunit);
             plot->setYAxisLabel(yAxisLabel);
-            model()->setData(yAxisLabelIdx,yAxisLabel);
 
             if ( pidx.row() == 1 && _isShowCurveDiff ) {
                 plot->axisRect()->showCurveDiff();
             }
-
             break;
         }
 

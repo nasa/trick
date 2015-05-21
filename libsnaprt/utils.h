@@ -15,7 +15,7 @@ int getIndexAtTime( int ntimestamps, double* timestamps, double time);
 // MyClass* ptr = new myClass;
 // QVariant v = PtrToQVariant<MyClass>::convert(ptr);
 // ... later ...
-// MyClass* p = QVariantToPtr::convert(v);
+// MyClass* p = QVariantToPtr<MyClass>::convert(v);
 //
 template <class T> class QVariantToPtr
 {

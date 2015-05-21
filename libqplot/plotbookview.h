@@ -24,8 +24,6 @@ public:
                           QWidget *parent = 0);
     ~PlotBookView();
 
-    void setData(MonteModel* monteModel);
-
     virtual QRect visualRect(const QModelIndex &index) const;
     virtual void scrollTo(const QModelIndex &index,
                           ScrollHint hint = EnsureVisible);
@@ -93,7 +91,6 @@ private:
     QPushButton* _buttonCloseAll;
     QPushButton* _buttonToggleDiff;
 
-    MonteModel* _monteModel;
     QTabWidget* _nb;
     bool _isTabCloseRequested;
     int _currSelectedRun;

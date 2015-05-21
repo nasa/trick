@@ -1,16 +1,90 @@
 #include "plotbookmodel.h"
 #include <float.h>
+#include "libsnapdata/unit.h"
 
-PlotBookModel::PlotBookModel(QObject *parent) :
-    QStandardItemModel(parent)
+PlotBookModel::PlotBookModel(MonteModel *monteModel, QObject *parent) :
+    QStandardItemModel(parent),
+    _monteModel(monteModel)
 {
     _initModel();
 }
 
-PlotBookModel::PlotBookModel(int rows, int columns, QObject *parent) :
-    QStandardItemModel(rows,columns,parent)
+PlotBookModel::PlotBookModel(MonteModel *monteModel,
+                             int rows, int columns, QObject *parent) :
+    QStandardItemModel(rows,columns,parent),
+    _monteModel(monteModel)
 {
     _initModel();
+}
+
+QVariant PlotBookModel::data(const QModelIndex &idx, int role) const
+{
+    QVariant v;
+
+    PlotBookModel::IdxEnum e = indexEnum(idx);
+
+    if ( e == PlotBookModel::CurveData ) {
+
+        QModelIndex pidx = idx.parent();
+        QModelIndex rIdx = index(6,0,pidx);
+        QModelIndex xIdx = index(1,0,pidx);
+        QModelIndex yIdx = index(2,0,pidx);
+        int runID = data(rIdx).toInt();
+        QString xName = data(xIdx).toString();
+        QString yName = data(yIdx).toString();
+
+        TrickCurveModel* curveModel = _monteModel->curve(runID,
+                                                         xName,
+                                                         yName);
+
+        //
+        // xunit and calc x scale if DP unit not equal to model unit
+        //
+        bool isXScale = false;
+        double xScaleFactor = 1.0;
+        QString xunit = curveModel->x().unit();
+        QString xDPUnit = data(index(4,0,pidx)).toString();
+        if ( !xDPUnit.isEmpty() && xunit != xDPUnit &&
+             xDPUnit != "--" && xunit != "--" ) {
+            isXScale = true;
+            xScaleFactor = Unit::convert(1.0,
+                                         xunit.toAscii().constData(),
+                                         xDPUnit.toAscii().constData());
+            xunit = xDPUnit;
+        }
+
+
+        //
+        // yunit and calc y scale if DP unit not equal to model unit
+        //
+        bool isYScale = false;
+        double yScaleFactor = 1.0;
+        QString yunit = curveModel->y().unit();
+        QString yDPUnit = data(index(5,0,pidx)).toString();
+        if ( !yDPUnit.isEmpty() &&
+             yunit != yDPUnit && yDPUnit != "--" && yunit != "--" ) {
+            isYScale = true;
+            yScaleFactor = Unit::convert(1.0,
+                                         yunit.toAscii().constData(),
+                                         yDPUnit.toAscii().constData());
+            yunit = yDPUnit;
+        }
+
+        // Set scale factor for either x or y units
+        if ( isXScale || isYScale ) {
+            delete curveModel;
+            curveModel = _monteModel->curve(runID,
+                                            xName, yName,
+                                            xScaleFactor, yScaleFactor);
+        }
+
+        v = PtrToQVariant<TrickCurveModel>::convert(curveModel);
+
+    } else {
+        v =  QStandardItemModel::data(idx,role);
+    }
+
+    return v;
 }
 
 QModelIndexList PlotBookModel::pageIdxs() const
@@ -58,7 +132,7 @@ QModelIndexList PlotBookModel::curveIdxs(const QModelIndex &curvesIdx) const
 QModelIndex PlotBookModel::curveLineColorIdx(const QModelIndex &curveIdx) const
 {
     QModelIndex idx;
-    idx = index(7,0,curveIdx);
+    idx = index(8,0,curveIdx);
     return idx;
 }
 
@@ -112,7 +186,7 @@ void PlotBookModel::_initModel()
     setData(stopIdx,DBL_MAX);
 }
 
-PlotBookModel::IdxEnum PlotBookModel::indexEnum(const QModelIndex &idx)
+PlotBookModel::IdxEnum PlotBookModel::indexEnum(const QModelIndex &idx) const
 {
     PlotBookModel::IdxEnum ret = Invalid;
 
@@ -163,8 +237,9 @@ PlotBookModel::IdxEnum PlotBookModel::indexEnum(const QModelIndex &idx)
             case 3: ret = CurveTimeUnit; break;
             case 4: ret = CurveXUnit; break;
             case 5: ret = CurveYUnit; break;
-            case 6: ret = CurveRun; break;
-            case 7: ret = CurveLineColor; break;
+            case 6: ret = CurveRunID; break;
+            case 7: ret = CurveData; break;
+            case 8: ret = CurveLineColor; break;
             default: ret = Invalid; break;
         }
     }

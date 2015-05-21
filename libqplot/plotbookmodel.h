@@ -3,13 +3,20 @@
 
 #include <QStandardItemModel>
 #include <QStandardItem>
+#include "libsnapdata/montemodel.h"
+#include "libsnaprt/utils.h"
 
 class PlotBookModel : public QStandardItemModel
 {
     Q_OBJECT
 public:
-    explicit PlotBookModel(QObject *parent = 0);
-    explicit PlotBookModel( int rows, int columns, QObject * parent = 0 );
+    explicit PlotBookModel( MonteModel* monteModel,
+                            QObject *parent = 0);
+    explicit PlotBookModel( MonteModel* monteModel,
+                            int rows, int columns, QObject * parent = 0 );
+
+    virtual QVariant data(const QModelIndex &idx,
+                          int role = Qt::DisplayRole) const;
 
     QModelIndexList pageIdxs() const ;
     QModelIndexList plotIdxs(const QModelIndex& pageIdx) const ;
@@ -43,7 +50,8 @@ public:
                             CurveTimeUnit,
                             CurveXUnit,
                             CurveYUnit,
-                            CurveRun,
+                            CurveRunID,
+                            CurveData,
                             CurveLineColor,
                     PlotTitle,
                     PlotXMin,
@@ -54,13 +62,14 @@ public:
                     PlotStopTime
     };
 
-    IdxEnum indexEnum(const QModelIndex& idx);
+    IdxEnum indexEnum(const QModelIndex& idx) const;
 
 signals:
     
 public slots:
 
 private:
+    MonteModel* _monteModel;
     void _initModel();
     
 };
