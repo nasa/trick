@@ -87,6 +87,27 @@ QVariant PlotBookModel::data(const QModelIndex &idx, int role) const
     return v;
 }
 
+// Returns page index for idx
+// If idx is a page, it will simply return that idx
+// If idx is a child of a page, it will return the parent page index
+// If idx is invalid or isn't a child of a page, an invalid index is returned
+QModelIndex PlotBookModel::pageIdx(const QModelIndex& idx) const
+{
+    QModelIndex invalidIndex;
+
+    if ( !idx.isValid() ) return invalidIndex;
+    bool isPage = isPageIdx(idx);
+    if ( isPage ) return idx; // idx IS a page index
+    if ( !idx.parent().isValid() && !isPage) return invalidIndex; //eg sess stop
+
+    QModelIndex pageIndex(idx);
+    while ( pageIndex.parent().isValid() ) {
+        pageIndex = pageIndex.parent();
+    }
+    return pageIndex;
+}
+
+
 QModelIndexList PlotBookModel::pageIdxs() const
 {
     QModelIndexList idxs;

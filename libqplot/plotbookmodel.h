@@ -18,17 +18,20 @@ public:
     virtual QVariant data(const QModelIndex &idx,
                           int role = Qt::DisplayRole) const;
 
+    QModelIndex sessionStartIdx() const ;
+    QModelIndex sessionStopIdx() const ;
+
+    bool isPageIdx(const QModelIndex& idx) const ;
+    QModelIndex pageIdx(const QModelIndex& idx) const ;
     QModelIndexList pageIdxs() const ;
+
     QModelIndexList plotIdxs(const QModelIndex& pageIdx) const ;
+
     QModelIndex curvesIdx(const QModelIndex& plotIdx) const ;
     QModelIndexList curveIdxs(const QModelIndex& curvesIdx) const ;
     QModelIndex curveLineColorIdx(const QModelIndex& curveIdx) const ;
-
-    bool isPageIdx(const QModelIndex& idx) const ;
     bool isCurveLineColorIdx(const QModelIndex& idx) const;
 
-    QModelIndex sessionStartIdx() const ;
-    QModelIndex sessionStopIdx() const ;
 
     enum IdxEnum
     {
