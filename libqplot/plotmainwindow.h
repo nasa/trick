@@ -67,12 +67,8 @@ private:
     TimeItLinux _timer;
 
     QTabWidget* _nbDPVars;
-
     VarsWidget* _varsWidget;
-    void _updateVarSelection(const QModelIndex& pageIdx);
-
     DPTreeWidget* _dpTreeWidget;
-    void _updateDPSelection(const QModelIndex& pageIdx);
 
     PlotBookModel* _plotModel;
     //QTreeView* _plotTreeView ;
@@ -89,8 +85,6 @@ private:
 private slots:
      void _plotSelectModelSelectionChanged(const QItemSelection& currSel,
                                           const QItemSelection& prevSel);
-     void _plotSelectModelCurrentChanged(const QModelIndex& currIdx,
-                                        const QModelIndex& prevIdx);
      void _plotModelRowsAboutToBeRemoved(const QModelIndex& pidx,
                                          int start, int end);
      void _savePdf();

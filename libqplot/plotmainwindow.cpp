@@ -61,10 +61,6 @@ PlotMainWindow::PlotMainWindow(
             SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this,
             SLOT(_plotSelectModelSelectionChanged(QItemSelection,QItemSelection)));
-    connect(_plotSelectModel,
-            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this,
-            SLOT(_plotSelectModelCurrentChanged(QModelIndex,QModelIndex)));
     msplit->addWidget(_plotBookView);
 
     // Monte inputs view (widget added later)
@@ -204,25 +200,6 @@ void PlotMainWindow::_plotSelectModelSelectionChanged(const QItemSelection &curr
     }
 }
 
-//
-// If page (tab) changed in plot book view, update DP tree and Var list
-//
-void PlotMainWindow::_plotSelectModelCurrentChanged(const QModelIndex &currIdx,
-                                                const QModelIndex &prevIdx)
-{
-    Q_UNUSED(prevIdx);
-
-    if ( currIdx.isValid() && !currIdx.parent().isValid() ) {
-        QModelIndex pageIdx = currIdx;
-        QString pageTitle = pageIdx.model()->data(pageIdx).toString();
-        if ( pageTitle.left(2) == "QP" ) {
-            _updateVarSelection(pageIdx);
-        } else {
-            _updateDPSelection(pageIdx);
-        }
-    }
-}
-
 void PlotMainWindow::_plotModelRowsAboutToBeRemoved(const QModelIndex &pidx,
                                                  int start, int end)
 {
@@ -230,28 +207,6 @@ void PlotMainWindow::_plotModelRowsAboutToBeRemoved(const QModelIndex &pidx,
     Q_UNUSED(start);
     Q_UNUSED(end);
     _varsWidget->clearSelection();
-}
-
-void PlotMainWindow::_updateVarSelection(const QModelIndex& pageIdx)
-{
-    _nbDPVars->setCurrentIndex(0); // set tabbed notebook page to Var page
-}
-
-void PlotMainWindow::_updateDPSelection(const QModelIndex &pageIdx)
-{
-    Q_UNUSED(pageIdx);
-#if 0
-    _nbDPVars->setCurrentIndex(1); // set tabbed notebook page to DP page
-
-    QString dpPath = pageIdx.model()->data(pageIdx).toString();
-    QModelIndex dpIdx = _dpModel->index(dpPath); // not on help page!
-    if ( dpIdx.isValid() ) {
-        QModelIndex dpProxyIdx = _dpFilterModel->mapFromSource(dpIdx);
-        _dpTreeView->selectionModel()->setCurrentIndex(
-                    dpProxyIdx,
-                    QItemSelectionModel::ClearAndSelect);
-    }
-#endif
 }
 
 bool PlotMainWindow::_isRUN(const QString &fp)
