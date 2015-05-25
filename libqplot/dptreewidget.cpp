@@ -279,8 +279,6 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                     curveItem->appendRow(colorItem);
                 }
             }
-            // TODO: does this need to be here???
-            //_selectCurrentRunOnPageItem(pageItem);
         }
         pageNum++;
     }

@@ -78,8 +78,6 @@ private:
     bool _isRUN(const QString& fp);
     bool _isMONTE(const QString& fp);
 
-    void _selectCurrentRunOnPageItem(QStandardItem* pageItem);
-
     bool _isCurveIdx(const QModelIndex& idx) const;
 
 private slots:
