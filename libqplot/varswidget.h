@@ -26,7 +26,6 @@ public:
                           MonteInputsView* monteInputsView,
                           QWidget *parent = 0);
 
-    void updateSelection(const QModelIndex& pageIdx);
     void clearSelection();
 
 
@@ -48,7 +47,6 @@ private:
     QItemSelectionModel* _varsSelectModel;
 
     int _currQPIdx;
-    bool _isSkip; // Hack City :(
 
     QModelIndex _findSinglePlotPageWithCurve(const QString& curveName);
     QStandardItem* _createPageItem();

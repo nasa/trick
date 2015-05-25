@@ -235,7 +235,6 @@ void PlotMainWindow::_plotModelRowsAboutToBeRemoved(const QModelIndex &pidx,
 void PlotMainWindow::_updateVarSelection(const QModelIndex& pageIdx)
 {
     _nbDPVars->setCurrentIndex(0); // set tabbed notebook page to Var page
-    _varsWidget->updateSelection(pageIdx);
 }
 
 void PlotMainWindow::_updateDPSelection(const QModelIndex &pageIdx)

@@ -12,8 +12,7 @@ VarsWidget::VarsWidget(QStandardItemModel* varsModel,
     _plotModel(plotModel),
     _plotSelectModel(plotSelectModel),
     _monteInputsView(monteInputsView),
-    _currQPIdx(0),
-    _isSkip(false)
+    _currQPIdx(0)
 {
     // Setup models
     _varsFilterModel = new QSortFilterProxyModel;
@@ -53,7 +52,6 @@ void VarsWidget::_varsSelectModelSelectionChanged(
     Q_UNUSED(prevVarSelection); // TODO: handle deselection (prevSelection)
 
     if ( currVarSelection.size() == 0 ) return;
-    if ( _isSkip ) return;
 
     QModelIndex pageIdx; // for new or selected qp page
     QModelIndexList selIdxs = _varsSelectModel->selection().indexes();
@@ -120,33 +118,6 @@ QModelIndex VarsWidget::_findSinglePlotPageWithCurve(const QString& curveName)
     }
 
     return retPageIdx;
-}
-
-void VarsWidget::updateSelection(const QModelIndex& pageIdx)
-{
-    QItemSelection varSelection;
-
-    foreach ( QModelIndex plotIdx, _plotModel->plotIdxs(pageIdx) ) {
-        QModelIndex curveIdx = _plotModel->index(0,0,plotIdx);
-        QModelIndex yVarIdx = _plotModel->index(2,0,curveIdx);
-        QString yVarName = _plotModel->data(yVarIdx).toString();
-        for ( int i = 0; i < _varsFilterModel->rowCount(); ++i) {
-            QModelIndex varIdx = _varsFilterModel->index(i,0);
-            QString name = _varsFilterModel->data(varIdx).toString();
-            if ( name == yVarName ) {
-                QItemSelection itemSel(varIdx,varIdx);
-                varSelection.merge(itemSel, QItemSelectionModel::Select);
-                break;
-            }
-        }
-    }
-    if ( varSelection.size() > 0 ) {
-        _isSkip = true;
-        _varsSelectModel->select(varSelection,
-                                 QItemSelectionModel::ClearAndSelect);
-        _listView->scrollTo(varSelection.indexes().at(0));
-        _isSkip = false;
-    }
 }
 
 void VarsWidget::clearSelection()
