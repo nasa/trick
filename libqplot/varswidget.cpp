@@ -83,6 +83,7 @@ void VarsWidget::_varsSelectModelSelectionChanged(
             if ( _plotModel->plotIdxs(pageIdx).size() >= 6 ) {
                 pageItem = _createPageItem();
                 pageIdx = _plotModel->indexFromItem(pageItem);
+                //_plotBookView->setCurrentPage(pageIdx);
             }
             _addPlotOfVarToPageItem(pageItem,varIdx);
             _selectCurrentRunOnPageItem(pageItem);
@@ -102,27 +103,16 @@ QModelIndex VarsWidget::_findSinglePlotPageWithCurve(const QString& curveName)
     bool isExists = false;
     foreach ( QModelIndex pageIdx, _plotModel->pageIdxs() ) {
         foreach ( QModelIndex plotIdx, _plotModel->plotIdxs(pageIdx) ) {
-            int plotRowCount = _plotModel->rowCount(plotIdx);
-            for ( int j = 0; j < plotRowCount; ++j ) {
-                // Note that 2 is hardcoded because the plotItem has:
-                //    xaxislabel,yaxislabel then curves
-                int curvesRow = 2;
-                QModelIndex curvesIdx = _plotModel->index(curvesRow,0,plotIdx);
-                int curvesRowCount = _plotModel->rowCount(curvesIdx);
-                isExists = true;
-                for ( int k = 0 ; k < curvesRowCount; ++k ) {
-                    QModelIndex curveIdx = _plotModel->index(k,0,curvesIdx);
-                    // Note that 2 is hardcoded since a curve has:
-                    //     t,x,y,tunit,yunit,runId
-                    int yRow = 2;
-                    QModelIndex yIdx =  _plotModel->index(yRow,0,curveIdx);
-                    QString yName =  _plotModel->data(yIdx).toString();
-                    isExists = isExists && (yName == curveName);
-                }
-                if ( isExists ) {
-                    retPageIdx = pageIdx;
-                    break;
-                }
+            QModelIndex curvesIdx = _plotModel->curvesIdx(plotIdx);
+            isExists = true;
+            foreach ( QModelIndex curveIdx, _plotModel->curveIdxs(curvesIdx) ) {
+                QModelIndex yIdx =  _plotModel->index(2,0,curveIdx);
+                QString yName =  _plotModel->data(yIdx).toString();
+                isExists = isExists && (yName == curveName);
+            }
+            if ( isExists ) {
+                retPageIdx = pageIdx;
+                break;
             }
             if (isExists) break;
         }
