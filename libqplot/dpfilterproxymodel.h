@@ -25,7 +25,6 @@ signals:
 public slots:
 
 private:
-    MonteModel* _monteModel;
     QHash<QString,int> _modelParams;
     static QHash<QString,bool> _acceptedDPFileCache; // static to get around const
 

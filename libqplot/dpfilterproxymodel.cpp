@@ -6,8 +6,7 @@ QHash<QString,bool> DPFilterProxyModel::_acceptedDPFileCache;
 
 DPFilterProxyModel::DPFilterProxyModel(const QStringList& params,
                                        QObject *parent) :
-    QSortFilterProxyModel(parent),
-    _monteModel(0)
+    QSortFilterProxyModel(parent)
 {
     foreach (QString param, params) {
         _modelParams.insert(param,0);
