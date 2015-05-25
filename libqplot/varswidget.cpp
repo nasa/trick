@@ -4,7 +4,6 @@ VarsWidget::VarsWidget(QStandardItemModel* varsModel,
                        MonteModel *monteModel,
                        PlotBookModel *plotModel,
                        QItemSelectionModel *plotSelectModel,
-                       PlotBookView* plotBookView,
                        MonteInputsView *monteInputsView,
                        QWidget *parent) :
     QWidget(parent),
@@ -12,7 +11,6 @@ VarsWidget::VarsWidget(QStandardItemModel* varsModel,
     _monteModel(monteModel),
     _plotModel(plotModel),
     _plotSelectModel(plotSelectModel),
-    _plotBookView(plotBookView),
     _monteInputsView(monteInputsView),
     _currQPIdx(0),
     _isSkip(false)
@@ -71,11 +69,13 @@ void VarsWidget::_varsSelectModelSelectionChanged(
             _addPlotOfVarToPageItem(pageItem,currVarSelection.indexes().at(0));
             _selectCurrentRunOnPageItem(pageItem);
         } else {
-            _plotBookView->setCurrentPage(pageIdx);
+            _plotSelectModel->setCurrentIndex(pageIdx,
+                                              QItemSelectionModel::NoUpdate);
         }
 
     } else {  // Multiple items selected.
-        QModelIndex pageIdx = _plotBookView->currentPageIndex();
+        QModelIndex currIdx = _plotSelectModel->currentIndex();
+        QModelIndex pageIdx = _plotModel->pageIdx(currIdx);
         QStandardItem* pageItem = _plotModel->itemFromIndex(pageIdx);
         QModelIndexList currVarIdxs = currVarSelection.indexes();
         while ( ! currVarIdxs.isEmpty() ) {
@@ -83,7 +83,6 @@ void VarsWidget::_varsSelectModelSelectionChanged(
             if ( _plotModel->plotIdxs(pageIdx).size() >= 6 ) {
                 pageItem = _createPageItem();
                 pageIdx = _plotModel->indexFromItem(pageItem);
-                _plotBookView->setCurrentPage(pageIdx);
             }
             _addPlotOfVarToPageItem(pageItem,varIdx);
             _selectCurrentRunOnPageItem(pageItem);

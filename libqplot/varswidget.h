@@ -19,11 +19,10 @@ class VarsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit VarsWidget( QStandardItemModel* varsModel,
+    explicit VarsWidget(QStandardItemModel* varsModel,
                           MonteModel* monteModel,
                           PlotBookModel* plotModel,
                           QItemSelectionModel*  plotSelectModel,
-                          PlotBookView* plotBookView,
                           MonteInputsView* monteInputsView,
                           QWidget *parent = 0);
 

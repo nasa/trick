@@ -922,6 +922,7 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
         case PlotBookModel::Page : {
             QString dpFileName = model()->data(idx).toString();
             _insertPage(dpFileName);
+            setCurrentIndex(idx);
             break;
         }
 
