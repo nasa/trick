@@ -39,7 +39,6 @@ private:
     MonteModel* _monteModel;
     PlotBookModel* _plotModel;
     QItemSelectionModel*  _plotSelectModel;
-    PlotBookView* _plotBookView;
     MonteInputsView* _monteInputsView;
     QGridLayout* _gridLayout ;
     QLineEdit* _searchBox;
