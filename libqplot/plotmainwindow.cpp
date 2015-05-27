@@ -28,7 +28,8 @@ PlotMainWindow::PlotMainWindow(
     _monteModel(monteModel),
     _varsModel(varsModel),
     _monteInputsModel(monteInputsModel),
-    _monteInputsView(0)
+    _monteInputsView(0),
+    _dpTreeWidget(0)
 {
     setWindowTitle(tr("Snap!"));
     createMenu();
@@ -80,7 +81,6 @@ PlotMainWindow::PlotMainWindow(
     _nbDPVars->setAttribute(Qt::WA_AlwaysShowToolTips, false);
 
     // Vars Tab
-    _varsModel = varsModel;
     QFrame* varsFrame = new QFrame(lsplit);
     _varsWidget = new VarsWidget(_varsModel, _monteModel, _plotModel,
                                   _plotSelectModel, _monteInputsView,
@@ -88,11 +88,13 @@ PlotMainWindow::PlotMainWindow(
     _nbDPVars->addTab(varsFrame,"Vars");
 
     // DP Tab
-    QFrame* _dpFrame = new QFrame(lsplit);
-    _dpTreeWidget = new  DPTreeWidget(_dpDir, _dpFiles, _varsModel,
-                                      _monteModel, _plotModel,
-                                      _plotSelectModel, _dpFrame);
+    // Due to what I think is a Qt bug, the DPTreeWidget which is placed
+    // in this tab is created when the DP tab is clicked.
+    // See PlotMainWindow::_nbCurrentChanged()
+    _dpFrame = new QFrame(lsplit);
     _nbDPVars->addTab(_dpFrame,"DP");
+    connect(_nbDPVars,SIGNAL(currentChanged(int)),
+            this,SLOT(_nbCurrentChanged(int)));
 
     // Vars/DP needs monteInputsView, but needs to be added after Vars/DP
     if ( _monteInputsModel ) {
@@ -149,6 +151,25 @@ bool PlotMainWindow::_isCurveIdx(const QModelIndex &idx) const
         return false;
     } else {
         return true;
+    }
+}
+
+void PlotMainWindow::_nbCurrentChanged(int i)
+{
+    if ( i == 1 && _dpTreeWidget == 0 ) {
+        //
+        // The reason this is here is to work around what I think
+        // is a bug within Qt. If the DPTreeWidget is created
+        // earlier, for some reason, this warning message is issued:
+        // QSortFilterProxyModel: index from wrong model passed to mapFromSource
+        // I believe that, in a rare case, this causes a core dump.
+        //
+        // So instead of creating the DPTreeWidget alongside the VarsWidget,
+        // the DPTreeWidget is created when the DP tab is clicked.
+        //
+        _dpTreeWidget = new  DPTreeWidget(_dpDir, _dpFiles, _varsModel,
+                                          _monteModel, _plotModel,
+                                          _plotSelectModel, _dpFrame);
     }
 }
 

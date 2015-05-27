@@ -47,9 +47,9 @@ public:
     ~PlotMainWindow();
 
 private:
-     const QString& _presentation;
-    const QString& _dpDir;
-    const QStringList& _dpFiles;
+    QString _presentation;
+    QString _dpDir;
+    QStringList _dpFiles;
     MonteModel* _monteModel;
     QStandardItemModel* _varsModel;
     QStandardItemModel* _monteInputsModel;
@@ -68,6 +68,7 @@ private:
 
     QTabWidget* _nbDPVars;
     VarsWidget* _varsWidget;
+    QFrame* _dpFrame ;
     DPTreeWidget* _dpTreeWidget;
 
     PlotBookModel* _plotModel;
@@ -81,6 +82,7 @@ private:
     bool _isCurveIdx(const QModelIndex& idx) const;
 
 private slots:
+     void _nbCurrentChanged(int i);
      void _plotSelectModelSelectionChanged(const QItemSelection& currSel,
                                           const QItemSelection& prevSel);
      void _plotModelRowsAboutToBeRemoved(const QModelIndex& pidx,
