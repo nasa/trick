@@ -93,6 +93,13 @@ PlotMainWindow::PlotMainWindow(
     // See PlotMainWindow::_nbCurrentChanged()
     _dpFrame = new QFrame(lsplit);
     _nbDPVars->addTab(_dpFrame,"DP");
+    if ( ! _dpFiles.isEmpty() ) {
+        // DP files specified on commandline
+        _dpTreeWidget = new  DPTreeWidget(_dpDir, _dpFiles, _varsModel,
+                                          _monteModel, _plotModel,
+                                          _plotSelectModel, _dpFrame);
+        _nbDPVars->setCurrentIndex(1);
+    }
     connect(_nbDPVars,SIGNAL(currentChanged(int)),
             this,SLOT(_nbCurrentChanged(int)));
 
