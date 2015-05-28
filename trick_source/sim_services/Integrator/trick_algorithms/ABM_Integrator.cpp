@@ -1,4 +1,4 @@
-#include "trick/trick_algorithms/ABM_Integrator.hh"
+#include "trick/ABM_Integrator.hh"
 #include "trick/message_proto.h"
 
 /**

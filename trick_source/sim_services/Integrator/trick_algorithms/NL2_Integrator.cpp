@@ -1,4 +1,4 @@
-#include "trick/trick_algorithms/NL2_Integrator.hh"
+#include "trick/NL2_Integrator.hh"
 #include "trick/message_proto.h"
 
 /**

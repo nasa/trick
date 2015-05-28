@@ -1,4 +1,4 @@
-#include "trick/trick_algorithms/Euler_Cromer_Integrator.hh"
+#include "trick/Euler_Cromer_Integrator.hh"
 #include "trick/message_proto.h"
 #include <cstdarg>
 

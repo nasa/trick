@@ -1,4 +1,4 @@
-#include "trick/trick_algorithms/RKF45_Integrator.hh"
+#include "trick/RKF45_Integrator.hh"
 #include "trick/message_proto.h"
 
 /**
