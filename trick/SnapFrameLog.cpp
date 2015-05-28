@@ -58,6 +58,12 @@ void SnapFrameLog::allocate_recording_groups() {
     num_threads = exec_get_num_threads();
     /* Create log_user_jobs group and log_trick_jobs group to record job frame_times. */
     fdrg = new ("snap_userjobs_main") Trick::FrameDataRecordGroup(0, "snap_userjobs_main") ;
+
+    // In the master/slave case, we still want the time taken by the main thread but FrameDataRecordGroup doesn't add
+    // the jobs by default. So, we manually add it here.
+    fdrg->add_job(0, 1000, (char *)"top_of_frame", NULL, 1.0, (char *)"start_timer", (char *)"TRK", 1) ;
+    fdrg->add_job(0, 1001, (char *)"end_of_frame", NULL, 1.0, (char *)"stop_timer", (char *)"TRK", 65532) ;
+
     drg_users.push_back(fdrg) ;
     for ( ii = 1 ; ii < num_threads ; ii++ ) {
         std::ostringstream group_name ;
@@ -81,8 +87,8 @@ void SnapFrameLog::add_recording_vars_for_jobs() {
        jobVector.clear();
        addJob("real_time.rt_sync.rt_monitor");
        addJob("trick_sys.sched.advance_sim_time");
-       for(unsigned int ii = 0; ii < userSpecJobList.stl.size(); ++ii) {
-          JobDataItem & item = userSpecJobList.stl[ii];
+       for(unsigned int jj = 0; jj < userSpecJobList.stl.size(); ++jj) {
+          JobDataItem & item = userSpecJobList.stl[jj];
           addJob( item );
        }
        all_jobs_vector = jobVector;
@@ -183,6 +189,10 @@ void SnapFrameLog::add_recording_vars_for_jobs() {
             std::ostringstream group_name ;
             group_name << "snap_userjobs_C" << ii ;
             (*fdrg_it)->add_variable( group_name.str() + ".frame_sched_time") ;
+        } else {
+            std::ostringstream group_name ;
+            group_name << "snap_userjobs_main.frame_sched_time";
+            (*fdrg_it)->add_variable( group_name.str()) ;
         }
     }
     drg_trick->set_job_class("end_of_frame") ;
