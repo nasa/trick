@@ -1,4 +1,4 @@
-#include "trick/trick_algorithms/Euler_Integrator.hh"
+#include "trick/Euler_Integrator.hh"
 #include "trick/message_proto.h"
 #include <iostream>
 #include <stdlib.h>

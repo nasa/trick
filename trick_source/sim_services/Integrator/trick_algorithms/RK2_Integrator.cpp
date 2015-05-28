@@ -1,5 +1,5 @@
 
-#include "trick/trick_algorithms/RK2_Integrator.hh"
+#include "trick/RK2_Integrator.hh"
 #include <iostream>
 #include "trick/message_proto.h"
 

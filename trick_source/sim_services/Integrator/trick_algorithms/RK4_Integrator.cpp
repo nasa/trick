@@ -1,4 +1,4 @@
-#include "trick/trick_algorithms/RK4_Integrator.hh"
+#include "trick/RK4_Integrator.hh"
 #include "trick/message_proto.h"
 
 /**
