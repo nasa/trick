@@ -7,7 +7,7 @@
 
 #include <math.h>
 #include "MatLab4.hh"
-#include "parameter_types.h"
+#include "trick/parameter_types.h"
 #include "trick_byteswap.h"
 #include "trick_byte_order.h"
 

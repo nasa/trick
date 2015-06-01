@@ -1,27 +1,14 @@
 
-include ${TRICK_HOME}/makefiles/Makefile.common
-include ${TRICK_HOME}/makefiles/Makefile.tricklib
+include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
+include ${TRICK_HOME}/share/trick/makefiles/Makefile.tricklib
 -include Makefile_deps
 
-ifeq ($(USE_ER7_UTILS_INTEGRATORS), 1)
+ifeq ($(USE_ER7_UTILS_INTEGRATORS), 0)
 trick:
-	@echo "#####################################################################"
-	@echo "##                      Make ER7 ALGORITHMS                        ##"
-	@echo "#####################################################################"
-	$(MAKE) -C er7_algorithms
-else
-trick:
-	@echo "#####################################################################"
-	@echo "##                     Make Trick ALGORITHMS                       ##"
-	@echo "#####################################################################"
 	$(MAKE) -C trick_algorithms
 endif
 
 clean_algs:
-	@echo "#####################################################################"
-	@echo "##                     Clean Integ ALGORITHMS                      ##"
-	@echo "#####################################################################"
-	$(MAKE) -C er7_algorithms real_clean
 	$(MAKE) -C trick_algorithms real_clean
 
 real_clean: clean_algs

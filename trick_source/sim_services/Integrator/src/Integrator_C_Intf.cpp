@@ -1,8 +1,8 @@
 
-#include "integrator_c_intf.h"
-#include "Integrator.hh"
-#include "sim_services/Message/include/message_proto.h"
-#include "sim_services/Message/include/message_type.h"
+#include "trick/integrator_c_intf.h"
+#include "trick/Integrator.hh"
+#include "trick/message_proto.h"
+#include "trick/message_type.h"
 #include <stdarg.h>
 #include <iostream>
 

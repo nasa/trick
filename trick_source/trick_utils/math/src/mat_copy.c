@@ -5,7 +5,7 @@
  */
 
 #include <stdio.h>
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 void mat_copy(                  /* Return: -- none */
                  double **copy, /* Out: copy of the matrix */

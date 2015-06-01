@@ -1,6 +1,6 @@
 
 #include "DPM_measurement.hh"
-#include "../../trick_utils/units/include/Unit.hh"
+#include "trick/Unit.hh"
 
 // MEMEBR FUNCTION
 int DPM_measurement::Initialize( xmlNode *base_node) {

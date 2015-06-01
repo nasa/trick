@@ -1,5 +1,5 @@
-#include "RKF45_Integrator.hh"
-#include "sim_services/Message/include/message_proto.h"
+#include "trick/trick_algorithms/RKF45_Integrator.hh"
+#include "trick/message_proto.h"
 
 /**
  */

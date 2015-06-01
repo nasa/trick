@@ -5,7 +5,7 @@
 
    PROGRAMMERS: (((Robert W. Bailey) (LinCom Corporation) (4/1/91) (Trick-CR-00004) (Gravity / Inertial Frame Models))) */
 
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 int dm_invert(double inv[3][3], /* Out: The 3X3 inverse of matrix 'm' */
               double m[3][3])

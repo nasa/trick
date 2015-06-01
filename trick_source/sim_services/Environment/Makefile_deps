@@ -1,5 +1,5 @@
-object_${TRICK_HOST_CPU}/Environment.o: src/Environment.cpp \
- ${TRICK_HOME}/trick_source/sim_services/Environment/include/Environment.hh 
-object_${TRICK_HOST_CPU}/Environment_c_intf.o: src/Environment_c_intf.cpp \
- ${TRICK_HOME}/trick_source/sim_services/Environment/include/Environment.hh \
- ${TRICK_HOME}/trick_source/sim_services/Environment/include/env_proto.h 
+object_${TRICK_HOST_CPU}/Environment.o: Environment.cpp \
+ ${TRICK_HOME}/include/trick/Environment.hh 
+object_${TRICK_HOST_CPU}/Environment_c_intf.o: Environment_c_intf.cpp \
+ ${TRICK_HOME}/include/trick/Environment.hh \
+ ${TRICK_HOME}/include/trick/env_proto.h 

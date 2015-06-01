@@ -11,7 +11,7 @@
 
    PROGRAMMERS: (((M Schira) (McDonnell Douglas) (Jan 1993) (v1.0) (Init Release))) */
 
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 void LU_bksb(                   /* Return: Zero */
                 double *b,      /* Inout: Temporary storage */

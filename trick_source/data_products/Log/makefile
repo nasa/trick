@@ -1,5 +1,5 @@
 
-include ${TRICK_HOME}/makefiles/Makefile.common
+include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 CC        = c++
 
@@ -14,7 +14,7 @@ endif
 OBJ_DIR   = object_${TRICK_HOST_CPU}
 LIBDIR    = ../lib_${TRICK_HOST_CPU}
 LIBNAME   = liblog.a
-INCLUDE_DIRS = -I..
+INCLUDE_DIRS = -I.. -I${TRICK_HOME}/include
 DP_CFLAGS = -g ${INCLUDE_DIRS} -fPIC
 CPP_OBJECTS  = $(OBJ_DIR)/log.o \
             $(OBJ_DIR)/multiLog.o \

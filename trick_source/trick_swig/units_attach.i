@@ -5,7 +5,7 @@
 #define UNITS_ATTACH_I
 
 %inline %{
-#include "trick_utils/units/include/Unit.hh"
+#include "trick/Unit.hh"
 #include "trick_swig/swig_double.hh"
 %}
 

@@ -1,0 +1,24 @@
+#!/usr/bin/perl
+
+# trick_qp that determines trick_home based on execution location of this script.
+use File::Basename ;
+use Cwd 'abs_path';
+
+if ( ! exists $ENV{TRICK_HOME} ) {
+    $trick_bin = dirname(abs_path($0)) ;
+    $trick_home = dirname($trick_bin) ;
+
+    # set TRICK_HOME based on the value of trick_home
+    $ENV{TRICK_HOME} = $trick_home ;
+}
+
+if ( $^O eq "darwin" ) {
+    $command = "java -classpath $ENV{TRICK_HOME}/libexec/trick/java/dist/*:$ENV{TRICK_HOME}/libexec/trick/java/lib/*:$ENV{TRICK_HOME}/libexec/trick/java/lib/ \\
+         -Xdock:name=\"Trick Plot\" \\
+         -Xdock:icon=$ENV{TRICK_HOME}/libexec/trick/java/resources/trick_icon.png \\
+         trick.dataproducts.plot.JXPlotApplication " . join (" " , @ARGV) ;
+} else {
+    $command = "java -cp $ENV{TRICK_HOME}/libexec/trick/java/dist/*:$ENV{TRICK_HOME}/libexec/trick/java/lib/*:$ENV{TRICK_HOME}/libexec/trick/java/lib/ trick.dataproducts.plot.JXPlotApplication " . join (" " , @ARGV) ;
+}
+system $command ;
+exit $? >> 8;

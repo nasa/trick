@@ -5,7 +5,7 @@
  */
 
 
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 void dvxm(double prod[],        /* Out: Product of the vector and the matrix */
           double vect[],        /* In: Vector */

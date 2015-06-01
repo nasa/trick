@@ -24,7 +24,7 @@
 #include "PrintAttributesFactory.hh"
 #include "Utilities.hh"
 
-#include "units_conv.h"
+#include "trick/units_conv.h"
 
 /* Command line arguments.  These work better as globals, as suggested in llvm/CommandLine documentation */
 llvm::cl::list< std::string > include_dirs("I", llvm::cl::Prefix, llvm::cl::desc("Include directory"),

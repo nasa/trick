@@ -3,7 +3,7 @@
 #define DPC_COLUMN_INFO_HH
 #include <string.h>
 #include <iostream>
-#include "../../units/include/Unit.hh"
+#include "trick/Unit.hh"
 
 class DPC_column_info {
 public:

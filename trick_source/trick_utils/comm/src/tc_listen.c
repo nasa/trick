@@ -3,8 +3,8 @@
  * Check to see if a client is attempting to connect
  */
 
-#include "../include/tc.h"
-#include "../include/tc_proto.h"
+#include "trick/tc.h"
+#include "trick/tc_proto.h"
 
 #if (__APPLE__ | __WIN32__| __Lynx__ | __QNX__ | __ghs )
 

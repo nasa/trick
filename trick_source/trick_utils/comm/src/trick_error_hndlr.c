@@ -24,8 +24,8 @@
 #include <unistd.h>
 #endif
 
-#include "../include/trick_error_hndlr.h"
-#include "../include/tc.h"
+#include "trick/trick_error_hndlr.h"
+#include "trick/tc.h"
 
 #ifndef STAND_ALONE
 extern int send_hs(             /* Return: -1 on failure , 0 for completion */

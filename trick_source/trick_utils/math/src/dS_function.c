@@ -5,7 +5,7 @@
 
    PROGRAMMERS: (((Robert W. Bailey) (LinCom Corp) (3/22/91) (Trick-CR-00000) (Initial release))) */
 
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 double dS_function(             /* Return: -- 0.0 <= value <= 1.0 */
                       double x, /* In: 'x' parameter */

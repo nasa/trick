@@ -5,15 +5,15 @@
 #define TRICK_STRUCTURED 103
 #define TRICK_BITFIELD 11
 #define TRICK_UNSIGNED_BITFIELD 12
-#include "../include/attributes.h"
-#include "../include/trick_byteswap.h"
+#include "trick/attributes.h"
+#include "trick/trick_byteswap.h"
 #else
-#include "sim_services/MemoryManager/include/attributes.h"
-#include "sim_services/MemoryManager/include/parameter_types.h"
-#include "trick_utils/comm/include/trick_byteswap.h"
+#include "trick/attributes.h"
+#include "trick/parameter_types.h"
+#include "trick/trick_byteswap.h"
 #endif
 
-#include "../include/tc_proto.h"
+#include "trick/tc_proto.h"
 /* 
  * tofrom: 1 = to.    
  * Use 1 (to) before writing data. Converts to the other endian 

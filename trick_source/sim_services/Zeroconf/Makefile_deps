@@ -1,0 +1,2 @@
+object_${TRICK_HOST_CPU}/Zeroconf.o: Zeroconf.cpp ${TRICK_HOME}/include/trick/Zeroconf.hh \
+ ${TRICK_HOME}/include/trick/variable_server_proto.h 

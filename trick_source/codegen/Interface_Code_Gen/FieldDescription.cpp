@@ -12,8 +12,7 @@
 #include "Utilities.hh"
 
 // Provides units check capability.
-// Found in "${TRICK_HOME}/trick_source/trick_utils/units/include"
-#include "units_conv.h"
+#include "trick/units_conv.h"
 
 FieldDescription::FieldDescription(
  std::string in_container_class ,

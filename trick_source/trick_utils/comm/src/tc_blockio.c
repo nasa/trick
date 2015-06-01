@@ -1,6 +1,6 @@
 
-#include "../include/tc.h"
-#include "../include/tc_proto.h"
+#include "trick/tc.h"
+#include "trick/tc_proto.h"
 
 /*
  *Set a device to BLOCKIO or NOBLOCKIO - may be used as a toggle

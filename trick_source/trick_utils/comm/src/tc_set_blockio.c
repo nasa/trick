@@ -3,8 +3,8 @@
  * Set the time in seconds that a blocking read will wait before timing out
  */
 
-#include "../include/tc.h"
-#include "../include/tc_proto.h"
+#include "trick/tc.h"
+#include "trick/tc_proto.h"
 
 int tc_set_blockio_timeout_limit(TCDevice * device, double limit)
 {

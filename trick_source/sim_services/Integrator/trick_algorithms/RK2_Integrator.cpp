@@ -1,7 +1,7 @@
 
-#include "RK2_Integrator.hh"
+#include "trick/trick_algorithms/RK2_Integrator.hh"
 #include <iostream>
-#include "sim_services/Message/include/message_proto.h"
+#include "trick/message_proto.h"
 
 /**
  */

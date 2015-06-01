@@ -4,7 +4,7 @@
  */
 
 #include <stdio.h>
-#include "../include/trick_math_error.h"
+#include "trick/trick_math_error.h"
 
 static char *trick_math_errors[] = {
     /* 00 */ "Success",

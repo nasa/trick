@@ -15,7 +15,7 @@
 #include <map>
 #include <string>
 
-#include "sim_services/MemoryManager/include/attributes.h"
+#include "trick/attributes.h"
 
 namespace Trick {
 

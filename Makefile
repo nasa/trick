@@ -14,7 +14,7 @@
 export TRICK_HOME = $(CURDIR)
 
 # Include the build configuration information.
-include $(TRICK_HOME)/makefiles/Makefile.common
+include $(TRICK_HOME)/share/trick/makefiles/Makefile.common
 
 #-------------------------------------------------------------------------------
 # Specify the contents of: libtrick.a
@@ -56,7 +56,10 @@ SIM_SERV_DIRS = \
 	${TRICK_HOME}/trick_source/sim_services/Units \
 	${TRICK_HOME}/trick_source/sim_services/VariableServer \
 	${TRICK_HOME}/trick_source/sim_services/Zeroconf \
-	${TRICK_HOME}/trick_source/sim_services/include
+	${TRICK_HOME}/trick_source/sim_services/include \
+	${TRICK_HOME}/trick_source/sim_services/mains \
+	${TRICK_HOME}/include/trick
+
 SIM_SERV_OBJS = $(addsuffix /object_$(TRICK_HOST_CPU)/*.o ,$(SIM_SERV_DIRS))
 
 ER7_UTILS_DIRS = \
@@ -145,7 +148,7 @@ MODEL_DIRS = \
 # distributed in the installation package. The reason for distributing pre-built
 # ICG binaries is because the user's machine may not have the requisite clang
 # libraries.
-ICG_EXE := ${TRICK_HOME}/trick_source/codegen/Interface_Code_Gen/ICG_$(shell uname -s)_$(shell uname -m)
+ICG_EXE := ${TRICK_HOME}/bin/trick-ICG
 
 ################################################################################
 #                                   RULES
@@ -157,7 +160,7 @@ all: no_dp dp java
 
 #-------------------------------------------------------------------------------
 # 1.1 Build Trick-core
-no_dp: $(TRICK_LIB) $(TRICK_SWIG_LIB) $(TRICK_LIB_DIR)/master.o
+no_dp: $(TRICK_LIB) $(TRICK_SWIG_LIB)
 	@ echo ; echo "Trick libs compiled:" ; date
 
 # 1.1.1 Build libTrick.a
@@ -199,11 +202,11 @@ endif
 # header files.
 .PHONY: icg_sim_serv
 icg_sim_serv: $(ICG_EXE)
-	${TRICK_HOME}/bin/ICG -s ${TRICK_CXXFLAGS} ${TRICK_HOME}/trick_source/sim_services/include/files_to_ICG.hh
+	${TRICK_HOME}/bin/trick-ICG -s ${TRICK_CXXFLAGS} ${TRICK_HOME}/include/trick/files_to_ICG.hh
 
 # 1.1.1.4.1 Build the Interface Code Generator (ICG) executable.
 $(ICG_EXE) :
-	$(MAKE) -C ${@D}
+	$(MAKE) -C trick_source/codegen/Interface_Code_Gen
 
 # 1.1.1.5 Create Trick Library directory.
 $(TRICK_LIB_DIR):
@@ -216,11 +219,6 @@ $(TRICK_SWIG_LIB): $(SWIG_DIRS) | $(TRICK_LIB_DIR)
 .PHONY: $(SWIG_DIRS)
 $(SWIG_DIRS): icg_sim_serv $(TRICK_LIB_DIR)
 	@ $(MAKE) -C $@ trick
-
-# 1.1.3 Build master.o. This object contains the main() function for Trick-based
-#       simulations.
-$(TRICK_LIB_DIR)/master.o: | $(TRICK_LIB_DIR)
-	@ $(MAKE) -C ${TRICK_HOME}/trick_source/sim_services/mains trick
 
 #-------------------------------------------------------------------------------
 # 1.2 Build Trick's Data-products Applications.
@@ -508,11 +506,16 @@ stand_alone_utils:
 # ICG all sim_services files (for testing and debugging ICG).
 # The -f flag forces io_src files to be regenerated whether or not they need to be.
 ICG: $(ICG_EXE)
-	${TRICK_HOME}/bin/ICG -f -s ${TRICK_CXXFLAGS} ${TRICK_HOME}/trick_source/sim_services/include/files_to_ICG.hh
+	${TRICK_HOME}/bin/ICG -f -s ${TRICK_CXXFLAGS} ${TRICK_HOME}/include/trick/files_to_ICG.hh
 
 # This builds a tricklib share library.
-trick_lib:
-	${TRICK_CPPC} $(SHARED_LIB_OPT) -o $(TRICK_LIB) $(SIM_SERV_OBJS) $(ER7_UTILS_OBJS) $(UTILS_OBJS) $(SWIG_OBJS)
+ifeq ($(USE_ER7_UTILS_INTEGRATORS), 1)
+trick_lib: $(SIM_SERV_DIRS) $(ER7_UTILS_DIRS) $(UTILS_DIRS) | $(TRICK_LIB_DIR)
+	${TRICK_CPPC} $(SHARED_LIB_OPT) -o ${TRICK_LIB_DIR}/libtrick.so $(SIM_SERV_OBJS) $(ER7_UTILS_OBJS) $(UTILS_OBJS)
+else
+trick_lib: $(SIM_SERV_DIRS) $(UTILS_DIRS) | $(TRICK_LIB_DIR)
+	${TRICK_CPPC} $(SHARED_LIB_OPT) -o ${TRICK_LIB_DIR}/libtrick.so $(SIM_SERV_OBJS) $(UTILS_OBJS)
+endif
 
 # For NASA/JSC developers include optional rules
 -include Makefile_jsc_dirs

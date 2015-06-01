@@ -3,8 +3,8 @@
  * Multicast connect
  */
 
-#include "../include/tc.h"
-#include "../include/tc_proto.h"
+#include "trick/tc.h"
+#include "trick/tc_proto.h"
 #include <string.h>
 #ifdef __WIN32__
 #include <process.h>

@@ -1,0 +1,12 @@
+#!/bin/sh
+
+if [ "${OSTYPE}" = "darwin" ]
+then
+    java -classpath ${TRICK_HOME}/libexec/trick/java/dist/*:${TRICK_HOME}/libexec/trick/java/lib/* \
+         -Xdock:name="Data Recording Editor" \
+         -Xdock:icon=${TRICK_HOME}/libexec/trick/java/resources/trick_icon.png \
+         trick.dre.DreApplication $@
+else
+    java -classpath ${TRICK_HOME}/libexec/trick/java/dist/*:${TRICK_HOME}/libexec/trick/java/lib/* trick.dre.DreApplication $@
+fi
+     

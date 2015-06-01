@@ -6,7 +6,7 @@
    PROGRAMMERS: (((Robert W. Bailey) (LinCom Corp) (3/21/91) (Trick-CR-00000) (Development))) */
 
 #include <stdio.h>
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 void trns_fnct_2o(double *z,    /* In: damping ratio */
                   double *wn,   /* In: r/s Natural frequency in */

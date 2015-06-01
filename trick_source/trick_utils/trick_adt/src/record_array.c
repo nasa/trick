@@ -1,6 +1,6 @@
 /* implementation of record array */
 
-#include "record_array.h"
+#include "trick/record_array.h"
 #include <stdlib.h>
 
 

@@ -3,8 +3,8 @@
  * See if data is available for reading on a non-blocking connection
  */
 
-#include "../include/tc.h"
-#include "../include/tc_proto.h"
+#include "trick/tc.h"
+#include "trick/tc_proto.h"
 
 int tc_pending(TCDevice * device)
 {

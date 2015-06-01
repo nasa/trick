@@ -5,7 +5,7 @@
 
  */
 
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 void quat_to_mat(double a[3][3],        /* Out: transformation matrix */
                  double quat[4])

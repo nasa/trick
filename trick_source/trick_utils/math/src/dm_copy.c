@@ -7,7 +7,7 @@
 
    PROGRAMMERS: (((Les Quiocho) (NASA/Johnson Space Center) (Jan 1990) (v1.0) (Init Release))) */
 
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 void dm_copy(double copy[3][3], /* Out: copy of the matrix */
              double mat[3][3])

@@ -3,7 +3,7 @@
 
    PROGRAMMERS: (((Les Quiocho) (NASA/JSC) (Jan 1990) (v1.0) (Init Release))) */
 
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 double dv_dot(                  /* Return: Scalar dot or inner product */
                  double vect1[],        /* In: Vector 1 */

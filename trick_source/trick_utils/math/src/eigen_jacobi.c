@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 
 int eigen_jacobi(double **k,    /* In: Input stiffness matrix */

@@ -5,7 +5,7 @@
 
    PROGRAMMERS: (((Les Quiocho) (NASA/JSC) (Jan 1990) (v1.0) (Init Release))) */
 
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 void dmtxv(double prod[],       /* Out: Product of the matrix and vector */
            double mat[3][3],    /* In: Matrix */

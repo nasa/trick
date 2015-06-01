@@ -2,8 +2,8 @@
 /*
  * Initialize a shared memory segment - get it and attach to it
  */
-#include "../include/tsm.h"
-#include "../include/tsm_proto.h"
+#include "trick/tsm.h"
+#include "trick/tsm_proto.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>

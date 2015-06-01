@@ -7,7 +7,7 @@
    PROGRAMMERS: (((Robert W. Bailey) (LinCom Corp) (Feb 1991) (v1.0) (Initial Release.)))
  */
 
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 double roundoff(                /* Return: Value after roundoff */
                    double res,  /* In: Resolution for roundoff function */

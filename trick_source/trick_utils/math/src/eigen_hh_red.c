@@ -7,7 +7,7 @@
 
    PROGRAMMERS: (((M Schira) (MDSS) (Jan 1994) (v1.0) (Init Release))) */
 
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 
 void eigen_hh_red(double **a,   /* In: Input matrix */

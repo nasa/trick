@@ -3,8 +3,8 @@
  *  Get system clock reference time
  */
 
-#include "../include/tc.h"
-#include "../include/tc_proto.h"
+#include "trick/tc.h"
+#include "trick/tc_proto.h"
 
 double tc_clock_init(void)
 {

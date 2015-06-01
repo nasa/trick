@@ -19,8 +19,8 @@
 #include <sys/times.h>
 #endif
 
-#include "../include/wave_form.h"
-#include "../include/trick_math.h"
+#include "trick/wave_form.h"
+#include "trick/trick_math.h"
 
 #if ( __sun || __linux || __APPLE__ || __CYGWIN__ || __Lynx__ || __QNX__ || __ghs || __INTERIX )
 #define gettimeofday(T) gettimeofday(T,NULL)

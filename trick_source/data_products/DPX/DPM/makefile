@@ -1,5 +1,5 @@
 
-include ${TRICK_HOME}/makefiles/Makefile.common
+include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 RM = rm -rf
 CC = cc
@@ -7,7 +7,7 @@ CPP = c++
 
 DPX_DIR = ..
 
-INCLUDE_DIRS = -I${DPX_DIR} -I../.. -I/usr/include/libxml2
+INCLUDE_DIRS = -I${DPX_DIR} -I../.. -I${TRICK_HOME}/include -I/usr/include/libxml2
 
 CFLAGS = -g -Wall
 

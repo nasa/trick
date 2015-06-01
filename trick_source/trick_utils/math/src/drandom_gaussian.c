@@ -9,7 +9,7 @@
 
 #include <stdlib.h>
 
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 
 #define MAX_VALUE 32768.0              /* 32768 = 2**15 */

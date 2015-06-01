@@ -1,5 +1,5 @@
 
-include ${TRICK_HOME}/makefiles/Makefile.common
+include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 CC        = cc
 

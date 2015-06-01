@@ -225,12 +225,12 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 
     @Action
     public void startTV() {
-        launchTrickApplication("tv",  "--host " + host + " --port " + port);
+        launchTrickApplication("trick-tv",  "--host " + host + " --port " + port);
     }
 
     @Action
     public void startMTV() {
-        launchTrickApplication("mtv",  host + " " + port);
+        launchTrickApplication("trick-mtv",  host + " " + port);
     }
 
     @Action

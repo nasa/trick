@@ -6,7 +6,7 @@ PROGRAMMERS:
       (Initial Release)))
 */
 
-#include "UCFn.hh"
+#include "trick/UCFn.hh"
 
 UCFn::UCFn(const char *in_t_name, const char *in_f_name, double C1, double C0) {
     this->C[1]=C1;

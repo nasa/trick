@@ -1,6 +1,6 @@
 
 #include "DPM_axis.hh"
-#include "../../trick_utils/units/include/Unit.hh"
+#include "trick/Unit.hh"
 
 int DPM_axis::Initialize(xmlNode *base_node) {
 

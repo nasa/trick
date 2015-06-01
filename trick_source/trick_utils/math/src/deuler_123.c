@@ -19,7 +19,7 @@ PROGRAMMERS:
         angle[2] = YAW      - M_PI   <= YAW   < M_PI
 */
 
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 int euler123(
         double angle[3],    /* In:  r  Method=0, 0=ROLL , 1=PITCH , 2=YAW */

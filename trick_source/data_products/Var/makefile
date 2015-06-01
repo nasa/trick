@@ -1,5 +1,5 @@
 
-include ${TRICK_HOME}/makefiles/Makefile.common
+include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 CC        = c++ 
 
@@ -14,7 +14,7 @@ endif
 OBJ_DIR   = object_${TRICK_HOST_CPU}
 LIBDIR    = ../lib_${TRICK_HOST_CPU}
 LIBNAME   = libvar.a
-INCLUDE_DIRS = -I..
+INCLUDE_DIRS = -I${TRICK_HOME}/include
 DP_CFLAGS = -g ${INCLUDE_DIRS} -fPIC
 
 OBJECTS0  = $(OBJ_DIR)/var.o
@@ -78,8 +78,3 @@ $(OBJ_DIR)/var.o: var.cpp | $(OBJ_DIR)
 # - Save changes (if any)
 # - run "make depend"
 #######################################################################
-# DO NOT DELETE
-object_${TRICK_HOST_CPU}/var.o: var.cpp var.h \
- ../units/include/Unit.hh \
- ../units/include/units_conv.h \
- ../units/include/UCFn.hh 

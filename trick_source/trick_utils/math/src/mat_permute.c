@@ -7,7 +7,7 @@
 
    PROGRAMMERS: (((Les Quiocho) (NASA/JSC) (September 93) (Trick-CR-xxxxx) (--))) */
 
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 void mat_permute(               /* Return: -- none */
                     double **A_coeff,   /* In: A_coeff */

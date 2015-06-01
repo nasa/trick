@@ -1,0 +1,5 @@
+object_${TRICK_HOST_CPU}/UnitTest.o: UnitTest.cpp ${TRICK_HOME}/include/trick/UnitTest.hh \
+ ${TRICK_HOME}/include/trick/message_proto.h \
+ ${TRICK_HOME}/include/trick/message_type.h 
+object_${TRICK_HOST_CPU}/UnitTest_c_intf.o: UnitTest_c_intf.cpp \
+ ${TRICK_HOME}/include/trick/UnitTest.hh 

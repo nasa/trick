@@ -3,8 +3,8 @@
  * Write data to a device
  */
 
-#include "../include/tc.h"
-#include "../include/tc_proto.h"
+#include "trick/tc.h"
+#include "trick/tc_proto.h"
 
 int tc_write_(TCDevice * device, char *buffer, int size, const char *file, int line)
 {

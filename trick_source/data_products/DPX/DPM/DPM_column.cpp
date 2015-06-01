@@ -1,6 +1,6 @@
 
 #include "DPM_column.hh"
-#include "../../trick_utils/units/include/Unit.hh"
+#include "trick/Unit.hh"
 
 int DPM_column::Initialize(xmlNode *base_node) {
 

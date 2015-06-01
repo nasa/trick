@@ -8,7 +8,7 @@
 #include "MatLab.hh"
 #include "trick_byteswap.h"
 
-#include "parameter_types.h"
+#include "trick/parameter_types.h"
 
 // Add to the parameter types
 #define MATLAB_ARRAY 21

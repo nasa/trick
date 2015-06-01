@@ -1,0 +1,16 @@
+
+#ifndef TPROCLOCK_SM
+#define TPROCLOCK_SM
+
+##include "trick/TPROCTEClock.hh"
+
+class TPROSimObject : public Trick::SimObject {
+    public:
+        Trick::TPROCTEClock tpro_cte ;
+        TPROSimObject() { }
+}
+
+TPROSimObject trick_tpro ;
+
+#endif
+

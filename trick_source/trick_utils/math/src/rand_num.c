@@ -11,7 +11,7 @@
    (Updates to put routines into trick math))) */
 
 #include <stdio.h>
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 double rand_num(RAND_GENERATOR * G)
 {                                      /* Inout: Generator parameters */

@@ -1,5 +1,5 @@
 
-include ${TRICK_HOME}/makefiles/Makefile.common
+include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 RM = rm -rf
 CC = cc
@@ -7,7 +7,7 @@ CPP = c++
 
 DPX_DIR = ../..
 
-INCDIRS = -I${DPX_DIR} -I../../.. -I/usr/include/libxml2 $(MOTIF_INCDIR)
+INCDIRS = -I${DPX_DIR} -I../../.. -I${TRICK_HOME}/include -I/usr/include/libxml2 $(MOTIF_INCDIR)
 
 CFLAGS = -g -Wall
 
@@ -36,7 +36,7 @@ else
 endif
 endif
 
-DP_LIBS         = -L../../../lib_${TRICK_HOST_CPU} -llog -lvar -leqparse -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} -ltrick_units
+DP_LIBS         = -L../../../lib_${TRICK_HOST_CPU} -llog -lvar -leqparse -L${TRICK_LIB_DIR} -ltrick_units
 MODEL_LIBS      = -L${DPX_DIR}/lib_${TRICK_HOST_CPU} -lDPM
 CONTROLLER_LIBS = -L${DPX_DIR}/lib_${TRICK_HOST_CPU} -lDPC
 
@@ -62,9 +62,9 @@ CXX_OBJECT_FILES = $(OBJDIR)/gp_view.o \
 
 OBJECT_FILES = $(C_OBJECT_FILES) $(CXX_OBJECT_FILES)
 
-all: $(OBJDIR)/gxplot
+all: ${TRICK_HOME}/bin/trick-gxplot
 
-$(OBJDIR)/gxplot: ${LIBDIR}/libDPM.a ${LIBDIR}/libDPC.a ${LIBDIR}/libDPV.a $(OBJECT_FILES)
+${TRICK_HOME}/bin/trick-gxplot: ${LIBDIR}/libDPM.a ${LIBDIR}/libDPC.a ${LIBDIR}/libDPV.a $(OBJECT_FILES)
 	@echo "===== Making gxplot ====="
 	${CPP} ${CFLAGS} ${INCDIRS} -o $@ $(OBJECT_FILES) $(ALL_LIBS) ${XLIBS} ${LIBRTDEF} ${CONTROLLER_LIBS} -lDPV
 
