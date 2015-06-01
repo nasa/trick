@@ -5,7 +5,7 @@
  */
 
 #include <stdio.h>
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 
 void vec_print(double *vec,     /* In: Matrix to be printed */

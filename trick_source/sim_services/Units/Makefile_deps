@@ -1,2 +1,1 @@
-object_${TRICK_HOST_CPU}/UnitsMap.o: src/UnitsMap.cpp \
- ${TRICK_HOME}/trick_source/sim_services/Units/include/UnitsMap.hh 
+object_${TRICK_HOST_CPU}/UnitsMap.o: UnitsMap.cpp ${TRICK_HOME}/include/trick/UnitsMap.hh 

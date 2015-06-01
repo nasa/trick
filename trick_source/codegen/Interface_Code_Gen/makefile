@@ -1,6 +1,6 @@
 
 # The config_${HOST_TYPE}.mk file provides LLVM_HOME
-include ${TRICK_HOME}/makefiles/Makefile.common
+include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 RTTIFLAG := -fno-rtti
 LLVM_VERSION := $(shell $(LLVM_HOME)/bin/$(LLVM_CONFIG) --version)
@@ -21,14 +21,14 @@ ifeq ($(IS_CC_CLANG), 0)
 CXXFLAGS += -DGCC_MAJOR=$(GCC_MAJOR) -DGCC_MINOR=$(GCC_MINOR)
 endif
 
-ICG := ICG_$(shell uname -s)_$(shell uname -m)
+ICG := ${TRICK_HOME}/bin/trick-ICG
 
 SOURCES = $(wildcard *.cpp)
 OBJECTS = $(addprefix $(OBJ_DIR)/, $(subst .cpp,.o,$(SOURCES)))
 
 # Include the units conversion source from trick_utils.
 UNITS_CONV_SRC = ${TRICK_HOME}/trick_source/trick_utils/units/src/units_conv.c
-UNITS_CONV_INCLUDE = -I${TRICK_HOME}/trick_source/trick_utils/units/include
+UNITS_CONV_INCLUDE = -I${TRICK_HOME}/include
 UNITS_CONV_OBJ = $(OBJ_DIR)/units_conv.o
 
 ifeq ($(CLANG_MINOR_GTEQ5),1)

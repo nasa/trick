@@ -14,7 +14,7 @@
 #include <string>
 using namespace std ;
 
-#include "units/include/Unit.hh"
+#include "trick/Unit.hh"
 
 /*
  * Variable Class

@@ -4,7 +4,7 @@
    PROGRAMMERS: (((Les Quiocho) (NASA/JSC) (Jan 1993) (v1.0) (Init Release)))
  */
 
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 void transxvec(double *prod,    /* Out: Product of the two matrices */
                double **mat,    /* In: Matrix 1 */

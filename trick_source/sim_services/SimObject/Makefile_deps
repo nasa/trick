@@ -1,8 +1,6 @@
-object_${TRICK_HOST_CPU}/JobData.o: src/JobData.cpp \
- ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
- ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
- ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh 
-object_${TRICK_HOST_CPU}/SimObject.o: src/SimObject.cpp \
- ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
- ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
- ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh 
+object_${TRICK_HOST_CPU}/JobData.o: JobData.cpp ${TRICK_HOME}/include/trick/JobData.hh \
+ ${TRICK_HOME}/include/trick/InstrumentBase.hh \
+ ${TRICK_HOME}/include/trick/SimObject.hh 
+object_${TRICK_HOST_CPU}/SimObject.o: SimObject.cpp ${TRICK_HOME}/include/trick/SimObject.hh \
+ ${TRICK_HOME}/include/trick/JobData.hh \
+ ${TRICK_HOME}/include/trick/InstrumentBase.hh 

@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 void eigen_jacobi_4(double k[4][4],     /* In: input stiffness matrix */
                     double mass[4][4],  /* In: input mass matrix */

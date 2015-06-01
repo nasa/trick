@@ -22,7 +22,7 @@
    PROGRAMMERS: (((Robert W. Bailey) (LinCom Corp) (2/1/91) (Trick-CR-00000) (Initial Release))) */
 
 #include <stdio.h>
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 #define TINY (1.0e-37)
 

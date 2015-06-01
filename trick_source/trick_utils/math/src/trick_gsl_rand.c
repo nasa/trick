@@ -7,14 +7,14 @@
 #include <stdio.h>
 #include <limits.h>
 #include <float.h>
-#include "../include/rand_generator.h"
-#include "sim_services/Message/include/message_proto.h"
-#include "sim_services/Message/include/message_type.h"
+#include "trick/rand_generator.h"
+#include "trick/message_proto.h"
+#include "trick/message_type.h"
 
 #if _HAVE_GSL
 #include "gsl/gsl_randist.h"
 #else
-#include "../include/trick_math_proto.h"
+#include "trick/trick_math_proto.h"
 #endif
 
 void trick_gsl_rand_init(TRICK_GSL_RANDIST * G)

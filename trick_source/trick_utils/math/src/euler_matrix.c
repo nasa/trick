@@ -6,8 +6,8 @@
 
    PROGRAMMERS: (((Robert W. Bailey) (LinCom Corp) (2/1/91) (Trick-CR-00000) (Initial Release))) */
 
-#include "../include/reference_frame.h"
-#include "../include/trick_math.h"
+#include "trick/reference_frame.h"
+#include "trick/trick_math.h"
 
 int euler_matrix(double angle[3],       /* In: r Method=0, Euler angles */
                  double mat[3][3],      /* Out: r Method=0, Coordinate transformation matrix */

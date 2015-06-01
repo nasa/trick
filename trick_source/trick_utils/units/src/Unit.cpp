@@ -7,8 +7,8 @@ PROGRAMMERS:
 */
 
 #include <string>
-#include "Unit.hh"
-#include "units_conv.h"
+#include "trick/Unit.hh"
+#include "trick/units_conv.h"
 
 Unit::Unit() {
     const char *name = "--";

@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 void eigen_ql(double *d,        /* Inout: input diagonal elements, output eigenvalues */
               double *e,        /* In: off diagonal elements */

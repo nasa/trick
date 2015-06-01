@@ -1,6 +1,6 @@
 
-include ${TRICK_HOME}/makefiles/Makefile.common
-include ${TRICK_HOME}/makefiles/Makefile.tricklib
+include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
+include ${TRICK_HOME}/share/trick/makefiles/Makefile.tricklib
 -include Makefile_deps
 
 $(L_OBJS) : TRICK_CXXFLAGS += -Wno-unused-parameter -Wno-unused-function -Wno-sign-compare -x c++

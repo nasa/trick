@@ -50,7 +50,7 @@ void HeaderSearchDirs::AddCompilerBuiltInSearchDirs () {
 #endif
 #endif
 
-    fp = popen("${TRICK_HOME}/bin/gte TRICK_CPPC" , "r") ;
+    fp = popen("${TRICK_HOME}/bin/trick-gte TRICK_CPPC" , "r") ;
     fgets(line , sizeof(line) , fp) ;
     pclose(fp) ;
     std::string trick_cppc = std::string(line) ;
@@ -118,7 +118,7 @@ void HeaderSearchDirs::AddTrickSearchDirs () {
     char * trick_home = getenv("TRICK_HOME") ;
 
     if ( trick_home != NULL ) {
-        std::string temp_dir = std::string(trick_home) + "/trick_source" ;
+        std::string temp_dir = std::string(trick_home) + "/include/trick" ;
         char * resolved_path = almostRealPath(temp_dir.c_str() ) ;
 #if (__clang_major__ == 3) && (__clang_minor__ >= 3)
         hso.AddPath(resolved_path , clang::frontend::Quoted, false, true);

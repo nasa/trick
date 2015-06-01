@@ -1,13 +1,13 @@
 
-include ${TRICK_HOME}/makefiles/Makefile.common
+include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 CC             = c++
 DP_CFLAGS      = -g -I../..
 OBJDIR         = object_${TRICK_HOST_CPU}
 LIBDIR         = ../../lib_${TRICK_HOST_CPU}
-DP_LIBS        = -L$(LIBDIR) -llog -lvar -L$(TRICK_HOME)/lib_${TRICK_HOST_CPU} -ltrick_units
-JZ_MAIN        = $(OBJDIR)/trk2csv
-ASCII_MAIN     = $(OBJDIR)/trk2ascii
+DP_LIBS        = -L$(LIBDIR) -llog -lvar -L$(TRICK_LIB_DIR) -ltrick_units
+JZ_MAIN        = ${TRICK_HOME}/bin/trick-trk2csv
+ASCII_MAIN     = ${TRICK_HOME}/bin/trick-trk2ascii
 
 ifeq ($(TRICK_HOST_TYPE), Linux)
        DP_CFLAGS += -Wall

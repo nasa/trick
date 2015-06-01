@@ -365,7 +365,7 @@ public abstract class DataProductsApplication extends TrickApplication {
 
         javaRadioButton = new JRadioButtonMenuItem(getAction("selectJavaPlot"));
 
-        String fermi_exe = UIUtils.getTrickHome() + "/trick_source/data_products/DPX/APPS/FXPLOT/object_" + UIUtils.getTrickHostCPU() + "/fxplot" ;
+        String fermi_exe = UIUtils.getTrickHome() + "/bin/trick-fxplot" ;
         File f = new File(fermi_exe) ;
         fermiExists = f.exists() ;
 

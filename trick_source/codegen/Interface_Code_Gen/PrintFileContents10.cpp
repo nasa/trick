@@ -6,6 +6,7 @@
 #include "FieldDescription.hh"
 #include "ClassValues.hh"
 #include "EnumValues.hh"
+#include "Utilities.hh"
 
 PrintFileContents10::PrintFileContents10() {}
 
@@ -14,6 +15,8 @@ void PrintFileContents10::printIOHeader(std::ofstream & outfile , std::string he
 
      if ( ! header_file_name.compare("S_source.hh") ) {
          header_file_name = "../S_source.hh" ;
+     } else {
+         header_file_name = almostRealPath(header_file_name.c_str()) ;
      }
      outfile << "\n"
 "/*\n"
@@ -38,10 +41,10 @@ void PrintFileContents10::printIOHeader(std::ofstream & outfile , std::string he
 "   keywords are immune to this attack.  Yes, it's evil! */\n"
 "//#define private public\n"
 "//#define protected public\n\n"
-"#include \"sim_services/MemoryManager/include/MemoryManager.hh\"\n"
-"#include \"sim_services/MemoryManager/include/attributes.h\"\n"
-"#include \"sim_services/MemoryManager/include/parameter_types.h\"\n"
-"#include \"sim_services/Units/include/UnitsMap.hh\"\n\n"
+"#include \"trick/MemoryManager.hh\"\n"
+"#include \"trick/attributes.h\"\n"
+"#include \"trick/parameter_types.h\"\n"
+"#include \"trick/UnitsMap.hh\"\n\n"
 "#include \""
 << header_file_name <<
 "\"\n\n" ;
@@ -448,8 +451,8 @@ void PrintFileContents10::printClassMapHeader( std::ofstream & outfile , std::st
 " */\n\n"
 "#include <map>\n"
 "#include <string>\n\n"
-"#include \"sim_services/Sie/include/AttributesMap.hh\"\n"
-"#include \"sim_services/MemoryManager/include/attributes.h\"\n\n"
+"#include \"trick/AttributesMap.hh\"\n"
+"#include \"trick/attributes.h\"\n\n"
 "void " << function_name << "() {\n\n"
 "    Trick::AttributesMap * class_attribute_map = Trick::AttributesMap::attributes_map();\n\n" ;
 }
@@ -482,8 +485,8 @@ void PrintFileContents10::printEnumMapHeader( std::ofstream & outfile , std::str
 " */\n\n"
 "#include <map>\n"
 "#include <string>\n\n"
-"#include \"sim_services/Sie/include/EnumAttributesMap.hh\"\n"
-"#include \"sim_services/MemoryManager/include/attributes.h\"\n\n"
+"#include \"trick/EnumAttributesMap.hh\"\n"
+"#include \"trick/attributes.h\"\n\n"
 "void " << function_name << "() {\n"
 "    Trick::EnumAttributesMap * enum_attribute_map __attribute__((unused)) = Trick::EnumAttributesMap::attributes_map();\n\n" ;
 }

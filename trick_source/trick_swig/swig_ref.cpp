@@ -9,9 +9,9 @@
 #include "trick_swig/swig_double.hh"
 #include "trick_swig/swig_int.hh"
 #include "trick_swig/swig_convert_units.hh"
-#include "sim_services/MemoryManager/include/MemoryManager.hh"
-#include "sim_services/MemoryManager/include/memorymanager_c_intf.h"
-#include "sim_services/CheckPointAgent/include/PythonPrint.hh"
+#include "trick/MemoryManager.hh"
+#include "trick/memorymanager_c_intf.h"
+#include "trick/PythonPrint.hh"
 
 #if PY_VERSION_HEX < 0x02050000
 #define Py_ssize_t int

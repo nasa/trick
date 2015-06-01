@@ -2,8 +2,8 @@
 /*
  * Disconnect (detach) a shared memory segment
  */
-#include "../include/tsm.h"
-#include "../include/tsm_proto.h"
+#include "trick/tsm.h"
+#include "trick/tsm_proto.h"
 
 
 int tsm_disconnect(TSMDevice * shm_device)

@@ -3,8 +3,8 @@
  * Set up a device on which to listen for connections
  */
 #include <fcntl.h>
-#include "../include/tc.h"
-#include "../include/tc_proto.h"
+#include "trick/tc.h"
+#include "trick/tc_proto.h"
 
 
 int tc_init(TCDevice * listen_device) {

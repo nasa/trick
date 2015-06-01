@@ -8,7 +8,7 @@
 
  */
 
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 
 void quat_norm(double q2[4],    /* Out: quaternion */

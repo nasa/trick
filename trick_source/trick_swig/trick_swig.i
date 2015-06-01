@@ -18,12 +18,12 @@
 %{
 #include <sstream>
 
-#include "sim_services/Units/include/UnitsMap.hh"
-#include "trick_utils/units/include/Unit.hh"
-#include "sim_services/MemoryManager/include/MemoryManager.hh"
-#include "sim_services/MemoryManager/include/reference.h"
-#include "sim_services/MemoryManager/include/memorymanager_c_intf.h"
-#include "sim_services/CheckPointAgent/include/PythonPrint.hh"
+#include "trick/UnitsMap.hh"
+#include "trick/Unit.hh"
+#include "trick/MemoryManager.hh"
+#include "trick/reference.h"
+#include "trick/memorymanager_c_intf.h"
+#include "trick/PythonPrint.hh"
 
 
 #ifndef SWIG_as_voidptr 

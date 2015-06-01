@@ -15,7 +15,7 @@
 
  */
 
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 
 void quat_norm_integ(double q2[4],      /* Out: normalized quaternion */

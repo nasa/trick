@@ -5,7 +5,7 @@
 
    PROGRAMMERS: (((M Schira) (McDonnell Douglas) (Feb 1994) (v1.0) (Init Release))) */
 
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 int LUT_inv(                    /* RETURN: -- Zero */
                double **y,      /* OUT: -- Matrix inverse */

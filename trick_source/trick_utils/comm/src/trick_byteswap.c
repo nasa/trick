@@ -14,9 +14,9 @@
 
 
 #ifdef STAND_ALONE
-#include "../include/trick_byteswap.h"
+#include "trick/trick_byteswap.h"
 #else
-#include "trick_utils/comm/include/trick_byteswap.h"
+#include "trick/trick_byteswap.h"
 #endif
 
 /* (note from ISP developers) Normally this routine would just zip through the double a byte at a time and reassign

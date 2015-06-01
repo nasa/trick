@@ -2,7 +2,7 @@
 #ifndef DPC_DATASTREAM_SUPPLIER_HH
 #define DPC_DATASTREAM_SUPPLIER_HH
 
-#include "../../units/include/Unit.hh"
+#include "trick/Unit.hh"
 #include "../../Log/DataStream.hh"
 #include "../../Log/DataStreamFactory.hh"
 

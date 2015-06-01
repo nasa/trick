@@ -3,11 +3,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
-#include "MapStrToPtr.h"
-
-#if ( __ghs )
-#include "../../../sim_services/include/ghs_stubs.h"
-#endif
+#include "trick/MapStrToPtr.h"
 
 /* create a new table entry structure */
 

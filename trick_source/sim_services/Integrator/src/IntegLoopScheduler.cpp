@@ -1,15 +1,15 @@
 
 
 // Local includes
-#include "../include/IntegLoopScheduler.hh"
+#include "trick/IntegLoopScheduler.hh"
 
-#include "../include/IntegLoopManager.hh"
-#include "../include/IntegJobClassId.hh"
+#include "trick/IntegLoopManager.hh"
+#include "trick/IntegJobClassId.hh"
 
 // Trick includes
-#include "sim_services/Executive/include/exec_proto.h"
-#include "sim_services/Message/include/message_proto.h"
-#include "sim_services/Message/include/message_type.h"
+#include "trick/exec_proto.h"
+#include "trick/message_proto.h"
+#include "trick/message_type.h"
 
 // System includes
 #include <iostream>

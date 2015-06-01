@@ -5,7 +5,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "units_conv.h"
+#include "trick/units_conv.h"
 
 typedef enum { No_Op, Mult_Op, Div_Op, Square_Op, Cube_Op,
     Units_Primitive, End_of_input, Unknown

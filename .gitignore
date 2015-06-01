@@ -3,6 +3,8 @@ config_*.mk
 object_*
 io_src
 swig
+lib
+lib64
 lib_Linux_*
 lib_Darwin_*
 *.lex.c
@@ -12,3 +14,8 @@ lib_Darwin_*
 *.dox
 Makefile_jsc_dirs
 .DS_Store
+bin/trick-ICG
+bin/trick-fxplot
+bin/trick-gxplot
+bin/trick-trk2ascii
+bin/trick-trk2csv

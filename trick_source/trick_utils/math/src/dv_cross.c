@@ -4,7 +4,7 @@
    PROGRAMMERS: (((Les Quiocho) (NASA/JSC) (Jan 1990) (v1.0) (Init Release)))
  */
 
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 void dv_cross(double cross[],   /* Out: cross product of the two vectors */
               double vect1[],   /* In: vector 1 */

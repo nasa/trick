@@ -2,7 +2,7 @@
 #include <iostream>
 #include <sstream>
 #include <stdarg.h>
-#include "Interpolator.hh"
+#include "trick/Interpolator.hh"
 
 double Trick::Interpolator::eval (double param[], unsigned int param_index, unsigned int offset)
         throw (std::logic_error) {

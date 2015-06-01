@@ -3,8 +3,8 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "lqueue.h"
-#include "dllist.h"
+#include "trick/lqueue.h"
+#include "trick/dllist.h"
 #include <assert.h>
 
 /* create and initialize an LQUEUE structure */

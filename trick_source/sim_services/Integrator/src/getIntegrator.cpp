@@ -16,9 +16,9 @@ Programmers:
 #include <iostream>
 
 // Trick includes
-#include "sim_services/MemoryManager/include/memorymanager_c_intf.h"
-#include "sim_services/Message/include/message_proto.h"
-#include "sim_services/Message/include/message_type.h"
+#include "trick/memorymanager_c_intf.h"
+#include "trick/message_proto.h"
+#include "trick/message_type.h"
 
 #ifdef USE_ER7_UTILS_INTEGRATORS
 // Interface includes
@@ -29,8 +29,8 @@ Programmers:
 #endif
 
 // Local includes
-#include "../include/Integrator.hh"
-#include "../include/IntegAlgorithms.hh"
+#include "trick/Integrator.hh"
+#include "trick/IntegAlgorithms.hh"
 
 #ifdef USE_ER7_UTILS_INTEGRATORS
 /**

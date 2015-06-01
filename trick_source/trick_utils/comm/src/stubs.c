@@ -27,7 +27,7 @@
 #include <unistd.h>
 #endif
 
-#include "../include/hs_msg.h"
+#include "trick/hs_msg.h"
 
 #ifdef STAND_ALONE
 int send_hs(FILE * fp, char *format, ...);

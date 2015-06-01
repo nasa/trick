@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "bst.h"
+#include "trick/bst.h"
 
 /* locate the node that contains the data pointed to by info */
 

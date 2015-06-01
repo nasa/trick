@@ -189,7 +189,7 @@ std::string PrintAttributes::createIOFileName(std::string header_file_name) {
 
     if ( hsd.isPathInUserDir( dir_name ) ) {
         if ( dir_name.length() >= 8 and ! dir_name.compare(dir_name.size() - 8 , dir_name.size() , "/include" )) {
-            if ( dir_name.length() < 20 or dir_name.compare(dir_name.size() - 20 , dir_name.size() , "sim_services/include" )) {
+            if ( dir_name.length() < 13 or dir_name.compare(dir_name.size() - 13 , dir_name.size() , "trick/include" )) {
                 dir_name.replace(dir_name.size() - 8 , dir_name.size() , "") ;
             }
         }

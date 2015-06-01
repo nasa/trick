@@ -1,7 +1,7 @@
 
 #include "DPC/DPC_std_curve.hh"
 #include "math.h"
-#include "../../units/include/Unit.hh"
+#include "trick/Unit.hh"
 
 // CONSTRUCTOR
 DPC_std_curve::DPC_std_curve(

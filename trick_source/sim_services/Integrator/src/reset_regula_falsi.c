@@ -19,7 +19,7 @@ PROGRAMMERS:
     current simulation time.
 */
 
-#include "regula_falsi.h"
+#include "trick/regula_falsi.h"
 
 void reset_regula_falsi(
                            /* Return: Estimated time (seconds) to go to error

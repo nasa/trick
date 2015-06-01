@@ -3,7 +3,7 @@
 #define DPC_UNITCONVDATASTREAM_HH
 
 #include <string>
-#include "../../units/include/Unit.hh"
+#include "trick/Unit.hh"
 #include "../../Log/DataStream.hh"
 
 /**

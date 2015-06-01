@@ -20,7 +20,7 @@ PROGRAMMERS:
 */
 
 #include <stdio.h>
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 int euler231( /* Return: --   None. */
         double angle[3],    /* In: r  Method=0, 0=PITCH, 1=YAW, 2=ROLL */

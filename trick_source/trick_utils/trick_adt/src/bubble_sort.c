@@ -13,7 +13,7 @@ PROGRAMMERS:
    (((Edwin Z. Crues) (LinCom) (10 Oct 97) (Trickified for RGPS work)))
 ***************************************************************************/
 
-#include "dllist.h"
+#include "trick/dllist.h"
 #include <stdio.h>
 
 int bubble_sort(                /* RETURN: -- Always returns zero. */

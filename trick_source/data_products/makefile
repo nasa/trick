@@ -2,7 +2,7 @@
 # Makefile for Data Products Libs And Apps
 #
 
-include ${TRICK_HOME}/makefiles/Makefile.common
+include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 LIB_DIR = lib_${TRICK_HOST_CPU}
 

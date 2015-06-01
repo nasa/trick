@@ -11,9 +11,9 @@ PROGRAMMERS:                 ( (Robert W. Bailey) (LinCom) (April 1992) )
 #include <iostream>
 #include <locale.h>
 
-#include "sim_services/Executive/include/Executive.hh"
-#include "sim_services/CommandLineArguments/include/command_line_protos.h"
-#include "sim_services/Executive/include/exec_proto.hh"
+#include "trick/Executive.hh"
+#include "trick/command_line_protos.h"
+#include "trick/exec_proto.hh"
 
 //TODO move to proto
 void memory_init(void);

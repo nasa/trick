@@ -2,7 +2,7 @@
 ifdef TRICK_HOME
 ifneq ($(STAND_ALONE), 1)
 
--include ${TRICK_HOME}/makefiles/Makefile.common
+-include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 OBJECT_FILES =  \
        $(OBJ_DIR)/tc_accept.o \
@@ -30,11 +30,9 @@ OBJECT_FILES =  \
        $(OBJ_DIR)/tc_init_udp_server.o \
        $(OBJ_DIR)/trick_bswap_buffer.o \
        $(OBJ_DIR)/trick_byteswap.o \
-       $(OBJ_DIR)/trick_error_hndlr.o \
-       $(OBJ_DIR)/io_tc.o \
-       $(OBJ_DIR)/io_trick_error_hndlr.o
+       $(OBJ_DIR)/trick_error_hndlr.o
 
--include ${TRICK_HOME}/makefiles/Makefile.tricklib
+-include ${TRICK_HOME}/share/trick/makefiles/Makefile.tricklib
 -include Makefile_deps
 
 ifneq ($(DMTCP),)

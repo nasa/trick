@@ -28,8 +28,8 @@
 #include <sys/times.h>
 #include <limits.h>
 #include <unistd.h>
-#include "../include/rand_generator.h"
-#include "../include/trick_math.h"
+#include "trick/rand_generator.h"
+#include "trick/trick_math.h"
 
 #ifndef HZ
 #define HZ 100                         /* This is a kludge to accomodate for Darwin. On Darwin HZ is actually a kernal

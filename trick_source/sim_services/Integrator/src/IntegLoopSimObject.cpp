@@ -1,7 +1,7 @@
 
-#include "sim_services/Integrator/include/IntegLoopSimObject.hh"
-#include "sim_services/Executive/include/exec_proto.hh"
-#include "sim_services/CheckPointRestart/include/checkpoint_stl.hh"
+#include "trick/IntegLoopSimObject.hh"
+#include "trick/exec_proto.hh"
+#include "trick/checkpoint_stl.hh"
 
 void IntegLoopSimObject::add_jobs(double in_cycle, unsigned int child) {
     Trick::JobData * job ;

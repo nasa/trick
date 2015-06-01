@@ -2,7 +2,7 @@
 #include <math.h>
 
 #define M_ABS(x) ((x) < 0 ? -(x) : (x))
-#include "regula_falsi.h"
+#include "trick/regula_falsi.h"
 
 double regula_falsi(
                            /* Return: Est. time to go to err

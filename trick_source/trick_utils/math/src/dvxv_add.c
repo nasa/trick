@@ -4,7 +4,7 @@
    PROGRAMMERS: (((Les Quiocho) (NASA/JSC) (Jan 1990) (v1.0) (Init Release)))
  */
 
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 void dvxv_add(double sum[],     /* Out: Sum of cross product and sum */
               double vect1[],   /* In: Vector1 */

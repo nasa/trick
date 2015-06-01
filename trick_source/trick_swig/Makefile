@@ -1,5 +1,5 @@
 
-include ${TRICK_HOME}/makefiles/Makefile.common
+include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 ifneq ($(HDF5),)
 TRICK_CXXFLAGS += -DHDF5
@@ -62,7 +62,7 @@ $(OBJECT_FILES): $(OBJ_DIR)/%.o : %.cpp
 	$(TRICK_CPPC) $(TRICK_CXXFLAGS) -c $< -o $@
 
 $(SWIG_SRC_FILES): swig_${TRICK_HOST_CPU}/%_wrap.cpp : %.i
-	 $(SWIG) $(SWIG_DEFS) -I${TRICK_HOME}/trick_source -c++ -python -includeall -ignoremissing -w201,362,389,451 -o $@ $<
+	 $(SWIG) $(SWIG_DEFS) -I${TRICK_HOME}/trick_source -I${TRICK_HOME}/include -c++ -python -includeall -ignoremissing -w201,362,389,451 -o $@ $<
 
 $(TRICK_LIB) : $(SWIG_OBJECT_FILES) $(OBJECT_FILES)
 	ar crs $@ $?

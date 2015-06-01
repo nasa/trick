@@ -29,7 +29,7 @@
 #include <math.h>
 #include <stdio.h>
 
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 
 void dsingle_axis_rot(          /* Return: -- None */

@@ -1,4 +1,4 @@
-object_${TRICK_HOST_CPU}/ThreadBase.o: src/ThreadBase.cpp \
- ${TRICK_HOME}/trick_source/sim_services/ThreadBase/include/ThreadBase.hh \
- ${TRICK_HOME}/trick_source/sim_services/Message/include/message_proto.h \
- ${TRICK_HOME}/trick_source/sim_services/Message/include/message_type.h 
+object_${TRICK_HOST_CPU}/ThreadBase.o: ThreadBase.cpp \
+ ${TRICK_HOME}/include/trick/ThreadBase.hh \
+ ${TRICK_HOME}/include/trick/message_proto.h \
+ ${TRICK_HOME}/include/trick/message_type.h 

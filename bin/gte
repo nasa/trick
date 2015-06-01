@@ -1,9 +1,0 @@
-#!/usr/bin/perl
-
-use FindBin qw($RealBin);
-use lib "$RealBin/pm" ;
-use gte ;
-use strict ;
-
-print gte(@ARGV) ;
-

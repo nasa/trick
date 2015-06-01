@@ -6,7 +6,7 @@
 
    PROGRAMMERS: (((Robert W. Bailey) (LinCom Corp) (4/1/91) (Trick-CR-00004) (Gravity / Inertial Frame Models))) */
 
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 void dm_orthonormal(            /* Return: -- none */
                        double m[3][3],  /* Inout: Matrix to be orthonormalized. */

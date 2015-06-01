@@ -4,7 +4,7 @@
    PROGRAMMERS: (((Les Quiocho) (NASA/JSC) (Jan 1990) (v1.0) (Init Release))) */
 
 #include <stdio.h>
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 void dv_print(double vect[])
 {                                      /* In: Vector to be printed */

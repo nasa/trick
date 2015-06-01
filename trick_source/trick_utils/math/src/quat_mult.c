@@ -8,7 +8,7 @@
 
  */
 
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 void quat_mult(double q3[4],    /* Out: quaternion */
                double q1[4],    /* In: quaternion */

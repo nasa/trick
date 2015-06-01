@@ -10,10 +10,10 @@
 #include "trick_swig/swig_double.hh"
 #include "trick_swig/swig_ref.hh"
 #include "trick_swig/PrimitiveAttributesMap.hh"
-#include "sim_services/Units/include/UnitsMap.hh"
-#include "trick_utils/units/include/Unit.hh"
-#include "sim_services/MemoryManager/include/reference.h"
-#include "sim_services/MemoryManager/include/memorymanager_c_intf.h"
+#include "trick/UnitsMap.hh"
+#include "trick/Unit.hh"
+#include "trick/reference.h"
+#include "trick/memorymanager_c_intf.h"
 
 #include "trick_swig/swig_int_templates.hh"
 

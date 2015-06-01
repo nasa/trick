@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <string.h>                    // for memcpy
 #include <stdlib.h>                    // for malloc
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 int LUD_inv(                    /* RETURN: -- Zero */
                double **y,      /* Out: Matrix inverse */

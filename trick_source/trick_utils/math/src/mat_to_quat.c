@@ -7,7 +7,7 @@
 
  */
 
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 void mat_to_quat(double quat[4],        /* Out: Quaternion */
                  double a[3][3])

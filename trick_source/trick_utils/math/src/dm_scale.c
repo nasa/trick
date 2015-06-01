@@ -7,7 +7,7 @@
 
    PROGRAMMERS: (((Les Quiocho) (NASA/Johnson Space Center) (Jan 1990) (v1.0) (Init Release))) */
 
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 void dm_scale(double prod[3][3],        /* Out: Product of the two matrices */
               double mat[3][3], /* In: Matrix */

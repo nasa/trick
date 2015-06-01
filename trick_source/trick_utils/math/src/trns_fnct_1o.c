@@ -13,7 +13,7 @@
    at current time based on initial in, initial out, current in and the transient coefficient -- first order
    differential equation. */
 
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 
     /* TOLERANCE FOR TIME CONSTANT AND DELTA TIME STEP */

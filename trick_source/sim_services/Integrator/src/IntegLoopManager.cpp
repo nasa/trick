@@ -13,18 +13,18 @@ Programmers:
 
 
 // Local includes
-#include "../include/IntegLoopManager.hh"
+#include "trick/IntegLoopManager.hh"
 
-#include "../include/Integrator.hh"
-#include "../include/IntegJobClassId.hh"
-#include "../include/IntegLoopScheduler.hh"
+#include "trick/Integrator.hh"
+#include "trick/IntegJobClassId.hh"
+#include "trick/IntegLoopScheduler.hh"
 
 // Trick includes
-#include "sim_services/MemoryManager/include/MemoryManager.hh"
-#include "sim_services/Message/include/message_proto.h"
-#include "sim_services/Message/include/message_type.h"
-#include "sim_services/Executive/include/exec_proto.hh"
-#include "sim_services/Executive/include/exec_proto.h"
+#include "trick/MemoryManager.hh"
+#include "trick/message_proto.h"
+#include "trick/message_type.h"
+#include "trick/exec_proto.hh"
+#include "trick/exec_proto.h"
 
 // System includes
 #include <cmath>

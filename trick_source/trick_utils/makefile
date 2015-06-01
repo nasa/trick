@@ -7,7 +7,7 @@
 #
 # Once ran, all libraries go into "lib" .
 
-include $(TRICK_HOME)/makefiles/Makefile.common
+include $(TRICK_HOME)/share/trick/makefiles/Makefile.common
 
 ifndef TRICK_HOST_CPU
 export TRICK_HOST_CPU := $(shell gte TRICK_HOST_CPU)

@@ -1,130 +1,175 @@
-object_${TRICK_HOST_CPU}/IPPython.o: src/IPPython.cpp \
- ${TRICK_HOME}/trick_source/sim_services/InputProcessor/include/IPPython.hh \
- ${TRICK_HOME}/trick_source/sim_services/InputProcessor/include/InputProcessor.hh \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/MemoryManager.hh \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/attributes.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/parameter_types.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/reference.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/value.h \
- ${TRICK_HOME}/trick_source/trick_utils/trick_adt/include/dllist.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/io_alloc.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/mm_error.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/var.h \
- ${TRICK_HOME}/trick_source/sim_services/CheckPointAgent/include/CheckPointAgent.hh \
- ${TRICK_HOME}/trick_source/trick_utils/units/include/UCFn.hh \
- ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.hh \
- ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
- ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
- ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
- ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
- ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
- ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
- ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh \
- ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
- ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.h 
-object_${TRICK_HOST_CPU}/IPPythonEvent.o: src/IPPythonEvent.cpp \
- ${TRICK_HOME}/trick_source/sim_services/InputProcessor/include/IPPythonEvent.hh \
- ${TRICK_HOME}/trick_source/sim_services/EventManager/include/Event.hh \
- ${TRICK_HOME}/trick_source/sim_services/include/mm_macros.hh \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/memorymanager_c_intf.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/parameter_types.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/attributes.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/reference.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/value.h \
- ${TRICK_HOME}/trick_source/trick_utils/trick_adt/include/dllist.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/var.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/io_alloc.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/MemoryManager.hh \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/mm_error.h \
- ${TRICK_HOME}/trick_source/sim_services/CheckPointAgent/include/CheckPointAgent.hh \
- ${TRICK_HOME}/trick_source/trick_utils/units/include/UCFn.hh \
- ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.h \
- ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
- ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
- ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
- ${TRICK_HOME}/trick_source/sim_services/InputProcessor/include/IPPython.hh \
- ${TRICK_HOME}/trick_source/sim_services/InputProcessor/include/InputProcessor.hh \
- ${TRICK_HOME}/trick_source/sim_services/Message/include/message_proto.h \
- ${TRICK_HOME}/trick_source/sim_services/Message/include/message_type.h \
- ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.hh \
- ${TRICK_HOME}/trick_source/sim_services/Executive/include/Executive.hh \
- ${TRICK_HOME}/trick_source/sim_services/Scheduler/include/Scheduler.hh \
- ${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh \
- ${TRICK_HOME}/trick_source/sim_services/SimObject/include/SimObject.hh \
- ${TRICK_HOME}/trick_source/sim_services/Executive/include/Threads.hh 
-object_${TRICK_HOST_CPU}/InputProcessor.o: src/InputProcessor.cpp \
- ${TRICK_HOME}/trick_source/sim_services/InputProcessor/include/InputProcessor.hh \
- ${TRICK_HOME}/trick_source/sim_services/CommandLineArguments/include/command_line_protos.h 
-object_${TRICK_HOST_CPU}/MTV.o: src/MTV.cpp \
- ${TRICK_HOME}/trick_source/sim_services/InputProcessor/include/MTV.hh \
- ${TRICK_HOME}/trick_source/sim_services/InputProcessor/include/IPPythonEvent.hh \
- ${TRICK_HOME}/trick_source/sim_services/EventManager/include/Event.hh \
- ${TRICK_HOME}/trick_source/sim_services/include/mm_macros.hh \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/memorymanager_c_intf.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/parameter_types.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/attributes.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/reference.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/value.h \
- ${TRICK_HOME}/trick_source/trick_utils/trick_adt/include/dllist.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/var.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/io_alloc.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/MemoryManager.hh \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/mm_error.h \
- ${TRICK_HOME}/trick_source/sim_services/CheckPointAgent/include/CheckPointAgent.hh \
- ${TRICK_HOME}/trick_source/trick_utils/units/include/UCFn.hh \
- ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.h \
- ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
- ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
- ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
- ${TRICK_HOME}/trick_source/sim_services/VariableServer/include/VariableServer.hh \
- ${TRICK_HOME}/trick_source/trick_utils/comm/include/tc.h \
- ${TRICK_HOME}/trick_source/trick_utils/comm/include/trick_byteswap.h \
- ${TRICK_HOME}/trick_source/trick_utils/comm/include/trick_error_hndlr.h \
- ${TRICK_HOME}/trick_source/sim_services/VariableServer/include/variable_server_sync_types.h \
- ${TRICK_HOME}/trick_source/sim_services/EventManager/include/EventManager_c_intf.hh 
-object_${TRICK_HOST_CPU}/MTV_c_intf.o: src/MTV_c_intf.cpp \
- ${TRICK_HOME}/trick_source/sim_services/InputProcessor/include/MTV.hh \
- ${TRICK_HOME}/trick_source/sim_services/InputProcessor/include/IPPythonEvent.hh \
- ${TRICK_HOME}/trick_source/sim_services/EventManager/include/Event.hh \
- ${TRICK_HOME}/trick_source/sim_services/include/mm_macros.hh \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/memorymanager_c_intf.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/parameter_types.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/attributes.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/reference.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/value.h \
- ${TRICK_HOME}/trick_source/trick_utils/trick_adt/include/dllist.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/var.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/io_alloc.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/MemoryManager.hh \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/mm_error.h \
- ${TRICK_HOME}/trick_source/sim_services/CheckPointAgent/include/CheckPointAgent.hh \
- ${TRICK_HOME}/trick_source/trick_utils/units/include/UCFn.hh \
- ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.h \
- ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
- ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
- ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh 
-object_${TRICK_HOST_CPU}/input_processor_ext.o: src/input_processor_ext.cpp \
- ${TRICK_HOME}/trick_source/sim_services/InputProcessor/include/input_processor_proto.h \
- ${TRICK_HOME}/trick_source/sim_services/InputProcessor/include/IPPythonEvent.hh \
- ${TRICK_HOME}/trick_source/sim_services/EventManager/include/Event.hh \
- ${TRICK_HOME}/trick_source/sim_services/include/mm_macros.hh \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/memorymanager_c_intf.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/parameter_types.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/attributes.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/reference.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/value.h \
- ${TRICK_HOME}/trick_source/trick_utils/trick_adt/include/dllist.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/var.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/io_alloc.h \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/MemoryManager.hh \
- ${TRICK_HOME}/trick_source/sim_services/MemoryManager/include/mm_error.h \
- ${TRICK_HOME}/trick_source/sim_services/CheckPointAgent/include/CheckPointAgent.hh \
- ${TRICK_HOME}/trick_source/trick_utils/units/include/UCFn.hh \
- ${TRICK_HOME}/trick_source/sim_services/Executive/include/exec_proto.h \
- ${TRICK_HOME}/trick_source/sim_services/Executive/include/sim_mode.h \
- ${TRICK_HOME}/trick_source/sim_services/SimObject/include/JobData.hh \
- ${TRICK_HOME}/trick_source/sim_services/SimObject/include/InstrumentBase.hh \
- ${TRICK_HOME}/trick_source/sim_services/InputProcessor/include/IPPython.hh \
- ${TRICK_HOME}/trick_source/sim_services/InputProcessor/include/InputProcessor.hh \
- ${TRICK_HOME}/trick_source/sim_services/InputProcessor/include/MTV.hh \
- ${TRICK_HOME}/trick_source/sim_services/EventManager/include/EventManager_c_intf.hh 
+object_${TRICK_HOST_CPU}/IPPythonEvent.o: IPPythonEvent.cpp \
+ ${TRICK_HOME}/include/trick/IPPythonEvent.hh \
+ ${TRICK_HOME}/include/trick/Event.hh \
+ ${TRICK_HOME}/include/trick/mm_macros.hh \
+ ${TRICK_HOME}/include/trick/memorymanager_c_intf.h \
+ ${TRICK_HOME}/include/trick/parameter_types.h \
+ ${TRICK_HOME}/include/trick/attributes.h \
+ ${TRICK_HOME}/include/trick/reference.h \
+ ${TRICK_HOME}/include/trick/value.h \
+ ${TRICK_HOME}/include/trick/dllist.h \
+ ${TRICK_HOME}/include/trick/var.h \
+ ${TRICK_HOME}/include/trick/io_alloc.h \
+ ${TRICK_HOME}/include/trick/MemoryManager.hh \
+ ${TRICK_HOME}/include/trick/mm_error.h \
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
+ ${TRICK_HOME}/include/trick/UCFn.hh \
+ ${TRICK_HOME}/include/trick/exec_proto.h \
+ ${TRICK_HOME}/include/trick/sim_mode.h \
+ ${TRICK_HOME}/include/trick/JobData.hh \
+ ${TRICK_HOME}/include/trick/InstrumentBase.hh \
+ ${TRICK_HOME}/include/trick/IPPython.hh \
+ ${TRICK_HOME}/include/trick/InputProcessor.hh \
+ ${TRICK_HOME}/include/trick/message_proto.h \
+ ${TRICK_HOME}/include/trick/message_type.h \
+ ${TRICK_HOME}/include/trick/exec_proto.hh \
+ ${TRICK_HOME}/include/trick/Executive.hh \
+ ${TRICK_HOME}/include/trick/Scheduler.hh \
+ ${TRICK_HOME}/include/trick/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/include/trick/SimObject.hh \
+ ${TRICK_HOME}/include/trick/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/include/trick/SimObject.hh \
+ ${TRICK_HOME}/include/trick/Threads.hh \
+ ${TRICK_HOME}/include/trick/ThreadBase.hh \
+ ${TRICK_HOME}/include/trick/sim_mode.h 
+object_${TRICK_HOST_CPU}/InputProcessor.o: InputProcessor.cpp \
+ ${TRICK_HOME}/include/trick/InputProcessor.hh \
+ ${TRICK_HOME}/include/trick/command_line_protos.h 
+object_${TRICK_HOST_CPU}/IPPython.o: IPPython.cpp /usr/include/python2.7/Python.h \
+ /usr/include/python2.7/patchlevel.h /usr/include/python2.7/pyconfig.h \
+ /usr/include/python2.7/pyconfig-64.h \
+ /usr/include/python2.7/pymacconfig.h /usr/include/python2.7/pyport.h \
+ /usr/include/python2.7/pymath.h /usr/include/python2.7/pymem.h \
+ /usr/include/python2.7/object.h /usr/include/python2.7/objimpl.h \
+ /usr/include/python2.7/pydebug.h /usr/include/python2.7/unicodeobject.h \
+ /usr/include/python2.7/intobject.h /usr/include/python2.7/boolobject.h \
+ /usr/include/python2.7/longobject.h /usr/include/python2.7/floatobject.h \
+ /usr/include/python2.7/complexobject.h \
+ /usr/include/python2.7/rangeobject.h \
+ /usr/include/python2.7/stringobject.h \
+ /usr/include/python2.7/memoryobject.h \
+ /usr/include/python2.7/bufferobject.h \
+ /usr/include/python2.7/bytesobject.h \
+ /usr/include/python2.7/bytearrayobject.h \
+ /usr/include/python2.7/tupleobject.h /usr/include/python2.7/listobject.h \
+ /usr/include/python2.7/dictobject.h /usr/include/python2.7/enumobject.h \
+ /usr/include/python2.7/setobject.h /usr/include/python2.7/methodobject.h \
+ /usr/include/python2.7/moduleobject.h \
+ /usr/include/python2.7/funcobject.h /usr/include/python2.7/classobject.h \
+ /usr/include/python2.7/fileobject.h /usr/include/python2.7/cobject.h \
+ /usr/include/python2.7/pycapsule.h /usr/include/python2.7/traceback.h \
+ /usr/include/python2.7/sliceobject.h /usr/include/python2.7/cellobject.h \
+ /usr/include/python2.7/iterobject.h /usr/include/python2.7/genobject.h \
+ /usr/include/python2.7/descrobject.h /usr/include/python2.7/warnings.h \
+ /usr/include/python2.7/weakrefobject.h /usr/include/python2.7/codecs.h \
+ /usr/include/python2.7/pyerrors.h /usr/include/python2.7/pystate.h \
+ /usr/include/python2.7/pyarena.h /usr/include/python2.7/modsupport.h \
+ /usr/include/python2.7/pythonrun.h /usr/include/python2.7/ceval.h \
+ /usr/include/python2.7/sysmodule.h /usr/include/python2.7/intrcheck.h \
+ /usr/include/python2.7/import.h /usr/include/python2.7/abstract.h \
+ /usr/include/python2.7/compile.h /usr/include/python2.7/code.h \
+ /usr/include/python2.7/eval.h /usr/include/python2.7/pyctype.h \
+ /usr/include/python2.7/pystrtod.h /usr/include/python2.7/pystrcmp.h \
+ /usr/include/python2.7/dtoa.h /usr/include/python2.7/pyfpe.h \
+ ${TRICK_HOME}/include/trick/IPPython.hh \
+ ${TRICK_HOME}/include/trick/InputProcessor.hh \
+ ${TRICK_HOME}/include/trick/MemoryManager.hh \
+ ${TRICK_HOME}/include/trick/attributes.h \
+ ${TRICK_HOME}/include/trick/parameter_types.h \
+ ${TRICK_HOME}/include/trick/reference.h \
+ ${TRICK_HOME}/include/trick/value.h \
+ ${TRICK_HOME}/include/trick/dllist.h \
+ ${TRICK_HOME}/include/trick/io_alloc.h \
+ ${TRICK_HOME}/include/trick/mm_error.h \
+ ${TRICK_HOME}/include/trick/var.h \
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
+ ${TRICK_HOME}/include/trick/UCFn.hh \
+ ${TRICK_HOME}/include/trick/exec_proto.hh \
+ ${TRICK_HOME}/include/trick/Executive.hh \
+ ${TRICK_HOME}/include/trick/Scheduler.hh \
+ ${TRICK_HOME}/include/trick/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/include/trick/JobData.hh \
+ ${TRICK_HOME}/include/trick/InstrumentBase.hh \
+ ${TRICK_HOME}/include/trick/SimObject.hh \
+ ${TRICK_HOME}/include/trick/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/include/trick/SimObject.hh \
+ ${TRICK_HOME}/include/trick/Threads.hh \
+ ${TRICK_HOME}/include/trick/ThreadBase.hh \
+ ${TRICK_HOME}/include/trick/sim_mode.h \
+ ${TRICK_HOME}/include/trick/exec_proto.h \
+ ${TRICK_HOME}/include/trick/sim_mode.h 
+object_${TRICK_HOST_CPU}/MTV_c_intf.o: MTV_c_intf.cpp ${TRICK_HOME}/include/trick/MTV.hh \
+ ${TRICK_HOME}/include/trick/IPPythonEvent.hh \
+ ${TRICK_HOME}/include/trick/Event.hh \
+ ${TRICK_HOME}/include/trick/mm_macros.hh \
+ ${TRICK_HOME}/include/trick/memorymanager_c_intf.h \
+ ${TRICK_HOME}/include/trick/parameter_types.h \
+ ${TRICK_HOME}/include/trick/attributes.h \
+ ${TRICK_HOME}/include/trick/reference.h \
+ ${TRICK_HOME}/include/trick/value.h \
+ ${TRICK_HOME}/include/trick/dllist.h \
+ ${TRICK_HOME}/include/trick/var.h \
+ ${TRICK_HOME}/include/trick/io_alloc.h \
+ ${TRICK_HOME}/include/trick/MemoryManager.hh \
+ ${TRICK_HOME}/include/trick/mm_error.h \
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
+ ${TRICK_HOME}/include/trick/UCFn.hh \
+ ${TRICK_HOME}/include/trick/exec_proto.h \
+ ${TRICK_HOME}/include/trick/sim_mode.h \
+ ${TRICK_HOME}/include/trick/JobData.hh \
+ ${TRICK_HOME}/include/trick/InstrumentBase.hh 
+object_${TRICK_HOST_CPU}/input_processor_ext.o: input_processor_ext.cpp \
+ ${TRICK_HOME}/include/trick/input_processor_proto.h \
+ ${TRICK_HOME}/include/trick/IPPython.hh \
+ ${TRICK_HOME}/include/trick/InputProcessor.hh \
+ ${TRICK_HOME}/include/trick/IPPythonEvent.hh \
+ ${TRICK_HOME}/include/trick/Event.hh \
+ ${TRICK_HOME}/include/trick/mm_macros.hh \
+ ${TRICK_HOME}/include/trick/memorymanager_c_intf.h \
+ ${TRICK_HOME}/include/trick/parameter_types.h \
+ ${TRICK_HOME}/include/trick/attributes.h \
+ ${TRICK_HOME}/include/trick/reference.h \
+ ${TRICK_HOME}/include/trick/value.h \
+ ${TRICK_HOME}/include/trick/dllist.h \
+ ${TRICK_HOME}/include/trick/var.h \
+ ${TRICK_HOME}/include/trick/io_alloc.h \
+ ${TRICK_HOME}/include/trick/MemoryManager.hh \
+ ${TRICK_HOME}/include/trick/mm_error.h \
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
+ ${TRICK_HOME}/include/trick/UCFn.hh \
+ ${TRICK_HOME}/include/trick/exec_proto.h \
+ ${TRICK_HOME}/include/trick/sim_mode.h \
+ ${TRICK_HOME}/include/trick/JobData.hh \
+ ${TRICK_HOME}/include/trick/InstrumentBase.hh \
+ ${TRICK_HOME}/include/trick/MTV.hh \
+ ${TRICK_HOME}/include/trick/EventManager_c_intf.hh 
+object_${TRICK_HOST_CPU}/MTV.o: MTV.cpp ${TRICK_HOME}/include/trick/MTV.hh \
+ ${TRICK_HOME}/include/trick/IPPythonEvent.hh \
+ ${TRICK_HOME}/include/trick/Event.hh \
+ ${TRICK_HOME}/include/trick/mm_macros.hh \
+ ${TRICK_HOME}/include/trick/memorymanager_c_intf.h \
+ ${TRICK_HOME}/include/trick/parameter_types.h \
+ ${TRICK_HOME}/include/trick/attributes.h \
+ ${TRICK_HOME}/include/trick/reference.h \
+ ${TRICK_HOME}/include/trick/value.h \
+ ${TRICK_HOME}/include/trick/dllist.h \
+ ${TRICK_HOME}/include/trick/var.h \
+ ${TRICK_HOME}/include/trick/io_alloc.h \
+ ${TRICK_HOME}/include/trick/MemoryManager.hh \
+ ${TRICK_HOME}/include/trick/mm_error.h \
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
+ ${TRICK_HOME}/include/trick/UCFn.hh \
+ ${TRICK_HOME}/include/trick/exec_proto.h \
+ ${TRICK_HOME}/include/trick/sim_mode.h \
+ ${TRICK_HOME}/include/trick/JobData.hh \
+ ${TRICK_HOME}/include/trick/InstrumentBase.hh \
+ ${TRICK_HOME}/include/trick/VariableServer.hh \
+ ${TRICK_HOME}/include/trick/tc.h \
+ ${TRICK_HOME}/include/trick/trick_byteswap.h \
+ ${TRICK_HOME}/include/trick/trick_error_hndlr.h \
+ ${TRICK_HOME}/include/trick/variable_server_sync_types.h \
+ ${TRICK_HOME}/include/trick/VariableServerThread.hh \
+ ${TRICK_HOME}/include/trick/ThreadBase.hh \
+ ${TRICK_HOME}/include/trick/VariableServerReference.hh \
+ ${TRICK_HOME}/include/trick/VariableServerListenThread.hh \
+ ${TRICK_HOME}/include/trick/EventManager_c_intf.hh 

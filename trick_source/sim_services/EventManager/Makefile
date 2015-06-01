@@ -1,6 +1,6 @@
 
-include ${TRICK_HOME}/makefiles/Makefile.common
-include ${TRICK_HOME}/makefiles/Makefile.tricklib
+include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
+include ${TRICK_HOME}/share/trick/makefiles/Makefile.tricklib
 
 TRICK_CFLAGS += $(PYTHON_INCLUDES)
 TRICK_CXXFLAGS += $(PYTHON_INCLUDES)

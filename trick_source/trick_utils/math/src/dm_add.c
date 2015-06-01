@@ -5,7 +5,7 @@
 
    PROGRAMMERS: (((Les Quiocho) (NASA/Johnson Space Center) (Jan 1990) (v1.0) (Init Release))) */
 
-#include "../include/trick_math.h"
+#include "trick/trick_math.h"
 
 void dm_add(double sum[3][3],   /* Out: Sum of the two matrices */
             double mat1[3][3],  /* In: Matrix 1 */

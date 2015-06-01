@@ -1,7 +1,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "dllist.h"
+#include "trick/dllist.h"
 
 /* create and initialize a DLLIST */
 /* return: pointer to the new list */

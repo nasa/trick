@@ -14,8 +14,8 @@
    PROGRAMMERS: (((Ray Li) (LMES/DUAL) (96 Nov) (1.0) (ICDS random number generator)) ((Robert Gay) (LinCom) (May 1998) 
    (--) (Trick format)) ((Robert Gay) (Titan-LinCom) (Aug 2001) (--) (Updates to put routines into trick math))) */
 
-#include "../include/rand_generator.h"
-#include "../include/trick_math.h"
+#include "trick/rand_generator.h"
+#include "trick/trick_math.h"
 
 
 double gauss_rnd_bell(          /* Return: Random number */

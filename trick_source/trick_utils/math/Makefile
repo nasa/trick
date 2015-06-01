@@ -2,8 +2,8 @@
 ifdef TRICK_HOME
 ifneq ($(STAND_ALONE), 1)
 
--include ${TRICK_HOME}/makefiles/Makefile.common
--include ${TRICK_HOME}/makefiles/Makefile.tricklib
+-include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
+-include ${TRICK_HOME}/share/trick/makefiles/Makefile.tricklib
 
 -include Makefile_deps
 

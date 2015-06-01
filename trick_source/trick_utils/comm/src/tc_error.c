@@ -3,8 +3,8 @@
  * Turn error reporting On/Off
  */
 
-#include "../include/tc.h"
-#include "../include/tc_proto.h"
+#include "trick/tc.h"
+#include "trick/tc_proto.h"
 
 int tc_error(TCDevice * device, int on_off)
 {

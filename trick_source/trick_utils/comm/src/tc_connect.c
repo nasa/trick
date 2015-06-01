@@ -3,8 +3,8 @@
  * Establish a connection with a communications server
  */
 
-#include "../include/tc.h"
-#include "../include/tc_proto.h"
+#include "trick/tc.h"
+#include "trick/tc_proto.h"
 
 #if _DMTCP
 #include <dlfcn.h>

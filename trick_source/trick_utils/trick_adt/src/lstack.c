@@ -1,8 +1,8 @@
 /******** implementation of LSTACK *************/
 
 #include <stdlib.h>
-#include "lstack.h"
-#include "dllist.h"
+#include "trick/lstack.h"
+#include "trick/dllist.h"
 
 
 /* create an initialize a LSTACK structure */

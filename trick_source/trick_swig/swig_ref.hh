@@ -3,7 +3,7 @@
 #define SWIG_REF_HH
 
 #include <string>
-#include "sim_services/MemoryManager/include/reference.h"
+#include "trick/reference.h"
 
 #define TRICK_SWIG_PARAMETER_INCORRECT_TYPE 9
 #define TRICK_SWIG_SLICE_ASSIGNMENT 10

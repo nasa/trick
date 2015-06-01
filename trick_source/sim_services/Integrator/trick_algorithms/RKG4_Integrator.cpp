@@ -1,5 +1,5 @@
-#include "RKG4_Integrator.hh"
-#include "sim_services/Message/include/message_proto.h"
+#include "trick/trick_algorithms/RKG4_Integrator.hh"
+#include "trick/message_proto.h"
 
 /**
  */

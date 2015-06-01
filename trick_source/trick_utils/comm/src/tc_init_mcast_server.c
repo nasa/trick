@@ -14,8 +14,8 @@
 
    PROGRAMMERS: (((M. Will) (L3-Com) (29 November 2006) (--) (CAIL))) */
 
-#include "../include/tc.h"
-#include "../include/tc_proto.h"
+#include "trick/tc.h"
+#include "trick/tc_proto.h"
 
 int tc_init_mcast_server(TCDevice * mcast_server_device)
 {

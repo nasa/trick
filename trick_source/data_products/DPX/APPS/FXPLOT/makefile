@@ -1,5 +1,5 @@
 
-include ${TRICK_HOME}/makefiles/Makefile.common
+include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 RM = rm -rf
 CC = cc
@@ -9,7 +9,7 @@ DPX_DIR = ../..
 
 CFLAGS = -g -Wall
 
-INCDIRS = -I${DPX_DIR} -I../../.. -I/usr/include/libxml2 -I$(MOTIF_HOME)/include -I$(TRICK_HOME)/trick_source/data_products/fermi-ware
+INCDIRS = -I${DPX_DIR} -I../../.. -I${TRICK_HOME}/include -I/usr/include/libxml2 -I$(MOTIF_HOME)/include -I$(TRICK_HOME)/trick_source/data_products/fermi-ware
 
 OBJDIR = object_${TRICK_HOST_CPU}
 LIBDIR = ${DPX_DIR}/lib_${TRICK_HOST_CPU}
@@ -30,7 +30,7 @@ else
      XLIBS += -lXm -lXt -lX11
 endif
 
-DP_LIBS       = -L../../../lib_${TRICK_HOST_CPU} -llog -lvar -leqparse -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} -ltrick_units
+DP_LIBS       = -L../../../lib_${TRICK_HOST_CPU} -llog -lvar -leqparse -L${TRICK_LIB_DIR} -ltrick_units
 DPX_LIBS      = -L${DPX_DIR}/lib_${TRICK_HOST_CPU} -lDPC -lDPM
 FERMI_WARE_LIB = $(TRICK_HOME)/trick_source/data_products/fermi-ware/object_${TRICK_HOST_CPU}/libfermi.a
 
@@ -55,10 +55,10 @@ CXX_OBJECT_FILES = $(OBJDIR)/fermi_view.o \
 OBJECT_FILES = $(C_OBJECT_FILES) $(CXX_OBJECT_FILES)
 
 
-all: $(OBJDIR)/fxplot
+all: ${TRICK_HOME}/bin/trick-fxplot
 
-$(OBJDIR)/fxplot: ${LIBDIR}/libDPM.a ${LIBDIR}/libDPC.a $(OBJECT_FILES)
-	@echo "===== Making fxplot ====="
+${TRICK_HOME}/bin/trick-fxplot: ${LIBDIR}/libDPM.a ${LIBDIR}/libDPC.a $(OBJECT_FILES)
+	@echo "===== Making trick-fxplot ====="
 	${CPP} ${CFLAGS} ${INCDIRS} -o $@ $(OBJECT_FILES) ${ALL_LIBS} ${XLIBS} ${LIBRTDEF}
 
 $(C_OBJECT_FILES) : $(OBJDIR)/%.o : %.c

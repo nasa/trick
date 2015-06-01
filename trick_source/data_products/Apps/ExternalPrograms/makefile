@@ -1,11 +1,11 @@
 CC            = gcc 
 
 ifndef TRICK_HOST_CPU
-TRICK_HOST_CPU := $(shell gte TRICK_HOST_CPU)
+TRICK_HOST_CPU := $(shell trick-gte TRICK_HOST_CPU)
 endif
 
 ifndef TRICK_HOST_TYPE
-TRICK_HOST_TYPE := $(shell gte TRICK_HOST_TYPE)
+TRICK_HOST_TYPE := $(shell trick-gte TRICK_HOST_TYPE)
 endif
 
 OBJDIR        = object_${TRICK_HOST_CPU}
@@ -119,7 +119,7 @@ $(OBJDIR)/dp_vector_magnitude.so: dp_vector_magnitude.c
                      $(TRICK_HOME)/lib_$(TRICK_HOST_CPU)/libtrick_math.a -lc -lm
 
 install: objects
-	@ /bin/cp $(OBJDIR)/*.so ${TRICK_HOME}/lib_${TRICK_HOST_CPU}
+	#@ /bin/cp $(OBJDIR)/*.so ${TRICK_HOME}/lib_${TRICK_HOST_CPU}
 
 real_clean:
 	@ if [ "${TRICK_HOME}" != "" ] ; then \

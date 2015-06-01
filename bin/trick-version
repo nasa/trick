@@ -1,0 +1,49 @@
+#!/usr/bin/perl
+
+use File::Basename ;
+use Cwd 'abs_path';
+use strict;
+
+my @all_lines ;
+my $file_contents ;
+my ($current_version) ;
+my ($trick_bin , $trick_home ) ;
+
+if ( !exists $ENV{"TRICK_HOME"} ) {
+    $trick_bin = dirname(abs_path($0)) ;
+    $trick_home = dirname($trick_bin) ;
+
+    # set TRICK_HOME based on the value of trick_home
+    $ENV{TRICK_HOME} = $trick_home ;
+}
+
+
+my $trick_ver_txt = "$ENV{\"TRICK_HOME\"}/share/trick/trick_ver.txt" ;
+open FILE, "$trick_ver_txt" or
+           die "trick_version: Couldn't find $trick_ver_txt\n" ;
+@all_lines = <FILE> ;
+close FILE ;
+$file_contents  = join  "" , @all_lines ;
+
+($current_version) = $file_contents =~ /current_version\s*=\s*"([^"]+)"/ ;
+
+$current_version =~ s/^trick-// ;
+
+if ( grep /^-y(ear)?$/ , @ARGV ) {
+    $current_version =~ s/\..*$// ;
+    print "$current_version\n" ;
+}
+elsif ( grep /^-m(inor)?$/ , @ARGV ) {
+    $current_version =~ s/.*?\.// ;
+    $current_version =~ s/\..*$// ;
+    print "$current_version\n" ;
+}
+elsif ( grep /^-v(ersion)?$/ , @ARGV ) {
+    print "$current_version\n" ;
+}
+elsif ( grep /^-f(ull)?$/ , @ARGV ) {
+    print "$current_version\n" ;
+}
+else {
+    print "Version : $current_version\n" ;
+}

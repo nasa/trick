@@ -4,10 +4,10 @@
 #include <math.h>
 #include <map>
 #include "TrickBinary.hh"
-#include "parameter_types.h"
+#include "trick/parameter_types.h"
 #include "trick_byte_order.h"
 #include "trick_byteswap.h"
-#include "units/include/units_conv.h"
+#include "trick/units_conv.h"
 
 TrickBinary::TrickBinary(char * file_name , char * param_name ) {
 

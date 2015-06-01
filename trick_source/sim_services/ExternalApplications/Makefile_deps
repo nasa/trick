@@ -1,0 +1,33 @@
+object_${TRICK_HOST_CPU}/MonteMonitor.o: MonteMonitor.cpp \
+ ${TRICK_HOME}/include/trick/MonteMonitor.hh \
+ ${TRICK_HOME}/include/trick/ExternalApplication.hh 
+object_${TRICK_HOST_CPU}/ExternalApplication.o: ExternalApplication.cpp \
+ ${TRICK_HOME}/include/trick/ExternalApplication.hh \
+ ${TRICK_HOME}/include/trick/ExternalApplicationManager.hh \
+ ${TRICK_HOME}/include/trick/variable_server_proto.h \
+ ${TRICK_HOME}/include/trick/env_proto.h \
+ ${TRICK_HOME}/include/trick/command_line_protos.h 
+object_${TRICK_HOST_CPU}/MalfunctionsTrickView.o: MalfunctionsTrickView.cpp \
+ ${TRICK_HOME}/include/trick/MalfunctionsTrickView.hh \
+ ${TRICK_HOME}/include/trick/ExternalApplication.hh 
+object_${TRICK_HOST_CPU}/ExternalApplicationManager.o: ExternalApplicationManager.cpp \
+ ${TRICK_HOME}/include/trick/ExternalApplicationManager.hh \
+ ${TRICK_HOME}/include/trick/ExternalApplication.hh 
+object_${TRICK_HOST_CPU}/TrickView.o: TrickView.cpp ${TRICK_HOME}/include/trick/TrickView.hh \
+ ${TRICK_HOME}/include/trick/ExternalApplication.hh \
+ ${TRICK_HOME}/include/trick/variable_server_proto.h 
+object_${TRICK_HOST_CPU}/ExternalApplication_c_intf.o: ExternalApplication_c_intf.cpp \
+ ${TRICK_HOME}/include/trick/ExternalApplicationManager.hh \
+ ${TRICK_HOME}/include/trick/ExternalApplication.hh \
+ ${TRICK_HOME}/include/trick/SimControlPanel.hh \
+ ${TRICK_HOME}/include/trick/TrickView.hh \
+ ${TRICK_HOME}/include/trick/MalfunctionsTrickView.hh \
+ ${TRICK_HOME}/include/trick/MonteMonitor.hh \
+ ${TRICK_HOME}/include/trick/StripChart.hh 
+object_${TRICK_HOST_CPU}/SimControlPanel.o: SimControlPanel.cpp \
+ ${TRICK_HOME}/include/trick/SimControlPanel.hh \
+ ${TRICK_HOME}/include/trick/ExternalApplication.hh 
+object_${TRICK_HOST_CPU}/StripChart.o: StripChart.cpp \
+ ${TRICK_HOME}/include/trick/StripChart.hh \
+ ${TRICK_HOME}/include/trick/ExternalApplication.hh \
+ ${TRICK_HOME}/include/trick/ExternalApplicationManager.hh 

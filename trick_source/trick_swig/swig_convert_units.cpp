@@ -2,7 +2,7 @@
 #include <Python.h>
 #include <iostream>
 
-#include "trick_utils/units/include/Unit.hh"
+#include "trick/Unit.hh"
 
 int convert_united_value( std::string & to_units , std::string & from_units , long long * val ) {
 
