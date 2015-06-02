@@ -57,8 +57,7 @@ SIM_SERV_DIRS = \
 	${TRICK_HOME}/trick_source/sim_services/VariableServer \
 	${TRICK_HOME}/trick_source/sim_services/Zeroconf \
 	${TRICK_HOME}/trick_source/sim_services/include \
-	${TRICK_HOME}/trick_source/sim_services/mains \
-	${TRICK_HOME}/include/trick
+	${TRICK_HOME}/trick_source/sim_services/mains
 
 SIM_SERV_OBJS = $(addsuffix /object_$(TRICK_HOST_CPU)/*.o ,$(SIM_SERV_DIRS))
 
@@ -477,16 +476,16 @@ ALTERNATIVES := $(shell which alternatives || which update-alternatives)
 install: set_alternatives
 .PHONY: set_alternatives
 set_alternatives: copy_files
-	- ${ALTERNATIVES} --install /usr/local/bin/CP trick ${PREFIX}/trick/trick-$(TRICK_VERSION)/bin/CP 10 \
-  --slave /usr/local/bin/ICG ICG /usr/local/trick/trick-$(TRICK_VERSION)/bin/ICG \
-  --slave /usr/local/bin/gte gte /usr/local/trick/trick-$(TRICK_VERSION)/bin/gte \
-  --slave /usr/local/bin/kill_sim kill_sim /usr/local/trick/trick-$(TRICK_VERSION)/bin/kill_sim \
-  --slave /usr/local/bin/sie sie /usr/local/trick/trick-$(TRICK_VERSION)/bin/sie \
-  --slave /usr/local/bin/sim_control sim_control /usr/local/trick/trick-$(TRICK_VERSION)/bin/sim_control \
-  --slave /usr/local/bin/sniffer sniffer /usr/local/trick/trick-$(TRICK_VERSION)/bin/sniffer \
-  --slave /usr/local/bin/trick_dp trick_dp /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick_dp \
-  --slave /usr/local/bin/trick_version trick_version /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick_version \
-  --slave /usr/local/bin/tv tv /usr/local/trick/trick-$(TRICK_VERSION)/bin/tv
+	- ${ALTERNATIVES} --install /usr/local/bin/CP trick ${PREFIX}/trick/trick-$(TRICK_VERSION)/bin/trick-CP 10 \
+  --slave /usr/local/bin/trick-ICG trick-ICG /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-ICG \
+  --slave /usr/local/bin/trick-gte trick-gte /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-gte \
+  --slave /usr/local/bin/trick-killsim trick-killsim /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-killsim \
+  --slave /usr/local/bin/trick-sie trick-sie /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-sie \
+  --slave /usr/local/bin/trick-sim_control trick-simcontrol /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-simcontrol \
+  --slave /usr/local/bin/trick-sniffer trick-sniffer /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-sniffer \
+  --slave /usr/local/bin/trick-dp trick-dp /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-dp \
+  --slave /usr/local/bin/trick-version trick-version /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-version \
+  --slave /usr/local/bin/trick-tv trick-tv /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-tv
 
 uninstall: remove_alternatives
 .PHONY: remove_alternatives
@@ -506,7 +505,7 @@ stand_alone_utils:
 # ICG all sim_services files (for testing and debugging ICG).
 # The -f flag forces io_src files to be regenerated whether or not they need to be.
 ICG: $(ICG_EXE)
-	${TRICK_HOME}/bin/ICG -f -s ${TRICK_CXXFLAGS} ${TRICK_HOME}/include/trick/files_to_ICG.hh
+	${TRICK_HOME}/bin/trick-ICG -f -s ${TRICK_CXXFLAGS} ${TRICK_HOME}/include/trick/files_to_ICG.hh
 
 # This builds a tricklib share library.
 ifeq ($(USE_ER7_UTILS_INTEGRATORS), 1)

@@ -125,6 +125,16 @@ void HeaderSearchDirs::AddTrickSearchDirs () {
 #else
         hso.AddPath(resolved_path , clang::frontend::Quoted, true, false, true);
 #endif
+        trick_include_dir = std::string(resolved_path) ;
+        free(resolved_path) ;
+
+        temp_dir = std::string(trick_home) + "/trick_source" ;
+        resolved_path = almostRealPath(temp_dir.c_str() ) ;
+#if (__clang_major__ == 3) && (__clang_minor__ >= 3)
+        hso.AddPath(resolved_path , clang::frontend::Quoted, false, true);
+#else
+        hso.AddPath(resolved_path , clang::frontend::Quoted, true, false, true);
+#endif
         trick_source_dir = std::string(resolved_path) ;
         free(resolved_path) ;
     }
@@ -210,7 +220,9 @@ bool HeaderSearchDirs::isPathInUserDir (std::string in_dir ) {
             return false ;
         }
     }
-    if ( ! sim_services and ! in_dir.compare(0, trick_source_dir.size(), trick_source_dir)) {
+    if ( ! sim_services and
+         (! in_dir.compare(0, trick_source_dir.size(), trick_source_dir) or
+          ! in_dir.compare(0, trick_include_dir.size(), trick_include_dir)) ) {
         return false ;
     }
 
