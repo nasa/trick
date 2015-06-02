@@ -4,7 +4,7 @@
 #include <sys/resource.h>
 
 #include "trick/Executive.hh"
-#include "trick/Exec_exception.hh"
+#include "trick/ExecutiveException.hh"
 #include "trick/exec_proto.h"
 
 /**
@@ -56,7 +56,7 @@ int Trick::Executive::init() {
         initialization_complete = true ;
 
     /* Print as much error information avaiable for all exception and exit. */
-    } catch (Trick::Exec_exception & ex ) {
+    } catch (Trick::ExecutiveException & ex ) {
         /* Set the exit return code, file name, and error message. Return -1 so we go to shutdown */
         except_return = ex.ret_code ;
         except_file = ex.file ;

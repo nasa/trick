@@ -1,1 +1,1 @@
-../../../../trick_tests.h
+#include "trick/trick_tests.h"

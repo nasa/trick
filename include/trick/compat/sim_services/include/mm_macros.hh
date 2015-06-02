@@ -1,1 +1,1 @@
-../../../mm_macros.hh
+#include "trick/mm_macros.hh"

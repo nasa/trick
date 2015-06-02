@@ -1,1 +1,1 @@
-../../../../exec_proto.hh
+#include "trick/exec_proto.hh"

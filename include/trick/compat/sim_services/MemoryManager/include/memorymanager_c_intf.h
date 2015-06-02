@@ -1,1 +1,1 @@
-../../../../memorymanager_c_intf.h
+#include "trick/memorymanager_c_intf.h"

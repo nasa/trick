@@ -4,7 +4,7 @@
 #include <string>
 
 #include "trick/Executive.hh"
-#include "trick/Exec_exception.hh"
+#include "trick/ExecutiveException.hh"
 #include "trick/exec_proto.h"
 #include "trick/exec_proto.hh"
 
@@ -679,20 +679,20 @@ extern "C" void exec_signal_terminate() {
 
 /**
  * @relates Trick::Executive
- * @userdesc C wrapper to transition to Shutdown mode.  Throws Trick::Exec_exception exception.  This version
+ * @userdesc C wrapper to transition to Shutdown mode.  Throws Trick::ExecutiveException exception.  This version
  * @ is backwards compatible
  * @param file_name - file name of the caller to exec_terminate
  * @param error - error message to print
  */
 extern "C" int exec_terminate(const char *file_name , const char *error ) {
-    throw Trick::Exec_exception(0 , file_name , 0 , error) ;
+    throw Trick::ExecutiveException(0 , file_name , 0 , error) ;
     // never reached
     return 0 ;
 }
 
 /**
  * @relates Trick::Executive
- * @userdesc C wrapper to transition to Shutdown mode.  Throws Trick::Exec_exception exception
+ * @userdesc C wrapper to transition to Shutdown mode.  Throws Trick::ExecutiveException exception
  * @param ret_code - return code to pass back to caller of init() or loop() ;
  * @param file_name - file name of the caller to exec_terminate
  * @param line - line number where exception occurred
@@ -700,7 +700,7 @@ extern "C" int exec_terminate(const char *file_name , const char *error ) {
  * @return ret_code (but never reached)
  */
 extern "C" int exec_terminate_with_return(int ret_code , const char *file_name , int line , const char *error ) {
-    throw Trick::Exec_exception(ret_code , file_name , line , error) ;
+    throw Trick::ExecutiveException(ret_code , file_name , line , error) ;
     // never reached
     return ret_code ;
 }

@@ -1,1 +1,1 @@
-../../../../integrator_c_intf.h
+#include "trick/integrator_c_intf.h"

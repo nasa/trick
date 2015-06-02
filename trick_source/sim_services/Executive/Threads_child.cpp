@@ -22,7 +22,7 @@
 
 #include "trick/Threads.hh"
 #include "trick/release.h"
-#include "trick/Exec_exception.hh"
+#include "trick/ExecutiveException.hh"
 #include "trick/exec_proto.h"
 #include "trick/TrickConstant.hh"
 #include "trick/message_proto.h"
@@ -219,7 +219,7 @@ void * Trick::Threads::thread_body() {
             child_complete = true;
 
         } while (1);
-    } catch (Trick::Exec_exception & ex ) {
+    } catch (Trick::ExecutiveException & ex ) {
         fprintf(stderr, "\nCHILD THREAD %d TERMINATED with exec_terminate\n  ROUTINE: %s\n  DIAGNOSTIC: %s\n"
          "  THREAD STOP TIME: %f\n" ,
          thread_id, ex.file.c_str(), ex.message.c_str(), exec_get_sim_time()) ;

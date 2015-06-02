@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include "trick/Executive.hh"
-#include "trick/Exec_exception.hh"
+#include "trick/ExecutiveException.hh"
 
 /**
 @details
@@ -45,8 +45,8 @@ int Trick::Executive::loop() {
             loop_multi_thread() ;
         }
     }
-    catch (Trick::Exec_exception & ex ) {
-        /* Handle exception type Trick::Exec_exception.  Set the file name and error message.
+    catch (Trick::ExecutiveException & ex ) {
+        /* Handle exception type Trick::ExecutiveException.  Set the file name and error message.
            Return the exception return code. */
         except_return = ex.ret_code ;
         except_file = ex.file ;

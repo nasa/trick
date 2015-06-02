@@ -6,7 +6,6 @@
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
 #include "trick/exec_proto.h"
-#include "trick/Exec_exception.hh"
 
 void Trick::MonteCarlo::set_enabled(bool in_enabled) {
     this->enabled = in_enabled;

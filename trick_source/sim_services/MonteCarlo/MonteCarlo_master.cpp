@@ -1,6 +1,6 @@
 
 #include "trick/MonteCarlo.hh"
-#include "trick/Exec_exception.hh"
+#include "trick/ExecutiveException.hh"
 
 /** @par Detailed Design: */
 int Trick::MonteCarlo::master() {
@@ -32,9 +32,9 @@ int Trick::MonteCarlo::master() {
             /** <li> Dispatch the next run to a ready slave. </ul> */
             dispatch_run_to_slave(get_next_dispatch(), get_ready_slave());
         }
-    } catch (Trick::Exec_exception & ex ) {
+    } catch (Trick::ExecutiveException & ex ) {
 
-        /* Handle exception type Trick::Exec_exception.  Set the file name and error message.
+        /* Handle exception type Trick::ExecutiveException.  Set the file name and error message.
            Return the exception return code. */
         except_return = ex.ret_code ;
         except_file = ex.file ;

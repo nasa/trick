@@ -1,1 +1,1 @@
-../../../collect_macros.h
+#include "trick/collect_macros.h"

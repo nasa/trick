@@ -1,1 +1,1 @@
-../../../../MemoryManager.hh
+#include "trick/MemoryManager.hh"
