@@ -3,7 +3,7 @@
 #include <math.h>
 
 #include "trick/Executive.hh"
-#include "trick/Exec_exception.hh"
+#include "trick/ExecutiveException.hh"
 #include "trick/TrickConstant.hh"
 
 Trick::Executive * the_exec ;

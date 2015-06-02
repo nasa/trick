@@ -1,1 +1,1 @@
-../../../../message_proto.h
+#include "trick/message_proto.h"

@@ -4,7 +4,6 @@
 #include <sstream>
 
 #include "trick/Executive.hh"
-#include "trick/Exec_exception.hh"
 #include "trick/exec_proto.h"
 #include "trick/release.h"
 

@@ -3,7 +3,7 @@
 #include <sstream>
 
 #include "trick/Executive.hh"
-#include "trick/Exec_exception.hh"
+#include "trick/ExecutiveException.hh"
 #include "trick/exec_proto.h"
 #include "trick/message_proto.h"
 #include "trick/message_type.h"

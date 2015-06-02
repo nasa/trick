@@ -3,7 +3,7 @@
 #include <sys/resource.h>
 
 #include "trick/Executive.hh"
-#include "trick/Exec_exception.hh"
+#include "trick/ExecutiveException.hh"
 
 /**
 @details
@@ -26,7 +26,7 @@ int Trick::Executive::call_default_data() {
     while ( (curr_job = default_data_queue.get_next_job()) != NULL ) {
         ret = curr_job->call() ;
         if ( ret != 0 ) {
-            throw Trick::Exec_exception(ret , curr_job->name.c_str() , 0 , "default_data job did not return 0") ;
+            throw Trick::ExecutiveException(ret , curr_job->name.c_str() , 0 , "default_data job did not return 0") ;
         }
     }
 

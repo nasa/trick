@@ -24,7 +24,7 @@ object_${TRICK_HOST_CPU}/VariableServerThread_loop.o: VariableServerThread_loop.
  ${TRICK_HOME}/include/trick/realtimesync_proto.h \
  ${TRICK_HOME}/include/trick/Clock.hh \
  ${TRICK_HOME}/include/trick/Timer.hh \
- ${TRICK_HOME}/include/trick/Exec_exception.hh \
+ ${TRICK_HOME}/include/trick/ExecutiveException.hh \
  ${TRICK_HOME}/include/trick/exec_proto.h \
  ${TRICK_HOME}/include/trick/sim_mode.h 
 object_${TRICK_HOST_CPU}/VariableServer_copy_data_scheduled.o: \

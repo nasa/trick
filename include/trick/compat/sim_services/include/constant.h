@@ -1,1 +1,1 @@
-../../../constant.h
+#include "trick/constant.h"

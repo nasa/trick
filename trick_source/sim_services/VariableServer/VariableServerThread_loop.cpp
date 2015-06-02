@@ -13,7 +13,7 @@
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
 #include "trick/realtimesync_proto.h"
-#include "trick/Exec_exception.hh"
+#include "trick/ExecutiveException.hh"
 #include "trick/exec_proto.h"
 
 void exit_var_thread(void *in_vst) ;
@@ -152,7 +152,7 @@ void * Trick::VariableServerThread::thread_body() {
 
             usleep((unsigned int) (update_rate * 1000000));
         }
-    } catch (Trick::Exec_exception & ex ) {
+    } catch (Trick::ExecutiveException & ex ) {
         message_publish(MSG_ERROR, "\nVARIABLE SERVER COMMANDED exec_terminate\n  ROUTINE: %s\n  DIAGNOSTIC: %s\n" ,
          ex.file.c_str(), ex.message.c_str()) ;
         exit(ex.ret_code) ;

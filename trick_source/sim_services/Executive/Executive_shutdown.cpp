@@ -13,7 +13,7 @@
 #include <sys/resource.h>
 
 #include "trick/Executive.hh"
-#include "trick/Exec_exception.hh"
+#include "trick/ExecutiveException.hh"
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
 #include "trick/release.h"
@@ -67,8 +67,8 @@ int Trick::Executive::shutdown() {
                 curr_job->call() ;
             }
         }
-    } catch (Trick::Exec_exception & ex ) {
-        /* Handle exception type Trick::Exec_exception.  Set the file name and error message.
+    } catch (Trick::ExecutiveException & ex ) {
+        /* Handle exception type Trick::ExecutiveException.  Set the file name and error message.
            Return the exception return code. */
         except_return = ex.ret_code ;
         except_file += std::string(" then exception caught in ") + ex.file ;
