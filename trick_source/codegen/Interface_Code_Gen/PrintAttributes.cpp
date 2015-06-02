@@ -193,7 +193,13 @@ std::string PrintAttributes::createIOFileName(std::string header_file_name) {
                 dir_name.replace(dir_name.size() - 8 , dir_name.size() , "") ;
             }
         }
-        io_file_name = dir_name + "/io_src/" + base_name ;
+        // Put all of the sim_services io_files in ${TRICK_HOME}/trick_source/sim_services/include/io_src unless
+        // it is in er7_utils.  The er7_utils io_files have duplicate file names so the overwrite each other
+        if ( sim_services_flag and (dir_name.find("er7_utils") == std::string::npos) ) {
+            io_file_name = std::string(getenv("TRICK_HOME")) + "/trick_source/sim_services/include/io_src/" + base_name ;
+        } else {
+            io_file_name = dir_name + "/io_src/" + base_name ;
+        }
         return io_file_name ;
     }
 
