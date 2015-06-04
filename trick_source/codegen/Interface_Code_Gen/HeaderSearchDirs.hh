@@ -7,11 +7,7 @@
 #include <string>
 
 #include "clang/Lex/HeaderSearch.h"
-#if (__clang_major__ == 3) && (__clang_minor__ >= 3)
 #include "clang/Lex/HeaderSearchOptions.h"
-#else
-#include "clang/Frontend/HeaderSearchOptions.h"
-#endif
 #include "clang/Lex/Preprocessor.h"
 
 /**

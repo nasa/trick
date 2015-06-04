@@ -32,22 +32,19 @@ void HeaderSearchDirs::AddCompilerBuiltInSearchDirs () {
     const bool IsFramework = false;
     const bool IsSysRootRelative = true;
 
-#ifdef __linux
     // Add clang specific include directory first.  Only required on linux systems. :(
+    // This is so that ICG will find clang friendly headers first.  gcc headers cause
+    // all kinds of problems.  On macs all headers are clang friendly.
+#if __linux
     std::stringstream icg_dir ;
-    icg_dir << std::string(getenv("TRICK_HOME")) << "/trick_source/codegen/Interface_Code_Gen/lib/clang/" ;
+    //icg_dir << std::string(getenv("TRICK_HOME")) << "/libexec/trick/lib/clang/" ;
+    icg_dir << LLVM_HOME << "/lib/clang/" ;
     icg_dir << __clang_major__ << "." << __clang_minor__ ;
-#if (__clang_major__ == 3) && (__clang_minor__ >= 4)
 #ifdef __clang_patchlevel__
     icg_dir << "." << __clang_patchlevel__  ;
 #endif
-#endif
     icg_dir << "/include" ;
-#if (__clang_major__ == 3) && (__clang_minor__ >= 3)
     hso.AddPath(icg_dir.str() , clang::frontend::System, IsFramework, IsSysRootRelative);
-#else
-    hso.AddPath(icg_dir.str() , clang::frontend::System, IsUserSupplied, IsFramework, IsSysRootRelative);
-#endif
 #endif
 
     fp = popen("${TRICK_HOME}/bin/trick-gte TRICK_CPPC" , "r") ;
@@ -79,11 +76,7 @@ void HeaderSearchDirs::AddCompilerBuiltInSearchDirs () {
             //std::cout << "dir = " << dir << std::endl ;
             if ( resolved_path != NULL ) {
                 //std::cout << "gcc resolved_path = " << resolved_path << std::endl ;
-#if (__clang_major__ == 3) && (__clang_minor__ >= 3)
                 hso.AddPath(resolved_path , clang::frontend::System, IsFramework, IsSysRootRelative);
-#else
-                hso.AddPath(resolved_path , clang::frontend::System, IsUserSupplied, IsFramework, IsSysRootRelative);
-#endif
                 free(resolved_path) ;
             }
         } else if ( !strncmp( line, "#include <...>", 14 )) {
@@ -103,11 +96,7 @@ void HeaderSearchDirs::AddUserSearchDirs ( std::vector<std::string> & include_di
         char * resolved_path = almostRealPath(include_dirs[ii].c_str()) ;
         if ( resolved_path != NULL ) {
             //std::cout << "adding resolved_path = " << resolved_path << std::endl ;
-#if (__clang_major__ == 3) && (__clang_minor__ >= 3)
             hso.AddPath(resolved_path , clang::frontend::Angled, false, true);
-#else
-            hso.AddPath(resolved_path , clang::frontend::Angled, true, false, true);
-#endif
             // Add the path as a system path as well for those included files that are erroneously in <>
         }
     }
@@ -120,21 +109,13 @@ void HeaderSearchDirs::AddTrickSearchDirs () {
     if ( trick_home != NULL ) {
         std::string temp_dir = std::string(trick_home) + "/include/trick" ;
         char * resolved_path = almostRealPath(temp_dir.c_str() ) ;
-#if (__clang_major__ == 3) && (__clang_minor__ >= 3)
         hso.AddPath(resolved_path , clang::frontend::Quoted, false, true);
-#else
-        hso.AddPath(resolved_path , clang::frontend::Quoted, true, false, true);
-#endif
         trick_include_dir = std::string(resolved_path) ;
         free(resolved_path) ;
 
         temp_dir = std::string(trick_home) + "/trick_source" ;
         resolved_path = almostRealPath(temp_dir.c_str() ) ;
-#if (__clang_major__ == 3) && (__clang_minor__ >= 3)
         hso.AddPath(resolved_path , clang::frontend::Quoted, false, true);
-#else
-        hso.AddPath(resolved_path , clang::frontend::Quoted, true, false, true);
-#endif
         trick_source_dir = std::string(resolved_path) ;
         free(resolved_path) ;
     }

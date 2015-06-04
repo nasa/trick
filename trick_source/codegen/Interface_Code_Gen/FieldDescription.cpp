@@ -430,7 +430,7 @@ std::ostream & operator << (std::ostream & os , FieldDescription & fdes ) {
     os << "    bitfield_word_offset = " << fdes.bitfield_word_offset << std::endl ;
     os << "    num_dims = " << fdes.num_dims << std::endl ;
     os << "    array_sizes =" ;
-    for( unsigned int ii ; ii < 8 ; ii++ ) {
+    for( unsigned int ii = 0 ; ii < 8 ; ii++ ) {
         os << " " << fdes.array_sizes[ii] ;
     }
     os << std::endl ;

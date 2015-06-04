@@ -62,7 +62,7 @@ Most of the main program is pieced together from examples on the web. We are doi
 */
 int main( int argc , char * argv[] ) {
 
-#if (__clang_major__ == 3) && (__clang_minor__ >= 5)
+#if (__clang_major__ >= 6) || ((__clang_major__ == 3) && (__clang_minor__ >= 5))
     clang::TargetOptions to;
 #elif (__clang_major__ == 3) && (__clang_minor__ >= 3)
     clang::TargetOptions * to = new clang::TargetOptions() ;
@@ -85,11 +85,7 @@ int main( int argc , char * argv[] ) {
         return 0 ;
     }
 
-#if (__clang_major__ == 3) && (__clang_minor__ >= 3)
     ci.createDiagnostics();
-#else
-    ci.createDiagnostics(0,NULL);
-#endif
     clang::DiagnosticOptions & diago = ci.getDiagnosticOpts() ;
     diago.ShowColors = 1 ;
     ci.getDiagnostics().setIgnoreAllWarnings(true) ;
@@ -102,14 +98,10 @@ int main( int argc , char * argv[] ) {
     ci.getLangOpts().CXXExceptions = true ;
 
     // Activate C++11 parsing
-#if (__clang_major__ == 3) && (__clang_minor__ >= 3)
     ci.getLangOpts().CPlusPlus11 = true ;
-#else
-    ci.getLangOpts().CPlusPlus0x = true ;
-#endif
 
     // Set the default target architecture
-#if (__clang_major__ == 3) && (__clang_minor__ >= 5)
+#if (__clang_major__ >= 6) || (__clang_major__ == 3) && (__clang_minor__ >= 5)
     to.Triple = llvm::sys::getDefaultTargetTriple();
 #elif (__clang_major__ == 3) && (__clang_minor__ >= 3)
     to->Triple = llvm::sys::getDefaultTargetTriple();
@@ -117,7 +109,7 @@ int main( int argc , char * argv[] ) {
     to.Triple = llvm::sys::getDefaultTargetTriple();
 #endif
 
-#if (__clang_major__ == 3) && (__clang_minor__ >= 5)
+#if (__clang_major__ >= 6) || (__clang_major__ == 3) && (__clang_minor__ >= 5)
     std::shared_ptr<clang::TargetOptions> shared_to  = std::make_shared<clang::TargetOptions>(to) ;
     clang::TargetInfo *pti = clang::TargetInfo::CreateTargetInfo(ci.getDiagnostics(), shared_to);
 #else
@@ -128,7 +120,7 @@ int main( int argc , char * argv[] ) {
     // Create all of the necessary managers.
     ci.createFileManager();
     ci.createSourceManager(ci.getFileManager());
-#if (__clang_major__ == 3) && (__clang_minor__ >= 5)
+#if (__clang_major__ >= 6) || (__clang_major__ == 3) && (__clang_minor__ >= 5)
     ci.createPreprocessor(clang::TU_Complete);
 #else
     ci.createPreprocessor();
@@ -151,12 +143,7 @@ int main( int argc , char * argv[] ) {
 
     // Add our comment saver as a comment handler in the preprocessor
     CommentSaver cs(ci.getSourceManager()) ;
-#if (__clang_major__ == 3) && (__clang_minor__ >= 3)
     pp.addCommentHandler(&cs) ;
-#else
-    pp.AddCommentHandler(&cs) ;
-#endif
-
 
     PrintAttributes pa( attr_version, hsd, cs, ci, force, sim_services_flag) ;
 
@@ -165,7 +152,7 @@ int main( int argc , char * argv[] ) {
 
     // Tell the compiler to use our ICGASTconsumer
     ICGASTConsumer *astConsumer = new ICGASTConsumer(ci, hsd, cs, pa);
-#if (__clang_major__ == 3) && (__clang_minor__ >= 6)
+#if (__clang_major__ >= 6) || ((__clang_major__ == 3) && (__clang_minor__ >= 6))
     std::unique_ptr<clang::ASTConsumer> unique_ast(astConsumer) ;
     ci.setASTConsumer(std::move(unique_ast));
 #else
@@ -186,7 +173,7 @@ int main( int argc , char * argv[] ) {
 
     // Open up the input file and parse it.
     const clang::FileEntry *pFile = ci.getFileManager().getFile(input_file_full_path);
-#if (__clang_major__ == 3) && (__clang_minor__ >= 5)
+#if (__clang_major__ >= 6) || ((__clang_major__ == 3) && (__clang_minor__ >= 5))
     ci.getSourceManager().setMainFileID(ci.getSourceManager().createFileID(pFile, clang::SourceLocation(), clang::SrcMgr::C_User));
 #else
     ci.getSourceManager().createMainFileID(pFile);
