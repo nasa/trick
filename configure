@@ -710,7 +710,22 @@ if [ -e "$TRICK_HOME/.git" -o $dev == 1 ] ; then
 
     check_exists "clang compiler" `$llvm/bin/$llvm_config --bindir`/clang
     check_exists "clang header files" `$llvm/bin/$llvm_config --includedir`/clang
-    check_exists "clang library" `$llvm/bin/$llvm_config --libdir`/libclang.a
+
+    #check_exists "clang library" `$llvm/bin/$llvm_config --libdir`/libclang.a
+    dir=`$llvm/bin/$llvm_config --libdir`
+    echo -n "checking for clang library... "
+    search_exists "libclang.a"
+    if [ $? -eq 0 ] ; then
+        echo "$dir/libclang.a"
+    else
+        search_exists "libclang.dylib"
+        if [ $? -eq 0 ] ; then
+            echo "$dir/libclang.dylib"
+        else
+            error_exit
+        fi
+    fi
+
 
     if [ "$gtest" != "" ] ; then
         check_exists "Google Test" "$gtest/include/gtest"
