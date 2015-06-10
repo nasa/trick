@@ -5,6 +5,7 @@
 #include <QLineEdit>
 #include <QHBoxLayout>
 #include <QDoubleValidator>
+#include <qglobal.h>
 
 class RangeInput : public QFrame
 {
@@ -25,7 +26,9 @@ private:
     QHBoxLayout* _layout;
     QLineEdit* _minInput;
     QLineEdit* _maxInput;
+#if QT_VERSION >= QT_VERSION_CHECK(4,8,0)
     QDoubleValidator _validator;
+#endif
 
 };
 
