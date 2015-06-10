@@ -6,7 +6,7 @@
 #include <set>
 
 #include "clang/Lex/Preprocessor.h"
-#include "clang/Basic/SourceManager.h"
+#include "clang/Frontend/CompilerInstance.h"
 
 #include "HeaderSearchDirs.hh"
 
@@ -24,7 +24,7 @@
 
 class CommentSaver : public clang::CommentHandler {
     public:
-        CommentSaver( clang::SourceManager & in_sm ) ;
+        CommentSaver( clang::CompilerInstance & in_ci , HeaderSearchDirs & in_hsd ) ;
 
         /** Called by the PreProcessor when a comment is parsed. HandleComment saves
             the comment indexed by file name and line number in the comment map
@@ -78,7 +78,9 @@ class CommentSaver : public clang::CommentHandler {
 
     private:
         /** The compiler's source manager.  Holds file/line info for everything. */
-        clang::SourceManager & sm ;
+        clang::CompilerInstance & ci ;
+
+        HeaderSearchDirs & hsd ;
 
         /** Map of file name to ICG: (No) found */
         std::map < std::string , bool > icg_no_found ;

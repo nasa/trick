@@ -142,7 +142,7 @@ int main( int argc , char * argv[] ) {
     hsd.addDefines ( defines ) ;
 
     // Add our comment saver as a comment handler in the preprocessor
-    CommentSaver cs(ci.getSourceManager()) ;
+    CommentSaver cs(ci, hsd) ;
     pp.addCommentHandler(&cs) ;
 
     PrintAttributes pa( attr_version, hsd, cs, ci, force, sim_services_flag) ;

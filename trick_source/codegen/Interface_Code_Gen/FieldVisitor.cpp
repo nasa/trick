@@ -144,8 +144,8 @@ bool FieldVisitor::VisitDeclaratorDecl( clang::DeclaratorDecl *dd ) {
 
     /* Get the source location of this field. */
     clang::SourceRange dd_range = dd->getSourceRange() ;
-    if ( ! ci.getSourceManager().isInSystemHeader(dd_range.getEnd()) ) {
-        std::string file_name = ci.getSourceManager().getBufferName(dd_range.getEnd()) ;
+    std::string file_name = ci.getSourceManager().getBufferName(dd_range.getEnd()) ;
+    if ( isInUserOrTrickCode( ci , dd_range.getEnd() , hsd ) ) {
         fdes->setLineNo(ci.getSourceManager().getSpellingLineNumber(dd_range.getEnd())) ;
         /* process comment if neither ICG:(No) or ICG:(NoComment) is present */
         if ( ! cs.hasICGNoComment(file_name) and ! hsd.isPathInICGNoComment(file_name) ) {

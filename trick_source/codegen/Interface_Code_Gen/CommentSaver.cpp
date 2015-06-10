@@ -7,15 +7,17 @@
 #include "clang/Basic/FileManager.h"
 
 #include "CommentSaver.hh"
+#include "Utilities.hh"
 
-CommentSaver::CommentSaver(clang::SourceManager & in_sm ) : sm(in_sm) {}
+CommentSaver::CommentSaver(clang::CompilerInstance & in_ci , HeaderSearchDirs & in_hsd ) : ci(in_ci) , hsd(in_hsd) {}
 
 bool CommentSaver::HandleComment(clang::Preprocessor &PP, clang::SourceRange Comment) {
     //Comment.getBegin().dump(sm) ;
 
-    if ( ! sm.isInSystemHeader(Comment.getBegin()) ) {
-        std::string file_name = sm.getBufferName(Comment.getBegin()) ;
-        unsigned int line_no = sm.getSpellingLineNumber(Comment.getBegin()) ;
+    //if ( ! sm.isInSystemHeader(Comment.getBegin()) ) {
+    if ( isInUserOrTrickCode( ci , Comment.getBegin() , hsd ) ) {
+        std::string file_name = ci.getSourceManager().getBufferName(Comment.getBegin()) ;
+        unsigned int line_no = ci.getSourceManager().getSpellingLineNumber(Comment.getBegin()) ;
         comment_map[file_name][line_no] = Comment ;
     }
 
@@ -27,8 +29,8 @@ std::string CommentSaver::getComment( clang::SourceRange sr ) {
 
     if ( sr.isValid() ) {
         /* fsl_begin and fsl_end are two pointers into the header file.  We want the text between the two pointers. */
-        clang::FullSourceLoc fsl_begin(sr.getBegin() , sm) ;
-        clang::FullSourceLoc fsl_end(sr.getEnd() , sm) ;
+        clang::FullSourceLoc fsl_begin(sr.getBegin() , ci.getSourceManager()) ;
+        clang::FullSourceLoc fsl_end(sr.getEnd() , ci.getSourceManager()) ;
         std::string comment_text( fsl_begin.getCharacterData() ,
          (size_t)(fsl_end.getCharacterData() - fsl_begin.getCharacterData())) ;
         return comment_text ;

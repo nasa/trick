@@ -2,13 +2,13 @@
 # The config_${HOST_TYPE}.mk file provides LLVM_HOME
 include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
-CC := $(shell $(LLVM_HOME)/bin/$(LLVM_CONFIG) --bindir)/clang
-CXX := $(shell $(LLVM_HOME)/bin/$(LLVM_CONFIG) --bindir)/clang++
+CC := $(shell $(LLVM_HOME)/bin/llvm-config --bindir)/clang
+CXX := $(shell $(LLVM_HOME)/bin/llvm-config --bindir)/clang++
 CXXFLAGS := -I${LLVM_HOME}/include -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -fno-rtti
 
-CLANG_MINOR_GTEQ5 := $(shell expr `$(LLVM_HOME)/bin/$(LLVM_CONFIG) --version | cut -f2 -d. ` \>= 5 )
+CLANG_MINOR_GTEQ5 := $(shell expr `$(LLVM_HOME)/bin/llvm-config --version | cut -f2 -d. ` \>= 5 )
 
-LLVMLDFLAGS := $(shell $(LLVM_HOME)/bin/$(LLVM_CONFIG) --ldflags)
+LLVMLDFLAGS := $(shell $(LLVM_HOME)/bin/llvm-config --ldflags)
 
 OBJ_DIR :=  object_$(TRICK_HOST_CPU)
 
@@ -39,17 +39,17 @@ CLANGLIBS = \
     -lclangBasic \
 
 ifeq ($(TRICK_HOST_TYPE),Linux)
-CLANGLIBS += $(shell $(LLVM_HOME)/bin/$(LLVM_CONFIG) --libs)
+CLANGLIBS += $(shell $(LLVM_HOME)/bin/llvm-config --libs)
 ifeq ($(CLANG_MINOR_GTEQ5),1)
 CXXFLAGS += -std=c++11
 # Fedora 21 adds -ledit as a system lib, but it isn't installed, or required.
-CLANGLIBS += $(filter-out -ledit,$(shell $(LLVM_HOME)/bin/$(LLVM_CONFIG) --system-libs))
+CLANGLIBS += $(filter-out -ledit,$(shell $(LLVM_HOME)/bin/llvm-config --system-libs))
 endif
 endif
 
 ifeq ($(TRICK_HOST_TYPE),Darwin)
 CXXFLAGS += -std=c++11
-CLANGLIBS += -lLLVMOption -lLLVMMCParser -lLLVMBitReader -lLLVMMC -lLLVMSupport $(shell $(LLVM_HOME)/bin/$(LLVM_CONFIG) --system-libs)
+CLANGLIBS += -lLLVMOption -lLLVMMCParser -lLLVMBitReader -lLLVMMC -lLLVMSupport $(shell $(LLVM_HOME)/bin/llvm-config --system-libs)
 endif
 
 all: $(ICG)
