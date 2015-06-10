@@ -1,14 +1,25 @@
 
-ifeq ( $(shell test -e ${TRICK_HOME}/trick_source/er7_utils),0)
-   $(info ER7 Utils Exists#########)
-endif
+SHELL  := /bin/sh
+CD     := cd
+MV     := /bin/mv
+RM     := /bin/rm
+CP     := /bin/cp
+PWD    = $(shell /bin/pwd)
 
 export TRICK_HOST_TYPE := $(shell export TRICK_HOME=$(TRICK_HOME) && $(TRICK_HOME)/bin/trick-gte TRICK_HOST_TYPE)
 export TRICK_VERSION := $(shell export TRICK_HOME=$(TRICK_HOME) && $(TRICK_HOME)/bin/trick-version -v)
 export TRICK_MAJOR := $(shell export TRICK_HOME=$(TRICK_HOME) && $(TRICK_HOME)/bin/trick-version -y)
 export TRICK_MINOR := $(shell export TRICK_HOME=$(TRICK_HOME) && $(TRICK_HOME)/bin/trick-version -m)
 
--include $(TRICK_HOME)/share/trick/makefiles/config_${TRICK_HOST_TYPE}.mk
+UNAME_M := $(shell uname -m)
+ifeq ($(UNAME_M),x86_64)
+TRICK_LIB_DIR  := ${TRICK_HOME}/lib64
+else
+TRICK_LIB_DIR  := ${TRICK_HOME}/lib
+endif
+
+include $(TRICK_HOME)/share/trick/makefiles/config_${TRICK_HOST_TYPE}.mk
+-include $(TRICK_HOME)/share/trick/makefiles/config_user.mk
 
 ifndef TRICK_CC
  export TRICK_CC := $(CC)
@@ -40,18 +51,6 @@ $(error Please run $(TRICK_HOME)/configure before running make)
 endif
 endif
 
-# Check if configure script has modifications
-#ifeq ($(shell test ${TRICK_HOME}/configure -nt \
-#${TRICK_HOME}/config_${TRICK_HOST_TYPE}.mk && echo "NEW_CONFIG"), NEW_CONFIG)
-#  # Ignore check if using installation path of /usr/local/trick (i.e. SLAX CD)
-#  # Timestamps during ISO creation may be misleading due to file copy prodecures
-#  TEMP = $(shell echo "${TRICK_HOME}" | sed -e 's/\/usr\/local\/trick.*/LINUXLIVE/')
-#  ifneq ($(TEMP), LINUXLIVE)
-#    # Force running of the configure script if it is newer than config_*.mk)
-#    $(warning [31mPlease rerun "${TRICK_HOME}/[1m[7mconfigure[0m" to get the newest configuration changes. Then follow by running "[2m[3m[4mmake -C $$TRICK_HOME clean all[0m")
-#  endif
-#endif
-
 # Do this section only once
 ifndef TRICK_MAKE_COMMON
 export TRICK_MAKE_COMMON := 1
@@ -72,6 +71,8 @@ TRICK_CXXFLAGS += $(TRICK_ADDITIONAL_CXXFLAGS)
 
 # -fexceptions is included to propogate execptions through C code.
 TRICK_CFLAGS += -fexceptions
+
+HAVE_ZEROCONF ?= 0
 
 ifeq ($(HAVE_ZEROCONF),1)
 TRICK_CFLAGS += -DHAVE_ZEROCONF
@@ -132,8 +133,8 @@ TRICK_DEFINES = $(shell $(PERL) -e '@defines = "${TRICK_CFLAGS}" =~ /-D\s*(\S+)/
 
 IO_SRC_DIR     := io_src/
 OBJ_DIR        := object_${TRICK_HOST_CPU}
-TRICK_LIBS := -Wl,-rpath=${TRICK_HOME}/lib:${TRICK_HOME}/lib64 -L${TRICK_LIB_DIR} -ltrick -ltrick_pyip
 TRICK_STATIC_LIB := ${TRICK_LIB_DIR}/libtrick.a
+TRICK_RANLIB =
 
 DEPFILE = $(PWD)/Makefile_deps
 DEPTEMPFILE = $(PWD)/Makefile_temp_depends

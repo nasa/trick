@@ -309,12 +309,8 @@ ifeq ($(USE_ER7_UTILS_INTEGRATORS), 1)
 clean_swig: make_er7_makefiles 
 endif
 
-ifeq ($(DEVELOPER),1)
 clean_ICG :
 	$(MAKE) -C ${TRICK_HOME}/trick_source/codegen/Interface_Code_Gen  clean
-else
-clean_ICG :
-endif
 
 clean_unit_test:
 	@/bin/rm -rf ${TRICK_HOME}/trick_test/*.xml
