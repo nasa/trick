@@ -705,6 +705,8 @@ with_hdf5
 with_dmtcp
 with_tpro
 with_bc635
+with_gsl
+with_gtest
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1332,8 +1334,8 @@ Optional Packages:
   --with-dmtcp[=DIR]      DMTCP root directory
   --with-tpro[=DIR]       TPRO root directory
   --with-bc635[=DIR]      BC635 root directory
-  --with-bc635[=DIR]      GSL root directory
-  --with-bc635[=DIR]      GTEST root directory
+  --with-gsl[=DIR]        GSL root directory
+  --with-gtest[=DIR]      GTEST root directory
 
 Some influential environment variables:
   CC          C compiler command
@@ -3784,7 +3786,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 3787 "configure" */
+/* #line 3789 "configure" */
 public class Test {
 }
 EOF
@@ -4030,9 +4032,9 @@ fi
 
 
 
-# Check whether --with-bc635 was given.
-if test "${with_bc635+set}" = set; then :
-  withval=$with_bc635; GSL_HOME="$withval"
+# Check whether --with-gsl was given.
+if test "${with_gsl+set}" = set; then :
+  withval=$with_gsl; GSL_HOME="$withval"
                  as_ac_File=`$as_echo "ac_cv_file_$GSL_HOME/include/gsl" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $GSL_HOME/include/gsl" >&5
 $as_echo_n "checking for $GSL_HOME/include/gsl... " >&6; }
@@ -4067,9 +4069,9 @@ fi
 
 
 
-# Check whether --with-bc635 was given.
-if test "${with_bc635+set}" = set; then :
-  withval=$with_bc635; GTEST_HOME="$withval"
+# Check whether --with-gtest was given.
+if test "${with_gtest+set}" = set; then :
+  withval=$with_gtest; GTEST_HOME="$withval"
                  as_ac_File=`$as_echo "ac_cv_file_$GTEST_HOME/include/gtest" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $GTEST_HOME/include/gtest" >&5
 $as_echo_n "checking for $GTEST_HOME/include/gtest... " >&6; }

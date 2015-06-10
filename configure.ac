@@ -70,8 +70,8 @@ AC_DEFUN([AX_BC635_HOME],[
 ])
 
 AC_DEFUN([AX_GSL_HOME],[
-    AC_ARG_WITH([bc635],
-                AS_HELP_STRING([--with-bc635@<:@=DIR@:>@], [GSL root directory]),
+    AC_ARG_WITH([gsl],
+                AS_HELP_STRING([--with-gsl@<:@=DIR@:>@], [GSL root directory]),
                 [GSL_HOME="$withval"
                  AC_CHECK_FILE([$GSL_HOME/include/gsl],
                                [],
@@ -84,8 +84,8 @@ AC_DEFUN([AX_GSL_HOME],[
 ])
 
 AC_DEFUN([AX_GTEST_HOME],[
-    AC_ARG_WITH([bc635],
-                AS_HELP_STRING([--with-bc635@<:@=DIR@:>@], [GTEST root directory]),
+    AC_ARG_WITH([gtest],
+                AS_HELP_STRING([--with-gtest@<:@=DIR@:>@], [GTEST root directory]),
                 [GTEST_HOME="$withval"
                  AC_CHECK_FILE([$GTEST_HOME/include/gtest],
                                [],
