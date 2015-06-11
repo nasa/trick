@@ -99,7 +99,7 @@ DPPage *DPProduct::addPage(const char *title)
     return page;
 }
 
-// Made for speed and used when filtering for params in DP
+// Used when filtering for params in DP
 QStringList DPProduct::paramList(const QString &fileName)
 {
     QStringList params;
@@ -107,8 +107,21 @@ QStringList DPProduct::paramList(const QString &fileName)
     QFileInfo finfo(fileName);
 
     if ( finfo.suffix() == "xml" ) {
-        // TODO: DPProduct::paramList() unsupported for DP xml files";
-        //qDebug() << "DPProduct::paramList() unsupported for DP xml files";
+
+        DPProduct dp(fileName);
+        QHash<QString,int> paramHash;
+        foreach (DPPage* page, dp.pages() ) {
+            foreach ( DPPlot* plot, page->plots() ) {
+                foreach ( DPCurve* curve, plot->curves() ) {
+                    paramHash.insert(curve->t()->name(),0);
+                    paramHash.insert(curve->x()->name(),0);
+                    paramHash.insert(curve->y()->name(),0);
+                }
+            }
+        }
+
+        params = paramHash.keys();
+
     } else if ( finfo.isFile() && finfo.suffix().isEmpty() &&
                 finfo.fileName().startsWith("DP_") ) {
 
