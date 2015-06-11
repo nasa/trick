@@ -27,6 +27,6 @@ GTEST_HOME = @GTEST_HOME@
 
 LIBXML = @LIBXML@
 
-PREFIX = @prefix@
+PREFIX ?= @prefix@
 CONFIG_MK = 1
 

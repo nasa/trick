@@ -11,13 +11,6 @@ export TRICK_VERSION := $(shell export TRICK_HOME=$(TRICK_HOME) && $(TRICK_HOME)
 export TRICK_MAJOR := $(shell export TRICK_HOME=$(TRICK_HOME) && $(TRICK_HOME)/bin/trick-version -y)
 export TRICK_MINOR := $(shell export TRICK_HOME=$(TRICK_HOME) && $(TRICK_HOME)/bin/trick-version -m)
 
-UNAME_M := $(shell uname -m)
-ifeq ($(UNAME_M),x86_64)
-TRICK_LIB_DIR  := ${TRICK_HOME}/lib64
-else
-TRICK_LIB_DIR  := ${TRICK_HOME}/lib
-endif
-
 include $(TRICK_HOME)/share/trick/makefiles/config_${TRICK_HOST_TYPE}.mk
 -include $(TRICK_HOME)/share/trick/makefiles/config_user.mk
 

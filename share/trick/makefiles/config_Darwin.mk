@@ -1,4 +1,6 @@
 
+INSTALL = /usr/bin/install
+
 SHARED_LIB_OPT := -dynamiclib -Wl,-undefined,dynamic_lookup
 
 TRICK_LIB_DIR  := ${TRICK_HOME}/lib

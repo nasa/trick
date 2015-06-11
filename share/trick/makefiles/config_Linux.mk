@@ -1,4 +1,13 @@
 
+INSTALL = /bin/install
+
+UNAME_M := $(shell uname -m)
+ifeq ($(UNAME_M),x86_64)
+TRICK_LIB_DIR  := ${TRICK_HOME}/lib64
+else
+TRICK_LIB_DIR  := ${TRICK_HOME}/lib
+endif
+
 SHARED_LIB_OPT := -shared
 TRICK_LIBS = -Wl,-rpath=${TRICK_HOME}/lib:${TRICK_HOME}/lib64 -L${TRICK_LIB_DIR} -ltrick -ltrick_pyip
 

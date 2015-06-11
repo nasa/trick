@@ -397,25 +397,25 @@ SWIG_SRC_FILES = \$(addprefix $swig_src_dir/,\$(notdir \$(subst .o,.cpp,\$(ALL_S
     print MAKEFILE "TRICK_FIXED_PYTHON = $swig_sim_dir/swig_double.py $swig_sim_dir/swig_int.py $swig_sim_dir/swig_ref.py $swig_sim_dir/shortcuts.py $swig_sim_dir/unit_test.py $swig_sim_dir/sim_services.py $swig_sim_dir/exception.py\n" ;
     print MAKEFILE "S_main: \$(TRICK_FIXED_PYTHON) \$(PY_WRAPPERS)\n\n" ;
 
-    print MAKEFILE "$swig_sim_dir/sim_services.py : \${TRICK_HOME}/trick_source/trick_swig/swig_\${TRICK_HOST_CPU}/sim_services.py\n" ;
+    print MAKEFILE "$swig_sim_dir/sim_services.py : \${TRICK_HOME}/share/trick/swig/sim_services.py\n" ;
     print MAKEFILE "\t/bin/cp \$< \$@\n\n" ;
 
-    print MAKEFILE "$swig_sim_dir/swig_double.py : \${TRICK_HOME}/trick_source/trick_swig/swig_\${TRICK_HOST_CPU}/swig_double.py\n" ;
+    print MAKEFILE "$swig_sim_dir/swig_double.py : \${TRICK_HOME}/share/trick/swig/swig_double.py\n" ;
     print MAKEFILE "\t/bin/cp \$< \$@\n\n" ;
 
-    print MAKEFILE "$swig_sim_dir/swig_int.py : \${TRICK_HOME}/trick_source/trick_swig/swig_\${TRICK_HOST_CPU}/swig_int.py\n" ;
+    print MAKEFILE "$swig_sim_dir/swig_int.py : \${TRICK_HOME}/share/trick/swig/swig_int.py\n" ;
     print MAKEFILE "\t/bin/cp \$< \$@\n\n" ;
 
-    print MAKEFILE "$swig_sim_dir/swig_ref.py : \${TRICK_HOME}/trick_source/trick_swig/swig_\${TRICK_HOST_CPU}/swig_ref.py\n" ;
+    print MAKEFILE "$swig_sim_dir/swig_ref.py : \${TRICK_HOME}/share/trick/swig/swig_ref.py\n" ;
     print MAKEFILE "\t/bin/cp \$< \$@\n\n" ;
 
-    print MAKEFILE "$swig_sim_dir/shortcuts.py : \${TRICK_HOME}/trick_source/trick_swig/shortcuts.py\n" ;
+    print MAKEFILE "$swig_sim_dir/shortcuts.py : \${TRICK_HOME}/share/trick/swig/shortcuts.py\n" ;
     print MAKEFILE "\t/bin/cp \$< \$@\n\n" ;
 
-    print MAKEFILE "$swig_sim_dir/exception.py : \${TRICK_HOME}/trick_source/trick_swig/exception.py\n" ;
+    print MAKEFILE "$swig_sim_dir/exception.py : \${TRICK_HOME}/share/trick/swig/exception.py\n" ;
     print MAKEFILE "\t/bin/cp \$< \$@\n\n" ;
 
-    print MAKEFILE "$swig_sim_dir/unit_test.py : \${TRICK_HOME}/trick_source/trick_swig/unit_test.py\n" ;
+    print MAKEFILE "$swig_sim_dir/unit_test.py : \${TRICK_HOME}/share/trick/swig/unit_test.py\n" ;
     print MAKEFILE "\t/bin/cp \$< \$@\n\n" ;
 
     foreach (keys %swig_dirs) {

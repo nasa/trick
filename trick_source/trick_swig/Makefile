@@ -18,6 +18,12 @@ SWIG_OBJECT_FILES = \
     $(OBJ_DIR)/swig_int_wrap.o \
     $(OBJ_DIR)/swig_ref_wrap.o
 
+PY_FILES = \
+    ${TRICK_HOME}/share/trick/swig/sim_services.py \
+    ${TRICK_HOME}/share/trick/swig/swig_double.py \
+    ${TRICK_HOME}/share/trick/swig/swig_int.py \
+    ${TRICK_HOME}/share/trick/swig/swig_ref.py
+
 SWIG_SRC_FILES = $(addprefix swig_${TRICK_HOST_CPU}/, $(notdir $(subst .o,.cpp,$(SWIG_OBJECT_FILES))))
 TRICK_CXXFLAGS += $(PYTHON_INCLUDES) -Wno-redundant-decls -Wno-shadow -Wno-unused-parameter -Wno-missing-field-initializers
 
@@ -62,7 +68,7 @@ $(OBJECT_FILES): $(OBJ_DIR)/%.o : %.cpp
 	$(TRICK_CPPC) $(TRICK_CXXFLAGS) -c $< -o $@
 
 $(SWIG_SRC_FILES): swig_${TRICK_HOST_CPU}/%_wrap.cpp : %.i
-	 $(SWIG) $(SWIG_DEFS) -I${TRICK_HOME}/trick_source -I${TRICK_HOME}/include -c++ -python -includeall -ignoremissing -w201,362,389,451 -o $@ $<
+	 $(SWIG) $(SWIG_DEFS) -I${TRICK_HOME}/trick_source -I${TRICK_HOME}/include -c++ -python -includeall -ignoremissing -w201,362,389,451 -o $@ -outdir ${TRICK_HOME}/share/trick/swig $<
 
 $(TRICK_LIB) : $(SWIG_OBJECT_FILES) $(OBJECT_FILES)
 	ar crs $@ $?
@@ -70,13 +76,13 @@ $(TRICK_LIB) : $(SWIG_OBJECT_FILES) $(OBJECT_FILES)
 real_clean: clean
 
 clean: clean_python
-	$(RM) -rf $(OBJ_DIR) $(TEST_DIR)
+	$(RM) -rf $(OBJ_DIR) $(TEST_DIR) $(PY_FILES)
 
 
 clean_python:
 	rm -rf swig_${TRICK_HOST_CPU} sim_services.py swig_double.py swig_int.py swig_ref.py
 
-real_clean: clean 
+real_clean: clean
 
 # some depends
 swig_int_wrap.cpp: swig_int.cpp

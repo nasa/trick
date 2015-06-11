@@ -354,140 +354,43 @@ clean_gui: clean_java
 #                                 INSTALL Targets
 ################################################################################
 
-install: copy_files
-
-.PHONY: copy_files
-copy_files: ${PREFIX}/trick/trick-$(TRICK_VERSION) copy_trick_source
-	cp -r ${TRICK_HOME}/bin ${PREFIX}/trick/trick-$(TRICK_VERSION)
-	cp ${TRICK_HOME}/config_Linux.mk ${PREFIX}/trick/trick-$(TRICK_VERSION)
-	cp -r ${TRICK_HOME}/docs ${PREFIX}/trick/trick-$(TRICK_VERSION)
-	cp -r ${TRICK_HOME}/lib_${TRICK_HOST_CPU} ${PREFIX}/trick/trick-$(TRICK_VERSION)
-	cp -r ${TRICK_HOME}/makefiles ${PREFIX}/trick/trick-$(TRICK_VERSION)
-	cp -r ${TRICK_HOME}/man ${PREFIX}/trick/trick-$(TRICK_VERSION)
-
-${PREFIX}/trick/trick-$(TRICK_VERSION) :
-	mkdir -p $@
-
-###########
-
-copy_trick_source: copy_codegen copy_sim_objects copy_sim_serv_dirs copy_utils_dirs copy_swig
-
-ifeq ($(USE_ER7_UTILS_INTEGRATORS), 1)
-copy_trick_source: copy_er7_utils_dirs
-endif
-
-${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source : ${PREFIX}/trick/trick-$(TRICK_VERSION)
-	mkdir -p $@
-
-###########
-
-copy_codegen: ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/codegen/Interface_Code_Gen
-	cp ${TRICK_HOME}/trick_source/codegen/Interface_Code_Gen/ICG_* ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/codegen/Interface_Code_Gen
-	cp -r ${TRICK_HOME}/trick_source/codegen/Interface_Code_Gen/lib ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/codegen/Interface_Code_Gen
-
-${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/codegen/Interface_Code_Gen : ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source
-	mkdir -p $@
-
-###########
-
-copy_sim_objects: ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source
-	cp -r ${TRICK_HOME}/trick_source/sim_objects ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source
-
-###########
-
-BARE_ER7_UTILS_DIRS = $(patsubst ${TRICK_HOME}/trick_source/er7_utils/%,%,$(ER7_UTILS_DIRS))
-TARGET_ER7_UTILS_DIRS = $(addprefix ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/er7_utils/,$(BARE_ER7_UTILS_DIRS))
-
-${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/er7_utils : ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source
-	mkdir -p $@
-
-$(TARGET_ER7_UTILS_DIRS): ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/er7_utils
-	mkdir -p $@
-
-copy_er7_utils_dirs: $(TARGET_ER7_UTILS_DIRS)
-	@for i in $(BARE_ER7_UTILS_DIRS) ; do \
-	   cp -r ${TRICK_HOME}/trick_source/er7_utils/$$i/include ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/er7_utils/$$i ; \
-	done
-
-###########
-
-BARE_SIM_SERV_DIRS = $(filter-out include,$(notdir $(SIM_SERV_DIRS)))
-BARE_SIM_SERV_DIRS += InputProcessor
-TARGET_SIM_SERV_DIRS = $(addprefix ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/sim_services/,$(BARE_SIM_SERV_DIRS))
-TARGET_SIM_SERV_DIRS += ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/sim_services/include
-
-${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/sim_services : ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source
-	mkdir -p $@
-
-$(TARGET_SIM_SERV_DIRS): ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/sim_services
-	mkdir -p $@
-
-copy_sim_serv_dirs: $(TARGET_SIM_SERV_DIRS)
-	cp ${TRICK_HOME}/trick_source/sim_services/include/*.h ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/sim_services/include
-	cp ${TRICK_HOME}/trick_source/sim_services/include/*.hh ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/sim_services/include
-	for i in $(BARE_SIM_SERV_DIRS) ; do \
-	   cp -r ${TRICK_HOME}/trick_source/sim_services/$$i/include ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/sim_services/$$i ; \
-	done
-
-###########
-
-BARE_UTILS_DIRS = $(notdir $(UTILS_DIRS))
-TARGET_UTILS_DIRS = $(addprefix ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/trick_utils/,$(BARE_UTILS_DIRS))
-
-${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/trick_utils : ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source
-	mkdir -p $@
-
-$(TARGET_UTILS_DIRS): ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/trick_utils
-	mkdir -p $@
-
-copy_utils_dirs: $(TARGET_UTILS_DIRS)
-	for i in $(BARE_UTILS_DIRS) ; do \
-	   cp -r ${TRICK_HOME}/trick_source/trick_utils/$$i/include ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/trick_utils/$$i ; \
-	done
-
-###########
-
-TARGET_SWIG_DIRS = \
- ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/trick_swig \
- ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/trick_swig/swig_${TRICK_HOST_CPU}
-
-$(TARGET_SWIG_DIRS): ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source
-	mkdir -p $@
-
-copy_swig: $(TARGET_SWIG_DIRS)
-	cp ${TRICK_HOME}/trick_source/trick_swig/*.py ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/trick_swig
-	cp ${TRICK_HOME}/trick_source/trick_swig/swig_${TRICK_HOST_CPU}/*.py ${PREFIX}/trick/trick-$(TRICK_VERSION)/trick_source/trick_swig/swig_${TRICK_HOST_CPU}
-
-###########
+install:
+	cp -r bin include $(notdir ${TRICK_LIB_DIR}) libexec share ${PREFIX}
 
 uninstall:
-	rm -rf ${PREFIX}/trick/trick-$(TRICK_VERSION)
+	rm -f ${PREFIX}/bin/trick-*
+	rm -rf ${PREFIX}/include/trick
+	rm -f ${PREFIX}/${BASE_LIB_DIR}/libtrick*
+	rm -rf ${PREFIX}/libexec/trick
+	rm -rf ${PREFIX}/share/doc/trick
+	rm -f ${PREFIX}/share/man/man1/trick-*
+	rm -rf ${PREFIX}/share/trick
 
 ###########
 
 # These rules run the alternatives command in linux to create links in /usr/local/bin for Trick.
-ifeq ($(TRICK_HOST_TYPE),Linux)
-ALTERNATIVES := $(shell which alternatives || which update-alternatives)
-
-install: set_alternatives
-.PHONY: set_alternatives
-set_alternatives: copy_files
-	- ${ALTERNATIVES} --install /usr/local/bin/CP trick ${PREFIX}/trick/trick-$(TRICK_VERSION)/bin/trick-CP 10 \
-  --slave /usr/local/bin/trick-ICG trick-ICG /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-ICG \
-  --slave /usr/local/bin/trick-gte trick-gte /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-gte \
-  --slave /usr/local/bin/trick-killsim trick-killsim /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-killsim \
-  --slave /usr/local/bin/trick-sie trick-sie /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-sie \
-  --slave /usr/local/bin/trick-sim_control trick-simcontrol /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-simcontrol \
-  --slave /usr/local/bin/trick-sniffer trick-sniffer /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-sniffer \
-  --slave /usr/local/bin/trick-dp trick-dp /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-dp \
-  --slave /usr/local/bin/trick-version trick-version /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-version \
-  --slave /usr/local/bin/trick-tv trick-tv /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-tv
-
-uninstall: remove_alternatives
-.PHONY: remove_alternatives
-remove_alternatives:
-	- ${ALTERNATIVES} --remove trick ${PREFIX}/trick/trick-$(TRICK_VERSION)/bin/CP
-endif
+#ifeq ($(TRICK_HOST_TYPE),Linux)
+#ALTERNATIVES := $(shell which alternatives || which update-alternatives)
+#
+#install: set_alternatives
+#.PHONY: set_alternatives
+#set_alternatives: copy_files
+#	- ${ALTERNATIVES} --install /usr/local/bin/CP trick ${PREFIX}/trick/trick-$(TRICK_VERSION)/bin/trick-CP 10 \
+#  --slave /usr/local/bin/trick-ICG trick-ICG /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-ICG \
+#  --slave /usr/local/bin/trick-gte trick-gte /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-gte \
+#  --slave /usr/local/bin/trick-killsim trick-killsim /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-killsim \
+#  --slave /usr/local/bin/trick-sie trick-sie /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-sie \
+#  --slave /usr/local/bin/trick-sim_control trick-simcontrol /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-simcontrol \
+#  --slave /usr/local/bin/trick-sniffer trick-sniffer /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-sniffer \
+#  --slave /usr/local/bin/trick-dp trick-dp /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-dp \
+#  --slave /usr/local/bin/trick-version trick-version /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-version \
+#  --slave /usr/local/bin/trick-tv trick-tv /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-tv
+#
+#uninstall: remove_alternatives
+#.PHONY: remove_alternatives
+#remove_alternatives:
+#	- ${ALTERNATIVES} --remove trick ${PREFIX}/trick/trick-$(TRICK_VERSION)/bin/CP
+#endif
 
 ################################################################################
 #                    MISCELLANEOUS DEVELOPER UTILITY TARGETS                   #
