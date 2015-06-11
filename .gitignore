@@ -21,3 +21,4 @@ bin/trick-gxplot
 bin/trick-trk2ascii
 bin/trick-trk2csv
 aclocal.m4
+autom4te.cache
