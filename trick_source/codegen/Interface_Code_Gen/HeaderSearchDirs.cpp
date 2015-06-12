@@ -43,7 +43,8 @@ void HeaderSearchDirs::AddCompilerBuiltInSearchDirs () {
     icg_dir << "." << __clang_patchlevel__  ;
 #endif
     icg_dir << "/include" ;
-    hso.AddPath(icg_dir.str() , clang::frontend::System, IsFramework, IsSysRootRelative);
+    char * resolved_path = realpath(icg_dir.str().c_str(), NULL ) ;
+    hso.AddPath(resolved_path , clang::frontend::System, IsFramework, IsSysRootRelative);
 #endif
 
     fp = popen("${TRICK_HOME}/bin/trick-gte TRICK_CPPC" , "r") ;
