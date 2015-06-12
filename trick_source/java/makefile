@@ -9,9 +9,9 @@ SRC_DIR   = src
 SRC_FILES = $(shell find ${SRC_DIR} -type f -name \*.java)
 BUILD_DIR = build
 DEST_DIR  = ${BUILD_DIR}/classes
-LIB_DIR   = ${TRICK_HOME}/libexec/trick/java/lib
-DIST_DIR  = ${TRICK_HOME}/libexec/trick/java/dist
-RESOURCES_DIR  = ${TRICK_HOME}/libexec/trick/java/resources
+LIB_DIR   = ${TRICK_HOME}/$(LIBEXEC)/trick/java/lib
+DIST_DIR  = ${TRICK_HOME}/$(LIBEXEC)/trick/java/dist
+RESOURCES_DIR  = ${TRICK_HOME}/$(LIBEXEC)/trick/java/resources
 DOCS_API_DIR   = docs/api
 TEST_REPORTS_DIR = test/reports
 

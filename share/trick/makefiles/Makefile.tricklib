@@ -167,7 +167,7 @@ $(Y_OBJS) : $(OBJ_DIR)/%.tab.o : $(SRC_DIR)%.tab.c  | $(OBJ_DIR)
 
 depend:
 	@ $(TRICK_CPPC) -MM $(TRICK_CXXFLAGS) $(C_SRC) $(CPP_SRC) >> $(DEPTEMPFILE)
-	@ $(PERL) ${TRICK_HOME}/libexec/trick/depend_cp $(DEPTEMPFILE) > $(DEPFILE)
+	@ $(PERL) ${TRICK_HOME}/$(LIBEXEC)/trick/depend_cp $(DEPTEMPFILE) > $(DEPFILE)
 	@ $(RM) $(DEPTEMPFILE)
 	@ echo "Created dependency file $(DEPFILE)"
 

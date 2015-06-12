@@ -280,7 +280,7 @@ sub make_swig_makefile($$$) {
     print MAKEFILE"\n\n" ;
 
     print MAKEFILE "convert_swig:\n" ;
-    print MAKEFILE "\t\${TRICK_HOME}/libexec/trick/convert_swig \${TRICK_CONVERT_SWIG_FLAGS} S_source.hh\n" ;
+    print MAKEFILE "\t\${TRICK_HOME}/\$(LIBEXEC)/trick/convert_swig \${TRICK_CONVERT_SWIG_FLAGS} S_source.hh\n" ;
     print MAKEFILE "\n\n" ;
 
     my %swig_dirs ;

@@ -32,10 +32,10 @@ ${TRICK_LIB_DIR}/libtrick.a:
 
 Makefile_sim: S_define
 	@/bin/rm -rf lib_${TRICK_HOST_CPU} object_${TRICK_HOST_CPU}
-	@${TRICK_HOME}/libexec/trick/configuration_processor $(TRICK_CPFLAGS)
+	@${TRICK_HOME}/$(LIBEXEC)/trick/configuration_processor $(TRICK_CPFLAGS)
 
 model_dirs:
-	@${TRICK_HOME}/libexec/trick/configuration_processor -z
+	@${TRICK_HOME}/$(LIBEXEC)/trick/configuration_processor -z
 
 tidy clean real_clean spotless apocalypse sie ICG force_ICG help convert_swig S_define_exp:
 	@if [ -f Makefile_sim ] ; then $(MAKE) --no-print-directory -f Makefile_sim $@ ; else echo "No Makefile_sim found" ; fi

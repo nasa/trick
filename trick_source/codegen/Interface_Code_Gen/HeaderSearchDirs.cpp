@@ -37,7 +37,6 @@ void HeaderSearchDirs::AddCompilerBuiltInSearchDirs () {
     // all kinds of problems.  On macs all headers are clang friendly.
 #if __linux
     std::stringstream icg_dir ;
-    //icg_dir << std::string(getenv("TRICK_HOME")) << "/libexec/trick/lib/clang/" ;
     icg_dir << LLVM_HOME << "/lib/clang/" ;
     icg_dir << __clang_major__ << "." << __clang_minor__ ;
 #ifdef __clang_patchlevel__

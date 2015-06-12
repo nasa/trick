@@ -351,6 +351,9 @@ sub ICG(\@$$$) {
 
             if ( $operation eq "CP" ) {
 
+                next if ( $f =~ /$ENV{TRICK_HOME}\/include/) ;
+                next if ( $f =~ /$ENV{TRICK_HOME}\/trick_source/) ;
+
                 trick_print($$sim_ref{fh}, "Getting dependencies for $f\n" , "normal_white" , $$sim_ref{args}{v});
 
                 delete $$sim_ref{head_deps}{$f} ;

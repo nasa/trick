@@ -44,6 +44,13 @@ $(error Please run $(TRICK_HOME)/configure before running make)
 endif
 endif
 
+# Where are the libexec executables
+ifneq ("$(wildcard $(TRICK_HOME)/libexec)","")
+    LIBEXEC = libexec
+else
+    LIBEXEC = lib
+endif
+
 # Do this section only once
 ifndef TRICK_MAKE_COMMON
 export TRICK_MAKE_COMMON := 1

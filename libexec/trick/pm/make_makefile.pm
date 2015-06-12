@@ -599,15 +599,15 @@ build_user_lib : \$(BUILD_USER_OBJ_DIRS) \$(BUILD_USER_LIBS)
     print MAKEFILE "
 \$(OBJECT_DIR)/S_source.o: S_source.cpp | \$(OBJECT_DIR)
 \t\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) -MMD -MP -c S_source.cpp -o \$(OBJECT_DIR)/S_source.o
-\t\@\${TRICK_HOME}/libexec/trick/depend_objs S_source.cpp
+\t\@\${TRICK_HOME}/\$(LIBEXEC)/trick/depend_objs S_source.cpp
 
 \$(OBJECT_DIR)/class_map.o: \$(CURDIR)/io_src/class_map.cpp | \$(OBJECT_DIR)
 \t\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) -MMD -MP -c \$(CURDIR)/io_src/class_map.cpp -o \$(OBJECT_DIR)/class_map.o
-\t\@\${TRICK_HOME}/libexec/trick/depend_objs class_map.cpp
+\t\@\${TRICK_HOME}/\$(LIBEXEC)/trick/depend_objs class_map.cpp
 
 \$(OBJECT_DIR)/enum_map.o: \$(CURDIR)/io_src/enum_map.cpp | \$(OBJECT_DIR)
 \t\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) -MMD -MP -c \$(CURDIR)/io_src/enum_map.cpp -o \$(OBJECT_DIR)/enum_map.o
-\t\@\${TRICK_HOME}/libexec/trick/depend_objs enum_map.cpp
+\t\@\${TRICK_HOME}/\$(LIBEXEC)/trick/depend_objs enum_map.cpp
 
 -include \$(OBJECT_DIR)/S_source.dep
 -include \$(OBJECT_DIR)/class_map.dep
@@ -961,7 +961,7 @@ sub write_rules ($$$$) {
         print MAKEFILE "$k/object_\${TRICK_HOST_CPU}/$n" . "o : $k/$dir_info{src_dir}$n" . "c\n" ;
         if ( $dir_info{writable} ) {
             print MAKEFILE "\tcd $k/$dir_info{src_dir} ; \$(TRICK_CC) \$(TRICK_CFLAGS) -MMD -MP -c \${\@F:.o=.c} -o \$\@\n" ;
-            print MAKEFILE "\t\@cd $k/$dir_info{src_dir} ; \${TRICK_HOME}/libexec/trick/depend_objs ${n}c\n" ;
+            print MAKEFILE "\t\@cd $k/$dir_info{src_dir} ; \${TRICK_HOME}/\$(LIBEXEC)/trick/depend_objs ${n}c\n" ;
 
             print MAKEFILE "-include $k/object_\${TRICK_HOST_CPU}/${n}dep\n" ;
         }
@@ -977,7 +977,7 @@ sub write_rules ($$$$) {
         if ( $dir_info{writable} ) {
             #print MAKEFILE "\t\@echo \"Compiling $k/$dir_info{src_dir}[33m\${\@F:.o=.$ext}[00m\"\n" ;
             print MAKEFILE "\tcd $k/$dir_info{src_dir} ; \$(TRICK_CPPC) \$(TRICK_CXXFLAGS) -MMD -MP -c \${\@F:.o=.$ext} -o \$\@\n" ;
-            print MAKEFILE "\t\@cd $k/$dir_info{src_dir} ; \${TRICK_HOME}/libexec/trick/depend_objs $n$ext\n" ;
+            print MAKEFILE "\t\@cd $k/$dir_info{src_dir} ; \${TRICK_HOME}/\$(LIBEXEC)/trick/depend_objs $n$ext\n" ;
 
             print MAKEFILE "\n-include $k/object_\${TRICK_HOST_CPU}/${n}dep\n\n" ;
         }

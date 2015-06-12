@@ -1,12 +1,8 @@
-#!/bin/sh
+#!/usr/bin/perl
 
-if [ "${OSTYPE}" = "darwin" ]
-then
-    java -classpath ${TRICK_HOME}/libexec/trick/java/dist/*:${TRICK_HOME}/libexec/trick/java/lib/* \
-         -Xdock:name="Data Recording Editor" \
-         -Xdock:icon=${TRICK_HOME}/libexec/trick/java/resources/trick_icon.png \
-         trick.dre.DreApplication $@
-else
-    java -classpath ${TRICK_HOME}/libexec/trick/java/dist/*:${TRICK_HOME}/libexec/trick/java/lib/* trick.dre.DreApplication $@
-fi
-     
+use FindBin qw($RealBin);
+use lib ("$RealBin/../libexec/trick/pm", "$RealBin/../lib/trick/pm") ;
+use launch_java ;
+
+launch_java("Data Recording Editor", "trick.dre.DreApplication") ;
+
