@@ -39,12 +39,16 @@ void HeaderSearchDirs::AddCompilerBuiltInSearchDirs () {
     std::stringstream icg_dir ;
     icg_dir << LLVM_HOME << "/lib/clang/" ;
     icg_dir << __clang_major__ << "." << __clang_minor__ ;
+#if (__clang_major__ > 3) || ((__clang_major__ == 3) && (__clang_minor__ >= 4))
 #ifdef __clang_patchlevel__
     icg_dir << "." << __clang_patchlevel__  ;
 #endif
+#endif
     icg_dir << "/include" ;
     char * resolved_path = realpath(icg_dir.str().c_str(), NULL ) ;
-    hso.AddPath(resolved_path , clang::frontend::System, IsFramework, IsSysRootRelative);
+    if ( resolved_path != NULL ) {
+        hso.AddPath(resolved_path , clang::frontend::System, IsFramework, IsSysRootRelative);
+    }
 #endif
 
     fp = popen("${TRICK_HOME}/bin/trick-gte TRICK_CPPC" , "r") ;
