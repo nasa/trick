@@ -238,8 +238,7 @@ plot: DP_PLOT DP_FLOAT ':' DP_STR {
                 currPlot->setGrid($4);
         }
         | plot DP_GRID_COLOR ':' DP_STR  {
-                //currPlot->setGridColor($4);
-                msg("page->setGridColor() not supported");
+                currPlot->setGridColor($4);
         }
         | plot DP_START ':' DP_FLOAT {
                 currPlot->setStartTime($4);

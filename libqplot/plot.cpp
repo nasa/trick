@@ -106,6 +106,21 @@ void Plot::setGrid(bool isOn)
     }
 }
 
+void Plot::setGridColor(const QString &colorString)
+{
+    QColor color(colorString);
+    foreach ( QCPAxis* axis, _axisrect->axes() ) {
+
+        QPen pen = axis->grid()->pen();
+        pen.setColor(color);
+        axis->grid()->setPen(pen);
+
+        QPen zpen = axis->grid()->zeroLinePen();
+        zpen.setColor(color);
+        axis->grid()->setZeroLinePen(zpen);
+    }
+}
+
 void Plot::drawMe(QCPPainter *painter)
 {
     QCustomPlot::draw(painter);

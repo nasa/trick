@@ -1104,6 +1104,13 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             break;
         }
 
+        case PlotBookModel::PlotGridColor : {
+            Plot* plot = _idx2Plot(pidx);
+            QString gridColor = model()->data(idx).toString();
+            plot->setGridColor(gridColor);
+            break;
+        }
+
         case PlotBookModel::Invalid : {
             qDebug() << "snap [bad scoobies] : PlotBookView::rowInserted() "
                       "received bad model index " << idx ;

@@ -259,7 +259,8 @@ DPPlot::DPPlot(const QDomElement &e) :
     _yMaxRange(DBL_MAX),
     _startTime(-DBL_MAX),
     _stopTime(DBL_MAX),
-    _isGrid(true)
+    _isGrid(true),
+    _gridColor("#E1E1E1")
 {
     QDomElement el = e;
 
@@ -279,6 +280,9 @@ DPPlot::DPPlot(const QDomElement &e) :
         QString isGridStr = el.attributeNode("grid").value().simplified();
         bool ok;
         _isGrid = Options::stringToBool(isGridStr, &ok);
+    }
+    if ( el.hasAttribute("grid_color") ) {
+        _gridColor = el.attributeNode("grid_color").value().simplified();
     }
 
     QDomNode n = e.firstChild();
@@ -319,7 +323,8 @@ DPPlot::DPPlot(const char *title) :
     _yMaxRange(DBL_MAX),
     _startTime(-DBL_MAX),
     _stopTime(DBL_MAX),
-    _isGrid(true)
+    _isGrid(true),
+    _gridColor("#E1E1E1")
 {
 }
 
@@ -388,6 +393,11 @@ bool DPPlot::grid()
     return _isGrid;
 }
 
+QString DPPlot::gridColor()
+{
+    return _gridColor;
+}
+
 void DPPlot::setXMinRange(double xMin)
 {
     _xMinRange = xMin;
@@ -426,6 +436,11 @@ void DPPlot::setGrid(const QString &isGridString)
     } else {
         _isGrid = false;
     }
+}
+
+void DPPlot::setGridColor(const QString &color)
+{
+    _gridColor = color;
 }
 
 DPCurve *DPPlot::addCurve()

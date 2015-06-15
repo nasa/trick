@@ -79,6 +79,7 @@ public:
     double startTime();
     double stopTime();
     bool grid();
+    QString gridColor();
     QList<DPCurve*> curves() { return _curves; }
 
     DPCurve* addCurve();
@@ -91,6 +92,7 @@ public:
     void setStartTime(double startTime);
     void setStopTime(double stopTime);
     void setGrid(const QString& isGridString);
+    void setGridColor(const QString& color);
 
 private:
     QString _title;
@@ -103,6 +105,7 @@ private:
     double _startTime;
     double _stopTime;
     bool _isGrid;
+    QString _gridColor;
     QList<DPCurve*> _curves;
     static QString _abbreviate(const QString& label,int maxlen=35);
 };
