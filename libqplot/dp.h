@@ -78,6 +78,7 @@ public:
     double yMaxRange();
     double startTime();
     double stopTime();
+    bool grid();
     QList<DPCurve*> curves() { return _curves; }
 
     DPCurve* addCurve();
@@ -89,6 +90,7 @@ public:
     void setYMaxRange(double yMax);
     void setStartTime(double startTime);
     void setStopTime(double stopTime);
+    void setGrid(const QString& isGridString);
 
 private:
     QString _title;
@@ -100,6 +102,7 @@ private:
     double _yMaxRange;
     double _startTime;
     double _stopTime;
+    bool _isGrid;
     QList<DPCurve*> _curves;
     static QString _abbreviate(const QString& label,int maxlen=35);
 };

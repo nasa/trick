@@ -235,8 +235,7 @@ plot: DP_PLOT DP_FLOAT ':' DP_STR {
                 currPlot->setYMaxRange($4);
         }
         | plot DP_GRID ':' DP_STR  {
-                //currPlot->setGrid($4);
-                msg("page->setGrid() not supported");
+                currPlot->setGrid($4);
         }
         | plot DP_GRID_COLOR ':' DP_STR  {
                 //currPlot->setGridColor($4);

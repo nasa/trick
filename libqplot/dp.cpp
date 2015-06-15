@@ -1,4 +1,5 @@
 #include "dp.h"
+#include "libopts/options.h"
 
 DPProduct* product;// hack to pass to yacc parser
 
@@ -257,7 +258,8 @@ DPPlot::DPPlot(const QDomElement &e) :
     _yMinRange(-DBL_MAX),
     _yMaxRange(DBL_MAX),
     _startTime(-DBL_MAX),
-    _stopTime(DBL_MAX)
+    _stopTime(DBL_MAX),
+    _isGrid(true)
 {
     QDomElement el = e;
 
@@ -272,6 +274,11 @@ DPPlot::DPPlot(const QDomElement &e) :
     }
     if ( el.hasAttribute("ymax") ) {
         _yMaxRange = el.attributeNode("ymax").value().simplified().toDouble();
+    }
+    if ( el.hasAttribute("grid") ) {
+        QString isGridStr = el.attributeNode("grid").value().simplified();
+        bool ok;
+        _isGrid = Options::stringToBool(isGridStr, &ok);
     }
 
     QDomNode n = e.firstChild();
@@ -311,7 +318,8 @@ DPPlot::DPPlot(const char *title) :
     _yMinRange(-DBL_MAX),
     _yMaxRange(DBL_MAX),
     _startTime(-DBL_MAX),
-    _stopTime(DBL_MAX)
+    _stopTime(DBL_MAX),
+    _isGrid(true)
 {
 }
 
@@ -375,6 +383,11 @@ double DPPlot::stopTime()
     return _stopTime;
 }
 
+bool DPPlot::grid()
+{
+    return _isGrid;
+}
+
 void DPPlot::setXMinRange(double xMin)
 {
     _xMinRange = xMin;
@@ -405,6 +418,16 @@ void DPPlot::setStopTime(double stopTime)
     _stopTime = stopTime;
 }
 
+void DPPlot::setGrid(const QString &isGridString)
+{
+    bool ok = false;
+    if ( Options::stringToBool(isGridString,&ok) ) {
+        _isGrid = true;
+    } else {
+        _isGrid = false;
+    }
+}
+
 DPCurve *DPPlot::addCurve()
 {
     DPCurve* curve = new DPCurve();
@@ -433,8 +456,6 @@ QString DPPlot::_abbreviate(const QString &label, int maxlen)
 
     return abbr;
 }
-
-
 
 QString DPCurve::_err_string;
 QTextStream DPCurve::_err_stream(&DPCurve::_err_string);

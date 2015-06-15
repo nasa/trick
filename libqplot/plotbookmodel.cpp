@@ -245,6 +245,7 @@ PlotBookModel::IdxEnum PlotBookModel::indexEnum(const QModelIndex &idx) const
             case 7: ret = PlotYMax; break;
             case 8: ret = PlotStartTime; break;
             case 9: ret = PlotStopTime; break;
+            case 10: ret = PlotGrid; break;
             default: ret = Invalid;
         }
     } else if ( ! g3pidx.isValid() ) {

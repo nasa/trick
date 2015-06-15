@@ -23,6 +23,7 @@ public:
     void setYMaxRange(double yMax);
     void setStartTime(double startTime);
     void setStopTime(double stopTime);
+    void setGrid(bool isOn);
     AxisRect* axisRect() { return _axisrect; }
     void drawMe(QCPPainter *painter);
 

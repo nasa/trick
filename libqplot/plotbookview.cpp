@@ -1,5 +1,6 @@
 #include "plotbookview.h"
 #include "libsnapdata/trickcurvemodel.h"
+#include "libopts/options.h"
 #include <QDebug>
 
 PlotBookView::PlotBookView(PlotBookModel *plotModel, const QStringList &titles, QWidget *parent) :
@@ -1091,6 +1092,15 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             } else if ( pageStopTime < 1.0e30 ) {
                 plot->setStopTime(pageStopTime);
             }
+            break;
+        }
+
+        case PlotBookModel::PlotGrid : {
+            Plot* plot = _idx2Plot(pidx);
+            QString isGridStr = model()->data(idx).toString();
+            bool ok;
+            bool isGrid = Options::stringToBool(isGridStr,&ok);
+            plot->setGrid(isGrid);
             break;
         }
 

@@ -86,6 +86,26 @@ void Plot::setStopTime(double stopTime)
     _axisrect->setStopTime(stopTime);
 }
 
+void Plot::setGrid(bool isOn)
+{
+    foreach ( QCPAxis* axis, _axisrect->axes() ) {
+
+        Qt::PenStyle penStyle = Qt::NoPen;
+
+        if ( isOn ) {
+            penStyle = Qt::SolidLine;
+        }
+
+        QPen pen = axis->grid()->pen();
+        pen.setStyle(penStyle);
+        axis->grid()->setPen(pen);
+
+        pen = axis->grid()->zeroLinePen();
+        pen.setStyle(penStyle);
+        axis->grid()->setZeroLinePen(pen);
+    }
+}
+
 void Plot::drawMe(QCPPainter *painter)
 {
     QCustomPlot::draw(painter);

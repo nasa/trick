@@ -240,6 +240,17 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             plotStopTime->setData(stopTime);
             plotItem->appendRow(plotStopTime);
 
+            bool isGrid = plot->grid();
+            QString isGridStr;
+            if ( isGrid ) {
+                isGridStr = "yes";
+            } else {
+                isGridStr = "no";
+            }
+            QStandardItem *plotGrid = new QStandardItem(isGridStr);
+            plotGrid->setData(isGrid);
+            plotItem->appendRow(plotGrid);
+
             int curveId = -1;
             foreach (DPCurve* dpcurve, plot->curves() ) {
                 ++curveId;

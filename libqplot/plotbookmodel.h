@@ -62,7 +62,8 @@ public:
                     PlotYMin,
                     PlotYMax,
                     PlotStartTime,
-                    PlotStopTime
+                    PlotStopTime,
+                    PlotGrid
     };
 
     IdxEnum indexEnum(const QModelIndex& idx) const;
