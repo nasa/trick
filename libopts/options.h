@@ -164,6 +164,8 @@ public:
     void parse(int argc, char **argv, const QString &programName, bool *ok);
     QString usage() ;
 
+    static bool stringToBool(const QString& s, bool *ok);
+
 private:
     QString _programName;
     int _nRootOptions;
@@ -176,7 +178,6 @@ private:
                        void* postsetCB=0);
     QVariantList _extractOptValsFromArgs(Option* opt, const QStringList &s,
                                          bool *ok);
-    bool _stringToBool(const QString& s, bool *ok);
 } ;
 
     
