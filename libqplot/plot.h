@@ -25,6 +25,7 @@ public:
     void setStopTime(double stopTime);
     void setGrid(bool isOn);
     void setGridColor(const QString& colorString);
+    void setBackgroundColor(const QString& colorString);
     AxisRect* axisRect() { return _axisrect; }
     void drawMe(QCPPainter *painter);
 

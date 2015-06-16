@@ -121,6 +121,13 @@ void Plot::setGridColor(const QString &colorString)
     }
 }
 
+void Plot::setBackgroundColor(const QString &colorString)
+{
+    QColor color(colorString);
+    QBrush brush(color);
+    QCustomPlot::setBackground(brush);
+}
+
 void Plot::drawMe(QCPPainter *painter)
 {
     QCustomPlot::draw(painter);

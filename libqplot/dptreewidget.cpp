@@ -256,6 +256,11 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             plotGridColor->setData(gridColor);
             plotItem->appendRow(plotGridColor);
 
+            QString bgColor = plot->backgroundColor();
+            QStandardItem *plotBGColor = new QStandardItem(bgColor);
+            plotBGColor->setData(bgColor);
+            plotItem->appendRow(plotBGColor);
+
             int curveId = -1;
             foreach (DPCurve* dpcurve, plot->curves() ) {
                 ++curveId;

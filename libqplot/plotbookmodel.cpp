@@ -247,6 +247,7 @@ PlotBookModel::IdxEnum PlotBookModel::indexEnum(const QModelIndex &idx) const
             case 9: ret = PlotStopTime; break;
             case 10: ret = PlotGrid; break;
             case 11: ret = PlotGridColor; break;
+            case 12: ret = PlotBGColor; break;
             default: ret = Invalid;
         }
     } else if ( ! g3pidx.isValid() ) {

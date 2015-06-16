@@ -197,12 +197,11 @@ plot: DP_PLOT DP_FLOAT ':' DP_STR {
                 msg("plot->setForegroundColor() not supported");
         }
         | plot DP_BACKGROUND_COLOR ':' DP_STR  {
-                //currPlot->setBackgroundColor($4);
-                msg("page->setBackgroundColor() not supported");
+                currPlot->setBackgroundColor($4);
         }
         | plot DP_FONT ':' DP_STR  {
                 //currPlot->setFont($4);
-                msg("page->setBackgroundColor() not supported");
+                msg("page->setFont() not supported");
         }
         | plot DP_X_AXIS_LABEL ':' DP_STR {
                 currPlot->setXAxisLabel($4);

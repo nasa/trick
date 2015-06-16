@@ -1111,6 +1111,13 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             break;
         }
 
+        case PlotBookModel::PlotBGColor : {
+            Plot* plot = _idx2Plot(pidx);
+            QString bgColor = model()->data(idx).toString();
+            plot->setBackgroundColor(bgColor);
+            break;
+        }
+
         case PlotBookModel::Invalid : {
             qDebug() << "snap [bad scoobies] : PlotBookView::rowInserted() "
                       "received bad model index " << idx ;
