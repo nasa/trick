@@ -3,7 +3,7 @@
 
 %{
 
-#include "trick_swig/swig_ref.hh"
+#include "trick/swig/swig_ref.hh"
 #include "trick_swig/swig_ref.cpp"
 
 %}

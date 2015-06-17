@@ -5,10 +5,10 @@
 %include "std_string.i"
 %include "std_vector.i"
 
-%include "trick_swig/swig_extend_str.i"
-%include "trick_swig/swig_class_typedef.i"
-%include "trick_swig/cast_as.i"
-%include "trick_swig/swig_int_typemap.i"
+%include "trick/swig/swig_extend_str.i"
+%include "trick/swig/swig_class_typedef.i"
+%include "trick/swig/cast_as.i"
+%include "trick/swig/swig_int_typemap.i"
 
 /* SWIG can't understand GNU C keyword "__attribute__" */
 #ifdef SWIG
@@ -24,7 +24,6 @@
 #include "trick/reference.h"
 #include "trick/memorymanager_c_intf.h"
 #include "trick/PythonPrint.hh"
-
 
 #ifndef SWIG_as_voidptr 
 #define SWIG_as_voidptr(a) const_cast< void * >(static_cast< const void * >(a)) 

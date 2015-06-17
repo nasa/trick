@@ -444,7 +444,7 @@ sub process_file($$) {
         print OUT "\%module m$md5_sum\n\n" ;
         print OUT "/* $in_file */\n" ;
 
-        print OUT "#include \"trick_swig/trick_swig.i\"\n\n" ;
+        print OUT "#include \"trick/swig/trick_swig.i\"\n\n" ;
 
         print OUT "
 \%{

@@ -128,7 +128,7 @@ ifeq ($(HAVE_GSL),1)
   TRICK_EXEC_LINK_LIBS += -lgsl -lgslcblas
 endif
 
-TRICK_INCLUDE = $(shell $(PERL) -e '@inc_paths = "${TRICK_CFLAGS}" =~ /-I\s*(\S+)/g ; foreach $$i (@inc_paths) { print "-I$$i "}')
+TRICK_INCLUDE = $(shell $(PERL) -e '@inc_paths = "${TRICK_CFLAGS}" =~ /-I\s*(\S+)/g ; foreach $$i (@inc_paths) { print "-I$$i " if (-e $$i)}')
 TRICK_DEFINES = $(shell $(PERL) -e '@defines = "${TRICK_CFLAGS}" =~ /-D\s*(\S+)/g ; foreach $$i (@defines) { print "-D$$i "}')
 
 IO_SRC_DIR     := io_src/

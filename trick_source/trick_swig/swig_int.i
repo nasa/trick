@@ -3,7 +3,7 @@
 
 %{
 
-#include "trick_swig/swig_int.hh"
+#include "trick/swig/swig_int.hh"
 #include "trick_swig/swig_int.cpp"
 
 %}

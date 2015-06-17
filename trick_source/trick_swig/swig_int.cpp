@@ -1,9 +1,9 @@
 
 #include <iostream>
-#include "trick_swig/swig_macros.hh"
-#include "trick_swig/swig_int.hh"
-#include "trick_swig/swig_double.hh"
-#include "trick_swig/swig_convert_units.hh"
+#include "trick/swig/swig_macros.hh"
+#include "trick/swig/swig_int.hh"
+#include "trick/swig/swig_double.hh"
+#include "trick/swig/swig_convert_units.hh"
 
 #include "trick/Unit.hh"
 

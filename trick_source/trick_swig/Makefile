@@ -68,7 +68,7 @@ $(OBJECT_FILES): $(OBJ_DIR)/%.o : %.cpp
 	$(TRICK_CPPC) $(TRICK_CXXFLAGS) -c $< -o $@
 
 $(SWIG_SRC_FILES): swig_${TRICK_HOST_CPU}/%_wrap.cpp : %.i
-	 $(SWIG) $(SWIG_DEFS) -I${TRICK_HOME}/trick_source -I${TRICK_HOME}/include -c++ -python -includeall -ignoremissing -w201,362,389,451 -o $@ -outdir ${TRICK_HOME}/share/trick/swig $<
+	 $(SWIG) $(SWIG_DEFS) -I${TRICK_HOME}/trick_source -I${TRICK_HOME}/include -I${TRICK_HOME} -c++ -python -includeall -ignoremissing -w201,362,389,451 -o $@ -outdir ${TRICK_HOME}/share/trick/swig $<
 
 $(TRICK_LIB) : $(SWIG_OBJECT_FILES) $(OBJECT_FILES)
 	ar crs $@ $?

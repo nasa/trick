@@ -1,6 +1,6 @@
 
 #include <string.h>
-#include "PrimitiveAttributesMap.hh"
+#include "trick/swig/PrimitiveAttributesMap.hh"
 
 // Global instance.  This isn't a singleton, but the only one that works with attributes_map.
 Trick::PrimitiveAttributesMap attr_map ;
