@@ -121,9 +121,10 @@ AX_GSL_HOME([])
 AX_GTEST_HOME([])
 
 AX_PYTHON_DEVEL([>='2.5'])
-AC_CHECK_HEADER(Xm/Xm.h, [MOTIF_HOME="/usr"], AC_CHECK_FILE(/sw/include/Xm/Xm.h, [MOTIF_HOME="/sw"]))
+AC_CHECK_HEADER(Xm/Xm.h, [MOTIF_HOME="/usr"],
+ AC_CHECK_FILE(/usr/local/include/Xm/Xm.h, [MOTIF_HOME="/usr/local"],
+  AC_CHECK_FILE(/sw/include/Xm/Xm.h, [MOTIF_HOME="/sw"],AC_MSG_ERROR([could not find Xm/Xm.h]))))
 AC_SUBST([MOTIF_HOME])
-
 
 AC_OUTPUT([share/trick/makefiles/config_user.mk])
 

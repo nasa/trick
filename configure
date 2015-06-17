@@ -4846,6 +4846,24 @@ ac_fn_cxx_check_header_mongrel "$LINENO" "Xm/Xm.h" "ac_cv_header_Xm_Xm_h" "$ac_i
 if test "x$ac_cv_header_Xm_Xm_h" = xyes; then :
   MOTIF_HOME="/usr"
 else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for /usr/local/include/Xm/Xm.h" >&5
+$as_echo_n "checking for /usr/local/include/Xm/Xm.h... " >&6; }
+if ${ac_cv_file__usr_local_include_Xm_Xm_h+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  test "$cross_compiling" = yes &&
+  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
+if test -r "/usr/local/include/Xm/Xm.h"; then
+  ac_cv_file__usr_local_include_Xm_Xm_h=yes
+else
+  ac_cv_file__usr_local_include_Xm_Xm_h=no
+fi
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_file__usr_local_include_Xm_Xm_h" >&5
+$as_echo "$ac_cv_file__usr_local_include_Xm_Xm_h" >&6; }
+if test "x$ac_cv_file__usr_local_include_Xm_Xm_h" = xyes; then :
+  MOTIF_HOME="/usr/local"
+else
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for /sw/include/Xm/Xm.h" >&5
 $as_echo_n "checking for /sw/include/Xm/Xm.h... " >&6; }
 if ${ac_cv_file__sw_include_Xm_Xm_h+:} false; then :
@@ -4863,10 +4881,13 @@ fi
 $as_echo "$ac_cv_file__sw_include_Xm_Xm_h" >&6; }
 if test "x$ac_cv_file__sw_include_Xm_Xm_h" = xyes; then :
   MOTIF_HOME="/sw"
+else
+  as_fn_error $? "could not find Xm/Xm.h" "$LINENO" 5
 fi
 
 fi
 
+fi
 
 
 
