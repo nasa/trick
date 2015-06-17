@@ -50,7 +50,7 @@ endif
 ifeq ($(TRICK_HOST_TYPE),Darwin)
 CXXFLAGS += -std=c++11
 CLANGLIBS += -lLLVMOption -lLLVMMCParser -lLLVMBitReader -lLLVMMC -lLLVMSupport $(shell $(LLVM_HOME)/bin/llvm-config --system-libs)
-CXXFLAGS += -lc++abi
+CLANGLIBS += -lc++abi
 endif
 
 all: $(ICG)
