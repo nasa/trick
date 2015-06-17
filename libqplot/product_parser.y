@@ -283,12 +283,10 @@ x_var: DP_X_VARIABLE ':' DP_STR {
                 currXVar->setUnit($4);
         }
         | x_var DP_MIN_RANGE ':' DP_FLOAT {
-                //currXVar->setMinRange($4);
-                msg("plot->setMinRange() not supported");
+                currPlot->setXMinRange($4);
         }
         | x_var DP_MAX_RANGE ':' DP_FLOAT {
-                //currXVar->setMaxRange($4);
-                msg("plot->setMaxRange() not supported");
+                currPlot->setXMaxRange($4);
         }
         | x_var DP_SCALE_FACTOR ':' DP_FLOAT {
                 //currXVar->setScaleFactor($4);
@@ -319,12 +317,10 @@ y_var: DP_Y_VARIABLE ':' DP_STR {
                 currYVar->setUnit($4);
         }
         | y_var DP_MIN_RANGE ':' DP_FLOAT  {
-                //currYVar->setMinRange($4);
-                msg("plot->setMinRange() not supported");
+                currPlot->setYMinRange($4);
         }
         | y_var DP_MAX_RANGE ':' DP_FLOAT {
-                //currYVar->setMaxRange($4);
-                msg("plot->setMaxRange() not supported");
+                currPlot->setYMaxRange($4);
         }
         | y_var DP_SCALE_FACTOR ':' DP_FLOAT {
                 //currYVar->setScaleFactor($4);
