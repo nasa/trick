@@ -14,6 +14,7 @@ ifeq ($(TRICK_HOST_TYPE), Linux)
 endif
 ifeq ($(TRICK_HOST_TYPE), Darwin)
        DP_CFLAGS += -Wall
+       DP_LIBS   += -lc++abi
 endif
 
 ifeq ($(TRICK_DP_FORCE_32BIT), 1)
