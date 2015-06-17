@@ -1,11 +1,11 @@
 
 %module sim_services
 
-#include "trick_swig/trick_swig.i"
-#include "trick_swig/units_attach.i"
-#include "trick_swig/extra_functions.i"
-#include "trick_swig/swig_class_typedef.i"
-#include "trick_swig/cast_as.i"
+#include "trick/swig/trick_swig.i"
+#include "trick/swig/units_attach.i"
+#include "trick/swig/extra_functions.i"
+#include "trick/swig/swig_class_typedef.i"
+#include "trick/swig/cast_as.i"
 
 // Special typemap for collectee in add_collect and delete_collect.
 %typemap(in) void * collectee {
@@ -26,7 +26,7 @@
 }
 
 %inline %{
-#include "trick_swig/swig_global_vars.hh"
+#include "trick/swig/swig_global_vars.hh"
 
 #include "trick/reference_frame.h"
 #include "trick/rand_generator.h"
