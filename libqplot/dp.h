@@ -81,9 +81,7 @@ public:
     bool grid();
     QString gridColor();
     QString backgroundColor();
-    QList<DPCurve*> curves() { return _curves; }
 
-    DPCurve* addCurve();
     void setXAxisLabel(const char* label) { _xAxisLabel = label ; }
     void setYAxisLabel(const char* label) { _yAxisLabel = label ; }
     void setXMinRange(double xMin);
@@ -95,6 +93,9 @@ public:
     void setGrid(const QString& isGridString);
     void setGridColor(const QString& color);
     void setBackgroundColor(const QString& color);
+
+    QList<DPCurve*> curves() { return _curves; }
+    DPCurve* addCurve();
 
 private:
     QString _title;
@@ -108,9 +109,10 @@ private:
     double _stopTime;
     bool _isGrid;
     QString _gridColor;
-    QString _bgColor;
     QList<DPCurve*> _curves;
     static QString _abbreviate(const QString& label,int maxlen=35);
+
+    QString _backgroundColor;
 };
 
 class DPPage
@@ -124,13 +126,17 @@ public:
 
     double startTime();
     double stopTime();
+    QString backgroundColor();
     void setStartTime(double startTime);
     void setStopTime(double stopTime);
+    void setBackgroundColor(const QString& color);
+
 private:
     QString _title;
     QList<DPPlot*> _plots;
     double _startTime;
     double _stopTime;
+    QString _backgroundColor;
 };
 
 class DPProduct

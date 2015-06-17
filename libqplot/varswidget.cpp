@@ -148,6 +148,11 @@ QStandardItem* VarsWidget::_createPageItem()
     pageStopTimeItem->setData(pageStopTime);
     pageItem->appendRow(pageStopTimeItem);
 
+    QString pageBackgroundColor("#FFFFFF");
+    QStandardItem *pageBGColorItem = new QStandardItem(pageBackgroundColor);
+    pageBGColorItem->setData(pageBackgroundColor);
+    pageItem->appendRow(pageBGColorItem);
+
     return pageItem;
 }
 

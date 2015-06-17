@@ -24,6 +24,7 @@ public:
     void setTitle2(const QString& title);
     void setTitle3(const QString& title);
     void setTitle4(const QString& title);
+    void setBackgroundColor(const QString& color);
 
     QString title2();
 

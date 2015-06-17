@@ -951,13 +951,27 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             break;
         }
 
+        case PlotBookModel::PageBGColor : {
+            QWidget* page = _idx2Page(pidx);
+            QString bgColor = model()->data(idx).toString();
+            QPalette pal = page->palette();
+            QColor qcolor(bgColor);
+            pal.setColor(QPalette::Background, qcolor);
+            page->setPalette(pal);
+            PageTitleWidget* pw = _page2pagewidget.value(page);
+            pw->setBackgroundColor(bgColor);
+            break;
+        }
+
         case PlotBookModel::Plot : {
             QWidget* page = _idx2Page(pidx);
-            QModelIndex sIdx = _plotModel->sessionStartIdx();
-            double sessionStartTime = _plotModel->data(sIdx).toDouble();
-            sIdx = _plotModel->sessionStopIdx();
-            double sessionStopTime = _plotModel->data(sIdx).toDouble();
-            _insertPlot(page,sessionStartTime,sessionStopTime);
+            QModelIndex pmIdx = _plotModel->sessionStartIdx();
+            double sessionStartTime = _plotModel->data(pmIdx).toDouble();
+            pmIdx = _plotModel->sessionStopIdx();
+            double sessionStopTime = _plotModel->data(pmIdx).toDouble();
+            pmIdx = _plotModel->pageBGColorIndex(pidx);
+            QString pageBGColor = _plotModel->data(pmIdx).toString();
+            _insertPlot(page, sessionStartTime, sessionStopTime, pageBGColor);
             break;
         }
 
@@ -1114,6 +1128,11 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
         case PlotBookModel::PlotBGColor : {
             Plot* plot = _idx2Plot(pidx);
             QString bgColor = model()->data(idx).toString();
+            if ( bgColor == "#FFFFFF" ) {
+                // This assumes that the plot was not explicitly set to white
+                QModelIndex pageBGColorIdx = _plotModel->pageBGColorIndex(gpidx);
+                bgColor = model()->data(pageBGColorIdx).toString();
+            }
             plot->setBackgroundColor(bgColor);
             break;
         }
@@ -1477,13 +1496,15 @@ void PlotBookView::_insertPageTitle(QWidget *page, const QString &title)
 }
 
 void PlotBookView::_insertPlot(QWidget *page,
-                               double startTime, double stopTime)
+                               double startTime, double stopTime,
+                               const QString& pageBGColor )
 {
 
     // Create/configure plot
     Plot* plot = new Plot(page);
     plot->setStartTime(startTime);
     plot->setStopTime(stopTime);
+    plot->setBackgroundColor(pageBGColor);
     connect(plot,SIGNAL(mouseDoubleClick(QMouseEvent*)),
             this,SLOT(doubleClick(QMouseEvent*)));
     connect(plot, SIGNAL(keyPress(QKeyEvent*)),

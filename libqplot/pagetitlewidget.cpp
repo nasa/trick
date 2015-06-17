@@ -74,6 +74,14 @@ void PageTitleWidget::setTitle4(const QString &title)
     _title4->setText(title);
 }
 
+void PageTitleWidget::setBackgroundColor(const QString &color)
+{
+    QColor qcolor(color);
+    QPalette pal(palette());
+    pal.setColor(QPalette::Background, qcolor);
+    _titleFrame->setPalette(pal);
+}
+
 QString PageTitleWidget::title2()
 {
     QString title = _title2->text();

@@ -124,8 +124,8 @@ QModelIndexList PlotBookModel::plotIdxs(const QModelIndex &pageIdx) const
 {
     QModelIndexList idxs;
     int rc = rowCount(pageIdx);
-    // Start at 3 because page title=0, startTime=1, stopTime=2
-    for ( int i = 3 ; i < rc; ++i ) {
+    // Start at 4 because page title=0, startTime=1, stopTime=2, bgColor=3
+    for ( int i = 4 ; i < rc; ++i ) {
         idxs.append(index(i,0,pageIdx));
     }
 
@@ -173,6 +173,16 @@ QModelIndex PlotBookModel::sessionStopIdx() const
     return stopIdx;
 }
 
+QModelIndex PlotBookModel::pageBGColorIndex(const QModelIndex& pageIdx) const
+{
+    QModelIndex idx;
+    if ( !isPageIdx(pageIdx) ) {
+        return idx; // invalid
+    }
+
+    idx = index(3,0,pageIdx);
+    return idx;
+}
 
 bool PlotBookModel::isPageIdx(const QModelIndex &idx) const
 {
@@ -230,7 +240,9 @@ PlotBookModel::IdxEnum PlotBookModel::indexEnum(const QModelIndex &idx) const
         ret = PageStartTime;
     } else if ( ! gpidx.isValid() && row == 2 ) {
         ret = PageStopTime;
-    } else if ( ! gpidx.isValid() && row >= 3 ) {
+    } else if ( ! gpidx.isValid() && row == 3 ) {
+        ret = PageBGColor;
+    } else if ( ! gpidx.isValid() && row >= 4 ) {
         ret = Plot;
     } else if ( ! g2pidx.isValid() ) {
         // Plot elements

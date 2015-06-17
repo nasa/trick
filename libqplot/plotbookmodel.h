@@ -32,17 +32,19 @@ public:
     QModelIndex curveLineColorIdx(const QModelIndex& curveIdx) const ;
     bool isCurveLineColorIdx(const QModelIndex& idx) const;
 
+    QModelIndex pageBGColorIndex(const QModelIndex& pageIdx) const;
 
     enum IdxEnum
     {
         Invalid,
+        SessionStartTime,
+        SessionStopTime,
         Page,
-            SessionStartTime,
-            SessionStopTime,
             PageTitle,
             PageStartTime,
             PageStopTime,
-                Plot,
+            PageBGColor,
+            Plot,
                     PlotXAxisLabel,
                     PlotYAxisLabel,
                     Curves,

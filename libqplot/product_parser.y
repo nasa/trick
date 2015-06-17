@@ -175,8 +175,7 @@ page_options:
                 msg("page->setGnuplotPageOrientation() not supported");
         }
         | page_options DP_BACKGROUND_COLOR ':' DP_STR  {
-                //product->getCurrPage()->setBackgroundColor($4);
-                msg("page->setGnuplotPageOrientation() not supported");
+                currPage->setBackgroundColor($4);
         }
         | page_options DP_FONT ':' DP_STR  {
                 //product->getCurrPage()->setFont($4);

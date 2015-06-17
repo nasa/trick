@@ -128,7 +128,7 @@ private:
 
     void _insertPage(const QString &dpFileName);
     void _insertPageTitle(QWidget* page, const QString& title);
-    void _insertPlot(QWidget* page, double startTime, double stopTime);
+    void _insertPlot(QWidget* page, double startTime, double stopTime, const QString &pageBGColor);
 
 };
 
