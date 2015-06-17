@@ -104,7 +104,9 @@ AC_PROG_SED
 AC_PROG_LEX
 AC_PATH_PROG(BISON, bison, bison)
 AC_PATH_PROG(PERL, perl, perl)
-AX_PKG_SWIG(1.3.29, [], [ AC_MSG_ERROR([SWIG is required to build..]) ])
+dnl AX_PKG_SWIG(1.3.29, [], [ AC_MSG_ERROR([SWIG is required to build..]) ])
+AC_PATH_PROG(SWIG, swig, swig, path="/bin:/usr/bin:/usr/local/bin:/sw/bin")
+
 AX_PROG_JAVA_CC(javac)
 
 AC_CHECK_LIB(xml2, main,
