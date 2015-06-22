@@ -1,14 +1,14 @@
 
 #include <gtest/gtest.h>
 #include <iostream>
-#include "trick_utils/interpolator/include/Interpolator.hh"
-#include "trick_utils/reqs/include/RequirementScribe.hh"
+#include "trick/Interpolator.hh"
+//#include "trick/RequirementScribe.hh"
 
 #define EXCEPTABLE_ERROR 0.2
 
 TEST(Interpolator_unittest, OneDimension) {
-   Trick::RequirementScribe req;
-   req.add_requirement("3369678360");
+   //Trick::RequirementScribe req;
+   //req.add_requirement("3369678360");
 
    bool exception_thrown;
    double result;
@@ -94,8 +94,8 @@ TEST(Interpolator_unittest, TwoDimension) {
    // Reference: http://en.wikipedia.org/wiki/Body_mass_index 
    //
 
-   Trick::RequirementScribe req;
-   req.add_requirement("715834524");
+   //Trick::RequirementScribe req;
+   //req.add_requirement("715834524");
 
 
    double weight_lb[] = { 88.2, 110.25, 132.3, 154.35, 176.4, 198.45, 220.5, 242.55, 264.65, 286.65, 308.6, 330.75, 352.7};

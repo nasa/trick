@@ -1,6 +1,6 @@
 
 #include <gtest/gtest.h>
-#include "sim_services/MemoryManager/include/MemoryManager.hh"
+#include "trick/MemoryManager.hh"
 
 
 TEST(MM_creation, NonNull) {

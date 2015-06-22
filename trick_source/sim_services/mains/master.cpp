@@ -18,7 +18,7 @@ PROGRAMMERS:                 ( (Robert W. Bailey) (LinCom) (April 1992) )
 //TODO move to proto
 void memory_init(void);
 
-int main( int nargs, char **args) {
+int master( int nargs, char **args) {
 
     int ret ;
 

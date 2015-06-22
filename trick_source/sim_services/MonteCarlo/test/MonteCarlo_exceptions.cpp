@@ -6,12 +6,12 @@
 #include <signal.h>
 
 #include "gtest/gtest.h"
-#include "sim_services/MonteCarlo/include/MonteCarlo.hh"
-#include "sim_services/MonteCarlo/include/MonteVar.hh"
-#include "sim_services/MonteCarlo/include/MonteVarFile.hh"
-#include "sim_services/MonteCarlo/include/MonteVarRandom.hh"
-#include "sim_services/SimObject/include/SimObject.hh"
-#include "sim_services/Executive/include/Exec_exception.hh"
+#include "trick/MonteCarlo.hh"
+#include "trick/MonteVar.hh"
+#include "trick/MonteVarFile.hh"
+#include "trick/MonteVarRandom.hh"
+#include "trick/SimObject.hh"
+#include "trick/ExecutiveException.hh"
 
 
 void sig_hand(int sig) ;
@@ -45,7 +45,7 @@ TEST_F(MonteCarloTest, MonteVarFile_ColException) {
     try {
         Trick::MonteVarFile var("time_to_fire_1", "M_jet_firings_inline", 7) ;
         var.get_next_value();
-    } catch (Trick::Exec_exception &e) {
+    } catch (Trick::ExecutiveException &e) {
         std::cout << e.message << std::endl;
         got_exception = true;
     }
@@ -58,7 +58,7 @@ TEST_F(MonteCarloTest, MonteVarFile_BadFileException) {
     try {
         Trick::MonteVarFile var("time_to_fire_1", "_M_jet_firings_inline", 1) ;
         var.get_next_value();
-    } catch (Trick::Exec_exception &e) {
+    } catch (Trick::ExecutiveException &e) {
         std::cout << e.message << std::endl;
         got_exception = true;
     }
@@ -74,7 +74,7 @@ TEST_F(MonteCarloTest, MonteVarFile_FileException) {
         var.input_file_stream->close();
         var.get_next_value();
         var.get_next_value();
-    } catch (Trick::Exec_exception &e) {
+    } catch (Trick::ExecutiveException &e) {
         std::cout << e.message << std::endl;
         got_exception = true;
     }
@@ -91,7 +91,7 @@ TEST_F(MonteCarloTest, TestMonteVarRandom_Exception) {
         var1.set_max(4.000001) ;
         exec.add_variable(&var1) ;
         var1.get_next_value();
-    } catch (Trick::Exec_exception &e) {
+    } catch (Trick::ExecutiveException &e) {
         std::cout << e.message;
         got_exception = true;
     }

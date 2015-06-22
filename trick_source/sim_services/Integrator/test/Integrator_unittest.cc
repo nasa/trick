@@ -4,14 +4,14 @@
 // We need access to protected stuff for unit tests!
 #define protected public
 
-#include "sim_services/MemoryManager/include/MemoryManager.hh"
-#include "sim_services/Integrator/include/Integrator.hh"
-#include "sim_services/Integrator/include/IntegLoopScheduler.hh"
-#include "sim_services/Executive/include/Executive.hh"
-#include "sim_services/Executive/include/exec_proto.h"
-#include "sim_services/Executive/include/exec_proto.hh"
-#include "sim_services/SimObject/include/SimObject.hh"
-#include "trick_utils/reqs/include/RequirementScribe.hh"
+#include "trick/MemoryManager.hh"
+#include "trick/Integrator.hh"
+#include "trick/IntegLoopScheduler.hh"
+#include "trick/Executive.hh"
+#include "trick/exec_proto.h"
+#include "trick/exec_proto.hh"
+#include "trick/SimObject.hh"
+//#include "trick/RequirementScribe.hh"
 #include <math.h>
 #include <iostream>
 
@@ -90,7 +90,7 @@ double testSimObject::call_function_double( Trick::JobData* curr_job) {
 class IntegratorTest : public ::testing::Test {
     protected:
     Trick::MemoryManager *memmgr;
-    Trick::RequirementScribe req;
+    //Trick::RequirementScribe req;
     IntegratorTest() { memmgr = new Trick::MemoryManager;}
     ~IntegratorTest() { delete memmgr;   }
     virtual void SetUp() {} 
@@ -104,7 +104,7 @@ class IntegratorLoopTest : public ::testing::Test {
     Trick::IntegLoopScheduler* IntegLoop ;
     testSimObject uno; 
     Trick::MemoryManager *memmgr;
-    Trick::RequirementScribe req;
+    //Trick::RequirementScribe req;
     IntegratorLoopTest() { memmgr = new Trick::MemoryManager;  IntegLoop = new Trick::IntegLoopScheduler(0.01, &uno) ;}
     ~IntegratorLoopTest() { delete memmgr; delete IntegLoop;   }
     virtual void SetUp() {} 
@@ -119,7 +119,7 @@ class IntegratorLoopTest : public ::testing::Test {
 
 TEST_F(IntegratorLoopTest, Job_Queue_Init) {
 
-    req.add_requirement("");
+    //req.add_requirement("");
     Trick::JobData* curr_job;
 
     exec_add_sim_object(&uno, "uno");
@@ -241,7 +241,7 @@ void verify_ball_sim_results(BALL *ball,
 
 TEST_F(IntegratorTest, Ball_Euler) {
 
-    req.add_requirement("2402458648");
+    //req.add_requirement("2402458648");
 
     Trick::Integrator *integrator = Trick::getIntegrator( Euler, 4, 0.01);
     ASSERT_TRUE( (void*)integrator != NULL);
@@ -268,7 +268,7 @@ TEST_F(IntegratorTest, Ball_Euler) {
   
 TEST_F(IntegratorTest, Ball_Euler_Cromer) {
 
-    req.add_requirement("215930604");
+    //req.add_requirement("215930604");
 
     Trick::Euler_Cromer_Integrator *integrator = 
            (Trick::Euler_Cromer_Integrator *) Trick::getIntegrator( Euler_Cromer, 4, 0.01);
@@ -324,7 +324,7 @@ TEST_F(IntegratorTest, Ball_Nystrom_Lear_2) {
 
 TEST_F(IntegratorTest, Ball_Runge_Kutta_2) {
 
-    req.add_requirement("2472195139");
+    //req.add_requirement("2472195139");
 
     Trick::Integrator *integrator = Trick::getIntegrator( Runge_Kutta_2, 4, 0.01);
     ASSERT_TRUE( (void*)integrator != NULL);
@@ -351,7 +351,7 @@ TEST_F(IntegratorTest, Ball_Runge_Kutta_2) {
 
 TEST_F(IntegratorTest, Ball_Modified_Midpoint_4) {
 
-    req.add_requirement("2825965576");
+    //req.add_requirement("2825965576");
 
     Trick::Integrator *integrator = Trick::getIntegrator( Modified_Midpoint_4, 4, 0.01);
     ASSERT_TRUE( (void*)integrator != NULL);
@@ -378,7 +378,7 @@ TEST_F(IntegratorTest, Ball_Modified_Midpoint_4) {
 
 TEST_F(IntegratorTest, Ball_Runge_Kutta_4) {
 
-    req.add_requirement("2472195141");
+    //req.add_requirement("2472195141");
 
     Trick::Integrator *integrator = Trick::getIntegrator( Runge_Kutta_4, 4, 0.01);
     ASSERT_TRUE( (void*)integrator != NULL);
@@ -405,7 +405,7 @@ TEST_F(IntegratorTest, Ball_Runge_Kutta_4) {
 
 TEST_F(IntegratorTest, Ball_Runge_Kutta_Gill_4) {
 
-    req.add_requirement("3039955373");
+    //req.add_requirement("3039955373");
 
     Trick::Integrator *integrator = Trick::getIntegrator( Runge_Kutta_Gill_4, 4, 0.01);
     ASSERT_TRUE( (void*)integrator != NULL);
@@ -432,7 +432,7 @@ TEST_F(IntegratorTest, Ball_Runge_Kutta_Gill_4) {
 
 TEST_F(IntegratorTest, Ball_Runge_Kutta_Fehlberg_45) {
 
-    req.add_requirement("674248205");
+    //req.add_requirement("674248205");
 
     Trick::Integrator *integrator = Trick::getIntegrator( Runge_Kutta_Fehlberg_45, 4, 0.01);
     ASSERT_TRUE( (void*)integrator != NULL);
@@ -459,7 +459,7 @@ TEST_F(IntegratorTest, Ball_Runge_Kutta_Fehlberg_45) {
 
 TEST_F(IntegratorTest, Ball_Runge_Kutta_Fehlberg_78) {
 
-    req.add_requirement("674248511");
+    //req.add_requirement("674248511");
 
     Trick::Integrator *integrator = Trick::getIntegrator( Runge_Kutta_Fehlberg_78, 4, 0.01);
     ASSERT_TRUE( (void*)integrator != NULL);
@@ -487,7 +487,7 @@ TEST_F(IntegratorTest, Ball_Runge_Kutta_Fehlberg_78) {
 #if 0
 TEST_F(IntegratorTest, Ball_ABM) {
 
-    req.add_requirement("3643754476");
+    //req.add_requirement("3643754476");
 
     Trick::Integrator *integrator = Trick::getIntegrator( ABM_Method, 4, 0.01);
     ASSERT_TRUE( (void*)integrator != NULL);
@@ -532,7 +532,7 @@ namespace Trick {
 
 TEST_F(IntegratorTest, Ball_UserDefined) {
 
-    req.add_requirement("3491920037");
+    //req.add_requirement("3491920037");
 
     Trick::Donna_Integrator *integrator = INTEG_NEW(Trick::Donna_Integrator);
     integrator = new (integrator) Trick::Donna_Integrator(0, 0.1);

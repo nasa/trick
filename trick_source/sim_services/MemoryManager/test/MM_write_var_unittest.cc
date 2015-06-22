@@ -1,6 +1,6 @@
 
 #include <gtest/gtest.h>
-#include "sim_services/MemoryManager/include/MemoryManager.hh"
+#include "trick/MemoryManager.hh"
 #include "MM_user_defined_types.hh"
 #include "MM_test.hh"
 #include <iostream>

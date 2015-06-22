@@ -8,14 +8,14 @@
 #include <libxml/tree.h>
 
 #include "gtest/gtest.h"
-#include "trick_utils/reqs/include/RequirementScribe.hh"
+//#include "trick_utils/reqs/include/RequirementScribe.hh"
 #include "DPM/DPM_product.hh"
 
 namespace Trick {
  
 class DPMTest : public ::testing::Test {
     protected:
-        Trick::RequirementScribe req;
+        //Trick::RequirementScribe req;
 		std::string testxml[10];	
 	
 		DPMTest() {}
@@ -130,7 +130,7 @@ TEST_F(DPMTest, ValidateDTD) {
 
 // Product 1
 TEST_F(DPMTest, VarvsTime_NoAttributes) {
-	req.add_requirement("2416241399");
+	//req.add_requirement("2416241399");
 	
 	std::string tmp = parseTestData(testxml[0].c_str());
 	int result = strcmp_IgnoringWhiteSpace(
@@ -165,7 +165,7 @@ TEST_F(DPMTest, VarvsTime_NoAttributes) {
 
 // Product 2
 TEST_F(DPMTest, VarvsVar_NoAttributes) {
-	req.add_requirement("1589175037");
+	//req.add_requirement("1589175037");
 
     std::string tmp = parseTestData(testxml[1].c_str());
     int result = strcmp_IgnoringWhiteSpace(
@@ -253,7 +253,7 @@ TEST_F(DPMTest, VarvsTime_Attributes) {
 
 // Product 5
 TEST_F(DPMTest, VarvsVarvsTime_Attributes) {
-	req.add_requirement("2469402355");
+	//req.add_requirement("2469402355");
 
 	std::string tmp = parseTestData(testxml[4].c_str());
 	int result = strcmp_IgnoringWhiteSpace(
@@ -340,7 +340,7 @@ TEST_F(DPMTest, Table_Attributes) {
 
 // Product 7
 TEST_F(DPMTest, MultiplePlots) {
-	req.add_requirement("445237094");
+	//req.add_requirement("445237094");
 
     std::string tmp = parseTestData(testxml[6].c_str());
 	int result = strcmp_IgnoringWhiteSpace(
@@ -402,7 +402,7 @@ TEST_F(DPMTest, MultiplePlots) {
 
 // Product 8
 TEST_F(DPMTest, MultipleTables_Multipe_Plots) {
-	req.add_requirement("1422666851 150267139 445237094");
+	//req.add_requirement("1422666851 150267139 445237094");
 
     std::string tmp = parseTestData(testxml[7].c_str());
 	int result = strcmp_IgnoringWhiteSpace(
@@ -470,7 +470,7 @@ TEST_F(DPMTest, MultipleTables_Multipe_Plots) {
 
 // Product 9
 TEST_F(DPMTest, Multipe_Plots_NoAttributes) {
-	req.add_requirement("445237094");
+	//req.add_requirement("445237094");
 
     std::string tmp = parseTestData(testxml[8].c_str());
     int result = strcmp_IgnoringWhiteSpace(

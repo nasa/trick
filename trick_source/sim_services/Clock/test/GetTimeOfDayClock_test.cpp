@@ -8,9 +8,9 @@
 #include <map>
 
 #include "gtest/gtest.h"
-#include "sim_services/Clock/include/GetTimeOfDayClock.hh"
-#include "sim_services/SimObject/include/JobData.hh"
-#include "trick_utils/reqs/include/RequirementScribe.hh"
+#include "trick/GetTimeOfDayClock.hh"
+#include "trick/JobData.hh"
+//#include "trick/RequirementScribe.hh"
 
 #define TIME_TOL 1e3
 #define RATIO_TOL 1e-9
@@ -22,7 +22,7 @@ class GetTimeOfDayClockTest : public ::testing::Test {
 
     protected:
         Trick::GetTimeOfDayClock dClk;
-        Trick::RequirementScribe req;
+        //Trick::RequirementScribe req;
 
         GetTimeOfDayClockTest() {}
         ~GetTimeOfDayClockTest() {}
@@ -32,7 +32,7 @@ class GetTimeOfDayClockTest : public ::testing::Test {
 
 /* Ensure clock initializes correctly */
 TEST_F(GetTimeOfDayClockTest, Initialize) {
-    req.add_requirement("timeofday_clock");
+    //req.add_requirement("timeofday_clock");
     //"The system clock shall initialize with time equal to computer system time, reference time of 0, and all ratios set to 1.");
 
     struct timeval res;
@@ -54,7 +54,7 @@ TEST_F(GetTimeOfDayClockTest, Initialize) {
 }
 
 TEST_F(GetTimeOfDayClockTest, ClockSimRatio) {
-    req.add_requirement("timeofday_clock");
+    //req.add_requirement("timeofday_clock");
     //"The system clock shall provide the ability to change the sim time-to-real time ratio.");
 
     long long tim_curr;
@@ -75,7 +75,7 @@ TEST_F(GetTimeOfDayClockTest, ClockSimRatio) {
 }
 
 TEST_F(GetTimeOfDayClockTest, ClockRTRatio) {
-    req.add_requirement("timeofday_clock");
+    //req.add_requirement("timeofday_clock");
     //"The system clock shall provide the ability to adjust the reference time ratio.");
 
     long long tim_curr, tim_diff;
@@ -104,7 +104,7 @@ TEST_F(GetTimeOfDayClockTest, ClockRTRatio) {
 }
 
 TEST_F(GetTimeOfDayClockTest, ClockSpin) {
-    req.add_requirement("timeofday_clock");
+    //req.add_requirement("timeofday_clock");
     //"The system clock shall provide the ability to spin (wait) until a specified time is reached.");
 
     long long tim_curr, spin_time;
@@ -122,7 +122,7 @@ TEST_F(GetTimeOfDayClockTest, ClockSpin) {
 
 /* Change and test reference times */
 TEST_F(GetTimeOfDayClockTest, ReferenceTime) {
-    req.add_requirement("timeofday_clock");
+    //req.add_requirement("timeofday_clock");
     //"The system clock shall provide the ability to set a reference time.");
 
     long long tic_adjust;
@@ -143,7 +143,7 @@ TEST_F(GetTimeOfDayClockTest, ReferenceTime) {
 }
 
 TEST_F(GetTimeOfDayClockTest, ClockSync) {
-    req.add_requirement("timeofday_clock");
+    //req.add_requirement("timeofday_clock");
     //"The system clock shall provide the ability to sync reference time to wall clock time");
 
     double align_tics_mult;

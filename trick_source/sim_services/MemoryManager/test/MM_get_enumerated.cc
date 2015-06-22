@@ -2,7 +2,7 @@
 #include "gtest/gtest.h"
 #include "MM_test.hh"
 #include "MM_get_enumerated.hh"
-#include "sim_services/MemoryManager/include/vval.h"
+#include "trick/vval.h"
 
 // MM_sizeof_type
 

@@ -1,8 +1,8 @@
 
 #include <gtest/gtest.h>
-#include "../include/Unit.hh"
+#include "trick/Unit.hh"
 #include <math.h>
-#include "trick_utils/reqs/include/RequirementScribe.hh"
+//#include "trick_utils/reqs/include/RequirementScribe.hh"
 
 /*********************FIXME**********************************************************************************
  * 1. The behavior of the conversion between composite units containing
@@ -61,6 +61,7 @@ double tolerance(int exp)
  * cause an error
 **********************************************************************/
 
+#if 0
 void units_requirements(bool isThrow) {
   Trick::RequirementScribe req;
 
@@ -71,6 +72,7 @@ void units_requirements(bool isThrow) {
   }
 
 }
+#endif
 
 void clean_up_UCFn(UCFn** ptr)
 {
@@ -104,7 +106,7 @@ void test_conversion_no_throw(std::string unitString1, std::string unitString2, 
   clean_up_UCFn(&cf);
   ASSERT_EQ((UCFn*) NULL, cf);
 
-  units_requirements(false);
+  //units_requirements(false);
 
 }
 
@@ -165,13 +167,13 @@ void test_conversion_throw(std::string unitString1, std::string unitString2)
   }
   ASSERT_EQ((UCFn*) NULL, cf);
 
-  units_requirements(true);
+  //units_requirements(true);
 }
 
 class UnitConversion : public ::testing::Test {
 
     protected:
-        Trick::RequirementScribe testReq;
+        //Trick::RequirementScribe testReq;
 
         UnitConversion() {}
         ~UnitConversion() {}
@@ -647,7 +649,7 @@ TEST_F(UnitConversion, FootPoundsToNewtonMeters)
 
 TEST_F(UnitConversion, FootPoundsToNewtonMetersWithConvertTo)
 {
-  testReq.add_requirement("2060756805");
+  //testReq.add_requirement("2060756805");
 
   ASSERT_NO_THROW(Unit NewtonMeter("N*m"));
   Unit NewtonMeter("N*m");
@@ -704,7 +706,7 @@ TEST_F(UnitConversion, PerSecondPerSecondToPerSecondSquared)
 
 TEST_F(UnitConversion, GetUnitName)
 {
-  testReq.add_requirement("");
+  //testReq.add_requirement("");
 
   Unit meter_per_second_squared("m/s2");
   std::string unit = "m/s2";
@@ -716,7 +718,7 @@ TEST_F(UnitConversion, GetUnitName)
 
 TEST_F(UnitConversion, SetUnitName)
 {
-  testReq.add_requirement("");
+  //testReq.add_requirement("");
 
   Unit meter_per_second_squared("m/s2");
   Unit copy;
@@ -737,7 +739,7 @@ TEST_F(UnitConversion, SetUnitName)
 
 TEST_F(UnitConversion, InvalidUnit)
 {
-  testReq.add_requirement("2743423356");
+  //testReq.add_requirement("2743423356");
 
   std::cerr << "The purpose of this test is to throw to an exception. Error messages are expected." << std::endl;
   ASSERT_THROW(Unit u("foo"), Unit::CONVERSION_ERROR);
@@ -751,7 +753,7 @@ TEST_F(UnitConversion, MissingProduct)
 
 TEST_F(UnitConversion, InvalidExponent)
 {
-  testReq.add_requirement("2743423356");
+  //testReq.add_requirement("2743423356");
 
   std::cerr << "The purpose of this test is to throw to an exception. Error messages are expected." << std::endl;
   ASSERT_THROW(Unit u("m4"), Unit::CONVERSION_ERROR);
@@ -760,7 +762,7 @@ TEST_F(UnitConversion, InvalidExponent)
 
 TEST_F(UnitConversion, InvalidRatio)
 {
-  testReq.add_requirement("2743423356");
+  //testReq.add_requirement("2743423356");
 
   std::cerr << "The purpose of this test is to throw to an exception. Error messages are expected." << std::endl;
   ASSERT_THROW(Unit u("/C"), Unit::CONVERSION_ERROR);
@@ -769,7 +771,7 @@ TEST_F(UnitConversion, InvalidRatio)
 
 TEST_F(UnitConversion, InvalidFootPound)
 {
-  testReq.add_requirement("2743423356");
+  //testReq.add_requirement("2743423356");
   std::cerr << "The purpose of this test is to throw to an exception. Error messages are expected." << std::endl;
   ASSERT_THROW(Unit u("lbfft"), Unit::CONVERSION_ERROR);
 }
@@ -779,7 +781,7 @@ TEST_F(UnitConversion, InvalidFootPound)
 
 TEST_F(UnitConversion, NewtonMeterToInvalidFootPound)
 {
-  testReq.add_requirement("2743423356");
+  //testReq.add_requirement("2743423356");
   Unit unit1("N*m");
 
   std::cerr << "The purpose of this test is to throw to an exception. Error messages are expected." << std::endl;

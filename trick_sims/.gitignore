@@ -20,5 +20,6 @@ S_main_*
 S_sie.resource
 S_source.cpp
 S_source.hh
+T_main_*
 trick
 jitlib

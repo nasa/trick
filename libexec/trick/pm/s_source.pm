@@ -310,6 +310,10 @@ PURPOSE:
     print S_SOURCE " " x 4, "return ;\n" ,
      "}\n\n" ;
 
+    print S_SOURCE "int master( int nargs, char ** args ) ;\n\n" ;
+    print S_SOURCE "int main( int nargs, char ** args ) {\n" ;
+    print S_SOURCE " " x 4 , "return master(nargs, args) ;\n" ;
+    print S_SOURCE "}\n" ;
 
     close S_SOURCE ;
 

@@ -4,8 +4,8 @@
 #include <signal.h>
 
 #include "gtest/gtest.h"
-#include "sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh"
-#include "trick_utils/reqs/include/RequirementScribe.hh"
+#include "trick/ScheduledJobQueue.hh"
+//#include "trick/RequirementScribe.hh"
 
 namespace Trick {
 
@@ -13,7 +13,7 @@ class ScheduledJobQueueTest : public ::testing::Test {
 
     protected:
         Trick::ScheduledJobQueue sjq;
-		Trick::RequirementScribe req;
+		//Trick::RequirementScribe req;
 
         ScheduledJobQueueTest() {}
         ~ScheduledJobQueueTest() {}
@@ -23,7 +23,7 @@ class ScheduledJobQueueTest : public ::testing::Test {
 } ;
 
 TEST_F( ScheduledJobQueueTest , PushJobsbyJobOrder ) {
-	req.add_requirement("815793485");
+	//req.add_requirement("815793485");
 
     Trick::JobData * job_ptr ;
 
@@ -71,7 +71,7 @@ TEST_F( ScheduledJobQueueTest , PushJobsbyJobOrder ) {
 }
 
 TEST_F( ScheduledJobQueueTest , PushJobsbySimObjectOrder ) {
-	req.add_requirement("512154259");
+	//req.add_requirement("512154259");
 
     Trick::JobData * job_ptr ;
 
@@ -114,7 +114,7 @@ TEST_F( ScheduledJobQueueTest , PushJobsbySimObjectOrder ) {
 }
 
 TEST_F( ScheduledJobQueueTest , PushJobsbyPhaseOrder ) {
-	req.add_requirement("3144632784");
+	//req.add_requirement("3144632784");
 
     Trick::JobData * job_ptr ;
 
@@ -157,7 +157,7 @@ TEST_F( ScheduledJobQueueTest , PushJobsbyPhaseOrder ) {
 }
 
 TEST_F( ScheduledJobQueueTest , PushJobsbyJobClassOrder ) {
-	req.add_requirement("925196430");
+	//req.add_requirement("925196430");
 
     Trick::JobData * job_ptr ;
 
@@ -200,7 +200,7 @@ TEST_F( ScheduledJobQueueTest , PushJobsbyJobClassOrder ) {
 }
 
 TEST_F( ScheduledJobQueueTest , PushJobsIgnoreSimObject ) {
-	req.add_requirement("815793485");
+	//req.add_requirement("815793485");
 
     Trick::JobData * job_ptr ;
 
@@ -243,7 +243,7 @@ TEST_F( ScheduledJobQueueTest , PushJobsIgnoreSimObject ) {
 }
 
 TEST_F( ScheduledJobQueueTest , TopJob ) {
-	req.add_requirement("");
+	//req.add_requirement("");
 
     Trick::JobData * job_ptr ;
 
@@ -285,7 +285,7 @@ TEST_F( ScheduledJobQueueTest , TopJob ) {
 }
 
 TEST_F( ScheduledJobQueueTest , FindNextJob ) {
-	req.add_requirement("3664773300 1758653947");
+	//req.add_requirement("3664773300 1758653947");
 
     Trick::JobData * job_ptr ;
     long long curr_time ;
@@ -399,7 +399,7 @@ TEST_F( ScheduledJobQueueTest , FindNextJob ) {
 }
 
 TEST_F( ScheduledJobQueueTest , TestNextJob ) {
-	req.add_requirement("1758653947 3664773300");	
+	//req.add_requirement("1758653947 3664773300");	
 
     Trick::JobData * job_ptr ;
     long long curr_time ;
@@ -517,7 +517,7 @@ TEST_F( ScheduledJobQueueTest , TestNextJob ) {
 }
 
 TEST_F( ScheduledJobQueueTest , InstrumentBeforeAll ) {
-	req.add_requirement("3990429752");
+	//req.add_requirement("3990429752");
 
     Trick::JobData * job_ptr ;
 

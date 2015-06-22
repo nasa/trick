@@ -9,7 +9,7 @@
 #include "DPM/DPM_time_constraints.hh"
 
 #include "gtest/gtest.h"
-#include "trick_utils/reqs/include/RequirementScribe.hh"
+//#include "trick_utils/reqs/include/RequirementScribe.hh"
 
 namespace Trick {
 
@@ -34,7 +34,7 @@ int strcmp_IgnoreWhiteSpace(const char* s1, const char* s2) {
 
 class DSTest : public :: testing::Test {
     protected:
-        Trick::RequirementScribe req;
+        //Trick::RequirementScribe req;
         std::string testxml[14];
 
         DSTest() {}
@@ -122,7 +122,7 @@ std::string DSTest::run(char ch) {
 
 // ASCII (CSV) DATASTREAM
 TEST_F(DSTest, DataStream_Ascii) {
-  	req.add_requirement("32631267");
+  	//req.add_requirement("32631267");
 	
 	RUN_dir = "../TEST_DATA/RUN_ASCII";
     VarName = "sun_predictor.sun.solar_azimuth";
@@ -193,7 +193,7 @@ TEST_F(DSTest, DataStream_Ascii) {
 
 // TRICK BINARY DATASTREAM
 TEST_F(DSTest, DataStream_Binary) {
-	req.add_requirement("3201880761");
+	//req.add_requirement("3201880761");
 
 	RUN_dir = "../TEST_DATA/RUN_BINARY";
     VarName = "sun_predictor.sun.solar_elevation";
@@ -264,7 +264,7 @@ TEST_F(DSTest, DataStream_Binary) {
 
 // MATLAB DATASTREAM
 TEST_F(DSTest, DataStream_MatLab) {
-	req.add_requirement("2533684432 1366633954");
+	//req.add_requirement("2533684432 1366633954");
 
     RUN_dir = "../TEST_DATA/RUN_MATLAB";
     VarName = "ch_joint_angle_5";
@@ -337,7 +337,7 @@ TEST_F(DSTest, DataStream_MatLab) {
 // The delta statement is formatted as follows:
 //   delta(<var1:run1>, <var2:run2>)
 TEST_F(DSTest, DataStream_Delta) {
-	req.add_requirement("2904854297");
+	//req.add_requirement("2904854297");
 
 	RUN_dir = NULL;
 	char DeltaName[1000];
@@ -355,7 +355,7 @@ TEST_F(DSTest, DataStream_Delta) {
 
 // DPC UNIT CONVERSION DATASTREAM
 TEST_F(DSTest, DataStream_DPCUnitConv) {
-	req.add_requirement("2269871888");
+	//req.add_requirement("2269871888");
 
 	RUN_dir = "../TEST_DATA/RUN_BINARY";
 	VarName = "sun_predictor.sun.right_ascension";
@@ -383,7 +383,7 @@ TEST_F(DSTest, DataStream_DPCUnitConv) {
 
 // TIME CONSTRAINT DATASTREAM
 TEST_F(DSTest, DataStream_DPCTimeCstr) {
-	req.add_requirement("3610816325");
+	//req.add_requirement("3610816325");
 
 	int i;	
 	DPM_time_constraints *time_constraints;

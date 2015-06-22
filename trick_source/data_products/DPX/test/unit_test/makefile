@@ -1,5 +1,5 @@
 
-include ${TRICK_HOME}/makefiles/Makefile.common
+include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 ifneq ($(HDF5),)
 ifneq ($(HDF5),/usr)
@@ -47,8 +47,8 @@ else
 endif
 
 GTEST_LIBS = ${GTEST_HOME}/lib/libgtest.a ${GTEST_HOME}/lib/libgtest_main.a
-TRICK_UNIT_LIBS = -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} -ltrick_units
-DP_LIBS         = -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} \
+TRICK_UNIT_LIBS = -L${TRICK_LIB_DIR} -ltrick_units
+DP_LIBS         = -L${TRICK_LIB_DIR} \
                   -L${TRICK_HOME}/trick_source/data_products/lib_${TRICK_HOST_CPU} \
                   -llog -lvar -leqparse
 MODEL_LIBS      = -lxml2 \

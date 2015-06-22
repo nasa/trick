@@ -5,17 +5,15 @@
 #include "gtest/gtest.h"
 
 #define protected public
-#include "sim_services/Executive/include/Exec_exception.hh"
-#include "sim_services/Executive/include/Executive.hh"
-#include "sim_services/Executive/include/exec_proto.h"
-#include "sim_services/Executive/include/exec_proto.hh"
-#include "sim_services/Message/include/MessagePublisher.hh"
-#include "sim_services/Message/include/MessageCout.hh"
-#include "sim_services/SimObject/include/SimObject.hh"
-#include "sim_services/MemoryManager/include/MemoryManager.hh"
-#include "sim_services/MemoryManager/include/memorymanager_c_intf.h"
-#include "trick_utils/reqs/include/RequirementScribe.hh"
-
+#include "trick/ExecutiveException.hh"
+#include "trick/Executive.hh"
+#include "trick/exec_proto.h"
+#include "trick/exec_proto.hh"
+#include "trick/MessagePublisher.hh"
+#include "trick/MessageCout.hh"
+#include "trick/SimObject.hh"
+#include "trick/MemoryManager.hh"
+#include "trick/memorymanager_c_intf.h"
 
 void sig_hand(int sig) ;
 void ctrl_c_hand(int sig) ;
@@ -227,7 +225,7 @@ class ExecutiveTest : public ::testing::Test {
         Trick::MessagePublisher mpublisher ;
         Trick::MessageCout mcout ;
         Trick::MemoryManager mm ;
-		Trick::RequirementScribe req;
+        //Trick::RequirementScribe req;
 
 
         ExecutiveTest() {}
@@ -281,13 +279,13 @@ void ExecutiveTest::SetUp() {
 /* JOB TESTS */
 
 TEST_F(ExecutiveTest , AddSimObject) {
-    req.add_requirement( "r_exec_jobs");
+    //req.add_requirement( "r_exec_jobs");
 	//"The Executive Scheduler shall provide a method for adding simulation objects to the scheduler"
     exec_add_sim_object(&so1 , "so1") ;
 }
 
 TEST_F(ExecutiveTest , AddJobsToQueue) {
-    req.add_requirement( "r_exec_jobs");
+    //req.add_requirement( "r_exec_jobs");
 	//"The Executive Scheduler shall sort jobs with executive job classes in ScheduledJobQueues"
     exec_add_sim_object(&so1 , "so1") ;
 
@@ -322,7 +320,7 @@ TEST_F(ExecutiveTest , AddJobsToQueue) {
 }
 
 TEST_F(ExecutiveTest , JobQueueNonScheduledIDs) {
-    req.add_requirement("r_exec_jobs");
+    //req.add_requirement("r_exec_jobs");
 	//"The Executive Scheduler shall assign job class id of the following classes < 1000, default_data , input_processor , initialization , top_of_frame , end_of_frame , shutdown , freeze_init , freeze_scheduled , freeze_automatic, freeze , unfreeze, and exec_time_tic_changed"
     EXPECT_LT( get_class_map_value("default_data") , 1000 ) ;
     EXPECT_LT( get_class_map_value("input_processor") , 1000 ) ;
@@ -339,20 +337,20 @@ TEST_F(ExecutiveTest , JobQueueNonScheduledIDs) {
 }
 
 TEST_F(ExecutiveTest , AddScheduledJobClass) {
-    req.add_requirement("1630595230");
+    //req.add_requirement("1630595230");
 	//"The Executive Scheduler shall provide a method for adding scheduled job class names"
     // some names were added in the SetUp method
     EXPECT_EQ( get_class_map_value("automatic") , 1000 ) ;
 }
 
 TEST_F(ExecutiveTest , JobQueueStartIndex) {
-    req.add_requirement("r_exec_jobs");
+    //req.add_requirement("r_exec_jobs");
 	//"The Executive Scheduler shall assign the first scheduled job class id = 1000"
     EXPECT_EQ( get_class_map_value("automatic") , 1000 ) ;
 }
 
 TEST_F(ExecutiveTest , JobQueueNameOrder) {
-    req.add_requirement("r_exec_jobs");
+    //req.add_requirement("r_exec_jobs");
 	//"The Executive Scheduler shall increment the job class id for each additional scheduled job class"
 
     EXPECT_EQ( get_class_map_value("automatic") , 1000 ) ;
@@ -365,7 +363,7 @@ TEST_F(ExecutiveTest , JobQueueNameOrder) {
 // Job class ordering is tested in ScheduledJobQueue.
 
 TEST_F(ExecutiveTest , AddDepends) {
-    req.add_requirement("r_exec_jobs");
+    //req.add_requirement("r_exec_jobs");
 	//"The Executive Scheduler shall provide the capability to add dependency jobs to scheduled jobs"
 
     Trick::JobData * curr_job ;
@@ -391,7 +389,7 @@ TEST_F(ExecutiveTest , AddDepends) {
 }
 
 TEST_F(ExecutiveTest , UnhandledJobs) {
-    req.add_requirement("r_exec_jobs");
+    //req.add_requirement("r_exec_jobs");
 	//"The Executive Scheduler shall provide the capability to list jobs not handled by any scheduler."
     Trick::JobData * curr_job ;
 
@@ -401,7 +399,7 @@ TEST_F(ExecutiveTest , UnhandledJobs) {
 }
 
 TEST_F(ExecutiveTest , JobCycleNotDivisibleByTimeTic) {
-    req.add_requirement("r_exec_jobs");
+    //req.add_requirement("r_exec_jobs");
 	//"The Executive Scheduler shall provide the capability to list jobs not handled by any scheduler."
 
     EXPECT_EQ(exec_get_time_tic_value(), 1000000) ;
@@ -412,7 +410,7 @@ TEST_F(ExecutiveTest , JobCycleNotDivisibleByTimeTic) {
 /* INITIALIZATION */
 
 TEST_F(ExecutiveTest , GoodInitialization) {
-    req.add_requirement("2605574440") ;
+    //req.add_requirement("2605574440") ;
 
     exec_add_sim_object(&so1 , "so1") ;
 
@@ -434,7 +432,7 @@ TEST_F(ExecutiveTest , GoodInitialization) {
 }
 
 TEST_F(ExecutiveTest , ErrorDefaultData) {
-    req.add_requirement("773089468") ;
+    //req.add_requirement("773089468") ;
 
     so1.add_job(0, 101, "default_data", NULL, 1, "return_error", "TRK") ;
     exec_add_sim_object(&so1 , "so1") ;
@@ -455,7 +453,7 @@ TEST_F(ExecutiveTest , ErrorDefaultData) {
 }
 
 TEST_F(ExecutiveTest , ErrorInputProcessor) {
-    req.add_requirement("773089468") ;
+    //req.add_requirement("773089468") ;
 
     so1.add_job(0, 101, "input_processor", NULL, 1, "return_error", "TRK") ;
     exec_add_sim_object(&so1 , "so1") ;
@@ -476,7 +474,7 @@ TEST_F(ExecutiveTest , ErrorInputProcessor) {
 }
 
 TEST_F(ExecutiveTest , ErrorInitialization) {
-    req.add_requirement("773089468") ;
+    //req.add_requirement("773089468") ;
 
     so1.add_job(0, 101, "initialization", NULL, 1, "return_error", "TRK") ;
     exec_add_sim_object(&so1 , "so1") ;
@@ -497,7 +495,7 @@ TEST_F(ExecutiveTest , ErrorInitialization) {
 }
 
 TEST_F(ExecutiveTest , ExeceptionDefaultData) {
-    req.add_requirement("773089468") ;
+    //req.add_requirement("773089468") ;
     so1.add_job(0, 102, "default_data", NULL, 1, "throw_exception", "TRK") ;
     exec_add_sim_object(&so1 , "so1") ;
     EXPECT_EQ(exec.init() , -1 ) ;
@@ -517,7 +515,7 @@ TEST_F(ExecutiveTest , ExeceptionDefaultData) {
 }
 
 TEST_F(ExecutiveTest , ExeceptionInputProcessor) {
-    req.add_requirement("773089468") ;
+    //req.add_requirement("773089468") ;
     so1.add_job(0, 102, "input_processor", NULL, 1, "throw_exception", "TRK") ;
     exec_add_sim_object(&so1 , "so1") ;
     EXPECT_EQ(exec.init() , -1 ) ;
@@ -537,7 +535,7 @@ TEST_F(ExecutiveTest , ExeceptionInputProcessor) {
 }
 
 TEST_F(ExecutiveTest , ExeceptionInitialization) {
-    req.add_requirement("2605574440") ;
+    //req.add_requirement("2605574440") ;
     so1.add_job(0, 102, "initialization", NULL, 1, "throw_exception", "TRK") ;
     exec_add_sim_object(&so1 , "so1") ;
     EXPECT_EQ(exec.init() , -1 ) ;
@@ -559,20 +557,20 @@ TEST_F(ExecutiveTest , ExeceptionInitialization) {
 /* TIME TESTS */
 
 TEST_F(ExecutiveTest , IntegerTime) {
-    req.add_requirement("2618149062");
+    //req.add_requirement("2618149062");
 	//"The Executive Scheduler shall track simulation elapsed time by an integer count of tics/second") ;
     EXPECT_EQ(exec_get_time_tics(), 0) ;
 }
 
 TEST_F(ExecutiveTest , DefaultTimeTicValue) {
-    req.add_requirement("2436759852");
+    //req.add_requirement("2436759852");
 	// "The Executive Scheduler shall default to 1,000,000 tics/second") ;
     EXPECT_EQ(exec_get_time_tic_value(), 1000000) ;
 }
 
 TEST_F(ExecutiveTest , AdvanceSimTimeToNextJob) {
 
-    req.add_requirement("2449626778");
+    //req.add_requirement("2449626778");
 	//"The Executive Scheduler shall advance simulation time to the time of the next lowest job call time if the next lowest job call time is less than the next software frame boundary ") ;
     Trick::Threads * curr_thread ;
     Trick::JobData * curr_job ;
@@ -595,7 +593,7 @@ TEST_F(ExecutiveTest , AdvanceSimTimeToNextJob) {
 
 TEST_F(ExecutiveTest , AdvanceSimTimeToBoundary) {
 
-    req.add_requirement("4140012270");
+    //req.add_requirement("4140012270");
 	// "The Executive Scheduler shall advance simulation time to the time of the next software boundary if the next lowest job call time is greater than or equal to the next software frame boundary ") ;
     Trick::Threads * curr_thread ;
 
@@ -615,7 +613,7 @@ TEST_F(ExecutiveTest , AdvanceSimTimeToBoundary) {
 
 TEST_F(ExecutiveTest , Checkpoint) {
 
-    req.add_requirement("2678139818 1653083281");
+    //req.add_requirement("2678139818 1653083281");
 	//"The Executive Scheduler shall copy all job information to a checkpointable array before a checkpoint is executed") ;
 
     unsigned int ii = 0 ;
@@ -696,7 +694,7 @@ TEST_F(ExecutiveTest , Checkpoint) {
 }
 
 TEST_F(ExecutiveTest , ClearScheduledQueues) {
-	req.add_requirement("");
+	//req.add_requirement("");
 
     exec_add_sim_object(&so1 , "so1") ;
 
@@ -723,7 +721,7 @@ TEST_F(ExecutiveTest , ClearScheduledQueues) {
 }
 
 TEST_F(ExecutiveTest , Moding) {
-	req.add_requirement("411993330 2253353824 2874482372");
+	//req.add_requirement("411993330 2253353824 2874482372");
 
     exec.freeze() ;
     exec.async_freeze_to_exec_command() ;
@@ -737,7 +735,7 @@ TEST_F(ExecutiveTest , Moding) {
 }
 
 TEST_F(ExecutiveTest , GetJob) {
-	req.add_requirement("");
+	//req.add_requirement("");
 
     Trick::JobData * curr_job ;
 
@@ -763,7 +761,7 @@ TEST_F(ExecutiveTest , GetJob) {
 }
 
 TEST_F(ExecutiveTest , JobCycle) {
-	req.add_requirement("");
+	//req.add_requirement("");
 
     exec_add_sim_object(&so1 , "so1") ;
     EXPECT_NEAR( exec.get_job_cycle(std::string("so1.scheduled_3")) , 3.0 , 0.000001) ;
@@ -782,7 +780,7 @@ TEST_F(ExecutiveTest , JobCycle) {
 
 
 TEST_F(ExecutiveTest , SetSignalHandlers) {
-	req.add_requirement("");
+	//req.add_requirement("");
 
     static struct sigaction sigact;
 
@@ -826,7 +824,7 @@ TEST_F(ExecutiveTest , SetSignalHandlers) {
 }
 
 TEST_F(ExecutiveTest , JobOnOff) {
-	req.add_requirement("2445198072");
+	//req.add_requirement("2445198072");
 	
     Trick::JobData * curr_job ;
 
@@ -844,7 +842,7 @@ TEST_F(ExecutiveTest , JobOnOff) {
 }
 
 TEST_F(ExecutiveTest , SimObjectOnOff) {
-	req.add_requirement("3132950280");
+	//req.add_requirement("3132950280");
 
     Trick::JobData * curr_job ;
 
@@ -863,14 +861,14 @@ TEST_F(ExecutiveTest , SimObjectOnOff) {
 }
 
 TEST_F(ExecutiveTest , LockMemory) {
-	req.add_requirement("715042410");
+	//req.add_requirement("715042410");
     // Requires root to run. Will pass if run as root.
     //EXPECT_EQ(exec.set_lock_memory(true), 0) ;
 
 }
 
 TEST_F(ExecutiveTest , SetThreadParameters) {
-	req.add_requirement("3839914374");
+	//req.add_requirement("3839914374");
 
     so1.add_job(1, 100, "scheduled", NULL, 1, "child_job_1", "TRK") ;
     exec_add_sim_object(&so1 , "so1") ;

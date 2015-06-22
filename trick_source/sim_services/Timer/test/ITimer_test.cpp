@@ -11,10 +11,10 @@
 #include <unistd.h>
 
 #include "gtest/gtest.h"
-#include "sim_services/Timer/include/ITimer.hh"
-#include "sim_services/Clock/include/GetTimeOfDayClock.hh"
-#include "sim_services/SimObject/include/SimObject.hh"
-#include "trick_utils/reqs/include/RequirementScribe.hh"
+#include "trick/ITimer.hh"
+#include "trick/GetTimeOfDayClock.hh"
+#include "trick/SimObject.hh"
+//#include "trick/RequirementScribe.hh"
 
 namespace Trick {
 
@@ -22,7 +22,7 @@ class ITimerTest : public testing::Test {
 
 	public:
 		Trick::GetTimeOfDayClock dClk;
-		Trick::RequirementScribe req;
+		//Trick::RequirementScribe req;
 		double sec;
 		long long tim_st, tim_elap;
 
@@ -34,7 +34,7 @@ class ITimerTest : public testing::Test {
 
 /* Proper initialization of ITimer */
 TEST_F(ITimerTest, Initialize) {
-	req.add_requirement("timer");
+	//req.add_requirement("timer");
 	//"The ITimer shall initialize with disabled and inactive status.");
 
 	Trick::ITimer *iTim;
@@ -56,7 +56,7 @@ TEST_F(ITimerTest, Initialize) {
 
 /* Timer not enabled; ensure no activity when starting, pausing, etc */
 TEST_F(ITimerTest, TimerNotEnabled) {
-    req.add_requirement("timer");
+    //req.add_requirement("timer");
 	//"The ITimer shall start if and only if the ITimer is enabled to do so.");
 
 
@@ -84,7 +84,7 @@ TEST_F(ITimerTest, TimerNotEnabled) {
 
 /* Tolerance: 2 ms */
 TEST_F(ITimerTest, TimerStartSuccess) {
-    req.add_requirement("timer");
+    //req.add_requirement("timer");
 	//"The ITimer shall sleep when commanded, thereby releasing the processor for a specified amount of time.");
 	
 	sec = 0.05;
@@ -110,7 +110,7 @@ TEST_F(ITimerTest, TimerStartSuccess) {
 }
 
 TEST_F(ITimerTest, TimerStartReset) {
-    req.add_requirement("timer");
+    //req.add_requirement("timer");
 	//"The ITimer shall reset to a new alarm time when commanded if the current time until alarm has not yet expired.");
 
     sec = 0.05;
@@ -138,7 +138,7 @@ TEST_F(ITimerTest, TimerStartReset) {
 }
 
 TEST_F(ITimerTest, TimerStartStop) {
-    req.add_requirement("timer");
+    //req.add_requirement("timer");
 	//"The ITimer shall stop when commanded if the time until alarm has not yet expired.");
  
     sec = 0.05;
@@ -171,7 +171,7 @@ TEST_F(ITimerTest, TimerStartStop) {
 
 
 TEST_F(ITimerTest, TimerStartFailure) {
-    req.add_requirement("timer");
+    //req.add_requirement("timer");
 	//"The ITimer shall not initiate with start times that are negative or less than 10 ms");
 	
 	sec = 0.05;

@@ -3,12 +3,12 @@
 #include <signal.h>
 
 #include "gtest/gtest.h"
-#include "sim_services/Clock/include/Clock.hh"
-#include "sim_services/Clock/include/clock_proto.h"
-#include "sim_services/Clock/include/GetTimeOfDayClock.hh"
-#include "sim_services/Clock/include/TPROCTEClock.hh"
-#include "sim_services/Clock/include/BC635Clock.hh"
-#include "sim_services/SimObject/include/JobData.hh"
+#include "trick/Clock.hh"
+#include "trick/clock_proto.h"
+#include "trick/GetTimeOfDayClock.hh"
+#include "trick/TPROCTEClock.hh"
+#include "trick/BC635Clock.hh"
+#include "trick/JobData.hh"
 
 namespace Trick {
 

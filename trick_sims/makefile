@@ -1,5 +1,5 @@
 
-export TRICK_HOST_CPU := $(shell $(TRICK_HOME)/bin/gte TRICK_HOST_CPU)
+export TRICK_HOST_CPU := $(shell $(TRICK_HOME)/bin/trick-gte TRICK_HOST_CPU)
 
 # List out sims we want to compile
 COMPILE_DIRS = SIM_Ball++_L1 \
@@ -98,7 +98,7 @@ clean:
       done
 
 $(EXECUTABLES):
-	@ cd $(@D) ; ${TRICK_HOME}/bin/CP -t ;
+	@ cd $(@D) ; ${TRICK_HOME}/bin/trick-CP -t ;
 
 $(UNIT_TEST_RESULTS): $(TRICK_HOME)/trick_test/%.xml : %/T_main_${TRICK_HOST_CPU}_test.exe
 	@ cd $* ; ./T_main_${TRICK_HOST_CPU}_test.exe RUN_test/unit_test.py

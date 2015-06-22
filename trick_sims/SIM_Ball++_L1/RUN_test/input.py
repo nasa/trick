@@ -4,15 +4,15 @@ import trick
 def main():
 
     # Data recording HDF5 test
-    #drg0 = trick.DRAscii("Ball")
-    #for param in [ 'position' , 'velocity' , 'acceleration' , 'external_force' ] :
-    #    for index in range(0,2) :
-    #        var = "ball.obj.state.output." + param + "[" + str(index) + "]"
-    #        drg0.add_variable(var)
-    #drg0.set_cycle(0.01)
-    #drg0.freq = trick.DR_Always
-    #drg0.thisown = 0
-    #trick.add_data_record_group(drg0, trick.DR_Buffer)
+    drg0 = trick.DRAscii("Ball")
+    for param in [ 'position' , 'velocity' , 'acceleration' , 'external_force' ] :
+        for index in range(0,2) :
+            var = "ball.obj.state.output." + param + "[" + str(index) + "]"
+            drg0.add_variable(var)
+    drg0.set_cycle(0.01)
+    drg0.freq = trick.DR_Always
+    drg0.thisown = 0
+    trick.add_data_record_group(drg0, trick.DR_Buffer)
 
     my_integ_loop.getIntegrator( trick.Runge_Kutta_2, 4 );
 

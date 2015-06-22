@@ -17,13 +17,13 @@
 
 
 #include "gtest/gtest.h"
-#include "sim_services/Clock/include/Clock.hh"
-#include "sim_services/Clock/include/clock_proto.h"
-#include "sim_services/Clock/include/GetTimeOfDayClock.hh"
-#include "sim_services/Clock/include/TPROCTEClock.hh"
-#include "sim_services/Clock/include/BC635Clock.hh"
-#include "sim_services/SimObject/include/JobData.hh"
-#include "trick_utils/reqs/include/RequirementScribe.hh"
+#include "trick/Clock.hh"
+#include "trick/clock_proto.h"
+#include "trick/GetTimeOfDayClock.hh"
+#include "trick/TPROCTEClock.hh"
+#include "trick/BC635Clock.hh"
+#include "trick/JobData.hh"
+//#include "trick/RequirementScribe.hh"
 
 namespace Trick {
 
@@ -37,14 +37,14 @@ class TPROCTEClockTest : public ::testing::Test {
         virtual void SetUp() {}
         virtual void TearDown() {}
 
-        Trick::RequirementScribe req;
+        //Trick::RequirementScribe req;
 } ;
 
 //std::map< std::string , unsigned int > TPROCTEClockTest::num_reqs;
 
 /* Ensure clock initializes correctly */
 TEST_F(TPROCTEClockTest, Initialize) {
-    req.add_requirement("TPROCTE_clock");
+    //req.add_requirement("TPROCTE_clock");
     //"The TPROCTE clock shall initialize reference time of 0, and all ratios set to 1.");
 
     /* General expected clock initialization */
@@ -60,7 +60,7 @@ TEST_F(TPROCTEClockTest, Initialize) {
 /* Run tests for when no hardware is available */
 #ifndef _TPRO_CTE
 TEST_F(TPROCTEClockTest, NoHardware) {
-    req.add_requirement("TPROCTE_clock");
+    //req.add_requirement("TPROCTE_clock");
     //"The TPROCTE clock shall display error messages when attempting to use its functions with no hardware");
 
     long long req_time = rand();
@@ -83,7 +83,7 @@ TEST_F(TPROCTEClockTest, NoHardware) {
 
 /* Ensure generic clock functions work properly */
 TEST_F(TPROCTEClockTest, TestRefTimes) {
-    req.add_requirement("TPROCTE_clock");
+    //req.add_requirement("TPROCTE_clock");
     //"The TPROCTE clock shall provide the ability to adjust the reference time");
 
     long long secs_remainder;

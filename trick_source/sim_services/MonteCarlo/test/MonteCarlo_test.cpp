@@ -9,22 +9,22 @@
 #include <cmath>
 
 #include "gtest/gtest.h"
-#include "sim_services/Executive/include/Exec_exception.hh"
-#include "sim_services/Executive/include/Executive.hh"
-#include "sim_services/MonteCarlo/include/MonteCarlo.hh"
-#include "sim_services/MonteCarlo/include/MonteVar.hh"
-#include "sim_services/MonteCarlo/include/MonteVarCalculated.hh"
-#include "sim_services/MonteCarlo/include/MonteVarFile.hh"
-#include "sim_services/MonteCarlo/include/MonteVarFixed.hh"
-#include "sim_services/MonteCarlo/include/MonteVarRandom.hh"
-#include "sim_services/MonteCarlo/include/montecarlo_c_intf.h"
-#include "sim_services/Executive/include/exec_proto.h"
-#include "sim_services/Executive/include/exec_proto.hh"
-#include "sim_services/SimObject/include/SimObject.hh"
-#include "sim_services/MemoryManager/include/MemoryManager.hh"
-#include "sim_services/MemoryManager/include/memorymanager_c_intf.h"
-#include "trick_utils/math/include/rand_generator.h"
-#include "trick_utils/reqs/include/RequirementScribe.hh"
+#include "trick/ExecutiveException.hh"
+#include "trick/Executive.hh"
+#include "trick/MonteCarlo.hh"
+#include "trick/MonteVar.hh"
+#include "trick/MonteVarCalculated.hh"
+#include "trick/MonteVarFile.hh"
+#include "trick/MonteVarFixed.hh"
+#include "trick/MonteVarRandom.hh"
+#include "trick/montecarlo_c_intf.h"
+#include "trick/exec_proto.h"
+#include "trick/exec_proto.hh"
+#include "trick/SimObject.hh"
+#include "trick/MemoryManager.hh"
+#include "trick/memorymanager_c_intf.h"
+#include "trick/rand_generator.h"
+//#include "trick/RequirementScribe.hh"
 
 void sig_hand(int sig) ;
 void child_handler(int sig) ;
@@ -83,7 +83,7 @@ class MonteCarloTest : public ::testing::Test {
         Trick::MonteCarlo exec;
         Trick::Executive executive;
         testSimObject so1 ;
-        Trick::RequirementScribe req;
+        //Trick::RequirementScribe req;
         Trick::MemoryManager mm ;
 
         MonteCarloTest() { exec_register_scheduler(&exec) ; }
@@ -103,7 +103,7 @@ class MonteCarloTest : public ::testing::Test {
 } ;
 
 TEST_F(MonteCarloTest , Job_Queue_Master_Init) {
-    req.add_requirement("722132127");
+    //req.add_requirement("722132127");
 
     Trick::JobData * curr_job ;
 
@@ -119,7 +119,7 @@ TEST_F(MonteCarloTest , Job_Queue_Master_Init) {
 }
 
 TEST_F(MonteCarloTest , Job_Queue_Master_Pre) {
-    req.add_requirement("587551115");
+    //req.add_requirement("587551115");
 
     Trick::JobData * curr_job ;
 
@@ -135,7 +135,7 @@ TEST_F(MonteCarloTest , Job_Queue_Master_Pre) {
 }
 
 TEST_F(MonteCarloTest , Job_Queue_Master_Post) {
-    req.add_requirement("4165308678");
+    //req.add_requirement("4165308678");
 
     Trick::JobData * curr_job ;
 
@@ -151,7 +151,7 @@ TEST_F(MonteCarloTest , Job_Queue_Master_Post) {
 }
 
 TEST_F(MonteCarloTest , Job_Queue_Master_Shutdown) {
-    req.add_requirement("3461634900");
+    //req.add_requirement("3461634900");
 
     Trick::JobData * curr_job ;
 
@@ -167,7 +167,7 @@ TEST_F(MonteCarloTest , Job_Queue_Master_Shutdown) {
 }
 
 TEST_F(MonteCarloTest , Job_Queue_Slave_Init) {
-    req.add_requirement("1412318284");
+    //req.add_requirement("1412318284");
 
     Trick::JobData * curr_job ;
 
@@ -183,7 +183,7 @@ TEST_F(MonteCarloTest , Job_Queue_Slave_Init) {
 }
 
 TEST_F(MonteCarloTest , Job_Queue_Slave_Pre) {
-    req.add_requirement("3301658297");
+    //req.add_requirement("3301658297");
 
     Trick::JobData * curr_job ;
 
@@ -199,7 +199,7 @@ TEST_F(MonteCarloTest , Job_Queue_Slave_Pre) {
 }
 
 TEST_F(MonteCarloTest , Job_Queue_Slave_Post) {
-    req.add_requirement("3882184138");
+    //req.add_requirement("3882184138");
 
     Trick::JobData * curr_job ;
 
@@ -215,7 +215,7 @@ TEST_F(MonteCarloTest , Job_Queue_Slave_Post) {
 }
 
 TEST_F(MonteCarloTest , Job_Queue_Slave_Shutdown) {
-    req.add_requirement("350185460");
+    //req.add_requirement("350185460");
 
     Trick::JobData * curr_job ;
 
@@ -231,7 +231,7 @@ TEST_F(MonteCarloTest , Job_Queue_Slave_Shutdown) {
 }
 
 TEST_F(MonteCarloTest , Good_Initialization) {
-    req.add_requirement("1452306647");
+    //req.add_requirement("1452306647");
 
     exec_add_sim_object(&so1 , "so1") ;
     EXPECT_EQ(exec.execute_monte() , 0 ) ;
@@ -254,7 +254,7 @@ TEST_F(MonteCarloTest , TestDefaultValues) {
 }
 
 TEST_F(MonteCarloTest, TestSettingValues) {
-    req.add_requirement("2840823120");
+    //req.add_requirement("2840823120");
 
     exec.set_enabled(true) ;
     EXPECT_EQ(exec.get_enabled(), true) ;
@@ -292,7 +292,7 @@ TEST_F(MonteCarloTest, TestRanges) {
 }
 
 TEST_F(MonteCarloTest, TestSlaves) {
-    req.add_requirement("1098748189");
+    //req.add_requirement("1098748189");
 
     Trick::MonteSlave slave0("localhost") ;
     Trick::MonteSlave slave1("WonderWoman") ;
@@ -321,7 +321,7 @@ TEST_F(MonteCarloTest, TestSlaves) {
 TEST_F(MonteCarloTest, MonteVarFile) {
     std::string buffer;
     std::string buffer2;
-    req.add_requirement("3932595803");
+    //req.add_requirement("3932595803");
 
     // Test MonteVarFile
     Trick::MonteVarFile var0("time_to_fire_1", "M_jet_firings_inline", 2) ;
@@ -334,7 +334,7 @@ TEST_F(MonteCarloTest, MonteVarFile) {
 TEST_F(MonteCarloTest, MonteVarRandom_Gaussian) {
     std::string str;
     double value;
-    req.add_requirement("3932595803");
+    //req.add_requirement("3932595803");
 
     // Test MonteVarRandom
     // Gaussian
@@ -366,7 +366,7 @@ TEST_F(MonteCarloTest, MonteVarRandom_Gaussian) {
 TEST_F(MonteCarloTest, MonteVarRandom_Poisson) {
     std::string str;
     double value;
-    req.add_requirement("3932595803");
+    //req.add_requirement("3932595803");
 
     // Test MonteVarRandom
     // Poisson
@@ -401,7 +401,7 @@ TEST_F(MonteCarloTest, MonteVarRandom_Poisson) {
 TEST_F(MonteCarloTest, MonteVarRandom_Flat) {
     std::string str;
     double value;
-    req.add_requirement("3932595803");
+    //req.add_requirement("3932595803");
 
     // Test MonteVarRandom
     // Flat
@@ -428,7 +428,7 @@ TEST_F(MonteCarloTest, MonteVarRandom_Flat) {
 }
 
 TEST_F(MonteCarloTest, MonteVarRandom_NonGSL) {
-    req.add_requirement("3932595803");
+    //req.add_requirement("3932595803");
 
     Trick::MonteVarRandom var4("time_to_fire_1", Trick::MonteVarRandom::GAUSSIAN) ;
     var4.set_mu(4.0) ;
@@ -451,7 +451,7 @@ TEST_F(MonteCarloTest, MonteVarRandom_NonGSL) {
 }
 
 TEST_F(MonteCarloTest, MonteVarFixed) {
-    req.add_requirement("3932595803");
+    //req.add_requirement("3932595803");
 
     // Test MonteVarFixed
     Trick::MonteVarFixed var5("time_to_fire_5", 3.1415) ;
@@ -464,7 +464,7 @@ TEST_F(MonteCarloTest, MonteVarFixed) {
 
 ///@brief check that the final distribution is correct. (Bug 6950: The non-GSL was wrong for GAUSSIAN and FLAT)
 TEST_F(MonteCarloTest, MonteVarRandom_Gaussian_distributionMatchesSpec) {
-    req.add_requirement("3932595803");
+    //req.add_requirement("3932595803");
     std::string str ;
     double      value ;
 
@@ -517,7 +517,7 @@ TEST_F(MonteCarloTest, MonteVarRandom_Gaussian_distributionMatchesSpec) {
 
 ///@brief set_sigma_range(int) feature was only implemented for nonGsl with non-C++11 fallbacks
 TEST_F(MonteCarloTest, MonteVarRandom_Gaussian_nonGslSigmaRangeDefaulted_maxDeviationFromMeanIs1Sigma) {
-    req.add_requirement("3932595803");
+    //req.add_requirement("3932595803");
     std::string str ;
     double      value ;
 
@@ -569,7 +569,7 @@ TEST_F(MonteCarloTest, MonteVarRandom_Gaussian_nonGslSigmaRangeDefaulted_maxDevi
 
 ///@brief test set_sigma_range feature works for STL random
 TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_nonGslSigmaRangeDefaulted_maxDeviationFromMeanIs1Sigma) {
-    req.add_requirement("3932595803");
+    //req.add_requirement("3932595803");
     std::string str ;
     double      value ;
 
@@ -625,7 +625,7 @@ TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_nonGslSigmaRangeDefaulted_maxD
 #if (defined(_HAVE_TR1_RANDOM) || defined(_HAVE_STL_RANDOM))
 
 TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_distributionMatchesSpec) {
-    req.add_requirement("3932595803");
+    //req.add_requirement("3932595803");
     std::string str ;
     double      value ;
 
@@ -676,7 +676,7 @@ TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_distributionMatchesSpec) {
 
 ///@breif test relative min/max work as expected for STL 
 TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_relativeMinMaxWorks) {
-    req.add_requirement("3932595803");
+    //req.add_requirement("3932595803");
     std::string str ;
     double      value ;
 
@@ -723,7 +723,7 @@ TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_relativeMinMaxWorks) {
 
 ///@breif test relative min/max works after calling set_mu, as expected for STL 
 TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_callSetMu_relativeMinMaxWorks) {
-    req.add_requirement("3932595803");
+    //req.add_requirement("3932595803");
     std::string str ;
     double      value ;
 
@@ -771,7 +771,7 @@ TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_callSetMu_relativeMinMaxWorks)
 
 ///@breif test absolute min/max works after changing from relative, as expected for STL 
 TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_changeToAbsolute_MinMaxWorks) {
-    req.add_requirement("3932595803");
+    //req.add_requirement("3932595803");
     std::string str ;
     double      value ;
 
@@ -819,7 +819,7 @@ TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_changeToAbsolute_MinMaxWorks) 
 
 ///@brief test that the sequence repeats after calling set_seed
 TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_setSeed_TakesEffect) {
-    req.add_requirement("3932595803");
+    //req.add_requirement("3932595803");
     std::string str ;
     double      value ;
 

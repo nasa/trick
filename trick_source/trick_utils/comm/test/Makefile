@@ -1,10 +1,10 @@
 
-include ${TRICK_HOME}/makefiles/Makefile.common
-include ${TRICK_HOME}/makefiles/Makefile.tricklib
+include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
+include ${TRICK_HOME}/share/trick/makefiles/Makefile.tricklib
 
-INCLUDE_DIRS   = -I$(GTEST_HOME) -I$(GTEST_HOME)/include -I$(TRICK_HOME)/trick_source
+INCLUDE_DIRS   = -I$(GTEST_HOME) -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include
 
-TRICK_LIBS     := ${TRICK_HOME}/lib_${TRICK_HOST_CPU}/libtrick.a
+TRICK_LIBS     := ${TRICK_LIB_DIR}/libtrick.a
 TRICK_EXEC_LINK_LIBS += ${GTEST_HOME}/lib/libgtest.a ${GTEST_HOME}/lib/libgtest_main.a
 
 TRICK_CXXFLAGS += ${INCLUDE_DIRS} -g -Wall -Wextra -DGTEST_HAS_TR1_TUPLE=0
@@ -13,7 +13,7 @@ TRICK_CXXFLAGS += ${INCLUDE_DIRS} -g -Wall -Wextra -DGTEST_HAS_TR1_TUPLE=0
 TESTS = comm_test
 TEST_CPP =  $(subst $(OBJ_DIR)/,,$(subst .o,.cpp,$(CPP_OBJS)))
 
-OTHER_OBJECTS = ../../../sim_services/SimObject/object_${TRICK_HOST_CPU}/io_SimObject.o
+OTHER_OBJECTS = ../../../sim_services/include/object_${TRICK_HOST_CPU}/io_SimObject.o
 
 default : all
 

@@ -6,8 +6,8 @@
 #include <map>
 
 #include "gtest/gtest.h"
-#include "sim_services/MemoryManager/include/bitfield_proto.h"
-#include "trick_utils/reqs/include/RequirementScribe.hh"
+#include "trick/bitfield_proto.h"
+//#include "trick/RequirementScribe.hh"
 
 namespace Trick {
 
@@ -65,7 +65,7 @@ typedef struct {
 class BitfieldsTest : public ::testing::Test {
 
 	protected:
-		Trick::RequirementScribe req;
+		//Trick::RequirementScribe req;
 
 		BitfieldsTest() {}
 		~BitfieldsTest() {}
@@ -136,7 +136,7 @@ class BitfieldsTest : public ::testing::Test {
 
 
 TEST_F(BitfieldsTest, UnsignedInt) {
-	req.add_requirement("3119954850") ;
+	//req.add_requirement("3119954850") ;
 
 	int bitSizes[4] = {14, 5, 12, 1};
 
@@ -144,7 +144,7 @@ TEST_F(BitfieldsTest, UnsignedInt) {
 }
 
 TEST_F(BitfieldsTest, UnsignedChar) {
-	req.add_requirement("3119954850") ;
+	//req.add_requirement("3119954850") ;
 
 	int bitSizes[4] = {3, 2, 2, 1};
 
@@ -152,14 +152,14 @@ TEST_F(BitfieldsTest, UnsignedChar) {
 }
 
 TEST_F(BitfieldsTest, UnsignedShort) {
-	req.add_requirement("3119954850") ;
+	//req.add_requirement("3119954850") ;
 
 	int bitSizes[4] = {4, 2, 9, 1};
 
 	bitTest <unsigned short, ushortBits> (bitSizes, false);
 }
 TEST_F(BitfieldsTest, Int) {
-	req.add_requirement("1151502390"); 
+	//req.add_requirement("1151502390"); 
 
 	int bitSizes[4] = {7, 16, 3, 6};
 
@@ -167,7 +167,7 @@ TEST_F(BitfieldsTest, Int) {
 }
 
 TEST_F(BitfieldsTest, Char) {
-	req.add_requirement("1151502390") ;
+	//req.add_requirement("1151502390") ;
 
 	int bitSizes[4] = {2, 2, 2, 2};
 
@@ -175,7 +175,7 @@ TEST_F(BitfieldsTest, Char) {
 }
 
 TEST_F(BitfieldsTest, Short) {
-	req.add_requirement("1151502390") ;
+	//req.add_requirement("1151502390") ;
 
 	int bitSizes[4] = {8, 1, 2, 5};
 
@@ -183,7 +183,7 @@ TEST_F(BitfieldsTest, Short) {
 }
 
 TEST_F(BitfieldsTest, Mix) {
-	req.add_requirement("1151502390") ;
+	//req.add_requirement("1151502390") ;
 
 	int bitSizes[4] = {3, 8, 9, 12};
 

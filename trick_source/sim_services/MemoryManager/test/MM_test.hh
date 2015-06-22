@@ -1,7 +1,7 @@
 #ifndef MM_TEST_HH
 #define MM_TEST_HH
 
-#include "sim_services/MemoryManager/include/MemoryManager.hh"
+#include "trick/MemoryManager.hh"
 
 const char* ISO_6429_Restore_Default   = "\x1b[00m";
 const char* ISO_6429_Bold              = "\x1b[01m";

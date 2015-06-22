@@ -10,13 +10,13 @@
 #include "test_view.hh"
 
 #include "gtest/gtest.h"
-#include "trick_utils/reqs/include/RequirementScribe.hh"
+//#include "trick_utils/reqs/include/RequirementScribe.hh"
 
 namespace Trick {
  
 class DPCTest : public ::testing::Test {
     protected:
-        Trick::RequirementScribe req;
+        //Trick::RequirementScribe req;
         std::string testxml[15]; 
     
         DPCTest() {}
@@ -158,7 +158,7 @@ TEST_F(DPCTest, ValidateDTD) {
 
 // Session 1_1
 TEST_F(DPCTest, VarvsTime_Binary) {
-	req.add_requirement("2416241399 3201880761");
+	//req.add_requirement("2416241399 3201880761");
 
 	std::string tmp = parseDPCData(testxml[0].c_str());
 	//std::cout << tmp;
@@ -195,7 +195,7 @@ TEST_F(DPCTest, VarvsTime_Binary) {
 
 // Session 1_2
 TEST_F(DPCTest, VarvsTime_CSV) {
-	req.add_requirement("2416241399 32631267");	
+	//req.add_requirement("2416241399 32631267");	
 
     std::string tmp = parseDPCData(testxml[1].c_str());
 	//std::cout << tmp;
@@ -257,7 +257,7 @@ TEST_F(DPCTest, SinglePlot) {
 
 // Session 3_1
 TEST_F(DPCTest, SingleTable) {
-	req.add_requirement("3667219994");
+	//req.add_requirement("3667219994");
 
     std::string tmp = parseDPCData(testxml[3].c_str());
 	//std::cout << tmp;
@@ -322,7 +322,7 @@ TEST_F(DPCTest, PlotAttr_Binary) {
  * DPV currently only supports 2D plots.
  */
 TEST_F(DPCTest, 3DProduct_2DPlot) {
-	req.add_requirement("2469402355");
+	//req.add_requirement("2469402355");
 
     std::string tmp = parseDPCData(testxml[5].c_str());
 	//std::cout << tmp << std::endl;
@@ -398,7 +398,7 @@ TEST_F(DPCTest, Table_Attributes) {
 
 // Session 7_1
 TEST_F(DPCTest, MultiplePlots) {
-	req.add_requirement("445237094");
+	//req.add_requirement("445237094");
 
     std::string tmp = parseDPCData(testxml[7].c_str());
 	int result = strcmp_IgnoringWhiteSpace(
@@ -460,7 +460,7 @@ TEST_F(DPCTest, MultiplePlots) {
 
 // Session 8_1
 TEST_F(DPCTest, MultPlots_MultTables) {
-	req.add_requirement("150267139 32631267");
+	//req.add_requirement("150267139 32631267");
 
     std::string tmp = parseDPCData(testxml[8].c_str());
 	//std::cout << tmp << std::endl;
@@ -557,7 +557,7 @@ TEST_F(DPCTest, MultPlots_MultTables) {
 // Session_8_2
 
 TEST_F(DPCTest, MultTables) {
-	req.add_requirement("2064022342 3201880761");
+	//req.add_requirement("2064022342 3201880761");
 
 	std::string tmp = parseDPCData(testxml[9].c_str());
 	//std::cout << tmp;
@@ -616,7 +616,7 @@ TEST_F(DPCTest, MultTables) {
 
 // Session 9_1
 TEST_F(DPCTest, ComparisonCurves) {
-	req.add_requirement("665188150");
+	//req.add_requirement("665188150");
 
     std::string tmp = parseDPCData(testxml[10].c_str());
     //std::cout << tmp;
@@ -687,7 +687,7 @@ TEST_F(DPCTest, ComparisonCurves) {
 
 // Session 9_2
 TEST_F(DPCTest, DeltaCurves) {
-	req.add_requirement("2904854297");
+	//req.add_requirement("2904854297");
 
     std::string tmp = parseDPCData(testxml[11].c_str());
 	//std::cout << tmp;
@@ -737,7 +737,7 @@ TEST_F(DPCTest, DeltaCurves) {
 
 // Session 9_3
 TEST_F(DPCTest, ContrastCurves) {
-	req.add_requirement("3042036071");
+	//req.add_requirement("3042036071");
 
     std::string tmp = parseDPCData(testxml[12].c_str());
 	//std::cout << tmp;
@@ -844,7 +844,7 @@ TEST_F(DPCTest, ContrastCurves) {
 }
 
 TEST_F(DPCTest, DPV_Test) {
-	req.add_requirement("2826924382 1366633954");
+	//req.add_requirement("2826924382 1366633954");
 	
 	std::string tmp = parseDPCData(testxml[13].c_str());
     //std::cout << tmp;
@@ -907,7 +907,7 @@ TEST_F(DPCTest, DPV_Test) {
 }
 
 TEST_F(DPCTest, Plot_Matlab) {
-	req.add_requirement("2533684432");
+	//req.add_requirement("2533684432");
 
 	std::string tmp = parseDPCData("../TEST_DATA/session_mat.xml");
 	//std::cout << tmp;

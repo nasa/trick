@@ -1,12 +1,12 @@
 
 #include <gtest/gtest.h>
 
-#include "trick_utils/comm/include/tc.h"
-#include "trick_utils/comm/include/attributes.h"
-#include "trick_utils/comm/include/hs_msg.h"
-#include "trick_utils/comm/include/tc_proto.h"
-#include "trick_utils/comm/include/trick_byteswap.h"
-#include "trick_utils/comm/include/trick_error_hndlr.h"
+#include "trick/tc.h"
+#include "trick/attributes.h"
+#include "trick/hs_msg.h"
+#include "trick/tc_proto.h"
+#include "trick/trick_byteswap.h"
+#include "trick/trick_error_hndlr.h"
 
 class TCErrorTest : public testing::Test {
 
