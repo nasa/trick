@@ -19,7 +19,7 @@ DS_DIR  = ${TRICK_HOME}/trick_source/data_products
 INCDIRS = -I$(GTEST_HOME)/include \
           -I/usr/include/libxml2 \
           -I/usr/X11R6/include \
-          -I${TRICK_HOME}/trick_source \
+          -I${TRICK_HOME}/include \
           -I${TRICK_HOME}/trick_source/data_products \
           -I${TRICK_HOME}/trick_source/data_products/Apps/FPlot \
           -I${TRICK_HOME}/trick_source/data_products/DPX \

@@ -2,8 +2,8 @@
 
 #include <iostream>
 #include <string.h>
-#include "data_products/Log/DataStream.hh"
-#include "data_products/Log/DataStreamFactory.hh"
+#include "Log/DataStream.hh"
+#include "Log/DataStreamFactory.hh"
 #include "DPC/DPC_UnitConvDataStream.hh"
 #include "DPC/DPC_TimeCstrDataStream.hh"
 #include "DPM/DPM_time_constraints.hh"
