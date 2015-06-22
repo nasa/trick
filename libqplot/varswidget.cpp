@@ -196,7 +196,9 @@ void VarsWidget::_addPlotOfVarToPageItem(QStandardItem* pageItem,
         QStandardItem *yUnitItem   = new QStandardItem("--");
         QStandardItem *runIDItem   = new QStandardItem(QString("%0").arg(r));
         QStandardItem *curveDataItem   = new QStandardItem("");
-        QStandardItem *colorItem   = new QStandardItem("");
+        QStandardItem *colorItem       = new QStandardItem("");
+        QStandardItem *xScaleFactorItem   = new QStandardItem("1.0");
+        QStandardItem *yScaleFactorItem   = new QStandardItem("1.0");
 
         curveItem->appendRow(tItem);
         curveItem->appendRow(xItem);
@@ -207,6 +209,8 @@ void VarsWidget::_addPlotOfVarToPageItem(QStandardItem* pageItem,
         curveItem->appendRow(runIDItem);
         curveItem->appendRow(curveDataItem);
         curveItem->appendRow(colorItem);
+        curveItem->appendRow(xScaleFactorItem);
+        curveItem->appendRow(yScaleFactorItem);
     }
 }
 

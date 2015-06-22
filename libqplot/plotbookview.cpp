@@ -1040,6 +1040,20 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             break;
         }
 
+        case PlotBookModel::CurveXScale : {
+            TrickCurve* curve =  _idx2Curve(pidx);
+            double xsf = model()->data(idx).toDouble();
+            curve->setXScaleFactor(xsf);
+            break;
+        }
+
+        case PlotBookModel::CurveYScale : {
+            TrickCurve* curve =  _idx2Curve(pidx);
+            double ysf = model()->data(idx).toDouble();
+            curve->setYScaleFactor(ysf);
+            break;
+        }
+
         case PlotBookModel::PlotTitle : {
             QString title = model()->data(idx).toString();
             Plot* plot = _idx2Plot(pidx);

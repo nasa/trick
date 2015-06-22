@@ -8,7 +8,9 @@ TrickCurve::TrickCurve(QCPAxis *keyAxis, QCPAxis *valueAxis) :
     _timeVec(0),
     _valVec(0),
     _startTime(-DBL_MAX),
-    _stopTime(DBL_MAX)
+    _stopTime(DBL_MAX),
+    _xsf(1.0),
+    _ysf(1.0)
 {
     setAntialiased(false);
     mPen.setColor(QColor(50, 100, 212));
@@ -142,6 +144,44 @@ void TrickCurve::setStopTime(double stopTime)
     }
 }
 
+double TrickCurve::xScaleFactor()
+{
+    return _xsf;
+}
+
+double TrickCurve::yScaleFactor()
+{
+    return _ysf;
+}
+
+void TrickCurve::setXScaleFactor(double sf)
+{
+    if ( _xsf == sf ) return;
+
+    _xsf = sf;
+    if ( _model ) {
+        _createPainterPath(_model);
+    } else if ( !_timeVec->empty() )  {
+        _createPainterPath(_timeVec, _valVec);
+    }
+
+    emit xScaled(sf);
+}
+
+void TrickCurve::setYScaleFactor(double sf)
+{
+    if ( _ysf == sf ) return;
+
+    _ysf = sf;
+    if ( _model ) {
+        _createPainterPath(_model);
+    } else if ( !_timeVec->empty() )  {
+        _createPainterPath(_timeVec, _valVec);
+    }
+
+    emit yScaled(sf);
+}
+
 void TrickCurve::draw(QCPPainter *painter)
 {
     if ( (_model == 0 || _model->rowCount() == 0) &&
@@ -268,16 +308,16 @@ void TrickCurve::_createPainterPath(TrickCurveModel *model)
     const TrickModelIterator e = _model->end();
 
     if ( _startTime == -DBL_MAX && _stopTime == -DBL_MAX ) {
-        _painterPath.moveTo(it.x(),it.y());
+        _painterPath.moveTo(it.x()*_xsf,it.y()*_ysf);
         while (it != e) {
-            _painterPath.lineTo(it.x(),it.y());
+            _painterPath.lineTo(it.x()*_xsf,it.y()*_ysf);
             ++it;
         }
     } else {
         while (it != e) {
             double t = it.t();
             if ( t >= _startTime ) {
-                _painterPath.moveTo(it.x(),it.y());
+                _painterPath.moveTo(it.x()*_xsf,it.y()*_ysf);
                 break;
             }
             ++it;
@@ -285,7 +325,7 @@ void TrickCurve::_createPainterPath(TrickCurveModel *model)
         while (it != e) {
             double t = it.t();
             if ( t <= _stopTime ) {
-                _painterPath.lineTo(it.x(),it.y());
+                _painterPath.lineTo(it.x()*_xsf,it.y()*_ysf);
             } else {
                 break;
             }
@@ -306,16 +346,16 @@ void TrickCurve::_createPainterPath(const QVector<double> *t,
     _valVec = v;
 
     if ( _startTime == -DBL_MAX && _stopTime == -DBL_MAX ) {
-        _painterPath.moveTo(t->at(0),v->at(0));
+        _painterPath.moveTo(t->at(0),v->at(0)*_ysf);
         for ( int i = 1; i < t->size(); ++i) {
-            _painterPath.lineTo(t->at(i),v->at(i));
+            _painterPath.lineTo(t->at(i),v->at(i)*_ysf);
         }
     } else {
         int i = 0;
         for ( i = 0; i < t->size(); ++i) {
             double time = t->at(i);
             if ( time >= _startTime ) {
-                _painterPath.moveTo(t->at(i),v->at(i));
+                _painterPath.moveTo(t->at(i),v->at(i)*_ysf);
                 break;
             }
         }
@@ -323,7 +363,7 @@ void TrickCurve::_createPainterPath(const QVector<double> *t,
         for ( ; i < t->size(); ++i) {
             double time = t->at(i);
             if ( time <= _stopTime ) {
-                _painterPath.lineTo(t->at(i),v->at(i));
+                _painterPath.lineTo(t->at(i),v->at(i)*_ysf);
             } else {
                 break;
             }
@@ -648,7 +688,7 @@ QCPRange TrickCurve::getKeyRange(bool &validRange, SignDomain inSignDomain) cons
     TrickModelIterator it = _model->begin();
     const TrickModelIterator e = _model->end();
     while (it != e) {
-        current = it.x();
+        current = it.x()*_xsf;
         if (inSignDomain == sdBoth ||
             (inSignDomain == sdNegative && current < 0) ||
             (inSignDomain == sdPositive && current > 0)) {
@@ -690,7 +730,7 @@ QCPRange TrickCurve::getValueRange(bool &validRange, SignDomain inSignDomain) co
     TrickModelIterator it = _model->begin();
     const TrickModelIterator e = _model->end();
     while (it != e) {
-        current = it.y();
+        current = it.y()*_ysf;
         if (inSignDomain == sdBoth ||
            (inSignDomain == sdNegative && current < 0) ||
                 (inSignDomain == sdPositive && current > 0)) {

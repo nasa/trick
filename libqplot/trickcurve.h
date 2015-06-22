@@ -33,6 +33,10 @@ public:
     void setStartTime(double startTime);
     void setStopTime(double stopTime);
 
+    double xScaleFactor();
+    double yScaleFactor();
+    void setXScaleFactor(double sf);
+    void setYScaleFactor(double sf);
 
     virtual void clearData()
     {
@@ -103,6 +107,8 @@ private:
     double _stopTime;
     QCPRange _xrange;
     QCPRange _yrange;
+    double _xsf;
+    double _ysf;
 
     int _deselectedLayerIdx;
     void _addFlatLineLabel(QCPPainter* painter);
@@ -114,6 +120,8 @@ private slots:
 
 signals:
     void selectionChanged(TrickCurve* curve);
+    void xScaled(double sf);
+    void yScaled(double sf);
 };
 
 

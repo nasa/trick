@@ -289,8 +289,7 @@ x_var: DP_X_VARIABLE ':' DP_STR {
                 currPlot->setXMaxRange($4);
         }
         | x_var DP_SCALE_FACTOR ':' DP_FLOAT {
-                //currXVar->setScaleFactor($4);
-                msg("plot->setMinRange() not supported");
+                currXVar->setScaleFactor($4);
         }
         | x_var DP_BIAS ':' DP_FLOAT {
                 //currXVar->setBias($4);
@@ -323,8 +322,7 @@ y_var: DP_Y_VARIABLE ':' DP_STR {
                 currPlot->setYMaxRange($4);
         }
         | y_var DP_SCALE_FACTOR ':' DP_FLOAT {
-                //currYVar->setScaleFactor($4);
-                msg("plot->setScaleFactor() not supported");
+                currYVar->setScaleFactor($4);
         }
         | y_var DP_BIAS ':' DP_FLOAT {
                 //currYVar->setBias($4);

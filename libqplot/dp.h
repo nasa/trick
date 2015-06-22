@@ -28,15 +28,19 @@ public:
     QString label() { return _label; }
     QString unit() { return _unit; }
     QString lineColor() { return _lineColor; }
+    double scaleFactor() { return _scaleFactor; }
 
     void setLabel(const char* label) { _label = label; }
     void setUnit(const char* unit) { _unit = unit; }
     void setLineColor(const char* lineColor) { _lineColor = lineColor; }
+    void setScaleFactor(double sf) { _scaleFactor = sf; }
+
 private:
     QString _name;
     QString _label;
     QString _unit;
     QString _lineColor;
+    double _scaleFactor;
 };
 
 class DPCurve

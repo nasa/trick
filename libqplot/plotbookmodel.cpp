@@ -276,6 +276,8 @@ PlotBookModel::IdxEnum PlotBookModel::indexEnum(const QModelIndex &idx) const
             case 6: ret = CurveRunID; break;
             case 7: ret = CurveData; break;
             case 8: ret = CurveLineColor; break;
+            case 9: ret = CurveXScale; break;
+            case 10: ret = CurveYScale; break;
             default: ret = Invalid; break;
         }
     }

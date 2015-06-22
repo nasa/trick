@@ -58,6 +58,8 @@ public:
                             CurveRunID,
                             CurveData,
                             CurveLineColor,
+                            CurveXScale,
+                            CurveYScale,
                     PlotTitle,
                     PlotXMin,
                     PlotXMax,
