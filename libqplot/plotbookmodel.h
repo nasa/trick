@@ -60,6 +60,8 @@ public:
                             CurveLineColor,
                             CurveXScale,
                             CurveYScale,
+                            CurveXBias,
+                            CurveYBias,
                     PlotTitle,
                     PlotXMin,
                     PlotXMax,

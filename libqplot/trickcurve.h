@@ -38,6 +38,11 @@ public:
     void setXScaleFactor(double sf);
     void setYScaleFactor(double sf);
 
+    double xBias();
+    double yBias();
+    void setXBias(double b);
+    void setYBias(double b);
+
     virtual void clearData()
     {
         _model = 0 ;
@@ -109,6 +114,8 @@ private:
     QCPRange _yrange;
     double _xsf;
     double _ysf;
+    double _xbias;
+    double _ybias;
 
     int _deselectedLayerIdx;
     void _addFlatLineLabel(QCPPainter* painter);
@@ -122,6 +129,8 @@ signals:
     void selectionChanged(TrickCurve* curve);
     void xScaled(double sf);
     void yScaled(double sf);
+    void xBiased(double b);
+    void yBiased(double b);
 };
 
 

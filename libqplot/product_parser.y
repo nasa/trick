@@ -292,8 +292,7 @@ x_var: DP_X_VARIABLE ':' DP_STR {
                 currXVar->setScaleFactor($4);
         }
         | x_var DP_BIAS ':' DP_FLOAT {
-                //currXVar->setBias($4);
-                msg("plot->setBias() not supported");
+                currXVar->setBias($4);
         }
         | x_var DP_TIME_NAME ':' DP_STR {
                 //currXVar->setTimeName($4);
@@ -325,8 +324,7 @@ y_var: DP_Y_VARIABLE ':' DP_STR {
                 currYVar->setScaleFactor($4);
         }
         | y_var DP_BIAS ':' DP_FLOAT {
-                //currYVar->setBias($4);
-                msg("plot->setBias() not supported");
+                currYVar->setBias($4);
         }
         | y_var DP_LINE_STYLE ':' DP_STR {
                 //currCurve->setLineStyle($4);

@@ -46,6 +46,8 @@ protected:
 private slots:
     void _curveXScaleChanged(double sf);
     void _curveYScaleChanged(double sf);
+    void _curveXBiasChanged(double b);
+    void _curveYBiasChanged(double b);
 
   private:
     QCustomPlot* _plotwidget;

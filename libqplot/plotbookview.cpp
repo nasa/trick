@@ -1054,6 +1054,20 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             break;
         }
 
+        case PlotBookModel::CurveXBias : {
+            TrickCurve* curve =  _idx2Curve(pidx);
+            double xbias = model()->data(idx).toDouble();
+            curve->setXBias(xbias);
+            break;
+        }
+
+        case PlotBookModel::CurveYBias : {
+            TrickCurve* curve =  _idx2Curve(pidx);
+            double ybias = model()->data(idx).toDouble();
+            curve->setYBias(ybias);
+            break;
+        }
+
         case PlotBookModel::PlotTitle : {
             QString title = model()->data(idx).toString();
             Plot* plot = _idx2Plot(pidx);

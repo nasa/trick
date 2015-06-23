@@ -286,6 +286,10 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                     QString xsfStr = QString("%1").arg(xsf);
                     double ysf = dpcurve->y()->scaleFactor();
                     QString ysfStr = QString("%1").arg(ysf);
+                    double xbias = dpcurve->x()->bias();
+                    QString xbiasStr = QString("%1").arg(xbias);
+                    double ybias = dpcurve->y()->bias();
+                    QString ybiasStr = QString("%1").arg(ybias);
 
                     QStandardItem *tItem       = new QStandardItem(tName);
                     QStandardItem *xItem       = new QStandardItem(xName);
@@ -299,6 +303,8 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                     QStandardItem *colorItem   = new QStandardItem(color);
                     QStandardItem *xsfItem   = new QStandardItem(xsfStr);
                     QStandardItem *ysfItem   = new QStandardItem(ysfStr);
+                    QStandardItem *xbiasItem   = new QStandardItem(xbiasStr);
+                    QStandardItem *ybiasItem   = new QStandardItem(ybiasStr);
 
                     curveItem->appendRow(tItem);
                     curveItem->appendRow(xItem);
@@ -311,6 +317,8 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                     curveItem->appendRow(colorItem);
                     curveItem->appendRow(xsfItem);
                     curveItem->appendRow(ysfItem);
+                    curveItem->appendRow(xbiasItem);
+                    curveItem->appendRow(ybiasItem);
                 }
             }
         }

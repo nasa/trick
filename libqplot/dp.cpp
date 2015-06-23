@@ -598,7 +598,8 @@ DPVar::DPVar(const QDomElement &e) :
     _name(QString()),
     _label(QString()),
     _unit(QString()),
-    _scaleFactor(1.0)
+    _scaleFactor(1.0),
+    _bias(0.0)
 {
     QDomElement el = e;
 
@@ -625,13 +626,19 @@ DPVar::DPVar(const QDomElement &e) :
     if ( el.hasAttribute(scale) ) {
         _scaleFactor = el.attributeNode(scale).value().simplified().toDouble();
     }
+
+    QString bias("bias");
+    if ( el.hasAttribute(bias) ) {
+        _bias = el.attributeNode(bias).value().simplified().toDouble();
+    }
 }
 
 DPVar::DPVar(const char *name) :
     _name(name),
     _label(QString()),
     _unit(QString()),
-    _scaleFactor(1.0)
+    _scaleFactor(1.0),
+    _bias(0.0)
 {
 }
 

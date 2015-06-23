@@ -29,11 +29,13 @@ public:
     QString unit() { return _unit; }
     QString lineColor() { return _lineColor; }
     double scaleFactor() { return _scaleFactor; }
+    double bias() { return _bias; }
 
     void setLabel(const char* label) { _label = label; }
     void setUnit(const char* unit) { _unit = unit; }
     void setLineColor(const char* lineColor) { _lineColor = lineColor; }
     void setScaleFactor(double sf) { _scaleFactor = sf; }
+    void setBias(double b) { _bias = b; }
 
 private:
     QString _name;
@@ -41,6 +43,7 @@ private:
     QString _unit;
     QString _lineColor;
     double _scaleFactor;
+    double _bias;
 };
 
 class DPCurve

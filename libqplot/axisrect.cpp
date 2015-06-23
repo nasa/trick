@@ -68,6 +68,7 @@ void AxisRect::showCurveDiff()
     _diffCurveVals.clear();
 
     double sf = _curves.at(0)->yScaleFactor();
+    double bias = _curves.at(0)->yBias();
 
     TrickCurveModel *model1 =  _curves.at(0)->_model ;
     TrickCurveModel *model2 =  _curves.at(1)->_model ;
@@ -83,7 +84,7 @@ void AxisRect::showCurveDiff()
             double t1 = it1.t();
             double t2 = it2.t();
             if ( qAbs(t2-t1) < 0.000001 ) {
-                double d = (it1.y() - it2.y())*sf;
+                double d = (it1.y() - it2.y())*sf + bias;
                 _diffCurveTimes.append(t2);
                 _diffCurveVals.append(d);
                 ++it1;
@@ -171,6 +172,10 @@ void AxisRect::_addCurve(TrickCurve *curve)
             this, SLOT(_curveXScaleChanged(double)));
     connect(curve, SIGNAL(yScaled(double)),
             this, SLOT(_curveYScaleChanged(double)));
+    connect(curve, SIGNAL(xBiased(double)),
+            this, SLOT(_curveXBiasChanged(double)));
+    connect(curve, SIGNAL(yBiased(double)),
+            this, SLOT(_curveYBiasChanged(double)));
 
     _curves.append(curve);
     _plotwidget->addPlottable(curve);
@@ -605,6 +610,20 @@ void AxisRect::_curveXScaleChanged(double sf)
 void AxisRect::_curveYScaleChanged(double sf)
 {
     Q_UNUSED(sf);
+    _isYRangeCalculated  = false;
+    zoomToFit();
+}
+
+void AxisRect::_curveXBiasChanged(double b)
+{
+    Q_UNUSED(b);
+    _isXRangeCalculated  = false;
+    zoomToFit();
+}
+
+void AxisRect::_curveYBiasChanged(double b)
+{
+    Q_UNUSED(b);
     _isYRangeCalculated  = false;
     zoomToFit();
 }
