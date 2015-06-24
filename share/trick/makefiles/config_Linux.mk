@@ -15,6 +15,7 @@ TRICK_LIB_DIR  := ${TRICK_HOME}/lib
 endif
 
 SHARED_LIB_OPT := -shared
+RPATH = -Wl,-rpath=${TRICK_LIB_DIR}
 
 ifeq ($(MAKELEVEL),0)
 export TRICK_LDFLAGS += -Wl,--export-dynamic
