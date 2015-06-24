@@ -13,7 +13,7 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 # Flags passed to the preprocessor.
 TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra ${COVERAGE_FLAGS}
 
-TRICK_LIBS = ${TRICK_LIB_DIR}/libtrick.a
+TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick -ltrick_units
 TRICK_EXEC_LINK_LIBS += ${GTEST_HOME}/lib/libgtest.a ${GTEST_HOME}/lib/libgtest_main.a
 
 # All tests produced by this Makefile.  Remember to add new tests you
