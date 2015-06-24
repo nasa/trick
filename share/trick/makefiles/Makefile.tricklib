@@ -80,7 +80,7 @@ premade: $(L_C_PREMADE) $(Y_C_PREMADE)
 objects: $(OBJECT_FILES)
 	@ echo "[32m$(CURDIR) object files up to date[00m"
 
-$(TRICK_LIB) : $(OBJECT_FILES) 
+$(TRICK_LIB) : $(OBJECT_FILES) | $(TRICK_LIB_DIR)
 	ar crs $@ $(OBJECT_FILES)
 
 $(OBJ_DIR):
