@@ -20,12 +20,14 @@
 #include "Utilities.hh"
 
 PrintAttributes::PrintAttributes(int in_attr_version , HeaderSearchDirs & in_hsd ,
-  CommentSaver & in_cs , clang::CompilerInstance & in_ci, bool in_force , bool in_sim_services_flag ) :
+  CommentSaver & in_cs , clang::CompilerInstance & in_ci, bool in_force , bool in_sim_services_flag ,
+  std::string in_output_dir ) :
    hsd(in_hsd) ,
    cs(in_cs) ,
    ci(in_ci) ,
    force(in_force) ,
-   sim_services_flag( in_sim_services_flag )
+   sim_services_flag( in_sim_services_flag ) ,
+   output_dir( in_output_dir )
 {
     printer = createFileContents(in_attr_version) ;
 }
@@ -195,10 +197,14 @@ std::string PrintAttributes::createIOFileName(std::string header_file_name) {
         }
         // Put all of the sim_services io_files in ${TRICK_HOME}/trick_source/sim_services/include/io_src unless
         // it is in er7_utils.  The er7_utils io_files have duplicate file names so the overwrite each other
-        if ( sim_services_flag and (dir_name.find("er7_utils") == std::string::npos) ) {
-            io_file_name = std::string(getenv("TRICK_HOME")) + "/trick_source/sim_services/include/io_src/" + base_name ;
+        if ( ! output_dir.empty() ) {
+            io_file_name = output_dir + "/io_src/" + base_name ;
         } else {
-            io_file_name = dir_name + "/io_src/" + base_name ;
+            if ( sim_services_flag and (dir_name.find("er7_utils") == std::string::npos) ) {
+                io_file_name = std::string(getenv("TRICK_HOME")) + "/trick_source/sim_services/include/io_src/" + base_name ;
+            } else {
+                io_file_name = dir_name + "/io_src/" + base_name ;
+            }
         }
         return io_file_name ;
     }

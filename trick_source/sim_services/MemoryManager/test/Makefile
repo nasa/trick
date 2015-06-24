@@ -91,24 +91,24 @@ clean :
 # Builds gtest.a and gtest_main.a.
 
 io_MM_user_defined_types.o : MM_user_defined_types.hh
-	${TRICK_HOME}/bin/trick-ICG -s $(TRICK_CPPFLAGS) $<
-	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c ../../include/io_src/io_MM_user_defined_types.cpp
+	${TRICK_HOME}/bin/trick-ICG -s -o . $(TRICK_CPPFLAGS) $<
+	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c io_src/io_MM_user_defined_types.cpp
 
 io_MM_alloc_deps.o : MM_alloc_deps.hh
-	${TRICK_HOME}/bin/trick-ICG -s $(TRICK_CPPFLAGS) $<
-	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c ../../include/io_src/io_MM_alloc_deps.cpp
+	${TRICK_HOME}/bin/trick-ICG -s -o . $(TRICK_CPPFLAGS) $<
+	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c io_src/io_MM_alloc_deps.cpp
 
 io_MM_write_checkpoint.o : MM_write_checkpoint.hh
-	${TRICK_HOME}/bin/trick-ICG -s $(TRICK_CPPFLAGS) $<
-	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c ../../include/io_src/io_MM_write_checkpoint.cpp
+	${TRICK_HOME}/bin/trick-ICG -s -o . $(TRICK_CPPFLAGS) $<
+	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c io_src/io_MM_write_checkpoint.cpp
 
 io_MM_get_enumerated.o : MM_get_enumerated.hh
-	${TRICK_HOME}/bin/trick-ICG -s $(TRICK_CPPFLAGS) $<
-	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c ../../include/io_src/io_MM_get_enumerated.cpp
+	${TRICK_HOME}/bin/trick-ICG -s -o . $(TRICK_CPPFLAGS) $<
+	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c io_src/io_MM_get_enumerated.cpp
 
 io_MM_ref_name_from_address.o :	MM_ref_name_from_address.hh
-	${TRICK_HOME}/bin/trick-ICG -s $(TRICK_CPPFLAGS) $<
-	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c ../../include/io_src/io_MM_ref_name_from_address.cpp
+	${TRICK_HOME}/bin/trick-ICG -s -o . $(TRICK_CPPFLAGS) $<
+	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c io_src/io_MM_ref_name_from_address.cpp
 
 MM_creation_unittest.o : MM_creation_unittest.cc
 	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c $<

@@ -35,6 +35,8 @@ llvm::cl::opt< bool > sim_services_flag ("s", llvm::cl::desc("Gernerate io_src f
 llvm::cl::opt< bool > force ("f", llvm::cl::desc("Force all io_src files to be generated")) ;
 llvm::cl::opt< int > attr_version ("v", llvm::cl::desc("Select version of attributes to produce.  10 and 13 are valid"), llvm::cl::init(10)) ;
 llvm::cl::opt< int > debug_level ("d", llvm::cl::desc("Set debug level"), llvm::cl::init(0), llvm::cl::ZeroOrMore) ;
+llvm::cl::opt< bool > create_map ("m", llvm::cl::desc("Create map files"), llvm::cl::init(false)) ;
+llvm::cl::opt< std::string > output_dir ("o", llvm::cl::desc("Output directory")) ;
 llvm::cl::alias ssf_alias ("sim_services" , llvm::cl::desc("Alias for -s") , llvm::cl::aliasopt(sim_services_flag)) ;
 llvm::cl::alias force_alias ("force" , llvm::cl::desc("Alias for -f") , llvm::cl::aliasopt(force)) ;
 llvm::cl::list< std::string > input_file_names(llvm::cl::Positional, llvm::cl::desc("<input_file>"), llvm::cl::ZeroOrMore) ;
@@ -145,10 +147,12 @@ int main( int argc , char * argv[] ) {
     CommentSaver cs(ci, hsd) ;
     pp.addCommentHandler(&cs) ;
 
-    PrintAttributes pa( attr_version, hsd, cs, ci, force, sim_services_flag) ;
+    PrintAttributes pa( attr_version, hsd, cs, ci, force, sim_services_flag, output_dir) ;
 
     // create new class and enum map files
-    pa.createMapFiles() ;
+    if ( create_map ) {
+        pa.createMapFiles() ;
+    }
 
     // Tell the compiler to use our ICGASTconsumer
     ICGASTConsumer *astConsumer = new ICGASTConsumer(ci, hsd, cs, pa);

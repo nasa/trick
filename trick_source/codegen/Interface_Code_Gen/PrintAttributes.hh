@@ -35,7 +35,7 @@ class PrintFileContentsBase ;
 class PrintAttributes {
     public:
         PrintAttributes( int attr_version , HeaderSearchDirs & hsd , CommentSaver & cs ,
-         clang::CompilerInstance & in_ci, bool force , bool sim_services) ;
+         clang::CompilerInstance & in_ci, bool force , bool sim_services, std::string output_dir ) ;
 
         /** Prints all of the processed classes and enumerations */
         virtual void removeMapFiles() ;
@@ -85,6 +85,9 @@ class PrintAttributes {
 
         /** We are processing sim_services */
         bool sim_services_flag ;
+
+        /** We are specifying an output directory for all files */
+        std::string output_dir ;
 
         bool openIOFile(std::string header_file_name) ;
 

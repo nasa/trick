@@ -555,9 +555,9 @@ test_all: TRICK_CFLAGS += -DTRICK_UNIT_TEST
     print MAKEFILE "test_all: all\n\n" ;
 
     print MAKEFILE "ICG:\n" ;
-    print MAKEFILE "\t\${TRICK_HOME}/bin/trick-ICG \${TRICK_CXXFLAGS} S_source.hh\n" ;
+    print MAKEFILE "\t\${TRICK_HOME}/bin/trick-ICG -m \${TRICK_CXXFLAGS} S_source.hh\n" ;
     print MAKEFILE "force_ICG:\n" ;
-    print MAKEFILE "\t\${TRICK_HOME}/bin/trick-ICG -f \${TRICK_CXXFLAGS} S_source.hh\n" ;
+    print MAKEFILE "\t\${TRICK_HOME}/bin/trick-ICG -f -m \${TRICK_CXXFLAGS} S_source.hh\n" ;
 
     print MAKEFILE "
 S_main : objects \$(LIB_DIR) \$(S_MAIN) \$(OBJECT_DIR)/S_define.deps S_sie.resource
