@@ -1,4 +1,11 @@
 
+#ifndef __WIN32__
+#  include <sys/ioctl.h>
+#  define IOCTL_SOCKET ioctl
+#else
+#  define IOCTL_SOCKET ioctlsocket
+#endif
+
 #include "trick/tc.h"
 #include "trick/tc_proto.h"
 

@@ -3,6 +3,11 @@
  * Write data to a device
  */
 
+#ifndef __WIN32__
+#include <errno.h>
+#include <unistd.h>
+#endif
+
 #include "trick/tc.h"
 #include "trick/tc_proto.h"
 

@@ -13,54 +13,11 @@ PROGRAMMERS:
 #ifdef __WIN32__
 #   include <winsock2.h>
 #   include <ws2tcpip.h>
+#else
+#  include <arpa/inet.h>
 #endif
 
-#include <stdio.h>
-
-#ifndef __WIN32__
-#  include <errno.h>
-#  include <unistd.h>
-#  include <pthread.h>
-#  include <signal.h>
-#  include <netdb.h>
-#  if (_POSIX_C_SOURCE)
-#     ifndef TCP_NODELAY
-#        define TCP_NODELAY   0x01
-#     endif
-#  else
-#     include <netinet/tcp.h>
-#  endif
-#  if ( __vxworks )
-#     include <sys/times.h>
-#     include <ioLib.h>
-#  else
-#     if ( __Lynx__ ) 
-#         include <socket.h>
-#         include <time.h>
-#         define __NO_INCLUDE_WARN__
-#         include <netinet/in.h>
-#         undef  __NO_INCLUDE_WARN__
-#     else
-#         include <sys/socket.h>
-#         include <sys/time.h>
-#         include <netinet/in.h>
-#         include <arpa/inet.h>
-#     endif
-#     include <sys/ioctl.h>
-#     include <sys/utsname.h>
-#  endif
-#  if ( __sun )
-#     include <sys/filio.h>
-#  endif
-#  if ( __CYGWIN__ )
-#     include <sys/param.h>
-#  endif
-#endif
-
-#include "trick_byteswap.h"
-#include "trick_error_hndlr.h"
-
-#define TC_DEFAULT_PORT 5132
+#include "trick/trick_error_hndlr.h"
 
 #if (__linux)
 #  define TC_NOSIGNAL MSG_NOSIGNAL
@@ -105,7 +62,6 @@ PROGRAMMERS:
 #  define TRICKCOMM_EPIPE WSAENOTCONN
 #  define EWOULDBLOCK WSAEWOULDBLOCK
 #  define CLOSE_SOCKET closesocket
-#  define IOCTL_SOCKET ioctlsocket
 #  define tc_errno WSAGetLastError()
 int tc_StartWinSock(void);
 #else
@@ -117,23 +73,14 @@ int tc_StartWinSock(void);
 #  define TRICKCOMM_EAGAIN EAGAIN
 #  define TRICKCOMM_EPIPE EPIPE
 #  define CLOSE_SOCKET close
-#  define IOCTL_SOCKET ioctl
 #  define tc_errno errno
 #endif
 
 /* Define a macro to yield the processor - TC_RELEASE() */
-#if ( __sgi )
-#  define TC_RELEASE() sginap(0)
-typedef int socket_t ;
-#elif ( __linux | __CYGWIN__ | __vxworks | __APPLE__ | __Lynx__ | __QNX__ | __ghs | __INTERIX )
-#  define TC_RELEASE() usleep(1)
-#elif ( __sun )
-#  define TC_RELEASE() { struct timeval timeout;\
-                    timeout.tv_sec = 0;\
-                    timeout.tv_usec = 0;\
-                    select(0,0,0,0,&timeout);}
-#elif ( __WIN32__ )
+#if ( __WIN32__ )
 #  define TC_RELEASE() Sleep(0)
+#else
+#  define TC_RELEASE() usleep(1)
 #endif
 
 #define TC_TAG_LENGTH 80
@@ -142,10 +89,6 @@ typedef int socket_t ;
 #define TC_BYTE_INFO_LENGTH 2
 #define TC_MULT_PORT 12345
 #define TC_MULT_GROUP "225.0.0.40"
-
-#ifdef STAND_ALONE
-#define send_hs fprintf
-#endif
 
 #ifdef __cplusplus
 extern "C" {

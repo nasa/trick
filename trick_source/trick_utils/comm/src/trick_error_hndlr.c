@@ -25,14 +25,7 @@
 #endif
 
 #include "trick/trick_error_hndlr.h"
-#include "trick/tc.h"
-
-#ifndef STAND_ALONE
-extern int send_hs(             /* Return: -1 on failure , 0 for completion */
-                      FILE * fp,        /* In: File pointer, (usually stderr) */
-                      char *format,     /* In: Format of args */
-                      ...);     /* In: Variable length arg list */
-#endif
+//#include "trick/tc.h"
 
 static TrickErrorHndlr trick_error_hndlr_default = {
     (TrickErrorFuncPtr) trick_error_func_default,
@@ -45,7 +38,6 @@ static TrickErrorHndlr trick_error_hndlr_default = {
 };
 
 static void trick_error_message_print(FILE * out_stream,        /* Inout: Output stream on which to print.  */
-                                      int use_send_hs,  /* In: 1 = use send_hs; else use fprintf */
                                       TrickErrorLevel level,    /* In: Error level.  */
                                       char *file,       /* In: File in which error ocurred.  */
                                       int line, /* In: Line in file in which error ocurred. */
@@ -55,51 +47,26 @@ static void trick_error_message_print(FILE * out_stream,        /* Inout: Output
         "WARNING", "ALERT", "FATAL", "ABORT", "SILENT"
     };
 
-    if (use_send_hs == 1) {
-        /* Print message to the output stream. */
-        if (msg != (char *) NULL) {
-            if (file != (char *) NULL) {
-                if (line > 0) {
-                    send_hs(out_stream, "\n %s: %s:%d: %s\n", label[level], file, line, msg);
-                } else {
-                    send_hs(out_stream, "\n %s: %s: %s\n", label[level], msg, file);
-                }
+    /* Print message to the output stream. */
+    if (msg != (char *) NULL) {
+        if (file != (char *) NULL) {
+            if (line > 0) {
+                fprintf(out_stream, "\n %s: %s:%d: %s\n", label[level], file, line, msg);
             } else {
-                send_hs(out_stream, "\n %s: %s", label[level], msg);
+                fprintf(out_stream, "\n %s: %s: %s\n", label[level], msg, file);
             }
         } else {
-            if (file != (char *) NULL) {
-                if (line > 0) {
-                    send_hs(out_stream, "\n %s: found near line %d " "of file: %s\n", label[level], line, file);
-                } else {
-                    send_hs(out_stream, "\n %s: found in file: %s\n", label[level], file);
-                }
-            } else {
-                send_hs(out_stream, "\n %s: an undescribed error was " "reported.\n", label[level]);
-            }
+            fprintf(out_stream, "\n %s: %s", label[level], msg);
         }
     } else {
-        /* Print message to the output stream. */
-        if (msg != (char *) NULL) {
-            if (file != (char *) NULL) {
-                if (line > 0) {
-                    fprintf(out_stream, "\n %s: %s:%d: %s\n", label[level], file, line, msg);
-                } else {
-                    fprintf(out_stream, "\n %s: %s: %s\n", label[level], msg, file);
-                }
+        if (file != (char *) NULL) {
+            if (line > 0) {
+                fprintf(out_stream, "\n %s: found near line %d of " "file: %s\n", label[level], line, file);
             } else {
-                fprintf(out_stream, "\n %s: %s", label[level], msg);
+                fprintf(out_stream, "\n %s: found in file: %s\n", label[level], file);
             }
         } else {
-            if (file != (char *) NULL) {
-                if (line > 0) {
-                    fprintf(out_stream, "\n %s: found near line %d of " "file: %s\n", label[level], line, file);
-                } else {
-                    fprintf(out_stream, "\n %s: found in file: %s\n", label[level], file);
-                }
-            } else {
-                fprintf(out_stream, "\n %s: an undescribed error was " "reported.\n", label[level]);
-            }
+            fprintf(out_stream, "\n %s: an undescribed error was " "reported.\n", label[level]);
         }
     }
 
@@ -132,16 +99,14 @@ void trick_error_func_default(TrickErrorHndlr * error_hndlr,    /* In: Error obj
             if (error_hndlr->report_stream[level] == (FILE *) NULL) {
                 error_hndlr->report_stream[level] = stderr;
             }
-            trick_error_message_print(error_hndlr->report_stream[level],
-                                      error_hndlr->use_send_hs[level], level, file, line, msg);
+            trick_error_message_print(error_hndlr->report_stream[level], level, file, line, msg);
             break;
 
         case TRICK_ERROR_ABORT:
             if (error_hndlr->report_stream[level] == (FILE *) NULL) {
                 error_hndlr->report_stream[level] = stderr;
             }
-            trick_error_message_print(error_hndlr->report_stream[level],
-                                      error_hndlr->use_send_hs[level], level, file, line, msg);
+            trick_error_message_print(error_hndlr->report_stream[level], level, file, line, msg);
             abort();
             break;
 
@@ -149,8 +114,7 @@ void trick_error_func_default(TrickErrorHndlr * error_hndlr,    /* In: Error obj
             if (error_hndlr->report_stream[level] == (FILE *) NULL) {
                 error_hndlr->report_stream[level] = stderr;
             }
-            trick_error_message_print(error_hndlr->report_stream[level],
-                                      error_hndlr->use_send_hs[level], level, file, line, msg);
+            trick_error_message_print(error_hndlr->report_stream[level], level, file, line, msg);
             exit((int) level);
             break;
 
@@ -158,48 +122,42 @@ void trick_error_func_default(TrickErrorHndlr * error_hndlr,    /* In: Error obj
             if (error_hndlr->report_stream[level] == (FILE *) NULL) {
                 error_hndlr->report_stream[level] = stderr;
             }
-            trick_error_message_print(error_hndlr->report_stream[level],
-                                      error_hndlr->use_send_hs[level], level, file, line, msg);
+            trick_error_message_print(error_hndlr->report_stream[level], level, file, line, msg);
             break;
 
         case TRICK_ERROR_WARNING:
             if (error_hndlr->report_stream[level] == (FILE *) NULL) {
                 error_hndlr->report_stream[level] = stderr;
             }
-            trick_error_message_print(error_hndlr->report_stream[level],
-                                      error_hndlr->use_send_hs[level], level, file, line, msg);
+            trick_error_message_print(error_hndlr->report_stream[level], level, file, line, msg);
             break;
 
         case TRICK_ERROR_CAUTION:
             if (error_hndlr->report_stream[level] == (FILE *) NULL) {
                 error_hndlr->report_stream[level] = stderr;
             }
-            trick_error_message_print(error_hndlr->report_stream[level],
-                                      error_hndlr->use_send_hs[level], level, file, line, msg);
+            trick_error_message_print(error_hndlr->report_stream[level], level, file, line, msg);
             break;
 
         case TRICK_ERROR_ADVISORY:
             if (error_hndlr->report_stream[level] == (FILE *) NULL) {
                 error_hndlr->report_stream[level] = stderr;
             }
-            trick_error_message_print(error_hndlr->report_stream[level],
-                                      error_hndlr->use_send_hs[level], level, file, line, msg);
+            trick_error_message_print(error_hndlr->report_stream[level], level, file, line, msg);
             break;
 
         case TRICK_ERROR_TRIVIAL:
             if (error_hndlr->report_stream[level] == (FILE *) NULL) {
                 error_hndlr->report_stream[level] = stderr;
             }
-            trick_error_message_print(error_hndlr->report_stream[level],
-                                      error_hndlr->use_send_hs[level], level, file, line, msg);
+            trick_error_message_print(error_hndlr->report_stream[level], level, file, line, msg);
             break;
 
         case TRICK_ERROR_ALL:
             if (error_hndlr->report_stream[level] == (FILE *) NULL) {
                 error_hndlr->report_stream[level] = stderr;
             }
-            trick_error_message_print(error_hndlr->report_stream[level],
-                                      error_hndlr->use_send_hs[level], level, file, line, msg);
+            trick_error_message_print(error_hndlr->report_stream[level], level, file, line, msg);
             break;
 
         default:
@@ -208,12 +166,10 @@ void trick_error_func_default(TrickErrorHndlr * error_hndlr,    /* In: Error obj
                 msg_buf = (char *) malloc(strlen(msg) + strlen(unknown) + 2);
                 strcpy(msg_buf, unknown);
                 strcat(msg_buf, msg);
-                trick_error_message_print(stderr,
-                                          error_hndlr->use_send_hs[level], TRICK_ERROR_ALERT, file, line, msg_buf);
+                trick_error_message_print(stderr, TRICK_ERROR_ALERT, file, line, msg_buf);
                 free(msg_buf);
             } else {
-                trick_error_message_print(stderr,
-                                          error_hndlr->use_send_hs[level], TRICK_ERROR_ALERT, file, line, unknown);
+                trick_error_message_print(stderr, TRICK_ERROR_ALERT, file, line, unknown);
             }
             break;
 
@@ -481,6 +437,11 @@ void trick_error_set_send_hs_flag(TrickErrorHndlr * error_hndlr,        /* Inout
 
     /* Set the appropriate use_send_hs flag */
     error_hndlr->use_send_hs[level] = use_send_hs;
+
+    /* warn the user that send_hs has been replaced with fprintf */
+    trick_error_report(error_hndlr, TRICK_ERROR_ALERT,
+                       __FILE__, __LINE__,
+                       "trick_error_set_send_hs_flag no longer supported.  All printouts will use fprintf\n");
 
     return;
 

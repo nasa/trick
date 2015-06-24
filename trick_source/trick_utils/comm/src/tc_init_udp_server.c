@@ -13,8 +13,13 @@
 
    PROGRAMMERS: (((M. Will) (L3-Com) (31 October 2006) (--) (CAIL))) */
 
+#ifndef __WIN32__
+#include <netinet/tcp.h>
+#endif
+
 #include "trick/tc.h"
 #include "trick/tc_proto.h"
+#include "trick/trick_byteswap.h"
 
 int tc_init_udp_server(         /* RETURN: -- 0 for success */
                           TCDevice * udp_server_device)

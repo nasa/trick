@@ -2,6 +2,7 @@
 #include <iostream>
 #include <sstream>
 #include <string.h>
+#include <unistd.h>
 
 #include "trick/MSSocket.hh"
 #include "trick/Master.hh"

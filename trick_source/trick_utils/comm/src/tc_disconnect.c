@@ -3,6 +3,10 @@
  * Disconnect a device
  */
 
+#ifndef __WIN32__
+#include <unistd.h>
+#endif
+
 #include "trick/tc.h"
 #include "trick/tc_proto.h"
 

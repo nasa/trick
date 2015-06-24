@@ -1,4 +1,6 @@
 
+#include <sys/time.h>
+
 #include "trick/MonteCarlo.hh"
 #include "trick/ExecutiveException.hh"
 

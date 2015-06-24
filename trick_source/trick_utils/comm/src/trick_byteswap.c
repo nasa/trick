@@ -13,11 +13,7 @@
    PROGRAMMERS: (((Jane B. Falgout) (LinCom) (08 May 98) (--) (generic HC))) */
 
 
-#ifdef STAND_ALONE
 #include "trick/trick_byteswap.h"
-#else
-#include "trick/trick_byteswap.h"
-#endif
 
 /* (note from ISP developers) Normally this routine would just zip through the double a byte at a time and reassign
    them, but the optimizing compiler on the alpha core dumps on this file, after many iterations this "reloading" of

@@ -82,14 +82,19 @@ ER7_UTILS_DIRS = \
 	${ER7_UTILS_HOME}/trick/integration
 ER7_UTILS_OBJS = $(addsuffix /object_$(TRICK_HOST_CPU)/*.o ,$(ER7_UTILS_DIRS))
 
-UTILS_DIRS = \
+UTILS_DIRS := \
 	${TRICK_HOME}/trick_source/trick_utils/interpolator \
 	${TRICK_HOME}/trick_source/trick_utils/trick_adt \
 	${TRICK_HOME}/trick_source/trick_utils/comm \
 	${TRICK_HOME}/trick_source/trick_utils/shm \
 	${TRICK_HOME}/trick_source/trick_utils/math \
 	${TRICK_HOME}/trick_source/trick_utils/units
-UTILS_OBJS = $(addsuffix /object_$(TRICK_HOST_CPU)/*.o ,$(UTILS_DIRS))
+UTILS_OBJS := $(addsuffix /object_$(TRICK_HOST_CPU)/*.o ,$(UTILS_DIRS))
+
+# filter out the directories that make their own libraries
+UTILS_OBJS := $(filter-out ${TRICK_HOME}/trick_source/trick_utils/comm/%, $(UTILS_OBJS))
+UTILS_OBJS := $(filter-out ${TRICK_HOME}/trick_source/trick_utils/math/%, $(UTILS_OBJS))
+UTILS_OBJS := $(filter-out ${TRICK_HOME}/trick_source/trick_utils/units/%, $(UTILS_OBJS))
 
 #-------------------------------------------------------------------------------
 # Specify the contents of: libtrick_pyip.a

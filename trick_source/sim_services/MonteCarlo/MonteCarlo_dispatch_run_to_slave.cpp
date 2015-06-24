@@ -1,6 +1,7 @@
 
 #include <iomanip>
 #include <sstream>
+#include <sys/time.h>
 
 #include "trick/MonteCarlo.hh"
 #include "trick/tc_proto.h"

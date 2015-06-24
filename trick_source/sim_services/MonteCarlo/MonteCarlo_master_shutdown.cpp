@@ -1,4 +1,6 @@
 
+#include <sys/time.h>
+
 #include "trick/MonteCarlo.hh"
 #include "trick/command_line_protos.h"
 #include "trick/message_proto.h"

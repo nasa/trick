@@ -3,7 +3,12 @@
  * Get elapsed time since last call to tc_clock_init()
  */
 
-#include "trick/tc.h"
+#ifdef __linux
+#include <time.h>
+#else
+#include <sys/time.h>
+#endif
+
 #include "trick/tc_proto.h"
 
 double tc_clock_time(double ref_time)

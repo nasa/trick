@@ -18,6 +18,7 @@
 
 #include "trick/tc.h"
 #include "trick/tc_proto.h"
+#include "trick/trick_byteswap.h"
 
 int tc_init_mcast_client(TCDevice * mcast_client_device)
 {

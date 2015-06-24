@@ -3,8 +3,16 @@
  * Set up a device on which to listen for connections
  */
 #include <fcntl.h>
+
+#ifndef __WIN32__
+#include <netinet/tcp.h>
+#include <netdb.h>
+#include <unistd.h>
+#endif
+
 #include "trick/tc.h"
 #include "trick/tc_proto.h"
+#include "trick/trick_byteswap.h"
 
 
 int tc_init(TCDevice * listen_device) {

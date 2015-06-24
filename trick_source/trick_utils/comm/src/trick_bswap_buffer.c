@@ -1,25 +1,17 @@
 
 #include <stdio.h>
 
-#ifdef STAND_ALONE
-#define TRICK_STRUCTURED 103
-#define TRICK_BITFIELD 11
-#define TRICK_UNSIGNED_BITFIELD 12
-#include "trick/attributes.h"
-#include "trick/trick_byteswap.h"
-#else
 #include "trick/attributes.h"
 #include "trick/parameter_types.h"
 #include "trick/trick_byteswap.h"
-#endif
-
 #include "trick/tc_proto.h"
-/* 
- * tofrom: 1 = to.    
- * Use 1 (to) before writing data. Converts to the other endian 
+
+/*
+ * tofrom: 1 = to.
+ * Use 1 (to) before writing data. Converts to the other endian
  *
- * tofrom: 0 = from.  
- * Use 0 (from) after reading data. Converts from the other endian 
+ * tofrom: 0 = from.
+ * Use 0 (from) after reading data. Converts from the other endian
  */
 
 void *trick_bswap_buffer(void *out, void *in, ATTRIBUTES * attr, int tofrom)

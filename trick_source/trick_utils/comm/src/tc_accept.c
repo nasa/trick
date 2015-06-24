@@ -3,8 +3,15 @@
  * Accept a connection from a communications client
  */
 
+#ifndef __WIN32__
+#include <errno.h>
+#include <netinet/tcp.h>
+#include <unistd.h>
+#endif
+
 #include "trick/tc.h"
 #include "trick/tc_proto.h"
+#include "trick/trick_byteswap.h"
 
 #if _DMTCP
 #include <dlfcn.h>

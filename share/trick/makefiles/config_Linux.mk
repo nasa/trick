@@ -15,7 +15,6 @@ TRICK_LIB_DIR  := ${TRICK_HOME}/lib
 endif
 
 SHARED_LIB_OPT := -shared
-TRICK_LIBS = -Wl,-rpath=${TRICK_HOME}/lib:${TRICK_HOME}/lib64 -L${TRICK_LIB_DIR} -ltrick -ltrick_pyip
 
 ifeq ($(MAKELEVEL),0)
 export TRICK_LDFLAGS += -Wl,--export-dynamic

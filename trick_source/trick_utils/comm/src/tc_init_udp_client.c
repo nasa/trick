@@ -13,14 +13,17 @@
 
    PROGRAMMERS: (((M. Will) (L3-Com) (31 October 2006) (--) (CAIL))) */
 
-#include "trick/tc.h"
-#include "trick/tc_proto.h"
-
-static struct sockaddr_in sockin;
-#ifndef STAND_ALONE
-extern int send_hs(FILE * fp, char *format, ...);
+#ifndef __WIN32__
+#include <netdb.h>
+#include <netinet/tcp.h>
+#include <unistd.h>
 #endif
 
+#include "trick/tc.h"
+#include "trick/tc_proto.h"
+#include "trick/trick_byteswap.h"
+
+static struct sockaddr_in sockin;
 
 int tc_init_udp_client(TCDevice * udp_client_device)
 {
@@ -94,7 +97,7 @@ int tc_init_udp_client(TCDevice * udp_client_device)
         // Works fine on tomacco running 2.6.9-42.0.2.ELsmp and
         // works fine on scum running 2.6.9-trick
         inet_ntop(AF_INET, h->h_addr_list[0], addr_list, (socklen_t) sizeof(addr_list));        // dpanter
-        send_hs(stderr, "%s: Initializing client for '%s' (IP : %s) \n", __FILE__, h->h_name, addr_list);
+        fprintf(stderr, "%s: Initializing client for '%s' (IP : %s) \n", __FILE__, h->h_name, addr_list);
     }
 
     udp_client_device->remoteServAddr.sin_family = h->h_addrtype;

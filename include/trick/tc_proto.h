@@ -17,13 +17,8 @@ ICG:
 #define TC_PROTO_H
 
 #include <stdarg.h>
-#include "tc.h"
-
-#ifdef STAND_ALONE
-#include "attributes.h"
-#else
+#include "trick/tc.h"
 #include "trick/attributes.h"
-#endif
 
 #ifdef __cplusplus
 extern "C" {

@@ -3,6 +3,10 @@
  * Check to see if a device is valid
  */
 
+#ifndef __WIN32__
+#include <errno.h>
+#endif
+
 #include "trick/tc.h"
 #include "trick/tc_proto.h"
 

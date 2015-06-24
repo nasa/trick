@@ -3,7 +3,12 @@
  *  Get system clock reference time
  */
 
-#include "trick/tc.h"
+#if __linux
+#include <time.h>
+#else
+#include <sys/time.h>
+#endif
+
 #include "trick/tc_proto.h"
 
 double tc_clock_init(void)

@@ -6,6 +6,7 @@
 
 #include "trick/tc.h"
 #include "trick/tc_proto.h"
+#include "trick/trick_byteswap.h"
 
 int tc_write_byteswap(TCDevice * device, char *buffer, int size, ATTRIBUTES * attr)
 {

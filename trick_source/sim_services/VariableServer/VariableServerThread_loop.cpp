@@ -5,6 +5,8 @@
 #ifdef __linux
 #include <cxxabi.h>
 #endif
+#include <netdb.h>
+
 
 #include "trick/VariableServer.hh"
 #include "trick/variable_server_sync_types.h"

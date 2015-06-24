@@ -3,23 +3,18 @@
  * Multicast connect
  */
 
-#include "trick/tc.h"
-#include "trick/tc_proto.h"
 #include <string.h>
 #ifdef __WIN32__
 #include <process.h>
 #else
+#include <unistd.h>
+#include <errno.h>
 #include <arpa/inet.h>
 #endif
+#include <pthread.h>
 
-#if ( __sgi && _POSIX_C_SOURCE)
-/* If _POSIX_C_SOURCE is defined on IRIX systems, ip_mreq is not defined so define the structure so we can use
-   multicast ports */
-struct ip_mreq {
-    struct in_addr imr_multiaddr;       /* IP multicast address of group */
-    struct in_addr imr_interface;       /* local IP address of interface */
-};
-#endif
+#include "trick/tc.h"
+#include "trick/tc_proto.h"
 
 int tc_multiconnect(TCDevice * dev_ptr, char *my_tag, char *other_tag, TrickErrorHndlr * not_used)
 {

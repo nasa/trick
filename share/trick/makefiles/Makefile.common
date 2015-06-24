@@ -133,6 +133,7 @@ TRICK_DEFINES = $(shell $(PERL) -e '@defines = "${TRICK_CFLAGS}" =~ /-D\s*(\S+)/
 
 IO_SRC_DIR     := io_src/
 OBJ_DIR        := object_${TRICK_HOST_CPU}
+TRICK_LIBS = -Wl,-rpath=${TRICK_LIB_DIR} -L${TRICK_LIB_DIR} -ltrick -ltrick_pyip -ltrick_comm -ltrick_math -ltrick_units
 TRICK_STATIC_LIB := ${TRICK_LIB_DIR}/libtrick.a
 TRICK_RANLIB =
 

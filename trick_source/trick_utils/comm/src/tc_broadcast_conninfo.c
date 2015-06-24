@@ -3,6 +3,11 @@
  * Broadcast Connection Information
  */
 
+#ifndef __WIN32__
+#include <pthread.h>
+#include <unistd.h>
+#endif
+
 #include "trick/tc.h"
 #include "trick/tc_proto.h"
 
