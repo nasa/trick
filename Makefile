@@ -287,7 +287,7 @@ clean: clean_sim_serv clean_utils clean_swig clean_dp clean_ICG clean_java
 	@/bin/rm -rf $(TRICK_LIB_DIR)
 
 ifeq ($(USE_ER7_UTILS_INTEGRATORS), 1)
-clean: clean_er7_utils 
+clean: clean_er7_utils
 endif
 
 clean_sim_serv:
@@ -311,7 +311,7 @@ clean_swig:
 	done
 
 ifeq ($(USE_ER7_UTILS_INTEGRATORS), 1)
-clean_swig: make_er7_makefiles 
+clean_swig: make_er7_makefiles
 endif
 
 clean_ICG :
@@ -341,17 +341,6 @@ clean_test: clean_unit_test
 	@for i in $(MODEL_DIRS) ; do \
 	   cd $$i ; /bin/rm -rf io_src object_* swig xml ; \
 	done
-
-#clean_requirements:
-#	@ $(MAKE) -C trick_test/requirements_docs clean
-
-clean_stand_alone_utils:
-	@ $(MAKE) -C ${TRICK_HOME}/trick_source/trick_utils clean_stand_alone
-
-clean_stand_alone: clean_stand_alone_utils
-
-clean_objs_for_rpm: clean_sim_serv clean_er7_utils clean_utils
-	@ $(MAKE) -C ${TRICK_HOME}/trick_source/java clean_obj
 
 clean_gui: clean_java
 
@@ -400,12 +389,6 @@ uninstall:
 ################################################################################
 #                    MISCELLANEOUS DEVELOPER UTILITY TARGETS                   #
 ################################################################################
-stand_alone: stand_alone_utils
-stand_alone_utils:
-	@ $(MAKE) -C ${TRICK_HOME}/trick_source/trick_utils stand_alone
-
-# The below rules are used by Debian based .deb file creating.
-
 # ICG all sim_services files (for testing and debugging ICG).
 # The -f flag forces io_src files to be regenerated whether or not they need to be.
 ICG: $(ICG_EXE)
