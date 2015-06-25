@@ -266,6 +266,11 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             plotBGColor->setData(bgColor);
             plotItem->appendRow(plotBGColor);
 
+            QString fgColor = plot->foregroundColor();
+            QStandardItem *plotFGColor = new QStandardItem(fgColor);
+            plotFGColor->setData(fgColor);
+            plotItem->appendRow(plotFGColor);
+
             QString fontStr = plot->font();
             QStandardItem *plotFont = new QStandardItem(fontStr);
             plotFont->setData(fontStr);

@@ -281,6 +281,7 @@ DPPlot::DPPlot(const QDomElement &e) :
     _isGrid(true),
     _gridColor("#E1E1E1"),
     _backgroundColor("#FFFFFF"),
+    _foregroundColor(""),
     _font("")
 {
     QDomElement el = e;
@@ -307,6 +308,10 @@ DPPlot::DPPlot(const QDomElement &e) :
     }
     if ( el.hasAttribute("background_color") ) {
         _backgroundColor = el.attributeNode("background_color")
+                             .value().simplified();
+    }
+    if ( el.hasAttribute("foreground_color") ) {
+        _foregroundColor = el.attributeNode("foreground_color")
                              .value().simplified();
     }
     if ( el.hasAttribute("font") ) {
@@ -354,6 +359,7 @@ DPPlot::DPPlot(const char *title) :
     _isGrid(true),
     _gridColor("#E1E1E1"),
     _backgroundColor("#FFFFFF"),
+    _foregroundColor(""),
     _font("")
 {
 }
@@ -433,6 +439,11 @@ QString DPPlot::backgroundColor()
     return _backgroundColor;
 }
 
+QString DPPlot::foregroundColor()
+{
+    return _foregroundColor;
+}
+
 QString DPPlot::font()
 {
     return _font;
@@ -486,6 +497,11 @@ void DPPlot::setGridColor(const QString &color)
 void DPPlot::setBackgroundColor(const QString &color)
 {
     _backgroundColor = color;
+}
+
+void DPPlot::setForegroundColor(const QString &color)
+{
+    _foregroundColor = color;
 }
 
 void DPPlot::setFont(const QString &fnt)

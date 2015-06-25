@@ -192,8 +192,7 @@ plot: DP_PLOT DP_FLOAT ':' DP_STR {
                 currPlot = currPage->addPlot($4);
         }
         | plot DP_FOREGROUND_COLOR ':' DP_STR  {
-                //currPlot->setForegroundColor($4);
-                msg("plot->setForegroundColor() not supported");
+                currPlot->setForegroundColor($4);
         }
         | plot DP_BACKGROUND_COLOR ':' DP_STR  {
                 currPlot->setBackgroundColor($4);

@@ -1165,6 +1165,39 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             break;
         }
 
+        case PlotBookModel::PlotFGColor : {
+
+            QString col = model()->data(idx).toString();
+            if ( col.isEmpty() ) {  // TODO - use empty str for bg color def
+                col = "#0000ff"; // TODO handle page set
+            }
+            QColor fgColor(col);
+            QPen fgPen(fgColor);
+
+            Plot* plot = _idx2Plot(pidx);
+
+            // Axis colors
+            QCPAxis* xAxisBot  = plot->axisRect()->axis(QCPAxis::atBottom,0);
+            QCPAxis* xAxisTop = plot->axisRect()->axis(QCPAxis::atTop,0);
+            QCPAxis* yAxisLeft  = plot->axisRect()->axis(QCPAxis::atLeft,0);
+            QCPAxis* yAxisRight = plot->axisRect()->axis(QCPAxis::atRight,0);
+            QList<QCPAxis*> axes;
+            axes << xAxisBot << xAxisTop << yAxisLeft << yAxisRight;
+            foreach ( QCPAxis* axis, axes ) {
+                axis->setTickLabelColor(fgColor);
+                axis->setTickPen(fgPen);
+                axis->setSubTickPen(fgPen);
+                axis->setLabelColor(fgColor);
+                axis->setBasePen(fgPen);
+            }
+
+            // Plot title
+            QCPItemText* plotTitle = plot->title();
+            plotTitle->setColor(fgColor);
+
+            break;
+        }
+
         case PlotBookModel::PlotFont : {
             QString fontStr = model()->data(idx).toString();
             if ( !fontStr.isEmpty() ) {

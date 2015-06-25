@@ -72,6 +72,7 @@ public:
                     PlotGrid,
                     PlotGridColor,
                     PlotBGColor,
+                    PlotFGColor,
                     PlotFont
     };
 
