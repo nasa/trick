@@ -88,6 +88,7 @@ public:
     bool grid();
     QString gridColor();
     QString backgroundColor();
+    QString font();
 
     void setXAxisLabel(const char* label) { _xAxisLabel = label ; }
     void setYAxisLabel(const char* label) { _yAxisLabel = label ; }
@@ -100,6 +101,7 @@ public:
     void setGrid(const QString& isGridString);
     void setGridColor(const QString& color);
     void setBackgroundColor(const QString& color);
+    void setFont(const QString& fnt);
 
     QList<DPCurve*> curves() { return _curves; }
     DPCurve* addCurve();
@@ -118,8 +120,8 @@ private:
     QString _gridColor;
     QList<DPCurve*> _curves;
     static QString _abbreviate(const QString& label,int maxlen=35);
-
     QString _backgroundColor;
+    QString _font;
 };
 
 class DPPage

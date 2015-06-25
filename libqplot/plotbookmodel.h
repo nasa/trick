@@ -71,7 +71,8 @@ public:
                     PlotStopTime,
                     PlotGrid,
                     PlotGridColor,
-                    PlotBGColor
+                    PlotBGColor,
+                    PlotFont
     };
 
     IdxEnum indexEnum(const QModelIndex& idx) const;

@@ -14,6 +14,7 @@ class Plot : public QCustomPlot
 
 public:
     explicit Plot(QWidget* parent=0);
+    QCPItemText* title() ;
     void setTitle(const QString& title);
     void setXAxisLabel(const QString& label);
     void setYAxisLabel(const QString& label);

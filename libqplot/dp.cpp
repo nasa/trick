@@ -280,7 +280,8 @@ DPPlot::DPPlot(const QDomElement &e) :
     _stopTime(DBL_MAX),
     _isGrid(true),
     _gridColor("#E1E1E1"),
-    _backgroundColor("#FFFFFF")
+    _backgroundColor("#FFFFFF"),
+    _font("")
 {
     QDomElement el = e;
 
@@ -307,6 +308,9 @@ DPPlot::DPPlot(const QDomElement &e) :
     if ( el.hasAttribute("background_color") ) {
         _backgroundColor = el.attributeNode("background_color")
                              .value().simplified();
+    }
+    if ( el.hasAttribute("font") ) {
+        _font = el.attributeNode("font").value().simplified();
     }
 
     QDomNode n = e.firstChild();
@@ -349,7 +353,8 @@ DPPlot::DPPlot(const char *title) :
     _stopTime(DBL_MAX),
     _isGrid(true),
     _gridColor("#E1E1E1"),
-    _backgroundColor("#FFFFFF")
+    _backgroundColor("#FFFFFF"),
+    _font("")
 {
 }
 
@@ -428,6 +433,11 @@ QString DPPlot::backgroundColor()
     return _backgroundColor;
 }
 
+QString DPPlot::font()
+{
+    return _font;
+}
+
 void DPPlot::setXMinRange(double xMin)
 {
     _xMinRange = xMin;
@@ -476,6 +486,11 @@ void DPPlot::setGridColor(const QString &color)
 void DPPlot::setBackgroundColor(const QString &color)
 {
     _backgroundColor = color;
+}
+
+void DPPlot::setFont(const QString &fnt)
+{
+    _font = fnt;
 }
 
 DPCurve *DPPlot::addCurve()

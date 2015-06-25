@@ -199,8 +199,7 @@ plot: DP_PLOT DP_FLOAT ':' DP_STR {
                 currPlot->setBackgroundColor($4);
         }
         | plot DP_FONT ':' DP_STR  {
-                //currPlot->setFont($4);
-                msg("page->setFont() not supported");
+                currPlot->setFont($4);
         }
         | plot DP_X_AXIS_LABEL ':' DP_STR {
                 currPlot->setXAxisLabel($4);

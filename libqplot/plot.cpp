@@ -41,6 +41,11 @@ Plot::Plot(QWidget* parent) :
             this,SLOT(_slotMouseDoubleClick(QMouseEvent*)));
 }
 
+QCPItemText *Plot::title()
+{
+    return _titleItem;
+}
+
 void Plot::setTitle(const QString &title)
 {
     _titleItem->setText(title);

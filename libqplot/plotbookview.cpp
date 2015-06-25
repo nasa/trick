@@ -1165,6 +1165,52 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             break;
         }
 
+        case PlotBookModel::PlotFont : {
+            QString fontStr = model()->data(idx).toString();
+            if ( !fontStr.isEmpty() ) {
+
+                // Font string should be the font *family* e.g.
+                // helvetica, utopia, Times, lucida, courier, bitstream,
+                // liberation sans l, urw bookman l, nimbus sans l
+                // Do NOT use the full raw name that xlsfonts gives
+
+                Plot* plot = _idx2Plot(pidx);
+                QCPAxis* xAxis = plot->axisRect()->axis(QCPAxis::atBottom,0);
+                QCPAxis* yAxis = plot->axisRect()->axis(QCPAxis::atLeft,0);
+
+                // Ticks
+                QFont tickFont = xAxis->tickLabelFont();
+                tickFont.setFamily(fontStr);
+                xAxis->setTickLabelFont(tickFont);
+                yAxis->setTickLabelFont(tickFont);
+
+                // XY Axis Labels
+                QFont xAxisFont = xAxis->labelFont();
+                xAxisFont.setFamily(fontStr);
+                xAxis->setLabelFont(xAxisFont);
+                QFont yAxisFont = yAxis->labelFont();
+                yAxisFont.setFamily(fontStr);
+                yAxis->setLabelFont(yAxisFont);
+
+                // Four page titles
+                QWidget* page = _idx2Page(pidx);
+                PageTitleWidget* pw = _page2pagewidget.value(page);
+                QFont pageTitleFont;
+                pageTitleFont = pw->font();
+                pageTitleFont.setFamily(fontStr);
+                pw->setFont(pageTitleFont);
+
+                // Plot title
+                QCPItemText* plotTitle = plot->title();
+                QFont plotTitleFont = plotTitle->font();
+                plotTitleFont = plotTitle->font();
+                plotTitleFont.setFamily(fontStr);
+                plotTitle->setFont(pageTitleFont);
+            }
+
+            break;
+        }
+
         case PlotBookModel::Invalid : {
             qDebug() << "snap [bad scoobies] : PlotBookView::rowInserted() "
                       "received bad model index " << idx ;
