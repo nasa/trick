@@ -1,5 +1,11 @@
+dnl To generate a new configure script from the top level
+dnl 1.  aclocal
+dnl 2.  autoconf autoconf/configure.ac -o configure
+
 AC_INIT([Trick],[16.0])
 AC_LANG(C++)
+
+AC_CONFIG_AUX_DIR([autoconf])
 
 AC_DEFUN([AX_LLVM_HOME],[
     AC_ARG_WITH([llvm],
@@ -122,6 +128,7 @@ AX_BC635_HOME([])
 AX_GSL_HOME([])
 AX_GTEST_HOME([])
 
+AX_PTHREAD()
 AX_PYTHON_DEVEL([>='2.5'])
 AC_CHECK_HEADER(Xm/Xm.h, [MOTIF_HOME="/usr"],
  AC_CHECK_FILE(/usr/local/include/Xm/Xm.h, [MOTIF_HOME="/usr/local"],

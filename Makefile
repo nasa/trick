@@ -303,7 +303,9 @@ clean_er7_utils: make_er7_makefiles
 	done
 
 clean_utils:
-	@ $(MAKE) -C ${TRICK_HOME}/trick_source/trick_utils real_clean
+	@for i in $(UTILS_DIRS) ; do \
+	   $(MAKE) -C $$i real_clean ; \
+	done
 
 clean_swig:
 	@for i in $(SWIG_DIRS) ; do \

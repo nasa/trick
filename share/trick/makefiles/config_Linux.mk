@@ -19,7 +19,7 @@ RPATH = -Wl,-rpath=${TRICK_LIB_DIR}
 
 ifeq ($(MAKELEVEL),0)
 export TRICK_LDFLAGS += -Wl,--export-dynamic
-export TRICK_EXEC_LINK_LIBS += -lm -lrt -lpthread -ldl -lz $(PYTHON_LIB)
+TRICK_EXEC_LINK_LIBS += -lm -lrt -ldl -lz
 endif
 
 LD_WHOLE_ARCHIVE := -Wl,-whole-archive

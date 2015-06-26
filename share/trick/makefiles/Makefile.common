@@ -37,6 +37,7 @@ export TRICK_ICG_NOCOMMENT
 export TRICK_SWIG_EXCLUDE
 export TRICK_GTE_EXT
 export TRICK_HOST_CPU := $(shell export TRICK_CC=$(TRICK_CC) && $(TRICK_HOME)/bin/trick-gte TRICK_HOST_CPU)
+export TRICK_EXEC_LINK_LIBS = ${PTHREAD_LIBS} $(PYTHON_LIB)
 
 ifndef CONFIG_MK
 ifneq ($(MAKECMDGOALS), clean)
@@ -52,8 +53,7 @@ else
 endif
 
 # Do this section only once
-ifndef TRICK_MAKE_COMMON
-export TRICK_MAKE_COMMON := 1
+ifeq ($(MAKELEVEL),0)
 
 export TRICK_INCLUDES := -I${TRICK_HOME}/trick_source -I../include -I${TRICK_HOME}/include -I${TRICK_HOME}/include/trick/compat
 export TRICK_VERSIONS := -DTRICK_VER=$(TRICK_MAJOR) -DTRICK_MINOR=$(TRICK_MINOR)
@@ -73,7 +73,6 @@ TRICK_CXXFLAGS += $(TRICK_ADDITIONAL_CXXFLAGS)
 TRICK_CFLAGS += -fexceptions
 
 HAVE_ZEROCONF ?= 0
-
 ifeq ($(HAVE_ZEROCONF),1)
 TRICK_CFLAGS += -DHAVE_ZEROCONF
 TRICK_CXXFLAGS += -DHAVE_ZEROCONF
@@ -87,7 +86,7 @@ ifneq ("$(wildcard $(TRICK_HOME)/trick_source/er7_utils)","")  # if the er7_util
   TRICK_CXXFLAGS += -DUSE_ER7_UTILS_INTEGRATORS
 endif
 
-endif #TRICK_MAKE_COMMON
+endif # MAKELEVEL = 0
 
 ifeq ($(TRICK_FORCE_32BIT), 1)
  TRICK_CFLAGS += -m32
