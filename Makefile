@@ -168,12 +168,15 @@ no_dp: $(TRICK_LIB) $(TRICK_SWIG_LIB)
 	@ echo ; echo "Trick libs compiled:" ; date
 
 # 1.1.1 Build libTrick.a
-ifeq ($(USE_ER7_UTILS_INTEGRATORS), 1)
-$(TRICK_LIB): $(SIM_SERV_DIRS) $(ER7_UTILS_DIRS) $(UTILS_DIRS) | $(TRICK_LIB_DIR)
-	ar crs $@ $(SIM_SERV_OBJS) $(ER7_UTILS_OBJS) $(UTILS_OBJS)
-else
 $(TRICK_LIB): $(SIM_SERV_DIRS) $(UTILS_DIRS) | $(TRICK_LIB_DIR)
 	ar crs $@ $(SIM_SERV_OBJS) $(UTILS_OBJS)
+
+ifeq ($(USE_ER7_UTILS_INTEGRATORS), 1)
+ER7_UTILS_LIB = $(TRICK_LIB_DIR)/liber7_utils.a
+no_dp: $(ER7_UTILS_LIB)
+
+$(ER7_UTILS_LIB): $(ER7_UTILS_DIRS) | $(TRICK_LIB_DIR)
+	ar crs $@ $(ER7_UTILS_OBJS)
 endif
 
 # 1.1.1.1 Compile the objects in the specified sim_services directories.

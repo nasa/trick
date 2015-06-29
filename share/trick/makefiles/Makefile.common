@@ -38,6 +38,12 @@ export TRICK_SWIG_EXCLUDE
 export TRICK_GTE_EXT
 export TRICK_HOST_CPU := $(shell export TRICK_CC=$(TRICK_CC) && $(TRICK_HOME)/bin/trick-gte TRICK_HOST_CPU)
 export TRICK_EXEC_LINK_LIBS = ${PTHREAD_LIBS} $(PYTHON_LIB)
+export TRICK_LIBS := ${RPATH} -L${TRICK_LIB_DIR} -ltrick -ltrick_pyip -ltrick_comm -ltrick_math -ltrick_units
+
+IO_SRC_DIR     := io_src/
+OBJ_DIR        := object_${TRICK_HOST_CPU}
+TRICK_STATIC_LIB := ${TRICK_LIB_DIR}/libtrick.a
+TRICK_RANLIB =
 
 ifndef CONFIG_MK
 ifneq ($(MAKECMDGOALS), clean)
@@ -88,6 +94,10 @@ endif
 
 endif # MAKELEVEL = 0
 
+ifeq ($(USE_ER7_UTILS_INTEGRATORS), 1)
+  TRICK_LIBS += -ler7_utils
+endif
+
 ifeq ($(TRICK_FORCE_32BIT), 1)
  TRICK_CFLAGS += -m32
  TRICK_CXXFLAGS += -m32
@@ -129,12 +139,6 @@ endif
 
 TRICK_INCLUDE = $(shell $(PERL) -e '@inc_paths = "${TRICK_CFLAGS}" =~ /-I\s*(\S+)/g ; foreach $$i (@inc_paths) { print "-I$$i " if (-e $$i)}')
 TRICK_DEFINES = $(shell $(PERL) -e '@defines = "${TRICK_CFLAGS}" =~ /-D\s*(\S+)/g ; foreach $$i (@defines) { print "-D$$i "}')
-
-IO_SRC_DIR     := io_src/
-OBJ_DIR        := object_${TRICK_HOST_CPU}
-TRICK_LIBS = ${RPATH} -L${TRICK_LIB_DIR} -ltrick -ltrick_pyip -ltrick_comm -ltrick_math -ltrick_units
-TRICK_STATIC_LIB := ${TRICK_LIB_DIR}/libtrick.a
-TRICK_RANLIB =
 
 DEPFILE = $(PWD)/Makefile_deps
 DEPTEMPFILE = $(PWD)/Makefile_temp_depends
