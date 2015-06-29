@@ -963,6 +963,16 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             break;
         }
 
+        case PlotBookModel::PageFGColor : {
+            QWidget* page = _idx2Page(pidx);
+            QString fgColor = model()->data(idx).toString();
+            QPalette pal = page->palette();
+            QColor qcolor(fgColor);
+            pal.setColor(QPalette::Foreground, qcolor);
+            page->setPalette(pal);
+            break;
+        }
+
         case PlotBookModel::Plot : {
             QWidget* page = _idx2Page(pidx);
             QModelIndex pmIdx = _plotModel->sessionStartIdx();

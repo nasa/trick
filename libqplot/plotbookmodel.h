@@ -44,6 +44,7 @@ public:
             PageStartTime,
             PageStopTime,
             PageBGColor,
+            PageFGColor,
             Plot,
                     PlotXAxisLabel,
                     PlotYAxisLabel,

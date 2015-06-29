@@ -197,12 +197,17 @@ QStringList DPProduct::paramList(const QStringList &dpFileNames)
 DPPage::DPPage(const QDomElement &e) :
     _startTime(-DBL_MAX),
     _stopTime(DBL_MAX),
-    _backgroundColor("#FFFFFF")
+    _backgroundColor("#FFFFFF"),
+    _foregroundColor("#000000")
 {
     QDomElement el = e;
 
     if ( el.hasAttribute("background_color") ) {
         _backgroundColor = el.attributeNode("background_color")
+                             .value().simplified();
+    }
+    if ( el.hasAttribute("foreground_color") ) {
+        _foregroundColor = el.attributeNode("foreground_color")
                              .value().simplified();
     }
 
@@ -230,7 +235,8 @@ DPPage::DPPage(const char *title) :
     _title(title),
     _startTime(-DBL_MAX),
     _stopTime(DBL_MAX),
-    _backgroundColor("#FFFFFF")
+    _backgroundColor("#FFFFFF"),
+    _foregroundColor("#000000")
 {
 }
 
@@ -256,6 +262,11 @@ QString DPPage::backgroundColor()
     return _backgroundColor;
 }
 
+QString DPPage::foregroundColor()
+{
+    return _foregroundColor;
+}
+
 void DPPage::setStartTime(double startTime)
 {
     _startTime = startTime;
@@ -269,6 +280,11 @@ void DPPage::setStopTime(double stopTime)
 void DPPage::setBackgroundColor(const QString &color)
 {
     _backgroundColor = color;
+}
+
+void DPPage::setForegroundColor(const QString &color)
+{
+    _foregroundColor = color;
 }
 
 DPPlot::DPPlot(const QDomElement &e) :

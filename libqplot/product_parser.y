@@ -171,8 +171,7 @@ page_options:
                 currPage->setStopTime($4);
         }
         | page_options DP_FOREGROUND_COLOR ':' DP_STR  {
-                //product->getCurrPage()->setForegroundColor($4);
-                msg("page->setGnuplotPageOrientation() not supported");
+                currPage->setForegroundColor($4);
         }
         | page_options DP_BACKGROUND_COLOR ':' DP_STR  {
                 currPage->setBackgroundColor($4);

@@ -139,9 +139,12 @@ public:
     double startTime();
     double stopTime();
     QString backgroundColor();
+    QString foregroundColor();
+
     void setStartTime(double startTime);
     void setStopTime(double stopTime);
     void setBackgroundColor(const QString& color);
+    void setForegroundColor(const QString& color);
 
 private:
     QString _title;
@@ -149,6 +152,7 @@ private:
     double _startTime;
     double _stopTime;
     QString _backgroundColor;
+    QString _foregroundColor;
 };
 
 class DPProduct

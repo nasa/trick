@@ -188,6 +188,11 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
         pageBGColor->setData(bgColor);
         pageItem->appendRow(pageBGColor);
 
+        QString fgColor = page->foregroundColor();
+        QStandardItem *pageFGColor = new QStandardItem(fgColor);
+        pageFGColor->setData(fgColor);
+        pageItem->appendRow(pageFGColor);
+
         foreach (DPPlot* plot, page->plots() ) {
 
             QString plotTitle = _descrPlotTitle(plot);

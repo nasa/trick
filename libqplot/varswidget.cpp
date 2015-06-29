@@ -153,6 +153,11 @@ QStandardItem* VarsWidget::_createPageItem()
     pageBGColorItem->setData(pageBackgroundColor);
     pageItem->appendRow(pageBGColorItem);
 
+    QString pageForegroundColor("#000000");
+    QStandardItem *pageFGColorItem = new QStandardItem(pageForegroundColor);
+    pageFGColorItem->setData(pageForegroundColor);
+    pageItem->appendRow(pageFGColorItem);
+
     return pageItem;
 }
 

@@ -124,8 +124,8 @@ QModelIndexList PlotBookModel::plotIdxs(const QModelIndex &pageIdx) const
 {
     QModelIndexList idxs;
     int rc = rowCount(pageIdx);
-    // Start at 4 because page title=0, startTime=1, stopTime=2, bgColor=3
-    for ( int i = 4 ; i < rc; ++i ) {
+    // Start at 5 because pageTitle=0, startTime=1, stopTime=2, bg=3, fg=4
+    for ( int i = 5 ; i < rc; ++i ) {
         idxs.append(index(i,0,pageIdx));
     }
 
@@ -242,7 +242,9 @@ PlotBookModel::IdxEnum PlotBookModel::indexEnum(const QModelIndex &idx) const
         ret = PageStopTime;
     } else if ( ! gpidx.isValid() && row == 3 ) {
         ret = PageBGColor;
-    } else if ( ! gpidx.isValid() && row >= 4 ) {
+    } else if ( ! gpidx.isValid() && row == 4 ) {
+        ret = PageFGColor;
+    } else if ( ! gpidx.isValid() && row >= 5 ) {
         ret = Plot;
     } else if ( ! g2pidx.isValid() ) {
         // Plot elements
