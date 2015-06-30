@@ -331,8 +331,7 @@ y_var: DP_Y_VARIABLE ':' DP_STR {
                 currCurve->setLineColor($4);
         }
         | y_var DP_SYMBOL_STYLE ':' DP_STR {
-                //currCurve->setLineSymbol($4);
-                msg("plot->setLineSymbol() not supported");
+                currCurve->setSymbolStyle($4);
         }
         | y_var DP_SYMBOL_SIZE ':' DP_STR {
                 //currCurve->setLineSymbolSize($4);

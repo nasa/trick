@@ -636,6 +636,16 @@ void DPCurve::setLineColor(const char *color)
     _color = QString(color);
 }
 
+QString DPCurve::symbolStyle()
+{
+    return _y->symbolStyle();
+}
+
+void DPCurve::setSymbolStyle(const char *style)
+{
+    _y->setSymbolStyle(style);
+}
+
 QString DPCurve::lineColor()
 {
     return _color;
@@ -646,7 +656,8 @@ DPVar::DPVar(const QDomElement &e) :
     _label(QString()),
     _unit(QString()),
     _scaleFactor(1.0),
-    _bias(0.0)
+    _bias(0.0),
+    _symbol(QString())
 {
     QDomElement el = e;
 
@@ -678,6 +689,11 @@ DPVar::DPVar(const QDomElement &e) :
     if ( el.hasAttribute(bias) ) {
         _bias = el.attributeNode(bias).value().simplified().toDouble();
     }
+
+    QString symbol("symbol_style");
+    if ( el.hasAttribute(symbol) ) {
+        _symbol = el.attributeNode(symbol).value().simplified();
+    }
 }
 
 DPVar::DPVar(const char *name) :
@@ -685,7 +701,8 @@ DPVar::DPVar(const char *name) :
     _label(QString()),
     _unit(QString()),
     _scaleFactor(1.0),
-    _bias(0.0)
+    _bias(0.0),
+    _symbol(QString())
 {
 }
 

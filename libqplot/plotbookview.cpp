@@ -1078,6 +1078,13 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             break;
         }
 
+        case PlotBookModel::CurveSymbolStyle : {
+            TrickCurve* curve =  _idx2Curve(pidx);
+            QString symbol = model()->data(idx).toString();
+            curve->setSymbolStyle(symbol);
+            break;
+        }
+
         case PlotBookModel::PlotTitle : {
             QString title = model()->data(idx).toString();
             Plot* plot = _idx2Plot(pidx);

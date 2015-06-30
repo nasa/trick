@@ -12,7 +12,8 @@ TrickCurve::TrickCurve(QCPAxis *keyAxis, QCPAxis *valueAxis) :
     _xsf(1.0),
     _ysf(1.0),
     _xbias(0.0),
-    _ybias(0.0)
+    _ybias(0.0),
+    _scatterShape(QCPScatterStyle::ssNone)
 {
     setAntialiased(false);
     mPen.setColor(QColor(50, 100, 212));
@@ -222,6 +223,77 @@ void TrickCurve::setYBias(double b)
     emit yBiased(b);
 }
 
+QString TrickCurve::symbolStyle()
+{
+    QString s;
+
+    if ( _scatterShape == QCPScatterStyle::ssNone ) {
+        s = "none";
+    } else if ( _scatterShape == QCPScatterStyle::ssSquare ) {
+        s = "square";
+    } else if ( _scatterShape == QCPScatterStyle::ssPlusSquare ) {
+        s = "plus_square";
+    } else if ( _scatterShape == QCPScatterStyle::ssCrossSquare ) {
+        s = "cross_square";
+    } else if ( _scatterShape == QCPScatterStyle::ssCircle ) {
+        s = "circle";
+    } else if ( _scatterShape == QCPScatterStyle::ssDisc ) {
+        s = "disc";
+    } else if ( _scatterShape == QCPScatterStyle::ssPeace ) {
+        s = "peace";
+    } else if ( _scatterShape == QCPScatterStyle::ssStar ) {
+        s = "star";
+    } else if ( _scatterShape == QCPScatterStyle::ssCross ) {
+        s = "cross";
+    } else if ( _scatterShape == QCPScatterStyle::ssTriangle ) {
+        s = "triangle";
+    }
+
+    return s;
+}
+
+void TrickCurve::setSymbolStyle(const QString &symbol)
+{
+    if ( symbol.isEmpty() ) {
+        _scatterShape = QCPScatterStyle::ssNone;
+    } else if ( !symbol.compare("none",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssNone;
+    } else if (  !symbol.compare("square",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssSquare;
+    } else if (  !symbol.compare("solid_square",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssPlusSquare;
+    } else if (  !symbol.compare("plus_square",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssPlusSquare;
+    } else if (  !symbol.compare("thick_square",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssCrossSquare;
+    } else if (  !symbol.compare("cross_square",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssCrossSquare;
+    } else if (  !symbol.compare("circle",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssCircle;
+    } else if (  !symbol.compare("solid_circle",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssDisc;
+    } else if (  !symbol.compare("disc",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssDisc;
+    } else if (  !symbol.compare("thick_circle",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssPeace;
+    } else if (  !symbol.compare("peace",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssPeace;
+    } else if (  !symbol.compare("star",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssStar;
+    } else if (  !symbol.compare("xx",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssCross;
+    } else if (  !symbol.compare("cross",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssCross;
+    } else if (  !symbol.compare("triangle",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssTriangle;
+    } else {
+        qDebug() << "TrickCurve::setSymbolStyle() received unsupported "
+                    "symbol style \"" <<  symbol << "\".  Defaulting to "
+                    "solid circle.";
+        _scatterShape = QCPScatterStyle::ssDisc;
+    }
+}
+
 void TrickCurve::draw(QCPPainter *painter)
 {
     if ( (_model == 0 || _model->rowCount() == 0) &&
@@ -256,15 +328,36 @@ void TrickCurve::draw(QCPPainter *painter)
         if ( painter->modes().testFlag(QCPPainter::pmVectorized) ) {
             // Make PDF
             // hack - need inheritance and class business, but for now - lazy
+            // TODO: add painter scatter shape (see below)
             if ( _model ) {
                 painter->drawPath(_scaledPainterPath(_model));
             } else {
                 painter->drawPath(_scaledPainterPath(_timeVec,_valVec));
             }
         } else {
+
+
+            // Save the painter state on the painter stack
             painter->save();
+
+            // Draw symbol on each curve point
+            if  ( _scatterShape != QCPScatterStyle::ssNone ) {
+                QCPScatterStyle s;
+                s.setShape(_scatterShape);
+                QTransform t = _coordToPixelTransform();
+                for ( int i = 0; i < _painterPath.elementCount(); ++i ) {
+                    QPainterPath::Element el = _painterPath.elementAt(i);
+                    QPointF p(el.x,el.y);
+                    p = t.map(p);
+                    s.drawShape(painter,p);
+                }
+            }
+
+            // Draw the curve
             painter->setTransform(_coordToPixelTransform());
             painter->drawPath(_painterPath);
+
+            // Restore the painter state off the painter stack
             painter->restore();
         }
 

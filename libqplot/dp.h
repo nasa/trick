@@ -30,12 +30,14 @@ public:
     QString lineColor() { return _lineColor; }
     double scaleFactor() { return _scaleFactor; }
     double bias() { return _bias; }
+    QString symbolStyle() { return _symbol; }
 
     void setLabel(const char* label) { _label = label; }
     void setUnit(const char* unit) { _unit = unit; }
     void setLineColor(const char* lineColor) { _lineColor = lineColor; }
     void setScaleFactor(double sf) { _scaleFactor = sf; }
     void setBias(double b) { _bias = b; }
+    void setSymbolStyle(const char* ss) { _symbol = ss; }
 
 private:
     QString _name;
@@ -44,6 +46,7 @@ private:
     QString _lineColor;
     double _scaleFactor;
     double _bias;
+    QString _symbol;
 };
 
 class DPCurve
@@ -62,11 +65,14 @@ public:
     QString lineColor();
     void setLineColor(const char* lineColor);
 
+    QString symbolStyle();
+    void setSymbolStyle(const char* style);
+
 private:
     DPVar* _t;
     DPVar* _x;
     DPVar* _y;
-    QString _color;
+    QString _color;  // TODO: should this be a member of y, like symbolStyle?
     static QString _err_string;
     static QTextStream _err_stream;
 };

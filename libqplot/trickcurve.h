@@ -43,6 +43,9 @@ public:
     void setXBias(double b);
     void setYBias(double b);
 
+    QString symbolStyle();
+    void setSymbolStyle(const QString& symbol);
+
     virtual void clearData()
     {
         _model = 0 ;
@@ -116,6 +119,7 @@ private:
     double _ysf;
     double _xbias;
     double _ybias;
+    QCPScatterStyle::ScatterShape _scatterShape;
 
     int _deselectedLayerIdx;
     void _addFlatLineLabel(QCPPainter* painter);
