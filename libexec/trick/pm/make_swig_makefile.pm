@@ -288,17 +288,6 @@ sub make_swig_makefile($$$) {
     $ii = 0 ;
     foreach my $f ( @temp_array2 ) {
 
-        my ($continue) = 1 ;
-        foreach my $ie ( @exclude_dirs ) {
-            # if file location begins with $ie (an IGC exclude dir)
-            if ( $f =~ /^\Q$ie/ ) {
-                $continue = 0 ;
-                $ii++ ;
-                last ;  # break out of loop
-            }
-        }
-        next if ( $continue == 0 ) ;
-
         my ($swig_dir, $swig_object_dir , $swig_module_dir , $swig_file_only) ;
         my ($swig_f) = $f ;
 
@@ -314,6 +303,17 @@ sub make_swig_makefile($$$) {
             $swig_module_dir = "" ;
             push @{$python_modules{"root"}} , $f ;
         }
+
+        my ($continue) = 1 ;
+        foreach my $ie ( @exclude_dirs ) {
+            # if file location begins with $ie (an IGC exclude dir)
+            if ( $f =~ /^\Q$ie/ ) {
+                $continue = 0 ;
+                $ii++ ;
+                last ;  # break out of loop
+            }
+        }
+        next if ( $continue == 0 ) ;
 
         my $md5_sum = md5_hex($f) ;
         # check if .sm file was accidentally ##included instead of #included
