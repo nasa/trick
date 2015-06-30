@@ -16,7 +16,7 @@ TRICK_CXXFLAGS += -I${GSL_HOME}/include
 endif
 endif
 
-TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick -ltrick_pyip -ltrick_comm -ltrick_units -ltrick_math
+TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick -ltrick_pyip -ltrick_comm -ltrick_units -ltrick_math -ltrick_mm
 TRICK_EXEC_LINK_LIBS += ${GTEST_HOME}/lib/libgtest.a ${GTEST_HOME}/lib/libgtest_main.a
 
 # All tests produced by this Makefile.  Remember to add new tests you

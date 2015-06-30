@@ -60,6 +60,7 @@ SIM_SERV_DIRS = \
 	${TRICK_HOME}/trick_source/sim_services/mains
 
 SIM_SERV_OBJS = $(addsuffix /object_$(TRICK_HOST_CPU)/*.o ,$(SIM_SERV_DIRS))
+SIM_SERV_OBJS := $(filter-out ${TRICK_HOME}/trick_source/sim_services/MemoryManager/%, $(SIM_SERV_OBJS))
 
 ER7_UTILS_DIRS = \
 	${ER7_UTILS_HOME}/integration/abm4 \
