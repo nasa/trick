@@ -20,12 +20,12 @@
 #include "trick/TPROCTEClock.hh"
 #include "trick/BC635Clock.hh"
 #include "trick/JobData.hh"
-//#include "trick/RequirementScribe.hh"
 
-namespace Trick {
+// Stub for message_publish
+extern "C" int message_publish(int level, const char * format_msg, ...) { return 0; }
 
 class BC635ClockTest : public ::testing::Test {
-	
+
 	protected:
 		Trick::BC635Clock bcclk;
 
@@ -34,15 +34,11 @@ class BC635ClockTest : public ::testing::Test {
 		virtual void SetUp() {}
 		virtual void TearDown() {}
 
-		//Trick::RequirementScribe req;
 } ;
-
-//std::map< std::string , unsigned int > Trick::Requirements::num_reqs;
 
 /* Ensure clock initializes correctly */
 TEST_F(BC635ClockTest, Initialize) {
 
-	//req.add_requirement("BC635_clock");
 	// "The BC635 clock shall initialize reference time of 0, and all ratios set to 1.");
 
 	/* General expected clock initialization */
@@ -58,9 +54,8 @@ TEST_F(BC635ClockTest, Initialize) {
 /* Run tests for when no hardware is available */
 #ifndef _BC635
 TEST_F(BC635ClockTest, ErrorMessages) {
-	//req.add_requirement("BC635_clock");
+
 	//"The BC635 clock shall display error messages when attempting to use its functions with no hardware.");
-	
 	/* curr_time = 0 always */
 
 	long long req_time = rand();
@@ -80,7 +75,6 @@ TEST_F(BC635ClockTest, ErrorMessages) {
 
 /* Ensure generic clock functions still work when no hardware is available */
 TEST_F(BC635ClockTest, TestRefTimes) {
-	//req.add_requirement("BC635_clock");
 	//"The BC635 clock shall provide the ability to adjust the reference time");
 
 	long long secs_remainder;
@@ -92,10 +86,5 @@ TEST_F(BC635ClockTest, TestRefTimes) {
     bcclk.sync_to_wall_clock(align_tics_mult, tics_per_s);
 	secs_remainder = bcclk.ref_time_tics% clock_unit;
 	EXPECT_EQ(secs_remainder, 0);
-
 }
 #endif
-
-}
-
-

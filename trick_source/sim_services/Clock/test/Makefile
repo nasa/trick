@@ -10,25 +10,30 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 # Flags passed to the preprocessor.
 TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra -DGTEST_HAS_TR1_TUPLE=0
 
-TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick -ltrick_units -ltrick_mm
-TRICK_EXEC_LINK_LIBS += ${GTEST_HOME}/lib/libgtest.a ${GTEST_HOME}/lib/libgtest_main.a
+GTEST_LIBS = ${GTEST_HOME}/lib/libgtest.a ${GTEST_HOME}/lib/libgtest_main.a
+
+BASE_OBJECTS = ../object_${TRICK_HOST_CPU}/Clock.o\
+               ../object_${TRICK_HOST_CPU}/clock_c_intf.o
+
+BC635_CLOCK_OBJECTS        = ${BASE_OBJECTS} BC635Clock_test.o ../object_${TRICK_HOST_CPU}/BC635Clock.o
+
+GETTIMEOFDAY_CLOCK_OBJECTS = ${BASE_OBJECTS} GetTimeOfDayClock_test.o ../object_${TRICK_HOST_CPU}/GetTimeOfDayClock.o
+
+TPROCTE_CLOCK_OBJECTS      = ${BASE_OBJECTS} TPROCTEClock_test.o ../object_${TRICK_HOST_CPU}/TPROCTEClock.o
+
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = TPROCTEClock_test BC635Clock_test
-
-#OTHER_OBJECTS = ../../include/object_${TRICK_HOST_CPU}/io_JobData.o \
-#                ../../include/object_${TRICK_HOST_CPU}/io_SimObject.o
+TESTS = TPROCTEClock_test BC635Clock_test GetTimeOfDayClock_test
 
 # House-keeping build targets.
 
 all : $(TESTS)
 
 test: $(TESTS)
-	#./GetTimeOfDayClock_test --gtest_output=xml:${TRICK_HOME}/trick_test/GetTimeOfDayClock.xml
-	#./TPROCTEClock_test --gtest_output=xml:${TRICK_HOME}/trick_test/TPROCTEClock.xml
-	#./BC635Clock_test --gtest_output=xml:${TRICK_HOME}/trick_test/BC635Clock.xml
-
+	./GetTimeOfDayClock_test --gtest_output=xml:${TRICK_HOME}/trick_test/GetTimeOfDayClock.xml
+	./TPROCTEClock_test --gtest_output=xml:${TRICK_HOME}/trick_test/TPROCTEClock.xml
+	./BC635Clock_test --gtest_output=xml:${TRICK_HOME}/trick_test/BC635Clock.xml
 
 clean :
 	rm -f $(TESTS) *.o
@@ -36,18 +41,18 @@ clean :
 GetTimeOfDayClock_test.o : GetTimeOfDayClock_test.cpp
 	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c $<
 
-GetTimeOfDayClock_test : GetTimeOfDayClock_test.o
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+GetTimeOfDayClock_test : ${GETTIMEOFDAY_CLOCK_OBJECTS}
+	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ ${GTEST_LIBS}
 
 TPROCTEClock_test.o : TPROCTEClock_test.cpp
 	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c $<
 
-TPROCTEClock_test : TPROCTEClock_test.o
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+TPROCTEClock_test : ${TPROCTE_CLOCK_OBJECTS}
+	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ ${GTEST_LIBS}
 
 BC635Clock_test.o : BC635Clock_test.cpp
 	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c $<
 
-BC635Clock_test : BC635Clock_test.o
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+BC635Clock_test : ${BC635_CLOCK_OBJECTS}
+	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ ${GTEST_LIBS}
 

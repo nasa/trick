@@ -23,9 +23,10 @@
 #include "trick/TPROCTEClock.hh"
 #include "trick/BC635Clock.hh"
 #include "trick/JobData.hh"
-//#include "trick/RequirementScribe.hh"
 
-namespace Trick {
+
+// Stub for message_publish
+extern "C" int message_publish(int level, const char * format_msg, ...) { return 0; }
 
 class TPROCTEClockTest : public ::testing::Test {
 
@@ -44,7 +45,6 @@ class TPROCTEClockTest : public ::testing::Test {
 
 /* Ensure clock initializes correctly */
 TEST_F(TPROCTEClockTest, Initialize) {
-    //req.add_requirement("TPROCTE_clock");
     //"The TPROCTE clock shall initialize reference time of 0, and all ratios set to 1.");
 
     /* General expected clock initialization */
@@ -60,7 +60,6 @@ TEST_F(TPROCTEClockTest, Initialize) {
 /* Run tests for when no hardware is available */
 #ifndef _TPRO_CTE
 TEST_F(TPROCTEClockTest, NoHardware) {
-    //req.add_requirement("TPROCTE_clock");
     //"The TPROCTE clock shall display error messages when attempting to use its functions with no hardware");
 
     long long req_time = rand();
@@ -83,7 +82,6 @@ TEST_F(TPROCTEClockTest, NoHardware) {
 
 /* Ensure generic clock functions work properly */
 TEST_F(TPROCTEClockTest, TestRefTimes) {
-    //req.add_requirement("TPROCTE_clock");
     //"The TPROCTE clock shall provide the ability to adjust the reference time");
 
     long long secs_remainder;
@@ -98,5 +96,4 @@ TEST_F(TPROCTEClockTest, TestRefTimes) {
 
 }
 
-}
 

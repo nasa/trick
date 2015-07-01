@@ -16,7 +16,8 @@
 #define RATIO_TOL 1e-9
 #define TICS_PER_SEC 1000000
 
-namespace Trick {
+// Stub for message_publish
+extern "C" int message_publish(int level, const char * format_msg, ...) { return 0; }
 
 class GetTimeOfDayClockTest : public ::testing::Test {
 
@@ -36,7 +37,7 @@ TEST_F(GetTimeOfDayClockTest, Initialize) {
     //"The system clock shall initialize with time equal to computer system time, reference time of 0, and all ratios set to 1.");
 
     struct timeval res;
-    Trick::GetTimeOfDayClock * timclk = new GetTimeOfDayClock;
+    Trick::GetTimeOfDayClock * timclk = new Trick::GetTimeOfDayClock;
 
     timclk->clock_init();
 
@@ -46,7 +47,7 @@ TEST_F(GetTimeOfDayClockTest, Initialize) {
     ASSERT_EQ(timclk->ref_time_tics, 0);
 
     /* Time of Day clock initialization tests */
-    EXPECT_STREQ(timclk->get_name() , "GetTimeOfDay");
+    EXPECT_STREQ(timclk->get_name() , "GetTimeOfDay - CLOCK_REALTIME");
 
     gettimeofday(&res, NULL);
 
@@ -59,7 +60,7 @@ TEST_F(GetTimeOfDayClockTest, ClockSimRatio) {
 
     long long tim_curr;
     double tic_ratio, tic_val;
-    Trick::GetTimeOfDayClock * timclk = new GetTimeOfDayClock;
+    Trick::GetTimeOfDayClock * timclk = new Trick::GetTimeOfDayClock;
 
     tic_val = 100000;
 
@@ -81,7 +82,7 @@ TEST_F(GetTimeOfDayClockTest, ClockRTRatio) {
     long long tim_curr, tim_diff;
     double tic_ratio;
     int rt_ratio;
-    Trick::GetTimeOfDayClock * timclk = new GetTimeOfDayClock;
+    Trick::GetTimeOfDayClock * timclk = new Trick::GetTimeOfDayClock;
 
     rt_ratio = 6.0;
     ASSERT_EQ(timclk->sim_tic_ratio, 1);
@@ -108,7 +109,7 @@ TEST_F(GetTimeOfDayClockTest, ClockSpin) {
     //"The system clock shall provide the ability to spin (wait) until a specified time is reached.");
 
     long long tim_curr, spin_time;
-    Trick:: GetTimeOfDayClock * timclk = new GetTimeOfDayClock;
+    Trick:: GetTimeOfDayClock * timclk = new Trick::GetTimeOfDayClock;
 
     spin_time = 100000;
 
@@ -126,7 +127,7 @@ TEST_F(GetTimeOfDayClockTest, ReferenceTime) {
     //"The system clock shall provide the ability to set a reference time.");
 
     long long tic_adjust;
-    Trick:: GetTimeOfDayClock * timclk = new GetTimeOfDayClock;
+    Trick:: GetTimeOfDayClock * timclk = new Trick::GetTimeOfDayClock;
 
     timclk->clock_init();
 
@@ -148,7 +149,7 @@ TEST_F(GetTimeOfDayClockTest, ClockSync) {
 
     double align_tics_mult;
     int clock_unit;
-    Trick::GetTimeOfDayClock * timclk = new GetTimeOfDayClock;
+    Trick::GetTimeOfDayClock * timclk = new Trick::GetTimeOfDayClock;
 
     align_tics_mult = 1.5;
     clock_unit = int((TICS_PER_SEC * align_tics_mult) /
@@ -161,4 +162,3 @@ TEST_F(GetTimeOfDayClockTest, ClockSync) {
     delete timclk;
 }
 
-}
