@@ -55,7 +55,7 @@ int Trick::TPROCTEClock::clock_init() {
     return 0 ;
 #else
     message_publish(MSG_ERROR, "TPRO CTE card was not enabled when Trick was compiled.\n\
-Please run ${TRICK_HOME}/configure --tprocte=<directory holding CTE>, and recompile Trick\n");
+Please run ${TRICK_HOME}/configure --with-tpro=<directory holding CTE>, and recompile Trick\n");
     return -1 ;
 #endif
 }
