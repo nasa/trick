@@ -41,7 +41,6 @@ void* Trick::MemoryManager::declare_var( TRICK_TYPE type,
                                         std::string var_name,
                                         int n_cdims,
                                         int *cdims) {
-    int ii;
     int size;
     char* allocation_name;
     int n_elems;
@@ -84,7 +83,7 @@ void* Trick::MemoryManager::declare_var( TRICK_TYPE type,
     /** @li Calculate the number of elements to be allocated. The number of elements is
             the product of the sizes of the constrained dimensions. */
     n_elems = 1;
-    for (ii = 0; ii < n_cdims ; ii++ ) {
+    for (int ii = 0; ii < n_cdims ; ii++ ) {
         n_elems = n_elems * cdims[ii];
     }
     if (n_elems == 0) {
@@ -168,11 +167,11 @@ void* Trick::MemoryManager::declare_var( TRICK_TYPE type,
         new_alloc->num = n_elems;
 
         new_alloc->num_index = 0;
-        for (ii = 0; ii < n_cdims ; ii++ ) {
+        for (int ii = 0; ii < n_cdims ; ii++ ) {
             new_alloc->index[new_alloc->num_index] = cdims[ii];
             new_alloc->num_index ++ ;
         }
-        for (ii = 0 ; ii < n_stars ; ii++) {
+        for (int ii = 0 ; ii < n_stars ; ii++) {
             new_alloc->index[new_alloc->num_index] = 0;
             new_alloc->num_index ++ ;
         }
@@ -275,10 +274,9 @@ void* Trick::MemoryManager::declare_var( const char *element_definition, int n_e
 
     /** @li Parse the allocation definition and ensure that the dimension is at least one less than the maximum of 8. */
         if (( ADEF_parse( context) == 0) && (context->n_cdims < 8) ){
-            int ii;
 
             /** @li Add the dimensions of the element definition. */
-            for (ii=0 ; ii < context->n_cdims ; ii++) {
+            for (int ii=0 ; ii < context->n_cdims ; ii++) {
                 cdims[ii+1] = context->cdims[ii];
                 n_cdims ++;
             }
@@ -386,7 +384,6 @@ void* Trick::MemoryManager::declare_operatornew_var( std::string user_type_name,
 
 size_t Trick::MemoryManager::sizeof_type( const char* var_definition) {
 
-    int ii;
     int size = 0 ;
     int n_elems = 0 ;
     ATTRIBUTES* sub_attr;
@@ -402,7 +399,7 @@ size_t Trick::MemoryManager::sizeof_type( const char* var_definition) {
             get_type_attributes(context->type, context->user_type_name, context->n_stars, sub_attr, size);
 
             n_elems = 1;
-            for (ii=0; ii<context->n_cdims ; ii++) {
+            for (int ii=0; ii<context->n_cdims ; ii++) {
                 n_elems *= context->cdims[ii];
             }
         } else {
