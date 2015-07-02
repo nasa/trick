@@ -214,7 +214,7 @@ if ( -e $s_library_swig ) {
 ##
 
     get_headers(\%sim, $s_source_full_path) ;
-    if ( open ICGNOFOUND , (".icg_no_found") ) {
+    if ( open ICGNOFOUND , ("build/icg_no_found") ) {
         while ( <ICGNOFOUND> ) {
            chomp ;
            $icg_no{$_} = 1 ;
@@ -265,8 +265,7 @@ foreach my $f ( keys %{$sim{final_all_includes}} ) {
     $base_file =~ s/\.[^\.]+$// ;
 
     $swig_dir = dirname($f) ;
-    $swig_dir =~ s/\/include$//g ;
-    $swig_dir .= "/swig" ;
+    $swig_dir = "build/$swig_dir" ;
     $swig_file = "$swig_dir/${base_file}.i" ;
 
     #print "$swig_file\n" ;
@@ -329,6 +328,7 @@ sub process_file($$) {
         my ($raw_contents , $contents , $new_contents ) ;
         my ($curr_dir) ;
 
+        next if ( $f =~ /^$ENV{TRICK_HOME}\/include/ ) ;
         next if ( $f =~ /^$ENV{TRICK_HOME}\/trick_source/ ) ;
 
         # clear the processed templates per each file
@@ -372,11 +372,11 @@ sub process_file($$) {
                             # Get the absolute path to this include file... use this from now on.
                             $file_name = abs_path(dirname($f)) . "/" . $temp_file_name ;
                             # Re-insert double quotes around include file.
-                            $file_name = "\"" . $file_name . "\"" ;
+                            #$file_name = "\"" . $file_name . "\"" ;
                         } elsif ( $temp_file_name !~ /^\// ) {
                             foreach my $i ( dirname($f) , @include_dirs ) {
                                 if ( -e ( "$i/$temp_file_name" ) ) {
-                                    $file_name = "\"" . abs_path(dirname("$i/$temp_file_name")) . "/" . basename($temp_file_name) . "\"" ;
+                                    $file_name = abs_path(dirname("$i/$temp_file_name")) . "/" . basename($temp_file_name) ;
                                     last ;
                                 }
                             }
@@ -388,15 +388,10 @@ sub process_file($$) {
                                 last ;
                             }
                         }
+                        $file_name = "\"build" . $file_name . "\"" ;
 
                         if ( $exclude == 0 ) {
-                            if ( $file_name =~ /include\/[^\.]+\.[^\.]+\"/ ) {
-                                $file_name =~ s/(.*)include\/([^\.]+\.)[^\.]+\"/${1}swig\/${2}i\"/ ;
-                            } elsif ( $file_name =~ /\/([^\.\/]+\.)[^\.]+\"/ ) {
-                                $file_name =~ s/\/([^\.\/]+\.)[^\.]+\"/\/swig\/${1}i\"/ ;
-                            } else {
-                                $file_name =~ s/\.[^\.]+\"/\.i\"/ ;
-                            }
+                            $file_name =~ s/\.[^\.]+\"/\.i\"/ ;
                         }
                         $contents .= "\%import $file_name\n" ;
                     } else {
@@ -417,11 +412,10 @@ sub process_file($$) {
         my $md5_sum = md5_hex($f) ;
 
         my ($out_dir) = dirname($f) ;
-        $out_file = basename($f) ;
+        $out_dir = "build$out_dir" ;
 
+        $out_file = basename($f) ;
         $out_file =~ s/\.h.*$/\.i/ ;
-        $out_dir =~ s/\/include$// ;
-        $out_dir .= "/swig" ;
 
         $out_file = "$out_dir/$out_file" ;
 

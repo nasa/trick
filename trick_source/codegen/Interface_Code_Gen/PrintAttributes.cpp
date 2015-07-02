@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <stdio.h>
+#include <limits.h>
 
 #include "clang/Frontend/CompilerInstance.h"
 #include "clang/Basic/FileManager.h"
@@ -62,6 +63,36 @@ bool PrintAttributes::isIOFileOutOfDate(std::string header_file_name, std::strin
     return true ;
 }
 
+static void _mkdir(const char *dir) {
+    char tmp[PATH_MAX];
+    char *p = NULL;
+    struct stat buf ;
+    size_t len;
+
+    snprintf(tmp, sizeof(tmp),"%s",dir);
+    len = strlen(tmp);
+    if(tmp[len - 1] == '/') {
+        tmp[len - 1] = 0;
+    }
+    for(p = tmp + 1; *p; p++)
+        if(*p == '/') {
+            *p = 0;
+            if ( stat( tmp , &buf ) != 0 ) {
+                if ( mkdir(tmp, S_IRWXU) != 0 ) {
+                    std::cout << "[31mUnable to create " << tmp << " for writing.[00m" << std::endl ;
+                    return ;
+                }
+            }
+            *p = '/';
+        }
+    if ( stat( tmp , &buf ) != 0 ) {
+        if ( mkdir(tmp, S_IRWXU) ) {
+            std::cout << "[31mUnable to create " << tmp << " for writing.[00m" << std::endl ;
+            return ;
+        }
+    }
+}
+
 bool PrintAttributes::doesIODirectoryExist(std::string io_file_name) {
     // dirname alters the string so make a temporary copy of io_file_name
     char * temp_name = strdup(io_file_name.c_str()) ;
@@ -71,6 +102,8 @@ bool PrintAttributes::doesIODirectoryExist(std::string io_file_name) {
 
     dir_name = dirname((char *)temp_name) ;
 
+    _mkdir(dir_name) ;
+/*
     if ( stat( dir_name , &buf ) != 0 ) {
         if ( mkdir( dir_name , 0755 ) != 0 ) {
             // dir does not exist and cannot make the directory.
@@ -78,6 +111,7 @@ bool PrintAttributes::doesIODirectoryExist(std::string io_file_name) {
             ret = false ;
         }
     }
+*/
     free(temp_name) ;
     return ret ;
 }
@@ -122,18 +156,19 @@ bool PrintAttributes::openIOFile(std::string header_file_name) {
                     // hasICGNo uses original header name, not the real path
                     if ( ! cs.hasICGNo(header_file_name) ) {
                         std::string io_file_name = createIOFileName(std::string(rp)) ;
+                        all_io_files[header_file_name] = io_file_name ;
                         // Does the io_src directory exist or can we successfully mkdir it?
                         if ( doesIODirectoryExist(io_file_name) ) {
                             // Is the io_src file out of date or does not exist yet
                             if ( isIOFileOutOfDate(rp, io_file_name) ) {
-                                // All conditions have been met.  Store the io_src file name in io_files.
-                                io_files[header_file_name] = io_file_name ;
+                                // All conditions have been met.  Store the io_src file name in out_of_date_io_files.
+                                out_of_date_io_files[header_file_name] = io_file_name ;
                                 free(rp) ;
                                 /* This is the first time we are visiting the file,
                                    open the file and write header information */
-                                outfile.open(io_files[header_file_name].c_str()) ;
+                                outfile.open(out_of_date_io_files[header_file_name].c_str()) ;
                                 printer->printIOHeader(outfile, header_file_name) ;
-                                std::cout << "[35mWriting " << io_files[header_file_name] << "[00m" << std::endl ;
+                                std::cout << "[35mWriting " << out_of_date_io_files[header_file_name] << "[00m" << std::endl ;
                                 // Get all of the ignored types from this file.
                                 ignored_types[header_file_name] = cs.getIgnoreTypes(header_file_name) ;
                                 return true ;
@@ -158,8 +193,8 @@ bool PrintAttributes::openIOFile(std::string header_file_name) {
         }
     } else {
         /* We have visited this file before, if there is a valid io_file name, append to the io_file */
-        if ( io_files.find(header_file_name) != io_files.end() ) {
-            outfile.open(io_files[header_file_name].c_str(), std::fstream::app) ;
+        if ( out_of_date_io_files.find(header_file_name) != out_of_date_io_files.end() ) {
+            outfile.open(out_of_date_io_files[header_file_name].c_str(), std::fstream::app) ;
             return true ;
         }
     }
@@ -195,15 +230,22 @@ std::string PrintAttributes::createIOFileName(std::string header_file_name) {
                 dir_name.replace(dir_name.size() - 8 , dir_name.size() , "") ;
             }
         }
-        // Put all of the sim_services io_files in ${TRICK_HOME}/trick_source/sim_services/include/io_src unless
-        // it is in er7_utils.  The er7_utils io_files have duplicate file names so the overwrite each other
         if ( ! output_dir.empty() ) {
             io_file_name = output_dir + "/io_src/" + base_name ;
         } else {
-            if ( sim_services_flag and (dir_name.find("er7_utils") == std::string::npos) ) {
-                io_file_name = std::string(getenv("TRICK_HOME")) + "/trick_source/sim_services/include/io_src/" + base_name ;
+            // Put all of the sim_services io_files in ${TRICK_HOME}/trick_source/sim_services/include/io_src unless
+            // it is in er7_utils.  The er7_utils io_files have duplicate file names so the overwrite each other
+            // leave those in their respective directories.
+            if ( sim_services_flag ) {
+                if ( dir_name.find("er7_utils") == std::string::npos ) {
+                    io_file_name = std::string(getenv("TRICK_HOME")) + "/trick_source/sim_services/include/io_src/" + base_name ;
+                } else {
+                    io_file_name = dir_name + "/io_src/" + base_name ;
+                }
             } else {
-                io_file_name = dir_name + "/io_src/" + base_name ;
+                //TODO: only use build directory if we are ICG'ing a sim
+                // All files go into a build directory based in the current directory.
+                io_file_name =  std::string("build") + dir_name + "/io_src/" + base_name ;
             }
         }
         return io_file_name ;
@@ -281,7 +323,7 @@ void PrintAttributes::createMapFiles() {
         class_map_function_name = "populate_sim_services_class_map" ;
         enum_map_function_name = "populate_sim_services_enum_map" ;
     } else {
-        map_dir = "io_src" ;
+        map_dir = "build" ;
         class_map_function_name = "populate_class_map" ;
         enum_map_function_name = "populate_enum_map" ;
     }
@@ -308,13 +350,86 @@ void PrintAttributes::closeMapFiles() {
     enum_map_outfile.close() ;
 
     // If we wrote any new io_src files, move the temporary class and enum map files to new location
-    if ( io_files.size() > 0 ) {
+    if ( out_of_date_io_files.size() > 0 ) {
         rename( std::string(map_dir + "/.class_map.cpp").c_str(), std::string(map_dir + "/class_map.cpp").c_str()) ;
         rename( std::string(map_dir + "/.enum_map.cpp").c_str(), std::string(map_dir + "/enum_map.cpp").c_str()) ;
     } else {
         remove( std::string(map_dir + "/.class_map.cpp").c_str() ) ;
         remove( std::string(map_dir + "/.enum_map.cpp").c_str() ) ;
     }
+}
+
+//TODO: Move this into PrintFileContents10.
+void PrintAttributes::printIOMakefile() {
+    std::ofstream makefile ;
+    unsigned int ii ;
+
+    // Don't create a makefile if we didn't process any files.
+    if ( out_of_date_io_files.empty() ) {
+       return ;
+    }
+
+    makefile.open("Makefile_io_src") ;
+
+    makefile << "TRICK_IO_CXXFLAGS := \\" << std::endl ;
+    makefile << " -Wno-invalid-offsetof \\" << std::endl ;
+    makefile << " -Wno-old-style-cast \\" << std::endl ;
+    makefile << " -Wno-write-strings \\" << std::endl ;
+    makefile << " -Wno-unused-variable" << std::endl ;
+    makefile << std::endl ;
+    makefile << "ifeq ($(IS_CC_CLANG), 0)" << std::endl ;
+    makefile << " GCCVERSIONGTEQ48 := $(shell perl -e 'printf \"\%d\\n\", ($(GCC_MAJOR)>4)||(($(GCC_MAJOR)==4)&&($(GCC_MINOR)>=8)) ;' )" << std::endl ;
+    makefile << " ifeq ($(GCCVERSIONGTEQ48), 1)" << std::endl ;
+    makefile << "  TRICK_IO_CXXFLAGS += -Wno-unused-but-set-variable" << std::endl ;
+    makefile << " endif" << std::endl ;
+    makefile << "endif" << std::endl ;
+    makefile << std::endl ;
+
+//TODO: create the io_file name if it doesn't exist
+    makefile << "IO_OBJ_FILES =" ;
+    std::set<std::string>::iterator sit ;
+    for ( sit = visited_files.begin() ; sit != visited_files.end() ; sit++ ) {
+        std::map< std::string , std::string >::iterator mit = all_io_files.find(*sit) ;
+        if ( mit != all_io_files.end() ) {
+            size_t found ;
+            found = (*mit).second.find_last_of(".") ;
+            makefile << " \\\n " << (*mit).second.substr(0,found) << ".o" ;
+        }
+    }
+    makefile << " \\\n build/class_map.o" ;
+    makefile << " \\\n build/enum_map.o" ;
+    makefile << std::endl << std::endl ;
+
+    makefile << "IO_OBJECTS =" ;
+    for ( ii = 0 ; ii < visited_files.size() + 2 ; ii++ ) {
+        makefile << " \\\n $(LIB_DIR)/i" << ii << ".o" ;
+    }
+    makefile << std::endl << std::endl ;
+
+    for ( sit = visited_files.begin() , ii = 0 ; sit != visited_files.end() ; sit++ , ii++ ) {
+        std::map< std::string , std::string >::iterator mit = all_io_files.find(*sit) ;
+        if ( mit != all_io_files.end() ) {
+            size_t found ;
+            found = (*mit).second.find_last_of(".") ;
+            makefile << "$(LIB_DIR)/i" << ii << ".o : " << (*mit).second.substr(0,found) << ".o" << std::endl ;
+            makefile << "\tln -f -s ../$< $@" << std::endl ;
+        }
+    }
+    makefile << "$(LIB_DIR)/i" << ii++ << ".o : " << "build/class_map.o" << std::endl ;
+    makefile << "\tln -f -s ../$< $@" << std::endl ;
+    makefile << "$(LIB_DIR)/i" << ii << ".o : " << "build/enum_map.o" << std::endl ;
+    makefile << "\tln -f -s ../$< $@" << std::endl ;
+
+    makefile << "$(IO_OBJECTS) : | $(LIB_DIR)" << std::endl ;
+    makefile << std::endl ;
+    makefile << "$(IO_OBJ_FILES) : \%.o : \%.cpp" << std::endl ;
+    makefile << "\tcd $(<D) ; $(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_IO_CXXFLAGS) -MMD -MP -c ${<F} -o ${@F}" << std::endl ;
+    makefile << std::endl ;
+    makefile << "$(SIM_LIB) : $(IO_OBJECTS)" << std::endl ;
+    makefile << "$(IO_OBJECTS) : | $(LIB_DIR)" << std::endl ;
+    makefile << std::endl ;
+
+    makefile.close() ;
 }
 
 void PrintAttributes::printEmptyFiles() {
@@ -340,15 +455,16 @@ void PrintAttributes::printEmptyFiles() {
                         // hasICGNo uses original header name, not the real path
                         if ( ! cs.hasICGNo(header_file_name) ) {
                             std::string io_file_name = createIOFileName(std::string(rp)) ;
+                            all_io_files[header_file_name] = io_file_name ;
                             // Does the io_src directory exist or can we successfully mkdir it?
                             if ( doesIODirectoryExist(io_file_name) ) {
                                 // Is the io_src file out of date or does not exist yet
                                 if ( isIOFileOutOfDate(rp, io_file_name) ) {
-                                    io_files[header_file_name] = io_file_name ;
+                                    out_of_date_io_files[header_file_name] = io_file_name ;
                                     // creates an empty io_src file
-                                    outfile.open(io_files[header_file_name].c_str()) ;
+                                    outfile.open(out_of_date_io_files[header_file_name].c_str()) ;
                                     outfile.close() ;
-                                    std::cout << "[35mWriting " << io_files[header_file_name] << "[00m" << std::endl ;
+                                    std::cout << "[35mWriting " << out_of_date_io_files[header_file_name] << "[00m" << std::endl ;
                                 }
                             } else {
                                 std::cout << "[33mICG skipping " << rp << " (cannot create io_src dir)[00m" << std::endl ;

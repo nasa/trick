@@ -42,6 +42,9 @@ class PrintAttributes {
         virtual void createMapFiles() ;
         virtual void closeMapFiles() ;
 
+        /** Create makefile for IO files */
+        virtual void printIOMakefile() ;
+
         /** Create empty io_files for headers that contain no class/struct information */
         virtual void printEmptyFiles() ;
 
@@ -104,8 +107,11 @@ class PrintAttributes {
         /** set of all visited files */
         std::set< std::string > visited_files ;
 
-        /** map of open files to the io_src file */
-        std::map< std::string , std::string > io_files ;
+        /** map of all io_files we processed */
+        std::map< std::string , std::string > all_io_files ;
+
+        /** map of open files to the out of date io_src file */
+        std::map< std::string , std::string > out_of_date_io_files ;
 
         /** List of files that have ICG: No */
         std::vector< std::string > icg_no_files ;

@@ -189,6 +189,10 @@ int main( int argc , char * argv[] ) {
     free(input_file_cp) ;
     free(input_file_full_path) ;
 
+    if ( ! sim_services_flag ) {
+        pa.printIOMakefile() ;
+    }
+
     // Print empty io_src files for headers that we visited, but have no class/struct information.
     pa.printEmptyFiles() ;
 

@@ -40,7 +40,7 @@ $| = 1 ;
 
 # set default verbose level
 $sim{args}{v} = 2 ;
-$sim{args}{o} = "CP_out" ;
+$sim{args}{o} = "build/CP_out" ;
 $sim{args}{p} = 1 ;
 
 #--------------------------------------------------------------
@@ -87,6 +87,10 @@ if ( $cc_found == 0 ) {
 # Get Trick version
 my ($version, $thread) = get_trick_version() ;
 $thread =~ s/\d+\.// ;
+
+if ( ! -e "build" ) {
+     mkdir  "build", 0755 ;
+}
 
 local *OUTFILE ;
 open OUTFILE , ">$sim{args}{o}" or warn "CP cannot open $sim{args}{o} for writing\n" ;
@@ -235,22 +239,17 @@ if ( $sim{args}{v} == 1 ) {
 trick_print($sim{fh}, "\nMIS complete\n\n" , "normal_green" , $sim{args}{v}) ;
 
 #--------------------------------------------------------------
-# Make Default Data 
+# Make Default Data
 
 if ($sim{args}{d}) {
     chdir ($cwd) ;
     trick_print($sim{fh}, "Creating Default_data...", "title_cyan" , $sim{args}{v}) ;
     make_default_data( \%sim ) ;
     trick_print($sim{fh}, " Complete\n", "title_green", $sim{args}{v}) ;
-     
-    chdir ($cwd) ;
-    trick_print($sim{fh}, "Creating S_document.xml...", "title_cyan", $sim{args}{v}) ;
-    print_xml_CP( \%sim ) ;
-    trick_print( $sim{fh}, " Complete\n", "title_green", $sim{args}{v}) ;
 }
 
 #--------------------------------------------------------------
-# Make Makefile 
+# Make Makefile
 
 if ($sim{args}{m}) {
     trick_print($sim{fh}, "Creating New Makefile... ", "title_cyan" , $sim{args}{v}) ;

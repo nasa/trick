@@ -145,7 +145,7 @@ sub ICG(\@$$$) {
        return -1 ;
     }
 
-    open SLIB , ".icg_no_found" ;
+    open SLIB , "build/icg_no_found" ;
     while ( <SLIB> ) {
         chomp ;
         $$sim_ref{icg_no}{$_} = 1 ;
