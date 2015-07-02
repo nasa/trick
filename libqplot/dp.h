@@ -31,6 +31,7 @@ public:
     double scaleFactor() { return _scaleFactor; }
     double bias() { return _bias; }
     QString symbolStyle() { return _symbol; }
+    QString symbolSize() { return _symbolSize; }
 
     void setLabel(const char* label) { _label = label; }
     void setUnit(const char* unit) { _unit = unit; }
@@ -38,6 +39,7 @@ public:
     void setScaleFactor(double sf) { _scaleFactor = sf; }
     void setBias(double b) { _bias = b; }
     void setSymbolStyle(const char* ss) { _symbol = ss; }
+    void setSymbolSize(const char* ss) { _symbolSize = ss; }
 
 private:
     QString _name;
@@ -47,6 +49,7 @@ private:
     double _scaleFactor;
     double _bias;
     QString _symbol;
+    QString _symbolSize;
 };
 
 class DPCurve
@@ -67,6 +70,9 @@ public:
 
     QString symbolStyle();
     void setSymbolStyle(const char* style);
+
+    QString symbolSize();
+    void setSymbolSize(const char* size); // tiny,small,medium,large
 
 private:
     DPVar* _t;

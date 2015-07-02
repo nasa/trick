@@ -13,7 +13,8 @@ TrickCurve::TrickCurve(QCPAxis *keyAxis, QCPAxis *valueAxis) :
     _ysf(1.0),
     _xbias(0.0),
     _ybias(0.0),
-    _scatterShape(QCPScatterStyle::ssNone)
+    _scatterShape(QCPScatterStyle::ssNone),
+    _scatterSize(6.0)
 {
     setAntialiased(false);
     mPen.setColor(QColor(50, 100, 212));
@@ -294,6 +295,44 @@ void TrickCurve::setSymbolStyle(const QString &symbol)
     }
 }
 
+QString TrickCurve::symbolSize()
+{
+    QString size;
+
+    if ( _scatterSize == 6.0 ) {
+        size = "medium";
+    } else if ( _scatterSize ==  4.0 ) {
+        size = "small";
+    } else if ( _scatterSize ==  2.0 ) {
+        size = "tiny" ;
+    } else if ( _scatterSize ==  10.0 ) {
+        size = "large" ;
+    } else {
+        qDebug() << "snap [bad scoobs]: TrickCurve::symbolSize()";
+        exit(-1);
+    }
+
+    return size;
+}
+
+void TrickCurve::setSymbolSize(const QString &size)
+{
+    QString sz = size.toLower();
+
+    if ( sz == "medium" ) {
+        _scatterSize = 6.0;
+    } else if ( sz == "small" ) {
+        _scatterSize = 4.0;
+    } else if ( sz == "tiny" ) {
+        _scatterSize = 2.0;
+    } else if ( sz == "large" ) {
+        _scatterSize = 10.0;
+    } else {
+        qDebug() << "snap [error]: TrickCurve::setSymbolSize() "
+                    "received bad value of \"" << size << "\"";
+    }
+}
+
 void TrickCurve::draw(QCPPainter *painter)
 {
     if ( (_model == 0 || _model->rowCount() == 0) &&
@@ -344,6 +383,7 @@ void TrickCurve::draw(QCPPainter *painter)
             if  ( _scatterShape != QCPScatterStyle::ssNone ) {
                 QCPScatterStyle s;
                 s.setShape(_scatterShape);
+                s.setSize(_scatterSize);
                 QTransform t = _coordToPixelTransform();
                 for ( int i = 0; i < _painterPath.elementCount(); ++i ) {
                     QPainterPath::Element el = _painterPath.elementAt(i);

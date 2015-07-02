@@ -64,6 +64,7 @@ public:
                             CurveXBias,
                             CurveYBias,
                             CurveSymbolStyle,
+                            CurveSymbolSize,
                     PlotTitle,
                     PlotXMin,
                     PlotXMax,

@@ -334,8 +334,7 @@ y_var: DP_Y_VARIABLE ':' DP_STR {
                 currCurve->setSymbolStyle($4);
         }
         | y_var DP_SYMBOL_SIZE ':' DP_STR {
-                //currCurve->setLineSymbolSize($4);
-                msg("plot->setLineSymbolSiz() not supported");
+                currCurve->setSymbolSize($4);
         }
         | y_var DP_GNUPLOT_FUNCTION_STYLE ':' DP_STR {
                 //currCurve->setGnuplotFunctionStyle($4);

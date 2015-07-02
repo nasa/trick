@@ -46,6 +46,9 @@ public:
     QString symbolStyle();
     void setSymbolStyle(const QString& symbol);
 
+    QString symbolSize();
+    void setSymbolSize(const QString& size); // tiny,small,medium,large
+
     virtual void clearData()
     {
         _model = 0 ;
@@ -120,6 +123,7 @@ private:
     double _xbias;
     double _ybias;
     QCPScatterStyle::ScatterShape _scatterShape;
+    double _scatterSize;
 
     int _deselectedLayerIdx;
     void _addFlatLineLabel(QCPPainter* painter);

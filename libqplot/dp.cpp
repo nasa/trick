@@ -646,6 +646,16 @@ void DPCurve::setSymbolStyle(const char *style)
     _y->setSymbolStyle(style);
 }
 
+QString DPCurve::symbolSize()
+{
+    return _y->symbolSize();
+}
+
+void DPCurve::setSymbolSize(const char *size)
+{
+    _y->setSymbolSize(size);
+}
+
 QString DPCurve::lineColor()
 {
     return _color;
@@ -657,7 +667,8 @@ DPVar::DPVar(const QDomElement &e) :
     _unit(QString()),
     _scaleFactor(1.0),
     _bias(0.0),
-    _symbol(QString())
+    _symbol(QString()),
+    _symbolSize(QString())
 {
     QDomElement el = e;
 
@@ -694,6 +705,11 @@ DPVar::DPVar(const QDomElement &e) :
     if ( el.hasAttribute(symbol) ) {
         _symbol = el.attributeNode(symbol).value().simplified();
     }
+
+    QString symbolSize("symbol_size");
+    if ( el.hasAttribute(symbolSize) ) {
+        _symbolSize = el.attributeNode(symbolSize).value().simplified();
+    }
 }
 
 DPVar::DPVar(const char *name) :
@@ -702,7 +718,8 @@ DPVar::DPVar(const char *name) :
     _unit(QString()),
     _scaleFactor(1.0),
     _bias(0.0),
-    _symbol(QString())
+    _symbol(QString()),
+    _symbolSize(QString())
 {
 }
 
