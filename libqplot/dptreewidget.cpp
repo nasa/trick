@@ -308,6 +308,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                     QString symbolStyle = dpcurve->y()->symbolStyle();
                     QString symbolSize = dpcurve->y()->symbolSize();
                     QString lineStyle = dpcurve->y()->lineStyle();
+                    QString yLabel = dpcurve->y()->label();
 
                     QStandardItem *tItem       = new QStandardItem(tName);
                     QStandardItem *xItem       = new QStandardItem(xName);
@@ -328,6 +329,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                                                new QStandardItem(symbolSize);
                     QStandardItem *lineStyleItem  =
                                                new QStandardItem(lineStyle);
+                    QStandardItem *yLabelItem = new QStandardItem(yLabel);
 
                     curveItem->appendRow(tItem);
                     curveItem->appendRow(xItem);
@@ -345,6 +347,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                     curveItem->appendRow(symbolItem);
                     curveItem->appendRow(symbolSizeItem);
                     curveItem->appendRow(lineStyleItem);
+                    curveItem->appendRow(yLabelItem);
                 }
             }
         }

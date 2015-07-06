@@ -66,6 +66,7 @@ public:
                             CurveSymbolStyle,
                             CurveSymbolSize,
                             CurveLineStyle,
+                            CurveYLabel,
                     PlotTitle,
                     PlotXMin,
                     PlotXMax,

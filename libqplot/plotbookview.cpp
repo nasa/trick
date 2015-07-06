@@ -1099,6 +1099,17 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             break;
         }
 
+        case PlotBookModel::CurveYLabel : {
+            TrickCurve* curve =  _idx2Curve(pidx);
+            QString yLabel = model()->data(idx).toString();
+            curve->setName(yLabel);
+            int nCurves = pidx.row();
+            if ( nCurves > 8 || yLabel.isEmpty() ) {
+                curve->parentPlot()->legend->setVisible(false);
+            }
+            break;
+        }
+
         case PlotBookModel::PlotTitle : {
             QString title = model()->data(idx).toString();
             Plot* plot = _idx2Plot(pidx);

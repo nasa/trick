@@ -19,12 +19,16 @@ Plot::Plot(QWidget* parent) :
     setSizePolicy(sizePolicy);
 
     setNoAntialiasingOnDrag(true);
-    setAutoAddPlottableToLegend(false);
+    setAutoAddPlottableToLegend(true);
 
     _axisrect = new AxisRect(this);
 
     plotLayout()->clear();
     plotLayout()->addElement(0,0,_axisrect);
+
+    legend = new QCPLegend;
+    _axisrect->insetLayout()->addElement(legend, Qt::AlignRight|Qt::AlignTop);
+    _axisrect->insetLayout()->setMargins(QMargins(12, 12, 12, 12));
 
     _titleItem = new QCPItemText(this);
     _titleItem->position->setType(QCPItemPosition::ptAxisRectRatio);
