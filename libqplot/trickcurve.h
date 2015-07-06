@@ -19,6 +19,7 @@ public:
 
     LineStyle lineStyle() const { return mLineStyle; }
     void setLineStyle(LineStyle style);
+
     QCPRange xRange(bool &validRange, SignDomain inSignDomain=sdBoth);
     QCPRange yRange(bool &validRange, SignDomain inSignDomain=sdBoth);
 
@@ -48,6 +49,9 @@ public:
 
     QString symbolSize();
     void setSymbolSize(const QString& size); // tiny,small,medium,large
+
+    QString curveStyle();                       // "lineStyle" name used
+    void setCurveStyle(const QString& style);
 
     virtual void clearData()
     {
@@ -124,6 +128,7 @@ private:
     double _ybias;
     QCPScatterStyle::ScatterShape _scatterShape;
     double _scatterSize;
+    QString _curveStyle;
 
     int _deselectedLayerIdx;
     void _addFlatLineLabel(QCPPainter* painter);

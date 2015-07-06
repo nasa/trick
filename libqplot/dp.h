@@ -28,6 +28,7 @@ public:
     QString label() { return _label; }
     QString unit() { return _unit; }
     QString lineColor() { return _lineColor; }
+    QString lineStyle() { return _lineStyle; }
     double scaleFactor() { return _scaleFactor; }
     double bias() { return _bias; }
     QString symbolStyle() { return _symbol; }
@@ -36,6 +37,7 @@ public:
     void setLabel(const char* label) { _label = label; }
     void setUnit(const char* unit) { _unit = unit; }
     void setLineColor(const char* lineColor) { _lineColor = lineColor; }
+    void setLineStyle(const char* ls) { _lineStyle = ls; }
     void setScaleFactor(double sf) { _scaleFactor = sf; }
     void setBias(double b) { _bias = b; }
     void setSymbolStyle(const char* ss) { _symbol = ss; }
@@ -46,6 +48,7 @@ private:
     QString _label;
     QString _unit;
     QString _lineColor;
+    QString _lineStyle;
     double _scaleFactor;
     double _bias;
     QString _symbol;
@@ -67,6 +70,9 @@ public:
 
     QString lineColor();
     void setLineColor(const char* lineColor);
+
+    QString lineStyle();
+    void setLineStyle(const char* lineStyle);
 
     QString symbolStyle();
     void setSymbolStyle(const char* style);

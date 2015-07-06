@@ -317,6 +317,8 @@ QString TrickCurve::symbolSize()
 
 void TrickCurve::setSymbolSize(const QString &size)
 {
+    if ( size.isEmpty() ) return;
+
     QString sz = size.toLower();
 
     if ( sz == "medium" ) {
@@ -330,6 +332,51 @@ void TrickCurve::setSymbolSize(const QString &size)
     } else {
         qDebug() << "snap [error]: TrickCurve::setSymbolSize() "
                     "received bad value of \"" << size << "\"";
+    }
+}
+
+QString TrickCurve::curveStyle()
+{
+    return _curveStyle;
+}
+
+void TrickCurve::setCurveStyle(const QString &style)
+{
+    if ( style.isEmpty() ) return;
+
+    QString s = style;
+    s = s.toLower();
+
+    QVector<qreal> pattern;
+    if ( s == "plain" ) {
+        // pattern is empty
+    } else if ( s == "fine_dash" ) {
+        pattern << 1 << 2;
+    } else if ( s == "med_fine_dash" ) {
+        pattern << 3 << 2;
+    } else if ( s == "dash" ) {
+        pattern << 5 << 3;
+    } else if ( s == "long_dash" ) {
+        pattern << 8 << 5;
+    } else if ( s == "x_long_dash" ) {
+        pattern << 12 << 8;
+    } else if ( s == "dot_dash" ) {
+        pattern << 12 << 4 << 1 << 4;
+    } else if ( s == "2_dot_dash" ) {
+        pattern << 12 << 3 << 1 << 2 << 1 << 3;
+    } else if ( s == "3_dot_dash" ) {
+        pattern << 12 << 3 << 1 << 2 << 1 << 2 << 1 << 3;
+    } else if ( s == "4_dot_dash" ) {
+        pattern << 16 << 3 << 1 << 2 << 1 << 2 << 1 << 2 << 1 << 3;
+    } else {
+        qDebug() << "snap [error]: TrickCurve::setCurveStyle() "
+                    "received bad value of \"" << style << "\"";
+    }
+
+    if ( s != "plain" ) {
+        QPen p = pen();
+        p.setDashPattern(pattern);
+        setPen(p);
     }
 }
 

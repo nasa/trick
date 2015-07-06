@@ -567,12 +567,15 @@ DPCurve::DPCurve(const QDomElement &e) : _t(0), _x(0), _y(0)
             QString tag = e.tagName();
             if ( tag == "var" ) {
                 DPVar* var = new DPVar(e);
-                setLineColor(var->lineColor().toAscii().constData());
                 if ( count == 0 ) {
                     _t = var; // hack for now since DP xml has no t,x,y
                     _x = var;
                 } else {
                     _y = var;
+                }
+                setLineColor(var->lineColor().toAscii().constData());
+                if ( !var->lineStyle().isEmpty() ) {
+                    setLineStyle(var->lineStyle().toAscii().constData());
                 }
                 if ( count > 1 ) {
                     _err_stream << "snap [error]: DPPlot can't handle "
@@ -636,6 +639,16 @@ void DPCurve::setLineColor(const char *color)
     _color = QString(color);
 }
 
+QString DPCurve::lineStyle()
+{
+    return _y->lineStyle();
+}
+
+void DPCurve::setLineStyle(const char *lineStyle)
+{
+    _y->setLineStyle(lineStyle);
+}
+
 QString DPCurve::symbolStyle()
 {
     return _y->symbolStyle();
@@ -665,6 +678,8 @@ DPVar::DPVar(const QDomElement &e) :
     _name(QString()),
     _label(QString()),
     _unit(QString()),
+    _lineColor(QString()),
+    _lineStyle(QString()),
     _scaleFactor(1.0),
     _bias(0.0),
     _symbol(QString()),
@@ -689,6 +704,11 @@ DPVar::DPVar(const QDomElement &e) :
     QString lineColor("line_color");
     if ( el.hasAttribute(lineColor) ) {
         _lineColor = el.attributeNode(lineColor).value().simplified();
+    }
+
+    QString lineStyle("line_style");
+    if ( el.hasAttribute(lineStyle) ) {
+        _lineStyle = el.attributeNode(lineStyle).value().simplified();
     }
 
     QString scale("scale");
@@ -716,6 +736,8 @@ DPVar::DPVar(const char *name) :
     _name(name),
     _label(QString()),
     _unit(QString()),
+    _lineColor(QString()),
+    _lineStyle(QString()),
     _scaleFactor(1.0),
     _bias(0.0),
     _symbol(QString()),

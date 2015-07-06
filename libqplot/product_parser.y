@@ -324,8 +324,7 @@ y_var: DP_Y_VARIABLE ':' DP_STR {
                 currYVar->setBias($4);
         }
         | y_var DP_LINE_STYLE ':' DP_STR {
-                //currCurve->setLineStyle($4);
-                msg("plot->setLineStyle() not supported");
+                currYVar->setLineStyle($4);
         }
         | y_var DP_LINE_COLOR ':' DP_STR {
                 currCurve->setLineColor($4);

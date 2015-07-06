@@ -208,6 +208,7 @@ void VarsWidget::_addPlotOfVarToPageItem(QStandardItem* pageItem,
         QStandardItem *yBiasItem   = new QStandardItem("0.0");
         QStandardItem *symbolItem   = new QStandardItem("");
         QStandardItem *symbolSizeItem   = new QStandardItem("");
+        QStandardItem *lineStyleItem   = new QStandardItem("");
 
         curveItem->appendRow(tItem);
         curveItem->appendRow(xItem);
@@ -224,6 +225,7 @@ void VarsWidget::_addPlotOfVarToPageItem(QStandardItem* pageItem,
         curveItem->appendRow(yBiasItem);
         curveItem->appendRow(symbolItem);
         curveItem->appendRow(symbolSizeItem);
+        curveItem->appendRow(lineStyleItem);
     }
 }
 
