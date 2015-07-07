@@ -1285,6 +1285,9 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 plotTitleFont = plotTitle->font();
                 plotTitleFont.setFamily(fontStr);
                 plotTitle->setFont(pageTitleFont);
+
+                // Plot legend
+                plot->legend->setFont(yAxisFont);
             }
 
             break;
