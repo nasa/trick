@@ -1107,6 +1107,10 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             if ( nCurves > 8 || yLabel.isEmpty() ) {
                 curve->parentPlot()->legend->setVisible(false);
             }
+            Plot* plot = _idx2Plot(pidx);
+            QCPItemText* plotTitle = plot->title();
+            QColor fgColor = plotTitle->color();
+            curve->parentPlot()->legend->setTextColor(fgColor);
             break;
         }
 
