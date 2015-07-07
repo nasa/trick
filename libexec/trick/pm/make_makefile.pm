@@ -4,53 +4,33 @@ use Exporter ();
 @ISA = qw(Exporter);
 @EXPORT = qw(make_makefile);
 
-use lib $ENV{"TRICK_HOME"} . "/bin/pm" ;
+use lib $ENV{"TRICK_HOME"} . "/libexec/trick/pm" ;
 use Cwd ;
 use Cwd 'abs_path';
 use File::Basename ;
 use strict ;
-use gte ;
-use trick_print ;
 use trick_version ;
-
-# bm_build , bm_and and bm_or taken from www.perl.com
-sub _bm_build {
-    my $condition = shift;
-    my $sub_pat = shift;
-    my @regexp = @_;  # this MUST not be local(); need my()
-    my $expr = join $condition => map { "s/\$regexp[$_]/$sub_pat/o" } (0..$#regexp);
-    my $match_func = eval "sub { $expr }";
-    die if $@;  # propagate $@; this shouldn't happen!
-    return $match_func;
-}
-sub bm_and { _bm_build('&&', @_) }
-sub bm_or  { _bm_build('||', @_) }
 
 sub make_makefile($$$) {
 
     my ($h_ref , $sim_ref , $make_cwd ) = @_ ;
-    my ($n , $f , $k , $i , $j, $m);
+    my ($n , $f , $k , $i , $m);
+    my $num_inc_objs ;
     my %all_mis_depends ;
     my %temp_hash ;
-    my @all_h_files ;
     my @all_cfly_files ;
     my @all_read_only_libs ;
     my @all_compile_libs ;
-    my %compile_libs ;
     my %files_by_dir ;
     my ( $sp_dir , $src_dir , $sp_file , $base_name , $suffix) ;
     my $num_src_files ;
-    my (@temp_array , @temp_array2) ;
-    my $sub_multiple ;
-    my %real_extension_h ;
-    my %real_extension_cpp ;
+    my @temp_array ;
 
     if ( exists $$sim_ref{all_mis_depends} ) {
         %all_mis_depends = %{$$sim_ref{all_mis_depends}} ;
     }
 
     my @exclude_dirs ;
-
     @exclude_dirs = split /:/ , $ENV{"TRICK_EXCLUDE"};
     # See if there are any elements in the exclude_dirs array
     if (scalar @exclude_dirs) {
@@ -80,7 +60,6 @@ sub make_makefile($$$) {
     @all_compile_libs = sort (grep !/trick_source/ , @all_compile_libs) ;
     @all_cfly_files = sort (grep !/^-|trick_source|a$/ , @all_cfly_files) ;
 
-
     # split off files by directory
     foreach ( @all_cfly_files ) {
         $sp_file = basename($_) ;
@@ -95,6 +74,7 @@ sub make_makefile($$$) {
     }
 
     # get all of the files required by compiled libraries
+    # compile all files as normal files,  we're not going to make a library anymore.
     foreach $n ( @all_compile_libs ) {
         my @local_files ;
         $sp_file = basename($n) ;
@@ -102,24 +82,12 @@ sub make_makefile($$$) {
         $sp_dir =~ s/\/object_\$\{TRICK_HOST_CPU\}?$// ;
         $sp_dir = abs_path($sp_dir) ;
         $src_dir = ( -e "$sp_dir/src" ) ? "src/" : "" ;
-        ($base_name) = $sp_file =~ /lib(.*?)\.a$/ ;
-        $files_by_dir{$sp_dir}{base_name} = $base_name ;
-        $files_by_dir{$sp_dir}{dir_num} = $base_name ;
-        $files_by_dir{$sp_dir}{full_name} = "$sp_dir/object_\${TRICK_HOST_CPU}/$sp_file" ;
         $files_by_dir{$sp_dir}{src_dir} = $src_dir ;
         opendir THISDIR, "$sp_dir/$src_dir" or die "Could not open the directory $sp_dir/$src_dir";
         @local_files = grep !/^\.\.\./ , readdir THISDIR;
         @local_files = grep /\.[cfly]$|C$|cc$|cxx$|cpp$|c\+\+$/ , @local_files;
         foreach $k ( @local_files ) {
-            #if ( $k =~ /(C$|cc$|cxx$|cpp$|c\+\+$)/ ) {
-            #    ($base_name) = $k =~ /(.*?)(C$|cc$|cxx$|cpp$|c\+\+$)/ ;
-            #    $real_extension_cpp{"$sp_dir/$src_dir$base_name"} = $2 ;
-            #    $suffix = "cpp" ;
-            #}
-            #else {
-            #    ($base_name , $suffix) = $k =~ /(.*?)([cfly])$/ ;
-            #}
-            ($base_name , $suffix) = $sp_file =~ /(.*?)([cfly]$|C$|cc$|cxx$|cpp$|c\+\+$)/ ;
+            ($base_name , $suffix) = $k =~ /(.*?)([cfly]$|C$|cc$|cxx$|cpp$|c\+\+$)/ ;
             push @{$files_by_dir{$sp_dir}{$suffix}} , $base_name ;
         }
         closedir THISDIR ;
@@ -133,12 +101,9 @@ sub make_makefile($$$) {
         }
     }
 
-    $i = 0 ;
-    $num_src_files = 0;
-
     foreach $k ( sort keys %files_by_dir ) {
         foreach my $ie ( @exclude_dirs ) {
-            # if file location begins with $ie (an IGC exclude dir)
+            # if file location begins with $ie (an ICG exclude dir)
             if ( $k =~ /^\Q$ie/ ) {
                 delete $files_by_dir{$k} ;
                 print "[33mexcluding $k from build[00m\n" ;
@@ -147,9 +112,9 @@ sub make_makefile($$$) {
         }
     }
 
-    # check to see if each directory is writable and count the number of source files
+    # count the number of source files and set the "dir_num" of each directory.
+    $num_src_files = 0;
     foreach $k ( sort keys %files_by_dir ) {
-        $files_by_dir{$k}{writable} = ( -w $k ) ? 1 : 0 ;
         $_ = $k ;
         ($files_by_dir{$k}{dir_num} = $_) =~ s#^/## ;
         $files_by_dir{$k}{dir_num} =~ s/[\/.]/_/g ;
@@ -191,13 +156,14 @@ sub make_makefile($$$) {
     my ($trick_ver) = get_trick_version() ;
     chomp $trick_ver ;
 
-    open MAKEFILE , ">Makefile_sim" or return ;
+    open MAKEFILE , ">build/Makefile_sim" or return ;
 
-    print MAKEFILE "#############################################################################
+    print MAKEFILE "\
+#############################################################################
 # Makefile:
 #    This is a makefile for maintaining the
 #    '$wd'
-#    simulation directory. This make file was automatically generated by CP
+#    simulation directory. This make file was automatically generated by trick-CP
 #
 #############################################################################
 # Creation:
@@ -205,29 +171,45 @@ sub make_makefile($$$) {
 #    Date:   $dt
 #
 #############################################################################
-#
-#  To get a list of make options, type 'make help'
-#
-#############################################################################
 
-include \${TRICK_HOME}/share/trick/makefiles/Makefile.common" ;
+include \${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
-    print MAKEFILE "
 S_MAIN  = \$(CURDIR)/S_main_\${TRICK_HOST_CPU}.exe
 ifeq (\$(MAKECMDGOALS), test_all)
 TRICK_HOST_CPU := \$(shell \$(TRICK_HOME)/bin/trick-gte TRICK_HOST_CPU)_test
 S_MAIN  = \$(CURDIR)/T_main_\${TRICK_HOST_CPU}.exe
-endif" ;
+endif
 
-    print MAKEFILE "
-LIB_DIR = \$(CURDIR)/lib_\${TRICK_HOST_CPU}
+LIB_DIR = \$(CURDIR)/build/lib
 SIM_LIB = \$(LIB_DIR)/lib_${sim_dir_name}.a
 
-S_OBJECT_FILES = build/S_source.o
+ifdef TRICK_VERBOSE_BUILD
+PRINT_ICG =
+PRINT_COMPILE =
+PRINT_INC_LINK =
+PRINT_EXE_LINK =
+PRINT_S_DEF_DEPS =
+ECHO_CMD =
+else
+PRINT_ICG = \@echo \"[34mRunning ICG[0m\"
+PRINT_COMPILE = \@echo \"[34mCompiling[0m \$(subst \$(CURDIR)/build,build,\$<)\"
+PRINT_INC_LINK = \@echo \"[34mPartial linking[0m \$(subst \$(CURDIR)/build,build,\${<D})\"
+PRINT_EXE_LINK = \@echo \"[34mFinal linking[0m \$(subst \$(CURDIR)/,,\$(S_MAIN))\"
+PRINT_S_DEF_DEPS = \@echo \"[34mGenerating dependencies[0m for S_define\"
+ECHO_CMD = \@
+ifeq (\$(MAKECMDGOALS), all)
+\$(info [34mPerforming build with these compilation flags[0m)
+\$(info [33mTRICK_CFLAGS = \$(TRICK_CFLAGS)[0m)
+\$(info [33mTRICK_CXXFLAGS = \$(TRICK_CXXFLAGS)[0m)
+endif
+endif
+
+S_OBJECT_FILES = \$(CURDIR)/build/S_source.o
 
 \$(S_OBJECT_FILES) : | \$(LIB_DIR)\n\n" ;
 
     my %object_files_by_type ;
+    $num_inc_objs = 0 ;
     # list out all of the source and object files
     foreach $k ( sort keys %files_by_dir ) {
         foreach my $ext ( qw{ c C cc cxx cpp c++ l y} ) {
@@ -240,25 +222,30 @@ S_OBJECT_FILES = build/S_source.o
             if ( scalar @{$files_by_dir{$k}{$ext}} ne 0 ) {
                 print MAKEFILE "MODEL_${print_ext}_OBJ_$files_by_dir{$k}{dir_num} =" ;
                 foreach $f ( @{$files_by_dir{$k}{$ext}} ) {
-                    print MAKEFILE " \\\n build$k/$files_by_dir{$k}{src_dir}$f" . "o" ;
+                    print MAKEFILE " \\\n \$(CURDIR)/build$k/$files_by_dir{$k}{src_dir}$f" . "o" ;
                 }
                 push @{$object_files_by_type{$ext}}, "MODEL_${print_ext}_OBJ_$files_by_dir{$k}{dir_num}" ;
 
-                print MAKEFILE "\n\n\$(MODEL_${print_ext}_OBJ_$files_by_dir{$k}{dir_num}) : | build$k/$files_by_dir{$k}{src_dir}$f\n" ;
-                print MAKEFILE "build$k/$files_by_dir{$k}{src_dir}$f :\n" ;
-                print MAKEFILE "\tmkdir -p \$\@\n" ;
+                print MAKEFILE "\n\n\$(MODEL_${print_ext}_OBJ_$files_by_dir{$k}{dir_num}) : | \$(CURDIR)/build$k/$files_by_dir{$k}{src_dir}$f\n" ;
+                print MAKEFILE "\$(CURDIR)/build$k/$files_by_dir{$k}{src_dir}$f :\n" ;
+                print MAKEFILE "\t@ mkdir -p \$\@\n\n" ;
+
+                print MAKEFILE "\$(CURDIR)/build/lib/o${num_inc_objs}.o : \$(MODEL_${print_ext}_OBJ_$files_by_dir{$k}{dir_num})\n" ;
+                print MAKEFILE "\t\$(PRINT_INC_LINK)\n" ;
+                print MAKEFILE "\t\$(ECHO_CMD)cd \${<D} ; ld -Ur -o \$\@ \$(notdir \$^)\n\n" ;
+                $num_inc_objs++ ;
             }
         }
         if ( scalar @{$files_by_dir{$k}{l}} ne 0 ) {
             print MAKEFILE "MODEL_clex_SRC_$files_by_dir{$k}{dir_num} =" ;
             foreach $f ( @{$files_by_dir{$k}{l}} ) {
-                print MAKEFILE " \\\n build$k/$files_by_dir{$k}{src_dir}$f" . "clex" ;
+                print MAKEFILE " \\\n \$(CURDIR)/build$k/$files_by_dir{$k}{src_dir}$f" . "clex" ;
             }
         }
         if ( scalar @{$files_by_dir{$k}{y}} ne 0 ) {
             print MAKEFILE "MODEL_y_c_SRC_$files_by_dir{$k}{dir_num} =" ;
             foreach $f ( @{$files_by_dir{$k}{y}} ) {
-                print MAKEFILE " \\\n build$k/$files_by_dir{$k}{src_dir}$f" . "y.c" ;
+                print MAKEFILE " \\\n \$(CURDIR)/build$k/$files_by_dir{$k}{src_dir}$f" . "y.c" ;
             }
         }
     }
@@ -275,36 +262,51 @@ S_OBJECT_FILES = build/S_source.o
         foreach $f ( @{$object_files_by_type{$print_ext}} ) {
             print MAKEFILE " \\\n \$($f)" ;
         }
+        print MAKEFILE "\n\n" ;
     }
-    print MAKEFILE "\n\n" ;
 
     # Write out the compile rules for each type of file.
-    print MAKEFILE "\${MODEL_c_OBJ} : build\%.o : \%.c\n" ;
-    print MAKEFILE "\tcd \$(<D) ; \$(TRICK_CC) \$(TRICK_CXXFLAGS) -MMD -MP -c \${<F} -o \$(CURDIR)/\$\@\n\n" ;
+    print MAKEFILE "\${MODEL_c_OBJ} : \$(CURDIR)/build\%.o : \%.c\n" ;
+    print MAKEFILE "\t\$(PRINT_COMPILE)\n\n" ;
+    print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CC) \$(TRICK_CFLAGS) -I\${<D} -I\${<D}/../include -MMD -MP -c \$< -o \$\@\n\n" ;
 
-    print MAKEFILE "\${MODEL_C_OBJ} : build\%.o : \%.C\n" ;
-    print MAKEFILE "\tcd \$(<D) ; \$(TRICK_CPPC) \$(TRICK_CXXFLAGS) -MMD -MP -c \${<F} -o \$(CURDIR)/\$\@\n\n" ;
+    print MAKEFILE "\${MODEL_C_OBJ} : \$(CURDIR)/build\%.o : \%.C\n" ;
+    print MAKEFILE "\t\$(PRINT_COMPILE)\n\n" ;
+    print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) -I\${<D} -I\${<D}/../include -MMD -MP -c \$< -o \$\@\n\n" ;
 
-    print MAKEFILE "\${MODEL_cc_OBJ} : build\%.o : \%.cc\n" ;
-    print MAKEFILE "\tcd \$(<D) ; \$(TRICK_CPPC) \$(TRICK_CXXFLAGS) -MMD -MP -c \${<F} -o \$(CURDIR)/\$\@\n\n" ;
+    print MAKEFILE "\${MODEL_cc_OBJ} : \$(CURDIR)/build\%.o : \%.cc\n" ;
+    print MAKEFILE "\t\$(PRINT_COMPILE)\n\n" ;
+    print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) -I\${<D} -I\${<D}/../include -MMD -MP -c \$< -o \$\@\n\n" ;
 
-    print MAKEFILE "\${MODEL_cpp_OBJ} : build\%.o : \%.cpp\n" ;
-    print MAKEFILE "\tcd \$(<D) ; \$(TRICK_CPPC) \$(TRICK_CXXFLAGS) -MMD -MP -c \${<F} -o \$(CURDIR)/\$\@\n\n" ;
+    print MAKEFILE "\${MODEL_cpp_OBJ} : \$(CURDIR)/build\%.o : \%.cpp\n" ;
+    print MAKEFILE "\t\$(PRINT_COMPILE)\n\n" ;
+    print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) -I\${<D} -I\${<D}/../include -MMD -MP -c \$< -o \$\@\n\n" ;
 
-    print MAKEFILE "\${MODEL_cxx_OBJ} : build\%.o : \%.cxx\n" ;
-    print MAKEFILE "\tcd \$(<D) ; \$(TRICK_CPPC) \$(TRICK_CXXFLAGS) -MMD -MP -c \${<F} -o \$(CURDIR)/\$\@\n\n" ;
+    print MAKEFILE "\${MODEL_cxx_OBJ} : \$(CURDIR)/build\%.o : \%.cxx\n" ;
+    print MAKEFILE "\t\$(PRINT_COMPILE)\n\n" ;
+    print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) -I\${<D} -I\${<D}/../include -MMD -MP -c \$< -o \$\@\n\n" ;
 
-    print MAKEFILE "\${MODEL_CPLUSPLUS_OBJ} : build\%.o : \%.c++\n" ;
-    print MAKEFILE "\tcd \$(<D) ; \$(TRICK_CPPC) \$(TRICK_CXXFLAGS) -MMD -MP -c \${<F} -o \$(CURDIR)/\$\@\n\n" ;
+    print MAKEFILE "\${MODEL_CPLUSPLUS_OBJ} : \$(CURDIR)/build\%.o : \%.c++\n" ;
+    print MAKEFILE "\t\$(PRINT_COMPILE)\n\n" ;
+    print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) -I\${<D} -I\${<D}/../include -MMD -MP -c \$< -o \$\@\n\n" ;
 
-    print MAKEFILE "\${MODEL_clex_SRC} : build\%.clex : \%.l\n" ;
-    print MAKEFILE "\t\$(LEX) -o\$\@ \$\<\n\n" ;
+    print MAKEFILE "\${MODEL_clex_SRC} : \$(CURDIR)/build\%.clex : \%.l\n" ;
+    print MAKEFILE "\t\$(LEX) -o\$\@ \$<\n\n" ;
 
-    print MAKEFILE "\${MODEL_y_c_SRC} : build\%.y.c : \%.y\n" ;
-    print MAKEFILE "\t\$(YACC) -o\$\@ \$\?\n\n" ;
+    print MAKEFILE "\${MODEL_y_c_SRC} : \$(CURDIR)/build\%.y.c : \%.y\n" ;
+    print MAKEFILE "\t\$(YACC) -o\$\@ \$<\n\n" ;
 
-    print MAKEFILE "\${MODEL_y_OBJ} : build\%.o : \%.y.c\n" ;
-    print MAKEFILE "\tcd \$(<D) ; \$(TRICK_CC) \$(TRICK_CXXFLAGS) -MMD -MP -c \${<F} -o \$(CURDIR)/\$\@\n\n" ;
+    print MAKEFILE "\${MODEL_y_OBJ} : \$(CURDIR)/build\%.o : \%.y.c\n" ;
+    print MAKEFILE "\t\$(PRINT_COMPILE)\n\n" ;
+    print MAKEFILE "\t\$(ECHO_CMD)cd \$(<D) ; \$(TRICK_CC) \$(TRICK_CXXFLAGS) -MMD -MP -c \${<F} -o \$\@\n\n" ;
+
+    # Include all of the dependency files for each object code file
+    print MAKEFILE "-include \$(MODEL_c_OBJ:.o=.d)\n" ;
+    print MAKEFILE "-include \$(MODEL_C_OBJ:.o=.d)\n" ;
+    print MAKEFILE "-include \$(MODEL_cc_OBJ:.o=.d)\n" ;
+    print MAKEFILE "-include \$(MODEL_cpp_OBJ:.o=.d)\n" ;
+    print MAKEFILE "-include \$(MODEL_cxx_OBJ:.o=.d)\n" ;
+    print MAKEFILE "-include \$(MODEL_CPLUSPLUS_OBJ:.o=.d)\n\n" ;
 
     print MAKEFILE "\nDEFAULT_DATA_C_OBJ =" ;
     if ( exists $$sim_ref{def_data_c} ) {
@@ -322,18 +324,8 @@ S_OBJECT_FILES = build/S_source.o
     print MAKEFILE "\n\nDEFAULT_DATA_OBJECTS = \$(DEFAULT_DATA_C_OBJ) \$(DEFAULT_DATA_CPP_OBJ)\n\n" ;
 
     printf MAKEFILE "\n\nOBJECTS =" ;
-    for( $i = 0 ; $i < $num_src_files ; $i++ ) {
+    for( $i = 0 ; $i < $num_inc_objs ; $i++ ) {
         print MAKEFILE " \\\n\t\$(LIB_DIR)/o$i.o" ;
-    }
-
-    # print out the libraries we build
-    print MAKEFILE "\n\nBUILD_USER_LIBS = ";
-    foreach ( sort keys %files_by_dir ) {
-        if ( exists $files_by_dir{$_}{full_name} ) {
-            my $temp_str = $files_by_dir{$_}->{full_name} ;
-            $temp_str =~ s/object_\${TRICK_HOST_CPU}/lib_\${TRICK_HOST_CPU}/ ;
-            print MAKEFILE " \\\n\t$temp_str" ;
-        }
     }
 
     # print out the libraries we link
@@ -344,97 +336,66 @@ S_OBJECT_FILES = build/S_source.o
 
     print MAKEFILE "\n\n
 test_all: TRICK_CXXFLAGS += -DTRICK_UNIT_TEST
-test_all: TRICK_CFLAGS += -DTRICK_UNIT_TEST\n\n" ;
+test_all: TRICK_CFLAGS += -DTRICK_UNIT_TEST
 
-    print MAKEFILE "all: S_main\n\n" ;
+all: S_main
 
-    print MAKEFILE "test_all: all\n\n" ;
+test_all: all
 
-    print MAKEFILE "ICG:\n" ;
-    print MAKEFILE "\t\${TRICK_HOME}/bin/trick-ICG -m \${TRICK_CXXFLAGS} S_source.hh\n" ;
-    print MAKEFILE "force_ICG:\n" ;
-    print MAKEFILE "\t\${TRICK_HOME}/bin/trick-ICG -f -m \${TRICK_CXXFLAGS} S_source.hh\n" ;
+ICG:
+\t\$(PRINT_ICG)
+\t\$(ECHO_CMD)\${TRICK_HOME}/bin/trick-ICG -m \${TRICK_CXXFLAGS} S_source.hh
 
-    print MAKEFILE "
-S_main : objects \$(LIB_DIR) \$(S_MAIN) build/S_define.deps S_sie.resource
+force_ICG:
+\t\$(PRINT_ICG)
+\t\$(ECHO_CMD)\${TRICK_HOME}/bin/trick-ICG -f -m \${TRICK_CXXFLAGS} S_source.hh
+
+S_main : \$(S_MAIN) build/S_define.deps S_sie.resource
 \t@ echo \"\"
 \t@ echo \"[32m=== Simulation make complete ===[00m\"
 
-objects : \$(OBJECTS) build_user_lib
+\$(S_MAIN): \${TRICK_STATIC_LIB} \$(OBJECTS) \$(S_OBJECT_FILES)
+\t\$(PRINT_EXE_LINK)
+\t\$(ECHO_CMD)\$(TRICK_LD) \$(TRICK_LDFLAGS) -o \$@ \\
+\t\t\$(S_OBJECT_FILES) build/lib/*.o \\
+\t\t\${TRICK_USER_LINK_LIBS} \${READ_ONLY_LIBS} \\
+\t\t\$(LD_WHOLE_ARCHIVE) \${TRICK_LIBS} \$(LD_NO_WHOLE_ARCHIVE)\\
+\t\t\${TRICK_EXEC_LINK_LIBS}
 
-build_user_lib : \$(BUILD_USER_OBJ_DIRS) \$(BUILD_USER_LIBS)
+#\t\t\$(S_OBJECT_FILES) \@build/link_objs \\
+#\t\t\$(LD_WHOLE_ARCHIVE) \$(SIM_LIB) \$(LD_NO_WHOLE_ARCHIVE)\\
 
-" ;
-
-    if ( $num_src_files > 1 ) {
-        print MAKEFILE "\
-\$(S_MAIN): \$(BUILD_USER_LIBS) \${TRICK_STATIC_LIB} \$(SIM_LIB) \$(S_OBJECT_FILES) \$(SIM_LIBS)
-\t\$(TRICK_LD) \$(TRICK_LDFLAGS) -o \$@ \\
-\t\t\$(S_OBJECT_FILES)\\
-\t\t\$(LD_WHOLE_ARCHIVE) \$(SIM_LIB) \$(LD_NO_WHOLE_ARCHIVE)\\
-\t\t\${BUILD_USER_LIBS} \${TRICK_USER_LINK_LIBS} \${READ_ONLY_LIBS} \\
-\t\t\$(LD_WHOLE_ARCHIVE) \$(SIM_LIBS) \${TRICK_LIBS} \$(LD_NO_WHOLE_ARCHIVE)\\
-\t\t\$(HDF5_LIB) \${TRICK_EXEC_LINK_LIBS}" ;
-    } else {
-        print MAKEFILE "\
-\$(S_MAIN): \$(BUILD_USER_LIBS) \${TRICK_STATIC_LIB} \$(S_OBJECT_FILES) \$(SIM_LIBS)
-\t\$(TRICK_LD) \$(TRICK_LDFLAGS) -o \$@ \\
-\t\tbuild/*.o\\
-\t\t\${BUILD_USER_LIBS} \${TRICK_USER_LINK_LIBS} \${READ_ONLY_LIBS} \\
-\t\t\$(LD_WHOLE_ARCHIVE) \$(SIM_LIBS) \${TRICK_LIBS} \$(LD_NO_WHOLE_ARCHIVE)\\
-\t\t\$(HDF5_LIB) \${TRICK_EXEC_LINK_LIBS}" ;
-    }
-
-    print MAKEFILE "\n
 \$(OBJECTS) : | \$(LIB_DIR)
 
 \$(LIB_DIR) :
 \t@ mkdir -p \$@
-" ;
 
-    print MAKEFILE "
-build/S_source.o: S_source.cpp
-\t\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) -MMD -MP -c \$\< -o \$\@
-#\t\@\${TRICK_HOME}/\$(LIBEXEC)/trick/depend_objs S_source.cpp
+\$(CURDIR)/build/S_source.o: \$(CURDIR)/build/S_source.cpp
+\t\$(PRINT_COMPILE)
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) -MMD -MP -c \$\< -o \$\@
 
--include build/S_source.dep
+-include build/S_source.d
 
 build/S_define.deps:
-\t\$(TRICK_CPPC) \$(TRICK_SFLAGS) -M -MT Makefile_sim -MF build/S_define.deps -x c++ S_define
-" ;
+\t\$(PRINT_S_DEF_DEPS)
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_SFLAGS) -M -MT Makefile_sim -MF build/S_define.deps -x c++ S_define
 
-    print MAKEFILE "
-S_source.cpp S_default.dat: S_define
+\$(CURDIR)/build/S_source.cpp S_default.dat: S_define
 \t\$(PERL) \${TRICK_HOME}/bin/trick-CP -s -d
 
 sie: S_sie.resource
 
 S_sie.resource: \$(S_MAIN)
-\t@ echo \"Generating S_sie.resource...\"
-\t\$(S_MAIN) sie
+\t@ echo \"[34mGenerating S_sie.resource...[0m\"
+\t\$(ECHO_CMD)\$(S_MAIN) sie
 
 S_define_exp:
-\t\$(TRICK_CC) -E -C -xc++ \${TRICK_SFLAGS} S_define > \$@\n\n" ;
+\t\$(TRICK_CC) -E -C -xc++ \${TRICK_SFLAGS} S_define > \$@
 
-    # write out the the rules to make the libraries
-    print MAKEFILE "\n#LIBS\n\n"  ;
-    print MAKEFILE "\$(SIM_LIB) : \$(OBJECTS) \$(DEFAULT_DATA_OBJECTS)\n" ;
-    print MAKEFILE "\t@ echo \"[36mCreating libraries...[00m\"\n" ;
-    print MAKEFILE "\t\@ rm -rf \$\@\n" ;
-    print MAKEFILE "\tar crs \$\@ \$(LIB_DIR)/*.o || touch \$\@\n\n" ;
-
-    $m = 0 ;
-    foreach $k ( sort keys %files_by_dir ) {
-        foreach my $ext ( qw{ c C cc cxx cpp c++ y l } ) {
-            if ( scalar @{$files_by_dir{$k}{$ext}} ne 0 ) {
-                foreach $f ( @{$files_by_dir{$k}{$ext}} ) {
-                    print MAKEFILE "\$(LIB_DIR)/o$m.o : build$k/$files_by_dir{$k}{src_dir}${f}o\n" ;
-                    print MAKEFILE "\tln -f -s ../\$< \$@\n" ;
-                    $m++;
-                }
-            }
-        }
-    }
+\$(SIM_LIB) : \$(DEFAULT_DATA_OBJECTS)
+\t@ echo \"[34mCreating libraries...[00m\"
+\t\@ rm -rf \$\@
+\t\@ ar crs \$\@ \$^ || touch \$\@\n\n" ;
 
     print MAKEFILE "\n\n#DEFAULT_DATA_C_OBJ\n\n" ;
     foreach my $d ( sort keys %{$$sim_ref{def_data_c}} ) {
@@ -458,15 +419,17 @@ S_define_exp:
         }
     }
 
-    print MAKEFILE "\n-include Makefile_io_src\n" ;
-    print MAKEFILE "\ninclude Makefile_swig\n" ;
+    print MAKEFILE "\n-include build/Makefile_io_src\n" ;
+    print MAKEFILE "\ninclude build/Makefile_swig\n" ;
     print MAKEFILE "\n-include S_overrides.mk\n" ;
 
     close MAKEFILE ;
 
-    if ( ! -e "build" ) {
-        mkdir "build", 0775 ;
+    open SIM_INC_OBJS , ">build/link_objs" or return ;
+    for( $i = 0 ; $i < $num_inc_objs ; $i++ ) {
+        print SIM_INC_OBJS "build/lib/o$i.o\n" ;
     }
+    close SIM_INC_OBJS ;
 
     # write out all of the files we used to S_library_list
     open LIB_LIST, ">build/S_library_list" or die "Could not open build/S_library_list" ;

@@ -61,7 +61,7 @@ endif
 # Do this section only once
 ifeq ($(MAKELEVEL),0)
 
-export TRICK_INCLUDES := -I${TRICK_HOME}/trick_source -I../include -I${TRICK_HOME}/include -I${TRICK_HOME}/include/trick/compat
+export TRICK_INCLUDES := -I${TRICK_HOME}/trick_source -I${TRICK_HOME}/include -I${TRICK_HOME}/include/trick/compat
 export TRICK_VERSIONS := -DTRICK_VER=$(TRICK_MAJOR) -DTRICK_MINOR=$(TRICK_MINOR)
 TRICK_CFLAGS += $(TRICK_INCLUDES) $(TRICK_VERSIONS) -fpic
 ifdef TRICK_CXXFLAGS
@@ -123,6 +123,7 @@ ifneq ($(HDF5),/usr)
 else
  HDF5_LIB = -lhdf5_hl -lhdf5
 endif
+TRICK_EXEC_LINK_LIBS += ${HDF5_LIB}
 endif
 
 HAVE_GSL := $(shell test -e ${GSL_HOME}/include/gsl && echo "1")

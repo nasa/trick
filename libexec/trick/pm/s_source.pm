@@ -15,7 +15,7 @@ sub s_source($) {
 
     #--------------------------------------------------------------
     # Generate S_source.c
-    open S_SOURCE, ">S_source.cpp" or die "Couldn't open S_source.cpp!\n";
+    open S_SOURCE, ">build/S_source.cpp" or die "Couldn't open build/S_source.cpp!\n";
     open S_SOURCE_H, ">S_source.hh" or die "Couldn't open S_source.hh!\n";
 
     # Get Trick version
@@ -146,7 +146,7 @@ PURPOSE:
 
     close S_SOURCE_H ;
 
-    print S_SOURCE "#include \"S_source.hh\"\n" ;
+    print S_SOURCE "#include \"../S_source.hh\"\n" ;
 
     print S_SOURCE "$$sim_ref{user_code}\n" ;
 

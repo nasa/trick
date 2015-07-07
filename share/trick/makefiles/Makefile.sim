@@ -12,17 +12,17 @@ ifeq ($(MAKECMDGOALS), debug)
  TRICK_CPFLAGS += --debug
 endif
 
-all : ${TRICK_LIB_DIR}/libtrick.a Makefile_sim build
+all : ${TRICK_LIB_DIR}/libtrick.a build/Makefile_sim
 	@/bin/cp ${TRICK_HOME}/share/trick/MAKE_out_header.txt build/MAKE_out
-	@$(MAKE) --no-print-directory -f Makefile_sim ICG 2>&1 | tee -a build/MAKE_out ; exit $${PIPESTATUS[0]}
-	@$(MAKE) --no-print-directory -f Makefile_sim convert_swig 2>&1 | tee -a build/MAKE_out ; exit $${PIPESTATUS[0]}
-	@$(MAKE) --no-print-directory -f Makefile_sim all 2>&1 | tee -a build/MAKE_out ; exit $${PIPESTATUS[0]}
+	@$(MAKE) --no-print-directory -f build/Makefile_sim ICG 2>&1 | tee -a build/MAKE_out ; exit $${PIPESTATUS[0]}
+	@$(MAKE) --no-print-directory -f build/Makefile_sim convert_swig 2>&1 | tee -a build/MAKE_out ; exit $${PIPESTATUS[0]}
+	@$(MAKE) --no-print-directory -f build/Makefile_sim all 2>&1 | tee -a build/MAKE_out ; exit $${PIPESTATUS[0]}
 
-test : ${TRICK_LIB_DIR}/libtrick.a Makefile_sim build
+test : ${TRICK_LIB_DIR}/libtrick.a build/Makefile_sim
 	@/bin/cp ${TRICK_HOME}/share/trick/MAKE_out_header.txt build/MAKE_out
-	@$(MAKE) --no-print-directory -f Makefile_sim ICG 2>&1 | tee -a build/MAKE_out ; exit $${PIPESTATUS[0]}
-	@$(MAKE) --no-print-directory -f Makefile_sim convert_swig 2>&1 | tee -a build/MAKE_out ; exit $${PIPESTATUS[0]}
-	@$(MAKE) --no-print-directory -f Makefile_sim test_all 2>&1 | tee -a build/MAKE_out ; exit $${PIPESTATUS[0]}
+	@$(MAKE) --no-print-directory -f build/Makefile_sim ICG 2>&1 | tee -a build/MAKE_out ; exit $${PIPESTATUS[0]}
+	@$(MAKE) --no-print-directory -f build/Makefile_sim convert_swig 2>&1 | tee -a build/MAKE_out ; exit $${PIPESTATUS[0]}
+	@$(MAKE) --no-print-directory -f build/Makefile_sim test_all 2>&1 | tee -a build/MAKE_out ; exit $${PIPESTATUS[0]}
 
 build:
 	mkdir $@
@@ -33,41 +33,34 @@ ${TRICK_LIB_DIR}/libtrick.a:
 	@echo "Cannot find $@.  Please build Trick for this platfrom"
 	@exit -1
 
-Makefile_sim: S_define
-	@/bin/rm -rf lib_${TRICK_HOST_CPU} object_${TRICK_HOST_CPU}
+build/Makefile_sim: S_define | build
 	@${TRICK_HOME}/$(LIBEXEC)/trick/configuration_processor $(TRICK_CPFLAGS)
 
 model_dirs:
 	@${TRICK_HOME}/$(LIBEXEC)/trick/configuration_processor -z
 
 sie ICG force_ICG convert_swig S_define_exp:
-	@if [ -f Makefile_sim ] ; then $(MAKE) --no-print-directory -f Makefile_sim $@ ; else echo "No Makefile_sim found" ; fi
+	@if [ -f build/Makefile_sim ] ; then $(MAKE) --no-print-directory -f build/Makefile_sim $@ ; else echo "No build/Makefile_sim found" ; fi
 
 help:
 	@ echo -e "\n\
 Simulation make options:\n\
-    make                 - Makes everything: S_main, S_sie.resource,\n\
-\t\t\tand S_default.dat\n\
+    make                 - Makes everything: S_main and S_sie.resource\n\
     make S_sie.resource  - Rebuilds the S_sie.resource file.\n\
-    make S_source.cpp    - Rebuilds the S_source.cpp file.\n\
-    make clean           - Removes all auto-generated files in\n\
-\t\t\tsimulation directory\n\
+    make clean           - Removes all object files in simulation directory\n\
     make real_clean      - Performs a clean\n\
     make spotless        - Performs a clean\n\
     make apocalypse      - Performs a clean"
 
 tidy:
-	-rm -rf Default_data S_default.dat
 	-rm -f S_sie.resource
 	-rm -f DP_Product/DP_rt_frame DP_Product/DP_rt_itimer
 	-rm -f DP_Product/DP_rt_jobs DP_Product/DP_rt_timeline DP_Product/DP_mem_stats
-	-rm -f S_source.cpp S_source.hh
-	-rm -rf lib_* S_main* T_main*
-	-rm -f Makefile_sim
-	-rm -f Makefile_io_src
-	-rm -f Makefile_swig
+	-rm -f S_main* T_main*
 
 clean: tidy
+	-rm -rf Default_data S_default.dat
+	rm -f S_source.hh
 	rm -rf build
 	-rm -rf trick
 	@ echo "Removed build directory"

@@ -362,6 +362,7 @@ void PrintAttributes::closeMapFiles() {
 //TODO: Move this into PrintFileContents10.
 void PrintAttributes::printIOMakefile() {
     std::ofstream makefile ;
+    std::ofstream link_io_objs ;
     unsigned int ii ;
 
     // Don't create a makefile if we didn't process any files.
@@ -369,7 +370,7 @@ void PrintAttributes::printIOMakefile() {
        return ;
     }
 
-    makefile.open("Makefile_io_src") ;
+    makefile.open("build/Makefile_io_src") ;
 
     makefile << "TRICK_IO_CXXFLAGS := \\" << std::endl ;
     makefile << " -Wno-invalid-offsetof \\" << std::endl ;
@@ -384,6 +385,13 @@ void PrintAttributes::printIOMakefile() {
     makefile << " endif" << std::endl ;
     makefile << "endif" << std::endl ;
     makefile << std::endl ;
+    makefile << "ifdef TRICK_VERBOSE_BUILD" << std::endl ;
+    makefile << "PRINT_IO_COMPILE =" << std::endl ;
+    makefile << "PRINT_IO_INC_LINK =" << std::endl ;
+    makefile << "else" << std::endl ;
+    makefile << "PRINT_IO_COMPILE = @echo \"[34mCompiling io[0m $(subst $(CURDIR)/build,build,$<)\"" << std::endl ;
+    makefile << "PRINT_IO_INC_LINK = @echo \"[34mPartial linking[0m io objects\"" << std::endl ;
+    makefile << "endif" << std::endl ;
 
 //TODO: create the io_file name if it doesn't exist
     makefile << "IO_OBJ_FILES =" ;
@@ -393,43 +401,39 @@ void PrintAttributes::printIOMakefile() {
         if ( mit != all_io_files.end() ) {
             size_t found ;
             found = (*mit).second.find_last_of(".") ;
-            makefile << " \\\n " << (*mit).second.substr(0,found) << ".o" ;
+            makefile << " \\\n $(CURDIR)/" << (*mit).second.substr(0,found) << ".o" ;
         }
     }
-    makefile << " \\\n build/class_map.o" ;
-    makefile << " \\\n build/enum_map.o" ;
-    makefile << std::endl << std::endl ;
+    makefile << " \\\n $(CURDIR)/build/class_map.o" ;
+    makefile << " \\\n $(CURDIR)/build/enum_map.o" << std::endl ;
+    makefile << std::endl ;
+    makefile << "$(IO_OBJ_FILES) : \%.o : \%.cpp" << std::endl ;
+    makefile << "\t$(PRINT_IO_COMPILE)" << std::endl ;
+    makefile << "\t$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_IO_CXXFLAGS) -MMD -MP -c $< -o $@" << std::endl ;
+    makefile << std::endl ;
+    makefile << "-include $(IO_OBJ_FILES:.o=.d)" << std::endl ;
+    makefile << std::endl ;
 
-    makefile << "IO_OBJECTS =" ;
-    for ( ii = 0 ; ii < visited_files.size() + 2 ; ii++ ) {
-        makefile << " \\\n $(LIB_DIR)/i" << ii << ".o" ;
-    }
-    makefile << std::endl << std::endl ;
+    makefile << "$(S_MAIN) : $(LIB_DIR)/io_src.o" << std::endl ;
+    makefile << std::endl ;
+    makefile << "$(LIB_DIR)/io_src.o : $(IO_OBJ_FILES) | $(LIB_DIR)" << std::endl ;
+    makefile << "\t$(PRINT_IO_INC_LINK)" << std::endl ;
+    makefile << "\t$(ECHO_CMD)ld -Ur -o $@ @build/link_io_objs" << std::endl ;
 
-    for ( sit = visited_files.begin() , ii = 0 ; sit != visited_files.end() ; sit++ , ii++ ) {
+    makefile.close() ;
+
+    link_io_objs.open("build/link_io_objs") ;
+    for ( sit = visited_files.begin() ; sit != visited_files.end() ; sit++ ) {
         std::map< std::string , std::string >::iterator mit = all_io_files.find(*sit) ;
         if ( mit != all_io_files.end() ) {
             size_t found ;
             found = (*mit).second.find_last_of(".") ;
-            makefile << "$(LIB_DIR)/i" << ii << ".o : " << (*mit).second.substr(0,found) << ".o" << std::endl ;
-            makefile << "\tln -f -s ../$< $@" << std::endl ;
+            link_io_objs << (*mit).second.substr(0,found) << ".o" << std::endl ;
         }
     }
-    makefile << "$(LIB_DIR)/i" << ii++ << ".o : " << "build/class_map.o" << std::endl ;
-    makefile << "\tln -f -s ../$< $@" << std::endl ;
-    makefile << "$(LIB_DIR)/i" << ii << ".o : " << "build/enum_map.o" << std::endl ;
-    makefile << "\tln -f -s ../$< $@" << std::endl ;
-
-    makefile << "$(IO_OBJECTS) : | $(LIB_DIR)" << std::endl ;
-    makefile << std::endl ;
-    makefile << "$(IO_OBJ_FILES) : \%.o : \%.cpp" << std::endl ;
-    makefile << "\tcd $(<D) ; $(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_IO_CXXFLAGS) -MMD -MP -c ${<F} -o ${@F}" << std::endl ;
-    makefile << std::endl ;
-    makefile << "$(SIM_LIB) : $(IO_OBJECTS)" << std::endl ;
-    makefile << "$(IO_OBJECTS) : | $(LIB_DIR)" << std::endl ;
-    makefile << std::endl ;
-
-    makefile.close() ;
+    link_io_objs << "build/class_map.o" << std::endl ;
+    link_io_objs << "build/enum_map.o" << std::endl ;
+    link_io_objs.close() ;
 }
 
 void PrintAttributes::printEmptyFiles() {
@@ -491,7 +495,7 @@ void PrintAttributes::printEmptyFiles() {
 void PrintAttributes::printICGNoFiles() {
     if ( ! sim_services_flag ) {
         std::vector< std::string >::iterator it ;
-        std::ofstream icg_no_outfile(".icg_no_found") ;
+        std::ofstream icg_no_outfile("build/icg_no_found") ;
         for ( it = icg_no_files.begin() ; it != icg_no_files.end() ; it++ ) {
             icg_no_outfile << (*it) << std::endl ;
         }

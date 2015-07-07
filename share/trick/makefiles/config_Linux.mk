@@ -1,7 +1,6 @@
 
 INSTALL = /bin/install
 
-
 # if we are on a Rehat system, the lib directory is lib64 on 64 bit machines
 ifneq ("$(wildcard /etc/redhat-release)","")
 UNAME_M := $(shell uname -m)

@@ -388,6 +388,7 @@ sub process_file($$) {
                                 last ;
                             }
                         }
+                        $file_name =~ s/^"// ;
                         $file_name = "\"build" . $file_name . "\"" ;
 
                         if ( $exclude == 0 ) {

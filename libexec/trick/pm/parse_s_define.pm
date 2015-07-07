@@ -255,9 +255,6 @@ sub parse_s_define ($) {
             #print "[33m look for object $object_file[00m\n" ;
             if ( $object_file =~ /^\// ) {
                 push @{$$sim_ref{mis_entry_files}}, $object_file ;
-            } elsif ( $object_file =~ /^sim_lib(\S+)/i ) {
-                push @{$$sim_ref{sim_libraries}}, $1 ;
-                #print "found a sim_library $1\n" ;
             } else {
                 my $found = 0 ;
                 foreach my $inc_path ( @valid_inc_paths ) {
