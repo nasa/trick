@@ -116,6 +116,10 @@ void AxisRect::showCurveDiff()
     _isYRangeCalculated = false ;
     TrickCurve* curve = addCurve(&_diffCurveTimes,&_diffCurveVals);
 
+    // Diff curve legend label
+    QString diffLabel = "diff " + _curves.at(0)->name();
+    curve->setName(diffLabel);
+
     bool isValid;
     double xmin = curve->xRange(isValid).lower;
     double xmax = curve->xRange(isValid).upper;
