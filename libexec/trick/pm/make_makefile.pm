@@ -225,7 +225,7 @@ S_OBJECT_FILES = \$(CURDIR)/build/S_source.o
 
                 print MAKEFILE "\$(CURDIR)/build/lib/o${num_inc_objs}.o : \$(MODEL_${print_ext}_OBJ_$files_by_dir{$k}{dir_num})\n" ;
                 print MAKEFILE "\t\$(PRINT_INC_LINK)\n" ;
-                print MAKEFILE "\t\$(ECHO_CMD)cd \${<D} ; ld -Ur -o \$\@ \$(notdir \$^)\n\n" ;
+                print MAKEFILE "\t\$(ECHO_CMD)cd \${<D} ; ld \$(LD_PARTIAL) -o \$\@ \$(notdir \$^)\n\n" ;
                 $num_inc_objs++ ;
             }
         }

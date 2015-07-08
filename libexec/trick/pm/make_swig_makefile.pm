@@ -323,7 +323,7 @@ SWIG_PY_OBJECTS =" ;
 
 \$(SWIG_MODULE_OBJECTS) : \$(SWIG_PY_OBJECTS) | \$(LIB_DIR)
 \t\$(PRINT_SWIG_INC_LINK)
-\t\$(ECHO_CMD)ld -Ur -o \$\@ \@build/link_py_objs
+\t\$(ECHO_CMD)ld \$(LD_PARTIAL) -o \$\@ \$(LD_FILELIST)build/link_py_objs
 \n\n" ;
 
     print MAKEFILE "$swig_src_dir/py_top.cpp : $swig_src_dir/top.i\n" ;

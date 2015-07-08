@@ -1,6 +1,10 @@
 
 INSTALL = /bin/install
 
+# options for partial linking
+LD_PARTIAL = -Ur
+LD_FILELIST = @
+
 # if we are on a Rehat system, the lib directory is lib64 on 64 bit machines
 ifneq ("$(wildcard /etc/redhat-release)","")
 UNAME_M := $(shell uname -m)

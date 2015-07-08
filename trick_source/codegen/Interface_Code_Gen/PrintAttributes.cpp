@@ -372,13 +372,12 @@ void PrintAttributes::printIOMakefile() {
     makefile << " -Wno-invalid-offsetof \\" << std::endl ;
     makefile << " -Wno-old-style-cast \\" << std::endl ;
     makefile << " -Wno-write-strings \\" << std::endl ;
-    makefile << " -Wno-unused-local-typedefs \\" << std::endl ;
     makefile << " -Wno-unused-variable" << std::endl ;
     makefile << std::endl ;
     makefile << "ifeq ($(IS_CC_CLANG), 0)" << std::endl ;
     makefile << " GCCVERSIONGTEQ48 := $(shell perl -e 'printf \"\%d\\n\", ($(GCC_MAJOR)>4)||(($(GCC_MAJOR)==4)&&($(GCC_MINOR)>=8)) ;' )" << std::endl ;
     makefile << " ifeq ($(GCCVERSIONGTEQ48), 1)" << std::endl ;
-    makefile << "  TRICK_IO_CXXFLAGS += -Wno-unused-but-set-variable" << std::endl ;
+    makefile << "  TRICK_IO_CXXFLAGS += -Wno-unused-but-set-variable -Wno-unused-local-typedefs" << std::endl ;
     makefile << " endif" << std::endl ;
     makefile << "endif" << std::endl ;
     makefile << std::endl ;
@@ -416,7 +415,7 @@ void PrintAttributes::printIOMakefile() {
     makefile << std::endl ;
     makefile << "$(LIB_DIR)/io_src.o : $(IO_OBJ_FILES) | $(LIB_DIR)" << std::endl ;
     makefile << "\t$(PRINT_IO_INC_LINK)" << std::endl ;
-    makefile << "\t$(ECHO_CMD)ld -Ur -o $@ @build/link_io_objs" << std::endl ;
+    makefile << "\t$(ECHO_CMD)ld $(LD_PARTIAL) -o $@ $(LD_FILELIST)build/link_io_objs" << std::endl ;
 
     makefile.close() ;
 
