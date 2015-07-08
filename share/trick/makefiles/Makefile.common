@@ -102,7 +102,7 @@ ifeq ($(TRICK_FORCE_32BIT), 1)
  TRICK_CFLAGS += -m32
  TRICK_CXXFLAGS += -m32
  TRICK_LDFLAGS += -m32
- LD_PARTIAL += -m32
+ LD_PARTIAL += -melf_i386
 endif
 
 IS_CC_CLANG = $(shell ${TRICK_CPPC} -xc /dev/null -dM -E | grep -c __clang__)
