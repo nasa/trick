@@ -43,14 +43,14 @@ sie ICG force_ICG convert_swig S_define_exp:
 	@if [ -f build/Makefile_sim ] ; then $(MAKE) --no-print-directory -f build/Makefile_sim $@ ; else echo "No build/Makefile_sim found" ; fi
 
 help:
-	@ echo -e "\n\
+	@ echo -e "\
 Simulation make options:\n\
-    make                 - Makes everything: S_main and S_sie.resource\n\
-    make S_sie.resource  - Rebuilds the S_sie.resource file.\n\
-    make clean           - Removes all object files in simulation directory\n\
-    make real_clean      - Performs a clean\n\
-    make spotless        - Performs a clean\n\
-    make apocalypse      - Performs a clean"
+    make [debug] [TRICK_VERBOSE_BUILD=1] - Makes everything: S_main and S_sie.resource\n\
+    make model_dirs              - Lists model directories use to build simulation\n\
+    make sie                     - Builds the S_sie.resource file.\n\
+    make clean                   - Removes all object files in simulation directory\n\
+    make spotless                - Performs a clean\n\
+    make apocalypse              - Performs a clean"
 
 tidy:
 	-rm -f S_sie.resource
