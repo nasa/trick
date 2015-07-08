@@ -56,6 +56,7 @@ my $stls = 0;  # option variable with default value (false)
 
 my ( @include_paths, @include_dirs , @defines) ;
 my ( @swig_exclude_dirs) ;
+my ( @exclude_dirs) ;
 my %sim ;
 my %out_of_date ;
 my ($version, $thread, $year) ;
@@ -128,6 +129,7 @@ if ( $help ) {
 if ( scalar @swig_exclude_dirs == 0 ) {
     @swig_exclude_dirs = split /:/ , $ENV{"TRICK_ICG_EXCLUDE"} ;
 }
+@exclude_dirs = split /:/ , $ENV{"TRICK_EXCLUDE"} ;
 push @include_paths , ("-I".$ENV{"TRICK_HOME"}."/trick_source" , "-I../include") ;
 @defines = $ENV{"TRICK_CFLAGS"} =~ /(-D\S+)/g ;       # get defines from TRICK_CFLAGS
 if ( $ENV{"TRICK_CFLAGS"} !~ /DTRICK_VER=/ ) {
@@ -151,7 +153,7 @@ if ( $system_type eq "Darwin" ) {
 ## the file ".S_library_swig". So, if .S_library_swig exists, we can just open and read it.
 ##
 
-my ($s_library_swig) = ".S_library_swig" ;
+my ($s_library_swig) = "build/S_library_swig" ;
 
 if ( -e $s_library_swig ) {
     open FILE_LIST, $s_library_swig ;
@@ -243,6 +245,14 @@ if ( -e $s_library_swig ) {
                 # if file location begins with $ie (an IGC exclude dir)
                 if ( $f =~ /^\Q$ie/ ) {
                     $skipped_files{$f} = "ICG exclude dir $ie" ;
+                    delete $sim{final_all_includes}{$f} ;
+                    last ;  # break out of loop
+                }
+            }
+            foreach my $ie ( @exclude_dirs ) {
+                # if file location begins with $ie (an IGC exclude dir)
+                if ( $f =~ /^\Q$ie/ ) {
+                    $skipped_files{$f} = "Exclude dir $ie" ;
                     delete $sim{final_all_includes}{$f} ;
                     last ;  # break out of loop
                 }

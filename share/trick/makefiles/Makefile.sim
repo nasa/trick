@@ -65,7 +65,7 @@ clean: tidy
 	-rm -rf trick
 	@ echo "Removed build directory"
 
-real_clean spotless: clean
+spotless: clean
 
 apocalypse: clean
 	@echo "[31mI love the smell of napalm in the morning[0m"

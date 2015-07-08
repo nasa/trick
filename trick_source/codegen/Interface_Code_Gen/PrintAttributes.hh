@@ -45,9 +45,6 @@ class PrintAttributes {
         /** Create makefile for IO files */
         virtual void printIOMakefile() ;
 
-        /** Create empty io_files for headers that contain no class/struct information */
-        virtual void printEmptyFiles() ;
-
         /** Prints list of files that contain ICG:(No) in the Trick header */
         virtual void printICGNoFiles() ;
 

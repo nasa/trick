@@ -48,6 +48,13 @@ class HeaderSearchDirs {
         bool isPathInUserOrTrickDir (std::string path) ;
 
         /** Returns true if directory is a subdirectory of an excluded directory listed
+            in the TRICK_EXCLUDE environment variable.
+            @param path = directory path to be checked
+            @return true = path is in a system directory, false = not in system directory.
+          */
+        bool isPathInExclude (std::string path) ;
+
+        /** Returns true if directory is a subdirectory of an excluded directory listed
             in the TRICK_ICG_EXCLUDE environment variable.
             @param path = directory path to be checked
             @return true = path is in a system directory, false = not in system directory.
@@ -60,6 +67,12 @@ class HeaderSearchDirs {
             @return true = path is in a system directory, false = not in system directory.
           */
         bool isPathInICGNoComment (std::string path) ;
+
+        /** Returns the TRICK_EXCLUDE directory that contains the path argument.
+            @param path = path to be checked
+            @return string from TRICK_EXCLUDE that contains the path.
+          */
+        std::string getPathInExclude (std::string path) ;
 
         /** Returns the TRICK_ICG_EXCLUDE directory that contains the path argument.
             @param path = path to be checked
@@ -100,6 +113,9 @@ class HeaderSearchDirs {
         /** Adds ${TRICK_HOME}/trick_source to the search directories */
         void AddTrickSearchDirs () ;
 
+        /** Create list of EXCLUDE directories  */
+        void AddExcludeDirs () ;
+
         /** Create list of ICG_EXCLUDE directories  */
         void AddICGExcludeDirs () ;
 
@@ -108,6 +124,9 @@ class HeaderSearchDirs {
 
         /** Apply all search directories to the preprocessor. */
         void ApplyHeaderSearchOptions () ;
+
+        /** List of directoris to exclude from the TRICK_EXCLUDE environment variable */
+        std::vector<std::string> exclude_dirs ;
 
         /** List of directoris to exclude from the TRICK_ICG_EXCLUDE environment variable */
         std::vector<std::string> icg_exclude_dirs ;

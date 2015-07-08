@@ -193,9 +193,6 @@ int main( int argc , char * argv[] ) {
         pa.printIOMakefile() ;
     }
 
-    // Print empty io_src files for headers that we visited, but have no class/struct information.
-    pa.printEmptyFiles() ;
-
     // Close the map files
     pa.closeMapFiles() ;
 

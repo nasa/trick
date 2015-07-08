@@ -134,12 +134,33 @@ void HeaderSearchDirs::AddICGExcludeDirs () {
         std::stringstream ss(s);
         std::string item;
         while(std::getline(ss, item, ':')) {
-            //icg_exclude_dirs.push_back(item);
             item = trim(item) ;
             if ( ! item.empty() ) {
                 char * resolved_path = realpath(item.c_str(), NULL) ;
                 if ( resolved_path ) {
                     icg_exclude_dirs.push_back(std::string(resolved_path) + std::string("/"));
+                } else {
+                    std::cout << "Cannot find TRICK_ICG_EXCLUDE directory " << item << std::endl ;
+                }
+            }
+        }
+    }
+}
+
+void HeaderSearchDirs::AddExcludeDirs () {
+
+    char * trick_exclude = getenv("TRICK_EXCLUDE") ;
+
+    if( trick_exclude != NULL ) {
+        std::string s = std::string(trick_exclude) ;
+        std::stringstream ss(s);
+        std::string item;
+        while(std::getline(ss, item, ':')) {
+            item = trim(item) ;
+            if ( ! item.empty() ) {
+                char * resolved_path = realpath(item.c_str(), NULL) ;
+                if ( resolved_path ) {
+                    exclude_dirs.push_back(std::string(resolved_path) + std::string("/"));
                 } else {
                     std::cout << "Cannot find TRICK_ICG_EXCLUDE directory " << item << std::endl ;
                 }
@@ -191,6 +212,7 @@ void HeaderSearchDirs::addSearchDirs ( std::vector<std::string> & include_dirs )
     AddUserSearchDirs( include_dirs ) ;
     AddTrickSearchDirs() ;
     AddCompilerBuiltInSearchDirs() ;
+    AddExcludeDirs() ;
     AddICGExcludeDirs() ;
     AddICGNoCommentDirs() ;
     ApplyHeaderSearchOptions() ;
@@ -224,6 +246,18 @@ bool HeaderSearchDirs::isPathInUserOrTrickDir (std::string in_dir ) {
         }
     }
     return true ;
+}
+
+bool HeaderSearchDirs::isPathInExclude (std::string in_dir ) {
+
+    std::vector<std::string>::iterator vit ;
+    for ( vit = exclude_dirs.begin() ; vit != exclude_dirs.end() ; vit++ ) {
+        if ( ! in_dir.compare(0, (*vit).size(), (*vit))) {
+            return true ;
+        }
+    }
+
+    return false ;
 }
 
 bool HeaderSearchDirs::isPathInICGExclude (std::string in_dir ) {
@@ -260,6 +294,18 @@ bool HeaderSearchDirs::isPathInICGNoComment (std::string in_file ) {
         return icg_nocomment_files[dir] ;
     }
     return false ;
+}
+
+std::string HeaderSearchDirs::getPathInExclude (std::string in_dir ) {
+
+    std::vector<std::string>::iterator vit ;
+    for ( vit = exclude_dirs.begin() ; vit != exclude_dirs.end() ; vit++ ) {
+        if ( ! in_dir.compare(0, (*vit).size(), (*vit))) {
+            return (*vit) ;
+        }
+    }
+
+    return std::string() ;
 }
 
 std::string HeaderSearchDirs::getPathInICGExclude (std::string in_dir ) {

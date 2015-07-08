@@ -103,15 +103,6 @@ bool PrintAttributes::doesIODirectoryExist(std::string io_file_name) {
     dir_name = dirname((char *)temp_name) ;
 
     _mkdir(dir_name) ;
-/*
-    if ( stat( dir_name , &buf ) != 0 ) {
-        if ( mkdir( dir_name , 0755 ) != 0 ) {
-            // dir does not exist and cannot make the directory.
-            std::cout << "[31mUnable to create " << dir_name << " for writing.[00m" << std::endl ;
-            ret = false ;
-        }
-    }
-*/
     free(temp_name) ;
     return ret ;
 }
@@ -151,38 +142,43 @@ bool PrintAttributes::openIOFile(std::string header_file_name) {
             // Only include user directories (not system dirs like /usr/include)
             if ( hsd.isPathInUserDir(rp) ) {
                 // Don't process files in excluded directories
-                if ( hsd.isPathInICGExclude(rp) == false ) {
-                    // Only include files that do not have ICG: (No)
-                    // hasICGNo uses original header name, not the real path
-                    if ( ! cs.hasICGNo(header_file_name) ) {
-                        std::string io_file_name = createIOFileName(std::string(rp)) ;
-                        all_io_files[header_file_name] = io_file_name ;
-                        // Does the io_src directory exist or can we successfully mkdir it?
-                        if ( doesIODirectoryExist(io_file_name) ) {
-                            // Is the io_src file out of date or does not exist yet
-                            if ( isIOFileOutOfDate(rp, io_file_name) ) {
-                                // All conditions have been met.  Store the io_src file name in out_of_date_io_files.
-                                out_of_date_io_files[header_file_name] = io_file_name ;
-                                free(rp) ;
-                                /* This is the first time we are visiting the file,
-                                   open the file and write header information */
-                                outfile.open(out_of_date_io_files[header_file_name].c_str()) ;
-                                printer->printIOHeader(outfile, header_file_name) ;
-                                std::cout << "[35mWriting " << out_of_date_io_files[header_file_name] << "[00m" << std::endl ;
-                                // Get all of the ignored types from this file.
-                                ignored_types[header_file_name] = cs.getIgnoreTypes(header_file_name) ;
-                                return true ;
+                if ( hsd.isPathInExclude(rp) == false ) {
+                    if ( hsd.isPathInICGExclude(rp) == false ) {
+                        // Only include files that do not have ICG: (No)
+                        // hasICGNo uses original header name, not the real path
+                        if ( ! cs.hasICGNo(header_file_name) ) {
+                            std::string io_file_name = createIOFileName(std::string(rp)) ;
+                            all_io_files[header_file_name] = io_file_name ;
+                            // Does the io_src directory exist or can we successfully mkdir it?
+                            if ( doesIODirectoryExist(io_file_name) ) {
+                                // Is the io_src file out of date or does not exist yet
+                                if ( isIOFileOutOfDate(rp, io_file_name) ) {
+                                    // All conditions have been met.  Store the io_src file name in out_of_date_io_files.
+                                    out_of_date_io_files[header_file_name] = io_file_name ;
+                                    free(rp) ;
+                                    /* This is the first time we are visiting the file,
+                                       open the file and write header information */
+                                    outfile.open(out_of_date_io_files[header_file_name].c_str()) ;
+                                    printer->printIOHeader(outfile, header_file_name) ;
+                                    std::cout << "[35mWriting " << out_of_date_io_files[header_file_name] << "[00m" << std::endl ;
+                                    // Get all of the ignored types from this file.
+                                    ignored_types[header_file_name] = cs.getIgnoreTypes(header_file_name) ;
+                                    return true ;
+                                }
+                            } else {
+                                std::cout << "[33mICG skipping " << rp << " (cannot create io_src dir)[00m" << std::endl ;
                             }
                         } else {
-                            std::cout << "[33mICG skipping " << rp << " (cannot create io_src dir)[00m" << std::endl ;
+                            std::cout << "[33mICG skipping " << rp << " (ICG No found)[00m" << std::endl ;
+                            icg_no_files.push_back(rp) ;
                         }
                     } else {
-                        std::cout << "[33mICG skipping " << rp << " (ICG No found)[00m" << std::endl ;
-                        icg_no_files.push_back(rp) ;
+                        std::cout << "[33mICG skipping " << rp << " (ICG exclude dir " <<
+                         hsd.getPathInICGExclude(rp) << ")[00m" << std::endl ;
                     }
                 } else {
-                    std::cout << "[33mICG skipping " << rp << " (ICG exclude dir " <<
-                     hsd.getPathInICGExclude(rp) << ")[00m" << std::endl ;
+                    std::cout << "[33mICG skipping " << rp << " (exclude dir " <<
+                     hsd.getPathInExclude(rp) << ")[00m" << std::endl ;
                 }
             } else {
                 //std::cout << "[33mICG skipping " << rp << " (not in user path) " << std::endl ;
@@ -376,6 +372,7 @@ void PrintAttributes::printIOMakefile() {
     makefile << " -Wno-invalid-offsetof \\" << std::endl ;
     makefile << " -Wno-old-style-cast \\" << std::endl ;
     makefile << " -Wno-write-strings \\" << std::endl ;
+    makefile << " -Wno-unused-local-typedefs \\" << std::endl ;
     makefile << " -Wno-unused-variable" << std::endl ;
     makefile << std::endl ;
     makefile << "ifeq ($(IS_CC_CLANG), 0)" << std::endl ;
@@ -392,6 +389,7 @@ void PrintAttributes::printIOMakefile() {
     makefile << "PRINT_IO_COMPILE = @echo \"[34mCompiling io[0m $(subst $(CURDIR)/build,build,$<)\"" << std::endl ;
     makefile << "PRINT_IO_INC_LINK = @echo \"[34mPartial linking[0m io objects\"" << std::endl ;
     makefile << "endif" << std::endl ;
+    makefile << std::endl ;
 
 //TODO: create the io_file name if it doesn't exist
     makefile << "IO_OBJ_FILES =" ;
@@ -434,62 +432,6 @@ void PrintAttributes::printIOMakefile() {
     link_io_objs << "build/class_map.o" << std::endl ;
     link_io_objs << "build/enum_map.o" << std::endl ;
     link_io_objs.close() ;
-}
-
-void PrintAttributes::printEmptyFiles() {
-    // this routine loops through all header files that were parsed and creates empty io_src files
-    // for the headers that have no classes or enums.
-    // The checks we have to do are the same as openIOFile.
-    clang::SourceManager::fileinfo_iterator fi ;
-    for ( fi = ci.getSourceManager().fileinfo_begin() ; fi != ci.getSourceManager().fileinfo_end() ; fi++ ) {
-        const clang::FileEntry * fe = (*fi).first ;
-        std::string header_file_name = fe->getName() ;
-        if ( visited_files.find(header_file_name) == visited_files.end() ) {
-            visited_files.insert(header_file_name) ;
-
-            // several tests require the real path of the header file.
-            char * rp = almostRealPath(header_file_name.c_str()) ;
-
-            if ( rp != NULL ) {
-                // Only include user directories (not system dirs like /usr/include)
-                if ( hsd.isPathInUserDir(rp) ) {
-                    // Don't process files in excluded directories
-                    if ( hsd.isPathInICGExclude(rp) == false ) {
-                        // Only include files that do not have ICG: (No)
-                        // hasICGNo uses original header name, not the real path
-                        if ( ! cs.hasICGNo(header_file_name) ) {
-                            std::string io_file_name = createIOFileName(std::string(rp)) ;
-                            all_io_files[header_file_name] = io_file_name ;
-                            // Does the io_src directory exist or can we successfully mkdir it?
-                            if ( doesIODirectoryExist(io_file_name) ) {
-                                // Is the io_src file out of date or does not exist yet
-                                if ( isIOFileOutOfDate(rp, io_file_name) ) {
-                                    out_of_date_io_files[header_file_name] = io_file_name ;
-                                    // creates an empty io_src file
-                                    outfile.open(out_of_date_io_files[header_file_name].c_str()) ;
-                                    outfile.close() ;
-                                    std::cout << "[35mWriting " << out_of_date_io_files[header_file_name] << "[00m" << std::endl ;
-                                }
-                            } else {
-                                std::cout << "[33mICG skipping " << rp << " (cannot create io_src dir)[00m" << std::endl ;
-                            }
-                        } else {
-                            std::cout << "[33mICG skipping " << rp << " (ICG No found)[00m" << std::endl ;
-                            icg_no_files.push_back(rp) ;
-                        }
-                    } else {
-                        std::cout << "[33mICG skipping " << rp << " (ICG exclude dir " <<
-                         hsd.getPathInICGExclude(rp) << ")[00m" << std::endl ;
-                    }
-                } else {
-                    //std::cout << "[33mICG skipping " << rp << " (not in user path) " << std::endl ;
-                }
-                free(rp) ;
-            } else {
-                std::cout << "[33mICG could not resolve realpath of " << header_file_name << "[00m" << std::endl ;
-            }
-        }
-    }
 }
 
 void PrintAttributes::printICGNoFiles() {

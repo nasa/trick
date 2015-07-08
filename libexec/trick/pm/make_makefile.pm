@@ -23,7 +23,6 @@ sub make_makefile($$$) {
     my @all_compile_libs ;
     my %files_by_dir ;
     my ( $sp_dir , $src_dir , $sp_file , $base_name , $suffix) ;
-    my $num_src_files ;
     my @temp_array ;
 
     if ( exists $$sim_ref{all_mis_depends} ) {
@@ -112,16 +111,11 @@ sub make_makefile($$$) {
         }
     }
 
-    # count the number of source files and set the "dir_num" of each directory.
-    $num_src_files = 0;
+    # set the "dir_num" of each directory.
     foreach $k ( sort keys %files_by_dir ) {
         $_ = $k ;
         ($files_by_dir{$k}{dir_num} = $_) =~ s#^/## ;
         $files_by_dir{$k}{dir_num} =~ s/[\/.]/_/g ;
-        if ( ! exists $files_by_dir{$k}{full_name} ) {
-            $num_src_files += $#{$files_by_dir{$k}{c}} + $#{$files_by_dir{$k}{f}} + $#{$files_by_dir{$k}{y}} + 3 ;
-            $num_src_files += $#{$files_by_dir{$k}{cpp}} + 1 ;
-        }
         # if a particular directory had an override file, save that into memory
         if (open OV_FILE, "$k/makefile_overrides") {
             while ( <OV_FILE> ) {
@@ -133,13 +127,15 @@ sub make_makefile($$$) {
                 while ( s,/[^/]+/\.\.,, ) {}
                 s//$comment/ ;
                 if ( s/^objects\s*:\s*// ) {
-                    $files_by_dir{$k}{overrides} .= "model_obj_$files_by_dir{$k}{dir_num}: $_" ;
+                    foreach my $ext ( qw{c C cc cxx cpp CPLUSPLUS l y} ) {
+                        $files_by_dir{$k}{overrides} .= "\$(MODEL_${ext}_OBJ_$files_by_dir{$k}{dir_num}): $_" ;
+                    }
                 }
                 elsif ( s/^depend\s*:\s*// ) {
                     $files_by_dir{$k}{overrides} .= "depend_$files_by_dir{$k}{dir_num}: $_" ;
                 }
-                elsif ( s/([cfhy]|cpp)_objects\s*:\s*// ) {
-                    $files_by_dir{$k}{overrides} .= "model_$1_obj_$files_by_dir{$k}{dir_num}: $_" ;
+                elsif ( s/([cfhy]|C|cc|cxx|cpp|CPLUSPLUS)_objects\s*:\s*// ) {
+                    $files_by_dir{$k}{overrides} .= "\$(MODEL_$1_OBJ_$files_by_dir{$k}{dir_num}): $_" ;
                 }
                 else {
                     $files_by_dir{$k}{overrides} .= $_ ;
@@ -150,8 +146,6 @@ sub make_makefile($$$) {
 
     chdir($make_cwd ) ;
     my $wd = abs_path(cwd()) ;
-    my $sim_dir_name = basename($wd) ;
-    $sim_dir_name =~ s/SIM_// ;
     my $dt = localtime();
     my ($trick_ver) = get_trick_version() ;
     chomp $trick_ver ;
@@ -181,7 +175,6 @@ S_MAIN  = \$(CURDIR)/T_main_\${TRICK_HOST_CPU}.exe
 endif
 
 LIB_DIR = \$(CURDIR)/build/lib
-SIM_LIB = \$(LIB_DIR)/lib_${sim_dir_name}.a
 
 ifdef TRICK_VERBOSE_BUILD
 PRINT_ICG =
@@ -241,15 +234,16 @@ S_OBJECT_FILES = \$(CURDIR)/build/S_source.o
             foreach $f ( @{$files_by_dir{$k}{l}} ) {
                 print MAKEFILE " \\\n \$(CURDIR)/build$k/$files_by_dir{$k}{src_dir}$f" . "clex" ;
             }
+            print MAKEFILE "\n\n" ;
         }
         if ( scalar @{$files_by_dir{$k}{y}} ne 0 ) {
             print MAKEFILE "MODEL_y_c_SRC_$files_by_dir{$k}{dir_num} =" ;
             foreach $f ( @{$files_by_dir{$k}{y}} ) {
                 print MAKEFILE " \\\n \$(CURDIR)/build$k/$files_by_dir{$k}{src_dir}$f" . "y.c" ;
             }
+            print MAKEFILE "\n\n" ;
         }
     }
-    print MAKEFILE "\n\n" ;
 
     foreach my $ext ( sort keys %object_files_by_type ) {
         my $print_ext ;
@@ -308,21 +302,6 @@ S_OBJECT_FILES = \$(CURDIR)/build/S_source.o
     print MAKEFILE "-include \$(MODEL_cxx_OBJ:.o=.d)\n" ;
     print MAKEFILE "-include \$(MODEL_CPLUSPLUS_OBJ:.o=.d)\n\n" ;
 
-    print MAKEFILE "\nDEFAULT_DATA_C_OBJ =" ;
-    if ( exists $$sim_ref{def_data_c} ) {
-        foreach my $d ( sort keys %{$$sim_ref{def_data_c}} ) {
-            print MAKEFILE " \\\n\t$wd/lib_\${TRICK_HOST_CPU}/$$sim_ref{def_data_c}{$d}{file_name}" . ".o" ;
-        }
-    }
-
-    print MAKEFILE "\n\nDEFAULT_DATA_CPP_OBJ =" ;
-    if ( exists $$sim_ref{def_data_cpp} ) {
-        foreach my $d ( sort keys %{$$sim_ref{def_data_cpp}} ) {
-            print MAKEFILE " \\\n\t$wd/lib_\${TRICK_HOST_CPU}/$$sim_ref{def_data_cpp}{$d}{file_name}" . ".o" ;
-        }
-    }
-    print MAKEFILE "\n\nDEFAULT_DATA_OBJECTS = \$(DEFAULT_DATA_C_OBJ) \$(DEFAULT_DATA_CPP_OBJ)\n\n" ;
-
     printf MAKEFILE "\n\nOBJECTS =" ;
     for( $i = 0 ; $i < $num_inc_objs ; $i++ ) {
         print MAKEFILE " \\\n\t\$(LIB_DIR)/o$i.o" ;
@@ -362,9 +341,6 @@ S_main : \$(S_MAIN) build/S_define.deps S_sie.resource
 \t\t\$(LD_WHOLE_ARCHIVE) \${TRICK_LIBS} \$(LD_NO_WHOLE_ARCHIVE)\\
 \t\t\${TRICK_EXEC_LINK_LIBS}
 
-#\t\t\$(S_OBJECT_FILES) \@build/link_objs \\
-#\t\t\$(LD_WHOLE_ARCHIVE) \$(SIM_LIB) \$(LD_NO_WHOLE_ARCHIVE)\\
-
 \$(OBJECTS) : | \$(LIB_DIR)
 
 \$(LIB_DIR) :
@@ -390,26 +366,7 @@ S_sie.resource: \$(S_MAIN)
 \t\$(ECHO_CMD)\$(S_MAIN) sie
 
 S_define_exp:
-\t\$(TRICK_CC) -E -C -xc++ \${TRICK_SFLAGS} S_define > \$@
-
-\$(SIM_LIB) : \$(DEFAULT_DATA_OBJECTS)
-\t@ echo \"[34mCreating libraries...[00m\"
-\t\@ rm -rf \$\@
-\t\@ ar crs \$\@ \$^ || touch \$\@\n\n" ;
-
-    print MAKEFILE "\n\n#DEFAULT_DATA_C_OBJ\n\n" ;
-    foreach my $d ( sort keys %{$$sim_ref{def_data_c}} ) {
-        print MAKEFILE "$wd/lib_\${TRICK_HOST_CPU}/$$sim_ref{def_data_c}{$d}{file_name}" , ".o" ,
-         " : $wd/Default_data/$$sim_ref{def_data_c}{$d}{file_name}" , ".c\n";
-        print MAKEFILE "\tcd $wd/Default_data ; \$(TRICK_CC) \$(TRICK_CFLAGS) -c \${\@F:.o=.c} -o \$\@\n" ;
-    }
-
-    print MAKEFILE "\n\n#DEFAULT_DATA_CPP_OBJ\n\n" ;
-    foreach my $d ( sort keys %{$$sim_ref{def_data_cpp}} ) {
-        print MAKEFILE "$wd/lib_\${TRICK_HOST_CPU}/$$sim_ref{def_data_cpp}{$d}{file_name}" , ".o" ,
-         " : $wd/Default_data/$$sim_ref{def_data_cpp}{$d}{file_name}" , ".cpp\n";
-        print MAKEFILE "\tcd $wd/Default_data ; \$(TRICK_CPPC) \$(TRICK_CXXFLAGS) -c \${\@F:.o=.cpp} -o \$\@\n" ;
-    }
+\t\$(TRICK_CC) -E -C -xc++ \${TRICK_SFLAGS} S_define > \$@\n\n" ;
 
     # write out the override files we have read in
     foreach $k ( sort keys %files_by_dir ) {
@@ -420,16 +377,10 @@ S_define_exp:
     }
 
     print MAKEFILE "\n-include build/Makefile_io_src\n" ;
-    print MAKEFILE "\ninclude build/Makefile_swig\n" ;
-    print MAKEFILE "\n-include S_overrides.mk\n" ;
+    print MAKEFILE "include build/Makefile_swig\n" ;
+    print MAKEFILE "-include S_overrides.mk\n" ;
 
     close MAKEFILE ;
-
-    open SIM_INC_OBJS , ">build/link_objs" or return ;
-    for( $i = 0 ; $i < $num_inc_objs ; $i++ ) {
-        print SIM_INC_OBJS "build/lib/o$i.o\n" ;
-    }
-    close SIM_INC_OBJS ;
 
     # write out all of the files we used to S_library_list
     open LIB_LIST, ">build/S_library_list" or die "Could not open build/S_library_list" ;
@@ -443,18 +394,6 @@ S_define_exp:
         }
     }
     @temp_array = sort @temp_array;
-
-    # Add the default data files to S_library_list
-    my %temp_hash ;
-    foreach my $obj ( @{$$sim_ref{objs}} ) {
-        foreach my $str ( @{$$obj{structs}} ) {
-            foreach my $l ( @{$$str{def_data}} ) {
-                $temp_hash{$l} = 1 if ( $l !~ /trick_source/ ) ;
-            }
-        }
-    }
-    push @temp_array , (sort keys %temp_hash) ;
-
     print LIB_LIST (sort join "\n" , @temp_array) , "\n" ;
     close LIB_LIST ;
 

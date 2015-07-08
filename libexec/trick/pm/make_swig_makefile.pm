@@ -202,6 +202,7 @@ sub make_swig_makefile($$$) {
 
     print MAKEFILE "\
 # SWIG rule
+SWIG_FLAGS =
 SWIG_CFLAGS := -I../include \${PYTHON_INCLUDES} -Wno-shadow -Wno-missing-field-initializers
 ifeq (\$(IS_CC_CLANG), 1)
  SWIG_CFLAGS += -Wno-self-assign -Wno-sometimes-uninitialized
@@ -297,7 +298,7 @@ SWIG_PY_OBJECTS =" ;
 
         print MAKEFILE "$swig_object_dir/py_${swig_file_only}.o : $swig_f\n" ;
         print MAKEFILE "\t\$(PRINT_SWIG)\n" ;
-        print MAKEFILE "\t\$(ECHO_CMD)\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) -c++ -python -includeall -ignoremissing -w201,303,362,389,401,451 -outdir trick -o $swig_dir/py_${swig_file_only}.cpp \$<\n" ;
+        print MAKEFILE "\t\$(ECHO_CMD)\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,362,389,401,451 -outdir trick -o $swig_dir/py_${swig_file_only}.cpp \$<\n" ;
         print MAKEFILE "\t\$(PRINT_COMPILE_SWIG)\n" ;
         print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_IO_CXXFLAGS) \$(SWIG_CFLAGS) -c $swig_dir/py_${swig_file_only}.cpp -o \$@\n\n" ;
         print LINK_PY_OBJS "$link_py_obj\n" ;
@@ -358,6 +359,12 @@ SWIG_PY_OBJECTS =" ;
     print MAKEFILE "\n" ;
     close MAKEFILE ;
     close LINK_PY_OBJS ;
+
+    open SWIGLIB , ">build/S_library_swig" or return ;
+    foreach my $f ( @temp_array2 ) {
+        print SWIGLIB "$f\n" ;
+    }
+    close SWIGLIB ;
 
     open TOPFILE , ">build/top.i" or return ;
     print TOPFILE "\%module top\n\n" ;
