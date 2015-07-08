@@ -6,6 +6,9 @@ LD_PARTIAL = -Ur
 LD_FILELIST = @
 
 # if we are on a Rehat system, the lib directory is lib64 on 64 bit machines
+ifeq ($(TRICK_FORCE_32BIT), 1)
+TRICK_LIB_DIR  := ${TRICK_HOME}/lib
+else
 ifneq ("$(wildcard /etc/redhat-release)","")
 UNAME_M := $(shell uname -m)
 ifeq ($(UNAME_M),x86_64)
@@ -15,6 +18,7 @@ TRICK_LIB_DIR  := ${TRICK_HOME}/lib
 endif
 else
 TRICK_LIB_DIR  := ${TRICK_HOME}/lib
+endif
 endif
 
 SHARED_LIB_OPT := -shared
