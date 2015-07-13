@@ -37,7 +37,7 @@ export TRICK_ICG_NOCOMMENT
 export TRICK_SWIG_EXCLUDE
 export TRICK_GTE_EXT
 export TRICK_HOST_CPU := $(shell export TRICK_CC=$(TRICK_CC) && $(TRICK_HOME)/bin/trick-gte TRICK_HOST_CPU)
-export TRICK_EXEC_LINK_LIBS = ${PTHREAD_LIBS} $(PYTHON_LIB)
+export TRICK_EXEC_LINK_LIBS = ${PTHREAD_LIBS} $(PYTHON_LIB) $(PLATFORM_LIBS) -lm -ldl -lz
 export TRICK_LIBS = ${RPATH} -L${TRICK_LIB_DIR} -ltrick -ltrick_pyip -ltrick_comm -ltrick_math -ltrick_units -ltrick_mm
 
 IO_SRC_DIR     := io_src/
