@@ -17,6 +17,8 @@ public:
     explicit TrickCurve(QCPAxis *keyAxis, QCPAxis *valueAxis) ;
     virtual ~TrickCurve();
 
+    QString trkFile() const ;
+
     LineStyle lineStyle() const { return mLineStyle; }
     void setLineStyle(LineStyle style);
 

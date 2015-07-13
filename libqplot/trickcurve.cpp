@@ -36,6 +36,17 @@ TrickCurve::TrickCurve(QCPAxis *keyAxis, QCPAxis *valueAxis) :
 TrickCurve::~TrickCurve()
 { }
 
+QString TrickCurve::trkFile() const
+{
+    QString trkfile;
+
+    if ( _model ) {
+        trkfile = _model->trkFile();
+    }
+
+    return trkfile;
+}
+
 void TrickCurve::setLineStyle(TrickCurve::LineStyle style)
 {
     mLineStyle = style;

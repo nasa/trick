@@ -1,6 +1,7 @@
 #include "plotbookview.h"
 #include "libsnapdata/trickcurvemodel.h"
 #include "libopts/options.h"
+#include <QFileInfo>
 #include <QDebug>
 
 PlotBookView::PlotBookView(PlotBookModel *plotModel, const QStringList &titles, QWidget *parent) :
@@ -1100,13 +1101,171 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
         }
 
         case PlotBookModel::CurveYLabel : {
-            TrickCurve* curve =  _idx2Curve(pidx);
-            QString yLabel = model()->data(idx).toString();
-            curve->setName(yLabel);
-            int nCurves = pidx.row();
-            if ( nCurves > 8 || yLabel.isEmpty() ) {
-                curve->parentPlot()->legend->setVisible(false);
+
+            int nCurves = model()->rowCount(gpidx);
+
+            // No labels if nCurves > 10 (helps speedup monte carlo immensely)
+            if ( nCurves > 10 ) {
+                return ;
             }
+
+            // Get TrickCurve for this yLabelIndex
+            TrickCurve* curve =  _idx2Curve(pidx);
+
+            if ( _isShowCurveDiff && nCurves == 2 ) {
+
+                QModelIndex crvsIdx = gpidx;
+
+                QModelIndex crv0Idx = model()->index(0,0,crvsIdx);
+                TrickCurve* c0 = _idx2Curve(crv0Idx);
+                QFileInfo info0(c0->trkFile());
+                QString run0 = info0.dir().dirName();
+
+                QModelIndex crv1Idx = model()->index(1,0,crvsIdx);
+                TrickCurve* c1 = _idx2Curve(crv1Idx);
+                QFileInfo info1(c1->trkFile());
+                QString run1 = info1.dir().dirName();
+
+                if ( run0 != run1 ) {
+                    // RUN_names are different
+                    c0->setName(run0);
+                    c1->setName(run1);
+                } else {
+                    // RUN_names are the same, so in different parent dirs
+                    // UNLESS they are the exact same directory!
+                    QString r0 = info0.absoluteDir().absolutePath();
+                    QString r1 = info1.absoluteDir().absolutePath();
+                    if ( r0 == r1 ) {
+                        // Identical RUNs being compared!
+                        c0->setName(run0);
+                        c1->setName(run1);
+                    } else {
+                        QStringList rl0 = r0.split('/');
+                        QStringList rl1 = r1.split('/');
+                        r0.clear();
+                        r1.clear();
+                        while ( 1 ) {
+                            QString s0 = rl0.takeLast();
+                            QString s1 = rl1.takeLast();
+                            if ( r0.isEmpty() ) {
+                                r0 = s0;
+                                r1 = s1;
+                            } else {
+                                r0 = s0 + "/" + r0;
+                                r1 = s1 + "/" + r1;
+                            }
+                            if ( s0 != s1 ) {
+                                break;
+                            }
+                            if ( rl0.isEmpty() ) {
+                                if ( !rl1.isEmpty() ) {
+                                    s1 = rl1.takeLast();
+                                    r1 = s1 + "/" + r1;
+                                }
+                                break;
+                            }
+                            if ( rl1.isEmpty() ) {
+                                if ( !rl0.isEmpty() ) {
+                                    s0 = rl0.takeLast();
+                                    r0 = s0 + "/" + r0;
+                                }
+                                break;
+                            }
+                        }
+
+                        c0->setName(r0);
+                        c1->setName(r1);
+                    }
+                }
+
+            } else {
+
+
+                // Do all the curves have the same param name?
+                bool isAllVarsTheSame = true;
+                QString var0 ;
+                for ( int i = 0; i < nCurves; ++i ) {
+                    QModelIndex curveIdx = model()->index(i,0,gpidx);
+                    QModelIndex yIdx = model()->index(2,0,curveIdx);
+                    QString yVar = model()->data(yIdx).toString();
+                    if ( i == 0 ) {
+                        var0 = yVar;
+                    } else {
+                        if ( var0 != yVar ) {
+                            isAllVarsTheSame = false;
+                            break;
+                        }
+                    }
+                }
+
+                // Check if plot curves originate from different RUNs
+                bool isRunsDifferent = false;
+                QFileInfo trkFileInfo(curve->trkFile());
+                QString runDir = trkFileInfo.dir().dirName();
+                for ( int i = 0; i < nCurves; ++i ) {
+                    QModelIndex curveIdx = model()->index(i,0,gpidx);
+                    TrickCurve* c = _idx2Curve(curveIdx);
+                    QFileInfo tInfo(c->trkFile());
+                    if ( tInfo.dir().dirName() != runDir ) {
+                        isRunsDifferent = true;
+                        break;
+                    }
+                }
+
+                if ( isRunsDifferent ) {
+                    if ( isAllVarsTheSame ) {
+                        // just show the RUN to avoid
+                        // repetively showing the same param
+                        for ( int i = 0; i < nCurves; ++i ) {
+                            QModelIndex curveIdx = model()->index(i,0,gpidx);
+                            TrickCurve* c = _idx2Curve(curveIdx);
+                            QFileInfo tInfo(c->trkFile());
+                            QString runDir = tInfo.dir().dirName();
+                            c->setName(runDir);
+                        }
+                    } else {
+                        for ( int i = 0; i < nCurves; ++i ) {
+                            QModelIndex crvIdx = model()->index(i,0,gpidx);
+                            QModelIndex labelIdx = model()->index(16,0,crvIdx);
+                            QString label = model()->data(labelIdx).toString();
+                            if ( label.isEmpty() ) {
+                                QModelIndex yIdx = model()->index(2,0,crvIdx);
+                                QString yVar = model()->data(yIdx).toString();
+                                QStringList yVarList = yVar.split(".");
+                                label = yVarList.last();
+                            }
+                            TrickCurve* c = _idx2Curve(crvIdx);
+                            QFileInfo tInfo(c->trkFile());
+                            QString runDir = tInfo.dir().dirName();
+                            QString yLabel = label + " (" + runDir + ")";
+                            c->setName(yLabel);
+                        }
+                    }
+                } else {
+
+                    // All the same RUN, then only show label
+
+                    // Legend label as specified in DP file
+                    QString yLabel = model()->data(idx).toString();
+                    if ( yLabel.isEmpty() ) {
+                        // If label is empty, use last part of parameter name
+                        // E.g. if parameter is ball.state.out.position[0],
+                        //      use position[0]
+                        QModelIndex yIdx = model()->index(2,0,pidx);
+                        QString yVar = model()->data(yIdx).toString();
+                        QStringList yVarList = yVar.split(".");
+                        yLabel = yVarList.last();
+                    }
+                    curve->setName(yLabel);
+                }
+            }
+
+            if ( nCurves == 1 || nCurves > 8 ) {
+                curve->parentPlot()->legend->setVisible(false);
+            } else {
+                curve->parentPlot()->legend->setVisible(true);
+            }
+
             Plot* plot = _idx2Plot(pidx);
             QCPItemText* plotTitle = plot->title();
             QColor fgColor = plotTitle->color();
@@ -1215,7 +1374,9 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
 
             QString col = model()->data(idx).toString();
             if ( col.isEmpty() ) {  // TODO - use empty str for bg color def
-                col = "#0000ff"; // TODO handle page set
+                QWidget* page = _idx2Page(pidx);
+                QPalette pal = page->palette();
+                col = pal.color(QPalette::Foreground).name();
             }
             QColor fgColor(col);
             QPen fgPen(fgColor);

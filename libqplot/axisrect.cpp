@@ -117,7 +117,7 @@ void AxisRect::showCurveDiff()
     TrickCurve* curve = addCurve(&_diffCurveTimes,&_diffCurveVals);
 
     // Diff curve legend label
-    QString diffLabel = "diff " + _curves.at(0)->name();
+    QString diffLabel = "diff";
     curve->setName(diffLabel);
 
     bool isValid;
