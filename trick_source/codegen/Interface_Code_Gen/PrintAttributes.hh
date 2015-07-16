@@ -45,6 +45,9 @@ class PrintAttributes {
         /** Create makefile for IO files */
         virtual void printIOMakefile() ;
 
+        /** Print header library dependencies */
+        virtual void printHeaderLibraryDependencies() ;
+
         /** Prints list of files that contain ICG:(No) in the Trick header */
         virtual void printICGNoFiles() ;
 

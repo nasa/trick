@@ -1,6 +1,22 @@
 
 include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
+ifdef TRICK_VERBOSE_BUILD
+PRINT_CP =
+PRINT_ICG =
+PRINT_CONVERT_SWIG =
+PRINT_MAKEFILE_SRC =
+PRINT_MAKEFILE_SWIG =
+ECHO_CMD =
+else
+PRINT_CP = @echo "[34mRunning configuration_processor[0m"
+PRINT_ICG = @echo "[34mRunning ICG[0m"
+PRINT_CONVERT_SWIG = @echo "[34mRunning convert_swig[0m"
+PRINT_MAKEFILE_SRC = @echo "[34mCreating source Makefile[0m"
+PRINT_MAKEFILE_SWIG = @echo "[34mCreating swig Makefile[0m"
+ECHO_CMD = @
+endif
+
 .NOTPARALLEL: all test
 
 export TRICK_ICG_EXCLUDE
@@ -8,38 +24,63 @@ export TRICK_ICG_EXCLUDE
 # Use /bin/bash as the shell so we can use PIPESTATUS
 SHELL = /bin/bash
 
-ifeq ($(MAKECMDGOALS), debug)
- TRICK_CPFLAGS += --debug
-endif
-
-all : ${TRICK_LIB_DIR}/libtrick.a build/Makefile_sim
+all : ${TRICK_LIB_DIR}/libtrick.a S_source.hh build/Makefile_io_src build/Makefile_src build/Makefile_swig
 	@/bin/cp ${TRICK_HOME}/share/trick/MAKE_out_header.txt build/MAKE_out
-	@$(MAKE) --no-print-directory -f build/Makefile_sim ICG 2>&1 | tee -a build/MAKE_out ; exit $${PIPESTATUS[0]}
-	@$(MAKE) --no-print-directory -f build/Makefile_sim convert_swig 2>&1 | tee -a build/MAKE_out ; exit $${PIPESTATUS[0]}
-	@$(MAKE) --no-print-directory -f build/Makefile_sim all 2>&1 | tee -a build/MAKE_out ; exit $${PIPESTATUS[0]}
+	@$(MAKE) --no-print-directory -f build/Makefile_src all 2>&1 | tee -a build/MAKE_out ; exit $${PIPESTATUS[0]}
 
-test : ${TRICK_LIB_DIR}/libtrick.a build/Makefile_sim
-	@/bin/cp ${TRICK_HOME}/share/trick/MAKE_out_header.txt build/MAKE_out
-	@$(MAKE) --no-print-directory -f build/Makefile_sim ICG 2>&1 | tee -a build/MAKE_out ; exit $${PIPESTATUS[0]}
-	@$(MAKE) --no-print-directory -f build/Makefile_sim convert_swig 2>&1 | tee -a build/MAKE_out ; exit $${PIPESTATUS[0]}
-	@$(MAKE) --no-print-directory -f build/Makefile_sim test_all 2>&1 | tee -a build/MAKE_out ; exit $${PIPESTATUS[0]}
+#test : ${TRICK_LIB_DIR}/libtrick.a build/Makefile_sim $(CURDIR)/build/class_map.cpp $(CURDIR)/build/convert_swig_last_run
+#	@/bin/cp ${TRICK_HOME}/share/trick/MAKE_out_header.txt build/MAKE_out
+#	@$(MAKE) --no-print-directory -f build/Makefile_sim test_all 2>&1 | tee -a build/MAKE_out ; exit $${PIPESTATUS[0]}
 
 build:
 	mkdir $@
 
 debug : all
+debug : TRICK_CPFLAGS += --debug
 
 ${TRICK_LIB_DIR}/libtrick.a:
 	@echo "Cannot find $@.  Please build Trick for this platfrom"
 	@exit -1
 
-build/Makefile_sim: S_define | build
-	@${TRICK_HOME}/$(LIBEXEC)/trick/configuration_processor $(TRICK_CPFLAGS)
+S_source.hh : S_define | build
+	$(PRINT_CP)
+	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/configuration_processor $(TRICK_CPFLAGS)
 
-model_dirs:
-	@${TRICK_HOME}/$(LIBEXEC)/trick/configuration_processor -z
+# Create makefile for source code
+build/Makefile_src: | build/Makefile_io_src
+	$(PRINT_MAKEFILE_SRC)
+	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/make_makefile_src $?
 
-sie ICG force_ICG convert_swig S_define_exp:
+# ICG rules
+build/Makefile_io_src : | S_source.hh
+	$(PRINT_ICG)
+	$(ECHO_CMD)${TRICK_HOME}/bin/trick-ICG -m ${TRICK_CXXFLAGS} S_source.hh
+
+ICG:
+	$(PRINT_ICG)
+	$(ECHO_CMD)${TRICK_HOME}/bin/trick-ICG -m ${TRICK_CXXFLAGS} S_source.hh
+
+force_ICG:
+	$(PRINT_ICG)
+	$(ECHO_CMD)${TRICK_HOME}/bin/trick-ICG -f -m ${TRICK_CXXFLAGS} S_source.hh
+
+# SWIG rules
+build/Makefile_swig : | build/Makefile_io_src
+	$(PRINT_MAKEFILE_SWIG)
+	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/make_makefile_swig $?
+
+# convert_swig rules
+#$(CURDIR)/build/convert_swig_last_run : | build/Makefile_sim
+#	$(PRINT_CONVERT_SWIG)
+#	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/convert_swig ${TRICK_CONVERT_SWIG_FLAGS} S_source.hh
+#	@ touch $@
+
+convert_swig:
+	$(PRINT_CONVERT_SWIG)
+	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/convert_swig ${TRICK_CONVERT_SWIG_FLAGS} S_source.hh
+	@ touch $(CURDIR)/build/convert_swig_last_run
+
+sie S_define_exp:
 	@if [ -f build/Makefile_sim ] ; then $(MAKE) --no-print-directory -f build/Makefile_sim $@ ; else echo "No build/Makefile_sim found" ; fi
 
 help:
@@ -53,16 +94,15 @@ Simulation make options:\n\
     make apocalypse              - Performs a clean"
 
 tidy:
-	-rm -f S_sie.resource
-	-rm -f DP_Product/DP_rt_frame DP_Product/DP_rt_itimer
-	-rm -f DP_Product/DP_rt_jobs DP_Product/DP_rt_timeline DP_Product/DP_mem_stats
+	-rm -f S_source.hh S_sie.resource
 	-rm -f S_main* T_main*
+	-rm -f build/Makefile_*
+	-rm -rf S_default.dat
 
 clean: tidy
-	-rm -rf Default_data S_default.dat
-	rm -f S_source.hh
-	rm -rf build
-	-rm -rf trick
+	-rm -f DP_Product/DP_rt_frame DP_Product/DP_rt_itimer
+	-rm -f DP_Product/DP_rt_jobs DP_Product/DP_rt_timeline DP_Product/DP_mem_stats
+	-rm -rf build trick
 	@ echo "Removed build directory"
 
 spotless: clean
@@ -73,4 +113,7 @@ apocalypse: clean
 
 # Dependencies to other files that may cause a re-CP
 -include build/S_define.deps
+-include build/Makefile_ICG
+-include build/Makefile_convert_swig
+-include build/Makefile_src_deps
 

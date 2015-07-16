@@ -102,7 +102,7 @@ sub make_makefile($$$) {
 
     foreach $k ( sort keys %files_by_dir ) {
         foreach my $ie ( @exclude_dirs ) {
-            # if file location begins with $ie (an ICG exclude dir)
+            # if file location begins with $ie (an exclude dir)
             if ( $k =~ /^\Q$ie/ ) {
                 delete $files_by_dir{$k} ;
                 print "[33mexcluding $k from build[00m\n" ;
@@ -177,18 +177,16 @@ endif
 LIB_DIR = \$(CURDIR)/build/lib
 
 ifdef TRICK_VERBOSE_BUILD
-PRINT_ICG =
 PRINT_COMPILE =
 PRINT_INC_LINK =
 PRINT_EXE_LINK =
 PRINT_S_DEF_DEPS =
 ECHO_CMD =
 else
-PRINT_ICG = \@echo \"[34mRunning ICG[0m\"
-PRINT_COMPILE = \@echo \"[34mCompiling[0m \$(subst \$(CURDIR)/build,build,\$<)\"
-PRINT_INC_LINK = \@echo \"[34mPartial linking[0m \$(subst \$(CURDIR)/build,build,\${<D})\"
-PRINT_EXE_LINK = \@echo \"[34mFinal linking[0m \$(subst \$(CURDIR)/,,\$(S_MAIN))\"
-PRINT_S_DEF_DEPS = \@echo \"[34mGenerating dependencies[0m for S_define\"
+PRINT_COMPILE = \@echo \"[34mCompiling   [0m \$(subst \$(CURDIR)/build,build,\$<)\"
+PRINT_INC_LINK = \@echo \"[34mPartial link[0m \$(subst \$(CURDIR)/build,build,\${<D})\"
+PRINT_EXE_LINK = \@echo \"[34mFinal link  [0m \$(subst \$(CURDIR)/,,\$(S_MAIN))\"
+PRINT_S_DEF_DEPS = \@echo \"[34mGet depends [0m for S_define\"
 ECHO_CMD = \@
 ifeq (\$(MAKECMDGOALS), all)
 \$(info [34mPerforming build with these compilation flags[0m)
@@ -321,14 +319,6 @@ all: S_main
 
 test_all: all
 
-ICG:
-\t\$(PRINT_ICG)
-\t\$(ECHO_CMD)\${TRICK_HOME}/bin/trick-ICG -m \${TRICK_CXXFLAGS} S_source.hh
-
-force_ICG:
-\t\$(PRINT_ICG)
-\t\$(ECHO_CMD)\${TRICK_HOME}/bin/trick-ICG -f -m \${TRICK_CXXFLAGS} S_source.hh
-
 S_main : \$(S_MAIN) build/S_define.deps S_sie.resource
 \t@ echo \"\"
 \t@ echo \"[32m=== Simulation make complete ===[00m\"
@@ -377,7 +367,7 @@ S_define_exp:
     }
 
     print MAKEFILE "\n-include build/Makefile_io_src\n" ;
-    print MAKEFILE "include build/Makefile_swig\n" ;
+    print MAKEFILE "-include build/Makefile_swig\n" ;
     print MAKEFILE "-include S_overrides.mk\n" ;
 
     close MAKEFILE ;

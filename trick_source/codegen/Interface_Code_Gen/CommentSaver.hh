@@ -4,6 +4,7 @@
 
 #include <map>
 #include <set>
+#include <vector>
 
 #include "clang/Lex/Preprocessor.h"
 #include "clang/Frontend/CompilerInstance.h"
@@ -75,6 +76,12 @@ class CommentSaver : public clang::CommentHandler {
             @return set of strings that list the type names to ignore.
          */
         std::set< std::string > getIgnoreTypes( std::string file_name ) ;
+
+        /** Returns a vector of library dependencies from the Trick comment
+            @param file_name = File name to search
+            @return vector of library dependency strings
+         */
+        std::vector< std::string > getLibraryDependencies( std::string file_name ) ;
 
     private:
         /** The compiler's source manager.  Holds file/line info for everything. */

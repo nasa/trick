@@ -8,6 +8,7 @@ use Cwd ;
 use File::Basename ;
 use strict ;
 use Cwd 'abs_path';
+use File::Path 'make_path';
 use trick_print ;
 use gte ;
 
@@ -35,6 +36,15 @@ sub mis_dep ($@) {
 
     @fileList = grep !/\.h$|\.H$|\.hh$|\.h\+\+$/ , @fileList ;
 
+    #open FL, ">build/S_source.fl" ;
+    #foreach $file ( @fileList ) {
+    #    if ( $file ne "" ) {
+    #        $file = abs_path(dirname($file)) . "/" . basename($file) ;
+    #        print FL "$file\n" ;
+    #    }
+    #}
+    #close FL ;
+
     foreach $file ( @fileList ) {
         if ( $file ne "" ) {
             undef %mis_depends_tree ;
@@ -43,6 +53,15 @@ sub mis_dep ($@) {
             get_depends($file, $sim_ref);
             %{$all_depend_trees{$file}} = %mis_depends_tree ;
             $all_depend_trees{$file}{last_look} = time ;
+
+            #my @file_list ;
+            #my %temp_hash ;
+            #my ( $name, $path, $suffix) = fileparse($file,, qr/\.[^.]*/);
+            #make_path("build" . $path) ;
+            #open FL, ">build$path/${name}.lib_deps" ;
+            #@file_list = grep ++$temp_hash{$_} < 2, @{$mis_depends_tree{$file}} ;
+            #print FL map { "$_\n" } @file_list ;
+            #close FL ;
         }
     }
 
