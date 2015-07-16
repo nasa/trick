@@ -112,10 +112,6 @@ private:
     inline QModelIndex _page2Idx(QWidget* page) const;
     inline QModelIndex _plot2Idx(Plot* plot) const;
 
-    inline bool _isPageIdx(const QModelIndex& idx);
-    inline bool _isPlotIdx(const QModelIndex& idx);
-    inline bool _isCurveIdx(const QModelIndex& idx);
-
     void _selectNextCurve();
     void _selectPrevCurve();
 

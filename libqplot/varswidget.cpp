@@ -128,10 +128,12 @@ void VarsWidget::clearSelection()
 QStandardItem* VarsWidget::_createPageItem()
 {
     QStandardItem* pageItem;
-    QStandardItem *rootItem = _plotModel->invisibleRootItem();
+
+    QModelIndex pagesIndex = _plotModel->pagesIdx();
+    QStandardItem *pagesItem = _plotModel->itemFromIndex(pagesIndex);
     QString pageItemName = QString("QP_%0").arg(_currQPIdx++);
     pageItem = new QStandardItem(pageItemName);
-    rootItem->appendRow(pageItem);
+    pagesItem->appendRow(pageItem);
 
     QStandardItem* pageTitleItem = new QStandardItem(pageItemName);
     pageItem->appendRow(pageTitleItem);

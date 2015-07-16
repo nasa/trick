@@ -153,7 +153,8 @@ void DPTreeWidget::_dpTreeViewCurrentChanged(const QModelIndex &currIdx,
 //
 void DPTreeWidget::_createDPPages(const QString& dpfile)
 {
-    QStandardItem *rootItem = _plotModel->invisibleRootItem();
+    QModelIndex pagesIndex = _plotModel->pagesIdx();
+    QStandardItem *pagesItem = _plotModel->itemFromIndex(pagesIndex);
     QCursor currCursor = this->cursor();
     this->setCursor(QCursor(Qt::WaitCursor));
 
@@ -166,7 +167,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             pageName += QString("_%0").arg(pageNum);
         }
         QStandardItem *pageItem = new QStandardItem(pageName);
-        rootItem->appendRow(pageItem);
+        pagesItem->appendRow(pageItem);
 
         QStandardItem *pageTitleItem = new QStandardItem(page->title());
         pageItem->appendRow(pageTitleItem);

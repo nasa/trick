@@ -617,7 +617,7 @@ void PlotBookView::keyPressEvent(QKeyEvent *event)
 //
 void PlotBookView::maximize(const QModelIndex &idx)
 {
-    if ( _isPlotIdx(idx) ) {
+    if ( _plotModel->isPlotIdx(idx) ) {
 
         QGridLayout* grid = _idx2Grid(idx);
         Plot* plot = _idx2Plot(idx);
@@ -635,7 +635,7 @@ void PlotBookView::maximize(const QModelIndex &idx)
 
 void PlotBookView::minimize(const QModelIndex &idx)
 {
-    if ( _isPlotIdx(idx) ) {
+    if ( _plotModel->isPlotIdx(idx) ) {
         QGridLayout* grid = _idx2Grid(idx);
         for ( int i = 0; i < grid->count(); ++i) {
             grid->itemAt(i)->widget()->setVisible(true);
@@ -689,7 +689,7 @@ void PlotBookView::_plotSelectModelCurrentChanged(const QModelIndex &currIdx,
                                                  const QModelIndex &prevIdx)
 {
     Q_UNUSED(prevIdx);
-    if ( _isPageIdx(currIdx) ) {
+    if ( _plotModel->isPageIdx(currIdx) ) {
         setCurrentPage(currIdx);
     }
 }
@@ -730,7 +730,7 @@ void PlotBookView::_plotSelectModelSelectChanged(const QItemSelection &curr,
 {
     if ( curr.indexes().size() > 0 ) {
          // when tab changes, noop
-        if ( _isPageIdx(curr.indexes().at(0)) ) return;
+        if ( _plotModel->isPageIdx(curr.indexes().at(0)) ) return;
     }
 
     foreach ( QModelIndex prevIdx, prev.indexes() ) {
@@ -783,7 +783,7 @@ void PlotBookView::_selectNextCurve()
     QItemSelection currSel = selectionModel()->selection();
     if ( currSel.size() > 0 ) {
         QModelIndex currIdx = currSel.indexes().at(0);
-        if ( _isCurveIdx(currIdx) ) {
+        if ( _plotModel->isCurveIdx(currIdx) ) {
             QModelIndex plotIdx = currIdx.parent();
             int currRow = currIdx.row();
             int nextRow = currRow+1;
@@ -802,7 +802,7 @@ void PlotBookView::_selectPrevCurve()
     QItemSelection currSel = selectionModel()->selection();
     if ( currSel.size() > 0 ) {
         QModelIndex currIdx = currSel.indexes().at(0);
-        if ( _isCurveIdx(currIdx) ) {
+        if ( _plotModel->isCurveIdx(currIdx) ) {
             QModelIndex plotIdx = currIdx.parent();
             int currRow = currIdx.row();
             int prevRow = currRow-1;
@@ -822,8 +822,9 @@ void PlotBookView::tabCloseRequested(int tabId)
     QWidget* page = _nb->widget(tabId);
     QModelIndex pageIdx = _page2Idx(page);
     if ( pageIdx.isValid() ) {
+        QModelIndex pagesIdx = _plotModel->pagesIdx();
         int row = pageIdx.row();
-        model()->removeRow(row);
+        model()->removeRow(row,pagesIdx);
     }
     _isTabCloseRequested = false;
 }
@@ -866,7 +867,7 @@ void PlotBookView::doubleClick(QMouseEvent *event)
     QPoint globalPageOrigin(_nb->mapToGlobal(QPoint(0,0)));
     QPoint pagePos = event->globalPos()-globalPageOrigin;
     QModelIndex plotIdx = indexAt(pagePos);
-    if ( _isPlotIdx(plotIdx) ) {
+    if ( _plotModel->isPlotIdx(plotIdx) ) {
         QModelIndex pageIdx = plotIdx.parent();
         bool isExpanded = false;
         foreach ( QModelIndex idx, _plotModel->plotIdxs(pageIdx) ) {
@@ -999,6 +1000,7 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             plot->setYAxisLabel(yAxisLabel);
             break;
         }
+
 
         case PlotBookModel::Curves : { break; }
         case PlotBookModel::Curve : { break; }
@@ -1624,17 +1626,11 @@ QModelIndex PlotBookView::_curve2Idx(TrickCurve *curve)
 
 QWidget *PlotBookView::_idx2Page(const QModelIndex &idx) const
 {
-    if ( !idx.isValid() ) return 0;
+    QModelIndex pageIdx;
 
-    // if this is start/stop time
-    if ( !idx.parent().isValid() && !_plotModel->isPageIdx(idx) ) {
-        return 0;
-    }
+    pageIdx = _plotModel->pageIdx(idx);
+    if ( !pageIdx.isValid() )  return 0;
 
-    QModelIndex pageIdx(idx);
-    while ( pageIdx.parent().isValid() ) {
-        pageIdx = pageIdx.parent();
-    }
     int r = _plotModel->pageIdxs().indexOf(pageIdx);
     QWidget* page = _pages.at(r);
 
@@ -1650,24 +1646,18 @@ QGridLayout *PlotBookView::_idx2Grid(const QModelIndex &idx) const
 
 Plot *PlotBookView::_idx2Plot(const QModelIndex &idx) const
 {
-    if ( !idx.isValid() || !idx.parent().isValid() ) {
-        // root or page
-        return 0;
+    Plot* plot = 0 ;
+
+    QModelIndex plotIdx = _plotModel->plotIdx(idx);
+    if ( !plotIdx.isValid() )  return 0;
+
+    QModelIndex pageIdx = _plotModel->pageIdx(plotIdx);
+    int iPlot = _plotModel->plotIdxs(pageIdx).indexOf(plotIdx);
+    if ( iPlot >= 0 ) {
+        QWidget* page = _idx2Page(pageIdx);
+        plot = _page2Plots.value(page).at(iPlot);
     }
 
-    Plot* plot = 0 ;
-    QWidget* page = _idx2Page(idx);
-    if ( page ) {
-        QModelIndex plotIdx(idx);
-        while ( plotIdx.parent().parent().isValid() ) {
-            plotIdx = plotIdx.parent();
-        }
-        QModelIndex pageIdx = plotIdx.parent();
-        int iPlot = _plotModel->plotIdxs(pageIdx).indexOf(plotIdx);
-        if ( iPlot >= 0 ) {
-            plot = _page2Plots.value(page).at(iPlot);
-        }
-    }
     return plot;
 }
 
@@ -1707,30 +1697,6 @@ QModelIndex PlotBookView::_plot2Idx(Plot *plot) const
         plotIdx = plotIdxs.at(iPlot);
     }
     return plotIdx;
-}
-
-bool PlotBookView::_isPageIdx(const QModelIndex &idx)
-{
-    return _plotModel->isPageIdx(idx);
-}
-
-bool PlotBookView::_isPlotIdx(const QModelIndex &idx)
-{
-    if ( idx.isValid() && idx.parent().isValid() &&
-         !idx.parent().parent().isValid() ) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-bool PlotBookView::_isCurveIdx(const QModelIndex &idx)
-{
-    if ( model()->data(idx.parent()).toString() == "Curves" ) {
-        return true;
-    } else {
-        return false;
-    }
 }
 
 QString PlotBookView::_appendUnitToAxisLabel(const QModelIndex axisLabelIdx,

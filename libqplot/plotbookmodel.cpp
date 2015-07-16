@@ -96,13 +96,15 @@ QModelIndex PlotBookModel::pageIdx(const QModelIndex& idx) const
     QModelIndex invalidIndex;
 
     if ( !idx.isValid() ) return invalidIndex;
-    bool isPage = isPageIdx(idx);
-    if ( isPage ) return idx; // idx IS a page index
-    if ( !idx.parent().isValid() && !isPage) return invalidIndex; //eg sess stop
+    if ( isPageIdx(idx) ) return idx; // idx IS a page index
+    if ( !idx.parent().isValid()) return invalidIndex; //eg sess_stop,pages
 
     QModelIndex pageIndex(idx);
-    while ( pageIndex.parent().isValid() ) {
+    while ( pageIndex.parent().parent().isValid() ) {
         pageIndex = pageIndex.parent();
+    }
+    if ( pageIndex.parent().data().toString() != "Pages" ) {
+        pageIndex = invalidIndex;
     }
     return pageIndex;
 }
@@ -111,13 +113,34 @@ QModelIndex PlotBookModel::pageIdx(const QModelIndex& idx) const
 QModelIndexList PlotBookModel::pageIdxs() const
 {
     QModelIndexList idxs;
-    QStandardItem* rootItem = this->invisibleRootItem();
-    for ( int i = 2; i < rootItem->rowCount(); ++i ) {  // 2 for start/stop time
-        QStandardItem* item = rootItem->child(i);
-        QModelIndex idx = this->indexFromItem(item);
+    QModelIndex pgsIdx = pagesIdx();
+    int rc = rowCount(pgsIdx);
+    for ( int i = 0; i < rc; ++i ) {
+        QModelIndex idx = index(i,0,pgsIdx);
         idxs.append(idx);
     }
     return idxs;
+}
+
+bool PlotBookModel::isPlotIdx(const QModelIndex &idx) const
+{
+    return ( (data(idx.parent().parent()).toString() == "Pages") &&
+             (!idx.parent().parent().parent().isValid()) ) ;
+}
+
+QModelIndex PlotBookModel::plotIdx(const QModelIndex &idx) const
+{
+    QModelIndex pltIdx;
+
+    QModelIndex pgIdx = pageIdx(idx);
+    if ( pgIdx.isValid() && pgIdx != idx ) {
+        pltIdx = idx;
+        while ( pltIdx.parent().parent().parent().isValid() ) {
+            pltIdx = pltIdx.parent();
+        }
+    }
+
+    return pltIdx;
 }
 
 QModelIndexList PlotBookModel::plotIdxs(const QModelIndex &pageIdx) const
@@ -130,6 +153,12 @@ QModelIndexList PlotBookModel::plotIdxs(const QModelIndex &pageIdx) const
     }
 
     return idxs;
+}
+
+bool PlotBookModel::isCurveIdx(const QModelIndex &idx) const
+{
+    if ( !idx.isValid() || !idx.parent().isValid() ) return false;
+    return ( this->data(idx.parent()).toString() == "Curves" ) ;
 }
 
 QModelIndex PlotBookModel::curvesIdx(const QModelIndex &plotIdx) const
@@ -173,6 +202,20 @@ QModelIndex PlotBookModel::sessionStopIdx() const
     return stopIdx;
 }
 
+bool PlotBookModel::isPagesIdx(const QModelIndex &idx) const
+{
+    return ( idx.isValid() &&
+            !idx.parent().isValid() &&
+             idx.row() == 2 ) ;
+}
+
+QModelIndex PlotBookModel::pagesIdx() const
+{
+    QModelIndex idx;
+    idx = index(2,0);  // 2 because 0,1 are session start/stop times
+    return idx;
+}
+
 QModelIndex PlotBookModel::pageBGColorIndex(const QModelIndex& pageIdx) const
 {
     QModelIndex idx;
@@ -186,9 +229,7 @@ QModelIndex PlotBookModel::pageBGColorIndex(const QModelIndex& pageIdx) const
 
 bool PlotBookModel::isPageIdx(const QModelIndex &idx) const
 {
-    // rows 0,1 are start/stop time
-    return (idx.isValid() && !idx.parent().isValid()
-            && idx.row() != 0 && idx.row() != 1 ) ;
+    return (isPagesIdx(idx.parent()));
 }
 
 bool PlotBookModel::isCurveLineColorIdx(const QModelIndex &idx) const
@@ -215,6 +256,12 @@ void PlotBookModel::_initModel()
     rootItem->appendRow(stopItem);
     QModelIndex stopIdx = indexFromItem(stopItem);
     setData(stopIdx,DBL_MAX);
+
+    QStandardItem *pagesItem = new QStandardItem("Pages");
+    pagesItem->setData("Pages");
+    rootItem->appendRow(pagesItem);
+    QModelIndex pagesIdx = indexFromItem(pagesItem);
+    setData(pagesIdx,"Pages");
 }
 
 PlotBookModel::IdxEnum PlotBookModel::indexEnum(const QModelIndex &idx) const
@@ -234,19 +281,21 @@ PlotBookModel::IdxEnum PlotBookModel::indexEnum(const QModelIndex &idx) const
         ret = SessionStartTime;
     } else if ( !pidx.isValid()  && row == 1 ) {
         ret = SessionStopTime;
-    } else if ( ! gpidx.isValid() && row == 0 ) {
-        ret = PageTitle;
-    } else if ( ! gpidx.isValid() && row == 1 ) {
-        ret = PageStartTime;
-    } else if ( ! gpidx.isValid() && row == 2 ) {
-        ret = PageStopTime;
-    } else if ( ! gpidx.isValid() && row == 3 ) {
-        ret = PageBGColor;
-    } else if ( ! gpidx.isValid() && row == 4 ) {
-        ret = PageFGColor;
-    } else if ( ! gpidx.isValid() && row >= 5 ) {
-        ret = Plot;
-    } else if ( ! g2pidx.isValid() ) {
+    } else if ( isPagesIdx(idx) ) {
+        ret = Pages;
+    } else if ( !pidx.isValid()  && row == 2 ) {
+        ret = Pages;
+    } else if ( isPagesIdx(gpidx) ) {
+        // Page elements
+        switch (row) {
+            case 0: ret = PageTitle; break;
+            case 1: ret = PageStartTime; break;
+            case 2: ret = PageStopTime; break;
+            case 3: ret = PageBGColor; break;
+            case 4: ret = PageFGColor; break;
+            default: ret = Plot; break;
+        }
+    } else if ( isPagesIdx(g2pidx) ) {
         // Plot elements
         switch (row) {
             case 0: ret = PlotXAxisLabel; break;
@@ -266,9 +315,9 @@ PlotBookModel::IdxEnum PlotBookModel::indexEnum(const QModelIndex &idx) const
             case 14: ret = PlotFont; break;
             default: ret = Invalid;
         }
-    } else if ( ! g3pidx.isValid() ) {
+    } else if ( isPagesIdx(g3pidx) ) {
         ret = Curve;
-    } else if ( ! g4pidx.isValid() ) {
+    } else if ( isPagesIdx(g4pidx) ) {
         // Curve Elements
         switch (row) {
             case 0: ret = CurveTime; break;
