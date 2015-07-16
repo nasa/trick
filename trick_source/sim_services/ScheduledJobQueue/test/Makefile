@@ -10,7 +10,8 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 # Flags passed to the preprocessor.
 TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra -DGTEST_HAS_TR1_TUPLE=0
 
-TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick -ltrick_units -ltrick_mm
+TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick_mm -ltrick_units -ltrick -ltrick_mm -ltrick_units -ltrick
+
 TRICK_EXEC_LINK_LIBS += ${GTEST_HOME}/lib/libgtest.a ${GTEST_HOME}/lib/libgtest_main.a
 
 # All tests produced by this Makefile.  Remember to add new tests you

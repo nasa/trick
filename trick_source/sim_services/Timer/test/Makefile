@@ -34,5 +34,5 @@ ITimer_test.o : ITimer_test.cpp
 	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c $<
 
 ITimer_test : ITimer_test.o
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) $(TRICK_LIBS) $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 

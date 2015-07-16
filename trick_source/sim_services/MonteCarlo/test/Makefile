@@ -16,7 +16,7 @@ TRICK_CXXFLAGS += -I${GSL_HOME}/include
 endif
 endif
 
-TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick -ltrick_pyip -ltrick_comm -ltrick_units -ltrick_math -ltrick_mm
+TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick -ltrick_pyip -ltrick_comm -ltrick_math -ltrick_mm -ltrick_units
 TRICK_EXEC_LINK_LIBS += ${GTEST_HOME}/lib/libgtest.a ${GTEST_HOME}/lib/libgtest_main.a
 
 # All tests produced by this Makefile.  Remember to add new tests you
@@ -50,4 +50,4 @@ MonteCarlo_exceptions.o : MonteCarlo_exceptions.cpp
 	$(TRICK_CPPC) $(TRICK_CXXFLAGS) -c $<
 
 MonteCarlo_exceptions : MonteCarlo_exceptions.o
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) $(TRICK_LIBS) $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)

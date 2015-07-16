@@ -10,7 +10,11 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 # Flags passed to the preprocessor.
 TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra -DGTEST_HAS_TR1_TUPLE=0
 
-GTEST_LIBS = ${GTEST_HOME}/lib/libgtest.a ${GTEST_HOME}/lib/libgtest_main.a
+LIBS = ${GTEST_HOME}/lib/libgtest.a ${GTEST_HOME}/lib/libgtest_main.a
+
+ifeq ($(TRICK_HOST_TYPE), Linux)
+    LIBS += -lpthread -lrt
+endif	 
 
 BASE_OBJECTS = ../object_${TRICK_HOST_CPU}/Clock.o\
                ../object_${TRICK_HOST_CPU}/clock_c_intf.o
@@ -42,17 +46,17 @@ GetTimeOfDayClock_test.o : GetTimeOfDayClock_test.cpp
 	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c $<
 
 GetTimeOfDayClock_test : ${GETTIMEOFDAY_CLOCK_OBJECTS}
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ ${GTEST_LIBS}
+	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ ${LIBS}
 
 TPROCTEClock_test.o : TPROCTEClock_test.cpp
 	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c $<
 
 TPROCTEClock_test : ${TPROCTE_CLOCK_OBJECTS}
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ ${GTEST_LIBS}
+	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ ${LIBS}
 
 BC635Clock_test.o : BC635Clock_test.cpp
 	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c $<
 
 BC635Clock_test : ${BC635_CLOCK_OBJECTS}
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ ${GTEST_LIBS}
+	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ ${LIBS}
 
