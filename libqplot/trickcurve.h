@@ -17,8 +17,11 @@ public:
     explicit TrickCurve(QCPAxis *keyAxis, QCPAxis *valueAxis) ;
     virtual ~TrickCurve();
 
+    QString trkFile() const ;
+
     LineStyle lineStyle() const { return mLineStyle; }
     void setLineStyle(LineStyle style);
+
     QCPRange xRange(bool &validRange, SignDomain inSignDomain=sdBoth);
     QCPRange yRange(bool &validRange, SignDomain inSignDomain=sdBoth);
 
@@ -33,6 +36,24 @@ public:
     void setStartTime(double startTime);
     void setStopTime(double stopTime);
 
+    double xScaleFactor();
+    double yScaleFactor();
+    void setXScaleFactor(double sf);
+    void setYScaleFactor(double sf);
+
+    double xBias();
+    double yBias();
+    void setXBias(double b);
+    void setYBias(double b);
+
+    QString symbolStyle();
+    void setSymbolStyle(const QString& symbol);
+
+    QString symbolSize();
+    void setSymbolSize(const QString& size); // tiny,small,medium,large
+
+    QString curveStyle();                       // "lineStyle" name used
+    void setCurveStyle(const QString& style);
 
     virtual void clearData()
     {
@@ -103,6 +124,13 @@ private:
     double _stopTime;
     QCPRange _xrange;
     QCPRange _yrange;
+    double _xsf;
+    double _ysf;
+    double _xbias;
+    double _ybias;
+    QCPScatterStyle::ScatterShape _scatterShape;
+    double _scatterSize;
+    QString _curveStyle;
 
     int _deselectedLayerIdx;
     void _addFlatLineLabel(QCPPainter* painter);
@@ -114,6 +142,10 @@ private slots:
 
 signals:
     void selectionChanged(TrickCurve* curve);
+    void xScaled(double sf);
+    void yScaled(double sf);
+    void xBiased(double b);
+    void yBiased(double b);
 };
 
 

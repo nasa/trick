@@ -26,6 +26,8 @@ class TrickCurveModel : public QAbstractTableModel
 
     QString  tableName () const { return _tableName ; }
 
+    QString  trkFile () const { return _trickmodel->trkFile(); }
+
     Parameter t() const { return _t ; }
     Parameter x() const { return _x ; }
     Parameter y() const { return _y ; }

@@ -28,15 +28,31 @@ public:
     QString label() { return _label; }
     QString unit() { return _unit; }
     QString lineColor() { return _lineColor; }
+    QString lineStyle() { return _lineStyle; }
+    double scaleFactor() { return _scaleFactor; }
+    double bias() { return _bias; }
+    QString symbolStyle() { return _symbol; }
+    QString symbolSize() { return _symbolSize; }
 
     void setLabel(const char* label) { _label = label; }
     void setUnit(const char* unit) { _unit = unit; }
     void setLineColor(const char* lineColor) { _lineColor = lineColor; }
+    void setLineStyle(const char* ls) { _lineStyle = ls; }
+    void setScaleFactor(double sf) { _scaleFactor = sf; }
+    void setBias(double b) { _bias = b; }
+    void setSymbolStyle(const char* ss) { _symbol = ss; }
+    void setSymbolSize(const char* ss) { _symbolSize = ss; }
+
 private:
     QString _name;
     QString _label;
     QString _unit;
     QString _lineColor;
+    QString _lineStyle;
+    double _scaleFactor;
+    double _bias;
+    QString _symbol;
+    QString _symbolSize;
 };
 
 class DPCurve
@@ -55,11 +71,20 @@ public:
     QString lineColor();
     void setLineColor(const char* lineColor);
 
+    QString lineStyle();
+    void setLineStyle(const char* lineStyle);
+
+    QString symbolStyle();
+    void setSymbolStyle(const char* style);
+
+    QString symbolSize();
+    void setSymbolSize(const char* size); // tiny,small,medium,large
+
 private:
     DPVar* _t;
     DPVar* _x;
     DPVar* _y;
-    QString _color;
+    QString _color;  // TODO: should this be a member of y, like symbolStyle?
     static QString _err_string;
     static QTextStream _err_stream;
 };
@@ -78,9 +103,12 @@ public:
     double yMaxRange();
     double startTime();
     double stopTime();
-    QList<DPCurve*> curves() { return _curves; }
+    bool grid();
+    QString gridColor();
+    QString backgroundColor();
+    QString foregroundColor();
+    QString font();
 
-    DPCurve* addCurve();
     void setXAxisLabel(const char* label) { _xAxisLabel = label ; }
     void setYAxisLabel(const char* label) { _yAxisLabel = label ; }
     void setXMinRange(double xMin);
@@ -89,6 +117,14 @@ public:
     void setYMaxRange(double yMax);
     void setStartTime(double startTime);
     void setStopTime(double stopTime);
+    void setGrid(const QString& isGridString);
+    void setGridColor(const QString& color);
+    void setBackgroundColor(const QString& color);
+    void setForegroundColor(const QString& color);
+    void setFont(const QString& fnt);
+
+    QList<DPCurve*> curves() { return _curves; }
+    DPCurve* addCurve();
 
 private:
     QString _title;
@@ -100,8 +136,13 @@ private:
     double _yMaxRange;
     double _startTime;
     double _stopTime;
+    bool _isGrid;
+    QString _gridColor;
     QList<DPCurve*> _curves;
     static QString _abbreviate(const QString& label,int maxlen=35);
+    QString _backgroundColor;
+    QString _foregroundColor;
+    QString _font;
 };
 
 class DPPage
@@ -115,13 +156,21 @@ public:
 
     double startTime();
     double stopTime();
+    QString backgroundColor();
+    QString foregroundColor();
+
     void setStartTime(double startTime);
     void setStopTime(double stopTime);
+    void setBackgroundColor(const QString& color);
+    void setForegroundColor(const QString& color);
+
 private:
     QString _title;
     QList<DPPlot*> _plots;
     double _startTime;
     double _stopTime;
+    QString _backgroundColor;
+    QString _foregroundColor;
 };
 
 class DPProduct

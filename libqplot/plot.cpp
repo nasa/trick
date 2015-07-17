@@ -19,12 +19,16 @@ Plot::Plot(QWidget* parent) :
     setSizePolicy(sizePolicy);
 
     setNoAntialiasingOnDrag(true);
-    setAutoAddPlottableToLegend(false);
+    setAutoAddPlottableToLegend(true);
 
     _axisrect = new AxisRect(this);
 
     plotLayout()->clear();
     plotLayout()->addElement(0,0,_axisrect);
+
+    legend = new QCPLegend;
+    _axisrect->insetLayout()->addElement(legend, Qt::AlignRight|Qt::AlignTop);
+    _axisrect->insetLayout()->setMargins(QMargins(12, 12, 12, 12));
 
     _titleItem = new QCPItemText(this);
     _titleItem->position->setType(QCPItemPosition::ptAxisRectRatio);
@@ -39,6 +43,11 @@ Plot::Plot(QWidget* parent) :
             this,SLOT(_slotPlottableDoubleClick(QCPAbstractPlottable*,QMouseEvent*)));
     connect(this,SIGNAL(mouseDoubleClick(QMouseEvent*)),
             this,SLOT(_slotMouseDoubleClick(QMouseEvent*)));
+}
+
+QCPItemText *Plot::title()
+{
+    return _titleItem;
 }
 
 void Plot::setTitle(const QString &title)
@@ -84,6 +93,48 @@ void Plot::setStartTime(double startTime)
 void Plot::setStopTime(double stopTime)
 {
     _axisrect->setStopTime(stopTime);
+}
+
+void Plot::setGrid(bool isOn)
+{
+    foreach ( QCPAxis* axis, _axisrect->axes() ) {
+
+        Qt::PenStyle penStyle = Qt::NoPen;
+
+        if ( isOn ) {
+            penStyle = Qt::SolidLine;
+        }
+
+        QPen pen = axis->grid()->pen();
+        pen.setStyle(penStyle);
+        axis->grid()->setPen(pen);
+
+        pen = axis->grid()->zeroLinePen();
+        pen.setStyle(penStyle);
+        axis->grid()->setZeroLinePen(pen);
+    }
+}
+
+void Plot::setGridColor(const QString &colorString)
+{
+    QColor color(colorString);
+    foreach ( QCPAxis* axis, _axisrect->axes() ) {
+
+        QPen pen = axis->grid()->pen();
+        pen.setColor(color);
+        axis->grid()->setPen(pen);
+
+        QPen zpen = axis->grid()->zeroLinePen();
+        zpen.setColor(color);
+        axis->grid()->setZeroLinePen(zpen);
+    }
+}
+
+void Plot::setBackgroundColor(const QString &colorString)
+{
+    QColor color(colorString);
+    QBrush brush(color);
+    QCustomPlot::setBackground(brush);
 }
 
 void Plot::drawMe(QCPPainter *painter)

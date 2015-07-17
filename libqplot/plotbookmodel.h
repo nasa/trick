@@ -21,48 +21,71 @@ public:
     QModelIndex sessionStartIdx() const ;
     QModelIndex sessionStopIdx() const ;
 
+    bool isPagesIdx(const QModelIndex& idx) const ;
+    QModelIndex pagesIdx() const ;
+
     bool isPageIdx(const QModelIndex& idx) const ;
     QModelIndex pageIdx(const QModelIndex& idx) const ;
     QModelIndexList pageIdxs() const ;
 
+    bool isPlotIdx(const QModelIndex& idx) const ;
+    QModelIndex plotIdx(const QModelIndex& idx) const ;
     QModelIndexList plotIdxs(const QModelIndex& pageIdx) const ;
 
+    bool isCurveIdx(const QModelIndex& idx) const ;
     QModelIndex curvesIdx(const QModelIndex& plotIdx) const ;
     QModelIndexList curveIdxs(const QModelIndex& curvesIdx) const ;
     QModelIndex curveLineColorIdx(const QModelIndex& curveIdx) const ;
     bool isCurveLineColorIdx(const QModelIndex& idx) const;
 
+    QModelIndex pageBGColorIndex(const QModelIndex& pageIdx) const;
 
     enum IdxEnum
     {
         Invalid,
-        Page,
-            SessionStartTime,
-            SessionStopTime,
-            PageTitle,
-            PageStartTime,
-            PageStopTime,
+        SessionStartTime,
+        SessionStopTime,
+        Pages,
+            Page,
+                PageTitle,
+                PageStartTime,
+                PageStopTime,
+                PageBGColor,
+                PageFGColor,
                 Plot,
-                    PlotXAxisLabel,
-                    PlotYAxisLabel,
-                    Curves,
-                        Curve,
-                            CurveTime,
-                            CurveX,
-                            CurveY,
-                            CurveTimeUnit,
-                            CurveXUnit,
-                            CurveYUnit,
-                            CurveRunID,
-                            CurveData,
-                            CurveLineColor,
-                    PlotTitle,
-                    PlotXMin,
-                    PlotXMax,
-                    PlotYMin,
-                    PlotYMax,
-                    PlotStartTime,
-                    PlotStopTime
+                        PlotXAxisLabel,
+                        PlotYAxisLabel,
+                        Curves,
+                            Curve,
+                                CurveTime,
+                                CurveX,
+                                CurveY,
+                                CurveTimeUnit,
+                                CurveXUnit,
+                                CurveYUnit,
+                                CurveRunID,
+                                CurveData,
+                                CurveLineColor,
+                                CurveXScale,
+                                CurveYScale,
+                                CurveXBias,
+                                CurveYBias,
+                                CurveSymbolStyle,
+                                CurveSymbolSize,
+                                CurveLineStyle,
+                                CurveYLabel,
+                        PlotTitle,
+                        PlotXMin,
+                        PlotXMax,
+                        PlotYMin,
+                        PlotYMax,
+                        PlotStartTime,
+                        PlotStopTime,
+                        PlotGrid,
+                        PlotGridColor,
+                        PlotBGColor,
+                        PlotFGColor,
+                        PlotFont
     };
 
     IdxEnum indexEnum(const QModelIndex& idx) const;

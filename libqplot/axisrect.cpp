@@ -67,6 +67,9 @@ void AxisRect::showCurveDiff()
     _diffCurveTimes.clear();
     _diffCurveVals.clear();
 
+    double sf = _curves.at(0)->yScaleFactor();
+    double bias = _curves.at(0)->yBias();
+
     TrickCurveModel *model1 =  _curves.at(0)->_model ;
     TrickCurveModel *model2 =  _curves.at(1)->_model ;
     if ( model1 != 0 && model2 != 0 ) {
@@ -81,7 +84,7 @@ void AxisRect::showCurveDiff()
             double t1 = it1.t();
             double t2 = it2.t();
             if ( qAbs(t2-t1) < 0.000001 ) {
-                double d = it1.y() - it2.y();
+                double d = (it1.y() - it2.y())*sf + bias;
                 _diffCurveTimes.append(t2);
                 _diffCurveVals.append(d);
                 ++it1;
@@ -112,6 +115,10 @@ void AxisRect::showCurveDiff()
     _curves.at(1)->_isPainterPathCreated = false ;
     _isYRangeCalculated = false ;
     TrickCurve* curve = addCurve(&_diffCurveTimes,&_diffCurveVals);
+
+    // Diff curve legend label
+    QString diffLabel = "diff";
+    curve->setName(diffLabel);
 
     bool isValid;
     double xmin = curve->xRange(isValid).lower;
@@ -165,6 +172,15 @@ void AxisRect::toggleCurveDiff()
 // TODO: this is hackish to support different data types
 void AxisRect::_addCurve(TrickCurve *curve)
 {
+    connect(curve, SIGNAL(xScaled(double)),
+            this, SLOT(_curveXScaleChanged(double)));
+    connect(curve, SIGNAL(yScaled(double)),
+            this, SLOT(_curveYScaleChanged(double)));
+    connect(curve, SIGNAL(xBiased(double)),
+            this, SLOT(_curveXBiasChanged(double)));
+    connect(curve, SIGNAL(yBiased(double)),
+            this, SLOT(_curveYBiasChanged(double)));
+
     _curves.append(curve);
     _plotwidget->addPlottable(curve);
     int nCurves = _curves.size();
@@ -586,6 +602,34 @@ void AxisRect::wheelEvent(QWheelEvent *event)
     _yAxis->setRange(yrange.lower+dy,yrange.upper-dy);
 
     mParentPlot->replot();
+}
+
+void AxisRect::_curveXScaleChanged(double sf)
+{
+    Q_UNUSED(sf);
+    _isXRangeCalculated  = false;
+    zoomToFit();
+}
+
+void AxisRect::_curveYScaleChanged(double sf)
+{
+    Q_UNUSED(sf);
+    _isYRangeCalculated  = false;
+    zoomToFit();
+}
+
+void AxisRect::_curveXBiasChanged(double b)
+{
+    Q_UNUSED(b);
+    _isXRangeCalculated  = false;
+    zoomToFit();
+}
+
+void AxisRect::_curveYBiasChanged(double b)
+{
+    Q_UNUSED(b);
+    _isYRangeCalculated  = false;
+    zoomToFit();
 }
 
 QList<QColor> AxisRect::_createColorBands(int nBands, bool isMonte)

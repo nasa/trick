@@ -541,7 +541,7 @@ void Options::parse(int argc, char **argv, const QString& programName,
                 double v = s.toDouble(ok);
                 if ( *ok ) rootVals << QVariant(v);
             } else if ( rootOption->type() == QVariant::Bool ) {
-                bool v = _stringToBool(s,ok);
+                bool v = stringToBool(s,ok);
                 if ( *ok ) rootVals << QVariant(v);
             } else {
                 // string
@@ -608,7 +608,7 @@ QVariantList Options::_extractOptValsFromArgs(Option *opt,
         } else if ( opt->type() == QVariant::StringList ) {
             if ( *ok ) listVals << QVariant(valString);
         } else if ( opt->type() == QVariant::Bool ) {
-            bool v = _stringToBool(valString,ok);
+            bool v = stringToBool(valString,ok);
             if ( *ok ) listVals << QVariant(v);
         } else {
             // string
@@ -637,7 +637,7 @@ QVariantList Options::_extractOptValsFromArgs(Option *opt,
     return listVals;
 }
 
-bool Options::_stringToBool(const QString &s, bool* ok)
+bool Options::stringToBool(const QString &s, bool* ok)
 {
     bool ret = false;
     *ok = false;

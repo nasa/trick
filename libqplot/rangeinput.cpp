@@ -8,12 +8,16 @@ RangeInput::RangeInput(QWidget *parent) :
 
     _minInput = new QLineEdit(this);
     _minInput->setAlignment(Qt::AlignRight);
+#if QT_VERSION >= QT_VERSION_CHECK(4,8,0)
     _minInput->setPlaceholderText("Start Time");
     _minInput->setValidator(&_validator);
+#endif
     _maxInput = new QLineEdit(this);
     _maxInput->setAlignment(Qt::AlignRight);
+#if QT_VERSION >= QT_VERSION_CHECK(4,8,0)
     _maxInput->setPlaceholderText("Stop Time");
     _maxInput->setValidator(&_validator);
+#endif
 
     connect(_minInput, SIGNAL(editingFinished()),
             this, SLOT(_slotMinChanged()));

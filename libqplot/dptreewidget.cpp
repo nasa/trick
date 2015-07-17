@@ -153,7 +153,8 @@ void DPTreeWidget::_dpTreeViewCurrentChanged(const QModelIndex &currIdx,
 //
 void DPTreeWidget::_createDPPages(const QString& dpfile)
 {
-    QStandardItem *rootItem = _plotModel->invisibleRootItem();
+    QModelIndex pagesIndex = _plotModel->pagesIdx();
+    QStandardItem *pagesItem = _plotModel->itemFromIndex(pagesIndex);
     QCursor currCursor = this->cursor();
     this->setCursor(QCursor(Qt::WaitCursor));
 
@@ -166,7 +167,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             pageName += QString("_%0").arg(pageNum);
         }
         QStandardItem *pageItem = new QStandardItem(pageName);
-        rootItem->appendRow(pageItem);
+        pagesItem->appendRow(pageItem);
 
         QStandardItem *pageTitleItem = new QStandardItem(page->title());
         pageItem->appendRow(pageTitleItem);
@@ -182,6 +183,16 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
         QStandardItem *pageStopTimeItem = new QStandardItem(pageStopTimeStr);
         pageStopTimeItem->setData(pageStopTime);
         pageItem->appendRow(pageStopTimeItem);
+
+        QString bgColor = page->backgroundColor();
+        QStandardItem *pageBGColor = new QStandardItem(bgColor);
+        pageBGColor->setData(bgColor);
+        pageItem->appendRow(pageBGColor);
+
+        QString fgColor = page->foregroundColor();
+        QStandardItem *pageFGColor = new QStandardItem(fgColor);
+        pageFGColor->setData(fgColor);
+        pageItem->appendRow(pageFGColor);
 
         foreach (DPPlot* plot, page->plots() ) {
 
@@ -240,6 +251,37 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             plotStopTime->setData(stopTime);
             plotItem->appendRow(plotStopTime);
 
+            bool isGrid = plot->grid();
+            QString isGridStr;
+            if ( isGrid ) {
+                isGridStr = "yes";
+            } else {
+                isGridStr = "no";
+            }
+            QStandardItem *plotGrid = new QStandardItem(isGridStr);
+            plotGrid->setData(isGrid);
+            plotItem->appendRow(plotGrid);
+
+            QString gridColor = plot->gridColor();
+            QStandardItem *plotGridColor = new QStandardItem(gridColor);
+            plotGridColor->setData(gridColor);
+            plotItem->appendRow(plotGridColor);
+
+            QString bgColor = plot->backgroundColor();
+            QStandardItem *plotBGColor = new QStandardItem(bgColor);
+            plotBGColor->setData(bgColor);
+            plotItem->appendRow(plotBGColor);
+
+            QString fgColor = plot->foregroundColor();
+            QStandardItem *plotFGColor = new QStandardItem(fgColor);
+            plotFGColor->setData(fgColor);
+            plotItem->appendRow(plotFGColor);
+
+            QString fontStr = plot->font();
+            QStandardItem *plotFont = new QStandardItem(fontStr);
+            plotFont->setData(fontStr);
+            plotItem->appendRow(plotFont);
+
             int curveId = -1;
             foreach (DPCurve* dpcurve, plot->curves() ) {
                 ++curveId;
@@ -256,6 +298,18 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                     QString xUnit = dpcurve->x()->unit();
                     QString yUnit = dpcurve->y()->unit();
                     QString color = dpcurve->lineColor();
+                    double xsf = dpcurve->x()->scaleFactor();
+                    QString xsfStr = QString("%1").arg(xsf);
+                    double ysf = dpcurve->y()->scaleFactor();
+                    QString ysfStr = QString("%1").arg(ysf);
+                    double xbias = dpcurve->x()->bias();
+                    QString xbiasStr = QString("%1").arg(xbias);
+                    double ybias = dpcurve->y()->bias();
+                    QString ybiasStr = QString("%1").arg(ybias);
+                    QString symbolStyle = dpcurve->y()->symbolStyle();
+                    QString symbolSize = dpcurve->y()->symbolSize();
+                    QString lineStyle = dpcurve->y()->lineStyle();
+                    QString yLabel = dpcurve->y()->label();
 
                     QStandardItem *tItem       = new QStandardItem(tName);
                     QStandardItem *xItem       = new QStandardItem(xName);
@@ -267,6 +321,16 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                                                      QString("%0").arg(run));
                     QStandardItem *curveDataItem = new QStandardItem("");
                     QStandardItem *colorItem   = new QStandardItem(color);
+                    QStandardItem *xsfItem   = new QStandardItem(xsfStr);
+                    QStandardItem *ysfItem   = new QStandardItem(ysfStr);
+                    QStandardItem *xbiasItem   = new QStandardItem(xbiasStr);
+                    QStandardItem *ybiasItem   = new QStandardItem(ybiasStr);
+                    QStandardItem *symbolItem  = new QStandardItem(symbolStyle);
+                    QStandardItem *symbolSizeItem  =
+                                               new QStandardItem(symbolSize);
+                    QStandardItem *lineStyleItem  =
+                                               new QStandardItem(lineStyle);
+                    QStandardItem *yLabelItem = new QStandardItem(yLabel);
 
                     curveItem->appendRow(tItem);
                     curveItem->appendRow(xItem);
@@ -277,6 +341,14 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                     curveItem->appendRow(runIDItem);
                     curveItem->appendRow(curveDataItem);
                     curveItem->appendRow(colorItem);
+                    curveItem->appendRow(xsfItem);
+                    curveItem->appendRow(ysfItem);
+                    curveItem->appendRow(xbiasItem);
+                    curveItem->appendRow(ybiasItem);
+                    curveItem->appendRow(symbolItem);
+                    curveItem->appendRow(symbolSizeItem);
+                    curveItem->appendRow(lineStyleItem);
+                    curveItem->appendRow(yLabelItem);
                 }
             }
         }

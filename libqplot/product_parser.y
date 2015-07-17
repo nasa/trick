@@ -171,12 +171,10 @@ page_options:
                 currPage->setStopTime($4);
         }
         | page_options DP_FOREGROUND_COLOR ':' DP_STR  {
-                //product->getCurrPage()->setForegroundColor($4);
-                msg("page->setGnuplotPageOrientation() not supported");
+                currPage->setForegroundColor($4);
         }
         | page_options DP_BACKGROUND_COLOR ':' DP_STR  {
-                //product->getCurrPage()->setBackgroundColor($4);
-                msg("page->setGnuplotPageOrientation() not supported");
+                currPage->setBackgroundColor($4);
         }
         | page_options DP_FONT ':' DP_STR  {
                 //product->getCurrPage()->setFont($4);
@@ -193,16 +191,13 @@ plot: DP_PLOT DP_FLOAT ':' DP_STR {
                 currPlot = currPage->addPlot($4);
         }
         | plot DP_FOREGROUND_COLOR ':' DP_STR  {
-                //currPlot->setForegroundColor($4);
-                msg("plot->setForegroundColor() not supported");
+                currPlot->setForegroundColor($4);
         }
         | plot DP_BACKGROUND_COLOR ':' DP_STR  {
-                //currPlot->setBackgroundColor($4);
-                msg("page->setBackgroundColor() not supported");
+                currPlot->setBackgroundColor($4);
         }
         | plot DP_FONT ':' DP_STR  {
-                //currPlot->setFont($4);
-                msg("page->setBackgroundColor() not supported");
+                currPlot->setFont($4);
         }
         | plot DP_X_AXIS_LABEL ':' DP_STR {
                 currPlot->setXAxisLabel($4);
@@ -235,12 +230,10 @@ plot: DP_PLOT DP_FLOAT ':' DP_STR {
                 currPlot->setYMaxRange($4);
         }
         | plot DP_GRID ':' DP_STR  {
-                //currPlot->setGrid($4);
-                msg("page->setGrid() not supported");
+                currPlot->setGrid($4);
         }
         | plot DP_GRID_COLOR ':' DP_STR  {
-                //currPlot->setGridColor($4);
-                msg("page->setGridColor() not supported");
+                currPlot->setGridColor($4);
         }
         | plot DP_START ':' DP_FLOAT {
                 currPlot->setStartTime($4);
@@ -287,20 +280,16 @@ x_var: DP_X_VARIABLE ':' DP_STR {
                 currXVar->setUnit($4);
         }
         | x_var DP_MIN_RANGE ':' DP_FLOAT {
-                //currXVar->setMinRange($4);
-                msg("plot->setMinRange() not supported");
+                currPlot->setXMinRange($4);
         }
         | x_var DP_MAX_RANGE ':' DP_FLOAT {
-                //currXVar->setMaxRange($4);
-                msg("plot->setMaxRange() not supported");
+                currPlot->setXMaxRange($4);
         }
         | x_var DP_SCALE_FACTOR ':' DP_FLOAT {
-                //currXVar->setScaleFactor($4);
-                msg("plot->setMinRange() not supported");
+                currXVar->setScaleFactor($4);
         }
         | x_var DP_BIAS ':' DP_FLOAT {
-                //currXVar->setBias($4);
-                msg("plot->setBias() not supported");
+                currXVar->setBias($4);
         }
         | x_var DP_TIME_NAME ':' DP_STR {
                 //currXVar->setTimeName($4);
@@ -323,35 +312,28 @@ y_var: DP_Y_VARIABLE ':' DP_STR {
                 currYVar->setUnit($4);
         }
         | y_var DP_MIN_RANGE ':' DP_FLOAT  {
-                //currYVar->setMinRange($4);
-                msg("plot->setMinRange() not supported");
+                currPlot->setYMinRange($4);
         }
         | y_var DP_MAX_RANGE ':' DP_FLOAT {
-                //currYVar->setMaxRange($4);
-                msg("plot->setMaxRange() not supported");
+                currPlot->setYMaxRange($4);
         }
         | y_var DP_SCALE_FACTOR ':' DP_FLOAT {
-                //currYVar->setScaleFactor($4);
-                msg("plot->setScaleFactor() not supported");
+                currYVar->setScaleFactor($4);
         }
         | y_var DP_BIAS ':' DP_FLOAT {
-                //currYVar->setBias($4);
-                msg("plot->setBias() not supported");
+                currYVar->setBias($4);
         }
         | y_var DP_LINE_STYLE ':' DP_STR {
-                //currCurve->setLineStyle($4);
-                msg("plot->setLineStyle() not supported");
+                currYVar->setLineStyle($4);
         }
         | y_var DP_LINE_COLOR ':' DP_STR {
                 currCurve->setLineColor($4);
         }
         | y_var DP_SYMBOL_STYLE ':' DP_STR {
-                //currCurve->setLineSymbol($4);
-                msg("plot->setLineSymbol() not supported");
+                currCurve->setSymbolStyle($4);
         }
         | y_var DP_SYMBOL_SIZE ':' DP_STR {
-                //currCurve->setLineSymbolSize($4);
-                msg("plot->setLineSymbolSiz() not supported");
+                currCurve->setSymbolSize($4);
         }
         | y_var DP_GNUPLOT_FUNCTION_STYLE ':' DP_STR {
                 //currCurve->setGnuplotFunctionStyle($4);

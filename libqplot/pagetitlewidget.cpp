@@ -18,10 +18,15 @@ PageTitleWidget::PageTitleWidget(QWidget *parent) :
     _titleGrid->setColumnStretch(1,8);
     _titleGrid->setColumnStretch(2,1);
 
+    QFont font1;
+    int pointSize = _titleFrame->font().pointSize();
+    font1.setPointSize(pointSize+1);
+
     _title1 = new QLabel(_titleFrame);
     _title1->setTextFormat(Qt::RichText);
     _title1->setText("");
     _title1->setAlignment(Qt::AlignHCenter| Qt::AlignVCenter);
+    _title1->setFont(font1);
     _titleGrid->addWidget(_title1,0,1);
 
     _title2 = new QLabel(_titleFrame);
@@ -72,6 +77,14 @@ void PageTitleWidget::setTitle3(const QString &title)
 void PageTitleWidget::setTitle4(const QString &title)
 {
     _title4->setText(title);
+}
+
+void PageTitleWidget::setBackgroundColor(const QString &color)
+{
+    QColor qcolor(color);
+    QPalette pal(palette());
+    pal.setColor(QPalette::Background, qcolor);
+    _titleFrame->setPalette(pal);
 }
 
 QString PageTitleWidget::title2()

@@ -8,7 +8,13 @@ TrickCurve::TrickCurve(QCPAxis *keyAxis, QCPAxis *valueAxis) :
     _timeVec(0),
     _valVec(0),
     _startTime(-DBL_MAX),
-    _stopTime(DBL_MAX)
+    _stopTime(DBL_MAX),
+    _xsf(1.0),
+    _ysf(1.0),
+    _xbias(0.0),
+    _ybias(0.0),
+    _scatterShape(QCPScatterStyle::ssNone),
+    _scatterSize(6.0)
 {
     setAntialiased(false);
     mPen.setColor(QColor(50, 100, 212));
@@ -29,6 +35,17 @@ TrickCurve::TrickCurve(QCPAxis *keyAxis, QCPAxis *valueAxis) :
 
 TrickCurve::~TrickCurve()
 { }
+
+QString TrickCurve::trkFile() const
+{
+    QString trkfile;
+
+    if ( _model ) {
+        trkfile = _model->trkFile();
+    }
+
+    return trkfile;
+}
 
 void TrickCurve::setLineStyle(TrickCurve::LineStyle style)
 {
@@ -142,6 +159,238 @@ void TrickCurve::setStopTime(double stopTime)
     }
 }
 
+double TrickCurve::xScaleFactor()
+{
+    return _xsf;
+}
+
+double TrickCurve::yScaleFactor()
+{
+    return _ysf;
+}
+
+void TrickCurve::setXScaleFactor(double sf)
+{
+    if ( _xsf == sf ) return;
+
+    _xsf = sf;
+    if ( _model ) {
+        _createPainterPath(_model);
+    } else if ( !_timeVec->empty() )  {
+        _createPainterPath(_timeVec, _valVec);
+    }
+
+    emit xScaled(sf);
+}
+
+void TrickCurve::setYScaleFactor(double sf)
+{
+    if ( _ysf == sf ) return;
+
+    _ysf = sf;
+    if ( _model ) {
+        _createPainterPath(_model);
+    } else if ( !_timeVec->empty() )  {
+        _createPainterPath(_timeVec, _valVec);
+    }
+
+    emit yScaled(sf);
+}
+
+double TrickCurve::xBias()
+{
+    return _xbias;
+}
+
+double TrickCurve::yBias()
+{
+    return _ybias;
+}
+
+void TrickCurve::setXBias(double b)
+{
+    if ( _xbias == b ) return;
+
+    _xbias = b;
+    if ( _model ) {
+        _createPainterPath(_model);
+    } else if ( !_timeVec->empty() )  {
+        _createPainterPath(_timeVec, _valVec);
+    }
+
+    emit xBiased(b);
+}
+
+void TrickCurve::setYBias(double b)
+{
+    if ( _ybias == b ) return;
+
+    _ybias = b;
+    if ( _model ) {
+        _createPainterPath(_model);
+    } else if ( !_timeVec->empty() )  {
+        _createPainterPath(_timeVec, _valVec);
+    }
+
+    emit yBiased(b);
+}
+
+QString TrickCurve::symbolStyle()
+{
+    QString s;
+
+    if ( _scatterShape == QCPScatterStyle::ssNone ) {
+        s = "none";
+    } else if ( _scatterShape == QCPScatterStyle::ssSquare ) {
+        s = "square";
+    } else if ( _scatterShape == QCPScatterStyle::ssPlusSquare ) {
+        s = "plus_square";
+    } else if ( _scatterShape == QCPScatterStyle::ssCrossSquare ) {
+        s = "cross_square";
+    } else if ( _scatterShape == QCPScatterStyle::ssCircle ) {
+        s = "circle";
+    } else if ( _scatterShape == QCPScatterStyle::ssDisc ) {
+        s = "disc";
+    } else if ( _scatterShape == QCPScatterStyle::ssPeace ) {
+        s = "peace";
+    } else if ( _scatterShape == QCPScatterStyle::ssStar ) {
+        s = "star";
+    } else if ( _scatterShape == QCPScatterStyle::ssCross ) {
+        s = "cross";
+    } else if ( _scatterShape == QCPScatterStyle::ssTriangle ) {
+        s = "triangle";
+    }
+
+    return s;
+}
+
+void TrickCurve::setSymbolStyle(const QString &symbol)
+{
+    if ( symbol.isEmpty() ) {
+        _scatterShape = QCPScatterStyle::ssNone;
+    } else if ( !symbol.compare("none",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssNone;
+    } else if (  !symbol.compare("square",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssSquare;
+    } else if (  !symbol.compare("solid_square",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssPlusSquare;
+    } else if (  !symbol.compare("plus_square",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssPlusSquare;
+    } else if (  !symbol.compare("thick_square",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssCrossSquare;
+    } else if (  !symbol.compare("cross_square",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssCrossSquare;
+    } else if (  !symbol.compare("circle",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssCircle;
+    } else if (  !symbol.compare("solid_circle",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssDisc;
+    } else if (  !symbol.compare("disc",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssDisc;
+    } else if (  !symbol.compare("thick_circle",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssPeace;
+    } else if (  !symbol.compare("peace",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssPeace;
+    } else if (  !symbol.compare("star",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssStar;
+    } else if (  !symbol.compare("xx",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssCross;
+    } else if (  !symbol.compare("cross",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssCross;
+    } else if (  !symbol.compare("triangle",Qt::CaseInsensitive) ) {
+        _scatterShape = QCPScatterStyle::ssTriangle;
+    } else {
+        qDebug() << "TrickCurve::setSymbolStyle() received unsupported "
+                    "symbol style \"" <<  symbol << "\".  Defaulting to "
+                    "solid circle.";
+        _scatterShape = QCPScatterStyle::ssDisc;
+    }
+}
+
+QString TrickCurve::symbolSize()
+{
+    QString size;
+
+    if ( _scatterSize == 6.0 ) {
+        size = "medium";
+    } else if ( _scatterSize ==  4.0 ) {
+        size = "small";
+    } else if ( _scatterSize ==  2.0 ) {
+        size = "tiny" ;
+    } else if ( _scatterSize ==  10.0 ) {
+        size = "large" ;
+    } else {
+        qDebug() << "snap [bad scoobs]: TrickCurve::symbolSize()";
+        exit(-1);
+    }
+
+    return size;
+}
+
+void TrickCurve::setSymbolSize(const QString &size)
+{
+    if ( size.isEmpty() ) return;
+
+    QString sz = size.toLower();
+
+    if ( sz == "medium" ) {
+        _scatterSize = 6.0;
+    } else if ( sz == "small" ) {
+        _scatterSize = 4.0;
+    } else if ( sz == "tiny" ) {
+        _scatterSize = 2.0;
+    } else if ( sz == "large" ) {
+        _scatterSize = 10.0;
+    } else {
+        qDebug() << "snap [error]: TrickCurve::setSymbolSize() "
+                    "received bad value of \"" << size << "\"";
+    }
+}
+
+QString TrickCurve::curveStyle()
+{
+    return _curveStyle;
+}
+
+void TrickCurve::setCurveStyle(const QString &style)
+{
+    if ( style.isEmpty() ) return;
+
+    QString s = style;
+    s = s.toLower();
+
+    QVector<qreal> pattern;
+    if ( s == "plain" ) {
+        // pattern is empty
+    } else if ( s == "fine_dash" ) {
+        pattern << 1 << 2;
+    } else if ( s == "med_fine_dash" ) {
+        pattern << 3 << 2;
+    } else if ( s == "dash" ) {
+        pattern << 5 << 3;
+    } else if ( s == "long_dash" ) {
+        pattern << 8 << 5;
+    } else if ( s == "x_long_dash" ) {
+        pattern << 12 << 8;
+    } else if ( s == "dot_dash" ) {
+        pattern << 12 << 4 << 1 << 4;
+    } else if ( s == "2_dot_dash" ) {
+        pattern << 12 << 3 << 1 << 2 << 1 << 3;
+    } else if ( s == "3_dot_dash" ) {
+        pattern << 12 << 3 << 1 << 2 << 1 << 2 << 1 << 3;
+    } else if ( s == "4_dot_dash" ) {
+        pattern << 16 << 3 << 1 << 2 << 1 << 2 << 1 << 2 << 1 << 3;
+    } else {
+        qDebug() << "snap [error]: TrickCurve::setCurveStyle() "
+                    "received bad value of \"" << style << "\"";
+    }
+
+    if ( s != "plain" ) {
+        QPen p = pen();
+        p.setDashPattern(pattern);
+        setPen(p);
+    }
+}
+
 void TrickCurve::draw(QCPPainter *painter)
 {
     if ( (_model == 0 || _model->rowCount() == 0) &&
@@ -176,15 +425,37 @@ void TrickCurve::draw(QCPPainter *painter)
         if ( painter->modes().testFlag(QCPPainter::pmVectorized) ) {
             // Make PDF
             // hack - need inheritance and class business, but for now - lazy
+            // TODO: add painter scatter shape (see below)
             if ( _model ) {
                 painter->drawPath(_scaledPainterPath(_model));
             } else {
                 painter->drawPath(_scaledPainterPath(_timeVec,_valVec));
             }
         } else {
+
+
+            // Save the painter state on the painter stack
             painter->save();
+
+            // Draw symbol on each curve point
+            if  ( _scatterShape != QCPScatterStyle::ssNone ) {
+                QCPScatterStyle s;
+                s.setShape(_scatterShape);
+                s.setSize(_scatterSize);
+                QTransform t = _coordToPixelTransform();
+                for ( int i = 0; i < _painterPath.elementCount(); ++i ) {
+                    QPainterPath::Element el = _painterPath.elementAt(i);
+                    QPointF p(el.x,el.y);
+                    p = t.map(p);
+                    s.drawShape(painter,p);
+                }
+            }
+
+            // Draw the curve
             painter->setTransform(_coordToPixelTransform());
             painter->drawPath(_painterPath);
+
+            // Restore the painter state off the painter stack
             painter->restore();
         }
 
@@ -268,16 +539,16 @@ void TrickCurve::_createPainterPath(TrickCurveModel *model)
     const TrickModelIterator e = _model->end();
 
     if ( _startTime == -DBL_MAX && _stopTime == -DBL_MAX ) {
-        _painterPath.moveTo(it.x(),it.y());
+        _painterPath.moveTo(it.x()*_xsf+_xbias,it.y()*_ysf+_ybias);
         while (it != e) {
-            _painterPath.lineTo(it.x(),it.y());
+            _painterPath.lineTo(it.x()*_xsf+_xbias,it.y()*_ysf+_ybias);
             ++it;
         }
     } else {
         while (it != e) {
             double t = it.t();
             if ( t >= _startTime ) {
-                _painterPath.moveTo(it.x(),it.y());
+                _painterPath.moveTo(it.x()*_xsf+_xbias,it.y()*_ysf+_ybias);
                 break;
             }
             ++it;
@@ -285,7 +556,7 @@ void TrickCurve::_createPainterPath(TrickCurveModel *model)
         while (it != e) {
             double t = it.t();
             if ( t <= _stopTime ) {
-                _painterPath.lineTo(it.x(),it.y());
+                _painterPath.lineTo(it.x()*_xsf+_xbias,it.y()*_ysf+_ybias);
             } else {
                 break;
             }
@@ -306,16 +577,16 @@ void TrickCurve::_createPainterPath(const QVector<double> *t,
     _valVec = v;
 
     if ( _startTime == -DBL_MAX && _stopTime == -DBL_MAX ) {
-        _painterPath.moveTo(t->at(0),v->at(0));
+        _painterPath.moveTo(t->at(0),v->at(0)*_ysf+_ybias);
         for ( int i = 1; i < t->size(); ++i) {
-            _painterPath.lineTo(t->at(i),v->at(i));
+            _painterPath.lineTo(t->at(i),v->at(i)*_ysf+_ybias);
         }
     } else {
         int i = 0;
         for ( i = 0; i < t->size(); ++i) {
             double time = t->at(i);
             if ( time >= _startTime ) {
-                _painterPath.moveTo(t->at(i),v->at(i));
+                _painterPath.moveTo(t->at(i),v->at(i)*_ysf+_ybias);
                 break;
             }
         }
@@ -323,7 +594,7 @@ void TrickCurve::_createPainterPath(const QVector<double> *t,
         for ( ; i < t->size(); ++i) {
             double time = t->at(i);
             if ( time <= _stopTime ) {
-                _painterPath.lineTo(t->at(i),v->at(i));
+                _painterPath.lineTo(t->at(i),v->at(i)*_ysf+_ybias);
             } else {
                 break;
             }
@@ -648,7 +919,7 @@ QCPRange TrickCurve::getKeyRange(bool &validRange, SignDomain inSignDomain) cons
     TrickModelIterator it = _model->begin();
     const TrickModelIterator e = _model->end();
     while (it != e) {
-        current = it.x();
+        current = it.x()*_xsf;
         if (inSignDomain == sdBoth ||
             (inSignDomain == sdNegative && current < 0) ||
             (inSignDomain == sdPositive && current > 0)) {
@@ -690,7 +961,7 @@ QCPRange TrickCurve::getValueRange(bool &validRange, SignDomain inSignDomain) co
     TrickModelIterator it = _model->begin();
     const TrickModelIterator e = _model->end();
     while (it != e) {
-        current = it.y();
+        current = it.y()*_ysf;
         if (inSignDomain == sdBoth ||
            (inSignDomain == sdNegative && current < 0) ||
                 (inSignDomain == sdPositive && current > 0)) {

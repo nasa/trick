@@ -1,5 +1,7 @@
 #include "plotbookview.h"
 #include "libsnapdata/trickcurvemodel.h"
+#include "libopts/options.h"
+#include <QFileInfo>
 #include <QDebug>
 
 PlotBookView::PlotBookView(PlotBookModel *plotModel, const QStringList &titles, QWidget *parent) :
@@ -615,7 +617,7 @@ void PlotBookView::keyPressEvent(QKeyEvent *event)
 //
 void PlotBookView::maximize(const QModelIndex &idx)
 {
-    if ( _isPlotIdx(idx) ) {
+    if ( _plotModel->isPlotIdx(idx) ) {
 
         QGridLayout* grid = _idx2Grid(idx);
         Plot* plot = _idx2Plot(idx);
@@ -633,7 +635,7 @@ void PlotBookView::maximize(const QModelIndex &idx)
 
 void PlotBookView::minimize(const QModelIndex &idx)
 {
-    if ( _isPlotIdx(idx) ) {
+    if ( _plotModel->isPlotIdx(idx) ) {
         QGridLayout* grid = _idx2Grid(idx);
         for ( int i = 0; i < grid->count(); ++i) {
             grid->itemAt(i)->widget()->setVisible(true);
@@ -687,7 +689,7 @@ void PlotBookView::_plotSelectModelCurrentChanged(const QModelIndex &currIdx,
                                                  const QModelIndex &prevIdx)
 {
     Q_UNUSED(prevIdx);
-    if ( _isPageIdx(currIdx) ) {
+    if ( _plotModel->isPageIdx(currIdx) ) {
         setCurrentPage(currIdx);
     }
 }
@@ -728,7 +730,7 @@ void PlotBookView::_plotSelectModelSelectChanged(const QItemSelection &curr,
 {
     if ( curr.indexes().size() > 0 ) {
          // when tab changes, noop
-        if ( _isPageIdx(curr.indexes().at(0)) ) return;
+        if ( _plotModel->isPageIdx(curr.indexes().at(0)) ) return;
     }
 
     foreach ( QModelIndex prevIdx, prev.indexes() ) {
@@ -781,7 +783,7 @@ void PlotBookView::_selectNextCurve()
     QItemSelection currSel = selectionModel()->selection();
     if ( currSel.size() > 0 ) {
         QModelIndex currIdx = currSel.indexes().at(0);
-        if ( _isCurveIdx(currIdx) ) {
+        if ( _plotModel->isCurveIdx(currIdx) ) {
             QModelIndex plotIdx = currIdx.parent();
             int currRow = currIdx.row();
             int nextRow = currRow+1;
@@ -800,7 +802,7 @@ void PlotBookView::_selectPrevCurve()
     QItemSelection currSel = selectionModel()->selection();
     if ( currSel.size() > 0 ) {
         QModelIndex currIdx = currSel.indexes().at(0);
-        if ( _isCurveIdx(currIdx) ) {
+        if ( _plotModel->isCurveIdx(currIdx) ) {
             QModelIndex plotIdx = currIdx.parent();
             int currRow = currIdx.row();
             int prevRow = currRow-1;
@@ -820,8 +822,9 @@ void PlotBookView::tabCloseRequested(int tabId)
     QWidget* page = _nb->widget(tabId);
     QModelIndex pageIdx = _page2Idx(page);
     if ( pageIdx.isValid() ) {
+        QModelIndex pagesIdx = _plotModel->pagesIdx();
         int row = pageIdx.row();
-        model()->removeRow(row);
+        model()->removeRow(row,pagesIdx);
     }
     _isTabCloseRequested = false;
 }
@@ -864,7 +867,7 @@ void PlotBookView::doubleClick(QMouseEvent *event)
     QPoint globalPageOrigin(_nb->mapToGlobal(QPoint(0,0)));
     QPoint pagePos = event->globalPos()-globalPageOrigin;
     QModelIndex plotIdx = indexAt(pagePos);
-    if ( _isPlotIdx(plotIdx) ) {
+    if ( _plotModel->isPlotIdx(plotIdx) ) {
         QModelIndex pageIdx = plotIdx.parent();
         bool isExpanded = false;
         foreach ( QModelIndex idx, _plotModel->plotIdxs(pageIdx) ) {
@@ -950,13 +953,37 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             break;
         }
 
+        case PlotBookModel::PageBGColor : {
+            QWidget* page = _idx2Page(pidx);
+            QString bgColor = model()->data(idx).toString();
+            QPalette pal = page->palette();
+            QColor qcolor(bgColor);
+            pal.setColor(QPalette::Background, qcolor);
+            page->setPalette(pal);
+            PageTitleWidget* pw = _page2pagewidget.value(page);
+            pw->setBackgroundColor(bgColor);
+            break;
+        }
+
+        case PlotBookModel::PageFGColor : {
+            QWidget* page = _idx2Page(pidx);
+            QString fgColor = model()->data(idx).toString();
+            QPalette pal = page->palette();
+            QColor qcolor(fgColor);
+            pal.setColor(QPalette::Foreground, qcolor);
+            page->setPalette(pal);
+            break;
+        }
+
         case PlotBookModel::Plot : {
             QWidget* page = _idx2Page(pidx);
-            QModelIndex sIdx = _plotModel->sessionStartIdx();
-            double sessionStartTime = _plotModel->data(sIdx).toDouble();
-            sIdx = _plotModel->sessionStopIdx();
-            double sessionStopTime = _plotModel->data(sIdx).toDouble();
-            _insertPlot(page,sessionStartTime,sessionStopTime);
+            QModelIndex pmIdx = _plotModel->sessionStartIdx();
+            double sessionStartTime = _plotModel->data(pmIdx).toDouble();
+            pmIdx = _plotModel->sessionStopIdx();
+            double sessionStopTime = _plotModel->data(pmIdx).toDouble();
+            pmIdx = _plotModel->pageBGColorIndex(pidx);
+            QString pageBGColor = _plotModel->data(pmIdx).toString();
+            _insertPlot(page, sessionStartTime, sessionStopTime, pageBGColor);
             break;
         }
 
@@ -973,6 +1000,7 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             plot->setYAxisLabel(yAxisLabel);
             break;
         }
+
 
         case PlotBookModel::Curves : { break; }
         case PlotBookModel::Curve : { break; }
@@ -1022,6 +1050,228 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                     curve->setPen(pen);
                 }
             }
+            break;
+        }
+
+        case PlotBookModel::CurveXScale : {
+            TrickCurve* curve =  _idx2Curve(pidx);
+            double xsf = model()->data(idx).toDouble();
+            curve->setXScaleFactor(xsf);
+            break;
+        }
+
+        case PlotBookModel::CurveYScale : {
+            TrickCurve* curve =  _idx2Curve(pidx);
+            double ysf = model()->data(idx).toDouble();
+            curve->setYScaleFactor(ysf);
+            break;
+        }
+
+        case PlotBookModel::CurveXBias : {
+            TrickCurve* curve =  _idx2Curve(pidx);
+            double xbias = model()->data(idx).toDouble();
+            curve->setXBias(xbias);
+            break;
+        }
+
+        case PlotBookModel::CurveYBias : {
+            TrickCurve* curve =  _idx2Curve(pidx);
+            double ybias = model()->data(idx).toDouble();
+            curve->setYBias(ybias);
+            break;
+        }
+
+        case PlotBookModel::CurveSymbolStyle : {
+            TrickCurve* curve =  _idx2Curve(pidx);
+            QString symbol = model()->data(idx).toString();
+            curve->setSymbolStyle(symbol);
+            break;
+        }
+
+        case PlotBookModel::CurveSymbolSize : {
+            TrickCurve* curve =  _idx2Curve(pidx);
+            QString size = model()->data(idx).toString();
+            curve->setSymbolSize(size);
+            break;
+        }
+
+        case PlotBookModel::CurveLineStyle : {
+            TrickCurve* curve =  _idx2Curve(pidx);
+            QString lineStyle = model()->data(idx).toString();
+            curve->setCurveStyle(lineStyle);
+            break;
+        }
+
+        case PlotBookModel::CurveYLabel : {
+
+            int nCurves = model()->rowCount(gpidx);
+
+            // No labels if nCurves > 10 (helps speedup monte carlo immensely)
+            if ( nCurves > 10 ) {
+                return ;
+            }
+
+            // Get TrickCurve for this yLabelIndex
+            TrickCurve* curve =  _idx2Curve(pidx);
+
+            if ( _isShowCurveDiff && nCurves == 2 ) {
+
+                QModelIndex crvsIdx = gpidx;
+
+                QModelIndex crv0Idx = model()->index(0,0,crvsIdx);
+                TrickCurve* c0 = _idx2Curve(crv0Idx);
+                QFileInfo info0(c0->trkFile());
+                QString run0 = info0.dir().dirName();
+
+                QModelIndex crv1Idx = model()->index(1,0,crvsIdx);
+                TrickCurve* c1 = _idx2Curve(crv1Idx);
+                QFileInfo info1(c1->trkFile());
+                QString run1 = info1.dir().dirName();
+
+                if ( run0 != run1 ) {
+                    // RUN_names are different
+                    c0->setName(run0);
+                    c1->setName(run1);
+                } else {
+                    // RUN_names are the same, so in different parent dirs
+                    // UNLESS they are the exact same directory!
+                    QString r0 = info0.absoluteDir().absolutePath();
+                    QString r1 = info1.absoluteDir().absolutePath();
+                    if ( r0 == r1 ) {
+                        // Identical RUNs being compared!
+                        c0->setName(run0);
+                        c1->setName(run1);
+                    } else {
+                        QStringList rl0 = r0.split('/');
+                        QStringList rl1 = r1.split('/');
+                        r0.clear();
+                        r1.clear();
+                        while ( 1 ) {
+                            QString s0 = rl0.takeLast();
+                            QString s1 = rl1.takeLast();
+                            if ( r0.isEmpty() ) {
+                                r0 = s0;
+                                r1 = s1;
+                            } else {
+                                r0 = s0 + "/" + r0;
+                                r1 = s1 + "/" + r1;
+                            }
+                            if ( s0 != s1 ) {
+                                break;
+                            }
+                            if ( rl0.isEmpty() ) {
+                                if ( !rl1.isEmpty() ) {
+                                    s1 = rl1.takeLast();
+                                    r1 = s1 + "/" + r1;
+                                }
+                                break;
+                            }
+                            if ( rl1.isEmpty() ) {
+                                if ( !rl0.isEmpty() ) {
+                                    s0 = rl0.takeLast();
+                                    r0 = s0 + "/" + r0;
+                                }
+                                break;
+                            }
+                        }
+
+                        c0->setName(r0);
+                        c1->setName(r1);
+                    }
+                }
+
+            } else {
+
+
+                // Do all the curves have the same param name?
+                bool isAllVarsTheSame = true;
+                QString var0 ;
+                for ( int i = 0; i < nCurves; ++i ) {
+                    QModelIndex curveIdx = model()->index(i,0,gpidx);
+                    QModelIndex yIdx = model()->index(2,0,curveIdx);
+                    QString yVar = model()->data(yIdx).toString();
+                    if ( i == 0 ) {
+                        var0 = yVar;
+                    } else {
+                        if ( var0 != yVar ) {
+                            isAllVarsTheSame = false;
+                            break;
+                        }
+                    }
+                }
+
+                // Check if plot curves originate from different RUNs
+                bool isRunsDifferent = false;
+                QFileInfo trkFileInfo(curve->trkFile());
+                QString runDir = trkFileInfo.dir().dirName();
+                for ( int i = 0; i < nCurves; ++i ) {
+                    QModelIndex curveIdx = model()->index(i,0,gpidx);
+                    TrickCurve* c = _idx2Curve(curveIdx);
+                    QFileInfo tInfo(c->trkFile());
+                    if ( tInfo.dir().dirName() != runDir ) {
+                        isRunsDifferent = true;
+                        break;
+                    }
+                }
+
+                if ( isRunsDifferent ) {
+                    if ( isAllVarsTheSame ) {
+                        // just show the RUN to avoid
+                        // repetively showing the same param
+                        for ( int i = 0; i < nCurves; ++i ) {
+                            QModelIndex curveIdx = model()->index(i,0,gpidx);
+                            TrickCurve* c = _idx2Curve(curveIdx);
+                            QFileInfo tInfo(c->trkFile());
+                            QString runDir = tInfo.dir().dirName();
+                            c->setName(runDir);
+                        }
+                    } else {
+                        for ( int i = 0; i < nCurves; ++i ) {
+                            QModelIndex crvIdx = model()->index(i,0,gpidx);
+                            QModelIndex labelIdx = model()->index(16,0,crvIdx);
+                            QString label = model()->data(labelIdx).toString();
+                            if ( label.isEmpty() ) {
+                                QModelIndex yIdx = model()->index(2,0,crvIdx);
+                                QString yVar = model()->data(yIdx).toString();
+                                QStringList yVarList = yVar.split(".");
+                                label = yVarList.last();
+                            }
+                            TrickCurve* c = _idx2Curve(crvIdx);
+                            QFileInfo tInfo(c->trkFile());
+                            QString runDir = tInfo.dir().dirName();
+                            QString yLabel = label + " (" + runDir + ")";
+                            c->setName(yLabel);
+                        }
+                    }
+                } else {
+
+                    // All the same RUN, then only show label
+
+                    // Legend label as specified in DP file
+                    QString yLabel = model()->data(idx).toString();
+                    if ( yLabel.isEmpty() ) {
+                        // If label is empty, use last part of parameter name
+                        // E.g. if parameter is ball.state.out.position[0],
+                        //      use position[0]
+                        QModelIndex yIdx = model()->index(2,0,pidx);
+                        QString yVar = model()->data(yIdx).toString();
+                        QStringList yVarList = yVar.split(".");
+                        yLabel = yVarList.last();
+                    }
+                    curve->setName(yLabel);
+                }
+            }
+
+            if ( nCurves == 1 || nCurves > 8 ) {
+                curve->parentPlot()->legend->setVisible(false);
+            } else {
+                curve->parentPlot()->legend->setVisible(true);
+            }
+
+            Plot* plot = _idx2Plot(pidx);
+            QCPItemText* plotTitle = plot->title();
+            QColor fgColor = plotTitle->color();
+            curve->parentPlot()->legend->setTextColor(fgColor);
             break;
         }
 
@@ -1091,6 +1341,118 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             } else if ( pageStopTime < 1.0e30 ) {
                 plot->setStopTime(pageStopTime);
             }
+            break;
+        }
+
+        case PlotBookModel::PlotGrid : {
+            Plot* plot = _idx2Plot(pidx);
+            QString isGridStr = model()->data(idx).toString();
+            bool ok;
+            bool isGrid = Options::stringToBool(isGridStr,&ok);
+            plot->setGrid(isGrid);
+            break;
+        }
+
+        case PlotBookModel::PlotGridColor : {
+            Plot* plot = _idx2Plot(pidx);
+            QString gridColor = model()->data(idx).toString();
+            plot->setGridColor(gridColor);
+            break;
+        }
+
+        case PlotBookModel::PlotBGColor : {
+            Plot* plot = _idx2Plot(pidx);
+            QString bgColor = model()->data(idx).toString();
+            if ( bgColor == "#FFFFFF" ) {
+                // This assumes that the plot was not explicitly set to white
+                QModelIndex pageBGColorIdx = _plotModel->pageBGColorIndex(gpidx);
+                bgColor = model()->data(pageBGColorIdx).toString();
+            }
+            plot->setBackgroundColor(bgColor);
+            break;
+        }
+
+        case PlotBookModel::PlotFGColor : {
+
+            QString col = model()->data(idx).toString();
+            if ( col.isEmpty() ) {  // TODO - use empty str for bg color def
+                QWidget* page = _idx2Page(pidx);
+                QPalette pal = page->palette();
+                col = pal.color(QPalette::Foreground).name();
+            }
+            QColor fgColor(col);
+            QPen fgPen(fgColor);
+
+            Plot* plot = _idx2Plot(pidx);
+
+            // Axis colors
+            QCPAxis* xAxisBot  = plot->axisRect()->axis(QCPAxis::atBottom,0);
+            QCPAxis* xAxisTop = plot->axisRect()->axis(QCPAxis::atTop,0);
+            QCPAxis* yAxisLeft  = plot->axisRect()->axis(QCPAxis::atLeft,0);
+            QCPAxis* yAxisRight = plot->axisRect()->axis(QCPAxis::atRight,0);
+            QList<QCPAxis*> axes;
+            axes << xAxisBot << xAxisTop << yAxisLeft << yAxisRight;
+            foreach ( QCPAxis* axis, axes ) {
+                axis->setTickLabelColor(fgColor);
+                axis->setTickPen(fgPen);
+                axis->setSubTickPen(fgPen);
+                axis->setLabelColor(fgColor);
+                axis->setBasePen(fgPen);
+            }
+
+            // Plot title
+            QCPItemText* plotTitle = plot->title();
+            plotTitle->setColor(fgColor);
+
+            break;
+        }
+
+        case PlotBookModel::PlotFont : {
+            QString fontStr = model()->data(idx).toString();
+            if ( !fontStr.isEmpty() ) {
+
+                // Font string should be the font *family* e.g.
+                // helvetica, utopia, Times, lucida, courier, bitstream,
+                // liberation sans l, urw bookman l, nimbus sans l
+                // Do NOT use the full raw name that xlsfonts gives
+
+                Plot* plot = _idx2Plot(pidx);
+                QCPAxis* xAxis = plot->axisRect()->axis(QCPAxis::atBottom,0);
+                QCPAxis* yAxis = plot->axisRect()->axis(QCPAxis::atLeft,0);
+
+                // Ticks
+                QFont tickFont = xAxis->tickLabelFont();
+                tickFont.setFamily(fontStr);
+                xAxis->setTickLabelFont(tickFont);
+                yAxis->setTickLabelFont(tickFont);
+
+                // XY Axis Labels
+                QFont xAxisFont = xAxis->labelFont();
+                xAxisFont.setFamily(fontStr);
+                xAxis->setLabelFont(xAxisFont);
+                QFont yAxisFont = yAxis->labelFont();
+                yAxisFont.setFamily(fontStr);
+                yAxis->setLabelFont(yAxisFont);
+
+                // Four page titles
+                QWidget* page = _idx2Page(pidx);
+                PageTitleWidget* pw = _page2pagewidget.value(page);
+                QFont pageTitleFont;
+                pageTitleFont = pw->font();
+                pageTitleFont.setFamily(fontStr);
+                pw->setFont(pageTitleFont);
+
+                // Plot title
+                QCPItemText* plotTitle = plot->title();
+                QFont plotTitleFont = plotTitle->font();
+                plotTitleFont = plotTitle->font();
+                plotTitleFont.setFamily(fontStr);
+                plotTitle->setFont(pageTitleFont);
+
+                // Plot legend
+                plot->legend->setFont(yAxisFont);
+            }
+
             break;
         }
 
@@ -1264,17 +1626,11 @@ QModelIndex PlotBookView::_curve2Idx(TrickCurve *curve)
 
 QWidget *PlotBookView::_idx2Page(const QModelIndex &idx) const
 {
-    if ( !idx.isValid() ) return 0;
+    QModelIndex pageIdx;
 
-    // if this is start/stop time
-    if ( !idx.parent().isValid() && !_plotModel->isPageIdx(idx) ) {
-        return 0;
-    }
+    pageIdx = _plotModel->pageIdx(idx);
+    if ( !pageIdx.isValid() )  return 0;
 
-    QModelIndex pageIdx(idx);
-    while ( pageIdx.parent().isValid() ) {
-        pageIdx = pageIdx.parent();
-    }
     int r = _plotModel->pageIdxs().indexOf(pageIdx);
     QWidget* page = _pages.at(r);
 
@@ -1290,24 +1646,18 @@ QGridLayout *PlotBookView::_idx2Grid(const QModelIndex &idx) const
 
 Plot *PlotBookView::_idx2Plot(const QModelIndex &idx) const
 {
-    if ( !idx.isValid() || !idx.parent().isValid() ) {
-        // root or page
-        return 0;
+    Plot* plot = 0 ;
+
+    QModelIndex plotIdx = _plotModel->plotIdx(idx);
+    if ( !plotIdx.isValid() )  return 0;
+
+    QModelIndex pageIdx = _plotModel->pageIdx(plotIdx);
+    int iPlot = _plotModel->plotIdxs(pageIdx).indexOf(plotIdx);
+    if ( iPlot >= 0 ) {
+        QWidget* page = _idx2Page(pageIdx);
+        plot = _page2Plots.value(page).at(iPlot);
     }
 
-    Plot* plot = 0 ;
-    QWidget* page = _idx2Page(idx);
-    if ( page ) {
-        QModelIndex plotIdx(idx);
-        while ( plotIdx.parent().parent().isValid() ) {
-            plotIdx = plotIdx.parent();
-        }
-        QModelIndex pageIdx = plotIdx.parent();
-        int iPlot = _plotModel->plotIdxs(pageIdx).indexOf(plotIdx);
-        if ( iPlot >= 0 ) {
-            plot = _page2Plots.value(page).at(iPlot);
-        }
-    }
     return plot;
 }
 
@@ -1347,30 +1697,6 @@ QModelIndex PlotBookView::_plot2Idx(Plot *plot) const
         plotIdx = plotIdxs.at(iPlot);
     }
     return plotIdx;
-}
-
-bool PlotBookView::_isPageIdx(const QModelIndex &idx)
-{
-    return _plotModel->isPageIdx(idx);
-}
-
-bool PlotBookView::_isPlotIdx(const QModelIndex &idx)
-{
-    if ( idx.isValid() && idx.parent().isValid() &&
-         !idx.parent().parent().isValid() ) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-bool PlotBookView::_isCurveIdx(const QModelIndex &idx)
-{
-    if ( model()->data(idx.parent()).toString() == "Curves" ) {
-        return true;
-    } else {
-        return false;
-    }
 }
 
 QString PlotBookView::_appendUnitToAxisLabel(const QModelIndex axisLabelIdx,
@@ -1453,13 +1779,15 @@ void PlotBookView::_insertPageTitle(QWidget *page, const QString &title)
 }
 
 void PlotBookView::_insertPlot(QWidget *page,
-                               double startTime, double stopTime)
+                               double startTime, double stopTime,
+                               const QString& pageBGColor )
 {
 
     // Create/configure plot
     Plot* plot = new Plot(page);
     plot->setStartTime(startTime);
     plot->setStopTime(stopTime);
+    plot->setBackgroundColor(pageBGColor);
     connect(plot,SIGNAL(mouseDoubleClick(QMouseEvent*)),
             this,SLOT(doubleClick(QMouseEvent*)));
     connect(plot, SIGNAL(keyPress(QKeyEvent*)),

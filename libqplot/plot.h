@@ -14,6 +14,7 @@ class Plot : public QCustomPlot
 
 public:
     explicit Plot(QWidget* parent=0);
+    QCPItemText* title() ;
     void setTitle(const QString& title);
     void setXAxisLabel(const QString& label);
     void setYAxisLabel(const QString& label);
@@ -23,6 +24,9 @@ public:
     void setYMaxRange(double yMax);
     void setStartTime(double startTime);
     void setStopTime(double stopTime);
+    void setGrid(bool isOn);
+    void setGridColor(const QString& colorString);
+    void setBackgroundColor(const QString& colorString);
     AxisRect* axisRect() { return _axisrect; }
     void drawMe(QCPPainter *painter);
 

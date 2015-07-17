@@ -10,6 +10,8 @@
 
 class AxisRect : public QCPAxisRect
 {
+    Q_OBJECT
+
   public:
     AxisRect(QCustomPlot* plotwidget);
     ~AxisRect();
@@ -40,6 +42,12 @@ protected:
     virtual void mouseReleaseEvent(QMouseEvent *event);
     virtual void keyPressEvent(QKeyEvent *event);
     virtual void wheelEvent(QWheelEvent *event);
+
+private slots:
+    void _curveXScaleChanged(double sf);
+    void _curveYScaleChanged(double sf);
+    void _curveXBiasChanged(double b);
+    void _curveYBiasChanged(double b);
 
   private:
     QCustomPlot* _plotwidget;

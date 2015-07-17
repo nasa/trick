@@ -1,4 +1,5 @@
 #include "dp.h"
+#include "libopts/options.h"
 
 DPProduct* product;// hack to pass to yacc parser
 
@@ -99,7 +100,7 @@ DPPage *DPProduct::addPage(const char *title)
     return page;
 }
 
-// Made for speed and used when filtering for params in DP
+// Used when filtering for params in DP
 QStringList DPProduct::paramList(const QString &fileName)
 {
     QStringList params;
@@ -107,8 +108,21 @@ QStringList DPProduct::paramList(const QString &fileName)
     QFileInfo finfo(fileName);
 
     if ( finfo.suffix() == "xml" ) {
-        // TODO: DPProduct::paramList() unsupported for DP xml files";
-        //qDebug() << "DPProduct::paramList() unsupported for DP xml files";
+
+        DPProduct dp(fileName);
+        QHash<QString,int> paramHash;
+        foreach (DPPage* page, dp.pages() ) {
+            foreach ( DPPlot* plot, page->plots() ) {
+                foreach ( DPCurve* curve, plot->curves() ) {
+                    paramHash.insert(curve->t()->name(),0);
+                    paramHash.insert(curve->x()->name(),0);
+                    paramHash.insert(curve->y()->name(),0);
+                }
+            }
+        }
+
+        params = paramHash.keys();
+
     } else if ( finfo.isFile() && finfo.suffix().isEmpty() &&
                 finfo.fileName().startsWith("DP_") ) {
 
@@ -182,8 +196,21 @@ QStringList DPProduct::paramList(const QStringList &dpFileNames)
 
 DPPage::DPPage(const QDomElement &e) :
     _startTime(-DBL_MAX),
-    _stopTime(DBL_MAX)
+    _stopTime(DBL_MAX),
+    _backgroundColor("#FFFFFF"),
+    _foregroundColor("#000000")
 {
+    QDomElement el = e;
+
+    if ( el.hasAttribute("background_color") ) {
+        _backgroundColor = el.attributeNode("background_color")
+                             .value().simplified();
+    }
+    if ( el.hasAttribute("foreground_color") ) {
+        _foregroundColor = el.attributeNode("foreground_color")
+                             .value().simplified();
+    }
+
     QDomNode n = e.firstChild();
     while(!n.isNull()) {
         QDomElement e = n.toElement();
@@ -207,7 +234,9 @@ DPPage::DPPage(const QDomElement &e) :
 DPPage::DPPage(const char *title) :
     _title(title),
     _startTime(-DBL_MAX),
-    _stopTime(DBL_MAX)
+    _stopTime(DBL_MAX),
+    _backgroundColor("#FFFFFF"),
+    _foregroundColor("#000000")
 {
 }
 
@@ -228,6 +257,16 @@ double DPPage::stopTime()
     return _stopTime;
 }
 
+QString DPPage::backgroundColor()
+{
+    return _backgroundColor;
+}
+
+QString DPPage::foregroundColor()
+{
+    return _foregroundColor;
+}
+
 void DPPage::setStartTime(double startTime)
 {
     _startTime = startTime;
@@ -238,13 +277,28 @@ void DPPage::setStopTime(double stopTime)
     _stopTime = stopTime;
 }
 
+void DPPage::setBackgroundColor(const QString &color)
+{
+    _backgroundColor = color;
+}
+
+void DPPage::setForegroundColor(const QString &color)
+{
+    _foregroundColor = color;
+}
+
 DPPlot::DPPlot(const QDomElement &e) :
     _xMinRange(-DBL_MAX),
     _xMaxRange(DBL_MAX),
     _yMinRange(-DBL_MAX),
     _yMaxRange(DBL_MAX),
     _startTime(-DBL_MAX),
-    _stopTime(DBL_MAX)
+    _stopTime(DBL_MAX),
+    _isGrid(true),
+    _gridColor("#E1E1E1"),
+    _backgroundColor("#FFFFFF"),
+    _foregroundColor(""),
+    _font("")
 {
     QDomElement el = e;
 
@@ -259,6 +313,25 @@ DPPlot::DPPlot(const QDomElement &e) :
     }
     if ( el.hasAttribute("ymax") ) {
         _yMaxRange = el.attributeNode("ymax").value().simplified().toDouble();
+    }
+    if ( el.hasAttribute("grid") ) {
+        QString isGridStr = el.attributeNode("grid").value().simplified();
+        bool ok;
+        _isGrid = Options::stringToBool(isGridStr, &ok);
+    }
+    if ( el.hasAttribute("grid_color") ) {
+        _gridColor = el.attributeNode("grid_color").value().simplified();
+    }
+    if ( el.hasAttribute("background_color") ) {
+        _backgroundColor = el.attributeNode("background_color")
+                             .value().simplified();
+    }
+    if ( el.hasAttribute("foreground_color") ) {
+        _foregroundColor = el.attributeNode("foreground_color")
+                             .value().simplified();
+    }
+    if ( el.hasAttribute("font") ) {
+        _font = el.attributeNode("font").value().simplified();
     }
 
     QDomNode n = e.firstChild();
@@ -298,7 +371,12 @@ DPPlot::DPPlot(const char *title) :
     _yMinRange(-DBL_MAX),
     _yMaxRange(DBL_MAX),
     _startTime(-DBL_MAX),
-    _stopTime(DBL_MAX)
+    _stopTime(DBL_MAX),
+    _isGrid(true),
+    _gridColor("#E1E1E1"),
+    _backgroundColor("#FFFFFF"),
+    _foregroundColor(""),
+    _font("")
 {
 }
 
@@ -362,6 +440,31 @@ double DPPlot::stopTime()
     return _stopTime;
 }
 
+bool DPPlot::grid()
+{
+    return _isGrid;
+}
+
+QString DPPlot::gridColor()
+{
+    return _gridColor;
+}
+
+QString DPPlot::backgroundColor()
+{
+    return _backgroundColor;
+}
+
+QString DPPlot::foregroundColor()
+{
+    return _foregroundColor;
+}
+
+QString DPPlot::font()
+{
+    return _font;
+}
+
 void DPPlot::setXMinRange(double xMin)
 {
     _xMinRange = xMin;
@@ -390,6 +493,36 @@ void DPPlot::setStartTime(double startTime)
 void DPPlot::setStopTime(double stopTime)
 {
     _stopTime = stopTime;
+}
+
+void DPPlot::setGrid(const QString &isGridString)
+{
+    bool ok = false;
+    if ( Options::stringToBool(isGridString,&ok) ) {
+        _isGrid = true;
+    } else {
+        _isGrid = false;
+    }
+}
+
+void DPPlot::setGridColor(const QString &color)
+{
+    _gridColor = color;
+}
+
+void DPPlot::setBackgroundColor(const QString &color)
+{
+    _backgroundColor = color;
+}
+
+void DPPlot::setForegroundColor(const QString &color)
+{
+    _foregroundColor = color;
+}
+
+void DPPlot::setFont(const QString &fnt)
+{
+    _font = fnt;
 }
 
 DPCurve *DPPlot::addCurve()
@@ -421,8 +554,6 @@ QString DPPlot::_abbreviate(const QString &label, int maxlen)
     return abbr;
 }
 
-
-
 QString DPCurve::_err_string;
 QTextStream DPCurve::_err_stream(&DPCurve::_err_string);
 
@@ -436,12 +567,15 @@ DPCurve::DPCurve(const QDomElement &e) : _t(0), _x(0), _y(0)
             QString tag = e.tagName();
             if ( tag == "var" ) {
                 DPVar* var = new DPVar(e);
-                setLineColor(var->lineColor().toAscii().constData());
                 if ( count == 0 ) {
                     _t = var; // hack for now since DP xml has no t,x,y
                     _x = var;
                 } else {
                     _y = var;
+                }
+                setLineColor(var->lineColor().toAscii().constData());
+                if ( !var->lineStyle().isEmpty() ) {
+                    setLineStyle(var->lineStyle().toAscii().constData());
                 }
                 if ( count > 1 ) {
                     _err_stream << "snap [error]: DPPlot can't handle "
@@ -505,6 +639,36 @@ void DPCurve::setLineColor(const char *color)
     _color = QString(color);
 }
 
+QString DPCurve::lineStyle()
+{
+    return _y->lineStyle();
+}
+
+void DPCurve::setLineStyle(const char *lineStyle)
+{
+    _y->setLineStyle(lineStyle);
+}
+
+QString DPCurve::symbolStyle()
+{
+    return _y->symbolStyle();
+}
+
+void DPCurve::setSymbolStyle(const char *style)
+{
+    _y->setSymbolStyle(style);
+}
+
+QString DPCurve::symbolSize()
+{
+    return _y->symbolSize();
+}
+
+void DPCurve::setSymbolSize(const char *size)
+{
+    _y->setSymbolSize(size);
+}
+
 QString DPCurve::lineColor()
 {
     return _color;
@@ -513,7 +677,13 @@ QString DPCurve::lineColor()
 DPVar::DPVar(const QDomElement &e) :
     _name(QString()),
     _label(QString()),
-    _unit(QString())
+    _unit(QString()),
+    _lineColor(QString()),
+    _lineStyle(QString()),
+    _scaleFactor(1.0),
+    _bias(0.0),
+    _symbol(QString()),
+    _symbolSize(QString())
 {
     QDomElement el = e;
 
@@ -535,12 +705,43 @@ DPVar::DPVar(const QDomElement &e) :
     if ( el.hasAttribute(lineColor) ) {
         _lineColor = el.attributeNode(lineColor).value().simplified();
     }
+
+    QString lineStyle("line_style");
+    if ( el.hasAttribute(lineStyle) ) {
+        _lineStyle = el.attributeNode(lineStyle).value().simplified();
+    }
+
+    QString scale("scale");
+    if ( el.hasAttribute(scale) ) {
+        _scaleFactor = el.attributeNode(scale).value().simplified().toDouble();
+    }
+
+    QString bias("bias");
+    if ( el.hasAttribute(bias) ) {
+        _bias = el.attributeNode(bias).value().simplified().toDouble();
+    }
+
+    QString symbol("symbol_style");
+    if ( el.hasAttribute(symbol) ) {
+        _symbol = el.attributeNode(symbol).value().simplified();
+    }
+
+    QString symbolSize("symbol_size");
+    if ( el.hasAttribute(symbolSize) ) {
+        _symbolSize = el.attributeNode(symbolSize).value().simplified();
+    }
 }
 
 DPVar::DPVar(const char *name) :
     _name(name),
     _label(QString()),
-    _unit(QString())
+    _unit(QString()),
+    _lineColor(QString()),
+    _lineStyle(QString()),
+    _scaleFactor(1.0),
+    _bias(0.0),
+    _symbol(QString()),
+    _symbolSize(QString())
 {
 }
 

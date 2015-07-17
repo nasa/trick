@@ -51,6 +51,8 @@ class TrickModel : public QAbstractTableModel
                        QObject *parent = 0);
     ~TrickModel();
 
+    QString trkFile() const { return _trkfile; }
+
     QString  tableName () const { return _tableName ; }
 
     Parameter param(int col) const ;
