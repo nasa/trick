@@ -428,7 +428,7 @@ void PrintAttributes::printIOMakefile() {
     makefile_io_src.close() ;
 
     /*
-       Makefile_ICG lists all headers as dependencies of class_map.cpp
+       Makefile_ICG lists all headers as dependencies of Makefile_io_src
        causing ICG to run if any header file changes.
 
        link_io_objs lists all io_src object files to be partially
@@ -439,7 +439,7 @@ void PrintAttributes::printIOMakefile() {
     makefile_ICG.open("build/Makefile_ICG") ;
     link_io_objs.open("build/link_io_objs") ;
     ICG_processed.open("build/ICG_processed") ;
-    makefile_ICG << "$(CURDIR)/build/class_map.cpp :" ;
+    makefile_ICG << "$(CURDIR)/build/Makefile_io_src :" ;
     for ( mit = all_io_files.begin() ; mit != all_io_files.end() ; mit++ ) {
         makefile_ICG << "\\\n " << (*mit).first ;
         size_t found ;
@@ -461,13 +461,11 @@ void PrintAttributes::printHeaderLibraryDependencies() {
     header_lib_deps.open("build/header_lib_deps_files") ;
     std::map< std::string , std::string >::iterator mit ;
     for ( mit = all_io_files.begin() ; mit != all_io_files.end() ; mit++ ) {
+        size_t found ;
+        found = (*mit).first.find_last_of(".") ;
+        std::string lib_dep_file = std::string("build") + (*mit).first.substr(0,found) + ".lib_deps" ;
+        header_lib_deps << lib_dep_file << std::endl ;
         if ( out_of_date_io_files.find((*mit).first) != out_of_date_io_files.end()) {
-            size_t found ;
-            found = (*mit).first.find_last_of(".") ;
-
-            std::string lib_dep_file = std::string("build") + (*mit).first.substr(0,found) + ".lib_deps" ;
-            header_lib_deps << lib_dep_file << std::endl ;
-
             std::ofstream file_list ;
             file_list.open(lib_dep_file) ;
             std::vector< std::string > lib_deps = cs.getLibraryDependencies((*mit).first) ;

@@ -294,7 +294,6 @@ OBJECTS += \$(SWIG_MODULE_OBJECTS)
     }
     close SWIGLIB ;
 
-
     open S_INSTANCE , "build/S_instances" or return ;
     my @instances = <S_INSTANCE> ;
     close S_INSTANCE ;
@@ -336,6 +335,9 @@ OBJECTS += \$(SWIG_MODULE_OBJECTS)
     print INITSWIGFILE "    return ;\n}\n\n}\n" ;
     close INITSWIGFILE ;
 
+    if ( ! -e "trick") {
+        mkdir "trick" ;
+    }
     open INITFILE , ">trick/__init__.py" or return ;
 
     print INITFILE "import sys\n" ;

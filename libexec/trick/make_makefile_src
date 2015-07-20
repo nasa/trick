@@ -43,8 +43,10 @@ sub read_lib_deps(@) {
 }
 
 for my $f ( @ARGV ) {
-    print "Updating Dependencies for $f\n" ;
-    write_lib_deps($f) ;
+    if ( $f !~ /Makefile_io_src/ ) {
+        print "Updating Dependencies for $f\n" ;
+        write_lib_deps($f) ;
+    }
 }
 
 open FILE, "build/header_lib_deps_files" or die 'cannot open build/header_lib_deps_files' ;
@@ -258,7 +260,8 @@ foreach $k ( sort keys %files_by_dir ) {
             print MAKEFILE "\$(CURDIR)/build$k/$files_by_dir{$k}{src_dir}$f :\n" ;
             print MAKEFILE "\t@ mkdir -p \$\@\n\n" ;
 
-            print MAKEFILE "\$(CURDIR)/build/lib/o${num_inc_objs}.o : \$(MODEL_${print_ext}_OBJ_$files_by_dir{$k}{dir_num})\n" ;
+            #print MAKEFILE "\$(CURDIR)/build/lib/o${num_inc_objs}.o : \$(MODEL_${print_ext}_OBJ_$files_by_dir{$k}{dir_num})\n" ;
+            print MAKEFILE "\$(CURDIR)/build/lib/o_${print_ext}_$files_by_dir{$k}{dir_num}.o : \$(MODEL_${print_ext}_OBJ_$files_by_dir{$k}{dir_num})\n" ;
             print MAKEFILE "\t\$(PRINT_INC_LINK)\n" ;
             print MAKEFILE "\t\$(ECHO_CMD)cd \${<D} ; ld \$(LD_PARTIAL) -o \$\@ \$(notdir \$^)\n\n" ;
             $num_inc_objs++ ;
@@ -338,8 +341,18 @@ print MAKEFILE "-include \$(MODEL_cxx_OBJ:.o=.d)\n" ;
 print MAKEFILE "-include \$(MODEL_CPLUSPLUS_OBJ:.o=.d)\n\n" ;
 
 printf MAKEFILE "\n\nOBJECTS =" ;
-for( $i = 0 ; $i < $num_inc_objs ; $i++ ) {
-    print MAKEFILE " \\\n\t\$(LIB_DIR)/o$i.o" ;
+foreach $k ( sort keys %files_by_dir ) {
+    foreach my $ext ( qw{ c C cc cxx cpp c++ l y} ) {
+        my $print_ext ;
+        if ( $ext eq "c++" ) {
+            $print_ext = "CPLUSPLUS" ;
+        } else {
+            $print_ext = $ext ;
+        }
+        if ( scalar @{$files_by_dir{$k}{$ext}} ne 0 ) {
+            print MAKEFILE "\\\n\t\$(CURDIR)/build/lib/o_${print_ext}_$files_by_dir{$k}{dir_num}.o" ;
+        }
+    }
 }
 
 # print out the libraries we link
@@ -412,8 +425,9 @@ close MAKEFILE ;
 
 # write out all of files as dependencies to Makefile_src
 open MAKEFILEDEPS, ">build/Makefile_src_deps" or die "Could not open build/Makefile_src_deps" ;
-print MAKEFILEDEPS "build/Makefile_src :" ;
+print MAKEFILEDEPS "\$(CURDIR)/build/Makefile_src :" ;
 print MAKEFILEDEPS map {"\\\n $_"} (sort keys %non_lib_processed_files) ;
+print MAKEFILEDEPS "\n" ;
 close MAKEFILEDEPS ;
 
 # write out all of the files we used to S_library_list
