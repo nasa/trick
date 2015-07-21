@@ -45,6 +45,9 @@ class PrintAttributes {
         /** Create makefile for IO files */
         virtual void printIOMakefile() ;
 
+        /** Print header library dependencies */
+        virtual void printHeaderLibraryDependencies() ;
+
         /** Prints list of files that contain ICG:(No) in the Trick header */
         virtual void printICGNoFiles() ;
 
@@ -95,6 +98,9 @@ class PrintAttributes {
         bool isIOFileOutOfDate(std::string header_file_name, std::string io_file_name ) ;
         bool doesIODirectoryExist(std::string io_file_name ) ;
 
+        /** Adds empty header files to list of processed files. */
+        void addEmptyFiles() ;
+
         /** Determines the io_file_name based on the given header file name
             @param header_file_name = full path to header file
             @return string of full path to io_src file name.
@@ -106,6 +112,9 @@ class PrintAttributes {
 
         /** map of all io_files we processed */
         std::map< std::string , std::string > all_io_files ;
+
+        /** map of all io_files we processed */
+        std::set< std::string > empty_header_files ;
 
         /** map of open files to the out of date io_src file */
         std::map< std::string , std::string > out_of_date_io_files ;

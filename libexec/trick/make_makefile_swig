@@ -1,48 +1,21 @@
-package make_swig_makefile ;
+#!/usr/bin/perl
 
-use Exporter ();
-use trick_version ;
-use File::Path ;
+use FindBin qw($RealBin);
+use lib "$RealBin/pm" ;
 
-@ISA = qw(Exporter);
-@EXPORT = qw(make_swig_makefile);
-
-use lib $ENV{"TRICK_HOME"} . "/bin/pm" ;
 use File::Basename ;
-use gte ; 
-use trick_print ;
 use Cwd ;
 use Cwd 'abs_path';
+use gte ;
 use Digest::MD5 qw(md5_hex) ;
+use trick_version ;
 use strict ;
 
-sub make_swig_makefile($$$) {
+my @exclude_dirs ;
+my @swig_exclude_dirs ;
+my @files_to_process ;
 
-    my ($h_ref , $sim_ref , $make_cwd ) = @_ ;
-    my ($n , $f , $k , $m);
-    my (%all_icg_depends) = %{$$sim_ref{all_icg_depends}} ;
-    my %temp_hash ;
-    my @all_h_files ;
-    my (@temp_array , @temp_array2) ;
-    my ($ii) ;
-    my ($swig_sim_dir, $swig_src_dir) ;
-    my (%py_module_map) ;
-    my @exclude_dirs ;
-    my @swig_exclude_dirs ;
-
-    my (@include_paths) ;
-    my (@s_inc_paths) ;
-    my (@defines) ;
-    my ($version, $thread, $year) ;
-    my $s_source_full_path = abs_path("S_source.hh") ;
-    my $s_source_md5 = md5_hex($s_source_full_path) ;
-
-    ($version, $thread) = get_trick_version() ;
-    ($year) = $version =~ /^(\d+)/ ;
-    (my $cc = gte("TRICK_CC")) =~ s/\n// ;
-    @include_paths = $ENV{"TRICK_CFLAGS"} =~ /(-I\s*\S+)/g ; # get include paths from TRICK_CFLAGS
-    push @include_paths , ("-I".$ENV{"TRICK_HOME"}."/trick_source" , "-I../include") ;
-
+sub get_exclude_dirs() {
     @exclude_dirs = split /:/ , $ENV{"TRICK_EXCLUDE"};
     # See if there are any elements in the exclude_dirs array
     if (scalar @exclude_dirs) {
@@ -87,113 +60,62 @@ sub make_swig_makefile($$$) {
             @swig_exclude_dirs = map { (-e $_) ? abs_path($_) : $_ } @swig_exclude_dirs ;
         }
     }
+}
+
+sub read_files_to_process() {
+    open FILE, "build/ICG_processed" or die 'could not open build/ICG_processed' ;
+    @files_to_process = <FILE> ;
+    close FILE ;
+    chomp @files_to_process ;
+}
+
+sub make_swig_makefile() {
+
+    my ($n , $f , $k , $m);
+    my %temp_hash ;
+    my (@temp_array , @temp_array2) ;
+    my ($ii) ;
+    my ($swig_sim_dir, $swig_src_dir) ;
+    my (%py_module_map) ;
+
+    my (@include_paths) ;
+    my (@defines) ;
+    my ($version, $thread, $year) ;
+    my $s_source_full_path = abs_path("S_source.hh") ;
+    my $s_source_md5 = md5_hex($s_source_full_path) ;
+
+    ($version, $thread) = get_trick_version() ;
+    ($year) = $version =~ /^(\d+)/ ;
+    (my $cc = gte("TRICK_CC")) =~ s/\n// ;
+    @include_paths = $ENV{"TRICK_CFLAGS"} =~ /(-I\s*\S+)/g ; # get include paths from TRICK_CFLAGS
+    push @include_paths , ("-I".$ENV{"TRICK_HOME"}."/trick_source" , "-I../include") ;
 
     @defines = $ENV{"TRICK_CFLAGS"} =~ /(-D\S+)/g ;       # get defines from TRICK_CFLAGS
     push @defines , "-DTRICK_VER=$year" ;
     push @defines , "-DSWIG" ;
 
-    @s_inc_paths = $ENV{"TRICK_SFLAGS"} =~ /-I\s*(\S+)/g ;     # get include paths from TRICK_CFLAGS
-
-    # make a list of all the header files required by this sim
-    foreach $n ( @$h_ref ) {
-        push @all_h_files , $n ;
-        foreach $k ( keys %{$all_icg_depends{$n}} ) {
-            push @all_h_files , $k ;
-            push @all_h_files , @{$all_icg_depends{$n}{$k}} ;
-        }
-    }
-
-    # remove duplicate elements
-    undef %temp_hash ;
-    @all_h_files = grep ++$temp_hash{$_} < 2, @all_h_files ;
-    @all_h_files = sort (grep !/trick_source/ , @all_h_files) ;
-
     $swig_sim_dir = "\$(CURDIR)/trick" ;
     $swig_src_dir = "\$(CURDIR)/build" ;
 
-    # create output directories if they don't exist
-    if ( ! -e "trick" ) {
-        mkdir "trick", 0775 ;
-    }
-    if ( ! -e "build" ) {
-        mkdir "build", 0775 ;
-    }
-
     undef @temp_array2 ;
-    foreach $n (sort @$h_ref) {
-        if ( $n !~ /trick_source/ ) {
-            undef @temp_array ;
-            if ( !exists  $all_icg_depends{$n}{$n} ) {
-                @temp_array = ($n) ;
-            }
-            push @temp_array , keys %{$all_icg_depends{$n}} ;
-            @temp_array = grep !/\/trick_source\// , @temp_array ;
-            @temp_array = grep !/C$/ , @temp_array ;
+    foreach $n (@files_to_process) {
+        undef @temp_array ;
+        # check to see if the parent directory of each file is writable.
+        # If it isn't, then don't add it to the list of files to requiring ICG
 
-            # check to see if the parent directory of each file is writable.
-            # If it isn't, then don't add it to the list of files to requiring ICG
-            foreach my $f ( @temp_array ) {
-                $f = abs_path(dirname($f)) . "/" . basename($f) ;
-                if (exists $$sim_ref{icg_no}{$f}) {
-                    trick_print($$sim_ref{fh}, "CP(swig) skipping $f (ICG No found)\n" , "normal_yellow" , $$sim_ref{args}{v}) ;
-                    next ;
-                }
-                my ($continue) = 1 ;
-                foreach my $ie ( @swig_exclude_dirs ) {
-                    # if file location begins with $ie (an IGC exclude dir)
-                    if ( $f =~ /^\Q$ie/ ) {
-                        trick_print($$sim_ref{fh}, "CP(swig) skipping $f (ICG exclude dir $ie)\n" , "normal_yellow" , $$sim_ref{args}{v}) ;
-                        $continue = 0 ;
-                        last ;  # break out of loop
-                    }
-                }
-                next if ( $continue == 0 ) ;
-                my $temp_str ;
-                $temp_str = dirname($f) ;
-                $temp_str =~ s/\/include$// ;
-                if ( -w $temp_str ) {
-                    push @temp_array2 , $f ;
-                }
+        $f = abs_path(dirname($n)) . "/" . basename($n) ;
+        my ($continue) = 1 ;
+        foreach my $ie ( @swig_exclude_dirs ) {
+            # if file location begins with $ie (an IGC exclude dir)
+            if ( $f =~ /^\Q$ie/ ) {
+                print "CP(swig) skipping $f (ICG exclude dir $ie)\n" ;
+                $continue = 0 ;
+                last ;  # break out of loop
             }
         }
+        next if ( $continue == 0 ) ;
+        push @temp_array2 , $f ;
     }
-
-    undef %temp_hash ;
-    @temp_array2 = grep ++$temp_hash{$_} < 2, @temp_array2 ;
-
-    # Get the list header files from the compiler to compare to what get_headers processed.
-    open FILE_LIST, "$cc -MM -DSWIG @include_paths @defines S_source.hh |" ;
-    my $dir ;
-    $dir = dirname($s_source_full_path) ;
-    while ( <FILE_LIST> ) {
-        next if ( /^#/ or /^\s+\\/ ) ;
-        my $word ;
-        foreach $word ( split ) {
-            next if ( $word eq "\\" or $word =~ /o:/ ) ;
-            if ( $word !~ /^\// and $dir ne "\/" ) {
-                $word = "$dir/$word" ;
-            }
-            $word = abs_path(dirname($word)) . "/" . basename($word) ;
-            # filter out system headers that are missed by the compiler -MM flag
-            next if ( $word =~ /^\/usr\/include/) ;
-            #print "gcc found $word\n" ;
-            $$sim_ref{gcc_all_includes}{$word} = 1 ;
-        }
-    }
-
-    # Only use header files that the compiler says are included.
-    undef %temp_hash ;
-    foreach my $k ( @temp_array2 ) {
-        if ( exists $$sim_ref{gcc_all_includes}{$k} and
-             $k !~ /$ENV{TRICK_HOME}\/trick_source/ ) {
-            $temp_hash{$k} = 1 ;
-        }
-    }
-    @temp_array2 = sort keys %temp_hash ;
-    #print map { "$_\n" } @temp_array2 ;
-
-    # remove headers found in trick_source and ${TRICK_HOME}/include/trick
-    @temp_array2 = sort (grep !/$ENV{"TRICK_HOME"}\/include\/trick\// , @temp_array2) ;
 
     open MAKEFILE , ">build/Makefile_swig" or return ;
     open LINK_PY_OBJS , ">build/link_py_objs" or return ;
@@ -212,12 +134,12 @@ ifdef TRICK_VERBOSE_BUILD
 PRINT_SWIG =
 PRINT_COMPILE_SWIG =
 PRINT_SWIG_INC_LINK =
-PRINT_CONVERT_SWIG =
+#PRINT_CONVERT_SWIG =
 else
-PRINT_SWIG = \@echo \"[34mSwig[0m \$(subst \$(CURDIR)/build,build,\$<)\"
-PRINT_COMPILE_SWIG = \@echo \"[34mCompiling swig[0m \$(subst .o,.cpp,\$(subst \$(CURDIR)/build,build,\$@))\"
-PRINT_SWIG_INC_LINK = \@echo \"[34mPartial linking[0m swig objects\"
-PRINT_CONVERT_SWIG = \@echo \"[34mRunning convert_swig[0m\"
+PRINT_SWIG = \@echo \"[34mSwig        [0m \$(subst \$(CURDIR)/build,build,\$<)\"
+PRINT_COMPILE_SWIG = \@echo \"[34mCompiling   [0m \$(subst .o,.cpp,\$(subst \$(CURDIR)/build,build,\$@))\"
+PRINT_SWIG_INC_LINK = \@echo \"[34mPartial link[0m swig objects\"
+#PRINT_CONVERT_SWIG = \@echo \"[34mRunning convert_swig[0m\"
 endif
 
 SWIG_MODULE_OBJECTS = \$(LIB_DIR)/swig_python.o
@@ -245,10 +167,9 @@ SWIG_PY_OBJECTS =" ;
     print MAKEFILE "\\\n $swig_src_dir/init_swig_modules.o" ;
     print MAKEFILE "\\\n $swig_src_dir/py_top.o\n\n" ;
 
-    print MAKEFILE "convert_swig:\n" ;
-    print MAKEFILE "\t\$(PRINT_CONVERT_SWIG)\n" ;
-    print MAKEFILE "\t\$(ECHO_CMD)\${TRICK_HOME}/\$(LIBEXEC)/trick/convert_swig \${TRICK_CONVERT_SWIG_FLAGS} S_source.hh\n" ;
-    print MAKEFILE "\n\n" ;
+    print MAKEFILE "\$(SWIG_PY_OBJECTS) : | trick\n" ;
+    print MAKEFILE "trick :\n" ;
+    print MAKEFILE "\t\@mkdir \$\@\n" ;
 
     my %swig_dirs ;
     my %python_modules ;
@@ -258,18 +179,19 @@ SWIG_PY_OBJECTS =" ;
         my ($swig_dir, $swig_object_dir , $swig_module_dir , $swig_file_only) ;
         my ($swig_f) = $f ;
 
-        if ( $$sim_ref{python_module}{$f} ne "" ) {
-            #print "[31mpython module for $f = $$sim_ref{python_module}{$f}[0m\n" ;
-            my ($temp_str) = $$sim_ref{python_module}{$f} ;
-            $temp_str =~ s/\./\//g ;
-            $swig_module_dir = "$temp_str/" ;
-            $temp_str =~ $$sim_ref{python_module}{$f} ;
-            $temp_str =~ s/\\/\./g ;
-            push @{$python_modules{$temp_str}} , $f ;
-        } else {
-            $swig_module_dir = "" ;
+# TODO: Add back python modules
+#        if ( $$sim_ref{python_module}{$f} ne "" ) {
+#            #print "[31mpython module for $f = $$sim_ref{python_module}{$f}[0m\n" ;
+#            my ($temp_str) = $$sim_ref{python_module}{$f} ;
+#            $temp_str =~ s/\./\//g ;
+#            $swig_module_dir = "$temp_str/" ;
+#            $temp_str =~ $$sim_ref{python_module}{$f} ;
+#            $temp_str =~ s/\\/\./g ;
+#            push @{$python_modules{$temp_str}} , $f ;
+#        } else {
+#            $swig_module_dir = "" ;
             push @{$python_modules{"root"}} , $f ;
-        }
+#        }
 
         my ($continue) = 1 ;
         foreach my $ie ( @exclude_dirs ) {
@@ -285,7 +207,7 @@ SWIG_PY_OBJECTS =" ;
         my $md5_sum = md5_hex($f) ;
         # check if .sm file was accidentally ##included instead of #included
         if ( rindex($swig_f,".sm") != -1 ) {
-           trick_print($$sim_ref{fh}, "\nError: $swig_f should be in a #include not a ##include  \n\n", "title_red", $$sim_ref{args}{v}) ;
+           #trick_print($$sim_ref{fh}, "\nError: $swig_f should be in a #include not a ##include  \n\n", "title_red", $$sim_ref{args}{v}) ;
            exit -1 ;
         }
         $swig_f =~ s/([^\/]*)(?:\.h|\.H|\.hh|\.h\+\+|\.hxx)$/$1.i/ ;
@@ -319,6 +241,7 @@ SWIG_PY_OBJECTS =" ;
     print MAKEFILE "
 \$(SWIG_MODULE_OBJECTS) : TRICK_CXXFLAGS += -Wno-unused-parameter -Wno-redundant-decls
 
+OBJECTS += \$(SWIG_MODULE_OBJECTS)
 \$(S_MAIN): \$(SWIG_MODULE_OBJECTS)
 
 \$(SWIG_MODULE_OBJECTS) : \$(SWIG_PY_OBJECTS) | \$(LIB_DIR)
@@ -366,30 +289,21 @@ SWIG_PY_OBJECTS =" ;
     }
     close SWIGLIB ;
 
+    open S_INSTANCE , "build/S_instances" or return ;
+    my @instances = <S_INSTANCE> ;
+    close S_INSTANCE ;
     open TOPFILE , ">build/top.i" or return ;
     print TOPFILE "\%module top\n\n" ;
     print TOPFILE "\%{\n#include \"../S_source.hh\"\n\n" ;
-    foreach my $inst ( @{$$sim_ref{instances}} ) {
-        print TOPFILE "extern $$sim_ref{instances_type}{$inst} $inst ;\n" ;
-    }
-    foreach my $integ_loop ( @{$$sim_ref{integ_loop}} ) {
-       print TOPFILE "extern IntegLoopSimObject $$integ_loop{name} ;" ;
-    }
-
+    print TOPFILE @instances ;
     print TOPFILE "\n\%}\n\n" ;
     print TOPFILE "\%import \"build$wd/S_source.i\"\n\n" ;
-    foreach my $inst ( @{$$sim_ref{instances}} ) {
-        print TOPFILE "$$sim_ref{instances_type}{$inst} $inst ;\n" ;
-    }
-    foreach my $integ_loop ( @{$$sim_ref{integ_loop}} ) {
-       print TOPFILE "IntegLoopSimObject $$integ_loop{name} ;" ;
-    }
+    print TOPFILE @instances ;
     close TOPFILE ;
 
     open INITSWIGFILE , ">build/init_swig_modules.cpp" or return ;
     print INITSWIGFILE "extern \"C\" {\n\n" ;
     foreach $f ( @temp_array2 ) {
-
         my $md5_sum = md5_hex($f) ;
         print INITSWIGFILE "void init_m${md5_sum}(void) ; /* $f */\n" ;
     }
@@ -416,6 +330,9 @@ SWIG_PY_OBJECTS =" ;
     print INITSWIGFILE "    return ;\n}\n\n}\n" ;
     close INITSWIGFILE ;
 
+    if ( ! -e "trick") {
+        mkdir "trick" ;
+    }
     open INITFILE , ">trick/__init__.py" or return ;
 
     print INITFILE "import sys\n" ;
@@ -494,9 +411,16 @@ SWIG_PY_OBJECTS =" ;
         }
     }
 
-    return ;
+    open MAKEFILECONV , ">build/Makefile_convert_swig" or return ;
+    print MAKEFILECONV "\$(CURDIR)/build/convert_swig_last_run :" ;
+    foreach $f ( @temp_array2 ) {
+        print MAKEFILECONV " \\\n $f" ;
+    }
+    close MAKEFILECONV ;
 
+    return ;
 }
 
-1;
-
+get_exclude_dirs() ;
+read_files_to_process() ;
+make_swig_makefile() ;

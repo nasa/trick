@@ -54,7 +54,7 @@ std::string CommentSaver::getTrickHeaderComment( std::string file_name ) {
             std::string comment_str = getComment((*cit).second) ;
             std::transform(comment_str.begin(), comment_str.end(), comment_str.begin(), ::toupper) ;
             if ( comment_str.find("PURPOSE") != std::string::npos ) {
-                trick_header_comments[file_name] = comment_str ;
+                trick_header_comments[file_name] = getComment((*cit).second) ;
                 break ;
             }
         }
@@ -72,6 +72,7 @@ void CommentSaver::getICGField( std::string file_name ) {
     std::string th_str = getTrickHeaderComment(file_name) ;
     if ( ! th_str.empty() ) {
 
+        std::transform(th_str.begin(), th_str.end(), th_str.begin(), ::toupper) ;
         int ret ;
         regex_t reg_expr ;
         regmatch_t pmatch[10] ;
@@ -148,6 +149,8 @@ std::set< std::string > CommentSaver::getIgnoreTypes( std::string file_name ) {
     std::string th_str = getTrickHeaderComment(file_name) ;
     if ( ! th_str.empty() ) {
         //std::cout << "here in getIgnoreTypes\n" << th_str << std::endl ;
+        std::transform(th_str.begin(), th_str.end(), th_str.begin(), ::toupper) ;
+
         int ret ;
         regex_t reg_expr ;
         regmatch_t pmatch[10] ;
@@ -193,3 +196,68 @@ std::set< std::string > CommentSaver::getIgnoreTypes( std::string file_name ) {
     return ignore_types ;
 }
 
+#include <unistd.h>
+#include <sys/wait.h>
+
+/*
+  As of right now I call a perl script to parse the header comment and return
+  the library dependencies because perl is awesome!
+  TODO: Someday when C++11 is working on all the platforms we support we should
+  rewrite this using the language built in regular expressions.
+  TODO: Only fork and exec a single instance of the script.
+*/
+
+std::vector< std::string > CommentSaver::getLibraryDependencies( std::string file_name ) {
+
+    pid_t pid ;
+    int pipes[4] ;
+
+    // Open two pipes to allow us to write to and read from child process.
+    pipe(&pipes[0]) ;
+    pipe(&pipes[2]) ;
+    if (( pid = fork()) == 0 ) {
+        // child pipes: read = pipe[2], write = pipe[1]
+        close(pipes[0]) ;
+        close(pipes[3]) ;
+        dup2(pipes[2], STDIN_FILENO) ;
+        dup2(pipes[1], STDOUT_FILENO) ;
+
+        // exec the perl script that parses header comments.
+        std::string parse_lib_deps_path = std::string(getenv("TRICK_HOME")) + "/libexec/trick/ICG_lib_deps_helper" ;
+        execl(parse_lib_deps_path.c_str(), parse_lib_deps_path.c_str(), file_name.c_str(), (char *)NULL) ;
+        exit(1) ;
+    }
+    // parent pipes: read = pipe[0], write = pipe[3]
+    close(pipes[1]) ;
+    close(pipes[2]) ;
+
+    // get the header comment and send it with a end delimiter to the perl script
+    std::string header = getTrickHeaderComment(file_name) + "\nEND ICG PROCESSING\n" ;
+    write(pipes[3], header.c_str() , header.size()) ;
+
+    // wait for the child process to end
+    int status ;
+    waitpid(pid, &status, 0) ;
+
+    // read the result from the perl script
+    int num_read ;
+    char buf[4096] ;
+    std::string response ;
+    while (( num_read = read(pipes[0], buf, sizeof(buf) - 1) ) > 0 ) {
+        buf[num_read] = 0 ;
+        response += buf ;
+    }
+
+    // parse the single string result into a vector of strings.
+    std::vector< std::string > lib_deps ;
+    std::string::size_type pos = 0;
+    std::string::size_type prev = 0;
+    while ((pos = response.find("\n", prev)) != std::string::npos)
+    {
+        lib_deps.push_back(response.substr(prev, pos - prev));
+        prev = pos + 1;
+    }
+    lib_deps.push_back(response.substr(prev));
+
+    return lib_deps ;
+}

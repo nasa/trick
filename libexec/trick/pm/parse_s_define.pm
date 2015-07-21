@@ -12,7 +12,6 @@ use Cwd 'abs_path';
 use IPC::Open3 ;
 
 use lib $ENV{"TRICK_HOME"} . "/bin/pm" ;
-use ICG ;
 use edit ;
 use find_module ;
 use gte ;

@@ -221,18 +221,18 @@ std::string PrintAttributes::createIOFileName(std::string header_file_name) {
     free(temp_str) ;
 
     if ( hsd.isPathInUserDir( dir_name ) ) {
-        if ( dir_name.length() >= 8 and ! dir_name.compare(dir_name.size() - 8 , dir_name.size() , "/include" )) {
-            if ( dir_name.length() < 13 or dir_name.compare(dir_name.size() - 13 , dir_name.size() , "trick/include" )) {
-                dir_name.replace(dir_name.size() - 8 , dir_name.size() , "") ;
-            }
-        }
         if ( ! output_dir.empty() ) {
-            io_file_name = output_dir + "/io_src/" + base_name ;
+            io_file_name = output_dir + "/" + base_name ;
         } else {
             // Put all of the sim_services io_files in ${TRICK_HOME}/trick_source/sim_services/include/io_src unless
             // it is in er7_utils.  The er7_utils io_files have duplicate file names so the overwrite each other
             // leave those in their respective directories.
             if ( sim_services_flag ) {
+                if ( dir_name.length() >= 8 and ! dir_name.compare(dir_name.size() - 8 , dir_name.size() , "/include" )) {
+                    if ( dir_name.length() < 13 or dir_name.compare(dir_name.size() - 13 , dir_name.size() , "trick/include" )) {
+                        dir_name.replace(dir_name.size() - 8 , dir_name.size() , "") ;
+                    }
+                }
                 if ( dir_name.find("er7_utils") == std::string::npos ) {
                     io_file_name = std::string(getenv("TRICK_HOME")) + "/trick_source/sim_services/include/io_src/" + base_name ;
                 } else {
@@ -241,7 +241,7 @@ std::string PrintAttributes::createIOFileName(std::string header_file_name) {
             } else {
                 //TODO: only use build directory if we are ICG'ing a sim
                 // All files go into a build directory based in the current directory.
-                io_file_name =  std::string("build") + dir_name + "/io_src/" + base_name ;
+                io_file_name =  std::string("build") + dir_name + "/" + base_name ;
             }
         }
         return io_file_name ;
@@ -347,18 +347,52 @@ void PrintAttributes::closeMapFiles() {
 
     // If we wrote any new io_src files, move the temporary class and enum map files to new location
     if ( out_of_date_io_files.size() > 0 ) {
-        rename( std::string(map_dir + "/.class_map.cpp").c_str(), std::string(map_dir + "/class_map.cpp").c_str()) ;
-        rename( std::string(map_dir + "/.enum_map.cpp").c_str(), std::string(map_dir + "/enum_map.cpp").c_str()) ;
+        std::ifstream class_map(std::string(map_dir + "/.class_map.cpp").c_str()) ;
+        std::ifstream enum_map(std::string(map_dir + "/.enum_map.cpp").c_str()) ;
+        std::ofstream combined_map(std::string(map_dir + "/class_map.cpp").c_str()) ;
+        combined_map << class_map.rdbuf() << enum_map.rdbuf() ;
     } else {
         remove( std::string(map_dir + "/.class_map.cpp").c_str() ) ;
         remove( std::string(map_dir + "/.enum_map.cpp").c_str() ) ;
     }
 }
 
+void PrintAttributes::addEmptyFiles() {
+    // Make a list of the empty files we processed.
+    // This list is written to the ICG_processed file and used by other processors.
+    clang::SourceManager::fileinfo_iterator fi ;
+    for ( fi = ci.getSourceManager().fileinfo_begin() ; fi != ci.getSourceManager().fileinfo_end() ; fi++ ) {
+        const clang::FileEntry * fe = (*fi).first ;
+        std::string header_file_name = fe->getName() ;
+        if ( visited_files.find(header_file_name) == visited_files.end() ) {
+            visited_files.insert(header_file_name) ;
+            // several tests require the real path of the header file.
+            char * rp = almostRealPath(header_file_name.c_str()) ;
+            if ( rp != NULL ) {
+                // Only include user directories (not system dirs like /usr/include)
+                if ( hsd.isPathInUserDir(rp) ) {
+                    // Don't process files in excluded directories
+                    if ( hsd.isPathInICGExclude(rp) == false ) {
+                        // Only include files that do not have ICG: (No)
+                        // hasICGNo uses original header name, not the real path
+                        if ( ! cs.hasICGNo(header_file_name) ) {
+                            std::string io_file_name = createIOFileName(std::string(rp)) ;
+                            empty_header_files.insert(rp) ;
+                        }
+                    }
+                }
+                free(rp) ;
+            }
+        }
+    }
+}
+
 //TODO: Move this into PrintFileContents10.
 void PrintAttributes::printIOMakefile() {
-    std::ofstream makefile ;
+    std::ofstream makefile_io_src ;
+    std::ofstream makefile_ICG ;
     std::ofstream link_io_objs ;
+    std::ofstream ICG_processed ;
     unsigned int ii ;
 
     // Don't create a makefile if we didn't process any files.
@@ -366,71 +400,120 @@ void PrintAttributes::printIOMakefile() {
        return ;
     }
 
-    makefile.open("build/Makefile_io_src") ;
+    std::cout << "[34mCreating/updating io_src Makefile[0m" << std::endl ;
+    makefile_io_src.open("build/Makefile_io_src") ;
 
-    makefile << "TRICK_IO_CXXFLAGS := \\" << std::endl ;
-    makefile << " -Wno-invalid-offsetof \\" << std::endl ;
-    makefile << " -Wno-old-style-cast \\" << std::endl ;
-    makefile << " -Wno-write-strings \\" << std::endl ;
-    makefile << " -Wno-unused-variable" << std::endl ;
-    makefile << std::endl ;
-    makefile << "ifeq ($(IS_CC_CLANG), 0)" << std::endl ;
-    makefile << " GCCVERSIONGTEQ48 := $(shell perl -e 'printf \"\%d\\n\", ($(GCC_MAJOR)>4)||(($(GCC_MAJOR)==4)&&($(GCC_MINOR)>=8)) ;' )" << std::endl ;
-    makefile << " ifeq ($(GCCVERSIONGTEQ48), 1)" << std::endl ;
-    makefile << "  TRICK_IO_CXXFLAGS += -Wno-unused-but-set-variable -Wno-unused-local-typedefs" << std::endl ;
-    makefile << " endif" << std::endl ;
-    makefile << "endif" << std::endl ;
-    makefile << std::endl ;
-    makefile << "ifdef TRICK_VERBOSE_BUILD" << std::endl ;
-    makefile << "PRINT_IO_COMPILE =" << std::endl ;
-    makefile << "PRINT_IO_INC_LINK =" << std::endl ;
-    makefile << "else" << std::endl ;
-    makefile << "PRINT_IO_COMPILE = @echo \"[34mCompiling io[0m $(subst $(CURDIR)/build,build,$<)\"" << std::endl ;
-    makefile << "PRINT_IO_INC_LINK = @echo \"[34mPartial linking[0m io objects\"" << std::endl ;
-    makefile << "endif" << std::endl ;
-    makefile << std::endl ;
+    makefile_io_src << "TRICK_IO_CXXFLAGS := \\" << std::endl ;
+    makefile_io_src << " -Wno-invalid-offsetof \\" << std::endl ;
+    makefile_io_src << " -Wno-old-style-cast \\" << std::endl ;
+    makefile_io_src << " -Wno-write-strings \\" << std::endl ;
+    makefile_io_src << " -Wno-unused-variable" << std::endl ;
+    makefile_io_src << std::endl ;
+    makefile_io_src << "ifeq ($(IS_CC_CLANG), 0)" << std::endl ;
+    makefile_io_src << "  TRICK_IO_CXXFLAGS += -Wno-unused-local-typedefs" << std::endl ;
+    makefile_io_src << " GCCVERSIONGTEQ48 := $(shell perl -e 'printf \"\%d\\n\", " <<
+     "($(GCC_MAJOR)>4)||(($(GCC_MAJOR)==4)&&($(GCC_MINOR)>=8)) ;' )" << std::endl ;
+    makefile_io_src << " ifeq ($(GCCVERSIONGTEQ48), 1)" << std::endl ;
+    makefile_io_src << "  TRICK_IO_CXXFLAGS += -Wno-unused-but-set-variable" << std::endl ;
+    makefile_io_src << " endif" << std::endl ;
+    makefile_io_src << "endif" << std::endl ;
+    makefile_io_src << std::endl ;
+    makefile_io_src << "ifdef TRICK_VERBOSE_BUILD" << std::endl ;
+    makefile_io_src << "PRINT_ICG =" << std::endl ;
+    makefile_io_src << "PRINT_IO_COMPILE =" << std::endl ;
+    makefile_io_src << "PRINT_IO_INC_LINK =" << std::endl ;
+    makefile_io_src << "else" << std::endl ;
+    makefile_io_src << "PRINT_ICG = @echo \"[34mRunning ICG[0m\"" << std::endl ;
+    makefile_io_src << "PRINT_IO_COMPILE = @echo \"[34mCompiling   [0m $(subst $(CURDIR)/build,build,$<)\"" << std::endl ;
+    makefile_io_src << "PRINT_IO_INC_LINK = @echo \"[34mPartial link[0m io objects\"" << std::endl ;
+    makefile_io_src << "endif" << std::endl ;
+    makefile_io_src << std::endl ;
 
-//TODO: create the io_file name if it doesn't exist
-    makefile << "IO_OBJ_FILES =" ;
-    std::set<std::string>::iterator sit ;
-    for ( sit = visited_files.begin() ; sit != visited_files.end() ; sit++ ) {
-        std::map< std::string , std::string >::iterator mit = all_io_files.find(*sit) ;
-        if ( mit != all_io_files.end() ) {
-            size_t found ;
-            found = (*mit).second.find_last_of(".") ;
-            makefile << " \\\n $(CURDIR)/" << (*mit).second.substr(0,found) << ".o" ;
-        }
+    makefile_io_src << "IO_OBJ_FILES =" ;
+
+    std::map< std::string , std::string >::iterator mit ;
+    for ( mit = all_io_files.begin() ; mit != all_io_files.end() ; mit++ ) {
+        size_t found ;
+        found = (*mit).second.find_last_of(".") ;
+        makefile_io_src << " \\\n $(CURDIR)/" << (*mit).second.substr(0,found) << ".o" ;
     }
-    makefile << " \\\n $(CURDIR)/build/class_map.o" ;
-    makefile << " \\\n $(CURDIR)/build/enum_map.o" << std::endl ;
-    makefile << std::endl ;
-    makefile << "$(IO_OBJ_FILES) : \%.o : \%.cpp" << std::endl ;
-    makefile << "\t$(PRINT_IO_COMPILE)" << std::endl ;
-    makefile << "\t$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_IO_CXXFLAGS) -MMD -MP -c $< -o $@" << std::endl ;
-    makefile << std::endl ;
-    makefile << "-include $(IO_OBJ_FILES:.o=.d)" << std::endl ;
-    makefile << std::endl ;
 
-    makefile << "$(S_MAIN) : $(LIB_DIR)/io_src.o" << std::endl ;
-    makefile << std::endl ;
-    makefile << "$(LIB_DIR)/io_src.o : $(IO_OBJ_FILES) | $(LIB_DIR)" << std::endl ;
-    makefile << "\t$(PRINT_IO_INC_LINK)" << std::endl ;
-    makefile << "\t$(ECHO_CMD)ld $(LD_PARTIAL) -o $@ $(LD_FILELIST)build/link_io_objs" << std::endl ;
+    makefile_io_src << " \\\n $(CURDIR)/build/class_map.o" << std::endl ;
+    makefile_io_src << std::endl ;
 
-    makefile.close() ;
+    makefile_io_src << "$(IO_OBJ_FILES) : \%.o : \%.cpp" << std::endl ;
+    makefile_io_src << "\t$(PRINT_IO_COMPILE)" << std::endl ;
+    makefile_io_src << "\t$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_IO_CXXFLAGS) -MMD -MP -c $< -o $@" << std::endl ;
+    makefile_io_src << std::endl ;
+    makefile_io_src << "-include $(IO_OBJ_FILES:.o=.d)" << std::endl ;
+    makefile_io_src << std::endl ;
 
+    makefile_io_src << "OBJECTS += $(LIB_DIR)/io_src.o" << std::endl ;
+    makefile_io_src << "$(S_MAIN) : $(LIB_DIR)/io_src.o" << std::endl ;
+    makefile_io_src << std::endl ;
+    makefile_io_src << "$(LIB_DIR)/io_src.o : $(IO_OBJ_FILES) | $(LIB_DIR)" << std::endl ;
+    makefile_io_src << "\t$(PRINT_IO_INC_LINK)" << std::endl ;
+    makefile_io_src << "\t$(ECHO_CMD)ld $(LD_PARTIAL) -o $@ $(LD_FILELIST)build/link_io_objs" << std::endl ;
+    makefile_io_src << std::endl ;
+
+    makefile_io_src.close() ;
+
+    /*
+       Makefile_ICG lists all headers as dependencies of Makefile_io_src
+       causing ICG to run if any header file changes.
+
+       link_io_objs lists all io_src object files to be partially
+       linked into a single io_object.
+
+       ICG_process lists all header files to be used by SWIG.
+     */
+    makefile_ICG.open("build/Makefile_ICG") ;
     link_io_objs.open("build/link_io_objs") ;
-    for ( sit = visited_files.begin() ; sit != visited_files.end() ; sit++ ) {
-        std::map< std::string , std::string >::iterator mit = all_io_files.find(*sit) ;
-        if ( mit != all_io_files.end() ) {
-            size_t found ;
-            found = (*mit).second.find_last_of(".") ;
-            link_io_objs << (*mit).second.substr(0,found) << ".o" << std::endl ;
+    ICG_processed.open("build/ICG_processed") ;
+    makefile_ICG << "$(CURDIR)/build/Makefile_io_src :" ;
+    for ( mit = all_io_files.begin() ; mit != all_io_files.end() ; mit++ ) {
+        makefile_ICG << "\\\n " << (*mit).first ;
+        size_t found ;
+        found = (*mit).second.find_last_of(".") ;
+        link_io_objs << (*mit).second.substr(0,found) << ".o" << std::endl ;
+        ICG_processed << (*mit).first << std::endl ;
+    }
+    // Create the list of empty (of classes/enums) header files to be written to ICG_processed.
+    addEmptyFiles() ;
+    std::set< std::string >::iterator sit ;
+    for ( sit = empty_header_files.begin() ; sit != empty_header_files.end() ; sit++ ) {
+        ICG_processed << (*sit) << std::endl ;
+    }
+    makefile_ICG << std::endl << std::endl ;
+    makefile_ICG.close() ;
+    link_io_objs << "build/class_map.o" << std::endl ;
+    link_io_objs.close() ;
+    ICG_processed.close() ;
+
+}
+
+void PrintAttributes::printHeaderLibraryDependencies() {
+    std::ofstream header_lib_deps ;
+
+    header_lib_deps.open("build/header_lib_deps_files") ;
+    std::map< std::string , std::string >::iterator mit ;
+    for ( mit = all_io_files.begin() ; mit != all_io_files.end() ; mit++ ) {
+        size_t found ;
+        found = (*mit).first.find_last_of(".") ;
+        std::string lib_dep_file = std::string("build") + (*mit).first.substr(0,found) + ".lib_deps" ;
+        header_lib_deps << lib_dep_file << std::endl ;
+        if ( out_of_date_io_files.find((*mit).first) != out_of_date_io_files.end()) {
+            std::ofstream file_list ;
+            file_list.open(lib_dep_file) ;
+            std::vector< std::string > lib_deps = cs.getLibraryDependencies((*mit).first) ;
+            std::vector< std::string >::iterator vit ;
+            for ( vit = lib_deps.begin() ; vit != lib_deps.end() ; vit++ ) {
+                file_list << *vit << std::endl ;
+            }
+            file_list.close() ;
         }
     }
-    link_io_objs << "build/class_map.o" << std::endl ;
-    link_io_objs << "build/enum_map.o" << std::endl ;
-    link_io_objs.close() ;
+    header_lib_deps.close() ;
 }
 
 void PrintAttributes::printICGNoFiles() {

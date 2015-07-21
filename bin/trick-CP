@@ -16,7 +16,7 @@ if ( -f "S_define" ) {
         print "CP aborted\n" ;
         exit 1 ;
     }
-    unlink "Makefile_sim", "makefile" ;
+    unlink "build/Makefile_sim", "makefile" ;
     $makefile_text = do { local $/; <main::DATA> } ;
     $makefile_text =~ s/SUB_TRICK_HOME/$trick_home/ ;
     $makefile_text =~ s/SUB_TRICK_BIN/$trick_bin/ ;
