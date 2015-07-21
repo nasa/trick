@@ -208,7 +208,7 @@ print MAKEFILE "\
 include \${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 S_MAIN  = \$(CURDIR)/S_main_\${TRICK_HOST_CPU}.exe
-ifeq (\$(MAKECMDGOALS), test_all)
+ifeq (\$(MAKECMDGOALS), test)
 TRICK_HOST_CPU := \$(shell \$(TRICK_HOME)/bin/trick-gte TRICK_HOST_CPU)_test
 S_MAIN  = \$(CURDIR)/T_main_\${TRICK_HOST_CPU}.exe
 endif
@@ -362,12 +362,12 @@ foreach ( @all_read_only_libs ) {
 }
 
 print MAKEFILE "\n\n
-test_all: TRICK_CXXFLAGS += -DTRICK_UNIT_TEST
-test_all: TRICK_CFLAGS += -DTRICK_UNIT_TEST
+test: TRICK_CXXFLAGS += -DTRICK_UNIT_TEST
+test: TRICK_CFLAGS += -DTRICK_UNIT_TEST
 
 all: S_main
 
-test_all: all
+test: all
 
 S_main : \$(S_MAIN) build/S_define.deps S_sie.resource
 \t@ echo \"\"

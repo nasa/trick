@@ -400,6 +400,7 @@ void PrintAttributes::printIOMakefile() {
        return ;
     }
 
+    std::cout << "[34mCreating/updating io_src Makefile[0m" << std::endl ;
     makefile_io_src.open("build/Makefile_io_src") ;
 
     makefile_io_src << "TRICK_IO_CXXFLAGS := \\" << std::endl ;

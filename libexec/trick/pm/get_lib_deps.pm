@@ -83,7 +83,7 @@ sub get_lib_deps ($$) {
         }
 
         if ( $found == 0 ) {
-            print STDERR "[33mWarning: Could not find dependency $l[0m\n" ;
+            print STDERR "[33m$source_file_name: Warning: Could not find dependency $l[0m\n" ;
         }
     }
     return @resolved_files ;
