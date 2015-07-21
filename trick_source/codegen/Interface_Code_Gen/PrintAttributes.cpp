@@ -522,8 +522,9 @@ void PrintAttributes::printHeaderLibraryDependencies() {
         std::string lib_dep_file = std::string("build") + (*sit).substr(0,found) + ".lib_deps" ;
 
         char * dir_name ;
-        dir_name = dirname((char *)lib_dep_file.c_str()) ;
+        dir_name = dirname(strdup((char *)lib_dep_file.c_str())) ;
         _mkdir(dir_name) ;
+        free(dir_name) ;
 
         std::vector< std::string > lib_deps = cs.getLibraryDependencies((*sit)) ;
         std::vector< std::string >::iterator vit ;

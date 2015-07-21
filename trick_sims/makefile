@@ -113,28 +113,3 @@ ifneq ($(wildcard $(DR_RESULTS)/Ref_Logs/typesB_${TRICK_HOST_CPU}.trk), )
 endif
 
 
-# the test_simlib has a dependency of SIM_Ball++_L1 being built first
-SIM_test_simlib/T_main_${TRICK_HOST_CPU}_test.exe : SIM_Ball++_L1/T_main_${TRICK_HOST_CPU}_test.exe
-
-# Prevent mutiple sims from compiling the same code
-SIM_aero_fast/T_main_${TRICK_HOST_CPU}_test.exe : SIM_aero_curve/T_main_${TRICK_HOST_CPU}_test.exe
-SIM_amoeba/T_main_${TRICK_HOST_CPU}_test.exe : SIM_aero_fast/T_main_${TRICK_HOST_CPU}_test.exe
-SIM_ball_L2/T_main_${TRICK_HOST_CPU}_test.exe : SIM_ball_L1/T_main_${TRICK_HOST_CPU}_test.exe
-SIM_ball_L3/T_main_${TRICK_HOST_CPU}_test.exe : SIM_ball_L2/T_main_${TRICK_HOST_CPU}_test.exe
-SIM_ball_default_data/T_main_${TRICK_HOST_CPU}_test.exe : SIM_ball_L3/T_main_${TRICK_HOST_CPU}_test.exe
-SIM_test_ip/T_main_${TRICK_HOST_CPU}_test.exe : SIM_Ball++_L1/T_main_${TRICK_HOST_CPU}_test.exe
-SIM_rti/T_main_${TRICK_HOST_CPU}_test.exe : SIM_test_ip/T_main_${TRICK_HOST_CPU}_test.exe
-SIM_cannon_analytic/T_main_${TRICK_HOST_CPU}_test.exe : SIM_aero_fast/T_main_${TRICK_HOST_CPU}_test.exe
-SIM_cannon_contact/T_main_${TRICK_HOST_CPU}_test.exe : SIM_cannon_analytic/T_main_${TRICK_HOST_CPU}_test.exe
-SIM_cannon_dt/T_main_${TRICK_HOST_CPU}_test.exe : SIM_cannon_contact/T_main_${TRICK_HOST_CPU}_test.exe
-SIM_cannon_eulercromer/T_main_${TRICK_HOST_CPU}_test.exe : SIM_cannon_dt/T_main_${TRICK_HOST_CPU}_test.exe
-SIM_cannon_integ/T_main_${TRICK_HOST_CPU}_test.exe : SIM_cannon_eulercromer/T_main_${TRICK_HOST_CPU}_test.exe
-SIM_jet_call/T_main_${TRICK_HOST_CPU}_test.exe : SIM_cannon_integ/T_main_${TRICK_HOST_CPU}_test.exe
-SIM_jet_event/T_main_${TRICK_HOST_CPU}_test.exe : SIM_jet_call/T_main_${TRICK_HOST_CPU}_test.exe
-SIM_jet_read/T_main_${TRICK_HOST_CPU}_test.exe : SIM_jet_event/T_main_${TRICK_HOST_CPU}_test.exe
-SIM_monte/T_main_${TRICK_HOST_CPU}_test.exe : SIM_jet_read/T_main_${TRICK_HOST_CPU}_test.exe
-SIM_stls2/T_main_${TRICK_HOST_CPU}_test.exe : SIM_stls/T_main_${TRICK_HOST_CPU}_test.exe
-SIM_tcltk_java/T_main_${TRICK_HOST_CPU}_test.exe : SIM_monte/T_main_${TRICK_HOST_CPU}_test.exe
-SIM_threads_simple/T_main_${TRICK_HOST_CPU}_test.exe : SIM_threads/T_main_${TRICK_HOST_CPU}_test.exe
-SIM_trickcomm/T_main_${TRICK_HOST_CPU}_test.exe : SIM_tcltk_java/T_main_${TRICK_HOST_CPU}_test.exe
-
