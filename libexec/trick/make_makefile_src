@@ -58,7 +58,7 @@ push @top_lib_dep_file_names, "build/S_define.lib_deps" ;
 foreach my $f ( @top_lib_dep_file_names ) {
     my @all_lines ;
     next if ( $f eq "" ) ;
-    open FH, "$f" or die 'cannot open $f' ;
+    open FH, "$f" or die "cannot open $f" ;
     @all_lines = <FH> ;
     close FH ;
     chomp @all_lines ;
