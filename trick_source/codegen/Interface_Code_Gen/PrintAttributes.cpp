@@ -357,6 +357,36 @@ void PrintAttributes::closeMapFiles() {
     }
 }
 
+void PrintAttributes::addEmptyFiles() {
+    // Make a list of the empty files we processed.
+    // This list is written to the ICG_processed file and used by other processors.
+    clang::SourceManager::fileinfo_iterator fi ;
+    for ( fi = ci.getSourceManager().fileinfo_begin() ; fi != ci.getSourceManager().fileinfo_end() ; fi++ ) {
+        const clang::FileEntry * fe = (*fi).first ;
+        std::string header_file_name = fe->getName() ;
+        if ( visited_files.find(header_file_name) == visited_files.end() ) {
+            visited_files.insert(header_file_name) ;
+            // several tests require the real path of the header file.
+            char * rp = almostRealPath(header_file_name.c_str()) ;
+            if ( rp != NULL ) {
+                // Only include user directories (not system dirs like /usr/include)
+                if ( hsd.isPathInUserDir(rp) ) {
+                    // Don't process files in excluded directories
+                    if ( hsd.isPathInICGExclude(rp) == false ) {
+                        // Only include files that do not have ICG: (No)
+                        // hasICGNo uses original header name, not the real path
+                        if ( ! cs.hasICGNo(header_file_name) ) {
+                            std::string io_file_name = createIOFileName(std::string(rp)) ;
+                            empty_header_files.insert(rp) ;
+                        }
+                    }
+                }
+                free(rp) ;
+            }
+        }
+    }
+}
+
 //TODO: Move this into PrintFileContents10.
 void PrintAttributes::printIOMakefile() {
     std::ofstream makefile_io_src ;
@@ -446,6 +476,12 @@ void PrintAttributes::printIOMakefile() {
         found = (*mit).second.find_last_of(".") ;
         link_io_objs << (*mit).second.substr(0,found) << ".o" << std::endl ;
         ICG_processed << (*mit).first << std::endl ;
+    }
+    // Create the list of empty (of classes/enums) header files to be written to ICG_processed.
+    addEmptyFiles() ;
+    std::set< std::string >::iterator sit ;
+    for ( sit = empty_header_files.begin() ; sit != empty_header_files.end() ; sit++ ) {
+        ICG_processed << (*sit) << std::endl ;
     }
     makefile_ICG << std::endl << std::endl ;
     makefile_ICG.close() ;

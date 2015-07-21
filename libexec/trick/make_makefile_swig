@@ -300,7 +300,7 @@ OBJECTS += \$(SWIG_MODULE_OBJECTS)
     open TOPFILE , ">build/top.i" or return ;
     print TOPFILE "\%module top\n\n" ;
     print TOPFILE "\%{\n#include \"../S_source.hh\"\n\n" ;
-    print TOPFILE map { "extern $_" } @instances ;
+    print TOPFILE @instances ;
     print TOPFILE "\n\%}\n\n" ;
     print TOPFILE "\%import \"build$wd/S_source.i\"\n\n" ;
     print TOPFILE @instances ;

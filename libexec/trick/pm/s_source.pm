@@ -319,9 +319,9 @@ PURPOSE:
 
 
     open S_INSTANCE, ">build/S_instances" or die "Couldn't open build/S_instances!\n";
-    print S_INSTANCE $$sim_ref{instance_declarations} ;
+    print S_INSTANCE $$sim_ref{extern_instance_declarations} ;
     foreach my $integ_loop ( @{$$sim_ref{integ_loop}} ) {
-        print S_INSTANCE "IntegLoopSimObject $$integ_loop{name} ;\n" ;
+        print S_INSTANCE "extern IntegLoopSimObject $$integ_loop{name} ;\n" ;
     }
     close S_INSTANCE ;
 }

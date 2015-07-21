@@ -15,7 +15,7 @@ sub get_lib_deps ($$) {
     my (@lib_list) ;
     my (@inc_paths) ;
 
-    ($lib_deps) = $contents =~ /LIBRARY[ _]DEPENDENC(?:Y|IES):[^(]*(.*?)\)([A-Z _\t\n\r]+:|[ \t\n\r]*$)/si ;
+    ($lib_deps) = $contents =~ /LIBRARY[ _]DEPENDENC(?:Y|IES):[^(]*(.*?)\)([A-Z _\t\n\r]+:|\s*\*)/si ;
     @lib_list = split /\)[ \t\n\r\*]*\(/ , $lib_deps ;
 
     @inc_paths = $ENV{"TRICK_CFLAGS"} =~ /-I\s*(\S+)/g ;     # get include paths from TRICK_CFLAGS
@@ -59,18 +59,20 @@ sub get_lib_deps ($$) {
             }
         } else {
             $l =~ s/o$// ;
+            my ($rel_dir) = dirname($l) ;
+            my ($base) = basename($l) ;
             foreach my $inc ( $file_path_dir , @inc_paths) {
                 foreach my $ext ( "cpp" , "cc" , "c" , "c++" , "cxx" , "C" ) {
-                    if ( -e "$inc/$l$ext" ) {
+                    if ( -e "$inc/$rel_dir/$base$ext" ) {
                         #print "found $inc/$l$ext\n" ;
-                        my $f = abs_path(dirname("$inc/$l$ext")) . "/" . basename("$inc/$l$ext") ;
+                        my $f = abs_path("$inc/$rel_dir") . "/$base$ext" ;
                         push @resolved_files, $f ;
                         $found = 1 ;
                         last ;
                     }
-                    elsif ( -e "$inc/src/$l$ext" ) {
+                    elsif ( -e "$inc/$rel_dir/src/$base$ext" ) {
                         #print "found $inc/src/$l$ext\n" ;
-                        my $f = abs_path(dirname("$inc/src/$l$ext")) . "/" . basename("$inc/src/$l$ext") ;
+                        my $f = abs_path("$inc/$rel_dir/src") . "/$base$ext" ;
                         push @resolved_files, $f ;
                         $found = 1 ;
                         last ;
@@ -81,7 +83,7 @@ sub get_lib_deps ($$) {
         }
 
         if ( $found == 0 ) {
-            print STDERR "[33m@ARGV[0]: Warning: Could not find dependency $l[0m\n" ;
+            print STDERR "[33mWarning: Could not find dependency $l[0m\n" ;
         }
     }
     return @resolved_files ;
