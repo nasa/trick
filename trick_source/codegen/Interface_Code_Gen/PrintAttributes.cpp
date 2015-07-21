@@ -495,6 +495,7 @@ void PrintAttributes::printIOMakefile() {
 void PrintAttributes::printHeaderLibraryDependencies() {
     std::ofstream header_lib_deps ;
 
+    std::cout << "[34mSearching header files for Library Dependencies[0m" << std::endl ;
     header_lib_deps.open("build/header_lib_deps_files") ;
     std::map< std::string , std::string >::iterator mit ;
     for ( mit = all_io_files.begin() ; mit != all_io_files.end() ; mit++ ) {
@@ -513,6 +514,26 @@ void PrintAttributes::printHeaderLibraryDependencies() {
             file_list.close() ;
         }
     }
+
+    std::set< std::string >::iterator sit ;
+    for ( sit = empty_header_files.begin() ; sit != empty_header_files.end() ; sit++ ) {
+        size_t found ;
+        found = (*sit).find_last_of(".") ;
+        std::string lib_dep_file = std::string("build") + (*sit).substr(0,found) + ".lib_deps" ;
+
+        std::vector< std::string > lib_deps = cs.getLibraryDependencies((*sit)) ;
+        std::vector< std::string >::iterator vit ;
+        if ( lib_deps.size() > 0 ) {
+            header_lib_deps << lib_dep_file << std::endl ;
+            std::ofstream file_list ;
+            file_list.open(lib_dep_file) ;
+            for ( vit = lib_deps.begin() ; vit != lib_deps.end() ; vit++ ) {
+                file_list << *vit << std::endl ;
+            }
+            file_list.close() ;
+        }
+    }
+
     header_lib_deps.close() ;
 }
 
