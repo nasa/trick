@@ -15,7 +15,9 @@ sub get_lib_deps ($$) {
     my (@lib_list) ;
     my (@inc_paths) ;
 
-    ($lib_deps) = $contents =~ /LIBRARY[ _]DEPENDENC(?:Y|IES):[^(]*(.*?)\)([A-Z _\t\n\r]+:|\s*\*)/si ;
+    # library dependency regular expression will match all the way through last parenthesis followed by
+    # another field in the trick header, a doxygen style keyword, or the end of comment *.
+    ($lib_deps) = $contents =~ /LIBRARY[ _]DEPENDENC(?:Y|IES):[^(]*(.*?)\)([A-Z _\t\n\r]+:|\s*[\*@])/si ;
     @lib_list = split /\)[ \t\n\r\*]*\(/ , $lib_deps ;
 
     @inc_paths = $ENV{"TRICK_CFLAGS"} =~ /-I\s*(\S+)/g ;     # get include paths from TRICK_CFLAGS
