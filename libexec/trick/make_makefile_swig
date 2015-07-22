@@ -155,7 +155,7 @@ SWIG_PY_OBJECTS =" ;
         my ($swig_dir, $swig_object_dir , $swig_module_dir , $swig_file_only) ;
         my ($swig_f) = $f ;
         $swig_object_dir = dirname($f) ;
-        ($swig_file_only) = ($f =~ /([^\/]*)(?:\.h|\.H|\.hh|\.h\+\+|\.hxx)$/) ;
+        ($swig_file_only) = ($f =~ /([^\/]*)(?:\.h|\.H|\.hh|\.h\+\+|\.hxx|\.hpp)$/) ;
         print MAKEFILE" \\\n \$(CURDIR)/build$swig_object_dir/py_${swig_file_only}.o" ;
     }
     print MAKEFILE "\\\n $swig_src_dir/init_swig_modules.o" ;
@@ -194,7 +194,7 @@ SWIG_PY_OBJECTS =" ;
            #trick_print($$sim_ref{fh}, "\nError: $swig_f should be in a #include not a ##include  \n\n", "title_red", $$sim_ref{args}{v}) ;
            exit -1 ;
         }
-        $swig_f =~ s/([^\/]*)(?:\.h|\.H|\.hh|\.h\+\+|\.hxx)$/$1.i/ ;
+        $swig_f =~ s/([^\/]*)(?:\.h|\.H|\.hh|\.h\+\+|\.hxx|\.hpp)$/$1.i/ ;
         $swig_file_only = $1 ;
         my $link_py_obj = "build" . dirname($swig_f) . "/py_${swig_file_only}.o";
         $swig_f = "\$(CURDIR)/build" . $swig_f ;
