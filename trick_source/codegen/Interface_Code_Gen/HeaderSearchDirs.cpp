@@ -169,6 +169,28 @@ void HeaderSearchDirs::AddExcludeDirs () {
     }
 }
 
+void HeaderSearchDirs::AddExtLibDirs () {
+
+    char * trick_ext_lib_dirs = getenv("TRICK_EXT_LIB_DIRS") ;
+
+    if( trick_ext_lib_dirs != NULL ) {
+        std::string s = std::string(trick_ext_lib_dirs) ;
+        std::stringstream ss(s);
+        std::string item;
+        while(std::getline(ss, item, ':')) {
+            item = trim(item) ;
+            if ( ! item.empty() ) {
+                char * resolved_path = realpath(item.c_str(), NULL) ;
+                if ( resolved_path ) {
+                    ext_lib_dirs.push_back(std::string(resolved_path) + std::string("/"));
+                } else {
+                    std::cout << "Cannot find TRICK_EXT_LIB_DIRS directory " << item << std::endl ;
+                }
+            }
+        }
+    }
+}
+
 void HeaderSearchDirs::AddICGNoCommentDirs () {
 
     char * trick_icg_nocomment = getenv("TRICK_ICG_NOCOMMENT") ;
@@ -214,6 +236,7 @@ void HeaderSearchDirs::addSearchDirs ( std::vector<std::string> & include_dirs )
     AddCompilerBuiltInSearchDirs() ;
     AddExcludeDirs() ;
     AddICGExcludeDirs() ;
+    AddExtLibDirs() ;
     AddICGNoCommentDirs() ;
     ApplyHeaderSearchOptions() ;
 }
@@ -272,6 +295,18 @@ bool HeaderSearchDirs::isPathInICGExclude (std::string in_dir ) {
     return false ;
 }
 
+bool HeaderSearchDirs::isPathInExtLib (std::string in_dir ) {
+
+    std::vector<std::string>::iterator vit ;
+    for ( vit = ext_lib_dirs.begin() ; vit != ext_lib_dirs.end() ; vit++ ) {
+        if ( ! in_dir.compare(0, (*vit).size(), (*vit))) {
+            return true ;
+        }
+    }
+
+    return false ;
+}
+
 bool HeaderSearchDirs::isPathInICGNoComment (std::string in_file ) {
 
     char * resolved_path = almostRealPath(in_file.c_str() ) ;
@@ -312,6 +347,18 @@ std::string HeaderSearchDirs::getPathInICGExclude (std::string in_dir ) {
 
     std::vector<std::string>::iterator vit ;
     for ( vit = icg_exclude_dirs.begin() ; vit != icg_exclude_dirs.end() ; vit++ ) {
+        if ( ! in_dir.compare(0, (*vit).size(), (*vit))) {
+            return (*vit) ;
+        }
+    }
+
+    return std::string() ;
+}
+
+std::string HeaderSearchDirs::getPathInExtLib (std::string in_dir ) {
+
+    std::vector<std::string>::iterator vit ;
+    for ( vit = ext_lib_dirs.begin() ; vit != ext_lib_dirs.end() ; vit++ ) {
         if ( ! in_dir.compare(0, (*vit).size(), (*vit))) {
             return (*vit) ;
         }

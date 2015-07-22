@@ -61,6 +61,13 @@ class HeaderSearchDirs {
           */
         bool isPathInICGExclude (std::string path) ;
 
+        /** Returns true if directory is a subdirectory of an external library directory listed
+            in the TRICK_EXT_LIB_DIRS environment variable.
+            @param path = directory path to be checked
+            @return true = path is in a system directory, false = not in system directory.
+          */
+        bool isPathInExtLib (std::string path) ;
+
         /** Returns true if directory is a subdirectory of a no comment directory
             in the TRICK_ICG_NOCOMMENT environment variable.
             @param path = directory path to be checked
@@ -79,6 +86,12 @@ class HeaderSearchDirs {
             @return string from TRICK_ICG_EXCLUDE that contains the path.
           */
         std::string getPathInICGExclude (std::string path) ;
+
+        /** Returns the TRICK_EXT_LIB_DIRS directory that contains the path argument.
+            @param path = path to be checked
+            @return string from TRICK_ICG_EXCLUDE that contains the path.
+          */
+        std::string getPathInExtLib (std::string path) ;
 
         /** Add all #defines from the command line and built in default predefines
             @param defines = a list of all -D<define> arguments on the command line.
@@ -119,6 +132,9 @@ class HeaderSearchDirs {
         /** Create list of ICG_EXCLUDE directories  */
         void AddICGExcludeDirs () ;
 
+        /** Create list of EXT_LIB_DIRS directories  */
+        void AddExtLibDirs () ;
+
         /** Create list of ICG_NOCOMMENT directories  */
         void AddICGNoCommentDirs () ;
 
@@ -130,6 +146,9 @@ class HeaderSearchDirs {
 
         /** List of directoris to exclude from the TRICK_ICG_EXCLUDE environment variable */
         std::vector<std::string> icg_exclude_dirs ;
+
+        /** List of directoris to mark as belonging in TRICK_EXT_LIB_DIRS environment variable */
+        std::vector<std::string> ext_lib_dirs ;
 
         /** List of directoris to exclude comments from the TRICK_ICG_NOCOMMENT environment variable */
         std::vector<std::string> icg_nocomment_dirs ;

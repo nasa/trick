@@ -113,7 +113,10 @@ class PrintAttributes {
         /** map of all io_files we processed */
         std::map< std::string , std::string > all_io_files ;
 
-        /** map of all io_files we processed */
+        /** set of external library header files */
+        std::set< std::string > ext_lib_io_files ;
+
+        /** set of headers that have no class/enums */
         std::set< std::string > empty_header_files ;
 
         /** map of open files to the out of date io_src file */

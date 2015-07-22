@@ -43,6 +43,8 @@ sub read_lib_deps(@) {
 }
 
 for my $f ( @ARGV ) {
+    # Makefile_io_src is listed as a dependency of make_makefile_src and comes in as
+    # an argument from make.  Ignore it.
     if ( $f !~ /Makefile_io_src/ ) {
         print "Updating Dependencies for $f\n" ;
         write_lib_deps($f) ;

@@ -14,6 +14,7 @@ use strict ;
 my @exclude_dirs ;
 my @swig_exclude_dirs ;
 my @files_to_process ;
+my @ext_lib_files ;
 
 sub get_exclude_dirs() {
     @exclude_dirs = split /:/ , $ENV{"TRICK_EXCLUDE"};
@@ -67,13 +68,18 @@ sub read_files_to_process() {
     @files_to_process = <FILE> ;
     close FILE ;
     chomp @files_to_process ;
+
+    open FILE, "build/external_lib_header_files" or die 'could not open build/external_lib_header_files' ;
+    @ext_lib_files = <FILE> ;
+    close FILE ;
+    chomp @ext_lib_files ;
 }
 
 sub make_swig_makefile() {
 
     my ($n , $f , $k , $m);
     my %temp_hash ;
-    my (@temp_array , @temp_array2) ;
+    my (@temp_array) ;
     my ($ii) ;
     my ($swig_sim_dir, $swig_src_dir) ;
     my (%py_module_map) ;
@@ -97,9 +103,7 @@ sub make_swig_makefile() {
     $swig_sim_dir = "\$(CURDIR)/trick" ;
     $swig_src_dir = "\$(CURDIR)/build" ;
 
-    undef @temp_array2 ;
     foreach $n (@files_to_process) {
-        undef @temp_array ;
         # check to see if the parent directory of each file is writable.
         # If it isn't, then don't add it to the list of files to requiring ICG
 
@@ -114,8 +118,9 @@ sub make_swig_makefile() {
             }
         }
         next if ( $continue == 0 ) ;
-        push @temp_array2 , $f ;
+        push @temp_array , $f ;
     }
+    @files_to_process = @temp_array ;
 
     open MAKEFILE , ">build/Makefile_swig" or return ;
     open LINK_PY_OBJS , ">build/link_py_objs" or return ;
@@ -146,18 +151,7 @@ SWIG_MODULE_OBJECTS = \$(LIB_DIR)/swig_python.o
 
 SWIG_PY_OBJECTS =" ;
 
-    foreach my $f ( @temp_array2 ) {
-        my ($continue) = 1 ;
-        foreach my $ie ( @exclude_dirs ) {
-            # if file location begins with $ie (an IGC exclude dir)
-            if ( $f =~ /^\Q$ie/ ) {
-                $continue = 0 ;
-                $ii++ ;
-                last ;  # break out of loop
-            }
-        }
-        next if ( $continue == 0 ) ;
-
+    foreach my $f ( @files_to_process ) {
         my ($swig_dir, $swig_object_dir , $swig_module_dir , $swig_file_only) ;
         my ($swig_f) = $f ;
         $swig_object_dir = dirname($f) ;
@@ -174,7 +168,7 @@ SWIG_PY_OBJECTS =" ;
     my %swig_dirs ;
     my %python_modules ;
     $ii = 0 ;
-    foreach my $f ( @temp_array2 ) {
+    foreach my $f ( @files_to_process ) {
 
         my ($swig_dir, $swig_object_dir , $swig_module_dir , $swig_file_only) ;
         my ($swig_f) = $f ;
@@ -194,16 +188,6 @@ SWIG_PY_OBJECTS =" ;
 #        }
 
         my ($continue) = 1 ;
-        foreach my $ie ( @exclude_dirs ) {
-            # if file location begins with $ie (an IGC exclude dir)
-            if ( $f =~ /^\Q$ie/ ) {
-                $continue = 0 ;
-                $ii++ ;
-                last ;  # break out of loop
-            }
-        }
-        next if ( $continue == 0 ) ;
-
         my $md5_sum = md5_hex($f) ;
         # check if .sm file was accidentally ##included instead of #included
         if ( rindex($swig_f,".sm") != -1 ) {
@@ -284,7 +268,7 @@ OBJECTS += \$(SWIG_MODULE_OBJECTS)
     close LINK_PY_OBJS ;
 
     open SWIGLIB , ">build/S_library_swig" or return ;
-    foreach my $f ( @temp_array2 ) {
+    foreach my $f ( @files_to_process ) {
         print SWIGLIB "$f\n" ;
     }
     close SWIGLIB ;
@@ -303,7 +287,11 @@ OBJECTS += \$(SWIG_MODULE_OBJECTS)
 
     open INITSWIGFILE , ">build/init_swig_modules.cpp" or return ;
     print INITSWIGFILE "extern \"C\" {\n\n" ;
-    foreach $f ( @temp_array2 ) {
+    foreach $f ( @files_to_process ) {
+        my $md5_sum = md5_hex($f) ;
+        print INITSWIGFILE "void init_m${md5_sum}(void) ; /* $f */\n" ;
+    }
+    foreach $f ( @ext_lib_files ) {
         my $md5_sum = md5_hex($f) ;
         print INITSWIGFILE "void init_m${md5_sum}(void) ; /* $f */\n" ;
     }
@@ -314,12 +302,15 @@ OBJECTS += \$(SWIG_MODULE_OBJECTS)
     print INITSWIGFILE "void init_swig_ref(void) ;\n" ;
 
     print INITSWIGFILE "\nvoid init_swig_modules(void) {\n\n" ;
-    foreach $f ( @temp_array2 ) {
+    foreach $f ( @files_to_process ) {
         next if ( $f =~ /S_source.hh/ ) ;
         my $md5_sum = md5_hex($f) ;
         print INITSWIGFILE "    init_m${md5_sum}() ;\n" ;
     }
-
+    foreach $f ( @ext_lib_files ) {
+        my $md5_sum = md5_hex($f) ;
+        print INITSWIGFILE "    init_m${md5_sum}() ;\n" ;
+    }
     print INITSWIGFILE "    init_m${s_source_md5}() ;\n" ;
 
     print INITSWIGFILE "    init_sim_services() ;\n" ;
@@ -372,6 +363,15 @@ OBJECTS += \$(SWIG_MODULE_OBJECTS)
         print INITFILE "cvar = None\n\n" ;
     }
 
+    foreach $f ( @ext_lib_files ) {
+        my $md5_sum = md5_hex($f) ;
+        print INITFILE "# $f\n" ;
+        print INITFILE "import _m${md5_sum}\n" ;
+        print INITFILE "from m${md5_sum} import *\n" ;
+        print INITFILE "combine_cvars(all_cvars, cvar)\n" ;
+        print INITFILE "cvar = None\n\n" ;
+    }
+
     print INITFILE "# S_source.hh\n" ;
     print INITFILE "import _m${s_source_md5}\n" ;
     print INITFILE "from m${s_source_md5} import *\n\n" ;
@@ -413,7 +413,7 @@ OBJECTS += \$(SWIG_MODULE_OBJECTS)
 
     open MAKEFILECONV , ">build/Makefile_convert_swig" or return ;
     print MAKEFILECONV "\$(CURDIR)/build/convert_swig_last_run :" ;
-    foreach $f ( @temp_array2 ) {
+    foreach $f ( @files_to_process ) {
         print MAKEFILECONV " \\\n $f" ;
     }
     close MAKEFILECONV ;

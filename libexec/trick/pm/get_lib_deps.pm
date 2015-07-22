@@ -14,11 +14,15 @@ sub get_lib_deps ($$) {
     my ($lib_deps) ;
     my (@lib_list) ;
     my (@inc_paths) ;
+    my (@raw_lib_deps) ;
 
     # library dependency regular expression will match all the way through last parenthesis followed by
     # another field in the trick header, a doxygen style keyword, or the end of comment *.
-    ($lib_deps) = $contents =~ /LIBRARY[ _]DEPENDENC(?:Y|IES):[^(]*(.*?)\)([A-Z _\t\n\r]+:|\s*[\*@])/si ;
-    @lib_list = split /\)[ \t\n\r\*]*\(/ , $lib_deps ;
+    # we capture all library dependencies at once into raw_lib_deps
+    @raw_lib_deps = ($contents =~ /LIBRARY[ _]DEPENDENC(?:Y|IES)\s*:[^(]*(.*?)\)(?:[A-Z _\t\n\r]+:|\s*[\*@])/gsi) ;
+    foreach ( @raw_lib_deps ) {
+        push @lib_list , (split /\)[ \t\n\r\*]*\(/ , $_)  ;
+    }
 
     @inc_paths = $ENV{"TRICK_CFLAGS"} =~ /-I\s*(\S+)/g ;     # get include paths from TRICK_CFLAGS
     # Get only the include paths that exist
@@ -32,7 +36,7 @@ sub get_lib_deps ($$) {
     $file_path_dir =~ s/\/+$// ;                 # remove trailing slash
     $file_path_dir =~ s/\/include$// ;
 
-    my @resolved_files ;
+    my %resolved_files ;
     foreach my $l (@lib_list) {
         my $found = 0 ;
         $l =~ s/\(|\)|\s+//g ;
@@ -44,7 +48,7 @@ sub get_lib_deps ($$) {
             foreach my $inc ( dirname($source_file_name) , @inc_paths) {
                 if ( -e "$inc/$rel_dir" ) {
                     my $f = abs_path("$inc/$rel_dir") . "/" . basename($l) ;
-                    push @resolved_files, $f ;
+                    $resolved_files{$f} = 1 ;
                     $found = 1 ;
                     last ;
                 }
@@ -54,7 +58,7 @@ sub get_lib_deps ($$) {
                 if ( -e "$inc/$l" ) {
                     #print "found $inc/$l$ext\n" ;
                     my $f = abs_path(dirname("$inc/$l")) . "/" . basename("$inc/$l") ;
-                    push @resolved_files, $f ;
+                    $resolved_files{$f} = 1 ;
                     $found = 1 ;
                     last ;
                 }
@@ -68,14 +72,14 @@ sub get_lib_deps ($$) {
                     if ( -e "$inc/$rel_dir/$base$ext" ) {
                         #print "found $inc/$l$ext\n" ;
                         my $f = abs_path("$inc/$rel_dir") . "/$base$ext" ;
-                        push @resolved_files, $f ;
+                        $resolved_files{$f} = 1 ;
                         $found = 1 ;
                         last ;
                     }
                     elsif ( -e "$inc/$rel_dir/src/$base$ext" ) {
                         #print "found $inc/src/$l$ext\n" ;
                         my $f = abs_path("$inc/$rel_dir/src") . "/$base$ext" ;
-                        push @resolved_files, $f ;
+                        $resolved_files{$f} = 1 ;
                         $found = 1 ;
                         last ;
                     }
@@ -88,7 +92,7 @@ sub get_lib_deps ($$) {
             print STDERR "[33m$source_file_name: Warning: Could not find dependency $l[0m\n" ;
         }
     }
-    return @resolved_files ;
+    return (sort keys %resolved_files) ;
 }
 
 sub write_lib_deps($) {
@@ -105,7 +109,7 @@ sub write_lib_deps($) {
         make_path("build$dir") ;
     }
     open LIBDEP, ">$lib_dep_file_name" ;
-    print LIBDEP map {"$_\n"} (sort @resolved_files) ;
+    print LIBDEP map {"$_\n"} @resolved_files ;
     close LIBDEP ;
 
     return @resolved_files ;
