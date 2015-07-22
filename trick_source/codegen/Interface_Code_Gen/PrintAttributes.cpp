@@ -417,18 +417,18 @@ void PrintAttributes::printIOMakefile() {
     std::cout << "[34mCreating/updating io_src Makefile[0m" << std::endl ;
     makefile_io_src.open("build/Makefile_io_src") ;
 
-    makefile_io_src << "TRICK_IO_CXXFLAGS := \\" << std::endl ;
+    makefile_io_src << "TRICK_SYSTEM_CXXFLAGS += \\" << std::endl ;
     makefile_io_src << " -Wno-invalid-offsetof \\" << std::endl ;
     makefile_io_src << " -Wno-old-style-cast \\" << std::endl ;
     makefile_io_src << " -Wno-write-strings \\" << std::endl ;
     makefile_io_src << " -Wno-unused-variable" << std::endl ;
     makefile_io_src << std::endl ;
     makefile_io_src << "ifeq ($(IS_CC_CLANG), 0)" << std::endl ;
-    makefile_io_src << "  TRICK_IO_CXXFLAGS += -Wno-unused-local-typedefs" << std::endl ;
+    makefile_io_src << "  TRICK_SYSTEM_CXXFLAGS += -Wno-unused-local-typedefs" << std::endl ;
     makefile_io_src << " GCCVERSIONGTEQ48 := $(shell perl -e 'printf \"\%d\\n\", " <<
      "($(GCC_MAJOR)>4)||(($(GCC_MAJOR)==4)&&($(GCC_MINOR)>=8)) ;' )" << std::endl ;
     makefile_io_src << " ifeq ($(GCCVERSIONGTEQ48), 1)" << std::endl ;
-    makefile_io_src << "  TRICK_IO_CXXFLAGS += -Wno-unused-but-set-variable" << std::endl ;
+    makefile_io_src << "  TRICK_SYSTEM_CXXFLAGS += -Wno-unused-but-set-variable" << std::endl ;
     makefile_io_src << " endif" << std::endl ;
     makefile_io_src << "endif" << std::endl ;
     makefile_io_src << std::endl ;
@@ -457,7 +457,7 @@ void PrintAttributes::printIOMakefile() {
 
     makefile_io_src << "$(IO_OBJ_FILES) : \%.o : \%.cpp" << std::endl ;
     makefile_io_src << "\t$(PRINT_IO_COMPILE)" << std::endl ;
-    makefile_io_src << "\t$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_IO_CXXFLAGS) -MMD -MP -c $< -o $@" << std::endl ;
+    makefile_io_src << "\t$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c $< -o $@" << std::endl ;
     makefile_io_src << std::endl ;
     makefile_io_src << "-include $(IO_OBJ_FILES:.o=.d)" << std::endl ;
     makefile_io_src << std::endl ;

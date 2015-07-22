@@ -302,27 +302,27 @@ foreach my $ext ( sort keys %object_files_by_type ) {
 # Write out the compile rules for each type of file.
 print MAKEFILE "\${MODEL_c_OBJ} : \$(CURDIR)/build\%.o : \%.c\n" ;
 print MAKEFILE "\t\$(PRINT_COMPILE)\n\n" ;
-print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CC) \$(TRICK_CFLAGS) -I\${<D} -I\${<D}/../include -MMD -MP -c \$< -o \$\@\n\n" ;
+print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CC) \$(TRICK_CFLAGS) \$(TRICK_SYSTEM_CFLAGS) -I\${<D} -I\${<D}/../include -MMD -MP -c \$< -o \$\@\n\n" ;
 
 print MAKEFILE "\${MODEL_C_OBJ} : \$(CURDIR)/build\%.o : \%.C\n" ;
 print MAKEFILE "\t\$(PRINT_COMPILE)\n\n" ;
-print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) -I\${<D} -I\${<D}/../include -MMD -MP -c \$< -o \$\@\n\n" ;
+print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\${<D} -I\${<D}/../include -MMD -MP -c \$< -o \$\@\n\n" ;
 
 print MAKEFILE "\${MODEL_cc_OBJ} : \$(CURDIR)/build\%.o : \%.cc\n" ;
 print MAKEFILE "\t\$(PRINT_COMPILE)\n\n" ;
-print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) -I\${<D} -I\${<D}/../include -MMD -MP -c \$< -o \$\@\n\n" ;
+print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\${<D} -I\${<D}/../include -MMD -MP -c \$< -o \$\@\n\n" ;
 
 print MAKEFILE "\${MODEL_cpp_OBJ} : \$(CURDIR)/build\%.o : \%.cpp\n" ;
 print MAKEFILE "\t\$(PRINT_COMPILE)\n\n" ;
-print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) -I\${<D} -I\${<D}/../include -MMD -MP -c \$< -o \$\@\n\n" ;
+print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\${<D} -I\${<D}/../include -MMD -MP -c \$< -o \$\@\n\n" ;
 
 print MAKEFILE "\${MODEL_cxx_OBJ} : \$(CURDIR)/build\%.o : \%.cxx\n" ;
 print MAKEFILE "\t\$(PRINT_COMPILE)\n\n" ;
-print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) -I\${<D} -I\${<D}/../include -MMD -MP -c \$< -o \$\@\n\n" ;
+print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\${<D} -I\${<D}/../include -MMD -MP -c \$< -o \$\@\n\n" ;
 
 print MAKEFILE "\${MODEL_CPLUSPLUS_OBJ} : \$(CURDIR)/build\%.o : \%.c++\n" ;
 print MAKEFILE "\t\$(PRINT_COMPILE)\n\n" ;
-print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) -I\${<D} -I\${<D}/../include -MMD -MP -c \$< -o \$\@\n\n" ;
+print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\${<D} -I\${<D}/../include -MMD -MP -c \$< -o \$\@\n\n" ;
 
 print MAKEFILE "\${MODEL_clex_SRC} : \$(CURDIR)/build\%.clex : \%.l\n" ;
 print MAKEFILE "\t\$(LEX) -o\$\@ \$<\n\n" ;
@@ -332,7 +332,7 @@ print MAKEFILE "\t\$(YACC) -o\$\@ \$<\n\n" ;
 
 print MAKEFILE "\${MODEL_y_OBJ} : \$(CURDIR)/build\%.o : \%.y.c\n" ;
 print MAKEFILE "\t\$(PRINT_COMPILE)\n\n" ;
-print MAKEFILE "\t\$(ECHO_CMD)cd \$(<D) ; \$(TRICK_CC) \$(TRICK_CXXFLAGS) -MMD -MP -c \${<F} -o \$\@\n\n" ;
+print MAKEFILE "\t\$(ECHO_CMD)cd \$(<D) ; \$(TRICK_CC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c \${<F} -o \$\@\n\n" ;
 
 # Include all of the dependency files for each object code file
 print MAKEFILE "-include \$(MODEL_c_OBJ:.o=.d)\n" ;
@@ -364,8 +364,8 @@ foreach ( @all_read_only_libs ) {
 }
 
 print MAKEFILE "\n\n
-test: TRICK_CXXFLAGS += -DTRICK_UNIT_TEST
-test: TRICK_CFLAGS += -DTRICK_UNIT_TEST
+test: TRICK_SYSTEM_CXXFLAGS += -DTRICK_UNIT_TEST
+test: TRICK_SYSTEM_CFLAGS += -DTRICK_UNIT_TEST
 
 all: S_main
 
@@ -392,13 +392,13 @@ S_main : \$(S_MAIN) build/S_define.deps S_sie.resource
 
 \$(CURDIR)/build/S_source.o: \$(CURDIR)/build/S_source.cpp
 \t\$(PRINT_COMPILE)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) -MMD -MP -c \$\< -o \$\@
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c \$\< -o \$\@
 
 -include build/S_source.d
 
 build/S_define.deps:
 \t\$(PRINT_S_DEF_DEPS)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_SFLAGS) -M -MT Makefile_sim -MF build/S_define.deps -x c++ S_define
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_SFLAGS) \$(TRICK_SYSTEM_SFLAGS) -M -MT Makefile_sim -MF build/S_define.deps -x c++ S_define
 
 \$(CURDIR)/build/S_source.cpp S_default.dat: S_define
 \t\$(PERL) \${TRICK_HOME}/bin/trick-CP -s -d
@@ -410,7 +410,7 @@ S_sie.resource: \$(S_MAIN)
 \t\$(ECHO_CMD)\$(S_MAIN) sie
 
 S_define_exp:
-\t\$(TRICK_CC) -E -C -xc++ \${TRICK_SFLAGS} S_define > \$@\n\n" ;
+\t\$(TRICK_CC) -E -C -xc++ \${TRICK_SFLAGS} \$(TRICK_SYSTEM_SFLAGS) S_define > \$@\n\n" ;
 
 # write out the override files we have read in
 foreach $k ( sort keys %files_by_dir ) {

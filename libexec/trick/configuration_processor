@@ -58,7 +58,7 @@ print OUTFILE "Output for $0 version $version-$thread at " . localtime() . "\n\n
 
 # if no python is specified, turn off the python InputProcessor sim_object in S_define.
 if ( $sim{args}{p} == 0 ) {
-    $ENV{TRICK_SFLAGS} .= " -DTRICK_NO_INPUTPROCESSOR" ;
+    $ENV{TRICK_SYSTEM_SFLAGS} .= " -DTRICK_NO_INPUTPROCESSOR" ;
 }
 
 #--------------------------------------------------------------

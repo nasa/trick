@@ -178,9 +178,9 @@ sub parse_s_define ($) {
     my @preprocess_output;
 
     # Get Include Paths From $TRICK_CFLAGS
-    @{$$sim_ref{inc_paths}} = $ENV{"TRICK_CFLAGS"} =~ /-I\s*(\S+)/g ;
+    @{$$sim_ref{inc_paths}} = "$ENV{TRICK_CFLAGS} $ENV{TRICK_SYSTEM_CFLAGS}" =~ /-I\s*(\S+)/g ;
 
-    push @{$$sim_ref{inc_paths}} , ("$ENV{\"TRICK_HOME\"}/trick_source" , "../include") ;
+    push @{$$sim_ref{inc_paths}} , ("$ENV{TRICK_HOME}/trick_source" , "../include") ;
     my @valid_inc_paths ;
     foreach (@{$$sim_ref{inc_paths}}) {
 
@@ -209,8 +209,8 @@ sub parse_s_define ($) {
     if (-e $s_define_file) {
         my $cmd;
 
-        $cmd = "$CC -C -E -xc $ENV{TRICK_SFLAGS} $s_define_file";
-        #print "$cmd\n" ;
+        $cmd = "$CC -C -E -xc $ENV{TRICK_SFLAGS} $ENV{TRICK_SYSTEM_SFLAGS} $s_define_file";
+        print "$cmd\n" ;
 
         @preprocess_output = `$cmd`;
 

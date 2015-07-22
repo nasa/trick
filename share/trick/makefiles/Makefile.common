@@ -41,6 +41,9 @@ export TRICK_GTE_EXT
 export TRICK_HOST_CPU := $(shell export TRICK_CC=$(TRICK_CC) && $(TRICK_HOME)/bin/trick-gte TRICK_HOST_CPU)
 export TRICK_EXEC_LINK_LIBS = ${PTHREAD_LIBS} $(PYTHON_LIB) $(PLATFORM_LIBS) -lm -ldl -lz
 export TRICK_LIBS = ${RPATH} -L${TRICK_LIB_DIR} -ltrick -ltrick_pyip -ltrick_comm -ltrick_math -ltrick_units -ltrick_mm
+export TRICK_SYSTEM_CFLAGS
+export TRICK_SYSTEM_CXXFLAGS
+export TRICK_SYSTEM_SFLAGS
 
 IO_SRC_DIR     := io_src/
 OBJ_DIR        := object_${TRICK_HOST_CPU}
@@ -65,33 +68,33 @@ ifeq ($(MAKELEVEL),0)
 
 export TRICK_INCLUDES := -I${TRICK_HOME}/trick_source -I${TRICK_HOME}/include -I${TRICK_HOME}/include/trick/compat
 export TRICK_VERSIONS := -DTRICK_VER=$(TRICK_MAJOR) -DTRICK_MINOR=$(TRICK_MINOR)
-TRICK_CFLAGS += $(TRICK_INCLUDES) $(TRICK_VERSIONS) -fpic
+TRICK_SYSTEM_CFLAGS = $(TRICK_INCLUDES) $(TRICK_VERSIONS) -fpic
 ifdef TRICK_CXXFLAGS
-    TRICK_CXXFLAGS += $(TRICK_INCLUDES) $(TRICK_VERSIONS) -fpic
+    TRICK_SYSTEM_CXXFLAGS += $(TRICK_INCLUDES) $(TRICK_VERSIONS) -fpic
 else
-    TRICK_CXXFLAGS := ${TRICK_CFLAGS}
+    TRICK_SYSTEM_CXXFLAGS := ${TRICK_CFLAGS}
 endif
-TRICK_SFLAGS += -I${TRICK_HOME}/share/trick $(TRICK_INCLUDES) $(TRICK_VERSIONS)
+TRICK_SYSTEM_SFLAGS += -I${TRICK_HOME}/share/trick $(TRICK_INCLUDES) $(TRICK_VERSIONS)
 
 # append additional c and cxx flags defined in config_*.mk files.
-TRICK_CFLAGS += $(TRICK_ADDITIONAL_CFLAGS)
-TRICK_CXXFLAGS += $(TRICK_ADDITIONAL_CXXFLAGS)
+TRICK_SYSTEM_CFLAGS += $(TRICK_ADDITIONAL_CFLAGS)
+TRICK_SYSTEM_CXXFLAGS += $(TRICK_ADDITIONAL_CXXFLAGS)
 
 # -fexceptions is included to propogate execptions through C code.
-TRICK_CFLAGS += -fexceptions
+TRICK_SYSTEM_CFLAGS += -fexceptions
 
 HAVE_ZEROCONF ?= 0
 ifeq ($(HAVE_ZEROCONF),1)
-TRICK_CFLAGS += -DHAVE_ZEROCONF
-TRICK_CXXFLAGS += -DHAVE_ZEROCONF
+TRICK_SYSTEM_CFLAGS += -DHAVE_ZEROCONF
+TRICK_SYSTEM_CXXFLAGS += -DHAVE_ZEROCONF
 endif
 
 export USE_ER7_UTILS_INTEGRATORS := 0
 ifneq ("$(wildcard $(TRICK_HOME)/trick_source/er7_utils)","")  # if the er7_utils directory exists
   ER7_UTILS_HOME := $(TRICK_HOME)/trick_source/er7_utils
   USE_ER7_UTILS_INTEGRATORS := 1
-  TRICK_CFLAGS += -DUSE_ER7_UTILS_INTEGRATORS
-  TRICK_CXXFLAGS += -DUSE_ER7_UTILS_INTEGRATORS
+  TRICK_SYSTEM_CFLAGS += -DUSE_ER7_UTILS_INTEGRATORS
+  TRICK_SYSTEM_CXXFLAGS += -DUSE_ER7_UTILS_INTEGRATORS
 endif
 
 endif # MAKELEVEL = 0
@@ -101,16 +104,16 @@ ifeq ($(USE_ER7_UTILS_INTEGRATORS), 1)
 endif
 
 ifeq ($(TRICK_FORCE_32BIT), 1)
- TRICK_CFLAGS += -m32
- TRICK_CXXFLAGS += -m32
+ TRICK_SYSTEM_CFLAGS += -m32
+ TRICK_SYSTEM_CXXFLAGS += -m32
  TRICK_LDFLAGS += -m32
  LD_PARTIAL += -melf_i386
 endif
 
 IS_CC_CLANG = $(shell ${TRICK_CPPC} -xc /dev/null -dM -E | grep -c __clang__)
 ifeq ($(IS_CC_CLANG), 1)
- TRICK_CFLAGS += -fcolor-diagnostics
- TRICK_CXXFLAGS += -fcolor-diagnostics
+ TRICK_SYSTEM_CFLAGS += -fcolor-diagnostics
+ TRICK_SYSTEM_CXXFLAGS += -fcolor-diagnostics
 else
  GCC_MAJOR:=$(shell $(TRICK_CC) -dumpversion | cut -f1 -d.)
  GCC_MINOR:=$(shell $(TRICK_CC) -dumpversion | cut -f2 -d.)
@@ -142,7 +145,9 @@ ifeq ($(HAVE_GSL),1)
 endif
 
 TRICK_INCLUDE = $(shell $(PERL) -e '@inc_paths = "${TRICK_CFLAGS}" =~ /-I\s*(\S+)/g ; foreach $$i (@inc_paths) { print "-I$$i " if (-e $$i)}')
+TRICK_INCLUDE += $(shell $(PERL) -e '@inc_paths = "${TRICK_SYSTEM_CFLAGS}" =~ /-I\s*(\S+)/g ; foreach $$i (@inc_paths) { print "-I$$i " if (-e $$i)}')
 TRICK_DEFINES = $(shell $(PERL) -e '@defines = "${TRICK_CFLAGS}" =~ /-D\s*(\S+)/g ; foreach $$i (@defines) { print "-D$$i "}')
+TRICK_DEFINES += $(shell $(PERL) -e '@defines = "${TRICK_SYSTEM_CFLAGS}" =~ /-D\s*(\S+)/g ; foreach $$i (@defines) { print "-D$$i "}')
 
 DEPFILE = $(PWD)/Makefile_deps
 DEPTEMPFILE = $(PWD)/Makefile_temp_depends

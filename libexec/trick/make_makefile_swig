@@ -206,7 +206,7 @@ SWIG_PY_OBJECTS =" ;
         print MAKEFILE "\t\$(PRINT_SWIG)\n" ;
         print MAKEFILE "\t\$(ECHO_CMD)\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,362,389,401,451 -outdir trick -o $swig_dir/py_${swig_file_only}.cpp \$<\n" ;
         print MAKEFILE "\t\$(PRINT_COMPILE_SWIG)\n" ;
-        print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_IO_CXXFLAGS) \$(SWIG_CFLAGS) -c $swig_dir/py_${swig_file_only}.cpp -o \$@\n\n" ;
+        print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) \$(SWIG_CFLAGS) -c $swig_dir/py_${swig_file_only}.cpp -o \$@\n\n" ;
         print LINK_PY_OBJS "$link_py_obj\n" ;
 
         $ii++ ;
@@ -223,7 +223,7 @@ SWIG_PY_OBJECTS =" ;
     my $wd = abs_path(cwd()) ;
 
     print MAKEFILE "
-\$(SWIG_MODULE_OBJECTS) : TRICK_CXXFLAGS += -Wno-unused-parameter -Wno-redundant-decls
+\$(SWIG_MODULE_OBJECTS) : TRICK_SYSTEM_CXXFLAGS += -Wno-unused-parameter -Wno-redundant-decls
 
 OBJECTS += \$(SWIG_MODULE_OBJECTS)
 \$(S_MAIN): \$(SWIG_MODULE_OBJECTS)
@@ -239,11 +239,11 @@ OBJECTS += \$(SWIG_MODULE_OBJECTS)
 
     print MAKEFILE "$swig_src_dir/py_top.o : $swig_src_dir/py_top.cpp\n" ;
     print MAKEFILE "\t\$(PRINT_COMPILE_SWIG)\n" ;
-    print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(SWIG_CFLAGS) -c \$< -o \$@\n\n" ;
+    print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) \$(SWIG_CFLAGS) -c \$< -o \$@\n\n" ;
 
     print MAKEFILE "$swig_src_dir/init_swig_modules.o : $swig_src_dir/init_swig_modules.cpp\n" ;
     print MAKEFILE "\t\$(PRINT_COMPILE_SWIG)\n" ;
-    print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(SWIG_CFLAGS) -c \$< -o \$@\n\n" ;
+    print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) \$(SWIG_CFLAGS) -c \$< -o \$@\n\n" ;
 
     print MAKEFILE "TRICK_FIXED_PYTHON = \\
  $swig_sim_dir/swig_double.py \\
