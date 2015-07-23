@@ -69,7 +69,7 @@ sub read_files_to_process() {
     close FILE ;
     chomp @files_to_process ;
 
-    open FILE, "build/external_lib_header_files" or die 'could not open build/external_lib_header_files' ;
+    open FILE, "build/ICG_ext_lib" or die 'could not open build/ICG_ext_lib' ;
     @ext_lib_files = <FILE> ;
     close FILE ;
     chomp @ext_lib_files ;
@@ -187,7 +187,6 @@ SWIG_PY_OBJECTS =" ;
             push @{$python_modules{"root"}} , $f ;
 #        }
 
-        my ($continue) = 1 ;
         my $md5_sum = md5_hex($f) ;
         # check if .sm file was accidentally ##included instead of #included
         if ( rindex($swig_f,".sm") != -1 ) {
@@ -226,6 +225,7 @@ SWIG_PY_OBJECTS =" ;
 \$(SWIG_MODULE_OBJECTS) : TRICK_SYSTEM_CXXFLAGS += -Wno-unused-parameter -Wno-redundant-decls
 
 OBJECTS += \$(SWIG_MODULE_OBJECTS)
+LINK_OBJECTS += \$(SWIG_MODULE_OBJECTS)
 \$(S_MAIN): \$(SWIG_MODULE_OBJECTS)
 
 \$(SWIG_MODULE_OBJECTS) : \$(SWIG_PY_OBJECTS) | \$(LIB_DIR)
@@ -273,7 +273,7 @@ OBJECTS += \$(SWIG_MODULE_OBJECTS)
     }
     close SWIGLIB ;
 
-    open S_INSTANCE , "build/S_instances" or return ;
+    open S_INSTANCE , "build/CP_instances" or return ;
     my @instances = <S_INSTANCE> ;
     close S_INSTANCE ;
     open TOPFILE , ">build/top.i" or return ;

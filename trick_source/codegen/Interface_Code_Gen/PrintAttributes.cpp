@@ -463,6 +463,7 @@ void PrintAttributes::printIOMakefile() {
     makefile_io_src << std::endl ;
 
     makefile_io_src << "OBJECTS += $(LIB_DIR)/io_src.o" << std::endl ;
+    makefile_io_src << "LINK_OBJECTS += $(LIB_DIR)/io_src.o" << std::endl ;
     makefile_io_src << "$(S_MAIN) : $(LIB_DIR)/io_src.o" << std::endl ;
     makefile_io_src << std::endl ;
     makefile_io_src << "$(LIB_DIR)/io_src.o : $(IO_OBJ_FILES) | $(LIB_DIR)" << std::endl ;
@@ -504,7 +505,7 @@ void PrintAttributes::printIOMakefile() {
     link_io_objs.close() ;
     ICG_processed.close() ;
 
-    ext_lib.open("build/external_lib_header_files") ;
+    ext_lib.open("build/ICG_ext_lib") ;
     for ( sit = ext_lib_io_files.begin() ; sit != ext_lib_io_files.end() ; sit++ ) {
         ext_lib << (*sit) << std::endl ;
     }
@@ -515,7 +516,7 @@ void PrintAttributes::printHeaderLibraryDependencies() {
     std::ofstream header_lib_deps ;
 
     std::cout << "[34mSearching header files for Library Dependencies[0m" << std::endl ;
-    header_lib_deps.open("build/header_lib_deps_files") ;
+    header_lib_deps.open("build/ICG_lib_deps") ;
     std::map< std::string , std::string >::iterator mit ;
     for ( mit = all_io_files.begin() ; mit != all_io_files.end() ; mit++ ) {
         size_t found ;
@@ -564,7 +565,7 @@ void PrintAttributes::printHeaderLibraryDependencies() {
 void PrintAttributes::printICGNoFiles() {
     if ( ! sim_services_flag ) {
         std::vector< std::string >::iterator it ;
-        std::ofstream icg_no_outfile("build/icg_no_found") ;
+        std::ofstream icg_no_outfile("build/ICG_no_found") ;
         for ( it = icg_no_files.begin() ; it != icg_no_files.end() ; it++ ) {
             icg_no_outfile << (*it) << std::endl ;
         }

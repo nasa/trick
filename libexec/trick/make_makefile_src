@@ -51,7 +51,7 @@ for my $f ( @ARGV ) {
     }
 }
 
-open FILE, "build/header_lib_deps_files" or die 'cannot open build/header_lib_deps_files' ;
+open FILE, "build/ICG_lib_deps" or die 'cannot open build/header_lib_deps' ;
 my (@top_lib_dep_file_names) = <FILE> ;
 close FILE ;
 chomp @top_lib_dep_file_names ;
@@ -227,7 +227,7 @@ else
 PRINT_COMPILE = \@echo \"[34mCompiling   [0m \$(subst \$(CURDIR)/build,build,\$<)\"
 PRINT_INC_LINK = \@echo \"[34mPartial link[0m \$(subst \$(CURDIR)/build,build,\${<D})\"
 PRINT_EXE_LINK = \@echo \"[34mFinal link  [0m \$(subst \$(CURDIR)/,,\$(S_MAIN))\"
-PRINT_S_DEF_DEPS = \@echo \"[34mGet depends [0m for S_define\"
+PRINT_S_DEF_DEPS = \@echo \"[34mGet depends [0m S_define\"
 ECHO_CMD = \@
 ifeq (\$(MAKECMDGOALS), all)
 \$(info [34mPerforming build with these compilation flags[0m)
@@ -380,7 +380,7 @@ S_main : \$(S_MAIN) build/S_define.deps S_sie.resource
 \$(S_MAIN): \${TRICK_STATIC_LIB} \$(OBJECTS) \$(S_OBJECT_FILES)
 \t\$(PRINT_EXE_LINK)
 \t\$(ECHO_CMD)\$(TRICK_LD) \$(TRICK_LDFLAGS) -o \$@ \\
-\t\t\$(S_OBJECT_FILES) \$(OBJECTS) \\
+\t\t\$(S_OBJECT_FILES) \$(LD_FILELIST)build/link_objs \$(LINK_OBJECTS)\\
 \t\t\${TRICK_USER_LINK_LIBS} \${READ_ONLY_LIBS} \\
 \t\t\$(LD_WHOLE_ARCHIVE) \${TRICK_LIBS} \$(LD_NO_WHOLE_ARCHIVE)\\
 \t\t\${TRICK_EXEC_LINK_LIBS}
@@ -424,6 +424,22 @@ print MAKEFILE "\n-include build/Makefile_io_src\n" ;
 print MAKEFILE "include build/Makefile_swig\n" ;
 print MAKEFILE "-include S_overrides.mk\n" ;
 close MAKEFILE ;
+
+open LINKOBJS, ">build/link_objs" or die "Could not open build/link_objs" ;
+foreach $k ( sort keys %files_by_dir ) {
+    foreach my $ext ( qw{ c C cc cxx cpp c++ l y} ) {
+        my $print_ext ;
+        if ( $ext eq "c++" ) {
+            $print_ext = "CPLUSPLUS" ;
+        } else {
+            $print_ext = $ext ;
+        }
+        if ( scalar @{$files_by_dir{$k}{$ext}} ne 0 ) {
+            print LINKOBJS "build/lib/o_${print_ext}_$files_by_dir{$k}{dir_num}.o\n" ;
+        }
+    }
+}
+close LINKOBJS ;
 
 # write out all of files as dependencies to Makefile_src
 open MAKEFILEDEPS, ">build/Makefile_src_deps" or die "Could not open build/Makefile_src_deps" ;
