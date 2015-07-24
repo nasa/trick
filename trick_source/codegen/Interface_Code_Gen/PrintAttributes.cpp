@@ -512,56 +512,6 @@ void PrintAttributes::printIOMakefile() {
     ext_lib.close() ;
 }
 
-void PrintAttributes::printHeaderLibraryDependencies() {
-    std::ofstream header_lib_deps ;
-
-    std::cout << "[34mSearching header files for Library Dependencies[0m" << std::endl ;
-    header_lib_deps.open("build/ICG_lib_deps") ;
-    std::map< std::string , std::string >::iterator mit ;
-    for ( mit = all_io_files.begin() ; mit != all_io_files.end() ; mit++ ) {
-        size_t found ;
-        found = (*mit).first.find_last_of(".") ;
-        std::string lib_dep_file = std::string("build") + (*mit).first.substr(0,found) + ".lib_deps" ;
-        header_lib_deps << lib_dep_file << std::endl ;
-        if ( out_of_date_io_files.find((*mit).first) != out_of_date_io_files.end()) {
-            std::ofstream file_list ;
-            file_list.open(lib_dep_file) ;
-            std::vector< std::string > lib_deps = cs.getLibraryDependencies((*mit).first) ;
-            std::vector< std::string >::iterator vit ;
-            for ( vit = lib_deps.begin() ; vit != lib_deps.end() ; vit++ ) {
-                file_list << *vit << std::endl ;
-            }
-            file_list.close() ;
-        }
-    }
-
-    std::set< std::string >::iterator sit ;
-    for ( sit = empty_header_files.begin() ; sit != empty_header_files.end() ; sit++ ) {
-        size_t found ;
-        found = (*sit).find_last_of(".") ;
-        std::string lib_dep_file = std::string("build") + (*sit).substr(0,found) + ".lib_deps" ;
-
-        char * tmp_str = strdup(lib_dep_file.c_str()) ;
-        char * dir_name = dirname(tmp_str) ;
-        _mkdir(dir_name) ;
-        free(tmp_str) ;
-
-        std::vector< std::string > lib_deps = cs.getLibraryDependencies((*sit)) ;
-        std::vector< std::string >::iterator vit ;
-        if ( lib_deps.size() > 0 ) {
-            header_lib_deps << lib_dep_file << std::endl ;
-            std::ofstream file_list ;
-            file_list.open(lib_dep_file) ;
-            for ( vit = lib_deps.begin() ; vit != lib_deps.end() ; vit++ ) {
-                file_list << *vit << std::endl ;
-            }
-            file_list.close() ;
-        }
-    }
-
-    header_lib_deps.close() ;
-}
-
 void PrintAttributes::printICGNoFiles() {
     if ( ! sim_services_flag ) {
         std::vector< std::string >::iterator it ;

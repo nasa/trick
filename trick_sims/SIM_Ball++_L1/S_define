@@ -32,7 +32,7 @@ class ballSimObject : public Trick::SimObject {
             ("integration") trick_ret = obj.state_integ() ;
 
             {BLUE} (10.0, "scheduled") trick_ret = obj.state_print() ;
-            {BLUE} (1.0, "freeze_scheduled") trick_ret = obj.state_print() ;
+            {BLUE} (10.0, "freeze_scheduled") trick_ret = obj.state_print() ;
 
             ("shutdown") obj.shutdown() ;
         }

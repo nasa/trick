@@ -210,7 +210,7 @@ sub parse_s_define ($) {
         my $cmd;
 
         $cmd = "$CC -C -E -xc $ENV{TRICK_SFLAGS} $ENV{TRICK_SYSTEM_SFLAGS} $s_define_file";
-        print "$cmd\n" ;
+        #print "$cmd\n" ;
 
         @preprocess_output = `$cmd`;
 

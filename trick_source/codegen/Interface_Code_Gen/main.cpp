@@ -191,7 +191,6 @@ int main( int argc , char * argv[] ) {
 
     if ( ! sim_services_flag ) {
         pa.printIOMakefile() ;
-        pa.printHeaderLibraryDependencies() ;
     }
 
     // Close the map files

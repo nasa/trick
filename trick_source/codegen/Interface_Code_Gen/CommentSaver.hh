@@ -77,12 +77,6 @@ class CommentSaver : public clang::CommentHandler {
          */
         std::set< std::string > getIgnoreTypes( std::string file_name ) ;
 
-        /** Returns a vector of library dependencies from the Trick comment
-            @param file_name = File name to search
-            @return vector of library dependency strings
-         */
-        std::vector< std::string > getLibraryDependencies( std::string file_name ) ;
-
     private:
         /** The compiler's source manager.  Holds file/line info for everything. */
         clang::CompilerInstance & ci ;
