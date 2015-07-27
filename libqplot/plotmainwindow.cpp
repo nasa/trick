@@ -315,7 +315,8 @@ void PlotMainWindow::_monteInputsHeaderViewClicked(int section)
                 }
                 QModelIndex runIdx = _plotModel->index(r,0,curveIdx);
                 int runId = _plotModel->data(runIdx).toInt();
-                QModelIndex colorIdx = _plotModel->curveLineColorIdx(curveIdx);
+                QModelIndex colorIdx = _plotModel->getIndex(curveIdx,
+                                                    "CurveColor", "Curve");
                 QStandardItem* item = _plotModel->itemFromIndex(colorIdx);
                 item->setData(run2color.value(runId));
             }

@@ -48,7 +48,6 @@ public:
 
     QModelIndex curvesIdx(const QModelIndex& plotIdx) const ;
     QModelIndexList curveIdxs(const QModelIndex& curvesIdx) const ;
-    QModelIndex curveLineColorIdx(const QModelIndex& curveIdx) const ;
     bool isCurveLineColorIdx(const QModelIndex& idx) const;
 
     QModelIndex yIdx(const QModelIndex& curveIdx) const ;

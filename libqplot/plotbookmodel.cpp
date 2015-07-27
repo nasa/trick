@@ -211,11 +211,6 @@ QModelIndexList PlotBookModel::curveIdxs(const QModelIndex &curvesIdx) const
     return idxs;
 }
 
-QModelIndex PlotBookModel::curveLineColorIdx(const QModelIndex &curveIdx) const
-{
-    return getIndex(curveIdx, "CurveColor", "Curve");
-}
-
 QModelIndex PlotBookModel::sessionStartIdx() const
 {
     QModelIndex rootIdx;
