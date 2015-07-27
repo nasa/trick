@@ -115,7 +115,10 @@ void DPTreeWidget::_dpTreeViewClicked(const QModelIndex &idx)
         if ( _isDP(fp) ) {
             bool isCreated = false;
             foreach (QModelIndex pageIdx, _plotModel->pageIdxs() ) {
-                QString pageName = _plotModel->data(pageIdx).toString();
+                QModelIndex pageNameIdx = _plotModel->getIndex(pageIdx,
+                                                               "PageName",
+                                                               "Page");
+                QString pageName = _plotModel->data(pageNameIdx).toString();
                 if ( pageName == fp ) {
                     _plotSelectModel->setCurrentIndex(pageIdx,
                                                   QItemSelectionModel::Select);
@@ -138,217 +141,98 @@ void DPTreeWidget::_dpTreeViewCurrentChanged(const QModelIndex &currIdx,
 }
 
 //
-// The PlotBookView's model is _plotModel.
-// The _plotModel tree has to mesh (hard-coded basically) with
-// PlotBookView::rowInserted()'s tree.
-//
-// For instance, in PlotBookView::rowInserted() there is a line:
-//        } else if ( ! g2pidx.isValid() ) {
-//            if ( idx.row() == 0 ) {
-//            // X axis label
-//
-// which corresponds to _createDPPages (note it's the 0th row below plot):
-//
-//        plotItem->appendRow(xAxisLabelItem);
+// The DP tree that this creates must be coordinated with
+//       * plotbookmodel
+//       * plotbookview (rowInserted(), dataChanged() etc.
+//       * vars widget page creator
 //
 void DPTreeWidget::_createDPPages(const QString& dpfile)
 {
-    QModelIndex pagesIndex = _plotModel->pagesIdx();
-    QStandardItem *pagesItem = _plotModel->itemFromIndex(pagesIndex);
     QCursor currCursor = this->cursor();
     this->setCursor(QCursor(Qt::WaitCursor));
 
     DPProduct dp(dpfile);
     int numRuns = _monteModel->rowCount();
     int pageNum = 0 ;
+
+    // Pages
+    QStandardItem *pagesItem = _plotModel->pagesItem();
+
     foreach (DPPage* page, dp.pages() ) {
+
+        // Page
+        QStandardItem *pageItem = _addChild(pagesItem,"Page");
+
+        // PageName
         QString pageName = dpfile;
         if ( pageNum > 0 ) {
             pageName += QString("_%0").arg(pageNum);
         }
-        QStandardItem *pageItem = new QStandardItem(pageName);
-        pagesItem->appendRow(pageItem);
+        _addChild(pageItem, "PageName", pageName);
 
-        QStandardItem *pageTitleItem = new QStandardItem(page->title());
-        pageItem->appendRow(pageTitleItem);
+        _addChild(pageItem, "PageTitle", page->title());
+        _addChild(pageItem, "PageStartTime", page->startTime());
+        _addChild(pageItem, "PageStopTime", page->stopTime());
+        _addChild(pageItem, "PageBackgroundColor", page->backgroundColor());
+        _addChild(pageItem, "PageForegroundColor", page->foregroundColor());
 
-        double pageStartTime = page->startTime();
-        QString pageStartTimeStr = QString("%1").arg(pageStartTime);
-        QStandardItem *pageStartTimeItem = new QStandardItem(pageStartTimeStr);
-        pageStartTimeItem->setData(pageStartTime);
-        pageItem->appendRow(pageStartTimeItem);
-
-        double pageStopTime = page->stopTime();
-        QString pageStopTimeStr = QString("%1").arg(pageStopTime);
-        QStandardItem *pageStopTimeItem = new QStandardItem(pageStopTimeStr);
-        pageStopTimeItem->setData(pageStopTime);
-        pageItem->appendRow(pageStopTimeItem);
-
-        QString bgColor = page->backgroundColor();
-        QStandardItem *pageBGColor = new QStandardItem(bgColor);
-        pageBGColor->setData(bgColor);
-        pageItem->appendRow(pageBGColor);
-
-        QString fgColor = page->foregroundColor();
-        QStandardItem *pageFGColor = new QStandardItem(fgColor);
-        pageFGColor->setData(fgColor);
-        pageItem->appendRow(pageFGColor);
+        // Plots
+        QStandardItem *plotsItem = _addChild(pageItem, "Plots");
 
         foreach (DPPlot* plot, page->plots() ) {
 
-            QString plotTitle = _descrPlotTitle(plot);
-            QStandardItem *plotItem = new QStandardItem(plotTitle);
-            pageItem->appendRow(plotItem);
+            // Plot
+            QStandardItem *plotItem = _addChild(plotsItem, "Plot");
 
-            QString xAxisLabel = plot->xAxisLabel();
-            QStandardItem *xAxisLabelItem = new QStandardItem(xAxisLabel);
-            plotItem->appendRow(xAxisLabelItem);
+            // Some plot children
+            _addChild(plotItem, "PlotName", _descrPlotTitle(plot));
+            _addChild(plotItem, "PlotTitle",      plot->title());
+            _addChild(plotItem, "PlotXAxisLabel", plot->xAxisLabel());
+            _addChild(plotItem, "PlotYAxisLabel", plot->yAxisLabel());
+            _addChild(plotItem, "PlotXMinRange",  plot->xMinRange());
+            _addChild(plotItem, "PlotXMaxRange",  plot->xMaxRange());
+            _addChild(plotItem, "PlotYMinRange",  plot->yMinRange());
+            _addChild(plotItem, "PlotYMaxRange",  plot->yMaxRange());
+            _addChild(plotItem, "PlotStartTime",  plot->startTime());
+            _addChild(plotItem, "PlotStopTime",   plot->stopTime());
+            _addChild(plotItem, "PlotGridOnOff",  plot->grid());
+            _addChild(plotItem, "PlotGridColor",       plot->gridColor());
+            _addChild(plotItem, "PlotBackgroundColor", plot->backgroundColor());
+            _addChild(plotItem, "PlotForegroundColor", plot->foregroundColor());
+            _addChild(plotItem, "PlotFont",            plot->font());
 
-            QString yAxisLabel = plot->yAxisLabel();
-            QStandardItem *yAxisLabelItem = new QStandardItem(yAxisLabel);
-            plotItem->appendRow(yAxisLabelItem);
-
-            QStandardItem *curvesItem = new QStandardItem("Curves");
-            plotItem->appendRow(curvesItem);
-
-            QString title = plot->title();
-            QStandardItem *titleItem = new QStandardItem(title);
-            plotItem->appendRow(titleItem);
-
-            double xMin = plot->xMinRange();
-            QString xMinStr = QString("%1").arg(xMin);
-            QStandardItem *xMinItem = new QStandardItem(xMinStr);
-            xMinItem->setData(xMin);
-            plotItem->appendRow(xMinItem);
-
-            double xMax = plot->xMaxRange();
-            QString xMaxStr = QString("%1").arg(xMax);
-            QStandardItem *xMaxItem = new QStandardItem(xMaxStr);
-            xMaxItem->setData(xMax);
-            plotItem->appendRow(xMaxItem);
-
-            double yMin = plot->yMinRange();
-            QString yMinStr = QString("%1").arg(yMin);
-            QStandardItem *yMinItem = new QStandardItem(yMinStr);
-            yMinItem->setData(yMin);
-            plotItem->appendRow(yMinItem);
-
-            double yMax = plot->yMaxRange();
-            QString yMaxStr = QString("%1").arg(yMax);
-            QStandardItem *yMaxItem = new QStandardItem(yMaxStr);
-            yMaxItem->setData(yMax);
-            plotItem->appendRow(yMaxItem);
-
-            double startTime = plot->startTime();
-            QString startTimeStr = QString("%1").arg(startTime);
-            QStandardItem *plotStartTime = new QStandardItem(startTimeStr);
-            plotStartTime->setData(startTime);
-            plotItem->appendRow(plotStartTime);
-
-            double stopTime = plot->stopTime();
-            QString stopTimeStr = QString("%1").arg(stopTime);
-            QStandardItem *plotStopTime = new QStandardItem(stopTimeStr);
-            plotStopTime->setData(stopTime);
-            plotItem->appendRow(plotStopTime);
-
-            bool isGrid = plot->grid();
-            QString isGridStr;
-            if ( isGrid ) {
-                isGridStr = "yes";
-            } else {
-                isGridStr = "no";
-            }
-            QStandardItem *plotGrid = new QStandardItem(isGridStr);
-            plotGrid->setData(isGrid);
-            plotItem->appendRow(plotGrid);
-
-            QString gridColor = plot->gridColor();
-            QStandardItem *plotGridColor = new QStandardItem(gridColor);
-            plotGridColor->setData(gridColor);
-            plotItem->appendRow(plotGridColor);
-
-            QString bgColor = plot->backgroundColor();
-            QStandardItem *plotBGColor = new QStandardItem(bgColor);
-            plotBGColor->setData(bgColor);
-            plotItem->appendRow(plotBGColor);
-
-            QString fgColor = plot->foregroundColor();
-            QStandardItem *plotFGColor = new QStandardItem(fgColor);
-            plotFGColor->setData(fgColor);
-            plotItem->appendRow(plotFGColor);
-
-            QString fontStr = plot->font();
-            QStandardItem *plotFont = new QStandardItem(fontStr);
-            plotFont->setData(fontStr);
-            plotItem->appendRow(plotFont);
+            // Curves
+            QStandardItem *curvesItem = _addChild(plotItem,"Curves");
 
             int curveId = -1;
             foreach (DPCurve* dpcurve, plot->curves() ) {
                 ++curveId;
-                for ( int run = 0; run < numRuns; ++run) {
-                    QString curveTitle = QString("Curve_%0_%1").
-                                                   arg(curveId).arg(run);
-                    QStandardItem *curveItem = new QStandardItem(curveTitle);
-                    curvesItem->appendRow(curveItem);
+                for ( int runId = 0; runId < numRuns; ++runId) {
 
-                    QString tName = dpcurve->t()->name();
-                    QString xName = dpcurve->x()->name();
-                    QString yName = dpcurve->y()->name();
-                    QString tUnit = dpcurve->t()->unit();
-                    QString xUnit = dpcurve->x()->unit();
-                    QString yUnit = dpcurve->y()->unit();
-                    QString color = dpcurve->lineColor();
-                    double xsf = dpcurve->x()->scaleFactor();
-                    QString xsfStr = QString("%1").arg(xsf);
-                    double ysf = dpcurve->y()->scaleFactor();
-                    QString ysfStr = QString("%1").arg(ysf);
-                    double xbias = dpcurve->x()->bias();
-                    QString xbiasStr = QString("%1").arg(xbias);
-                    double ybias = dpcurve->y()->bias();
-                    QString ybiasStr = QString("%1").arg(ybias);
-                    QString symbolStyle = dpcurve->y()->symbolStyle();
-                    QString symbolSize = dpcurve->y()->symbolSize();
-                    QString lineStyle = dpcurve->y()->lineStyle();
-                    QString yLabel = dpcurve->y()->label();
+                    // Curve
+                    QStandardItem *curveItem = _addChild(curvesItem,"Curve");
 
-                    QStandardItem *tItem       = new QStandardItem(tName);
-                    QStandardItem *xItem       = new QStandardItem(xName);
-                    QStandardItem *yItem       = new QStandardItem(yName);
-                    QStandardItem *tUnitItem   = new QStandardItem(tUnit);
-                    QStandardItem *xUnitItem   = new QStandardItem(xUnit);
-                    QStandardItem *yUnitItem   = new QStandardItem(yUnit);
-                    QStandardItem *runIDItem   = new QStandardItem(
-                                                     QString("%0").arg(run));
-                    QStandardItem *curveDataItem = new QStandardItem("");
-                    QStandardItem *colorItem   = new QStandardItem(color);
-                    QStandardItem *xsfItem   = new QStandardItem(xsfStr);
-                    QStandardItem *ysfItem   = new QStandardItem(ysfStr);
-                    QStandardItem *xbiasItem   = new QStandardItem(xbiasStr);
-                    QStandardItem *ybiasItem   = new QStandardItem(ybiasStr);
-                    QStandardItem *symbolItem  = new QStandardItem(symbolStyle);
-                    QStandardItem *symbolSizeItem  =
-                                               new QStandardItem(symbolSize);
-                    QStandardItem *lineStyleItem  =
-                                               new QStandardItem(lineStyle);
-                    QStandardItem *yLabelItem = new QStandardItem(yLabel);
-
-                    curveItem->appendRow(tItem);
-                    curveItem->appendRow(xItem);
-                    curveItem->appendRow(yItem);
-                    curveItem->appendRow(tUnitItem);
-                    curveItem->appendRow(xUnitItem);
-                    curveItem->appendRow(yUnitItem);
-                    curveItem->appendRow(runIDItem);
-                    curveItem->appendRow(curveDataItem);
-                    curveItem->appendRow(colorItem);
-                    curveItem->appendRow(xsfItem);
-                    curveItem->appendRow(ysfItem);
-                    curveItem->appendRow(xbiasItem);
-                    curveItem->appendRow(ybiasItem);
-                    curveItem->appendRow(symbolItem);
-                    curveItem->appendRow(symbolSizeItem);
-                    curveItem->appendRow(lineStyleItem);
-                    curveItem->appendRow(yLabelItem);
+                    // Curve children
+                    QString curveName = QString("Curve_%0_%1")
+                                        .arg(curveId).arg(runId);
+                    _addChild(curveItem, "CurveName", curveName);
+                    _addChild(curveItem, "CurveTime", dpcurve->t()->name());
+                    _addChild(curveItem, "CurveTimeUnit", dpcurve->t()->unit());
+                    _addChild(curveItem, "CurveXName", dpcurve->x()->name());
+                    _addChild(curveItem, "CurveXUnit", dpcurve->x()->unit());
+                    _addChild(curveItem, "CurveYName", dpcurve->y()->name());
+                    _addChild(curveItem, "CurveYUnit", dpcurve->y()->unit());
+                    _addChild(curveItem, "CurveRunID", runId);
+                    _addChild(curveItem, "CurveData","");
+                    _addChild(curveItem, "CurveXScale", dpcurve->x()->scaleFactor());
+                    _addChild(curveItem, "CurveXBias", dpcurve->x()->bias());
+                    _addChild(curveItem, "CurveYScale", dpcurve->y()->scaleFactor());
+                    _addChild(curveItem, "CurveYBias", dpcurve->y()->bias());
+                    _addChild(curveItem, "CurveColor", dpcurve->lineColor());
+                    _addChild(curveItem, "CurveSymbolStyle", dpcurve->y()->symbolStyle());
+                    _addChild(curveItem, "CurveSymbolSize", dpcurve->y()->symbolSize());
+                    _addChild(curveItem, "CurveLineStyle", dpcurve->y()->lineStyle());
+                    _addChild(curveItem, "CurveYLabel", dpcurve->y()->label());
                 }
             }
         }
@@ -356,6 +240,13 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
     }
 
     this->setCursor(currCursor);
+}
+
+QStandardItem *DPTreeWidget::_addChild(QStandardItem *parentItem,
+                             const QString &childTitle,
+                             const QVariant& childValue)
+{
+    return(_plotModel->addChild(parentItem,childTitle,childValue));
 }
 
 bool DPTreeWidget::_isDP(const QString &fp)

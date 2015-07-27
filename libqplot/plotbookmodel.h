@@ -18,77 +18,44 @@ public:
     virtual QVariant data(const QModelIndex &idx,
                           int role = Qt::DisplayRole) const;
 
+    virtual bool setData(const QModelIndex &index,
+                         const QVariant &value, int role = Qt::EditRole);
+
+    QStandardItem* addChild(QStandardItem* parentItem,
+                            const QString& childTitle,
+                            const QVariant &childValue=QVariant());
+
+    QModelIndex getIndex(const QModelIndex& pidx,
+                        const QString& childItemText,
+                        const QString &expectedParentItemText=QString()) const;
+
     QModelIndex sessionStartIdx() const ;
     QModelIndex sessionStopIdx() const ;
 
     bool isPagesIdx(const QModelIndex& idx) const ;
     QModelIndex pagesIdx() const ;
+    QStandardItem* pagesItem() const ;
 
     bool isPageIdx(const QModelIndex& idx) const ;
     QModelIndex pageIdx(const QModelIndex& idx) const ;
     QModelIndexList pageIdxs() const ;
 
+    QStandardItem* plotsItem(QStandardItem* pageItem) const ;
+
     bool isPlotIdx(const QModelIndex& idx) const ;
     QModelIndex plotIdx(const QModelIndex& idx) const ;
     QModelIndexList plotIdxs(const QModelIndex& pageIdx) const ;
 
+    bool isCurvesIdx(const QModelIndex& idx) const ;
     bool isCurveIdx(const QModelIndex& idx) const ;
     QModelIndex curvesIdx(const QModelIndex& plotIdx) const ;
     QModelIndexList curveIdxs(const QModelIndex& curvesIdx) const ;
     QModelIndex curveLineColorIdx(const QModelIndex& curveIdx) const ;
     bool isCurveLineColorIdx(const QModelIndex& idx) const;
 
+    QModelIndex yIdx(const QModelIndex& curveIdx) const ;
+
     QModelIndex pageBGColorIndex(const QModelIndex& pageIdx) const;
-
-    enum IdxEnum
-    {
-        Invalid,
-        SessionStartTime,
-        SessionStopTime,
-        Pages,
-            Page,
-                PageTitle,
-                PageStartTime,
-                PageStopTime,
-                PageBGColor,
-                PageFGColor,
-                Plot,
-                        PlotXAxisLabel,
-                        PlotYAxisLabel,
-                        Curves,
-                            Curve,
-                                CurveTime,
-                                CurveX,
-                                CurveY,
-                                CurveTimeUnit,
-                                CurveXUnit,
-                                CurveYUnit,
-                                CurveRunID,
-                                CurveData,
-                                CurveLineColor,
-                                CurveXScale,
-                                CurveYScale,
-                                CurveXBias,
-                                CurveYBias,
-                                CurveSymbolStyle,
-                                CurveSymbolSize,
-                                CurveLineStyle,
-                                CurveYLabel,
-                        PlotTitle,
-                        PlotXMin,
-                        PlotXMax,
-                        PlotYMin,
-                        PlotYMax,
-                        PlotStartTime,
-                        PlotStopTime,
-                        PlotGrid,
-                        PlotGridColor,
-                        PlotBGColor,
-                        PlotFGColor,
-                        PlotFont
-    };
-
-    IdxEnum indexEnum(const QModelIndex& idx) const;
 
 signals:
     
@@ -97,7 +64,10 @@ public slots:
 private:
     MonteModel* _monteModel;
     void _initModel();
-    
+
+    bool _isIndex(const QModelIndex& idx,
+                  const QString& itemText) const;
+
 };
 
 #endif // PLOTBOOKMODEL_H

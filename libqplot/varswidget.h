@@ -50,11 +50,14 @@ private:
 
     QModelIndex _findSinglePlotPageWithCurve(const QString& curveName);
     QStandardItem* _createPageItem();
-    void _addPlotOfVarToPageItem(QStandardItem* pageItem,
+    QStandardItem* _addChild(QStandardItem* parentItem,
+                   const QString& childTitle,
+                   const QVariant &childValue=QVariant());
+    void _addPlotToPage(QStandardItem* pageItem,
                                  const QModelIndex &varIdx);
     void _selectCurrentRunOnPageItem(QStandardItem* pageItem);
     int _currSelectedRun();
-    bool _isCurveIdx(const QModelIndex &idx) const;
+
 
 private slots:
      void _varsSearchBoxTextChanged(const QString& rx);

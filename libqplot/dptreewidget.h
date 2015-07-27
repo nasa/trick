@@ -47,6 +47,9 @@ private:
 
     void _setupModel();
     void _createDPPages(const QString& dpfile);
+    QStandardItem* _addChild(QStandardItem* parentItem,
+                   const QString& childTitle,
+                   const QVariant &childValue=QVariant());
     bool _isDP(const QString& fp);
     QString _descrPlotTitle(DPPlot* plot);
 

@@ -64,7 +64,7 @@ void VarsWidget::_varsSelectModelSelectionChanged(
         if ( ! pageIdx.isValid() ) {
             // No page with single plot of selected var, so create plot of var
             QStandardItem* pageItem = _createPageItem();
-            _addPlotOfVarToPageItem(pageItem,currVarSelection.indexes().at(0));
+            _addPlotToPage(pageItem,currVarSelection.indexes().at(0));
             _selectCurrentRunOnPageItem(pageItem);
         } else {
             _plotSelectModel->setCurrentIndex(pageIdx,
@@ -83,7 +83,7 @@ void VarsWidget::_varsSelectModelSelectionChanged(
                 pageIdx = _plotModel->indexFromItem(pageItem);
                 //_plotBookView->setCurrentPage(pageIdx);
             }
-            _addPlotOfVarToPageItem(pageItem,varIdx);
+            _addPlotToPage(pageItem,varIdx);
             _selectCurrentRunOnPageItem(pageItem);
         }
     }
@@ -104,7 +104,7 @@ QModelIndex VarsWidget::_findSinglePlotPageWithCurve(const QString& curveName)
             QModelIndex curvesIdx = _plotModel->curvesIdx(plotIdx);
             isExists = true;
             foreach ( QModelIndex curveIdx, _plotModel->curveIdxs(curvesIdx) ) {
-                QModelIndex yIdx =  _plotModel->index(2,0,curveIdx);
+                QModelIndex yIdx =  _plotModel->yIdx(curveIdx);
                 QString yName =  _plotModel->data(yIdx).toString();
                 isExists = isExists && (yName == curveName);
             }
@@ -127,110 +127,76 @@ void VarsWidget::clearSelection()
 
 QStandardItem* VarsWidget::_createPageItem()
 {
-    QStandardItem* pageItem;
+    QStandardItem *pagesItem = _plotModel->pagesItem();
+    QStandardItem* pageItem = _addChild(pagesItem, "Page");
 
-    QModelIndex pagesIndex = _plotModel->pagesIdx();
-    QStandardItem *pagesItem = _plotModel->itemFromIndex(pagesIndex);
-    QString pageItemName = QString("QP_%0").arg(_currQPIdx++);
-    pageItem = new QStandardItem(pageItemName);
-    pagesItem->appendRow(pageItem);
-
-    QStandardItem* pageTitleItem = new QStandardItem(pageItemName);
-    pageItem->appendRow(pageTitleItem);
-
-    double pageStartTime = -DBL_MAX;
-    QString pageStartTimeStr = QString("%1").arg(pageStartTime);
-    QStandardItem *pageStartTimeItem = new QStandardItem(pageStartTimeStr);
-    pageStartTimeItem->setData(pageStartTime);
-    pageItem->appendRow(pageStartTimeItem);
-
-    double pageStopTime = DBL_MAX;
-    QString pageStopTimeStr = QString("%1").arg(pageStopTime);
-    QStandardItem *pageStopTimeItem = new QStandardItem(pageStopTimeStr);
-    pageStopTimeItem->setData(pageStopTime);
-    pageItem->appendRow(pageStopTimeItem);
-
-    QString pageBackgroundColor("#FFFFFF");
-    QStandardItem *pageBGColorItem = new QStandardItem(pageBackgroundColor);
-    pageBGColorItem->setData(pageBackgroundColor);
-    pageItem->appendRow(pageBGColorItem);
-
-    QString pageForegroundColor("#000000");
-    QStandardItem *pageFGColorItem = new QStandardItem(pageForegroundColor);
-    pageFGColorItem->setData(pageForegroundColor);
-    pageItem->appendRow(pageFGColorItem);
+    QString title = QString("QP_%0").arg(_currQPIdx++);
+    _addChild(pageItem, "PageName", title);
+    _addChild(pageItem, "PageTitle", title);
+    _addChild(pageItem, "PageStartTime", -DBL_MAX);
+    _addChild(pageItem, "PageStopTime",   DBL_MAX);
+    _addChild(pageItem, "PageBackgroundColor", "#FFFFFF");
+    _addChild(pageItem, "PageForegroundColor", "#000000");
+    _addChild(pageItem, "Plots");
 
     return pageItem;
 }
 
-void VarsWidget::_addPlotOfVarToPageItem(QStandardItem* pageItem,
-                                         const QModelIndex &varIdx)
+void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
+                                const QModelIndex &varIdx)
 {
-    // The -1 is because a pageItem has a pageTitle followed by plotItems
-    int nPlots = pageItem->rowCount()-1;
+    QStandardItem* plotsItem = _plotModel->plotsItem(pageItem);
+    QStandardItem* plotItem = _addChild(plotsItem, "Plot");
 
     QString tName = _monteModel->headerData(0).toString();
     QString xName(tName);
     QString yName = _varsFilterModel->data(varIdx).toString();
 
-    QString plotTitle = QString("QPlot_%0").arg(nPlots);
-    QStandardItem* plotItem = new QStandardItem(plotTitle);
-    pageItem->appendRow(plotItem);
+    int plotId = plotItem->row();
+    QString plotName = QString("QPlot_%0").arg(plotId);
 
-    QStandardItem *xAxisLabelItem = new QStandardItem(xName);
-    plotItem->appendRow(xAxisLabelItem);
+    _addChild(plotItem, "PlotName", plotName);
+    _addChild(plotItem, "PlotTitle", "");
+    _addChild(plotItem, "PlotXAxisLabel", xName);
+    _addChild(plotItem, "PlotYAxisLabel", yName);
 
-    QStandardItem *yAxisLabelItem = new QStandardItem(yName);
-    plotItem->appendRow(yAxisLabelItem);
-
-    QStandardItem *curvesItem = new QStandardItem("Curves");
-    plotItem->appendRow(curvesItem);
+    QStandardItem *curvesItem = _addChild(plotItem,"Curves");
 
     for ( int r = 0; r < _monteModel->rowCount(); ++r) {
 
         //
-        // Create curve
+        // Create curves
         //
+
+        QStandardItem *curveItem = _addChild(curvesItem,"Curve");
+
         QString curveName = QString("Curve_%0").arg(r);
-        QStandardItem *curveItem = new QStandardItem(curveName);
-        curvesItem->appendRow(curveItem);
-
-        QStandardItem *tItem       = new QStandardItem(tName);
-        QStandardItem *xItem       = new QStandardItem(xName);
-        QStandardItem *yItem       = new QStandardItem(yName);
-        QStandardItem *tUnitItem   = new QStandardItem("--");
-        QStandardItem *xUnitItem   = new QStandardItem("--");
-        QStandardItem *yUnitItem   = new QStandardItem("--");
-        QStandardItem *runIDItem   = new QStandardItem(QString("%0").arg(r));
-        QStandardItem *curveDataItem   = new QStandardItem("");
-        QStandardItem *colorItem       = new QStandardItem("");
-        QStandardItem *xScaleFactorItem   = new QStandardItem("1.0");
-        QStandardItem *yScaleFactorItem   = new QStandardItem("1.0");
-        QStandardItem *xBiasItem   = new QStandardItem("0.0");
-        QStandardItem *yBiasItem   = new QStandardItem("0.0");
-        QStandardItem *symbolItem   = new QStandardItem("");
-        QStandardItem *symbolSizeItem   = new QStandardItem("");
-        QStandardItem *lineStyleItem   = new QStandardItem("");
-        QStandardItem *yLabelItem = new QStandardItem("");
-
-        curveItem->appendRow(tItem);
-        curveItem->appendRow(xItem);
-        curveItem->appendRow(yItem);
-        curveItem->appendRow(tUnitItem);
-        curveItem->appendRow(xUnitItem);
-        curveItem->appendRow(yUnitItem);
-        curveItem->appendRow(runIDItem);
-        curveItem->appendRow(curveDataItem);
-        curveItem->appendRow(colorItem);
-        curveItem->appendRow(xScaleFactorItem);
-        curveItem->appendRow(yScaleFactorItem);
-        curveItem->appendRow(xBiasItem);
-        curveItem->appendRow(yBiasItem);
-        curveItem->appendRow(symbolItem);
-        curveItem->appendRow(symbolSizeItem);
-        curveItem->appendRow(lineStyleItem);
-        curveItem->appendRow(yLabelItem);
+        _addChild(curveItem, "CurveName", curveName);
+        _addChild(curveItem, "CurveTime", tName);
+        _addChild(curveItem, "CurveTimeUnit", "--");
+        _addChild(curveItem, "CurveXName", xName);
+        _addChild(curveItem, "CurveXUnit", "--");
+        _addChild(curveItem, "CurveYName", yName);
+        _addChild(curveItem, "CurveYUnit", "--");
+        _addChild(curveItem, "CurveRunID", r);
+        _addChild(curveItem, "CurveData","");
+        _addChild(curveItem, "CurveXScale", 1.0);
+        _addChild(curveItem, "CurveXBias", 0.0);
+        _addChild(curveItem, "CurveYScale", 1.0);
+        _addChild(curveItem, "CurveYBias", 0.0);
+        _addChild(curveItem, "CurveColor", "");
+        _addChild(curveItem, "CurveSymbolStyle", "");
+        _addChild(curveItem, "CurveSymbolSize", "");
+        _addChild(curveItem, "CurveLineStyle", "");
+        _addChild(curveItem, "CurveYLabel", "");
     }
+}
+
+QStandardItem* VarsWidget::_addChild(QStandardItem *parentItem,
+                             const QString &childTitle,
+                             const QVariant& childValue)
+{
+    return(_plotModel->addChild(parentItem,childTitle,childValue));
 }
 
 // Search for yparam with a *single plot* on a page with curve
@@ -243,19 +209,8 @@ void VarsWidget::_selectCurrentRunOnPageItem(QStandardItem* pageItem)
         QItemSelection currSel = _plotSelectModel->selection();
         QModelIndex pageIdx = _plotModel->indexFromItem(pageItem);
         foreach ( QModelIndex plotIdx, _plotModel->plotIdxs(pageIdx) ) {
-            QModelIndex curvesIdx;
-            for ( int j = 0; j < plotIdx.model()->rowCount(plotIdx); ++j) {
-                QModelIndex idx = plotIdx.model()->index(j,0,plotIdx);
-                if ( plotIdx.model()->data(idx).toString() == "Curves" ) {
-                    curvesIdx = idx;
-                    break;
-                }
-            }
-            if ( !curvesIdx.isValid() ) {
-                qDebug() << "snap [bad scoobies]: \"Curves\" item not found.";
-                exit(-1);
-            }
-            QModelIndex curveIdx = pageIdx.model()->index(runId,0,curvesIdx);
+            QModelIndex curvesIdx = _plotModel->curvesIdx(plotIdx);
+            QModelIndex curveIdx = _plotModel->curveIdxs(curvesIdx).at(runId);
             if ( ! currSel.contains(curveIdx) ) {
                 QItemSelection curveSel(curveIdx,curveIdx) ;
                 _plotSelectModel->select(curveSel,QItemSelectionModel::Select);
@@ -271,26 +226,12 @@ int VarsWidget::_currSelectedRun()
         runId = _monteInputsView->currSelectedRun();
     } else {
         QItemSelection currSel = _plotSelectModel->selection();
-        foreach ( QModelIndex i , currSel.indexes() ) {
-            if ( _isCurveIdx(i) ) {
-                runId = i.row();
+        foreach ( QModelIndex idx , currSel.indexes() ) {
+            if ( _plotModel->isCurveIdx(idx) ) {
+                runId = idx.row();
                 break;
             }
         }
     }
     return runId;
 }
-
-// _plotModel will have a curve on a branch like this:
-//           root->page->plot->curves->curvei
-//
-bool VarsWidget::_isCurveIdx(const QModelIndex &idx) const
-{
-    if ( idx.model() != _plotModel ) return false;
-    if ( idx.model()->data(idx.parent()).toString() != "Curves" ) {
-        return false;
-    } else {
-        return true;
-    }
-}
-

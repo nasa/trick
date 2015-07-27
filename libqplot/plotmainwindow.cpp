@@ -272,7 +272,8 @@ void PlotMainWindow::_startTimeChanged(double startTime)
 {
     QModelIndex startIdx = _plotModel->sessionStartIdx();
     if ( startIdx.isValid() ) {
-        _plotModel->setData(startIdx,startTime);
+        QStandardItem* item = _plotModel->itemFromIndex(startIdx);
+        item->setData(startTime);
     }
 }
 
@@ -280,7 +281,8 @@ void PlotMainWindow::_stopTimeChanged(double stopTime)
 {
     QModelIndex stopIdx = _plotModel->sessionStopIdx();
     if ( stopIdx.isValid() ) {
-        _plotModel->setData(stopIdx,stopTime);
+        QStandardItem* item = _plotModel->itemFromIndex(stopIdx);
+        item->setData(stopTime);
     }
 }
 
@@ -310,11 +312,23 @@ void PlotMainWindow::_monteInputsHeaderViewClicked(int section)
         foreach ( QModelIndex plotIdx, plotIdxs ) {
             QModelIndex curvesIdx = _plotModel->curvesIdx(plotIdx);
             QModelIndexList curveIdxs = _plotModel->curveIdxs(curvesIdx);
+            bool isFirst = true;
+            int r = 0;
             foreach ( QModelIndex curveIdx, curveIdxs ) {
-                QModelIndex runIdx = _plotModel->index(6,0,curveIdx);
+                // This is to speed things up when montecarlo since
+                // getIndex() is a bit expensive
+                if ( isFirst ) {
+                    QModelIndex rIdx = _plotModel->getIndex(curveIdx,
+                                                    "CurveRunID",
+                                                    "Curve");
+                    r = rIdx.row();
+                    isFirst = false;
+                }
+                QModelIndex runIdx = _plotModel->index(r,0,curveIdx);
                 int runId = _plotModel->data(runIdx).toInt();
                 QModelIndex colorIdx = _plotModel->curveLineColorIdx(curveIdx);
-                _plotModel->setData(colorIdx, run2color.value(runId));
+                QStandardItem* item = _plotModel->itemFromIndex(colorIdx);
+                item->setData(run2color.value(runId));
             }
         }
     }
