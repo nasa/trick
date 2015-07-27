@@ -617,7 +617,7 @@ void PlotBookView::keyPressEvent(QKeyEvent *event)
 //
 void PlotBookView::maximize(const QModelIndex &idx)
 {
-    if ( _plotModel->isPlotIdx(idx) ) {
+    if ( _plotModel->isIndex(idx, "Plot") ) {
 
         QGridLayout* grid = _idx2Grid(idx);
         Plot* plot = _idx2Plot(idx);
@@ -635,7 +635,7 @@ void PlotBookView::maximize(const QModelIndex &idx)
 
 void PlotBookView::minimize(const QModelIndex &idx)
 {
-    if ( _plotModel->isPlotIdx(idx) ) {
+    if ( _plotModel->isIndex(idx, "Plot") ) {
         QGridLayout* grid = _idx2Grid(idx);
         for ( int i = 0; i < grid->count(); ++i) {
             grid->itemAt(i)->widget()->setVisible(true);
@@ -868,7 +868,7 @@ void PlotBookView::doubleClick(QMouseEvent *event)
     QPoint globalPageOrigin(_nb->mapToGlobal(QPoint(0,0)));
     QPoint pagePos = event->globalPos()-globalPageOrigin;
     QModelIndex plotIdx = indexAt(pagePos);
-    if ( _plotModel->isPlotIdx(plotIdx) ) {
+    if ( _plotModel->isIndex(plotIdx, "Plot") ) {
         QModelIndex pageIdx = _plotModel->pageIdx(plotIdx);
         bool isExpanded = false;
         foreach ( QModelIndex idx, _plotModel->plotIdxs(pageIdx) ) {
@@ -1449,7 +1449,7 @@ void PlotBookView::rowsAboutToBeRemoved(const QModelIndex &pidx,
             }
             page->deleteLater();
 
-        } else if ( _plotModel->isPlotIdx(idx) ) {
+        } else if ( _plotModel->isIndex(idx, "Plot") ) {
             // Plot
             QWidget* page = _idx2Page(pidx);
             QGridLayout* grid = static_cast<QGridLayout*>(page->layout());

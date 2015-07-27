@@ -162,11 +162,6 @@ QStandardItem *PlotBookModel::plotsItem(QStandardItem *pageItem) const
     return plotsItem;
 }
 
-bool PlotBookModel::isPlotIdx(const QModelIndex &idx) const
-{
-    return ( isIndex(idx, "Plot") );
-}
-
 QModelIndex PlotBookModel::plotIdx(const QModelIndex &idx) const
 {
     QModelIndex pltIdx;

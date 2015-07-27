@@ -43,7 +43,6 @@ public:
 
     QStandardItem* plotsItem(QStandardItem* pageItem) const ;
 
-    bool isPlotIdx(const QModelIndex& idx) const ;
     QModelIndex plotIdx(const QModelIndex& idx) const ;
     QModelIndexList plotIdxs(const QModelIndex& pageIdx) const ;
 
