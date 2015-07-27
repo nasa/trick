@@ -1434,7 +1434,7 @@ void PlotBookView::rowsAboutToBeRemoved(const QModelIndex &pidx,
 
         QModelIndex idx = model()->index(row,0,pidx);
 
-        if ( _plotModel->isPagesIdx(pidx) ) {
+        if ( _plotModel->isIndex(pidx, "Pages") ) {
             // Page
             QWidget* page = _idx2Page(idx);
             int row = _plotModel->pageIdxs().indexOf(idx);

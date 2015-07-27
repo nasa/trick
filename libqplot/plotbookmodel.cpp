@@ -243,11 +243,6 @@ QModelIndex PlotBookModel::sessionStopIdx() const
     return getIndex(rootIdx, "SessionStopTime");
 }
 
-bool PlotBookModel::isPagesIdx(const QModelIndex &idx) const
-{
-    return isIndex(idx, "Pages") ;
-}
-
 QModelIndex PlotBookModel::pagesIdx() const
 {
     QModelIndex rootIdx;
@@ -267,7 +262,7 @@ QModelIndex PlotBookModel::pageBGColorIndex(const QModelIndex& idx) const
 
 bool PlotBookModel::isPageIdx(const QModelIndex &idx) const
 {
-    return (isPagesIdx(idx.parent()));
+    return (isIndex(idx.parent(),"Pages"));
 }
 
 bool PlotBookModel::isCurveLineColorIdx(const QModelIndex &idx) const

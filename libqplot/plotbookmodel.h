@@ -35,7 +35,6 @@ public:
     QModelIndex sessionStartIdx() const ;
     QModelIndex sessionStopIdx() const ;
 
-    bool isPagesIdx(const QModelIndex& idx) const ;
     QModelIndex pagesIdx() const ;
     QStandardItem* pagesItem() const ;
 
