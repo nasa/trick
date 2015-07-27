@@ -144,7 +144,7 @@ QModelIndex PlotBookModel::pageIdx(const QModelIndex& idx) const
 QModelIndexList PlotBookModel::pageIdxs() const
 {
     QModelIndexList idxs;
-    QModelIndex pgsIdx = pagesIdx();
+    QModelIndex pgsIdx = getIndex(QModelIndex(), "Pages");
     int rc = rowCount(pgsIdx);
     for ( int i = 0; i < rc; ++i ) {
         QModelIndex idx = index(i,0,pgsIdx);
@@ -204,17 +204,6 @@ QModelIndexList PlotBookModel::curveIdxs(const QModelIndex &curvesIdx) const
     }
 
     return idxs;
-}
-
-QModelIndex PlotBookModel::pagesIdx() const
-{
-    QModelIndex rootIdx;
-    return getIndex(rootIdx, "Pages");
-}
-
-QStandardItem *PlotBookModel::pagesItem() const
-{
-    return itemFromIndex(pagesIdx());
 }
 
 QModelIndex PlotBookModel::pageBGColorIndex(const QModelIndex& idx) const

@@ -156,7 +156,8 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
     int pageNum = 0 ;
 
     // Pages
-    QStandardItem *pagesItem = _plotModel->pagesItem();
+    QModelIndex pagesIdx = _plotModel->getIndex(QModelIndex(), "Pages");
+    QStandardItem *pagesItem = _plotModel->itemFromIndex(pagesIdx);
 
     foreach (DPPage* page, dp.pages() ) {
 

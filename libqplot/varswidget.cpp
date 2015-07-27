@@ -129,7 +129,8 @@ void VarsWidget::clearSelection()
 
 QStandardItem* VarsWidget::_createPageItem()
 {
-    QStandardItem *pagesItem = _plotModel->pagesItem();
+    QModelIndex pagesIdx = _plotModel->getIndex(QModelIndex(), "Pages");
+    QStandardItem* pagesItem = _plotModel->itemFromIndex(pagesIdx);
     QStandardItem* pageItem = _addChild(pagesItem, "Page");
 
     QString title = QString("QP_%0").arg(_currQPIdx++);

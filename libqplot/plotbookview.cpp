@@ -817,7 +817,7 @@ void PlotBookView::tabCloseRequested(int tabId)
     QWidget* page = _nb->widget(tabId);
     QModelIndex pageIdx = _page2Idx(page);
     if ( pageIdx.isValid() ) {
-        QModelIndex pagesIdx = _plotModel->pagesIdx();
+        QModelIndex pagesIdx = _plotModel->getIndex(QModelIndex(), "Pages");
         int row = pageIdx.row();
         model()->removeRow(row,pagesIdx);
     }
