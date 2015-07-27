@@ -105,7 +105,8 @@ QModelIndex VarsWidget::_findSinglePlotPageWithCurve(const QString& curveName)
                                                          "Curves", "Plot");
             isExists = true;
             foreach ( QModelIndex curveIdx, _plotModel->curveIdxs(curvesIdx) ) {
-                QModelIndex yIdx =  _plotModel->yIdx(curveIdx);
+                QModelIndex yIdx =  _plotModel->getIndex(curveIdx,
+                                                         "CurveYName", "Curve");
                 QString yName =  _plotModel->data(yIdx).toString();
                 isExists = isExists && (yName == curveName);
             }

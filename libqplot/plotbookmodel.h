@@ -45,8 +45,6 @@ public:
 
     QModelIndexList curveIdxs(const QModelIndex& curvesIdx) const ;
 
-    QModelIndex yIdx(const QModelIndex& curveIdx) const ;
-
     QModelIndex pageBGColorIndex(const QModelIndex& pageIdx) const;
 
 signals:

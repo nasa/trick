@@ -223,11 +223,6 @@ QModelIndex PlotBookModel::pageBGColorIndex(const QModelIndex& idx) const
     return getIndex(pgIdx, "PageBackgroundColor", "Page");
 }
 
-QModelIndex PlotBookModel::yIdx(const QModelIndex &curveIdx) const
-{
-    return getIndex(curveIdx, "CurveYName", "Curve");
-}
-
 void PlotBookModel::_initModel()
 {
     QStandardItem *rootItem = invisibleRootItem();
