@@ -1540,7 +1540,7 @@ void PlotBookView::rowsAboutToBeRemoved(const QModelIndex &pidx,
             }
             }
 
-        } else if ( _plotModel->isCurvesIdx(pidx) ) {
+        } else if ( _plotModel->isIndex(pidx, "Curves") ) {
 
             // TODO: untested
             Plot* plot = _idx2Plot(pidx);
