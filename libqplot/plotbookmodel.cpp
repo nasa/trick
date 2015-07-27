@@ -23,7 +23,7 @@ QVariant PlotBookModel::data(const QModelIndex &idx, int role) const
 
     QVariant v;
 
-    if ( _isIndex(idx, "CurveData") ) {
+    if ( isIndex(idx, "CurveData") ) {
 
         QModelIndex curveIdx = idx.parent();
         QModelIndex rIdx = getIndex(curveIdx, "CurveRunID", "Curve");
@@ -125,15 +125,15 @@ QModelIndex PlotBookModel::pageIdx(const QModelIndex& idx) const
     QModelIndex p3Idx = p2Idx.parent();
     QModelIndex p4Idx = p3Idx.parent();
 
-    if ( _isIndex(idx, "Page" ) ) {
+    if ( isIndex(idx, "Page" ) ) {
         pgIdx = idx;
-    } else if ( _isIndex(p1Idx, "Page" ) ) {
+    } else if ( isIndex(p1Idx, "Page" ) ) {
         pgIdx = p1Idx;
-    } else if ( _isIndex(p2Idx, "Page" ) ) {
+    } else if ( isIndex(p2Idx, "Page" ) ) {
         pgIdx = p2Idx;
-    } else if ( _isIndex(p3Idx, "Page" ) ) {
+    } else if ( isIndex(p3Idx, "Page" ) ) {
         pgIdx = p3Idx;
-    } else if ( _isIndex(p4Idx, "Page" ) ) {
+    } else if ( isIndex(p4Idx, "Page" ) ) {
         pgIdx = p4Idx;
     }
 
@@ -164,7 +164,7 @@ QStandardItem *PlotBookModel::plotsItem(QStandardItem *pageItem) const
 
 bool PlotBookModel::isPlotIdx(const QModelIndex &idx) const
 {
-    return ( _isIndex(idx, "Plot") );
+    return ( isIndex(idx, "Plot") );
 }
 
 QModelIndex PlotBookModel::plotIdx(const QModelIndex &idx) const
@@ -175,13 +175,13 @@ QModelIndex PlotBookModel::plotIdx(const QModelIndex &idx) const
     QModelIndex p2Idx = p1Idx.parent();
     QModelIndex p3Idx = p2Idx.parent();
 
-    if ( _isIndex(idx, "Plot" ) ) {
+    if ( isIndex(idx, "Plot" ) ) {
         pltIdx = idx;
-    } else if ( _isIndex(p1Idx, "Plot" ) ) {
+    } else if ( isIndex(p1Idx, "Plot" ) ) {
         pltIdx = p1Idx;
-    } else if ( _isIndex(p2Idx, "Plot" ) ) {
+    } else if ( isIndex(p2Idx, "Plot" ) ) {
         pltIdx = p2Idx;
-    } else if ( _isIndex(p3Idx, "Plot" ) ) {
+    } else if ( isIndex(p3Idx, "Plot" ) ) {
         pltIdx = p3Idx;
     }
 
@@ -202,12 +202,12 @@ QModelIndexList PlotBookModel::plotIdxs(const QModelIndex &pageIdx) const
 
 bool PlotBookModel::isCurvesIdx(const QModelIndex &idx) const
 {
-    return _isIndex(idx, "Curves");
+    return isIndex(idx, "Curves");
 }
 
 bool PlotBookModel::isCurveIdx(const QModelIndex &idx) const
 {
-    return _isIndex(idx, "Curve");
+    return isIndex(idx, "Curve");
 }
 
 QModelIndex PlotBookModel::curvesIdx(const QModelIndex &plotIdx) const
@@ -245,7 +245,7 @@ QModelIndex PlotBookModel::sessionStopIdx() const
 
 bool PlotBookModel::isPagesIdx(const QModelIndex &idx) const
 {
-    return _isIndex(idx, "Pages") ;
+    return isIndex(idx, "Pages") ;
 }
 
 QModelIndex PlotBookModel::pagesIdx() const
@@ -272,7 +272,7 @@ bool PlotBookModel::isPageIdx(const QModelIndex &idx) const
 
 bool PlotBookModel::isCurveLineColorIdx(const QModelIndex &idx) const
 {
-    return ( _isIndex(idx,"CurveColor") ) ;
+    return ( isIndex(idx,"CurveColor") ) ;
 }
 
 QModelIndex PlotBookModel::yIdx(const QModelIndex &curveIdx) const
@@ -315,7 +315,7 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &pidx,
 
     if ( !expectedParentItemText.isEmpty() ) {
         if ( pidx.isValid() ) {
-            if ( !_isIndex(pidx, expectedParentItemText) ) {
+            if ( !isIndex(pidx, expectedParentItemText) ) {
                 QStandardItem* pItem = itemFromIndex(pidx);
                 QString pText = pItem->text();
                 qDebug() << "snap [bad scoobies]: getIndex() received a pidx of "
@@ -379,7 +379,7 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &pidx,
     return idx;
 }
 
-bool PlotBookModel::_isIndex(const QModelIndex &idx, const QString &itemText) const
+bool PlotBookModel::isIndex(const QModelIndex &idx, const QString &itemText) const
 {
     if ( !idx.isValid() ) return false;
     return ( itemFromIndex(idx)->text() == itemText );

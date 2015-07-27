@@ -25,6 +25,9 @@ public:
                             const QString& childTitle,
                             const QVariant &childValue=QVariant());
 
+    bool isIndex(const QModelIndex& idx,
+                  const QString& itemText) const;
+
     QModelIndex getIndex(const QModelIndex& pidx,
                         const QString& childItemText,
                         const QString &expectedParentItemText=QString()) const;
@@ -64,9 +67,6 @@ public slots:
 private:
     MonteModel* _monteModel;
     void _initModel();
-
-    bool _isIndex(const QModelIndex& idx,
-                  const QString& itemText) const;
 
 };
 
