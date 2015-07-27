@@ -691,7 +691,7 @@ void PlotBookView::_plotSelectModelCurrentChanged(const QModelIndex &currIdx,
                                                  const QModelIndex &prevIdx)
 {
     Q_UNUSED(prevIdx);
-    if ( _plotModel->isPageIdx(currIdx) ) {
+    if ( _plotModel->isIndex(currIdx, "Page") ) {
         setCurrentPage(currIdx);
     }
 }
@@ -732,7 +732,7 @@ void PlotBookView::_plotSelectModelSelectChanged(const QItemSelection &curr,
 {
     if ( curr.indexes().size() > 0 ) {
          // when tab changes, noop
-        if ( _plotModel->isPageIdx(curr.indexes().at(0)) ) return;
+        if ( _plotModel->isIndex(curr.indexes().at(0), "Page") ) return;
     }
 
     foreach ( QModelIndex prevIdx, prev.indexes() ) {

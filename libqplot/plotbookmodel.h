@@ -38,7 +38,6 @@ public:
     QModelIndex pagesIdx() const ;
     QStandardItem* pagesItem() const ;
 
-    bool isPageIdx(const QModelIndex& idx) const ;
     QModelIndex pageIdx(const QModelIndex& idx) const ;
     QModelIndexList pageIdxs() const ;
 
