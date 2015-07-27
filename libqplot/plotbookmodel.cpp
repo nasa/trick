@@ -223,11 +223,6 @@ QModelIndex PlotBookModel::pageBGColorIndex(const QModelIndex& idx) const
     return getIndex(pgIdx, "PageBackgroundColor", "Page");
 }
 
-bool PlotBookModel::isCurveLineColorIdx(const QModelIndex &idx) const
-{
-    return ( isIndex(idx,"CurveColor") ) ;
-}
-
 QModelIndex PlotBookModel::yIdx(const QModelIndex &curveIdx) const
 {
     return getIndex(curveIdx, "CurveYName", "Curve");
