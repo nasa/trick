@@ -148,19 +148,6 @@ void PlotMainWindow::createMenu()
     setMenuWidget(_menuBar);
 }
 
-// _plotModel will have a curve on a branch like this:
-//           root->page->plot->curves->curvei
-//
-bool PlotMainWindow::_isCurveIdx(const QModelIndex &idx) const
-{
-    if ( idx.model() != _plotModel ) return false;
-    if ( idx.model()->data(idx.parent()).toString() != "Curves" ) {
-        return false;
-    } else {
-        return true;
-    }
-}
-
 void PlotMainWindow::_nbCurrentChanged(int i)
 {
     if ( i == 1 && _dpTreeWidget == 0 ) {
@@ -180,9 +167,11 @@ void PlotMainWindow::_nbCurrentChanged(int i)
     }
 }
 
-void PlotMainWindow::_plotSelectModelSelectionChanged(const QItemSelection &currSel,
-                                                 const QItemSelection &prevSel)
+void PlotMainWindow::_plotSelectModelSelectionChanged(
+                                               const QItemSelection &currSel,
+                                               const QItemSelection &prevSel)
 {
+
     Q_UNUSED(prevSel);
 
     if ( currSel.indexes().size() == 0 && prevSel.indexes().size() > 0 ) {
@@ -202,7 +191,7 @@ void PlotMainWindow::_plotSelectModelSelectionChanged(const QItemSelection &curr
             curveIdx = currSel.indexes().at(0);
         }
 
-        if ( _isCurveIdx(curveIdx) ) {
+        if ( _plotModel->isIndex(curveIdx,"Curve") ) {
 
             int runId = curveIdx.row();
 

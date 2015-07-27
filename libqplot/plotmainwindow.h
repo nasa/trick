@@ -79,8 +79,6 @@ private:
     bool _isRUN(const QString& fp);
     bool _isMONTE(const QString& fp);
 
-    bool _isCurveIdx(const QModelIndex& idx) const;
-
 private slots:
      void _nbCurrentChanged(int i);
      void _plotSelectModelSelectionChanged(const QItemSelection& currSel,

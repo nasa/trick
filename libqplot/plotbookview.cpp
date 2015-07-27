@@ -709,14 +709,8 @@ void PlotBookView::selectRun(int runId)
     QItemSelection runSelection;
     foreach ( QModelIndex pageIdx, _plotModel->pageIdxs() ) {
         foreach ( QModelIndex plotIdx, _plotModel->plotIdxs(pageIdx) ) {
-            QModelIndex curvesIdx;
-            for ( int i = 0; i < plotIdx.model()->rowCount(plotIdx); ++i) {
-                QModelIndex idx = plotIdx.model()->index(i,0,plotIdx);
-                if ( plotIdx.model()->data(idx).toString() == "Curves" ) {
-                    curvesIdx = idx;
-                    break;
-                }
-            }
+            QModelIndex curvesIdx = _plotModel->getIndex(plotIdx,
+                                                         "Curves", "Plot");
             QModelIndex curveIdx = model()->index(runId,0,curvesIdx);
             QItemSelection curveSelection(curveIdx,curveIdx);
             runSelection.merge(curveSelection, QItemSelectionModel::Select);
