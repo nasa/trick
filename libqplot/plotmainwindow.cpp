@@ -299,7 +299,8 @@ void PlotMainWindow::_monteInputsHeaderViewClicked(int section)
     foreach ( QModelIndex pageIdx, pageIdxs ) {
         QModelIndexList plotIdxs = _plotModel->plotIdxs(pageIdx);
         foreach ( QModelIndex plotIdx, plotIdxs ) {
-            QModelIndex curvesIdx = _plotModel->curvesIdx(plotIdx);
+            QModelIndex curvesIdx = _plotModel->getIndex(plotIdx,
+                                                         "Curves", "Plot");
             QModelIndexList curveIdxs = _plotModel->curveIdxs(curvesIdx);
             bool isFirst = true;
             int r = 0;

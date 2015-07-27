@@ -1552,7 +1552,7 @@ QModelIndex PlotBookView::_curve2Idx(TrickCurve *curve)
     Plot* plot = static_cast<Plot*>(curve->parentPlot());
     QModelIndex plotIdx = _plot2Idx(plot);
     int rowCurve = _plot2Curves.value(plot).indexOf(curve);
-    QModelIndex curvesIdx = _plotModel->curvesIdx(plotIdx);
+    QModelIndex curvesIdx = _plotModel->getIndex(plotIdx, "Curves", "Plot");
     QModelIndex curveIdx = model()->index(rowCurve,0,curvesIdx);
     return curveIdx;
 }

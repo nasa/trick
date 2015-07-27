@@ -101,7 +101,8 @@ QModelIndex VarsWidget::_findSinglePlotPageWithCurve(const QString& curveName)
     bool isExists = false;
     foreach ( QModelIndex pageIdx, _plotModel->pageIdxs() ) {
         foreach ( QModelIndex plotIdx, _plotModel->plotIdxs(pageIdx) ) {
-            QModelIndex curvesIdx = _plotModel->curvesIdx(plotIdx);
+            QModelIndex curvesIdx = _plotModel->getIndex(plotIdx,
+                                                         "Curves", "Plot");
             isExists = true;
             foreach ( QModelIndex curveIdx, _plotModel->curveIdxs(curvesIdx) ) {
                 QModelIndex yIdx =  _plotModel->yIdx(curveIdx);
@@ -209,7 +210,8 @@ void VarsWidget::_selectCurrentRunOnPageItem(QStandardItem* pageItem)
         QItemSelection currSel = _plotSelectModel->selection();
         QModelIndex pageIdx = _plotModel->indexFromItem(pageItem);
         foreach ( QModelIndex plotIdx, _plotModel->plotIdxs(pageIdx) ) {
-            QModelIndex curvesIdx = _plotModel->curvesIdx(plotIdx);
+            QModelIndex curvesIdx = _plotModel->getIndex(plotIdx,
+                                                         "Curves", "Plot");
             QModelIndex curveIdx = _plotModel->curveIdxs(curvesIdx).at(runId);
             if ( ! currSel.contains(curveIdx) ) {
                 QItemSelection curveSel(curveIdx,curveIdx) ;
