@@ -965,9 +965,10 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
         } else if ( itemText == "Plot" ) {
 
             QWidget* page = _idx2Page(pidx);
-            QModelIndex pmIdx = _plotModel->sessionStartIdx();
+            QModelIndex pmIdx = _plotModel->getIndex(
+                                       QModelIndex(), "SessionStartTime");
             double sessionStartTime = _plotModel->data(pmIdx).toDouble();
-            pmIdx = _plotModel->sessionStopIdx();
+            pmIdx = _plotModel->getIndex(QModelIndex(),"SessionStopTime");
             double sessionStopTime = _plotModel->data(pmIdx).toDouble();
             pmIdx = _plotModel->pageBGColorIndex(idx);
             QString pageBGColor = _plotModel->data(pmIdx).toString();
@@ -1278,7 +1279,8 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
 
             QWidget* page = _idx2Page(pidx);
             Plot* plot = _idx2Plot(pidx);
-            QModelIndex sIdx = _plotModel->sessionStartIdx();
+            QModelIndex sIdx = _plotModel->getIndex(QModelIndex(),
+                                                    "SessionStartTime");
             double sessionStartTime = _plotModel->data(sIdx).toDouble();
             double plotStartTime = model()->data(idx).toDouble();
             double pageStartTime = _page2startTime.value(page);
@@ -1294,7 +1296,8 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
 
             QWidget* page = _idx2Page(pidx);
             Plot* plot = _idx2Plot(pidx);
-            QModelIndex sIdx = _plotModel->sessionStopIdx();
+            QModelIndex sIdx = _plotModel->getIndex(QModelIndex(),
+                                                    "SessionStopTime");
             double sessionStopTime = _plotModel->data(sIdx).toDouble();
             double plotStopTime = model()->data(idx).toDouble();
             double pageStopTime = _page2stopTime.value(page);

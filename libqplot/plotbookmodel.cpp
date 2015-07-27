@@ -206,18 +206,6 @@ QModelIndexList PlotBookModel::curveIdxs(const QModelIndex &curvesIdx) const
     return idxs;
 }
 
-QModelIndex PlotBookModel::sessionStartIdx() const
-{
-    QModelIndex rootIdx;
-    return getIndex(rootIdx, "SessionStartTime");
-}
-
-QModelIndex PlotBookModel::sessionStopIdx() const
-{
-    QModelIndex rootIdx;
-    return getIndex(rootIdx, "SessionStopTime");
-}
-
 QModelIndex PlotBookModel::pagesIdx() const
 {
     QModelIndex rootIdx;

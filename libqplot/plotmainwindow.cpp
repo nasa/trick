@@ -259,7 +259,8 @@ void PlotMainWindow::_savePdf()
 
 void PlotMainWindow::_startTimeChanged(double startTime)
 {
-    QModelIndex startIdx = _plotModel->sessionStartIdx();
+    QModelIndex startIdx = _plotModel->getIndex(QModelIndex(),
+                                                "SessionStartTime");
     if ( startIdx.isValid() ) {
         QStandardItem* item = _plotModel->itemFromIndex(startIdx);
         item->setData(startTime);
@@ -268,7 +269,8 @@ void PlotMainWindow::_startTimeChanged(double startTime)
 
 void PlotMainWindow::_stopTimeChanged(double stopTime)
 {
-    QModelIndex stopIdx = _plotModel->sessionStopIdx();
+    QModelIndex stopIdx = _plotModel->getIndex(QModelIndex(),
+                                               "SessionStopTime");
     if ( stopIdx.isValid() ) {
         QStandardItem* item = _plotModel->itemFromIndex(stopIdx);
         item->setData(stopTime);

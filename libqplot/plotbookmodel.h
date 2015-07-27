@@ -32,9 +32,6 @@ public:
                         const QString& childItemText,
                         const QString &expectedParentItemText=QString()) const;
 
-    QModelIndex sessionStartIdx() const ;
-    QModelIndex sessionStopIdx() const ;
-
     QModelIndex pagesIdx() const ;
     QStandardItem* pagesItem() const ;
 
