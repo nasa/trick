@@ -785,7 +785,7 @@ void PlotBookView::_selectNextCurve()
     QItemSelection currSel = selectionModel()->selection();
     if ( currSel.size() > 0 ) {
         QModelIndex currIdx = currSel.indexes().at(0);
-        if ( _plotModel->isCurveIdx(currIdx) ) {
+        if ( _plotModel->isIndex(currIdx, "Curve") ) {
             QModelIndex plotIdx = _plotModel->plotIdx(currIdx);
             int currRow = currIdx.row();
             int nextRow = currRow+1;
@@ -804,7 +804,7 @@ void PlotBookView::_selectPrevCurve()
     QItemSelection currSel = selectionModel()->selection();
     if ( currSel.size() > 0 ) {
         QModelIndex currIdx = currSel.indexes().at(0);
-        if ( _plotModel->isCurveIdx(currIdx) ) {
+        if ( _plotModel->isIndex(currIdx, "Curve") ) {
             int currRow = currIdx.row();
             int prevRow = currRow-1;
             if ( prevRow < 0 ) {

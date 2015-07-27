@@ -195,11 +195,6 @@ QModelIndexList PlotBookModel::plotIdxs(const QModelIndex &pageIdx) const
     return idxs;
 }
 
-bool PlotBookModel::isCurveIdx(const QModelIndex &idx) const
-{
-    return isIndex(idx, "Curve");
-}
-
 QModelIndex PlotBookModel::curvesIdx(const QModelIndex &plotIdx) const
 {
     return getIndex(plotIdx, "Curves", "Plot");

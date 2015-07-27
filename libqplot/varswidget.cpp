@@ -227,7 +227,7 @@ int VarsWidget::_currSelectedRun()
     } else {
         QItemSelection currSel = _plotSelectModel->selection();
         foreach ( QModelIndex idx , currSel.indexes() ) {
-            if ( _plotModel->isCurveIdx(idx) ) {
+            if ( _plotModel->isIndex(idx, "Curve") ) {
                 runId = idx.row();
                 break;
             }
