@@ -863,7 +863,7 @@ void PlotBookView::doubleClick(QMouseEvent *event)
     QPoint pagePos = event->globalPos()-globalPageOrigin;
     QModelIndex plotIdx = indexAt(pagePos);
     if ( _plotModel->isIndex(plotIdx, "Plot") ) {
-        QModelIndex pageIdx = _plotModel->pageIdx(plotIdx);
+        QModelIndex pageIdx = _plotModel->getIndex(plotIdx, "Page");
         bool isExpanded = false;
         foreach ( QModelIndex idx, _plotModel->plotIdxs(pageIdx) ) {
             if ( idx != plotIdx ) {
@@ -1564,7 +1564,7 @@ QWidget *PlotBookView::_idx2Page(const QModelIndex &idx) const
 {
     QModelIndex pageIdx;
 
-    pageIdx = _plotModel->pageIdx(idx);
+    pageIdx = _plotModel->getIndex(idx, "Page");
     if ( !pageIdx.isValid() )  return 0;
 
     int r = _plotModel->pageIdxs().indexOf(pageIdx);
@@ -1587,7 +1587,7 @@ Plot *PlotBookView::_idx2Plot(const QModelIndex &idx) const
     QModelIndex plotIdx = _plotModel->plotIdx(idx);
     if ( !plotIdx.isValid() )  return 0;
 
-    QModelIndex pageIdx = _plotModel->pageIdx(plotIdx);
+    QModelIndex pageIdx = _plotModel->getIndex(plotIdx, "Page");
     int iPlot = _plotModel->plotIdxs(pageIdx).indexOf(plotIdx);
     if ( iPlot >= 0 ) {
         QWidget* page = _idx2Page(pageIdx);

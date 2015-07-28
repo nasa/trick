@@ -116,7 +116,7 @@ QStandardItem *PlotBookModel::addChild(QStandardItem *parentItem,
 
 // Returns page index for idx
 // If idx is a child of a page, it will return the parent page index
-QModelIndex PlotBookModel::pageIdx(const QModelIndex& idx) const
+QModelIndex PlotBookModel::_pageIdx(const QModelIndex& idx) const
 {
     QModelIndex pgIdx;
 
@@ -208,7 +208,7 @@ QModelIndexList PlotBookModel::curveIdxs(const QModelIndex &curvesIdx) const
 
 QModelIndex PlotBookModel::pageBGColorIndex(const QModelIndex& idx) const
 {
-    QModelIndex pgIdx = pageIdx(idx);
+    QModelIndex pgIdx = _pageIdx(idx);
     return getIndex(pgIdx, "PageBackgroundColor", "Page");
 }
 
@@ -230,79 +230,87 @@ void PlotBookModel::_initModel()
 }
 
 //
-// Set expectedParentItemText in calling routine to check to make sure
-// pidx's text is correct.  I may just use that for debugging, not sure.
+// Set expectedStartIdxText in calling routine to check to make sure
+// startIdx's text is correct.  It's more for debugging, but helps
+// ensure that one is in sync with the tree.
 //
-// I could make this faster.  Not sure if it needs to be.
-// I should at least put a print in here
-// and see if it's called a bazillion times,
-// and if so, optimize it.  Use a hash for index rows or something.
+// StartIdx is normally the immediate parent of the item with searchItemText
+// The odd case is for Pages and Plots.  The search can go ancestorily (sp?).
+// For instance:
+//     getIndex(curveIdx, "Plot")
+// will return the plotIdx that is the parent of curveIdx
 //
-QModelIndex PlotBookModel::getIndex(const QModelIndex &pidx,
-                                 const QString &childItemText,
-                                 const QString &expectedParentItemText) const
+QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
+                                 const QString &searchItemText,
+                                 const QString &expectedStartIdxText) const
 {
     QModelIndex idx;
 
+    // For Page, if the parent isn't "Pages" the search goes up the tree
+    if ( searchItemText == "Page" ) {
+        idx = _pageIdx(startIdx);
+        return idx;
+    }
 
-    if ( !expectedParentItemText.isEmpty() ) {
-        if ( pidx.isValid() ) {
-            if ( !isIndex(pidx, expectedParentItemText) ) {
-                QStandardItem* pItem = itemFromIndex(pidx);
-                QString pText = pItem->text();
-                qDebug() << "snap [bad scoobies]: getIndex() received a pidx of "
-                         << pidx << " with parent item text " << pText
-                         << ".  The expected item text was "
-                         << expectedParentItemText << ".";
+    if ( !expectedStartIdxText.isEmpty() ) {
+        if ( startIdx.isValid() ) {
+            if ( !isIndex(startIdx, expectedStartIdxText) ) {
+                QStandardItem* startItem = itemFromIndex(startIdx);
+                QString startText = startItem->text();
+                qDebug() << "snap [bad scoobies]: getIndex() received a "
+                            "startIdx of " << startIdx << " with item text "
+                         << startText << ".  The expected start item text was "
+                         << expectedStartIdxText << ".";
                 exit(-1);
             }
         } else {
             qDebug() << "snap [bad scoobies]: getIndex() received an "
-                        "invalid first level pidx. The pidx was expected "
-                        "to have this text " << expectedParentItemText << ".";
+                        "invalid first level startIdx. The startIdx "
+                        "was expected to have this text "
+                     << expectedStartIdxText << ".";
             exit(-1);
         }
     }
 
-    if ( !pidx.isValid() ) {
-        if ( childItemText == "SessionStartTime" ) {
+    if ( !startIdx.isValid() ) {
+        if ( searchItemText == "SessionStartTime" ) {
             idx = index(0,0);
-        } else if ( childItemText == "SessionStopTime" ) {
+        } else if ( searchItemText == "SessionStopTime" ) {
             idx = index(1,0);
-        } else if ( childItemText == "Pages" ) {
+        } else if ( searchItemText == "Pages" ) {
             idx = index(2,0);
         } else {
-            qDebug() << "snap [bad scoobies]: getIndex() received the "
-                        "root pidx with bad child item text of \""
-                     << childItemText
+            qDebug() << "snap [bad scoobies]: getIndex() received "
+                        "root as a startIdx and had bad child item text of \""
+                     << searchItemText
                      << "\".";
             exit(-1);
         }
     } else {
-        int rc = itemFromIndex(pidx)->rowCount();
+        int rc = itemFromIndex(startIdx)->rowCount();
         bool isFound = false;
         for ( int i = 0; i < rc; ++i ) {
-            QModelIndex cIdx = index(i,0,pidx);
+            QModelIndex cIdx = index(i,0,startIdx);
             QString cText = itemFromIndex(cIdx)->text();
-            if ( cText == childItemText ) {
+            if ( cText == searchItemText ) {
                 idx = cIdx;
                 isFound = true;
                 break;
             }
         }
         if ( !isFound ) {
-            if ( !expectedParentItemText.isEmpty() ) {
+            if ( !expectedStartIdxText.isEmpty() ) {
                 qDebug()
-                    << "snap [bad scoobies]: getIndex() received a parent item "
-                    << expectedParentItemText
+                    << "snap [bad scoobies]: getIndex() received a start item "
+                    << expectedStartIdxText
                     << ".  Unable to find a child with the item text "
-                    << childItemText << " for that parent.";
+                    << searchItemText << " for that parent.";
             } else {
                 qDebug()
-                    << "snap [bad scoobies]: getIndex() received a pidx of "
-                    << pidx
+                    << "snap [bad scoobies]: getIndex() received a startIdx of "
+                    << startIdx
                     << ".  Unable to find a child with the item text "
-                    << childItemText << ".";
+                    << searchItemText << ".";
             }
             exit(-1);
         }

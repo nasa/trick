@@ -73,7 +73,7 @@ void VarsWidget::_varsSelectModelSelectionChanged(
 
     } else {  // Multiple items selected.
         QModelIndex currIdx = _plotSelectModel->currentIndex();
-        QModelIndex pageIdx = _plotModel->pageIdx(currIdx);
+        QModelIndex pageIdx = _plotModel->getIndex(currIdx, "Page");
         QStandardItem* pageItem = _plotModel->itemFromIndex(pageIdx);
         QModelIndexList currVarIdxs = currVarSelection.indexes();
         while ( ! currVarIdxs.isEmpty() ) {

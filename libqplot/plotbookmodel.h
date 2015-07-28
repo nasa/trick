@@ -28,21 +28,20 @@ public:
     bool isIndex(const QModelIndex& idx,
                   const QString& itemText) const;
 
-    QModelIndex getIndex(const QModelIndex& pidx,
-                        const QString& childItemText,
-                        const QString &expectedParentItemText=QString()) const;
+    QModelIndex getIndex(const QModelIndex& startIdx,
+                        const QString& searchItemText,
+                        const QString &expectedStartIdxText=QString()) const;
 
-    QModelIndex pageIdx(const QModelIndex& idx) const ;
     QModelIndexList pageIdxs() const ;
 
     QStandardItem* plotsItem(QStandardItem* pageItem) const ;
 
     QModelIndex plotIdx(const QModelIndex& idx) const ;
-    QModelIndexList plotIdxs(const QModelIndex& pageIdx) const ;
+    QModelIndexList plotIdxs(const QModelIndex& _pageIdx) const ;
 
     QModelIndexList curveIdxs(const QModelIndex& curvesIdx) const ;
 
-    QModelIndex pageBGColorIndex(const QModelIndex& pageIdx) const;
+    QModelIndex pageBGColorIndex(const QModelIndex& _pageIdx) const;
 
 signals:
     
@@ -51,6 +50,7 @@ public slots:
 private:
     MonteModel* _monteModel;
     void _initModel();
+    QModelIndex _pageIdx(const QModelIndex& idx) const ;
 
 };
 
