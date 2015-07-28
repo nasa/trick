@@ -153,15 +153,6 @@ QModelIndexList PlotBookModel::pageIdxs() const
     return idxs;
 }
 
-QStandardItem *PlotBookModel::plotsItem(QStandardItem *pageItem) const
-{
-
-    QModelIndex pageIdx = indexFromItem(pageItem);
-    QModelIndex plotsIdx = getIndex(pageIdx, "Plots", "Page");
-    QStandardItem* plotsItem = itemFromIndex(plotsIdx);
-    return plotsItem;
-}
-
 QModelIndex PlotBookModel::plotIdx(const QModelIndex &idx) const
 {
     QModelIndex pltIdx;

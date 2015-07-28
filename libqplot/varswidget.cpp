@@ -148,7 +148,9 @@ QStandardItem* VarsWidget::_createPageItem()
 void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
                                 const QModelIndex &varIdx)
 {
-    QStandardItem* plotsItem = _plotModel->plotsItem(pageItem);
+    QModelIndex pageIdx = _plotModel->indexFromItem(pageItem);
+    QModelIndex plotsIdx = _plotModel->getIndex(pageIdx, "Plots", "Page");
+    QStandardItem* plotsItem = _plotModel->itemFromIndex(plotsIdx);
     QStandardItem* plotItem = _addChild(plotsItem, "Plot");
 
     QString tName = _monteModel->headerData(0).toString();

@@ -34,8 +34,6 @@ public:
 
     QModelIndexList pageIdxs() const ;
 
-    QStandardItem* plotsItem(QStandardItem* pageItem) const ;
-
     QModelIndex plotIdx(const QModelIndex& idx) const ;
     QModelIndexList plotIdxs(const QModelIndex& _pageIdx) const ;
 
