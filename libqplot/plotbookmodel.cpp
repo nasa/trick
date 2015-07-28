@@ -153,7 +153,7 @@ QModelIndexList PlotBookModel::pageIdxs() const
     return idxs;
 }
 
-QModelIndex PlotBookModel::plotIdx(const QModelIndex &idx) const
+QModelIndex PlotBookModel::_plotIdx(const QModelIndex &idx) const
 {
     QModelIndex pltIdx;
 
@@ -237,9 +237,15 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
 {
     QModelIndex idx;
 
-    // For Page, if the parent isn't "Pages" the search goes up the tree
+    // For Page, the search may go up the tree
     if ( searchItemText == "Page" ) {
         idx = _pageIdx(startIdx);
+        return idx;
+    }
+
+    // For Plot, the search may go up the tree
+    if ( searchItemText == "Plot" ) {
+        idx = _plotIdx(startIdx);
         return idx;
     }
 

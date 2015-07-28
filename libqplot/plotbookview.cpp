@@ -735,7 +735,7 @@ void PlotBookView::_plotSelectModelSelectChanged(const QItemSelection &curr,
             prevCurve->setSelected(false);
             if ( curr.indexes().size() == 0 ) {
                 // If curr > 0, replot done in next block
-                QModelIndex plotIdx = _plotModel->plotIdx(prevIdx);
+                QModelIndex plotIdx = _plotModel->getIndex(prevIdx, "Plot");
                 Plot* plot = _idx2Plot(plotIdx);
                 if ( plot->isVisible() ) {
                         plot->replot();
@@ -748,7 +748,7 @@ void PlotBookView::_plotSelectModelSelectChanged(const QItemSelection &curr,
         TrickCurve* currCurve = _idx2Curve(currIdx);
         if ( currCurve ) {
             currCurve->setSelected(true);
-            QModelIndex plotIdx = _plotModel->plotIdx(currIdx);
+            QModelIndex plotIdx = _plotModel->getIndex(currIdx, "Plot");
             Plot* plot = _idx2Plot(plotIdx);
 
             // If plot is on current page (not hidden) replot
@@ -780,7 +780,7 @@ void PlotBookView::_selectNextCurve()
     if ( currSel.size() > 0 ) {
         QModelIndex currIdx = currSel.indexes().at(0);
         if ( _plotModel->isIndex(currIdx, "Curve") ) {
-            QModelIndex plotIdx = _plotModel->plotIdx(currIdx);
+            QModelIndex plotIdx = _plotModel->getIndex(currIdx, "Plot");
             int currRow = currIdx.row();
             int nextRow = currRow+1;
             if ( nextRow >= model()->rowCount(plotIdx) ) {
@@ -999,7 +999,7 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             plot->axisRect()->zoomToFit();
             _plot2Curves[plot].append(curve);
 
-            QModelIndex plotIdx = _plotModel->plotIdx(idx);
+            QModelIndex plotIdx = _plotModel->getIndex(idx, "Plot");
             QModelIndex xAxisLabelIdx =
                     _plotModel->getIndex(plotIdx,"PlotXAxisLabel", "Plot");
             QString xAxisLabel = _appendUnitToAxisLabel(xAxisLabelIdx,xunit);
@@ -1584,7 +1584,7 @@ Plot *PlotBookView::_idx2Plot(const QModelIndex &idx) const
 {
     Plot* plot = 0 ;
 
-    QModelIndex plotIdx = _plotModel->plotIdx(idx);
+    QModelIndex plotIdx = _plotModel->getIndex(idx, "Plot");
     if ( !plotIdx.isValid() )  return 0;
 
     QModelIndex pageIdx = _plotModel->getIndex(plotIdx, "Page");

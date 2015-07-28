@@ -34,7 +34,6 @@ public:
 
     QModelIndexList pageIdxs() const ;
 
-    QModelIndex plotIdx(const QModelIndex& idx) const ;
     QModelIndexList plotIdxs(const QModelIndex& _pageIdx) const ;
 
     QModelIndexList curveIdxs(const QModelIndex& curvesIdx) const ;
@@ -49,6 +48,7 @@ private:
     MonteModel* _monteModel;
     void _initModel();
     QModelIndex _pageIdx(const QModelIndex& idx) const ;
+    QModelIndex _plotIdx(const QModelIndex& idx) const ;
 
 };
 
