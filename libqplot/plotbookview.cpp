@@ -970,7 +970,8 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             double sessionStartTime = _plotModel->data(pmIdx).toDouble();
             pmIdx = _plotModel->getIndex(QModelIndex(),"SessionStopTime");
             double sessionStopTime = _plotModel->data(pmIdx).toDouble();
-            pmIdx = _plotModel->pageBGColorIndex(idx);
+            QModelIndex pgIdx = _plotModel->getIndex(idx, "Page");
+            pmIdx = _plotModel->getIndex(pgIdx, "PageBackgroundColor");
             QString pageBGColor = _plotModel->data(pmIdx).toString();
             _insertPlot(page, sessionStartTime, sessionStopTime, pageBGColor);
 
@@ -1329,7 +1330,10 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             QString bgColor = model()->data(idx).toString();
             if ( bgColor == "#FFFFFF" ) {
                 // This assumes that the plot was not explicitly set to white
-                QModelIndex pageBGColorIdx = _plotModel->pageBGColorIndex(gpidx);
+                QModelIndex pgIdx = _plotModel->getIndex(pidx, "Page");
+                QModelIndex pageBGColorIdx = _plotModel->getIndex(pgIdx,
+                                                         "PageBackgroundColor",
+                                                         "Page");
                 bgColor = model()->data(pageBGColorIdx).toString();
             }
             plot->setBackgroundColor(bgColor);

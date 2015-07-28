@@ -38,8 +38,6 @@ public:
 
     QModelIndexList curveIdxs(const QModelIndex& curvesIdx) const ;
 
-    QModelIndex pageBGColorIndex(const QModelIndex& _pageIdx) const;
-
 signals:
     
 public slots:
