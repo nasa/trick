@@ -143,14 +143,7 @@ QModelIndex PlotBookModel::_pageIdx(const QModelIndex& idx) const
 
 QModelIndexList PlotBookModel::pageIdxs() const
 {
-    QModelIndexList idxs;
-    QModelIndex pgsIdx = getIndex(QModelIndex(), "Pages");
-    int rc = rowCount(pgsIdx);
-    for ( int i = 0; i < rc; ++i ) {
-        QModelIndex idx = index(i,0,pgsIdx);
-        idxs.append(idx);
-    }
-    return idxs;
+    return getIndexList(QModelIndex(), "Page");
 }
 
 QModelIndex PlotBookModel::_plotIdx(const QModelIndex &idx) const
@@ -176,25 +169,12 @@ QModelIndex PlotBookModel::_plotIdx(const QModelIndex &idx) const
 
 QModelIndexList PlotBookModel::plotIdxs(const QModelIndex &pageIdx) const
 {
-    QModelIndexList idxs;
-    QModelIndex pltsIdx = getIndex(pageIdx, "Plots", "Page");
-    int rc = rowCount(pltsIdx);
-    for ( int i = 0 ; i < rc; ++i ) {
-        idxs.append(index(i,0,pltsIdx));
-    }
-
-    return idxs;
+    return getIndexList(pageIdx, "Plot");
 }
 
 QModelIndexList PlotBookModel::curveIdxs(const QModelIndex &curvesIdx) const
 {
-    QModelIndexList idxs;
-    int rc = rowCount(curvesIdx);
-    for ( int i = 0 ; i < rc; ++i ) {
-        idxs.append(index(i,0,curvesIdx));
-    }
-
-    return idxs;
+    return getIndexList(curvesIdx, "Curve", "Curves");
 }
 
 void PlotBookModel::_initModel()
@@ -308,6 +288,44 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
     }
 
     return idx;
+}
+
+QModelIndexList PlotBookModel::getIndexList(const QModelIndex &startIdx,
+                                  const QString &searchItemText,
+                                  const QString &expectedStartIdxText) const
+{
+    QModelIndexList idxs;
+
+    QString startItemText;
+    if ( startIdx.isValid() ) {
+        startItemText = itemFromIndex(startIdx)->text();
+    }
+
+    //
+    // Get parent idx (pidx) for index list
+    //
+    QModelIndex pidx = startIdx;
+    if ( searchItemText == "Page" ) {
+        pidx = getIndex(QModelIndex(), "Pages");
+    } else if ( searchItemText == "Plot" ) {
+        // Made so startIdx doesn't have to be the parent PageIdx
+        QModelIndex pageIdx = getIndex(startIdx, "Page");
+        if ( !pageIdx.isValid() ) {
+            qDebug() << "snap [bad scoobies]: getIndexList() received a "
+                        "startIdx of \"" << startItemText << "\""
+                    << startIdx << " with search item text " << searchItemText
+                    << ".  Unable to find list for the item text.";
+            exit(-1);
+        }
+        pidx = getIndex(pageIdx, "Plots", "Page");
+    }
+
+    int rc = rowCount(pidx);
+    for ( int i = 0; i < rc; ++i ) {
+        idxs.append(index(i,0,pidx));
+    }
+
+    return idxs;
 }
 
 bool PlotBookModel::isIndex(const QModelIndex &idx, const QString &itemText) const

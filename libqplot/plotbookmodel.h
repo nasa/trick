@@ -32,10 +32,13 @@ public:
                         const QString& searchItemText,
                         const QString &expectedStartIdxText=QString()) const;
 
+    QModelIndexList getIndexList(const QModelIndex& startIdx,
+                        const QString& searchItemText,
+                        const QString &expectedStartIdxText=QString()) const;
+
+    // Convenience wrappers for getIndexList
     QModelIndexList pageIdxs() const ;
-
-    QModelIndexList plotIdxs(const QModelIndex& _pageIdx) const ;
-
+    QModelIndexList plotIdxs(const QModelIndex& pageIdx) const ;
     QModelIndexList curveIdxs(const QModelIndex& curvesIdx) const ;
 
 signals:
