@@ -4,7 +4,7 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 CC := $(shell $(LLVM_HOME)/bin/llvm-config --bindir)/clang
 CXX := $(shell $(LLVM_HOME)/bin/llvm-config --bindir)/clang++
-CXXFLAGS := -g -I$(shell $(LLVM_HOME)/bin/llvm-config --includedir) -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -fno-rtti -std=c++11
+CXXFLAGS := -g -I$(shell $(LLVM_HOME)/bin/llvm-config --includedir) -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -fno-rtti
 
 CLANG_MINOR_GTEQ5 := $(shell expr `$(LLVM_HOME)/bin/llvm-config --version | cut -f2 -d. ` \>= 5 )
 
