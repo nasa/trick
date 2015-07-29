@@ -42,15 +42,12 @@ std::string Trick::MonteVarCalculated::get_next_value() {
                 value = buffer;
                 break;
             case TRICK_FLOAT:
-                sprintf(buffer, "%.10g", *(float *)ref2->address);
+                sprintf(buffer, "%.15g", *(float *)ref2->address);
                 value = buffer;
-                sprintf(buffer, "trick.unhex_float(0x%lx)", *(long *)ref2->address);
                 break;
             case TRICK_DOUBLE:
-                sprintf(buffer, "%.10g", *(double *)ref2->address);
+                sprintf(buffer, "%.15g", *(double *)ref2->address);
                 value = buffer;
-                sprintf(buffer, "struct.unpack(\"!d\", binascii.unhexlify(\"%016llx\"))[0]",
-                  *(long long *)ref2->address);
                 break;
             default:
                 sprintf(buffer, "#Unsupported value type %d", ref2->attr->type) ;
@@ -58,10 +55,9 @@ std::string Trick::MonteVarCalculated::get_next_value() {
         }
 
         if (unit.empty()) {
-            return name + std::string(" = ") + std::string(buffer) + std::string(" # ") + std::string(value);
+            return name + std::string(" = ") + value;
         } else {
-            return name + std::string(" = trick.attach_units(\"") + unit + std::string("\", ") + std::string(buffer) +
-              std::string(") # ") + std::string(value);
+            return name + std::string(" = trick.attach_units(\"") + unit + std::string("\", ") + value + std::string(")");
         }
     }
     return NULL;
