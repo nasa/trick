@@ -1,5 +1,9 @@
 #include "dptreewidget.h"
 
+QString DPTreeWidget::_err_string;
+QTextStream DPTreeWidget::_err_stream(&DPTreeWidget::_err_string);
+
+
 DPTreeWidget::DPTreeWidget(const QString &dpDirName,
                            const QStringList &dpFiles,
                            QStandardItemModel *dpVarsModel,
@@ -209,31 +213,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             foreach (DPCurve* dpcurve, plot->curves() ) {
                 ++curveId;
                 for ( int runId = 0; runId < numRuns; ++runId) {
-
-                    // Curve
-                    QStandardItem *curveItem = _addChild(curvesItem,"Curve");
-
-                    // Curve children
-                    QString curveName = QString("Curve_%0_%1")
-                                        .arg(curveId).arg(runId);
-                    _addChild(curveItem, "CurveName", curveName);
-                    _addChild(curveItem, "CurveTime", dpcurve->t()->name());
-                    _addChild(curveItem, "CurveTimeUnit", dpcurve->t()->unit());
-                    _addChild(curveItem, "CurveXName", dpcurve->x()->name());
-                    _addChild(curveItem, "CurveXUnit", dpcurve->x()->unit());
-                    _addChild(curveItem, "CurveYName", dpcurve->y()->name());
-                    _addChild(curveItem, "CurveYUnit", dpcurve->y()->unit());
-                    _addChild(curveItem, "CurveRunID", runId);
-                    _addChild(curveItem, "CurveData","");
-                    _addChild(curveItem, "CurveXScale", dpcurve->x()->scaleFactor());
-                    _addChild(curveItem, "CurveXBias", dpcurve->x()->bias());
-                    _addChild(curveItem, "CurveYScale", dpcurve->y()->scaleFactor());
-                    _addChild(curveItem, "CurveYBias", dpcurve->y()->bias());
-                    _addChild(curveItem, "CurveColor", dpcurve->lineColor());
-                    _addChild(curveItem, "CurveSymbolStyle", dpcurve->y()->symbolStyle());
-                    _addChild(curveItem, "CurveSymbolSize", dpcurve->y()->symbolSize());
-                    _addChild(curveItem, "CurveLineStyle", dpcurve->y()->lineStyle());
-                    _addChild(curveItem, "CurveYLabel", dpcurve->y()->label());
+                    _addCurve(curvesItem, dpcurve, _monteModel, runId, curveId);
                 }
             }
         }
@@ -248,6 +228,81 @@ QStandardItem *DPTreeWidget::_addChild(QStandardItem *parentItem,
                              const QVariant& childValue)
 {
     return(_plotModel->addChild(parentItem,childTitle,childValue));
+}
+
+void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
+                             DPCurve *dpcurve, MonteModel *monteModel,
+                             int runId, int curveId)
+{
+    // Curve
+    QStandardItem *curveItem = _addChild(curvesItem,"Curve");
+
+    // Curve Name
+    QString curveName = QString("Curve_%0_%1").arg(curveId).arg(runId);
+    _addChild(curveItem, "CurveName", curveName);
+
+    // Get x&y params that match this run
+    DPVar* x = 0;
+    DPVar* y = 0;
+    if ( dpcurve->xyPairs().isEmpty() ) {
+        // Find out what x&y to use for curve
+        // It can be in xypairs
+        x = dpcurve->x();
+        y = dpcurve->y();
+        QString xName = x->name();
+        QString yName = y->name();
+        TrickCurveModel* curveModel = monteModel->curve(runId, xName, yName);
+        if ( !curveModel ) {
+            _err_stream << "snap [error]: could not find parameter "
+                        << "(" << xName << "," << yName << ") "
+                        << "in RUN data.";
+            throw std::runtime_error(_err_string.toAscii().constData());
+        }
+    } else {
+
+        // Search through xypairs
+        QStringList xyParams;  // in case error, use this in message
+        TrickCurveModel* curveModel = 0;
+        foreach ( DPXYPair* xyPair, dpcurve->xyPairs() ) {
+            QString xName = xyPair->x()->name();
+            QString yName = xyPair->y()->name();
+            xyParams << "(" + xName + " , " + yName + ")";
+            curveModel = _monteModel->curve(runId, xName, yName);
+            if ( curveModel ) {
+                x = xyPair->x();
+                y = xyPair->y();
+                break;
+            }
+        }
+
+        if ( !curveModel ) {
+            _err_stream << "snap [error]: could not parameter in RUN data.  "
+                           "Tried the following parameters:\n";
+            foreach ( QString xy, xyParams ) {
+                _err_stream << "    " << xy << "\n";
+            }
+            throw std::runtime_error(_err_string.toAscii().constData());
+        }
+    }
+
+    // Curve children
+    _addChild(curveItem, "CurveTime", dpcurve->t()->name());
+    _addChild(curveItem, "CurveTimeUnit", dpcurve->t()->unit());
+    _addChild(curveItem, "CurveXName", x->name());
+    _addChild(curveItem, "CurveXUnit", x->unit());
+    _addChild(curveItem, "CurveYName", y->name());
+    _addChild(curveItem, "CurveYUnit", y->unit());
+    _addChild(curveItem, "CurveRunID", runId);
+    _addChild(curveItem, "CurveData","");
+    _addChild(curveItem, "CurveXScale",      x->scaleFactor());
+    _addChild(curveItem, "CurveXBias",       x->bias());
+    _addChild(curveItem, "CurveYScale",      y->scaleFactor());
+    _addChild(curveItem, "CurveYBias",       y->bias());
+    _addChild(curveItem, "CurveSymbolStyle", y->symbolStyle());
+    _addChild(curveItem, "CurveSymbolSize",  y->symbolSize());
+    _addChild(curveItem, "CurveLineStyle",   y->lineStyle());
+    _addChild(curveItem, "CurveYLabel",      y->label());
+    _addChild(curveItem, "CurveColor",       y->lineColor());
 }
 
 bool DPTreeWidget::_isDP(const QString &fp)

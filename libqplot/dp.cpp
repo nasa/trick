@@ -604,6 +604,17 @@ DPVar *DPCurve::setYVarName(const char *name)
     return _y;
 }
 
+QList<DPXYPair *> DPCurve::xyPairs()
+{
+    return _xyPairs;
+}
+
+void DPCurve::addXYPair(DPVar *x, DPVar *y)
+{
+    DPXYPair* xyPair = new DPXYPair(x,y);
+    _xyPairs.append(xyPair);
+}
+
 
 DPVar* DPCurve::t() {
     if ( !_t ) {
@@ -745,3 +756,15 @@ DPVar::DPVar(const char *name) :
 {
 }
 
+
+DPXYPair::DPXYPair(const QDomElement &e) :
+    _x(0), _y(0)
+{
+}
+
+DPXYPair::DPXYPair(DPVar *x, DPVar *y) :
+    _x(0), _y(0)
+{
+    _x = x;
+    _y = y;
+}

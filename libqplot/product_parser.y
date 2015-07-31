@@ -53,6 +53,8 @@ DPPlot* currPlot = 0;
 DPCurve* currCurve = 0;
 DPVar* currXVar = 0;
 DPVar* currYVar = 0;
+DPVar* currXYPairXVar = 0;
+DPVar* currXYPairYVar = 0;
 
 QString dpFileName() {
     QString fname;
@@ -271,13 +273,28 @@ plot: DP_PLOT DP_FLOAT ':' DP_STR {
 
 x_var: DP_X_VARIABLE ':' DP_STR {
                 // DP_STR is x variable name
-                currXVar = currCurve->setXVarName($3);
+                if ( isXYPair ) {
+                    currXYPairXVar = new DPVar($3);
+                } else {
+                    currXVar = currCurve->setXVarName($3);
+                }
+                if ( isXYPair ) {
+                } else {
+                }
         }
         | x_var DP_LABEL ':' DP_STR {
-                currXVar->setLabel($4);
+                if ( isXYPair ) {
+                    currXYPairXVar->setLabel($4);
+                } else {
+                    currXVar->setLabel($4);
+                }
         }
         | x_var DP_UNITS ':' DP_STR {
-                currXVar->setUnit($4);
+                if ( isXYPair ) {
+                    currXYPairXVar->setUnit($4);
+                } else {
+                    currXVar->setUnit($4);
+                }
         }
         | x_var DP_MIN_RANGE ':' DP_FLOAT {
                 currPlot->setXMinRange($4);
@@ -286,14 +303,25 @@ x_var: DP_X_VARIABLE ':' DP_STR {
                 currPlot->setXMaxRange($4);
         }
         | x_var DP_SCALE_FACTOR ':' DP_FLOAT {
-                currXVar->setScaleFactor($4);
+                if ( isXYPair ) {
+                    currXYPairXVar->setScaleFactor($4);
+                } else {
+                    currXVar->setScaleFactor($4);
+                }
         }
         | x_var DP_BIAS ':' DP_FLOAT {
-                currXVar->setBias($4);
+                if ( isXYPair ) {
+                    currXYPairXVar->setBias($4);
+                } else {
+                    currXVar->setBias($4);
+                }
         }
         | x_var DP_TIME_NAME ':' DP_STR {
-                //currXVar->setTimeName($4);
-                msg("plot->setTimeName() not supported");
+                if ( isXYPair ) {
+                    currXYPairXVar->setTimeName($4);
+                } else {
+                    currXVar->setTimeName($4);
+                }
         }
         | x_var DP_TIME_UNITS ':' DP_STR {
                 //currXVar->setTimeUnit($4);
@@ -303,13 +331,25 @@ x_var: DP_X_VARIABLE ':' DP_STR {
 
 y_var: DP_Y_VARIABLE ':' DP_STR {
                 // DP_STR is y variable name
-                currYVar = currCurve->setYVarName($3);
+                if ( isXYPair ) {
+                    currXYPairYVar = new DPVar($3);
+                } else {
+                    currYVar = currCurve->setYVarName($3);
+                }
         }
         | y_var DP_LABEL ':' DP_STR {
-                currYVar->setLabel($4);
+                if ( isXYPair ) {
+                    currXYPairYVar->setLabel($4);
+                } else {
+                    currYVar->setLabel($4);
+                }
         }
         | y_var DP_UNITS ':' DP_STR {
-                currYVar->setUnit($4);
+                if ( isXYPair ) {
+                    currXYPairYVar->setUnit($4);
+                } else {
+                    currYVar->setUnit($4);
+                }
         }
         | y_var DP_MIN_RANGE ':' DP_FLOAT  {
                 currPlot->setYMinRange($4);
@@ -318,30 +358,57 @@ y_var: DP_Y_VARIABLE ':' DP_STR {
                 currPlot->setYMaxRange($4);
         }
         | y_var DP_SCALE_FACTOR ':' DP_FLOAT {
-                currYVar->setScaleFactor($4);
+                if ( isXYPair ) {
+                    currXYPairYVar->setScaleFactor($4);
+                } else {
+                    currYVar->setScaleFactor($4);
+                }
         }
         | y_var DP_BIAS ':' DP_FLOAT {
-                currYVar->setBias($4);
+                if ( isXYPair ) {
+                    currXYPairYVar->setBias($4);
+                } else {
+                    currYVar->setBias($4);
+                }
         }
         | y_var DP_LINE_STYLE ':' DP_STR {
-                currYVar->setLineStyle($4);
+                if ( isXYPair ) {
+                    currXYPairYVar->setLineStyle($4);
+                } else {
+                    currYVar->setLineStyle($4);
+                }
         }
         | y_var DP_LINE_COLOR ':' DP_STR {
-                currCurve->setLineColor($4);
+                if ( isXYPair ) {
+                    currXYPairYVar->setLineColor($4);
+                } else {
+                    currYVar->setLineColor($4);
+                }
         }
         | y_var DP_SYMBOL_STYLE ':' DP_STR {
-                currCurve->setSymbolStyle($4);
+                if ( isXYPair ) {
+                    currXYPairYVar->setSymbolStyle($4);
+                } else {
+                    currYVar->setSymbolStyle($4);
+                }
         }
         | y_var DP_SYMBOL_SIZE ':' DP_STR {
-                currCurve->setSymbolSize($4);
+                if ( isXYPair ) {
+                    currXYPairYVar->setSymbolSize($4);
+                } else {
+                    currYVar->setSymbolSize($4);
+                }
         }
         | y_var DP_GNUPLOT_FUNCTION_STYLE ':' DP_STR {
                 //currCurve->setGnuplotFunctionStyle($4);
                 msg("plot->setGnuplotFunctionStyle() not supported");
         }
         | y_var DP_TIME_NAME ':' DP_STR {
-                //currYVar->setTimeName($4);
-                msg("plot->setTimeName() not supported");
+                if ( isXYPair ) {
+                    currXYPairYVar->setTimeName($4);
+                } else {
+                    currYVar->setTimeName($4);
+                }
         }
         | y_var DP_TIME_UNITS ':' DP_STR {
                 //currYVar->setTimeUnit($4);
@@ -356,13 +423,12 @@ y_var: DP_Y_VARIABLE ':' DP_STR {
 curve: DP_CURVE ':' {
                 currCurve = currPlot->addCurve();
         }
-        | curve DP_XY_PAIR ':' '{' y_var '}' {
-                isXYPair = true;
-                msg("plot->addXYPair() not supported");
+        | curve DP_XY_PAIR ':' '{' {isXYPair = true;} y_var '}' {
+                isXYPair = false;
         }
-        | curve DP_XY_PAIR ':' '{' x_var y_var '}' {
-                isXYPair = true;
-                msg("plot->addXYPair() not supported");
+        | curve DP_XY_PAIR  ':' '{' {isXYPair = true;} x_var y_var '}' {
+                currCurve->addXYPair(currXYPairXVar,currXYPairYVar);
+                isXYPair = false;
         }
         | curve DP_LABEL ':' DP_STR {
                 //currCurve->setLabel($4);

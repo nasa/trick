@@ -33,6 +33,7 @@ public:
     double bias() { return _bias; }
     QString symbolStyle() { return _symbol; }
     QString symbolSize() { return _symbolSize; }
+    QString timeName() const { return _timeName; }
 
     void setLabel(const char* label) { _label = label; }
     void setUnit(const char* unit) { _unit = unit; }
@@ -42,6 +43,7 @@ public:
     void setBias(double b) { _bias = b; }
     void setSymbolStyle(const char* ss) { _symbol = ss; }
     void setSymbolSize(const char* ss) { _symbolSize = ss; }
+    void setTimeName(const char* t) { _timeName = t; }
 
 private:
     QString _name;
@@ -53,6 +55,20 @@ private:
     double _bias;
     QString _symbol;
     QString _symbolSize;
+    QString _timeName;
+};
+
+class DPXYPair
+{
+public:
+    DPXYPair(const QDomElement& e);
+    DPXYPair(DPVar* x, DPVar* y);
+    DPVar* x() { return _x; }
+    DPVar* y() { return _y; }
+
+private:
+    DPVar* _x;
+    DPVar* _y;
 };
 
 class DPCurve
@@ -67,6 +83,9 @@ public:
 
     DPVar* setXVarName(const char* name);
     DPVar* setYVarName(const char* name);
+
+    QList<DPXYPair*> xyPairs();
+    void addXYPair(DPVar* x, DPVar* y);
 
     QString lineColor();
     void setLineColor(const char* lineColor);
@@ -85,6 +104,7 @@ private:
     DPVar* _x;
     DPVar* _y;
     QString _color;  // TODO: should this be a member of y, like symbolStyle?
+    QList<DPXYPair*> _xyPairs;
     static QString _err_string;
     static QTextStream _err_stream;
 };

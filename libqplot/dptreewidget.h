@@ -50,8 +50,13 @@ private:
     QStandardItem* _addChild(QStandardItem* parentItem,
                    const QString& childTitle,
                    const QVariant &childValue=QVariant());
+    void _addCurve(QStandardItem* curvesItem, DPCurve* dpcurve,
+                   MonteModel* monteModel, int runId, int curveId);
     bool _isDP(const QString& fp);
     QString _descrPlotTitle(DPPlot* plot);
+
+    static QString _err_string;
+    static QTextStream _err_stream;
 
 private slots:
     void _searchBoxTextChanged(const QString &rx);

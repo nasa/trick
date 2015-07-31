@@ -60,13 +60,15 @@ TrickCurveModel *MonteModel::curve(int row,
 {
     QList<TrickModel*>* models = _runs->models(yparam);
     if ( models == 0 ) {
-        _err_stream << "snap [error]: parameter \""
-                    << yparam << "\" does not exist in RUN data";
-        throw std::runtime_error(_err_string.toAscii().constData());
+        return 0;
     }
-    TrickModel* tm = models->at(row);
-    int ycol = tm->paramColumn(yparam) ;
 
+    TrickModel* tm = models->at(row);
+    if ( !tm ) {
+        return 0;
+    }
+
+    int ycol = tm->paramColumn(yparam) ;
     int xcol = tm->paramColumn(xparam) ;
     if ( xcol < 0 ) {
         _err_stream << "snap [error]: MonteModel::curve() called with bad "

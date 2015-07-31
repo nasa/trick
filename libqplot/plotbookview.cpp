@@ -678,7 +678,8 @@ void PlotBookView::dataChanged(const QModelIndex &topLeft,
 
             TrickCurve* curve = _idx2Curve(idx.parent());
             QColor color(item->data().toString());
-            QPen pen(color);
+            QPen pen = curve->pen();
+            pen.setColor(color);
             curve->setPen(pen);
         }
     }
@@ -1025,7 +1026,8 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             } else {
                 if ( !_isShowCurveDiff ) {
                     QColor color(colorStr);
-                    QPen pen(color);
+                    QPen pen = curve->pen();
+                    pen.setColor(color);
                     curve->setPen(pen);
                 }
             }
@@ -1252,25 +1254,25 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             Plot* plot = _idx2Plot(pidx);
             plot->setTitle(title);
 
-        } else if ( itemText == "PlotXMin" ) {
+        } else if ( itemText == "PlotXMinRange" ) {
 
             double xMin = model()->data(idx).toDouble();
             Plot* plot = _idx2Plot(pidx);
             plot->setXMinRange(xMin);
 
-        } else if ( itemText == "PlotXMax" ) {
+        } else if ( itemText == "PlotXMaxRange" ) {
 
             double xMax = model()->data(idx).toDouble();
             Plot* plot = _idx2Plot(pidx);
             plot->setXMaxRange(xMax);
 
-        } else if ( itemText == "PlotYMin" ) {
+        } else if ( itemText == "PlotYMinRange" ) {
 
             double yMin = model()->data(idx).toDouble();
             Plot* plot = _idx2Plot(pidx);
             plot->setYMinRange(yMin);
 
-        } else if ( itemText == "PlotYMax" ) {
+        } else if ( itemText == "PlotYMaxRange" ) {
 
             double yMax = model()->data(idx).toDouble();
             Plot* plot = _idx2Plot(pidx);
