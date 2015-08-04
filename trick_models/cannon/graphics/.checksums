@@ -1,7 +1,0 @@
-34305 26 ./cannon.c
-15388 1 ./glX_stubs.c
-25768 10 ./texture.c
-63720 4 ./texture.h
-35182 169 ./images/MarsMap.bmp
-23286 59 ./images/dirt.bmp
-21305 55 ./images/granite.bmp
