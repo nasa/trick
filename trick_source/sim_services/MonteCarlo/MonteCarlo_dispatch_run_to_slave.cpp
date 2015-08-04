@@ -33,11 +33,17 @@ void Trick::MonteCarlo::dispatch_run_to_slave(MonteRun *in_run, MonteSlave *in_s
                 message_publish(MSG_INFO, "Monte [Master] Dispatching run %d to %s:%d.\n",
 		     in_run->id, in_slave->machine_name.c_str(), in_slave->id) ;
             }
+
             int command = htonl(MonteSlave::PROCESS_RUN);
             tc_write(&connection_device, (char *)&command, (int)sizeof(command));
             int num_bytes = htonl(buffer.length());
             tc_write(&connection_device, (char*)&num_bytes, (int)sizeof(num_bytes));
             tc_write(&connection_device, (char*)buffer.c_str(), (int)buffer.length());
+
+            if (verbosity >= INFORMATIONAL) {
+                message_publish(MSG_INFO, "Parameterization of run %d :\n%s\n", in_run->id, buffer.c_str()) ;
+            }
+
             tc_disconnect(&connection_device);
 
             ++in_slave->num_dispatches;

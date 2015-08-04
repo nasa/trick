@@ -181,17 +181,16 @@ std::string Trick::MonteVarRandom::get_next_value() {
         case TRICK_GSL_GAUSS:
         case TRICK_GSL_FLAT:
         default:
-            sprintf(buffer, "%.10g", return_value.d);
+            sprintf(buffer, "%.15g", return_value.d);
             value = buffer;
-            sprintf(buffer, "struct.unpack(\"!d\", binascii.unhexlify(\"%llx\"))[0]", return_value.ll);
             break;
     }
 
     if (unit.empty()) {
-        return name + std::string(" = ") + std::string(buffer) + std::string(" # ") + std::string(value);
+        return name + std::string(" = ") + value ;
     } else {
-        return name + std::string(" = trick.attach_units(\"") + unit + std::string("\", ")  + std::string(buffer) + 
-               std::string(") # ") + std::string(value);
+        return name + std::string(" = trick.attach_units(\"") + unit + std::string("\", ")  + value + 
+               std::string(")") ;
     }
 }
 
