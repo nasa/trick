@@ -1,3 +1,7 @@
+#SIM_parachute
+
+![Picture of Parachutist](images/Parachutist.png)
+
 ### Background
 On October 14, 2012, 43-year-old Austrian daredevel Felix Baumgartner broke the
 world record for the highest-ever skydive after jumping from a balloon at an
