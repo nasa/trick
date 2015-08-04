@@ -272,17 +272,14 @@ void Trick::Executive::reset_job_call_times() {
     unsigned int ii ;
     for ( ii = 0 ; ii < all_jobs_vector.size() ; ii++ ) {
         Trick::JobData * temp_job = all_jobs_vector[ii] ;
-        temp_job->start_tics = (long long)round((double)temp_job->start_tics / old_time_tic_value * time_tic_value) ;
+        temp_job->start_tics = (long long)round((double)temp_job->start_tics / old_time_tic_value * time_tic_value) + time_tics ;
+
         if ( temp_job->disabled == false and
              (!temp_job->system_job_class or !temp_job->job_class_name.compare("system_advance_sim_time")) ) {
-            if ( time_tics <= temp_job->start_tics ) {
-                if ( ! temp_job->job_class_name.compare("integ_loop")) {
-                    temp_job->next_tics  = time_tics + temp_job->cycle_tics + temp_job->start_tics ;
-                } else {
-                    temp_job->next_tics  = time_tics + temp_job->start_tics ;
-                }
+            if ( ! temp_job->job_class_name.compare("integ_loop")) {
+                temp_job->next_tics  = temp_job->cycle_tics + temp_job->start_tics ;
             } else {
-                temp_job->next_tics  = time_tics + temp_job->cycle_tics ;
+                temp_job->next_tics  = temp_job->start_tics ;
             }
         }
     }
@@ -348,9 +345,7 @@ int Trick::Executive::set_terminate_time(double in_time) {
 }
 
 int Trick::Executive::set_time(double in_time) {
-    sim_start = in_time ;
     time_tics = (long long)(in_time * time_tic_value) ;
-    next_frame_check_tics = (long long)(time_tics + software_frame_tics) ;
     for (unsigned int ii = 0 ; ii < threads.size() ; ii++ ) {
        threads[ii]->curr_time_tics = time_tics ;
     }

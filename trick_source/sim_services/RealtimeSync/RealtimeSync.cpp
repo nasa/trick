@@ -129,12 +129,14 @@ int Trick::RealtimeSync::initialize() {
     start_sleep_timer();
 
     if ( align_sim_to_wall_clock ) {
+        rt_clock->clock_reset(0) ;
         rt_clock->sync_to_wall_clock( align_tic_mult , tics_per_sec ) ;
         message_publish(MSG_INFO, "Syncing sim to %f second wall clock interval\n", align_tic_mult ) ;
+        rt_clock->clock_spin(0) ;
         if ( exec_get_mode() == Freeze ) {
-            rt_clock->clock_spin(exec_get_freeze_time_tics()) ;
+            rt_clock->clock_reset(exec_get_freeze_time_tics()) ;
         } else {
-            rt_clock->clock_spin(exec_get_time_tics()) ;
+            rt_clock->clock_reset(exec_get_time_tics()) ;
         }
     }
 
@@ -203,7 +205,7 @@ int Trick::RealtimeSync::start_realtime(double in_frame_time , long long ref_tim
     if ( active ) {
 
         /* Only run in real time when sim time reaches 0.0 */
-        if (exec_get_time_tics() >= 0) {
+        if (ref_time >= 0) {
 
             /* Reset the clock reference time to the desired reference time */
             rt_clock->clock_reset(ref_time) ;
