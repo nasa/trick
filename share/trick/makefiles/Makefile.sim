@@ -4,6 +4,7 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 ifdef TRICK_VERBOSE_BUILD
 PRINT_CP =
 PRINT_ICG =
+PRINT_S_DEF_DEPS =
 PRINT_CONVERT_SWIG =
 PRINT_MAKEFILE_SRC =
 PRINT_MAKEFILE_SWIG =
@@ -11,6 +12,7 @@ ECHO_CMD =
 else
 PRINT_CP = @echo "[34mRunning configuration_processor[0m"
 PRINT_ICG = @echo "[34mRunning ICG[0m"
+PRINT_S_DEF_DEPS = @echo "[34mGet depends for S_define[0m"
 PRINT_CONVERT_SWIG = @echo "[34mRunning convert_swig[0m"
 PRINT_MAKEFILE_SRC = @echo "[34mCreating/updating source Makefile[0m"
 PRINT_MAKEFILE_SWIG = @echo "[34mCreating/updating swig Makefile[0m"
@@ -25,6 +27,7 @@ export TRICK_ICG_EXCLUDE
 SHELL = /bin/bash
 
 all test : ${TRICK_LIB_DIR}/libtrick.a S_source.hh \
+ $(CURDIR)/build/S_define.deps \
  $(CURDIR)/build/Makefile_io_src \
  $(CURDIR)/build/Makefile_src \
  $(CURDIR)/build/Makefile_swig \
@@ -63,8 +66,13 @@ force_ICG:
 	$(PRINT_ICG)
 	$(ECHO_CMD)${TRICK_HOME}/bin/trick-ICG -f -m ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} S_source.hh
 
+# Build dependencies for recreating S_source.hh
+$(CURDIR)/build/S_define.deps :
+	$(PRINT_S_DEF_DEPS)
+	$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_SFLAGS) $(TRICK_SYSTEM_SFLAGS) -M -MT S_source.hh -MF build/S_define.deps -x c++ S_define
+
 # Create makefile for source code
-$(CURDIR)/build/Makefile_src: $(CURDIR)/build/Makefile_io_src
+$(CURDIR)/build/Makefile_src: | $(CURDIR)/build/Makefile_io_src
 	$(PRINT_MAKEFILE_SRC)
 	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/make_makefile_src $?
 

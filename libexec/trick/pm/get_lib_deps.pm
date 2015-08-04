@@ -96,11 +96,16 @@ sub get_lib_deps ($$) {
 }
 
 sub write_lib_deps($) {
+    my $deps_changed ;
     my ($source_file_name) = @_ ;
-    local $/ = undef ;
-    open SOURCE, $source_file_name or warn 'cannot read $source_file_name' ;
-    my ($contents) = <SOURCE> ;
-    close SOURCE ;
+    my $contents ;
+    {
+        # read file in slurp mode.  Keep the scope of undefining $/ to just this read
+        local $/ = undef ;
+        open SOURCE, $source_file_name or warn 'cannot read $source_file_name' ;
+        $contents = <SOURCE> ;
+        close SOURCE ;
+    }
     my (@resolved_files) = get_lib_deps($contents, $source_file_name) ;
 
     my ( $file, $dir, $suffix) = fileparse($source_file_name, qr/\.[^.]*/) ;
@@ -108,11 +113,30 @@ sub write_lib_deps($) {
     if ( ! -e "build$dir" ) {
         make_path("build$dir") ;
     }
-    open LIBDEP, ">$lib_dep_file_name" ;
-    print LIBDEP map {"$_\n"} @resolved_files ;
-    close LIBDEP ;
 
-    return @resolved_files ;
+    if ( -e $lib_dep_file_name ) {
+        open OLDLIBDEP, "$lib_dep_file_name" ;
+        my @old_resolved = <OLDLIBDEP> ;
+        close OLDLIBDEP ;
+        chomp @old_resolved ;
+        if ( @old_resolved ~~ @resolved_files ) {
+            print "Library dependencies unchanged for $source_file_name\n" ;
+            $deps_changed = 0 ;
+        } else {
+            print "Library dependencies changed for $source_file_name\n" ;
+            $deps_changed = 1 ;
+        }
+    } else {
+        $deps_changed = 1 ;
+    }
+
+    if ( $deps_changed ) {
+        open LIBDEP, ">$lib_dep_file_name" ;
+        print LIBDEP map {"$_\n"} @resolved_files ;
+        close LIBDEP ;
+    }
+
+    return $deps_changed , @resolved_files ;
 }
 
 1

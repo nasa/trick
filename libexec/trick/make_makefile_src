@@ -12,6 +12,7 @@ use get_lib_deps ;
 
 my %processed_files ;
 my %non_lib_processed_files ;
+my $any_deps_changed = 0 ;
 
 sub read_lib_deps($@) {
     my ($indent , @files_to_process) = @_ ;
@@ -32,9 +33,10 @@ sub read_lib_deps($@) {
             } else {
                 print "Getting Dependencies for " , " " x $indent, "$l\n" ;
                 if ( -e $l ) {
-                    my $contents ;
+                    my $deps_changed ;
                     my @resolved_files ;
-                    @resolved_files = write_lib_deps($l) ;
+                    ($deps_changed , @resolved_files) = write_lib_deps($l) ;
+                    $any_deps_changed |= $deps_changed ;
                     read_lib_deps($indent + 1 , @resolved_files) ;
                 }
             }
@@ -42,14 +44,26 @@ sub read_lib_deps($@) {
     }
 }
 
-# Update out of date lib_dep files
-for my $f ( @ARGV ) {
-    # Makefile_io_src is listed as a dependency of make_makefile_src and comes in as
-    # an argument from make.  Ignore it.
-    if ( $f !~ /Makefile_io_src/ ) {
+# Update any possibly out of date lib_dep files
+if ( scalar @ARGV ) {
+    # Arguments to the executable are rescanned.  New makefile is made if any library dependencies
+    # changed
+    for my $f ( @ARGV ) {
+        my $deps_changed ;
+        my @resolved_files ;
         print "Updating Dependencies for $f\n" ;
-        write_lib_deps($f) ;
+        ($deps_changed , @resolved_files ) = write_lib_deps($f) ;
+        $any_deps_changed |= $deps_changed ;
     }
+} else {
+    # no arguments mean we are calling this for the first time.  Always make makefile
+    $any_deps_changed = 1 ;
+}
+
+# if no dependencies have changed, "touch" Makefile_src and exit
+if ( $any_deps_changed == 0 ) {
+    utime(undef, undef, "build/Makefile_src") ;
+    exit ;
 }
 
 # Start the top level files which are all of the header files and S_define
@@ -300,27 +314,27 @@ foreach my $ext ( sort keys %object_files_by_type ) {
 
 # Write out the compile rules for each type of file.
 print MAKEFILE "\${MODEL_c_OBJ} : \$(CURDIR)/build\%.o : \%.c\n" ;
-print MAKEFILE "\t\$(PRINT_COMPILE)\n\n" ;
+print MAKEFILE "\t\$(PRINT_COMPILE)\n" ;
 print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CC) \$(TRICK_CFLAGS) \$(TRICK_SYSTEM_CFLAGS) -I\${<D} -I\${<D}/../include -MMD -MP -c \$< -o \$\@\n\n" ;
 
 print MAKEFILE "\${MODEL_C_OBJ} : \$(CURDIR)/build\%.o : \%.C\n" ;
-print MAKEFILE "\t\$(PRINT_COMPILE)\n\n" ;
+print MAKEFILE "\t\$(PRINT_COMPILE)\n" ;
 print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\${<D} -I\${<D}/../include -MMD -MP -c \$< -o \$\@\n\n" ;
 
 print MAKEFILE "\${MODEL_cc_OBJ} : \$(CURDIR)/build\%.o : \%.cc\n" ;
-print MAKEFILE "\t\$(PRINT_COMPILE)\n\n" ;
+print MAKEFILE "\t\$(PRINT_COMPILE)\n" ;
 print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\${<D} -I\${<D}/../include -MMD -MP -c \$< -o \$\@\n\n" ;
 
 print MAKEFILE "\${MODEL_cpp_OBJ} : \$(CURDIR)/build\%.o : \%.cpp\n" ;
-print MAKEFILE "\t\$(PRINT_COMPILE)\n\n" ;
+print MAKEFILE "\t\$(PRINT_COMPILE)\n" ;
 print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\${<D} -I\${<D}/../include -MMD -MP -c \$< -o \$\@\n\n" ;
 
 print MAKEFILE "\${MODEL_cxx_OBJ} : \$(CURDIR)/build\%.o : \%.cxx\n" ;
-print MAKEFILE "\t\$(PRINT_COMPILE)\n\n" ;
+print MAKEFILE "\t\$(PRINT_COMPILE)\n" ;
 print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\${<D} -I\${<D}/../include -MMD -MP -c \$< -o \$\@\n\n" ;
 
 print MAKEFILE "\${MODEL_CPLUSPLUS_OBJ} : \$(CURDIR)/build\%.o : \%.c++\n" ;
-print MAKEFILE "\t\$(PRINT_COMPILE)\n\n" ;
+print MAKEFILE "\t\$(PRINT_COMPILE)\n" ;
 print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\${<D} -I\${<D}/../include -MMD -MP -c \$< -o \$\@\n\n" ;
 
 print MAKEFILE "\${MODEL_clex_SRC} : \$(CURDIR)/build\%.clex : \%.l\n" ;
@@ -330,7 +344,7 @@ print MAKEFILE "\${MODEL_y_c_SRC} : \$(CURDIR)/build\%.y.c : \%.y\n" ;
 print MAKEFILE "\t\$(YACC) -o\$\@ \$<\n\n" ;
 
 print MAKEFILE "\${MODEL_y_OBJ} : \$(CURDIR)/build\%.o : \%.y.c\n" ;
-print MAKEFILE "\t\$(PRINT_COMPILE)\n\n" ;
+print MAKEFILE "\t\$(PRINT_COMPILE)\n" ;
 print MAKEFILE "\t\$(ECHO_CMD)cd \$(<D) ; \$(TRICK_CC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c \${<F} -o \$\@\n\n" ;
 
 # Include all of the dependency files for each object code file
@@ -370,7 +384,7 @@ test: all
 test: TRICK_SYSTEM_CXXFLAGS += -DTRICK_UNIT_TEST
 test: TRICK_SYSTEM_CFLAGS += -DTRICK_UNIT_TEST
 
-S_main : \$(S_MAIN) build/S_define.deps S_sie.resource
+S_main : \$(S_MAIN) S_sie.resource
 \t@ echo \"\"
 \t@ echo \"[32m=== Simulation make complete ===[00m\"
 
@@ -392,10 +406,6 @@ S_main : \$(S_MAIN) build/S_define.deps S_sie.resource
 \t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c \$\< -o \$\@
 
 -include build/S_source.d
-
-build/S_define.deps:
-\t\$(PRINT_S_DEF_DEPS)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_SFLAGS) \$(TRICK_SYSTEM_SFLAGS) -M -MT S_source.hh -MF build/S_define.deps -x c++ S_define
 
 sie: S_sie.resource
 
@@ -433,7 +443,7 @@ foreach $k ( sort keys %files_by_dir ) {
 }
 close LINKOBJS ;
 
-# write out all of files as dependencies to Makefile_src
+# write out all of files we processed as dependencies to Makefile_src
 open MAKEFILEDEPS, ">build/Makefile_src_deps" or die "Could not open build/Makefile_src_deps" ;
 print MAKEFILEDEPS "\$(CURDIR)/build/Makefile_src :" ;
 print MAKEFILEDEPS map {"\\\n $_"} (sort keys %non_lib_processed_files) ;

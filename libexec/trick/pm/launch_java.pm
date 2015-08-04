@@ -40,13 +40,8 @@ sub launch_java($$) {
         $command = "java -cp $java_dir/dist/*:$java_dir/lib/*:$java_dir/lib/ $application" ;
     }
 
-    # to preserve the quotes if the option value has spaces in it
     foreach (@ARGV) {
-       if ( $_ =~ /\s/ ) {
-           $command .= " \"$_\"";
-       } else {
-           $command .= " $_";
-       }
+       $command .= " $_";
     }
 
     system $command ;
