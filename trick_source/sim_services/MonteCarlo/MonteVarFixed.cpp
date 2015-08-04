@@ -1,11 +1,12 @@
 #include <sstream>
+#include <iomanip>
 
 #include "trick/MonteVarFixed.hh"
 
 Trick::MonteVarFixed::MonteVarFixed(std::string in_name, double in_value, std::string in_unit) {
     this->name = in_name;
     std::ostringstream string_stream;
-    string_stream << in_value ;
+    string_stream << std::setprecision(15) << in_value ;
     this->value = string_stream.str();
     this->unit = in_unit;
 }
