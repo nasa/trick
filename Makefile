@@ -60,6 +60,7 @@ SIM_SERV_DIRS = \
 SIM_SERV_OBJS = $(addsuffix /object_$(TRICK_HOST_CPU)/*.o ,$(SIM_SERV_DIRS))
 
 ER7_UTILS_DIRS = \
+	${ER7_UTILS_HOME}/CheckpointHelper \
 	${ER7_UTILS_HOME}/integration/abm4 \
 	${ER7_UTILS_HOME}/integration/beeman \
 	${ER7_UTILS_HOME}/integration/core \
