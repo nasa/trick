@@ -40,14 +40,16 @@ sub read_lib_deps($@) {
                     read_lib_deps($indent + 1 , @resolved_files) ;
                 }
             }
+        } elsif ( exists $ENV{TRICK_VERBOSE_BUILD} ) {
+            print "Previously processed     " , " " x $indent, "$l\n" ;
         }
     }
 }
 
 # Update any possibly out of date lib_dep files
 if ( scalar @ARGV ) {
-    # Arguments to the executable are rescanned.  New makefile is made if any library dependencies
-    # changed
+    # Arguments are all files (headers and source) that are newer than the makefile.
+    # Keep track if any dependencies changed
     for my $f ( @ARGV ) {
         my $deps_changed ;
         my @resolved_files ;
@@ -66,7 +68,9 @@ if ( $any_deps_changed == 0 ) {
     exit ;
 }
 
-# Start the top level files which are all of the header files and S_define
+# If we are here dependencies have changed, or we're running for the first time.
+# Read in dependency tree starting at the roots.  The dependency tree starts with all of the
+# header files ICG processed and the lib deps listed in the S_define file.
 open FILE, "build/ICG_processed" or die 'cannot open build/ICG_processed' ;
 my (@top_file_names) = <FILE> ;
 close FILE ;
@@ -84,8 +88,6 @@ read_lib_deps(0, @top_file_names) ;
 
 my ($n , $f , $k , $i , $m);
 my $num_inc_objs ;
-my %all_mis_depends ;
-my %temp_hash ;
 my @all_cfly_files ;
 my @all_read_only_libs ;
 my @all_compile_libs ;
@@ -149,6 +151,7 @@ foreach $n ( @all_compile_libs ) {
 
 # sort and weed out duplicate files
 foreach $k ( keys %files_by_dir ) {
+    my %temp_hash ;
     foreach $n ( qw{ c f l y h C cc cxx cpp c++} ) {
         undef %temp_hash ;
         @{$files_by_dir{$k}{$n}} = sort grep ++$temp_hash{$_} < 2, @{$files_by_dir{$k}{$n}} ;
