@@ -131,7 +131,7 @@ SnapWindow::SnapWindow(const QString& rundir,
     lay2->setObjectName(QString::fromUtf8("layout2"));
 
     QString fname = _snap->fileNameLogFrame();
-    _model_frames = new TrickModel(fname) ;
+    _model_frames = new TrickModel("sys.exec.out.time", fname) ;
     _plot_frame = new Plot(f2);
 
     lay2->addWidget(_plot_frame,0,0,1,1);
@@ -185,7 +185,7 @@ SnapWindow::SnapWindow(const QString& rundir,
 
     fname = _snap->fileNameTrickJobs();
 
-    _model_trickjobs = new TrickModel(fname);
+    _model_trickjobs = new TrickModel("sys.exec.out.time", fname);
     _trick_models.append(_model_trickjobs);
 
 

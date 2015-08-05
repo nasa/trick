@@ -314,7 +314,8 @@ void Thread::_frameModelSet()
     }
     try {
         QString trk(fileNameLogFrame);
-        _frameModel = new TrickModel(trk,trk,_startTime,_stopTime);
+        _frameModel = new TrickModel("sys.exec.out.time",
+                                     trk,trk,_startTime,_stopTime);
     }
     catch (std::range_error &e) {
         _err_stream << e.what() << "\n\n";

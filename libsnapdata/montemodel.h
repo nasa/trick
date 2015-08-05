@@ -43,6 +43,7 @@ class MonteModel : public QStandardItemModel
                            double xScaleFactor=1.0,
                            double yScaleFactor=1.0) const;
     TrickCurveModel* curve(int row,
+                           const QString& tparam,
                            const QString& xparam,
                            const QString& yparam,
                            double xScaleFactor=1.0,

@@ -112,7 +112,7 @@ void presetCsvFile(QString* v, const QString& fcsv, bool* ok)
 
 bool convert2csv(const QString& ftrk, const QString& fcsv)
 {
-    TrickModel m(ftrk);
+    TrickModel m("sys.exec.out.time", ftrk);
 
     QFileInfo fcsvi(fcsv);
     if ( fcsvi.exists() ) {

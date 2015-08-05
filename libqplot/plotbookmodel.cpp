@@ -27,16 +27,16 @@ QVariant PlotBookModel::data(const QModelIndex &idx, int role) const
 
         QModelIndex curveIdx = idx.parent();
         QModelIndex rIdx = getIndex(curveIdx, "CurveRunID", "Curve");
+        QModelIndex tIdx = getIndex(curveIdx, "CurveTime", "Curve");
         QModelIndex xIdx = getIndex(curveIdx, "CurveXName", "Curve");
         QModelIndex yIdx = getIndex(curveIdx, "CurveYName", "Curve");
         int runID = itemFromIndex(rIdx)->data().toInt();
+        QString tName = itemFromIndex(tIdx)->data().toString();
         QString xName = itemFromIndex(xIdx)->data().toString();
         QString yName = itemFromIndex(yIdx)->data().toString();
 
         TrickCurveModel* curveModel = _monteModel->curve(runID,
-                                                         xName,
-                                                         yName);
-
+                                                         tName, xName, yName);
         //
         // xunit and calc x scale if DP unit not equal to model unit
         //
@@ -76,7 +76,7 @@ QVariant PlotBookModel::data(const QModelIndex &idx, int role) const
         if ( isXScale || isYScale ) {
             delete curveModel;
             curveModel = _monteModel->curve(runID,
-                                            xName, yName,
+                                            tName, xName, yName,
                                             xScaleFactor, yScaleFactor);
         }
 

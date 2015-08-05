@@ -334,7 +334,7 @@ bool writeTrk(const QString& ftrk,
     foreach ( QString yParam, paramList ) {
         Param p;
         p.name = yParam;
-        TrickCurveModel* c = monteModel->curve(0,timeParam,yParam);
+        TrickCurveModel* c = monteModel->curve(0,timeParam,timeParam,yParam);
         if ( !c) {
             fprintf(stderr, "snap [error]: could not find param \"%s\"\n",
                     yParam.toAscii().constData());
@@ -374,9 +374,9 @@ bool writeTrk(const QString& ftrk,
         TrickCurveModel* c = 0;
         if ( j == 0 ) {
             // Timestamp is in first curve
-            c = monteModel->curve(0,timeParam,yParam0);
+            c = monteModel->curve(0,timeParam,timeParam,yParam0);
         } else {
-            c = monteModel->curve(0,timeParam,yParam);
+            c = monteModel->curve(0,timeParam,timeParam,yParam);
         }
         curves.append(c);
         curve2idx.insert(c,-1);

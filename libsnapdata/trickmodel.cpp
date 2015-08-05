@@ -7,10 +7,12 @@
 QString TrickModel::_err_string;
 QTextStream TrickModel::_err_stream(&TrickModel::_err_string);
 
-TrickModel::TrickModel(const QString& trkfile,
-                      const QString& tableName,
-                      double startTime, double stopTime, QObject *parent) :
+TrickModel::TrickModel(const QString& timeName,
+                       const QString& trkfile,
+                       const QString& tableName,
+                       double startTime, double stopTime, QObject *parent) :
     QAbstractTableModel(parent),
+    _timeName(timeName),
     _trkfile(trkfile),
     _tableName(tableName),
     _startTime(startTime),
@@ -88,16 +90,12 @@ bool TrickModel::_load_trick_header()
 
     int maxRows = nbytes/_row_size;
 
-    // Sanity check.  First column must be sys.exec.out.time
-    int timeCol = 0 ;
+    // Make sure time param exists in model
+    int timeCol = _param2column.value(_timeName) ;
     Parameter* tParam = _col2param.value(timeCol);
-    QString timeName = tParam->name();
-    QStringList timeNameList = timeName.split('.');
-    timeName = timeNameList.last();
-    timeName = timeName.toLower();
-    if ( timeName != "time" ) {
-        _err_stream << "snap [error]: first element in trk file "
-                    << "was not *.time.  Aborting.\n";
+    if ( !tParam ) {
+        _err_stream << "snap [error]: couldn't find time param \""
+                    << _timeName << "\" trkfile=" << _trkfile;
         throw std::runtime_error(_err_string.toAscii().constData());
     }
 

@@ -40,10 +40,19 @@ TrickCurveModel *MonteModel::curve(const QModelIndex &xIdx,
     QString xparam = _params.at(xIdx.column());
     int xcol = tm->paramColumn(xparam) ;
     if ( xcol < 0 ) {
-        _err_stream << "snap [error]: MonteModel::curve() called with bad "
-                    << "xparam:\n" << xparam << "\nMaybe it's a cross plot "
-                    << "where x is not in same model as y:.\n"
-                    << yparam ;
+        _err_stream << "snap [error]: MonteModel::curve(): Could not find "
+                    << "(x,y) pair:\n\n"
+                    << "        x=" << xparam << "\n"
+                    << "        y=" << yparam << "\n\n"
+                    << "in the following RUNs:\n\n";
+        int i = 0;
+        foreach (  QString run, _runs->runs() ) {
+            _err_stream << "        " << run << "\n";
+            if ( ++i > 10 ) {
+                _err_stream << "...<more>";
+                break;
+            }
+        }
         throw std::runtime_error(_err_string.toAscii().constData());
     }
 
@@ -53,6 +62,7 @@ TrickCurveModel *MonteModel::curve(const QModelIndex &xIdx,
 
 
 TrickCurveModel *MonteModel::curve(int row,
+                                   const QString &tparam,
                                    const QString &xparam,
                                    const QString &yparam,
                                    double xScaleFactor,
@@ -68,18 +78,40 @@ TrickCurveModel *MonteModel::curve(int row,
         return 0;
     }
 
+    int tcol = tm->paramColumn(tparam) ;
+    if ( tcol < 0 ) {
+        return 0;
+        _err_stream << "snap [error]: MonteModel::curve() : "
+                       "Could not find:\n\n"
+                       "          time param:\n\n                \""
+                    << tparam << "\"\n\n          in file:\n\n                "
+                    << tm->trkFile();
+        throw std::runtime_error(_err_string.toAscii().constData());
+    }
     int ycol = tm->paramColumn(yparam) ;
-    int xcol = tm->paramColumn(xparam) ;
+    QString xp = xparam;
+    if ( xp.isEmpty() ) {
+        xp = tparam;
+    }
+    int xcol = tm->paramColumn(xp) ;
     if ( xcol < 0 ) {
-        _err_stream << "snap [error]: MonteModel::curve() called with bad "
-                    << "xy pairing.   Maybe it's a cross plot "
-                    << "where x is not in same model as y:.\n"
-                    << "x=" << xparam << "\n"
-                    << "y=" << yparam << "\n";
+        _err_stream << "snap [error]: MonteModel::curve(): Could not find "
+                    << "(x,y) pair:\n\n"
+                    << "        x=" << xp << "\n"
+                    << "        y=" << yparam << "\n\n"
+                    << "in the following RUNs:\n\n";
+        int i = 0;
+        foreach (  QString run, _runs->runs() ) {
+            _err_stream << "        " << run << "\n";
+            if ( ++i > 10 ) {
+                _err_stream << "...<more>";
+                break;
+            }
+        }
         throw std::runtime_error(_err_string.toAscii().constData());
     }
 
-    return new TrickCurveModel(tm,0,xcol,ycol,yparam,
+    return new TrickCurveModel(tm,tcol,xcol,ycol,yparam,
                                xScaleFactor,yScaleFactor);
 }
 

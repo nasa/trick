@@ -44,8 +44,9 @@ class TrickModel : public QAbstractTableModel
         BigEndian
     };
 
-    explicit TrickModel(const QString &trkfile,
-                       const QString &tableName=QString(),
+    explicit TrickModel(const QString &timeName,
+                        const QString &trkfile,
+                        const QString &tableName=QString(),
                         double startTime=0.0,
                         double stopTime=1.0e20,
                        QObject *parent = 0);
@@ -80,6 +81,7 @@ class TrickModel : public QAbstractTableModel
 
   private:
 
+    QString _timeName;
     QString _trkfile;
     QString _tableName;
     double _startTime;

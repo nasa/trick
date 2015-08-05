@@ -244,6 +244,7 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     // Get x&y params that match this run
     DPVar* x = 0;
     DPVar* y = 0;
+    QString tName = "sys.exec.out.time";  // can be reset in this if block
     if ( dpcurve->xyPairs().isEmpty() ) {
         // Find out what x&y to use for curve
         // It can be in xypairs
@@ -251,23 +252,47 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
         y = dpcurve->y();
         QString xName = x->name();
         QString yName = y->name();
-        TrickCurveModel* curveModel = monteModel->curve(runId, xName, yName);
+        if ( !y->timeName().isEmpty() ) {
+            tName = y->timeName();  // note that y supercedes x
+        } else if ( !x->timeName().isEmpty() ) {
+            tName = x->timeName();
+        }
+        if ( xName.isEmpty() ) {
+            xName = tName;
+        }
+        TrickCurveModel* curveModel = monteModel->curve(runId,
+                                                        tName, xName, yName);
         if ( !curveModel ) {
-            _err_stream << "snap [error]: could not find parameter "
-                        << "(" << xName << "," << yName << ") "
-                        << "in RUN data.";
+            QString runDir = monteModel->
+                                headerData(runId,Qt::Vertical).toString();
+            _err_stream << "snap [error]: could not find parameter: \n\n"
+                        << "        " << "("
+                        << tName << " , "
+                        << xName << " , "
+                        << yName << ") "
+                        << "\n\nin RUN:\n\n "
+                        << "         "
+                        << runDir ;
             throw std::runtime_error(_err_string.toAscii().constData());
         }
     } else {
 
         // Search through xypairs
-        QStringList xyParams;  // in case error, use this in message
+        QStringList txyParams;  // in case error, use this in message
         TrickCurveModel* curveModel = 0;
         foreach ( DPXYPair* xyPair, dpcurve->xyPairs() ) {
             QString xName = xyPair->x()->name();
             QString yName = xyPair->y()->name();
-            xyParams << "(" + xName + " , " + yName + ")";
-            curveModel = _monteModel->curve(runId, xName, yName);
+            if ( !xyPair->y()->timeName().isEmpty() ) {
+                tName = xyPair->y()->timeName();
+            } else if ( !xyPair->x()->timeName().isEmpty() ) {
+                tName = xyPair->x()->timeName();
+            }
+            if ( xName.isEmpty() ) {
+                xName = tName;
+            }
+            txyParams << "(" + tName  + " , " + xName + " , " + yName + ")";
+            curveModel = _monteModel->curve(runId, tName, xName, yName);
             if ( curveModel ) {
                 x = xyPair->x();
                 y = xyPair->y();
@@ -276,17 +301,21 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
         }
 
         if ( !curveModel ) {
-            _err_stream << "snap [error]: could not parameter in RUN data.  "
-                           "Tried the following parameters:\n";
-            foreach ( QString xy, xyParams ) {
-                _err_stream << "    " << xy << "\n";
+            QString runDir = monteModel->
+                                headerData(runId,Qt::Vertical).toString();
+            _err_stream << "snap [error]: could not find matching xypair "
+                           "parameter in RUN:\n\n"
+                        << "        " << runDir << "\n\n"
+                           "Tried the following :\n\n";
+            foreach ( QString txy, txyParams ) {
+                _err_stream << "        " << txy << "\n";
             }
             throw std::runtime_error(_err_string.toAscii().constData());
         }
     }
 
     // Curve children
-    _addChild(curveItem, "CurveTime", dpcurve->t()->name());
+    _addChild(curveItem, "CurveTime", tName);
     _addChild(curveItem, "CurveTimeUnit", dpcurve->t()->unit());
     _addChild(curveItem, "CurveXName", x->name());
     _addChild(curveItem, "CurveXUnit", x->unit());

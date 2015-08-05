@@ -255,9 +255,9 @@ plot: DP_PLOT DP_FLOAT ':' DP_STR {
         | plot {
                  if ( !isXVar ) {
                      currCurve = currPlot->addCurve();
-                     currXVar = currCurve->setXVarName("sys.exec.out.time");
-                     currXVar->setUnit("s");
-                     currXVar->setLabel("time");
+                     currXVar = currCurve->setXVarName("");
+                     currXVar->setUnit("--");
+                     currXVar->setLabel("");
                  }
                }
 
@@ -277,9 +277,6 @@ x_var: DP_X_VARIABLE ':' DP_STR {
                     currXYPairXVar = new DPVar($3);
                 } else {
                     currXVar = currCurve->setXVarName($3);
-                }
-                if ( isXYPair ) {
-                } else {
                 }
         }
         | x_var DP_LABEL ':' DP_STR {
@@ -423,7 +420,12 @@ y_var: DP_Y_VARIABLE ':' DP_STR {
 curve: DP_CURVE ':' {
                 currCurve = currPlot->addCurve();
         }
-        | curve DP_XY_PAIR ':' '{' {isXYPair = true;} y_var '}' {
+        | curve DP_XY_PAIR ':' '{'
+                { isXYPair = true;
+                  currXYPairXVar = new DPVar("");  // No X Specified, make empty
+                } y_var '}' {
+
+                currCurve->addXYPair(currXYPairXVar,currXYPairYVar);
                 isXYPair = false;
         }
         | curve DP_XY_PAIR  ':' '{' {isXYPair = true;} x_var y_var '}' {
