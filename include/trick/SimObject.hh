@@ -47,6 +47,9 @@ namespace Trick {
             /**  Jobs in this sim_object */
             std::vector <Trick::JobData *> jobs ;              /* trick_io(**) */
 
+            /** Default destructor that doesn't do anything. */
+            virtual ~SimObject() ;
+
             /**  Returns a job with a specific name. */
             Trick::JobData * get_job( std::string job_name , unsigned int instance_num = 1 ) ;
 
@@ -90,8 +93,16 @@ namespace Trick {
                         double in_cycle, const char * in_name, const char * in_tag = "", int in_phase = 60000 ,
                         double in_start = 0.0 , double in_stop = 1.0e37) ;
 
-            /** Default destructor that doesn't do anything. */
-            virtual ~SimObject() ;
+
+            /**
+             * Enables all jobs in the SimObject
+             */
+            void enable() ;
+
+            /**
+             * Disables all jobs in the SimObject
+             */
+            void disable() ;
 
             /**
              * Calls all jobs that are not "dynamic_event" class

@@ -99,3 +99,17 @@ Trick::JobData * Trick::SimObject::get_job( std::string job_name, unsigned int j
     return NULL ;
 }
 
+void Trick::SimObject::enable() {
+    std::vector <Trick::JobData *>::iterator it ;
+    for ( it = jobs.begin() ; it != jobs.end() ; it++ ) {
+       (*it)->enable() ;
+    }
+}
+
+void Trick::SimObject::disable() {
+    std::vector <Trick::JobData *>::iterator it ;
+    for ( it = jobs.begin() ; it != jobs.end() ; it++ ) {
+       (*it)->disable() ;
+    }
+}
+
