@@ -137,6 +137,7 @@ int Trick::JITInputFile::compile(std::string file_name) {
     // rule to compile cpp file
     outfile << object_fullpath_name << ": " << file_name << std::endl ;
     outfile << "\t" << get_trick_env((char *)"TRICK_CPPC") << " " << get_trick_env((char *)"TRICK_CXXFLAGS") ;
+    outfile << " " << get_trick_env((char *)"TRICK_SYSTEM_CXXFLAGS") ;
     outfile << " -MMD -c -fPIC -o $@ $<" << std::endl << std::endl ;
     // rule to clean
     outfile << "clean:" << std::endl ;

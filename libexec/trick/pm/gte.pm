@@ -97,6 +97,8 @@ sub gte (@) {
     $def{"TRICK_PRINT_CMD"} = "lpr" ;
     $def{"TRICK_PRINTER_NAME"} = "" ;
     $def{"TRICK_SFLAGS"} = "" ;
+    $def{"TRICK_SYSTEM_CFLAGS"} = "" ;
+    $def{"TRICK_SYSTEM_CXXFLAGS"} = "" ;
     $def{"TRICK_USER_HOME"} = "$ENV{HOME}/trick_sims" ;
     $def{"TRICK_USER_CSHRC"} = "$ENV{HOME}/.Trick_user_cshrc" ;
     $def{"TRICK_USER_LINK_LIBS"} = "" ;
