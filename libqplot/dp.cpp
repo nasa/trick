@@ -584,6 +584,9 @@ DPCurve::DPCurve(const QDomElement &e) : _t(0), _x(0), _y(0)
                     throw std::runtime_error(_err_string.toAscii().constData());
                 }
                 count++;
+            } else if ( tag == "varcase" ) {
+                DPXYPair* xypair = new DPXYPair(e);
+                _xyPairs.append(xypair);
             }
         }
         n = n.nextSibling();
@@ -694,7 +697,8 @@ DPVar::DPVar(const QDomElement &e) :
     _scaleFactor(1.0),
     _bias(0.0),
     _symbol(QString()),
-    _symbolSize(QString())
+    _symbolSize(QString()),
+    _timeName(QString())
 {
     QDomElement el = e;
 
@@ -741,6 +745,11 @@ DPVar::DPVar(const QDomElement &e) :
     if ( el.hasAttribute(symbolSize) ) {
         _symbolSize = el.attributeNode(symbolSize).value().simplified();
     }
+
+    QString timeName("time_name");
+    if ( el.hasAttribute(timeName) ) {
+        _timeName = el.attributeNode(timeName).value().simplified();
+    }
 }
 
 DPVar::DPVar(const char *name) :
@@ -760,6 +769,25 @@ DPVar::DPVar(const char *name) :
 DPXYPair::DPXYPair(const QDomElement &e) :
     _x(0), _y(0)
 {
+    QDomNode n = e.firstChild();
+    int i = 0;
+    while(!n.isNull()) {
+        QDomElement e = n.toElement();
+        if(!e.isNull()) {
+            QString tag = e.tagName();
+            if ( tag == "var" ) {
+                if ( i == 0 ) {
+                    // X var
+                    _x = new DPVar(e);
+                } else if ( i == 1 ) {
+                    // Y var
+                    _y = new DPVar(e);
+                }
+            }
+        }
+        n = n.nextSibling();
+        ++i;
+    }
 }
 
 DPXYPair::DPXYPair(DPVar *x, DPVar *y) :

@@ -297,6 +297,9 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
                 x = xyPair->x();
                 y = xyPair->y();
                 break;
+            } else {
+                // Reset tName back to default
+                tName = "sys.exec.out.time";
             }
         }
 
