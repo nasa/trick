@@ -48,6 +48,8 @@ extern DPProduct* product;
 
 bool isXYPair = false;
 bool isXVar = false;
+DPTable* currTable = 0;
+DPVar* currTableVar = 0;
 DPPage* currPage = 0;
 DPPlot* currPlot = 0;
 DPCurve* currCurve = 0;
@@ -468,52 +470,60 @@ tables: table
         | tables table
         ;
 
-table: DP_TABLE DP_FLOAT ':' DP_STR { 
-                //product->addTable($4);
-                msg("Tables not supported");
+table: DP_TABLE DP_FLOAT ':' DP_STR
+       { currTable = product->addTable($4); }
+       table_options table_vars
+       ;
+
+table_options:
+        | table_options DP_START ':' DP_FLOAT {
+                currTable->setStartTime($4);
         }
-        | table DP_START ':' DP_FLOAT {
-                //product->getCurrTable()->setStartTime($4);
+        | table_options DP_STOP ':' DP_FLOAT {
+                currTable->setStopTime($4);
         }
-        | table DP_STOP ':' DP_FLOAT {
-                //product->getCurrTable()->setStopTime($4);
+        | table_options DP_DELIMITER ':' DP_STR {
+                currTable->setDelimiter($4);
         }
-        | table DP_CHANGE_ONLY ':' DP_STR {
-                //product->getCurrTable()->setChangeOnly($4);
+        | table_options DP_CHANGE_ONLY ':' DP_STR {
+                //currTable->setChangeOnly($4);
         }
-        | table DP_COLUMN_WIDTH ':' DP_FLOAT {
-                //product->getCurrTable()->setColumnWidth((int)$4);
+        | table_options DP_COLUMN_WIDTH ':' DP_FLOAT {
+                //currTable->setColumnWidth((int)$4);
         }
-        | table DP_DELIMITER ':' DP_STR {
-                //product->getCurrTable()->setDelimiter($4);
-        }
-        | table table_var
         ;
-        
+
+table_vars: table_var
+        | table_vars table_var
+        ;
+
 table_var: DP_VARIABLE ':' DP_STR {
                 // DP_STR is variable name
-                //product->addTableVar($3);
+                currTableVar = currTable->addVar($3);
         }
         | table_var DP_LABEL ':' DP_STR {
-                //product->getCurrTableVar()->setLabel($4);
+                currTableVar->setLabel($4);
+        }
+        | table_var DP_TIME_NAME ':' DP_STR {
+                currTableVar->setTimeName($4);
         }
         | table_var DP_UNITS ':' DP_STR {
-                ////product->getCurrTableVar()->setUnit($4);
-        }
-        | table_var DP_MIN_RANGE ':' DP_FLOAT {
-                //product->getCurrTableVar()->setMinRange($4);
-        }
-        | table_var DP_MAX_RANGE ':' DP_FLOAT {
-                //product->getCurrTableVar()->setMaxRange($4);
+                currTableVar->setUnit($4);
         }
         | table_var DP_SCALE_FACTOR ':' DP_FLOAT {
-                //product->getCurrTableVar()->setScaleFactor($4);
+                currTableVar->setScaleFactor($4);
         }
         | table_var DP_BIAS ':' DP_FLOAT {
-                //product->getCurrTableVar()->setBias($4);
+                currTableVar->setBias($4);
         }
         | table_var DP_FORMAT ':' DP_STR {
-                //product->getCurrTableVar()->setFormat($4);
+                currTableVar->setFormat($4);
+        }
+        | table_var DP_MIN_RANGE ':' DP_FLOAT {
+                //currTableVar->setMinRange($4);
+        }
+        | table_var DP_MAX_RANGE ':' DP_FLOAT {
+                //currTableVar->setMaxRange($4);
         }
         ;
 %%

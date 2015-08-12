@@ -34,6 +34,7 @@ public:
     QString symbolStyle() { return _symbol; }
     QString symbolSize() { return _symbolSize; }
     QString timeName() const { return _timeName; }
+    QString format() const { return _format; }
 
     void setLabel(const char* label) { _label = label; }
     void setUnit(const char* unit) { _unit = unit; }
@@ -44,6 +45,8 @@ public:
     void setSymbolStyle(const char* ss) { _symbol = ss; }
     void setSymbolSize(const char* ss) { _symbolSize = ss; }
     void setTimeName(const char* t) { _timeName = t; }
+
+    void setFormat(const char* f) { _format = f; }
 
 private:
     QString _name;
@@ -56,6 +59,7 @@ private:
     QString _symbol;
     QString _symbolSize;
     QString _timeName;
+    QString _format;
 };
 
 class DPXYPair
@@ -193,6 +197,32 @@ private:
     QString _foregroundColor;
 };
 
+class DPTable
+{
+public:
+    DPTable(const char* title);
+    DPTable(const QDomElement& e);
+
+    QString title() const { return _title ; }
+    QString delimiter() const { return _delimiter; }
+    double startTime() const { return _startTime; }
+    double stopTime() const { return _stopTime; }
+    QList<DPVar*> vars() const { return _vars; }
+
+    void setDelimiter(const QString& d) { _delimiter = d; }
+    void setStartTime(double startTime) { _startTime = startTime; }
+    void setStopTime(double stopTime) { _stopTime = stopTime; }
+
+    DPVar* addVar(const char* title);
+
+private:
+    QString _title;
+    QString _delimiter;
+    double _startTime;
+    double _stopTime;
+    QList<DPVar*> _vars;
+};
+
 class DPProduct
 {
 public:
@@ -206,6 +236,8 @@ public:
     double freq();
     QList<DPPage*> pages() const { return _pages; }
     DPPage* addPage(const char* title);
+    QList<DPTable*> tables() const { return _tables; }
+    DPTable* addTable(const char* title);
 
     // Made for speed and used when filtering for params in DP
     static QStringList paramList(const QString& fileName);
@@ -216,6 +248,7 @@ private:
     QDomDocument* _doc;
     QString _title;
     QList<DPPage*> _pages;
+    QList<DPTable*> _tables;
     static QString _err_string;
     static QTextStream _err_stream;
 

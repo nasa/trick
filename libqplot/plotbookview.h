@@ -5,6 +5,7 @@
 #include <QScrollBar>
 #include <QPushButton>
 #include <QTabWidget>
+#include <QTableView>
 #include <QHash>
 #include <QGridLayout>
 #include <QHBoxLayout>
@@ -92,7 +93,6 @@ private:
     QPushButton* _buttonToggleDiff;
 
     QTabWidget* _nb;
-    bool _isTabCloseRequested;
     int _currSelectedRun;
     bool _isShowCurveDiff;
 
@@ -103,6 +103,12 @@ private:
     QHash<QWidget*,double> _page2startTime;
     QHash<QWidget*,double> _page2stopTime;
     QHash<Plot*, QVector<TrickCurve*> > _plot2Curves;
+
+    QVector<QTableView*> _tables;
+    QModelIndex _table2Idx(QWidget* tableView) const;
+
+    QHash<QWidget*,int> _widget2notebookTab;
+    void _nbTabAboutToBeRemoved(int tabId);
 
     inline QWidget* _idx2Page(const QModelIndex& idx) const;
     inline QGridLayout* _idx2Grid(const QModelIndex& idx) const;
@@ -115,7 +121,7 @@ private:
     void _selectNextCurve();
     void _selectPrevCurve();
 
-    QString _appendUnitToAxisLabel(const QModelIndex axisLabelIdx,
+    QString _appendUnitToLabel(const QString &labelInput,
                                  const QString &unit ) const;
 
     void _layoutPdfPlots(const QVector<Plot*>& plots);

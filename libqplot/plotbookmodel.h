@@ -50,6 +50,9 @@ private:
     void _initModel();
     QModelIndex _pageIdx(const QModelIndex& idx) const ;
     QModelIndex _plotIdx(const QModelIndex& idx) const ;
+    QModelIndex _ancestorIdx(const QModelIndex &startIdx,
+                        const QString& ancestorText,
+                        const QString &expectedStartIdxText=QString()) const;
 
 };
 

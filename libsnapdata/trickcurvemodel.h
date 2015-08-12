@@ -28,9 +28,9 @@ class TrickCurveModel : public QAbstractTableModel
 
     QString  trkFile () const { return _trickmodel->trkFile(); }
 
-    Parameter t() const { return _t ; }
-    Parameter x() const { return _x ; }
-    Parameter y() const { return _y ; }
+    Parameter* t() { return &_t ; }
+    Parameter* x() { return &_x ; }
+    Parameter* y() { return &_y ; }
 
     void map(){ _trickmodel->map(); }
     void unmap() { _trickmodel->unmap(); }

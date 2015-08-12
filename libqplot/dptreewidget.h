@@ -46,7 +46,9 @@ private:
     QModelIndex _dpModelRootIdx;
 
     void _setupModel();
+    void _createDP(const QString& dpfile);
     void _createDPPages(const QString& dpfile);
+    void _createDPTables(const QString& dpfile);
     QStandardItem* _addChild(QStandardItem* parentItem,
                    const QString& childTitle,
                    const QVariant &childValue=QVariant());

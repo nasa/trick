@@ -50,7 +50,7 @@ DPTreeWidget::DPTreeWidget(const QString &dpDirName,
     _dpTreeView->resizeColumnToContents(0);
 
     foreach (QString dp, dpFiles ) {
-        _createDPPages(dp);
+        _createDP(dp);
     }
 }
 
@@ -102,6 +102,12 @@ void DPTreeWidget::_setupModel()
     _dpFilterModel->setFilterKeyColumn(0);
 }
 
+void DPTreeWidget::_createDP(const QString &dpfile)
+{
+    _createDPPages(dpfile);
+    _createDPTables(dpfile);
+}
+
 void DPTreeWidget::_searchBoxTextChanged(const QString &rx)
 {
     _dpTreeView->expandAll();
@@ -131,7 +137,7 @@ void DPTreeWidget::_dpTreeViewClicked(const QModelIndex &idx)
                 }
             }
             if ( !isCreated ) {
-                _createDPPages(fp);
+                _createDP(fp);
             }
         }
     }
@@ -218,6 +224,73 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             }
         }
         pageNum++;
+    }
+
+    this->setCursor(currCursor);
+}
+
+void DPTreeWidget::_createDPTables(const QString &dpfile)
+{
+    QCursor currCursor = this->cursor();
+    this->setCursor(QCursor(Qt::WaitCursor));
+
+    DPProduct dp(dpfile);
+    int numRuns = _monteModel->rowCount();
+    int tableNum = 0 ;
+
+    // Tables
+    QModelIndex tablesIdx = _plotModel->getIndex(QModelIndex(), "Tables");
+    QStandardItem *tablesItem = _plotModel->itemFromIndex(tablesIdx);
+
+    foreach (DPTable* table, dp.tables() ) {
+
+        // Table
+        QStandardItem *tableItem = _addChild(tablesItem,"Table");
+
+        // TableName
+        QString tableName = dpfile;
+        if ( tableNum > 0 ) {
+            tableName += QString("_%0").arg(tableNum);
+        }
+        _addChild(tableItem, "TableName", tableName);
+
+        _addChild(tableItem, "TableTitle", table->title());
+        _addChild(tableItem, "TableStartTime", table->startTime());
+        _addChild(tableItem, "TableStopTime", table->stopTime());
+        _addChild(tableItem, "TableDelimiter", table->delimiter());
+
+        // Vars
+        QStandardItem *varsItem = _addChild(tableItem, "TableVars");
+
+        for ( int i = 0 ; i < numRuns ; ++i ) {
+
+            // Make the table vars curves so handled the same way datawise
+            foreach (DPVar* var, table->vars() ) {
+
+                // Curve (not to be confused with a plot curve)
+                // TODO: need to change this, but plotmodel->data() uses it
+                QStandardItem *curveItem = _addChild(varsItem, "Curve");
+
+                // Get time name for this variable
+                QString tName = "sys.exec.out.time";
+                if ( !var->timeName().isEmpty() ) {
+                    tName = var->timeName();
+                }
+
+                // Children
+                _addChild(curveItem, "CurveTime",        tName);
+                _addChild(curveItem, "CurveXName",       var->name());
+                _addChild(curveItem, "CurveXUnit",       var->unit());
+                _addChild(curveItem, "CurveYName",       var->name());
+                _addChild(curveItem, "CurveYUnit",       var->unit());
+                _addChild(curveItem, "TableVarScale",    var->scaleFactor());
+                _addChild(curveItem, "TableVarBias",     var->bias());
+                _addChild(curveItem, "CurveRunID",       i);
+                _addChild(curveItem, "TableCurveData");
+                _addChild(curveItem, "TableVarFormat",     var->format());
+            }
+        }
+        tableNum++;
     }
 
     this->setCursor(currCursor);

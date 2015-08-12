@@ -32,9 +32,9 @@ TrickCurve::TrickCurve(QCPAxis *keyAxis, QCPAxis *valueAxis) :
     setLineStyle(lsLine);
 }
 
-
 TrickCurve::~TrickCurve()
-{ }
+{
+}
 
 QString TrickCurve::trkFile() const
 {
@@ -120,7 +120,7 @@ void TrickCurve::setData(TrickCurveModel *model,
    _model = model;
    _startTime = startTime;
    _stopTime = stopTime;
-   QString yparam = model->y().name();
+   QString yparam = model->y()->name();
    setName(yparam);
    _createPainterPath(model);
 }
@@ -171,7 +171,7 @@ double TrickCurve::yScaleFactor()
 
 void TrickCurve::setXScaleFactor(double sf)
 {
-    if ( _xsf == sf ) return;
+    if ( qAbs(_xsf-sf) < 1.0e-9 ) return;
 
     _xsf = sf;
     if ( _model ) {
@@ -185,7 +185,7 @@ void TrickCurve::setXScaleFactor(double sf)
 
 void TrickCurve::setYScaleFactor(double sf)
 {
-    if ( _ysf == sf ) return;
+    if ( qAbs(_ysf-sf) < 1.0e-9 ) return;
 
     _ysf = sf;
     if ( _model ) {

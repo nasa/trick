@@ -340,7 +340,7 @@ bool writeTrk(const QString& ftrk,
                     yParam.toAscii().constData());
             exit(-1);
         }
-        QString unit = c->y().unit();
+        QString unit = c->y()->unit();
         p.unit = unit;
         p.type = TRICK_07_DOUBLE;
         p.size = sizeof(double);

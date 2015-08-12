@@ -8,7 +8,6 @@ PlotBookView::PlotBookView(PlotBookModel *plotModel, const QStringList &titles, 
     QAbstractItemView(parent),
     _titles(titles),
     _plotModel(plotModel),
-    _isTabCloseRequested(false),
     _currSelectedRun(-1),
     _isShowCurveDiff(false)
 {
@@ -50,7 +49,6 @@ PlotBookView::PlotBookView(PlotBookModel *plotModel, const QStringList &titles, 
 PlotBookView::PlotBookView(QWidget *parent) :
     QAbstractItemView(parent),
     _plotModel(0),
-    _isTabCloseRequested(false),
     _currSelectedRun(-1),
     _isShowCurveDiff(false)
 {
@@ -191,7 +189,12 @@ bool PlotBookView::_savePdfVectorized(const QString &fileName)
     // Header height
     int heightHeader = 0;
     for ( int i = 0 ; i < _nb->count(); ++i ) {
-        QWidget* page = _nb->widget(i);
+        QWidget* widget = _nb->widget(i);
+        if ( !_pages.contains(widget) ) {
+            // Skip tables
+            continue;
+        }
+        QWidget* page = widget;
         _nb->setCurrentWidget(page);  // for layout when offscreen
         PageTitleWidget* pw = _page2pagewidget.value(page);
         if ( pw->sizeHint().height() > heightHeader ) {
@@ -221,9 +224,16 @@ bool PlotBookView::_savePdfVectorized(const QString &fileName)
     printpainter.setWindow(printerRect);
     printpainter.fillRect(printerRect, QBrush(Qt::white));
 
-    for ( int pageId = 0; pageId < _pages.size(); ++pageId) {
+    int pageCnt = 0;
+    for ( int i = 0; i < _pages.size(); ++i) {
 
-        QWidget* page = _pages.at(pageId);
+        QWidget* widget = _nb->widget(i);
+        if ( !_pages.contains(widget) ) {
+            // Skip tables
+            continue;
+        }
+        QWidget* page = widget;
+
         QVector<Plot*> plots = _page2Plots.value(page);
         QVector<QRect> origPlotViewports;
         foreach (Plot* plot, plots ) {
@@ -249,9 +259,11 @@ bool PlotBookView::_savePdfVectorized(const QString &fileName)
         pw->render(&printpainter);
 
         // Insert new page in pdf booklet
-        if ( pageId < _pages.size()-1 ) {
+        if ( pageCnt < _pages.size()-1 ) {
             printer.newPage();
         }
+
+        ++pageCnt;
     }
 
     printpainter.end();
@@ -278,7 +290,12 @@ bool PlotBookView::_savePdfPixmapped(const QString &fileName)
     // Header height
     int heightHeader = 0;
     for ( int i = 0 ; i < _nb->count(); ++i ) {
-        QWidget* page = _nb->widget(i);
+        QWidget* widget = _nb->widget(i);
+        if ( !_pages.contains(widget) ) {
+            // Skip tables
+            continue;
+        }
+        QWidget* page = widget;
         _nb->setCurrentWidget(page);  // for layout when offscreen
         PageTitleWidget* pw = _page2pagewidget.value(page);
         if ( pw->sizeHint().height() > heightHeader ) {
@@ -329,9 +346,16 @@ bool PlotBookView::_savePdfPixmapped(const QString &fileName)
     }
     pixPainterPlots.setWindow(plotsRect);
 
-    for ( int pageId = 0 ; pageId < _nb->count(); ++pageId ) {
+    int pageCnt = 0;
+    for ( int i = 0 ; i < _nb->count(); ++i ) {
 
-        QWidget* page = _nb->widget(pageId);
+        QWidget* widget = _nb->widget(i);
+        if ( !_pages.contains(widget) ) {
+            // Skip tables
+            continue;
+        }
+        QWidget* page = widget;
+
         PageTitleWidget* pw = _page2pagewidget.value(page);
 
         QVector<Plot*> plots = _page2Plots.value(page);
@@ -365,9 +389,11 @@ bool PlotBookView::_savePdfPixmapped(const QString &fileName)
         pixPainterHeader.begin(&pixmapHeader);
 
         // Insert new page in pdf booklet
-        if ( pageId < _pages.size()-1 ) {
+        if ( pageCnt < _pages.size()-1 ) {
             pdfPrinter.newPage();
         }
+
+        ++pageCnt;
     }
 
     pdfPainter.end();
@@ -814,15 +840,23 @@ void PlotBookView::tabCloseRequested(int tabId)
 {
     if ( model() == 0 ) return;
 
-    _isTabCloseRequested = true;
-    QWidget* page = _nb->widget(tabId);
-    QModelIndex pageIdx = _page2Idx(page);
+    QWidget* widget = _nb->widget(tabId);
+    QModelIndex pageIdx = _page2Idx(widget);
     if ( pageIdx.isValid() ) {
+        // Plot page
         QModelIndex pagesIdx = _plotModel->getIndex(QModelIndex(), "Pages");
         int row = pageIdx.row();
         model()->removeRow(row,pagesIdx);
+    } else {
+        // Table
+        QModelIndex tableIdx = _table2Idx(widget);
+        if ( tableIdx.isValid() ) {
+            QModelIndex tablesIdx = _plotModel->getIndex(QModelIndex(),
+                                                         "Tables");
+            int row = tableIdx.row();
+            model()->removeRow(row,tablesIdx);
+        }
     }
-    _isTabCloseRequested = false;
 }
 
 void PlotBookView::tabCurrentChanged(int tabId)
@@ -902,6 +936,17 @@ void PlotBookView::plotKeyPress(QKeyEvent *e)
         _toggleDiffPlots();
         break;
     }
+    }
+}
+
+void PlotBookView::_nbTabAboutToBeRemoved(int tabId)
+{
+    QList<QWidget*> widgets = _widget2notebookTab.keys();
+    foreach ( QWidget* widget, widgets ) {
+        int tid = _widget2notebookTab.value(widget);
+        if ( tid > tabId ) {
+            _widget2notebookTab[widget] = tid-1;
+        }
     }
 }
 
@@ -993,8 +1038,8 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             QVariant v = model()->data(idx);
             TrickCurveModel* curveModel;
             curveModel = QVariantToPtr<TrickCurveModel>::convert(v);
-            QString xunit = curveModel->x().unit();
-            QString yunit = curveModel->y().unit();
+            QString xunit = curveModel->x()->unit();
+            QString yunit = curveModel->y()->unit();
 
             Plot* plot = _idx2Plot(gpidx);
             TrickCurve* curve = plot->axisRect()->addCurve(curveModel);
@@ -1004,12 +1049,14 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             QModelIndex plotIdx = _plotModel->getIndex(idx, "Plot");
             QModelIndex xAxisLabelIdx =
                     _plotModel->getIndex(plotIdx,"PlotXAxisLabel", "Plot");
-            QString xAxisLabel = _appendUnitToAxisLabel(xAxisLabelIdx,xunit);
+            QString xAxisLabel = _plotModel->data(xAxisLabelIdx).toString();
+            xAxisLabel = _appendUnitToLabel(xAxisLabel,xunit);
             plot->setXAxisLabel(xAxisLabel);
 
             QModelIndex yAxisLabelIdx =
                     _plotModel->getIndex(plotIdx,"PlotYAxisLabel", "Plot");
-            QString yAxisLabel = _appendUnitToAxisLabel(yAxisLabelIdx,yunit);
+            QString yAxisLabel = _plotModel->data(yAxisLabelIdx).toString();
+            yAxisLabel = _appendUnitToLabel(yAxisLabel,yunit);
             plot->setYAxisLabel(yAxisLabel);
 
             if ( pidx.row() == 1 && _isShowCurveDiff ) {
@@ -1373,7 +1420,6 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             plotTitle->setColor(fgColor);
 
         } else if ( itemText == "PlotFont" ) {
-
             QString fontStr = model()->data(idx).toString();
             if ( !fontStr.isEmpty() ) {
 
@@ -1419,6 +1465,126 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 plot->legend->setFont(yAxisFont);
             }
 
+        } else if ( itemText == "Table" ) {
+        } else if ( itemText == "TableName" ) {
+            QTableView* table = new QTableView(this);
+            _tables.append(table);
+            QStandardItemModel* tableModel = new QStandardItemModel();
+            table->setModel(tableModel);
+            QString tableName = model()->data(idx).toString();
+            _nb->addTab(table,QFileInfo(tableName).baseName());
+            int nbIdx = _nb->count()-1;
+            _widget2notebookTab.insert(table,nbIdx);
+            _nb->setCurrentIndex(nbIdx);
+            _nb->setAttribute(Qt::WA_AlwaysShowToolTips, true);
+        } else if ( itemText == "TableVarName" ) {
+        } else if ( itemText == "TableVarRunId" ) {
+        } else if ( itemText == "TableCurveData" ) {
+
+            QVariant v = model()->data(idx);
+            TrickCurveModel* curveModel;
+            curveModel = QVariantToPtr<TrickCurveModel>::convert(v);
+            QString yunit = curveModel->y()->unit();
+            QString yName = curveModel->y()->name();
+            QString yHeaderLabel = _appendUnitToLabel(yName,yunit);
+
+            QModelIndex tableIdx = _plotModel->getIndex(idx, "Table",
+                                                        "TableCurveData");
+            int tableRow = tableIdx.row();
+            QTableView* table = _tables.at(tableRow);
+            QStandardItemModel* tableModel =  (QStandardItemModel*)
+                                              table->model();
+
+            // Get table column number for data
+            QModelIndex varsIdx = _plotModel->getIndex(tableIdx,
+                                                       "TableVars",
+                                                       "Table");
+            int ycol = model()->rowCount(varsIdx);
+
+            // Set table column header to name
+            QStandardItem* yItem = new QStandardItem(yHeaderLabel);
+            tableModel->setHorizontalHeaderItem(ycol,yItem);
+
+            // Scale/bias
+            QModelIndex sfIdx = _plotModel->getIndex(pidx, "TableVarScale",
+                                                     "Curve");
+            double sf = _plotModel->data(sfIdx).toDouble();
+            QModelIndex biasIdx = _plotModel->getIndex(pidx, "TableVarBias",
+                                                     "Curve");
+            double bias = _plotModel->data(biasIdx).toDouble();
+
+            if ( ycol == 1 ) {
+
+                // Set time label on column 0
+                QString tunit = curveModel->t()->unit();
+                QString tHeaderLabel = _appendUnitToLabel("Time",tunit);
+                QStandardItem* tItem = new QStandardItem(tHeaderLabel);
+                tableModel->setHorizontalHeaderItem(0,tItem);
+
+                // First column
+                tableModel->setRowCount(curveModel->rowCount());
+                curveModel->map();
+                TrickModelIterator it = curveModel->begin();
+                const TrickModelIterator e = curveModel->end();
+                int row = 0;
+                while (it != e) {
+                    QModelIndex tIdx = tableModel->index(row,0);
+                    QModelIndex yIdx = tableModel->index(row,ycol);
+                    tableModel->setData(tIdx,it.t());
+                    tableModel->setData(yIdx,it.y()*sf+bias);
+                    ++row;
+                    ++it;
+                }
+                curveModel->unmap();
+            } else {
+                // Insert data from curve, making sure timestamps line up
+                curveModel->map();
+                TrickModelIterator it = curveModel->begin();
+                const TrickModelIterator e = curveModel->end();
+                for ( int i = 0; i < tableModel->rowCount(); ++i ) {
+                    // rowCount() changes, keep checking rowCount() in for loop
+                    QModelIndex tIdx = tableModel->index(i,0);
+                    double t0 = tableModel->data(tIdx).toDouble();
+                    double ty = it.t();
+                    if ( qAbs(ty-t0) < 1.0e-9 ) {
+                        QModelIndex yIdx = tableModel->index(i,ycol);
+                        tableModel->setData(yIdx,it.y()*sf+bias);
+                        ++it;
+                    } else if ( ty < t0 ) {
+                        tableModel->insertRow(i);
+                        tIdx = tableModel->index(i,0);
+                        tableModel->setData(tIdx,ty);
+                        QModelIndex yIdx = tableModel->index(i,ycol);
+                        tableModel->setData(yIdx,it.y()*sf+bias);
+                        ++it;
+                    } else  {
+                       // t0 < t1
+                    }
+                    if ( it == e ) {
+                        break;
+                    }
+                }
+                int i = tableModel->rowCount();
+                while (it != e) {
+                    tableModel->insertRow(i);
+                    QModelIndex tIdx = tableModel->index(i,0);
+                    QModelIndex yIdx = tableModel->index(i,ycol);
+                    tableModel->setData(tIdx,it.t());
+                    tableModel->setData(yIdx,it.y()*sf+bias);
+                    ++it;
+                    ++i;
+                }
+                curveModel->unmap();
+            }
+
+            table->resizeColumnsToContents();
+
+            /*
+            if ( pidx.row() == 1 && _isShowCurveDiff ) {
+                plot->axisRect()->showCurveDiff();
+            }
+            */
+
         } else {
 #if 0
             qDebug() << "snap [bad scoobies] : PlotBookView::rowInserted() "
@@ -1443,15 +1609,24 @@ void PlotBookView::rowsAboutToBeRemoved(const QModelIndex &pidx,
             int row = _plotModel->pageIdxs().indexOf(idx);
             _pages.remove(row);
             _page2grid.remove(page);
-            _page2Plots.remove(page);
+            _page2pagewidget.remove(page);
             _page2startTime.remove(page);
             _page2stopTime.remove(page);
-            if ( ! _isTabCloseRequested ) {
-                // Tab widget will remove its own tab
-                _nb->removeTab(idx.row());
+            foreach ( Plot* plot, _page2Plots.value(page) ) {
+                _plot2Curves.remove(plot);
             }
+            _page2Plots.remove(page);
+            int tabId = _widget2notebookTab.value(page);
+            _nbTabAboutToBeRemoved(tabId);
             page->deleteLater();
 
+        } else if ( _plotModel->isIndex(pidx, "Tables") ) {
+            QTableView* tableView = _tables.at(row);
+            int tabId = _widget2notebookTab.value(tableView);
+            _nbTabAboutToBeRemoved(tabId);
+            _tables.remove(row);
+            delete tableView->model();
+            tableView->deleteLater();
         } else if ( _plotModel->isIndex(idx, "Plot") ) {
             // Plot
             QWidget* page = _idx2Page(pidx);
@@ -1625,6 +1800,20 @@ QModelIndex PlotBookView::_page2Idx(QWidget *page) const
     return idx;
 }
 
+QModelIndex PlotBookView::_table2Idx(QWidget *tableView) const
+{
+    if ( !model() || !tableView) return QModelIndex();
+
+    QModelIndex idx;
+    int row = _tables.indexOf((QTableView*)tableView);
+    if ( row >= 0 ) {
+        QModelIndex tablesIdx = _plotModel->getIndex(QModelIndex(), "Tables");
+        idx = _plotModel->index(row,0,tablesIdx);
+    }
+    return idx;
+}
+
+
 QModelIndex PlotBookView::_plot2Idx(Plot *plot) const
 {
     if ( !model() || !plot ) return QModelIndex();
@@ -1641,32 +1830,32 @@ QModelIndex PlotBookView::_plot2Idx(Plot *plot) const
     return plotIdx;
 }
 
-QString PlotBookView::_appendUnitToAxisLabel(const QModelIndex axisLabelIdx,
+QString PlotBookView::_appendUnitToLabel(const QString& labelInput,
                                             const QString& unit ) const
 {
-    QString axisLabel =  model()->data(axisLabelIdx).toString();
+    QString label = labelInput;
     QString curveUnit = unit;
 
-    if ( axisLabel.contains('(') ) {
+    if ( label.contains('(') ) {
         // assumes that label parens are for units
         QString labelUnit;
-        int a = axisLabel.lastIndexOf('(');
-        int b = axisLabel.lastIndexOf(')');
+        int a = label.lastIndexOf('(');
+        int b = label.lastIndexOf(')');
         if ( b > 0 ) {
-            labelUnit = axisLabel.mid(a+1,b-a-1);
+            labelUnit = label.mid(a+1,b-a-1);
         }
         if ( labelUnit != curveUnit && labelUnit !="--" ) {
             // units not the same across curves, so make unit (--)
-            axisLabel.replace(a+1,labelUnit.size(),"--");
+            label.replace(a+1,labelUnit.size(),"--");
         }
     } else {
 
-        axisLabel += " (";
-        axisLabel += curveUnit;
-        axisLabel += ")";
+        label += " (";
+        label += curveUnit;
+        label += ")";
     }
 
-    return axisLabel;
+    return label;
 }
 
 void PlotBookView::_insertPage(const QString &dpFileName)
@@ -1694,6 +1883,7 @@ void PlotBookView::_insertPage(const QString &dpFileName)
 
     // Add Page to Notebook and make this page current (show page)
     _nb->addTab(page,QFileInfo(dpFileName).baseName());
+    _widget2notebookTab.insert(page,_nb->count()-1);
     int nbIdx = _nb->count()-1;
     _nb->setCurrentIndex(nbIdx);
     _nb->setAttribute(Qt::WA_AlwaysShowToolTips, true);

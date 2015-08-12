@@ -23,7 +23,7 @@ QVariant PlotBookModel::data(const QModelIndex &idx, int role) const
 
     QVariant v;
 
-    if ( isIndex(idx, "CurveData") ) {
+    if ( isIndex(idx, "CurveData") || isIndex(idx, "TableCurveData") ) {
 
         QModelIndex curveIdx = idx.parent();
         QModelIndex rIdx = getIndex(curveIdx, "CurveRunID", "Curve");
@@ -42,7 +42,7 @@ QVariant PlotBookModel::data(const QModelIndex &idx, int role) const
         //
         bool isXScale = false;
         double xScaleFactor = 1.0;
-        QString xunit = curveModel->x().unit();
+        QString xunit = curveModel->x()->unit();
         QModelIndex xUnitIdx = getIndex(curveIdx, "CurveXUnit", "Curve");
         QString xDPUnit = data(xUnitIdx).toString();
         if ( !xDPUnit.isEmpty() && xunit != xDPUnit &&
@@ -60,7 +60,7 @@ QVariant PlotBookModel::data(const QModelIndex &idx, int role) const
         //
         bool isYScale = false;
         double yScaleFactor = 1.0;
-        QString yunit = curveModel->y().unit();
+        QString yunit = curveModel->y()->unit();
         QModelIndex yUnitIdx = getIndex(curveIdx, "CurveYUnit", "Curve");
         QString yDPUnit = data(yUnitIdx).toString();
         if ( !yDPUnit.isEmpty() &&
@@ -78,6 +78,8 @@ QVariant PlotBookModel::data(const QModelIndex &idx, int role) const
             curveModel = _monteModel->curve(runID,
                                             tName, xName, yName,
                                             xScaleFactor, yScaleFactor);
+            curveModel->x()->setUnit(xunit);
+            curveModel->y()->setUnit(yunit);
         }
 
         v = PtrToQVariant<TrickCurveModel>::convert(curveModel);
@@ -167,6 +169,37 @@ QModelIndex PlotBookModel::_plotIdx(const QModelIndex &idx) const
     return pltIdx;
 }
 
+QModelIndex PlotBookModel::_ancestorIdx(const QModelIndex &startIdx,
+                                    const QString& ancestorText,
+                                    const QString &expectedStartIdxText) const
+{
+    QModelIndex idx;
+
+    if ( !startIdx.isValid() ) {
+        return idx;
+    }
+
+    if ( !expectedStartIdxText.isEmpty() ) {
+        if ( !isIndex(startIdx, expectedStartIdxText) ) {
+            QStandardItem* startItem = itemFromIndex(startIdx);
+            QString startText = startItem->text();
+            qDebug() << "snap [bad scoobies]: _ancestorIdx() received a "
+                        "startIdx of " << startIdx << " with text "
+                     << startText << ".  The expected start item text was "
+                     << expectedStartIdxText << ".  The ancestor to find was "
+                     << ancestorText << ".";
+            exit(-1);
+        }
+    }
+
+    idx = startIdx;
+    while (idx.isValid() && !isIndex(idx, ancestorText)) {
+        idx = idx.parent();
+    }
+
+    return idx;
+}
+
 QModelIndexList PlotBookModel::plotIdxs(const QModelIndex &pageIdx) const
 {
     return getIndexList(pageIdx, "Plot");
@@ -192,6 +225,10 @@ void PlotBookModel::_initModel()
     QStandardItem *pagesItem = new QStandardItem("Pages");
     pagesItem->setData("Pages");
     rootItem->appendRow(pagesItem);
+
+    QStandardItem *tablesItem = new QStandardItem("Tables");
+    tablesItem->setData("Tables");
+    rootItem->appendRow(tablesItem);
 }
 
 //
@@ -223,6 +260,14 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
         return idx;
     }
 
+    // For Table, the search may go up the tree
+    if ( searchItemText == "Table" ) {
+        idx = _ancestorIdx(startIdx, "Table", expectedStartIdxText);
+        if ( idx.isValid() ) {
+            return idx;
+        }
+    }
+
     if ( !expectedStartIdxText.isEmpty() ) {
         if ( startIdx.isValid() ) {
             if ( !isIndex(startIdx, expectedStartIdxText) ) {
@@ -250,6 +295,8 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
             idx = index(1,0);
         } else if ( searchItemText == "Pages" ) {
             idx = index(2,0);
+        } else if ( searchItemText == "Tables" ) {
+            idx = index(3,0);
         } else {
             qDebug() << "snap [bad scoobies]: getIndex() received "
                         "root as a startIdx and had bad child item text of \""
@@ -309,7 +356,7 @@ QModelIndexList PlotBookModel::getIndexList(const QModelIndex &startIdx,
         pidx = getIndex(QModelIndex(), "Pages");
     } else if ( searchItemText == "Plot" ) {
         // Made so startIdx doesn't have to be the parent PageIdx
-        QModelIndex pageIdx = getIndex(startIdx, "Page");
+        QModelIndex pageIdx = getIndex(startIdx, "Page", expectedStartIdxText);
         if ( !pageIdx.isValid() ) {
             qDebug() << "snap [bad scoobies]: getIndexList() received a "
                         "startIdx of \"" << startItemText << "\""

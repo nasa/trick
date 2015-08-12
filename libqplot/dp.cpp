@@ -100,6 +100,13 @@ DPPage *DPProduct::addPage(const char *title)
     return page;
 }
 
+DPTable *DPProduct::addTable(const char *title)
+{
+    DPTable* table = new DPTable(title);
+    _tables.append(table);
+    return table;
+}
+
 // Used when filtering for params in DP
 QStringList DPProduct::paramList(const QString &fileName)
 {
@@ -795,4 +802,22 @@ DPXYPair::DPXYPair(DPVar *x, DPVar *y) :
 {
     _x = x;
     _y = y;
+}
+
+
+DPTable::DPTable(const char *title) :
+    _title(title),
+     _delimiter(","),
+    _startTime(-DBL_MAX),
+    _stopTime(DBL_MAX),
+    _vars(QList<DPVar*>())
+{
+}
+
+
+DPVar *DPTable::addVar(const char *title)
+{
+    DPVar* var = new DPVar(title);
+    _vars.append(var);
+    return var;
 }
