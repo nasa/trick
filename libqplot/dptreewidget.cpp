@@ -105,7 +105,7 @@ void DPTreeWidget::_setupModel()
 void DPTreeWidget::_createDP(const QString &dpfile)
 {
     _createDPPages(dpfile);
-    //_createDPTables(dpfile);
+    _createDPTables(dpfile);
 }
 
 void DPTreeWidget::_searchBoxTextChanged(const QString &rx)

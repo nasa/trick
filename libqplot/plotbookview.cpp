@@ -3,6 +3,7 @@
 #include "libopts/options.h"
 #include <QFileInfo>
 #include <QDebug>
+#include "libsnapdata/timeit_linux.h"
 
 PlotBookView::PlotBookView(PlotBookModel *plotModel, const QStringList &titles, QWidget *parent) :
     QAbstractItemView(parent),
@@ -1481,6 +1482,7 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
         } else if ( itemText == "TableVarRunId" ) {
         } else if ( itemText == "TableCurveData" ) {
 
+
             QVariant v = model()->data(idx);
             TrickCurveModel* curveModel;
             curveModel = QVariantToPtr<TrickCurveModel>::convert(v);
@@ -1503,7 +1505,12 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
 
             // Set table column header to name
             QStandardItem* yItem = new QStandardItem(yHeaderLabel);
+
+            // This gets slower as the table gets bigger
+            //TimeItLinux timer;
+            //timer.start();
             tableModel->setHorizontalHeaderItem(ycol,yItem);
+            //timer.snap("time tableModel->setHorizontalHeaderItem=");
 
             // Scale/bias
             QModelIndex sfIdx = _plotModel->getIndex(pidx, "TableVarScale",
@@ -1512,6 +1519,7 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             QModelIndex biasIdx = _plotModel->getIndex(pidx, "TableVarBias",
                                                      "Curve");
             double bias = _plotModel->data(biasIdx).toDouble();
+
 
             if ( ycol == 1 ) {
 
@@ -1577,7 +1585,7 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 curveModel->unmap();
             }
 
-            table->resizeColumnsToContents();
+            table->resizeColumnToContents(ycol);
 
             /*
             if ( pidx.row() == 1 && _isShowCurveDiff ) {
