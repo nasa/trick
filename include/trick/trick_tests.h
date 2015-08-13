@@ -17,49 +17,49 @@
     }
 
 #define TRICK_EXPECT_EQ( a , b , test_suite , test_case) \
-    if ( a == b ) { \
+    if ( (a) == (b) ) { \
         add_test_result( test_suite , test_case , "" ) ; \
     } else { \
         add_test_result( test_suite , test_case , "TRICK_EXPECT_EQ failed" ) ; \
     }
 
 #define TRICK_EXPECT_NE( a , b , test_suite , test_case) \
-    if ( a != b ) { \
+    if ( (a) != (b) ) { \
         add_test_result( test_suite , test_case , "" ) ; \
     } else { \
         add_test_result( test_suite , test_case , "TRICK_EXPECT_NE failed" ) ; \
     }
 
 #define TRICK_EXPECT_LT( a , b , test_suite , test_case) \
-    if ( a < b ) { \
+    if ( (a) < (b) ) { \
         add_test_result( test_suite , test_case , "" ) ; \
     } else { \
         add_test_result( test_suite , test_case , "TRICK_EXPECT_LT failed" ) ; \
     }
 
 #define TRICK_EXPECT_LE( a , b , test_suite , test_case) \
-    if ( a <= b ) { \
+    if ( (a) <= (b) ) { \
         add_test_result( test_suite , test_case , "" ) ; \
     } else { \
         add_test_result( test_suite , test_case , "TRICK_EXPECT_LE failed" ) ; \
     }
 
 #define TRICK_EXPECT_GT( a , b , test_suite , test_case) \
-    if ( a > b ) { \
+    if ( (a) > (b) ) { \
         add_test_result( test_suite , test_case , "" ) ; \
     } else { \
         add_test_result( test_suite , test_case , "TRICK_EXPECT_GT failed" ) ; \
     }
 
 #define TRICK_EXPECT_GE( a , b , test_suite , test_case) \
-    if ( a >= b ) { \
+    if ( (a) >= (b) ) { \
         add_test_result( test_suite , test_case , "" ) ; \
     } else { \
         add_test_result( test_suite , test_case , "TRICK_EXPECT_GE failed" ) ; \
     }
 
 #define TRICK_EXPECT_NEAR( a , b , tol , test_suite , test_case) \
-    if ( fabs ( a - b ) < tol ) { \
+    if ( fabs ( (a) - (b) ) < tol ) { \
         add_test_result( test_suite , test_case , "" ) ; \
     } else { \
         add_test_result( test_suite , test_case , "floating point not within tolerance" ) ; \
