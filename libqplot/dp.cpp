@@ -768,7 +768,9 @@ DPVar::DPVar(const char *name) :
     _scaleFactor(1.0),
     _bias(0.0),
     _symbol(QString()),
-    _symbolSize(QString())
+    _symbolSize(QString()),
+    _minRange(-DBL_MAX),
+    _maxRange(DBL_MAX)
 {
 }
 

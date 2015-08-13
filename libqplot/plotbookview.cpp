@@ -1541,6 +1541,22 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                                                      "Curve");
             double bias = _plotModel->data(biasIdx).toDouble();
 
+            // Min/Max Range
+            QModelIndex minRangeIdx = _plotModel->getIndex(pidx,
+                                                           "TableVarMinRange",
+                                                           "Curve");
+            QModelIndex maxRangeIdx = _plotModel->getIndex(pidx,
+                                                           "TableVarMaxRange",
+                                                           "Curve");
+            double minRange = _plotModel->data(minRangeIdx).toDouble();
+            double maxRange = _plotModel->data(maxRangeIdx).toDouble();
+
+
+//#define TIME_ME
+#ifdef TIME_ME
+                TimeItLinux timer;
+                 timer.start();
+#endif
 
             if ( ycol == 1 ) {
 
@@ -1558,9 +1574,9 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 int row = 0;
                 while (it != e) {
                     QModelIndex tIdx = tableModel->index(row,0);
-                    QModelIndex yIdx = tableModel->index(row,ycol);
                     tableModel->setData(tIdx,it.t());
-                    tableModel->setData(yIdx,it.y()*sf+bias);
+                    _setTableData(tableModel,row,ycol,
+                                  it.y(),sf,bias,minRange,maxRange);
                     ++row;
                     ++it;
                 }
@@ -1572,27 +1588,21 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 TrickModelIterator it = curveModel->begin();
                 const TrickModelIterator e = curveModel->end();
 
-//#define TIME_ME
-#ifdef TIME_ME
-                TimeItLinux timer;
-                 timer.start();
-#endif
-
                 for ( int i = 0; i < tableModel->rowCount(); ++i ) {
                     // rowCount() changes, keep checking rowCount() in for loop
                     QModelIndex tIdx = tableModel->index(i,0);
                     double t0 = tableModel->data(tIdx).toDouble();
                     double ty = it.t();
                     if ( qAbs(ty-t0) < 1.0e-9 ) {
-                        QModelIndex yIdx = tableModel->index(i,ycol);
-                        tableModel->setData(yIdx,it.y()*sf+bias);
+                        _setTableData(tableModel,i,ycol,
+                                      it.y(),sf,bias,minRange,maxRange);
                         ++it;
                     } else if ( ty < t0 ) {
                         tableModel->insertRow(i);
                         tIdx = tableModel->index(i,0);
                         tableModel->setData(tIdx,ty);
-                        QModelIndex yIdx = tableModel->index(i,ycol);
-                        tableModel->setData(yIdx,it.y()*sf+bias);
+                        _setTableData(tableModel,i,ycol,
+                                      it.y(),sf,bias,minRange,maxRange);
                         ++it;
                     } else  {
                        // t0 < t1
@@ -1602,23 +1612,22 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                     }
                 }
 
-#ifdef TIME_ME
-                 timer.snap("loadtime(tablevar)=");
-#endif
-
                 int i = tableModel->rowCount();
                 while (it != e) {
                     tableModel->insertRow(i);
                     QModelIndex tIdx = tableModel->index(i,0);
-                    QModelIndex yIdx = tableModel->index(i,ycol);
                     tableModel->setData(tIdx,it.t());
-                    tableModel->setData(yIdx,it.y()*sf+bias);
+                    _setTableData(tableModel,i,ycol,
+                                  it.y(),sf,bias,minRange,maxRange);
                     ++it;
                     ++i;
                 }
                 curveModel->unmap();
             }
 
+#ifdef TIME_ME
+                 timer.snap("loadtime(tablevar)=");
+#endif
 
             /*
             if ( pidx.row() == 1 && _isShowCurveDiff ) {
@@ -1635,6 +1644,22 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
 #endif
         }
     }
+}
+
+void PlotBookView::_setTableData(QStandardItemModel *table,
+                                 int row, int col,
+                                 double val,
+                                 double sf, double bias,
+                                 double minRange, double maxRange)
+{
+    QModelIndex idx = table->index(row,col);
+    double y = val*sf+bias;
+    if ( y < minRange ) {
+        y = minRange;
+    } else if ( y > maxRange ) {
+        y = maxRange;
+    }
+    table->setData(idx,y);
 }
 
 void PlotBookView::rowsAboutToBeRemoved(const QModelIndex &pidx,

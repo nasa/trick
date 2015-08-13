@@ -35,6 +35,8 @@ public:
     QString symbolSize() { return _symbolSize; }
     QString timeName() const { return _timeName; }
     QString format() const { return _format; }
+    double  minRange() const { return _minRange; }
+    double  maxRange() const { return _maxRange; }
 
     void setLabel(const char* label) { _label = label; }
     void setUnit(const char* unit) { _unit = unit; }
@@ -45,8 +47,9 @@ public:
     void setSymbolStyle(const char* ss) { _symbol = ss; }
     void setSymbolSize(const char* ss) { _symbolSize = ss; }
     void setTimeName(const char* t) { _timeName = t; }
-
     void setFormat(const char* f) { _format = f; }
+    void setMinRange(double range) { _minRange = range; }
+    void setMaxRange(double range) { _maxRange = range; }
 
 private:
     QString _name;
@@ -60,6 +63,8 @@ private:
     QString _symbolSize;
     QString _timeName;
     QString _format;
+    double  _minRange;
+    double  _maxRange;
 };
 
 class DPXYPair

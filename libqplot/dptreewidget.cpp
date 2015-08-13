@@ -290,6 +290,8 @@ void DPTreeWidget::_createDPTables(const QString &dpfile)
                 _addChild(curveItem, "CurveYUnit",       var->unit());
                 _addChild(curveItem, "TableVarScale",    var->scaleFactor());
                 _addChild(curveItem, "TableVarBias",     var->bias());
+                _addChild(curveItem, "TableVarMinRange", var->minRange());
+                _addChild(curveItem, "TableVarMaxRange", var->maxRange());
                 _addChild(curveItem, "CurveRunID",       i);
                 _addChild(curveItem, "TableCurveData");
                 _addChild(curveItem, "TableVarFormat",     var->format());

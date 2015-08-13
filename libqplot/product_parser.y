@@ -520,10 +520,10 @@ table_var: DP_VARIABLE ':' DP_STR {
                 currTableVar->setFormat($4);
         }
         | table_var DP_MIN_RANGE ':' DP_FLOAT {
-                //currTableVar->setMinRange($4);
+                currTableVar->setMinRange($4);
         }
         | table_var DP_MAX_RANGE ':' DP_FLOAT {
-                //currTableVar->setMaxRange($4);
+                currTableVar->setMaxRange($4);
         }
         ;
 %%

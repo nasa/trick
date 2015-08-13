@@ -130,7 +130,13 @@ private:
 
     void _insertPage(const QString &dpFileName);
     void _insertPageTitle(QWidget* page, const QString& title);
-    void _insertPlot(QWidget* page, double startTime, double stopTime, const QString &pageBGColor);
+    void _insertPlot(QWidget* page, double startTime, double stopTime,
+                     const QString &pageBGColor);
+
+    inline void _setTableData(QStandardItemModel* table, int row, int col,
+                              double val,
+                              double sf, double bias,
+                              double minRange, double maxRange);
 
 };
 
