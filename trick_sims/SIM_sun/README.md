@@ -1,0 +1,54 @@
+# SIM_sun
+
+![Picture of Sun](images/sun.png)
+
+### The Simulation
+SIM_sun is a simulation of the Sun's movement across the sky.
+Given the location (latitude, longitude) of an observer on the
+Earth, the timezone, and a starting local time, this simulation
+calculates the position of the Sun in the sky over time.
+
+### Inputs
+Variable                                      | Type          |  Units
+----------------------------------------------|---------------|-------
+sun\_predictor.sun.observer\_latitude         | double        | d
+sun\_predictor.sun.observer\_longitude        | double        | d
+sun\_predictor.sun.observer\_offset\_from\_UTC| int           | hr
+sun\_predictor.sun.local\_time                | CALENDAR_DATE | --
+
+### CALENDAR_DATE
+Member                     |  Type              |  Units
+---------------------------|--------------------|---------
+year                       |  int               | --
+month                      |  int               | --
+day                        |  int               | day
+hour                       |  int               | hour
+min                        |  int               | min
+sec                        |  double            | s
+
+
+
+### Outputs
+Variable                                         | Type          | Units
+-------------------------------------------------|---------------|-------
+sun\_predictor.sun.JD                            | double        | day
+sun\_predictor.sun.right\_ascension              | double        | d
+sun\_predictor.sun.declination                   | double        | d
+sun\_predictor.sun.hour\_angle                   | double        | d
+sun\_predictor.sun.local\_sidereal_time          | double        | s
+sun\_predictor.sun.sidereal\_time\_at\_Greenwich | double        | s
+sun\_predictor.sun.solar\_azimuth                | double        | d
+sun\_predictor.sun.solar\_elevation              | double        | d
+sun\_predictor.sun.local\_time                   | CALENDAR_DATE | --
+sun\_predictor.sun.utc                           | CALENDAR_DATE | --
+
+###Scenarios
+
+####[RUN_Winter](RUN_Winter/RESULTS.md)
+
+####[RUN_Summer](RUN_Summer/RESULTS.md)
+
+### References
+Meeus, Jean, (1998) "Astronomical Algorithms", Willman-Bell, Inc. ISBN 0-943396-61-1.
+
+
