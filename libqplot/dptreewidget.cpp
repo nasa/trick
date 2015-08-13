@@ -259,6 +259,11 @@ void DPTreeWidget::_createDPTables(const QString &dpfile)
         _addChild(tableItem, "TableStopTime", table->stopTime());
         _addChild(tableItem, "TableDelimiter", table->delimiter());
 
+        // This is used to initially allocate the number of table columns.
+        // It doesn't have to match the actual count...
+        // It speeds up the table creation
+        _addChild(tableItem, "TableVarCount", numRuns*table->vars().count());
+
         // Vars
         QStandardItem *varsItem = _addChild(tableItem, "TableVars");
 

@@ -2,6 +2,8 @@
 #include "libsnapdata/trickcurvemodel.h"
 #include "libopts/options.h"
 #include <QFileInfo>
+#include <QHeaderView>
+
 #include <QDebug>
 #include "libsnapdata/timeit_linux.h"
 
@@ -1467,18 +1469,37 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             }
 
         } else if ( itemText == "Table" ) {
-        } else if ( itemText == "TableName" ) {
+        } else if ( itemText == "TableVarCount" ) {
+        } else if ( itemText == "TableVars" ) {
+            // When TableVars item is inserted into the tree,
+            // the table is created, so things like TableName is accessed
+            // and assumed present
+
+            // Create table view
             QTableView* table = new QTableView(this);
+
+            // Create table model
+            QModelIndex tableIdx = _plotModel->getIndex(idx, "Table",
+                                                        "TableVars");
+            QModelIndex varCountIdx = _plotModel->getIndex(tableIdx,
+                                                           "TableVarCount",
+                                                           "Table");
+            int varCount = _plotModel->data(varCountIdx).toInt();
             _tables.append(table);
-            QStandardItemModel* tableModel = new QStandardItemModel();
+            QStandardItemModel* tableModel = new QStandardItemModel(0,
+                                                                    varCount+1);
             table->setModel(tableModel);
-            QString tableName = model()->data(idx).toString();
+
+            QModelIndex tableNameIdx = _plotModel->getIndex(tableIdx,
+                                                           "TableName",
+                                                           "Table");
+            QString tableName = model()->data(tableNameIdx).toString();
             _nb->addTab(table,QFileInfo(tableName).baseName());
             int nbIdx = _nb->count()-1;
             _widget2notebookTab.insert(table,nbIdx);
             _nb->setCurrentIndex(nbIdx);
             _nb->setAttribute(Qt::WA_AlwaysShowToolTips, true);
-        } else if ( itemText == "TableVarName" ) {
+
         } else if ( itemText == "TableVarRunId" ) {
         } else if ( itemText == "TableCurveData" ) {
 
@@ -1506,11 +1527,11 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             // Set table column header to name
             QStandardItem* yItem = new QStandardItem(yHeaderLabel);
 
-            // This gets slower as the table gets bigger
-            //TimeItLinux timer;
-            //timer.start();
+            // Set column width to what header label text width
             tableModel->setHorizontalHeaderItem(ycol,yItem);
-            //timer.snap("time tableModel->setHorizontalHeaderItem=");
+            QHeaderView* header = table->horizontalHeader();
+            int width = header->sectionSizeHint(ycol);
+            table->setColumnWidth(ycol,width);
 
             // Scale/bias
             QModelIndex sfIdx = _plotModel->getIndex(pidx, "TableVarScale",
@@ -1545,10 +1566,18 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 }
                 curveModel->unmap();
             } else {
+
                 // Insert data from curve, making sure timestamps line up
                 curveModel->map();
                 TrickModelIterator it = curveModel->begin();
                 const TrickModelIterator e = curveModel->end();
+
+//#define TIME_ME
+#ifdef TIME_ME
+                TimeItLinux timer;
+                 timer.start();
+#endif
+
                 for ( int i = 0; i < tableModel->rowCount(); ++i ) {
                     // rowCount() changes, keep checking rowCount() in for loop
                     QModelIndex tIdx = tableModel->index(i,0);
@@ -1572,6 +1601,11 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                         break;
                     }
                 }
+
+#ifdef TIME_ME
+                 timer.snap("loadtime(tablevar)=");
+#endif
+
                 int i = tableModel->rowCount();
                 while (it != e) {
                     tableModel->insertRow(i);
@@ -1585,7 +1619,6 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 curveModel->unmap();
             }
 
-            table->resizeColumnToContents(ycol);
 
             /*
             if ( pidx.row() == 1 && _isShowCurveDiff ) {
