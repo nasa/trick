@@ -36,6 +36,7 @@ class SnapOptions : public Options
     QString title2;
     QString title3;
     QString title4;
+    QString timeName;
 };
 
 SnapOptions opts;
@@ -69,6 +70,8 @@ int main(int argc, char *argv[])
              "Name of pdf output file");
     opts.add("-trk", &opts.trkOutFile, QString(""),
              "Produce *.trk with variables from DP_Products");
+    opts.add("-timeName", &opts.timeName, QString(""),
+             "Time name for RUN data");
     opts.parse(argc,argv, QString("snapq"), &ok);
 
     if ( !ok ) {
@@ -162,7 +165,8 @@ int main(int argc, char *argv[])
         titles << opts.title1 << subtitle << opts.title3 << opts.title4;
 
         if ( isPdf ) {
-            PlotMainWindow w(opts.presentation, QString(), dps, titles,
+            PlotMainWindow w(opts.timeName,
+                             opts.presentation, QString(), dps, titles,
                              monteModel, varsModel, monteInputsModel);
             w.show();
             w.savePdf(opts.pdfOutFile);
@@ -180,13 +184,15 @@ int main(int argc, char *argv[])
 
         } else {
             if ( dps.size() > 0 ) {
-                PlotMainWindow w(opts.presentation, ".", dps, titles,
+                PlotMainWindow w(opts.timeName,
+                                 opts.presentation, ".", dps, titles,
                                  monteModel, varsModel, monteInputsModel);
                 w.show();
                 ret = a.exec();
             } else {
 
-                PlotMainWindow w(opts.presentation, runDirs.at(0), QStringList(),
+                PlotMainWindow w(opts.timeName,
+                               opts.presentation, runDirs.at(0), QStringList(),
                                titles, monteModel, varsModel, monteInputsModel);
                 w.show();
                 ret = a.exec();

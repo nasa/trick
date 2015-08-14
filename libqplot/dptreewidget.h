@@ -17,7 +17,8 @@ class DPTreeWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit DPTreeWidget(const QString& dpDirName,
+    explicit DPTreeWidget(const QString& timeName,
+                          const QString& dpDirName,
                           const QStringList& dpFiles,
                           QStandardItemModel* dpVarsModel,
                           MonteModel* monteModel,
@@ -31,6 +32,7 @@ signals:
 public slots:
 
 private:
+    QString _timeName;
     QString _dpDirName;
     QStringList _dpFiles;
     QStandardItemModel* _dpVarsModel;

@@ -13,6 +13,7 @@
 #include "plotmainwindow.h"
 
 PlotMainWindow::PlotMainWindow(
+        const QString& timeName,
         const QString &presentation,
         const QString &dpDir,
         const QStringList& dpFiles,
@@ -22,6 +23,7 @@ PlotMainWindow::PlotMainWindow(
         QStandardItemModel *monteInputsModel,
         QWidget *parent) :
     QMainWindow(parent),
+    _timeName(timeName),
     _presentation(presentation),
     _dpDir(dpDir),
     _dpFiles(dpFiles),
@@ -95,7 +97,7 @@ PlotMainWindow::PlotMainWindow(
     _nbDPVars->addTab(_dpFrame,"DP");
     if ( ! _dpFiles.isEmpty() ) {
         // DP files specified on commandline
-        _dpTreeWidget = new  DPTreeWidget(_dpDir, _dpFiles, _varsModel,
+        _dpTreeWidget = new  DPTreeWidget(_timeName, _dpDir, _dpFiles, _varsModel,
                                           _monteModel, _plotModel,
                                           _plotSelectModel, _dpFrame);
         _nbDPVars->setCurrentIndex(1);
@@ -161,8 +163,8 @@ void PlotMainWindow::_nbCurrentChanged(int i)
         // So instead of creating the DPTreeWidget alongside the VarsWidget,
         // the DPTreeWidget is created when the DP tab is clicked.
         //
-        _dpTreeWidget = new  DPTreeWidget(_dpDir, _dpFiles, _varsModel,
-                                          _monteModel, _plotModel,
+        _dpTreeWidget = new  DPTreeWidget(_timeName, _dpDir, _dpFiles,
+                                          _varsModel, _monteModel, _plotModel,
                                           _plotSelectModel, _dpFrame);
     }
 }

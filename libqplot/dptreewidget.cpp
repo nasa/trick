@@ -3,8 +3,8 @@
 QString DPTreeWidget::_err_string;
 QTextStream DPTreeWidget::_err_stream(&DPTreeWidget::_err_string);
 
-
-DPTreeWidget::DPTreeWidget(const QString &dpDirName,
+DPTreeWidget::DPTreeWidget(const QString& timeName,
+                           const QString &dpDirName,
                            const QStringList &dpFiles,
                            QStandardItemModel *dpVarsModel,
                            MonteModel* monteModel,
@@ -12,6 +12,7 @@ DPTreeWidget::DPTreeWidget(const QString &dpDirName,
                            QItemSelectionModel *plotSelectModel,
                            QWidget *parent) :
     QWidget(parent),
+    _timeName(timeName),
     _dpDirName(dpDirName),
     _dpFiles(),
     _dpVarsModel(dpVarsModel),
@@ -158,6 +159,7 @@ void DPTreeWidget::_dpTreeViewCurrentChanged(const QModelIndex &currIdx,
 //
 void DPTreeWidget::_createDPPages(const QString& dpfile)
 {
+
     QCursor currCursor = this->cursor();
     this->setCursor(QCursor(Qt::WaitCursor));
 
@@ -167,6 +169,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
 
     // Pages
     QModelIndex pagesIdx = _plotModel->getIndex(QModelIndex(), "Pages");
+
     QStandardItem *pagesItem = _plotModel->itemFromIndex(pagesIdx);
 
     foreach (DPPage* page, dp.pages() ) {
@@ -325,6 +328,9 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     DPVar* x = 0;
     DPVar* y = 0;
     QString tName = "sys.exec.out.time";  // can be reset in this if block
+    if ( !_timeName.isEmpty() ) {
+        tName = _timeName;
+    }
     if ( dpcurve->xyPairs().isEmpty() ) {
         // Find out what x&y to use for curve
         // It can be in xypairs
@@ -332,9 +338,9 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
         y = dpcurve->y();
         QString xName = x->name();
         QString yName = y->name();
-        if ( !y->timeName().isEmpty() ) {
+        if ( !y->timeName().isEmpty() && _timeName.isEmpty() ) {
             tName = y->timeName();  // note that y supercedes x
-        } else if ( !x->timeName().isEmpty() ) {
+        } else if ( !x->timeName().isEmpty() && _timeName.isEmpty() ) {
             tName = x->timeName();
         }
         if ( xName.isEmpty() ) {
@@ -363,9 +369,10 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
         foreach ( DPXYPair* xyPair, dpcurve->xyPairs() ) {
             QString xName = xyPair->x()->name();
             QString yName = xyPair->y()->name();
-            if ( !xyPair->y()->timeName().isEmpty() ) {
+            if ( !xyPair->y()->timeName().isEmpty() && _timeName.isEmpty() ) {
                 tName = xyPair->y()->timeName();
-            } else if ( !xyPair->x()->timeName().isEmpty() ) {
+            } else if ( !xyPair->x()->timeName().isEmpty()
+                        && _timeName.isEmpty() ) {
                 tName = xyPair->x()->timeName();
             }
             if ( xName.isEmpty() ) {

@@ -33,7 +33,8 @@ class PlotMainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit PlotMainWindow( const QString& presentation,
+    explicit PlotMainWindow( const QString& timeName,
+                             const QString& presentation,
                              const QString& dpDir,
                              const QStringList& dpFiles,
                              const QStringList& titles,
@@ -47,6 +48,7 @@ public:
     ~PlotMainWindow();
 
 private:
+    QString _timeName;
     QString _presentation;
     QString _dpDir;
     QStringList _dpFiles;
