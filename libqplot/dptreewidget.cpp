@@ -106,7 +106,9 @@ void DPTreeWidget::_setupModel()
 void DPTreeWidget::_createDP(const QString &dpfile)
 {
     _createDPPages(dpfile);
-    _createDPTables(dpfile);
+    // Disable tables since Tim needs DP pages now
+    // and the tables are still awful slow
+    //_createDPTables(dpfile);
 }
 
 void DPTreeWidget::_searchBoxTextChanged(const QString &rx)
