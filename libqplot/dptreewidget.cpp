@@ -281,7 +281,10 @@ void DPTreeWidget::_createDPTables(const QString &dpfile)
 
                 // Get time name for this variable
                 QString tName = "sys.exec.out.time";
-                if ( !var->timeName().isEmpty() ) {
+                if ( !_timeName.isEmpty() ) {
+                    tName = _timeName;
+                }
+                if ( !var->timeName().isEmpty() && _timeName.isEmpty() ) {
                     tName = var->timeName();
                 }
 
