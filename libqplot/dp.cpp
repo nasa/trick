@@ -48,7 +48,9 @@ QString DPProduct::title()
 
 void DPProduct::_handleDP05File(QString &contents)
 {
-    contents = contents.replace(QRegExp(".*PLOTS:"),"PLOTS:");
+    // Remove all characters up to PLOTS: key word
+    int i = contents.indexOf("PLOTS:",0,Qt::CaseInsensitive);
+    contents = contents.remove(0,i-1);
 
     product = this; // TODO: product is global, need to fix the hack
 
