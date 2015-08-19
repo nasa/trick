@@ -1,22 +1,22 @@
-# SIM_sun
+# SIM\_sun
 
 ![Picture of Sun](images/sun.png)
 
 ### The Simulation
-SIM_sun is a simulation of the Sun's movement across the sky.
+SIM\_sun is a simulation of the Sun's movement across the sky.
 Given the location (latitude, longitude) of an observer on the
 Earth, the timezone (offset from UTC), and a starting local time,
 this simulation calculates the position of the Sun in the sky over time.
 
 ### Inputs
-Variable                                      | Type          |  Units
-----------------------------------------------|---------------|-------
-sun\_predictor.sun.observer\_latitude         | double        | d
-sun\_predictor.sun.observer\_longitude        | double        | d
-sun\_predictor.sun.observer\_offset\_from\_UTC| int           | hr
-sun\_predictor.sun.local\_time                | CALENDAR_DATE | --
+Variable                                       | Type           |  Units
+-----------------------------------------------|----------------|-------
+sun\_predictor.sun.observer\_latitude          | double         | d
+sun\_predictor.sun.observer\_longitude         | double         | d
+sun\_predictor.sun.observer\_offset\_from\_UTC | int            | hr
+sun\_predictor.sun.local\_time                 | CALENDAR\_DATE | --
 
-### CALENDAR_DATE
+### CALENDAR\_DATE
 Member                     |  Type              |  Units
 ---------------------------|--------------------|---------
 year                       |  int               | --
@@ -26,21 +26,19 @@ hour                       |  int               | hour
 min                        |  int               | min
 sec                        |  double            | s
 
-
-
 ### Outputs
-Variable                                         | Type          | Units
--------------------------------------------------|---------------|--------
-sun\_predictor.sun.JD                            | double        | day
-sun\_predictor.sun.right\_ascension              | double        | d     
-sun\_predictor.sun.declination                   | double        | d     
-sun\_predictor.sun.hour\_angle                   | double        | d
-sun\_predictor.sun.local\_sidereal_time          | double        | s
-sun\_predictor.sun.sidereal\_time\_at\_Greenwich | double        | s
-sun\_predictor.sun.solar\_azimuth                | double        | d
-sun\_predictor.sun.solar\_elevation              | double        | d
-sun\_predictor.sun.local\_time                   | CALENDAR_DATE | --
-sun\_predictor.sun.utc                           | CALENDAR_DATE | --
+Variable                                         | Type           | Units
+-------------------------------------------------|----------------|--------
+sun\_predictor.sun.JD                            | double         | day
+sun\_predictor.sun.right\_ascension              | double         | d
+sun\_predictor.sun.declination                   | double         | d
+sun\_predictor.sun.hour\_angle                   | double         | d
+sun\_predictor.sun.local\_sidereal\_time         | double         | s
+sun\_predictor.sun.sidereal\_time\_at\_Greenwich | double         | s
+sun\_predictor.sun.solar\_azimuth                | double         | d
+sun\_predictor.sun.solar\_elevation              | double         | d
+sun\_predictor.sun.local\_time                   | CALENDAR\_DATE | --
+sun\_predictor.sun.utc                           | CALENDAR\_DATE | --
 
 **NOTE:** 0 <= Solar Azimuth < 360 degrees. North = 0, East = 90, South = 180, West = 270.
 
@@ -52,5 +50,3 @@ sun\_predictor.sun.utc                           | CALENDAR_DATE | --
 
 ### References
 Meeus, Jean, (1998) "Astronomical Algorithms", Willmann-Bell, Inc. ISBN 0-943396-61-1.
-
-
