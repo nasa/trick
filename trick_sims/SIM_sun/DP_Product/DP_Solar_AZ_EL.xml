@@ -41,7 +41,7 @@
                 <label>Azimuth</label>
             </yaxis>
             <curve>
-                <var units="s">sys.exec.out.time</var>
+                <var units="hr">sys.exec.out.time</var>
                 <var units="d">sun_predictor.sun.solar_azimuth</var>
             </curve>
         </plot>

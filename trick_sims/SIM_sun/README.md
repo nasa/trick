@@ -5,8 +5,8 @@
 ### The Simulation
 SIM_sun is a simulation of the Sun's movement across the sky.
 Given the location (latitude, longitude) of an observer on the
-Earth, the timezone, and a starting local time, this simulation
-calculates the position of the Sun in the sky over time.
+Earth, the timezone (offset from UTC), and a starting local time,
+this simulation calculates the position of the Sun in the sky over time.
 
 ### Inputs
 Variable                                      | Type          |  Units
@@ -30,10 +30,10 @@ sec                        |  double            | s
 
 ### Outputs
 Variable                                         | Type          | Units
--------------------------------------------------|---------------|-------
+-------------------------------------------------|---------------|--------
 sun\_predictor.sun.JD                            | double        | day
-sun\_predictor.sun.right\_ascension              | double        | d
-sun\_predictor.sun.declination                   | double        | d
+sun\_predictor.sun.right\_ascension              | double        | d     
+sun\_predictor.sun.declination                   | double        | d     
 sun\_predictor.sun.hour\_angle                   | double        | d
 sun\_predictor.sun.local\_sidereal_time          | double        | s
 sun\_predictor.sun.sidereal\_time\_at\_Greenwich | double        | s
@@ -42,6 +42,8 @@ sun\_predictor.sun.solar\_elevation              | double        | d
 sun\_predictor.sun.local\_time                   | CALENDAR_DATE | --
 sun\_predictor.sun.utc                           | CALENDAR_DATE | --
 
+**NOTE:** 0 <= Solar Azimuth < 360 degrees. North = 0, East = 90, South = 180, West = 270.
+
 ###Scenarios
 
 ####[RUN_Winter](RUN_Winter/RESULTS.md)
@@ -49,6 +51,6 @@ sun\_predictor.sun.utc                           | CALENDAR_DATE | --
 ####[RUN_Summer](RUN_Summer/RESULTS.md)
 
 ### References
-Meeus, Jean, (1998) "Astronomical Algorithms", Willman-Bell, Inc. ISBN 0-943396-61-1.
+Meeus, Jean, (1998) "Astronomical Algorithms", Willmann-Bell, Inc. ISBN 0-943396-61-1.
 
 

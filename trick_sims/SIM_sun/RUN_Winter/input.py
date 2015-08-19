@@ -8,15 +8,15 @@ RECORD_DATA = True
 if RECORD_DATA:
     execfile("Modified_data/helios.dr")
 
-REALTIME = True
+REALTIME = False
 if REALTIME:
     execfile("Modified_data/realtime.py")
 
-JAPANESE = True
+JAPANESE = False
 if JAPANESE:
     execfile("Modified_data/Japanese_labels_alt.py")
 
-STRIPCHART = True
+STRIPCHART = False
 if STRIPCHART:
     trickView = trick.TrickView()
     trickView.set_auto_open_file("sun.tv")
