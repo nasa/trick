@@ -86,7 +86,7 @@ bool Monte::_setDir(const QString &montedir)
     //
     foreach (QString ftrk, trks.values()) {
         QString trk(_montedir + "/" + run0 + "/" + ftrk);
-        TrickModel* m = new TrickModel(trk,trk);
+        TrickModel* m = new TrickModel("sys.exec.out.time",trk,trk);
         int ncols = m->columnCount();
         for ( int col = 0; col < ncols; ++col) {
             QString param = m->param(col).name();
@@ -137,7 +137,7 @@ bool Monte::_setDir(const QString &montedir)
                 throw std::invalid_argument(_err_string.toAscii().constData());
             }
             QString trk(_montedir + "/" + run + "/" + ftrk);
-            TrickModel* m = new TrickModel(trk,trk);
+            TrickModel* m = new TrickModel("sys.exec.out.time",trk,trk);
             int ncols = m->columnCount();
             if ( run == beginRunDir ) {
                 params.clear();

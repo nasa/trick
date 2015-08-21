@@ -164,7 +164,7 @@ SnapWindow::SnapWindow(const QString& rundir,
     _timer.start();
     QStringList fnames = _snap->fileNamesUserJobs();
     foreach ( QString fname, fnames ) {
-        TrickModel* m = new TrickModel(fname,fname);
+        TrickModel* m = new TrickModel("sys.exec.out.time",fname,fname);
         _models_userjobs.append(m);
         _trick_models.append(m);
     }

@@ -76,7 +76,7 @@ bool Runs::_setDirs(const QStringList &dirs)
 
     QHash<QPair<QString,QString>,TrickModel*> ptrkToModel;
     foreach (QString trk, trks.keys() ) {
-        TrickModel* m = new TrickModel(trk,trk);
+        TrickModel* m = new TrickModel("sys.exec.out.time",trk,trk);
         m->unmap();
         _models.append(m);
         int ncols = m->columnCount();
