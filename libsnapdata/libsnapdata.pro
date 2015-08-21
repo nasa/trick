@@ -52,7 +52,8 @@ HEADERS += \
     runs.h \
     unit.h \
     csv.h \
-    parameter.h
+    parameter.h \
+    roundoff.h
 
 
 unix:!symbian {
