@@ -15,10 +15,94 @@ using namespace std;
 #include "libopts/options.h"
 #include "libsnapdata/runs.h"
 #include "libqplot/plotmainwindow.h"
+#include "libsnapdata/roundoff.h"
+
+#include "libsnapdata/timeit_linux.h"
 
 QStandardItemModel* createVarsModel(const QStringList& runDirs);
-bool writeTrk(const QString& ftrk,
-              QStringList& paramList, MonteModel* monteModel);
+bool writeTrk(const QString& ftrk, const QString &timeName,
+               QStringList& paramList, MonteModel* monteModel);
+double leastCommonMultiple(const QList<double>& xs);
+QList<double> uniquify(const QList<double>& list);
+
+QList<double> merge(const QList<double>& listA,
+                    const QList<double>& listB);
+
+bool doubleLessThan(double a, double b)
+{
+    return a-b < 1.0e-9;
+}
+
+class TimeStamps {
+  public:
+    TimeStamps(QList<double> freqs, double stopTime);
+    double at(int i);
+    int count() { return _timeStamps.count(); }
+  private:
+    TimeStamps();
+    QList<double> _freqs;
+    double _stopTime;
+
+    double _lcm;
+    QList<double> _timeStampsToLCM;
+    QList<double> _timeStamps;
+};
+
+TimeStamps::TimeStamps(QList<double> freqs, double stopTime)
+{
+    QList<double> ufreqs = uniquify(freqs);
+    double lcm = leastCommonMultiple(ufreqs);
+
+    foreach ( double f, freqs ) {
+        QList<double> ts;
+        double k = 1.0;
+        while ( 1 ) {
+            double t = k*f;
+            ROUNDOFF(t,t);
+            if ( t > (lcm+1.0e-9) ) {
+                break;
+            }
+            ts << t;
+            k = k + 1.0;
+            ROUNDOFF(k,k);
+        }
+        _timeStampsToLCM = merge(_timeStampsToLCM,ts);
+    }
+
+    double zero = 0.0;
+    ROUNDOFF(zero,zero);
+    _timeStamps << zero;
+
+    while ( 1 ) {
+        bool isFinished = false;
+        double lastTime = _timeStamps.last();
+        foreach ( double t, _timeStampsToLCM ) {
+            double nt = t + lastTime;
+            ROUNDOFF(nt,nt);
+            if ( nt > stopTime+1.0e-9 ) {
+                isFinished = true;
+                break;
+            }
+            _timeStamps << nt;
+        }
+        if ( isFinished ) {
+            break;
+        }
+    }
+}
+
+double TimeStamps::at(int i )
+{
+    if ( i >= 0 && i < _timeStamps.size() ) {
+        return _timeStamps.at(i);
+    } else if ( i >= _timeStamps.size() ) {
+        return _timeStamps.last();
+    } else if ( i < 0 ) {
+        return _timeStamps.at(0);
+    }
+
+    return 0.0;
+}
 
 Option::FPresetQStringList presetRunsDPs;
 Option::FPostsetQStringList postsetRunsDPs;
@@ -175,7 +259,21 @@ int main(int argc, char *argv[])
             QStringList params = DPProduct::paramList(dps);
 
             if ( monteModel->rowCount() == 1 ) {
-                writeTrk(opts.trkOutFile, params, monteModel);
+                QString timeName = opts.timeName ;
+                if ( timeName.isEmpty() ) {
+                    timeName = "sys.exec.out.time" ;
+                }
+                //TimeItLinux timer;
+                //timer.start();
+                bool r = writeTrk(opts.trkOutFile,timeName,params,monteModel);
+                //timer.snap("time=");
+                if ( r ) {
+                    ret = 0;
+                } else {
+                    fprintf(stderr, "snap [error]: Failed to write: %s\n",
+                            opts.trkOutFile.toAscii().constData());
+                    ret = -1;
+                }
             } else {
                 fprintf(stderr, "snap [error]: Only one RUN allowed with "
                                  "the -trk option.\n");
@@ -313,9 +411,8 @@ void presetPresentation(QString* presVar, const QString& pres, bool* ok)
         *ok = false;
     }
 }
-
-bool writeTrk(const QString& ftrk,
-              QStringList& paramList, MonteModel* monteModel)
+bool writeTrk(const QString& ftrk, const QString& timeName,
+               QStringList& paramList, MonteModel* monteModel)
 {
     QFileInfo ftrki(ftrk);
     if ( ftrki.exists() ) {
@@ -334,29 +431,135 @@ bool writeTrk(const QString& ftrk,
 
     //
     // Make param list
+    // And make curves list (based on param list)
     //
-    QString timeParam = paramList.first();
     QList<Param> params;
+    QList<TrickCurveModel*> curves;
+
+    // Time is first "param"
+    Param timeParam;
+    timeParam.name = timeName;
+    timeParam.unit = "s";
+    timeParam.type = TRICK_07_DOUBLE;
+    timeParam.size = sizeof(double);
+    params << timeParam;
+
+    // Each param gets a curve. Make the first curve null since
+    // there is no actual curve to go with timeStamps
+    curves << 0;
+
     foreach ( QString yParam, paramList ) {
+
+        // If time is in param list, then skip it  since timestamps
+        // are generated and inserted into the first column of the trk
+        if ( yParam == timeName ) {
+            continue;
+        }
+
+        TrickCurveModel* c = monteModel->curve(0,timeName,timeName,yParam);
+
+        // Error check: see if MonteModel could not find curve (timeName,yParam)
+        if ( !c) {
+            fprintf(stderr, "snap [error]: could not find curve: \n    ("
+                    "%s,%s)\n",
+                    timeName.toAscii().constData(),
+                    yParam.toAscii().constData());
+            return false;
+        }
+
+        // Map Curve
+        c->map();
+
+        // Error check:   make sure curve has data
+        if ( c->rowCount() == 0 ) {
+            // No data
+            fprintf(stderr, "snap [error]: no data found in %s\n",
+                    c->tableName().toAscii().constData());
+            return false;
+        }
+
+        // Error check: first timestamp should be 0.0
+        int i = c->indexAtTime(0.0);
+        if ( i != 0 ) {
+            // 0.0 is not first time - yield error
+            fprintf(stderr, "snap [error]: start time in data is not 0.0 "
+                            " for the following trk\n    %s\n",
+                    c->trkFile().toAscii().constData());
+            return false;
+        }
+
+        // Make a Param (for trk header)
         Param p;
         p.name = yParam;
-        TrickCurveModel* c = monteModel->curve(0,timeParam,timeParam,yParam);
-        if ( !c) {
-            fprintf(stderr, "snap [error]: could not find param \"%s\"\n",
-                    yParam.toAscii().constData());
-            exit(-1);
-        }
-        QString unit = c->y()->unit();
-        p.unit = unit;
+        p.unit = c->y()->unit();
         p.type = TRICK_07_DOUBLE;
         p.size = sizeof(double);
+
+        // Make params/curves lists (lazily mapping params to curves)
         params.append(p);
+        curves.append(c);
+
+        // Unmap Curve
+        c->unmap();
     }
     if ( params.size() < 2 ) {
-        fprintf(stderr,"snap: [error] Could not find any params in RUN that "
+        fprintf(stderr,"snap [error]: Could not find any params in RUN that "
                        "are in DP files\n\n");
         return false;
     }
+
+
+    // Guess frequency foreach curve
+    // Also get min start and max stop time
+    // Use first 10 time stamps
+    //
+    // Assuming (checked above) that first timestamp == 0.0
+    //    If each curve can begin at its own time, there is addeded complexity.
+    //    For example:
+    //    f0=0.25 c0 = (-0.65, -0.4, -0.15, 0.1, 0.35...)
+    //    f1=0.10 c1 = (0.0, 0.1, 0.2, 0.3...)
+    //    If one begins at -0.65, f1's genned timestamps would be off:
+    //             f1's timestamps (-0.65, -0.55,..., -0.05, 0.05...) is bad
+    //
+    double stopTime = -1.0e20;
+    QHash<TrickCurveModel*, double> curve2freq;
+    QList<double> freqs;
+    foreach ( TrickCurveModel* curve, curves ) {
+
+        if ( !curve ) continue ; // skip time "curve"
+
+        curve->map();
+        TrickModelIterator it = curve->begin();
+
+        int rc = curve->rowCount();
+        if ( rc > 1 ) {
+            double f = it[1].t();  // since it[0].t() == 0 and assume reg freq
+            double s = it[0].t();
+            double e = it[rc-1].t();
+            double d = e - s ;    // Actual delta time
+            double a = (rc-1)*f;  // approximately delta time using freqency
+
+            if ( qAbs(d-a) > 1.0e-6 ) {
+                fprintf(stderr,"snap [error]: frequency for data in %s is "
+                               "irregular.\n",
+                               curve->trkFile().toAscii().constData());
+                return false;
+            }
+
+            if ( e > stopTime ) stopTime = e;
+
+            ROUNDOFF(f,f);
+            freqs.append(f);
+            curve2freq.insert(curve,f);
+        }
+        curve->unmap();
+    }
+    freqs = uniquify(freqs);
+
+    // Create list of timestamps based on frequency of data of each curve.
+    // This assumes that each curve starts at 0.0
+    // This is the first "curve"
+    TimeStamps timeStamps(freqs,stopTime);
 
     // Open trk file for writing
     QFile trk(ftrk);
@@ -369,95 +572,81 @@ bool writeTrk(const QString& ftrk,
 
     // Write Trk Header
     TrickModel::writeTrkHeader(out,params);
+    trk.flush();
 
-    // Make list of curves and create hash of next times
-    QString yParam0 = paramList.at(1);
-    QList<TrickCurveModel*> curves;
-    QHash<TrickCurveModel*,int> curve2idx;
-    QHash<TrickCurveModel*,int> curve2rc;
-    int j = 0;
-    foreach ( QString yParam, paramList ) {
-        TrickCurveModel* c = 0;
-        if ( j == 0 ) {
-            // Timestamp is in first curve
-            c = monteModel->curve(0,timeParam,timeParam,yParam0);
+    // Resize Trk file to fit all the data + header
+    qint64 headerSize = trk.size();
+    qint64 nParams = params.size();
+    qint64 recordSize = nParams*sizeof(double);
+    qint64 nRecords = timeStamps.count();
+    qint64 dataSize = nRecords*recordSize;
+    qint64 fileSize = headerSize + dataSize;
+    trk.resize(fileSize);
+
+    int i = 0;
+    foreach ( TrickCurveModel* curve, curves ) {
+
+        int nTimeStamps = timeStamps.count();
+
+        if ( !curve ) {
+            // write time stamps
+            for ( int j = 0 ; j < nTimeStamps; ++j ) {
+                qint64 recordOffset = j*recordSize;
+                qint64 paramOffset = 0;
+                qint64 offset = headerSize + recordOffset + paramOffset;
+                trk.seek(offset);
+                out << timeStamps.at(j);
+            }
         } else {
-            c = monteModel->curve(0,timeParam,timeParam,yParam);
-        }
-        curves.append(c);
-        curve2idx.insert(c,-1);
-        int rc = c->rowCount();
-        if ( rc == 0 ) {
-            // No data
-            fprintf(stderr, "snap [error]: no data found in %s\n",
-                    c->tableName().toAscii().constData());
-            return false;
-        }
-        curve2rc.insert(c,c->rowCount());
-        ++j;
-    }
-
-    while ( 1 ) {
-
-        //
-        // Calc next time
-        //
-        bool isFinished = true;
-        double nextTime = 1.0e20;
-        foreach ( TrickCurveModel* c, curves ) {
-            c->map();
-            TrickModelIterator it = c->begin();
-            int i = curve2idx.value(c);
-            double t;
-            if ( i+1 < curve2rc.value(c) ) {
-                t = it[i+1].t();
-                isFinished = false;
-            } else {
-                t = 1.0e30;
-            }
-            if ( t < nextTime ) {
-                nextTime = t;
-            }
-            c->unmap();
-        }
-        if ( isFinished ) {
-            break;
-        }
-
-        // Increment curve idx if curve's next time matches nextTime
-        foreach ( TrickCurveModel* c, curves ) {
-            c->map();
-            int i = curve2idx.value(c);
-            TrickModelIterator it = c->begin();
-            if ( i+1 < curve2rc.value(c) ) {
-                double t = it[i+1].t();
-                if ( qAbs(nextTime-t) < 1.0e-9 ) {
-                    curve2idx[c] = i+1;
+            curve->map();
+            TrickModelIterator it = curve->begin();
+            TrickModelIterator e = curve->end();
+            double lastValue = 0.0; // if j == 0, lastValue inited at bottom
+            double lastTime = 0.0;  // start time assumed to be 0.0
+            for ( int j = 0 ; j < nTimeStamps; ++j ) {
+                double timeStamp = timeStamps.at(j);
+                double t = it.t();
+                double v;
+                if ( t-timeStamp < 1.0e-9 ) {
+                    // Curve time is on or just greater than timeline timestamp
+                    if ( it != e ) {
+                        v = it.y();
+                    } else {
+                        // The timeline's stoptime is > than curve stoptime,
+                        // let value be last value in curve
+                        int rc = curve->rowCount();
+                        v = it[rc-1].y();
+                    }
+                    ++it;
+                } else {
+                    // Curve time is not on timeline
+                    double fExpected = curve2freq.value(curve);
+                    double fActual = t-lastTime;
+                    if ( qAbs(t-lastTime) > 1.0e-9 &&
+                         qAbs(fExpected-fActual) > 1.0e-9 ) {
+                        fprintf(stderr,
+                                "snap [error]: File %s has bad timestamp "
+                                " %.8lf.  This timestamp is not a multiple "
+                                "of the expected frequency %.8lf. \n",
+                                curve->trkFile().toAscii().constData(),
+                                t, fExpected);
+                        curve->unmap();
+                        trk.close();
+                        return false;
+                    }
+                    v = lastValue;
                 }
+                qint64 recordOffset = j*recordSize;
+                qint64 paramOffset = i*sizeof(double);
+                qint64 offset = headerSize + recordOffset + paramOffset;
+                trk.seek(offset);
+                out << v;
+                lastValue = v;
+                lastTime = t;
             }
-            c->unmap();
+            curve->unmap();
         }
-
-        // Write the values
-        int j = 0;
-        foreach ( TrickCurveModel* c, curves ) {
-            c->map();
-            TrickModelIterator it = c->begin();
-            int i = curve2idx.value(c);
-            if ( i < 0 ) {
-                // This is for the case when curves begin at different times
-                i = 0;
-            }
-            double val = 0.0;
-            if ( j == 0 ) {
-                val = nextTime;
-            } else {
-                val = it[i].y();
-            }
-            out << val;
-            c->unmap();
-            ++j;
-        }
+        ++i;
     }
 
     //
@@ -466,4 +655,84 @@ bool writeTrk(const QString& ftrk,
     trk.close();
 
     return true;
+}
+
+// TODO: Fix this dumb way
+// If xs = (0.01, 0.010000010) this takes a long time
+double leastCommonMultiple(const QList<double>& xs)
+{
+    double lcm = 0.0;
+
+    if ( xs.size() == 0 ) {
+        return 0.0;
+    }
+    if ( xs.size() == 1 ) {
+        return xs.at(0);
+    }
+
+    QList<double> ks;
+    foreach ( double x, xs ) {
+        Q_UNUSED(x);
+        ks << 1.0;
+    }
+
+    while ( 1 ) {
+
+        int i = 0;
+        double max = -1.0e20;
+        foreach ( double k, ks ) {
+            double x = xs.at(i);
+            if ( k*x > max ) {
+                max = k*x;
+            }
+            ++i;
+        }
+
+        bool isDone = true;
+        for ( int i = 0 ; i < ks.size(); ++i ) {
+            double k = ks.at(i);
+            double x = xs.at(i);
+            if ( max - k*x > 1.0e-9 ) {
+                isDone = false;
+                k = k + 1.0;
+                ROUNDOFF(k,k);
+                ks[i] = k;
+            }
+        }
+
+        if ( isDone ) {
+            lcm = max;
+            ROUNDOFF(lcm,lcm);
+            break;
+        }
+    }
+
+
+    return lcm;
+}
+
+QList<double> merge(const QList<double>& listA, const QList<double>& listB)
+{
+    QList<double> list = listA + listB;
+    list = uniquify(list);
+    qSort(list.begin(),list.end(),doubleLessThan);
+    return list;
+}
+
+QList<double> uniquify(const QList<double>& list)
+{
+    QList<double> ulist;
+    foreach ( double v, list ) {
+        bool isEqual = false;
+        foreach ( double u, ulist ) {
+            if ( qAbs(v-u) < 1.0e-9 ) {
+                isEqual = true;
+                break;
+            }
+        }
+        if ( !isEqual ) {
+            ulist << v;
+        }
+    }
+    return ulist;
 }
