@@ -17,12 +17,11 @@ TrickModel::TrickModel(const QString& timeName,
     _tableName(tableName),
     _startTime(startTime),
     _stopTime(stopTime),
-    _nrows(0), _row_size(0), _ncols(0), _pos_beg_data(0),
+    _nrows(0), _row_size(0), _ncols(0), _timeCol(0),_pos_beg_data(0),
     _mem(0), _data(0), _fd(-1), _iteratorTimeIndex(0)
 {
     _load_trick_header();
     map();
-    _iteratorTimeIndex = new TrickModelIterator(0,this,0,0,0);
 }
 
 bool TrickModel::_load_trick_header()
@@ -91,8 +90,8 @@ bool TrickModel::_load_trick_header()
     int maxRows = nbytes/_row_size;
 
     // Make sure time param exists in model
-    int timeCol = _param2column.value(_timeName) ;
-    Parameter* tParam = _col2param.value(timeCol);
+    _timeCol = _param2column.value(_timeName) ;
+    Parameter* tParam = _col2param.value(_timeCol);
     if ( !tParam ) {
         _err_stream << "snap [error]: couldn't find time param \""
                     << _timeName << "\" trkfile=" << _trkfile;
@@ -204,6 +203,12 @@ void TrickModel::map()
     }
 
     _data = _mem + _pos_beg_data;
+
+    if ( _iteratorTimeIndex ) {
+        delete _iteratorTimeIndex;
+    }
+    _iteratorTimeIndex = new TrickModelIterator(0,this,
+                                                _timeCol,_timeCol,_timeCol);
 }
 
 void TrickModel::unmap()
@@ -213,11 +218,14 @@ void TrickModel::unmap()
         close(_fd);
         _data = 0 ;
     }
+    if ( _iteratorTimeIndex ) {
+        delete _iteratorTimeIndex;
+        _iteratorTimeIndex = 0;
+    }
 }
 
 TrickModel::~TrickModel()
 {
-    delete _iteratorTimeIndex;
     unmap();
     foreach ( Parameter* param, _col2param.values() ) {
         delete param;

@@ -97,6 +97,7 @@ class TrickModel : public QAbstractTableModel
     qint64 _nrows;
     qint64 _row_size;
     qint32 _ncols;
+    qint32 _timeCol;
     QHash<int,qint64> _col2offset;
 
     qint64 _pos_beg_data;
