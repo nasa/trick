@@ -540,9 +540,16 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
             double a = (rc-1)*f;  // approximately delta time using freqency
 
             if ( qAbs(d-a) > 1.0e-6 ) {
-                fprintf(stderr,"snap [error]: frequency for data in %s is "
-                               "irregular.\n",
-                               curve->trkFile().toAscii().constData());
+                fprintf(stderr,
+                        "snap [error]: frequency for data in %s is "
+                        "irregular.  RUN timeline is [%.8lf-%.8lf].  "
+                        "Frequency is assumed to be t[1] == %.8lf.  "
+                        "Number of data points, np == %d.  "
+                        "Assuming regular frequency, the following should be "
+                        "true: (np-1)*f == endTime-startTime.  It is not.  "
+                        "(%d-1)*%.8lf == %.8lf != %.8lf\n",
+                        curve->trkFile().toAscii().constData(),
+                        s,e,f,rc,rc,f,d,a);
                 return false;
             }
 
