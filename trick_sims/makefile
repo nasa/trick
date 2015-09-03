@@ -3,8 +3,6 @@ export TRICK_HOST_CPU := $(shell $(TRICK_HOME)/bin/trick-gte TRICK_HOST_CPU)
 
 # List out sims we want to compile
 COMPILE_DIRS = SIM_Ball++_L1 \
-    SIM_aero_curve \
-    SIM_aero_fast \
     SIM_amoeba \
     SIM_ball_L1 \
     SIM_ball_L2 \
@@ -47,8 +45,6 @@ COMPILE_DIRS = SIM_Ball++_L1 \
 
 # List out sims we want to run unit tests
 TEST_DIRS = SIM_Ball++_L1 \
-    SIM_aero_curve \
-    SIM_aero_fast \
     SIM_amoeba \
     SIM_ball_L1 \
     SIM_ball_L2 \
