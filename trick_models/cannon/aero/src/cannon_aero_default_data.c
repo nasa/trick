@@ -1,12 +1,12 @@
-/*********************************************************
+/****************************** TRICK HEADER ******************************
 PURPOSE: (Set the default data values)
 LIBRARY_DEPENDENCY: ((cannon_aero_default_data.o))
-*********************************************************/
+Tutorial Section 8
+***************************************************************************/
+#include "../include/cannon_aero_proto.h"
 
-#include "../include/cannon_aero.h"
+int cannon_aero_default_data(CANNON_AERO* C) {
 
-int cannon_aero_default_data(CANNON_AERO* C)
-{
     double const newton = 4.44822162 ;
 
     /* Initialize cannon ball shot */
@@ -22,7 +22,6 @@ int cannon_aero_default_data(CANNON_AERO* C)
 
 
     /* Regula Falsi impact critter setup */
-    #define BIG_TGO 10000                                                                              
     C->rf.lower_set  = No ;
     C->rf.upper_set  = No ;
     C->rf.iterations = 0 ;

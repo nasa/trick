@@ -1,12 +1,12 @@
-/*********************************** TRICK HEADER **************************
-PURPOSE:                     (Lift-Magnus Force)
+/****************************** TRICK HEADER ******************************
+PURPOSE: (Lift-Magnus Force)
+Tutorial Section 8
 ***************************************************************************/
-#include "../include/cannon_aero.h"
+#include "../include/cannon_aero_proto.h"
 #include "trick_utils/math/include/trick_math.h"
 
-int cannon_force_lift(
-        CANNON_AERO *C )
-{
+int cannon_force_lift( CANNON_AERO *C ) {
+
         double w_cross_v[3] ; double norm_w_cross_v[3] ;
         double k, speed ;
 
@@ -25,13 +25,13 @@ int cannon_force_lift(
         if ( C->lift_method == Tombras ) {
                 C->coefficient_lift = 1/( 2.022 + 0.981*speed/V_MAG( C->omega));
         }
-        
+
         switch ( C->lift_method ) {
 
         case  Hard_Coded_Coefficient_Lift:
-        case  Smits_Smith: 
-        case  Tombras: 
-        
+        case  Smits_Smith:
+        case  Tombras:
+
                 /* k = 1/2*rho*Cl*A*V^2 */
                 k = (0.5)*C->air_density*C->coefficient_lift*
                     C->ball_area*speed*speed ;

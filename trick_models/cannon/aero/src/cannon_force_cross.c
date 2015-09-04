@@ -1,12 +1,12 @@
-/*********************************** TRICK HEADER **************************
-PURPOSE:                     (Cross Force or Side Force )
+/****************************** TRICK HEADER ******************************
+PURPOSE: (Cross Force or Side Force )
+Tutorial Section 8
 ***************************************************************************/
-#include "../include/cannon_aero.h"
+#include "../include/cannon_aero_proto.h"
 #include "trick_utils/math/include/trick_math.h"
 
-int cannon_force_cross(
-        CANNON_AERO *C )
-{
+int cannon_force_cross( CANNON_AERO *C ) {
+
         double magnus_cross_drag[3] ;
         double norm_magnus_cross_drag[3] ;
         double k, speed ;

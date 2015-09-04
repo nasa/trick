@@ -1,7 +1,8 @@
-/*********************************** TRICK HEADER **************************
-PURPOSE:                     ( Gravitational force on cannonball )
+/****************************** TRICK HEADER ******************************
+PURPOSE: (Gravitational force on cannonball)
+Tutorial Section 8
 ***************************************************************************/
-#include "../include/cannon_aero.h"
+#include "../include/cannon_aero_proto.h"
 
 int cannon_force_gravity(
         CANNON_AERO *C )

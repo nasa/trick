@@ -1,12 +1,13 @@
-/*********************************** TRICK HEADER **************************
-PURPOSE:                     (Test Baseball)
+/****************************** TRICK HEADER ******************************
+PURPOSE: ( Define CANNON_AERO type. )
+Tutorial Section 8
 ***************************************************************************/
 
 #ifndef CANNON_AERO_H
 #define CANNON_AERO_H
 
 #include "sim_services/Integrator/include/regula_falsi.h"
-#include "sim_services/include/Flag.h"          
+#include "sim_services/include/Flag.h"
 
 typedef enum {
         Hard_Coded_Coefficient_Lift,   /* You come up with Cl  */
@@ -16,9 +17,9 @@ typedef enum {
 } Lift_Estimation_Method ;
 
 typedef struct {
-        double pos[3] ;           /* M position */
-        double vel[3] ;           /* M/s velocity */
-        double acc[3] ;           /* M/s2 acceleration */
+        double pos[3] ;           /* m position */
+        double vel[3] ;           /* m/s velocity */
+        double acc[3] ;           /* m/s2 acceleration */
         double omega[3] ;         /* r/s Angular velocity of cannonball */
 
         double theta ;            /* r Angle from x-axis to axis rotation */
@@ -28,7 +29,7 @@ typedef struct {
         /* Impact */
         REGULA_FALSI rf ;         /* -- Dynamic event params for impact */
         int impact ;              /* -- Has impact occured */
-        double impact_pos ;       /* M How far ball lands in field */
+        double impact_pos ;       /* m How far ball lands in field */
 
         /* Forces */
         double force_gravity[3] ; /* N Gravitational force */
@@ -47,11 +48,11 @@ typedef struct {
 
         /* Environment and Properties */
         double mass ;              /* kg Mass of cannonball */
-        double air_density ;       /* kg/M3 Air density at 20C */
-        double ball_radius ;       /* M Radius of cannonball */
-        double ball_area ;         /* M2 Cross sectional area of ball */
+        double air_density ;       /* kg/m3 Air density at 20C */
+        double ball_radius ;       /* m Radius of cannonball */
+        double ball_area ;         /* m2 Cross sectional area of ball */
         double spin_parameter ;    /* -- S=r*omega/speed */
-        double g ;                 /* M/s2 Gravitational acceleration */
+        double g ;                 /* m/s2 Gravitational acceleration */
 
         /* Coefficients drag, lift and cross */
         Lift_Estimation_Method  lift_method ; /* -- How to find lift force */
@@ -64,7 +65,7 @@ typedef struct {
         int jet_count ;        /* -- How many jet firings? */
         double force_jet[3] ;  /* N Jet force per firing */
         double force_jet_Z_plus ; /* N Configurable force of jet in Z+ direction */
-   
+
         /* Firing the Jet for Monte Carlo Runs */
         double time_to_fire_jet_1 ; /* s First jet firing time */
         double time_to_fire_jet_2 ; /* s Second jet firing time */

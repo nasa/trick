@@ -1,10 +1,9 @@
-/*********************************** TRICK HEADER **************************
-PURPOSE:                     (Test Baseball)
+/****************************** TRICK HEADER ******************************
+PURPOSE: (Cannon_aero Prototypes)
+Tutorial Section 8
 ***************************************************************************/
-
 #ifndef CANNON_AERO_PROTO_H
 #define CANNON_AERO_PROTO_H
-
 #include "cannon_aero.h"
 
 #ifdef __cplusplus
