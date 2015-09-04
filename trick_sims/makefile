@@ -14,6 +14,7 @@ COMPILE_DIRS = SIM_Ball++_L1 \
     SIM_cannon_dt \
     SIM_cannon_eulercromer \
     SIM_cannon_integ \
+    SIM_cannon_jet \
     SIM_demo_inputfile \
     SIM_demo_sdefine \
     SIM_events \
@@ -54,6 +55,7 @@ TEST_DIRS = SIM_Ball++_L1 \
     SIM_cannon_dt \
     SIM_cannon_eulercromer \
     SIM_cannon_integ \
+    SIM_cannon_jet \
     SIM_demo_sdefine \
     SIM_events \
     SIM_monte \
