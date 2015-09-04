@@ -8,6 +8,7 @@ COMPILE_DIRS = SIM_Ball++_L1 \
     SIM_ball_L2 \
     SIM_ball_L3 \
     SIM_ball_default_data \
+    SIM_cannon_aero \
     SIM_cannon_analytic \
     SIM_cannon_contact \
     SIM_cannon_dt \
@@ -50,6 +51,7 @@ TEST_DIRS = SIM_Ball++_L1 \
     SIM_ball_L2 \
     SIM_ball_L3 \
     SIM_ball_default_data \
+    SIM_cannon_aero \
     SIM_cannon_analytic \
     SIM_cannon_contact \
     SIM_cannon_dt \
