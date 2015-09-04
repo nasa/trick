@@ -1,6 +1,6 @@
 /****************************** TRICK HEADER ******************************
 PURPOSE: ( Define CANNON_AERO type. )
-Tutorial Section 8
+Tutorial Sections 8, and 9
 ***************************************************************************/
 
 #ifndef CANNON_AERO_H
@@ -60,7 +60,7 @@ typedef struct {
         double coefficient_lift ;             /* -- Lift coefficient */
         double coefficient_cross ;            /* -- Cross-Force coefficient */
 
-        /* Jet */
+        /* Jet (Tutorial Section 9) */
         int jet_on ;           /* -- 0|1 */
         int jet_count ;        /* -- How many jet firings? */
         double force_jet[3] ;  /* N Jet force per firing */

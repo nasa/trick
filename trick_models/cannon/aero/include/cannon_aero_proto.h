@@ -1,6 +1,6 @@
 /****************************** TRICK HEADER ******************************
 PURPOSE: (Cannon_aero Prototypes)
-Tutorial Section 8
+Tutorial Sections 8, and 9
 ***************************************************************************/
 #ifndef CANNON_AERO_PROTO_H
 #define CANNON_AERO_PROTO_H
@@ -19,6 +19,9 @@ int cannon_collect_forces(CANNON_AERO*) ;
 int cannon_integ_aero(CANNON_AERO*) ;
 double cannon_impact_aero(CANNON_AERO*) ;
 int cannon_aero_default_data(CANNON_AERO*) ;
+
+/* Tutorial Section 9 */
+int cannon_force_jet(CANNON_AERO*) ;
 
 #ifdef __cplusplus
 }

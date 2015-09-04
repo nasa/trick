@@ -1,7 +1,7 @@
 /****************************** TRICK HEADER ******************************
 PURPOSE: (Set the default data values)
 LIBRARY_DEPENDENCY: ((cannon_aero_default_data.o))
-Tutorial Section 8
+Tutorial Sections 8, and 9
 ***************************************************************************/
 #include "../include/cannon_aero_proto.h"
 
@@ -18,8 +18,9 @@ int cannon_aero_default_data(CANNON_AERO* C) {
     C->ball_radius = 3.63/100 ;
     C->ball_area = 41.59/10000 ;
     C->g = -9.81 ;
-    C->force_jet_Z_plus = 1.0 * newton ;
 
+    /* Tutorial Section 9 */
+    C->force_jet_Z_plus = 1.0 * newton ;
 
     /* Regula Falsi impact critter setup */
     C->rf.lower_set  = No ;

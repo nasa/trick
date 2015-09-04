@@ -1,12 +1,11 @@
-/*********************************** TRICK HEADER **************************
-PURPOSE:                     ( Jet fire force )
+/****************************** TRICK HEADER ******************************
+PURPOSE: ( Jet fire force )
+Tutorial Section 9
 ***************************************************************************/
+#include "../include/cannon_aero_proto.h"
 
-#include "../include/cannon_aero.h"
+int cannon_force_jet( CANNON_AERO *C ) {
 
-int cannon_force_jet(
-        CANNON_AERO *C )
-{
         if ( C->jet_on && C->jet_count < 4 ) {
                 C->force_jet[2] = C->force_jet_Z_plus ;
                 C->jet_count++ ;
