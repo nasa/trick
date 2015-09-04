@@ -2,7 +2,7 @@
 PURPOSE: ( Jet fire force )
 Tutorial Section 9
 ***************************************************************************/
-#include "../include/cannon_aero_proto.h"
+#include "../include/cannon_jet_proto.h"
 
 int cannon_force_jet( CANNON_AERO *C ) {
 

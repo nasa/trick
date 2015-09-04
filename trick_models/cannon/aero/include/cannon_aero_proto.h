@@ -20,9 +20,6 @@ int cannon_integ_aero(CANNON_AERO*) ;
 double cannon_impact_aero(CANNON_AERO*) ;
 int cannon_aero_default_data(CANNON_AERO*) ;
 
-/* Tutorial Section 9 */
-int cannon_force_jet(CANNON_AERO*) ;
-
 #ifdef __cplusplus
 }
 #endif

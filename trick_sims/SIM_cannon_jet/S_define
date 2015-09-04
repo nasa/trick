@@ -16,7 +16,7 @@ LIBRARY DEPENDENCY: ((cannon/aero/src/cannon_init_aero.c)
 #include "sim_objects/default_trick_sys.sm"
 
 ##include "cannon/aero/include/cannon_aero.h"
-##include "cannon/aero/include/cannon_aero_proto.h"
+##include "cannon/aero/include/cannon_jet_proto.h"
 
 class CannonSimObject : public Trick::SimObject {
 
