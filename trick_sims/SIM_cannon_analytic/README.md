@@ -10,7 +10,7 @@ velocity subject to the following assumptions and limitations:
 * The **only** force acting on the cannon ball is gravity.
 * The acceleration of gravity (g) is constant and equal to -9.81 meters per
   second squared.
-* The ground is flat, and here, defined as where y=0.
+* The surface of the ground is defined as where y=0.
 
 ![X(t) = Vx * t + X0](images/CannonInit.png)
 
