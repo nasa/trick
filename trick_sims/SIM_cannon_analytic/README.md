@@ -1,48 +1,47 @@
 #SIM\_cannon\_analytic
 ---
 This is first of eight Trick-based simulations that one builds in the Trick
-Tutorial (Section 3). It's purpose is to introduce the fundamentals of building
-a Trick simulation.
+Tutorial (Section 3). It's purpose is to introduce some of the fundamentals
+of building a Trick simulation.
 
-Here we simulate the flight of a cannon ball, given an initial position, and
-velocity subject to the following assumptions and limitations:
+Here we simulate the flight of a cannon ball. We want to know the position and velocity of the cannon ball over time, given an initial position, and
+velocity, and subject to the following assumptions and limitations:
 
 * The **only** force acting on the cannon ball is gravity.
 * The acceleration of gravity (g) is constant and equal to -9.81 meters per
   second squared.
 * The surface of the ground is defined as where y=0.
 
-![X(t) = Vx * t + X0](images/CannonInit.png)
+![](images/CannonInit.png)
 
---
-### Approach
+### Solution
 
-Since this problem has a closed-form solution, that's what we use :
+This problem has a closed-form solution, so that's what is used.
 
-![X(t) = Vx * t + X0](images/solution_x.png)
+![v_{x0}=S\cos\theta](images/init_v_x_0.png)
 
-![Y(t) = (1/2)gt^2 + Vy * t + Y0](images/solution_y.png)
+![v_{y0}=S\sin\theta](images/init_v_y_0.png)
 
-The time when the cannon ball impacts the ground is:
+![](images/solution_vx.png)
+
+![](images/solution_vy.png)
+
+![](images/solution_x.png)
+
+![](images/solution_y.png)
+
+The cannon ball will impact the ground, when y(t)=0 at:
 
 ![](images/time_of_impact.png)
 
---
-### Inputs
-Variable               | Type           | Units
------------------------|----------------|-------
-dyn.cannon.pos0        | double[2]      | m
-dyn.cannon.init\_angle | double         | r
-dyn.cannon.init\_speed | double         | m/s
 
-The initial velocity is :
+### CANNON Object
+Model Variable                              | Simulation Variable | Type    | Units
+--------------------------------------------|---------------------|---------|-------
+![](images/x_0.png), ![](images/y_0.png)    | CANNON.pos0[2]      |double[2]| m
+![](images/v_x_0.png), ![](images/v_y_0.png)| CANNON.vel0[2]      |double[2]| m/s
+![\theta](images/param_theta.png)           | CANNON.init\_angle   |double   | r
+![speed](images/param_s.png)                | CANNON.init\_speed   |double   | m/s
+![\vec{x}](images/vector_x.png)             | CANNON.pos[2]       |double[2]| m
+![\vec{v}](images/vector_v.png)             | CANNON.vel[2]       |double[2]| m/s
 
-![Vx = speed * cos(angle)](images/initial_vel_x.png),
-![Vy = speed * sin(angle)](images/initial_vel_y.png)
-
---
-### Outputs
-Variable               | Type           | Units
------------------------|----------------|--------
-dyn.cannon.pos         | double[2]      | m
-dyn.cannon.vel         | double[2]      | m/s
