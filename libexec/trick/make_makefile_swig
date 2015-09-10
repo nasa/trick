@@ -64,10 +64,55 @@ sub get_exclude_dirs() {
 }
 
 sub read_files_to_process() {
+    my @include_paths ;
+    my @icg_processed ;
+    my $cc ;
+    my @defines ;
+    my ($version, $thread, $year) ;
+    my $s_source_full_path = abs_path("S_source.hh") ;
+    my %compiler_file_list ;
+
     open FILE, "build/ICG_processed" or die 'could not open build/ICG_processed' ;
-    @files_to_process = <FILE> ;
+    @icg_processed = <FILE> ;
     close FILE ;
-    chomp @files_to_process ;
+    chomp @icg_processed ;
+
+    ($version, $thread) = get_trick_version() ;
+    ($year) = $version =~ /^(\d+)/ ;
+    ($cc = gte("TRICK_CC")) =~ s/\n// ;
+    @include_paths = $ENV{"TRICK_CFLAGS"} =~ /(-I\s*\S+)/g ; # get include paths from TRICK_CFLAGS
+    push @include_paths , ("-I".$ENV{"TRICK_HOME"}."/include") ;
+    push @include_paths , ("-I".$ENV{"TRICK_HOME"}."/include/trick/compat") ;
+    push @include_paths , ("-I".$ENV{"TRICK_HOME"}."/trick_source" , "-I../include") ;
+    @defines = $ENV{"TRICK_CFLAGS"} =~ /(-D\S+)/g ;       # get defines from TRICK_CFLAGS
+    push @defines , "-DTRICK_VER=$year" ;
+    push @defines , "-DSWIG" ;
+
+    # Get the list header files from the compiler to compare to what get_headers processed.
+    open FILE_LIST, "$cc -MM -DSWIG @include_paths @defines S_source.hh |" ;
+    my $dir ;
+    $dir = dirname($s_source_full_path) ;
+    while ( <FILE_LIST> ) {
+        next if ( /^#/ or /^\s+\\/ ) ;
+        my $word ;
+        foreach $word ( split ) {
+            next if ( $word eq "\\" or $word =~ /o:/ ) ;
+            if ( $word !~ /^\// and $dir ne "\/" ) {
+                $word = "$dir/$word" ;
+            }
+            $word = abs_path(dirname($word)) . "/" . basename($word) ;
+            # filter out system headers that are missed by the compiler -MM flag
+            next if ( $word =~ /^\/usr\/include/) ;
+            #print "gcc found $word\n" ;
+            $compiler_file_list{$word} = 1 ;
+        }
+    }
+
+    foreach my $i ( @icg_processed ) {
+        if ( exists $compiler_file_list{$i} ) {
+            push @files_to_process , $i ;
+        }
+    }
 
     open FILE, "build/ICG_ext_lib" or die 'could not open build/ICG_ext_lib' ;
     @ext_lib_files = <FILE> ;
@@ -84,21 +129,8 @@ sub make_swig_makefile() {
     my ($swig_sim_dir, $swig_src_dir) ;
     my (%py_module_map) ;
 
-    my (@include_paths) ;
-    my (@defines) ;
-    my ($version, $thread, $year) ;
     my $s_source_full_path = abs_path("S_source.hh") ;
     my $s_source_md5 = md5_hex($s_source_full_path) ;
-
-    ($version, $thread) = get_trick_version() ;
-    ($year) = $version =~ /^(\d+)/ ;
-    (my $cc = gte("TRICK_CC")) =~ s/\n// ;
-    @include_paths = $ENV{"TRICK_CFLAGS"} =~ /(-I\s*\S+)/g ; # get include paths from TRICK_CFLAGS
-    push @include_paths , ("-I".$ENV{"TRICK_HOME"}."/trick_source" , "-I../include") ;
-
-    @defines = $ENV{"TRICK_CFLAGS"} =~ /(-D\S+)/g ;       # get defines from TRICK_CFLAGS
-    push @defines , "-DTRICK_VER=$year" ;
-    push @defines , "-DSWIG" ;
 
     $swig_sim_dir = "\$(CURDIR)/trick" ;
     $swig_src_dir = "\$(CURDIR)/build" ;
