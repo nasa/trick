@@ -52,10 +52,16 @@ std::string CommentSaver::getTrickHeaderComment( std::string file_name ) {
         trick_header_comments[file_name] = std::string() ;
         for ( cit = comment_map[file_name].begin() ; cit != comment_map[file_name].end() ; cit++ ) {
             std::string comment_str = getComment((*cit).second) ;
-            std::transform(comment_str.begin(), comment_str.end(), comment_str.begin(), ::toupper) ;
-            if ( comment_str.find("PURPOSE") != std::string::npos ) {
+            if ( comment_str.find("@trick_parse") != std::string::npos or
+                 comment_str.find("\\trick_parse") != std::string::npos ) {
                 trick_header_comments[file_name] = getComment((*cit).second) ;
                 break ;
+            } else {
+                std::transform(comment_str.begin(), comment_str.end(), comment_str.begin(), ::toupper) ;
+                if ( comment_str.find("PURPOSE") != std::string::npos ) {
+                    trick_header_comments[file_name] = getComment((*cit).second) ;
+                    break ;
+                }
             }
         }
     }
@@ -72,58 +78,91 @@ void CommentSaver::getICGField( std::string file_name ) {
     std::string th_str = getTrickHeaderComment(file_name) ;
     if ( ! th_str.empty() ) {
 
-        std::transform(th_str.begin(), th_str.end(), th_str.begin(), ::toupper) ;
-        int ret ;
-        regex_t reg_expr ;
-        regmatch_t pmatch[10] ;
-        memset(pmatch , 0 , sizeof(pmatch)) ;
+        size_t trick_parse_keyword ;
+        if ( (trick_parse_keyword = th_str.find("trick_parse")) != std::string::npos ) {
+            size_t trick_parse_everything = th_str.find("everything", trick_parse_keyword) ;
+            size_t trick_parse_attributes = th_str.find("attributes", trick_parse_keyword) ;
+            size_t trick_parse_dep_only = th_str.find("dependencies_only", trick_parse_keyword) ;
+            size_t closing_paren = th_str.find(")", trick_parse_keyword) ;
+            if ( closing_paren != std::string::npos ) {
+                if ( trick_parse_everything != std::string::npos and
+                     trick_parse_everything < closing_paren ) {
+                    icg_no_comment_found[file_name] = false ;
+                    icg_no_found[file_name] = false ;
+                } else if ( trick_parse_attributes != std::string::npos and
+                     trick_parse_attributes < closing_paren ) {
+                    icg_no_comment_found[file_name] = true ;
+                    icg_no_found[file_name] = false ;
+                } else if ( trick_parse_dep_only != std::string::npos and
+                     trick_parse_dep_only < closing_paren ) {
+                    icg_no_comment_found[file_name] = false ;
+                    icg_no_found[file_name] = true ;
+                } else {
+                    std::cout << "trick_parse directive found but no argument matched." << std::endl ;
+                    std::cout << "Valid arguments are (everything|attributes|dependencies_only)" << std::endl ;
+                    exit(-1) ;
+                }
+            }
+        } else {
 
-        /* POSIX regular expressions are always greedy, making our job harder.
-           We have to use several regular expressions to get the types.  This was
-           so much easier in perl! */
+            std::transform(th_str.begin(), th_str.end(), th_str.begin(), ::toupper) ;
+            int ret ;
+            regex_t reg_expr ;
+            regmatch_t pmatch[10] ;
+            memset(pmatch , 0 , sizeof(pmatch)) ;
 
-        /* find the ICG field */
-        ret = regcomp( &reg_expr , "(ICG:)" , REG_EXTENDED | REG_ICASE ) ;
-        ret = regexec( &reg_expr , th_str.c_str() , 10 , pmatch , 0 ) ;
-        regfree(&reg_expr) ;
-        if ( ret != 0 ) {
-            return ;
-        }
-        th_str = th_str.substr(pmatch[1].rm_eo) ;
+            /* POSIX regular expressions are always greedy, making our job harder.
+               We have to use several regular expressions to get the types.  This was
+               so much easier in perl! */
 
-        /* find the end of the ICG field */
-        memset(pmatch , 0 , sizeof(pmatch)) ;
-        ret = regcomp( &reg_expr , "(\\))" , REG_EXTENDED ) ;
-        ret = regexec( &reg_expr , th_str.c_str() , 10 , pmatch , 0 ) ;
-        regfree(&reg_expr) ;
+            /* find the ICG field */
+            ret = regcomp( &reg_expr , "(ICG:)" , REG_EXTENDED | REG_ICASE ) ;
+            ret = regexec( &reg_expr , th_str.c_str() , 10 , pmatch , 0 ) ;
+            regfree(&reg_expr) ;
+            if ( ret != 0 ) {
+                return ;
+            }
+            th_str = th_str.substr(pmatch[1].rm_eo) ;
 
-        if ( ret != 0 ) {
-            return ;
-        }
-        th_str = th_str.substr(0 , pmatch[1].rm_so) ;
+            /* find the end of the ICG field */
+            memset(pmatch , 0 , sizeof(pmatch)) ;
+            ret = regcomp( &reg_expr , "(\\))" , REG_EXTENDED ) ;
+            ret = regexec( &reg_expr , th_str.c_str() , 10 , pmatch , 0 ) ;
+            regfree(&reg_expr) ;
 
-        /* test for NoComment */
-        memset(pmatch , 0 , sizeof(pmatch)) ;
-        ret = regcomp( &reg_expr , "(NOCOMMENT)$" , REG_EXTENDED ) ;
-        ret = regexec( &reg_expr , th_str.c_str() , 10 , pmatch , 0 ) ;
-        regfree(&reg_expr) ;
+            if ( ret != 0 ) {
+                return ;
+            }
+            th_str = th_str.substr(0 , pmatch[1].rm_so) ;
 
-        if ( ret == 0 ) {
-            icg_no_comment_found[file_name] = true ;
-        }
+            /* test for NoComment */
+            memset(pmatch , 0 , sizeof(pmatch)) ;
+            ret = regcomp( &reg_expr , "(NOCOMMENT)$" , REG_EXTENDED ) ;
+            ret = regexec( &reg_expr , th_str.c_str() , 10 , pmatch , 0 ) ;
+            regfree(&reg_expr) ;
 
-        /* test for No */
-        memset(pmatch , 0 , sizeof(pmatch)) ;
-        ret = regcomp( &reg_expr , "(NO)$" , REG_EXTENDED ) ;
-        ret = regexec( &reg_expr , th_str.c_str() , 10 , pmatch , 0 ) ;
-        regfree(&reg_expr) ;
+            if ( ret == 0 ) {
+                icg_no_comment_found[file_name] = true ;
+            }
 
-        if ( ret == 0 ) {
-            icg_no_found[file_name] = true ;
-            icg_no_comment_found[file_name] = true ;
+            /* test for No */
+            memset(pmatch , 0 , sizeof(pmatch)) ;
+            ret = regcomp( &reg_expr , "(NO)$" , REG_EXTENDED ) ;
+            ret = regexec( &reg_expr , th_str.c_str() , 10 , pmatch , 0 ) ;
+            regfree(&reg_expr) ;
+
+            if ( ret == 0 ) {
+                icg_no_found[file_name] = true ;
+                icg_no_comment_found[file_name] = true ;
+            }
         }
     }
 
+}
+
+bool CommentSaver::hasTrickHeader( std::string file_name ) {
+    std::string th_str = getTrickHeaderComment(file_name) ;
+    return (! th_str.empty()) ;
 }
 
 bool CommentSaver::hasICGNo( std::string file_name ) {
@@ -148,12 +187,32 @@ std::set< std::string > CommentSaver::getIgnoreTypes( std::string file_name ) {
     std::set< std::string > ignore_types ;
     std::string th_str = getTrickHeaderComment(file_name) ;
     if ( ! th_str.empty() ) {
-        //std::cout << "here in getIgnoreTypes\n" << th_str << std::endl ;
-        std::transform(th_str.begin(), th_str.end(), th_str.begin(), ::toupper) ;
-
         int ret ;
         regex_t reg_expr ;
         regmatch_t pmatch[10] ;
+        //std::cout << "here in getIgnoreTypes\n" << th_str << std::endl ;
+
+        size_t start = 0 ;
+        start = th_str.find( "trick_exclude_typename") ;
+        while ( start != std::string::npos ) {
+            start += strlen("trick_exclude_typename") ;
+            std::string temp_str = th_str.substr(start) ;
+            memset(pmatch , 0 , sizeof(pmatch)) ;
+            ret = regcomp( &reg_expr , "^\\s*\\(\\s*(\\S+)\\s*\\)" , REG_EXTENDED ) ;
+            ret = regexec( &reg_expr , temp_str.c_str() , 10 , pmatch , 0 ) ;
+            regfree(&reg_expr) ;
+            if ( ret == 0 ) {
+                std::string item = temp_str.substr(pmatch[1].rm_so, pmatch[1].rm_eo) ;
+                // regular expression leaving trailing space and parenthesis. Why?
+                item.erase(item.find_first_of(" \t)")) ;
+                //std::cout << "[31micg_ignore_types[00m " << item << std::endl ;
+                ignore_types.insert(item) ;
+            }
+            start = th_str.find( "trick_exclude_typename", start ) ;
+        }
+
+        std::transform(th_str.begin(), th_str.end(), th_str.begin(), ::toupper) ;
+
         memset(pmatch , 0 , sizeof(pmatch)) ;
 
         /* POSIX regular expressions are always greedy, making our job harder.

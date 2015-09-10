@@ -59,6 +59,12 @@ class CommentSaver : public clang::CommentHandler {
          */
         void getICGField( std::string file_name ) ;
 
+        /** Returns if the header has a Trick header comment
+            @param file_name = File name to search
+            @return true = if header comment found
+         */
+        bool hasTrickHeader(std::string file_name ) ;
+
         /** Searches the Trick header comment for the ICG:(No) entry.
             @param file_name = File name to search
             @return true = ICG:(No) was found.

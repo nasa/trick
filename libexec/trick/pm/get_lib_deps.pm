@@ -16,6 +16,11 @@ sub get_lib_deps ($$) {
     my (@inc_paths) ;
     my (@raw_lib_deps) ;
 
+
+    # Doxygen style
+    @lib_list = ($contents =~ /(?:@|\\)trick_li(?:nk|b)_dependency\s*\(\s*(.*?)\s*\)/gs) ;
+
+    # Classic style
     # library dependency regular expression will match all the way through last parenthesis followed by
     # another field in the trick header, a doxygen style keyword, or the end of comment *.
     # we capture all library dependencies at once into raw_lib_deps

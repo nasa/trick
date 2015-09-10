@@ -148,7 +148,9 @@ bool FieldVisitor::VisitDeclaratorDecl( clang::DeclaratorDecl *dd ) {
     if ( isInUserOrTrickCode( ci , dd_range.getEnd() , hsd ) ) {
         fdes->setLineNo(ci.getSourceManager().getSpellingLineNumber(dd_range.getEnd())) ;
         /* process comment if neither ICG:(No) or ICG:(NoComment) is present */
-        if ( ! cs.hasICGNoComment(file_name) and ! hsd.isPathInICGNoComment(file_name) ) {
+        if (  cs.hasTrickHeader(file_name) and
+             !cs.hasICGNoComment(file_name) and
+             !hsd.isPathInICGNoComment(file_name) ) {
             /* Get the possible comment on this line and parse it */
             fdes->parseComment(cs.getComment(file_name , fdes->getLineNo())) ;
         }
