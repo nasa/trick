@@ -18,7 +18,7 @@ sub get_lib_deps ($$) {
 
 
     # Doxygen style
-    @lib_list = ($contents =~ /(?:@|\\)trick_li(?:nk|b)_dependency\s*\(\s*(.*?)\s*\)/gs) ;
+    @lib_list = ($contents =~ /(?:@|\\)trick_li(?:nk|b)_dependency\s*{\s*(.*?)\s*}/gs) ;
 
     # Classic style
     # library dependency regular expression will match all the way through last parenthesis followed by

@@ -83,18 +83,18 @@ void CommentSaver::getICGField( std::string file_name ) {
             size_t trick_parse_everything = th_str.find("everything", trick_parse_keyword) ;
             size_t trick_parse_attributes = th_str.find("attributes", trick_parse_keyword) ;
             size_t trick_parse_dep_only = th_str.find("dependencies_only", trick_parse_keyword) ;
-            size_t closing_paren = th_str.find(")", trick_parse_keyword) ;
-            if ( closing_paren != std::string::npos ) {
+            size_t closing_brace = th_str.find("}", trick_parse_keyword) ;
+            if ( closing_brace != std::string::npos ) {
                 if ( trick_parse_everything != std::string::npos and
-                     trick_parse_everything < closing_paren ) {
+                     trick_parse_everything < closing_brace ) {
                     icg_no_comment_found[file_name] = false ;
                     icg_no_found[file_name] = false ;
                 } else if ( trick_parse_attributes != std::string::npos and
-                     trick_parse_attributes < closing_paren ) {
+                     trick_parse_attributes < closing_brace ) {
                     icg_no_comment_found[file_name] = true ;
                     icg_no_found[file_name] = false ;
                 } else if ( trick_parse_dep_only != std::string::npos and
-                     trick_parse_dep_only < closing_paren ) {
+                     trick_parse_dep_only < closing_brace ) {
                     icg_no_comment_found[file_name] = false ;
                     icg_no_found[file_name] = true ;
                 } else {
@@ -198,13 +198,13 @@ std::set< std::string > CommentSaver::getIgnoreTypes( std::string file_name ) {
             start += strlen("trick_exclude_typename") ;
             std::string temp_str = th_str.substr(start) ;
             memset(pmatch , 0 , sizeof(pmatch)) ;
-            ret = regcomp( &reg_expr , "^\\s*\\(\\s*(\\S+)\\s*\\)" , REG_EXTENDED ) ;
+            ret = regcomp( &reg_expr , "^\\s*\\{\\s*(\\S+)\\s*\\}" , REG_EXTENDED ) ;
             ret = regexec( &reg_expr , temp_str.c_str() , 10 , pmatch , 0 ) ;
             regfree(&reg_expr) ;
             if ( ret == 0 ) {
                 std::string item = temp_str.substr(pmatch[1].rm_so, pmatch[1].rm_eo) ;
-                // regular expression leaving trailing space and parenthesis. Why?
-                item.erase(item.find_first_of(" \t)")) ;
+                // regular expression leaving trailing space and brace. Why?
+                item.erase(item.find_first_of(" \t}")) ;
                 //std::cout << "[31micg_ignore_types[00m " << item << std::endl ;
                 ignore_types.insert(item) ;
             }

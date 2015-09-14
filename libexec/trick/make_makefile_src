@@ -74,6 +74,10 @@ if ( $any_deps_changed == 0 ) {
 open FILE, "build/ICG_processed" or die 'cannot open build/ICG_processed' ;
 my (@top_file_names) = <FILE> ;
 close FILE ;
+open FILE, "build/ICG_no_found" or die 'cannot open build/ICG_no_found' ;
+my (@ICG_no_file_names) = <FILE> ;
+close FILE ;
+push @top_file_names , @ICG_no_file_names ;
 open FILE, "build/S_define.lib_deps" or die 'cannot open build/S_define.lib_deps' ;
 my (@s_define_lib_deps) = <FILE> ;
 close FILE ;
