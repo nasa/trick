@@ -24,6 +24,10 @@ void * follow_address_path(REF2 * R) {
                 address = (void *)((char *)address + address_node->operand.offset) ;
                 break ;
         }
+        // If we resolve a pointer to NULL this variable is now bad.
+        if (address == NULL) {
+            break ;
+        }
     }
 
     return(address) ;
