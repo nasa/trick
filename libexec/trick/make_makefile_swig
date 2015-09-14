@@ -109,6 +109,7 @@ sub read_files_to_process() {
     }
 
     foreach my $i ( @icg_processed ) {
+        $i = abs_path(dirname($i)) . "/" . basename($i) ;
         if ( exists $compiler_file_list{$i} ) {
             push @files_to_process , $i ;
         }
