@@ -388,6 +388,7 @@ public class VariableServerConnection implements AutoCloseable {
                       case 6 :  // INT
                       case 7 :  // UNSIGNED INT
                       case 21 : // ENUMERATED
+                      case 24 : // BAD REF
                           //typename = "INT";
                           ival = (int)convertBinaryData(buffer, index, 4);
                           vals[packet_count] += ival;
