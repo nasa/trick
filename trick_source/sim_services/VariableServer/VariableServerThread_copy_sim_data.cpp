@@ -32,7 +32,17 @@ int Trick::VariableServerThread::copy_sim_data() {
             // if there's a pointer somewhere in the address path, follow it in case pointer changed
             if ( curr_var->ref->pointer_present == 1 ) {
                 curr_var->address = follow_address_path(curr_var->ref) ;
-                curr_var->ref->address = curr_var->address ;
+                if ( curr_var->address == NULL ) {
+                    std::string save_name(curr_var->ref->reference) ;
+                    if ( curr_var->ref->attr) {
+                        free(curr_var->ref->attr) ;
+                    }
+                    free(curr_var->ref) ;
+                    curr_var->ref = make_error_ref(save_name) ;
+                    curr_var->address = curr_var->ref->address ;
+                } else {
+                    curr_var->ref->address = curr_var->address ;
+                }
             }
 
             // if this variable is a string we need to get the raw character string out of it.
