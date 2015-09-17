@@ -76,27 +76,7 @@ DPV_pointer gnuplot_view::render_page( DPV_pointer parent_data,
 // MEMBER FUNCTION
 DPV_pointer gnuplot_view::render_table( DPV_pointer parent_data,
                                         DPC_table* table) {
-
-    TableViewNode *table_view_node;
-    //int            table_number;
-
-    GPViewProductNode *product_view_node = (GPViewProductNode*)parent_data;
-
-    if ((xpos + width) >= WidthOfScreen( XtScreen(toplevel))) {
-      xpos = 100;
-    }
-    if ((ypos + height) >= HeightOfScreen( XtScreen(toplevel))) {
-      ypos = 100;
-    }
-
-    table_view_node = new TableViewNode(toplevel, table, xpos, ypos, width, height);
-
-    xpos += 20;
-    ypos += 20;
-
-    product_view_node->table_node_list.push_back( table_view_node );
-
-    return( (DPV_pointer)table_view_node);
+    return NULL;
 }
 
 // MEMBER FUNCTION
@@ -192,13 +172,7 @@ void gnuplot_view::finalize_page_view( DPV_pointer page_view ) {
 }
 
 // MEMBER FUNCTION
-void gnuplot_view::finalize_table_view( DPV_pointer table_view ) {
-
-    TableViewNode* table_view_node = (TableViewNode *)table_view;
-
-    table_view_node->finalize();
-
-}
+void gnuplot_view::finalize_table_view( DPV_pointer table_view ) { }
 
 // MEMBER FUNCTION
 void gnuplot_view::finalize_plot_view( DPV_pointer plot_view ) {
@@ -225,8 +199,7 @@ void gnuplot_view::update_finalize_plot_view( DPV_pointer plot_view ) {
 void gnuplot_view::notify_product( DPV_pointer product_view, DPV_message msg ) {
 
     GPViewPageNode *page_view_node;
-    TableViewNode  *table_view_node;
-    int i, n_pages, n_tables;
+    int i, n_pages;
 
     GPViewProductNode *product_view_node = (GPViewProductNode *)product_view;
 
@@ -235,13 +208,6 @@ void gnuplot_view::notify_product( DPV_pointer product_view, DPV_message msg ) {
         page_view_node = product_view_node->page_node_list[i];
         notify_page( (DPV_pointer)page_view_node, msg );
     }
-
-    n_tables = (int)product_view_node->table_node_list.size();
-    for (i=0 ; i<n_tables ; i++ ) {
-        table_view_node = product_view_node->table_node_list[i];
-        notify_table( (DPV_pointer)table_view_node, msg );
-    }
-
 }
 
 // MEMBER FUNCTION
@@ -269,19 +235,7 @@ void gnuplot_view::notify_page( DPV_pointer page_view, DPV_message msg ) {
 }
 
 // MEMBER FUNCTION
-void gnuplot_view::notify_table( DPV_pointer table_view, DPV_message msg ) {
-
-    Widget table_widget;
-    TableViewNode *table_view_node = (TableViewNode *)table_view;
-
-    if (msg == RAISE_WINDOW) {
-        table_widget = table_view_node->dialog_shell_widget;
-        if (table_widget != NULL ) {
-            XRaiseWindow( XtDisplay(table_widget), XtWindow(table_widget));
-        }
-    }
-
-}
+void gnuplot_view::notify_table( DPV_pointer table_view, DPV_message msg ) { }
 
 // MEMBER FUNCTION
 void gnuplot_view::notify_plot( DPV_pointer plot_view, DPV_message msg ) {

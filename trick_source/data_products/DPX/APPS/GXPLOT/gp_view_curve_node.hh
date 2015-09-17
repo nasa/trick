@@ -7,7 +7,6 @@
 
 extern "C"{
 #include <X11/Intrinsic.h>
-#include <Xm/Xm.h>
 }
 
 /**

@@ -7,7 +7,6 @@
 
 #include "gp_view_curve_node.hh"
 #include "gp_version.hh"
-#include "post_dialog.h"
 #include "gp_colors.hh"
 
 // CLASS VARIABLE INITIALIZATION
@@ -117,25 +116,22 @@ GPViewCurveNode::GPViewCurveNode( Widget          Toplevel,
                     "/var/tmp/dpx_gp_curve_XXXXXX", sizeof(curve_data_file_name));
 
         } else {
-            post_dialog( toplevel, XmDIALOG_ERROR,
-                "Unable to access /tmp or /var/tmp, where a temporary\n"
-                "file (that represents gnuplot curve data) needs\n"
-                "to be created. Please check your permissions.\n");
+            std::cerr << "Unable to access /tmp or /var/tmp, where a temporary\n"
+                << "file (that represents gnuplot curve data) needs\n"
+                << "to be created. Please check your permissions." << std::endl ;
             return;
         }
 
         //! Create a name for our temporary data file.
         if (mkstemp( curve_data_file_name) < 0) {
-            post_dialog( toplevel, XmDIALOG_ERROR,
-                "Unable to generate a temporary file"
-                "name for some mind boggling reason." );
+            std::cerr << "Unable to generate a temporary file"
+                << "name for some mind boggling reason." << std::endl ;
             return;
         }
 
         //! Open the temporary data file.
         if ((curve_data_fp = fopen( curve_data_file_name, "w")) == NULL) {
-            post_dialog( toplevel, XmDIALOG_ERROR,
-                "Unable to open a temporary file." );
+            std::cerr << "Unable to open a temporary file." << std::endl ;
             return;
         }
 

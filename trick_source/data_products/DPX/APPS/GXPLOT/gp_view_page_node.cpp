@@ -7,7 +7,6 @@
 
 #include "gp_view_page_node.hh"
 #include "gp_version.hh"
-#include "post_dialog.h"
 #include "gp_colors.hh"
 #include "gp_utilities.hh"
 
@@ -51,10 +50,9 @@ GPViewPageNode::GPViewPageNode(Widget Toplevel, DPC_page* Page, int Xpos, int Yp
     if ((ncells_s = Page->getAttribute("hcells")) != NULL) {
         n_hcells = atoi(ncells_s);
         if ((n_hcells < 0)||(n_hcells > 10)) {
-        post_dialog( toplevel, XmDIALOG_ERROR,
-            "Value for hcells attribute is out of range.\n"
-            "Valid range for hcells is 1 .. 10.\n"
-            "Ignoring hcells value.\n" );
+            std::cerr << "Value for hcells attribute is out of range.\n"
+             << "Valid range for hcells is 1 .. 10.\n"
+             << "Ignoring hcells value." << std::endl ;
             n_hcells = 1;
         }
     } else {
@@ -64,10 +62,9 @@ GPViewPageNode::GPViewPageNode(Widget Toplevel, DPC_page* Page, int Xpos, int Yp
     if ((ncells_s = Page->getAttribute("vcells")) != NULL) {
         n_vcells = atoi(ncells_s);
         if ((n_vcells < 0)||(n_vcells > 10)) {
-        post_dialog( toplevel, XmDIALOG_ERROR,
-            "Value for vcells attribute is out of range.\n"
-            "Valid range for vcells is 1 .. 10.\n"
-            "Ignoring vcells value.\n");
+           std::cerr << "Value for vcells attribute is out of range.\n"
+            << "Valid range for vcells is 1 .. 10.\n"
+            << "Ignoring vcells value.\n" << std::endl ;
             n_vcells = 1;
         }
     } else {
@@ -681,18 +678,16 @@ void GPViewPageNode::finalize() {
                 "/var/tmp/dpx_gp_page_XXXXXX", sizeof(gp_template_file_name));
 
     } else {
-        post_dialog( toplevel, XmDIALOG_ERROR,
-            "Unable to access /tmp or /var/tmp, where a temporary\n"
-            "file (that represents gnuplot commands) needs\n"
-            "to be created. Please check your permissions.\n");
+        std::cerr << "Unable to access /tmp or /var/tmp, where a temporary\n"
+            << "file (that represents gnuplot commands) needs\n"
+            << "to be created. Please check your permissions." << std::endl ;
         return;
     }
 
     //! Create a name for our temporary gnuplot command file.
     if (mkstemp( gp_template_file_name) < 0) {
-        post_dialog( toplevel, XmDIALOG_ERROR,
-            "Unable to generate a temporary file"
-            "name for some mind boggling reason." );
+        std::cerr << "Unable to generate a temporary file"
+            << "name for some mind boggling reason." << std::endl ;
         return;
     }
 
@@ -817,18 +812,16 @@ void GPViewPageNode::finalize() {
                         "/var/tmp/dpx_gxplot_XXXXXX", sizeof(outFileName));
 
             } else {
-                post_dialog( toplevel, XmDIALOG_ERROR,
-                    "Unable to access /tmp or /var/tmp, where a temporary\n"
-                    "file for printing needs to be created.\n"
-                    "Please check your permissions.\n");
+                std::cerr << "Unable to access /tmp or /var/tmp, where a temporary\n"
+                    << "file for printing needs to be created.\n"
+                    << "Please check your permissions." << std::endl ;
                 return;
             }
 
             //! Create a name for our temporary gnuplot command file.
             if (mkstemp(outFileName) < 0) {
-                post_dialog( toplevel, XmDIALOG_ERROR,
-                    "Unable to generate a temporary file"
-                    "name for some mind boggling reason." );
+                std::cerr << "Unable to generate a temporary file"
+                    << "name for some mind boggling reason." << std::endl ;
                 return;
             }
 

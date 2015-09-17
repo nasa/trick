@@ -3,12 +3,10 @@
 #define GP_VIEW_HH
 
 #include "DPV/DPV_view.hh"
-#include <Xm/Xm.h>
 #include <X11/Xlib.h>
 
 #include "gp_view_curve_node.hh"
 #include "gp_view_plot_node.hh"
-#include "table_view_node.hh"
 #include "gp_view_page_node.hh"
 #include "gp_view_product_node.hh"
 

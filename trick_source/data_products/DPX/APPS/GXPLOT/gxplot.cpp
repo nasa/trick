@@ -4,17 +4,6 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
-#include <Xm/MainW.h>
-#include <Xm/RowColumn.h>
-#include <Xm/List.h>
-#include <Xm/CascadeB.h>
-#include <Xm/PushBG.h>
-#include <Xm/Form.h>
-#include <Xm/LabelG.h>
-#include <Xm/ScrolledW.h>
-#include <Xm/Text.h>
-#include <Xm/Protocols.h>
-
 #include "DPC/DPC_product.hh"
 #include "DPM/DPM_parse_tree.hh"
 #include "DPM/DPM_session.hh"

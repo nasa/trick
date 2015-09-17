@@ -17,7 +17,6 @@ GPViewProductNode::~GPViewProductNode() {
     #endif
 
     GPViewPageNode  *page_view_node;
-    TableViewNode   *table_view_node;
     int n,i;
 
     n = (int)page_node_list.size();
@@ -26,10 +25,4 @@ GPViewProductNode::~GPViewProductNode() {
         if (page_view_node) { delete page_view_node; }
     }
 
-
-    n = (int)table_node_list.size();
-    for (i=0 ; i<n ; i++ ) {
-        table_view_node = table_node_list[i];
-        if (table_view_node) { delete table_view_node; }
-    }
 }

@@ -23,9 +23,9 @@ endif
 ifeq ($(TRICK_HOST_TYPE), Darwin)
      INCDIRS += -I/usr/X11/include
      MOTIF_INCDIR = -I/sw/include
-     XLIBS = -L/sw/lib -lXm -L/usr/X11R6/lib -lXt -lX11 ${LIBXML} -lc++abi
+     XLIBS = -L/usr/X11R6/lib -lXt -lX11 ${LIBXML} -lc++abi
 else
-     XLIBS = -L/usr/X11R6/lib64 -L/usr/X11R6/lib -lXm -lXt -lX11 ${LIBXML}
+     XLIBS = -L/usr/X11R6/lib64 -L/usr/X11R6/lib -lXt -lX11 ${LIBXML}
 endif
 
 ifneq ($(HDF5),)
@@ -46,8 +46,7 @@ ALL_LIBS = $(CONTROLLER_LIBS) $(MODEL_LIBS) ${DP_LIBS} ${TRICK_UNIT_LIBS} ${HDF5
 ##                            MODEL TARGETS                                ##
 #############################################################################
 
-C_OBJECT_FILES = $(OBJDIR)/parse_format.o \
-    $(OBJDIR)/post_dialog.o
+C_OBJECT_FILES = $(OBJDIR)/parse_format.o
 
 CXX_OBJECT_FILES = $(OBJDIR)/gp_view.o \
     $(OBJDIR)/gp_colors.o \
@@ -56,7 +55,6 @@ CXX_OBJECT_FILES = $(OBJDIR)/gp_view.o \
     $(OBJDIR)/gxplot.o \
     $(OBJDIR)/gp_view_curve_node.o \
     $(OBJDIR)/gp_view_plot_node.o \
-    $(OBJDIR)/table_view_node.o \
     $(OBJDIR)/gp_view_page_node.o \
     $(OBJDIR)/gp_view_product_node.o
 
