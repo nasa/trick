@@ -122,6 +122,17 @@ bool CXXRecordVisitor::VisitType(clang::Type *t) {
     return true;
 }
 
+static bool isTypeTemplateSpecialization(const clang::Type * type_ptr) {
+    if ( type_ptr->getTypeClass() == clang::Type::TemplateSpecialization ) {
+        return true ;
+    } else if ( type_ptr->getTypeClass() == clang::Type::Elaborated ) {
+        const clang::ElaboratedType * et = type_ptr->getAs<clang::ElaboratedType>() ;
+        //std::cout << "\n[32minherited Type = " << et->getNamedType().getTypePtr()->getTypeClassName() << "[00m" << std::endl ;
+        return et->getNamedType().getTypePtr()->getTypeClass() == clang::Type::TemplateSpecialization ;
+    }
+    return false ;
+}
+
 bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
     if ( debug_level >= 2 ) {
         rec->dump() ; std::cout << std::endl ;
@@ -182,7 +193,7 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
                     // If we are inheriting from a template specialization, don't save the inherited class.  This list
                     // is maintained to call init_attr of the inherited classes.  A template specialization does not have
                     // these attributes.
-                    if ( temp->getTypeClass() != clang::Type::TemplateSpecialization ) {
+                    if ( ! isTypeTemplateSpecialization(temp) ) {
                         // We want to save the inherited class data, but it's going to go out of scope so we need to make
                         // a copy of it.
                         ClassValues * icv = new ClassValues(*(inherit_cvis.get_class_data())) ;
@@ -227,7 +238,7 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
                     // If we are inheriting from a template specialization, don't save the inherited class.  This list
                     // is maintained to call init_attr of the inherited classes.  A template specialization does not have
                     // these attributes.
-                    if ( temp->getTypeClass() != clang::Type::TemplateSpecialization ) {
+                    if ( ! isTypeTemplateSpecialization(temp) ) {
                         ClassValues * icv = new ClassValues(*(inherit_cvis.get_class_data())) ;
                         // The inherited classes of this inherted class are not required in the copy, and they are going out of scope
                         icv->clearInheritedClass() ;
