@@ -1,6 +1,4 @@
 
-AWK    := @AWK@
-SED    := @SED@
 CC     = @CC@
 CXX    = @CXX@
 LD     = @CXX@

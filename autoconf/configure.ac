@@ -1,6 +1,6 @@
-dnl To generate a new configure script from the top level
+dnl To generate a new top level configure script from this autoconf directory
 dnl 1.  aclocal
-dnl 2.  autoconf autoconf/configure.ac -o configure
+dnl 2.  autoconf -o ../configure
 
 AC_INIT([Trick],[16.0])
 AC_LANG(C++)
@@ -103,23 +103,57 @@ AC_DEFUN([AX_GTEST_HOME],[
     AC_SUBST([GTEST_HOME])
 ])
 
+dnl if fermi-ware directory exists, test for motif.
+AC_DEFUN([AX_JSC_DIRS],[
+    AC_CHECK_FILE([trick_source/data_products/fermi-ware],
+      [
+       AC_CHECK_HEADER(Xm/Xm.h, [MOTIF_HOME="/usr"],
+        AC_CHECK_FILE(/usr/local/include/Xm/Xm.h, [MOTIF_HOME="/usr/local"],
+         AC_CHECK_FILE(/sw/include/Xm/Xm.h, [MOTIF_HOME="/sw"],AC_MSG_ERROR([could not find Xm/Xm.h]))))
+      ],
+      [
+       MOTIF_HOME=""
+      ]
+    )
+    AC_SUBST([MOTIF_HOME])
+])
+
+dnl add extra paths to find xml headers and X headers on the mac.
+XTRAINCPATHS="-I/usr/include/libxml2/ -I/usr/X11/include"
+CFLAGS="$CFLAGS $XTRAINCPATHS"
+CPPFLAGS="$CPPFLAGS $XTRAINCPATHS"
+
+dnl look for programs we need to compile and run
 AC_PROG_CC
 AC_PROG_CXX
-AC_PROG_AWK
-AC_PROG_SED
 AC_PROG_LEX
-AC_PATH_PROG(BISON, bison, bison)
-AC_PATH_PROG(PERL, perl, perl)
-dnl AX_PKG_SWIG(1.3.29, [], [ AC_MSG_ERROR([SWIG is required to build..]) ])
-AC_PATH_PROG(SWIG, swig, swig, path="/bin:/usr/bin:/usr/local/bin:/sw/bin")
-
+AS_IF([test "x$LEX" = "x:"],AC_MSG_ERROR([could not find flex]),[])
+AC_PATH_PROG(BISON, bison, nobison)
+AS_IF([test "$ac_cv_path_BISON" = "nobison"],AC_MSG_ERROR([could not find bison]),[])
+AC_PATH_PROG(PERL, perl, noperl)
+AS_IF([test "$ac_cv_path_PERL" = "noperl"],AC_MSG_ERROR([could not find perl]),[])
+AC_PATH_PROG(PYTHON, python, nopython)
+AS_IF([test "$ac_cv_path_PYTHON" = "nopython"],AC_MSG_ERROR([could not find python]),[])
+AC_PATH_PROG(SWIG, swig, noswig, path="/bin:/usr/bin:/usr/local/bin:/sw/bin")
+AS_IF([test "$ac_cv_path_SWIG" = "noswig"],AC_MSG_ERROR([could not find swig]),[])
+AC_PATH_PROG(GNUPLOT, gnuplot, nognuplot)
+AS_IF([test "$ac_cv_path_GNUPLOT" = "nognuplot"],AC_MSG_NOTICE([could not find gnuplot]),[])
 AX_PROG_JAVA_CC(javac)
 
+dnl look for libraries and headers we need to compile
+AC_PATH_X
+AS_IF([test "$no_x" = "yes"],AC_MSG_ERROR([could not find Xwindows development libraries and/or headers]),[])
+AC_CHECK_HEADER([X11/Intrinsic.h],[],AC_MSG_ERROR([could not find libxt development headers]))
+AX_JSC_DIRS([])
 AC_CHECK_LIB(xml2, main,
     [LIBXML=-lxml2
      AC_SUBST([LIBXML])]
 )
+AC_CHECK_HEADER([libxml/tree.h],[],AC_MSG_ERROR([could not find libxml development headers]))
+AX_PTHREAD()
+AX_PYTHON_DEVEL([>='2.5'])
 
+dnl process the optional command line arguments
 AX_LLVM_HOME([])
 AX_HDF5_HOME([])
 AX_DMTCP_HOME([])
@@ -127,13 +161,6 @@ AX_TPRO_HOME([])
 AX_BC635_HOME([])
 AX_GSL_HOME([])
 AX_GTEST_HOME([])
-
-AX_PTHREAD()
-AX_PYTHON_DEVEL([>='2.5'])
-AC_CHECK_HEADER(Xm/Xm.h, [MOTIF_HOME="/usr"],
- AC_CHECK_FILE(/usr/local/include/Xm/Xm.h, [MOTIF_HOME="/usr/local"],
-  AC_CHECK_FILE(/sw/include/Xm/Xm.h, [MOTIF_HOME="/sw"],AC_MSG_ERROR([could not find Xm/Xm.h]))))
-AC_SUBST([MOTIF_HOME])
 
 AC_OUTPUT([share/trick/makefiles/config_user.mk])
 
