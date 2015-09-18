@@ -100,3 +100,33 @@ if hasattr(top.cvar, 'trick_data_record'):
     drd_writer_thread = top.cvar.trick_data_record.drd.drd_writer_thread
     data_record_cpu_set = top.cvar.trick_data_record.drd.drd_writer_thread.cpu_set
 
+# This routine will look up the reference name through ref_attributes.
+# ref_to_value retrieves the value and places it into a V_DATA structure
+# The return statement is an anonymous dictionary lookup that returns
+# the value based on the type in val.  The 6 argument is a default
+# type to use
+def get_value_by_ref_name(name):
+    ref = trick.ref_attributes(name)
+    ref.thisown = True
+    val = trick.V_DATA()
+    trick.ref_to_value(ref, val)
+    return {
+        '1': trick.vval_char(val),
+        '2': trick.vval_char(val),
+        '3': trick.vval_string(val),
+        '4': trick.vval_short(val),
+        '5': trick.vval_short(val),
+        '6': trick.vval_int(val),
+        '7': trick.vval_int(val),
+        '8': trick.vval_long(val),
+        '9': trick.vval_long(val),
+        '10': trick.vval_float(val),
+        '11': trick.vval_double(val),
+        '14': trick.vval_longlong(val),
+        '15': trick.vval_longlong(val),
+        '16': trick.vval_filep(val),
+        '17': trick.vval_char(val),
+        '20': trick.vval_voidp(val),
+        '21': trick.vval_int(val)
+    }.get(str(val.type),6)
+

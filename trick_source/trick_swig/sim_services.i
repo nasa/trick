@@ -129,6 +129,7 @@
 #include "trick/trick_tests.h"
 #include "trick/VariableServer.hh"
 #include "trick/variable_server_proto.h"
+#include "trick/vval.h"
 #include "trick/Flag.h"
 #include "trick/Unit.hh"
 

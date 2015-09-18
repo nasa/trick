@@ -447,6 +447,9 @@ bool FieldVisitor::VisitTypedefType(clang::TypedefType *tt) {
         fdes->setHasType(true) ;
     } else if ( tt->isRecordType() ) {
         std::string type_name = tt->desugar().getAsString() ;
+        if ((pos = type_name.find("class ")) != std::string::npos ) {
+            type_name.erase(pos , 6) ;
+        }
         if ((pos = type_name.find("struct ")) != std::string::npos ) {
             type_name.erase(pos , 7) ;
         }

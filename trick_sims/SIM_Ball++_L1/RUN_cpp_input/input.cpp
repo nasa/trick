@@ -11,7 +11,9 @@
 //#define protected public
 
 #include "../S_source.hh"
-#include "sim_services/CheckPointRestart/include/CheckPointRestart_c_intf.hh"
+#include "trick/CheckPointRestart_c_intf.hh"
+#include "trick/realtimesync_proto.h"
+#include "trick/external_application_c_intf.h"
 
 extern "C" int run_event_1() {
     message_publish(1, "event 1 fired!\n") ;
@@ -80,6 +82,12 @@ extern "C" int run_me() {
     jit_add_read( 190.0 , "hidden_event" ) ;
 
     exec_set_terminate_time(200.0) ;
+
+/*
+    real_time_enable() ;
+    trick_real_time.itimer.enable() ;
+    sim_control_panel_set_enabled(true) ;
+*/
 
     return 0 ;
 }

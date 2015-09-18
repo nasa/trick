@@ -20,12 +20,9 @@ float vval_float(V_DATA * V);
 double vval_double(V_DATA * V);
 char *vval_string(V_DATA * V);
 
-#ifndef __Lynx__
+#ifndef SWIG
 wchar_t vval_wchar(V_DATA * V);
 wchar_t *vval_wstring(V_DATA * V);
-#else
-int vval_wchar(V_DATA * V);
-int *vval_wstring(V_DATA * V);
 #endif
 
 FILE *vval_filep(V_DATA * V);
