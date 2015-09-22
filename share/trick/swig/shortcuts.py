@@ -105,7 +105,7 @@ if hasattr(top.cvar, 'trick_data_record'):
 # The return statement is an anonymous dictionary lookup that returns
 # the value based on the type in val.  The 6 argument is a default
 # type to use
-def get_value_by_ref_name(name):
+def var_get(name):
     ref = trick.ref_attributes(name)
     ref.thisown = True
     val = trick.V_DATA()
