@@ -513,6 +513,9 @@ sub handle_sim_class ($$$$) {
     my ($constructor_declare, $temp_content) ;
     my ($job_push , $job_call, $is_dynamic_event) ;
 
+    # remove any comments on the class definition line
+    $s =~ s/ZZZYYYXXX(\d+)ZZZYYYXXX//esg ;
+
     # grab the class name and the name of the class we are inheriting from
     ($full_template_args) = $s =~ /template\s+<([^>]+)>/ ;
     ($class_name, $inherit_class) = $s =~ /class\s+(\S+)\s*:\s*public\s*(.*\S)/ ;
