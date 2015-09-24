@@ -261,6 +261,7 @@ S_OBJECT_FILES = \$(CURDIR)/build/S_source.o
 \$(S_OBJECT_FILES) : | \$(LIB_DIR)\n\n" ;
 
 my %object_files_by_type ;
+my %model_build_dirs ;
 $num_inc_objs = 0 ;
 # list out all of the source and object files
 foreach $k ( sort keys %files_by_dir ) {
@@ -278,11 +279,13 @@ foreach $k ( sort keys %files_by_dir ) {
             }
             push @{$object_files_by_type{$ext}}, "MODEL_${print_ext}_OBJ_$files_by_dir{$k}{dir_num}" ;
 
-            print MAKEFILE "\n\n\$(MODEL_${print_ext}_OBJ_$files_by_dir{$k}{dir_num}) : | \$(CURDIR)/build$k/$files_by_dir{$k}{src_dir}$f\n" ;
-            print MAKEFILE "\$(CURDIR)/build$k/$files_by_dir{$k}{src_dir}$f :\n" ;
-            print MAKEFILE "\t@ mkdir -p \$\@\n\n" ;
+            print MAKEFILE "\n\n\$(MODEL_${print_ext}_OBJ_$files_by_dir{$k}{dir_num}) : | \$(CURDIR)/build$k/$files_by_dir{$k}{src_dir}\n" ;
+            if ( ! exists $model_build_dirs{"build$k/$files_by_dir{$k}{src_dir}"}) {
+                $model_build_dirs{"build$k/$files_by_dir{$k}{src_dir}"} = 1 ;
+                print MAKEFILE "\$(CURDIR)/build$k/$files_by_dir{$k}{src_dir} :\n" ;
+                print MAKEFILE "\t@ mkdir -p \$\@\n\n" ;
+            }
 
-            #print MAKEFILE "\$(CURDIR)/build/lib/o${num_inc_objs}.o : \$(MODEL_${print_ext}_OBJ_$files_by_dir{$k}{dir_num})\n" ;
             print MAKEFILE "\$(CURDIR)/build/lib/o_${print_ext}_$files_by_dir{$k}{dir_num}.o : \$(MODEL_${print_ext}_OBJ_$files_by_dir{$k}{dir_num})\n" ;
             print MAKEFILE "\t\$(PRINT_INC_LINK)\n" ;
             print MAKEFILE "\t\$(ECHO_CMD)cd \${<D} ; ld \$(LD_PARTIAL) -o \$\@ \$(notdir \$^)\n\n" ;
