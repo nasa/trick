@@ -233,6 +233,7 @@ sub process_file() {
             if ( /^(\s*\#\s*include\s+)([^\n]+)/ ) {
                 my ( $include ) = $1 ;
                 my ( $file_name ) = $2 ;
+                $file_name =~ s/\s+$// ;
                 if ( $file_name !~ /\</ ) {
                     if ( $file_name !~ /\"sim_services/ and $file_name !~ /\"trick_utils/ and $file_name !~ /\"trick\//)  {
                         my $exclude = 0 ;
