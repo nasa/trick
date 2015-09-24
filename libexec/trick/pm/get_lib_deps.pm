@@ -82,8 +82,8 @@ sub get_lib_deps ($$) {
             foreach my $inc ( $file_path_dir , @inc_paths) {
                 foreach my $ext ( "cpp" , "cc" , "c" , "c++" , "cxx" , "C" ) {
                     if ( -e "$inc/$rel_dir/$base$ext" ) {
-                        #print "found $inc/$l$ext\n" ;
                         my $f = abs_path("$inc/$rel_dir") . "/$base$ext" ;
+                        #print "found $f\n" ;
                         if ( ! exists $resolved_files{$f} ) {
                             $resolved_files{$f} = 1 ;
                             push @ordered_resolved_files , $f ;
@@ -92,8 +92,8 @@ sub get_lib_deps ($$) {
                         last ;
                     }
                     elsif ( -e "$inc/$rel_dir/src/$base$ext" ) {
-                        #print "found $inc/src/$l$ext\n" ;
                         my $f = abs_path("$inc/$rel_dir/src") . "/$base$ext" ;
+                        #print "found $f\n" ;
                         if ( ! exists $resolved_files{$f} ) {
                             $resolved_files{$f} = 1 ;
                             push @ordered_resolved_files , $f ;
@@ -136,7 +136,7 @@ sub write_lib_deps($) {
 
     # Build the library dependencies file name to store results
     my ( $file, $dir, $suffix) = fileparse($source_file_name, qr/\.[^.]*/) ;
-    my ($lib_dep_file_name) = "build$dir${file}.lib_deps" ;
+    my ($lib_dep_file_name) = "build$dir${file}.${suffix}.lib_deps" ;
     if ( ! -e "build$dir" ) {
         make_path("build$dir") ;
     }
