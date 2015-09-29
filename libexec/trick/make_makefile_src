@@ -23,7 +23,7 @@ sub read_lib_deps($@) {
             next if ( $l =~ /^-|\.a$/ ) ;
             $non_lib_processed_files{$l} = 1 ;
             my ( $file, $dir, $suffix) = fileparse($l, qr/\.[^.]*/) ;
-            my ($lib_dep_file_name) = "build$dir${file}.${suffix}.lib_deps" ;
+            my ($lib_dep_file_name) = "build$dir${file}${suffix}.lib_deps" ;
             if ( -e $lib_dep_file_name ) {
                open FH, "$lib_dep_file_name" or die 'cannot open $lib_dep_file_name' ;
                my (@all_lines) = <FH> ;
