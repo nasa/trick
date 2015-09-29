@@ -13,10 +13,7 @@ AC_DEFUN([AX_LLVM_HOME],[
                 [LLVM_HOME="$withval"],
                 [LLVM_HOME="/usr"]
                )
-    AC_CHECK_FILE([$LLVM_HOME/bin/llvm-config],
-                  [AC_SUBST([LLVM_HOME])],
-                  AC_MSG_ERROR([could not find $LLVM_HOME/bin/llvm-config])
-                 )
+    AC_SUBST([LLVM_HOME])
 ])
 
 AC_DEFUN([AX_HDF5_HOME],[
@@ -134,7 +131,7 @@ AC_PATH_PROG(PERL, perl, noperl)
 AS_IF([test "$ac_cv_path_PERL" = "noperl"],AC_MSG_ERROR([could not find perl]),[])
 AC_PATH_PROG(PYTHON, python, nopython)
 AS_IF([test "$ac_cv_path_PYTHON" = "nopython"],AC_MSG_ERROR([could not find python]),[])
-AC_PATH_PROG(SWIG, swig, noswig, path="/bin:/usr/bin:/usr/local/bin:/sw/bin")
+AC_PATH_PROG(SWIG, swig, noswig, "/bin:/usr/bin:/usr/local/bin:/sw/bin")
 AS_IF([test "$ac_cv_path_SWIG" = "noswig"],AC_MSG_ERROR([could not find swig]),[])
 AC_PATH_PROG(GNUPLOT, gnuplot, nognuplot)
 AS_IF([test "$ac_cv_path_GNUPLOT" = "nognuplot"],AC_MSG_NOTICE([could not find gnuplot]),[])
@@ -153,8 +150,19 @@ AC_CHECK_HEADER([libxml/tree.h],[],AC_MSG_ERROR([could not find libxml developme
 AX_PTHREAD()
 AX_PYTHON_DEVEL([>='2.5'])
 
-dnl process the optional command line arguments
+dnl process the optional --with-llvm command line arguments
 AX_LLVM_HOME([])
+AC_PATH_PROG(CLANG, clang, noclang, "$LLVM_HOME/bin:/bin:/usr/bin:/usr/local/bin:/sw/bin")
+AS_IF([test "$ac_cv_path_CLANG" = "noclang"],AC_MSG_ERROR([could not find clang]),[])
+AC_PATH_PROG(LLVM_CONFIG, llvm-config, no-llvm-config, "$LLVM_HOME/bin:/bin:/usr/bin:/usr/local/bin:/sw/bin")
+AS_IF([test "$ac_cv_path_LLVM_CONFIG" = "no-llvm-config"],AC_MSG_ERROR([could not find clang]),[])
+LLVM_LIB_DIR=`$LLVM_CONFIG --libdir`
+AC_CHECK_FILE([$LLVM_LIB_DIR/libLLVMSupport.a],
+  [],
+  AC_MSG_ERROR([could not find clang library files in $LLVM_LIB_DIR])
+)
+
+dnl process the other optional command line arguments
 AX_HDF5_HOME([])
 AX_DMTCP_HOME([])
 AX_TPRO_HOME([])
