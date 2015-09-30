@@ -78,6 +78,11 @@ TEST_F(MM_ref_attributes, NormalCases) {
         ref = memmgr->ref_attributes("udt3.M2");
         ASSERT_TRUE(ref != NULL);
         EXPECT_EQ( &udt3.M2, ref->address);
+
+        ASSERT_TRUE(ref->attr != NULL);
+        ASSERT_TRUE(ref->attr->units != NULL);
+        std::cout << "Units of udt3.M2 = " << ref->attr->units << std::endl;
+
         free( ref);
 
         std::cout << "Case of: \"udt3.M2[2][3]\"" << std::endl;
@@ -90,6 +95,10 @@ TEST_F(MM_ref_attributes, NormalCases) {
         ref = memmgr->ref_attributes("udt3.M3[1][1][3]");
         ASSERT_TRUE(ref != NULL);
         EXPECT_EQ( &udt3.M3[1][1][3], ref->address);
+
+        ASSERT_TRUE(ref->attr != NULL);
+        ASSERT_TRUE(ref->attr->units != NULL);
+        std::cout << "Units of udt3.M3 = " << ref->attr->units << std::endl;
         free( ref);
 
         std::cout << "Case of: \"udt3.C[5]\"" << std::endl;
