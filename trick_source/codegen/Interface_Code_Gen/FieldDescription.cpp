@@ -231,6 +231,10 @@ void FieldDescription::parseComment(std::string comment) {
             case '\r':
             case '\t':
             case ' ': if ( ! is_space ) ss << " "; is_space = true ; break;
+            // -110 to -108 (signed char) are the Windows quotation marks.  We ASCII-fy them.
+            case -110 : ss << "'" ; break;
+            case -109 : ss << "\\\"" ; break;
+            case -108 : ss << "\\\"" ; break;
             default: ss << *it; is_space = false ; break;
         }
     }
