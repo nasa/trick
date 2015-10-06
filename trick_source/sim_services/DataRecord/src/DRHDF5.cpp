@@ -15,7 +15,7 @@ PROGRAMMERS:
 #include "sim_services/Message/include/message_proto.h"
 
 Trick::DRHDF5::DRHDF5( std::string in_name ) : Trick::DataRecordGroup(in_name) {
-    register_group_with_mm(this, "Trick::HDF5") ;
+    register_group_with_mm(this, "Trick::DRHDF5") ;
 }
 
 int Trick::DRHDF5::format_specific_header( std::fstream & out_stream ) {
