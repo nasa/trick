@@ -409,7 +409,7 @@ public class TrickDPActionController {
          String fileSeparator = System.getProperty("file.separator");
          String pathSeparator = System.getProperty("path.separator");
          
-         String javaPath = UIUtils.getTrickHome() + fileSeparator + "libexec/trick" + fileSeparator + "java";
+         String javaPath = UIUtils.getTrickHome() + fileSeparator + "bin" + fileSeparator + "java";
          String distPath = javaPath + fileSeparator + "dist";
          String libPath = javaPath + fileSeparator + "lib";
          String classPath = distPath + fileSeparator + "*" + pathSeparator +
