@@ -31,9 +31,8 @@ all test : ${TRICK_LIB_DIR}/libtrick.a S_source.hh \
  $(CURDIR)/build/Makefile_io_src \
  $(CURDIR)/build/Makefile_src \
  $(CURDIR)/build/Makefile_swig \
- $(CURDIR)/build/convert_swig_last_run \
- $(CURDIR)/build/MAKE_out
-	@$(MAKE) --no-print-directory -f build/Makefile_src $@ 2>&1 | tee -a build/MAKE_out ; exit $${PIPESTATUS[0]}
+ $(CURDIR)/build/convert_swig_last_run
+	@$(MAKE) --no-print-directory -f build/Makefile_src $@ 2>&1 | tee build/MAKE_out ; exit $${PIPESTATUS[0]}
 
 build:
 	mkdir $@
@@ -44,9 +43,6 @@ debug : TRICK_CPFLAGS += --debug
 ${TRICK_LIB_DIR}/libtrick.a:
 	@echo "Cannot find $@.  Please build Trick for this platfrom"
 	@exit -1
-
-$(CURDIR)/build/MAKE_out : | build
-	@/bin/cp ${TRICK_HOME}/share/trick/MAKE_out_header.txt $@
 
 # CP creates S_source.hh required for ICG and SWIG processing
 S_source.hh : S_define | build
