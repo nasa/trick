@@ -10,6 +10,7 @@ using namespace std;
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
+#include <QTextStream>
 #include <stdio.h>
 
 #include "libopts/options.h"
@@ -18,10 +19,14 @@ using namespace std;
 #include "libsnapdata/roundoff.h"
 #include "libsnapdata/timeit_linux.h"
 #include "libsnapdata/timestamps.h"
+#include "libsnapdata/tricktablemodel.h"
+#include "libqplot/dp.h"
 
 QStandardItemModel* createVarsModel(const QStringList& runDirs);
 bool writeTrk(const QString& ftrk, const QString &timeName,
                QStringList& paramList, MonteModel* monteModel);
+bool writeCsv(const QString& fcsv, const QString& timeName,
+              DPTable* dpTable, const QString &runDir);
 
 Option::FPresetQStringList presetRunsDPs;
 Option::FPostsetQStringList postsetRunsDPs;
@@ -34,6 +39,7 @@ class SnapOptions : public Options
     unsigned int endRun;
     QString pdfOutFile;
     QString trkOutFile;
+    QString csvOutFile;
     QStringList rundps;
     QString title1;
     QString title2;
@@ -73,6 +79,8 @@ int main(int argc, char *argv[])
              "Name of pdf output file");
     opts.add("-trk", &opts.trkOutFile, QString(""),
              "Produce *.trk with variables from DP_Products");
+    opts.add("-csv", &opts.csvOutFile, QString(""),
+             "Produce *.csv tables from from DP_Product tables");
     opts.add("-timeName", &opts.timeName, QString(""),
              "Time name for RUN data");
     opts.parse(argc,argv, QString("snapq"), &ok);
@@ -102,9 +110,14 @@ int main(int argc, char *argv[])
             isPdf = true;
         }
 
-        if ( isPdf && isTrk ) {
+        bool isCsv = false;
+        if ( !opts.csvOutFile.isEmpty() ) {
+            isCsv = true;
+        }
+
+        if ( (isPdf && isTrk) || (isPdf && isCsv) || (isTrk && isCsv) ) {
             fprintf(stderr,
-                    "snap [error] : you may not use the -pdf and -trk "
+                    "snap [error] : you may not use the -pdf, -trk and -csv "
                     "options together.");
             exit(-1);
         }
@@ -131,6 +144,14 @@ int main(int argc, char *argv[])
         if ( isTrk && (dps.size() == 0 || runDirs.size() == 0) ) {
             fprintf(stderr,
                     "snap [error] : when using the -trk option you must "
+                    "specify a DP product file and RUN directory\n");
+            exit(-1);
+        }
+
+        // If outputting to csv, you must have a DP file and RUN dir
+        if ( isCsv && (dps.size() == 0 || runDirs.size() == 0) ) {
+            fprintf(stderr,
+                    "snap [error] : when using the -csv option you must "
                     "specify a DP product file and RUN directory\n");
             exit(-1);
         }
@@ -168,11 +189,13 @@ int main(int argc, char *argv[])
         titles << opts.title1 << subtitle << opts.title3 << opts.title4;
 
         if ( isPdf ) {
+            // TODO: Shouldn't timeName use opts.timeName if specified?
             PlotMainWindow w(opts.timeName,
                              opts.presentation, QString(), dps, titles,
                              monteModel, varsModel, monteInputsModel);
             w.show();
             w.savePdf(opts.pdfOutFile);
+
         } else if ( isTrk ) {
 
             QStringList params = DPProduct::paramList(dps);
@@ -198,6 +221,58 @@ int main(int argc, char *argv[])
                                  "the -trk option.\n");
                 exit(-1);
             }
+
+        } else if ( isCsv ) {
+
+
+            if ( runDirs.size() != 1 ) {
+                fprintf(stderr, "snap [error]: Exactly one RUN dir must be "
+                                "specified with the -csv option.\n");
+                exit(-1);
+            }
+
+            // TODO: This code for timeName repeated from above (consolidate)
+            QString timeName = opts.timeName ;
+            if ( timeName.isEmpty() ) {
+                timeName = "sys.exec.out.time" ;
+            }
+
+            int i = 0;
+            foreach ( QString dpFileName, dps ) {
+                DPProduct dp(dpFileName);
+                foreach ( DPTable* dpTable, dp.tables() ) {
+                    QString fname = opts.csvOutFile;
+                    if ( dp.tables().size() > 1 ) {
+                        // Multiple files to output, so index the name
+                        QString dpName = QFileInfo(dpFileName).baseName();
+                        QFileInfo fi(fname);
+                        QString extension("csv");
+                        if ( !fi.suffix().isEmpty() ) {
+                            extension = fi.suffix();
+                        }
+                        fname = fi.completeBaseName() +
+                                "_" +
+                                dpName +
+                                QString("_%1.").arg(i) +
+                                extension;
+                        ++i;
+                    }
+
+                    bool r = writeCsv(fname,timeName,dpTable,runDirs.at(0));
+                    if ( r ) {
+                        ret = 0;
+                    } else {
+                        fprintf(stderr, "snap [error]: Failed to write: %s\n",
+                                fname.toAscii().constData());
+                        ret = -1;
+                        break;
+                    }
+                }
+                if ( ret == -1 ) {
+                    break;
+                }
+            }
+
 
         } else {
             if ( dps.size() > 0 ) {
@@ -333,6 +408,7 @@ void presetPresentation(QString* presVar, const QString& pres, bool* ok)
         *ok = false;
     }
 }
+
 bool writeTrk(const QString& ftrk, const QString& timeName,
                QStringList& paramList, MonteModel* monteModel)
 {
@@ -483,7 +559,7 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
         }
         curve->unmap();
     }
-    freqs = TimeStamps::uniquify(freqs);
+    TimeStamps::usort(freqs);
 
     // Create list of timestamps based on frequency of data of each curve.
     // This assumes that each curve starts at 0.0
@@ -582,6 +658,76 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
     // Clean up
     //
     trk.close();
+
+    return true;
+}
+
+bool writeCsv(const QString& fcsv, const QString& timeName,
+              DPTable* dpTable, const QString& runDir)
+{
+    QFileInfo fcsvi(fcsv);
+    if ( fcsvi.exists() ) {
+        fprintf(stderr, "snapq [error]: Will not overwrite %s\n",
+                fcsv.toAscii().constData());
+        return false;
+    }
+
+    // Open trk file for writing
+    QFile csv(fcsv);
+    if (!csv.open(QIODevice::WriteOnly)) {
+        fprintf(stderr,"snap: [error] could not open %s\n",
+                fcsv.toAscii().constData());
+        return false;
+    }
+    QTextStream out(&csv);
+
+    // Format output
+    out.setFieldAlignment(QTextStream::AlignRight);
+    out.setFieldWidth(12);
+    out.setPadChar(' ');
+    out.setRealNumberPrecision(8);
+
+    // Csv header
+    QString header;
+    header = timeName + ",";
+    foreach ( DPVar* var, dpTable->vars() ) {
+        QString unit("");
+        //unit = " {--}"; // TODO: Unit name and unit conversion
+        header += var->name() +  unit + ",";
+    }
+    header.chop(1);
+    out << header;
+    out << "\n\n";
+
+    // Csv body
+    QStringList params;
+    foreach ( DPVar* var, dpTable->vars() ) {
+        params << var->name() ;
+    }
+
+
+    TrickTableModel ttm(timeName, runDir, params);
+    int rc = ttm.rowCount();
+    int cc = ttm.columnCount();
+    for ( int r = 0 ; r < rc; ++r ) {
+        for ( int c = 0 ; c < cc; ++c ) {
+            QModelIndex idx = ttm.index(r,c);
+            double v = ttm.data(idx).toDouble();
+            out << v;
+            if ( c < cc-1 ) {
+                int fw = out.fieldWidth();
+                out.setFieldWidth(0);
+                out << ",";
+                out.setFieldWidth(fw);
+            }
+        }
+        if ( r < rc-1 ) {
+            out << "\n";
+        }
+    }
+
+    // Clean up
+    csv.close();
 
     return true;
 }

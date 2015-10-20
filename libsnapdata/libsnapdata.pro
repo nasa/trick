@@ -1,4 +1,5 @@
 QT       += gui
+QT       += xml
 
 TARGET = snapdata
 TEMPLATE = lib
@@ -33,7 +34,9 @@ SOURCES += \
     runs.cpp \
     unit.cpp \
     csv.cpp \
-    parameter.cpp
+    parameter.cpp \
+    tricktablemodel.cpp \
+    timestamps.cpp
 
 
 HEADERS += \
@@ -53,7 +56,9 @@ HEADERS += \
     unit.h \
     csv.h \
     parameter.h \
-    roundoff.h
+    roundoff.h \
+    tricktablemodel.h \
+    timestamps.h
 
 
 unix:!symbian {

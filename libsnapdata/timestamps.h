@@ -13,9 +13,11 @@ public:
     int count() { return _timeStamps.count(); }
 
     static double leastCommonMultiple(const QList<double>& xs);
-    static QList<double> uniquify(const QList<double>& list);
+    static void usort(QList<double>& list);
     static QList<double> merge(const QList<double>& listA,
                                const QList<double>& listB);
+    static void insert(double t, QList<double> &list);
+    static int idxAtTime(const QList<double>& list, double time);
 
 private:
     TimeStamps();
@@ -25,6 +27,10 @@ private:
     double _lcm;
     QList<double> _timeStampsToLCM;
     QList<double> _timeStamps;
+
+    static int _lastIdx ;
+    static int _idxAtTimeBinarySearch(const QList<double>& list,
+                               int low, int high, double time);
 };
 
 #endif // TIMESTAMPS_H
