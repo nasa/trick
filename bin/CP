@@ -10,6 +10,22 @@ use Cwd 'abs_path';
 $trick_bin = dirname(abs_path($0)) ;
 $trick_home = dirname($trick_bin) ;
 
+#### Handle arguments ####
+$numArgs = $#ARGV + 1;
+$makefileAddArgs = ' ';
+foreach $argnum (0 .. $#ARGV) {
+    $arg = $ARGV[$argnum];
+    if ($arg =~ /(\w+)=(\w+)/ ) {
+        $makefileAddArgs = $makefileAddArgs . $1 . "=" . $2 . " ";
+    } elsif ($arg =~ /-d/ ) {
+        $makefileAddArgs = $makefileAddArgs . " debug ";
+    } elsif ($arg =~ /-t/ ) {
+        $makefileAddArgs = $makefileAddArgs . " test ";
+    } else {
+        print "Warning: Ignoring unrecognized argument $arg\n"
+    }
+}
+
 if ( -f "S_define" ) {
     if ( not -w "." ) {
         print getcwd() , " is not writable\n" ;
@@ -23,13 +39,7 @@ if ( -f "S_define" ) {
     open MAKEFILE, ">makefile" ;
     print MAKEFILE $makefile_text ;
     close MAKEFILE ;
-    if (@ARGV[0] eq "-t" ) {
-        system("make -f makefile test") ;
-    } elsif ( @ARGV[0] eq "-d" or @ARGV[0] eq "--debug" ) {
-        system("make -f makefile debug") ;
-    } else {
-        system("make -f makefile") ;
-    }
+    system("make -f makefile " . $makefileAddArgs) ;
     exit $? >> 8;
 } else {
     print "S_define does not exist" ;
