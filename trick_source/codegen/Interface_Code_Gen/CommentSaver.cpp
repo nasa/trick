@@ -98,7 +98,7 @@ void CommentSaver::getICGField( std::string file_name ) {
                     icg_no_comment_found[file_name] = false ;
                     icg_no_found[file_name] = true ;
                 } else {
-                    std::cout << "trick_parse directive found but no argument matched." << std::endl ;
+                    std::cout << file_name << ": trick_parse directive found but no argument matched." << std::endl ;
                     std::cout << "Valid arguments are (everything|attributes|dependencies_only)" << std::endl ;
                     exit(-1) ;
                 }
