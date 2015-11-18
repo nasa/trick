@@ -40,6 +40,10 @@ TRICK_CXXFLAGS += -I$(HDF5)/include
 endif
 endif
 
+ifneq ($(GSL_HOME),)
+SWIG_DEFS += -D_HAVE_GSL
+endif
+
 ifeq ($(USE_ER7_UTILS_INTEGRATORS), 1)
 SWIG_DEFS += -DUSE_ER7_UTILS_INTEGRATORS
 endif

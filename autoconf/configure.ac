@@ -78,7 +78,7 @@ AC_DEFUN([AX_GSL_HOME],[
                 [GSL_HOME="$withval"
                  AC_CHECK_FILE([$GSL_HOME/include/gsl],
                                [],
-                               AC_MSG_ERROR([could not find $GSL_HOME/sample/bcuser.h])
+                               AC_MSG_ERROR([could not find $GSL_HOME/include/gsl])
                               )
                 ],
                 [GSL_HOME=""]
