@@ -95,7 +95,7 @@ static int call_next_job(Trick::JobData * curr_job, Trick::ScheduledJobQueue & j
 void * Trick::Threads::thread_body() {
 
     /* Lock the go mutex so the master has to wait until this child is ready before staring execution. */
-    pthread_mutex_lock(&go_mutex);
+    trigger_container.getThreadTrigger()->init() ;
 
     /* signal the master that the child is ready and running */
     child_complete = true;
@@ -104,14 +104,8 @@ void * Trick::Threads::thread_body() {
     try {
         do {
 
-            /* Block child on go mutex or frame trigger until master signals. */
-            if (rt_semaphores == true) {
-                pthread_cond_wait(&go_cv, &go_mutex);
-            } else {
-                /* Else the child process frame is being started when a shared memory flag... */
-                while (frame_trigger == false) {} ;
-                frame_trigger = false ;
-            }
+            /* Block child on trigger until master signals. */
+            trigger_container.getThreadTrigger()->wait() ;
 
             if ( enabled ) {
 

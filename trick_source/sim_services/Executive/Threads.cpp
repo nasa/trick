@@ -4,7 +4,6 @@
 #include <stdio.h>
 
 #include "trick/Threads.hh"
-#include "trick/message_proto.h"
 
 Trick::Threads::Threads(int in_id , bool in_rt_nap) :
  enabled(true) ,
@@ -17,13 +16,8 @@ Trick::Threads::Threads(int in_id , bool in_rt_nap) :
  rt_nap(in_rt_nap) ,
  process_type(PROCESS_TYPE_SCHEDULED) ,
  child_complete(false) ,
- frame_trigger(0) ,
  running(false) ,
- rt_semaphores(true) ,
  shutdown_wait_async(false) {
-    pthread_cond_init(&go_cv, NULL);
-    pthread_mutex_init(&go_mutex, NULL);
-
     std::stringstream oss ;
     oss << "Child_" << in_id ;
     name = oss.str() ;
@@ -51,6 +45,7 @@ void Trick::Threads::dump( std::ostream & oss ) {
         case PROCESS_TYPE_ASYNC_CHILD: oss << "asynchronous" << std::endl ; break ;
         case PROCESS_TYPE_AMF_CHILD: oss << "asynchronous must finish with amf_cycle = " << amf_cycle << std::endl ; break ;
     }
+    trigger_container.getThreadTrigger()->dump(oss) ;
     oss << "    number of scheduled jobs = " << job_queue.size() << std::endl ;
     Trick::ThreadBase::dump(oss) ;
 }
