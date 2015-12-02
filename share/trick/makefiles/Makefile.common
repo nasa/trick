@@ -136,23 +136,15 @@ ifneq ($(GSL_HOME),)
       TRICK_EXEC_LINK_LIBS += -L$(GSL_HOME)/lib64
     endif
     TRICK_EXEC_LINK_LIBS += -L$(GSL_HOME)/lib
+    ifneq ($(GSL_HOME),/usr/local)
+      TRICK_SYSTEM_CFLAGS += -I$(GSL_HOME)/include
+      TRICK_SYSTEM_CXXFLAGS += -I$(GSL_HOME)/include
+    endif
   endif
   TRICK_EXEC_LINK_LIBS += -lgsl -lgslcblas
- TRICK_SYSTEM_CFLAGS += -D_HAVE_GSL
- TRICK_SYSTEM_CXXFLAGS += -D_HAVE_GSL
+  TRICK_SYSTEM_CFLAGS += -D_HAVE_GSL
+  TRICK_SYSTEM_CXXFLAGS += -D_HAVE_GSL
 endif
-
-#HAVE_GSL := $(shell test -e ${GSL_HOME}/include/gsl && echo "1")
-#ifeq ($(HAVE_GSL),1)
-#  ifneq ($(GSL_HOME),/usr)
-#  HAVE_GSL_HOME_LIB64 := $(shell test -e ${GSL_HOME}/lib64 && echo "1")
-#    ifeq ($(HAVE_GSL_HOME_LIB64),1)
-#      TRICK_EXEC_LINK_LIBS += -L$(GSL_HOME)/lib64
-#    endif
-#  TRICK_EXEC_LINK_LIBS += -L$(GSL_HOME)/lib
-#  endif
-#  TRICK_EXEC_LINK_LIBS += -lgsl -lgslcblas
-#endif
 
 TRICK_INCLUDE = $(shell $(PERL) -e '@inc_paths = "${TRICK_CFLAGS}" =~ /-I\s*(\S+)/g ; foreach $$i (@inc_paths) { print "-I$$i " if (-e $$i)}')
 TRICK_INCLUDE += $(shell $(PERL) -e '@inc_paths = "${TRICK_SYSTEM_CFLAGS}" =~ /-I\s*(\S+)/g ; foreach $$i (@inc_paths) { print "-I$$i " if (-e $$i)}')
