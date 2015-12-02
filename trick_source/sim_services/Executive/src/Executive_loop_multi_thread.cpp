@@ -168,14 +168,8 @@ int Trick::Executive::loop_multi_thread() {
                 curr_thread->curr_time_tics = time_tics ;
                 curr_thread->child_complete = false ;
                 curr_thread->amf_next_tics += curr_thread->amf_cycle_tics ;
+                curr_thread->trigger_container.getThreadTrigger()->fire() ;
 
-                if (curr_thread->rt_semaphores == true ) {
-                    pthread_mutex_lock(&(curr_thread->go_mutex));
-                    pthread_cond_signal(&(curr_thread->go_cv));
-                    pthread_mutex_unlock(&(curr_thread->go_mutex));
-                } else {
-                    curr_thread->frame_trigger = true ;
-                }
             }
         }
 

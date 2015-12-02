@@ -15,6 +15,7 @@
 #include <semaphore.h>
 #include <iostream>
 
+#include "sim_services/Executive/include/ThreadTrigger.hh"
 #include "sim_services/ThreadBase/include/ThreadBase.hh"
 #include "sim_services/SimObject/include/SimObject.hh"
 #include "sim_services/ScheduledJobQueue/include/ScheduledJobQueue.hh"
@@ -85,7 +86,8 @@ namespace Trick {
              */
             int time_tic_changed(long long old_time_tic_value, long long time_tic_value) ;
 
-            /** * Sets the wait at shutdown for asynchronous threads flag
+            /**
+             * Sets the wait at shutdown for asynchronous threads flag
              * @param yes_no - do we wait for the thread at shutdown or not?
              * @return always 0
              */
@@ -141,20 +143,11 @@ namespace Trick {
             /** Thread has completed all jobs for this time step */
             volatile bool child_complete;            /**< trick_io(**) */
 
-            /** Trigger from master to start thread processing */
-            volatile int frame_trigger;              /**< trick_units(--) */
-
             /** True if the thread was started without errors. */
             bool running;                   /**< trick_units(--) */
 
-            /** Use a mutex to signal the start of thread processing */
-            bool rt_semaphores;             /**< trick_units(--) */
-
-            /** Condition variable to control start of thread processing */
-            pthread_cond_t go_cv;           /**< trick_io(**) */
-
-            /** Mutex to control start of thread processing */
-            pthread_mutex_t go_mutex;       /**< trick_io(**) */
+            /** Trigger to start frame.  Paused on by the thread, fired by the master */
+            ThreadTriggerContainer trigger_container ;   /**< trick_units(--) */
 
             /** Wait for asynchronous jobs to finish at shutdown */
             bool shutdown_wait_async;       /**< trick_units(--) */
