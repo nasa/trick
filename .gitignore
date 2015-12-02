@@ -12,3 +12,4 @@ lib_Darwin_*
 *.dox
 Makefile_jsc_dirs
 .DS_Store
+trick_test

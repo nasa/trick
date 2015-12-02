@@ -17,6 +17,7 @@ S_default.dat
 S_document.xml
 S_library_list
 S_main_*
+T_main_*
 S_sie.resource
 S_source.cpp
 S_source.hh
