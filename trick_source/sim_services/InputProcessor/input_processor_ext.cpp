@@ -30,7 +30,9 @@ Trick::IPPythonEvent * ippython_new_event(std::string event_name) {
     // Allocate space for the event.
     oss << "Trick::IPPythonEvent " << event_name << "[1]" ;
     Trick::IPPythonEvent * event = (Trick::IPPythonEvent*) TMM_declare_var_s(oss.str().c_str());
-    event->set_name(event_name) ;
+    if (event != NULL) {
+        event->set_name(event_name) ;
+    }
 
     return (event);
 }
