@@ -1,6 +1,6 @@
 
-#include "trick/ThreadTrigger.hh"
-#include "trick/message_proto.h"
+#include "sim_services/Executive/include/ThreadTrigger.hh"
+#include "sim_services/Message/include/message_proto.h"
 
 /* ThreadTriggerBase empty routines */
 Trick::ThreadTriggerBase::ThreadTriggerBase(ThreadTriggerType in_tt_type) : tt_type(in_tt_type) {}
