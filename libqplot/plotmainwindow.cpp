@@ -143,9 +143,11 @@ void PlotMainWindow::createMenu()
     _menuBar = new QMenuBar;
     _fileMenu = new QMenu(tr("&File"), this);
     _pdfAction = _fileMenu->addAction(tr("Save As P&DF"));
+    _vectorPdfAction = _fileMenu->addAction(tr("Save As High Q&uality PDF"));
     _exitAction = _fileMenu->addAction(tr("E&xit"));
     _menuBar->addMenu(_fileMenu);
     connect(_pdfAction, SIGNAL(triggered()),this, SLOT(_savePdf()));
+    connect(_vectorPdfAction, SIGNAL(triggered()),this, SLOT(_saveVectorPdf()));
     connect(_exitAction, SIGNAL(triggered()),this, SLOT(close()));
     setMenuWidget(_menuBar);
 }
@@ -240,14 +242,14 @@ bool PlotMainWindow::_isMONTE(const QString &fp)
     return ( fi.baseName().left(6) == "MONTE_" && fi.isDir() ) ;
 }
 
-void PlotMainWindow::savePdf(const QString& fname)
+void PlotMainWindow::savePdf(const QString& fname, bool isVectorizePdf)
 {
     if ( ! fname.isEmpty() ) {
-        _plotBookView->savePdf(fname);
+        _plotBookView->savePdf(fname, isVectorizePdf);
     }
 }
 
-void PlotMainWindow::_savePdf()
+void PlotMainWindow::_savePdf(bool isVectorizedPdf)
 {
     QString fname = QFileDialog::getSaveFileName(this,
                                                  QString("Save As PDF"),
@@ -255,8 +257,13 @@ void PlotMainWindow::_savePdf()
                                                  tr("files (*.pdf)"));
 
     if ( ! fname.isEmpty() ) {
-        _plotBookView->savePdf(fname);
+        _plotBookView->savePdf(fname, isVectorizedPdf);
     }
+}
+
+void PlotMainWindow::_saveVectorPdf()
+{
+    _savePdf(true);
 }
 
 void PlotMainWindow::_startTimeChanged(double startTime)

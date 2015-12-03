@@ -7,7 +7,9 @@
 #include <QDebug>
 #include "libsnapdata/timeit_linux.h"
 
-PlotBookView::PlotBookView(PlotBookModel *plotModel, const QStringList &titles, QWidget *parent) :
+PlotBookView::PlotBookView(PlotBookModel *plotModel,
+                           const QStringList &titles,
+                           QWidget *parent) :
     QAbstractItemView(parent),
     _titles(titles),
     _plotModel(plotModel),
@@ -152,15 +154,17 @@ void PlotBookView::setCurrentPage(const QModelIndex& pageIdx)
 
 }
 
-bool PlotBookView::savePdf(const QString &fileName)
+// savePdf will not vectorize if there are over a max number of curves (50)
+bool PlotBookView::savePdf(const QString &fileName, bool isVectorizePdf)
 {
-    bool isVectorize = true;
+    bool isVectorize = isVectorizePdf;
+
     for ( int pageId = 0; pageId < _pages.size(); ++pageId) {
         QWidget* page = _pages.at(pageId);
         QVector<Plot*> plots = _page2Plots.value(page);
         foreach (Plot* plot, plots ) {
             int nCurves = plot->axisRect()->curveCount();
-            if ( nCurves > 10 ) {
+            if ( nCurves > 50 ) {
                 isVectorize = false;
                 break;
             }
@@ -169,10 +173,7 @@ bool PlotBookView::savePdf(const QString &fileName)
 
     bool ret = false;
     if ( isVectorize ) {
-        // Vectorizing causes huge pdfs. Use pixmaps for now
-        // but leave in hook for vectorizing.
-        //ret = _savePdfVectorized(fileName);
-        ret = _savePdfPixmapped(fileName);
+        ret = _savePdfVectorized(fileName);
     } else {
         ret = _savePdfPixmapped(fileName);
     }

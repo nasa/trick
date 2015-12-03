@@ -32,7 +32,7 @@ public:
     virtual void setSelectionModel(QItemSelectionModel* selectionModel);
     QModelIndex currentPageIndex();
     void setCurrentPage(const QModelIndex &pageIdx);
-    bool savePdf(const QString& fileName);
+    bool savePdf(const QString& fileName, bool isVectorizePdf);
     void showCurveDiff(bool isShow) ;
     void replot();
 
