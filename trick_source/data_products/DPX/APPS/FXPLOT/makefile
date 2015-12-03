@@ -22,7 +22,7 @@ endif
 
 ifeq ($(TRICK_HOST_TYPE), Darwin)
      INCDIRS += -I/usr/X11/include
-     XLIBS = -L${MOTIF_HOME}/lib -lXm -L/usr/X11R6/lib -lXt -lX11
+     XLIBS = -L${MOTIF_HOME}/lib -lXm -L/usr/X11R6/lib -L/usr/X11/lib -lXt -lX11
 else
      ifneq (${MOTIF_HOME},/usr)
          XLIBS = -L${MOTIF_HOME}/lib64 -L${MOTIF_HOME}/lib
