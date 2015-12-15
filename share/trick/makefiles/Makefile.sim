@@ -45,7 +45,7 @@ ${TRICK_LIB_DIR}/libtrick.a:
 	@exit -1
 
 # CP creates S_source.hh required for ICG and SWIG processing
-S_source.hh : S_define | build
+S_source.hh $(CURDIR)/build/S_define.lib_deps : S_define | build
 	$(PRINT_CP)
 	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/configuration_processor $(TRICK_CPFLAGS)
 
@@ -68,7 +68,7 @@ $(CURDIR)/build/S_define.deps :
 	$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_SFLAGS) $(TRICK_SYSTEM_SFLAGS) -M -MT S_source.hh -MF build/S_define.deps -x c++ S_define
 
 # Create makefile for source code
-$(CURDIR)/build/Makefile_src: | $(CURDIR)/build/Makefile_io_src
+$(CURDIR)/build/Makefile_src: | $(CURDIR)/build/Makefile_io_src $(CURDIR)/build/S_define.lib_deps
 	$(PRINT_MAKEFILE_SRC)
 	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/make_makefile_src $?
 

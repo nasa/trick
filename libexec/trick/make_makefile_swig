@@ -116,9 +116,18 @@ sub read_files_to_process() {
     }
 
     open FILE, "build/ICG_ext_lib" or die 'could not open build/ICG_ext_lib' ;
-    @ext_lib_files = <FILE> ;
+    my @unfiltered_ext_lib_files = <FILE> ;
+    @unfiltered_ext_lib_files = <FILE> ;
     close FILE ;
-    chomp @ext_lib_files ;
+    chomp @unfiltered_ext_lib_files ;
+
+    foreach my $e ( @unfiltered_ext_lib_files ) {
+        $e = abs_path(dirname($e)) . "/" . basename($e) ;
+        if ( exists $compiler_file_list{$e} ) {
+            push @ext_lib_files , $e ;
+        }
+    }
+
 }
 
 sub make_swig_makefile() {
@@ -289,7 +298,7 @@ LINK_OBJECTS += \$(SWIG_MODULE_OBJECTS)
     print MAKEFILE "S_main: \$(TRICK_FIXED_PYTHON)\n\n" ;
 
     print MAKEFILE "\$(TRICK_FIXED_PYTHON) : $swig_sim_dir/\% : \${TRICK_HOME}/share/trick/swig/\%\n" ;
-    print MAKEFILE "\t\$(ECHO_CMD)/bin/cp \$< \$@\n\n" ;
+    print MAKEFILE "\t\$(ECHO_CMD)/bin/cp -f \$< \$@\n\n" ;
 
     foreach (keys %swig_dirs) {
         print MAKEFILE "$_:\n" ;
