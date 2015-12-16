@@ -626,8 +626,8 @@ BC635_HOME
 TPROCTE_HOME
 DMTCP_HOME
 HDF5_HOME
-LLVM_CONFIG
 CLANG
+LLVM_CONFIG
 LLVM_HOME
 PYTHON_EXTRA_LDFLAGS
 PYTHON_EXTRA_LIBS
@@ -5372,51 +5372,6 @@ fi
 
 
 
-# Extract the first word of "clang", so it can be a program name with args.
-set dummy clang; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_path_CLANG+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  case $CLANG in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_CLANG="$CLANG" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-as_dummy=""$LLVM_HOME/bin:/bin:/usr/bin:/usr/local/bin:/sw/bin""
-for as_dir in $as_dummy
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_path_CLANG="$as_dir/$ac_word$ac_exec_ext"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  test -z "$ac_cv_path_CLANG" && ac_cv_path_CLANG="noclang"
-  ;;
-esac
-fi
-CLANG=$ac_cv_path_CLANG
-if test -n "$CLANG"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $CLANG" >&5
-$as_echo "$CLANG" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-if test "$ac_cv_path_CLANG" = "noclang"; then :
-  as_fn_error $? "could not find clang" "$LINENO" 5
-fi
 # Extract the first word of "llvm-config", so it can be a program name with args.
 set dummy llvm-config; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
@@ -5463,6 +5418,7 @@ if test "$ac_cv_path_LLVM_CONFIG" = "no-llvm-config"; then :
   as_fn_error $? "could not find clang" "$LINENO" 5
 fi
 LLVM_LIB_DIR=`$LLVM_CONFIG --libdir`
+LLVM_BIN_DIR=`$LLVM_CONFIG --bindir`
 as_ac_File=`$as_echo "ac_cv_file_$LLVM_LIB_DIR/libLLVMSupport.a" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $LLVM_LIB_DIR/libLLVMSupport.a" >&5
 $as_echo_n "checking for $LLVM_LIB_DIR/libLLVMSupport.a... " >&6; }
@@ -5487,6 +5443,51 @@ else
 
 fi
 
+# Extract the first word of "clang", so it can be a program name with args.
+set dummy clang; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_CLANG+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $CLANG in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_CLANG="$CLANG" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy=""$LLVM_BIN_DIR:$LLVM_HOME/bin:/bin:/usr/bin:/usr/local/bin:/sw/bin""
+for as_dir in $as_dummy
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_CLANG="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  test -z "$ac_cv_path_CLANG" && ac_cv_path_CLANG="noclang"
+  ;;
+esac
+fi
+CLANG=$ac_cv_path_CLANG
+if test -n "$CLANG"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $CLANG" >&5
+$as_echo "$CLANG" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+if test "$ac_cv_path_CLANG" = "noclang"; then :
+  as_fn_error $? "could not find clang" "$LINENO" 5
+fi
 
 
 
@@ -5661,7 +5662,7 @@ $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_File"\" = x"yes"; then :
 
 else
-  as_fn_error $? "could not find $GSL_HOME/sample/bcuser.h" "$LINENO" 5
+  as_fn_error $? "could not find $GSL_HOME/include/gsl" "$LINENO" 5
 
 fi
 

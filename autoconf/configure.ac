@@ -152,15 +152,16 @@ AX_PYTHON_DEVEL([>='2.5'])
 
 dnl process the optional --with-llvm command line arguments
 AX_LLVM_HOME([])
-AC_PATH_PROG(CLANG, clang, noclang, "$LLVM_HOME/bin:/bin:/usr/bin:/usr/local/bin:/sw/bin")
-AS_IF([test "$ac_cv_path_CLANG" = "noclang"],AC_MSG_ERROR([could not find clang]),[])
 AC_PATH_PROG(LLVM_CONFIG, llvm-config, no-llvm-config, "$LLVM_HOME/bin:/bin:/usr/bin:/usr/local/bin:/sw/bin")
 AS_IF([test "$ac_cv_path_LLVM_CONFIG" = "no-llvm-config"],AC_MSG_ERROR([could not find clang]),[])
 LLVM_LIB_DIR=`$LLVM_CONFIG --libdir`
+LLVM_BIN_DIR=`$LLVM_CONFIG --bindir`
 AC_CHECK_FILE([$LLVM_LIB_DIR/libLLVMSupport.a],
   [],
   AC_MSG_ERROR([could not find clang library files in $LLVM_LIB_DIR])
 )
+AC_PATH_PROG(CLANG, clang, noclang, "$LLVM_BIN_DIR:$LLVM_HOME/bin:/bin:/usr/bin:/usr/local/bin:/sw/bin")
+AS_IF([test "$ac_cv_path_CLANG" = "noclang"],AC_MSG_ERROR([could not find clang]),[])
 
 dnl process the other optional command line arguments
 AX_HDF5_HOME([])
