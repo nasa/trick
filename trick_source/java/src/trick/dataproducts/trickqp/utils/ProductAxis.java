@@ -123,6 +123,7 @@ public class ProductAxis {
     /**
      * Checks to see if this axis is empty. 
      * Meaning it doesn't have any attributes or elements XML wise.
+     * @return true or false
      */
     public boolean isEmptyNode() {
     	if ((label == null || label.isEmpty()) && (format == null || format.isEmpty())) {

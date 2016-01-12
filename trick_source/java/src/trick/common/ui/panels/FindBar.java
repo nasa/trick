@@ -86,12 +86,14 @@ public class FindBar extends JXFindBar implements ActionListener{
 	//========================================
 	/**
 	 * Gets to see if case sensitive is checked. 
+         * @return true or false
 	 */
 	public boolean isCaseSensitive() {
 		return getPatternModel().isCaseSensitive();
 	}
 	/**
 	 * Sets whether to have the options as {@link JXFindPanel}.
+         * @param b true or false
 	 */
 	public void setOptions(boolean b) {
 		hasOptions = b;
@@ -100,6 +102,7 @@ public class FindBar extends JXFindBar implements ActionListener{
 	/**
 	 * Updates the searchField that is defined in parent class {@link AbstractPatternPanel}
 	 * if there is initial search text is defined.
+         * @param searchText searchText
 	 */
 	public void updateSearchField(String searchText) {
 		initialSearchText = searchText;
@@ -110,6 +113,7 @@ public class FindBar extends JXFindBar implements ActionListener{
 	
 	/** 
 	 * Gets the current search text shown in searchField.
+         * @return the text
 	 */
 	public String getSearchText() {
 		if (searchField != null) {

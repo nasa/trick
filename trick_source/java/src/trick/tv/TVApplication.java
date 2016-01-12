@@ -1376,6 +1376,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
      * checks the validity of the variable name
      *
      * @param name the name in question
+     * @throws InvalidVariableNameException InvalidVariableNameException
      */
     protected void validateVariable(String name) throws InvalidVariableNameException {
         name = name.replaceAll("\\s", "");
@@ -1421,6 +1422,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
      * @param name the variable's name
      *
      * @return the list of generated variables
+     * @throws InvalidVariableNameException InvalidVariableNameException
      */
     protected List<Variable<? extends TrickViewFluent>> getVariables(String name) throws InvalidVariableNameException {
         validateVariable(name);
@@ -1828,6 +1830,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
      * saves the variable table and strip charts to <code>file</code>
      *
      * @param file the target
+     * @throws JAXBException JAXBException
      */
     protected void saveState(File file) throws JAXBException {
         marshaller.marshal(new JAXBElement<TVBean>(new QName("trickView"), TVBean.class, new TVBean(this)), file);

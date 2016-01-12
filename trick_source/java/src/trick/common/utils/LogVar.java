@@ -151,6 +151,7 @@ public class LogVar implements Comparable<LogVar>, Serializable {
     
     /**
      * Sets the isFromLog flag.
+     * @param b    value to set flag to.
      */
     public void setIsFromLog(boolean b) {
     	isFromLog = b;
@@ -293,6 +294,7 @@ public class LogVar implements Comparable<LogVar>, Serializable {
 
     /**
      * Gets the flag of isFromLog.
+     * @return true or false.
      */
     public boolean getIsFromLog() {
     	return isFromLog;

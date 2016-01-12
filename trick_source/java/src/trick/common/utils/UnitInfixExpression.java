@@ -53,6 +53,7 @@ public class UnitInfixExpression {
     //========================================
 	/**
 	 * Returns a derived unit based on for the unit expression.
+         * @return a derived unit based on for the unit expression
 	 */
 	public UnitType.Unit getUnit() {
 		UnitType.Unit ret = null;

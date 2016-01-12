@@ -113,6 +113,8 @@ public class ProductTable extends CommonProduct {
     
     /**
      * Gets data for GUI display for the specified order number.
+     * @param index the index into the array
+     * @return the object pointed to by the index
      */
     public Object getData(int index) {    	
     	Object ret = null;
@@ -221,6 +223,7 @@ public class ProductTable extends CommonProduct {
     /**
      * Check to see if the table is valid. A table is not considered to be valid if it doesn't 
      * have at least one valid column.
+     * @return true or false
      */
     public boolean isValid() {
         boolean allValid = false;

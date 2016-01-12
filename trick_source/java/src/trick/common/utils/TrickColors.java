@@ -99,6 +99,8 @@ public class TrickColors {
 
     /** 
      * Returns a color with the specified case-insensitive name.
+     *  @param color the color object
+     *  @return the string of the color
      */
     public static String getName(Color color) {
         return color2name.get(color);
@@ -106,6 +108,8 @@ public class TrickColors {
 
     /** 
      * Returns a color with the specified case-insensitive name.
+     *  @param name the color name string
+     *  @return the Color object
      */
     public static Color getColor(String name) {
         return name2color.get(name.toLowerCase());
@@ -113,6 +117,7 @@ public class TrickColors {
 
     /** 
      * Returns a collection of all color names.
+     *  @return the collection of all colors
      */
     public static Collection<String> colors() {
         return name2color.keySet();

@@ -265,7 +265,7 @@ public abstract class TrickApplication extends SingleFrameApplication implements
 
     /**
      * Helper method for changing the look and feel for the application.
-     *
+     * @param lafClassName string of look and feel to use.
      */
     protected void changeLookAndFeel(String lafClassName) {
         if (lafClassName != null) {
@@ -500,6 +500,7 @@ public abstract class TrickApplication extends SingleFrameApplication implements
      *
      * @param menu        An instance of {@link JMenu} which needs adding radio button menu itmes for.
      * @param actions    A list of actions that are for menu items.
+     * @return the menu items created
      */
     protected JRadioButtonMenuItem[] addRadioButtonMenuItems(JMenu menu, String[] actions) {
         JRadioButtonMenuItem[] menuItems = new JRadioButtonMenuItem[actions.length];
@@ -579,6 +580,7 @@ public abstract class TrickApplication extends SingleFrameApplication implements
      * Creates a checkbox menu item via the specified action name
      *
      * @param actionName the name of the action
+     * @param b true or false
      *
      * @return the checkbox menu item
      */
@@ -601,6 +603,7 @@ public abstract class TrickApplication extends SingleFrameApplication implements
      * resource property file from which any sub-class can inherit. All sub-class
      * needs to have its own {@code Application.id}, {@code Application.title}, and
      * {@code Application.description} to distinguish it from others.
+     * @return the about box
      */
     protected JDialog createAboutBox() {
         JPanel panel = new JPanel(new GridBagLayout());

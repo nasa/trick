@@ -50,6 +50,9 @@ public class VariableServerConnection implements AutoCloseable {
      *
      * @param host Variable Server machine name
      * @param port Variable Server port number
+     * @throws UnknownHostException UnknownHostException
+     * @throws IOException IOException
+     * @throws SecurityException SecurityException
      */
     public VariableServerConnection(String host, int port) throws UnknownHostException, IOException, SecurityException {
         socket = new Socket(host, port);
@@ -64,6 +67,7 @@ public class VariableServerConnection implements AutoCloseable {
      * given command.
      *
      * @param command the Variable Server command to be sent
+     * @throws IOException IOException
      */
     public void put(String command) throws IOException {
         outputStream.writeBytes(command + "\n");
@@ -75,6 +79,7 @@ public class VariableServerConnection implements AutoCloseable {
      * automatically appended. The buffer is not flushed.
      *
      * @param command the Variable Server command to be written
+     * @throws IOException IOException
      */
     public void write(String command) throws IOException {
         outputStream.writeBytes(command + "\n");
@@ -83,6 +88,7 @@ public class VariableServerConnection implements AutoCloseable {
     /**
      * flushes the buffer, sending any pending commands to the Variable
      * Server
+     * @throws IOException IOException
      */
     public void flush() throws IOException {
         outputStream.flush();
@@ -90,6 +96,7 @@ public class VariableServerConnection implements AutoCloseable {
 
     /**
      * commands the Variable Server to send variable data in ASCII
+     * @throws IOException IOException
      */
     public void setAscii() throws IOException {
         if (dataMode != DataMode.ASCII) {
@@ -100,6 +107,7 @@ public class VariableServerConnection implements AutoCloseable {
 
     /**
      * commands the Variable Server to send variable data in binary
+     * @throws IOException IOException
      */
     public void setBinary() throws IOException {
         if (dataMode != DataMode.BINARY) {
@@ -111,6 +119,7 @@ public class VariableServerConnection implements AutoCloseable {
     /**
      * commands the Variable Server to send variable data in binary and to
      * omit names
+     * @throws IOException IOException
      */
     public void setBinaryNoNames() throws IOException {
         if (dataMode != DataMode.BINARY_NO_NAMES) {
@@ -121,6 +130,7 @@ public class VariableServerConnection implements AutoCloseable {
 
     /**
      * sets the Variable Server to synchronized mode
+     * @throws IOException IOException
      */
     public void setSync() throws IOException {
         if (!sync) {
@@ -131,6 +141,7 @@ public class VariableServerConnection implements AutoCloseable {
 
     /**
      * commands the Variable Server to stop sending data
+     * @throws IOException IOException
      */
     public void pause() throws IOException {
         put("trick.var_pause()");
@@ -139,6 +150,7 @@ public class VariableServerConnection implements AutoCloseable {
 
     /**
      * commands the Variable Server to resume sending data
+     * @throws IOException IOException
      */
     public void unpause() throws IOException {
         put("trick.var_unpause()");
@@ -148,7 +160,7 @@ public class VariableServerConnection implements AutoCloseable {
     /**
      * returns the paused state of the Variable Server
      *
-     * return whether or not the Variable Server is paused
+     * @return whether or not the Variable Server is paused
      */
     public boolean isPaused() {
         return isPaused;
@@ -158,6 +170,7 @@ public class VariableServerConnection implements AutoCloseable {
      * adds the named variable to the Variable Server
      *
      * @param name the name of the variable to be added
+     * @throws IOException IOException
      */
     public void add(String name) throws IOException {
         put("trick.var_add(\"" + name + "\")");
@@ -168,6 +181,7 @@ public class VariableServerConnection implements AutoCloseable {
      *
      * @param name the name of the variable to be added
      * @param units the units to use
+     * @throws IOException IOException
      */
     public void add(String name, String units) throws IOException {
         boolean invalidUnits = units == null || units.isEmpty();
@@ -178,6 +192,7 @@ public class VariableServerConnection implements AutoCloseable {
      * removes the named variable from the Variable Server
      *
      * @param name the name of the variable to be removeed
+     * @throws IOException IOException
      */
     public void remove(String name) throws IOException {
         put("trick.var_remove(\"" + name + "\")");
@@ -185,6 +200,7 @@ public class VariableServerConnection implements AutoCloseable {
 
     /**
      * clears all variables from the Variable Server
+     * @throws IOException IOException
      */
     public void clear() throws IOException {
         put("trick.var_clear()");
@@ -194,6 +210,7 @@ public class VariableServerConnection implements AutoCloseable {
      * sets the period at which the Variable Server sends updates
      *
      * @param period the update period
+     * @throws IOException IOException
      */
     public void setCycle(double period) throws IOException {
         put("trick.var_cycle(" + period + ")");
@@ -201,6 +218,7 @@ public class VariableServerConnection implements AutoCloseable {
 
     /**
      * requests a single update from the Variable Server
+     * @throws IOException IOException
      */
     public void poll() throws IOException {
         put("trick.var_send()");
@@ -208,6 +226,7 @@ public class VariableServerConnection implements AutoCloseable {
 
     /**
      * attempts to resolve all invalid variables
+     * @throws IOException IOException
      */
     public void resolveInvalidReferences() throws IOException {
         put("trick.var_retry_bad_ref()");
@@ -215,6 +234,7 @@ public class VariableServerConnection implements AutoCloseable {
 
     /**
      * sends a freeze command to the simulation
+     * @throws IOException IOException
      */
     public void freeze() throws IOException {
         put("trick.exec_freeze()");
@@ -222,6 +242,7 @@ public class VariableServerConnection implements AutoCloseable {
 
     /**
      * sends a run command to the simulation
+     * @throws IOException IOException
      */
     public void run() throws IOException {
         put("trick.exec_run()");
@@ -229,6 +250,8 @@ public class VariableServerConnection implements AutoCloseable {
 
     /**
      * sends an enable or disable real time command to the simulation
+     * @param enabled true or false
+     * @throws IOException IOException
      */
     public void setRealTimeEnabled(boolean enabled) throws IOException {
         put("trick.real_time_" + (enabled ? "enable" : "disable") + "()");
@@ -238,6 +261,7 @@ public class VariableServerConnection implements AutoCloseable {
      * sets the Variable Server's debug level
      *
      * @param level the debug level
+     * @throws IOException IOException
      */
     public void setDebugLevel(int level) throws IOException {
         put("trick.var_debug(" + level + ")");
@@ -247,6 +271,7 @@ public class VariableServerConnection implements AutoCloseable {
      * sets this client's tag
      *
      * @param tag the tag that the Variable Server will associate with this client
+     * @throws IOException IOException
      */
     public void setClientTag(String tag) throws IOException {
         put("trick.var_set_client_tag(\"" + tag + "\")");
@@ -287,6 +312,7 @@ public class VariableServerConnection implements AutoCloseable {
      * @param maxCount maximum numbers of characters to read
      *
      * @return the number of characters read, or -1 if the end of the stream is reached
+     * @throws IOException IOException
      */
     public int read(char[] buffer, int index, int maxCount) throws IOException {
         return inputStream.read(buffer, index, maxCount);
@@ -296,6 +322,7 @@ public class VariableServerConnection implements AutoCloseable {
      * reads a line of data from the Variable Server. Values are tab-delimited.
      *
      * @return a tab-delimited line of data
+     * @throws IOException IOException
      */
     public String get() throws IOException {
         return get(1);
@@ -305,7 +332,9 @@ public class VariableServerConnection implements AutoCloseable {
      * reads the specified number of variables from the Variable Server. This
      * supports multiple binary packets.
      *
+     * @param  num_variables num variables
      * @return the tab-delimited data
+     * @throws IOException IOException
      */
     public String get(int num_variables) throws IOException {
       // num_variables (optional) is number of variables you expect to get (needed for binary multiple packet support)
@@ -421,6 +450,7 @@ public class VariableServerConnection implements AutoCloseable {
 
     /**
      * flushes any data that is still on the input stream
+     * @throws IOException IOException
      */
     public void flushInput() throws IOException {
         byte[] buffer = new byte[maximumPacketSize];
@@ -434,6 +464,7 @@ public class VariableServerConnection implements AutoCloseable {
 
     /**
      * closes the connection to the Variable Server
+     * @throws IOException IOException
      */
     public void close() throws IOException {
         try {

@@ -98,6 +98,7 @@ public class NumberTextField extends JTextField {
 	//========================================	
 	/**
 	 * Limits the text field only for integers.
+         * @param intOnly true or false
 	 */
 	public void setIntOnly(boolean intOnly) {
 		this.intOnly = intOnly;

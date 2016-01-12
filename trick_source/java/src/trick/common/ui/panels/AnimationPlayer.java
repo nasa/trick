@@ -58,6 +58,7 @@ public class AnimationPlayer extends JPanel {
 	//========================================
 	/**
 	 *	Default constructor.
+         * @param fileName name of file
 	 */
 	public AnimationPlayer(String fileName) {
 		animationFile = fileName;

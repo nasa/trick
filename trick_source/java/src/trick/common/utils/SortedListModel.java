@@ -124,6 +124,7 @@ public class SortedListModel extends AbstractListModel {
     
     /**
      * Adds one element to the list if it is not already present.
+     * @param element        The element to add to the list
      */
     public void add(Object element) {
         if (set.add(element)) {
@@ -133,6 +134,7 @@ public class SortedListModel extends AbstractListModel {
 
     /**
      * Adds all of the elements to the list.
+     * @param elements       All of the elements to add to the list
      */
     public void addAll(Object elements[]) {
         Collection<Object> c = Arrays.asList(elements);

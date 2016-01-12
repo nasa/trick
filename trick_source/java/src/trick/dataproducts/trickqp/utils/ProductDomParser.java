@@ -37,6 +37,11 @@ public class ProductDomParser {
     //========================================
     /**
      * Sets up the object data for based on the root element.
+     * @param file the file name to read
+     * @return the top level product object
+     * @throws ParserConfigurationException ParserConfigurationException
+     * @throws SAXException SAXException
+     * @throws IOException IOException
      */
     public static Product parse(File file)
      throws ParserConfigurationException, SAXException, IOException {

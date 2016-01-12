@@ -12,7 +12,7 @@ DEST_DIR  = ${BUILD_DIR}/classes
 LIB_DIR   = ${TRICK_HOME}/$(LIBEXEC)/trick/java/lib
 DIST_DIR  = ${TRICK_HOME}/$(LIBEXEC)/trick/java/dist
 RESOURCES_DIR  = ${TRICK_HOME}/$(LIBEXEC)/trick/java/resources
-DOCS_API_DIR   = docs/api
+DOCS_API_DIR   = ${TRICK_HOME}/share/doc/trick/java
 TEST_REPORTS_DIR = test/reports
 
 empty :=
@@ -47,11 +47,10 @@ ${RESOURCES_DIR}/trick_icon.png: ${SRC_DIR}/trick/common/resources/trick_icon.pn
 
 JAVA_DOC_LINKS = \
  -link "http://docs.oracle.com/javase/6/docs/api/" \
- -link "http://www.jdocs.com/swingx/1.0/overview-summary.html" \
  -link "http://www.jfree.org/jfreechart/api/javadoc/" \
  -link "http://junit.sourceforge.net/javadoc/"
 
-docs: ${DOCS_API_DIR}
+javadoc: ${DOCS_API_DIR}
 	javadoc -d ${DOCS_API_DIR} -classpath ${CLASS_PATH} -sourcepath ${SRC_DIR} -windowtitle "Trick GUI API" ${JAVA_DOC_LINKS} trick ${SRC_FILES}
 
 clean:

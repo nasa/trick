@@ -71,6 +71,8 @@ public class Variable<T extends VariableServerFluent> implements Serializable, C
      * commands the Variable Server to set the variable's value to <code>value</code>
      *
      * @param value the value to be sent
+     * @param variableServerConnection the socket to send data to.
+     * @throws IOException IOException
      */
     public void sendValueToVariableServer(T value,
       VariableServerConnection variableServerConnection) throws IOException {
@@ -82,6 +84,8 @@ public class Variable<T extends VariableServerFluent> implements Serializable, C
 
     /**
      * commands the Variable Server to set the variable's value to its current value
+     * @param variableServerConnection the socket to send data to.
+     * @throws IOException IOException
      */
     public void sendValueToVariableServer(VariableServerConnection variableServerConnection)
       throws IOException {
@@ -92,6 +96,8 @@ public class Variable<T extends VariableServerFluent> implements Serializable, C
      * commands the Variable Server to set the variable's units to <code>units</code>
      *
      * @param units the units to be sent
+     * @param variableServerConnection the socket to send data to.
+     * @throws IOException IOException
      */
     public void sendUnitsToVariableServer(String units,
       VariableServerConnection variableServerConnection) throws IOException {
@@ -102,6 +108,8 @@ public class Variable<T extends VariableServerFluent> implements Serializable, C
 
     /**
      * commands the Variable Server to set the variable's units to its current units
+     * @param variableServerConnection the socket to send data to.
+     * @throws IOException IOException
      */
     public void sendUnitsToVariableServer(VariableServerConnection variableServerConnection)
       throws IOException {

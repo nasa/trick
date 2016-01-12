@@ -65,6 +65,7 @@ public class ProductPage extends CommonProduct {
     //========================================
     /**
      * Sets the number shown plots horizontally.
+     * @param hcellsStr number of horizontal cells
      */
     public void setHcells(String hcellsStr) {
     	try {
@@ -78,6 +79,7 @@ public class ProductPage extends CommonProduct {
     
     /**
      * Sets the number shown plots vertically.
+     * @param vcellsStr number of vertical cells
      */
     public void setVcells(String vcellsStr) {
     	try {
@@ -91,6 +93,7 @@ public class ProductPage extends CommonProduct {
     
     /**
      * Gets the desired plots numbers shown horizontally.
+     * @return number of horizontal cells
      */
     public Integer getHcells() {
     	return hcells;
@@ -98,6 +101,7 @@ public class ProductPage extends CommonProduct {
     
     /** 
      * Gets the desired plots numbers shown vertically.
+     * @return number of vertical cells
      */
     public Integer getVcells() {
     	return vcells;
@@ -172,6 +176,8 @@ public class ProductPage extends CommonProduct {
     
     /**
      * Gets data for GUI display for the specified order number.
+     * @param index index into list of objects
+     * @return the object pointed to by index
      */
     public Object getData(int index) {    	
     	Object ret = null;
@@ -262,6 +268,7 @@ public class ProductPage extends CommonProduct {
     /**
      * Returns the desired text for any {@link ProductPage} instance.
      * It is for GUI displaying.
+     * @return title of the page
      */
     @Override
 	public String toString() {
@@ -275,6 +282,7 @@ public class ProductPage extends CommonProduct {
     /**
      * Checks to see if the page is valid. A page is not considered to be valid if it doesn't
      * have at least one valid plot.
+     * @return true or false
      */
     public boolean isValid() {
         boolean allValid = false;

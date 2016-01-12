@@ -175,7 +175,7 @@ public class TrickChartFrame extends TrickFrame {
     
     /**
      * Helper method for saving all charts to a PDF file.
-     * @throws IOException
+     * @throws IOException IOException
      */
     public void saveChartsAsPDF() throws IOException {
     	File file = UIUtils.chooseSaveFile(null, "plot_", "pdf", this);
@@ -205,7 +205,7 @@ public class TrickChartFrame extends TrickFrame {
      * 
      * @param pdfContent 	an object containing the user positioned text and graphic contents of a page.
      * @param mapper		mapping between AWT fonts and PDF fonts.
-     * @throws IOException	
+     * @throws IOException IOException
      */
     public void writePDFPage(PdfContentByte pdfContent, FontMapper mapper) throws IOException {
     	if (pdfContent == null) {

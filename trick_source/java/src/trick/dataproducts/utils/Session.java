@@ -209,7 +209,7 @@ public class Session {
     /**
      * Sets the device file name if the device if File.
      *
-     * @param deviceFileName
+     * @param deviceFileName device name string
      *
      * @see #DEVICE_OPTIONS
      *

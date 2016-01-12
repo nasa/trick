@@ -58,6 +58,7 @@ public class SessionRunTransferHandler extends TransferHandler {
     //========================================
     /**
      * Default constructor.
+     * @param list not sure
      */
     public SessionRunTransferHandler(JList list) {
     	this.list = list;

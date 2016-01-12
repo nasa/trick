@@ -469,7 +469,9 @@ public class MonteMonitorApplication extends RunTimeTrickApplication {
         return menuBar;
     }
 
-    /** main method for this application */
+    /** main method for this application 
+     * @param args command line arguments
+     */
     public static void main(String[] args) {
         Application.launch(MonteMonitorApplication.class, args);
     }

@@ -82,6 +82,8 @@ public class SimControlActionController {
 	//========================================
 	/**
 	 * Invoked when the user selects Freeze At ... from Actions menu. 
+         * @param execOutTime time to freeze at
+         * @param dialogParent dialog parent
 	 */
 	public void handleFreezeAt(double execOutTime, Component dialogParent) {
 		freeze(execOutTime, 0, "Freeze sim at (enter RET):", "Freeze sim at specified time", dialogParent);
@@ -135,6 +137,8 @@ public class SimControlActionController {
 	
 	/**
 	 * Invoked when the user selects Freeze In ... from Actions menu. 
+         * @param execOutTime time to freeze in
+         * @param dialogParent dialog parent
 	 */
 	public void handleFreezeIn(double execOutTime, Component dialogParent) {
 		freeze(execOutTime, 1, "Freeze in this many seconds:", "Freeze sim in specified time", dialogParent);
@@ -142,6 +146,9 @@ public class SimControlActionController {
 	
 	/**
 	 * Invoked when the user selects Checkpoint Objects ... from Actions menu.
+         * @param dialogParent dialog parent
+         * @param initObjects list of objects to checkpoint
+         * @return list of objects to checkpoint
 	 */
 	public String handleCheckpointObjects(Component dialogParent, String initObjects) {
 		return (String)JOptionPane.showInputDialog(dialogParent,
@@ -155,6 +162,7 @@ public class SimControlActionController {
 	
 	/**
 	 * Invoked when the user selects Throttle ... from Actions menu. 
+         * @param dialogParent dialog parent
 	 */
 	public void handleThrottle(Component dialogParent) {
 		double newRatio = -1.0;
@@ -224,6 +232,7 @@ public class SimControlActionController {
 	
 	/**
 	 * Invoked when the users presses the Step button.
+         * @param debug_flag single step the sim
 	 */
     public void handleStep( int debug_flag ) {
         try {
@@ -240,6 +249,7 @@ public class SimControlActionController {
     
     /**
      * Invoked when the user presses the Data Rec On button.
+     * @param recording true or false
      */
     public void handleRecOnOff(boolean recording) {
         
@@ -268,6 +278,7 @@ public class SimControlActionController {
     
     /**
      * Invoked when the user presses the Freeze button.
+     * @param debug_flag value of debug 
      */
     public void handleFreeze( int debug_flag ) {
         try {               
@@ -282,6 +293,7 @@ public class SimControlActionController {
 	
 	/**
 	 * Invoked when the user presses Real Time button.
+         * @param isRealtime true or false
 	 */
 	public void handleRealtime(boolean isRealtime) {		
 		try {
@@ -297,6 +309,10 @@ public class SimControlActionController {
 	
 	/**
 	 * Invoked when the user presses Dump ASCII Chkpnt button.
+         * @param checkpointObjects list of objects to checkpoint
+         * @param dir directory to dump checkpoint
+         * @param fileName name of checkpoint file
+         * @param dialogParent dialogParent
 	 */
 	public void handleDumpChkpntASCII(String checkpointObjects, String dir, String fileName, Component dialogParent) {	
 		if (dir == null) {
@@ -327,6 +343,9 @@ public class SimControlActionController {
 	
 	/**
 	 * Invoked when the user presses Dump DMTCP Chkpnt button.
+         * @param dir directory to dump checkpoint
+         * @param fileName name of checkpoint file
+         * @param dialogParent dialogParent
 	 */
 	public void handleDumpDMTCPChkpnt(String dir, String fileName, Component dialogParent) {	
 
@@ -361,6 +380,8 @@ public class SimControlActionController {
 	
 	/**
 	 * Invoked when the user presses Load ASCII Chkpnt button.
+         * @param dir directory to load checkpoint
+         * @param dialogParent dialogParent
 	 */
 	public void handleLoadChkpnt(String dir, Component dialogParent) {		
 		// If the Sim Run dir is unknown, current dir will be used for the file chooser.

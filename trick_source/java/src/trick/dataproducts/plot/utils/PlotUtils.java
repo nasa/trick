@@ -186,6 +186,7 @@ public class PlotUtils {
      * Builds a {@link XYSeries} for x and y of the specified plot spec from the recorded data that is in a particular run directory.
      *
      * @param run   A {@link SessionRun} instance.
+     * @param page  A {@link ProductPage} instance.
      * @param plot  A {@link ProductPlot} instance.
      * @param xVar  The X variable.
      * @param yVar  The Y variable.

@@ -119,6 +119,7 @@ public class ProductVarcase {
     /**
      * Returns the desired text for any {@link ProductVarcase} instance.
      * It is for GUI displaying.
+     * @return "Varcase"
      */
     public String toString() {
     	return "Varcase";
@@ -127,6 +128,7 @@ public class ProductVarcase {
     /**
      * Check to see if the varcase is valid. A varcase is not considered to be valid if it doesn't 
      * have at least varX and varY both defined.
+     * @return true or false
      */
     public boolean isValid() {
         return (varX != null && varY != null);

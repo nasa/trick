@@ -244,6 +244,8 @@ public class ProductPlot extends CommonProduct {
     
     /**
      * Gets data for GUI display for the specified order number.
+     * @param index index into the list
+     * @return object pointed to by index
      */
     public Object getData(int index) {    	
     	Object ret = null;
@@ -554,6 +556,7 @@ public class ProductPlot extends CommonProduct {
     
     /**
      * Sets the maximum value for Y variable.
+     * @return Y max
      */
     public Double getYMax() {
     	return ymax;
@@ -685,6 +688,7 @@ public class ProductPlot extends CommonProduct {
     /**
      * Check to see if the plot is valid. A plot is not considered to be valid if it doesn't 
      * have at least one valid curve.
+     * @return true or false
      */
     public boolean isValid() {
         boolean allValid = false;

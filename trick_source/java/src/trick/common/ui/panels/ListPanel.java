@@ -76,6 +76,7 @@ public class ListPanel extends DataPanel implements ListSelectionListener{
     
     /**
      * Constructor with specified list model.
+     * @param model not sure
      */
     public ListPanel(AbstractListModel model) {
     	super();
@@ -216,6 +217,7 @@ public class ListPanel extends DataPanel implements ListSelectionListener{
 
     /**
      * Gets all selected data from the list.
+     * @return list of selected data
      */
     public Object[] getSelectedData() {
     	return dataList.getSelectedValues();
@@ -223,6 +225,7 @@ public class ListPanel extends DataPanel implements ListSelectionListener{
 
     /**
      * Gets the first selected value, or <code>null</code> if the selection is empty.
+     * @return first selected data
      */
     public Object getSelectedFirstData() {
     	return dataList.getSelectedValue();
@@ -230,6 +233,7 @@ public class ListPanel extends DataPanel implements ListSelectionListener{
 
     /**
      * Gets all data from the list.
+     * @return list of all data
      */
     public Object[] getAllData() {
     	if (dataListModel instanceof SortedListModel) {

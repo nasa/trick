@@ -171,6 +171,7 @@ public class Product extends CommonProduct {
     /**
      * Checks to see if the product is valid. A product node is considered to be valid if
      * it has at least one valid page or table.
+     * @return true or false
      */
     public boolean isValid() {
         boolean allValid = false;

@@ -68,8 +68,10 @@ public class TrickTableFrame extends TrickFrame {
      * returned by <code>JComponent.getDefaultLocale</code>.
      *
      * @param title the title for the frame
+     * @param iconImage icon image
      * @param sessionObject the {@link Session} object that contains where the table data is from
      * @param theTable the {@link ProductTable} instance that contains the table specs
+     * @throws HeadlessException HeadlessException
      * 
      */
     public TrickTableFrame(String title, Image iconImage, Session sessionObject, ProductTable theTable) throws HeadlessException {

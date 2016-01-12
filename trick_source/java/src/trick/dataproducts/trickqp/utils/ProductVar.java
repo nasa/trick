@@ -438,6 +438,8 @@ public class ProductVar {
 
     /**
      * Gets data for GUI display for the specified order number.
+     * @param index index into list
+     * @return object pointed to by index
      */
     public Object getData(int index) {
         Object ret = null;
@@ -626,6 +628,7 @@ public class ProductVar {
 
     /**
      * Gets the name.
+     * @return name
      */
     public String getName() {
         return name;
@@ -633,6 +636,7 @@ public class ProductVar {
 
     /**
      * Gets the short name that is the text after the last dot.
+     * @return name
      */
     public String getShortName() {
     	String shortName = name;
@@ -719,7 +723,8 @@ public class ProductVar {
     /**
      * Gets the var symbol shape based on the symbol style and size.
      * If symbol style is not specified, it size is ignored.
-     * 
+     *
+     * @param symbolStyle sybol style to use
      * @return The var symbol shape instance {@link Shape}.
      */
     public Shape getSymbolShape(SymbolStyle symbolStyle) {

@@ -533,6 +533,7 @@ public class TrickQPApplication extends DataProductsApplication {
     
     /**
      * Gets the instance of the action controller.
+     * @return the action controller
      */
     public TrickQPActionController getActionController() {
         return actionController;
@@ -572,6 +573,9 @@ public class TrickQPApplication extends DataProductsApplication {
     
     /**
      * Main method for this application.
+     * @param args command line arguments
+     * @throws RemoteException RemoteException
+     * @throws MalformedURLException MalformedURLException
      */
     public static void main(String[] args) throws RemoteException, MalformedURLException {
         Application.launch(TrickQPApplication.class, args);

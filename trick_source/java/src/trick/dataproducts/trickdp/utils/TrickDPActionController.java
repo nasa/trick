@@ -343,6 +343,7 @@ public class TrickDPActionController {
     
     /**
      * Invoked when Edit DP is selected.
+     * @param dpFile name of file to edit
      */
     public void handleEditDP(String dpFile) {
         if (dpFile == null) {
@@ -401,6 +402,7 @@ public class TrickDPActionController {
     /**
      * Helper method for launching quick plot. The previous subprocess of trick quickplot 
      * application will be destroyed before another one is created.
+     * @param initialArgs argument list to send to QP
      * 
      */
      public void launchQP(String[] initialArgs) {

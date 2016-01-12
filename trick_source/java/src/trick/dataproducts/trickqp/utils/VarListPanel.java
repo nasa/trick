@@ -129,6 +129,8 @@ public class VarListPanel extends ListPanel {
     
     /**
      * Gets the data with same name as given object from the list.
+     * @param obj object go get
+     * @return the object
      */
     public Object getElement(Object obj) {
         return ((SortedListModel)dataListModel).getElement(obj);

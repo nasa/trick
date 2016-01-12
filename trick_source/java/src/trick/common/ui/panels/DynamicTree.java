@@ -171,6 +171,7 @@ public class DynamicTree extends DataPanel {
 	 * 
 	 * @param parent	The parent {@link DefaultMutableTreeNode}.
 	 * @param child		The child object.
+	 * @return the top of the tree
 	 */
 	public DefaultMutableTreeNode addObject(DefaultMutableTreeNode parent, Object child) {
 		return addObject(parent, child, false);
@@ -182,6 +183,7 @@ public class DynamicTree extends DataPanel {
 	 * @param parent			The parent {@link DefaultMutableTreeNode}.
 	 * @param child				The child object.
 	 * @param shouldBeVisible	<code>true</code> the node should be visible, <code>false</code> otherwise.
+	 * @return the top of the tree
 	 */
 	public DefaultMutableTreeNode addObject(DefaultMutableTreeNode parent, Object child, boolean shouldBeVisible) {
 		DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(child);
@@ -261,7 +263,7 @@ public class DynamicTree extends DataPanel {
 	
 	/**
 	 * Gets all selected nodes. 
-	 * 
+	 * @return list of selected nodes.
 	 */
 	public ArrayList<DefaultMutableTreeNode> getSelectedNodes() {
 		ArrayList<DefaultMutableTreeNode> selectedNodes = null;

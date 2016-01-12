@@ -91,7 +91,9 @@ public abstract class RunTimeTrickApplication extends TrickApplication {
     protected static final String widthKey = "width";
     protected static final String heightKey = "height";
 
-    /** attempts to connect to the simulation specified by the current host name and port */
+    /** attempts to connect to the simulation specified by the current host name and port
+     * @throws IOException IOException
+     */
     protected void connect() throws IOException {
         if (!connected) {
             variableServerConnection = new VariableServerConnection(
@@ -103,7 +105,9 @@ public abstract class RunTimeTrickApplication extends TrickApplication {
         }
     }
 
-    /** attempts to disconnect from the simulation */
+    /** attempts to disconnect from the simulation
+     * @throws IOException IOException
+     */
     protected void disconnect() throws IOException {
         disconnect(null);
     }
@@ -114,6 +118,7 @@ public abstract class RunTimeTrickApplication extends TrickApplication {
      * <code>null</code>, it is displayed as the reason for the disconnection.
      *
      * @param exception (optional) the reason for the disconnection
+     * @throws IOException IOException
      */
     protected void disconnect(Exception exception) throws IOException {
         if (connected) {
@@ -663,6 +668,7 @@ public abstract class RunTimeTrickApplication extends TrickApplication {
          * adds <code>panel</code> to this dialog
          *
          * @param panel the panel to add
+         * @param constraints constraints
          */
         public void addPanel(JPanel panel, GridBagConstraints constraints) {
             mainPanel.add(panel, constraints);
@@ -701,7 +707,7 @@ public abstract class RunTimeTrickApplication extends TrickApplication {
     public interface CommitChangesListener {
         /**
          * called just before changes are to be committed, allowing listeners to
-         * veto the commit. If any listener returns <code>false<code>,
+         * veto the commit. If any listener returns <code>false</code>,
          * <code>commitChanges()</code> will not be called.
          *
          * @return whether or not to proceed with the commit

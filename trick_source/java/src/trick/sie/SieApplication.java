@@ -291,6 +291,7 @@ public class SieApplication extends TrickApplication implements TreeSelectionLis
    
     /**
      * Main method.
+     * @param args command line arguments
      */
     public static void main(String[] args) {
         if (args.length == 1) {
@@ -597,7 +598,7 @@ public class SieApplication extends TrickApplication implements TreeSelectionLis
     /**
      * Updates the reading pane for selected items from search results.
      * 
-     * @throws BadLocationException
+     * @throws BadLocationException BadLocationException
      */
     public void updateReadingPaneForSearch() throws BadLocationException {        
         // if the reading pane is not ready, do nothing
@@ -617,7 +618,7 @@ public class SieApplication extends TrickApplication implements TreeSelectionLis
     /**
      * Updates the reading pane for showing details of variables.
      * 
-     * @throws BadLocationException
+     * @throws BadLocationException BadLocationException
      */
     public void updateReadingPaneForVars() throws BadLocationException {
         // if the reading pane is not ready, do nothing

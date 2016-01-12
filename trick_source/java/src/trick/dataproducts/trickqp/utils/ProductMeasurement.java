@@ -103,6 +103,8 @@ public class ProductMeasurement {
 
     /**
      * Gets data for GUI display for the specified order number.
+     * @param index index into the list
+     * @return the object pointed to by index
      */
     public Object getData(int index) {
         Object ret = null;
@@ -134,6 +136,7 @@ public class ProductMeasurement {
     //========================================
     /**
      * Returns the name of this measurement. This is for GUI displaying.
+     * @return the string value
      */
     @Override
 	public String toString() {
@@ -143,6 +146,7 @@ public class ProductMeasurement {
     /**
      * Check to see if the measurement is valid. A measurement is not considered to be valid if it doesn't 
      * have defined var.
+     * @return true or false
      */
     public boolean isValid() {
         return (!"".equals(name));

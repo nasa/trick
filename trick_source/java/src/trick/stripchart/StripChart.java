@@ -653,7 +653,7 @@ public class StripChart extends JXPanel {
          * constructor
          *
          * @param stripChart the strip chart to be framed
-         * @param bounds the bounds of the frame. <code>null<code> allows
+         * @param bounds the bounds of the frame. <code>null</code> allows
          * the look and feel to determine the bounds.
          */
         public Frame(final StripChart stripChart, Rectangle bounds) {

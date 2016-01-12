@@ -35,6 +35,9 @@ public class SieResourceDomParser {
      * @param inputSource the source containing the S_sie.resource file
      *
      * @return the simulation's root instances
+     * @throws ParserConfigurationException ParserConfigurationException
+     * @throws SAXException SAXException
+     * @throws IOException IOException
      */
     public static Collection<SieTemplate> parse(InputSource inputSource)
       throws ParserConfigurationException, SAXException, IOException {
@@ -103,6 +106,9 @@ public class SieResourceDomParser {
      * @param inputSource the source containing the S_sie.resource file
      *
      * @return the simulation's enumerations
+     * @throws ParserConfigurationException ParserConfigurationException
+     * @throws SAXException SAXException
+     * @throws IOException IOException
      */
     public static HashMap<String, SieEnumeration> getSieEnumerationMap(InputSource inputSource)
       throws ParserConfigurationException, SAXException, IOException {

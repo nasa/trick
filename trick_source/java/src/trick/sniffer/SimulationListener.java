@@ -1,7 +1,7 @@
 package trick.sniffer;
 
 /**
- * <code>SimulationListener<code>s are notified by a SimulationSniffer when
+ * <code>SimulationListener</code>s are notified by a SimulationSniffer when
  * simulations are added or removed from the list of currently running
  * simulations.
  *

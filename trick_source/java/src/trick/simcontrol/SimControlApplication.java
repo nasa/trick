@@ -673,6 +673,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 
     /**
      * Main method for this application.
+     * @param args command line arguments
      */
     public static void main(String[] args) {
         Application.launch(SimControlApplication.class, args);

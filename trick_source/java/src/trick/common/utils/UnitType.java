@@ -202,11 +202,11 @@ public enum UnitType {
     /**
      * Converts the value of a specified units to the preferred units.
      * 
-     * @param fromValue
-     * @param fromUnitStr
-     * @param toUnitStr
+     * @param fromValue from value
+     * @param fromUnitStr from unit
+     * @param toUnitStr to unit
      * @return new value based on the new units
-     * @throws IllegalUnitConversionException 
+     * @throws IllegalUnitConversionException IllegalUnitConversionException
      */
     public static double convertUnits(double fromValue, String fromUnitStr, String toUnitStr) throws IllegalUnitConversionException {
     	Unit fromUnit = getExpressionUnit(fromUnitStr);
@@ -227,6 +227,7 @@ public enum UnitType {
      * member. This method handles only simple units, not compound units
      * resulting from multiplication, division, or exponentiation.
      *
+     * @param abbreviation abbreviation of unit to search
      * @return the corresponding type, or null if none exists
      */
     public static UnitType getType(String abbreviation) {
@@ -244,7 +245,7 @@ public enum UnitType {
      * Returns the primitive unit if it is a primitive units,
      * otherwise return a complex units that is made out of primitive units.
      * 
-     * @param expression
+     * @param expression full expression to parse
      * @return an instance of {@link Unit}
      */
     public static Unit getExpressionUnit(String expression) {
@@ -284,6 +285,8 @@ public enum UnitType {
      * gets all valid unit alternatives for <code>expression</code>.
      * This method handles compound units resulting from multiplication,
      * division, or exponentiation.
+     * @param expression full expression to parse
+     * @return list of valid unit alternatives
      */
     public static List<String> getAll(String expression) {
         ArrayList<String> results = new ArrayList<String>();
@@ -301,7 +304,7 @@ public enum UnitType {
     
     /**
      * gets all valid unit alternatives for <code>tail</code>, concatenating
-     * each result to <code>head<code>, and appending each concatenation to
+     * each result to <code>head</code>, and appending each concatenation to
      * <code>results</code>. This method handles compound units resulting
      * from multiplication, division, or exponentiation.
      *
@@ -326,7 +329,7 @@ public enum UnitType {
 
     /**
      * Determines if <code>fromUnits</code> can legally be converted to
-     * </code>toUnits</code>. This method handles compound units resulting
+     * <code>toUnits</code>. This method handles compound units resulting
      * from multiplication, division, or exponentiation.
      *
      * @param fromUnits the unit expression from which to convert
@@ -364,7 +367,11 @@ public enum UnitType {
         	this.factor2 = factor2;
         }
         
-        /** constructor */
+        /** constructor 
+         * @param name name of unit
+         * @param abbreviation  abbreviation of unit
+         * @param isPrefixable  true or false
+         */
         public Unit(String name, String abbreviation, boolean isPrefixable) {
             this.name = name;
             this.abbreviation = abbreviation;

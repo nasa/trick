@@ -63,6 +63,7 @@ public class Slave {
 
     /**
      * constructs a new Slave whose initial state is UNKNOWN
+     * @param id slave id
      */
     public Slave(String id) {
         this.id = id;

@@ -45,6 +45,8 @@ public class SimDPTree extends SimRunDPTree {
     //========================================
     /**
      *  Constructs a {@link SimDPTree} with specified file directory.
+     * @param dir directory to find run directories in.
+     * @param filter wildcard filter to match to list directories.
      */
     public SimDPTree(File dir, TrickFileFilter filter) { 
         super(dir, filter);
@@ -52,6 +54,9 @@ public class SimDPTree extends SimRunDPTree {
     
     /**
      * Constructs a {@link SimDPTree} with specified file directory and number of popup menus.
+     * @param dir directory to find run directories in.
+     * @param filter wildcard filter to match to list directories.
+     * @param popupNum not sure
      */
     public SimDPTree(File dir, TrickFileFilter filter, int popupNum) {
         super(dir, filter, popupNum);

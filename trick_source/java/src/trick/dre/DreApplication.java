@@ -295,6 +295,7 @@ public class DreApplication extends TrickApplication {
 	//========================================	
 	/**
      * Main method for this application.
+     * @param args command line arguments
      */
     public static void main(String[] args) {
         Application.launch(DreApplication.class, args);

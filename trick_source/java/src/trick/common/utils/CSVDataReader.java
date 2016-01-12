@@ -117,7 +117,7 @@ public class CSVDataReader extends DataReader {
      * Starts the process for getting variable value.
      * 
      * @param var the variable name which need retrieving value for.
-     * @throws IOException
+     * @throws IOException io exception
      */
     @Override
 	public void beginRead(ProductVar var) throws IOException {

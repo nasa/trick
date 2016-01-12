@@ -167,6 +167,7 @@ public class ProductCurve {
     /**
      * Returns the desired text for any {@link ProductCurve} instance.
      * It is for GUI displaying.
+     * @return "Curve"
      */
     public String toString() {
     	return "Curve";
@@ -174,7 +175,8 @@ public class ProductCurve {
     
     /**
      * Checks to see if the curve is valid. A curve is not considered to be valid if it 
-     * doesn't have either X & Y variables or varcase specs.
+     * doesn't have either X and Y variables or varcase specs.
+     * @return true or false
      */
     public boolean isValid() {
         boolean allValid = false;

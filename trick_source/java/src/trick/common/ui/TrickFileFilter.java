@@ -51,6 +51,7 @@ public class TrickFileFilter implements java.io.FileFilter {
 	//========================================
 	/**
 	 *	Default constructor.
+         * @param type not sure.
 	 */
 	public TrickFileFilter(int type) {
 		this.type = type;

@@ -124,6 +124,8 @@ public class ProductExternalFunction {
 
     /**
      * Gets data for GUI display for the specified order number.
+     * @param index index
+     * @return object pointed to by index
      */
     public Object getData(int index) {
         Object ret = null;
@@ -205,6 +207,7 @@ public class ProductExternalFunction {
     /**
      * Check to see if the external function is valid. An external function is not considered 
      * to be valid if it doesn't valid inputs and outputs.
+     * @return true or false
      */
     public boolean isValid() {
         boolean allValid = false;

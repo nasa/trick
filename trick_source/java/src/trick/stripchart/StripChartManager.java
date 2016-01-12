@@ -90,6 +90,7 @@ public class StripChartManager {
     /**
      * clears the <code>variable</code>'s value log and any pairs it is
      * participating in and removes it from the strip charts
+     * @param variable the variable to remove
      */
     public void removeVariable(Variable variable) {
         valueLogs.remove(variable);
@@ -108,6 +109,8 @@ public class StripChartManager {
     /**
      * returns an existing variable pair or a new one if none exists
      *
+     * @param domainVariable not sure
+     * @param rangeVariable  not sure
      * @return a variable pair for the given arguments
      */
     public VariablePair getPair(Variable domainVariable, Variable rangeVariable) {

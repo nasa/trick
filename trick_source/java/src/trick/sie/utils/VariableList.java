@@ -53,6 +53,7 @@ public class VariableList extends JXList {
 	//========================================
 	/**
 	 * Default constructor.
+         * @param  model  initial list of variables to use.
 	 */
 	@SuppressWarnings("rawtypes")
     public VariableList(ListModel model) {

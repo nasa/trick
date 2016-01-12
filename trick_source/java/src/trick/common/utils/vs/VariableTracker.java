@@ -43,6 +43,7 @@ public class VariableTracker extends SwingWorker<Void, String[]> {
      * begin tracking <code>variable</code>
      *
      * @param variable the variable to track
+     * @throws IOException IOException
      */
     public void add(Variable variable) throws IOException {
         if (variables.add(variable)) {
@@ -54,6 +55,7 @@ public class VariableTracker extends SwingWorker<Void, String[]> {
      * stops tracking <code>variable</code>
      *
      * @param variable the variable to stop tracking
+     * @throws IOException IOException
      */
     public void remove(Variable variable) throws IOException {
         variableServerConnection.remove(variable.name);

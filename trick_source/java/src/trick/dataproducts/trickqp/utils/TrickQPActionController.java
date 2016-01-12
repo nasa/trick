@@ -194,6 +194,8 @@ public class TrickQPActionController {
      * Helper method for adding specified new {@link ProductVar} variables to selected node(s) in the tree.
      * If newVars has only one element, it's for single variable. If newVars has more than one variable,
      * it's for array variable.
+     * @param  newVars new variables
+     * @param  selectedTreeNodes tree to add new variables
      */
     public void handleAddVarToSelected(ProductVar[] newVars, ArrayList<DefaultMutableTreeNode> selectedTreeNodes) {
     	CommonTreeNode plotNode;
@@ -853,6 +855,7 @@ public class TrickQPActionController {
      * TODO: Haven't added this mechanism to any other places as this is the 
      *       only one is called by other application for now. Add other
      *       places if necessary.
+     * @param dirList list of directories
      */
     public void handleAddRuns(final String[] dirList) {
     	
@@ -959,6 +962,7 @@ public class TrickQPActionController {
     
     /**
      * Invoked when new output is entered.
+     * @param newOutput not sure
      */
     public void handleNewProgramOutput(String newOutput) {
     	addVarToOutput(new ProductMeasurement(newOutput), true);
@@ -968,6 +972,8 @@ public class TrickQPActionController {
      * Invoked when Subtract is selected.
      * 
      * This function generates nodes for (var1 - var2)
+     * @param var1 var1
+     * @param var2 var2
      */
     public void handleSubtractFunction(LogVar var1, LogVar var2) {
     	String units = null;
@@ -1434,6 +1440,7 @@ public class TrickQPActionController {
      *                    The valid range would be [0, total child count of this plot].
      * @param isNew       <code>true</code>, if the user object of the plot node does not
      *                    have the curve user object in its curve list, <code>false</code> otherwise.
+     * @return curve node.
      */
     public CommonTreeNode addCurveToPlot(CommonTreeNode plotNode, Object curve, int idx, boolean isNew) {
         CommonTreeNode curveNode = null;
@@ -1484,6 +1491,7 @@ public class TrickQPActionController {
      *                    is created based on the specified curve object.
      * @param isNew       <code>true</code>, if the user object of the plot node does not
      *                    have the curve user object in its curve list, <code>false</code> otherwise.
+     * @return curve node.
      */
     public CommonTreeNode addCurveToPlot(CommonTreeNode plotNode, Object curve, boolean isNew) {
     	return addCurveToPlot(plotNode, curve, -1, isNew);    
@@ -1497,6 +1505,7 @@ public class TrickQPActionController {
      *                     an instance of {@link ProductPlot}.
      * @param isNew        <code>true</code> if the plot user object needs adding to the
      *                  plot list of the page user object, <code>false</code> otherwise.
+     * @return top plot node
      *
      */
     public CommonTreeNode addPlotToPage(CommonTreeNode pageNode, Object plot, boolean isNew) {
@@ -1522,6 +1531,8 @@ public class TrickQPActionController {
 
     /**
      * Helper method for adding a new Page.
+     * @param page the page node
+     * @return top page node
      */
     @SuppressWarnings("rawtypes")
 	public CommonTreeNode addPageToPlots(ProductPage page) {
@@ -1575,6 +1586,7 @@ public class TrickQPActionController {
      *                  The valid range would be [0, total child count of this table].
      * @param isNew     <code>true</code> if the column user object needs adding to the
      *                  column list of the table user object, <code>false</code> otherwise.
+     * @return top column node
      */
     public CommonTreeNode addColumnToTable(CommonTreeNode tableNode, Object column, int idx, boolean isNew) {
         CommonTreeNode columnNode = null;
@@ -1608,6 +1620,7 @@ public class TrickQPActionController {
      *                  an instance of {@link ProductColumn}.
      * @param isNew     <code>true</code> if the column user object needs adding to the
      *                  column list of the table user object, <code>false</code> otherwise.
+     * @return top column node
      */
     public CommonTreeNode addColumnToTable(CommonTreeNode tableNode, Object column, boolean isNew) {
     	return addColumnToTable(tableNode, column, -1, isNew);    

@@ -106,7 +106,7 @@ public class SieEnumeration implements Comparable<SieEnumeration>, Serializable 
 
     /**
      * returns the result of comparing the enumerations' names as implemented
-     * by <code>String.compareTo<code>
+     * by <code>String.compareTo</code>
      */
     @Override
     public int compareTo(SieEnumeration enumeration) {

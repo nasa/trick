@@ -96,6 +96,8 @@ public class ProductColumn {
 
     /**
      * Gets data for GUI display for the specified order number.
+     * @param index index
+     * @return object pointed to by index
      */
     public Object getData(int index) {
         Object ret = null;
@@ -190,6 +192,7 @@ public class ProductColumn {
     /**
      * Returns the desired text for any {@link ProductColumn} instance.
      * It is for GUI displaying.
+     * @return "Column"
      */
     @Override
 	public String toString() {
@@ -199,6 +202,7 @@ public class ProductColumn {
     /**
      * Check to see if the column is valid. A column is not considered to be valid if it doesn't 
      * have a valid var.
+     * @return true or false
      */
     public boolean isValid() {
         return (var != null);

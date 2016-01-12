@@ -47,12 +47,26 @@ public class SimulationInformation implements Comparable<SimulationInformation> 
     /** user tag */
     public final String tag;
 
-    /** constructor */
+    /** constructor 
+     * @param machine the machine the simulation is running on
+     * @param port the port the simulation is listening on
+     */
     public SimulationInformation(String machine, String port) {
         this(machine, port, "", "", "", "", "", "", "", "");
     }
 
-    /** constructor */
+    /** constructor
+     * @param machine the machine the simulation is running on
+     * @param handshakePort the port the simulation is listening on
+     * @param user the simulation owner
+     * @param processID the process ID of the sim
+     * @param simDirectory the directory the simulation is running
+     * @param sMainFile name of the sim executable
+     * @param runDirectory name of the run directory
+     * @param version Trick version of sim
+     * @param tag user defined tag of sim
+     * @param noHandshakePort port number of the no handshake port
+     */
     public SimulationInformation(String machine, String handshakePort,
       String user, String processID, String simDirectory, String sMainFile,
       String runDirectory, String version, String tag,

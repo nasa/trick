@@ -50,6 +50,7 @@ public class SieTemplate implements Comparable<SieTemplate>, Iterable<SieTemplat
 
     /**
      * creates a new copy of specified SieTemplate without its children information
+     * @param sieTemplate object to copy
      */
     public SieTemplate(SieTemplate sieTemplate) {
         description = sieTemplate.description;

@@ -189,6 +189,7 @@ public class FontChooser extends JDialog implements ActionListener, ListSelectio
      * @param parent	The parent component for the dialog.
      * @param title		The title of the dialog.
      * @param font		The initial font.
+     * @return Font Object
      */
     public static Font showDialog(Component parent, String title, Font font) {
         Frame frame = JOptionPane.getFrameForComponent(parent);

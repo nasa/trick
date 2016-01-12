@@ -118,6 +118,7 @@ public abstract class DataProductsApplication extends TrickApplication {
     //========================================
     /**
      * Sets the preferred presentation.
+     * @param pt the presentation string
      */
     public void setPreferredPresentation(String pt) {
         preferredPresentation = pt;
@@ -125,6 +126,7 @@ public abstract class DataProductsApplication extends TrickApplication {
 
     /**
      * Gets the preferred presentation.
+     * @return the preferred presentation
      */
     public String getPreferredPresentation() {
         return preferredPresentation;
@@ -132,6 +134,7 @@ public abstract class DataProductsApplication extends TrickApplication {
 
     /**
      * Sets preferred display mode.
+     * @param md the mode
      */
     public void setDisplayMode(String md) {
         displayMode = md;
@@ -139,6 +142,7 @@ public abstract class DataProductsApplication extends TrickApplication {
 
     /**
      * Gets preferred display mode.
+     * @return the mode of the preferred display
      */
     public String getDisplayMode() {
         return displayMode;
@@ -435,26 +439,31 @@ public abstract class DataProductsApplication extends TrickApplication {
 
     /**
      * Creates the component for left top.
+     * @return left top component
      */
     protected abstract JComponent createLeftTop();
 
     /**
      * Creates the component for left middle.
+     * @return left middle component
      */
     protected abstract JComponent createLeftMiddle();
 
     /**
      * Creates the component for right top.
+     * @return right top component
      */
     protected abstract JComponent createRightTop();
 
     /**
      * Creates the component for right middle.
+     * @return right middle component
      */
     protected abstract JComponent createRightMiddle();
 
     /**
      * Creates the component for the bottom.
+     * @return bottom component
      */
     protected abstract JComponent createBottom();
 
@@ -586,6 +595,7 @@ public abstract class DataProductsApplication extends TrickApplication {
      * Launches a process with specified parameters.
      *
      * @param command     The operating system program and arguments.
+     * @throws Exception Exception
      */
     public void launchPlotProcess(String... command) throws Exception{
         if (command == null || command.length < 0) {
@@ -635,6 +645,7 @@ public abstract class DataProductsApplication extends TrickApplication {
 
     /**
      * Prints status message to the status text area.
+     * @param msg the string to use
      */
     public void printStatusMessage(String msg) {
         statusArea.append(msg);

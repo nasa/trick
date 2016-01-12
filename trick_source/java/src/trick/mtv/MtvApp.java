@@ -72,6 +72,7 @@ public class MtvApp extends TrickApplication {
 
     /**
      * Main method launching the application.
+     * @param args command line arguments
      */
     public static void main(String[] args) {
         launch(MtvApp.class, args);

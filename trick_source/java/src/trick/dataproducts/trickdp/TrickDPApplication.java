@@ -405,6 +405,7 @@ public class TrickDPApplication extends DataProductsApplication {
     //========================================
     /**
      * Main method for this application.
+     * @param args command line arguments
      */
     public static void main(String[] args) {
         Application.launch(TrickDPApplication.class, args);
@@ -938,6 +939,7 @@ public class TrickDPApplication extends DataProductsApplication {
 
     /**
      * Helper method for getting selected run paths.
+     * @return list of selected run paths
      */
     public String[] getSelectedRunPaths() {
         String[] runPaths = null;

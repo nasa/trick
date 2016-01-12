@@ -143,7 +143,7 @@ public class SieTree extends JXTree {
     }
 
     /**
-     * sets the comparator used for sorting. Pass </code>null</code>to disable sorting.
+     * sets the comparator used for sorting. Pass <code>null</code>to disable sorting.
      *
      * @param comparator the sorting comparator, or <code>null</code>
      */

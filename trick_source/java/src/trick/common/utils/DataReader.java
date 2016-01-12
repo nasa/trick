@@ -151,6 +151,8 @@ public abstract class DataReader {
         
     /**
      * Gets the log variable for the specified variable.
+     * @param varName  string of variable name
+     * @return value of variable.
      */
     public LogVar getLogVar(String varName) {
         LogVar logVar = null;
@@ -184,7 +186,7 @@ public abstract class DataReader {
      * Starts the process for getting value.
      * 
      * @param var the variable name which need retrieving value for.
-     * @throws IOException
+     * @throws IOException IOException
      */
     public void beginRead(ProductVar var) throws IOException {
     	theVarIndex = locateVarIndex(var.getName());
@@ -196,7 +198,7 @@ public abstract class DataReader {
      * 
      * @return The variable value.
      * 
-     * @throws IOException
+     * @throws IOException IOException
      */
     public abstract double getVarValue() throws IOException;
         
@@ -216,6 +218,8 @@ public abstract class DataReader {
     
     /**
      * Returns the index number of a variable in the list based on its name.
+     * @param varName string of variable name
+     * @return index value in list
      */
     public int locateVarIndex(String varName) {
         int idx = -1;
@@ -239,6 +243,8 @@ public abstract class DataReader {
      * 
      * @see #tstart
      * @see #tstop
+     * @param timeData the time to check
+     * @return true if time in range, else false
      */
     public boolean isTimeInRange(double timeData) {
         boolean ret = true;
@@ -264,6 +270,7 @@ public abstract class DataReader {
     
     /**
      * Gets the time stamp for the specified variable value retrieved.
+     * @return the time
      */
     public double getTimeValue() {
     	return theTimeValue;
@@ -273,11 +280,17 @@ public abstract class DataReader {
      * Abstract method for processing the data recording file.
      * This method needs to be called after a {@link DataReader} instance
      * is created in order for recordedVarList to be filled in.
+     * @throws FileNotFoundException FileNotFoundException
+     * @throws IOException IOException
      */
     protected abstract void processHeader() throws FileNotFoundException, IOException;
     
     /**
      * Checks to see if 2 doubles are almost equal with specified Epsilon.
+     * @param a first value
+     * @param b second value
+     * @param eps epsilon (tolerance)
+     * @return true if a and b are within epsilon, else false
      */
     public static boolean nearlyEqual(double a, double b, double eps) {
     	if (a == b) {
@@ -288,6 +301,9 @@ public abstract class DataReader {
     
     /**
      * Checks to see if 2 doubles are almost equal with the default Epsilon.
+     * @param a first value
+     * @param b second value
+     * @return true if a and b are within defalut epsilon, else false
      */
     public static boolean nearlyEqual(double a, double b) {
     	return nearlyEqual(a, b, EPSILON);
@@ -295,6 +311,9 @@ public abstract class DataReader {
     
     /**
      * Updates the value of the variable properties such as scale, bias, and units.
+     * @param varData value to set
+     * @return the value of varData
+     * @throws UnitType.IllegalUnitConversionException stuff
      */
 	protected double applyVarProperties(double varData) throws UnitType.IllegalUnitConversionException {
 		if (theVar.getScale() != null) {

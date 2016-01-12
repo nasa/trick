@@ -67,6 +67,7 @@ public class FileTreeNode implements Comparable<FileTreeNode> {
 	//========================================
     /**
      * Returns the {@link File} object for the tree node. 
+     * @return the file
      */
     public File getFile() {
         return file;
@@ -74,6 +75,7 @@ public class FileTreeNode implements Comparable<FileTreeNode> {
     
     /**
      * Returns true if the node is special.
+     * @return true or false
      */
     public boolean isSpecial() {
         return isSpecial;

@@ -261,6 +261,9 @@ public class UIUtils {
 	
 	/**
 	 * Checks to see if a JComboBox contains an object.
+         * @param model combo box to check
+         * @param obj object to test for
+         * @return true or false
 	 */
 	public static boolean comboBoxContains(DefaultComboBoxModel model, Object obj) {
 		for (int i = 0; i < model.getSize(); i++) {
@@ -368,6 +371,8 @@ public class UIUtils {
 	/**
 	 * Returns a file's name without its extension. If no extension found, return
 	 * the original file name.
+         * @param file file object to use.
+         * @return file name
 	 */
 	public static String getFileNameWithoutExtension(File file) {
 		String fileName = file.getName();
@@ -656,6 +661,15 @@ public class UIUtils {
 	 * Normally, it's a {@link JComboBox} if less than 20 <code>selectionValues</code>, 
 	 * {@link JList} if equal or greater than 20 <code>selectionValues</code>, or 
 	 * {@link JTextField} if null <code>selectionValues</code>. 
+         * @param parentComponent parent to use for dialog box
+         * @param message message to show
+         * @param title title of window
+         * @param messageType type of message to show
+         * @param icon icon to use
+         * @param selectionValues list of values to use as choices
+         * @param initialSelectionValue sets initial value of selection values
+         * @return value of the input selection
+         * @throws HeadlessException HeadlessException
 	 */
 	public static Object showListInputDialog(Component parentComponent, Object message, String title, int messageType,
 			                                 Icon icon, Object[] selectionValues, Object initialSelectionValue) 

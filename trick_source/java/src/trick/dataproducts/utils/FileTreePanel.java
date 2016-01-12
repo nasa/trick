@@ -110,6 +110,8 @@ public abstract class FileTreePanel extends DataPanel implements TreeSelectionLi
     //========================================
     /**
      *    Constructs a {@link FileTreePanel} with specified file directory.
+     * @param dir directory to list
+     * @param filter the filter to use for displaying files
      */
     public FileTreePanel(File dir, TrickFileFilter filter) {    
         super();
@@ -120,6 +122,9 @@ public abstract class FileTreePanel extends DataPanel implements TreeSelectionLi
     
     /**
      * Constructs a {@link FileTreePanel} with specified file directory and number of popup menus.
+     * @param dir directory to list
+     * @param filter the filter to use for displaying files
+     * @param popupNum not sure
      */
     public FileTreePanel(File dir, TrickFileFilter filter, int popupNum) {
         super(popupNum);
@@ -130,6 +135,9 @@ public abstract class FileTreePanel extends DataPanel implements TreeSelectionLi
 
     /**
      * Constructs a {@link FileTreePanel} with specified file directory list and number of popup menus.
+     * @param dirs list of dirs.
+     * @param filter the filter to use for displaying files
+     * @param popupNum not sure
      */
     public FileTreePanel(Vector<File> dirs, TrickFileFilter filter, int popupNum) {
         super(popupNum);
@@ -199,6 +207,7 @@ public abstract class FileTreePanel extends DataPanel implements TreeSelectionLi
      * Gets the path in the tree as specified by the array of names. 
      * The names[0] is the root and names[i] is a child of names[i-1].
      * 
+     * @param names list of names to get the path of.
      * @return The {@link TreePath} if found, null otherwise.
      */
     public TreePath getPathByName(Object[] names) {
@@ -523,6 +532,7 @@ public abstract class FileTreePanel extends DataPanel implements TreeSelectionLi
     
     /**
      * Gets all selected items. Each item is a string and composed in a particular format.
+     * @return vector of selected items
      */
     public Vector<String> getSelectedItems() {
         TreePath[] selectedPaths = fileTree.getSelectionPaths();
@@ -818,6 +828,7 @@ public abstract class FileTreePanel extends DataPanel implements TreeSelectionLi
      * @param curTop    The current node which needs adding child nodes to.
      * @param filter    A {@link TrickFileFilter} for only showing interested dirs/files.
      * @param dir       The {@link File} object for the node.
+     * @return not sure
      */
     protected DefaultMutableTreeNode addNodes(DefaultMutableTreeNode curTop, TrickFileFilter filter, File dir) {
         String curPath = null;

@@ -100,7 +100,7 @@ public class TVVariableTree extends SieTree {
     }
     
     /**
-     * creates a new variable named <code>name</code> from </code>template</code>
+     * creates a new variable named <code>name</code> from <code>template</code>
      *
      * @param name the new variable's name
      * @param template the template from which to create the new variable

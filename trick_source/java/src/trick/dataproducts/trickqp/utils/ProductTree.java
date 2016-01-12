@@ -213,6 +213,7 @@ public class ProductTree extends DynamicTree {
 	
 	/**
 	 * Checks to see if the tree gets changed.
+         * @return true or false
 	 */
 	public boolean isChanged() {
 		return isChanged;
@@ -220,6 +221,7 @@ public class ProductTree extends DynamicTree {
     
 	/**
 	 * Sets the tree changing status.
+         * @param b true or false
 	 */
 	public void setChanged(boolean b) {
 		isChanged = b;

@@ -716,6 +716,8 @@ public class ProductDataPanel extends JPanel implements KeyListener {
      * Helper method for generating an instance of {@link Font} for the specified font text.
      * 
      * The format of the font text should be "-*-font family-weight-slant-*--size-*-*-*-*-*-*-*".
+     * @param fontText name of the font
+     * @return font object
      */
     public static Font getFontFromText(String fontText) {
     	String[] attrs = null;

@@ -106,6 +106,7 @@ public abstract class XMLCreator {
 	
 	/**
 	 * Sets the frame that calls the XMLCreator to generate XML file.
+         * @param frame the frame
 	 */
 	public void setCallerFrame(JFrame frame) {
 	    callerMainFrame = frame;
@@ -198,6 +199,7 @@ public abstract class XMLCreator {
 	
 	/**
 	 * This shall create the desired XML structure.
+         * @return true or false
 	 */
 	protected abstract boolean createDOMTree();
 	
