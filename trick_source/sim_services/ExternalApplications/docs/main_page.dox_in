@@ -5,7 +5,7 @@
  * Trick provides the following graphical user interfaces:
  */
 
-#include "sim_services/ExternalApplications/scp.dox_in"
+#include "sim_services/ExternalApplications/docs/scp.dox_in"
 
 /**
  * @page LEVEL2cont
@@ -13,7 +13,7 @@
  *   Send control commands to and view the status of a simulation.
  */
 
-#include "sim_services/ExternalApplications/tv.dox_in"
+#include "sim_services/ExternalApplications/docs/tv.dox_in"
 
 /**
  * @page LEVEL2cont
@@ -21,7 +21,7 @@
  *   Browse and modify a simulation's variables while it's running. Launch integrated strip charts.
  */
 
-#include "sim_services/ExternalApplications/mtv.dox_in"
+#include "sim_services/ExternalApplications/docs/mtv.dox_in"
 
 /**
  * @page LEVEL2cont
@@ -29,7 +29,7 @@
  *   Manage the events and malfunctions of a simulation.
  */
 
-#include "sim_services/ExternalApplications/mm.dox_in"
+#include "sim_services/ExternalApplications/docs/mm.dox_in"
 
 /**
  * @page LEVEL2cont

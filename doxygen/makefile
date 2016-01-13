@@ -1,6 +1,6 @@
 
-export TRICK_DOCS = $(TRICK_HOME)/docs
-export TRICK_RELEASE = $(shell $(TRICK_HOME)/bin/trick_version -v)
+export TRICK_DOCS = $(TRICK_HOME)/share/doc/trick
+export TRICK_RELEASE = $(shell $(TRICK_HOME)/bin/trick-version -v)
 export TRICK_MAJOR = $(shell echo $(TRICK_RELEASE) | cut -f 1 -d.)
 export TRICK_MINOR = $(shell echo $(TRICK_RELEASE) | cut -f 2 -d.)
 

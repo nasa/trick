@@ -30,14 +30,14 @@
 
 // section 3
 #include "run_sim.dox_in"
-#include "sim_services/Executive/design.dox_in"
+#include "sim_services/Executive/docs/design.dox_in"
 #include "sim_services/ScheduledJobQueue/design.dox_in"
-#include "sim_services/RealtimeSync/design.dox_in"
-#include "sim_services/Clock/design.dox_in"
-#include "sim_services/Timer/design.dox_in"
-#include "sim_services/DataRecord/design.dox_in"
-#include "sim_services/CommandLineArguments/design.dox_in"
-#include "sim_services/MonteCarlo/design.dox_in"
+#include "sim_services/RealtimeSync/docs/design.dox_in"
+#include "sim_services/Clock/docs/design.dox_in"
+#include "sim_services/Timer/docs/design.dox_in"
+#include "sim_services/DataRecord/docs/design.dox_in"
+#include "sim_services/CommandLineArguments/docs/design.dox_in"
+#include "sim_services/MonteCarlo/docs/design.dox_in"
 #include "sim_services/Integrator/design.dox_in"
 
 // section 4
