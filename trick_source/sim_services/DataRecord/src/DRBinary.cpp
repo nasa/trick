@@ -64,6 +64,13 @@ int Trick::DRBinary::format_specific_init() {
     /* Calculate a "worst case" for space used for 1 record. */
     writer_buff = (char *)calloc(1 , record_size * rec_buffer.size()) ;
 
+    /* This loop touches all of the memory locations in the allocation forcing the
+       system to actually do the allocation */
+    for ( jj= 0 ; jj < record_size * rec_buffer.size() ; jj += 1024 ) {
+        writer_buff[jj] = 1 ;
+    }
+    writer_buff[record_size * rec_buffer.size() - 1] = 1 ;
+
     /* start header information in trk file */
     if ((fp = creat(file_name.c_str(), S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH)) == -1) {
         record = false ;
