@@ -542,10 +542,33 @@ int Trick::DataRecordGroup::data_record(double in_time) {
             buffer_offset = buffer_num % max_num ;
             for (jj = 0; jj < rec_buffer.size() ; jj++) {
                 drb = rec_buffer[jj] ;
-                if ( drb->ref->pointer_present == 1 ) {
-                    drb->ref->address = follow_address_path(drb->ref) ;
+                REF2 * ref = drb->ref ;
+                if ( ref->pointer_present == 1 ) {
+                    ref->address = follow_address_path(ref) ;
                 }
-                memcpy( drb->buffer + (buffer_offset * drb->ref->attr->size) , drb->ref->address , drb->ref->attr->size ) ;
+                int param_size = ref->attr->size ;
+                if ( buffer_offset == 0 ) {
+                   drb->curr_buffer = drb->buffer ;
+                } else {
+                   drb->curr_buffer += param_size ;
+                }
+                switch ( param_size ) {
+                    case 8:
+                        *(int64_t *)drb->curr_buffer = *(int64_t *)ref->address ;
+                        break ;
+                    case 4:
+                        *(int32_t *)drb->curr_buffer = *(int32_t *)ref->address ;
+                        break ;
+                    case 2:
+                        *(int16_t *)drb->curr_buffer = *(int16_t *)ref->address ;
+                        break ;
+                    case 1:
+                        *(int8_t *)drb->curr_buffer = *(int8_t *)ref->address ;
+                        break ;
+                    default:
+                        memcpy( drb->curr_buffer , ref->address , param_size ) ;
+                        break ;
+                }
             }
             buffer_num++ ;
         }

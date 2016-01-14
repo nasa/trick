@@ -45,6 +45,7 @@ namespace Trick {
     class DataRecordBuffer {
         public:
             char *buffer;       /* ** generic holding buffer for data */
+            char *curr_buffer;  /* ** current position in the buffer */
             char *last_value;   /* ** holding buffer for last value, used for DR_Changes_step */
             REF2 * ref ;        /* ** size/address/units information of variable */
             bool ref_searched ; /* ** reference information has been searched */
