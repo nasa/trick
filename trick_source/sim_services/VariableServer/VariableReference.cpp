@@ -62,7 +62,7 @@ Trick::VariableReference::VariableReference(REF2 * in_ref ) {
 }
 
 Trick::VariableReference::~VariableReference() {
-    delete ref ;
+    free(ref) ;
     free(buffer_in) ;
     free(buffer_out) ;
 }

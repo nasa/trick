@@ -16,6 +16,19 @@
 
 int Trick::VariableServerThread::bad_ref_int = 0 ;
 
+REF2* Trick::VariableServerThread::make_time_ref() {
+    REF2* new_ref;
+    new_ref = (REF2*)calloc(1, sizeof(REF2));
+    new_ref->reference = strdup("time") ;
+    new_ref->units = strdup("s") ;
+    new_ref->address = (char *)&time ;
+    new_ref->attr = (ATTRIBUTES*)calloc(1, sizeof(ATTRIBUTES)) ;
+    new_ref->attr->type = TRICK_DOUBLE ;
+    new_ref->attr->units = strdup("s") ;
+    new_ref->attr->size = sizeof(double) ;
+    return new_ref;
+}
+
 REF2* Trick::VariableServerThread::make_error_ref(std::string in_name) {
     REF2* new_ref;
     new_ref = (REF2*)calloc(1, sizeof(REF2));
@@ -34,7 +47,11 @@ int Trick::VariableServerThread::var_add(std::string in_name) {
     VariableReference * new_var ;
     REF2 * new_ref ;
 
-    new_ref = ref_attributes(const_cast<char*>(in_name.c_str())) ;
+    if ( in_name.compare("time") == 0 ) {
+        new_ref = make_time_ref() ;
+    } else {
+        new_ref = ref_attributes(const_cast<char*>(in_name.c_str())) ;
+    }
 
     if ( new_ref == NULL ) {
         message_publish(MSG_ERROR, "Variable Server could not find variable %s.\n", in_name.c_str());

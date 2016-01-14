@@ -4,6 +4,7 @@
 
 #include "trick/VariableServer.hh"
 #include "trick/memorymanager_c_intf.h"
+#include "trick/exec_proto.h"
 
 int Trick::VariableServerThread::copy_sim_data() {
 
@@ -15,6 +16,9 @@ int Trick::VariableServerThread::copy_sim_data() {
     }
 
     if ( pthread_mutex_trylock(&copy_mutex) == 0 ) { 
+
+        // Get the simulation time we start this copy
+        time = (double)exec_get_time_tics() / exec_get_time_tic_value() ;
 
         for ( ii = 0 ; ii < vars.size() ; ii++ ) {
             curr_var = vars[ii] ;

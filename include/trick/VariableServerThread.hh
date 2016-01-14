@@ -431,6 +431,11 @@ namespace Trick {
             int write_binary_data( int Start, char *buf1, int PacketNum );
 
             /**
+             @brief Make a time reference.
+             */
+            REF2* make_time_ref();
+
+            /**
              @brief Make a "bad-reference" reference.
              */
             REF2* make_error_ref(std::string in_name);
@@ -470,6 +475,9 @@ namespace Trick {
 
             /** Dummy integer for bad references.\n */
             static int bad_ref_int ;         /**<  trick_io(**) */
+
+            /** The simulation time converted to seconds\n */
+            double time ;                    /**<  trick_units(s) */
 
             /** List of client requested variables.\n */
             std::vector <VariableReference *> vars;  /**<  trick_io(**) */
