@@ -1,5 +1,7 @@
 package make_swig_makefile ;
 
+# $Id: make_makefile.pm 591 2010-03-09 21:17:48Z lin $
+
 use Exporter ();
 use trick_version ;
 use File::Path ;
@@ -250,8 +252,6 @@ sub make_swig_makefile($$$) {
     print MAKEFILE "\t\$(SWIG_MODULE_OBJECTS)\\\n" ;
     print MAKEFILE "\t\$(SIM_SWIG_OBJECTS)\n\n" ;
 
-    print MAKEFILE "\$(ALL_SWIG_OBJECTS) : | \$(LIB_DIR) \$(OBJECT_DIR)\n\n" ;
-
     print MAKEFILE "# SWIG_PY_OBJECTS is a convienince list to modify rules for compilation\n" ;
     print MAKEFILE "SWIG_PY_OBJECTS =" ;
     foreach my $f ( @temp_array2 ) {
@@ -285,20 +285,11 @@ sub make_swig_makefile($$$) {
     $ii = 0 ;
     foreach my $f ( @temp_array2 ) {
 
-        my ($continue) = 1 ;
-        foreach my $ie ( @exclude_dirs ) {
-            # if file location begins with $ie (an IGC exclude dir)
-            if ( $f =~ /^\Q$ie/ ) {
-                $continue = 0 ;
-                $ii++ ;
-                last ;  # break out of loop
-            }
-        }
-        next if ( $continue == 0 ) ;
-
         my ($swig_dir, $swig_object_dir , $swig_module_dir , $swig_file_only) ;
         my ($swig_f) = $f ;
 
+        # Add files to python_modules before testing exclude directories.
+        # This allows us to expect swig'ed files without compiling them (libraries).
         if ( $$sim_ref{python_module}{$f} ne "" ) {
             #print "[31mpython module for $f = $$sim_ref{python_module}{$f}[0m\n" ;
             my ($temp_str) = $$sim_ref{python_module}{$f} ;
@@ -311,6 +302,17 @@ sub make_swig_makefile($$$) {
             $swig_module_dir = "" ;
             push @{$python_modules{"root"}} , $f ;
         }
+
+        my ($continue) = 1 ;
+        foreach my $ie ( @exclude_dirs ) {
+            # if file location begins with $ie (an IGC exclude dir)
+            if ( $f =~ /^\Q$ie/ ) {
+                $continue = 0 ;
+                $ii++ ;
+                last ;  # break out of loop
+            }
+        }
+        next if ( $continue == 0 ) ;
 
         my $md5_sum = md5_hex($f) ;
         # check if .sm file was accidentally ##included instead of #included
