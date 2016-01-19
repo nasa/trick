@@ -381,6 +381,7 @@ SWIG_SRC_FILES = \$(addprefix $swig_src_dir/,\$(notdir \$(subst .o,.cpp,\$(ALL_S
 
 \$(S_MAIN) : \$(OBJECT_DIR)/py_top.o \$(OBJECT_DIR)/init_swig_modules.o \$(OBJECT_DIR)/py_S_source.o\n
 \$(LIB_DIR)/lib_${sim_dir_name}.a : \$(SWIG_MODULE_OBJECTS)
+\$(SWIG_MODULE_OBJECTS) : \$(LIB_DIR)
 #\$(LIB_DIR)/lib_${sim_dir_name}.a : \$(SWIG_MODULE_SOURCE) \$(ALL_SWIG_OBJECTS)
 #\$(LIB_DIR)/lib_${sim_dir_name}.so : \$(SWIG_MODULE_SOURCE) \$(ALL_SWIG_OBJECTS)\n\n" ;
 
