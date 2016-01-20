@@ -926,7 +926,7 @@ public class StripchartApplication extends TrickApplication {
             /* Open multiple stripchart windows (if applicable) */
             my_args = host+" "+port+" "+stripcharts.get(ii);
             String[] cmd = {"/bin/sh", "-c",
-                            System.getenv("TRICK_HOME")+"/bin/trick_stripchart "+my_args};
+                            System.getenv("TRICK_HOME")+"/bin/trick-stripchart "+my_args};
             new_process.add(ii, new BackgroundCommand(cmd));
             new_process.get(ii).start();
         }
