@@ -79,30 +79,55 @@ sub get_lib_deps ($$) {
             $l =~ s/o$// ;
             my ($rel_dir) = dirname($l) ;
             my ($base) = basename($l) ;
-            foreach my $inc ( $file_path_dir , @inc_paths) {
+            if ( $rel_dir =~ /^\// ) {
+                # if the directory name of the dependency is absolute
                 foreach my $ext ( "cpp" , "cc" , "c" , "c++" , "cxx" , "C" ) {
-                    if ( -e "$inc/$rel_dir/$base$ext" ) {
-                        my $f = abs_path("$inc/$rel_dir") . "/$base$ext" ;
+                    if ( -e "$rel_dir/$base$ext" ) {
+                        my $f = abs_path("$rel_dir") . "/$base$ext" ;
                         #print "found $f\n" ;
                         if ( ! exists $resolved_files{$f} ) {
                             $resolved_files{$f} = 1 ;
                             push @ordered_resolved_files , $f ;
                         }
                         $found = 1 ;
-                        last ;
                     }
-                    elsif ( -e "$inc/$rel_dir/src/$base$ext" ) {
-                        my $f = abs_path("$inc/$rel_dir/src") . "/$base$ext" ;
+                    elsif ( -e "$rel_dir/src/$base$ext" ) {
+                        my $f = abs_path("$rel_dir/src") . "/$base$ext" ;
                         #print "found $f\n" ;
                         if ( ! exists $resolved_files{$f} ) {
                             $resolved_files{$f} = 1 ;
                             push @ordered_resolved_files , $f ;
                         }
                         $found = 1 ;
-                        last ;
                     }
                 }
-                last if ( $found == 1 ) ;
+            } else {
+                # if the directory name of the dependency is a relative directory
+                foreach my $inc ( $file_path_dir , @inc_paths) {
+                    foreach my $ext ( "cpp" , "cc" , "c" , "c++" , "cxx" , "C" ) {
+                        if ( -e "$inc/$rel_dir/$base$ext" ) {
+                            my $f = abs_path("$inc/$rel_dir") . "/$base$ext" ;
+                            #print "found $f\n" ;
+                            if ( ! exists $resolved_files{$f} ) {
+                                $resolved_files{$f} = 1 ;
+                                push @ordered_resolved_files , $f ;
+                            }
+                            $found = 1 ;
+                            last ;
+                        }
+                        elsif ( -e "$inc/$rel_dir/src/$base$ext" ) {
+                            my $f = abs_path("$inc/$rel_dir/src") . "/$base$ext" ;
+                            #print "found $f\n" ;
+                            if ( ! exists $resolved_files{$f} ) {
+                                $resolved_files{$f} = 1 ;
+                                push @ordered_resolved_files , $f ;
+                            }
+                            $found = 1 ;
+                            last ;
+                        }
+                    }
+                    last if ( $found == 1 ) ;
+                }
             }
             # file not found, append the "o" we stripped for the error message
             $l .= "o" ;
