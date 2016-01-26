@@ -71,6 +71,10 @@ my $typedef_enum_def = qr/typedef\s+enum\s*                # the words typedef e
                [\w,\s\*]*\s*;)                             # enum name and ;
              /sx ;
 
+my $typedef_const_struct  = qr/typedef\s+const\s+(?:struct|union)\s*     # the words typedef const struct|union
+               (?:\s+[_A-Za-z]\w*)?\s*                     # optional name
+               {                                           # opening brace
+             /sx ;
 my $typedef_struct  = qr/typedef\s+(?:struct|union)\s*     # the words typedef struct|union
                (?:\s+[_A-Za-z]\w*)?\s*                     # optional name
                {                                           # opening brace
@@ -391,14 +395,16 @@ sub process_contents($$$$) {
     my ( $contents_ref , $new_contents_ref , $curr_namespace , $class_names_ref ) = @_ ;
 
     while ( $$contents_ref =~ s/^(.*?)(?:($typedef_struct)|
+                                    ($typedef_const_struct)|
                                     ($template_def)|
                                     ($namespace_def)|
                                     ($class_def))//sx ) {
         my ( $non_var ) = $1 ;
         my ( $typedef_struct_string ) = $2 ;
-        my ( $template_string ) = $3 ;
-        my ( $namespace_string ) = $4 ;
-        my ( $class_string ) = $5 ;
+        my ( $typedef_const_struct_string ) = $3 ;
+        my ( $template_string ) = $4 ;
+        my ( $namespace_string ) = $5 ;
+        my ( $class_string ) = $6 ;
 
 ## Handle the case of: non_var
         if ( $non_var ne "" )  {
@@ -410,6 +416,12 @@ sub process_contents($$$$) {
 ##
         if ( $typedef_struct_string ne "" )  {
             process_typedef_struct($typedef_struct_string , $contents_ref, $new_contents_ref, $class_names_ref) ;
+        }
+##
+## Handle the case of: typedef_struct ==> typedef const (struct | union ) <name> '{' ...
+##
+        if ( $typedef_const_struct_string ne "" )  {
+            process_typedef_const_struct($typedef_const_struct_string , $contents_ref) ;
         }
 ##
 ## Handle the case of: template_def ==> template '<' <template-parameters> '>' class <class-name> ...
@@ -720,6 +732,27 @@ sub process_typedef_struct($$$$) {
     }
 
     $$new_contents_ref .= $extracted . $tail ;
+
+}
+
+
+## ================================================================================
+## process_typedef_const_struct
+##
+## Synopsis
+##
+## Process a typedef const struct definition.  SWIG doesn't like this construct.
+## If we find one, we ignore the contents by finding the end of the definition
+## and throwing it all out.
+##
+
+sub process_typedef_const_struct($$$$) {
+
+    my ($typedef_const_struct_string , $contents_ref ) = @_ ;
+    my $extracted ;
+
+    ($extracted, $$contents_ref) = extract_bracketed( "{" . $$contents_ref , "{}") ;
+    $$contents_ref =~ s/^(\s*([\w,\s\*]+)?\s*;)//sx ;
 
 }
 
