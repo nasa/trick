@@ -60,9 +60,6 @@ int Trick::VariableServerThread::var_add(std::string in_name) {
         if ( new_ref->attr->type == TRICK_STRUCTURED ) {
             message_publish(MSG_ERROR, "Variable Server: var_add cant add \"%s\" because its a composite variable.\n", in_name.c_str());
             // Replace the REF2 object we got from ref_attributes with an error-ref.
-            if (new_ref->attr) {
-                free(new_ref->attr);
-            }
             free(new_ref);
             new_ref = make_error_ref(in_name);
         }
