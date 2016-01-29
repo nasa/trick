@@ -74,6 +74,7 @@ ER7_UTILS_DIRS = \
 	${ER7_UTILS_HOME}/integration/rkf45 \
 	${ER7_UTILS_HOME}/integration/rkf78 \
 	${ER7_UTILS_HOME}/integration/rkg4 \
+	${ER7_UTILS_HOME}/integration/rkn4 \
 	${ER7_UTILS_HOME}/integration/symplectic_euler \
 	${ER7_UTILS_HOME}/integration/velocity_verlet \
 	${ER7_UTILS_HOME}/interface \
