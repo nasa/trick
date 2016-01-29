@@ -2,6 +2,7 @@
 ODE_HOME = /users/alin/ode-0.14
 
 TRICK_ICG_EXCLUDE = ${ODE_HOME}/ode/src/array.h:${ODE_HOME}/ode/src/threading_base.h
+TRICK_ICG_NOCOMMENT = ${ODE_HOME}
 TRICK_SWIG_EXCLUDE = ${ODE_HOME}
 
 TRICK_CFLAGS += -I${TRICK_HOME}/trick_models -I${ODE_HOME}/include -I${ODE_HOME}

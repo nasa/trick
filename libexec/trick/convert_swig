@@ -218,8 +218,9 @@ sub process_file() {
         $raw_contents = <IN_FILE> ;
 
         # remove all comments, they can cause all kinds of trouble
-        # leave the line continuation character if present in a c++ style comment.
-        $raw_contents =~ s/\/\*(?:.*?)\*\/|\/\/(?:.*?)(\\)?(\n)/$1\n/sg ;
+        # leave the line continuation character if present
+        $raw_contents =~ s/\/\*(?:.*?)\*\/(\s*\\\n)?/$1/sg ;
+        $raw_contents =~ s/\/\/(?:.*?)(\\)?(\n)/$1\n/sg ;
 
 ##      The init_attr functions cause problems when we try and wrap them with SWIG.
 ##      We can safely remove them from the header files.
