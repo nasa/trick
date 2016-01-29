@@ -429,6 +429,9 @@ bool FieldVisitor::VisitTypedefType(clang::TypedefType *tt) {
     }
 
     if ( tt->isEnumeralType() ) {
+        if ( debug_level >= 4 ) {
+            std::cout << "    FieldVisitor VisitTypedefType enumerated" << std::endl ;
+        }
         fdes->setEnumString("TRICK_ENUMERATED") ;
         fdes->setEnum(true) ;
         std::string enum_type_name = tt->desugar().getAsString() ;
@@ -534,8 +537,28 @@ bool FieldVisitor::VisitTypedefType(clang::TypedefType *tt) {
         fdes->setTypeName(type_name) ;
         fdes->setHasType(true) ;
     } else if ( tt->isBuiltinType() ) {
+        if ( debug_level >= 4 ) {
+            std::cout << "    FieldVisitor VisitTypedefType builtintype" << std::endl ;
+        }
         const clang::BuiltinType * bt = tt->getAs<clang::BuiltinType>() ;
         VisitBuiltinType((clang::BuiltinType *)bt) ;
+    } else if ( tt->isArrayType() || tt->isPointerType()) {
+        clang::QualType qt = tt->desugar() ;
+        if ( debug_level >= 4 ) {
+            std::cout << "Typedef to constant array type" << std::endl ;
+            qt->dump() ;
+        }
+        // Calling visit type recursively with the typedeffed type
+        TraverseType(qt) ;
+
+        if ( debug_level >= 4 ) {
+            std::cout << "After TraverseType" << std::endl ;
+            std::cout << *fdes << std::endl ;
+        }
+    } else {
+        if ( debug_level >= 4 ) {
+            std::cout << "Typedef to something we don't handle yet" << std::endl ;
+        }
     }
     return true;
 }

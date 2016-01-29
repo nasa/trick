@@ -180,11 +180,11 @@ bool PrintAttributes::openIOFile(std::string header_file_name) {
                             icg_no_files.push_back(rp) ;
                         }
                     } else {
-                        std::cout << "[33mICG skipping " << rp << " (ICG exclude dir " <<
+                        std::cout << "[33mICG skipping " << rp << " (ICG exclude " <<
                          hsd.getPathInICGExclude(rp) << ")[00m" << std::endl ;
                     }
                 } else {
-                    std::cout << "[33mICG skipping " << rp << " (exclude dir " <<
+                    std::cout << "[33mICG skipping " << rp << " (exclude " <<
                      hsd.getPathInExclude(rp) << ")[00m" << std::endl ;
                 }
             } else {
