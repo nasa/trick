@@ -1,0 +1,68 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (blah blah blah)
+LIBRARY DEPENDENCIES:
+    (
+    )
+*************************************************************/
+
+#define DRAW_THREAD C1
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "ODE/OdeWorld/OdeWorld.hh"
+##include "ODE/DrawStuff/DrawStuff.hh"
+
+##include "ODE/Ball/Ball.hh"
+##include "ODE/Ball/BallDrawStuffObject.hh"
+
+%{
+const double OdeWorldSimObject::time_step = 0.01 ;
+%}
+
+/**
+  This class is the base ball class
+ */
+class OdeWorldSimObject : public Trick::SimObject {
+
+    public:
+
+        OdeWorld ode_world ;
+        DrawStuff drawstuff ;
+
+        static const double time_step ;
+
+        /** Constructor to add the jobs */
+        OdeWorldSimObject() {
+            ("initialization") ode_world.init() ;
+            (time_step, "scheduled") ode_world.step(time_step) ;
+            DRAW_THREAD (1000000.0, "scheduled") drawstuff.draw() ;
+            ("shutdown") drawstuff.shutdown() ;
+            ("shutdown") ode_world.shutdown() ;
+        }
+} ;
+
+class OdeObjectsSimObject : public Trick::SimObject {
+
+    public:
+
+        Ball ball ;
+        BallDrawStuffObject ball_drawstuff_object ;
+
+        /** Constructor to add the jobs */
+        OdeObjectsSimObject() {
+            ("initialization") ball.init() ;
+            ("initialization") ball_drawstuff_object.init(ball.geom) ;
+        }
+} ;
+
+// Instantiations
+OdeWorldSimObject world ;
+OdeObjectsSimObject ode_objects ;
+
+// Connect objects
+void create_connections() {
+    // Set the default termination time
+    exec_set_terminate_time(300.0) ;
+}
+
