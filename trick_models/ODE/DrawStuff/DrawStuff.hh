@@ -15,7 +15,7 @@ LIBRARY DEPENDENCY:
 
 class DrawStuff {
     public:
-        dsFunctions fn;
+        dsFunctions fn;   // ** draw stuff function pointer structure
 
         int window_width ;
         int window_height ;
@@ -23,6 +23,7 @@ class DrawStuff {
         DrawStuff() ;
         static void start() ;
         static void step(int) ;
+        static void command(int) ;
 
         int draw() ;
         int shutdown() ;

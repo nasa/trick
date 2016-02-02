@@ -11,9 +11,10 @@ LIBRARY DEPENDENCY:
 
 class DrawStuffObject {
     public:
-        virtual ~DrawStuffObject() {}
-        void add_object() ;
+        virtual ~DrawStuffObject() ;
+        virtual void add_object() ;
         virtual int draw() = 0 ;
+        virtual void command(int cmd) ;
 } ;
 
 #endif

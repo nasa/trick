@@ -18,6 +18,13 @@ void DrawStuff::step(int) {
     }
 }
 
+void DrawStuff::command(int cmd) {
+    std::vector<DrawStuffObject *>::iterator it ;
+    for( it = objects.begin() ; it != objects.end() ; it++ ) {
+        (*it)->command(cmd) ;
+    }
+}
+
 DrawStuff::DrawStuff() :
  fn(),
  window_width(1024),
@@ -28,6 +35,7 @@ DrawStuff::DrawStuff() :
 
     fn.start = &DrawStuff::start ;
     fn.step = &DrawStuff::step ;
+    fn.command = &DrawStuff::command ;
 }
 
 int DrawStuff::draw() {
