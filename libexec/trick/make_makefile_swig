@@ -134,7 +134,6 @@ sub make_swig_makefile() {
 
     my ($n , $f , $k , $m);
     my %temp_hash ;
-    my (@temp_array) ;
     my ($ii) ;
     my ($swig_sim_dir, $swig_src_dir) ;
     my (%py_module_map) ;
@@ -160,9 +159,9 @@ sub make_swig_makefile() {
             }
         }
         next if ( $continue == 0 ) ;
-        push @temp_array , $f ;
+        $temp_hash{$f} = 1;
     }
-    @files_to_process = @temp_array ;
+    @files_to_process = sort keys %temp_hash ;
 
     open MAKEFILE , ">build/Makefile_swig" or return ;
     open LINK_PY_OBJS , ">build/link_py_objs" or return ;
@@ -171,7 +170,7 @@ sub make_swig_makefile() {
 
     print MAKEFILE "\
 # SWIG rule
-SWIG_FLAGS =
+SWIG_FLAGS ?=
 SWIG_CFLAGS := -I../include \${PYTHON_INCLUDES} -Wno-shadow -Wno-missing-field-initializers
 ifeq (\$(IS_CC_CLANG), 1)
  SWIG_CFLAGS += -Wno-self-assign -Wno-sometimes-uninitialized
