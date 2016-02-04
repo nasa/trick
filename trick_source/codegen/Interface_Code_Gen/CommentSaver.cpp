@@ -7,16 +7,20 @@
 #include "clang/Basic/FileManager.h"
 
 #include "CommentSaver.hh"
+#include "Utilities.hh"
 
 CommentSaver::CommentSaver(clang::SourceManager & in_sm ) : sm(in_sm) {}
 
 bool CommentSaver::HandleComment(clang::Preprocessor &PP, clang::SourceRange Comment) {
-    //Comment.getBegin().dump(sm) ;
 
     if ( ! sm.isInSystemHeader(Comment.getBegin()) ) {
         std::string file_name = sm.getBufferName(Comment.getBegin()) ;
-        unsigned int line_no = sm.getSpellingLineNumber(Comment.getBegin()) ;
-        comment_map[file_name][line_no] = Comment ;
+        char * resolved_path = almostRealPath( file_name.c_str() ) ;
+        if ( resolved_path != NULL ) {
+            unsigned int line_no = sm.getSpellingLineNumber(Comment.getBegin()) ;
+            comment_map[file_name][line_no] = Comment ;
+            free(resolved_path) ;
+        }
     }
 
     // returning false means we did not push any text back to the stream for further reads.
@@ -46,19 +50,26 @@ std::string CommentSaver::getTrickHeaderComment( std::string file_name ) {
 
     std::map < unsigned int , clang::SourceRange >::iterator cit ;
 
-    if ( trick_header_comments.find(file_name) == trick_header_comments.end() ) {
-        trick_header_comments[file_name] = std::string() ;
-        for ( cit = comment_map[file_name].begin() ; cit != comment_map[file_name].end() ; cit++ ) {
-            std::string comment_str = getComment((*cit).second) ;
-            std::transform(comment_str.begin(), comment_str.end(), comment_str.begin(), ::toupper) ;
-            if ( comment_str.find("PURPOSE") != std::string::npos ) {
-                trick_header_comments[file_name] = comment_str ;
-                break ;
+    std::string ret ;
+    char * resolved_path = almostRealPath( file_name.c_str() ) ;
+    if ( resolved_path != NULL ) {
+        if ( trick_header_comments.find(file_name) == trick_header_comments.end() ) {
+            trick_header_comments[file_name] = std::string() ;
+            for ( cit = comment_map[file_name].begin() ; cit != comment_map[file_name].end() ; cit++ ) {
+                std::string comment_str = getComment((*cit).second) ;
+                std::transform(comment_str.begin(), comment_str.end(), comment_str.begin(), ::toupper) ;
+                if ( comment_str.find("PURPOSE") != std::string::npos ) {
+                    trick_header_comments[file_name] = comment_str ;
+                    break ;
+                }
             }
         }
+        ret = trick_header_comments[resolved_path] ;
+        free(resolved_path) ;
     }
 
-    return trick_header_comments[file_name] ;
+    return ret ;
+
 }
 
 void CommentSaver::getICGField( std::string file_name ) {

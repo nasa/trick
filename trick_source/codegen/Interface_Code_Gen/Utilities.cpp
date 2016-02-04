@@ -58,13 +58,10 @@ std::string getFileName( clang::CompilerInstance & ci , clang::SourceLocation sl
     if ( ! fid.isInvalid() ) {
         const clang::FileEntry * fe = ci.getSourceManager().getFileEntryForID(fid) ;
         if ( fe != NULL ) {
-            return std::string(fe->getName()) ;
-/*
             char * resolved_path = almostRealPath( fe->getName() ) ;
             if ( resolved_path != NULL  and hsd.isPathInUserDir(resolved_path)) {
                 return std::string(resolved_path) ;
             }
-*/
         }
     }
     return std::string() ;

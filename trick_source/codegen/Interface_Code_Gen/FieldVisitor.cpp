@@ -144,14 +144,18 @@ bool FieldVisitor::VisitDeclaratorDecl( clang::DeclaratorDecl *dd ) {
 
     /* Get the source location of this field. */
     clang::SourceRange dd_range = dd->getSourceRange() ;
-    if ( ! ci.getSourceManager().isInSystemHeader(dd_range.getEnd()) ) {
-        std::string file_name = ci.getSourceManager().getBufferName(dd_range.getEnd()) ;
-        fdes->setLineNo(ci.getSourceManager().getSpellingLineNumber(dd_range.getEnd())) ;
-        /* process comment if neither ICG:(No) or ICG:(NoComment) is present */
-        if ( ! cs.hasICGNoComment(file_name) and ! hsd.isPathInICGNoComment(file_name) ) {
-            /* Get the possible comment on this line and parse it */
-            fdes->parseComment(cs.getComment(file_name , fdes->getLineNo())) ;
+    std::string file_name = ci.getSourceManager().getBufferName(dd_range.getEnd()) ;
+    char * resolved_path = almostRealPath( file_name.c_str() ) ;
+    if ( resolved_path ) {
+        if ( ! ci.getSourceManager().isInSystemHeader(dd_range.getEnd()) ) {
+            fdes->setLineNo(ci.getSourceManager().getSpellingLineNumber(dd_range.getEnd())) ;
+            /* process comment if neither ICG:(No) or ICG:(NoComment) is present */
+            if ( ! cs.hasICGNoComment(file_name) and ! hsd.isPathInICGNoComment(file_name) ) {
+                /* Get the possible comment on this line and parse it */
+                fdes->parseComment(cs.getComment(file_name , fdes->getLineNo())) ;
+            }
         }
+        free(resolved_path) ;
     }
 
     if ( debug_level >= 3 ) {
