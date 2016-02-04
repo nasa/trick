@@ -10,6 +10,12 @@
 %include "trick/swig/cast_as.i"
 %include "trick/swig/swig_int_typemap.i"
 
+/*
+   compactdefaultargs fixes a bug with enumeration default arguments not being
+   recogized in function calls starting in swig 3.0.x
+ */
+%feature("compactdefaultargs") ;
+
 /* SWIG can't understand GNU C keyword "__attribute__" */
 #ifdef SWIG
 #define __attribute__(x)
