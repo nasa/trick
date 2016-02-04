@@ -469,6 +469,12 @@ int Trick::FrameLog::set_max_samples(int num) {
             timeline[ii] = (Trick::timeline_t *)realloc( timeline[ii], tl_max_samples*sizeof(Trick::timeline_t));
             timeline_other[ii] = (Trick::timeline_t *)realloc( timeline_other[ii], tl_max_samples*sizeof(Trick::timeline_t));
         }
+        std::vector< Trick::FrameDataRecordGroup *>::iterator it ;
+        for ( it = drg_users.begin() ; it != drg_users.end() ; it++ ) {
+            (*it)->set_max_buffer_size(num) ;
+        }
+        drg_trick->set_max_buffer_size(num) ;
+        drg_frame->set_max_buffer_size(num) ;
     }
     return(0) ;
 }
