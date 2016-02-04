@@ -145,15 +145,19 @@ bool FieldVisitor::VisitDeclaratorDecl( clang::DeclaratorDecl *dd ) {
     /* Get the source location of this field. */
     clang::SourceRange dd_range = dd->getSourceRange() ;
     std::string file_name = ci.getSourceManager().getBufferName(dd_range.getEnd()) ;
-    if ( isInUserOrTrickCode( ci , dd_range.getEnd() , hsd ) ) {
-        fdes->setLineNo(ci.getSourceManager().getSpellingLineNumber(dd_range.getEnd())) ;
-        /* process comment if neither ICG:(No) or ICG:(NoComment) is present */
-        if (  cs.hasTrickHeader(file_name) and
-             !cs.hasICGNoComment(file_name) and
-             !hsd.isPathInICGNoComment(file_name) ) {
-            /* Get the possible comment on this line and parse it */
-            fdes->parseComment(cs.getComment(file_name , fdes->getLineNo())) ;
+    char * resolved_path = almostRealPath( file_name.c_str() ) ;
+    if ( resolved_path ) {
+        if ( isInUserOrTrickCode( ci , dd_range.getEnd() , hsd ) ) {
+            fdes->setLineNo(ci.getSourceManager().getSpellingLineNumber(dd_range.getEnd())) ;
+            /* process comment if neither ICG:(No) or ICG:(NoComment) is present */
+            if (  cs.hasTrickHeader(resolved_path) and
+                 !cs.hasICGNoComment(resolved_path) and
+                 !hsd.isPathInICGNoComment(resolved_path) ) {
+                /* Get the possible comment on this line and parse it */
+                fdes->parseComment(cs.getComment(resolved_path , fdes->getLineNo())) ;
+            }
         }
+        free(resolved_path) ;
     }
 
     if ( debug_level >= 3 ) {
