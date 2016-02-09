@@ -117,7 +117,6 @@ sub read_files_to_process() {
 
     open FILE, "build/ICG_ext_lib" or die 'could not open build/ICG_ext_lib' ;
     my @unfiltered_ext_lib_files = <FILE> ;
-    @unfiltered_ext_lib_files = <FILE> ;
     close FILE ;
     chomp @unfiltered_ext_lib_files ;
 
