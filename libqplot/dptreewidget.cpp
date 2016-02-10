@@ -67,13 +67,78 @@ void DPTreeWidget::_setupModel()
 {
     _dir = new QDir(_dpDirName);
 
-    // Change directory from RUN/MONTE dir to DP_Product dir
-    _dir->cdUp();
-    QStringList dpDirFilter;
-    dpDirFilter << "DP_Product";
-    QStringList dpdirs = _dir->entryList(dpDirFilter);
-    if ( !dpdirs.isEmpty() ) {
-        _dir->cd(dpdirs.at(0));
+    // Change directory from RUN/MONTE dir to DP_Product dir (if possible)
+    bool isFound = false;
+    while ( 1 ) {
+        QString path1 = QDir::cleanPath(_dir->absolutePath());
+        QStringList dpDirFilter;
+        dpDirFilter << "DP_Product";
+        QStringList dpdirs = _dir->entryList(dpDirFilter);
+        if ( !dpdirs.isEmpty() ) {
+            _dir->cd(dpdirs.at(0));
+            isFound = true;
+            break;
+        }
+        _dir->cdUp();
+        QString path2 = QDir::cleanPath(_dir->absolutePath());
+        if ( path1 == path2 ) {
+            // Since cdUP returned same path, assume path1==path2=="/" (root)
+            break;
+        }
+    }
+
+    if ( isFound == false ) {
+        // No DP_Product dir found at or above data dir
+        // Search for DP_ files at or above data dir
+        delete _dir;
+        _dir = new QDir(_dpDirName);
+        while ( 1 ) {
+            QString path1 = QDir::cleanPath(_dir->absolutePath());
+            QStringList dpDirFilter;
+            dpDirFilter << "DP_*";
+            QStringList dps = _dir->entryList(dpDirFilter);
+            if ( !dps.isEmpty() ) {
+                isFound = true;
+                break;
+            }
+            _dir->cdUp();
+            QString path2 = QDir::cleanPath(_dir->absolutePath());
+            if ( path1 == path2 ) {
+                // Since cdUP returned same path, assume path1==path2=="/" (root)
+                break;
+            }
+        }
+    }
+
+    if ( isFound == false ) {
+        // No DP_* files or Data_Product dirs found
+        // Try for parent SIM_ dir
+        delete _dir;
+        _dir = new QDir(_dpDirName);
+        while ( 1 ) {
+            QString path1 = QDir::cleanPath(_dir->absolutePath());
+            QStringList simDirFilter;
+            simDirFilter << "SIM_*";
+            QStringList sims = _dir->entryList(simDirFilter);
+            if ( !sims.isEmpty() ) {
+                isFound = true;
+                break;
+            }
+            _dir->cdUp();
+            QString path2 = QDir::cleanPath(_dir->absolutePath());
+            if ( path1 == path2 ) {
+                // Since cdUP returned same path, assume path1==path2=="/" (root)
+                break;
+            }
+        }
+    }
+
+    if ( isFound == false ) {
+        // No DP_* files, Data_Product dirs or SIM_ dirs found
+        // Use directory above as last ditch try
+        delete _dir;
+        _dir = new QDir(_dpDirName);
+        _dir->cdUp();
     }
 
     _dpModel = new QFileSystemModel;
