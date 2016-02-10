@@ -60,7 +60,6 @@ SIM_SERV_DIRS = \
 SIM_SERV_OBJS = $(addsuffix /object_$(TRICK_HOST_CPU)/*.o ,$(SIM_SERV_DIRS))
 
 ER7_UTILS_DIRS = \
-	${ER7_UTILS_HOME}/CheckpointHelper \
 	${ER7_UTILS_HOME}/integration/abm4 \
 	${ER7_UTILS_HOME}/integration/beeman \
 	${ER7_UTILS_HOME}/integration/core \
@@ -80,6 +79,9 @@ ER7_UTILS_DIRS = \
 	${ER7_UTILS_HOME}/interface \
 	${ER7_UTILS_HOME}/math \
 	${ER7_UTILS_HOME}/trick/integration
+ifeq ($(USE_ER7_UTILS_CHECKPOINTHELPER), 1)
+ER7_UTILS_DIRS += ${ER7_UTILS_HOME}/CheckpointHelper
+endif
 ER7_UTILS_OBJS = $(addsuffix /object_$(TRICK_HOST_CPU)/*.o ,$(ER7_UTILS_DIRS))
 
 UTILS_DIRS = \
@@ -110,7 +112,7 @@ UNIT_TEST_DIRS := \
     $(wildcard ${TRICK_HOME}/trick_source/sim_services/*/test) \
     $(wildcard ${TRICK_HOME}/trick_source/trick_utils/*/test) \
     ${TRICK_HOME}/trick_source/data_products/DPX/test/unit_test
-ifeq ($(USE_ER7_UTILS_INTEGRATORS), 0)
+ifeq ($(USE_ER7_UTILS), 0)
   UNIT_TEST_DIRS := $(filter-out %Integrator/test,$(UNIT_TEST_DIRS))
 endif
 
@@ -163,7 +165,7 @@ no_dp: $(TRICK_LIB) $(TRICK_SWIG_LIB) $(TRICK_LIB_DIR)/master.o
 	@ echo ; echo "Trick libs compiled:" ; date
 
 # 1.1.1 Build libTrick.a
-ifeq ($(USE_ER7_UTILS_INTEGRATORS), 1)
+ifeq ($(USE_ER7_UTILS), 1)
 $(TRICK_LIB): $(SIM_SERV_DIRS) $(ER7_UTILS_DIRS) $(UTILS_DIRS) | $(TRICK_LIB_DIR)
 	ar crs $@ $(SIM_SERV_OBJS) $(ER7_UTILS_OBJS) $(UTILS_OBJS)
 else
@@ -193,7 +195,7 @@ make_er7_makefiles:
 	   $(CP) ${TRICK_HOME}/trick_source/sim_services/Executive/Makefile $$i; \
 	done
 
-ifeq ($(USE_ER7_UTILS_INTEGRATORS), 1)
+ifeq ($(USE_ER7_UTILS), 1)
 icg_sim_serv: | make_er7_makefiles
 endif
 
@@ -286,7 +288,7 @@ clean: clean_sim_serv clean_utils clean_swig clean_dp clean_ICG clean_java
 	@/bin/rm -rf $(TRICK_BIN_DIR)
 	@/bin/rm -rf $(TRICK_LIB_DIR)
 
-ifeq ($(USE_ER7_UTILS_INTEGRATORS), 1)
+ifeq ($(USE_ER7_UTILS), 1)
 clean: clean_er7_utils 
 endif
 
@@ -310,7 +312,7 @@ clean_swig:
 	   $(MAKE) -C $$i real_clean ; \
 	done
 
-ifeq ($(USE_ER7_UTILS_INTEGRATORS), 1)
+ifeq ($(USE_ER7_UTILS), 1)
 clean_swig: make_er7_makefiles 
 endif
 
@@ -380,7 +382,7 @@ ${PREFIX}/trick/trick-$(TRICK_VERSION) :
 
 copy_trick_source: copy_codegen copy_sim_objects copy_sim_serv_dirs copy_utils_dirs copy_swig
 
-ifeq ($(USE_ER7_UTILS_INTEGRATORS), 1)
+ifeq ($(USE_ER7_UTILS), 1)
 copy_trick_source: copy_er7_utils_dirs
 endif
 

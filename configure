@@ -33,6 +33,7 @@ tprocte=""
 bc635=""
 java_min_ver=1.6.0
 no_create=0
+er7utils=1
 dev=1
 help=0
 lsb_release=/usr/bin/lsb_release
@@ -304,6 +305,8 @@ do
            python=$optarg ;;
        --no_create)
            no_create=1 ;;
+       --no-er7utils)
+           er7utils=0 ;;
        --swig)
            prev=swig ;;
        --swig=*)
@@ -824,6 +827,8 @@ GTEST_HOME = $gtest
 
 LIBXML = $libxml
 MOTIF_HOME = $motif
+
+USE_ER7_UTILS = $er7utils
 
 # experimental, default to 0
 HAVE_ZEROCONF = 0

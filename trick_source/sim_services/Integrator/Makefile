@@ -3,7 +3,7 @@ include ${TRICK_HOME}/makefiles/Makefile.common
 include ${TRICK_HOME}/makefiles/Makefile.tricklib
 -include Makefile_deps
 
-ifeq ($(USE_ER7_UTILS_INTEGRATORS), 1)
+ifeq ($(USE_ER7_UTILS), 1)
 trick:
 	@echo "#####################################################################"
 	@echo "##                      Make ER7 ALGORITHMS                        ##"

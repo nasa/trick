@@ -1,0 +1,19 @@
+
+# $Id: data_record.dr 931 2010-08-10 20:32:30Z lin $
+
+drg0 = trick.DRBinary("Ball1") 
+drg0.set_freq(trick.DR_Always)
+drg0.enable()
+drg0.set_cycle(0.1)
+
+drg0.add_variable("ball.state.output.position[0]", "ball.state.out.position[0]")
+drg0.add_variable("ball.state.output.position[1]", "ball.state.out.position[1]")
+drg0.add_variable("ball.state.output.velocity[0]", "ball.state.out.velocity[0]")
+drg0.add_variable("ball.state.output.velocity[1]", "ball.state.out.velocity[1]")
+drg0.add_variable("ball.state.output.acceleration[0]", "ball.state.out.acceleration[0]")
+drg0.add_variable("ball.state.output.acceleration[1]", "ball.state.out.acceleration[1]")
+drg0.add_variable("ball.state.output.external_force[0]", "ball.state.out.external_force[0]")
+drg0.add_variable("ball.state.output.external_force[1]", "ball.state.out.external_force[1]")
+
+trick.add_data_record_group( drg0 )
+

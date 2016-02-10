@@ -1,0 +1,92 @@
+/**
+@defgroup Er7Utils Er7Utils
+The ER7 numerical utilities package.
+
+@addtogroup Er7Utils
+@{
+
+/**
+ * Namespace in which the entirety of the
+ * ER7 numerical utilities package is embedded.
+ */
+namespace er7_utils {
+}
+
+
+@defgroup Jeod Jeod
+The ER7 numerical utilities side of the er7_utils/JEOD interface.
+
+@addtogroup Jeod
+@{
+
+namespace er7_utils {
+
+/**
+ * Namespace in which the er7_utils/JEOD interface is embedded.
+ */
+namespace jeod_interface {
+}
+}
+
+@}
+
+
+@defgroup Trick Trick
+The ER7 numerical utilities side of the er7_utils/Trick interface.
+
+
+@defgroup Interface Interface
+Low-level interface utilities used internally within the
+ER7 numerical utilities package.
+
+@defgroup Integration Integration
+Numerical integration techniques.
+
+@addtogroup Integration
+@{
+
+@defgroup Abm4 Abm4
+Fourth order Adams Bashforth Moulton integration.
+
+@defgroup Beeman Beeman
+Beeman's method.
+
+@defgroup Core Core
+Common integration infrastructure.
+
+@defgroup Euler Euler
+Euler's method.
+
+@defgroup Mm4 Mm4
+Modified midpoint 4.
+
+@defgroup Nl2 Nl2
+Nystrom-Lear 2 integration.
+
+@defgroup Rk2Heun Rk2Heun
+Heun's method.
+
+@defgroup Rk2Midpoint Rk2Midpoint
+Midpoint method.
+
+@defgroup Rk4 Rk4
+Canonical fourth order Runge Kutta.
+
+@defgroup Rkf45 Rkf45
+Runge Kutta Fehberg 4/5.
+
+@defgroup Rkf78 Rkf78
+Runge Kutta Fehberg 7/8.
+
+@defgroup Rkg4 Rkg4
+Fourth order Runge Kutta Gill.
+
+@defgroup SymplecticEuler SymplecticEuler
+Symplectic Euler integration, aka Euler-Cromer.
+
+@defgroup VelocityVerlet VelocityVerlet
+Velocity verlet method.
+
+@}
+@}
+*/
