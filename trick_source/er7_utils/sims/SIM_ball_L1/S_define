@@ -1,0 +1,131 @@
+/*
+ * $Id: S_define 1973 2011-10-11 15:11:16Z lin $
+ */
+
+/************************TRICK HEADER*************************
+PURPOSE:
+    (This Trick header comment lists out simulation model file dependencies that are not c++.
+     The model files are complete relative path to the "C" file and not the object file as
+     in the source code comments.  Multiple trick comments with multiple sets of
+     LIBRARY DEPENDENCIES are allowed in the S_define file.)
+LIBRARY DEPENDENCIES:
+    (
+    )
+DEFAULT DATA:
+    (
+    )
+*************************************************************/
+
+
+#define DYNAMICS 0.01
+#define NUM_VARIABLES   4   /* x,y position state and x,y velocity state */
+
+#include "sim_objects/default_trick_sys.sm"
+
+/*
+ * Header files that contain structure/class definitions are included using the
+ * double "##" notation.
+ */
+##include "er7_utils/to_trick/include/getIntegrator.hh"
+##include "ball/L1/include/ball_state.h"
+##include "ball/L1/include/ball_force.h"
+##include "ball/L1/include/ball_proto.h"
+
+/*
+ * %header{ ... %} is a new feature in Trick 10 that copys user code to the S_source.hh
+ */
+%header{
+
+/*
+ * Header files listed here will be included in S_source.hh but not be input processed.
+ * If the prototype file ball_proto.h was included here, the simulation would have
+ * compiled, but the ball routines would not be available in the input processor.
+ */
+// ##include "ball/L1/include/ball_proto.h"
+
+%}
+
+/*
+ * %{ ... %} contains user code that is copied into S_source.cpp
+ */
+%{
+
+// This user code section is empty for this simulation
+
+%}
+
+/*
+ * sim_objects are defined and instantiated separately in Trick 10 S_define files.
+ * Each sim_object is a C++ class definition.  Each sim_object class must inherit
+ * from "public Trick::SimObject" or another SimObject.
+ *
+ */
+class ballSimObject : public Trick::SimObject {
+
+    public:
+
+        BSTATE      state ;
+        BFORCE      force ;
+        Trick::Integrator*  integrator ;
+
+        Integrator_type trick_technique;
+        er7_utils::Integration::Technique er7_technique;
+        bool use_trick_integ;
+
+        ballSimObject() : state() , force() {
+
+
+            ("default_data") ball_state_default_data( &state ) ;
+            ("default_data") ball_force_default_data( &force ) ;
+
+            // INITIALIZATION JOBS
+            ("initialization") create_integrator ();
+            ("initialization") ball_state_init( &state ) ;
+
+            ("shutdown") destroy_integrator ();
+
+            // EOM DERIVATIVE AND STATE INTEGRATION JOBS
+            ("derivative") ball_force_field( &force, state.output.position ) ;
+            ("derivative") ball_state_deriv( &state ) ;
+            ("integration", &integrator) trick_ret =
+                ball_state_integ( &state ) ;
+
+            (10.0 , "scheduled") ball_print( &state ) ;
+        }
+
+        void create_integrator () {
+            if (use_trick_integ) {
+                integrator = Trick::getIntegrator (
+                                 trick_technique, NUM_VARIABLES, DYNAMICS);
+            }
+            else if (trick_technique != User_Defined) {
+                integrator = TrickgetIntegrator (
+                                 trick_technique, NUM_VARIABLES, DYNAMICS);
+            }
+            else {
+                integrator = TrickgetEr7Integrator (
+                                 er7_technique, NUM_VARIABLES, DYNAMICS);
+            }
+        }
+
+        void destroy_integrator () {
+            TrickdeleteIntegrator (integrator);
+        }
+} ;
+
+/*
+ * SimObjects are instantiated.  SimObjects may be multiply instantiated.
+ */
+ballSimObject ball ;
+
+
+collect ball.state.work.external_force = { ball.force.output.force[0] };
+
+/*
+ * Integrate statements have an argument after the integrate keyword that
+ * specifies the name of the integrator SimObject.  This name is accessible
+ * within the input processor.
+ */
+integrate my_integ_loop (DYNAMICS) ball;
+
+

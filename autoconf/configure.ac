@@ -100,6 +100,16 @@ AC_DEFUN([AX_GTEST_HOME],[
     AC_SUBST([GTEST_HOME])
 ])
 
+dnl test if we want to use er7_utils, default to yes
+AC_DEFUN([AX_ER7_UTILS],[
+    AC_ARG_ENABLE([er7utils],
+                  AS_HELP_STRING([--enable-er7utils], [use er7_utils (default is yes)]),
+                  AS_IF([test "x$enable_er7utils" = xyes], [USE_ER7_UTILS="1"], [USE_ER7_UTILS="0"]),
+                  [USE_ER7_UTILS="1"]
+                 )
+    AC_SUBST([USE_ER7_UTILS])
+])
+
 dnl if fermi-ware directory exists, test for motif.
 AC_DEFUN([AX_JSC_DIRS],[
     AC_CHECK_FILE([trick_source/data_products/fermi-ware],
@@ -170,6 +180,7 @@ AX_TPRO_HOME([])
 AX_BC635_HOME([])
 AX_GSL_HOME([])
 AX_GTEST_HOME([])
+AX_ER7_UTILS([])
 
 AC_OUTPUT([share/trick/makefiles/config_user.mk])
 

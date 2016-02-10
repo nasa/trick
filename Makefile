@@ -58,12 +58,14 @@ SIM_SERV_DIRS = \
 	${TRICK_HOME}/trick_source/sim_services/Zeroconf \
 	${TRICK_HOME}/trick_source/sim_services/include \
 	${TRICK_HOME}/trick_source/sim_services/mains
+ifeq ($(USE_ER7_UTILS), 0)
+SIM_SERV_DIRS += ${TRICK_HOME}/trick_source/sim_services/Integrator/trick_algorithms
+endif
 
 SIM_SERV_OBJS = $(addsuffix /object_$(TRICK_HOST_CPU)/*.o ,$(SIM_SERV_DIRS))
 SIM_SERV_OBJS := $(filter-out ${TRICK_HOME}/trick_source/sim_services/MemoryManager/%, $(SIM_SERV_OBJS))
 
 ER7_UTILS_DIRS = \
-	${ER7_UTILS_HOME}/CheckpointHelper \
 	${ER7_UTILS_HOME}/integration/abm4 \
 	${ER7_UTILS_HOME}/integration/beeman \
 	${ER7_UTILS_HOME}/integration/core \
@@ -83,6 +85,9 @@ ER7_UTILS_DIRS = \
 	${ER7_UTILS_HOME}/interface \
 	${ER7_UTILS_HOME}/math \
 	${ER7_UTILS_HOME}/trick/integration
+ifeq ($(USE_ER7_UTILS_CHECKPOINTHELPER), 1)
+ER7_UTILS_DIRS += ${ER7_UTILS_HOME}/CheckpointHelper
+endif
 ER7_UTILS_OBJS = $(addsuffix /object_$(TRICK_HOST_CPU)/*.o ,$(ER7_UTILS_DIRS))
 
 UTILS_DIRS := \
@@ -118,7 +123,7 @@ UNIT_TEST_DIRS := \
     $(wildcard ${TRICK_HOME}/trick_source/sim_services/*/test) \
     $(wildcard ${TRICK_HOME}/trick_source/trick_utils/*/test) \
     ${TRICK_HOME}/trick_source/data_products/DPX/test/unit_test
-ifeq ($(USE_ER7_UTILS_INTEGRATORS), 0)
+ifeq ($(USE_ER7_UTILS), 0)
   UNIT_TEST_DIRS := $(filter-out %Integrator/test,$(UNIT_TEST_DIRS))
 endif
 
@@ -174,7 +179,7 @@ no_dp: $(TRICK_LIB) $(TRICK_SWIG_LIB)
 $(TRICK_LIB): $(SIM_SERV_DIRS) $(UTILS_DIRS) | $(TRICK_LIB_DIR)
 	ar crs $@ $(SIM_SERV_OBJS) $(UTILS_OBJS)
 
-ifeq ($(USE_ER7_UTILS_INTEGRATORS), 1)
+ifeq ($(USE_ER7_UTILS), 1)
 ER7_UTILS_LIB = $(TRICK_LIB_DIR)/liber7_utils.a
 no_dp: $(ER7_UTILS_LIB)
 
@@ -204,7 +209,7 @@ make_er7_makefiles:
 	   $(CP) ${TRICK_HOME}/trick_source/sim_services/Executive/Makefile $$i; \
 	done
 
-ifeq ($(USE_ER7_UTILS_INTEGRATORS), 1)
+ifeq ($(USE_ER7_UTILS), 1)
 icg_sim_serv: | make_er7_makefiles
 endif
 
@@ -292,7 +297,7 @@ clean: clean_sim_serv clean_utils clean_swig clean_dp clean_ICG clean_java
 	@/bin/rm -rf $(TRICK_BIN_DIR)
 	@/bin/rm -rf $(TRICK_LIB_DIR)
 
-ifeq ($(USE_ER7_UTILS_INTEGRATORS), 1)
+ifeq ($(USE_ER7_UTILS), 1)
 clean: clean_er7_utils
 endif
 
@@ -318,7 +323,7 @@ clean_swig:
 	   $(MAKE) -C $$i real_clean ; \
 	done
 
-ifeq ($(USE_ER7_UTILS_INTEGRATORS), 1)
+ifeq ($(USE_ER7_UTILS), 1)
 clean_swig: make_er7_makefiles
 endif
 
@@ -403,13 +408,8 @@ ICG: $(ICG_EXE)
 	${TRICK_HOME}/bin/trick-ICG -f -s -m ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_HOME}/include/trick/files_to_ICG.hh
 
 # This builds a tricklib share library.
-ifeq ($(USE_ER7_UTILS_INTEGRATORS), 1)
-trick_lib: $(SIM_SERV_DIRS) $(ER7_UTILS_DIRS) $(UTILS_DIRS) | $(TRICK_LIB_DIR)
-	${TRICK_CPPC} $(SHARED_LIB_OPT) -o ${TRICK_LIB_DIR}/libtrick.so $(SIM_SERV_OBJS) $(ER7_UTILS_OBJS) $(UTILS_OBJS)
-else
 trick_lib: $(SIM_SERV_DIRS) $(UTILS_DIRS) | $(TRICK_LIB_DIR)
 	${TRICK_CPPC} $(SHARED_LIB_OPT) -o ${TRICK_LIB_DIR}/libtrick.so $(SIM_SERV_OBJS) $(UTILS_OBJS)
-endif
 
 # For NASA/JSC developers include optional rules
 -include Makefile_jsc_dirs

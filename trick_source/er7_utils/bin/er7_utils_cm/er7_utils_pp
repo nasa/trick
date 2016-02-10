@@ -1,0 +1,4190 @@
+#!/usr/bin/perl -w
+################################################################################
+#
+# jeod_pp: Pretty-print JEOD C++ code
+# Use jeod_pp -man to see documentation.
+#
+################################################################################
+
+use strict;
+
+use Cwd 'abs_path';
+use Getopt::Long;
+use File::Compare;
+use File::Temp 'tempfile';
+use Pod::Usage;
+
+
+sub main();
+sub configure_environment ();
+sub process_options ();
+sub process_file ($);
+sub file_read ($);
+sub file_parse ($);
+sub file_print ($$);
+sub preprocess_code ($);
+sub parse_contents ($$);
+sub parse_enum_item ($$);
+sub parse_double_include ($$);
+sub parse_macro_call ($$);
+sub parse_trick_only ($$);
+sub parse_include_block ($$);
+sub parse_macro_def ($$);
+sub parse_deleted_code ($$);
+sub parse_preprocessor ($$);
+sub parse_visibility ($$);
+sub parse_typedef ($$);
+sub parse_macro_call ($$);
+sub parse_friend_class ($$);
+sub parse_using ($$);
+sub parse_variable ($$);
+sub parse_class_decl ($$);
+sub parse_class_def ($$);
+sub parse_extern_c ($$);
+sub parse_function ($$);
+sub get_next ($$$);
+sub parse_body ($$$);
+sub repair_item ($);
+sub repair_eol_comment ($);
+sub repair_class_def ($);
+sub repair_function_decl ($);
+sub repair_function_decl_contents ($);
+sub repair_pure_virtual ($);
+sub repair_function_impl ($);
+sub repair_function_lead ($);
+sub repair_function_comments ($);
+sub delete_function_comments ($);
+sub repair_function_init ($);
+sub uncrustify_class ($);
+sub uncrustify_function ($);
+sub uncrustify ($$);
+sub doxygenate_item ($);
+sub build_doxygen_header ($@);
+sub doxygenate_purpose ($);
+sub doxygenate_assumptions ($);
+sub doxygenate_libdep ($);
+sub doxygenate_programmers ($);
+sub doxygenate_function ($);
+sub doxygenate_class ($);
+sub doxygenate_eol_comment ($);
+sub doxygenate_toplevel ($);
+sub print_item ($);
+sub print_function_decl ($);
+sub print_pure_virtual ($);
+sub print_function_impl ($);
+sub print_elements ($@);
+sub find_trick_header($);
+sub find_doxygen_header($);
+sub parse_trick_header($$);
+sub repair_trick_header($);
+sub generate_warning ($$);
+sub generate_fatal_error ($$);
+sub reset_comments_and_strings ();
+sub next_comment ();
+sub add_comment ($);
+sub get_comment ($);
+sub set_comment ($$);
+sub next_string ();
+sub add_string ($);
+sub get_string ($);
+sub set_string ($$);
+sub repair_comments ();
+sub restore_code ($);
+sub get_line (@);
+sub find_end_brace ($$);
+sub max_length ($);
+sub yorn ($);
+sub get_one_liner ($);
+sub tilde_backup ($);
+
+
+ # Tokens
+sub UNKNOWN          () {0}
+sub TOPLEVEL         () {1}
+sub HEADER           () {2}
+sub BODY             () {3}
+sub COMMENT          () {4}
+sub BLANKS           () {5}
+
+sub DOUBLE_INCLUDE   () {10}
+sub TRICK_ONLY       () {11}
+sub INCLUDE_BLOCK    () {12}
+sub MACRO_DEF        () {13}
+sub DELETED_CODE     () {14}
+sub PREPROCESSOR     () {15}
+
+sub CLASS_FWD        () {20}
+sub CLASS            () {21}
+sub ENUMERATION      () {22}
+sub NAMESPACE        () {23}
+sub EXTERN_C         () {24}
+
+sub FUNCTION_DECL    () {30}
+sub PURE_VIRTUAL     () {31}
+sub FUNCTION_IMPL    () {32}
+
+sub VISIBILITY       () {40}
+sub ENUM_VALUE       () {41}
+sub FRIEND_CLASS     () {43}
+sub VARIABLE_DECL    () {44}
+sub TYPEDEF          () {45}
+sub USING            () {46}
+
+sub ASSIGNMENT       () {50}
+sub SIM_INTERFACES   () {51}
+sub MACRO_CALL       () {52}
+
+sub OPEN_ARGS        () {60}
+sub ARGUMENT         () {61}
+
+
+# Output modes
+sub DRYRUN_MODE      () {0}
+sub STDOUT_MODE      () {1}
+sub REPLACE_MODE     () {2}
+sub SUFFIX_MODE      () {3}
+sub PREFIX_MODE      () {4}
+
+
+# Global variables
+my (
+    # Constants
+    %Patterns,                  # Parsing patterns
+    @Trick_ids,                 # Trick header ids
+    %Trick_ids,                 # Ditto
+    %Need_trick_header,         # Which items are needed
+
+    $ER7_UTILS_HOME,            # ER7_UTILS_HOME
+    $Er7_utils,                 # ER7_UTILS_HOME/er7_utils
+    $Uncrustify,                # Uncrustify program
+    $Uncrustify_cfg,            # Uncrustify config directory
+
+    # Command line
+    %Options,                   # User options
+
+    # File processing
+    $File,                      # File name
+    $File_icg,                  # ICG on for this file?
+    $File_contents,             # File contents (parsed)
+    $File_warned,               # Warning generated for file
+
+    %Defines);                  # Defined names
+
+
+main;
+
+################################################################################
+
+sub main() {
+   my $status = 0;
+   my @files;
+
+   configure_environment;
+   process_options;
+
+   @files = @ARGV;
+   push @files, '-' unless scalar @files;
+
+   foreach my $fname (@files) {
+      eval {process_file $fname};
+      if ($@) {
+         warn "Error: $@";
+         $status = 1;
+      }
+   }
+   exit $status;
+}
+
+
+################################################################################
+# Initialization functions
+################################################################################
+
+sub configure_environment () {
+
+   # Standard patterns
+   my $comment = "\\eC\\d+\\e";                  # A comment
+   my $newline = "\\eL\\d+\\e";                  # A newline
+   my $string  = "\\eS\\d+\\e";                  # A string
+   my $wspace  = "(?:\\s|\\e[LC]\\d+\\e)";       # Whitespace of any sort
+   my $cspace  = "(?:\\s|\\eC\\d+\\e)";          # Space or comment
+   my $nspace  = "(?:\\s|\\eL\\d+\\e)";          # Space or newline
+   my $endline = "(?:${cspace}*${newline})";     # Whitespace ending w/ newline
+   my $comline = "(?:${comment}\\s*${newline})"; # Comment that ends a line
+   my $sheader = "(?:${wspace}*?${newline})";    # Simple header
+
+   %Patterns = (
+      comment      => "(?:$comment)",
+      newline      => "(?:$newline)",
+      string       => "(?:$string)",
+      wspace       => $wspace,
+      cspace       => $cspace,
+      nspace       => $nspace,
+      endline      => $endline,
+      comline      => $comline,
+      sheader      => $sheader,
+
+      purpose      => "PURPOSE",
+      reference    => "REFERENCE(?:S)?",
+      requirements => "REQUIREMENTS",
+      icg          => "ICG",
+      class        => "CLASS",
+      assumptions  => "ASSUMPTIONS(?:\\sAND\\sLIMITATIONS)?",
+      libdep       => "LIBRARY\\sDEPENDENC(?:Y|IES)",
+      programmers  => "PROGRAMMERS"
+    );
+
+   @Trick_ids = qw(
+      purpose
+      reference
+      requirements
+      icg
+      class
+      assumptions
+      libdep
+      programmers);
+
+   @Trick_ids{@Trick_ids} = @Trick_ids;
+
+   %Need_trick_header = (
+      TOPLEVEL,       [qw(purpose libdep programmers)],
+      CLASS,          [qw(purpose)],
+      ENUMERATION,    [qw(purpose)],
+      PURE_VIRTUAL,   [qw(purpose)],
+      FUNCTION_IMPL,  [qw(purpose)]);
+
+   %Options = (
+      interactive => 0,
+      pedantic    => 1,
+      doxygen     => 0,
+      modules     => 0,
+      uncrustify  => undef,
+      indent      => 3,
+      mode        => STDOUT_MODE,
+      trace       => 0,
+      warn        => 1
+   );
+
+   if (defined ($ER7_UTILS_HOME = "$ENV{ER7_UTILS_HOME}")) {
+      $Er7_utils = "$ER7_UTILS_HOME/er7_utils";
+   }
+
+   # Find uncrustify
+   # For now, use the version installed in /home/dhammen.
+   chomp (my $uname_info = `uname -s -r -m`);
+   my ($os_name, $os_version, $cpu_type) = split / /, $uname_info;
+   $Uncrustify = join '/',
+                    '', qw(home dhammen),
+                    join ('-', $os_name, $os_version, $cpu_type),
+                    qw(bin uncrustify);
+
+   if (-x $Uncrustify) {
+      $Uncrustify_cfg = '/home/dhammen/scripts';
+      undef $Uncrustify unless -r $Uncrustify_cfg;
+   }
+   else {
+      undef $Uncrustify;
+   }
+}
+
+
+sub process_options () {
+
+   # Process the options in @ARGV.
+   GetOptions (
+      'help'         => \$Options{help},         # Brief help
+      'man'          => \$Options{man},          # Man page
+
+      'warn!'        => \$Options{warn},         # Warnings
+      'trace!'       => \$Options{trace},        # Trace
+
+      'interactive!' => \$Options{interactive},  # Interactive mode
+
+      'pedantic!'    => \$Options{pedantic},     # Pedantic
+
+      'doxygen!'     => \$Options{doxygen},      # Doxygen output
+      'modules!'     => \$Options{modules},      # ... with modules
+      'uncrustify!'  => \$Options{uncrustify},   # Uncrustify functions
+
+      'indent|n=i'   => \$Options{indent},       # Indentation
+
+      'dryrun'       =>                          # No output
+         sub {$Options{mode} = DRYRUN_MODE},
+      'stdout'       =>                          # Output to STDOUT
+         sub {$Options{mode} = STDOUT_MODE},
+      'replace'      =>                          # Replacement mode
+         sub {$Options{mode} = REPLACE_MODE},
+      'suffix=s'     =>                          # Suffix mode
+         sub {$Options{mode} = SUFFIX_MODE;
+              ($Options{suffix} = $_[1]) =~ s/^\.//},
+      'prefix=s'     =>                          # Prefix mode
+         sub {$Options{mode} = PREFIX_MODE;
+              ($Options{prefix} = $_[1]) =~ s/\/+$//}
+   ) or pod2usage(2);
+
+   pod2usage(1) if $Options{help};
+   pod2usage(-exitstatus => 0, -verbose => 2) if $Options{man};
+
+
+   ## Validate options.
+
+   # Standard in and out must be terminals in interactive mode.
+   if ($Options{interactive}) {
+      if ((! -t STDIN) || (! -t STDOUT)) {
+         warn
+            "Standard input and output must be connected to\n" .
+            "terminal when jeod_pp is run in interactive mode.\n" .
+            "Interactive mode disabled.\n";
+         $Options{interactive} = 0;
+      }
+      else {
+         $| = 1;
+      }
+   }
+
+   # Indentation must be 2, 3, or 4.
+   if (($Options{indent} < 2) || ($Options{indent} > 4)) {
+      warn
+         "Invalid indentation $Options{indent}. Resetting to 3.\n";
+      $Options{indent} = 3;
+   }
+
+   # Check for consistency in pipe mode (no files specified).
+   if (scalar @ARGV == 0) {
+      if (-t STDIN) {
+         warn "Standard input is not a terminal.\n" .
+              "You need to supply to program by hand.\n";
+      }
+      if (($Options{mode} != DRYRUN_MODE) &&
+          ($Options{mode} != STDOUT_MODE)) {
+      my %mode = (
+            REPLACE_MODE, '-replace',
+            SUFFIX_MODE,  '-suffix',
+            PREFIX_MODE,  '-prefix');
+         warn
+            "Output option $mode{$Options{mode}} " .
+            "is not available in piped input mode.\n" .
+            "Resetting to -dryrun mode.\n";
+         $Options{mode} = DRYRUN_MODE;
+      }
+   }
+
+   # Check whether the -modules option is available
+   if ($Options{modules}) {
+      my $modules_ok = 1;
+      my $context;
+
+      if (scalar @ARGV == 0) {
+         $modules_ok = 0;
+         $context = "in piped input mode";
+      }
+      elsif (! defined $Er7_utils) {
+         $modules_ok = 0;
+         $context = "without a ER7_UTILS_HOME";
+      }
+      else {
+         foreach my $fname (@ARGV) {
+            my $file_path = abs_path $fname;
+            $file_path =~ s/\/\/+/\//g;
+            if ($file_path !~ /^\Q${ER7_UTILS_HOME}\E\//) {
+               $modules_ok = 0;
+               $context = "with files outside of \$ER7_UTILS_HOME";
+            }
+      }
+      }
+
+      if (! $modules_ok) {
+         $Options{modules} = 0;
+         $Options{doxygen} = 1;
+         warn "Option -modules is not available $context.\n";
+      }
+   }
+
+   # Turn off uncrustify when doxygen output is active.
+   $Options{uncrustify} = 0 if $Options{doxygen};
+
+   # Uncrustify defaults on if available, off if not.
+   if (! defined $Options{uncrustify}) {
+      $Options{uncrustify} = defined $Uncrustify ? 1 : 0;
+   }
+   elsif ($Options{uncrustify} && (! defined $Uncrustify)) {
+      warn "Uncrustify option is not available on this machine\n";
+      $Options{uncrustify} = 0;
+   }
+}
+
+
+################################################################################
+# File processing functions (toplevel)
+################################################################################
+
+sub process_file ($) {
+   my ($fname) = shift @_;
+   my ($contents, $parsed_contents);
+
+   # Initialize global variables pertaining to file processing.
+   reset_comments_and_strings;
+   undef $File;
+   undef $File_icg;
+   undef $File_contents;
+
+   ### warn "Processing file $fname\n";
+
+   # Read the file, ...
+   $contents = file_read $fname;
+
+   # process the file contents, and ...
+   $parsed_contents = file_parse $contents;
+
+   # print the processed contents.
+   file_print $fname, $parsed_contents;
+}
+
+
+sub file_read ($) {
+   my ($fname) = @_;
+   my ($file, $mode, $contents, @contents);
+
+   # A bit of a kludge; a file name of '-' means standard input.
+   if ($fname eq '-') {
+      if ($Options{trace}) {
+         warn "Processing standard input\n";
+         $File_warned = 1;
+      }
+      else {
+         $File_warned = 0;
+      }
+      $mode = '<&';
+      $file = *STDIN;
+      $File = 'standard input';
+   }
+
+   # File name is just that: Check that it exists.
+   else {
+      if ($Options{trace}) {
+         warn "Processing file $fname\n";
+         $File_warned = 1;
+      }
+      else {
+         $File_warned = 0;
+      }
+      if (! -e $fname) {
+         die "No such file $fname\n";
+      }
+      $mode = '<';
+      $file = $fname;
+      $File = $file;
+   }
+
+   # Slurp the contents of the file.
+   open IN, $mode, $file or die "Can't open $fname for input\n";
+   @contents = <IN>;
+   close IN;
+
+   $contents = join '', @contents;
+
+   return $contents;
+}
+
+
+sub file_parse ($) {
+   my ($contents) = @_;
+   my $parsed_contents;
+
+   # Convert comments and strings to escape sequences.
+   $contents = preprocess_code $contents;
+
+   # Parse the contents.
+   # Various repair functions need access to the toplevel file contents.
+   ($File_contents, $File_icg) = parse_contents $contents, 0;
+
+   $parsed_contents = $File_contents;
+
+   # Attempt to fix issues in the code.
+   repair_comments;
+   repair_item $parsed_contents;
+
+   # Add doxygen comments.
+   if ($Options{doxygen}) {
+      doxygenate_item $parsed_contents;
+   }
+
+   return $parsed_contents;
+}
+
+
+sub file_print ($$) {
+   my ($fname, $parsed_contents) = @_;
+   my $outfile;
+
+   # Open the output file, per the output mode.
+   if ($Options{mode} == DRYRUN_MODE) {
+      open OUTPUT, '>', '/dev/null';
+   }
+   elsif ($Options{mode} == STDOUT_MODE) {
+      open OUTPUT, '>&', STDOUT;
+   }
+   elsif (($Options{mode} == REPLACE_MODE) ||
+          ($Options{mode} == SUFFIX_MODE)) {
+      my ($fdir, $fsimple, $ftmp);
+      if ($fname =~ /^(.*)\/([^\/]*)$/) {
+         ($fdir, $fsimple) = ($1, $2);
+      }
+      else {
+         $fdir = '.';
+         $fsimple = $fname;
+      }
+      (*OUTPUT, $outfile) = tempfile ($fsimple . '.XXXXXXXX',
+                                      UNLINK => 0,
+                                      DIR => $fdir);
+   }
+   elsif ($Options{mode} == PREFIX_MODE) {
+      my (@dirs, $dir);
+      $outfile = "$Options{prefix}/$fname";
+      @dirs = split '/', $outfile;
+      pop @dirs;
+      if ($dirs[0] eq '') {
+         shift @dirs;
+         $dir = '/';
+      }
+      else {
+         $dir = '';
+      }
+      foreach my $ent (@dirs) {
+         $dir .= $ent;
+         mkdir $dir unless -d $dir;
+         $dir .= '/';
+      }
+      tilde_backup $outfile;
+      open OUTPUT, '>', $outfile;
+   }
+   else {
+      die "Internal error";
+   }
+
+   # Print the file contents to the just-opened output file.
+   print_item $parsed_contents;
+   close OUTPUT;
+
+   if (($Options{mode} == REPLACE_MODE) ||
+       ($Options{mode} == SUFFIX_MODE)) {
+      if (compare ($fname, $outfile) == 0) {
+         unlink $outfile;
+      }
+      else {
+         my $tgtfile = $fname;
+         $tgtfile .= ".$Options{suffix}" if ($Options{mode} == SUFFIX_MODE);
+         tilde_backup $tgtfile;
+         rename $outfile, $tgtfile
+            or die "Can't rename $outfile to $tgtfile\n";
+      }
+   }
+}
+
+
+################################################################################
+# Initial file processing
+################################################################################
+
+# Translate newlines and comments to escape sequences.
+sub preprocess_code ($) {
+   my ($contents) = @_;
+   my %strings;
+
+   # The code should end in a newline.
+   if ($contents !~ /\n$/s) {
+      $contents .= "\n";
+      my @contents = split "\n", $contents;
+      my $nlines = scalar @contents;
+      generate_warning "\eL${nlines}\e", "Contents do not end in a newline";
+   }
+
+
+   # Translate newlines into escape sequences of the form escape L index escape,
+   # where index is the line number (starting at one).
+   my $lineno = 1;
+   while ($contents =~ s/\n/\eL${lineno}\e/s) {
+         $lineno++;
+   }
+
+   # No tabs.
+   if ($contents =~ /\t.*?($Patterns{newline})/x) {
+      generate_warning $1, "File contains tabs. Deleting";
+      $contents =~ s/\t/   /g;
+   }
+
+   # No spaces at the end of a line
+   if ($contents =~ /\s($Patterns{newline})/x) {
+      my $line = $1;
+      if ($Options{pedantic}) {
+         generate_warning
+            $line, "File contains lines that end with spaces. Deleting";
+      }
+      $contents =~ s/\s+($Patterns{newline})/$1/xg;
+   }
+
+
+   # Extract comments and strings from the code, translating each into an
+   # escape sequence of the form \eC#\e for comments or \eS#\e for strings,
+   # with # being the index in the comments/strings array in which the
+   # extracted comment/string was stored.
+   my $parsed_contents = '';
+   while ($contents =~ s/^(.*?)(\"|\/\/|\/\*)/$2/) {
+      my $special = $2;
+      $parsed_contents .= $1;
+      if ($special eq '"') {
+         $contents =~ s/^"// or die;
+         my $str = '"';
+         while ($contents =~ s/^(.*?([\"\\]))//) {
+            my ($stuff, $char) = ($1, $2);
+            $str .= $stuff;
+            if ($char eq '\\') {
+               if ($contents eq '') {
+                  generate_fatal_error $str,
+                                       "Non-terminated string";
+               }
+               $contents =~ s/(.)//;
+               $str .= $1;
+            }
+            else {
+               last;
+            }
+         }
+
+         my $sub = $strings{$str};
+         if (! defined $sub) {
+            $sub = add_string $str;
+            $strings{$str} = $sub;
+         }
+         $parsed_contents .= $sub;
+      }
+      elsif ($special eq '/*') {
+         if ($contents =~ s/^(\/\*.*?\*\/)//) {
+            $parsed_contents .= add_comment $1;
+         }
+         else {
+            generate_fatal_error $contents,
+                                 "Non-terminated comment";
+         }
+      }
+      else {
+         if ($contents =~ s/^(\/\/[^\e]*)//) {
+            $parsed_contents .= add_comment $1;
+         }
+         else {
+            generate_fatal_error $contents,
+                                 "Internal error";
+         }
+      }
+   }
+   $parsed_contents .= $contents;
+
+   return $parsed_contents;
+}
+
+
+################################################################################
+# Parsing functions
+################################################################################
+
+sub parse_contents ($$) {
+   my ($contents, $depth) = @_;
+   my ($file_icg, $parsed_contents);
+   my ($header_string, $body_string);
+   my ($parsed_header, $def_count, $parsed_body);
+
+   # Construct the parsed item that represents the file as a whole.
+   $parsed_contents = {
+      type            => TOPLEVEL,
+      class           => 'file',
+      defines         => '',
+      line            => "\eL1\e",
+      depth           => $depth,
+      open            => '',
+      close           => ''
+   };
+
+   # The contents should comprise a header comment and a body.
+   $contents =~ /^((?:(?:\s*$Patterns{newline})*
+                      (?:\s*$Patterns{comline})*)*)        # 1  - File header
+                  (.*?)$/x                                 # 2  - File body
+      or die "Can't happen";
+   ($header_string, $body_string) = ($1, $2);
+
+   # Parse the header and body.
+   my ($hdr, $rest);
+   ($parsed_header, $hdr, $rest) = parse_trick_header $depth, $header_string;
+   if (defined $parsed_header) {
+      $header_string = $hdr;
+      $body_string = $rest . $body_string;
+   }
+   $file_icg =
+    ! ((defined $parsed_header->{icg}) &&
+       (restore_code ($parsed_header->{icg}->{val}) =~ /\(No\)/));
+
+###   # Parse the body.
+###   ($parsed_body, $def_count) =
+###      parse_body $depth, $parsed_contents, $body_string;
+
+### This is a kludge
+   ## $body_string =~ s/ (ER7_UTILS_RESTRICT|ER7_UTILS_ALWAYS_INLINE) / /g;
+   ## $body_string =~ s/ (ER7_UTILS_RESTRICT|ER7_UTILS_ALWAYS_INLINE)//g;
+
+   # Add the above to the parsed file contents.
+   %$parsed_contents = (
+      %$parsed_contents,
+      header          => $header_string,
+      parsed_header   => $parsed_header,
+      def_count       => 1,
+###   parsed_body     => $parsed_body
+      parsed_body     => [{type => COMMENT, contents => $body_string}]
+   );
+
+   return ($parsed_contents, $file_icg);
+}
+
+
+sub parse_enum_item ($$) {
+   my ($depth, $contents) = @_;
+   my $parsed_item;
+
+   if ($contents =~ s/^
+         (                                                #  1 - Whole shebang
+          ($Patterns{sheader}*)                           #  2 - Header
+          (                                               #  3 - Name and value
+           \s*
+           (\w+)                                          #  4 - Name
+           (?:\s*=\s*[+-]?\w+)?                           #      Value
+           (?:\s*,)?                                      #      Comma
+           \s*
+           ((?:$Patterns{comment})?)                      #  5 - EOL comment
+           \s*$Patterns{newline}
+          )
+         )//x) {
+
+      my ($all, $hdr, $bdy, $name, $eol_comment) = ($1, $2, $3, $4, $5);
+      my $line = get_line $bdy;
+      $parsed_item = {
+         type            => ENUM_VALUE,
+         class           => 'enum item',
+         line            => $line,
+         header          => $hdr,
+         defines         => $name,
+         eol_comment     => $eol_comment,
+         contents        => $bdy };
+   }
+
+   # Not matching might mean the above regular expression isn't sufficiently
+   # powerful.
+   elsif ($contents =~ /^$Patterns{wspace}*\w/) {
+      die "Internal error";
+   }
+
+   return ($parsed_item, $contents);
+}
+
+
+sub parse_double_include ($$) {
+   my ($depth, $contents) = @_;
+   my $parsed_item;
+
+   if ($contents =~ s/^
+       (                                                #  1 - Whole shebang
+        ($Patterns{sheader}*)                           #  2 - Header
+        (                                               #  3 - Begin block
+         \#ifndef\s+                                    #      ifndef
+         (\w+)                                          #  4 - NAME
+         $Patterns{endline}
+         \#define\s+                                    #      define
+         \4                                             #      repeated NAME
+         $Patterns{endline}
+        )
+       )//x) {
+      my ($all, $hdr, $begin, $name) = ($1, $2, $3, $4);
+      my ($body, $end);
+      my $ifdepth = 1;
+
+      $body = '';
+      while ($contents =~ s/(^.*?$Patterns{endline})//) {
+         my $line = $1;
+         if ($line =~ /^\s*\#if/) {
+            $ifdepth++;
+         }
+         elsif ($line =~ /^\s*\#endif/) {
+            $ifdepth--;
+         }
+         if ($ifdepth > 0) {
+            $body .= $line;
+         }
+         else {
+            $end = $line;
+            last;
+         }
+      }
+      my $line = get_line $begin;
+      my ($parsed_body, $def_count);
+
+      # Construct the parsed item representing the protection block.
+      $parsed_item = {
+         type            => DOUBLE_INCLUDE,
+         class           => 'header protection block',
+         line            => $line,
+         header          => $hdr,
+         defines         => $name,
+         open            => $begin,
+         close           => $end
+      };
+
+      # Parse the body but don't indent.
+      ($parsed_body, $def_count) = parse_body $depth, $parsed_item, $body;
+
+      # Add the above to the parsed contents.
+      %$parsed_item = (
+         %$parsed_item,
+         def_count       => $def_count,
+         parsed_body     => $parsed_body
+      );
+   }
+
+   return ($parsed_item, $contents);
+}
+
+
+sub parse_macro_exec ($$) {
+   my ($depth, $contents) = @_;
+   my $parsed_item;
+
+   if ($contents =~ s/^
+       (                                                #  1 - Whole shebang
+        ($Patterns{sheader}*)                           #  2 - Header
+        (                                               #  3 - Begin block
+         \s*\#ifdef\s+                                  #      ifdef
+         (\w+)                                          #  4 - NAME
+         $Patterns{endline}
+         \s*\4                                          #      repeated NAME
+         $Patterns{endline}
+         \s*\#endif                                     #      endif
+         $Patterns{endline}
+        )
+       )//x) {
+      my ($all, $hdr, $body, $name) = ($1, $2, $3, $4);
+
+      my $line = get_line $all;
+      my ($parsed_body, $def_count);
+
+      # Construct the parsed item representing the protection block.
+      $parsed_item = {
+         type            => MACRO_CALL,
+         class           => 'macro call',
+         line            => $line,
+         header          => $hdr,
+         macro           => $name,
+         contents        => $all
+      };
+   }
+
+   return ($parsed_item, $contents);
+}
+
+
+sub parse_trick_only ($$) {
+   my ($depth, $contents) = @_;
+   my $parsed_item;
+
+   if ($contents =~ s/^
+       (                                                #  1 - Whole shebang
+        ($Patterns{sheader}*)                           #  2 - Header
+        (\s*\#ifdef\sTRICK_VER                          #  3 - #ifdef TRICK_VER
+         $Patterns{endline})
+       )//x) {
+      my ($all, $hdr, $ifdef) = ($1, $2, $3);
+      my ($body, $end);
+      my $ifdepth = 1;
+
+      $body = '';
+      while ($contents =~ s/(^.*?$Patterns{endline})//) {
+         my $line = $1;
+         if ($line =~ /^\s*\#if/) {
+            $ifdepth++;
+         }
+         elsif ($line =~ /^\s*\#endif/) {
+            $ifdepth--;
+         }
+         if ($ifdepth > 0) {
+            $body .= $line;
+         }
+         else {
+            $end = $line;
+            last;
+         }
+      }
+      my $line = get_line $ifdef;
+      my ($parsed_body, $def_count);
+
+      # Construct the parsed item representing the protection block.
+      $parsed_item = {
+         type            => TRICK_ONLY,
+         class           => 'Trick-specific block',
+         line            => $line,
+         header          => $hdr,
+         open            => $ifdef,
+         close           => $end
+      };
+
+      # Parse the body but don't indent.
+      ($parsed_body, $def_count) = parse_body $depth, $parsed_item, $body;
+
+      # Add the above to the parsed contents.
+      %$parsed_item = (
+         %$parsed_item,
+         def_count       => $def_count,
+         parsed_body     => $parsed_body
+      );
+   }
+
+   return ($parsed_item, $contents);
+}
+
+
+sub parse_include_block ($$) {
+   my ($depth, $contents) = @_;
+   my $parsed_item;
+
+   if ($contents =~ s/^
+         (                                                #  1 - Whole shebang
+          ($Patterns{sheader}*)                           #  2 - Header
+          (                                               #  3 - includes
+           (?:
+            (?:$Patterns{wspace}*?
+            \#include.*?$Patterns{newline})+)+
+          )
+         )//x) {
+
+      my ($all, $hdr, $inc) = ($1, $2, $3);
+      my $line = get_line $inc;
+      $parsed_item = {
+         type            => INCLUDE_BLOCK,
+         header          => $hdr,
+         line            => $line,
+         contents        => $inc };
+   }
+
+   return ($parsed_item, $contents);
+}
+
+
+sub parse_macro_def ($$) {
+   my ($depth, $contents) = @_;
+   my $parsed_item;
+
+   if ($contents =~ s/^
+         (                                                #  1 - Whole shebang
+          ((?:\s*$Patterns{newline})*                     #  2 - Header
+           (?:\s*$Patterns{comline})*
+           (?:\s*$Patterns{newline})*)
+          (                                               #  3 - Definition
+           (?:                                            #      Forked def
+            \s*\#if.*?[^\\]$Patterns{newline}
+            $Patterns{sheader}*
+            \s*\#define\s+                                #      First define
+            (\w+)                                         #  4 - Name
+            .*?[^\\]$Patterns{newline}
+            $Patterns{sheader}*
+            (?:
+             \s*\#el.*?[^\\]$Patterns{newline}
+             $Patterns{sheader}*
+             \s*\#define\s+                               #     Repeated define
+             \4                                           #     Name repeats
+             *?[^\\]$Patterns{newline})*
+            $Patterns{sheader}*
+            \s*\#endif
+            $Patterns{endline}
+           )
+           |
+           (?:
+            \s*\#define\s+                                #      Simple def
+            (\w+)                                         #  5 - Name
+            .*?[^\\]$Patterns{newline})
+          )
+         )//x) {
+
+      my ($all, $hdr, $def, $name1, $name2) = ($1, $2, $3, $4, $5);
+      my $line = get_line $def;
+      my $name = defined $name1 ? $name1 : $name2;
+      $Defines{$name} = 1;
+      $parsed_item = {
+         type            => MACRO_DEF,
+         class           => 'macro',
+         line            => $line,
+         header          => $hdr,
+         def_count       => 1,
+         defines         => $name,
+         contents        => $def
+      };
+   }
+
+   return ($parsed_item, $contents);
+}
+
+
+sub parse_deleted_code ($$) {
+   my ($depth, $contents) = @_;
+   my $parsed_item;
+
+   if ($contents =~ s/^
+         (\s*\#if\s+0.*?$Patterns{newline}
+          \s*\#endif\s*$Patterns{newline})
+         //x) {
+
+      my $all = $1;
+      my $line = get_line $all;
+      $parsed_item = {
+         type            => DELETED_CODE,
+         line            => $line,
+         contents        => $all };
+   }
+
+   return ($parsed_item, $contents);
+}
+
+
+sub parse_preprocessor ($$) {
+   my ($depth, $contents) = @_;
+   my $parsed_item;
+
+   if ($contents =~ s/^
+         (\s*\#.*?[^\\]$Patterns{newline})
+         //x) {
+
+      my $all = $1;
+      my $line = get_line $all;
+      $parsed_item = {
+         type            => PREPROCESSOR,
+         line            => $line,
+         contents        => $all };
+   }
+
+   return ($parsed_item, $contents);
+}
+
+
+sub parse_visibility ($$) {
+   my ($depth, $contents) = @_;
+   my $parsed_item;
+
+   if ($contents =~ s/^
+         (                                                #  1 - Whole shebang
+          \s*
+          (public|protected|private)                      #  2 - Visibility
+          \s*\:
+          $Patterns{endline}
+         )//x) {
+
+      my ($all, $visibility) = ($1, $2);
+      my $line = get_line $all;
+      $parsed_item = {
+         type            => VISIBILITY,
+         class           => 'access control',
+         line            => $line,
+         defines         => $visibility,
+         contents        => $all };
+   }
+
+   return ($parsed_item, $contents);
+}
+
+
+sub parse_typedef ($$) {
+   my ($depth, $contents) = @_;
+   my $parsed_item;
+
+if ($contents =~ /^$Patterns{sheader}*\s*typedef/) {
+sleep 0;
+}
+
+   # Function pointer typedef
+   if ($contents =~ s/^
+         (                                                #  1 - Whole shebang
+          ($Patterns{sheader}*)                           #  2 - Header
+          (                                               #  3 - Body
+           \s*typedef\s*
+           (?:[\w:]|$Patterns{nspace})*                   #      Return type
+           \(\s*\*\s*(\w+)\s*\)                           #  4 - Typedef name
+           $Patterns{wspace}*
+           \([^\(\)]*\)                                   #      Arguments
+           $Patterns{nspace}*\;
+           \s*
+           ($Patterns{comment}?)                          #  5 - EOL comment
+           \s*$Patterns{newline}
+          )
+         )//x) {
+
+      my ($all, $hdr, $bdy, $name, $eol_comment) = ($1, $2, $3, $4, $5);
+      my $line = get_line $bdy;
+      $parsed_item = {
+         type            => TYPEDEF,
+         class           => 'typedef',
+         line            => $line,
+         header          => $hdr,
+         defines         => $name,
+         eol_comment     => $eol_comment,
+         contents        => $bdy };
+   }
+   elsif ($contents =~ s/^
+         (                                                #  1 - Whole shebang
+          ($Patterns{sheader}*)                           #  2 - Header
+          (                                               #  3 - Body
+           \s*typedef\s*
+           (?:                                            #      Type
+            (?:
+             [A-Za-z_]\w*
+             (?:
+              $Patterns{nspace}*
+              <
+              [^<>]*
+              (?:<[^<>]*>[^<>]*)?
+              >
+             )?
+             $Patterns{nspace}*
+             (?:
+              \:\:
+              [A-Za-z_]\w*
+              (?:
+               $Patterns{nspace}*
+               <
+               [^<>]*
+               (?:<[^<>]*>[^<>]*)?
+               >
+              )?
+              $Patterns{nspace}*
+             )*
+             (?:\&|\*|$Patterns{nspace})+
+            )+
+           )
+           (\w+)\s*                                       #  4 - Typedef name
+           $Patterns{nspace}*\;
+           \s*
+           ($Patterns{comment}?)                          #  5 - EOL comment
+           \s*$Patterns{newline}
+          )
+         )//x) {
+      my ($all, $hdr, $bdy, $name, $eol_comment) = ($1, $2, $3, $4, $5);
+      my $line = get_line $bdy;
+      $parsed_item = {
+         type            => TYPEDEF,
+         class           => 'typedef',
+         line            => $line,
+         header          => $hdr,
+         defines         => $name,
+         eol_comment     => $eol_comment,
+         contents        => $bdy };
+   }
+
+   return ($parsed_item, $contents);
+}
+
+
+sub parse_macro_call ($$) {
+   my ($depth, $contents) = @_;
+   my $parsed_item;
+
+   if ($contents =~ s/^
+         (                                                #  1 - Whole shebang
+          $Patterns{wspace}*
+          (?:
+           (ER7_UTILS_MAKE_SIM_INTERFACES|                #  2 - Macro name OR
+            ER7_UTILS_DECLARE_SIM_INTERFACES)
+           \s*\([^()]*?\)\s*\;?|
+           ([A-Z][A-Z_])*\s*\(.*?\)\s*\;)                 #  3 - Macro name
+          $Patterns{endline}
+         )//x) {
+
+      my ($all, $name1, $name2) = ($1, $2, $3);
+      my $line = get_line $all;
+      if (defined $name1) {
+         $parsed_item = {
+            type            => SIM_INTERFACES,
+            class           => 'sim interfaces',
+            line            => $line,
+            contents        => $all };
+      }
+      else {
+         $parsed_item = {
+            type            => MACRO_CALL,
+            class           => 'macro call',
+            line            => $line,
+            macro           => $name2,
+            contents        => $all };
+      }
+   }
+
+   elsif ($contents =~ /^\s*(\w+)\b/) {
+      my $name = $1;
+      if (exists $Defines{$name}) {
+         $contents =~ s/^(.*?$Patterns{endline})//;
+         my $all = $1;
+         my $line = get_line $all;
+         $parsed_item = {
+            type            => MACRO_CALL,
+            class           => 'macro call',
+            line            => $line,
+            macro           => $name,
+            contents        => $all };
+      }
+   }
+
+   return ($parsed_item, $contents);
+}
+
+
+sub parse_friend_class ($$) {
+   my ($depth, $contents) = @_;
+   my $parsed_item;
+
+   if ($contents =~ s/^
+         (
+          \s*friend
+          \s*(?:class|struct)$Patterns{wspace}+
+          [A-Za-z_]\w*
+          (?:$Patterns{wspace}*<[^<>]*>$Patterns{wspace}*)?
+          \;$Patterns{endline}
+         )//x) {
+
+      my $all = $1;
+      my $line = get_line $all;
+      $parsed_item = {
+         type            => FRIEND_CLASS,
+         class           => 'friend class declaration',
+         line            => $line,
+         contents        => $all };
+   }
+
+   return ($parsed_item, $contents);
+}
+
+
+sub parse_using ($$) {
+   my ($depth, $contents) = @_;
+   my $parsed_item;
+
+   if ($contents =~ s/^
+         (                                                #  1 - Whole shebang
+          \s*
+          using\b
+          [^;]*;
+          \s*
+          ($Patterns{comment}?)                           #  2 - EOL comment
+          \s*$Patterns{newline}
+         )//x) {
+      my ($all, $eol_comment) = ($1, $2);
+      my $line = get_line $all;
+      $parsed_item = {
+         type            => USING,
+         class           => 'using',
+         line            => $line,
+         eol_comment     => $eol_comment,
+         contents        => $all };
+   }
+
+   return ($parsed_item, $contents);
+}
+
+
+sub parse_variable ($$) {
+   my ($depth, $contents) = @_;
+   my $parsed_item;
+
+   if (($contents =~ /^\s*class$Patterns{nspace}+/) ||
+       ($contents =~ /::\s*operator\s*=/)) {
+      return (undef, $contents);
+   }
+
+   if ($contents =~ s/^
+         (                                                #  1 - Whole shebang
+          \s*
+          (?:
+           (?:static|extern|const|volatile|mutable)
+           $Patterns{nspace}+
+          )*
+          (?:                                             #      Type
+           (?:
+            [A-Za-z_]\w*
+            (?:<[^<>]*>)?
+            $Patterns{nspace}*
+            (?:
+             \:\:
+             [A-Za-z_]\w*
+             (?:<[^<>]*>)?
+             $Patterns{nspace}*
+            )*
+            (?:\&|\*|$Patterns{nspace})+
+           )+
+           |
+           (?:
+            JEOD_[A-Z]+_CONTAINER\s*\([^\(\)]+\)
+            $Patterns{nspace}+
+           )
+          )
+          (                                               #  2   Name
+           [A-Za-z_]\w*
+           (?:<[^<>]*>)?
+           $Patterns{nspace}*
+           (?:                                            #      using cludge
+            \:\:
+            [A-Za-z_]\w*
+            (?:<[^<>]*>)?
+            $Patterns{nspace}*
+           )*
+          )+
+          $Patterns{nspace}*
+          (?:\[.*?\])*                                    #      Dimensions
+          $Patterns{nspace}*?
+          (?:
+           (\;) |                                         #  3 - Declaration
+           (\=.*?\;)                                      #  4 - Assignment
+          )
+          \s*
+          ($Patterns{comment}?)                           #  5 - EOL comment
+          \s*$Patterns{newline}
+         )//x) {
+
+      my ($all, $name, $decl, $value, $eol_comment) =
+         ($1, $2, $3, $4, $5);
+
+      # operator = matches the above. The easiest solution is to restore
+      # the contents to its form before the s/// operation.
+      if ($name eq 'operator') {
+         $contents = $all . $contents;
+      }
+      else {
+         my $line = get_line $all;
+         $parsed_item = {
+            type            => defined $decl ? VARIABLE_DECL : ASSIGNMENT,
+            class           => defined $decl ? 'member data' : 'assignment',
+            line            => $line,
+            defines         => $name,
+            eol_comment     => $eol_comment,
+            contents        => $all };
+      }
+   }
+
+   return ($parsed_item, $contents);
+}
+
+
+sub parse_class_decl ($$) {
+   my ($depth, $contents) = @_;
+   my $parsed_item;
+
+   if ($contents =~ s/^
+         (
+          \s*
+          (?:template$Patterns{wspace}*<[^<>]*>$Patterns{wspace}*)?
+          (?:class|struct|enum)$Patterns{wspace}+
+          [A-Za-z_]\w*
+          (?:<[^<>]*>\w*)?
+          \;$Patterns{endline}?
+         )//x) {
+
+      my $all = $1;
+      my $line = get_line $all;
+      $parsed_item = {
+         type            => CLASS_FWD,
+         class           => 'class declaration',
+         line            => $line,
+         contents        => $all };
+   }
+
+   return ($parsed_item, $contents);
+}
+
+
+sub parse_class_def ($$) {
+   my ($depth, $contents) = @_;
+   my $parsed_item;
+   my ($all, $hdr, $open, $type, $name,  $body, $close);
+
+   if ($contents =~ /^
+         (                                                #  1 - Whole shebang
+          ((?:\s*$Patterns{newline})*                     #  2 - Header
+           (?:\s*$Patterns{comline})*
+           (?:\s*$Patterns{newline})*)
+          (\s*                                            #  3 - Class decl
+           (class|struct|enum)                            #  4 - Type
+          )
+         )/x) {
+      sleep 0;
+   }
+
+   if ($contents =~ s/^
+         (                                                #  1 - Whole shebang
+          ((?:\s*$Patterns{newline})*                     #  2 - Header
+           (?:\s*$Patterns{comline})*
+           (?:\s*$Patterns{newline})*)
+          (\s*                                            #  3 - Class decl
+           (?:                                            #      Template
+            template
+            $Patterns{nspace}*
+            <[^<>]*>$Patterns{nspace}*
+           )?
+           (class|struct|enum)                            #  4 - Type
+           $Patterns{nspace}+
+           ([A-Za-z_]\w*)                                 #  5 - Name
+           $Patterns{wspace}*
+           (?:<[^<>]*>$Patterns{wspace}*)?                #      Specialization
+           (?:\:[^\{\}]*)?                                #      Inheritance
+           \{$Patterns{endline}*?)                        #      Open brace
+         )//x) {
+
+      ($all, $hdr, $open, $type, $name) = ($1, $2, $3, $4, $5);
+   }
+   elsif ($contents =~ s/^
+         (                                                #  1 - Whole shebang
+          ((?:\s*$Patterns{newline})*                     #  2 - Header
+           (?:\s*$Patterns{comline})*
+           (?:\s*$Patterns{newline})*)
+          (\s*                                            #  3 - Class decl
+           typedef\s+                                     #      Yech!
+           (struct|enum)                                  #  4 - Type
+           $Patterns{nspace}*
+           \{$Patterns{endline}*?)                        #      Open brace
+         )//x) {
+
+      ($all, $hdr, $open, $type) = ($1, $2, $3, $4);
+   }
+   if (defined $all) {
+      my $nest = 1;
+      $body = '';
+      $close = '';
+      while ($contents =~ s/^([^\{\}]*?)(\s*[\{\}])//) {
+         my ($stuff, $brace) = ($1, $2);
+         $body .= $stuff;
+         if ($brace =~ /\{$/) {
+            $nest++;
+         }
+         else {
+            $nest--;
+            if ($nest == 0) {
+               $close = $brace;
+               last;
+            }
+         }
+         $body .= $brace;
+      }
+
+      if (defined $name) {
+         if ($contents =~ s/(\s*\;$Patterns{endline})//) {
+            $close .= $1;
+         }
+         else {
+die;
+         }
+      }
+      else {
+         if ($contents =~ s/(\s*([A-Za-z_]\w*)\;$Patterns{endline})//) {
+            $name = $2;
+            $close .= $1;
+         }
+         else {
+die;
+         }
+      }
+      $all .= $body;
+      $all .= $close;
+
+      my $type_id = $type eq 'enum' ? ENUMERATION : CLASS;
+      my $trick_header = parse_trick_header ($depth, $hdr);
+      my ($line, $parsed_body, $def_count);
+
+      $line = get_line $open, $body, $close;
+
+      $parsed_item = {
+         type            => $type_id,
+         class           => $type,
+         line            => $line,
+         header          => $hdr,
+         parsed_header   => $trick_header,
+         def_count       => 1,
+         defines         => $name,
+         open            => $open,
+         close           => $close
+      };
+
+      ($parsed_body, $def_count) = parse_body $depth+1, $parsed_item, $body;
+# FIMXE: What is meaning of def_count?
+      $parsed_item->{parsed_body} = $parsed_body;
+   }
+
+   return ($parsed_item, $contents);
+}
+
+
+sub parse_extern_c ($$) {
+   my ($depth, $contents) = @_;
+   my $parsed_item;
+
+   if ($contents =~ s/^
+         (                                                #  1 - Whole shebang
+          ($Patterns{sheader}*)                           #  2 - Header
+          (                                               #  3 - extern "C"
+           \s*extern\s+
+           $Patterns{string}
+           $Patterns{wspace}*
+           |                                              #      or
+           \s*namespace\s+                                #      namespace
+           \w+
+           $Patterns{wspace}*
+          )
+          (\{$Patterns{endline}*?)                        #  4 - Open brace
+         )//x) {
+
+      my ($all, $hdr, $extern, $open) = ($1, $2, $3, $4);
+      my ($line, $body, $close, $parsed_body, $def_count);
+      my ($type, $class);
+      if ($extern =~ /^\s*extern/) {
+         $type = EXTERN_C;
+         $class = 'extern "C"';
+      }
+      else {
+         $type = NAMESPACE;
+         $class = 'namespace';
+      }
+      my $nest = 1;
+      $body = '';
+      $close = '';
+      while ($contents =~ s/^([^\{\}]*?)(\s*[\{\}])//) {
+         my ($stuff, $brace) = ($1, $2);
+         $body .= $stuff;
+         if ($brace =~ /\{$/) {
+            $nest++;
+         }
+         else {
+            $nest--;
+            if ($nest == 0) {
+               $close = $brace;
+               last;
+            }
+         }
+         $body .= $brace;
+      }
+
+      if ($contents =~ s/(\s*\;?$Patterns{endline})//) {
+         $close .= $1;
+      }
+      else {
+die;
+      }
+
+      $line = get_line $extern, $open, $body;
+
+      $parsed_item = {
+         type            => $type,
+         class           => $class,
+         line            => $line,
+         header          => $hdr,
+         open            => $extern . $open,
+         close           => $close,
+         parsed_body     => $parsed_body
+      };
+
+      ($parsed_body, $def_count) = parse_body $depth+1, $parsed_item, $body;
+      $parsed_item->{parsed_body} = $parsed_body;
+   }
+
+   return ($parsed_item, $contents);
+}
+
+
+sub parse_function ($$) {
+   my ($depth, $contents) = @_;
+   my $parsed_item;
+
+   if ($contents =~ s/^
+         (                                                #  1 - Whole shebang
+          ($Patterns{sheader}*)                           #  2 - Header
+          (\s*                                            #  3 - Up to args
+           ((?:template                                   #  4 - Template
+             $Patterns{nspace}*<[^<>]*>$Patterns{nspace}*)?)
+           (                                              #  5 - Qualifiers
+            (?:
+             (?:friend|static|extern|inline|virtual|explicit)
+             $Patterns{nspace}+)*
+           )
+           (                                              #  6 - Return type
+            (?:
+             (?:
+              (?:
+               [A-Za-z_]\w*(?:<[^<>]*>)?::)*
+               [A-Za-z_]\w*(?:<[^<>]*>)?$Patterns{nspace}*
+               (?:\&|\*|$Patterns{nspace})+)+)*
+           )
+           (                                              #  7 - Function name
+            (?:[A-Za-z_]\w*(?:<[^<>]*>)?::)*
+            (?:
+             \~?[A-Za-z_]\w*                              #      Plain name
+             |operator\s*                                 #      Oper overload
+              (?:
+               \!                                         #      Fubared
+               |=                                         #      Assignment
+               |\[\]                                      #      Index
+               |==|<|>|\!=|>=|<=                          #      Comparison
+               |(?:                                       #      Conversion
+                 (?:
+                  (?:
+                   (?:
+                    [A-Za-z_]\w*(?:<[^<>]*>)?::
+                   )*
+                   [A-Za-z_]\w*(?:<[^<>]*>)?
+                   $Patterns{nspace}*
+                   (?:\&|\*|$Patterns{nspace})+
+                  )+
+                 )*
+                )
+              )
+            )
+           )
+           $Patterns{nspace}*
+          )
+          (                                               #  8 - Arguments
+           \(
+           (?:
+            [^\(\)\{\}\;]*?
+            (?:
+             \(
+             [^\(\)\{\}\;]*?
+             \)
+            )?
+           )*
+           [^\(\)\{\}\;]*?
+           \)
+           $Patterns{endline}*
+          )
+          (                                               #  9 - Post-args
+           \s*
+           (?:
+            (?:const|volatile|mutable)
+            (?:
+             $Patterns{wspace}+
+             (?:const|volatile|mutable))*
+            $Patterns{wspace}*?)*                         #      Qualifiers
+           (?:throw$Patterns{wspace}*                     #      Exceptions
+            \([^\(\)\{\}\;\=]*?\)$Patterns{wspace}*?)*
+           (?:\s*$Patterns{newline})*
+          )
+          (                                               # 10 - End stuff
+           (                                              # 11 - Declaration
+            \s*
+            (=\s*0\s*)*                                   # 12 - Pure virtual
+            \;
+            $Patterns{endline}
+           )
+           |
+           (                                              # 13 - Implementation
+            (?:\:[^\{\}]+)?                               #      Init list
+            \{                                            #      Start of body
+           )
+          )
+         )//x) {
+
+      my ($all, $hdr, $lead, $templ, $quals, $rtype, $fname,
+          $args, $post, $close, $fdecl, $pure_virt, $fimpl) =
+         ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);
+      my $void_return    = $rtype =~ /^(?:void)?$Patterns{nspace}*$/;
+      my $null_arguments = $args  =~ /^\($Patterns{wspace}*
+                                       (?:void)?
+                                       $Patterns{wspace}*\)
+                                       $Patterns{wspace}*$/x;
+      my $trick_header = parse_trick_header ($depth, $hdr);
+      my $line = get_line $lead, $args, $post, $close;
+
+      $parsed_item = {
+         class           => 'function',
+         line            => $line,
+         header          => $hdr,
+         parsed_header   => $trick_header,
+         lead            => $lead,
+         template        => $templ,
+         qualifiers      => $quals,
+         return_type     => $rtype,
+         defines         => $fname,
+         argument_list   => $args,
+         void_return     => $void_return,
+         null_arguments  => $null_arguments,
+         post_arguments  => $post
+      };
+
+
+      my ($args_to_parse, $parsed_ret, @parsed_args);
+
+      $args_to_parse = $args;
+      if (($args !~ /$Patterns{newline}$/x) &&
+          ((!defined $post) || ($post eq '')) &&
+          ((defined $fdecl) && ($fdecl ne ''))) {
+         $args_to_parse .= $fdecl;
+      }
+
+      if ($null_arguments) {
+         my ($comment_pos, $all, $open, $eol_comment, $close);
+
+         # Comment is after open paren
+         if ($args_to_parse =~ /^
+               (
+                (\($Patterns{nspace}*)
+                ($Patterns{comment}*)
+                (\s*$Patterns{newline}*
+                 \s*(?:void)?\s*\)
+                 (?:\s*\;)?
+                 (?:\s*$Patterns{newline}*)*)
+               $)/x) {
+            $comment_pos = 0;
+            ($all, $open, $eol_comment, $close) = ($1, $2, $3, $4);
+         }
+
+         # Comment is after close paren
+         elsif ($args_to_parse =~ /^
+               (
+                (\($Patterns{nspace}*(?:void)?\s*\)
+                 (?:\s*\;)?\s*?)
+                ($Patterns{comment}*)
+                (\s*$Patterns{newline}*)*
+               $)/x) {
+            $comment_pos = 1;
+            ($all, $open, $eol_comment, $close) = ($1, $2, $3, $4);
+         }
+
+         # Two comments???
+         elsif ($args_to_parse =~ /^
+               (
+                (\($Patterns{nspace}*)
+                ($Patterns{comment}*)
+                (\s*$Patterns{newline}*
+                 \s*(?:void)?\s*\)
+                 (?:\s*\;)?\s*?
+                 ($Patterns{comment}*)
+                 (?:\s*$Patterns{newline}*)*)
+               $)/x) {
+            my $junk;
+            $comment_pos = 0;
+            ($all, $open, $eol_comment, $close, $junk) = ($1, $2, $3, $4, $5);
+            generate_warning $contents, "$fname has multiple return comments";
+         }
+
+         else {
+            generate_fatal_error $line, "Unable to parse return comment";
+         }
+
+         $parsed_ret = {
+            type            => OPEN_ARGS,
+            class           => 'return',
+            parent          => $parsed_item,
+            function_name   => $fname,
+            comment_pos     => 0,
+            open            => $open,
+            eol_comment     => $eol_comment,
+            close           => $close,
+            contents        => $all };
+      }
+
+      else {
+         my ($ret_all, $ret_open, $ret_com, $ret_end,
+             $args_body, $arg_trail, @args_info);
+
+         # This ignores additional comments at the end ...
+         if ($args_to_parse =~ /^
+               (
+                (\($Patterns{nspace}*)
+                ($Patterns{comment}*)
+                (\s*$Patterns{newline}*)
+               )
+               (.*?)
+               \)
+               ([^\(\)]*)
+               $/x) {
+            ($ret_all, $ret_open, $ret_com, $ret_end, $args_body, $arg_trail) =
+            ($1, $2, $3, $4, $5, $6);
+         }
+         else {
+            generate_fatal_error get_line ($args_to_parse, $line),
+                                 "Unable to parse arguments";
+         }
+
+         $parsed_ret = {
+            type            => OPEN_ARGS,
+            class           => 'return',
+            parent          => $parsed_item,
+            function_name   => $fname,
+            comment_pos     => 0,
+            open            => $ret_open,
+            eol_comment     => $ret_com,
+            close           => $ret_end,
+            contents        => $ret_all };
+
+         $args_body .= ',' . $arg_trail;
+         while ($args_body =~ s/^
+                  (
+                   ([^,]*)
+                   (,$Patterns{nspace}*(?:\;$Patterns{nspace}*)?)
+                   ($Patterns{comment}*)
+                   (\s*$Patterns{newline}*)
+                  )//x) {
+            push @args_info, [$1, $2, $3, $4, $5];
+         }
+         if ($args_body ne '') {
+            generate_fatal_error get_line ($args_to_parse, $line),
+                                 "Unable to parse arguments";
+         }
+         $args_info[$#args_info]->[0] =~ s/,([^,]*)$/\)$1/;  # (
+         $args_info[$#args_info]->[2] =~ s/,([^,]*)$/\)$1/;
+
+         foreach my $arg (@args_info) {
+sleep 0;
+            while ($arg->[1] =~ s/^
+                     (\s*$Patterns{comment})
+                     ($Patterns{endline}*)
+                    //x) {
+               my ($comment, $eol) = ($1, $2);
+               generate_warning
+                  $eol,
+                  "Extra comment in argument list (deleted)";
+               $arg->[0] = join '', (map {$_ or ''} @$arg[1..5]);
+            }
+         }
+         foreach my $arg (@args_info) {
+            my %arg_info = (
+                  type            => ARGUMENT,
+                  class           => 'argument',
+                  parent          => $parsed_item,
+                  arg_type        => undef,
+                  arg_name        => undef,
+                  dims            => undef,
+                  default         => undef,
+                  open            => $arg->[1],
+                  separator       => $arg->[2],
+                  eol_comment     => $arg->[3],
+                  close           => $arg->[4],
+                  contents        => $arg->[0] );
+            my ($arg_type, $arg_name, $dims);
+            my $ns = $Patterns{nspace};
+            my $cv = "(?:\\b(?:const|volatile)\\b$ns*?)*";
+            my $lq = "(?:(?:unsigned|signed|long|short)$ns+?)*";
+            my $tp = "(?:$ns*<(?:[^<>]*|[^<>]*<[^<>]*>[^<>]*)>$ns*)?";
+            my $al = "[A-Za-z_]\\w*";
+            my $cl = "(?:typename$ns+)?$al$tp";
+            if ($arg->[1] =~ /^\s*\.\.\.$ns*$/x) {
+               $arg_info{arg_type} = '...';
+            }
+            elsif ($arg->[1] =~ /^
+                     (                                    # 1 - Arg. type
+                      \s*
+                      $cv
+                      (?:
+                       (?:$cl$ns*::$ns*)*$cl$ns*
+                       |$lq$al$ns*
+                      )
+                      (?:$cv[\*\&]$ns*)*
+                      $cv
+                     )
+                     ((?:\b$al)?)                         # 2 - Arg. name
+                     ((?:\s*(?:\[[^\[\]]*\])$ns*?)*)      # 3 - Dims.
+                     $ns*
+                     (?:\=\s*
+                      (                                   # 4 - Default
+                       [^\(\)]+?
+                       |
+                       [^\(\)]+?\([^\(\)]*?\)
+                      )
+                     )?
+                     $ns*
+                     $/x) {
+               my ($arg_type, $arg_name, $dims, $default) = ($1, $2, $3, $4);
+               $arg_info{arg_type} = $arg_type;
+               $arg_info{arg_name} = $arg_name;
+               $arg_info{dims}     = $dims;
+               $arg_info{default}  = $default;
+            }
+            else {
+               $arg_info{arg_type} = undef;
+               $arg_info{arg_name} = undef;
+               $arg_info{dims}     = undef;
+               $arg_info{default}  = undef;
+            }
+            push @parsed_args, { %arg_info };
+         }
+      }
+
+      %$parsed_item = (
+         %$parsed_item,
+         parsed_return   => $parsed_ret,
+         parsed_args     => [@parsed_args]
+      );
+
+      if ((defined $fimpl) && ($fimpl ne '')) {
+         my $init_list = '';
+
+         if ($fimpl =~ /^:/) {
+            if ($fimpl =~ /^(:.*?$Patterns{newline})(\s*\{)$/) {
+               ($init_list, $fimpl) = ($1, $2);
+            }
+            else {
+               $init_list = substr $fimpl, 0, -1;
+               $fimpl = '{';
+            }
+         }
+
+         # Transfer the body from the contents to $fimpl.
+         ($fimpl, $contents) = find_end_brace ($fimpl, $contents);
+
+         # Transfer the rest of the line to $last, including (yech)
+         # the optional semicolon.
+         if ($contents =~ s/^((?:\s*\;)?
+                              \s*(?:$Patterns{comment})*
+                              \s*(?:$Patterns{newline})
+                             )//x) {
+            $fimpl .= $1;
+            if (! defined $line) {
+               $line = get_line $fimpl;
+               $parsed_item->{line} = $line;
+            }
+         }
+         else {
+            generate_warning $contents, "Function does not end with newline";
+         }
+
+
+         %$parsed_item = (
+            %$parsed_item,
+            type            => FUNCTION_IMPL,
+            def_count       => 1,
+            defines         => $fname,
+            init_list       => $init_list,
+            body            => $fimpl
+         );
+      }
+
+      else {
+         my $type = ((defined $pure_virt) && ($pure_virt ne '')) ?
+                    PURE_VIRTUAL : FUNCTION_DECL;
+         %$parsed_item = (
+            %$parsed_item,
+            type            => $type,
+            terminator      => $fdecl);
+      }
+   }
+
+   return ($parsed_item, $contents);
+}
+
+
+#=| Parses the next item in a "body".
+#=| Parameters:
+#=|   @param $depth    Nesting depth (not incremented for double-include block)
+#=|   @param $in_type  The container type: one of
+#=|                    TOPLEVEL, DOUBLE_INCLUDE, CLASS, or EXTERN_C
+#=|   @param $contents The body string from which an item is to be extracted
+#=| Returns:
+#=|   $parsed_item - Hash (ref) containing parsed item
+#=|   $contents    - The input contents, sans the parsed item's code
+sub get_next ($$$) {
+   my ($depth, $in_type, $contents) = @_;
+   my $parsed_item;
+   my $orig_contents = $contents;  # For debugging
+
+   # An enum contains comma-separated enumeration items.
+   if ($in_type == ENUMERATION) {
+      ($parsed_item, $contents) = parse_enum_item $depth, $contents;
+   }
+
+   # #ifdef TRICK_VER around the whole enchilada
+   if ($in_type == TOPLEVEL) {
+      ($parsed_item, $contents) = parse_trick_only $depth, $contents;
+   }
+
+   # Double-include block
+   if ((! defined $parsed_item) &&
+       (($in_type == TOPLEVEL) ||
+        ($in_type == TRICK_ONLY))) {
+      ($parsed_item, $contents) = parse_double_include $depth, $contents;
+   }
+
+   # Doofy macro exec
+   if ((! defined $parsed_item) &&
+       (($in_type == TOPLEVEL) ||
+        ($in_type == TRICK_ONLY) ||
+        ($in_type == DOUBLE_INCLUDE))) {
+      ($parsed_item, $contents) = parse_macro_exec $depth, $contents;
+   }
+
+   # Include files
+   if ((! defined $parsed_item) &&
+       (($in_type == TOPLEVEL) ||
+        ($in_type == TRICK_ONLY) ||
+        ($in_type == DOUBLE_INCLUDE))) {
+      ($parsed_item, $contents) = parse_include_block $depth, $contents;
+   }
+
+   # Macro definition (not double-include block)
+   if ((! defined $parsed_item) &&
+       (($in_type == TOPLEVEL) ||
+        ($in_type == TRICK_ONLY) ||
+        ($in_type == DOUBLE_INCLUDE))) {
+      ($parsed_item, $contents) = parse_macro_def $depth, $contents;
+   }
+
+   # Deleted code
+   if (! defined $parsed_item) {
+      ($parsed_item, $contents) = parse_deleted_code $depth, $contents;
+   }
+
+   # Random preprocessor command
+   # NOTE: This must be the last preprocessor pattern.
+   if (! defined $parsed_item) {
+      ($parsed_item, $contents) = parse_preprocessor $depth, $contents;
+   }
+
+   # Structure visibility
+   if ((! defined $parsed_item) &&
+       ($in_type == CLASS)) {
+      ($parsed_item, $contents) = parse_visibility $depth, $contents;
+   }
+
+   # Typedef statement
+   if ((! defined $parsed_item) &&
+       (($in_type == TOPLEVEL) ||
+        ($in_type == DOUBLE_INCLUDE) ||
+        ($in_type == CLASS) ||
+        ($in_type == NAMESPACE))) {
+      ($parsed_item, $contents) = parse_typedef $depth, $contents;
+   }
+
+   # Macro call
+   if (! defined $parsed_item) {
+      ($parsed_item, $contents) = parse_macro_call $depth, $contents;
+   }
+
+
+   # Friend class declaration
+   if ((! defined $parsed_item) &&
+       ($in_type != EXTERN_C)) {
+      ($parsed_item, $contents) = parse_friend_class $depth, $contents;
+   }
+
+   # Using nonsense.
+   if (! defined $parsed_item) {
+      ($parsed_item, $contents) = parse_using $depth, $contents;
+   }
+
+   # Variable declaration / assignment
+   if (! defined $parsed_item) {
+      ($parsed_item, $contents) = parse_variable $depth, $contents;
+   }
+
+   # Class declaration
+   if (! defined $parsed_item) {
+      ($parsed_item, $contents) = parse_class_decl $depth, $contents;
+   }
+
+   # Class definition
+   if (! defined $parsed_item) {
+      ($parsed_item, $contents) = parse_class_def $depth, $contents;
+   }
+
+   # Extern "C" block
+   if ((! defined $parsed_item) &&
+       (($in_type == TOPLEVEL) ||
+        ($in_type == DOUBLE_INCLUDE))) {
+      ($parsed_item, $contents) = parse_extern_c $depth, $contents;
+   }
+
+   # Function declaration or definition
+   # NOTE: This parser omits valid syntax.
+   if (! defined $parsed_item) {
+      ($parsed_item, $contents) = parse_function $depth, $contents;
+   }
+
+   # Parse failed:
+   # Pull out a sequence of comments.
+   if (! defined $parsed_item) {
+      my $line = get_line $contents;
+      if ($contents =~ /^
+            ((?:\s*$Patterns{newline})*
+             (?:\s*$Patterns{comline})*
+             (?:\s*$Patterns{newline})*)/x) {
+         my $hdr = $1;
+         my $hdrlen = length $hdr;
+         if ($hdrlen > 0) {
+            $contents = substr $contents, $hdrlen;
+            $parsed_item = {
+               type            => BLANKS,
+               class           => 'whitespace',
+               defines         => '',
+               line            => $line,
+               contents        => $hdr };
+         }
+      }
+      if (! defined $parsed_item) {
+         generate_fatal_error $contents, "Unable to parse contents";
+      }
+   }
+
+   $parsed_item->{depth} = $depth;
+
+   return ($parsed_item, $contents);
+}
+
+
+#=| Parses something that can contain multiple definitions; a "body".
+#=| Parameters:
+#=|   @param $depth    Nesting depth (not incremented for double-include block)
+#=|   @param $in_type  The container type: one of
+#=|                    TOPLEVEL, DOUBLE_INCLUDE, CLASS, or EXTERN_C
+#=|   @param $contents The body string
+#=| Returns:
+#=|   $parsed_contents List (ref) of parsed items
+#=|   $def_count       Number of items that "define" something.
+sub parse_body ($$$) {
+   my ($depth, $parent, $contents) = @_;
+   my $in_type = $parent->{type};
+   my $def_count = 0;
+   my @parsed_contents = ();
+
+   while ($contents) {
+      my ($parsed_item);
+      ($parsed_item, $contents) = get_next $depth, $in_type, $contents;
+      $parsed_item->{parent} = $parent;
+      push @parsed_contents, $parsed_item;
+      if (defined $parsed_item->{def_count}) {
+         $def_count += $parsed_item->{def_count};
+      }
+   }
+
+   return ([@parsed_contents], $def_count);
+}
+
+
+################################################################################
+# Repair functions
+################################################################################
+
+sub repair_item ($) {
+   my ($contents) = @_;
+
+
+   # Repair each element in the body, if it has one.
+   if (exists $contents->{parsed_body}) {
+      foreach my $item (@{$contents->{parsed_body}}) {
+         repair_item $item;
+      }
+   }
+
+   # Perform type-specific actions.
+
+   # Functions: Repair header, arguments per function type.
+   if ($contents->{type} == FUNCTION_DECL) {
+      repair_function_decl $contents;
+   }
+   elsif ($contents->{type} == PURE_VIRTUAL) {
+      repair_pure_virtual $contents;
+   }
+
+   elsif ($contents->{type} == FUNCTION_IMPL) {
+      repair_function_impl $contents;
+   }
+
+   # Structures & enums: Standardize presentation.
+   elsif (($contents->{type} == CLASS) ||
+          ($contents->{type} == ENUMERATION)) {
+      repair_class_def $contents;
+   }
+
+   # Typedefs: Accept either a doxygen header or an end of line comment.
+   elsif (($contents->{type} == TYPEDEF)  &&
+           ! defined (find_doxygen_header $contents->{header})) {
+      repair_eol_comment $contents;
+   }
+
+   # Enum item, member data: Repair end-of-line comment.
+   elsif ((($contents->{type} == ENUM_VALUE) ||
+           (($contents->{type} == VARIABLE_DECL) &&
+            ($contents->{parent}->{type} == CLASS))) &&
+          ($File_icg ||
+           ! defined (find_doxygen_header $contents->{header}))) {
+      repair_eol_comment $contents;
+   }
+
+   # Repair the Trick header
+   # This includes
+   #   - Creating missing Trick headers,
+   #   - Deleting spurious Trick headers,
+   #   - Patching problems in existing Trick headers.
+   repair_trick_header $contents;
+}
+
+
+sub repair_eol_comment ($) {
+   my ($contents) = @_;
+   my $type = $contents->{type};
+   my $name = $contents->{defines};
+   my $eolc = $contents->{eol_comment};
+   my $line = $contents->{line};
+
+   $line = $contents->{parent}->{line} unless defined $line;
+
+   if ((! defined $eolc) || ($eolc eq '')) {
+      if ($Options{interactive}) {
+         my ($io, $units, $descr);
+         if ($type == OPEN_ARGS) {
+            generate_warning $line,
+               "Missing return comment for $contents->{function_name}";
+            $units = get_one_liner "units";
+            $descr = get_one_liner "description";
+            $eolc  = "Return: $units $descr";
+         }
+         elsif (($type == ARGUMENT) && (defined $contents->{arg_name})) {
+            generate_warning $line,
+               "Missing comment for argument $contents->{arg_name}";
+            $io = get_one_liner "In/Out/Inout";
+            $units = get_one_liner "units";
+            $descr = get_one_liner "description";
+            $eolc  = "$io: $units $descr";
+         }
+         elsif ($type == VARIABLE_DECL) {
+            generate_warning $line,
+               "Missing comment for variable $contents->{defines}";
+            $units = get_one_liner "units";
+            $descr = get_one_liner "description";
+            $eolc  = "$units $descr";
+         }
+         else {
+            generate_warning $line,
+               "Missing comment for $contents->{class} $contents->{defines}";
+            $descr = get_one_liner "description";
+            $eolc  = $descr;
+         }
+      }
+      else {
+         if ($type == OPEN_ARGS) {
+            $name = "$contents->{function_name} return";
+            $eolc = "Return: -- FIXME: Describe return value";
+         }
+         elsif ($type == ARGUMENT) {
+            if ($contents->{arg_type} =~ /\.\.\./) {
+               $name = "ellipsis argument";
+               $eolc = "Inout: -- FIXME: Describe variable arguments";
+            }
+            elsif ((defined $contents->{arg_name}) &&
+                   ($contents->{arg_name} !~ /^ *$/)) {
+               $name = "argument $contents->{arg_name}";
+               $eolc = "Inout: -- FIXME: Describe $contents->{arg_name}";
+            }
+            else {
+               $name = "";
+               $eolc = "";
+            }
+         }
+         elsif ($type == VARIABLE_DECL) {
+            $name = "$contents->{defines}";
+            $eolc = "-- FIXME: Describe $contents->{defines}";
+         }
+         else {
+            $name = "$contents->{class} $contents->{defines}";
+            $eolc = "FIXME: Describe $contents->{defines}";
+         }
+         generate_warning $line, "Missing descriptor for $name (inserted)"
+            if ((defined $eolc) && ($eolc !~ /^ *$/));
+      }
+
+      if ((defined $eolc) && ($eolc !~ /^ *$/)) {
+         $eolc = add_comment "// $eolc";
+
+         $contents->{eol_comment} = $eolc;
+         # FIXME (spacing)
+         $contents->{contents}    =~ s/($Patterns{newline})$/   ${eolc}$1/;
+      }
+   }
+}
+
+
+sub repair_class_def ($) {
+   my ($contents) = @_;
+   my $indent = ' ' x $Options{indent};
+   my $find = $indent x $contents->{depth};
+   my $aind = $find . $indent;
+   my $open = $contents->{'open'};
+   my $line = $contents->{line};
+
+   if ($open !~ /$Patterns{newline}$/x) {
+      $open =~ s/\s*$/$line/;
+   }
+   $open =~ s/\s*$Patterns{newline}\s*\{/ \{/x;
+
+   $contents->{'open'} = $open;
+
+   uncrustify_class $contents if $Options{uncrustify};
+}
+
+
+sub repair_function_decl ($) {
+   my ($contents) = @_;
+   my $phdr   = $contents->{parsed_header};
+
+   # Change the Trick header to a simple comment.
+   if (defined $phdr) {
+      if ((defined $phdr->{purpose}) && (defined $phdr->{purpose}->{val})) {
+         my $purp = get_comment $phdr->{purpose}->{val};
+         my $cmt = next_comment;
+         $purp =~ /^\((.*)\)$/ or die;
+         $purp =~ s/\s*$Patterns{newline}\s*/ /g;
+         set_comment $cmt, '// ' . $1;
+         $contents->{header} =~ s/$phdr->{trick_header}/$cmt/;
+      }
+      delete $contents->{parsed_header};
+   }
+
+   delete_function_comments $contents;
+   repair_function_decl_contents $contents;
+}
+
+
+sub repair_function_decl_contents ($) {
+   my ($contents) = @_;
+   my $line   = $contents->{line};
+   my $depth  = $contents->{depth};
+   my $indent = ' ' x $Options{indent};
+   my $find   = $indent x $depth;
+   my $aind   = $find . $indent;
+   my ($lead, $args, $post, $term);
+   my (@test_spec, $spec);
+
+   ($lead, $args, $post, $term) =
+      map {my $s = $contents->{$_};
+           $s =~ s/(?:\s|$Patterns{newline})+/ /g;
+           $s =~ s/^\s+//;
+           $s =~ s/\s+$//;
+           $s;}
+          qw(lead argument_list post_arguments terminator);
+
+   $lead =~ s/^(
+                \s*template\s*
+                <
+                (?:
+                 [^<>]*?
+                 (?:
+                  <
+                  [^<>]*?
+                  >
+                 )?
+                )*
+                [^<>]*?
+                >
+               )
+               $Patterns{nspace}*
+             /$1$line$find/x;
+   $args =~ s/\( /\(/;
+   $args =~ s/ \)/\)/;
+   $term =~ s/=0/= 0/;
+   $term .= $line;
+
+   $test_spec[0] = "$find$lead $args";
+   if ($args ne '()') {
+      ($test_spec[1] = $test_spec[0]) =~ s/\(/($line$aind/;
+   }
+   if ($args =~ /,/) {
+      ($test_spec[2] = $test_spec[1]) =~ s/, /,$line$aind/g;
+   }
+   foreach my $test_spec (@test_spec) {
+      my $sp = ($term =~ /^;/) ? '' : ' ';
+      if ((defined $post) && ($post ne '')) {
+         $spec = "$test_spec $post$sp$term";
+         last if (max_length $spec <= 80);
+         $spec = "$test_spec$line$find$post$sp$term";
+         last if (max_length $spec <= 80);
+      }
+      else {
+         $spec = "$test_spec$sp$term";
+         last if (max_length $spec <= 80);
+      }
+   }
+   $contents->{contents} = $spec;
+}
+
+
+sub repair_pure_virtual ($) {
+   my ($contents) = @_;
+   my $line  = $contents->{line};
+   my $pret  = $contents->{parsed_return};
+   my $pargs = $contents->{parsed_args};
+
+   # FIXME: Comment needed
+   if ($contents->{null_arguments}) {
+      if ($pret->{close} =~ s/=\s*0\s*\;/= 0;/) {
+         $contents->{terminator} = '';
+      }
+   }
+   else {
+      if ($pargs->[$#$pargs]->{close} =~ s/=\s*0\s*\;/= 0;/) {
+         $contents->{terminator} = '';
+      }
+   }
+
+   if (defined (find_doxygen_header($contents->{header}))) {
+      delete_function_comments $contents;
+      repair_function_decl_contents $contents;
+   }
+   else {
+      repair_function_comments $contents;
+      $contents->{contents} = join '',
+                              +(map {$contents->{$_}}
+                                    qw(lead
+                                       argument_list
+                                       post_arguments
+                                       terminator));
+      $contents->{contents} .= $line
+         unless $contents->{contents} =~ /$Patterns{newline}$/x;
+   }
+}
+
+
+sub repair_function_impl ($) {
+   my ($contents) = @_;
+   my $indent = ' ' x $Options{indent};
+   my $find = $indent x $contents->{depth};
+   my $line = $contents->{line};
+   my $lead = $find;
+
+   if (($contents->{parent}->{type} == CLASS) && $File_icg) {
+      generate_warning $line,
+                       "Function $contents->{defines} defined at class scope";
+   }
+
+   # Repair the lead-in to the function.
+   repair_function_lead $contents;
+
+   # Repair the end-of-line return and argument description comments.
+   repair_function_comments $contents;
+
+   # Make non-empty post args, init list, body
+   # - Start with indentation
+   # - End with a newline
+   foreach my $key (qw(post_arguments init_list body)) {
+
+      # Make key value empty if it is spaces and newlines only.
+      if ((! defined $contents->{$key}) ||
+          ($contents->{$key} =~ /^$Patterns{nspace}*$/)) {
+         $contents->{$key} = '';
+      }
+
+      # Meaningful content: Follow above rules.
+      else {
+          $contents->{$key} =~ s/^\s*/$find/;
+          $contents->{$key} =~ s/\s*($Patterns{newline}?)$/$1/;
+          $contents->{$key} .= $line
+             unless $contents->{$key} =~ /$Patterns{newline}$/;
+      }
+   }
+
+   # Repair the init list.
+   if ($contents->{init_list} =~ /^\s*:/) {
+      repair_function_init $contents;
+   }
+
+   uncrustify_function $contents if $Options{uncrustify};
+}
+
+
+sub repair_function_lead ($) {
+   my ($contents) = @_;
+   my $indent = ' ' x $Options{indent};
+   my $find = $indent x $contents->{depth};
+   my $line = $contents->{line};
+   my $lead = $find;
+
+   # Repair the lead-in to the function.
+   if ((defined $contents->{template}) && ($contents->{template} ne '')) {
+      $lead .= $contents->{template};
+      $lead =~ s/\s+$//;
+      $lead .= $line unless $lead =~ /$Patterns{newline}$/;
+      $lead .= $find;
+   }
+   if ((defined $contents->{qualifiers}) && ($contents->{qualifiers} ne '')) {
+      $lead .= $contents->{qualifiers};
+      $lead =~ s/$Patterns{newline}\s*$//;
+      $lead =~ s/\s*$/ /;
+   }
+   if ((defined $contents->{return_type}) && ($contents->{return_type} ne '')) {
+      $lead .= $contents->{return_type};
+      $lead =~ s/\s+$//;
+      $lead .= $line unless $lead =~ /$Patterns{newline}$/;
+      $lead .= $find;
+   }
+   elsif ($lead ne '') {
+      $lead =~ s/\s+$//;
+      $lead .= $line unless $lead =~ /$Patterns{newline}$/;
+      $lead .= $find;
+   }
+   $lead .= $contents->{defines} . ' ';
+   $contents->{lead} = $lead;
+}
+
+
+sub repair_function_comments ($) {
+   my ($contents) = @_;
+   my $indent = ' ' x $Options{indent};
+   my $find = $indent x $contents->{depth};
+   my $aind = $find . $indent;
+   my $line = $contents->{line};
+   my $parsed_ret = $contents->{parsed_return};
+   my $header = $contents->{header};
+   my $need_repair = $File_icg || ! defined (find_doxygen_header $header);
+   my $eolc;
+   my $arglist;
+
+   # The parsed return needs to end in a newline.
+   if ($parsed_ret->{contents} !~ /$Patterns{newline}$/) {
+      $parsed_ret->{contents} =~ s/\s*$/$line/;
+   }
+
+   # Insert a return type eol comment if needed.
+   if ((! $contents->{void_return}) &&
+       $need_repair &&
+       ((! defined $parsed_ret->{eol_comment}) ||
+        ($parsed_ret->{eol_comment} eq ''))) {
+      $parsed_ret->{comment_pos} = 1;
+      repair_eol_comment $parsed_ret;
+   }
+
+   # No arguments: Convert to fname ( comment\n   void)
+   if ($contents->{null_arguments}) {
+
+      # Get the endline comment.
+      $eolc = $parsed_ret->{eol_comment};
+      $eolc = '' unless defined $eolc;
+
+      # Comment is after close paren:
+      # Move to after open paren.
+      if ($parsed_ret->{comment_pos} == 1) {
+         $eolc = ' ' . $eolc if $eolc ne '';
+      }
+
+      # Comment is after open: Make sure there is some space after paren.
+      else {
+         if ($parsed_ret->{contents} =~ /(\s+)$Patterns{comment}/) {
+            $eolc = $1 . $eolc;
+         }
+         elsif ($eolc ne '') {
+            $eolc = ' ' . $eolc;
+         }
+      }
+      $parsed_ret->{contents} = "($eolc$line${aind}void)$line";
+      $arglist = $parsed_ret->{contents};
+   }
+
+   # Function has arguments.
+   else {
+
+      # Get the return type endline comment.
+      $eolc = $parsed_ret->{eol_comment};
+      $eolc = '' unless defined $eolc;
+
+      if ($parsed_ret->{open} =~ /\((\s+)/) {
+         $eolc = $1 . $eolc;
+      }
+      elsif ($eolc ne '') {
+         $eolc = ' ' . $eolc;
+      }
+      $parsed_ret->{contents} = "($eolc$line";
+      $arglist = $parsed_ret->{contents};
+
+      foreach my $arg (@{$contents->{parsed_args}}) {
+         # The parsed return needs to start properly indented ...
+         $arg->{contents} =~ s/^\s*/$aind/;
+
+         # ... not have spaces before the comma or close paren ...
+         $arg->{contents} =~ s/(\s+)([,\)])/$2$1/;
+
+         # ... and end in a newline.
+         if ($arg->{contents} !~ /$Patterns{newline}$/) {
+            $arg->{contents} =~ s/\s*$/$line/;
+         }
+
+         # Insert an endline comment if needed.
+         repair_eol_comment $arg if $need_repair;
+
+         $arglist .= $arg->{contents};
+      }
+   }
+   $contents->{argument_list} = $arglist;
+}
+
+
+sub delete_function_comments ($) {
+   my ($contents) = @_;
+   my $args = $contents->{argument_list};
+   my $term = $contents->{terminator};
+   if (($args =~ /$Patterns{comment}/) ||
+       ($term =~ /$Patterns{comment}/)) {
+      generate_warning $contents->{line},
+                       "Comments for function " .
+                       $contents->{defines} .
+                       " arguments deleted";
+      $args =~ s/\s*$Patterns{comment}\s*//g;
+      $term =~ s/\s*$Patterns{comment}\s*//g;
+   }
+   $args =~ s/\(\s+/\(/;
+   $args =~ s/\s+\)/\)/;
+   $args =~ s/,\s*/, /g;
+   $contents->{argument_list} = $args;
+   $contents->{terminator}    = $term;
+}
+
+
+sub repair_function_init ($) {
+   my ($contents) = @_;
+   my $indent = ' ' x $Options{indent};
+   my $find = $indent x $contents->{depth};
+   my $aind = $find . $indent;
+   my $eol = "\eL9999\e";
+   my $init = $contents->{init_list};
+
+   if ((! defined $init) || ($init eq '')) {
+      return;
+   }
+
+   if ($init =~ s/^(\s*:$Patterns{wspace}*)(\w+\s*[\(\)])/$2/x) {
+      my $colon = $1;
+      my @items;
+
+      $colon =~ s/\s+$//;
+      $colon =~ s/^\s*/$find/;
+      $colon .= $eol unless $colon =~ /$Patterns{newline}$/x;
+
+      while ($init ne '') {
+         my $item;
+
+         if ($init=~ s/^(\w+\s*\([^\(\)]*\)
+                              (?:$Patterns{wspace}*
+                               (?:,$Patterns{wspace}*|$)))
+                      //x) {
+            $item = $1;
+         }
+
+         elsif ($init =~ s/^(\w+\s*\()//) {
+            $item = $1;
+            my $depth = 1;
+            while ($depth > 0) {
+               if ($init =~ s/^(.*?([\(\)]))//) {
+                  my ($chunk, $paren) = ($1, $2);
+                  $item .= $chunk;
+                  if ($paren eq '(') {
+                     $depth++;
+                  }
+                  else {
+                     $depth--;
+                  }
+               }
+               else {
+                  $init = $item . $init;
+                  undef $item;
+                  last;
+               }
+            }
+            if (defined $item) {
+                  if ($init =~ s/^($Patterns{wspace}*
+                                   (?:,$Patterns{wspace}*|$))//x) {
+                  $item .= $1;
+               }
+               else {
+                  $init = $item . $init;
+                  undef $item;
+               }
+            }
+         }
+
+         if (defined $item) {
+            $item =~ s/\s+(,$Patterns{wspace}*$)/$1/;
+            $item =~ s/\s+$//;
+            $item =~ s/^\s*/$aind/;
+            $item .= $eol unless $item =~ /$Patterns{newline}$/x;
+            push @items, $item;
+         }
+         else {
+            last;
+         }
+      };
+
+      push @items, $init if $init ne '';
+
+      $contents->{init_list} = join '', $colon, @items;
+   }
+}
+
+
+# FIXME: Implement!!
+sub uncrustify_class ($) {
+   my ($contents) = @_;
+
+###   # Uncrustify.
+###   my ($failure, $reparsed_contents) = uncrustify $contents, "class definition";
+###
+###   # Replace parsed body if it worked.
+
+###   if (scalar (@{$reparsed_contents->{parsed_body}}) ==
+###       scalar (@{$contents->{parsed_body}})) {
+###   sleep 0;
+###   }
+###   else {
+###   sleep 0;
+###   }
+}
+
+
+sub uncrustify_function ($) {
+   my ($contents) = @_;
+
+   # Uncrustify.
+   my ($failure, $reparsed_contents) = uncrustify $contents, "function body";
+
+   # Replace body if it worked.
+   # FIXME: How about other stuff?
+   if (! defined $failure) {
+      $contents->{body} = $reparsed_contents->{body};
+   }
+}
+
+
+sub uncrustify ($$) {
+   my ($contents, $code_descr) = @_;
+   my $line = $contents->{line};
+   my $find = ' ' x +($contents->{depth} * $Options{indent});
+   my ($child_in, $to_child);
+   my ($from_child, $child_out);
+   my $pid;
+   my $saved_file;
+   my (@uncrustify_output, $uncrustify_output, $reparsed_contents);
+   my $failure;
+
+   # Create plumbing.
+   pipe $child_in, $to_child     or die "Can't create pipe";
+   pipe $from_child, $child_out  or die "Can't create pipe";
+
+   # Send data to uncrustify
+   $pid = fork();
+   if ($pid == 0) {
+      my @buffer;
+
+      # Close unneeded plumbing.
+      # All that is needed here is to_child.
+      close $from_child;
+      close $child_in;
+      close $child_out;
+
+      open OUTPUT, '>&', $to_child or die;
+      for (my $depth = 0; $depth < $contents->{depth}; $depth++) {
+         my $dind = ' ' x ($depth * $Options{indent});
+         print OUTPUT "${dind}class DummyClassName$depth {\n";
+      }
+      print_item $contents;
+      for (my $depth = 0; $depth < $contents->{depth}; $depth++) {
+         my $dind = ' ' x ($depth * $Options{indent});
+         print OUTPUT "${dind}\}\n";
+      }
+
+      close OUTPUT;
+      close $to_child;
+      exit;
+   }
+
+   # Uncrustify the code piped in by the above process.
+   $pid = fork();
+   if ($pid == 0) {
+      my $cfg = "$Uncrustify_cfg/jeod_uncrustify_indent$Options{indent}.cfg";
+      my $cmd = "$Uncrustify -c $cfg -l CPP -q -L 1";
+
+      # Close unneeded plumbing.
+      close $to_child;
+      close $from_child;
+
+      # Redirect child_in to STDIN, STDOUT to child_out.
+      open STDIN,  '<&', $child_in  or die "Can't redirect STDIN";
+      open STDOUT, '>&', $child_out or die "Can't redirect STDOUT";
+
+      # Invoke uncrustify.
+      exec $cmd                     or die "Can't invoke uncrustify";
+      die "Can't get here!";
+   }
+
+
+   ## Parent process
+
+   # Close unneeded plumbing.
+   # All that is needed here is from_child.
+   close $to_child;
+   close $child_in;
+   close $child_out;
+
+   # Read the uncrustified code from the from_child end of the second pipe.
+   # Note: Line-by-line read here rather than one big gulp, which can hang.
+   while (defined ($_ = readline $from_child)) {
+      s/^(\.)/$find$1/;
+      s/(\w+) \(\)/${1}()/g;
+      push @uncrustify_output, $_;
+   }
+   close $from_child;
+
+   wait; wait; # Don't tell me!
+
+
+   $uncrustify_output = preprocess_code (join '', @uncrustify_output);
+   $saved_file = $File;
+   undef $File;
+   eval {$reparsed_contents = parse_contents $uncrustify_output, 0};
+   $failure = $@;
+   $File = $saved_file;
+
+   if ($failure) {
+      $failure =~ s/^At line \d+, //;
+      generate_warning $line,
+                       "Uncrustify/reparse failure: $failure" .
+                       "   Leaving $code_descr as-is";
+   }
+
+   elsif ((! defined $reparsed_contents) ||
+          ($reparsed_contents->{type} != TOPLEVEL) ||
+          ($reparsed_contents->{def_count} != 1)) {
+      $failure = "Unfathomable";
+      generate_warning $line,
+                       "Unfathomable uncrustify/reparse failure\n" .
+                       "   Leaving function body as-is";
+   }
+
+   else {
+      undef $failure;
+      $reparsed_contents = $reparsed_contents->{parsed_body}->[0];
+      for (my $depth = 0; $depth < $contents->{depth}; $depth++) {
+         $reparsed_contents = $reparsed_contents->{parsed_body}->[0];
+      }
+   }
+
+   return ($failure, $reparsed_contents);
+}
+
+
+################################################################################
+# Doxygenation functions
+################################################################################
+
+sub doxygenate_item ($) {
+   my ($contents) = @_;
+
+
+   # Perform type-specific actions.
+   # Toplevel: Process header & add file-level comments.
+   if ($contents->{type} == TOPLEVEL) {
+      doxygenate_toplevel $contents;
+   }
+
+   # Function implementation: Process header & process arguments.
+   elsif (($contents->{type} == PURE_VIRTUAL) ||
+          ($contents->{type} == FUNCTION_IMPL)) {
+      doxygenate_function $contents;
+   }
+
+   # Other top-level constructs: Process header.
+   elsif (($contents->{type} == CLASS) ||
+          ($contents->{type} == ENUMERATION)) {
+      doxygenate_class $contents;
+   }
+
+   # Enum item, variable declaration: Process end-of-line comment.
+   elsif (($contents->{type} == ENUM_VALUE) ||
+          ($contents->{type} == VARIABLE_DECL) ||
+          ($contents->{type} == TYPEDEF)) {
+      doxygenate_eol_comment $contents;
+   }
+
+
+   # Doxygenate each element in the body, if it has one.
+   if (exists $contents->{parsed_body}) {
+      foreach my $item (@{$contents->{parsed_body}}) {
+         doxygenate_item $item;
+      }
+   }
+}
+
+
+sub build_doxygen_header ($@) {
+   my ($depth, @items) = (@_);
+   my $eol = "\eL9999\e";
+   my $ind = ' ' x +($depth*$Options{indent});
+   my $cmt = "$ind/**$eol";
+   foreach my $item (@items) {
+      if ($item eq '') {
+         $cmt .= $ind . ' *' . $eol;
+      }
+      else {
+         my @text = split /\s*$Patterns{newline}/x, $item;
+         foreach my $line (@text) {
+            if ($line eq '') {
+               $cmt .= $ind . ' *' . $eol;
+            }
+            else {
+               $cmt .= $ind . ' * ' . $line . $eol;
+            }
+         }
+      }
+   }
+   $cmt .= $ind . ' */';
+   return $cmt;
+}
+
+
+sub doxygenate_purpose ($) {
+   my ($contents) = @_;
+   my $type = $contents->{type};
+   my $phdr = $contents->{parsed_header};
+   my @dox_items;
+   if (exists $phdr->{purpose}) {
+      my $purp = get_comment $phdr->{purpose}->{val};
+      my $ind = '';
+      if ($purp =~ /$Patterns{newline}(\s+)/) {
+         $ind = $1;
+      }
+      $ind =~ s/ /\\s/g;
+      $purp =~ s/^\($Patterns{nspace}*(.*)$Patterns{nspace}*\)/$1/x
+         or generate_fatal_error $contents, "Can't parse purpose";
+      $purp =~ s/($Patterns{newline})$ind/$1/g;
+      push @dox_items, $purp;
+   }
+   return @dox_items;
+}
+
+
+sub doxygenate_assumptions ($) {
+   my ($contents) = @_;
+   my $phdr = $contents->{parsed_header};
+   my @dox_items;
+   if (exists $phdr->{assumptions}) {
+      my $assump= get_comment $phdr->{assumptions}->{val};
+      my @assump;
+      if (($assump =~ s/^\($Patterns{nspace}*
+                          \($Patterns{nspace}*
+                           (.*)
+                          $Patterns{nspace}*\)
+                         $Patterns{nspace}*\)$/$1/x) &&
+          (@assump = split /$Patterns{nspace}*\)
+                             $Patterns{nspace}*
+                            \($Patterns{nspace}*/x, $assump)) {
+         ### map {s/^\s*/ - /; s/($Patterns{newline})\s*/\\n$1   /g} @assump;
+         map {s/^\s*/ - /} @assump;
+         push @dox_items, '\par Assumptions and Limitations', @assump, '';
+generate_warning $phdr->{assumptions}->{ent},
+                 "Found Assumptions and Limitations\n";
+      }
+      else {
+         generate_warning $phdr->{assumptions}->{ent},
+                          "Can't translate assumptions";
+      }
+   }
+   ## return @dox_items;
+   return ();
+}
+
+
+sub doxygenate_libdep ($) {
+   my ($contents) = @_;
+   my $phdr = $contents->{parsed_header};
+   my @dox_items;
+   if (exists $phdr->{libdep}) {
+      my $dep = get_comment $phdr->{libdep}->{val};
+      my @dep;
+      if (($dep =~ s/^\($Patterns{nspace}*
+                       \($Patterns{nspace}*
+                        (.*)
+                       $Patterns{nspace}*\)
+                      $Patterns{nspace}*\)$/$1/x) &&
+           (@dep = split /(?:\s+|$Patterns{newline}|\(|\))+/x, $dep)) {
+         map {s/^\s*/ - /} @dep;
+         push @dox_items, '\par Library Dependencies', @dep, '';
+      }
+   }
+   return @dox_items;
+}
+
+
+sub doxygenate_programmers ($) {
+   my ($contents) = @_;
+   my $phdr = $contents->{parsed_header};
+   my @dox_items;
+   # FIXME: Add warnings.
+   if (exists $phdr->{programmers}) {
+      my $hist= get_comment $phdr->{programmers}->{val};
+      my @hist;
+      if (($hist =~ s/^\($Patterns{nspace}*
+                        \($Patterns{nspace}*
+                         \($Patterns{nspace}*
+                          (.*)
+                         $Patterns{nspace}*\)
+                        $Patterns{nspace}*\)
+                       $Patterns{nspace}*\)$/$1/x) &&
+          (@hist = split /$Patterns{nspace}*\)
+                           $Patterns{nspace}*\)
+                            $Patterns{nspace}*
+                           \($Patterns{nspace}*
+                          \($Patterns{nspace}*/x, $hist)) {
+
+         push @dox_items, '\par Revision History', '<table border="1">';
+
+         foreach my $ent (@hist) {
+            my @ent;
+            if (@ent = split /$Patterns{nspace}*\)
+                               $Patterns{nspace}*
+                              \($Patterns{nspace}*/x, $ent) {
+               map {s/^\s*/  <td>/; s/$/<\/td>/} @ent;
+               push @dox_items, '<tr>', @ent, '</tr>';
+            }
+         }
+         push @dox_items, '</table>';
+      }
+   }
+   return @dox_items;
+}
+
+
+sub doxygenate_function ($) {
+   my ($contents) = @_;
+   my $trick_contents = (defined $contents->{parsed_header}) ?
+                        $contents : $File_contents;
+   my @dox_items;
+
+   return if (defined (find_doxygen_header($contents->{header})));
+
+
+   # Translate the function header to a Doxygen header.
+   push @dox_items, doxygenate_purpose $trick_contents;
+   push @dox_items, doxygenate_assumptions $trick_contents;
+
+   if (! $contents->{void_return}) {
+      my $doxcom = '\return ';
+      my $retcom = get_comment $contents->{parsed_return}->{eol_comment};
+      if ($retcom =~ /^\/[\/\*]
+                       $Patterns{nspace}*
+                       Return\s*:\s*
+                       ([^\s\e]*)
+                       $Patterns{nspace}*
+                       (.*?)
+                       \s*(?:\*\/)?$/ix) {
+         my ($units, $descr) = ($1, $2);
+         $descr =~ s/\s*$Patterns{newline}\s*/ /g;
+         $doxcom .= $descr;
+         $doxcom .= "\\n Units: $units" if ($units ne '--');
+         push @dox_items, $doxcom;
+      }
+      else {
+         generate_warning $contents, "Can't interpret return comment";
+      }
+   }
+
+   if (! $contents->{null_arguments}) {
+      foreach my $arg (@{$contents->{parsed_args}}) {
+         my $doxcom = '\param';
+         # my $name = $arg->{arg_name};
+         my $name = ($arg->{arg_type} =~ /\.\.\./) ? '...' : $arg->{arg_name};
+         next if ((! defined $name) || ($name eq ''));
+         my $argcom = get_comment $arg->{eol_comment};
+         $argcom = '' unless defined $argcom;
+         if ($argcom =~ /^\/[\/\*]
+                          $Patterns{nspace}*(In|Out|Inout|FIXME)\s*:
+                          $Patterns{nspace}*
+                          ([^\s\e]*)
+                          $Patterns{nspace}*
+                          (.*?)
+                          \s*(?:\*\/)?$/ix) {
+            my ($dir, $units, $descr) = ($1, $2, $3);
+            $descr =~ s/\s*$Patterns{newline}\s*/ /g;
+            if ($dir =~ /FIXME/i) {
+               $descr = $dir . ': ' . $descr;
+               $dir = '';
+            }
+            else {
+               $dir = 'in,out' if $dir =~ /Inout/i;
+               $dir = '[' . lc ($dir) . ']';
+            }
+            $descr .= "\\n Units: $units" if ($units ne '--');
+            $doxcom .= join ' ', $dir, $name, $descr;
+            push @dox_items, $doxcom;
+         }
+         else {
+            generate_warning
+               +(get_line $arg->{contents}, $arg->{parent}->{argument_list}),
+               "Can't interpret param $name comment";
+         }
+      }
+   }
+
+   # Build the function header comment.
+   my $dox_hdr = build_doxygen_header $contents->{depth}, @dox_items;
+   my $dox_cmt = add_comment $dox_hdr;
+   $contents->{header} .= "\eL0\e"
+      if ($contents->{header} !~ /$Patterns{newline}$/x);
+   $contents->{header} .= ${dox_cmt} . "\eL0\e";
+}
+
+
+sub doxygenate_class ($) {
+   my ($contents) = @_;
+   my $trick_contents = (defined $contents->{parsed_header}) ?
+                        $contents : $File_contents;
+   my @dox_items;
+
+   return if (defined (find_doxygen_header($contents->{header})));
+
+   # Translate the class header to a Doxygen header.
+   push @dox_items, doxygenate_purpose $trick_contents;
+   push @dox_items, doxygenate_assumptions $trick_contents;
+
+   # Build the file header comment.
+   my $dox_hdr = build_doxygen_header $contents->{depth}, @dox_items;
+   my $dox_cmt = add_comment $dox_hdr;
+   $contents->{header} .= "\eL0\e"
+      if ($contents->{header} !~ /$Patterns{newline}$/x);
+   $contents->{header} .= ${dox_cmt} . "\eL0\e";
+}
+
+
+sub doxygenate_eol_comment ($) {
+   my ($contents) = @_;
+   my $type = $contents->{type};
+   my $eolc = $contents->{eol_comment};
+
+   if ((defined $eolc) && ($eolc ne '')) {
+      my $cmt = get_comment $eolc;
+      $cmt =~ s/^\/(.)/\/$1$1</;
+      if ($type == VARIABLE_DECL) {
+         my ($units, $descr);
+         if ($cmt =~ /^...<\s+(\S*?)$Patterns{nspace}+(.*?)\s*(?:\*\/)?$/) {
+            ($units, $descr) = ($1, $2);
+         }
+         if (defined $units) {
+            if ($units eq '**') {
+               $descr .= "\\n Note: This element is hidden from Trick";
+               if ($descr =~ /^(\S*?)$Patterns{nspace}+(.*)$/) {
+                  ($units, $descr) = ($1, $2);
+               }
+            }
+            if ($units ne '--') {
+               if ($units =~ /^1?\/?
+                               ((cnt|one|
+                                 ((d|c|m|u|n|p|f|a|z|y|da|h|k|M|G|T|P|E|Z|Y)?
+                                  (s|min|hr|day|r|v|amp|ohm|dB|m|g|N|C|K)
+                                  \d?))[\*\/]?)+$/x) {
+                  $descr .= "\\n Units: $units";
+               }
+               else {
+                  undef $descr;
+               }
+            }
+         }
+         $cmt =~ s/^(...<\s+)(.*?)(\s*(?:\*\/)?)$/$1$descr$3/ if defined $descr;
+      }
+      set_comment $eolc, $cmt;
+   }
+}
+
+
+sub doxygenate_toplevel ($) {
+   my ($contents) = @_;
+   my @dox_items;
+   my ($dox_file, @dox_groups);
+
+   if ($Options{modules}) {
+      my $file_abs = abs_path $File;
+      $file_abs =~ s/\/\/+/\//g;
+      if ($file_abs =~ /^\Q${Er7_utils}\E\/(([^\/]*?)\/.*)/) {
+         $dox_file = $1;
+         @dox_groups = ('er7_utils', $2);
+      }
+      else {
+         die "Internal error";
+      }
+   }
+   else {
+      $dox_file = $File;
+   }
+
+## warn "Doxygenating file $dox_file\n";
+
+   # push @dox_items, "\@file $dox_file";
+   push @dox_items, "\@file";
+
+   # Translate the toplevel header to a Doxygen header.
+   push @dox_items, doxygenate_purpose $contents;
+   push @dox_items, doxygenate_assumptions $contents;
+   ## push @dox_items, doxygenate_libdep $contents;
+   ## push @dox_items, doxygenate_programmers $contents;
+
+   # Build the file header comment.
+   my $dox_hdr = build_doxygen_header 0, @dox_items;
+   my $dox_cmt = add_comment $dox_hdr;
+###   $contents->{header} =~ s/^/${dox_cmt}\eL0\e/;
+   $contents->{header} = join "\eL0\e",
+                              '',
+                              $dox_cmt,
+                              '',
+                              '/*',
+                              'Purpose: ()',
+                              '*/';
+
+   # Build the doxygen comment that places the file in a pair of doxygen groups.
+   # This option is used for documenting JEOD as a whole.
+   if ($Options{modules}) {
+      my (@begin_group, @end_group);
+      my $start_block = "/**\n * \@if Er7UtilsUseGroups\n";
+      my $end_block   = " * \@endif\n */\n";
+
+      # Convert environment to Environment, earth_lighting to EarthLighting.
+      map {s/(?:^|_)(.)/\u$1/g} @dox_groups;
+      # $major =~ s/(?:^|_)(.)/\u$1/g;
+      # $minor =~ s/(?:^|_)(.)/\u$1/g;
+
+      # Generate the group comments.
+      my $next_ind = '';  # Use '  ' to indent. Looks kinda ugly, though.
+      my $ind = $next_ind;
+      foreach my $item (@dox_groups) {
+         push @begin_group, " * $ind\@addtogroup $item\n" .
+                            " * $ind\@\{\n";
+         unshift @end_group, " * $ind\@\}\n";
+         $ind .= $next_ind;
+      }
+
+      my $begin_group = join '', ($start_block, @begin_group, $end_block);
+      my $end_group = join '', ($start_block, @end_group, $end_block);
+
+      # Embed the contents inside these comments.
+      $contents->{header} =~ s/^/$begin_group/;
+      push @{$contents->{parsed_body}},
+           { type => COMMENT, contents => $end_group };
+   }
+}
+
+
+################################################################################
+# Ouput functions
+################################################################################
+
+sub print_item ($) {
+   my ($contents) = @_;
+
+   # Print the header, if any.
+   if (defined $contents->{header}) {
+      print_elements $contents, 'header';
+   }
+
+
+   # Print things with a body.
+   if (exists $contents->{parsed_body}) {
+      print_elements $contents, 'open';
+      foreach my $item (@{$contents->{parsed_body}}) {
+         print_item $item;
+      }
+      print_elements $contents, 'close';
+   }
+
+   # Print functions according to specific type.
+   elsif ($contents->{type} == FUNCTION_DECL) {
+      print_function_decl $contents;
+   }
+
+   elsif ($contents->{type} == PURE_VIRTUAL) {
+      print_pure_virtual $contents;
+   }
+
+   elsif ($contents->{type} == FUNCTION_IMPL) {
+      print_function_impl $contents;
+   }
+
+   # Evertyhing else: Print the contents.
+   else {
+      print_elements $contents, 'contents';
+   }
+}
+
+
+# FIXME: OK, now just delete these functions.
+sub print_function_decl ($) {
+   my ($contents) = @_;
+
+   print_elements $contents, 'contents';
+}
+
+
+sub print_pure_virtual ($) {
+   my ($contents) = @_;
+
+   print_elements $contents, 'contents';
+}
+
+
+sub print_function_impl ($) {
+   my ($contents) = @_;
+   print_elements $contents,
+                  qw(lead argument_list post_arguments init_list body);
+}
+
+
+sub print_elements ($@) {
+   my ($contents, @elems) = @_;
+   foreach my $elem (@elems) {
+      my $code = $contents->{$elem};
+      next if (! defined $code) || ($code eq '');
+
+      $code = restore_code $contents->{$elem};
+      while ($code =~ s/^(.*?\n)//) {
+         print OUTPUT $1;
+      }
+      print OUTPUT $code if $code ne '';
+   }
+}
+
+
+################################################################################
+# Header processing
+################################################################################
+
+sub find_trick_header($) {
+   my ($hdr) = @_;
+
+   while ($hdr =~ /(\eC\d+\e)/g) {
+      my $tag = $1;
+      my $cmt = get_comment $tag;
+      if ($cmt =~ /$Patterns{newline}\s*Purpose:$Patterns{wspace}*\(/) {
+         return $tag;
+      }
+   }
+   return undef;
+}
+
+sub find_doxygen_header($) {
+   my ($hdr) = @_;
+
+   if (defined $hdr) {
+      while ($hdr =~ /(\eC\d+\e)/g) {
+         my $tag = $1;
+         my $cmt = get_comment $tag;
+         if ($cmt =~ /^\/\*\*\s*$Patterns{newline}/x) {
+            return $tag;
+         }
+      }
+   }
+   return undef;
+}
+
+
+sub parentheses_balance($) {
+   my ($text) = @_;
+   my $lno = get_line $text;
+   my $pcount = 0;
+
+   if (($text !~ s/^$Patterns{nspace}
+                   *\/\*[^:\(\)]*$Patterns{newline}//x) ||
+       ($text !~ s/($Patterns{newline})
+                   [^:\(\)]*\*\/\s*$Patterns{nspace}*$/$1/x)) {
+      generate_warning $lno, "Unknown comment format";
+      return 0;
+   }
+   while ($text =~ /([\(\)])/g) {
+      my $paren = $1;
+      $pcount += $paren eq '(' ? 1 : -1;
+   }
+
+   if ($pcount == 0) {
+      return 1;
+   }
+   else {
+      generate_warning $lno, "Unbalanced parentheses in Trick header";
+      return 0;
+   }
+}
+
+
+sub split_parentheses($) {
+   my ($text) = @_;
+   my $lno = get_line $text;
+   my @items = ();
+   my $failed = 0;
+   my ($open, $close);
+
+   # Get rid of the pretty stuff at the start and end of the comment.
+   if ($text =~ s/^($Patterns{nspace}
+                   *\/\*[^:\(\)]*$Patterns{newline})//x) {
+      $open = $1;
+   }
+   else {
+      return undef;
+   }
+   if ($text =~ s/($Patterns{newline})
+                  ([^:\(\)]*\*\/\s*$Patterns{nspace}*)$/$1/x) {
+      $close = $2;
+   }
+   else {
+      return undef;
+   }
+
+   # Siphon off the function: stuff that some people (*ahem* me) sometimes
+   # put at the start of a Trick header.
+   if (($text =~ /^(.*?$Patterns{newline})/) &&
+       (+(my $line = $1) =~ /^(\s*Function\s*:)(.*)$/)) {
+      my ($func, $name) = ($1, $2);
+      if ($name !~ /:\s*\(/) { #)
+         $text =~ s/.*?$Patterns{newline}//;
+         push @items, [$func, $name];
+      }
+   }
+
+   # Process text, splitting at parentheses that start a list.
+   while ($text =~ s/(.*?)(\()//) {  #)
+      my ($key, $val) = ($1, $2);
+
+      # $text is of the form "^stuff (".
+      # Add all text up to and including the matching close paren to $val
+      my $pcount = 1;
+      while (($pcount > 0) && ($text =~ s/(.*?([\(\)]))//)) {
+         my ($all, $paren) = ($1, $2);
+         $val .= $all;
+         $pcount += $paren eq '(' ? 1 : -1;
+      }
+
+      # Add trailing white space on this line to $val.
+      if ($text =~ s/($Patterns{nspace})//) {
+         $val .= $1;
+      }
+
+      # Split the key on newlines.
+      # Text of the form subkey: value become separate entries.
+      my @lines =  ($key =~ /(.*?(?:$Patterns{newline}|$))/g);
+      my $mode = 0;
+      my $prev = '';
+      my $subkey;
+      foreach my $line (@lines) {
+         if ($line =~ /^$Patterns{nspace}*$/) {
+            $prev .= $line;
+            next;
+         }
+         if ($mode == 0) {
+            if ($line =~ /^([^:]+?\s*:)
+                            ((?:\s*[\!-\~])+$Patterns{nspace}*)$/x) {
+               push @items, [$prev . $1, $2];
+               $prev = '';
+            }
+            elsif ($line =~ /^([^:]+?\s*:)($Patterns{nspace}*)$/) {
+               $subkey = $prev . $1;
+               $prev = $2;
+               $mode = 1;
+            }
+            else {
+               generate_warning $lno, "Unrecognized contents";
+               $failed = 1;
+               last;
+            }
+         }
+         else {
+            push @items, [$subkey, $prev . $line];
+            undef $subkey;
+            $prev = '';
+            $mode = 0;
+         }
+      }
+      if (!$failed && ($mode != 1)) {
+         generate_warning $lno, "Unrecognized contents";
+         $failed = 1;
+      }
+      last if $failed;
+      push @items, [$subkey, $prev . $val];
+   }
+   if (!$failed && ($text ne '')) {
+      generate_warning $lno, "Unrecognized contents";
+      $failed = 1;
+   }
+   $failed = 1 unless ($text eq '');
+
+   return !$failed ? {open => $open, close => $close, items => [@items]}
+                   : undef;
+}
+
+sub parse_trick_header($$) {
+   my ($depth, $hdr) = @_;
+   my $trick_header;
+   my $header_contents;
+   my $parsed_header;
+   my $header = '';
+
+   while ($hdr =~ s/^(.*?(\eC\d+\e))//) {
+      my ($contents, $tag) = ($1, $2);
+      my $tag_string = get_comment $tag;
+      $header .= $contents;
+      if ($tag_string =~ /$Patterns{newline}
+                          \s*Purpose:
+                          $Patterns{wspace}*\(/ix) {
+         $trick_header = $tag;
+         $header_contents = $tag_string;
+         last;
+      }
+   }
+
+   if (defined $trick_header) {
+      my $indent;
+      my $split_items;
+      if ($header_contents =~ /$Patterns{newline}(\s+)\(/x) {
+         $indent = $1;
+      }
+      elsif ($header_contents =~ /$Patterns{newline}(\s+)Purpose:/ix) {
+         $indent = $1 . '  ';
+      }
+      else {
+         $indent =  +(' ' x $Options{indent}) . '    ';
+      }
+
+      $parsed_header = {trick_header => $trick_header, indent => $indent};
+
+      if ((parentheses_balance $header_contents) &&
+          (defined ($split_items = split_parentheses $header_contents))) {
+my $save = $header_contents;
+         $header_contents = $split_items->{open};
+sleep 0;
+         foreach my $entry (@{$split_items->{items}}) {
+            my ($entry_key, $entry_val) = @$entry;
+            my $matched = 0;
+            foreach my $hdr_key (@Trick_ids) {
+               my $match_expr = $Patterns{$hdr_key};
+               my $match_key = next_comment;
+               if ($entry_key =~ s/^($Patterns{nspace}*)
+                                    ($match_expr)
+                                    (\s*:$Patterns{nspace}*)$
+                                  /$1$match_key$3/ix) {
+                  set_comment $match_key, $2;
+                  my $value_key = next_comment;
+                  $entry_val =~ s/^($Patterns{nspace}*)
+                                   (\(.*\))
+                                   ($Patterns{nspace}*)$
+                                 /$1$value_key$3/x
+                     or die;
+                  set_comment $value_key, $2;
+                  my $hdr_ent = add_comment $entry_key . $entry_val;
+                  $parsed_header->{$hdr_key} = {
+                     ent => $hdr_ent,
+                     key => $match_key,
+                     val => $value_key
+                  };
+                  $header_contents .= $hdr_ent;
+                  $matched = 1;
+                  last;
+               }
+            }
+            if (! $matched) {
+               generate_warning $header_contents,
+                                "Unknown key $entry_key"
+                  unless $entry_key =~ /^$Patterns{nspace}*
+                                         function
+                                         \s*:$Patterns{nspace}*$/ix;
+               $header_contents .= $entry_key . $entry_val;
+            }
+         }
+         $header_contents .= $split_items->{close};
+sleep 0;
+      }
+
+      else {
+         # FIXME: Still overaggressive on colons.
+         foreach my $hdr_key (@Trick_ids) {
+            my $match_expr = $Patterns{$hdr_key};
+            my $hdr_ent = next_comment;
+            if ($header_contents =~ s/
+                   (\e[LC]\d+\e)                         # 1 - Line or comment #
+                   (\s*                                  # 2 - key+value+stuff
+                    ($match_expr)                        # 3 - The key
+                    :$Patterns{nspace}*
+                    (.*?)                                # 4 - The value
+                    \s*$Patterns{newline})
+                   ($Patterns{nspace}*                   # 5 - More stuff
+                    (?:
+                     $Patterns{comment}|
+                     \w+(?:\s\w+){0,2}\s*:(?:[^:]|$)|    #      Too aggressive.
+                     \W*\*\/$))
+                  /$1${hdr_ent}$5/ix) {
+               my ($key_and_value, $match, $value) = ($2, $3, $4);
+               my ($match_key, $value_key);
+               set_comment $hdr_ent, "temp";
+               $match_key = add_comment $match;
+               $value_key = add_comment $value;
+               $key_and_value =~ s/\Q${match}\E/$match_key/;
+               $key_and_value =~ s/\Q${value}\E/$value_key/;
+               set_comment $hdr_ent, $key_and_value;
+               $parsed_header->{$hdr_key} = {
+                  ent => $hdr_ent,
+                  key => $match_key,
+                  val => $value_key
+               };
+            }
+         }
+      }
+      set_comment $trick_header, $header_contents;
+   }
+
+   if (wantarray) {
+      return ($parsed_header, $header, $hdr);
+   }
+   else {
+      return $parsed_header;
+   }
+}
+
+
+# FIXME, in general.
+sub repair_trick_header($) {
+   my ($contents) = @_;
+   my $header = $contents->{header};
+   my $parsed_header = $contents->{parsed_header};
+
+   if (exists $Need_trick_header{$contents->{type}}) {
+      if (defined $parsed_header) {
+         while (my ($key, $tag) = each (%$parsed_header)) {
+            next unless defined $Trick_ids{$key};
+            my $tag_val = get_comment $tag->{val};
+            my $tag_key = get_comment $tag->{key};
+
+            if ($key eq 'libdep') {
+               my ($sep, @items);
+               if ($tag_val =~ /($Patterns{newline}\s*)\(/) {
+                  $sep = $1;
+               }
+               else {
+                  $sep = '\eL9999\e ' . $parsed_header->{indent};
+               }
+               @items = split /(?:\s+|$Patterns{newline}|\(|\))+/x, $tag_val;
+               shift @items;
+               $tag_val = '(' . +(join $sep, map {"($_)"} @items) . ')';
+            }
+            else {
+               my $balance = 0;
+               my $depth   = 0;
+               my $expect = ($key =~ /programmers|reference/) ? 3 :
+                            ($key =~ /requirements|assumptions/) ? 2 : 1;
+
+               while ($tag_val =~ /([\(\)])/g) {
+                  $balance += ($1 eq '(') ? 1 : -1;
+                  $depth = $balance if $balance > $depth;
+               }
+
+               if ($balance != 0) {
+                  generate_warning get_comment ($tag->{ent}),
+                                   "Mismatched parentheses for $tag_key";
+
+                  if ($balance < 0) {
+                     my $insert = '(' x -$balance;
+                     $tag_val  = $insert . $tag_val;
+                     $depth -= $balance;
+                  }
+                  else {
+                     my $insert = ')' x $balance;
+                     $tag_val  = $tag_val . $insert;
+                  }
+               }
+               if ($depth < $expect) {
+                  generate_warning get_comment ($tag->{ent}),
+                                   "Improper nesting for $tag_key";
+
+                  while ($depth < $expect) {
+                     $tag_val = join '', '(', $tag_val, ')';
+                     $depth++;
+                  }
+               }
+            }
+            set_comment $tag->{val}, $tag_val;
+         }
+      }
+
+      # FIXME: Why all the conditions?
+      elsif (((! find_doxygen_header($contents->{header})) ||
+              ($File_icg && ($contents->{type} == FUNCTION_IMPL))) &&
+             (($contents->{depth} > 0) ||
+               $Options{pedantic} ||
+              ($File_contents->{def_count} > 1) ||
+              (! defined ($File_contents->{parsed_header})))) {
+         my $line = $contents->{line} || "\eL9999\e";
+         my $ind = ' ' x +($contents->{depth} * $Options{indent});
+         my $cmt = "${ind}/*${line}__INSERT_HERE__${line}${ind} */";
+         my $purpose = "A $contents->{class} ...";
+
+         generate_warning $contents->{line},
+                          join ' ',
+                               "Missing Trick header for",
+                               $contents->{class},
+                               $contents->{defines};
+
+
+         if ($Options{interactive}) {
+            $purpose = get_one_liner "purpose";
+         }
+
+         $ind .= '  ';
+         $cmt =~ s{(__INSERT_HERE__)}
+                  {${ind}Purpose:${line}${ind}  ($purpose)${line}$1};
+
+         if ($contents->{type} == TOPLEVEL) {
+            my ($prog, $org, $date, $ticket, $reason) = ('FIXME') x 5;
+            my $progs;
+
+            if ($Options{interactive}) {
+               $prog   = get_one_liner "programmer";
+               $org    = get_one_liner "organization";
+               $ticket = get_one_liner "ticket";
+               $reason = get_one_liner "reason";
+            }
+
+            $progs = join ' ',
+                     +(map {"($_)"} $prog, $org, $date, $ticket, $reason);
+            $cmt =~ s{(__INSERT_HERE__)}
+                     {${ind}Programmers:${line}${ind}  (($progs))${line}$1};
+         }
+         $cmt =~ s/$Patterns{newline}__INSERT_HERE__//;
+
+         my $tag = add_comment $cmt;
+         $contents->{$header} .= $line
+            unless $contents->{header} =~ /$Patterns{newline}$/x;
+         $contents->{header} .= $tag . $line;
+         $contents->{parsed_header} =
+            parse_trick_header $contents->{depth}, $contents->{header};
+sleep 0;
+      }
+   }
+
+   # FIXME
+   elsif (defined $contents->{header}) {
+      my $tag = find_trick_header $contents->{header};
+      if (defined $tag) {
+         generate_warning $contents->{line},
+                          join ' ',
+                               "Extraneous Trick header for",
+                               $contents->{class},
+                               $contents->{defines};
+      }
+   }
+}
+
+
+################################################################################
+# Warnings and errors
+################################################################################
+
+sub generate_warning ($$) {
+   my ($contents, $message) = @_;
+   my $line;
+   return if ! $Options{warn};
+
+   if (! $File_warned) {
+      warn "Processing file $File\n";
+      $File_warned = 1;
+   }
+
+   if ($contents =~ /\eL(\d+)\e/) {
+      $line = "line $1";
+   } else {
+      $line = "unknown line";
+   }
+   warn "At $line, $message\n";
+}
+
+
+sub generate_fatal_error ($$) {
+   my ($contents, $message) = @_;
+   my $line;
+
+   if ((defined $File) && (! $File_warned)) {
+      warn "Processing $File\n";
+   }
+
+   if ($contents =~ /\eL(\d+)\e/) {
+      $line = "line $1";
+   } else {
+      $line = "unknown line";
+   }
+   die "At $line, $message\n";
+}
+
+
+################################################################################
+# Comments and strings
+################################################################################
+
+{
+my @Comments = ();
+my @Strings = ();
+
+sub reset_comments_and_strings () {
+   @Comments = ();
+   @Strings = ();
+}
+
+sub next_comment () {
+   my $cnt = scalar @Comments;
+   return "\eC${cnt}\e";
+}
+
+
+sub add_comment ($) {
+   my ($value) = @_;
+   push @Comments, $value;
+   return "\eC$#Comments\e";
+}
+
+sub get_comment ($) {
+   my ($index) = @_;
+   if ($index =~ /^\eC(\d+)\e/) {
+      return $Comments[$1];
+   } elsif ($index =~ /^\d+$/) {
+      return $Comments[$index];
+   } else {
+      return undef;
+   }
+}
+
+
+sub set_comment ($$) {
+   my ($index, $value) = @_;
+   $index =~ s/^\eC(\d+)\e/$1/;
+   $Comments[$index] = $value;
+}
+
+
+sub next_string () {
+   my $cnt = scalar @Strings;
+   return "\eS${cnt}\e";
+}
+
+
+sub add_string ($) {
+   my ($value) = @_;
+   push @Strings, $value;
+   return "\eS$#Strings\e";
+}
+
+
+sub get_string ($) {
+   my ($index) = @_;
+   if ($index =~ /^\eC(\d+)\e/) {
+      return $Strings[$1];
+   } elsif ($index =~ /^\d+$/) {
+      return $Strings[$index];
+   } else {
+      return undef;
+   }
+}
+
+
+sub set_string ($$) {
+   my ($index, $value) = @_;
+   $index =~ s/^\eS(\d+)\e/$1/;
+   $Strings[$index] = $value;
+}
+
+
+sub repair_comments () {
+   foreach my $cmt (@Comments) {
+      $cmt =~ s/^(\/(?:\/\*))([^ ])/$1 $2/;
+   }
+}
+
+
+sub restore_code ($) {
+   my ($contents) = @_;
+   1 while $contents =~ s/\eC(\d+)\e/$Comments[$1]/sg;
+   1 while $contents =~ s/\eS(\d+)\e/$Strings[$1]/sg;
+   $contents =~ s/\eL\d+\e/\n/sg;
+   return $contents;
+}
+}
+
+
+################################################################################
+# Miscellaneous utilities
+################################################################################
+
+sub get_line (@) {
+   foreach (@_) {
+      /($Patterns{newline})/ and do {return $1};
+   }
+   return undef;
+}
+
+
+sub find_end_brace ($$) {
+   my ($item, $contents) = @_;
+   my $depth = 1;
+   while ($depth > 0) {
+      if ($contents =~ s/^(.*?([\{\}]))//) {
+         my ($chunk, $br) = ($1, $2);
+         $item .= $chunk;
+         if ($br eq '{') {
+            $depth++;
+         }
+         else {
+            $depth--;
+         }
+      }
+      else {
+         generate_fatal_error $item . $contents, "Unmatched braces";
+      }
+   }
+   return ($item, $contents);
+}
+
+
+sub max_length ($) {
+   my ($text) = @_;
+   my $max = 0;
+   foreach my $line (split /(?:\n|$Patterns{newline})/x, $text) {
+      my $len = length $line;
+      $max = $len if $len > $max;
+   }
+   return $max;
+}
+
+
+sub yorn ($) {
+   my ($question) = @_;
+   my $ans;
+
+   while (1) {
+      print STDOUT "$question? (y or n) ";
+      chomp ($ans = <STDIN>);
+      if ($ans =~ /^\s*y(es)?\s*$/i) {
+         return 1;
+      } elsif ($ans =~ /^\s*no?\s*$/i) {
+         return 0;
+      } else {
+         print "Answer yes or no, please.\n";
+      }
+   }
+}
+
+
+sub get_one_liner ($) {
+   my ($prompt) = @_;
+   $prompt = "Enter $prompt: ";
+
+###   while (1) {
+      my $ans = '';
+      print STDOUT $prompt;
+      chomp ($ans = <STDIN>);
+
+###      last if yorn("Got $ans\nIs this correct");
+###   }
+      return $ans;
+}
+
+sub tilde_backup ($) {
+   my ($file) = @_;
+   my @renames;
+   while (-f $file) {
+      my $newname = $file . '~';
+      push @renames, [$file, $newname];
+      $file = $newname;
+   }
+   while (scalar @renames) {
+      my $ent = pop @renames;
+      rename $ent->[0], $ent->[1];
+   }
+}
+
+
+__END__
+
+
+################################################################################
+
+=head1 NAME
+
+jeod_pp - Pretty-print JEOD code.
+
+=head1 SYNOPSIS
+
+=over 8
+
+=item jeod_pp -help
+for a brief description of B<jeod_pp>
+
+=item jeod_pp -man
+for a detailed description of B<jeod_pp>
+
+=item jeod_pp [options]
+to run B<jeod_pp> on standard input.
+
+=item jeod_pp [options] file ...
+to run B<jeod_pp> on the specified files.
+
+=back
+
+
+=head1 DESCRIPTION
+
+B<jeod_pp> has two primary goals:
+
+=over 2
+
+=item *
+Formatting code and comments in a standard way,
+thereby implementing mechanical aspects of the JEOD coding standards.
+
+=item *
+Converting Trick comments in JEOD C++ code to doxygen format,
+thereby enabling autodocumentation of that source.
+
+=back
+
+
+=head1 OPTIONS
+
+In addition to the -help and -man options, which give give brief / verbose
+descriptions of jeod_pp, the options to jeod_pp are
+
+=over 8
+
+=item B<-[no]interactive>
+
+=item B<-[no]warn>
+
+=item B<-indent> I<< value >>
+
+=item B<-[no]doxygen>
+
+=item B<-[no]modules>
+
+=item B<-[no]uncrustify>
+
+=item B<-stdout>
+
+=item B<-replace>
+
+=item B<-suffix> I<< suffix >>
+
+=item B<-prefix> I<< prefix >>
+
+=back
+
+
+=head1 User guide options
+
+These options cause the program to describe B<jeod_pp> and exit,
+even if other options are specified.
+
+=over 8
+
+=item B<-help>
+
+Print a brief help message and exit.
+
+=item B<-man>
+
+Print the manual page and exit.
+
+=back
+
+=head1 Diagnostic options
+
+These options tell B<jeod_pp> how to create missing content and
+whether to generate non-fatal messages.
+
+=over 8
+
+=item B<-[no]interactive>
+
+If set (B<-interactive>), prompts the user to fill in some missing items.
+
+The default (B<-nointeractive>) is to automatically generate missing content,
+usually void of meaning.
+
+=item B<-[no]warn>
+
+If set (B<-warn>), warning messages are generated when (non-fatal) problems
+are detected.
+
+The default (B<-nowarn>) only reports fatal errors.
+
+=back
+
+=head1 Pretty-print options
+
+=over 8
+
+=item B<-indent> I<< value >>
+
+Indentation, which must be 2, 3, or 4. The default is 3.
+
+=item B<-[no]doxygen>
+
+If set (B<-doxygen>), inserts doxygen comments based on Trick comments
+and changes end of line comments to doxygen (Qt) format.
+
+The default (B<-nodoxygen>) is to not insert doxygen comments.
+
+=item B<-[no]modules>
+
+If set (B<-modules>), inserts additional doxygen comments based on
+path names. Setting this flag implicitly implies B<-doxygen>.
+
+The default (B<-nomodules>) is to not insert these additional comments.
+
+=item B<-[no]uncrustify>
+
+If set (B<-uncrustify>), passes the code through I<uncrustify>.
+The I<uncrustify> program is not used to pretty print the if the
+uncrustify option is clear (B<-nouncrustify>).
+This option cannot be used in conjunction with doxygen output.
+
+The default for this option depends on whether I<uncrustify> is available.
+The uncrustify option defaults to on if the program is available,
+and off if the program is not available.
+
+=back
+
+=head1 File options
+
+These options determine the destination of the pretty-print output.
+Only one of these options is in force. The last output option specified
+is the one that is used when the user specifies multiple ouptut options.
+
+=over 8
+
+=item B<-dryrun>
+
+Specifies that no pretty-printed output is to be generated.
+(Actually, it is generated -- and sent to /dev/null.)
+
+=item B<-stdout>
+
+Specifies that pretty-print output is to be sent to standard output.
+This is the default output option.
+
+=item B<-replace>
+
+Specifies that the output is to be written to the named file(s), replacing
+the unpretty-printed versions. Existing files are renamed rather than
+overwritten using "~" as a suffix. For example, C<jeod_pp -replace foo.cc> will
+rename foo.cc to foo.cc~ and place the pretty-printed output in foo.cc.
+If foo.cc~ already exists, it will be named to foo.cc~~, and so on.
+
+=item B<-suffix> I<< suffix >>
+
+Specifies that the output is to be written to the named file(s) suffixed with
+the user-specified I<< suffix >>. A period is prefixed to the suffix if needed.
+For example, C<jeod_pp -suffix=new foo.cc> will place the pretty-printed output
+in foo.cc.new.
+
+=item B<-prefix> I<< prefix >>
+
+Specifies that the output is to be written to the named file(s) prefixed with
+the user-specified I<< prefix >>. A slash is suffixed to the prefix if needed.
+For example, C<jeod_pp -prefix=new foo.cc> will place the pretty-printed output
+in new/foo.cc.
+
+=back
+
+=cut

@@ -57,6 +57,13 @@
 #include "er7_utils/trick/include/files_to_ICG.hh"
 #endif
 
+#ifdef USE_ER7_UTILS_CHECKPOINTHELPER
+#include "er7_utils/CheckpointHelper/Manager.hh"
+#include "er7_utils/CheckpointHelper/DoublePtrCollect.hh"
+#include "er7_utils/CheckpointHelper/CheckpointItem.hh"
+#include "er7_utils/CheckpointHelper/InputAllocsChkptRestart.hh"
+#endif
+
 #include "trick/DataRecordDispatcher.hh"
 #include "trick/DRAscii.hh"
 #include "trick/DRBinary.hh"
