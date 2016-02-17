@@ -42,6 +42,10 @@ Trick::RealtimeSync::RealtimeSync( Trick::Clock * in_clock , Trick::Timer * in_t
     align_sim_to_wall_clock = false ;
     align_tic_mult = 1.0 ;
 
+    sim_start_time = 0 ;
+    sim_end_init_time = 0 ;
+    sim_end_time = 0 ;
+
     the_rts = this ;
 
 }
@@ -103,6 +107,18 @@ int Trick::RealtimeSync::set_rt_clock_ratio(double in_clock_ratio) {
     rt_clock->set_rt_clock_ratio(in_clock_ratio) ;
     sleep_timer->set_active(false) ;
     return 0 ;
+}
+
+void Trick::RealtimeSync::get_sim_start_time() {
+    sim_start_time = default_clock->wall_clock_time() ;
+}
+
+void Trick::RealtimeSync::get_sim_end_init_time() {
+    sim_end_init_time = default_clock->wall_clock_time() ;
+}
+
+void Trick::RealtimeSync::get_sim_end_time() {
+    sim_end_time = default_clock->wall_clock_time() ;
 }
 
 /**
@@ -452,6 +468,7 @@ int Trick::RealtimeSync::unfreeze(long long sim_time_tics, double software_frame
 -# If real-time is active:
    -# Stop the real-time clock hardware
    -# Stop the sleep timer hardware
+   -# Print the overrun count
 */
 int Trick::RealtimeSync::shutdown() {
 
@@ -461,28 +478,23 @@ int Trick::RealtimeSync::shutdown() {
 
         /* If a sleep timer has been defined, stop the timer */
         sleep_timer->shutdown() ;
-#if 0
-    if (clock_time == 0.0) {
-        sim_to_actual = 0.0;
-    } else {
-        sim_to_actual = (sim_elapsed_time / clock_time);
     }
 
-    //TODO: move to Clock class shutdown job
-    if (software_frame < 1.0e36) {
-        /* There were any overruns during the sim & in rt mode. Calculate and print out overrun percentage */
-
-        if (time_tics != 0) {
-            overrun_percentage = total_overrun / (get_sim_time() / software_frame);
-        } else {
-            overrun_percentage = 0.0;
-        }
-        *message_publisher() << "              TOTAL OVERRUNS: " << setw(12) << total_overrun << "\n" <<
-         "PERCENTAGE REALTIME OVERRUNS: " << setw(12) << (overrun_percentage * 100.0) << "%\n" ;
+    std::stringstream os ;
+    double actual_time = (sim_end_time - sim_start_time) / (double)default_clock->clock_tics_per_sec ;
+    os << "\n" <<
+     "     REALTIME SHUTDOWN STATS:\n" ;
+    if ( active ) {
+        os << "     REALTIME TOTAL OVERRUNS: " << std::setw(12) << frame_overrun_cnt << "\n" ;
     }
-#endif
-
+    if ( sim_end_init_time != 0 ) {
+        double init_time = (sim_end_init_time - sim_start_time) / (double)default_clock->clock_tics_per_sec ;
+        os <<  "            ACTUAL INIT TIME: " ;
+        os <<  std::fixed << std::setw(12) << std::setprecision(3) << init_time << "\n" ;
     }
+    os <<  "         ACTUAL ELAPSED TIME: " ;
+    os << std::fixed << std::setw(12) << std::setprecision(3) << actual_time << "\n" ;
+    message_publish(MSG_NORMAL,os.str().c_str()) ;
 
     return(0) ;
 }
