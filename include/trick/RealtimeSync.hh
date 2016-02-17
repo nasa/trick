@@ -95,6 +95,15 @@ namespace Trick {
             /** Maximum overrun condition exceeded.  Shutdown after leaving freeze.\n */
             bool freeze_shutdown;                 /**< trick_units(--) */
 
+            /** The clock time when the sim started.  Used for total actual time calculation.\n */
+            long long sim_start_time ;           /**< trick_units(--) */
+
+            /** The clock time when initialization ended.  Used for total actual time calculation.\n */
+            long long sim_end_init_time ;           /**< trick_units(--) */
+
+            /** The clock time when the sim ended.  Used for total actual time calculation.\n */
+            long long sim_end_time ;           /**< trick_units(--) */
+
             /**
              @brief This is the constructor of the RealtimeSync class.  It starts the RealtimeSync as
              disabled and sets the maximum overrun parameters to basically infinity.
@@ -155,6 +164,24 @@ namespace Trick {
              @return always 0
              */
             int set_rt_clock_ratio(double in_clock_ratio) ;
+
+            /**
+             @brief Starts the actual elapsed timer used on the default clock
+             @return always 0
+             */
+            virtual void get_sim_start_time() ;
+
+            /**
+             @brief Ends the actual elapsed timer for initalization
+             @return always 0
+             */
+            virtual void get_sim_end_init_time() ;
+
+            /**
+             @brief Ends the actual elapsed timer at shutdown.
+             @return always 0
+             */
+            virtual void get_sim_end_time() ;
 
             /**
              @brief Initializes the clock and sleep timer hardware.

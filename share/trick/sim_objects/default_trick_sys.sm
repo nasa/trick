@@ -555,11 +555,13 @@ class RTSyncSimObject : public Trick::SimObject {
         Trick::RealtimeSync rt_sync ;
 
         RTSyncSimObject() : rt_sync(&gtod_clock, &itimer) {
+            {TRK} P0 ("default_data") rt_sync.get_sim_start_time() ;
 
             {TRK} P65535 ("initialization") rt_sync.rt_clock->calc_sim_time_ratio(exec_get_time_tic_value()) ;
 
             {TRK} P65535 ("initialization") trick_ret = rt_sync.initialize() ;
             {TRK} P65535 ("initialization") rt_sync.start_realtime(exec_get_software_frame() , exec_get_time_tics()) ;
+            {TRK} P65535 ("initialization") rt_sync.get_sim_end_init_time() ;
 
             {TRK} P65535 ("restart")        rt_sync.restart(exec_get_time_tics()) ;
 #ifndef TRICK_NO_DMTCP
@@ -573,6 +575,7 @@ class RTSyncSimObject : public Trick::SimObject {
             // rt_monitor should be last end_of_frame jobs in sim
             {TRK} P65535 ("end_of_frame")   rt_sync.rt_monitor(exec_get_time_tics()) ;
 
+            {TRK} P65535 ("shutdown")       rt_sync.get_sim_end_time() ;
             // the rt_sync shutdown jobs should be last in sim
             {TRK} P65535 ("shutdown")       rt_sync.shutdown() ;
         }
