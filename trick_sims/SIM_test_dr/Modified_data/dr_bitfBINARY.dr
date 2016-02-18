@@ -39,6 +39,5 @@ drg[DR_GROUP_ID].add_variable("drx.drt.mixB.var1")
 drg[DR_GROUP_ID].add_variable("drx.drt.mixB.var2")
 drg[DR_GROUP_ID].add_variable("drx.drt.mixB.var3")
 drg[DR_GROUP_ID].add_variable("drx.drt.mixB.var4")
-drg[DR_GROUP_ID].thisown = 0
 trick.add_data_record_group(drg[DR_GROUP_ID], trick.DR_Buffer)
 drg[DR_GROUP_ID].enable()

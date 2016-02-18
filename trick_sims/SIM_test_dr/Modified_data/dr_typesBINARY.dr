@@ -25,6 +25,5 @@ drg[DR_GROUP_ID].add_variable("drx.drt.k")
 drg[DR_GROUP_ID].add_variable("drx.drt.l")
 drg[DR_GROUP_ID].add_variable("drx.drt.m")
 drg[DR_GROUP_ID].add_variable("drx.drt.n")
-drg[DR_GROUP_ID].thisown = 0
 trick.add_data_record_group(drg[DR_GROUP_ID], trick.DR_Buffer)
 drg[DR_GROUP_ID].enable()

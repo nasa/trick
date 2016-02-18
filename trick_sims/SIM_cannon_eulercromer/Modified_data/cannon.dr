@@ -17,6 +17,5 @@ drg[DR_GROUP_ID].add_variable("dyn.cannon.vel[0]")
 drg[DR_GROUP_ID].add_variable("dyn.cannon.vel[1]")
 drg[DR_GROUP_ID].add_variable("dyn.cannon.pos[0]")
 drg[DR_GROUP_ID].add_variable("dyn.cannon.pos[1]")
-drg[DR_GROUP_ID].thisown = 0
 trick.add_data_record_group(drg[DR_GROUP_ID], trick.DR_Buffer)
 drg[DR_GROUP_ID].enable()

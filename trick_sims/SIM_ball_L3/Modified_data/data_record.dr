@@ -40,7 +40,6 @@ def add_dr_group():
     drg[DR_GROUP_ID].add_variable("ball2.state.output.external_force[0]")
     drg[DR_GROUP_ID].add_variable("ball2.state.output.external_force[1]")
 
-    drg[DR_GROUP_ID].thisown = 0
     trick_data_record.drd.add_group( drg[DR_GROUP_ID], trick.DR_Buffer )
 add_dr_group()
 
@@ -70,7 +69,6 @@ def add_dr_group():
     drg[DR_GROUP_ID].add_variable("ball.altimeter.output.altitude")
     drg[DR_GROUP_ID].add_variable("ball2.altimeter.output.altitude")
 
-    drg[DR_GROUP_ID].thisown = 0
     trick_data_record.drd.add_group( drg[DR_GROUP_ID], trick.DR_Buffer )
 add_dr_group()
 
