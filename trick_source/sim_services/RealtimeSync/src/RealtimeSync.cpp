@@ -7,6 +7,8 @@ PROGRAMMERS:
 
 #include <stdio.h>
 #include <iostream>
+#include <sstream>
+#include <iomanip>
 #include "sim_services/RealtimeSync/include/RealtimeSync.hh"
 #include "sim_services/Executive/include/exec_proto.h"
 #include "sim_services/Executive/include/sim_mode.h"
