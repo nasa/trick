@@ -14,6 +14,7 @@ PROGRAMMERS:
 #include "sim_services/DataRecord/include/DataRecordGroup.hh"
 
 #ifdef SWIG
+%feature("compactdefaultargs","0") ;
 %feature("shadow") Trick::DRBinary::DRBinary(std::string in_name) %{
     def __init__(self, *args):
         this = $action(*args)
@@ -121,5 +122,9 @@ namespace Trick {
     } ;
 
 } ;
+
+#ifdef SWIG
+%feature("compactdefaultargs","1") ;
+#endif
 
 #endif
