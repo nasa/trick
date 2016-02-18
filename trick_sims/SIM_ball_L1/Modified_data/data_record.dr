@@ -13,5 +13,6 @@ drg0.add_variable("ball.state.output.acceleration[1]", "ball.state.out.accelerat
 drg0.add_variable("ball.state.output.external_force[0]", "ball.state.out.external_force[0]")
 drg0.add_variable("ball.state.output.external_force[1]", "ball.state.out.external_force[1]")
 
+drg0.thisown = 0
 trick.add_data_record_group( drg0 )
 
