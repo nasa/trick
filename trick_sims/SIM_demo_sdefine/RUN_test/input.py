@@ -7,6 +7,7 @@ for param in [ 'position' , 'velocity' , 'acceleration' , 'external_force' ] :
         drg0.add_variable(var)
 #drg0.set_cycle(0.01)
 drg0.freq = trick.DR_Always
+drg0.thisown = 0
 trick_data_record.drd.add_group(drg0, trick.DR_No_Buffer)
 
 trick_message.mpublisher.sim_name = "ball_sim"

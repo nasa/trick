@@ -95,6 +95,7 @@ def add_dr_group():
     drg[DR_GROUP_ID].add_variable("dpx.test.s3[0].s2[2][1].s1[1][2].d[0]")
     drg[DR_GROUP_ID].add_variable("dpx.test.s3[1].s2[2][1].s1[1][2].d[0]")
 
+    drg[DR_GROUP_ID].thisown = 0
     trick_data_record.drd.add_group( drg[DR_GROUP_ID], trick.DR_Buffer )
 add_dr_group()
 
