@@ -20,6 +20,7 @@ INSTALL_LIBDIR = $${INSTALL_PREFIX}/lib
 CONFIG += ordered
 TEMPLATE = subdirs
 SUBDIRS = libopts \
+          libkplot \
           libqplot \
           libsnapdata \
           libsnaprt \
