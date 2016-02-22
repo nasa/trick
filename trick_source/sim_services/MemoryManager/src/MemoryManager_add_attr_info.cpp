@@ -58,9 +58,9 @@ int Trick::MemoryManager::add_attr_info( std::string & user_type_string , ATTRIB
     std::replace( user_type_name.begin(), user_type_name.end(), '<', '_') ;
     std::replace( user_type_name.begin(), user_type_name.end(), ',', '_') ;
     std::replace( user_type_name.begin(), user_type_name.end(), '*', ' ') ;
-    spos = user_type_name.find("const") ;
+    spos = user_type_name.find("const ") ;
     if ( spos != std::string::npos ) {
-        user_type_name.erase( spos , spos + 5) ;
+        user_type_name.erase( spos , spos + 6) ;
     }
     spos = user_type_name.find("[") ;
     if ( spos != std::string::npos ) {
