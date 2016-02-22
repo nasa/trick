@@ -30,8 +30,7 @@ for line in fp:
 # Start the display VarServer Client
 #==========================================
 varServerPort = trick.var_server_get_port();
-trick_home = os.environ['TRICK_HOME']
-EVDisplay_path = trick_home + "/trick_models/Wheelbot/Graphics/dist/EVDisplay.jar"
+EVDisplay_path = "models/Graphics/dist/EVDisplay.jar"
 
 if (os.path.isfile(EVDisplay_path)) :
     EVDisplay_cmd = "java -jar " \

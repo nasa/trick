@@ -30,26 +30,26 @@ import javax.swing.JPanel;
 
 class Feature {
 
-    public double x, y;
+    public double north, west;
     public double heading;
     public BufferedImage bufImage;
 
-    public Feature(double X, double Y, double H, String imageFile) {
-        x = X;
-        y = Y;
+    public Feature(double N, double W, double H, String imageFile) {
+        north = N;
+        west = W;
         heading = H;
 
         Image img = new ImageIcon(imageFile).getImage();
-        bufImage = new BufferedImage(img.getWidth(null), img.getHeight(null), 
+        bufImage = new BufferedImage(img.getWidth(null), img.getHeight(null),
                 BufferedImage.TYPE_INT_ARGB);
         Graphics2D gContext = bufImage.createGraphics();
         gContext.drawImage(img,0,0,null);
         gContext.dispose();
     }
 
-    public void setState(double X, double Y, double H) {
-        x = X;
-        y = Y;
+    public void setState(double N, double W, double H) {
+        north = N;
+        west = W;
         heading = H;
     }
 }
@@ -57,19 +57,19 @@ class Feature {
 class ArenaMap extends JPanel {
 
     private List<Feature> featureList;
-    private double unitsPerPixel;
+    private double metersPerPixel;
 
     public ArenaMap(List<Feature> flist, double mapScale) {
         featureList = flist;
-        unitsPerPixel = mapScale;
+        metersPerPixel = mapScale;
         SetScale(mapScale);
     }
 
     public void SetScale (double mapScale) {
         if (mapScale < 0.00001) {
-            unitsPerPixel = 0.00001;
+            metersPerPixel = 0.00001;
         } else {
-            unitsPerPixel = mapScale;
+            metersPerPixel = mapScale;
         }
     }
 
@@ -79,20 +79,30 @@ class ArenaMap extends JPanel {
         int width = getWidth();
         int height = getHeight();
 
-        // Translate origin to the center of the panel.
+        // Translate map origin to the center of the panel.
         Graphics2D gCenter = (Graphics2D)g2d.create();
         gCenter.translate(width/2, height/2);
 
+        //gCenter.scale(2.0, 2.0); // Makes pixels bigger.
+
         for (int ii=0 ; ii < featureList.size() ; ++ii ) {
+
             Feature feature = featureList.get(ii);
-            BufferedImage featureImage = feature.bufImage;
-            int ImgOffsetX = featureImage.getWidth()/2;
-            int ImgOffsetY = featureImage.getHeight()/2;
-            int drawLocationX = (int)(feature.x / unitsPerPixel) - ImgOffsetX;
-            int drawLocationY = (int)(feature.y / unitsPerPixel) - ImgOffsetY;
-            AffineTransform tx = AffineTransform.getRotateInstance(feature.heading, ImgOffsetX, ImgOffsetY);
-            AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
-            gCenter.drawImage(op.filter(featureImage, null), drawLocationX, drawLocationY, null);
+
+            int featureX = (int) -(feature.west / metersPerPixel);
+            int featureY = (int) -(feature.north / metersPerPixel);
+
+            double drawHeading = -feature.heading;
+
+            int ImgOffsetX = feature.bufImage.getWidth()/2;
+            int ImgOffsetY = feature.bufImage.getHeight()/2;
+
+            int drawLocationX = featureX - ImgOffsetX;
+            int drawLocationY = featureY - ImgOffsetY;
+
+            AffineTransform tx = AffineTransform.getRotateInstance( drawHeading, ImgOffsetX, ImgOffsetY);
+            AffineTransformOp op = new AffineTransformOp( tx, AffineTransformOp.TYPE_BILINEAR);
+            gCenter.drawImage( op.filter( feature.bufImage, null), drawLocationX, drawLocationY, null);
         }
         gCenter.dispose();
     }
@@ -195,18 +205,18 @@ public class EVDisplay extends JFrame {
             String line;
             while ((line = br.readLine()) != null) {
                 String field[] = line.split(",");
-                double X = Double.parseDouble(field[0]);
-                double Y = Double.parseDouble(field[1]);
+                double N = Double.parseDouble(field[0]);
+                double W = Double.parseDouble(field[1]);
                 double H = Double.parseDouble(field[2]);
                 String imageFileName = field[3];
-                featureList.add(new Feature( X, Y, H, imageFileName));
+                featureList.add(new Feature( N, W, H, imageFileName));
             }
         }
 
         Feature vehicle = new Feature(0, 0, Math.toRadians(0), vehicleImageFile);
         featureList.add(vehicle);
 
-        EVDisplay evd = new EVDisplay( new ArenaMap( featureList, 0.015));
+        EVDisplay evd = new EVDisplay( new ArenaMap( featureList, 0.01));
         evd.setVisible(true);
 
         System.out.println("Connecting to: " + host + ":" + port);
@@ -233,10 +243,10 @@ public class EVDisplay extends JFrame {
                 String line;
                 line = evd.in.readLine();
                 field = line.split("\t");
-                double X = Double.parseDouble(field[1]);
-                double Y = Double.parseDouble(field[2]);
-                double H = Double.parseDouble(field[3]) + 1.570796325;
-                vehicle.setState(X,Y,H);
+                double N = Double.parseDouble( field[1] );
+                double W = Double.parseDouble( field[2] );
+                double H = Double.parseDouble( field[3] );
+                vehicle.setState(N,W,H);
 
             } catch (IOException | NullPointerException e ) {
                 go = false;
