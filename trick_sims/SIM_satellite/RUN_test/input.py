@@ -5,7 +5,7 @@ execfile("Modified_data/realtime.py")
 
 dyn_integloop.getIntegrator(trick.Runge_Kutta_4, 18)
 
-scene_app_path = os.environ['TRICK_HOME'] + '/trick_models/Satellite/graphics/Scene'
+scene_app_path = 'models/Satellite/graphics/Scene'
 if os.path.exists(scene_app_path):
     dyn.sat_graph_comm.syscmd = scene_app_path + ' &'
 else:

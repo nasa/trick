@@ -6,8 +6,8 @@
 #include "Scene.hh"
 #include <iostream>
 #include <vector>
-#include "trick_utils/comm/include/tc_proto.h"
-#include "trick_utils/math/include/vector_macros.h"
+#include "trick/tc_proto.h"
+#include "trick/vector_macros.h"
 #include <stdio.h>
 
 #ifndef PI
