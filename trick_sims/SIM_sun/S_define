@@ -3,23 +3,23 @@ PURPOSE:
     (This comment lists out the other object files that are not included from c++ headers)
 LIBRARY DEPENDENCIES:
     (
-     (helios/src/JD.c)
-     (helios/src/lh_coords.c)
-     (helios/src/sidereal.c)
-     (helios/src/sun_pos.c)
-     (helios/src/sun_pred_cyclic.c)
-     (helios/src/sun_pred_default_data.c)
-     (helios/src/sun_pred_fast_display.c)
-     (helios/src/sun_pred_init.c)
-     (helios/src/sun_pred_shutdown.c)
-     (helios/src/sun_pred_slow_display.c)
+     (Sun/src/JD.c)
+     (Sun/src/lh_coords.c)
+     (Sun/src/sidereal.c)
+     (Sun/src/sun_pos.c)
+     (Sun/src/sun_pred_cyclic.c)
+     (Sun/src/sun_pred_default_data.c)
+     (Sun/src/sun_pred_fast_display.c)
+     (Sun/src/sun_pred_init.c)
+     (Sun/src/sun_pred_shutdown.c)
+     (Sun/src/sun_pred_slow_display.c)
     )
 *************************************************************/
 
 #include "sim_objects/default_trick_sys.sm"
 
 
-##include "helios/include/sun_pred.h"
+##include "Sun/include/sun_pred.h"
 ##include "sim_services/MemoryManager/include/wcs_ext.h"
 
 //=============================================================================
