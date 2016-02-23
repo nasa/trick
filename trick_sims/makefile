@@ -32,8 +32,6 @@ COMPILE_DIRS = SIM_Ball++_L1 \
     SIM_test_ip2 \
     SIM_test_sched \
     SIM_test_simlib \
-    SIM_threads \
-    SIM_threads_simple \
     SIM_trickcomm
 
 # This test is temporarily sitting out until fixed.
@@ -63,8 +61,7 @@ TEST_DIRS = SIM_Ball++_L1 \
     SIM_test_dp \
     SIM_test_dr \
     SIM_test_sched \
-    SIM_test_simlib \
-    SIM_threads
+    SIM_test_simlib
 
 # This test is temporarily sitting out until fixed.
 #    SIM_test_varserv
