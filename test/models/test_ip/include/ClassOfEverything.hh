@@ -3,20 +3,9 @@
 
 @verbatim
 PURPOSE:
-    (Ball model EOM state parameter definition.)
-REFERENCES:
-    (((Bailey, R.W, and Paddock, E.J.)
-      (Trick Simulation Environment) (NASA:JSC #37943)
-      (JSC/Engineering Directorate/Automation, Robotics and Simulation Division)
-      (March 1997)))
-ASSUMPTIONS AND LIMITATIONS:
-    ((2 dimensional space)
-     (Translational EOM only))
+    (Test input processor)
 LIBRARY DEPENDENCY:
-    ((Ball_test.o))
-PROGRAMMERS:
-    (((Robert W. Bailey) (Sweet Systems Inc) (March 1997) (Tutorial Lesson 1))
-     ((Edwin Z. Crues)(Titan Systems Corp.)(Jan 2002)(Crude C++ translation)))
+    ((ClassOfEverything.o))
 @endverbatim
 *******************************************************************************/
 
@@ -35,7 +24,7 @@ PROGRAMMERS:
 #include <sys/types.h>
 
 // Model include files.
-#include "Ball++/L1/../L1/include/Ball.hh"
+#include "trick/mm_macros.hh"
 #include "test_ip/include/NoICG.hh"
 #include "exclude_me/include/exclude_me.hh"
 #include "test_ip/include/Namespace_tests.hh"
@@ -78,7 +67,7 @@ typedef const struct ConstStruct_ {
 
 class AlsoCannotCopy { 
    friend class InputProcessor ;
-   friend void init_attrBall_alex() ;
+   friend void init_attrClassOfEverything() ;
 
    public:
        int i ;
@@ -93,7 +82,7 @@ class AlsoCannotCopy {
 class CannotCopy {
 
    friend class InputProcessor ;
-   friend void init_attrBall_alex() ;
+   friend void init_attrClassOfEverything() ;
 
    public:
        int i ;
@@ -182,15 +171,15 @@ typedef int Integer ;
 typedef int AnotherInteger ;
 typedef long long Myint64 ;
 
-class Ball_alex : public Ball {
+class ClassOfEverything {
 
   friend class InputProcessor ;
-  friend void init_attrBall_alex() ;
+  friend void init_attrClassOfEverything() ;
 
   public:
    // Default constructor and destructor.
-   Ball_alex() ;
-   ~Ball_alex() {};
+   ClassOfEverything() ;
+   ~ClassOfEverything() {};
 
    /* maybe someday we'll be able to do something like this. */
    double d_test ;          /* -- blah */
@@ -391,8 +380,8 @@ class Ball_alex : public Ball {
    typedef int sizeType ;
    typedef double mydouble ;
 
-   Ball_alex::sizeType st ;
-   Ball_alex::mydouble md ;
+   ClassOfEverything::sizeType st ;
+   ClassOfEverything::mydouble md ;
 
    MyTemplate< double , int , short >::template_int my_template_var_int ;
    int invisible_int ;
@@ -450,8 +439,8 @@ class Ball_alex : public Ball {
    std::list < std::string  > ls ;
 
    private:
-       Ball_alex (const Ball_alex &);
-       Ball_alex & operator= (const Ball_alex &);
+       ClassOfEverything (const ClassOfEverything &);
+       ClassOfEverything & operator= (const ClassOfEverything &);
 
 };
 
@@ -466,7 +455,7 @@ typedef struct test_struct {
 } TEST_STRUCT ;
 
 #ifdef SWIG
-%struct_str(Ball_alex)
+%struct_str(ClassOfEverything)
 #endif
 
 namespace my_ns {
@@ -492,6 +481,7 @@ class Test {
 class Abstract {
    public:
       Abstract( int in_id ) : id(in_id) {} ;
+      virtual ~Abstract() {} ;
       int id ;
       virtual void speak() = 0 ;
 } ;

@@ -63,11 +63,8 @@ else
     LIBEXEC = lib
 endif
 
-# Do this section only once
-ifeq ($(MAKELEVEL),0)
-
-export TRICK_INCLUDES := -I${TRICK_HOME}/trick_source -I${TRICK_HOME}/include -I${TRICK_HOME}/include/trick/compat
-export TRICK_VERSIONS := -DTRICK_VER=$(TRICK_MAJOR) -DTRICK_MINOR=$(TRICK_MINOR)
+TRICK_INCLUDES := -I${TRICK_HOME}/trick_source -I${TRICK_HOME}/include -I${TRICK_HOME}/include/trick/compat
+TRICK_VERSIONS := -DTRICK_VER=$(TRICK_MAJOR) -DTRICK_MINOR=$(TRICK_MINOR)
 
 TRICK_SYSTEM_CFLAGS = $(TRICK_INCLUDES) $(TRICK_VERSIONS) -fpic
 TRICK_SYSTEM_CXXFLAGS = $(TRICK_INCLUDES) $(TRICK_VERSIONS) -fpic
@@ -90,17 +87,12 @@ ifeq ($(USE_ER7_UTILS), 1)
   ER7_UTILS_HOME := $(TRICK_HOME)/trick_source/er7_utils
   TRICK_SYSTEM_CFLAGS += -DUSE_ER7_UTILS_INTEGRATORS
   TRICK_SYSTEM_CXXFLAGS += -DUSE_ER7_UTILS_INTEGRATORS
-ifneq ($(wildcard ${ER7_UTILS_HOME}/CheckpointHelper),)
+  TRICK_LIBS += -ler7_utils
+ ifneq ($(wildcard ${ER7_UTILS_HOME}/CheckpointHelper),)
   USE_ER7_UTILS_CHECKPOINTHELPER = 1
   TRICK_SYSTEM_CFLAGS += -DUSE_ER7_UTILS_CHECKPOINTHELPER
   TRICK_SYSTEM_CXXFLAGS += -DUSE_ER7_UTILS_CHECKPOINTHELPER
-endif
-endif
-
-endif # MAKELEVEL = 0
-
-ifeq ($(USE_ER7_UTILS), 1)
-  TRICK_LIBS += -ler7_utils
+ endif
 endif
 
 ifeq ($(TRICK_FORCE_32BIT), 1)

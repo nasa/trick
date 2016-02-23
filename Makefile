@@ -283,6 +283,7 @@ $(UNIT_TEST_DIRS):
 unit_test: $(UNIT_TEST_DIRS)
 
 sim_test:
+	@ $(MAKE) -C test
 	@ $(MAKE) -C trick_sims test
 
 #requirements:

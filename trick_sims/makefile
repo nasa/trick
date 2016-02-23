@@ -19,7 +19,6 @@ COMPILE_DIRS = SIM_Ball++_L1 \
     SIM_demo_sdefine \
     SIM_events \
     SIM_monte \
-    SIM_rti \
     SIM_satellite \
     SIM_stls \
     SIM_stls2 \
@@ -30,11 +29,9 @@ COMPILE_DIRS = SIM_Ball++_L1 \
     SIM_test_dp \
     SIM_test_dr \
     SIM_test_inherit \
-    SIM_test_ip \
     SIM_test_ip2 \
     SIM_test_sched \
     SIM_test_simlib \
-    SIM_test_templates \
     SIM_threads \
     SIM_threads_simple \
     SIM_trickcomm
@@ -59,17 +56,14 @@ TEST_DIRS = SIM_Ball++_L1 \
     SIM_demo_sdefine \
     SIM_events \
     SIM_monte \
-    SIM_rti \
     SIM_stls \
     SIM_stls2 \
     SIM_sun \
     SIM_target \
     SIM_test_dp \
     SIM_test_dr \
-    SIM_test_ip \
     SIM_test_sched \
     SIM_test_simlib \
-    SIM_test_templates \
     SIM_threads
 
 # This test is temporarily sitting out until fixed.

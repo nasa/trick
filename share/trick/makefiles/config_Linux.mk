@@ -24,9 +24,7 @@ endif
 SHARED_LIB_OPT := -shared
 RPATH = -Wl,-rpath=${TRICK_LIB_DIR}
 
-ifeq ($(MAKELEVEL),0)
-export TRICK_LDFLAGS += -Wl,--export-dynamic
-endif
+TRICK_LDFLAGS = -Wl,--export-dynamic
 PLATFORM_LIBS = -lrt
 
 LD_WHOLE_ARCHIVE := -Wl,-whole-archive
