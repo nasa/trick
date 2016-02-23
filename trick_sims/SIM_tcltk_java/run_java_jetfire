@@ -1,2 +1,0 @@
-#!/bin/sh
-java -classpath .:$TRICK_HOME/bin/java/dist/trick.jar JetFire $@

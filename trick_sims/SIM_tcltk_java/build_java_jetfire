@@ -1,5 +1,0 @@
-#!/bin/sh
-
-javac -sourcepath . -classpath classes:$TRICK_HOME/bin/java/dist/trick.jar JetFire.java
-
-

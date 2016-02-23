@@ -3,14 +3,13 @@ PURPOSE:
     (This comment lists out the other object files that are not included from c++ headers)
 LIBRARY DEPENDENCIES:
     (
-     (test/dp/src/dp.c)
+     (dp/src/dp.c)
     )
 *************************************************************/
 
 #include "sim_objects/default_trick_sys.sm"
 
-
-##include "test/dp/include/dp.h"
+##include "dp/include/dp.h"
 
 %{
 
