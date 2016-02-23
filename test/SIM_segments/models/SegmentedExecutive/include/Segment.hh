@@ -25,6 +25,8 @@ class Segment {
            exit_job_class_str with the exit_jobs queue.  This should be the normal constructor to use. */
         Segment( std::string segment_name , std::string enter_job_class_str , std::string exit_job_class_str ) ;
 
+        virtual ~Segment() {} ;
+
         /* getters and setters */
         std::string get_segment_name() ;
         void set_segment_name(std::string in_segment_name) ;

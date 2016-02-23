@@ -2,10 +2,6 @@
 def main():
 
     drg0 = trick.DRAscii("Ball")
-    for param in [ 'position' ] :
-        for index in range(0,2) :
-            var = "ball.obj.state.output." + param + "[" + str(index) + "]"
-            drg0.add_variable(var)
     drg0.set_cycle(0.1)
     drg0.freq = trick.DR_Always
     drg0.thisown = 0

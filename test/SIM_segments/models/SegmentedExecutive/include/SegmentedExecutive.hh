@@ -11,7 +11,7 @@ LIBRARY_DEPENDENCIES:
 #include <set>
 #include <map>
 #include <string>
-#include "sim_services/MonteCarlo/include/MonteCarlo.hh"
+#include "trick/Executive.hh"
 #include "SegmentedExecutive/include/Segment.hh"
 
 /**
@@ -22,7 +22,7 @@ frame, or switch segments immediately.
 
 namespace Trick {
 
-class SegmentedExecutive : public Trick::MonteCarlo {
+class SegmentedExecutive : public Trick::Executive {
 
     friend class InputProcessor ;
     friend void  init_attrTrick__SegmentedExecutive() ;
