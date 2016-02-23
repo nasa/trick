@@ -6,6 +6,7 @@ COMPILE_DIRS = \
     Ball/SIM_ball_L1 \
     Ball/SIM_ball_L2 \
     Ball/SIM_ball_L3 \
+    Ball/SIM_ball_default_data \
     Cannon/SIM_amoeba \
     Cannon/SIM_cannon_aero \
     Cannon/SIM_cannon_analytic \
@@ -16,21 +17,16 @@ COMPILE_DIRS = \
     Cannon/SIM_cannon_jet \
     SIM_Ball++_L1 \
     SIM_satellite \
-    SIM_sun \
-    SIM_target
+    SIM_sun
 
-    #SIM_ball_default_data \
     #SIM_monte \
-    #SIM_trickcomm
-
-# This test is temporarily sitting out until fixed.
-#    SIM_test_varserv
 
 # List out sims we want to run unit tests
 TEST_DIRS = \
     Ball/SIM_ball_L1 \
     Ball/SIM_ball_L2 \
     Ball/SIM_ball_L3 \
+    Ball/SIM_ball_default_data \
     Cannon/SIM_amoeba \
     Cannon/SIM_cannon_aero \
     Cannon/SIM_cannon_analytic \
@@ -40,14 +36,9 @@ TEST_DIRS = \
     Cannon/SIM_cannon_integ \
     Cannon/SIM_cannon_jet \
     SIM_Ball++_L1 \
-    SIM_sun \
-    SIM_target
+    SIM_sun
 
-    #SIM_ball_default_data \
     #SIM_monte \
-
-# This test is temporarily sitting out until fixed.
-#    SIM_test_varserv
 
 EXECUTABLES = $(addsuffix /T_main_${TRICK_HOST_CPU}_test.exe, $(COMPILE_DIRS))
 UNIT_TEST_RESULTS = $(addprefix $(TRICK_HOME)/trick_test/, $(addsuffix .xml, $(TEST_DIRS)))

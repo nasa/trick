@@ -1,4 +1,4 @@
 
-TRICK_CFLAGS += -I${TRICK_HOME}/trick_models
-TRICK_CXXFLAGS += -I${TRICK_HOME}/trick_models -std=c++11
+TRICK_CFLAGS += -I./models
+TRICK_CXXFLAGS += -I./models -std=c++11
 

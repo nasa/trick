@@ -6,7 +6,7 @@ PURPOSE:
 
 #include "sim_objects/default_trick_sys.sm"
 
-##include "test/allocation/include/AllocTest.hh"
+##include "allocation/include/AllocTest.hh"
 
 class AllocTestSimObject : public Trick::SimObject {
 

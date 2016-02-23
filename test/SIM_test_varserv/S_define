@@ -2,18 +2,18 @@
 PURPOSE: ( S_define )
 LIBRARY DEPENDENCIES:
 (
-     (test/varserv/src/VS.cpp)
-	 (test/varserv/src/VS_init.cpp)
-	 (test/varserv/src/VS_default_data.cpp)
-	 (test/varserv/src/VS_commands.cpp)
-	 (test/varserv/src/VS_tests.cpp)
-	 (test/varserv/src/VS_shutdown.cpp)
+     (varserv/src/VS.cpp)
+     (varserv/src/VS_init.cpp)
+     (varserv/src/VS_default_data.cpp)
+     (varserv/src/VS_commands.cpp)
+     (varserv/src/VS_tests.cpp)
+     (varserv/src/VS_shutdown.cpp)
 )
 *************************************************************/
 
 #include "sim_objects/default_trick_sys.sm"
 
-##include "test/varserv/include/VS.hh"
+##include "varserv/include/VS.hh"
 
 class testSimObject : public Trick::SimObject {
 	public:

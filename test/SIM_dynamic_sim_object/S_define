@@ -1,0 +1,24 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (blah blah blah)
+LIBRARY DEPENDENCIES:
+    (
+    )
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "sim_services/Integrator/include/integrator_c_intf.h"
+
+class ballSimObject : public Trick::SimObject {
+
+    public:
+
+        /** Constructor to add the jobs */
+        ballSimObject() {
+            ("integration") trick_ret = integrate() ;
+        }
+} ;
+
+// No instantiations made in this S_define file.  They are made in the input file.
+
