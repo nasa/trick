@@ -48,6 +48,8 @@ QPainterPath KPlot::_sinPath()
 
 void KPlot::_paintSinTest()
 {
+    if ( !_plotModel ) return;
+
     QPainter painter(this);
 
     if ( _plotModel->curvePointSize(this) > 0 ) {
@@ -71,6 +73,8 @@ void KPlot::_paintSinTest()
 
 void KPlot::_paintSinTestPattern()
 {
+    if ( !_plotModel ) return;
+
     QPainter painter(this);
 
     QTransform T = _plotModel->coordToPixelTransform(this);
