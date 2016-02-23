@@ -63,8 +63,8 @@ ip2.c_test.cpp3[2][3] = 40
 
 ip2.uc_test.uc = 123
 ip2.uc_test.uca = [ 0 , 5 , 6 , 7 ]
-ip2.uc_test.ucaa[0][0] = [ 0 , 50 , 60 , 70 ]
-ip2.uc_test.ucaa[1][0] = [ 0 , 20 , 30 , 40 ]
+ip2.uc_test.ucaa[0] = [ 0 , 50 , 60 , 70 ]
+ip2.uc_test.ucaa[1] = [ 0 , 20 , 30 , 40 ]
 
 ip2.uc_test.ucp = id(ip2.uc_test.uc)
 ip2.uc_test.ucp[0] = 65

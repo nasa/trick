@@ -2,7 +2,7 @@
 export TRICK_HOST_CPU := $(shell $(TRICK_HOME)/bin/trick-gte TRICK_HOST_CPU)
 
 # List out sims we want to compile
-COMPILE_DIRS = SIM_Ball++_L1 \
+COMPILE_DIRS = \
     Ball/SIM_ball_L1 \
     Ball/SIM_ball_L2 \
     Ball/SIM_ball_L3 \
@@ -14,17 +14,10 @@ COMPILE_DIRS = SIM_Ball++_L1 \
     Cannon/SIM_cannon_eulercromer \
     Cannon/SIM_cannon_integ \
     Cannon/SIM_cannon_jet \
-    SIM_demo_inputfile \
-    SIM_demo_sdefine \
+    SIM_Ball++_L1 \
     SIM_satellite \
-    SIM_stls \
-    SIM_stls2 \
     SIM_sun \
-    SIM_target \
-    SIM_test_inherit \
-    SIM_test_ip2 \
-    SIM_test_sched \
-    SIM_test_simlib
+    SIM_target
 
     #SIM_ball_default_data \
     #SIM_monte \
@@ -34,7 +27,7 @@ COMPILE_DIRS = SIM_Ball++_L1 \
 #    SIM_test_varserv
 
 # List out sims we want to run unit tests
-TEST_DIRS = SIM_Ball++_L1 \
+TEST_DIRS = \
     Ball/SIM_ball_L1 \
     Ball/SIM_ball_L2 \
     Ball/SIM_ball_L3 \
@@ -46,13 +39,9 @@ TEST_DIRS = SIM_Ball++_L1 \
     Cannon/SIM_cannon_eulercromer \
     Cannon/SIM_cannon_integ \
     Cannon/SIM_cannon_jet \
-    SIM_demo_sdefine \
-    SIM_stls \
-    SIM_stls2 \
+    SIM_Ball++_L1 \
     SIM_sun \
-    SIM_target \
-    SIM_test_sched \
-    SIM_test_simlib
+    SIM_target
 
     #SIM_ball_default_data \
     #SIM_monte \

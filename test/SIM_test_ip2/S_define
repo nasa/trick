@@ -3,15 +3,15 @@ PURPOSE:
     (This comment lists out the other object files that are not included from c++ headers)
 LIBRARY DEPENDENCIES:
     (
-     (test/ip2/src/ip.c)
-     (test/ip2/src/ip_test_init.c)
+     (ip2/src/ip.c)
+     (ip2/src/ip_test_init.c)
     )
 *************************************************************/
 
 #include "sim_objects/default_trick_sys.sm"
 
 
-##include "test/ip2/include/ip.h"
+##include "ip2/include/ip.h"
 
 %{
 

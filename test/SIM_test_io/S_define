@@ -5,9 +5,6 @@ PURPOSE:
 
 #include "sim_objects/default_trick_sys.sm"
 
-/**
-  This class is the base ball class
- */
 class testIOSimObject : public Trick::SimObject {
 
     public:

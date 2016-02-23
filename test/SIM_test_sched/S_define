@@ -6,8 +6,8 @@ PURPOSE:
 #include "sim_objects/default_trick_sys.sm"
 
 
-##include "test/sched/include/sched.h"
-##include "test/sched/include/sched_proto.h"
+##include "sched/include/sched.h"
+##include "sched/include/sched_proto.h"
 
 //=============================================================================
 // SIM_OBJECT: parent

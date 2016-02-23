@@ -1,6 +1,6 @@
 
 def main():
-    trick.stop(300.0)
+    trick.stop(30.0)
 
 if __name__ == "__main__":
     main()
