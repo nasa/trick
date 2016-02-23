@@ -127,34 +127,6 @@ ifeq ($(USE_ER7_UTILS), 0)
   UNIT_TEST_DIRS := $(filter-out %Integrator/test,$(UNIT_TEST_DIRS))
 endif
 
-#-------------------------------------------------------------------------------
-# FIXME:
-# This is only used by the 'clean_test' target below. Seems to me that it really
-# doesn't belong here. Instead, the 'clean' target in
-# $TRICK_HOME/trick_sims/makefile define this.
-#-------------------------------------------------------------------------------
-MODEL_DIRS = \
-	${TRICK_HOME}/trick_models/Ball++/L1 \
-	${TRICK_HOME}/trick_models/ball/L1 \
-	${TRICK_HOME}/trick_models/ball/L2 \
-	${TRICK_HOME}/trick_models/baseball/aero \
-	${TRICK_HOME}/trick_models/baseball/optim \
-	${TRICK_HOME}/trick_models/cannon/aero \
-	${TRICK_HOME}/trick_models/cannon/graphics \
-	${TRICK_HOME}/trick_models/cannon/gravity \
-	${TRICK_HOME}/trick_models/cannon/optim \
-	${TRICK_HOME}/trick_models/exclude_me \
-	${TRICK_HOME}/trick_models/helios \
-	${TRICK_HOME}/trick_models/stl_checkpoint \
-	${TRICK_HOME}/trick_models/target \
-	${TRICK_HOME}/trick_models/test/dp \
-	${TRICK_HOME}/trick_models/test/impexp \
-	${TRICK_HOME}/trick_models/test/ip \
-	${TRICK_HOME}/trick_models/test/ip2 \
-	${TRICK_HOME}/trick_models/test/sched \
-	${TRICK_HOME}/trick_models/test_ip \
-	${TRICK_HOME}/trick_models/threads
-
 # The name of the ICG executable indicates the operating system, and the machine
 # hardware on which it is built. This allows pre-build ICG binaries to be
 # distributed in the installation package. The reason for distributing pre-built
@@ -352,9 +324,7 @@ clean_java:
 #        'clean' target in trick_sims/makefile should be doing this. --Penn
 clean_test: clean_unit_test
 	-@ $(MAKE) -C trick_sims clean
-	@for i in $(MODEL_DIRS) ; do \
-	   cd $$i ; /bin/rm -rf io_src object_* swig xml ; \
-	done
+	-@ $(MAKE) -C test clean
 
 clean_gui: clean_java
 
