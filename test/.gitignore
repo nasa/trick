@@ -1,5 +1,5 @@
 DP_rt_*.xml
-makefile
+SIM*/makefile
 S_job_execution
 S_run_summary
 send_hs
