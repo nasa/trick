@@ -10,10 +10,11 @@
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include "pagetitlewidget.h"
-#include "plot.h"
 #include "libsnapdata/montemodel.h"
 #include "libsnapdata/unit.h"
 #include "libqplot/plotbookmodel.h"
+#include "libkplot/koviplot.h"
+#include "libqplot/trickcurve.h"
 
 class PlotBookView : public QAbstractItemView
 {
@@ -99,10 +100,10 @@ private:
     QVector<QWidget*> _pages;
     QHash<QWidget*,QGridLayout*> _page2grid;
     QHash<QWidget*,PageTitleWidget*> _page2pagewidget;
-    QHash<QWidget*,QVector<Plot*> >  _page2Plots;
+    QHash<QWidget*,QVector<KoviPlot*> >  _page2Plots;
     QHash<QWidget*,double> _page2startTime;
     QHash<QWidget*,double> _page2stopTime;
-    QHash<Plot*, QVector<TrickCurve*> > _plot2Curves;
+    QHash<KoviPlot*, QVector<TrickCurve*> > _plot2Curves;
 
     QVector<QTableView*> _tables;
     QModelIndex _table2Idx(QWidget* tableView) const;
@@ -112,11 +113,11 @@ private:
 
     inline QWidget* _idx2Page(const QModelIndex& idx) const;
     inline QGridLayout* _idx2Grid(const QModelIndex& idx) const;
-    inline Plot* _idx2Plot(const QModelIndex& idx) const;
+    inline KoviPlot* _idx2Plot(const QModelIndex& idx) const;
     inline TrickCurve* _idx2Curve(const QModelIndex& idx) const;
     inline QModelIndex _curve2Idx(TrickCurve* curve);
     inline QModelIndex _page2Idx(QWidget* page) const;
-    inline QModelIndex _plot2Idx(Plot* plot) const;
+    inline QModelIndex _plot2Idx(KoviPlot* plot) const;
 
     void _selectNextCurve();
     void _selectPrevCurve();
@@ -124,14 +125,13 @@ private:
     QString _appendUnitToLabel(const QString &labelInput,
                                  const QString &unit ) const;
 
-    void _layoutPdfPlots(const QVector<Plot*>& plots);
+    void _layoutPdfPlots(const QVector<KoviPlot*>& plots);
     bool _savePdfVectorized(const QString& fileName);
     bool _savePdfPixmapped(const QString& fileName);
 
     void _insertPage(const QString &dpFileName);
     void _insertPageTitle(QWidget* page, const QString& title);
-    void _insertPlot(QWidget* page, double startTime, double stopTime,
-                     const QString &pageBGColor);
+    void _insertPlot(const QModelIndex& plotIdx, QWidget* page);
 
     inline void _setTableData(QStandardItemModel* table, int row, int col,
                               double val,

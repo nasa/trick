@@ -107,7 +107,7 @@ QModelIndex PlotBookView::indexAt(const QPoint &point) const
             continue;
         }
         if ( w->geometry().contains(point) ) {
-            Plot* plot = static_cast<Plot*>(w);
+            KoviPlot* plot = static_cast<KoviPlot*>(w);
             idx = _plot2Idx(plot);
             break;
         }
@@ -161,14 +161,16 @@ bool PlotBookView::savePdf(const QString &fileName, bool isVectorizePdf)
 
     for ( int pageId = 0; pageId < _pages.size(); ++pageId) {
         QWidget* page = _pages.at(pageId);
-        QVector<Plot*> plots = _page2Plots.value(page);
-        foreach (Plot* plot, plots ) {
+        QVector<KoviPlot*> plots = _page2Plots.value(page);
+#if 0
+        foreach (KoviPlot* plot, plots ) {
             int nCurves = plot->axisRect()->curveCount();
             if ( nCurves > 50 ) {
                 isVectorize = false;
                 break;
             }
         }
+#endif
     }
 
     bool ret = false;
@@ -187,6 +189,7 @@ bool PlotBookView::_savePdfVectorized(const QString &fileName)
     int ww = 1200;
     int hh = 900;
 
+#if 0
     // Save current widget
     QWidget* originalPage = _nb->currentWidget();
 
@@ -238,9 +241,9 @@ bool PlotBookView::_savePdfVectorized(const QString &fileName)
         }
         QWidget* page = widget;
 
-        QVector<Plot*> plots = _page2Plots.value(page);
+        QVector<KoviPlot*> plots = _page2Plots.value(page);
         QVector<QRect> origPlotViewports;
-        foreach (Plot* plot, plots ) {
+        foreach (KoviPlot* plot, plots ) {
             origPlotViewports.append(plot->viewport());
             plot->setViewport(plotsRect);
         }
@@ -249,7 +252,7 @@ bool PlotBookView::_savePdfVectorized(const QString &fileName)
 
         // Draw then restore plot layout
         int plotId = 0 ;
-        foreach (Plot* plot, plots ) {
+        foreach (KoviPlot* plot, plots ) {
             plot->drawMe(&printpainter);
             plot->setViewport(origPlotViewports.at(plotId));
             plot->plotLayout()->simplify();  // get rid of empty cells
@@ -273,6 +276,7 @@ bool PlotBookView::_savePdfVectorized(const QString &fileName)
     printpainter.end();
 
     _nb->setCurrentWidget(originalPage);
+#endif
 
     return true;
 }
@@ -288,6 +292,7 @@ bool PlotBookView::_savePdfPixmapped(const QString &fileName)
     int ww = 1200;
     int hh = 900;
 
+#if 0
     // Save current widget
     QWidget* originalPage = _nb->currentWidget();
 
@@ -362,9 +367,9 @@ bool PlotBookView::_savePdfPixmapped(const QString &fileName)
 
         PageTitleWidget* pw = _page2pagewidget.value(page);
 
-        QVector<Plot*> plots = _page2Plots.value(page);
+        QVector<KoviPlot*> plots = _page2Plots.value(page);
         QVector<QRect> origPlotViewports;
-        foreach (Plot* plot, plots ) {
+        foreach (KoviPlot* plot, plots ) {
             origPlotViewports.append(plot->viewport());
             plot->setViewport(plotsRect);
         }
@@ -374,7 +379,7 @@ bool PlotBookView::_savePdfPixmapped(const QString &fileName)
         // Draw plots (and restore plot layout)
         pixmapPlots.fill(Qt::white);
         int plotId = 0 ;
-        foreach (Plot* plot, plots ) {
+        foreach (KoviPlot* plot, plots ) {
             plot->drawMe(&pixPainterPlots);
             plot->setViewport(origPlotViewports.at(plotId));
             plot->plotLayout()->simplify();  // get rid of empty cells
@@ -405,13 +410,15 @@ bool PlotBookView::_savePdfPixmapped(const QString &fileName)
     pixPainterPlots.end();
 
     _nb->setCurrentWidget(originalPage);
+#endif
 
     return true;
 }
 
 
-void PlotBookView::_layoutPdfPlots(const QVector<Plot*>& plots)
+void PlotBookView::_layoutPdfPlots(const QVector<KoviPlot *> &plots)
 {
+#if 0
         // Plotbookview's page is a Qt QGrid of QCustomplot Widgets.
         // QCustomPlot can make a "page", but for interactive use,
         // I found it better to use Qt's QGrid.  When printing it is better
@@ -547,6 +554,7 @@ void PlotBookView::_layoutPdfPlots(const QVector<Plot*>& plots)
         {
         }
         }
+#endif
 }
 
 void PlotBookView::showCurveDiff(bool isShow)
@@ -558,11 +566,13 @@ void PlotBookView::showCurveDiff(bool isShow)
 
 void PlotBookView::replot()
 {
+#if 0
     foreach ( QWidget* page, _pages ) {
-        foreach ( Plot* plot, _page2Plots.value(page) ) {
+        foreach ( KoviPlot* plot, _page2Plots.value(page) ) {
             plot->replot();
         }
     }
+#endif
 }
 
 QModelIndex PlotBookView::moveCursor(QAbstractItemView::CursorAction cursorAction,
@@ -588,7 +598,7 @@ int PlotBookView::verticalOffset() const
 bool PlotBookView::isIndexHidden(const QModelIndex &index) const
 {
     bool isHidden = false;
-    Plot* plot = _idx2Plot(index);
+    KoviPlot* plot = _idx2Plot(index);
     if ( plot ) {
         isHidden = plot->isVisible();
     }
@@ -647,6 +657,7 @@ void PlotBookView::keyPressEvent(QKeyEvent *event)
 //
 void PlotBookView::maximize(const QModelIndex &idx)
 {
+#if 0
     if ( _plotModel->isIndex(idx, "Plot") ) {
 
         QGridLayout* grid = _idx2Grid(idx);
@@ -661,6 +672,7 @@ void PlotBookView::maximize(const QModelIndex &idx)
             }
         }
     }
+#endif
 }
 
 void PlotBookView::minimize(const QModelIndex &idx)
@@ -690,9 +702,10 @@ void PlotBookView::dataChanged(const QModelIndex &topLeft,
              itemText == "PageStartTime" ||
              itemText == "PageStopTime" ) {
 
+#if 0
             foreach ( QModelIndex pageIdx, _plotModel->pageIdxs() ) {
                 QWidget* page = _idx2Page(pageIdx);
-                foreach ( Plot* plot, _page2Plots.value(page) ) {
+                foreach ( KoviPlot* plot, _page2Plots.value(page) ) {
                     if ( itemText == "SessionStartTime" ||
                          itemText == "PageStartTime" ) {
                         plot->setStartTime(item->data().toDouble());
@@ -703,6 +716,7 @@ void PlotBookView::dataChanged(const QModelIndex &topLeft,
                     plot->replot();
                 }
             }
+#endif
 
         } else if ( itemText == "CurveColor" ) {
 
@@ -767,10 +781,12 @@ void PlotBookView::_plotSelectModelSelectChanged(const QItemSelection &curr,
             if ( curr.indexes().size() == 0 ) {
                 // If curr > 0, replot done in next block
                 QModelIndex plotIdx = _plotModel->getIndex(prevIdx, "Plot");
-                Plot* plot = _idx2Plot(plotIdx);
+                KoviPlot* plot = _idx2Plot(plotIdx);
+#if 0
                 if ( plot->isVisible() ) {
                         plot->replot();
                 }
+#endif
             }
         }
     }
@@ -780,12 +796,14 @@ void PlotBookView::_plotSelectModelSelectChanged(const QItemSelection &curr,
         if ( currCurve ) {
             currCurve->setSelected(true);
             QModelIndex plotIdx = _plotModel->getIndex(currIdx, "Plot");
-            Plot* plot = _idx2Plot(plotIdx);
+            KoviPlot* plot = _idx2Plot(plotIdx);
 
             // If plot is on current page (not hidden) replot
+#if 0
             if ( plot->isVisible() ) {
                 plot->replot();
             }
+#endif
         }
     }
 
@@ -868,10 +886,12 @@ void PlotBookView::tabCurrentChanged(int tabId)
     if ( !model() ) return;
 
     QWidget* page = _nb->widget(tabId);
-    foreach (Plot* plot, _page2Plots.value(page) ) {
+    foreach (KoviPlot* plot, _page2Plots.value(page) ) {
+#if 0
         if ( plot ) {
             plot->replot();
         }
+#endif
     }
 }
 
@@ -886,10 +906,10 @@ void PlotBookView::_closeAllPlots()
 void PlotBookView::_toggleDiffPlots()
 {
     foreach ( QWidget* page, _pages ) {
-        QVector<Plot*> plots = _page2Plots.value(page);
-        foreach ( Plot* plot, plots ) {
-            AxisRect* axisRect = (AxisRect*) plot->axisRect();
-            axisRect->toggleCurveDiff();
+        QVector<KoviPlot*> plots = _page2Plots.value(page);
+        foreach ( KoviPlot* plot, plots ) {
+            //AxisRect* axisRect = (AxisRect*) plot->axisRect();
+            //axisRect->toggleCurveDiff();
         }
     }
 }
@@ -906,12 +926,14 @@ void PlotBookView::doubleClick(QMouseEvent *event)
         bool isExpanded = false;
         foreach ( QModelIndex idx, _plotModel->plotIdxs(pageIdx) ) {
             if ( idx != plotIdx ) {
-                Plot* plot = _idx2Plot(idx);
+                KoviPlot* plot = _idx2Plot(idx);
+#if 0
                 if ( plot->isVisible() ) {
                     isExpanded = false;
                 } else {
                     isExpanded = true;
                 }
+#endif
                 break;
             }
         }
@@ -1015,6 +1037,7 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
         } else if ( itemText == "Plot" ) {
 
             QWidget* page = _idx2Page(pidx);
+#if 0
             QModelIndex pmIdx = _plotModel->getIndex(
                                        QModelIndex(), "SessionStartTime");
             double sessionStartTime = _plotModel->data(pmIdx).toDouble();
@@ -1023,22 +1046,24 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             QModelIndex pgIdx = _plotModel->getIndex(idx, "Page");
             pmIdx = _plotModel->getIndex(pgIdx, "PageBackgroundColor");
             QString pageBGColor = _plotModel->data(pmIdx).toString();
-            _insertPlot(page, sessionStartTime, sessionStopTime, pageBGColor);
+#endif
+            _insertPlot(idx,page);
 
         }  else if ( itemText == "PlotXAxisLabel" ) {
 
             QString xAxisLabel = model()->data(idx).toString();
-            Plot* plot = _idx2Plot(pidx);
-            plot->setXAxisLabel(xAxisLabel);
+            //Plot* plot = _idx2Plot(pidx);
+            //plot->setXAxisLabel(xAxisLabel);
 
         }  else if ( itemText == "PlotYAxisLabel" ) {
 
             QString yAxisLabel = model()->data(idx).toString();
-            Plot* plot = _idx2Plot(pidx);
-            plot->setYAxisLabel(yAxisLabel);
+            //Plot* plot = _idx2Plot(pidx);
+            //plot->setYAxisLabel(yAxisLabel);
 
         } else if ( itemText == "CurveData" ) {
 
+#if 0
             QVariant v = model()->data(idx);
             TrickCurveModel* curveModel;
             curveModel = QVariantToPtr<TrickCurveModel>::convert(v);
@@ -1066,9 +1091,11 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             if ( pidx.row() == 1 && _isShowCurveDiff ) {
                 plot->axisRect()->showCurveDiff();
             }
+#endif
 
         } else if ( itemText == "CurveColor" ) {
 
+#if 0
             QString colorStr = model()->data(idx).toString();
             TrickCurve* curve =  _idx2Curve(pidx);
             if ( colorStr.isEmpty() ) {
@@ -1082,51 +1109,67 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                     curve->setPen(pen);
                 }
             }
+#endif
 
         } else if ( itemText == "CurveXScale" ) {
 
+#if 0
             TrickCurve* curve =  _idx2Curve(pidx);
             double xsf = model()->data(idx).toDouble();
             curve->setXScaleFactor(xsf);
+#endif
 
         } else if ( itemText == "CurveYScale" ) {
 
+#if 0
             TrickCurve* curve =  _idx2Curve(pidx);
             double ysf = model()->data(idx).toDouble();
             curve->setYScaleFactor(ysf);
+#endif
 
         } else if ( itemText == "CurveXBias" ) {
 
+#if 0
             TrickCurve* curve =  _idx2Curve(pidx);
             double xbias = model()->data(idx).toDouble();
             curve->setXBias(xbias);
+#endif
 
         } else if ( itemText == "CurveYBias" ) {
 
+#if 0
             TrickCurve* curve =  _idx2Curve(pidx);
             double ybias = model()->data(idx).toDouble();
             curve->setYBias(ybias);
+#endif
 
         } else if ( itemText == "CurveSymbolStyle" ) {
 
+#if 0
             TrickCurve* curve =  _idx2Curve(pidx);
             QString symbol = model()->data(idx).toString();
             curve->setSymbolStyle(symbol);
+#endif
 
         } else if ( itemText == "CurveSymbolSize" ) {
 
+#if 0
             TrickCurve* curve =  _idx2Curve(pidx);
             QString size = model()->data(idx).toString();
             curve->setSymbolSize(size);
+#endif
 
         } else if ( itemText == "CurveLineStyle" ) {
 
+#if 0
             TrickCurve* curve =  _idx2Curve(pidx);
             QString lineStyle = model()->data(idx).toString();
             curve->setCurveStyle(lineStyle);
+#endif
 
         } else if ( itemText == "CurveYLabel" ) {
 
+#if 0
             int nCurves = model()->rowCount(gpidx);
 
             // No labels if nCurves > 10 (helps speedup monte carlo immensely)
@@ -1287,7 +1330,9 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                     curve->setName(yLabel);
                 }
             }
+#endif
 
+#if 0
             if ( nCurves == 1 || nCurves > 8 ) {
                 curve->parentPlot()->legend->setVisible(false);
             } else {
@@ -1298,39 +1343,51 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             QCPItemText* plotTitle = plot->title();
             QColor fgColor = plotTitle->color();
             curve->parentPlot()->legend->setTextColor(fgColor);
+#endif
 
         } else if ( itemText == "PlotTitle" ) {
 
+#if 0
             QString title = model()->data(idx).toString();
             Plot* plot = _idx2Plot(pidx);
             plot->setTitle(title);
+#endif
 
         } else if ( itemText == "PlotXMinRange" ) {
 
+#if 0
             double xMin = model()->data(idx).toDouble();
             Plot* plot = _idx2Plot(pidx);
             plot->setXMinRange(xMin);
+#endif
 
         } else if ( itemText == "PlotXMaxRange" ) {
 
+#if 0
             double xMax = model()->data(idx).toDouble();
             Plot* plot = _idx2Plot(pidx);
             plot->setXMaxRange(xMax);
+#endif
 
         } else if ( itemText == "PlotYMinRange" ) {
 
+#if 0
             double yMin = model()->data(idx).toDouble();
             Plot* plot = _idx2Plot(pidx);
             plot->setYMinRange(yMin);
+#endif
 
         } else if ( itemText == "PlotYMaxRange" ) {
 
+#if 0
             double yMax = model()->data(idx).toDouble();
             Plot* plot = _idx2Plot(pidx);
             plot->setYMaxRange(yMax);
+#endif
 
         } else if ( itemText == "PlotStartTime" ) {
 
+#if 0
             QWidget* page = _idx2Page(pidx);
             Plot* plot = _idx2Plot(pidx);
             QModelIndex sIdx = _plotModel->getIndex(QModelIndex(),
@@ -1345,9 +1402,11 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             } else if ( pageStartTime > -1.0e30 ) {
                 plot->setStartTime(pageStartTime);
             }
+#endif
 
         } else if ( itemText == "PlotStopTime" ) {
 
+#if 0
             QWidget* page = _idx2Page(pidx);
             Plot* plot = _idx2Plot(pidx);
             QModelIndex sIdx = _plotModel->getIndex(QModelIndex(),
@@ -1362,23 +1421,29 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             } else if ( pageStopTime < 1.0e30 ) {
                 plot->setStopTime(pageStopTime);
             }
+#endif
 
         } else if ( itemText == "PlotGrid" ) {
 
+#if 0
             Plot* plot = _idx2Plot(pidx);
             QString isGridStr = model()->data(idx).toString();
             bool ok;
             bool isGrid = Options::stringToBool(isGridStr,&ok);
             plot->setGrid(isGrid);
+#endif
 
         } else if ( itemText == "PlotGridColor" ) {
 
+#if 0
             Plot* plot = _idx2Plot(pidx);
             QString gridColor = model()->data(idx).toString();
             plot->setGridColor(gridColor);
+#endif
 
         } else if ( itemText == "PlotBackgroundColor" ) {
 
+#if 0
             Plot* plot = _idx2Plot(pidx);
             QString bgColor = model()->data(idx).toString();
             if ( bgColor == "#FFFFFF" ) {
@@ -1390,9 +1455,11 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 bgColor = model()->data(pageBGColorIdx).toString();
             }
             plot->setBackgroundColor(bgColor);
+#endif
 
         } else if ( itemText == "PlotForegroundColor" ) {
 
+#if 0
             QString col = model()->data(idx).toString();
             if ( col.isEmpty() ) {  // TODO - use empty str for bg color def
                 QWidget* page = _idx2Page(pidx);
@@ -1422,8 +1489,10 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             // Plot title
             QCPItemText* plotTitle = plot->title();
             plotTitle->setColor(fgColor);
+#endif
 
         } else if ( itemText == "PlotFont" ) {
+#if 0
             QString fontStr = model()->data(idx).toString();
             if ( !fontStr.isEmpty() ) {
 
@@ -1468,6 +1537,7 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 // Plot legend
                 plot->legend->setFont(yAxisFont);
             }
+#endif
 
         } else if ( itemText == "Table" ) {
         } else if ( itemText == "TableVarCount" ) {
@@ -1679,7 +1749,7 @@ void PlotBookView::rowsAboutToBeRemoved(const QModelIndex &pidx,
             _page2pagewidget.remove(page);
             _page2startTime.remove(page);
             _page2stopTime.remove(page);
-            foreach ( Plot* plot, _page2Plots.value(page) ) {
+            foreach ( KoviPlot* plot, _page2Plots.value(page) ) {
                 _plot2Curves.remove(plot);
             }
             _page2Plots.remove(page);
@@ -1699,7 +1769,7 @@ void PlotBookView::rowsAboutToBeRemoved(const QModelIndex &pidx,
             QWidget* page = _idx2Page(pidx);
             QGridLayout* grid = static_cast<QGridLayout*>(page->layout());
 
-            Plot* plot = _idx2Plot(idx);
+            KoviPlot* plot = _idx2Plot(idx);
             QVector<TrickCurve*> curves = _plot2Curves.value(plot);
             foreach ( TrickCurve* curve, curves ) {
                 disconnect(curve,SIGNAL(selectionChanged(TrickCurve*)));
@@ -1788,23 +1858,28 @@ void PlotBookView::rowsAboutToBeRemoved(const QModelIndex &pidx,
         } else if ( _plotModel->isIndex(pidx, "Curves") ) {
 
             // TODO: untested
+#if 0
             Plot* plot = _idx2Plot(pidx);
             TrickCurve* curve = _idx2Curve(idx);
             disconnect(curve,SIGNAL(selectionChanged(TrickCurve*)));
             plot->removePlottable(curve);
             _plot2Curves[plot].remove(idx.row());
             plot->replot();
+#endif
         }
     }
 }
 
 QModelIndex PlotBookView::_curve2Idx(TrickCurve *curve)
 {
+#if 0
     Plot* plot = static_cast<Plot*>(curve->parentPlot());
     QModelIndex plotIdx = _plot2Idx(plot);
     int rowCurve = _plot2Curves.value(plot).indexOf(curve);
     QModelIndex curvesIdx = _plotModel->getIndex(plotIdx, "Curves", "Plot");
     QModelIndex curveIdx = model()->index(rowCurve,0,curvesIdx);
+#endif
+    QModelIndex curveIdx;
     return curveIdx;
 }
 
@@ -1828,9 +1903,9 @@ QGridLayout *PlotBookView::_idx2Grid(const QModelIndex &idx) const
     return grid;
 }
 
-Plot *PlotBookView::_idx2Plot(const QModelIndex &idx) const
+KoviPlot *PlotBookView::_idx2Plot(const QModelIndex &idx) const
 {
-    Plot* plot = 0 ;
+    KoviPlot* plot = 0 ;
 
     QModelIndex plotIdx = _plotModel->getIndex(idx, "Plot");
     if ( !plotIdx.isValid() )  return 0;
@@ -1848,7 +1923,7 @@ Plot *PlotBookView::_idx2Plot(const QModelIndex &idx) const
 TrickCurve *PlotBookView::_idx2Curve(const QModelIndex &idx) const
 {
     TrickCurve* curve = 0 ;
-    Plot* plot = _idx2Plot(idx);
+    KoviPlot* plot = _idx2Plot(idx);
     if ( plot ) {
         curve = _plot2Curves.value(plot).at(idx.row());
     }
@@ -1881,7 +1956,7 @@ QModelIndex PlotBookView::_table2Idx(QWidget *tableView) const
 }
 
 
-QModelIndex PlotBookView::_plot2Idx(Plot *plot) const
+QModelIndex PlotBookView::_plot2Idx(KoviPlot *plot) const
 {
     if ( !model() || !plot ) return QModelIndex();
 
@@ -1977,13 +2052,13 @@ void PlotBookView::_insertPageTitle(QWidget *page, const QString &title)
     }
 }
 
-void PlotBookView::_insertPlot(QWidget *page,
-                               double startTime, double stopTime,
-                               const QString& pageBGColor )
+void PlotBookView::_insertPlot(const QModelIndex& plotIdx,QWidget *page)
 {
 
     // Create/configure plot
-    Plot* plot = new Plot(page);
+    KoviPlot* plot = new KoviPlot(_plotModel,plotIdx,page);
+
+#if 0
     plot->setStartTime(startTime);
     plot->setStopTime(stopTime);
     plot->setBackgroundColor(pageBGColor);
@@ -1993,6 +2068,7 @@ void PlotBookView::_insertPlot(QWidget *page,
             this, SLOT(plotKeyPress(QKeyEvent*)));
     connect(plot, SIGNAL(curveClicked(TrickCurve*)),
             this, SLOT(_slotCurveClicked(TrickCurve*)));
+#endif
     _page2Plots[page].append(plot);
 
 

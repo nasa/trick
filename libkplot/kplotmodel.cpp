@@ -3,7 +3,10 @@
 #include <QDebug>
 
 
-KPlotModel::KPlotModel(QObject *parent) :
+KPlotModel::KPlotModel(PlotBookModel *plotBookModel,
+                       const QModelIndex &plotIdx, QObject *parent) :
+    _plotBookModel(plotBookModel),
+    _plotIndex(plotIdx),
     QStandardItemModel(parent),
     _plotWidget(0)
 {

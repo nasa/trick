@@ -2,6 +2,7 @@
 #define PLOTMODEL_H
 
 #include <QStandardItemModel>
+#include <QPersistentModelIndex>
 #include <QRectF>
 #include <QMatrix4x4>
 #include <QVector4D>
@@ -11,11 +12,19 @@
 #include <QWidget>
 #include <math.h>
 
+#include "libqplot/plotbookmodel.h"
+
 class KPlotModel : public QStandardItemModel
 {
     Q_OBJECT
 public:
-    explicit KPlotModel(QObject *parent = 0);
+    explicit KPlotModel(PlotBookModel* plotBookModel,
+                        const QModelIndex& plotIdx,
+                        QObject *parent = 0);
+
+    PlotBookModel* bookModel() { return _plotBookModel; }
+    QPersistentModelIndex plotIdx() { return _plotIndex; }
+
     QRectF xyRect() const;
     QRectF mathRect(const QWidget* widget) const;
     double curvePointSize(const QWidget *widget) const;
@@ -48,6 +57,8 @@ public:
 #endif
 
 private:
+    PlotBookModel* _plotBookModel;
+    QPersistentModelIndex _plotIndex;
     QWidget* _plotWidget;
     void _initModel();
     QList<double> calcTicSet(double aIn, double bIn,

@@ -43,8 +43,10 @@ snapq.depends += snaprt
 snapq.depends += snapdata
 snapq.depends += opts
 snapq.depends += qplot
+snapq.depends += kplot
 
 testsnap.depends += snaprt
 testsnap.depends += snapdata
 testsnap.depends += opts
 testsnap.depends += qplot
+testsnap.depends += kplot

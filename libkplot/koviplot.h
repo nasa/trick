@@ -6,6 +6,7 @@
 #include <QLabel>
 #include <QPalette>
 #include <QPair>
+#include <QPersistentModelIndex>
 #include <QDebug>
 
 #include <math.h>
@@ -18,18 +19,23 @@
 #include "linedruler.h"
 #include "labeledruler.h"
 #include "plotcorner.h"
+#include "libqplot/plotbookmodel.h"
 
 class KoviPlot : public QFrame
 {
     Q_OBJECT
 public:
-    explicit KoviPlot(QWidget *parent = 0);
+    explicit KoviPlot(PlotBookModel* bookModel,
+                      const QModelIndex& plotIdx,
+                      QWidget *parent = 0);
     
 signals:
     
 public slots:
 
 private:
+    PlotBookModel* _bookModel;
+    QPersistentModelIndex _plotIdx;
     QGridLayout* _layout;
     QLabel* _yAxisLabel;
 };

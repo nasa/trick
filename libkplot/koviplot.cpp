@@ -1,7 +1,10 @@
 #include "koviplot.h"
 
 QLabel *createLabel(QWidget* parent, const QString& txt, const QColor &color);
-VerticalLabel *createVLabel(QWidget* parent, const QString& txt, const QColor &color);
+VerticalLabel *createVLabel(QWidget* parent,
+                            KPlotModel* plotModel,
+                            const QModelIndex& plotIdx,
+                            const QString& txt, const QColor &color);
 LinedRuler *createRuler(QWidget* parent, KPlotModel* plotModel,
                          Qt::Alignment align, const QColor &color);
 LabeledRuler *createLabeledRuler(QWidget* parent, KPlotModel* plotModel,
@@ -12,7 +15,10 @@ KPlot* createPlot(QWidget* parent, KPlotModel* plotModel, const QColor& color);
 bool isEqual(double a, double b, ulong maxD=10, bool isNeighborMethod=true);
 QList<double> calcTicSet(double aIn, double bIn, double u=1.0, double n=10.0);
 
-KoviPlot::KoviPlot(QWidget *parent) :
+KoviPlot::KoviPlot(PlotBookModel *bookModel,
+                   const QModelIndex &plotIdx, QWidget *parent) :
+    _bookModel(bookModel),
+    _plotIdx(plotIdx),
     QFrame(parent)
 {
     setFrameShape(QFrame::Box);
@@ -20,7 +26,7 @@ KoviPlot::KoviPlot(QWidget *parent) :
 
     _layout = new QGridLayout(this);
 
-    KPlotModel* plotModel = new KPlotModel(this);
+    KPlotModel* plotModel = new KPlotModel(bookModel,plotIdx,this);
 
     // The composite plot widget is composed of 15 widgets
     KPlot* a00 = createPlot(this, plotModel, Qt::white);
@@ -35,7 +41,7 @@ KoviPlot::KoviPlot(QWidget *parent) :
     LinedRuler* a09 = createRuler(this, plotModel, Qt::AlignRight, Qt::white);
     LabeledRuler* a10 = createLabeledRuler(this, plotModel, Qt::AlignLeft, Qt::white);
     QLabel* a11 = createLabel(this, "X-Axis Label", Qt::white);
-    VerticalLabel* a12 = createVLabel(this, "Y-Axis Label", Qt::white);
+    VerticalLabel* a12 = createVLabel(this, plotModel, plotIdx,"Y-Axis Label", Qt::white);
     QLabel* a13 = createLabel(this, "Title", Qt::white);
     LabeledRuler* a14 = createLabeledRuler(this, plotModel, Qt::AlignBottom, Qt::white);
 
@@ -88,8 +94,17 @@ QLabel* createLabel(QWidget* parent, const QString& txt, const QColor &color)
     return w;
 }
 
-VerticalLabel* createVLabel(QWidget* parent, const QString& txt, const QColor &color)
+VerticalLabel* createVLabel(QWidget* parent,
+                            KPlotModel* plotModel,
+                            const QModelIndex& plotIdx,
+                            const QString& txt, const QColor &color)
 {
+#if 0
+    PlotBookModel* bookModel = plotModel->bookModel();
+    QStandardItem* item = bookModel->itemFromIndex(plotIdx);
+    QString itemText = item->text();
+#endif
+
     VerticalLabel* w = new VerticalLabel(parent);
 
     w->setText(txt);
