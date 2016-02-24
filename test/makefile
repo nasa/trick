@@ -19,7 +19,6 @@ COMPILE_DIRS = \
 SIMS_NEEDING_TEST = \
     SIM_alloc_test \
     SIM_demo_inputfile \
-    SIM_stls3 \
     SIM_test_abstract \
     SIM_test_inherit \
     SIM_test_ip2 \
@@ -27,11 +26,11 @@ SIMS_NEEDING_TEST = \
     SIM_trickcomm
 
 # Sims with problems, no purpose, or maybe shouldn't be a test
-# SIM_stls3
-# SIM_leaks
-# SIM_test_varserv
-# SIM_dynamic_sim_object
-# SIM_segments
+# SIM_leaks ( should be deleted )
+# SIM_test_varserv  ( not sure what it is testing )
+# SIM_dynamic_sim_object ( not running, class won't instantiate )
+# SIM_segments  ( not a test, but a demo )
+# SIM_stls3     ( not compiling on most platforms )
 
 # This test is temporarily sitting out until fixed.
 #    SIM_test_varserv
