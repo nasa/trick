@@ -22,17 +22,22 @@ PROGRAMMERS:
      ((Edwin Z. Crues)(Titan Systems Corp.)(Jan 2002)(Crude C++ translation)))
 *******************************************************************************/
 
-#include "sim_services/UnitTest/include/trick_tests.h"
+/* System include files. */
+#include <math.h>
+#include <iostream>
+#include <unistd.h>
 
 /* Model include files. */
-#include "../include/Ball.hh"
+#include "Ball.hh"
+#include "trick/exec_proto.hh"
+#include "trick/exec_proto.h"
+#include "trick/message_proto.h"
 
      /* ENTRY POINT */
-int Ball::shutdown() {
+int Ball::state_print() {
 
-   TRICK_EXPECT_NEAR( state.output.position[0] , -7.627512 , 0.000001 , "BallSim" , "FinalXPositionCheck" )
-   TRICK_EXPECT_NEAR( state.output.position[1] , 3.131932 , 0.000001 , "BallSim" , "FinalYPositionCheck" )
-
+   message_publish(MSG_NORMAL, "time = %8.2f , position = %12.6f , %12.6f\n",
+    exec_get_sim_time() , state.output.position[0] , state.output.position[1]) ;
 
    /* RETURN */
    return( 0 );

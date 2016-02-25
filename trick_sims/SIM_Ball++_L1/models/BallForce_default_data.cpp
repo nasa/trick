@@ -17,48 +17,27 @@ ASSUMPTIONS AND LIMITATIONS:
 CLASS:
     (derivative)
 LIBRARY DEPENDENCY:
-    ((BallForceField.o))
+    ((BallForce_default_data.o))
 PROGRAMMERS:
     (((Robert W. Bailey) (Sweet Systems Inc) (March 1997) (Tutorial Lesson 1))
      ((Edwin Z. Crues)(Titan Systems Corp.)(Jan 2002)(Crude C++ translation)))
 *******************************************************************************/
 
 /* System include files. */
+#include <stdexcept>
 #include <math.h>
 
 /* Model include files. */
-#include "../include/Ball.hh"
+#include "BallForce.hh"
 
 /* ENTRY POINT */
-int Ball::force_field() /* RETURN: -- Always return zero. */
-{
+int BallForce::default_data() {
 
-   /* LOCAL VARIABLE DECLARATIONS */
-   double mag;
-   double rel_pos[2];
-   double unit[2];
+    // This data is the same as in the constructor.
+    input.origin[0] = 0.0 ;
+    input.origin[1] = 2.0 ;
+    input.force = 8.0 ;
 
-   /* GET SHORTHAND NOTATION FOR DATA STRUCTURES */
-   BallForceInput  * force_in  = &(this->force.input);
-   BallForceOutput * force_out = &(this->force.output);
-   double * ball_pos = this->state.output.position;
-
-   /* GET RELATIVE VECTOR FROM BALL TO FORCE ORIGIN */
-   rel_pos[0] = force_in->origin[0] - ball_pos[0];
-   rel_pos[1] = force_in->origin[1] - ball_pos[1];
-
-   /* GET UNIT VECTOR AND POSITION MAGNITUDE FROM BALL TO FORCE ORIGIN */
-   /* Note sigularity when ball position = force origin. */
-   mag = sqrt( rel_pos[0]*rel_pos[0] + rel_pos[1]*rel_pos[1] );
-   unit[0] = rel_pos[0] / mag;
-   unit[1] = rel_pos[1] / mag;
-
-   /* COMPUTE EXTERNAL FORCE ON BALL IN THE DIRECTION OF THE UNIT VECTOR */
-   force_out->force[0] = force_in->force * unit[0];
-   force_out->force[1] = force_in->force * unit[1];
-
-   /* RETURN */
-   return(0);
-
+    return(0) ;
 }
 

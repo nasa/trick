@@ -24,20 +24,25 @@ PROGRAMMERS:
 
 /* System include files. */
 #include <math.h>
-#include <iostream>
-#include <unistd.h>
 
 /* Model include files. */
-#include "../include/Ball.hh"
-#include "sim_services/Executive/include/exec_proto.hh"
-#include "sim_services/Executive/include/exec_proto.h"
-#include "sim_services/Message/include/message_proto.h"
+#include "Ball.hh"
 
      /* ENTRY POINT */
-int Ball::state_print() {
+int Ball::state_init() /* RETURN: -- Always return zero. */
+{
 
-   message_publish(MSG_NORMAL, "time = %8.2f , position = %12.6f , %12.6f\n",
-    exec_get_sim_time() , state.output.position[0] , state.output.position[1]) ;
+   /* GET SHORHAND NOTATION FOR DATA STRUCTURES */
+   BallStateInput  * state_in  = &(this->state.input);
+   BallStateOutput * state_out = &(this->state.output);
+
+   /* TRANSFER INPUT POSITION STATES TO OUTPUT POSITION STATES */
+   state_out->position[0] = state_in->position[0];  /* X state */
+   state_out->position[1] = state_in->position[1];  /* Y state */
+
+   /* TRANSFER INPUT SPEED AND ELEVATION INTO THE VELOCITY VECTOR */
+   state_out->velocity[0] =   state_in->speed * cos( state_in->elevation ); /* X velocity */
+   state_out->velocity[1] =   state_in->speed * sin( state_in->elevation ); /* Y velocity */
 
    /* RETURN */
    return( 0 );

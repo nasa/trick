@@ -18,58 +18,28 @@ ASSUMPTIONS AND LIMITATIONS:
 CLASS:
     (integration)
 LIBRARY DEPENDENCY:
-    ((BallStateInteg.o))
+    ((BallState_default_data.o))
 PROGRAMMERS:
     (((Robert W. Bailey) (Sweet Systems Inc) (March 1997) (Tutorial Lesson 1))
      ((Edwin Z. Crues)(Titan Systems Corp.)(Jan 2002)(Crude C++ translation)))
 *******************************************************************************/
 
-/* Model include files. */
-#include <stdio.h>
+#include <stdlib.h>
 
-#include "sim_services/Integrator/include/integrator_c_intf.h"
-#include "../include/Ball.hh"
-#include <iostream>
+/* Model include files. */
+#include "BallState.hh"
+#include "trick/constant.h"
+#include "trick/memorymanager_c_intf.h"
 
 /* ENTRY POINT */
-int Ball::state_integ() {
+int BallState::default_data() {
 
-   int ipass;
+    // This data is the same as in the constructor.
+    input.mass = 10.0 ;
+    input.speed = 3.5 ;
+    input.elevation = 45.0 * DTR ;
+    input.position[0] = 5.0 ;
+    input.position[1] = 5.0 ;
 
-   /* GET SHORTHAND NOTATION FOR DATA STRUCTURES */
-   BallStateOutput * state_out = &(this->state.output);
-
-   /* LOAD THE POSITION AND VELOCITY STATES */
-   load_state(
-       &state_out->position[0] ,
-       &state_out->position[1] ,
-       &state_out->velocity[0] ,
-       &state_out->velocity[1] ,
-       NULL
-   );
-
-   /* LOAD THE POSITION AND VELOCITY STATE DERIVATIVES */
-   load_deriv(
-       &state_out->velocity[0] ,
-       &state_out->velocity[1] ,
-       &state_out->acceleration[0] ,
-       &state_out->acceleration[1] ,
-       NULL 
-   );
-
-   /* CALL THE TRICK INTEGRATION SERVICE */
-   ipass = integrate();
-
-   /* UNLOAD THE NEW POSITION AND VELOCITY STATES */
-   unload_state(
-       &state_out->position[0] ,
-       &state_out->position[1] ,
-       &state_out->velocity[0] ,
-       &state_out->velocity[1] ,
-       NULL
-   );
-
-   /* RETURN */
-   return( ipass );
-
+    return(0);
 }

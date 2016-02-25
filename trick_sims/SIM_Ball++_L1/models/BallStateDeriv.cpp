@@ -28,10 +28,10 @@ PROGRAMMERS:
 #include <iostream>
 
 /* Trick include files. */
-#include "sim_services/include/collect_macros.h"
+#include "trick/collect_macros.h"
 
 /* Model include files. */
-#include "../include/Ball.hh"
+#include "Ball.hh"
 
 /* ENTRY POINT */
 int Ball::state_deriv() /* RETURN: -- Always return zero. */

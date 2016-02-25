@@ -1,5 +1,5 @@
 
-#include "Ball++/L1/include/BallForce.hh"
+#include "BallForce.hh"
 
 BallForceInput::BallForceInput() {
 

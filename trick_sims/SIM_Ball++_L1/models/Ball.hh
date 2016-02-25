@@ -15,13 +15,13 @@ ASSUMPTIONS AND LIMITATIONS:
     ((2 dimensional space)
      (Translational EOM only))
 LIBRARY DEPENDENCY:
-    ((../src/Ball.cpp)
-     (../src/BallStateDeriv.cpp)
-     (../src/BallStateInit.cpp)
-     (../src/BallStateInteg.cpp)
-     (../src/BallStatePrint.cpp)
-     (../src/BallForceField.cpp)
-     (../src/BallShutdown.cpp))
+    ((Ball.cpp)
+     (BallStateDeriv.cpp)
+     (BallStateInit.cpp)
+     (BallStateInteg.cpp)
+     (BallStatePrint.cpp)
+     (BallForceField.cpp)
+     (BallShutdown.cpp))
 PROGRAMMERS:
     (((Robert W. Bailey) (Sweet Systems Inc) (March 1997) (Tutorial Lesson 1))
      ((Edwin Z. Crues)(Titan Systems Corp.)(Jan 2002)(Crude C++ translation)))
@@ -43,7 +43,7 @@ PROGRAMMERS:
     @brief ball in C++
  */
 
-#include "sim_services/include/mm_macros.hh"
+#include "trick/mm_macros.hh"
 
 class Ball {
 

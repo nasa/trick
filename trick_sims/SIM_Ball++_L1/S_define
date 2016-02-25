@@ -9,7 +9,7 @@ LIBRARY DEPENDENCIES:
 #define TRICK_JSON_VARIABLE_SERVER
 #include "sim_objects/default_trick_sys.sm"
 
-##include "Ball++/L1/include/Ball.hh"
+##include "Ball.hh"
 
 /**
   This class is the base ball class

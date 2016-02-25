@@ -1,9 +1,9 @@
 
 #include <stdio.h>
 
-#include "Ball++/L1/include/BallState.hh"
-#include "trick_utils/units/include/constant.h"
-#include "sim_services/MemoryManager/include/memorymanager_c_intf.h"
+#include "BallState.hh"
+#include "trick/constant.h"
+#include "trick/memorymanager_c_intf.h"
 
 BallStateInput::BallStateInput() {
 

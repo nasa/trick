@@ -1,9 +1,6 @@
 /********************************* TRICK HEADER *******************************
 PURPOSE:
-    (Ball::force_field performs the following:
-        - computes a relative vector from the ball to the force field origin
-        - computes the unit vector in the direction of this relative vector
-        - scales the unit vector by the magnitude of the constant force field)
+    (Ball::Ball ball object constructor.)
 REFERENCE:
     (((Bailey, R.W, and Paddock, E.J.)
       (Trick Simulation Environment) (NASA:JSC #37943)
@@ -15,29 +12,35 @@ ASSUMPTIONS AND LIMITATIONS:
      (Y-axis is vertical and positive up)
      (resulting force is 'collect'ed in the S_define file))
 CLASS:
-    (derivative)
+    (N/A)
 LIBRARY DEPENDENCY:
-    ((BallForce_default_data.o))
+    ((Ball.o))
 PROGRAMMERS:
     (((Robert W. Bailey) (Sweet Systems Inc) (March 1997) (Tutorial Lesson 1))
      ((Edwin Z. Crues)(Titan Systems Corp.)(Jan 2002)(Crude C++ translation)))
 *******************************************************************************/
 
 /* System include files. */
-#include <stdexcept>
-#include <math.h>
+#include <iostream>
 
 /* Model include files. */
-#include "../include/BallForce.hh"
+#include "Ball.hh"
 
-/* ENTRY POINT */
-int BallForce::default_data() {
+// Default consructor.
+Ball::Ball() /* RETURN: -- None. */
+{
 
-    // This data is the same as in the constructor.
-    input.origin[0] = 0.0 ;
-    input.origin[1] = 2.0 ;
-    input.force = 8.0 ;
+   // Print out constructor message.
+   //cout << "In Ball constructor." << endl;
 
-    return(0) ;
+}
+
+// Destructor.
+Ball::~Ball() /* RETURN: -- None. */
+{
+
+   // Print out constructor message.
+   //cout << "In Ball destructor." << endl;
+
 }
 

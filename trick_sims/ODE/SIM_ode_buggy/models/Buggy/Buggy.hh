@@ -11,7 +11,7 @@ LIBRARY DEPENDENCY:
 
 #include <ode/common.h>
 #include <ode/src/objects.h>
-#include "ODE/DrawStuff/DrawStuffObject.hh"
+#include "DrawStuff/DrawStuffObject.hh"
 
 #if SWIG
 %apply float { dReal }

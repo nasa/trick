@@ -10,41 +10,41 @@ LIBRARY DEPENDENCIES:
 
 #include "sim_objects/default_trick_sys.sm"
 
-##include "ODE/Buggy/Buggy.hh"
-##include "ODE/DrawStuff/DrawStuff.hh"
+##include "Ball/Ball.hh"
+##include "DrawStuff/DrawStuff.hh"
 
 %{
-const double BuggySimObject::time_step = 0.05 ;
+const double OdeBallSimObject::time_step = 0.01 ;
 %}
 
 /**
   This class is the base ball class
  */
-class BuggySimObject : public Trick::SimObject {
+class OdeBallSimObject : public Trick::SimObject {
 
     public:
 
-        Buggy buggy ;
+        Ball ball ;
         DrawStuff drawstuff ;
 
         static const double time_step ;
 
         /** Constructor to add the jobs */
-        BuggySimObject() {
-            ("initialization") buggy.init() ;
-            (time_step, "scheduled") buggy.step(time_step) ;
+        OdeBallSimObject() {
+            ("initialization") ball.init() ;
+            (time_step, "scheduled") ball.step(time_step) ;
             DRAW_THREAD (1000000.0, "scheduled") drawstuff.draw() ;
             ("shutdown") drawstuff.shutdown() ;
-            ("shutdown") buggy.shutdown() ;
+            ("shutdown") ball.shutdown() ;
         }
 } ;
 
 // Instantiations
-BuggySimObject buggy_so ;
+OdeBallSimObject ball_so ;
 
 // Connect objects
 void create_connections() {
     // Set the default termination time
-    //exec_set_terminate_time(300.0) ;
+    exec_set_terminate_time(300.0) ;
 }
 
