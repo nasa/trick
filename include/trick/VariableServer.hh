@@ -315,7 +315,7 @@ int var_debug(int level) ;
 int var_ascii() ;
 int var_binary() ;
 int var_binary_nonames() ;
-int var_retry_bad_ref() ;
+int var_validate_address(int on_off) ;
 int var_set_copy_mode(int mode) ;
 int var_set_write_mode(int mode) ;
 int var_set_send_stdio(int mode) ;
