@@ -99,13 +99,7 @@ VerticalLabel* createVLabel(QWidget* parent,
                             const QModelIndex& plotIdx,
                             const QString& txt, const QColor &color)
 {
-#if 0
-    PlotBookModel* bookModel = plotModel->bookModel();
-    QStandardItem* item = bookModel->itemFromIndex(plotIdx);
-    QString itemText = item->text();
-#endif
-
-    VerticalLabel* w = new VerticalLabel(parent);
+    VerticalLabel* w = new VerticalLabel(plotModel,plotIdx,parent);
 
     w->setText(txt);
 
