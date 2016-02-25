@@ -57,7 +57,7 @@ public class SimSnifferApplication extends TrickApplication {
             if (row != -1) {
                 SimulationInformation simulationInformation =
                   simulations.get(simTable.convertRowIndexToModel(row));
-                launchTrickApplication("simcontrol",
+                launchTrickApplication("trick-simcontrol",
                   simulationInformation.machine + " " +
                   simulationInformation.noHandshakePort);
             }
