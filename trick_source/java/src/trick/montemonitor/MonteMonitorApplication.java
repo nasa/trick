@@ -582,7 +582,6 @@ public class MonteMonitorApplication extends RunTimeTrickApplication {
                     slave.name = data[dataIndex++];
                     if (data[dataIndex++].equals("BAD_REF")) {
                         slave.currentRun = new Integer(-1);
-                        variableServerConnection.resolveInvalidReferences();
                     }
                     else {
                         slave.currentRun = new Integer(data[dataIndex - 1]);

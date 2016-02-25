@@ -10,207 +10,204 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 /**
- * a generic variable server client that provides for sending commands and
- * receiving responses. Currently only handles a subset of Trick types in binary
- * mode.
- *
- * @author Derek Bankieris
- */
+* a generic variable server client that provides for sending commands and
+* receiving responses. Currently only handles a subset of Trick types in binary
+* mode.
+*
+* @author Derek Bankieris
+*/
 public class VariableServerConnection implements AutoCloseable {
 
-    /** maximum binary packet size sent by the Variable Server */
-    public static final int maximumPacketSize = 8192;
+/** maximum binary packet size sent by the Variable Server */
+public static final int maximumPacketSize = 8192;
 
-    /** Variable Server data mode */
-    public enum DataMode {ASCII, BINARY, BINARY_NO_NAMES};
+/** Variable Server data mode */
+public enum DataMode {ASCII, BINARY, BINARY_NO_NAMES};
 
-    /** This really shouldn't be necessary. MTV needs to retrieve Variable Server data better. */
-    public String results;
+/** This really shouldn't be necessary. MTV needs to retrieve Variable Server data better. */
+public String results;
 
-    /** connection to the Variable Server */
-    protected Socket socket;
+/** connection to the Variable Server */
+protected Socket socket;
 
-    /** Variable Server data mode */
-    protected DataMode dataMode = DataMode.ASCII;
+/** Variable Server data mode */
+protected DataMode dataMode = DataMode.ASCII;
 
-    /** Variable Server synchronized mode */
-    protected boolean sync = false;
+/** Variable Server synchronized mode */
+protected boolean sync = false;
 
-    /** tracks the paused status of the Variable Server */
-    protected boolean isPaused = false;
+/** tracks the paused status of the Variable Server */
+protected boolean isPaused = false;
 
-    /** receives commands from the Variable Server */
-    protected BufferedReader inputStream;
+/** receives commands from the Variable Server */
+protected BufferedReader inputStream;
 
-    /** sends commands to the Variable Server */
-    protected DataOutputStream outputStream;
+/** sends commands to the Variable Server */
+protected DataOutputStream outputStream;
 
-    /**
-     * attempts to connect to the Variable Server on the given host and port
-     *
-     * @param host Variable Server machine name
-     * @param port Variable Server port number
-     */
-    public VariableServerConnection(String host, int port) throws UnknownHostException, IOException, SecurityException {
-        socket = new Socket(host, port);
-        inputStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        outputStream = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
-    }
+/**
+* attempts to connect to the Variable Server on the given host and port
+*
+* @param host Variable Server machine name
+* @param port Variable Server port number
+*/
+public VariableServerConnection(String host, int port) throws UnknownHostException, IOException, SecurityException {
+socket = new Socket(host, port);
+inputStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+outputStream = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+}
 
-    /**
-     * sends the given command and any commands in the output stream's buffer
-     * to the Variable Server. The command is written to the output stream,
-     * and the buffer is flushed. A newline is automatically appended to the
-     * given command.
-     *
-     * @param command the Variable Server command to be sent
-     */
-    public void put(String command) throws IOException {
-        outputStream.writeBytes(command + "\n");
-        outputStream.flush();
-    }
+/**
+* sends the given command and any commands in the output stream's buffer
+* to the Variable Server. The command is written to the output stream,
+* and the buffer is flushed. A newline is automatically appended to the
+* given command.
+*
+* @param command the Variable Server command to be sent
+*/
+public void put(String command) throws IOException {
+outputStream.writeBytes(command + "\n");
+outputStream.flush();
+}
 
-    /**
-     * writes the command to the output stream. A newline is
-     * automatically appended. The buffer is not flushed.
-     *
-     * @param command the Variable Server command to be written
-     */
-    public void write(String command) throws IOException {
-        outputStream.writeBytes(command + "\n");
-    }
+/**
+* writes the command to the output stream. A newline is
+* automatically appended. The buffer is not flushed.
+*
+* @param command the Variable Server command to be written
+*/
+public void write(String command) throws IOException {
+outputStream.writeBytes(command + "\n");
+}
 
-    /**
-     * flushes the buffer, sending any pending commands to the Variable
-     * Server
-     */
-    public void flush() throws IOException {
-        outputStream.flush();
-    }
+/**
+* flushes the buffer, sending any pending commands to the Variable
+* Server
+*/
+public void flush() throws IOException {
+outputStream.flush();
+}
 
-    /**
-     * commands the Variable Server to send variable data in ASCII
-     */
-    public void setAscii() throws IOException {
-        if (dataMode != DataMode.ASCII) {
-            put("trick.var_ascii()");
-            dataMode = DataMode.ASCII;
-        }
-    }
+/**
+* commands the Variable Server to send variable data in ASCII
+*/
+public void setAscii() throws IOException {
+if (dataMode != DataMode.ASCII) {
+    put("trick.var_ascii()");
+    dataMode = DataMode.ASCII;
+}
+}
 
-    /**
-     * commands the Variable Server to send variable data in binary
-     */
-    public void setBinary() throws IOException {
-        if (dataMode != DataMode.BINARY) {
-            put("trick.var_binary()");
-            dataMode = DataMode.BINARY;
-        }
-    }
+/**
+* commands the Variable Server to send variable data in binary
+*/
+public void setBinary() throws IOException {
+if (dataMode != DataMode.BINARY) {
+    put("trick.var_binary()");
+    dataMode = DataMode.BINARY;
+}
+}
 
-    /**
-     * commands the Variable Server to send variable data in binary and to
-     * omit names
-     */
-    public void setBinaryNoNames() throws IOException {
-        if (dataMode != DataMode.BINARY_NO_NAMES) {
-            put("trick.var_binary_nonames()");
-            dataMode = DataMode.BINARY_NO_NAMES;
-        }
-    }
+/**
+* commands the Variable Server to send variable data in binary and to
+* omit names
+*/
+public void setBinaryNoNames() throws IOException {
+if (dataMode != DataMode.BINARY_NO_NAMES) {
+    put("trick.var_binary_nonames()");
+    dataMode = DataMode.BINARY_NO_NAMES;
+}
+}
 
-    /**
-     * sets the Variable Server to synchronized mode
-     */
-    public void setSync() throws IOException {
-        if (!sync) {
-            put("trick.var_sync(1)");
-            sync = true;
-        }
-    }
+/**
+* sets the Variable Server to synchronized mode
+*/
+public void setSync() throws IOException {
+if (!sync) {
+    put("trick.var_sync(1)");
+    sync = true;
+}
+}
 
-    /**
-     * commands the Variable Server to stop sending data
-     */
-    public void pause() throws IOException {
-        put("trick.var_pause()");
-        isPaused = true;
-    }
+/**
+* commands the Variable Server to stop sending data
+*/
+public void pause() throws IOException {
+put("trick.var_pause()");
+isPaused = true;
+}
 
-    /**
-     * commands the Variable Server to resume sending data
-     */
-    public void unpause() throws IOException {
-        put("trick.var_unpause()");
-        isPaused = false;
-    }
+/**
+* commands the Variable Server to resume sending data
+*/
+public void unpause() throws IOException {
+put("trick.var_unpause()");
+isPaused = false;
+}
 
-    /**
-     * returns the paused state of the Variable Server
-     *
-     * return whether or not the Variable Server is paused
-     */
-    public boolean isPaused() {
-        return isPaused;
-    }
+/**
+* returns the paused state of the Variable Server
+*
+* return whether or not the Variable Server is paused
+*/
+public boolean isPaused() {
+return isPaused;
+}
 
-    /**
-     * adds the named variable to the Variable Server
-     *
-     * @param name the name of the variable to be added
-     */
-    public void add(String name) throws IOException {
-        put("trick.var_add(\"" + name + "\")");
-    }
+/**
+* adds the named variable to the Variable Server
+*
+* @param name the name of the variable to be added
+*/
+public void add(String name) throws IOException {
+put("trick.var_add(\"" + name + "\")");
+}
 
-    /**
-     * adds the named variable to the Variable Server
-     *
-     * @param name the name of the variable to be added
-     * @param units the units to use
-     */
-    public void add(String name, String units) throws IOException {
-        boolean invalidUnits = units == null || units.isEmpty();
-        put("trick.var_add(\"" + name + (invalidUnits ? "" : "\", \"" + units) + "\")");
-    }
+/**
+* adds the named variable to the Variable Server
+*
+* @param name the name of the variable to be added
+* @param units the units to use
+*/
+public void add(String name, String units) throws IOException {
+boolean invalidUnits = units == null || units.isEmpty();
+put("trick.var_add(\"" + name + (invalidUnits ? "" : "\", \"" + units) + "\")");
+}
 
-    /**
-     * removes the named variable from the Variable Server
-     *
-     * @param name the name of the variable to be removeed
-     */
-    public void remove(String name) throws IOException {
-        put("trick.var_remove(\"" + name + "\")");
-    }
+/**
+* removes the named variable from the Variable Server
+*
+* @param name the name of the variable to be removeed
+*/
+public void remove(String name) throws IOException {
+put("trick.var_remove(\"" + name + "\")");
+}
 
-    /**
-     * clears all variables from the Variable Server
-     */
-    public void clear() throws IOException {
-        put("trick.var_clear()");
-    }
+/**
+* clears all variables from the Variable Server
+*/
+public void clear() throws IOException {
+put("trick.var_clear()");
+}
 
-    /**
-     * sets the period at which the Variable Server sends updates
-     *
-     * @param period the update period
-     */
-    public void setCycle(double period) throws IOException {
-        put("trick.var_cycle(" + period + ")");
-    }
+/**
+* sets the period at which the Variable Server sends updates
+*
+* @param period the update period
+*/
+public void setCycle(double period) throws IOException {
+put("trick.var_cycle(" + period + ")");
+}
 
-    /**
-     * requests a single update from the Variable Server
-     */
-    public void poll() throws IOException {
-        put("trick.var_send()");
-    }
+/**
+* requests a single update from the Variable Server
+*/
+public void poll() throws IOException {
+put("trick.var_send()");
+}
 
-    /**
-     * attempts to resolve all invalid variables
-     */
-    public void resolveInvalidReferences() throws IOException {
-        put("trick.var_retry_bad_ref()");
+    public void setValidateAddresses(boolean validate) throws IOException {
+        put("trick.var_validate_address(" + (validate ? "True" : "False") + ")");
     }
 
     /**

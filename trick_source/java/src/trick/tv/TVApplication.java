@@ -183,6 +183,9 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
     /** whether or not to treat character arrays as strings */
     boolean characterArraysAsStrings = false;
 
+    /** validate pointer addresses */
+    boolean validateAddresses = false;
+
     /** strip chart manager */
     protected StripChartManager stripChartManager = new StripChartManager();
 
@@ -205,6 +208,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
     final String fontSizeKey = "fontSize";
     final String defaultUnitsKey = "defaultUnits";
     final String characterArraysAsStringsKey = "characterArraysAsStrings";
+    final String validateAddressesKey = "validateAddresses";
 
     /** new action */
     protected AbstractAction newAction = new AbstractAction("New",
@@ -515,6 +519,9 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
         characterArraysAsStrings = Boolean.parseBoolean(trickProperties.getProperty(
           characterArraysAsStringsKey, Boolean.toString(characterArraysAsStrings)));
 
+        validateAddresses = Boolean.parseBoolean(trickProperties.getProperty(
+          validateAddressesKey, Boolean.toString(validateAddresses)));
+
         for (UnitType type : UnitType.values()) {
             String units = trickProperties.getProperty(type.toString());
             if (units != null && !units.equals(Unit.DEFAULT_UNITS.toString())) {
@@ -744,8 +751,16 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
                 );
             }};
 
+            JCheckBox validateAddressCheckBox = new JCheckBox("validate addresses") {{
+                setToolTipText(
+                  "<html>" +
+                  "Validate pointer addresses<br>" +
+                  "</html>"
+                );
+            }};
+
             {
-            setBorder(new TitledBorder("Variable Addition") {{
+            setBorder(new TitledBorder("Variable Properties") {{
                 setTitleJustification(CENTER);
             }});
 
@@ -762,11 +777,15 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
 
             add(asStringsCheckBox, constraints);
 
+            constraints.gridy = 2;
+            add(validateAddressCheckBox, constraints);
+
             settingsDialog.addBecomingVisibleListener(new BecomingVisibleListener() {
                 @Override
                 public void becomingVisible() {
                     comboBox.setSelectedItem(position);
                     asStringsCheckBox.setSelected(characterArraysAsStrings);
+                    validateAddressCheckBox.setSelected(validateAddresses);
                 }
             });
 
@@ -780,6 +799,14 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
                 public void commitChanges() {
                     position = (Position)comboBox.getSelectedItem();
                     characterArraysAsStrings = asStringsCheckBox.isSelected();
+                    validateAddresses = validateAddressCheckBox.isSelected();
+                    if (getConnectionState()) {
+                        try {
+                            variableServerConnection.setValidateAddresses(validateAddresses);
+                        }
+                        catch (IOException ignoreMe) {
+                        }
+                    }
                 }
             });
             }
@@ -1077,6 +1104,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
         }
 
         sendCyclePeriod();
+        variableServerConnection.setValidateAddresses(validateAddresses);
     }
 
     /**
@@ -1629,22 +1657,6 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
 
                 add(new JXButton(new AbstractAction() {
                     {
-                    putValue(NAME, "Resolve");
-                    putValue(SHORT_DESCRIPTION, "Attempt to resolve all invalid references.");
-                    putValue(MNEMONIC_KEY, KeyEvent.VK_V);
-                    }
-                    public void actionPerformed(ActionEvent actionEvent) {
-                        try {
-                            variableServerConnection.resolveInvalidReferences();
-                        }
-                        catch (IOException ioException) {
-                            disconnect(ioException);
-                        }
-                    }
-                }), constraints);
-
-                add(new JXButton(new AbstractAction() {
-                    {
                     putValue(NAME, "Purge");
                     putValue(SHORT_DESCRIPTION, "Remove all variables that failed to resolve to a valid address.");
                     putValue(MNEMONIC_KEY, KeyEvent.VK_P);
@@ -1861,6 +1873,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
         trickProperties.setProperty(fontSizeKey, Integer.toString(variableTree.getFont().getSize()));
         trickProperties.setProperty(defaultUnitsKey, Boolean.toString(defaultAllUnits));
         trickProperties.setProperty(characterArraysAsStringsKey, Boolean.toString(characterArraysAsStrings));
+        trickProperties.setProperty(validateAddressesKey, Boolean.toString(validateAddresses));
         for (UnitType type : UnitType.values()) {
             trickProperties.setProperty(type.toString(),
               defaultUnits.get(type.ordinal()).toString());
