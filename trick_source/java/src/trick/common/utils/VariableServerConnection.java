@@ -224,12 +224,8 @@ public class VariableServerConnection implements AutoCloseable {
         put("trick.var_send()");
     }
 
-    /**
-     * attempts to resolve all invalid variables
-     * @throws IOException IOException
-     */
-    public void resolveInvalidReferences() throws IOException {
-        put("trick.var_retry_bad_ref()");
+    public void setValidateAddresses(boolean validate) throws IOException {
+        put("trick.var_validate_address(" + (validate ? "True" : "False") + ")");
     }
 
     /**
