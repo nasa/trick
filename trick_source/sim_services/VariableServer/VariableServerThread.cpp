@@ -28,7 +28,7 @@ Trick::VariableServerThread::VariableServerThread(TCDevice * in_listen_dev) :
     pause_cmd = false ;
     exit_cmd = false ;
 
-    validate_address = true ;
+    validate_address = false ;
     send_stdio = false ;
 
     update_rate = 0.1 ;
