@@ -186,6 +186,11 @@ int Trick::VariableServerThread::var_exit() {
     return(0) ;
 }
 
+int Trick::VariableServerThread::var_validate_address(bool on_off) {
+    validate_address = on_off ;
+    return(0) ;
+}
+
 int Trick::VariableServerThread::var_debug(int level) {
     debug = level ;
     return(0) ;
@@ -204,11 +209,6 @@ int Trick::VariableServerThread::var_binary() {
 int Trick::VariableServerThread::var_binary_nonames() {
     binary_data = 1 ;
     binary_data_nonames = 1 ;
-    return(0) ;
-}
-
-int Trick::VariableServerThread::var_retry_bad_ref() {
-    retry_bad_ref = 1 ;
     return(0) ;
 }
 

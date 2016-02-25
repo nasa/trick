@@ -114,6 +114,15 @@ int var_exit() {
     return(0) ;
 }
 
+int var_validate_address(int on_off) {
+    Trick::VariableServerThread * vst ;
+    vst = get_vst() ;
+    if (vst != NULL ) {
+        vst->var_validate_address((bool)on_off) ;
+    }
+    return(0) ;
+}
+
 int var_debug(int level) {
     Trick::VariableServerThread * vst ;
     vst = get_vst() ;
@@ -142,11 +151,7 @@ int var_binary() {
 }
 
 int var_retry_bad_ref() {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->var_retry_bad_ref() ;
-    }
+    message_publish(MSG_WARNING,"var_retry_bad_ref has been deprecated\n") ;
     return(0) ;
 }
 

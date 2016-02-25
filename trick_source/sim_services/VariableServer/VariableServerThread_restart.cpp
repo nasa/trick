@@ -29,10 +29,6 @@ void Trick::VariableServerThread::restart() {
     // Set the pause state of this thread back to its "pre-checkpoint reload" state.
     pause_cmd = saved_pause_cmd ;
 
-    // Set retry_bad_ref so that variables in this varible server thread will
-    // be re-resolved to the newly re-created memory objects.
-    var_retry_bad_ref();
-
     // Allow data copying to continue.
     pthread_mutex_unlock(&copy_mutex);
 
