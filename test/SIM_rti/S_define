@@ -7,15 +7,12 @@ LIBRARY DEPENDENCIES:
 *************************************************************/
 
 #include "sim_objects/default_trick_sys.sm"
-##include "test_ip/include/ClassOfEverything.hh"
+##include "ClassOfEverything.hh"
 
 class testSimObject : public Trick::SimObject {
 
     public:
         ClassOfEverything obj ;
-        TEST_STRUCT t ;
-        my_ns::AA ns_test ;
-
         testSimObject() {}
 
     private:

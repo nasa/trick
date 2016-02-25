@@ -276,5 +276,6 @@ STLCheckpoint::STLCheckpoint(std::string in_name) {
 
 int STLCheckpoint::speak() {
     message_publish(1,"Quack!\n") ;
+    return 0 ;
 }
 

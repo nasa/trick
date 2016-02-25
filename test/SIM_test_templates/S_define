@@ -1,6 +1,6 @@
 #include "sim_objects/default_trick_sys.sm"
 
-##include "test_ip/include/TemplateTest.hh"
+##include "TemplateTest.hh"
 
 class templateSimObject : public Trick::SimObject {
 

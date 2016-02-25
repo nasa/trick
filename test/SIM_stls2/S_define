@@ -1,6 +1,6 @@
 #include "sim_objects/default_trick_sys.sm"
 
-##include "stl_checkpoint/include/STLCheckpoint.hh"
+##include "stl_checkpoint/STLCheckpoint.hh"
 
 /* This object tests having 2 of the same type of object containing STLs in the same sim_object.
    The checkpoints use the name of the objects to give the STLs unique and identifiable names
