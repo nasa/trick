@@ -14,18 +14,16 @@ int Trick::VariableServerThread::copy_sim_data() {
         return 0 ;
     }
 
-    if ( pthread_mutex_trylock(&copy_mutex) == 0 ) { 
+    if ( pthread_mutex_trylock(&copy_mutex) == 0 ) {
 
         for ( ii = 0 ; ii < vars.size() ; ii++ ) {
             curr_var = vars[ii] ;
 
             // if this variable is unresolved, try to resolve it
-            if ( retry_bad_ref ) {
-                if (curr_var->ref->address == &bad_ref_int) {
-                    REF2 *new_ref = ref_attributes(const_cast<char*>(curr_var->ref->reference));
-                    if (new_ref != NULL) {
-                        curr_var->ref = new_ref;
-                    }
+            if (curr_var->ref->address == &bad_ref_int) {
+                REF2 *new_ref = ref_attributes(const_cast<char*>(curr_var->ref->reference));
+                if (new_ref != NULL) {
+                    curr_var->ref = new_ref;
                 }
             }
 
@@ -34,12 +32,23 @@ int Trick::VariableServerThread::copy_sim_data() {
                 curr_var->address = follow_address_path(curr_var->ref) ;
                 if ( curr_var->address == NULL ) {
                     std::string save_name(curr_var->ref->reference) ;
-                    if ( curr_var->ref->attr) {
-                        free(curr_var->ref->attr) ;
-                    }
                     free(curr_var->ref) ;
                     curr_var->ref = make_error_ref(save_name) ;
                     curr_var->address = curr_var->ref->address ;
+                } else if ( validate_address ) {
+                    // The address is not NULL.
+                    // If validate_address is on, check the memory manager if the address falls into
+                    // any of the memory blocks it knows of.  Don't do this if we have a std::string or
+                    // wstring type, or we already are pointing to a bad ref.
+                    if ( (curr_var->string_type != TRICK_STRING) and
+                         (curr_var->string_type != TRICK_WSTRING) and
+                         (curr_var->ref->address != &bad_ref_int) and
+                         (get_alloc_info_of(curr_var->address) == NULL) ) {
+                        std::string save_name(curr_var->ref->reference) ;
+                        free(curr_var->ref) ;
+                        curr_var->ref = make_error_ref(save_name) ;
+                        curr_var->address = curr_var->ref->address ;
+                    }
                 } else {
                     curr_var->ref->address = curr_var->address ;
                 }
@@ -74,8 +83,6 @@ int Trick::VariableServerThread::copy_sim_data() {
             }
             memcpy( curr_var->buffer_in , curr_var->address , curr_var->size ) ;
         }
-
-        retry_bad_ref = false ;
 
         // Indicate that sim data has been written and is now ready in the buffer_in's of the vars variable list.
         var_data_staged = true;

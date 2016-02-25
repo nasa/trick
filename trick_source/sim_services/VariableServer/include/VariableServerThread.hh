@@ -171,6 +171,14 @@ namespace Trick {
             int var_exit() ;
 
             /**
+             @brief @userdesc Turns on validating addresses before they are referenced
+             @par Python Usage:
+             @code trick.var_validate_address() @endcode
+             @return always 0
+            */
+            int var_validate_address(bool on_off) ;
+
+            /**
              @brief @userdesc Command to instruct the variable server to output debug information.
              @par Python Usage:
              @code trick.var_debug(<level>) @endcode
@@ -204,14 +212,6 @@ namespace Trick {
              @return always 0
             */
             int var_binary_nonames() ;
-
-            /**
-             @brief @userdesc Command to look up bad references
-             @par Python Usage:
-             @code trick.var_retry_bad_ref() @endcode
-             @return always 0
-            */
-            int var_retry_bad_ref() ;
 
             /**
              @brief @userdesc Command to tell the server when to copy data
@@ -465,6 +465,9 @@ namespace Trick {
             /** Toggle to indicate var_exit commanded.\n */
             bool exit_cmd ;                  /**<  trick_io(**) */
 
+            /** Set to true to validate all addresses before copying.\n */
+            bool validate_address ;          /**<  trick_io(**) */
+
             /** The mutex to protect variable output buffers when copying variable values to them from Trick memory.\n */
             pthread_mutex_t copy_mutex ;     /**<  trick_io(**) */
 
@@ -503,9 +506,6 @@ namespace Trick {
 
             /** Toggle to tell variable server to send data multicast or point to point.\n */
             bool multicast ;                 /**<  trick_io(**) */
-
-            /** Toggle to look up bad refs.\n */
-            bool retry_bad_ref ;           /**<  trick_io(**) */
 
             /** Flag to indicate the connection has been made\n */
             bool connection_accepted ;       /**<  trick_io(**) */

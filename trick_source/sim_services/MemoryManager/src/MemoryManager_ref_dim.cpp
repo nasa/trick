@@ -51,6 +51,7 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
 
     } else {
 
+        R->pointer_present = 1 ;
         if ( R->create_add_path ) {
             ADDRESS_NODE * address_node ;
 

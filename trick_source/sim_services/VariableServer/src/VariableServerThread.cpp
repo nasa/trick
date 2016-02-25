@@ -24,11 +24,11 @@ Trick::VariableServerThread::VariableServerThread(TCDevice * in_listen_dev) :
     binary_data = false;
     multicast = false;
     byteswap = false ;
-    retry_bad_ref = false ;
 
     pause_cmd = false ;
     exit_cmd = false ;
 
+    validate_address = false ;
     send_stdio = false ;
 
     update_rate = 0.1 ;
