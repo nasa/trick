@@ -7,6 +7,12 @@
 
 #include "test_struct.h"
 
+#if (__linux)
+#  define TC_NOSIGNAL MSG_NOSIGNAL
+#else
+#  define TC_NOSIGNAL 0
+#endif
+
 int main () {
     int nbytes ;
     TEST_DATA_STRUCT tds ;
@@ -34,12 +40,12 @@ int main () {
     nbytes = 1 ;
     while( nbytes > 0 ) {
         nbytes = recvfrom(connection, &tds, sizeof(TEST_DATA_STRUCT),
-                          MSG_NOSIGNAL, (struct sockaddr *) &cliAddr, &cliLen) ;
+                          TC_NOSIGNAL, (struct sockaddr *) &cliAddr, &cliLen) ;
         fprintf(stderr, "nbytes = %d\n", nbytes ) ;
         fprintf(stderr, "tc_server int1 =%x int2 =%x\n", tds.int1 , tds.int2 ) ;
         fprintf(stderr, "tc_server long1=%lx long2=%lx\n", tds.long1 , tds.long2 ) ;
         if ( nbytes == sizeof(TEST_DATA_STRUCT)) {
-            sendto(connection, &tds, sizeof(TEST_DATA_STRUCT), MSG_NOSIGNAL,
+            sendto(connection, &tds, sizeof(TEST_DATA_STRUCT), TC_NOSIGNAL,
                                     (struct sockaddr *) &remoteServAddr,
                                     (socklen_t) sizeof(struct sockaddr_in)) ;
         }
