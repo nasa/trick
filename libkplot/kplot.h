@@ -1,19 +1,28 @@
-#ifndef PLOT_H
-#define PLOT_H
+#ifndef KPLOT_H
+#define KPLOT_H
 
 #include <QWidget>
 #include <QPainter>
+#include <QPainterPath>
 #include <QVector>
 #include <QList>
 #include <QTransform>
+#include <QHash>
+
+#include <float.h>
 
 #include "kplotmodel.h"
+#include "libsnapdata/trickcurvemodel.h"
 
 class KPlot : public QWidget
 {
     Q_OBJECT
 public:
-    explicit KPlot(KPlotModel *plotModel, QWidget *parent = 0);
+    explicit KPlot(KPlotModel *kPlotModel,
+                   const QModelIndex& plotIdx,
+                   QWidget *parent = 0);
+    ~KPlot();
+
     /*
     explicit KPlot(const QRectF& rect,   // in value coords
                         QWidget *parent = 0);
@@ -27,21 +36,25 @@ protected:
 
 private:
 
-    KPlotModel* _plotModel;
-    double _ptSize;   // Point size of pen (0 is "cosmetic", i.e. 1pt unscaled)
+    KPlotModel* _kPlotModel;
+    QPersistentModelIndex _plotIdx;
 
-    QRectF _rect;
-    QTransform _coordToPixelTransform() const;
-
+    void _paintTrickCurves();
     void _paintSinTestPattern();
     void _paintSinTest();
     QPainterPath _sinPath();
 
+    QHash<TrickCurveModel*,QPainterPath*> _curve2path;
+    void _createPainterPath(TrickCurveModel *curveModel);
 
 signals:
     
 public slots:
-    
+
+    void rowsInserted(const QModelIndex& pidx,
+                      int start,
+                      int end);
+
 };
 
-#endif // PLOT_H
+#endif // KPLOT_H

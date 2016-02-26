@@ -112,8 +112,8 @@ QList<double> KPlotModel::majorXTics()
     QRectF r = xyRect();
     double a = r.left();
     double b = r.right();
-    X = calcTicSet(a,b, M_PI/2.0);
-    //X = calcTicSet(a,b,1.0);
+    //X = calcTicSet(a,b, M_PI/2.0);
+    X = calcTicSet(a,b,1.0);
     return X;
 }
 
@@ -123,8 +123,8 @@ QList<double> KPlotModel::minorXTics()
     QRectF r = xyRect();
     double a = r.left();
     double b = r.right();
-    X = calcTicSet(a,b,M_PI/8.0);
-    //X = calcTicSet(a,b,1.0/4.0);
+    //X = calcTicSet(a,b,M_PI/8.0);
+    X = calcTicSet(a,b,1.0/4.0);
     return X;
 }
 

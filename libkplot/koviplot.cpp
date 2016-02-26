@@ -11,7 +11,7 @@ LabeledRuler *createLabeledRuler(QWidget* parent, KPlotModel* plotModel,
                                  Qt::Alignment align, const QColor &color);
 PlotCorner *createPlotCorner(QWidget* parent, KPlotModel* plotModel,
                              Qt::Corner corner, const QColor &color);
-KPlot* createPlot(QWidget* parent, KPlotModel* plotModel, const QColor& color);
+KPlot* createPlot(QWidget* parent, KPlotModel* plotModel, const QModelIndex &plotIdx, const QColor& color);
 bool isEqual(double a, double b, ulong maxD=10, bool isNeighborMethod=true);
 QList<double> calcTicSet(double aIn, double bIn, double u=1.0, double n=10.0);
 
@@ -29,7 +29,7 @@ KoviPlot::KoviPlot(PlotBookModel *bookModel,
     KPlotModel* plotModel = new KPlotModel(bookModel,plotIdx,this);
 
     // The composite plot widget is composed of 15 widgets
-    KPlot* a00 = createPlot(this, plotModel, Qt::white);
+    KPlot* a00 = createPlot(this, plotModel, plotIdx, Qt::white);
     plotModel->setPlotWidget(a00);
     PlotCorner* a01 = createPlotCorner(this, plotModel, Qt::TopLeftCorner, Qt::white);
     LinedRuler* a02 = createRuler(this, plotModel, Qt::AlignTop, Qt::white);
@@ -163,10 +163,12 @@ LabeledRuler *createLabeledRuler(QWidget* parent,
     return w;
 }
 
-KPlot *createPlot(QWidget* parent, KPlotModel *plotModel, const QColor &color)
+KPlot *createPlot(QWidget* parent,
+                  KPlotModel *plotModel, const QModelIndex& plotIdx,
+                  const QColor &color)
 {
     //Plot* w = new Plot(QRectF(0,1.0,2*M_PI,2.0),parent);
-    KPlot* w = new KPlot(plotModel,parent);
+    KPlot* w = new KPlot(plotModel,plotIdx,parent);
 
     QPalette pal(parent->palette());
     pal.setColor(QPalette::Window, color);
