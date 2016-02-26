@@ -1,0 +1,20 @@
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "ros_comm/ros_framework.hh"
+##include "ros_comm/ros_publish.hh"
+
+class RosPublishSimObject : public Trick::SimObject {
+
+    public:
+        RosFramework rf ;
+        RosPublish rp ;
+
+        RosPublishSimObject() : rf("talker") , rp() {
+            ("initialization") rp.init() ;
+            (0.5, "scheduled") rp.publish() ;
+            ("shutdown") rf.shutdown() ;
+        }
+} ;
+
+RosPublishSimObject rp_so ;
