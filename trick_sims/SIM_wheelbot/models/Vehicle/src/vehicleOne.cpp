@@ -25,10 +25,10 @@ int VehicleOne::default_data() {
     ZAxisMomentofInertia = 0.5 * vehicleMass * axelRadius * axelRadius;
 
     // Vehicle Controller Parameters
-    slowDownDistance = 0.2;
+    slowDownDistance = 0.5;
     arrivalDistance  = 0.1;
     wheelSpeedLimit = 8.880;
-    headingRateLimit = PI/3;
+    headingRateLimit = PI/4;
 
     // DCMotor Parameters
     // At 5v the following parameters will result in a current of
@@ -47,15 +47,12 @@ int VehicleOne::default_data() {
     // Dynamic State
     position[0] = 0.0;
     position[1] = 0.0;
-    position[2] = 0.0;
 
     velocity[0] = 0.0;
     velocity[1] = 0.0;
-    velocity[2] = 0.0;
 
     acceleration[0] = 0.0;
     acceleration[1] = 0.0;
-    acceleration[2] = 0.0;
 
     heading     = 0.0;
     headingRate = 0.0;
@@ -192,10 +189,8 @@ int VehicleOne::state_integ() {
                 &headingRate,
                 &position[0],
                 &position[1],
-                &position[2],
                 &velocity[0],
                 &velocity[1],
-                &velocity[2],
                 (double*)0
               );
 
@@ -204,10 +199,8 @@ int VehicleOne::state_integ() {
                 &headingAccel,
                 &velocity[0],
                 &velocity[1],
-                &velocity[2],
                 &acceleration[0],
                 &acceleration[1],
-                &acceleration[2],
                 (double*)0
               );
 
@@ -218,10 +211,8 @@ int VehicleOne::state_integ() {
                 &headingRate,
                 &position[0],
                 &position[1],
-                &position[2],
                 &velocity[0],
                 &velocity[1],
-                &velocity[2],
                 (double*)0
               );
 

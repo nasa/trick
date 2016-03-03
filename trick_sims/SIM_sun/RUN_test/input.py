@@ -59,10 +59,10 @@ sun_predictor.sun.observer_offset_from_UTC = -6
 """               LOCAL TIME                 """
 """ Set local time here.                     """
 """ ======================================== """
-sun_predictor.sun.local_time.year  = 2006
-sun_predictor.sun.local_time.month = 8
-sun_predictor.sun.local_time.day   = 15
-sun_predictor.sun.local_time.hour  = 0
+sun_predictor.sun.local_time.year  = 2016
+sun_predictor.sun.local_time.month = 2
+sun_predictor.sun.local_time.day   = 26
+sun_predictor.sun.local_time.hour  = 16
 sun_predictor.sun.local_time.min   = 0
 sun_predictor.sun.local_time.sec   = 0.0
 

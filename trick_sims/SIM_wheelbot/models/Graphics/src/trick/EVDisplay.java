@@ -22,6 +22,7 @@ import java.util.*;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import java.awt.Color;
 
 /**
  *
@@ -58,11 +59,13 @@ class ArenaMap extends JPanel {
 
     private List<Feature> featureList;
     private double metersPerPixel;
+    private Color groundColor;
 
     public ArenaMap(List<Feature> flist, double mapScale) {
         featureList = flist;
         metersPerPixel = mapScale;
         SetScale(mapScale);
+        groundColor = new Color(255,255,255);
     }
 
     public void SetScale (double mapScale) {
@@ -78,6 +81,9 @@ class ArenaMap extends JPanel {
 
         int width = getWidth();
         int height = getHeight();
+
+        g2d.setPaint(groundColor);
+        g2d.fillRect(0, 0, width, height);
 
         // Translate map origin to the center of the panel.
         Graphics2D gCenter = (Graphics2D)g2d.create();
@@ -181,23 +187,23 @@ public class EVDisplay extends JFrame {
             ++ii;
         }
 
-       if (port == 0) {
-           System.out.println("No variable server port specified.");
-           printHelpText();
-           System.exit(0);
-       }
+        if (port == 0) {
+            System.out.println("No variable server port specified.");
+            printHelpText();
+            System.exit(0);
+        }
 
-       if (wayPointsFile == null) {
-           System.out.println("No waypoints file specified. Use the -w option to specify a waypoints file.");
-           printHelpText();
-           System.exit(0);
-       }
+        if (wayPointsFile == null) {
+            System.out.println("No waypoints file specified. Use the -w option to specify a waypoints file.");
+            printHelpText();
+            System.exit(0);
+        }
 
-       if (vehicleImageFile == null) {
-           System.out.println("No vehicle image file specified. Use the -v option to specify the vehicle image file.");
-           printHelpText();
-           System.exit(0);
-       }
+        if (vehicleImageFile == null) {
+            System.out.println("No vehicle image file specified. Use the -v option to specify the vehicle image file.");
+            printHelpText();
+            System.exit(0);
+        }
 
         List<Feature> featureList = new ArrayList<>();
 
@@ -216,7 +222,8 @@ public class EVDisplay extends JFrame {
         Feature vehicle = new Feature(0, 0, Math.toRadians(0), vehicleImageFile);
         featureList.add(vehicle);
 
-        EVDisplay evd = new EVDisplay( new ArenaMap( featureList, 0.01));
+        double mapScale = 0.005; // 5 millimeters per pixel
+        EVDisplay evd = new EVDisplay( new ArenaMap( featureList, mapScale));
         evd.setVisible(true);
 
         System.out.println("Connecting to: " + host + ":" + port);

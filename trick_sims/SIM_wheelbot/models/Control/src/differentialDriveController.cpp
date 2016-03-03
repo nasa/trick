@@ -37,17 +37,18 @@ int DifferentialDriveController::update( double distance_err,  // m
     rightMotorSpeedCommand = 0.0;
     leftMotorSpeedCommand  = 0.0;
 
- //   double K = (2.0 * wheelRadius / distanceBetweenWheels);
-
-    if ( cos(heading_err) > 0.999 ) {
-        desiredHeadingRate = 0.0;
-    } else if (heading_err > 0.0 ) {
-        desiredHeadingRate =  headingRateLimit;
+    // If the vehicle heading is within 2 degrees of the target, then the
+    // heading desired heading rate is proportional to the heading error.
+    if ( cos(heading_err) > cos(2.0 * (PI/180.0))) {
+        desiredHeadingRate =  heading_err/(2.0*(PI/180.0)) * headingRateLimit;
     } else {
-        desiredHeadingRate = -headingRateLimit;
+        if (heading_err > 0.0) {
+            desiredHeadingRate =  headingRateLimit;
+        } else {
+            desiredHeadingRate =  -headingRateLimit;
+        }
     }
 
-//    double wheelSpeedForHeadingRate = desiredHeadingRate / K;
     double wheelSpeedForHeadingRate = (desiredHeadingRate * distanceBetweenWheels) / (2.0 * wheelRadius);
 
     double availableWheelSpeedForRangeRate = wheelSpeedLimit - fabs(wheelSpeedForHeadingRate);

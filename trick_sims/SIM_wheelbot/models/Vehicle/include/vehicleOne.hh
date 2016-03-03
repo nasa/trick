@@ -30,17 +30,16 @@ class VehicleOne {
     double arrivalDistance;           /* m */
     double wheelSpeedLimit;           /* r/s */
     double headingRateLimit;          /* r/s */
+    double wheelDragConstant;         /* */
+    double corningStiffness;          /* */
 
     // DCMotor Parameters
     double DCMotorInternalResistance; /* ohm */
     double DCMotorTorqueConstant;     /* N*m/amp */
 
-    double wheelDragConstant;
-    double corningStiffness;
-
-    double position[3];              /* m */
-    double velocity[3];              /* m/s */
-    double acceleration[3];          /* m/s2 */
+    double position[2];              /* m */
+    double velocity[2];              /* m/s */
+    double acceleration[2];          /* m/s2 */
 
     double heading;                  /* r */
     double headingRate;              /* r/s */
