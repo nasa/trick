@@ -121,6 +121,7 @@ declaration: TYPE name_list ';' {
                  }
                  for ( i = 0 ; i < $2.num_vars ; i++ ) {
                      free($2.var_declare[i].dim_list) ;
+                     free($2.var_declare[i].name) ;
                  }
                  free($2.var_declare) ;
              }
@@ -141,7 +142,8 @@ declaration: TYPE name_list ';' {
                  }
                  free( $1 ) ;
                  for ( i = 0 ; i < $2.num_vars ; i++ ) {
-                         free($2.var_declare[i].dim_list) ;
+                     free($2.var_declare[i].dim_list) ;
+                     free($2.var_declare[i].name) ;
                  }
                  free($2.var_declare) ;
             }
@@ -230,11 +232,13 @@ trick_funcs: ECHO_ON ';' {
                      ss << "Checkpoint Agent INFO: DEBUG_LEVEL set to " << debug_level << "." << std::endl;
                      message_publish( MSG_INFO, ss.str().c_str() );
                  }
+                 free( $1 ) ;
              }
-           | NAME '(' ')' ';' { 
+           | NAME '(' ')' ';' {
                  if (strcmp("clear_all_vars",$1) == 0) {
                      IP->mem_mgr->clear_all_vars();
                  }
+                 free( $1 ) ;
              }
            ;
 
@@ -288,6 +292,11 @@ assignment: reference assignment_item ';' {
         IP->bad_assignment_count ++;
     }
     delete_v_tree($2);
+
+    // Free the ATTRIBUTES created by ref_var().
+    if ($1.attr) {
+        free($1.attr);
+    }
 }
 
 assignment_item: v_data {
