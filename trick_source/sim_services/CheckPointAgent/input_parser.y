@@ -293,10 +293,6 @@ assignment: reference assignment_item ';' {
     }
     delete_v_tree($2);
 
-    // Free the ATTRIBUTES created by ref_var().
-    if ($1.attr) {
-        free($1.attr);
-    }
 }
 
 assignment_item: v_data {
