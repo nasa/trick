@@ -96,8 +96,6 @@ param: NAME {
     if ((ret = context->mem_mgr->ref_var( &$$, $1)) != MM_OK) {
         return ( ret);
     }
-    // save the reference attributes allocated by ref_var so we can delete it after ref_name is called.
-    context->reference_attr = $$.attr ;
 
     $$.num_index_left = $$.attr->num_index;
     $$.reference = $1 ;
@@ -126,8 +124,6 @@ param: NAME {
         Trick::MemoryManager::emitError(message.str());
         return ( ret);
     }
-    // save the reference attributes allocated by ref_var so we can delete it after ref_name is called.
-    context->reference_attr = $$.attr ;
 
     $$.num_index_left = $$.attr->num_index;
     //$$.reference = strdup($2) ;
@@ -166,12 +162,6 @@ param: NAME {
 
     if ((ret = context->mem_mgr->ref_name(&$$, $3)) != MM_OK) {
         return (ret);
-    }
-
-    // free the reference attributes, ref_name overwrites $$.attr without freeing it
-    if ( context->reference_attr ) {
-        free(context->reference_attr) ;
-        context->reference_attr = NULL ;
     }
 
     /* create a new reference string because previous nodes may refer to old strings */

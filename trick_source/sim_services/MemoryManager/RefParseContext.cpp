@@ -9,7 +9,6 @@
    // Set verif input and echo input flags.
    verify_input = 0;
    echo_input = 1;
-   reference_attr = NULL ;
 
    // Initialize the scanner
    init_scanner();

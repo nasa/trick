@@ -59,6 +59,7 @@ typedef struct {
     void* address;          /**< ** Address of the specified reference */
     V_DATA v_data;          /**< ** Value */
     ATTRIBUTES* attr;       /**< -- Parameter attributes */
+    ATTRIBUTES* ref_attr;   /**< -- Dynamically allocated reference attribute. */
     int create_add_path ;   /**< ** bool to shortcut to resolve address */ 
     DLLIST * address_path ; /**< ** shortcut to resolve address */ 
 } REF2;

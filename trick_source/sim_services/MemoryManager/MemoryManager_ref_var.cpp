@@ -15,8 +15,9 @@ int Trick::MemoryManager::ref_var( REF2* R,
     if (pos != variable_map.end()) {
         alloc_info = pos->second;
         R->attr = make_reference_attr( alloc_info);
+        R->ref_attr = R->attr;
         R->address = alloc_info->start;
-        
+
         if ( R->create_add_path ) {
             ADDRESS_NODE * address_node ;
 

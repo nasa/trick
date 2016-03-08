@@ -21,7 +21,6 @@ public:
     int verify_input;                /**< -- Verify input runstream syntax flag */
     int echo_input;                  /**< -- OBSOLETE? Echo Initialization Data flag */
     REF2 *result;                    /**< ** Resulting REF2 structure from the reference parser.*/
-    ATTRIBUTES * reference_attr ;    /**< ** saved reference attr to be deleted after ref_name is called */
     std::istream *is;                /**< ** Input Stream.*/
     void *scanner;                   /**< ** flex/bision scanner varaible. Magic! */
     Trick::MemoryManager *mem_mgr;   /**< ** Memory Manager. */

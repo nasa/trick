@@ -98,9 +98,17 @@ int Trick::MemoryManager::ref_name(REF2 * R, char *name) {
         }
     }
 
-    /* Save the address and next attributes in the REF structure */
+    /* Save the address and next attributes in the REF structure.
+       If the attributes are dynamically-allocated, reference attributes
+       then free them so we don't leak memory.
+    */
+    if (R->attr == R->ref_attr) {
+        free(R->ref_attr);
+        R->ref_attr = NULL;
+    }
     R->attr = attr;
     R->address = addr;
+
 
     return (MM_OK);
 }

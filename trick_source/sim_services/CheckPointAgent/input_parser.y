@@ -293,6 +293,13 @@ assignment: reference assignment_item ';' {
     }
     delete_v_tree($2);
 
+    /* If the attributes are dynamically-allocated, reference
+     * attributes then free them so we don't leak memory.
+     */
+    if ($1.attr == $1.ref_attr) {
+        free($1.ref_attr);
+        $1.ref_attr = NULL;
+    }
 }
 
 assignment_item: v_data {
