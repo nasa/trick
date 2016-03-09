@@ -12,6 +12,7 @@
 #include "trick/reference.h"
 #include "trick/parameter_types.h"
 #include "trick/mm_error.h"
+#include <stdlib.h> 
 
 //FIXME TODO make a error file
 /////// MM_NO_ERROR 0
