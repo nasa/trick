@@ -5504,7 +5504,17 @@ fi
 # Check whether --with-hdf5 was given.
 if test "${with_hdf5+set}" = set; then :
   withval=$with_hdf5; HDF5_HOME="$withval"
-                 as_ac_File=`$as_echo "ac_cv_file_$HDF5_HOME/include/hdf5.h" | $as_tr_sh`
+                 if test "$HDF5_HOME" = "yes"; then :
+  ac_fn_cxx_check_header_mongrel "$LINENO" "hdf5.h" "ac_cv_header_hdf5_h" "$ac_includes_default"
+if test "x$ac_cv_header_hdf5_h" = xyes; then :
+  HDF5_HOME="/usr"
+else
+  as_fn_error $? "could not find hdf5.h" "$LINENO" 5
+fi
+
+
+else
+  as_ac_File=`$as_echo "ac_cv_file_$HDF5_HOME/include/hdf5.h" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $HDF5_HOME/include/hdf5.h" >&5
 $as_echo_n "checking for $HDF5_HOME/include/hdf5.h... " >&6; }
 if eval \${$as_ac_File+:} false; then :
@@ -5529,6 +5539,7 @@ else
 fi
 
 
+fi
 else
   HDF5_HOME=""
 
@@ -5541,7 +5552,17 @@ fi
 # Check whether --with-dmtcp was given.
 if test "${with_dmtcp+set}" = set; then :
   withval=$with_dmtcp; DMTCP_HOME="$withval"
-                 as_ac_File=`$as_echo "ac_cv_file_$DMTCP_HOME/include/dmtcpaware.h" | $as_tr_sh`
+                 if test "$DMTCP_HOME" = "yes"; then :
+  ac_fn_cxx_check_header_mongrel "$LINENO" "dmtcpaware.h" "ac_cv_header_dmtcpaware_h" "$ac_includes_default"
+if test "x$ac_cv_header_dmtcpaware_h" = xyes; then :
+  DMTCP_HOME="/usr"
+else
+  as_fn_error $? "could not find dmtcpaware.h" "$LINENO" 5
+fi
+
+
+else
+  as_ac_File=`$as_echo "ac_cv_file_$DMTCP_HOME/include/dmtcpaware.h" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $DMTCP_HOME/include/dmtcpaware.h" >&5
 $as_echo_n "checking for $DMTCP_HOME/include/dmtcpaware.h... " >&6; }
 if eval \${$as_ac_File+:} false; then :
@@ -5566,6 +5587,7 @@ else
 fi
 
 
+fi
 else
   DMTCP_HOME=""
 
@@ -5652,7 +5674,17 @@ fi
 # Check whether --with-gsl was given.
 if test "${with_gsl+set}" = set; then :
   withval=$with_gsl; GSL_HOME="$withval"
-                 as_ac_File=`$as_echo "ac_cv_file_$GSL_HOME/include/gsl" | $as_tr_sh`
+                 if test "$GSL_HOME" = "yes"; then :
+  ac_fn_cxx_check_header_mongrel "$LINENO" "gsl/gsl_rng.h" "ac_cv_header_gsl_gsl_rng_h" "$ac_includes_default"
+if test "x$ac_cv_header_gsl_gsl_rng_h" = xyes; then :
+  GSL_HOME="/usr"
+else
+  as_fn_error $? "could not find gsl/gsl_rng.h" "$LINENO" 5
+fi
+
+
+else
+  as_ac_File=`$as_echo "ac_cv_file_$GSL_HOME/include/gsl" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $GSL_HOME/include/gsl" >&5
 $as_echo_n "checking for $GSL_HOME/include/gsl... " >&6; }
 if eval \${$as_ac_File+:} false; then :
@@ -5677,6 +5709,7 @@ else
 fi
 
 
+fi
 else
   GSL_HOME=""
 

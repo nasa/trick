@@ -20,11 +20,13 @@ AC_DEFUN([AX_HDF5_HOME],[
     AC_ARG_WITH([hdf5],
                 AS_HELP_STRING([--with-hdf5@<:@=DIR@:>@], [HDF5 root directory]),
                 [HDF5_HOME="$withval"
-                 AC_CHECK_FILE([$HDF5_HOME/include/hdf5.h],
+                 AS_IF([test "$HDF5_HOME" = "yes"],
+                  AC_CHECK_HEADER(hdf5.h,[HDF5_HOME="/usr"],AC_MSG_ERROR([could not find hdf5.h])),
+                  AC_CHECK_FILE([$HDF5_HOME/include/hdf5.h],
                                [],
                                AC_MSG_ERROR([could not find $HDF5_HOME/include/hdf5.h])
                               )
-                ],
+                )],
                 [HDF5_HOME=""]
                )
     AC_SUBST([HDF5_HOME])
@@ -34,11 +36,13 @@ AC_DEFUN([AX_DMTCP_HOME],[
     AC_ARG_WITH([dmtcp],
                 AS_HELP_STRING([--with-dmtcp@<:@=DIR@:>@], [DMTCP root directory]),
                 [DMTCP_HOME="$withval"
-                 AC_CHECK_FILE([$DMTCP_HOME/include/dmtcpaware.h],
+                 AS_IF([test "$DMTCP_HOME" = "yes"],
+                  AC_CHECK_HEADER(dmtcpaware.h,[DMTCP_HOME="/usr"],AC_MSG_ERROR([could not find dmtcpaware.h])),
+                  AC_CHECK_FILE([$DMTCP_HOME/include/dmtcpaware.h],
                                [],
                                AC_MSG_ERROR([could not find $DMTCP_HOME/include/dmtcpaware.h])
                               )
-                ],
+                )],
                 [DMTCP_HOME=""]
                )
     AC_SUBST([DMTCP_HOME])
@@ -76,11 +80,13 @@ AC_DEFUN([AX_GSL_HOME],[
     AC_ARG_WITH([gsl],
                 AS_HELP_STRING([--with-gsl@<:@=DIR@:>@], [GSL root directory]),
                 [GSL_HOME="$withval"
-                 AC_CHECK_FILE([$GSL_HOME/include/gsl],
+                 AS_IF([test "$GSL_HOME" = "yes"],
+                  AC_CHECK_HEADER(gsl/gsl_rng.h,[GSL_HOME="/usr"],AC_MSG_ERROR([could not find gsl/gsl_rng.h])),
+                  AC_CHECK_FILE([$GSL_HOME/include/gsl],
                                [],
                                AC_MSG_ERROR([could not find $GSL_HOME/include/gsl])
                               )
-                ],
+                )],
                 [GSL_HOME=""]
                )
     AC_SUBST([GSL_HOME])
