@@ -37,6 +37,7 @@ FieldDescription::FieldDescription(
   is_record(0) ,
   is_static(0) ,
   has_type(0) ,
+  has_dims(0) ,
   num_dims(0) ,
   array_sizes() {} ;
 
@@ -383,6 +384,14 @@ void FieldDescription::setHasType( bool yes_no ) {
 
 bool FieldDescription::hasType() {
     return has_type ;
+}
+
+void FieldDescription::setHasDims( bool yes_no ) {
+    has_dims = yes_no ;
+}
+
+bool FieldDescription::hasDims() {
+    return has_dims ;
 }
 
 unsigned int FieldDescription::getNumDims() {
