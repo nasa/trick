@@ -3,6 +3,9 @@
 #include "trick/RealtimeSync.hh"
 #include "trick/realtimesync_proto.h"
 #include "trick/exec_proto.h"
+#include "trick/message_proto.h"
+#include "trick/message_type.h"
+
 
 /* Global singleton pointer to the real-time synchronization */
 extern Trick::RealtimeSync * the_rts ;
@@ -85,3 +88,47 @@ int real_time_change_timer(Trick::Timer * in_sleep_timer ) {
 extern "C" int real_time_set_rt_clock_ratio(double in_clock_ratio) {
     return the_rts->set_rt_clock_ratio(in_clock_ratio) ;
 }
+
+// The lock memory functions are most closely related to real-time but are
+// not required for syncing.  Therefore keep the routines as stand
+// alone C functions.
+
+#if __linux
+#include <sys/mman.h>
+#include <errno.h>
+#endif
+
+extern "C" int real_time_lock_memory(int yes_no) {
+    /* lock or unlock memory based on yes_no parameter */
+    int ret = 0 ;
+#if __linux
+    if ( yes_no ) {
+        if ((ret = mlockall(MCL_CURRENT | MCL_FUTURE)) != 0 ) { 
+            perror("Error locking memory.");
+            message_publish(MSG_ERROR, "Error %d when requesting memory lock.\n", errno);
+        } else {
+            message_publish(MSG_INFO, "Sim locked memory\n");
+        }
+    } else {
+        if ( (ret = munlockall()) != 0 ) { 
+            perror("Error unlocking memory.");
+            message_publish(MSG_ERROR, "Error %d when requesting memory unlock.\n", errno);
+        } else {
+            message_publish(MSG_INFO, "Sim unlocked memory\n");
+        }
+
+    }
+#endif
+#if __APPLE__
+    (void)yes_no ;
+    message_publish(MSG_WARNING, "Warning: Trick on Darwin does not yet support memory locking.\n");
+#endif
+    return ret ;
+}
+
+
+extern "C" int exec_set_lock_memory(int yes_no) {
+    message_publish(MSG_WARNING, "Warning: exec_set_lock_memory deprecated.  Use real_time_lock_memory (auto-called)\n");
+    return real_time_lock_memory(yes_no) ;
+}
+

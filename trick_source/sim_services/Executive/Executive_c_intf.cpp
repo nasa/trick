@@ -889,18 +889,6 @@ extern "C" int exec_set_job_cycle(const char * job_name, int instance, double in
 
 /**
  * @relates Trick::Executive
- * @copydoc Trick::Executive::set_lock_memory
- * C wrapper for Trick::Executive::set_lock_memory
- */
-extern "C" int exec_set_lock_memory(int yes_no) {
-    if ( the_exec != NULL ) {
-        return the_exec->set_lock_memory((bool)yes_no) ;
-    }
-    return -1 ;
-}
-
-/**
- * @relates Trick::Executive
  * @copydoc Trick::Executive::add_depends_on_job
  * C wrapper for Trick::Executive::add_depends_on_job
  */

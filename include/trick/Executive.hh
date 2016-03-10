@@ -1115,15 +1115,6 @@ namespace Trick {
             virtual int set_thread_cpu_affinity(unsigned int thread_id , int cpu_num) ;
 
             /**
-             @userdesc Commmand to lock all of the process's memory into RAM, preventing it from being swapped out.
-             @par Python Usage:
-             @code trick.exec_set_lock_memory(<yes_no>) @endcode
-             @param yes_no - boolean (C integer 0/1) indicating if we lock memory
-             @return the return code of system lock call
-            */
-            virtual int set_lock_memory(bool yes_no) ;
-
-            /**
              @userdesc Command to run the simulation (after a freeze). Set exec_command to RunCmd.
              @par Python Usage:
              @code trick.run() @endcode

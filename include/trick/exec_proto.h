@@ -48,7 +48,6 @@ extern "C" {
     int exec_set_enable_freeze( int on_off ) ;
     int exec_set_job_cycle(const char * job_name, int instance_num, double in_cycle) ;
     int exec_set_job_onoff(const char * job_name , int instance_num, int on) ;
-    int exec_set_lock_memory(int yes_no) ;
     int exec_set_rt_nap(int on_off) ;
     int exec_set_sim_object_onoff(const char * sim_object_name , int on) ;
     int exec_set_software_frame(double) ;
