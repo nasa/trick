@@ -77,6 +77,8 @@ class FieldDescription : public ConstructValues {
         bool isVirtualInherited() ;
         void setHasType( bool yes_no ) ;
         bool hasType() ;
+        void setHasDims( bool yes_no ) ;
+        bool hasDims() ;
         void setAccess( clang::AccessSpecifier in_val ) ;
         clang::AccessSpecifier getAccess() ;
 
@@ -157,6 +159,9 @@ class FieldDescription : public ConstructValues {
 
         /** Have we resolved the type for this parameter? */
         bool has_type ;
+
+        /** Have we resolved the dimensions for this parameter? */
+        bool has_dims ;
 
         /** map of strings to io numbers.  One copy for all fields */
         static std::map<std::string , unsigned int> io_map ;

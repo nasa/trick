@@ -130,7 +130,9 @@ bool FieldVisitor::VisitBuiltinType(clang::BuiltinType *bt) {
 
 bool FieldVisitor::VisitConstantArrayType(clang::ConstantArrayType *cat) {
     //cat->dump() ; std::cout << std::endl ;
-    fdes->addArrayDim(cat->getSize().getZExtValue()) ;
+    if ( ! fdes->hasDims() ) {
+        fdes->addArrayDim(cat->getSize().getZExtValue()) ;
+    }
     return true;
 }
 
@@ -207,16 +209,31 @@ bool FieldVisitor::VisitFieldDecl( clang::FieldDecl *field ) {
         fdes->setBitFieldStart( 32 - (field_offset_bits % 32) - fdes->getBitFieldWidth()) ;
         fdes->setBitFieldByteOffset((field_offset_bits / 32) * 4 ) ;
     }
+
+    clang::QualType qt = field->getType() ;
+    // If the current type is not canonical because of typedefs, traverse the canonical type
+    if ( !qt.isCanonical() ) {
+        clang::QualType ct = qt.getCanonicalType() ;
+        TraverseType(ct) ;
+        // Traversing the canonical type will set the has_type flag.  Set the has_dims flag too so
+        // when we continue parsing the AST and the non-canonical type, we don't double add dimensions.
+        fdes->setHasDims(true) ;
+    }
     return true ;
 }
 
 bool FieldVisitor::VisitElaboratedType(clang::ElaboratedType *et) {
+    if ( debug_level >= 4 ) {
+        std::cout << "FieldVisitor VisitElaboratedType" << std::endl ;
+    }
     //et->dump() ; std::cout << std::endl ;
     return true ;
 }
 
 bool FieldVisitor::VisitPointerType(clang::PointerType *p) {
-    fdes->addArrayDim(-1) ;
+    if ( ! fdes->hasDims() ) {
+        fdes->addArrayDim(-1) ;
+    }
     return true;
 }
 
@@ -242,8 +259,17 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
     //std::cout << "hasNameForLinkage " << rt->getDecl()->hasNameForLinkage() << std::endl ;
     if ( rt->getDecl()->hasNameForLinkage() ) {
         if ( rt->getDecl()->getDeclName() ) {
-            //std::cout << "getDeclName " << rt->getDecl()->getDeclName().getAsString() << std::endl ;
-            fdes->setTypeName(rt->getDecl()->getQualifiedNameAsString()) ;
+            std::string type_name = rt->getDecl()->getQualifiedNameAsString() ;
+            // Handle the string class differently than regular records.
+            if ( ! type_name.compare("std::basic_string") || !type_name.compare("std::__1::basic_string")) { 
+                fdes->setEnumString("TRICK_STRING") ;
+                fdes->setTypeName("std::string") ;
+                fdes->setHasType(true) ;
+                return true ;
+            } else {
+                //std::cout << "getDeclName " << type_name << std::endl ;
+                fdes->setTypeName(type_name) ;
+            }
         } else {
             //std::cout << "getTypedefNameForAnonDecl " << rt->getDecl()->getTypedefNameForAnonDecl() << std::endl ;
             fdes->setTypeName(rt->getDecl()->getTypedefNameForAnonDecl()->getQualifiedNameAsString()) ;
@@ -448,6 +474,11 @@ bool FieldVisitor::VisitTypedefType(clang::TypedefType *tt) {
 
         fdes->setHasType(true) ;
     } else if ( tt->isRecordType() ) {
+
+        if ( debug_level >= 4 ) {
+            std::cout << "FieldVisitor isRecordType" << std::endl ;
+        }
+
         std::string type_name = tt->desugar().getAsString() ;
         if ((pos = type_name.find("struct ")) != std::string::npos ) {
             type_name.erase(pos , 7) ;
