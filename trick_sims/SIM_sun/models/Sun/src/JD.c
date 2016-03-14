@@ -1,5 +1,5 @@
-/******************************************************************* 
- * @\file JD.c 
+/*******************************************************************
+ * @\file JD.c
  * @\brief This is the JD.c file
  * Reference(s):
  * (1) Meeus,Jean."Astronomical Algorithms",
@@ -10,28 +10,38 @@
 
 #include <stdio.h>
 #include <math.h>
-#include "JD.h" 
+#include "JD.h"
 
 int is_gregorian_date (int Y, int M, double D) {
-    return ((Y>1582)||((Y==1582)&&(M>10))||((Y==1582)&&(M==10)&&(D>=15.0))); 
+    return ((Y>1582)||((Y==1582)&&(M>10))||((Y==1582)&&(M==10)&&(D>=15.0)));
 }
 
 int is_julian_date (int Y, int M, double D) {
-    return ((Y<1582)||((Y==1582)&&(M<10))||((Y==1582)&&(M==10)&&(D<5.0))); 
+    return ((Y<1582)||((Y==1582)&&(M<10))||((Y==1582)&&(M==10)&&(D<5.0)));
 }
 
 /* The algorithm for this function is described on page 60 of ref(1). */
-int Calendar_Date_to_JD (int Y, int M, float D, double * JD) {
+int Calendar_Date_to_JD (int Y, int M, double D, double * JD) {
 
   int A, B;
+
   /* Is the day valid? */
-  if ((D < 1.0) || (M >= 32.0)) return -1;
+  if ((D < 1.0) || (M >= 32.0)) {
+      printf("%s: Day Invalid.", __FUNCTION__);
+      return -1;
+  }
 
   /* Is the month valid? */
-  if ((M < 1) || (M > 12)) return -1;
+  if ((M < 1) || (M > 12)) {
+      printf("%s: Month Invalid.", __FUNCTION__);
+      return -1;
+  }
 
   /* Is the year valid? */
-  if ((Y < -4712) || ((Y == -4712) && (D < 1.5))) return -1;
+  if ((Y < -4712) || ((Y == -4712) && (D < 1.5))) {
+      printf("%s: Year Invalid.", __FUNCTION__);
+      return -1;
+  }
 
   if (M <= 2) {
     Y = Y - 1;
@@ -45,21 +55,21 @@ int Calendar_Date_to_JD (int Y, int M, float D, double * JD) {
   } else if (is_julian_date (Y,M,D)) {
     B = 0;
   } else {
-    return -1;   
+    return -1;
   }
- 
-  *JD = (int)(365.25 * (Y + 4716)) + (int)(30.6001 * (M+1)) + D + B - 1524.5; 
-  
+
+  *JD = (int)(365.25 * (Y + 4716)) + (int)(30.6001 * (M+1)) + D + B - 1524.5;
+
   return 0;
 }
 
 /* The algorithm for this function is described on page 63 of ref(1). */
-void JD_to_Calendar_Date (double JD, int *Year, int *Month, float *Day) {
+void JD_to_Calendar_Date (double JD, int *Year, int *Month, double *Day) {
 
      int Z,A,B,C,D,E;
      int alpha, year, month;
-     float day;
-     float F;
+     double day;
+     double F;
 
      Z = (int)(JD + 0.5);
      F = (JD + 0.5) - Z;
