@@ -363,16 +363,10 @@ bool FieldVisitor::VisitTemplateSpecializationType(clang::TemplateSpecialization
                 std::replace( mangled_name.begin(), mangled_name.end(), '*', '_') ;
 
                 CXXRecordVisitor template_spec_cvis(ci , cs, hsd , pa, false, false, true) ;
-/*
                 template_spec_cvis.get_class_data()->setMangledTypeName(fdes->getContainerClass() + "_" +
                  fdes->getName() + "_" + mangled_name) ;
-*/
-                template_spec_cvis.get_class_data()->setMangledTypeName(mangled_name) ;
                 template_spec_cvis.TraverseCXXRecordDecl(clang::cast<clang::CXXRecordDecl>(td)) ;
-/*
                 fdes->setMangledTypeName(fdes->getContainerClass() + "_" + fdes->getName() + "_" + mangled_name) ;
-*/
-                fdes->setMangledTypeName(mangled_name) ;
                 template_spec_cvis.get_class_data()->setName(tst_string) ;
                 template_spec_cvis.get_class_data()->setFileName(fdes->getFileName()) ;
 
