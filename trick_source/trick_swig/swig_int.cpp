@@ -43,7 +43,7 @@ PyObject * swig_int::__add__( PyObject * obj1 ) {
         long long new_val ;
         swig_int * temp_m = reinterpret_cast< swig_int * >(argp2) ;
         new_val = temp_m->value ;
-        conv_ret = convert_united_value( units , temp_m->units , &new_val ) ;
+        conv_ret = scale_united_value( units , temp_m->units , &new_val ) ;
         if ( conv_ret == 0 ) {
             result->value = value + new_val ;
         } else {
@@ -53,7 +53,7 @@ PyObject * swig_int::__add__( PyObject * obj1 ) {
         double new_val ;
         swig_double * temp_m = reinterpret_cast< swig_double * >(argp2) ;
         new_val = temp_m->value ;
-        conv_ret = convert_united_value( units , temp_m->units , &new_val ) ;
+        conv_ret = scale_united_value( units , temp_m->units , &new_val ) ;
         if ( conv_ret == 0 ) {
             result->value = (long long)(round(value + new_val)) ;
         } else {
@@ -83,7 +83,7 @@ PyObject * swig_int::__sub__( PyObject * obj1 ) {
         long long new_val ;
         swig_int * temp_m = reinterpret_cast< swig_int * >(argp2) ;
         new_val = temp_m->value ;
-        conv_ret = convert_united_value( units , temp_m->units , &new_val ) ;
+        conv_ret = scale_united_value( units , temp_m->units , &new_val ) ;
         if ( conv_ret == 0 ) {
             result->value = value - new_val ;
         } else {
@@ -93,7 +93,7 @@ PyObject * swig_int::__sub__( PyObject * obj1 ) {
         double new_val ;
         swig_double * temp_m = reinterpret_cast< swig_double * >(argp2) ;
         new_val = temp_m->value ;
-        conv_ret = convert_united_value( units , temp_m->units , &new_val ) ;
+        conv_ret = scale_united_value( units , temp_m->units , &new_val ) ;
         if ( conv_ret == 0 ) {
             result->value = (long long)(round(value - new_val)) ;
         } else {
@@ -626,7 +626,7 @@ PyObject * swig_int::__iadd__( PyObject * obj1 ) {
         long long new_val ;
         swig_int * temp_m = reinterpret_cast< swig_int * >(argp2) ;
         new_val = temp_m->value ;
-        conv_ret = convert_united_value( units , temp_m->units , &new_val ) ;
+        conv_ret = scale_united_value( units , temp_m->units , &new_val ) ;
         if ( conv_ret == 0 ) {
             value += new_val ;
         } else {
@@ -636,7 +636,7 @@ PyObject * swig_int::__iadd__( PyObject * obj1 ) {
         double new_val ;
         swig_double * temp_m = reinterpret_cast< swig_double * >(argp2) ;
         new_val = temp_m->value ;
-        conv_ret = convert_united_value( units , temp_m->units , &new_val ) ;
+        conv_ret = scale_united_value( units , temp_m->units , &new_val ) ;
         if ( conv_ret == 0 ) {
             value = (long long)round(value + new_val) ;
         } else {
@@ -663,7 +663,7 @@ PyObject * swig_int::__isub__( PyObject * obj1 ) {
         long long new_val ;
         swig_int * temp_m = reinterpret_cast< swig_int * >(argp2) ;
         new_val = temp_m->value ;
-        conv_ret = convert_united_value( units , temp_m->units , &new_val ) ;
+        conv_ret = scale_united_value( units , temp_m->units , &new_val ) ;
         if ( conv_ret == 0 ) {
             value -= new_val ;
         } else {
@@ -673,7 +673,7 @@ PyObject * swig_int::__isub__( PyObject * obj1 ) {
         double new_val ;
         swig_double * temp_m = reinterpret_cast< swig_double * >(argp2) ;
         new_val = temp_m->value ;
-        conv_ret = convert_united_value( units , temp_m->units , &new_val ) ;
+        conv_ret = scale_united_value( units , temp_m->units , &new_val ) ;
         if ( conv_ret == 0 ) {
             value = (long long)round(value - new_val) ;
         } else {
