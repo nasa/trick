@@ -46,7 +46,7 @@ PyObject * swig_double::__add__( PyObject * obj1 ) {
         swig_int * temp_m = reinterpret_cast< swig_int * >(argp2) ;
         new_value = (double)temp_m->value ;
 
-        conv_ret = convert_united_value( units , temp_m->units , &new_value ) ;
+        conv_ret = scale_united_value( units , temp_m->units , &new_value ) ;
         if ( conv_ret == 0 ) {
             result->value = value + new_value ;
         } else {
@@ -55,7 +55,7 @@ PyObject * swig_double::__add__( PyObject * obj1 ) {
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_double *"), 0 ))) {
         swig_double * temp_m = reinterpret_cast< swig_double * >(argp2) ;
         new_value = temp_m->value ;
-        conv_ret = convert_united_value( units , temp_m->units , &new_value ) ;
+        conv_ret = scale_united_value( units , temp_m->units , &new_value ) ;
         if ( conv_ret == 0 ) {
             result->value = value + new_value ;
         } else {
@@ -86,7 +86,7 @@ PyObject * swig_double::__sub__( PyObject * obj1 ) {
 
         swig_int * temp_m = reinterpret_cast< swig_int * >(argp2) ;
         new_value = (double)temp_m->value ;
-        conv_ret = convert_united_value( units , temp_m->units , &new_value ) ;
+        conv_ret = scale_united_value( units , temp_m->units , &new_value ) ;
         if ( conv_ret == 0 ) {
             result->value = value - new_value ;
         } else {
@@ -95,7 +95,7 @@ PyObject * swig_double::__sub__( PyObject * obj1 ) {
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_double *"), 0 ))) {
         swig_double * temp_m = reinterpret_cast< swig_double * >(argp2) ;
         new_value = temp_m->value ;
-        conv_ret = convert_united_value( units , temp_m->units , &new_value ) ;
+        conv_ret = scale_united_value( units , temp_m->units , &new_value ) ;
         if ( conv_ret == 0 ) {
             result->value = value - new_value ;
         } else {
@@ -450,7 +450,7 @@ PyObject * swig_double::__iadd__( PyObject * obj1 ) {
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_int *"), 0 ))) {
         swig_int * temp_m = reinterpret_cast< swig_int * >(argp2) ;
         new_val = (double)temp_m->value ;
-        conv_ret = convert_united_value( units , temp_m->units , &new_val ) ;
+        conv_ret = scale_united_value( units , temp_m->units , &new_val ) ;
         if ( conv_ret == 0 ) {
             value += new_val ;
         } else {
@@ -459,7 +459,7 @@ PyObject * swig_double::__iadd__( PyObject * obj1 ) {
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_double *"), 0 ))) {
         swig_double * temp_m = reinterpret_cast< swig_double * >(argp2) ;
         new_val = temp_m->value ;
-        conv_ret = convert_united_value( units , temp_m->units , &new_val ) ;
+        conv_ret = scale_united_value( units , temp_m->units , &new_val ) ;
         if ( conv_ret == 0 ) {
             value += new_val ;
         } else {
@@ -485,7 +485,7 @@ PyObject * swig_double::__isub__( PyObject * obj1 ) {
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_int *"), 0 ))) {
         swig_int * temp_m = reinterpret_cast< swig_int * >(argp2) ;
         new_val = temp_m->value ;
-        conv_ret = convert_united_value( units , temp_m->units , &new_val ) ;
+        conv_ret = scale_united_value( units , temp_m->units , &new_val ) ;
         if ( conv_ret == 0 ) {
             value -= new_val ;
         } else {
@@ -494,7 +494,7 @@ PyObject * swig_double::__isub__( PyObject * obj1 ) {
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_double *"), 0 ))) {
         swig_double * temp_m = reinterpret_cast< swig_double * >(argp2) ;
         new_val = temp_m->value ;
-        conv_ret = convert_united_value( units , temp_m->units , &new_val ) ;
+        conv_ret = scale_united_value( units , temp_m->units , &new_val ) ;
         if ( conv_ret == 0 ) {
             value -= new_val ;
         } else {
