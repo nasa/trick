@@ -18,11 +18,10 @@ PROGRAMMERS:
 #define MINUTES_PER_DAY  1440.0
 #define SECONDS_PER_DAY  86400.0
 
-int sun_pred_cyclic(
-       SUN_PRED* S,
-       double    current_sim_time )
-{
-       float dday;
+int sun_pred_cyclic( SUN_PRED* S,
+                     double    current_sim_time ) {
+
+       double dday;
        double JDL;
        double tsec;
 

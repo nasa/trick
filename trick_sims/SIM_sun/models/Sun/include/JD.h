@@ -37,8 +37,8 @@ int is_julian_date (int Y, int M, double D);
  * @param D  (IN)  Day
  * @param JD (OUT) Julian date
  */
-int Calendar_Date_to_JD (int Y, int M, float D, double * JD);
-void JD_to_Calendar_Date (double JD, int *year, int *month, float *day) ;
+int Calendar_Date_to_JD (int Y, int M, double D, double * JD);
+void JD_to_Calendar_Date (double JD, int *year, int *month, double *day) ;
 #ifdef __cplusplus
 }
 #endif

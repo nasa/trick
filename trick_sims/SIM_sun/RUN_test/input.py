@@ -12,11 +12,11 @@ REALTIME = True
 if REALTIME:
     execfile("Modified_data/realtime.py")
 
-JAPANESE = True
+JAPANESE = False
 if JAPANESE:
     execfile("Modified_data/Japanese_labels_alt.py")
 
-STRIPCHART = True
+STRIPCHART = False
 if STRIPCHART:
     trickView = trick.TrickView()
     trickView.set_auto_open_file("sun.tv")
@@ -60,10 +60,10 @@ sun_predictor.sun.observer_offset_from_UTC = -6
 """ Set local time here.                     """
 """ ======================================== """
 sun_predictor.sun.local_time.year  = 2016
-sun_predictor.sun.local_time.month = 2
-sun_predictor.sun.local_time.day   = 26
-sun_predictor.sun.local_time.hour  = 16
-sun_predictor.sun.local_time.min   = 0
+sun_predictor.sun.local_time.month = 3
+sun_predictor.sun.local_time.day   = 11
+sun_predictor.sun.local_time.hour  = 17
+sun_predictor.sun.local_time.min   = 10
 sun_predictor.sun.local_time.sec   = 0.0
 
 trick.stop(86400.0)
