@@ -43,15 +43,15 @@ class FieldVisitor : public clang::RecursiveASTVisitor<FieldVisitor> {
         bool VisitBuiltinType(clang::BuiltinType *bt);
         bool VisitConstantArrayType(clang::ConstantArrayType *a) ;
         bool VisitDeclaratorDecl( clang::DeclaratorDecl *dd ) ;
-        bool VisitElaboratedType( clang::ElaboratedType *et ) ;
+        //bool VisitElaboratedType( clang::ElaboratedType *et ) ;
         bool VisitEnumType( clang::EnumType *et ) ;
         bool VisitFieldDecl( clang::FieldDecl *field ) ;
         bool VisitPointerType(clang::PointerType *p);
         bool VisitRecordType(clang::RecordType *rt);
-        bool VisitSubstTemplateTypeParmType(clang::SubstTemplateTypeParmType *sttpt);
+        //bool VisitSubstTemplateTypeParmType(clang::SubstTemplateTypeParmType *sttpt);
         bool VisitTemplateSpecializationType(clang::TemplateSpecializationType *tst);
-        bool VisitTemplateTypeParmType(clang::TemplateTypeParmType *ttp);
-        bool VisitTypedefType(clang::TypedefType *tt);
+        //bool VisitTemplateTypeParmType(clang::TemplateTypeParmType *ttp);
+        //bool VisitTypedefType(clang::TypedefType *tt);
         bool VisitVarDecl( clang::VarDecl *v ) ;
 
         /** Returns the field data */

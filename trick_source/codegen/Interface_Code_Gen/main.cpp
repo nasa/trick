@@ -3,6 +3,7 @@
 #include <libgen.h>
 #include <string.h>
 #include <stdio.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include "llvm/Support/Host.h"
@@ -175,6 +176,11 @@ int main( int argc , char * argv[] ) {
     input_file_full_path = almostRealPath( os.str().c_str() ) ;
     //std::cout << input_file_full_path << std::endl ;
 
+    struct stat buffer ;
+    if ( stat ( input_file_full_path , &buffer) != 0 ) {
+        std::cerr << "Could not open file " << input_file_full_path << std::endl ;
+        exit(-1) ;
+    }
     // Open up the input file and parse it.
     const clang::FileEntry *pFile = ci.getFileManager().getFile(input_file_full_path);
 #if (__clang_major__ >= 6) || ((__clang_major__ == 3) && (__clang_minor__ >= 5))

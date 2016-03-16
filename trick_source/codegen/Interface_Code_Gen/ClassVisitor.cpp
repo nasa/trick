@@ -110,7 +110,7 @@ bool CXXRecordVisitor::TraverseDecl(clang::Decl *d) {
 
 bool CXXRecordVisitor::VisitDecl(clang::Decl *d) {
     if ( debug_level >=2 ) {
-        std::cout << "\nCXXRecordVisitor Decl = " << d->getDeclKindName() << std::endl ;
+        std::cout << "\n\033[34mCXXRecordVisitor VisitDecl Decl = " << d->getDeclKindName() << "\033[0m" << std::endl ;
     }
     return true ;
 }

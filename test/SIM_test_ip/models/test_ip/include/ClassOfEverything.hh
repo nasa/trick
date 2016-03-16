@@ -393,9 +393,12 @@ class ClassOfEverything {
    static double const sdc ;
 
    // These need to be ignored by ICG
+   // ICG is now compiler based.  Thse are ignored properly.
+/*
    static const double scdi = 42.0 ;
    const static double csdi = 42.0 ;
    static double const sdci = 42.0 ;
+*/
 
    typedef enum {
     ONE , TWO

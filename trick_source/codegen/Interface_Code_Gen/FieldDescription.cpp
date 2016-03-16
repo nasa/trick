@@ -36,8 +36,6 @@ FieldDescription::FieldDescription(
   is_enum(0) ,
   is_record(0) ,
   is_static(0) ,
-  has_type(0) ,
-  has_dims(0) ,
   num_dims(0) ,
   array_sizes() {} ;
 
@@ -378,22 +376,6 @@ bool FieldDescription::isStatic() {
     return is_static ;
 }
 
-void FieldDescription::setHasType( bool yes_no ) {
-    has_type = yes_no ;
-}
-
-bool FieldDescription::hasType() {
-    return has_type ;
-}
-
-void FieldDescription::setHasDims( bool yes_no ) {
-    has_dims = yes_no ;
-}
-
-bool FieldDescription::hasDims() {
-    return has_dims ;
-}
-
 unsigned int FieldDescription::getNumDims() {
     return num_dims ;
 }
@@ -446,7 +428,6 @@ std::ostream & operator << (std::ostream & os , FieldDescription & fdes ) {
     os << "    is_enum = " << fdes.is_enum << std::endl ;
     os << "    is_record = " << fdes.is_record << std::endl ;
     os << "    is_static = " << fdes.is_static << std::endl ;
-    os << "    has_type = " << fdes.has_type << std::endl ;
 
     return os ;
 }
