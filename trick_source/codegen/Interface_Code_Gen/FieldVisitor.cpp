@@ -167,7 +167,8 @@ bool FieldVisitor::VisitDeclaratorDecl( clang::DeclaratorDecl *dd ) {
         }
     }
 
-    return true ;
+    // returns true if any io is allowed. returning false will stop processing of this variable here.
+    return fdes->getIO() ;
 }
 
 bool FieldVisitor::VisitEnumType( clang::EnumType *et ) {
@@ -206,21 +207,17 @@ bool FieldVisitor::VisitFieldDecl( clang::FieldDecl *field ) {
 
     // If the current type is not canonical because of typedefs or template parameter substitution,
     // traverse the canonical type
-    // Template type specializations are marked non canonical.
-    // Do not process template specialization types here, allow normal processing to continue in that case.
     clang::QualType qt = field->getType() ;
     if ( debug_level >= 3 ) {
         std::cout << "FieldVisitor VisitFieldDecl" << std::endl ;
         std::cout << "    is_bitfield = " << fdes->isBitField() << std::endl ;
         std::cout << "    is_canonical = " << qt.isCanonical() << std::endl ;
-        std::cout << "    is_a_template_specialization = " <<
-         clang::TemplateSpecializationType::classof(qt.getTypePtr()) << std::endl ;
         //field->dump() ;
     }
-    if ( !qt.isCanonical() and !clang::TemplateSpecializationType::classof(qt.getTypePtr()) ) {
+    if ( !qt.isCanonical() ) {
         clang::QualType ct = qt.getCanonicalType() ;
         std::string tst_string = ct.getAsString() ;
-        // Do not process standard template library specializations except strings
+        // If we have a standard template library specializations other than std::string, don't process it.
         if ( (! tst_string.compare( 0 , 9 , "class std") or ! tst_string.compare( 0 , 10 , "struct std")) and
                tst_string.compare( 0, 23 , "class std::basic_string") ) {
             // This is a standard template library type.  don't process any further.
@@ -232,7 +229,7 @@ bool FieldVisitor::VisitFieldDecl( clang::FieldDecl *field ) {
             }
             TraverseType(ct) ;
         }
-        // We have extracted the canonical type and everything else we need
+        // We have either skipped a std template or extracted the canonical type and everything else we need
         // return false so we cut off processing of this AST branch
         return false ;
     }
@@ -245,11 +242,99 @@ bool FieldVisitor::VisitPointerType(clang::PointerType *p) {
     return true;
 }
 
+std::map < std::string , std::string > FieldVisitor::processed_templates ;
+
+bool FieldVisitor::ProcessTemplate(std::string in_name , clang::CXXRecordDecl * crd ) {
+
+    // Save container namespaces and classes.
+    fdes->getNamespacesAndClasses(crd->getDeclContext()) ;
+
+    size_t pos ;
+
+    if ((pos = in_name.find("class ")) != std::string::npos ) {
+        in_name.erase(pos , 6) ;
+    }
+    // clang changes bool to _Bool.  We need to change it back
+    if ((pos = in_name.find("<_Bool")) != std::string::npos ) {
+        in_name.replace(pos , 6, "<bool") ;
+    }
+    while ((pos = in_name.find(" _Bool")) != std::string::npos ) {
+        in_name.replace(pos , 6, " bool") ;
+    }
+    // NOTE: clang also changes FILE * to struct _SFILE *.  We may need to change that too.
+
+    // Check to see if we've processed this template before
+    // If not we need to create attributes for this template
+    if ( processed_templates.find(in_name) == processed_templates.end() ) {
+        // convert characters not valid in a function name to underscores
+        std::string mangled_name = in_name ;
+        // Create a mangled type name, some characters have to converted to underscores.
+        std::replace( mangled_name.begin(), mangled_name.end(), '<', '_') ;
+        std::replace( mangled_name.begin(), mangled_name.end(), '>', '_') ;
+        std::replace( mangled_name.begin(), mangled_name.end(), ' ', '_') ;
+        std::replace( mangled_name.begin(), mangled_name.end(), ',', '_') ;
+        std::replace( mangled_name.begin(), mangled_name.end(), ':', '_') ;
+        std::replace( mangled_name.begin(), mangled_name.end(), '*', '_') ;
+
+        // save off the mangled name of this template to be used if another variable is the same template type
+        processed_templates[in_name] = fdes->getContainerClass() + "_" +
+         fdes->getName() + "_" + mangled_name ;
+
+        // Traverse the template declaration
+        CXXRecordVisitor template_spec_cvis(ci , cs, hsd , pa, false, false, true) ;
+        template_spec_cvis.get_class_data()->setMangledTypeName(processed_templates[in_name]) ;
+        template_spec_cvis.TraverseCXXRecordDecl(crd) ;
+
+        // Set the actual type name and file name. Print the attributes for this template type
+        template_spec_cvis.get_class_data()->setName(in_name) ;
+        template_spec_cvis.get_class_data()->setFileName(fdes->getFileName()) ;
+        pa.printClass(template_spec_cvis.get_class_data()) ;
+
+        if ( debug_level >= 4 ) {
+            std::cout << "Added template class from FieldVisitor ProcessTemplate " ;
+            std::cout << in_name << std::endl ;
+            std::cout << *fdes << std::endl ;
+        }
+    }
+
+    fdes->setMangledTypeName(processed_templates[in_name]) ;
+    fdes->setEnumString("TRICK_STRUCTURED") ;
+    fdes->setRecord(true) ;
+
+    // processing the template will process the type, return false to stop processing
+    return false ;
+}
+
 bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
     if ( debug_level >= 3 ) {
         std::cout << "FieldVisitor VisitRecordType" << std::endl ;
         rt->dump() ;
     }
+    /* String types are typed as records but we treat them differently.
+       The attributes type is set to TRICK_STRING instead of TRICK_STRUCTURE.
+       The type is set to std::string.  We can return false here to stop processing of this type. */
+    std::string type_name = rt->getDecl()->getQualifiedNameAsString() ;
+    if ( ! type_name.compare("std::basic_string") || !type_name.compare("std::__1::basic_string")) {
+        fdes->setEnumString("TRICK_STRING") ;
+        fdes->setTypeName("std::string") ;
+        return false ;
+    }
+
+    /* Template specialization types will be processed here because the canonical type
+       will be typed as a record.  We test if we have a template specialization type.
+       If so process the template type and return */
+    clang::RecordDecl * rd = rt->getDecl()->getDefinition() ;
+    if ( rd != NULL and clang::ClassTemplateSpecializationDecl::classof(rd) ) {
+        std::string tst_string = rt->desugar().getAsString() ;
+        if ( debug_level >= 3 ) {
+            rd->dump() ;
+            std::cout << "    tst_string = " << tst_string << std::endl ;
+            std::cout << "    rd is_a_template_specialization = " <<
+             clang::ClassTemplateSpecializationDecl::classof(rd) << std::endl ;
+        }
+        return ProcessTemplate(tst_string, clang::cast<clang::CXXRecordDecl>(rd)) ;
+    }
+
     /* Test to see if we have an embedded anonymous struct/union.  e.g. SB is anonymous below.
        struct SA {
           struct {
@@ -260,17 +345,8 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
     //std::cout << "hasNameForLinkage " << rt->getDecl()->hasNameForLinkage() << std::endl ;
     if ( rt->getDecl()->hasNameForLinkage() ) {
         if ( rt->getDecl()->getDeclName() ) {
-            std::string type_name = rt->getDecl()->getQualifiedNameAsString() ;
-            // Handle the string class differently than regular records.
-            if ( ! type_name.compare("std::basic_string") || !type_name.compare("std::__1::basic_string")) { 
-                fdes->setEnumString("TRICK_STRING") ;
-                fdes->setTypeName("std::string") ;
-                //fdes->setHasType(true) ;
-                return false ;
-            } else {
-                //std::cout << "getDeclName " << type_name << std::endl ;
-                fdes->setTypeName(type_name) ;
-            }
+            //std::cout << "getDeclName " << type_name << std::endl ;
+            fdes->setTypeName(type_name) ;
         } else {
             //std::cout << "getTypedefNameForAnonDecl " << rt->getDecl()->getTypedefNameForAnonDecl() << std::endl ;
             fdes->setTypeName(rt->getDecl()->getTypedefNameForAnonDecl()->getQualifiedNameAsString()) ;
@@ -287,112 +363,6 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
     fdes->setRecord(true) ;
     // We have our type, return false to stop processing this AST branch
     return false;
-}
-
-std::map < std::string , std::string > processed_templates ;
-/* This code handles handles class fields that define a new template type,
-"my_var" in the below example.
-
-template< class A>
-class T {
-    A a ;
-} ;
-
-class B {
-    T<int> my_var ;
-} ;
-*/
-bool FieldVisitor::VisitTemplateSpecializationType(clang::TemplateSpecializationType *tst) {
-    std::string tst_string = tst->desugar().getAsString() ;
-    if ( debug_level >= 3 ) {
-        std::cout << "FieldVisitor VisitTemplateSpecializationType " << tst_string << std::endl ;
-        //tst->dump() ;
-    }
-
-    if ( ! tst_string.compare( 0 , 9 , "class std") or ! tst_string.compare( 0 , 10 , "struct std") ) {
-        // This is a standard template library type.  Set the io field to 0.
-        fdes->setIO(0) ;
-    } else if ( ! tst_string.compare( 0 , 11 , "class Trick") or ! tst_string.compare( 0 , 12 , "struct Trick") ) {
-        // This is a Trick standard template library type.  Set the io field to 0.
-        fdes->setIO(0) ;
-    } else if ( fdes->getIO() != 0 ) {
-        // Continue processing only if we haven't set the IO spec to 0.
-        // This is a user template type. We'll need the expanded template class definition
-        clang::CXXRecordDecl *trec = tst->getAsCXXRecordDecl() ;
-
-        // If we cannot get a definition, ignore this parameter and return with no further processing.
-        if ( trec == NULL ) {
-            fdes->setIO(0) ;
-            return false ;
-        }
-
-        clang::TagDecl * td = trec->getDefinition() ;
-
-        if ( td != NULL ) {
-            size_t pos ;
-            if ( debug_level >= 3 ) {
-                std::cout << "FieldVisitor VisitTemplateSpecializationType CXXRecordDecl " << std::endl ;
-                td->dump() ; std::cout << std::endl ;
-            }
-            if ((pos = tst_string.find("class ")) != std::string::npos ) {
-                tst_string.erase(pos , 6) ;
-            }
-            // clang changes bool to _Bool.  We need to change it back
-            if ((pos = tst_string.find("<_Bool")) != std::string::npos ) {
-                tst_string.replace(pos , 6, "<bool") ;
-            }
-            while ((pos = tst_string.find(" _Bool")) != std::string::npos ) {
-                tst_string.replace(pos , 6, " bool") ;
-            }
-            // NOTE: clang also changes FILE * to struct _SFILE *.  We may need to change that too.
-
-            // Save container namespaces and classes.
-            fdes->getNamespacesAndClasses(td->getDeclContext()) ;
-
-            // Check to see if we've created a class that matches this template
-            if ( processed_templates.find(tst_string) == processed_templates.end() ) {
-
-                // Use the current template type name, tst_string, as part of the mangled type name
-                // Some characters have to converted to underscores.
-                std::string mangled_name = tst_string ;
-                std::replace( mangled_name.begin(), mangled_name.end(), '<', '_') ;
-                std::replace( mangled_name.begin(), mangled_name.end(), '>', '_') ;
-                std::replace( mangled_name.begin(), mangled_name.end(), ' ', '_') ;
-                std::replace( mangled_name.begin(), mangled_name.end(), ',', '_') ;
-                std::replace( mangled_name.begin(), mangled_name.end(), ':', '_') ;
-                std::replace( mangled_name.begin(), mangled_name.end(), '*', '_') ;
-
-                CXXRecordVisitor template_spec_cvis(ci , cs, hsd , pa, false, false, true) ;
-                template_spec_cvis.get_class_data()->setMangledTypeName(fdes->getContainerClass() + "_" +
-                 fdes->getName() + "_" + mangled_name) ;
-                template_spec_cvis.TraverseCXXRecordDecl(clang::cast<clang::CXXRecordDecl>(td)) ;
-                fdes->setMangledTypeName(fdes->getContainerClass() + "_" + fdes->getName() + "_" + mangled_name) ;
-                template_spec_cvis.get_class_data()->setName(tst_string) ;
-                template_spec_cvis.get_class_data()->setFileName(fdes->getFileName()) ;
-
-                pa.printClass(template_spec_cvis.get_class_data()) ;
-
-                // save off the mangled name of this template to be used if another variable is the same template type
-                processed_templates[tst_string] = template_spec_cvis.get_class_data()->getMangledTypeName() ;
-
-                fdes->setEnumString("TRICK_STRUCTURED") ;
-                fdes->setRecord(true) ;
-                if ( debug_level >= 4 ) {
-                    std::cout << "Added template class from FieldVisitor VisitTemplateSpecializationType " ;
-                    std::cout << tst_string << std::endl ;
-                    std::cout << *fdes << std::endl ;
-                }
-            } else {
-                // reuse the name of the template already processed.
-                fdes->setMangledTypeName(processed_templates[tst_string]) ;
-                fdes->setEnumString("TRICK_STRUCTURED") ;
-                fdes->setRecord(true) ;
-            }
-        }
-    }
-    // We have either extracted the template type or have marked this field I/O = 0.
-    // We can return false to stop processing of this AST branch
-    return false ;
 }
 
 bool FieldVisitor::VisitVarDecl( clang::VarDecl *v ) {

@@ -2,6 +2,8 @@
 #ifndef FIELDVISITOR_HH
 #define FIELDVISITOR_HH
 
+#include <map>
+
 #include "clang/Frontend/CompilerInstance.h"
 #include "clang/AST/RecursiveASTVisitor.h"
 #include "PrintAttributes.hh"
@@ -49,10 +51,13 @@ class FieldVisitor : public clang::RecursiveASTVisitor<FieldVisitor> {
         bool VisitPointerType(clang::PointerType *p);
         bool VisitRecordType(clang::RecordType *rt);
         //bool VisitSubstTemplateTypeParmType(clang::SubstTemplateTypeParmType *sttpt);
-        bool VisitTemplateSpecializationType(clang::TemplateSpecializationType *tst);
+        //bool VisitTemplateSpecializationType(clang::TemplateSpecializationType *tst);
         //bool VisitTemplateTypeParmType(clang::TemplateTypeParmType *ttp);
         //bool VisitTypedefType(clang::TypedefType *tt);
         bool VisitVarDecl( clang::VarDecl *v ) ;
+
+        /** common code to process a template */
+        bool ProcessTemplate( std::string in_name , clang::CXXRecordDecl * crd ) ;
 
         /** Returns the field data */
         FieldDescription * get_field_data() ;
@@ -72,6 +77,9 @@ class FieldVisitor : public clang::RecursiveASTVisitor<FieldVisitor> {
 
         /** Holds the field information found, usually returned to caller of this visitor. */
         FieldDescription * fdes ;
+
+        /** Map of template name to mangled name of all templates visited */
+        static std::map < std::string , std::string > processed_templates ;
 
 } ;
 
