@@ -259,20 +259,6 @@ bool FieldVisitor::ProcessTemplate(std::string in_name , clang::CXXRecordDecl * 
 
     size_t pos ;
 
-/*
-    if ((pos = in_name.find("class ")) != std::string::npos ) {
-        in_name.erase(pos , 6) ;
-    }
-    // clang changes bool to _Bool.  We need to change it back
-    if ((pos = in_name.find("<_Bool")) != std::string::npos ) {
-        in_name.replace(pos , 6, "<bool") ;
-    }
-    while ((pos = in_name.find(" _Bool")) != std::string::npos ) {
-        in_name.replace(pos , 6, " bool") ;
-    }
-*/
-    // NOTE: clang also changes FILE * to struct _SFILE *.  We may need to change that too.
-
     // Check to see if we've processed this template before
     // If not we need to create attributes for this template
     if ( processed_templates.find(in_name) == processed_templates.end() ) {
@@ -320,28 +306,21 @@ static std::map<std::string, bool> init_stl_classes() {
     my_map.insert(std::pair<std::string, bool>("std::set", 1)) ;
     my_map.insert(std::pair<std::string, bool>("std::stack", 0)) ;
     my_map.insert(std::pair<std::string, bool>("std::vector", 1)) ;
+    my_map.insert(std::pair<std::string, bool>("std::__1::deque", 1)) ;
+    my_map.insert(std::pair<std::string, bool>("std::__1::list", 1)) ;
+    my_map.insert(std::pair<std::string, bool>("std::__1::map", 1)) ;
+    my_map.insert(std::pair<std::string, bool>("std::__1::multiset", 1)) ;
+    my_map.insert(std::pair<std::string, bool>("std::__1::multimap", 1)) ;
+    my_map.insert(std::pair<std::string, bool>("std::__1::pair", 1)) ;
+    my_map.insert(std::pair<std::string, bool>("std::__1::priority_queue", 0)) ;
+    my_map.insert(std::pair<std::string, bool>("std::__1::queue", 0)) ;
+    my_map.insert(std::pair<std::string, bool>("std::__1::set", 1)) ;
+    my_map.insert(std::pair<std::string, bool>("std::__1::stack", 0)) ;
+    my_map.insert(std::pair<std::string, bool>("std::__1::vector", 1)) ;
     return my_map ;
 }
 
 static std::map<std::string, bool> stl_classes = init_stl_classes() ;
-
-#if 0
-// C++ 11 style initialization
-// list of handled STL types and if they have a clear function.
-static std::map<std::string, bool> stl_classes = {
- {"std::deque", 1},
- {"std::list", 1},
- {"std::map", 1},
- {"std::multiset", 1},
- {"std::multimap", 1},
- {"std::pair", 0},
- {"std::priority_queue", 0},
- {"std::queue", 0},
- {"std::set", 1},
- {"std::stack", 0},
- {"std::vector", 1}
-};
-#endif
 
 bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
     if ( debug_level >= 3 ) {
@@ -371,13 +350,13 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
     while ((pos = tst_string.find(" _Bool")) != std::string::npos ) {
         tst_string.replace(pos , 6, " bool") ;
     }
+    // NOTE: clang also changes FILE * to struct _SFILE *.  We may need to change that too.
 
     // Test if we have some type from std.
     if (!tst_string.compare( 0 , 5 , "std::")) {
         // If we have some type from std, figure out if it is one we support.
         for ( std::map<std::string, bool>::iterator it = stl_classes.begin() ; it != stl_classes.end() ; it++ ) {
             /* Mark STL types that are not strings and exit */
-            //if (!tst_string.compare( 0 , 11 , "class std::") or !tst_string.compare( 0 , 12 , "struct std::")) {
             if (!tst_string.compare( 0 , (*it).first.size() , (*it).first)) {
                 fdes->setEnumString("TRICK_STL") ;
                 fdes->setSTL(true) ;

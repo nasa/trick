@@ -40,7 +40,10 @@ void ConstructValues::getNamespacesAndClasses( const clang::DeclContext * Ctx ) 
         if (const clang::NamespaceDecl *nd = clang::dyn_cast<clang::NamespaceDecl>(*I)) {
             if (! nd->isAnonymousNamespace()) {
                 //std::cout << "namespace " << nd->getIdentifier()->getName().str() << std::endl ;
-                addNamespace(nd->getIdentifier()->getName().str()) ;
+                std::string temp_name = nd->getIdentifier()->getName().str() ;
+                if ( temp_name.compare("std") and temp_name.compare("__1")) {
+                    addNamespace(nd->getIdentifier()->getName().str()) ;
+                }
             }
         } else if (const clang::RecordDecl *rd = clang::dyn_cast<clang::RecordDecl>(*I)) {
             if (rd->getIdentifier()) {
