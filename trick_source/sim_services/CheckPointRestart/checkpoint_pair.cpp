@@ -13,9 +13,11 @@ int checkpoint_stl(std::pair<std::string, std::string> & in_stl , std::string ob
 
     sprintf(var_declare, "char * %s_%s_first[1]", object_name.c_str(), var_name.c_str()) ;
     first = (char **)TMM_declare_var_s(var_declare) ;
+    TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_first").c_str()) ;
 
     sprintf(var_declare, "char * %s_%s_second[1]" , object_name.c_str(), var_name.c_str()) ;
     second = (char **)TMM_declare_var_s(var_declare) ;
+    TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_second").c_str()) ;
 
     first[0] = (char *)(in_stl.first.c_str()) ;
     second[0] = (char *)(in_stl.second.c_str()) ;

@@ -244,13 +244,7 @@ namespace Trick {
             int num_sim_objects ;                     /**< trick_units(--) */
 
             /** List of all sim_objects that have been added to scheduler through add_sim_object().\n */
-            std::vector <Trick::SimObject *> sim_objects ;        /**< trick_io(**) */
-
-            /** Count of how many sim_objects are written to the checkpoint.\n */
-            int num_sim_objects_in_checkpoint ;              /**< trick_units(--) */
-
-            /** Contains same info as the sim_objects vector but in a checkpointable form\n */
-            Trick::SimObject ** sim_objects_for_checkpoint ;       /**< trick_units(--) */
+            std::vector <Trick::SimObject *> sim_objects ;        /**< trick_io(*io) trick_units(--) */
 
             /** List of other schedulers in thes sim.\n */
             std::vector <Trick::Scheduler *> other_schedulers ;   /**< trick_io(**) */

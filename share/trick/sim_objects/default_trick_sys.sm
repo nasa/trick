@@ -93,12 +93,6 @@ a replacement SimObject will create an uncompilable sim.
 ##include "trick/RtiStager.hh"
 ##include "trick/RtiExec.hh"
 
-// TODO: move users away from this STL checkpoint method
-##include "trick/checkpoint_stl.hh"
-
-// TODO: move users away from this STL checkpoint method
-#include "trick/stl_s_define_macro.hh"
-
 // This is a user header block.  Code here is copied without processing to S_source.hh
 %header{
 
@@ -382,7 +376,7 @@ class EventManagerSimObject : public Trick::SimObject {
     public:
         Trick::EventManager em ;
         Trick::EventProcessor ep ;
-        std::vector< ThreadProcessEventSimObject * > thread_process_event_so ;
+        std::vector< ThreadProcessEventSimObject * > thread_process_event_so ; // ** ignore for checkpointing
 
         void create_thread_process_event() {
             unsigned int ii ;
@@ -748,7 +742,7 @@ class InjectorSimObject : public Trick::SimObject {
 
     public:
         Trick::RtiStager  rtis ;
-        std::vector< InjectorExecSimObject * > injector_executor_so ;
+        std::vector< InjectorExecSimObject * > injector_executor_so ; // trick_io(**)
 
         void create_injector_executors() {
             unsigned int ii ;
@@ -801,6 +795,5 @@ UnitTestSimObject trick_utest ;
 // Include optional external clocks
 #include "sim_objects/TPROClock.sm"
 #include "sim_objects/BC635Clock.sm"
-#include "sim_objects/STL.sm"
 
 #endif

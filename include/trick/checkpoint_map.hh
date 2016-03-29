@@ -47,11 +47,13 @@ int checkpoint_map_stl(STL & in_map , std::string object_name , std::string var_
         sprintf(var_declare, "%s %s_%s_keys[%d]" ,
          abi::__cxa_demangle(typeid(*keys).name(), 0, 0, &status ), object_name.c_str(), var_name.c_str(), cont_size) ;
         keys = (typename STL::key_type *)TMM_declare_var_s(var_declare) ;
+        TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_keys").c_str()) ;
         //message_publish(1, "HERE with %s\n", var_declare) ; 
 
         sprintf(var_declare, "%s %s_%s_data[%d]" ,
          abi::__cxa_demangle(typeid(*items).name(), 0, 0, &status ), object_name.c_str(), var_name.c_str(), cont_size) ;
         items = (typename STL::mapped_type *)TMM_declare_var_s(var_declare) ;
+        TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_data").c_str()) ;
         //message_publish(1, "HERE with %s\n", var_declare) ; 
 
         /* copy the contents of the map the 2 arrays */
@@ -91,11 +93,13 @@ int checkpoint_map_stl_key_string(STL & in_map , std::string object_name , std::
     if ( cont_size > 0 ) {
         sprintf(var_declare, "char * %s_%s_keys[%d]" , object_name.c_str(), var_name.c_str() , cont_size) ;
         keys = (char **)TMM_declare_var_s(var_declare) ;
+        TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_keys").c_str()) ;
         //message_publish(1, "STRING KEY HERE with %s\n", var_declare) ; 
 
         sprintf(var_declare, "%s %s_%s_data[%d]" ,
          abi::__cxa_demangle(typeid(*items).name(), 0, 0, &status ), object_name.c_str(), var_name.c_str() , cont_size) ;
         items = (typename STL::mapped_type *)TMM_declare_var_s(var_declare) ;
+        TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_data").c_str()) ;
         //message_publish(1, "STRING KEY HERE with %s\n", var_declare) ; 
 
         /* copy the contents of the map the 2 arrays */
@@ -136,10 +140,12 @@ int checkpoint_map_stl_data_string(STL & in_map , std::string object_name , std:
         sprintf(var_declare, "%s %s_%s_keys[%d]" ,
          abi::__cxa_demangle(typeid(*keys).name(), 0, 0, &status ), object_name.c_str(), var_name.c_str() , cont_size) ;
         keys = (typename STL::key_type *)TMM_declare_var_s(var_declare) ;
+        TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_keys").c_str()) ;
         //message_publish(1, "STRING KEY HERE with %s\n", var_declare) ; 
 
         sprintf(var_declare, "char * %s_%s_data[%d]" , object_name.c_str(), var_name.c_str() , cont_size) ;
         items = (char **)TMM_declare_var_s(var_declare) ;
+        TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_data").c_str()) ;
         //message_publish(1, "STRING KEY HERE with %s\n", var_declare) ; 
 
         /* copy the contents of the map the 2 arrays */
@@ -179,10 +185,12 @@ int checkpoint_map_stl_strings(STL & in_map , std::string object_name , std::str
     if ( cont_size > 0 ) {
         sprintf(var_declare, "char * %s_%s_keys[%d]" , object_name.c_str(), var_name.c_str() , cont_size) ;
         keys = (char **)TMM_declare_var_s(var_declare) ;
+        TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_keys").c_str()) ;
         //message_publish(1, "STRING KEY HERE with %s\n", var_declare) ; 
 
         sprintf(var_declare, "char * %s_%s_data[%d]" , object_name.c_str(), var_name.c_str() , cont_size) ;
         items = (char **)TMM_declare_var_s(var_declare) ;
+        TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_data").c_str()) ;
         //message_publish(1, "STRING KEY HERE with %s\n", var_declare) ; 
 
         /* copy the contents of the map the 2 arrays */
@@ -239,13 +247,13 @@ int restore_map_stl(STL & in_map , std::string object_name , std::string var_nam
 
     //message_publish(1, "in regular map template restore\n") ;
 
-    in_map.clear() ; 
     std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
 
     keys_ref = ref_attributes((char *)(object_name + std::string("_") + var_name + std::string("_keys")).c_str()) ;
     items_ref = ref_attributes((char *)(object_name + std::string("_") + var_name + std::string("_data")).c_str()) ; 
 
     if ( keys_ref != NULL && items_ref != NULL ) {
+        in_map.clear() ;
         keys = (typename STL::key_type *)keys_ref->address ;
         items = (typename STL::mapped_type *)items_ref->address ;
         cont_size = get_size((char *)keys) ;
@@ -255,7 +263,7 @@ int restore_map_stl(STL & in_map , std::string object_name , std::string var_nam
         }
 
         delete_stl( in_map , object_name , var_name ) ;
-    } 
+    }
     return 0 ;
 }
 
@@ -280,13 +288,13 @@ int restore_map_stl_key_string( STL & in_map , std::string object_name , std::st
     char ** keys ;
     typename STL::mapped_type * items ;
 
-    in_map.clear() ; 
     std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
 
     keys_ref = ref_attributes((char *)(object_name + std::string("_") + var_name + std::string("_keys")).c_str()) ; 
     items_ref = ref_attributes((char *)(object_name + std::string("_") + var_name + std::string("_data")).c_str()) ; 
 
     if ( keys_ref != NULL && items_ref != NULL ) {
+        in_map.clear() ;
         keys = (char **)keys_ref->address ;
         items = (typename STL::mapped_type *)items_ref->address ;
         cont_size = get_size((char *)keys) ;
@@ -296,7 +304,7 @@ int restore_map_stl_key_string( STL & in_map , std::string object_name , std::st
         }
 
         delete_stl( in_map , object_name , var_name ) ;
-    } 
+    }
     return 0 ;
 }
 
@@ -322,13 +330,13 @@ int restore_map_stl_data_string(STL & in_map , std::string object_name , std::st
 
     //message_publish(1, "in specialized map template restore\n") ;
 
-    in_map.clear() ; 
     std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
 
     keys_ref = ref_attributes((char *)(object_name + std::string("_") + var_name + std::string("_keys")).c_str()) ; 
     items_ref = ref_attributes((char *)(object_name + std::string("_") + var_name + std::string("_data")).c_str()) ; 
 
     if ( keys_ref != NULL && items_ref != NULL ) {
+        in_map.clear() ;
         keys = (typename STL::key_type *)keys_ref->address ;
         items = (char **)items_ref->address ;
         cont_size = get_size((char *)keys) ;
@@ -338,7 +346,7 @@ int restore_map_stl_data_string(STL & in_map , std::string object_name , std::st
         }
 
         delete_stl( in_map , object_name , var_name ) ;
-    } 
+    }
     return 0 ;
 }
 
@@ -369,13 +377,13 @@ int restore_map_stl_strings(STL & in_map , std::string object_name , std::string
        of items that were stored in the checkpoint.  Knowing the size, we can restore
        the map from the 2 arrays.  This template only works for string map keys.
      */
-    in_map.clear() ;
     std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
 
     keys_ref = ref_attributes((char *)(object_name + std::string("_") + var_name + std::string("_keys")).c_str()) ;
     items_ref = ref_attributes((char *)(object_name + std::string("_") + var_name + std::string("_data")).c_str()) ;
 
     if ( keys_ref != NULL && items_ref != NULL ) {
+        in_map.clear() ;
         keys = (char **)keys_ref->address ;
         items = (char **)items_ref->address ;
         cont_size = get_size((char *)keys) ;

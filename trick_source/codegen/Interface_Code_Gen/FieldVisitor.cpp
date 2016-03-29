@@ -5,6 +5,7 @@
 #include "clang/Basic/SourceManager.h"
 #include "clang/AST/RecordLayout.h"
 #include "clang/AST/ASTContext.h"
+#include "clang/AST/Comment.h"
 
 #include "FieldVisitor.hh"
 #include "FieldDescription.hh"
@@ -143,27 +144,28 @@ bool FieldVisitor::VisitDeclaratorDecl( clang::DeclaratorDecl *dd ) {
 
     /* Get the source location of this field. */
     clang::SourceRange dd_range = dd->getSourceRange() ;
-    std::string file_name = ci.getSourceManager().getBufferName(dd_range.getEnd()) ;
-    char * resolved_path = almostRealPath( file_name.c_str() ) ;
-    if ( resolved_path ) {
+    std::string file_name = getFileName(ci, dd_range.getEnd(), hsd) ;
+    if ( ! file_name.empty() ) {
         if ( isInUserOrTrickCode( ci , dd_range.getEnd() , hsd ) ) {
             fdes->setLineNo(ci.getSourceManager().getSpellingLineNumber(dd_range.getEnd())) ;
             /* process comment if neither ICG:(No) or ICG:(NoComment) is present */
-            if (  cs.hasTrickHeader(resolved_path) and
-                 !cs.hasICGNoComment(resolved_path) and
-                 !hsd.isPathInICGNoComment(resolved_path) ) {
+            if (  cs.hasTrickHeader(file_name) and
+                 !cs.hasICGNoComment(file_name) and
+                 !hsd.isPathInICGNoComment(file_name) ) {
                 /* Get the possible comment on this line and parse it */
-                fdes->parseComment(cs.getComment(resolved_path , fdes->getLineNo())) ;
+                fdes->parseComment(cs.getComment(file_name , fdes->getLineNo())) ;
             }
         }
-        free(resolved_path) ;
     }
 
     if ( debug_level >= 3 ) {
         if ( ! ci.getSourceManager().isInSystemHeader(dd_range.getEnd()) ) {
             std::cout << "FieldVisitor VisitDeclaratorDecl" << std::endl ;
-            //dd->dump() ;
+            std::cout << "    file_name = " << file_name << std::endl ;
+            std::cout << "    line num = " << fdes->getLineNo() << std::endl ;
+            std::cout << "    comment = " << cs.getComment(file_name , fdes->getLineNo()) << std::endl ;
             std::cout << "    public/private = " << fdes->getAccess() << std::endl ;
+            std::cout << "    io = " << fdes->getIO() << std::endl ;
         }
     }
 
@@ -217,19 +219,12 @@ bool FieldVisitor::VisitFieldDecl( clang::FieldDecl *field ) {
     if ( !qt.isCanonical() ) {
         clang::QualType ct = qt.getCanonicalType() ;
         std::string tst_string = ct.getAsString() ;
-        // If we have a standard template library specializations other than std::string, don't process it.
-        if ( (! tst_string.compare( 0 , 9 , "class std") or ! tst_string.compare( 0 , 10 , "struct std")) and
-               tst_string.compare( 0, 23 , "class std::basic_string") ) {
-            // This is a standard template library type.  don't process any further.
-            fdes->setIO(0) ;
-        } else {
-            if ( debug_level >= 3 ) {
-                std::cout << "\033[33mFieldVisitor VisitFieldDecl: Processing canonical type\033[00m" << std::endl ;
-                ct.dump() ;
-            }
-            TraverseType(ct) ;
+        if ( debug_level >= 3 ) {
+            std::cout << "\033[33mFieldVisitor VisitFieldDecl: Processing canonical type\033[00m" << std::endl ;
+            ct.dump() ;
         }
-        // We have either skipped a std template or extracted the canonical type and everything else we need
+        TraverseType(ct) ;
+        // We have extracted the canonical type and everything else we need
         // return false so we cut off processing of this AST branch
         return false ;
     }
@@ -242,6 +237,19 @@ bool FieldVisitor::VisitPointerType(clang::PointerType *p) {
     return true;
 }
 
+static std::string mangle_string( std::string in_name ) {
+    // convert characters not valid in a function name to underscores
+    std::string mangled_name = in_name ;
+    // Create a mangled type name, some characters have to converted to underscores.
+    std::replace( mangled_name.begin(), mangled_name.end(), '<', '_') ;
+    std::replace( mangled_name.begin(), mangled_name.end(), '>', '_') ;
+    std::replace( mangled_name.begin(), mangled_name.end(), ' ', '_') ;
+    std::replace( mangled_name.begin(), mangled_name.end(), ',', '_') ;
+    std::replace( mangled_name.begin(), mangled_name.end(), ':', '_') ;
+    std::replace( mangled_name.begin(), mangled_name.end(), '*', '_') ;
+    return mangled_name ;
+}
+
 std::map < std::string , std::string > FieldVisitor::processed_templates ;
 
 bool FieldVisitor::ProcessTemplate(std::string in_name , clang::CXXRecordDecl * crd ) {
@@ -251,6 +259,7 @@ bool FieldVisitor::ProcessTemplate(std::string in_name , clang::CXXRecordDecl * 
 
     size_t pos ;
 
+/*
     if ((pos = in_name.find("class ")) != std::string::npos ) {
         in_name.erase(pos , 6) ;
     }
@@ -261,20 +270,13 @@ bool FieldVisitor::ProcessTemplate(std::string in_name , clang::CXXRecordDecl * 
     while ((pos = in_name.find(" _Bool")) != std::string::npos ) {
         in_name.replace(pos , 6, " bool") ;
     }
+*/
     // NOTE: clang also changes FILE * to struct _SFILE *.  We may need to change that too.
 
     // Check to see if we've processed this template before
     // If not we need to create attributes for this template
     if ( processed_templates.find(in_name) == processed_templates.end() ) {
-        // convert characters not valid in a function name to underscores
-        std::string mangled_name = in_name ;
-        // Create a mangled type name, some characters have to converted to underscores.
-        std::replace( mangled_name.begin(), mangled_name.end(), '<', '_') ;
-        std::replace( mangled_name.begin(), mangled_name.end(), '>', '_') ;
-        std::replace( mangled_name.begin(), mangled_name.end(), ' ', '_') ;
-        std::replace( mangled_name.begin(), mangled_name.end(), ',', '_') ;
-        std::replace( mangled_name.begin(), mangled_name.end(), ':', '_') ;
-        std::replace( mangled_name.begin(), mangled_name.end(), '*', '_') ;
+        std::string mangled_name = mangle_string(in_name) ;
 
         // save off the mangled name of this template to be used if another variable is the same template type
         processed_templates[in_name] = fdes->getContainerClass() + "_" +
@@ -305,6 +307,42 @@ bool FieldVisitor::ProcessTemplate(std::string in_name , clang::CXXRecordDecl * 
     return false ;
 }
 
+static std::map<std::string, bool> init_stl_classes() {
+    std::map<std::string, bool> my_map ;
+    my_map.insert(std::pair<std::string, bool>("std::deque", 1)) ;
+    my_map.insert(std::pair<std::string, bool>("std::list", 1)) ;
+    my_map.insert(std::pair<std::string, bool>("std::map", 1)) ;
+    my_map.insert(std::pair<std::string, bool>("std::multiset", 1)) ;
+    my_map.insert(std::pair<std::string, bool>("std::multimap", 1)) ;
+    my_map.insert(std::pair<std::string, bool>("std::pair", 1)) ;
+    my_map.insert(std::pair<std::string, bool>("std::priority_queue", 0)) ;
+    my_map.insert(std::pair<std::string, bool>("std::queue", 0)) ;
+    my_map.insert(std::pair<std::string, bool>("std::set", 1)) ;
+    my_map.insert(std::pair<std::string, bool>("std::stack", 0)) ;
+    my_map.insert(std::pair<std::string, bool>("std::vector", 1)) ;
+    return my_map ;
+}
+
+static std::map<std::string, bool> stl_classes = init_stl_classes() ;
+
+#if 0
+// C++ 11 style initialization
+// list of handled STL types and if they have a clear function.
+static std::map<std::string, bool> stl_classes = {
+ {"std::deque", 1},
+ {"std::list", 1},
+ {"std::map", 1},
+ {"std::multiset", 1},
+ {"std::multimap", 1},
+ {"std::pair", 0},
+ {"std::priority_queue", 0},
+ {"std::queue", 0},
+ {"std::set", 1},
+ {"std::stack", 0},
+ {"std::vector", 1}
+};
+#endif
+
 bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
     if ( debug_level >= 3 ) {
         std::cout << "FieldVisitor VisitRecordType" << std::endl ;
@@ -320,12 +358,42 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
         return false ;
     }
 
+    std::string tst_string = rt->desugar().getAsString() ;
+    // remove class keyword if it exists
+    size_t pos ;
+    while ((pos = tst_string.find("class ")) != std::string::npos ) {
+        tst_string.erase(pos , 6) ;
+    }
+    // clang changes bool to _Bool.  We need to change it back
+    if ((pos = tst_string.find("<_Bool")) != std::string::npos ) {
+        tst_string.replace(pos , 6, "<bool") ;
+    }
+    while ((pos = tst_string.find(" _Bool")) != std::string::npos ) {
+        tst_string.replace(pos , 6, " bool") ;
+    }
+
+    // Test if we have some type from std.
+    if (!tst_string.compare( 0 , 5 , "std::")) {
+        // If we have some type from std, figure out if it is one we support.
+        for ( std::map<std::string, bool>::iterator it = stl_classes.begin() ; it != stl_classes.end() ; it++ ) {
+            /* Mark STL types that are not strings and exit */
+            //if (!tst_string.compare( 0 , 11 , "class std::") or !tst_string.compare( 0 , 12 , "struct std::")) {
+            if (!tst_string.compare( 0 , (*it).first.size() , (*it).first)) {
+                fdes->setEnumString("TRICK_STL") ;
+                fdes->setSTL(true) ;
+                fdes->setTypeName(tst_string) ;
+                fdes->setSTLClear((*it).second) ;
+                fdes->setMangledTypeName(mangle_string(tst_string)) ;
+                return false ;
+            }
+        }
+    }
+
     /* Template specialization types will be processed here because the canonical type
        will be typed as a record.  We test if we have a template specialization type.
        If so process the template type and return */
     clang::RecordDecl * rd = rt->getDecl()->getDefinition() ;
     if ( rd != NULL and clang::ClassTemplateSpecializationDecl::classof(rd) ) {
-        std::string tst_string = rt->desugar().getAsString() ;
         if ( debug_level >= 3 ) {
             rd->dump() ;
             std::cout << "    tst_string = " << tst_string << std::endl ;

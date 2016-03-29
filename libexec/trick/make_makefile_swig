@@ -87,9 +87,10 @@ sub read_files_to_process() {
     @defines = $ENV{"TRICK_CFLAGS"} =~ /(-D\S+)/g ;       # get defines from TRICK_CFLAGS
     push @defines , "-DTRICK_VER=$year" ;
     push @defines , "-DSWIG" ;
+    push @defines , "-std=c++11" ;
 
     # Get the list header files from the compiler to compare to what get_headers processed.
-    open FILE_LIST, "$cc -MM -DSWIG @include_paths @defines S_source.hh |" ;
+    open FILE_LIST, "$cc -MM @include_paths @defines S_source.hh |" ;
     my $dir ;
     $dir = dirname($s_source_full_path) ;
     while ( <FILE_LIST> ) {

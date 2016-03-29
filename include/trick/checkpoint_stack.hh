@@ -42,6 +42,7 @@ int checkpoint_stl(std::stack<ITEM_TYPE> & in_stl , std::string object_name , st
         sprintf(var_declare, "%s %s_%s[%d]" ,
          abi::__cxa_demangle(typeid(*items).name(), 0, 0, &status ), object_name.c_str(), var_name.c_str(), cont_size) ;
         items = (ITEM_TYPE *)TMM_declare_var_s(var_declare) ;
+        TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name).c_str()) ;
         //message_publish(1, "CHECKPOINT_STL_STACK with %s\n", var_declare) ; 
 
         temp_stack = in_stl ; 
@@ -72,22 +73,22 @@ int restore_stl(std::stack<ITEM_TYPE> & in_stl , std::string object_name , std::
 
     //message_publish(1, "RESTORE_STL_STACK %s_%s\n", object_name.c_str() , var_name.c_str()) ;
 
-    cont_size = in_stl.size() ;
-    for ( ii = 0 ; ii < cont_size ; ii++ ) {
-        in_stl.pop() ; 
-    }
 
     items_ref = ref_attributes((char *)(object_name + std::string("_") + var_name).c_str()) ; 
 
     if ( items_ref != NULL ) {
+        cont_size = in_stl.size() ;
+        for ( ii = 0 ; ii < cont_size ; ii++ ) {
+            in_stl.pop() ;
+        }
         items = (ITEM_TYPE *)items_ref->address ;
         cont_size = get_size((char *)items) ;
 
         for ( ii = cont_size - 1 ; ii < cont_size ; ii-- ) {
             in_stl.push( items[ii] ) ;
-        } 
+        }
         delete_stl( in_stl , object_name , var_name ) ;
-    } 
+    }
 
     return 0 ;
 }

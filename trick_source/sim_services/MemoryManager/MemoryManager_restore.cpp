@@ -20,13 +20,18 @@ int Trick::MemoryManager::read_checkpoint( std::istream *is) {
        emitError("Checkpoint restore failed.") ;
     }
 
+    // Search for stls and restore them
+    for ( pos=alloc_info_map.begin() ; pos!=alloc_info_map.end() ; pos++ ) {
+        restore_stls(pos->second) ;
+    }
+
     // Go through all of the allocations that have been created looking
     // for those whose names start with the temporary-variable prefix and:
-
     pthread_mutex_lock(&mm_mutex);
     for ( pos=alloc_info_map.begin() ; pos!=alloc_info_map.end() ; pos++ ) {
 
         alloc_info = pos->second;
+
 
         if ( alloc_info->stcl == TRICK_LOCAL) {
 

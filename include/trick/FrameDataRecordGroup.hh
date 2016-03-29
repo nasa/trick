@@ -56,7 +56,7 @@ namespace Trick {
             unsigned int thread_id ;
 
             /** Jobs this group is recording */
-            std::vector< Trick::JobData *> rec_jobs ;
+            std::vector< Trick::JobData *> rec_jobs ;  // trick_io(**)
 
             /** Time value to record with main frame.  The main frame has already incremented time by the time
                 data record is called.  We need to record the time of the previous frame. */

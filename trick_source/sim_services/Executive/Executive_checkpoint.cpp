@@ -4,19 +4,20 @@
 #include "trick/Executive.hh"
 #include "trick/exec_proto.h"
 #include "trick/memorymanager_c_intf.h"
-#include "trick/checkpoint_stl.hh"
 
 /**
 @details
 -# Save the number of jobs in the scheduler
 -# Copy all of the job information in a checkpointable array
--# Save the number of sim_objects in the scheduler
--# Copy all of the sim_objects in a checkpointable array
 */
 int Trick::Executive::checkpoint() {
 
     unsigned int ii ;
 
+    /*
+       The all_jobs_vector contains memory that is not known to the memory manager.  We need to
+       copy the information into memory that is declared to the memory manager.
+     */
     /* save the number of jobs in the scheduler */
     num_all_jobs = all_jobs_vector.size() ;
 
@@ -28,9 +29,6 @@ int Trick::Executive::checkpoint() {
             all_jobs_for_checkpoint[ii] = *(all_jobs_vector[ii]) ;
         }
     }
-
-    checkpoint_stl(sim_objects , std::string("trick_sys") , std::string("sim_objects")) ;
-    checkpoint_stl(freeze_times , std::string("trick_sys") , std::string("freeze_times")) ;
 
     return(0) ;
 

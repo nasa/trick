@@ -18,25 +18,7 @@
 #include <queue>
 #include <utility>
 
-/* This shows the most difficult case in checkpointing STLs where all
-   STLs are private.  There are no accessor routines to get individual
-   items out of the STLs. (In fact getting to all items in some of the
-   STLs forces changes in the contents, such as stacks and queues.) Anyways
-   in this case we need to specify a friend that carries out the checkpoint.
-   There are 2 methods one can use to call the Trick stl checkpoint routines:
-   1) Provide a companion class that calls the Trick routines for each STL
-      (STLCompanion in this example).
-    -- OR --
-   2) Invoke Trick's CHECKPOINT_STL macro in the sim object class for each STL
-      (theSimObject in this example).
-   Whichever method is chosen, make that class a friend of the class with STLs
-      (STLCheckpoint in this example).
-   Public STLs can be checkpointed in the same way (but no need to specify friend).
-*/
 class STLCheckpoint {
-
-    friend class STLCompanion ; // method 1
-    friend class theSimObject ; // method 2
 
     public:
     
@@ -45,8 +27,6 @@ class STLCheckpoint {
         int speak() ;
 
         std::string name ;
-
-    private:
 
         std::map< double , double > my_double_map ;
         std::map< std::string , int > my_string_key_map ;
@@ -87,6 +67,9 @@ class STLCheckpoint {
         std::pair< int , std::string > my_string_second_pair ;
         std::pair< std::string , std::string > my_string_pair ;
 
+        std::vector< std::vector< double > > my_vector_vector_double ;
+        std::vector< std::vector< std::vector< double > > > my_vector_vector_vector_double ;
+        //std::vector< std::list< double >  > my_vector_list_double ;
 } ;
 
 #endif

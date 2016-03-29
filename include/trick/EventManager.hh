@@ -149,10 +149,10 @@ namespace Trick {
             unsigned int num_active_events ;              /**< trick_io(*io) trick_units(--) */
 
             /** All of the event processors, one per thread. */
-            std::vector< Trick::EventProcessor * > event_processors ;
+            std::vector< Trick::EventProcessor * > event_processors ;  /**< trick_io(**) */
 
             /** All of the events that have been attached to jobs */
-            std::vector< Trick::EventInstrument * > events_instrumented ;
+            std::vector< Trick::EventInstrument * > events_instrumented ;  /**< trick_io(**) */
 
             /**
              @brief Add user's event to manager's list of events; don't add it if it's already in list.

@@ -1,3 +1,7 @@
+/*
+    PURPOSE:
+        (Trick Integration sim object)
+*/
 
 #ifndef INTEG_LOOP_SIMOBJECT_HH
 #define INTEG_LOOP_SIMOBJECT_HH
@@ -15,7 +19,7 @@
 class IntegLoopSimObject : public Trick::SimObject {
 
     public:
-        Trick::IntegLoopScheduler integ_sched ;
+        Trick::IntegLoopScheduler integ_sched ;  // trick_io(*io)
 
         IntegLoopSimObject() : integ_sched(0.01, this) {
             add_jobs(0.01, 0) ;
@@ -40,7 +44,6 @@ class IntegLoopSimObject : public Trick::SimObject {
 
         virtual int call_function( Trick::JobData * curr_job ) ;
         virtual double call_function_double( Trick::JobData * curr_job ) ;
-
 
         Trick::Integrator * getIntegrator( Integrator_type Alg, unsigned int State_size ) {
             return integ_sched.getIntegrator(Alg , State_size) ;

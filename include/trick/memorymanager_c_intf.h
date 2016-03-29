@@ -76,6 +76,7 @@ void ref_free( REF2 *R ) ;
 
 int get_enumerated(const char* name, V_DATA* v_data) ;
 
+void TMM_add_checkpoint_alloc_dependency(const char * name) ;
 #ifdef __cplusplus
 }
 #endif

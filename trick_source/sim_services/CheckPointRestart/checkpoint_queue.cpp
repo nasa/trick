@@ -19,6 +19,7 @@ int checkpoint_stl(std::queue<std::string> & in_stl , std::string object_name , 
         sprintf(var_declare, "%s %s_%s[%d]" ,
          abi::__cxa_demangle(typeid(*items).name(), 0, 0, &status ), object_name.c_str(), var_name.c_str(), cont_size) ;
         items = (char **)TMM_declare_var_s(var_declare) ;
+        TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name).c_str()) ;
         //message_publish(1, "CHECKPOINT_STL_STACK with %s\n", var_declare) ;
 
         temp_queue = in_stl ;
@@ -50,6 +51,7 @@ int checkpoint_stl(std::priority_queue<std::string> & in_stl , std::string objec
         sprintf(var_declare, "%s %s_%s[%d]" ,
          abi::__cxa_demangle(typeid(*items).name(), 0, 0, &status ), object_name.c_str(), var_name.c_str(), cont_size) ;
         items = (char **)TMM_declare_var_s(var_declare) ;
+        TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name).c_str()) ;
         //message_publish(1, "CHECKPOINT_STL_STACK with %s\n", var_declare) ;
 
         temp_queue = in_stl ;

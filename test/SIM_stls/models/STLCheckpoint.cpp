@@ -138,7 +138,10 @@ STLCheckpoint::STLCheckpoint() {
     return ;
 }
 
-STLCheckpoint::STLCheckpoint(std::string in_name) {
+STLCheckpoint::STLCheckpoint(std::string in_name) : 
+  my_vector_vector_double(4, std::vector<double>(3)) ,
+  my_vector_vector_vector_double(5, std::vector<std::vector<double> >(4, std::vector<double>(3)))
+{
 
     name = in_name ;
 
@@ -271,11 +274,95 @@ STLCheckpoint::STLCheckpoint(std::string in_name) {
 
     my_string_pair.first = "pair first string" ;
     my_string_pair.second = "pair second string" ;
+
+    my_vector_vector_double[0][0] = 100 ;
+    my_vector_vector_double[0][1] = 101 ;
+    my_vector_vector_double[0][2] = 102 ;
+    my_vector_vector_double[1][0] = 103 ;
+    my_vector_vector_double[1][1] = 104 ;
+    my_vector_vector_double[1][2] = 105 ;
+    my_vector_vector_double[2][0] = 106 ;
+    my_vector_vector_double[2][1] = 107 ;
+    my_vector_vector_double[2][2] = 108 ;
+    my_vector_vector_double[3][0] = 109 ;
+    my_vector_vector_double[3][1] = 110 ;
+    my_vector_vector_double[3][2] = 111 ;
+
+    my_vector_vector_vector_double[0][0][0] = 0 ;
+    my_vector_vector_vector_double[0][0][1] = 1 ;
+    my_vector_vector_vector_double[0][0][2] = 2 ;
+    my_vector_vector_vector_double[0][1][0] = 3 ;
+    my_vector_vector_vector_double[0][1][1] = 4 ;
+    my_vector_vector_vector_double[0][1][2] = 5 ;
+    my_vector_vector_vector_double[0][2][0] = 6 ;
+    my_vector_vector_vector_double[0][2][1] = 7 ;
+    my_vector_vector_vector_double[0][2][2] = 8 ;
+    my_vector_vector_vector_double[0][3][0] = 9 ;
+    my_vector_vector_vector_double[0][3][1] = 10 ;
+    my_vector_vector_vector_double[0][3][2] = 11 ;
+
+    my_vector_vector_vector_double[1][0][0] = 1000 ;
+    my_vector_vector_vector_double[1][0][1] = 1001 ;
+    my_vector_vector_vector_double[1][0][2] = 1002 ;
+    my_vector_vector_vector_double[1][1][0] = 1003 ;
+    my_vector_vector_vector_double[1][1][1] = 1004 ;
+    my_vector_vector_vector_double[1][1][2] = 1005 ;
+    my_vector_vector_vector_double[1][2][0] = 1006 ;
+    my_vector_vector_vector_double[1][2][1] = 1007 ;
+    my_vector_vector_vector_double[1][2][2] = 1008 ;
+    my_vector_vector_vector_double[1][3][0] = 1009 ;
+    my_vector_vector_vector_double[1][3][1] = 1010 ;
+    my_vector_vector_vector_double[1][3][2] = 1011 ;
+
+    my_vector_vector_vector_double[2][0][0] = 2000 ;
+    my_vector_vector_vector_double[2][0][1] = 2001 ;
+    my_vector_vector_vector_double[2][0][2] = 2002 ;
+    my_vector_vector_vector_double[2][1][0] = 2003 ;
+    my_vector_vector_vector_double[2][1][1] = 2004 ;
+    my_vector_vector_vector_double[2][1][2] = 2005 ;
+    my_vector_vector_vector_double[2][2][0] = 2006 ;
+    my_vector_vector_vector_double[2][2][1] = 2007 ;
+    my_vector_vector_vector_double[2][2][2] = 2008 ;
+    my_vector_vector_vector_double[2][3][0] = 2009 ;
+    my_vector_vector_vector_double[2][3][1] = 2010 ;
+    my_vector_vector_vector_double[2][3][2] = 2011 ;
+
+    my_vector_vector_vector_double[3][0][0] = 3000 ;
+    my_vector_vector_vector_double[3][0][1] = 3001 ;
+    my_vector_vector_vector_double[3][0][2] = 3002 ;
+    my_vector_vector_vector_double[3][1][0] = 3003 ;
+    my_vector_vector_vector_double[3][1][1] = 3004 ;
+    my_vector_vector_vector_double[3][1][2] = 3005 ;
+    my_vector_vector_vector_double[3][2][0] = 3006 ;
+    my_vector_vector_vector_double[3][2][1] = 3007 ;
+    my_vector_vector_vector_double[3][2][2] = 3008 ;
+    my_vector_vector_vector_double[3][3][0] = 3009 ;
+    my_vector_vector_vector_double[3][3][1] = 3010 ;
+    my_vector_vector_vector_double[3][3][2] = 3011 ;
+
+    my_vector_vector_vector_double[4][0][0] = 4000 ;
+    my_vector_vector_vector_double[4][0][1] = 4001 ;
+    my_vector_vector_vector_double[4][0][2] = 4002 ;
+    my_vector_vector_vector_double[4][1][0] = 4003 ;
+    my_vector_vector_vector_double[4][1][1] = 4004 ;
+    my_vector_vector_vector_double[4][1][2] = 4005 ;
+    my_vector_vector_vector_double[4][2][0] = 4006 ;
+    my_vector_vector_vector_double[4][2][1] = 4007 ;
+    my_vector_vector_vector_double[4][2][2] = 4008 ;
+    my_vector_vector_vector_double[4][3][0] = 4009 ;
+    my_vector_vector_vector_double[4][3][1] = 4010 ;
+    my_vector_vector_vector_double[4][3][2] = 4011 ;
+
     return ;
 }
 
 int STLCheckpoint::speak() {
-    message_publish(1,"Quack!\n") ;
+    //message_publish(1,"Quack!\n") ;
+    //message_publish(1,"my_double_vector: %f %f %f\n", my_double_vector[0], my_double_vector[1], my_double_vector[2]) ;
+    message_publish(1,"my_vector_vector_double[1]: %f %f %f\n",
+     my_vector_vector_double[1][0], my_vector_vector_double[1][1], my_vector_vector_double[1][2]) ;
+    message_publish(1,"my_vector_vector_vector_double[4][2]: %f %f %f\n",
+     my_vector_vector_vector_double[4][2][0], my_vector_vector_vector_double[4][2][1], my_vector_vector_vector_double[4][2][2]) ;
     return 0 ;
 }
 

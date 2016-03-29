@@ -11,9 +11,7 @@
 #include <algorithm>
 #include <typeinfo>
 
-#ifdef __GNUC__
-#include <cxxabi.h>
-#endif
+#ifdef __GNUC__ #include <cxxabi.h> #endif
 
 #include "trick/STLInterface.hh"
 #include "trick/memorymanager_c_intf.h"

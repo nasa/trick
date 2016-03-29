@@ -107,7 +107,7 @@ namespace Trick {
              * The sim objects integrated by this IntegLoopScheduler.
              * This is public so it can be checkpointed and restored.
              */
-            SimObjectVector sim_objects; //!< trick_io(**)
+            SimObjectVector sim_objects; //!< trick_io(*io) trick_units(--)
 
 
             // Member functions
@@ -379,7 +379,7 @@ namespace Trick {
 
             /**
              * Empty a job queue in anticipation of the queue being rebuilt.
-             */  
+             */
             void clear_queue (Trick::ScheduledJobQueue & job_queue);
 
             /**
@@ -387,7 +387,7 @@ namespace Trick {
              * @return Iterator pointing to the object,
              *         or to sim_objects.end() if not found.
              * @param sim_obj Object to be found.
-             */  
+             */
             SimObjectVector::iterator find_sim_object (
                 Trick::SimObject & sim_obj);
 

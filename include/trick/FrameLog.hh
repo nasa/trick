@@ -37,7 +37,7 @@ namespace Trick {
             bool frame_log_flag ;                  /**< trick_io(*io) trick_units(--) */
 
             /** Data recording groups for logging user jobs.\n */
-            std::vector< Trick::FrameDataRecordGroup *> drg_users ; /**< trick_io(*io) trick_units(--) */
+            std::vector< Trick::FrameDataRecordGroup *> drg_users ; /**< trick_io(**) trick_units(--) */
             /** Data recording group for logging trick jobs.\n */
             Trick::FrameDataRecordGroup * drg_trick;    /**<  trick_io(*io) trick_units(--) */
             /** Data recording group for logging frame/overrun time.\n trick_units(--) */

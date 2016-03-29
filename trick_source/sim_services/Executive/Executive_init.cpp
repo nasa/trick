@@ -68,7 +68,7 @@ int Trick::Executive::init() {
         } else {
             except_file = "somewhere in Executive::init" ;
         }
-        fprintf(stderr, "\nExecutive::loop terminated with std::exception\n  ROUTINE: %s\n  DIAGNOSTIC: %s\n",
+        fprintf(stderr, "\nExecutive::init terminated with std::exception\n  ROUTINE: %s\n  DIAGNOSTIC: %s\n",
          except_file.c_str(), ex.what()) ;
         exit(-1) ;
     } catch (...) {
@@ -78,7 +78,7 @@ int Trick::Executive::init() {
             except_file = "somewhere in Executive::init" ;
         }
         except_message = "unknown error" ;
-        fprintf(stderr, "\nExecutive::loop terminated with unknown exception\n  ROUTINE: %s\n  DIAGNOSTIC: %s\n",
+        fprintf(stderr, "\nExecutive::init terminated with unknown exception\n  ROUTINE: %s\n  DIAGNOSTIC: %s\n",
          except_file.c_str() , except_message.c_str()) ;
         exit(-1) ;
     }
