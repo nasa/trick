@@ -173,7 +173,7 @@ sub make_swig_makefile() {
 SWIG_FLAGS ?=
 SWIG_CFLAGS := -I../include \${PYTHON_INCLUDES} -Wno-shadow -Wno-missing-field-initializers
 ifeq (\$(IS_CC_CLANG), 1)
- SWIG_CFLAGS += -Wno-self-assign -Wno-sometimes-uninitialized
+ SWIG_CFLAGS += -Wno-self-assign -Wno-sometimes-uninitialized -Wno-deprecated-register
 endif
 
 ifdef TRICK_VERBOSE_BUILD

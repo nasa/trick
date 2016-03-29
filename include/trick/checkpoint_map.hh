@@ -37,8 +37,8 @@ int checkpoint_map_stl(STL & in_map , std::string object_name , std::string var_
     typename STL::iterator iter ;
     int status ;
 
-    typename STL::key_type * keys ;
-    typename STL::mapped_type * items ;
+    typename STL::key_type * keys = nullptr ;
+    typename STL::mapped_type * items = nullptr ;
 
     cont_size = in_map.size() ;
     std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
@@ -85,7 +85,7 @@ int checkpoint_map_stl_key_string(STL & in_map , std::string object_name , std::
     int status ;
 
     char ** keys ;
-    typename STL::mapped_type * items ;
+    typename STL::mapped_type * items = nullptr ;
 
     cont_size = in_map.size() ;
     std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
@@ -130,7 +130,7 @@ int checkpoint_map_stl_data_string(STL & in_map , std::string object_name , std:
     typename STL::iterator iter ;
     int status ;
 
-    typename STL::key_type * keys ;
+    typename STL::key_type * keys = nullptr ;
     char ** items ;
 
     cont_size = in_map.size() ;

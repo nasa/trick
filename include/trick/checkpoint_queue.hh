@@ -41,7 +41,7 @@ int checkpoint_stl(std::queue<ITEM_TYPE> & in_stl , std::string object_name , st
     char var_declare[128] ;
     int status ;
 
-    ITEM_TYPE * items ;
+    ITEM_TYPE * items = nullptr ;
     std::queue<ITEM_TYPE> temp_queue ;
 
     cont_size = in_stl.size() ;
@@ -74,7 +74,7 @@ int checkpoint_stl(std::priority_queue<ITEM_TYPE> & in_stl , std::string object_
     char var_declare[128] ;
     int status ;
 
-    ITEM_TYPE * items ;
+    ITEM_TYPE * items = nullptr ;
     std::priority_queue<ITEM_TYPE> temp_queue ;
 
     cont_size = in_stl.size() ;

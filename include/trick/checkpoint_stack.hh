@@ -31,7 +31,7 @@ int checkpoint_stl(std::stack<ITEM_TYPE> & in_stl , std::string object_name , st
     char var_declare[128] ;
     int status ;
 
-    ITEM_TYPE * items ;
+    ITEM_TYPE * items = nullptr ;
     std::stack<ITEM_TYPE> temp_stack ;
 
     cont_size = in_stl.size() ;
@@ -68,7 +68,7 @@ int restore_stl(std::stack<ITEM_TYPE> & in_stl , std::string object_name , std::
     unsigned int cont_size ;
 
     REF2 * items_ref ;
-    ITEM_TYPE * items ;
+    ITEM_TYPE * items = nullptr ;
     std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
 
     //message_publish(1, "RESTORE_STL_STACK %s_%s\n", object_name.c_str() , var_name.c_str()) ;
