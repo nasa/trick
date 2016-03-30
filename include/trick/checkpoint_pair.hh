@@ -7,193 +7,311 @@
 #define CHECKPOINT_PAIR_HH
 
 #include <utility>
+#include <sstream>
 #include <algorithm>
 #include <typeinfo>
 #include <functional>
+#include <string>
+#include <type_traits>
 #ifdef __GNUC__
 #include <cxxabi.h>
 #endif
 
+#include "checkpoint_is_stl_container.hh"
+#include "checkpoint_fwd_declare.hh"
 #include "trick/memorymanager_c_intf.h"
 #include "trick/message_proto.h"
 
-#ifndef TRICK_ICG
-template <class FIRST_TYPE, class SECOND_TYPE>
-int delete_stl(std::pair<FIRST_TYPE, SECOND_TYPE> & in_stl __attribute__ ((unused)) , std::string object_name , std::string var_name ) {
+// intrinsic first , intrinsic second
+template <class FIRST, class SECOND>
+int checkpoint_pair_if_is(std::pair<FIRST, SECOND> & in_stl , std::string object_name , std::string var_name ) {
+
+    std::ostringstream var_declare ;
+    int status ;
+
+    FIRST * first = nullptr ;
+    SECOND * second = nullptr ;
+    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+
+    var_declare << abi::__cxa_demangle(typeid(*first).name(), 0, 0, &status ) << " "
+     << object_name << "_" << var_name << "_first[1]" ;
+    first = (FIRST *)TMM_declare_var_s(var_declare.str().c_str()) ;
+    TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_first").c_str()) ;
+    first[0] = in_stl.first ;
+
+    var_declare.str("") ;
+    var_declare.clear() ;
+    var_declare << abi::__cxa_demangle(typeid(*second).name(), 0, 0, &status ) << " "
+     << object_name << "_" << var_name << "_second[1]" ;
+    second = (SECOND *)TMM_declare_var_s(var_declare.str().c_str()) ;
+    TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_second").c_str()) ;
+    second[0] = in_stl.second ;
+
+    return 0 ;
+}
+
+template <class FIRST, class SECOND, typename std::enable_if<!is_stl_container<FIRST>::value &&
+                                                             !is_stl_container<SECOND>::value >::type* >
+int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , std::string var_name ) {
+    return checkpoint_pair_if_is( in_pair, object_name, var_name ) ;
+}
+
+// intrinsic first , STL second
+template <class FIRST, class SECOND>
+int checkpoint_pair_if_ss(std::pair<FIRST, SECOND> & in_stl , std::string object_name , std::string var_name ) {
+
+    std::ostringstream var_declare ;
+    int status ;
+
+    FIRST * first = nullptr ;
+    std::string * second = nullptr ;
+    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+
+    var_declare << abi::__cxa_demangle(typeid(*first).name(), 0, 0, &status ) << " "
+     << object_name << "_" << var_name << "_first[1]" ;
+    first = (FIRST *)TMM_declare_var_s(var_declare.str().c_str()) ;
+    TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_first").c_str()) ;
+    first[0] = in_stl.first ;
+
+    var_declare.str("") ;
+    var_declare.clear() ;
+    var_declare << "std::string "
+     << object_name << "_" << var_name << "_second[1]" ;
+    second = (std::string *)TMM_declare_var_s(var_declare.str().c_str()) ;
+    TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_second").c_str()) ;
+    checkpoint_stl( in_stl.second , object_name + "_" + var_name , "second"  ) ;
+
+    return 0 ;
+}
+
+template <class FIRST, class SECOND, typename std::enable_if<!is_stl_container<FIRST>::value &&
+                                                              is_stl_container<SECOND>::value >::type* >
+int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , std::string var_name ) {
+    return checkpoint_pair_if_ss( in_pair, object_name, var_name ) ;
+}
+
+// STL first , intrinsic second
+template <class FIRST, class SECOND>
+int checkpoint_pair_sf_is(std::pair<FIRST, SECOND> & in_stl , std::string object_name , std::string var_name ) {
+
+    std::ostringstream var_declare ;
+    int status ;
+
+    std::string * first = nullptr ;
+    SECOND * second = nullptr ;
+    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+
+    var_declare << "std::string "
+     << object_name << "_" << var_name << "_first[1]" ;
+    first = (std::string *)TMM_declare_var_s(var_declare.str().c_str()) ;
+    TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_first").c_str()) ;
+    checkpoint_stl( in_stl.first , object_name + "_" + var_name , "first"  ) ;
+
+    var_declare.str("") ;
+    var_declare.clear() ;
+    var_declare << abi::__cxa_demangle(typeid(*second).name(), 0, 0, &status ) << " "
+     << object_name << "_" << var_name << "_second[1]" ;
+    second = (SECOND *)TMM_declare_var_s(var_declare.str().c_str()) ;
+    TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_second").c_str()) ;
+    second[0] = in_stl.second ;
+
+    return 0 ;
+}
+
+template <class FIRST, class SECOND, typename std::enable_if< is_stl_container<FIRST>::value &&
+                                                             !is_stl_container<SECOND>::value >::type* >
+int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , std::string var_name ) {
+    return checkpoint_pair_sf_is( in_pair, object_name, var_name ) ;
+}
+
+// STL first , STL second
+template <class FIRST, class SECOND>
+int checkpoint_pair_sf_ss(std::pair<FIRST, SECOND> & in_stl , std::string object_name , std::string var_name ) {
+
+    std::ostringstream var_declare ;
+    int status ;
+
+    std::string * first = nullptr ;
+    std::string * second = nullptr ;
+    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+
+    var_declare << "std::string "
+     << object_name << "_" << var_name << "_first[1]" ;
+    first = (std::string *)TMM_declare_var_s(var_declare.str().c_str()) ;
+    TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_first").c_str()) ;
+    checkpoint_stl( in_stl.first , object_name + "_" + var_name , "first"  ) ;
+
+    var_declare.str("") ;
+    var_declare.clear() ;
+    var_declare << "std::string "
+     << object_name << "_" << var_name << "_second[1]" ;
+    second = (std::string *)TMM_declare_var_s(var_declare.str().c_str()) ;
+    TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_second").c_str()) ;
+    checkpoint_stl( in_stl.second , object_name + "_" + var_name , "second"  ) ;
+
+    return 0 ;
+}
+
+template <class FIRST, class SECOND, typename std::enable_if< is_stl_container<FIRST>::value &&
+                                                              is_stl_container<SECOND>::value >::type* >
+int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , std::string var_name ) {
+    return checkpoint_pair_sf_ss( in_pair, object_name, var_name ) ;
+}
+
+/* =================================================================================================*/
+
+template <class FIRST, class SECOND>
+int delete_stl(std::pair<FIRST, SECOND> & in_stl __attribute__ ((unused)) , std::string object_name , std::string var_name ) {
     std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
     REF2 * items_ref ;
-    items_ref = ref_attributes((char *)(object_name + std::string("_") + var_name + std::string("_first")).c_str()) ;
+    items_ref = ref_attributes((char *)(object_name + "_" + var_name + "_first").c_str()) ;
     if ( items_ref != NULL ) {
-        TMM_delete_var_n((object_name + std::string("_") + var_name + std::string("_first")).c_str() ) ;
-        TMM_delete_var_n((object_name + std::string("_") + var_name + std::string("_second")).c_str() ) ;
+        TMM_delete_var_n((object_name + "_" + var_name + "_first").c_str() ) ;
+        TMM_delete_var_n((object_name + "_" + var_name + "_second").c_str() ) ;
         free(items_ref) ;
     }
     return 0 ;
 }
 
-template <class FIRST_TYPE, class SECOND_TYPE>
-int checkpoint_stl(std::pair<FIRST_TYPE, SECOND_TYPE> & in_stl , std::string object_name , std::string var_name ) {
+/* =================================================================================================*/
 
-    char var_declare[128] ;
-    int status ;
-
-    FIRST_TYPE * first ;
-    SECOND_TYPE * second ;
-    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
-
-    sprintf(var_declare, "%s %s_%s_first[1]" ,
-     abi::__cxa_demangle(typeid(*first).name(), 0, 0, &status ), object_name.c_str(), var_name.c_str()) ;
-    first = (FIRST_TYPE *)TMM_declare_var_s(var_declare) ;
-    TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_first").c_str()) ;
-
-    sprintf(var_declare, "%s %s_%s_second[1]" ,
-     abi::__cxa_demangle(typeid(*second).name(), 0, 0, &status ), object_name.c_str(), var_name.c_str()) ;
-    second = (SECOND_TYPE *)TMM_declare_var_s(var_declare) ;
-    TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_second").c_str()) ;
-
-    first[0] = in_stl.first ;
-    second[0] = in_stl.second ;
-
-    return 0 ;
-}
-
-template <class FIRST_TYPE>
-int checkpoint_stl(std::pair<FIRST_TYPE, std::string> & in_stl , std::string object_name , std::string var_name ) {
-
-    char var_declare[128] ;
-    int status ;
-
-    FIRST_TYPE * first ;
-    char ** second ;
-    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
-
-    sprintf(var_declare, "%s %s_%s_first[1]" ,
-     abi::__cxa_demangle(typeid(*first).name(), 0, 0, &status ), object_name.c_str(), var_name.c_str()) ;
-    first = (FIRST_TYPE *)TMM_declare_var_s(var_declare) ;
-    TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_first").c_str()) ;
-
-    sprintf(var_declare, "char * %s_%s_second[1]" , object_name.c_str(), var_name.c_str()) ;
-    second = (char **)TMM_declare_var_s(var_declare) ;
-    TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_second").c_str()) ;
-
-    first[0] = in_stl.first ;
-    second[0] = (char *)(in_stl.second.c_str()) ;
-
-    return 0 ;
-}
-
-template <class SECOND_TYPE>
-int checkpoint_stl(std::pair<std::string, SECOND_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-
-    char var_declare[128] ;
-    int status ;
-
-    char ** first ;
-    SECOND_TYPE * second ;
-    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
-
-    sprintf(var_declare, "char * %s_%s_first[1]", object_name.c_str(), var_name.c_str()) ;
-    first = (char **)TMM_declare_var_s(var_declare) ;
-    TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_first").c_str()) ;
-
-    sprintf(var_declare, "%s %s_%s_second[1]" ,
-     abi::__cxa_demangle(typeid(*second).name(), 0, 0, &status ), object_name.c_str(), var_name.c_str()) ;
-    second = (SECOND_TYPE *)TMM_declare_var_s(var_declare) ;
-    TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_second").c_str()) ;
-
-    first[0] = (char *)(in_stl.first.c_str()) ;
-    second[0] = in_stl.second ;
-
-    return 0 ;
-}
-
-template <class FIRST_TYPE, class SECOND_TYPE>
-int restore_stl(std::pair<FIRST_TYPE, SECOND_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-
+// intrinsic first, intrinsic second
+template <class FIRST, class SECOND>
+int restore_pair_if_is(std::pair<FIRST, SECOND> & in_stl , std::string object_name , std::string var_name ) {
 
     REF2 * first_ref ;
     REF2 * second_ref ;
 
-    FIRST_TYPE * first ;
-    SECOND_TYPE * second ;
+    FIRST * first ;
+    SECOND * second ;
     std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
     //message_publish(1, "RESTORE_STL_queue %s_%s\n", object_name.c_str() , var_name.c_str()) ;
 
-    first_ref = ref_attributes((char *)(object_name + std::string("_") + var_name + std::string("_first")).c_str()) ; 
-    second_ref = ref_attributes((char *)(object_name + std::string("_") + var_name + std::string("_second")).c_str()) ; 
+    first_ref = ref_attributes((char *)(object_name + "_" + var_name + "_first").c_str()) ;
+    second_ref = ref_attributes((char *)(object_name + "_" + var_name + "_second").c_str()) ;
 
     if ( first_ref != NULL && second_ref != NULL ) {
-        first = (FIRST_TYPE *)first_ref->address ;
-        second = (SECOND_TYPE *)second_ref->address ;
+        first = (FIRST *)first_ref->address ;
+        second = (SECOND *)second_ref->address ;
 
         in_stl.first = first[0] ;
         in_stl.second = second[0] ;
 
         delete_stl( in_stl , object_name , var_name ) ;
-    } 
+    }
 
     return 0 ;
 }
 
-template <class FIRST_TYPE>
-int restore_stl(std::pair<FIRST_TYPE, std::string > & in_stl , std::string object_name , std::string var_name ) {
+template <class FIRST, class SECOND, typename std::enable_if<!is_stl_container<FIRST>::value &&
+                                                             !is_stl_container<SECOND>::value >::type* >
+int restore_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , std::string var_name ) {
+    return restore_pair_if_is( in_pair, object_name, var_name ) ;
+}
+
+// intrinsic first, STL second
+template <class FIRST, class SECOND>
+int restore_pair_if_ss(std::pair<FIRST, SECOND> & in_stl , std::string object_name , std::string var_name ) {
 
     REF2 * first_ref ;
     REF2 * second_ref ;
 
-    FIRST_TYPE * first ;
-    char ** second ;
-    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+    FIRST * first ;
+    std::string * second ;
 
+    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
     //message_publish(1, "RESTORE_STL_queue %s_%s\n", object_name.c_str() , var_name.c_str()) ;
 
-    first_ref = ref_attributes((char *)(object_name + std::string("_") + var_name + std::string("_first")).c_str()) ; 
-    second_ref = ref_attributes((char *)(object_name + std::string("_") + var_name + std::string("_second")).c_str()) ; 
+    first_ref = ref_attributes((char *)(object_name + "_" + var_name + "_first").c_str()) ;
+    second_ref = ref_attributes((char *)(object_name + "_" + var_name + "_second").c_str()) ;
 
     if ( first_ref != NULL && second_ref != NULL ) {
-        first = (FIRST_TYPE *)first_ref->address ;
-        second = (char **)second_ref->address ;
+        first = (FIRST *)first_ref->address ;
+        second = (std::string *)second_ref->address ;
 
         in_stl.first = first[0] ;
-        in_stl.second = std::string(second[0]) ;
+        restore_stl( in_stl.second , object_name + "_" + var_name , "second" ) ;
 
         delete_stl( in_stl , object_name , var_name ) ;
-    } 
+    }
 
     return 0 ;
 }
 
-template <class SECOND_TYPE>
-int restore_stl(std::pair<std::string, SECOND_TYPE> & in_stl , std::string object_name , std::string var_name ) {
+template <class FIRST, class SECOND, typename std::enable_if<!is_stl_container<FIRST>::value &&
+                                                              is_stl_container<SECOND>::value >::type* >
+int restore_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , std::string var_name ) {
+    return restore_pair_if_ss( in_pair, object_name, var_name ) ;
+}
+
+// STL first, intrinsic second
+template <class FIRST, class SECOND>
+int restore_pair_sf_is(std::pair<FIRST, SECOND> & in_stl , std::string object_name , std::string var_name ) {
 
     REF2 * first_ref ;
     REF2 * second_ref ;
 
-    char ** first ;
-    SECOND_TYPE * second ;
-    //message_publish(1, "RESTORE_STL_queue %s_%s\n", object_name.c_str() , var_name.c_str()) ;
-    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+    std::string * first ;
+    SECOND * second ;
 
-    first_ref = ref_attributes((char *)(object_name + std::string("_") + var_name + std::string("_first")).c_str()) ; 
-    second_ref = ref_attributes((char *)(object_name + std::string("_") + var_name + std::string("_second")).c_str()) ; 
+    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+    //message_publish(1, "RESTORE_STL_queue %s_%s\n", object_name.c_str() , var_name.c_str()) ;
+
+    first_ref = ref_attributes((char *)(object_name + "_" + var_name + "_first").c_str()) ;
+    second_ref = ref_attributes((char *)(object_name + "_" + var_name + "_second").c_str()) ;
 
     if ( first_ref != NULL && second_ref != NULL ) {
-        first = (char **)first_ref->address ;
-        second = (SECOND_TYPE *)second_ref->address ;
+        first = (std::string *)first_ref->address ;
+        second = (SECOND *)second_ref->address ;
 
-        in_stl.first = std::string(first[0]) ;
+        restore_stl( in_stl.first , object_name + "_" + var_name , "first" ) ;
         in_stl.second = second[0] ;
 
         delete_stl( in_stl , object_name , var_name ) ;
-    } 
+    }
 
     return 0 ;
 }
 
-// Specialized routines for strings.
-int checkpoint_stl(std::pair<std::string, std::string> & in_stl , std::string object_name , std::string var_name ) ;
-int restore_stl(std::pair<std::string, std::string> & in_stl , std::string object_name , std::string var_name ) ;
+template <class FIRST, class SECOND, typename std::enable_if< is_stl_container<FIRST>::value &&
+                                                             !is_stl_container<SECOND>::value >::type* >
+int restore_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , std::string var_name ) {
+    return restore_pair_sf_is( in_pair, object_name, var_name ) ;
+}
 
-#endif
+// STL first, STL second
+template <class FIRST, class SECOND>
+int restore_pair_sf_ss(std::pair<FIRST, SECOND> & in_stl , std::string object_name , std::string var_name ) {
+
+    REF2 * first_ref ;
+    REF2 * second_ref ;
+
+    std::string * first ;
+    std::string * second ;
+
+    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+    //message_publish(1, "RESTORE_STL_queue %s_%s\n", object_name.c_str() , var_name.c_str()) ;
+
+    first_ref = ref_attributes((char *)(object_name + "_" + var_name + "_first").c_str()) ;
+    second_ref = ref_attributes((char *)(object_name + "_" + var_name + "_second").c_str()) ;
+
+    if ( first_ref != NULL && second_ref != NULL ) {
+        first = (std::string *)first_ref->address ;
+        second = (std::string *)second_ref->address ;
+
+        restore_stl( in_stl.first , object_name + "_" + var_name , "first" ) ;
+        restore_stl( in_stl.second , object_name + "_" + var_name , "second" ) ;
+
+        delete_stl( in_stl , object_name , var_name ) ;
+    }
+
+    return 0 ;
+}
+
+template <class FIRST, class SECOND, typename std::enable_if< is_stl_container<FIRST>::value &&
+                                                              is_stl_container<SECOND>::value >::type* >
+int restore_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , std::string var_name ) {
+    return restore_pair_sf_ss( in_pair, object_name, var_name ) ;
+}
 
 #endif

@@ -9,6 +9,8 @@
 #include <list>
 #include <deque>
 #include <set>
+#include <map>
+#include <utility>
 
 template <typename T>
 struct is_stl_container {
@@ -37,6 +39,21 @@ struct is_stl_container<std::set<T,Compare,Alloc> > {
 
 template <typename T,typename Compare,typename Alloc>
 struct is_stl_container<std::multiset<T,Compare,Alloc> > {
+  static const bool value = true;
+};
+
+template <typename _Key, typename _Tp , typename _Compare, typename _Alloc>
+struct is_stl_container<std::map<_Key,_Tp ,_Compare,_Alloc> > {
+  static const bool value = true;
+};
+
+template <typename _Key, typename _Tp , typename _Compare, typename _Alloc>
+struct is_stl_container<std::multimap<_Key,_Tp ,_Compare,_Alloc> > {
+  static const bool value = true;
+};
+
+template <typename _T1,typename _T2>
+struct is_stl_container<std::pair<_T1,_T2> > {
   static const bool value = true;
 };
 

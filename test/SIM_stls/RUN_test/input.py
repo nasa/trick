@@ -3,9 +3,9 @@ def main():
 
     #trick.echo_jobs_on()
 
-    #trick.sim_control_panel_set_enabled(True)
-    #trick.real_time_enable()
-    #trick.itimer_enable()
+    trick.sim_control_panel_set_enabled(True)
+    trick.real_time_enable()
+    trick.itimer_enable()
 
     trick.checkpoint_pre_init(True)
     #trick.checkpoint_post_init(True)

@@ -300,7 +300,7 @@ static std::map<std::string, bool> init_stl_classes() {
     my_map.insert(std::pair<std::string, bool>("std::map", 1)) ;
     my_map.insert(std::pair<std::string, bool>("std::multiset", 1)) ;
     my_map.insert(std::pair<std::string, bool>("std::multimap", 1)) ;
-    my_map.insert(std::pair<std::string, bool>("std::pair", 1)) ;
+    my_map.insert(std::pair<std::string, bool>("std::pair", 0)) ;
     my_map.insert(std::pair<std::string, bool>("std::priority_queue", 0)) ;
     my_map.insert(std::pair<std::string, bool>("std::queue", 0)) ;
     my_map.insert(std::pair<std::string, bool>("std::set", 1)) ;
@@ -311,7 +311,7 @@ static std::map<std::string, bool> init_stl_classes() {
     my_map.insert(std::pair<std::string, bool>("std::__1::map", 1)) ;
     my_map.insert(std::pair<std::string, bool>("std::__1::multiset", 1)) ;
     my_map.insert(std::pair<std::string, bool>("std::__1::multimap", 1)) ;
-    my_map.insert(std::pair<std::string, bool>("std::__1::pair", 1)) ;
+    my_map.insert(std::pair<std::string, bool>("std::__1::pair", 0)) ;
     my_map.insert(std::pair<std::string, bool>("std::__1::priority_queue", 0)) ;
     my_map.insert(std::pair<std::string, bool>("std::__1::queue", 0)) ;
     my_map.insert(std::pair<std::string, bool>("std::__1::set", 1)) ;
@@ -342,6 +342,9 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
     size_t pos ;
     while ((pos = tst_string.find("class ")) != std::string::npos ) {
         tst_string.erase(pos , 6) ;
+    }
+    while ((pos = tst_string.find("struct ")) != std::string::npos ) {
+        tst_string.erase(pos , 7) ;
     }
     // clang changes bool to _Bool.  We need to change it back
     if ((pos = tst_string.find("<_Bool")) != std::string::npos ) {
