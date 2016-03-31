@@ -11,7 +11,7 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 #TRICK_LDFLAGS  += ${COVERAGE_FLAGS}
 
 # Flags passed to the preprocessor.
-TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra ${COVERAGE_FLAGS}
+TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra ${COVERAGE_FLAGS} -std=c++11
 
 TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick_mm -ltrick_units -ltrick -ltrick_mm -ltrick_units -ltrick
 
