@@ -23,7 +23,6 @@
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
 #include "trick/TrickConstant.hh"
-#include "trick/checkpoint_stl.hh"
 
 Trick::CheckPointRestart * the_cpr ;
 
@@ -395,24 +394,6 @@ int Trick::CheckPointRestart::safestore_checkpoint() {
     }
 
     return(0) ;
-}
-
-// These are jobs called from the S_define file.  I called this one pre_checkpoint to avoid name overloading
-int Trick::CheckPointRestart::pre_checkpoint() {
-    checkpoint_stl(checkpoint_times , std::string("trick_mm") , std::string("checkpoint_times")) ;
-    return 0 ;
-}
-
-int Trick::CheckPointRestart::post_checkpoint() {
-    if ( ! checkpoint_times.empty() ) {
-        delete_stl(checkpoint_times , std::string("trick_mm") , std::string("checkpoint_times")) ;
-    }
-    return 0 ;
-}
-
-int Trick::CheckPointRestart::restart() {
-    restore_stl(checkpoint_times , std::string("trick_mm") , std::string("checkpoint_times")) ;
-    return 0 ;
 }
 
 void Trick::CheckPointRestart::load_checkpoint(std::string file_name) {

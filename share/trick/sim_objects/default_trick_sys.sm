@@ -224,11 +224,6 @@ class CheckPointRestartSimObject : public Trick::SimObject {
 
             {TRK} P0 ("freeze") cpr.load_checkpoint_job() ;
             {TRK} P0 ("end_of_frame") cpr.load_checkpoint_job() ;
-
-            {TRK} P0 ("checkpoint") cpr.pre_checkpoint() ;
-            {TRK} P0 ("post_checkpoint") cpr.post_checkpoint() ;
-            {TRK} P0 ("restart") cpr.restart() ;
-
         }
 }
 CheckPointRestartSimObject trick_cpr ;

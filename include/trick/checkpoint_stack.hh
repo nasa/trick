@@ -62,7 +62,6 @@ int checkpoint_stl(std::stack<ITEM_TYPE,_Sequence> & in_stl , std::string object
     unsigned int ii ;
     unsigned int cont_size ;
     std::ostringstream var_declare ;
-    int status ;
 
     std::string * items = nullptr ;
     std::stack<ITEM_TYPE,_Sequence> temp_stack(in_stl) ;
@@ -94,17 +93,19 @@ int checkpoint_stl(std::stack<ITEM_TYPE,_Sequence> & in_stl , std::string object
 
 /* =================================================================================================*/
 
+// The delete routine uses the same method as the sequence types
+
 template <typename ITEM_TYPE, typename _Sequence>
 int delete_stl(std::stack<ITEM_TYPE,_Sequence> & in_stl , std::string object_name , std::string var_name ) {
-    return delete_sequence_stl( in_stl , object_name , var_name ) ;
+    return delete_sequence_alloc( in_stl , object_name , var_name ) ;
 }
 
 /* =================================================================================================*/
 
-/* Find the arrays the map data was stored in the checkpoint using ref_attributes 
+/* Find the arrays the map data was stored in the checkpoint using ref_attributes
    From the address of the resulting ref_attributes, we can figure out the number of
    items that were stored in the checkpoint.  Knowing the size, we can restore
-   the map from the 2 arrays.  
+   the map from the 2 arrays.
  */
 template <typename ITEM_TYPE, typename _Sequence,
           typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* >
@@ -118,7 +119,7 @@ int restore_stl(std::stack<ITEM_TYPE,_Sequence> & in_stl , std::string object_na
 
     //message_publish(1, "RESTORE_STL_STACK %s_%s\n", object_name.c_str() , var_name.c_str()) ;
 
-    items_ref = ref_attributes((char *)(object_name + std::string("_") + var_name).c_str()) ; 
+    items_ref = ref_attributes((char *)(object_name + std::string("_") + var_name).c_str()) ;
 
     if ( items_ref != NULL ) {
         cont_size = in_stl.size() ;
@@ -149,7 +150,7 @@ int restore_stl(std::stack<ITEM_TYPE,_Sequence> & in_stl , std::string object_na
 
     //message_publish(1, "RESTORE_STL_STACK %s_%s\n", object_name.c_str() , var_name.c_str()) ;
 
-    items_ref = ref_attributes((char *)(object_name + std::string("_") + var_name).c_str()) ; 
+    items_ref = ref_attributes((char *)(object_name + std::string("_") + var_name).c_str()) ;
 
     if ( items_ref != NULL ) {
         cont_size = in_stl.size() ;

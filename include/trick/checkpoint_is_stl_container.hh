@@ -19,28 +19,28 @@ struct is_stl_container {
   static const bool value = false;
 };
 
-template <typename T,typename Alloc>
-struct is_stl_container<std::vector<T,Alloc> > {
+template <typename T,typename _Alloc>
+struct is_stl_container<std::vector<T,_Alloc> > {
   static const bool value = true;
 };
 
-template <typename T,typename Alloc>
-struct is_stl_container<std::list<T,Alloc> > {
+template <typename T,typename _Alloc>
+struct is_stl_container<std::list<T,_Alloc> > {
   static const bool value = true;
 };
 
-template <typename T,typename Alloc>
-struct is_stl_container<std::deque<T,Alloc> > {
+template <typename T,typename _Alloc>
+struct is_stl_container<std::deque<T,_Alloc> > {
   static const bool value = true;
 };
 
-template <typename T,typename Compare,typename Alloc>
-struct is_stl_container<std::set<T,Compare,Alloc> > {
+template <typename T,typename _Compare,typename _Alloc>
+struct is_stl_container<std::set<T,_Compare,_Alloc> > {
   static const bool value = true;
 };
 
-template <typename T,typename Compare,typename Alloc>
-struct is_stl_container<std::multiset<T,Compare,Alloc> > {
+template <typename T,typename _Compare,typename _Alloc>
+struct is_stl_container<std::multiset<T,_Compare,_Alloc> > {
   static const bool value = true;
 };
 

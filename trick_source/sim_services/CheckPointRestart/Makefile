@@ -7,5 +7,3 @@ ifneq ($(DMTCP),)
 TRICK_CXXFLAGS += -D_DMTCP -I$(DMTCP)/dmtcpaware
 endif
 
-TRICK_CXXFLAGS += -std=c++11
-

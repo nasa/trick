@@ -18,6 +18,7 @@
 
 #include "checkpoint_is_stl_container.hh"
 #include "checkpoint_fwd_declare.hh"
+#include "checkpoint_sequence_stl.hh"
 #include "trick/memorymanager_c_intf.h"
 #include "trick/message_proto.h"
 
@@ -64,7 +65,6 @@ int checkpoint_stl(std::queue<ITEM_TYPE,_Sequence> & in_stl , std::string object
     unsigned int ii ;
     unsigned int cont_size ;
     std::ostringstream var_declare ;
-    int status ;
 
     std::string * items = nullptr ;
     std::queue<ITEM_TYPE,_Sequence> temp_queue(in_stl) ;
@@ -134,7 +134,6 @@ int checkpoint_stl(std::priority_queue<ITEM_TYPE, _Container, _Compare> & in_stl
     unsigned int ii ;
     unsigned int cont_size ;
     std::ostringstream var_declare ;
-    int status ;
 
     std::string * items = nullptr ;
     std::priority_queue<ITEM_TYPE,_Container,_Compare> temp_queue(in_stl) ;
@@ -143,7 +142,7 @@ int checkpoint_stl(std::priority_queue<ITEM_TYPE, _Container, _Compare> & in_stl
     std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
 
     if ( cont_size > 0 ) {
-        var_declare << abi::__cxa_demangle(typeid(*items).name(), 0, 0, &status ) << " "
+        var_declare << "std::string "
          << object_name << "_" << var_name << "[" << cont_size << "]" ;
         items = (std::string *)TMM_declare_var_s(var_declare.str().c_str()) ;
         TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name).c_str()) ;
@@ -166,15 +165,17 @@ int checkpoint_stl(std::priority_queue<ITEM_TYPE, _Container, _Compare> & in_stl
 
 /* =================================================================================================*/
 
+// The delete routines use the same method as the sequence types
+
 template <typename ITEM_TYPE, typename _Sequence>
 int delete_stl(std::queue<ITEM_TYPE,_Sequence> & in_stl , std::string object_name , std::string var_name ) {
-    return delete_sequence_stl( in_stl , object_name , var_name ) ;
+    return delete_sequence_alloc( in_stl , object_name , var_name ) ;
 }
 
 template <typename ITEM_TYPE, typename _Container, typename _Compare>
 int delete_stl(std::priority_queue<ITEM_TYPE,_Container,_Compare> & in_stl ,
                     std::string object_name , std::string var_name ) {
-    return delete_sequence_stl( in_stl , object_name , var_name ) ;
+    return delete_sequence_alloc( in_stl , object_name , var_name ) ;
 }
 
 /* =================================================================================================*/

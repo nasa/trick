@@ -332,24 +332,6 @@ namespace Trick {
              */
             virtual int load_default_data() ;
 
-            /**
-             * Our own pre_checkpoint job to save off our STLs
-             * @return always 0
-             */
-            virtual int pre_checkpoint() ;
-
-            /**
-             * Our own pre_checkpoint job to remove extra memory when checkpoining STLs
-             * @return always 0
-             */
-            virtual int post_checkpoint() ;
-
-            /**
-             * Our own restart job to restore STLs
-             * @return always 0
-             */
-            virtual int restart() ;
-
             // Removed all doxygen documents for functions that have documents in the parent class since
             // Doxygen inherits the documents from the parent class automatically.
 

@@ -23,9 +23,9 @@
 #include "trick/message_proto.h"
 
 // intrinsic first , intrinsic second
-template <class FIRST, class SECOND>
-int checkpoint_pair_if_is(std::pair<FIRST, SECOND> & in_stl , std::string object_name , std::string var_name ) {
-
+template <class FIRST, class SECOND, typename std::enable_if<!is_stl_container<FIRST>::value &&
+                                                             !is_stl_container<SECOND>::value >::type* >
+int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , std::string var_name ) {
     std::ostringstream var_declare ;
     int status ;
 
@@ -37,7 +37,7 @@ int checkpoint_pair_if_is(std::pair<FIRST, SECOND> & in_stl , std::string object
      << object_name << "_" << var_name << "_first[1]" ;
     first = (FIRST *)TMM_declare_var_s(var_declare.str().c_str()) ;
     TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_first").c_str()) ;
-    first[0] = in_stl.first ;
+    first[0] = in_pair.first ;
 
     var_declare.str("") ;
     var_declare.clear() ;
@@ -45,20 +45,15 @@ int checkpoint_pair_if_is(std::pair<FIRST, SECOND> & in_stl , std::string object
      << object_name << "_" << var_name << "_second[1]" ;
     second = (SECOND *)TMM_declare_var_s(var_declare.str().c_str()) ;
     TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_second").c_str()) ;
-    second[0] = in_stl.second ;
+    second[0] = in_pair.second ;
 
     return 0 ;
-}
-
-template <class FIRST, class SECOND, typename std::enable_if<!is_stl_container<FIRST>::value &&
-                                                             !is_stl_container<SECOND>::value >::type* >
-int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , std::string var_name ) {
-    return checkpoint_pair_if_is( in_pair, object_name, var_name ) ;
 }
 
 // intrinsic first , STL second
-template <class FIRST, class SECOND>
-int checkpoint_pair_if_ss(std::pair<FIRST, SECOND> & in_stl , std::string object_name , std::string var_name ) {
+template <class FIRST, class SECOND, typename std::enable_if<!is_stl_container<FIRST>::value &&
+                                                              is_stl_container<SECOND>::value >::type* >
+int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , std::string var_name ) {
 
     std::ostringstream var_declare ;
     int status ;
@@ -71,7 +66,7 @@ int checkpoint_pair_if_ss(std::pair<FIRST, SECOND> & in_stl , std::string object
      << object_name << "_" << var_name << "_first[1]" ;
     first = (FIRST *)TMM_declare_var_s(var_declare.str().c_str()) ;
     TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_first").c_str()) ;
-    first[0] = in_stl.first ;
+    first[0] = in_pair.first ;
 
     var_declare.str("") ;
     var_declare.clear() ;
@@ -79,20 +74,15 @@ int checkpoint_pair_if_ss(std::pair<FIRST, SECOND> & in_stl , std::string object
      << object_name << "_" << var_name << "_second[1]" ;
     second = (std::string *)TMM_declare_var_s(var_declare.str().c_str()) ;
     TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_second").c_str()) ;
-    checkpoint_stl( in_stl.second , object_name + "_" + var_name , "second"  ) ;
+    checkpoint_stl( in_pair.second , object_name + "_" + var_name , "second"  ) ;
 
     return 0 ;
 }
 
-template <class FIRST, class SECOND, typename std::enable_if<!is_stl_container<FIRST>::value &&
-                                                              is_stl_container<SECOND>::value >::type* >
-int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , std::string var_name ) {
-    return checkpoint_pair_if_ss( in_pair, object_name, var_name ) ;
-}
-
 // STL first , intrinsic second
-template <class FIRST, class SECOND>
-int checkpoint_pair_sf_is(std::pair<FIRST, SECOND> & in_stl , std::string object_name , std::string var_name ) {
+template <class FIRST, class SECOND, typename std::enable_if< is_stl_container<FIRST>::value &&
+                                                             !is_stl_container<SECOND>::value >::type* >
+int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , std::string var_name ) {
 
     std::ostringstream var_declare ;
     int status ;
@@ -105,7 +95,7 @@ int checkpoint_pair_sf_is(std::pair<FIRST, SECOND> & in_stl , std::string object
      << object_name << "_" << var_name << "_first[1]" ;
     first = (std::string *)TMM_declare_var_s(var_declare.str().c_str()) ;
     TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_first").c_str()) ;
-    checkpoint_stl( in_stl.first , object_name + "_" + var_name , "first"  ) ;
+    checkpoint_stl( in_pair.first , object_name + "_" + var_name , "first"  ) ;
 
     var_declare.str("") ;
     var_declare.clear() ;
@@ -113,23 +103,17 @@ int checkpoint_pair_sf_is(std::pair<FIRST, SECOND> & in_stl , std::string object
      << object_name << "_" << var_name << "_second[1]" ;
     second = (SECOND *)TMM_declare_var_s(var_declare.str().c_str()) ;
     TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_second").c_str()) ;
-    second[0] = in_stl.second ;
+    second[0] = in_pair.second ;
 
     return 0 ;
 }
 
-template <class FIRST, class SECOND, typename std::enable_if< is_stl_container<FIRST>::value &&
-                                                             !is_stl_container<SECOND>::value >::type* >
-int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , std::string var_name ) {
-    return checkpoint_pair_sf_is( in_pair, object_name, var_name ) ;
-}
-
 // STL first , STL second
-template <class FIRST, class SECOND>
-int checkpoint_pair_sf_ss(std::pair<FIRST, SECOND> & in_stl , std::string object_name , std::string var_name ) {
+template <class FIRST, class SECOND, typename std::enable_if< is_stl_container<FIRST>::value &&
+                                                              is_stl_container<SECOND>::value >::type* >
+int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , std::string var_name ) {
 
     std::ostringstream var_declare ;
-    int status ;
 
     std::string * first = nullptr ;
     std::string * second = nullptr ;
@@ -139,7 +123,7 @@ int checkpoint_pair_sf_ss(std::pair<FIRST, SECOND> & in_stl , std::string object
      << object_name << "_" << var_name << "_first[1]" ;
     first = (std::string *)TMM_declare_var_s(var_declare.str().c_str()) ;
     TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_first").c_str()) ;
-    checkpoint_stl( in_stl.first , object_name + "_" + var_name , "first"  ) ;
+    checkpoint_stl( in_pair.first , object_name + "_" + var_name , "first"  ) ;
 
     var_declare.str("") ;
     var_declare.clear() ;
@@ -147,15 +131,9 @@ int checkpoint_pair_sf_ss(std::pair<FIRST, SECOND> & in_stl , std::string object
      << object_name << "_" << var_name << "_second[1]" ;
     second = (std::string *)TMM_declare_var_s(var_declare.str().c_str()) ;
     TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_second").c_str()) ;
-    checkpoint_stl( in_stl.second , object_name + "_" + var_name , "second"  ) ;
+    checkpoint_stl( in_pair.second , object_name + "_" + var_name , "second"  ) ;
 
     return 0 ;
-}
-
-template <class FIRST, class SECOND, typename std::enable_if< is_stl_container<FIRST>::value &&
-                                                              is_stl_container<SECOND>::value >::type* >
-int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , std::string var_name ) {
-    return checkpoint_pair_sf_ss( in_pair, object_name, var_name ) ;
 }
 
 /* =================================================================================================*/
@@ -176,8 +154,9 @@ int delete_stl(std::pair<FIRST, SECOND> & in_stl __attribute__ ((unused)) , std:
 /* =================================================================================================*/
 
 // intrinsic first, intrinsic second
-template <class FIRST, class SECOND>
-int restore_pair_if_is(std::pair<FIRST, SECOND> & in_stl , std::string object_name , std::string var_name ) {
+template <class FIRST, class SECOND, typename std::enable_if<!is_stl_container<FIRST>::value &&
+                                                             !is_stl_container<SECOND>::value >::type* >
+int restore_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , std::string var_name ) {
 
     REF2 * first_ref ;
     REF2 * second_ref ;
@@ -194,24 +173,19 @@ int restore_pair_if_is(std::pair<FIRST, SECOND> & in_stl , std::string object_na
         first = (FIRST *)first_ref->address ;
         second = (SECOND *)second_ref->address ;
 
-        in_stl.first = first[0] ;
-        in_stl.second = second[0] ;
+        in_pair.first = first[0] ;
+        in_pair.second = second[0] ;
 
-        delete_stl( in_stl , object_name , var_name ) ;
+        delete_stl( in_pair , object_name , var_name ) ;
     }
 
     return 0 ;
-}
-
-template <class FIRST, class SECOND, typename std::enable_if<!is_stl_container<FIRST>::value &&
-                                                             !is_stl_container<SECOND>::value >::type* >
-int restore_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , std::string var_name ) {
-    return restore_pair_if_is( in_pair, object_name, var_name ) ;
 }
 
 // intrinsic first, STL second
-template <class FIRST, class SECOND>
-int restore_pair_if_ss(std::pair<FIRST, SECOND> & in_stl , std::string object_name , std::string var_name ) {
+template <class FIRST, class SECOND, typename std::enable_if<!is_stl_container<FIRST>::value &&
+                                                              is_stl_container<SECOND>::value >::type* >
+int restore_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , std::string var_name ) {
 
     REF2 * first_ref ;
     REF2 * second_ref ;
@@ -229,24 +203,19 @@ int restore_pair_if_ss(std::pair<FIRST, SECOND> & in_stl , std::string object_na
         first = (FIRST *)first_ref->address ;
         second = (std::string *)second_ref->address ;
 
-        in_stl.first = first[0] ;
-        restore_stl( in_stl.second , object_name + "_" + var_name , "second" ) ;
+        in_pair.first = first[0] ;
+        restore_stl( in_pair.second , object_name + "_" + var_name , "second" ) ;
 
-        delete_stl( in_stl , object_name , var_name ) ;
+        delete_stl( in_pair , object_name , var_name ) ;
     }
 
     return 0 ;
 }
 
-template <class FIRST, class SECOND, typename std::enable_if<!is_stl_container<FIRST>::value &&
-                                                              is_stl_container<SECOND>::value >::type* >
-int restore_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , std::string var_name ) {
-    return restore_pair_if_ss( in_pair, object_name, var_name ) ;
-}
-
 // STL first, intrinsic second
-template <class FIRST, class SECOND>
-int restore_pair_sf_is(std::pair<FIRST, SECOND> & in_stl , std::string object_name , std::string var_name ) {
+template <class FIRST, class SECOND, typename std::enable_if< is_stl_container<FIRST>::value &&
+                                                             !is_stl_container<SECOND>::value >::type* >
+int restore_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , std::string var_name ) {
 
     REF2 * first_ref ;
     REF2 * second_ref ;
@@ -264,25 +233,19 @@ int restore_pair_sf_is(std::pair<FIRST, SECOND> & in_stl , std::string object_na
         first = (std::string *)first_ref->address ;
         second = (SECOND *)second_ref->address ;
 
-        restore_stl( in_stl.first , object_name + "_" + var_name , "first" ) ;
-        in_stl.second = second[0] ;
+        restore_stl( in_pair.first , object_name + "_" + var_name , "first" ) ;
+        in_pair.second = second[0] ;
 
-        delete_stl( in_stl , object_name , var_name ) ;
+        delete_stl( in_pair , object_name , var_name ) ;
     }
 
     return 0 ;
 }
 
-template <class FIRST, class SECOND, typename std::enable_if< is_stl_container<FIRST>::value &&
-                                                             !is_stl_container<SECOND>::value >::type* >
-int restore_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , std::string var_name ) {
-    return restore_pair_sf_is( in_pair, object_name, var_name ) ;
-}
-
 // STL first, STL second
-template <class FIRST, class SECOND>
-int restore_pair_sf_ss(std::pair<FIRST, SECOND> & in_stl , std::string object_name , std::string var_name ) {
-
+template <class FIRST, class SECOND, typename std::enable_if< is_stl_container<FIRST>::value &&
+                                                              is_stl_container<SECOND>::value >::type* >
+int restore_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , std::string var_name ) {
     REF2 * first_ref ;
     REF2 * second_ref ;
 
@@ -299,19 +262,13 @@ int restore_pair_sf_ss(std::pair<FIRST, SECOND> & in_stl , std::string object_na
         first = (std::string *)first_ref->address ;
         second = (std::string *)second_ref->address ;
 
-        restore_stl( in_stl.first , object_name + "_" + var_name , "first" ) ;
-        restore_stl( in_stl.second , object_name + "_" + var_name , "second" ) ;
+        restore_stl( in_pair.first , object_name + "_" + var_name , "first" ) ;
+        restore_stl( in_pair.second , object_name + "_" + var_name , "second" ) ;
 
-        delete_stl( in_stl , object_name , var_name ) ;
+        delete_stl( in_pair , object_name , var_name ) ;
     }
 
     return 0 ;
-}
-
-template <class FIRST, class SECOND, typename std::enable_if< is_stl_container<FIRST>::value &&
-                                                              is_stl_container<SECOND>::value >::type* >
-int restore_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , std::string var_name ) {
-    return restore_pair_sf_ss( in_pair, object_name, var_name ) ;
 }
 
 #endif

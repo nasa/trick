@@ -27,7 +27,7 @@
 /* =================================================================================================*/
 
 template <class STL>
-int checkpoint_sequence_stl_intrinsic(STL & in_stl , std::string object_name , std::string var_name ) {
+int checkpoint_sequence_i(STL & in_stl , std::string object_name , std::string var_name ) {
 
     unsigned int ii ;
     unsigned int cont_size ;
@@ -62,7 +62,7 @@ int checkpoint_sequence_stl_intrinsic(STL & in_stl , std::string object_name , s
 }
 
 template <class STL>
-int checkpoint_sequence_stl_stl(STL & in_stl , std::string object_name , std::string var_name ) {
+int checkpoint_sequence_s(STL & in_stl , std::string object_name , std::string var_name ) {
 
     unsigned int ii ;
     unsigned int cont_size ;
@@ -104,77 +104,87 @@ int checkpoint_sequence_stl_stl(STL & in_stl , std::string object_name , std::st
 // std::vector
 
 // This template is only enabled if the items in the vector are an STL
-template <typename ITEM_TYPE, typename std::enable_if<is_stl_container<ITEM_TYPE>::value>::type* >
-int checkpoint_stl(std::vector<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-    return checkpoint_sequence_stl_stl( in_stl , object_name , var_name ) ;
+template <typename ITEM_TYPE, typename _Alloc,
+          typename std::enable_if<is_stl_container<ITEM_TYPE>::value>::type* >
+int checkpoint_stl(std::vector<ITEM_TYPE,_Alloc> & in_stl , std::string object_name , std::string var_name ) {
+    return checkpoint_sequence_s( in_stl , object_name , var_name ) ;
 }
 
 // This template is only enabled if the items in the vector are NOT an STL, except for std::string
-template <typename ITEM_TYPE, typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* >
-int checkpoint_stl(std::vector<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-    return checkpoint_sequence_stl_intrinsic( in_stl , object_name , var_name ) ;
+template <typename ITEM_TYPE, typename _Alloc,
+          typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* >
+int checkpoint_stl(std::vector<ITEM_TYPE,_Alloc> & in_stl , std::string object_name , std::string var_name ) {
+    return checkpoint_sequence_i( in_stl , object_name , var_name ) ;
 }
 
 // -----------
 // std::list
 
-template <typename ITEM_TYPE, typename std::enable_if<is_stl_container<ITEM_TYPE>::value>::type* >
-int checkpoint_stl(std::list<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-    return checkpoint_sequence_stl_stl( in_stl , object_name , var_name ) ;
+template <typename ITEM_TYPE, typename _Alloc,
+          typename std::enable_if<is_stl_container<ITEM_TYPE>::value>::type* >
+int checkpoint_stl(std::list<ITEM_TYPE,_Alloc> & in_stl , std::string object_name , std::string var_name ) {
+    return checkpoint_sequence_s( in_stl , object_name , var_name ) ;
 }
 
 // This template is only enabled if the items in the list are NOT an STL, except for std::string
-template <typename ITEM_TYPE, typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* >
-int checkpoint_stl(std::list<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-    return checkpoint_sequence_stl_intrinsic( in_stl , object_name , var_name ) ;
+template <typename ITEM_TYPE, typename _Alloc,
+          typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* >
+int checkpoint_stl(std::list<ITEM_TYPE,_Alloc> & in_stl , std::string object_name , std::string var_name ) {
+    return checkpoint_sequence_i( in_stl , object_name , var_name ) ;
 }
 
 // -----------
 // std::deque
 
-template <typename ITEM_TYPE, typename std::enable_if<is_stl_container<ITEM_TYPE>::value>::type* >
-int checkpoint_stl(std::deque<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-    return checkpoint_sequence_stl_stl( in_stl , object_name , var_name ) ;
+template <typename ITEM_TYPE, typename _Alloc,
+          typename std::enable_if<is_stl_container<ITEM_TYPE>::value>::type* >
+int checkpoint_stl(std::deque<ITEM_TYPE,_Alloc> & in_stl , std::string object_name , std::string var_name ) {
+    return checkpoint_sequence_s( in_stl , object_name , var_name ) ;
 }
 
 // This template is only enabled if the items in the deque are NOT an STL, except for std::string
-template <typename ITEM_TYPE, typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* >
-int checkpoint_stl(std::deque<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-    return checkpoint_sequence_stl_intrinsic( in_stl , object_name , var_name ) ;
+template <typename ITEM_TYPE, typename _Alloc,
+          typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* >
+int checkpoint_stl(std::deque<ITEM_TYPE,_Alloc> & in_stl , std::string object_name , std::string var_name ) {
+    return checkpoint_sequence_i( in_stl , object_name , var_name ) ;
 }
 
 // -----------
 // std::set
 
-template <typename ITEM_TYPE, typename std::enable_if<is_stl_container<ITEM_TYPE>::value>::type* >
-int checkpoint_stl(std::set<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-    return checkpoint_sequence_stl_stl( in_stl , object_name , var_name ) ;
+template <typename ITEM_TYPE, typename _Alloc,
+          typename std::enable_if<is_stl_container<ITEM_TYPE>::value>::type* >
+int checkpoint_stl(std::set<ITEM_TYPE,_Alloc> & in_stl , std::string object_name , std::string var_name ) {
+    return checkpoint_sequence_s( in_stl , object_name , var_name ) ;
 }
 
 // This template is only enabled if the items in the set are NOT an STL, except for std::string
-template <typename ITEM_TYPE, typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* >
-int checkpoint_stl(std::set<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-    return checkpoint_sequence_stl_intrinsic( in_stl , object_name , var_name ) ;
+template <typename ITEM_TYPE, typename _Alloc,
+          typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* >
+int checkpoint_stl(std::set<ITEM_TYPE,_Alloc> & in_stl , std::string object_name , std::string var_name ) {
+    return checkpoint_sequence_i( in_stl , object_name , var_name ) ;
 }
 
 // -----------
 // std::multiset
 
-template <typename ITEM_TYPE, typename std::enable_if<is_stl_container<ITEM_TYPE>::value>::type* >
-int checkpoint_stl(std::multiset<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-    return checkpoint_sequence_stl_stl( in_stl , object_name , var_name ) ;
+template <typename ITEM_TYPE, typename _Alloc,
+          typename std::enable_if<is_stl_container<ITEM_TYPE>::value>::type* >
+int checkpoint_stl(std::multiset<ITEM_TYPE,_Alloc> & in_stl , std::string object_name , std::string var_name ) {
+    return checkpoint_sequence_s( in_stl , object_name , var_name ) ;
 }
 
 // This template is only enabled if the items in the multiset are NOT an STL, except for std::string
-template <typename ITEM_TYPE, typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* >
-int checkpoint_stl(std::multiset<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-    return checkpoint_sequence_stl_intrinsic( in_stl , object_name , var_name ) ;
+template <typename ITEM_TYPE, typename _Alloc,
+          typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* >
+int checkpoint_stl(std::multiset<ITEM_TYPE,_Alloc> & in_stl , std::string object_name , std::string var_name ) {
+    return checkpoint_sequence_i( in_stl , object_name , var_name ) ;
 }
 
 /* =================================================================================================*/
 
 template <class STL>
-int delete_sequence_stl(STL & in_stl __attribute__ ((unused)), std::string object_name , std::string var_name ) {
+int delete_sequence_alloc(STL & in_stl __attribute__ ((unused)), std::string object_name , std::string var_name ) {
     std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
     REF2 * items_ref ;
     items_ref = ref_attributes((char *)(object_name + std::string("_") + var_name).c_str()) ;
@@ -185,29 +195,29 @@ int delete_sequence_stl(STL & in_stl __attribute__ ((unused)), std::string objec
     return 0 ;
 }
 
-template <class ITEM_TYPE>
-int delete_stl(std::vector<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-    return delete_sequence_stl( in_stl , object_name , var_name ) ;
+template <class ITEM_TYPE, typename _Alloc>
+int delete_stl(std::vector<ITEM_TYPE,_Alloc> & in_stl , std::string object_name , std::string var_name ) {
+    return delete_sequence_alloc( in_stl , object_name , var_name ) ;
 }
 
-template <class ITEM_TYPE>
-int delete_stl(std::list<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-    return delete_sequence_stl( in_stl , object_name , var_name ) ;
+template <class ITEM_TYPE, typename _Alloc>
+int delete_stl(std::list<ITEM_TYPE,_Alloc> & in_stl , std::string object_name , std::string var_name ) {
+    return delete_sequence_alloc( in_stl , object_name , var_name ) ;
 }
 
-template <class ITEM_TYPE>
-int delete_stl(std::deque<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-    return delete_sequence_stl( in_stl , object_name , var_name ) ;
+template <class ITEM_TYPE, typename _Alloc>
+int delete_stl(std::deque<ITEM_TYPE,_Alloc> & in_stl , std::string object_name , std::string var_name ) {
+    return delete_sequence_alloc( in_stl , object_name , var_name ) ;
 }
 
-template <class ITEM_TYPE>
-int delete_stl(std::set<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-    return delete_sequence_stl( in_stl , object_name , var_name ) ;
+template <class ITEM_TYPE, typename _Alloc>
+int delete_stl(std::set<ITEM_TYPE,_Alloc> & in_stl , std::string object_name , std::string var_name ) {
+    return delete_sequence_alloc( in_stl , object_name , var_name ) ;
 }
 
-template <class ITEM_TYPE>
-int delete_stl(std::multiset<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-    return delete_sequence_stl( in_stl , object_name , var_name ) ;
+template <class ITEM_TYPE, typename _Alloc>
+int delete_stl(std::multiset<ITEM_TYPE,_Alloc> & in_stl , std::string object_name , std::string var_name ) {
+    return delete_sequence_alloc( in_stl , object_name , var_name ) ;
 }
 
 
@@ -219,7 +229,7 @@ int delete_stl(std::multiset<ITEM_TYPE> & in_stl , std::string object_name , std
    the map from the 2 arrays.
  */
 template <class STL>
-int restore_sequence_stl_intrinsic(STL & in_stl , std::string object_name , std::string var_name ) {
+int restore_sequence_i(STL & in_stl , std::string object_name , std::string var_name ) {
 
     unsigned int ii ;
     unsigned int cont_size ;
@@ -247,7 +257,7 @@ int restore_sequence_stl_intrinsic(STL & in_stl , std::string object_name , std:
 }
 
 template <class STL>
-int restore_sequence_stl_stl(STL & in_stl , std::string object_name , std::string var_name ) {
+int restore_sequence_s(STL & in_stl , std::string object_name , std::string var_name ) {
 
     unsigned int ii ;
     unsigned int cont_size ;
@@ -282,75 +292,85 @@ int restore_sequence_stl_stl(STL & in_stl , std::string object_name , std::strin
 // std::vector
 
 // This template is only enabled if the items in the vector are an STL
-template <typename ITEM_TYPE, typename std::enable_if<is_stl_container<ITEM_TYPE>::value>::type* >
-int restore_stl(std::vector<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-    return restore_sequence_stl_stl( in_stl , object_name , var_name ) ;
+template <typename ITEM_TYPE, typename _Alloc,
+          typename std::enable_if<is_stl_container<ITEM_TYPE>::value>::type* >
+int restore_stl(std::vector<ITEM_TYPE,_Alloc> & in_stl , std::string object_name , std::string var_name ) {
+    return restore_sequence_s( in_stl , object_name , var_name ) ;
 }
 
 // This template is only enabled if the items in the vector are NOT an STL, except for std::string
-template <typename ITEM_TYPE, typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* >
-int restore_stl(std::vector<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-    return restore_sequence_stl_intrinsic( in_stl , object_name , var_name ) ;
+template <typename ITEM_TYPE, typename _Alloc,
+          typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* >
+int restore_stl(std::vector<ITEM_TYPE,_Alloc> & in_stl , std::string object_name , std::string var_name ) {
+    return restore_sequence_i( in_stl , object_name , var_name ) ;
 }
 
 // -----------
 // std::list
 
 // This template is only enabled if the items in the list are an STL
-template <typename ITEM_TYPE, typename std::enable_if<is_stl_container<ITEM_TYPE>::value>::type* >
-int restore_stl(std::list<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-    return restore_sequence_stl_stl( in_stl , object_name , var_name ) ;
+template <typename ITEM_TYPE, typename _Alloc,
+          typename std::enable_if<is_stl_container<ITEM_TYPE>::value>::type* >
+int restore_stl(std::list<ITEM_TYPE,_Alloc> & in_stl , std::string object_name , std::string var_name ) {
+    return restore_sequence_s( in_stl , object_name , var_name ) ;
 }
 
 // This template is only enabled if the items in the list are NOT an STL, except for std::string
-template <typename ITEM_TYPE, typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* >
-int restore_stl(std::list<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-    return restore_sequence_stl_intrinsic( in_stl , object_name , var_name ) ;
+template <typename ITEM_TYPE, typename _Alloc,
+          typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* >
+int restore_stl(std::list<ITEM_TYPE,_Alloc> & in_stl , std::string object_name , std::string var_name ) {
+    return restore_sequence_i( in_stl , object_name , var_name ) ;
 }
 
 // -----------
 // std::deque
 
 // This template is only enabled if the items in the deque are an STL
-template <typename ITEM_TYPE, typename std::enable_if<is_stl_container<ITEM_TYPE>::value>::type* >
-int restore_stl(std::deque<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-    return restore_sequence_stl_stl( in_stl , object_name , var_name ) ;
+template <typename ITEM_TYPE, typename _Alloc,
+          typename std::enable_if<is_stl_container<ITEM_TYPE>::value>::type* >
+int restore_stl(std::deque<ITEM_TYPE,_Alloc> & in_stl , std::string object_name , std::string var_name ) {
+    return restore_sequence_s( in_stl , object_name , var_name ) ;
 }
 
 // This template is only enabled if the items in the deque are NOT an STL, except for std::string
-template <typename ITEM_TYPE, typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* >
-int restore_stl(std::deque<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-    return restore_sequence_stl_intrinsic( in_stl , object_name , var_name ) ;
+template <typename ITEM_TYPE, typename _Alloc,
+          typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* >
+int restore_stl(std::deque<ITEM_TYPE,_Alloc> & in_stl , std::string object_name , std::string var_name ) {
+    return restore_sequence_i( in_stl , object_name , var_name ) ;
 }
 
 // -----------
 // std::set
 
 // This template is only enabled if the items in the set are an STL
-template <typename ITEM_TYPE, typename std::enable_if<is_stl_container<ITEM_TYPE>::value>::type* >
-int restore_stl(std::set<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-    return restore_sequence_stl_stl( in_stl , object_name , var_name ) ;
+template <typename ITEM_TYPE, typename _Alloc,
+          typename std::enable_if<is_stl_container<ITEM_TYPE>::value>::type* >
+int restore_stl(std::set<ITEM_TYPE,_Alloc> & in_stl , std::string object_name , std::string var_name ) {
+    return restore_sequence_s( in_stl , object_name , var_name ) ;
 }
 
 // This template is only enabled if the items in the set are NOT an STL, except for std::string
-template <typename ITEM_TYPE, typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* >
-int restore_stl(std::set<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-    return restore_sequence_stl_intrinsic( in_stl , object_name , var_name ) ;
+template <typename ITEM_TYPE, typename _Alloc,
+          typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* >
+int restore_stl(std::set<ITEM_TYPE,_Alloc> & in_stl , std::string object_name , std::string var_name ) {
+    return restore_sequence_i( in_stl , object_name , var_name ) ;
 }
 
 // -----------
 // std::multiset
 
 // This template is only enabled if the items in the multiset are an STL
-template <typename ITEM_TYPE, typename std::enable_if<is_stl_container<ITEM_TYPE>::value>::type* >
-int restore_stl(std::multiset<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-    return restore_sequence_stl_stl( in_stl , object_name , var_name ) ;
+template <typename ITEM_TYPE, typename _Alloc,
+          typename std::enable_if<is_stl_container<ITEM_TYPE>::value>::type* >
+int restore_stl(std::multiset<ITEM_TYPE,_Alloc> & in_stl , std::string object_name , std::string var_name ) {
+    return restore_sequence_s( in_stl , object_name , var_name ) ;
 }
 
 // This template is only enabled if the items in the multiset are NOT an STL, except for std::string
-template <typename ITEM_TYPE, typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* >
-int restore_stl(std::multiset<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-    return restore_sequence_stl_intrinsic( in_stl , object_name , var_name ) ;
+template <typename ITEM_TYPE, typename _Alloc,
+          typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* >
+int restore_stl(std::multiset<ITEM_TYPE,_Alloc> & in_stl , std::string object_name , std::string var_name ) {
+    return restore_sequence_i( in_stl , object_name , var_name ) ;
 }
 
 #endif

@@ -35,7 +35,7 @@
 
 // intrinsic key, intrinsic data
 template <class STL>
-int checkpoint_map_stl_ik_id(STL & in_map , std::string object_name , std::string var_name ) {
+int checkpoint_map_ik_id(STL & in_map , std::string object_name , std::string var_name ) {
 
     unsigned int ii ;
     unsigned int cont_size ;
@@ -73,21 +73,23 @@ int checkpoint_map_stl_ik_id(STL & in_map , std::string object_name , std::strin
     return 0 ;
 }
 
-template <class KEY, class DATA, typename std::enable_if<!is_stl_container<KEY>::value &&
-                                                         !is_stl_container<DATA>::value >::type* >
-int checkpoint_stl(std::map<KEY , DATA> & in_map , std::string object_name , std::string var_name ) {
-    return checkpoint_map_stl_ik_id( in_map , object_name , var_name ) ;
+template <class KEY, class DATA, typename _Compare, typename _Alloc,
+          typename std::enable_if<!is_stl_container<KEY>::value &&
+                                  !is_stl_container<DATA>::value >::type* >
+int checkpoint_stl(std::map<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
+    return checkpoint_map_ik_id( in_map , object_name , var_name ) ;
 }
 
-template <class KEY, class DATA, typename std::enable_if<!is_stl_container<KEY>::value &&
-                                                         !is_stl_container<DATA>::value >::type*>
-int checkpoint_stl(std::multimap<KEY , DATA> & in_map , std::string object_name , std::string var_name ) {
-    return checkpoint_map_stl_ik_id( in_map , object_name , var_name ) ;
+template <class KEY, class DATA, typename _Compare, typename _Alloc,
+          typename std::enable_if<!is_stl_container<KEY>::value &&
+                                  !is_stl_container<DATA>::value >::type*>
+int checkpoint_stl(std::multimap<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
+    return checkpoint_map_ik_id( in_map , object_name , var_name ) ;
 }
 
 // intrinsic key, STL data
 template <class STL>
-int checkpoint_map_stl_ik_sd(STL & in_map , std::string object_name , std::string var_name ) {
+int checkpoint_map_ik_sd(STL & in_map , std::string object_name , std::string var_name ) {
 
     unsigned int ii ;
     unsigned int cont_size ;
@@ -133,21 +135,23 @@ int checkpoint_map_stl_ik_sd(STL & in_map , std::string object_name , std::strin
     return 0 ;
 }
 
-template <class KEY, class DATA, typename std::enable_if<!is_stl_container<KEY>::value &&
-                                                          is_stl_container<DATA>::value >::type* >
-int checkpoint_stl(std::map<KEY , DATA> & in_map , std::string object_name , std::string var_name ) {
-    return checkpoint_map_stl_ik_sd( in_map , object_name , var_name ) ;
+template <class KEY, class DATA, typename _Compare, typename _Alloc,
+          typename std::enable_if<!is_stl_container<KEY>::value &&
+                                   is_stl_container<DATA>::value >::type* >
+int checkpoint_stl(std::map<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
+    return checkpoint_map_ik_sd( in_map , object_name , var_name ) ;
 }
 
-template <class KEY, class DATA, typename std::enable_if<!is_stl_container<KEY>::value &&
-                                                          is_stl_container<DATA>::value >::type*>
-int checkpoint_stl(std::multimap<KEY , DATA> & in_map , std::string object_name , std::string var_name ) {
-    return checkpoint_map_stl_ik_sd( in_map , object_name , var_name ) ;
+template <class KEY, class DATA, typename _Compare, typename _Alloc,
+          typename std::enable_if<!is_stl_container<KEY>::value &&
+                                   is_stl_container<DATA>::value >::type*>
+int checkpoint_stl(std::multimap<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
+    return checkpoint_map_ik_sd( in_map , object_name , var_name ) ;
 }
 
 // STL key, intrinsic data
 template <class STL>
-int checkpoint_map_stl_sk_id(STL & in_map , std::string object_name , std::string var_name ) {
+int checkpoint_map_sk_id(STL & in_map , std::string object_name , std::string var_name ) {
 
     unsigned int ii ;
     unsigned int cont_size ;
@@ -193,16 +197,18 @@ int checkpoint_map_stl_sk_id(STL & in_map , std::string object_name , std::strin
     return 0 ;
 }
 
-template <class KEY, class DATA, typename std::enable_if< is_stl_container<KEY>::value &&
-                                                         !is_stl_container<DATA>::value >::type* >
-int checkpoint_stl(std::map<KEY , DATA> & in_map , std::string object_name , std::string var_name ) {
-    return checkpoint_map_stl_sk_id( in_map , object_name , var_name ) ;
+template <class KEY, class DATA, typename _Compare, typename _Alloc,
+          typename std::enable_if< is_stl_container<KEY>::value &&
+                                  !is_stl_container<DATA>::value >::type* >
+int checkpoint_stl(std::map<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
+    return checkpoint_map_sk_id( in_map , object_name , var_name ) ;
 }
 
-template <class KEY, class DATA, typename std::enable_if< is_stl_container<KEY>::value &&
-                                                         !is_stl_container<DATA>::value >::type*>
-int checkpoint_stl(std::multimap<KEY , DATA> & in_map , std::string object_name , std::string var_name ) {
-    return checkpoint_map_stl_sk_id( in_map , object_name , var_name ) ;
+template <class KEY, class DATA, typename _Compare, typename _Alloc,
+          typename std::enable_if< is_stl_container<KEY>::value &&
+                                  !is_stl_container<DATA>::value >::type*>
+int checkpoint_stl(std::multimap<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
+    return checkpoint_map_sk_id( in_map , object_name , var_name ) ;
 }
 
 // STL key, STL data
@@ -213,7 +219,6 @@ int checkpoint_map_stl_sk_sd(STL & in_map , std::string object_name , std::strin
     unsigned int cont_size ;
     std::ostringstream var_declare ;
     typename STL::iterator iter ;
-    int status ;
 
     std::string * keys = nullptr ;
     std::string * items = nullptr ;
@@ -257,21 +262,23 @@ int checkpoint_map_stl_sk_sd(STL & in_map , std::string object_name , std::strin
     return 0 ;
 }
 
-template <class KEY, class DATA, typename std::enable_if< is_stl_container<KEY>::value &&
-                                                          is_stl_container<DATA>::value >::type* >
-int checkpoint_stl(std::map<KEY , DATA> & in_map , std::string object_name , std::string var_name ) {
+template <class KEY, class DATA, typename _Compare, typename _Alloc,
+          typename std::enable_if< is_stl_container<KEY>::value &&
+                                   is_stl_container<DATA>::value >::type* >
+int checkpoint_stl(std::map<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
     return checkpoint_map_stl_sk_sd( in_map , object_name , var_name ) ;
 }
 
-template <class KEY, class DATA, typename std::enable_if< is_stl_container<KEY>::value &&
-                                                          is_stl_container<DATA>::value >::type*>
-int checkpoint_stl(std::multimap<KEY , DATA> & in_map , std::string object_name , std::string var_name ) {
+template <class KEY, class DATA, typename _Compare, typename _Alloc,
+          typename std::enable_if< is_stl_container<KEY>::value &&
+                                   is_stl_container<DATA>::value >::type*>
+int checkpoint_stl(std::multimap<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
     return checkpoint_map_stl_sk_sd( in_map , object_name , var_name ) ;
 }
 /* =================================================================================================*/
 
 template <class STL>
-int delete_map_stl(STL & in_map __attribute__ ((unused)), std::string object_name , std::string var_name ) {
+int delete_map_allocs(STL & in_map __attribute__ ((unused)), std::string object_name , std::string var_name ) {
     std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
     REF2 * items_ref ;
     items_ref = ref_attributes((char *)(object_name + std::string("_") + var_name + std::string("_keys")).c_str()) ;
@@ -283,14 +290,14 @@ int delete_map_stl(STL & in_map __attribute__ ((unused)), std::string object_nam
     return 0 ;
 }
 
-template <class KEY, class DATA>
-int delete_stl(std::map<KEY , DATA> & in_map , std::string object_name , std::string var_name ) {
-    return delete_map_stl(in_map , object_name , var_name) ;
+template <class KEY, class DATA, typename _Compare, typename _Alloc>
+int delete_stl(std::map<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
+    return delete_map_allocs(in_map , object_name , var_name) ;
 }
 
-template <class KEY, class DATA>
-int delete_stl(std::multimap<KEY , DATA> & in_map , std::string object_name , std::string var_name ) {
-    return delete_map_stl(in_map , object_name , var_name) ;
+template <class KEY, class DATA, typename _Compare, typename _Alloc>
+int delete_stl(std::multimap<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
+    return delete_map_allocs(in_map , object_name , var_name) ;
 }
 
 /* =================================================================================================*/
@@ -302,7 +309,7 @@ int delete_stl(std::multimap<KEY , DATA> & in_map , std::string object_name , st
    the map from the 2 arrays.
  */
 template <class STL>
-int restore_map_stl_ik_id(STL & in_map , std::string object_name , std::string var_name ) {
+int restore_map_ik_id(STL & in_map , std::string object_name , std::string var_name ) {
 
     unsigned int ii ;
     unsigned int cont_size ;
@@ -333,20 +340,22 @@ int restore_map_stl_ik_id(STL & in_map , std::string object_name , std::string v
     return 0 ;
 }
 
-template <class KEY, class DATA, typename std::enable_if<!is_stl_container<KEY>::value &&
-                                                         !is_stl_container<DATA>::value >::type* >
-int restore_stl(std::map<KEY , DATA> & in_map , std::string object_name , std::string var_name ) {
-    return restore_map_stl_ik_id(in_map , object_name , var_name) ;
+template <class KEY, class DATA, typename _Compare, typename _Alloc,
+          typename std::enable_if<!is_stl_container<KEY>::value &&
+                                  !is_stl_container<DATA>::value >::type* >
+int restore_stl(std::map<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
+    return restore_map_ik_id(in_map , object_name , var_name) ;
 }
 
-template <class KEY, class DATA, typename std::enable_if<!is_stl_container<KEY>::value &&
-                                                         !is_stl_container<DATA>::value >::type* >
-int restore_stl(std::multimap<KEY , DATA> & in_map , std::string object_name , std::string var_name ) {
-    return restore_map_stl_ik_id(in_map , object_name , var_name) ;
+template <class KEY, class DATA, typename _Compare, typename _Alloc,
+          typename std::enable_if<!is_stl_container<KEY>::value &&
+                                  !is_stl_container<DATA>::value >::type* >
+int restore_stl(std::multimap<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
+    return restore_map_ik_id(in_map , object_name , var_name) ;
 }
 
 template <class STL>
-int restore_map_stl_ik_sd(STL & in_map , std::string object_name , std::string var_name ) {
+int restore_map_ik_sd(STL & in_map , std::string object_name , std::string var_name ) {
 
     unsigned int ii ;
     unsigned int cont_size ;
@@ -381,20 +390,22 @@ int restore_map_stl_ik_sd(STL & in_map , std::string object_name , std::string v
     return 0 ;
 }
 
-template <class KEY, class DATA, typename std::enable_if<!is_stl_container<KEY>::value &&
-                                                          is_stl_container<DATA>::value >::type* >
-int restore_stl(std::map<KEY , DATA> & in_map , std::string object_name , std::string var_name ) {
-    return restore_map_stl_ik_sd(in_map , object_name , var_name) ;
+template <class KEY, class DATA, typename _Compare, typename _Alloc,
+          typename std::enable_if<!is_stl_container<KEY>::value &&
+                                   is_stl_container<DATA>::value >::type* >
+int restore_stl(std::map<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
+    return restore_map_ik_sd(in_map , object_name , var_name) ;
 }
 
-template <class KEY, class DATA, typename std::enable_if<!is_stl_container<KEY>::value &&
-                                                          is_stl_container<DATA>::value >::type* >
-int restore_stl(std::multimap<KEY , DATA> & in_map , std::string object_name , std::string var_name ) {
-    return restore_map_stl_ik_sd(in_map , object_name , var_name) ;
+template <class KEY, class DATA, typename _Compare, typename _Alloc,
+          typename std::enable_if<!is_stl_container<KEY>::value &&
+                                   is_stl_container<DATA>::value >::type* >
+int restore_stl(std::multimap<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
+    return restore_map_ik_sd(in_map , object_name , var_name) ;
 }
 
 template <class STL>
-int restore_map_stl_sk_id(STL & in_map , std::string object_name , std::string var_name ) {
+int restore_map_sk_id(STL & in_map , std::string object_name , std::string var_name ) {
 
     unsigned int ii ;
     unsigned int cont_size ;
@@ -429,20 +440,22 @@ int restore_map_stl_sk_id(STL & in_map , std::string object_name , std::string v
     return 0 ;
 }
 
-template <class KEY, class DATA, typename std::enable_if< is_stl_container<KEY>::value &&
-                                                         !is_stl_container<DATA>::value >::type* >
-int restore_stl(std::map<KEY , DATA> & in_map , std::string object_name , std::string var_name ) {
-    return restore_map_stl_sk_id(in_map , object_name , var_name) ;
+template <class KEY, class DATA, typename _Compare, typename _Alloc,
+          typename std::enable_if< is_stl_container<KEY>::value &&
+                                  !is_stl_container<DATA>::value >::type* >
+int restore_stl(std::map<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
+    return restore_map_sk_id(in_map , object_name , var_name) ;
 }
 
-template <class KEY, class DATA, typename std::enable_if< is_stl_container<KEY>::value &&
-                                                         !is_stl_container<DATA>::value >::type* >
-int restore_stl(std::multimap<KEY , DATA> & in_map , std::string object_name , std::string var_name ) {
-    return restore_map_stl_sk_id(in_map , object_name , var_name) ;
+template <class KEY, class DATA, typename _Compare, typename _Alloc,
+          typename std::enable_if< is_stl_container<KEY>::value &&
+                                  !is_stl_container<DATA>::value >::type* >
+int restore_stl(std::multimap<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
+    return restore_map_sk_id(in_map , object_name , var_name) ;
 }
 
 template <class STL>
-int restore_map_stl_sk_sd(STL & in_map , std::string object_name , std::string var_name ) {
+int restore_map_sk_sd(STL & in_map , std::string object_name , std::string var_name ) {
 
     unsigned int ii ;
     unsigned int cont_size ;
@@ -481,16 +494,18 @@ int restore_map_stl_sk_sd(STL & in_map , std::string object_name , std::string v
     return 0 ;
 }
 
-template <class KEY, class DATA, typename std::enable_if< is_stl_container<KEY>::value &&
-                                                          is_stl_container<DATA>::value >::type* >
-int restore_stl(std::map<KEY , DATA> & in_map , std::string object_name , std::string var_name ) {
-    return restore_map_stl_sk_sd(in_map , object_name , var_name) ;
+template <class KEY, class DATA, typename _Compare, typename _Alloc,
+          typename std::enable_if< is_stl_container<KEY>::value &&
+                                   is_stl_container<DATA>::value >::type* >
+int restore_stl(std::map<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
+    return restore_map_sk_sd(in_map , object_name , var_name) ;
 }
 
-template <class KEY, class DATA, typename std::enable_if< is_stl_container<KEY>::value &&
-                                                          is_stl_container<DATA>::value >::type* >
-int restore_stl(std::multimap<KEY , DATA> & in_map , std::string object_name , std::string var_name ) {
-    return restore_map_stl_sk_sd(in_map , object_name , var_name) ;
+template <class KEY, class DATA, typename _Compare, typename _Alloc,
+          typename std::enable_if< is_stl_container<KEY>::value &&
+                                   is_stl_container<DATA>::value >::type* >
+int restore_stl(std::multimap<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
+    return restore_map_sk_sd(in_map , object_name , var_name) ;
 }
 
 #endif
