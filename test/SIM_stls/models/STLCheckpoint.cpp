@@ -412,7 +412,9 @@ int STLCheckpoint::speak() {
     //message_publish(1,"common_multiples = %d\n", common_multiples[std::pair<int, int >(3,5)][1]) ;
     //message_publish(1,"int_pair_int_int.second.second = %d\n", int_pair_int_int.second.second) ;
     //message_publish(1,"pair_int_int_int.first.second = %d\n", pair_int_int_int.first.second) ;
-    message_publish(1,"pair_pair_pair.second.first = %d\n", pair_pair_pair.second.first) ;
+    //message_publish(1,"pair_pair_pair.second.first = %d\n", pair_pair_pair.second.first) ;
+    message_publish(1,"int_queue.front = %d\n", int_queue.front()) ;
+    message_publish(1,"int_priority_queue.top = %d\n", int_priority_queue.top()) ;
     return 0 ;
 }
 

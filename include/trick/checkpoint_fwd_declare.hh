@@ -109,6 +109,26 @@ template <class FIRST, class SECOND, typename std::enable_if< is_stl_container<F
                                                               is_stl_container<SECOND>::value >::type* = nullptr >
 int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , std::string var_name ) ;
 
+// queue
+template <typename ITEM_TYPE, typename _Sequence,
+          typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* = nullptr >
+int checkpoint_stl(std::queue<ITEM_TYPE, _Sequence> & in_stl , std::string object_name , std::string var_name ) ;
+
+template <typename ITEM_TYPE, typename _Sequence,
+          typename std::enable_if< is_stl_container<ITEM_TYPE>::value>::type* = nullptr >
+int checkpoint_stl(std::queue<ITEM_TYPE, _Sequence> & in_stl , std::string object_name , std::string var_name ) ;
+
+// priority queue
+template <typename ITEM_TYPE, typename _Container, typename _Compare,
+          typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* = nullptr >
+int checkpoint_stl(std::priority_queue<ITEM_TYPE, _Container, _Compare> & in_stl ,
+                   std::string object_name , std::string var_name ) ;
+
+template <typename ITEM_TYPE, typename _Container, typename _Compare,
+          typename std::enable_if< is_stl_container<ITEM_TYPE>::value>::type* = nullptr >
+int checkpoint_stl(std::priority_queue<ITEM_TYPE, _Container, _Compare> & in_stl ,
+                   std::string object_name , std::string var_name ) ;
+
 /* ===================================================================================================== */
 
 // Restore routines
@@ -198,6 +218,26 @@ int restore_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , 
 template <class FIRST, class SECOND, typename std::enable_if< is_stl_container<FIRST>::value &&
                                                               is_stl_container<SECOND>::value >::type* = nullptr >
 int restore_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , std::string var_name ) ;
+
+// queue
+template <typename ITEM_TYPE, typename _Sequence,
+          typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* = nullptr >
+int restore_stl(std::queue<ITEM_TYPE, _Sequence> & in_stl , std::string object_name , std::string var_name ) ;
+
+template <typename ITEM_TYPE, typename _Sequence,
+          typename std::enable_if< is_stl_container<ITEM_TYPE>::value>::type* = nullptr >
+int restore_stl(std::queue<ITEM_TYPE, _Sequence> & in_stl , std::string object_name , std::string var_name ) ;
+
+// priority queue
+template <typename ITEM_TYPE, typename _Container, typename _Compare,
+          typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* = nullptr >
+int restore_stl(std::priority_queue<ITEM_TYPE, _Container, _Compare> & in_stl ,
+                   std::string object_name , std::string var_name ) ;
+
+template <typename ITEM_TYPE, typename _Container, typename _Compare,
+          typename std::enable_if< is_stl_container<ITEM_TYPE>::value>::type* = nullptr >
+int restore_stl(std::priority_queue<ITEM_TYPE, _Container, _Compare> & in_stl ,
+                   std::string object_name , std::string var_name ) ;
 
 #endif
 

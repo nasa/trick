@@ -10,6 +10,7 @@
 #include <deque>
 #include <set>
 #include <map>
+#include <queue>
 #include <utility>
 
 template <typename T>
@@ -54,6 +55,16 @@ struct is_stl_container<std::multimap<_Key,_Tp ,_Compare,_Alloc> > {
 
 template <typename _T1,typename _T2>
 struct is_stl_container<std::pair<_T1,_T2> > {
+  static const bool value = true;
+};
+
+template <typename _Tp, typename _Sequence>
+struct is_stl_container<std::queue<_Tp,_Sequence> > {
+  static const bool value = true;
+};
+
+template <typename _Tp, typename _Sequence, typename _Compare>
+struct is_stl_container<std::priority_queue<_Tp,_Sequence,_Compare> > {
   static const bool value = true;
 };
 

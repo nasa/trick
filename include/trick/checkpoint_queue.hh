@@ -8,54 +8,44 @@
 
 #include <queue>
 #include <algorithm>
+#include <typeinfo>
+#include <sstream>
+#include <type_traits>
 
 #ifdef __GNUC__
 #include <cxxabi.h>
 #endif
 
-#include "trick/checkpoint_sequence_stl.hh"
+#include "checkpoint_is_stl_container.hh"
+#include "checkpoint_fwd_declare.hh"
 #include "trick/memorymanager_c_intf.h"
 #include "trick/message_proto.h"
 
-#ifndef TRICK_ICG
-template <class ITEM_TYPE>
-int delete_stl(std::queue<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-    return delete_sequence_stl( in_stl , object_name , var_name ) ;
-}
+/* =================================================================================================*/
 
-template <class ITEM_TYPE>
-int delete_stl(std::priority_queue<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-    return delete_sequence_stl( in_stl , object_name , var_name ) ;
-}
 
-template <class ITEM_TYPE>
-int delete_stl(std::priority_queue<ITEM_TYPE, std::vector<ITEM_TYPE>, std::greater<ITEM_TYPE> > & in_stl , std::string object_name , std::string var_name ) {
-    return delete_sequence_stl( in_stl , object_name , var_name ) ;
-}
-
-template <class ITEM_TYPE>
-int checkpoint_stl(std::queue<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
+// queue: intrinsic
+template <typename ITEM_TYPE, typename _Sequence,
+          typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* >
+int checkpoint_stl(std::queue<ITEM_TYPE,_Sequence> & in_stl , std::string object_name , std::string var_name ) {
 
     unsigned int ii ;
     unsigned int cont_size ;
-    char var_declare[128] ;
+    std::ostringstream var_declare ;
     int status ;
 
     ITEM_TYPE * items = nullptr ;
-    std::queue<ITEM_TYPE> temp_queue ;
+    std::queue<ITEM_TYPE,_Sequence> temp_queue(in_stl) ;
 
-    cont_size = in_stl.size() ;
+    cont_size = temp_queue.size() ;
     std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
 
     if ( cont_size > 0 ) {
-
-        sprintf(var_declare, "%s %s_%s[%d]" ,
-         abi::__cxa_demangle(typeid(*items).name(), 0, 0, &status ), object_name.c_str(), var_name.c_str(), cont_size) ;
-        items = (ITEM_TYPE *)TMM_declare_var_s(var_declare) ;
+        var_declare << abi::__cxa_demangle(typeid(*items).name(), 0, 0, &status ) << " "
+         << object_name << "_" << var_name << "[" << cont_size << "]" ;
+        items = (ITEM_TYPE *)TMM_declare_var_s(var_declare.str().c_str()) ;
         TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name).c_str()) ;
-        //message_publish(1, "CHECKPOINT_STL_STACK with %s\n", var_declare) ; 
-
-        temp_queue = in_stl ; 
+        //message_publish(1, "CHECKPOINT_STL_STACK with %s\n", var_declare) ;
 
         for ( ii = 0 ; ii < cont_size ; ii++ ) {
             items[ii] = temp_queue.front() ;
@@ -66,29 +56,61 @@ int checkpoint_stl(std::queue<ITEM_TYPE> & in_stl , std::string object_name , st
     return 0 ;
 }
 
-template <class ITEM_TYPE>
-int checkpoint_stl(std::priority_queue<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
+// queue: STL
+template <typename ITEM_TYPE, typename _Sequence,
+          typename std::enable_if< is_stl_container<ITEM_TYPE>::value>::type* >
+int checkpoint_stl(std::queue<ITEM_TYPE,_Sequence> & in_stl , std::string object_name , std::string var_name ) {
 
     unsigned int ii ;
     unsigned int cont_size ;
-    char var_declare[128] ;
+    std::ostringstream var_declare ;
     int status ;
 
     ITEM_TYPE * items = nullptr ;
-    std::priority_queue<ITEM_TYPE> temp_queue ;
+    std::queue<ITEM_TYPE,_Sequence> temp_queue(in_stl) ;
 
-    cont_size = in_stl.size() ;
+    cont_size = temp_queue.size() ;
     std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
 
     if ( cont_size > 0 ) {
-
-        sprintf(var_declare, "%s %s_%s[%d]" ,
-         abi::__cxa_demangle(typeid(*items).name(), 0, 0, &status ), object_name.c_str(), var_name.c_str(), cont_size) ;
-        items = (ITEM_TYPE *)TMM_declare_var_s(var_declare) ;
+        var_declare << "std::string "
+         << object_name << "_" << var_name << "[" << cont_size << "]" ;
+        items = (ITEM_TYPE *)TMM_declare_var_s(var_declare.str().c_str()) ;
         TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name).c_str()) ;
-        //message_publish(1, "CHECKPOINT_STL_STACK with %s\n", var_declare) ; 
+        //message_publish(1, "CHECKPOINT_STL_STACK with %s\n", var_declare) ;
 
-        temp_queue = in_stl ; 
+        for ( ii = 0 ; ii < cont_size ; ii++ ) {
+            std::ostringstream index_string ;
+            index_string << ii ;
+            checkpoint_stl (temp_queue.front(), object_name + "_" + var_name, index_string.str()) ;
+            temp_queue.pop() ;
+        }
+    }
+    return 0 ;
+}
+
+// priority queue: intrinsic
+template <typename ITEM_TYPE, typename _Container, typename _Compare,
+          typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* >
+int checkpoint_stl(std::priority_queue<ITEM_TYPE, _Container, _Compare> & in_stl ,
+                   std::string object_name , std::string var_name ) {
+    unsigned int ii ;
+    unsigned int cont_size ;
+    std::ostringstream var_declare ;
+    int status ;
+
+    ITEM_TYPE * items = nullptr ;
+    std::priority_queue<ITEM_TYPE,_Container,_Compare> temp_queue(in_stl) ;
+
+    cont_size = temp_queue.size() ;
+    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+
+    if ( cont_size > 0 ) {
+        var_declare << abi::__cxa_demangle(typeid(*items).name(), 0, 0, &status ) << " "
+         << object_name << "_" << var_name << "[" << cont_size << "]" ;
+        items = (ITEM_TYPE *)TMM_declare_var_s(var_declare.str().c_str()) ;
+        TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name).c_str()) ;
+        //message_publish(1, "CHECKPOINT_STL_STACK with %s\n", var_declare) ;
 
         for ( ii = 0 ; ii < cont_size ; ii++ ) {
             items[ii] = temp_queue.top() ;
@@ -99,33 +121,34 @@ int checkpoint_stl(std::priority_queue<ITEM_TYPE> & in_stl , std::string object_
     return 0 ;
 }
 
-// template for priority queues using greater comparator
-template <class ITEM_TYPE>
-int checkpoint_stl(std::priority_queue<ITEM_TYPE, std::vector<ITEM_TYPE>, std::greater<ITEM_TYPE> > & in_stl , std::string object_name , std::string var_name ) {
+// priority queue: STL
+template <typename ITEM_TYPE, typename _Container, typename _Compare,
+          typename std::enable_if< is_stl_container<ITEM_TYPE>::value>::type* >
+int checkpoint_stl(std::priority_queue<ITEM_TYPE, _Container, _Compare> & in_stl ,
+                   std::string object_name , std::string var_name ) {
 
     unsigned int ii ;
     unsigned int cont_size ;
-    char var_declare[128] ;
+    std::ostringstream var_declare ;
     int status ;
 
-    ITEM_TYPE * items = NULL ;
-    std::priority_queue<ITEM_TYPE, std::vector<ITEM_TYPE>, std::greater<ITEM_TYPE> > temp_queue ;
+    ITEM_TYPE * items = nullptr ;
+    std::priority_queue<ITEM_TYPE,_Container,_Compare> temp_queue(in_stl) ;
 
-    cont_size = in_stl.size() ;
+    cont_size = temp_queue.size() ;
     std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
 
     if ( cont_size > 0 ) {
-
-        sprintf(var_declare, "%s %s_%s[%d]" ,
-         abi::__cxa_demangle(typeid(*items).name(), 0, 0, &status ), object_name.c_str(), var_name.c_str(), cont_size) ;
-        items = (ITEM_TYPE *)TMM_declare_var_s(var_declare) ;
+        var_declare << abi::__cxa_demangle(typeid(*items).name(), 0, 0, &status ) << " "
+         << object_name << "_" << var_name << "[" << cont_size << "]" ;
+        items = (ITEM_TYPE *)TMM_declare_var_s(var_declare.str().c_str()) ;
         TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name).c_str()) ;
-        //message_publish(1, "CHECKPOINT_STL_STACK with %s\n", var_declare) ; 
-
-        temp_queue = in_stl ; 
+        //message_publish(1, "CHECKPOINT_STL_STACK with %s\n", var_declare) ;
 
         for ( ii = 0 ; ii < cont_size ; ii++ ) {
-            items[ii] = temp_queue.top() ;
+            std::ostringstream index_string ;
+            index_string << ii ;
+            checkpoint_stl (temp_queue.top(), object_name + "_" + var_name, index_string.str()) ;
             temp_queue.pop() ;
         }
     }
@@ -133,24 +156,41 @@ int checkpoint_stl(std::priority_queue<ITEM_TYPE, std::vector<ITEM_TYPE>, std::g
     return 0 ;
 }
 
-/* Find the arrays the map data was stored in the checkpoint using ref_attributes 
+/* =================================================================================================*/
+
+template <typename ITEM_TYPE, typename _Sequence>
+int delete_stl(std::queue<ITEM_TYPE,_Sequence> & in_stl , std::string object_name , std::string var_name ) {
+    return delete_sequence_stl( in_stl , object_name , var_name ) ;
+}
+
+template <typename ITEM_TYPE, typename _Container, typename _Compare>
+int delete_stl(std::priority_queue<ITEM_TYPE,_Container,_Compare> & in_stl ,
+                    std::string object_name , std::string var_name ) {
+    return delete_sequence_stl( in_stl , object_name , var_name ) ;
+}
+
+/* =================================================================================================*/
+
+/* Find the arrays the map data was stored in the checkpoint using ref_attributes
    From the address of the resulting ref_attributes, we can figure out the number of
    items that were stored in the checkpoint.  Knowing the size, we can restore
-   the map from the 2 arrays.  
+   the map from the 2 arrays.
  */
-template <class STL>
-int restore_queue_stl(STL & in_stl , std::string object_name , std::string var_name ) {
 
+// queue: intrinsic
+template <typename ITEM_TYPE, typename _Sequence,
+          typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* >
+int restore_stl(std::queue<ITEM_TYPE,_Sequence> & in_stl , std::string object_name , std::string var_name ) {
     unsigned int ii ;
     unsigned int cont_size ;
 
     REF2 * items_ref ;
-    typename STL::value_type * items ;
+    ITEM_TYPE * items ;
     std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
 
     //message_publish(1, "RESTORE_STL_queue %s_%s\n", object_name.c_str() , var_name.c_str()) ;
 
-    items_ref = ref_attributes((char *)(object_name + std::string("_") + var_name).c_str()) ; 
+    items_ref = ref_attributes((char *)(object_name + std::string("_") + var_name).c_str()) ;
 
     if ( items_ref != NULL ) {
         cont_size = in_stl.size() ;
@@ -158,7 +198,7 @@ int restore_queue_stl(STL & in_stl , std::string object_name , std::string var_n
             in_stl.pop() ;
         }
 
-        items = (typename STL::value_type *)items_ref->address ;
+        items = (ITEM_TYPE *)items_ref->address ;
         cont_size = get_size((char *)items) ;
 
         for ( ii = 0 ; ii < cont_size ; ii++ ) {
@@ -166,27 +206,68 @@ int restore_queue_stl(STL & in_stl , std::string object_name , std::string var_n
         }
         delete_stl( in_stl , object_name , var_name ) ;
     }
-
     return 0 ;
 }
 
-template <class STL>
-int restore_queue_stl_string(STL & in_stl , std::string object_name , std::string var_name ) {
-
+// queue: STL
+template <typename ITEM_TYPE, typename _Sequence,
+          typename std::enable_if< is_stl_container<ITEM_TYPE>::value>::type* >
+int restore_stl(std::queue<ITEM_TYPE,_Sequence> & in_stl , std::string object_name , std::string var_name ) {
     unsigned int ii ;
     unsigned int cont_size ;
 
     REF2 * items_ref ;
-    char ** items ;
+    std::string * items ;
     std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
 
     //message_publish(1, "RESTORE_STL_queue %s_%s\n", object_name.c_str() , var_name.c_str()) ;
 
-    items_ref = ref_attributes((char *)(object_name + std::string("_") + var_name).c_str()) ; 
+    items_ref = ref_attributes((char *)(object_name + "_" + var_name).c_str()) ;
 
     if ( items_ref != NULL ) {
-        STL().swap(in_stl) ;
-        items = (char **)items_ref->address ;
+        cont_size = in_stl.size() ;
+        for ( ii = 0 ; ii < cont_size ; ii++ ) {
+            in_stl.pop() ;
+        }
+
+        items = (std::string *)items_ref->address ;
+        cont_size = get_size((char *)items) ;
+
+        for ( ii = 0 ; ii < cont_size ; ii++ ) {
+            ITEM_TYPE vt ;
+            std::ostringstream index_string ;
+            index_string << ii ;
+            restore_stl( vt , object_name + "_" + var_name , index_string.str()) ;
+            in_stl.push( vt ) ;
+        }
+        delete_stl( in_stl , object_name , var_name ) ;
+    }
+    return 0 ;
+}
+
+// priority_queue: intrinsic
+template <typename ITEM_TYPE, typename _Container, typename _Compare,
+          typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* >
+int restore_stl(std::priority_queue<ITEM_TYPE,_Container,_Compare> & in_stl ,
+                    std::string object_name , std::string var_name ) {
+    unsigned int ii ;
+    unsigned int cont_size ;
+
+    REF2 * items_ref ;
+    ITEM_TYPE * items ;
+    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+
+    //message_publish(1, "RESTORE_STL_queue %s_%s\n", object_name.c_str() , var_name.c_str()) ;
+
+    items_ref = ref_attributes((char *)(object_name + std::string("_") + var_name).c_str()) ;
+
+    if ( items_ref != NULL ) {
+        cont_size = in_stl.size() ;
+        for ( ii = 0 ; ii < cont_size ; ii++ ) {
+            in_stl.pop() ;
+        }
+
+        items = (ITEM_TYPE *)items_ref->address ;
         cont_size = get_size((char *)items) ;
 
         for ( ii = 0 ; ii < cont_size ; ii++ ) {
@@ -194,31 +275,44 @@ int restore_queue_stl_string(STL & in_stl , std::string object_name , std::strin
         }
         delete_stl( in_stl , object_name , var_name ) ;
     }
-
     return 0 ;
 }
 
-template <class ITEM_TYPE>
-int restore_stl(std::queue<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-    return restore_queue_stl( in_stl , object_name , var_name ) ;
+// priority_queue: STL
+template <typename ITEM_TYPE, typename _Container, typename _Compare,
+          typename std::enable_if< is_stl_container<ITEM_TYPE>::value>::type* >
+int restore_stl(std::priority_queue<ITEM_TYPE,_Container,_Compare> & in_stl ,
+                    std::string object_name , std::string var_name ) {
+    unsigned int ii ;
+    unsigned int cont_size ;
+
+    REF2 * items_ref ;
+    std::string * items ;
+    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+
+    //message_publish(1, "RESTORE_STL_queue %s_%s\n", object_name.c_str() , var_name.c_str()) ;
+
+    items_ref = ref_attributes((char *)(object_name + "_" + var_name).c_str()) ;
+
+    if ( items_ref != NULL ) {
+        cont_size = in_stl.size() ;
+        for ( ii = 0 ; ii < cont_size ; ii++ ) {
+            in_stl.pop() ;
+        }
+
+        items = (std::string *)items_ref->address ;
+        cont_size = get_size((char *)items) ;
+
+        for ( ii = 0 ; ii < cont_size ; ii++ ) {
+            ITEM_TYPE vt ;
+            std::ostringstream index_string ;
+            index_string << ii ;
+            restore_stl( vt , object_name + "_" + var_name , index_string.str()) ;
+            in_stl.push( vt ) ;
+        }
+        delete_stl( in_stl , object_name , var_name ) ;
+    }
+    return 0 ;
 }
-
-template <class ITEM_TYPE>
-int restore_stl(std::priority_queue<ITEM_TYPE> & in_stl , std::string object_name , std::string var_name ) {
-    return restore_queue_stl( in_stl , object_name , var_name ) ;
-}
-
-template <class ITEM_TYPE>
-int restore_stl(std::priority_queue<ITEM_TYPE, std::vector<ITEM_TYPE>, std::greater<ITEM_TYPE> > & in_stl , std::string object_name , std::string var_name ) {
-    return restore_queue_stl( in_stl , object_name , var_name ) ;
-}
-
-// Specialized routines for strings.
-int checkpoint_stl(std::queue<std::string> & in_stl , std::string object_name , std::string var_name ) ;
-int checkpoint_stl(std::priority_queue<std::string> & in_stl , std::string object_name , std::string var_name ) ;
-int restore_stl(std::queue<std::string> & in_stl , std::string object_name , std::string var_name ) ;
-int restore_stl(std::priority_queue<std::string> & in_stl , std::string object_name , std::string var_name ) ;
-
-#endif
 
 #endif

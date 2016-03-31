@@ -66,6 +66,7 @@ class STLCheckpoint {
 
         std::priority_queue< int > int_priority_queue ;
         std::priority_queue< std::string > string_priority_queue ;
+        std::priority_queue< int , std::vector< int > , std::greater< int > > int_greater_priority_queue ;
 
         std::pair< int , int > int_pair ;
         std::pair< std::string , int > string_first_pair ;
