@@ -243,31 +243,31 @@ public class SunDisplay extends JFrame implements ActionListener {
         buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.X_AXIS));
         mainPane.add(buttonPane);
         
-        JButton b1 = new JButton("<--");
+        JButton b1 = new JButton("\u25c0");
         b1.addActionListener(this);
         b1.setActionCommand("left");
         b1.setToolTipText("Rotate Azimuth Left");
         buttonPane.add(b1);
         
-        JButton b2 = new JButton("-->");
+        JButton b2 = new JButton("\u25b6");
         b2.addActionListener(this);
         b2.setActionCommand("right");
         b2.setToolTipText("Rotate Azimuth Right");
         buttonPane.add(b2);
         
-        JButton b3 = new JButton("Default");
+        JButton b3 = new JButton("\u25ce");
         b3.addActionListener(this);
         b3.setActionCommand("reset");
         b3.setToolTipText("Reset");
         buttonPane.add(b3);
         
-        JButton b4 = new JButton("up");
+        JButton b4 = new JButton("\u25b2");
         b4.addActionListener(this);
         b4.setActionCommand("up");
         b4.setToolTipText("Increase Observer Elevation");
         buttonPane.add(b4);
         
-        JButton b5 = new JButton("down");
+        JButton b5 = new JButton("\u25bc");
         b5.addActionListener(this);
         b5.setActionCommand("down");
         b5.setToolTipText("Decrease Observer Elevation");
