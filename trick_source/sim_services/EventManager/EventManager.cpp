@@ -209,6 +209,14 @@ int Trick::EventManager::remove_event(Trick::Event * in_event) {
         }
     }
 
+    if (num_active_events == 0) {
+        TMM_delete_var_a(active_events);
+        active_events = NULL;
+    }
+    else {
+        active_events = (Trick::Event **)TMM_resize_array_1d_a(active_events, num_active_events);
+    }
+
     if ( in_event->get_free_on_removal() ) {
         TMM_delete_var_a(in_event) ;
     }
