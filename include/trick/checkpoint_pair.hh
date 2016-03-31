@@ -18,6 +18,7 @@
 #endif
 
 #include "checkpoint_is_stl_container.hh"
+#include "checkpoint_stl_protos.hh"
 #include "checkpoint_fwd_declare.hh"
 #include "trick/memorymanager_c_intf.h"
 #include "trick/message_proto.h"
@@ -33,7 +34,8 @@ int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name
     SECOND * second = nullptr ;
     std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
 
-    var_declare << abi::__cxa_demangle(typeid(*first).name(), 0, 0, &status ) << " "
+    std::string type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*first).name(), 0, 0, &status )) ;
+    var_declare << type_string << " "
      << object_name << "_" << var_name << "_first[1]" ;
     first = (FIRST *)TMM_declare_var_s(var_declare.str().c_str()) ;
     TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_first").c_str()) ;
@@ -41,7 +43,8 @@ int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name
 
     var_declare.str("") ;
     var_declare.clear() ;
-    var_declare << abi::__cxa_demangle(typeid(*second).name(), 0, 0, &status ) << " "
+    type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*second).name(), 0, 0, &status )) ;
+    var_declare << type_string << " "
      << object_name << "_" << var_name << "_second[1]" ;
     second = (SECOND *)TMM_declare_var_s(var_declare.str().c_str()) ;
     TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_second").c_str()) ;
@@ -62,7 +65,8 @@ int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name
     std::string * second = nullptr ;
     std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
 
-    var_declare << abi::__cxa_demangle(typeid(*first).name(), 0, 0, &status ) << " "
+    std::string type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*first).name(), 0, 0, &status )) ;
+    var_declare << type_string << " "
      << object_name << "_" << var_name << "_first[1]" ;
     first = (FIRST *)TMM_declare_var_s(var_declare.str().c_str()) ;
     TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_first").c_str()) ;
@@ -99,7 +103,8 @@ int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name
 
     var_declare.str("") ;
     var_declare.clear() ;
-    var_declare << abi::__cxa_demangle(typeid(*second).name(), 0, 0, &status ) << " "
+    std::string type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*second).name(), 0, 0, &status )) ;
+    var_declare << type_string << " "
      << object_name << "_" << var_name << "_second[1]" ;
     second = (SECOND *)TMM_declare_var_s(var_declare.str().c_str()) ;
     TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_second").c_str()) ;

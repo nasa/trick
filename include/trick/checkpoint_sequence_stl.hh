@@ -20,6 +20,7 @@
 #endif
 
 #include "checkpoint_is_stl_container.hh"
+#include "checkpoint_stl_protos.hh"
 #include "checkpoint_fwd_declare.hh"
 #include "trick/memorymanager_c_intf.h"
 #include "trick/message_proto.h"
@@ -44,8 +45,8 @@ int checkpoint_sequence_i(STL & in_stl , std::string object_name , std::string v
     std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
 
     if ( cont_size > 0 ) {
-
-        var_declare << abi::__cxa_demangle(typeid(*items).name(), 0, 0, &status ) << " "
+        std::string type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*items).name(), 0, 0, &status )) ;
+        var_declare << type_string << " "
          << object_name << "_" << var_name << "[" << cont_size << "]" ;
         items = (typename STL::value_type *)TMM_declare_var_s(var_declare.str().c_str()) ;
         TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name).c_str()) ;
