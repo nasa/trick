@@ -11,6 +11,7 @@
 #include <set>
 #include <map>
 #include <queue>
+#include <stack>
 #include <utility>
 
 template <typename T>
@@ -63,8 +64,13 @@ struct is_stl_container<std::queue<_Tp,_Sequence> > {
   static const bool value = true;
 };
 
-template <typename _Tp, typename _Sequence, typename _Compare>
-struct is_stl_container<std::priority_queue<_Tp,_Sequence,_Compare> > {
+template <typename _Tp, typename _Container, typename _Compare>
+struct is_stl_container<std::priority_queue<_Tp,_Container,_Compare> > {
+  static const bool value = true;
+};
+
+template <typename _Tp, typename _Sequence>
+struct is_stl_container<std::stack<_Tp,_Sequence> > {
   static const bool value = true;
 };
 

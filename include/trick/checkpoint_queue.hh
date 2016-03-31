@@ -66,7 +66,7 @@ int checkpoint_stl(std::queue<ITEM_TYPE,_Sequence> & in_stl , std::string object
     std::ostringstream var_declare ;
     int status ;
 
-    ITEM_TYPE * items = nullptr ;
+    std::string * items = nullptr ;
     std::queue<ITEM_TYPE,_Sequence> temp_queue(in_stl) ;
 
     cont_size = temp_queue.size() ;
@@ -75,11 +75,15 @@ int checkpoint_stl(std::queue<ITEM_TYPE,_Sequence> & in_stl , std::string object
     if ( cont_size > 0 ) {
         var_declare << "std::string "
          << object_name << "_" << var_name << "[" << cont_size << "]" ;
-        items = (ITEM_TYPE *)TMM_declare_var_s(var_declare.str().c_str()) ;
+        items = (std::string *)TMM_declare_var_s(var_declare.str().c_str()) ;
         TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name).c_str()) ;
         //message_publish(1, "CHECKPOINT_STL_STACK with %s\n", var_declare) ;
 
         for ( ii = 0 ; ii < cont_size ; ii++ ) {
+            std::ostringstream sub_elements ;
+            sub_elements << object_name << "_" << var_name << "_" << ii ;
+            items[ii] = sub_elements.str() ;
+
             std::ostringstream index_string ;
             index_string << ii ;
             checkpoint_stl (temp_queue.front(), object_name + "_" + var_name, index_string.str()) ;
@@ -132,7 +136,7 @@ int checkpoint_stl(std::priority_queue<ITEM_TYPE, _Container, _Compare> & in_stl
     std::ostringstream var_declare ;
     int status ;
 
-    ITEM_TYPE * items = nullptr ;
+    std::string * items = nullptr ;
     std::priority_queue<ITEM_TYPE,_Container,_Compare> temp_queue(in_stl) ;
 
     cont_size = temp_queue.size() ;
@@ -141,14 +145,18 @@ int checkpoint_stl(std::priority_queue<ITEM_TYPE, _Container, _Compare> & in_stl
     if ( cont_size > 0 ) {
         var_declare << abi::__cxa_demangle(typeid(*items).name(), 0, 0, &status ) << " "
          << object_name << "_" << var_name << "[" << cont_size << "]" ;
-        items = (ITEM_TYPE *)TMM_declare_var_s(var_declare.str().c_str()) ;
+        items = (std::string *)TMM_declare_var_s(var_declare.str().c_str()) ;
         TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name).c_str()) ;
         //message_publish(1, "CHECKPOINT_STL_STACK with %s\n", var_declare) ;
 
         for ( ii = 0 ; ii < cont_size ; ii++ ) {
+            std::ostringstream sub_elements ;
+            sub_elements << object_name << "_" << var_name << "_" << ii ;
+            items[ii] = sub_elements.str() ;
+
             std::ostringstream index_string ;
             index_string << ii ;
-            checkpoint_stl (temp_queue.top(), object_name + "_" + var_name, index_string.str()) ;
+            checkpoint_stl (const_cast< ITEM_TYPE &>(temp_queue.top()), object_name + "_" + var_name, index_string.str()) ;
             temp_queue.pop() ;
         }
     }

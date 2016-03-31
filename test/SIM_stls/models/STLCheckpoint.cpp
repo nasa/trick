@@ -5,139 +5,10 @@
 /* These 2 constructors add different data to an STLCheckpoint. */
 
 STLCheckpoint::STLCheckpoint() {
-
-    double_map[11.1] = 111.1 ;
-    double_map[22.2] = 222.2 ;
-    double_map[33.3] = 333.3 ;
-
-    string_key_map[std::string("one")] = 1 ;
-    string_key_map[std::string("two")] = 2 ; string_key_map[std::string("three")] = 3 ;
-
-    string_data_map[4] = std::string("vier") ;
-    string_data_map[5] = std::string("fumf") ;
-    string_data_map[6] = std::string("sechs") ;
-
-    string_map[std::string("mother")] = std::string("Marge") ;
-    string_map[std::string("father")] = std::string("Homer") ;
-    string_map[std::string("son")] = std::string("Bart") ;
-
-    int_multimap.insert(std::pair<int, int>(11,111)) ;
-    int_multimap.insert(std::pair<int, int>(22,222)) ;
-    int_multimap.insert(std::pair<int, int>(33,333)) ;
-    int_multimap.insert(std::pair<int, int>(11,111)) ;
-    int_multimap.insert(std::pair<int, int>(22,222)) ;
-    int_multimap.insert(std::pair<int, int>(33,333)) ;
-
-    string_key_multimap.insert(std::pair<std::string, int>("one", 1)) ;
-    string_key_multimap.insert(std::pair<std::string, int>("two", 2)) ;
-    string_key_multimap.insert(std::pair<std::string, int>("three", 3)) ;
-    string_key_multimap.insert(std::pair<std::string, int>("one", 1)) ;
-    string_key_multimap.insert(std::pair<std::string, int>("two", 2)) ;
-    string_key_multimap.insert(std::pair<std::string, int>("three", 3)) ;
-
-    string_data_multimap.insert(std::pair<int, std::string>(4, "vier")) ;
-    string_data_multimap.insert(std::pair<int, std::string>(5, "fumf")) ;
-    string_data_multimap.insert(std::pair<int, std::string>(6, "sechs")) ;
-    string_data_multimap.insert(std::pair<int, std::string>(4, "four")) ;
-    string_data_multimap.insert(std::pair<int, std::string>(5, "five")) ;
-    string_data_multimap.insert(std::pair<int, std::string>(6, "six")) ;
-
-    string_multimap.insert(std::pair<std::string, std::string>("mother","Marge")) ;
-    string_multimap.insert(std::pair<std::string, std::string>("father","Homer")) ;
-    string_multimap.insert(std::pair<std::string, std::string>("mother","Lois")) ;
-    string_multimap.insert(std::pair<std::string, std::string>("father","Meg")) ;
-
-    double_vector.push_back(1.0) ;
-    double_vector.push_back(2.0) ;
-    double_vector.push_back(3.0) ;
-
-    string_vector.push_back("I") ;
-    string_vector.push_back("was") ;
-    string_vector.push_back("here") ;
-
-    short_list.push_back(300) ;
-    short_list.push_back(301) ;
-    short_list.push_back(302) ;
-
-    string_list.push_back("I") ;
-    string_list.push_back("was") ;
-    string_list.push_back("there") ;
-
-    float_deque.push_back(12.3) ;
-    float_deque.push_back(45.6) ;
-    float_deque.push_back(78.9) ;
-
-    string_deque.push_back("meow") ;
-    string_deque.push_back("bark") ;
-    string_deque.push_back("quack") ;
-
-    int_set.insert(8) ;
-    int_set.insert(4) ;
-    int_set.insert(2) ;
-    int_set.insert(1) ;
-
-    string_set.insert("e") ;
-    string_set.insert("a") ;
-    string_set.insert("d") ;
-
-    long_multiset.insert(8) ;
-    long_multiset.insert(4) ;
-    long_multiset.insert(4) ;
-    long_multiset.insert(2) ;
-    long_multiset.insert(1) ;
-
-    string_multiset.insert("e") ;
-    string_multiset.insert("a") ;
-    string_multiset.insert("d") ;
-    string_multiset.insert("e") ;
-    string_multiset.insert("a") ;
-    string_multiset.insert("d") ;
-
-    uint_stack.push(10) ;
-    uint_stack.push(20) ;
-    uint_stack.push(30) ;
-    uint_stack.push(40) ;
-
-    string_stack.push("abc I") ;
-    string_stack.push("abc want the one") ;
-    string_stack.push("abc with the bigger") ;
-    string_stack.push("abc Gee Bees") ;
-
-    int_queue.push(10) ;
-    int_queue.push(20) ;
-    int_queue.push(30) ;
-    int_queue.push(40) ;
-
-    string_queue.push("abc I") ;
-    string_queue.push("abc want") ;
-    string_queue.push("abc an") ;
-    string_queue.push("abc iPhone 4") ;
-
-    int_priority_queue.push(30) ;
-    int_priority_queue.push(20) ;
-    int_priority_queue.push(40) ;
-    int_priority_queue.push(10) ;
-
-    string_priority_queue.push("abc I") ;
-    string_priority_queue.push("abc want") ;
-    string_priority_queue.push("abc an") ;
-    string_priority_queue.push("abc iPhone 4") ;
-
-    int_pair.first = 1 ;
-    int_pair.second = 2 ;
-
-    string_first_pair.first = "abc string first" ;
-    string_first_pair.second = 2 ;
-
-    string_second_pair.first = 2 ;
-    string_second_pair.second = "abc string second" ;
-
-    string_pair.first = "abc pair first string" ;
-    string_pair.second = "abc pair second string" ;
     return ;
 }
 
-STLCheckpoint::STLCheckpoint(std::string in_name) : 
+STLCheckpoint::STLCheckpoint(std::string in_name) :
   vector_vector_double(4, std::vector<double>(3)) ,
   vector_vector_vector_double(5, std::vector<std::vector<double> >(4, std::vector<double>(3)))
 {
@@ -270,6 +141,9 @@ STLCheckpoint::STLCheckpoint(std::string in_name) :
     string_stack.push("with the bigger") ;
     string_stack.push("Gee Bees") ;
 
+    stack_vector_int.push(v) ;
+    stack_vector_int.push(v) ;
+
     int_queue.push(1) ;
     int_queue.push(2) ;
     int_queue.push(3) ;
@@ -289,6 +163,12 @@ STLCheckpoint::STLCheckpoint(std::string in_name) :
     string_priority_queue.push("want") ;
     string_priority_queue.push("an") ;
     string_priority_queue.push("iPhone 4") ;
+
+    queue_vector_int.push(v) ;
+    queue_vector_int.push(v) ;
+
+    priority_queue_vector_int.push(v) ;
+    priority_queue_vector_int.push(v) ;
 
     int_pair.first = 10 ;
     int_pair.second = 20 ;
@@ -413,8 +293,12 @@ int STLCheckpoint::speak() {
     //message_publish(1,"int_pair_int_int.second.second = %d\n", int_pair_int_int.second.second) ;
     //message_publish(1,"pair_int_int_int.first.second = %d\n", pair_int_int_int.first.second) ;
     //message_publish(1,"pair_pair_pair.second.first = %d\n", pair_pair_pair.second.first) ;
-    message_publish(1,"int_queue.front = %d\n", int_queue.front()) ;
-    message_publish(1,"int_priority_queue.top = %d\n", int_priority_queue.top()) ;
+    //message_publish(1,"int_queue.front = %d\n", int_queue.front()) ;
+    //message_publish(1,"int_priority_queue.top = %d\n", int_priority_queue.top()) ;
+    //message_publish(1,"uint_stack.top = %d\n", uint_stack.top()) ;
+    //message_publish(1,"queue_vector_int.front()[3] = %d\n", queue_vector_int.front()[3]) ;
+    //message_publish(1,"priority_queue_vector_int.top()[2] = %d\n", priority_queue_vector_int.top()[2]) ;
+    message_publish(1,"stack_vector_int.top()[1] = %d\n", stack_vector_int.top()[1]) ;
     return 0 ;
 }
 

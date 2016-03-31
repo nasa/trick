@@ -60,13 +60,16 @@ class STLCheckpoint {
 
         std::stack< unsigned int > uint_stack ;
         std::stack< std::string > string_stack ;
+        std::stack< std::vector<int> > stack_vector_int ;
 
         std::queue< int > int_queue ;
         std::queue< std::string > string_queue ;
+        std::queue< std::vector<int> > queue_vector_int ;
 
         std::priority_queue< int > int_priority_queue ;
         std::priority_queue< std::string > string_priority_queue ;
         std::priority_queue< int , std::vector< int > , std::greater< int > > int_greater_priority_queue ;
+        std::priority_queue< std::vector<int> > priority_queue_vector_int ;
 
         std::pair< int , int > int_pair ;
         std::pair< std::string , int > string_first_pair ;
