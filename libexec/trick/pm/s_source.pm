@@ -49,6 +49,7 @@ PURPOSE:
 #include <new>
 #include <iostream>
 #include <stdlib.h>
+#include <cstddef>
 
 #include \"trick/attributes.h\"
 #include \"trick/populate_attribute_maps.hh\"

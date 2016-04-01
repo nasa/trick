@@ -322,6 +322,11 @@ sub process_file() {
         print OUT "#include \"trick/swig/trick_swig.i\"\n\n" ;
 
         print OUT "
+\%insert(\"begin\") \%{
+#include <Python.h>
+#include <cstddef>
+\%}
+
 \%{
 #include \"$f\"
 \%}\n" ;

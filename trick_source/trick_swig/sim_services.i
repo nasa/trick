@@ -1,6 +1,10 @@
 
 %module sim_services
 
+%{
+#include <cstddef>
+%}
+
 #include "trick/swig/trick_swig.i"
 #include "trick/swig/units_attach.i"
 #include "trick/swig/extra_functions.i"
