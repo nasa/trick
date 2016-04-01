@@ -93,7 +93,7 @@ void Trick::FrameLog::add_recording_vars_for_jobs() {
 
     unsigned int ii , dot ;
     REF2 * new_ref ;
-    char job_name[256];
+    char job_name[512];
     std::vector<Trick::JobData *> all_jobs_vector ;
 
     exec_get_all_jobs_vector(all_jobs_vector) ;
@@ -195,7 +195,7 @@ void Trick::FrameLog::add_recording_vars_for_jobs() {
 void Trick::FrameLog::add_recording_vars_for_frame() {
 
     REF2 * new_ref ;
-    char job_name[256];
+    char job_name[512];
     int ii ;
 
     drg_frame->add_variable(rt_sim_object_name + std::string(".rt_sync.frame_sched_time")) ;
