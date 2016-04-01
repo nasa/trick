@@ -96,7 +96,8 @@ $(TRICK_LIB_DIR):
 $(IO_C_OBJS): $(OBJ_DIR)/%.o : $(IO_SRC_DIR)%.c | $(OBJ_DIR)
 	$(TRICK_CC) $(TRICK_CFLAGS) $(TRICK_SYSTEM_CFLAGS) -c $< -o $@
 
-$(IO_CPP_OBJS): TRICK_CXXFLAGS += -Wno-invalid-offsetof
+$(IO_CPP_OBJS): TRICK_SYSTEM_CXXFLAGS += -std=c++11
+$(IO_CPP_OBJS): TRICK_SYSTEM_CXXFLAGS += -Wno-invalid-offsetof
 ifeq ($(IS_CC_CLANG), 0)
  # cannot get an "expr" command to work on all platforms.  Falling back to reliable perl. :)
  GCCVERSIONGTEQ48 := $(shell perl -e 'printf "%d\n", ($(GCC_MAJOR)>4)||(($(GCC_MAJOR)==4)&&($(GCC_MINOR)>=8)) ;' )
@@ -104,7 +105,6 @@ ifeq ($(IS_CC_CLANG), 0)
   $(IO_CPP_OBJS): TRICK_CXXFLAGS += -Wno-unused-but-set-variable
  endif
 endif
-
 
 $(IO_CPP_OBJS): $(OBJ_DIR)/%.o : $(IO_SRC_DIR)%.cpp | $(OBJ_DIR)
 	$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c $< -o $@

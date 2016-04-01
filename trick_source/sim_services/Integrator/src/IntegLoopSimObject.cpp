@@ -1,7 +1,6 @@
 
 #include "trick/IntegLoopSimObject.hh"
 #include "trick/exec_proto.hh"
-#include "trick/checkpoint_stl.hh"
 
 void IntegLoopSimObject::add_jobs(double in_cycle, unsigned int child) {
     Trick::JobData * job ;
@@ -15,14 +14,11 @@ void IntegLoopSimObject::add_jobs(double in_cycle, unsigned int child) {
     job->add_tag("TRK") ;
     job = add_job(child, 3, "integ_loop", NULL, in_cycle, "integ_sched.integrate", "", 60000) ;
     job->add_tag("TRK") ;
-    job = add_job(0, 4, "checkpoint", NULL, 1, "checkpoint_stl", "", 60000) ;
-    job = add_job(0, 5, "post_checkpoint", NULL, 1, "delete_stl", "", 60000) ;
-    job = add_job(0, 6, "restart", NULL, 1, "restore_stl", "", 60000) ;
-    job = add_job(0, 7, "preload_checkpoint", NULL, 1, "integ_sched.restart_checkpoint", "", 0) ;
+    job = add_job(0, 4, "preload_checkpoint", NULL, 1, "integ_sched.restart_checkpoint", "", 0) ;
     job->add_tag("TRK") ;
-    job = add_job(0, 8, "restart", NULL, 1, "integ_sched.rebuild_jobs", "", 60000) ;
+    job = add_job(0, 5, "restart", NULL, 1, "integ_sched.rebuild_jobs", "", 60000) ;
     job->add_tag("TRK") ;
-    job = add_job(0, 9, "restart", NULL, 1, "integ_sched.get_first_step_deriv_from_integrator", "", 65535) ;
+    job = add_job(0, 6, "restart", NULL, 1, "integ_sched.get_first_step_deriv_from_integrator", "", 65535) ;
     job->add_tag("TRK") ;
 }
 
@@ -45,21 +41,12 @@ int IntegLoopSimObject::call_function ( Trick::JobData * curr_job ) {
             integ_sched.integrate() ;
             break ;
         case 4:
-            checkpoint_stl(integ_sched.sim_objects, name + std::string("_") + std::string("integ_sched.sim_objects"), std::string("")) ;
-            break ;
-        case 5:
-            delete_stl (integ_sched.sim_objects, name + std::string("_") + std::string("integ_sched.sim_objects"), std::string("")) ;
-            break ;
-        case 6:
-            restore_stl (integ_sched.sim_objects, name + std::string("_") + std::string("integ_sched.sim_objects"), std::string("")) ;
-            break ;
-        case 7:
             integ_sched.restart_checkpoint() ;
             break ;
-        case 8:
+        case 5:
             integ_sched.rebuild_jobs() ;
             break ;
-        case 9:
+        case 6:
             integ_sched.get_first_step_deriv_from_integrator() ;
             break ;
         default:

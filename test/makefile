@@ -7,7 +7,6 @@ COMPILE_DIRS = \
     SIM_events \
     SIM_rti \
     SIM_stls \
-    SIM_stls2 \
     SIM_test_dp \
     SIM_test_dr \
     SIM_test_io \
@@ -30,7 +29,6 @@ SIMS_NEEDING_TEST = \
 # SIM_test_varserv  ( not sure what it is testing )
 # SIM_dynamic_sim_object ( not running, class won't instantiate )
 # SIM_segments  ( not a test, but a demo )
-# SIM_stls3     ( not compiling on most platforms )
 
 # This test is temporarily sitting out until fixed.
 #    SIM_test_varserv

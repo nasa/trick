@@ -17,7 +17,7 @@ extern "C" void* TMM_declare_var( TRICK_TYPE type, const char*class_name, int n_
         std::string svar_name = var_name; 
         return ( trick_MM->declare_var( type, sclass_name, n_stars, svar_name, n_cdims, cdims));
     } else {
-            Trick::MemoryManager::emitError("TMM_declare_var() called before MemoryManager instantiation. Returning NULL.") ;
+        Trick::MemoryManager::emitError("TMM_declare_var() called before MemoryManager instantiation. Returning NULL.") ;
         return ( (void*)NULL);
     }
 }
@@ -31,7 +31,7 @@ extern "C" void* TMM_declare_var_1d( const char* enh_type_spec, int e_elems) {
     if (trick_MM != NULL) {
         return ( trick_MM->declare_var( enh_type_spec, e_elems));
     } else {
-            Trick::MemoryManager::emitError("TMM_declare_var_1d() called before MemoryManager instantiation. Returning NULL.\n") ;
+        Trick::MemoryManager::emitError("TMM_declare_var_1d() called before MemoryManager instantiation. Returning NULL.\n") ;
         return ( (void*)NULL);
     }
 }
@@ -45,7 +45,7 @@ extern "C" void* TMM_declare_var_s( const char* declaration) {
     if (trick_MM != NULL) {
         return ( trick_MM->declare_var( declaration));
     } else {
-            Trick::MemoryManager::emitError("TMM_declare_var_s() called before MemoryManager instantiation. Returning NULL.\n") ;
+        Trick::MemoryManager::emitError("TMM_declare_var_s() called before MemoryManager instantiation. Returning NULL.\n") ;
         return ( (void*)NULL);
     }
 }
@@ -61,7 +61,7 @@ extern "C" void* alloc_type( int e_elems, const char* enh_type_spec) {
     if (trick_MM != NULL) {
         return ( trick_MM->declare_var( enh_type_spec, e_elems));
     } else {
-            Trick::MemoryManager::emitError("alloc_type() called before MemoryManager instantiation. Returning NULL.\n") ;
+        Trick::MemoryManager::emitError("alloc_type() called before MemoryManager instantiation. Returning NULL.\n") ;
         return ( (void*)NULL);
     }
 }
@@ -75,7 +75,7 @@ extern "C" void* TMM_declare_operatornew_var( const char * class_name, unsigned 
     if (trick_MM != NULL) {
         return trick_MM->declare_operatornew_var( std::string(class_name), alloc_size, element_size ) ;
     } else {
-            Trick::MemoryManager::emitError("TMM_declare_var() called before MemoryManager instantiation. Returning NULL.\n") ;
+        Trick::MemoryManager::emitError("TMM_declare_var() called before MemoryManager instantiation. Returning NULL.\n") ;
         return (void*)NULL ;
     }
 }
@@ -91,7 +91,7 @@ extern "C" void* TMM_declare_ext_var( void* addr, TRICK_TYPE type, const char*cl
         std::string svar_name = var_name; 
         return ( trick_MM->declare_extern_var( addr, type, sclass_name, n_stars, svar_name, n_cdims, cdims));
     } else {
-            Trick::MemoryManager::emitError("TMM_declare_ext_var() called before MemoryManager instantiation. Returning NULL.\n") ;
+        Trick::MemoryManager::emitError("TMM_declare_ext_var() called before MemoryManager instantiation. Returning NULL.\n") ;
         return ( (void*)NULL);
     }
 }
@@ -105,7 +105,7 @@ extern "C" void* TMM_declare_ext_var_1d( void* addr, const char* elem_decl, int 
     if (trick_MM != NULL) {
         return ( trick_MM->declare_extern_var( addr, elem_decl, n_elems));
     } else {
-            Trick::MemoryManager::emitError("TMM_declare_ext_var_1d() called before MemoryManager instantiation. Returning NULL.\n") ;
+        Trick::MemoryManager::emitError("TMM_declare_ext_var_1d() called before MemoryManager instantiation. Returning NULL.\n") ;
         return ( (void*)NULL);
     }
 }
@@ -119,7 +119,7 @@ extern "C" void* TMM_declare_ext_var_s( void* addr, const char* declaration) {
     if (trick_MM != NULL) {
         return ( trick_MM->declare_extern_var(addr, declaration));
     } else {
-            Trick::MemoryManager::emitError("TMM_declare_ext_var_s() called before MemoryManager instantiation. Returning NULL.\n") ;
+        Trick::MemoryManager::emitError("TMM_declare_ext_var_s() called before MemoryManager instantiation. Returning NULL.\n") ;
         return ( (void*)NULL);
     }
 }
@@ -135,7 +135,7 @@ void* TMM_resize_array_a(void *address, int n_cdims, int *cdims){
     if (trick_MM != NULL) {
         return ( trick_MM->resize_array(address, n_cdims, cdims));
     } else {
-            Trick::MemoryManager::emitError("TMM_resize_array_a() called before MemoryManager instantiation. Returning NULL.\n") ;
+        Trick::MemoryManager::emitError("TMM_resize_array_a() called before MemoryManager instantiation. Returning NULL.\n") ;
         return ( (void*)NULL);
     }
 }
@@ -151,7 +151,7 @@ void* TMM_resize_array_n(const char *name, int n_cdims, int *cdims){
     if (trick_MM != NULL) {
         return ( trick_MM->resize_array(name, n_cdims, cdims));
     } else {
-            Trick::MemoryManager::emitError("TMM_resize_array_n() called before MemoryManager instantiation. Returning NULL.\n") ;
+        Trick::MemoryManager::emitError("TMM_resize_array_n() called before MemoryManager instantiation. Returning NULL.\n") ;
         return ( (void*)NULL);
     }
 }
@@ -165,7 +165,7 @@ void* TMM_resize_array_1d_a(void* address, int num){
     if (trick_MM != NULL) {
         return ( trick_MM->resize_array(address, num));
     } else {
-            Trick::MemoryManager::emitError("TMM_resize_array_1d_a() called before MemoryManager instantiation. Returning NULL.\n") ;
+        Trick::MemoryManager::emitError("TMM_resize_array_1d_a() called before MemoryManager instantiation. Returning NULL.\n") ;
         return ( (void*)NULL);
     }
 }
@@ -179,7 +179,7 @@ void* TMM_resize_array_1d_n(const char *name, int num){
     if (trick_MM != NULL) {
         return ( trick_MM->resize_array(name, num));
     } else {
-            Trick::MemoryManager::emitError("TMM_resize_array_1d_n() called before MemoryManager instantiation. Returning NULL.\n") ;
+        Trick::MemoryManager::emitError("TMM_resize_array_1d_n() called before MemoryManager instantiation. Returning NULL.\n") ;
         return ( (void*)NULL);
     }
 }
@@ -193,7 +193,7 @@ extern "C" char* TMM_strdup(char *str) {
     if (trick_MM != NULL) {
         return ( trick_MM->mm_strdup( str));
     } else {
-            Trick::MemoryManager::emitError("TMM_strdup called before MemoryManager instantiation. Returning NULL.\n") ;
+        Trick::MemoryManager::emitError("TMM_strdup called before MemoryManager instantiation. Returning NULL.\n") ;
         return( (char*)NULL);
     }
 }
@@ -208,7 +208,7 @@ extern "C" int TMM_var_exists( const char* var_name) {
         std::string svar_name = var_name;
         return ( trick_MM->var_exists( svar_name));
     } else {
-            Trick::MemoryManager::emitError("TMM_var_exists() called before MemoryManager instantiation.\n") ;
+        Trick::MemoryManager::emitError("TMM_var_exists() called before MemoryManager instantiation.\n") ;
         return (0);
     }
 }
@@ -222,7 +222,7 @@ extern "C" int TMM_is_alloced(char *addr) {
     if (trick_MM != NULL) {
         return ( trick_MM->is_alloced( addr));
     } else {
-            Trick::MemoryManager::emitError("TMM_is_alloced() called before MemoryManager instantiation.\n") ;
+        Trick::MemoryManager::emitError("TMM_is_alloced() called before MemoryManager instantiation.\n") ;
         return (0);
     }
 }
@@ -236,7 +236,7 @@ extern "C" void TMM_set_debug_level(int level) {
     if (trick_MM != NULL) {
         trick_MM->set_debug_level( level);
     } else {
-            Trick::MemoryManager::emitError("TMM_set_debug_level() called before MemoryManager instantiation.\n") ;
+        Trick::MemoryManager::emitError("TMM_set_debug_level() called before MemoryManager instantiation.\n") ;
     }
 }
 
@@ -248,7 +248,7 @@ extern "C" void TMM_reduced_checkpoint(int yesno) {
     if (trick_MM != NULL) {
         trick_MM->set_reduced_checkpoint( yesno!=0 );
     } else {
-            Trick::MemoryManager::emitError("TMM_reduced_checkpoint() called before MemoryManager instantiation.\n") ;
+        Trick::MemoryManager::emitError("TMM_reduced_checkpoint() called before MemoryManager instantiation.\n") ;
     }
 }
 
@@ -260,7 +260,7 @@ extern "C" void TMM_hexfloat_checkpoint(int yesno) {
     if (trick_MM != NULL) {
         trick_MM->set_hexfloat_checkpoint( yesno!=0 );
     } else {
-            Trick::MemoryManager::emitError("TMM_hexfloat_checkpoint() called before MemoryManager instantiation.\n") ;
+        Trick::MemoryManager::emitError("TMM_hexfloat_checkpoint() called before MemoryManager instantiation.\n") ;
     }
 }
 
@@ -275,7 +275,7 @@ extern "C" void TMM_clear_var_a(void *addr) {
     if (trick_MM != NULL) {
         trick_MM->clear_var( addr);
     } else {
-            Trick::MemoryManager::emitError("TMM_clear_var_a() called before MemoryManager instantiation.\n") ;
+        Trick::MemoryManager::emitError("TMM_clear_var_a() called before MemoryManager instantiation.\n") ;
         return;
     }
 }
@@ -288,7 +288,7 @@ extern "C" void TMM_clear_var_n( const char* name) {
     if (trick_MM != NULL) {
         trick_MM->clear_var( name);
     } else {
-            Trick::MemoryManager::emitError("TMM_clear_var_n() called before MemoryManager instantiation.\n") ;
+        Trick::MemoryManager::emitError("TMM_clear_var_n() called before MemoryManager instantiation.\n") ;
         return;
     }
 }
@@ -301,7 +301,7 @@ extern "C" void TMM_delete_var_a(void *addr) {
     if (trick_MM != NULL) {
         trick_MM->delete_var( addr);
     } else {
-            Trick::MemoryManager::emitError("TMM_delete_var_a() called before MemoryManager instantiation.\n") ;
+        Trick::MemoryManager::emitError("TMM_delete_var_a() called before MemoryManager instantiation.\n") ;
         return;
     }
 }
@@ -314,7 +314,7 @@ extern "C" void TMM_delete_var_n( const char* name) {
     if (trick_MM != NULL) {
         trick_MM->delete_var( name);
     } else {
-            Trick::MemoryManager::emitError("TMM_delete_var_n() called before MemoryManager instantiation.\n") ;
+        Trick::MemoryManager::emitError("TMM_delete_var_n() called before MemoryManager instantiation.\n") ;
         return;
     }
 }
@@ -327,7 +327,7 @@ extern "C" void TMM_delete_extern_var_a(void *addr) {
     if (trick_MM != NULL) {
         trick_MM->delete_extern_var( addr);
     } else {
-            Trick::MemoryManager::emitError("TMM_delete_extern_var_a() called before MemoryManager instantiation.\n") ;
+        Trick::MemoryManager::emitError("TMM_delete_extern_var_a() called before MemoryManager instantiation.\n") ;
         return;
     }
 }
@@ -340,7 +340,7 @@ extern "C" void TMM_delete_extern_var_n( const char* name) {
     if (trick_MM != NULL) {
         trick_MM->delete_extern_var( name);
     } else {
-            Trick::MemoryManager::emitError("TMM_delete_extern_var_n() called before MemoryManager instantiation.\n") ;
+        Trick::MemoryManager::emitError("TMM_delete_extern_var_n() called before MemoryManager instantiation.\n") ;
         return;
     }
 }
@@ -353,7 +353,7 @@ extern "C" void TMM_write_checkpoint(const char* filename) {
     if (trick_MM != NULL) {
         return ( trick_MM->write_checkpoint( filename));
     } else {
-            Trick::MemoryManager::emitError("TMM_write_checkpoint_fn() called before MemoryManager instantiation.\n") ;
+        Trick::MemoryManager::emitError("TMM_write_checkpoint_fn() called before MemoryManager instantiation.\n") ;
         return;
     }
 }
@@ -366,7 +366,7 @@ extern "C" int TMM_read_checkpoint(const char* filename) {
     if (trick_MM != NULL) {
         return ( trick_MM->read_checkpoint( filename));
     } else {
-            Trick::MemoryManager::emitError("TMM_read_checkpoint() called before MemoryManager instantiation.\n") ;
+        Trick::MemoryManager::emitError("TMM_read_checkpoint() called before MemoryManager instantiation.\n") ;
         return(1);
     }
 }
@@ -379,7 +379,7 @@ extern "C" int TMM_read_checkpoint_from_string(const char* str) {
     if (trick_MM != NULL) {
         return ( trick_MM->read_checkpoint_from_string( str));
     } else {
-            Trick::MemoryManager::emitError("TMM_read_checkpoint_from_string() called before MemoryManager instantiation.\n") ;
+        Trick::MemoryManager::emitError("TMM_read_checkpoint_from_string() called before MemoryManager instantiation.\n") ;
         return(1);
     }
 }
@@ -392,7 +392,7 @@ extern "C" int TMM_init_from_checkpoint(const char* filename) {
     if (trick_MM != NULL) {
         return ( trick_MM->init_from_checkpoint( filename));
     } else {
-            Trick::MemoryManager::emitError("TMM_init_from_checkpoint() called before MemoryManager instantiation.\n") ;
+        Trick::MemoryManager::emitError("TMM_init_from_checkpoint() called before MemoryManager instantiation.\n") ;
         return(1);
     }
 }
@@ -405,7 +405,7 @@ extern "C" int TMM_add_shared_library_symbols(const char* filename) {
     if (trick_MM != NULL) {
         return ( trick_MM->add_shared_library_symbols( filename));
     } else {
-            Trick::MemoryManager::emitError("TMM_add_shared_library_symbols() called before MemoryManager instantiation.\n") ;
+        Trick::MemoryManager::emitError("TMM_add_shared_library_symbols() called before MemoryManager instantiation.\n") ;
         return(1);
     }
 }
@@ -418,7 +418,7 @@ extern "C" void* add_var( TRICK_TYPE type, const char* stype, VAR_DECLARE* var_d
     if (trick_MM != NULL) {
         return( trick_MM->add_var(type, stype, var_declare, units )); 
     } else {
-            Trick::MemoryManager::emitError("add_var() called before MemoryManager instantiation. Returning NULL.\n") ;
+        Trick::MemoryManager::emitError("add_var() called before MemoryManager instantiation. Returning NULL.\n") ;
         return ((void*)NULL);
     }
 }
@@ -431,7 +431,7 @@ extern "C" int add_vars( TRICK_TYPE type, const char* stype, VAR_LIST* var_list,
     if (trick_MM != NULL) {
         return( trick_MM->add_vars(type, stype, var_list, units ));
     } else {
-            Trick::MemoryManager::emitError("add_vars() called before MemoryManager instantiation.\n") ;
+        Trick::MemoryManager::emitError("add_vars() called before MemoryManager instantiation.\n") ;
         return (1);
     }
 }
@@ -444,7 +444,7 @@ extern "C" int ref_allocate(REF2 *R, int num) {
     if (trick_MM != NULL) {
         return( trick_MM->ref_allocate( R, num)); 
     } else {
-            Trick::MemoryManager::emitError("ref_allocate() called before MemoryManager instantiation.\n") ;
+        Trick::MemoryManager::emitError("ref_allocate() called before MemoryManager instantiation.\n") ;
         return (1);
     }
 }
@@ -457,7 +457,7 @@ extern "C" REF2* ref_attributes( char* name) {
     if (trick_MM != NULL) {
         return( trick_MM->ref_attributes( name));
     } else {
-            Trick::MemoryManager::emitError("ref_attributes() called before MemoryManager instantiation. Returning NULL.\n") ;
+        Trick::MemoryManager::emitError("ref_attributes() called before MemoryManager instantiation. Returning NULL.\n") ;
         return ( (REF2*)NULL);
     }
 }
@@ -470,7 +470,7 @@ extern "C" int ref_assignment(REF2* R, V_TREE* V) {
     if (trick_MM != NULL) {
         return( trick_MM->ref_assignment( R, V));
     } else {
-            Trick::MemoryManager::emitError("ref_assignment() called before MemoryManager instantiation.\n") ;
+        Trick::MemoryManager::emitError("ref_assignment() called before MemoryManager instantiation.\n") ;
         return (1);
     }
 }
@@ -483,7 +483,7 @@ extern "C" int ref_var(REF2 *R, char* name) {
     if (trick_MM != NULL) {
         return( trick_MM->ref_var( R, name)); 
     } else {
-            Trick::MemoryManager::emitError("ref_var() called before MemoryManager instantiation.\n") ;
+        Trick::MemoryManager::emitError("ref_var() called before MemoryManager instantiation.\n") ;
         return (1);
     }
 }
@@ -496,7 +496,7 @@ extern "C" int get_size(void *addr) {
     if (trick_MM != NULL) {
         return( trick_MM->get_size( addr)); 
     } else {
-            Trick::MemoryManager::emitError("get_size() called before MemoryManager instantiation.\n") ;
+        Trick::MemoryManager::emitError("get_size() called before MemoryManager instantiation.\n") ;
         return (0);
     }
 }
@@ -509,7 +509,7 @@ extern "C" int get_truncated_size(void *addr) {
     if (trick_MM != NULL) {
         return( trick_MM->get_truncated_size( addr)); 
     } else {
-            Trick::MemoryManager::emitError("get_truncated_size() called before MemoryManager instantiation.\n") ;
+        Trick::MemoryManager::emitError("get_truncated_size() called before MemoryManager instantiation.\n") ;
         return (0);
     }
 }
@@ -523,7 +523,7 @@ extern "C" int io_get_fixed_truncated_size(char *ptr __attribute__ ((unused)),
                                            char *str __attribute__ ((unused)),
                                            int dims __attribute__ ((unused)),
                                            ATTRIBUTES * left_type __attribute__ ((unused))) {
-        Trick::MemoryManager::emitError("io_get_fixed_truncated_size() is not implemented yet.\n") ;
+    Trick::MemoryManager::emitError("io_get_fixed_truncated_size() is not implemented yet.\n") ;
     return(0); 
 }
 
@@ -535,7 +535,7 @@ extern "C" ALLOC_INFO* get_alloc_info_of(void * addr) {
     if (trick_MM != NULL) {
         return( trick_MM->get_alloc_info_of( addr));
     } else {
-            Trick::MemoryManager::emitError("get_alloc_info_of() called before MemoryManager instantiation.\n") ;
+        Trick::MemoryManager::emitError("get_alloc_info_of() called before MemoryManager instantiation.\n") ;
         return ( (ALLOC_INFO*)NULL);
     }
 }
@@ -548,7 +548,7 @@ extern "C" ALLOC_INFO* get_alloc_info_at(void * addr) {
     if (trick_MM != NULL) {
         return( trick_MM->get_alloc_info_at( addr));
     } else {
-            Trick::MemoryManager::emitError("get_alloc_info_at() called before MemoryManager instantiation.\n") ;
+        Trick::MemoryManager::emitError("get_alloc_info_at() called before MemoryManager instantiation.\n") ;
         return ( (ALLOC_INFO*)NULL);
     }
 }
@@ -557,7 +557,7 @@ extern "C" int set_alloc_name_at(void * addr, const char * name ) {
     if (trick_MM != NULL) {
         return( trick_MM->set_name_at(addr, name));
     } else {
-            Trick::MemoryManager::emitError("get_alloc_info_at() called before MemoryManager instantiation.\n") ;
+        Trick::MemoryManager::emitError("get_alloc_info_at() called before MemoryManager instantiation.\n") ;
         return ( -1 );
     }
 }
@@ -570,7 +570,15 @@ extern "C" int get_enumerated(const char* name, V_DATA* v_data) {
     if (trick_MM != NULL) {
         return( trick_MM->get_enumerated(name, v_data ));
     } else {
-            Trick::MemoryManager::emitError("get_enumerated() called before MemoryManager instantiation.\n") ;
+        Trick::MemoryManager::emitError("get_enumerated() called before MemoryManager instantiation.\n") ;
         return 1 ;
     }
 }
+
+extern "C" void TMM_add_checkpoint_alloc_dependency(const char * name) {
+    if (trick_MM != NULL) {
+        trick_MM->add_checkpoint_alloc_dependency(name) ;
+    }
+    return ;
+}
+

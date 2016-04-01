@@ -70,6 +70,10 @@ class FieldDescription : public ConstructValues {
         bool isEnum() ;
         void setRecord( bool yes_no ) ;
         bool isRecord() ;
+        void setSTL( bool yes_no ) ;
+        bool isSTL() ;
+        void setSTLClear( bool yes_no ) ;
+        bool hasSTLClear() ;
         void setStatic( bool yes_no ) ;
         bool isStatic() ;
         bool getAccessSpecFound() ;
@@ -149,6 +153,12 @@ class FieldDescription : public ConstructValues {
 
         /** is a record class */
         bool is_record ;
+
+        /** is an stl */
+        bool is_stl ;
+
+        /** does this stl have a clear */
+        bool has_stl_clear ;
 
         /** is this field declared static */
         bool is_static ;

@@ -34,6 +34,7 @@ extern "C" {
         TRICK_ENUMERATED         =  21, /* User defined type (enumeration) */
         TRICK_STRUCTURED         =  22, /* User defined type (struct/class) */
         TRICK_OPAQUE_TYPE        =  23, /* User defined type (where type details are as yet unknown) */
+        TRICK_STL                =  24, /* Standard template library type */
         TRICK_NUMBER_OF_TYPES
     } TRICK_TYPE ;
 

@@ -60,7 +60,7 @@ namespace Trick {
             std::string file_name ; /**< trick_units(--) trick_io(*i) */
 
             /** Keeps lists of test results keyed by test_suite name.\n*/
-            std::map< std::string , TestSuite > test_suites ;
+            std::map< std::string , TestSuite > test_suites ; // ** ignore
 
             /**
              @brief The constructor.

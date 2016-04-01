@@ -64,8 +64,6 @@ Trick::Executive::Executive() {
 
     num_all_jobs = 0 ;
     all_jobs_for_checkpoint = NULL ;
-    num_sim_objects_in_checkpoint = 0 ;
-    sim_objects_for_checkpoint = NULL ;
 
     software_frame_tics = (long long)(software_frame * time_tic_value) ;
     next_frame_check_tics = software_frame_tics ;

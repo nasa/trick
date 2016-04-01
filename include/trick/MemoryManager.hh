@@ -1,3 +1,8 @@
+/*
+    PURPOSE:
+        (Memory Manager.)
+*/
+
 #ifndef MEMORYMANAGEMENT_HH
 #define MEMORYMANAGEMENT_HH
 
@@ -533,13 +538,13 @@ namespace Trick {
              @param addr The Address.
              */
             ALLOC_INFO* get_alloc_info_of( void* addr);
-       
+
             /**
              Get information for the allocation starting at the specified address.
              @param addr The Address.
              */
             ALLOC_INFO* get_alloc_info_at( void* addr);
-       
+
             /**
              Names an allocation in the ALLOC_INFO map to the incoming name.
              @param addr The Address.
@@ -548,12 +553,20 @@ namespace Trick {
             int set_name_at( void* addr, const char * name);
 
             /**
+             Adds a name of an allocation to the dependency list of allocations that are to be checkpointed.
+             This call is used by standard template library functions that create new allocations and
+             dependencies during the checkpoint process.
+             @param name The name of the allocation.
+             */
+            void add_checkpoint_alloc_dependency(const char * name);
+
+            /**
              Opens a handle to the shared library file.  The handles are used to look for io_src functions.
              @param name The name of the file to open.
              */
             int add_shared_library_symbols( const char * file_name );
 
-        
+
             std::vector<void*> dlhandles ; /**< ** dynamic loader handle left open for all dl (dlsym) calls */
 
             /**
@@ -654,37 +667,61 @@ namespace Trick {
             bool hexfloat_checkpoint;   /**< -- true = Represent floating point values as hexidecimal to preserve precision. false= Normal. */
             bool expanded_arrays;       /**< -- true = array element values are set in separate assignments. */
 
-            ALLOC_INFO_MAP  alloc_info_map;  /**< -- Map of <address, ALLOC_INFO*> key-value pairs for each of the managed allocations. */
-            VARIABLE_MAP    variable_map;    /**< -- Map of <name, ALLOC_INFO*> key-value pairs for each named-allocations. */
-            ENUMERATION_MAP enumeration_map; /**< -- Enumeration map. */
-            pthread_mutex_t mm_mutex;        /**< -- Mutex to control access to memory manager maps */
+            ALLOC_INFO_MAP  alloc_info_map;  /**< ** Map of <address, ALLOC_INFO*> key-value pairs for each of the managed allocations. */
+            VARIABLE_MAP    variable_map;    /**< ** Map of <name, ALLOC_INFO*> key-value pairs for each named-allocations. */
+            ENUMERATION_MAP enumeration_map; /**< ** Enumeration map. */
+            pthread_mutex_t mm_mutex;        /**< ** Mutex to control access to memory manager maps */
 
             int alloc_info_map_counter ;     /**< ** counter to assign unique ids to allocations as they are added to map */
             int extern_alloc_info_map_counter ; /**< ** counter to assign unique ids to allocations as they are added to map */
 
+            std::vector<ALLOC_INFO*> dependencies; /**< ** list of allocations used in a checkpoint. */
+            std::vector<ALLOC_INFO*> stl_dependencies; /**< ** list of allocations known to be STL checkpoint allocations */
 
-            void write_checkpoint( std::ostream& out_s, std::vector<ALLOC_INFO*>& dependencies);
+            void execute_checkpoint( std::ostream& out_s );
+
+            /**
+             Walks through allocation and allocates space for STLs
+             FIXME: I NEED DOCUMENTATION!
+             */
+            void get_stl_dependencies( ALLOC_INFO* alloc_info );
+            void get_stl_dependencies_in_class( std::string name, char* address, ATTRIBUTES* attr) ;
+            void get_stl_dependencies_in_arrayed_class( std::string name,
+             char* address, ATTRIBUTES* attr, int curr_dim, int offset) ;
+            void get_stl_dependencies_in_intrinsic( std::string name,
+             void* address, ATTRIBUTES* attr, int curr_dim, int offset) ;
+
+            /**
+             Walks through allocations and restores STLs
+             FIXME: I NEED DOCUMENTATION!
+             */
+            void restore_stls( ALLOC_INFO* alloc_info );
+            void restore_stls_in_class( std::string name, char* address, ATTRIBUTES* attr) ;
+            void restore_stls_in_arrayed_class( std::string name,
+             char* address, ATTRIBUTES* attr, int curr_dim, int offset) ;
+            void restore_stls_in_intrinsic( std::string name,
+             void* address, ATTRIBUTES* attr, int curr_dim, int offset) ;
 
             /**
              FIXME: I NEED DOCUMENTATION!
              */
-            void get_alloc_deps_in_allocation(std::vector<ALLOC_INFO*>& dependencies, ALLOC_INFO* alloc_info );
+            void get_alloc_deps_in_allocation( ALLOC_INFO* alloc_info );
             /**
              FIXME: I NEED DOCUMENTATION!
              */
-            void get_alloc_deps_in_allocation( std::vector<ALLOC_INFO*>& dependencies, const char* var_name );
+            void get_alloc_deps_in_allocation( const char* var_name );
             /**
              FIXME: I NEED DOCUMENTATION!
              */
-            void get_alloc_deps_in_class( std::vector<ALLOC_INFO*>& dependencies, char* address, ATTRIBUTES* attr);
+            void get_alloc_deps_in_class( char* address, ATTRIBUTES* attr);
             /**
              FIXME: I NEED DOCUMENTATION!
              */
-            void get_alloc_deps_in_arrayed_class( std::vector<ALLOC_INFO*>& dependencies, char* address, ATTRIBUTES* attr, int curr_dim, int offset);
+            void get_alloc_deps_in_arrayed_class( char* address, ATTRIBUTES* attr, int curr_dim, int offset);
             /**
              FIXME: I NEED DOCUMENTATION!
              */
-            void get_alloc_deps_in_intrinsic( std::vector<ALLOC_INFO*>& dependencies, void* address, ATTRIBUTES* attr, int curr_dim, int offset);
+            void get_alloc_deps_in_intrinsic( void* address, ATTRIBUTES* attr, int curr_dim, int offset);
 
             std::set< std::string > primitive_types ; /**< ** Names of primitive types.  Used in add_attr_info */
             std::map< std::string , std::string > template_name_map ; /**< ** Templates names => mangled attr names */

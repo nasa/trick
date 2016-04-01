@@ -2,21 +2,18 @@
 def main():
 
     #trick.echo_jobs_on()
-    simControlPanel = trick.SimControlPanel()
-    simControlPanel.thisown = 0
-    trick.add_external_application(simControlPanel)
 
-    trick.real_time_enable()
+    #trick.sim_control_panel_set_enabled(True)
+    #trick.real_time_enable()
     #trick.itimer_enable()
 
-    trick.checkpoint_post_init(True)
-    trick.checkpoint_end(True)
+    trick.checkpoint_pre_init(True)
+    #trick.checkpoint_post_init(True)
+    #trick.checkpoint_end(True)
 
-    trick.freeze(2.0)
+    #trick.freeze(2.0)
 
-    the_object.stlc2.name = "Daisy"
-
-    # Data recording HDF5 test
+    trick.exec_set_software_frame(0.10)
     trick.exec_set_freeze_frame(0.10)
     trick.stop(5.0)
 

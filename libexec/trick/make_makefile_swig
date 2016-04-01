@@ -87,9 +87,10 @@ sub read_files_to_process() {
     @defines = $ENV{"TRICK_CFLAGS"} =~ /(-D\S+)/g ;       # get defines from TRICK_CFLAGS
     push @defines , "-DTRICK_VER=$year" ;
     push @defines , "-DSWIG" ;
+    push @defines , "-std=c++11" ;
 
     # Get the list header files from the compiler to compare to what get_headers processed.
-    open FILE_LIST, "$cc -MM -DSWIG @include_paths @defines S_source.hh |" ;
+    open FILE_LIST, "$cc -MM @include_paths @defines S_source.hh |" ;
     my $dir ;
     $dir = dirname($s_source_full_path) ;
     while ( <FILE_LIST> ) {
@@ -172,7 +173,7 @@ sub make_swig_makefile() {
 SWIG_FLAGS ?=
 SWIG_CFLAGS := -I../include \${PYTHON_INCLUDES} -Wno-shadow -Wno-missing-field-initializers
 ifeq (\$(IS_CC_CLANG), 1)
- SWIG_CFLAGS += -Wno-self-assign -Wno-sometimes-uninitialized
+ SWIG_CFLAGS += -Wno-self-assign -Wno-sometimes-uninitialized -Wno-deprecated-register
 endif
 
 ifdef TRICK_VERBOSE_BUILD

@@ -16,46 +16,8 @@ object_${TRICK_HOST_CPU}/CheckPointRestart_c_intf.o: CheckPointRestart_c_intf.cp
  ${TRICK_HOME}/include/trick/io_alloc.h \
  ${TRICK_HOME}/include/trick/message_proto.h \
  ${TRICK_HOME}/include/trick/message_type.h 
-object_${TRICK_HOST_CPU}/checkpoint_queue.o: checkpoint_queue.cpp \
- ${TRICK_HOME}/include/trick/checkpoint_queue.hh \
- ${TRICK_HOME}/include/trick/checkpoint_sequence_stl.hh \
- ${TRICK_HOME}/include/trick/memorymanager_c_intf.h \
- ${TRICK_HOME}/include/trick/parameter_types.h \
- ${TRICK_HOME}/include/trick/attributes.h \
- ${TRICK_HOME}/include/trick/reference.h \
- ${TRICK_HOME}/include/trick/value.h \
- ${TRICK_HOME}/include/trick/dllist.h \
- ${TRICK_HOME}/include/trick/var.h \
- ${TRICK_HOME}/include/trick/io_alloc.h \
- ${TRICK_HOME}/include/trick/message_proto.h \
- ${TRICK_HOME}/include/trick/message_type.h 
-object_${TRICK_HOST_CPU}/checkpoint_map.o: checkpoint_map.cpp \
- ${TRICK_HOME}/include/trick/checkpoint_map.hh \
- ${TRICK_HOME}/include/trick/memorymanager_c_intf.h \
- ${TRICK_HOME}/include/trick/parameter_types.h \
- ${TRICK_HOME}/include/trick/attributes.h \
- ${TRICK_HOME}/include/trick/reference.h \
- ${TRICK_HOME}/include/trick/value.h \
- ${TRICK_HOME}/include/trick/dllist.h \
- ${TRICK_HOME}/include/trick/var.h \
- ${TRICK_HOME}/include/trick/io_alloc.h \
- ${TRICK_HOME}/include/trick/message_proto.h \
- ${TRICK_HOME}/include/trick/message_type.h 
 object_${TRICK_HOST_CPU}/next_attr_name.o: next_attr_name.cpp \
  ${TRICK_HOME}/include/trick/CheckPointRestart_c_intf.hh 
-object_${TRICK_HOST_CPU}/checkpoint_stack.o: checkpoint_stack.cpp \
- ${TRICK_HOME}/include/trick/checkpoint_stack.hh \
- ${TRICK_HOME}/include/trick/checkpoint_sequence_stl.hh \
- ${TRICK_HOME}/include/trick/memorymanager_c_intf.h \
- ${TRICK_HOME}/include/trick/parameter_types.h \
- ${TRICK_HOME}/include/trick/attributes.h \
- ${TRICK_HOME}/include/trick/reference.h \
- ${TRICK_HOME}/include/trick/value.h \
- ${TRICK_HOME}/include/trick/dllist.h \
- ${TRICK_HOME}/include/trick/var.h \
- ${TRICK_HOME}/include/trick/io_alloc.h \
- ${TRICK_HOME}/include/trick/message_proto.h \
- ${TRICK_HOME}/include/trick/message_type.h 
 object_${TRICK_HOST_CPU}/CheckPointRestart.o: CheckPointRestart.cpp \
  ${TRICK_HOME}/include/trick/DMTCP.hh \
  ${TRICK_HOME}/include/trick/dmtcp_checkpoint_c_intf.hh \
@@ -77,47 +39,22 @@ object_${TRICK_HOST_CPU}/CheckPointRestart.o: CheckPointRestart.cpp \
  ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
  ${TRICK_HOME}/include/trick/UCFn.hh \
  ${TRICK_HOME}/include/trick/Executive.hh \
- ${TRICK_HOME}/include/trick/Scheduler.hh \
- ${TRICK_HOME}/include/trick/ScheduledJobQueue.hh \
- ${TRICK_HOME}/include/trick/SimObject.hh \
  ${TRICK_HOME}/include/trick/Threads.hh \
  ${TRICK_HOME}/include/trick/ThreadBase.hh \
+ ${TRICK_HOME}/include/trick/ThreadTrigger.hh \
  ${TRICK_HOME}/include/trick/sim_mode.h \
  ${TRICK_HOME}/include/trick/exec_proto.hh \
  ${TRICK_HOME}/include/trick/exec_proto.h \
- ${TRICK_HOME}/include/trick/sim_mode.h \
  ${TRICK_HOME}/include/trick/command_line_protos.h \
  ${TRICK_HOME}/include/trick/message_proto.h \
  ${TRICK_HOME}/include/trick/message_type.h \
  ${TRICK_HOME}/include/trick/TrickConstant.hh \
  ${TRICK_HOME}/include/trick/checkpoint_stl.hh \
  ${TRICK_HOME}/include/trick/checkpoint_sequence_stl.hh \
+ ${TRICK_HOME}/include/trick/checkpoint_is_stl_container.hh \
+ ${TRICK_HOME}/include/trick/checkpoint_fwd_declare.hh \
  ${TRICK_HOME}/include/trick/memorymanager_c_intf.h \
  ${TRICK_HOME}/include/trick/checkpoint_map.hh \
  ${TRICK_HOME}/include/trick/checkpoint_stack.hh \
  ${TRICK_HOME}/include/trick/checkpoint_queue.hh \
  ${TRICK_HOME}/include/trick/checkpoint_pair.hh 
-object_${TRICK_HOST_CPU}/checkpoint_pair.o: checkpoint_pair.cpp \
- ${TRICK_HOME}/include/trick/checkpoint_pair.hh \
- ${TRICK_HOME}/include/trick/memorymanager_c_intf.h \
- ${TRICK_HOME}/include/trick/parameter_types.h \
- ${TRICK_HOME}/include/trick/attributes.h \
- ${TRICK_HOME}/include/trick/reference.h \
- ${TRICK_HOME}/include/trick/value.h \
- ${TRICK_HOME}/include/trick/dllist.h \
- ${TRICK_HOME}/include/trick/var.h \
- ${TRICK_HOME}/include/trick/io_alloc.h \
- ${TRICK_HOME}/include/trick/message_proto.h \
- ${TRICK_HOME}/include/trick/message_type.h 
-object_${TRICK_HOST_CPU}/checkpoint_sequence_stl.o: checkpoint_sequence_stl.cpp \
- ${TRICK_HOME}/include/trick/checkpoint_sequence_stl.hh \
- ${TRICK_HOME}/include/trick/memorymanager_c_intf.h \
- ${TRICK_HOME}/include/trick/parameter_types.h \
- ${TRICK_HOME}/include/trick/attributes.h \
- ${TRICK_HOME}/include/trick/reference.h \
- ${TRICK_HOME}/include/trick/value.h \
- ${TRICK_HOME}/include/trick/dllist.h \
- ${TRICK_HOME}/include/trick/var.h \
- ${TRICK_HOME}/include/trick/io_alloc.h \
- ${TRICK_HOME}/include/trick/message_proto.h \
- ${TRICK_HOME}/include/trick/message_type.h 

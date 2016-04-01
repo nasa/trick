@@ -45,6 +45,7 @@ void PrintFileContents10::printIOHeader(std::ofstream & outfile , std::string he
 "#include \"trick/attributes.h\"\n"
 "#include \"trick/parameter_types.h\"\n"
 "#include \"trick/UnitsMap.hh\"\n\n"
+"#include \"trick/checkpoint_stl.hh\"\n\n"
 "#include \""
 << header_file_name <<
 "\"\n\n" ;
@@ -103,7 +104,9 @@ void PrintFileContents10::print_field_attr(std::ofstream & outfile ,  FieldDescr
         if ( array_dim < 0 ) array_dim = 0 ;
         outfile << ",{" << array_dim << ",0}" ; // indexes 1 through 7
     }
-    outfile << "} }" ;
+    outfile << "}," << std::endl ;
+    outfile << "  NULL, NULL, NULL, NULL" ;
+    outfile << "}" ;
 }
 
 /** Prints class attributes */
@@ -186,7 +189,7 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ofstream & outfile ,
         outfile << cv->getMangledTypeName() << "," << fdes->getName() << ") ;\n" ;
     }
 
-    if ( !fdes->isRecord() and !fdes->isEnum() and !fdes->isBitField() ) {
+    if ( !fdes->isRecord() and !fdes->isEnum() and !fdes->isBitField() and !fdes->isSTL()) {
         outfile << "    attr" ;
         printNamespaces( outfile, cv , "__" ) ;
         printContainerClasses( outfile, cv , "__" ) ;
@@ -194,6 +197,46 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ofstream & outfile ,
         printNamespaces( outfile, fdes , "::" ) ;
         printContainerClasses( outfile, fdes , "::" ) ;
         outfile << fdes->getTypeName() << ") ;\n" ;
+    }
+
+    if ( fdes->isSTL()) {
+        outfile << "    attr" ;
+        printNamespaces( outfile, cv , "__" ) ;
+        printContainerClasses( outfile, cv , "__" ) ;
+        outfile << cv->getMangledTypeName() << "[i].checkpoint_stl = checkpoint_stl_" ;
+        outfile << cv->getMangledTypeName() ;
+        outfile << "_" ;
+        outfile << fdes->getName() ;
+        outfile << " ;\n" ;
+
+        outfile << "    attr" ;
+        printNamespaces( outfile, cv , "__" ) ;
+        printContainerClasses( outfile, cv , "__" ) ;
+        outfile << cv->getMangledTypeName() << "[i].post_checkpoint_stl = post_checkpoint_stl_" ;
+        outfile << cv->getMangledTypeName() ;
+        outfile << "_" ;
+        outfile << fdes->getName() ;
+        outfile << " ;\n" ;
+
+        outfile << "    attr" ;
+        printNamespaces( outfile, cv , "__" ) ;
+        printContainerClasses( outfile, cv , "__" ) ;
+        outfile << cv->getMangledTypeName() << "[i].restore_stl = restore_stl_" ;
+        outfile << cv->getMangledTypeName() ;
+        outfile << "_" ;
+        outfile << fdes->getName() ;
+        outfile << " ;\n" ;
+
+        if (fdes->hasSTLClear()) {
+            outfile << "    attr" ;
+            printNamespaces( outfile, cv , "__" ) ;
+            printContainerClasses( outfile, cv , "__" ) ;
+            outfile << cv->getMangledTypeName() << "[i].clear_stl = clear_stl_" ;
+            outfile << cv->getMangledTypeName() ;
+            outfile << "_" ;
+            outfile << fdes->getName() ;
+            outfile << " ;\n" ;
+        }
     }
 
     if ( fdes->isRecord() or fdes->isEnum()) {
@@ -425,8 +468,121 @@ void PrintFileContents10::print_io_src_delete( std::ofstream & outfile , ClassVa
     }
 }
 
+void PrintFileContents10::print_stl_helper_proto(std::ofstream & outfile , ClassValues * cv ) {
+
+    unsigned int ii ;
+    ClassValues::FieldIterator fit ;
+
+    print_open_extern_c(outfile) ;
+
+    for ( fit = cv->field_begin() ; fit != cv->field_end() ; fit++ ) {
+        if ( (*fit)->isSTL() and determinePrintAttr(cv , *fit) ) {
+            outfile << "void checkpoint_stl_" ;
+            outfile << cv->getMangledTypeName() ;
+            outfile << "_" ;
+            outfile << (*fit)->getName() ;
+            outfile << "(void * start_address, const char * obj_name , const char * var_name) ;" << std::endl ;
+
+            outfile << "void post_checkpoint_stl_" ;
+            outfile << cv->getMangledTypeName() ;
+            outfile << "_" ;
+            outfile << (*fit)->getName() ;
+            outfile << "(void * start_address, const char * obj_name , const char * var_name) ;" << std::endl ;
+
+            outfile << "void restore_stl_" ;
+            outfile << cv->getMangledTypeName() ;
+            outfile << "_" ;
+            outfile << (*fit)->getName() ;
+            outfile << "(void * start_address, const char * obj_name , const char * var_name) ;" << std::endl ;
+
+            if ((*fit)->hasSTLClear()) {
+                outfile << "void clear_stl_" ;
+                outfile << cv->getMangledTypeName() ;
+                outfile << "_" ;
+                outfile << (*fit)->getName() ;
+                outfile << "(void * start_address) ;" << std::endl ;
+            }
+        }
+    }
+    print_close_extern_c(outfile) ;
+}
+
+void PrintFileContents10::print_checkpoint_stl(std::ofstream & outfile , FieldDescription * fdes , ClassValues * cv ) {
+    outfile << "void checkpoint_stl_" ;
+    outfile << cv->getMangledTypeName() ;
+    outfile << "_" ;
+    outfile << fdes->getName() ;
+    outfile << "(void * start_address, const char * obj_name , const char * var_name) {" << std::endl ;
+
+    outfile << "    " << fdes->getTypeName() << " * stl = reinterpret_cast<" << fdes->getTypeName() << " * >(start_address) ;" << std::endl ;
+    outfile << "    " << "checkpoint_stl(*stl , obj_name , var_name) ;" << std::endl ;
+
+    outfile << "}" << std::endl ;
+}
+
+void PrintFileContents10::print_post_checkpoint_stl(std::ofstream & outfile , FieldDescription * fdes , ClassValues * cv ) {
+    outfile << "void post_checkpoint_stl_" ;
+    outfile << cv->getMangledTypeName() ;
+    outfile << "_" ;
+    outfile << fdes->getName() ;
+    outfile << "(void * start_address, const char * obj_name , const char * var_name) {" << std::endl ;
+
+    outfile << "    " << fdes->getTypeName() << " * stl = reinterpret_cast<" << fdes->getTypeName() << " * >(start_address) ;" << std::endl ;
+    outfile << "    " << "delete_stl(*stl , obj_name , var_name) ;" << std::endl ;
+
+    outfile << "}" << std::endl ;
+}
+
+void PrintFileContents10::print_restore_stl(std::ofstream & outfile , FieldDescription * fdes , ClassValues * cv ) {
+    outfile << "void restore_stl_" ;
+    outfile << cv->getMangledTypeName() ;
+    outfile << "_" ;
+    outfile << fdes->getName() ;
+    outfile << "(void * start_address, const char * obj_name , const char * var_name) {" << std::endl ;
+
+    outfile << "    " << fdes->getTypeName() << " * stl = reinterpret_cast<" << fdes->getTypeName() << " * >(start_address) ;" << std::endl ;
+    outfile << "    " << "restore_stl(*stl , obj_name , var_name) ;" << std::endl ;
+
+    outfile << "}" << std::endl ;
+}
+
+void PrintFileContents10::print_clear_stl(std::ofstream & outfile , FieldDescription * fdes , ClassValues * cv ) {
+    outfile << "void clear_stl_" ;
+    outfile << cv->getMangledTypeName() ;
+    outfile << "_" ;
+    outfile << fdes->getName() ;
+    outfile << "(void * start_address) {" << std::endl ;
+
+    outfile << "    " << fdes->getTypeName() << " * stl = reinterpret_cast<" << fdes->getTypeName() << " * >(start_address) ;" << std::endl ;
+    outfile << "    " << "stl->clear() ;" << std::endl ;
+
+    outfile << "}" << std::endl ;
+}
+
+void PrintFileContents10::print_stl_helper(std::ofstream & outfile , ClassValues * cv ) {
+
+    unsigned int ii ;
+    ClassValues::FieldIterator fit ;
+
+    print_open_extern_c(outfile) ;
+
+    for ( fit = cv->field_begin() ; fit != cv->field_end() ; fit++ ) {
+        if ( (*fit)->isSTL() and determinePrintAttr(cv , *fit) ) {
+            print_checkpoint_stl(outfile , *fit, cv) ;
+            print_post_checkpoint_stl(outfile , *fit, cv) ;
+            print_restore_stl(outfile , *fit, cv) ;
+            if ((*fit)->hasSTLClear()) {
+                print_clear_stl(outfile , *fit, cv) ;
+            }
+        }
+    }
+    print_close_extern_c(outfile) ;
+}
+
 void PrintFileContents10::printClass( std::ofstream & outfile , ClassValues * cv ) {
+    print_stl_helper_proto(outfile, cv) ;
     print_class_attr(outfile, cv) ;
+    print_stl_helper(outfile, cv) ;
     print_init_attr_func(outfile, cv) ;
     print_open_extern_c(outfile) ;
     print_init_attr_c_intf(outfile, cv) ;

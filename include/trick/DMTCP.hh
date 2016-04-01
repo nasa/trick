@@ -43,7 +43,7 @@ namespace Trick {
             std::string splitFilename( const std::string& str );
 
             unsigned int dmtcp_ckpt_complete;
-            std::priority_queue<std::string> dmtcp_checkpoint_jobs_queue ;
+            std::priority_queue<std::string> dmtcp_checkpoint_jobs_queue ;  // ** ignore this for checkpointing
 
             virtual int write_s_job_execution( FILE * fp ) ;
             virtual int instrument_job_before(Trick::JobData * instrument_job) ;

@@ -83,6 +83,24 @@ class PrintFileContents10 : public PrintFileContentsBase {
 
         /** Prints the io_src_delete function */
         void print_io_src_delete(std::ofstream & outfile , ClassValues * cv ) ;
+
+        /** Prints stl helper function prototypes */
+        void print_stl_helper_proto(std::ofstream & outfile , ClassValues * in_class) ;
+
+        /** Prints stl helper function */
+        void print_stl_helper(std::ofstream & outfile , ClassValues * in_class) ;
+
+        /** Prints stl checkpoint function */
+        void print_checkpoint_stl(std::ofstream & outfile , FieldDescription * fdes , ClassValues * in_class) ;
+
+        /** Prints stl post_checkpoint function */
+        void print_post_checkpoint_stl(std::ofstream & outfile , FieldDescription * fdes , ClassValues * in_class) ;
+
+        /** Prints stl restart function */
+        void print_restore_stl(std::ofstream & outfile , FieldDescription * fdes , ClassValues * in_class) ;
+
+        /** Prints stl clear function */
+        void print_clear_stl(std::ofstream & outfile , FieldDescription * fdes , ClassValues * in_class) ;
 } ;
 
 #endif

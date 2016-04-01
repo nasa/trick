@@ -94,7 +94,7 @@ namespace Trick {
             char ** variable_alias ;    /** trick_units(--) */
 
             /** Vector of buffers - one for every variable added with Trick::DataRecordGroup::add_variable.\n */
-            std::vector <Trick::DataRecordBuffer *> rec_buffer;     /**< trick_io(*io) trick_units(--) */
+            std::vector <Trick::DataRecordBuffer *> rec_buffer;     /**< trick_io(**) trick_units(--) */
 
             /** Number of change variable names to save in a checkpoint.\n */
             unsigned int num_change_variable_names ; /** trick_units(--) */
@@ -104,7 +104,7 @@ namespace Trick {
             char ** change_variable_alias ;    /** trick_units(--) */
 
             /** Vector of buffers - one for every change variable added with Trick::DataRecordGroup::add_change_variable.\n */
-            std::vector <Trick::DataRecordBuffer *> change_buffer;     /**< trick_io(*io) trick_units(--) */
+            std::vector <Trick::DataRecordBuffer *> change_buffer;     /**< trick_io(**) trick_units(--) */
 
             /** Maximum records to hold in memory before writing.\n */
             unsigned int max_num;       /**< trick_io(*io) trick_units(--) */

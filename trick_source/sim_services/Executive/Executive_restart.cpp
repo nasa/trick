@@ -7,7 +7,6 @@
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
 #include "trick/memorymanager_c_intf.h"
-#include "trick/checkpoint_stl.hh"
 #include "trick/ScheduledJobQueue.hh"
 #include "trick/Threads.hh"
 
@@ -43,13 +42,6 @@ int Trick::Executive::restart() {
     all_jobs.clear() ;
     all_jobs_vector.clear() ;
     all_tagged_jobs.clear() ;
-
-    /* clear all sim_object information in scheduler */
-    num_sim_objects = 0 ;
-    sim_objects.clear() ;
-
-    /* restore the list of sim_objects from the checkpoint. */
-    restore_stl(sim_objects , std::string("trick_sys") , std::string("sim_objects")) ;
 
     /* Create a temporary all_jobs map to use to restore job data from all_jobs_for_checkpoint */
     for ( sit = sim_objects.begin() ; sit != sim_objects.end() ; sit++ ) {
@@ -106,9 +98,6 @@ int Trick::Executive::restart() {
     /* Delete temporary memory used to restore jobs */
     TMM_delete_var_a(all_jobs_for_checkpoint) ;
     all_jobs_for_checkpoint = NULL ;
-
-    // restore the vector of freeze times
-    restore_stl(freeze_times , std::string("trick_sys") , std::string("freeze_times")) ;
 
     /* Set the main thread current time to the simulation time tics value, used with Executive::get_sim_time() */
 

@@ -276,16 +276,16 @@ namespace Trick {
               to this map by suspendPreCheckpointReload(). resumePostCheckpointReload() restores
               the pause state from this map.
              */
-            std::map<pthread_t, bool> thread_pause_state_store;
+            std::map<pthread_t, bool> thread_pause_state_store; // ** ignore this
 
             /** Map thread id to the VariableServerThread object.\n */
-            std::map < pthread_t , VariableServerThread * > var_server_threads ;
+            std::map < pthread_t , VariableServerThread * > var_server_threads ; /**<  trick_io(**) */
 
             /** Mutex to ensure only one thread manipulates the map of var_server_threads\n */
             pthread_mutex_t map_mutex ;     /**<  trick_io(**) */
 
             /** Map of additional listen threads created by create_tcp_socket.\n */
-            std::map < pthread_t , VariableServerListenThread * > additional_listen_threads ;
+            std::map < pthread_t , VariableServerListenThread * > additional_listen_threads ; /**<  trick_io(**) */
 
 
     } ;

@@ -40,7 +40,8 @@ const int Trick::ClassicCheckPointAgent::array_elements_per_line[TRICK_NUMBER_OF
      5, /** TRICK_VOID_PTR */
     10, /** TRICK_ENUMERATED */
      5, /** TRICK_STRUCTURED (for pointers) */
-     5  /** TRICK_OPAQUE_TYPE */
+     5, /** TRICK_OPAQUE_TYPE */
+     1  /** TRICK_STL */
 };
 
 // MEMBER FUNCTION
@@ -488,6 +489,10 @@ int Trick::ClassicCheckPointAgent::is_nil_valued( void* address,
            case TRICK_STRING :
                test_addr = (char*)address + offset * sizeof(void*);
                if (*(std::string*)test_addr == "") return(1);
+               break;
+           case TRICK_STL :
+               // Can't test properly, always return 0 to indicate the STL is not empty.
+               return(0);
                break;
            default :
                message_publish(MSG_ERROR, "Checkpoint Agent file %s: Unhandled Type (%d).\n", __FILE__, attr->type) ;
@@ -1059,9 +1064,13 @@ void Trick::ClassicCheckPointAgent::assign_rvalue(std::ostream& chkpnt_os, void*
     if (!input_perm_check(attr)) {
         chkpnt_os << "/* OUTPUT-ONLY: ";
     }
-    chkpnt_os << lname << " = ";
-    write_rvalue( chkpnt_os, (void*)address, attr, curr_dim, offset);
-    chkpnt_os << ";";
+    if ( attr->type == TRICK_STL ) {
+        chkpnt_os << "// STL: " << lname ;
+    } else {
+        chkpnt_os << lname << " = ";
+        write_rvalue( chkpnt_os, (void*)address, attr, curr_dim, offset);
+        chkpnt_os << ";";
+    }
     if (!input_perm_check(attr)) {
         chkpnt_os << "*/";
     }

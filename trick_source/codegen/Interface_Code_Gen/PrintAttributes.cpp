@@ -417,6 +417,7 @@ void PrintAttributes::printIOMakefile() {
     std::cout << "[34mCreating/updating io_src Makefile[0m" << std::endl ;
     makefile_io_src.open("build/Makefile_io_src") ;
 
+    makefile_io_src << "TRICK_SYSTEM_CXXFLAGS += -std=c++11" << std::endl ;
     makefile_io_src << "TRICK_SYSTEM_CXXFLAGS += \\" << std::endl ;
     makefile_io_src << " -Wno-invalid-offsetof \\" << std::endl ;
     makefile_io_src << " -Wno-old-style-cast \\" << std::endl ;

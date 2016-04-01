@@ -42,14 +42,14 @@ bool dependencies_contain(std::vector<ALLOC_INFO*>& dependencies, const char* na
 
 // ================================================================================
 TEST_F(MM_alloc_deps, dbl_singleton) {
-    std::vector<ALLOC_INFO*> dependencies;
+    std::vector<ALLOC_INFO*> & dependencies = memmgr->dependencies ;
 
     //memmgr->set_debug_level(1);
 
     double *dbl_p = (double*)memmgr->declare_var("double dbl_singleton");
     *dbl_p = 3.1415;
 
-    memmgr->get_alloc_deps_in_allocation(dependencies, "dbl_singleton");
+    memmgr->get_alloc_deps_in_allocation("dbl_singleton");
 
     // There should be 1 dependency.
     EXPECT_EQ( dependencies.size(), 1);
@@ -59,7 +59,7 @@ TEST_F(MM_alloc_deps, dbl_singleton) {
 
 // ================================================================================
 TEST_F(MM_alloc_deps, dbl_pointer) {
-    std::vector<ALLOC_INFO*> dependencies;
+    std::vector<ALLOC_INFO*> & dependencies = memmgr->dependencies ;
 
     //memmgr->set_debug_level(1);
 
@@ -68,7 +68,7 @@ TEST_F(MM_alloc_deps, dbl_pointer) {
 
     *dbl_pp = dbl_p;
 
-    memmgr->get_alloc_deps_in_allocation(dependencies, "dbl_pointer");
+    memmgr->get_alloc_deps_in_allocation("dbl_pointer");
 
     // There should be 1 dependency.
     EXPECT_EQ( dependencies.size(), 2);
@@ -78,7 +78,7 @@ TEST_F(MM_alloc_deps, dbl_pointer) {
 
 // ================================================================================
 TEST_F(MM_alloc_deps, dbl_array) {
-    std::vector<ALLOC_INFO*> dependencies;
+    std::vector<ALLOC_INFO*> & dependencies = memmgr->dependencies ;
 
     //memmgr->set_debug_level(1);
 
@@ -88,7 +88,7 @@ TEST_F(MM_alloc_deps, dbl_array) {
     dbl_p[1] = 2.2;
     dbl_p[2] = 3.3;
 
-    memmgr->get_alloc_deps_in_allocation(dependencies, "dbl_array");
+    memmgr->get_alloc_deps_in_allocation("dbl_array");
 
     // There should be 1 dependency.
     EXPECT_EQ( dependencies.size(), 1);
@@ -97,7 +97,7 @@ TEST_F(MM_alloc_deps, dbl_array) {
 
 // ================================================================================
 TEST_F(MM_alloc_deps, dbl_array_pointers) {
-    std::vector<ALLOC_INFO*> dependencies;
+    std::vector<ALLOC_INFO*> & dependencies = memmgr->dependencies ;
 
     //memmgr->set_debug_level(2);
 
@@ -111,7 +111,7 @@ TEST_F(MM_alloc_deps, dbl_array_pointers) {
     dbl_pa[1] = dbl_p2;
     dbl_pa[2] = dbl_p3;
 
-    memmgr->get_alloc_deps_in_allocation(dependencies, "dbl_array_ptrs");
+    memmgr->get_alloc_deps_in_allocation("dbl_array_ptrs");
 
     // There should be 4 dependencies.
     EXPECT_EQ( dependencies.size(), 4);
@@ -123,7 +123,7 @@ TEST_F(MM_alloc_deps, dbl_array_pointers) {
 
 // ================================================================================
 TEST_F(MM_alloc_deps, udt_singleton_no_deps) {
-    std::vector<ALLOC_INFO*> dependencies;
+    std::vector<ALLOC_INFO*> & dependencies = memmgr->dependencies ;
 
     //memmgr->set_debug_level(1);
 
@@ -133,7 +133,7 @@ TEST_F(MM_alloc_deps, udt_singleton_no_deps) {
     udt_p->udt_p = NULL;
     udt_p->dbl_p = NULL;
 
-    memmgr->get_alloc_deps_in_allocation(dependencies, "udt_singleton");
+    memmgr->get_alloc_deps_in_allocation("udt_singleton");
 
     // There should be 1 dependency.
     EXPECT_EQ( dependencies.size(), 1);
@@ -142,7 +142,7 @@ TEST_F(MM_alloc_deps, udt_singleton_no_deps) {
 
 // ================================================================================
 TEST_F(MM_alloc_deps, udt_singleton_self_referential) {
-    std::vector<ALLOC_INFO*> dependencies;
+    std::vector<ALLOC_INFO*> & dependencies = memmgr->dependencies ;
 
     //memmgr->set_debug_level(1);
 
@@ -152,7 +152,7 @@ TEST_F(MM_alloc_deps, udt_singleton_self_referential) {
     udt_p->udt_p = udt_p;
     udt_p->dbl_p = NULL;
 
-    memmgr->get_alloc_deps_in_allocation(dependencies, "udt_singleton");
+    memmgr->get_alloc_deps_in_allocation("udt_singleton");
 
     // There should be 1 dependency.
     EXPECT_EQ( dependencies.size(), 1);
@@ -161,7 +161,7 @@ TEST_F(MM_alloc_deps, udt_singleton_self_referential) {
 
 // ================================================================================
 TEST_F(MM_alloc_deps, udt_singleton_deps) {
-    std::vector<ALLOC_INFO*> dependencies;
+    std::vector<ALLOC_INFO*> & dependencies = memmgr->dependencies ;
 
     //memmgr->set_debug_level(1);
 
@@ -173,7 +173,7 @@ TEST_F(MM_alloc_deps, udt_singleton_deps) {
     udt1_p->udt_p = udt2_p;
     udt1_p->dbl_p = dbl1_p;
 
-    memmgr->get_alloc_deps_in_allocation(dependencies, "udt1");
+    memmgr->get_alloc_deps_in_allocation("udt1");
 
     // There should be 3 dependencies.
     EXPECT_EQ( dependencies.size(), 3);
@@ -184,7 +184,7 @@ TEST_F(MM_alloc_deps, udt_singleton_deps) {
 
 // ================================================================================
 TEST_F(MM_alloc_deps, udt_pointer) {
-    std::vector<ALLOC_INFO*> dependencies;
+    std::vector<ALLOC_INFO*> & dependencies = memmgr->dependencies ;
 
     //memmgr->set_debug_level(1);
 
@@ -196,7 +196,7 @@ TEST_F(MM_alloc_deps, udt_pointer) {
 
     *udt1_p = a1;
 
-    memmgr->get_alloc_deps_in_allocation(dependencies, "udt_p");
+    memmgr->get_alloc_deps_in_allocation("udt_p");
 
     // There should be 2 dependencies.
     EXPECT_EQ( dependencies.size(), 2);
@@ -207,7 +207,7 @@ TEST_F(MM_alloc_deps, udt_pointer) {
 
 // ================================================================================
 TEST_F(MM_alloc_deps, udt_array_no_deps) {
-    std::vector<ALLOC_INFO*> dependencies;
+    std::vector<ALLOC_INFO*> & dependencies = memmgr->dependencies ;
 
     //memmgr->set_debug_level(1);
 
@@ -225,7 +225,7 @@ TEST_F(MM_alloc_deps, udt_array_no_deps) {
     udt_p[2].udt_p = NULL;
     udt_p[2].dbl_p = NULL;
 
-    memmgr->get_alloc_deps_in_allocation(dependencies, "udt_array");
+    memmgr->get_alloc_deps_in_allocation("udt_array");
 
     // There should be 1 dependency.
     EXPECT_EQ( dependencies.size(), 1);
@@ -234,7 +234,7 @@ TEST_F(MM_alloc_deps, udt_array_no_deps) {
 
 // ================================================================================
 TEST_F(MM_alloc_deps, udt_array_deps) {
-    std::vector<ALLOC_INFO*> dependencies;
+    std::vector<ALLOC_INFO*> & dependencies = memmgr->dependencies ;
 
     //memmgr->set_debug_level(1);
 
@@ -259,7 +259,7 @@ TEST_F(MM_alloc_deps, udt_array_deps) {
     udt_p[2].udt_p = udt3_p;
     udt_p[2].dbl_p = dbl3_p;
 
-    memmgr->get_alloc_deps_in_allocation(dependencies, "udt_array");
+    memmgr->get_alloc_deps_in_allocation("udt_array");
 
     // There should be 1 dependency.
     EXPECT_EQ( dependencies.size(), 7);

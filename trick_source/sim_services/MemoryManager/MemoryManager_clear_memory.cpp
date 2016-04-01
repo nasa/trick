@@ -95,6 +95,12 @@ void Trick::MemoryManager::clear_rvalue( void* base_address, ATTRIBUTES* attr, i
                final_address = (char*)base_address + offset * sizeof(void*);
                *(std::string*)final_address = "";
                break;
+           case TRICK_STL :
+               final_address = (char*)base_address + offset * attr->size ;
+               if ( attr->clear_stl ) {
+                   (*attr->clear_stl)(final_address) ;
+               }
+               break;
            default :
                std::stringstream message;
                message << "Unhandled Type (" << (int)attr->type << ").";

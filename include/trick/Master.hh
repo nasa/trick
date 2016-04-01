@@ -203,7 +203,7 @@ namespace Trick {
             int num_slaves ;  /**< trick_units(--) */
 
             /** Vector of slaves tracked by the master.\n */
-            std::vector< Trick::SlaveInfo * > slaves ;  /**< trick_units(--) */
+            std::vector< Trick::SlaveInfo * > slaves ;  /**< trick_io(**) trick_units(--) */
 
             /**
              @brief @userdesc Command to enable the master/slave synchronization.

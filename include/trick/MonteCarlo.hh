@@ -339,19 +339,19 @@ namespace Trick {
         TCDevice data_connection_device;                /**< \n trick_units(--) */
 
         /** Runs to be dispatched. */
-        std::deque <Trick::MonteRun *> runs;                 /**< \n trick_units(--) */
+        std::deque <Trick::MonteRun *> runs;                 /**< \n trick_io(**) trick_units(--) */
 
         /** Failed runs. */
-        std::deque <Trick::MonteRun *> failed_runs;          /**< \n trick_units(--) */
+        std::deque <Trick::MonteRun *> failed_runs;          /**< \n trick_io(**) trick_units(--) */
 
         /** Valid ranges. */
-        std::vector <Trick::MonteRange *> run_ranges;        /**< \n trick_units(--) */
+        std::vector <Trick::MonteRange *> run_ranges;        /**< \n trick_io(**) trick_units(--) */
 
         /** Variables. */
-        std::vector <Trick::MonteVar *> variables;           /**< \n trick_units(--) */
+        std::vector <Trick::MonteVar *> variables;           /**< \n trick_io(**) trick_units(--) */
 
         /** Slaves. */
-        std::vector <Trick::MonteSlave *> slaves;            /**< \n trick_units(--) */
+        std::vector <Trick::MonteSlave *> slaves;            /**< \n trick_io(**) trick_units(--) */
 
         /** Number of slaves. Exists for Variable Server access. */
         int num_slaves;                                 /**< \n trick_units(--) */

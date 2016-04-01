@@ -35,6 +35,8 @@ FieldDescription::FieldDescription(
   bitfield_word_offset(0) ,
   is_enum(0) ,
   is_record(0) ,
+  is_stl(0) ,
+  has_stl_clear(1) ,
   is_static(0) ,
   num_dims(0) ,
   array_sizes() {} ;
@@ -366,6 +368,22 @@ void FieldDescription::setRecord(bool yes_no) {
 
 bool FieldDescription::isRecord() {
     return is_record ;
+}
+
+void FieldDescription::setSTL(bool yes_no) {
+    is_stl = yes_no ;
+}
+
+bool FieldDescription::isSTL() {
+    return is_stl ;
+}
+
+void FieldDescription::setSTLClear(bool yes_no) {
+    has_stl_clear = yes_no ;
+}
+
+bool FieldDescription::hasSTLClear() {
+    return has_stl_clear ;
 }
 
 void FieldDescription::setStatic(bool yes_no) {
