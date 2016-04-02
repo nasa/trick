@@ -317,6 +317,17 @@ static std::map<std::string, bool> init_stl_classes() {
     my_map.insert(std::pair<std::string, bool>("std::__1::set", 1)) ;
     my_map.insert(std::pair<std::string, bool>("std::__1::stack", 0)) ;
     my_map.insert(std::pair<std::string, bool>("std::__1::vector", 1)) ;
+    my_map.insert(std::pair<std::string, bool>("std::__cxx11::deque", 1)) ;
+    my_map.insert(std::pair<std::string, bool>("std::__cxx11::list", 1)) ;
+    my_map.insert(std::pair<std::string, bool>("std::__cxx11::map", 1)) ;
+    my_map.insert(std::pair<std::string, bool>("std::__cxx11::multiset", 1)) ;
+    my_map.insert(std::pair<std::string, bool>("std::__cxx11::multimap", 1)) ;
+    my_map.insert(std::pair<std::string, bool>("std::__cxx11::pair", 0)) ;
+    my_map.insert(std::pair<std::string, bool>("std::__cxx11::priority_queue", 0)) ;
+    my_map.insert(std::pair<std::string, bool>("std::__cxx11::queue", 0)) ;
+    my_map.insert(std::pair<std::string, bool>("std::__cxx11::set", 1)) ;
+    my_map.insert(std::pair<std::string, bool>("std::__cxx11::stack", 0)) ;
+    my_map.insert(std::pair<std::string, bool>("std::__cxx11::vector", 1)) ;
     return my_map ;
 }
 
@@ -331,7 +342,8 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
        The attributes type is set to TRICK_STRING instead of TRICK_STRUCTURE.
        The type is set to std::string.  We can return false here to stop processing of this type. */
     std::string type_name = rt->getDecl()->getQualifiedNameAsString() ;
-    if ( ! type_name.compare("std::basic_string") || !type_name.compare("std::__1::basic_string")) {
+    if ( ! type_name.compare("std::basic_string") || !type_name.compare("std::__1::basic_string") || 
+         ! type_name.compare("std::__cxx11::basic_string") ) {
         fdes->setEnumString("TRICK_STRING") ;
         fdes->setTypeName("std::string") ;
         return false ;
