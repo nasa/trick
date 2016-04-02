@@ -79,9 +79,9 @@ $vcollect_def = qr/
         \s*
         (?:.*?)                    # Optional constructor
         \s*
-        {\s*                       # entry
+        \{\s*                       # entry
         (?:.*?)                    # item list
-        \s*}\s*;                   # end args
+        \s*\}\s*;                   # end args
         /sx ;
 
 $compiler_directive_def = qr/
@@ -143,9 +143,9 @@ $job_class_order_def = qr/
         /sx ;
 
 $user_code_def = qr/
-          %{\s*
+          %\{\s*
           .*?
-          %}
+          %\}
          /sx ;
 
 $user_header_def = qr/
@@ -461,7 +461,7 @@ sub handle_user_code ($$) {
     trick_print($$sim_ref{fh}, "User code: $u\n" , "debug_white" , $$sim_ref{args}{v});
     $$sim_ref{line_num} += ($u =~ s/\n/\n/g) ;
     $u =~ s/^##/#/mg ;
-    $u =~ /%{(.*?)%}/s ;
+    $u =~ /%\{(.*?)%\}/s ;
     $u = $1 ;
     $u =~ s/ZZZYYYXXX(\d+)ZZZYYYXXX//g ;
     $$sim_ref{user_code} .= $u ;

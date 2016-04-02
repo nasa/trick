@@ -46,7 +46,7 @@ sub get_lib_deps ($$) {
     foreach my $l (@lib_list) {
         my $found = 0 ;
         $l =~ s/\(|\)|\s+//g ;
-        $l =~ s/\${(.+?)}/$ENV{$1}/eg ;
+        $l =~ s/\$\{(.+?)\}/$ENV{$1}/eg ;
         next if ( $l eq "" ) ;
 
         if ( $l =~ /\.a$/ ) {
