@@ -43,6 +43,8 @@ class FieldDescription : public ConstructValues {
         std::string getContainerClass() ;
         void setContainerClass( std::string in_name ) ;
         unsigned int getBaseClassOffset() ;
+        void setNonCanonicalTypeName( std::string in_val ) ;
+        std::string getNonCanonicalTypeName() ;
         void setTypeName( std::string in_val ) ;
         std::string getTypeName() ;
         void setLineNo( unsigned int ) ;
@@ -99,7 +101,10 @@ class FieldDescription : public ConstructValues {
             be added to field offset */
         unsigned int base_class_offset ;
 
-        /** Name of the type */
+        /** Name of the type.  Non-canonical.  It's what was actually read in input file */
+        std::string non_canonical_type_name ;
+
+        /** Name of the type, will be canonical, resolving all typedefs and adding default template args */
         std::string type_name ;
 
         /** Name of the type */
