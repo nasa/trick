@@ -251,6 +251,14 @@ unsigned int FieldDescription::getBaseClassOffset() {
     return base_class_offset ;
 }
 
+void FieldDescription::setNonCanonicalTypeName( std::string in_val ) {
+    non_canonical_type_name = in_val ;
+}
+
+std::string FieldDescription::getNonCanonicalTypeName() {
+    return non_canonical_type_name ;
+}
+
 void FieldDescription::setTypeName( std::string in_val ) {
     type_name = in_val ;
 }

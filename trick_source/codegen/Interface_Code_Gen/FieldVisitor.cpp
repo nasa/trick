@@ -217,6 +217,7 @@ bool FieldVisitor::VisitFieldDecl( clang::FieldDecl *field ) {
         //field->dump() ;
     }
     if ( !qt.isCanonical() ) {
+        fdes->setNonCanonicalTypeName(qt.getAsString()) ;
         clang::QualType ct = qt.getCanonicalType() ;
         std::string tst_string = ct.getAsString() ;
         if ( debug_level >= 3 ) {
@@ -377,7 +378,10 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
                 fdes->setSTL(true) ;
                 fdes->setTypeName(tst_string) ;
                 fdes->setSTLClear((*it).second) ;
-                fdes->setMangledTypeName(mangle_string(tst_string)) ;
+                // set the type name to the non canonical name, the name the user put in the header file
+                // The typename is not used by STL variables, and it is nice to see the type that was
+                // actually inputted by the user
+                fdes->setMangledTypeName(fdes->getNonCanonicalTypeName()) ;
                 return false ;
             }
         }

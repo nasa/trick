@@ -479,6 +479,9 @@ namespace Trick {
             /** Dummy integer for bad references.\n */
             static int bad_ref_int ;         /**<  trick_io(**) */
 
+            /** Dummy integer for bad references. If a variable points here, do not try to re-resolve address\n */
+            static int do_not_resolve_bad_ref_int ;  /**<  trick_io(**) */
+
             /** The simulation time converted to seconds\n */
             double time ;                    /**<  trick_units(s) */
 

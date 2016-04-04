@@ -15,6 +15,7 @@
 #include "trick/sie_c_intf.h"
 
 int Trick::VariableServerThread::bad_ref_int = 0 ;
+int Trick::VariableServerThread::do_not_resolve_bad_ref_int = 0 ;
 
 REF2* Trick::VariableServerThread::make_time_ref() {
     REF2* new_ref;
@@ -62,6 +63,15 @@ int Trick::VariableServerThread::var_add(std::string in_name) {
             // Replace the REF2 object we got from ref_attributes with an error-ref.
             free(new_ref);
             new_ref = make_error_ref(in_name);
+            // set the address of the data to the do_not_resolve address.  We won't retry resolving the name
+            new_ref->address = (char *)&do_not_resolve_bad_ref_int ;
+        } else if ( new_ref->attr->type == TRICK_STL ) {
+            message_publish(MSG_ERROR, "Variable Server: var_add cant add \"%s\" because its an STL variable.\n", in_name.c_str());
+            // Replace the REF2 object we got from ref_attributes with an error-ref.
+            free(new_ref);
+            new_ref = make_error_ref(in_name);
+            // set the address of the data to the do_not_resolve address.  We won't retry resolving the name
+            new_ref->address = (char *)&do_not_resolve_bad_ref_int ;
         }
     } else {
         message_publish(MSG_ERROR, "Variable Server: BAD MOJO - Missing ATTRIBUTES.");
