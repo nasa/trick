@@ -1,5 +1,5 @@
 /*
-   PURPOSE: (Compute the normalized quaternion from the corresponding orthonormal transformation matrix)
+   PURPOSE: (Compute the normalized left handed quaternion from the corresponding orthonormal transformation matrix)
 
    REFERENCE: ((Flight Control - Orbit DAP) (FSSR STS 83-0009C OI-20, Section 4.3.8 MAT_TO_QUAT) (November 29, 1990))
 
@@ -9,7 +9,7 @@
 
 #include "trick/trick_math.h"
 
-void mat_to_quat(double quat[4],        /* Out: Quaternion */
+void mat_to_quat(double quat[4],        /* Out: Left handed quaternion */
                  double a[3][3])
 {                                      /* In: Transformation matrix */
 

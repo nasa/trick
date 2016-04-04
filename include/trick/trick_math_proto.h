@@ -115,6 +115,42 @@ int euler321(double angle[3], double mat[3][3], int method,
 
 /**
  * @ingroup TRICK_MATH
+ */
+int euler123_quat(double angle[3], double quat[4], int method,
+                  double *prev);
+
+/**
+ * @ingroup TRICK_MATH
+ */
+int euler132_quat(double angle[3], double quat[4], int method,
+                  double *prev);
+
+/**
+ * @ingroup TRICK_MATH
+ */
+int euler213_quat(double angle[3], double quat[4], int method,
+                  double *prev);
+
+/**
+ * @ingroup TRICK_MATH
+ */
+int euler231_quat(double angle[3], double quat[4], int method,
+                  double *prev);
+
+/**
+ * @ingroup TRICK_MATH
+ */
+int euler312_quat(double angle[3], double quat[4], int method,
+                  double *prev);
+
+/**
+ * @ingroup TRICK_MATH
+ */
+int euler321_quat(double angle[3], double quat[4], int method,
+                  double *prev);
+
+/**
+ * @ingroup TRICK_MATH
  * Add matrix mat1 to matrix mat2, assigning the result to sum.
  */
 void dm_add(double sum[3][3], double mat1[3][3], double mat2[3][3]);
@@ -360,6 +396,15 @@ int euler_matrix(double angle[3], double mat[3][3], int method,
 
 /**
  * @ingroup TRICK_MATH
+ * Generate a quaternion matix using a mutually exculsive Euler
+ * angle sequence OR generate a mutually exclusive Euler angle sequence
+ * using a quaternion matrix.
+ */
+int euler_quat(double angle[3], double quat[4], int method,
+                 Euler_Seq sequence);
+
+/**
+ * @ingroup TRICK_MATH
  * Matrix copy
  */
 void mat_copy(double **copy, double **mat, int m, int n);
@@ -526,4 +571,18 @@ double gauss_rnd_bell(RAND_GENERATOR * G);
          euler312( ang, mat, method, prev, __FILE__, __LINE__ )
 #define euler_321( ang, mat, method, prev ) \
          euler321( ang, mat, method, prev, __FILE__, __LINE__ )
+	 
+#define deuler_123_quat( ang, quat, method ) \
+          euler123_quat( ang, quat, method, (double*)0 )
+#define deuler_132_quat( ang, quat, method ) \
+          euler132_quat( ang, quat, method, (double*)0 )
+#define deuler_213_quat( ang, quat, method ) \
+          euler213_quat( ang, quat, method, (double*)0 )
+#define deuler_231_quat( ang, quat, method ) \
+          euler231_quat( ang, quat, method, (double*)0 )
+#define deuler_312_quat( ang, quat, method ) \
+          euler312_quat( ang, quat, method, (double*)0 )
+#define deuler_321_quat( ang, quat, method ) \
+          euler321_quat( ang, quat, method, (double*)0 )
+	  	 	 
 #endif

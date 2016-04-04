@@ -135,4 +135,18 @@ Assign the product of quaternian Q and vector V to quaternian D.
    VxV_ADD ((dest+1), (quat+1), vec); \
 }
 
+/**
+@page QUATERNIAN_MACROS
+\b Q_dot(Qdot, Q, V)
+
+Assign the time derivative of quaternian Q given an angular velocity V to Qdot.
+*/
+#define Q_dot(qdot,quat,omega) { \
+   double v[3];\
+   V_SCALE(v, omega , -0.5);\
+   *qdot = - V_DOT((quat+1), v);\
+   V_SCALE ((qdot+1), v,  *quat);\
+   VxV_ADD ((qdot+1), v, (quat+1)); \
+}
+
 #endif /* _QUAT_MACROS_H_   DO NOT PUT ANYTHING AFTER THIS LINE */
