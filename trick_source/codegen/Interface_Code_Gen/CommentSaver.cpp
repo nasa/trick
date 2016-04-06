@@ -84,7 +84,6 @@ void CommentSaver::getICGField( std::string file_name ) {
     /* default the icg_no flags to false */
     icg_no_found[file_name] = false ;
     icg_no_comment_found[file_name] = false ;
-    invade_privacy[file_name] = false ;
 
     std::string th_str = getTrickHeaderComment(file_name) ;
     if ( ! th_str.empty() ) {
@@ -114,10 +113,6 @@ void CommentSaver::getICGField( std::string file_name ) {
                     exit(-1) ;
                 }
             }
-            size_t trick_parse_invade_privacy = th_str.find("trick_invade_privacy") ;
-            if ( trick_parse_invade_privacy != std::string::npos ) {
-                invade_privacy[file_name] = true ;
-            }
         } else {
 
             std::transform(th_str.begin(), th_str.end(), th_str.begin(), ::toupper) ;
@@ -125,14 +120,6 @@ void CommentSaver::getICGField( std::string file_name ) {
             regex_t reg_expr ;
             regmatch_t pmatch[10] ;
             memset(pmatch , 0 , sizeof(pmatch)) ;
-
-            ret = regcomp( &reg_expr , "(INVADE[ _]PRIVACY:)" , REG_EXTENDED | REG_ICASE ) ;
-            ret = regexec( &reg_expr , th_str.c_str() , 10 , pmatch , 0 ) ;
-            regfree(&reg_expr) ;
-
-            if ( ret == 0 ) {
-                invade_privacy[file_name] = true ;
-            }
 
             /* POSIX regular expressions are always greedy, making our job harder.
                We have to use several regular expressions to get the types.  This was
@@ -204,15 +191,6 @@ bool CommentSaver::hasICGNoComment( std::string file_name ) {
     }
 
     return icg_no_comment_found[file_name] ;
-}
-
-bool CommentSaver::hasInvadePrivacy( std::string file_name ) {
-
-    if ( invade_privacy.find(file_name) == invade_privacy.end() ) {
-        getICGField(file_name) ;
-    }
-
-    return invade_privacy[file_name] ;
 }
 
 std::set< std::string > CommentSaver::getIgnoreTypes( std::string file_name ) {

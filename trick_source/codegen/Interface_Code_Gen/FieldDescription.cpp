@@ -16,15 +16,11 @@
 
 FieldDescription::FieldDescription(
  std::string in_container_class ,
- bool in_inherited ,
- bool in_virtual_inherited ,
- unsigned int in_base_class_offset) :
+ bool in_inherited ) :
   container_class(in_container_class) ,
-  base_class_offset(in_base_class_offset) ,
   field_offset(0) ,
   field_width(0) ,
   inherited(in_inherited) ,
-  virtual_inherited(in_virtual_inherited) ,
   units("--") ,
   line_no(0) ,
   io(3) ,
@@ -247,12 +243,11 @@ void FieldDescription::setContainerClass(std::string in_name ) {
     container_class = in_name ;
 }
 
-unsigned int FieldDescription::getBaseClassOffset() {
-    return base_class_offset ;
-}
-
 void FieldDescription::setFieldOffset(unsigned int in_offset) {
     field_offset = in_offset ;
+    if ( is_bitfield ) {
+        calcBitfieldOffset() ;
+    }
 }
 
 unsigned int FieldDescription::getFieldOffset() {
@@ -322,16 +317,25 @@ bool FieldDescription::isInherited() {
     return inherited ;
 }
 
-bool FieldDescription::isVirtualInherited() {
-    return virtual_inherited ;
-}
-
 void FieldDescription::setAccess( clang::AccessSpecifier in_val ) {
     access = in_val ;
 }
 
 clang::AccessSpecifier FieldDescription::getAccess() {
     return access ;
+}
+
+void FieldDescription::calcBitfieldOffset() {
+    unsigned int field_offset_bits = field_offset * 8 ;
+    bitfield_start_bit = 32 - (field_offset_bits % 32) - bitfield_width ;
+    bitfield_word_offset = (field_offset_bits / 32) * 4 ;
+}
+
+void FieldDescription::addOffset( unsigned int offset ) {
+    field_offset += offset ;
+    if ( is_bitfield ) {
+        calcBitfieldOffset() ;
+    }
 }
 
 void FieldDescription::setEnumString(std::string in_str) {
@@ -352,14 +356,6 @@ bool FieldDescription::isBitField() {
 
 void FieldDescription::setBitFieldWidth(unsigned int len) {
     bitfield_width = len ;
-}
-
-void FieldDescription::setBitFieldStart(unsigned int sb) {
-    bitfield_start_bit = sb ;
-}
-
-void FieldDescription::setBitFieldByteOffset(unsigned int wo) {
-    bitfield_word_offset = wo ;
 }
 
 unsigned int FieldDescription::getBitFieldWidth() {

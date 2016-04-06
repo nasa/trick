@@ -36,7 +36,7 @@ class ClassValues : public ConstructValues {
 
         /** Appends a vector of fields to field_descripts.
             A vector comes from adding all inherited fields at once */
-        void addInheritedFieldDescriptions(std::vector<FieldDescription *>) ;
+        void addInheritedFieldDescriptions(std::vector<FieldDescription *>, unsigned int class_offset) ;
 
         /** Gets the list of fields in this class */
         std::vector<FieldDescription *> getFieldDescription() ;
@@ -118,9 +118,6 @@ class ClassValues : public ConstructValues {
 
         /** Does this class have a public destructor? */
         bool has_public_destructor ;
-
-        /** Should we invade privacy and write attributes for everything we can? */
-        bool invade_privacy ;
 
         /** Mangled type name. Templates will have a mangled_type_name.  */
         std::string mangled_type_name ;

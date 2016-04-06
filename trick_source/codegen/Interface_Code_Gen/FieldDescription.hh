@@ -29,11 +29,7 @@ class FieldDescription : public ConstructValues {
     public:
 
         /* Default the inheritance to false */
-        FieldDescription(
-         std::string in_container_class ,
-         bool inherited ,
-         bool virtual_inherited ,
-         unsigned int base_class_offset ) ;
+        FieldDescription( std::string in_container_class , bool inherited ) ;
 
         /* Extracts units and io code from a comment */
         void parseComment(std::string) ;
@@ -62,8 +58,6 @@ class FieldDescription : public ConstructValues {
         std::string getEnumString() ;
         void setBitField( bool yes_no ) ;
         void setBitFieldWidth( unsigned int len ) ;
-        void setBitFieldStart( unsigned int len ) ;
-        void setBitFieldByteOffset( unsigned int len ) ;
         unsigned int getBitFieldWidth() ;
         unsigned int getBitFieldStart() ;
         unsigned int getBitFieldByteOffset() ;
@@ -82,9 +76,10 @@ class FieldDescription : public ConstructValues {
         void setStatic( bool yes_no ) ;
         bool isStatic() ;
         bool isInherited() ;
-        bool isVirtualInherited() ;
         void setAccess( clang::AccessSpecifier in_val ) ;
         clang::AccessSpecifier getAccess() ;
+        void calcBitfieldOffset() ;
+        void addOffset( unsigned int offset ) ;
 
         /** Adds an array dimension to the field */
         void addArrayDim( int in_dim ) ;
@@ -98,10 +93,6 @@ class FieldDescription : public ConstructValues {
 
         /** Name of the class this field is in */
         std::string container_class ;
-
-        /** This is copied from the current class we are processing.  It is the class offset to
-            be added to field offset */
-        unsigned int base_class_offset ;
 
         /** The total offset to the current field in bytes */
         unsigned int field_offset ;
@@ -117,7 +108,6 @@ class FieldDescription : public ConstructValues {
 
         /** Name of the type */
         std::string mangled_type_name ;
-
 
         /** String representing the type enumeration */
         std::string type_enum_string ;
@@ -154,9 +144,6 @@ class FieldDescription : public ConstructValues {
 
         /** is this field inherited from parent class */
         bool inherited ;
-
-        /** is this field virtual inherited from parent class */
-        bool virtual_inherited ;
 
         /** is an enumeration  */
         bool is_enum ;

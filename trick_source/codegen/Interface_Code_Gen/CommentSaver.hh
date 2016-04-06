@@ -77,12 +77,6 @@ class CommentSaver : public clang::CommentHandler {
          */
         bool hasICGNoComment( std::string file_name ) ;
 
-        /** Searches the Trick header comment for the Invade_Privacy:() entry.
-            @param file_name = File name to search
-            @return true = ICG:(NoComment) was found.
-         */
-        bool hasInvadePrivacy( std::string file_name ) ;
-
         /** Searches the Trick header comment for the ICG_EXCLUDE_TYPES field
             @param file_name = File name to search
             @return set of strings that list the type names to ignore.
@@ -100,9 +94,6 @@ class CommentSaver : public clang::CommentHandler {
 
         /** Map of file name to ICG: (NoComment) found */
         std::map < std::string , bool > icg_no_comment_found ;
-
-        /** Map of file name to ICG: (NoComment) found */
-        std::map < std::string , bool > invade_privacy ;
 
         /** All comments source locations indexed by file name then line number */
         std::map < std::string , std::map < unsigned int , clang::SourceRange > > comment_map ;

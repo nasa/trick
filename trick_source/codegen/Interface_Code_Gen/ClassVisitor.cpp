@@ -24,18 +24,13 @@ CXXRecordVisitor::CXXRecordVisitor(
  PrintAttributes & in_pa ,
  bool in_inherited ,
  bool in_virtual_inherited ,
- bool in_include_virtual_base ,
- unsigned int in_base_class_offset) :
+ bool in_include_virtual_base ) :
   ci(in_ci) ,
   cs(in_cs) ,
   hsd(in_hsd) ,
   pa(in_pa) ,
   cval(in_inherited , in_virtual_inherited) ,
-  include_virtual_base(in_include_virtual_base) ,
-  base_class_offset(in_base_class_offset)
- {
-    //cval = new ClassValues(in_inherited , in_virtual_inherited) ;
-}
+  include_virtual_base(in_include_virtual_base) {}
 
 CXXRecordVisitor::~CXXRecordVisitor() {
 }
@@ -81,7 +76,7 @@ bool CXXRecordVisitor::TraverseDecl(clang::Decl *d) {
         }
         break ;
         case clang::Decl::Field : {
-            FieldVisitor fvis(ci , hsd , cs, pa, cval.getName() , cval.isInherited(), cval.isVirtualInherited(), base_class_offset) ;
+            FieldVisitor fvis(ci , hsd , cs, pa, cval.getName() , cval.isInherited() ) ;
             fvis.TraverseFieldDecl(static_cast<clang::FieldDecl *>(d)) ;
             cval.addFieldDescription(fvis.get_field_data()) ;
         }
@@ -92,7 +87,7 @@ bool CXXRecordVisitor::TraverseDecl(clang::Decl *d) {
         break ;
         case clang::Decl::Var : {
             /* Static fields appear as vars. Treat it as a field. */
-            FieldVisitor fvis(ci , hsd , cs, pa, cval.getName() , cval.isInherited(), cval.isVirtualInherited(), base_class_offset) ;
+            FieldVisitor fvis(ci , hsd , cs, pa, cval.getName() , cval.isInherited() ) ;
             fvis.TraverseVarDecl(static_cast<clang::VarDecl *>(d)) ;
             cval.addFieldDescription(fvis.get_field_data()) ;
         }
@@ -182,9 +177,9 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
                     inherit_class_offset = record_layout.getBaseClassOffset(llvm::cast<clang::CXXRecordDecl>(rd)).getQuantity() ;
                     //std::cout << "    [34minherit_class_offset = " << inherit_class_offset << "[00m" << std::endl ;
                     //std::cout << "    [34m" << getFileName(ci , rd->getRBraceLoc(), hsd) << "[00m" << std::endl ;
-                    CXXRecordVisitor inherit_cvis(ci , cs, hsd , pa, true, bcii->isVirtual(), false, inherit_class_offset) ;
+                    CXXRecordVisitor inherit_cvis(ci , cs, hsd , pa, true, bcii->isVirtual(), false) ;
                     inherit_cvis.TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(rd)) ;
-                    cval.addInheritedFieldDescriptions(inherit_cvis.get_class_data()->getFieldDescription()) ;
+                    cval.addInheritedFieldDescriptions(inherit_cvis.get_class_data()->getFieldDescription(), inherit_class_offset) ;
                     // clear the field list in the inherited class so they are not freed when inherit_cvis goes out of scope.
                     inherit_cvis.get_class_data()->clearFieldDescription() ;
                     // If we are inheriting from a template specialization, don't save the inherited class.  This list
@@ -227,9 +222,9 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
 
                     //std::cout << "    [34minherit_class_offset = " << inherit_class_offset << "[00m" << std::endl ;
                     //std::cout << "    [34m" << getFileName(ci , rd->getRBraceLoc(), hsd) << "[00m" << std::endl ;
-                    CXXRecordVisitor inherit_cvis(ci , cs, hsd , pa, true, bcii->isVirtual(), false, inherit_class_offset) ;
+                    CXXRecordVisitor inherit_cvis(ci , cs, hsd , pa, true, bcii->isVirtual(), false) ;
                     inherit_cvis.TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(rd)) ;
-                    cval.addInheritedFieldDescriptions(inherit_cvis.get_class_data()->getFieldDescription()) ;
+                    cval.addInheritedFieldDescriptions(inherit_cvis.get_class_data()->getFieldDescription(), inherit_class_offset) ;
                     // clear the field list in the inherited class so they are not freed when inherit_cvis goes out of scope.
                     inherit_cvis.get_class_data()->clearFieldDescription() ;
                     // If we are inheriting from a template specialization, don't save the inherited class.  This list

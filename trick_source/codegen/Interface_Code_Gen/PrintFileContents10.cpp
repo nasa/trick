@@ -129,7 +129,7 @@ void PrintFileContents10::print_class_attr(std::ofstream & outfile , ClassValues
         }
     }
     // Print an empty sentinel attribute at the end of the class.
-    FieldDescription * new_fdes = new FieldDescription(std::string(""), false, false, 0) ;
+    FieldDescription * new_fdes = new FieldDescription(std::string(""), false) ;
     print_field_attr(outfile, new_fdes) ;
     outfile << " };" << std::endl ;
     delete new_fdes ;

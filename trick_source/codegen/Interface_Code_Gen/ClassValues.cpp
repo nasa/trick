@@ -12,8 +12,7 @@ ClassValues::ClassValues(bool in_inherit, bool in_virtual_inherit) :
   is_pod(false) ,
   is_abstract(false) ,
   has_default_constructor(false) ,
-  has_public_destructor(false) ,
-  invade_privacy(false)
+  has_public_destructor(false)
 {}
 
 ClassValues::~ClassValues() {
@@ -50,18 +49,19 @@ void ClassValues::addFieldDescription(FieldDescription * in_fdes) {
     field_name_to_info_map[in_fdes->getName()] = in_fdes ;
 }
 
-void ClassValues::addInheritedFieldDescriptions(std::vector<FieldDescription *> in_fdes) {
+void ClassValues::addInheritedFieldDescriptions(std::vector<FieldDescription *> in_fdes, unsigned int class_offset ) {
     // Make a copy of all of the FieldDescription variables.
     field_descripts.insert(field_descripts.end(), in_fdes.begin() , in_fdes.end()) ;
 
 // This section creates code that clang on the Mac cannot compile.
 // So, we cannot handle overloaded names on the Mac.
-#ifndef __APPLE__
     std::vector<FieldDescription *>::iterator fdit ;
     // Loop through the incoming inherited variable names
     for ( fdit = in_fdes.begin() ; fdit != in_fdes.end() ; fdit++ ) {
-        std::string in_name = (*fdit)->getName() ;
 
+        (*fdit)->addOffset( class_offset ) ;
+#ifndef __APPLE__
+        std::string in_name = (*fdit)->getName() ;
         // search existing names for incoming inherited variable name.
         std::map< std::string , FieldDescription * >::iterator mit = field_name_to_info_map.find(in_name) ;
         // if the variable name already exists we have overloaded variable names.
@@ -92,8 +92,8 @@ void ClassValues::addInheritedFieldDescriptions(std::vector<FieldDescription *> 
                 field_name_to_info_map[(*fdit)->getName()] = *fdit ;
             }
         }
-    }
 #endif
+    }
 
 }
 
@@ -232,14 +232,6 @@ void ClassValues::setHasPublicDestructor(bool in_val) {
 
 bool ClassValues::getHasPublicDestructor() {
     return has_public_destructor ;
-}
-
-void ClassValues::setInvadePrivacy(bool in_val) {
-    invade_privacy = in_val ;
-}
-
-bool ClassValues::getInvadePrivacy() {
-    return invade_privacy ;
 }
 
 void ClassValues::setMangledTypeName( std::string in_val ) {

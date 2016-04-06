@@ -22,14 +22,12 @@ FieldVisitor::FieldVisitor(clang::CompilerInstance & in_ci ,
  CommentSaver & in_cs ,
  PrintAttributes & in_pa ,
  std::string container_class ,
- bool in_inherited ,
- bool in_virtual_inherited ,
- unsigned int in_base_class_offset ) :
+ bool in_inherited ) :
   ci(in_ci) ,
   hsd(in_hsd) ,
   cs(in_cs) ,
   pa(in_pa) {
-    fdes = new FieldDescription(container_class, in_inherited, in_virtual_inherited, in_base_class_offset) ;
+    fdes = new FieldDescription(container_class, in_inherited ) ;
 }
 
 bool FieldVisitor::VisitDecl(clang::Decl *d) {
@@ -198,15 +196,15 @@ bool FieldVisitor::VisitEnumType( clang::EnumType *et ) {
 }
 
 bool FieldVisitor::VisitFieldDecl( clang::FieldDecl *field ) {
+
+    // set the offset to the field
+    fdes->setFieldOffset(field->getASTContext().getFieldOffset(field) / 8) ;
+
     fdes->setBitField(field->isBitField()) ;
     if ( fdes->isBitField() ) {
         fdes->setBitFieldWidth(field->getBitWidthValue(field->getASTContext())) ;
-        unsigned int field_offset_bits = field->getASTContext().getFieldOffset(field) + fdes->getBaseClassOffset() * 8 ;
-        fdes->setBitFieldStart( 32 - (field_offset_bits % 32) - fdes->getBitFieldWidth()) ;
-        fdes->setBitFieldByteOffset((field_offset_bits / 32) * 4 ) ;
+        fdes->calcBitfieldOffset() ;
     }
-    // set the offset to the field
-    fdes->setFieldOffset(field->getASTContext().getFieldOffset(field) / 8 + fdes->getBaseClassOffset()) ;
 
     // If the current type is not canonical because of typedefs or template parameter substitution,
     // traverse the canonical type
@@ -373,7 +371,7 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
     }
     // NOTE: clang also changes FILE * to struct _SFILE *.  We may need to change that too.
 
-    // Test if we have some type from std.
+    // Test if we have some type from STL.
     if (!tst_string.compare( 0 , 5 , "std::")) {
         // If we have some type from std, figure out if it is one we support.
         for ( std::map<std::string, bool>::iterator it = stl_classes.begin() ; it != stl_classes.end() ; it++ ) {

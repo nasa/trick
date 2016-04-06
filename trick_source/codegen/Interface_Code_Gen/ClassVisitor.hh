@@ -40,8 +40,7 @@ class CXXRecordVisitor : public clang::RecursiveASTVisitor<CXXRecordVisitor> {
          PrintAttributes & in_pa ,
          bool in_inherited ,
          bool in_virtual_inherited ,
-         bool in_include_virtual_base ,
-         unsigned int in_base_class_offset = 0 ) ;
+         bool in_include_virtual_base ) ;
 
         ~CXXRecordVisitor() ;
 
@@ -74,9 +73,6 @@ class CXXRecordVisitor : public clang::RecursiveASTVisitor<CXXRecordVisitor> {
 
         /** Holds the class information found, usually returned to caller of this visitor. */
         ClassValues cval ;
-
-        /** For inherited classes this is how many bytes into the derived class we are offset */
-        unsigned int base_class_offset ;
 
         /** Flag to specify if we should process virtual base classes. */
         bool include_virtual_base ;
