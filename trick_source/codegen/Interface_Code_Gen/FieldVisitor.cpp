@@ -22,7 +22,6 @@ FieldVisitor::FieldVisitor(clang::CompilerInstance & in_ci ,
  CommentSaver & in_cs ,
  PrintAttributes & in_pa ,
  std::string container_class ,
- bool in_access_spec_found ,
  bool in_inherited ,
  bool in_virtual_inherited ,
  unsigned int in_base_class_offset ) :
@@ -30,7 +29,7 @@ FieldVisitor::FieldVisitor(clang::CompilerInstance & in_ci ,
   hsd(in_hsd) ,
   cs(in_cs) ,
   pa(in_pa) {
-    fdes = new FieldDescription(container_class, in_access_spec_found, in_inherited, in_virtual_inherited, in_base_class_offset) ;
+    fdes = new FieldDescription(container_class, in_inherited, in_virtual_inherited, in_base_class_offset) ;
 }
 
 bool FieldVisitor::VisitDecl(clang::Decl *d) {
@@ -206,6 +205,8 @@ bool FieldVisitor::VisitFieldDecl( clang::FieldDecl *field ) {
         fdes->setBitFieldStart( 32 - (field_offset_bits % 32) - fdes->getBitFieldWidth()) ;
         fdes->setBitFieldByteOffset((field_offset_bits / 32) * 4 ) ;
     }
+    // set the offset to the field
+    fdes->setFieldOffset(field->getASTContext().getFieldOffset(field) / 8 + fdes->getBaseClassOffset()) ;
 
     // If the current type is not canonical because of typedefs or template parameter substitution,
     // traverse the canonical type
@@ -216,6 +217,10 @@ bool FieldVisitor::VisitFieldDecl( clang::FieldDecl *field ) {
         std::cout << "    is_canonical = " << qt.isCanonical() << std::endl ;
         //field->dump() ;
     }
+
+    // set the offset to the field
+    fdes->setFieldWidth(field->getASTContext().getTypeSize(qt) / 8) ;
+
     if ( !qt.isCanonical() ) {
         fdes->setNonCanonicalTypeName(qt.getAsString()) ;
         clang::QualType ct = qt.getCanonicalType() ;

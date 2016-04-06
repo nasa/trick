@@ -12,7 +12,9 @@ ClassValues::ClassValues(bool in_inherit, bool in_virtual_inherit) :
   is_pod(false) ,
   is_abstract(false) ,
   has_default_constructor(false) ,
-  has_public_destructor(false) {}
+  has_public_destructor(false) ,
+  invade_privacy(false)
+{}
 
 ClassValues::~ClassValues() {
     std::vector<FieldDescription *>::iterator fdit ;
@@ -230,6 +232,14 @@ void ClassValues::setHasPublicDestructor(bool in_val) {
 
 bool ClassValues::getHasPublicDestructor() {
     return has_public_destructor ;
+}
+
+void ClassValues::setInvadePrivacy(bool in_val) {
+    invade_privacy = in_val ;
+}
+
+bool ClassValues::getInvadePrivacy() {
+    return invade_privacy ;
 }
 
 void ClassValues::setMangledTypeName( std::string in_val ) {

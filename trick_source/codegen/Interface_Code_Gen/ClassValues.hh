@@ -76,6 +76,8 @@ class ClassValues : public ConstructValues {
         void setHasPublicDestructor(bool in_val) ;
         bool getHasPublicDestructor() ;
         void setMangledTypeName( std::string in_val ) ;
+        bool getInvadePrivacy() ;
+        void setInvadePrivacy( bool in_val ) ;
         std::string getMangledTypeName() ;
         std::string getFullyQualifiedMangledTypeName() ;
 
@@ -116,6 +118,9 @@ class ClassValues : public ConstructValues {
 
         /** Does this class have a public destructor? */
         bool has_public_destructor ;
+
+        /** Should we invade privacy and write attributes for everything we can? */
+        bool invade_privacy ;
 
         /** Mangled type name. Templates will have a mangled_type_name.  */
         std::string mangled_type_name ;

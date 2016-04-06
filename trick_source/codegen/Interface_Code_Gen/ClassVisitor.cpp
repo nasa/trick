@@ -32,8 +32,7 @@ CXXRecordVisitor::CXXRecordVisitor(
   pa(in_pa) ,
   cval(in_inherited , in_virtual_inherited) ,
   include_virtual_base(in_include_virtual_base) ,
-  base_class_offset(in_base_class_offset) ,
-  access_spec_found(false)
+  base_class_offset(in_base_class_offset)
  {
     //cval = new ClassValues(in_inherited , in_virtual_inherited) ;
 }
@@ -82,7 +81,7 @@ bool CXXRecordVisitor::TraverseDecl(clang::Decl *d) {
         }
         break ;
         case clang::Decl::Field : {
-            FieldVisitor fvis(ci , hsd , cs, pa, cval.getName() , access_spec_found , cval.isInherited(), cval.isVirtualInherited(), base_class_offset) ;
+            FieldVisitor fvis(ci , hsd , cs, pa, cval.getName() , cval.isInherited(), cval.isVirtualInherited(), base_class_offset) ;
             fvis.TraverseFieldDecl(static_cast<clang::FieldDecl *>(d)) ;
             cval.addFieldDescription(fvis.get_field_data()) ;
         }
@@ -93,14 +92,12 @@ bool CXXRecordVisitor::TraverseDecl(clang::Decl *d) {
         break ;
         case clang::Decl::Var : {
             /* Static fields appear as vars. Treat it as a field. */
-            FieldVisitor fvis(ci , hsd , cs, pa, cval.getName() , access_spec_found , cval.isInherited(), cval.isVirtualInherited(), base_class_offset) ;
+            FieldVisitor fvis(ci , hsd , cs, pa, cval.getName() , cval.isInherited(), cval.isVirtualInherited(), base_class_offset) ;
             fvis.TraverseVarDecl(static_cast<clang::VarDecl *>(d)) ;
             cval.addFieldDescription(fvis.get_field_data()) ;
         }
         break ;
-        case clang::Decl::AccessSpec : {
-            access_spec_found = true ;
-        }
+        case clang::Decl::AccessSpec :
         break ;
         default :
         break ;

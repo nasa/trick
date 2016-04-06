@@ -16,13 +16,13 @@
 
 FieldDescription::FieldDescription(
  std::string in_container_class ,
- bool in_access_spec_found ,
  bool in_inherited ,
  bool in_virtual_inherited ,
  unsigned int in_base_class_offset) :
   container_class(in_container_class) ,
   base_class_offset(in_base_class_offset) ,
-  access_spec_found(in_access_spec_found) ,
+  field_offset(0) ,
+  field_width(0) ,
   inherited(in_inherited) ,
   virtual_inherited(in_virtual_inherited) ,
   units("--") ,
@@ -251,6 +251,22 @@ unsigned int FieldDescription::getBaseClassOffset() {
     return base_class_offset ;
 }
 
+void FieldDescription::setFieldOffset(unsigned int in_offset) {
+    field_offset = in_offset ;
+}
+
+unsigned int FieldDescription::getFieldOffset() {
+    return field_offset ;
+}
+
+void FieldDescription::setFieldWidth(unsigned int in_width) {
+    field_width = in_width ;
+}
+
+unsigned int FieldDescription::getFieldWidth() {
+    return field_width ;
+}
+
 void FieldDescription::setNonCanonicalTypeName( std::string in_val ) {
     non_canonical_type_name = in_val ;
 }
@@ -300,10 +316,6 @@ unsigned int FieldDescription::getIO() {
 
 std::string FieldDescription::getDescription() {
     return description ;
-}
-
-bool FieldDescription::getAccessSpecFound() {
-    return access_spec_found ;
 }
 
 bool FieldDescription::isInherited() {
@@ -440,7 +452,6 @@ std::ostream & operator << (std::ostream & os , FieldDescription & fdes ) {
     os << "    io = " << fdes.io << std::endl ;
     os << "    description = " << fdes.description << std::endl ;
     os << "    access = " << fdes.access << std::endl ;
-    os << "    access_spec_found = " << fdes.access_spec_found << std::endl ;
     os << "    is_bitfield = " << fdes.is_bitfield << std::endl ;
     os << "    bitfield_width = " << fdes.bitfield_width << std::endl ;
     os << "    bitfield_start_bit = " << fdes.bitfield_start_bit << std::endl ;

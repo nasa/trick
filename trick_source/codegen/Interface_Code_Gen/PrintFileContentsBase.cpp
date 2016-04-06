@@ -74,25 +74,22 @@ void PrintFileContentsBase::print_close_extern_c(std::ofstream & outfile) {
 */
 bool PrintFileContentsBase::determinePrintAttr( ClassValues * c , FieldDescription * fdes ) {
     if ( fdes->getTypeName().compare("void") and fdes->getIO() != 0 and fdes->getEnumString().compare("TRICK_VOID")) {
-        if ( fdes->isInherited() ) {
-            return ((c->getHasInitAttrFriend() && fdes->getAccess() == clang::AS_protected)
-                 || (fdes->getAccess() == clang::AS_public)) ;
+        if ( fdes->isStatic() ) {
+            // Cannot take the address of a bitfield, attributes need the address of static variables.
+            // return false if we have a static bitfield
+            if ( fdes->isBitField() ) {
+                return false ;
+            }
+            if ( fdes->isInherited() ) {
+                return ((c->getHasInitAttrFriend() && fdes->getAccess() == clang::AS_protected)
+                     || (fdes->getAccess() == clang::AS_public)) ;
+            } else {
+                return (c->getHasInitAttrFriend()
+                    || (fdes->getAccess() == clang::AS_public)) ;
+            }
         } else {
-            return (c->getHasInitAttrFriend()
-                || (fdes->getAccess() == clang::AS_public)) ;
+            return true ;
         }
-#if 0
-        // Use this version when/if we decide to #define private public.
-        if ( fdes->isInherited() ) {
-            return ((c->getHasInitAttrFriend() && fdes->getAccess() == clang::AS_protected)
-                 || (fdes->getAccess() == clang::AS_public)
-                 || fdes->getAccessSpecFound()) ;
-        } else {
-            return (c->getHasInitAttrFriend()
-                || (fdes->getAccess() == clang::AS_public)
-                || fdes->getAccessSpecFound()) ;
-        }
-#endif
     }
     return false ;
 }

@@ -31,7 +31,6 @@ class FieldDescription : public ConstructValues {
         /* Default the inheritance to false */
         FieldDescription(
          std::string in_container_class ,
-         bool access_spec_found ,
          bool inherited ,
          bool virtual_inherited ,
          unsigned int base_class_offset ) ;
@@ -43,6 +42,10 @@ class FieldDescription : public ConstructValues {
         std::string getContainerClass() ;
         void setContainerClass( std::string in_name ) ;
         unsigned int getBaseClassOffset() ;
+        void setFieldOffset( unsigned int in_offset ) ;
+        unsigned int getFieldOffset() ;
+        void setFieldWidth( unsigned int in_offset ) ;
+        unsigned int getFieldWidth() ;
         void setNonCanonicalTypeName( std::string in_val ) ;
         std::string getNonCanonicalTypeName() ;
         void setTypeName( std::string in_val ) ;
@@ -78,7 +81,6 @@ class FieldDescription : public ConstructValues {
         bool hasSTLClear() ;
         void setStatic( bool yes_no ) ;
         bool isStatic() ;
-        bool getAccessSpecFound() ;
         bool isInherited() ;
         bool isVirtualInherited() ;
         void setAccess( clang::AccessSpecifier in_val ) ;
@@ -100,6 +102,12 @@ class FieldDescription : public ConstructValues {
         /** This is copied from the current class we are processing.  It is the class offset to
             be added to field offset */
         unsigned int base_class_offset ;
+
+        /** The total offset to the current field in bytes */
+        unsigned int field_offset ;
+
+        /** The size of the current field in bytes */
+        unsigned int field_width ;
 
         /** Name of the type.  Non-canonical.  It's what was actually read in input file */
         std::string non_canonical_type_name ;
@@ -143,9 +151,6 @@ class FieldDescription : public ConstructValues {
 
         /** dimensions sizes */
         int array_sizes[8] ;
-
-        /** does this field follow a public/private/protected keyword */
-        bool access_spec_found ;
 
         /** is this field inherited from parent class */
         bool inherited ;

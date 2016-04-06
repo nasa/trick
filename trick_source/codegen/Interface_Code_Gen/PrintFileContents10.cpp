@@ -82,12 +82,12 @@ void PrintFileContents10::print_field_attr(std::ofstream & outfile ,  FieldDescr
     outfile << fdes->getMangledTypeName() << "\"";        // end type_name
     outfile << ", \"" << fdes->getUnits() << "\"" ;       // units
     outfile << ", \"\", \"\"," << std::endl ;           // alias , user_defined
-    outfile << "  \"" << fdes->getDescription() << "\"," << std::endl ; // des
+    outfile << "  \"" << fdes->getDescription() << "\"," << std::endl ; // description
     outfile << "  " << fdes->getIO() ;                    // io
     outfile << "," << fdes->getEnumString() ;             // type
-    outfile << ",0,0,0,Language_CPP" ;                  // size, range_min, range_max, language
+    outfile << "," << fdes->getFieldWidth() << ",0,0,Language_CPP" ; // size, range_min, range_max, language
     outfile << "," << (fdes->isStatic() << 1 ) << "," << std::endl ;                   // mods
-    outfile << "  " << "0" << ",NULL" ;                 // offset, attr
+    outfile << "  " << fdes->getFieldOffset() << ",NULL" ;                 // offset, attr
     outfile << "," << fdes->getNumDims() ;                // num_index
 
     outfile << ",{" ;
@@ -128,7 +128,8 @@ void PrintFileContents10::print_class_attr(std::ofstream & outfile , ClassValues
             outfile << "," << std::endl ;
         }
     }
-    FieldDescription * new_fdes = new FieldDescription(std::string(""), true, false, false, 0) ;
+    // Print an empty sentinel attribute at the end of the class.
+    FieldDescription * new_fdes = new FieldDescription(std::string(""), false, false, 0) ;
     print_field_attr(outfile, new_fdes) ;
     outfile << " };" << std::endl ;
     delete new_fdes ;
@@ -139,6 +140,9 @@ void PrintFileContents10::print_class_attr(std::ofstream & outfile , ClassValues
 /** Prints init_attr function for each class */
 void PrintFileContents10::print_field_init_attr_stmts( std::ofstream & outfile , FieldDescription * fdes , ClassValues * cv ) {
 
+    // Static bitfields do not get to this point, they are filtered out in determinePrintAttr
+
+    // Always print offset of a static variable
     if ( fdes->isStatic() ) {
         // print a special offsetof statement if this is a static
         outfile << "    attr" ;
@@ -148,7 +152,9 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ofstream & outfile ,
         printNamespaces( outfile, cv , "::" ) ;
         printContainerClasses( outfile, cv , "::" ) ;
         outfile << cv->getName() << "::" << fdes->getName() << " ;\n" ;
-    } else if ( fdes->isBitField() ) {
+    }
+
+    if ( fdes->isBitField() ) {
         // else if this is a bitfield
         outfile << "    attr" ;
         printNamespaces( outfile, cv , "__" ) ;
@@ -161,6 +167,8 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ofstream & outfile ,
         printNamespaces( outfile, cv , "__" ) ;
         printContainerClasses( outfile, cv , "__" ) ;
         outfile << cv->getMangledTypeName() << "[i].size = sizeof(unsigned int) ;\n" ;
+    }
+#if 0
     } else if ( fdes->isVirtualInherited() ) {
         // else if we have a virtually inherited class.
         outfile << "    attr" ;
@@ -188,6 +196,7 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ofstream & outfile ,
         printContainerClasses( outfile, cv , "::" ) ;
         outfile << cv->getMangledTypeName() << "," << fdes->getName() << ") ;\n" ;
     }
+#endif
 
     if ( !fdes->isRecord() and !fdes->isEnum() and !fdes->isBitField() and !fdes->isSTL()) {
         outfile << "    attr" ;

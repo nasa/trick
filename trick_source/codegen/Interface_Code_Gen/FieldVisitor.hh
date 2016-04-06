@@ -32,7 +32,6 @@ class FieldVisitor : public clang::RecursiveASTVisitor<FieldVisitor> {
          CommentSaver & cs ,
          PrintAttributes & in_pa ,
          std::string container_class ,
-         bool access_spec_found ,
          bool inherited ,
          bool virtual_inherited ,
          unsigned int base_class_offset ) ;
