@@ -388,6 +388,9 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
                 return false ;
             }
         }
+        // If the record type is in std:: but not one we can process, set the I/O spec to zero and return.
+        fdes->setIO(0) ;
+        return false ;
     }
 
     /* Template specialization types will be processed here because the canonical type

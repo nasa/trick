@@ -83,6 +83,7 @@ std::string FieldDescription::get_regex_field(std::string input , const char * e
 
 // global set of all units processed. hopefully saves time from reparsing same units strings over and over
 std::set< std::string > valid_units ;
+extern llvm::cl::opt< int > debug_level ;
 
 void FieldDescription::parseComment(std::string comment) {
     std::string ret_str ;
@@ -98,7 +99,9 @@ void FieldDescription::parseComment(std::string comment) {
         return ;
     }
 
-    //std::cout << "comment before " << comment << std::endl ;
+    if ( debug_level >= 5 ) {
+        std::cout << "comment before " << comment << std::endl ;
+    }
 
     // remove open comment chars
     comment = get_regex_field(comment , "^(//|/\\*)(.*)" , 2) ;

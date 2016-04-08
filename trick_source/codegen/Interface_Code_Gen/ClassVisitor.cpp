@@ -13,6 +13,7 @@
 #include "EnumValues.hh"
 #include "FieldVisitor.hh"
 #include "Utilities.hh"
+#include "CommentSaver.hh"
 #include "PrintAttributes.hh"
 
 extern llvm::cl::opt< int > debug_level ;
@@ -129,8 +130,22 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
     if ( debug_level >= 2 ) {
         rec->dump() ; std::cout << std::endl ;
     }
+
+    // Return false to stop processing if there is no definition of this class
     if ( rec->getDefinition() == NULL ) {
-        return true ;
+        return false ;
+    }
+
+    // Return false to stop processing if this header file is excluded by one of many reasons.
+    std::string header_file_name = getFileName(ci , rec->getRBraceLoc(), hsd) ;
+    char * rp = almostRealPath(header_file_name.c_str()) ;
+    if (  rp == NULL ||
+         !hsd.isPathInUserDir(rp)  ||
+          hsd.isPathInExclude(rp) ||
+          hsd.isPathInICGExclude(rp) ||
+          hsd.isPathInExtLib(rp) ||
+          cs.hasICGNo(header_file_name) ) {
+        return false ;
     }
 
     // If this class needs a default constructor, then the complier will generate one and we can call it.
@@ -152,7 +167,7 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
         cval.setHasPublicDestructor(true) ;
     }
 
-    cval.setFileName(getFileName(ci , rec->getRBraceLoc(), hsd)) ;
+    cval.setFileName(header_file_name) ;
     cval.setAbstract(rec->isAbstract()) ;
     cval.setName(rec->getNameAsString()) ;
     cval.setPOD(rec->isPOD()) ;
