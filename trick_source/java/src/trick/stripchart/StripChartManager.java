@@ -16,7 +16,7 @@ import trick.common.utils.vs.Variable;
 public class StripChartManager {
 
     /** variables whose historical values are being logged */
-    HashMap<Variable, ValueLog> valueLogs = new HashMap<Variable, ValueLog>();
+    HashMap<Variable<?>, ValueLog> valueLogs = new HashMap<Variable<?>, ValueLog>();
 
     /** variables being logged with respect to another variable */
     HashMap<PairKey, VariablePair> variablePairs = new HashMap<PairKey, VariablePair>();
@@ -34,8 +34,8 @@ public class StripChartManager {
      *
      * @param variables the variables to be recorded
      */
-    public void addVariables(Collection<Variable> variables) {
-        for (Variable variable : variables) {
+    public void addVariables(Collection<Variable<?>> variables) {
+        for (Variable<?> variable : variables) {
             addVariable(variable);
         }
     }
@@ -47,7 +47,7 @@ public class StripChartManager {
      *
      * @param variable the variable to be recorded
      */
-    public void addVariable(Variable variable) {
+    public void addVariable(Variable<?> variable) {
         if (!valueLogs.containsKey(variable)) {
             try {
                 Double.parseDouble(variable.getValue().toVariableServer());
@@ -92,7 +92,7 @@ public class StripChartManager {
      * participating in and removes it from the strip charts
      * @param variable the variable to remove
      */
-    public void removeVariable(Variable variable) {
+    public void removeVariable(Variable<?> variable) {
         valueLogs.remove(variable);
 
         // Copy the key set so we don't modify the iterator, producing a ConcurrentModificationException.
@@ -113,7 +113,7 @@ public class StripChartManager {
      * @param rangeVariable  not sure
      * @return a variable pair for the given arguments
      */
-    public VariablePair getPair(Variable domainVariable, Variable rangeVariable) {
+    public VariablePair getPair(Variable<?> domainVariable, Variable<?> rangeVariable) {
         PairKey pairKey = new PairKey(domainVariable, rangeVariable);
         if (variablePairs.containsKey(pairKey)) {
             return variablePairs.get(pairKey);
@@ -148,7 +148,7 @@ public class StripChartManager {
      *
      * @return a new strip chart
      */
-    public StripChart createStripChart(Variable domainVariable, Collection<Variable> rangeVariables) {
+    public StripChart createStripChart(Variable<?> domainVariable, Collection<? extends Variable<?>> rangeVariables) {
         return createStripChart(domainVariable, rangeVariables, StripChart.Mode.Strip, 30, true, false, true);
     }
 
@@ -165,13 +165,13 @@ public class StripChartManager {
      *
      * @return a new strip chart
      */
-    public StripChart createStripChart(Variable domainVariable, Collection<Variable> rangeVariables,
+    public StripChart createStripChart(Variable<?> domainVariable, Collection<? extends Variable<?>> rangeVariables,
       StripChart.Mode mode, double fixedAutoRange, boolean linesVisible, boolean pointsVisible,
       boolean legendVisible) {
 
         // Ensure all specified variables have already been added.
         addVariable(domainVariable);
-        for (Variable variable : rangeVariables) {
+        for (Variable<?> variable : rangeVariables) {
             addVariable(variable);
         }
 
@@ -216,7 +216,7 @@ public class StripChartManager {
     static class ValueLog {
 
         /** the variable being logged */
-        Variable variable;
+        Variable<?> variable;
 
         /** the log of values */
         ArrayList<Double> values = new ArrayList<Double>();
@@ -230,7 +230,7 @@ public class StripChartManager {
          * @param variable the variable to be logged
          * @param logStart the manager count at which this log started
          */
-        public ValueLog(Variable variable, int logStart) {
+        public ValueLog(Variable<?> variable, int logStart) {
             this.variable = variable;
             this.logStart = logStart;
         }
@@ -256,7 +256,7 @@ public class StripChartManager {
          *
          * @return the variable being logged
          */
-        public Variable getVariable() {
+        public Variable<?> getVariable() {
             return variable;
         }
 
@@ -305,10 +305,10 @@ public class StripChartManager {
     static class PairKey {
 
         /** the independent variable */
-        Variable domainVariable;
+        Variable<?> domainVariable;
 
         /** the dependent variable */
-        Variable rangeVariable;
+        Variable<?> rangeVariable;
 
         /**
          * constructor
@@ -316,7 +316,7 @@ public class StripChartManager {
          * @param domainVariable the independent variable
          * @param rangeVariable the depdendent variable
          */
-        public PairKey(Variable domainVariable, Variable rangeVariable) {
+        public PairKey(Variable<?> domainVariable, Variable<?> rangeVariable) {
             this.domainVariable = domainVariable;
             this.rangeVariable = rangeVariable;
         }

@@ -78,13 +78,13 @@ public class StripChart extends JXPanel {
     double fixedAutoRange;
 
     /** a combo box to hold variables available for adding to the strip chart */
-    JComboBox addComboBox = new JComboBox();
+    ComboBox<Variable<?>> addComboBox = new ComboBox<>();
 
     /** a combo box to hold variables available for removing from the strip chart */
-    JComboBox removeComboBox = new JComboBox();
+    ComboBox<Variable<?>> removeComboBox = new ComboBox<>();
 
     /** a combo box to hold variables available for specifying as the independent variable */
-    JComboBox domainComboBox = new JComboBox();
+    ComboBox<Variable<?>> domainComboBox = new ComboBox<>();
 
     /**
      * constructor
@@ -101,8 +101,8 @@ public class StripChart extends JXPanel {
      */
     // Until JFreeChart fixes setBaseShape, we must use the deprecated setShape.
     @SuppressWarnings("deprecation")
-    StripChart(StripChartManager stripChartManager, final Variable domainVariable,
-      Collection<Variable> rangeVariables, Collection<Variable> allVariables,
+    StripChart(StripChartManager stripChartManager, final Variable<?> domainVariable,
+      Collection<? extends Variable<?>> rangeVariables, Collection<Variable<?>> allVariables,
       final Mode mode, double autoRange, final boolean linesVisible,
       final boolean pointsVisible, final boolean legendVisible) {
 
@@ -323,7 +323,7 @@ public class StripChart extends JXPanel {
                     putValue(SHORT_DESCRIPTION, "Add the selected variable.");
                     }
                     public void actionPerformed(ActionEvent event) {
-                        chartVariable((Variable)(addComboBox.getSelectedItem()));
+                        chartVariable(addComboBox.getSelectedItem());
                     }
                 }), constraints);
 
@@ -333,7 +333,7 @@ public class StripChart extends JXPanel {
                     putValue(SHORT_DESCRIPTION, "Remove the selected variable.");
                     }
                     public void actionPerformed(ActionEvent event) {
-                        removeVariable((Variable)(removeComboBox.getSelectedItem()));
+                        removeVariable(removeComboBox.getSelectedItem());
                     }
                 }), constraints);
 
@@ -353,15 +353,15 @@ public class StripChart extends JXPanel {
 
             domainComboBox.addActionListener(new ActionListener() {
 
-                Variable oldSelection;
+                Variable<?> oldSelection;
 
                 public void actionPerformed(ActionEvent event) {
-                    Variable newSelection = (Variable)domainComboBox.getSelectedItem();
+                    Variable<?> newSelection = domainComboBox.getSelectedItem();
                     if (newSelection != oldSelection) {
                         oldSelection = newSelection;
                         dataSet.removeAllSeries();
                         for (int i = 0; i < removeComboBox.getItemCount(); ++i) {
-                            chartVariable((Variable)(removeComboBox.getItemAt(i)));
+                            chartVariable(removeComboBox.getItemAt(i));
                         }
                         domainAxis.setLabel(newSelection != null ? newSelection.toString() : "");
                     }
@@ -372,13 +372,13 @@ public class StripChart extends JXPanel {
 
         setMode(mode);
 
-        for (Variable variable : allVariables) {
+        for (Variable<?> variable : allVariables) {
             addVariable(variable);
         }
 
         domainComboBox.setSelectedItem(domainVariable);
 
-        for (Variable variable : rangeVariables) {
+        for (Variable<?> variable : rangeVariables) {
             chartVariable(variable);
         }
     }
@@ -453,7 +453,7 @@ public class StripChart extends JXPanel {
      *
      * @param variable the varible to be added
      */
-    void addVariable(Variable variable) {
+    void addVariable(Variable<?> variable) {
         addToComboBox(addComboBox, variable);
         addToComboBox(domainComboBox, variable);
     }
@@ -463,9 +463,9 @@ public class StripChart extends JXPanel {
      *
      * @param variable the varible to be charted
      */
-    void chartVariable(Variable variable) {
+    void chartVariable(Variable<?> variable) {
         if (variable != null) {
-            dataSet.addSeries(stripChartManager.getPair((Variable)domainComboBox.getSelectedItem(), variable).getSeries());
+            dataSet.addSeries(stripChartManager.getPair(domainComboBox.getSelectedItem(), variable).getSeries());
             addComboBox.removeItem(variable);
             addToComboBox(removeComboBox, variable);
         }
@@ -476,7 +476,7 @@ public class StripChart extends JXPanel {
      *
      * @param variable the varible to be removed
      */
-    void removeVariable(Variable variable) {
+    void removeVariable(Variable<?> variable) {
         if (variable != null) {
             removeVariableFromDataSet(variable);
             addToComboBox(addComboBox, variable);
@@ -489,7 +489,7 @@ public class StripChart extends JXPanel {
      *
      * @param variable the varible to be removed
      */
-    void removeVariableFromDataSet(Variable variable) {
+    void removeVariableFromDataSet(Variable<?> variable) {
         for (int i = 0; i < dataSet.getSeriesCount(); ++i) {
             if (dataSet.getSeriesKey(i).equals(variable.toString())) {
                 dataSet.removeSeries(i);
@@ -500,7 +500,7 @@ public class StripChart extends JXPanel {
 
     public void deleteAllVariables() {
         for (int i = domainComboBox.getItemCount(); i >= 0; --i) {
-            deleteVariable((Variable)domainComboBox.getItemAt(i));
+            deleteVariable(domainComboBox.getItemAt(i));
         }
     }
 
@@ -509,7 +509,7 @@ public class StripChart extends JXPanel {
      *
      * @param variable the varible to be deleted
      */
-    public void deleteVariable(Variable variable) {
+    public void deleteVariable(Variable<?> variable) {
         removeVariableFromDataSet(variable);
         addComboBox.removeItem(variable);
         removeComboBox.removeItem(variable);
@@ -542,10 +542,10 @@ public class StripChart extends JXPanel {
      *
      * @return the variables currently being plotted
      */
-    public ArrayList<Variable> getPlottedVariables() {
-        ArrayList<Variable> variables = new ArrayList<Variable>();
+    public ArrayList<Variable<?>> getPlottedVariables() {
+        ArrayList<Variable<?>> variables = new ArrayList<>();
         for (int i = 0; i < removeComboBox.getItemCount(); ++i) {
-            variables.add((Variable)removeComboBox.getItemAt(i));
+            variables.add(removeComboBox.getItemAt(i));
         }
         return variables;
     }
@@ -591,8 +591,8 @@ public class StripChart extends JXPanel {
      *
      * @return the current domain variable
      */
-    public Variable getDomainVariable() {
-        return (Variable)domainComboBox.getSelectedItem();
+    public Variable<?> getDomainVariable() {
+        return domainComboBox.getSelectedItem();
     }
 
     /**
@@ -686,6 +686,24 @@ public class StripChart extends JXPanel {
             else {
                 pack();
             }
+        }
+
+    }
+
+    /**
+     * JComboBox.getSelectedItem() is not generic, returning an Object instead of E.
+     * The reason for this is that an editable combo box allows you to type a string, which cannot
+     * be constrained to the generic type and may be returned by getSelectedItem(), directly into
+     * the component. However, getItemAt(getSelectedIndex()) will always return an E. If the
+     * selected item is a custom string in an editable combo box, the return value is null. We're
+     * not using editable combo boxes in this file, so this class relieves us of having to type
+     * comboBox.getItemAt(comboBox.getSelectedIndex()) in place of comboBox.getSelectedItem().
+     */
+    private class ComboBox<E> extends JComboBox<E> {
+
+        @Override
+        public E getSelectedItem() {
+            return getItemAt(getSelectedIndex());
         }
 
     }

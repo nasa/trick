@@ -462,17 +462,24 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
         // Initialize the variable table.
         variableTable = new VariableTable() {
 
-            JPopupMenu popupMenu = new JPopupMenu() {{
+            class VariablePopupMenu extends JPopupMenu {
+                /** the variable associated with this popup menu */
+                Variable variable;
+            }
+
+            VariablePopupMenu popupMenu = new VariablePopupMenu() {{
                 add(new JMenuItem(new AbstractAction() {
                     {
                     putValue(NAME, "Expand Parent in Tree");
                     }
                     public void actionPerformed(ActionEvent actionEvent) {
-                        variableTree.expandParent(getLabel());
+                        if (variable != null) {
+                            variableTree.expandParent(variable.name);
+                        }
                     }
                 }));
             }};
-        
+
             {
             setName("variableTable");
             setFont(getFont().deriveFont(Float.parseFloat(trickProperties.getProperty(
@@ -500,7 +507,8 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
                 }
 
                 row = getSelectedRow();
-                popupMenu.setLabel(row == -1 ? "No Selection" : (getValueAt(row, 0)).toString());
+                ArrayList<? extends Variable> selectedVariables = getSelectedVariables();
+                popupMenu.variable = selectedVariables.isEmpty() ? null : selectedVariables.get(0);
 
                 return super.getPopupLocation(event);
             }
@@ -687,8 +695,8 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
 
             JComboBox comboBox = new JComboBox() {{
                 setToolTipText(
-                  "<html>" + 
-                  "Order in which the Variable<br>" + 
+                  "<html>" +
+                  "Order in which the Variable<br>" +
                   "Tree will be sorted." +
                   "</html>"
                 );
@@ -735,8 +743,8 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
 
             JComboBox comboBox = new JComboBox(Position.values()) {{
                 setToolTipText(
-                  "<html>" + 
-                  "Position at which new variables will<br>" + 
+                  "<html>" +
+                  "Position at which new variables will<br>" +
                   "be added to the variable table." +
                   "</html>"
                 );
@@ -744,7 +752,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
 
             JCheckBox asStringsCheckBox = new JCheckBox("char[] as string") {{
                 setToolTipText(
-                  "<html>" + 
+                  "<html>" +
                   "Treat character arrays as strings when<br>" + 
                   "adding them to the variable table." +
                   "</html>"
@@ -840,8 +848,8 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
                         float fontSize = Float.parseFloat(fontSizeField.getText());
                         if (fontSize < 0) {
                             throw new NumberFormatException("Font size must be non-negative.");
-                        }   
-                    }   
+                        }
+                    }
                     catch (NumberFormatException numberFormatException) {
                         JOptionPane.showMessageDialog(getMainFrame(), numberFormatException,
                           "Invalid Value", JOptionPane.ERROR_MESSAGE);
@@ -907,8 +915,8 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
                 setTitleJustification(CENTER);
                 setToolTipText(
                   "<html>" +
-                  "Specify the units in which newly<br>" + 
-                  "added variables will be displayed." + 
+                  "Specify the units in which newly<br>" +
+                  "added variables will be displayed." +
                   "</html>");
             }});
 
@@ -950,7 +958,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
                 }
             });
             }
-            
+
         }, constraints);
 
         settingsDialog.addPanel(new JXPanel(new GridBagLayout()) {
@@ -968,8 +976,8 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
                 setTitleJustification(CENTER);
                 setToolTipText(
                   "<html>" +
-                  "Specify the format in which newly<br>" + 
-                  "added variables will be displayed." + 
+                  "Specify the format in which newly<br>" +
+                  "added variables will be displayed." +
                   "</html>");
             }});
 
@@ -1784,7 +1792,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
                         }
                     }
 
-                    ArrayList<Variable> plottedVariables = new ArrayList<Variable>();
+                    ArrayList<Variable<?>> plottedVariables = new ArrayList<>();
                     for (String plottedVariable : stripChartBean.plottedVariables) {
                         for (Variable variable : tvBean.variables) {
                             if (variable.name.equals(plottedVariable)) {
