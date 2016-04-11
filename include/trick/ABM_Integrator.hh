@@ -23,11 +23,6 @@ namespace Trick {
  * Helper class for ABM_Integrator
  */
 class ABM_IntegratorHelper {
-#ifndef SWIG
-   friend class InputProcessor;
-   friend void init_attrTrick__ABM_IntegratorHelper();
-#endif
-
 protected:
 
    er7_utils::ABM4IntegratorConstructor
@@ -42,10 +37,6 @@ protected:
 class ABM_Integrator :
    protected ABM_IntegratorHelper,
    public er7_utils::TrickFirstOrderOdeIntegrator {
-#ifndef SWIG
-   friend class InputProcessor;
-   friend void init_attrTrick__ABM_Integrator();
-#endif
 
 public:
 

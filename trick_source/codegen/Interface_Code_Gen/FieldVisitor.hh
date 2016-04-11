@@ -31,8 +31,7 @@ class FieldVisitor : public clang::RecursiveASTVisitor<FieldVisitor> {
          HeaderSearchDirs & in_hsd ,
          CommentSaver & cs ,
          PrintAttributes & in_pa ,
-         std::string container_class ,
-         bool inherited ) ;
+         std::string container_class ) ;
 
         /* VisitDecl and VisitType are here for debug printing. */
         bool VisitDecl(clang::Decl *d) ;

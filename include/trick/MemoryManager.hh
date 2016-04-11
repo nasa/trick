@@ -660,8 +660,8 @@ namespace Trick {
             static int instance_count;          /**< -- Number of instances of MemoryManager. Not allowed to exceed 1.*/
             const char* local_anon_var_prefix;  /**< -- Temporary-variable-name prefix. */
             const char* extern_anon_var_prefix; /**< -- Temporary-variable-name prefix. */
-            CheckPointAgent* currentCheckPointAgent; /**< -- currently active Check point agent. */
-            CheckPointAgent* defaultCheckPointAgent; /**< -- the classic Check point agent. */
+            CheckPointAgent* currentCheckPointAgent; /**< ** currently active Check point agent. */
+            CheckPointAgent* defaultCheckPointAgent; /**< ** the classic Check point agent. */
 
             bool reduced_checkpoint;    /**< -- true = Don't write zero valued variables in the checkpoint. false= Write all values. */
             bool hexfloat_checkpoint;   /**< -- true = Represent floating point values as hexidecimal to preserve precision. false= Normal. */

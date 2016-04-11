@@ -21,13 +21,12 @@ FieldVisitor::FieldVisitor(clang::CompilerInstance & in_ci ,
  HeaderSearchDirs & in_hsd ,
  CommentSaver & in_cs ,
  PrintAttributes & in_pa ,
- std::string container_class ,
- bool in_inherited ) :
+ std::string container_class ) :
   ci(in_ci) ,
   hsd(in_hsd) ,
   cs(in_cs) ,
   pa(in_pa) {
-    fdes = new FieldDescription(container_class, in_inherited ) ;
+    fdes = new FieldDescription(container_class) ;
 }
 
 bool FieldVisitor::VisitDecl(clang::Decl *d) {
@@ -273,7 +272,7 @@ bool FieldVisitor::ProcessTemplate(std::string in_name , clang::CXXRecordDecl * 
          fdes->getName() + "_" + mangled_name ;
 
         // Traverse the template declaration
-        CXXRecordVisitor template_spec_cvis(ci , cs, hsd , pa, false, false, true) ;
+        CXXRecordVisitor template_spec_cvis(ci , cs, hsd , pa, true) ;
         template_spec_cvis.get_class_data()->setMangledTypeName(processed_templates[in_name]) ;
         template_spec_cvis.TraverseCXXRecordDecl(crd) ;
 

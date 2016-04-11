@@ -24,9 +24,6 @@ namespace Trick {
  */
     class VariableServerThread : public Trick::ThreadBase {
 
-            friend class InputProcessor ;
-            friend void  init_attrTrick__VariableServerThread() ;
-
         public:
             enum ConnectionType { TCP, UDP, MCAST } ;
 

@@ -25,11 +25,6 @@ namespace Trick {
  * Helper class for Euler_Cromer_Integrator
  */
 class Euler_Cromer_IntegratorHelper {
-#ifndef SWIG
-   friend class InputProcessor;
-   friend void init_attrTrick__Euler_Cromer_IntegratorHelper();
-#endif
-
 protected:
 
    er7_utils::SymplecticEulerIntegratorConstructor
@@ -44,10 +39,6 @@ protected:
 class Euler_Cromer_Integrator :
    protected Euler_Cromer_IntegratorHelper,
    public er7_utils::TrickSecondOrderOdeIntegrator {
-#ifndef SWIG
-   friend class InputProcessor;
-   friend void init_attrTrick__Euler_Cromer_Integrator();
-#endif
 
 public:
 

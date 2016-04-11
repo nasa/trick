@@ -19,9 +19,6 @@ namespace Trick {
  */
     class JSONVariableServer : public Trick::ThreadBase {
 
-        friend class InputProcessor ;
-        friend void  init_attrTrick__JSONVariableServer() ;
-
         public:
             JSONVariableServer() ;
             virtual ~JSONVariableServer() ;

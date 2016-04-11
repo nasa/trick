@@ -124,7 +124,7 @@ void PrintFileContents10::print_class_attr(std::ofstream & outfile , ClassValues
         }
     }
     // Print an empty sentinel attribute at the end of the class.
-    FieldDescription * new_fdes = new FieldDescription(std::string(""), false) ;
+    FieldDescription * new_fdes = new FieldDescription(std::string("")) ;
     print_field_attr(outfile, new_fdes) ;
     outfile << " };" << std::endl ;
     delete new_fdes ;
@@ -137,7 +137,7 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ofstream & outfile ,
 
     // Static bitfields do not get to this point, they are filtered out in determinePrintAttr
 
-    // Always print offset of a static variable
+    // Always print offset as address of the static variable
     if ( fdes->isStatic() ) {
         // print a special offsetof statement if this is a static
         outfile << "    attr" ;
@@ -149,8 +149,9 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ofstream & outfile ,
         outfile << cv->getName() << "::" << fdes->getName() << " ;\n" ;
     }
 
+    // if this is a bitfield...
+    // TODO: may not need to write out offset...
     if ( fdes->isBitField() ) {
-        // else if this is a bitfield
         outfile << "    attr" ;
         printNamespaces( outfile, cv , "__" ) ;
         printContainerClasses( outfile, cv , "__" ) ;
@@ -163,35 +164,6 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ofstream & outfile ,
         printContainerClasses( outfile, cv , "__" ) ;
         outfile << cv->getMangledTypeName() << "[i].size = sizeof(unsigned int) ;\n" ;
     }
-#if 0
-    } else if ( fdes->isVirtualInherited() ) {
-        // else if we have a virtually inherited class.
-        outfile << "    attr" ;
-        printNamespaces( outfile, cv , "__" ) ;
-        printContainerClasses( outfile, cv , "__" ) ;
-        outfile << cv->getMangledTypeName() << "[i].offset = " << fdes->getBaseClassOffset() ;
-        outfile << " + offsetof(" ;
-        //printNamespaces( cv , "::" ) ;
-        //printContainerClasses( cv , "::" ) ;
-        outfile << fdes->getContainerClass() << "," << fdes->getName() << ") ;\n" ;
-    } else if ( cv->getMangledTypeName() != cv->getName() ) {
-        // else if we have a template type where mangled_type_name is different then name.
-        outfile << "    attr" ;
-        printNamespaces( outfile, cv , "__" ) ;
-        printContainerClasses( outfile, cv , "__" ) ;
-        outfile << cv->getMangledTypeName() << "[i].offset = offsetof(" ;
-        outfile << cv->getMangledTypeName() << "," << fdes->getName() << ") ;\n" ;
-    } else {
-        // else print an offsetof statement if this is not a special case
-        outfile << "    attr" ;
-        printNamespaces( outfile, cv , "__" ) ;
-        printContainerClasses( outfile, cv , "__" ) ;
-        outfile << cv->getMangledTypeName() << "[i].offset = offsetof(" ;
-        printNamespaces( outfile, cv , "::" ) ;
-        printContainerClasses( outfile, cv , "::" ) ;
-        outfile << cv->getMangledTypeName() << "," << fdes->getName() << ") ;\n" ;
-    }
-#endif
 
     if ( !fdes->isRecord() and !fdes->isEnum() and !fdes->isBitField() and !fdes->isSTL()) {
         outfile << "    attr" ;
@@ -264,10 +236,7 @@ void PrintFileContents10::print_inherited_add_attr_info( std::ofstream & outfile
         outfile << "\n    ATTRIBUTES temp_attr ;\n\n" ;
     }
     for ( cit = cv->inherit_classes_begin() ; cit != cv->inherit_classes_end() ; cit++ ) {
-        outfile << "    next_attr =  \"" ;
-        printNamespaces( outfile, *cit , "::" ) ;
-        printContainerClasses( outfile, *cit , "::" ) ;
-        outfile << (*cit)->getName() << "\" ;\n" ;
+        outfile << "    next_attr =  \"" << *cit << "\" ;\n" ;
         outfile << "    mm->add_attr_info( next_attr , &temp_attr , __FILE__ , __LINE__ ) ;\n" ;
     }
 }

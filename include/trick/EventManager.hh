@@ -34,8 +34,6 @@ namespace Trick {
 
     class EventManager {
 
-        TRICK_MM_FRIENDS(Trick__EventManager)
-
         public:
 
             /**

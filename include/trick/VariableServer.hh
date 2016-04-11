@@ -28,9 +28,6 @@ namespace Trick {
 
     class VariableServer {
 
-        friend class InputProcessor ;
-        friend void  init_attrTrick__VariableServer() ;
-
         public:
             /**
              @brief Constructor.

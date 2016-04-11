@@ -57,7 +57,7 @@ bool VariableVisitor::VisitTemplateSpecializationType(clang::TemplateSpecializat
         if ( debug_level >=2 ) {
             td->dump() ; std::cout << std::endl ;
         }
-        CXXRecordVisitor cvis(ci, cs, hsd, pa, false, false, true) ;
+        CXXRecordVisitor cvis(ci, cs, hsd, pa, true) ;
         cval = cvis.get_class_data() ;
         cvis.TraverseCXXRecordDecl(clang::cast<clang::CXXRecordDecl>(td)) ;
         // Check to see if this typedef is to a STL.  If it is we don't want it.

@@ -23,11 +23,6 @@ namespace Trick {
  * Helper class for Euler_Integrator
  */
 class Euler_IntegratorHelper {
-#ifndef SWIG
-   friend class InputProcessor;
-   friend void init_attrTrick__Euler_IntegratorHelper();
-#endif
-
 protected:
 
    er7_utils::EulerIntegratorConstructor
@@ -42,10 +37,6 @@ protected:
 class Euler_Integrator :
    protected Euler_IntegratorHelper,
    public er7_utils::TrickFirstOrderOdeIntegrator {
-#ifndef SWIG
-   friend class InputProcessor;
-   friend void init_attrTrick__Euler_Integrator();
-#endif
 
 public:
 

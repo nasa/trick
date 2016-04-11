@@ -43,11 +43,6 @@ namespace Trick {
 
     class Executive : public Trick::Scheduler {
 
-            friend class InputProcessor ;
-#ifndef SWIG
-            friend void  init_attrTrick__Executive() ;
-#endif
-
         protected:
             /** Attempts to attach a debugger in the event a signal shuts down the simulation.\n */
             bool attach_debugger;            /**< trick_units(--) */

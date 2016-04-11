@@ -38,8 +38,6 @@ class CXXRecordVisitor : public clang::RecursiveASTVisitor<CXXRecordVisitor> {
          CommentSaver & in_cs ,
          HeaderSearchDirs & in_hsd ,
          PrintAttributes & in_pa ,
-         bool in_inherited ,
-         bool in_virtual_inherited ,
          bool in_include_virtual_base ) ;
 
         ~CXXRecordVisitor() ;

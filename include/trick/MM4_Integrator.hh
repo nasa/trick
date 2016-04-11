@@ -23,11 +23,6 @@ namespace Trick {
  * Helper class for MM4_Integrator
  */
 class MM4_IntegratorHelper {
-#ifndef SWIG
-   friend class InputProcessor;
-   friend void init_attrTrick__MM4_IntegratorHelper();
-#endif
-
 protected:
 
    er7_utils::MM4IntegratorConstructor
@@ -42,10 +37,6 @@ protected:
 class MM4_Integrator :
    protected MM4_IntegratorHelper,
    public er7_utils::TrickSecondOrderOdeIntegrator {
-#ifndef SWIG
-   friend class InputProcessor;
-   friend void init_attrTrick__MM4_Integrator();
-#endif
 
 public:
 

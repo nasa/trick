@@ -242,11 +242,6 @@ namespace Trick {
      */
     class MonteCarlo : public Trick::Scheduler {
 
-        friend class InputProcessor;
-#ifndef SWIG
-        friend void init_attrTrick__MonteCarlo();
-#endif
-
         public:
         /** Verbosity of message reporting. */
         enum Verbosity {

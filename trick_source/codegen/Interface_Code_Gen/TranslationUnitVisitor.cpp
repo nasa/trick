@@ -49,7 +49,7 @@ bool TranslationUnitVisitor::TraverseDecl(clang::Decl *d) {
             if ( rd != NULL and ! getFileName(ci , crd->getRBraceLoc(), hsd).empty() ) {
                 //crd->dump() ; std::cout << std::endl ;
                 if ( isInUserCode(ci , crd->getRBraceLoc(), hsd) ) {
-                    CXXRecordVisitor cvis(ci , cs, hsd , pa, false, false, true) ;
+                    CXXRecordVisitor cvis(ci , cs, hsd , pa, true) ;
 
                     cvis.TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(d)) ;
                     pa.printClass(cvis.get_class_data()) ;

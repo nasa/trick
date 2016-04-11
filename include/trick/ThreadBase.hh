@@ -31,9 +31,6 @@ namespace Trick {
      */
     class ThreadBase {
 
-        friend class InputProcessor ;
-        friend void  init_attrTrick__ThreadBase() ;
-
         public:
 
             /**
@@ -50,13 +47,6 @@ namespace Trick {
              * Gets the thread pthread ID.
              */
             pthread_t get_pthread_id() ;
-
-#if 0
-            /**
-             * Sets the thread pthread ID.
-             */
-            void set_pthread_id( pthread_t in_pthread_id ) ;
-#endif
 
             /**
              * Gets the thread process ID.

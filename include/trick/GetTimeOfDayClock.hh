@@ -56,7 +56,7 @@ namespace Trick {
 
         protected:
 #ifdef __linux
-            clockid_t clk_id ;
+            clockid_t clk_id ; // trick_io(**)
 #endif
     } ;
 

@@ -23,11 +23,6 @@ namespace Trick {
  * Helper class for RKF45_Integrator
  */
 class RKF45_IntegratorHelper {
-#ifndef SWIG
-   friend class InputProcessor;
-   friend void init_attrTrick__RKF45_IntegratorHelper();
-#endif
-
 protected:
 
    er7_utils::RKFehlberg45IntegratorConstructor
@@ -42,10 +37,6 @@ protected:
 class RKF45_Integrator :
    protected RKF45_IntegratorHelper,
    public er7_utils::TrickFirstOrderOdeIntegrator {
-#ifndef SWIG
-   friend class InputProcessor;
-   friend void init_attrTrick__RKF45_Integrator();
-#endif
 
 public:
 

@@ -37,8 +37,8 @@ namespace Trick {
             virtual void * thread_body() ;
             virtual void dump( std::ostream & oss = std::cout ) ;
         protected:
-            Trick::DRDMutexes & drd_mutexes ;
-            std::vector <Trick::DataRecordGroup *> & groups ;
+            Trick::DRDMutexes & drd_mutexes ;  // trick_io(**)
+            std::vector <Trick::DataRecordGroup *> & groups ;  // trick_io(**)
 
         private:
             void operator =(const Trick::DRDWriterThread &) ;
@@ -115,7 +115,7 @@ namespace Trick {
             std::vector <Trick::DataRecordGroup *> groups ; /* trick_io(**) trick_units(--) */
 
             /** mutexes shared with writer thread */
-            DRDMutexes drd_mutexes ;
+            DRDMutexes drd_mutexes ;  // trick_io(**)
 
 
         private:

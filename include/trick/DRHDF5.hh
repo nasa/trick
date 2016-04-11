@@ -126,10 +126,10 @@ GROUP "/" {
         protected:
 
 #ifdef HDF5
-            std::vector<HDF5_INFO *> parameters;
+            std::vector<HDF5_INFO *> parameters;  // trick_io(**)
 
-            hid_t file;
-            hid_t root_group, header_group;
+            hid_t file;  // trick_io(**)
+            hid_t root_group, header_group;  // trick_io(**)
 #endif
 
     } ;

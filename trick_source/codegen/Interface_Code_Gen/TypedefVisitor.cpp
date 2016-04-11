@@ -70,7 +70,7 @@ bool TypedefVisitor::VisitRecordType(clang::RecordType *rt) {
     }
 
     if ( rd != NULL and ! has_dims ) {
-        CXXRecordVisitor cvis(ci, cs, hsd, pa, false, false, true) ;
+        CXXRecordVisitor cvis(ci, cs, hsd, pa, true) ;
         cvis.TraverseCXXRecordDecl(clang::cast<clang::CXXRecordDecl>(rd)) ;
         /* Test to see if the typedef name and the struct/union have the same name.
            If they do, we won't add the typedeffed record */
@@ -104,7 +104,7 @@ bool TypedefVisitor::VisitTemplateSpecializationType(clang::TemplateSpecializati
         if ( debug_level >=2 ) {
             td->dump() ; std::cout << std::endl ;
         }
-        CXXRecordVisitor cvis(ci, cs, hsd, pa, false, false, true) ;
+        CXXRecordVisitor cvis(ci, cs, hsd, pa, true) ;
         cvis.TraverseCXXRecordDecl(clang::cast<clang::CXXRecordDecl>(td)) ;
         cval = cvis.get_class_data() ;
         // Check to see if this typedef is to a STL.  If it is we don't want it.

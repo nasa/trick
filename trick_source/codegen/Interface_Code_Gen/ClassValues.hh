@@ -27,7 +27,7 @@ class FieldDescription ;
 
 class ClassValues : public ConstructValues {
     public:
-        ClassValues(bool inherit , bool virtual_inherit) ;
+        ClassValues() ;
 
         ~ClassValues() ;
 
@@ -48,7 +48,7 @@ class ClassValues : public ConstructValues {
         FieldIterator field_end() { return field_descripts.end() ; } ;
 
         /** Appends an inherited class name to the list this class inherits from */
-        void addInheritedClass( ClassValues * in_cv ) ;
+        void addInheritedClass( std::string class_name ) ;
 
         void saveInheritAncestry( ClassValues * in_cv ) ;
         void setContainerClassForFields() ;
@@ -56,13 +56,11 @@ class ClassValues : public ConstructValues {
 
         void clearInheritedClass() ;
 
-        typedef std::vector< ClassValues * >::iterator InheritedClassesIterator ;
+        typedef std::vector< std::string >::iterator InheritedClassesIterator ;
         InheritedClassesIterator inherit_classes_begin() { return inherited_classes.begin() ; } ;
         InheritedClassesIterator inherit_classes_end() { return inherited_classes.end() ; } ;
         unsigned int getNumInheritedClasses() { return inherited_classes.size() ; } ;
 
-        void setInherited(bool in_inh) ;
-        bool isInherited() ;
         void setVirtualInherited(bool in_inh) ;
         bool isVirtualInherited() ;
         void setHasInitAttrFriend(bool in_val) ;
@@ -75,9 +73,8 @@ class ClassValues : public ConstructValues {
         bool getHasDefaultConstructor() ;
         void setHasPublicDestructor(bool in_val) ;
         bool getHasPublicDestructor() ;
+        std::string getFullyQualifiedTypeName() ;
         void setMangledTypeName( std::string in_val ) ;
-        bool getInvadePrivacy() ;
-        void setInvadePrivacy( bool in_val ) ;
         std::string getMangledTypeName() ;
         std::string getFullyQualifiedMangledTypeName() ;
 
@@ -93,16 +90,10 @@ class ClassValues : public ConstructValues {
         std::set< std::string > field_names_to_qualify ;
 
         /** List of classes we inherit from */
-        std::vector< ClassValues * > inherited_classes ;
+        std::vector< std::string > inherited_classes ;
 
         /** Map of all inherited classes. Counts how many times a class is inherited. */
         std::map< std::string , unsigned int > all_inherited_class_names_map ;
-
-        /** Is this class being processed as an inherited class */
-        bool inherited ;
-
-        /** Is this class being processed as an virtual inherited class */
-        bool virtual_inherited ;
 
         /** Does this class a "friend class init_attr<class_name>" statement */
         bool has_init_attr_friend ;

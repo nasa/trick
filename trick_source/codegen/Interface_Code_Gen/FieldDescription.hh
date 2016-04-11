@@ -29,7 +29,7 @@ class FieldDescription : public ConstructValues {
     public:
 
         /* Default the inheritance to false */
-        FieldDescription( std::string in_container_class , bool inherited ) ;
+        FieldDescription( std::string in_container_class ) ;
 
         /* Extracts units and io code from a comment */
         void parseComment(std::string) ;
@@ -75,6 +75,7 @@ class FieldDescription : public ConstructValues {
         bool hasSTLClear() ;
         void setStatic( bool yes_no ) ;
         bool isStatic() ;
+        void setInherited( bool yes_no ) ;
         bool isInherited() ;
         void setAccess( clang::AccessSpecifier in_val ) ;
         clang::AccessSpecifier getAccess() ;

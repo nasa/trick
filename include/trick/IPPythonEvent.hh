@@ -72,8 +72,6 @@ namespace Trick {
 
     class IPPythonEvent : public Trick::Event {
 
-        TRICK_MM_FRIENDS(Trick__IPPythonEvent)
-
         public:
 
             /** True when event is in the event_list to be processed; false when it is to be removed from event_list.\n */

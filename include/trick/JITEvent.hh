@@ -27,8 +27,6 @@ namespace Trick {
  */
 class JITEvent : public Trick::Event {
 
-    TRICK_MM_FRIENDS(Trick__JITEvent)
-
     public:
         JITEvent() ;
 

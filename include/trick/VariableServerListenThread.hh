@@ -19,9 +19,6 @@ namespace Trick {
  */
     class VariableServerListenThread : public Trick::ThreadBase {
 
-        friend class InputProcessor ;
-        friend void  init_attrTrick__VariableServerListenThread() ;
-
         public:
             VariableServerListenThread() ;
             virtual ~VariableServerListenThread() ;

@@ -25,8 +25,6 @@ enum EventBeforeAfter {
 */
 class Event {
 
-    TRICK_MM_FRIENDS(Trick__Event)
-
     public:
 
         /**

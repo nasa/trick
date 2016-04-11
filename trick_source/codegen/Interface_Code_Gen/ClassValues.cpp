@@ -5,9 +5,7 @@
 #include "ClassValues.hh"
 #include "FieldDescription.hh"
 
-ClassValues::ClassValues(bool in_inherit, bool in_virtual_inherit) :
-  inherited(in_inherit) ,
-  virtual_inherited(in_virtual_inherit) ,
+ClassValues::ClassValues() :
   has_init_attr_friend(false) ,
   is_pod(false) ,
   is_abstract(false) ,
@@ -20,19 +18,11 @@ ClassValues::~ClassValues() {
     for ( fdit = field_descripts.begin() ; fdit != field_descripts.end() ; fdit++ ) {
         delete (*fdit) ;
     }
-
-    std::vector<ClassValues *>::iterator cvit ;
-    for ( cvit = inherited_classes.begin() ; cvit != inherited_classes.end() ; cvit++ ) {
-        delete (*cvit) ;
-    }
 }
 
 void ClassValues::addFieldDescription(FieldDescription * in_fdes) {
     field_descripts.push_back(in_fdes) ;
 
-// This section creates code that clang on the Mac cannot compile.
-// So, we cannot handle overloaded names on the Mac.
-#ifndef __APPLE__
     // Test to see if the new field overloads a field of the same name.  If it does
     // then fully qualify the name of the inherited field (the one already in field_name_to_info).
     std::map< std::string , FieldDescription * >::iterator mit = field_name_to_info_map.find(in_fdes->getName()) ;
@@ -44,7 +34,6 @@ void ClassValues::addFieldDescription(FieldDescription * in_fdes) {
             field_name_to_info_map.erase(mit) ;
         }
     }
-#endif
 
     field_name_to_info_map[in_fdes->getName()] = in_fdes ;
 }
@@ -53,14 +42,14 @@ void ClassValues::addInheritedFieldDescriptions(std::vector<FieldDescription *> 
     // Make a copy of all of the FieldDescription variables.
     field_descripts.insert(field_descripts.end(), in_fdes.begin() , in_fdes.end()) ;
 
-// This section creates code that clang on the Mac cannot compile.
-// So, we cannot handle overloaded names on the Mac.
     std::vector<FieldDescription *>::iterator fdit ;
     // Loop through the incoming inherited variable names
     for ( fdit = in_fdes.begin() ; fdit != in_fdes.end() ; fdit++ ) {
 
+        (*fdit)->setInherited( true ) ;
+        // Adds the class offset to the field offset giving the total offset to the inherited variable
         (*fdit)->addOffset( class_offset ) ;
-#ifndef __APPLE__
+
         std::string in_name = (*fdit)->getName() ;
         // search existing names for incoming inherited variable name.
         std::map< std::string , FieldDescription * >::iterator mit = field_name_to_info_map.find(in_name) ;
@@ -92,7 +81,6 @@ void ClassValues::addInheritedFieldDescriptions(std::vector<FieldDescription *> 
                 field_name_to_info_map[(*fdit)->getName()] = *fdit ;
             }
         }
-#endif
     }
 
 }
@@ -170,28 +158,12 @@ void ClassValues::clearFieldDescription() {
     field_descripts.clear() ;
 }
 
-void ClassValues::addInheritedClass(ClassValues * in_cv) {
-    inherited_classes.push_back(in_cv) ;
+void ClassValues::addInheritedClass(std::string  class_name) {
+    inherited_classes.push_back(class_name) ;
 }
 
 void ClassValues::clearInheritedClass() {
     inherited_classes.clear() ;
-}
-
-void ClassValues::setInherited(bool in_inh) {
-    inherited = in_inh ;
-}
-
-bool ClassValues::isInherited() {
-    return inherited ;
-}
-
-void ClassValues::setVirtualInherited(bool in_inh) {
-    virtual_inherited = in_inh ;
-}
-
-bool ClassValues::isVirtualInherited() {
-    return virtual_inherited ;
 }
 
 void ClassValues::setHasInitAttrFriend(bool in_val) {
@@ -232,6 +204,20 @@ void ClassValues::setHasPublicDestructor(bool in_val) {
 
 bool ClassValues::getHasPublicDestructor() {
     return has_public_destructor ;
+}
+
+std::string ClassValues::getFullyQualifiedTypeName() {
+    std::ostringstream oss ;
+    NamespaceIterator ni ;
+
+    for ( ni = namespace_begin() ; ni != namespace_end() ; ni++ ) {
+        oss << (*ni) << "::" ;
+    }
+    for ( ni = container_class_begin() ; ni != container_class_end() ; ni++ ) {
+        oss << (*ni) << "::" ;
+    }
+    oss << name ;
+    return oss.str() ;
 }
 
 void ClassValues::setMangledTypeName( std::string in_val ) {

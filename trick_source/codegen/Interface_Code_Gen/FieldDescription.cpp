@@ -15,12 +15,11 @@
 #include "trick/units_conv.h"
 
 FieldDescription::FieldDescription(
- std::string in_container_class ,
- bool in_inherited ) :
+ std::string in_container_class ) :
   container_class(in_container_class) ,
   field_offset(0) ,
   field_width(0) ,
-  inherited(in_inherited) ,
+  inherited(false) ,
   units("--") ,
   line_no(0) ,
   io(3) ,
@@ -314,6 +313,10 @@ unsigned int FieldDescription::getIO() {
 
 std::string FieldDescription::getDescription() {
     return description ;
+}
+
+void FieldDescription::setInherited(bool in_inherited) {
+    inherited = in_inherited ;
 }
 
 bool FieldDescription::isInherited() {

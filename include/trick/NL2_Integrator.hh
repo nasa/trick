@@ -23,11 +23,6 @@ namespace Trick {
  * Helper class for NL2_Integrator
  */
 class NL2_IntegratorHelper {
-#ifndef SWIG
-   friend class InputProcessor;
-   friend void init_attrTrick__NL2_IntegratorHelper();
-#endif
-
 protected:
 
    er7_utils::NystromLear2IntegratorConstructor
@@ -42,10 +37,6 @@ protected:
 class NL2_Integrator :
    protected NL2_IntegratorHelper,
    public er7_utils::TrickSecondOrderOdeIntegrator {
-#ifndef SWIG
-   friend class InputProcessor;
-   friend void init_attrTrick__NL2_Integrator();
-#endif
 
 public:
 
