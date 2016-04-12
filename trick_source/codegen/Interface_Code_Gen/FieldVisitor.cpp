@@ -139,6 +139,7 @@ bool FieldVisitor::VisitDeclaratorDecl( clang::DeclaratorDecl *dd ) {
     fdes->setName(dd->getNameAsString()) ;
     fdes->setAccess(dd->getAccess()) ;
 
+    /* Get the source location of this field.*/
     clang::SourceRange dd_range = dd->getSourceRange() ;
     clang::PresumedLoc PLoc = ci.getSourceManager().getPresumedLoc(dd_range.getEnd());
     std::string file_name ;
@@ -150,11 +151,6 @@ bool FieldVisitor::VisitDeclaratorDecl( clang::DeclaratorDecl *dd ) {
         }
     }
 
-    /* Get the source location of this field. */
-#if 0
-    clang::SourceRange dd_range = dd->getSourceRange() ;
-    std::string file_name = getFileName(ci, dd_range.getEnd(), hsd) ;
-#endif
     if ( ! file_name.empty() ) {
         if ( isInUserOrTrickCode( ci , dd_range.getEnd() , hsd ) ) {
             fdes->setLineNo(ci.getSourceManager().getSpellingLineNumber(dd_range.getEnd())) ;
