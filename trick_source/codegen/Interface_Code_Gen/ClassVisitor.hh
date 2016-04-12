@@ -2,9 +2,8 @@
 #ifndef CLASSVISITOR_HH
 #define CLASSVISITOR_HH
 
+#include <set>
 #include <string>
-#include <map>
-#include <vector>
 
 #include "clang/Frontend/CompilerInstance.h"
 #include "clang/AST/RecursiveASTVisitor.h"
@@ -56,6 +55,7 @@ class CXXRecordVisitor : public clang::RecursiveASTVisitor<CXXRecordVisitor> {
         /** Returns the class data */
         ClassValues * get_class_data() ;
 
+        static bool isPrivateEmbeddedClass(std::string in_name) ;
     private:
         /** The compiler instance. */
         clang::CompilerInstance & ci ;
@@ -78,6 +78,7 @@ class CXXRecordVisitor : public clang::RecursiveASTVisitor<CXXRecordVisitor> {
         /** Flag indicating we have found a public/private/protected keyword  */
         bool access_spec_found ;
 
+        static std::set<std::string> private_embedded_classes ;
 } ;
 
 #endif

@@ -162,7 +162,7 @@ namespace Trick {
             unsigned int  rt_priority;      /**< trick_units(--) */
 
             /** Set of cpus to use with thread */
-            unsigned int max_cpu ;
+            unsigned int max_cpu ;          /**< trick_io(**) */
 
 #if __linux
 #ifndef SWIG

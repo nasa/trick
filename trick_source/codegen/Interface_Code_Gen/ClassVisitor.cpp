@@ -53,11 +53,21 @@ bool CXXRecordVisitor::TraverseDecl(clang::Decl *d) {
                NULL when this is only a forward declaration of a class.  We also only want to
                process embedded classes that have public access. */
             clang::RecordDecl * rd = crd->getDefinition() ;
-            if ( rd != NULL and rd->getAccess() == clang::AS_public ) {
-                if ( isInUserCode(ci , crd->getRBraceLoc(), hsd) ) {
-                    CXXRecordVisitor embedded_cvis(ci , cs, hsd , pa, true) ;
-                    embedded_cvis.TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(d)) ;
-                    pa.printClass(embedded_cvis.get_class_data()) ;
+            if ( rd != NULL ) {
+                if ( rd->getAccess() == clang::AS_public ) {
+                    if ( isInUserCode(ci , crd->getRBraceLoc(), hsd) ) {
+                        CXXRecordVisitor embedded_cvis(ci , cs, hsd , pa, true) ;
+                        embedded_cvis.TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(d)) ;
+                        pa.printClass(embedded_cvis.get_class_data()) ;
+                    }
+                } else {
+                    // protected and private embedded classes cannot be used outside of their class
+                    // in our auto-generated code.  Keep a set of all classes of this type so we can
+                    // test against them.
+                    ClassValues temp_cv ;
+                    temp_cv.getNamespacesAndClasses(crd->getDeclContext()) ;
+                    private_embedded_classes.insert(temp_cv.getFullyQualifiedName() + crd->getNameAsString()) ;
+                    //std::cout << "marking private " << temp_cv.getFullyQualifiedName() + crd->getNameAsString() << std::endl ;
                 }
             }
         }
@@ -188,17 +198,20 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
                     //std::cout << "    [34m" << getFileName(ci , rd->getRBraceLoc(), hsd) << "[00m" << std::endl ;
                     CXXRecordVisitor inherit_cvis(ci , cs, hsd , pa, false) ;
                     inherit_cvis.TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(rd)) ;
-                    cval.addInheritedFieldDescriptions(inherit_cvis.get_class_data()->getFieldDescription(), inherit_class_offset) ;
-                    // clear the field list in the inherited class so they are not freed when inherit_cvis goes out of scope.
+                    cval.addInheritedFieldDescriptions(inherit_cvis.get_class_data()->getFieldDescription(),
+                     inherit_class_offset) ;
+                    // clear the field list in the inherited class so they are not freed when inherit_cvis
+                    // goes out of scope.
                     inherit_cvis.get_class_data()->clearFieldDescription() ;
                     // If we are inheriting from a template specialization, don't save the inherited class.  This list
-                    // is maintained to call init_attr of the inherited classes.  A template specialization does not have
-                    // these attributes.
+                    // is maintained to call init_attr of the inherited classes.  A template specialization does not
+                    // havethese attributes.
                     if ( ! isTypeTemplateSpecialization(temp) ) {
-                        // We want to save the inherited class data, but it's going to go out of scope so we need to make
-                        // a copy of it.
+                        // We want to save the inherited class data, but it's going to go out of scope so we need
+                        // to make a copy of it.
                         ClassValues * icv = new ClassValues(*(inherit_cvis.get_class_data())) ;
-                        // The inherited classes of this inherited class are not required in the copy, and they are going out of scope
+                        // The inherited classes of this inherited class are not required in the copy,
+                        // and they are going out of scope
                         cval.saveInheritAncestry(icv) ;
                         icv->clearInheritedClass() ;
 
@@ -292,3 +305,21 @@ ClassValues * CXXRecordVisitor::get_class_data() {
     return &cval ;
 }
 
+std::set<std::string> CXXRecordVisitor::private_embedded_classes ;
+
+bool CXXRecordVisitor::isPrivateEmbeddedClass( std::string in_name ) {
+    size_t pos ;
+    while ((pos = in_name.find("class ")) != std::string::npos ) {
+        in_name.erase(pos , 6) ;
+    }
+    while ((pos = in_name.find("struct ")) != std::string::npos ) {
+        in_name.erase(pos , 7) ;
+    }
+
+    std::set<std::string>::iterator it ;
+    it = private_embedded_classes.find(in_name) ;
+    if ( it != private_embedded_classes.end() ) {
+        return true ;
+    }
+    return false ;
+}

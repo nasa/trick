@@ -48,7 +48,8 @@ void ClassValues::addInheritedFieldDescriptions(std::vector<FieldDescription *> 
 
         (*fdit)->setInherited( true ) ;
         // Adds the class offset to the field offset giving the total offset to the inherited variable
-        (*fdit)->addOffset( class_offset ) ;
+        // The offset is stored in bits so multiply class_offset by 8.
+        (*fdit)->addOffset( class_offset * 8 ) ;
 
         std::string in_name = (*fdit)->getName() ;
         // search existing names for incoming inherited variable name.

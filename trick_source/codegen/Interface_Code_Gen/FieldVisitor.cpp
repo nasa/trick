@@ -6,6 +6,7 @@
 #include "clang/AST/RecordLayout.h"
 #include "clang/AST/ASTContext.h"
 #include "clang/AST/Comment.h"
+#include "clang/Sema/Sema.h"
 
 #include "FieldVisitor.hh"
 #include "FieldDescription.hh"
@@ -138,9 +139,22 @@ bool FieldVisitor::VisitDeclaratorDecl( clang::DeclaratorDecl *dd ) {
     fdes->setName(dd->getNameAsString()) ;
     fdes->setAccess(dd->getAccess()) ;
 
+    clang::SourceRange dd_range = dd->getSourceRange() ;
+    clang::PresumedLoc PLoc = ci.getSourceManager().getPresumedLoc(dd_range.getEnd());
+    std::string file_name ;
+    if (!PLoc.isInvalid()) {
+        char * resolved_path = almostRealPath(PLoc.getFilename()) ;
+        if ( resolved_path != NULL ) {
+            file_name = std::string(resolved_path) ;
+            free(resolved_path) ;
+        }
+    }
+
     /* Get the source location of this field. */
+#if 0
     clang::SourceRange dd_range = dd->getSourceRange() ;
     std::string file_name = getFileName(ci, dd_range.getEnd(), hsd) ;
+#endif
     if ( ! file_name.empty() ) {
         if ( isInUserOrTrickCode( ci , dd_range.getEnd() , hsd ) ) {
             fdes->setLineNo(ci.getSourceManager().getSpellingLineNumber(dd_range.getEnd())) ;
@@ -196,28 +210,27 @@ bool FieldVisitor::VisitEnumType( clang::EnumType *et ) {
 
 bool FieldVisitor::VisitFieldDecl( clang::FieldDecl *field ) {
 
-    // set the offset to the field
-    fdes->setFieldOffset(field->getASTContext().getFieldOffset(field) / 8) ;
+    clang::QualType qt = field->getType() ;
 
-    fdes->setBitField(field->isBitField()) ;
-    if ( fdes->isBitField() ) {
+    // set the offset and size field
+    fdes->setFieldOffset(field->getASTContext().getFieldOffset(field)) ;
+    fdes->setFieldWidth(field->getASTContext().getTypeSize(qt)) ;
+
+    if ( field->isBitField()) {
+        fdes->setBitField(true) ;
         fdes->setBitFieldWidth(field->getBitWidthValue(field->getASTContext())) ;
-        fdes->calcBitfieldOffset() ;
     }
 
-    // If the current type is not canonical because of typedefs or template parameter substitution,
-    // traverse the canonical type
-    clang::QualType qt = field->getType() ;
     if ( debug_level >= 3 ) {
         std::cout << "FieldVisitor VisitFieldDecl" << std::endl ;
         std::cout << "    is_bitfield = " << fdes->isBitField() << std::endl ;
         std::cout << "    is_canonical = " << qt.isCanonical() << std::endl ;
+        std::cout << "    is_hidden = " << field->isHidden() << std::endl ;
         //field->dump() ;
     }
 
-    // set the offset to the field
-    fdes->setFieldWidth(field->getASTContext().getTypeSize(qt) / 8) ;
-
+    // If the current type is not canonical because of typedefs or template parameter substitution,
+    // traverse the canonical type
     if ( !qt.isCanonical() ) {
         fdes->setNonCanonicalTypeName(qt.getAsString()) ;
         clang::QualType ct = qt.getCanonicalType() ;
@@ -334,6 +347,35 @@ static std::map<std::string, bool> init_stl_classes() {
     return my_map ;
 }
 
+static bool checkForPRivateTemplateArgs( clang::ClassTemplateSpecializationDecl * ctsd ) {
+    unsigned int ii ;
+    for ( ii = 0 ; ii < ctsd->getTemplateArgs().size() ; ii++ ) {
+        const clang::TemplateArgument & ta = ctsd->getTemplateArgs().get(ii) ;
+        if ( ta.getKind() == clang::TemplateArgument::Type ) {
+            clang::QualType qt = ta.getAsType() ;
+            //std::cout << qt.getAsString() << std::endl ;
+            if ( CXXRecordVisitor::isPrivateEmbeddedClass(qt.getAsString()) ) {
+                //std::cout << "  is private embedded class" << std::endl ;
+                return true ;
+            } else {
+                //std::cout << "  is public embedded class" << std::endl ;
+                const clang::Type * t = qt.getTypePtrOrNull() ;
+                if ( t != NULL ) {
+                    if (t->getTypeClass() == clang::Type::Record ) {
+                        clang::CXXRecordDecl * crd = t->getAsCXXRecordDecl() ;
+                        if ( clang::isa<clang::ClassTemplateSpecializationDecl>(crd) ) {
+                            clang::ClassTemplateSpecializationDecl * inner_ctsd ;
+                            inner_ctsd = clang::cast<clang::ClassTemplateSpecializationDecl>(crd) ;
+                            return checkForPRivateTemplateArgs(inner_ctsd) ;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return false ;
+}
+
 static std::map<std::string, bool> stl_classes = init_stl_classes() ;
 
 bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
@@ -376,6 +418,17 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
         for ( std::map<std::string, bool>::iterator it = stl_classes.begin() ; it != stl_classes.end() ; it++ ) {
             /* Mark STL types that are not strings and exit */
             if (!tst_string.compare( 0 , (*it).first.size() , (*it).first)) {
+
+                clang::RecordDecl * rd = rt->getDecl()->getDefinition() ;
+                clang::ClassTemplateSpecializationDecl * ctsd ;
+                ctsd = clang::cast<clang::ClassTemplateSpecializationDecl>(rd) ;
+
+                // If a private embedded class is in an STL the resulting io_src code will not compile.
+                // Search the template arguments for private embedded classes, if found remove io capabilites.
+                if ( checkForPRivateTemplateArgs( ctsd )) {
+                    fdes->setIO(0) ;
+                }
+
                 fdes->setEnumString("TRICK_STL") ;
                 fdes->setSTL(true) ;
                 fdes->setTypeName(tst_string) ;
@@ -397,11 +450,17 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
        If so process the template type and return */
     clang::RecordDecl * rd = rt->getDecl()->getDefinition() ;
     if ( rd != NULL and clang::ClassTemplateSpecializationDecl::classof(rd) ) {
+        if ( checkForPRivateTemplateArgs( clang::cast<clang::ClassTemplateSpecializationDecl>(rd)) ) {
+            fdes->setIO(0) ;
+            if ( debug_level >= 3 ) {
+                std::cout << "    template using private/protected class as argument, not processing" << std::endl ;
+            }
+            return false ;
+        }
         if ( debug_level >= 3 ) {
             rd->dump() ;
             std::cout << "    tst_string = " << tst_string << std::endl ;
-            std::cout << "    rd is_a_template_specialization = " <<
-             clang::ClassTemplateSpecializationDecl::classof(rd) << std::endl ;
+            std::cout << "    is_a_template_specialization" << std::endl ;
         }
         return ProcessTemplate(tst_string, clang::cast<clang::CXXRecordDecl>(rd)) ;
     }

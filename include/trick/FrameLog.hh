@@ -153,8 +153,8 @@ namespace Trick {
             int shutdown() ;
 
         private:
-            std::vector<std::string> trick_jobs; // -- vector containing all trick job names
-            std::vector<std::string> user_jobs;  // -- vector containing all user job names
+            std::vector<std::string> trick_jobs; // ** vector containing all trick job names
+            std::vector<std::string> user_jobs;  // ** vector containing all user job names
 
             std::string DP_dir; // ** name of DP_Product directory
 

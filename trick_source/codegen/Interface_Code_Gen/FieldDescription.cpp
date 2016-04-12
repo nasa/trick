@@ -247,9 +247,6 @@ void FieldDescription::setContainerClass(std::string in_name ) {
 
 void FieldDescription::setFieldOffset(unsigned int in_offset) {
     field_offset = in_offset ;
-    if ( is_bitfield ) {
-        calcBitfieldOffset() ;
-    }
 }
 
 unsigned int FieldDescription::getFieldOffset() {
@@ -331,17 +328,8 @@ clang::AccessSpecifier FieldDescription::getAccess() {
     return access ;
 }
 
-void FieldDescription::calcBitfieldOffset() {
-    unsigned int field_offset_bits = field_offset * 8 ;
-    bitfield_start_bit = 32 - (field_offset_bits % 32) - bitfield_width ;
-    bitfield_word_offset = (field_offset_bits / 32) * 4 ;
-}
-
 void FieldDescription::addOffset( unsigned int offset ) {
     field_offset += offset ;
-    if ( is_bitfield ) {
-        calcBitfieldOffset() ;
-    }
 }
 
 void FieldDescription::setEnumString(std::string in_str) {

@@ -58,7 +58,8 @@ class PrintFileContents10 : public PrintFileContentsBase {
         void print_class_attr(std::ofstream & outfile , ClassValues * in_class) ;
 
         /** Prints init_attr function for each class */
-        void print_field_init_attr_stmts(std::ofstream & outfile , FieldDescription * fdes , ClassValues * cv ) ;
+        void print_field_init_attr_stmts(std::ofstream & outfile , FieldDescription * fdes ,
+         ClassValues * cv , unsigned int index ) ;
 
         /** Prints add_attr_info statements for each inherited class */
         void print_inherited_add_attr_info(std::ofstream & outfile , ClassValues * cv ) ;

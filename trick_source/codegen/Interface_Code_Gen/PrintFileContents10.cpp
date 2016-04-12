@@ -80,14 +80,27 @@ void PrintFileContents10::print_field_attr(std::ofstream & outfile ,  FieldDescr
     outfile << "  \"" << fdes->getDescription() << "\"," << std::endl ; // description
     outfile << "  " << fdes->getIO() ;                    // io
     outfile << "," << fdes->getEnumString() ;             // type
-    outfile << "," << fdes->getFieldWidth() << ",0,0,Language_CPP" ; // size, range_min, range_max, language
+    if ( fdes->isBitField() ) {
+        outfile << ",4" ; // size, bitfields are handled in 4 byte (32 bit) chunks
+    } else {
+        outfile << "," << fdes->getFieldWidth() / 8 ; // size, size is saved in bits, convert to bytes.
+    }
+    outfile << ",0,0,Language_CPP" ; // range_min, range_max, language
     outfile << "," << (fdes->isStatic() << 1 ) << "," << std::endl ;                   // mods
-    outfile << "  " << fdes->getFieldOffset() << ",NULL" ;                 // offset, attr
+    if ( fdes->isBitField() ) {
+        // For bitfields we need the offset to start on 4 byte boundaries because that is what our
+        // insert and extract bitfield routines work with.
+        outfile << "  " << (fdes->getFieldOffset() - (fdes->getFieldOffset() % 32)) / 8 ; // offset
+    } else {
+        outfile << "  " << (fdes->getFieldOffset() / 8) ; // offset
+    }
+    outfile << ",NULL" ; // attr
     outfile << "," << fdes->getNumDims() ;                // num_index
 
     outfile << ",{" ;
     if ( fdes->isBitField() ) {
-        outfile << "{" << fdes->getBitFieldWidth() << "," << fdes->getBitFieldStart() << "}" ; // index 0
+        outfile << "{" << fdes->getBitFieldWidth() ; // size of bitfield
+        outfile << "," << 32 - (fdes->getFieldOffset() % 32) - fdes->getBitFieldWidth() << "}" ; // start bit
     } else {
         array_dim = fdes->getArrayDim(0) ;
         if ( array_dim < 0 ) array_dim = 0 ;
@@ -133,53 +146,27 @@ void PrintFileContents10::print_class_attr(std::ofstream & outfile , ClassValues
 }
 
 /** Prints init_attr function for each class */
-void PrintFileContents10::print_field_init_attr_stmts( std::ofstream & outfile , FieldDescription * fdes , ClassValues * cv ) {
+void PrintFileContents10::print_field_init_attr_stmts( std::ofstream & outfile , FieldDescription * fdes ,
+ ClassValues * cv , unsigned int index ) {
 
-    // Static bitfields do not get to this point, they are filtered out in determinePrintAttr
-
-    // Always print offset as address of the static variable
+    // For static variables replace the offset field with the address of the static variable
     if ( fdes->isStatic() ) {
-        // print a special offsetof statement if this is a static
+        // NOTE: We would not be able to take the address of a static bitfield.
+        // Static bitfields do not get to this point, they are filtered out in determinePrintAttr
         outfile << "    attr" ;
         printNamespaces( outfile, cv , "__" ) ;
         printContainerClasses( outfile, cv , "__" ) ;
-        outfile << cv->getMangledTypeName() << "[i].offset = (long)(void *)&" ;
+        outfile << cv->getMangledTypeName() << "[" << index << "].offset = (long)(void *)&" ;
         printNamespaces( outfile, cv , "::" ) ;
         printContainerClasses( outfile, cv , "::" ) ;
         outfile << cv->getName() << "::" << fdes->getName() << " ;\n" ;
-    }
-
-    // if this is a bitfield...
-    // TODO: may not need to write out offset...
-    if ( fdes->isBitField() ) {
-        outfile << "    attr" ;
-        printNamespaces( outfile, cv , "__" ) ;
-        printContainerClasses( outfile, cv , "__" ) ;
-        outfile << cv->getMangledTypeName() << "[i].offset = " ;
-        outfile << fdes->getBitFieldByteOffset() << " ;\n" ;
-
-        // All bitfield offsets are in terms of unsigned ints.
-        outfile << "    attr" ;
-        printNamespaces( outfile, cv , "__" ) ;
-        printContainerClasses( outfile, cv , "__" ) ;
-        outfile << cv->getMangledTypeName() << "[i].size = sizeof(unsigned int) ;\n" ;
-    }
-
-    if ( !fdes->isRecord() and !fdes->isEnum() and !fdes->isBitField() and !fdes->isSTL()) {
-        outfile << "    attr" ;
-        printNamespaces( outfile, cv , "__" ) ;
-        printContainerClasses( outfile, cv , "__" ) ;
-        outfile << cv->getMangledTypeName() << "[i].size = sizeof(" ;
-        printNamespaces( outfile, fdes , "::" ) ;
-        printContainerClasses( outfile, fdes , "::" ) ;
-        outfile << fdes->getTypeName() << ") ;\n" ;
     }
 
     if ( fdes->isSTL()) {
         outfile << "    attr" ;
         printNamespaces( outfile, cv , "__" ) ;
         printContainerClasses( outfile, cv , "__" ) ;
-        outfile << cv->getMangledTypeName() << "[i].checkpoint_stl = checkpoint_stl_" ;
+        outfile << cv->getMangledTypeName() << "[" << index << "].checkpoint_stl = checkpoint_stl_" ;
         outfile << cv->getMangledTypeName() ;
         outfile << "_" ;
         outfile << fdes->getName() ;
@@ -188,7 +175,7 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ofstream & outfile ,
         outfile << "    attr" ;
         printNamespaces( outfile, cv , "__" ) ;
         printContainerClasses( outfile, cv , "__" ) ;
-        outfile << cv->getMangledTypeName() << "[i].post_checkpoint_stl = post_checkpoint_stl_" ;
+        outfile << cv->getMangledTypeName() << "[" << index << "].post_checkpoint_stl = post_checkpoint_stl_" ;
         outfile << cv->getMangledTypeName() ;
         outfile << "_" ;
         outfile << fdes->getName() ;
@@ -197,7 +184,7 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ofstream & outfile ,
         outfile << "    attr" ;
         printNamespaces( outfile, cv , "__" ) ;
         printContainerClasses( outfile, cv , "__" ) ;
-        outfile << cv->getMangledTypeName() << "[i].restore_stl = restore_stl_" ;
+        outfile << cv->getMangledTypeName() << "[" << index << "].restore_stl = restore_stl_" ;
         outfile << cv->getMangledTypeName() ;
         outfile << "_" ;
         outfile << fdes->getName() ;
@@ -207,7 +194,7 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ofstream & outfile ,
             outfile << "    attr" ;
             printNamespaces( outfile, cv , "__" ) ;
             printContainerClasses( outfile, cv , "__" ) ;
-            outfile << cv->getMangledTypeName() << "[i].clear_stl = clear_stl_" ;
+            outfile << cv->getMangledTypeName() << "[" << index << "].clear_stl = clear_stl_" ;
             outfile << cv->getMangledTypeName() ;
             outfile << "_" ;
             outfile << fdes->getName() ;
@@ -219,14 +206,13 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ofstream & outfile ,
         outfile << "    next_attr = std::string(attr" ;
         printNamespaces( outfile, cv , "__" ) ;
         printContainerClasses( outfile, cv , "__" ) ;
-        outfile << cv->getMangledTypeName() << "[i].type_name) ;\n" ;
+        outfile << cv->getMangledTypeName() << "[" << index << "].type_name) ;\n" ;
 
         outfile << "    mm->add_attr_info(next_attr , &attr"  ;
         printNamespaces( outfile, cv , "__" ) ;
         printContainerClasses( outfile, cv , "__" ) ;
-        outfile << cv->getMangledTypeName() << "[i], __FILE__ , __LINE__ ) ;\n" ;
+        outfile << cv->getMangledTypeName() << "[" << index << "], __FILE__ , __LINE__ ) ;\n" ;
     }
-    outfile << "    i++ ;\n\n" ;
 }
 
 /** Prints add_attr_info statements for each inherited class */
@@ -252,7 +238,6 @@ void PrintFileContents10::print_init_attr_func( std::ofstream & outfile , ClassV
     printContainerClasses( outfile, cv , "__" ) ;
     outfile << cv->getMangledTypeName() ;
     outfile << "() {\n\n"
-"    int i __attribute__((unused)) = 0 ;\n"
 "    static int initialized_1337 ;\n"
 "    if ( initialized_1337 ) {\n"
 "            return ;\n"
@@ -266,9 +251,11 @@ void PrintFileContents10::print_init_attr_func( std::ofstream & outfile , ClassV
         outfile << "    typedef " << cv->getName() << " " << cv->getMangledTypeName() << " ;\n\n" ;
     }
 
+    unsigned int ii = 0 ;
     for ( fit = cv->field_begin() ; fit != cv->field_end() ; fit++ ) {
         if ( determinePrintAttr(cv , *fit) ) {
-            print_field_init_attr_stmts(outfile, *fit, cv) ;
+            print_field_init_attr_stmts(outfile, *fit, cv, ii) ;
+            ii++ ;
         }
     }
     print_inherited_add_attr_info(outfile, cv ) ;

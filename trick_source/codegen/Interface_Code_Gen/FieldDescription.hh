@@ -79,7 +79,6 @@ class FieldDescription : public ConstructValues {
         bool isInherited() ;
         void setAccess( clang::AccessSpecifier in_val ) ;
         clang::AccessSpecifier getAccess() ;
-        void calcBitfieldOffset() ;
         void addOffset( unsigned int offset ) ;
 
         /** Adds an array dimension to the field */
@@ -95,10 +94,10 @@ class FieldDescription : public ConstructValues {
         /** Name of the class this field is in */
         std::string container_class ;
 
-        /** The total offset to the current field in bytes */
+        /** The total offset to the current field in bits */
         unsigned int field_offset ;
 
-        /** The size of the current field in bytes */
+        /** The size of the current field in bits */
         unsigned int field_width ;
 
         /** Name of the type.  Non-canonical.  It's what was actually read in input file */
