@@ -889,4 +889,73 @@ TEST_F(MM_write_checkpoint, io_test ) {
     EXPECT_EQ(result, 0);
 }
 
+TEST_F(MM_write_checkpoint, Compressed_2d_char_arrays ) {
+
+    // This test is associated with Issue: https://github.com/nasa/trick/issues/221
+    // It is intended to test the code in Trick::ClassicCheckPointAgent::write_rvalue()
+    // which checks the final, fixed dimension of a char array to determine whether
+    // it can be written as a quoted string.
+
+    std::stringstream ss;
+
+    UDT6 *udt6_p = (UDT6*)memmgr->declare_var("UDT6 udt6");
+
+    for (int ii=0; ii<128; ii++) {
+        udt6_p->A[ii][0] = 'A';
+        udt6_p->A[ii][1] = ((ii / 16) % 16) + 65;
+        udt6_p->A[ii][2] =      ((ii) % 16) + 65;
+        udt6_p->A[ii][3] = 0;
+
+        udt6_p->B[ii][0] = 'B';
+        udt6_p->B[ii][1] = ((ii / 16) % 16) + 65;
+        udt6_p->B[ii][2] =      ((ii) % 16) + 65;
+        udt6_p->B[ii][3] = 0;
+    }
+    memmgr->set_expanded_arrays(false);
+    memmgr->write_checkpoint( ss, "udt6");
+
+    int result = strcmp_IgnoringWhiteSpace(
+    "// Variable Declarations."
+    "UDT6 udt6;"
+    "// Clear all allocations to 0."
+    "clear_all_vars();"
+    "// Variable Assignments."
+    "udt6.A = {"
+    "\"AAA\",\"AAB\",\"AAC\",\"AAD\",\"AAE\",\"AAF\",\"AAG\",\"AAH\","
+    "\"AAI\",\"AAJ\",\"AAK\",\"AAL\",\"AAM\",\"AAN\",\"AAO\",\"AAP\","
+    "\"ABA\",\"ABB\",\"ABC\",\"ABD\",\"ABE\",\"ABF\",\"ABG\",\"ABH\","
+    "\"ABI\",\"ABJ\",\"ABK\",\"ABL\",\"ABM\",\"ABN\",\"ABO\",\"ABP\","
+    "\"ACA\",\"ACB\",\"ACC\",\"ACD\",\"ACE\",\"ACF\",\"ACG\",\"ACH\","
+    "\"ACI\",\"ACJ\",\"ACK\",\"ACL\",\"ACM\",\"ACN\",\"ACO\",\"ACP\","
+    "\"ADA\",\"ADB\",\"ADC\",\"ADD\",\"ADE\",\"ADF\",\"ADG\",\"ADH\","
+    "\"ADI\",\"ADJ\",\"ADK\",\"ADL\",\"ADM\",\"ADN\",\"ADO\",\"ADP\","
+    "\"AEA\",\"AEB\",\"AEC\",\"AED\",\"AEE\",\"AEF\",\"AEG\",\"AEH\","
+    "\"AEI\",\"AEJ\",\"AEK\",\"AEL\",\"AEM\",\"AEN\",\"AEO\",\"AEP\","
+    "\"AFA\",\"AFB\",\"AFC\",\"AFD\",\"AFE\",\"AFF\",\"AFG\",\"AFH\","
+    "\"AFI\",\"AFJ\",\"AFK\",\"AFL\",\"AFM\",\"AFN\",\"AFO\",\"AFP\","
+    "\"AGA\",\"AGB\",\"AGC\",\"AGD\",\"AGE\",\"AGF\",\"AGG\",\"AGH\","
+    "\"AGI\",\"AGJ\",\"AGK\",\"AGL\",\"AGM\",\"AGN\",\"AGO\",\"AGP\","
+    "\"AHA\",\"AHB\",\"AHC\",\"AHD\",\"AHE\",\"AHF\",\"AHG\",\"AHH\","
+    "\"AHI\",\"AHJ\",\"AHK\",\"AHL\",\"AHM\",\"AHN\",\"AHO\",\"AHP\" };"
+    "udt6.B = {"
+    "\"BAA\",\"BAB\",\"BAC\",\"BAD\",\"BAE\",\"BAF\",\"BAG\",\"BAH\","
+    "\"BAI\",\"BAJ\",\"BAK\",\"BAL\",\"BAM\",\"BAN\",\"BAO\",\"BAP\","
+    "\"BBA\",\"BBB\",\"BBC\",\"BBD\",\"BBE\",\"BBF\",\"BBG\",\"BBH\","
+    "\"BBI\",\"BBJ\",\"BBK\",\"BBL\",\"BBM\",\"BBN\",\"BBO\",\"BBP\","
+    "\"BCA\",\"BCB\",\"BCC\",\"BCD\",\"BCE\",\"BCF\",\"BCG\",\"BCH\","
+    "\"BCI\",\"BCJ\",\"BCK\",\"BCL\",\"BCM\",\"BCN\",\"BCO\",\"BCP\","
+    "\"BDA\",\"BDB\",\"BDC\",\"BDD\",\"BDE\",\"BDF\",\"BDG\",\"BDH\","
+    "\"BDI\",\"BDJ\",\"BDK\",\"BDL\",\"BDM\",\"BDN\",\"BDO\",\"BDP\","
+    "\"BEA\",\"BEB\",\"BEC\",\"BED\",\"BEE\",\"BEF\",\"BEG\",\"BEH\","
+    "\"BEI\",\"BEJ\",\"BEK\",\"BEL\",\"BEM\",\"BEN\",\"BEO\",\"BEP\","
+    "\"BFA\",\"BFB\",\"BFC\",\"BFD\",\"BFE\",\"BFF\",\"BFG\",\"BFH\","
+    "\"BFI\",\"BFJ\",\"BFK\",\"BFL\",\"BFM\",\"BFN\",\"BFO\",\"BFP\","
+    "\"BGA\",\"BGB\",\"BGC\",\"BGD\",\"BGE\",\"BGF\",\"BGG\",\"BGH\","
+    "\"BGI\",\"BGJ\",\"BGK\",\"BGL\",\"BGM\",\"BGN\",\"BGO\",\"BGP\","
+    "\"BHA\",\"BHB\",\"BHC\",\"BHD\",\"BHE\",\"BHF\",\"BHG\",\"BHH\","
+    "\"BHI\",\"BHJ\",\"BHK\",\"BHL\",\"BHM\",\"BHN\",\"BHO\",\"BHP\" };"
+    , ss.str().c_str());
+
+    EXPECT_EQ(result, 0);
+}
 
