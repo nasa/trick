@@ -944,8 +944,10 @@ void Trick::ClassicCheckPointAgent::write_rvalue( std::ostream& chkpnt_os, void*
 
                 use_quoted_string = 1;
                 if (attr->type == TRICK_CHARACTER) {
-                    int ii = attr->index[curr_dim].size - 1;
-                    src_addr = (char*)address + offset * sizeof(char*);
+
+                    int array_len = attr->index[curr_dim].size;
+                    int ii = array_len - 1;
+                    src_addr = (char*)address + offset * array_len * sizeof(char);
                     if (src_addr[ii] != '\0') {
                         use_quoted_string = 0;
                     }

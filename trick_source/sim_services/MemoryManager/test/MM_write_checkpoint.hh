@@ -31,3 +31,8 @@ class UDT5 {
     double star_aye_eau; /* -- trick_chkpnt_io(*io) */
 };
 
+class UDT6 {
+    public:
+    char A[128][4];
+    char B[128][4];
+};
