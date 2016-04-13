@@ -167,6 +167,8 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ofstream & outfile ,
         printNamespaces( outfile, cv , "__" ) ;
         printContainerClasses( outfile, cv , "__" ) ;
         outfile << cv->getMangledTypeName() << "[" << index << "].checkpoint_stl = checkpoint_stl_" ;
+        printNamespaces( outfile, cv , "__" ) ;
+        printContainerClasses( outfile, cv , "__" ) ;
         outfile << cv->getMangledTypeName() ;
         outfile << "_" ;
         outfile << fdes->getName() ;
@@ -176,6 +178,8 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ofstream & outfile ,
         printNamespaces( outfile, cv , "__" ) ;
         printContainerClasses( outfile, cv , "__" ) ;
         outfile << cv->getMangledTypeName() << "[" << index << "].post_checkpoint_stl = post_checkpoint_stl_" ;
+        printNamespaces( outfile, cv , "__" ) ;
+        printContainerClasses( outfile, cv , "__" ) ;
         outfile << cv->getMangledTypeName() ;
         outfile << "_" ;
         outfile << fdes->getName() ;
@@ -185,6 +189,8 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ofstream & outfile ,
         printNamespaces( outfile, cv , "__" ) ;
         printContainerClasses( outfile, cv , "__" ) ;
         outfile << cv->getMangledTypeName() << "[" << index << "].restore_stl = restore_stl_" ;
+        printNamespaces( outfile, cv , "__" ) ;
+        printContainerClasses( outfile, cv , "__" ) ;
         outfile << cv->getMangledTypeName() ;
         outfile << "_" ;
         outfile << fdes->getName() ;
@@ -195,6 +201,8 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ofstream & outfile ,
             printNamespaces( outfile, cv , "__" ) ;
             printContainerClasses( outfile, cv , "__" ) ;
             outfile << cv->getMangledTypeName() << "[" << index << "].clear_stl = clear_stl_" ;
+            printNamespaces( outfile, cv , "__" ) ;
+            printContainerClasses( outfile, cv , "__" ) ;
             outfile << cv->getMangledTypeName() ;
             outfile << "_" ;
             outfile << fdes->getName() ;
@@ -438,18 +446,24 @@ void PrintFileContents10::print_stl_helper_proto(std::ofstream & outfile , Class
     for ( fit = cv->field_begin() ; fit != cv->field_end() ; fit++ ) {
         if ( (*fit)->isSTL() and determinePrintAttr(cv , *fit) ) {
             outfile << "void checkpoint_stl_" ;
+            printNamespaces( outfile, cv , "__" ) ;
+            printContainerClasses( outfile, cv , "__" ) ;
             outfile << cv->getMangledTypeName() ;
             outfile << "_" ;
             outfile << (*fit)->getName() ;
             outfile << "(void * start_address, const char * obj_name , const char * var_name) ;" << std::endl ;
 
             outfile << "void post_checkpoint_stl_" ;
+            printNamespaces( outfile, cv , "__" ) ;
+            printContainerClasses( outfile, cv , "__" ) ;
             outfile << cv->getMangledTypeName() ;
             outfile << "_" ;
             outfile << (*fit)->getName() ;
             outfile << "(void * start_address, const char * obj_name , const char * var_name) ;" << std::endl ;
 
             outfile << "void restore_stl_" ;
+            printNamespaces( outfile, cv , "__" ) ;
+            printContainerClasses( outfile, cv , "__" ) ;
             outfile << cv->getMangledTypeName() ;
             outfile << "_" ;
             outfile << (*fit)->getName() ;
@@ -457,6 +471,8 @@ void PrintFileContents10::print_stl_helper_proto(std::ofstream & outfile , Class
 
             if ((*fit)->hasSTLClear()) {
                 outfile << "void clear_stl_" ;
+                printNamespaces( outfile, cv , "__" ) ;
+                printContainerClasses( outfile, cv , "__" ) ;
                 outfile << cv->getMangledTypeName() ;
                 outfile << "_" ;
                 outfile << (*fit)->getName() ;
@@ -469,6 +485,8 @@ void PrintFileContents10::print_stl_helper_proto(std::ofstream & outfile , Class
 
 void PrintFileContents10::print_checkpoint_stl(std::ofstream & outfile , FieldDescription * fdes , ClassValues * cv ) {
     outfile << "void checkpoint_stl_" ;
+    printNamespaces( outfile, cv , "__" ) ;
+    printContainerClasses( outfile, cv , "__" ) ;
     outfile << cv->getMangledTypeName() ;
     outfile << "_" ;
     outfile << fdes->getName() ;
@@ -482,6 +500,8 @@ void PrintFileContents10::print_checkpoint_stl(std::ofstream & outfile , FieldDe
 
 void PrintFileContents10::print_post_checkpoint_stl(std::ofstream & outfile , FieldDescription * fdes , ClassValues * cv ) {
     outfile << "void post_checkpoint_stl_" ;
+    printNamespaces( outfile, cv , "__" ) ;
+    printContainerClasses( outfile, cv , "__" ) ;
     outfile << cv->getMangledTypeName() ;
     outfile << "_" ;
     outfile << fdes->getName() ;
@@ -495,6 +515,8 @@ void PrintFileContents10::print_post_checkpoint_stl(std::ofstream & outfile , Fi
 
 void PrintFileContents10::print_restore_stl(std::ofstream & outfile , FieldDescription * fdes , ClassValues * cv ) {
     outfile << "void restore_stl_" ;
+    printNamespaces( outfile, cv , "__" ) ;
+    printContainerClasses( outfile, cv , "__" ) ;
     outfile << cv->getMangledTypeName() ;
     outfile << "_" ;
     outfile << fdes->getName() ;
@@ -508,6 +530,8 @@ void PrintFileContents10::print_restore_stl(std::ofstream & outfile , FieldDescr
 
 void PrintFileContents10::print_clear_stl(std::ofstream & outfile , FieldDescription * fdes , ClassValues * cv ) {
     outfile << "void clear_stl_" ;
+    printNamespaces( outfile, cv , "__" ) ;
+    printContainerClasses( outfile, cv , "__" ) ;
     outfile << cv->getMangledTypeName() ;
     outfile << "_" ;
     outfile << fdes->getName() ;

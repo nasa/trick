@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <stack>
 
 #include "llvm/Support/CommandLine.h"
 #include "clang/Basic/SourceManager.h"
@@ -307,6 +308,10 @@ ClassValues * CXXRecordVisitor::get_class_data() {
 
 std::set<std::string> CXXRecordVisitor::private_embedded_classes ;
 
+void CXXRecordVisitor::addPrivateEmbeddedClass( std::string in_name ) {
+    private_embedded_classes.insert(in_name) ;
+}
+
 bool CXXRecordVisitor::isPrivateEmbeddedClass( std::string in_name ) {
     size_t pos ;
     while ((pos = in_name.find("class ")) != std::string::npos ) {
@@ -315,6 +320,36 @@ bool CXXRecordVisitor::isPrivateEmbeddedClass( std::string in_name ) {
     while ((pos = in_name.find("struct ")) != std::string::npos ) {
         in_name.erase(pos , 7) ;
     }
+    while ((pos = in_name.find("const ")) != std::string::npos ) {
+        in_name.erase(pos , 6) ;
+    }
+    // remove any array or pointer dimensions.
+    if ( in_name.find_first_of("[*") != std::string::npos ) {
+        in_name.erase(in_name.find_first_of("[*")) ;
+    }
+    // remove trailing spaces
+    in_name.erase(std::find_if(in_name.rbegin(), in_name.rend(),
+     std::not1(std::ptr_fun<int, int>(std::isspace))).base(), in_name.end());
+
+    // remove all template arguments "<text>"
+    bool template_arg_found ;
+    do {
+        template_arg_found = false ;
+        std::stack<int> bracket_pos ;
+        for ( int ii = 0 ; ii < in_name.length() ; ii++ ) {
+            if ( in_name[ii] == '<' ) {
+                bracket_pos.push(ii) ;
+            } else if ( in_name[ii] == '>' ) {
+                int begin = bracket_pos.top() ;
+                bracket_pos.pop() ;
+                if ( bracket_pos.empty() ) {
+                    template_arg_found = true ;
+                    in_name.erase(begin, ii - begin + 1) ;
+                    break ;
+                }
+            }
+        }
+    } while ( template_arg_found == true ) ;
 
     std::set<std::string>::iterator it ;
     it = private_embedded_classes.find(in_name) ;

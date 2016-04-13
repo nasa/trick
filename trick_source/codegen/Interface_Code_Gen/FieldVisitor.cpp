@@ -343,7 +343,7 @@ static std::map<std::string, bool> init_stl_classes() {
     return my_map ;
 }
 
-static bool checkForPRivateTemplateArgs( clang::ClassTemplateSpecializationDecl * ctsd ) {
+static bool checkForPrivateTemplateArgs( clang::ClassTemplateSpecializationDecl * ctsd ) {
     unsigned int ii ;
     for ( ii = 0 ; ii < ctsd->getTemplateArgs().size() ; ii++ ) {
         const clang::TemplateArgument & ta = ctsd->getTemplateArgs().get(ii) ;
@@ -362,7 +362,7 @@ static bool checkForPRivateTemplateArgs( clang::ClassTemplateSpecializationDecl 
                         if ( clang::isa<clang::ClassTemplateSpecializationDecl>(crd) ) {
                             clang::ClassTemplateSpecializationDecl * inner_ctsd ;
                             inner_ctsd = clang::cast<clang::ClassTemplateSpecializationDecl>(crd) ;
-                            return checkForPRivateTemplateArgs(inner_ctsd) ;
+                            return checkForPrivateTemplateArgs(inner_ctsd) ;
                         }
                     }
                 }
@@ -416,24 +416,26 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
             if (!tst_string.compare( 0 , (*it).first.size() , (*it).first)) {
 
                 clang::RecordDecl * rd = rt->getDecl()->getDefinition() ;
-                clang::ClassTemplateSpecializationDecl * ctsd ;
-                ctsd = clang::cast<clang::ClassTemplateSpecializationDecl>(rd) ;
+                if ( rd != NULL and clang::ClassTemplateSpecializationDecl::classof(rd) ) {
+                    clang::ClassTemplateSpecializationDecl * ctsd ;
+                    ctsd = clang::cast<clang::ClassTemplateSpecializationDecl>(rd) ;
 
-                // If a private embedded class is in an STL the resulting io_src code will not compile.
-                // Search the template arguments for private embedded classes, if found remove io capabilites.
-                if ( checkForPRivateTemplateArgs( ctsd )) {
-                    fdes->setIO(0) ;
+                    // If a private embedded class is in an STL the resulting io_src code will not compile.
+                    // Search the template arguments for private embedded classes, if found remove io capabilites.
+                    if ( checkForPrivateTemplateArgs( ctsd )) {
+                        fdes->setIO(0) ;
+                    }
+
+                    fdes->setEnumString("TRICK_STL") ;
+                    fdes->setSTL(true) ;
+                    fdes->setTypeName(tst_string) ;
+                    fdes->setSTLClear((*it).second) ;
+                    // set the type name to the non canonical name, the name the user put in the header file
+                    // The typename is not used by STL variables, and it is nice to see the type that was
+                    // actually inputted by the user
+                    fdes->setMangledTypeName(fdes->getNonCanonicalTypeName()) ;
+                    return false ;
                 }
-
-                fdes->setEnumString("TRICK_STL") ;
-                fdes->setSTL(true) ;
-                fdes->setTypeName(tst_string) ;
-                fdes->setSTLClear((*it).second) ;
-                // set the type name to the non canonical name, the name the user put in the header file
-                // The typename is not used by STL variables, and it is nice to see the type that was
-                // actually inputted by the user
-                fdes->setMangledTypeName(fdes->getNonCanonicalTypeName()) ;
-                return false ;
             }
         }
         // If the record type is in std:: but not one we can process, set the I/O spec to zero and return.
@@ -446,7 +448,7 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
        If so process the template type and return */
     clang::RecordDecl * rd = rt->getDecl()->getDefinition() ;
     if ( rd != NULL and clang::ClassTemplateSpecializationDecl::classof(rd) ) {
-        if ( checkForPRivateTemplateArgs( clang::cast<clang::ClassTemplateSpecializationDecl>(rd)) ) {
+        if ( checkForPrivateTemplateArgs( clang::cast<clang::ClassTemplateSpecializationDecl>(rd)) ) {
             fdes->setIO(0) ;
             if ( debug_level >= 3 ) {
                 std::cout << "    template using private/protected class as argument, not processing" << std::endl ;
@@ -492,6 +494,7 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
 }
 
 bool FieldVisitor::VisitVarDecl( clang::VarDecl *v ) {
+
     fdes->setStatic(v->isStaticDataMember()) ;
     /* If we have a static const integer type with an initializer value, this variable will
        not be instantiated by the compiler. The compiler substitutes in the value internally.
@@ -501,6 +504,7 @@ bool FieldVisitor::VisitVarDecl( clang::VarDecl *v ) {
          v->getType().isConstQualified() and
          v->hasInit() ) {
         fdes->setIO(0) ;
+        return false ;
     } else if ( v->isStaticDataMember() and
          v->getType().isConstQualified() ) {
         /* Static const members cannot be set through attributes code. Remove input
@@ -515,6 +519,24 @@ bool FieldVisitor::VisitVarDecl( clang::VarDecl *v ) {
         std::cout << "    IO = " << fdes->getIO() << std::endl ;
         //v->dump() ; std::cout << std::endl ;
     }
+
+    clang::QualType qt = v->getType() ;
+    // If the current type is not canonical because of typedefs or template parameter substitution,
+    // traverse the canonical type
+    if ( !qt.isCanonical() ) {
+        fdes->setNonCanonicalTypeName(qt.getAsString()) ;
+        clang::QualType ct = qt.getCanonicalType() ;
+        std::string tst_string = ct.getAsString() ;
+        if ( debug_level >= 3 ) {
+            std::cout << "\033[33mFieldVisitor VisitVarDecl: Processing canonical type\033[00m" << std::endl ;
+            ct.dump() ;
+        }
+        TraverseType(ct) ;
+        // We have extracted the canonical type and everything else we need
+        // return false so we cut off processing of this AST branch
+        return false ;
+    }
+
     return true ;
 }
 

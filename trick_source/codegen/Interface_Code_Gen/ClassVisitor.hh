@@ -55,6 +55,7 @@ class CXXRecordVisitor : public clang::RecursiveASTVisitor<CXXRecordVisitor> {
         /** Returns the class data */
         ClassValues * get_class_data() ;
 
+        static void addPrivateEmbeddedClass(std::string in_name) ;
         static bool isPrivateEmbeddedClass(std::string in_name) ;
     private:
         /** The compiler instance. */

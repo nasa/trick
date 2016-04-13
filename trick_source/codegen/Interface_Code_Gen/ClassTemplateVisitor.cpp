@@ -43,6 +43,27 @@ bool ClassTemplateVisitor::TraverseDecl(clang::Decl *d) {
     switch ( d->getKind() ) {
         case clang::Decl::CXXRecord : {
             TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(d)) ;
+
+            clang::CXXRecordDecl * crd = static_cast<clang::CXXRecordDecl *>(d) ;
+            /* The definition of the record must exist before we can process it.  The definition is
+               NULL when this is only a forward declaration of a class.  We also only want to
+               process embedded classes that have public access. */
+            clang::RecordDecl * rd = crd->getDefinition() ;
+            if ( rd != NULL ) {
+                //d->dump() ;
+                //std::cout << "access = " << rd->getAccess() << std::endl << std::endl ;
+                if ( rd->getAccess() == clang::AS_protected ||  rd->getAccess() == clang::AS_private ) {
+                    // protected and private embedded classes cannot be used outside of their class
+                    // in our auto-generated code.  Keep a set of all classes of this type so we can
+                    // test against them.
+                    ClassValues temp_cv ;
+                    temp_cv.getNamespacesAndClasses(crd->getDeclContext()) ;
+                    //std::cout << "marking private " << temp_cv.getFullyQualifiedName() + crd->getNameAsString() << std::endl ;
+                    CXXRecordVisitor::addPrivateEmbeddedClass(temp_cv.getFullyQualifiedName() + crd->getNameAsString()) ;
+                } else {
+                    TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(d)) ;
+                }
+            }
         }
         break ;
         case clang::Decl::Enum : {
@@ -54,10 +75,8 @@ bool ClassTemplateVisitor::TraverseDecl(clang::Decl *d) {
                 }
                 EnumVisitor evis(ci, hsd) ;
                 evis.TraverseDecl(ed) ;
-                //if ( evis.get_enum_data() != NULL ) {
-                    evis.get_enum_data()->setHasDefinition(false) ;
-                    pa.printEnum(evis.get_enum_data()) ;
-                //}
+                evis.get_enum_data()->setHasDefinition(false) ;
+                pa.printEnum(evis.get_enum_data()) ;
             }
 
         }
