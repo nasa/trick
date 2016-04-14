@@ -7,7 +7,8 @@ LLVM_VERSION := $(shell $(LLVM_HOME)/bin/$(LLVM_CONFIG) --version)
 ifneq ($(LLVM_HOME),)
 CC := $(shell $(LLVM_HOME)/bin/$(LLVM_CONFIG) --bindir)/clang
 CXX := $(shell $(LLVM_HOME)/bin/$(LLVM_CONFIG) --bindir)/clang++
-CXXFLAGS := $(shell $(LLVM_HOME)/bin/$(LLVM_CONFIG) --cxxflags) -I$(shell $(LLVM_HOME)/bin/$(LLVM_CONFIG) --includedir) $(RTTIFLAG) -g -O0
+CXXFLAGS := -g -I$(shell $(LLVM_HOME)/bin/llvm-config --includedir) -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -fno-rtti
+
 LLVMLIBDIR := -L$(shell $(LLVM_HOME)/bin/$(LLVM_CONFIG) --libdir)
 endif
 LLVMLDFLAGS := $(shell $(LLVM_HOME)/bin/$(LLVM_CONFIG) --ldflags)
