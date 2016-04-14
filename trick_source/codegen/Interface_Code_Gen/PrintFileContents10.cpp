@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 #include "PrintFileContents10.hh"
 #include "FieldDescription.hh"
@@ -80,10 +81,16 @@ void PrintFileContents10::print_field_attr(std::ofstream & outfile ,  FieldDescr
     outfile << "  \"" << fdes->getDescription() << "\"," << std::endl ; // description
     outfile << "  " << fdes->getIO() ;                    // io
     outfile << "," << fdes->getEnumString() ;             // type
+    // There are several cases when printing the size of a variable.
     if ( fdes->isBitField() ) {
-        outfile << ",4" ; // size, bitfields are handled in 4 byte (32 bit) chunks
+        // bitfields are handled in 4 byte (32 bit) chunks
+        outfile << ",4" ;
+    } else if (  fdes->isRecord() or fdes->isEnum() or fdes->getTypeName().empty() ) {
+        // records enums use io_src_get_size. The sentinel has no typename
+        outfile << ",0" ;
     } else {
-        outfile << "," << fdes->getFieldWidth() / 8 ; // size, size is saved in bits, convert to bytes.
+        // print size of the underlying type
+        outfile << ",sizeof(" << fdes->getTypeName() << ")" ;
     }
     outfile << ",0,0,Language_CPP" ; // range_min, range_max, language
     outfile << "," << (fdes->isStatic() << 1 ) << "," << std::endl ;                   // mods
