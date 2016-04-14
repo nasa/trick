@@ -74,7 +74,7 @@ int Trick::DebugPause::debug_pause_on() {
 
     debug_sem = sem_open(sem_name.c_str(), O_CREAT, S_IRWXU , 0);
 
-    exec_instrument_before("instruments.debug_pause.debug_pause") ;
+    exec_instrument_before("trick_instruments.debug_pause.debug_pause") ;
 
     //TODO: turn off real-time clock if on.
 
@@ -89,7 +89,7 @@ int Trick::DebugPause::debug_pause_off() {
     }
     debug_pause_flag = false ;
 
-    exec_instrument_remove("instruments.debug_pause.debug_pause") ;
+    exec_instrument_remove("trick_instruments.debug_pause.debug_pause") ;
 
     debug_signal() ;
 

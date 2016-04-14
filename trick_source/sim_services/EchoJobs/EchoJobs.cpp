@@ -42,7 +42,7 @@ int Trick::EchoJobs::echojobs_on() {
         return(0) ;
     }
     echo_job_flag = true ;
-    exec_instrument_before("instruments.echo_jobs.echo_job") ;
+    exec_instrument_before("trick_instruments.echo_jobs.echo_job") ;
     return(0) ;
 
 }
@@ -53,7 +53,7 @@ int Trick::EchoJobs::echojobs_off() {
         return(0) ;
     }
     echo_job_flag = false ;
-    exec_instrument_remove("instruments.echo_jobs.echo_job") ;
+    exec_instrument_remove("trick_instruments.echo_jobs.echo_job") ;
     return(0) ;
 
 }
