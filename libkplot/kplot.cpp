@@ -131,7 +131,7 @@ void KPlot::rowsInserted(const QModelIndex &pidx,
         QModelIndex idx = bookModel->index(i,0,pidx);
         QStandardItem* item = bookModel->itemFromIndex(idx);
         if ( item->text() == "CurveData" ) {
-            QVariant v = bookModel->data(idx);
+            QVariant v = bookModel->data(idx,Qt::UserRole);
             TrickCurveModel* curveModel =
                     QVariantToPtr<TrickCurveModel>::convert(v);
             _createPainterPath(curveModel);

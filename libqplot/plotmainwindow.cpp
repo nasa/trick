@@ -76,6 +76,9 @@ PlotMainWindow::PlotMainWindow(
 
     }
 
+    _plotTreeView = new QTreeView(lsplit);
+    _plotTreeView->setModel(_plotModel);
+
     // Vars/DP Notebook
     _nbDPVars = new QTabWidget(lsplit);
     _nbDPVars->setFocusPolicy(Qt::ClickFocus);

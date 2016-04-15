@@ -16,6 +16,7 @@
 #include <QFileDialog>
 #include <QLineEdit>
 #include <QSizePolicy>
+#include <QTreeView>
 
 #include "libsnapdata/monte.h"
 #include "libqplot/dp.h"
@@ -75,7 +76,7 @@ private:
     DPTreeWidget* _dpTreeWidget;
 
     PlotBookModel* _plotModel;
-    //QTreeView* _plotTreeView ;
+    QTreeView* _plotTreeView ;
     PlotBookView* _plotBookView;
     QItemSelectionModel* _plotSelectModel;
 

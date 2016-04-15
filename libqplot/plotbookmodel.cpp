@@ -19,7 +19,9 @@ PlotBookModel::PlotBookModel(MonteModel *monteModel,
 
 QVariant PlotBookModel::data(const QModelIndex &idx, int role) const
 {
-    Q_UNUSED(role);
+    if ( role < Qt::UserRole ) {
+        return QStandardItemModel::data(idx,role);
+    }
 
     QVariant v;
 
@@ -44,7 +46,7 @@ QVariant PlotBookModel::data(const QModelIndex &idx, int role) const
         double xScaleFactor = 1.0;
         QString xunit = curveModel->x()->unit();
         QModelIndex xUnitIdx = getIndex(curveIdx, "CurveXUnit", "Curve");
-        QString xDPUnit = data(xUnitIdx).toString();
+        QString xDPUnit = data(xUnitIdx,Qt::UserRole).toString();
         if ( !xDPUnit.isEmpty() && xunit != xDPUnit &&
              xDPUnit != "--" && xunit != "--" ) {
             isXScale = true;
@@ -62,7 +64,7 @@ QVariant PlotBookModel::data(const QModelIndex &idx, int role) const
         double yScaleFactor = 1.0;
         QString yunit = curveModel->y()->unit();
         QModelIndex yUnitIdx = getIndex(curveIdx, "CurveYUnit", "Curve");
-        QString yDPUnit = data(yUnitIdx).toString();
+        QString yDPUnit = data(yUnitIdx,Qt::UserRole).toString();
         if ( !yDPUnit.isEmpty() &&
              yunit != yDPUnit && yDPUnit != "--" && yunit != "--" ) {
             isYScale = true;
@@ -94,8 +96,13 @@ QVariant PlotBookModel::data(const QModelIndex &idx, int role) const
 bool PlotBookModel::setData(const QModelIndex &index,
                             const QVariant &value, int role)
 {
-    Q_UNUSED(role);
     bool ret = false;
+
+    if ( role < Qt::UserRole ) {
+        ret = QStandardItemModel::setData(index,value,role);
+        return ret;
+    }
+
 
     if ( index.isValid() ) {
         QStandardItem* item = itemFromIndex(index);
@@ -110,9 +117,18 @@ QStandardItem *PlotBookModel::addChild(QStandardItem *parentItem,
                                        const QString &childTitle,
                                        const QVariant &childValue)
 {
+
     QStandardItem *childItem = new QStandardItem(childTitle);
     childItem->setData(childValue);
-    parentItem->appendRow(childItem);
+
+    QString s = childValue.toString();
+    QStandardItem *childItemCol2 = new QStandardItem(s);
+
+    QList<QStandardItem*> items;
+    items << childItem << childItemCol2;
+
+    parentItem->appendRow(items);
+
     return childItem;
 }
 
@@ -212,23 +228,14 @@ QModelIndexList PlotBookModel::curveIdxs(const QModelIndex &curvesIdx) const
 
 void PlotBookModel::_initModel()
 {
+    setColumnCount(2);
     QStandardItem *rootItem = invisibleRootItem();
+    QStandardItem *citem;
 
-    QStandardItem *startItem = new QStandardItem("SessionStartTime");
-    startItem->setData(-DBL_MAX);
-    rootItem->appendRow(startItem);
-
-    QStandardItem *stopItem = new QStandardItem("SessionStopTime");
-    stopItem->setData(DBL_MAX);
-    rootItem->appendRow(stopItem);
-
-    QStandardItem *pagesItem = new QStandardItem("Pages");
-    pagesItem->setData("Pages");
-    rootItem->appendRow(pagesItem);
-
-    QStandardItem *tablesItem = new QStandardItem("Tables");
-    tablesItem->setData("Tables");
-    rootItem->appendRow(tablesItem);
+    citem = addChild(rootItem, "SessionStartTime",-DBL_MAX);
+    citem = addChild(rootItem, "SessionStopTime",DBL_MAX);
+    citem = addChild(rootItem, "Pages","");
+    citem = addChild(rootItem, "Tables","");
 }
 
 //
