@@ -70,6 +70,9 @@ namespace Trick {
             /** Allows the trapping of SIGSEGV signals and graceful shutdown.\n */
             bool trap_sigsegv;               /**< trick_units(--) */
 
+            /** Allows the trapping of SIGABRT signals and graceful shutdown.\n */
+            bool trap_sigabrt;               /**< trick_units(--) */
+
             /** Flags a restart was loaded\n */
             bool restart_called;    /**< trick_io(**) trick_units(--) */
 
@@ -524,6 +527,14 @@ namespace Trick {
             bool get_trap_sigsegv() ;
 
             /**
+             @userdesc Command to get the trap sigsegv toggle value (will SIGSEGV signal be trapped).
+             @par Python Usage:
+             @code <my_int> = trick.exec_get_trap_sigsegv() @endcode
+             @return boolean (C integer 0/1) Executive::trap_sigsegv
+            */
+            bool get_trap_sigabrt() ;
+
+            /**
              @brief @userdesc Command to set the attach debugger toggle value.
              @param on_off - boolean yes (C integer 1) = attach debugger if signal shuts sim down. no (C integer 0) = do not attach debugger.
              @return always 0
@@ -684,6 +695,18 @@ namespace Trick {
              @return always 0
             */
             int set_trap_sigsegv(bool on_off) ;
+
+            /**
+             @userdesc Command to enable/disable the trapping of SIGABRT signals and a graceful shutdown.
+             Setting on_off to true (default) will trap the operating system communications bus error signal and then
+             perforam a graceful simulation shutdown. If on_off is false, the signal will not be trapped and
+             termination will occur producing a core file.
+             @par Python Usage:
+             @code trick.exec_set_trap_sigabrt(<on_off>) @endcode
+             @param on_off - boolean yes (C integer 1) = enable trap, no (C integer 0) = disable trap
+             @return always 0
+            */
+            int set_trap_sigabrt(bool on_off) ;
 
             /**
              @userdesc Command to get the simulation time in seconds.

@@ -45,6 +45,9 @@ void Trick::Executive::signal_handler(int sig) {
         case SIGSEGV:                 /* Segmentation fault */
             write( 2 , "SIGSEGV" , 7 ) ;
             break;
+        case SIGABRT:                 /* Abort */
+            write( 2 , "SIGABRT" , 7 ) ;
+            break;
         default:                      /* Unrecognized signal */
             write( 2 , "unknown" , 7 ) ;
             break;

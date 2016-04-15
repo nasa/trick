@@ -218,51 +218,11 @@ void * Trick::Threads::thread_body() {
          "  THREAD STOP TIME: %f\n" ,
          thread_id, ex.file.c_str(), ex.message.c_str(), exec_get_sim_time()) ;
         exit(ex.ret_code) ;
-    } catch (const std::exception &ex) {
-        std::string except_file ;
-        if ( curr_job != NULL ) {
-            except_file = curr_job->name ;
-        } else {
-            except_file = "somewhere in Executive::run" ;
-        }
-        fprintf(stderr, "\nCHILD THREAD %d TERMINATED with exec_terminate\n  ROUTINE: %s\n  DIAGNOSTIC: %s\n"
-         "  THREAD STOP TIME: %f\n" ,
-         thread_id, except_file.c_str() , ex.what(), exec_get_sim_time()) ;
-        exit(-1) ;
 #ifdef __linux
-#ifdef __GNUC__
-#if __GNUC__ >= 4 && __GNUC_MINOR__ >= 2
     // for post gcc 4.1.2
     } catch (abi::__forced_unwind&) {
         //pthread_exit and pthread_cancel will cause an abi::__forced_unwind to be thrown. Rethrow it.
         throw;
-#endif
-#endif
-#endif
-    } catch (...) {
-        /*
-           In gcc 4.1.2 I cannot find the catch type for the pthread_cancel forced_unwind exception so I changed
-           the catch here to just rethrow all unknown exceptions.  For the other architectures
-           we signal the main thread for an orderly shutdown.
-         */
-#ifdef __linux
-#ifdef __GNUC__
-#if __GNUC__ == 4 && __GNUC_MINOR__ == 1
-        throw;
-#else
-        std::string except_file ;
-        std::string except_message ;
-        if ( curr_job != NULL ) {
-            except_file = curr_job->name ;
-        } else {
-            except_file = "somewhere in Executive::run" ;
-        }
-        except_message = "unknown error" ;
-        fprintf(stderr, "\nExecutive::loop terminated with unknown exception\n  ROUTINE: %s\n  DIAGNOSTIC: %s\n"
-         "  STOP TIME: %f\n" , except_file.c_str() , except_message.c_str() , exec_get_sim_time()) ;
-        exit(-1) ;
-#endif
-#endif
 #endif
     }
 

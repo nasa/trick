@@ -112,7 +112,32 @@ int Trick::Executive::set_trap_sigsegv(bool on_off) {
 
 /**
 @details
--# Catch SIGBUS and SIGSEGV errors. Don't catch SIGFPE
+-# If incoming on_off flag is true assign sig_hand() as the signal handler for SIGSEGV
+-# Else revert to the default signal handler SIG_DFL.
+-# set trap_sigabrt to the current on_off status
+   Requirement [@ref r_exec_signal_0].
+*/
+int Trick::Executive::set_trap_sigabrt(bool on_off) {
+    static struct sigaction sigact;
+
+    if ( on_off ) {
+        /* Assign sig_hand() as the signal handler for SIGABRT */
+        sigact.sa_handler = (void (*)(int)) sig_hand;
+    } else {
+        sigact.sa_handler = SIG_DFL;
+    }
+
+    if (sigaction(SIGABRT, &sigact, NULL) < 0) {
+        perror("sigaction() failed for SIGSEGV");
+    } else {
+        trap_sigabrt = on_off ;
+    }
+    return(0) ;
+}
+
+/**
+@details
+-# Catch SIGBUS, SIGSEGV, and SIGABRT errors. Don't catch SIGFPE
 -# Assign ctrl_c_hand() as the signal handler for SIGINT.
    Requirement [@ref r_exec_signal_0].
 -# Assign sig_hand() as the signal handler for SIGTERM.
@@ -128,6 +153,7 @@ int Trick::Executive::init_signal_handlers() {
     set_trap_sigbus(true) ;
     set_trap_sigfpe(false) ;
     set_trap_sigsegv(true) ;
+    set_trap_sigabrt(true) ;
 
     /* Assign ctrl_c_hand() as the default signal handler for SIGINT (<CTRL-C> keypress). */
     sigact.sa_handler = (void (*)(int)) ctrl_c_hand;

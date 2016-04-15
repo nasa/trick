@@ -57,6 +57,7 @@ Trick::Executive::Executive() {
     trap_sigbus = false ;
     trap_sigfpe = false ;
     trap_sigsegv = false ;
+    trap_sigabrt = false ;
 
     build_date = std::string("unknown") ;
     current_version = std::string("unknown") ;
@@ -257,6 +258,10 @@ bool Trick::Executive::get_trap_sigfpe() {
 
 bool Trick::Executive::get_trap_sigsegv() {
     return(trap_sigsegv) ;
+}
+
+bool Trick::Executive::get_trap_sigabrt() {
+    return(trap_sigabrt) ;
 }
 
 void Trick::Executive::reset_job_cycle_times() {

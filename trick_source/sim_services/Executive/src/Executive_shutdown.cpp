@@ -73,19 +73,6 @@ int Trick::Executive::shutdown() {
         except_return = ex.ret_code ;
         except_file += std::string(" then exception caught in ") + ex.file ;
         except_message += std::string(" then exception Message: ") + ex.message ;
-    } catch (const std::exception &ex) {
-        except_return = -1 ;
-        if ( curr_job != NULL ) {
-            except_file += " " + curr_job->name ;
-        } else {
-            except_file += " somewhere in Executive::shutdown" ;
-        }
-        except_message += std::string("standard exception caught") + ex.what();
-    } catch (...) {
-        /* Handle unknown exceptions.  Set the file name and error message to unknown. Return -1. */
-        except_return = -1 ;
-        except_file = "somewhere in shutdown()" ;
-        except_message = "unknown error" ;
     }
 
     getrusage(RUSAGE_SELF, &cpu_usage_buf);
