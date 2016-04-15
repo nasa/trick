@@ -87,3 +87,9 @@ class UDT4 : public UDT3 {
     double XX;
 };
 
+class UDT7 {
+    public:
+    char A[32][4];
+    char B[32][4];
+};
+
