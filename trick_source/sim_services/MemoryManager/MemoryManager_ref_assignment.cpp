@@ -265,12 +265,12 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
 
    } else if ( remaining_dimensions > 0 ) {
 
-       int size_of_curr_dim;
-
-       size_of_curr_dim = attr->index[curr_dim].size ;
-       assign_addr = (char*)base_addr + offset * sizeof(void*);
+       int size_of_curr_dim = attr->index[curr_dim].size ;
 
        if ( size_of_curr_dim == 0) { // the remaining dimensions are pointer dimensions.
+
+           assign_addr = (char*)base_addr + offset * sizeof(void*);
+
            if (v_tree && v_tree->v_data) {
 
                if ((remaining_dimensions == 1) && (v_tree->v_data->type == TRICK_STRING)) { 
@@ -297,6 +297,8 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
                (v_tree->v_data)
               ) {
 
+               assign_addr = (char*)base_addr + offset * size_of_curr_dim * sizeof(char);
+
                if ((v_tree->v_data->type == TRICK_STRING) &&
                    (v_tree->v_data->value.cp != NULL)) {
 
@@ -310,9 +312,11 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
                } else {
                    *(char*)assign_addr = '\0';
                }
-               
+
            } else if ( (attr->type == TRICK_WCHAR) &&
                        (remaining_dimensions == 1)) { 
+
+               assign_addr = (char*)base_addr + offset * size_of_curr_dim * sizeof(wchar_t);
 
                if ((v_tree) &&
                    (v_tree->v_data->type == TRICK_WSTRING) &&  
@@ -345,7 +349,7 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
                } else {
                    *(wchar_t*)assign_addr = (wchar_t) NULL;
                }
-           
+
            } else {
                int ii;
                V_TREE* curr_vt_node;
@@ -353,7 +357,7 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
                    curr_vt_node = v_tree->down;
                } else {
                    curr_vt_node =  NULL;
-               }               
+               }
 
                for (ii=0; ii < size_of_curr_dim; ii++) {
                    int ret;
