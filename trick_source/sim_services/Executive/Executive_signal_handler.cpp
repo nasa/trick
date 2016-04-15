@@ -45,6 +45,9 @@ void Trick::Executive::signal_handler(int sig) {
         case SIGSEGV:                 /* Segmentation fault */
             write( 2 , "SIGSEGV" , 7 ) ;
             break;
+        case SIGABRT:                 /* Abort */
+            write( 2 , "SIGABRT" , 7 ) ;
+            break;
         default:                      /* Unrecognized signal */
             write( 2 , "unknown" , 7 ) ;
             break;
@@ -61,7 +64,7 @@ void Trick::Executive::signal_handler(int sig) {
         sprintf(command, "%s -silent /proc/%d/exe %d", debugger_command.c_str(), getpid(), getpid());
         system(command);
     } else if (stack_trace == true ) {
-        sprintf(command, "%s -silent -batch -x ${TRICK_HOME}/bin/gdb_commands "
+        sprintf(command, "%s -silent -batch -x ${TRICK_HOME}/share/trick/gdb_commands "
                 "/proc/%d/exe %d | grep -A 20 \"signal handler\"", debugger_command.c_str(), getpid(), getpid());
         system(command);
     }

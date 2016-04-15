@@ -1,6 +1,7 @@
 
 #include <stdlib.h>
 
+#include <exception>
 #include "trick/Executive.hh"
 #include "trick/ExecutiveException.hh"
 
@@ -52,26 +53,6 @@ int Trick::Executive::loop() {
         except_file = ex.file ;
         except_message = ex.message ;
         return(ex.ret_code) ;
-    } catch (const std::exception &ex) {
-        if ( curr_job != NULL ) {
-            except_file = curr_job->name ;
-        } else {
-            except_file = "somewhere in Executive::run" ;
-        }
-        fprintf(stderr, "\nExecutive::loop terminated with std::exception\n  ROUTINE: %s\n  DIAGNOSTIC: %s\n"
-         "  STOP TIME: %f\n" , except_file.c_str() , ex.what() , get_sim_time()) ;
-        exit(-1) ;
-    } catch (...) {
-        /* Handle unknown exceptions.  Set the file name and error message to unknown. exit -1. */
-        if ( curr_job != NULL ) {
-            except_file = curr_job->name ;
-        } else {
-            except_file = "somewhere in Executive::run" ;
-        }
-        except_message = "unknown error" ;
-        fprintf(stderr, "\nExecutive::loop terminated with unknown exception\n  ROUTINE: %s\n  DIAGNOSTIC: %s\n"
-         "  STOP TIME: %f\n" , except_file.c_str() , except_message.c_str() , get_sim_time()) ;
-        exit(-1) ;
     }
 
     /* return 0 if there are no errors. */
