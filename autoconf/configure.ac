@@ -165,6 +165,8 @@ AC_CHECK_LIB(xml2, main,
 AC_CHECK_HEADER([libxml/tree.h],[],AC_MSG_ERROR([could not find libxml development headers]))
 AX_PTHREAD()
 AX_PYTHON_DEVEL([>='2.5'])
+AX_PROG_PERL_MODULES( Text::Balanced ,[],AC_MSG_ERROR([could not find perl modules Text::Balanced]))
+AX_PROG_PERL_MODULES( Digest::MD5,[],AC_MSG_ERROR([could not find perl module Digest::MD5]))
 
 dnl process the optional --with-llvm command line arguments
 AX_LLVM_HOME([])
