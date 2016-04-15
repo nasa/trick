@@ -80,6 +80,13 @@ bool CXXRecordVisitor::TraverseDecl(clang::Decl *d) {
                 EnumVisitor evis(ci, hsd) ;
                 evis.TraverseDecl(ed) ;
                 pa.printEnum(evis.get_enum_data()) ;
+            } else {
+                // protected and private embedded classes cannot be used outside of their class
+                // in our auto-generated code.  Keep a set of all classes of this type so we can
+                // test against them.
+                ClassValues temp_cv ;
+                temp_cv.getNamespacesAndClasses(ed->getDeclContext()) ;
+                private_embedded_classes.insert(temp_cv.getFullyQualifiedName() + ed->getNameAsString()) ;
             }
         }
         break ;
@@ -319,6 +326,9 @@ bool CXXRecordVisitor::isPrivateEmbeddedClass( std::string in_name ) {
     }
     while ((pos = in_name.find("struct ")) != std::string::npos ) {
         in_name.erase(pos , 7) ;
+    }
+    while ((pos = in_name.find("enum ")) != std::string::npos ) {
+        in_name.erase(pos , 5) ;
     }
     while ((pos = in_name.find("const ")) != std::string::npos ) {
         in_name.erase(pos , 6) ;

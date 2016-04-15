@@ -158,8 +158,6 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ofstream & outfile ,
 
     // For static variables replace the offset field with the address of the static variable
     if ( fdes->isStatic() ) {
-        // NOTE: We would not be able to take the address of a static bitfield.
-        // Static bitfields do not get to this point, they are filtered out in determinePrintAttr
         outfile << "    attr" ;
         printNamespaces( outfile, cv , "__" ) ;
         printContainerClasses( outfile, cv , "__" ) ;
