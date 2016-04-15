@@ -65,7 +65,7 @@ extern "C" int get_checkpoint_end() {
  * @relates Trick::CheckPointRestart
  * @copydoc Trick::CheckPointRestart::set_safestore_enabled
  */
-extern "C" int checkpoint_safestore_set_enabled( int yes_no ) {
+extern "C" int checkpoint_safestore( int yes_no ) {
     the_cpr->set_safestore_enabled(bool(yes_no)) ;
     return(0) ;
 }
@@ -74,7 +74,7 @@ extern "C" int checkpoint_safestore_set_enabled( int yes_no ) {
  * @relates Trick::CheckPointRestart
  * @copydoc Trick::CheckPointRestart::dmtcp_set_safestore_enabled
  */
-extern "C" int dmtcp_checkpoint_safestore_set_enabled( int yes_no ) {
+extern "C" int dmtcp_checkpoint_safestore( int yes_no ) {
     the_cpr->dmtcp_set_safestore_enabled(bool(yes_no)) ;
     return(0) ;
 }
@@ -83,7 +83,7 @@ extern "C" int dmtcp_checkpoint_safestore_set_enabled( int yes_no ) {
  * @relates Trick::CheckPointRestart
  * @copydoc Trick::CheckPointRestart::set_safestore_time
  */
-extern "C" int checkpoint_safestore( double in_time ) {
+extern "C" int checkpoint_safestore_period( double in_time ) {
     the_cpr->set_safestore_time(in_time) ;
     return(0) ;
 }
@@ -92,7 +92,7 @@ extern "C" int checkpoint_safestore( double in_time ) {
  * @relates Trick::CheckPointRestart
  * @copydoc Trick::CheckPointRestart::dmtcp_set_safestore_time
  */
-extern "C" int dmtcp_checkpoint_safestore( double in_time ) {
+extern "C" int dmtcp_checkpoint_safestore_period( double in_time ) {
     the_cpr->dmtcp_set_safestore_time(in_time) ;
     return(0) ;
 }

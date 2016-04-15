@@ -29,13 +29,13 @@ int get_checkpoint_post_init() ;
 int get_checkpoint_end() ;
 
 /* set safestore_enabled flag */
-int checkpoint_safestore_set_enabled(int yes_no) ;
+int checkpoint_safestore(int yes_no) ;
 
 /* set the cpu to use for checkpoints */
 int checkpoint_cpu( int in_cpu_num ) ;
 
 /* safestore checkpoint call accessible from C code */
-int checkpoint_safestore( double in_period ) ;
+int checkpoint_safestore_period( double in_period ) ;
 
 /* get checkpoint dump file name */
 const char * checkpoint_get_output_file() ;
@@ -47,10 +47,10 @@ const char * checkpoint_get_load_file() ;
 int checkpoint( const char * file_name );
 
 /* set dmtcp safestore_enabled flag */
-int dmtcp_checkpoint_safestore_set_enabled(int yes_no) ;
+int dmtcp_checkpoint_safestore(int yes_no) ;
 
 /* dmtcp safestore checkpoint call accessible from C code */
-int dmtcp_checkpoint_safestore( double in_period ) ;
+int dmtcp_checkpoint_safestore_period( double in_period ) ;
 
 /* dmtcp checkpoint call accessible from C code */
 int dmtcp_checkpoint( const char * file_name );
