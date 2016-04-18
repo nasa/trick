@@ -140,7 +140,11 @@ int main( int argc , char * argv[] ) {
     // Tell the preprocessor to use its default predefines
     clang::PreprocessorOptions & ppo = ci.getPreprocessorOpts() ;
     ppo.UsePredefines = true;
+#if (__clang_major__ == 3) && (__clang_minor__ >= 8)
+    pp.getBuiltinInfo().initializeBuiltins(pp.getIdentifierTable(), pp.getLangOpts());
+#else
     pp.getBuiltinInfo().InitializeBuiltins(pp.getIdentifierTable(), pp.getLangOpts());
+#endif
     // Add all of the #define from the command line to the default predefines.
     hsd.addDefines ( defines ) ;
 
