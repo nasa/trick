@@ -1,4 +1,6 @@
 
+include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
+
 CC  = cc
 CPP = c++
 
@@ -13,7 +15,7 @@ endif
 OBJ_DIR   = object_${TRICK_HOST_CPU}
 LIBDIR    = ../lib_${TRICK_HOST_CPU}
 LIBNAME   = libtrick_units.a
-INCLUDE_DIRS = -Iinclude 
+INCLUDE_DIRS = -I${TRICK_HOME}/include
 DP_CFLAGS = -g ${INCLUDE_DIRS} -fPIC
 
 CPP_OBJECTS = $(OBJ_DIR)/UCFn.o \
@@ -38,18 +40,8 @@ $(LIBDIR):
 
 OBJECTS: $(CPP_OBJECTS) 
 
-ifeq ($(TRICK_FORCE_32BIT), 1)
 $(LIBDIR)/$(LIBNAME): $(CPP_OBJECTS) $(C_OBJECTS) $(LIB_DIR)
 	ar crs $(LIBDIR)/$(LIBNAME) $?
-else
-ifeq ($(TRICK_HOME),)
-$(LIBDIR)/$(LIBNAME): $(CPP_OBJECTS) $(C_OBJECTS) $(LIB_DIR)
-	ar crs $(LIBDIR)/$(LIBNAME) $?
-else
-$(LIBDIR)/$(LIBNAME): $(LIBDIR)
-	ln -sf ${TRICK_HOME}/lib_${TRICK_HOST_CPU}/libtrick_units.a $(LIBDIR)/$(LIBNAME)
-endif
-endif
 
 depend:
 	@ echo "No depend rule for this directory"

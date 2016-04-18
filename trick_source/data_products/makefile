@@ -8,7 +8,8 @@ LIB_DIR = lib_${TRICK_HOST_CPU}
 
 LIBDIRS = Var \
     Log \
-    EQParse
+    EQParse \
+    units
 
 ifneq ("$(wildcard fermi-ware)","")
 LIBDIRS += fermi-ware
