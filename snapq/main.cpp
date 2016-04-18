@@ -182,14 +182,43 @@ int main(int argc, char *argv[])
 
         // Make a list of titles
         QStringList titles;
-        QString subtitle = opts.title2;
-        if ( subtitle.isEmpty() ) {
-            foreach ( QString runDir, runDirs ) {
-                subtitle += runDir + ",\n";
-            }
-            subtitle.chop(2);
+        QString title = opts.title1;
+        if ( title.isEmpty() ) {
+            title  = "Snap Plots!";
         }
-        titles << opts.title1 << subtitle << opts.title3 << opts.title4;
+        titles << title;
+
+        // Default title2 to RUN names
+        title = opts.title2;
+        if ( title.isEmpty() ) {
+            title = "(";
+            foreach ( QString runDir, runDirs ) {
+                title += runDir + ",\n";
+            }
+            title.chop(2);
+            title += ")";
+        }
+        titles << title;
+
+        // Default title3 to username
+        title = opts.title3;
+        if ( title.isEmpty() ) {
+            QFileInfo f(".");
+            QString userName = f.owner();
+            title = "User: " + userName;
+        }
+        titles << title;
+
+        // Default title4 to date
+        title = opts.title4;
+        if ( title.isEmpty() ) {
+            QDate date = QDate::currentDate();
+            QString fmt("Date: MMMM d, yyyy");
+            QString dateStr = date.toString(fmt);
+            title = dateStr;
+        }
+        titles << title;
+
 
         if ( isPdf ) {
             // TODO: Shouldn't timeName use opts.timeName if specified?

@@ -1022,8 +1022,8 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             QColor qcolor(bgColor);
             pal.setColor(QPalette::Background, qcolor);
             page->setPalette(pal);
-            PageTitleWidget* pw = _page2pagewidget.value(page);
-            pw->setBackgroundColor(bgColor);
+            PageTitleView* pw = _page2pagewidget.value(page);
+            //pw->setBackgroundColor(bgColor);
 
         } else if ( itemText == "PageForegroundColor" ) {
 
@@ -2019,9 +2019,11 @@ void PlotBookView::_insertPage(const QString &dpFileName)
     _page2grid.insert(page,grid);
 
     // Add Title Widget to page
-    PageTitleWidget* pw = new PageTitleWidget(page);
+    PageTitleView* pw = new PageTitleView(QModelIndex(),page);
+    pw->setModel(_plotModel);
     _page2pagewidget.insert(page,pw);
     grid->addWidget(pw,0,0,1,100);
+    grid->setRowStretch(0,1);
 
     // Add Page to Notebook and make this page current (show page)
     _nb->addTab(page,QFileInfo(dpFileName).baseName());
@@ -2033,7 +2035,8 @@ void PlotBookView::_insertPage(const QString &dpFileName)
 
 void PlotBookView::_insertPageTitle(QWidget *page, const QString &title)
 {
-    PageTitleWidget* pw = _page2pagewidget.value(page);
+    PageTitleView* pw = _page2pagewidget.value(page);
+#if 0
     if ( !_titles.at(0).isEmpty() ) {
         pw->setTitle1(_titles.at(0));
     } else if ( !title.startsWith("QP_")  && title != "Page" ) {
@@ -2050,6 +2053,7 @@ void PlotBookView::_insertPageTitle(QWidget *page, const QString &title)
     if ( !_titles.at(3).isEmpty() ) {
         pw->setTitle4(_titles.at(3));
     }
+#endif
 }
 
 void PlotBookView::_insertPlot(const QModelIndex& plotIdx,QWidget *page)
@@ -2125,5 +2129,9 @@ void PlotBookView::_insertPlot(const QModelIndex& plotIdx,QWidget *page)
         qDebug() << "snap limitation: 7 plots max on DP :(";
         qDebug() << "snap will probably crash now!";
     }
+    }
+
+    for ( int i = 1 ; i < grid->rowCount(); ++i ) {
+        grid->setRowStretch(i,100);
     }
 }

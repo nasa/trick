@@ -9,11 +9,11 @@
 #include <QHash>
 #include <QGridLayout>
 #include <QHBoxLayout>
-#include "pagetitlewidget.h"
 #include "libsnapdata/montemodel.h"
 #include "libsnapdata/unit.h"
 #include "libqplot/plotbookmodel.h"
 #include "libkplot/koviplot.h"
+#include "libkplot/pagetitleview.h"
 #include "libqplot/trickcurve.h"
 
 class PlotBookView : public QAbstractItemView
@@ -99,7 +99,7 @@ private:
 
     QVector<QWidget*> _pages;
     QHash<QWidget*,QGridLayout*> _page2grid;
-    QHash<QWidget*,PageTitleWidget*> _page2pagewidget;
+    QHash<QWidget*,PageTitleView*> _page2pagewidget;
     QHash<QWidget*,QVector<KoviPlot*> >  _page2Plots;
     QHash<QWidget*,double> _page2startTime;
     QHash<QWidget*,double> _page2stopTime;

@@ -48,6 +48,17 @@ PlotMainWindow::PlotMainWindow(
     // Create models
     _plotModel = new PlotBookModel(monteModel,0,1,parent);
     _plotSelectModel = new QItemSelectionModel(_plotModel);
+    if ( titles.size() == 4 ) {
+        QStandardItem *rootItem = _plotModel->invisibleRootItem();
+        QStandardItem *citem;
+        QStandardItem *gitem;
+        citem = _plotModel->addChild(rootItem, "DefaultPageTitles","");
+        gitem = _plotModel->addChild(citem, "Title1",titles.at(0));
+        gitem = _plotModel->addChild(citem, "Title2",titles.at(1));
+        gitem = _plotModel->addChild(citem, "Title3",titles.at(2));
+        gitem = _plotModel->addChild(citem, "Title4",titles.at(3));
+    }
+
 
     // Create Plot Tabbed Notebook View Widget
     _plotBookView = new PlotBookView(_plotModel, titles, msplit);

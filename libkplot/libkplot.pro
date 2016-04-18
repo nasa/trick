@@ -35,7 +35,8 @@ SOURCES += koviplot.cpp \
            labeledruler.cpp \
            linedruler.cpp \
            plotcorner.cpp \
-           verticallabel.cpp
+           verticallabel.cpp \
+           pagetitleview.cpp
 
 HEADERS  += koviplot.h \
             kplot.h \
@@ -43,4 +44,5 @@ HEADERS  += koviplot.h \
             labeledruler.h \
             linedruler.h \
             plotcorner.h \
-            verticallabel.h
+            verticallabel.h \
+            pagetitleview.h
