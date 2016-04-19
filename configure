@@ -713,7 +713,8 @@ if [ -e "$TRICK_HOME/.git" -o $dev == 1 ] ; then
 
     check_exists "clang compiler" `$llvm/bin/$llvm_config --bindir`/clang
     check_exists "clang header files" `$llvm/bin/$llvm_config --includedir`/clang
-    check_exists "clang library" `$llvm/bin/$llvm_config --libdir`/libclang.a
+    # The newer clang releases on the mac have libclang.dylib
+    #check_exists "clang library" `$llvm/bin/$llvm_config --libdir`/libclang.a
 
     if [ "$gtest" != "" ] ; then
         check_exists "Google Test" "$gtest/include/gtest"
