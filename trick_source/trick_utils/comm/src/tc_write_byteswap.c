@@ -4,15 +4,23 @@
  * byte orders are different.
  */
 
+#include <pthread.h>
+
 #include "trick/tc.h"
 #include "trick/tc_proto.h"
 #include "trick/trick_byteswap.h"
+
+static pthread_key_t key ;
+static pthread_once_t key_once = PTHREAD_ONCE_INIT ;
+static void make_key() {
+    pthread_key_create(&key, NULL) ;
+}
 
 int tc_write_byteswap(TCDevice * device, char *buffer, int size, ATTRIBUTES * attr)
 {
     char local_byteorder;
     int ret = 0;
-    static char swap[65536];
+    struct SwapBuffer * swap_buffer ;
 
     if (!device) {
         TrickErrorHndlr *temp_error_hndlr = NULL;
@@ -21,12 +29,26 @@ int tc_write_byteswap(TCDevice * device, char *buffer, int size, ATTRIBUTES * at
         return (-1);
     }
 
+    pthread_once(&key_once, make_key) ;
+    if (( swap_buffer = pthread_getspecific(key)) == NULL ) {
+        swap_buffer = malloc(sizeof(struct SwapBuffer)) ;
+        swap_buffer->size = 0 ;
+    }
+    if ( (unsigned int)size > swap_buffer->size ) {
+        unsigned int new_size = (unsigned int)size ; 
+        if ( new_size % 4 ) {
+            new_size = new_size - ( new_size % 4 ) + 4 ;
+        }
+        swap_buffer->swap_space = malloc(new_size) ;
+        swap_buffer->size = new_size ;
+    }
+
     TRICK_GET_BYTE_ORDER(local_byteorder)
 
-        if (device->byte_info[TC_BYTE_ORDER_NDX] != local_byteorder) {
-        memset(swap, 0, (size_t) size);
-        trick_bswap_buffer(swap, buffer, attr, 1);
-        ret = tc_write(device, (char *) swap, size);
+    if (device->byte_info[TC_BYTE_ORDER_NDX] != local_byteorder) {
+        memset(swap_buffer->swap_space, 0, (size_t) size);
+        trick_bswap_buffer(swap_buffer->swap_space, buffer, attr, 1);
+        ret = tc_write(device, (char *) swap_buffer->swap_space, size);
         return (ret);
     } else {
         return (tc_write(device, (char *) buffer, size));

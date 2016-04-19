@@ -25,6 +25,11 @@ short trick_byteswap_short(short input);
 }
 #endif
 
+struct SwapBuffer {
+    unsigned int size ;
+    char * swap_space ;
+} ;
+
 #define TRICK_GET_BYTE_ORDER(IND)   \
 {                                   \
    union {                          \
