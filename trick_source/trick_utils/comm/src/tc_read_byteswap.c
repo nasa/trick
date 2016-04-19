@@ -46,7 +46,7 @@ int tc_read_byteswap(TCDevice * device, char *buffer, int size, ATTRIBUTES * att
 
     TRICK_GET_BYTE_ORDER(local_byteorder)
 
-        if (device->byte_info[TC_BYTE_ORDER_NDX] != local_byteorder) {
+    if (device->byte_info[TC_BYTE_ORDER_NDX] != local_byteorder) {
         memset(swap_buffer->swap_space, 0, (size_t) size);
         ret = tc_read(device, (char *) swap_buffer->swap_space, size);
         trick_bswap_buffer(buffer, swap_buffer->swap_space, attr, 0);
