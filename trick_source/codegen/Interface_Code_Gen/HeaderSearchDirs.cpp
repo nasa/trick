@@ -32,22 +32,23 @@ void HeaderSearchDirs::AddCompilerBuiltInSearchDirs () {
     const bool IsFramework = false;
     const bool IsSysRootRelative = true;
 
-#ifdef __linux
     // Add clang specific include directory first.  Only required on linux systems. :(
+    // This is so that ICG will find clang friendly headers first.  gcc headers cause
+    // all kinds of problems.  On macs all headers are clang friendly.
+#if __linux
     std::stringstream icg_dir ;
-    icg_dir << std::string(getenv("TRICK_HOME")) << "/trick_source/codegen/Interface_Code_Gen/lib/clang/" ;
+    icg_dir << LLVM_HOME << "/lib/clang/" ;
     icg_dir << __clang_major__ << "." << __clang_minor__ ;
-#if (__clang_major__ == 3) && (__clang_minor__ >= 4)
+#if (__clang_major__ > 3) || ((__clang_major__ == 3) && (__clang_minor__ >= 4))
 #ifdef __clang_patchlevel__
     icg_dir << "." << __clang_patchlevel__  ;
 #endif
 #endif
     icg_dir << "/include" ;
-#if (__clang_major__ == 3) && (__clang_minor__ >= 3)
-    hso.AddPath(icg_dir.str() , clang::frontend::System, IsFramework, IsSysRootRelative);
-#else
-    hso.AddPath(icg_dir.str() , clang::frontend::System, IsUserSupplied, IsFramework, IsSysRootRelative);
-#endif
+    char * resolved_path = realpath(icg_dir.str().c_str(), NULL ) ;
+    if ( resolved_path != NULL ) {
+        hso.AddPath(resolved_path , clang::frontend::System, IsFramework, IsSysRootRelative);
+    }
 #endif
 
     fp = popen("${TRICK_HOME}/bin/gte TRICK_CPPC" , "r") ;
