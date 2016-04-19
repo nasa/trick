@@ -46,6 +46,10 @@ namespace Trick {
 
             int restart() ;
 
+            // pause and restart listen thread during checkpoint reload
+            void pause_listening() ;
+            void restart_listening() ;
+
             virtual void dump( std::ostream & oss = std::cout ) ;
 
         protected:
@@ -66,6 +70,9 @@ namespace Trick {
 
             /** The listen device\n */
             TCDevice listen_dev;        /**<  trick_io(**) */
+
+            /** The mutex to stop accepting new connections during restart\n */
+            pthread_mutex_t restart_pause ;     /**<  trick_io(**) */
 
     } ;
 

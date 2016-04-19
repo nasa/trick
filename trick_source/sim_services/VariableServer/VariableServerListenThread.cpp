@@ -22,6 +22,7 @@ Trick::VariableServerListenThread::VariableServerListenThread() :
     source_address = std::string(hname) ;
     strcpy(listen_dev.client_tag, "<empty>");
     tc_error(&listen_dev, 0);
+    pthread_mutex_init(&restart_pause, NULL);
 }
 
 Trick::VariableServerListenThread::~VariableServerListenThread() {
@@ -160,16 +161,20 @@ void * Trick::VariableServerListenThread::thread_body() {
     }
 
     while (1) {
+
         FD_ZERO(&rfds);
         FD_SET(listen_dev.socket, &rfds);
         timeout_time.tv_sec = 2 ;
         select(listen_dev.socket + 1, &rfds, NULL, NULL, &timeout_time);
 
         if (FD_ISSET(listen_dev.socket, &rfds)) {
+            // pause here during restart
+            pthread_mutex_lock(&restart_pause) ;
             vst = new Trick::VariableServerThread(&listen_dev) ;
             vst->copy_cpus(get_cpus()) ;
             vst->create_thread() ;
             vst->wait_for_accept() ;
+            pthread_mutex_unlock(&restart_pause) ;
         } else {
             if ( broadcast ) {
                 sprintf(buf1 , "%s\t%hu\t%s\t%d\t%s\t%s\t%s\t%s\t%s\t%hu\n" , listen_dev.hostname , (unsigned short)listen_dev.port ,
@@ -179,6 +184,7 @@ void * Trick::VariableServerListenThread::thread_body() {
                 sendto(mcast_socket , buf1 , strlen(buf1) , 0 , (struct sockaddr *)&mcast_addr , (socklen_t)sizeof(mcast_addr)) ;
             }
         }
+
     }
 
     return NULL ;
@@ -220,6 +226,14 @@ int Trick::VariableServerListenThread::restart() {
     }
 
     return 0 ;
+}
+
+void Trick::VariableServerListenThread::pause_listening() {
+    pthread_mutex_lock(&restart_pause) ;
+}
+
+void Trick::VariableServerListenThread::restart_listening() {
+    pthread_mutex_unlock(&restart_pause) ;
 }
 
 void Trick::VariableServerListenThread::dump( std::ostream & oss ) {

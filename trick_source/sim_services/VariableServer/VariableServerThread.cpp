@@ -48,6 +48,7 @@ Trick::VariableServerThread::VariableServerThread(TCDevice * in_listen_dev) :
     connection.error_handler->report_level = TRICK_ERROR_CAUTION;
 
     pthread_mutex_init(&copy_mutex, NULL);
+    pthread_mutex_init(&restart_pause, NULL);
 
     var_data_staged = false;
     packets_copied = 0 ;

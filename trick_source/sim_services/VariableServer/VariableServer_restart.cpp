@@ -25,6 +25,8 @@ int Trick::VariableServer::restart() {
 int Trick::VariableServer::suspendPreCheckpointReload() {
     std::map<pthread_t, VariableServerThread*>::iterator pos ;
 
+    listen_thread.pause_listening() ;
+
     pthread_mutex_lock(&map_mutex) ;
     for ( pos = var_server_threads.begin() ; pos != var_server_threads.end() ; pos++ ) {
         VariableServerThread* vst = (*pos).second ;
@@ -46,5 +48,8 @@ int Trick::VariableServer::resumePostCheckpointReload() {
         vst->restart() ;
     }
     pthread_mutex_unlock(&map_mutex) ;
+
+    listen_thread.restart_listening() ;
+
     return 0;
 }

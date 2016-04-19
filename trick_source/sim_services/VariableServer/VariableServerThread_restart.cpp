@@ -3,6 +3,10 @@
 #include "trick/VariableServerThread.hh"
 
 void Trick::VariableServerThread::preload_checkpoint() {
+
+    // Stop variable server processing at the top of the processing loop.
+    pthread_mutex_lock(&restart_pause);
+
     // Let the thread complete any data copying it has to do
     // and then suspend data copying until the checkpoint is reloaded.
     pthread_mutex_lock(&copy_mutex);
@@ -23,14 +27,18 @@ void Trick::VariableServerThread::preload_checkpoint() {
         (*it)->ref->attr->units = (char *)"--" ;
         (*it)->ref->attr->size = sizeof(int) ;
     }
+
+    // Allow data copying to continue.
+    pthread_mutex_unlock(&copy_mutex);
+
 }
 
 void Trick::VariableServerThread::restart() {
     // Set the pause state of this thread back to its "pre-checkpoint reload" state.
     pause_cmd = saved_pause_cmd ;
 
-    // Allow data copying to continue.
-    pthread_mutex_unlock(&copy_mutex);
+    // Restart the variable server processing.
+    pthread_mutex_unlock(&restart_pause);
 
 }
 
