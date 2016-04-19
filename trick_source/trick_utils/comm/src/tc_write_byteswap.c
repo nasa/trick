@@ -33,6 +33,7 @@ int tc_write_byteswap(TCDevice * device, char *buffer, int size, ATTRIBUTES * at
     if (( swap_buffer = pthread_getspecific(key)) == NULL ) {
         swap_buffer = malloc(sizeof(struct SwapBuffer)) ;
         swap_buffer->size = 0 ;
+        pthread_setspecific(key, swap_buffer) ;
     }
     if ( (unsigned int)size > swap_buffer->size ) {
         unsigned int new_size = (unsigned int)size ; 
