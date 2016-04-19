@@ -65,6 +65,9 @@ void * Trick::VariableServerThread::thread_body() {
     try {
         while (1) {
 
+            // Pause here if we are in a restart condition
+            pthread_mutex_lock(&restart_pause) ;
+
             /* Check the length of the message on the socket */
             nbytes = recvfrom( connection.socket, incoming_msg, MAX_CMD_LEN, MSG_PEEK, NULL, NULL ) ;
             if (nbytes == 0 ) {
@@ -149,6 +152,7 @@ void * Trick::VariableServerThread::thread_body() {
                     }
                 }
             }
+            pthread_mutex_unlock(&restart_pause) ;
 
             usleep((unsigned int) (update_rate * 1000000));
         }

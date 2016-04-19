@@ -471,6 +471,9 @@ namespace Trick {
             /** The mutex to protect variable output buffers when copying variable values to them from Trick memory.\n */
             pthread_mutex_t copy_mutex ;     /**<  trick_io(**) */
 
+            /** The mutex pauses all processing during checkpoint restart */
+            pthread_mutex_t restart_pause ;     /**<  trick_io(**) */
+
             /** Dummy integer for bad references.\n */
             static int bad_ref_int ;         /**<  trick_io(**) */
 
