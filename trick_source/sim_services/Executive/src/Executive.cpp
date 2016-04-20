@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <math.h>
+#include <sys/stat.h>
 
 #include "sim_services/Executive/include/Executive.hh"
 #include "sim_services/Executive/include/Exec_exception.hh"
@@ -16,7 +17,14 @@ Trick::Executive::Executive() {
     advance_sim_time_job = NULL ;
     attach_debugger = false ;
     curr_job = NULL ;
-    debugger_command = std::string("/usr/bin/gdb") ;
+
+    struct stat st ;
+    if ( stat("/usr/bin/gdb",&st) == 0 ) {
+        debugger_command = std::string("/usr/bin/gdb") ;
+    } else if ( stat("/usr/bin/lldb",&st) == 0 ) {
+        debugger_command = std::string("/usr/bin/lldb") ;
+    }
+
     enable_freeze = false ;
     except_return = 0 ;
     exec_command = NoCmd ;
