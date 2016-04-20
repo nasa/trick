@@ -1,8 +1,0 @@
-
-NUM_RUNS: 300
-
-VARS:
-target.state.velocity[0] {km/s} CALC;
-target.state.velocity[1] {km/s} CALC;
-target.state.velocity[2] {km/s} CALC;
-
