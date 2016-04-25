@@ -209,6 +209,7 @@ int Trick::DRHDF5::format_specific_init() {
 */
 int Trick::DRHDF5::write_data(bool must_write) {
 
+#ifdef HDF5
     unsigned int local_buffer_num ;
     unsigned int num_to_write ;
     unsigned int ii;
@@ -260,6 +261,7 @@ int Trick::DRHDF5::write_data(bool must_write) {
         pthread_mutex_unlock(&buffer_mutex) ;
 
     }
+#endif
 
     return 0 ;
 
