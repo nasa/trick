@@ -114,6 +114,12 @@ GROUP "/" {
             virtual int format_specific_init() ;
 
             /**
+             @brief Override the write_data function in DAtaRecordGroup
+             @returns always 0
+            */
+            virtual int write_data(bool must_write = false) ;
+
+            /**
              @copybrief Trick::DataRecordGroup::format_specific_write_data
              */
             virtual int format_specific_write_data(unsigned int writer_offset) ;

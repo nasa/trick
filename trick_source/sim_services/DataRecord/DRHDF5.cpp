@@ -43,7 +43,6 @@ int Trick::DRHDF5::format_specific_init() {
     hid_t byte_id ;
     hid_t file_names_id, param_types_id, param_units_id, param_names_id ;
     hid_t datatype ;
-    herr_t ret_value ;
     hid_t s256 ;
     std::string buf;
 
@@ -191,15 +190,79 @@ int Trick::DRHDF5::format_specific_init() {
         H5PTappend( param_names_id, 1, rec_buffer[ii]->ref->reference );
 
     }
-    ret_value = H5PTclose( byte_id );
-    ret_value = H5PTclose( file_names_id );
-    ret_value = H5PTclose( param_types_id );
-    ret_value = H5PTclose( param_units_id );
-    ret_value = H5PTclose( param_names_id );
-    ret_value = H5Gclose( header_group );
+    H5PTclose( byte_id );
+    H5PTclose( file_names_id );
+    H5PTclose( param_types_id );
+    H5PTclose( param_units_id );
+    H5PTclose( param_names_id );
+    H5Gclose( header_group );
 #endif
 
     return(0);
+}
+
+/*
+   HDF5 logging is done on a per variable basis instead of per time step like the
+   other recording methods.  This write_data routine overrides the default in
+   DataRecordGroup.  This routine writes out all of the buffered data of a variable
+   in one or two HDF5 calls.
+*/
+int Trick::DRHDF5::write_data(bool must_write) {
+
+    unsigned int local_buffer_num ;
+    unsigned int num_to_write ;
+    unsigned int ii;
+    char *buf = 0;
+
+    if ( record and inited and (buffer_type == DR_No_Buffer or must_write)) {
+
+        // buffer_mutex is used in this one place to prevent forced calls of write_data
+        // to not overwrite data being written by the asynchronous thread.
+        pthread_mutex_lock(&buffer_mutex) ;
+        local_buffer_num = buffer_num ;
+        if ( (local_buffer_num - writer_num) > max_num ) {
+            num_to_write = max_num ;
+        } else {
+            num_to_write = (local_buffer_num - writer_num) ;
+        }
+        writer_num = local_buffer_num - num_to_write ;
+
+        if ( writer_num != local_buffer_num ) {
+            // Test if the writer pointer to the right of the buffer pointer in the ring
+            if ( (writer_num % max_num) > (local_buffer_num % max_num) ) {
+               // we have 2 segments to write per variable
+               for (ii = 0; ii < parameters.size(); ii++) {
+                   HDF5_INFO * hi = parameters[ii] ;
+                   unsigned int writer_offset = writer_num % max_num ;
+                   buf = hi->drb->buffer + (writer_offset * hi->drb->ref->attr->size) ;
+
+                   /* Append all of the data on the end of the buffer to the packet table. */
+                   H5PTappend( hi->dataset, max_num - writer_offset , buf );
+
+                   buf = hi->drb->buffer ;
+                   /* Append all of the data at the beginning of the buffer to the packet table. */
+                   H5PTappend( hi->dataset, local_buffer_num % max_num , buf );
+               }
+            }  else {
+               // we have 1 continous segment to write per variable
+               for (ii = 0; ii < parameters.size(); ii++) {
+                   HDF5_INFO * hi = parameters[ii] ;
+                   unsigned int writer_offset = writer_num % max_num ;
+                   buf = hi->drb->buffer + (writer_offset * hi->drb->ref->attr->size) ;
+
+                   /* Append all of the data to the packet table. */
+                   H5PTappend( hi->dataset, local_buffer_num - writer_num , buf );
+
+               }
+            }
+            writer_num = local_buffer_num ;
+        }
+        pthread_mutex_unlock(&buffer_mutex) ;
+
+    }
+
+    return 0 ;
+
 }
 
 /**
