@@ -42,7 +42,7 @@ int Trick::InputProcessor::process_sim_args() {
          * If there are more than 2 calling arguments
          */
 
-        if (!strncmp("-d", argv[i], (size_t) 2)) {
+        if (!strcmp("-d", argv[i])) {
             /* Set the 'input verification only' and echo input flags */
             verify_input = 1 ;
         }
