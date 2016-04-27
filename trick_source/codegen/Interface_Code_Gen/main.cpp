@@ -85,6 +85,11 @@ int main( int argc , char * argv[] ) {
         return 0 ;
     }
 
+    if ( input_file_names.empty() ) {
+        std::cerr << "No header file specified" << std::endl ;
+        return 1 ;
+    }
+
 #if (__clang_major__ == 3) && (__clang_minor__ >= 3)
     ci.createDiagnostics();
 #else
