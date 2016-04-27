@@ -88,6 +88,11 @@ int main( int argc , char * argv[] ) {
         return 0 ;
     }
 
+    if ( input_file_names.empty() ) {
+        std::cerr << "No header file specified" << std::endl ;
+        return 1 ;
+    }
+
     ci.createDiagnostics();
     clang::DiagnosticOptions & diago = ci.getDiagnosticOpts() ;
     diago.ShowColors = 1 ;
