@@ -1,80 +1,73 @@
 
 #include <Python.h>
 #include <iostream>
+#include <udunits2/udunits2.h>
 
 #include "trick/Unit.hh"
+#include "trick/UdUnits.hh"
 
 int convert_united_value( std::string & to_units , std::string & from_units , long long * val ) {
-
-    if ( from_units.compare("--") ) {
-        try {
-            Unit converter(from_units.c_str()) ;
-            *val = (long long)converter.Convert_to( (double)(* val) , to_units.c_str()) ;
+    if ( from_units.compare("1") ) {
+        ut_unit * from = ut_parse(Trick::UdUnits::get_u_system(), from_units.c_str(), UT_ASCII) ;
+        if ( !from ) {
+            PyErr_SetString(PyExc_AttributeError,(std::string("could not covert from units "+from_units).c_str()));
+            return -1 ;
         }
-        catch (Unit::CONVERSION_ERROR & ce_err ) {
+        ut_unit * to = ut_parse(Trick::UdUnits::get_u_system(), to_units.c_str(), UT_ASCII) ;
+        if ( !to ) {
+            PyErr_SetString(PyExc_AttributeError,(std::string("could not covert to units "+to_units).c_str()));
+            return -1 ;
+        }
+
+        cv_converter * converter = ut_get_converter(from,to) ;
+        if ( converter ) {
+            *val = (long long)cv_convert_double(converter, (double)*val ) ;
+            cv_free(converter) ;
+        } else {
             PyErr_SetString(PyExc_AttributeError,"Units conversion Error");
             return -1 ;
         }
+
+        ut_free(from) ;
+        ut_free(to) ;
     }
     return 0 ;
 }
 
 int convert_united_value( std::string & to_units , std::string & from_units , double * val ) {
 
-    if ( from_units.compare("--") ) {
-        try {
-            Unit converter(from_units.c_str()) ;
-            *val = converter.Convert_to( *val , to_units.c_str()) ;
+    if ( from_units.compare("1") ) {
+        ut_unit * from = ut_parse(Trick::UdUnits::get_u_system(), from_units.c_str(), UT_ASCII) ;
+        if ( !from ) {
+            PyErr_SetString(PyExc_AttributeError,(std::string("could not covert from units "+from_units).c_str()));
+            return -1 ;
         }
-        catch (Unit::CONVERSION_ERROR & ce_err ) {
+        ut_unit * to = ut_parse(Trick::UdUnits::get_u_system(), to_units.c_str(), UT_ASCII) ;
+        if ( !to ) {
+            PyErr_SetString(PyExc_AttributeError,(std::string("could not covert to units "+to_units).c_str()));
+            return -1 ;
+        }
+
+        cv_converter * converter = ut_get_converter(from,to) ;
+        if ( converter ) {
+            *val = cv_convert_double(converter, *val ) ;
+            cv_free(converter) ;
+        } else {
             PyErr_SetString(PyExc_AttributeError,"Units conversion Error");
             return -1 ;
         }
+
+        ut_free(from) ;
+        ut_free(to) ;
     }
     return 0 ;
 }
 
 int scale_united_value( std::string & to_units , std::string & from_units , long long * val ) {
-
-    if ( from_units.compare("--") ) {
-        try {
-            Units_t * from = new_units(from_units.c_str()) ;
-            Units_t * to = new_units(to_units.c_str()) ;
-            UnitsConvFn_t conv_fn;
-            if (conv_fn_u(from, to, &conv_fn) != CONV_OK) {
-                throw Unit::CONVERSION_ERROR();
-            }
-            *val = (long long)(conv_fn.C[1] * (*val)) ;
-            free(from) ;
-            free(to) ;
-        }
-        catch (Unit::CONVERSION_ERROR & ce_err ) {
-            PyErr_SetString(PyExc_AttributeError,"Units conversion Error");
-            return -1 ;
-        }
-    }
-    return 0 ;
+    return convert_united_value(to_units, from_units, val) ;
 }
 
 int scale_united_value( std::string & to_units , std::string & from_units , double * val ) {
-
-    if ( from_units.compare("--") ) {
-        try {
-            Units_t * from = new_units(from_units.c_str()) ;
-            Units_t * to = new_units(to_units.c_str()) ;
-            UnitsConvFn_t conv_fn;
-            if (conv_fn_u(from, to, &conv_fn) != CONV_OK) {
-                throw Unit::CONVERSION_ERROR();
-            }
-            *val = conv_fn.C[1] * (*val) ;
-            free(from) ;
-            free(to) ;
-        }
-        catch (Unit::CONVERSION_ERROR & ce_err ) {
-            PyErr_SetString(PyExc_AttributeError,"Units conversion Error");
-            return -1 ;
-        }
-    }
-    return 0 ;
+    return convert_united_value(to_units, from_units, val) ;
 }
 

@@ -6,18 +6,32 @@
 #ifndef SWIG_INT_TEMPLATES_HH
 #define SWIG_INT_TEMPLATES_HH
 
+#include "trick/UdUnits.hh"
+#include <udunits2/udunits2.h>
+
 template< class S , typename T > static int convert_and_set( T & output , void * my_argp , std::string to_units ) {
     int ret = 0 ;
 
     S * temp_m = reinterpret_cast< S * >(my_argp) ;
-    if ( temp_m->units.compare("--") ) {
-        try {
-            Unit converter(temp_m->units.c_str()) ;
-            output = (T)converter.Convert_to( temp_m->value , to_units.c_str()) ;
+    if ( temp_m->units.compare("1") ) {
+        ut_unit * from = ut_parse(Trick::UdUnits::get_u_system(), temp_m->units.c_str(), UT_ASCII) ;
+        if ( !from ) {
+            PyErr_SetString(PyExc_AttributeError,(std::string("could not covert from units "+temp_m->units).c_str()));
+            return -1 ;
         }
-        catch (Unit::CONVERSION_ERROR & ce_err ) {
-            PyErr_SetString(PyExc_TypeError,"Units conversion error");
-            ret = -1;
+        ut_unit * to = ut_parse(Trick::UdUnits::get_u_system(), to_units.c_str(), UT_ASCII) ;
+        if ( !to ) {
+            PyErr_SetString(PyExc_AttributeError,(std::string("could not covert to units "+to_units).c_str()));
+            return -1 ;
+        }
+
+        cv_converter * converter = ut_get_converter(from,to) ;
+        if ( converter ) {
+            output = (T)cv_convert_double(converter, temp_m->value ) ;
+            cv_free(converter) ;
+        } else {
+            PyErr_SetString(PyExc_AttributeError,"Units conversion Error");
+            return -1 ;
         }
     } else {
         output = (T)temp_m->value ;

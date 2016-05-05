@@ -52,15 +52,15 @@ S_source.hh $(CURDIR)/build/S_define.lib_deps : S_define | build
 # Automatic and manual ICG rules
 $(CURDIR)/build/Makefile_io_src : | S_source.hh
 	$(PRINT_ICG)
-	$(ECHO_CMD)${TRICK_HOME}/bin/trick-ICG -m ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} S_source.hh
+	$(ECHO_CMD)${TRICK_HOME}/bin/trick-ICG -m ${TRICK_ICGFLAGS} ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} S_source.hh
 
 ICG:
 	$(PRINT_ICG)
-	$(ECHO_CMD)${TRICK_HOME}/bin/trick-ICG -m ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} S_source.hh
+	$(ECHO_CMD)${TRICK_HOME}/bin/trick-ICG -m ${TRICK_ICGFLAGS} ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} S_source.hh
 
 force_ICG:
 	$(PRINT_ICG)
-	$(ECHO_CMD)${TRICK_HOME}/bin/trick-ICG -f -m ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} S_source.hh
+	$(ECHO_CMD)${TRICK_HOME}/bin/trick-ICG -f -m ${TRICK_ICGFLAGS} ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} S_source.hh
 
 # Build dependencies for recreating S_source.hh
 $(CURDIR)/build/S_define.deps :

@@ -12,7 +12,26 @@
 #include "Utilities.hh"
 
 // Provides units check capability.
-#include "trick/units_conv.h"
+std::string map_trick_units_to_udunits( std::string orig_units ) ;
+
+extern llvm::cl::opt< bool > units_truth_is_scary ;
+
+static ut_system * get_u_system() {
+
+    ut_system * u_system ;
+
+    /* Initialize the udunits-2 library */
+    ut_set_error_message_handler(ut_ignore) ;
+    if( (u_system = ut_read_xml( NULL )) == NULL ) {
+        std::cout << "Error initializing udunits-2 unit system" << std::endl ;
+        exit(-1);
+    }
+    ut_set_error_message_handler(ut_write_to_stderr) ;
+
+    return u_system ;
+}
+
+ut_system * FieldDescription::u_system = get_u_system() ;
 
 FieldDescription::FieldDescription(
  std::string in_container_class ) :
@@ -20,7 +39,7 @@ FieldDescription::FieldDescription(
   field_offset(0) ,
   field_width(0) ,
   inherited(false) ,
-  units("--") ,
+  units("1") ,
   line_no(0) ,
   io(3) ,
   type_enum_string("TRICK_VOID") ,
@@ -133,14 +152,45 @@ void FieldDescription::parseComment(std::string comment) {
          get_regex_field(comment , "@?trick_io[\\({]([^\\)}]+)[\\)}](.*)" , 2) ;
     }
 
-    //std::cout << "4. " << comment << std::endl ;
-    ret_str = get_regex_field(comment , "@?trick_units[\\({]([^\\)}]+)[\\)}]" , 1) ;
-    if ( ! ret_str.empty()) {
-        units = ret_str ;
-        //std::cout << "go for trick_units " <<  units << std::endl ;
-        units_found = true ;
-        comment = get_regex_field(comment , "(.*)@?trick_units[\\({]([^\\)}]+)[\\)}]" , 1) +
-         get_regex_field(comment , "@?trick_units[\\({]([^\\)}]+)[\\)}](.*)" , 2) ;
+    /*
+       Units can include parenthesis now.  We need to match the parenthesis in
+       trick_units() to get the whole units string.
+     */
+    std::size_t tu_string = comment.find("trick_units") ;
+    if ( tu_string != std::string::npos ) {
+        std::size_t ustart = tu_string + std::string("trick_units").length() ;
+        std::size_t uend = ustart + 1 ;
+        std::stack<char> parens ;
+        parens.push( comment[ustart]);
+        while ( ! parens.empty() and (uend < comment.length())) {
+            switch ( comment[uend] ) {
+                case '(':
+                    parens.push('(') ;
+                    break ;
+                case ')':
+                    if (parens.top() == '(') {
+                        parens.pop() ;
+                    }
+                    break ;
+                case '}':
+                    if (parens.top() == '{') {
+                        parens.pop() ;
+                    }
+                    break ;
+            }
+            uend++ ;
+        }
+        if ( parens.empty() ) {
+            units = comment.substr(ustart + 1 , uend - ustart - 2) ;
+            units_found = true ;
+            // If we have "@trick_units" include the "@" sign for erasure.
+            if ( tu_string > 0 and comment[tu_string-1] == '@' ) {
+                tu_string -= 1 ;
+            }
+            comment.erase(tu_string , uend - tu_string) ;
+        } else {
+            std::cout << "unmatched parenthesis for trick_units" << std::endl ;
+        }
     }
 
     if ( ! io_found ) {
@@ -174,19 +224,33 @@ void FieldDescription::parseComment(std::string comment) {
         }
     }
 
+
     // Test if we have valid units.  We need to have found a units string and an io spec not zero
     // Possible todo is to create a map of valid units so we don't have to retest each string.
     if ( units_found and io != 0 and (valid_units.find(units) == valid_units.end())) {
-        Units_t * test_units = new_units(units.c_str()) ;
-        if ( test_units == NULL ) {
-            // If the units are invalid write an error message and change the units to "--"
-            std::cout << "\033[31mBad units specification (" << units << "): " << file_name << ":" << line_no
-             << "\033[0m" << std::endl ;
-            units = "--" ;
+        if ( !units.compare("--") ) {
+            units = "1" ;
         } else {
-            // If the units are valid, free the memory allocated by new_units.
-            CONV_FREE(test_units) ;
-            valid_units.insert(units) ;
+            // map old unit names to new names
+            std::string new_units = map_trick_units_to_udunits(units) ;
+            if ( units.compare(new_units) ) {
+                if ( ! units_truth_is_scary ) {
+                    std::cout << "\033[31mUnits converted from [" << units << "] to [" << new_units << "] "
+                     << file_name << ":" << line_no << "\033[0m" << std::endl ;
+                }
+                units = new_units ;
+            }
+            ut_unit * test_units = ut_parse(u_system, units.c_str() , UT_ASCII) ;
+            if ( test_units == NULL ) {
+                // If the units are invalid write an error message and change the units to "1"
+                std::cout << "\033[31mBad units specification [" << units << "] " << file_name << ":" << line_no
+                 << "\033[0m" << std::endl ;
+                units = "1" ;
+            } else {
+                // If the units are valid, free the memory allocated by new_units.
+                ut_free(test_units) ;
+                valid_units.insert(units) ;
+            }
         }
     }
 

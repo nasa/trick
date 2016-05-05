@@ -8,7 +8,7 @@ CXXFLAGS := -g -I$(shell $(LLVM_HOME)/bin/llvm-config --includedir) -D__STDC_CON
 
 CLANG_MINOR_GTEQ5 := $(shell expr `$(LLVM_HOME)/bin/llvm-config --version | cut -f2 -d. ` \>= 5 )
 
-LLVMLDFLAGS := $(shell $(LLVM_HOME)/bin/llvm-config --ldflags)
+LLVMLDFLAGS := $(shell $(LLVM_HOME)/bin/llvm-config --ldflags) -ludunits2
 
 OBJ_DIR :=  object_$(TRICK_HOST_CPU)
 
@@ -21,10 +21,8 @@ ICG := ${TRICK_HOME}/bin/trick-ICG
 SOURCES = $(wildcard *.cpp)
 OBJECTS = $(addprefix $(OBJ_DIR)/, $(subst .cpp,.o,$(SOURCES)))
 
-# Include the units conversion source from trick_utils.
-UNITS_CONV_SRC = ${TRICK_HOME}/trick_source/trick_utils/units/src/units_conv.c
-UNITS_CONV_INCLUDE = -I${TRICK_HOME}/include
-UNITS_CONV_OBJ = $(OBJ_DIR)/units_conv.o
+UDUNITS_OBJS = \
+    $(OBJ_DIR)/map_trick_units_to_udunits.o
 
 CLANGLIBS = \
     -lclangFrontend \
@@ -55,8 +53,8 @@ endif
 
 all: $(ICG)
 
-$(ICG): $(OBJECTS) $(UNITS_CONV_OBJ)
-	$(CXX) -o $@ $(OBJECTS) $(UNITS_CONV_OBJ) $(LLVMLDFLAGS) $(CLANGLIBS)
+$(ICG): $(OBJECTS) $(UDUNITS_OBJS)
+	$(CXX) -o $@ $(OBJECTS) $(UNITS_CONV_OBJ) $(UDUNITS_OBJS) $(LLVMLDFLAGS) $(CLANGLIBS)
 
 # Only FieldDescription.cpp includes the units conversion header.
 $(OBJ_DIR)/FieldDescription.o : CXXFLAGS += $(UNITS_CONV_INCLUDE)
@@ -66,8 +64,8 @@ $(OBJ_DIR)/main.o : CXXFLAGS += $(UNITS_CONV_INCLUDE)
 $(OBJECTS): $(OBJ_DIR)/%.o : %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(UNITS_CONV_OBJ): $(UNITS_CONV_SRC)
-	$(CC) $(UNITS_CONV_INCLUDE) -c $< -o $@
+$(UDUNITS_OBJS): $(OBJ_DIR)/%.o : ${TRICK_HOME}/trick_source/sim_services/UdUnits/%.cpp
+	$(CXX) -c $< -o $@
 
 $(OBJECTS) $(UNITS_CONV_OBJ) : | $(OBJ_DIR)
 

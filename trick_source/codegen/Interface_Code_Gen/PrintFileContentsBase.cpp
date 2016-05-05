@@ -39,7 +39,7 @@ void PrintFileContentsBase::print_units_map(std::ofstream & outfile, ClassValues
 
     outfile << "        Trick::UnitsMap * units_map_ptr __attribute__((unused)) = Trick::UnitsMap::units_map() ;\n" ;
     for ( fit = cv->field_begin() ; fit != cv->field_end() ; fit++ ) {
-        if ( determinePrintAttr(cv , *fit) and (*fit)->getUnits().compare("--")) {
+        if ( determinePrintAttr(cv , *fit) and (*fit)->getUnits().compare("1")) {
             FieldDescription * fdes = *fit ;
             outfile << "        units_map_ptr->add_param(\"" ;
             printContainerClasses( outfile, cv , "__" ) ;

@@ -53,7 +53,8 @@ SIM_SERV_DIRS = \
 	${TRICK_HOME}/trick_source/sim_services/SimTime \
 	${TRICK_HOME}/trick_source/sim_services/ThreadBase \
 	${TRICK_HOME}/trick_source/sim_services/Timer \
-	${TRICK_HOME}/trick_source/sim_services/Units \
+	${TRICK_HOME}/trick_source/sim_services/UdUnits \
+	${TRICK_HOME}/trick_source/sim_services/UnitsMap \
 	${TRICK_HOME}/trick_source/sim_services/VariableServer \
 	${TRICK_HOME}/trick_source/sim_services/Zeroconf \
 	${TRICK_HOME}/trick_source/sim_services/include \

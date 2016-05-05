@@ -41,7 +41,7 @@
     t->ref.num_index_left  = 1 ;
     t->ref.ref_type  = REF_ADDRESS ;
 
-    t->ref.attr->units = strdup("--") ;
+    t->ref.attr->units = strdup("1") ;
 
     //cout << "returning a structured swig_ref" << std::endl ;
     $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_ref"), SWIG_POINTER_OWN);
@@ -101,7 +101,7 @@
     t->ref.attr->num_index  = 2 ;
     t->ref.attr->index[0].size  = $1_dim0 ;
     t->ref.attr->index[1].size  =  0 ;
-    t->ref.attr->units = strdup("--") ;
+    t->ref.attr->units = strdup("1") ;
 
     t->ref.create_add_path  = 0 ;
     t->ref.num_index  = 0 ;
@@ -140,7 +140,7 @@
     t->ref.num_index_left  = 2 ;
     t->ref.ref_type  = REF_ADDRESS ;
 
-    t->ref.attr->units = strdup("--") ;
+    t->ref.attr->units = strdup("1") ;
 
     $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_ref"), SWIG_POINTER_OWN);
 }
@@ -179,7 +179,7 @@
     t->ref.num_index_left  = 2 ;
     t->ref.ref_type  = REF_ADDRESS ;
 
-    t->ref.attr->units = strdup("--") ;
+    t->ref.attr->units = strdup("1") ;
 
     //cout << "returning a structured swig_ref" << std::endl ;
     $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_ref"), SWIG_POINTER_OWN);

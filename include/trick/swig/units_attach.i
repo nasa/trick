@@ -5,8 +5,12 @@
 #define UNITS_ATTACH_I
 
 %inline %{
-#include "trick/Unit.hh"
+#include <frameobject.h>
+#include <udunits2/udunits2.h>
 #include "trick/swig/swig_double.hh"
+
+std::string map_trick_units_to_udunits( std::string orig_units ) ;
+
 %}
 
 %inline %{
@@ -19,6 +23,19 @@ PyObject * attach_units(PyObject * in_units_obj , PyObject * in_object) {
 
     if ( PyString_Check(in_units_obj) ) {
         in_units = PyString_AsString(in_units_obj) ;
+        std::string new_units = map_trick_units_to_udunits(in_units) ;
+        if ( in_units.compare(new_units) ) {
+            PyThreadState *tstate = PyThreadState_GET();
+            std::string file_name ;
+            int line_no = 0 ;
+            if (NULL != tstate && NULL != tstate->frame) {
+                file_name = PyString_AsString(tstate->frame->f_code->co_filename);
+                line_no = PyFrame_GetLineNumber(tstate->frame) ;
+            }
+            std::cout << "\033[31mUnits converted from [" << in_units << "] to [" << new_units << "] "
+             << file_name << ":" << line_no << "\033[0m" << std::endl ;
+            in_units = new_units ;
+        }
     }
 
     if ( PyList_Check(in_object)) {
@@ -32,19 +49,62 @@ PyObject * attach_units(PyObject * in_units_obj , PyObject * in_object) {
         result_obj = SWIG_NewPointerObj(SWIG_as_voidptr(container), SWIG_TypeQuery("swig_double *") , SWIG_POINTER_OWN);
     } else if ( SWIG_IsOK(SWIG_ConvertPtr(in_object, &my_argp,SWIG_TypeQuery("swig_double *"), 0 ))) {
         swig_double * temp_m = reinterpret_cast< swig_double * >(my_argp) ;
-        if ( temp_m->units.compare("--") ) {
-            try {
-                Unit converter(temp_m->units.c_str()) ;
-                temp_m->value = converter.Convert_to( temp_m->value , in_units.c_str()) ;
+        if ( temp_m->units.compare("1") ) {
+            ut_unit * from = ut_parse(Trick::UdUnits::get_u_system(), temp_m->units.c_str(), UT_ASCII) ;
+            if ( !from ) {
+                PyErr_SetString(PyExc_AttributeError,(std::string("could not covert from units "+temp_m->units).c_str()));
+                return NULL ;
+            }
+            ut_unit * to = ut_parse(Trick::UdUnits::get_u_system(), in_units.c_str(), UT_ASCII) ;
+            if ( !to ) {
+                PyErr_SetString(PyExc_AttributeError,(std::string("could not covert to units "+in_units).c_str()));
+                return NULL ;
+            }
+
+            cv_converter * converter = ut_get_converter(from,to) ;
+            if ( converter ) {
+                temp_m->value = cv_convert_double(converter, temp_m->value ) ;
                 temp_m->units = in_units ;
+                cv_free(converter) ;
+            } else {
+                PyErr_SetString(PyExc_AttributeError,"Units conversion Error");
+                return NULL ;
             }
-            catch (Unit::CONVERSION_ERROR & ce_err ) {
-                PyErr_SetString(PyExc_TypeError,"improper units conversion");
-                return NULL;
-            }
+            ut_free(from) ;
+            ut_free(to) ;
+        } else {
+            temp_m->units = in_units ;
         }
         result_obj = SWIG_NewPointerObj(SWIG_as_voidptr(new swig_double(*temp_m)), SWIG_TypeQuery("swig_double *") , SWIG_POINTER_OWN);
+    } else if ( SWIG_IsOK(SWIG_ConvertPtr(in_object, &my_argp,SWIG_TypeQuery("swig_int *"), 0 ))) {
+        swig_int * temp_m = reinterpret_cast< swig_int * >(my_argp) ;
+        if ( temp_m->units.compare("1") ) {
+            ut_unit * from = ut_parse(Trick::UdUnits::get_u_system(), temp_m->units.c_str(), UT_ASCII) ;
+            if ( !from ) {
+                PyErr_SetString(PyExc_AttributeError,(std::string("could not covert from units "+temp_m->units).c_str()));
+                return NULL ;
+            }
+            ut_unit * to = ut_parse(Trick::UdUnits::get_u_system(), in_units.c_str(), UT_ASCII) ;
+            if ( !to ) {
+                PyErr_SetString(PyExc_AttributeError,(std::string("could not covert to units "+in_units).c_str()));
+                return NULL ;
+            }
 
+            cv_converter * converter = ut_get_converter(from,to) ;
+            if ( converter ) {
+                temp_m->value = (long long)cv_convert_double(converter, (double)temp_m->value ) ;
+                temp_m->units = in_units ;
+                cv_free(converter) ;
+            } else {
+                PyErr_SetString(PyExc_AttributeError,"Units conversion Error");
+                return NULL ;
+            }
+            ut_free(from) ;
+            ut_free(to) ;
+        } else {
+            temp_m->units = in_units ;
+        }
+        result_obj = SWIG_NewPointerObj(SWIG_as_voidptr(new swig_int(*temp_m)), SWIG_TypeQuery("swig_int *") , SWIG_POINTER_OWN);
     } else if ( PyTuple_Check(in_object)) {
         unsigned int size = PyTuple_Size(in_object) ;
         result_obj = PyTuple_New(size) ;

@@ -11,11 +11,11 @@ char swig_int::str_output[32] ;
 
 swig_int::swig_int() {
     value = 0 ;
-    units = "--" ;
+    units = "1" ;
 }
 
 char * swig_int::__str__() {
-    if ( ! units.empty() && units.compare("--") ) {
+    if ( ! units.empty() && units.compare("1") ) {
         sprintf(str_output , "%lld %s", value , units.c_str()) ;
     } else {
         sprintf(str_output , "%lld", value ) ;

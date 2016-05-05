@@ -43,11 +43,11 @@ std::string Trick::UnitsMap::get_units( std::string param ) {
 	/**
 	 * @par Design Details:
 	 * @li Finds the specified variable in the map and returns the units of the found variable.
-	 *     If the variable can not be found, returns "--" (unitless).
+	 *     If the variable can not be found, returns "1" (unitless).
 	 */
     if ( param_units.find(param) != param_units.end() ) {
         return(std::string(param_units[param])) ;
     } else {
-        return(std::string("--")) ;
+        return(std::string("1")) ;
     }
 }

@@ -92,6 +92,7 @@ a replacement SimObject will create an uncompilable sim.
 ##include "trick/Zeroconf.hh"
 ##include "trick/RtiStager.hh"
 ##include "trick/RtiExec.hh"
+##include "trick/UdUnits.hh"
 
 // This is a user header block.  Code here is copied without processing to S_source.hh
 %header{
@@ -785,6 +786,18 @@ class UnitTestSimObject : public Trick::SimObject {
 } ;
 
 UnitTestSimObject trick_utest ;
+#endif
+
+#ifndef TRICK_NO_UDUNITS
+class UdUnitsSimObject : public Trick::SimObject {
+    public:
+        Trick::UdUnits udunits ;
+        UdUnitsSimObject() {
+            P65535 ("default_data") udunits.read_default_xml() ;
+        }
+} ;
+
+UdUnitsSimObject trick_udunits;
 #endif
 
 // Include optional external clocks

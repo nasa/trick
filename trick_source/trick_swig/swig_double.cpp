@@ -11,11 +11,11 @@ char swig_double::str_output[32] ;
 
 swig_double::swig_double() {
     value = 0 ;
-    units = "--" ;
+    units = "1" ;
 }
 
 char * swig_double::__str__() {
-    if ( ! units.empty() && units.compare("--") ) {
+    if ( ! units.empty() && units.compare("1") ) {
         sprintf(str_output , "%g %s", value , units.c_str()) ;
     } else {
         sprintf(str_output , "%g", value ) ;
@@ -67,7 +67,7 @@ PyObject * swig_double::__add__( PyObject * obj1 ) {
     result->units = units ;
 
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIG_TypeQuery("swig_double *"), SWIG_POINTER_OWN);
-    
+
     return ret ;
 }
 
@@ -107,7 +107,7 @@ PyObject * swig_double::__sub__( PyObject * obj1 ) {
     result->units = units ;
 
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIG_TypeQuery("swig_double *"), SWIG_POINTER_OWN);
-    
+
     return ret ;
 }
 
@@ -123,35 +123,19 @@ PyObject * swig_double::__mul__( PyObject * obj1 ) {
         result->units = units ;
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_int *"), 0 ))) {
         swig_int * temp_m = reinterpret_cast< swig_int * >(argp2) ;
-        if ( !temp_m->units.compare("--")) {
-            result->value = value * temp_m->value ;
-            result->units = units ;
-        } else if ( !units.compare("--")) {
-            result->value = value * temp_m->value ;
-            result->units = temp_m->units ;
-        } else {
-            PyErr_SetString(PyExc_TypeError,"Operation must contain at least one unit-less value.  Cannot create new unit-ed type.");
-            return NULL ;
-        }
+        result->value = value * temp_m->value ;
+        result->units = units + "*(" + temp_m->units + ")";
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_double *"), 0 ))) {
         swig_double * temp_m = reinterpret_cast< swig_double * >(argp2) ;
-        if ( !temp_m->units.compare("--")) {
-            result->value = value * temp_m->value ;
-            result->units = units ;
-        } else if ( !units.compare("--")) {
-            result->value = value * temp_m->value ;
-            result->units = temp_m->units ;
-        } else {
-            PyErr_SetString(PyExc_TypeError,"Operation must contain at least one unit-less value.  Cannot create new unit-ed type.");
-            return NULL ;
-        }
+        result->value = value * temp_m->value ;
+        result->units = units + "*(" + temp_m->units + ")";
     } else if ( PyInt_Check(obj1) ) {
         result->value = value * PyInt_AsLong(obj1) ;
         result->units = units ;
     }
 
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIG_TypeQuery("swig_double *"), SWIG_POINTER_OWN);
-    
+
     return ret ;
 }
 
@@ -166,27 +150,17 @@ PyObject * swig_double::__div__( PyObject * obj1 ) {
         result->value = value / PyFloat_AsDouble(obj1) ;
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_int *"), 0 ))) {
         swig_int * temp_m = reinterpret_cast< swig_int * >(argp2) ;
-        if ( !temp_m->units.compare("--")) {
-            result->value = value / temp_m->value ;
-        } else {
-            PyErr_SetString(PyExc_TypeError,"Divisor must be unitless.  Cannot create new unit-ed type.");
-            return NULL ;
-        }
+        result->value = value / temp_m->value ;
+        result->units = units ;
+        result->units = units + "/(" + temp_m->units + ")";
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_double *"), 0 ))) {
         swig_double * temp_m = reinterpret_cast< swig_double * >(argp2) ;
-        if ( !temp_m->units.compare("--")) {
-            result->value = value / temp_m->value ;
-        } else {
-            PyErr_SetString(PyExc_TypeError,"Divisor must be unitless.  Cannot create new unit-ed type.");
-            return NULL ;
-        }
+        result->value = value / temp_m->value ;
+        result->units = units + "/(" + temp_m->units + ")";
     } else if ( PyInt_Check(obj1) ) {
         result->value = value / PyInt_AsLong(obj1) ;
     }
-    result->units = units ;
-
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIG_TypeQuery("swig_double *"), SWIG_POINTER_OWN);
-    
     return ret ;
 }
 

@@ -6,6 +6,8 @@
 #include <map>
 #include <stdint.h>
 
+#include <udunits2/udunits2.h>
+
 #include "ConstructValues.hh"
 #include "clang/Basic/Specifiers.h"
 
@@ -166,6 +168,7 @@ class FieldDescription : public ConstructValues {
         /** Internal function to execute regular expression */
         std::string get_regex_field(std::string input , const char * expr , unsigned int index) ;
 
+        static ut_system * u_system ;
 } ;
 
 #endif

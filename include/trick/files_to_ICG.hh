@@ -82,6 +82,7 @@
 #include "trick/StripChart.hh"
 #include "trick/RtiStager.hh"
 #include "trick/RtiExec.hh"
+#include "trick/UdUnits.hh"
 #include "trick/UnitsMap.hh"
 #include "trick/Zeroconf.hh"
 #include "trick/Flag.h"
