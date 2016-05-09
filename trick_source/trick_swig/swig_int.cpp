@@ -65,7 +65,7 @@ PyObject * swig_int::__add__( PyObject * obj1 ) {
     result->units = units ;
 
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIG_TypeQuery("swig_int *"), SWIG_POINTER_OWN);
-    
+
     return ret ;
 }
 
@@ -105,7 +105,7 @@ PyObject * swig_int::__sub__( PyObject * obj1 ) {
     result->units = units ;
 
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIG_TypeQuery("swig_int *"), SWIG_POINTER_OWN);
-    
+
     return ret ;
 }
 
@@ -122,30 +122,14 @@ PyObject * swig_int::__mul__( PyObject * obj1 ) {
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_int *"), 0 ))) {
         swig_int * result = new swig_int() ;
         swig_int * temp_m = reinterpret_cast< swig_int * >(argp2) ;
-        if ( !temp_m->units.compare("--")) {
-            result->value = value * temp_m->value ;
-            result->units = units ;
-        } else if ( !units.compare("--")) {
-            result->value = value * temp_m->value ;
-            result->units = temp_m->units ;
-        } else {
-            PyErr_SetString(PyExc_TypeError,"Operation must contain at least one unit-less value.  Cannot create new unit-ed type.");
-            return NULL ;
-        }
+        result->value = value * temp_m->value ;
+        result->units = units + "*(" + temp_m->units + ")";
         ret = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIG_TypeQuery("swig_int *"), SWIG_POINTER_OWN);
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_double *"), 0 ))) {
         swig_double * result = new swig_double() ;
         swig_double * temp_m = reinterpret_cast< swig_double * >(argp2) ;
-        if ( !temp_m->units.compare("--")) {
-            result->value = value * temp_m->value ;
-            result->units = units ;
-        } else if ( !units.compare("--")) {
-            result->value = value * temp_m->value ;
-            result->units = temp_m->units ;
-        } else {
-            PyErr_SetString(PyExc_TypeError,"Operation must contain at least one unit-less value.  Cannot create new unit-ed type.");
-            return NULL ;
-        }
+        result->value = value * temp_m->value ;
+        result->units = units + "*(" + temp_m->units + ")";
         ret = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIG_TypeQuery("swig_double *"), SWIG_POINTER_OWN);
     } else if ( PyInt_Check(obj1) ) {
         swig_int * result = new swig_int() ;
@@ -153,7 +137,7 @@ PyObject * swig_int::__mul__( PyObject * obj1 ) {
         result->units = units ;
         ret = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIG_TypeQuery("swig_int *"), SWIG_POINTER_OWN);
     }
-    
+
     return ret ;
 }
 
@@ -166,29 +150,20 @@ PyObject * swig_int::__div__( PyObject * obj1 ) {
 
     if ( PyFloat_Check(obj1) ) {
         result->value = value / PyFloat_AsDouble(obj1) ;
+        result->units = units ;
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_int *"), 0 ))) {
         swig_int * temp_m = reinterpret_cast< swig_int * >(argp2) ;
-        if ( !temp_m->units.compare("--")) {
-            result->value = value / temp_m->value ;
-        } else {
-            PyErr_SetString(PyExc_TypeError,"Divisor must be unitless.  Cannot create new unit-ed type.");
-            return NULL ;
-        }
+        result->value = value / temp_m->value ;
+        result->units = units + "/(" + temp_m->units + ")";
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_double *"), 0 ))) {
         swig_double * temp_m = reinterpret_cast< swig_double * >(argp2) ;
-        if ( !temp_m->units.compare("--")) {
-            result->value = value / temp_m->value ;
-        } else {
-            PyErr_SetString(PyExc_TypeError,"Divisor must be unitless.  Cannot create new unit-ed type.");
-            return NULL ;
-        }
+        result->value = value / temp_m->value ;
+        result->units = units + "/(" + temp_m->units + ")";
     } else if ( PyInt_Check(obj1) ) {
         result->value = value / PyInt_AsLong(obj1) ;
+        result->units = units ;
     }
-    result->units = units ;
-
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIG_TypeQuery("swig_double *"), SWIG_POINTER_OWN);
-    
     return ret ;
 }
 
@@ -204,7 +179,6 @@ PyObject * swig_int::__mod__( PyObject * obj1 ) {
     PyObject * ret = NULL ;
     void * argp2 ;
 
-
     if ( PyFloat_Check(obj1) ) {
         swig_double * result = new swig_double() ;
         result->value = fmod(value , PyFloat_AsDouble(obj1)) ;
@@ -213,7 +187,7 @@ PyObject * swig_int::__mod__( PyObject * obj1 ) {
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_int *"), 0 ))) {
         swig_int * result = new swig_int() ;
         swig_int * temp_m = reinterpret_cast< swig_int * >(argp2) ;
-        if ( !temp_m->units.compare("--")) {
+        if ( !temp_m->units.compare("1")) {
             result->value = value % temp_m->value ;
         } else {
             PyErr_SetString(PyExc_TypeError,"Divisor must be unitless.  Cannot create new unit-ed type.");
@@ -224,7 +198,7 @@ PyObject * swig_int::__mod__( PyObject * obj1 ) {
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_double *"), 0 ))) {
         swig_double * result = new swig_double() ;
         swig_double * temp_m = reinterpret_cast< swig_double * >(argp2) ;
-        if ( !temp_m->units.compare("--")) {
+        if ( !temp_m->units.compare("1")) {
             result->value = fmod( value , temp_m->value) ;
         } else {
             PyErr_SetString(PyExc_TypeError,"Divisor must be unitless.  Cannot create new unit-ed type.");
@@ -259,7 +233,7 @@ PyObject * swig_int::__pow__( PyObject * obj1 ) {
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_int *"), 0 ))) {
         swig_int * temp_m = reinterpret_cast< swig_int * >(argp2) ;
         swig_int * result = new swig_int() ;
-        if ( !temp_m->units.compare("--")) {
+        if ( !temp_m->units.compare("1")) {
             result->value = (long long)(pow(value , temp_m->value)) ;
         } else {
             PyErr_SetString(PyExc_TypeError,"Both arguments must be unitless. Cannot create new unit-ed type.");
@@ -269,7 +243,7 @@ PyObject * swig_int::__pow__( PyObject * obj1 ) {
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_double *"), 0 ))) {
         swig_double * result = new swig_double() ;
         swig_double * temp_m = reinterpret_cast< swig_double * >(argp2) ;
-        if ( !temp_m->units.compare("--")) {
+        if ( !temp_m->units.compare("1")) {
             result->value = pow(value , temp_m->value) ;
         } else {
             PyErr_SetString(PyExc_TypeError,"Both arguments must be unitless. Cannot create new unit-ed type.");
@@ -279,11 +253,15 @@ PyObject * swig_int::__pow__( PyObject * obj1 ) {
         ret = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIG_TypeQuery("swig_double *"), SWIG_POINTER_OWN);
     } else if ( PyInt_Check(obj1) ) {
         swig_int * result = new swig_int() ;
+        int power = PyInt_AsLong(obj1) ;
+        result->value = (long long)(pow(value , power)) ;
         result->units = units ;
-        result->value = (long long)(pow(value , PyInt_AsLong(obj1))) ;
+        for ( int ii = 1 ; ii < power ; ii++ ) {
+            result->units = result->units + "*(" + units + ")";
+        }
         ret = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIG_TypeQuery("swig_int *"), SWIG_POINTER_OWN);
     }
-    
+
     return ret ;
 }
 
@@ -299,7 +277,7 @@ PyObject * swig_int::__lshift__( PyObject * obj1 ) {
         return NULL ;
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_int *"), 0 ))) {
         swig_int * temp_m = reinterpret_cast< swig_int * >(argp2) ;
-        if ( !temp_m->units.compare("--")) {
+        if ( !temp_m->units.compare("1")) {
             result->value = value << temp_m->value ;
         } else {
             PyErr_SetString(PyExc_TypeError,"Shift value must be unitless.");
@@ -314,7 +292,7 @@ PyObject * swig_int::__lshift__( PyObject * obj1 ) {
     result->units = units ;
 
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIG_TypeQuery("swig_int *"), SWIG_POINTER_OWN);
-    
+
     return ret ;
 }
 
@@ -330,7 +308,7 @@ PyObject * swig_int::__rshift__( PyObject * obj1 ) {
         return NULL ;
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_int *"), 0 ))) {
         swig_int * temp_m = reinterpret_cast< swig_int * >(argp2) ;
-        if ( !temp_m->units.compare("--")) {
+        if ( !temp_m->units.compare("1")) {
             result->value = value >> temp_m->value ;
         } else {
             PyErr_SetString(PyExc_TypeError,"Shift value must be unitless.");
@@ -345,7 +323,7 @@ PyObject * swig_int::__rshift__( PyObject * obj1 ) {
     result->units = units ;
 
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIG_TypeQuery("swig_int *"), SWIG_POINTER_OWN);
-    
+
     return ret ;
 }
 
@@ -361,7 +339,7 @@ PyObject * swig_int::__and__( PyObject * obj1 ) {
         return NULL ;
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_int *"), 0 ))) {
         swig_int * temp_m = reinterpret_cast< swig_int * >(argp2) ;
-        if ( !temp_m->units.compare("--")) {
+        if ( !temp_m->units.compare("1")) {
             result->value = value & temp_m->value ;
         } else {
             PyErr_SetString(PyExc_TypeError,"Bitmask value must be unitless.");
@@ -376,7 +354,7 @@ PyObject * swig_int::__and__( PyObject * obj1 ) {
     result->units = units ;
 
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIG_TypeQuery("swig_int *"), SWIG_POINTER_OWN);
-    
+
     return ret ;
 }
 
@@ -392,7 +370,7 @@ PyObject * swig_int::__xor__( PyObject * obj1 ) {
         return NULL ;
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_int *"), 0 ))) {
         swig_int * temp_m = reinterpret_cast< swig_int * >(argp2) ;
-        if ( !temp_m->units.compare("--")) {
+        if ( !temp_m->units.compare("1")) {
             result->value = value ^ temp_m->value ;
         } else {
             PyErr_SetString(PyExc_TypeError,"Bitmask value must be unitless.");
@@ -407,7 +385,7 @@ PyObject * swig_int::__xor__( PyObject * obj1 ) {
     result->units = units ;
 
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIG_TypeQuery("swig_int *"), SWIG_POINTER_OWN);
-    
+
     return ret ;
 }
 
@@ -423,7 +401,7 @@ PyObject * swig_int::__or__( PyObject * obj1 ) {
         return NULL ;
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_int *"), 0 ))) {
         swig_int * temp_m = reinterpret_cast< swig_int * >(argp2) ;
-        if ( !temp_m->units.compare("--")) {
+        if ( !temp_m->units.compare("1")) {
             result->value = value | temp_m->value ;
         } else {
             PyErr_SetString(PyExc_TypeError,"Bitmask value must be unitless.");
@@ -438,7 +416,7 @@ PyObject * swig_int::__or__( PyObject * obj1 ) {
     result->units = units ;
 
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIG_TypeQuery("swig_int *"), SWIG_POINTER_OWN);
-    
+
     return ret ;
 }
 
@@ -462,7 +440,7 @@ PyObject * swig_int::__rsub__( PyObject * obj1 ) {
     result->units = units ;
 
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIG_TypeQuery("swig_int *"), SWIG_POINTER_OWN);
-    
+
     return ret ;
 }
 
@@ -477,23 +455,14 @@ PyObject * swig_int::__rdiv__( PyObject * obj1 ) {
     result = new swig_double() ;
 
     if ( PyFloat_Check(obj1) ) {
-        if ( !units.compare("--")) {
-            result->value = PyFloat_AsDouble(obj1) / value ;
-        } else {
-            PyErr_SetString(PyExc_TypeError,"Divisor must be unitless.  Cannot create new unit-ed type.");
-        }
+        result->value = PyFloat_AsDouble(obj1) / value ;
     } else if ( PyInt_Check(obj1) ) {
-        if ( !units.compare("--")) {
-            result->value = PyInt_AsLong(obj1) / value ;
-        } else {
-            PyErr_SetString(PyExc_TypeError,"Divisor must be unitless.  Cannot create new unit-ed type.");
-            return NULL ;
-        }
+        result->value = PyInt_AsLong(obj1) / value ;
     }
-    result->units = units ;
+    result->units = "1/(" + units + ")" ;
 
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIG_TypeQuery("swig_double *"), SWIG_POINTER_OWN);
-    
+
     return ret ;
 }
 
@@ -511,7 +480,7 @@ PyObject * swig_int::__rmod__( PyObject * obj1 ) {
 
     if ( PyFloat_Check(obj1) ) {
         swig_double * result = new swig_double() ;
-        if ( !units.compare("--")) {
+        if ( !units.compare("1")) {
             result->value = fmod(PyFloat_AsDouble(obj1) , value) ;
         } else {
             PyErr_SetString(PyExc_TypeError,"Divisor must be unitless.  Cannot create new unit-ed type.");
@@ -520,7 +489,7 @@ PyObject * swig_int::__rmod__( PyObject * obj1 ) {
         ret = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIG_TypeQuery("swig_double *"), SWIG_POINTER_OWN);
     } else if ( PyInt_Check(obj1) ) {
         swig_int * result = new swig_int() ;
-        if ( !units.compare("--")) {
+        if ( !units.compare("1")) {
             result->value = (long long)(PyInt_AsLong(obj1) % value) ;
         } else {
             PyErr_SetString(PyExc_TypeError,"Divisor must be unitless.  Cannot create new unit-ed type.");
@@ -529,7 +498,6 @@ PyObject * swig_int::__rmod__( PyObject * obj1 ) {
         ret = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIG_TypeQuery("swig_int *"), SWIG_POINTER_OWN);
     }
 
-    
     return ret ;
 }
 
@@ -537,13 +505,13 @@ PyObject * swig_int::__rpow__( PyObject * obj1 ) {
     PyObject * ret = NULL ;
 
     if ( PyFloat_Check(obj1) ) {
-        if ( !units.compare("--")) {
+        if ( !units.compare("1")) {
             return(PyFloat_FromDouble(pow(PyFloat_AsDouble(obj1) , value))) ;
         } else {
             PyErr_SetString(PyExc_TypeError,"Power argument must be unitless.  Cannot create new unit-ed type.");
         }
     } else if ( PyInt_Check(obj1) ) {
-        if ( !units.compare("--")) {
+        if ( !units.compare("1")) {
             return(PyFloat_FromDouble(pow(PyInt_AsLong(obj1) , value))) ;
         } else {
             PyErr_SetString(PyExc_TypeError,"Power argument must be unitless.  Cannot create new unit-ed type.");
@@ -563,7 +531,7 @@ PyObject * swig_int::__rlshift__( PyObject * obj1 ) {
         PyErr_SetString(PyExc_TypeError,"Shifted value must be integer");
         return NULL ;
     } else if ( PyInt_Check(obj1) ) {
-        if ( !units.compare("--")) {
+        if ( !units.compare("1")) {
             result->value = (long long)(PyInt_AsLong(obj1) << value) ;
         } else {
             PyErr_SetString(PyExc_TypeError,"Shift value must be unitless.  Cannot create new unit-ed type.");
@@ -573,7 +541,7 @@ PyObject * swig_int::__rlshift__( PyObject * obj1 ) {
     result->units = units ;
 
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIG_TypeQuery("swig_int *"), SWIG_POINTER_OWN);
-    
+
     return ret ;
 }
 
@@ -587,7 +555,7 @@ PyObject * swig_int::__rrshift__( PyObject * obj1 ) {
         PyErr_SetString(PyExc_TypeError,"Shifted value must be integer");
         return NULL ;
     } else if ( PyInt_Check(obj1) ) {
-        if ( !units.compare("--")) {
+        if ( !units.compare("1")) {
             result->value = (long long)(PyInt_AsLong(obj1) >> value) ;
         } else {
             PyErr_SetString(PyExc_TypeError,"Shift value must be unitless.  Cannot create new unit-ed type.");
@@ -597,7 +565,7 @@ PyObject * swig_int::__rrshift__( PyObject * obj1 ) {
     result->units = units ;
 
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIG_TypeQuery("swig_int *"), SWIG_POINTER_OWN);
-    
+
     return ret ;
 }
 
@@ -647,7 +615,7 @@ PyObject * swig_int::__iadd__( PyObject * obj1 ) {
     }
 
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(new swig_int(*this)), SWIG_TypeQuery("swig_int *"), SWIG_POINTER_OWN);
-    
+
     return ret ;
 }
 
@@ -684,7 +652,7 @@ PyObject * swig_int::__isub__( PyObject * obj1 ) {
     }
 
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(new swig_int(*this)), SWIG_TypeQuery("swig_int *"), SWIG_POINTER_OWN);
-    
+
     return ret ;
 }
 
@@ -696,26 +664,18 @@ PyObject * swig_int::__imul__( PyObject * obj1 ) {
         value = (long long)(round(value * PyFloat_AsDouble(obj1))) ;
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_int *"), 0 ))) {
         swig_int * temp_m = reinterpret_cast< swig_int * >(argp2) ;
-        if ( !temp_m->units.compare("--")) {
-            value *= temp_m->value ;
-        } else {
-            PyErr_SetString(PyExc_TypeError,"Operation must contain at least one unit-less value.  Cannot create new unit-ed type.");
-            return NULL ;
-        }
+        value *= temp_m->value ;
+        units += "*(" + temp_m->units + ")";
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_double *"), 0 ))) {
         swig_double * temp_m = reinterpret_cast< swig_double * >(argp2) ;
-        if ( !temp_m->units.compare("--")) {
-            value = (long long)round(value * temp_m->value) ;
-        } else {
-            PyErr_SetString(PyExc_TypeError,"Operation must contain at least one unit-less value.  Cannot create new unit-ed type.");
-            return NULL ;
-        }
+        value = (long long)round(value * temp_m->value) ;
+        units += "*(" + temp_m->units + ")";
     } else if ( PyInt_Check(obj1) ) {
         value *= PyInt_AsLong(obj1) ;
     }
 
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(new swig_int(*this)), SWIG_TypeQuery("swig_int *"), SWIG_POINTER_OWN);
-    
+
     return ret ;
 }
 
@@ -727,36 +687,28 @@ PyObject * swig_int::__idiv__( PyObject * obj1 ) {
         value = (long long)(round(value / PyFloat_AsDouble(obj1))) ;
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_int *"), 0 ))) {
         swig_int * temp_m = reinterpret_cast< swig_int * >(argp2) ;
-        if ( !temp_m->units.compare("--")) {
-            value /= temp_m->value ;
-        } else {
-            PyErr_SetString(PyExc_TypeError,"Operation must contain at least one unit-less value.  Cannot create new unit-ed type.");
-            return NULL ;
-        }
+        value /= temp_m->value ;
+        units += "/(" + temp_m->units + ")";
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_double *"), 0 ))) {
         swig_double * temp_m = reinterpret_cast< swig_double * >(argp2) ;
-        if ( !temp_m->units.compare("--")) {
-            value = (long long)round(value / temp_m->value) ;
-        } else {
-            PyErr_SetString(PyExc_TypeError,"Operation must contain at least one unit-less value.  Cannot create new unit-ed type.");
-            return NULL ;
-        }
+        value = (long long)round(value / temp_m->value) ;
+        units += "/(" + temp_m->units + ")";
     } else if ( PyInt_Check(obj1) ) {
         value /= PyInt_AsLong(obj1) ;
     }
 
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(new swig_int(*this)), SWIG_TypeQuery("swig_int *"), SWIG_POINTER_OWN);
-    
+
     return ret ;
 }
 
 PyObject * swig_int::__itruediv__( PyObject * obj1 ) {
     return __idiv__(obj1) ;
-}   
+}
 
 PyObject * swig_int::__ifloordiv__( PyObject * obj1 ) {
     return __idiv__(obj1) ;
-}   
+}
 
 PyObject * swig_int::__imod__( PyObject * obj1 ) {
     PyObject * ret = NULL ;
@@ -766,7 +718,7 @@ PyObject * swig_int::__imod__( PyObject * obj1 ) {
         value = (long long)round(fmod( value , PyFloat_AsDouble(obj1))) ;
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_int *"), 0 ))) {
         swig_int * temp_m = reinterpret_cast< swig_int * >(argp2) ;
-        if ( !temp_m->units.compare("--")) {
+        if ( !temp_m->units.compare("1")) {
             value %= temp_m->value ;
         } else {
             PyErr_SetString(PyExc_TypeError,"Operation must contain at least one unit-less value.  Cannot create new unit-ed type.");
@@ -774,7 +726,7 @@ PyObject * swig_int::__imod__( PyObject * obj1 ) {
         }
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_double *"), 0 ))) {
         swig_double * temp_m = reinterpret_cast< swig_double * >(argp2) ;
-        if ( !temp_m->units.compare("--")) {
+        if ( !temp_m->units.compare("1")) {
             value = (long long)round(fmod( value , temp_m->value ));
         } else {
             PyErr_SetString(PyExc_TypeError,"Operation must contain at least one unit-less value.  Cannot create new unit-ed type.");
@@ -785,7 +737,7 @@ PyObject * swig_int::__imod__( PyObject * obj1 ) {
     }
 
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(new swig_int(*this)), SWIG_TypeQuery("swig_int *"), SWIG_POINTER_OWN);
-    
+
     return ret ;
 }
 
@@ -793,7 +745,7 @@ PyObject * swig_int::__ipow__( PyObject * obj1 ) {
     PyObject * ret = NULL ;
     void * argp2 ;
 
-    if ( units.compare("--")) {
+    if ( units.compare("1")) {
         PyErr_SetString(PyExc_TypeError,"Both arguments must be unitless. Cannot create new unit-ed type.");
         return NULL ;
     }
@@ -802,7 +754,7 @@ PyObject * swig_int::__ipow__( PyObject * obj1 ) {
         value = (long long)round(pow(value , PyFloat_AsDouble(obj1))) ;
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_int *"), 0 ))) {
         swig_int * temp_m = reinterpret_cast< swig_int * >(argp2) ;
-        if ( !temp_m->units.compare("--")) {
+        if ( !temp_m->units.compare("1")) {
             value = (long long)(pow(value , temp_m->value)) ;
         } else {
             PyErr_SetString(PyExc_TypeError,"Both arguments must be unitless. Cannot create new unit-ed type.");
@@ -810,7 +762,7 @@ PyObject * swig_int::__ipow__( PyObject * obj1 ) {
         }
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_double *"), 0 ))) {
         swig_double * temp_m = reinterpret_cast< swig_double * >(argp2) ;
-        if ( !temp_m->units.compare("--")) {
+        if ( !temp_m->units.compare("1")) {
             value = (long long)round(pow(value , temp_m->value)) ;
         } else {
             PyErr_SetString(PyExc_TypeError,"Both arguments must be unitless. Cannot create new unit-ed type.");
@@ -821,7 +773,7 @@ PyObject * swig_int::__ipow__( PyObject * obj1 ) {
     }
 
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(new swig_int(*this)), SWIG_TypeQuery("swig_int *"), SWIG_POINTER_OWN);
-    
+
     return ret ;
 }
 
@@ -834,7 +786,7 @@ PyObject * swig_int::__ilshift__( PyObject * obj1 ) {
         return NULL ;
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_int *"), 0 ))) {
         swig_int * temp_m = reinterpret_cast< swig_int * >(argp2) ;
-        if ( !temp_m->units.compare("--")) {
+        if ( !temp_m->units.compare("1")) {
             value <<= temp_m->value ;
         } else {
             PyErr_SetString(PyExc_TypeError,"Shift value must be unitless.");
@@ -848,7 +800,7 @@ PyObject * swig_int::__ilshift__( PyObject * obj1 ) {
     }
 
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(new swig_int(*this)), SWIG_TypeQuery("swig_int *"), SWIG_POINTER_OWN);
-    
+
     return ret ;
 }
 
@@ -861,7 +813,7 @@ PyObject * swig_int::__irshift__( PyObject * obj1 ) {
         return NULL ;
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_int *"), 0 ))) {
         swig_int * temp_m = reinterpret_cast< swig_int * >(argp2) ;
-        if ( !temp_m->units.compare("--")) {
+        if ( !temp_m->units.compare("1")) {
             value >>= temp_m->value ;
         } else {
             PyErr_SetString(PyExc_TypeError,"Shift value must be unitless.");
@@ -875,7 +827,7 @@ PyObject * swig_int::__irshift__( PyObject * obj1 ) {
     }
 
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(new swig_int(*this)), SWIG_TypeQuery("swig_int *"), SWIG_POINTER_OWN);
-    
+
     return ret ;
 
 }
@@ -889,7 +841,7 @@ PyObject * swig_int::__iand__( PyObject * obj1 ) {
         return NULL ;
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_int *"), 0 ))) {
         swig_int * temp_m = reinterpret_cast< swig_int * >(argp2) ;
-        if ( !temp_m->units.compare("--")) {
+        if ( !temp_m->units.compare("1")) {
             value &= temp_m->value ;
         } else {
             PyErr_SetString(PyExc_TypeError,"Bitmask value must be unitless.");
@@ -903,7 +855,7 @@ PyObject * swig_int::__iand__( PyObject * obj1 ) {
     }
 
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(new swig_int(*this)), SWIG_TypeQuery("swig_int *"), SWIG_POINTER_OWN);
-    
+
     return ret ;
 }
 
@@ -916,7 +868,7 @@ PyObject * swig_int::__ixor__( PyObject * obj1 ) {
         return NULL ;
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_int *"), 0 ))) {
         swig_int * temp_m = reinterpret_cast< swig_int * >(argp2) ;
-        if ( !temp_m->units.compare("--")) {
+        if ( !temp_m->units.compare("1")) {
             value ^= temp_m->value ;
         } else {
             PyErr_SetString(PyExc_TypeError,"Bitmask value must be unitless.");
@@ -930,7 +882,7 @@ PyObject * swig_int::__ixor__( PyObject * obj1 ) {
     }
 
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(new swig_int(*this)), SWIG_TypeQuery("swig_int *"), SWIG_POINTER_OWN);
-    
+
     return ret ;
 }
 
@@ -943,7 +895,7 @@ PyObject * swig_int::__ior__( PyObject * obj1 ) {
         return NULL ;
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_int *"), 0 ))) {
         swig_int * temp_m = reinterpret_cast< swig_int * >(argp2) ;
-        if ( !temp_m->units.compare("--")) {
+        if ( !temp_m->units.compare("1")) {
             value |= temp_m->value ;
         } else {
             PyErr_SetString(PyExc_TypeError,"Bitmask value must be unitless.");
@@ -957,7 +909,7 @@ PyObject * swig_int::__ior__( PyObject * obj1 ) {
     }
 
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(new swig_int(*this)), SWIG_TypeQuery("swig_int *"), SWIG_POINTER_OWN);
-    
+
     return ret ;
 }
 
@@ -997,7 +949,7 @@ PyObject * swig_int::__lt__( PyObject * obj1 ) {
     if ( eq ) {
         Py_RETURN_TRUE ;
     }
-    
+
     Py_RETURN_FALSE ;
 }
 
@@ -1009,7 +961,7 @@ PyObject * swig_int::__le__( PyObject * obj1 ) {
     if ( PyFloat_Check(obj1) ) {
         eq = (value <= PyFloat_AsDouble(obj1)) ;
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_int *"), 0 ))) {
-        long long new_val ; 
+        long long new_val ;
         swig_int * temp_m = reinterpret_cast< swig_int * >(argp2) ;
         new_val = temp_m->value ;
         conv_ret = convert_united_value( units , temp_m->units , &new_val ) ;
@@ -1019,7 +971,7 @@ PyObject * swig_int::__le__( PyObject * obj1 ) {
             return NULL ;
         }
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("swig_double *"), 0 ))) {
-        double new_val ; 
+        double new_val ;
         swig_double * temp_m = reinterpret_cast< swig_double * >(argp2) ;
         new_val = temp_m->value ;
         conv_ret = convert_united_value( units , temp_m->units , &new_val ) ;
@@ -1035,7 +987,7 @@ PyObject * swig_int::__le__( PyObject * obj1 ) {
     if ( eq ) {
         Py_RETURN_TRUE ;
     }
-    
+
     Py_RETURN_FALSE ;
 }
 
@@ -1072,7 +1024,7 @@ PyObject * swig_int::__eq__( PyObject * obj1 ) {
     if ( eq ) {
         Py_RETURN_TRUE ;
     }
-    
+
     Py_RETURN_FALSE ;
 }
 
@@ -1110,7 +1062,7 @@ PyObject * swig_int::__ne__( PyObject * obj1 ) {
     if ( eq ) {
         Py_RETURN_TRUE ;
     }
-    
+
     Py_RETURN_FALSE ;
 }
 
@@ -1148,7 +1100,7 @@ PyObject * swig_int::__gt__( PyObject * obj1 ) {
     if ( eq ) {
         Py_RETURN_TRUE ;
     }
-    
+
     Py_RETURN_FALSE ;
 }
 
@@ -1186,7 +1138,7 @@ PyObject * swig_int::__ge__( PyObject * obj1 ) {
     if ( eq ) {
         Py_RETURN_TRUE ;
     }
-    
+
     Py_RETURN_FALSE ;
 }
 
@@ -1197,12 +1149,9 @@ PyObject * swig_int::__neg__() {
     PyObject * ret = NULL ;
 
     result = new swig_int() ;
-
     result->value = -value ;
     result->units = units ;
-
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIG_TypeQuery("swig_int *"), SWIG_POINTER_OWN);
-    
     return ret ;
 }
 
@@ -1211,12 +1160,9 @@ PyObject * swig_int::__pos__() {
     PyObject * ret = NULL ;
 
     result = new swig_int() ;
-
     result->value = value ;
     result->units = units ;
-
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIG_TypeQuery("swig_int *"), SWIG_POINTER_OWN);
-    
     return ret ;
 }
 
@@ -1225,16 +1171,9 @@ PyObject * swig_int::__abs__() {
     PyObject * ret = NULL ;
 
     result = new swig_int() ;
-
-#if (__GNUC__ <= 3 && (__GNUC_MINOR__ == 3 || __GNUC_MINOR__ == 4))
-    result->value = __gnu_cxx::llabs(value) ;
-#else
     result->value = llabs(value) ;
-#endif
     result->units = units ;
-
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIG_TypeQuery("swig_int *"), SWIG_POINTER_OWN);
-    
     return ret ;
 }
 
@@ -1243,12 +1182,9 @@ PyObject * swig_int::__invert__() {
     PyObject * ret = NULL ;
 
     result = new swig_int() ;
-
     result->value = ~value ;
     result->units = units ;
-
     ret = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIG_TypeQuery("swig_int *"), SWIG_POINTER_OWN);
-    
     return ret ;
 }
 

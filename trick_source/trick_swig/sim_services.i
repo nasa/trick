@@ -6,10 +6,10 @@
 %}
 
 #include "trick/swig/trick_swig.i"
-#include "trick/swig/units_attach.i"
-#include "trick/swig/extra_functions.i"
 #include "trick/swig/swig_class_typedef.i"
 #include "trick/swig/cast_as.i"
+#include "units_attach.i"
+#include "extra_functions.i"
 
 // Special typemap for collectee in add_collect and delete_collect.
 %typemap(in) void * collectee {
