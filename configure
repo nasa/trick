@@ -627,6 +627,8 @@ BC635_HOME
 TPROCTE_HOME
 DMTCP_HOME
 HDF5_HOME
+UDUNITS_INCLUDES
+UDUNITS_HOME
 CLANG
 LLVM_CONFIG
 LLVM_HOME
@@ -720,6 +722,7 @@ ac_user_opts='
 enable_option_checking
 with_x
 with_llvm
+with_udunits
 with_hdf5
 with_dmtcp
 with_tpro
@@ -1368,6 +1371,7 @@ Optional Packages:
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-x                use the X Window System
   --with-llvm[=DIR]       LLVM root directory
+  --with-udunits[=DIR]    UDUnits root directory
   --with-hdf5[=DIR]       HDF5 root directory
   --with-dmtcp[=DIR]      DMTCP root directory
   --with-tpro[=DIR]       TPRO root directory
@@ -2225,6 +2229,8 @@ fi
 ac_config_guess="$SHELL $ac_aux_dir/config.guess"  # Please don't use this var.
 ac_config_sub="$SHELL $ac_aux_dir/config.sub"  # Please don't use this var.
 ac_configure="$SHELL $ac_aux_dir/configure"  # Please don't use this var.
+
+
 
 
 
@@ -5652,6 +5658,90 @@ fi
 if test "$ac_cv_path_CLANG" = "noclang"; then :
   as_fn_error $? "could not find clang" "$LINENO" 5
 fi
+
+
+
+# Check whether --with-udunits was given.
+if test "${with_udunits+set}" = set; then :
+  withval=$with_udunits; UDUNITS_HOME="$withval"
+else
+  UDUNITS_HOME=""
+
+fi
+
+
+
+if test "$UDUNITS_HOME" = ""; then :
+
+  ac_fn_cxx_check_header_mongrel "$LINENO" "udunits2.h" "ac_cv_header_udunits2_h" "$ac_includes_default"
+if test "x$ac_cv_header_udunits2_h" = xyes; then :
+  UDUNITS_INCLUDES=
+else
+  ac_fn_cxx_check_header_mongrel "$LINENO" "udunits2/udunits2.h" "ac_cv_header_udunits2_udunits2_h" "$ac_includes_default"
+if test "x$ac_cv_header_udunits2_udunits2_h" = xyes; then :
+  UDUNITS_INCLUDES=-I/usr/include/udunits2
+else
+  as_fn_error $? "could not find udunits development headers" "$LINENO" 5
+fi
+
+
+fi
+
+
+
+else
+
+  as_ac_File=`$as_echo "ac_cv_file_$UDUNITS_HOME/include/udunits2.h" | $as_tr_sh`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $UDUNITS_HOME/include/udunits2.h" >&5
+$as_echo_n "checking for $UDUNITS_HOME/include/udunits2.h... " >&6; }
+if eval \${$as_ac_File+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  test "$cross_compiling" = yes &&
+  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
+if test -r "$UDUNITS_HOME/include/udunits2.h"; then
+  eval "$as_ac_File=yes"
+else
+  eval "$as_ac_File=no"
+fi
+fi
+eval ac_res=\$$as_ac_File
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+if eval test \"x\$"$as_ac_File"\" = x"yes"; then :
+  UDUNITS_INCLUDES=-I$UDUNITS_HOME/include
+else
+  as_ac_File=`$as_echo "ac_cv_file_$UDUNITS_HOME/lib/udunits2.h" | $as_tr_sh`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $UDUNITS_HOME/lib/udunits2.h" >&5
+$as_echo_n "checking for $UDUNITS_HOME/lib/udunits2.h... " >&6; }
+if eval \${$as_ac_File+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  test "$cross_compiling" = yes &&
+  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
+if test -r "$UDUNITS_HOME/lib/udunits2.h"; then
+  eval "$as_ac_File=yes"
+else
+  eval "$as_ac_File=no"
+fi
+fi
+eval ac_res=\$$as_ac_File
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+if eval test \"x\$"$as_ac_File"\" = x"yes"; then :
+  UDUNITS_INCLUDES=-I$UDUNITS_HOME/lib
+else
+  as_fn_error $? "could not find udunits2" "$LINENO" 5
+fi
+
+
+
+fi
+
+
+
+fi
+
 
 
 

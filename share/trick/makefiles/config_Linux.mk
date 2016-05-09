@@ -64,6 +64,3 @@ ifeq "" "c++11"
 TRICK_ADDITIONAL_CXXFLAGS += -std=c++11 -D_HAVE_STL_RANDOM
 endif
 
-# Additional include directory for udunits.
-TRICK_ADDITIONAL_CXXFLAGS += -I/usr/include/udunits2
-

@@ -106,6 +106,15 @@ AC_DEFUN([AX_GTEST_HOME],[
     AC_SUBST([GTEST_HOME])
 ])
 
+AC_DEFUN([AX_UDUNITS_HOME],[
+    AC_ARG_WITH([udunits],
+                AS_HELP_STRING([--with-udunits@<:@=DIR@:>@], [UDUnits root directory]),
+                [UDUNITS_HOME="$withval"],
+                [UDUNITS_HOME=""]
+               )
+    AC_SUBST([UDUNITS_HOME])
+])
+
 dnl test if we want to use er7_utils, default to yes
 AC_DEFUN([AX_ER7_UTILS],[
     AC_ARG_ENABLE([er7utils],
@@ -180,6 +189,25 @@ AC_CHECK_FILE([$LLVM_LIB_DIR/libLLVMSupport.a],
 )
 AC_PATH_PROG(CLANG, clang, noclang, "$LLVM_BIN_DIR:$LLVM_HOME/bin:/bin:/usr/bin:/usr/local/bin:/sw/bin")
 AS_IF([test "$ac_cv_path_CLANG" = "noclang"],AC_MSG_ERROR([could not find clang]),[])
+
+dnl look for udunits in /usr/include and /usr/include/udunits2
+AX_UDUNITS_HOME([])
+AS_IF([test "$UDUNITS_HOME" = ""],
+ [
+  AC_CHECK_HEADER([udunits2.h], [UDUNITS_INCLUDES=],
+   AC_CHECK_HEADER([udunits2/udunits2.h],[UDUNITS_INCLUDES=-I/usr/include/udunits2],AC_MSG_ERROR([could not find udunits development headers])))
+ ],
+ [
+  AC_CHECK_FILE([$UDUNITS_HOME/include/udunits2.h],
+   [UDUNITS_INCLUDES=-I$UDUNITS_HOME/include],
+   [AC_CHECK_FILE([$UDUNITS_HOME/lib/udunits2.h],
+    [UDUNITS_INCLUDES=-I$UDUNITS_HOME/lib],
+    AC_MSG_ERROR([could not find udunits2]))
+   ]
+  )
+ ]
+)
+AC_SUBST([UDUNITS_INCLUDES])
 
 dnl process the other optional command line arguments
 AX_HDF5_HOME([])

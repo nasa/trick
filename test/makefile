@@ -18,6 +18,7 @@ COMPILE_DIRS = \
 SIMS_NEEDING_TEST = \
     SIM_alloc_test \
     SIM_demo_inputfile \
+    SIM_measurement_units \
     SIM_test_abstract \
     SIM_test_inherit \
     SIM_test_ip2 \
