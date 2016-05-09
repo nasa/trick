@@ -20,12 +20,13 @@
 
 #include "libsnapdata/monte.h"
 #include "libqplot/dp.h"
-#include "libqplot/plotbookview.h"
 #include "libqplot/plotbookmodel.h"
 #include "libqplot/dptreewidget.h"
 #include "libqplot/varswidget.h"
 #include "libqplot/monteinputsview.h"
 #include "libqplot/rangeinput.h"
+
+#include "libkplot/bookview.h"
 
 #include "libsnapdata/timeit_linux.h"
 
@@ -77,7 +78,7 @@ private:
 
     PlotBookModel* _plotModel;
     QTreeView* _plotTreeView ;
-    PlotBookView* _plotBookView;
+    BookView* _bookView;
     QItemSelectionModel* _plotSelectModel;
 
     bool _isRUN(const QString& fp);

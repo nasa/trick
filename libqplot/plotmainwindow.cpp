@@ -61,8 +61,10 @@ PlotMainWindow::PlotMainWindow(
 
 
     // Create Plot Tabbed Notebook View Widget
-    _plotBookView = new PlotBookView(_plotModel, titles, msplit);
-    _plotBookView->setSelectionModel(_plotSelectModel);
+    _bookView = new BookView();
+    _bookView->setModel(_plotModel);
+    _bookView->setSelectionModel(_plotSelectModel);
+#if 0
     if ( _monteModel->rowCount() == 2 && _presentation != "compare" ) {
         // Two runs, and presentation is not compare - show diff/coplot
         _plotBookView->showCurveDiff(true);
@@ -75,16 +77,18 @@ PlotMainWindow::PlotMainWindow(
             SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this,
             SLOT(_plotSelectModelSelectionChanged(QItemSelection,QItemSelection)));
-    msplit->addWidget(_plotBookView);
+#endif
+    msplit->addWidget(_bookView);
 
     // Monte inputs view (widget added later)
     if ( _monteInputsModel ) {
+#if 0
         _monteInputsView = new MonteInputsView(_plotBookView,lsplit);
         _monteInputsView->setModel(_monteInputsModel);
         _monteInputsHeaderView = _monteInputsView->horizontalHeader();
         connect(_monteInputsHeaderView,SIGNAL(sectionClicked(int)),
             this,SLOT(_monteInputsHeaderViewClicked(int)));
-
+#endif
     }
 
     _plotTreeView = new QTreeView(lsplit);
@@ -258,13 +262,16 @@ bool PlotMainWindow::_isMONTE(const QString &fp)
 
 void PlotMainWindow::savePdf(const QString& fname, bool isVectorizePdf)
 {
+#if 0
     if ( ! fname.isEmpty() ) {
         _plotBookView->savePdf(fname, isVectorizePdf);
     }
+#endif
 }
 
 void PlotMainWindow::_savePdf(bool isVectorizedPdf)
 {
+#if 0
     QString fname = QFileDialog::getSaveFileName(this,
                                                  QString("Save As PDF"),
                                                  QString(""),
@@ -273,6 +280,7 @@ void PlotMainWindow::_savePdf(bool isVectorizedPdf)
     if ( ! fname.isEmpty() ) {
         _plotBookView->savePdf(fname, isVectorizedPdf);
     }
+#endif
 }
 
 void PlotMainWindow::_saveVectorPdf()
@@ -349,5 +357,7 @@ void PlotMainWindow::_monteInputsHeaderViewClicked(int section)
         }
     }
 
+#if 0
     _plotBookView->replot();
+#endif
 }

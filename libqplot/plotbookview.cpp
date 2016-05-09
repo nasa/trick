@@ -993,7 +993,7 @@ void PlotBookView::rowsInserted(const QModelIndex &pidx, int start, int end)
         } else  if ( itemText == "PageName" ) {
 
             QString pageName = model()->data(idx).toString();
-            _insertPage(pageName);
+            _insertPage(pidx,pageName);
             setCurrentIndex(idx);
 
         } else  if ( itemText == "PageTitle" ) {
@@ -2000,7 +2000,8 @@ QString PlotBookView::_appendUnitToLabel(const QString& labelInput,
     return label;
 }
 
-void PlotBookView::_insertPage(const QString &dpFileName)
+void PlotBookView::_insertPage(const QModelIndex& pageIdx,
+                               const QString &dpFileName)
 {
     // Page background
     QPalette pal(palette());
@@ -2019,8 +2020,9 @@ void PlotBookView::_insertPage(const QString &dpFileName)
     _page2grid.insert(page,grid);
 
     // Add Title Widget to page
-    PageTitleView* pw = new PageTitleView(QModelIndex(),page);
+    PageTitleView* pw = new PageTitleView(page);
     pw->setModel(_plotModel);
+    pw->setRootIndex(pageIdx);
     _page2pagewidget.insert(page,pw);
     grid->addWidget(pw,0,0,1,100);
     grid->setRowStretch(0,1);

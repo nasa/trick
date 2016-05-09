@@ -8,31 +8,18 @@
 #include <QStandardItemModel>
 #include <QDebug>
 
-class PageTitleView : public QAbstractItemView
+#include "bookidxview.h"
+
+class PageTitleView : public BookIdxView
 {
     Q_OBJECT
 public:
-    explicit PageTitleView(const QModelIndex& pageIdx, QWidget *parent = 0);
-
-    virtual void setModel(QAbstractItemModel *model);
-    virtual QModelIndex indexAt( const QPoint& point) const;
-    virtual QRect visualRect(const QModelIndex &index) const;
-    virtual void scrollTo(const QModelIndex &index,
-                          ScrollHint hint = EnsureVisible);
+    explicit PageTitleView(QWidget *parent = 0);
 
 protected:
-    virtual QModelIndex moveCursor(CursorAction cursorAction,
-                                   Qt::KeyboardModifiers modifiers);
-    virtual int horizontalOffset() const;
-    virtual int verticalOffset() const;
-    virtual bool isIndexHidden(const QModelIndex &index) const;
-    virtual void setSelection(const QRect &rect,
-                              QItemSelectionModel::SelectionFlags command);
-    virtual QRegion visualRegionForSelection(
-                              const QItemSelection &selection) const;
+    virtual void _update();
 
 private:
-    QPersistentModelIndex _pageIdx;
     QVBoxLayout* _mainLayout;
     QGridLayout* _titleGrid;
     QFrame* _titleFrame;
@@ -41,10 +28,11 @@ private:
     QLabel* _title3;
     QLabel* _title4;
 
-signals:
-    
-public slots:
-    
+protected slots:
+    virtual void dataChanged(const QModelIndex &topLeft,
+                             const QModelIndex &bottomRight);
+    virtual void rowsInserted(const QModelIndex &parent, int start, int end);
+
 };
 
 #endif // PAGETITLEVIEW_H

@@ -162,6 +162,8 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
 
     _addChild(plotItem, "PlotName", plotName);
     _addChild(plotItem, "PlotTitle", "");
+    _addChild(plotItem, "PlotMathRect", QRectF());
+    _addChild(plotItem, "PlotPointSize", 0.0);
     _addChild(plotItem, "PlotXAxisLabel", xName);
     _addChild(plotItem, "PlotYAxisLabel", yName);
 

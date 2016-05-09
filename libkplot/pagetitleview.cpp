@@ -1,12 +1,11 @@
 #include "pagetitleview.h"
 
-PageTitleView::PageTitleView(const QModelIndex &pageIdx, QWidget *parent) :
-    QAbstractItemView(parent),_pageIdx(pageIdx)
+PageTitleView::PageTitleView(QWidget *parent) :
+    BookIdxView(parent)
 {
-    _mainLayout = new QVBoxLayout(this);
+    _mainLayout = new QVBoxLayout;
     _titleFrame = new QFrame(this);
     _titleFrame->setFrameStyle(QFrame::NoFrame);
-    //_titleFrame->setFrameStyle(QFrame::Box);
     QPalette Pal(palette());
     Pal.setColor(QPalette::Background, Qt::white);
     _titleFrame->setAutoFillBackground(true);
@@ -49,82 +48,80 @@ PageTitleView::PageTitleView(const QModelIndex &pageIdx, QWidget *parent) :
     _titleGrid->addWidget(_title4,1,2);
 
     _mainLayout->addWidget(_titleFrame);
+
+    setLayout(_mainLayout);
 }
 
-void PageTitleView::setModel(QAbstractItemModel *model)
+
+void PageTitleView::dataChanged(const QModelIndex &topLeft,
+                                const QModelIndex &bottomRight)
 {
-    QStandardItemModel* smodel = dynamic_cast<QStandardItemModel*>(model);
-    if ( smodel ) {
-        QList<QStandardItem*> items = smodel->findItems("DefaultPageTitles",
-                                                        Qt::MatchStartsWith);
-        if ( items.isEmpty() ) {
-            qDebug() << "PageTitleView::setModel() can't "
-                        "find DefaultPageTitles";
-            exit(-1);
+    QModelIndex pidx = topLeft.parent();
+    if ( pidx != bottomRight.parent() ) return;
+
+    // TODO: For now and only handle single item changes
+    if ( topLeft != bottomRight ) return;
+
+    // TODO: if default title changes, this fails
+    if ( pidx != _myIdx ) return;
+
+    // Value is in column 1
+    if ( topLeft.column() != 1 ) return;
+
+    int row = topLeft.row();
+    QModelIndex idx0 = model()->index(row,0,pidx);
+    if ( model()->data(idx0).toString() == "PageTitle" ) {
+        QString title = model()->data(topLeft).toString();
+        _title1->setText(title);
+    }
+}
+
+void PageTitleView::rowsInserted(const QModelIndex &pidx, int start, int end)
+{
+    if ( pidx != _myIdx ) return;
+
+    for ( int i = start; i <= end; ++i ) {
+        QModelIndex idx = model()->index(i,0,pidx);
+        QString cText = model()->data(idx).toString();
+        if ( cText == "PageTitle" ) {
+            QModelIndex idx1 = model()->index(i,1,pidx);
+            QString title = model()->data(idx1).toString();
+            _title1->setText(title);
         }
-        QStandardItem* pItem = items.at(0);
-        QStandardItem* titleItem;
+    }
+}
 
-        titleItem = pItem->child(0,1);
-        _title1->setText(titleItem->text());
-        titleItem = pItem->child(1,1);
-        _title2->setText(titleItem->text());
-        titleItem = pItem->child(2,1);
-        _title3->setText(titleItem->text());
-        titleItem = pItem->child(3,1);
-        _title4->setText(titleItem->text());
+void PageTitleView::_update()
+{
+    PlotBookModel* bookModel = _bookModel();
+    QModelIndex pageIdx = _myIdx;
 
-
-    } else {
-        qDebug() << "PageTitleView::setModel() needs a PlotBookModel";
+    QList<QStandardItem*> items = bookModel->findItems("DefaultPageTitles",
+                                                       Qt::MatchStartsWith);
+    if ( items.isEmpty() ) {
+        qDebug() << "snap [bad scoobs]: PageTitleView::setModel() can't "
+                    "find DefaultPageTitles";
         exit(-1);
     }
+    QStandardItem* pItem = items.at(0);
+    QStandardItem* titleItem;
 
-    QAbstractItemView::setModel(model);
+    QString pageTitle ;
+    if ( bookModel->isChildIndex(pageIdx,"Page","PageTitle") ) {
+        QModelIndex pageTitleIdx  = bookModel->getIndex(pageIdx,
+                                                        "PageTitle","Page");
+        pageTitle = bookModel->data(pageTitleIdx).toString();
+    } else {
+        pageTitle = pItem->child(0,1)->text();
+    }
+
+    titleItem = pItem->child(0,1);
+    _title1->setText(pageTitle);
+    titleItem = pItem->child(1,1);
+    _title2->setText(titleItem->text());
+    titleItem = pItem->child(2,1);
+    _title3->setText(titleItem->text());
+    titleItem = pItem->child(3,1);
+    _title4->setText(titleItem->text());
 }
 
-QModelIndex PageTitleView::indexAt(const QPoint &point) const
-{
-    QModelIndex idx;
-
-    return idx;
-}
-
-QRect PageTitleView::visualRect(const QModelIndex &index) const
-{
-}
-
-void PageTitleView::scrollTo(const QModelIndex &index,
-                             QAbstractItemView::ScrollHint hint)
-{
-}
-
-QModelIndex PageTitleView::moveCursor(
-        QAbstractItemView::CursorAction cursorAction,
-        Qt::KeyboardModifiers modifiers)
-{
-}
-
-int PageTitleView::horizontalOffset() const
-{
-    return 0;
-}
-
-int PageTitleView::verticalOffset() const
-{
-    return 0;
-}
-
-bool PageTitleView::isIndexHidden(const QModelIndex &index) const
-{
-}
-
-void PageTitleView::setSelection(const QRect &rect,
-                                 QItemSelectionModel::SelectionFlags command)
-{
-}
-
-QRegion PageTitleView::visualRegionForSelection(
-        const QItemSelection &selection) const
-{
-}

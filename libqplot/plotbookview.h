@@ -129,7 +129,7 @@ private:
     bool _savePdfVectorized(const QString& fileName);
     bool _savePdfPixmapped(const QString& fileName);
 
-    void _insertPage(const QString &dpFileName);
+    void _insertPage(const QModelIndex &pageIdx, const QString &dpFileName);
     void _insertPageTitle(QWidget* page, const QString& title);
     void _insertPlot(const QModelIndex& plotIdx, QWidget* page);
 

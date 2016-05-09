@@ -312,11 +312,13 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
             exit(-1);
         }
     } else {
+        QStringList cStrings;
         int rc = itemFromIndex(startIdx)->rowCount();
         bool isFound = false;
         for ( int i = 0; i < rc; ++i ) {
             QModelIndex cIdx = index(i,0,startIdx);
             QString cText = itemFromIndex(cIdx)->text();
+            cStrings << cText;
             if ( cText == searchItemText ) {
                 idx = cIdx;
                 isFound = true;
@@ -329,13 +331,16 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
                     << "snap [bad scoobies]: getIndex() received a start item "
                     << expectedStartIdxText
                     << ".  Unable to find a child with the item text "
-                    << searchItemText << " for that parent.";
+                    << searchItemText
+                    << " for that parent.  Child items found were: "
+                    << cStrings;
             } else {
                 qDebug()
                     << "snap [bad scoobies]: getIndex() received a startIdx of "
                     << startIdx
                     << ".  Unable to find a child with the item text "
-                    << searchItemText << ".";
+                    << searchItemText << ".  Child items found were: "
+                    << cStrings;
             }
             exit(-1);
         }
@@ -386,4 +391,25 @@ bool PlotBookModel::isIndex(const QModelIndex &idx, const QString &itemText) con
 {
     if ( !idx.isValid() ) return false;
     return ( itemFromIndex(idx)->text() == itemText );
+}
+
+bool PlotBookModel::isChildIndex(const QModelIndex &pidx,
+                                 const QString& expectedParentItemText,
+                                 const QString &childItemText) const
+{
+    bool isChild = false;
+
+    if (!isIndex(pidx,expectedParentItemText)) return false;
+
+    int rc = itemFromIndex(pidx)->rowCount();
+    for ( int i = 0; i < rc; ++i ) {
+        QModelIndex cIdx = index(i,0,pidx);
+        QString cText = itemFromIndex(cIdx)->text();
+        if ( cText == childItemText ) {
+            isChild = true;
+            break;
+        }
+    }
+
+    return isChild;
 }

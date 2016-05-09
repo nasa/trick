@@ -196,10 +196,15 @@ void DPTreeWidget::_dpTreeViewClicked(const QModelIndex &idx)
                 QModelIndex pageNameIdx = _plotModel->getIndex(pageIdx,
                                                                "PageName",
                                                                "Page");
-                QString pageName = _plotModel->data(pageNameIdx).toString();
+                QModelIndex pageNameDataIdx = pageNameIdx.sibling(
+                                                    pageNameIdx.row(),1);
+                QString pageName = _plotModel->data(pageNameDataIdx).toString();
                 if ( pageName == fp ) {
+#if 0
+                    // TODO: This causes a core dump!
                     _plotSelectModel->setCurrentIndex(pageIdx,
                                                   QItemSelectionModel::Select);
+#endif
                     isCreated = true;
                     break;
                 }
@@ -268,6 +273,8 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             // Some plot children
             _addChild(plotItem, "PlotName", _descrPlotTitle(plot));
             _addChild(plotItem, "PlotTitle",      plot->title());
+            _addChild(plotItem, "PlotMathRect", QRectF());
+            _addChild(plotItem, "PlotPointSize", 0.0);
             _addChild(plotItem, "PlotXAxisLabel", plot->xAxisLabel());
             _addChild(plotItem, "PlotYAxisLabel", plot->yAxisLabel());
             _addChild(plotItem, "PlotXMinRange",  plot->xMinRange());

@@ -1,57 +1,51 @@
-#ifndef LABELEDRULER_H
-#define LABELEDRULER_H
+#ifndef LABELEDRULERVIEW_H
+#define LABELEDRULERVIEW_H
 
-#include <QWidget>
 #include <QPainter>
-#include <QVector>
-#include <QList>
-#include <QTransform>
-#include <QStandardItemModel>
-#include "kplotmodel.h"
+#include "bookidxview.h"
 
-struct LabelBox1
+struct LabelBox
 {
     QPointF center; // preferred center
     QString strVal;
     QRectF  bb;     // actual center is center of bb
 };
 
-class LabeledRuler : public QWidget
+class LabeledRulerView : public BookIdxView
 {
     Q_OBJECT
 public:
-    explicit LabeledRuler(KPlotModel *plotModel,
-                          Qt::Alignment alignment,
-                          QWidget *parent = 0);
+    explicit LabeledRulerView(Qt::Alignment alignment, QWidget *parent = 0);
 
 protected:
+    virtual void _update();
+
     virtual void paintEvent(QPaintEvent * event);
     virtual QSize minimumSizeHint() const;
     virtual QSize sizeHint() const;
 
 private:
-    KPlotModel* _plotModel;
     Qt::Alignment _alignment;
 
-    bool _isFits(const QList<LabelBox1>& boxes,
+    bool _isFits(const QList<LabelBox>& boxes,
                  const QRectF& W,
                  double minGap, Qt::Alignment alignment);
 
     QString _format(double tic) const;
 
-    QList<LabelBox1> _moveCurrBoxToFit(const QList<LabelBox1>& boxes,
+    QList<LabelBox> _moveCurrBoxToFit(const QList<LabelBox>& boxes,
                          int currBoxIdx,
                          int lastBoxIdx,
                          const QRectF& W,
                          double minGap);
 
-    QList<LabelBox1> _halfBoxSet(const QList<LabelBox1>& boxes,
+    QList<LabelBox> _halfBoxSet(const QList<LabelBox>& boxes,
                                 Qt::Alignment alignment);
 
 signals:
-    
+
 public slots:
-    
+
 };
 
-#endif // LABELEDRULER_H
+#endif // LABELEDRULERVIEW_H

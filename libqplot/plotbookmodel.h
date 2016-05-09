@@ -28,6 +28,10 @@ public:
     bool isIndex(const QModelIndex& idx,
                   const QString& itemText) const;
 
+    bool isChildIndex(const QModelIndex& pidx,
+                      const QString &expectedParentItemText,
+                      const QString& childItemText) const;
+
     QModelIndex getIndex(const QModelIndex& startIdx,
                         const QString& searchItemText,
                         const QString &expectedStartIdxText=QString()) const;

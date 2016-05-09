@@ -1,37 +1,37 @@
-#include "labeledruler.h"
-#include <math.h>
-#include <QDebug>
+#include "labeledrulerview.h"
 
-
-LabeledRuler::LabeledRuler(KPlotModel *plotModel,
-                           Qt::Alignment alignment,
-                           QWidget *parent) :
-    QWidget(parent),
-    _plotModel(plotModel),
+LabeledRulerView::LabeledRulerView(Qt::Alignment alignment,
+                                   QWidget *parent) :
+    BookIdxView(parent),
     _alignment(alignment)
 {
 }
 
-void LabeledRuler::paintEvent(QPaintEvent *event)
+void LabeledRulerView::_update()
+{
+}
+
+void LabeledRulerView::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
 
-    if ( !_plotModel ) return;
+    if ( !model() ) return;
 
-    QRectF W = this->rect();
-    QRectF M = _plotModel->mathRect(this);
+    QRect W = viewport()->rect();
 
+    QRectF M = _mathRect();
+
+    QRect V = _curvesView->viewport()->rect();
     if ( W.width() == 0.0 || W.height() == 0.0 ) {
         return;
     }
 
-    QPainter painter(this);
 
     QList<double> modelTics;
     if ( _alignment == Qt::AlignBottom ) {
-        modelTics = _plotModel->majorXTics();
+        modelTics = _majorXTics();
     } else if ( _alignment == Qt::AlignLeft ) {
-        modelTics = _plotModel->majorYTics();
+        modelTics = _majorYTics();
     } else {
         // No support (yet) for right and top axes
         return;
@@ -44,9 +44,9 @@ void LabeledRuler::paintEvent(QPaintEvent *event)
         minGap = fontMetrics().boundingRect("X").height();
     }
 
-    QTransform T = _plotModel->coordToPixelTransform(this);
+    QTransform T = _coordToPixelTransform();
 
-    QList<LabelBox1> boxes;
+    QList<LabelBox> boxes;
     foreach ( double tic, modelTics ) {
         QPointF center;
         if ( _alignment == Qt::AlignBottom ) {
@@ -64,17 +64,18 @@ void LabeledRuler::paintEvent(QPaintEvent *event)
         }
 
         QString strVal = _format(tic);
-        QFontMetrics fm = fontMetrics();
+        QFontMetrics fm = viewport()->fontMetrics();
         QRectF bb = fm.boundingRect(strVal);
         bb.moveCenter(center);
 
-        LabelBox1 box;
+        LabelBox box;
         box.center = center;
         box.bb = bb;
         box.strVal = strVal;
         boxes << box;
     }
 
+#if 0
     while (1) {
 
         if ( _isFits(boxes,W,minGap,_alignment) ) {
@@ -82,14 +83,14 @@ void LabeledRuler::paintEvent(QPaintEvent *event)
         }
 
         for ( int i = 0; i < boxes.size(); ++i ) {
-            QList<LabelBox1> movedBox = _moveCurrBoxToFit(boxes,i,i-1,W,minGap);
+            QList<LabelBox> movedBox = _moveCurrBoxToFit(boxes,i,i-1,W,minGap);
             if ( !movedBox.isEmpty() ) {
                 boxes.replace(i,movedBox.at(0));
             }
         }
 
         for ( int i = boxes.size()-1; i >= 0; --i ) {
-            QList<LabelBox1> movedBox = _moveCurrBoxToFit(boxes,i,i+1,W,minGap);
+            QList<LabelBox> movedBox = _moveCurrBoxToFit(boxes,i,i+1,W,minGap);
             if ( !movedBox.isEmpty() ) {
                 boxes.replace(i,movedBox.at(0));
             }
@@ -101,7 +102,7 @@ void LabeledRuler::paintEvent(QPaintEvent *event)
 
             // Move all boxes back to center
             for ( int i = 0; i < boxes.size(); ++i ) {
-                LabelBox1 box = boxes.at(i) ;
+                LabelBox box = boxes.at(i) ;
                 QRectF bb = box.bb;
                 bb.moveCenter(box.center);
                 box.bb = bb;
@@ -112,38 +113,34 @@ void LabeledRuler::paintEvent(QPaintEvent *event)
             break;
         }
     }
+#endif
 
+    // Draw!
+    QPainter painter(viewport());
     painter.save();
-    foreach ( LabelBox1 box, boxes ) {
+    foreach ( LabelBox box, boxes ) {
         painter.drawText(box.bb, Qt::AlignHCenter|Qt::AlignVCenter, box.strVal);
     }
     painter.restore();
+    painter.end();
 
 }
 
-QSize LabeledRuler::minimumSizeHint() const
+QSize LabeledRulerView::minimumSizeHint() const
 {
-    QSize s(0,0);
-    if ( _alignment == Qt::AlignTop ||
-         _alignment == Qt::AlignBottom ) {
-        s.setWidth(50);
-        s.setHeight(15);
-    } else {
-        s.setWidth(20);
-        s.setHeight(50);
-    }
+    QSize s = sizeHint();
     return s;
 }
 
-QSize LabeledRuler::sizeHint() const
+QSize LabeledRulerView::sizeHint() const
 {
     QSize s(0,0);
 
     QList<double> modelTics;
     if ( _alignment == Qt::AlignBottom ) {
-        modelTics = _plotModel->majorXTics();
+        modelTics = _majorXTics();
     } else if ( _alignment == Qt::AlignLeft ) {
-        modelTics = _plotModel->majorYTics();
+        modelTics = _majorYTics();
     } else {
         // No support (yet) for right and top axes
         return s;
@@ -151,7 +148,7 @@ QSize LabeledRuler::sizeHint() const
 
     double w = 0;
     double h = 0;
-    QFontMetrics fm = fontMetrics();
+    QFontMetrics fm = viewport()->fontMetrics();
     foreach ( double tic, modelTics ) {
         QString strVal = _format(tic);
         QRectF bb ;
@@ -168,19 +165,14 @@ QSize LabeledRuler::sizeHint() const
         }
     }
 
-    if ( _alignment == Qt::AlignTop ||
-         _alignment == Qt::AlignBottom ) {
-        s.setWidth(w);
-        s.setHeight(h);
-    } else {
-        s.setWidth(w);
-        s.setHeight(h);
-    }
+    s.setWidth(w);
+    s.setHeight(h);
+
     return s;
 }
 
 // Do boxes fit in W with minGap between each box in boxes?
-bool LabeledRuler::_isFits(const QList<LabelBox1> &boxes,
+bool LabeledRulerView::_isFits(const QList<LabelBox> &boxes,
                            const QRectF &W, double minGap,
                            Qt::Alignment alignment )
 {
@@ -219,9 +211,12 @@ bool LabeledRuler::_isFits(const QList<LabelBox1> &boxes,
     return isFits;
 }
 
-QString LabeledRuler::_format(double tic) const
+QString LabeledRulerView::_format(double tic) const
 {
     QString s;
+    if ( qAbs(tic) < 1.0e-16 ) {
+        tic = 0.0;
+    }
     s = s.sprintf("%g", tic);
     return s;
 }
@@ -230,12 +225,13 @@ QString LabeledRuler::_format(double tic) const
 // Return singleton with a moved box if curr box moved to fit
 // otherwise return empty set
 //
-QList<LabelBox1> LabeledRuler::_moveCurrBoxToFit(const QList<LabelBox1> &boxes,
+QList<LabelBox> LabeledRulerView::_moveCurrBoxToFit(
+                                       const QList<LabelBox> &boxes,
                                        int currBoxIdx,
                                        int lastBoxIdx,
                                        const QRectF &W, double minGap)
 {
-    QList<LabelBox1> bxs;
+    QList<LabelBox> bxs;
 
     if ( boxes.isEmpty() ) return bxs;
     if ( currBoxIdx == lastBoxIdx ) return bxs;
@@ -296,7 +292,7 @@ QList<LabelBox1> LabeledRuler::_moveCurrBoxToFit(const QList<LabelBox1> &boxes,
     // Finally, after possibly adjusting bounding box,
     // make sure label is aligned with tic mark
     if ( bb.contains(center) ) {
-        LabelBox1 bx;
+        LabelBox bx;
         bx.center = boxes.at(currBoxIdx).center;
         bx.strVal = boxes.at(currBoxIdx).strVal;
         bx.bb = bb;
@@ -317,12 +313,12 @@ QList<LabelBox1> LabeledRuler::_moveCurrBoxToFit(const QList<LabelBox1> &boxes,
 // Eg. In:      {0.2, 0.4, 0.6, 0.8}
 //     Return:  {0.4,0.8}
 //
-QList<LabelBox1> LabeledRuler::_halfBoxSet(const QList<LabelBox1> &boxes,
-                                          Qt::Alignment alignment)
+QList<LabelBox> LabeledRulerView::_halfBoxSet(const QList<LabelBox> &boxes,
+                                              Qt::Alignment alignment)
 {
-    QList<LabelBox1> bxs;
+    QList<LabelBox> bxs;
 
-    if ( _plotModel == 0 )   return bxs;
+    if ( !model() )   return bxs;
     if ( boxes.isEmpty() )   return bxs;
     if ( boxes.size() == 1 ) return bxs;
 
@@ -336,7 +332,7 @@ QList<LabelBox1> LabeledRuler::_halfBoxSet(const QList<LabelBox1> &boxes,
     }
 
     int startIdx = 0;
-    if ( _plotModel->isEqual(c0,0.0) ) {
+    if ( _isEqual(c0,0.0) ) {
         // First box is 0.0, grab first and every other
         // {0,2,4,6,8} -> {0,4,8}
         startIdx = 0;
@@ -347,14 +343,14 @@ QList<LabelBox1> LabeledRuler::_halfBoxSet(const QList<LabelBox1> &boxes,
         // {-3,-1,1,3,5} -> {-3,1,5}
         startIdx = 1;
         int i = 0 ;
-        foreach ( LabelBox1 box, boxes ) {
+        foreach ( LabelBox box, boxes ) {
             double c;
             if ( alignment == Qt::AlignBottom ) {
                 c = box.center.x();
             } else {
                 c = box.center.y();
             }
-            if ( c > 0 || _plotModel->isEqual(c,0.0) ) {
+            if ( c > 0 || _isEqual(c,0.0) ) {
                 startIdx = i;
                 break;
             }
@@ -382,7 +378,7 @@ QList<LabelBox1> LabeledRuler::_halfBoxSet(const QList<LabelBox1> &boxes,
 
     int i = startIdx;
     while ( 1 ) {
-        LabelBox1 box = boxes.at(i);
+        LabelBox box = boxes.at(i);
         bxs << box;
         i += 2;
         if ( i >= boxes.size() ) {
