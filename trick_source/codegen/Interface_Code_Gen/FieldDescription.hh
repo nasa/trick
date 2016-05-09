@@ -6,7 +6,7 @@
 #include <map>
 #include <stdint.h>
 
-#include <udunits2/udunits2.h>
+#include <udunits2.h>
 
 #include "ConstructValues.hh"
 #include "clang/Basic/Specifiers.h"

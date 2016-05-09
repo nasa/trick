@@ -7,7 +7,7 @@
 #define SWIG_INT_TEMPLATES_HH
 
 #include "trick/UdUnits.hh"
-#include <udunits2/udunits2.h>
+#include <udunits2.h>
 
 template< class S , typename T > static int convert_and_set( T & output , void * my_argp , std::string to_units ) {
     int ret = 0 ;

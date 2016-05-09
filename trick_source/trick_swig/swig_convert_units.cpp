@@ -1,7 +1,7 @@
 
 #include <Python.h>
 #include <iostream>
-#include <udunits2/udunits2.h>
+#include <udunits2.h>
 
 #include "trick/Unit.hh"
 #include "trick/UdUnits.hh"

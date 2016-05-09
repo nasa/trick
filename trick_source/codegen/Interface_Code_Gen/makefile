@@ -43,6 +43,7 @@ CXXFLAGS += -std=c++11
 # Fedora 21 adds -ledit as a system lib, but it isn't installed, or required.
 CLANGLIBS += $(filter-out -ledit,$(shell $(LLVM_HOME)/bin/llvm-config --system-libs))
 endif
+CXXFLAGS += -I/usr/include/udunits2
 endif
 
 ifeq ($(TRICK_HOST_TYPE),Darwin)

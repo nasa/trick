@@ -2,7 +2,7 @@
 #ifndef UDUNITS_HH
 #define UDUNITS_HH
 
-#include <udunits2/udunits2.h>
+#include <udunits2.h>
 #include <string>
 
 namespace Trick {
