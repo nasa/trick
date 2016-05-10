@@ -58,7 +58,7 @@ $(ICG): $(OBJECTS) $(UDUNITS_OBJS)
 	$(CXX) -o $@ $(OBJECTS) $(UNITS_CONV_OBJ) $(UDUNITS_OBJS) $(LLVMLDFLAGS) $(CLANGLIBS)
 
 # Only FieldDescription.cpp includes the units conversion header.
-$(OBJ_DIR)/FieldDescription.o : CXXFLAGS += $(UNITS_CONV_INCLUDE)
+$(OBJ_DIR)/FieldDescription.o : CXXFLAGS += -I$(TRICK_HOME)/include
 $(OBJ_DIR)/HeaderSearchDirs.o : CXXFLAGS += -DLLVM_HOME=\"${LLVM_HOME}\"
 $(OBJ_DIR)/main.o : CXXFLAGS += $(UNITS_CONV_INCLUDE)
 

@@ -1,11 +1,13 @@
 
+#include <udunits2.h>
+#include <string.h>
 #include "DPM_axis.hh"
-#include "trick/Unit.hh"
+
+extern ut_system * u_system ;
 
 int DPM_axis::Initialize(xmlNode *base_node) {
 
     xmlNode *current_node;
-    Unit* validation_unit;
 
     label     = NULL;
     unitspec  = NULL;
@@ -39,13 +41,12 @@ int DPM_axis::Initialize(xmlNode *base_node) {
     // 1. If units are supplied, they must be valid.
 
     if (unitspec != NULL) {
-        try {
-            validation_unit = new Unit(unitspec);
-        } catch (Unit::CONVERSION_ERROR) {
+        ut_unit * validation_unit = ut_parse(u_system, unitspec, UT_ASCII) ;
+        if( validation_unit == NULL ) {
             std::cerr << "ERROR: <axis> specifies invalid units: \"" << unitspec << "\"." << std::endl;
             return -1;
         }
-        delete validation_unit;
+        ut_free(validation_unit) ;
     }
 
     return 0;

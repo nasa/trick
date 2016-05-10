@@ -8,8 +8,7 @@
 #include <frameobject.h>
 #include <udunits2.h>
 #include "trick/swig/swig_double.hh"
-
-std::string map_trick_units_to_udunits( std::string orig_units ) ;
+#include "trick/map_trick_units_to_udunits.hh"
 
 %}
 

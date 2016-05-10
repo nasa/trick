@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <unistd.h>
+#include <udunits2.h>
 
 #include "log.h"
 #include "trick_byteswap.h"
@@ -11,6 +12,8 @@
 // For DBL_MAX def
 #include <math.h>
 #include <float.h>
+
+extern ut_system * u_system ;
 
 /**
  * LogData constructor
@@ -902,7 +905,7 @@ int LogData::getParamIdx(const char *param)
 }
 
 /** Get the unit associated with the parameter as specified in Log header */
-Unit *LogData::getUnit(char *param)
+std::string LogData::getUnit(char *param)
 {
 
         int ii;
@@ -982,31 +985,48 @@ int LogData::setMin(int paramIdx, double min)
  *  file to unit given as argument.  If the unit passed is
  *  NULL, the scale factor will be set to 1.0.
  */
-int LogData::setUnit(int paramIdx, Unit * u)
+int LogData::setUnit(int paramIdx, std::string to_units)
 {
-
-        UCFn *cf;
 
         if (paramIdx > nVals_ || paramIdx < 0) {
                 fprintf(stderr, "ERROR: setUnit received paramIdx %d "
                         "out of bounds.\n", paramIdx);
                 exit(-1);
         }
+
         // If no unit passed, set scale factor to 1.0 (default)
-        if (u == 0) {
+        if (to_units.empty()) {
                 unitVal_[paramIdx] = 1.0;
                 return (-1);
         }
 
-        try {
-           cf = vars[varVal_[paramIdx]]->getUnit()->Conversion_to(u);
-           unitVal_[paramIdx] = cf->C[1];
-           biasVal_[paramIdx] = cf->C[0];
-           delete cf;
-        } catch (Unit::CONVERSION_ERROR) {
-           fprintf(stderr, "ERROR: Bad unit conversion given to setUnit.\n");
-           exit(-1);
+        std::string from_units = vars[varVal_[paramIdx]]->getUnit() ;
+        ut_unit * from = ut_parse(u_system, from_units.c_str(), UT_ASCII) ;
+        if ( !from ) {
+            unitVal_[paramIdx] = 1.0;
+            std::cout << "could not covert from units " << from_units << std::endl ;
+            return -1 ;
         }
+
+        ut_unit * to = ut_parse(u_system, to_units.c_str(), UT_ASCII) ;
+        if ( !to ) {
+            unitVal_[paramIdx] = 1.0;
+            std::cout << "could not covert to units " << to_units << std::endl ;
+            return -1 ;
+        }
+
+        cv_converter * converter = ut_get_converter(from,to) ;
+        if ( converter ) {
+            biasVal_[paramIdx] = cv_convert_double(converter, 0.0 ) ;
+            unitVal_[paramIdx] = cv_convert_double(converter, 1.0 ) - biasVal_[paramIdx] ;
+            cv_free(converter) ;
+        } else {
+            std::cout << "Units conversion error from " << from_units << " to " << to_units << std::endl ;
+            return -1 ;
+        }
+
+        ut_free(from) ;
+        ut_free(to) ;
 
         return (1);
 }
@@ -1238,7 +1258,7 @@ int LogGroup::setMin(int logIdx, int paramIdx, double min)
 /** Set unit for parameter 
  *  @see LogData::setUnit()
  */
-int LogGroup::setUnit(int logIdx, int paramIdx, Unit * u)
+int LogGroup::setUnit(int logIdx, int paramIdx, std::string u)
 {
 
         log[logIdx]->setUnit(paramIdx, u);
@@ -1249,7 +1269,7 @@ int LogGroup::setUnit(int logIdx, int paramIdx, Unit * u)
 /** Set unit for parameter 
  *  @see LogData::setUnit()
  */
-int LogGroup::setUnit(const char *paramName, Unit * u)
+int LogGroup::setUnit(const char *paramName, std::string u)
 {
 
         int xIdx, xLogIdx;

@@ -14,6 +14,9 @@
 
 #include "log.h"
 
+#include "trick/units_conv.h"
+#include "trick/map_trick_units_to_udunits.hh"
+
 /* A private function for parsing log header files.
  * This is responsible for initialize the Log classes as well
  */
@@ -142,7 +145,7 @@ int LogGroup::parseLogHeaders()
                                 }
 
                                 // Initialize Unit class
-                                currVar->setUnit(str3);
+                                currVar->setUnit(map_trick_units_to_udunits(str3));
 
                                 // Set Var Name
                                 currVar->setVarName(str4) ;

@@ -14,8 +14,6 @@
 #include <string>
 using namespace std ;
 
-#include "trick/Unit.hh"
-
 /*
  * Variable Class
  */
@@ -67,11 +65,11 @@ class Var {
                double getBias();
                void setBias(double);
 
-               Unit* getUnit();      
-               Unit* setUnit(const char *);
+               std::string getUnit();
+               std::string setUnit(std::string);
 
-               Unit* getTimeUnit();      
-               Unit* setTimeUnit(const char *);
+               std::string getTimeUnit();
+               std::string setTimeUnit(std::string);
 
                // Compare var names (not counting dims)
                int   compareNames( const char* name );
@@ -100,8 +98,8 @@ class Var {
                double bias_;           // Value Offset (addition)
 
                /** @see Unit() */
-               Unit*  unit_ ;
-               Unit*  timeUnit_ ;
+               std::string  unit_ ;
+               std::string  timeUnit_ ;
 
 
 

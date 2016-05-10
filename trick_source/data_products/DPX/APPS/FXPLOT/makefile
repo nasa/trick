@@ -7,7 +7,7 @@ CPP = c++
 
 DPX_DIR = ../..
 
-CFLAGS = -g -Wall
+CFLAGS = -g -Wall $(UDUNITS_INCLUDES)
 
 INCDIRS = -I${DPX_DIR} -I../../.. -I${TRICK_HOME}/include -I/usr/include/libxml2 -I$(MOTIF_HOME)/include -I$(TRICK_HOME)/trick_source/data_products/fermi-ware
 
@@ -35,7 +35,7 @@ DPX_LIBS      = -L${DPX_DIR}/lib_${TRICK_HOST_CPU} -lDPC -lDPM
 FERMI_WARE_LIB = $(TRICK_HOME)/trick_source/data_products/fermi-ware/object_${TRICK_HOST_CPU}/libfermi.a
 
 #HDF5_LIB is assigned in Makefile.common
-ALL_LIBS = $(DPX_LIBS) $(FERMI_WARE_LIB) ${DP_LIBS} ${TRICK_UNIT_LIBS} $(LIBXML) ${HDF5_LIB} -ldl $(FERMI_WARE_DIR)
+ALL_LIBS = $(DPX_LIBS) $(FERMI_WARE_LIB) ${DP_LIBS} ${TRICK_UNIT_LIBS} $(LIBXML) ${HDF5_LIB} -ldl $(FERMI_WARE_DIR) -ludunits2
 
 #############################################################################
 ##                            MODEL TARGETS                                ##

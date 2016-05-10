@@ -12,7 +12,7 @@
 #include "Utilities.hh"
 
 // Provides units check capability.
-std::string map_trick_units_to_udunits( std::string orig_units ) ;
+#include "trick/map_trick_units_to_udunits.hh"
 
 extern llvm::cl::opt< bool > units_truth_is_scary ;
 

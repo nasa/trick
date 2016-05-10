@@ -1,6 +1,9 @@
 
+#include <udunits2.h>
+#include <string.h>
 #include "DPM_measurement.hh"
-#include "trick/Unit.hh"
+
+extern ut_system * u_system ;
 
 // MEMEBR FUNCTION
 int DPM_measurement::Initialize( xmlNode *base_node) {
@@ -52,15 +55,12 @@ int DPM_measurement::Initialize( xmlNode *base_node) {
         std::cerr << "ERROR: <measurement> specification is missing a <units> specification." << std::endl;
         return -1;
     } else {
-        // Validate the units.
-        Unit* validation_unit;
-        try {
-            validation_unit = new Unit(unitspec);
-        } catch (Unit::CONVERSION_ERROR) {
+        ut_unit * validation_unit = ut_parse(u_system, unitspec, UT_ASCII) ;
+        if( validation_unit == NULL ) {
             std::cerr << "ERROR: <measurement> specification contains an invalid <units> specification: \"" << unitspec << "\"." << std::endl;
             return -1;
         }
-        delete validation_unit;
+        ut_free(validation_unit) ;
     }
     return 0;
 }

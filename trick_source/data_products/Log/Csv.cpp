@@ -4,6 +4,7 @@
 #include <strings.h>
 #include <math.h>
 #include "Csv.hh"
+#include "trick/map_trick_units_to_udunits.hh"
 
 Csv::Csv(char * file_name , char * param_name ) {
 
@@ -18,7 +19,7 @@ Csv::Csv(char * file_name , char * param_name ) {
            printf("ERROR:  Couldn't open \"%s\"\n" , file_name ) ;
            exit(-1) ;
         }
-        
+
         line_ = new char[20480] ;
         header = new char[20480] ;
         fgets( header , 20480 , fp_ );
@@ -32,17 +33,17 @@ Csv::Csv(char * file_name , char * param_name ) {
         if ( strncmp(next_field , param_name, len) ) {
                 field_num_++ ;
                 while ((next_field = strtok( NULL , "," ))) {
-                	char *space_loc = strchr(next_field, ' ');
-                	int actual_name_len = space_loc - next_field;
-                	// need to make sure if the length of the parameter and the length
-                	// of the parameter found in the next_field are actually the same,
-                	// since strncmp(a.b.c_more, a.b.c, 5) results a.b.c_more equals a.b.c.
+                        char *space_loc = strchr(next_field, ' ');
+                        int actual_name_len = space_loc - next_field;
+                        // need to make sure if the length of the parameter and the length
+                        // of the parameter found in the next_field are actually the same,
+                        // since strncmp(a.b.c_more, a.b.c, 5) results a.b.c_more equals a.b.c.
                         if ( strncmp(next_field , param_name, len) || actual_name_len != len) {
                                 field_num_++ ;
                         }
                         else {
-                                /* found the parameter, get the units if there are any */ 
-                                char * start_unit ,  * end_unit ; 
+                                /* found the parameter, get the units if there are any */
+                                char * start_unit ,  * end_unit ;
                                 if ((start_unit = index( next_field , '{' ))) {
                                         end_unit = index( next_field , '}' ) ;
                                         end_unit[0] = '\0' ;
@@ -50,7 +51,7 @@ Csv::Csv(char * file_name , char * param_name ) {
                                                 unitTimeStr_ = start_unit + 1 ;
                                         }
                                         else {
-                                                unitStr_ = start_unit + 1 ;
+                                                unitStr_ = map_trick_units_to_udunits(start_unit + 1) ;
                                         }
                                 }
                                 break ;

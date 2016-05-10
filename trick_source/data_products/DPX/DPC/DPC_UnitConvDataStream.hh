@@ -3,6 +3,7 @@
 #define DPC_UNITCONVDATASTREAM_HH
 
 #include <string>
+#include <udunits2.h>
 #include "trick/Unit.hh"
 #include "../../Log/DataStream.hh"
 
@@ -89,7 +90,9 @@ public:
 
 private:
 
-    UCFn* cf;
+    cv_converter * cf ;
+    std::string to_units ;
+
     DataStream *source_ds;
 
 };

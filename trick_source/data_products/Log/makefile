@@ -15,7 +15,7 @@ OBJ_DIR   = object_${TRICK_HOST_CPU}
 LIBDIR    = ../lib_${TRICK_HOST_CPU}
 LIBNAME   = liblog.a
 INCLUDE_DIRS = -I.. -I${TRICK_HOME}/include
-DP_CFLAGS = -g ${INCLUDE_DIRS} -fPIC
+DP_CFLAGS = -g ${INCLUDE_DIRS} -fPIC $(UDUNITS_INCLUDES)
 CPP_OBJECTS  = $(OBJ_DIR)/log.o \
             $(OBJ_DIR)/multiLog.o \
             $(OBJ_DIR)/trick_byteswap.o \

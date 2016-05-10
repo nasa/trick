@@ -9,7 +9,7 @@ DPX_DIR = ..
 
 INCLUDE_DIRS = -I${DPX_DIR} -I../.. -I${TRICK_HOME}/include -I/usr/include/libxml2
 
-CFLAGS = -g -Wall
+CFLAGS = -g -Wall $(UDUNITS_INCLUDES)
 
 OBJDIR = object_${TRICK_HOST_CPU}
 LIBDIR = ${DPX_DIR}/lib_${TRICK_HOST_CPU}

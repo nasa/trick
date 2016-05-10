@@ -1,7 +1,11 @@
 
+#include <udunits2.h>
+
 #include "DPC/DPC_std_curve.hh"
 #include "math.h"
 #include "trick/Unit.hh"
+
+extern ut_system * u_system ;
 
 // CONSTRUCTOR
 DPC_std_curve::DPC_std_curve(
@@ -49,62 +53,53 @@ DPC_std_curve::DPC_std_curve(
             // Because the X-axis is time, we handle it's unit conversion
             // here. Note that for the Y-axis or where the X-axis is not time,
             // unit conversion handled by the corresponding
-            // DPC_UnitConvDataStream. 
-    
+            // DPC_UnitConvDataStream.
+
             // If the user has specified a conversion to units other than seconds,
             // then generate a units conversion from seconds to those units.
             if ((x_var_units != NULL) && (strcmp( x_var_units,"s" ) != 0)) {
-      
-                Unit *to_unit;
-                Unit *from_unit;
-    
-                // Create the "to_unit" object.
-                try {
-                    to_unit = new Unit(x_var_units);
-                } catch (Unit::CONVERSION_ERROR) {
-                    delete to_unit;
-                    to_unit = NULL;
 
+                ut_unit *to;
+                ut_unit *from;
+
+                to = ut_parse(u_system, x_var_units, UT_ASCII) ;
+                if ( ! to ) {
                     std::cerr << "ERROR: For the curve <X,Y> = <" << x_var_name << ", "
                               << y_var_name << ">, " << "the units (\""<< x_var_units
                               << "\") specified for " << x_var_name << " are invalid."
                               << std::endl;
                 }
 
-                // Create the "from_unit" object.
+                // Create the "from" object.
                 // Note that in the case of time, from_units must be seconds.
-                from_unit = new Unit("s");
+                from = ut_parse(u_system, "s", UT_ASCII) ;
 
-                // If both the to_unit and from_unit objects are created
+                // If both the to and from objects are created
                 // successfully then attempt to create the conversion.
-                if (to_unit && from_unit) {
-
-                    try {
-                        time_conversion = from_unit->Conversion_to(to_unit);
-                        x_actual_units = strdup( x_var_units);
-                    } catch (Unit::CONVERSION_ERROR) {
-
+                if (to && from) {
+                    x_actual_units = strdup( x_var_units);
+                    time_conversion = ut_get_converter(from,to) ;
+                    if ( time_conversion == NULL ) {
                         std::cerr << "ERROR: For the curve <X,Y> = <" << x_var_name << ", "
                                   << y_var_name << ">, " << "seconds (\"s\") cannot be converted to (\""<< x_var_units
                                   << "\"), which have been specified for " << x_var_name << "."
                                   << std::endl;
-
-                        time_conversion = new UCFn( "s","s", 1.0, 0.0);
+                        time_conversion = cv_get_trivial() ;
                         x_actual_units = strdup("s");
                     }
-
+                    ut_free(to) ;
+                    ut_free(from) ;
                 } else {
-                    time_conversion = new UCFn( "s", "s", 1.0, 0.0);
+                    time_conversion = cv_get_trivial() ;
                     x_actual_units = strdup("s");
                 }
-
             } else {
-                time_conversion = new UCFn( "s", "s", 1.0, 0.0);
+                time_conversion = cv_get_trivial() ;
                 x_actual_units = strdup("s");
-            } 
+            }
 
             // Create the one DataStream [A(t)] that we need for this curve.
-            
+
             ds[0] = ds_supplier->getDataStream( y_var_name,
                                                 y_var_units,
                                                 y_var_from_units,
@@ -216,7 +211,7 @@ DPC_std_curve::~DPC_std_curve() {
         data_src_label = NULL;
     }
     if ( time_conversion ) {
-        delete time_conversion;
+        cv_free(time_conversion);
         time_conversion = NULL;
     }
 }
@@ -260,7 +255,7 @@ int DPC_std_curve::getXY(double *X_value, double *Y_value) {
         } else {     
             eos = !ds[0]->get( &t1, &v1);
             if (!eos) {
-                *X_value = time_conversion->eval( t1);
+                *X_value = cv_convert_double(time_conversion,t1);
                 *Y_value = v1;
                 return(1);
 	    }

@@ -3,7 +3,7 @@
 #include <math.h>
 
 DataStream::DataStream() {
-        unitStr_     = "--" ;
+        unitStr_     = "1" ;
         unitTimeStr_ = "s" ;
 }
 

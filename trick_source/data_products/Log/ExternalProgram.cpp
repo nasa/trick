@@ -1,4 +1,6 @@
 #include <math.h>
+#include <stdlib.h>
+
 #include "log.h"
 #include "ExternalProgram.hh"
 
@@ -10,7 +12,7 @@ ExternalProgram::ExternalProgram( const char* sharedLibName,
         int ii ;
 
         char next_record_str[] = "extGetNextRecord" ;
-        unitStr_ = "--" ;
+        unitStr_ = "1" ;
         unitTimeStr_ = "s" ;
 
         // Open up external plugin program

@@ -39,8 +39,6 @@ Var::Var() {
        minRange_ = -DBL_MAX ;
        maxRange_ = DBL_MAX ;
        varType_ = NONE ;
-       unit_ = new Unit() ;
-       timeUnit_ = new Unit() ;
        byteSize_ = 0 ;
        isProgramOutput = 0 ;
 
@@ -48,9 +46,6 @@ Var::Var() {
 
 /** Var Destructor */
 Var::~Var() {
-
-        delete unit_ ;
-        delete timeUnit_ ;
 }
 
 /** Copy constructor */
@@ -121,23 +116,22 @@ double Var::getMaxRange() {
 }
 
 /** Get variable's unit 
- *  @see Unit
  */
-Unit* Var::getUnit() {
+std::string Var::getUnit() {
        return ( unit_ ) ;
 }
 
-Unit* Var::setUnit(const char * unit_name) {
-       unit_->setUnitName(unit_name) ;
+std::string Var::setUnit(std::string unit_name) {
+       unit_ = unit_name ;
        return ( unit_ ) ;
 }
 
-Unit* Var::getTimeUnit() {
+std::string Var::getTimeUnit() {
        return ( timeUnit_ ) ;
 }
 
-Unit* Var::setTimeUnit(const char * unit_name) {
-       timeUnit_->setUnitName(unit_name) ;
+std::string Var::setTimeUnit(std::string unit_name) {
+       timeUnit_ = unit_name ;
        return ( timeUnit_ ) ;
 }
 
@@ -836,8 +830,8 @@ const Var& Var::operator= ( Var& right )
         this->setScaleFactor( right.getScaleFactor() ) ;
         this->setBias( right.getBias() ) ;
         this->setLabel( right.getLabel() ) ;
-        this->setUnit( right.getUnit()->getUnitName() ) ;
-        this->setTimeUnit( right.getTimeUnit()->getUnitName() ) ;
+        this->setUnit( right.getUnit()) ;
+        this->setTimeUnit( right.getTimeUnit()) ;
         this->isProgramOutput = right.isProgramOutput ;
 
         return *this ;  // Allows concatenated assignments

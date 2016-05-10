@@ -16,11 +16,13 @@ OBJ_DIR   = object_${TRICK_HOST_CPU}
 LIBDIR    = ../lib_${TRICK_HOST_CPU}
 LIBNAME   = libtrick_units.a
 INCLUDE_DIRS = -I${TRICK_HOME}/include
-DP_CFLAGS = -g ${INCLUDE_DIRS} -fPIC
+DP_CFLAGS = -g ${INCLUDE_DIRS} -fPIC $(UDUNITS_INCLUDES)
 
-CPP_OBJECTS = $(OBJ_DIR)/UCFn.o \
-              $(OBJ_DIR)/Unit.o
-C_OBJECTS   = $(OBJ_DIR)/units_conv.o
+CPP_OBJECTS = \
+ $(OBJ_DIR)/init_units_system.o \
+ $(OBJ_DIR)/map_trick_units_to_udunits.o
+
+C_OBJECTS = $(OBJ_DIR)/units_conv.o
 
 ifeq ($(TRICK_DP_FORCE_32BIT), 1)
        DP_CFLAGS += -m32
@@ -40,11 +42,8 @@ $(LIBDIR):
 
 OBJECTS: $(CPP_OBJECTS) 
 
-$(LIBDIR)/$(LIBNAME): $(CPP_OBJECTS) $(C_OBJECTS) $(LIB_DIR)
-	ar crs $(LIBDIR)/$(LIBNAME) $?
-
-depend:
-	@ echo "No depend rule for this directory"
+$(LIBDIR)/$(LIBNAME): $(CPP_OBJECTS) $(C_OBJECTS) $(LIBDIR)
+	ar crs $(LIBDIR)/$(LIBNAME) $(CPP_OBJECTS) $(C_OBJECTS)
 
 clean:
 	rm -rf $(OBJ_DIR)
@@ -52,18 +51,9 @@ clean:
 
 real_clean: clean
 
-$(CPP_OBJECTS) : $(OBJ_DIR)/%.o : src/%.cpp | $(OBJ_DIR)
+$(CPP_OBJECTS) : $(OBJ_DIR)/%.o : %.cpp | $(OBJ_DIR)
 	$(CC) $(DP_CFLAGS) -c $< -o $@
 
-$(C_OBJECTS) : $(OBJ_DIR)/%.o : src/%.c | $(OBJ_DIR)
+$(C_OBJECTS) : $(OBJ_DIR)/%.o : %.c | $(OBJ_DIR)
 	$(CC) $(DP_CFLAGS) -c $< -o $@
 
-
-#----------------------------
-# Dependencies
-
-#######################################################################
-# To update dependencies:
-# - Save changes (if any)
-# - run "make depend"
-#######################################################################

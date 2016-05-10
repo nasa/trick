@@ -1,8 +1,10 @@
 
+#include <udunits2.h>
 #include "DPC/DPC_table.hh"
 #include "DPM/DPM_var.hh"
 #include "DPM/DPM_column.hh"
 
+extern ut_system * u_system ;
 
 static const char *default_time_units = "s";
 
@@ -66,42 +68,42 @@ DPC_table::DPC_table( DPC_datastream_supplier *DS_Supplier,
         const char * column_var_units = column_var->AttributeValue("units");
         const char * column_var_from_units = column_var->AttributeValue("from_units");
 
-        UCFn *time_conversion = NULL;
-		int dsix = -1;
+        cv_converter *time_conversion = NULL;
+        int dsix = -1;
 
         if ( strcmp( column_var_name, run->getTimeName() ) == 0 ) {
             if ((column_var_units != NULL) && (strcmp( column_var_units, default_time_units) != 0)) {
                 // Convert seconds to whatever the user requested.
-                Unit *to_unit;
-                Unit *from_unit;
+                ut_unit *to;
+                ut_unit *from;
 
-                try {
-                    to_unit = new Unit(column_var_units);
-                } catch (Unit::CONVERSION_ERROR) {
-                    to_unit = NULL;
+                to = ut_parse(u_system, column_var_units, UT_ASCII) ;
+                if ( ! to ) {
                     std::cerr << "ERROR: Unable to convert values to invalid units: \""
                          << column_var_units << "\"." << std::endl;
                 }
-                from_unit = new Unit(default_time_units);
+                from = ut_parse(u_system, default_time_units, UT_ASCII) ;
 
-                if (to_unit && from_unit) {
-                    try {
-                        time_conversion = from_unit->Conversion_to(to_unit);
-                        actual_units = column_var_units;
-                    } catch (Unit::CONVERSION_ERROR) {
-                        std::cerr << "ERROR: Unable to convert from \"" << from_unit << "\" to \""
-                            << to_unit << "\" because they are incompatible." << std::endl;
-                        time_conversion = new UCFn( default_time_units, default_time_units, 1.0, 0.0);
+                if (to && from) {
+                    actual_units = column_var_units;
+                    time_conversion = ut_get_converter(from,to) ;
+                    if ( time_conversion == NULL ) {
+                        std::cerr << "ERROR: Unable to convert from \"" << default_time_units << "\" to \""
+                            << column_var_units << "\" because they are incompatible." << std::endl;
+                        time_conversion = cv_get_trivial() ;
                         actual_units = default_time_units;
                     }
+                    ut_free(to) ;
+                    ut_free(from) ;
                 } else {
-                    time_conversion = new UCFn( default_time_units, default_time_units, 1.0, 0.0);
+                    time_conversion = cv_get_trivial() ;
                     actual_units = default_time_units;
                 }
             } else {
-                time_conversion = new UCFn( default_time_units, default_time_units, 1.0, 0.0);
+                time_conversion = cv_get_trivial() ;
                 actual_units = default_time_units;
             }
+
         } else {
 
             ds = DS_Supplier->getDataStream( column_var_name,
@@ -287,7 +289,7 @@ int DPC_table::getRow(double *time, double *row_values) {
             const char  *column_var_name;
             column_var_name = column_info_list[col_ix]->var->getName();
             if ( strcmp( column_var_name, run->getTimeName()) == 0) {
-               row_values[col_ix] = column_info_list[col_ix]->time_conversion->eval( *time);
+               row_values[col_ix] = cv_convert_double(column_info_list[col_ix]->time_conversion, *time);
             } else {
                row_values[col_ix] = synchronized_values[ column_info_list[col_ix]->ds_ix ];
             }

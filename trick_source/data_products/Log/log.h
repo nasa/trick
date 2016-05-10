@@ -55,7 +55,7 @@ class LogData {
         int getParamIdx(const char *param);
          Var::enumType getType(int vIdx);
         int getSize(int vIdx);          // TODO: getValByteSize
-        Unit *getUnit(char *param);     // Get unit for associated param
+        std::string getUnit(char *param);     // Get unit for associated param
         char *getBinaryFileName();
 
         int setBinaryFileName(char *fileName);
@@ -63,7 +63,7 @@ class LogData {
         int setBias(int paramIdx, double bias);
         int setMax(int paramIdx, double max);
         int setMin(int paramIdx, double min);
-        int setUnit(int paramIdx, Unit * u);
+        int setUnit(int paramIdx, std::string u);
 
         // Get value of a parameter at a given time stamp
         int getValueAtTime( int timeIdx, double time,
@@ -209,8 +209,8 @@ class LogGroup {
 
         int setScaleFactor(int logIdx, int paramIdx, double factor);
         int setBias(int logIdx, int paramIdx, double bias);
-        int setUnit(int logIdx, int paramIdx, Unit * u);
-        int setUnit(const char *paramName, Unit * u);
+        int setUnit(int logIdx, int paramIdx, std::string u);
+        int setUnit(const char *paramName, std::string u);
         int setMax(int logIdx, int paramIdx, double max);
         int setMin(int logIdx, int paramIdx, double min);
 
@@ -329,7 +329,7 @@ class LogMultiGroup {
         // Set factors for scaling, biasing...
         int setScaleFactor(const char* paramName, double factor);
         int setBias(const char* paramName, double bias);
-        int setUnit(const char* paramName, Unit * u);
+        int setUnit(const char* paramName, std::string u);
         int setMax(const char* paramName, double max);
         int setMin(const char* paramName, double min);
 

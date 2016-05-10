@@ -3,6 +3,7 @@
 #define DPC_COLUMN_INFO_HH
 #include <string.h>
 #include <iostream>
+#include <udunits2.h>
 #include "trick/Unit.hh"
 
 class DPC_column_info {
@@ -10,7 +11,7 @@ public:
     DPC_column_info( DPM_var    * Var,
                      const char * Units_s,
                      int          DS_ix,
-                     UCFn       * Conversion_fn) {
+                     cv_converter * Conversion_fn) {
         var = Var;
         units = strdup(Units_s);
         ds_ix = DS_ix;
@@ -20,7 +21,7 @@ public:
     DPM_var    *var;
     const char *units;
     int        ds_ix ;
-    UCFn       *time_conversion;
+    cv_converter  *time_conversion;
 };
 
 #endif

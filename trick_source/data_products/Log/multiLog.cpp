@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "log.h"
 
 // For DBL_MIN, DBL_MAX defs

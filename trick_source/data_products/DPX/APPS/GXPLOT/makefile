@@ -9,7 +9,7 @@ DPX_DIR = ../..
 
 INCDIRS = -I${DPX_DIR} -I../../.. -I${TRICK_HOME}/include -I/usr/include/libxml2 $(MOTIF_INCDIR)
 
-CFLAGS = -g -Wall
+CFLAGS = -g -Wall $(UDUNITS_INCLUDES)
 
 OBJDIR = object_${TRICK_HOST_CPU}
 LIBDIR = ${DPX_DIR}/lib_${TRICK_HOST_CPU}
@@ -40,7 +40,7 @@ DP_LIBS         = -L../../../lib_${TRICK_HOST_CPU} -llog -lvar -leqparse -L${TRI
 MODEL_LIBS      = -L${DPX_DIR}/lib_${TRICK_HOST_CPU} -lDPM
 CONTROLLER_LIBS = -L${DPX_DIR}/lib_${TRICK_HOST_CPU} -lDPC
 
-ALL_LIBS = $(CONTROLLER_LIBS) $(MODEL_LIBS) ${DP_LIBS} ${TRICK_UNIT_LIBS} ${HDF5_LIB} -ldl
+ALL_LIBS = $(CONTROLLER_LIBS) $(MODEL_LIBS) ${DP_LIBS} ${TRICK_UNIT_LIBS} ${HDF5_LIB} -ldl -ludunits2
 
 #############################################################################
 ##                            MODEL TARGETS                                ##

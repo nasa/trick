@@ -8,6 +8,7 @@
 #include "trick_byte_order.h"
 #include "trick_byteswap.h"
 #include "trick/units_conv.h"
+#include "trick/map_trick_units_to_udunits.hh"
 
 TrickBinary::TrickBinary(char * file_name , char * param_name ) {
 
@@ -153,7 +154,7 @@ TrickBinary::TrickBinary(char * file_name , char * param_name ) {
                                 }
 
                                 if ( ! strcmp( name_ptr , param_name )) {
-                                        unitStr_ = units_ptr ;
+                                        unitStr_ = map_trick_units_to_udunits(units_ptr) ;
                                         record_offset_ =  record_size_ ;
                                         type_ =  type ;
                                         size_ =  size ;

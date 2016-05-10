@@ -123,7 +123,7 @@ DPC_delta_curve::DPC_delta_curve( DPM_curve*               Curve_spec,
     delta_y_var =  new DPM_var( s.c_str());
     y_var = delta_y_var;
 
-    time_conversion = new UCFn( "s", "s", 1.0, 0.0);
+    time_conversion = cv_get_trivial() ;
     x_actual_units = strdup("s");
 
     // Make sure we know what units we're actually getting from DataStream #1.
@@ -179,7 +179,7 @@ DPC_delta_curve::~DPC_delta_curve() {
     if ( run_dir1 ) { free( run_dir1); }
     if ( run_dir2 ) { free( run_dir2); }
     if ( data_src_label ) { free( data_src_label); }
-    if ( time_conversion ) { delete time_conversion; }
+    if ( time_conversion ) { cv_free(time_conversion); }
 }
 
 // MEMBER FUNCTION
@@ -217,7 +217,7 @@ int DPC_delta_curve::getXY(double *X_value, double *Y_value) {
         }
     }
     if (!eos) { 
-        *X_value = time_conversion->eval( t1);
+        *X_value = cv_convert_double(time_conversion,t1);
         *Y_value = v1 - v2;
         return(1);
     }

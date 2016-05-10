@@ -7,6 +7,7 @@
 #include "DPM/DPM_run.hh"
 #include <stdexcept>
 #include <string>
+#include <udunits2.h>
 
 /**
  * This class provides all of the data necessary to represent a curve of a plot.
@@ -68,6 +69,6 @@ private:
     char * run_dir1;
     char * run_dir2;
     char * data_src_label;
-    UCFn* time_conversion;
+    cv_converter* time_conversion;
 };
 #endif

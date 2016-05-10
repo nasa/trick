@@ -2,6 +2,7 @@
 #ifndef DPC_STD_CURVE_HH
 #define DPC_STD_CURVE_HH
 
+#include <udunits2.h>
 #include "DPM/DPM_run.hh"
 #include "DPM/DPM_curve.hh"
 #include "DPC/DPC_curve.hh"
@@ -64,6 +65,6 @@ private:
     char * x_actual_units;
     char * y_actual_units;
     char * data_src_label;
-    UCFn* time_conversion;
+    cv_converter * time_conversion;
 };
 #endif

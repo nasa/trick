@@ -58,7 +58,7 @@ GPViewCurveNode::GPViewCurveNode( Widget          Toplevel,
         curve_x_label = Curve->getXAttribute("label");
     } else {
         std::string curve_x_var_name = (dpc_curve->getXVarName()) ? dpc_curve->getXVarName() : "" ;
-        std::string curve_x_units    = (dpc_curve->getXAttribute("units")) ?  dpc_curve->getXAttribute("units") : "--";
+        std::string curve_x_units    = (dpc_curve->getXAttribute("units")) ?  dpc_curve->getXAttribute("units") : "1";
         curve_x_label    = curve_x_var_name + "(" + curve_x_units + ")";
     }
 
@@ -66,7 +66,7 @@ GPViewCurveNode::GPViewCurveNode( Widget          Toplevel,
     if (Curve->getYAttribute("label")) {
         curve_y_label = Curve->getYAttribute("label");
     } else {
-        std::string curve_y_units    = (dpc_curve->getYAttribute("units")) ?  dpc_curve->getYAttribute("units") : "--";
+        std::string curve_y_units    = (dpc_curve->getYAttribute("units")) ?  dpc_curve->getYAttribute("units") : "1";
         curve_y_label    = curve_y_var_name + "(" + curve_y_units + ")"; 
     }
 
