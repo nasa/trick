@@ -165,6 +165,13 @@ QSize LabeledRulerView::sizeHint() const
         }
     }
 
+    /* Give some margin around number */
+    if ( _alignment == Qt::AlignLeft ) {
+        w *= 1.61;  // arbitrarily chose ~golden ratio
+    } else if ( Qt::AlignBottom ) {
+        h *= 1.61;
+    }
+
     s.setWidth(w);
     s.setHeight(h);
 
