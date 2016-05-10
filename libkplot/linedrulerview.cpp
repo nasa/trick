@@ -4,6 +4,7 @@ LinedRulerView::LinedRulerView(Qt::Alignment alignment, QWidget *parent) :
     BookIdxView(parent),
     _alignment(alignment)
 {
+    setFrameShape(QFrame::NoFrame);
 }
 
 void LinedRulerView::_update()

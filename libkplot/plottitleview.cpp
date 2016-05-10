@@ -4,6 +4,8 @@ PlotTitleView::PlotTitleView(QWidget *parent) :
     QAbstractItemView(parent),
     _plotTitleIdx(QModelIndex())
 {
+    setFrameShape(QFrame::NoFrame);
+
     _vBoxLayout = new QVBoxLayout;
 
     _label = new QLabel(this);

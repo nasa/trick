@@ -3,6 +3,7 @@
 CornerView::CornerView(Qt::Corner corner, QWidget *parent) :
     BookIdxView(parent), _corner(corner)
 {
+    setFrameShape(QFrame::NoFrame);
 }
 
 void CornerView::_update()

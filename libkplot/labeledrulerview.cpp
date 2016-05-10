@@ -5,6 +5,7 @@ LabeledRulerView::LabeledRulerView(Qt::Alignment alignment,
     BookIdxView(parent),
     _alignment(alignment)
 {
+    setFrameShape(QFrame::NoFrame);
 }
 
 void LabeledRulerView::_update()

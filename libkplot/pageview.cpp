@@ -6,6 +6,8 @@ PageView::PageView(QWidget *parent) :
     _titleView(0),
     _plots(QList<PlotView*>())
 {
+    setFrameShape(QFrame::NoFrame);
+
     // Create/configure gridlayout for page
     _gridLayout = new QGridLayout;
     _gridLayout->setContentsMargins(0, 0, 0, 0);

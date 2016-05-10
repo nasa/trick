@@ -42,8 +42,7 @@ PlotView::PlotView(QWidget *parent) :
     _tTics(0), _bTics(0), _rTics(0), _lTics(0),
     _xTicLabels(0), _yTicLabels(0)
 {
-    setFrameShape(QFrame::Box);
-    setContentsMargins(5,5,5,5);
+    setFrameShape(QFrame::NoFrame);
 
     _grid = new QGridLayout;
     _grid->setContentsMargins(0, 0, 0, 0);
