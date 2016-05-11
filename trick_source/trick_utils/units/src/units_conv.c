@@ -423,8 +423,10 @@ struct {
     { Length     , "yd",    "m",    "yards",          1,English,  {{ 0.0                , 0.9144                }} },
     { Length     , "mi",    "m",    "miles",          1,English,  {{ 0.0                , 1609.344              }} },
     { Length     , "n.m.",  "m",    "nautical-miles", 7,English,  {{ 0.0                , 1852.0                }} },
+    { Length     , "nmile", "m",    "nautical-miles", 7,English,  {{ 0.0                , 1852.0                }} },
 
     { Angle      , "r",      "r",    "radians",       1,Standard, {{ 0.0                , 1.0                   }} },
+    { Angle      , "rad",    "r",    "radians",       1,Standard, {{ 0.0                , 1.0                   }} },
     { Angle      , "pr",     "r",    "pico-radians",  7,Standard, {{ 0.0                , 1.0 * PICO            }} },
     { Angle      , "nr",     "r",    "nano-radians",  7,Standard, {{ 0.0                , 1.0 * NANO            }} },
     { Angle      , "ur",     "r",    "micro-radians", 7,Standard, {{ 0.0                , 1.0 * MICRO           }} },
@@ -437,9 +439,13 @@ struct {
     { Angle      , "Gr",     "r",    "giga-radians",  7,Standard, {{ 0.0                , 1.0 * GIGA            }} },
     { Angle      , "Tr",     "r",    "tera-radians",  7,Standard, {{ 0.0                , 1.0 * TERA            }} },
     { Angle      , "d",      "r",    "degrees",       1,Standard, {{ 0.0                , 0.0174532925199433    }} },
+    { Angle      , "degree", "r",    "degrees",       1,Standard, {{ 0.0                , 0.0174532925199433    }} },
     { Angle      , "as",     "r",    "arc-seconds",   1,Standard, {{ 0.0                , 4.848136811095362e-06 }} },
+    { Angle      , "arcsecond", "r", "arc-seconds",   1,Standard, {{ 0.0                , 4.848136811095362e-06 }} },
     { Angle      , "am",     "r",    "arc-minutes",   1,Standard, {{ 0.0                , 0.0002908882086657216 }} },
+    { Angle      , "arcminute", "r", "arc-minutes",   1,Standard, {{ 0.0                , 0.0002908882086657216 }} },
     { Angle      , "rev",    "r",    "revolutions",   1,Standard, {{ 0.0                , 6.28318530717958647   }} },
+    { Angle      , "revolution", "r","revolutions",   1,Standard, {{ 0.0                , 6.28318530717958647   }} },
 
     { Mass       , "g",      "kg",    "grams",        1,Metric,   {{ 0.0               , MILLI                 }} },
     { Mass       , "pg",     "kg",    "pico-grams",   1,Metric,   {{ 0.0               , MILLI * PICO          }} },
@@ -455,8 +461,11 @@ struct {
     { Mass       , "Gg",     "kg",    "giga-grams",   7,Metric,   {{ 0.0               , MILLI * GIGA          }} },
     { Mass       , "Tg",     "kg",    "tera-grams",   7,Metric,   {{ 0.0               , MILLI * TERA          }} },
     { Mass       , "mt",     "kg",   "metric-tons",   1,Metric,   {{ 0.0                , 1000.0               }} },
+    { Mass       , "t",      "kg",   "metric-tons",   1,Metric,   {{ 0.0                , 1000.0               }} },
     { Mass       , "sl",     "kg",   "slugs",         1,English,  {{ 0.0                , 14.5939029372064     }} },
+    { Mass       , "slug",   "kg",   "slugs",         1,English,  {{ 0.0                , 14.5939029372064     }} },
     { Mass       , "lbm",    "kg",   "pound(mass)",   1,English,  {{ 0.0                , 0.4535923697760192   }} },
+    { Mass       , "lb",     "kg",   "pound(mass)",   1,English,  {{ 0.0                , 0.4535923697760192   }} },
 
     { Force      , "N",      "N",    "newtons",       1,Metric,   {{ 0.0                , 1.0                   }} },
     { Force      , "pN",     "N",    "pico-newtons",  7,Metric,   {{ 0.0                , PICO                  }} },
@@ -472,9 +481,11 @@ struct {
     { Force      , "GN",     "N",    "giga-newtons",  7,Metric,   {{ 0.0                , GIGA                  }} },
     { Force      , "TN",     "N",    "tera-newtons",  7,Metric,   {{ 0.0                , TERA                  }} },
     { Force      , "oz",     "N",    "ounces",        1,English,  {{ 0.0                , 0.27801385            }} },
+    { Force      , "ozf",    "N",    "ounces",        1,English,  {{ 0.0                , 0.27801385            }} },
     { Force      , "lbf",    "N",    "pound(force)",  1,English,  {{ 0.0                , 4.4482216152605         }} },
 
     { Voltage    , "v",      "v",    "volts",         1,Standard, {{ 0.0                , 1.0   }} },
+    { Voltage    , "V",      "v",    "volts",         1,Standard, {{ 0.0                , 1.0   }} },
     { Voltage    , "pv",     "v",    "pico-volts",    7,Standard, {{ 0.0                , PICO  }} },
     { Voltage    , "nv",     "v",    "nano-volts",    7,Standard, {{ 0.0                , NANO  }} },
     { Voltage    , "uv",     "v",    "micro-volts",   7,Standard, {{ 0.0                , MICRO }} },
@@ -517,9 +528,12 @@ struct {
     { Resistance , "Tohm",   "ohm",  "tera-ohms",     7,Standard, {{ 0.0                , TERA  }} },
 
     { Temperature, "C",   "C",    "degrees-celsius",  1,Metric,   {{ 0.0                , 1.0                   }} },
+    { Temperature, "degC","C",    "degrees-celsius",  1,Metric,   {{ 0.0                , 1.0                   }} },
     { Temperature, "K",   "C",    "degrees-kelvin",   1,Metric,   {{ -273.15            , 1.0                   }} },
     { Temperature, "F",   "C",    "degrees-fahrenheit",1,English, {{ -17.777777777777778, 0.55555555555555556   }} },
+    { Temperature, "degF","C",    "degrees-fahrenheit",1,English, {{ -17.777777777777778, 0.55555555555555556   }} },
     { Temperature, "R",   "C",    "degrees-rankine",  1,English,  {{ -273.15            , 0.55555555555555556   }} },
+    { Temperature, "degR","C",    "degrees-rankine",  1,English,  {{ -273.15            , 0.55555555555555556   }} },
   
     { Sound,       "dB",  "dB",   "decibels",         1,Standard, {{ 0.0                , 1.0                   }} },
 
@@ -538,6 +552,7 @@ struct {
     {Energy,       "TJ",  "J",    "tera-joule",       9,Metric,   {{ 0.0                , TERA                  }} },
     {Energy,       "BTU", "J",    "british-thermal",  9,English,  {{ 0.0                , 1055.056              }} },
     {Energy,       "TNT", "J",    "ton-tnt",          9,Metric,   {{ 0.0                , 4.184 * GIGA          }} },
+    {Energy,       "ton_TNT", "J","ton-tnt",          9,Metric,   {{ 0.0                , 4.184 * GIGA          }} },
     {Energy,       "Wh",  "J",    "watt-hour",        9,Metric,   {{ 0.0                , 3600                  }} },
     {Energy,       "kWh", "J",    "kilo-watt-hour",   9,Metric,   {{ 0.0                , 3600000               }} },
 
@@ -590,11 +605,13 @@ struct {
     {Volume,       "Gl",  "l",    "giga-liter",      10,Metric,   {{ 0.0                , GIGA                  }} },
     {Volume,       "Tl",  "l",    "tera-liter",      10,Metric,   {{ 0.0                , TERA                  }} },
     {Volume,       "gal", "l",    "gallon",          10,English,  {{ 0.0                , 3.785412              }} },
+    {Volume,       "gallon", "l", "gallon",          10,English,  {{ 0.0                , 3.785412              }} },
     {Volume,       "floz","l",    "fluid ounce",     10,English,  {{ 0.0                , 0.02957353            }} },
 
     { Unitless,    "1",   "--",   "<Unitless>",       1,Standard, {{ 0.0                , 1.0                   }} },
     { Unitless,    "--",  "--",   "<Unitless>",       1,Standard, {{ 0.0                , 1.0                   }} },
     { Unitless,    "cnt", "--",   "<Unitless>",       1,Standard, {{ 0.0                , 1.0                   }} },
+    { Unitless,    "count", "--", "<Unitless>",       1,Standard, {{ 0.0                , 1.0                   }} },
     { Unitless,    "mol", "--",   "<Unitless>",       7,Standard, {{ 0.0                , 6.02214179e+23        }} },
     { Unitless,    "one", "--",   "<Unitless>",       1,Standard, {{ 0.0                , 1.0                   }} }, 
     
