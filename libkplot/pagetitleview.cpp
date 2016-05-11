@@ -53,6 +53,7 @@ PageTitleView::PageTitleView(QWidget *parent) :
 }
 
 
+// TODO: Handle changes to default title and titles 2,3 and 4
 void PageTitleView::dataChanged(const QModelIndex &topLeft,
                                 const QModelIndex &bottomRight)
 {
@@ -80,13 +81,15 @@ void PageTitleView::rowsInserted(const QModelIndex &pidx, int start, int end)
 {
     if ( pidx != _myIdx ) return;
 
+    if ( !_bookModel()->isChildIndex(_myIdx,"Page","PageTitle") ) {
+        return;
+    }
+
     for ( int i = start; i <= end; ++i ) {
         QModelIndex idx = model()->index(i,0,pidx);
         QString cText = model()->data(idx).toString();
         if ( cText == "PageTitle" ) {
-            QModelIndex idx1 = model()->index(i,1,pidx);
-            QString title = model()->data(idx1).toString();
-            _title1->setText(title);
+            _update();
         }
     }
 }
@@ -94,7 +97,6 @@ void PageTitleView::rowsInserted(const QModelIndex &pidx, int start, int end)
 void PageTitleView::_update()
 {
     PlotBookModel* bookModel = _bookModel();
-    QModelIndex pageIdx = _myIdx;
 
     QList<QStandardItem*> items = bookModel->findItems("DefaultPageTitles",
                                                        Qt::MatchStartsWith);
@@ -103,19 +105,19 @@ void PageTitleView::_update()
                     "find DefaultPageTitles";
         exit(-1);
     }
-    QStandardItem* pItem = items.at(0);
     QStandardItem* titleItem;
+    QStandardItem* pItem = items.at(0);
 
     QString pageTitle ;
-    if ( bookModel->isChildIndex(pageIdx,"Page","PageTitle") ) {
-        QModelIndex pageTitleIdx  = bookModel->getIndex(pageIdx,
+    if ( bookModel->isChildIndex(_myIdx,"Page","PageTitle") ) {
+        QModelIndex pageTitleIdx  = bookModel->getIndex(_myIdx,
                                                         "PageTitle","Page");
+        pageTitleIdx = bookModel->index(pageTitleIdx.row(),1,_myIdx);
         pageTitle = bookModel->data(pageTitleIdx).toString();
     } else {
         pageTitle = pItem->child(0,1)->text();
     }
 
-    titleItem = pItem->child(0,1);
     _title1->setText(pageTitle);
     titleItem = pItem->child(1,1);
     _title2->setText(titleItem->text());

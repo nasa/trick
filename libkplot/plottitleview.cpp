@@ -35,14 +35,13 @@ void PlotTitleView::_update()
 void PlotTitleView::dataChanged(const QModelIndex &topLeft,
                                 const QModelIndex &bottomRight)
 {
-    // TODO: For now and only handle single item changes
-    if ( topLeft != bottomRight ) return;
+    if ( topLeft.parent() != _myIdx ) return;
 
     // Value is in column 1
     if ( topLeft.column() != 1 ) return;
 
-    QModelIndex pidx = topLeft.parent();
-    if ( pidx != _myIdx ) return;
+    // TODO: For now and only handle single item changes
+    if ( topLeft != bottomRight ) return;
 
     _update();
 }
