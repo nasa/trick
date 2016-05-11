@@ -3,6 +3,7 @@
 // Provides stringstream.
 #include <dlfcn.h>
 // Provides dlsym().
+#include <string.h>
 #include "trick/MemoryManager.hh"
 
 // MEMBER FUNCTION: void* Trick::MemoryManager::io_src_allocate_class(const char* class_name, int num);

@@ -62,7 +62,7 @@
 			<label>Pressure</label>
 		    <units>ft</units>
 		    <var label="Variable 2"
-		         from_units="rev"           units="as"
+		         from_units="revolution"           units="arcsecond"
 		         bias="left?"   scale="4" max="34579257"
 		         symbol_style="dot"   symbol_size="huge"
 		         line_style="shiny"      line_color="yellow"

@@ -49,7 +49,7 @@ def main():
     print unit.mi
     print unit.nmile
 
-    unit.rad = trick.attach_units("r", 10)
+    unit.rad = trick.attach_units("r ", 10)
 
     unit.rad = 1
     unit.degree = unit.rad

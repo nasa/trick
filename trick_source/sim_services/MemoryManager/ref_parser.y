@@ -13,6 +13,7 @@
 #include <iostream>
 #include <sstream>
 #include <stdlib.h>
+#include <string.h>
 
 #include "trick/RefParseContext.hh"
 #include "trick/vval.h"

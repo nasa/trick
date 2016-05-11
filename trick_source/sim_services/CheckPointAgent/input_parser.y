@@ -14,6 +14,7 @@
 #include <iostream>
 #include <sstream>
 #include <stdlib.h>
+#include <string.h>
 
 #include "trick/ChkPtParseContext.hh"
 #include "trick/vval.h"

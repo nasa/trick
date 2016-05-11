@@ -13,6 +13,7 @@
 #include <iostream>
 #include <sstream>
 #include <stdlib.h>
+#include <string.h>
 
 #include "trick/vval.h"
 #include "trick/value.h"

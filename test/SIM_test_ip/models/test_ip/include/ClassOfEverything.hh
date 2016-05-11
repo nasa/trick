@@ -356,10 +356,10 @@ class ClassOfEverything {
 
 
    int ikg ;          /* kg unit-ed integer value testing */
-   int ilbm ;         /* lbm unit-ed integer value testing */
+   int ilbm ;         /* lb unit-ed integer value testing */
 
    double dkg ;       /* kg unit-ed double value testing */
-   double dlbm ;      /* lbm unit-ed double value testing */
+   double dlbm ;      /* lb unit-ed double value testing */
    double dno_units ; /* -- unitless double value testing */
    double ds ;        /* s unit-ed double value testing */
 

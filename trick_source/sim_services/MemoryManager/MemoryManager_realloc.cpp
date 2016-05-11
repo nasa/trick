@@ -2,6 +2,7 @@
 #include <dlfcn.h>
 #include <stdlib.h>
 #include <sstream>
+#include <string.h>
 
 // PRIVATE MEMBER FUNCTION
 void Trick::MemoryManager::recursive_array_copy( void *s_base,

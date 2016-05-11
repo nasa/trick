@@ -2,12 +2,12 @@
 #include "trick/bitfield_proto.h"
 #include "trick/vval.h"
 #include "trick/wcs_ext.h"
-#include "trick/Unit.hh"
-#include "trick/UCFn.hh"
 #include <limits.h>
 #include <sstream>
+#include <udunits2.h>
+#include <string.h>
 
-int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, int curr_dim, int offset, V_TREE* v_tree, UCFn* cf) {
+int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, int curr_dim, int offset, V_TREE* v_tree, cv_converter* cf) {
 
    char* assign_addr;
    int remaining_dimensions = attr->num_index - curr_dim;
@@ -72,7 +72,7 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
                    if (cf == NULL) {
                        *(int *)assign_addr = input_value;
                    } else {
-                       *(int *)assign_addr = input_value * cf->C[1] + cf->C[0];
+                       *(int *)assign_addr = (int)cv_convert_double(cf, (double)input_value) ;
                    }
                } else {
                    *(int *)assign_addr = 0;
@@ -132,7 +132,7 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
                    if (cf == NULL) {
                        *(long *)assign_addr = input_value;
                    } else {
-                       *(long *)assign_addr = input_value * cf->C[1] + cf->C[0];
+                       *(long *)assign_addr = (long)cv_convert_double(cf, (double)input_value) ;
                    }
                } else {
                    *(long *)assign_addr = 0;
@@ -151,7 +151,7 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
                    if (cf == NULL) {  // There is no units conversion.
                        *(float *)assign_addr = input_value;
                    } else { // There is units conversion.
-                       *(float *)assign_addr = input_value * cf->C[1] + cf->C[0];
+                       *(float *)assign_addr = (float)cv_convert_double(cf, (double)input_value) ;
                    }
                } else {
                    *(float *)assign_addr = 0;
@@ -170,7 +170,7 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
                    if (cf == NULL) {
                        *(double *)assign_addr = input_value;
                    } else {
-                       *(double *)assign_addr = input_value * cf->C[1] + cf->C[0];
+                       *(double *)assign_addr = cv_convert_double(cf, input_value) ;
                    }
                } else {
                    *(double *)assign_addr = 0;
@@ -385,33 +385,48 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
    return (0);
 }
 
+#ifdef TRICK_VER
+#include "trick/UdUnits.hh"
+#else
+static ut_system * u_system ;
+#endif
+ut_system * Trick::MemoryManager::get_unit_system() {
+#ifdef TRICK_VER
+    return Trick::UdUnits::get_u_system() ;
+#else
+    /* Initialize the udunits-2 library */
+    ut_set_error_message_handler(ut_ignore) ;
+    if( (u_system = ut_read_xml( NULL )) == NULL ) {
+        std::cerr << "Error initializing udunits-2 unit system" << std::endl ;
+        return -1 ;
+    }
+    ut_set_error_message_handler(ut_write_to_stderr) ;
+    return u_system ;
+#endif
+}
+
 // MEMBER FUNCTION
 int Trick::MemoryManager::ref_assignment( REF2* R, V_TREE* V) {
 
     int ret = 0;
-    UCFn *cf = NULL;
+    cv_converter * cf = NULL ;
 
     // Create a units conversion function if necessary.
     if (R->units) {
-        try {
-            Unit *from_units = new Unit(R->units);
-            Unit *to_units = new Unit(R->attr->units);
-            // This Conversion_to call allocates a new UCFn
-            cf = from_units->Conversion_to( to_units);
-            delete from_units;
-            delete to_units;
-        } catch (Unit::CONVERSION_ERROR) {
+        ut_unit * from = ut_parse(get_unit_system(), R->units, UT_ASCII) ;
+        ut_unit * to = ut_parse(get_unit_system(), R->attr->units, UT_ASCII) ;
+        if ( !from or !to ) {
             std::stringstream message;
             message << "Can't convert \"" << R->units << "\" to \"" << R->attr->units << "\".";
             emitError(message.str());
-            cf = NULL;
             return TRICK_UNITS_CONVERSION_ERROR ;
         }
+        cf = ut_get_converter(from,to) ;
     }
 
     // R->num_index is badly named. It is really the current dimension
     ret = assign_recursive( R->address, R->attr, R->num_index, 0, V, cf);
-    delete cf ;
+    if ( cf ) cv_free(cf) ;
 
     return ( ret);
 

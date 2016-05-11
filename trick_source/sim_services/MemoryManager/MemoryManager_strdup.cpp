@@ -1,4 +1,5 @@
 #include "trick/MemoryManager.hh"
+#include <string.h>
 
 /**
  @par Detailed Description:

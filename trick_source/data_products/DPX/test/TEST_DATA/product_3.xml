@@ -6,7 +6,7 @@
 <product version="1.0">
       <table>
          <column>
-         	<units>M</units>
+            <units>s</units>
             <var>sys.exec.out.time</var>
          </column>
          <column>

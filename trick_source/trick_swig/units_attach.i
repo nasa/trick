@@ -22,6 +22,10 @@ PyObject * attach_units(PyObject * in_units_obj , PyObject * in_object) {
 
     if ( PyString_Check(in_units_obj) ) {
         in_units = PyString_AsString(in_units_obj) ;
+        in_units.erase(remove_if(in_units.begin(), in_units.end(), isspace), in_units.end());
+        if ( ! in_units.compare("--")) {
+            in_units = "1" ;
+        }
         std::string new_units = map_trick_units_to_udunits(in_units) ;
         if ( in_units.compare(new_units) ) {
             PyThreadState *tstate = PyThreadState_GET();
@@ -31,7 +35,7 @@ PyObject * attach_units(PyObject * in_units_obj , PyObject * in_object) {
                 file_name = PyString_AsString(tstate->frame->f_code->co_filename);
                 line_no = PyFrame_GetLineNumber(tstate->frame) ;
             }
-            std::cout << "\033[31mUnits converted from [" << in_units << "] to [" << new_units << "] "
+            std::cout << "\033[33mUnits converted from [" << in_units << "] to [" << new_units << "] "
              << file_name << ":" << line_no << "\033[0m" << std::endl ;
             in_units = new_units ;
         }

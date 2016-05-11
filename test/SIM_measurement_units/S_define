@@ -23,7 +23,7 @@ class unitSimObject : public Trick::SimObject {
         double temp_C ; // trick_units(degC) test
 
         double fpf ; // trick_units(furlong/fortnight) test
-        double mps ; // trick_units(m/s) test
+        double mps ; // trick_units(m/s ) test
 
         double s ; // trick_units(s) test
         double ps ; // trick_units(ps) test

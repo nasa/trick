@@ -228,6 +228,8 @@ void FieldDescription::parseComment(std::string comment) {
     // Test if we have valid units.  We need to have found a units string and an io spec not zero
     // Possible todo is to create a map of valid units so we don't have to retest each string.
     if ( units_found and io != 0 and (valid_units.find(units) == valid_units.end())) {
+        // remove spaces
+        units.erase(remove_if(units.begin(), units.end(), isspace), units.end());
         if ( !units.compare("--") ) {
             units = "1" ;
         } else {
@@ -235,7 +237,7 @@ void FieldDescription::parseComment(std::string comment) {
             std::string new_units = map_trick_units_to_udunits(units) ;
             if ( units.compare(new_units) ) {
                 if ( ! units_truth_is_scary ) {
-                    std::cout << "\033[31mUnits converted from [" << units << "] to [" << new_units << "] "
+                    std::cout << "\033[33mUnits converted from [" << units << "] to [" << new_units << "] "
                      << file_name << ":" << line_no << "\033[0m" << std::endl ;
                 }
                 units = new_units ;

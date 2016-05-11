@@ -23,7 +23,10 @@
 #include "trick/var.h"
 
 #include "trick/CheckPointAgent.hh"
-#include "trick/UCFn.hh"
+
+// forward declare the units converter types used by ref_assignment
+union cv_converter ;
+struct ut_system ;
 
 namespace Trick {
 
@@ -738,7 +741,7 @@ namespace Trick {
              @param v_tree - RHS data to be assigned.
              @param cf - units conversion function.
              */
-            int assign_recursive(void* base_addr, ATTRIBUTES* attr, int curr_dim, int offset, V_TREE* v_tree, UCFn* cf);
+            int assign_recursive(void* base_addr, ATTRIBUTES* attr, int curr_dim, int offset, V_TREE* v_tree, cv_converter * cf);
 
             /**
              Copy the common elements from one array to another. The arrays must be of the same dimension,
@@ -824,6 +827,11 @@ namespace Trick {
              FIXME: I NEED DOCUMENTATION!
              */
             void debug_write_alloc_info( ALLOC_INFO *alloc_info);
+
+            /**
+             Returns a pointer to the udunits system we are using.
+             */
+            ut_system * get_unit_system() ;
 
     }; // endof class MemoryManager
 

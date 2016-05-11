@@ -15,6 +15,7 @@
 #include <sstream>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
 const int Trick::ClassicCheckPointAgent::array_elements_per_line[TRICK_NUMBER_OF_TYPES] = {
      5, /** TRICK_VOID (for pointers) */

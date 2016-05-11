@@ -138,7 +138,7 @@ TEST_F(DSTest, DataStream_Ascii) {
 
 	// GET UNIT
     output = run('u');
-    result = strcmp_IgnoreWhiteSpace("getUnit : unitspec = \"d\"", output.c_str());
+    result = strcmp_IgnoreWhiteSpace("getUnit : unitspec = \"degree\"", output.c_str());
     EXPECT_EQ(result, 0);
 
 	// GET TIME UNIT
@@ -209,7 +209,7 @@ TEST_F(DSTest, DataStream_Binary) {
     
 	// GET UNIT
     output = run('u');
-    result = strcmp_IgnoreWhiteSpace("getUnit : unitspec = \"d\"", output.c_str());
+    result = strcmp_IgnoreWhiteSpace("getUnit : unitspec = \"degree\"", output.c_str());
     EXPECT_EQ(result, 0); 
     
 	// GET TIME UNIT
@@ -280,7 +280,7 @@ TEST_F(DSTest, DataStream_MatLab) {
 	
 	// GET UNIT
 	output = run('u');
-	result = strcmp_IgnoreWhiteSpace("getUnit : unitspec= \"--\"", output.c_str());
+	result = strcmp_IgnoreWhiteSpace("getUnit : unitspec= \"1\"", output.c_str());
 	EXPECT_EQ(result, 0);
 	
 	// GET TIME UNIT
@@ -362,7 +362,7 @@ TEST_F(DSTest, DataStream_DPCUnitConv) {
 
 	data_stream_factory = new DataStreamFactory();
     srcds = data_stream_factory->create(RUN_dir, VarName, NULL);
-	testds = new DPC_UnitConvDataStream(srcds, "r", "d");
+	testds = new DPC_UnitConvDataStream(srcds, "rad", "degree");
 
 	output = run('g');
     result = strcmp_IgnoreWhiteSpace(
@@ -370,7 +370,7 @@ TEST_F(DSTest, DataStream_DPCUnitConv) {
     EXPECT_EQ(result, 0);
 
 	output = run('u');
-	result = strcmp_IgnoreWhiteSpace("getUnit : unitspec = \"r\"", output.c_str());
+	result = strcmp_IgnoreWhiteSpace("getUnit : unitspec = \"rad\"", output.c_str());
 	EXPECT_EQ(result, 0);
 
 	output = run('t');

@@ -199,7 +199,7 @@ TEST_F(DPMTest, Table_NoAttributes) {
 		"<tstop>1.79769e+308</tstop>"
 		"<frequency>1.79769e+308</frequency>"
 		"<column>"
-		"<units>M</units>"
+		"<units>s</units>"
 		"<var>sys.exec.out.time</var>"
 		"</column>"
 		"<column>"

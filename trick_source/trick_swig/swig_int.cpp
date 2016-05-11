@@ -220,7 +220,7 @@ PyObject * swig_int::__pow__( PyObject * obj1 ) {
     PyObject * ret = NULL ;
     void * argp2 ;
 
-    if ( units.compare("--")) {
+    if ( units.compare("1")) {
         PyErr_SetString(PyExc_TypeError,"Both arguments must be unitless. Cannot create new unit-ed type.");
         return NULL ;
     }

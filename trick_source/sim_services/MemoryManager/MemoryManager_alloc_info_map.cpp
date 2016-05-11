@@ -1,5 +1,6 @@
 #include "trick/MemoryManager.hh"
 #include <sstream>
+#include <string.h>
 
 ALLOC_INFO* Trick::MemoryManager::get_alloc_info_of( void* addr) {
 

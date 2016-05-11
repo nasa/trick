@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 #include <sys/stat.h>
+#include <string.h>
 
 #ifdef _DMTCP
 #include "dmtcpaware.h"

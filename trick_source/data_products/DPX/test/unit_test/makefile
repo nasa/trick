@@ -25,7 +25,7 @@ INCDIRS = -I$(GTEST_HOME)/include \
           -I${TRICK_HOME}/trick_source/data_products/DPX \
           ${MOTIF_INCDIR}
 
-CFLAGS = -g -Wall -Wextra ${INCDIRS} 
+CFLAGS = -g -Wall -Wextra ${INCDIRS} $(UDUNITS_INCLUDES)
 
 LIB_DPX_DIR = ${DPX_DIR}/lib_${TRICK_HOST_CPU}
 LIB_DS_DIR  = ${DS_DIR}/lib_${TRICK_HOST_CPU}
@@ -47,14 +47,12 @@ else
 endif
 
 GTEST_LIBS = ${GTEST_HOME}/lib/libgtest.a ${GTEST_HOME}/lib/libgtest_main.a
-TRICK_UNIT_LIBS = -L${TRICK_LIB_DIR} -ltrick_units
-DP_LIBS         = -L${TRICK_LIB_DIR} \
-                  -L${TRICK_HOME}/trick_source/data_products/lib_${TRICK_HOST_CPU} \
-                  -llog -lvar -leqparse
+DP_LIBS         = -L${TRICK_HOME}/trick_source/data_products/lib_${TRICK_HOST_CPU} \
+                  -llog -lvar -leqparse -ltrick_units
 MODEL_LIBS      = -lxml2 \
                   -L${DPX_DIR}/lib_${TRICK_HOST_CPU} -lDPM \
-				   ${GTEST_LIBS} -lpthread \
-                   ${TRICK_UNIT_LIBS}
+                  -L${TRICK_HOME}/trick_source/data_products/lib_${TRICK_HOST_CPU} -ltrick_units \
+                  ${GTEST_LIBS} -lpthread -ludunits2
 CONTROLLER_LIBS = -lDPC \
                   ${MODEL_LIBS} ${DP_LIBS} \
                   ${XLIBS} ${LIBRTDEF} \

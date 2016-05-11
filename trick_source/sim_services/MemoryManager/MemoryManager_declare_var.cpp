@@ -3,6 +3,7 @@
 
 #include <sstream>
 #include <dlfcn.h>
+#include <string.h>
 #include "trick/MemoryManager.hh"
 #include "trick/ADefParseContext.hh"
 

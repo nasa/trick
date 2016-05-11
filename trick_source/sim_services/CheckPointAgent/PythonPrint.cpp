@@ -224,7 +224,7 @@ void Trick::PythonPrint::write_singleton( std::ostream& chkpnt_os, void* address
             break;
     }
 
-    if ( write_units && attr->units != NULL && strcmp(attr->units, "--") ) {
+    if ( write_units && attr->units != NULL && strcmp(attr->units, "1") ) {
             chkpnt_os << " " << attr->units ;
     }
 }
