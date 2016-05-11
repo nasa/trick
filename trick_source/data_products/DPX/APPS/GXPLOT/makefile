@@ -40,7 +40,7 @@ DP_LIBS         = -L../../../lib_${TRICK_HOST_CPU} -llog -lvar -leqparse -L${TRI
 MODEL_LIBS      = -L${DPX_DIR}/lib_${TRICK_HOST_CPU} -lDPM
 CONTROLLER_LIBS = -L${DPX_DIR}/lib_${TRICK_HOST_CPU} -lDPC
 
-ALL_LIBS = $(CONTROLLER_LIBS) $(MODEL_LIBS) ${DP_LIBS} ${TRICK_UNIT_LIBS} ${HDF5_LIB} -ldl -ludunits2
+ALL_LIBS = $(CONTROLLER_LIBS) $(MODEL_LIBS) ${DP_LIBS} ${TRICK_UNIT_LIBS} ${HDF5_LIB} -ldl $(UDUNITS_LDFLAGS)
 
 #############################################################################
 ##                            MODEL TARGETS                                ##

@@ -196,18 +196,24 @@ AS_IF([test "$UDUNITS_HOME" = ""],
  [
   AC_CHECK_HEADER([udunits2.h], [UDUNITS_INCLUDES=],
    AC_CHECK_HEADER([udunits2/udunits2.h],[UDUNITS_INCLUDES=-I/usr/include/udunits2],AC_MSG_ERROR([could not find udunits development headers])))
+  UDUNITS_LDFLAGS=-ludunits2
  ],
  [
   AC_CHECK_FILE([$UDUNITS_HOME/include/udunits2.h],
-   [UDUNITS_INCLUDES=-I$UDUNITS_HOME/include],
+   [UDUNITS_INCLUDES=-I$UDUNITS_HOME/include
+    UDUNITS_LDFLAGS=-L$UDUNITS_HOME/lib -ludunits2
+   ],
    [AC_CHECK_FILE([$UDUNITS_HOME/lib/udunits2.h],
-    [UDUNITS_INCLUDES=-I$UDUNITS_HOME/lib],
+    [UDUNITS_INCLUDES=-I$UDUNITS_HOME/lib
+     UDUNITS_LDFLAGS=-L$UDUNITS_HOME/lib -ludunits2
+    ],
     AC_MSG_ERROR([could not find udunits2]))
    ]
   )
  ]
 )
 AC_SUBST([UDUNITS_INCLUDES])
+AC_SUBST([UDUNITS_LDFLAGS])
 
 dnl process the other optional command line arguments
 AX_HDF5_HOME([])

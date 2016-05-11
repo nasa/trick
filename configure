@@ -627,6 +627,7 @@ BC635_HOME
 TPROCTE_HOME
 DMTCP_HOME
 HDF5_HOME
+UDUNITS_LDFLAGS
 UDUNITS_INCLUDES
 UDUNITS_HOME
 CLANG
@@ -5688,6 +5689,7 @@ fi
 fi
 
 
+  UDUNITS_LDFLAGS=-ludunits2
 
 else
 
@@ -5710,6 +5712,8 @@ eval ac_res=\$$as_ac_File
 $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_File"\" = x"yes"; then :
   UDUNITS_INCLUDES=-I$UDUNITS_HOME/include
+    UDUNITS_LDFLAGS=-L$UDUNITS_HOME/lib -ludunits2
+
 else
   as_ac_File=`$as_echo "ac_cv_file_$UDUNITS_HOME/lib/udunits2.h" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $UDUNITS_HOME/lib/udunits2.h" >&5
@@ -5730,6 +5734,8 @@ eval ac_res=\$$as_ac_File
 $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_File"\" = x"yes"; then :
   UDUNITS_INCLUDES=-I$UDUNITS_HOME/lib
+     UDUNITS_LDFLAGS=-L$UDUNITS_HOME/lib -ludunits2
+
 else
   as_fn_error $? "could not find udunits2" "$LINENO" 5
 fi
@@ -5741,6 +5747,7 @@ fi
 
 
 fi
+
 
 
 

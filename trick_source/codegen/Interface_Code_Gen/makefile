@@ -8,7 +8,7 @@ CXXFLAGS := -g -I$(shell $(LLVM_HOME)/bin/llvm-config --includedir) -D__STDC_CON
 
 CLANG_MINOR_GTEQ5 := $(shell expr `$(LLVM_HOME)/bin/llvm-config --version | cut -f2 -d. ` \>= 5 )
 
-LLVMLDFLAGS := $(shell $(LLVM_HOME)/bin/llvm-config --ldflags) -ludunits2
+LLVMLDFLAGS := $(shell $(LLVM_HOME)/bin/llvm-config --ldflags) $(UDUNITS_LDFLAGS)
 
 OBJ_DIR :=  object_$(TRICK_HOST_CPU)
 
