@@ -422,6 +422,12 @@ int Trick::MemoryManager::ref_assignment( REF2* R, V_TREE* V) {
             return TRICK_UNITS_CONVERSION_ERROR ;
         }
         cf = ut_get_converter(from,to) ;
+        if ( !cf ) {
+            std::stringstream message;
+            message << "Can't convert \"" << R->units << "\" to \"" << R->attr->units << "\".";
+            emitError(message.str());
+            return TRICK_UNITS_CONVERSION_ERROR ;
+        }
     }
 
     // R->num_index is badly named. It is really the current dimension
