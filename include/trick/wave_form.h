@@ -53,8 +53,8 @@ typedef struct {
                           and 1 to 0 */
     double pause;   /* s  Pause time between end of first doublet 
                           pulse and start of second doublet pulse */
-    double frequency; /* (one/s) Frequency of oscillating waves */
-    double phase;     /* r  Phase offset for start of 
+    double frequency; /* (1/s) Frequency of oscillating waves */
+    double phase;     /* (rad)  Phase offset for start of 
                             oscillating waves */
 
     /* 
