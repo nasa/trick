@@ -1,7 +1,7 @@
 #include "bookview.h"
 
 BookView::BookView(QWidget *parent) :
-    QAbstractItemView(parent)
+    BookIdxView(parent)
 {
     _mainLayout = new QVBoxLayout;
 
@@ -15,27 +15,9 @@ BookView::BookView(QWidget *parent) :
     setLayout(_mainLayout);
 }
 
-
-void BookView::setModel(QAbstractItemModel *model)
+void BookView::_update()
 {
-    // Allow setting model to null
-    if ( !model ) {
-        QAbstractItemView::setModel(model);
-        return;
-    }
-
-    PlotBookModel* bookModel = dynamic_cast<PlotBookModel*>(model);
-    if ( !bookModel ) {
-        qDebug() << "snap [bad scoobs]: BookView::setModel() "
-                    "could not cast model at address"
-                 << (void*)model
-                 << "to a PlotBookModel";
-        exit(-1);
-    }
-
-    QAbstractItemView::setModel(model);
 }
-
 void BookView::dataChanged(const QModelIndex &topLeft,
                                 const QModelIndex &bottomRight)
 {
@@ -60,7 +42,8 @@ void BookView::dataChanged(const QModelIndex &topLeft,
 
 void BookView::rowsInserted(const QModelIndex &pidx, int start, int end)
 {
-    if ( model()->data(pidx).toString() != "Pages" ) return;
+    if ( model()->data(pidx).toString() != "Pages" &&
+         model()->data(pidx).toString() != "Page" ) return;
 
     for ( int i = start; i <= end; ++i ) {
         QModelIndex idx = model()->index(i,0,pidx);
@@ -69,55 +52,14 @@ void BookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             PageView* pw = new PageView;
             pw->setModel(model());
             pw->setRootIndex(idx);
-            _nb->addTab(pw,"Hey");
+            _nb->addTab(pw,"Page");
+        } else if ( cText == "PageName" ) {
+            QModelIndex pageNameIdx = _bookModel()->index(i,1,pidx);
+            QString pageName = model()->data(pageNameIdx).toString();
+            QFileInfo fi(pageName);
+            pageName = fi.fileName();
+            int row = pidx.row();
+            _nb->setTabText(row,pageName);
         }
     }
 }
-
-QModelIndex BookView::indexAt(const QPoint &point) const
-{
-    QModelIndex idx;
-    return idx;
-}
-
-QRect BookView::visualRect(const QModelIndex &index) const
-{
-}
-
-void BookView::scrollTo(const QModelIndex &index,
-                             QAbstractItemView::ScrollHint hint)
-{
-}
-
-QModelIndex BookView::moveCursor(
-        QAbstractItemView::CursorAction cursorAction,
-        Qt::KeyboardModifiers modifiers)
-{
-}
-
-int BookView::horizontalOffset() const
-{
-    return 0;
-}
-
-int BookView::verticalOffset() const
-{
-    return 0;
-}
-
-// TODO: the index can be hidden
-bool BookView::isIndexHidden(const QModelIndex &index) const
-{
-    return false;
-}
-
-void BookView::setSelection(const QRect &rect,
-                                 QItemSelectionModel::SelectionFlags command)
-{
-}
-
-QRegion BookView::visualRegionForSelection(
-        const QItemSelection &selection) const
-{
-}
-

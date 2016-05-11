@@ -1,36 +1,22 @@
 #ifndef BOOKVIEW_H
 #define BOOKVIEW_H
 
-#include <QAbstractItemView>
 #include <QTabWidget>
 #include <QVBoxLayout>
+#include <QFileInfo>
 
+#include "libkplot/bookidxview.h"
 #include "libkplot/pageview.h"
 #include "libqplot/plotbookmodel.h"
 
-class BookView : public QAbstractItemView
+class BookView : public BookIdxView
 {
     Q_OBJECT
 public:
     explicit BookView(QWidget *parent = 0);
 
-public:
-    virtual void setModel(QAbstractItemModel *model);
-    virtual QModelIndex indexAt( const QPoint& point) const;
-    virtual QRect visualRect(const QModelIndex &index) const;
-    virtual void scrollTo(const QModelIndex &index,
-                          ScrollHint hint = EnsureVisible);
-
 protected:
-    virtual QModelIndex moveCursor(CursorAction cursorAction,
-                                   Qt::KeyboardModifiers modifiers);
-    virtual int horizontalOffset() const;
-    virtual int verticalOffset() const;
-    virtual bool isIndexHidden(const QModelIndex &index) const;
-    virtual void setSelection(const QRect &rect,
-                              QItemSelectionModel::SelectionFlags command);
-    virtual QRegion visualRegionForSelection(
-                              const QItemSelection &selection) const;
+    virtual void _update();
 
 private:
     QVBoxLayout* _mainLayout;
