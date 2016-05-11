@@ -4,7 +4,7 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 CC := $(CLANG)
 CXX := $(CLANG)++
-CXXFLAGS := -g -I$(shell $(LLVM_HOME)/bin/llvm-config --includedir) -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -fno-rtti
+CXXFLAGS := -g -I$(shell $(LLVM_HOME)/bin/llvm-config --includedir) -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -fno-rtti $(UDUNITS_INCLUDES)
 
 CLANG_MINOR_GTEQ5 := $(shell expr `$(LLVM_HOME)/bin/llvm-config --version | cut -f2 -d. ` \>= 5 )
 
@@ -43,7 +43,6 @@ CXXFLAGS += -std=c++11
 # Fedora 21 adds -ledit as a system lib, but it isn't installed, or required.
 CLANGLIBS += $(filter-out -ledit,$(shell $(LLVM_HOME)/bin/llvm-config --system-libs))
 endif
-CXXFLAGS += -I/usr/include/udunits2
 endif
 
 ifeq ($(TRICK_HOST_TYPE),Darwin)
