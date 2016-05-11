@@ -128,6 +128,8 @@ ifeq ($(HAVE_GSL),1)
   TRICK_EXEC_LINK_LIBS += -L$(GSL_HOME)/lib
   endif
   TRICK_EXEC_LINK_LIBS += -lgsl -lgslcblas
+  TRICK_CFLAGS += -D_HAVE_GSL
+  TRICK_CXXFLAGS += -D_HAVE_GSL
 endif
 
 TRICK_INCLUDE = $(shell $(PERL) -e '@inc_paths = "${TRICK_CFLAGS}" =~ /-I\s*(\S+)/g ; foreach $$i (@inc_paths) { print "-I$$i "}')
