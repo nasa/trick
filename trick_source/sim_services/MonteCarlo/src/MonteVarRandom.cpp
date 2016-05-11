@@ -183,7 +183,7 @@ std::string Trick::MonteVarRandom::get_next_value() {
         default:
             sprintf(buffer, "%.10g", return_value.d);
             value = buffer;
-            sprintf(buffer, "struct.unpack(\"!d\", binascii.unhexlify(\"%llx\"))[0]", return_value.ll);
+            sprintf(buffer, "struct.unpack(\"!d\", binascii.unhexlify(\"%016llx\"))[0]", return_value.ll);
             break;
     }
 
