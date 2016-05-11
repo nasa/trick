@@ -48,6 +48,9 @@ void PageView::rowsInserted(const QModelIndex &pidx, int start, int end)
 {
     if ( model()->data(pidx).toString() != "Plots" ) return;
 
+    QModelIndex pageIdx = pidx.parent();
+    if ( pageIdx != _myIdx ) return;
+
     int nPlotsToAdd = end-start+1;
     if ( nPlotsToAdd != 1 ) {
         qDebug() << "snap [bad scoobs]: PageView::rowsInserted(). "
