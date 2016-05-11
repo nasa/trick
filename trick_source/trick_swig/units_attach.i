@@ -33,7 +33,11 @@ PyObject * attach_units(PyObject * in_units_obj , PyObject * in_object) {
             int line_no = 0 ;
             if (NULL != tstate && NULL != tstate->frame) {
                 file_name = PyString_AsString(tstate->frame->f_code->co_filename);
+#if (PY_MAJOR_VERSION == 2 ) && (PY_MINOR_VERSION <= 6)
+                line_no = PyCode_Addr2Line(tstate->frame->f_code, tstate->frame->f_lasti) ;
+#else
                 line_no = PyFrame_GetLineNumber(tstate->frame) ;
+#endif
             }
             std::cout << "\033[33mUnits converted from [" << in_units << "] to [" << new_units << "] "
              << file_name << ":" << line_no << "\033[0m" << std::endl ;
