@@ -3,6 +3,9 @@
 
 #include <QPainter>
 #include <QHash>
+#include <QList>
+#include <QColor>
+#include <stdlib.h>
 #include "bookidxview.h"
 
 class CurvesView : public BookIdxView
@@ -27,6 +30,10 @@ private:
     void _setPlotMathRect(const QRectF& M);
     QPainterPath _sinPath();
     QPainterPath _stepPath();
+
+    QList<QColor> _colorBandsNormal;
+    QList<QColor> _colorBandsRainbow;
+    QList<QColor> _createColorBands(int nBands, bool isRainbow);
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,

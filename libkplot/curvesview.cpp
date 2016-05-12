@@ -3,6 +3,8 @@
 CurvesView::CurvesView(QWidget *parent) :
     BookIdxView(parent)
 {
+    _colorBandsNormal = _createColorBands(9,false);
+    _colorBandsRainbow = _createColorBands(10,true);
 }
 
 void CurvesView::_update()
@@ -26,15 +28,30 @@ void CurvesView::paintEvent(QPaintEvent *event)
 
     QTransform T = _coordToPixelTransform();
     double ptSizeCurve = _curvePointSize();
-    QColor curveBlue(32,64,172);
-    QPen pen(curveBlue);
+    QPen pen;
     pen.setWidthF(ptSizeCurve);
 
     // Draw!
     painter.setTransform(T);
-    painter.setPen(pen);
+    int i = 0;
+    int nCurves = _curve2path.size();
+    int nBands = _colorBandsRainbow.size();
+    int nCurvesPerBand = div(nCurves,nBands).quot;
     foreach ( QPainterPath* path, _curve2path.values() ) {
+
+        // Color curves
+        if ( nCurves < 10 ) {
+            pen.setColor(_colorBandsNormal.at(i));
+        } else  {
+            div_t q = div(i,nCurvesPerBand);
+            int j = qMin(q.quot,nBands-1);
+            pen.setColor(_colorBandsRainbow.at(j));
+        }
+        painter.setPen(pen);
+
         painter.drawPath(*path);
+
+        ++i;
     }
 
 #if 0
@@ -209,4 +226,50 @@ QPainterPath CurvesView::_stepPath()
         t += dt;
     }
     return path;
+}
+
+QList<QColor> CurvesView::_createColorBands(int nBands, bool isRainbow)
+{
+    QList<QColor> colorBands;
+
+    QColor blue(48,85,200);
+    QColor red(200,30,30);
+    QColor green(60,180,45);
+    QColor magenta(130,15,120);
+    QColor orange(183,120,71);
+    QColor burntorange(177,79,0);
+    QColor yellow(222,222,10);
+    QColor pink(255,192,255);
+    QColor gray(145,170,192);
+    QColor medblue(49,140,250);
+    QColor black(0,0,0);
+
+    if ( isRainbow && nBands >= 10 ) {
+
+        // This is for "rainbow banding" many monte carlo curves
+
+        int hBeg = 10; int hEnd = 230;
+        int dh = qRound((double)(hEnd-hBeg)/(nBands-1.0));
+        int s = qRound(0.75*255);
+        int v = qRound(0.87*255);
+        for ( int h = hBeg; h <= hEnd; h+=dh) {
+            // Rainbow
+            colorBands << QColor::fromHsv(h,s,v);
+        }
+        colorBands.removeFirst();
+        colorBands.prepend(burntorange);
+
+    } else {
+
+        // Handpicked band of colors for smaller number of curves
+        colorBands << blue << red << magenta
+                   << green << orange << yellow
+                   << gray << pink << medblue;
+
+        for ( int i = 0 ; i < nBands-10; ++i ) {
+            colorBands.removeLast();
+        }
+    }
+
+    return colorBands;
 }
