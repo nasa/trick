@@ -96,11 +96,13 @@ AC_DEFUN([AX_GTEST_HOME],[
     AC_ARG_WITH([gtest],
                 AS_HELP_STRING([--with-gtest@<:@=DIR@:>@], [GTEST root directory]),
                 [GTEST_HOME="$withval"
-                 AC_CHECK_FILE([$GTEST_HOME/include/gtest],
+                 AS_IF([test "$GTEST_HOME" = "yes"],
+                  AC_CHECK_HEADER(gtest/gtest.h,[GTEST_HOME="/usr"],AC_MSG_ERROR([could not find gtest/gtest.h])),
+                  AC_CHECK_FILE([$GTEST_HOME/include/gtest],
                                [],
-                               AC_MSG_ERROR([could not find $GTEST_HOME/sample/bcuser.h])
+                               AC_MSG_ERROR([could not find $GTEST_HOME/include/gtest])
                               )
-                ],
+                )],
                 [GTEST_HOME=""]
                )
     AC_SUBST([GTEST_HOME])

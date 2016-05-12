@@ -6062,7 +6062,17 @@ fi
 # Check whether --with-gtest was given.
 if test "${with_gtest+set}" = set; then :
   withval=$with_gtest; GTEST_HOME="$withval"
-                 as_ac_File=`$as_echo "ac_cv_file_$GTEST_HOME/include/gtest" | $as_tr_sh`
+                 if test "$GTEST_HOME" = "yes"; then :
+  ac_fn_cxx_check_header_mongrel "$LINENO" "gtest/gtest.h" "ac_cv_header_gtest_gtest_h" "$ac_includes_default"
+if test "x$ac_cv_header_gtest_gtest_h" = xyes; then :
+  GTEST_HOME="/usr"
+else
+  as_fn_error $? "could not find gtest/gtest.h" "$LINENO" 5
+fi
+
+
+else
+  as_ac_File=`$as_echo "ac_cv_file_$GTEST_HOME/include/gtest" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $GTEST_HOME/include/gtest" >&5
 $as_echo_n "checking for $GTEST_HOME/include/gtest... " >&6; }
 if eval \${$as_ac_File+:} false; then :
@@ -6082,11 +6092,12 @@ $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_File"\" = x"yes"; then :
 
 else
-  as_fn_error $? "could not find $GTEST_HOME/sample/bcuser.h" "$LINENO" 5
+  as_fn_error $? "could not find $GTEST_HOME/include/gtest" "$LINENO" 5
 
 fi
 
 
+fi
 else
   GTEST_HOME=""
 
