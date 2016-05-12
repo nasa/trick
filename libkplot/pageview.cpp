@@ -2,23 +2,23 @@
 
 PageView::PageView(QWidget *parent) :
     BookIdxView(parent),
-    _gridLayout(0),
+    _grid(0),
     _titleView(0),
     _plots(QList<PlotView*>())
 {
     setFrameShape(QFrame::NoFrame);
 
     // Create/configure gridlayout for page
-    _gridLayout = new QGridLayout;
-    _gridLayout->setContentsMargins(0, 0, 0, 0);
-    _gridLayout->setSpacing(0);
+    _grid = new QGridLayout;
+    _grid->setContentsMargins(0, 0, 0, 0);
+    _grid->setSpacing(0);
 
     // Create and add titleView
     _titleView = new PageTitleView(this);
-    _gridLayout->addWidget(_titleView,0,0,1,100);
-    _gridLayout->setRowStretch(0,1);
+    _grid->addWidget(_titleView,0,0,1,100);
+    _grid->setRowStretch(0,1);
 
-    setLayout(_gridLayout);
+    setLayout(_grid);
 }
 
 void PageView::dataChanged(const QModelIndex &topLeft,
@@ -74,14 +74,62 @@ void PageView::rowsInserted(const QModelIndex &pidx, int start, int end)
 
     switch ( nPlots ) {
     case 1: {
-        _gridLayout->addWidget(plot,1,0);
-        _gridLayout->setRowStretch(1,100);
+        _grid->addWidget(plot,1,0);
+        break;
+    }
+    case 2: {
+        _grid->addWidget(plot,2,0);
+        break;
+    }
+    case 3: {
+        _grid->addWidget(plot,3,0);
+        break;
+    }
+    case 4: {
+        QWidget* w2 = _grid->itemAtPosition(2,0)->widget();
+        QWidget* w3 = _grid->itemAtPosition(3,0)->widget();
+        _grid->removeWidget(w2);
+        _grid->removeWidget(w3);
+        _grid->addWidget(w2,1,1);
+        _grid->addWidget(w3,2,0);
+        _grid->addWidget(plot,2,1);
+        break;
+    }
+    case 5: {
+        _grid->addWidget(plot,3,0,1,2);
+        break;
+    }
+    case 6: {
+        QWidget* w2 = _grid->itemAtPosition(1,1)->widget();
+        QWidget* w3 = _grid->itemAtPosition(2,0)->widget();
+        QWidget* w4 = _grid->itemAtPosition(2,1)->widget();
+        QWidget* w5 = _grid->itemAtPosition(3,0)->widget();
+        _grid->removeWidget(w2);
+        _grid->removeWidget(w3);
+        _grid->removeWidget(w4);
+        _grid->removeWidget(w5);
+        _grid->addWidget(w2,2,0);
+        _grid->addWidget(w3,3,0);
+        _grid->addWidget(w4,1,1);
+        _grid->addWidget(w5,2,1);
+        _grid->addWidget(plot,3,1);
+        break;
+    }
+    case 7: {
+        _grid->addWidget(plot,4,0,1,2);
         break;
     }
     default: {
-        break;
+        qDebug() << "snap [current limitation]: 7 plots max on DP :(";
+        qDebug() << "Aborting!!!";
+        exit(-1);
     }
     }
+
+    for ( int i = 1 ; i < _grid->rowCount(); ++i ) {
+        _grid->setRowStretch(i,100);
+    }
+
 }
 
 void PageView::_update()

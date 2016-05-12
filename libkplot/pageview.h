@@ -19,7 +19,7 @@ protected:
     virtual void _update();
 
 private:
-    QGridLayout* _gridLayout;
+    QGridLayout* _grid;
     PageTitleView* _titleView;
     QList<PlotView*> _plots;
 
