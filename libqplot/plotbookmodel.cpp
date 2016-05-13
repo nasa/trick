@@ -218,7 +218,8 @@ QModelIndex PlotBookModel::_ancestorIdx(const QModelIndex &startIdx,
 
 QModelIndexList PlotBookModel::plotIdxs(const QModelIndex &pageIdx) const
 {
-    return getIndexList(pageIdx, "Plot");
+    QModelIndex plotsIdx = getIndex(pageIdx,"Plots", "Page");
+    return getIndexList(plotsIdx, "Plot", "Plots");
 }
 
 QModelIndexList PlotBookModel::curveIdxs(const QModelIndex &curvesIdx) const
