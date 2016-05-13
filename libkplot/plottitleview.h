@@ -3,6 +3,8 @@
 
 #include <QLabel>
 #include <QVBoxLayout>
+#include <QFontMetrics>
+#include <QFontInfo>
 #include "bookidxview.h"
 
 class PlotTitleView : public BookIdxView
@@ -13,6 +15,9 @@ public:
 
 protected:
     virtual void _update();
+
+    virtual QSize minimumSizeHint() const;
+    virtual QSize sizeHint() const;
 
 private:
     QLabel* _label;

@@ -6,10 +6,12 @@ PlotTitleView::PlotTitleView(QWidget *parent) :
     setFrameShape(QFrame::NoFrame);
 
     _vBoxLayout = new QVBoxLayout;
+    _vBoxLayout->setContentsMargins(0,0,0,0);
+    _vBoxLayout->setSpacing(0);
 
     _label = new QLabel(this);
     _label->setText("No Model");
-    _label->setAlignment(Qt::AlignHCenter| Qt::AlignVCenter);
+    _label->setAlignment(Qt::AlignHCenter| Qt::AlignBottom);
     _vBoxLayout->addWidget(_label);
 
     setLayout(_vBoxLayout);
@@ -60,4 +62,20 @@ void PlotTitleView::rowsInserted(const QModelIndex &pidx, int start, int end)
     }
 
     return;
+}
+
+
+QSize PlotTitleView::minimumSizeHint() const
+{
+    return sizeHint();
+}
+
+QSize PlotTitleView::sizeHint() const
+{
+    QSize sz;
+
+    QFontMetrics fm = _label->fontMetrics();
+    QRect bb = fm.boundingRect(_label->text());
+    sz = bb.size();
+    return sz;
 }
