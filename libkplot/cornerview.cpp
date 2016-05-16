@@ -8,6 +8,10 @@ CornerView::CornerView(Qt::Corner corner, QWidget *parent) :
 
 void CornerView::_update()
 {
+    if ( model() ) {
+        disconnect(model(),SIGNAL(rowsInserted(QModelIndex,int,int)),
+                   this,SLOT(rowsInserted(QModelIndex,int,int)));
+    }
 }
 
 // TODO: We could get fancy and, optionally, round the corners

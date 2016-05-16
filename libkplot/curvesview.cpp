@@ -97,19 +97,15 @@ void CurvesView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bott
 
 void CurvesView::rowsInserted(const QModelIndex &pidx, int start, int end)
 {
-    if ( start != end ) return;
-
-    PlotBookModel* bookModel = _bookModel();
-
-    QModelIndex plotIdx = bookModel->getIndex(pidx,"Plot","Plot");
-
-    if ( plotIdx != _myIdx ) return;  // not my plot!
+    if ( pidx.parent().parent() != _myIdx ) return; // not my plot
+    QModelIndex idx = model()->index(start,0,pidx);
+    if ( model()->data(idx).toString() != "CurveData" ) return;
 
     for ( int i = start; i <= end; ++i ) {
-        QModelIndex idx = bookModel->index(i,0,pidx);
-        QString s = bookModel->data(idx).toString();
+        QModelIndex idx = model()->index(i,0,pidx);
+        QString s = model()->data(idx).toString();
         if ( s == "CurveData" ) {
-            QVariant v = bookModel->data(idx,Qt::UserRole);
+            QVariant v = model()->data(idx,Qt::UserRole);
             TrickCurveModel* curveModel =
                     QVariantToPtr<TrickCurveModel>::convert(v);
             QPainterPath* path = _createPainterPath(curveModel);

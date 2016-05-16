@@ -489,7 +489,6 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     _addChild(curveItem, "CurveYName", y->name());
     _addChild(curveItem, "CurveYUnit", y->unit());
     _addChild(curveItem, "CurveRunID", runId);
-    _addChild(curveItem, "CurveData","");
     _addChild(curveItem, "CurveXScale",      x->scaleFactor());
     _addChild(curveItem, "CurveXBias",       x->bias());
     _addChild(curveItem, "CurveYScale",      y->scaleFactor());
@@ -499,6 +498,7 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     _addChild(curveItem, "CurveLineStyle",   y->lineStyle());
     _addChild(curveItem, "CurveYLabel",      y->label());
     _addChild(curveItem, "CurveColor",       y->lineColor());
+    _addChild(curveItem, "CurveData","");
 }
 
 bool DPTreeWidget::_isDP(const QString &fp)

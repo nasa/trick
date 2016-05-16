@@ -108,27 +108,9 @@ QSize PlotView::sizeHint() const
 
 void PlotView::rowsInserted(const QModelIndex &pidx, int start, int end)
 {
-    if ( start != end ) return;
-
-    PlotBookModel* bookModel = _bookModel();
-
-    QModelIndex plotIdx = bookModel->getIndex(pidx,"Plot","Plot");
-
-    if ( plotIdx != _myIdx ) return;  // not my plot!
-
-    /*
-    for ( int i = start; i <= end; ++i ) {
-        QModelIndex idx = bookModel->index(i,0,pidx);
-        QStandardItem* item = bookModel->itemFromIndex(idx);
-        if ( item->text() == "CurveData" ) {
-            QVariant v = bookModel->data(idx,Qt::UserRole);
-            TrickCurveModel* curveModel =
-                    QVariantToPtr<TrickCurveModel>::convert(v);
-            _createPainterPath(curveModel);
-            break;
-        }
-    }
-    */
+    Q_UNUSED(pidx);
+    Q_UNUSED(start);
+    Q_UNUSED(end);
 }
 
 void PlotView::_update()
@@ -147,5 +129,9 @@ void PlotView::_update()
         if ( bview ) {
             bview->setCurvesView(_curvesView);
         }
+    }
+    if ( model() ) {
+        disconnect(model(),SIGNAL(rowsInserted(QModelIndex,int,int)),
+                   this,SLOT(rowsInserted(QModelIndex,int,int)));
     }
 }

@@ -9,6 +9,10 @@ LinedRulerView::LinedRulerView(Qt::Alignment alignment, QWidget *parent) :
 
 void LinedRulerView::_update()
 {
+    if ( model() ) {
+        disconnect(model(),SIGNAL(rowsInserted(QModelIndex,int,int)),
+                   this,SLOT(rowsInserted(QModelIndex,int,int)));
+    }
 }
 
 void LinedRulerView::paintEvent(QPaintEvent *event)
@@ -135,4 +139,7 @@ void LinedRulerView::dataChanged(const QModelIndex &topLeft,
 
 void LinedRulerView::rowsInserted(const QModelIndex &parent, int start, int end)
 {
+    Q_UNUSED(parent);
+    Q_UNUSED(start);
+    Q_UNUSED(end);
 }
