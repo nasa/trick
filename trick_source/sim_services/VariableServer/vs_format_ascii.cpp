@@ -8,6 +8,7 @@ PROGRAMMERS: (((Keith Vetter) (LinCom) (September 2001) (--)))
 #include <string.h>
 #include <ctype.h>
 #include <limits>
+#include <udunits2.h>
 
 #include "trick/parameter_types.h"
 #include "trick/attributes.h"
@@ -40,7 +41,7 @@ int vs_format_ascii(Trick::VariableReference * var, char *value) {
 
         case TRICK_CHARACTER:
             if (ref->attr->num_index == ref->num_index) {
-                sprintf(value, "%s%d", value,(char)var->conversion_factor->eval(*(char *)buf_ptr));
+                sprintf(value, "%s%d", value,(char)cv_convert_double(var->conversion_factor, *(char *)buf_ptr));
             } else {
                 /* All but last dim specified, leaves a char array */
                 escape_str((char *) buf_ptr, value);
@@ -49,7 +50,7 @@ int vs_format_ascii(Trick::VariableReference * var, char *value) {
             break;
         case TRICK_UNSIGNED_CHARACTER:
             if (ref->attr->num_index == ref->num_index) {
-                sprintf(value, "%s%u", value,(unsigned char)var->conversion_factor->eval(*(unsigned char *)buf_ptr));
+                sprintf(value, "%s%u", value,(unsigned char)cv_convert_double(var->conversion_factor,*(unsigned char *)buf_ptr));
             } else {
                 /* All but last dim specified, leaves a char array */
                 escape_str((char *) buf_ptr, value);
@@ -97,16 +98,16 @@ int vs_format_ascii(Trick::VariableReference * var, char *value) {
 
 #if ( __linux | __sgi )
         case TRICK_BOOLEAN:
-            sprintf(value, "%s%d", value,(unsigned char)var->conversion_factor->eval(*(unsigned char *)buf_ptr));
+            sprintf(value, "%s%d", value,(unsigned char)cv_convert_double(var->conversion_factor,*(unsigned char *)buf_ptr));
             break;
 #endif
 
         case TRICK_SHORT:
-            sprintf(value, "%s%d", value, (short)var->conversion_factor->eval(*(short *)buf_ptr));
+            sprintf(value, "%s%d", value, (short)cv_convert_double(var->conversion_factor,*(short *)buf_ptr));
             break;
 
         case TRICK_UNSIGNED_SHORT:
-            sprintf(value, "%s%u", value,(unsigned short)var->conversion_factor->eval(*(unsigned short *)buf_ptr));
+            sprintf(value, "%s%u", value,(unsigned short)cv_convert_double(var->conversion_factor,*(unsigned short *)buf_ptr));
             break;
 
         case TRICK_INTEGER:
@@ -114,7 +115,7 @@ int vs_format_ascii(Trick::VariableReference * var, char *value) {
 #if ( __sun | __APPLE__ )
         case TRICK_BOOLEAN:
 #endif
-            sprintf(value, "%s%d", value, (int)var->conversion_factor->eval(*(int *)buf_ptr));
+            sprintf(value, "%s%d", value, (int)cv_convert_double(var->conversion_factor,*(int *)buf_ptr));
             break;
 
         case TRICK_BITFIELD:
@@ -125,23 +126,23 @@ int vs_format_ascii(Trick::VariableReference * var, char *value) {
             sprintf(value, "%u", GET_UNSIGNED_BITFIELD(buf_ptr, ref->attr->size, ref->attr->index[0].start, ref->attr->index[0].size));
             break;
         case TRICK_UNSIGNED_INTEGER:
-            sprintf(value, "%s%u", value, (unsigned int)var->conversion_factor->eval(*(unsigned int *)buf_ptr));
+            sprintf(value, "%s%u", value, (unsigned int)cv_convert_double(var->conversion_factor,*(unsigned int *)buf_ptr));
             break;
 
         case TRICK_LONG:
-            sprintf(value, "%s%ld", value, (long)var->conversion_factor->eval(*(long *)buf_ptr));
+            sprintf(value, "%s%ld", value, (long)cv_convert_double(var->conversion_factor,*(long *)buf_ptr));
             break;
 
         case TRICK_UNSIGNED_LONG:
-            sprintf(value, "%s%lu", value, (unsigned long)var->conversion_factor->eval(*(unsigned long *)buf_ptr));
+            sprintf(value, "%s%lu", value, (unsigned long)cv_convert_double(var->conversion_factor,*(unsigned long *)buf_ptr));
             break;
 
         case TRICK_FLOAT:
-            sprintf(value, "%s%.8g", value, var->conversion_factor->eval(*(float *)buf_ptr));
+            sprintf(value, "%s%.8g", value, cv_convert_float(var->conversion_factor,*(float *)buf_ptr));
             break;
 
         case TRICK_DOUBLE:
-            sprintf(value, "%s%.16g", value, var->conversion_factor->eval(*(double *)buf_ptr));
+            sprintf(value, "%s%.16g", value, cv_convert_double(var->conversion_factor,*(double *)buf_ptr));
             break;
 
         case TRICK_LONG_LONG:
@@ -152,12 +153,12 @@ int vs_format_ascii(Trick::VariableReference * var, char *value) {
             if (!var_name.compare("trick_sys.sched.terminate_time")) {
                     sprintf(value, "%s%lld", value, *(long long *)buf_ptr);
             } else {
-                    sprintf(value, "%s%lld", value, (long long)var->conversion_factor->eval(*(long long *)buf_ptr));
+                    sprintf(value, "%s%lld", value, (long long)cv_convert_double(var->conversion_factor,*(long long *)buf_ptr));
             }
             break;
 
         case TRICK_UNSIGNED_LONG_LONG:
-            sprintf(value, "%s%llu", value,(unsigned long long)var->conversion_factor->eval(*(unsigned long long *)buf_ptr));
+            sprintf(value, "%s%llu", value,(unsigned long long)cv_convert_double(var->conversion_factor,*(unsigned long long *)buf_ptr));
             break;
 
         case TRICK_NUMBER_OF_TYPES:

@@ -2,6 +2,7 @@
 #include <string.h>
 #include <iostream>
 #include <stdlib.h>
+#include <udunits2.h>
 #include "trick/VariableServer.hh"
 #include "trick/variable_server_message_types.h"
 #include "trick/memorymanager_c_intf.h"
@@ -13,6 +14,8 @@
 #include "trick/message_type.h"
 #include "trick/TrickConstant.hh"
 #include "trick/sie_c_intf.h"
+#include "trick/UdUnits.hh"
+#include "trick/map_trick_units_to_udunits.hh"
 
 int Trick::VariableServerThread::bad_ref_int = 0 ;
 int Trick::VariableServerThread::do_not_resolve_bad_ref_int = 0 ;
@@ -115,15 +118,31 @@ int Trick::VariableServerThread::var_units(std::string var_name, std::string uni
                 vars[ii]->ref->units = strdup(vars[ii]->ref->attr->units);
             }
             else {
-                Unit orig_units(vars[ii]->ref->attr->units) ;
-                try {
-                    vars[ii]->conversion_factor = orig_units.Conversion_to(units_name.c_str()) ;
-                    vars[ii]->ref->units = strdup(units_name.c_str());
+                std::string new_units = map_trick_units_to_udunits(units_name) ;
+                if ( units_name.compare(new_units) ) {
+                    std::cout << "\033[33mUnits converted from [" << units_name << "] to [" << new_units
+                     << "] in Variable Server for " << var_name << "\033[0m" << std::endl ;
                 }
-                catch (Unit::CONVERSION_ERROR & ce_err ) {
-                    message_publish(MSG_ERROR, "Variable Server Error: var_units Units conversion error for \"%s\".\n",var_name.c_str());
-                    return(-1) ;
+                ut_unit * from = ut_parse(Trick::UdUnits::get_u_system(), vars[ii]->ref->attr->units, UT_ASCII) ;
+                if ( !from ) {
+                    message_publish(MSG_ERROR, "Variable Server Error: var_units Units conversion error for \"%s\".\n",
+                     var_name.c_str());
+                    return -1 ;
                 }
+                ut_unit * to = ut_parse(Trick::UdUnits::get_u_system(), new_units.c_str(), UT_ASCII) ;
+                if ( !to ) {
+                    message_publish(MSG_ERROR, "Variable Server Error: var_units Units conversion error for \"%s\".\n",
+                     var_name.c_str());
+                    return -1 ;
+                }
+                cv_converter * conversion_factor = ut_get_converter(from,to) ;
+                if ( conversion_factor != NULL ) {
+                    // only assign conversion_factor if it is not NULL, otherwise leave previous value.
+                    vars[ii]->conversion_factor = conversion_factor ;
+                }
+                vars[ii]->ref->units = strdup(units_name.c_str());
+                ut_free(from) ;
+                ut_free(to) ;
             }
         }
     }

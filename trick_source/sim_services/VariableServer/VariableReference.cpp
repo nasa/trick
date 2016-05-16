@@ -1,6 +1,7 @@
 
 #include <stdlib.h>
 #include <iostream>
+#include <udunits2.h>
 #include "trick/VariableServer.hh"
 #include "trick/memorymanager_c_intf.h"
 #include "trick/wcs_ext.h"
@@ -13,7 +14,8 @@ Trick::VariableReference::VariableReference(REF2 * in_ref ) {
     int k ;
 
     // VariableReference copy setup: set address & size to copy into buffer
-    conversion_factor = new UCFn(in_ref->attr->units, in_ref->attr->units, 1.0 , 0.0) ;
+    conversion_factor = cv_get_trivial() ;
+
     ref = in_ref ;
     address = ref->address ;
     size = ref->attr->size ;

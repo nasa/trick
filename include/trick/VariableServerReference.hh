@@ -7,7 +7,8 @@
 #define VARIABLESERVERREFERENCE_HH
 
 #include "trick/reference.h"
-#include "trick/UCFn.hh"
+
+union cv_converter ;
 
 #define MAX_ARRAY_LENGTH 4096
 
@@ -25,7 +26,7 @@ namespace Trick {
 
             /** Pointer to trick variable reference structure.\n */
             REF2 * ref ;
-            UCFn * conversion_factor ;
+            cv_converter * conversion_factor ; // ** udunits conversion factor
             void * buffer_in ;
             void * buffer_out ;
             void * address ;          // -- address of data copied to buffer
