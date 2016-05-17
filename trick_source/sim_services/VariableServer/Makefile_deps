@@ -77,7 +77,6 @@ object_${TRICK_HOST_CPU}/VariableServer_copy_data_freeze_scheduled.o: \
  ${TRICK_HOME}/include/trick/VariableServerListenThread.hh \
  ${TRICK_HOME}/include/trick/TrickConstant.hh 
 object_${TRICK_HOST_CPU}/VariableReference.o: VariableReference.cpp \
- /usr/include/udunits2/udunits2.h /usr/include/udunits2/converter.h \
  ${TRICK_HOME}/include/trick/VariableServer.hh \
  ${TRICK_HOME}/include/trick/tc.h \
  ${TRICK_HOME}/include/trick/trick_error_hndlr.h \
@@ -345,8 +344,7 @@ object_${TRICK_HOST_CPU}/VariableServer.o: VariableServer.cpp \
  ${TRICK_HOME}/include/trick/VariableServerReference.hh \
  ${TRICK_HOME}/include/trick/VariableServerListenThread.hh \
  ${TRICK_HOME}/include/trick/tc_proto.h 
-object_${TRICK_HOST_CPU}/vs_format_ascii.o: vs_format_ascii.cpp /usr/include/udunits2/udunits2.h \
- /usr/include/udunits2/converter.h \
+object_${TRICK_HOST_CPU}/vs_format_ascii.o: vs_format_ascii.cpp \
  ${TRICK_HOME}/include/trick/parameter_types.h \
  ${TRICK_HOME}/include/trick/attributes.h \
  ${TRICK_HOME}/include/trick/bitfield_proto.h \
@@ -594,7 +592,6 @@ object_${TRICK_HOST_CPU}/VariableServer_copy_data_freeze_scheduled.o: \
  ${TRICK_HOME}/include/trick/VariableServerListenThread.hh \
  ${TRICK_HOME}/include/trick/TrickConstant.hh 
 object_${TRICK_HOST_CPU}/VariableReference.o: VariableReference.cpp \
- /usr/include/udunits2/udunits2.h /usr/include/udunits2/converter.h \
  ${TRICK_HOME}/include/trick/VariableServer.hh \
  ${TRICK_HOME}/include/trick/tc.h \
  ${TRICK_HOME}/include/trick/trick_error_hndlr.h \
@@ -635,7 +632,6 @@ object_${TRICK_HOST_CPU}/VariableServerThread_write_stdio.o: VariableServerThrea
  ${TRICK_HOME}/include/trick/variable_server_message_types.h \
  ${TRICK_HOME}/include/trick/tc_proto.h 
 object_${TRICK_HOST_CPU}/VariableServerThread_commands.o: VariableServerThread_commands.cpp \
- /usr/include/udunits2/udunits2.h /usr/include/udunits2/converter.h \
  ${TRICK_HOME}/include/trick/VariableServer.hh \
  ${TRICK_HOME}/include/trick/tc.h \
  ${TRICK_HOME}/include/trick/trick_error_hndlr.h \
@@ -875,8 +871,7 @@ object_${TRICK_HOST_CPU}/VariableServer.o: VariableServer.cpp \
  ${TRICK_HOME}/include/trick/VariableServerReference.hh \
  ${TRICK_HOME}/include/trick/VariableServerListenThread.hh \
  ${TRICK_HOME}/include/trick/tc_proto.h 
-object_${TRICK_HOST_CPU}/vs_format_ascii.o: vs_format_ascii.cpp /usr/include/udunits2/udunits2.h \
- /usr/include/udunits2/converter.h \
+object_${TRICK_HOST_CPU}/vs_format_ascii.o: vs_format_ascii.cpp \
  ${TRICK_HOME}/include/trick/parameter_types.h \
  ${TRICK_HOME}/include/trick/attributes.h \
  ${TRICK_HOME}/include/trick/bitfield_proto.h \

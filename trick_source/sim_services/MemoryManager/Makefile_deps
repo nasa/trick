@@ -261,7 +261,6 @@ object_${TRICK_HOST_CPU}/MemoryManager_ref_assignment.o: MemoryManager_ref_assig
  ${TRICK_HOME}/include/trick/bitfield_proto.h \
  ${TRICK_HOME}/include/trick/vval.h \
  ${TRICK_HOME}/include/trick/wcs_ext.h \
- /usr/include/udunits2/udunits2.h /usr/include/udunits2/converter.h \
  ${TRICK_HOME}/include/trick/UdUnits.hh 
 object_${TRICK_HOST_CPU}/MemoryManager_C_Intf.o: MemoryManager_C_Intf.cpp \
  ${TRICK_HOME}/include/trick/memorymanager_c_intf.h \
