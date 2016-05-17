@@ -45,7 +45,8 @@ SOURCES += koviplot.cpp \
     linedrulerview.cpp \
     curvesview.cpp \
     cornerview.cpp \
-    labeledrulerview.cpp
+    labeledrulerview.cpp \
+    yaxislabelview.cpp
 
 HEADERS  += koviplot.h \
             kplot.h \
@@ -63,4 +64,5 @@ HEADERS  += koviplot.h \
     linedrulerview.h \
     curvesview.h \
     cornerview.h \
-    labeledrulerview.h
+    labeledrulerview.h \
+    yaxislabelview.h

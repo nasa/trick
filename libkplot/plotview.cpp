@@ -7,7 +7,7 @@
 //
 //
 //
-//         0    1            2               3
+//    0    1    2            3               4
 //  +---++-------------------------------------+
 //  |   ||              Title                  |   0
 //  |   |+-------------------------------------+
@@ -30,13 +30,14 @@
 //  |   ||            X Tic Labels             |   4
 //  |   |+-------------------------------------+
 //  |   |+-------------------------------------+
-//  |   ||            X Axis Label             |
+//  |   ||            X Axis Label             |   5
 //  +---++-------------------------------------+
 
 
 PlotView::PlotView(QWidget *parent) :
     BookIdxView(parent),
     _titleView(0),
+    _yAxisLabel(0),
     _tlCorner(0), _trCorner(0), _blCorner(0), _brCorner(0),
     _curvesView(0),
     _tTics(0), _bTics(0), _rTics(0), _lTics(0),
@@ -49,6 +50,7 @@ PlotView::PlotView(QWidget *parent) :
     _grid->setSpacing(0);
 
     _titleView  = new PlotTitleView(this);
+    _yAxisLabel = new YAxisLabelView(this);
     _tlCorner   = new CornerView(Qt::TopLeftCorner,this);
     _trCorner   = new CornerView(Qt::TopRightCorner,this);
     _blCorner   = new CornerView(Qt::BottomLeftCorner,this);
@@ -61,18 +63,19 @@ PlotView::PlotView(QWidget *parent) :
     _yTicLabels = new LabeledRulerView(Qt::AlignLeft,this);
     _curvesView = new CurvesView(this);
 
-    _grid->addWidget( _titleView,0,0,1,4);
-    _grid->addWidget(_yTicLabels,1,0,3,1);
-    _grid->addWidget(  _tlCorner,1,1,1,1);
-    _grid->addWidget(     _tTics,1,2,1,1);
-    _grid->addWidget(  _trCorner,1,3,1,1);
-    _grid->addWidget(     _lTics,2,1,1,1);
-    _grid->addWidget(_curvesView,2,2,1,1);
-    _grid->addWidget(     _rTics,2,3,1,1);
-    _grid->addWidget(  _blCorner,3,1,1,1);
-    _grid->addWidget(     _bTics,3,2,1,1);
-    _grid->addWidget(  _brCorner,3,3,1,1);
-    _grid->addWidget(_xTicLabels,4,0,1,4);
+    _grid->addWidget(_yAxisLabel,0,0,6,1);
+    _grid->addWidget( _titleView,0,1,1,4);
+    _grid->addWidget(_yTicLabels,1,1,3,1);
+    _grid->addWidget(  _tlCorner,1,2,1,1);
+    _grid->addWidget(     _tTics,1,3,1,1);
+    _grid->addWidget(  _trCorner,1,4,1,1);
+    _grid->addWidget(     _lTics,2,2,1,1);
+    _grid->addWidget(_curvesView,2,3,1,1);
+    _grid->addWidget(     _rTics,2,4,1,1);
+    _grid->addWidget(  _blCorner,3,2,1,1);
+    _grid->addWidget(     _bTics,3,3,1,1);
+    _grid->addWidget(  _brCorner,3,4,1,1);
+    _grid->addWidget(_xTicLabels,4,1,1,4);
 
     _grid->setRowStretch(0,1);
     _grid->setRowStretch(1,1);
@@ -82,10 +85,12 @@ PlotView::PlotView(QWidget *parent) :
 
     _grid->setColumnStretch(0,1);
     _grid->setColumnStretch(1,1);
-    _grid->setColumnStretch(2,100);
-    _grid->setColumnStretch(3,1);
+    _grid->setColumnStretch(2,1);
+    _grid->setColumnStretch(3,100);
+    _grid->setColumnStretch(4,1);
 
     _childViews << _titleView
+                << _yAxisLabel
                 << _curvesView
                 << _tlCorner <<  _trCorner << _blCorner << _brCorner
                 << _tTics <<  _bTics << _rTics <<  _lTics

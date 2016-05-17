@@ -13,6 +13,7 @@
 #include "linedrulerview.h"
 #include "labeledrulerview.h"
 #include "curvesview.h"
+#include "yaxislabelview.h"
 #include "libsnapdata/trickcurvemodel.h"
 
 class PlotView : public BookIdxView
@@ -32,6 +33,7 @@ protected:
 private:
     QGridLayout* _grid;
     PlotTitleView* _titleView ;
+    YAxisLabelView* _yAxisLabel;
     CornerView* _tlCorner;
     CornerView* _trCorner;
     CornerView* _blCorner;
