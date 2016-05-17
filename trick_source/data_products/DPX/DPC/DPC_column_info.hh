@@ -4,7 +4,6 @@
 #include <string.h>
 #include <iostream>
 #include <udunits2.h>
-#include "trick/Unit.hh"
 
 class DPC_column_info {
 public:

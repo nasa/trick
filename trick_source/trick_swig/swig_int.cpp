@@ -5,8 +5,6 @@
 #include "trick/swig/swig_double.hh"
 #include "trick/swig/swig_convert_units.hh"
 
-#include "trick/Unit.hh"
-
 char swig_int::str_output[32] ;
 
 swig_int::swig_int() {

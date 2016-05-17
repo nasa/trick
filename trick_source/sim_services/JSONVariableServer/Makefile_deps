@@ -1,12 +1,10 @@
 object_${TRICK_HOST_CPU}/JSONVariableServer.o: JSONVariableServer.cpp \
  ${TRICK_HOME}/include/trick/JSONVariableServer.hh \
  ${TRICK_HOME}/include/trick/tc.h \
- ${TRICK_HOME}/include/trick/trick_byteswap.h \
  ${TRICK_HOME}/include/trick/trick_error_hndlr.h \
  ${TRICK_HOME}/include/trick/ThreadBase.hh \
  ${TRICK_HOME}/include/trick/JSONVariableServerThread.hh \
  ${TRICK_HOME}/include/trick/tc_proto.h \
- ${TRICK_HOME}/include/trick/tc.h \
  ${TRICK_HOME}/include/trick/attributes.h \
  ${TRICK_HOME}/include/trick/parameter_types.h \
  ${TRICK_HOME}/include/trick/message_proto.h \
@@ -14,7 +12,6 @@ object_${TRICK_HOST_CPU}/JSONVariableServer.o: JSONVariableServer.cpp \
 object_${TRICK_HOST_CPU}/JSONVariableServerThread.o: JSONVariableServerThread.cpp \
  ${TRICK_HOME}/include/trick/JSONVariableServerThread.hh \
  ${TRICK_HOME}/include/trick/tc.h \
- ${TRICK_HOME}/include/trick/trick_byteswap.h \
  ${TRICK_HOME}/include/trick/trick_error_hndlr.h \
  ${TRICK_HOME}/include/trick/ThreadBase.hh \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
@@ -27,11 +24,9 @@ object_${TRICK_HOST_CPU}/JSONVariableServerThread.o: JSONVariableServerThread.cp
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
  ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh \
  ${TRICK_HOME}/include/trick/memorymanager_c_intf.h \
  ${TRICK_HOME}/include/trick/exec_proto.h \
  ${TRICK_HOME}/include/trick/sim_mode.h \
  ${TRICK_HOME}/include/trick/PythonPrint.hh \
  ${TRICK_HOME}/include/trick/tc_proto.h \
- ${TRICK_HOME}/include/trick/tc.h \
  ${TRICK_HOME}/include/trick/TrickConstant.hh 

@@ -1,4 +1,5 @@
 
+#include <string.h>
 #include <udunits2.h>
 #include "DPC/DPC_UnitConvDataStream.hh"
 

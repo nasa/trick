@@ -9,7 +9,6 @@
 #include "trick/tc_proto.h"
 #include "trick/exec_proto.h"
 #include "trick/command_line_protos.h"
-#include "trick/Unit.hh"
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
 #include "trick/TrickConstant.hh"

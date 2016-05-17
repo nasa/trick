@@ -3,7 +3,6 @@
 #include <iostream>
 #include <udunits2.h>
 
-#include "trick/Unit.hh"
 #include "trick/UdUnits.hh"
 
 int convert_united_value( std::string & to_units , std::string & from_units , long long * val ) {

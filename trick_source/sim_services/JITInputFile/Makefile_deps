@@ -11,7 +11,6 @@ object_${TRICK_HOST_CPU}/JITEvent.o: JITEvent.cpp ${TRICK_HOME}/include/trick/JI
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh \
  ${TRICK_HOME}/include/trick/Event.hh \
  ${TRICK_HOME}/include/trick/exec_proto.h \
  ${TRICK_HOME}/include/trick/sim_mode.h \
@@ -34,7 +33,6 @@ object_${TRICK_HOST_CPU}/jit_input_file_c_intf.o: jit_input_file_c_intf.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh \
  ${TRICK_HOME}/include/trick/Event.hh \
  ${TRICK_HOME}/include/trick/exec_proto.h \
  ${TRICK_HOME}/include/trick/sim_mode.h \
@@ -56,7 +54,6 @@ object_${TRICK_HOST_CPU}/JITInputFile.o: JITInputFile.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh \
  ${TRICK_HOME}/include/trick/Event.hh \
  ${TRICK_HOME}/include/trick/exec_proto.h \
  ${TRICK_HOME}/include/trick/sim_mode.h \
@@ -75,5 +72,6 @@ object_${TRICK_HOST_CPU}/JITInputFile.o: JITInputFile.cpp \
  ${TRICK_HOME}/include/trick/SimObject.hh \
  ${TRICK_HOME}/include/trick/Threads.hh \
  ${TRICK_HOME}/include/trick/ThreadBase.hh \
+ ${TRICK_HOME}/include/trick/ThreadTrigger.hh \
  ${TRICK_HOME}/include/trick/sim_mode.h \
  ${TRICK_HOME}/include/trick/TrickConstant.hh 

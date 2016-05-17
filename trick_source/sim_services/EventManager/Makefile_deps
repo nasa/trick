@@ -13,7 +13,6 @@ object_${TRICK_HOST_CPU}/EventManager.o: EventManager.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh \
  ${TRICK_HOME}/include/trick/exec_proto.h \
  ${TRICK_HOME}/include/trick/sim_mode.h \
  ${TRICK_HOME}/include/trick/EventInstrument.hh \
@@ -29,6 +28,7 @@ object_${TRICK_HOST_CPU}/EventManager.o: EventManager.cpp \
  ${TRICK_HOME}/include/trick/SimObject.hh \
  ${TRICK_HOME}/include/trick/Threads.hh \
  ${TRICK_HOME}/include/trick/ThreadBase.hh \
+ ${TRICK_HOME}/include/trick/ThreadTrigger.hh \
  ${TRICK_HOME}/include/trick/sim_mode.h \
  ${TRICK_HOME}/include/trick/message_proto.h \
  ${TRICK_HOME}/include/trick/message_type.h 
@@ -46,7 +46,6 @@ object_${TRICK_HOST_CPU}/EventManager_c_intf.o: EventManager_c_intf.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh \
  ${TRICK_HOME}/include/trick/exec_proto.h \
  ${TRICK_HOME}/include/trick/sim_mode.h \
  ${TRICK_HOME}/include/trick/EventManager.hh \
@@ -70,7 +69,6 @@ object_${TRICK_HOST_CPU}/EventInstrument.o: EventInstrument.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh \
  ${TRICK_HOME}/include/trick/exec_proto.h \
  ${TRICK_HOME}/include/trick/sim_mode.h \
  ${TRICK_HOME}/include/trick/InstrumentBase.hh \
@@ -84,6 +82,7 @@ object_${TRICK_HOST_CPU}/EventInstrument.o: EventInstrument.cpp \
  ${TRICK_HOME}/include/trick/SimObject.hh \
  ${TRICK_HOME}/include/trick/Threads.hh \
  ${TRICK_HOME}/include/trick/ThreadBase.hh \
+ ${TRICK_HOME}/include/trick/ThreadTrigger.hh \
  ${TRICK_HOME}/include/trick/sim_mode.h 
 object_${TRICK_HOST_CPU}/EventProcessor.o: EventProcessor.cpp \
  ${TRICK_HOME}/include/trick/EventProcessor.hh \
@@ -100,7 +99,6 @@ object_${TRICK_HOST_CPU}/EventProcessor.o: EventProcessor.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh \
  ${TRICK_HOME}/include/trick/exec_proto.h \
  ${TRICK_HOME}/include/trick/sim_mode.h \
  ${TRICK_HOME}/include/trick/JobData.hh \

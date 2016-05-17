@@ -2,7 +2,6 @@
 #include "DPC/DPC_delta_curve.hh"
 #include "math.h"
 #include "string.h"
-#include "trick/Unit.hh"
 #include <sstream>
 
 // CONSTRUCTOR

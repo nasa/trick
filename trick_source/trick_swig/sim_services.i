@@ -135,7 +135,6 @@
 #include "trick/variable_server_proto.h"
 #include "trick/vval.h"
 #include "trick/Flag.h"
-#include "trick/Unit.hh"
 #include "trick/UdUnits.hh"
 
 #ifdef USE_ER7_UTILS_INTEGRATORS

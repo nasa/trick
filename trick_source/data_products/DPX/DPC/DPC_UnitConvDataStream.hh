@@ -4,7 +4,6 @@
 
 #include <string>
 #include <udunits2.h>
-#include "trick/Unit.hh"
 #include "../../Log/DataStream.hh"
 
 /**

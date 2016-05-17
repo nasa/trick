@@ -28,7 +28,6 @@ object_${TRICK_HOST_CPU}/ClassicCheckPointerAgent.o: ClassicCheckPointerAgent.cp
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
  ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh \
  ${TRICK_HOME}/include/trick/wcs_ext.h \
  ${TRICK_HOME}/include/trick/bitfield_proto.h \
  ${TRICK_HOME}/include/trick/message_proto.h \
@@ -46,5 +45,4 @@ object_${TRICK_HOST_CPU}/ChkPtParseContext.o: ChkPtParseContext.cpp \
  ${TRICK_HOME}/include/trick/io_alloc.h \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
- ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh 
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 

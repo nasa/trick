@@ -17,7 +17,6 @@ object_${TRICK_HOST_CPU}/FrameDataRecordGroup.o: FrameDataRecordGroup.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh \
  ${TRICK_HOME}/include/trick/clock_proto.h \
  ${TRICK_HOME}/include/trick/exec_proto.h \
  ${TRICK_HOME}/include/trick/sim_mode.h 
@@ -40,7 +39,6 @@ object_${TRICK_HOST_CPU}/FrameLog.o: FrameLog.cpp ${TRICK_HOME}/include/trick/Fr
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh \
  ${TRICK_HOME}/include/trick/exec_proto.hh \
  ${TRICK_HOME}/include/trick/Executive.hh \
  ${TRICK_HOME}/include/trick/Scheduler.hh \
@@ -49,6 +47,7 @@ object_${TRICK_HOST_CPU}/FrameLog.o: FrameLog.cpp ${TRICK_HOME}/include/trick/Fr
  ${TRICK_HOME}/include/trick/SimObject.hh \
  ${TRICK_HOME}/include/trick/Threads.hh \
  ${TRICK_HOME}/include/trick/ThreadBase.hh \
+ ${TRICK_HOME}/include/trick/ThreadTrigger.hh \
  ${TRICK_HOME}/include/trick/sim_mode.h \
  ${TRICK_HOME}/include/trick/exec_proto.h \
  ${TRICK_HOME}/include/trick/sim_mode.h \
@@ -76,5 +75,4 @@ object_${TRICK_HOST_CPU}/FrameLog_c_intf.o: FrameLog_c_intf.cpp \
  ${TRICK_HOME}/include/trick/io_alloc.h \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
  ${TRICK_HOME}/include/trick/mm_error.h \
- ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh 
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 

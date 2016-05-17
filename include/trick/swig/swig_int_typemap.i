@@ -11,7 +11,6 @@
 #include "trick/swig/swig_ref.hh"
 #include "trick/swig/PrimitiveAttributesMap.hh"
 #include "trick/UnitsMap.hh"
-#include "trick/Unit.hh"
 #include "trick/reference.h"
 #include "trick/memorymanager_c_intf.h"
 

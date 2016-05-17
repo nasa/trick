@@ -25,7 +25,6 @@
 #include <sstream>
 
 #include "trick/UnitsMap.hh"
-#include "trick/Unit.hh"
 #include "trick/MemoryManager.hh"
 #include "trick/reference.h"
 #include "trick/memorymanager_c_intf.h"

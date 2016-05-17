@@ -52,8 +52,7 @@ object_${TRICK_HOST_CPU}/MemoryManager_add_shared_library_symbols.o: \
  ${TRICK_HOME}/include/trick/io_alloc.h \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
- ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh 
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 
 object_${TRICK_HOST_CPU}/MemoryManager.o: MemoryManager.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
  ${TRICK_HOME}/include/trick/attributes.h \
@@ -65,9 +64,8 @@ object_${TRICK_HOST_CPU}/MemoryManager.o: MemoryManager.cpp \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
  ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh \
  ${TRICK_HOME}/include/trick/ClassicCheckPointAgent.hh 
-object_${TRICK_HOST_CPU}/MemoryManager_realloc.o: MemoryManager_realloc.cpp \
+object_${TRICK_HOST_CPU}/MemoryManager_set_debug_level.o: MemoryManager_set_debug_level.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
  ${TRICK_HOME}/include/trick/attributes.h \
  ${TRICK_HOME}/include/trick/parameter_types.h \
@@ -77,8 +75,7 @@ object_${TRICK_HOST_CPU}/MemoryManager_realloc.o: MemoryManager_realloc.cpp \
  ${TRICK_HOME}/include/trick/io_alloc.h \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
- ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh 
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 
 object_${TRICK_HOST_CPU}/MemoryManager_make_reference_attr.o: \
  MemoryManager_make_reference_attr.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
@@ -90,9 +87,9 @@ object_${TRICK_HOST_CPU}/MemoryManager_make_reference_attr.o: \
  ${TRICK_HOME}/include/trick/io_alloc.h \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
- ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh 
-object_${TRICK_HOST_CPU}/MemoryManager_set_debug_level.o: MemoryManager_set_debug_level.cpp \
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 
+object_${TRICK_HOST_CPU}/MemoryManager_add_checkpoint_alloc_dependency.o: \
+ MemoryManager_add_checkpoint_alloc_dependency.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
  ${TRICK_HOME}/include/trick/attributes.h \
  ${TRICK_HOME}/include/trick/parameter_types.h \
@@ -102,8 +99,7 @@ object_${TRICK_HOST_CPU}/MemoryManager_set_debug_level.o: MemoryManager_set_debu
  ${TRICK_HOME}/include/trick/io_alloc.h \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
- ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh 
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 
 object_${TRICK_HOST_CPU}/MemoryManager_add_attr_info.o: MemoryManager_add_attr_info.cpp \
  ${TRICK_HOME}/include/trick/SimObject.hh \
  ${TRICK_HOME}/include/trick/JobData.hh \
@@ -117,8 +113,7 @@ object_${TRICK_HOST_CPU}/MemoryManager_add_attr_info.o: MemoryManager_add_attr_i
  ${TRICK_HOME}/include/trick/io_alloc.h \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
- ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh 
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 
 object_${TRICK_HOST_CPU}/ref_free.o: ref_free.cpp ${TRICK_HOME}/include/trick/reference.h \
  ${TRICK_HOME}/include/trick/attributes.h \
  ${TRICK_HOME}/include/trick/parameter_types.h \
@@ -134,8 +129,7 @@ object_${TRICK_HOST_CPU}/MemoryManager_alloc_info_map.o: MemoryManager_alloc_inf
  ${TRICK_HOME}/include/trick/io_alloc.h \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
- ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh 
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 
 object_${TRICK_HOST_CPU}/MemoryManager_delete_var.o: MemoryManager_delete_var.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
  ${TRICK_HOME}/include/trick/attributes.h \
@@ -146,8 +140,7 @@ object_${TRICK_HOST_CPU}/MemoryManager_delete_var.o: MemoryManager_delete_var.cp
  ${TRICK_HOME}/include/trick/io_alloc.h \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
- ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh 
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 
 object_${TRICK_HOST_CPU}/MemoryManager_ref_name_from_address.o: \
  MemoryManager_ref_name_from_address.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
@@ -160,7 +153,6 @@ object_${TRICK_HOST_CPU}/MemoryManager_ref_name_from_address.o: \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
  ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh \
  ${TRICK_HOME}/include/trick/ClassicCheckPointAgent.hh 
 object_${TRICK_HOST_CPU}/MemoryManager_ref_name.o: MemoryManager_ref_name.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
@@ -172,8 +164,7 @@ object_${TRICK_HOST_CPU}/MemoryManager_ref_name.o: MemoryManager_ref_name.cpp \
  ${TRICK_HOME}/include/trick/io_alloc.h \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
- ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh 
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 
 object_${TRICK_HOST_CPU}/MemoryManager_ref_dim.o: MemoryManager_ref_dim.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
  ${TRICK_HOME}/include/trick/attributes.h \
@@ -185,8 +176,18 @@ object_${TRICK_HOST_CPU}/MemoryManager_ref_dim.o: MemoryManager_ref_dim.cpp \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
  ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh \
  ${TRICK_HOME}/include/trick/vval.h 
+object_${TRICK_HOST_CPU}/MemoryManager_realloc.o: MemoryManager_realloc.cpp \
+ ${TRICK_HOME}/include/trick/MemoryManager.hh \
+ ${TRICK_HOME}/include/trick/attributes.h \
+ ${TRICK_HOME}/include/trick/parameter_types.h \
+ ${TRICK_HOME}/include/trick/reference.h \
+ ${TRICK_HOME}/include/trick/value.h \
+ ${TRICK_HOME}/include/trick/dllist.h \
+ ${TRICK_HOME}/include/trick/io_alloc.h \
+ ${TRICK_HOME}/include/trick/mm_error.h \
+ ${TRICK_HOME}/include/trick/var.h \
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 
 object_${TRICK_HOST_CPU}/MemoryManager_get_size.o: MemoryManager_get_size.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
  ${TRICK_HOME}/include/trick/attributes.h \
@@ -197,8 +198,7 @@ object_${TRICK_HOST_CPU}/MemoryManager_get_size.o: MemoryManager_get_size.cpp \
  ${TRICK_HOME}/include/trick/io_alloc.h \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
- ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh 
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 
 object_${TRICK_HOST_CPU}/MemoryManager_declare_var.o: MemoryManager_declare_var.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
  ${TRICK_HOME}/include/trick/attributes.h \
@@ -210,7 +210,6 @@ object_${TRICK_HOST_CPU}/MemoryManager_declare_var.o: MemoryManager_declare_var.
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
  ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh \
  ${TRICK_HOME}/include/trick/ADefParseContext.hh 
 object_${TRICK_HOST_CPU}/MemoryManager_add_template_name_trans.o: \
  MemoryManager_add_template_name_trans.cpp \
@@ -223,8 +222,7 @@ object_${TRICK_HOST_CPU}/MemoryManager_add_template_name_trans.o: \
  ${TRICK_HOME}/include/trick/io_alloc.h \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
- ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh 
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 
 object_${TRICK_HOST_CPU}/MemoryManager_make_declaration.o: MemoryManager_make_declaration.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
  ${TRICK_HOME}/include/trick/attributes.h \
@@ -235,8 +233,7 @@ object_${TRICK_HOST_CPU}/MemoryManager_make_declaration.o: MemoryManager_make_de
  ${TRICK_HOME}/include/trick/io_alloc.h \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
- ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh 
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 
 object_${TRICK_HOST_CPU}/MemoryManager_map_external_object.o: \
  MemoryManager_map_external_object.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
@@ -249,7 +246,6 @@ object_${TRICK_HOST_CPU}/MemoryManager_map_external_object.o: \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
  ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh \
  ${TRICK_HOME}/include/trick/ADefParseContext.hh 
 object_${TRICK_HOST_CPU}/MemoryManager_ref_assignment.o: MemoryManager_ref_assignment.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
@@ -262,12 +258,11 @@ object_${TRICK_HOST_CPU}/MemoryManager_ref_assignment.o: MemoryManager_ref_assig
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
  ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh \
  ${TRICK_HOME}/include/trick/bitfield_proto.h \
  ${TRICK_HOME}/include/trick/vval.h \
  ${TRICK_HOME}/include/trick/wcs_ext.h \
- ${TRICK_HOME}/include/trick/Unit.hh \
- ${TRICK_HOME}/include/trick/units_conv.h 
+ /usr/include/udunits2/udunits2.h /usr/include/udunits2/converter.h \
+ ${TRICK_HOME}/include/trick/UdUnits.hh 
 object_${TRICK_HOST_CPU}/MemoryManager_C_Intf.o: MemoryManager_C_Intf.cpp \
  ${TRICK_HOME}/include/trick/memorymanager_c_intf.h \
  ${TRICK_HOME}/include/trick/parameter_types.h \
@@ -279,8 +274,7 @@ object_${TRICK_HOST_CPU}/MemoryManager_C_Intf.o: MemoryManager_C_Intf.cpp \
  ${TRICK_HOME}/include/trick/io_alloc.h \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
  ${TRICK_HOME}/include/trick/mm_error.h \
- ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh 
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 
 object_${TRICK_HOST_CPU}/MemoryManager_write_checkpoint.o: MemoryManager_write_checkpoint.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
  ${TRICK_HOME}/include/trick/attributes.h \
@@ -291,8 +285,7 @@ object_${TRICK_HOST_CPU}/MemoryManager_write_checkpoint.o: MemoryManager_write_c
  ${TRICK_HOME}/include/trick/io_alloc.h \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
- ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh 
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 
 object_${TRICK_HOST_CPU}/MemoryManager_get_type_attributes.o: \
  MemoryManager_get_type_attributes.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
@@ -304,8 +297,7 @@ object_${TRICK_HOST_CPU}/MemoryManager_get_type_attributes.o: \
  ${TRICK_HOME}/include/trick/io_alloc.h \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
- ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh 
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 
 object_${TRICK_HOST_CPU}/MemoryManager_get_enumerated.o: MemoryManager_get_enumerated.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
  ${TRICK_HOME}/include/trick/attributes.h \
@@ -316,8 +308,19 @@ object_${TRICK_HOST_CPU}/MemoryManager_get_enumerated.o: MemoryManager_get_enume
  ${TRICK_HOME}/include/trick/io_alloc.h \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
- ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh 
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 
+object_${TRICK_HOST_CPU}/MemoryManager_get_stl_dependencies.o: \
+ MemoryManager_get_stl_dependencies.cpp \
+ ${TRICK_HOME}/include/trick/MemoryManager.hh \
+ ${TRICK_HOME}/include/trick/attributes.h \
+ ${TRICK_HOME}/include/trick/parameter_types.h \
+ ${TRICK_HOME}/include/trick/reference.h \
+ ${TRICK_HOME}/include/trick/value.h \
+ ${TRICK_HOME}/include/trick/dllist.h \
+ ${TRICK_HOME}/include/trick/io_alloc.h \
+ ${TRICK_HOME}/include/trick/mm_error.h \
+ ${TRICK_HOME}/include/trick/var.h \
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 
 object_${TRICK_HOST_CPU}/MemoryManager_add_var.o: MemoryManager_add_var.cpp \
  ${TRICK_HOME}/include/trick/value.h \
  ${TRICK_HOME}/include/trick/parameter_types.h \
@@ -329,8 +332,7 @@ object_${TRICK_HOST_CPU}/MemoryManager_add_var.o: MemoryManager_add_var.cpp \
  ${TRICK_HOME}/include/trick/dllist.h \
  ${TRICK_HOME}/include/trick/io_alloc.h \
  ${TRICK_HOME}/include/trick/mm_error.h \
- ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh 
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 
 object_${TRICK_HOST_CPU}/RefParseContext.o: RefParseContext.cpp \
  ${TRICK_HOME}/include/trick/RefParseContext.hh \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
@@ -342,8 +344,7 @@ object_${TRICK_HOST_CPU}/RefParseContext.o: RefParseContext.cpp \
  ${TRICK_HOME}/include/trick/io_alloc.h \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
- ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh 
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 
 object_${TRICK_HOST_CPU}/MemoryManager_set_checkpointagent.o: \
  MemoryManager_set_checkpointagent.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
@@ -355,8 +356,7 @@ object_${TRICK_HOST_CPU}/MemoryManager_set_checkpointagent.o: \
  ${TRICK_HOME}/include/trick/io_alloc.h \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
- ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh 
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 
 object_${TRICK_HOST_CPU}/MemoryManager_ref_attributes.o: MemoryManager_ref_attributes.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
  ${TRICK_HOME}/include/trick/attributes.h \
@@ -368,7 +368,6 @@ object_${TRICK_HOST_CPU}/MemoryManager_ref_attributes.o: MemoryManager_ref_attri
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
  ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh \
  ${TRICK_HOME}/include/trick/RefParseContext.hh 
 object_${TRICK_HOST_CPU}/MemoryManager_io_src_intf.o: MemoryManager_io_src_intf.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
@@ -380,8 +379,7 @@ object_${TRICK_HOST_CPU}/MemoryManager_io_src_intf.o: MemoryManager_io_src_intf.
  ${TRICK_HOME}/include/trick/io_alloc.h \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
- ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh 
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 
 object_${TRICK_HOST_CPU}/MemoryManager_is_alloced.o: MemoryManager_is_alloced.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
  ${TRICK_HOME}/include/trick/attributes.h \
@@ -392,8 +390,7 @@ object_${TRICK_HOST_CPU}/MemoryManager_is_alloced.o: MemoryManager_is_alloced.cp
  ${TRICK_HOME}/include/trick/io_alloc.h \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
- ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh 
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 
 object_${TRICK_HOST_CPU}/MemoryManager_ref_var.o: MemoryManager_ref_var.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
  ${TRICK_HOME}/include/trick/attributes.h \
@@ -405,7 +402,6 @@ object_${TRICK_HOST_CPU}/MemoryManager_ref_var.o: MemoryManager_ref_var.cpp \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
  ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh \
  ${TRICK_HOME}/include/trick/vval.h 
 object_${TRICK_HOST_CPU}/MemoryManager_clear_memory.o: MemoryManager_clear_memory.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
@@ -418,7 +414,6 @@ object_${TRICK_HOST_CPU}/MemoryManager_clear_memory.o: MemoryManager_clear_memor
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
  ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh \
  ${TRICK_HOME}/include/trick/bitfield_proto.h 
 object_${TRICK_HOST_CPU}/MemoryManager_write_var.o: MemoryManager_write_var.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
@@ -430,8 +425,18 @@ object_${TRICK_HOST_CPU}/MemoryManager_write_var.o: MemoryManager_write_var.cpp 
  ${TRICK_HOME}/include/trick/io_alloc.h \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
- ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh 
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 
+object_${TRICK_HOST_CPU}/MemoryManager_restore_stls.o: MemoryManager_restore_stls.cpp \
+ ${TRICK_HOME}/include/trick/MemoryManager.hh \
+ ${TRICK_HOME}/include/trick/attributes.h \
+ ${TRICK_HOME}/include/trick/parameter_types.h \
+ ${TRICK_HOME}/include/trick/reference.h \
+ ${TRICK_HOME}/include/trick/value.h \
+ ${TRICK_HOME}/include/trick/dllist.h \
+ ${TRICK_HOME}/include/trick/io_alloc.h \
+ ${TRICK_HOME}/include/trick/mm_error.h \
+ ${TRICK_HOME}/include/trick/var.h \
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 
 object_${TRICK_HOST_CPU}/MemoryManager_restore.o: MemoryManager_restore.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
  ${TRICK_HOME}/include/trick/attributes.h \
@@ -443,7 +448,6 @@ object_${TRICK_HOST_CPU}/MemoryManager_restore.o: MemoryManager_restore.cpp \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
  ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh \
  ${TRICK_HOME}/include/trick/ClassicCheckPointAgent.hh 
 object_${TRICK_HOST_CPU}/MemoryManager_strdup.o: MemoryManager_strdup.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
@@ -455,8 +459,7 @@ object_${TRICK_HOST_CPU}/MemoryManager_strdup.o: MemoryManager_strdup.cpp \
  ${TRICK_HOME}/include/trick/io_alloc.h \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
- ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh 
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 
 object_${TRICK_HOST_CPU}/ADefParseContext.o: ADefParseContext.cpp \
  ${TRICK_HOME}/include/trick/ADefParseContext.hh \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
@@ -468,8 +471,7 @@ object_${TRICK_HOST_CPU}/ADefParseContext.o: ADefParseContext.cpp \
  ${TRICK_HOME}/include/trick/io_alloc.h \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
- ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh 
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 
 object_${TRICK_HOST_CPU}/MemoryManager_alloc_depends.o: MemoryManager_alloc_depends.cpp \
  ${TRICK_HOME}/include/trick/MemoryManager.hh \
  ${TRICK_HOME}/include/trick/attributes.h \
@@ -480,8 +482,7 @@ object_${TRICK_HOST_CPU}/MemoryManager_alloc_depends.o: MemoryManager_alloc_depe
  ${TRICK_HOME}/include/trick/io_alloc.h \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
- ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh 
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 
 object_${TRICK_HOST_CPU}/MemoryManager_ref_allocate.o: MemoryManager_ref_allocate.cpp \
  ${TRICK_HOME}/include/trick/attributes.h \
  ${TRICK_HOME}/include/trick/parameter_types.h \
@@ -492,5 +493,4 @@ object_${TRICK_HOST_CPU}/MemoryManager_ref_allocate.o: MemoryManager_ref_allocat
  ${TRICK_HOME}/include/trick/io_alloc.h \
  ${TRICK_HOME}/include/trick/mm_error.h \
  ${TRICK_HOME}/include/trick/var.h \
- ${TRICK_HOME}/include/trick/CheckPointAgent.hh \
- ${TRICK_HOME}/include/trick/UCFn.hh 
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 
