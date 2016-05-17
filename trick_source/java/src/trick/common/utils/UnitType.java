@@ -22,17 +22,17 @@ import java.util.regex.Pattern;
 public enum UnitType {
 	
     Angle(new ArrayList<Unit>() {{
-        add(new Unit("radians", "r", false, 0.0, 1.0));
+        add(new Unit("radians", "rad", false, 0.0, 1.0));
         add(new Unit("pico-radians", "pr", false, 0.0, 1.0 * PICO));
         add(new Unit("nano-radians", "nr", false, 0.0, 1.0 * NANO));
         add(new Unit("micro-radians", "ur", false, 0.0, 1.0 * MICRO));
         add(new Unit("milli-radians", "mr", false, 0.0, 1.0 * MILLI));
         add(new Unit("centi-radians", "cr", false, 0.0, 1.0 * CENTI));
         add(new Unit("deci-radians", "dr", false, 0.0, 1.0 * DECI));
-        add(new Unit("degrees", "d", false, 0.0, 0.0174532925199433));
-        add(new Unit("arc-seconds", "as", false, 0.0, 4.848136811095362e-06));
-        add(new Unit("arc-minutes", "am", false, 0.0, 0.000290888208666));
-        add(new Unit("revolutions", "rev", false, 0.0, 6.28318530717958647));
+        add(new Unit("degrees", "degree", false, 0.0, 0.0174532925199433));
+        add(new Unit("arc-seconds", "arcsecond", false, 0.0, 4.848136811095362e-06));
+        add(new Unit("arc-minutes", "arcminute", false, 0.0, 0.000290888208666));
+        add(new Unit("revolutions", "revolution", false, 0.0, 6.28318530717958647));
     }}),
 
     Current(new ArrayList<Unit>() {{
@@ -46,18 +46,18 @@ public enum UnitType {
         add(new Unit("kilo-feet", "kft", false, 0.0, 0.3048 * KILO));
         add(new Unit("yards", "yd", false, 0.0, 0.9144));
         add(new Unit("miles", "mi", false, 0.0, 1609.344));
-        add(new Unit("nautical-miles", "n.m.", false, 0.0, 1852.0));
+        add(new Unit("nautical-miles", "nmile", false, 0.0, 1852.0));
     }}),
 
     Energy(new ArrayList<Unit>() {{
         add(new Unit("joules", "J", true, 0.0, 1.0));
         add(new Unit("british-thermal-units", "BTU", false, 0.0, 1055.056));
-        add(new Unit("tons-tnt", "TNT", false, 0.0, 4.184 * GIGA));
+        add(new Unit("tons-tnt", "ton_TNT", false, 0.0, 4.184 * GIGA));
     }}),
 
     Force(new ArrayList<Unit>() {{
         add(new Unit("newtons", "N", true, 0.0, 1.0));
-        add(new Unit("ounces", "oz", false, 0.0, 0.27801385));
+        add(new Unit("ounces", "ozf", false, 0.0, 0.27801385));
         add(new Unit("pounds-force", "lbf", false, 0.0, 4.4482216152605));
     }}),
 
@@ -71,9 +71,9 @@ public enum UnitType {
 
     Mass(new ArrayList<Unit>() {{
         add(new Unit("grams", "g", true, 0.0, MILLI));
-        add(new Unit("metric-tons", "mt", false, 0.0, 1000.0));
-        add(new Unit("slugs", "sl", false, 0.0, 14.5939029372064));
-        add(new Unit("pounds-mass", "lbm", false, 0.0, 0.4535923697760192));
+        add(new Unit("metric-tons", "t", false, 0.0, 1000.0));
+        add(new Unit("slugs", "slug", false, 0.0, 14.5939029372064));
+        add(new Unit("pounds-mass", "lb", false, 0.0, 0.4535923697760192));
     }}),
 
     Power(new ArrayList<Unit>() {{
@@ -96,10 +96,10 @@ public enum UnitType {
     }}),
 
     Temperature(new ArrayList<Unit>() {{
-        add(new Unit("degrees-Celsius", "C", false, 0.0, 1.0));
-        add(new Unit("degrees-Kelvin", "K", false, -273.15, 1.0));
-        add(new Unit("degrees-Fahrenheit", "F", false, -17.777777777777778, 0.55555555555555556));
-        add(new Unit("degrees-Rankine", "R", false, -273.15, 0.55555555555555556));
+        add(new Unit("degrees-Celsius", "degC", false, 0.0, 1.0));
+        add(new Unit("degrees-Kelvin", "degK", false, -273.15, 1.0));
+        add(new Unit("degrees-Fahrenheit", "degF", false, -17.777777777777778, 0.55555555555555556));
+        add(new Unit("degrees-Rankine", "degR", false, -273.15, 0.55555555555555556));
     }}),
 
     Time(new ArrayList<Unit>() {{
@@ -111,18 +111,18 @@ public enum UnitType {
 
     Unitless(new ArrayList<Unit>() {{
         add(new Unit("unitless", "--", false, 0.0, 1.0));
-        add(new Unit("count", "cnt", false, 0.0, 1.0));
-        add(new Unit("one", "one", false, 0.0, 1.0));
+        add(new Unit("count", "count", false, 0.0, 1.0));
+        add(new Unit("one", "1", false, 0.0, 1.0));
         add(new Unit("moles", "mol", false, 0.0, 6.02214179e+23));
     }}),
 
     Voltage(new ArrayList<Unit>() {{
-        add(new Unit("volts", "v", true, 0.0, 1.0));
+        add(new Unit("volts", "V", true, 0.0, 1.0));
     }}),
 
     Volume(new ArrayList<Unit>() {{
         add(new Unit("liters", "l", true, 0.0, 1.0));
-        add(new Unit("gallons", "gal", false, 0.0, 3.785412));
+        add(new Unit("gallons", "gallon", false, 0.0, 3.785412));
         add(new Unit("fluid-ounces", "floz", false, 0.0, 0.02957353));
     }});
     
