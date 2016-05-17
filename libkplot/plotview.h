@@ -13,6 +13,7 @@
 #include "linedrulerview.h"
 #include "labeledrulerview.h"
 #include "curvesview.h"
+#include "xaxislabelview.h"
 #include "yaxislabelview.h"
 #include "libsnapdata/trickcurvemodel.h"
 
@@ -33,6 +34,7 @@ protected:
 private:
     QGridLayout* _grid;
     PlotTitleView* _titleView ;
+    XAxisLabelView* _xAxisLabel;
     YAxisLabelView* _yAxisLabel;
     CornerView* _tlCorner;
     CornerView* _trCorner;

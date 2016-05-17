@@ -37,6 +37,7 @@
 PlotView::PlotView(QWidget *parent) :
     BookIdxView(parent),
     _titleView(0),
+    _xAxisLabel(0),
     _yAxisLabel(0),
     _tlCorner(0), _trCorner(0), _blCorner(0), _brCorner(0),
     _curvesView(0),
@@ -50,6 +51,7 @@ PlotView::PlotView(QWidget *parent) :
     _grid->setSpacing(0);
 
     _titleView  = new PlotTitleView(this);
+    _xAxisLabel = new XAxisLabelView(this);
     _yAxisLabel = new YAxisLabelView(this);
     _tlCorner   = new CornerView(Qt::TopLeftCorner,this);
     _trCorner   = new CornerView(Qt::TopRightCorner,this);
@@ -76,12 +78,14 @@ PlotView::PlotView(QWidget *parent) :
     _grid->addWidget(     _bTics,3,3,1,1);
     _grid->addWidget(  _brCorner,3,4,1,1);
     _grid->addWidget(_xTicLabels,4,1,1,4);
+    _grid->addWidget(_xAxisLabel,5,1,1,4);
 
     _grid->setRowStretch(0,1);
     _grid->setRowStretch(1,1);
     _grid->setRowStretch(2,100);
     _grid->setRowStretch(3,1);
     _grid->setRowStretch(4,1);
+    _grid->setRowStretch(5,1);
 
     _grid->setColumnStretch(0,1);
     _grid->setColumnStretch(1,1);
@@ -90,6 +94,7 @@ PlotView::PlotView(QWidget *parent) :
     _grid->setColumnStretch(4,1);
 
     _childViews << _titleView
+                << _xAxisLabel
                 << _yAxisLabel
                 << _curvesView
                 << _tlCorner <<  _trCorner << _blCorner << _brCorner
