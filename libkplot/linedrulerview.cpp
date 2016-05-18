@@ -64,7 +64,7 @@ void LinedRulerView::paintEvent(QPaintEvent *event)
             minorTics << QPointF(m,M.bottom()) << QPointF(m,M.center().y());
         }
     } else if ( _alignment == Qt::AlignLeft ) {
-        majors = _myMajorYTics();
+        majors = _majorYTics();
         minors = _minorYTics();
         axis << QPointF(M.left(),M.top())
              << QPointF(M.left(),M.bottom())
