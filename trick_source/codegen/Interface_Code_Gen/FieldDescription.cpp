@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <sstream>
 #include <set>
+#include <stack>
 
 #include <libgen.h>
 #include <regex.h>
