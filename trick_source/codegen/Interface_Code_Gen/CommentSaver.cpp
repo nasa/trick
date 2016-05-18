@@ -18,7 +18,7 @@ bool CommentSaver::HandleComment(clang::Preprocessor &PP, clang::SourceRange Com
         char * resolved_path = almostRealPath( file_name.c_str() ) ;
         if ( resolved_path != NULL ) {
             unsigned int line_no = sm.getSpellingLineNumber(Comment.getBegin()) ;
-            comment_map[file_name][line_no] = Comment ;
+            comment_map[std::string(resolved_path)][line_no] = Comment ;
             free(resolved_path) ;
         }
     }
@@ -54,12 +54,12 @@ std::string CommentSaver::getTrickHeaderComment( std::string file_name ) {
     char * resolved_path = almostRealPath( file_name.c_str() ) ;
     if ( resolved_path != NULL ) {
         if ( trick_header_comments.find(file_name) == trick_header_comments.end() ) {
-            trick_header_comments[file_name] = std::string() ;
-            for ( cit = comment_map[file_name].begin() ; cit != comment_map[file_name].end() ; cit++ ) {
+            trick_header_comments[resolved_path] = std::string() ;
+            for ( cit = comment_map[resolved_path].begin() ; cit != comment_map[resolved_path].end() ; cit++ ) {
                 std::string comment_str = getComment((*cit).second) ;
                 std::transform(comment_str.begin(), comment_str.end(), comment_str.begin(), ::toupper) ;
                 if ( comment_str.find("PURPOSE") != std::string::npos ) {
-                    trick_header_comments[file_name] = comment_str ;
+                    trick_header_comments[resolved_path] = comment_str ;
                     break ;
                 }
             }
