@@ -20,13 +20,13 @@ protected:
     virtual void _update();
 
 private:
-    QVBoxLayout* _mainLayout;
-    QGridLayout* _titleGrid;
-    QFrame* _titleFrame;
+    QGridLayout* _grid;
     QLabel* _title1;
     QLabel* _title2;
     QLabel* _title3;
     QLabel* _title4;
+
+    QString _elideRunsTitle(QString title);
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,

@@ -3,56 +3,44 @@
 PageTitleView::PageTitleView(QWidget *parent) :
     BookIdxView(parent)
 {
-    setFrameStyle(QFrame::NoFrame);
-    _mainLayout = new QVBoxLayout;
-    _titleFrame = new QFrame(this);
-    _titleFrame->setFrameStyle(QFrame::NoFrame);
-    QPalette Pal(palette());
-    Pal.setColor(QPalette::Background, Qt::white);
-    _titleFrame->setAutoFillBackground(true);
-    _titleFrame->setPalette(Pal);
+    setFrameShape(QFrame::NoFrame);
 
-    _titleGrid = new QGridLayout(_titleFrame);
-    _titleGrid->setColumnStretch(0,1);
-    _titleGrid->setColumnStretch(1,8);
-    _titleGrid->setColumnStretch(2,1);
+    _grid = new QGridLayout;
+    _grid->setContentsMargins(0, 0, 8, 8);
+    _grid->setSpacing(0);
 
     QFont font1;
-    int pointSize = _titleFrame->font().pointSize();
-    font1.setPointSize(pointSize+1);
+    int pointSize = font().pointSize();
+    font1.setPointSize(pointSize+4);
 
-    _title1 = new QLabel(_titleFrame);
-    _title1->setTextFormat(Qt::RichText);
-    _title1->setText("No Model");
+    _title1 = new QLabel(this);
     _title1->setAlignment(Qt::AlignHCenter| Qt::AlignVCenter);
     _title1->setFont(font1);
-    _titleGrid->addWidget(_title1,0,1);
 
-    _title2 = new QLabel(_titleFrame);
-    _title2->setTextFormat(Qt::PlainText);
-    _title2->setText("");
-    _title2->setAlignment(Qt::AlignHCenter| Qt::AlignVCenter);
-    _titleGrid->addWidget(_title2,1,1);
+    _title2 = new QLabel(this);
+    _title2->setAlignment(Qt::AlignHCenter| Qt::AlignTop);
 
     // Default to username
-    _title3 = new QLabel(_titleFrame);
-    _title3->setTextFormat(Qt::PlainText);
-    _title3->setText("");
-    _title3->setAlignment(Qt::AlignRight| Qt::AlignVCenter);
-    _titleGrid->addWidget(_title3,0,2);
+    _title3 = new QLabel(this);
+    _title3->setAlignment(Qt::AlignRight| Qt::AlignBottom);
 
     // Default to date
-    _title4 = new QLabel(_titleFrame);
-    _title4->setTextFormat(Qt::PlainText);
-    _title4->setText("");
-    _title4->setAlignment(Qt::AlignRight| Qt::AlignVCenter);
-    _titleGrid->addWidget(_title4,1,2);
+    _title4 = new QLabel(this);
+    _title4->setAlignment(Qt::AlignRight| Qt::AlignTop);
 
-    _mainLayout->addWidget(_titleFrame);
+    _grid->addWidget(_title1,0,0,1,1);
+    _grid->addWidget(_title2,1,0,1,1);
+    _grid->addWidget(_title3,0,1,1,1);
+    _grid->addWidget(_title4,1,1,1,1);
 
-    setLayout(_mainLayout);
+    _grid->setRowStretch(0,1);
+    _grid->setRowStretch(1,1);
+
+    _grid->setColumnStretch(0,10);
+    _grid->setColumnStretch(1,1);
+
+    setLayout(_grid);
 }
-
 
 // TODO: Handle changes to default title and titles 2,3 and 4
 void PageTitleView::dataChanged(const QModelIndex &topLeft,
@@ -121,10 +109,29 @@ void PageTitleView::_update()
 
     _title1->setText(pageTitle);
     titleItem = pItem->child(1,1);
-    _title2->setText(titleItem->text());
+    _title2->setText(_elideRunsTitle(titleItem->text()));
     titleItem = pItem->child(2,1);
     _title3->setText(titleItem->text());
     titleItem = pItem->child(3,1);
     _title4->setText(titleItem->text());
+}
+
+QString PageTitleView::_elideRunsTitle(QString title)
+{
+    QString s = title;
+
+
+    if ( title.count('\n') > 3 ) {
+        int j = 0;
+        int k = 0;
+        for ( int i = 0 ; i < 3; ++i ) {
+            j = title.indexOf('\n',k);
+            k = j+1;
+        }
+        s = title.left(j);
+        s += "...)";
+    }
+
+    return s;
 }
 
