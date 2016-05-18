@@ -2,30 +2,26 @@
 
 //  14 parts in a single plot
 //  6 rows and 5 columns
-// (TODO: change cols to next line once y-axis-label done)
-//    0    1    2            3               4
-//
-//
 //
 //    0    1    2            3               4
-//  +---++-------------------------------------+
-//  |   ||              Title                  |   0
-//  |   |+-------------------------------------+
-//  |   |+---++---++----------------------++---+
-//  | Y ||   || C ||        Tics          || C |   1
+//  +---++---++---++----------------------++---+
+//  |   ||   || C ||        Tics          || C |   0
+//  |   ||   |+---++----------------------++---+
 //  |   || Y |+---++----------------------++---+
-//  | A ||   |+---++----------------------++---+
-//  | x || T ||   ||                      ||   |
-//  | i || i || T ||                      || T |
-//  | s || c || i ||        Curves        || i |   2
-//  |   ||   || c ||                      || c |
-//  | L || L || s ||                      || s |
-//  | a || a ||   ||                      ||   |
-//  | b || b ||   ||                      ||   |
-//  | e || e |+---++----------------------++---+
-//  | l || l |+---++-----------------------+---+
-//  |   || s || C ||       Tics            | C |   3
-//  |   |+---++---++-----------------------+---+
+//  |   ||   ||   ||      Title           ||   |   1
+//  |   || T ||   |+----------------------+|   |
+//  | Y || i ||   |+----------------------+|   |
+//  |   || c || T ||                      || T |
+//  | A ||   || i ||                      || i |
+//  | x || L || c ||        Curves        || c |   2
+//  | i || a || s ||                      || s |
+//  | s || b ||   ||                      ||   |
+//  |   || e ||   ||                      ||   |
+//  | L || l ||   ||                      ||   |
+//  | a || s |+---++----------------------++---+
+//  | b ||   |+---++-----------------------+---+
+//  | e ||   || C ||       Tics            | C |   3
+//  | l |+---++---++-----------------------+---+
 //  |   |+-------------------------------------+
 //  |   ||            X Tic Labels             |   4
 //  |   |+-------------------------------------+
@@ -65,15 +61,16 @@ PlotView::PlotView(QWidget *parent) :
     _yTicLabels = new LabeledRulerView(Qt::AlignLeft,this);
     _curvesView = new CurvesView(this);
 
+
     _grid->addWidget(_yAxisLabel,0,0,6,1);
-    _grid->addWidget( _titleView,0,1,1,4);
-    _grid->addWidget(_yTicLabels,1,1,3,1);
-    _grid->addWidget(  _tlCorner,1,2,1,1);
-    _grid->addWidget(     _tTics,1,3,1,1);
-    _grid->addWidget(  _trCorner,1,4,1,1);
-    _grid->addWidget(     _lTics,2,2,1,1);
+    _grid->addWidget(_yTicLabels,0,1,4,1);
+    _grid->addWidget(  _tlCorner,0,2,1,1);
+    _grid->addWidget(     _tTics,0,3,1,1);
+    _grid->addWidget(  _trCorner,0,4,1,1);
+    _grid->addWidget(     _lTics,1,2,2,1);
+    _grid->addWidget( _titleView,1,3,1,1);
+    _grid->addWidget(     _rTics,1,4,2,1);
     _grid->addWidget(_curvesView,2,3,1,1);
-    _grid->addWidget(     _rTics,2,4,1,1);
     _grid->addWidget(  _blCorner,3,2,1,1);
     _grid->addWidget(     _bTics,3,3,1,1);
     _grid->addWidget(  _brCorner,3,4,1,1);

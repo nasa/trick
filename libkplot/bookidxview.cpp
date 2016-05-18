@@ -35,8 +35,8 @@ QTransform BookIdxView::_coordToPixelTransform()
     double dy = y0-y1;
     double a = du/dx;
     double b = dv/dy;
-    double c = u0-(du/dx)*x0;
-    double d = v0-(dv/dy)*y0;
+    double c = u0-a*x0;
+    double d = v0-b*y0;
 
     QTransform T( a,    0,
                   0,    b,
@@ -67,33 +67,22 @@ QRectF BookIdxView::_mathRect()
     if ( W != V ) {
 
         double q = _pointSize()/2.0;
-
-        QRectF R1 = V;
-        R1.moveTo(_curvesView->viewport()->mapToGlobal(R1.topLeft().toPoint()));
-        R1.adjust(q,q,-q,-q);
-
-        QRectF R2 = W;
-        R2.moveTo(viewport()->mapToGlobal(R2.topLeft().toPoint()));
-        R2.adjust(q,q,-q,-q);
-
-        double pixelWidth =  M.width()/R1.width();
-        double pixelHeight = M.height()/R1.height();
-        QPointF windowPixelOffset = R1.topLeft()-R2.topLeft();
-        double xMathOffset = pixelWidth*windowPixelOffset.x();
-        double yMathOffset = pixelHeight*windowPixelOffset.y();
-        QPointF r2MathTopLeft(M.x()-xMathOffset,
-                              M.y()-yMathOffset);
-        double r2MathWidth  = pixelWidth*R2.width();
-        double r2MathHeight = pixelHeight*R2.height();
-        QRectF r2MathRect(r2MathTopLeft.x(), r2MathTopLeft.y(),
-                          r2MathWidth, r2MathHeight);
-
-        M = r2MathRect;
+        V.moveTo(_curvesView->viewport()->mapToGlobal(V.topLeft()));
+        V.adjust(q,q,-q,-q);
+        W.moveTo(viewport()->mapToGlobal(W.topLeft()));
+        W.adjust(q,q,-q,-q);
+        double pixelWidth  = ( V.width() > 0 )  ? M.width()/V.width()   : 0 ;
+        double pixelHeight = ( V.height() > 0 ) ? M.height()/V.height() : 0 ;
+        QPointF vw = V.topLeft()-W.topLeft();
+        double ox = pixelWidth*vw.x();
+        double oy = pixelHeight*vw.y();
+        double mw = pixelWidth*W.width();
+        double mh = pixelHeight*W.height();
+        QPointF pt(M.x()-ox, M.y()-oy);
+        M = QRectF(pt.x(),pt.y(), mw, mh);
     }
 
-    QRectF MFlipped(M.bottomLeft(),M.topRight());
-
-    return MFlipped;
+    return M;
 }
 
 // The viewport math rect is in the BookModel under Plot.PlotViewport
@@ -108,6 +97,12 @@ QRectF BookIdxView::_plotMathRect() const
                                                      "Plot");
     plotMathRectIdx = plotMathRectIdx.sibling(plotMathRectIdx.row(),1);
     M = model()->data(plotMathRectIdx).toRectF();
+
+    // Flip if y-axis not directed "up" (this happens with bboxes)
+    if ( M.topLeft().y() < M.bottomLeft().y() ) {
+        M = QRectF(M.bottomLeft(),M.topRight());
+    }
+
     return M;
 }
 

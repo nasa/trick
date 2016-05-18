@@ -3,6 +3,7 @@
 PageTitleView::PageTitleView(QWidget *parent) :
     BookIdxView(parent)
 {
+    setFrameStyle(QFrame::NoFrame);
     _mainLayout = new QVBoxLayout;
     _titleFrame = new QFrame(this);
     _titleFrame->setFrameStyle(QFrame::NoFrame);

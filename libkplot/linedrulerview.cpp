@@ -41,7 +41,9 @@ void LinedRulerView::paintEvent(QPaintEvent *event)
         majors = _majorXTics();
         minors = _minorXTics();
         axis << QPointF(M.left(),M.top())
-             << QPointF(M.right(),M.top());
+             << QPointF(M.right(),M.top())
+             << QPointF(M.left(),M.bottom())
+             << QPointF(M.right(),M.bottom());
         foreach ( double m, majors ) {
             majorTics << QPointF(m,M.top()) << QPointF(m,M.bottom());
         }
@@ -52,7 +54,9 @@ void LinedRulerView::paintEvent(QPaintEvent *event)
         majors = _majorXTics();
         minors = _minorXTics();
         axis << QPointF(M.left(),M.bottom())
-             << QPointF(M.right(),M.bottom());
+             << QPointF(M.right(),M.bottom())
+             << QPointF(M.left(),M.top())
+             << QPointF(M.right(),M.top());
         foreach ( double m, majors ) {
             majorTics << QPointF(m,M.bottom()) << QPointF(m,M.top());
         }
@@ -60,10 +64,12 @@ void LinedRulerView::paintEvent(QPaintEvent *event)
             minorTics << QPointF(m,M.bottom()) << QPointF(m,M.center().y());
         }
     } else if ( _alignment == Qt::AlignLeft ) {
-        majors = _majorYTics();
+        majors = _myMajorYTics();
         minors = _minorYTics();
         axis << QPointF(M.left(),M.top())
-             << QPointF(M.left(),M.bottom());
+             << QPointF(M.left(),M.bottom())
+             << QPointF(M.right(),M.top())
+             << QPointF(M.right(),M.bottom());
         foreach ( double m, majors ) {
             majorTics << QPointF(M.left(),m) << QPointF(M.right(),m);
         }
@@ -74,7 +80,9 @@ void LinedRulerView::paintEvent(QPaintEvent *event)
         majors = _majorYTics();
         minors = _minorYTics();
         axis << QPointF(M.right(),M.top())
-             << QPointF(M.right(),M.bottom());
+             << QPointF(M.right(),M.bottom())
+             << QPointF(M.left(),M.top())
+             << QPointF(M.left(),M.bottom());
         foreach ( double m, majors ) {
             majorTics << QPointF(M.right(),m) << QPointF(M.left(),m);
         }

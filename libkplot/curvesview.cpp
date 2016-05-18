@@ -3,6 +3,7 @@
 CurvesView::CurvesView(QWidget *parent) :
     BookIdxView(parent)
 {
+    setFrameShape(QFrame::NoFrame);
     _colorBandsNormal = _createColorBands(9,false);
     _colorBandsRainbow = _createColorBands(10,true);
 }
@@ -111,6 +112,7 @@ void CurvesView::rowsInserted(const QModelIndex &pidx, int start, int end)
             QPainterPath* path = _createPainterPath(curveModel);
             _curve2path.insert(curveModel,path);
             QRectF M = _bbox();
+            //M.adjust(-0.01,-0.01,0.01,0.01);
             _setPlotMathRect(M);
             break;
         }
@@ -121,7 +123,7 @@ QPainterPath* CurvesView::_createPainterPath(TrickCurveModel *curveModel)
 {
 #if 0
     QPainterPath path = _sinPath();
-    //QPainterPath path = _stepPath();
+   //QPainterPath path = _stepPath();
     QPainterPath* ppath = new QPainterPath(path);
     return ppath;
 #endif
@@ -198,14 +200,14 @@ QPainterPath CurvesView::_sinPath()
     QPainterPath path;
     path.moveTo(0,0);
     double t = 0;
-    double dt = 0.01;
+    double dt = 0.001;
     while (1) {
         t += dt;
-        if ( t > 2*M_PI-0.01 ) {
+        if ( t > 2*M_PI-0.001 ) {
             t = 2*M_PI;
         }
         path.lineTo(t,sin(t));
-        if ( t > 2*M_PI-0.01 ) break;
+        if ( t == 2*M_PI ) break;
     }
     return path;
 }
