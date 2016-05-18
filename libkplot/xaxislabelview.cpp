@@ -20,7 +20,7 @@ void XAxisLabelView::paintEvent(QPaintEvent *event)
     int vw = viewport()->width();
     QFontMetrics fm = viewport()->fontMetrics();
     QString txt = fm.elidedText(_xAxisLabelText, Qt::ElideLeft, vw);
-    QRect bb = fm.boundingRect(txt);
+    QRect bb = fm.tightBoundingRect(txt);
     int bw = bb.width();
     int bh = bb.height();
 
