@@ -1,10 +1,10 @@
 #include "monteinputsview.h"
 #include <QHeaderView>
 
-MonteInputsView::MonteInputsView(PlotBookView *plotBookView,
+MonteInputsView::MonteInputsView(BookView *bookView,
                                  QWidget *parent) :
     QTableView(parent),
-    _plotBookView(plotBookView)
+    _bookView(bookView)
 {
     setSortingEnabled(true);
     sortByColumn(0,Qt::AscendingOrder);
@@ -60,7 +60,9 @@ void MonteInputsView::_selectModelCurrentChanged(
 
     QModelIndex runIdx = curr.model()->index(curr.row(),0);
     int runId = curr.model()->data(runIdx).toInt();
+#if 0
     _plotBookView->selectRun(runId);
+#endif
 }
 
 

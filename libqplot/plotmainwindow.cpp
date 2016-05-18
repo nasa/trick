@@ -82,10 +82,10 @@ PlotMainWindow::PlotMainWindow(
 
     // Monte inputs view (widget added later)
     if ( _monteInputsModel ) {
-#if 0
-        _monteInputsView = new MonteInputsView(_plotBookView,lsplit);
+        _monteInputsView = new MonteInputsView(_bookView,lsplit);
         _monteInputsView->setModel(_monteInputsModel);
         _monteInputsHeaderView = _monteInputsView->horizontalHeader();
+#if 0
         connect(_monteInputsHeaderView,SIGNAL(sectionClicked(int)),
             this,SLOT(_monteInputsHeaderViewClicked(int)));
 #endif
