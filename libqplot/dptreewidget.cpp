@@ -31,7 +31,6 @@ DPTreeWidget::DPTreeWidget(const QString& timeName,
             this,SLOT(_searchBoxTextChanged(QString)));
     _gridLayout->addWidget(_searchBox,0,0);
 
-
     _dpTreeView = new QTreeView(parent);
     _dpTreeView->setModel(_dpFilterModel);
     QModelIndex proxyRootIdx = _dpFilterModel->mapFromSource(_dpModelRootIdx);
@@ -200,11 +199,8 @@ void DPTreeWidget::_dpTreeViewClicked(const QModelIndex &idx)
                                                     pageNameIdx.row(),1);
                 QString pageName = _plotModel->data(pageNameDataIdx).toString();
                 if ( pageName == fp ) {
-#if 0
-                    // TODO: This causes a core dump!
                     _plotSelectModel->setCurrentIndex(pageIdx,
-                                                  QItemSelectionModel::Select);
-#endif
+                                                  QItemSelectionModel::Current);
                     isCreated = true;
                     break;
                 }
@@ -248,6 +244,8 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
 
         // Page
         QStandardItem *pageItem = _addChild(pagesItem,"Page");
+        QModelIndex pageIdx = _plotModel->indexFromItem(pageItem);
+        _plotSelectModel->setCurrentIndex(pageIdx,QItemSelectionModel::Current);
 
         // PageName
         QString pageName = dpfile;

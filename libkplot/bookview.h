@@ -18,6 +18,13 @@ public:
 protected:
     virtual void _update();
 
+protected:
+    virtual void currentChanged(const QModelIndex& current,
+                                const QModelIndex & previous );
+
+    virtual void selectionChanged(const QItemSelection& selected,
+                                  const QItemSelection& deselected );
+
 private:
     QVBoxLayout* _mainLayout;
     QTabWidget* _nb;
@@ -25,6 +32,9 @@ private:
 signals:
 
 public slots:
+
+protected slots:
+    void _nbCurrentChanged(int idx);
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,

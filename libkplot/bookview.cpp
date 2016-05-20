@@ -10,6 +10,9 @@ BookView::BookView(QWidget *parent) :
     _nb->setFocusPolicy(Qt::StrongFocus);
     _nb->setMovable(true);
 
+    connect(_nb, SIGNAL(currentChanged(int)),
+            this,SLOT(_nbCurrentChanged(int)));
+
     _mainLayout->addWidget(_nb);
 
     setLayout(_mainLayout);
@@ -18,6 +21,30 @@ BookView::BookView(QWidget *parent) :
 void BookView::_update()
 {
 }
+
+void BookView::currentChanged(const QModelIndex &current,
+                              const QModelIndex &previous)
+{
+    Q_UNUSED(previous);
+    _nb->setCurrentIndex(current.row());
+}
+
+void BookView::selectionChanged(const QItemSelection &selected,
+                                const QItemSelection &deselected)
+{
+    Q_UNUSED(selected);
+    Q_UNUSED(deselected);
+}
+
+void BookView::_nbCurrentChanged(int idx)
+{
+    if ( selectionModel() ) {
+        QModelIndex pagesIdx = _bookModel()->getIndex(QModelIndex(),"Pages");
+        QModelIndex pageIdx = model()->index(idx, 0,pagesIdx);
+        selectionModel()->setCurrentIndex(pageIdx,QItemSelectionModel::Current);
+    }
+}
+
 void BookView::dataChanged(const QModelIndex &topLeft,
                                 const QModelIndex &bottomRight)
 {
