@@ -10,6 +10,8 @@ BookView::BookView(QWidget *parent) :
     _nb->setFocusPolicy(Qt::StrongFocus);
     _nb->setMovable(true);
 
+    connect(_nb,SIGNAL(tabCloseRequested(int)),
+            this,SLOT(_nbCloseRequested(int)));
     connect(_nb, SIGNAL(currentChanged(int)),
             this,SLOT(_nbCurrentChanged(int)));
 
@@ -36,6 +38,43 @@ void BookView::selectionChanged(const QItemSelection &selected,
     Q_UNUSED(deselected);
 }
 
+void BookView::_nbCloseRequested(int idx)
+{
+    if ( model() == 0 ) return;
+
+    QString tabToolTip = _nb->tabToolTip(idx);
+    QString wt = _nb->tabWhatsThis(idx);
+    if ( wt == "Page" ) {
+        QModelIndex pagesIdx = _bookModel()->getIndex(QModelIndex(), "Pages");
+        int row = -1;
+        int rc = model()->rowCount(pagesIdx);
+        for ( int i = 0; i < rc ; ++i ) {
+            QModelIndex pageIdx = model()->index(i,0,pagesIdx);
+            QModelIndex pageNameIdx = _bookModel()->getIndex(pageIdx,
+                                                             "PageName","Page");
+            pageNameIdx = model()->index(pageNameIdx.row(),1,pageIdx);
+            QString pageName = model()->data(pageNameIdx).toString();
+            if ( pageName == tabToolTip ) {
+                row = i;
+                break;
+            }
+        }
+        if ( row < 0 ) {
+            qDebug() << "snap [bad scoobs]: BookView::_nbCloseRequested() "
+                        "Could not find page to remove!  Aborting!";
+            exit(-1);
+        }
+        model()->removeRow(row,pagesIdx);
+        _nb->removeTab(idx);
+    } else if ( wt == "Table" ) {
+        // TODO: Table
+    } else {
+        qDebug() << "snap [bad scoobs]: BookView::_nbCloseRequested() "
+                    "tabWhatsThis should have been set.";
+        exit(-1);
+    }
+}
+
 void BookView::_nbCurrentChanged(int idx)
 {
     if ( selectionModel() ) {
@@ -46,25 +85,10 @@ void BookView::_nbCurrentChanged(int idx)
 }
 
 void BookView::dataChanged(const QModelIndex &topLeft,
-                                const QModelIndex &bottomRight)
+                           const QModelIndex &bottomRight)
 {
-    QModelIndex pidx = topLeft.parent();
-    if ( pidx != bottomRight.parent() ) return;
-
-    // TODO: For now and only handle single item changes
-    if ( topLeft != bottomRight ) return;
-
-    // Value is in column 1
-    if ( topLeft.column() != 1 ) return;
-
-#if 0
-    int row = topLeft.row();
-    QModelIndex idx0 = model()->index(row,0,pidx);
-    if ( model()->data(idx0).toString() == "PageTitle" ) {
-        QString title = model()->data(topLeft).toString();
-        _title1->setText(title);
-    }
-#endif
+    Q_UNUSED(topLeft);
+    Q_UNUSED(bottomRight);
 }
 
 void BookView::rowsInserted(const QModelIndex &pidx, int start, int end)
@@ -79,14 +103,16 @@ void BookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             PageView* pw = new PageView;
             pw->setModel(model());
             pw->setRootIndex(idx);
-            _nb->addTab(pw,"Page");
+            int tabId = _nb->addTab(pw,"Page");
+            _nb->setTabWhatsThis(tabId, "Page");
         } else if ( cText == "PageName" ) {
             QModelIndex pageNameIdx = _bookModel()->index(i,1,pidx);
             QString pageName = model()->data(pageNameIdx).toString();
             QFileInfo fi(pageName);
-            pageName = fi.fileName();
+            QString fName = fi.fileName();
             int row = pidx.row();
-            _nb->setTabText(row,pageName);
+            _nb->setTabToolTip(row,pageName);
+            _nb->setTabText(row,fName);
         }
     }
 }

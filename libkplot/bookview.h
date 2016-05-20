@@ -34,6 +34,7 @@ signals:
 public slots:
 
 protected slots:
+    void _nbCloseRequested(int idx);
     void _nbCurrentChanged(int idx);
 
 protected slots:
