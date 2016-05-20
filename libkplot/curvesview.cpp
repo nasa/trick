@@ -8,6 +8,14 @@ CurvesView::CurvesView(QWidget *parent) :
     _colorBandsRainbow = _createColorBands(10,true);
 }
 
+CurvesView::~CurvesView()
+{
+    foreach ( QPainterPath* path, _curve2path.values() ) {
+        delete path;
+    }
+    _curve2path.clear();
+}
+
 void CurvesView::_update()
 {
     if ( !_myIdx.isValid() ) return;

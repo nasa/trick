@@ -42,6 +42,7 @@ void BookView::_nbCloseRequested(int idx)
 {
     if ( model() == 0 ) return;
 
+    QWidget* tabWidget = _nb->widget(idx);
     QString tabToolTip = _nb->tabToolTip(idx);
     QString wt = _nb->tabWhatsThis(idx);
     if ( wt == "Page" ) {
@@ -73,6 +74,8 @@ void BookView::_nbCloseRequested(int idx)
                     "tabWhatsThis should have been set.";
         exit(-1);
     }
+
+    delete tabWidget;
 }
 
 void BookView::_nbCurrentChanged(int idx)

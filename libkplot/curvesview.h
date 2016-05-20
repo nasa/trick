@@ -14,6 +14,7 @@ class CurvesView : public BookIdxView
 
 public:
     explicit CurvesView(QWidget *parent = 0);
+    ~CurvesView();
 
 protected:
     virtual void _update();
