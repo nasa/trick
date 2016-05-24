@@ -261,8 +261,9 @@ sub parse_s_define ($) {
             } else {
                 my $found = 0 ;
                 foreach my $inc_path ( @valid_inc_paths ) {
-                    if ( -f "$inc_path/$object_file" ) {
-                        push @{$$sim_ref{mis_entry_files}}, "$inc_path/$object_file" ;
+                    my $f = abs_path(dirname("$inc_path/$object_file")) . "/" . basename("$inc_path/$object_file") ;
+                    if ( -f "$f" ) {
+                        push @{$$sim_ref{mis_entry_files}}, "$f" ;
                         $found = 1 ;
                         last ;
                     }
