@@ -134,6 +134,11 @@ void CommentSaver::getICGField( std::string file_name ) {
 
 }
 
+bool CommentSaver::hasTrickHeader( std::string file_name ) {
+    std::string th_str = getTrickHeaderComment(file_name) ;
+    return (! th_str.empty()) ;
+}
+
 bool CommentSaver::hasICGNo( std::string file_name ) {
 
     if ( icg_no_found.find(file_name) == icg_no_found.end() ) {
