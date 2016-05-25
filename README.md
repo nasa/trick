@@ -21,8 +21,8 @@ the wiki pages.
 
 ### Tutorial
 
-The Trick tutorial explaining how to start using Trick can be found in the docs directory.
-
+The [Trick Tutorial] (https://github.com/nasa/Trick/share/doc/trick/Tutorial/MD/Tutorial.md)
+is located in share/doc/trick/Tutorial. Markdown and PDF versions are available.
 ### License
 
 Trick is released under the NASA Open Source Agreement Version 1.3 [license](LICENSE).
