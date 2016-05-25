@@ -106,6 +106,26 @@ QRectF BookIdxView::_plotMathRect() const
     return M;
 }
 
+// The viewport math rect is in the BookModel under Plot.PlotViewport
+void BookIdxView::_setPlotMathRect(const QRectF& mathRect)
+{
+    if ( !model() ) return;
+
+    QModelIndex plotIdx = _bookModel()->getIndex(_myIdx,"Plot");
+    QModelIndex plotMathRectIdx = _bookModel()->getIndex(plotIdx,
+                                                     "PlotMathRect",
+                                                     "Plot");
+    plotMathRectIdx = plotMathRectIdx.sibling(plotMathRectIdx.row(),1);
+
+    // Flip if y-axis not directed "up" (this happens with bboxes)
+    QRectF M = mathRect;
+    if ( M.topLeft().y() < M.bottomLeft().y() ) {
+        M = QRectF(M.bottomLeft(),M.topRight());
+    }
+
+    model()->setData(plotMathRectIdx, M);
+}
+
 double BookIdxView::_pointSize() const
 {
     double sz=0;
