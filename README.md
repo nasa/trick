@@ -21,7 +21,7 @@ the wiki pages.
 
 ### Tutorial
 
-The [Trick Tutorial] (https://github.com/nasa/Trick/share/doc/trick/Tutorial/MD/Tutorial.md)
+The [Trick Tutorial] (https://github.com/nasa/Trick/wiki/Tutorial)
 is located in share/doc/trick/Tutorial. Markdown and PDF versions are available.
 ### License
 
