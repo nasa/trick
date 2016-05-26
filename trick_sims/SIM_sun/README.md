@@ -1,6 +1,6 @@
 # SIM\_sun
 
-![Picture of Sun](images/sun.png)
+![Picture of Sun](images/CelestialSphere.png)
 
 ### The Simulation
 SIM\_sun is a simulation of the Sun's movement across the sky.
