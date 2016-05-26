@@ -28,8 +28,6 @@ protected:
     virtual QSize minimumSizeHint() const;
     virtual QSize sizeHint() const;
     virtual void mousePressEvent(QMouseEvent* event);
-    virtual void mouseMoveEvent(QMouseEvent* event);
-    virtual void mouseReleaseEvent(QMouseEvent* event);
 
 private:
     QHash<TrickCurveModel*,QPainterPath*> _curve2path;
@@ -42,9 +40,6 @@ private:
     QList<QColor> _colorBandsNormal;
     QList<QColor> _colorBandsRainbow;
     QList<QColor> _createColorBands(int nBands, bool isRainbow);
-
-    QPoint _rubberBandOrigin;
-    QRubberBand* _rubberBand;
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,

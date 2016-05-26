@@ -2,6 +2,7 @@
 #define BOOKIDXVIEW_H
 
 #include <QAbstractItemView>
+#include <QMouseEvent>
 #include <qmath.h>
 #include "libqplot/plotbookmodel.h"
 
@@ -20,6 +21,14 @@ public:
     virtual QRect visualRect(const QModelIndex &index) const;
     virtual void scrollTo(const QModelIndex &index,
                           ScrollHint hint = EnsureVisible);
+
+    // Necessary for ignoring events from middle mouse for rubberbanding
+    // in PlotView.  If events are not ignored, the event filtering will
+    // not catch mouse events.  This keeps from doing a
+    // qApp->installEventFilter which would have to filter *all* app events
+    virtual void mousePressEvent(QMouseEvent* event);
+    virtual void mouseMoveEvent(QMouseEvent* event);
+    virtual void mouseReleaseEvent(QMouseEvent* event);
 
 
 protected:

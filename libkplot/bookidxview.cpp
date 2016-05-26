@@ -644,6 +644,33 @@ void BookIdxView::scrollTo(const QModelIndex &index,
     Q_UNUSED(hint);
 }
 
+void BookIdxView::mousePressEvent(QMouseEvent *event)
+{
+    if ( event->button() == Qt::MidButton ){
+        event->ignore();
+    } else {
+        QAbstractItemView::mousePressEvent(event);
+    }
+}
+
+void BookIdxView::mouseMoveEvent(QMouseEvent *event)
+{
+    if ( event->buttons() == Qt::MidButton ){
+        event->ignore();
+    } else {
+        QAbstractItemView::mouseMoveEvent(event);
+    }
+}
+
+void BookIdxView::mouseReleaseEvent(QMouseEvent *event)
+{
+    if ( event->button() == Qt::MidButton ){
+        event->ignore();
+    } else {
+        QAbstractItemView::mouseReleaseEvent(event);
+    }
+}
+
 QModelIndex BookIdxView::moveCursor(
         QAbstractItemView::CursorAction cursorAction,
         Qt::KeyboardModifiers modifiers)

@@ -5,6 +5,10 @@
 #include <QStandardItemModel>
 #include <QGridLayout>
 #include <QList>
+#include <QEvent>
+#include <QMouseEvent>
+#include <QRubberBand>
+#include <QApplication>
 #include <QDebug>
 
 #include "bookidxview.h"
@@ -26,6 +30,7 @@ public:
 
 protected:
     virtual void _update();
+    virtual bool eventFilter(QObject *obj, QEvent *event);
 
 protected:
     virtual QSize minimumSizeHint() const;
@@ -49,6 +54,9 @@ private:
     LabeledRulerView* _yTicLabels;
 
     QList<QAbstractItemView*> _childViews;
+
+    QPoint _rubberBandOrigin;
+    QRubberBand* _rubberBand;
 
 protected slots:
     /*
