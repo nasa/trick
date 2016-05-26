@@ -262,10 +262,13 @@ bool PlotView::eventFilter(QObject *obj, QEvent *event)
     } else if ( event->type() == QEvent::MouseButtonRelease ) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
         if ( mouseEvent->button() == Qt::MidButton && _rubberBand ){
-            QRect geom = _rubberBand->geometry();
-            if ( geom.width() > 20 && geom.height() > 20 ) {
+            QRect R = _rubberBand->geometry();
+            QRect P = viewport()->rect();
+            if ( R.width() > 20 && R.height() > 20 && P.contains(R) ) {
                 // If rubberband too small,
                 // normally by accidental click, don't zoom
+                // Also, if rubberband is not completely inside this
+                // plotview, ignore it
                 int Ww = viewport()->width();
                 int Wh = viewport()->height();
                 if ( Ww != 0 && Wh != 0 ) {
@@ -277,10 +280,10 @@ bool PlotView::eventFilter(QObject *obj, QEvent *event)
                     QTransform T(Mw/Ww, 0.0,  // See comment above for details
                                  0.0, Mh/Wh,
                                  Mox, Moy);
-                    QPointF wo((double)geom.topLeft().x(),
-                               (double)geom.topLeft().y());
-                    QPointF wbr((double)geom.bottomRight().x(),
-                                (double)geom.bottomRight().y());
+                    QPointF wo((double)R.topLeft().x(),
+                               (double)R.topLeft().y());
+                    QPointF wbr((double)R.bottomRight().x(),
+                                (double)R.bottomRight().y());
                     QPointF mo  = T.map(wo);
                     QPointF mbr = T.map(wbr);
                     QRectF mrect(mo,mbr);
