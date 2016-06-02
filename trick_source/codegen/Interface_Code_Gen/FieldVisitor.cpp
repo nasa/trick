@@ -389,6 +389,11 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
         fdes->setTypeName("std::string") ;
         return false ;
     }
+    // FILE * types resolve to these typenames.  We need to ignore them
+    if (!type_name.compare("__sFILE") || !type_name.compare("_IO_FILE")) {
+        fdes->setIO(0) ;
+        return false ;
+    }
 
     std::string tst_string = rt->desugar().getAsString() ;
     // remove class keyword if it exists
@@ -406,7 +411,6 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
     while ((pos = tst_string.find(" _Bool")) != std::string::npos ) {
         tst_string.replace(pos , 6, " bool") ;
     }
-    // NOTE: clang also changes FILE * to struct _SFILE *.  We may need to change that too.
 
     // Test if we have some type from STL.
     if (!tst_string.compare( 0 , 5 , "std::")) {

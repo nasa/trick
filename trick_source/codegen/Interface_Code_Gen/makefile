@@ -54,7 +54,7 @@ endif
 all: $(ICG)
 
 $(ICG): $(OBJECTS) $(UDUNITS_OBJS)
-	$(CXX) -o $@ $(OBJECTS) $(UNITS_CONV_OBJ) $(UDUNITS_OBJS) $(LLVMLDFLAGS) $(CLANGLIBS)
+	$(CXX) -o $@ $(OBJECTS) $(UDUNITS_OBJS) $(LLVMLDFLAGS) $(CLANGLIBS)
 
 # Only FieldDescription.cpp includes the units conversion header.
 $(OBJ_DIR)/FieldDescription.o : CXXFLAGS += -I$(TRICK_HOME)/include
@@ -67,7 +67,7 @@ $(OBJECTS): $(OBJ_DIR)/%.o : %.cpp
 $(UDUNITS_OBJS): $(OBJ_DIR)/%.o : ${TRICK_HOME}/trick_source/sim_services/UdUnits/%.cpp
 	$(CXX) -c $< -o $@
 
-$(OBJECTS) $(UNITS_CONV_OBJ) : | $(OBJ_DIR)
+$(OBJECTS) $(UDUNITS_OBJS) : | $(OBJ_DIR)
 
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
