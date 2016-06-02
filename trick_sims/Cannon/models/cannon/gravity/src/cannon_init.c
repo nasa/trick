@@ -4,6 +4,7 @@ PURPOSE: (Initialize the cannonball)
 #include <stdio.h>
 #include <math.h>
 #include "../include/cannon.h"
+#include "../include/cannon_integ_proto.h"
 
 int cannon_init(
       CANNON* C )

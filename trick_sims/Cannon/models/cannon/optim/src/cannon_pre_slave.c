@@ -3,9 +3,8 @@ PURPOSE:                     (Slave optimization)
 LIBRARY_DEPENDENCY:          (amoeba.o)
 PROGRAMMER:                  (keith)
 ***************************************************************************/
+#include "../include/amoeba_proto.h"
 #include "cannon/aero/include/cannon_aero.h"
-//#include "sim_services/include/executive.h"
-#include "sim_services/Executive/include/exec_proto.h"
 #include <stdio.h>
 
 int cannon_pre_slave(

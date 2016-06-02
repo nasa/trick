@@ -12,8 +12,8 @@
 extern "C" {
 #endif
 
-int cannon_master_shutdown();
- 
+int cannon_master_shutdown(void);
+
 #ifdef __cplusplus
 }
 #endif

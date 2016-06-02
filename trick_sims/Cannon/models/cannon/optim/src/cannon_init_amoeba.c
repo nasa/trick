@@ -6,6 +6,7 @@ PROGRAMMERS: (Keith)
 #include <stdio.h>
 #include "cannon/aero/include/cannon_aero.h"
 #include "../include/amoeba.h"
+#include "../include/amoeba_proto.h"
 
 int cannon_init_amoeba(
       AMOEBA* A  )           

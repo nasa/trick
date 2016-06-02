@@ -20,11 +20,11 @@ typedef struct {
         double pos[3] ;           /* m position */
         double vel[3] ;           /* m/s velocity */
         double acc[3] ;           /* m/s2 acceleration */
-        double omega[3] ;         /* r/s Angular velocity of cannonball */
+        double omega[3] ;         /* rad/s Angular velocity of cannonball */
 
-        double theta ;            /* r Angle from x-axis to axis rotation */
-        double phi ;              /* r Angle from z-axis to axis rotation */
-        double omega0 ;           /* r/s Magnitude of angular velocity about
+        double theta ;            /* rad Angle from x-axis to axis rotation */
+        double phi ;              /* rad Angle from z-axis to axis rotation */
+        double omega0 ;           /* rad/s Magnitude of angular velocity about
                                            axis of rotation */
         /* Impact */
         REGULA_FALSI rf ;         /* -- Dynamic event params for impact */
@@ -42,7 +42,7 @@ typedef struct {
         double mag_force_drag ;    /* N Magnitude of drag force */
         double mag_force_magnus ;  /* N Magnitude of magnus force */
         double mag_force_cross ;   /* N Magnitude of cross force */
-        double mag_omega ;         /* r/s Magnitude of angular velocity */
+        double mag_omega ;         /* rad/s Magnitude of angular velocity */
 
         void ** force_collect ;     /* ** For collect statement */
 

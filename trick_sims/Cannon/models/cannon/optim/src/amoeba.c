@@ -1,6 +1,6 @@
 /*********************************** TRICK HEADER **************************
 PURPOSE:                     ( Amoeba )
-/***************************************************************************/
+***************************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -56,10 +56,8 @@ void amoeba_shrink( AMOEBA* A ) {
 
         double* x ;
         double* x_0 ;
-        double* x_n ;
 
         x_0 = A->vertices[0] ;
-        x_n = A->vertices[A->num_dims] ;
 
         if ( A->debug ) {
                 fprintf(stderr,"Shrinking simplex...\n");
@@ -110,7 +108,6 @@ int amoeba_contract( AMOEBA* A ) {
         double* x_n_1 ;
         double* x_c ;
         double* x_cont ;
-        double* x_e ;
 
         /* Short hand */
         x_c = A->x_cent ;
@@ -118,7 +115,6 @@ int amoeba_contract( AMOEBA* A ) {
         x_n = A->vertices[A->num_vertices-1] ;
         x_n_1 = A->vertices[A->num_vertices-2] ;
         x_cont = A->x_cont ;
-        x_e = A->x_expa ;
 
         if ( A->debug ) {
                 fprintf(stderr,">> Try contraction.\n");
@@ -196,14 +192,12 @@ int amoeba_expand( AMOEBA* A ) {
         double* x_0 ;
         double* x_r ;
         double* x_n ;
-        double* x_c ;
         double* x_e ;
 
         /* Short hand */
         x_0 = A->vertices[0] ;
         x_r = A->x_refl ;
         x_n = A->vertices[A->num_vertices-1] ;
-        x_c = A->x_cent ;
         x_e = A->x_expa ;
 
         if ( A->debug ) {
@@ -321,17 +315,17 @@ int amoeba_satisfied( AMOEBA* A ) {
 }
 
 void amoeba_calc_reflection_point( AMOEBA* A ) {
-                                                                                
+
         int ii ;
         double* x_r ;
         double* x_n ;
         double* x_c ;
-                                                                                
+
         /* Short hand */
         x_r = A->x_refl ;
         x_n = A->vertices[A->num_vertices-1] ;
         x_c = A->x_cent ;
-                                                                                
+
         /* Calculate reflection point
          * x_refl = x_cent + alpha*(x_cent - x_worst)
          */
@@ -347,7 +341,6 @@ int amoeba_reflect( AMOEBA* A ) {
         double* x_0 ;
         double* x_r ;
         double* x_n ;
-        double* x_c ;
 
         if ( A->debug ) {
                 fprintf(stderr,">> Try reflection.\n");
@@ -357,7 +350,6 @@ int amoeba_reflect( AMOEBA* A ) {
         x_0 = A->vertices[0] ;
         x_r = A->x_refl ;
         x_n = A->vertices[A->num_vertices-1] ;
-        x_c = A->x_cent ;
 
         if ( my_func(x_0) >= my_func(x_r) && my_func(x_r) > my_func(x_n) ) {
                 /* Accept reflection point --- replace worst point with x_r */

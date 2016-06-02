@@ -2,6 +2,7 @@
 PURPOSE:    ( Adding contact)
 *****************************************************************************/
 #include "../include/cannon.h"
+#include "../include/cannon_contact_proto.h"
 
 int cannon_deriv_impact( CANNON* C )
 {

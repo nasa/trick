@@ -6,6 +6,7 @@ PROGRAMMER:                  ((keith))
 #include <stdio.h>
 #include "cannon/aero/include/cannon_aero.h"
 #include "../include/amoeba.h"
+#include "../include/amoeba_proto.h"
 #include "sim_services/MonteCarlo/include/montecarlo_c_intf.h"
 #include "trick_utils/comm/include/tc_proto.h"
 
@@ -14,6 +15,9 @@ int cannon_post_master(
   AMOEBA* A )
 {
         CANNON_AERO C_curr ;
+
+        // remove warning about unused parameter C
+        (void)C ;
 
         /* Read slave's results */
         tc_read( mc_get_connection_device(),(char*) &C_curr, sizeof(CANNON_AERO) );

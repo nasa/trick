@@ -2,6 +2,7 @@
 PURPOSE:    ( Try dt )
 *****************************************************************************/
 #include "../include/cannon.h"
+#include "../include/cannon_dt_proto.h"
 
 int cannon_dt(
       CANNON* C )

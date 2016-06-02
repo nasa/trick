@@ -3,6 +3,7 @@ PURPOSE:                     (Kaboom!!!)
 ***************************************************************************/
 #include <stdio.h>
 #include "../include/cannon_aero.h"
+#include "../include/cannon_monte_proto.h"
 #include "sim_services/Integrator/include/integrator_c_intf.h"
 #include "sim_services/Executive/include/exec_proto.h"
 

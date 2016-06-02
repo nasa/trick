@@ -5,6 +5,7 @@ PURPOSE:    ( Try Trick integration )
 #include <stdio.h>
 #include "sim_services/Integrator/include/integrator_c_intf.h"
 #include "../include/cannon.h"
+#include "../include/cannon_integ_proto.h"
 
 int cannon_integ(
       CANNON* C )

@@ -3,6 +3,7 @@ PURPOSE:    ( Analytical Cannon )
 *****************************************************************************/
 #include <stdio.h>
 #include "../include/cannon.h"
+#include "../include/cannon_analytic_proto.h"
 
 int cannon_analytic(
       CANNON* C )

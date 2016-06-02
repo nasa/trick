@@ -6,6 +6,7 @@ PROGRAMMER:                  (keith)
 #include <stdio.h>
 #include "cannon/aero/include/cannon_aero.h"
 #include "../include/amoeba.h"
+#include "../include/amoeba_proto.h"
 #include "sim_services/UnitTest/include/trick_tests.h"
 #include "sim_services/Executive/include/exec_proto.h"
 #include "sim_services/MonteCarlo/include/montecarlo_c_intf.h"
