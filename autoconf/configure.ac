@@ -217,7 +217,8 @@ AC_CHECK_FILE([$LLVM_LIB_DIR/libLLVMSupport.a],
 )
 AC_PATH_PROG(CLANG, clang, noclang, "$LLVM_BIN_DIR:$LLVM_HOME/bin:/bin:/usr/bin:/usr/local/bin:/sw/bin")
 AS_IF([test "$ac_cv_path_CLANG" = "noclang"],AC_MSG_ERROR([could not find clang]),[])
-AX_TEST_CLANG
+dnl does not work under RedHat 6
+dnl AX_TEST_CLANG
 
 dnl look for udunits in /usr/include and /usr/include/udunits2
 AX_UDUNITS_HOME([])
