@@ -38,6 +38,7 @@ protected:
 
     QRectF _mathRect() ;
     QRectF _plotMathRect() const ;
+    QModelIndex _plotMathRectIdx() const;
     void _setPlotMathRect(const QRectF& mathRect);
 
     QList<double> _majorXTics() const;

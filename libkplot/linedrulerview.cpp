@@ -143,6 +143,13 @@ QSize LinedRulerView::sizeHint() const
 void LinedRulerView::dataChanged(const QModelIndex &topLeft,
                                  const QModelIndex &bottomRight)
 {
+    if ( topLeft.parent() != _myIdx ) return;
+    if ( topLeft.column() != 1 ) return;
+    if ( topLeft != bottomRight ) return;
+
+    if ( topLeft == _plotMathRectIdx() ) {
+        viewport()->update();
+    }
 }
 
 void LinedRulerView::rowsInserted(const QModelIndex &parent, int start, int end)

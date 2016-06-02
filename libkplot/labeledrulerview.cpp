@@ -179,6 +179,18 @@ QSize LabeledRulerView::sizeHint() const
     return s;
 }
 
+void LabeledRulerView::dataChanged(const QModelIndex &topLeft,
+                                   const QModelIndex &bottomRight)
+{
+    if ( topLeft.parent() != _myIdx ) return;
+    if ( topLeft.column() != 1 ) return;
+    if ( topLeft != bottomRight ) return;
+
+    if ( topLeft == _plotMathRectIdx() ) {
+        viewport()->update();
+    }
+}
+
 // Do boxes fit in W with minGap between each box in boxes?
 bool LabeledRulerView::_isFits(const QList<LabelBox> &boxes,
                            const QRectF &W, double minGap,

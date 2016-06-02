@@ -33,7 +33,6 @@ private:
     QHash<TrickCurveModel*,QPainterPath*> _curve2path;
     QPainterPath *_createPainterPath(TrickCurveModel *curveModel);
     QRectF _bbox();
-    void _setPlotMathRect(const QRectF& M);
     QPainterPath _sinPath();
     QPainterPath _stepPath();
 

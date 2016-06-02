@@ -250,8 +250,6 @@ bool PlotView::eventFilter(QObject *obj, QEvent *event)
             }
             _rubberBand->setGeometry(QRect(_rubberBandOrigin, QSize()));
             _rubberBand->show();
-        } else if ( mouseEvent->button() == Qt::RightButton ){
-            //zoomToFit();
         }
     } else if ( event->type() == QEvent::MouseMove ) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);

@@ -91,10 +91,7 @@ QRectF BookIdxView::_plotMathRect() const
     QRectF M;
     if ( !model() ) return M;
 
-    QModelIndex plotIdx = _bookModel()->getIndex(_myIdx,"Plot");
-    QModelIndex plotMathRectIdx = _bookModel()->getIndex(plotIdx,
-                                                     "PlotMathRect",
-                                                     "Plot");
+    QModelIndex plotMathRectIdx = _plotMathRectIdx();
     plotMathRectIdx = plotMathRectIdx.sibling(plotMathRectIdx.row(),1);
     M = model()->data(plotMathRectIdx).toRectF();
 
@@ -104,6 +101,18 @@ QRectF BookIdxView::_plotMathRect() const
     }
 
     return M;
+}
+
+QModelIndex BookIdxView::_plotMathRectIdx() const
+{
+    QModelIndex idx;
+    if ( !model() ) return idx;
+
+    QModelIndex plotIdx = _bookModel()->getIndex(_myIdx,"Plot");
+    idx = _bookModel()->getIndex(plotIdx, "PlotMathRect", "Plot");
+    idx = idx.sibling(idx.row(),1);
+
+    return idx;
 }
 
 // The viewport math rect is in the BookModel under Plot.PlotViewport

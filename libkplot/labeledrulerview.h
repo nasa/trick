@@ -23,6 +23,8 @@ protected:
     virtual void paintEvent(QPaintEvent * event);
     virtual QSize minimumSizeHint() const;
     virtual QSize sizeHint() const;
+    virtual void dataChanged(const QModelIndex &topLeft,
+                             const QModelIndex &bottomRight);
 
 private:
     Qt::Alignment _alignment;

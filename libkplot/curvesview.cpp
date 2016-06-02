@@ -193,15 +193,6 @@ QRectF CurvesView::_bbox()
     return bbox;
 }
 
-void CurvesView::_setPlotMathRect(const QRectF &M)
-{
-    QModelIndex plotIdx = _bookModel()->getIndex(_myIdx,"Plot","Plot");
-    QModelIndex plotMathRectIdx = _bookModel()->getIndex(plotIdx,
-                                                         "PlotMathRect","Plot");
-    plotMathRectIdx = plotMathRectIdx.sibling(plotMathRectIdx.row(),1);
-    model()->setData(plotMathRectIdx,M);
-}
-
 QPainterPath CurvesView::_sinPath()
 {
     // Make sin(t) t=[0,2*pi]
@@ -284,5 +275,9 @@ void CurvesView::mousePressEvent(QMouseEvent *event)
 {
     if ( event->button() == Qt::MidButton ){
         event->ignore();
+    } else if ( event->button() == Qt::RightButton ) {
+        QRectF M = _bbox();
+        _setPlotMathRect(M);
+        viewport()->update();
     }
 }
