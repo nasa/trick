@@ -273,11 +273,37 @@ QList<QColor> CurvesView::_createColorBands(int nBands, bool isRainbow)
 
 void CurvesView::mousePressEvent(QMouseEvent *event)
 {
-    if ( event->button() == Qt::MidButton ){
+    if (  event->button() == Qt::LeftButton ) {
+        _mousePressPos = event->pos();
+        _mousePressMathTopLeft = _mathRect().topLeft();
+    } else if (  event->button() == Qt::MidButton ) {
         event->ignore();
     } else if ( event->button() == Qt::RightButton ) {
         QRectF M = _bbox();
         _setPlotMathRect(M);
         viewport()->update();
+    }
+}
+
+void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
+{
+    if ( mouseEvent->buttons() == Qt::LeftButton ) {
+        int Ww = viewport()->width();
+        int Wh = viewport()->height();
+        if ( Ww != 0 && Wh != 0 ) {
+            QPointF wPt = mouseMove->pos() - _mousePressPos;
+            QRectF M = _mathRect();
+            double Mw = M.width();
+            double Mh = M.height();
+            QTransform T(-Mw/Ww, 0.0,
+                         0.0, -Mh/Wh,
+                         0.0, 0.0);
+            QPointF mPt = _mousePressMathTopLeft+T.map(wPt);
+            M.moveTo(mPt);
+            _setPlotMathRect(M);
+            viewport()->update();
+        }
+    } else {
+        mouseEvent->ignore();
     }
 }
