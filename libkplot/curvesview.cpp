@@ -130,7 +130,7 @@ void CurvesView::rowsInserted(const QModelIndex &pidx, int start, int end)
 QPainterPath* CurvesView::_createPainterPath(TrickCurveModel *curveModel)
 {
 #if 0
-    QPainterPath path = _sinPath();
+   QPainterPath path = _sinPath();
    //QPainterPath path = _stepPath();
     QPainterPath* ppath = new QPainterPath(path);
     return ppath;
@@ -276,6 +276,7 @@ void CurvesView::mousePressEvent(QMouseEvent *event)
     if (  event->button() == Qt::LeftButton ) {
         _mousePressPos = event->pos();
         _mousePressMathTopLeft = _mathRect().topLeft();
+        _mousePressMathRect = _mathRect();
     } else if (  event->button() == Qt::MidButton ) {
         event->ignore();
     } else if ( event->button() == Qt::RightButton ) {
@@ -287,23 +288,104 @@ void CurvesView::mousePressEvent(QMouseEvent *event)
 
 void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
 {
-    if ( mouseEvent->buttons() == Qt::LeftButton ) {
+    if ( mouseMove->buttons() == Qt::LeftButton ) {
         int Ww = viewport()->width();
         int Wh = viewport()->height();
         if ( Ww != 0 && Wh != 0 ) {
-            QPointF wPt = mouseMove->pos() - _mousePressPos;
             QRectF M = _mathRect();
             double Mw = M.width();
             double Mh = M.height();
-            QTransform T(-Mw/Ww, 0.0,
-                         0.0, -Mh/Wh,
+            QTransform T(Mw/Ww, 0.0,
+                         0.0, Mh/Wh,
                          0.0, 0.0);
-            QPointF mPt = _mousePressMathTopLeft+T.map(wPt);
-            M.moveTo(mPt);
+            QPointF wPt = mouseMove->pos()-_mousePressPos;
+            QPointF mPt = _mousePressMathTopLeft-T.map(wPt);
+
+            double k = 0.88;
+            QRectF insideRect((1-k)*Ww/2.0,(1-k)*Wh/2.0,k*Ww,k*Wh);
+            if ( insideRect.contains(_mousePressPos) ) {
+                // Pan if mouse press pos is deeper inside window
+                M.moveTo(mPt);
+            } else {
+                // Scrunch if mouse press pos is on perifery of window
+                QRectF leftRect(0,0,
+                                (1-k)*Ww/2.0, Wh);
+                QRectF rightRect(insideRect.topRight().x(),0,
+                                 (1-k)*Ww/2.0,Wh);
+                QRectF topRect(insideRect.topLeft().x(), 0,
+                               insideRect.width(),(1-k)*Wh/2.0);
+                QRectF botRect(insideRect.bottomLeft().x(),
+                               insideRect.bottomLeft().y(),
+                               insideRect.width(),(1-k)*Wh/2.0);
+                QRectF bbox = _bbox();
+                if ( rightRect.contains(_mousePressPos) ) {
+                    //
+                    // f(0) = w0
+                    // f(x) = w0*e^(ax) // scrunch on an exponential
+                    // a = (1/W)*log(w1/w0), because:
+                    //
+                    //        f(W) = w0*e^(aW) = w1
+                    //           -> w0*e^(aW) = w1
+                    //           -> e^(aW) = w1/w0
+                    //           -> a = (1/W)*log(w1/w0)
+                    //
+                    QRectF Mstart = _mousePressMathRect;
+                    QRectF Mend(Mstart);
+                    Mend.setRight(bbox.right());
+                    double w0 = Mstart.width();
+                    double w1 = Mend.width();
+                    double a = (1.0/Ww)*log(w0/w1);
+                    double w = w0*exp(a*wPt.x());
+                    if ( w > w1 ) w = w1;
+                    M.setWidth(w);
+                } else if ( leftRect.contains(_mousePressPos) ) {
+                    QRectF Mstart = _mousePressMathRect;
+                    QRectF Mend(Mstart);
+                    Mend.setLeft(bbox.left());
+                    double w0 = Mstart.width();
+                    double w1 = Mend.width();
+                    double a = (1.0/Ww)*log(w0/w1);
+                    double w = w0*exp(a*(-1.0)*wPt.x());
+                    double l = Mstart.right()-w;
+                    if ( l < bbox.left() ) l = bbox.left();
+                    M.setLeft(l);
+                } else if ( topRect.contains(_mousePressPos) ) {
+                    QRectF bboxMath = QRectF(bbox.bottomLeft(),bbox.topRight());
+                    QRectF Mstart = _mousePressMathRect;
+                    QRectF Mend(Mstart);
+                    Mend.setTop(bboxMath.top());
+                    double h0 = qAbs(Mstart.height());
+                    double h1 = qAbs(Mend.height());
+                    double a = (1.0/Wh)*log(h0/h1);
+                    double h = h0*exp(a*(-1.0)*wPt.y());
+                    double top = Mstart.bottom()+h;
+                    if ( top > Mend.top() ) {
+                        top = Mend.top();
+                    }
+                    M.setTop(top);
+                } else if ( botRect.contains(_mousePressPos) ) {
+                    QRectF bboxMath = QRectF(bbox.bottomLeft(),bbox.topRight());
+                    QRectF Mstart = _mousePressMathRect;
+                    QRectF Mend(Mstart);
+                    Mend.setBottom(bboxMath.bottom());
+                    double h0 = qAbs(Mstart.height());
+                    double h1 = qAbs(Mend.height());
+                    double a = (1.0/Wh)*log(h0/h1);
+                    double h = h0*exp(a*wPt.y());
+                    double bot = Mstart.top()-h;
+                    if ( bot < Mend.bottom() ) {
+                        bot = Mend.bottom();
+                    }
+                    M.setBottom(bot);
+                } else {
+                    // Pan on scoobie case
+                    M.moveTo(mPt);
+                }
+            }
             _setPlotMathRect(M);
             viewport()->update();
         }
     } else {
-        mouseEvent->ignore();
+        mouseMove->ignore();
     }
 }

@@ -41,6 +41,7 @@ private:
     QList<QColor> _colorBandsRainbow;
     QList<QColor> _createColorBands(int nBands, bool isRainbow);
 
+    QRectF _mousePressMathRect;
     QPoint _mousePressPos;
     QPointF _mousePressMathTopLeft;
 
