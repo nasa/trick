@@ -93,6 +93,9 @@ void HeaderSearchDirs::AddCompilerBuiltInSearchDirs () {
     // Homebrew on Macs puts everything in /usr/local/Cellar.
     hso.AddPath("/usr/local/Cellar" , clang::frontend::System, IsFramework, IsSysRootRelative);
 
+    // Fink on Macs puts everything in /sw.
+    hso.AddPath("/sw" , clang::frontend::System, IsFramework, IsSysRootRelative);
+
 }
 
 void HeaderSearchDirs::AddUserSearchDirs ( std::vector<std::string> & include_dirs ) {
