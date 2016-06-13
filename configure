@@ -5803,7 +5803,7 @@ eval ac_res=\$$as_ac_File
 $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_File"\" = x"yes"; then :
   UDUNITS_INCLUDES=-I$UDUNITS_HOME/include
-    UDUNITS_LDFLAGS=-L$UDUNITS_HOME/lib -ludunits2
+    UDUNITS_LDFLAGS="-L$UDUNITS_HOME/lib -ludunits2"
 
 else
   as_ac_File=`$as_echo "ac_cv_file_$UDUNITS_HOME/lib/udunits2.h" | $as_tr_sh`
@@ -5825,7 +5825,7 @@ eval ac_res=\$$as_ac_File
 $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_File"\" = x"yes"; then :
   UDUNITS_INCLUDES=-I$UDUNITS_HOME/lib
-     UDUNITS_LDFLAGS=-L$UDUNITS_HOME/lib -ludunits2
+     UDUNITS_LDFLAGS="-L$UDUNITS_HOME/lib -ludunits2"
 
 else
   as_fn_error $? "could not find udunits2" "$LINENO" 5

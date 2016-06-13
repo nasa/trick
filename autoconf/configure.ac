@@ -231,11 +231,11 @@ AS_IF([test "$UDUNITS_HOME" = ""],
  [
   AC_CHECK_FILE([$UDUNITS_HOME/include/udunits2.h],
    [UDUNITS_INCLUDES=-I$UDUNITS_HOME/include
-    UDUNITS_LDFLAGS=-L$UDUNITS_HOME/lib -ludunits2
+    UDUNITS_LDFLAGS="-L$UDUNITS_HOME/lib -ludunits2"
    ],
    [AC_CHECK_FILE([$UDUNITS_HOME/lib/udunits2.h],
     [UDUNITS_INCLUDES=-I$UDUNITS_HOME/lib
-     UDUNITS_LDFLAGS=-L$UDUNITS_HOME/lib -ludunits2
+     UDUNITS_LDFLAGS="-L$UDUNITS_HOME/lib -ludunits2"
     ],
     AC_MSG_ERROR([could not find udunits2]))
    ]
