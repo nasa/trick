@@ -91,4 +91,6 @@
 #include "trick_utils/math/include/wave_form.h"
 #include "trick_utils/math/include/rand_generator.h"
 
+#include "sim_services/SimTime/include/SimTime.hh"
+
 #endif

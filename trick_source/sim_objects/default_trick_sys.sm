@@ -92,6 +92,8 @@ a replacement SimObject will create an uncompilable sim.
 ##include "sim_services/Zeroconf/include/Zeroconf.hh"
 ##include "sim_services/RealtimeInjector/include/RtiStager.hh"
 ##include "sim_services/RealtimeInjector/include/RtiExec.hh"
+##include "sim_services/SimTime/include/SimTime.hh"
+##include "sim_services/SimTime/include/simtime_proto.h"
 
 // TODO: move users away from this STL checkpoint method
 ##include "sim_services/CheckPointRestart/include/checkpoint_stl.hh"

@@ -144,6 +144,9 @@
 #include "sim_services/VariableServer/include/variable_server_proto.h"
 #include "sim_services/include/Flag.h"
 #include "trick_utils/units/include/Unit.hh"
+#include "sim_services/SimTime/include/SimTime.hh"
+#include "sim_services/SimTime/include/simtime_proto.h"
+
 
 #ifdef USE_ER7_UTILS_INTEGRATORS
 #include "er7_utils/integration/core/include/integrator_constructor_factory.hh"
