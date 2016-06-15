@@ -52,6 +52,8 @@
 #include "trick/RKF78_Integrator.hh"
 #include "trick/RKG4_Integrator.hh"
 
+#include "trick/SimTime.hh"
+
 /* from the er7_utils directory */
 #ifdef USE_ER7_UTILS_INTEGRATORS
 #include "er7_utils/trick/include/files_to_ICG.hh"

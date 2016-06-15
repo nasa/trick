@@ -93,6 +93,7 @@ a replacement SimObject will create an uncompilable sim.
 ##include "trick/RtiStager.hh"
 ##include "trick/RtiExec.hh"
 ##include "trick/UdUnits.hh"
+##include "trick/SimTime.hh"
 
 // This is a user header block.  Code here is copied without processing to S_source.hh
 %header{

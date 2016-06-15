@@ -20,7 +20,6 @@ sub s_source($) {
 
     # Get Trick version
     my ($version, $thread) = get_trick_version() ;
-    $thread =~ s/\d+\.// ;
 
     #---------------------------
     # Get date
@@ -183,9 +182,9 @@ PURPOSE:
      "void memory_init( void ) {\n\n" ;
 
     print S_SOURCE " " x 4 , "ALLOC_INFO * ai ;\n" ;
-    print S_SOURCE " " x 4 , "exec_set_version_date_tag\( \"@(#)CP Version $version-$thread, $date\" \) ;\n" ;
+    print S_SOURCE " " x 4 , "exec_set_version_date_tag\( \"@(#)CP Version $version, $date\" \) ;\n" ;
     print S_SOURCE " " x 4 , "exec_set_build_date\( \"$date\" \) ;\n" ;
-    print S_SOURCE " " x 4 , "exec_set_current_version\( \"$version-$thread\" \) ;\n\n" ;
+    print S_SOURCE " " x 4 , "exec_set_current_version\( \"$version\" \) ;\n\n" ;
 
     print S_SOURCE " " x 4 , "populate_sim_services_class_map\(\) ;\n" ;
     print S_SOURCE " " x 4 , "populate_sim_services_enum_map\(\) ;\n" ;

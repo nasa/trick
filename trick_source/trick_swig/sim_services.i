@@ -99,6 +99,9 @@
 #include "trick/RKF78_Integrator.hh"
 #include "trick/RKG4_Integrator.hh"
 
+#include "trick/SimTime.hh"
+#include "trick/simtime_proto.h"
+
 #include "trick/MSSocket.hh"
 #include "trick/MSSharedMem.hh"
 #include "trick/Master.hh"
