@@ -149,7 +149,18 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
         cval.setHasPublicDestructor(true) ;
     }
 
-    cval.setFileName(getFileName(ci , rec->getRBraceLoc(), hsd)) ;
+    std::string file_name = getFileName(ci , rec->getRBraceLoc(), hsd) ;
+    char * rp = almostRealPath(file_name.c_str()) ;
+    if ( rp == NULL ) {
+        return false ;
+    }
+    if ( hsd.isPathInICGExclude(rp) ) {
+        free(rp) ;
+        return false ;
+    }
+
+    cval.setFileName(rp) ;
+    free(rp) ;
     cval.setAbstract(rec->isAbstract()) ;
     cval.setName(rec->getNameAsString()) ;
     cval.setPOD(rec->isPOD()) ;
