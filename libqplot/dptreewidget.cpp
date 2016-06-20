@@ -1,5 +1,7 @@
 #include "dptreewidget.h"
 
+#include "libsnapdata/timeit_linux.h"
+
 QString DPTreeWidget::_err_string;
 QTextStream DPTreeWidget::_err_stream(&DPTreeWidget::_err_string);
 
@@ -240,6 +242,11 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
 
     QStandardItem *pagesItem = _plotModel->itemFromIndex(pagesIdx);
 
+//#define TIME_ME
+#ifdef TIME_ME
+                TimeItLinux timer;
+                 timer.start();
+#endif
     foreach (DPPage* page, dp.pages() ) {
 
         // Page
@@ -300,6 +307,9 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
         }
         pageNum++;
     }
+#ifdef TIME_ME
+    timer.snap("loadtime(dptreewidget)=");
+#endif
 
     this->setCursor(currCursor);
 }
@@ -392,6 +402,9 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
                              DPCurve *dpcurve, MonteModel *monteModel,
                              int runId, int curveId)
 {
+    // Begin blocking signals to speed up curve insertion
+    bool block = _plotModel->blockSignals(true);
+
     // Curve
     QStandardItem *curveItem = _addChild(curvesItem,"Curve");
 
@@ -479,12 +492,7 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
         }
     }
 
-
     // Curve children
-#if 0
-    // TODO: If I figure out a better way to speed adding up all curves,
-    // I may add this back in and delete the PlotBookModel::addChildren() method.
-    // So, I'm leaving this for now.
     _addChild(curveItem, "CurveTime", tName);
     _addChild(curveItem, "CurveTimeUnit", dpcurve->t()->unit());
     _addChild(curveItem, "CurveXName", x->name());
@@ -502,26 +510,11 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     _addChild(curveItem, "CurveYLabel",      y->label());
     _addChild(curveItem, "CurveColor",       y->lineColor());
     _addChild(curveItem, "CurveData","");
-#endif
-    QHash<QString,QVariant> name2value;
-    name2value.insert("CurveTime", tName);
-    name2value.insert("CurveTimeUnit", dpcurve->t()->unit());
-    name2value.insert("CurveXName", x->name());
-    name2value.insert("CurveXUnit", x->unit());
-    name2value.insert("CurveYName", y->name());
-    name2value.insert("CurveYUnit", y->unit());
-    name2value.insert("CurveRunID", runId);
-    name2value.insert("CurveXScale",x->scaleFactor());
-    name2value.insert("CurveXBias", x->bias());
-    name2value.insert("CurveYScale",y->scaleFactor());
-    name2value.insert("CurveYBias", y->bias());
-    name2value.insert("CurveSymbolStyle", y->symbolStyle());
-    name2value.insert("CurveSymbolSize", y->symbolSize());
-    name2value.insert("CurveLineStyle", y->lineStyle());
-    name2value.insert("CurveYLabel", y->label());
-    name2value.insert("CurveColor", y->lineColor());
-    _plotModel->addChildren(curveItem,name2value);
 
+    // End blocking signals to speed up curve insertion
+    block = _plotModel->blockSignals(block);
+
+    // Finally, add actual curve model data with signals turned on
     QVariant v = PtrToQVariant<TrickCurveModel>::convert(curveModel);
     _addChild(curveItem, "CurveData", v);
 }

@@ -19,9 +19,6 @@ public:
                             const QString& childTitle,
                             const QVariant &childValue=QVariant());
 
-    void addChildren(QStandardItem* parentItem,
-                            const QHash<QString,QVariant>& name2value);
-
     bool isIndex(const QModelIndex& idx,
                   const QString& itemText) const;
 

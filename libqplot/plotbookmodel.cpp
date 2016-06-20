@@ -34,36 +34,6 @@ QStandardItem *PlotBookModel::addChild(QStandardItem *parentItem,
     return columnZeroItem;
 }
 
-void PlotBookModel::addChildren(QStandardItem *parentItem,
-                                const QHash<QString,QVariant>& name2value)
-{
-    QList<QStandardItem*> columnZeroItems;
-    QList<QStandardItem*> columnOneItems;
-
-    foreach ( QString name, name2value.keys() ) {
-        QStandardItem *columnZeroItem = new QStandardItem(name);
-        columnZeroItems << columnZeroItem ;
-
-        QVariant value = name2value.value(name);
-        QString s = value.toString();
-        QStandardItem *columnOneItem = new QStandardItem(s);
-        columnOneItem->setData(value);
-        columnOneItems << columnOneItem ;
-    }
-
-    int rc = parentItem->rowCount();
-
-    parentItem->appendRows(columnZeroItems);
-
-    int i = 0;
-    foreach ( QStandardItem* columnOneItem, columnOneItems ) {
-        parentItem->setChild(rc+i,1,columnOneItem);
-        ++i;
-    }
-
-
-}
-
 // Returns page index for idx
 // If idx is a child of a page, it will return the parent page index
 QModelIndex PlotBookModel::_pageIdx(const QModelIndex& idx) const
