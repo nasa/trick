@@ -175,6 +175,7 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
         // Create curves
         //
 
+        bool block = _plotModel->blockSignals(true);
         QStandardItem *curveItem = _addChild(curvesItem,"Curve");
 
         QString curveName = QString("Curve_%0").arg(r);
@@ -186,7 +187,6 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
         _addChild(curveItem, "CurveYName", yName);
         _addChild(curveItem, "CurveYUnit", "--");
         _addChild(curveItem, "CurveRunID", r);
-        _addChild(curveItem, "CurveData","");
         _addChild(curveItem, "CurveXScale", 1.0);
         _addChild(curveItem, "CurveXBias", 0.0);
         _addChild(curveItem, "CurveYScale", 1.0);
@@ -196,6 +196,21 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
         _addChild(curveItem, "CurveSymbolSize", "");
         _addChild(curveItem, "CurveLineStyle", "");
         _addChild(curveItem, "CurveYLabel", "");
+
+        block = _plotModel->blockSignals(block);
+
+        // Add actual curve model data
+        TrickCurveModel* curveModel = _monteModel->curve(r,tName,xName,yName);
+        if ( curveModel ) {
+            QVariant v = PtrToQVariant<TrickCurveModel>::convert(curveModel);
+            _addChild(curveItem, "CurveData", v);
+        } else {
+            // This should not happen
+            // It could be ignored but I'll exit(-1) because I think
+            // if this happens it's a programming error, not a user error
+            qDebug() << "snap [bad scoobs]: varswidget.cpp";
+            exit(-1);
+        }
     }
 }
 
