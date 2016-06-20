@@ -399,6 +399,8 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     QString curveName = QString("Curve_%0_%1").arg(curveId).arg(runId);
     _addChild(curveItem, "CurveName", curveName);
 
+    TrickCurveModel* curveModel = 0 ;
+
     // Get x&y params that match this run
     DPVar* x = 0;
     DPVar* y = 0;
@@ -421,8 +423,7 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
         if ( xName.isEmpty() ) {
             xName = tName;
         }
-        TrickCurveModel* curveModel = monteModel->curve(runId,
-                                                        tName, xName, yName);
+        curveModel = monteModel->curve(runId, tName, xName, yName);
         if ( !curveModel ) {
             QString runDir = monteModel->
                                 headerData(runId,Qt::Vertical).toString();
@@ -440,7 +441,6 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
 
         // Search through xypairs
         QStringList txyParams;  // in case error, use this in message
-        TrickCurveModel* curveModel = 0;
         foreach ( DPXYPair* xyPair, dpcurve->xyPairs() ) {
             QString xName = xyPair->x()->name();
             QString yName = xyPair->y()->name();
@@ -479,7 +479,12 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
         }
     }
 
+
     // Curve children
+#if 0
+    // TODO: If I figure out a better way to speed adding up all curves,
+    // I may add this back in and delete the PlotBookModel::addChildren() method.
+    // So, I'm leaving this for now.
     _addChild(curveItem, "CurveTime", tName);
     _addChild(curveItem, "CurveTimeUnit", dpcurve->t()->unit());
     _addChild(curveItem, "CurveXName", x->name());
@@ -497,6 +502,28 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     _addChild(curveItem, "CurveYLabel",      y->label());
     _addChild(curveItem, "CurveColor",       y->lineColor());
     _addChild(curveItem, "CurveData","");
+#endif
+    QHash<QString,QVariant> name2value;
+    name2value.insert("CurveTime", tName);
+    name2value.insert("CurveTimeUnit", dpcurve->t()->unit());
+    name2value.insert("CurveXName", x->name());
+    name2value.insert("CurveXUnit", x->unit());
+    name2value.insert("CurveYName", y->name());
+    name2value.insert("CurveYUnit", y->unit());
+    name2value.insert("CurveRunID", runId);
+    name2value.insert("CurveXScale",x->scaleFactor());
+    name2value.insert("CurveXBias", x->bias());
+    name2value.insert("CurveYScale",y->scaleFactor());
+    name2value.insert("CurveYBias", y->bias());
+    name2value.insert("CurveSymbolStyle", y->symbolStyle());
+    name2value.insert("CurveSymbolSize", y->symbolSize());
+    name2value.insert("CurveLineStyle", y->lineStyle());
+    name2value.insert("CurveYLabel", y->label());
+    name2value.insert("CurveColor", y->lineColor());
+    _plotModel->addChildren(curveItem,name2value);
+
+    QVariant v = PtrToQVariant<TrickCurveModel>::convert(curveModel);
+    _addChild(curveItem, "CurveData", v);
 }
 
 bool DPTreeWidget::_isDP(const QString &fp)

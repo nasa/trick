@@ -100,28 +100,45 @@ QSize CurvesView::sizeHint() const
     return s;
 }
 
-void CurvesView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+void CurvesView::dataChanged(const QModelIndex &topLeft,
+                             const QModelIndex &bottomRight)
 {
+    if ( topLeft.column() != 1 ) return;
+    if ( topLeft.parent().parent().parent() != _myIdx ) return;
+
+    QModelIndex columnZeroIdx = topLeft.sibling(topLeft.row(),0);
+    QString name = model()->data(columnZeroIdx).toString();
+
+    if ( name == "CurveData" ) {
+        QVariant v = model()->data(topLeft);
+        TrickCurveModel* curveModel =QVariantToPtr<TrickCurveModel>::convert(v);
+        if ( curveModel ) {
+            QPainterPath* path = _createPainterPath(curveModel);
+            _curve2path.insert(curveModel,path);
+            QRectF M = _bbox();
+            _setPlotMathRect(M);
+        }
+    }
 }
 
 void CurvesView::rowsInserted(const QModelIndex &pidx, int start, int end)
 {
     if ( pidx.parent().parent() != _myIdx ) return; // not my plot
-    QModelIndex idx = model()->index(start,0,pidx);
-    if ( model()->data(idx).toString() != "CurveData" ) return;
 
     for ( int i = start; i <= end; ++i ) {
-        QModelIndex idx = model()->index(i,0,pidx);
-        QString s = model()->data(idx).toString();
-        if ( s == "CurveData" ) {
-            QVariant v = model()->data(idx,Qt::UserRole);
+        QModelIndex columnZeroIdx = model()->index(i,0,pidx);
+        QModelIndex columnOneIdx = model()->index(i,1,pidx);
+        QString name = model()->data(columnZeroIdx).toString();
+        if ( name == "CurveData" ) {
+            QVariant v = model()->data(columnOneIdx);
             TrickCurveModel* curveModel =
                     QVariantToPtr<TrickCurveModel>::convert(v);
-            QPainterPath* path = _createPainterPath(curveModel);
-            _curve2path.insert(curveModel,path);
-            QRectF M = _bbox();
-            //M.adjust(-0.01,-0.01,0.01,0.01);
-            _setPlotMathRect(M);
+            if ( curveModel ) {
+                QPainterPath* path = _createPainterPath(curveModel);
+                _curve2path.insert(curveModel,path);
+                QRectF M = _bbox();
+                _setPlotMathRect(M);
+            }
             break;
         }
     }

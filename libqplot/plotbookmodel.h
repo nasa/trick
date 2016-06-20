@@ -15,15 +15,12 @@ public:
     explicit PlotBookModel( MonteModel* monteModel,
                             int rows, int columns, QObject * parent = 0 );
 
-    virtual QVariant data(const QModelIndex &idx,
-                          int role = Qt::DisplayRole) const;
-
-    virtual bool setData(const QModelIndex &index,
-                         const QVariant &value, int role = Qt::EditRole);
-
     QStandardItem* addChild(QStandardItem* parentItem,
                             const QString& childTitle,
                             const QVariant &childValue=QVariant());
+
+    void addChildren(QStandardItem* parentItem,
+                            const QHash<QString,QVariant>& name2value);
 
     bool isIndex(const QModelIndex& idx,
                   const QString& itemText) const;

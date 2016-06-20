@@ -6,10 +6,12 @@
 #include <QTreeView>
 #include <QFileSystemModel>
 #include <QFileInfo>
+#include <QHash>
 #include "dp.h"
 #include "dpfilterproxymodel.h"
 #include "libsnapdata/montemodel.h"
 #include "libqplot/plotbookmodel.h"
+#include "libsnaprt/utils.h"
 
 // Data Products TreeView with Search Box
 

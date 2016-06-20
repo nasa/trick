@@ -17,119 +17,51 @@ PlotBookModel::PlotBookModel(MonteModel *monteModel,
     _initModel();
 }
 
-QVariant PlotBookModel::data(const QModelIndex &idx, int role) const
-{
-    if ( role < Qt::UserRole ) {
-        return QStandardItemModel::data(idx,role);
-    }
-
-    QVariant v;
-
-    if ( isIndex(idx, "CurveData") || isIndex(idx, "TableCurveData") ) {
-
-        QModelIndex curveIdx = idx.parent();
-        QModelIndex rIdx = getIndex(curveIdx, "CurveRunID", "Curve");
-        QModelIndex tIdx = getIndex(curveIdx, "CurveTime", "Curve");
-        QModelIndex xIdx = getIndex(curveIdx, "CurveXName", "Curve");
-        QModelIndex yIdx = getIndex(curveIdx, "CurveYName", "Curve");
-        int runID = itemFromIndex(rIdx)->data().toInt();
-        QString tName = itemFromIndex(tIdx)->data().toString();
-        QString xName = itemFromIndex(xIdx)->data().toString();
-        QString yName = itemFromIndex(yIdx)->data().toString();
-
-        TrickCurveModel* curveModel = _monteModel->curve(runID,
-                                                         tName, xName, yName);
-        //
-        // xunit and calc x scale if DP unit not equal to model unit
-        //
-        bool isXScale = false;
-        double xScaleFactor = 1.0;
-        QString xunit = curveModel->x()->unit();
-        QModelIndex xUnitIdx = getIndex(curveIdx, "CurveXUnit", "Curve");
-        QString xDPUnit = data(xUnitIdx,Qt::UserRole).toString();
-        if ( !xDPUnit.isEmpty() && xunit != xDPUnit &&
-             xDPUnit != "--" && xunit != "--" ) {
-            isXScale = true;
-            xScaleFactor = Unit::convert(1.0,
-                                         xunit.toAscii().constData(),
-                                         xDPUnit.toAscii().constData());
-            xunit = xDPUnit;
-        }
-
-
-        //
-        // yunit and calc y scale if DP unit not equal to model unit
-        //
-        bool isYScale = false;
-        double yScaleFactor = 1.0;
-        QString yunit = curveModel->y()->unit();
-        QModelIndex yUnitIdx = getIndex(curveIdx, "CurveYUnit", "Curve");
-        QString yDPUnit = data(yUnitIdx,Qt::UserRole).toString();
-        if ( !yDPUnit.isEmpty() &&
-             yunit != yDPUnit && yDPUnit != "--" && yunit != "--" ) {
-            isYScale = true;
-            yScaleFactor = Unit::convert(1.0,
-                                         yunit.toAscii().constData(),
-                                         yDPUnit.toAscii().constData());
-            yunit = yDPUnit;
-        }
-
-        // Set scale factor for either x or y units
-        if ( isXScale || isYScale ) {
-            delete curveModel;
-            curveModel = _monteModel->curve(runID,
-                                            tName, xName, yName,
-                                            xScaleFactor, yScaleFactor);
-            curveModel->x()->setUnit(xunit);
-            curveModel->y()->setUnit(yunit);
-        }
-
-        v = PtrToQVariant<TrickCurveModel>::convert(curveModel);
-
-    } else {
-        v = itemFromIndex(idx)->data();
-    }
-
-    return v;
-}
-
-bool PlotBookModel::setData(const QModelIndex &index,
-                            const QVariant &value, int role)
-{
-    bool ret = false;
-
-    if ( role < Qt::UserRole ) {
-        ret = QStandardItemModel::setData(index,value,role);
-        return ret;
-    }
-
-
-    if ( index.isValid() ) {
-        QStandardItem* item = itemFromIndex(index);
-        item->setData(value);
-        ret = true;
-    }
-
-    return ret;
-}
-
 QStandardItem *PlotBookModel::addChild(QStandardItem *parentItem,
                                        const QString &childTitle,
                                        const QVariant &childValue)
 {
-
-    QStandardItem *childItem = new QStandardItem(childTitle);
-    childItem->setData(childValue);
-
-    QString s = childValue.toString();
-    QStandardItem *childItemCol2 = new QStandardItem(s);
+    QStandardItem *columnZeroItem = new QStandardItem(childTitle);
+    QStandardItem *columnOneItem = new QStandardItem(childValue.toString());
 
     QList<QStandardItem*> items;
-    items << childItem << childItemCol2;
-
+    items << columnZeroItem << columnOneItem;
     parentItem->appendRow(items);
 
-    return childItem;
+    QModelIndex columnOneIdx = indexFromItem(columnOneItem);
+    setData(columnOneIdx,childValue);
+
+    return columnZeroItem;
+}
+
+void PlotBookModel::addChildren(QStandardItem *parentItem,
+                                const QHash<QString,QVariant>& name2value)
+{
+    QList<QStandardItem*> columnZeroItems;
+    QList<QStandardItem*> columnOneItems;
+
+    foreach ( QString name, name2value.keys() ) {
+        QStandardItem *columnZeroItem = new QStandardItem(name);
+        columnZeroItems << columnZeroItem ;
+
+        QVariant value = name2value.value(name);
+        QString s = value.toString();
+        QStandardItem *columnOneItem = new QStandardItem(s);
+        columnOneItem->setData(value);
+        columnOneItems << columnOneItem ;
+    }
+
+    int rc = parentItem->rowCount();
+
+    parentItem->appendRows(columnZeroItems);
+
+    int i = 0;
+    foreach ( QStandardItem* columnOneItem, columnOneItems ) {
+        parentItem->setChild(rc+i,1,columnOneItem);
+        ++i;
+    }
+
+
 }
 
 // Returns page index for idx
