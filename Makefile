@@ -333,7 +333,6 @@ clean_gui: clean_java
 #                                 INSTALL Targets
 ################################################################################
 
-PREFIX := ${HOME}/temp2
 ER7_HEADERS := $(addprefix $(PREFIX)/include/, $(filter er7_utils/%, $(shell cd trick_source && find er7_utils -name \*.hh)))
 
 ${ER7_HEADERS} : ${PREFIX}/include/% : trick_source/%
