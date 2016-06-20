@@ -11,7 +11,6 @@
 #include <float.h>
 #include "dp.h"
 #include "libsnapdata/montemodel.h"
-#include "plotbookview.h"
 #include "plotbookmodel.h"
 #include "monteinputsview.h"
 

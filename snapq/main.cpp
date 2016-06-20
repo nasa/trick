@@ -3,6 +3,7 @@
 #include <QSet>
 #include <QHash>
 #include <QString>
+#include <QDate>
 
 #include <string>
 using namespace std;
