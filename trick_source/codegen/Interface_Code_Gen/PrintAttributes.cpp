@@ -78,7 +78,7 @@ static void _mkdir(const char *dir) {
         if(*p == '/') {
             *p = 0;
             if ( stat( tmp , &buf ) != 0 ) {
-                if ( mkdir(tmp, S_IRWXU) != 0 ) {
+                if ( mkdir(tmp, S_IRWXU | S_IRWXG | S_IRWXO ) != 0 ) {
                     std::cout << "[31mUnable to create " << tmp << " for writing.[00m" << std::endl ;
                     return ;
                 }
@@ -86,7 +86,7 @@ static void _mkdir(const char *dir) {
             *p = '/';
         }
     if ( stat( tmp , &buf ) != 0 ) {
-        if ( mkdir(tmp, S_IRWXU) ) {
+        if ( mkdir(tmp, S_IRWXU | S_IRWXG | S_IRWXO) ) {
             std::cout << "[31mUnable to create " << tmp << " for writing.[00m" << std::endl ;
             return ;
         }

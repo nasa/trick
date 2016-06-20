@@ -121,7 +121,12 @@ void HeaderSearchDirs::AddTrickSearchDirs () {
         std::string temp_dir = std::string(trick_home) + "/include/trick" ;
         char * resolved_path = almostRealPath(temp_dir.c_str() ) ;
         hso.AddPath(resolved_path , clang::frontend::Quoted, false, true);
-        trick_include_dir = std::string(resolved_path) ;
+        //trick_include_dir = std::string(resolved_path) ;
+        free(resolved_path) ;
+
+        temp_dir = std::string(trick_home) + "/include/er7_utils" ;
+        resolved_path = almostRealPath(temp_dir.c_str() ) ;
+        hso.AddPath(resolved_path , clang::frontend::Quoted, false, true);
         free(resolved_path) ;
 
         temp_dir = std::string(trick_home) + "/trick_source" ;
@@ -129,6 +134,10 @@ void HeaderSearchDirs::AddTrickSearchDirs () {
         hso.AddPath(resolved_path , clang::frontend::Quoted, false, true);
         trick_source_dir = std::string(resolved_path) ;
         free(resolved_path) ;
+
+        temp_dir = std::string(trick_home) + "/include" ;
+        resolved_path = almostRealPath(temp_dir.c_str() ) ;
+        trick_include_dir = std::string(resolved_path) ;
     }
 }
 

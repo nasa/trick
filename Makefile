@@ -333,43 +333,50 @@ clean_gui: clean_java
 #                                 INSTALL Targets
 ################################################################################
 
-install:
+PREFIX := ${HOME}/temp2
+ER7_HEADERS := $(addprefix $(PREFIX)/include/, $(filter er7_utils/%, $(shell cd trick_source && find er7_utils -name \*.hh)))
+
+${ER7_HEADERS} : ${PREFIX}/include/% : trick_source/%
+	install -m 0644 -D $? $@
+
+install: ${ER7_HEADERS}
 	cp -r bin include $(notdir ${TRICK_LIB_DIR}) libexec share ${PREFIX}
 
 uninstall:
-	rm -f ${PREFIX}/bin/trick-*
+	rm -f ${PREFIX}/bin/trick-CP
+	rm -f ${PREFIX}/bin/trick-ICG
+	rm -f ${PREFIX}/bin/trick-dp
+	rm -f ${PREFIX}/bin/trick-dre
+	rm -f ${PREFIX}/bin/trick-gte
+	rm -f ${PREFIX}/bin/trick-gxplot
+	rm -f ${PREFIX}/bin/trick-jxplot
+	rm -f ${PREFIX}/bin/trick-killsim
+	rm -f ${PREFIX}/bin/trick-mm
+	rm -f ${PREFIX}/bin/trick-mtv
+	rm -f ${PREFIX}/bin/trick-qp
+	rm -f ${PREFIX}/bin/trick-sie
+	rm -f ${PREFIX}/bin/trick-simcontrol
+	rm -f ${PREFIX}/bin/trick-sniffer
+	rm -f ${PREFIX}/bin/trick-stripchart
+	rm -f ${PREFIX}/bin/trick-trk2ascii
+	rm -f ${PREFIX}/bin/trick-trk2csv
+	rm -f ${PREFIX}/bin/trick-tv
+	rm -f ${PREFIX}/bin/trick-version
 	rm -rf ${PREFIX}/include/trick
-	rm -f ${PREFIX}/${BASE_LIB_DIR}/libtrick*
+	rm -rf ${PREFIX}/include/er7_utils
+	rm -f ${PREFIX}/$(notdir ${TRICK_LIB_DIR})/liber7_utils.a
+	rm -f ${PREFIX}/$(notdir ${TRICK_LIB_DIR})/libtrick.a
+	rm -f ${PREFIX}/$(notdir ${TRICK_LIB_DIR})/libtrick_comm.a
+	rm -f ${PREFIX}/$(notdir ${TRICK_LIB_DIR})/libtrick_math.a
+	rm -f ${PREFIX}/$(notdir ${TRICK_LIB_DIR})/libtrick_mm.a
+	rm -f ${PREFIX}/$(notdir ${TRICK_LIB_DIR})/libtrick_pyip.a
+	rm -f ${PREFIX}/$(notdir ${TRICK_LIB_DIR})/libtrick_units.a
 	rm -rf ${PREFIX}/libexec/trick
 	rm -rf ${PREFIX}/share/doc/trick
-	rm -f ${PREFIX}/share/man/man1/trick-*
+	rm -f ${PREFIX}/share/man/man1/trick-CP.1
+	rm -f ${PREFIX}/share/man/man1/trick-ICG.1
+	rm -f ${PREFIX}/share/man/man1/trick-killsim.1
 	rm -rf ${PREFIX}/share/trick
-
-###########
-
-# These rules run the alternatives command in linux to create links in /usr/local/bin for Trick.
-#ifeq ($(TRICK_HOST_TYPE),Linux)
-#ALTERNATIVES := $(shell which alternatives || which update-alternatives)
-#
-#install: set_alternatives
-#.PHONY: set_alternatives
-#set_alternatives: copy_files
-#	- ${ALTERNATIVES} --install /usr/local/bin/CP trick ${PREFIX}/trick/trick-$(TRICK_VERSION)/bin/trick-CP 10 \
-#  --slave /usr/local/bin/trick-ICG trick-ICG /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-ICG \
-#  --slave /usr/local/bin/trick-gte trick-gte /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-gte \
-#  --slave /usr/local/bin/trick-killsim trick-killsim /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-killsim \
-#  --slave /usr/local/bin/trick-sie trick-sie /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-sie \
-#  --slave /usr/local/bin/trick-sim_control trick-simcontrol /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-simcontrol \
-#  --slave /usr/local/bin/trick-sniffer trick-sniffer /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-sniffer \
-#  --slave /usr/local/bin/trick-dp trick-dp /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-dp \
-#  --slave /usr/local/bin/trick-version trick-version /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-version \
-#  --slave /usr/local/bin/trick-tv trick-tv /usr/local/trick/trick-$(TRICK_VERSION)/bin/trick-tv
-#
-#uninstall: remove_alternatives
-#.PHONY: remove_alternatives
-#remove_alternatives:
-#	- ${ALTERNATIVES} --remove trick ${PREFIX}/trick/trick-$(TRICK_VERSION)/bin/CP
-#endif
 
 ################################################################################
 #                    MISCELLANEOUS DEVELOPER UTILITY TARGETS                   #
