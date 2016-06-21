@@ -297,7 +297,7 @@ namespace Trick {
              @code <my_char*> = trick.exec_get_current_version() @endcode
              @return string (C const char*) Executive::current_version
             */
-            std::string get_current_version() ;
+            const std::string & get_current_version() ;
 
             /**
              @userdesc Command to get the debugger command value.
@@ -305,7 +305,7 @@ namespace Trick {
              @code <my_char*> = trick.exec_get_debugger_command() @endcode
              @return string (C const char*) Executive::debugger_command
             */
-            std::string get_debugger_command() ;
+            const std::string & get_debugger_command() ;
 
             /**
              @userdesc Command to get the current Executive Mode command.

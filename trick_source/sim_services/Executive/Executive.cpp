@@ -144,11 +144,11 @@ bool Trick::Executive::get_attach_debugger() {
     return(attach_debugger) ;
 }
 
-std::string Trick::Executive::get_current_version() {
+const std::string & Trick::Executive::get_current_version() {
     return(current_version) ;
 }
 
-std::string Trick::Executive::get_debugger_command() {
+const std::string & Trick::Executive::get_debugger_command() {
     return(debugger_command) ;
 }
 
