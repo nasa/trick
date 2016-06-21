@@ -178,7 +178,11 @@ int vs_format_ascii(Trick::VariableReference * var, char *value) {
     } //end while
 
     if (ref->units) {
-        sprintf(value, "%s {%s}", value, ref->units);
+        if ( ref->attr->mods & TRICK_MODS_UNITSDASHDASH ) {
+            sprintf(value, "%s {--}", value);
+        } else {
+            sprintf(value, "%s {%s}", value, ref->units);
+        }
     }
 
     return (0);

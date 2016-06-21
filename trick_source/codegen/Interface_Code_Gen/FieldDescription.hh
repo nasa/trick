@@ -53,6 +53,7 @@ class FieldDescription : public ConstructValues {
         void setMangledTypeName( std::string in_val ) ;
         std::string getMangledTypeName() ;
         std::string getUnits() ;
+        bool isDashDashUnits() ;
         void setIO(unsigned int) ;
         unsigned int getIO() ;
         std::string getDescription() ;
@@ -116,6 +117,9 @@ class FieldDescription : public ConstructValues {
 
         /** Units specified of the field */
         std::string units ;
+
+        /** was -- used as units */
+        bool is_dashdash ;
 
         /** io restrictions */
         unsigned int io ;

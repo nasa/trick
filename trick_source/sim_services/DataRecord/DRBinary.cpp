@@ -95,9 +95,15 @@ int Trick::DRBinary::format_specific_init() {
         write( fp , rec_buffer[jj]->ref->reference , write_value ) ;
 
         /* units */
-        write_value = strlen(rec_buffer[jj]->ref->attr->units) ;
-        write( fp , &write_value , sizeof(int)) ;
-        write( fp , rec_buffer[jj]->ref->attr->units , write_value ) ;
+        if ( rec_buffer[jj]->ref->attr->mods & TRICK_MODS_UNITSDASHDASH ) {
+            write_value = strlen("--") ;
+            write( fp , &write_value , sizeof(int)) ;
+            write( fp , "--" , write_value ) ;
+        } else {
+            write_value = strlen(rec_buffer[jj]->ref->attr->units) ;
+            write( fp , &write_value , sizeof(int)) ;
+            write( fp , rec_buffer[jj]->ref->attr->units , write_value ) ;
+        }
 
         write_value = rec_buffer[jj]->ref->attr->type ;
         write( fp , &write_value , sizeof(int)) ;

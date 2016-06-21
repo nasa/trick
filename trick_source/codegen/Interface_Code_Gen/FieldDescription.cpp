@@ -41,6 +41,7 @@ FieldDescription::FieldDescription(
   field_width(0) ,
   inherited(false) ,
   units("1") ,
+  is_dashdash(false) ,
   line_no(0) ,
   io(3) ,
   type_enum_string("TRICK_VOID") ,
@@ -233,6 +234,7 @@ void FieldDescription::parseComment(std::string comment) {
         units.erase(remove_if(units.begin(), units.end(), isspace), units.end());
         if ( !units.compare("--") ) {
             units = "1" ;
+            is_dashdash = true ;
         } else {
             // map old unit names to new names
             std::string new_units = map_trick_units_to_udunits(units) ;
@@ -365,6 +367,10 @@ std::string FieldDescription::getMangledTypeName() {
 
 std::string FieldDescription::getUnits() {
     return units ;
+}
+
+bool FieldDescription::isDashDashUnits() {
+    return is_dashdash ;
 }
 
 void FieldDescription::setIO(unsigned int in_io) {

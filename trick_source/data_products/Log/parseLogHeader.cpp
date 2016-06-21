@@ -145,7 +145,11 @@ int LogGroup::parseLogHeaders()
                                 }
 
                                 // Initialize Unit class
-                                currVar->setUnit(map_trick_units_to_udunits(str3));
+                                if ( ! strcmp(str3,"--")) {
+                                    currVar->setUnit(str3);
+                                } else {
+                                    currVar->setUnit(map_trick_units_to_udunits(str3));
+                                }
 
                                 // Set Var Name
                                 currVar->setVarName(str4) ;

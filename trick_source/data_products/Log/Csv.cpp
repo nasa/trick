@@ -51,7 +51,11 @@ Csv::Csv(char * file_name , char * param_name ) {
                                                 unitTimeStr_ = start_unit + 1 ;
                                         }
                                         else {
-                                                unitStr_ = map_trick_units_to_udunits(start_unit + 1) ;
+                                                if ( !strcmp(start_unit + 1,"--") ) {
+                                                    unitStr_ = strdup(start_unit + 1) ;
+                                                } else {
+                                                    unitStr_ = map_trick_units_to_udunits(start_unit + 1) ;
+                                                }
                                         }
                                 }
                                 break ;

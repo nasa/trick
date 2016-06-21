@@ -154,7 +154,11 @@ TrickBinary::TrickBinary(char * file_name , char * param_name ) {
                                 }
 
                                 if ( ! strcmp( name_ptr , param_name )) {
-                                        unitStr_ = map_trick_units_to_udunits(units_ptr) ;
+                                        if ( !strcmp(units_ptr,"--") ) {
+                                            unitStr_ = strdup(units_ptr) ;
+                                        } else {
+                                            unitStr_ = map_trick_units_to_udunits(units_ptr) ;
+                                        }
                                         record_offset_ =  record_size_ ;
                                         type_ =  type ;
                                         size_ =  size ;

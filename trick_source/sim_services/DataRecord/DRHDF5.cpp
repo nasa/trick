@@ -185,7 +185,11 @@ int Trick::DRHDF5::format_specific_init() {
         buf = type_string(rec_buffer[ii]->ref->attr->type, rec_buffer[ii]->ref->attr->size );
         H5PTappend( param_types_id, 1, buf.c_str() );
         /* Param Units */
-        H5PTappend( param_units_id, 1, rec_buffer[ii]->ref->attr->units );
+        if ( rec_buffer[ii]->ref->attr->mods & TRICK_MODS_UNITSDASHDASH ) {
+            H5PTappend( param_units_id, 1, "--" );
+        } else {
+            H5PTappend( param_units_id, 1, rec_buffer[ii]->ref->attr->units );
+        }
         /* Param Name */
         H5PTappend( param_names_id, 1, rec_buffer[ii]->ref->reference );
 

@@ -28,6 +28,7 @@ static std::map< std::string, std::string> init_map_old_to_ud() {
     init_map["gal"] = "gallon" ;
     init_map["one"] = "1" ;
     init_map["cnt"] = "count" ;
+    init_map["--"] = "1" ;
 
     return init_map ;
 }

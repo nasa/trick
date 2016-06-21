@@ -116,6 +116,9 @@ int Trick::VariableServerThread::var_units(std::string var_name, std::string uni
             if (!units_name.compare("xx")) {
                 vars[ii]->ref->units = strdup(vars[ii]->ref->attr->units);
             }
+            else if (!units_name.compare("--")) {
+                vars[ii]->ref->units = strdup("1");
+            }
             else {
                 std::string new_units = map_trick_units_to_udunits(units_name) ;
                 if ( units_name.compare(new_units) ) {

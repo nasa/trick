@@ -8,6 +8,7 @@
 #define TRICK_VAR_INPUT 0x02
 #define TRICK_CHKPNT_OUTPUT 0x04
 #define TRICK_CHKPNT_INPUT 0x08
+#define TRICK_MODS_UNITSDASHDASH 0x04
 
 #define TRICK_MAX_INDEX 8
 
@@ -89,12 +90,10 @@ typedef struct ATTRIBUTES_tag {
     double range_max;   /**< -- Minimum allowable value for parameter */
     Language language;  /**< -- Native language of parameter. */
     int mods;           /**< -- Modification bits.
-
                                 bit 0 = c++ reference var
-
                                 bit 1 = c++ static var
-
-                                bit 32 = deprecated var */
+                                bit 2 = "--" units
+                                bit 31 = deprecated var */
 
     long offset;        /**< -- Offset in bytes of this parameter from beginning of data structure */
     void *attr;         /**< -- Address to next level parameter attributes

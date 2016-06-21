@@ -484,8 +484,14 @@ int Trick::DataRecordGroup::write_header() {
         out_stream << "log_" << group_name << "\t"
             << type_string(rec_buffer[jj]->ref->attr->type,
                            rec_buffer[jj]->ref->attr->size) << "\t"
-            << std::setw(6)<<rec_buffer[jj]->ref->attr->units << "\t"
-            << rec_buffer[jj]->ref->reference << std::endl ;
+            << std::setw(6) ;
+
+        if ( rec_buffer[jj]->ref->attr->mods & TRICK_MODS_UNITSDASHDASH ) {
+            out_stream << "--" ;
+        } else {
+            out_stream << rec_buffer[jj]->ref->attr->units ;
+        }
+        out_stream << "\t" << rec_buffer[jj]->ref->reference << std::endl ;
     }
 
     // Send all unwritten characters in the buffer to its output/file.
