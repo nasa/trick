@@ -60,6 +60,7 @@ Trick::DataRecordGroup::DataRecordGroup( std::string in_name ) :
  freq(DR_Always),
  start(0.0) ,
  cycle(0.1) ,
+ time_value_attr() ,
  num_variable_names(0),
  variable_names(NULL),
  variable_alias(NULL),
