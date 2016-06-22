@@ -72,6 +72,8 @@ protected:
     QPersistentModelIndex _myIdx;
     QAbstractItemView* _curvesView;
 
+    QString _curvesXUnit(const QModelIndex& plotIdx) const;
+
 signals:
 
 public slots:

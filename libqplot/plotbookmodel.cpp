@@ -252,6 +252,15 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
     return idx;
 }
 
+QModelIndex PlotBookModel::getDataIndex(const QModelIndex &startIdx,
+                                    const QString &searchItemText,
+                                    const QString &expectedStartIdxText) const
+{
+    QModelIndex tagIdx = getIndex(startIdx,searchItemText,expectedStartIdxText);
+    QModelIndex dataIdx = sibling(tagIdx.row(),1,tagIdx);
+    return dataIdx;
+}
+
 QModelIndexList PlotBookModel::getIndexList(const QModelIndex &startIdx,
                                   const QString &searchItemText,
                                   const QString &expectedStartIdxText) const

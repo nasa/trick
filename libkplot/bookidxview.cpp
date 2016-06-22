@@ -109,8 +109,7 @@ QModelIndex BookIdxView::_plotMathRectIdx() const
     if ( !model() ) return idx;
 
     QModelIndex plotIdx = _bookModel()->getIndex(_myIdx,"Plot");
-    idx = _bookModel()->getIndex(plotIdx, "PlotMathRect", "Plot");
-    idx = idx.sibling(idx.row(),1);
+    idx = _bookModel()->getDataIndex(plotIdx, "PlotMathRect", "Plot");
 
     return idx;
 }
@@ -121,10 +120,9 @@ void BookIdxView::_setPlotMathRect(const QRectF& mathRect)
     if ( !model() ) return;
 
     QModelIndex plotIdx = _bookModel()->getIndex(_myIdx,"Plot");
-    QModelIndex plotMathRectIdx = _bookModel()->getIndex(plotIdx,
+    QModelIndex plotMathRectIdx = _bookModel()->getDataIndex(plotIdx,
                                                      "PlotMathRect",
                                                      "Plot");
-    plotMathRectIdx = plotMathRectIdx.sibling(plotMathRectIdx.row(),1);
 
     // Flip if y-axis not directed "up" (this happens with bboxes)
     QRectF M = mathRect;
@@ -141,9 +139,8 @@ double BookIdxView::_pointSize() const
     if ( !model() ) return sz;
 
     QModelIndex plotIdx = _bookModel()->getIndex(_myIdx,"Plot");
-    QModelIndex pointSizeIdx = _bookModel()->getIndex(plotIdx,
+    QModelIndex pointSizeIdx = _bookModel()->getDataIndex(plotIdx,
                                                      "PlotPointSize","Plot");
-    pointSizeIdx = pointSizeIdx.sibling(pointSizeIdx.row(),1);
     sz = model()->data(pointSizeIdx).toDouble();
     return sz;
 }
@@ -733,4 +730,48 @@ PlotBookModel* BookIdxView::_bookModel() const
     }
 
     return bookModel;
+}
+
+// Note: This can be slow.  It checks every curve.  If all curves have
+//       same x unit, it returns x unit for all curves.
+QString BookIdxView::_curvesXUnit(const QModelIndex& plotIdx) const
+{
+    QString curvesXUnit;
+    QString dashDash("--");
+
+    bool isCurvesIdx = _bookModel()->isChildIndex(plotIdx, "Plot", "Curves");
+    if ( !isCurvesIdx ) return dashDash;
+    QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx, "Curves", "Plot");
+
+    bool isCurveIdx = _bookModel()->isChildIndex(curvesIdx, "Curves", "Curve");
+    if ( !isCurveIdx ) return dashDash;
+    QModelIndexList curveIdxs = _bookModel()->getIndexList(curvesIdx,
+                                                           "Curve","Curves");
+
+    foreach ( QModelIndex curveIdx, curveIdxs ) {
+
+        bool isCurveXUnit = _bookModel()->isChildIndex(curveIdx,
+                                                       "Curve", "CurveXUnit");
+        if ( !isCurveXUnit ) {
+            // Since curve has no xunit, bail
+            curvesXUnit.clear();
+            break;
+        }
+
+        QModelIndex curveXUnitIdx = _bookModel()->getDataIndex(curveIdx,
+                                                               "CurveXUnit",
+                                                               "Curve");
+        QString unit = model()->data(curveXUnitIdx).toString();
+
+        if ( curvesXUnit.isEmpty() ) {
+            curvesXUnit = unit;
+        } else {
+            if ( curvesXUnit != unit ) {
+                curvesXUnit = dashDash;
+                break;
+            }
+        }
+    }
+
+    return curvesXUnit;
 }

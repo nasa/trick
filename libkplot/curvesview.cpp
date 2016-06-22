@@ -113,10 +113,38 @@ void CurvesView::dataChanged(const QModelIndex &topLeft,
         QVariant v = model()->data(topLeft);
         TrickCurveModel* curveModel =QVariantToPtr<TrickCurveModel>::convert(v);
         if ( curveModel ) {
+
+            // XUnit (complexity due to making it faster for monte carlo)
+            QModelIndex curveIdx = columnZeroIdx.parent();
+            QModelIndex curveXUnitIdx = _bookModel()->getDataIndex(curveIdx,
+                                                          "CurveXUnit","Curve");
+            QString curveXUnit = model()->data(curveXUnitIdx).toString();
+
+            if ( curveXUnit != _xAxisLabelUnit(_myIdx) ) {
+                // Replace x axis label unit in curlies
+                QModelIndex xAxisLabelIdx = _bookModel()->getDataIndex(_myIdx,
+                                                               "PlotXAxisLabel",
+                                                               "Plot");
+                QString xAxisLabel = model()->data(xAxisLabelIdx).toString();
+                int openCurly = xAxisLabel.indexOf('{');
+                if ( openCurly >= 0 ) {
+                    int closeCurly = xAxisLabel.indexOf('}');
+                    int n = closeCurly-openCurly-1;
+                    xAxisLabel.replace(openCurly+1,n,_curvesXUnit(_myIdx));
+                } else {
+                    xAxisLabel += " {" + _curvesXUnit(_myIdx) + "}";
+                }
+                //QString curveModelXUnit = curveModel->x()->unit();
+                model()->setData(xAxisLabelIdx,xAxisLabel);
+            }
+
+
+            // Create path and reset curves bounding box
             QPainterPath* path = _createPainterPath(curveModel);
             _curve2path.insert(curveModel,path);
             QRectF M = _bbox();
             _setPlotMathRect(M);
+
         }
     }
 }
@@ -286,6 +314,31 @@ QList<QColor> CurvesView::_createColorBands(int nBands, bool isRainbow)
     }
 
     return colorBands;
+}
+
+// Extract what is inside curly brackets in PlotXAxisLabel
+// e.g. if PlotXAxisLabel == "Time {s}"
+//      return "s"
+QString CurvesView::_xAxisLabelUnit(const QModelIndex &plotIdx) const
+{
+    QString xunit;
+    QModelIndex xAxisLabelIdx = _bookModel()->getDataIndex(plotIdx,
+                                                           "PlotXAxisLabel",
+                                                           "Plot");
+    QString xAxisLabel = model()->data(xAxisLabelIdx).toString();
+    int openCurlyArrayIdx = xAxisLabel.indexOf('{');
+    if ( openCurlyArrayIdx >= 0 ) {
+        int closeCurlyArrayIdx = xAxisLabel.indexOf('}');
+        if ( closeCurlyArrayIdx > openCurlyArrayIdx+1 ) {
+            // e.g. "time {s}"
+            //       openCurlyArrayIdx = 5
+            //      closeCurlyArrayIdx = 7
+            //
+            xunit = xAxisLabel.mid(openCurlyArrayIdx+1,
+                                   closeCurlyArrayIdx-openCurlyArrayIdx-1);
+        }
+    }
+    return xunit;
 }
 
 void CurvesView::mousePressEvent(QMouseEvent *event)

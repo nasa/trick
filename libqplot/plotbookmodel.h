@@ -30,6 +30,10 @@ public:
                         const QString& searchItemText,
                         const QString &expectedStartIdxText=QString()) const;
 
+    QModelIndex getDataIndex(const QModelIndex& startIdx,
+                          const QString& searchItemText,
+                          const QString &expectedStartIdxText=QString()) const;
+
     QModelIndexList getIndexList(const QModelIndex& startIdx,
                         const QString& searchItemText,
                         const QString &expectedStartIdxText=QString()) const;
