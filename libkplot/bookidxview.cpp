@@ -775,3 +775,63 @@ QString BookIdxView::_curvesXUnit(const QModelIndex& plotIdx) const
 
     return curvesXUnit;
 }
+
+QString BookIdxView::_curvesUnit(const QModelIndex &plotIdx, QChar axis) const
+{
+    if ( axis != 'x' && axis != 'y' ) {
+        qDebug() << "snap [bad scoobs]: BookIdxView::_curvesUnit called with "
+                    "bad axis=" << axis;
+        exit(-1);
+    }
+
+    QString curvesUnit;
+    QString dashDash("--");
+
+    bool isCurvesIdx = _bookModel()->isChildIndex(plotIdx, "Plot", "Curves");
+    if ( !isCurvesIdx ) return dashDash;
+    QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx, "Curves", "Plot");
+
+    bool isCurveIdx = _bookModel()->isChildIndex(curvesIdx, "Curves", "Curve");
+    if ( !isCurveIdx ) return dashDash;
+    QModelIndexList curveIdxs = _bookModel()->getIndexList(curvesIdx,
+                                                           "Curve","Curves");
+
+    foreach ( QModelIndex curveIdx, curveIdxs ) {
+
+        bool isCurveUnit;
+        if ( axis == 'x' ) {
+            isCurveUnit = _bookModel()->isChildIndex(curveIdx,
+                                                     "Curve", "CurveXUnit");
+        } else {
+            isCurveUnit = _bookModel()->isChildIndex(curveIdx,
+                                                     "Curve", "CurveYUnit");
+        }
+        if ( !isCurveUnit ) {
+            // Since curve has no xunit, bail
+            curvesUnit.clear();
+            break;
+        }
+
+        QModelIndex curveUnitIdx;
+        if ( axis == 'x' ) {
+            curveUnitIdx = _bookModel()->getDataIndex(curveIdx,
+                                                      "CurveXUnit", "Curve");
+        } else {
+            curveUnitIdx = _bookModel()->getDataIndex(curveIdx,
+                                                      "CurveYUnit", "Curve");
+        }
+
+        QString unit = model()->data(curveUnitIdx).toString();
+
+        if ( curvesUnit.isEmpty() ) {
+            curvesUnit = unit;
+        } else {
+            if ( curvesUnit != unit ) {
+                curvesUnit = dashDash;
+                break;
+            }
+        }
+    }
+
+    return curvesUnit;
+}

@@ -45,7 +45,8 @@ private:
     QPoint _mousePressPos;
     QPointF _mousePressMathTopLeft;
 
-    QString _xAxisLabelUnit(const QModelIndex& plotIdx) const;
+    void _updateUnits(const QModelIndex &curveIdx,QChar axis) const;
+    QString _axisLabelUnit(const QModelIndex &plotIdx,QChar axis) const;
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,

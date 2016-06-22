@@ -73,6 +73,7 @@ protected:
     QAbstractItemView* _curvesView;
 
     QString _curvesXUnit(const QModelIndex& plotIdx) const;
+    QString _curvesUnit(const QModelIndex& plotIdx, QChar axis) const;
 
 signals:
 
