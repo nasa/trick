@@ -509,7 +509,6 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     _addChild(curveItem, "CurveLineStyle",   y->lineStyle());
     _addChild(curveItem, "CurveYLabel",      y->label());
     _addChild(curveItem, "CurveColor",       y->lineColor());
-    _addChild(curveItem, "CurveData","");
 
     // End blocking signals to speed up curve insertion
     block = _plotModel->blockSignals(block);
