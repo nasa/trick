@@ -54,7 +54,7 @@ TrickHDF5::TrickHDF5(char *file_name , char *parameter_name , char *time_name) {
                 H5PTget_next(parameter_units, 1, units_buf);
                 // the specified parameter_name is found, set the units
                 if (strcmp(parameter_name, name_buf) == 0) {
-                    if ( !strcmp(units_ptr,"--") ) {
+                    if ( !strcmp(units_buf,"--") ) {
                         unitStr_ = strdup(units_buf) ;
                     } else {
                         unitStr_ = map_trick_units_to_udunits(units_buf) ;
