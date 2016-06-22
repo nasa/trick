@@ -2,7 +2,7 @@ dnl To generate a new top level configure script from this autoconf directory
 dnl 1.  aclocal
 dnl 2.  autoconf -o ../configure
 
-AC_INIT([Trick],[16.0])
+AC_INIT([Trick],[16+])
 AC_LANG(C++)
 
 AC_CONFIG_AUX_DIR([autoconf])
@@ -166,9 +166,25 @@ CFLAGS="$CFLAGS $XTRAINCPATHS"
 CPPFLAGS="$CPPFLAGS $XTRAINCPATHS"
 
 dnl look for programs we need to compile and run
+AC_PROG_AWK
 AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_LEX
+AX_GCC_VERSION
+dnl if the compiler is gcc, test for gcc >= 4.8
+AS_IF([test "x$GCC_VERSION" = "x"],[],
+ [AC_MSG_CHECKING([gcc version >= 4.8])
+  AX_COMPARE_VERSION([$GCC_VERSION],[ge],[4.8], [AC_MSG_RESULT([yes])],
+   [AC_MSG_RESULT([no])
+    AC_MSG_ERROR([Trick requires gcc version >= 4.8])
+   ])
+])
+dnl AC_PATH_PROG(CC, $CC, no_cc)
+dnl AC_PATH_PROG(CXX, $CXX, no_cxx)
+dnl Save the full path of the compiler
+CC=`which $CC`
+CXX=`which $CXX`
+
 AS_IF([test "x$LEX" = "x:"],AC_MSG_ERROR([could not find flex]),[])
 AC_PATH_PROG(BISON, bison, nobison)
 AS_IF([test "$ac_cv_path_BISON" = "nobison"],AC_MSG_ERROR([could not find bison]),[])
