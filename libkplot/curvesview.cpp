@@ -125,22 +125,29 @@ void CurvesView::dataChanged(const QModelIndex &topLeft,
     if ( topLeft.parent().parent().parent() != _myIdx ) return;
 
     QModelIndex columnZeroIdx = topLeft.sibling(topLeft.row(),0);
-    QString name = model()->data(columnZeroIdx).toString();
+    QString tag = model()->data(columnZeroIdx).toString();
+    QModelIndex curveIdx = columnZeroIdx.parent();
+    QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
+                                                          "CurveData",
+                                                          "Curve");
+    QVariant v = model()->data(curveDataIdx);
+    TrickCurveModel* curveModel =QVariantToPtr<TrickCurveModel>::convert(v);
 
-    if ( name == "CurveData" ) {
-        QVariant v = model()->data(topLeft);
-        TrickCurveModel* curveModel =QVariantToPtr<TrickCurveModel>::convert(v);
-        if ( curveModel ) {
-
-            // Update x/y units in axis labels in curlies
-            QModelIndex curveIdx = columnZeroIdx.parent();
+    if ( curveModel ) {
+        if ( tag == "CurveData" ) {
             _updateUnits(curveIdx,'x');
             _updateUnits(curveIdx,'y');
-
-            // Create and insert path and reset curves bounding box
             QPainterPath* path = _createPainterPath(curveModel);
-            _insertPath(path, curveModel, curveIdx);
+            _insertPath(path,curveModel,curveIdx);
+        } else if ( tag == "CurveXUnit" ) {
+            _updateUnits(curveIdx,'x');
+            _currBBox = _calcBBox();
+        } else if ( tag == "CurveYUnit" ) {
+            _updateUnits(curveIdx,'y');
+            _currBBox = _calcBBox();
         }
+        _setPlotMathRect(_currBBox); // TODO
+        viewport()->update();
     }
 }
 
@@ -172,22 +179,8 @@ void CurvesView::_insertPath(QPainterPath* path,
                              const QModelIndex& curveIdx)
 {
     _curve2path.insert(curveModel,path);
-
-    // Make a scaled box around path just created
-    double xScale = _xScale(curveModel,curveIdx);
-    double yScale = _yScale(curveModel,curveIdx);
-    QRectF pathBox = path->boundingRect();
-    double w = pathBox.width();
-    double h = pathBox.height();
-    QPointF topLeft(xScale*pathBox.topLeft().x(),
-                    (yScale*pathBox.topLeft().y()));
-    QRectF scaledPathBox(topLeft,QSizeF(xScale*w,yScale*h));
-
-    // Update current bounding box
-    _currBBox = _currBBox.united(scaledPathBox);
-
-    // TODO: even if zoomed in, this will reset the view
-    _setPlotMathRect(_currBBox);
+    QRectF curveBBox = _curveBBox(curveModel,curveIdx);
+    _currBBox = _currBBox.united(curveBBox);
 }
 
 QPainterPath* CurvesView::_createPainterPath(TrickCurveModel *curveModel)
@@ -525,4 +518,41 @@ double CurvesView::_yScale(TrickCurveModel* curveModel,
                        bookYUnit.toAscii().constData());
 
     return ys;
+}
+
+QRectF CurvesView::_calcBBox() const
+{
+    QRectF bbox;
+    QModelIndex curvesIdx = _bookModel()->getIndex(_myIdx,"Curves","Plot");
+    int rc = model()->rowCount(curvesIdx);
+    for (int i = 0; i < rc; ++i) {
+        QModelIndex curveIdx = model()->index(i,0,curvesIdx);
+        QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
+                                                              "CurveData",
+                                                              "Curve");
+        QVariant v = model()->data(curveDataIdx);
+        TrickCurveModel* curveModel =QVariantToPtr<TrickCurveModel>::convert(v);
+
+        if ( curveModel ) {
+            QRectF curveBBox = _curveBBox(curveModel,curveIdx);
+            bbox = bbox.united(curveBBox);
+        }
+    }
+    return bbox;
+}
+
+QRectF CurvesView::_curveBBox(TrickCurveModel* curveModel,
+                              const QModelIndex& curveIdx) const
+{
+    QPainterPath* path = _curve2path.value(curveModel);
+    double xScale = _xScale(curveModel,curveIdx);
+    double yScale = _yScale(curveModel,curveIdx);
+    QRectF pathBox = path->boundingRect();
+    double w = pathBox.width();
+    double h = pathBox.height();
+    QPointF topLeft(xScale*pathBox.topLeft().x(),
+                    (yScale*pathBox.topLeft().y()));
+    QRectF scaledPathBox(topLeft,QSizeF(xScale*w,yScale*h));
+
+    return scaledPathBox;
 }

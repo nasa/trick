@@ -59,6 +59,10 @@ private:
     double _yScale(TrickCurveModel *curveModel,
                    const QModelIndex& curveIdx=QModelIndex()) const;
 
+    QRectF _curveBBox(TrickCurveModel *curveModel,
+                      const QModelIndex &curveIdx) const ;
+    QRectF _calcBBox() const ;
+
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,
                              const QModelIndex &bottomRight);
