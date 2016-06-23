@@ -138,15 +138,37 @@ void CurvesView::dataChanged(const QModelIndex &topLeft,
             _updateUnits(curveIdx,'x');
             _updateUnits(curveIdx,'y');
             QPainterPath* path = _createPainterPath(curveModel);
-            _insertPath(path,curveModel,curveIdx);
+            _curve2path.insert(curveModel,path);
+            _currBBox = _currBBox.united(_curveBBox(curveModel,curveIdx));
+            _setPlotMathRect(_currBBox);
         } else if ( tag == "CurveXUnit" ) {
             _updateUnits(curveIdx,'x');
+            QRectF prevBBox = _currBBox;
             _currBBox = _calcBBox();
+            if ( prevBBox.width() > 0 ) {
+                double xs = _currBBox.width()/prevBBox.width();
+                QRectF M = _plotMathRect();
+                double w = M.width();
+                double h = M.height();
+                QPointF topLeft(xs*M.topLeft().x(), M.topLeft().y());
+                QRectF scaledM(topLeft,QSizeF(xs*w,h));
+                _setPlotMathRect(scaledM);
+            }
         } else if ( tag == "CurveYUnit" ) {
             _updateUnits(curveIdx,'y');
+            QRectF prevBBox = _currBBox;
             _currBBox = _calcBBox();
+            if ( prevBBox.height() > 0 ) {
+                double ys = _currBBox.height()/prevBBox.height();
+                QRectF M = _plotMathRect();
+                double w = M.width();
+                double h = M.height();
+                QPointF topLeft(M.topLeft().x(), ys*M.topLeft().y());
+                QRectF scaledM(topLeft,QSizeF(w,ys*h));
+                _setPlotMathRect(scaledM);
+            }
         }
-        _setPlotMathRect(_currBBox); // TODO
+
         viewport()->update();
     }
 }
@@ -167,20 +189,12 @@ void CurvesView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 _updateUnits(curveIdx,'x');
                 _updateUnits(curveIdx,'y');
                 QPainterPath* path = _createPainterPath(curveModel);
-                _insertPath(path,curveModel,curveIdx);
+                _curve2path.insert(curveModel,path);
+                _currBBox = _currBBox.united(_curveBBox(curveModel,curveIdx));
             }
             break;
         }
     }
-}
-
-void CurvesView::_insertPath(QPainterPath* path,
-                             TrickCurveModel* curveModel,
-                             const QModelIndex& curveIdx)
-{
-    _curve2path.insert(curveModel,path);
-    QRectF curveBBox = _curveBBox(curveModel,curveIdx);
-    _currBBox = _currBBox.united(curveBBox);
 }
 
 QPainterPath* CurvesView::_createPainterPath(TrickCurveModel *curveModel)

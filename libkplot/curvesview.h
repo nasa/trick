@@ -50,10 +50,6 @@ private:
 
     QRectF _currBBox;
 
-    void _insertPath(QPainterPath* path,
-                     TrickCurveModel* curveModel,
-                     const QModelIndex& curveIdx);
-
     double _xScale(TrickCurveModel *curveModel,
                    const QModelIndex& curveIdx=QModelIndex()) const;
     double _yScale(TrickCurveModel *curveModel,
