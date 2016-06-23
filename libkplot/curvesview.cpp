@@ -42,25 +42,43 @@ void CurvesView::paintEvent(QPaintEvent *event)
 
     // Draw!
     painter.setTransform(T);
-    int i = 0;
     int nCurves = _curve2path.size();
     int nBands = _colorBandsRainbow.size();
     int nCurvesPerBand = div(nCurves,nBands).quot;
-    foreach ( QPainterPath* path, _curve2path.values() ) {
+    QModelIndex curvesIdx = _bookModel()->getIndex(_myIdx,"Curves","Plot");
+    int rc = model()->rowCount(curvesIdx);
+    for ( int i = 0; i < rc; ++i ) {
 
-        // Color curves
-        if ( nCurves < 10 ) {
-            pen.setColor(_colorBandsNormal.at(i));
-        } else  {
-            div_t q = div(i,nCurvesPerBand);
-            int j = qMin(q.quot,nBands-1);
-            pen.setColor(_colorBandsRainbow.at(j));
+        QModelIndex curveIdx = model()->index(i,0,curvesIdx);
+        QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
+                                                          "CurveData","Curve");
+        QVariant v = model()->data(curveDataIdx);
+        TrickCurveModel* curveModel =QVariantToPtr<TrickCurveModel>::convert(v);
+
+        if ( curveModel ) {
+
+            // Color curves
+            if ( nCurves < 10 ) {
+                pen.setColor(_colorBandsNormal.at(i));
+            } else  {
+                div_t q = div(i,nCurvesPerBand);
+                int j = qMin(q.quot,nBands-1);
+                pen.setColor(_colorBandsRainbow.at(j));
+            }
+            painter.setPen(pen);
+
+            // Get painter path
+            QPainterPath* path = _curve2path.value(curveModel);
+
+            // Scale transform (e.g. for unit axis scaling)
+            double xs = _xScale(curveModel,curveIdx);
+            double ys = _yScale(curveModel,curveIdx);
+            QTransform Tscaled = T.scale(xs,ys);
+            painter.setTransform(Tscaled);
+
+            // Draw curve!
+            painter.drawPath(*path);
         }
-        painter.setPen(pen);
-
-        painter.drawPath(*path);
-
-        ++i;
     }
 
 #if 0
@@ -118,14 +136,10 @@ void CurvesView::dataChanged(const QModelIndex &topLeft,
             QModelIndex curveIdx = columnZeroIdx.parent();
             _updateUnits(curveIdx,'x');
             _updateUnits(curveIdx,'y');
-            //QString curveModelXUnit = curveModel->x()->unit();
 
-            // Create path and reset curves bounding box
+            // Create and insert path and reset curves bounding box
             QPainterPath* path = _createPainterPath(curveModel);
-            _curve2path.insert(curveModel,path);
-            QRectF M = _bbox();
-            _setPlotMathRect(M);
-
+            _insertPath(path, curveModel, curveIdx);
         }
     }
 }
@@ -135,22 +149,45 @@ void CurvesView::rowsInserted(const QModelIndex &pidx, int start, int end)
     if ( pidx.parent().parent() != _myIdx ) return; // not my plot
 
     for ( int i = start; i <= end; ++i ) {
-        QModelIndex columnZeroIdx = model()->index(i,0,pidx);
-        QModelIndex columnOneIdx = model()->index(i,1,pidx);
-        QString name = model()->data(columnZeroIdx).toString();
+        QModelIndex curveIdx = model()->index(i,0,pidx);
+        QModelIndex curveDataIdx = model()->index(i,1,pidx);
+        QString name = model()->data(curveIdx).toString();
         if ( name == "CurveData" ) {
-            QVariant v = model()->data(columnOneIdx);
+            QVariant v = model()->data(curveDataIdx);
             TrickCurveModel* curveModel =
                     QVariantToPtr<TrickCurveModel>::convert(v);
             if ( curveModel ) {
+                _updateUnits(curveIdx,'x');
+                _updateUnits(curveIdx,'y');
                 QPainterPath* path = _createPainterPath(curveModel);
-                _curve2path.insert(curveModel,path);
-                QRectF M = _bbox();
-                _setPlotMathRect(M);
+                _insertPath(path,curveModel,curveIdx);
             }
             break;
         }
     }
+}
+
+void CurvesView::_insertPath(QPainterPath* path,
+                             TrickCurveModel* curveModel,
+                             const QModelIndex& curveIdx)
+{
+    _curve2path.insert(curveModel,path);
+
+    // Make a scaled box around path just created
+    double xScale = _xScale(curveModel,curveIdx);
+    double yScale = _yScale(curveModel,curveIdx);
+    QRectF pathBox = path->boundingRect();
+    double w = pathBox.width();
+    double h = pathBox.height();
+    QPointF topLeft(xScale*pathBox.topLeft().x(),
+                    (yScale*pathBox.topLeft().y()));
+    QRectF scaledPathBox(topLeft,QSizeF(xScale*w,yScale*h));
+
+    // Update current bounding box
+    _currBBox = _currBBox.united(scaledPathBox);
+
+    // TODO: even if zoomed in, this will reset the view
+    _setPlotMathRect(_currBBox);
 }
 
 QPainterPath* CurvesView::_createPainterPath(TrickCurveModel *curveModel)
@@ -208,15 +245,6 @@ QPainterPath* CurvesView::_createPainterPath(TrickCurveModel *curveModel)
     curveModel->unmap();
 
     return path;
-}
-
-QRectF CurvesView::_bbox()
-{
-    QRectF bbox;
-    foreach ( QPainterPath* path, _curve2path.values() ) {
-        bbox = bbox.united(path->boundingRect());
-    }
-    return bbox;
 }
 
 QPainterPath CurvesView::_sinPath()
@@ -349,34 +377,6 @@ void CurvesView::_updateUnits(const QModelIndex &curveIdx, QChar axis) const
     }
 }
 
-
-QString CurvesView::_axisLabelUnit(const QModelIndex &plotIdx,QChar axis) const
-{
-    QString unit;
-
-    QModelIndex axisLabelIdx;
-    if ( axis == 'x' ) {
-        axisLabelIdx = _bookModel()->getDataIndex(plotIdx,
-                                                  "PlotXAxisLabel", "Plot");
-    } else if ( axis == 'y' ) {
-        axisLabelIdx = _bookModel()->getDataIndex(plotIdx,
-                                                  "PlotYAxisLabel", "Plot");
-    } else {
-        qDebug() << "snap [bad scoobs]: __axisLabelUnit bad axis=" << axis;
-        exit(-1);
-    }
-    QString axisLabel = model()->data(axisLabelIdx).toString();
-    int openCurly = axisLabel.indexOf('{');
-    if ( openCurly >= 0 ) {
-        int closeCurly = axisLabel.indexOf('}');
-        if ( closeCurly > openCurly+1 ) {
-            // e.g. for "time {s}" ->  openCurly=5 closeCurly=7
-            unit = axisLabel.mid(openCurly+1,closeCurly-openCurly-1);
-        }
-    }
-    return unit;
-}
-
 void CurvesView::mousePressEvent(QMouseEvent *event)
 {
     if (  event->button() == Qt::LeftButton ) {
@@ -386,8 +386,7 @@ void CurvesView::mousePressEvent(QMouseEvent *event)
     } else if (  event->button() == Qt::MidButton ) {
         event->ignore();
     } else if ( event->button() == Qt::RightButton ) {
-        QRectF M = _bbox();
-        _setPlotMathRect(M);
+        _setPlotMathRect(_currBBox);
         viewport()->update();
     }
 }
@@ -423,7 +422,7 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                 QRectF botRect(insideRect.bottomLeft().x(),
                                insideRect.bottomLeft().y(),
                                insideRect.width(),(1-k)*Wh/2.0);
-                QRectF bbox = _bbox();
+                QRectF bbox = _currBBox;
                 if ( rightRect.contains(_mousePressPos) ) {
                     //
                     // f(0) = w0
@@ -494,4 +493,36 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
     } else {
         mouseMove->ignore();
     }
+}
+
+double CurvesView::_xScale(TrickCurveModel* curveModel,
+                           const QModelIndex& curveIdx) const
+{
+    double xs;
+
+    QModelIndex curveXUnitIdx = _bookModel()->getDataIndex(curveIdx,
+                                                          "CurveXUnit","Curve");
+    QString bookXUnit = model()->data(curveXUnitIdx).toString();
+    QString loggedXUnit = curveModel->x()->unit();
+    xs = Unit::convert(1.0,
+                       loggedXUnit.toAscii().constData(),
+                       bookXUnit.toAscii().constData());
+
+    return xs;
+}
+
+double CurvesView::_yScale(TrickCurveModel* curveModel,
+                           const QModelIndex& curveIdx) const
+{
+    double ys;
+
+    QModelIndex curveYUnitIdx = _bookModel()->getDataIndex(curveIdx,
+                                                          "CurveYUnit","Curve");
+    QString bookYUnit = model()->data(curveYUnitIdx).toString();
+    QString loggedYUnit = curveModel->y()->unit();
+    ys = Unit::convert(1.0,
+                       loggedYUnit.toAscii().constData(),
+                       bookYUnit.toAscii().constData());
+
+    return ys;
 }

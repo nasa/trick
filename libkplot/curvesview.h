@@ -11,6 +11,7 @@
 #include <QSizeF>
 #include <stdlib.h>
 #include "bookidxview.h"
+#include "libsnapdata/unit.h"
 
 class CurvesView : public BookIdxView
 {
@@ -46,7 +47,17 @@ private:
     QPointF _mousePressMathTopLeft;
 
     void _updateUnits(const QModelIndex &curveIdx,QChar axis) const;
-    QString _axisLabelUnit(const QModelIndex &plotIdx,QChar axis) const;
+
+    QRectF _currBBox;
+
+    void _insertPath(QPainterPath* path,
+                     TrickCurveModel* curveModel,
+                     const QModelIndex& curveIdx);
+
+    double _xScale(TrickCurveModel *curveModel,
+                   const QModelIndex& curveIdx=QModelIndex()) const;
+    double _yScale(TrickCurveModel *curveModel,
+                   const QModelIndex& curveIdx=QModelIndex()) const;
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,
