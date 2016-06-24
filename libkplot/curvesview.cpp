@@ -73,7 +73,8 @@ void CurvesView::paintEvent(QPaintEvent *event)
             // Scale transform (e.g. for unit axis scaling)
             double xs = _xScale(curveModel,curveIdx);
             double ys = _yScale(curveModel,curveIdx);
-            QTransform Tscaled = T.scale(xs,ys);
+            QTransform Tscaled(T);
+            Tscaled = Tscaled.scale(xs,ys);
             painter.setTransform(Tscaled);
 
             // Draw curve!
@@ -505,15 +506,17 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
 double CurvesView::_xScale(TrickCurveModel* curveModel,
                            const QModelIndex& curveIdx) const
 {
-    double xs;
+    double xs = 1.0;
 
     QModelIndex curveXUnitIdx = _bookModel()->getDataIndex(curveIdx,
                                                           "CurveXUnit","Curve");
     QString bookXUnit = model()->data(curveXUnitIdx).toString();
-    QString loggedXUnit = curveModel->x()->unit();
-    xs = Unit::convert(1.0,
-                       loggedXUnit.toAscii().constData(),
-                       bookXUnit.toAscii().constData());
+    if ( !bookXUnit.isEmpty() && bookXUnit != "--" ) {
+        QString loggedXUnit = curveModel->x()->unit();
+        xs = Unit::convert(1.0,
+                           loggedXUnit.toAscii().constData(),
+                           bookXUnit.toAscii().constData());
+    }
 
     return xs;
 }
@@ -521,15 +524,17 @@ double CurvesView::_xScale(TrickCurveModel* curveModel,
 double CurvesView::_yScale(TrickCurveModel* curveModel,
                            const QModelIndex& curveIdx) const
 {
-    double ys;
+    double ys = 1.0;
 
     QModelIndex curveYUnitIdx = _bookModel()->getDataIndex(curveIdx,
                                                           "CurveYUnit","Curve");
     QString bookYUnit = model()->data(curveYUnitIdx).toString();
-    QString loggedYUnit = curveModel->y()->unit();
-    ys = Unit::convert(1.0,
-                       loggedYUnit.toAscii().constData(),
-                       bookYUnit.toAscii().constData());
+    if ( !bookYUnit.isEmpty() && bookYUnit != "--" ) {
+        QString loggedYUnit = curveModel->y()->unit();
+        ys = Unit::convert(1.0,
+                           loggedYUnit.toAscii().constData(),
+                           bookYUnit.toAscii().constData());
+    }
 
     return ys;
 }

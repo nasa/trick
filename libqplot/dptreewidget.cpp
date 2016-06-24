@@ -421,13 +421,17 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     if ( !_timeName.isEmpty() ) {
         tName = _timeName;
     }
+    QString xName;
+    QString xUnit;
+    QString yName;
     if ( dpcurve->xyPairs().isEmpty() ) {
         // Find out what x&y to use for curve
         // It can be in xypairs
         x = dpcurve->x();
         y = dpcurve->y();
-        QString xName = x->name();
-        QString yName = y->name();
+        xName = x->name();
+        xUnit = x->unit();
+        yName = y->name();
         if ( !y->timeName().isEmpty() && _timeName.isEmpty() ) {
             tName = y->timeName();  // note that y supercedes x
         } else if ( !x->timeName().isEmpty() && _timeName.isEmpty() ) {
@@ -435,6 +439,7 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
         }
         if ( xName.isEmpty() ) {
             xName = tName;
+            xUnit = dpcurve->t()->unit();
         }
         curveModel = monteModel->curve(runId, tName, xName, yName);
         if ( !curveModel ) {
@@ -455,8 +460,9 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
         // Search through xypairs
         QStringList txyParams;  // in case error, use this in message
         foreach ( DPXYPair* xyPair, dpcurve->xyPairs() ) {
-            QString xName = xyPair->x()->name();
-            QString yName = xyPair->y()->name();
+            xName = xyPair->x()->name();
+            xUnit = xyPair->x()->unit();
+            yName = xyPair->y()->name();
             if ( !xyPair->y()->timeName().isEmpty() && _timeName.isEmpty() ) {
                 tName = xyPair->y()->timeName();
             } else if ( !xyPair->x()->timeName().isEmpty()
@@ -465,6 +471,7 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
             }
             if ( xName.isEmpty() ) {
                 xName = tName;
+                xUnit = "--";
             }
             txyParams << "(" + tName  + " , " + xName + " , " + yName + ")";
             curveModel = _monteModel->curve(runId, tName, xName, yName);
@@ -495,8 +502,8 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     // Curve children
     _addChild(curveItem, "CurveTime", tName);
     _addChild(curveItem, "CurveTimeUnit", dpcurve->t()->unit());
-    _addChild(curveItem, "CurveXName", x->name());
-    _addChild(curveItem, "CurveXUnit", x->unit());
+    _addChild(curveItem, "CurveXName", xName);
+    _addChild(curveItem, "CurveXUnit", xUnit);
     _addChild(curveItem, "CurveYName", y->name());
     _addChild(curveItem, "CurveYUnit", y->unit());
     _addChild(curveItem, "CurveRunID", runId);

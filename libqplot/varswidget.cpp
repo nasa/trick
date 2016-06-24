@@ -174,18 +174,28 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
         //
         // Create curves
         //
+        TrickCurveModel* curveModel = _monteModel->curve(r,tName,xName,yName);
+        if ( !curveModel ) {
+            // This should not happen
+            // It could be ignored but I'll exit(-1) because I think
+            // if this happens it's a programming error, not a user error
+            qDebug() << "snap [bad scoobs]: varswidget.cpp";
+            exit(-1);
+        }
 
+        // Turn off model signals when adding children for significant speedup
         bool block = _plotModel->blockSignals(true);
+
         QStandardItem *curveItem = _addChild(curvesItem,"Curve");
 
         QString curveName = QString("Curve_%0").arg(r);
         _addChild(curveItem, "CurveName", curveName);
         _addChild(curveItem, "CurveTime", tName);
-        _addChild(curveItem, "CurveTimeUnit", "--");
+        _addChild(curveItem, "CurveTimeUnit", curveModel->t()->unit());
         _addChild(curveItem, "CurveXName", xName);
-        _addChild(curveItem, "CurveXUnit", "--");
+        _addChild(curveItem, "CurveXUnit", curveModel->t()->unit()); // yes,t
         _addChild(curveItem, "CurveYName", yName);
-        _addChild(curveItem, "CurveYUnit", "--");
+        _addChild(curveItem, "CurveYUnit", curveModel->y()->unit());
         _addChild(curveItem, "CurveRunID", r);
         _addChild(curveItem, "CurveXScale", 1.0);
         _addChild(curveItem, "CurveXBias", 0.0);
@@ -197,20 +207,12 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
         _addChild(curveItem, "CurveLineStyle", "");
         _addChild(curveItem, "CurveYLabel", "");
 
+        // Turn signals back on before adding curveModel
         block = _plotModel->blockSignals(block);
 
         // Add actual curve model data
-        TrickCurveModel* curveModel = _monteModel->curve(r,tName,xName,yName);
-        if ( curveModel ) {
-            QVariant v = PtrToQVariant<TrickCurveModel>::convert(curveModel);
-            _addChild(curveItem, "CurveData", v);
-        } else {
-            // This should not happen
-            // It could be ignored but I'll exit(-1) because I think
-            // if this happens it's a programming error, not a user error
-            qDebug() << "snap [bad scoobs]: varswidget.cpp";
-            exit(-1);
-        }
+        QVariant v = PtrToQVariant<TrickCurveModel>::convert(curveModel);
+        _addChild(curveItem, "CurveData", v);
     }
 }
 
