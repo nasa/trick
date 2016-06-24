@@ -515,7 +515,7 @@ class DataRecordDispatcherSimObject : public Trick::SimObject {
 
             exec_register_scheduler(&drd) ;
 
-            {TRK} ("default_data") drd.remove_files() ;
+            {TRK} P1 ("initialization") drd.remove_files() ;
             {TRK} P65534 ("initialization") drd.init() ;
 #ifndef TRICK_NO_MONTE_CARLO
             {TRK} ("monte_slave_init") drd.remove_files() ;
