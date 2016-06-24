@@ -88,6 +88,8 @@ convert_swig:
 	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/convert_swig ${TRICK_CONVERT_SWIG_FLAGS}
 	@ touch $(CURDIR)/build/convert_swig_last_run
 
+# Force S_define_exp to be remade each time this rule runs
+.PHONY: S_define_exp
 S_define_exp:
 	$(TRICK_CC) -E -C -xc++ ${TRICK_SFLAGS} $(TRICK_SYSTEM_SFLAGS) S_define > $@
 
