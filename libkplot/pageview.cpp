@@ -75,14 +75,17 @@ void PageView::rowsInserted(const QModelIndex &pidx, int start, int end)
     switch ( nPlots ) {
     case 1: {
         _grid->addWidget(plot,1,0);
+        _grid->setRowStretch(1,100);
         break;
     }
     case 2: {
         _grid->addWidget(plot,2,0);
+        _grid->setRowStretch(2,100);
         break;
     }
     case 3: {
         _grid->addWidget(plot,3,0);
+        _grid->setRowStretch(3,100);
         break;
     }
     case 4: {
@@ -93,10 +96,12 @@ void PageView::rowsInserted(const QModelIndex &pidx, int start, int end)
         _grid->addWidget(w2,1,1);
         _grid->addWidget(w3,2,0);
         _grid->addWidget(plot,2,1);
+        _grid->setRowStretch(3,0);
         break;
     }
     case 5: {
         _grid->addWidget(plot,3,0,1,2);
+        _grid->setRowStretch(3,100);
         break;
     }
     case 6: {
@@ -117,6 +122,7 @@ void PageView::rowsInserted(const QModelIndex &pidx, int start, int end)
     }
     case 7: {
         _grid->addWidget(plot,4,0,1,2);
+        _grid->setRowStretch(4,100);
         break;
     }
     default: {
@@ -124,10 +130,6 @@ void PageView::rowsInserted(const QModelIndex &pidx, int start, int end)
         qDebug() << "Aborting!!!";
         exit(-1);
     }
-    }
-
-    for ( int i = 1 ; i < _grid->rowCount(); ++i ) {
-        _grid->setRowStretch(i,100);
     }
 
 }
