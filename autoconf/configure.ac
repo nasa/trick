@@ -210,6 +210,9 @@ dnl look for libraries and headers we need to compile
 AC_PATH_X
 AS_IF([test "$no_x" = "yes"],AC_MSG_ERROR([could not find Xwindows development libraries and/or headers]),[])
 AC_CHECK_HEADER([X11/Intrinsic.h],[],AC_MSG_ERROR([could not find libxt development headers]))
+AS_IF([test "x$x_libraries" = "x"],[X_LIB_DIR=],[X_LIB_DIR=-L$x_libraries])
+dnl X_LIBRARIES=$x_libraries
+AC_SUBST([X_LIB_DIR])
 AX_JSC_DIRS([])
 AC_CHECK_LIB(xml2, main,
     [LIBXML=-lxml2

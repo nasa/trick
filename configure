@@ -653,6 +653,7 @@ build_cpu
 build
 LIBXML
 MOTIF_HOME
+X_LIB_DIR
 EGREP
 GREP
 CXXCPP
@@ -5866,6 +5867,12 @@ else
   as_fn_error $? "could not find libxt development headers" "$LINENO" 5
 fi
 
+
+if test "x$x_libraries" = "x"; then :
+  X_LIB_DIR=
+else
+  X_LIB_DIR=-L$x_libraries
+fi
 
 
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for trick_source/data_products/fermi-ware" >&5
