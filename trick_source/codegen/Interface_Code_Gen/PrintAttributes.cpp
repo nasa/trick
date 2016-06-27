@@ -469,7 +469,7 @@ void PrintAttributes::printIOMakefile() {
     makefile_io_src << std::endl ;
     makefile_io_src << "$(LIB_DIR)/io_src.o : $(IO_OBJ_FILES) | $(LIB_DIR)" << std::endl ;
     makefile_io_src << "\t$(PRINT_IO_INC_LINK)" << std::endl ;
-    makefile_io_src << "\t$(ECHO_CMD)ld $(LD_PARTIAL) -o $@ $(LD_FILELIST)build/link_io_objs" << std::endl ;
+    makefile_io_src << "\t$(ECHO_CMD)$(LD) $(LD_PARTIAL) -o $@ $(LD_FILELIST)build/link_io_objs" << std::endl ;
     makefile_io_src << std::endl ;
 
     makefile_io_src.close() ;

@@ -169,7 +169,6 @@ dnl look for programs we need to compile and run
 AC_PROG_AWK
 AC_PROG_CC
 AC_PROG_CXX
-AC_PROG_LEX
 AX_GCC_VERSION
 dnl if the compiler is gcc, test for gcc >= 4.8
 AS_IF([test "x$GCC_VERSION" = "x"],[],
@@ -185,6 +184,9 @@ dnl Save the full path of the compiler
 CC=`which $CC`
 CXX=`which $CXX`
 
+AC_PATH_PROG(LD, ld, nold)
+AS_IF([test "$ac_cv_path_LD" = "nold"],AC_MSG_ERROR([could not find ld]),[])
+AC_PROG_LEX
 AS_IF([test "x$LEX" = "x:"],AC_MSG_ERROR([could not find flex]),[])
 AC_PATH_PROG(BISON, bison, nobison)
 AS_IF([test "$ac_cv_path_BISON" = "nobison"],AC_MSG_ERROR([could not find bison]),[])

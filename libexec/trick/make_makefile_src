@@ -288,7 +288,7 @@ foreach $k ( sort keys %files_by_dir ) {
 
             print MAKEFILE "\$(CURDIR)/build/lib/o_${print_ext}_$files_by_dir{$k}{dir_num}.o : \$(MODEL_${print_ext}_OBJ_$files_by_dir{$k}{dir_num})\n" ;
             print MAKEFILE "\t\$(PRINT_INC_LINK)\n" ;
-            print MAKEFILE "\t\$(ECHO_CMD)cd \${<D} ; ld \$(LD_PARTIAL) -o \$\@ \$(notdir \$^)\n\n" ;
+            print MAKEFILE "\t\$(ECHO_CMD)cd \${<D} ; \$(LD) \$(LD_PARTIAL) -o \$\@ \$(notdir \$^)\n\n" ;
             $num_inc_objs++ ;
         }
     }
@@ -400,7 +400,7 @@ S_main : \$(S_MAIN) S_sie.resource
 
 \$(S_MAIN): \${TRICK_STATIC_LIB} \$(OBJECTS) \$(S_OBJECT_FILES)
 \t\$(PRINT_EXE_LINK)
-\t\$(ECHO_CMD)\$(TRICK_LD) \$(TRICK_LDFLAGS) -o \$@ \\
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_LDFLAGS) -o \$@ \\
 \t\t\$(S_OBJECT_FILES) \$(LD_FILELIST)build/link_objs \$(LINK_OBJECTS)\\
 \t\t\${TRICK_USER_LINK_LIBS} \${READ_ONLY_LIBS} \\
 \t\t\$(LD_WHOLE_ARCHIVE) \${TRICK_LIBS} \$(LD_NO_WHOLE_ARCHIVE)\\

@@ -1,7 +1,7 @@
 
 CC     = @CC@
 CXX    = @CXX@
-LD     = @CXX@
+LD     = @LD@
 PERL   = @PERL@
 LEX    = @LEX@
 YACC   = @BISON@
