@@ -635,7 +635,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
     }
 
     @Override
-    protected void parseArguments(String[] arguments, OptionParser optionParser) {
+    protected OptionSet parseArguments(String[] arguments, OptionParser optionParser) {
         // Add class-specific arguments to the parser before allowing the superclass to parse.
         OptionSpec<String> autoOpenFileSpec = optionParser.accepts(autoOpenFileKey,
           "File to open at startup.").withRequiredArg().ofType(String.class);
@@ -649,11 +649,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
         optionParser.accepts(stripChartsOnlyKey, "Display strip charts only.");
 
         // The superclass handles all malformed arguments.
-        super.parseArguments(arguments, optionParser);
-
-        // This repeats some of the parsing done by the superclass, but there's
-        // not a clean way of passing the results down, so live with it for now.
-        OptionSet options = optionParser.parse(arguments);
+        OptionSet options = super.parseArguments(arguments, optionParser);
 
         if (options.has(autoOpenFileKey)) {
             trickProperties.setProperty(autoOpenFileKey, options.valueOf(autoOpenFileSpec));
@@ -666,6 +662,8 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
         }
 
         stripChartsOnly = options.has(stripChartsOnlyKey);
+
+        return options;
     }
 
     @Override
