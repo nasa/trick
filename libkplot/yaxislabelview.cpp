@@ -81,3 +81,72 @@ void YAxisLabelView::rowsInserted(const QModelIndex &pidx, int start, int end)
         }
     }
 }
+
+// Changes unit for some common conversions
+//
+// TODO: There is code duplication in XAxisLabelView
+void YAxisLabelView::wheelEvent(QWheelEvent *e)
+{
+    // Extract what is inside curly brackets in Plot[XY]AxisLabel
+    // e.g. if PlotXAxisLabel == "Time {s}" return "s"
+    QString unit;
+    int openCurly = _yAxisLabelText.indexOf('{');
+    if ( openCurly >= 0 ) {
+        int closeCurly = _yAxisLabelText.indexOf('}');
+        if ( closeCurly > openCurly+1 ) {
+            // e.g. for "Time {s}" ->  openCurly=5 closeCurly=7
+            unit = _yAxisLabelText.mid(openCurly+1, closeCurly-openCurly-1);
+        }
+    }
+    if ( unit.isEmpty() || unit == "--" ) {
+        return;
+    }
+
+    QList<QString> times;
+    times << "s" << "ms" << "us" << "min" << "hr" << "day" ;
+    QList<QString> lengths;
+    lengths <<  "m" << "ft" << "in" << "mm" << "cm" << "km" ;
+    QList<QString> angles;
+    angles << "r" << "d" ;
+    QList<QString> masses;
+    masses << "kg" << "sl" << "lbm", "g" ;
+    QList<QString> forces;
+    forces <<   "N" << "kN" << "oz" << "lbf";
+    QList<QString> speeds;
+    speeds << "m/s" << "cm/s" << "ft/s" ;
+
+    QList<QList<QString> > units;
+    units << times << lengths << angles << masses << forces << speeds;
+
+    QString nextUnit = unit;
+    int len = units.length();
+    for (int i = 0; i < len; ++i) {
+        QList<QString> unitFamily = units.at(i);
+        if ( unitFamily.contains(unit) ) {
+            int j = unitFamily.indexOf(unit);
+            int k = 0;
+            if ( e->delta() > 0 ) {
+                k = j+1;
+                if ( k >= unitFamily.length() ) {
+                    k = 0;
+                }
+                nextUnit = unitFamily.at(k);
+            } else {
+                k = j-1;
+                if ( k < 0 ) {
+                    k = unitFamily.length()-1;
+                }
+            }
+            nextUnit = unitFamily.at(k);
+        }
+    }
+
+    QModelIndex curvesIdx = _bookModel()->getIndex(_myIdx,"Curves","Plot");
+    QModelIndexList curveIdxs = _bookModel()->getIndexList(curvesIdx,
+                                                           "Curve","Curves");
+    foreach (QModelIndex curveIdx, curveIdxs ) {
+        QModelIndex xUnitIdx = _bookModel()->getDataIndex(curveIdx,
+                                                         "CurveYUnit", "Curve");
+        model()->setData(xUnitIdx,nextUnit);
+    }
+}

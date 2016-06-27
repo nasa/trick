@@ -3,6 +3,7 @@
 
 #include <QPainter>
 #include <QString>
+#include <QWheelEvent>
 #include "bookidxview.h"
 
 class YAxisLabelView : public BookIdxView
@@ -18,6 +19,7 @@ protected:
     virtual void paintEvent(QPaintEvent * event);
     virtual QSize minimumSizeHint() const;
     virtual QSize sizeHint() const;
+    void wheelEvent(QWheelEvent *e);
 
 private:
     QString _yAxisLabelText;

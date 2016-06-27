@@ -3,6 +3,8 @@
 
 #include <QPainter>
 #include <QString>
+#include <QWheelEvent>
+#include <QList>
 #include "bookidxview.h"
 
 class XAxisLabelView : public BookIdxView
@@ -18,6 +20,7 @@ protected:
     virtual void paintEvent(QPaintEvent * event);
     virtual QSize minimumSizeHint() const;
     virtual QSize sizeHint() const;
+    virtual void wheelEvent(QWheelEvent* e);
 
 private:
     QString _xAxisLabelText;
