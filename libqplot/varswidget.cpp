@@ -65,26 +65,31 @@ void VarsWidget::_varsSelectModelSelectionChanged(
             // No page with single plot of selected var, so create plot of var
             QStandardItem* pageItem = _createPageItem();
             _addPlotToPage(pageItem,currVarSelection.indexes().at(0));
-            _selectCurrentRunOnPageItem(pageItem);
+            pageIdx = _plotModel->indexFromItem(pageItem);
+            _plotSelectModel->setCurrentIndex(pageIdx,
+                                              QItemSelectionModel::Current);
+            //_selectCurrentRunOnPageItem(pageItem);
         } else {
             _plotSelectModel->setCurrentIndex(pageIdx,
                                               QItemSelectionModel::NoUpdate);
         }
 
-    } else {  // Multiple items selected.
+    } else {  // Multiple items selected (make pages of 6 plots per page)
         QModelIndex currIdx = _plotSelectModel->currentIndex();
         QModelIndex pageIdx = _plotModel->getIndex(currIdx, "Page");
         QStandardItem* pageItem = _plotModel->itemFromIndex(pageIdx);
         QModelIndexList currVarIdxs = currVarSelection.indexes();
         while ( ! currVarIdxs.isEmpty() ) {
             QModelIndex varIdx = currVarIdxs.takeFirst();
-            if ( _plotModel->plotIdxs(pageIdx).size() >= 6 ) {
+            int nPlots = _plotModel->plotIdxs(pageIdx).size();
+            if ( nPlots == 6 ) {
                 pageItem = _createPageItem();
                 pageIdx = _plotModel->indexFromItem(pageItem);
-                //_plotBookView->setCurrentPage(pageIdx);
             }
             _addPlotToPage(pageItem,varIdx);
-            _selectCurrentRunOnPageItem(pageItem);
+            _plotSelectModel->setCurrentIndex(pageIdx,
+                                              QItemSelectionModel::Current);
+            //_selectCurrentRunOnPageItem(pageItem);
         }
     }
 }
