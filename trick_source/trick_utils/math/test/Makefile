@@ -34,4 +34,4 @@ UnitTestEulerQuat.o : UnitTestEulerQuat.cpp
 
 UnitTestEulerQuat : UnitTestEulerQuat.o
 	@echo 'Building UnitTestEulerQuat'
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CPPC) $(TRICK_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)

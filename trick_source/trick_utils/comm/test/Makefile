@@ -31,5 +31,5 @@ clean_test :
 	$(RM) -rf $(TESTS)
 
 $(TESTS) : $(CPP_OBJS)
-	$(TRICK_LD) $(TRICK_CXXFLAGS) -o $@ $^ $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CPPC) $(TRICK_CXXFLAGS) -o $@ $^ $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 

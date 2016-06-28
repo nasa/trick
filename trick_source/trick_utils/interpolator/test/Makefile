@@ -38,5 +38,5 @@ Interpolator_unittest.o : Interpolator_unittest.cc
 	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c $<
 
 Interpolator_unittest : Interpolator_unittest.o
-	$(TRICK_LD) $(TRICK_CPPFLAGS) -o $@ $^ $(OTHER_OBJECTS) -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -o $@ $^ $(OTHER_OBJECTS) -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 

@@ -166,56 +166,56 @@ Bitfield_tests.o : Bitfield_tests.cpp
 	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c $<
 
 MM_creation_unittest : MM_creation_unittest.o
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CPPC) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 MM_declare_var_unittest : MM_declare_var_unittest.o io_MM_user_defined_types.o
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CPPC) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 MM_declare_var_2_unittest : MM_declare_var_2_unittest.o io_MM_user_defined_types.o
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CPPC) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 MM_declare_extern_var_unittest : MM_declare_extern_var_unittest.o io_MM_user_defined_types.o
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CPPC) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 MM_delete_var_unittest : MM_delete_var_unittest.o
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CPPC) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 MM_ref_attributes_unittest : MM_ref_attributes_unittest.o io_MM_user_defined_types.o
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CPPC) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 MM_resize_array_unittest : MM_resize_array_unittest.o io_MM_user_defined_types.o
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CPPC) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 MM_strdup_unittest : MM_strdup_unittest.o
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CPPC) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 MM_write_var_unittest : MM_write_var_unittest.o io_MM_user_defined_types.o
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CPPC) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 MM_sizeof_type_unittest : MM_sizeof_type_unittest.o io_MM_user_defined_types.o
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CPPC) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 MM_read_checkpoint : MM_read_checkpoint.o io_MM_user_defined_types.o
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CPPC) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 MM_clear_var_unittest : MM_clear_var_unittest.o io_MM_user_defined_types.o
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CPPC) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 MM_alloc_deps : MM_alloc_deps.o io_MM_alloc_deps.o
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CPPC) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 MM_write_checkpoint : MM_write_checkpoint.o io_MM_write_checkpoint.o
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CPPC) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 MM_get_enumerated : MM_get_enumerated.o io_MM_get_enumerated.o
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CPPC) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 MM_ref_name_from_address : MM_ref_name_from_address.o io_MM_ref_name_from_address.o
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CPPC) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 MM_write_checkpoint_hexfloat : MM_write_checkpoint_hexfloat.o io_MM_write_checkpoint.o
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CPPC) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 Bitfield_tests : Bitfield_tests.o
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CPPC) $(TRICK_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 

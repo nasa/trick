@@ -34,5 +34,5 @@ Executive_test.o : Executive_test.cpp
 	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c $<
 
 Executive_test : Executive_test.o
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) $(TRICK_LIBS) $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CPPC) $(TRICK_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) $(TRICK_LIBS) $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
