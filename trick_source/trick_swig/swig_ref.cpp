@@ -218,9 +218,16 @@ int swig_ref::__setitem__( int ii, PyObject * obj1 ) {
     } else if (PyInt_Check(obj1)) {
         v_tree.v_data->type = TRICK_LONG_LONG ;
         v_tree.v_data->value.ll = PyInt_AsLong(obj1) ;
+#if PY_VERSION_HEX >= 0x03000000
+    } else if ( PyUnicode_Check(obj1) ) {
+        v_tree.v_data->type = TRICK_STRING ;
+        PyObject * temp = PyUnicode_AsEncodedString(obj1, "utf-8", "Error ~");
+        v_tree.v_data->value.cp = strdup(PyBytes_AS_STRING(temp)) ;
+#else
     } else if (PyString_Check(obj1)) {
         v_tree.v_data->type = TRICK_STRING ;
         v_tree.v_data->value.cp = PyString_AsString(obj1) ;
+#endif
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("_p_swig_double"), 0 ))) {
         swig_double * temp_m = reinterpret_cast< swig_double * >(argp2) ;
         ref_copy.units = (char *)temp_m->units.c_str() ;
@@ -440,7 +447,11 @@ int swig_ref::__setitem__( PyObject * index , PyObject * obj1 ) {
         // TODO: make sure obj1 is list or tuple.  Handle singular values on RHS
 
         // get the start, stop, and step value of the slice
+#if PY_VERSION_HEX >= 0x03000000
+        status = PySlice_GetIndices( index , ref.attr->index[0].size , &start , &stop , &step ) ;
+#else
         status = PySlice_GetIndices( (PySliceObject *)index , ref.attr->index[0].size , &start , &stop , &step ) ;
+#endif
         if ( status == 0 ) {
 
             V_TREE v_tree ;
@@ -801,7 +812,11 @@ PyObject * swig_ref::__getitem__( PyObject * index ) {
         Py_ssize_t ii , start , stop , step ;
 
         // get the start, stop, and step value of the slice
+#if PY_VERSION_HEX >= 0x03000000
+        status = PySlice_GetIndices( index , temp_ref.attr->index[0].size , &start , &stop , &step ) ;
+#else
         status = PySlice_GetIndices( (PySliceObject *)index , temp_ref.attr->index[0].size , &start , &stop , &step ) ;
+#endif
         if ( status == 0 ) {
             // only work with final index of array... no pointer dims yet. (Alex)
             if ( temp_ref.num_index_left == 1 ) {

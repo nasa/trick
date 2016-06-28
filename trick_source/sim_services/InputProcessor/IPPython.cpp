@@ -83,10 +83,18 @@ int Trick::IPPython::init() {
     pthread_mutexattr_settype(&m_attr, PTHREAD_MUTEX_RECURSIVE) ;
     pthread_mutex_init(&ip_mutex , &m_attr) ;
 
+    // Run Py_Initialze first for python 2.x
+#if PY_VERSION_HEX < 0x03000000
     Py_Initialize();
+#endif
 
     /* Run the Swig generated routine in S_source_wrap.cpp. */
     init_swig_modules() ;
+
+    // Run Py_Initialze after init_swig_modules for python 3.x
+#if PY_VERSION_HEX >= 0x03000000
+    Py_Initialize();
+#endif
 
     /* Import simulation specific routines into interpreter. */
     PyRun_SimpleString(

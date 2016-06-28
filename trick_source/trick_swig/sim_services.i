@@ -167,7 +167,7 @@ def traceit(frame, event, arg):
                 filename.endswith(".pyo")):
                 filename = filename[:-1]
             line = linecache.getline(filename, lineno)
-            print "%s:%s: %s" % (filename, lineno, line.rstrip())
+            print (filename,":",lineno,": ",line.rstrip())
     return traceit
 %}
 

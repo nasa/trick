@@ -327,6 +327,43 @@ LINK_OBJECTS += \$(SWIG_MODULE_OBJECTS)
     close TOPFILE ;
 
     open INITSWIGFILE , ">build/init_swig_modules.cpp" or return ;
+    print INITSWIGFILE "#include <Python.h>\n" ;
+    print INITSWIGFILE "#if PY_VERSION_HEX >= 0x03000000\n" ;
+    print INITSWIGFILE "extern \"C\" {\n\n" ;
+    foreach $f ( @files_to_process ) {
+        my $md5_sum = md5_hex($f) ;
+        print INITSWIGFILE "PyObject * PyInit__m${md5_sum}(void) ; /* $f */\n" ;
+    }
+    foreach $f ( @ext_lib_files ) {
+        my $md5_sum = md5_hex($f) ;
+        print INITSWIGFILE "PyObject * PyInit__m${md5_sum}(void) ; /* $f */\n" ;
+    }
+    print INITSWIGFILE "PyObject * PyInit__sim_services(void) ;\n" ;
+    print INITSWIGFILE "PyObject * PyInit__top(void) ;\n" ;
+    print INITSWIGFILE "PyObject * PyInit__swig_double(void) ;\n" ;
+    print INITSWIGFILE "PyObject * PyInit__swig_int(void) ;\n" ;
+    print INITSWIGFILE "PyObject * PyInit__swig_ref(void) ;\n" ;
+
+    print INITSWIGFILE "\nvoid init_swig_modules(void) {\n\n" ;
+    foreach $f ( @files_to_process ) {
+        next if ( $f =~ /S_source.hh/ ) ;
+        my $md5_sum = md5_hex($f) ;
+        print INITSWIGFILE "    PyImport_AppendInittab(\"_m${md5_sum}\", PyInit__m${md5_sum}) ;\n" ;
+    }
+    foreach $f ( @ext_lib_files ) {
+        my $md5_sum = md5_hex($f) ;
+        print INITSWIGFILE "    PyImport_AppendInittab(\"_m${md5_sum}\", PyInit__m${md5_sum}) ;\n" ;
+    }
+    print INITSWIGFILE "    PyImport_AppendInittab(\"_m${s_source_md5}\", PyInit__m${s_source_md5}) ;\n" ;
+
+    print INITSWIGFILE "    PyImport_AppendInittab(\"_sim_services\", PyInit__sim_services) ;\n" ;
+    print INITSWIGFILE "    PyImport_AppendInittab(\"_top\", PyInit__top) ;\n" ;
+    print INITSWIGFILE "    PyImport_AppendInittab(\"_swig_double\", PyInit__swig_double) ;\n" ;
+    print INITSWIGFILE "    PyImport_AppendInittab(\"_swig_int\", PyInit__swig_int) ;\n" ;
+    print INITSWIGFILE "    PyImport_AppendInittab(\"_swig_ref\", PyInit__swig_ref) ;\n" ;
+    print INITSWIGFILE "    return ;\n}\n\n}\n" ;
+    print INITSWIGFILE "#else\n" ;
+
     print INITSWIGFILE "extern \"C\" {\n\n" ;
     foreach $f ( @files_to_process ) {
         my $md5_sum = md5_hex($f) ;
@@ -360,6 +397,7 @@ LINK_OBJECTS += \$(SWIG_MODULE_OBJECTS)
     print INITSWIGFILE "    init_swig_int() ;\n" ;
     print INITSWIGFILE "    init_swig_ref() ;\n" ;
     print INITSWIGFILE "    return ;\n}\n\n}\n" ;
+    print INITSWIGFILE "#endif\n" ;
     close INITSWIGFILE ;
 
     if ( ! -e "trick") {

@@ -20,8 +20,14 @@ PyObject * attach_units(PyObject * in_units_obj , PyObject * in_object) {
     std::string in_units ;
     void * my_argp ;
 
+#if PY_VERSION_HEX >= 0x03000000
+    if ( PyUnicode_Check(in_units_obj) ) {
+        PyObject * temp = PyUnicode_AsEncodedString(in_units_obj, "utf-8", "Error ~");
+        in_units = PyBytes_AS_STRING(temp) ;
+#else
     if ( PyString_Check(in_units_obj) ) {
         in_units = PyString_AsString(in_units_obj) ;
+#endif
         in_units.erase(remove_if(in_units.begin(), in_units.end(), isspace), in_units.end());
         if ( ! in_units.compare("--")) {
             in_units = "1" ;

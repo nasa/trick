@@ -82,9 +82,11 @@ if hasattr(top.cvar, 'trick_vs'):
         def __init__(self, in_stream):
             self.stream = in_stream
         def write(self, text):
-            trick.var_write_stdio(self.stream , text)
-    sys.stdout = VarWriteStdio(1)
-    sys.stderr = VarWriteStdio(2)
+            trick.var_write_stdio(self.stream.fileno() , text)
+        def flush(self):
+            self.stream.flush()
+    sys.stdout = VarWriteStdio(sys.stdout)
+    sys.stderr = VarWriteStdio(sys.stderr)
 
 # from real time injector
 if hasattr(top.cvar, 'trick_inject'):
