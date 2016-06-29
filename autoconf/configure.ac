@@ -10,10 +10,16 @@ AC_CONFIG_AUX_DIR([autoconf])
 AC_DEFUN([AX_LLVM_HOME],[
     AC_ARG_WITH([llvm],
                 AS_HELP_STRING([--with-llvm@<:@=DIR@:>@], [LLVM root directory]),
-                [LLVM_HOME="$withval"],
-                [LLVM_HOME="/usr"]
+                [LLVM_HOME="$withval"
+                 AC_PATH_PROG(LLVM_CONFIG, llvm-config, no-llvm-config, "$LLVM_HOME/bin")
+                 AS_IF([test "$ac_cv_path_LLVM_CONFIG" = "no-llvm-config"],AC_MSG_ERROR([could not find llvm-config]),[])
+                ],
+                [
+                 AC_PATH_PROG(LLVM_CONFIG, llvm-config, no-llvm-config, "/bin:/usr/bin:/usr/local/bin:/sw/bin:/usr/local/opt/llvm/bin")
+                 AS_IF([test "$ac_cv_path_LLVM_CONFIG" = "no-llvm-config"],AC_MSG_ERROR([could not find llvm-config]),[])
+                 LLVM_HOME=`$LLVM_CONFIG --prefix`
+                ]
                )
-    AC_SUBST([LLVM_HOME])
 ])
 
 dnl Test if clang will link successfully.  Some systems like Ubuntu 16.04 shipping with clang that does not work.
@@ -40,12 +46,14 @@ AC_DEFUN([AX_HDF5_HOME],[
                 [HDF5_HOME="$withval"
                  AS_IF([test "$HDF5_HOME" = "yes"],
                   AC_CHECK_HEADER(hdf5.h,[HDF5_HOME="/usr"],AC_MSG_ERROR([could not find hdf5.h])),
-                  AC_CHECK_FILE([$HDF5_HOME/include/hdf5.h],
-                               [],
-                               AC_MSG_ERROR([could not find $HDF5_HOME/include/hdf5.h])
-                              )
+                  AS_IF([test "$HDF5_HOME" = "no"],[HDF5_HOME=""],
+                   AC_CHECK_FILE([$HDF5_HOME/include/hdf5.h],
+                                 [],
+                                 AC_MSG_ERROR([could not find $HDF5_HOME/include/hdf5.h])
+                                )
+                  )
                 )],
-                [HDF5_HOME=""]
+                [AC_CHECK_HEADER(hdf5.h, [HDF5_HOME="/usr"], [HDF5_HOME=""])]
                )
     AC_SUBST([HDF5_HOME])
 ])
@@ -100,12 +108,14 @@ AC_DEFUN([AX_GSL_HOME],[
                 [GSL_HOME="$withval"
                  AS_IF([test "$GSL_HOME" = "yes"],
                   AC_CHECK_HEADER(gsl/gsl_rng.h,[GSL_HOME="/usr"],AC_MSG_ERROR([could not find gsl/gsl_rng.h])),
-                  AC_CHECK_FILE([$GSL_HOME/include/gsl],
-                               [],
-                               AC_MSG_ERROR([could not find $GSL_HOME/include/gsl])
-                              )
+                  AS_IF([test "$GSL_HOME" = "no"],[GSL_HOME=""],
+                    AC_CHECK_FILE([$GSL_HOME/include/gsl],
+                                  [],
+                                  AC_MSG_ERROR([could not find $GSL_HOME/include/gsl])
+                                 )
+                  )
                 )],
-                [GSL_HOME=""]
+                [AC_CHECK_HEADER(gsl/gsl_rng.h, [GSL_HOME="/usr"], [GSL_HOME=""])]
                )
     AC_SUBST([GSL_HOME])
 ])
@@ -116,12 +126,14 @@ AC_DEFUN([AX_GTEST_HOME],[
                 [GTEST_HOME="$withval"
                  AS_IF([test "$GTEST_HOME" = "yes"],
                   AC_CHECK_HEADER(gtest/gtest.h,[GTEST_HOME="/usr"],AC_MSG_ERROR([could not find gtest/gtest.h])),
-                  AC_CHECK_FILE([$GTEST_HOME/include/gtest],
-                               [],
-                               AC_MSG_ERROR([could not find $GTEST_HOME/include/gtest])
-                              )
+                  AS_IF([test "$GTEST_HOME" = "no"],[GTEST_HOME=""],
+                    AC_CHECK_FILE([$GTEST_HOME/include/gtest],
+                                  [],
+                                  AC_MSG_ERROR([could not find $GTEST_HOME/include/gtest])
+                                 )
+                  )
                 )],
-                [GTEST_HOME=""]
+                [AC_CHECK_HEADER(gtest/gtest.h, [GTEST_HOME="/usr"], [GTEST_HOME=""])]
                )
     AC_SUBST([GTEST_HOME])
 ])
@@ -178,8 +190,6 @@ AS_IF([test "x$GCC_VERSION" = "x"],[],
     AC_MSG_ERROR([Trick requires gcc version >= 4.8])
    ])
 ])
-dnl AC_PATH_PROG(CC, $CC, no_cc)
-dnl AC_PATH_PROG(CXX, $CXX, no_cxx)
 dnl Save the full path of the compiler
 CC=`which $CC`
 CXX=`which $CXX`
@@ -228,16 +238,16 @@ AX_PROG_PERL_MODULES( Digest::MD5,[],AC_MSG_ERROR([could not find perl module Di
 
 dnl process the optional --with-llvm command line arguments
 AX_LLVM_HOME([])
-AC_PATH_PROG(LLVM_CONFIG, llvm-config, no-llvm-config, "$LLVM_HOME/bin:/bin:/usr/bin:/usr/local/bin:/sw/bin")
-AS_IF([test "$ac_cv_path_LLVM_CONFIG" = "no-llvm-config"],AC_MSG_ERROR([could not find clang]),[])
 LLVM_LIB_DIR=`$LLVM_CONFIG --libdir`
 LLVM_BIN_DIR=`$LLVM_CONFIG --bindir`
 AC_CHECK_FILE([$LLVM_LIB_DIR/libLLVMSupport.a],
   [],
   AC_MSG_ERROR([could not find clang library files in $LLVM_LIB_DIR])
 )
-AC_PATH_PROG(CLANG, clang, noclang, "$LLVM_BIN_DIR:$LLVM_HOME/bin:/bin:/usr/bin:/usr/local/bin:/sw/bin")
+AC_PATH_PROG(CLANG, clang, noclang, "$LLVM_BIN_DIR:/bin:/usr/bin:/usr/local/bin:/sw/bin")
 AS_IF([test "$ac_cv_path_CLANG" = "noclang"],AC_MSG_ERROR([could not find clang]),[])
+AC_SUBST([LLVM_HOME])
+
 dnl does not work under RedHat 6
 dnl AX_TEST_CLANG
 
@@ -276,4 +286,6 @@ AX_GTEST_HOME([])
 AX_ER7_UTILS([])
 
 AC_OUTPUT([share/trick/makefiles/config_user.mk])
+
+printf "\033@<:@32mconfigure script successfully completed\033@<:@0m\n"
 
