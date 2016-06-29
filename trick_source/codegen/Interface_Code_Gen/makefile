@@ -2,11 +2,13 @@
 # The config_${HOST_TYPE}.mk file provides LLVM_HOME
 include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
-CC := $(CLANG)
-CXX := $(CLANG)++
 CXXFLAGS := -g -I$(shell $(LLVM_HOME)/bin/llvm-config --includedir) -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -fno-rtti $(UDUNITS_INCLUDES)
 
-CLANG_MINOR_GTEQ5 := $(shell expr `$(LLVM_HOME)/bin/llvm-config --version | cut -f2 -d. ` \>= 5 )
+CLANG_MAJOR := $(shell $(LLVM_HOME)/bin/llvm-config --version | cut -f1 -d.)
+CLANG_MINOR := $(shell $(LLVM_HOME)/bin/llvm-config --version | cut -f2 -d.)
+CLANG_PATCHLEVEL := $(shell $(LLVM_HOME)/bin/llvm-config --version | cut -f3 -d.)
+# check to see if version is greater than 3.5
+CLANG_MINOR_GTEQ5 := $(shell [ $(CLANG_MAJOR) -gt 3 -o \( $(CLANG_MAJOR) -eq 3 -a $(CLANG_MINOR) -ge 5 \) ] && echo 1)
 
 LLVMLDFLAGS := $(shell $(LLVM_HOME)/bin/llvm-config --ldflags) $(UDUNITS_LDFLAGS)
 
@@ -37,9 +39,10 @@ CLANGLIBS = \
     -lclangBasic \
 
 ifeq ($(TRICK_HOST_TYPE),Linux)
+CXXFLAGS += -std=c++11
+CXXFLAGS += -D__clang_major__=$(CLANG_MAJOR) -D__clang_minor__=$(CLANG_MINOR) -D__clang_patchlevel__=$(CLANG_PATCHLEVEL)
 CLANGLIBS += $(shell $(LLVM_HOME)/bin/llvm-config --libs)
 ifeq ($(CLANG_MINOR_GTEQ5),1)
-CXXFLAGS += -std=c++11
 # Fedora 21 adds -ledit as a system lib, but it isn't installed, or required.
 CLANGLIBS += $(filter-out -ledit,$(shell $(LLVM_HOME)/bin/llvm-config --system-libs))
 endif
