@@ -750,6 +750,11 @@ int Unit::_isOperand(const char *str)
 }
 
 
+double Unit::convert(double value, const QString &from, const QString &to)
+{
+    return convert(value, from.toAscii().constData(), to.toAscii().constData());
+}
+
 
 double Unit::convert(double value, const char *from, const char *to)
 {

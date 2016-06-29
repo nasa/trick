@@ -48,6 +48,8 @@ class Unit {
 
         // Conversions between units
         static double convert(double value,
+                              const QString& from, const QString& to);
+        static double convert(double value,
                               const char* from, const char* to);
         double convert(double val, const char *unitStr);
         double convert(double val, Unit * u);
