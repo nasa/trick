@@ -60,7 +60,7 @@ public class TrickQPActionController {
     private HashMap<String, List<Object>> runVarMap;
 
     private String dpFileName = null;
-    
+
     private List<Object> hiddenVarListForSearch;
 
     //========================================
@@ -129,7 +129,7 @@ public class TrickQPActionController {
      * Invoked when Refresh DP is selected.
      */
     public void handleRefreshDP() {
-    	
+
         // remove all variables from displayed varlist and remove all RUNdir mappings
         application.varList.removeAllData();
         runVarMap.clear();
@@ -153,10 +153,10 @@ public class TrickQPActionController {
                     application.varList.addData(application.runList.getAllData().length);
                 }
             }
-            
+
             // finally create an array variable for each group of sequential components
             create_arrays();
-            
+
             // always contract vars initially
             contractVar();
         }
@@ -164,16 +164,16 @@ public class TrickQPActionController {
 
     /**
      * Invoked when Save is selected.
-     * 
+     *
      * @return True if a DP_ file is actually saved, false otherwise.
      */
     public boolean handleSaveDP() {
         if (dpFileName != null) {
             application.saveDPToFile(dpFileName, true);
-            
+
             // reset the productTree change status once the DP_ file is saved
             application.productTree.setChanged(false);
-            
+
             return true;
         } else {
             return saveAs();
@@ -182,14 +182,14 @@ public class TrickQPActionController {
 
     /**
      * Invoked when Save As is selected.
-     * 
+     *
      * @return True if a DP_ file is actually saved, false otherwise.
      */
     public boolean handleSaveAsDP() {
         return saveAs();
     }
 
-  
+
     /**
      * Helper method for adding specified new {@link ProductVar} variables to selected node(s) in the tree.
      * If newVars has only one element, it's for single variable. If newVars has more than one variable,
@@ -198,7 +198,7 @@ public class TrickQPActionController {
      * @param  selectedTreeNodes tree to add new variables
      */
     public void handleAddVarToSelected(ProductVar[] newVars, ArrayList<DefaultMutableTreeNode> selectedTreeNodes) {
-    	CommonTreeNode plotNode;
+        CommonTreeNode plotNode;
         CommonTreeNode pageNode;
         CommonTreeNode tableNode;
         for (int j = 0; j < selectedTreeNodes.size(); j++) {
@@ -216,37 +216,37 @@ public class TrickQPActionController {
                                                           "Varcase Not Selected",
                                                           JOptionPane.WARNING_MESSAGE);
                             return;
-                        } 
+                        }
                         if (newVars.length > 1) {
-                			JOptionPane.showMessageDialog(application.getMainFrame(),
+                            JOptionPane.showMessageDialog(application.getMainFrame(),
                                     "You can not add more than one variable to a curve!",
                                     "Ineligible Curve",
                                     JOptionPane.WARNING_MESSAGE);
                         } else if (newVars.length == 1) {
-                        	addVarToCurve(treeNode, newVars[0]);
-                        }                      
+                            addVarToCurve(treeNode, newVars[0]);
+                        }
                         break;
                     case CommonTreeNode.VARCASE_NODE:
-                    	if (newVars.length > 1) {
-                			JOptionPane.showMessageDialog(application.getMainFrame(),
+                        if (newVars.length > 1) {
+                            JOptionPane.showMessageDialog(application.getMainFrame(),
                                     "You can not add more than one variable to a varcase!",
                                     "Ineligible Varcase",
                                     JOptionPane.WARNING_MESSAGE);
                         } else if (newVars.length == 1) {
-                        	addVarToVarcase(treeNode, newVars[0]);
-                        }                      
+                            addVarToVarcase(treeNode, newVars[0]);
+                        }
                         break;
                     case CommonTreeNode.PLOT_NODE:
-                    	for (ProductVar eachVar : newVars) {
-                    		addVarToPlot(treeNode, eachVar, true);
-                    	}
+                        for (ProductVar eachVar : newVars) {
+                            addVarToPlot(treeNode, eachVar, true);
+                        }
                          break;
                     case CommonTreeNode.PAGE_NODE:
-                    	// create a plot for each var
-                    	for (ProductVar eachVar : newVars) {
-                    		plotNode = addPlotToPage(treeNode, null, true);
-                    		addVarToPlot(plotNode, eachVar, true);
-                    	}
+                        // create a plot for each var
+                        for (ProductVar eachVar : newVars) {
+                            plotNode = addPlotToPage(treeNode, null, true);
+                            addVarToPlot(plotNode, eachVar, true);
+                        }
                         break;
                     case CommonTreeNode.X_NODE:
                     case CommonTreeNode.Y_NODE:
@@ -255,87 +255,87 @@ public class TrickQPActionController {
                         // TODO: show warning!
                         break;
                     case CommonTreeNode.TABLE_NODE:
-                    	// create a new column for each var in the table
-                    	// TODO: 1st column time
-                		for (ProductVar eachVar : newVars) {
-                			addColumnToTable(treeNode, new ProductColumn(eachVar), true);
-                		}
+                        // create a new column for each var in the table
+                        // TODO: 1st column time
+                        for (ProductVar eachVar : newVars) {
+                            addColumnToTable(treeNode, new ProductColumn(eachVar), true);
+                        }
                         break;
                     case CommonTreeNode.COLUMN_NODE:
-                    	if (newVars.length > 1) {
-                			JOptionPane.showMessageDialog(application.getMainFrame(),
+                        if (newVars.length > 1) {
+                            JOptionPane.showMessageDialog(application.getMainFrame(),
                                     "You can not add more than one variable to a column!",
                                     "Ineligible Column",
                                     JOptionPane.WARNING_MESSAGE);
                         } else if (newVars.length == 1) {
-                        	// One column has one variable, can't add var if there is already variable defined.
+                            // One column has one variable, can't add var if there is already variable defined.
                             if (treeNode.getChildCount() < 1) {
                                 addVarToColumn(treeNode, newVars[0], true);
                             } else {
-                            	JOptionPane.showMessageDialog(application.getMainFrame(),
+                                JOptionPane.showMessageDialog(application.getMainFrame(),
                                         "The column already has a variable!",
                                         "Ineligible Column",
                                         JOptionPane.WARNING_MESSAGE);
                             }
-                        }                                              
+                        }
                         break;
                     //case CommonTreeNode.PROGRAMS_NODE:
                     //case CommonTreeNode.PROGRAM_NODE:
                     case CommonTreeNode.INPUT_NODE:
-                    	if (application.programsNode.getChildCount() > 0) {
-                    		//CommonTreeNode inputNode = (CommonTreeNode)(((CommonTreeNode)application.programsNode.getChildAt(0)).getChildAt(0));
-                    		for (ProductVar eachVar : newVars) {
-                    			addVarToInput(eachVar, true);                            	
+                        if (application.programsNode.getChildCount() > 0) {
+                            //CommonTreeNode inputNode = (CommonTreeNode)(((CommonTreeNode)application.programsNode.getChildAt(0)).getChildAt(0));
+                            for (ProductVar eachVar : newVars) {
+                                addVarToInput(eachVar, true);
                             }
-                    	}
+                        }
                         break;
                     case CommonTreeNode.PLOTS_NODE:
                         pageNode = addPageToPlots(new ProductPage());
                         for (ProductVar eachVar : newVars) {
-                        	plotNode = addPlotToPage(pageNode, new ProductPlot(), true);
-                        	addVarToPlot(plotNode, eachVar, true);
+                            plotNode = addPlotToPage(pageNode, new ProductPlot(), true);
+                            addVarToPlot(plotNode, eachVar, true);
                         }
                         break;
                     case CommonTreeNode.TABLES_NODE:
-                    	tableNode = addNewTable(null);
-                		// TODO: time should be from varlist instead of hardcode
-                		ProductVar timeVar = new ProductVar(TrickApplication.DEFAULT_TIME_NAME, "s");
-					    addColumnToTable(tableNode, new ProductColumn(timeVar), true);
-                		for (ProductVar eachVar : newVars) {
-                			addColumnToTable(tableNode, new ProductColumn(eachVar), true);
-                		}
+                        tableNode = addNewTable(null);
+                        // TODO: time should be from varlist instead of hardcode
+                        ProductVar timeVar = new ProductVar(TrickApplication.DEFAULT_TIME_NAME, "s");
+                        addColumnToTable(tableNode, new ProductColumn(timeVar), true);
+                        for (ProductVar eachVar : newVars) {
+                            addColumnToTable(tableNode, new ProductColumn(eachVar), true);
+                        }
                         break;
                 } // end switch
             } // end if selected node is instanceof CommonTreeNode
         } // end for each selected node
     }
-    
+
     /**
      * Invoked when Search is performed.
      */
     public void handleSearchVar() {
-    	if (hiddenVarListForSearch == null) {
-    		hiddenVarListForSearch = new ArrayList<Object>();
-    	} else {
-    		for (Object hiddenObj : hiddenVarListForSearch) {
-    			LogVar hiddenVar = (LogVar)hiddenObj;
-    			if (hiddenVar.getPrevDisplay() != null) {
-    				hiddenVar.setDisplay(hiddenVar.getPrevDisplay());
-    			}
-    		}
-    		hiddenVarListForSearch.clear();
-    		application.varList.refreshData();
-    	}
-    	if (!application.searchField.getText().isEmpty()) { 
-	    	for (Object eachObj : application.varList.getAllData()) {
-	    		LogVar eachVar = (LogVar)eachObj;
-	    		if (!UIUtils.searchWithWildcard(eachVar.getName(), application.searchField.getText())) {
-	    			hiddenVarListForSearch.add(eachVar);
-	    			eachVar.setPrevDisplay(eachVar.getDisplay());
-	    			eachVar.setDisplay(DisplayType.HIDDEN);	    			
-	    		} 
-	    	}
-	    	application.varList.refreshData();
+        if (hiddenVarListForSearch == null) {
+            hiddenVarListForSearch = new ArrayList<Object>();
+        } else {
+            for (Object hiddenObj : hiddenVarListForSearch) {
+                LogVar hiddenVar = (LogVar)hiddenObj;
+                if (hiddenVar.getPrevDisplay() != null) {
+                    hiddenVar.setDisplay(hiddenVar.getPrevDisplay());
+                }
+            }
+            hiddenVarListForSearch.clear();
+            application.varList.refreshData();
+        }
+        if (!application.searchField.getText().isEmpty()) {
+            for (Object eachObj : application.varList.getAllData()) {
+                LogVar eachVar = (LogVar)eachObj;
+                if (!UIUtils.searchWithWildcard(eachVar.getName(), application.searchField.getText())) {
+                    hiddenVarListForSearch.add(eachVar);
+                    eachVar.setPrevDisplay(eachVar.getDisplay());
+                    eachVar.setDisplay(DisplayType.HIDDEN);
+                }
+            }
+            application.varList.refreshData();
         }
     }
 
@@ -351,26 +351,17 @@ public class TrickQPActionController {
 
             for (int i = 0; i < selectedVars.length; i++) {
                 LogVar varFrom = (LogVar)selectedVars[i];
-                if (varFrom.getName().indexOf('-') != -1) {
-                    // arrayed variable
-                    /***
-                    if (varFrom.getName().indexOf('-') < varFrom.getName().lastIndexOf('-')) {
-                        JOptionPane.showMessageDialog(application.getMainFrame(),
-                            "Too many ranged dimensions. \nPlease use Expand Var to get to one ranged dimension\n" +
-                            "(or to a singular variable with no ranges).",
-                            "Error", JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }***/
+                if (varFrom.getName().matches("-(?!>)")) {
                     List<String> vars = get_components_from_array(varFrom.getName()); // expand variable
                     if ( (selectedTreeNodes!=null) && (selectedTreeNodes.size()>0)
                             && (((CommonTreeNode)selectedTreeNodes.get(0)).getNodeType()!=CommonTreeNode.PLOTS_NODE) ) {
-                    	ProductVar[] newVars = new ProductVar[vars.size()];
+                        ProductVar[] newVars = new ProductVar[vars.size()];
                         // stick all arrayed components under the selected node
                         for (int ii=0; ii<vars.size(); ii++) {
-                        	newVars[ii] = new ProductVar(vars.get(ii), varFrom.getUnits());                          
+                            newVars[ii] = new ProductVar(vars.get(ii), varFrom.getUnits());
                         }
-                    	handleAddVarToSelected(newVars, selectedTreeNodes);
-                    	
+                        handleAddVarToSelected(newVars, selectedTreeNodes);
+
                     } else {
                         // put components on new page, 1 curve per plot, 9 plots per page
                         final int CURVES_PER_PLOT = 1;
@@ -438,27 +429,27 @@ public class TrickQPActionController {
                 row--; // start from this component next loop
                 done = true;
             }
-            
+
             if (!done) {
                 components.add(var);
                 num_components++;
                 // done if it's the last row
                 if (row == all_vars.length - 1) {
-                	done = true;
+                    done = true;
                 }
             }
-            
+
             if (done) {
-            	if (num_components>0) {            
-	                //System.out.println("\ncomponents= " +components + ", num_components=" + num_components);
-	                if (num_components>1) {
-	                    create_array_from_components(components);
-	                    //application.varList.addData(get_array_from_components(components));
-	                }
-	                current_nonarrayed_name = "";
-	                components.clear();
-	                num_components = 0;
-	            }
+                if (num_components>0) {
+                    //System.out.println("\ncomponents= " +components + ", num_components=" + num_components);
+                    if (num_components>1) {
+                        create_array_from_components(components);
+                        //application.varList.addData(get_array_from_components(components));
+                    }
+                    current_nonarrayed_name = "";
+                    components.clear();
+                    num_components = 0;
+                }
             }
 
         } // end for row
@@ -591,7 +582,7 @@ public class TrickQPActionController {
     public List<String> get_components_from_array(String arrayvar) {
         // MAX_DIMENSIONS is how many ranges we can handle splitting in a variable
         final int MAX_DIMENSIONS = 3;
-        String[] parts = arrayvar.split("-");
+        String[] parts = arrayvar.split("-(?!>)");
         int numparts = parts.length;
         if (numparts==1) {
             // no range to split
@@ -630,15 +621,15 @@ public class TrickQPActionController {
             count[dim] += (end[dim] - start[dim] + 1);
             dim--;
         }
-        
-        // if "]" is not the end of this variable path, need to keep all the remaining part 
+
+        // if "]" is not the end of this variable path, need to keep all the remaining part
         // and append to each of generated component name as below.
         // otherwise, entpart is an empty string.
         int lastEndBracket = arrayvar.lastIndexOf(']');
         if (lastEndBracket < (arrayvar.length()-1)) {
-        	endpart = arrayvar.substring(lastEndBracket+1);
+            endpart = arrayvar.substring(lastEndBracket+1);
         }
-        
+
         // build a string for each component and return as a list
         String results[] = null;
         List<String> total = new ArrayList<String>();
@@ -678,23 +669,23 @@ public class TrickQPActionController {
         }
         return total;
     }
-    
+
 
     // expand an arrayed variable (e.g. x[1-3]) to its individual components (e.g. x[1] x[2] x[3]) in displayed varlist
     public void expandVar() {
         Object[] selectedVars = application.varList.getSelectedData();
-        
+
         // if nothing is selected, expand all expandable vars
         if (selectedVars == null || selectedVars.length == 0) {
-        	for (Object eachObj : application.varList.getAllData()) {
-        		LogVar eachVar = (LogVar)eachObj;
-        		// expand all array-ed vars
-        		if (eachVar.getName().indexOf("-") != -1) {
-        			eachVar.setDisplay(DisplayType.EXPANDED);
-        		} else if (eachVar.getName().indexOf("[") != -1) { // if the var is one of array-ed var element, hide it
-        			eachVar.setDisplay(DisplayType.NORMAL);
-        		}
-        	}
+            for (Object eachObj : application.varList.getAllData()) {
+                LogVar eachVar = (LogVar)eachObj;
+                // expand all array-ed vars
+                if (eachVar.getName().indexOf("-") != -1) {
+                    eachVar.setDisplay(DisplayType.EXPANDED);
+                } else if (eachVar.getName().indexOf("[") != -1) { // if the var is one of array-ed var element, hide it
+                    eachVar.setDisplay(DisplayType.NORMAL);
+                }
+            }
         } else { // otherwise only expand selected vars
             int varlist_indices[] = application.varList.getJList().getSelectedIndices();
             for (int ii=0; ii < selectedVars.length; ii++) {
@@ -729,31 +720,31 @@ public class TrickQPActionController {
     // contract a previously expanded variable
     public void contractVar() {
         Object[] selectedVars = application.varList.getSelectedData();
-        
+
         // only want something like [0-2][0-2] and don't want things like [0][0-2]
         String arrayEx = "\\w+(\\[[0-9]+\\-[0-9]+\\])+\\w*";
-		Pattern arrayPattern = Pattern.compile(arrayEx);
-		
+        Pattern arrayPattern = Pattern.compile(arrayEx);
+
         // if nothing is selected, contract all contractable vars
-        if (selectedVars == null || selectedVars.length == 0) {       	
-        	for (Object eachObj : application.varList.getAllData()) {
-        		LogVar eachVar = (LogVar)eachObj;
-        		// contract all array-ed vars        		        		
-        		Matcher matcher = arrayPattern.matcher(eachVar.getName());
-        		// if only based on dash (-), [0][0-2] would be displayed. 
-        		// I am thinking at this point, only [0-2][0-2] should be displayed, 
-        		// all its elements such as [0][0-2], [1][0-2], or [2][0-2] should be hidden.
+        if (selectedVars == null || selectedVars.length == 0) {
+            for (Object eachObj : application.varList.getAllData()) {
+                LogVar eachVar = (LogVar)eachObj;
+                // contract all array-ed vars
+                Matcher matcher = arrayPattern.matcher(eachVar.getName());
+                // if only based on dash (-), [0][0-2] would be displayed.
+                // I am thinking at this point, only [0-2][0-2] should be displayed,
+                // all its elements such as [0][0-2], [1][0-2], or [2][0-2] should be hidden.
                 // so changed to use Java Pattern & Matcher
-        		//if (eachVar.getName().indexOf("-") != -1) {
-        		if (matcher.find()) {
-        			eachVar.setDisplay(DisplayType.CONTRACTED);
-        		} else if (eachVar.getLevel() > 0 && eachVar.getName().indexOf("[") != -1 && eachVar.getName().endsWith("]")) { 
-        			// if the var is one of array-ed var element & "[]" can't be in the middle (could be a pointer), also if this varisn't at level 0, hide it
-        			//System.out.println("HIDDEN var..." + eachVar.getName() + " and its level ..." + eachVar.getLevel());
-        			eachVar.setDisplay(DisplayType.HIDDEN);
-        		}
-        	}
-        } else { // otherwise only contract selected variables        	
+                //if (eachVar.getName().indexOf("-") != -1) {
+                if (matcher.find()) {
+                    eachVar.setDisplay(DisplayType.CONTRACTED);
+                } else if (eachVar.getLevel() > 0 && eachVar.getName().indexOf("[") != -1 && eachVar.getName().endsWith("]")) { 
+                    // if the var is one of array-ed var element & "[]" can't be in the middle (could be a pointer), also if this varisn't at level 0, hide it
+                    //System.out.println("HIDDEN var..." + eachVar.getName() + " and its level ..." + eachVar.getLevel());
+                    eachVar.setDisplay(DisplayType.HIDDEN);
+                }
+            }
+        } else { // otherwise only contract selected variables
             int varlist_indices[] = application.varList.getJList().getSelectedIndices();
             for (int ii=0; ii < selectedVars.length; ii++) {
                 LogVar mainvar = (LogVar)selectedVars[ii];
@@ -785,7 +776,7 @@ public class TrickQPActionController {
         if (selectedFirstData != null) {
             LogVar firstSelectedVar = (LogVar)selectedFirstData;
             String selectedVarUnits = firstSelectedVar.getUnits();
-            if (selectedVarUnits != null && !selectedVarUnits.isEmpty()) {     
+            if (selectedVarUnits != null && !selectedVarUnits.isEmpty()) {
                 List<String> unitList = UnitType.getAll(selectedVarUnits);
                 if (unitList != null && unitList.size() > 0) {
                     Object newUnits = UIUtils.showListInputDialog(application.getMainFrame(),
@@ -797,38 +788,38 @@ public class TrickQPActionController {
                                                                   selectedVarUnits);
 
                     if (newUnits != null) {
-                    	changeVarUnits(firstSelectedVar, newUnits.toString());
-                    	application.varList.refreshData();
+                        changeVarUnits(firstSelectedVar, newUnits.toString());
+                        application.varList.refreshData();
                     }
                 }
             } else {
-            	JOptionPane.showMessageDialog(application.getMainFrame(),
+                JOptionPane.showMessageDialog(application.getMainFrame(),
                                               "Units for " + firstSelectedVar.getName() + " is not available. Can't change units!",
                                               "No Units Sepcification",
                                               JOptionPane.WARNING_MESSAGE);
             }
          }
     }
-    
+
     /**
      * Helper method for changing the units for a {@link LogVar}.
      */
     private void changeVarUnits(LogVar fromVar, String newUnits) {
-    	// if arrayed var, need to change the units for all elements
-    	if (fromVar.getName().indexOf('-') != -1) {		
+        // if arrayed var, need to change the units for all elements
+        if (fromVar.getName().indexOf('-') != -1) {
             Object[] allVars = application.varList.getAllData();
             for (int row = application.varList.getJList().getSelectedIndex() + 1; row < allVars.length; row++) {
                 LogVar var = (LogVar) allVars[row];
                 if (var.getLevel() > fromVar.getLevel()) {
-                	changeVarUnits(var, newUnits);                   
+                    changeVarUnits(var, newUnits);
                 } else {
                     break;
                 }
-            }	
-    	}
-    	
-    	// change the units for the var including both array and non-array vars
-    	fromVar.setUnits(newUnits);
+            }
+        }
+
+        // change the units for the var including both array and non-array vars
+        fromVar.setUnits(newUnits);
     }
 
     /**
@@ -848,41 +839,41 @@ public class TrickQPActionController {
             handleRefreshDP();
         }
     }
-    
+
     /**
      * Invoked when one or more runs added to trick_dp. The is a remote call.
      * So add invokeLater for the GUI update as Java Swing is not thread safe.
-     * TODO: Haven't added this mechanism to any other places as this is the 
+     * TODO: Haven't added this mechanism to any other places as this is the
      *       only one is called by other application for now. Add other
      *       places if necessary.
      * @param dirList list of directories
      */
     public void handleAddRuns(final String[] dirList) {
-    	
-    	if (dirList != null && dirList.length > 0) {
-    		// start another thread for updating the list gui
-    		(new Thread() {
-    			@Override
-				public void run() {
-    				for (String dir : dirList) {
-    	    			File runDir = new File(dir);
-    	    			if (runDir.exists()) {
-    	    	    		application.runList.addData(new SessionRun(runDir.getAbsolutePath()));
-    	    	    		try {
-    	    	        		// TODO: find out why has to be refresh for each run added?
-    	    	        		SwingUtilities.invokeAndWait(new Runnable() {
-    	    	        			public void run() {
-    	    	        				handleRefreshDP();
-    	    	        			}
-    	    	        		});
-    	    	            } catch (Exception ie) {
-    	    	            
-    	    	            }
-    	    			}
-    	    		}
-    			}
-    		}).start();
-    	}
+
+        if (dirList != null && dirList.length > 0) {
+            // start another thread for updating the list gui
+            (new Thread() {
+                @Override
+                public void run() {
+                    for (String dir : dirList) {
+                        File runDir = new File(dir);
+                        if (runDir.exists()) {
+                            application.runList.addData(new SessionRun(runDir.getAbsolutePath()));
+                            try {
+                                // TODO: find out why has to be refresh for each run added?
+                                SwingUtilities.invokeAndWait(new Runnable() {
+                                    public void run() {
+                                        handleRefreshDP();
+                                    }
+                                });
+                            } catch (Exception ie) {
+
+                            }
+                        }
+                    }
+                }
+            }).start();
+        }
     }
 
     /**
@@ -957,76 +948,76 @@ public class TrickQPActionController {
      * Invoked when New Program is selected from Programs menu.
      */
     public void handleNewProgram() {
-    	addNewProgram(new ProductExternalFunction());
+        addNewProgram(new ProductExternalFunction());
     }
-    
+
     /**
      * Invoked when new output is entered.
      * @param newOutput not sure
      */
     public void handleNewProgramOutput(String newOutput) {
-    	addVarToOutput(new ProductMeasurement(newOutput), true);
+        addVarToOutput(new ProductMeasurement(newOutput), true);
     }
-    
+
     /**
      * Invoked when Subtract is selected.
-     * 
+     *
      * This function generates nodes for (var1 - var2)
      * @param var1 var1
      * @param var2 var2
      */
     public void handleSubtractFunction(LogVar var1, LogVar var2) {
-    	String units = null;
-    	StringBuffer varBuffer = new StringBuffer();
-    	varBuffer.append("delta(");
-    	    	
-    	// if this var is not a true log var, quit
-    	if (!var1.getIsFromLog()) {
-    		JOptionPane.showMessageDialog(application.getMainFrame(), 
+        String units = null;
+        StringBuffer varBuffer = new StringBuffer();
+        varBuffer.append("delta(");
+
+        // if this var is not a true log var, quit
+        if (!var1.getIsFromLog()) {
+            JOptionPane.showMessageDialog(application.getMainFrame(),
                                           "Variable " + var1.getName() + " can't not be used for functions !\n",
-                                          "Error", 
+                                          "Error",
                                           JOptionPane.ERROR_MESSAGE);
-    		return;
-    	}
-    	if (!var2.getIsFromLog()) {
-    		JOptionPane.showMessageDialog(application.getMainFrame(), 
+            return;
+        }
+        if (!var2.getIsFromLog()) {
+            JOptionPane.showMessageDialog(application.getMainFrame(),
                                           "Variable " + var2.getName() + " can't not be used for functions !\n",
-                                          "Error", 
+                                          "Error",
                                           JOptionPane.ERROR_MESSAGE);
-    		return;
-    	}
-    	// var1
-    	varBuffer.append(var1.getName());
-    	varBuffer.append(":");
-    	if (var1.getRunDir() == null) {
-    		if (application.runList.getSelectedFirstData() == null) {
-    			varBuffer.append(((SessionRun)application.runList.getAllData()[0]).getDir());
-    		} else {
-    			varBuffer.append(((SessionRun)application.runList.getSelectedFirstData()).getDir());
-    		}
-    	} else {
-    		varBuffer.append(var1.getRunDir());
-    	}    		
-    	// TODO: do we set units for delta?
-    	units = var1.getUnits();
-    	varBuffer.append(",");
-    	
-    	// var2
-    	varBuffer.append(var2.getName());
-    	varBuffer.append(":");
-    	if (var2.getRunDir() == null) {
-    		if (application.runList.getSelectedFirstData() == null) {
-    			varBuffer.append(((SessionRun)application.runList.getAllData()[0]).getDir());
-    		} else {
-    			varBuffer.append(((SessionRun)application.runList.getSelectedFirstData()).getDir());
-    		}
-    	} else {
-    		varBuffer.append(var2.getRunDir());
-    	}
+            return;
+        }
+        // var1
+        varBuffer.append(var1.getName());
+        varBuffer.append(":");
+        if (var1.getRunDir() == null) {
+            if (application.runList.getSelectedFirstData() == null) {
+                varBuffer.append(((SessionRun)application.runList.getAllData()[0]).getDir());
+            } else {
+                varBuffer.append(((SessionRun)application.runList.getSelectedFirstData()).getDir());
+            }
+        } else {
+            varBuffer.append(var1.getRunDir());
+        }
+        // TODO: do we set units for delta?
+        units = var1.getUnits();
+        varBuffer.append(",");
+
+        // var2
+        varBuffer.append(var2.getName());
+        varBuffer.append(":");
+        if (var2.getRunDir() == null) {
+            if (application.runList.getSelectedFirstData() == null) {
+                varBuffer.append(((SessionRun)application.runList.getAllData()[0]).getDir());
+            } else {
+                varBuffer.append(((SessionRun)application.runList.getSelectedFirstData()).getDir());
+            }
+        } else {
+            varBuffer.append(var2.getRunDir());
+        }
         varBuffer.append(")");
-        
-    	ProductVar newVar = new ProductVar(varBuffer.toString(), units);
-    	ProductPage newPage = new ProductPage();
+
+        ProductVar newVar = new ProductVar(varBuffer.toString(), units);
+        ProductPage newPage = new ProductPage();
         CommonTreeNode pageNode = new CommonTreeNode(newPage, CommonTreeNode.PAGE_NODE);
         application.productTree.addNode(application.plotsNode, pageNode, true);
         ProductPlot newPlot = new ProductPlot();
@@ -1040,7 +1031,7 @@ public class TrickQPActionController {
      * @param fileName    The name of DP XML file.
      */
     @SuppressWarnings("rawtypes")
-	public void openDP(String fileName) {
+    public void openDP(String fileName) {
         if (fileName == null) {
             return;
         } else {
@@ -1145,12 +1136,12 @@ public class TrickQPActionController {
      */
     public void addVarsForRun(File runDir) {
         File[] files = UIUtils.getListFiles(runDir, TrickFileFilter.TRICK_DATA_RECORD);
-    	
+
         // do nothing if no data recording files found
         if (files == null ) {
-        	return;
-        } 
-        
+            return;
+        }
+
         String runDirPath = runDir.toString();
         // Do nothing if this RUN dir has already been added
         if (runVarMap.containsKey(runDirPath)) {
@@ -1159,78 +1150,78 @@ public class TrickQPActionController {
 
         // go through each data recording file (.header, .trk, .h5?, and .csv)
         for (int i = 0; i < files.length; i++) {
-            
+
             // ignore those frame log related files.
-            // TODO: better way!            	
-            if (files[i].getPath().endsWith("log_frame.header")     || 
-            	files[i].getPath().endsWith("log_trickjobs.header") ||
-            	files[i].getPath().endsWith("log_userjobs.header")  ||
-            	files[i].getPath().endsWith("log_frame.trk")        ||
-            	files[i].getPath().endsWith("log_trickjobs.trk")    ||
-            	files[i].getPath().endsWith("log_userjobs.trk")) {
-            	continue;
+            // TODO: better way!
+            if (files[i].getPath().endsWith("log_frame.header")     ||
+                files[i].getPath().endsWith("log_trickjobs.header") ||
+                files[i].getPath().endsWith("log_userjobs.header")  ||
+                files[i].getPath().endsWith("log_frame.trk")        ||
+                files[i].getPath().endsWith("log_trickjobs.trk")    ||
+                files[i].getPath().endsWith("log_userjobs.trk")) {
+                continue;
             }
-			// if the file is not the .header file, check to see
-			// if the corresponding .header file exists. If yes, skip
-			// this data file as processing a header file which is much
-			// smaller should be faster
-			if (!files[i].getPath().endsWith(".header")) {
-				String onlyName = UIUtils.getFileNameWithoutExtension(files[i]);
-				if (new File(runDir, onlyName + ".header").exists()) {
-					continue;
-				}
-			}
-			DataReader reader = null;
+            // if the file is not the .header file, check to see
+            // if the corresponding .header file exists. If yes, skip
+            // this data file as processing a header file which is much
+            // smaller should be faster
+            if (!files[i].getPath().endsWith(".header")) {
+                String onlyName = UIUtils.getFileNameWithoutExtension(files[i]);
+                if (new File(runDir, onlyName + ".header").exists()) {
+                    continue;
+                }
+            }
+            DataReader reader = null;
 
-			if (files[i].getName().toLowerCase().endsWith(".header")) {
-				reader = new LogHeaderReader(files[i]);
-			} else if (files[i].getName().toLowerCase().endsWith(".trk")) {
-				reader = new BinaryDataReader(files[i]);
-			} else if (files[i].getName().toLowerCase().endsWith(".h5")) {
-				// TODO: add reading .h5
-				continue;
-			} else if (files[i].getName().toLowerCase().endsWith(".csv")) {
-				reader = new CSVDataReader(files[i]);
-			}
-			if (reader == null) {
-				continue;
-			}
+            if (files[i].getName().toLowerCase().endsWith(".header")) {
+                reader = new LogHeaderReader(files[i]);
+            } else if (files[i].getName().toLowerCase().endsWith(".trk")) {
+                reader = new BinaryDataReader(files[i]);
+            } else if (files[i].getName().toLowerCase().endsWith(".h5")) {
+                // TODO: add reading .h5
+                continue;
+            } else if (files[i].getName().toLowerCase().endsWith(".csv")) {
+                reader = new CSVDataReader(files[i]);
+            }
+            if (reader == null) {
+                continue;
+            }
 
-			List<Object> new_vars = reader.getRecordedVarList();
-			List<Object> run_vars = new ArrayList<Object>();
-			if (runVarMap.containsKey(runDirPath)) {
-				// at least one file already read in for this RUN dir
-				run_vars = runVarMap.get(runDirPath);
-			}
-			for (Object obj : new_vars) {
-				if (!run_vars.contains(obj)) {
-					// add all arrayed variable's components to varlist
-					LogVar mainvar = (LogVar) obj;
-					List<String> components = get_components_from_array(mainvar
-							.getName());
-					// List<Object> new_vars = new ArrayList<Object>();
-					if (components != null) {
-						// arrayed
-						for (String name : components) {
-							LogVar compvar = new LogVar(obj);
-							compvar.setName(name);
-							run_vars.add(compvar);
-							// add new component variable to displayed varlist
-							application.varList.addData(compvar);
-						}
-					} else {
-						// non-arrayed
-						run_vars.add(obj);
-						// add new variable to displayed varlist
-						application.varList.addData(obj);
-					}
+            List<Object> new_vars = reader.getRecordedVarList();
+            List<Object> run_vars = new ArrayList<Object>();
+            if (runVarMap.containsKey(runDirPath)) {
+                // at least one file already read in for this RUN dir
+                run_vars = runVarMap.get(runDirPath);
+            }
+            for (Object obj : new_vars) {
+                if (!run_vars.contains(obj)) {
+                    // add all arrayed variable's components to varlist
+                    LogVar mainvar = (LogVar) obj;
+                    List<String> components = get_components_from_array(mainvar
+                            .getName());
+                    // List<Object> new_vars = new ArrayList<Object>();
+                    if (components != null) {
+                        // arrayed
+                        for (String name : components) {
+                            LogVar compvar = new LogVar(obj);
+                            compvar.setName(name);
+                            run_vars.add(compvar);
+                            // add new component variable to displayed varlist
+                            application.varList.addData(compvar);
+                        }
+                    } else {
+                        // non-arrayed
+                        run_vars.add(obj);
+                        // add new variable to displayed varlist
+                        application.varList.addData(obj);
+                    }
 
-					application.varList.getJList().clearSelection();
-				}
-			}
+                    application.varList.getJList().clearSelection();
+                }
+            }
 
-			// add this <key: RUN dir> <values: all variables> to the HashMap
-			runVarMap.put(runDirPath, run_vars);
+            // add this <key: RUN dir> <values: all variables> to the HashMap
+            runVarMap.put(runDirPath, run_vars);
         }
         //System.out.println("\nmap (" +runVarMap.get(runDirPath).size() +") :" +runVarMap.get(runDirPath) +"\n");
 
@@ -1242,7 +1233,7 @@ public class TrickQPActionController {
     private void resetGUI() {
         // Change the title back to original
         application.getMainFrame().setTitle(application.resourceMap.getString("mainFrame.title"));
-        
+
         // Remove all previous shown data
         application.plotsNode.removeAllChildren();
         application.tablesNode.removeAllChildren();
@@ -1254,7 +1245,7 @@ public class TrickQPActionController {
 
     /**
      * Helper method for saving as a dp file.
-     * 
+     *
      * @return True if a DP_ file is actually saved, false otherwise such as due to cancelation.
      */
     private boolean saveAs() {
@@ -1264,10 +1255,10 @@ public class TrickQPActionController {
         }
         dpFileName = file.getPath();
         application.saveDPToFile(dpFileName, true);
-        
+
         // reset the productTree change status once the DP_ file is saved
         application.productTree.setChanged(false);
-        
+
         return true;
     }
 
@@ -1293,7 +1284,7 @@ public class TrickQPActionController {
         int childCount = curveNode.getChildCount();
         // TODO: increase to 2 if need to support X, Y, & Z.
         if (childCount > 1) {
-        	JOptionPane.showMessageDialog(application.getMainFrame(),
+            JOptionPane.showMessageDialog(application.getMainFrame(),
                         "You can not add a variable to a curver that has 2 variables already!",
                         "Ineligible Curve",
                         JOptionPane.WARNING_MESSAGE);
@@ -1351,7 +1342,7 @@ public class TrickQPActionController {
         int childCount = varcaseNode.getChildCount();
         // TODO: increase to 2 if need to support X, Y, & Z.
         if (childCount > 1) {
-        	JOptionPane.showMessageDialog(application.getMainFrame(),
+            JOptionPane.showMessageDialog(application.getMainFrame(),
                         "You can not add a variable to a varcase that has 2 variables already!",
                         "Ineligible Varcase",
                         JOptionPane.WARNING_MESSAGE);
@@ -1452,11 +1443,11 @@ public class TrickQPActionController {
         application.productTree.addNode(plotNode, curveNode, idx, true);
         ProductCurve productCurve = (ProductCurve)curveNode.getUserObject();
         if (isNew) {
-        	if (idx == -1) {
-        		((ProductPlot)plotNode.getUserObject()).addCurve(productCurve);
-        	} else {       		
-        		((ProductPlot)plotNode.getUserObject()).addCurve(productCurve, idx);
-        	}
+            if (idx == -1) {
+                ((ProductPlot)plotNode.getUserObject()).addCurve(productCurve);
+            } else {
+                ((ProductPlot)plotNode.getUserObject()).addCurve(productCurve, idx);
+            }
         }
 
         // if the curve has <varcase>...</varcase>
@@ -1481,7 +1472,7 @@ public class TrickQPActionController {
 
         return curveNode;
     }
-    
+
     /**
      * Adds a new Curve to the specified Plot.
      *
@@ -1494,7 +1485,7 @@ public class TrickQPActionController {
      * @return curve node.
      */
     public CommonTreeNode addCurveToPlot(CommonTreeNode plotNode, Object curve, boolean isNew) {
-    	return addCurveToPlot(plotNode, curve, -1, isNew);    
+        return addCurveToPlot(plotNode, curve, -1, isNew);
     }
 
     /**
@@ -1535,36 +1526,35 @@ public class TrickQPActionController {
      * @return top page node
      */
     @SuppressWarnings("rawtypes")
-	public CommonTreeNode addPageToPlots(ProductPage page) {
+    public CommonTreeNode addPageToPlots(ProductPage page) {
         CommonTreeNode pageNode = null;
         if (page == null) {
             pageNode = new CommonTreeNode(new ProductPage(), CommonTreeNode.PAGE_NODE);
         } else {
             pageNode = new CommonTreeNode(page, CommonTreeNode.PAGE_NODE);
-            
-            // plot list           
-			List plotList = page.getPlotList();
-			if (plotList != null) {
-				for (int j = 0; j < plotList.size(); j++) {
-					ProductPlot plot = (ProductPlot) plotList.get(j);
-					addPlotToPage(pageNode, plot, false);
 
-					// TODO: axis, yaxis, zaxis
-					/***
-					 * DANNY addPlotToPage will add the curves List curveList =
-					 * plot.getCurveList(); if (curveList != null) { for (int k
-					 * = 0; k < curveList.size(); k++) { ProductCurve curve =
-					 * (ProductCurve)curveList.get(k); CommonTreeNode curveNode
-					 * = addCurveToPlot (plotNode, curve, false); } }
-					 ***/
-				}
-			}   
+            // plot list
+            List plotList = page.getPlotList();
+            if (plotList != null) {
+                for (int j = 0; j < plotList.size(); j++) {
+                    ProductPlot plot = (ProductPlot) plotList.get(j);
+                    addPlotToPage(pageNode, plot, false);
+
+                    // TODO: axis, yaxis, zaxis
+                    /***
+                     * DANNY addPlotToPage will add the curves List curveList =
+                     * plot.getCurveList(); if (curveList != null) { for (int k
+                     * = 0; k < curveList.size(); k++) { ProductCurve curve =
+                     * (ProductCurve)curveList.get(k); CommonTreeNode curveNode
+                     * = addCurveToPlot (plotNode, curve, false); } }
+                     ***/
+                }
+            }
         }
-        
+
         application.productTree.addNode(application.plotsNode, pageNode, true);
         return pageNode;
     }
-    
     /**
      * Helper method for adding a new var to a table column.
      */
@@ -1597,11 +1587,11 @@ public class TrickQPActionController {
         }
         application.productTree.addNode(tableNode, columnNode, idx, true);
         if (isNew) {
-        	if (idx == -1) {
-        		((ProductTable)tableNode.getUserObject()).addColumn((ProductColumn)columnNode.getUserObject());
-        	} else {
-        		((ProductTable)tableNode.getUserObject()).addColumn((ProductColumn)columnNode.getUserObject(), idx);
-        	}
+            if (idx == -1) {
+                ((ProductTable)tableNode.getUserObject()).addColumn((ProductColumn)columnNode.getUserObject());
+            } else {
+                ((ProductTable)tableNode.getUserObject()).addColumn((ProductColumn)columnNode.getUserObject(), idx);
+            }
         }
 
         ProductColumn productColumn = (ProductColumn)columnNode.getUserObject();
@@ -1611,7 +1601,7 @@ public class TrickQPActionController {
         }
         return columnNode;
     }
-    
+
     /**
      * Adds a new column to the specified table.
      *
@@ -1623,7 +1613,7 @@ public class TrickQPActionController {
      * @return top column node
      */
     public CommonTreeNode addColumnToTable(CommonTreeNode tableNode, Object column, boolean isNew) {
-    	return addColumnToTable(tableNode, column, -1, isNew);    
+        return addColumnToTable(tableNode, column, -1, isNew);
     }
 
     /**
@@ -1639,8 +1629,8 @@ public class TrickQPActionController {
         application.productTree.addNode(application.tablesNode, tableNode, true);
         return tableNode;
     }
-   
-    
+
+
     /**
      * Helper method for adding a new program.
      */
@@ -1649,47 +1639,47 @@ public class TrickQPActionController {
         if (program == null) {
             programNode = new CommonTreeNode(new ProductExternalFunction(), CommonTreeNode.PROGRAM_NODE);
         } else {
-        	programNode = new CommonTreeNode(program, CommonTreeNode.PROGRAM_NODE);
+            programNode = new CommonTreeNode(program, CommonTreeNode.PROGRAM_NODE);
         }
-        application.productTree.addNode(application.programsNode, programNode, true);        
+        application.productTree.addNode(application.programsNode, programNode, true);
         application.productTree.addNode(programNode, new CommonTreeNode("Input", CommonTreeNode.INPUT_NODE), true);
         application.productTree.addNode(programNode, new CommonTreeNode("Output", CommonTreeNode.OUTPUT_NODE), true);
         return programNode;
     }
-    
+
     /**
      * Helper method for adding a var for program input
      */
     private void addVarToInput(ProductVar var, boolean isNew) {
-    	// As only one program is supported, input node is the 1st child of 1st Programs child
-    	CommonTreeNode inputNode = (CommonTreeNode)(((CommonTreeNode)application.programsNode.getChildAt(0)).getChildAt(0));
-    	CommonTreeNode varNode = new CommonTreeNode(var, CommonTreeNode.INPUT_VAR_NODE);
+        // As only one program is supported, input node is the 1st child of 1st Programs child
+        CommonTreeNode inputNode = (CommonTreeNode)(((CommonTreeNode)application.programsNode.getChildAt(0)).getChildAt(0));
+        CommonTreeNode varNode = new CommonTreeNode(var, CommonTreeNode.INPUT_VAR_NODE);
         application.productTree.addNode(inputNode, varNode, true);
         if (isNew) {
             ProductExternalFunction program = (ProductExternalFunction)((CommonTreeNode)application.programsNode.getChildAt(0)).getUserObject();
             program.addInput(var);
         }
     }
-    
+
     /**
      * Helper method for adding a var for program output
      */
     private void addVarToOutput(ProductMeasurement var, boolean isNew) {
-    	// As only one program is supported, output node is the 2st child of 1st Programs child
-    	CommonTreeNode outputNode = (CommonTreeNode)(((CommonTreeNode)application.programsNode.getChildAt(0)).getChildAt(1));
-    	CommonTreeNode varNode = new CommonTreeNode(var, CommonTreeNode.OUTPUT_VAR_NODE);
+        // As only one program is supported, output node is the 2st child of 1st Programs child
+        CommonTreeNode outputNode = (CommonTreeNode)(((CommonTreeNode)application.programsNode.getChildAt(0)).getChildAt(1));
+        CommonTreeNode varNode = new CommonTreeNode(var, CommonTreeNode.OUTPUT_VAR_NODE);
         application.productTree.addNode(outputNode, varNode, true);
         if (isNew) {
             ProductExternalFunction program = (ProductExternalFunction)((CommonTreeNode)application.programsNode.getChildAt(0)).getUserObject();
             program.addOutput(var);
         }
-        
+
         // also need to add this newly generated output var to var list
         LogVar newOutVar = new LogVar(var.getName());
-    	newOutVar.setUnits("--");
-    	application.varList.addData(newOutVar);
+        newOutVar.setUnits("--");
+        application.varList.addData(newOutVar);
     }
-    
+
     /**
      * Helper method for adding a new node.
      */
@@ -1752,5 +1742,5 @@ public class TrickQPActionController {
     //========================================
     //    Inner classes
     //========================================
-    
+
 }
