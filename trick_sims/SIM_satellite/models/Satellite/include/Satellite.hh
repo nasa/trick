@@ -43,7 +43,7 @@ class Satellite {
     double Iinv[3][3];       /* (--) */
     double Rdot[3][3];       /* (--) */
     double vel[3];           /* (m/s)      Vehicle velocity in world frame. */
-    double omega[3];         /* (r/s)      Angular velocity. */
+    double omega[3];         /* (rad/s)      Angular velocity. */
     double Rplat[3][3];      /* (--)       Vehicle platform to World rotation matrix. */
 
     double force[3];         /* (kg*m/s2)  Force on vehicle. */

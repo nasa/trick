@@ -23,15 +23,15 @@ typedef struct { /* BSTATE_IN ------------------------------------------------*/
 
   /*=== Initial Ball States ===*/
   double mass ;            /* kg  Total mass */
-  double position[2] ;     /* M   X(horizontal),Y(vertical) position */
-  double speed ;           /* M/s Linear speed */
-  double elevation ;       /* r   Trajectory angle with respect
+  double position[2] ;     /* m   X(horizontal),Y(vertical) position */
+  double speed ;           /* m/s Linear speed */
+  double elevation ;       /* rad   Trajectory angle with respect
                                      to the horizontal */
   /* DYNAMIC EVENT INPUTS */
-  double floor_y_pos ;     /* M  Horizontal floor location on Y axis */
-  double right_wall_x_pos ;/* M  Vertical right wall location on X axis */
-  double ceiling_y_pos ;   /* M  Horizontal ceiling location on Y axis */
-  double left_wall_x_pos ; /* M  Vertical left wall location on X axis */
+  double floor_y_pos ;     /* m  Horizontal floor location on Y axis */
+  double right_wall_x_pos ;/* m  Vertical right wall location on X axis */
+  double ceiling_y_pos ;   /* m  Horizontal ceiling location on Y axis */
+  double left_wall_x_pos ; /* m  Vertical left wall location on X axis */
   REGULA_FALSI floor ;     /* -- Dynamic event params for floor impact */
   REGULA_FALSI right_wall ;/* -- Dynamic event params for right wall impact*/
   REGULA_FALSI ceiling ;   /* -- Dynamic event params for ceiling impact */
@@ -41,10 +41,10 @@ typedef struct { /* BSTATE_IN ------------------------------------------------*/
 
 typedef struct { /* BSTATE_OUT -----------------------------------------------*/
 
-  double position[2] ;       /* M    X(horizontal), Y(vertical) position */
+  double position[2] ;       /* m    X(horizontal), Y(vertical) position */
   double Frequency ;               /* (Hz)  Total mass */
-  double velocity[2] ;       /* M/s  X,Y velocity */
-  double acceleration[2] ;   /* M/s2 X,Y acceleration */
+  double velocity[2] ;       /* m/s  X,Y velocity */
+  double acceleration[2] ;   /* m/s2 X,Y acceleration */
   double external_force[2] ; /* N    Total external force on ball */
 
 } BSTATE_OUT ; /*-------------------------------------------------------------*/

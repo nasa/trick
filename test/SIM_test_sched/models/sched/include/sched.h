@@ -13,9 +13,9 @@ PROGRAMMERS:                 ( (Keith Vetter) (Titan) (8-20-2002) )
 
 typedef struct { /* SCHEDULE ------------------------------------------------*/
 
-  double pos ;    /* M    Position */
-  double vel ;    /* M/s  Velocity */
-  double acc ;    /* M/s2 Acceleration */
+  double pos ;    /* m    Position */
+  double vel ;    /* m/s  Velocity */
+  double acc ;    /* m/s2 Acceleration */
   double mass ;   /* kg   Mass */
   int amf     ;   /* --   Just a test variable */
   int amf_error ; /* --  Order error occured in amf job */

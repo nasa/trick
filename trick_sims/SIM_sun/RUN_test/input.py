@@ -28,8 +28,8 @@ if STRIPCHART:
 """                 LOCATION                 """
 """ ======================================== """
 # JSC MAIN Gate
-sun_predictor.sun.observer_latitude  = trick.sim_services.attach_units("d" , 29.55298)
-sun_predictor.sun.observer_longitude = trick.sim_services.attach_units("d" , 95.09379)
+sun_predictor.sun.observer_latitude  = trick.sim_services.attach_units("degree" , 29.55298)
+sun_predictor.sun.observer_longitude = trick.sim_services.attach_units("degree" , 95.09379)
 
 # Mom's House
 #sun_predictor.sun.observer_latitude  = trick.sim_services.attach_units("d" , 38.842677)

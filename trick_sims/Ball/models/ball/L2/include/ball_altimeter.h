@@ -22,14 +22,14 @@ typedef struct { /* BALT_IN --------------------------------------------------*/
 
   Flag   add_noise ; /* --   Yes = Add noise to sensed altitude */
   Flag   add_bias ;  /* --   Yes = Add bias to sensed altitude */
-  double noise ;     /* M    1 sigma noise */
-  double bias ;      /* M    Measurement bias */
+  double noise ;     /* m    1 sigma noise */
+  double bias ;      /* m    Measurement bias */
 
 } BALT_IN ; /*----------------------------------------------------------------*/
 
 typedef struct { /* BALT_OUT -------------------------------------------------*/
 
-  double altitude ;  /* M    Sensed altitude */
+  double altitude ;  /* m    Sensed altitude */
 
 } BALT_OUT ; /*---------------------------------------------------------------*/
 

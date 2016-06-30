@@ -16,8 +16,8 @@ typedef struct {
 } CALENDAR_DATE;
 
 typedef struct {
-   double         observer_latitude;          /* (d) */
-   double         observer_longitude;         /* (d)  */
+   double         observer_latitude;          /* (degree) */
+   double         observer_longitude;         /* (degree)  */
    CALENDAR_DATE  local_time;                 /* (--) */
    double         local_sidereal_time;        /* (s)  */
    double         sidereal_time_at_Greenwich; /* (s)  */
@@ -25,11 +25,11 @@ typedef struct {
    CALENDAR_DATE  utc;                        /* (--) */
    double         JD_start;        /* (day)  Julian date at the beginning of the sim run.*/
    double         JD;              /* (day)  Current Julian date */
-   double         right_ascension; /* (d)  */
-   double         declination;     /* (d)  */
-   double         hour_angle;      /* (d)  */
-   double         solar_azimuth;   /* (d)  */
-   double         solar_elevation; /* (d)  */
+   double         right_ascension; /* (degree)  */
+   double         declination;     /* (degree)  */
+   double         hour_angle;      /* (degree)  */
+   double         solar_azimuth;   /* (degree)  */
+   double         solar_elevation; /* (degree)  */
    wchar_t*       label_UTC;       /* (--) wide character pointer */
    wchar_t*       label_JD;        /* (--) wide character pointer */
    wchar_t*       label_Azimuth;   /* (--) wide character pointer */
