@@ -9,13 +9,6 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 # Flags passed to the preprocessor.
 TRICK_CXXFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra -DGTEST_HAS_TR1_TUPLE=0
-ifeq ($(HAVE_GSL),1)
-TRICK_CXXFLAGS += -D_HAVE_GSL
-ifneq ($(GSL_HOME),/usr)
-TRICK_CXXFLAGS += -I${GSL_HOME}/include
-endif
-endif
-
 TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick -ltrick_pyip -ltrick_comm -ltrick_math -ltrick_mm -ltrick_units
 TRICK_EXEC_LINK_LIBS += ${GTEST_HOME}/lib/libgtest.a ${GTEST_HOME}/lib/libgtest_main.a
 
@@ -41,13 +34,13 @@ clean :
 	rm -f $(TESTS) *.o
 
 MonteCarlo_test.o : MonteCarlo_test.cpp
-	$(TRICK_CPPC) $(TRICK_CXXFLAGS) -c $<
+	$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c $<
 
 MonteCarlo_test : MonteCarlo_test.o
 	$(TRICK_CPPC) $(TRICK_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) $(TRICK_LIBS) $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 MonteCarlo_exceptions.o : MonteCarlo_exceptions.cpp
-	$(TRICK_CPPC) $(TRICK_CXXFLAGS) -c $<
+	$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c $<
 
 MonteCarlo_exceptions : MonteCarlo_exceptions.o
 	$(TRICK_CPPC) $(TRICK_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) $(TRICK_LIBS) $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
