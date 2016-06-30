@@ -8,6 +8,7 @@
 #include <QMouseEvent>
 #include <QRubberBand>
 #include <QFocusEvent>
+#include <QKeyEvent>
 #include <QSizeF>
 #include <stdlib.h>
 #include "bookidxview.h"
@@ -30,10 +31,15 @@ protected:
     virtual QSize sizeHint() const;
     virtual void mousePressEvent(QMouseEvent* event);
     virtual void mouseMoveEvent(QMouseEvent* mouseEvent);
+    virtual void keyPressEvent(QKeyEvent *event);
 
 private:
     QHash<TrickCurveModel*,QPainterPath*> _curve2path;
+    QPainterPath* _errorPath;
+    QString _viewType; // error,coplot,error+coplot
     QPainterPath *_createPainterPath(TrickCurveModel *curveModel);
+    QPainterPath* _createErrorPath(const QModelIndex& curve0Idx,
+                                   const QModelIndex &curve1Idx);
     QRectF _bbox();
     QPainterPath _sinPath();
     QPainterPath _stepPath();
@@ -58,6 +64,12 @@ private:
     QRectF _curveBBox(TrickCurveModel *curveModel,
                       const QModelIndex &curveIdx) const ;
     QRectF _calcBBox() const ;
+
+    void _paintCoplot(const QTransform& T,QPainter& painter,QPen& pen);
+    void _paintErrorplot(const QTransform& T,QPainter& painter,QPen& pen);
+
+    // Key Events
+    void _keyPressSpace();
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,
