@@ -11,8 +11,7 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra -DGTEST_HAS_TR1_TUPLE=0
 
 TRICK_LIBS = ${TRICK_LIB_DIR}/libtrick.a
-TRICK_EXEC_LINK_LIBS += ${GTEST_HOME}/lib/libgtest.a ${GTEST_HOME}/lib/libgtest_main.a
-
+TRICK_EXEC_LINK_LIBS += -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main -lpthread
 
 # Added for Ubuntu... not required for other systems.
 TRICK_EXEC_LINK_LIBS += -lpthread

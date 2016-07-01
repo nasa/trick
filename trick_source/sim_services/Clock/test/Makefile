@@ -10,7 +10,8 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 # Flags passed to the preprocessor.
 TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra -DGTEST_HAS_TR1_TUPLE=0
 
-LIBS = ${GTEST_HOME}/lib/libgtest.a ${GTEST_HOME}/lib/libgtest_main.a
+LIBS = -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main
+
 
 ifeq ($(TRICK_HOST_TYPE), Linux)
     LIBS += -lpthread -lrt
