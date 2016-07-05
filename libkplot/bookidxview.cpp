@@ -677,6 +677,16 @@ void BookIdxView::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
+// Need this so that pageView can capture double click event
+void BookIdxView::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    if ( event->button() == Qt::LeftButton ){
+        event->ignore();
+    } else {
+        QAbstractItemView::mouseDoubleClickEvent(event);
+    }
+}
+
 QModelIndex BookIdxView::moveCursor(
         QAbstractItemView::CursorAction cursorAction,
         Qt::KeyboardModifiers modifiers)

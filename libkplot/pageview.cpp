@@ -4,7 +4,8 @@ PageView::PageView(QWidget *parent) :
     BookIdxView(parent),
     _grid(0),
     _titleView(0),
-    _plots(QList<PlotView*>())
+    _plots(QList<PlotView*>()),
+    _toggleSingleView(true)
 {
     setFrameShape(QFrame::NoFrame);
 
@@ -19,6 +20,47 @@ PageView::PageView(QWidget *parent) :
     _grid->setRowStretch(0,1);
 
     setLayout(_grid);
+}
+
+bool PageView::eventFilter(QObject *obj, QEvent *event)
+{
+    // Create and add titleView
+
+    if ( event->type() == QEvent::MouseButtonDblClick ) {
+        int r, c, rSpan, cSpan;
+        int row = -1;
+        int col = -1;
+        if ( _toggleSingleView ) {
+            _toggleSingleView = false;
+            for ( int i = 1; i < _grid->count(); ++i ) {
+                QWidget* w = _grid->itemAt(i)->widget();
+                _grid->getItemPosition(i, &r, &c, &rSpan, &cSpan);
+                if ( w == obj ) {
+                    row = r;
+                    col = c;
+                    _grid->setRowStretch(r,100);
+                    _grid->setColumnStretch(c,100);
+                } else {
+                    if ( r != row ) _grid->setRowStretch(r,1);
+                    if ( c != col ) _grid->setColumnStretch(c,1);
+                    w->hide();
+                }
+            }
+        } else {
+            _toggleSingleView = true;
+            for ( int i = 1; i < _grid->count(); ++i ) {
+                QWidget* w = _grid->itemAt(i)->widget();
+                _grid->getItemPosition(i, &r, &c, &rSpan, &cSpan);
+                _grid->setRowStretch(r,100);
+                _grid->setColumnStretch(c,100);
+                w->show();
+            }
+
+        }
+    }
+
+    viewport()->update();
+    return false;
 }
 
 void PageView::dataChanged(const QModelIndex &topLeft,
@@ -71,6 +113,7 @@ void PageView::rowsInserted(const QModelIndex &pidx, int start, int end)
     _plots << plot;
     plot->setModel(model());
     plot->setRootIndex(plotIdx);
+    plot->installEventFilter(this);  // for double clicking a plot to view alone
 
     switch ( nPlots ) {
     case 1: {

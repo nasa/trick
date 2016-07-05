@@ -18,10 +18,14 @@ public:
 protected:
     virtual void _update();
 
+protected:
+    virtual bool eventFilter(QObject *obj, QEvent *event);
+
 private:
     QGridLayout* _grid;
     PageTitleView* _titleView;
     QList<PlotView*> _plots;
+    bool _toggleSingleView;
 
 signals:
 
