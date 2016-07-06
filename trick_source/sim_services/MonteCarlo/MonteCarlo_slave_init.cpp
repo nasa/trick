@@ -51,7 +51,7 @@ int Trick::MonteCarlo::slave_init() {
     int id = htonl(slave_id);
     tc_write(&connection_device, (char *)&id, (int)sizeof(id));
 
-    char hostname[HOST_NAME_MAX];
+    char hostname[_POSIX_HOST_NAME_MAX];
     gethostname(hostname, sizeof(hostname)-1);
 
     int num_bytes = htonl(strlen(hostname));

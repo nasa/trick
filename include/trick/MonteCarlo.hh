@@ -7,15 +7,12 @@
 
 #include <deque>
 #include <vector>
+#include <climits>
 
 #include "trick/MonteVar.hh"
 #include "trick/Executive.hh"
 #include "trick/RemoteShell.hh"
 #include "trick/tc.h"
-
-#ifndef HOST_NAME_MAX
-#define HOST_NAME_MAX 128
-#endif
 
 namespace Trick {
 

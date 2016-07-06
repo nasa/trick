@@ -22,8 +22,8 @@ Trick::MonteCarlo::MonteCarlo() :
 
     slaves_head = NULL;
 
-    char hostname[HOST_NAME_MAX + 1];
-    gethostname(hostname, HOST_NAME_MAX);
+    char hostname[_POSIX_HOST_NAME_MAX + 1];
+    gethostname(hostname, _POSIX_HOST_NAME_MAX);
     machine_name = hostname;
 
     memset(&listen_device, 0, sizeof(TCDevice)) ;

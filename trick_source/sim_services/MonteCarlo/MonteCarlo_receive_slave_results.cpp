@@ -131,7 +131,7 @@ void Trick::MonteCarlo::read_slave_port(Trick::MonteSlave *curr_slave) {
 
 void Trick::MonteCarlo::read_machine_name(Trick::MonteSlave *curr_slave) {
     int num_bytes;
-    char slave_name[HOST_NAME_MAX];
+    char slave_name[_POSIX_HOST_NAME_MAX];
 
     tc_read(&connection_device, (char *)&num_bytes, (int)sizeof(num_bytes));
     num_bytes = ntohl(num_bytes) ;
