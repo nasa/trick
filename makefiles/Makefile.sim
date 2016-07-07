@@ -12,21 +12,19 @@ ifeq ($(MAKECMDGOALS), debug)
  TRICK_CPFLAGS += --debug
 endif
 
-all : ${TRICK_HOME}/lib_${TRICK_HOST_CPU}/libtrick.a preMakefile_simHook Makefile_sim
+all : ${TRICK_HOME}/lib_${TRICK_HOST_CPU}/libtrick.a Makefile_sim
 	@/bin/cp ${TRICK_HOME}/bin/MAKE_out_header.txt MAKE_out
 	@$(MAKE) --no-print-directory -f Makefile_sim ICG 2>&1 | tee -a MAKE_out ; exit $${PIPESTATUS[0]}
 	@$(MAKE) --no-print-directory -f Makefile_sim convert_swig 2>&1 | tee -a MAKE_out ; exit $${PIPESTATUS[0]}
 	@$(MAKE) --no-print-directory -f Makefile_sim all 2>&1 | tee -a MAKE_out ; exit $${PIPESTATUS[0]}
 
-test : ${TRICK_HOME}/lib_${TRICK_HOST_CPU}/libtrick.a preMakefile_simHook Makefile_sim
+test : ${TRICK_HOME}/lib_${TRICK_HOST_CPU}/libtrick.a Makefile_sim
 	@/bin/cp ${TRICK_HOME}/bin/MAKE_out_header.txt MAKE_out
 	@$(MAKE) --no-print-directory -f Makefile_sim ICG 2>&1 | tee -a MAKE_out ; exit $${PIPESTATUS[0]}
 	@$(MAKE) --no-print-directory -f Makefile_sim convert_swig 2>&1 | tee -a MAKE_out ; exit $${PIPESTATUS[0]}
 	@$(MAKE) --no-print-directory -f Makefile_sim test_all 2>&1 | tee -a MAKE_out ; exit $${PIPESTATUS[0]}
 
 debug : all
-
-preMakefile_simHook:
 
 ${TRICK_HOME}/lib_${TRICK_HOST_CPU}/libtrick.a:
 	@echo "Cannot find $@.  Please build Trick for this platfrom"
