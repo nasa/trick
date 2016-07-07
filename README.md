@@ -21,8 +21,13 @@ the wiki pages.
 
 ### Tutorial
 
-The [Trick Tutorial] (https://github.com/nasa/Trick/wiki/Tutorial)
+The [Trick Tutorial](https://github.com/nasa/Trick/wiki/Tutorial)
 is located in share/doc/trick/Tutorial. Markdown and PDF versions are available.
+
+### Related Projects that use Trick
+
+The [Input Device Framework (IDF)](https://github.com/nasa/IDF)
+
 ### License
 
 Trick is released under the NASA Open Source Agreement Version 1.3 [license](LICENSE).
