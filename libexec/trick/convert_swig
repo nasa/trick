@@ -260,6 +260,8 @@ sub process_file() {
                                     last ;
                                 }
                             }
+                        } else {
+                            $file_name = $temp_file_name ;
                         }
 
                         foreach my $i ( @swig_exclude_dirs ) {
