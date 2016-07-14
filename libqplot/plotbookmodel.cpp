@@ -82,6 +82,9 @@ QModelIndex PlotBookModel::_plotIdx(const QModelIndex &idx) const
         pltIdx = p2Idx;
     } else if ( isIndex(p3Idx, "Plot" ) ) {
         pltIdx = p3Idx;
+    } else {
+        qDebug() << "snap [bad scoobies]: PlotBookModel::_plotIdx() failed.";
+        exit(-1);
     }
 
     return pltIdx;
@@ -127,6 +130,52 @@ QModelIndexList PlotBookModel::plotIdxs(const QModelIndex &pageIdx) const
 QModelIndexList PlotBookModel::curveIdxs(const QModelIndex &curvesIdx) const
 {
     return getIndexList(curvesIdx, "Curve", "Curves");
+}
+
+QList<QColor> PlotBookModel::createColorBands(int nBands)
+{
+    QList<QColor> colorBands;
+
+    QColor blue(48,85,200);
+    QColor red(200,30,30);
+    QColor green(60,180,45);
+    QColor magenta(130,15,120);
+    QColor orange(183,120,71);
+    QColor burntorange(177,79,0);
+    QColor yellow(222,222,10);
+    QColor pink(255,192,255);
+    QColor gray(145,170,192);
+    QColor medblue(49,140,250);
+    QColor black(0,0,0);
+
+    if ( nBands >= 10 ) {
+
+        // This is for "rainbow banding" many monte carlo curves
+
+        int hBeg = 10; int hEnd = 230;
+        int dh = qRound((double)(hEnd-hBeg)/(nBands-1.0));
+        int s = qRound(0.75*255);
+        int v = qRound(0.87*255);
+        for ( int h = hBeg; h <= hEnd; h+=dh) {
+            // Rainbow
+            colorBands << QColor::fromHsv(h,s,v);
+        }
+        colorBands.removeFirst();
+        colorBands.prepend(burntorange);
+
+    } else {
+
+        // Handpicked band of colors for smaller number of curves
+        colorBands << blue << red << magenta
+                   << green << orange << yellow
+                   << gray << pink << medblue;
+
+        for ( int i = 0 ; i < nBands-10; ++i ) {
+            colorBands.removeLast();
+        }
+    }
+
+    return colorBands;
 }
 
 void PlotBookModel::_initModel()
@@ -191,7 +240,7 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
             }
         } else {
             qDebug() << "snap [bad scoobies]: getIndex() received an "
-                        "invalid first level startIdx. The startIdx "
+                        "invalid startIdx. The startIdx "
                         "was expected to have this text "
                      << expectedStartIdxText << ".";
             exit(-1);
@@ -207,6 +256,8 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
             idx = index(2,0);
         } else if ( searchItemText == "Tables" ) {
             idx = index(3,0);
+        } else if ( searchItemText == "DefaultPageTitles" ) {
+            idx = index(4,0);
         } else {
             qDebug() << "snap [bad scoobies]: getIndex() received "
                         "root as a startIdx and had bad child item text of \""

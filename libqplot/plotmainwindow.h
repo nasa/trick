@@ -45,7 +45,7 @@ public:
                              QStandardItemModel* monteInputsModel=0,
                              QWidget *parent = 0);
 
-     void savePdf(const QString& fname, bool isVectorizePdf);
+     void savePdf(const QString& fname);
 
     ~PlotMainWindow();
 
@@ -90,8 +90,7 @@ private slots:
                                           const QItemSelection& prevSel);
      void _plotModelRowsAboutToBeRemoved(const QModelIndex& pidx,
                                          int start, int end);
-     void _savePdf(bool isVectorizedPdf=false);
-     void _saveVectorPdf();
+     void _savePdf();
 
      void _startTimeChanged(double startTime);
      void _stopTimeChanged(double stopTime);

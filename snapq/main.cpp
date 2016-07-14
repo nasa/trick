@@ -47,7 +47,6 @@ class SnapOptions : public Options
     QString title3;
     QString title4;
     QString timeName;
-    bool isVectorizePdf;
 };
 
 SnapOptions opts;
@@ -79,8 +78,6 @@ int main(int argc, char *argv[])
     opts.add("-t4",&opts.title4,"", "Date title");
     opts.add("-pdf", &opts.pdfOutFile, QString(""),
              "Name of pdf output file");
-    opts.add("-vectorize", &opts.isVectorizePdf, false,
-             "Vectorize pdf output (WARNING: potentially large files and slow");
     opts.add("-trk", &opts.trkOutFile, QString(""),
              "Produce *.trk with variables from DP_Products");
     opts.add("-csv", &opts.csvOutFile, QString(""),
@@ -227,7 +224,7 @@ int main(int argc, char *argv[])
                              opts.presentation, QString(), dps, titles,
                              monteModel, varsModel, monteInputsModel);
             w.show();
-            w.savePdf(opts.pdfOutFile,opts.isVectorizePdf);
+            w.savePdf(opts.pdfOutFile);
 
         } else if ( isTrk ) {
 

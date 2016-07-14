@@ -4,6 +4,17 @@
 #include <QTabWidget>
 #include <QVBoxLayout>
 #include <QFileInfo>
+#include <QPrinter>
+#include <QLineF>
+#include <QPointF>
+#include <QPen>
+#include <QFont>
+#include <QFontMetrics>
+#include <QString>
+#include <QStringList>
+#include <QList>
+#include <QTransform>
+#include <QVector2D>
 
 #include "libkplot/bookidxview.h"
 #include "libkplot/pageview.h"
@@ -29,9 +40,19 @@ private:
     QVBoxLayout* _mainLayout;
     QTabWidget* _nb;
 
+    void _printPage(QPainter* painter, const QModelIndex& pageIdx);
+    QRect __printPageTitle(QPainter *painter, const QModelIndex& pageIdx);
+    void __printPlot(const QRect& plotRect,
+                     QPainter *painter, const QModelIndex& plotIdx);
+    void __printCurves(const QRect& R,
+                       QPainter *painter, const QModelIndex& plotIdx);
+    void __printXAxisLabel(QPainter *painter, const QModelIndex& pageIdx);
+    void __printYAxisLabel(QPainter *painter, const QModelIndex& pageIdx);
+
 signals:
 
 public slots:
+    void savePdf(const QString& fname);
 
 protected slots:
     void _nbCloseRequested(int idx);

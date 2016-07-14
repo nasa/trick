@@ -165,7 +165,6 @@ void PlotMainWindow::createMenu()
     _exitAction = _fileMenu->addAction(tr("E&xit"));
     _menuBar->addMenu(_fileMenu);
     connect(_pdfAction, SIGNAL(triggered()),this, SLOT(_savePdf()));
-    connect(_vectorPdfAction, SIGNAL(triggered()),this, SLOT(_saveVectorPdf()));
     connect(_exitAction, SIGNAL(triggered()),this, SLOT(close()));
     setMenuWidget(_menuBar);
 }
@@ -260,32 +259,27 @@ bool PlotMainWindow::_isMONTE(const QString &fp)
     return ( fi.baseName().left(6) == "MONTE_" && fi.isDir() ) ;
 }
 
-void PlotMainWindow::savePdf(const QString& fname, bool isVectorizePdf)
+void PlotMainWindow::savePdf(const QString& fname)
 {
-#if 0
     if ( ! fname.isEmpty() ) {
-        _plotBookView->savePdf(fname, isVectorizePdf);
+        _bookView->savePdf(fname);
     }
-#endif
 }
 
-void PlotMainWindow::_savePdf(bool isVectorizedPdf)
+void PlotMainWindow::_savePdf()
 {
-#if 0
+    /*
     QString fname = QFileDialog::getSaveFileName(this,
                                                  QString("Save As PDF"),
                                                  QString(""),
                                                  tr("files (*.pdf)"));
 
+    */
+    QString fname = "/home/vetter/dev/trick-07.23.1/trick_sims/SIM_ball_L1/dog.pdf";
     if ( ! fname.isEmpty() ) {
-        _plotBookView->savePdf(fname, isVectorizedPdf);
+        _bookView->savePdf(fname);
     }
-#endif
-}
-
-void PlotMainWindow::_saveVectorPdf()
-{
-    _savePdf(true);
+    exit(-1);
 }
 
 void PlotMainWindow::_startTimeChanged(double startTime)

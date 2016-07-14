@@ -6,6 +6,9 @@
 #include "libsnapdata/montemodel.h"
 #include "libsnaprt/utils.h"
 
+#include <QList>
+#include <QColor>
+
 class PlotBookModel : public QStandardItemModel
 {
     Q_OBJECT
@@ -46,6 +49,9 @@ public:
     QModelIndexList pageIdxs() const ;
     QModelIndexList plotIdxs(const QModelIndex& pageIdx) const ;
     QModelIndexList curveIdxs(const QModelIndex& curvesIdx) const ;
+
+    // Curve Colors (banding)
+    QList<QColor> createColorBands(int nBands);
 
 signals:
     
