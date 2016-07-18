@@ -104,7 +104,7 @@ void BookView::_printPage(QPainter *painter, const QModelIndex &pageIdx)
     QPaintDevice* paintDevice = painter->device();
     if ( !paintDevice ) return;
 
-    QRect pageTitleRect = __printPageTitle(painter,pageIdx);
+    QRect pageTitleRect = _printPageTitle(painter,pageIdx);
 
     QModelIndex plotsIdx = _bookModel()->getIndex(pageIdx,"Plots", "Page");
 
@@ -115,11 +115,35 @@ void BookView::_printPage(QPainter *painter, const QModelIndex &pageIdx)
             paintDevice->width(),
             paintDevice->height()-pageTitleRect.height());
 
+    QPen pen;
+    pen.setWidth(4);
+
     if ( nPlots == 0 ) {
         return;
     } else if ( nPlots == 1 ) {
+
         QModelIndex plotIdx = model()->index(0,0,plotsIdx);
-        __printCurves(R,painter,plotIdx);
+
+        QRect r(R);
+
+        r.setTopLeft(QPoint(1200,R.topLeft().y()+300));
+        r.setHeight(R.height()-900);
+        painter->setPen(pen);
+        painter->drawRect(r);
+        _printCurves(r,painter,plotIdx);
+
+        r = R;
+        r.setTopLeft(QPoint(1200,R.bottomLeft().y()-300));
+        painter->setPen(pen);
+        painter->drawRect(r);
+        _printXAxisLabel(r,painter,plotIdx);
+
+        r = R;
+        r.setWidth(300);
+        painter->setPen(pen);
+        painter->drawRect(r);
+        _printYAxisLabel(r,painter,plotIdx);
+
     } else if ( nPlots == 6 ) {
         R.setWidth(R.width()/2);
         R.setHeight(R.height()/3);
@@ -134,7 +158,7 @@ void BookView::_printPage(QPainter *painter, const QModelIndex &pageIdx)
             }
             QRect R2 = R.translated(x,y);
             QModelIndex plotIdx = model()->index(i,0,plotsIdx);
-            __printCurves(R2,painter,plotIdx);
+            _printCurves(R2,painter,plotIdx);
         }
     } else {
         qDebug() << "snap [error]: _printPage() : cannot print more than "
@@ -147,7 +171,7 @@ void BookView::_printPage(QPainter *painter, const QModelIndex &pageIdx)
 }
 
 // Returns a bounding box of page title
-QRect BookView::__printPageTitle(QPainter* painter, const QModelIndex &pageIdx)
+QRect BookView::_printPageTitle(QPainter* painter, const QModelIndex &pageIdx)
 {
     //
     // Init
@@ -288,16 +312,19 @@ QRect BookView::__printPageTitle(QPainter* painter, const QModelIndex &pageIdx)
     }
 
     QRect bbox(0,0,R.width(),y+margin);
+    QPen pen;
+    pen.setWidth(4);
+    painter->setPen(pen);
     painter->drawRect(0,0,bbox.width(),bbox.height());
 
     return bbox;
 }
 
-void BookView::__printCurves(const QRect& R,
+void BookView::_printCurves(const QRect& R,
                              QPainter *painter, const QModelIndex &plotIdx)
 {
 
-    painter->drawRect(R);
+    //painter->drawRect(R);
 
     QModelIndex plotMathRectIdx = _bookModel()->getDataIndex(plotIdx,
                                                         "PlotMathRect", "Plot");
@@ -399,66 +426,55 @@ void BookView::__printCurves(const QRect& R,
     painter->restore();
 }
 
-void BookView::__printXAxisLabel(QPainter *painter,
-                                     const QModelIndex &pageIdx)
+void BookView::_printXAxisLabel(const QRect& R,
+                                QPainter *painter,
+                                const QModelIndex &plotIdx)
 {
     QPaintDevice* paintDevice = painter->device();
 
-
-    QString s("sys.exec.out.time {s}");
+    QString s = _bookModel()->getDataString(plotIdx,"PlotXAxisLabel","Plot");
 
     QFont font;
-    font.setPointSize(12);
+    font.setPointSize(10);
     painter->setFont(font);
 
     QFontMetrics fm(font,paintDevice);
-    QRect R = fm.boundingRect(s);
-    int textWidth = R.width();
-    int margin = paintDevice->logicalDpiY()/8; // 8th inch
-    int x = paintDevice->width()/2 - textWidth/2;
-    int y = paintDevice->height() - fm.descent() - margin;
+    QRect bbox = fm.boundingRect(s);
+    int x = R.x() + (R.width()/2 - bbox.width()/2);
+    int y = R.y() + bbox.height();
 
+    bbox.moveTo(x,R.y());
     painter->drawText(x,y,s);
 }
 
-void BookView::__printYAxisLabel(QPainter *painter,
-                                     const QModelIndex &pageIdx)
+void BookView::_printYAxisLabel(const QRect& R,
+                                 QPainter *painter,
+                                 const QModelIndex &plotIdx)
 {
     QPaintDevice* paintDevice = painter->device();
 
-    QString s("ball.state.out.acceleration[0] {m/s2}");
 
     QFont font;
-    font.setPointSize(12);
+    font.setPointSize(10);
     painter->setFont(font);
 
-#if 0
+    QString s = _bookModel()->getDataString(plotIdx,"PlotYAxisLabel","Plot");
     QFontMetrics fm(font,paintDevice);
-    QRect R = fm.boundingRect(s);
-    int textWidth = R.width();
-    int margin = paintDevice->logicalDpiY()/8; // 8th inch
-    int x = paintDevice->width()/2 - textWidth/2;
-    int y = paintDevice->height() - fm.descent() - margin;
+    s = fm.elidedText(s, Qt::ElideLeft, R.height());
+    QRect bbox = fm.boundingRect(s);
 
+    int x = R.x() + R.width()/2 - bbox.width()/2;
+    int y = R.y() + R.height() - fm.descent();
 
-    int vw = viewport()->width();
-    int vh = viewport()->height();
-    QFontMetrics fm = viewport()->fontMetrics();
-    QString txt = fm.elidedText(_yAxisLabelText, Qt::ElideLeft, vh);
-    QRect bb = fm.tightBoundingRect(txt);
-    int bw = bb.width();
-    int bh = bb.height();
 
     // Draw!
-    QPainter painter(viewport());
-    painter.save();
-    painter.translate( vw, (vh+bw)/2-5);
-    painter.rotate(270);
-    painter.drawText(0,0, txt);
-    painter.restore();
+    painter->save();
+    painter->translate(R.width()/2, R.y()+R.height()/2+bbox.width()/2);
+    painter->rotate(270);
+    painter->drawText(0,0,s);
+    painter->restore();
 
-    painter->drawText(x,y,s);
-#endif
+    painter->drawRect(R);
 }
 
 void BookView::_nbCloseRequested(int idx)

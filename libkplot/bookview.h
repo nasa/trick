@@ -41,13 +41,15 @@ private:
     QTabWidget* _nb;
 
     void _printPage(QPainter* painter, const QModelIndex& pageIdx);
-    QRect __printPageTitle(QPainter *painter, const QModelIndex& pageIdx);
-    void __printPlot(const QRect& plotRect,
+    QRect _printPageTitle(QPainter *painter, const QModelIndex& pageIdx);
+    void _printPlot(const QRect& plotRect,
                      QPainter *painter, const QModelIndex& plotIdx);
-    void __printCurves(const QRect& R,
+    void _printCurves(const QRect& R,
                        QPainter *painter, const QModelIndex& plotIdx);
-    void __printXAxisLabel(QPainter *painter, const QModelIndex& pageIdx);
-    void __printYAxisLabel(QPainter *painter, const QModelIndex& pageIdx);
+    void _printXAxisLabel(const QRect& R,
+                           QPainter *painter, const QModelIndex& plotIdx);
+    void _printYAxisLabel(const QRect &R, QPainter *painter,
+                           const QModelIndex& plotIdx);
 
 signals:
 
