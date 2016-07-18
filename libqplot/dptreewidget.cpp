@@ -296,12 +296,14 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
 
             // Curves
             QStandardItem *curvesItem = _addChild(plotItem,"Curves");
+            QList<QColor> colors = _plotModel->createCurveColors(numRuns);
 
             int curveId = -1;
             foreach (DPCurve* dpcurve, plot->curves() ) {
                 ++curveId;
                 for ( int runId = 0; runId < numRuns; ++runId) {
-                    _addCurve(curvesItem, dpcurve, _monteModel, runId, curveId);
+                    _addCurve(curvesItem, dpcurve, _monteModel,
+                              runId, curveId, colors);
                 }
             }
         }
@@ -400,7 +402,7 @@ QStandardItem *DPTreeWidget::_addChild(QStandardItem *parentItem,
 
 void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
                              DPCurve *dpcurve, MonteModel *monteModel,
-                             int runId, int curveId)
+                             int runId, int curveId,const QList<QColor>& colors)
 {
     // Begin blocking signals to speed up curve insertion
     bool block = _plotModel->blockSignals(true);
@@ -515,7 +517,11 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     _addChild(curveItem, "CurveSymbolSize",  y->symbolSize());
     _addChild(curveItem, "CurveLineStyle",   y->lineStyle());
     _addChild(curveItem, "CurveYLabel",      y->label());
-    _addChild(curveItem, "CurveColor",       y->lineColor());
+    QString color = y->lineColor() ;
+    if ( color.isEmpty() || colors.size() >= 2 ) {
+        color = colors.at(runId).name();
+    }
+    _addChild(curveItem, "CurveColor", color);
 
     // End blocking signals to speed up curve insertion
     block = _plotModel->blockSignals(block);

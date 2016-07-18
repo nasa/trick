@@ -57,7 +57,8 @@ private:
                    const QString& childTitle,
                    const QVariant &childValue=QVariant());
     void _addCurve(QStandardItem* curvesItem, DPCurve* dpcurve,
-                   MonteModel* monteModel, int runId, int curveId);
+                   MonteModel* monteModel, int runId, int curveId,
+                   const QList<QColor>& colors);
     bool _isDP(const QString& fp);
     QString _descrPlotTitle(DPPlot* plot);
 
