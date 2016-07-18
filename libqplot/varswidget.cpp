@@ -174,7 +174,9 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
 
     QStandardItem *curvesItem = _addChild(plotItem,"Curves");
 
-    for ( int r = 0; r < _monteModel->rowCount(); ++r) {
+    int rc = _monteModel->rowCount(); // a curve per run, so, rc == nCurves
+    QList<QColor> colors = _plotModel->createCurveColors(rc);
+    for ( int r = 0; r < rc; ++r) {
 
         //
         // Create curves
@@ -206,7 +208,7 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
         _addChild(curveItem, "CurveXBias", 0.0);
         _addChild(curveItem, "CurveYScale", 1.0);
         _addChild(curveItem, "CurveYBias", 0.0);
-        _addChild(curveItem, "CurveColor", "");
+        _addChild(curveItem, "CurveColor", colors.at(r).name());
         _addChild(curveItem, "CurveSymbolStyle", "");
         _addChild(curveItem, "CurveSymbolSize", "");
         _addChild(curveItem, "CurveLineStyle", "");

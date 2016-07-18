@@ -383,21 +383,11 @@ void BookView::__printCurves(const QRect& R,
     pen.setWidth(2);
     painter->setPen(pen);
 
-    QList<QColor> colors = _bookModel()->createColorBands(10);
-
-    int nCurves = paths.size();
-    int nBands = colors.size();
-    int nCurvesPerBand = div(nCurves,nBands).quot;
+    QList<QColor> colors = _bookModel()->createCurveColors(paths.size());
 
     int i = 0;
     foreach ( QPainterPath* path, paths ) {
-        if ( nCurves < 10 ) {
-            pen.setColor(colors.at(i));
-        } else  {
-            div_t q = div(i,nCurvesPerBand);
-            int j = qMin(q.quot,nBands-1);
-            pen.setColor(colors.at(j));
-        }
+        pen.setColor(colors.at(i));
         painter->setPen(pen);
         painter->drawPath(*path);
         delete path;

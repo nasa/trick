@@ -132,50 +132,46 @@ QModelIndexList PlotBookModel::curveIdxs(const QModelIndex &curvesIdx) const
     return getIndexList(curvesIdx, "Curve", "Curves");
 }
 
-QList<QColor> PlotBookModel::createColorBands(int nBands)
+QList<QColor> PlotBookModel::createCurveColors(int nCurves)
 {
-    QList<QColor> colorBands;
+    QList<QColor> colors;
 
-    QColor blue(48,85,200);
-    QColor red(200,30,30);
-    QColor green(60,180,45);
-    QColor magenta(130,15,120);
-    QColor orange(183,120,71);
-    QColor burntorange(177,79,0);
-    QColor yellow(222,222,10);
-    QColor pink(255,192,255);
-    QColor gray(145,170,192);
-    QColor medblue(49,140,250);
-    QColor black(0,0,0);
+    QColor burntorange(177,79,0); // hook'em!
 
-    if ( nBands >= 10 ) {
-
-        // This is for "rainbow banding" many monte carlo curves
-
-        int hBeg = 10; int hEnd = 230;
-        int dh = qRound((double)(hEnd-hBeg)/(nBands-1.0));
-        int s = qRound(0.75*255);
-        int v = qRound(0.87*255);
-        for ( int h = hBeg; h <= hEnd; h+=dh) {
-            // Rainbow
-            colorBands << QColor::fromHsv(h,s,v);
+    if ( nCurves < 10 ) {
+        // Handpicked colors for smaller number of curves
+        QColor blue(48,85,200);
+        QColor red(200,30,30);
+        QColor magenta(130,15,120);
+        QColor green(60,180,45);
+        QColor yellow(222,222,10);
+        QColor gray(145,170,192);
+        QColor pink(255,192,255);
+        QColor medblue(49,140,250);
+        QList<QColor> handPickedColors;
+        handPickedColors << blue << red << magenta
+                         << green << burntorange << yellow
+                         << gray << pink << medblue;
+        for (int i = 0; i < nCurves; ++i ) {
+            colors << handPickedColors.at(i);
         }
-        colorBands.removeFirst();
-        colorBands.prepend(burntorange);
-
     } else {
-
-        // Handpicked band of colors for smaller number of curves
-        colorBands << blue << red << magenta
-                   << green << orange << yellow
-                   << gray << pink << medblue;
-
-        for ( int i = 0 ; i < nBands-10; ++i ) {
-            colorBands.removeLast();
+        // This is for "rainbow banding" primarily for many monte carlo curves
+        int nBands = 10;
+        int hBeg = 10; int hEnd = 230;
+        int q = div(nCurves-1,nBands).quot;
+        for (int i = 0; i < nCurves; ++i ) {
+            int h = qRound((double)(hEnd-hBeg)/(nBands-1.0))*div(i,q).quot+hBeg;
+            int s = qRound(0.75*255);
+            int v = qRound(0.87*255);
+            colors << QColor::fromHsv(h,s,v);
         }
+        colors.removeFirst();
+        colors.prepend(burntorange);  // Longhorns #0!
+
     }
 
-    return colorBands;
+    return colors;
 }
 
 void PlotBookModel::_initModel()

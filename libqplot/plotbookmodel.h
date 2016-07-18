@@ -50,8 +50,8 @@ public:
     QModelIndexList plotIdxs(const QModelIndex& pageIdx) const ;
     QModelIndexList curveIdxs(const QModelIndex& curvesIdx) const ;
 
-    // Curve Colors (banding)
-    QList<QColor> createColorBands(int nBands);
+    // Curve Colors
+    QList<QColor> createCurveColors(int nCurves);
 
 signals:
     

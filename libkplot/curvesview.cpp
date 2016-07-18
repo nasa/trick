@@ -113,13 +113,9 @@ void CurvesView::_paintCoplot(const QTransform &T,QPainter &painter,QPen &pen)
         if ( curveModel ) {
 
             // Color curves
-            if ( nCurves < 10 ) {
-                pen.setColor(_colorBandsNormal.at(i));
-            } else  {
-                div_t q = div(i,nCurvesPerBand);
-                int j = qMin(q.quot,nBands-1);
-                pen.setColor(_colorBandsRainbow.at(j));
-            }
+            QColor color( _bookModel()->getDataString(curveIdx,
+                                                      "CurveColor","Curve"));
+            pen.setColor(color);
             painter.setPen(pen);
 
             // Get painter path
