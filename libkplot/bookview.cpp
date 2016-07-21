@@ -117,49 +117,125 @@ void BookView::_printPage(QPainter *painter, const QModelIndex &pageIdx)
 
     QPen pen;
     pen.setWidth(4);
+    painter->setPen(pen);
 
     if ( nPlots == 0 ) {
         return;
     } else if ( nPlots == 1 ) {
 
-        QModelIndex plotIdx = model()->index(0,0,plotsIdx);
+        _printPlot(R,painter,model()->index(0,0,plotsIdx));
+
+    } else if ( nPlots == 2 ) {
+
+        QRect r(R);
+        r.setHeight(R.height()/2);
+        _printPlot(r,painter,model()->index(0,0,plotsIdx));
+
+        r.moveTo(r.bottomLeft());
+        _printPlot(r,painter,model()->index(1,0,plotsIdx));
+
+    } else if ( nPlots == 3 ) {
+
+        QRect r(R);
+        r.setHeight(R.height()/3);
+        _printPlot(r,painter, model()->index(0,0,plotsIdx));
+
+        r.moveTo(r.bottomLeft());
+        _printPlot(r,painter, model()->index(1,0,plotsIdx));
+
+        r.moveTo(r.bottomLeft());
+        _printPlot(r,painter, model()->index(2,0,plotsIdx));
+
+    } else if ( nPlots == 4 ) {
+
+        QRect r(R);
+        r.setWidth(R.width()/2);
+        r.setHeight(R.height()/2);
+        _printPlot(r,painter,model()->index(0,0,plotsIdx));
+
+        r.moveTo(QPoint(R.width()/2,R.top()));
+        _printPlot(r,painter,model()->index(1,0,plotsIdx));
+
+        r.moveTo(QPoint(R.left()/2,r.bottom()));
+        _printPlot(r,painter,model()->index(2,0,plotsIdx));
+
+        r.moveTo(r.topRight());
+        _printPlot(r,painter,model()->index(3,0,plotsIdx));
+
+    } else if ( nPlots == 5 ) {
 
         QRect r(R);
 
-        r.setTopLeft(QPoint(1200,R.topLeft().y()+300));
-        r.setHeight(R.height()-900);
-        painter->setPen(pen);
-        painter->drawRect(r);
-        _printCurves(r,painter,plotIdx);
+        r.setWidth(R.width()/2);
+        r.setHeight(R.height()/3);
+        _printPlot(r,painter,model()->index(0,0,plotsIdx));
 
-        r = R;
-        r.setTopLeft(QPoint(1200,R.bottomLeft().y()-300));
-        painter->setPen(pen);
-        painter->drawRect(r);
-        _printXAxisLabel(r,painter,plotIdx);
+        r.moveTo(QPoint(R.width()/2,R.top()));
+        _printPlot(r,painter,model()->index(1,0,plotsIdx));
 
-        r = R;
-        r.setWidth(300);
-        painter->setPen(pen);
-        painter->drawRect(r);
-        _printYAxisLabel(r,painter,plotIdx);
+        r.moveTo(QPoint(R.left(),r.bottom()));
+        _printPlot(r,painter,model()->index(2,0,plotsIdx));
+
+        r.moveTo(r.topRight());
+        _printPlot(r,painter,model()->index(3,0,plotsIdx));
+
+        r.moveTo(QPoint(R.left(),r.bottom()));
+        r.setWidth(R.width());
+        _printPlot(r,painter,model()->index(4,0,plotsIdx));
 
     } else if ( nPlots == 6 ) {
-        R.setWidth(R.width()/2);
-        R.setHeight(R.height()/3);
-        for ( int i = 0; i < nPlots; ++i ) {
-            int x,y;
-            if ( i < 3 ) {
-                x = 0;
-                y = i*R.height();
-            } else if ( i >= 3 ) {
-                x = R.width();
-                y = (i%3)*R.height();
-            }
-            QRect R2 = R.translated(x,y);
-            QModelIndex plotIdx = model()->index(i,0,plotsIdx);
-            _printCurves(R2,painter,plotIdx);
-        }
+
+        QRect r(R);
+        r.setWidth(R.width()/2);
+        r.setHeight(R.height()/3);
+
+        _printPlot(r,painter,model()->index(0,0,plotsIdx));
+
+        r.moveTo(r.bottomLeft());
+        _printPlot(r,painter,model()->index(1,0,plotsIdx));
+
+        r.moveTo(r.bottomLeft());
+        _printPlot(r,painter,model()->index(2,0,plotsIdx));
+
+        r.moveTo(R.topLeft());
+        r.moveTo(r.topRight());
+        _printPlot(r,painter,model()->index(3,0,plotsIdx));
+
+        r.moveTo(r.bottomLeft());
+        _printPlot(r,painter,model()->index(4,0,plotsIdx));
+
+        r.moveTo(r.bottomLeft());
+        _printPlot(r,painter,model()->index(5,0,plotsIdx));
+
+    } else if ( nPlots == 7 ) {
+
+        QRect r(R);
+        r.setWidth(R.width()/2);
+        r.setHeight(R.height()/4);
+
+        _printPlot(r,painter,model()->index(0,0,plotsIdx));
+
+        r.moveTo(r.bottomLeft());
+        _printPlot(r,painter,model()->index(1,0,plotsIdx));
+
+        r.moveTo(r.bottomLeft());
+        _printPlot(r,painter,model()->index(2,0,plotsIdx));
+
+        r.moveTo(R.topLeft());
+        r.moveTo(r.topRight());
+        _printPlot(r,painter,model()->index(3,0,plotsIdx));
+
+        r.moveTo(r.bottomLeft());
+        _printPlot(r,painter,model()->index(4,0,plotsIdx));
+
+        r.moveTo(r.bottomLeft());
+        _printPlot(r,painter,model()->index(5,0,plotsIdx));
+
+        r.moveTo(QPoint(R.left(),r.bottom()));
+        r.setWidth(R.width());
+        _printPlot(r,painter,model()->index(6,0,plotsIdx));
+
+
     } else {
         qDebug() << "snap [error]: _printPage() : cannot print more than "
                     "7 plots on a page.";
@@ -320,6 +396,31 @@ QRect BookView::_printPageTitle(QPainter* painter, const QModelIndex &pageIdx)
     return bbox;
 }
 
+void BookView::_printPlot(const QRect &plotRect,
+                          QPainter *painter, const QModelIndex &plotIdx)
+{
+    painter->drawRect(plotRect);
+    _printCurves(plotRect,painter,plotIdx);
+
+    /*
+        r.setTopLeft(QPoint(1200,R.topLeft().y()+300));
+        r.setHeight(R.height()-900);
+
+    painter->drawRect(r);
+    _printCurves(r,painter,plotIdx);
+
+    r = R;
+    r.setTopLeft(QPoint(1200,R.bottomLeft().y()-300));
+    painter->drawRect(r);
+    _printXAxisLabel(r,painter,plotIdx);
+
+    r = R;
+    r.setWidth(300);
+    painter->drawRect(r);
+    _printYAxisLabel(r,painter,plotIdx);
+    */
+}
+
 void BookView::_printCurves(const QRect& R,
                              QPainter *painter, const QModelIndex &plotIdx)
 {
@@ -406,9 +507,8 @@ void BookView::_printCurves(const QRect& R,
     painter->save();
     painter->setRenderHint(QPainter::Antialiasing);
 
-    QPen pen(QColor(Qt::black));
-    pen.setWidth(2);
-    painter->setPen(pen);
+    QPen pen;
+    pen.setWidth(8);
 
     QList<QColor> colors = _bookModel()->createCurveColors(paths.size());
 
