@@ -55,11 +55,7 @@ void BookView::savePdf(const QString &fname)
     printer.setOutputFormat(QPrinter::PdfFormat);
     printer.setPageSize(QPrinter::Letter);
     printer.setOutputFileName(fname);
-    if ( pageCnt == 1 ) {
-        printer.setOrientation(QPrinter::Landscape);
-    } else {
-        printer.setOrientation(QPrinter::Portrait);
-    }
+    printer.setOrientation(QPrinter::Landscape);
 
     //
     // Begin Printing
