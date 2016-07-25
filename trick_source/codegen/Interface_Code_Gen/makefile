@@ -14,10 +14,6 @@ LLVMLDFLAGS := $(shell $(LLVM_HOME)/bin/llvm-config --ldflags) $(UDUNITS_LDFLAGS
 
 OBJ_DIR :=  object_$(TRICK_HOST_CPU)
 
-ifeq ($(IS_CC_CLANG), 0)
-CXXFLAGS += -DGCC_MAJOR=$(GCC_MAJOR) -DGCC_MINOR=$(GCC_MINOR)
-endif
-
 ICG := ${TRICK_HOME}/bin/trick-ICG
 
 SOURCES = $(wildcard *.cpp)
@@ -38,11 +34,12 @@ CLANGLIBS = \
     -lclangLex \
     -lclangBasic \
 
-ifeq ($(TRICK_HOST_TYPE),Linux)
-CXXFLAGS += -D__clang_major__=$(CLANG_MAJOR) -D__clang_minor__=$(CLANG_MINOR)
+CXXFLAGS += -DLIBCLANG_MAJOR=$(CLANG_MAJOR) -DLIBCLANG_MINOR=$(CLANG_MINOR)
 ifneq ($(CLANG_PATCHLEVEL),)
-CXXFLAGS += -D__clang_patchlevel__=$(CLANG_PATCHLEVEL)
+CXXFLAGS += -DLIBCLANG_PATCHLEVEL=$(CLANG_PATCHLEVEL)
 endif
+
+ifeq ($(TRICK_HOST_TYPE),Linux)
 CLANGLIBS += $(shell $(LLVM_HOME)/bin/llvm-config --libs)
 ifeq ($(CLANG_MINOR_GTEQ5),1)
 # Fedora 21 adds -ledit as a system lib, but it isn't installed, or required.

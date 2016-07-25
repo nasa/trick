@@ -39,11 +39,9 @@ void HeaderSearchDirs::AddCompilerBuiltInSearchDirs () {
 #if __linux
     std::stringstream icg_dir ;
     icg_dir << LLVM_HOME << "/lib/clang/" ;
-    icg_dir << __clang_major__ << "." << __clang_minor__ ;
-#if (__clang_major__ > 3) || ((__clang_major__ == 3) && (__clang_minor__ >= 4))
-#ifdef __clang_patchlevel__
-    icg_dir << "." << __clang_patchlevel__  ;
-#endif
+    icg_dir << LIBCLANG_MAJOR << "." << LIBCLANG_MINOR ;
+#ifdef LIBCLANG_PATCHLEVEL
+    icg_dir << "." << LIBCLANG_PATCHLEVEL ;
 #endif
     icg_dir << "/include" ;
     char * resolved_path = realpath(icg_dir.str().c_str(), NULL ) ;

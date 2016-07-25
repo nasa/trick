@@ -426,11 +426,7 @@ void PrintAttributes::printIOMakefile() {
     makefile_io_src << std::endl ;
     makefile_io_src << "ifeq ($(IS_CC_CLANG), 0)" << std::endl ;
     makefile_io_src << "  TRICK_SYSTEM_CXXFLAGS += -Wno-unused-local-typedefs" << std::endl ;
-    makefile_io_src << " GCCVERSIONGTEQ48 := $(shell perl -e 'printf \"\%d\\n\", " <<
-     "($(GCC_MAJOR)>4)||(($(GCC_MAJOR)==4)&&($(GCC_MINOR)>=8)) ;' )" << std::endl ;
-    makefile_io_src << " ifeq ($(GCCVERSIONGTEQ48), 1)" << std::endl ;
     makefile_io_src << "  TRICK_SYSTEM_CXXFLAGS += -Wno-unused-but-set-variable" << std::endl ;
-    makefile_io_src << " endif" << std::endl ;
     makefile_io_src << "endif" << std::endl ;
     makefile_io_src << std::endl ;
     makefile_io_src << "ifdef TRICK_VERBOSE_BUILD" << std::endl ;
