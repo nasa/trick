@@ -22,24 +22,6 @@ AC_DEFUN([AX_LLVM_HOME],[
                )
 ])
 
-dnl Test if clang will link successfully.  Some systems like Ubuntu 16.04 shipping with clang that does not work.
-AC_DEFUN([AX_TEST_CLANG],[
-    LLVM_INCLUDE_DIR=`$LLVM_CONFIG --includedir`
-    LLVM_ALL_LD_FLAGS=`$LLVM_CONFIG --ldflags --libs`
-    AS_IF([LLVM_SYSTEM_LD_FLAGS=`$LLVM_CONFIG --system-libs 2>/dev/null`],[],[])
-    AC_LANG(C++)
-    AC_DEFINE([__STDC_CONSTANT_MACROS])
-    AC_DEFINE([__STDC_FORMAT_MACROS])
-    AC_DEFINE([__STDC_LIMIT_MACROS])
-    AC_LANG_CONFTEST([AC_LANG_PROGRAM([[#include "llvm/Support/Host.h"]],[[llvm::sys::getDefaultTargetTriple(); return 0; ]])])
-    AC_MSG_CHECKING([if clang works properly])
-    ${CLANG}++ conftest.cpp --std=c++11 -I${LLVM_INCLUDE_DIR} ${LLVM_ALL_LD_FLAGS} ${LLVM_SYSTEM_LD_FLAGS} >&AS_MESSAGE_LOG_FD
-    AS_IF([test $? == 0 ],AC_MSG_RESULT([yes]),
-     [AC_MSG_ERROR([cannot use ${CLANG}. Download clang/llvm directly from http://llvm.org])
-     ])
-    /bin/rm -f a.out
-])
-
 AC_DEFUN([AX_HDF5_HOME],[
     AC_ARG_WITH([hdf5],
                 AS_HELP_STRING([--with-hdf5@<:@=DIR@:>@], [HDF5 root directory]),
@@ -173,6 +155,7 @@ AC_DEFUN([AX_JSC_DIRS],[
 ])
 
 dnl add extra paths to find xml headers and X headers on the mac.
+PATH="/opt/rh/devtoolset-3/root/usr/bin:${PATH}"
 XTRAINCPATHS="-I/usr/include/libxml2/ -I/usr/X11/include"
 CFLAGS="$CFLAGS $XTRAINCPATHS"
 CPPFLAGS="$CPPFLAGS $XTRAINCPATHS"
@@ -247,9 +230,6 @@ AC_CHECK_FILE([$LLVM_LIB_DIR/libLLVMSupport.a],
 AC_PATH_PROG(CLANG, clang, noclang, "$LLVM_BIN_DIR:/bin:/usr/bin:/usr/local/bin:/sw/bin")
 AS_IF([test "$ac_cv_path_CLANG" = "noclang"],AC_MSG_ERROR([could not find clang]),[])
 AC_SUBST([LLVM_HOME])
-
-dnl does not work under RedHat 6
-dnl AX_TEST_CLANG
 
 dnl look for udunits in /usr/include and /usr/include/udunits2
 AX_UDUNITS_HOME([])
