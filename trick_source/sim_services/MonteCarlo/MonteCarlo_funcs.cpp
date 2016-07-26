@@ -277,22 +277,10 @@ int Trick::MonteCarlo::shutdown() {
 
 /** @par Detailed Design: */
 int Trick::MonteCarlo::socket_init(TCDevice *in_listen_device) {
-    //  Modify the port number based on pid number to
-    //  prevent two sims calling tc_init at the same time
-    //  and getting the same port number.  However, if the
-    //  user wants to use their own port numbers then do not 
-    //  modify it.
     if (default_port_flag) {
-        in_listen_device->port += getpid()%1000;
+        in_listen_device->port = 0;
     }
-    for (int i = 0; i < 200; ++i) {
-        /** <ul><li> Initialize the listening device. */
-        if (tc_init(in_listen_device) == TC_SUCCESS) {
-            return TC_SUCCESS;
-        }
-        ++in_listen_device->port;
-    }
-    return TC_COULD_NOT_LISTEN_SOCKET ;
+    return tc_init(in_listen_device);
 }
 
 void Trick::MonteCarlo::handle_retry(MonteSlave *curr_slave, MonteRun::ExitStatus exit_status) {
