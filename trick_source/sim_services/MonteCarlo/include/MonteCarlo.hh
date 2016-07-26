@@ -39,6 +39,7 @@ namespace Trick {
             CORED,      /**< core dumped */
             TIMEDOUT,   /**< timed out */
             NO_PERM,    /**< could not write output files */
+            BAD_INPUT,  /**< problem parsing monte carlo input */
             UNKNOWN     /**< unrecognized return code */
         };
 

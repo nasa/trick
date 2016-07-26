@@ -100,7 +100,9 @@ int Trick::MonteCarlo::slave_process_run() {
     } else {
 
         input[size] = '\0';
-        ip_parse(input);
+        if ( ip_parse(input) != 0 ) {
+            exit(MonteRun::BAD_INPUT) ;
+        }
 
         /** <ul><li> Create the run directory. */
         std::string output_dir = command_line_args_get_output_dir();
