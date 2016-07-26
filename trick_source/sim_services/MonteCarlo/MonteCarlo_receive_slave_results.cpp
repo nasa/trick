@@ -68,6 +68,13 @@ void Trick::MonteCarlo::receive_slave_results() {
                     }
                     resolve_run(curr_slave, MonteRun::UNKNOWN);
                 break;
+                case MonteRun::BAD_INPUT:
+                    if (verbosity >= ERROR) {
+                        message_publish(MSG_ERROR, "Monte [Master] %s:%d reported bad input for run %d. Skipping.\n",
+                                        curr_slave->machine_name.c_str(), curr_slave->id, curr_slave->current_run->id) ;
+                    }
+                    resolve_run(curr_slave, MonteRun::BAD_INPUT);
+                break;
                 case MonteRun::CORED:
                     if (verbosity >= ERROR) {
                         message_publish(MSG_ERROR, "Monte [Master] %s:%d reported core dump for run %d. Skipping.\n",

@@ -141,12 +141,13 @@ int Trick::IPPython::init() {
 //Command to parse the given string.
 int Trick::IPPython::parse(std::string in_string) {
 
+    int ret ;
     pthread_mutex_lock(&ip_mutex);
     in_string += "\n" ;
-    PyRun_SimpleString(in_string.c_str()) ;
+    ret = PyRun_SimpleString(in_string.c_str()) ;
     pthread_mutex_unlock(&ip_mutex);
 
-    return 0 ;
+    return ret ;
 
 }
 

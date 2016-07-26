@@ -14,8 +14,7 @@
 extern Trick::InputProcessor * the_ip ;
 
 extern "C" int ip_parse(const char * in_string) {
-    the_ip->parse(in_string) ;
-    return(0) ;
+    return the_ip->parse(in_string) ;
 }
 
 /**
