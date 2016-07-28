@@ -95,7 +95,7 @@ namespace Trick {
         bool reduced_checkpoint;  /**< ** Reduced Checkpoint flag. */
         bool hexfloat_checkpoint; /**< ** HexFloat Checkpoint flag. */
         int  debug_level;         /**< ** Debug Level. */
-        std::vector <VarNameElement *> leftside_stack; /**< ** Left-side name stack. */
+        std::vector <VarNameElement > leftside_stack; /**< ** Left-side name stack. */
 
 
     };

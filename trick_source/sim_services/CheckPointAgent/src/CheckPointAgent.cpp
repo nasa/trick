@@ -3,30 +3,30 @@
 // MEMBER FUNCTION
 void Trick::CheckPointAgent::push_basename( const char* name) {
 
-    VarNameElement *part = new VarNameElement;
+    VarNameElement part ;
 
-    part->type = BASE_NAME;
-    part->name = name;
+    part.type = BASE_NAME;
+    part.name = name;
     leftside_stack.push_back( part);
 }
 
 // MEMBER FUNCTION
 void Trick::CheckPointAgent::push_struct_elem( const char* name) {
 
-    VarNameElement *part = new VarNameElement;
+    VarNameElement part ;
 
-    part->type = ELEM_NAME;
-    part->name = name;
+    part.type = ELEM_NAME;
+    part.name = name;
     leftside_stack.push_back( part);
 }
 
 // MEMBER FUNCTION
 void Trick::CheckPointAgent::push_array_elem( int index) {
 
-    VarNameElement *part = new VarNameElement;
+    VarNameElement part ;
 
-    part->type = ARRAY_INDEX;
-    part->index = index;
+    part.type = ARRAY_INDEX;
+    part.index = index;
     leftside_stack.push_back( part);
 }
 
@@ -34,7 +34,6 @@ void Trick::CheckPointAgent::push_array_elem( int index) {
 void Trick::CheckPointAgent::pop_elem() {
 
     leftside_stack.pop_back();
-    // FIXME Memory leak here?
 
 }
 

@@ -73,21 +73,21 @@ std::string Trick::ClassicCheckPointAgent::left_side_name() {
 
     for (ii = 0; ii < n_elements ; ii++) {
 
-        VarNameElement* element = leftside_stack[ii];
+        VarNameElement & element = leftside_stack[ii];
 
-        switch( element->type) {
+        switch( element.type) {
 
             case BASE_NAME: {
-                name = element->name;
+                name = element.name;
             } break;
 
             case ELEM_NAME: {
-                name += '.' + element->name;
+                name += '.' + element.name;
             } break;
 
             case ARRAY_INDEX: {
                 std::stringstream index_string;
-                index_string << element->index;
+                index_string << element.index;
                 name += '[';
                 name += index_string.str();
                 name += ']';
