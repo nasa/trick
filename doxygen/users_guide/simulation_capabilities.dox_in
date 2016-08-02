@@ -1,8 +1,0 @@
-/**
-@page LEVEL1 Simulation Capabilities
-
-This section details the runtime capabilities of Trick.  All capabilities described are
-available both through calls in model code or through the input processor. See Section
-XYZ for details to the input processor.
-
-*/
