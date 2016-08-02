@@ -1,4 +1,4 @@
-package trick.stripchart;
+package trick.tv;
 
 import java.util.ArrayList;
 import java.util.Collection;

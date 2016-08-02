@@ -102,8 +102,8 @@ import trick.sie.utils.SieResourceDomParser;
 import trick.sie.utils.SieTemplate;
 import trick.sie.utils.SieTreeModel;
 import trick.sie.utils.TreeModelSortingFilter.Sorting;
-import trick.stripchart.StripChart;
-import trick.stripchart.StripChartManager;
+import trick.tv.StripChart;
+import trick.tv.StripChartManager;
 import trick.tv.VariableTable.Position;
 
 /**
