@@ -1,0 +1,39 @@
+.TH trick-sie 1 "August 1, 2016" "Trick" "Trick User's Manual"
+.SH NAME
+trick-sie \- Trick Smart Input Editor
+.SH SYNOPSIS
+\fBtrick-sie\fP [substring]
+.SH DESCRIPTION
+The Trick Smart Input Editor (sie) is a simulation variable query utility.
+The Monte Monitor connects to the Trick monte carlo master simulation through the simulation
+variable server.
+.PP
+Without arguments \fBtrick-sie\fP starts a GUI wih a hierarchial tree of simulation_objects,
+structures/classes, and the variables contained within.  Selecting a variable shows the
+C/C++ type of the variable, the Trick input/output capabilities, the measurement units,
+and the comment associated with the variable.
+.TP
+\fBsubstring\fP
+Calling trick-sie with a \fIsubstring\fP does not start the GUI.  Instead the tree of
+variable names is searched for \fIsubstring\fP.  All variable names containing \fIsubstring\fP
+will be printed along with the Trick input/output capabilities, the measurement units,
+and the comment associated with the variable.
+.SH "SEE ALSO"
+All Trick model developers and users should go through the tutorial found
+in the \fITrick Simulation Environment User Training Materials\fP.
+The canonical reference for all Trick cosieands, files and utilities is the
+\fITrick Simulation Environment User's Guide\fP.  Information specific to a
+given release of Trick tools is contained in the \fITrick Simulation
+Environment Version Description\fP for that release.
+.SH HISTORY
+The sie started as an input file text editor.  The sie was aware of simulation
+sim_objects and the variable names contained within math model structures.  sie
+was not used much as users favored more capable editors such as vi and emacs.  sie
+was later repurposed as a simulation variable query utility.  This is why the
+Smart Input Editor has no editing capabilites.
+
+1991-2000 : \fBsie\fP written in C by Rob Bailey and Eddie Paddock
+
+2001-2009 : \fBsie\fP written in Tck/Tk by Keith Vetter
+
+2010-present : \fBtrick-sie\fP written in Java by Hong Chen

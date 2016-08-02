@@ -1,0 +1,34 @@
+.TH trick-trk2ascii 1 "August 1, 2016" "Trick" "Trick User's Manual"
+.SH NAME
+trick-trk2ascii \- converts Trick data recording files from binary to ASCII
+.SH SYNOPSIS
+\fBtrick-trk2ascii\fP[OPTIONS]...
+.SH DESCRIPTION
+trick-trk2ascii converts Trick data recording files from binary to ASCII.
+.TP
+\fB-help\fP
+Prints help message
+.TP
+\fB-csv, ascii\fP
+Generates a comma-separated value (CSV) file.
+.TP
+\fB-fix\fP
+Generates a fixed column width ascii file.
+.TP
+\fB-xml\fP
+Generates an eXtensible Markup Language (XML) file.
+.TP
+\fBdelimiter='<delimit_string>'\fP
+Change the default delimiter used in csv & fix ascii formats from comma separated ","
+to another character or string.
+.SH "SEE ALSO"
+All Trick model developers and users should go through the tutorial found
+in the \fITrick Simulation Environment User Training Materials\fP.
+The canonical reference for all Trick commands, files and utilities is the
+\fITrick Simulation Environment User's Guide\fP.  Information specific to a
+given release of Trick tools is contained in the \fITrick Simulation
+Environment Version Description\fP for that release.
+.SH HISTORY
+
+2007-present : \fBtrick-trk2ascii\fP written in C++ by Warwick Woodard
+

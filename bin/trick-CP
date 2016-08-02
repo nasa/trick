@@ -22,7 +22,7 @@ foreach $argnum (0 .. $#ARGV) {
     } elsif ($arg =~ /-t/ ) {
         $makefileAddArgs = $makefileAddArgs . " test ";
     } else {
-        print "Warning: Ignoring unrecognized argument $arg\n"
+        $ENV{TRICK_CPFLAGS} .= " $arg" ;
     }
 }
 

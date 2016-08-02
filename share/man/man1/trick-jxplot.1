@@ -1,0 +1,29 @@
+.TH trick-jxplot 1 "August 1, 2016" "Trick" "Trick User's Manual"
+.SH NAME
+trick-jxplot \- Trick plot utility using Java JFreeChart.
+.SH SYNOPSIS
+\fBtrick-jxplot\fP <session_file>.xml
+.SH DESCRIPTION
+trick-jxplot is a java JFreeChart plotter of Trick simulation recorded data.
+The input to trick-jxplot is a session file that lists the simulation directories
+to plot, the layout of the plots, and the variables to place in each plot.
+
+The session files are created through the \fBtrick-dp\fP command.  trick-jxplot may
+be brought up directly through the \fBtrick-dp\fP GUI.
+.SH FILES
+.TP
+\fI/tmp/Session_<user>.xml\fP
+The default session file name created by \fBtrick-dp\fP used as an arugment to
+start \fBtrick-jxplot\fP
+.SH "SEE ALSO"
+\fBtrick-dp\fP(1), \fBtrick-qp\fP(1)
+.PP
+All Trick model developers and users should go through the tutorial found
+in the \fITrick Simulation Environment User Training Materials\fP.
+The canonical reference for all Trick commands, files and utilities is the
+\fITrick Simulation Environment User's Guide\fP.  Information specific to a
+given release of Trick tools is contained in the \fITrick Simulation
+Environment Version Description\fP for that release.
+.SH HISTORY
+2010-present : \fBtrick-jxplot\fP written by Hong Chen
+

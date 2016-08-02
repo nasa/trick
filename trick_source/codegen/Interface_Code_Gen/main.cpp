@@ -46,7 +46,7 @@ llvm::cl::list< std::string > pre_compiled_headers("include", llvm::cl::Prefix, 
 //llvm::cl::opt< bool > show_units ("u", llvm::cl::desc("List recognized units")) ;
 
 void ICG_version() {
-    std::cout << "Trick Interface Code Generator (ICG) 13.dev" << std::endl ;
+    std::cout << "Trick Interface Code Generator (trick-ICG) " << TRICK_VERSION << std::endl ;
 }
 
 /**

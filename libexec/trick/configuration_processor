@@ -32,7 +32,7 @@ $sim{args}{p} = 1 ;
 #--------------------------------------------------------------
 # Process command line arguments
 Getopt::Long::Configure ("bundling");
-GetOptions ( "no_python|p" => sub { $sim{args}{p} = 0 } ,
+GetOptions ( "no-python|p" => sub { $sim{args}{p} = 0 } ,
          "debug|g" => sub { $sim{args}{v} = 3 ; } ,
          "help|h|?" => \$sim{args}{h} ,
          "outfile|o=s" => \$sim{args}{o} ,

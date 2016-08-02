@@ -60,7 +60,7 @@ $(ICG): $(OBJECTS) $(UDUNITS_OBJS)
 # Only FieldDescription.cpp includes the units conversion header.
 $(OBJ_DIR)/FieldDescription.o : CXXFLAGS += -I$(TRICK_HOME)/include
 $(OBJ_DIR)/HeaderSearchDirs.o : CXXFLAGS += -DLLVM_HOME=\"${LLVM_HOME}\"
-$(OBJ_DIR)/main.o : CXXFLAGS += $(UNITS_CONV_INCLUDE)
+$(OBJ_DIR)/main.o : CXXFLAGS += $(UNITS_CONV_INCLUDE) -DTRICK_VERSION=\"${TRICK_VERSION}\"
 
 $(OBJECTS): $(OBJ_DIR)/%.o : %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@

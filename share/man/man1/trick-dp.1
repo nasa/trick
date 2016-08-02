@@ -1,0 +1,39 @@
+.TH trick-dp 1 "August 1, 2016" "Trick" "Trick User's Manual"
+.SH NAME
+trick-dp \- Trick data products tools
+.SH SYNOPSIS
+\fBtrick-dp\fP
+.SH DESCRIPTION
+Trick data products are simulation data post processors designed to visualize
+data recorded in a Trick simulation.  The data products can plot ASCII, binary and
+HDF5 data. \fItrick-dp\fP is the front end to the tool set allowing users to
+choose which simulation runs to plot and which plots/tables to produce based on
+which data product files are chosen.
+.SH FILES
+.TP
+\fISIM_<simulation>/RUN_<run>\fP
+The simulation directories containing recorded data.
+.TP
+\fISIM_<simulation>/DP_Product\fP
+Directory containing data product files.  Data product files specify how to layout
+plots and tables and specify which simulation variables to plot.
+.TP
+\fISession.xml\fP
+Saves the state of the trick-dp selections.  Can be used to bring up plots and
+tables without starting a trick-dp interactive session.
+.SH "SEE ALSO"
+\fBtrick-qp\fP(1), \fBtrick-fxplot\fP(1), \fBtrick-gxplot\fP(1), \fBtrick-jxplot\fP(1)
+.PP
+All Trick model developers and users should go through the tutorial found
+in the \fITrick Simulation Environment User Training Materials\fP.
+The canonical reference for all Trick commands, files and utilities is the
+\fITrick Simulation Environment User's Guide\fP.  Information specific to a
+given release of Trick tools is contained in the \fITrick Simulation
+Environment Version Description\fP for that release.
+.SH HISTORY
+1991-2000 : The original \fBtrick-dp\fP command was written by Rob Bailey and Eddie Paddock
+
+2001-2009 : \fBtrick-dp\fP ported to Tcl/TK by Keith Vetter
+
+2010-present : \fBtrick-dp\fP ported to Java by Hong Chen
+
