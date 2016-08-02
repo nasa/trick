@@ -98,7 +98,6 @@ int DPC_TimeCstrDataStream::step() {
     }
     // times in log file may not be sequential
   } while ((!eos[bix]) && ((time[bix] < tstart) || (time[bix] > tstop)) );
-std::cout << "meow " << time[bix] << " " << value[bix] << std::endl ;
   bix = !bix;
   return (1);
 }
