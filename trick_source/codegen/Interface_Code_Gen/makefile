@@ -55,7 +55,7 @@ endif
 all: $(ICG)
 
 $(ICG): $(OBJECTS) $(UDUNITS_OBJS)
-	$(CXX) -o $@ $(OBJECTS) $(UDUNITS_OBJS) $(LLVMLDFLAGS) $(CLANGLIBS)
+	$(CXX) -o $@ $(OBJECTS) $(UDUNITS_OBJS) $(CLANGLIBS) $(LLVMLDFLAGS)
 
 # Only FieldDescription.cpp includes the units conversion header.
 $(OBJ_DIR)/FieldDescription.o : CXXFLAGS += -I$(TRICK_HOME)/include
