@@ -36,6 +36,10 @@ void Trick::MonteCarlo::master_shutdown() {
     print_statistics(&stdout) ;
     fclose(file_ptr) ;
 
+    if ( !except_return and failed_runs.size() > 0 ) {
+        except_return = -2 ;
+    }
+
     exit(except_return);
 }
 
