@@ -253,9 +253,9 @@ int DPC_std_curve::getXY(double *X_value, double *Y_value) {
             }
         } else {     
             eos = !ds[0]->get( &t1, &v1);
+            *X_value = cv_convert_double(time_conversion,t1);
+            *Y_value = v1;
             if (!eos) {
-                *X_value = cv_convert_double(time_conversion,t1);
-                *Y_value = v1;
                 return(1);
 	    }
 	}
