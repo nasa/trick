@@ -145,6 +145,9 @@ GPViewCurveNode::GPViewCurveNode( Widget          Toplevel,
               ( x*atof(curve_x_scale_factor.c_str()) + atof(curve_x_bias.c_str()) ),
               ( y*atof(curve_y_scale_factor.c_str()) + atof(curve_y_bias.c_str()) ) );
         }
+        fprintf( curve_data_fp,"%e\t%e\n",
+          ( x*atof(curve_x_scale_factor.c_str()) + atof(curve_x_bias.c_str()) ),
+          ( y*atof(curve_y_scale_factor.c_str()) + atof(curve_y_bias.c_str()) ) );
         fclose(curve_data_fp);
 
         if ( Curve_number == 0 ) {

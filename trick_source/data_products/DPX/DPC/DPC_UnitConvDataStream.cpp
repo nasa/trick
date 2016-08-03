@@ -108,14 +108,12 @@ DPC_UnitConvDataStream::~DPC_UnitConvDataStream() {
 // MEMBER FUNCTION
 int DPC_UnitConvDataStream::get(double* timestamp, double* paramValue) {
     double time, value;
+    int ret ;
 
-    if ( source_ds->get(&time, &value) ) {
-        *timestamp  = time;
-        *paramValue = cf->eval(value);
-        return (1);
-    } else {
-        return (0);
-    }
+    ret = source_ds->get(&time, &value) ;
+    *timestamp  = time;
+    *paramValue = cf->eval(value);
+    return ret ;
 }
 
 // MEMBER FUNCTION
