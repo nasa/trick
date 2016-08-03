@@ -129,6 +129,26 @@ AC_DEFUN([AX_UDUNITS_HOME],[
     AC_SUBST([UDUNITS_HOME])
 ])
 
+dnl test if we want to use java, default to yes
+AC_DEFUN([AX_JAVA],[
+    AC_ARG_ENABLE([java],
+                  AS_HELP_STRING([--enable-java], [use java (default is yes)]),
+                  AS_IF([test "x$enable_java" = xyes], [USE_JAVA="1"], [USE_JAVA="0"]),
+                  [USE_JAVA="1"]
+                 )
+    AC_SUBST([USE_JAVA])
+    AS_IF([test "$USE_JAVA" = "1"],[
+        AC_PROG_AWK
+        AX_PROG_JAVA_CC(javac)
+        JAVA_VER=`$JAVA_CC -version 2>&1 | $ac_cv_path_PERL -ne 'print $& if /\d+\.\d+/'`
+        AC_MSG_CHECKING([$JAVA_CC version >= 1.8])
+        AX_COMPARE_VERSION([$JAVA_VER],[ge],[1.8], [AC_MSG_RESULT([yes])],
+         [AC_MSG_RESULT([no])
+          AC_MSG_ERROR([Trick requires javac version >= 1.8])
+         ])
+     ],[])
+])
+
 dnl test if we want to use er7_utils, default to yes
 AC_DEFUN([AX_ER7_UTILS],[
     AC_ARG_ENABLE([er7utils],
@@ -154,8 +174,9 @@ AC_DEFUN([AX_JSC_DIRS],[
     AC_SUBST([MOTIF_HOME])
 ])
 
-dnl add extra paths to find xml headers and X headers on the mac.
+dnl add extra paths to find gcc on RHEL 6 systems
 PATH="/opt/rh/devtoolset-3/root/usr/bin:${PATH}"
+dnl add extra paths to find xml headers and X headers on the mac.
 XTRAINCPATHS="-I/usr/include/libxml2/ -I/usr/X11/include"
 CFLAGS="$CFLAGS $XTRAINCPATHS"
 CPPFLAGS="$CPPFLAGS $XTRAINCPATHS"
@@ -191,15 +212,8 @@ AC_PATH_PROG(SWIG, swig, noswig, "/bin:/usr/bin:/usr/local/bin:/sw/bin")
 AS_IF([test "$ac_cv_path_SWIG" = "noswig"],AC_MSG_ERROR([could not find swig]),[])
 AC_PATH_PROG(GNUPLOT, gnuplot, nognuplot)
 AS_IF([test "$ac_cv_path_GNUPLOT" = "nognuplot"],AC_MSG_NOTICE([could not find gnuplot]),[])
-dnl AX_COMPARE_VERSION requires awk.
-AC_PROG_AWK
-AX_PROG_JAVA_CC(javac)
-JAVA_VER=`$JAVA_CC -version 2>&1 | $ac_cv_path_PERL -ne 'print $& if /\d+\.\d+/'`
-AC_MSG_CHECKING([$JAVA_CC version >= 1.8])
-AX_COMPARE_VERSION([$JAVA_VER],[ge],[1.8], [AC_MSG_RESULT([yes])],
- [AC_MSG_RESULT([no])
-  AC_MSG_ERROR([Trick requires javac version >= 1.8])
- ])
+
+AX_JAVA
 
 dnl look for libraries and headers we need to compile
 AC_PATH_X
