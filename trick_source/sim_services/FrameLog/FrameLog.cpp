@@ -93,7 +93,7 @@ void Trick::FrameLog::add_recording_vars_for_jobs() {
 
     unsigned int ii , dot ;
     REF2 * new_ref ;
-    char job_name[512];
+    char * job_name = NULL ;
     std::vector<Trick::JobData *> all_jobs_vector ;
 
     exec_get_all_jobs_vector(all_jobs_vector) ;
@@ -119,14 +119,14 @@ void Trick::FrameLog::add_recording_vars_for_jobs() {
             /** @li add job frame id, job class and cycle time to displayed job name, and prepend "JOB_" so it stands out in quickplot */
             if ( all_jobs_vector[ii]->job_class >= exec_get_scheduled_start_index() ) {
                 if ( all_jobs_vector[ii]->thread == 0 ) {
-                    sprintf(job_name, "JOB_%s.%2.2f(%s_%2.3f)", all_jobs_vector[ii]->name.c_str(),
+                    asprintf(&job_name, "JOB_%s.%2.2f(%s_%2.3f)", all_jobs_vector[ii]->name.c_str(),
                         all_jobs_vector[ii]->frame_id, all_jobs_vector[ii]->job_class_name.c_str(), all_jobs_vector[ii]->cycle);
                 } else { // add child thread # to name
-                    sprintf(job_name, "JOB_%s_C%d.%2.2f(%s_%2.3f)",  all_jobs_vector[ii]->name.c_str(), all_jobs_vector[ii]->thread,
+                    asprintf(&job_name, "JOB_%s_C%d.%2.2f(%s_%2.3f)",  all_jobs_vector[ii]->name.c_str(), all_jobs_vector[ii]->thread,
                         all_jobs_vector[ii]->frame_id, all_jobs_vector[ii]->job_class_name.c_str(), all_jobs_vector[ii]->cycle);
                 }
             } else { // non-scheduled class
-                sprintf(job_name, "JOB_%s.%2.2f(%s)", all_jobs_vector[ii]->name.c_str(),
+                asprintf(&job_name, "JOB_%s.%2.2f(%s)", all_jobs_vector[ii]->name.c_str(),
                     all_jobs_vector[ii]->frame_id, all_jobs_vector[ii]->job_class_name.c_str());
             }
             // replace any colons in (C++) job name with underscores
@@ -136,7 +136,7 @@ void Trick::FrameLog::add_recording_vars_for_jobs() {
                 colon = strchr(job_name, ':') ;
             }
 
-            new_ref->reference = strdup(job_name);
+            new_ref->reference = job_name;
             new_ref->address = &(all_jobs_vector[ii]->frame_time) ;
             new_ref->attr = &time_value_attr ;
             /** @li use TRK tag in S_define to identify trick jobs */
@@ -195,7 +195,7 @@ void Trick::FrameLog::add_recording_vars_for_jobs() {
 void Trick::FrameLog::add_recording_vars_for_frame() {
 
     REF2 * new_ref ;
-    char job_name[512];
+    char * job_name = NULL ;
     int ii ;
 
     drg_frame->add_variable(rt_sim_object_name + std::string(".rt_sync.frame_sched_time")) ;
@@ -205,14 +205,14 @@ void Trick::FrameLog::add_recording_vars_for_frame() {
     for ( ii = 0 ; ii < num_threads ; ii++ ) {
         new_ref = (REF2 *)calloc(1 , sizeof(REF2)) ;
         if (ii > 0) {
-            sprintf(job_name, "JOB_data_record_group_frame_userjobs_C%d.data_record.%2.2f(end_of_frame)",
+            asprintf(&job_name, "JOB_data_record_group_frame_userjobs_C%d.data_record.%2.2f(end_of_frame)",
              ii,drg_users[ii]->write_job->frame_id);
         } else {
-            sprintf(job_name, "JOB_data_record_group_frame_userjobs.data_record.%2.2f(end_of_frame)",
+            asprintf(&job_name, "JOB_data_record_group_frame_userjobs.data_record.%2.2f(end_of_frame)",
              drg_users[ii]->write_job->frame_id);
         }
         trick_jobs.push_back(std::string(job_name));
-        new_ref->reference = strdup(job_name);
+        new_ref->reference = job_name;
         new_ref->address = &(drg_users[ii]->write_job->frame_time);
         new_ref->attr = &time_value_attr ;
         drg_frame->add_variable(new_ref) ;
@@ -221,9 +221,9 @@ void Trick::FrameLog::add_recording_vars_for_frame() {
 
     /* add the log_trickjob frame time we created above to the log_frame group */
     new_ref = (REF2 *)calloc(1 , sizeof(REF2)) ;
-    sprintf(job_name, "JOB_data_record_group.trickjobs.%2.2f(end_of_frame)",drg_trick->jobs[0]->frame_id);
+    asprintf(&job_name, "JOB_data_record_group.trickjobs.%2.2f(end_of_frame)",drg_trick->jobs[0]->frame_id);
     trick_jobs.push_back(std::string(job_name));
-    new_ref->reference = strdup(job_name);
+    new_ref->reference = job_name;
     new_ref->address = &(drg_trick->write_job->frame_time);
     new_ref->attr = &time_value_attr ;
     drg_frame->add_variable(new_ref) ;
