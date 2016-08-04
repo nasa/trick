@@ -252,12 +252,12 @@ int DPC_std_curve::getXY(double *X_value, double *Y_value) {
                     eos = ! ds[1]->get( &t2, &v2);
                 }
             }
-            if (!eos) { 
-                *X_value = v1;
-                *Y_value = v2;
+            *X_value = v1;
+            *Y_value = v2;
+            if (!eos) {
                 return(1);
             }
-        } else {     
+        } else {
             eos = !ds[0]->get( &t1, &v1);
             *X_value = time_conversion->eval( t1);
             *Y_value = v1;
