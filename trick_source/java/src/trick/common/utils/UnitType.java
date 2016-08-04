@@ -20,15 +20,15 @@ import java.util.regex.Pattern;
  * @author Derek Bankieris
  */
 public enum UnitType {
-	
+
     Angle(new ArrayList<Unit>() {{
         add(new Unit("radians", "rad", false, 0.0, 1.0));
-        add(new Unit("pico-radians", "pr", false, 0.0, 1.0 * PICO));
-        add(new Unit("nano-radians", "nr", false, 0.0, 1.0 * NANO));
-        add(new Unit("micro-radians", "ur", false, 0.0, 1.0 * MICRO));
-        add(new Unit("milli-radians", "mr", false, 0.0, 1.0 * MILLI));
-        add(new Unit("centi-radians", "cr", false, 0.0, 1.0 * CENTI));
-        add(new Unit("deci-radians", "dr", false, 0.0, 1.0 * DECI));
+        add(new Unit("pico-radians", "prad", false, 0.0, 1.0 * PICO));
+        add(new Unit("nano-radians", "nrad", false, 0.0, 1.0 * NANO));
+        add(new Unit("micro-radians", "urad", false, 0.0, 1.0 * MICRO));
+        add(new Unit("milli-radians", "mrad", false, 0.0, 1.0 * MILLI));
+        add(new Unit("centi-radians", "crad", false, 0.0, 1.0 * CENTI));
+        add(new Unit("deci-radians", "drad", false, 0.0, 1.0 * DECI));
         add(new Unit("degrees", "degree", false, 0.0, 0.0174532925199433));
         add(new Unit("arc-seconds", "arcsecond", false, 0.0, 4.848136811095362e-06));
         add(new Unit("arc-minutes", "arcminute", false, 0.0, 0.000290888208666));
@@ -36,7 +36,7 @@ public enum UnitType {
     }}),
 
     Current(new ArrayList<Unit>() {{
-        add(new Unit("amperes", "amp", true, 0.0, 1.0));
+        add(new Unit("amperes", "A", true, 0.0, 1.0));
     }}),
 
     Distance(new ArrayList<Unit>() {{
@@ -106,7 +106,7 @@ public enum UnitType {
         add(new Unit("seconds", "s", true, 0.0, 1.0));
         add(new Unit("minutes", "min", false, 0.0, 60.0));
         add(new Unit("hours", "hr", false, 0.0, 3600.0));
-        add(new Unit("days", "day", false, 0.0, 86400.0));
+        add(new Unit("days", "d", false, 0.0, 86400.0));
     }}),
 
     Unitless(new ArrayList<Unit>() {{
@@ -125,24 +125,24 @@ public enum UnitType {
         add(new Unit("gallons", "gallon", false, 0.0, 3.785412));
         add(new Unit("fluid-ounces", "floz", false, 0.0, 0.02957353));
     }});
-    
-    public static final double PICO	 = 1e-12;
-  	public static final double NANO  = 1e-09;
-  	public static final double MICRO = 1e-06;
-  	public static final double MILLI = 1e-03;
-  	public static final double CENTI = 1e-02;
-  	public static final double DECI  = 1e-01;
-  	public static final double DECA  = 1e+01;
-  	public static final double HECTO = 1e+2;
-  	public static final double KILO  = 1e+3;
-  	public static final double MEGA  = 1e+6;
-  	public static final double GIGA  = 1e+9;
-  	public static final double TERA  = 1e+12;
+
+    public static final double PICO  = 1e-12;
+    public static final double NANO  = 1e-09;
+    public static final double MICRO = 1e-06;
+    public static final double MILLI = 1e-03;
+    public static final double CENTI = 1e-02;
+    public static final double DECI  = 1e-01;
+    public static final double DECA  = 1e+01;
+    public static final double HECTO = 1e+2;
+    public static final double KILO  = 1e+3;
+    public static final double MEGA  = 1e+6;
+    public static final double GIGA  = 1e+9;
+    public static final double TERA  = 1e+12;
 
     /** SI unit prefixes */
     private final Unit[] prefixes = {
       new Unit("pico-", "p", false, 0.0, PICO),
-      new Unit("nana-", "n", false, 0.0, NANO),
+      new Unit("nano-", "n", false, 0.0, NANO),
       new Unit("micro-", "u", false, 0.0, MICRO),
       new Unit("milli-", "m", false, 0.0, MILLI),
       new Unit("centi-", "c", false, 0.0, CENTI),
