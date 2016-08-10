@@ -12,7 +12,7 @@
 #include <QWidget>
 #include <math.h>
 
-#include "libqplot/plotbookmodel.h"
+#include "libkplot/plotbookmodel.h"
 
 class KPlotModel : public QStandardItemModel
 {

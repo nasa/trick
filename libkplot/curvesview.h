@@ -12,7 +12,7 @@
 #include <QSizeF>
 #include <stdlib.h>
 #include "bookidxview.h"
-#include "libsnapdata/unit.h"
+#include "libkplot/unit.h"
 
 class CurvesView : public BookIdxView
 {

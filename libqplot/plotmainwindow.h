@@ -19,11 +19,11 @@
 #include <QTreeView>
 
 #include "libsnapdata/monte.h"
-#include "libqplot/dp.h"
-#include "libqplot/plotbookmodel.h"
-#include "libqplot/dptreewidget.h"
-#include "libqplot/varswidget.h"
-#include "libqplot/monteinputsview.h"
+#include "libkplot/dp.h"
+#include "libkplot/plotbookmodel.h"
+#include "libkplot/dptreewidget.h"
+#include "libkplot/varswidget.h"
+#include "libkplot/monteinputsview.h"
 #include "libqplot/rangeinput.h"
 
 #include "libkplot/bookview.h"

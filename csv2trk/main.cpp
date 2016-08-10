@@ -15,7 +15,7 @@ using namespace std;
 #include "libkplot/options.h"
 #include "libsnapdata/runs.h"
 #include "libqplot/plotmainwindow.h"
-#include "libsnapdata/unit.h"
+#include "libkplot/unit.h"
 #include "libsnapdata/csv.h"
 #include "libsnapdata/trick_types.h"
 

@@ -35,10 +35,9 @@ OTHER_FILES +=
 INCLUDEPATH += $$PWD/..
 DEPENDPATH += $$PWD/../libsnapdata
 
-unix:!macx:!symbian: LIBS += -L$$PWD/../lib -lqplot -lkplot -lsnapdata -lopts
+unix:!macx:!symbian: LIBS += -L$$PWD/../lib -lqplot -lsnapdata -lkplot
 
 PRE_TARGETDEPS += $$PWD/../lib/libsnaprt.a
 PRE_TARGETDEPS += $$PWD/../lib/libsnapdata.a
-PRE_TARGETDEPS += $$PWD/../lib/libopts.a
 PRE_TARGETDEPS += $$PWD/../lib/libqplot.a
 PRE_TARGETDEPS += $$PWD/../lib/libkplot.a

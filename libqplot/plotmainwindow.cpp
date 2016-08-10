@@ -9,6 +9,8 @@
 #include <QFileSystemModel>
 #include <QTreeView>
 #include <QHash>
+#include <QProcess>
+#include <QFileInfo>
 
 #include "plotmainwindow.h"
 
@@ -148,7 +150,7 @@ PlotMainWindow::PlotMainWindow(
     msplit->setSizes(sizes);
     msplit->setStretchFactor(0,0);
     msplit->setStretchFactor(1,1);
-    resize(1600,900);
+    resize(1300,720);
 }
 
 PlotMainWindow::~PlotMainWindow()
@@ -278,8 +280,24 @@ void PlotMainWindow::_savePdf()
     QString fname = "/home/vetter/dev/trick-07.23.1/trick_sims/SIM_ball_L1/dog.pdf";
     if ( ! fname.isEmpty() ) {
         _bookView->savePdf(fname);
+        //exit(-1);
+
+        QString program = "evince";
+        QStringList arguments;
+        arguments << fname;
+        QProcess *myProcess = new QProcess(this);
+        myProcess->start(program, arguments);
+
+        QFileInfo fi(fname);
+        double l = log10(fi.size());
+        if ( l >= 3 && l < 6 ) {
+            qDebug() << "dog.pdf.size=" << fi.size()/1000 << "K";
+        } else if ( l >= 6 && l < 9 ) {
+            qDebug() << "dog.pdf.size=" << fi.size()/1000000 << "MB";
+        } else {
+            qDebug() << "dog.pdf.size=" << fi.size() << "bytes";
+        }
     }
-    exit(-1);
 }
 
 void PlotMainWindow::_startTimeChanged(double startTime)

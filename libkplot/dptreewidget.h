@@ -10,7 +10,7 @@
 #include "dp.h"
 #include "dpfilterproxymodel.h"
 #include "libsnapdata/montemodel.h"
-#include "libqplot/plotbookmodel.h"
+#include "libkplot/plotbookmodel.h"
 #include "libsnaprt/utils.h"
 
 // Data Products TreeView with Search Box

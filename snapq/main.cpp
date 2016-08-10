@@ -21,7 +21,7 @@ using namespace std;
 #include "libsnapdata/timeit_linux.h"
 #include "libsnapdata/timestamps.h"
 #include "libsnapdata/tricktablemodel.h"
-#include "libqplot/dp.h"
+#include "libkplot/dp.h"
 
 QStandardItemModel* createVarsModel(const QStringList& runDirs);
 bool writeTrk(const QString& ftrk, const QString &timeName,

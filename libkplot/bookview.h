@@ -19,7 +19,7 @@
 
 #include "libkplot/bookidxview.h"
 #include "libkplot/pageview.h"
-#include "libqplot/plotbookmodel.h"
+#include "libkplot/plotbookmodel.h"
 
 class BookView : public BookIdxView
 {

@@ -7,7 +7,6 @@
 #include <QList>
 #include <QHash>
 #include <QTextStream>
-#include "../libqplot/dp.h"
 #include "trickmodel.h"
 #include "timestamps.h"
 
