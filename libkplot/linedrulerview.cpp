@@ -37,8 +37,10 @@ void LinedRulerView::paintEvent(QPaintEvent *event)
 
     const QRectF M = _mathRect();
 
+    QModelIndex plotIdx = _bookModel()->getIndex(_myIdx,"Plot");
+
     if ( _alignment == Qt::AlignTop ) {
-        majors = _majorXTics();
+        majors = _majorXTics(plotIdx);
         minors = _minorXTics();
         axis << QPointF(M.left(),M.top())
              << QPointF(M.right(),M.top())
@@ -51,7 +53,7 @@ void LinedRulerView::paintEvent(QPaintEvent *event)
             minorTics << QPointF(m,M.top()) << QPointF(m,M.center().y());
         }
     } else if ( _alignment == Qt::AlignBottom ) {
-        majors = _majorXTics();
+        majors = _majorXTics(plotIdx);
         minors = _minorXTics();
         axis << QPointF(M.left(),M.bottom())
              << QPointF(M.right(),M.bottom())
@@ -64,7 +66,7 @@ void LinedRulerView::paintEvent(QPaintEvent *event)
             minorTics << QPointF(m,M.bottom()) << QPointF(m,M.center().y());
         }
     } else if ( _alignment == Qt::AlignLeft ) {
-        majors = _majorYTics();
+        majors = _majorYTics(plotIdx);
         minors = _minorYTics();
         axis << QPointF(M.left(),M.top())
              << QPointF(M.left(),M.bottom())
@@ -77,7 +79,7 @@ void LinedRulerView::paintEvent(QPaintEvent *event)
             minorTics << QPointF(M.left(),m) << QPointF(M.center().x(),m);
         }
     } else if ( _alignment == Qt::AlignRight ) {
-        majors = _majorYTics();
+        majors = _majorYTics(plotIdx);
         minors = _minorYTics();
         axis << QPointF(M.right(),M.top())
              << QPointF(M.right(),M.bottom())
@@ -147,7 +149,7 @@ void LinedRulerView::dataChanged(const QModelIndex &topLeft,
     if ( topLeft.column() != 1 ) return;
     if ( topLeft != bottomRight ) return;
 
-    if ( topLeft == _plotMathRectIdx() ) {
+    if ( topLeft == _plotMathRectIdx(_myIdx) ) {
         viewport()->update();
     }
 }

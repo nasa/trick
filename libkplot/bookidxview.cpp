@@ -60,7 +60,7 @@ QRectF BookIdxView::_mathRect()
         exit(-1);
     }
 
-    QRectF M = _plotMathRect();
+    QRectF M = _plotMathRect(_myIdx);
     QRect  W = viewport()->rect();
     QRect  V = _curvesView->viewport()->rect();
 
@@ -86,12 +86,12 @@ QRectF BookIdxView::_mathRect()
 }
 
 // The viewport math rect is in the BookModel under Plot.PlotViewport
-QRectF BookIdxView::_plotMathRect() const
+QRectF BookIdxView::_plotMathRect(const QModelIndex& plotIdx) const
 {
     QRectF M;
     if ( !model() ) return M;
 
-    QModelIndex plotMathRectIdx = _plotMathRectIdx();
+    QModelIndex plotMathRectIdx = _plotMathRectIdx(plotIdx);
     plotMathRectIdx = plotMathRectIdx.sibling(plotMathRectIdx.row(),1);
     M = model()->data(plotMathRectIdx).toRectF();
 
@@ -103,14 +103,11 @@ QRectF BookIdxView::_plotMathRect() const
     return M;
 }
 
-QModelIndex BookIdxView::_plotMathRectIdx() const
+QModelIndex BookIdxView::_plotMathRectIdx(const QModelIndex &plotIdx) const
 {
     QModelIndex idx;
     if ( !model() ) return idx;
-
-    QModelIndex plotIdx = _bookModel()->getIndex(_myIdx,"Plot");
     idx = _bookModel()->getDataIndex(plotIdx, "PlotMathRect", "Plot");
-
     return idx;
 }
 
@@ -205,10 +202,10 @@ double BookIdxView::_vLinePointSize()
     return ptSize;
 }
 
-QList<double> BookIdxView::_majorXTics() const
+QList<double> BookIdxView::_majorXTics(const QModelIndex& plotIdx) const
 {
     QList<double> X;
-    QRectF r = _plotMathRect();
+    QRectF r = _plotMathRect(plotIdx);
     double a = r.left();
     double b = r.right();
     //X = calcTicSet(a,b, M_PI/2.0);
@@ -219,7 +216,7 @@ QList<double> BookIdxView::_majorXTics() const
 QList<double> BookIdxView::_minorXTics() const
 {
     QList<double> X;
-    QRectF r = _plotMathRect();
+    QRectF r = _plotMathRect(_myIdx);
     double a = r.left();
     double b = r.right();
     //X = calcTicSet(a,b,M_PI/8.0);
@@ -227,10 +224,10 @@ QList<double> BookIdxView::_minorXTics() const
     return X;
 }
 
-QList<double> BookIdxView::_majorYTics() const
+QList<double> BookIdxView::_majorYTics(const QModelIndex &plotIdx) const
 {
     QList<double> Y;
-    QRectF r = _plotMathRect();
+    QRectF r = _plotMathRect(plotIdx);
     double a = r.bottom();
     double b = r.top();
     Y = _calcTicSet(a,b,1.0);
@@ -240,7 +237,7 @@ QList<double> BookIdxView::_majorYTics() const
 QList<double> BookIdxView::_minorYTics() const
 {
     QList<double> Y;
-    QRectF r = _plotMathRect();
+    QRectF r = _plotMathRect(_myIdx);
     double a = r.bottom();
     double b = r.top();
     Y = _calcTicSet(a,b,1.0/4.0);

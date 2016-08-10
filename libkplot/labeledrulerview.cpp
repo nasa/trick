@@ -28,11 +28,13 @@ void LabeledRulerView::paintEvent(QPaintEvent *event)
     }
 
 
+    QModelIndex plotIdx = _bookModel()->getIndex(_myIdx,"Plot");
+
     QList<double> modelTics;
     if ( _alignment == Qt::AlignBottom ) {
-        modelTics = _majorXTics();
+        modelTics = _majorXTics(plotIdx);
     } else if ( _alignment == Qt::AlignLeft ) {
-        modelTics = _majorYTics();
+        modelTics = _majorYTics(plotIdx);
     } else {
         // No support (yet) for right and top axes
         return;
@@ -138,10 +140,11 @@ QSize LabeledRulerView::sizeHint() const
     QSize s(0,0);
 
     QList<double> modelTics;
+    QModelIndex plotIdx = _bookModel()->getIndex(_myIdx,"Plot");
     if ( _alignment == Qt::AlignBottom ) {
-        modelTics = _majorXTics();
+        modelTics = _majorXTics(plotIdx);
     } else if ( _alignment == Qt::AlignLeft ) {
-        modelTics = _majorYTics();
+        modelTics = _majorYTics(plotIdx);
     } else {
         // No support (yet) for right and top axes
         return s;
@@ -186,7 +189,7 @@ void LabeledRulerView::dataChanged(const QModelIndex &topLeft,
     if ( topLeft.column() != 1 ) return;
     if ( topLeft != bottomRight ) return;
 
-    if ( topLeft == _plotMathRectIdx() ) {
+    if ( topLeft == _plotMathRectIdx(_myIdx) ) {
         viewport()->update();
     }
 }

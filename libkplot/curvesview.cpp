@@ -237,7 +237,7 @@ void CurvesView::dataChanged(const QModelIndex &topLeft,
             _currBBox = _calcBBox();
             if ( prevBBox.width() > 0 ) {
                 double xs = _currBBox.width()/prevBBox.width();
-                QRectF M = _plotMathRect();
+                QRectF M = _plotMathRect(_myIdx);
                 double w = M.width();
                 double h = M.height();
                 QPointF topLeft(xs*M.topLeft().x(), M.topLeft().y());
@@ -250,7 +250,7 @@ void CurvesView::dataChanged(const QModelIndex &topLeft,
             _currBBox = _calcBBox();
             if ( prevBBox.height() > 0 ) {
                 double ys = _currBBox.height()/prevBBox.height();
-                QRectF M = _plotMathRect();
+                QRectF M = _plotMathRect(_myIdx);
                 double w = M.width();
                 double h = M.height();
                 QPointF topLeft(M.topLeft().x(), ys*M.topLeft().y());

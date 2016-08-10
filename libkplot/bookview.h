@@ -10,6 +10,7 @@
 #include <QPen>
 #include <QFont>
 #include <QFontMetrics>
+#include <QFontDatabase>
 #include <QString>
 #include <QStringList>
 #include <QList>
@@ -40,16 +41,50 @@ private:
     QVBoxLayout* _mainLayout;
     QTabWidget* _nb;
 
+private:
+    QTransform _coordToDotTransform(const QRectF &curvesRect,
+                                    const QModelIndex &plotIdx);
+    QString _format(double tic) const;
+
     void _printPage(QPainter* painter, const QModelIndex& pageIdx);
     QRect _printPageTitle(QPainter *painter, const QModelIndex& pageIdx);
-    void _printPlot(const QRect& plotRect,
-                     QPainter *painter, const QModelIndex& plotIdx);
+    void _printPlot(const QRect& R,
+                    QPainter *painter, const QModelIndex& plotIdx,
+                    int q,
+                    int wm0, int wm1, int wm2, int hm3, int hm4, int hm5,
+                    int titleFontSize,
+                    int axisLabelFontSize, int ticLabelFontSize,
+                    int axisLineDotSize, int ticWidth, int ticHeight);
+    void _printPlotTitle(const QRect& R,
+                         QPainter *painter, const QModelIndex& plotIdx);
     void _printCurves(const QRect& R,
                        QPainter *painter, const QModelIndex& plotIdx);
     void _printXAxisLabel(const QRect& R,
                            QPainter *painter, const QModelIndex& plotIdx);
-    void _printYAxisLabel(const QRect &R, QPainter *painter,
-                           const QModelIndex& plotIdx);
+    void _printYAxisLabel(const QRect& R,
+                           QPainter *painter, const QModelIndex& plotIdx);
+    void _printXTicLabels(const QRect &R, QPainter *painter,
+                          const QModelIndex& plotIdx, const QRectF &curvesRect);
+    void _printYTicLabels(const QRect &R, QPainter *painter,
+                          const QModelIndex& plotIdx, const QRectF &curvesRect);
+    void _printXTicsBottom(const QRect &R, QPainter *painter,
+                           const QModelIndex& plotIdx, const QRect &curvesRect);
+    void _printXTicsTop(const QRect &R, QPainter *painter,
+                        const QModelIndex& plotIdx, const QRect& curvesRect);
+    void _printYTicsLeft(const QRect &R, QPainter *painter,
+                         const QModelIndex& plotIdx,
+                         const QRect &curvesRect);
+    void _printYTicsRight(const QRect &R, QPainter *painter,
+                          const QModelIndex& plotIdx,
+                          const QRect &curvesRect);
+    void _printTopLeftCorner(const QRect &R, QPainter *painter,
+                             const QModelIndex& plotIdx);
+    void _printTopRightCorner(const QRect &R, QPainter *painter,
+                              const QModelIndex& plotIdx);
+    void _printBottomRightCorner(const QRect &R, QPainter *painter,
+                                 const QModelIndex& plotIdx);
+    void _printBottomLeftCorner(const QRect &R, QPainter *painter,
+                                const QModelIndex& plotIdx);
 
 signals:
 

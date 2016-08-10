@@ -38,13 +38,13 @@ protected:
     QTransform _coordToPixelTransform() ;
 
     QRectF _mathRect() ;
-    QRectF _plotMathRect() const ;
-    QModelIndex _plotMathRectIdx() const;
+    QRectF _plotMathRect(const QModelIndex &plotIdx) const ;
+    QModelIndex _plotMathRectIdx(const QModelIndex& plotIdx) const;
     void _setPlotMathRect(const QRectF& mathRect);
 
-    QList<double> _majorXTics() const;
+    QList<double> _majorXTics(const QModelIndex &plotIdx) const;
     QList<double> _minorXTics() const;
-    QList<double> _majorYTics() const;
+    QList<double> _majorYTics(const QModelIndex &plotIdx) const;
     QList<double> _minorYTics() const;
     QList<double> _calcTicSet(double aIn, double bIn,
                               double u=1.0, double n=10.0) const;
