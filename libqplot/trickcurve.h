@@ -4,8 +4,8 @@
 #include <float.h>
 #include <QVector2D>
 #include "libqplot/qcustomplot.h"
-#include "libsnapdata/trickcurvemodel.h"
-#include "libsnapdata/timeit_linux.h"
+#include "libkplot/trickcurvemodel.h"
+#include "libkplot/timeit_linux.h"
 
 class QCP_LIB_DECL TrickCurve : public QCPAbstractPlottable
 {

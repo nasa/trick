@@ -12,7 +12,7 @@
 #include <float.h>
 
 #include "kplotmodel.h"
-#include "libsnapdata/trickcurvemodel.h"
+#include "libkplot/trickcurvemodel.h"
 
 class KPlot : public QWidget
 {

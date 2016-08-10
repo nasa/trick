@@ -1,5 +1,5 @@
 #include "axisrect.h"
-#include "libsnapdata/timeit_linux.h"
+#include "libkplot/timeit_linux.h"
 #include <QBrush>
 #include <float.h>
 

@@ -1,6 +1,6 @@
 #include "bookview.h"
 
-#include "libsnapdata/timeit_linux.h"
+#include "libkplot/timeit_linux.h"
 static TimeItLinux timer;
 
 BookView::BookView(QWidget *parent) :

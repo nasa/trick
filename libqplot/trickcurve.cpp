@@ -1,5 +1,5 @@
 #include "trickcurve.h"
-#include "libsnapdata/timeit_linux.h"
+#include "libkplot/timeit_linux.h"
 
 TrickCurve::TrickCurve(QCPAxis *keyAxis, QCPAxis *valueAxis) :
     QCPAbstractPlottable(keyAxis, valueAxis) ,

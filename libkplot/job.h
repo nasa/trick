@@ -5,7 +5,7 @@
 #include <QTextStream>
 #include <stdexcept>
 
-#include "libsnapdata/trickcurvemodel.h"
+#include "libkplot/trickcurvemodel.h"
 
 class Job;
 

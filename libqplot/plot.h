@@ -3,9 +3,9 @@
 
 #include "libqplot/qcustomplot.h"
 #include "axisrect.h"
-#include "libsnapdata/trickmodel.h"
-#include "libsnapdata/montemodel.h"
-#include "libsnapdata/monte.h"
+#include "libkplot/trickmodel.h"
+#include "libkplot/montemodel.h"
+#include "libkplot/monte.h"
 #include "trickcurve.h"
 
 class Plot : public QCustomPlot

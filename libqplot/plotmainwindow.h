@@ -18,7 +18,7 @@
 #include <QSizePolicy>
 #include <QTreeView>
 
-#include "libsnapdata/monte.h"
+#include "libkplot/monte.h"
 #include "libkplot/dp.h"
 #include "libkplot/plotbookmodel.h"
 #include "libkplot/dptreewidget.h"
@@ -28,7 +28,7 @@
 
 #include "libkplot/bookview.h"
 
-#include "libsnapdata/timeit_linux.h"
+#include "libkplot/timeit_linux.h"
 
 class PlotMainWindow : public QMainWindow
 {

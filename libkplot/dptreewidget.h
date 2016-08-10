@@ -9,7 +9,7 @@
 #include <QHash>
 #include "dp.h"
 #include "dpfilterproxymodel.h"
-#include "libsnapdata/montemodel.h"
+#include "libkplot/montemodel.h"
 #include "libkplot/plotbookmodel.h"
 #include "libkplot/utils.h"
 

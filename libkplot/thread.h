@@ -5,7 +5,7 @@
 #include "frame.h"
 #include "utils.h"
 #include "sjobexecthreadinfo.h"
-#include "libsnapdata/snaptable.h"
+#include "libkplot/snaptable.h"
 #include <stdexcept>
 
 #include <QString>

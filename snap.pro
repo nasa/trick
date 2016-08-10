@@ -21,7 +21,6 @@ CONFIG += ordered
 TEMPLATE = subdirs
 SUBDIRS = libkplot \
           libqplot \
-          libsnapdata \
           snap \
           snapq \
           csv2trk \
@@ -32,13 +31,10 @@ OTHER_FILES += \
     snap.supp \
     monte.supp
 
-snap.depends += snapdata
 snap.depends += qplot
 
-snapq.depends += snapdata
 snapq.depends += qplot
 snapq.depends += kplot
 
-testsnap.depends += snapdata
 testsnap.depends += qplot
 testsnap.depends += kplot

@@ -4,8 +4,8 @@
 #include <QAbstractItemModel>
 #include <QRubberBand>
 #include "qcustomplot.h"
-#include "libsnapdata/montemodel.h"
-#include "libsnapdata/trickmodel.h"
+#include "libkplot/montemodel.h"
+#include "libkplot/trickmodel.h"
 #include "trickcurve.h"
 
 class AxisRect : public QCPAxisRect

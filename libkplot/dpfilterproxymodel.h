@@ -7,7 +7,7 @@
 #include <QString>
 #include <QHash>
 
-#include "libsnapdata/montemodel.h"
+#include "libkplot/montemodel.h"
 #include "dp.h"
 
 class DPFilterProxyModel : public QSortFilterProxyModel

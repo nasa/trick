@@ -10,7 +10,7 @@
 #include <QListView>
 #include <float.h>
 #include "dp.h"
-#include "libsnapdata/montemodel.h"
+#include "libkplot/montemodel.h"
 #include "libkplot/plotbookmodel.h"
 #include "monteinputsview.h"
 

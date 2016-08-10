@@ -64,7 +64,21 @@ SOURCES += koviplot.cpp \
            thread.cpp \
            utils.cpp \
            unit.cpp \
-           versionnumber.cpp
+           versionnumber.cpp \
+           csv.cpp \
+           monte.cpp \
+           montemodel.cpp \
+           parameter.cpp \
+           runs.cpp \
+           snaptable.cpp \
+           timeit.cpp \
+           timeit_linux.cpp \
+           timeit_win32.cpp \
+           timestamps.cpp \
+           trickcurvemodel.cpp \
+           trickmodel.cpp \
+           tricktablemodel.cpp
+
 
 HEADERS  += koviplot.h \
             kplot.h \
@@ -100,7 +114,25 @@ HEADERS  += koviplot.h \
             thread.h \
             utils.h \
             unit.h \
-            versionnumber.h
+            versionnumber.h \
+            csv.h \
+            monte.h \
+            montemodel.h \
+            numsortitem.h \
+            parameter.h \
+            role.h \
+            roleparam.h \
+            roundoff.h \
+            runs.h \
+            snaptable.h \
+            timeit.h \
+            timeit_linux.h \
+            timeit_win32.h \
+            timestamps.h \
+            trick_types.h \
+            trickcurvemodel.h \
+            trickmodel.h \
+            tricktablemodel.h
 
 FLEXSOURCES = product_lexer.l
 BISONSOURCES = product_parser.y

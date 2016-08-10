@@ -3,7 +3,7 @@
 
 #include <QStandardItemModel>
 #include <QStandardItem>
-#include "libsnapdata/montemodel.h"
+#include "libkplot/montemodel.h"
 #include "libkplot/utils.h"
 
 #include <QList>
