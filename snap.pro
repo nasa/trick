@@ -19,8 +19,7 @@ INSTALL_LIBDIR = $${INSTALL_PREFIX}/lib
 
 CONFIG += ordered
 TEMPLATE = subdirs
-SUBDIRS = libopts \
-          libkplot \
+SUBDIRS = libkplot \
           libqplot \
           libsnapdata \
           libsnaprt \
@@ -36,17 +35,14 @@ OTHER_FILES += \
 
 snap.depends += snaprt
 snap.depends += snapdata
-snap.depends += opts
 snap.depends += qplot
 
 snapq.depends += snaprt
 snapq.depends += snapdata
-snapq.depends += opts
 snapq.depends += qplot
 snapq.depends += kplot
 
 testsnap.depends += snaprt
 testsnap.depends += snapdata
-testsnap.depends += opts
 testsnap.depends += qplot
 testsnap.depends += kplot

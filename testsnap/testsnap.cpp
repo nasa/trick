@@ -11,7 +11,7 @@
 #include "libsnaprt/snap.h"
 #include "libsnaprt/versionnumber.h"
 #include "trickdatamodel.h"
-#include "libopts/options.h"
+#include "libkplot/options.h"
 
 QString getActualReport(const QString& runDir); // e.g. RUN_rm2000
 QString getExpectedReport(const QString& runDir,       // e.g. RUN_iss

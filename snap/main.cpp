@@ -11,7 +11,7 @@ using namespace std;
 #include <stdio.h>
 
 #include "libsnaprt/snap.h"
-#include "libopts/options.h"
+#include "libkplot/options.h"
 
 Option::FPresetDouble preset_start;
 Option::FPresetDouble preset_stop;

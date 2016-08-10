@@ -1,5 +1,5 @@
 #include "dp.h"
-#include "libopts/options.h"
+#include "libkplot/options.h"
 
 DPProduct* product;// hack to pass to yacc parser
 

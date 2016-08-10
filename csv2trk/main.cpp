@@ -12,7 +12,7 @@ using namespace std;
 #include <QDataStream>
 #include <stdio.h>
 
-#include "libopts/options.h"
+#include "libkplot/options.h"
 #include "libsnapdata/runs.h"
 #include "libqplot/plotmainwindow.h"
 #include "libsnapdata/unit.h"

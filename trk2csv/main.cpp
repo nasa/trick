@@ -12,7 +12,7 @@ using namespace std;
 #include <QTextStream>
 #include <stdio.h>
 
-#include "libopts/options.h"
+#include "libkplot/options.h"
 #include "libsnapdata/trickmodel.h"
 
 //#include "libsnapdata/runs.h"
