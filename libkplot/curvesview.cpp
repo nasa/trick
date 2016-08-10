@@ -227,6 +227,13 @@ void CurvesView::dataChanged(const QModelIndex &topLeft,
                 _errorPath = _createErrorPath(curve0Idx,curve1Idx);
                 _viewType = "error";
                 _currBBox = _errorPath->boundingRect();
+            } else if ( _curve2path.keys().size() == 3 ) {
+                // not an error plot, must redo bbox using path 0,1,2
+                _currBBox.setTopLeft(QPointF(0,0));
+                _currBBox.setSize(QSizeF(0,0));
+                foreach ( QPainterPath* mypath, _curve2path.values() ) {
+                    _currBBox = _currBBox.united(mypath->boundingRect());
+                }
             } else {
                 _currBBox = _currBBox.united(_curveBBox(curveModel,curveIdx));
             }
