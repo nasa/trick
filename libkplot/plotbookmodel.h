@@ -4,7 +4,7 @@
 #include <QStandardItemModel>
 #include <QStandardItem>
 #include "libsnapdata/montemodel.h"
-#include "libsnaprt/utils.h"
+#include "libkplot/utils.h"
 
 #include <QList>
 #include <QColor>

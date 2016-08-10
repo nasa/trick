@@ -39,24 +39,32 @@ SOURCES += koviplot.cpp \
            verticallabel.cpp \
            pagetitleview.cpp \
            plotview.cpp \
-    bookview.cpp \
-    pageview.cpp \
-    plottitleview.cpp \
-    bookidxview.cpp \
-    linedrulerview.cpp \
-    curvesview.cpp \
-    cornerview.cpp \
-    labeledrulerview.cpp \
-    yaxislabelview.cpp \
-    xaxislabelview.cpp \
-    dp.cpp \
-    varswidget.cpp \
-    dptreewidget.cpp \
-    plotbookmodel.cpp \
-    monteinputsview.cpp \
-    dpfilterproxymodel.cpp \
-    options.cpp \
-    unit.cpp \
+           bookview.cpp \
+           pageview.cpp \
+           plottitleview.cpp \
+           bookidxview.cpp \
+           linedrulerview.cpp \
+           curvesview.cpp \
+           cornerview.cpp \
+           labeledrulerview.cpp \
+           yaxislabelview.cpp \
+           xaxislabelview.cpp \
+           dp.cpp \
+           varswidget.cpp \
+           dptreewidget.cpp \
+           plotbookmodel.cpp \
+           monteinputsview.cpp \
+           dpfilterproxymodel.cpp \
+           options.cpp \
+           frame.cpp \
+           job.cpp \
+           simobject.cpp \
+           sjobexecthreadinfo.cpp \
+           snap.cpp \
+           thread.cpp \
+           utils.cpp \
+           unit.cpp \
+           versionnumber.cpp
 
 HEADERS  += koviplot.h \
             kplot.h \
@@ -67,24 +75,32 @@ HEADERS  += koviplot.h \
             verticallabel.h \
             pagetitleview.h \
             plotview.h \
-    bookview.h \
-    pageview.h \
-    plottitleview.h \
-    bookidxview.h \
-    linedrulerview.h \
-    curvesview.h \
-    cornerview.h \
-    labeledrulerview.h \
-    yaxislabelview.h \
-    xaxislabelview.h \
-    dp.h \
-    varswidget.h \
-    dptreewidget.h \
-    plotbookmodel.h \
-    monteinputsview.h \
-    dpfilterproxymodel.h \
-    options.h \
-    unit.h
+            bookview.h \
+            pageview.h \
+            plottitleview.h \
+            bookidxview.h \
+            linedrulerview.h \
+            curvesview.h \
+            cornerview.h \
+            labeledrulerview.h \
+            yaxislabelview.h \
+            xaxislabelview.h \
+            dp.h \
+            varswidget.h \
+            dptreewidget.h \
+            plotbookmodel.h \
+            monteinputsview.h \
+            dpfilterproxymodel.h \
+            options.h \
+            frame.h \
+            job.h \
+            simobject.h \
+            sjobexecthreadinfo.h \
+            snap.h \
+            thread.h \
+            utils.h \
+            unit.h \
+            versionnumber.h
 
 FLEXSOURCES = product_lexer.l
 BISONSOURCES = product_parser.y

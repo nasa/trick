@@ -8,8 +8,8 @@
 
 #include <QtTest/QtTest>
 #include <QDir>
-#include "libsnaprt/snap.h"
-#include "libsnaprt/versionnumber.h"
+#include "libkplot/snap.h"
+#include "libkplot/versionnumber.h"
 #include "trickdatamodel.h"
 #include "libkplot/options.h"
 

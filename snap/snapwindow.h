@@ -12,7 +12,7 @@
 #include <QProgressBar>
 #include <QList>
 
-#include "libsnaprt/snap.h"
+#include "libkplot/snap.h"
 #include "libsnapdata/trickcurvemodel.h"
 #include "libqplot/plot.h"
 

@@ -22,7 +22,6 @@ TEMPLATE = subdirs
 SUBDIRS = libkplot \
           libqplot \
           libsnapdata \
-          libsnaprt \
           snap \
           snapq \
           csv2trk \
@@ -33,16 +32,13 @@ OTHER_FILES += \
     snap.supp \
     monte.supp
 
-snap.depends += snaprt
 snap.depends += snapdata
 snap.depends += qplot
 
-snapq.depends += snaprt
 snapq.depends += snapdata
 snapq.depends += qplot
 snapq.depends += kplot
 
-testsnap.depends += snaprt
 testsnap.depends += snapdata
 testsnap.depends += qplot
 testsnap.depends += kplot

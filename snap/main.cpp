@@ -10,7 +10,7 @@ using namespace std;
 #include <QDir>
 #include <stdio.h>
 
-#include "libsnaprt/snap.h"
+#include "libkplot/snap.h"
 #include "libkplot/options.h"
 
 Option::FPresetDouble preset_start;

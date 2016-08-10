@@ -11,7 +11,7 @@
 #include "dpfilterproxymodel.h"
 #include "libsnapdata/montemodel.h"
 #include "libkplot/plotbookmodel.h"
-#include "libsnaprt/utils.h"
+#include "libkplot/utils.h"
 
 // Data Products TreeView with Search Box
 
