@@ -29,7 +29,10 @@ bool writeTrk(const QString& ftrk, const QString &timeName,
                QStringList& paramList, MonteModel* monteModel);
 bool writeCsv(const QString& fcsv, const QString& timeName,
               DPTable* dpTable, const QString &runDir);
+bool convert2csv(const QString& ftrk, const QString& fcsv);
 
+Option::FPresetQString presetTrkFile;
+Option::FPostsetQString postsetTrkFile;
 Option::FPresetDouble preset_start;
 Option::FPresetDouble preset_stop;
 Option::FPresetQStringList presetRunsDPs;
@@ -53,6 +56,7 @@ class SnapOptions : public Options
     QString title3;
     QString title4;
     QString timeName;
+    QString trk2csvFile;
 };
 
 SnapOptions opts;
@@ -66,7 +70,8 @@ int main(int argc, char *argv[])
     bool ok;
     int ret = -1;
 
-    opts.add("<RUN_dirs and DP_files>:+", &opts.rundps, QStringList(),
+    opts.add("[RUNs and DPs:{0,1000}]",
+             &opts.rundps, QStringList(),
              "List of RUN dirs and DP files",
              presetRunsDPs, postsetRunsDPs);
     opts.add("-rt:{0,1}",&opts.isReportRT,false, "print realtime text report");
@@ -85,14 +90,18 @@ int main(int argc, char *argv[])
     opts.add("-t2",&opts.title2,"", "Subtitle");
     opts.add("-t3",&opts.title3,"", "User title");
     opts.add("-t4",&opts.title4,"", "Date title");
-    opts.add("-pdf", &opts.pdfOutFile, QString(""),
-             "Name of pdf output file");
-    opts.add("-trk", &opts.trkOutFile, QString(""),
-             "Produce *.trk with variables from DP_Products");
-    opts.add("-csv", &opts.csvOutFile, QString(""),
-             "Produce *.csv tables from from DP_Product tables");
     opts.add("-timeName", &opts.timeName, QString(""),
              "Time name for RUN data");
+    opts.add("-pdf", &opts.pdfOutFile, QString(""),
+             "Name of pdf output file");
+    opts.add("-dp2trk", &opts.trkOutFile, QString(""),
+             "Produce *.trk with variables from DP_Products");
+    opts.add("-dp2csv", &opts.csvOutFile, QString(""),
+             "Produce *.csv tables from from DP_Product tables");
+    opts.add("-trk2csv", &opts.trk2csvFile, QString(""),
+             "Name of trk file to convert to csv (fname subs trk with csv)",
+             presetTrkFile, postsetTrkFile);
+
     opts.parse(argc,argv, QString("snap"), &ok);
 
     if ( !ok ) {
@@ -100,15 +109,41 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+    QStringList dps;
+    QStringList runDirs;
+    foreach ( QString f, opts.rundps ) {
+        if ( f.startsWith("DP_") ) {
+            dps << f;
+        } else {
+            runDirs << f;
+        }
+    }
+
+    if ( opts.rundps.isEmpty() ) {
+        if ( opts.trk2csvFile.isEmpty() ) {
+            fprintf(stderr,"snap [error] : no RUNs specified\n");
+            qDebug() << opts.usage();
+            return -1;
+        }
+    }
+
+    if ( !opts.trk2csvFile.isEmpty() ) {
+        QFileInfo fi(opts.trk2csvFile);
+        QString csvOutFile = QString("%1.csv").arg(fi.baseName());
+        bool ret = convert2csv(opts.trk2csvFile, csvOutFile);
+        if ( !ret )  {
+            fprintf(stderr, "snap [error]: Aborting trk to csv conversion!\n");
+            return -1;
+        }
+        return 0;
+    }
+
     try {
         if ( opts.isReportRT ) {
-            foreach ( QString f, opts.rundps ) {
-                if ( !f.startsWith("DP_") ) {
-                    // If not a DP, then f is a RUN_
-                    Snap snap(f,opts.start,opts.stop);
-                    SnapReport rpt(snap);
-                    fprintf(stderr,"%s",rpt.report().toAscii().constData());
-                }
+            foreach ( QString run, runDirs ) {
+                Snap snap(run,opts.start,opts.stop);
+                SnapReport rpt(snap);
+                fprintf(stderr,"%s",rpt.report().toAscii().constData());
             }
             return 0;
         }
@@ -149,16 +184,6 @@ int main(int argc, char *argv[])
                     "snap [error] : you may not use the -pdf, -trk and -csv "
                     "options together.");
             exit(-1);
-        }
-
-        QStringList dps;
-        QStringList runDirs;
-        foreach ( QString f, opts.rundps ) {
-            if ( f.startsWith("DP_") ) {
-                dps << f;
-            } else {
-                runDirs << f;
-            }
         }
 
         // If outputting to pdf, you must have a DP file and RUN dir
@@ -820,4 +845,93 @@ void preset_stop(double* time, double new_time, bool* ok)
             *ok = false;
         }
     }
+}
+
+void presetTrkFile(QString* ignoreMe, const QString& trk, bool* ok)
+{
+    Q_UNUSED(ignoreMe);
+
+    QFileInfo fi(trk);
+    if ( !fi.exists() ) {
+        fprintf(stderr,
+                "snap [error] : Couldn't find file: \"%s\".\n",
+                trk.toAscii().constData());
+        *ok = false;
+        return;
+    }
+}
+
+// Placeholder
+void postsetTrkFile (QString* trk, bool* ok)
+{
+    Q_UNUSED(trk);
+    Q_UNUSED(ok);
+}
+
+void presetCsvFile(QString* v, const QString& fcsv, bool* ok)
+{
+
+    Q_UNUSED(v);
+
+    *ok = true;
+    QFileInfo fcsvi(fcsv);
+    if ( fcsvi.exists() ) {
+        fprintf(stderr, "snapq [error]: %s exists, will not overwrite\n",
+                fcsv.toAscii().constData());
+        *ok = false;
+    }
+}
+
+bool convert2csv(const QString& ftrk, const QString& fcsv)
+{
+    TrickModel m("sys.exec.out.time", ftrk);
+
+    QFileInfo fcsvi(fcsv);
+    if ( fcsvi.exists() ) {
+        fprintf(stderr, "snap [error]: Will not overwrite %s\n",
+                fcsv.toAscii().constData());
+        return false;
+    }
+
+    // Open csv file stream
+    QFile csv(fcsv);
+    if (!csv.open(QIODevice::WriteOnly)) {
+        fprintf(stderr,"snap: [error] could not open %s\n",
+                fcsv.toAscii().constData());
+        return false;
+    }
+    QTextStream out(&csv);
+
+    // Write csv param list (top line in csv file)
+    int cc = m.columnCount();
+    for ( int i = 0; i < cc; ++i) {
+        QString pName = m.param(i).name();
+        QString pUnit = m.param(i).unit();
+        out << pName << " {" << pUnit << "}";
+        if ( i < cc-1 ) {
+            out << ",";
+        }
+    }
+    out << "\n";
+
+    //
+    // Write param values
+    //
+    int rc = m.rowCount();
+    for ( int r = 0 ; r < rc; ++r ) {
+        for ( int c = 0 ; c < cc; ++c ) {
+            QModelIndex idx = m.index(r,c);
+            out << m.data(idx).toString();
+            if ( c < cc-1 ) {
+                out << ",";
+            } else {
+                out << "\n";
+            }
+        }
+    }
+
+    // Clean up
+    csv.close();
+
+    return true;
 }
