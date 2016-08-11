@@ -20,9 +20,9 @@
 #include "simobject.h"
 #include "frame.h"
 #include "utils.h"
-#include "libkplot/snaptable.h"
-#include "libkplot/trickmodel.h"
-#include "libkplot/trickcurvemodel.h"
+#include "libsnap/snaptable.h"
+#include "libsnap/trickmodel.h"
+#include "libsnap/trickcurvemodel.h"
 
 #define TXT(X) X.toAscii().constData()
 

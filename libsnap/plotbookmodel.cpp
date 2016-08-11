@@ -1,6 +1,6 @@
 #include "plotbookmodel.h"
 #include <float.h>
-#include "libkplot/unit.h"
+#include "libsnap/unit.h"
 
 PlotBookModel::PlotBookModel(MonteModel *monteModel, QObject *parent) :
     QStandardItemModel(parent),

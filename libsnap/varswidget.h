@@ -10,8 +10,8 @@
 #include <QListView>
 #include <float.h>
 #include "dp.h"
-#include "libkplot/montemodel.h"
-#include "libkplot/plotbookmodel.h"
+#include "libsnap/montemodel.h"
+#include "libsnap/plotbookmodel.h"
 #include "monteinputsview.h"
 
 class VarsWidget : public QWidget

@@ -8,10 +8,10 @@
 
 #include <QtTest/QtTest>
 #include <QDir>
-#include "libkplot/snap.h"
-#include "libkplot/versionnumber.h"
+#include "libsnap/snap.h"
+#include "libsnap/versionnumber.h"
 #include "trickdatamodel.h"
-#include "libkplot/options.h"
+#include "libsnap/options.h"
 
 QString getActualReport(const QString& runDir); // e.g. RUN_rm2000
 QString getExpectedReport(const QString& runDir,       // e.g. RUN_iss

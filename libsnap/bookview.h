@@ -17,9 +17,9 @@
 #include <QTransform>
 #include <QVector2D>
 
-#include "libkplot/bookidxview.h"
-#include "libkplot/pageview.h"
-#include "libkplot/plotbookmodel.h"
+#include "libsnap/bookidxview.h"
+#include "libsnap/pageview.h"
+#include "libsnap/plotbookmodel.h"
 
 class BookView : public BookIdxView
 {

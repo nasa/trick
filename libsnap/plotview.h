@@ -19,7 +19,7 @@
 #include "curvesview.h"
 #include "xaxislabelview.h"
 #include "yaxislabelview.h"
-#include "libkplot/trickcurvemodel.h"
+#include "libsnap/trickcurvemodel.h"
 
 class PlotView : public BookIdxView
 {

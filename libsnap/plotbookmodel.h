@@ -3,8 +3,8 @@
 
 #include <QStandardItemModel>
 #include <QStandardItem>
-#include "libkplot/montemodel.h"
-#include "libkplot/utils.h"
+#include "libsnap/montemodel.h"
+#include "libsnap/utils.h"
 
 #include <QList>
 #include <QColor>

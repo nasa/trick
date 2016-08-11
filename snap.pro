@@ -19,13 +19,6 @@ INSTALL_LIBDIR = $${INSTALL_PREFIX}/lib
 
 CONFIG += ordered
 TEMPLATE = subdirs
-SUBDIRS = libkplot \
+SUBDIRS = libsnap \
           snapq \
           testsnap
-
-OTHER_FILES += \
-    snap.supp \
-    monte.supp
-
-snapq.depends += kplot
-testsnap.depends += kplot

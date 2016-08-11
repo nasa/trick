@@ -1,6 +1,6 @@
 #include "dptreewidget.h"
 
-#include "libkplot/timeit_linux.h"
+#include "libsnap/timeit_linux.h"
 
 QString DPTreeWidget::_err_string;
 QTextStream DPTreeWidget::_err_stream(&DPTreeWidget::_err_string);

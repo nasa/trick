@@ -16,8 +16,8 @@
 #include <vector>
 using namespace std;
 
-#include "libkplot/snaptable.h"
-#include "libkplot/roleparam.h"
+#include "libsnap/snaptable.h"
+#include "libsnap/roleparam.h"
 
 class TrickType
 {

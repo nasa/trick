@@ -19,7 +19,7 @@
 #include "linedruler.h"
 #include "labeledruler.h"
 #include "plotcorner.h"
-#include "libkplot/plotbookmodel.h"
+#include "libsnap/plotbookmodel.h"
 
 class KoviPlot : public QFrame
 {

@@ -9,8 +9,8 @@ test/runs/*
 bin/*
 lib/*
 testsnap/runs
-libkplot/product_lexer.cpp
-libkplot/product_lexer.h
-libkplot/product_parser.cpp
-libkplot/product_parser.h
+libsnap/product_lexer.cpp
+libsnap/product_lexer.h
+libsnap/product_parser.cpp
+libsnap/product_parser.h
 

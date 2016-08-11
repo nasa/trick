@@ -9,7 +9,7 @@ QT       += xml
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = kplot
+TARGET = snap
 TEMPLATE = lib
 
 include($$PWD/../snap.pri)
@@ -23,7 +23,7 @@ release {
 }
 
 DESTDIR = $$PWD/../lib
-BUILDDIR = $$PWD/../build/kplot
+BUILDDIR = $$PWD/../build/libsnap
 OBJECTS_DIR = $$BUILDDIR/obj
 MOC_DIR     = $$BUILDDIR/moc
 RCC_DIR     = $$BUILDDIR/rcc

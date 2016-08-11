@@ -38,4 +38,4 @@ unix:!macx:!symbian: LIBS += -L$$PWD/../lib  -lkplot -lsnaprt -lsnapdata
 PRE_TARGETDEPS += $$PWD/../lib/libsnaprt.a
 PRE_TARGETDEPS += $$PWD/../lib/libsnapdata.a
 PRE_TARGETDEPS += $$PWD/../lib/libqplot.a
-PRE_TARGETDEPS += $$PWD/../lib/libkplot.a
+PRE_TARGETDEPS += $$PWD/../lib/libsnap.a

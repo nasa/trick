@@ -1,4 +1,3 @@
-
 QT  += core
 QT  += gui
 QT  += xml
@@ -25,7 +24,6 @@ RCC_DIR     = $$BUILDDIR/rcc
 UI_DIR      = $$BUILDDIR/ui
 
 SOURCES += main.cpp
-
     
 HEADERS +=
 
@@ -33,11 +31,7 @@ OTHER_FILES +=
 
 
 INCLUDEPATH += $$PWD/..
-DEPENDPATH += $$PWD/../libsnapdata
 
-unix:!macx:!symbian: LIBS += -L$$PWD/../lib -lqplot -lsnapdata -lkplot
+unix:!macx:!symbian: LIBS += -L$$PWD/../lib -lsnap
 
-PRE_TARGETDEPS += $$PWD/../lib/libsnaprt.a
-PRE_TARGETDEPS += $$PWD/../lib/libsnapdata.a
-PRE_TARGETDEPS += $$PWD/../lib/libqplot.a
-PRE_TARGETDEPS += $$PWD/../lib/libkplot.a
+PRE_TARGETDEPS += $$PWD/../lib/libsnap.a

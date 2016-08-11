@@ -9,9 +9,9 @@
 #include <QHash>
 #include "dp.h"
 #include "dpfilterproxymodel.h"
-#include "libkplot/montemodel.h"
-#include "libkplot/plotbookmodel.h"
-#include "libkplot/utils.h"
+#include "libsnap/montemodel.h"
+#include "libsnap/plotbookmodel.h"
+#include "libsnap/utils.h"
 
 // Data Products TreeView with Search Box
 

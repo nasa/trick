@@ -14,14 +14,14 @@ using namespace std;
 #include <QTextStream>
 #include <stdio.h>
 
-#include "libkplot/options.h"
-#include "libkplot/runs.h"
-#include "libkplot/plotmainwindow.h"
-#include "libkplot/roundoff.h"
-#include "libkplot/timeit_linux.h"
-#include "libkplot/timestamps.h"
-#include "libkplot/tricktablemodel.h"
-#include "libkplot/dp.h"
+#include "libsnap/options.h"
+#include "libsnap/runs.h"
+#include "libsnap/plotmainwindow.h"
+#include "libsnap/roundoff.h"
+#include "libsnap/timeit_linux.h"
+#include "libsnap/timestamps.h"
+#include "libsnap/tricktablemodel.h"
+#include "libsnap/dp.h"
 
 QStandardItemModel* createVarsModel(const QStringList& runDirs);
 bool writeTrk(const QString& ftrk, const QString &timeName,

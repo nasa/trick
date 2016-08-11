@@ -2,7 +2,7 @@
 #define MONTEINPUTSVIEW_H
 
 #include <QTableView>
-#include <libkplot/bookview.h>
+#include <libsnap/bookview.h>
 
 class MonteInputsView : public QTableView
 {

@@ -18,15 +18,15 @@
 #include <QSizePolicy>
 #include <QTreeView>
 
-#include "libkplot/monte.h"
-#include "libkplot/dp.h"
-#include "libkplot/plotbookmodel.h"
-#include "libkplot/dptreewidget.h"
-#include "libkplot/varswidget.h"
-#include "libkplot/monteinputsview.h"
-#include "libkplot/rangeinput.h"
-#include "libkplot/bookview.h"
-#include "libkplot/timeit_linux.h"
+#include "libsnap/monte.h"
+#include "libsnap/dp.h"
+#include "libsnap/plotbookmodel.h"
+#include "libsnap/dptreewidget.h"
+#include "libsnap/varswidget.h"
+#include "libsnap/monteinputsview.h"
+#include "libsnap/rangeinput.h"
+#include "libsnap/bookview.h"
+#include "libsnap/timeit_linux.h"
 
 class PlotMainWindow : public QMainWindow
 {
