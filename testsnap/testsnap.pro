@@ -19,9 +19,8 @@ MOC_DIR     = $$BUILDDIR/moc
 RCC_DIR     = $$BUILDDIR/rcc
 UI_DIR      = $$BUILDDIR/ui
 
-SOURCES += \
-           testsnap.cpp \
-    trickdatamodel.cpp
+SOURCES += testsnap.cpp \
+           trickdatamodel.cpp
 
 HEADERS += \ 
     trickdatamodel.h
@@ -30,12 +29,7 @@ OTHER_FILES +=
 
 
 INCLUDEPATH += $$PWD/..
-DEPENDPATH += $$PWD/../libsnaprt
-DEPENDPATH += $$PWD/../libsnapdata
 
-unix:!macx:!symbian: LIBS += -L$$PWD/../lib  -lkplot -lsnaprt -lsnapdata
+unix:!macx:!symbian: LIBS += -L$$PWD/../lib  -lsnap
 
-PRE_TARGETDEPS += $$PWD/../lib/libsnaprt.a
-PRE_TARGETDEPS += $$PWD/../lib/libsnapdata.a
-PRE_TARGETDEPS += $$PWD/../lib/libqplot.a
 PRE_TARGETDEPS += $$PWD/../lib/libsnap.a

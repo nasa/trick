@@ -10,7 +10,7 @@ release {
     QMAKE_CXXFLAGS_RELEASE -= -g
 }
 
-TARGET = snapq
+TARGET = snap
 target.path = $$PREFIX/bin
 INSTALLS += target
 

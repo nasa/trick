@@ -20,5 +20,5 @@ INSTALL_LIBDIR = $${INSTALL_PREFIX}/lib
 CONFIG += ordered
 TEMPLATE = subdirs
 SUBDIRS = libsnap \
-          snapq \
+          snap \
           testsnap

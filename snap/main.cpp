@@ -22,6 +22,7 @@ using namespace std;
 #include "libsnap/timestamps.h"
 #include "libsnap/tricktablemodel.h"
 #include "libsnap/dp.h"
+#include "libsnap/snap.h"
 
 QStandardItemModel* createVarsModel(const QStringList& runDirs);
 bool writeTrk(const QString& ftrk, const QString &timeName,
@@ -29,19 +30,24 @@ bool writeTrk(const QString& ftrk, const QString &timeName,
 bool writeCsv(const QString& fcsv, const QString& timeName,
               DPTable* dpTable, const QString &runDir);
 
+Option::FPresetDouble preset_start;
+Option::FPresetDouble preset_stop;
 Option::FPresetQStringList presetRunsDPs;
 Option::FPostsetQStringList postsetRunsDPs;
 
 class SnapOptions : public Options
 {
   public:
+    QStringList rundps;
+    double start;
+    double stop;
+    bool isReportRT;
     QString presentation;
     unsigned int beginRun;
     unsigned int endRun;
     QString pdfOutFile;
     QString trkOutFile;
     QString csvOutFile;
-    QStringList rundps;
     QString title1;
     QString title2;
     QString title3;
@@ -63,6 +69,9 @@ int main(int argc, char *argv[])
     opts.add("<RUN_dirs and DP_files>:+", &opts.rundps, QStringList(),
              "List of RUN dirs and DP files",
              presetRunsDPs, postsetRunsDPs);
+    opts.add("-rt:{0,1}",&opts.isReportRT,false, "print realtime text report");
+    opts.add("-start", &opts.start, 1.0, "start time", preset_start);
+    opts.add("-stop", &opts.stop,1.0e20, "stop time", preset_stop);
     opts.add("-pres",&opts.presentation,"error",
              "present plot with two curves as compare or error (default)",
              presetPresentation);
@@ -84,12 +93,31 @@ int main(int argc, char *argv[])
              "Produce *.csv tables from from DP_Product tables");
     opts.add("-timeName", &opts.timeName, QString(""),
              "Time name for RUN data");
-    opts.parse(argc,argv, QString("snapq"), &ok);
+    opts.parse(argc,argv, QString("snap"), &ok);
 
     if ( !ok ) {
         qDebug() << opts.usage();
         return -1;
     }
+
+    try {
+        if ( opts.isReportRT ) {
+            foreach ( QString f, opts.rundps ) {
+                if ( !f.startsWith("DP_") ) {
+                    // If not a DP, then f is a RUN_
+                    Snap snap(f,opts.start,opts.stop);
+                    SnapReport rpt(snap);
+                    fprintf(stderr,"%s",rpt.report().toAscii().constData());
+                }
+            }
+            return 0;
+        }
+    } catch (std::exception &e) {
+        fprintf(stderr,"\n%s\n",e.what());
+        fprintf(stderr,"%s\n",opts.usage().toAscii().constData());
+        exit(-1);
+    }
+
 
     try {
 
@@ -760,4 +788,36 @@ bool writeCsv(const QString& fcsv, const QString& timeName,
     csv.close();
 
     return true;
+}
+
+void preset_start(double* time, double new_time, bool* ok)
+{
+    *ok = true;
+
+    if ( *ok ) {
+        // Start time should be less than stop time
+        if ( new_time > opts.stop ) {
+            fprintf(stderr,"snap [error] : Trying to set option -start to "
+                    "%g; however stop time is %g.  Start should be less than "
+                    "stop time.  Current start time is t=%g.\n",
+                    new_time, opts.stop,*time);
+            *ok = false;
+        }
+    }
+}
+
+void preset_stop(double* time, double new_time, bool* ok)
+{
+    *ok = true;
+
+    if ( *ok ) {
+        // Stop time should be greater than start time
+        if ( new_time < opts.start ) {
+            fprintf(stderr,"snap [error] : Trying to set option -stop to "
+                    "%g; however start time is %g.  Start should be less than "
+                    "stop time.  -stop is currently t=%g.\n",
+                    new_time, opts.start,*time);
+            *ok = false;
+        }
+    }
 }
