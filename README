@@ -1,6 +1,6 @@
-Build/Run Directions
 
-% qmake      ; # Use qt4, e.g. /usr/lib64/qt4/bin/qmake
+% qmake --version ; # Use qt4, e.g. /usr/lib64/qt4/bin/qmake
+% qmake      
 % make
-% bin/snap                     ; # Realtime text report
-% bin/snapq RUN_dir|MONTE_dir  ; # View trick run or monte carlo data
+% bin/snap                    ; # for usage
+% bin/snap RUN_dir|MONTE_dir  ; # View trick run or monte carlo data
