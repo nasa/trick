@@ -15,12 +15,12 @@ using namespace std;
 #include <stdio.h>
 
 #include "libkplot/options.h"
-#include "libsnapdata/runs.h"
-#include "libqplot/plotmainwindow.h"
-#include "libsnapdata/roundoff.h"
-#include "libsnapdata/timeit_linux.h"
-#include "libsnapdata/timestamps.h"
-#include "libsnapdata/tricktablemodel.h"
+#include "libkplot/runs.h"
+#include "libkplot/plotmainwindow.h"
+#include "libkplot/roundoff.h"
+#include "libkplot/timeit_linux.h"
+#include "libkplot/timestamps.h"
+#include "libkplot/tricktablemodel.h"
 #include "libkplot/dp.h"
 
 QStandardItemModel* createVarsModel(const QStringList& runDirs);

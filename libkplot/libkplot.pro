@@ -77,7 +77,9 @@ SOURCES += koviplot.cpp \
            timestamps.cpp \
            trickcurvemodel.cpp \
            trickmodel.cpp \
-           tricktablemodel.cpp
+           tricktablemodel.cpp \
+           plotmainwindow.cpp \
+           rangeinput.cpp
 
 
 HEADERS  += koviplot.h \
@@ -132,7 +134,9 @@ HEADERS  += koviplot.h \
             trick_types.h \
             trickcurvemodel.h \
             trickmodel.h \
-            tricktablemodel.h
+            tricktablemodel.h \
+            plotmainwindow.h \
+            rangeinput.h
 
 FLEXSOURCES = product_lexer.l
 BISONSOURCES = product_parser.y

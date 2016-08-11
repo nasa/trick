@@ -13,10 +13,8 @@
 #include <QList>
 
 #include "libkplot/snap.h"
-#include "libsnapdata/trickcurvemodel.h"
-#include "libqplot/plot.h"
-
-#include "libsnapdata/timeit_linux.h"
+#include "libkplot/trickcurvemodel.h"
+#include "libkplot/timeit_linux.h"
 
 class StartUpThread : public QThread
 {

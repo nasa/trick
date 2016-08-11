@@ -24,10 +24,8 @@
 #include "libkplot/dptreewidget.h"
 #include "libkplot/varswidget.h"
 #include "libkplot/monteinputsview.h"
-#include "libqplot/rangeinput.h"
-
+#include "libkplot/rangeinput.h"
 #include "libkplot/bookview.h"
-
 #include "libkplot/timeit_linux.h"
 
 class PlotMainWindow : public QMainWindow
