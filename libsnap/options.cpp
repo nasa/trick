@@ -496,10 +496,10 @@ void Options::parse(int argc, char **argv, const QString& programName,
     if ( rootOption ) {
         if ((uint)rootStringVals.size() < rootOption->valueQuantifier().min() ||
             (uint)rootStringVals.size() > rootOption->valueQuantifier().max()) {
-            *ok = false;
-            fprintf(stderr,"%s [error]: while parsing commandline. ",
-                    programName.toAscii().constData());
-            if ( rootStringVals.size() == 0 ) {
+            if ( rootStringVals.size() == 0 && rootOption->isMandatory() ) {
+                *ok = false;
+                fprintf(stderr,"%s [error]: while parsing commandline. ",
+                        programName.toAscii().constData());
                 fprintf(stderr,"  Root option=\"%s\" has no values, but should "
                         "have at least %d specified",
                         rootOption->nameSpec().toAscii().constData(),
@@ -508,6 +508,9 @@ void Options::parse(int argc, char **argv, const QString& programName,
                 uint min =  rootOption->valueQuantifier().min()  ;
                 uint max =  rootOption->valueQuantifier().max()  ;
                 if ( (uint) rootStringVals.size() < min ) {
+                    *ok = false;
+                    fprintf(stderr,"%s [error]: while parsing commandline. ",
+                            programName.toAscii().constData());
                     fprintf(stderr,"  Root option=\"%s\" needs "
                             "a minimum of %d "
                             "values, but only %d present: \n",
@@ -515,14 +518,19 @@ void Options::parse(int argc, char **argv, const QString& programName,
                             min,
                             rootStringVals.size());
                 } else if ( (uint) rootStringVals.size() > max ) {
+                    *ok = false;
+                    fprintf(stderr,"%s [error]: while parsing commandline. ",
+                            programName.toAscii().constData());
                     fprintf(stderr,"  Root option=\"%s\" accepts "
                             "a max of %d values. There are %d present: \n",
                             rootOption->nameSpec().toAscii().constData(),
                             max,
                             rootStringVals.size());
                 }
-                foreach ( QString v, rootStringVals ) {
-                    fprintf(stderr,"        %s\n", v.toAscii().constData());
+                if ( !*ok ) {
+                    foreach ( QString v, rootStringVals ) {
+                        fprintf(stderr,"        %s\n", v.toAscii().constData());
+                    }
                 }
             }
         }
