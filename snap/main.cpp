@@ -23,6 +23,7 @@ using namespace std;
 #include "libsnap/tricktablemodel.h"
 #include "libsnap/dp.h"
 #include "libsnap/snap.h"
+#include "libsnap/csv.h"
 
 QStandardItemModel* createVarsModel(const QStringList& runDirs);
 bool writeTrk(const QString& ftrk, const QString &timeName,
@@ -30,9 +31,9 @@ bool writeTrk(const QString& ftrk, const QString &timeName,
 bool writeCsv(const QString& fcsv, const QString& timeName,
               DPTable* dpTable, const QString &runDir);
 bool convert2csv(const QString& ftrk, const QString& fcsv);
+bool convert2trk(const QString& csvFileName, const QString &trkFileName);
 
-Option::FPresetQString presetTrkFile;
-Option::FPostsetQString postsetTrkFile;
+Option::FPresetQString presetExistsFile;
 Option::FPresetDouble preset_start;
 Option::FPresetDouble preset_stop;
 Option::FPresetQStringList presetRunsDPs;
@@ -57,6 +58,7 @@ class SnapOptions : public Options
     QString title4;
     QString timeName;
     QString trk2csvFile;
+    QString csv2trkFile;
 };
 
 SnapOptions opts;
@@ -100,7 +102,10 @@ int main(int argc, char *argv[])
              "Produce *.csv tables from from DP_Product tables");
     opts.add("-trk2csv", &opts.trk2csvFile, QString(""),
              "Name of trk file to convert to csv (fname subs trk with csv)",
-             presetTrkFile, postsetTrkFile);
+             presetExistsFile);
+    opts.add("-csv2trk", &opts.csv2trkFile, QString(""),
+             "Name of csv file to convert to trk (fname subs csv with trk)",
+             presetExistsFile);
 
     opts.parse(argc,argv, QString("snap"), &ok);
 
@@ -120,7 +125,7 @@ int main(int argc, char *argv[])
     }
 
     if ( opts.rundps.isEmpty() ) {
-        if ( opts.trk2csvFile.isEmpty() ) {
+        if ( opts.trk2csvFile.isEmpty() && opts.csv2trkFile.isEmpty() ) {
             fprintf(stderr,"snap [error] : no RUNs specified\n");
             qDebug() << opts.usage();
             return -1;
@@ -135,7 +140,16 @@ int main(int argc, char *argv[])
             fprintf(stderr, "snap [error]: Aborting trk to csv conversion!\n");
             return -1;
         }
-        return 0;
+    }
+
+    if ( !opts.csv2trkFile.isEmpty() ) {
+        QFileInfo fi(opts.csv2trkFile);
+        QString trkOutFile = QString("%1.trk").arg(fi.baseName());
+        bool ret = convert2trk(opts.csv2trkFile, trkOutFile);
+        if ( !ret )  {
+            fprintf(stderr, "snap [error]: Aborting csv to trk conversion!\n");
+            return -1;
+        }
     }
 
     try {
@@ -145,7 +159,6 @@ int main(int argc, char *argv[])
                 SnapReport rpt(snap);
                 fprintf(stderr,"%s",rpt.report().toAscii().constData());
             }
-            return 0;
         }
     } catch (std::exception &e) {
         fprintf(stderr,"\n%s\n",e.what());
@@ -153,6 +166,11 @@ int main(int argc, char *argv[])
         exit(-1);
     }
 
+
+    if ( opts.isReportRT || !opts.csv2trkFile.isEmpty()
+         || !opts.trk2csvFile.isEmpty() ) {
+        return 0;
+    }
 
     try {
 
@@ -847,38 +865,17 @@ void preset_stop(double* time, double new_time, bool* ok)
     }
 }
 
-void presetTrkFile(QString* ignoreMe, const QString& trk, bool* ok)
+void presetExistsFile(QString* ignoreMe, const QString& fname, bool* ok)
 {
     Q_UNUSED(ignoreMe);
 
-    QFileInfo fi(trk);
+    QFileInfo fi(fname);
     if ( !fi.exists() ) {
         fprintf(stderr,
                 "snap [error] : Couldn't find file: \"%s\".\n",
-                trk.toAscii().constData());
+                fname.toAscii().constData());
         *ok = false;
         return;
-    }
-}
-
-// Placeholder
-void postsetTrkFile (QString* trk, bool* ok)
-{
-    Q_UNUSED(trk);
-    Q_UNUSED(ok);
-}
-
-void presetCsvFile(QString* v, const QString& fcsv, bool* ok)
-{
-
-    Q_UNUSED(v);
-
-    *ok = true;
-    QFileInfo fcsvi(fcsv);
-    if ( fcsvi.exists() ) {
-        fprintf(stderr, "snapq [error]: %s exists, will not overwrite\n",
-                fcsv.toAscii().constData());
-        *ok = false;
     }
 }
 
@@ -932,6 +929,95 @@ bool convert2csv(const QString& ftrk, const QString& fcsv)
 
     // Clean up
     csv.close();
+
+    return true;
+}
+
+bool convert2trk(const QString& csvFileName, const QString& trkFileName)
+{
+    QFile file(csvFileName);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
+        fprintf(stderr, "csv2trk [error]: Cannot read file %s!",
+                csvFileName.toAscii().constData());
+    }
+    CSV csv(&file);
+
+    // Parse first line to get param list
+    QList<Param> params;
+    QStringList list = csv.parseLine() ;
+    if ( list.size() == 1 && list.at(0).isEmpty() ) {
+        fprintf(stderr, "csv2trk [error]: Empty csv file \"%s\"",
+                csvFileName.toAscii().constData());
+        return false;
+    }
+    foreach ( QString s, list ) {
+        Param p;
+        QStringList plist = s.split(" ", QString::SkipEmptyParts);
+        p.name = plist.at(0);
+        if ( plist.size() > 1 ) {
+            QString unitString = plist.at(1);
+            if ( unitString.startsWith('{') ) {
+                unitString = unitString.remove(0,1);
+            }
+            if ( unitString.endsWith('}') ) {
+                unitString.chop(1);
+            }
+            Unit u;
+            if ( u.isUnit(unitString.toAscii().constData()) ) {
+                p.unit = unitString;
+            }
+        }
+        p.type = TRICK_07_DOUBLE;
+        p.size = sizeof(double);
+        params.append(p);
+    }
+
+    QFileInfo ftrki(trkFileName);
+    if ( ftrki.exists() ) {
+        fprintf(stderr, "snap [error]: Will not overwrite %s\n",
+                trkFileName.toAscii().constData());
+        return false;
+    }
+
+    QFile trk(trkFileName);
+
+    if (!trk.open(QIODevice::WriteOnly)) {
+        fprintf(stderr,"snap [error]: could not open %s\n",
+                trkFileName.toAscii().constData());
+        return false;
+    }
+    QDataStream out(&trk);
+
+    // Write trk header
+    TrickModel::writeTrkHeader(out,params);
+
+    //
+    // Write param values
+    //
+    int line = 1;
+    while ( 1 ) {
+        ++line;
+        QStringList list = csv.parseLine() ;
+        if ( list.size() == 1 && list.at(0).isEmpty() ) break;
+        foreach ( QString s, list ) {
+            bool ok;
+            double val = s.toDouble(&ok);
+            if ( !ok ) {
+                QFileInfo fi(csvFileName);
+                fprintf(stderr,
+                 "snap [error]: Bad value \"%s\" on line %d in file %s\n",
+                        s.toAscii().constData(),
+                        line,
+                        fi.absoluteFilePath().toAscii().constData());
+                file.close();
+                trk.remove();
+                return false;
+            }
+            out << val;
+        }
+    }
+
+    file.close();
 
     return true;
 }
