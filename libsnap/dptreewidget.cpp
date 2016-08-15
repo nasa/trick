@@ -279,6 +279,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             _addChild(plotItem, "PlotName", _descrPlotTitle(plot));
             _addChild(plotItem, "PlotTitle",      plot->title());
             _addChild(plotItem, "PlotMathRect", QRectF());
+            _addChild(plotItem, "PlotPresentation", "");
             _addChild(plotItem, "PlotPointSize", 0.0);
             _addChild(plotItem, "PlotXAxisLabel", plot->xAxisLabel());
             _addChild(plotItem, "PlotYAxisLabel", plot->yAxisLabel());

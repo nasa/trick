@@ -6,7 +6,6 @@ CurvesView::CurvesView(QWidget *parent) :
 {
     setFocusPolicy(Qt::StrongFocus);
     setFrameShape(QFrame::NoFrame);
-    _viewType = "coplot";
     _colorBandsNormal = _createColorBands(9,false);
     _colorBandsRainbow = _createColorBands(10,true);
 }
@@ -38,9 +37,6 @@ void CurvesView::paintEvent(QPaintEvent *event)
     QPainter painter(viewport());
     painter.save();
 
-    //if ( _kPlotModel->curvePointSize(this) > 0 ) {
-        //painter.setRenderHint(QPainter::Antialiasing);
-    //}
     painter.setRenderHint(QPainter::Antialiasing);
 
     QTransform T = _coordToPixelTransform();
@@ -49,20 +45,21 @@ void CurvesView::paintEvent(QPaintEvent *event)
     pen.setWidthF(ptSizeCurve);
     painter.setPen(pen);
 
-
     // Draw!
     painter.setTransform(T);
     if ( nCurves == 2 ) {
-        if ( _viewType == "coplot" ) {
+        QString plotPresentation = _bookModel()->getDataString(_myIdx,
+                                                     "PlotPresentation","Plot");
+        if ( plotPresentation == "coplot" ) {
             _paintCoplot(T,painter,pen);
-        } else if ( _viewType == "error" ) {
+        } else if (plotPresentation == "error" || plotPresentation.isEmpty()) {
             _paintErrorplot(T,painter,pen);
-        } else if ( _viewType == "error+coplot" ) {
+        } else if ( plotPresentation == "error+coplot" ) {
             _paintErrorplot(T,painter,pen);
             _paintCoplot(T,painter,pen);
         } else {
-            qDebug() << "snap [bad scoobs]: paintEvent() : _viewType="
-                     << _viewType << "not recognized.";
+            qDebug() << "snap [bad scoobs]: paintEvent() : PlotPresentation="
+                     << plotPresentation << "not recognized.";
             exit(-1);
         }
     } else {
@@ -198,81 +195,115 @@ QSize CurvesView::sizeHint() const
 void CurvesView::dataChanged(const QModelIndex &topLeft,
                              const QModelIndex &bottomRight)
 {
+    Q_UNUSED(bottomRight);
+
     if ( topLeft.column() != 1 ) return;
-    if ( topLeft.parent().parent().parent() != _myIdx ) return;
 
-    QModelIndex columnZeroIdx = topLeft.sibling(topLeft.row(),0);
-    QString tag = model()->data(columnZeroIdx).toString();
-    QModelIndex curveIdx = columnZeroIdx.parent();
-    QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
-                                                          "CurveData",
-                                                          "Curve");
-    QVariant v = model()->data(curveDataIdx);
-    TrickCurveModel* curveModel =QVariantToPtr<TrickCurveModel>::convert(v);
+    QString tag = model()->data(topLeft.sibling(topLeft.row(),0)).toString();
+    QModelIndex topLeft_ppp = topLeft.parent().parent().parent();
 
-    if ( curveModel ) {
-        if ( tag == "CurveData" ) {
-            _updateUnits(curveIdx,'x');
-            _updateUnits(curveIdx,'y');
+    if ( tag == "CurveData" && topLeft_ppp == _myIdx ) {
+        QVariant v = model()->data(topLeft);
+        TrickCurveModel* curveModel =QVariantToPtr<TrickCurveModel>::convert(v);
+        if ( curveModel ) {
+            QModelIndex curveIdx = topLeft.parent();
+            _updateAxisLabelUnits(curveIdx,'x');
+            _updateAxisLabelUnits(curveIdx,'y');
+            if ( _curve2path.contains(curveModel) ) {
+                delete _curve2path.value(curveModel);
+            }
             QPainterPath* path = _createPainterPath(curveModel);
             _curve2path.insert(curveModel,path);
-            if ( _curve2path.keys().size() == 2 ) {
-                // Make error/difference path between 2 paths
-                QModelIndex curvesIdx = curveIdx.parent();
-                QModelIndex curve0Idx = model()->index(0,0,curvesIdx);
-                QModelIndex curve1Idx = model()->index(1,0,curvesIdx);
-                if ( _errorPath ) {
-                    delete _errorPath;
+
+            QModelIndex curvesIdx = topLeft.parent().parent();
+            int nCurves = model()->rowCount(curvesIdx);
+            if ( nCurves == 1 || nCurves >= 4 ) {
+                _currBBox = _currBBox.united(
+                            _curveBBox(curveModel,curveIdx));
+            } else if ( nCurves == 2 ) {
+                QModelIndex otherCurveIdx;
+                if ( curveIdx.row() == 1 ) {
+                    // normal case
+                    otherCurveIdx = model()->index(0,0,curvesIdx);
+                } else if ( curveIdx.row() == 0 ) {
+                    otherCurveIdx = model()->index(1,0,curvesIdx);
+                } else {
+                    qDebug() << "snap [bad scoobs]: "
+                                "CurvesView::dataChanged(), nCurves==2";
+                    exit(-1);
                 }
-                _errorPath = _createErrorPath(curve0Idx,curve1Idx);
-                _viewType = "error";
+                _errorPath = _createErrorPath(otherCurveIdx,curveIdx);
                 _currBBox = _errorPath->boundingRect();
-            } else if ( _curve2path.keys().size() == 3 ) {
+            } else if ( nCurves == 3 ) {
                 // not an error plot, must redo bbox using path 0,1,2
-                _currBBox.setTopLeft(QPointF(0,0));
-                _currBBox.setSize(QSizeF(0,0));
-                foreach ( QPainterPath* mypath, _curve2path.values() ) {
-                    _currBBox = _currBBox.united(mypath->boundingRect());
-                }
+                _currBBox = _calcBBox();
             } else {
-                _currBBox = _currBBox.united(_curveBBox(curveModel,curveIdx));
+                qDebug() << "snap [bad scoobs]: CurvesView::rowsInserted";
+                exit(-1);
             }
             _setPlotMathRect(_currBBox);
-        } else if ( tag == "CurveXUnit" ) {
-            _updateUnits(curveIdx,'x');
-            QRectF prevBBox = _currBBox;
-            _currBBox = _calcBBox();
-            if ( prevBBox.width() > 0 ) {
-                double xs = _currBBox.width()/prevBBox.width();
-                QRectF M = _plotMathRect(_myIdx);
-                double w = M.width();
-                double h = M.height();
-                QPointF topLeft(xs*M.topLeft().x(), M.topLeft().y());
-                QRectF scaledM(topLeft,QSizeF(xs*w,h));
-                _setPlotMathRect(scaledM);
-            }
-        } else if ( tag == "CurveYUnit" ) {
-            _updateUnits(curveIdx,'y');
-            QRectF prevBBox = _currBBox;
-            _currBBox = _calcBBox();
-            if ( prevBBox.height() > 0 ) {
-                double ys = _currBBox.height()/prevBBox.height();
-                QRectF M = _plotMathRect(_myIdx);
-                double w = M.width();
-                double h = M.height();
-                QPointF topLeft(M.topLeft().x(), ys*M.topLeft().y());
-                QRectF scaledM(topLeft,QSizeF(w,ys*h));
-                _setPlotMathRect(scaledM);
+        }
+    } else if ( tag == "CurveXUnit" && topLeft_ppp == _myIdx) {
+        QModelIndex curveIdx = topLeft.parent();
+        _updateAxisLabelUnits(curveIdx,'x');
+        QRectF prevBBox = _currBBox;
+        _currBBox = _calcBBox();
+        if ( prevBBox.width() > 0 ) {
+            double xs = _currBBox.width()/prevBBox.width();
+            QRectF M = _plotMathRect(_myIdx);
+            double w = M.width();
+            double h = M.height();
+            QPointF topLeft(xs*M.topLeft().x(), M.topLeft().y());
+            QRectF scaledM(topLeft,QSizeF(xs*w,h));
+            _setPlotMathRect(scaledM);
+        }
+    } else if ( tag == "CurveYUnit" && topLeft_ppp == _myIdx) {
+        QModelIndex curveIdx = topLeft.parent();
+        _updateAxisLabelUnits(curveIdx,'y');
+        QRectF prevBBox = _currBBox;
+        _currBBox = _calcBBox();
+        if ( prevBBox.height() > 0 ) {
+            double ys = _currBBox.height()/prevBBox.height();
+            QRectF M = _plotMathRect(_myIdx);
+            double w = M.width();
+            double h = M.height();
+            QPointF topLeft(M.topLeft().x(), ys*M.topLeft().y());
+            QRectF scaledM(topLeft,QSizeF(w,ys*h));
+            _setPlotMathRect(scaledM);
+        }
+    } else if ( tag == "PlotPresentation" && topLeft.parent() == _myIdx ) {
+        if ( _bookModel()->isChildIndex(_myIdx,"Plot","Curves") ) {
+            QModelIndex curvesIdx = _bookModel()->getIndex(_myIdx,
+                                                           "Curves","Plot");
+            int nCurves = model()->rowCount(curvesIdx);
+            if ( nCurves == 2 ) {
+                QString presentation = model()->data(topLeft).toString();
+                if ( presentation == "error" || presentation.isEmpty() ) {
+                    _currBBox = _errorPath->boundingRect();
+                } else if ( presentation == "coplot" ) {
+                    _currBBox = _calcBBox();
+                } else if ( presentation == "error+coplot" ) {
+                    _currBBox = _calcBBox();
+                    _currBBox = _currBBox.united(_errorPath->boundingRect());
+                }
+                _setPlotMathRect(_currBBox);
+            } else {
+                // ignore
             }
         }
-
-        viewport()->update();
+    } else {
+        // ignore (but still update below)
     }
+
+    // Schedule paint()!!!
+    viewport()->update();
 }
 
 void CurvesView::rowsInserted(const QModelIndex &pidx, int start, int end)
 {
     if ( pidx.parent().parent() != _myIdx ) return; // not my plot
+
+    QModelIndex curvesIdx = pidx.parent();
 
     for ( int i = start; i <= end; ++i ) {
         QModelIndex curveIdx = model()->index(i,0,pidx);
@@ -281,13 +312,42 @@ void CurvesView::rowsInserted(const QModelIndex &pidx, int start, int end)
         if ( name == "CurveData" ) {
             QVariant v = model()->data(curveDataIdx);
             TrickCurveModel* curveModel =
-                    QVariantToPtr<TrickCurveModel>::convert(v);
+                                     QVariantToPtr<TrickCurveModel>::convert(v);
             if ( curveModel ) {
-                _updateUnits(curveIdx,'x');
-                _updateUnits(curveIdx,'y');
+                _updateAxisLabelUnits(curveIdx,'x');
+                _updateAxisLabelUnits(curveIdx,'y');
                 QPainterPath* path = _createPainterPath(curveModel);
                 _curve2path.insert(curveModel,path);
-                _currBBox = _currBBox.united(_curveBBox(curveModel,curveIdx));
+                int nCurves = model()->rowCount(curvesIdx);
+                if ( nCurves == 1 || nCurves >= 4 ) {
+                    _currBBox = _currBBox.united(
+                                              _curveBBox(curveModel,curveIdx));
+                } else if ( nCurves == 2 ) {
+                    QModelIndex otherCurveIdx;
+                    if ( curveIdx.row() == 1 ) {
+                        // normal case
+                        otherCurveIdx = model()->index(0,0,curvesIdx);
+                    } else if ( curveIdx.row() == 0 ) {
+                        otherCurveIdx = model()->index(1,0,curvesIdx);
+                    } else {
+                        qDebug() << "snap [bad scoobs]: "
+                                    "CurvesView::rowsInserted, nCurves==2";
+                        exit(-1);
+                    }
+                    _errorPath = _createErrorPath(otherCurveIdx,curveIdx);
+                    _currBBox = _errorPath->boundingRect();
+                } else if ( nCurves == 3 ) {
+                    // not an error plot, must redo bbox using path 0,1,2
+                    _currBBox.setTopLeft(QPointF(0,0));
+                    _currBBox.setSize(QSizeF(0,0));
+                    foreach ( QPainterPath* mypath, _curve2path.values() ) {
+                        _currBBox = _currBBox.united(mypath->boundingRect());
+                    }
+                } else {
+                    qDebug() << "snap [bad scoobs]: CurvesView::rowsInserted";
+                    exit(-1);
+                }
+                _setPlotMathRect(_currBBox);
             }
             break;
         }
@@ -366,6 +426,9 @@ QPainterPath *CurvesView::_createErrorPath(const QModelIndex &curve0Idx,
     QVariant v1 = model()->data(curveData1Idx);
     TrickCurveModel* model1 = QVariantToPtr<TrickCurveModel>::convert(v1);
 
+    double ys0 = _yScale(model0,curve0Idx);
+    double ys1 = _yScale(model1,curve1Idx);
+
     if ( model0 != 0 && model1 != 0 ) {
 
         model0->map();
@@ -380,7 +443,7 @@ QPainterPath *CurvesView::_createErrorPath(const QModelIndex &curve0Idx,
             double t0 = it0.t();
             double t1 = it1.t();
             if ( qAbs(t1-t0) < 0.000001 ) {
-                double d = it0.y() - it1.y();
+                double d = ys0*it0.y() - ys1*it1.y();
                 if ( isFirst ) {
                     path->moveTo(t0,d);
                     isFirst = false;
@@ -488,7 +551,8 @@ QList<QColor> CurvesView::_createColorBands(int nBands, bool isRainbow)
     return colorBands;
 }
 
-void CurvesView::_updateUnits(const QModelIndex &curveIdx, QChar axis) const
+void CurvesView::_updateAxisLabelUnits(const QModelIndex &curveIdx,
+                                       QChar axis) const
 {
     QModelIndex axisLabelIdx;
     QModelIndex curveUnitIdx;
@@ -743,28 +807,28 @@ void CurvesView::keyPressEvent(QKeyEvent *event)
 // the two curves in error, coplot and error+coplot views
 void CurvesView::_keyPressSpace()
 {
-    if ( _curve2path.keys().size() != 2 ) return;
+    QModelIndex curvesIdx = _bookModel()->getIndex(_myIdx,"Curves","Plot");
+    int rc = model()->rowCount(curvesIdx);
+    if ( rc != 2 ) return;
 
-    QPainterPath* path0 = _curve2path.values().at(0);
-    QPainterPath* path1 = _curve2path.values().at(1);
-    if ( _viewType == "error" ) {
-        _viewType = "coplot";
-        QRectF bbox = path0->boundingRect();
-        _currBBox = bbox.united(path1->boundingRect());
-    } else if ( _viewType == "coplot" ) {
-        _viewType = "error+coplot";
-        QRectF bbox = path0->boundingRect();
-        bbox = bbox.united(path1->boundingRect());
-        bbox = bbox.united(_errorPath->boundingRect());
-        _currBBox = bbox;
-    } else if ( _viewType == "error+coplot" ) {
-        _viewType = "error";
-        _currBBox = _errorPath->boundingRect();
+    QString plotPresentation = _bookModel()->getDataString(_myIdx,
+                                                   "PlotPresentation","Plot");
+
+    if ( plotPresentation == "error" || plotPresentation.isEmpty() ) {
+        plotPresentation = "coplot";
+    } else if ( plotPresentation == "coplot" ) {
+        plotPresentation = "error+coplot";
+    } else if ( plotPresentation == "error+coplot" ) {
+        plotPresentation = "error";
     } else {
         qDebug() << "snap [bad scoobs]: _keyPressSpace() : "
-                 << "_viewType=" << _viewType;
+                 << "plotPresentation=" << plotPresentation;
         exit(-1);
     }
-    _setPlotMathRect(_currBBox);
+
+    QModelIndex plotPresentationIdx = _bookModel()->getDataIndex(_myIdx,
+                                                   "PlotPresentation","Plot");
+    model()->setData(plotPresentationIdx,plotPresentation);
+
     viewport()->update();
 }

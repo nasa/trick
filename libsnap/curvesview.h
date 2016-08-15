@@ -36,8 +36,7 @@ protected:
 private:
     QHash<TrickCurveModel*,QPainterPath*> _curve2path;
     QPainterPath* _errorPath;
-    QString _viewType; // error,coplot,error+coplot
-    QPainterPath *_createPainterPath(TrickCurveModel *curveModel);
+    QPainterPath* _createPainterPath(TrickCurveModel *curveModel);
     QPainterPath* _createErrorPath(const QModelIndex& curve0Idx,
                                    const QModelIndex &curve1Idx);
     QRectF _bbox();
@@ -52,7 +51,7 @@ private:
     QPoint _mousePressPos;
     QPointF _mousePressMathTopLeft;
 
-    void _updateUnits(const QModelIndex &curveIdx,QChar axis) const;
+    void _updateAxisLabelUnits(const QModelIndex &curveIdx,QChar axis) const;
 
     QRectF _currBBox;
 
