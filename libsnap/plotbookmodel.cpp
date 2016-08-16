@@ -187,11 +187,12 @@ void PlotBookModel::_initModel()
 }
 
 //
-// Set expectedStartIdxText in calling routine to check to make sure
-// startIdx's text is correct.  It's more for debugging, but helps
-// ensure that one is in sync with the tree.
+// Convenience method for obtaining QModelIndexes using search strings (tags)
 //
-// StartIdx is normally the immediate parent of the item with searchItemText
+// expectedStartIdxText should match startIdx's text.
+// It's more for debugging, but helps ensure that one is in sync with the tree.
+//
+// StartIdx is normally the immediate parent of the item with searchItemText.
 // The odd case is for Pages and Plots.  The search can go ancestorily (sp?).
 // For instance:
 //     getIndex(curveIdx, "Plot")
@@ -228,14 +229,14 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
             if ( !isIndex(startIdx, expectedStartIdxText) ) {
                 QStandardItem* startItem = itemFromIndex(startIdx);
                 QString startText = startItem->text();
-                qDebug() << "snap [bad scoobies]: getIndex() received a "
+                qDebug() << "snap [bad scoobies]:1: getIndex() received a "
                             "startIdx of " << startIdx << " with item text "
                          << startText << ".  The expected start item text was "
                          << expectedStartIdxText << ".";
                 exit(-1);
             }
         } else {
-            qDebug() << "snap [bad scoobies]: getIndex() received an "
+            qDebug() << "snap [bad scoobies]:2: getIndex() received an "
                         "invalid startIdx. The startIdx "
                         "was expected to have this text "
                      << expectedStartIdxText << ".";
@@ -255,7 +256,7 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
         } else if ( searchItemText == "DefaultPageTitles" ) {
             idx = index(4,0);
         } else {
-            qDebug() << "snap [bad scoobies]: getIndex() received "
+            qDebug() << "snap [bad scoobies]:3: getIndex() received "
                         "root as a startIdx and had bad child item text of \""
                      << searchItemText
                      << "\".";
@@ -278,7 +279,7 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
         if ( !isFound ) {
             if ( !expectedStartIdxText.isEmpty() ) {
                 qDebug()
-                    << "snap [bad scoobies]: getIndex() received a start item "
+                    << "snap [bad scoobies]:4: getIndex() received start item= "
                     << expectedStartIdxText
                     << ".  Unable to find a child with the item text "
                     << searchItemText
@@ -286,7 +287,7 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
                     << cStrings;
             } else {
                 qDebug()
-                    << "snap [bad scoobies]: getIndex() received a startIdx of "
+                    << "snap [bad scoobies]:5: getIndex() received startIdx="
                     << startIdx
                     << ".  Unable to find a child with the item text "
                     << searchItemText << ".  Child items found were: "
