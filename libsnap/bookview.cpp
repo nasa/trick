@@ -864,7 +864,47 @@ void BookView::_printPlotTitle(const QRect &R,
 }
 
 void BookView::_printCurves(const QRect& R,
-                             QPainter *painter, const QModelIndex &plotIdx)
+                            QPainter *painter, const QModelIndex &plotIdx)
+{
+    if ( !model() ) return;
+
+    painter->save();
+
+    QTransform T = _coordToDotTransform(R,plotIdx);
+
+    QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
+    int nCurves = model()->rowCount(curvesIdx);
+
+    QPen pen = painter->pen();
+
+    // Print!
+    if ( nCurves == 2 ) {
+        QString plotPresentation = _bookModel()->getDataString(plotIdx,
+                                                     "PlotPresentation","Plot");
+        QModelIndex curveIdx0 = model()->index(0,0,curvesIdx);
+        QModelIndex curveIdx1 = model()->index(1,0,curvesIdx);
+        if ( plotPresentation == "coplot" ) {
+            _printCoplot(R,painter,plotIdx);
+        } else if (plotPresentation == "error" || plotPresentation.isEmpty()) {
+            _printErrorplot(R,painter,plotIdx);
+        } else if ( plotPresentation == "error+coplot" ) {
+            _printErrorplot(R,painter,plotIdx);
+            _printCoplot(R,painter,plotIdx);
+        } else {
+            qDebug() << "snap [bad scoobs]: printCurves() : PlotPresentation="
+                     << plotPresentation << "not recognized.";
+            exit(-1);
+        }
+    } else {
+        _printCoplot(R,painter,plotIdx);
+    }
+
+    // Restore the painter state off the painter stack
+    painter->restore();
+}
+
+void BookView::_printCoplot(const QRect& R,
+                            QPainter *painter, const QModelIndex &plotIdx)
 {
     QTransform T = _coordToDotTransform(R,plotIdx);
 
@@ -882,6 +922,8 @@ void BookView::_printCurves(const QRect& R,
 
         if ( curveModel ) {
 
+            double ys = _yScale(curveModel,curveIdx);
+
             QPainterPath* path = new QPainterPath;
             paths << path;
 
@@ -893,7 +935,7 @@ void BookView::_printCurves(const QRect& R,
 
             while (it != e) {
 
-                QPointF p(it.x(),it.y());
+                QPointF p(it.x(),it.y()*ys);
                 p = T.map(p);
 
                 if ( pts.size() == 0 ) {
@@ -952,12 +994,102 @@ void BookView::_printCurves(const QRect& R,
     painter->restore();
 }
 
+void BookView::_printErrorplot(const QRect& R,
+                               QPainter *painter, const QModelIndex &plotIdx)
+{
+    QTransform T = _coordToDotTransform(R,plotIdx);
+
+    QList<QPainterPath*> paths;
+    QRectF bbox;  // TODO: this has helped debugging but not needed
+    QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
+    int rc = model()->rowCount(curvesIdx);
+    for ( int i = 0; i < rc; ++i ) {
+
+        QModelIndex curveIdx = model()->index(i,0,curvesIdx);
+        QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
+                                                          "CurveData","Curve");
+        QVariant v = model()->data(curveDataIdx);
+        TrickCurveModel* curveModel =QVariantToPtr<TrickCurveModel>::convert(v);
+
+        if ( curveModel ) {
+
+            double ys = _yScale(curveModel,curveIdx);
+
+            QPainterPath* path = new QPainterPath;
+            paths << path;
+
+            curveModel->map();
+            TrickModelIterator it = curveModel->begin();
+            const TrickModelIterator e = curveModel->end();
+
+            QList<QPointF> pts;
+
+            while (it != e) {
+
+                QPointF p(it.x(),it.y()*ys);
+                p = T.map(p);
+
+                if ( pts.size() == 0 ) {
+                    path->moveTo(p.x(),p.y()); // for first point only
+                } else if ( pts.size() >= 2 ) {
+                    QVector2D v0(pts.at(1)-pts.at(0));
+                    QVector2D v1(p-pts.at(0));
+                    v0.normalize();
+                    v1.normalize();
+                    double dot = QVector2D::dotProduct(v0,v1);
+                    double ang = 180*acos(dot)/M_PI;
+                    double dx = p.x()-pts.at(0).x();
+                    double dy = p.y()-pts.at(0).y();
+                    double d = sqrt(dx*dx+dy*dy);
+
+                    // TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! DO THIS!!!!
+                    if ( ang > 60 || d > 0 ) {
+                        // fuzzily non-colinear or
+                        // distance between p0 and p over 1/6th inch
+                        path->lineTo(pts.last());
+                        pts.clear();
+                    }
+                }
+
+                pts << p;
+
+                ++it;
+            }
+            if ( !pts.isEmpty() ) {
+                foreach ( QPointF p, pts ) {
+                    path->lineTo(p);
+                }
+            }
+            curveModel->unmap();
+
+            QRectF curveBBox = path->boundingRect();
+            bbox = bbox.united(curveBBox);
+        }
+    }
+
+    painter->save();
+    painter->setRenderHint(QPainter::Antialiasing);
+
+    QList<QColor> colors = _bookModel()->createCurveColors(paths.size());
+    QPen pen = painter->pen();
+
+    int i = 0;
+    foreach ( QPainterPath* path, paths ) {
+        pen.setColor(colors.at(i));
+        painter->setPen(pen);
+        painter->drawPath(*path);
+        delete path;
+        ++i;
+    }
+    //painter->drawPath(*path2);
+    painter->restore();
+}
+
+
 void BookView::_printXAxisLabel(const QRect& R,
                                 QPainter *painter,
                                 const QModelIndex &plotIdx)
 {
-    QPaintDevice* paintDevice = painter->device();
-
     QString s = _bookModel()->getDataString(plotIdx,"PlotXAxisLabel","Plot");
 
     QFontMetrics fm = painter->fontMetrics();

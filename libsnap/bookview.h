@@ -58,11 +58,15 @@ private:
     void _printPlotTitle(const QRect& R,
                          QPainter *painter, const QModelIndex& plotIdx);
     void _printCurves(const QRect& R,
-                       QPainter *painter, const QModelIndex& plotIdx);
+                      QPainter *painter, const QModelIndex& plotIdx);
+    void _printCoplot(const QRect& R,
+                      QPainter *painter, const QModelIndex& plotIdx);
+    void _printErrorplot(const QRect& R,
+                         QPainter *painter, const QModelIndex& plotIdx);
     void _printXAxisLabel(const QRect& R,
-                           QPainter *painter, const QModelIndex& plotIdx);
+                          QPainter *painter, const QModelIndex& plotIdx);
     void _printYAxisLabel(const QRect& R,
-                           QPainter *painter, const QModelIndex& plotIdx);
+                          QPainter *painter, const QModelIndex& plotIdx);
     void _printXTicLabels(const QRect &R, QPainter *painter,
                           const QModelIndex& plotIdx, const QRectF &curvesRect);
     void _printYTicLabels(const QRect &R, QPainter *painter,

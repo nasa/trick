@@ -842,3 +842,38 @@ QString BookIdxView::_curvesUnit(const QModelIndex &plotIdx, QChar axis) const
 
     return curvesUnit;
 }
+
+double BookIdxView::_xScale(TrickCurveModel* curveModel,
+                           const QModelIndex& curveIdx) const
+{
+    double xs = 1.0;
+
+    QModelIndex curveXUnitIdx = _bookModel()->getDataIndex(curveIdx,
+                                                          "CurveXUnit","Curve");
+    QString bookXUnit = model()->data(curveXUnitIdx).toString();
+    if ( !bookXUnit.isEmpty() && bookXUnit != "--" ) {
+        QString loggedXUnit = curveModel->x()->unit();
+        xs = Unit::convert(1.0,
+                           loggedXUnit.toAscii().constData(),
+                           bookXUnit.toAscii().constData());
+    }
+
+    return xs;
+}
+
+
+double BookIdxView::_yScale(TrickCurveModel* curveModel,
+                           const QModelIndex& curveIdx) const
+{
+    double ys = 1.0;
+
+    QModelIndex curveYUnitIdx = _bookModel()->getDataIndex(curveIdx,
+                                                          "CurveYUnit","Curve");
+    QString bookYUnit = model()->data(curveYUnitIdx).toString();
+    if ( !bookYUnit.isEmpty() && bookYUnit != "--" ) {
+        QString loggedYUnit = curveModel->y()->unit();
+        ys = Unit::convert(1.0,loggedYUnit, bookYUnit);
+    }
+
+    return ys;
+}

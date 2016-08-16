@@ -37,8 +37,8 @@ private:
     QHash<TrickCurveModel*,QPainterPath*> _curve2path;
     QPainterPath* _errorPath;
     QPainterPath* _createPainterPath(TrickCurveModel *curveModel);
-    QPainterPath* _createErrorPath(const QModelIndex& curve0Idx,
-                                   const QModelIndex &curve1Idx);
+    QPainterPath* _createErrorPath(const QModelIndex& curveIdx0,
+                                   const QModelIndex &curveIdx1);
     QRectF _bbox();
     QPainterPath _sinPath();
     QPainterPath _stepPath();
@@ -55,20 +55,18 @@ private:
 
     QRectF _currBBox;
 
-    double _xScale(TrickCurveModel *curveModel,
-                   const QModelIndex& curveIdx=QModelIndex()) const;
-    double _yScale(TrickCurveModel *curveModel,
-                   const QModelIndex& curveIdx=QModelIndex()) const;
-
     QRectF _curveBBox(TrickCurveModel *curveModel,
                       const QModelIndex &curveIdx) const ;
     QRectF _calcBBox() const ;
 
     void _paintCoplot(const QTransform& T,QPainter& painter,QPen& pen);
-    void _paintErrorplot(const QTransform& T,QPainter& painter,QPen& pen);
+    void _paintErrorplot(QPainter& painter, const QPen &pen,
+                         QPainterPath *errorPath,
+                         const QModelIndex &plotIdx);
 
     // Key Events
     void _keyPressSpace();
+
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,
