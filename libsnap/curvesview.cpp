@@ -454,8 +454,11 @@ QPainterPath *CurvesView::_createErrorPath(const QModelIndex &curveIdx0,
                  << "curveModel1="   << (void*) c1;
     }
 
+    double k0 = _bookModel()->getDataDouble(curveIdx0,"CurveYScale","Curve");
+    double k1 = _bookModel()->getDataDouble(curveIdx1,"CurveYScale","Curve");
     double ys0 = _yScale(c0,curveIdx0);
-    double ys1 = _yScale(c1,curveIdx1);
+    double ys1 = (k1/k0)*_yScale(c1,curveIdx0); // curveIdx0 for same unit
+                                                // k1/k0 to correct book ysf
 
     if ( c0 != 0 && c1 != 0 ) {
 
