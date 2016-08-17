@@ -294,7 +294,6 @@ int main(int argc, char *argv[])
             PlotMainWindow w(opts.timeName,
                              opts.presentation, QString(), dps, titles,
                              monteModel, varsModel, monteInputsModel);
-            w.show();
             w.savePdf(opts.pdfOutFile);
 
         } else if ( isTrk ) {
