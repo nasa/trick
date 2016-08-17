@@ -1015,10 +1015,12 @@ void BookView::_printErrorplot(const QRect& R,
     }
 
     // Make list of scaled (e.g. unit) data points
-    double ys0 = _yScale(c0,curveIdx0);  // TODO: if curveIdx0,curveIdx1 have diff units.... handle!!!!!!!!!!
-    double ys1 = _yScale(c1,curveIdx1);
     QList<QPointF> pts;
-    c0->map();
+    double k0 = _bookModel()->getDataDouble(curveIdx0,"CurveYScale","Curve");
+    double k1 = _bookModel()->getDataDouble(curveIdx1,"CurveYScale","Curve");
+    double ys0 = _yScale(c0,curveIdx0);
+    double ys1 = (k1/k0)*_yScale(c1,curveIdx0); // curveIdx0 for same unit
+    c0->map();                                  // k1/k0 to correct book ysf
     c1->map();
     TrickModelIterator i0 = c0->begin();
     TrickModelIterator i1 = c1->begin();

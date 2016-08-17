@@ -40,6 +40,9 @@ public:
     QString getDataString(const QModelIndex& startIdx,
                           const QString& searchItemText,
                           const QString &expectedStartIdxText=QString()) const;
+    double getDataDouble(const QModelIndex& startIdx,
+                         const QString& searchItemText,
+                         const QString &expectedStartIdxText=QString()) const;
 
     QModelIndexList getIndexList(const QModelIndex& startIdx,
                         const QString& searchItemText,

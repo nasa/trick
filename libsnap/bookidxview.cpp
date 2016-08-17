@@ -848,6 +848,7 @@ double BookIdxView::_xScale(TrickCurveModel* curveModel,
 {
     double xs = 1.0;
 
+    // Unit scale
     QModelIndex curveXUnitIdx = _bookModel()->getDataIndex(curveIdx,
                                                           "CurveXUnit","Curve");
     QString bookXUnit = model()->data(curveXUnitIdx).toString();
@@ -856,6 +857,12 @@ double BookIdxView::_xScale(TrickCurveModel* curveModel,
         xs = Unit::convert(1.0,
                            loggedXUnit.toAscii().constData(),
                            bookXUnit.toAscii().constData());
+    }
+
+    // Book model x scale
+    double k = _bookModel()->getDataDouble(curveIdx,"CurveXScale","Curve");
+    if ( k != 1.0 ) {
+        xs *= k;
     }
 
     return xs;
@@ -867,12 +874,19 @@ double BookIdxView::_yScale(TrickCurveModel* curveModel,
 {
     double ys = 1.0;
 
+    // Unit scale
     QModelIndex curveYUnitIdx = _bookModel()->getDataIndex(curveIdx,
                                                           "CurveYUnit","Curve");
     QString bookYUnit = model()->data(curveYUnitIdx).toString();
     if ( !bookYUnit.isEmpty() && bookYUnit != "--" ) {
         QString loggedYUnit = curveModel->y()->unit();
         ys = Unit::convert(1.0,loggedYUnit, bookYUnit);
+    }
+
+    // Book model y scale factor
+    double k = _bookModel()->getDataDouble(curveIdx,"CurveYScale","Curve");
+    if ( k != 1.0 ) {
+        ys *= k;
     }
 
     return ys;

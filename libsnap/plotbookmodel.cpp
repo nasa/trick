@@ -318,6 +318,21 @@ QString PlotBookModel::getDataString(const QModelIndex &startIdx,
     return data(dataIdx).toString();
 }
 
+double PlotBookModel::getDataDouble(const QModelIndex &startIdx,
+                                     const QString &searchItemText,
+                                     const QString &expectedStartIdxText) const
+{
+    QModelIndex tagIdx = getIndex(startIdx,searchItemText,expectedStartIdxText);
+    QModelIndex dataIdx = sibling(tagIdx.row(),1,tagIdx);
+    bool ok;
+    double d = data(dataIdx).toDouble(&ok);
+    if ( !ok ) {
+        qDebug() << "snap [bad scoobs]: PlotBookModel::getDataDouble()";
+        exit(-1);
+    }
+    return d;
+}
+
 QModelIndexList PlotBookModel::getIndexList(const QModelIndex &startIdx,
                                   const QString &searchItemText,
                                   const QString &expectedStartIdxText) const
