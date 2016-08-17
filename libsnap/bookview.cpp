@@ -793,17 +793,16 @@ void BookView::_printPlot(const QRect &R,
     QRect titleRect(tlc.bottomRight(),QSize(ttics.width(),titleh));
     QRect q1(titleRect.bottomLeft(),QSize(titleRect.width(),q/2));
     QRect q4(q1.bottomLeft(),QSize(q/2,m0.height()-2*ttics.height()-titleh-q));
-    QRect q3(q4.bottomLeft(),QSize(q1.width(),q/2));
-    QRect curvesRect(q4.topRight(),
-                     QSize(q1.width()-q,
-                           rtics.height()-titleh-q));
-    QRect q2(curvesRect.topRight(),QSize(q/2,q4.height()));
+
+    QRect q3(q4.bottomLeft(),QSize(q1.width(),q/2)); Q_UNUSED(q3);
+    QRect curvesRect(q4.topRight(),QSize(q1.width()-q,rtics.height()-titleh-q));
+    QRect q2(curvesRect.topRight(),QSize(q/2,q4.height())); Q_UNUSED(q2);
 
     QRect m3(m0.bottomLeft(),QSize(R.width(),hm3));
     QRect xtl(m3.bottomLeft(),QSize(R.width(),tlh));
     QRect m4(xtl.bottomLeft(),QSize(R.width(),hm4));
     QRect xal(m4.bottomLeft(),QSize(R.width(),xalh));
-    QRect m5(xal.bottomLeft(),QSize(R.width(),hm5));
+    QRect m5(xal.bottomLeft(),QSize(R.width(),hm5)); Q_UNUSED(m5);
 
     //
     // Paint!
@@ -869,20 +868,15 @@ void BookView::_printCurves(const QRect& R,
     if ( !model() ) return;
 
     painter->save();
-
-    QTransform T = _coordToDotTransform(R,plotIdx);
+    painter->setClipRect(R);
 
     QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
     int nCurves = model()->rowCount(curvesIdx);
-
-    QPen pen = painter->pen();
 
     // Print!
     if ( nCurves == 2 ) {
         QString plotPresentation = _bookModel()->getDataString(plotIdx,
                                                      "PlotPresentation","Plot");
-        QModelIndex curveIdx0 = model()->index(0,0,curvesIdx);
-        QModelIndex curveIdx1 = model()->index(1,0,curvesIdx);
         if ( plotPresentation == "coplot" ) {
             _printCoplot(R,painter,plotIdx);
         } else if (plotPresentation == "error" || plotPresentation.isEmpty()) {
