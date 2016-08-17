@@ -336,10 +336,12 @@ clean_gui: clean_java
 #                                 INSTALL Targets
 ################################################################################
 
+PREFIX=/users/alin/temp3
 ER7_HEADERS := $(addprefix $(PREFIX)/include/, $(filter er7_utils/%, $(shell cd trick_source && find er7_utils -name \*.hh)))
 
 ${ER7_HEADERS} : ${PREFIX}/include/% : trick_source/%
-	install -m 0644 -D $? $@
+	@ mkdir -p ${@D}
+	install -m 0644 $? $@
 
 install: ${ER7_HEADERS}
 	cp -r bin include $(notdir ${TRICK_LIB_DIR}) libexec share ${PREFIX}
