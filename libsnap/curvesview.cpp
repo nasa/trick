@@ -445,7 +445,7 @@ QPainterPath *CurvesView::_createErrorPath(const QModelIndex &curveIdx0,
     QVariant v1 = model()->data(idx1);
     TrickCurveModel* c1 = QVariantToPtr<TrickCurveModel>::convert(v1);
 
-    if ( v0 == 0 || v1 == 0 ) {
+    if ( c0 == 0 || c1 == 0 ) {
         qDebug() << "snap [bad scoobies]:3: BookIdxView::_createErrorPath().  "
                  << "null curveModel!!!! "
                  << "curveDataIdx0=" << curveIdx0

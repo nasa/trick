@@ -997,91 +997,78 @@ void BookView::_printCoplot(const QRect& R,
 void BookView::_printErrorplot(const QRect& R,
                                QPainter *painter, const QModelIndex &plotIdx)
 {
-    QTransform T = _coordToDotTransform(R,plotIdx);
-
-    QList<QPainterPath*> paths;
-    QRectF bbox;  // TODO: this has helped debugging but not needed
     QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
-    int rc = model()->rowCount(curvesIdx);
-    for ( int i = 0; i < rc; ++i ) {
 
-        QModelIndex curveIdx = model()->index(i,0,curvesIdx);
-        QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
-                                                          "CurveData","Curve");
-        QVariant v = model()->data(curveDataIdx);
-        TrickCurveModel* curveModel =QVariantToPtr<TrickCurveModel>::convert(v);
+    QModelIndex curveIdx0 = model()->index(0,0,curvesIdx);
+    QModelIndex curveIdx1 = model()->index(1,0,curvesIdx);
 
-        if ( curveModel ) {
+    QVariant v0 = model()->data(_bookModel()->
+                                getDataIndex(curveIdx0,"CurveData","Curve"));
+    QVariant v1 = model()->data(_bookModel()->
+                                getDataIndex(curveIdx1,"CurveData","Curve"));
+    TrickCurveModel* c0 = QVariantToPtr<TrickCurveModel>::convert(v0);
+    TrickCurveModel* c1 = QVariantToPtr<TrickCurveModel>::convert(v1);
 
-            double ys = _yScale(curveModel,curveIdx);
+    if ( c0 == 0 || c1 == 0 ) {
+        qDebug() << "snap [bad scoobies]:1: BookView::_printErrorplot()";
+        exit(-1);
+    }
 
-            QPainterPath* path = new QPainterPath;
-            paths << path;
-
-            curveModel->map();
-            TrickModelIterator it = curveModel->begin();
-            const TrickModelIterator e = curveModel->end();
-
-            QList<QPointF> pts;
-
-            while (it != e) {
-
-                QPointF p(it.x(),it.y()*ys);
-                p = T.map(p);
-
-                if ( pts.size() == 0 ) {
-                    path->moveTo(p.x(),p.y()); // for first point only
-                } else if ( pts.size() >= 2 ) {
-                    QVector2D v0(pts.at(1)-pts.at(0));
-                    QVector2D v1(p-pts.at(0));
-                    v0.normalize();
-                    v1.normalize();
-                    double dot = QVector2D::dotProduct(v0,v1);
-                    double ang = 180*acos(dot)/M_PI;
-                    double dx = p.x()-pts.at(0).x();
-                    double dy = p.y()-pts.at(0).y();
-                    double d = sqrt(dx*dx+dy*dy);
-
-                    // TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! DO THIS!!!!
-                    if ( ang > 60 || d > 0 ) {
-                        // fuzzily non-colinear or
-                        // distance between p0 and p over 1/6th inch
-                        path->lineTo(pts.last());
-                        pts.clear();
-                    }
-                }
-
-                pts << p;
-
-                ++it;
+    // Make list of scaled (e.g. unit) data points
+    double ys0 = _yScale(c0,curveIdx0);  // TODO: if curveIdx0,curveIdx1 have diff units.... handle!!!!!!!!!!
+    double ys1 = _yScale(c1,curveIdx1);
+    QList<QPointF> pts;
+    c0->map();
+    c1->map();
+    TrickModelIterator i0 = c0->begin();
+    TrickModelIterator i1 = c1->begin();
+    const TrickModelIterator e0 = c0->end();
+    const TrickModelIterator e1 = c1->end();
+    while (i0 != e0 && i1 != e1) {
+        double t0 = i0.t();
+        double t1 = i1.t();
+        if ( qAbs(t1-t0) < 0.000001 ) {
+            double d = ys0*i0.y() - ys1*i1.y();
+            pts << QPointF(t0,d);
+            ++i0;
+            ++i1;
+        } else {
+            if ( t0 < t1 ) {
+                ++i0;
+            } else if ( t1 < t0 ) {
+                ++i1;
+            } else {
+                qDebug() << "snap [bad scoobs]:1: _printErrorplot()";
+                exit(-1);
             }
-            if ( !pts.isEmpty() ) {
-                foreach ( QPointF p, pts ) {
-                    path->lineTo(p);
-                }
-            }
-            curveModel->unmap();
+        }
+    }
+    c0->unmap();
+    c1->unmap();
 
-            QRectF curveBBox = path->boundingRect();
-            bbox = bbox.united(curveBBox);
+
+    // Create path from points
+    QPainterPath path;
+    if ( !pts.isEmpty() ) {
+        QTransform T = _coordToDotTransform(R,plotIdx);
+        bool isFirst = true;
+        foreach ( QPointF p, pts ) {
+            p = T.map(p);
+            if ( isFirst ) {
+                isFirst = false;
+                path.moveTo(p);
+            } else {
+                path.lineTo(p);
+            }
         }
     }
 
+    // Print!
     painter->save();
     painter->setRenderHint(QPainter::Antialiasing);
-
-    QList<QColor> colors = _bookModel()->createCurveColors(paths.size());
-    QPen pen = painter->pen();
-
-    int i = 0;
-    foreach ( QPainterPath* path, paths ) {
-        pen.setColor(colors.at(i));
-        painter->setPen(pen);
-        painter->drawPath(*path);
-        delete path;
-        ++i;
-    }
-    //painter->drawPath(*path2);
+    QPen magentaPen(_bookModel()->createCurveColors(3).at(2));
+    painter->setPen(magentaPen);
+    painter->drawPath(path);
     painter->restore();
 }
 
