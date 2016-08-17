@@ -558,9 +558,16 @@ QRect BookView::_printPageTitle(QPainter* painter, const QModelIndex &pageIdx)
                                                        "Title4",
                                                        "DefaultPageTitles");
     QString title1 = model()->data(title1Idx).toString();
+    QString t1 = _bookModel()->getDataString(defTitlesIdx,
+                                             "Title1","DefaultPageTitles");
+    if ( t1 != "Snap Plots!" ) {
+        // Default title overwritten by -t1 optional title
+        title1 = t1;
+    }
     QString title2 = model()->data(title2Idx).toString();
     QString title3 = model()->data(title3Idx).toString();
     QString title4 = model()->data(title4Idx).toString();
+
 
     // Draw main title
     //

@@ -107,7 +107,18 @@ void PageTitleView::_update()
         pageTitle = pItem->child(0,1)->text();
     }
 
+    QModelIndex rootIdx = QModelIndex();
+    QModelIndex dptIdx = _bookModel()->getIndex(rootIdx,
+                                                "DefaultPageTitles");
+    QString t1 = _bookModel()->getDataString(dptIdx,
+                                             "Title1","DefaultPageTitles");
+    if ( t1 != "Snap Plots!" ) {
+        // Default title overwritten by -t1 optional title
+        pageTitle = t1;
+    }
+
     _title1->setText(pageTitle);
+
     titleItem = pItem->child(1,1);
     _title2->setText(_elideRunsTitle(titleItem->text()));
     titleItem = pItem->child(2,1);
