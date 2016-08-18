@@ -10,6 +10,7 @@
 #include <QFocusEvent>
 #include <QKeyEvent>
 #include <QSizeF>
+#include <QLineF>
 #include <stdlib.h>
 #include "bookidxview.h"
 #include "libsnap/unit.h"
@@ -30,6 +31,7 @@ protected:
     virtual QSize minimumSizeHint() const;
     virtual QSize sizeHint() const;
     virtual void mousePressEvent(QMouseEvent* event);
+    virtual void mouseReleaseEvent(QMouseEvent* event);
     virtual void mouseMoveEvent(QMouseEvent* mouseEvent);
     virtual void keyPressEvent(QKeyEvent *event);
 
@@ -63,6 +65,8 @@ private:
     void _paintErrorplot(QPainter& painter, const QPen &pen,
                          QPainterPath *errorPath,
                          const QModelIndex &plotIdx);
+
+    QList<QModelIndex> _curvesInsideRect(const QRectF& R);
 
     // Key Events
     void _keyPressSpace();

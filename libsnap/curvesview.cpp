@@ -648,6 +648,139 @@ void CurvesView::mousePressEvent(QMouseEvent *event)
         viewport()->update();
     }
 }
+                                                              // TODO: take scaling into account when selecting!!!!1
+void CurvesView::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (  event->button() == Qt::LeftButton ) {
+        double x0 = _mousePressPos.x();
+        double y0 = _mousePressPos.y();
+        double x1 = event->pos().x();
+        double y1 = event->pos().y();
+        double d = qSqrt((x1-x0)*(x1-x0)+(y1-y0)*(y1-y0));
+        QString presentation = _bookModel()->getDataString(_myIdx,
+                                                   "PlotPresentation","Plot");
+        if ( d < 10 && (presentation == "coplot" || presentation.isEmpty()) ) {
+            // d < 10, to hopefully catch click and not a drag
+            int s = 24; // side length for rect around mouse click
+            QList<QModelIndex> curveIdxs;
+            while ( 1 ) {
+                curveIdxs = _curvesInsideRect(QRectF(x1-s/2,y1-s/2,s,s));
+                if ( curveIdxs.isEmpty() ) {
+                    // Click not close to any curve
+                    break;
+                } else if ( curveIdxs.size() == 1 ) {
+                    // Single curve found in small box around mouse click!
+                    break;
+                } else if ( curveIdxs.size() > 1 ) {
+                    // Multiple curves found in mouse rect, refine search
+                    s /= 2;
+                    if ( s < 2 ) {
+                        break;
+                    }
+                } else {
+                    // bad scoobs
+                }
+            }
+            if ( curveIdxs.size() == 1 ) {
+                QModelIndex curveIdx = curveIdxs.first();
+                qDebug() << "curve=" << _bookModel()->getDataString(curveIdx,"CurveRunID","Curve");
+            } else {
+                // ignore
+            }
+        }
+
+    } else if (  event->button() == Qt::MidButton ) {
+        event->ignore();
+    } else if ( event->button() == Qt::RightButton ) {
+        event->ignore();
+    }
+}
+
+
+QList<QModelIndex> CurvesView::_curvesInsideRect(const QRectF& R)
+{
+    QList<QModelIndex> curveIdxs;
+
+    QRectF  W = viewport()->rect();
+    QRectF M = _mathRect();
+    double a = M.width()/W.width();
+    double b = M.height()/W.height();
+    double c = M.x() - a*W.x();
+    double d = M.y() - b*W.y();
+    QTransform T( a,    0,
+                  0,    b, /*+*/ c,    d);
+    QRectF mathClickRect = T.mapRect(R);
+    QModelIndex curvesIdx = _bookModel()->getIndex(_myIdx,
+                                                   "Curves","Plot");
+    int nCurves = model()->rowCount(curvesIdx);
+    for (int i = 0; i < nCurves; ++i) {
+        QModelIndex curveIdx = model()->index(i,0,curvesIdx);
+        QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
+                                                              "CurveData",
+                                                              "Curve");
+        QVariant v = model()->data(curveDataIdx);
+        TrickCurveModel* curveModel = QVariantToPtr<TrickCurveModel>
+                ::convert(v);
+        QString xName = _bookModel()->getDataString(curveIdx,
+                                                    "CurveXName", "Curve");
+        bool isOrderedByTime = false;
+        if ( xName == "sys.exec.out.time" ) { // TODO: Change to time name!!!!!!!!!!!!
+            isOrderedByTime = true;
+        }
+
+        if ( curveModel ) {
+            curveModel->map();
+            if ( isOrderedByTime ) {  // TODO: if not sorteby timelllllllllllllllllllllll
+                double t0 = mathClickRect.left();
+                double t1 = mathClickRect.right();
+                int i0 = curveModel->indexAtTime(t0);
+                if ( i0 > 0 ) {
+                    --i0; // start one step back
+                }
+                TrickModelIterator it = curveModel->begin();
+                it = it[i0];
+                TrickModelIterator e = curveModel->end();
+                QPointF q(it.x(),it.y());
+                ++it;
+                while ( it != e ) {
+                    double t = it.t();
+                    QPointF p(it.x(),it.y());
+                    QLineF qp(q,p);
+                    QLineF ll(mathClickRect.topLeft(),
+                              mathClickRect.bottomLeft());
+                    QLineF rr(mathClickRect.topRight(),
+                              mathClickRect.bottomRight());
+                    QLineF tt(mathClickRect.topLeft(),
+                              mathClickRect.topRight());
+                    QLineF bb(mathClickRect.bottomLeft(),
+                              mathClickRect.bottomRight());
+                    QList<QLineF> lines;
+                    lines << ll << rr << tt << bb;
+                    QPointF pt;
+                    QLineF::IntersectType itype;
+                    bool isIntersects = false;
+                    foreach ( QLineF line, lines ) {
+                        itype = qp.intersect(line,&pt);
+                        if ( itype == QLineF::BoundedIntersection ) {
+                            curveIdxs << curveIdx;
+                            isIntersects = true;
+                            break;
+                        }
+                    }
+                    if ( isIntersects || t > t1 ) {
+                        break;
+                    }
+                    q = p;
+                    ++it;
+                }
+            } else {
+            }
+            curveModel->unmap();
+        }
+    }
+
+    return curveIdxs;
+}
 
 void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
 {
