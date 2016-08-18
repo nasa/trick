@@ -726,6 +726,9 @@ QList<QModelIndex> CurvesView::_curvesInsideRect(const QRectF& R)
             double t0 = mathClickRect.left();
             double t1 = mathClickRect.right();
 
+            double xs = _xScale(curveModel,curveIdx);
+            double ys = _yScale(curveModel,curveIdx);
+
             QString xName = _bookModel()->getDataString(curveIdx,
                                                     "CurveXName", "Curve");
             bool isXTime = false;
@@ -741,11 +744,11 @@ QList<QModelIndex> CurvesView::_curvesInsideRect(const QRectF& R)
             }
 
             TrickModelIterator e = curveModel->end();
-            QPointF q(it.x(),it.y());
+            QPointF q(xs*it.x(),ys*it.y());
             ++it;
             while ( it != e ) {
                 double t = it.t();
-                QPointF p(it.x(),it.y());
+                QPointF p(xs*it.x(),ys*it.y());
                 QLineF qp(q,p);
                 QLineF ll(mathClickRect.topLeft(),
                           mathClickRect.bottomLeft());
