@@ -179,8 +179,8 @@ void CurvesView::_paintErrorplot(QPainter &painter, const QPen &pen,
 
     } else {
         // TODO:!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        qDebug() << "snap [todo]: Handle case when name/units different "
-                    "for x or y";
+        qDebug() << "snap [todo]: Handle error plot when name/units different "
+                    "or x is not time.";
         exit(-1);
     }
 }
@@ -670,6 +670,8 @@ void CurvesView::mouseReleaseEvent(QMouseEvent *event)
                     break;
                 } else if ( curveIdxs.size() == 1 ) {
                     // Single curve found in small box around mouse click!
+                    QModelIndex curveIdx = curveIdxs.first();
+                    qDebug() << "curve=" << _bookModel()->getDataString(curveIdx,"CurveRunID","Curve");
                     break;
                 } else if ( curveIdxs.size() > 1 ) {
                     // Multiple curves found in mouse rect, refine search
@@ -680,12 +682,6 @@ void CurvesView::mouseReleaseEvent(QMouseEvent *event)
                 } else {
                     // bad scoobs
                 }
-            }
-            if ( curveIdxs.size() == 1 ) {
-                QModelIndex curveIdx = curveIdxs.first();
-                qDebug() << "curve=" << _bookModel()->getDataString(curveIdx,"CurveRunID","Curve");
-            } else {
-                // ignore
             }
         }
 
@@ -719,62 +715,66 @@ QList<QModelIndex> CurvesView::_curvesInsideRect(const QRectF& R)
                                                               "CurveData",
                                                               "Curve");
         QVariant v = model()->data(curveDataIdx);
-        TrickCurveModel* curveModel = QVariantToPtr<TrickCurveModel>
-                ::convert(v);
-        QString xName = _bookModel()->getDataString(curveIdx,
-                                                    "CurveXName", "Curve");
-        bool isOrderedByTime = false;
-        if ( xName == "sys.exec.out.time" ) { // TODO: Change to time name!!!!!!!!!!!!
-            isOrderedByTime = true;
-        }
+        TrickCurveModel* curveModel =QVariantToPtr<TrickCurveModel>::convert(v);
 
         if ( curveModel ) {
+
             curveModel->map();
-            if ( isOrderedByTime ) {  // TODO: if not sorteby timelllllllllllllllllllllll
-                double t0 = mathClickRect.left();
-                double t1 = mathClickRect.right();
+
+            TrickModelIterator it = curveModel->begin();
+
+            double t0 = mathClickRect.left();
+            double t1 = mathClickRect.right();
+
+            QString xName = _bookModel()->getDataString(curveIdx,
+                                                    "CurveXName", "Curve");
+            bool isXTime = false;
+            if ( xName == "sys.exec.out.time" ) {
+                // TODO: Change to time name
+                // Time is assumed ordered, so speed up by hopping to t0
+                isXTime = true;
                 int i0 = curveModel->indexAtTime(t0);
                 if ( i0 > 0 ) {
                     --i0; // start one step back
                 }
-                TrickModelIterator it = curveModel->begin();
                 it = it[i0];
-                TrickModelIterator e = curveModel->end();
-                QPointF q(it.x(),it.y());
-                ++it;
-                while ( it != e ) {
-                    double t = it.t();
-                    QPointF p(it.x(),it.y());
-                    QLineF qp(q,p);
-                    QLineF ll(mathClickRect.topLeft(),
-                              mathClickRect.bottomLeft());
-                    QLineF rr(mathClickRect.topRight(),
-                              mathClickRect.bottomRight());
-                    QLineF tt(mathClickRect.topLeft(),
-                              mathClickRect.topRight());
-                    QLineF bb(mathClickRect.bottomLeft(),
-                              mathClickRect.bottomRight());
-                    QList<QLineF> lines;
-                    lines << ll << rr << tt << bb;
-                    QPointF pt;
-                    QLineF::IntersectType itype;
-                    bool isIntersects = false;
-                    foreach ( QLineF line, lines ) {
-                        itype = qp.intersect(line,&pt);
-                        if ( itype == QLineF::BoundedIntersection ) {
-                            curveIdxs << curveIdx;
-                            isIntersects = true;
-                            break;
-                        }
-                    }
-                    if ( isIntersects || t > t1 ) {
+            }
+
+            TrickModelIterator e = curveModel->end();
+            QPointF q(it.x(),it.y());
+            ++it;
+            while ( it != e ) {
+                double t = it.t();
+                QPointF p(it.x(),it.y());
+                QLineF qp(q,p);
+                QLineF ll(mathClickRect.topLeft(),
+                          mathClickRect.bottomLeft());
+                QLineF rr(mathClickRect.topRight(),
+                          mathClickRect.bottomRight());
+                QLineF tt(mathClickRect.topLeft(),
+                          mathClickRect.topRight());
+                QLineF bb(mathClickRect.bottomLeft(),
+                          mathClickRect.bottomRight());
+                QList<QLineF> lines;
+                lines << ll << rr << tt << bb;
+                QPointF pt;
+                QLineF::IntersectType itype;
+                bool isIntersects = false;
+                foreach ( QLineF line, lines ) {
+                    itype = qp.intersect(line,&pt);
+                    if ( itype == QLineF::BoundedIntersection ) {
+                        curveIdxs << curveIdx;
+                        isIntersects = true;
                         break;
                     }
-                    q = p;
-                    ++it;
                 }
-            } else {
+                if ( isIntersects || (isXTime && t > t1) ) {
+                    break;
+                }
+                q = p;
+                ++it;
             }
+
             curveModel->unmap();
         }
     }
