@@ -52,6 +52,27 @@ ifndef TRICK_HOME
     export TRICK_HOME := SUB_TRICK_HOME
 endif
 
-include ${TRICK_HOME}/share/trick/makefiles/Makefile.sim
+-include ${TRICK_HOME}/share/trick/makefiles/Makefile.sim
 -include S_overrides.mk
+
+no_makefile_sim:
+	@echo ${TRICK_HOME}/share/trick/makefiles/Makefile.sim not found
+	exit -1
+
+tidy:
+	-rm -f S_source.hh S_sie.resource
+	-rm -f S_main* T_main*
+	-rm -f build/Makefile_*
+	-rm -rf S_default.dat
+
+clean: tidy
+	-rm -f DP_Product/DP_rt_frame DP_Product/DP_rt_itimer
+	-rm -f DP_Product/DP_rt_jobs DP_Product/DP_rt_timeline DP_Product/DP_mem_stats
+	-rm -rf build trick
+	@ echo "Removed build directory"
+
+spotless: clean
+
+apocalypse: clean
+	@echo "[31mI love the smell of napalm in the morning[0m"
 
