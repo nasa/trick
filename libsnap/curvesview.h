@@ -11,6 +11,7 @@
 #include <QKeyEvent>
 #include <QSizeF>
 #include <QLineF>
+#include <QItemSelectionModel>
 #include <stdlib.h>
 #include "bookidxview.h"
 #include "libsnap/unit.h"
@@ -34,6 +35,9 @@ protected:
     virtual void mouseReleaseEvent(QMouseEvent* event);
     virtual void mouseMoveEvent(QMouseEvent* mouseEvent);
     virtual void keyPressEvent(QKeyEvent *event);
+    virtual void currentChanged(const QModelIndex& current,
+                                const QModelIndex& previous);
+
 
 private:
     QHash<TrickCurveModel*,QPainterPath*> _curve2path;
@@ -65,6 +69,8 @@ private:
     void _paintErrorplot(QPainter& painter, const QPen &pen,
                          QPainterPath *errorPath,
                          const QModelIndex &plotIdx);
+    void _paintCurve(const QModelIndex& curveIdx,
+                     const QTransform &T, QPainter& painter, QPen& pen);
 
     QList<QModelIndex> _curvesInsideRect(const QRectF& R);
 

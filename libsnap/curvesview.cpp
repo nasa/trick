@@ -97,37 +97,57 @@ void CurvesView::paintEvent(QPaintEvent *event)
 
 void CurvesView::_paintCoplot(const QTransform &T,QPainter &painter,QPen &pen)
 {
+    QModelIndex clickedCurveIdx;
     QModelIndex curvesIdx = _bookModel()->getIndex(_myIdx,"Curves","Plot");
     int rc = model()->rowCount(curvesIdx);
     for ( int i = 0; i < rc; ++i ) {
-
         QModelIndex curveIdx = model()->index(i,0,curvesIdx);
-        QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
-                                                          "CurveData","Curve");
-        QVariant v = model()->data(curveDataIdx);
-        TrickCurveModel* curveModel =QVariantToPtr<TrickCurveModel>::convert(v);
-
-        if ( curveModel ) {
-
-            // Color curves
-            QColor color( _bookModel()->getDataString(curveIdx,
-                                                      "CurveColor","Curve"));
-            pen.setColor(color);
-            painter.setPen(pen);
-
-            // Get painter path
-            QPainterPath* path = _curve2path.value(curveModel);
-
-            // Scale transform (e.g. for unit axis scaling)
-            double xs = _xScale(curveModel,curveIdx);
-            double ys = _yScale(curveModel,curveIdx);
-            QTransform Tscaled(T);
-            Tscaled = Tscaled.scale(xs,ys);
-            painter.setTransform(Tscaled);
-
-            // Draw curve!
-            painter.drawPath(*path);
+        if ( curveIdx != currentIndex() ) {
+            _paintCurve(curveIdx,T,painter,pen);
+        } else {
+            clickedCurveIdx = curveIdx;
         }
+    }
+    if ( clickedCurveIdx.isValid() ) {
+        // Paint clicked curve on top of other curves so it shows
+        _paintCurve(clickedCurveIdx,T,painter,pen);
+    }
+}
+
+void CurvesView::_paintCurve(const QModelIndex& curveIdx,
+                             const QTransform& T,
+                             QPainter& painter, QPen& pen)
+{
+    QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
+                                                          "CurveData","Curve");
+    QVariant v = model()->data(curveDataIdx);
+    TrickCurveModel* curveModel =QVariantToPtr<TrickCurveModel>::convert(v);
+
+    if ( curveModel ) {
+
+        // Color curves
+        QColor color( _bookModel()->getDataString(curveIdx,
+                                                  "CurveColor","Curve"));
+        if ( curveIdx == currentIndex() ) {
+            color = color.darker(180);
+        } else if ( currentIndex().isValid() ) {
+            color = color.lighter(160);
+        }
+        pen.setColor(color);
+        painter.setPen(pen);
+
+        // Get painter path
+        QPainterPath* path = _curve2path.value(curveModel);
+
+        // Scale transform (e.g. for unit axis scaling)
+        double xs = _xScale(curveModel,curveIdx);
+        double ys = _yScale(curveModel,curveIdx);
+        QTransform Tscaled(T);
+        Tscaled = Tscaled.scale(xs,ys);
+        painter.setTransform(Tscaled);
+
+        // Draw curve!
+        painter.drawPath(*path);
     }
 }
 
@@ -648,7 +668,7 @@ void CurvesView::mousePressEvent(QMouseEvent *event)
         viewport()->update();
     }
 }
-                                                              // TODO: take scaling into account when selecting!!!!1
+
 void CurvesView::mouseReleaseEvent(QMouseEvent *event)
 {
     if (  event->button() == Qt::LeftButton ) {
@@ -666,12 +686,16 @@ void CurvesView::mouseReleaseEvent(QMouseEvent *event)
             while ( 1 ) {
                 curveIdxs = _curvesInsideRect(QRectF(x1-s/2,y1-s/2,s,s));
                 if ( curveIdxs.isEmpty() ) {
-                    // Click not close to any curve
+                    // If click not close to any curve, unset current idx
+                    QModelIndex invalidIdx;
+                    selectionModel()->setCurrentIndex(invalidIdx,
+                                                 QItemSelectionModel::NoUpdate);
                     break;
                 } else if ( curveIdxs.size() == 1 ) {
                     // Single curve found in small box around mouse click!
                     QModelIndex curveIdx = curveIdxs.first();
-                    qDebug() << "curve=" << _bookModel()->getDataString(curveIdx,"CurveRunID","Curve");
+                    selectionModel()->setCurrentIndex(curveIdx,
+                                                 QItemSelectionModel::NoUpdate);
                     break;
                 } else if ( curveIdxs.size() > 1 ) {
                     // Multiple curves found in mouse rect, refine search
@@ -933,6 +957,12 @@ void CurvesView::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Space: _keyPressSpace();break;
     default: ; // do nothing
     }
+}
+
+void CurvesView::currentChanged(const QModelIndex &current,
+                                const QModelIndex &previous)
+{
+    viewport()->update();
 }
 
 // For two curves hitting the spacebar will toggle between viewing
