@@ -13,7 +13,6 @@ public:
     int currSelectedRun();
 
 private:
-    BookView* _bookView;
     QItemSelectionModel* _selectModel;
 
 signals:

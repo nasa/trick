@@ -3,8 +3,7 @@
 
 MonteInputsView::MonteInputsView(BookView *bookView,
                                  QWidget *parent) :
-    QTableView(parent),
-    _bookView(bookView)
+    QTableView(parent)
 {
     setSortingEnabled(true);
     sortByColumn(0,Qt::AscendingOrder);

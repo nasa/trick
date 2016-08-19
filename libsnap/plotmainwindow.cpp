@@ -48,38 +48,28 @@ PlotMainWindow::PlotMainWindow(
     lgrid->addWidget(lsplit,0,0);
 
     // Create models
-    _plotModel = new PlotBookModel(monteModel,0,1,parent);
-    _plotSelectModel = new QItemSelectionModel(_plotModel);
+    _bookModel = new PlotBookModel(monteModel,0,1,parent);
+    _bookSelectModel = new QItemSelectionModel(_bookModel);
     if ( titles.size() == 4 ) {
-        QStandardItem *rootItem = _plotModel->invisibleRootItem();
+        QStandardItem *rootItem = _bookModel->invisibleRootItem();
         QStandardItem *citem;
         QStandardItem *gitem;
-        citem = _plotModel->addChild(rootItem, "DefaultPageTitles","");
-        gitem = _plotModel->addChild(citem, "Title1",titles.at(0));
-        gitem = _plotModel->addChild(citem, "Title2",titles.at(1));
-        gitem = _plotModel->addChild(citem, "Title3",titles.at(2));
-        gitem = _plotModel->addChild(citem, "Title4",titles.at(3));
+        citem = _bookModel->addChild(rootItem, "DefaultPageTitles","");
+        gitem = _bookModel->addChild(citem, "Title1",titles.at(0));
+        gitem = _bookModel->addChild(citem, "Title2",titles.at(1));
+        gitem = _bookModel->addChild(citem, "Title3",titles.at(2));
+        gitem = _bookModel->addChild(citem, "Title4",titles.at(3));
     }
 
 
     // Create Plot Tabbed Notebook View Widget
     _bookView = new BookView();
-    _bookView->setModel(_plotModel);
-    _bookView->setSelectionModel(_plotSelectModel);
-#if 0
-    if ( _monteModel->rowCount() == 2 && _presentation != "compare" ) {
-        // Two runs, and presentation is not compare - show diff/coplot
-        _plotBookView->showCurveDiff(true);
-    }
-    connect(_plotModel,
-            SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
-            this,
-            SLOT(_plotModelRowsAboutToBeRemoved(QModelIndex,int,int)));
-    connect(_plotSelectModel,
-            SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this,
-            SLOT(_plotSelectModelSelectionChanged(QItemSelection,QItemSelection)));
-#endif
+    _bookView->setModel(_bookModel);
+    _bookView->setSelectionModel(_bookSelectModel);
+    /*
+    connect(_bookSelectModel,SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+            this, SLOT(_bookCurrentChanged(QModelIndex,QModelIndex)));
+    */
     msplit->addWidget(_bookView);
 
     // Monte inputs view (widget added later)
@@ -94,7 +84,7 @@ PlotMainWindow::PlotMainWindow(
     }
 
     _plotTreeView = new QTreeView(lsplit);
-    _plotTreeView->setModel(_plotModel);
+    _plotTreeView->setModel(_bookModel);
 
     // Vars/DP Notebook
     _nbDPVars = new QTabWidget(lsplit);
@@ -104,8 +94,8 @@ PlotMainWindow::PlotMainWindow(
 
     // Vars Tab
     QFrame* varsFrame = new QFrame(lsplit);
-    _varsWidget = new VarsWidget(_varsModel, _monteModel, _plotModel,
-                                  _plotSelectModel, _monteInputsView,
+    _varsWidget = new VarsWidget(_varsModel, _monteModel, _bookModel,
+                                  _bookSelectModel, _monteInputsView,
                                  varsFrame);
     _nbDPVars->addTab(varsFrame,"Vars");
 
@@ -118,8 +108,8 @@ PlotMainWindow::PlotMainWindow(
     if ( ! _dpFiles.isEmpty() ) {
         // DP files specified on commandline
         _dpTreeWidget = new  DPTreeWidget(_timeName, _dpDir, _dpFiles, _varsModel,
-                                          _monteModel, _plotModel,
-                                          _plotSelectModel, _dpFrame);
+                                          _monteModel, _bookModel,
+                                          _bookSelectModel, _dpFrame);
         _nbDPVars->setCurrentIndex(1);
     }
     connect(_nbDPVars,SIGNAL(currentChanged(int)),
@@ -155,7 +145,7 @@ PlotMainWindow::PlotMainWindow(
 
 PlotMainWindow::~PlotMainWindow()
 {
-    delete _plotModel;
+    delete _bookModel;
 }
 
 void PlotMainWindow::createMenu()
@@ -185,59 +175,16 @@ void PlotMainWindow::_nbCurrentChanged(int i)
         // the DPTreeWidget is created when the DP tab is clicked.
         //
         _dpTreeWidget = new  DPTreeWidget(_timeName, _dpDir, _dpFiles,
-                                          _varsModel, _monteModel, _plotModel,
-                                          _plotSelectModel, _dpFrame);
+                                          _varsModel, _monteModel, _bookModel,
+                                          _bookSelectModel, _dpFrame);
     }
 }
 
-void PlotMainWindow::_plotSelectModelSelectionChanged(
-                                               const QItemSelection &currSel,
-                                               const QItemSelection &prevSel)
+void PlotMainWindow::_bookCurrentChanged(const QModelIndex &currIdx,
+                                         const QModelIndex &prevIdx)
 {
-
-    Q_UNUSED(prevSel);
-
-    if ( currSel.indexes().size() == 0 && prevSel.indexes().size() > 0 ) {
-        // Deselecting a curve: so,
-        //     1. deselect run in monte selection too
-        //     2. deselect vars
-        if ( _monteInputsView ) {
-            _monteInputsView->selectionModel()->clear();
-        }
-        _varsWidget->clearSelection();
-    }
-
-    if ( _monteInputsView ) {
-
-        QModelIndex curveIdx;
-        if ( currSel.indexes().size() > 0 ) {
-            curveIdx = currSel.indexes().at(0);
-        }
-
-        if ( _plotModel->isIndex(curveIdx,"Curve") ) {
-
-            int runId = curveIdx.row();
-
-            // Since model could be sorted, search for row with runId.
-            // Assuming that runId is in column 0.
-            int rc = _monteInputsView->model()->rowCount();
-            int runRow = 0 ;
-            for ( runRow = 0; runRow < rc; ++runRow) {
-                QModelIndex runIdx = _monteInputsView->model()->index(runRow,0);
-                if (runId == _monteInputsView->model()->data(runIdx).toInt()) {
-                    break;
-                }
-            }
-
-            QModelIndex midx = _monteInputsView->model()->index(runRow,0);
-            _monteInputsView->selectionModel()->select(midx,
-                                          QItemSelectionModel::ClearAndSelect|
-                                          QItemSelectionModel::Rows);
-            _monteInputsView->selectionModel()->setCurrentIndex(midx,
-                                          QItemSelectionModel::ClearAndSelect|
-                                          QItemSelectionModel::Rows);
-        }
-    }
+    Q_UNUSED(prevIdx);
+    qDebug() << "TODO: PlotMainWindow::_bookCurrentChanged=";
 }
 
 void PlotMainWindow::_plotModelRowsAboutToBeRemoved(const QModelIndex &pidx,
@@ -302,20 +249,20 @@ void PlotMainWindow::_savePdf()
 
 void PlotMainWindow::_startTimeChanged(double startTime)
 {
-    QModelIndex startIdx = _plotModel->getIndex(QModelIndex(),
+    QModelIndex startIdx = _bookModel->getIndex(QModelIndex(),
                                                 "SessionStartTime");
     if ( startIdx.isValid() ) {
-        QStandardItem* item = _plotModel->itemFromIndex(startIdx);
+        QStandardItem* item = _bookModel->itemFromIndex(startIdx);
         item->setData(startTime);
     }
 }
 
 void PlotMainWindow::_stopTimeChanged(double stopTime)
 {
-    QModelIndex stopIdx = _plotModel->getIndex(QModelIndex(),
+    QModelIndex stopIdx = _bookModel->getIndex(QModelIndex(),
                                                "SessionStopTime");
     if ( stopIdx.isValid() ) {
-        QStandardItem* item = _plotModel->itemFromIndex(stopIdx);
+        QStandardItem* item = _bookModel->itemFromIndex(stopIdx);
         item->setData(stopTime);
     }
 }
@@ -324,7 +271,7 @@ void PlotMainWindow::_monteInputsHeaderViewClicked(int section)
 {
     Q_UNUSED(section);
 
-    if ( !_plotModel ) return;
+    if ( !_bookModel ) return;
 
     QHash<int,QString> run2color;
     int rc = _monteInputsModel->rowCount();
@@ -340,30 +287,30 @@ void PlotMainWindow::_monteInputsHeaderViewClicked(int section)
         run2color.insert(runId, s);
     }
 
-    QModelIndexList pageIdxs = _plotModel->pageIdxs();
+    QModelIndexList pageIdxs = _bookModel->pageIdxs();
     foreach ( QModelIndex pageIdx, pageIdxs ) {
-        QModelIndexList plotIdxs = _plotModel->plotIdxs(pageIdx);
+        QModelIndexList plotIdxs = _bookModel->plotIdxs(pageIdx);
         foreach ( QModelIndex plotIdx, plotIdxs ) {
-            QModelIndex curvesIdx = _plotModel->getIndex(plotIdx,
+            QModelIndex curvesIdx = _bookModel->getIndex(plotIdx,
                                                          "Curves", "Plot");
-            QModelIndexList curveIdxs = _plotModel->curveIdxs(curvesIdx);
+            QModelIndexList curveIdxs = _bookModel->curveIdxs(curvesIdx);
             bool isFirst = true;
             int r = 0;
             foreach ( QModelIndex curveIdx, curveIdxs ) {
                 // This is to speed things up when montecarlo since
                 // getIndex() is a bit expensive
                 if ( isFirst ) {
-                    QModelIndex rIdx = _plotModel->getIndex(curveIdx,
+                    QModelIndex rIdx = _bookModel->getIndex(curveIdx,
                                                     "CurveRunID",
                                                     "Curve");
                     r = rIdx.row();
                     isFirst = false;
                 }
-                QModelIndex runIdx = _plotModel->index(r,0,curveIdx);
-                int runId = _plotModel->data(runIdx).toInt();
-                QModelIndex colorIdx = _plotModel->getIndex(curveIdx,
+                QModelIndex runIdx = _bookModel->index(r,0,curveIdx);
+                int runId = _bookModel->data(runIdx).toInt();
+                QModelIndex colorIdx = _bookModel->getIndex(curveIdx,
                                                     "CurveColor", "Curve");
-                QStandardItem* item = _plotModel->itemFromIndex(colorIdx);
+                QStandardItem* item = _bookModel->itemFromIndex(colorIdx);
                 item->setData(run2color.value(runId));
             }
         }

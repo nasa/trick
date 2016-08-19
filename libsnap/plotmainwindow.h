@@ -74,18 +74,18 @@ private:
     QFrame* _dpFrame ;
     DPTreeWidget* _dpTreeWidget;
 
-    PlotBookModel* _plotModel;
+    PlotBookModel* _bookModel;
     QTreeView* _plotTreeView ;
     BookView* _bookView;
-    QItemSelectionModel* _plotSelectModel;
+    QItemSelectionModel* _bookSelectModel;
 
     bool _isRUN(const QString& fp);
     bool _isMONTE(const QString& fp);
 
 private slots:
      void _nbCurrentChanged(int i);
-     void _plotSelectModelSelectionChanged(const QItemSelection& currSel,
-                                          const QItemSelection& prevSel);
+     void _bookCurrentChanged(const QModelIndex& currIdx,
+                              const QModelIndex& prevIdx);
      void _plotModelRowsAboutToBeRemoved(const QModelIndex& pidx,
                                          int start, int end);
      void _savePdf();

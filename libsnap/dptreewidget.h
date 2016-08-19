@@ -24,8 +24,8 @@ public:
                           const QStringList& dpFiles,
                           QStandardItemModel* dpVarsModel,
                           MonteModel* monteModel,
-                          PlotBookModel* plotModel,
-                          QItemSelectionModel*  plotSelectModel,
+                          PlotBookModel* bookModel,
+                          QItemSelectionModel*  bookSelectModel,
                           QWidget *parent = 0);
     ~DPTreeWidget();
     
@@ -40,8 +40,8 @@ private:
     QStandardItemModel* _dpVarsModel;
     QDir* _dir;
     MonteModel* _monteModel;
-    PlotBookModel* _plotModel;
-    QItemSelectionModel*  _plotSelectModel;
+    PlotBookModel* _bookModel;
+    QItemSelectionModel*  _bookSelectModel;
     QGridLayout* _gridLayout ;
     QLineEdit* _searchBox;
     QTreeView* _dpTreeView ;

@@ -10,8 +10,8 @@ DPTreeWidget::DPTreeWidget(const QString& timeName,
                            const QStringList &dpFiles,
                            QStandardItemModel *dpVarsModel,
                            MonteModel* monteModel,
-                           PlotBookModel *plotModel,
-                           QItemSelectionModel *plotSelectModel,
+                           PlotBookModel *bookModel,
+                           QItemSelectionModel *bookSelectModel,
                            QWidget *parent) :
     QWidget(parent),
     _timeName(timeName),
@@ -19,8 +19,8 @@ DPTreeWidget::DPTreeWidget(const QString& timeName,
     _dpFiles(),
     _dpVarsModel(dpVarsModel),
     _monteModel(monteModel),
-    _plotModel(plotModel),
-    _plotSelectModel(plotSelectModel),
+    _bookModel(bookModel),
+    _bookSelectModel(bookSelectModel),
     _gridLayout(0),
     _searchBox(0)
 {
@@ -193,15 +193,15 @@ void DPTreeWidget::_dpTreeViewClicked(const QModelIndex &idx)
         QString fp = _dpModel->filePath(srcIdx);
         if ( _isDP(fp) ) {
             bool isCreated = false;
-            foreach (QModelIndex pageIdx, _plotModel->pageIdxs() ) {
-                QModelIndex pageNameIdx = _plotModel->getIndex(pageIdx,
+            foreach (QModelIndex pageIdx, _bookModel->pageIdxs() ) {
+                QModelIndex pageNameIdx = _bookModel->getIndex(pageIdx,
                                                                "PageName",
                                                                "Page");
                 QModelIndex pageNameDataIdx = pageNameIdx.sibling(
                                                     pageNameIdx.row(),1);
-                QString pageName = _plotModel->data(pageNameDataIdx).toString();
+                QString pageName = _bookModel->data(pageNameDataIdx).toString();
                 if ( pageName == fp ) {
-                    _plotSelectModel->setCurrentIndex(pageIdx,
+                    _bookSelectModel->setCurrentIndex(pageIdx,
                                                   QItemSelectionModel::Current);
                     isCreated = true;
                     break;
@@ -238,9 +238,9 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
     int pageNum = 0 ;
 
     // Pages
-    QModelIndex pagesIdx = _plotModel->getIndex(QModelIndex(), "Pages");
+    QModelIndex pagesIdx = _bookModel->getIndex(QModelIndex(), "Pages");
 
-    QStandardItem *pagesItem = _plotModel->itemFromIndex(pagesIdx);
+    QStandardItem *pagesItem = _bookModel->itemFromIndex(pagesIdx);
 
 //#define TIME_ME
 #ifdef TIME_ME
@@ -251,8 +251,8 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
 
         // Page
         QStandardItem *pageItem = _addChild(pagesItem,"Page");
-        QModelIndex pageIdx = _plotModel->indexFromItem(pageItem);
-        _plotSelectModel->setCurrentIndex(pageIdx,QItemSelectionModel::Current);
+        QModelIndex pageIdx = _bookModel->indexFromItem(pageItem);
+        _bookSelectModel->setCurrentIndex(pageIdx,QItemSelectionModel::Current);
 
         // PageName
         QString pageName = dpfile;
@@ -297,7 +297,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
 
             // Curves
             QStandardItem *curvesItem = _addChild(plotItem,"Curves");
-            QList<QColor> colors = _plotModel->createCurveColors(numRuns);
+            QList<QColor> colors = _bookModel->createCurveColors(numRuns);
 
             int curveId = -1;
             foreach (DPCurve* dpcurve, plot->curves() ) {
@@ -327,8 +327,8 @@ void DPTreeWidget::_createDPTables(const QString &dpfile)
     int tableNum = 0 ;
 
     // Tables
-    QModelIndex tablesIdx = _plotModel->getIndex(QModelIndex(), "Tables");
-    QStandardItem *tablesItem = _plotModel->itemFromIndex(tablesIdx);
+    QModelIndex tablesIdx = _bookModel->getIndex(QModelIndex(), "Tables");
+    QStandardItem *tablesItem = _bookModel->itemFromIndex(tablesIdx);
 
     foreach (DPTable* table, dp.tables() ) {
 
@@ -398,7 +398,7 @@ QStandardItem *DPTreeWidget::_addChild(QStandardItem *parentItem,
                              const QString &childTitle,
                              const QVariant& childValue)
 {
-    return(_plotModel->addChild(parentItem,childTitle,childValue));
+    return(_bookModel->addChild(parentItem,childTitle,childValue));
 }
 
 void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
@@ -406,7 +406,7 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
                              int runId, int curveId,const QList<QColor>& colors)
 {
     // Begin blocking signals to speed up curve insertion
-    bool block = _plotModel->blockSignals(true);
+    bool block = _bookModel->blockSignals(true);
 
     // Curve
     QStandardItem *curveItem = _addChild(curvesItem,"Curve");
@@ -525,7 +525,7 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     _addChild(curveItem, "CurveColor", color);
 
     // End blocking signals to speed up curve insertion
-    block = _plotModel->blockSignals(block);
+    block = _bookModel->blockSignals(block);
 
     // Finally, add actual curve model data with signals turned on
     QVariant v = PtrToQVariant<TrickCurveModel>::convert(curveModel);
