@@ -55,7 +55,6 @@ a replacement SimObject will create an uncompilable sim.
 ##include "trick/memorymanager_c_intf.h"
 ##include "trick/RealtimeSync.hh"
 ##include "trick/GetTimeOfDayClock.hh"
-##include "trick/BC635Clock.hh"
 ##include "trick/clock_proto.h"
 ##include "trick/ITimer.hh"
 ##include "trick/Integrator.hh"
@@ -800,9 +799,5 @@ class UdUnitsSimObject : public Trick::SimObject {
 
 UdUnitsSimObject trick_udunits;
 #endif
-
-// Include optional external clocks
-#include "sim_objects/TPROClock.sm"
-#include "sim_objects/BC635Clock.sm"
 
 #endif
