@@ -30,14 +30,7 @@ RCC_DIR     = $$BUILDDIR/rcc
 UI_DIR      = $$BUILDDIR/ui
 
 
-SOURCES += koviplot.cpp \
-           kplot.cpp \
-           kplotmodel.cpp \
-           labeledruler.cpp \
-           linedruler.cpp \
-           plotcorner.cpp \
-           verticallabel.cpp \
-           pagetitleview.cpp \
+SOURCES += pagetitleview.cpp \
            plotview.cpp \
            bookview.cpp \
            pageview.cpp \
@@ -82,14 +75,7 @@ SOURCES += koviplot.cpp \
            rangeinput.cpp
 
 
-HEADERS  += koviplot.h \
-            kplot.h \
-            kplotmodel.h \
-            labeledruler.h \
-            linedruler.h \
-            plotcorner.h \
-            verticallabel.h \
-            pagetitleview.h \
+HEADERS  += pagetitleview.h \
             plotview.h \
             bookview.h \
             pageview.h \
