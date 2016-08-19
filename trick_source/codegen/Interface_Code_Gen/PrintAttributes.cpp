@@ -162,6 +162,9 @@ bool PrintAttributes::openIOFile(std::string header_file_name) {
                                            open the file and write header information */
                                         outfile.open(out_of_date_io_files[header_file_name].c_str()) ;
                                         printer->printIOHeader(outfile, header_file_name) ;
+                                        if ( ! cs.hasTrickHeader(header_file_name) ) {
+                                            std::cout << "[33mNo Trick header comment found in " << header_file_name << "[00m" << std::endl ;
+                                        }
                                         std::cout << "[35mWriting " << out_of_date_io_files[header_file_name] << "[00m" << std::endl ;
                                         // Get all of the ignored types from this file.
                                         ignored_types[header_file_name] = cs.getIgnoreTypes(header_file_name) ;
