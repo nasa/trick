@@ -11,7 +11,7 @@
 #include <float.h>
 #include "dp.h"
 #include "libsnap/montemodel.h"
-#include "libsnap/plotbookmodel.h"
+#include "libsnap/bookmodel.h"
 #include "monteinputsview.h"
 
 class VarsWidget : public QWidget

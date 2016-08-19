@@ -30,7 +30,8 @@ RCC_DIR     = $$BUILDDIR/rcc
 UI_DIR      = $$BUILDDIR/ui
 
 
-SOURCES += bookview_pagetitle.cpp \
+SOURCES += bookmodel.cpp \
+           bookview_pagetitle.cpp \
            bookview_plot.cpp \
            bookview.cpp \
            bookview_page.cpp \
@@ -45,7 +46,6 @@ SOURCES += bookview_pagetitle.cpp \
            dp.cpp \
            varswidget.cpp \
            dptreewidget.cpp \
-           plotbookmodel.cpp \
            monteinputsview.cpp \
            dpfilterproxymodel.cpp \
            options.cpp \
@@ -75,7 +75,8 @@ SOURCES += bookview_pagetitle.cpp \
            rangeinput.cpp
 
 
-HEADERS  += bookidxview.h \
+HEADERS  += bookmodel.h \
+            bookidxview.h \
             bookview.h \
             bookview_corner.h \
             bookview_curves.h \
@@ -90,7 +91,6 @@ HEADERS  += bookidxview.h \
             dp.h \
             varswidget.h \
             dptreewidget.h \
-            plotbookmodel.h \
             monteinputsview.h \
             dpfilterproxymodel.h \
             options.h \

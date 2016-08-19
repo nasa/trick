@@ -1,4 +1,4 @@
-#include "plotbookmodel.h"
+#include "bookmodel.h"
 #include <float.h>
 #include "libsnap/unit.h"
 

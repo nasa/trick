@@ -19,7 +19,7 @@
 
 #include "libsnap/bookidxview.h"
 #include "bookview_page.h"
-#include "libsnap/plotbookmodel.h"
+#include "libsnap/bookmodel.h"
 
 class BookView : public BookIdxView
 {

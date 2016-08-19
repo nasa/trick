@@ -20,7 +20,7 @@
 
 #include "libsnap/monte.h"
 #include "libsnap/dp.h"
-#include "libsnap/plotbookmodel.h"
+#include "libsnap/bookmodel.h"
 #include "libsnap/dptreewidget.h"
 #include "libsnap/varswidget.h"
 #include "libsnap/monteinputsview.h"

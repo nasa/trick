@@ -4,7 +4,7 @@
 #include <QAbstractItemView>
 #include <QMouseEvent>
 #include <qmath.h>
-#include "libsnap/plotbookmodel.h"
+#include "libsnap/bookmodel.h"
 #include "libsnap/unit.h"
 
 class BookIdxView : public QAbstractItemView
