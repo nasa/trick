@@ -955,6 +955,8 @@ void CurvesView::keyPressEvent(QKeyEvent *event)
 {
     switch (event->key()) {
     case Qt::Key_Space: _keyPressSpace();break;
+    case Qt::Key_Up: _keyPressUp();break;
+    case Qt::Key_Down: _keyPressDown();break;
     default: ; // do nothing
     }
 }
@@ -993,5 +995,36 @@ void CurvesView::_keyPressSpace()
     model()->setData(plotPresentationIdx,plotPresentation);
 
     viewport()->update();
+}
+
+void CurvesView::_keyPressUp()
+{
+    if ( !currentIndex().isValid() ) return;
+
+    if ( _bookModel()->isIndex(currentIndex(),"Curve") ) {
+        QModelIndex curveIdx = currentIndex();
+        QModelIndex curvesIdx = curveIdx.parent();
+        int i = curveIdx.row();
+        if ( i > 0 ) {
+            QModelIndex nextCurveIdx = model()->index(i-1,0,curvesIdx);
+            setCurrentIndex(nextCurveIdx);
+        }
+    }
+}
+
+void CurvesView::_keyPressDown()
+{
+    if ( !currentIndex().isValid() ) return;
+
+    if ( _bookModel()->isIndex(currentIndex(),"Curve") ) {
+        QModelIndex curveIdx = currentIndex();
+        QModelIndex curvesIdx = curveIdx.parent();
+        int rc = model()->rowCount(curvesIdx);
+        int i = curveIdx.row();
+        if ( i < rc-2 ) {
+            QModelIndex nextCurveIdx = model()->index(i+1,0,curvesIdx);
+            setCurrentIndex(nextCurveIdx);
+        }
+    }
 }
 

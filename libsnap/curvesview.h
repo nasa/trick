@@ -76,6 +76,8 @@ private:
 
     // Key Events
     void _keyPressSpace();
+    void _keyPressUp();
+    void _keyPressDown();
 
 
 protected slots:
