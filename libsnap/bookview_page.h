@@ -6,8 +6,8 @@
 #include <QList>
 
 #include "bookidxview.h"
-#include "pagetitleview.h"
-#include "plotview.h"
+#include "bookview_pagetitle.h"
+#include "bookview_plot.h"
 
 class PageView : public BookIdxView
 {

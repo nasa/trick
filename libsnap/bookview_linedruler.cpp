@@ -1,4 +1,4 @@
-#include "linedrulerview.h"
+#include "bookview_linedruler.h"
 
 LinedRulerView::LinedRulerView(Qt::Alignment alignment, QWidget *parent) :
     BookIdxView(parent),

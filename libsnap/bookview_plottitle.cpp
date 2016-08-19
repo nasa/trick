@@ -1,4 +1,4 @@
-#include "plottitleview.h"
+#include "bookview_plottitle.h"
 
 PlotTitleView::PlotTitleView(QWidget *parent) :
     BookIdxView(parent)

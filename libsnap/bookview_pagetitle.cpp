@@ -1,4 +1,4 @@
-#include "pagetitleview.h"
+#include "bookview_pagetitle.h"
 
 PageTitleView::PageTitleView(QWidget *parent) :
     BookIdxView(parent)

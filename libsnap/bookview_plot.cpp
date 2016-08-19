@@ -1,4 +1,4 @@
-#include "plotview.h"
+#include "bookview_plot.h"
 
 //==================================================
 //  Layout

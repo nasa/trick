@@ -12,13 +12,13 @@
 #include <QDebug>
 
 #include "bookidxview.h"
-#include "plottitleview.h"
-#include "cornerview.h"
-#include "linedrulerview.h"
-#include "labeledrulerview.h"
-#include "curvesview.h"
-#include "xaxislabelview.h"
-#include "yaxislabelview.h"
+#include "bookview_plottitle.h"
+#include "bookview_corner.h"
+#include "bookview_linedruler.h"
+#include "bookview_labeledruler.h"
+#include "bookview_curves.h"
+#include "bookview_xaxislabel.h"
+#include "bookview_yaxislabel.h"
 #include "libsnap/trickcurvemodel.h"
 
 class PlotView : public BookIdxView

@@ -1,4 +1,4 @@
-#include "pageview.h"
+#include "bookview_page.h"
 
 PageView::PageView(QWidget *parent) :
     BookIdxView(parent),

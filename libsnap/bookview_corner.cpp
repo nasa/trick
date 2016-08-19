@@ -1,4 +1,4 @@
-#include "cornerview.h"
+#include "bookview_corner.h"
 
 CornerView::CornerView(Qt::Corner corner, QWidget *parent) :
     BookIdxView(parent), _corner(corner)

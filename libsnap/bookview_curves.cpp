@@ -1,4 +1,4 @@
-#include "curvesview.h"
+#include "bookview_curves.h"
 
 CurvesView::CurvesView(QWidget *parent) :
     BookIdxView(parent),

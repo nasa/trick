@@ -18,7 +18,7 @@
 #include <QVector2D>
 
 #include "libsnap/bookidxview.h"
-#include "libsnap/pageview.h"
+#include "bookview_page.h"
 #include "libsnap/plotbookmodel.h"
 
 class BookView : public BookIdxView

@@ -1,4 +1,4 @@
-#include "labeledrulerview.h"
+#include "bookview_labeledruler.h"
 
 LabeledRulerView::LabeledRulerView(Qt::Alignment alignment,
                                    QWidget *parent) :

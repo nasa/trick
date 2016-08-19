@@ -30,18 +30,18 @@ RCC_DIR     = $$BUILDDIR/rcc
 UI_DIR      = $$BUILDDIR/ui
 
 
-SOURCES += pagetitleview.cpp \
-           plotview.cpp \
+SOURCES += bookview_pagetitle.cpp \
+           bookview_plot.cpp \
            bookview.cpp \
-           pageview.cpp \
-           plottitleview.cpp \
+           bookview_page.cpp \
+           bookview_plottitle.cpp \
            bookidxview.cpp \
-           linedrulerview.cpp \
-           curvesview.cpp \
-           cornerview.cpp \
-           labeledrulerview.cpp \
-           yaxislabelview.cpp \
-           xaxislabelview.cpp \
+           bookview_linedruler.cpp \
+           bookview_curves.cpp \
+           bookview_corner.cpp \
+           bookview_labeledruler.cpp \
+           bookview_yaxislabel.cpp \
+           bookview_xaxislabel.cpp \
            dp.cpp \
            varswidget.cpp \
            dptreewidget.cpp \
@@ -75,18 +75,18 @@ SOURCES += pagetitleview.cpp \
            rangeinput.cpp
 
 
-HEADERS  += pagetitleview.h \
-            plotview.h \
+HEADERS  += bookidxview.h \
             bookview.h \
-            pageview.h \
-            plottitleview.h \
-            bookidxview.h \
-            linedrulerview.h \
-            curvesview.h \
-            cornerview.h \
-            labeledrulerview.h \
-            yaxislabelview.h \
-            xaxislabelview.h \
+            bookview_corner.h \
+            bookview_curves.h \
+            bookview_labeledruler.h \
+            bookview_linedruler.h \
+            bookview_page.h \
+            bookview_pagetitle.h \
+            bookview_plot.h \
+            bookview_plottitle.h \
+            bookview_xaxislabel.h \
+            bookview_yaxislabel.h \
             dp.h \
             varswidget.h \
             dptreewidget.h \
