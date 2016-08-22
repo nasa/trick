@@ -209,7 +209,7 @@ QList<double> BookIdxView::_majorXTics(const QModelIndex& plotIdx) const
     double a = r.left();
     double b = r.right();
     //X = calcTicSet(a,b, M_PI/2.0);
-    X = _calcTicSet(a,b,1.0);
+    X = _calcTicSet(a,b,1.0,10.0);
     return X;
 }
 
@@ -220,7 +220,7 @@ QList<double> BookIdxView::_minorXTics() const
     double a = r.left();
     double b = r.right();
     //X = calcTicSet(a,b,M_PI/8.0);
-    X = _calcTicSet(a,b,1.0/4.0);
+    X = _calcTicSet(a,b,1.0/4.0,10.0);
     return X;
 }
 
@@ -230,7 +230,7 @@ QList<double> BookIdxView::_majorYTics(const QModelIndex &plotIdx) const
     QRectF r = _plotMathRect(plotIdx);
     double a = r.bottom();
     double b = r.top();
-    Y = _calcTicSet(a,b,1.0);
+    Y = _calcTicSet(a,b,1.0,10.0);
     return Y;
 }
 
@@ -240,7 +240,7 @@ QList<double> BookIdxView::_minorYTics() const
     QRectF r = _plotMathRect(_myIdx);
     double a = r.bottom();
     double b = r.top();
-    Y = _calcTicSet(a,b,1.0/4.0);
+    Y = _calcTicSet(a,b,1.0/4.0,10.0);
     return Y;
 }
 
@@ -250,7 +250,7 @@ QList<double> BookIdxView::_minorYTics() const
 // Given [a,b],n,u:
 // Return X = {x: x=i*n^k*u in [a,b]
 //                i is some ordered list of ints
-//                and k minimizes set}
+//                and k minimizes size of X}
 //
 //
 // TODO: test n==2, n==e.  At this point, n==10 is the only tested value

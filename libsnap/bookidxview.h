@@ -48,7 +48,7 @@ protected:
     QList<double> _majorYTics(const QModelIndex &plotIdx) const;
     QList<double> _minorYTics() const;
     QList<double> _calcTicSet(double aIn, double bIn,
-                              double u=1.0, double n=10.0) const;
+                              double u, double n) const;
     bool _isEqual(double a, double b, ulong maxD=10,
                   bool isNeighborMethod=true) const;
 

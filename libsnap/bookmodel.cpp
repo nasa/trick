@@ -333,6 +333,21 @@ double PlotBookModel::getDataDouble(const QModelIndex &startIdx,
     return d;
 }
 
+int PlotBookModel::getDataInt(const QModelIndex &startIdx,
+                                 const QString &searchItemText,
+                                 const QString &expectedStartIdxText) const
+{
+    QModelIndex dataIdx = getDataIndex(startIdx,searchItemText,
+                                      expectedStartIdxText);
+    bool ok;
+    int i = data(dataIdx).toInt(&ok);
+    if ( !ok ) {
+        qDebug() << "snap [bad scoobs]: PlotBookModel::getDataInt()";
+        exit(-1);
+    }
+    return i;
+}
+
 QModelIndexList PlotBookModel::getIndexList(const QModelIndex &startIdx,
                                   const QString &searchItemText,
                                   const QString &expectedStartIdxText) const
