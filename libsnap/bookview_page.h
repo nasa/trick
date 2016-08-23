@@ -4,6 +4,7 @@
 #include <QAbstractItemView>
 #include <QGridLayout>
 #include <QList>
+#include <QItemSelectionModel>
 
 #include "bookidxview.h"
 #include "bookview_pagetitle.h"
@@ -34,6 +35,9 @@ protected slots:
     //virtual void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
     //virtual void currentChanged(const QModelIndex &current, const QModelIndex &previous);
 
+protected slots:
+    void _plotViewCurrentChanged(const QModelIndex& currIdx,
+                                 const QModelIndex& prevIdx);
 
 signals:
     

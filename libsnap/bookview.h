@@ -95,6 +95,8 @@ public slots:
 protected slots:
     void _nbCloseRequested(int idx);
     void _nbCurrentChanged(int idx);
+    void _pageViewCurrentChanged(const QModelIndex& currIdx,
+                                 const QModelIndex& prevIdx);
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,

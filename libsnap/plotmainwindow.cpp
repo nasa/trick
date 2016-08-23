@@ -49,7 +49,6 @@ PlotMainWindow::PlotMainWindow(
 
     // Create models
     _bookModel = new PlotBookModel(monteModel,0,1,parent);
-    _bookSelectModel = new QItemSelectionModel(_bookModel);
     if ( titles.size() == 4 ) {
         QStandardItem *rootItem = _bookModel->invisibleRootItem();
         QStandardItem *citem;
@@ -65,7 +64,6 @@ PlotMainWindow::PlotMainWindow(
     // Create Plot Tabbed Notebook View Widget
     _bookView = new BookView();
     _bookView->setModel(_bookModel);
-    _bookView->setSelectionModel(_bookSelectModel);
     /*
     connect(_bookSelectModel,SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this, SLOT(_bookCurrentChanged(QModelIndex,QModelIndex)));
@@ -95,7 +93,7 @@ PlotMainWindow::PlotMainWindow(
     // Vars Tab
     QFrame* varsFrame = new QFrame(lsplit);
     _varsWidget = new VarsWidget(_varsModel, _monteModel, _bookModel,
-                                  _bookSelectModel, _monteInputsView,
+                                  _bookView->selectionModel(), _monteInputsView,
                                  varsFrame);
     _nbDPVars->addTab(varsFrame,"Vars");
 
@@ -109,7 +107,7 @@ PlotMainWindow::PlotMainWindow(
         // DP files specified on commandline
         _dpTreeWidget = new  DPTreeWidget(_timeName, _dpDir, _dpFiles, _varsModel,
                                           _monteModel, _bookModel,
-                                          _bookSelectModel, _dpFrame);
+                                          _bookView->selectionModel(), _dpFrame);
         _nbDPVars->setCurrentIndex(1);
     }
     connect(_nbDPVars,SIGNAL(currentChanged(int)),
@@ -176,7 +174,7 @@ void PlotMainWindow::_nbCurrentChanged(int i)
         //
         _dpTreeWidget = new  DPTreeWidget(_timeName, _dpDir, _dpFiles,
                                           _varsModel, _monteModel, _bookModel,
-                                          _bookSelectModel, _dpFrame);
+                                          _bookView->selectionModel(),_dpFrame);
     }
 }
 

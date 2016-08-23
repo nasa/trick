@@ -77,7 +77,6 @@ private:
     PlotBookModel* _bookModel;
     QTreeView* _plotTreeView ;
     BookView* _bookView;
-    QItemSelectionModel* _bookSelectModel;
 
     bool _isRUN(const QString& fp);
     bool _isMONTE(const QString& fp);

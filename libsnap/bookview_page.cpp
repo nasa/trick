@@ -113,6 +113,10 @@ void PageView::rowsInserted(const QModelIndex &pidx, int start, int end)
     plot->setModel(model());
     plot->setRootIndex(plotIdx);
     plot->installEventFilter(this);  // for double clicking a plot to view alone
+    connect(plot->selectionModel(),
+            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+            this,
+            SLOT(_plotViewCurrentChanged(QModelIndex,QModelIndex)));
 
     switch ( nPlots ) {
     case 1: {
@@ -174,6 +178,13 @@ void PageView::rowsInserted(const QModelIndex &pidx, int start, int end)
     }
     }
 
+}
+
+void PageView::_plotViewCurrentChanged(const QModelIndex &currIdx,
+                                       const QModelIndex &prevIdx)
+{
+    Q_UNUSED(prevIdx);
+    setCurrentIndex(currIdx);
 }
 
 void PageView::setModel(QAbstractItemModel *model)

@@ -66,6 +66,9 @@ protected slots:
     //virtual void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
     //virtual void currentChanged(const QModelIndex &current, const QModelIndex &previous);
 
+protected slots:
+    void _childViewCurrentChanged(const QModelIndex& currIdx,
+                                  const QModelIndex& prevIdx);
 };
 
 #endif // PLOTVIEW_H

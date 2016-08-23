@@ -222,6 +222,10 @@ void PlotView::setModel(QAbstractItemModel *model)
         disconnect(model,SIGNAL(rowsInserted(QModelIndex,int,int)),
                    this,SLOT(rowsInserted(QModelIndex,int,int)));
     }
+    connect(_curvesView->selectionModel(),
+            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+            this,
+            SLOT(_childViewCurrentChanged(QModelIndex,QModelIndex)));
 }
 
 QSize PlotView::minimumSizeHint() const
@@ -241,6 +245,13 @@ void PlotView::rowsInserted(const QModelIndex &pidx, int start, int end)
     Q_UNUSED(pidx);
     Q_UNUSED(start);
     Q_UNUSED(end);
+}
+
+void PlotView::_childViewCurrentChanged(const QModelIndex &currIdx,
+                                        const QModelIndex &prevIdx)
+{
+    Q_UNUSED(prevIdx);
+    setCurrentIndex(currIdx);
 }
 
 bool PlotView::eventFilter(QObject *obj, QEvent *event)

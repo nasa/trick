@@ -1464,8 +1464,16 @@ void BookView::_nbCurrentChanged(int idx)
     if ( selectionModel() ) {
         QModelIndex pagesIdx = _bookModel()->getIndex(QModelIndex(),"Pages");
         QModelIndex pageIdx = model()->index(idx, 0,pagesIdx);
-        selectionModel()->setCurrentIndex(pageIdx,QItemSelectionModel::Current);
+        selectionModel()->setCurrentIndex(pageIdx,
+                                          QItemSelectionModel::NoUpdate);
     }
+}
+
+void BookView::_pageViewCurrentChanged(const QModelIndex &currIdx,
+                                       const QModelIndex &prevIdx)
+{
+    Q_UNUSED(prevIdx);
+    selectionModel()->setCurrentIndex(currIdx,QItemSelectionModel::NoUpdate);
 }
 
 void BookView::dataChanged(const QModelIndex &topLeft,
@@ -1484,11 +1492,15 @@ void BookView::rowsInserted(const QModelIndex &pidx, int start, int end)
         QModelIndex idx = model()->index(i,0,pidx);
         QString cText = model()->data(idx).toString();
         if ( cText == "Page" ) {
-            PageView* pw = new PageView;
-            _childViews << pw;
-            pw->setModel(model());
-            pw->setRootIndex(idx);
-            int tabId = _nb->addTab(pw,"Page");
+            PageView* pageView = new PageView;
+            _childViews << pageView;
+            pageView->setModel(model());
+            pageView->setRootIndex(idx);
+            connect(pageView->selectionModel(),
+                    SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+                    this,
+                    SLOT(_pageViewCurrentChanged(QModelIndex,QModelIndex)));
+            int tabId = _nb->addTab(pageView,"Page");
             _nb->setTabWhatsThis(tabId, "Page");
         } else if ( cText == "PageName" ) {
             QModelIndex pageNameIdx = _bookModel()->index(i,1,pidx);
