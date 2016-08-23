@@ -224,14 +224,6 @@ void PlotView::setModel(QAbstractItemModel *model)
     }
 }
 
-void PlotView::setRootIndex(const QModelIndex &index)
-{
-    foreach (QAbstractItemView* view, _childViews ) {
-        view->setRootIndex(index);
-    }
-    QAbstractItemView::setRootIndex(index);
-}
-
 QSize PlotView::minimumSizeHint() const
 {
     QSize s(50,50);

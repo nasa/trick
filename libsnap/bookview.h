@@ -26,8 +26,6 @@ class BookView : public BookIdxView
     Q_OBJECT
 public:
     explicit BookView(QWidget *parent = 0);
-    virtual void setModel(QAbstractItemModel *model);
-    virtual void setRootIndex(const QModelIndex &index);
 
 protected:
     virtual void currentChanged(const QModelIndex& current,

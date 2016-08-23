@@ -28,7 +28,6 @@ class PlotView : public BookIdxView
 public:
     explicit PlotView(QWidget *parent = 0);
     virtual void setModel(QAbstractItemModel *model);
-    virtual void setRootIndex(const QModelIndex &index);
 
 protected:
     virtual bool eventFilter(QObject *obj, QEvent *event);

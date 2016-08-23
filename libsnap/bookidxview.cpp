@@ -531,11 +531,17 @@ bool BookIdxView::_isEqual(double a, double b, ulong maxD,
 
 void BookIdxView::setModel(QAbstractItemModel *model)
 {
+    foreach ( QAbstractItemView* view, _childViews ) {
+        view->setModel(model);
+    }
     QAbstractItemView::setModel(model);
 }
 
 void BookIdxView::setRootIndex(const QModelIndex &index)
 {
+    foreach (QAbstractItemView* view, _childViews ) {
+        view->setRootIndex(index);
+    }
     QAbstractItemView::setRootIndex(index);
 }
 
