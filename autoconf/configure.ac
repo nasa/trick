@@ -247,6 +247,8 @@ AC_PATH_PROG(CLANG, clang, noclang, "$LLVM_BIN_DIR:/bin:/usr/bin:/usr/local/bin:
 AS_IF([test "$ac_cv_path_CLANG" = "noclang"],AC_MSG_ERROR([could not find clang]),[])
 AC_SUBST([LLVM_HOME])
 
+AX_CHECK_ZLIB([],AC_MSG_ERROR([could not find zlib]))
+
 dnl look for udunits in /usr/include and /usr/include/udunits2
 AX_UDUNITS_HOME([])
 AS_IF([test "$UDUNITS_HOME" = ""],
