@@ -193,7 +193,6 @@ PlotView::PlotView(QWidget *parent) :
     _childViews << _titleView
                 << _xAxisLabel
                 << _yAxisLabel
-                << _curvesView
                 << _tlCorner <<  _trCorner << _blCorner << _brCorner
                 << _tTics <<  _bTics << _rTics <<  _lTics
                 << _xTicLabels << _yTicLabels

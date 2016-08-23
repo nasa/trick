@@ -160,6 +160,9 @@ QList<QColor> PlotBookModel::createCurveColors(int nCurves)
         int nBands = 10;
         int hBeg = 10; int hEnd = 230;
         int q = div(nCurves-1,nBands).quot;
+        if ( q == 0 ) {
+            q = 1.0;
+        }
         for (int i = 0; i < nCurves; ++i ) {
             int h = qRound((double)(hEnd-hBeg)/(nBands-1.0))*div(i,q).quot+hBeg;
             int s = qRound(0.75*255);

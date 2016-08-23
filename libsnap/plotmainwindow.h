@@ -83,8 +83,6 @@ private:
 
 private slots:
      void _nbCurrentChanged(int i);
-     void _bookCurrentChanged(const QModelIndex& currIdx,
-                              const QModelIndex& prevIdx);
      void _plotModelRowsAboutToBeRemoved(const QModelIndex& pidx,
                                          int start, int end);
      void _savePdf();
@@ -92,6 +90,10 @@ private slots:
      void _startTimeChanged(double startTime);
      void _stopTimeChanged(double stopTime);
      void _monteInputsHeaderViewClicked(int section);
+     void _monteInputsViewCurrentChanged(const QModelIndex& currIdx,
+                                         const QModelIndex& prevIdx);
+     void _bookViewCurrentChanged(const QModelIndex& currIdx,
+                                  const QModelIndex& prevIdx);
 };
 
 #endif // PLOTMAINWINDOW_H

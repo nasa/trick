@@ -23,6 +23,23 @@ CurvesView::~CurvesView()
     }
 }
 
+void CurvesView::setCurrentCurveRunID(int runID)
+{
+    QModelIndex plotIdx = rootIndex();
+    QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
+    int rc = model()->rowCount(curvesIdx);
+    for (int i = 0 ; i < rc; ++i ) {
+        QModelIndex idx = model()->index(i,0,curvesIdx);
+        if ( model()->data(idx).toString() == "Curve" ) {
+            int curveRunID = _bookModel()->getDataInt(idx,"CurveRunID","Curve");
+            if ( curveRunID == runID ) {
+                setCurrentIndex(idx);
+                break;
+            }
+        }
+    }
+}
+
 void CurvesView::paintEvent(QPaintEvent *event)
 {
     if ( !model() ) return;
@@ -992,8 +1009,6 @@ void CurvesView::_keyPressSpace()
 
 void CurvesView::_keyPressUp()
 {
-    if ( !currentIndex().isValid() ) return;
-
     if ( _bookModel()->isIndex(currentIndex(),"Curve") ) {
         QModelIndex curveIdx = currentIndex();
         QModelIndex curvesIdx = curveIdx.parent();
@@ -1007,14 +1022,12 @@ void CurvesView::_keyPressUp()
 
 void CurvesView::_keyPressDown()
 {
-    if ( !currentIndex().isValid() ) return;
-
     if ( _bookModel()->isIndex(currentIndex(),"Curve") ) {
         QModelIndex curveIdx = currentIndex();
         QModelIndex curvesIdx = curveIdx.parent();
         int rc = model()->rowCount(curvesIdx);
         int i = curveIdx.row();
-        if ( i < rc-2 ) {
+        if ( i+1 < rc ) {
             QModelIndex nextCurveIdx = model()->index(i+1,0,curvesIdx);
             setCurrentIndex(nextCurveIdx);
         }

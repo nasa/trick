@@ -64,16 +64,20 @@ PlotMainWindow::PlotMainWindow(
     // Create Plot Tabbed Notebook View Widget
     _bookView = new BookView();
     _bookView->setModel(_bookModel);
-    /*
-    connect(_bookSelectModel,SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(_bookCurrentChanged(QModelIndex,QModelIndex)));
-    */
+    connect(_bookView->selectionModel(),
+            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+            this,
+            SLOT(_bookViewCurrentChanged(QModelIndex,QModelIndex)));
     msplit->addWidget(_bookView);
 
     // Monte inputs view (widget added later)
     if ( _monteInputsModel ) {
         _monteInputsView = new MonteInputsView(_bookView,lsplit);
         _monteInputsView->setModel(_monteInputsModel);
+        connect(_monteInputsView->selectionModel(),
+                SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+                this,
+                SLOT(_monteInputsViewCurrentChanged(QModelIndex,QModelIndex)));
         _monteInputsHeaderView = _monteInputsView->horizontalHeader();
 #if 0
         connect(_monteInputsHeaderView,SIGNAL(sectionClicked(int)),
@@ -178,11 +182,26 @@ void PlotMainWindow::_nbCurrentChanged(int i)
     }
 }
 
-void PlotMainWindow::_bookCurrentChanged(const QModelIndex &currIdx,
-                                         const QModelIndex &prevIdx)
+void PlotMainWindow::_bookViewCurrentChanged(const QModelIndex &currIdx,
+                                             const QModelIndex &prevIdx)
 {
     Q_UNUSED(prevIdx);
-    qDebug() << "TODO: PlotMainWindow::_bookCurrentChanged=";
+
+    if ( _monteInputsView ) {
+        if ( _bookModel->isIndex(currIdx,"Curve") ) {
+            // Select row in monte inputs view that goes with curve in book view
+            int runId = _bookModel->getDataInt(currIdx,"CurveRunID","Curve");
+            int rc = _monteInputsView->model()->rowCount();
+            for (int i = 0; i < rc; ++i ) {
+                // note: next line assumes that run is in column 0
+                QModelIndex idx = _monteInputsView->model()->index(i,0);
+                if ( runId == _monteInputsView->model()->data(idx).toInt() ) {
+                    _monteInputsView->setCurrentIndex(idx);
+                    break;
+                }
+            }
+        }
+    }
 }
 
 void PlotMainWindow::_plotModelRowsAboutToBeRemoved(const QModelIndex &pidx,
@@ -318,3 +337,18 @@ void PlotMainWindow::_monteInputsHeaderViewClicked(int section)
     _plotBookView->replot();
 #endif
 }
+
+void PlotMainWindow::_monteInputsViewCurrentChanged(const QModelIndex &currIdx,
+                                                    const QModelIndex &prevIdx)
+{
+    Q_UNUSED(prevIdx);
+
+    if ( currIdx.column() == 0 ) {  // column 0 is runID by convention
+        // set all curves in bookview with runID to current
+        int runID = _monteInputsView->model()->data(currIdx).toInt();
+        _bookView->setCurrentCurveRunID(runID);
+    }
+}
+
+
+

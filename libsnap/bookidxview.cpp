@@ -545,6 +545,16 @@ void BookIdxView::setRootIndex(const QModelIndex &index)
     QAbstractItemView::setRootIndex(index);
 }
 
+void BookIdxView::setCurrentCurveRunID(int runID)
+{
+    foreach (QAbstractItemView* view, _childViews ) {
+        BookIdxView* bookIdxView = dynamic_cast<BookIdxView*>(view);
+        if ( bookIdxView ) {
+            bookIdxView->setCurrentCurveRunID(runID);
+        }
+    }
+}
+
 // Root index of a page view will be a Page Index of a Book Model
 // Noop "template" for a child class
 void BookIdxView::dataChanged(const QModelIndex &topLeft,

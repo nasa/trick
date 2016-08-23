@@ -24,6 +24,9 @@ public:
     explicit CurvesView(QWidget *parent = 0);
     ~CurvesView();
 
+public:
+    virtual void setCurrentCurveRunID(int runID);
+
 protected:
     virtual void paintEvent(QPaintEvent * event);
     virtual QSize minimumSizeHint() const;

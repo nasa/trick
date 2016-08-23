@@ -15,6 +15,7 @@ public:
 
 public:
     void setCurvesView(QAbstractItemView* view);
+    virtual void setCurrentCurveRunID(int runID);
 
 public:
     virtual void setModel(QAbstractItemModel *model);
