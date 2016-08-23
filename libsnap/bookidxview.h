@@ -18,6 +18,7 @@ public:
 
 public:
     virtual void setModel(QAbstractItemModel *model);
+    virtual void setRootIndex(const QModelIndex &index);
     virtual QModelIndex indexAt( const QPoint& point) const;
     virtual QRect visualRect(const QModelIndex &index) const;
     virtual void scrollTo(const QModelIndex &index,
@@ -31,10 +32,6 @@ public:
     virtual void mouseMoveEvent(QMouseEvent* event);
     virtual void mouseReleaseEvent(QMouseEvent* event);
     virtual void mouseDoubleClickEvent(QMouseEvent *event);
-
-
-protected:
-    virtual void _update() = 0;  // see pagetitleview for example
 
     QTransform _coordToPixelTransform() ;
 
@@ -71,7 +68,6 @@ protected:
 
 protected:
     PlotBookModel *_bookModel() const;
-    QPersistentModelIndex _myIdx;
     QAbstractItemView* _curvesView;
 
     QString _curvesXUnit(const QModelIndex& plotIdx) const;
@@ -82,11 +78,12 @@ protected:
     double _yScale(TrickCurveModel *curveModel,
                    const QModelIndex& curveIdx=QModelIndex()) const;
 
+protected:
+    QList<QAbstractItemView*> _childViews;
+
 signals:
 
 public slots:
-
-    virtual void setRootIndex(const QModelIndex &rootIdx);
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,

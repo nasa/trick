@@ -42,49 +42,11 @@ PageTitleView::PageTitleView(QWidget *parent) :
     setLayout(_grid);
 }
 
-// TODO: Handle changes to default title and titles 2,3 and 4
-void PageTitleView::dataChanged(const QModelIndex &topLeft,
-                                const QModelIndex &bottomRight)
+void PageTitleView::setModel(QAbstractItemModel *model)
 {
-    QModelIndex pidx = topLeft.parent();
-    if ( pidx != bottomRight.parent() ) return;
 
-    // TODO: For now and only handle single item changes
-    if ( topLeft != bottomRight ) return;
+    QAbstractItemView::setModel(model);
 
-    // TODO: if default title changes, this fails
-    if ( pidx != _myIdx ) return;
-
-    // Value is in column 1
-    if ( topLeft.column() != 1 ) return;
-
-    int row = topLeft.row();
-    QModelIndex idx0 = model()->index(row,0,pidx);
-    if ( model()->data(idx0).toString() == "PageTitle" ) {
-        QString title = model()->data(topLeft).toString();
-        _title1->setText(title);
-    }
-}
-
-void PageTitleView::rowsInserted(const QModelIndex &pidx, int start, int end)
-{
-    if ( pidx != _myIdx ) return;
-
-    if ( !_bookModel()->isChildIndex(_myIdx,"Page","PageTitle") ) {
-        return;
-    }
-
-    for ( int i = start; i <= end; ++i ) {
-        QModelIndex idx = model()->index(i,0,pidx);
-        QString cText = model()->data(idx).toString();
-        if ( cText == "PageTitle" ) {
-            _update();
-        }
-    }
-}
-
-void PageTitleView::_update()
-{
     PlotBookModel* bookModel = _bookModel();
 
     QList<QStandardItem*> items = bookModel->findItems("DefaultPageTitles",
@@ -98,10 +60,10 @@ void PageTitleView::_update()
     QStandardItem* pItem = items.at(0);
 
     QString pageTitle ;
-    if ( bookModel->isChildIndex(_myIdx,"Page","PageTitle") ) {
-        QModelIndex pageTitleIdx  = bookModel->getIndex(_myIdx,
+    if ( bookModel->isChildIndex(rootIndex(),"Page","PageTitle") ) {
+        QModelIndex pageTitleIdx  = bookModel->getIndex(rootIndex(),
                                                         "PageTitle","Page");
-        pageTitleIdx = bookModel->index(pageTitleIdx.row(),1,_myIdx);
+        pageTitleIdx = bookModel->index(pageTitleIdx.row(),1,rootIndex());
         pageTitle = bookModel->data(pageTitleIdx).toString();
     } else {
         pageTitle = pItem->child(0,1)->text();
@@ -125,6 +87,90 @@ void PageTitleView::_update()
     _title3->setText(titleItem->text());
     titleItem = pItem->child(3,1);
     _title4->setText(titleItem->text());
+}
+
+// TODO: Handle changes to default title and titles 2,3 and 4
+void PageTitleView::dataChanged(const QModelIndex &topLeft,
+                                const QModelIndex &bottomRight)
+{
+    QModelIndex pidx = topLeft.parent();
+    if ( pidx != bottomRight.parent() ) return;
+
+    // TODO: For now and only handle single item changes
+    if ( topLeft != bottomRight ) return;
+
+    // TODO: if default title changes, this fails
+    if ( pidx != rootIndex() ) return;
+
+    // Value is in column 1
+    if ( topLeft.column() != 1 ) return;
+
+    int row = topLeft.row();
+    QModelIndex idx0 = model()->index(row,0,pidx);
+    if ( model()->data(idx0).toString() == "PageTitle" ) {
+        QString title = model()->data(topLeft).toString();
+        _title1->setText(title);
+    }
+}
+
+void PageTitleView::rowsInserted(const QModelIndex &pidx, int start, int end)
+{
+    if ( pidx != rootIndex() ) return;
+
+    if ( !_bookModel()->isChildIndex(rootIndex(),"Page","PageTitle") ) {
+        return;
+    }
+
+    for ( int i = start; i <= end; ++i ) {
+        QModelIndex idx = model()->index(i,0,pidx);
+        QString cText = model()->data(idx).toString();
+        if ( cText == "PageTitle" ) {
+            PlotBookModel* bookModel = _bookModel();
+
+            QList<QStandardItem*> items = bookModel->
+                                            findItems("DefaultPageTitles",
+                                                      Qt::MatchStartsWith);
+            if ( items.isEmpty() ) {
+                qDebug() << "snap [bad scoobs]: PageTitleView::setModel() "
+                            "can't find DefaultPageTitles";
+                exit(-1);
+            }
+            QStandardItem* titleItem;
+            QStandardItem* pItem = items.at(0);
+
+            QString pageTitle ;
+            if ( bookModel->isChildIndex(rootIndex(),"Page","PageTitle") ) {
+                QModelIndex pageTitleIdx  = bookModel->getIndex(rootIndex(),
+                                                                "PageTitle",
+                                                                "Page");
+                pageTitleIdx = bookModel->index(pageTitleIdx.row(),1,
+                                                rootIndex());
+                pageTitle = bookModel->data(pageTitleIdx).toString();
+            } else {
+                pageTitle = pItem->child(0,1)->text();
+            }
+
+            QModelIndex rootIdx = QModelIndex();
+            QModelIndex dptIdx = _bookModel()->getIndex(rootIdx,
+                                                        "DefaultPageTitles");
+            QString t1 = _bookModel()->getDataString(dptIdx,
+                                                     "Title1",
+                                                     "DefaultPageTitles");
+            if ( t1 != "Snap Plots!" ) {
+                // Default title overwritten by -t1 optional title
+                pageTitle = t1;
+            }
+
+            _title1->setText(pageTitle);
+
+            titleItem = pItem->child(1,1);
+            _title2->setText(_elideRunsTitle(titleItem->text()));
+            titleItem = pItem->child(2,1);
+            _title3->setText(titleItem->text());
+            titleItem = pItem->child(3,1);
+            _title4->setText(titleItem->text());
+        }
+    }
 }
 
 QString PageTitleView::_elideRunsTitle(QString title)

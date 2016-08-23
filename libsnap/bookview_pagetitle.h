@@ -17,7 +17,7 @@ public:
     explicit PageTitleView(QWidget *parent = 0);
 
 protected:
-    virtual void _update();
+    virtual void setModel(QAbstractItemModel *model);
 
 private:
     QGridLayout* _grid;

@@ -21,12 +21,13 @@ void PlotTitleView::_update()
 {
     PlotBookModel* bookModel = _bookModel();
 
-    if ( !bookModel->isChildIndex(_myIdx,"Plot","PlotTitle") ) {
+    if ( !bookModel->isChildIndex(rootIndex(),"Plot","PlotTitle") ) {
         return;
     }
 
-    QModelIndex plotTitleIdx  = bookModel->getIndex(_myIdx, "PlotTitle","Plot");
-    plotTitleIdx = bookModel->index(plotTitleIdx.row(),1,_myIdx);
+    QModelIndex plotTitleIdx  = bookModel->getIndex(rootIndex(),
+                                                    "PlotTitle","Plot");
+    plotTitleIdx = bookModel->index(plotTitleIdx.row(),1,rootIndex());
     QString plotTitle = bookModel->data(plotTitleIdx).toString();
 
     _label->setText(plotTitle);
@@ -37,7 +38,7 @@ void PlotTitleView::_update()
 void PlotTitleView::dataChanged(const QModelIndex &topLeft,
                                 const QModelIndex &bottomRight)
 {
-    if ( topLeft.parent() != _myIdx ) return;
+    if ( topLeft.parent() != rootIndex() ) return;
 
     // Value is in column 1
     if ( topLeft.column() != 1 ) return;
@@ -51,7 +52,7 @@ void PlotTitleView::dataChanged(const QModelIndex &topLeft,
 // TODO: only single append works
 void PlotTitleView::rowsInserted(const QModelIndex &pidx, int start, int end)
 {
-    if ( pidx != _myIdx ) return;
+    if ( pidx != rootIndex() ) return;
 
     for ( int i = start; i <= end; ++i ) {
         QModelIndex idx = model()->index(i,0,pidx);

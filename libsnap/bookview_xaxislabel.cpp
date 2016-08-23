@@ -106,7 +106,7 @@ void XAxisLabelView::wheelEvent(QWheelEvent *e)
         }
     }
 
-    QModelIndex curvesIdx = _bookModel()->getIndex(_myIdx,"Curves","Plot");
+    QModelIndex curvesIdx = _bookModel()->getIndex(rootIndex(),"Curves","Plot");
     QModelIndexList curveIdxs = _bookModel()->getIndexList(curvesIdx,
                                                            "Curve","Curves");
     foreach (QModelIndex curveIdx, curveIdxs ) {
@@ -121,7 +121,7 @@ void XAxisLabelView::dataChanged(const QModelIndex &topLeft,
 {
     if ( !model()) return;
     if ( topLeft.column() != 1 ) return;
-    if ( topLeft.parent() != _myIdx ) return;
+    if ( topLeft.parent() != rootIndex() ) return;
     if ( topLeft != bottomRight ) return; // TODO: support multiple changes
     QModelIndex tagIdx = model()->index(topLeft.row(),0,topLeft.parent());
     QString tag = model()->data(tagIdx).toString();
@@ -135,7 +135,7 @@ void XAxisLabelView::dataChanged(const QModelIndex &topLeft,
 
 void XAxisLabelView::rowsInserted(const QModelIndex &pidx, int start, int end)
 {
-    if ( _myIdx != pidx ) return;
+    if ( rootIndex() != pidx ) return;
     if ( !pidx.isValid() ) return;
     if ( !model()) return;
 

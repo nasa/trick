@@ -6,10 +6,11 @@ CornerView::CornerView(Qt::Corner corner, QWidget *parent) :
     setFrameShape(QFrame::NoFrame);
 }
 
-void CornerView::_update()
+void CornerView::setModel(QAbstractItemModel *model)
 {
-    if ( model() ) {
-        disconnect(model(),SIGNAL(rowsInserted(QModelIndex,int,int)),
+    QAbstractItemView::setModel(model);
+    if ( model ) {
+        disconnect(model,SIGNAL(rowsInserted(QModelIndex,int,int)),
                    this,SLOT(rowsInserted(QModelIndex,int,int)));
     }
 }

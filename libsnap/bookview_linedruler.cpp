@@ -7,10 +7,11 @@ LinedRulerView::LinedRulerView(Qt::Alignment alignment, QWidget *parent) :
     setFrameShape(QFrame::NoFrame);
 }
 
-void LinedRulerView::_update()
+void LinedRulerView::setModel(QAbstractItemModel* model)
 {
-    if ( model() ) {
-        disconnect(model(),SIGNAL(rowsInserted(QModelIndex,int,int)),
+    QAbstractItemView::setModel(model);
+    if ( model ) {
+        disconnect(model,SIGNAL(rowsInserted(QModelIndex,int,int)),
                    this,SLOT(rowsInserted(QModelIndex,int,int)));
     }
 }
@@ -37,7 +38,7 @@ void LinedRulerView::paintEvent(QPaintEvent *event)
 
     const QRectF M = _mathRect();
 
-    QModelIndex plotIdx = _bookModel()->getIndex(_myIdx,"Plot");
+    QModelIndex plotIdx = _bookModel()->getIndex(rootIndex(),"Plot");
 
     if ( _alignment == Qt::AlignTop ) {
         majors = _majorXTics(plotIdx);
@@ -145,11 +146,11 @@ QSize LinedRulerView::sizeHint() const
 void LinedRulerView::dataChanged(const QModelIndex &topLeft,
                                  const QModelIndex &bottomRight)
 {
-    if ( topLeft.parent() != _myIdx ) return;
+    if ( topLeft.parent() != rootIndex() ) return;
     if ( topLeft.column() != 1 ) return;
     if ( topLeft != bottomRight ) return;
 
-    if ( topLeft == _plotMathRectIdx(_myIdx) ) {
+    if ( topLeft == _plotMathRectIdx(rootIndex()) ) {
         viewport()->update();
     }
 }

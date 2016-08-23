@@ -2,7 +2,6 @@
 
 BookIdxView::BookIdxView(QWidget *parent) :
     QAbstractItemView(parent),
-    _myIdx(QModelIndex()),
     _curvesView(0)
 {
 }
@@ -56,11 +55,11 @@ QRectF BookIdxView::_mathRect()
 {
     if ( !_curvesView ) {
         qDebug() << "snap [bad scoobs]: BookIdxView::_mathRect() "
-                    "called without a plot view set.  Please _setPlotView()!";
+                    "called without _curvesView set. view=" << this;
         exit(-1);
     }
 
-    QRectF M = _plotMathRect(_myIdx);
+    QRectF M = _plotMathRect(rootIndex());
     QRect  W = viewport()->rect();
     QRect  V = _curvesView->viewport()->rect();
 
@@ -116,7 +115,7 @@ void BookIdxView::_setPlotMathRect(const QRectF& mathRect)
 {
     if ( !model() ) return;
 
-    QModelIndex plotIdx = _bookModel()->getIndex(_myIdx,"Plot");
+    QModelIndex plotIdx = _bookModel()->getIndex(rootIndex(),"Plot");
     QModelIndex plotMathRectIdx = _bookModel()->getDataIndex(plotIdx,
                                                      "PlotMathRect",
                                                      "Plot");
@@ -135,7 +134,7 @@ double BookIdxView::_pointSize() const
     double sz=0;
     if ( !model() ) return sz;
 
-    QModelIndex plotIdx = _bookModel()->getIndex(_myIdx,"Plot");
+    QModelIndex plotIdx = _bookModel()->getIndex(rootIndex(),"Plot");
     QModelIndex pointSizeIdx = _bookModel()->getDataIndex(plotIdx,
                                                      "PlotPointSize","Plot");
     sz = model()->data(pointSizeIdx).toDouble();
@@ -216,7 +215,7 @@ QList<double> BookIdxView::_majorXTics(const QModelIndex& plotIdx) const
 QList<double> BookIdxView::_minorXTics() const
 {
     QList<double> X;
-    QRectF r = _plotMathRect(_myIdx);
+    QRectF r = _plotMathRect(rootIndex());
     double a = r.left();
     double b = r.right();
     //X = calcTicSet(a,b,M_PI/8.0);
@@ -237,7 +236,7 @@ QList<double> BookIdxView::_majorYTics(const QModelIndex &plotIdx) const
 QList<double> BookIdxView::_minorYTics() const
 {
     QList<double> Y;
-    QRectF r = _plotMathRect(_myIdx);
+    QRectF r = _plotMathRect(rootIndex());
     double a = r.bottom();
     double b = r.top();
     Y = _calcTicSet(a,b,1.0/4.0,10.0);
@@ -532,83 +531,20 @@ bool BookIdxView::_isEqual(double a, double b, ulong maxD,
 
 void BookIdxView::setModel(QAbstractItemModel *model)
 {
-    if ( model == this->model() ) {
-        QAbstractItemView::setModel(model);
-        return;
-    }
-
-    // Allow setting model to null
-    if ( !model ) {
-        _myIdx = QModelIndex();
-        QAbstractItemView::setModel(model);
-        return;
-    }
-
-    if ( _myIdx.isValid() ) {
-        if ( _myIdx.model() != model ) {
-            qDebug() << "snap [bad scoobs]: BookIdxView::setModel(model) : "
-                        "model is not the same as _myIdx.model().  Aborting.";
-            exit(-1);
-        }
-    }
-
     QAbstractItemView::setModel(model);
+}
 
-    if ( !_bookModel() ) {
-        qDebug() << "snap [bad scoobs]: BookIdxView::setModel() "
-                    "could not cast model() to a PlotBookModel*";
-        exit(-1);
-    }
-
-
-    // Call inherited class' _update method
-    _update();
+void BookIdxView::setRootIndex(const QModelIndex &index)
+{
+    QAbstractItemView::setRootIndex(index);
 }
 
 // Root index of a page view will be a Page Index of a Book Model
-void BookIdxView::setRootIndex(const QModelIndex &rootIdx)
-{
-
-    if( !rootIdx.isValid() ) {
-        QAbstractItemView::setRootIndex(rootIdx);
-        return;
-    }
-
-    if ( rootIdx == _myIdx ) return; // already set
-
-    if ( rootIdx.model() == 0 ) {
-        qDebug() << "snap [bad scoobs]: BookIdxView::setRootIndex(idx) : "
-                 << "idx.model() is null.  Aborting.";
-        exit(-1);
-    }
-
-    if ( !model() ) {
-        qDebug() << "snap [bad scoobs]: BookIdxView::setRootIndex() "
-                    "called without setting the view model. "
-                    "You must call view->setModel() before setting the "
-                    "root index";
-        exit(-1);
-    }
-
-    if ( rootIdx.model() != this->model() ) {
-        qDebug() << "snap [bad scoobs]: BookIdxView::setRootIndex() "
-                    "set to index with model which does not match "
-                    "view->model().  Please setModel() to model that "
-                    "is same as pageIdx's model.";
-        exit(-1);
-    }
-
-    _myIdx = rootIdx;
-
-    // Call inherited class' _update method
-    _update();
-}
-
 // Noop "template" for a child class
 void BookIdxView::dataChanged(const QModelIndex &topLeft,
                               const QModelIndex &bottomRight)
 {
-    if ( topLeft != _myIdx || topLeft.parent() != _myIdx ) return;
+    if ( topLeft != rootIndex() || topLeft.parent() != rootIndex() ) return;
     if ( topLeft.column() != 1 ) return;
     if ( topLeft != bottomRight ) return;
 
@@ -620,7 +556,7 @@ void BookIdxView::rowsInserted(const QModelIndex &pidx, int start, int end)
 {
     Q_UNUSED(start);
     Q_UNUSED(end);
-    if ( pidx != _myIdx ) return;
+    if ( pidx != rootIndex() ) return;
 
     // Code
 }

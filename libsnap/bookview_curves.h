@@ -25,9 +25,6 @@ public:
     ~CurvesView();
 
 protected:
-    virtual void _update();
-
-protected:
     virtual void paintEvent(QPaintEvent * event);
     virtual QSize minimumSizeHint() const;
     virtual QSize sizeHint() const;

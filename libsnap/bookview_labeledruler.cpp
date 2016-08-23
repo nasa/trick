@@ -8,10 +8,6 @@ LabeledRulerView::LabeledRulerView(Qt::Alignment alignment,
     setFrameShape(QFrame::NoFrame);
 }
 
-void LabeledRulerView::_update()
-{
-}
-
 void LabeledRulerView::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
@@ -28,7 +24,7 @@ void LabeledRulerView::paintEvent(QPaintEvent *event)
     }
 
 
-    QModelIndex plotIdx = _bookModel()->getIndex(_myIdx,"Plot");
+    QModelIndex plotIdx = _bookModel()->getIndex(rootIndex(),"Plot");
 
     QList<double> modelTics;
     if ( _alignment == Qt::AlignBottom ) {
@@ -140,7 +136,7 @@ QSize LabeledRulerView::sizeHint() const
     QSize s(0,0);
 
     QList<double> modelTics;
-    QModelIndex plotIdx = _bookModel()->getIndex(_myIdx,"Plot");
+    QModelIndex plotIdx = _bookModel()->getIndex(rootIndex(),"Plot");
     if ( _alignment == Qt::AlignBottom ) {
         modelTics = _majorXTics(plotIdx);
     } else if ( _alignment == Qt::AlignLeft ) {
@@ -185,11 +181,11 @@ QSize LabeledRulerView::sizeHint() const
 void LabeledRulerView::dataChanged(const QModelIndex &topLeft,
                                    const QModelIndex &bottomRight)
 {
-    if ( topLeft.parent() != _myIdx ) return;
+    if ( topLeft.parent() != rootIndex() ) return;
     if ( topLeft.column() != 1 ) return;
     if ( topLeft != bottomRight ) return;
 
-    if ( topLeft == _plotMathRectIdx(_myIdx) ) {
+    if ( topLeft == _plotMathRectIdx(rootIndex()) ) {
         viewport()->update();
     }
 }

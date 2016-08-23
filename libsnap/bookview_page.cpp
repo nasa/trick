@@ -3,8 +3,6 @@
 PageView::PageView(QWidget *parent) :
     BookIdxView(parent),
     _grid(0),
-    _titleView(0),
-    _plots(QList<PlotView*>()),
     _toggleSingleView(true)
 {
     setFrameShape(QFrame::NoFrame);
@@ -15,8 +13,9 @@ PageView::PageView(QWidget *parent) :
     _grid->setSpacing(0);
 
     // Create and add titleView
-    _titleView = new PageTitleView(this);
-    _grid->addWidget(_titleView,0,0,1,100);
+    PageTitleView* titleView = new PageTitleView(this);
+    _childViews << titleView;
+    _grid->addWidget(titleView,0,0,1,100);
     _grid->setRowStretch(0,1);
 
     setLayout(_grid);
@@ -91,7 +90,7 @@ void PageView::rowsInserted(const QModelIndex &pidx, int start, int end)
     if ( model()->data(pidx).toString() != "Plots" ) return;
 
     QModelIndex pageIdx = pidx.parent();
-    if ( pageIdx != _myIdx ) return;
+    if ( pageIdx != rootIndex() ) return;
 
     int nPlotsToAdd = end-start+1;
     if ( nPlotsToAdd != 1 ) {
@@ -110,7 +109,7 @@ void PageView::rowsInserted(const QModelIndex &pidx, int start, int end)
 
     QModelIndex plotIdx = model()->index(start,0,pidx);
     PlotView* plot = new PlotView(this);
-    _plots << plot;
+    _childViews << plot;
     plot->setModel(model());
     plot->setRootIndex(plotIdx);
     plot->installEventFilter(this);  // for double clicking a plot to view alone
@@ -177,14 +176,22 @@ void PageView::rowsInserted(const QModelIndex &pidx, int start, int end)
 
 }
 
-void PageView::_update()
+void PageView::setModel(QAbstractItemModel *model)
 {
-    if ( _titleView ) {
-        _titleView->setModel(model());
-        _titleView->setRootIndex(_myIdx);
+    foreach (QAbstractItemView* view, _childViews ) {
+        view->setModel(model);
+        BookIdxView* bview = dynamic_cast<BookIdxView*>(view);
+        if ( bview ) {
+            bview->setCurvesView(_curvesView);
+        }
     }
-    foreach ( PlotView* plot, _plots ) {
-        plot->setModel(model());
-        plot->setRootIndex(_myIdx);
+    QAbstractItemView::setModel(model);
+}
+
+void PageView::setRootIndex(const QModelIndex &index)
+{
+    foreach (QAbstractItemView* view, _childViews ) {
+        view->setRootIndex(index);
     }
+    QAbstractItemView::setRootIndex(index);
 }

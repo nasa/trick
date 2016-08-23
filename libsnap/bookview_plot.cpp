@@ -207,6 +207,31 @@ PlotView::PlotView(QWidget *parent) :
     setLayout(_grid);
 }
 
+void PlotView::setModel(QAbstractItemModel *model)
+{
+    foreach (QAbstractItemView* view, _childViews ) {
+        view->setModel(model);
+        BookIdxView* bview = dynamic_cast<BookIdxView*>(view);
+        if ( bview ) {
+            bview->setCurvesView(_curvesView);
+        }
+    }
+    this->setCurvesView(_curvesView);
+    QAbstractItemView::setModel(model);
+    if ( model ) {
+        disconnect(model,SIGNAL(rowsInserted(QModelIndex,int,int)),
+                   this,SLOT(rowsInserted(QModelIndex,int,int)));
+    }
+}
+
+void PlotView::setRootIndex(const QModelIndex &index)
+{
+    foreach (QAbstractItemView* view, _childViews ) {
+        view->setRootIndex(index);
+    }
+    QAbstractItemView::setRootIndex(index);
+}
+
 QSize PlotView::minimumSizeHint() const
 {
     QSize s(50,50);
@@ -300,28 +325,4 @@ bool PlotView::eventFilter(QObject *obj, QEvent *event)
     }
 
     return isHandled;
-}
-
-void PlotView::_update()
-{
-    if ( !_curvesView ) {
-        qDebug() << "snap [bad scoobs]: _curvesView should be set in "
-                    "PlotView.";
-        exit(-1);
-    }
-    foreach (QAbstractItemView* view, _childViews ) {
-        if ( view ) {
-            view->setModel(model());
-            view->setRootIndex(_myIdx);
-        }
-        BookIdxView* bview = dynamic_cast<BookIdxView*>(view);
-        if ( bview ) {
-            bview->setCurvesView(_curvesView);
-        }
-    }
-    this->setCurvesView(_curvesView);
-    if ( model() ) {
-        disconnect(model(),SIGNAL(rowsInserted(QModelIndex,int,int)),
-                   this,SLOT(rowsInserted(QModelIndex,int,int)));
-    }
 }

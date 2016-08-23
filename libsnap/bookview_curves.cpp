@@ -23,18 +23,11 @@ CurvesView::~CurvesView()
     }
 }
 
-void CurvesView::_update()
-{
-    if ( !_myIdx.isValid() ) return;
-    // TODO??? do I have to do anything???
-}
-
-
 void CurvesView::paintEvent(QPaintEvent *event)
 {
     if ( !model() ) return;
 
-    QModelIndex curvesIdx = _bookModel()->getIndex(_myIdx,"Curves","Plot");
+    QModelIndex curvesIdx = _bookModel()->getIndex(rootIndex(),"Curves","Plot");
     int nCurves = model()->rowCount(curvesIdx);
 
     QPainter painter(viewport());
@@ -51,14 +44,14 @@ void CurvesView::paintEvent(QPaintEvent *event)
     // Draw!
     painter.setTransform(T);
     if ( nCurves == 2 ) {
-        QString plotPresentation = _bookModel()->getDataString(_myIdx,
+        QString plotPresentation = _bookModel()->getDataString(rootIndex(),
                                                      "PlotPresentation","Plot");
         if ( plotPresentation == "coplot" ) {
             _paintCoplot(T,painter,pen);
         } else if (plotPresentation == "error" || plotPresentation.isEmpty()) {
-            _paintErrorplot(painter,pen,_errorPath,_myIdx);
+            _paintErrorplot(painter,pen,_errorPath,rootIndex());
         } else if ( plotPresentation == "error+coplot" ) {
-            _paintErrorplot(painter,pen,_errorPath,_myIdx);
+            _paintErrorplot(painter,pen,_errorPath,rootIndex());
             _paintCoplot(T,painter,pen);
         } else {
             qDebug() << "snap [bad scoobs]: paintEvent() : PlotPresentation="
@@ -98,7 +91,7 @@ void CurvesView::paintEvent(QPaintEvent *event)
 void CurvesView::_paintCoplot(const QTransform &T,QPainter &painter,QPen &pen)
 {
     QModelIndex clickedCurveIdx;
-    QModelIndex curvesIdx = _bookModel()->getIndex(_myIdx,"Curves","Plot");
+    QModelIndex curvesIdx = _bookModel()->getIndex(rootIndex(),"Curves","Plot");
     int rc = model()->rowCount(curvesIdx);
     for ( int i = 0; i < rc; ++i ) {
         QModelIndex curveIdx = model()->index(i,0,curvesIdx);
@@ -227,7 +220,7 @@ void CurvesView::dataChanged(const QModelIndex &topLeft,
     QString tag = model()->data(topLeft.sibling(topLeft.row(),0)).toString();
     QModelIndex topLeft_ppp = topLeft.parent().parent().parent();
 
-    if ( tag == "CurveData" && topLeft_ppp == _myIdx ) {
+    if ( tag == "CurveData" && topLeft_ppp == rootIndex() ) {
         QVariant v = model()->data(topLeft);
         TrickCurveModel* curveModel =QVariantToPtr<TrickCurveModel>::convert(v);
         if ( curveModel ) {
@@ -270,37 +263,37 @@ void CurvesView::dataChanged(const QModelIndex &topLeft,
             }
             _setPlotMathRect(_currBBox);
         }
-    } else if ( tag == "CurveXUnit" && topLeft_ppp == _myIdx) {
+    } else if ( tag == "CurveXUnit" && topLeft_ppp == rootIndex()) {
         QModelIndex curveIdx = topLeft.parent();
         _updateAxisLabelUnits(curveIdx,'x');
         QRectF prevBBox = _currBBox;
         _currBBox = _calcBBox();
         if ( prevBBox.width() > 0 ) {
             double xs = _currBBox.width()/prevBBox.width();
-            QRectF M = _plotMathRect(_myIdx);
+            QRectF M = _plotMathRect(rootIndex());
             double w = M.width();
             double h = M.height();
             QPointF topLeft(xs*M.topLeft().x(), M.topLeft().y());
             QRectF scaledM(topLeft,QSizeF(xs*w,h));
             _setPlotMathRect(scaledM);
         }
-    } else if ( tag == "CurveYUnit" && topLeft_ppp == _myIdx) {
+    } else if ( tag == "CurveYUnit" && topLeft_ppp == rootIndex()) {
         QModelIndex curveIdx = topLeft.parent();
         _updateAxisLabelUnits(curveIdx,'y');
         QRectF prevBBox = _currBBox;
         _currBBox = _calcBBox();
         if ( prevBBox.height() > 0 ) {
             double ys = _currBBox.height()/prevBBox.height();
-            QRectF M = _plotMathRect(_myIdx);
+            QRectF M = _plotMathRect(rootIndex());
             double w = M.width();
             double h = M.height();
             QPointF topLeft(M.topLeft().x(), ys*M.topLeft().y());
             QRectF scaledM(topLeft,QSizeF(w,ys*h));
             _setPlotMathRect(scaledM);
         }
-    } else if ( tag == "PlotPresentation" && topLeft.parent() == _myIdx ) {
-        if ( _bookModel()->isChildIndex(_myIdx,"Plot","Curves") ) {
-            QModelIndex curvesIdx = _bookModel()->getIndex(_myIdx,
+    } else if ( tag == "PlotPresentation" && topLeft.parent() == rootIndex() ) {
+        if ( _bookModel()->isChildIndex(rootIndex(),"Plot","Curves") ) {
+            QModelIndex curvesIdx = _bookModel()->getIndex(rootIndex(),
                                                            "Curves","Plot");
             int nCurves = model()->rowCount(curvesIdx);
             if ( nCurves == 2 ) {
@@ -328,7 +321,7 @@ void CurvesView::dataChanged(const QModelIndex &topLeft,
 
 void CurvesView::rowsInserted(const QModelIndex &pidx, int start, int end)
 {
-    if ( pidx.parent().parent() != _myIdx ) return; // not my plot
+    if ( pidx.parent().parent() != rootIndex() ) return; // not my plot
 
     QModelIndex curvesIdx = pidx.parent();
 
@@ -608,12 +601,12 @@ void CurvesView::_updateAxisLabelUnits(const QModelIndex &curveIdx,
     QModelIndex axisLabelIdx;
     QModelIndex curveUnitIdx;
     if ( axis == 'x' ) {
-        axisLabelIdx = _bookModel()->getDataIndex(_myIdx,
+        axisLabelIdx = _bookModel()->getDataIndex(rootIndex(),
                                                   "PlotXAxisLabel", "Plot");
         curveUnitIdx = _bookModel()->getDataIndex(curveIdx,
                                                   "CurveXUnit","Curve");
     } else if ( axis == 'y' ) {
-        axisLabelIdx = _bookModel()->getDataIndex(_myIdx,
+        axisLabelIdx = _bookModel()->getDataIndex(rootIndex(),
                                                   "PlotYAxisLabel", "Plot");
         curveUnitIdx = _bookModel()->getDataIndex(curveIdx,
                                                   "CurveYUnit","Curve");
@@ -647,9 +640,9 @@ void CurvesView::_updateAxisLabelUnits(const QModelIndex &curveIdx,
         if ( openCurly >= 0 ) {
             int closeCurly = axisLabel.indexOf('}');
             int n = closeCurly-openCurly-1;
-            axisLabel.replace(openCurly+1,n,_curvesUnit(_myIdx,axis));
+            axisLabel.replace(openCurly+1,n,_curvesUnit(rootIndex(),axis));
         } else {
-            axisLabel += " {" + _curvesUnit(_myIdx,axis) + "}";
+            axisLabel += " {" + _curvesUnit(rootIndex(),axis) + "}";
         }
         model()->setData(axisLabelIdx,axisLabel);
     }
@@ -677,7 +670,7 @@ void CurvesView::mouseReleaseEvent(QMouseEvent *event)
         double x1 = event->pos().x();
         double y1 = event->pos().y();
         double d = qSqrt((x1-x0)*(x1-x0)+(y1-y0)*(y1-y0));
-        QString presentation = _bookModel()->getDataString(_myIdx,
+        QString presentation = _bookModel()->getDataString(rootIndex(),
                                                    "PlotPresentation","Plot");
         if ( d < 10 && (presentation == "coplot" || presentation.isEmpty()) ) {
             // d < 10, to hopefully catch click and not a drag
@@ -730,7 +723,7 @@ QList<QModelIndex> CurvesView::_curvesInsideRect(const QRectF& R)
     QTransform T( a,    0,
                   0,    b, /*+*/ c,    d);
     QRectF mathClickRect = T.mapRect(R);
-    QModelIndex curvesIdx = _bookModel()->getIndex(_myIdx,
+    QModelIndex curvesIdx = _bookModel()->getIndex(rootIndex(),
                                                    "Curves","Plot");
     int nCurves = model()->rowCount(curvesIdx);
     for (int i = 0; i < nCurves; ++i) {
@@ -917,7 +910,7 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
 QRectF CurvesView::_calcBBox() const
 {
     QRectF bbox;
-    QModelIndex curvesIdx = _bookModel()->getIndex(_myIdx,"Curves","Plot");
+    QModelIndex curvesIdx = _bookModel()->getIndex(rootIndex(),"Curves","Plot");
     int rc = model()->rowCount(curvesIdx);
     for (int i = 0; i < rc; ++i) {
         QModelIndex curveIdx = model()->index(i,0,curvesIdx);
@@ -971,11 +964,11 @@ void CurvesView::currentChanged(const QModelIndex &current,
 // the two curves in error, coplot and error+coplot views
 void CurvesView::_keyPressSpace()
 {
-    QModelIndex curvesIdx = _bookModel()->getIndex(_myIdx,"Curves","Plot");
+    QModelIndex curvesIdx = _bookModel()->getIndex(rootIndex(),"Curves","Plot");
     int rc = model()->rowCount(curvesIdx);
     if ( rc != 2 ) return;
 
-    QString plotPresentation = _bookModel()->getDataString(_myIdx,
+    QString plotPresentation = _bookModel()->getDataString(rootIndex(),
                                                    "PlotPresentation","Plot");
 
     if ( plotPresentation == "error" || plotPresentation.isEmpty() ) {
@@ -990,7 +983,7 @@ void CurvesView::_keyPressSpace()
         exit(-1);
     }
 
-    QModelIndex plotPresentationIdx = _bookModel()->getDataIndex(_myIdx,
+    QModelIndex plotPresentationIdx = _bookModel()->getDataIndex(rootIndex(),
                                                    "PlotPresentation","Plot");
     model()->setData(plotPresentationIdx,plotPresentation);
 

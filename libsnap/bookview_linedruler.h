@@ -12,9 +12,7 @@ public:
     explicit LinedRulerView(Qt::Alignment alignment, QWidget *parent = 0);
 
 protected:
-    virtual void _update();
-
-protected:
+    virtual void setModel(QAbstractItemModel* model);
     virtual void paintEvent(QPaintEvent * event);
     virtual QSize minimumSizeHint() const;
     virtual QSize sizeHint() const;

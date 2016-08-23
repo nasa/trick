@@ -27,9 +27,10 @@ class PlotView : public BookIdxView
 
 public:
     explicit PlotView(QWidget *parent = 0);
+    virtual void setModel(QAbstractItemModel *model);
+    virtual void setRootIndex(const QModelIndex &index);
 
 protected:
-    virtual void _update();
     virtual bool eventFilter(QObject *obj, QEvent *event);
 
 protected:
@@ -52,8 +53,6 @@ private:
     LinedRulerView* _lTics;
     LabeledRulerView* _xTicLabels;
     LabeledRulerView* _yTicLabels;
-
-    QList<QAbstractItemView*> _childViews;
 
     QPoint _rubberBandOrigin;
     QRubberBand* _rubberBand;

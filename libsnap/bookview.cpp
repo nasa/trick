@@ -23,9 +23,22 @@ BookView::BookView(QWidget *parent) :
     setLayout(_mainLayout);
 }
 
-void BookView::_update()
+void BookView::setModel(QAbstractItemModel *model)
 {
+    foreach ( QAbstractItemView* view, _childViews ) {
+        view->setModel(model);
+    }
+    QAbstractItemView::setModel(model);
 }
+
+void BookView::setRootIndex(const QModelIndex &index)
+{
+    foreach (QAbstractItemView* view, _childViews ) {
+        view->setRootIndex(index);
+    }
+    QAbstractItemView::setRootIndex(index);
+}
+
 
 void BookView::currentChanged(const QModelIndex &current,
                               const QModelIndex &previous)
@@ -1488,6 +1501,7 @@ void BookView::rowsInserted(const QModelIndex &pidx, int start, int end)
         QString cText = model()->data(idx).toString();
         if ( cText == "Page" ) {
             PageView* pw = new PageView;
+            _childViews << pw;
             pw->setModel(model());
             pw->setRootIndex(idx);
             int tabId = _nb->addTab(pw,"Page");

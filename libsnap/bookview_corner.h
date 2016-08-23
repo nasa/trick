@@ -9,9 +9,7 @@ class CornerView : public BookIdxView
     Q_OBJECT
 public:
     explicit CornerView(Qt::Corner corner, QWidget *parent = 0);
-
-protected:
-    virtual void _update();
+    virtual void setModel(QAbstractItemModel *model);
 
 protected:
     virtual void paintEvent(QPaintEvent * event);

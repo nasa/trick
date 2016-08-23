@@ -14,17 +14,14 @@ class PageView : public BookIdxView
     Q_OBJECT
 public:
     explicit PageView(QWidget *parent = 0);
-
-protected:
-    virtual void _update();
+    virtual void setModel(QAbstractItemModel *model);
+    virtual void setRootIndex(const QModelIndex &index);
 
 protected:
     virtual bool eventFilter(QObject *obj, QEvent *event);
 
 private:
     QGridLayout* _grid;
-    PageTitleView* _titleView;
-    QList<PlotView*> _plots;
     bool _toggleSingleView;
 
 signals:
