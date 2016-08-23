@@ -55,6 +55,7 @@ endif
 -include ${TRICK_HOME}/share/trick/makefiles/Makefile.sim
 -include S_overrides.mk
 
+ifndef CLEAN_RULES_DEFINED
 no_makefile_sim:
 	@echo ${TRICK_HOME}/share/trick/makefiles/Makefile.sim not found
 	exit -1
@@ -63,7 +64,7 @@ tidy:
 	-rm -f S_source.hh S_sie.resource
 	-rm -f S_main* T_main*
 	-rm -f build/Makefile_*
-	-rm -rf S_default.dat
+	-rm -f S_default.dat
 
 clean: tidy
 	-rm -f DP_Product/DP_rt_frame DP_Product/DP_rt_itimer
@@ -75,4 +76,4 @@ spotless: clean
 
 apocalypse: clean
 	@echo "[31mI love the smell of napalm in the morning[0m"
-
+endif

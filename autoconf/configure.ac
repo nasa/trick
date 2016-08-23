@@ -237,6 +237,8 @@ dnl process the optional --with-llvm command line arguments
 AX_LLVM_HOME([])
 LLVM_LIB_DIR=`$LLVM_CONFIG --libdir`
 LLVM_BIN_DIR=`$LLVM_CONFIG --bindir`
+LLVM_INCLUDE_DIR=`$LLVM_CONFIG --includedir`
+AC_CHECK_FILE([$LLVM_INCLUDE_DIR/clang/Basic/LLVM.h],[],AC_MSG_ERROR([could not find clang development headers]))
 AC_CHECK_FILE([$LLVM_LIB_DIR/libLLVMSupport.a],
   [],
   AC_MSG_ERROR([could not find clang library files in $LLVM_LIB_DIR])
