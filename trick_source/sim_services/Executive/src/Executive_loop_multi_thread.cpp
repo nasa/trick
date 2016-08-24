@@ -84,23 +84,6 @@ int Trick::Executive::loop_multi_thread() {
 
     while (1) {
 
-        /* Give aynchronous jobs to the top of the next time start to finish executing previous frame */
-        for (ii = 0; ii < threads.size() ; ii++) {
-
-            Trick::Threads * curr_thread = threads[ii] ;
-
-            if ( curr_thread->process_type == PROCESS_TYPE_ASYNC_CHILD ) {
-                if ( curr_thread->child_complete == true ) {
-                    if (curr_thread->amf_cycle_tics != 0 ) {
-                        // catch up async next_tic time to a time greater than the time last pass
-                        while ( curr_thread->amf_next_tics < time_tics ) {
-                            curr_thread->amf_next_tics += curr_thread->amf_cycle_tics ;
-                        }
-                    }
-                }
-            }
-        }
-
         /* Call freeze_loop() if commanded by freeze() or a <CTRL-C> signal was caught. */
         if (exec_command == FreezeCmd) {
             exec_command = NoCmd;
@@ -119,7 +102,16 @@ int Trick::Executive::loop_multi_thread() {
             frame_count++ ;
         }
 
-        /* Call the input_processor_run queue jobs. */
+        /* Call thread sync jobs (wait for threads that are scheduled to finish by current time) */
+        thread_sync_queue.reset_curr_index() ;
+        while ( (curr_job = thread_sync_queue.get_next_job()) != NULL ) {
+            ret = curr_job->call() ;
+            if ( ret != 0 ) {
+                exec_terminate_with_return(ret , curr_job->name.c_str() , 0 , "thread_sync job did not return 0") ;
+            }
+        }
+
+        /* Call the input_processor_run queue jobs. Run between threads ending and restarting */
         input_processor_run_queue.reset_curr_index() ;
         while ( (curr_job = input_processor_run_queue.find_next_job( time_tics )) != NULL ) {
             ret = curr_job->call() ;
@@ -130,33 +122,14 @@ int Trick::Executive::loop_multi_thread() {
             // will adjust the next call time for this queue
             input_processor_run_queue.test_next_job_call_time(curr_job , time_tics) ;
 
-            /* System jobs next call time are not set until after they run. 
+            /* System jobs next call time are not set until after they run.
                Test their next job call time after they have been called */
             if ( curr_job->system_job_class ) {
                 main_sched_queue->test_next_job_call_time(curr_job , time_tics) ;
             }
         }
 
-        /* Go through all of the job queues and mark all jobs that are to run this time step to not complete. */
-        for (ii = 0; ii < threads.size() ; ii++) {
-
-            Trick::Threads * curr_thread = threads[ii] ;
-
-            /* For all threads that are waiting to start the next cycle (child_complete == true)
-               reset job completion flags */
-            if ( isThreadReadyToRun(curr_thread, time_tics) ) {
-
-                /* For all jobs in all threads that will run for this time_tic, */
-                /* Set job complete flags to false.                             */
-                /* The job complete flags are used for job depends_on checks.   */
-                curr_thread->job_queue.reset_curr_index();
-                while ( (curr_job = curr_thread->job_queue.find_job(time_tics)) != NULL ) {
-                    curr_job->complete = false;
-                }
-            }
-        }
-
-        /* After all jobs on all threads that are going to run are set not complete, start the threads */
+        /* Start threads that are ready to run */
         for (ii = 1; ii < threads.size() ; ii++) {
 
             Trick::Threads * curr_thread = threads[ii] ;

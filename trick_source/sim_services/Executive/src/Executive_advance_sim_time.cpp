@@ -67,19 +67,6 @@ int Trick::Executive::advance_sim_time() {
         time_tics = terminate_time ;
     }
 
-    /* Wait for async_must finish (previous pass) to complete at the current time_tics */
-    for (ii = 1; ii < threads.size() ; ii++) {
-        Threads * curr_thread = threads[ii] ;
-        if ( (curr_thread->process_type == PROCESS_TYPE_AMF_CHILD) &&
-              (curr_thread->amf_next_tics == time_tics )) {
-            while (curr_thread->child_complete == false ) {
-                if (rt_nap == true) {
-                    RELEASE();
-                }
-            }
-        }
-    }
-
     // set the default next job call time to the next software frame ;
     input_processor_run_queue.set_next_job_call_time(time_tics + software_frame_tics) ;
     threads[0]->job_queue.set_next_job_call_time(time_tics + software_frame_tics) ;

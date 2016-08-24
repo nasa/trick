@@ -167,6 +167,7 @@ class SysSimObject : public Trick::SimObject {
 
             // required job to advance sim time
             {TRK} ("system_advance_sim_time") sched.advance_sim_time() ;
+            {TRK} ("system_thread_sync") sched.thread_sync() ;
         }
 
     private:
