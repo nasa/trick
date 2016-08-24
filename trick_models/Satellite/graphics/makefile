@@ -9,7 +9,7 @@ ifeq ($(TRICK_HOST_TYPE), Darwin)
 else
        GL_LIBS  = -lGL -lGLU -lglut
        TC_LIBS = -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} -ltrick_comm -lrt
-       LDFLAGS = -Wl,--export-dynamic
+       LDFLAGS = -Wl,--export-dynamic -ldl
 endif
 
 CFLAGS = -I${TRICK_HOME}/trick_source
