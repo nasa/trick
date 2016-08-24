@@ -97,6 +97,9 @@ Trick::Executive::Executive() {
     class_map["input_processor_run"] = num_classes ;
     class_to_queue[num_classes++] = &input_processor_run_queue ;
 
+    class_map["system_thread_sync"] = num_classes ;
+    class_to_queue[num_classes++] = &thread_sync_queue ;
+
     class_map["top_of_frame"] = num_classes ;
     class_to_queue[num_classes++] = &top_of_frame_queue ;
 
@@ -123,6 +126,7 @@ Trick::Executive::Executive() {
 
     class_map["exec_time_tic_changed"] = num_classes ;
     class_to_queue[num_classes++] = &time_tic_changed_queue ;
+
 
     // Initialize all of default signal handlers
     init_signal_handlers() ;

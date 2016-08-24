@@ -178,6 +178,9 @@ namespace Trick {
             /** Queue to hold end of frame jobs.\n */
             Trick::ScheduledJobQueue end_of_frame_queue ;     /**< trick_io(**) */
 
+            /** Queue to hold thread sync.\n */
+            Trick::ScheduledJobQueue thread_sync_queue ;     /**< trick_io(**) */
+
             /** Queue to hold shutdown jobs.\n */
             Trick::ScheduledJobQueue shutdown_queue ;         /**< trick_io(**) */
 
@@ -914,6 +917,12 @@ namespace Trick {
              * @return always 0
              */
             virtual int advance_sim_time() ;
+
+            /**
+             * Job to synchronize AMF and ASYNC threads to the master.
+             * @return always 0
+             */
+            virtual int thread_sync() ;
 
             /**
              * @brief freeze_init job that initialized the freeze_scheduled loop
