@@ -194,7 +194,7 @@ void PlotMainWindow::_bookViewCurrentChanged(const QModelIndex &currIdx,
 
     if ( _monteInputsView ) {
         if ( _bookModel->isIndex(currIdx,"Curve") ) {
-            // Select row in monte inputs view that goes with curve in book view
+            // Make row current in monte inputs view that goes with bview curve
             int runId = _bookModel->getDataInt(currIdx,"CurveRunID","Curve");
             int rc = _monteInputsView->model()->rowCount();
             for (int i = 0; i < rc; ++i ) {
@@ -204,6 +204,19 @@ void PlotMainWindow::_bookViewCurrentChanged(const QModelIndex &currIdx,
                     _monteInputsView->setCurrentIndex(idx);
                     break;
                 }
+            }
+        }
+    }
+
+    if ( !currIdx.isValid() && prevIdx.isValid() ) {
+        if ( _monteInputsView ) {
+            if ( _bookModel->isIndex(prevIdx,"Curve") ) {
+                // Clicked off curves in _bookView,
+                // so clear current in monte and all CurveViews
+                QModelIndex invalidIdx;
+                _monteInputsView->setCurrentIndex(invalidIdx);
+                _bookView->setCurrentCurveRunID(-1);
+
             }
         }
     }

@@ -25,6 +25,12 @@ CurvesView::~CurvesView()
 
 void CurvesView::setCurrentCurveRunID(int runID)
 {
+    if ( runID < 0 ) {
+        // Set current curves view index to nothing
+        setCurrentIndex(QModelIndex());
+        return;
+    }
+
     QModelIndex plotIdx = rootIndex();
     QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
     int rc = model()->rowCount(curvesIdx);
