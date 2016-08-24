@@ -94,6 +94,7 @@ private slots:
                                          const QModelIndex& prevIdx);
      void _bookViewCurrentChanged(const QModelIndex& currIdx,
                                   const QModelIndex& prevIdx);
+     void _bookModelRowsInserted(const QModelIndex& pidx, int start, int end);
 };
 
 #endif // PLOTMAINWINDOW_H

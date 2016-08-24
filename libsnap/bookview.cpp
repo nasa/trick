@@ -28,7 +28,9 @@ void BookView::currentChanged(const QModelIndex &current,
                               const QModelIndex &previous)
 {
     Q_UNUSED(previous);
-    _nb->setCurrentIndex(current.row());
+    if ( _bookModel()->isIndex(current,"Page") ) {
+         _nb->setCurrentIndex(current.row());
+    }
 }
 
 void BookView::selectionChanged(const QItemSelection &selected,
