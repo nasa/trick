@@ -236,9 +236,10 @@ void BookView::savePdf(const QString &fname)
     //
     // Print pages
     //
-    for ( int i = 0; i < pageCnt; ++i) {
+    int nTabs = _nb->count();
+    for ( int i = 0; i < nTabs; ++i) {
 
-        QModelIndex pageIdx = model()->index(i,0,pagesIdx);
+        QModelIndex pageIdx = _tabIdToPageIdx(i);
         _printPage(&painter,pageIdx);
 
         // Insert new page in pdf booklet
