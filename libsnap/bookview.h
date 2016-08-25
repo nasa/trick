@@ -93,8 +93,8 @@ public slots:
     void savePdf(const QString& fname);
 
 protected slots:
-    void _nbCloseRequested(int idx);
-    void _nbCurrentChanged(int idx);
+    void _nbCloseRequested(int tabId);
+    void _nbCurrentChanged(int tabId);
     void _pageViewCurrentChanged(const QModelIndex& currIdx,
                                  const QModelIndex& prevIdx);
 

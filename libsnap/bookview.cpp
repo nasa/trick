@@ -1421,22 +1421,20 @@ void BookView::_printYAxisLabel(const QRect& R,
     painter->restore();
 }
 
-void BookView::_nbCloseRequested(int idx)
+void BookView::_nbCloseRequested(int tabId)
 {
     if ( model() == 0 ) return;
 
-    QString tabToolTip = _nb->tabToolTip(idx);
-    QString wt = _nb->tabWhatsThis(idx);
+    QString tabToolTip = _nb->tabToolTip(tabId);
+    QString wt = _nb->tabWhatsThis(tabId);
     if ( wt == "Page" ) {
         QModelIndex pagesIdx = _bookModel()->getIndex(QModelIndex(), "Pages");
         int row = -1;
         int rc = model()->rowCount(pagesIdx);
         for ( int i = 0; i < rc ; ++i ) {
             QModelIndex pageIdx = model()->index(i,0,pagesIdx);
-            QModelIndex pageNameIdx = _bookModel()->getIndex(pageIdx,
-                                                             "PageName","Page");
-            pageNameIdx = model()->index(pageNameIdx.row(),1,pageIdx);
-            QString pageName = model()->data(pageNameIdx).toString();
+            QString pageName = _bookModel()->getDataString(pageIdx,
+                                                           "PageName","Page");
             if ( pageName == tabToolTip ) {
                 row = i;
                 break;
@@ -1447,7 +1445,7 @@ void BookView::_nbCloseRequested(int idx)
                         "Could not find page to remove!  Aborting!";
             exit(-1);
         }
-        _nb->removeTab(idx);       // must remove tab before removing model page
+        _nb->removeTab(tabId);     // must remove tab before removing model page
         model()->removeRow(row,pagesIdx); // rowsAboutToBeRemoved deletes page
     } else if ( wt == "Table" ) {
         // TODO: Table
@@ -1458,11 +1456,11 @@ void BookView::_nbCloseRequested(int idx)
     }
 }
 
-void BookView::_nbCurrentChanged(int idx)
+void BookView::_nbCurrentChanged(int tabId)
 {
     if ( selectionModel() ) {
         QModelIndex pagesIdx = _bookModel()->getIndex(QModelIndex(),"Pages");
-        QModelIndex pageIdx = model()->index(idx, 0,pagesIdx);
+        QModelIndex pageIdx = model()->index(tabId, 0,pagesIdx);
         selectionModel()->setCurrentIndex(pageIdx,
                                           QItemSelectionModel::NoUpdate);
     }
