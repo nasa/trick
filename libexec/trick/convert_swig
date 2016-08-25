@@ -629,30 +629,33 @@ sub process_class($$$$$) {
         }
 
         if ( $template_var_def_str ne "" )  {
-            #print "*** template_var = $template_var_def_str ***\n" ;
-            $template_var_def_str =~ /(.*?)([_A-Za-z]\w*)\s*;/s ;
-            my ($template_full_type) = $1 ;
-            my ($var_name) = $2 ;
-            #print "*** var_name = $var_name ***\n" ;
-            $$new_contents_ref .= $template_var_def_str ;
+            # if there is a whiff of const in the template we are punting.
+            if ( $template_var_def_str !~ /^const|[<,\s]const\s/ ) {
+                #print "*** template_var = $template_var_def_str ***\n" ;
+                $template_var_def_str =~ /(.*?)([_A-Za-z]\w*)\s*;/s ;
+                my ($template_full_type) = $1 ;
+                my ($var_name) = $2 ;
+                #print "*** var_name = $var_name ***\n" ;
+                $$new_contents_ref .= $template_var_def_str ;
 
-            $template_full_type =~ /([_A-Za-z][:\w]*)\s*</ ;
-            my ($template_type) = $1 ;
-            # ignore some STL types and types that involve std::wstring
-            if ( ((  $stls and ! exists $stl_names{$template_type})
-               or ( !$stls and ! exists $all_stl_names{$template_type} ))
-               and $template_full_type !~ /(std::)?wstring/ ) {
+                $template_full_type =~ /([_A-Za-z][:\w]*)\s*</ ;
+                my ($template_type) = $1 ;
+                # ignore some STL types and types that involve std::wstring
+                if ( ((  $stls and ! exists $stl_names{$template_type})
+                   or ( !$stls and ! exists $all_stl_names{$template_type} ))
+                   and $template_full_type !~ /(std::)?wstring/ ) {
 
-                my ($template_type_no_sp) = $template_full_type ;
-                $template_type_no_sp =~ s/\s//g ;
-                #print "*** template_type_no_sp = $template_type_no_sp ***\n" ;
-                if ( ! exists $processed_templates{$template_type_no_sp} ) {
-                    $$new_contents_ref .= "\n#define TRICK_SWIG_TEMPLATE_$class_name${var_name}_template\n" ;
-                    $template_typedefs .= "\n#ifdef TRICK_SWIG_TEMPLATE_$class_name${var_name}_template\n" ;
-                    $template_typedefs .= "\%template ($class_name${var_name}_template) $template_full_type ;\n" ;
-                    $template_typedefs .= "#undef TRICK_SWIG_TEMPLATE_$class_name${var_name}_template\n" ;
-                    $template_typedefs .= "#endif\n" ;
-                    $processed_templates{$template_type_no_sp} = 1 ;
+                    my ($template_type_no_sp) = $template_full_type ;
+                    $template_type_no_sp =~ s/\s//g ;
+                    #print "*** template_type_no_sp = $template_type_no_sp ***\n" ;
+                    if ( ! exists $processed_templates{$template_type_no_sp} ) {
+                        $$new_contents_ref .= "\n#define TRICK_SWIG_TEMPLATE_$class_name${var_name}_template\n" ;
+                        $template_typedefs .= "\n#ifdef TRICK_SWIG_TEMPLATE_$class_name${var_name}_template\n" ;
+                        $template_typedefs .= "\%template ($class_name${var_name}_template) $template_full_type ;\n" ;
+                        $template_typedefs .= "#undef TRICK_SWIG_TEMPLATE_$class_name${var_name}_template\n" ;
+                        $template_typedefs .= "#endif\n" ;
+                        $processed_templates{$template_type_no_sp} = 1 ;
+                    }
                 }
             }
         }

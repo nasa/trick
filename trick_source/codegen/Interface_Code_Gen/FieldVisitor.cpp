@@ -372,6 +372,35 @@ static bool checkForPrivateTemplateArgs( clang::ClassTemplateSpecializationDecl 
     return false ;
 }
 
+static bool checkForConstTemplateArgs( clang::ClassTemplateSpecializationDecl * ctsd ) {
+    unsigned int ii ;
+    for ( ii = 0 ; ii < ctsd->getTemplateArgs().size() ; ii++ ) {
+        const clang::TemplateArgument & ta = ctsd->getTemplateArgs().get(ii) ;
+        if ( ta.getKind() == clang::TemplateArgument::Type ) {
+            clang::QualType qt = ta.getAsType() ;
+            //std::cout << qt.getAsString() << std::endl ;
+            if ( qt.isConstQualified() ) {
+                //std::cout << "  is const qualified" << std::endl ;
+                return true ;
+            } else {
+                //std::cout << "  is public embedded class" << std::endl ;
+                const clang::Type * t = qt.getTypePtrOrNull() ;
+                if ( t != NULL ) {
+                    if (t->getTypeClass() == clang::Type::Record ) {
+                        clang::CXXRecordDecl * crd = t->getAsCXXRecordDecl() ;
+                        if ( clang::isa<clang::ClassTemplateSpecializationDecl>(crd) ) {
+                            clang::ClassTemplateSpecializationDecl * inner_ctsd ;
+                            inner_ctsd = clang::cast<clang::ClassTemplateSpecializationDecl>(crd) ;
+                            return checkForConstTemplateArgs(inner_ctsd) ;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return false ;
+}
+
 static std::map<std::string, bool> stl_classes = init_stl_classes() ;
 
 bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
@@ -427,6 +456,12 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
                     // If a private embedded class is in an STL the resulting io_src code will not compile.
                     // Search the template arguments for private embedded classes, if found remove io capabilites.
                     if ( checkForPrivateTemplateArgs( ctsd )) {
+                        fdes->setIO(0) ;
+                    }
+
+                    // If the template is using a const type the STL checkpoint code will not compile,
+                    // we need to ignore the variable.
+                    if ( checkForConstTemplateArgs( ctsd )) {
                         fdes->setIO(0) ;
                     }
 
