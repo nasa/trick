@@ -2,7 +2,8 @@
 
 CurvesView::CurvesView(QWidget *parent) :
     BookIdxView(parent),
-    _errorPath(0)
+    _errorPath(0),
+    _isMouseDoubleClick(false)
 {
     setFocusPolicy(Qt::StrongFocus);
     setFrameShape(QFrame::NoFrame);
@@ -677,6 +678,8 @@ void CurvesView::mousePressEvent(QMouseEvent *event)
         _mousePressPos = event->pos();
         _mousePressMathTopLeft = _mathRect().topLeft();
         _mousePressMathRect = _mathRect();
+        _mousePressCurrentIndex = currentIndex();
+        event->ignore();
     } else if (  event->button() == Qt::MidButton ) {
         event->ignore();
     } else if ( event->button() == Qt::RightButton ) {
@@ -687,6 +690,13 @@ void CurvesView::mousePressEvent(QMouseEvent *event)
 
 void CurvesView::mouseReleaseEvent(QMouseEvent *event)
 {
+    if ( _isMouseDoubleClick ) {
+        // Mouse release on second click of double click
+        _isMouseDoubleClick = false;
+        event->ignore();
+        return;
+    }
+
     if (  event->button() == Qt::LeftButton ) {
         double x0 = _mousePressPos.x();
         double y0 = _mousePressPos.y();
@@ -724,6 +734,8 @@ void CurvesView::mouseReleaseEvent(QMouseEvent *event)
                 }
             }
         }
+
+        event->ignore(); // allow parent view to receive left mousepress event
 
     } else if (  event->button() == Qt::MidButton ) {
         event->ignore();
@@ -927,6 +939,19 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
     } else {
         mouseMove->ignore();
     }
+}
+
+// When double clicking,
+// the first press will be in mousePressEvent===mouseFirstPressEvent
+// the second press is not in mousePressEvent, instead it is here
+// i.e. this is "MouseSecondPressEvent"
+void CurvesView::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    _isMouseDoubleClick = true;
+    if ( _mousePressCurrentIndex != currentIndex() ) {
+        setCurrentIndex(_mousePressCurrentIndex);
+    }
+    event->ignore();
 }
 
 

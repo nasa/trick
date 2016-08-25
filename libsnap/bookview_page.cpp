@@ -3,7 +3,8 @@
 PageView::PageView(QWidget *parent) :
     BookIdxView(parent),
     _grid(0),
-    _toggleSingleView(true)
+    _toggleSingleView(true),
+    _isMouseDoubleClick(false)
 {
     setFrameShape(QFrame::NoFrame);
 
@@ -23,43 +24,63 @@ PageView::PageView(QWidget *parent) :
 
 bool PageView::eventFilter(QObject *obj, QEvent *event)
 {
-    // Create and add titleView
-
-    if ( event->type() == QEvent::MouseButtonDblClick ) {
-        int r, c, rSpan, cSpan;
-        int row = -1;
-        int col = -1;
-        if ( _toggleSingleView ) {
-            _toggleSingleView = false;
-            for ( int i = 1; i < _grid->count(); ++i ) {
-                QWidget* w = _grid->itemAt(i)->widget();
-                _grid->getItemPosition(i, &r, &c, &rSpan, &cSpan);
-                if ( w == obj ) {
-                    row = r;
-                    col = c;
-                    _grid->setRowStretch(r,100);
-                    _grid->setColumnStretch(c,100);
+    if ( event->type() == QEvent::MouseButtonRelease ) {
+        QMouseEvent *mouseEvent = dynamic_cast<QMouseEvent*>(event);
+        if ( mouseEvent ) {
+            if ( mouseEvent->button() == Qt::LeftButton ) {
+                if ( _isMouseDoubleClick ) {
+                    _isMouseDoubleClick = false;
+                    _mouseIdx2 = currentIndex();
+                    _toggleView(obj);
+                    if ( _mouseIdx1.isValid() ) {
+                        // make idx1 current and toggle view
+                        setCurrentIndex(_mouseIdx1);
+                    }
                 } else {
-                    if ( r != row ) _grid->setRowStretch(r,1);
-                    if ( c != col ) _grid->setColumnStretch(c,1);
-                    w->hide();
+                    _mouseIdx1 = currentIndex();
                 }
             }
-        } else {
-            _toggleSingleView = true;
-            for ( int i = 1; i < _grid->count(); ++i ) {
-                QWidget* w = _grid->itemAt(i)->widget();
-                _grid->getItemPosition(i, &r, &c, &rSpan, &cSpan);
-                _grid->setRowStretch(r,100);
-                _grid->setColumnStretch(c,100);
-                w->show();
-            }
-
         }
+    } else if ( event->type() == QEvent::MouseButtonDblClick ) {
+        _isMouseDoubleClick = true;
     }
 
     viewport()->update();
     return false;
+}
+
+void PageView::_toggleView(QObject* obj)
+{
+    int r, c, rSpan, cSpan;
+    int row = -1;
+    int col = -1;
+    if ( _toggleSingleView ) {
+        _toggleSingleView = false;
+        for ( int i = 1; i < _grid->count(); ++i ) {
+            QWidget* w = _grid->itemAt(i)->widget();
+            _grid->getItemPosition(i, &r, &c, &rSpan, &cSpan);
+            if ( w == obj ) {
+                row = r;
+                col = c;
+                _grid->setRowStretch(r,100);
+                _grid->setColumnStretch(c,100);
+            } else {
+                if ( r != row ) _grid->setRowStretch(r,1);
+                if ( c != col ) _grid->setColumnStretch(c,1);
+                w->hide();
+            }
+        }
+    } else {
+        _toggleSingleView = true;
+        for ( int i = 1; i < _grid->count(); ++i ) {
+            QWidget* w = _grid->itemAt(i)->widget();
+            _grid->getItemPosition(i, &r, &c, &rSpan, &cSpan);
+            _grid->setRowStretch(r,100);
+            _grid->setColumnStretch(c,100);
+            w->show();
+        }
+
+    }
 }
 
 void PageView::dataChanged(const QModelIndex &topLeft,

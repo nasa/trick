@@ -278,6 +278,7 @@ bool PlotView::eventFilter(QObject *obj, QEvent *event)
             _rubberBand->setGeometry(QRect(_rubberBandOrigin, QSize()));
             _rubberBand->show();
         }
+        event->ignore(); // let my parent page receive mousebuttonpress event
     } else if ( event->type() == QEvent::MouseMove ) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
         if ( mouseEvent->buttons() == Qt::MidButton && _rubberBand ){
@@ -321,6 +322,7 @@ bool PlotView::eventFilter(QObject *obj, QEvent *event)
             }
             _rubberBand->hide();
         }
+        event->ignore(); // allow parent page to receive mouse release event
     } else {
         // standard event processing
         isHandled = QObject::eventFilter(obj, event);

@@ -34,6 +34,7 @@ protected:
     virtual void mousePressEvent(QMouseEvent* event);
     virtual void mouseReleaseEvent(QMouseEvent* event);
     virtual void mouseMoveEvent(QMouseEvent* mouseEvent);
+    virtual void mouseDoubleClickEvent(QMouseEvent *event);
     virtual void keyPressEvent(QKeyEvent *event);
     virtual void currentChanged(const QModelIndex& current,
                                 const QModelIndex& previous);
@@ -56,6 +57,8 @@ private:
     QRectF _mousePressMathRect;
     QPoint _mousePressPos;
     QPointF _mousePressMathTopLeft;
+    QModelIndex _mousePressCurrentIndex;
+    bool _isMouseDoubleClick;
 
     void _updateAxisLabelUnits(const QModelIndex &curveIdx,QChar axis) const;
 

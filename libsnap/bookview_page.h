@@ -5,6 +5,8 @@
 #include <QGridLayout>
 #include <QList>
 #include <QItemSelectionModel>
+#include <QEvent>
+#include <QMouseEvent>
 
 #include "bookidxview.h"
 #include "bookview_pagetitle.h"
@@ -24,6 +26,12 @@ protected:
 private:
     QGridLayout* _grid;
     bool _toggleSingleView;
+    bool _isMouseDoubleClick;
+    QModelIndex _mouseIdx1;
+    QModelIndex _mouseIdx2;
+
+private:
+    void _toggleView(QObject* obj);
 
 signals:
 
