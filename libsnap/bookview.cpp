@@ -40,6 +40,64 @@ void BookView::selectionChanged(const QItemSelection &selected,
     Q_UNUSED(deselected);
 }
 
+int BookView::_pageIdxToTabId(const QModelIndex &pageIdx)
+{
+    int tabId = -1;
+
+    QString pageName = _bookModel()->getDataString(pageIdx,"PageName","Page");
+
+    int nTabs = _nb->count();
+    for ( int i = 0; i < nTabs; ++i ) {
+
+        QString tabToolTip = _nb->tabToolTip(i);
+        QString wt = _nb->tabWhatsThis(i);
+        if ( wt == "Page" ) {
+            if ( pageName == tabToolTip ) {
+                tabId = i;
+                break;
+            }
+        } else {
+            qDebug() << "snap [bad scoobs]: BookView::_pageIdxToTabId()";
+            exit(-1);
+        }
+    }
+
+    return tabId;
+}
+
+QModelIndex BookView::_tabIdToPageIdx(int tabId)
+{
+    QModelIndex idx;
+
+    QString tabToolTip = _nb->tabToolTip(tabId);
+    QString wt = _nb->tabWhatsThis(tabId);
+    if ( wt == "Page" ) {
+        QModelIndex pagesIdx = _bookModel()->getIndex(QModelIndex(), "Pages");
+        int row = -1;
+        int rc = model()->rowCount(pagesIdx);
+        for ( int i = 0; i < rc ; ++i ) {
+            QModelIndex pageIdx = model()->index(i,0,pagesIdx);
+            QString pageName = _bookModel()->getDataString(pageIdx,
+                                                           "PageName","Page");
+            if ( pageName == tabToolTip ) {
+                row = i;
+                idx = model()->index(row,0,pagesIdx);
+                break;
+            }
+        }
+        if ( row < 0 ) {
+            qDebug() << "snap [bad scoobs]:1: BookView::_tabIdToPageIdx() "
+                        "Could not find page using tabId=" << tabId;
+            exit(-1);
+        }
+    } else {
+        qDebug() << "snap [bad scoobs]:2: BookView::_tabIdToPageIdx()";
+        exit(-1);
+    }
+
+    return idx;
+}
+
 //////////////////////////////////////////////////////////////////////
 //
 // This is straight from the QTransform help page  -
@@ -1425,35 +1483,8 @@ void BookView::_nbCloseRequested(int tabId)
 {
     if ( model() == 0 ) return;
 
-    QString tabToolTip = _nb->tabToolTip(tabId);
-    QString wt = _nb->tabWhatsThis(tabId);
-    if ( wt == "Page" ) {
-        QModelIndex pagesIdx = _bookModel()->getIndex(QModelIndex(), "Pages");
-        int row = -1;
-        int rc = model()->rowCount(pagesIdx);
-        for ( int i = 0; i < rc ; ++i ) {
-            QModelIndex pageIdx = model()->index(i,0,pagesIdx);
-            QString pageName = _bookModel()->getDataString(pageIdx,
-                                                           "PageName","Page");
-            if ( pageName == tabToolTip ) {
-                row = i;
-                break;
-            }
-        }
-        if ( row < 0 ) {
-            qDebug() << "snap [bad scoobs]: BookView::_nbCloseRequested() "
-                        "Could not find page to remove!  Aborting!";
-            exit(-1);
-        }
-        _nb->removeTab(tabId);     // must remove tab before removing model page
-        model()->removeRow(row,pagesIdx); // rowsAboutToBeRemoved deletes page
-    } else if ( wt == "Table" ) {
-        // TODO: Table
-    } else {
-        qDebug() << "snap [bad scoobs]: BookView::_nbCloseRequested() "
-                    "tabWhatsThis should have been set.";
-        exit(-1);
-    }
+    QModelIndex pageIdx = _tabIdToPageIdx(tabId);
+    model()->removeRow(pageIdx.row(),pageIdx.parent()); // rowsAboutToBeRemoved deletes page
 }
 
 void BookView::_nbCurrentChanged(int tabId)
@@ -1523,6 +1554,15 @@ void BookView::rowsAboutToBeRemoved(const QModelIndex &pidx, int start, int end)
                     "childViews list not in sync with model.";
         exit(-1);
     }
+
+    QModelIndex pageIdx = model()->index(start,0,pidx);
+    if ( model()->data(pageIdx).toString() != "Page" ) {
+        qDebug() << "snap [bad scoobs]:3 BookView::rowsAboutToBeRemoved(): "
+                    "page deletion support only!!!";
+    }
+
+    int tabId = _pageIdxToTabId(pageIdx);
+    _nb->removeTab(tabId);
 
     QAbstractItemView* pageView = _childViews.at(start);
     disconnect(pageView,0,0,0);

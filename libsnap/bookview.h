@@ -38,6 +38,9 @@ private:
     QVBoxLayout* _mainLayout;
     QTabWidget* _nb;
 
+    int _pageIdxToTabId(const QModelIndex& pageIdx);
+    QModelIndex _tabIdToPageIdx(int tabId);
+
 private:
     QTransform _coordToDotTransform(const QRectF &curvesRect,
                                     const QModelIndex &plotIdx);
