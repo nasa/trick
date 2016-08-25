@@ -58,7 +58,16 @@ DPTreeWidget::DPTreeWidget(const QString& timeName,
 
 DPTreeWidget::~DPTreeWidget()
 {
-    delete _dpModel;
+    if ( _dpModel ) {
+        delete _dpModel;
+        _dpModel = 0;
+    }
+
+    if ( _dir ) {
+        delete _dir;
+        _dir = 0;
+    }
+
 }
 
 //
