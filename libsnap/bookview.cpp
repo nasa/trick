@@ -1425,7 +1425,6 @@ void BookView::_nbCloseRequested(int idx)
 {
     if ( model() == 0 ) return;
 
-    QWidget* tabWidget = _nb->widget(idx);
     QString tabToolTip = _nb->tabToolTip(idx);
     QString wt = _nb->tabWhatsThis(idx);
     if ( wt == "Page" ) {
@@ -1448,8 +1447,8 @@ void BookView::_nbCloseRequested(int idx)
                         "Could not find page to remove!  Aborting!";
             exit(-1);
         }
-        model()->removeRow(row,pagesIdx);
-        _nb->removeTab(idx);
+        _nb->removeTab(idx);       // must remove tab before removing model page
+        model()->removeRow(row,pagesIdx); // rowsAboutToBeRemoved deletes page
     } else if ( wt == "Table" ) {
         // TODO: Table
     } else {
@@ -1457,8 +1456,6 @@ void BookView::_nbCloseRequested(int idx)
                     "tabWhatsThis should have been set.";
         exit(-1);
     }
-
-    delete tabWidget;
 }
 
 void BookView::_nbCurrentChanged(int idx)
@@ -1514,4 +1511,23 @@ void BookView::rowsInserted(const QModelIndex &pidx, int start, int end)
             _nb->setTabText(row,fName);
         }
     }
+}
+
+void BookView::rowsAboutToBeRemoved(const QModelIndex &pidx, int start, int end)
+{
+    if ( start != end ) {
+        qDebug() << "snap [bad scoobs]:1: BookView::rowsAboutToBeRemoved(): "
+                    "TODO: support deleting multiple rows at once.";
+        exit(-1);
+    }
+    if ( start < 0 || start >= _childViews.size() ) {
+        qDebug() << "snap [bad scoobs]:2: BookView::rowsAboutToBeRemoved(): "
+                    "childViews list not in sync with model.";
+        exit(-1);
+    }
+
+    QAbstractItemView* pageView = _childViews.at(start);
+    disconnect(pageView,0,0,0);
+    _childViews.removeAt(start);
+    delete pageView;
 }
