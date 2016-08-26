@@ -46,6 +46,8 @@ public:
     int getDataInt(const QModelIndex& startIdx,
                          const QString& searchItemText,
                          const QString &expectedStartIdxText=QString()) const;
+    TrickCurveModel* getTrickCurveModel(const QModelIndex& curvesIdx, int i) const;
+    TrickCurveModel* getTrickCurveModel(const QModelIndex& curveIdx) const;
 
     QModelIndexList getIndexList(const QModelIndex& startIdx,
                         const QString& searchItemText,

@@ -351,6 +351,35 @@ int PlotBookModel::getDataInt(const QModelIndex &startIdx,
     return i;
 }
 
+// i'th curve under curves idx
+TrickCurveModel *PlotBookModel::getTrickCurveModel(const QModelIndex& curvesIdx,
+                                                   int i) const
+{
+    if ( !isIndex(curvesIdx, "Curves") ) {
+        qDebug() << "snap [bad scoobs]:1: PlotBookModel::getTrickCurveModel.";
+        exit(-1);
+    }
+
+    QModelIndex curveIdx = index(i,0,curvesIdx);
+    TrickCurveModel* curveModel = getTrickCurveModel(curveIdx);
+    return curveModel;
+}
+
+TrickCurveModel *PlotBookModel::getTrickCurveModel(
+                                             const QModelIndex &curveIdx) const
+{
+    if ( !isIndex(curveIdx, "Curve") ) {
+        qDebug() << "snap [bad scoobs]:2: PlotBookModel::getTrickCurveModel.";
+        exit(-1);
+    }
+
+    QModelIndex curveDataIdx = getDataIndex(curveIdx,"CurveData");
+    QVariant v = data(curveDataIdx);
+    TrickCurveModel* curveModel =QVariantToPtr<TrickCurveModel>::convert(v);
+
+    return curveModel;
+}
+
 QModelIndexList PlotBookModel::getIndexList(const QModelIndex &startIdx,
                                   const QString &searchItemText,
                                   const QString &expectedStartIdxText) const
