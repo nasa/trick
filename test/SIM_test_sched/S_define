@@ -80,6 +80,7 @@ void create_connections() {
     exec_set_thread_process_type( 3 , Trick::PROCESS_TYPE_ASYNC_CHILD ) ;
 
     exec_set_thread_amf_cycle_time(2, 0.8);
+    exec_set_software_frame(0.1);
 
     exec_add_depends_on_job( "children.sched_logging" , 1 , "parent.sched_logging" , 1 ) ;
     exec_add_depends_on_job( "children.sched_amf" , 1 , "parent.sched_effector" , 1 ) ;
