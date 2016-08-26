@@ -394,7 +394,7 @@ sub process_file($$) {
                         }
 
                         if ( $exclude == 0 ) {
-                            if ( $file_name =~ /include\/[^\.]+\.[^\.]+\"/ ) {
+                            if ( $file_name =~ /include\/[^\.\/]+\.[^\.]+\"/ ) {
                                 $file_name =~ s/(.*)include\/([^\.]+\.)[^\.]+\"/${1}swig\/${2}i\"/ ;
                             } elsif ( $file_name =~ /\/([^\.\/]+\.)[^\.]+\"/ ) {
                                 $file_name =~ s/\/([^\.\/]+\.)[^\.]+\"/\/swig\/${1}i\"/ ;
