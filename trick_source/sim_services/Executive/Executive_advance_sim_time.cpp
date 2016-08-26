@@ -2,7 +2,6 @@
 #include <iostream>
 
 #include "trick/Executive.hh"
-#include "trick/release.h"
 
 /**
 @design
@@ -37,18 +36,6 @@ int Trick::Executive::advance_sim_time() {
         time_tics =  next_job_call_time ;
     }
 
-    /* Wait for synchronous threads to finish before testing for adjusting time_tics */
-    for (ii = 1; ii < threads.size() ; ii++) {
-        Threads * curr_thread = threads[ii] ;
-        if ( curr_thread->process_type == PROCESS_TYPE_SCHEDULED) {
-            while (curr_thread->child_complete == false ) {
-                if (rt_nap == true) {
-                    RELEASE();
-                }
-            }
-        }
-    }
-
     /* Adjust time_tics if one of the threads has a job or async cycle time less than the main thread's next job */
     for (ii = 1; ii < threads.size() ; ii++) {
         Threads * curr_thread = threads[ii] ;
@@ -56,13 +43,14 @@ int Trick::Executive::advance_sim_time() {
              (curr_thread->job_queue.get_next_job_call_time() < time_tics) ) {
             time_tics = curr_thread->job_queue.get_next_job_call_time() ;
         }
-//TODO: need to make sure cycle time is not 0 for ASYNC.
         if ( (curr_thread->process_type == PROCESS_TYPE_AMF_CHILD ) &&
+             (curr_thread->amf_cycle_tics > 0 ) &&
              (curr_thread->amf_next_tics < time_tics) ) {
             time_tics = curr_thread->amf_next_tics ;
         }
     }
 
+    /* Adjust time_tics to the terminate time if terminate is the next event */
     if ( terminate_time < time_tics ) {
         time_tics = terminate_time ;
     }

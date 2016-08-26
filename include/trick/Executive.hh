@@ -925,6 +925,12 @@ namespace Trick {
             virtual int thread_sync() ;
 
             /**
+             * Job to synchronize SCHEDULED threads to the master.
+             * @return always 0
+             */
+            virtual int scheduled_thread_sync() ;
+
+            /**
              * @brief freeze_init job that initialized the freeze_scheduled loop
              * @return always 0
              */
