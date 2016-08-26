@@ -13,6 +13,7 @@
 #include <QLineF>
 #include <QItemSelectionModel>
 #include <stdlib.h>
+#include <float.h>
 #include "bookidxview.h"
 #include "libsnap/unit.h"
 
@@ -75,7 +76,7 @@ private:
     void _paintCurve(const QModelIndex& curveIdx,
                      const QTransform &T, QPainter& painter, QPen& pen);
 
-    QList<QModelIndex> _curvesInsideRect(const QRectF& R);
+    QList<QModelIndex> _curvesInsideMouseRect(const QRectF& R);
 
     // Key Events
     void _keyPressSpace();
