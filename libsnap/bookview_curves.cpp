@@ -3,7 +3,8 @@
 CurvesView::CurvesView(QWidget *parent) :
     BookIdxView(parent),
     _errorPath(0),
-    _isMouseDoubleClick(false)
+    _isMouseDoubleClick(false),
+    _liveCoord(DBL_MAX,DBL_MAX)
 {
     setFocusPolicy(Qt::StrongFocus);
     setFrameShape(QFrame::NoFrame);
@@ -138,6 +139,8 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
                              const QTransform& T,
                              QPainter& painter, QPen& pen)
 {
+    painter.save();
+
     QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
                                                           "CurveData","Curve");
     QVariant v = model()->data(curveDataIdx);
@@ -149,9 +152,9 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
         QColor color( _bookModel()->getDataString(curveIdx,
                                                   "CurveColor","Curve"));
         if ( curveIdx == currentIndex() ) {
-            color = color.darker(180);
+            color = color.darker(200);
         } else if ( currentIndex().isValid() ) {
-            color = color.lighter(160);
+            color = color.lighter(180);
         }
         pen.setColor(color);
         painter.setPen(pen);
@@ -168,7 +171,87 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
 
         // Draw curve!
         painter.drawPath(*path);
+
+        // Draw coordinate arrow (arrow with (x,y) label) if needed
+        QRectF M = _plotMathRect(rootIndex());
+        if ( curveIdx == currentIndex() &&
+             M.width() > 0 && qAbs(M.height()) > 0 ) {
+            _paintCoordArrow(_liveCoord,painter);
+        }
     }
+    painter.restore();
+}
+
+void CurvesView::_paintCoordArrow(const QPointF &coord, QPainter& painter)
+{
+    painter.save();
+
+    QTransform I;
+    painter.setTransform(I);
+
+    double angle = 45.0;    // arrow lines angle off of horiz (counterclockwise)
+    double tipAngle = 22.5; // arrow tip angle
+    angle *= M_PI/180.0;
+    tipAngle *= M_PI/180.0;
+    double r =  2.0;        // radius of circle around point
+    double h = 16.0;        // isoscelese triangle arrow head height
+    double a = 48.0;        // arrow tail length part attached to arrow head
+    double b = 18.0;        // arrow tail length part attached to 'a' before txt
+    double m =  4.0;        // distance (margin) between tail and text
+
+    QString txt;
+    txt = txt.sprintf("(%g, %g)", coord.x(),coord.y());
+    QRect txt_bbox = painter.fontMetrics().boundingRect(txt);
+
+    double tw = txt_bbox.width();
+    double th = txt_bbox.height();
+
+
+    double aw = (h+a)*cos(angle) + b + m + tw; // total arrow width (w/ text)
+    double ah = (h+a)*sin(angle) + th/2.0;      // total arrow height
+
+    // Map math coord to window pt
+    QTransform T = _coordToPixelTransform();
+    QPointF pt = T.map(coord);
+
+    // Draw circle around point
+    painter.drawEllipse(pt,qRound(r),qRound(r));
+
+    // Draw arrow head (tip on circle, not on point)
+    QVector<QPointF> pts;
+    QPointF tip(pt.x()+r*cos(angle),
+                pt.y()-r*sin(angle));
+    QPointF p(tip.x()+h*cos(angle+tipAngle/2.0),
+              tip.y()-h*sin(angle+tipAngle/2.0));
+    QPointF q(tip.x()+h*cos(angle-tipAngle/2.0),
+              tip.y()-h*sin(angle-tipAngle/2.0));
+    pts << tip << q << p;
+    QPolygonF arrowTriangle(pts);
+    QPen pen = painter.pen();
+    QBrush origBrush = painter.brush();
+    QBrush brush(pen.color());
+    painter.setBrush(brush);
+    painter.drawConvexPolygon(arrowTriangle);
+    painter.setBrush(origBrush);
+
+    // Draw arrow tail (attached to triangle)
+    QPointF a0(tip.x()+h*cos(angle),
+               tip.y()-h*sin(angle));
+    QPointF a1(a0.x()+a*cos(angle),
+               a0.y()-a*sin(angle));
+    QPointF a2(a1.x()+b,a1.y());
+    pts.clear();
+    pts << a0 << a1 << a2;
+    QPolygonF polyLine(pts);
+    painter.drawPolyline(polyLine);
+
+    // Draw coord text i.e. (x,y)
+    QPointF tl(a2.x()+m,
+               a2.y()-th/2.0);
+    QRectF box(tl,txt_bbox.size());
+    painter.drawText(box,Qt::AlignCenter,txt);
+
+    painter.restore();
 }
 
 void CurvesView::_paintErrorplot(QPainter &painter, const QPen &pen,
@@ -731,6 +814,9 @@ void CurvesView::mouseReleaseEvent(QMouseEvent *event)
                     // Multiple curves found in mouse rect, refine search
                     s /= 2;
                     if ( s < 2 ) {
+                        // Choose closest curve to point and bail
+                        selectionModel()->setCurrentIndex(curveIdxs.first(),
+                                                 QItemSelectionModel::NoUpdate);
                         break;
                     }
                 } else {
@@ -860,54 +946,53 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
     QRectF W = viewport()->rect();
     if ( W.width() < 1 || W.height() < 1 ) return;
 
-    if ( mouseMove->buttons() == Qt::NoButton ) {
+    double Ww = W.width();  // greater > 0, by top line
+    double Wh = W.height();
 
+    QRectF M = _mathRect();
+    double Mw = M.width();
+    double Mh = M.height();
+
+    if ( mouseMove->buttons() == Qt::NoButton && currentIndex().isValid() ) {
+
+        QString tag = model()->data(currentIndex()).toString();
         QString presentation = _bookModel()->getDataString(rootIndex(),
                                                    "PlotPresentation","Plot");
-        if ( presentation == "coplot" || presentation.isEmpty() ) {
+        if ( tag == "Curve" &&
+             (presentation == "coplot" || presentation.isEmpty()) ) {
 
-            int s = 24; // side length for rect around mouse click
-            QList<QModelIndex> curveIdxs;
-            while ( 1 ) {
-                QRectF mouseRect(mouseMove->pos().x()-s/2,
-                                 mouseMove->pos().y()-s/2,s,s);
-                curveIdxs = _curvesInsideMouseRect(mouseRect);
+            double a = M.width()/W.width();
+            double b = M.height()/W.height();
+            double c = M.x() - a*W.x();
+            double d = M.y() - b*W.y();
+            QTransform T(a, 0,
+                         0, b, /*+*/ c, d);
+            QPointF wPt = mouseMove->pos();
+            QPointF mPt = T.map(wPt);
 
-                if ( curveIdxs.isEmpty() ) {
-                    // If click not close to any curve, nothing to do
-                    break;
-                } else if ( curveIdxs.size() == 1 ) {
-                    // Single curve found in small box around mouse click!
-                    QModelIndex curveIdx = curveIdxs.first();
-                    selectionModel()->setCurrentIndex(curveIdx,
-                                                 QItemSelectionModel::NoUpdate);
-                    break;
-                } else if ( curveIdxs.size() > 1 ) {
-                    // Multiple curves found in mouse rect, refine search
-                    s /= 2;
-                    if ( s < 2 ) {
-                        // Choose closest curve to point and bail
-                        selectionModel()->setCurrentIndex(curveIdxs.first(),
-                                                 QItemSelectionModel::NoUpdate);
-                        break;
-                    }
-                } else {
-                    // bad scoobs
+            TrickCurveModel* curveModel = _bookModel()->
+                                             getTrickCurveModel(currentIndex());
+            if ( curveModel ) {
+                curveModel->map();
+                // TODO: do not use hard-coded time name
+                if ( curveModel->x()->name() == "sys.exec.out.time" ) {
+                    TrickModelIterator it = curveModel->begin();
+                    int i = curveModel->indexAtTime(mPt.x());
+                    _liveCoord = QPointF(it[i].x(),it[i].y());
                 }
+                curveModel->unmap();
             }
+
+            viewport()->update();
+
         }
 
     } else if ( mouseMove->buttons() == Qt::LeftButton ) {
 
-        double Ww = W.width();  // greater > 0, by top line
-        double Wh = W.height();
-
-        QRectF M = _mathRect();
-        double Mw = M.width();
-        double Mh = M.height();
         QTransform T(Mw/Ww, 0.0,  // div by zero checked at top of method
                      0.0, Mh/Wh,
                      0.0, 0.0);
+
         QPointF wPt = mouseMove->pos()-_mousePressPos;
         QPointF mPt = _mousePressMathTopLeft-T.map(wPt);
 

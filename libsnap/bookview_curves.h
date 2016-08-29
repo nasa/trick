@@ -1,6 +1,9 @@
 #ifndef CURVESVIEW_H
 #define CURVESVIEW_H
 
+#include <QtGlobal>
+#include <QVector>
+#include <QPolygonF>
 #include <QPainter>
 #include <QHash>
 #include <QList>
@@ -75,6 +78,9 @@ private:
                          const QModelIndex &plotIdx);
     void _paintCurve(const QModelIndex& curveIdx,
                      const QTransform &T, QPainter& painter, QPen& pen);
+    void _paintCoordArrow(const QPointF& coord, QPainter &painter);
+
+
 
     QList<QModelIndex> _curvesInsideMouseRect(const QRectF& R);
 
@@ -83,6 +89,7 @@ private:
     void _keyPressUp();
     void _keyPressDown();
 
+    QPointF _liveCoord;
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,
