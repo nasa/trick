@@ -6,7 +6,7 @@
 
 /**
 @design
--# Loop through all threads
+-# Loop through all child threads
    -# If the thread is asynchronous must finish and the next sync time matches the sim time
       -# Wait for the thread to finish
       -# Reset the thread queue of jobs
@@ -16,6 +16,7 @@
           by multiples of the cycle time.
       -# Reset the thread queue of jobs
       -# clear all job complete flags
+-# Set the job complete flag for all jobs on thread 0.
 */
 
 int Trick::Executive::thread_sync() {
@@ -51,6 +52,12 @@ int Trick::Executive::thread_sync() {
                 }
             }
         }
+    }
+
+    /* reset the job complete flags on thread 0 (master thread) */
+    threads[0]->job_queue.reset_curr_index();
+    while ( (curr_job = threads[0]->job_queue.find_job(time_tics)) != NULL ) {
+        curr_job->complete = false;
     }
 
     return(0) ;
