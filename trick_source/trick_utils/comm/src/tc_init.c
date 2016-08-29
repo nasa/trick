@@ -19,7 +19,6 @@ int tc_init(TCDevice * listen_device) {
     return tc_init_with_connection_info( listen_device, TRICKCOMM_SOCKET_FAMILY, SOCK_STREAM, NULL, listen_device->port ) ;
 }
 
-static struct sockaddr_in s_in;
 
 int tc_init_with_connection_info( TCDevice * listen_device,
                                   int domain,
@@ -35,6 +34,9 @@ int tc_init_with_connection_info( TCDevice * listen_device,
 #ifdef __WIN32__
     WSADATA wsaData;
 #endif
+    struct sockaddr_in s_in;
+
+    memset(&s_in, 0, sizeof(struct sockaddr_in)) ;
 
     if (!listen_device) {
         TrickErrorHndlr *temp_error_hndlr = NULL;

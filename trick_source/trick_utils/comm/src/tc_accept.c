@@ -18,7 +18,6 @@
 #include "dmtcpaware.h"
 #endif
 
-static struct sockaddr_in s_in;
 
 int tc_accept_(TCDevice * listen_device, TCDevice * device, const char *file, int line)
 {
@@ -31,7 +30,9 @@ int tc_accept_(TCDevice * listen_device, TCDevice * device, const char *file, in
     char *ptrL;
     char client_str[TC_TAG_LENGTH + 256];
     unsigned char byte_info[TC_BYTE_INFO_LENGTH];
+    struct sockaddr_in s_in;
 
+    memset(&s_in, 0, sizeof(struct sockaddr_in)) ;
     /* Accept On Listen Device */
     length = sizeof(s_in);
 #if _DMTCP
