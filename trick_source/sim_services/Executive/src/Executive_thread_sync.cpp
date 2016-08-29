@@ -53,6 +53,12 @@ int Trick::Executive::thread_sync() {
         }
     }
 
+    /* reset the job complete flags on thread 0 (master thread) */
+    threads[0]->job_queue.reset_curr_index();
+    while ( (curr_job = threads[0]->job_queue.find_job(time_tics)) != NULL ) {
+        curr_job->complete = false;
+    }
+
     return(0) ;
 }
 
