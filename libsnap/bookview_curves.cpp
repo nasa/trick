@@ -186,9 +186,15 @@ void CurvesView::_paintCoordArrow(const QPointF &coord, QPainter& painter)
 {
     painter.save();
 
+    // Draw in window coords (+y axis down which accounts for -r*sin(ang) etc)
     QTransform I;
     painter.setTransform(I);
 
+    // Map math coord to window pt
+    QTransform T = _coordToPixelTransform();
+    QPointF pt = T.map(coord);
+
+    // Arrow specs (which may change so that (x,y) is not obscured)
     double angle = 45.0;    // arrow lines angle off of horiz (counterclockwise)
     double tipAngle = 22.5; // arrow tip angle
     angle *= M_PI/180.0;
@@ -201,18 +207,22 @@ void CurvesView::_paintCoordArrow(const QPointF &coord, QPainter& painter)
 
     QString txt;
     txt = txt.sprintf("(%g, %g)", coord.x(),coord.y());
-    QRect txt_bbox = painter.fontMetrics().boundingRect(txt);
+    double tw = painter.fontMetrics().boundingRect(txt).width();
+    double th = painter.fontMetrics().boundingRect(txt).height();
 
-    double tw = txt_bbox.width();
-    double th = txt_bbox.height();
-
-
+    // Bounding box of the arrow (head,tail,margin,txtbbox etc...)
     double aw = (h+a)*cos(angle) + b + m + tw; // total arrow width (w/ text)
-    double ah = (h+a)*sin(angle) + th/2.0;      // total arrow height
+    double ah = (h+a)*sin(angle) + th/2.0;     // total arrow height
+    QPointF atl(pt.x()+r*cos(angle),
+                pt.y()-(r+h+a)*sin(angle)-th/2.0);
+    QRectF arrow_bbox(atl,QSize(aw,ah));
+    if ( viewport()->rect().contains(arrow_bbox.toRect())) {
+        painter.drawRect(arrow_bbox);
+    }
 
-    // Map math coord to window pt
-    QTransform T = _coordToPixelTransform();
-    QPointF pt = T.map(coord);
+    // Bounding box of the text box with (x,y)
+    //QPointF ttl(arrow_bbox.topLeft().x() +
+
 
     // Draw circle around point
     painter.drawEllipse(pt,qRound(r),qRound(r));
@@ -220,7 +230,7 @@ void CurvesView::_paintCoordArrow(const QPointF &coord, QPainter& painter)
     // Draw arrow head (tip on circle, not on point)
     QVector<QPointF> pts;
     QPointF tip(pt.x()+r*cos(angle),
-                pt.y()-r*sin(angle));
+                pt.y()-r*sin(angle));            // note: minus since +y is down
     QPointF p(tip.x()+h*cos(angle+tipAngle/2.0),
               tip.y()-h*sin(angle+tipAngle/2.0));
     QPointF q(tip.x()+h*cos(angle-tipAngle/2.0),
@@ -248,7 +258,7 @@ void CurvesView::_paintCoordArrow(const QPointF &coord, QPainter& painter)
     // Draw coord text i.e. (x,y)
     QPointF tl(a2.x()+m,
                a2.y()-th/2.0);
-    QRectF box(tl,txt_bbox.size());
+    QRectF box(tl,QSize(tw,th));
     painter.drawText(box,Qt::AlignCenter,txt);
 
     painter.restore();
