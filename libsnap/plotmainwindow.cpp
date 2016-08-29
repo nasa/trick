@@ -77,7 +77,7 @@ PlotMainWindow::PlotMainWindow(
 
     // Monte inputs view (widget added later)
     if ( _monteInputsModel ) {
-        _monteInputsView = new MonteInputsView(_bookView,lsplit);
+        _monteInputsView = new MonteInputsView(lsplit);
         _monteInputsView->setModel(_monteInputsModel);
         connect(_monteInputsView->selectionModel(),
                 SIGNAL(currentChanged(QModelIndex,QModelIndex)),

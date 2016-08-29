@@ -1,8 +1,7 @@
 #include "monteinputsview.h"
 #include <QHeaderView>
 
-MonteInputsView::MonteInputsView(BookView *bookView,
-                                 QWidget *parent) :
+MonteInputsView::MonteInputsView(QWidget *parent) :
     QTableView(parent)
 {
     setSortingEnabled(true);

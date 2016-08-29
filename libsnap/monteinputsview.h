@@ -2,13 +2,12 @@
 #define MONTEINPUTSVIEW_H
 
 #include <QTableView>
-#include <libsnap/bookview.h>
 
 class MonteInputsView : public QTableView
 {
     Q_OBJECT
 public:
-    explicit MonteInputsView(BookView* bookView, QWidget *parent = 0);
+    explicit MonteInputsView(QWidget *parent = 0);
     virtual void setModel(QAbstractItemModel *model);
     int currSelectedRun();
 
