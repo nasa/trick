@@ -158,8 +158,6 @@ class SysSimObject : public Trick::SimObject {
 
             ("freeze_init") sched.init_freeze_scheduled() ;
 
-            // sync all scheduled threads before advancing time
-            {TRK} ("system_advance_sim_time") sched.scheduled_thread_sync() ;
             // required job to advance sim time
             {TRK} ("system_advance_sim_time") sched.advance_sim_time() ;
 

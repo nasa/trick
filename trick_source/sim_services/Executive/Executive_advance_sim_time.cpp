@@ -17,6 +17,9 @@ int Trick::Executive::advance_sim_time() {
 
     unsigned int ii ;
 
+    // synchronize the scheduled threads before advancing time.
+    scheduled_thread_sync() ;
+
     /* Save the current time to time_last_pass */
     time_last_pass_tics = time_tics ;
 
