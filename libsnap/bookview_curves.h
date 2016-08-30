@@ -21,11 +21,13 @@
 #include "libsnap/unit.h"
 
 // ---------------------------------------------------------
+// Use . since backslash makes a C++ multi-line comment
+//
 //                b
-// (x,y)<-m->|----------Y
-//                       \
-//                        \  a
-//                         \
+// (x,y)<-m->|..........Y
+//                       .
+//                        .  a
+//                         .
 //                          _|
 //                            .   --------------------Z
 //
@@ -34,23 +36,24 @@
 // ---------------------------------------------------------
 //
 //            A
-//            |\
-//            | \
-//            |  \
-//            |   \
-//            |    \
+//            |.
+//            | .
+//            |  .
+//            |   .
+//            |    .
 //            |<-h->.       Arrow Head
-//            |    /
-//            |   /
-//            |  /
-//            | /
-//            |/
+//            |    .
+//            |   .
+//            |  .
+//            | .
+//            |.
 //            B     angle(A.B)===tipAngle===arrowTipAngle===22.5
 //
 // ---------------------------------------------------------
 class CoordArrow
 {
   public:
+    CoordArrow();
     CoordArrow(const QPointF& coord,
                double r, double h,
                double a, double b, double m,
@@ -129,7 +132,6 @@ private:
     void _paintCurve(const QModelIndex& curveIdx,
                      const QTransform &T, QPainter& painter, QPen& pen);
     void _paintCoordArrow(const QPointF& coord, QPainter &painter);
-    QPointF _lastArrowCoord;
 
     QList<QModelIndex> _curvesInsideMouseRect(const QRectF& R);
 
@@ -139,6 +141,7 @@ private:
     void _keyPressDown();
 
     QPointF _liveCoord;
+    CoordArrow _lastArrow;
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,

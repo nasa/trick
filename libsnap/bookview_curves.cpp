@@ -1,6 +1,18 @@
 #include "bookview_curves.h"
 
 
+CoordArrow::CoordArrow() :
+    coord(QPointF(DBL_MAX,DBL_MAX)),
+    r(2.0),
+    h(16.0),
+    a(48.0),
+    b(18.0),
+    m(4.0),
+    angle(M_PI/4),
+    tipAngle(M_PI/8)
+{
+}
+
 CoordArrow::CoordArrow(const QPointF &coord,
                        double r, double h,
                        double a, double b, double m,
@@ -205,7 +217,6 @@ CurvesView::CurvesView(QWidget *parent) :
     BookIdxView(parent),
     _errorPath(0),
     _isMouseDoubleClick(false),
-    _lastArrowCoord(DBL_MAX,DBL_MAX),
     _liveCoord(DBL_MAX,DBL_MAX)
 {
     setFocusPolicy(Qt::StrongFocus);
@@ -395,17 +406,9 @@ void CurvesView::_paintCoordArrow(const QPointF &coord, QPainter& painter)
     // Map math coord to window pt
     QTransform T = _coordToPixelTransform();
 
-    // Arrow specs
-    double r =  2.0;  // radius of circle in window coords
-    double h = 16.0;  // height of arrow head in window coords
-    double a = 48.0;  // length of part1 of tail (see above)
-    double b = 18.0;  // length of part2 of tail (see above)
-    double m =  4.0;  // dist between text box and 'b'
-    double angle = M_PI/4;    // init angle of arrow off of horizon
-    double tipAngle = M_PI/8; // tip of arrow angle (22.5)
-
     // Initial arrow
-    CoordArrow arrow(coord,r,h,a,b,m,angle,tipAngle);
+    CoordArrow arrow;
+    arrow.coord = coord;
 
     // Try to fit arrow into viewport using 45,135,225 and 335 degree angles
     // off of horiz (counterclockwise)
