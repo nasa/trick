@@ -32,10 +32,6 @@ int Trick::Executive::thread_sync() {
                     RELEASE();
                 }
             }
-            curr_thread->job_queue.reset_curr_index();
-            while ( (curr_job = curr_thread->job_queue.find_job(time_tics)) != NULL ) {
-                curr_job->complete = false;
-            }
         }
         else if ( curr_thread->process_type == PROCESS_TYPE_ASYNC_CHILD ) {
             if ( curr_thread->child_complete == true ) {
@@ -45,18 +41,21 @@ int Trick::Executive::thread_sync() {
                         curr_thread->amf_next_tics += curr_thread->amf_cycle_tics ;
                     }
                 }
-                curr_thread->job_queue.reset_curr_index();
-                while ( (curr_job = curr_thread->job_queue.find_job(time_tics)) != NULL ) {
-                    curr_job->complete = false;
-                }
             }
         }
     }
 
-    /* reset the job complete flags on thread 0 (master thread) */
-    threads[0]->job_queue.reset_curr_index();
-    while ( (curr_job = threads[0]->job_queue.find_job(time_tics)) != NULL ) {
-        curr_job->complete = false;
+    /* Go through all of the job queues and mark all jobs that are to run this time step to not complete. */
+    for (ii = 0; ii < threads.size() ; ii++) {
+        Threads * curr_thread = threads[ii] ;
+        /* For all threads that are waiting to start the next cycle (child_complete == true)
+           reset job completion flags */
+        if ( isThreadReadyToRun(curr_thread, time_tics) ) {
+            curr_thread->job_queue.reset_curr_index();
+            while ( (curr_job = curr_thread->job_queue.find_job(time_tics)) != NULL ) {
+                curr_job->complete = false;
+            }
+        }
     }
 
     return(0) ;

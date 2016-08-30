@@ -8,32 +8,6 @@
 #include "sim_services/Executive/include/exec_proto.h"
 #include "sim_services/include/release.h"
 
-static bool isThreadReadyToRun( Trick::Threads * curr_thread , long long time_tics) {
-    bool ret = false ;
-    switch ( curr_thread->process_type ) {
-        case Trick::PROCESS_TYPE_SCHEDULED:
-            ret = true ;
-            break ;
-        case Trick::PROCESS_TYPE_AMF_CHILD:
-            if ( curr_thread->amf_next_tics == time_tics ) {
-                ret = true ;
-            }
-            break ;
-        case Trick::PROCESS_TYPE_ASYNC_CHILD:
-            if ( curr_thread->child_complete == true ) {
-                if (curr_thread->amf_cycle_tics == 0 ) {
-                    ret = true ;
-                } else {
-                    if ( curr_thread->amf_next_tics == time_tics ) {
-                        ret = true ;
-                    }
-                }
-            }
-            break ;
-    }
-    return ret ;
-}
-
 /**
 @details
 -# Wait for all synchronous threads to finish initializing before entering infinite loop
@@ -55,9 +29,9 @@ static bool isThreadReadyToRun( Trick::Threads * curr_thread , long long time_ti
            calling Trick::ScheduledJobQueue::test_next_job_call_time(Trick::JobData *, long long)
     -# If the exec_command equals ExitCmd
        -# Call Trick::Executive::exec_terminate_with_return(int, char *, int, char *)
-    -# If the elapsed time has reached the termination time 
+    -# If the elapsed time has reached the termination time
        -# Call Trick::Executive::exec_terminate_with_return(int, char *, int, char *)
-    -# If the elapsed time equals the next software frame time 
+    -# If the elapsed time equals the next software frame time
        -# Call the end_of_frame jobs. Requirement  [@ref r_exec_periodic_2]
        -# Set the end of frame execution time to the current time + software_frame
 */

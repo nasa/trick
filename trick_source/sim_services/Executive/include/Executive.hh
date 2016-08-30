@@ -282,6 +282,12 @@ namespace Trick {
             */
             void reset_job_call_times() ;
 
+            /**
+             Internal call to test if thread is ready to run
+             @return bool
+            */
+            bool isThreadReadyToRun( Trick::Threads * curr_thread , long long time_tics) ;
+
         public:
 
             Executive() ;
