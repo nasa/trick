@@ -153,7 +153,29 @@ void Trick::MonteCarlo::get_ranges(std::vector<MonteRange *> &ranges) {
 }
 
 void Trick::MonteCarlo::add_variable(Trick::MonteVar *variable) {
+    for (std::vector<Trick::MonteVar *>::const_iterator i = variables.begin(); i != variables.end(); ++i) {
+        if ( (*i)->name.compare(variable->name) == 0 ) {
+            message_publish(MSG_WARNING, "Monte WARNING: Cannot add new MonteVar \"%s\", variable of that name already exists.\n",
+                    variable->name.c_str() );
+            return;
+        }
+    }
     variables.push_back(variable);
+}
+
+/** 
+ * @par Detailed Design:
+ * Get a pointer to a MonteVar by name. Note this is used in conjunction with 
+ * %factory so that swig produces methods returning all derived types
+ */
+Trick::MonteVar * Trick::MonteCarlo::get_variable(std::string variable_name) {
+
+    for (std::vector<Trick::MonteVar *>::const_iterator i = variables.begin(); i != variables.end(); ++i) {
+        if ( (*i) and (*i)->name.compare(variable_name) == 0 ) {
+            return (*i); 
+        } 
+    }
+    return (NULL);
 }
 
 void Trick::MonteCarlo::add_slave(std::string in_machine_name) {

@@ -13,6 +13,20 @@
 #include "trick/MonteVar.hh"
 #include "trick/reference.h"
 
+// This block of code disowns the pointer on the python side so you can reassign 
+// python variables without freeing the C++ class underneath
+#ifdef SWIG
+%feature("compactdefaultargs","0") ;
+%feature("shadow") Trick::MonteVarCalculated::MonteVarCalculated(std::string name) %{
+    def __init__(self, *args):
+        this = $action(*args)
+        try: self.this.append(this)
+        except: self.this = this
+        this.own(0)
+        self.this.own(0)
+%}
+#endif
+
 namespace Trick {
 
     /**

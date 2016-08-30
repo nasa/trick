@@ -14,6 +14,11 @@
 #include "trick/RemoteShell.hh"
 #include "trick/tc.h"
 
+#ifdef SWIG
+// This instructs SWIG to use dynamic_cast and return one of the derived type for the get_variable function.
+%factory(Trick::MonteVar * Trick::MonteCarlo::get_variable, Trick::MonteVarCalculated, Trick::MonteVarFile, Trick::MonteVarFixed, Trick::MonteVarRandom) ;
+#endif
+
 namespace Trick {
 
     /**
@@ -621,6 +626,13 @@ namespace Trick {
          * @see @ref MonteCarloVariables "Adding Variables"
          */
         void add_variable(Trick::MonteVar *variable);
+
+        /**
+         * Gets the specified variable.
+         *
+         * @param variable name to get
+         */
+        Trick::MonteVar * get_variable(std::string variable_name);
 
         /**
          * Adds a new slave with the specified machine name.

@@ -4,6 +4,7 @@
 %include "std_map.i"
 %include "std_string.i"
 %include "std_vector.i"
+%include "factory.i"
 
 %include "trick/swig/swig_extend_str.i"
 %include "trick/swig/swig_class_typedef.i"
