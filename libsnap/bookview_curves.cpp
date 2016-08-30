@@ -1138,7 +1138,9 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                 if ( curveModel->x()->name() == "sys.exec.out.time" ) {
                     TrickModelIterator it = curveModel->begin();
                     int i = curveModel->indexAtTime(mPt.x());
-                    _liveCoord = QPointF(it[i].x(),it[i].y());
+                    double xs = _xScale(curveModel,currentIndex());
+                    double ys = _yScale(curveModel,currentIndex());
+                    _liveCoord = QPointF(it[i].x()*xs,it[i].y()*ys);
                 }
                 curveModel->unmap();
             }
