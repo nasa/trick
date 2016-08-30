@@ -1,9 +1,197 @@
 #include "bookview_curves.h"
 
+
+CoordArrow::CoordArrow(const QPointF &coord,
+                       double r, double h,
+                       double a, double b, double m,
+                       double angle, double tipAngle) :
+    coord(coord),        // math coord of pt to draw arrow to
+    r(r),                // radius of circle around point
+    h(h),                // isoscelese triangle arrow head height
+    a(a),                // arrow tail length part between arrow head 'b'
+    b(b),                // arrow tail length part between 'a' and txt
+    m(m),                // distance (margin) between tail and text
+    tipAngle(tipAngle),
+    angle(angle)
+{
+}
+
+// T is coordToPix transform
+QRectF CoordArrow::boundingBox(const QPainter& painter,
+                               const QTransform& T) const
+{
+    QRectF bbox;
+
+    // Map math coord to window pt
+    QPointF pt = T.map(coord);
+
+    QString txt;
+    txt = txt.sprintf("(%g, %g)", coord.x(),coord.y());
+    double tw = painter.fontMetrics().boundingRect(txt).width();
+    double th = painter.fontMetrics().boundingRect(txt).height();
+
+    double aw = (h+a)*qAbs(cos(angle)) + b + m + tw; //total arrow width (w/txt)
+    double ah = (h+a)*qAbs(sin(angle)) + th/2.0;     //total arrow height
+    QPointF atl; // top left point of arrow bbox
+    if ( angle > 0.0 && angle < M_PI/2.0 ) {
+        // Quadrant I
+        atl.setX(pt.x()+r*cos(angle));
+        atl.setY(pt.y()-(r+h+a)*sin(angle)-th/2.0); // neg since +y down
+    } else if ( angle > M_PI/2.0 && angle < M_PI ) {
+        // Quadrant II
+        atl.setX(pt.x()+(r+h+a)*cos(angle)-m-b-tw);
+        atl.setY(pt.y()-(r+h+a)*sin(angle)-th/2.0);
+    } else if ( angle > M_PI && angle < 3*(M_PI/2.0) ) {
+        // Quadrant III
+        atl.setX(pt.x()+(r+h+a)*cos(angle)-m-b-tw);
+        atl.setY(pt.y()-r*sin(angle));
+    } else if ( angle > 3*(M_PI/2.0) && angle < 2*M_PI ) {
+        // Quadrant IV
+        atl.setX(pt.x()+r*cos(angle));
+        atl.setY(pt.y()-r*sin(angle));
+    } else {
+        qDebug() << "snap [bad scoobs]: CoorArrow::boundingBox(): "
+                    "arrow angle <=0,==90,==270 or >=360. "
+                    "May want to support it.  Bailing!!!";
+        exit(-1);
+    }
+
+    bbox.setTopLeft(atl);
+    bbox.setSize(QSize(aw,ah));
+
+    return bbox;
+}
+
+void CoordArrow::paintMe(QPainter &painter, const QTransform &T) const
+{
+    // Map math coord to window pt
+    QPointF pt = T.map(coord);
+
+    QString txt;
+    txt = txt.sprintf("(%g, %g)", coord.x(),coord.y());
+    double tw = painter.fontMetrics().boundingRect(txt).width();
+    double th = painter.fontMetrics().boundingRect(txt).height();
+
+    QRectF txtBox;
+    QVector<QPointF> ptsArrowHead;
+    QVector<QPointF> ptsArrowTail;
+    if ( angle > 0.0 && angle < M_PI/2.0 ) {
+        // Quadrant I
+        QPointF tip(pt.x()+r*cos(angle),
+                    pt.y()-r*sin(angle));  // note: minus since +y is down
+        QPointF p(tip.x()+h*cos(angle+tipAngle/2.0),
+                  tip.y()-h*sin(angle+tipAngle/2.0));
+        QPointF q(tip.x()+h*cos(angle-tipAngle/2.0),
+                  tip.y()-h*sin(angle-tipAngle/2.0));
+        ptsArrowHead << tip << q << p;
+
+        QPointF a0(tip.x()+h*cos(angle),
+                   tip.y()-h*sin(angle));
+        QPointF a1(a0.x()+a*cos(angle),
+                   a0.y()-a*sin(angle));
+        QPointF a2(a1.x()+b,a1.y());
+        ptsArrowTail << a0 << a1 << a2;
+
+        QPointF tl(a2.x()+m,
+                   a2.y()-th/2.0);
+        txtBox.setTopLeft(tl);
+        txtBox.setSize(QSize(tw,th));
+
+    } else if ( angle > M_PI/2.0 && angle < M_PI ) {
+        // Quadrant II
+        QPointF tip(pt.x()+r*cos(angle),
+                    pt.y()-r*sin(angle));  // note: minus since +y is down
+        QPointF p(tip.x()+h*cos(angle+tipAngle/2.0),
+                  tip.y()-h*sin(angle+tipAngle/2.0));
+        QPointF q(tip.x()+h*cos(angle-tipAngle/2.0),
+                  tip.y()-h*sin(angle-tipAngle/2.0));
+        ptsArrowHead << tip << q << p;
+
+        QPointF a0(tip.x()+h*cos(angle),
+                   tip.y()-h*sin(angle));
+        QPointF a1(a0.x()+a*cos(angle),
+                   a0.y()-a*sin(angle));
+        QPointF a2(a1.x()-b,a1.y());
+        ptsArrowTail << a0 << a1 << a2;
+
+        QPointF tl(a2.x()-m-tw,
+                   a2.y()-th/2.0);
+        txtBox.setTopLeft(tl);
+        txtBox.setSize(QSize(tw,th));
+
+    } else if ( angle > M_PI && angle < 3*(M_PI/2.0) ) {
+        // Quadrant III
+        QPointF tip(pt.x()+r*cos(angle),
+                    pt.y()-r*sin(angle));  // note: minus since +y is down
+        QPointF p(tip.x()+h*cos(angle+tipAngle/2.0),
+                  tip.y()-h*sin(angle+tipAngle/2.0));
+        QPointF q(tip.x()+h*cos(angle-tipAngle/2.0),
+                  tip.y()-h*sin(angle-tipAngle/2.0));
+        ptsArrowHead << tip << q << p;
+
+        QPointF a0(tip.x()+h*cos(angle),
+                   tip.y()-h*sin(angle));
+        QPointF a1(a0.x()+a*cos(angle),
+                   a0.y()-a*sin(angle));
+        QPointF a2(a1.x()-b,a1.y());
+        ptsArrowTail << a0 << a1 << a2;
+
+        QPointF tl(a2.x()-m-tw, a2.y()-th/2.0);
+        txtBox.setTopLeft(tl);
+        txtBox.setSize(QSize(tw,th));
+    } else if ( angle > 3*(M_PI/2.0) && angle < 2*M_PI ) {
+        // Quadrant IV
+        QPointF tip(pt.x()+r*cos(angle),
+                    pt.y()-r*sin(angle));  // note: minus since +y is down
+        QPointF p(tip.x()+h*cos(angle+tipAngle/2.0),
+                  tip.y()-h*sin(angle+tipAngle/2.0));
+        QPointF q(tip.x()+h*cos(angle-tipAngle/2.0),
+                  tip.y()-h*sin(angle-tipAngle/2.0));
+        ptsArrowHead << tip << q << p;
+
+        QPointF a0(tip.x()+h*cos(angle),
+                   tip.y()-h*sin(angle));
+        QPointF a1(a0.x()+a*cos(angle),
+                   a0.y()-a*sin(angle));
+        QPointF a2(a1.x()+b,a1.y());
+        ptsArrowTail << a0 << a1 << a2;
+
+        QPointF tl(a2.x()+m,a2.y()-th/2.0);
+        txtBox.setTopLeft(tl);
+        txtBox.setSize(QSize(tw,th));
+    } else {
+        qDebug() << "snap [bad scoobs]: CoorArrow::paintMe(): "
+                    "arrow angle <=0,==90,==270 or >=360. "
+                    "May want to support it.  Bailing!!!";
+        exit(-1);
+    }
+
+    // Draw circle around point
+    painter.drawEllipse(pt,qRound(r),qRound(r));
+
+    // Draw arrow head (tip on circle, not on point)
+    QPolygonF arrowHead(ptsArrowHead);
+    QPen pen = painter.pen();
+    QBrush origBrush = painter.brush();
+    QBrush brush(pen.color());
+    painter.setBrush(brush);
+    painter.drawConvexPolygon(arrowHead);
+    painter.setBrush(origBrush);
+
+    // Draw arrow tail (attached to triangle)
+    QPolygonF polyLine(ptsArrowTail);
+    painter.drawPolyline(polyLine);
+
+    // Draw coord text i.e. (x,y)
+    painter.drawText(txtBox,Qt::AlignCenter,txt);
+}
+
+
 CurvesView::CurvesView(QWidget *parent) :
     BookIdxView(parent),
     _errorPath(0),
     _isMouseDoubleClick(false),
+    _lastArrowCoord(DBL_MAX,DBL_MAX),
     _liveCoord(DBL_MAX,DBL_MAX)
 {
     setFocusPolicy(Qt::StrongFocus);
@@ -192,74 +380,36 @@ void CurvesView::_paintCoordArrow(const QPointF &coord, QPainter& painter)
 
     // Map math coord to window pt
     QTransform T = _coordToPixelTransform();
-    QPointF pt = T.map(coord);
 
-    // Arrow specs (which may change so that (x,y) is not obscured)
-    double angle = 45.0;    // arrow lines angle off of horiz (counterclockwise)
-    double tipAngle = 22.5; // arrow tip angle
-    angle *= M_PI/180.0;
-    tipAngle *= M_PI/180.0;
-    double r =  2.0;        // radius of circle around point
-    double h = 16.0;        // isoscelese triangle arrow head height
-    double a = 48.0;        // arrow tail length part attached to arrow head
-    double b = 18.0;        // arrow tail length part attached to 'a' before txt
-    double m =  4.0;        // distance (margin) between tail and text
+    // Arrow specs
+    double r =  2.0;  // radius of circle in window coords
+    double h = 16.0;  // height of arrow head in window coords
+    double a = 48.0;  // length of part1 of tail (see above)
+    double b = 18.0;  // length of part2 of tail (see above)
+    double m =  4.0;  // dist between text box and 'b'
+    double angle = M_PI/4;    // init angle of arrow off of horizon
+    double tipAngle = M_PI/8; // tip of arrow angle (22.5)
 
-    QString txt;
-    txt = txt.sprintf("(%g, %g)", coord.x(),coord.y());
-    double tw = painter.fontMetrics().boundingRect(txt).width();
-    double th = painter.fontMetrics().boundingRect(txt).height();
+    // Initial arrow
+    CoordArrow arrow(coord,r,h,a,b,m,angle,tipAngle);
 
-    // Bounding box of the arrow (head,tail,margin,txtbbox etc...)
-    double aw = (h+a)*cos(angle) + b + m + tw; // total arrow width (w/ text)
-    double ah = (h+a)*sin(angle) + th/2.0;     // total arrow height
-    QPointF atl(pt.x()+r*cos(angle),
-                pt.y()-(r+h+a)*sin(angle)-th/2.0);
-    QRectF arrow_bbox(atl,QSize(aw,ah));
-    if ( viewport()->rect().contains(arrow_bbox.toRect())) {
-        painter.drawRect(arrow_bbox);
+    // Try to fit arrow into viewport using 45,135,225 and 335 degree angles
+    // off of horiz (counterclockwise)
+    QList<double> angles;
+    angles << 1*(M_PI/4) << 3*(M_PI/4) << 5*(M_PI/4) << 7*(M_PI/4);
+    bool isFits = false;
+    foreach ( double angle, angles ) {
+        arrow.angle = angle;
+        QRect arrowBBox = arrow.boundingBox(painter,T).toRect();
+        if ( viewport()->rect().contains(arrowBBox) ) {
+            isFits = true;
+            break;
+        }
     }
 
-    // Bounding box of the text box with (x,y)
-    //QPointF ttl(arrow_bbox.topLeft().x() +
-
-
-    // Draw circle around point
-    painter.drawEllipse(pt,qRound(r),qRound(r));
-
-    // Draw arrow head (tip on circle, not on point)
-    QVector<QPointF> pts;
-    QPointF tip(pt.x()+r*cos(angle),
-                pt.y()-r*sin(angle));            // note: minus since +y is down
-    QPointF p(tip.x()+h*cos(angle+tipAngle/2.0),
-              tip.y()-h*sin(angle+tipAngle/2.0));
-    QPointF q(tip.x()+h*cos(angle-tipAngle/2.0),
-              tip.y()-h*sin(angle-tipAngle/2.0));
-    pts << tip << q << p;
-    QPolygonF arrowTriangle(pts);
-    QPen pen = painter.pen();
-    QBrush origBrush = painter.brush();
-    QBrush brush(pen.color());
-    painter.setBrush(brush);
-    painter.drawConvexPolygon(arrowTriangle);
-    painter.setBrush(origBrush);
-
-    // Draw arrow tail (attached to triangle)
-    QPointF a0(tip.x()+h*cos(angle),
-               tip.y()-h*sin(angle));
-    QPointF a1(a0.x()+a*cos(angle),
-               a0.y()-a*sin(angle));
-    QPointF a2(a1.x()+b,a1.y());
-    pts.clear();
-    pts << a0 << a1 << a2;
-    QPolygonF polyLine(pts);
-    painter.drawPolyline(polyLine);
-
-    // Draw coord text i.e. (x,y)
-    QPointF tl(a2.x()+m,
-               a2.y()-th/2.0);
-    QRectF box(tl,QSize(tw,th));
-    painter.drawText(box,Qt::AlignCenter,txt);
+    if ( isFits ) {
+        arrow.paintMe(painter,T);
+    }
 
     painter.restore();
 }
@@ -1217,4 +1367,3 @@ void CurvesView::_keyPressDown()
         }
     }
 }
-

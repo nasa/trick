@@ -20,6 +20,56 @@
 #include "bookidxview.h"
 #include "libsnap/unit.h"
 
+// ---------------------------------------------------------
+//                b
+// (x,y)<-m->|----------Y
+//                       \
+//                        \  a
+//                         \
+//                          _|
+//                            .   --------------------Z
+//
+//      angle(Y.Z)===angle===arrowAngle===(2k+1)*45degrees
+//
+// ---------------------------------------------------------
+//
+//            A
+//            |\
+//            | \
+//            |  \
+//            |   \
+//            |    \
+//            |<-h->.       Arrow Head
+//            |    /
+//            |   /
+//            |  /
+//            | /
+//            |/
+//            B     angle(A.B)===tipAngle===arrowTipAngle===22.5
+//
+// ---------------------------------------------------------
+class CoordArrow
+{
+  public:
+    CoordArrow(const QPointF& coord,
+               double r, double h,
+               double a, double b, double m,
+               double angle, double tipAngle);
+
+  public:
+    QPointF coord;  // math coord
+    double r;       // radius of circle in window coords
+    double h;       // height of arrow head in window coords
+    double a;       // length of part1 of tail (see above)
+    double b;       // length of part2 of tail (see above)
+    double m;       // dist between text box and 'b'
+    double angle;   // angle of arrow off of horizon
+    double tipAngle; // tip of arrow angle (22.5)
+
+    QRectF boundingBox(const QPainter &painter, const QTransform &T) const;
+    void paintMe(QPainter &painter, const QTransform &T) const;
+};
+
 class CurvesView : public BookIdxView
 {
     Q_OBJECT
@@ -79,8 +129,7 @@ private:
     void _paintCurve(const QModelIndex& curveIdx,
                      const QTransform &T, QPainter& painter, QPen& pen);
     void _paintCoordArrow(const QPointF& coord, QPainter &painter);
-
-
+    QPointF _lastArrowCoord;
 
     QList<QModelIndex> _curvesInsideMouseRect(const QRectF& R);
 
