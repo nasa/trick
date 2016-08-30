@@ -64,6 +64,11 @@ QRectF CoordArrow::boundingBox(const QPainter& painter,
 
 void CoordArrow::paintMe(QPainter &painter, const QTransform &T) const
 {
+    // Save painter
+    painter.save();
+    QBrush origBrush = painter.brush();
+    QPen origPen = painter.pen();
+
     // Map math coord to window pt
     QPointF pt = T.map(coord);
 
@@ -171,19 +176,28 @@ void CoordArrow::paintMe(QPainter &painter, const QTransform &T) const
 
     // Draw arrow head (tip on circle, not on point)
     QPolygonF arrowHead(ptsArrowHead);
-    QPen pen = painter.pen();
-    QBrush origBrush = painter.brush();
-    QBrush brush(pen.color());
+    QBrush brush(painter.pen().color());
     painter.setBrush(brush);
     painter.drawConvexPolygon(arrowHead);
-    painter.setBrush(origBrush);
 
     // Draw arrow tail (attached to triangle)
     QPolygonF polyLine(ptsArrowTail);
     painter.drawPolyline(polyLine);
 
+    // Draw background for text box (plain white for now)
+    painter.setPen(QPen(Qt::white));
+    painter.setBrush(QBrush(Qt::white));
+    painter.drawRect(txtBox);
+    painter.setBrush(origBrush);
+    painter.setPen(origPen);
+
     // Draw coord text i.e. (x,y)
     painter.drawText(txtBox,Qt::AlignCenter,txt);
+
+    // Restore painter
+    painter.setPen(origPen);
+    painter.setBrush(origBrush);
+    painter.restore();
 }
 
 
