@@ -1209,10 +1209,8 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                     _liveCoord = QPointF(it[i].x()*xs,it[i].y()*ys);
                 }
                 curveModel->unmap();
+                viewport()->update();
             }
-
-            viewport()->update();
-
         }
 
     } else if ( mouseMove->buttons() == Qt::LeftButton ) {
