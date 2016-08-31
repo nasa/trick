@@ -13,7 +13,7 @@ CoordArrow::CoordArrow() :
 {
 }
 
-CoordArrow::CoordArrow(const QPointF &coord,
+CoordArrow::CoordArrow(const QString &txt, const QPointF &coord,
                        double r, double h,
                        double a, double b, double m,
                        double angle, double tipAngle) :
@@ -37,8 +37,7 @@ QRectF CoordArrow::boundingBox(const QPainter& painter,
     // Map math coord to window pt
     QPointF pt = T.map(coord);
 
-    QString txt;
-    txt = txt.sprintf("(%g, %g)", coord.x(),coord.y());
+    // Text bbox width and height
     double tw = painter.fontMetrics().boundingRect(txt).width();
     double th = painter.fontMetrics().boundingRect(txt).height();
 
@@ -83,8 +82,7 @@ QRectF CoordArrow::txtBoundingBox(const QPainter& painter,
     // Map math coord to window pt
     QPointF pt = T.map(coord);
 
-    QString txt;
-    txt = txt.sprintf("(%g, %g)", coord.x(),coord.y());
+    // Text bbox width and height
     double tw = painter.fontMetrics().boundingRect(txt).width();
     double th = painter.fontMetrics().boundingRect(txt).height();
 
@@ -128,8 +126,6 @@ void CoordArrow::paintMe(QPainter &painter, const QTransform &T) const
     // Map math coord to window pt
     QPointF pt = T.map(coord);
 
-    QString txt;
-    txt = txt.sprintf("(%g, %g)", coord.x(),coord.y());
     double tw = painter.fontMetrics().boundingRect(txt).width();
     double th = painter.fontMetrics().boundingRect(txt).height();
 
@@ -453,6 +449,14 @@ void CurvesView::_paintCoordArrow(const QPointF &coord, QPainter& painter)
     // Initial arrow
     CoordArrow arrow;
     arrow.coord = coord;
+
+    // Arrow text
+    QString s;
+    if ( _isLiveCoordIsLocalMax ) {
+        arrow.txt = s.sprintf("<%g, %g>", coord.x(),coord.y());
+    } else {
+        arrow.txt = s.sprintf("(%g, %g)", coord.x(),coord.y());
+    }
 
     // Try to fit arrow into viewport using 45,135,225 and 335 degree angles
     // off of horiz (counterclockwise)
@@ -1203,10 +1207,81 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                 // TODO: do not use hard-coded time name
                 if ( curveModel->x()->name() == "sys.exec.out.time" ) {
                     TrickModelIterator it = curveModel->begin();
-                    int i = curveModel->indexAtTime(mPt.x());
                     double xs = _xScale(curveModel,currentIndex());
                     double ys = _yScale(curveModel,currentIndex());
-                    _liveCoord = QPointF(it[i].x()*xs,it[i].y()*ys);
+
+                    int rc = curveModel->rowCount() ;
+                    if ( rc == 0 ) {
+                        // Nothing to do
+                    } else if ( rc == 1 ) {
+                        _liveCoord = QPointF(it.x()*xs,it.y()*ys);
+                    } else {
+                        int i = curveModel->indexAtTime(mPt.x());
+
+                        QPointF p(it[i].x()*xs,it[i].y()*ys);
+                        QPointF q;
+                        if ( i == 0 ) {
+                            q.setX(it[1].x()*xs);
+                            q.setY(it[1].y()*ys);
+                        } else if ( i > 0 ) {
+                            q.setX(it[i-1].x()*xs);
+                            q.setY(it[i-1].y()*ys);
+                        } else {
+                            qDebug() << "snap [bad scoobs]:1: "
+                                        "CurvesView::mouseMoveEvent() ";
+                            exit(-1);
+                        }
+                        double dt = qAbs(p.x()-q.x());
+                        if ( dt < 1.0e-9 ) {
+                            qDebug() << "snap [bad scoobs]:2: "
+                                        "CurvesView::mouseMoveEvent() ";
+                            exit(-1);
+                        }
+
+                        // Calculate neighborhood of points around mouse point
+                        // "Radius" of neighborhood is length of two x heights
+                        QRectF M = _plotMathRect(rootIndex());
+                        QRectF W = viewport()->rect();
+                        double Wr = 2.0*fontMetrics().xHeight(); // near mouse
+                        double Mr = Wr*(M.width()/W.width());
+
+                        int di = qFloor(Mr/dt);
+                        di = (di < 1) ? 1 : di;
+                        int j = i-di;
+                        j = (j < 0) ? 0 : j;
+                        int k = i+di;
+                        k = (k >= rc) ? rc-1 : k;
+
+                        QList<QPointF> localMaxs;
+                        QList<QPointF> localMins;
+                        for (int i = j; i <= k; ++i ) {
+                            QPointF p(it[i].x()*xs,it[i].y()*ys);
+                            if ( i > 0 && i < k ) {
+                                double ya = it[i-1].y()*ys;
+                                double y  = it[i].y()*ys;
+                                double yb = it[i+1].y()*ys;
+                                if ( y > ya && y > yb ) {
+                                    localMaxs << p;
+                                }
+                            }
+                            /*
+                            if ( it[i].y()*ys < localMin.y() ) {
+                                localMin = p;
+                            }
+                            */
+                        }
+                        QPointF localMax(-DBL_MAX,-DBL_MAX);
+                        QPointF localMin( DBL_MAX, DBL_MAX);
+                        _liveCoord = p;
+                        _isLiveCoordIsLocalMax = false;
+                        foreach (QPointF pt, localMaxs ) {
+                            if ( pt.y() > localMax.y() ) {
+                                localMax = pt;
+                                _isLiveCoordIsLocalMax = true;
+                                _liveCoord = pt;
+                            }
+                        }
+                    }
                 }
                 curveModel->unmap();
                 viewport()->update();

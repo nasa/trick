@@ -54,12 +54,15 @@ class CoordArrow
 {
   public:
     CoordArrow();
-    CoordArrow(const QPointF& coord,
+    CoordArrow(
+               const QString& txt,
+               const QPointF& coord,
                double r, double h,
                double a, double b, double m,
                double angle, double tipAngle);
 
   public:
+    QString txt;    // Text e.g. "(10.375,3.141593)"
     QPointF coord;  // math coord
     double r;       // radius of circle in window coords
     double h;       // height of arrow head in window coords
@@ -142,6 +145,7 @@ private:
     void _keyPressDown();
 
     QPointF _liveCoord;
+    bool _isLiveCoordIsLocalMax;
     CoordArrow _lastArrow;
 
 protected slots:
