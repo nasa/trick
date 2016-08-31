@@ -145,7 +145,7 @@ private:
     void _keyPressDown();
 
     QPointF _liveCoord;
-    bool _isLiveCoordIsLocalMax;
+    bool _isLiveCoordLocalExtremum;
     CoordArrow _lastArrow;
 
 protected slots:

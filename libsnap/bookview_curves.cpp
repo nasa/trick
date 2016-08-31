@@ -452,7 +452,7 @@ void CurvesView::_paintCoordArrow(const QPointF &coord, QPainter& painter)
 
     // Arrow text
     QString s;
-    if ( _isLiveCoordIsLocalMax ) {
+    if ( _isLiveCoordLocalExtremum ) {
         arrow.txt = s.sprintf("<%g, %g>", coord.x(),coord.y());
     } else {
         arrow.txt = s.sprintf("(%g, %g)", coord.x(),coord.y());
@@ -1212,7 +1212,8 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
 
                     int rc = curveModel->rowCount() ;
                     if ( rc == 0 ) {
-                        // Nothing to do
+                        // "null" out _liveCoord
+                        _liveCoord = QPointF(DBL_MAX,DBL_MAX);
                     } else if ( rc == 1 ) {
                         _liveCoord = QPointF(it.x()*xs,it.y()*ys);
                     } else {
@@ -1262,24 +1263,46 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                                 double yb = it[i+1].y()*ys;
                                 if ( y > ya && y > yb ) {
                                     localMaxs << p;
+                                } else if ( y < ya && y < yb ) {
+                                    localMins << p;
                                 }
                             }
-                            /*
-                            if ( it[i].y()*ys < localMin.y() ) {
-                                localMin = p;
-                            }
-                            */
                         }
-                        QPointF localMax(-DBL_MAX,-DBL_MAX);
-                        QPointF localMin( DBL_MAX, DBL_MAX);
-                        _liveCoord = p;
-                        _isLiveCoordIsLocalMax = false;
+
+
+                        QPointF localMin = QPointF(DBL_MAX,DBL_MAX);
+                        foreach (QPointF pt, localMins ) {
+                            if ( pt.y() < localMin.y() ) {
+                                localMin = pt;
+                            }
+                        }
+
+                        QPointF localMax = QPointF(-DBL_MAX,-DBL_MAX);
                         foreach (QPointF pt, localMaxs ) {
                             if ( pt.y() > localMax.y() ) {
                                 localMax = pt;
-                                _isLiveCoordIsLocalMax = true;
-                                _liveCoord = pt;
                             }
+                        }
+
+                        _isLiveCoordLocalExtremum = true;
+                        _liveCoord = p;
+                        if ( localMin.x() !=  DBL_MAX &&
+                             localMax.x() == -DBL_MAX ) {
+                            _liveCoord = localMin;
+                        } else if ( localMin.x() == DBL_MAX &&
+                                    localMax.x() != -DBL_MAX ) {
+                            _liveCoord = localMax;
+                        } else if ( localMin.x() != DBL_MAX &&
+                                    localMax.x() != DBL_MAX ) {
+                            // pick between extremums
+                            // if mouse above curve, pick local max
+                            if ( mPt.y() > localMax.y() ) {
+                                _liveCoord = localMax;
+                            } else {
+                                _liveCoord = localMin;
+                            }
+                        } else {
+                            _isLiveCoordLocalExtremum = false;
                         }
                     }
                 }
