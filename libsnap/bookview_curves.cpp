@@ -1303,22 +1303,16 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                         bool isMaxs = localMaxs.isEmpty() ? false : true;
                         bool isMins = localMins.isEmpty() ? false : true;
                         if ( isMaxs && !isMins ) {
+                            _liveCoord = localMaxs.first();
+                        } else if ( !isMaxs && isMins ) {
+                            _liveCoord = localMins.first();
+                        } else if ( isMaxs && isMins ) {
+                            // There are local mins and maxes
                             if ( mPt.y() > localMaxs.first().y() ) {
                                 // Mouse above curve
                                 _liveCoord = localMaxs.first();
                             } else {
-                            }
-                        } else if ( !isMaxs && isMins ) {
-                            if ( mPt.y() < localMins.first().y() ) {
                                 // Mouse below curve
-                                _liveCoord = localMins.first();
-                            } else {
-                            }
-                        } else if ( isMaxs && isMins ) {
-                            // There are local mins and maxes
-                            if ( mPt.y() > localMaxs.first().y() ) {
-                                _liveCoord = localMaxs.first();
-                            } else {
                                 _liveCoord = localMins.first();
                             }
                         } else if ( !isMaxs && !isMins ) {
