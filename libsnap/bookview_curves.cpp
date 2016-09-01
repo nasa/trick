@@ -1211,100 +1211,138 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                     double ys = _yScale(curveModel,currentIndex());
 
                     int rc = curveModel->rowCount() ;
+
                     if ( rc == 0 ) {
+
                         // "null" out _liveCoord
                         _isLiveCoordLocalExtremum = false;
                         _liveCoord = QPointF(DBL_MAX,DBL_MAX);
-                    } else if ( rc == 1 ) {
+
+                    } else if ( rc == 1 || rc == 2 ) {
+
                         _isLiveCoordLocalExtremum = false;
                         _liveCoord = QPointF(it.x()*xs,it.y()*ys);
-                    } else {
-                        int i = curveModel->indexAtTime(mPt.x());
 
+                    } else if ( rc >= 3 ) {
+
+                        int i = curveModel->indexAtTime(mPt.x());
                         QPointF p(it[i].x()*xs,it[i].y()*ys);
-                        QPointF q;
+
+                        //
+                        // Find dt between p and prev or next point
+                        //
+                        double dt = 0.0;
                         if ( i == 0 ) {
-                            q.setX(it[1].x()*xs);
-                            q.setY(it[1].y()*ys);
+                            // Start point
+                            dt = it[1].x()*xs - p.x();
                         } else if ( i > 0 ) {
-                            q.setX(it[i-1].x()*xs);
-                            q.setY(it[i-1].y()*ys);
+                            dt = p.x() - it[i-1].x()*xs;
                         } else {
                             qDebug() << "snap [bad scoobs]:1: "
                                         "CurvesView::mouseMoveEvent() ";
                             exit(-1);
                         }
-                        double dt = qAbs(p.x()-q.x());
                         if ( dt < 1.0e-9 ) {
                             qDebug() << "snap [bad scoobs]:2: "
-                                        "CurvesView::mouseMoveEvent() ";
+                                        "CurvesView::mouseMoveEvent() " << i;
                             exit(-1);
                         }
 
-                        // Calculate neighborhood of points around mouse point
-                        // "Radius" of neighborhood is length of two x heights
+                        //
+                        // Make "neighborhood" around mouse point
+                        //
                         QRectF M = _plotMathRect(rootIndex());
                         QRectF W = viewport()->rect();
                         double Wr = 2.0*fontMetrics().xHeight(); // near mouse
                         double Mr = Wr*(M.width()/W.width());
 
                         int di = qFloor(Mr/dt);
-                        di = (di < 1) ? 1 : di;
                         int j = i-di;
                         j = (j < 0) ? 0 : j;
                         int k = i+di;
                         k = (k >= rc) ? rc-1 : k;
 
+                        //
+                        // Find local min/maxs in neighborhood
+                        //
                         QList<QPointF> localMaxs;
                         QList<QPointF> localMins;
-                        for (int i = j; i <= k; ++i ) {
-                            QPointF p(it[i].x()*xs,it[i].y()*ys);
-                            if ( i > 0 && i < k ) {
-                                double ya = it[i-1].y()*ys;
-                                double y  = it[i].y()*ys;
-                                double yb = it[i+1].y()*ys;
+                        for (int m = j; m <= k; ++m ) {
+                            QPointF pt(it[m].x()*xs,it[m].y()*ys);
+                            if ( m > 0 && m < k ) {
+                                double ya = it[m-1].y()*ys;
+                                double y  = it[m].y()*ys;
+                                double yb = it[m+1].y()*ys;
                                 if ( y > ya && y > yb ) {
-                                    localMaxs << p;
+                                    if ( localMaxs.isEmpty() ) {
+                                        localMaxs << pt;
+                                    } else {
+                                        if ( pt.y() > localMaxs.first().y() ) {
+                                            localMaxs.prepend(pt);
+                                        } else {
+                                            localMaxs << pt;
+                                        }
+                                    }
                                 } else if ( y < ya && y < yb ) {
-                                    localMins << p;
+                                    if ( localMins.isEmpty() ) {
+                                        localMins << pt;
+                                    } else {
+                                        if ( pt.y() < localMins.first().y() ) {
+                                            localMins.prepend(pt);
+                                        } else {
+                                            localMins << pt;
+                                        }
+                                    }
                                 }
                             }
                         }
 
-
-                        QPointF localMin = QPointF(DBL_MAX,DBL_MAX);
-                        foreach (QPointF pt, localMins ) {
-                            if ( pt.y() < localMin.y() ) {
-                                localMin = pt;
-                            }
-                        }
-
-                        QPointF localMax = QPointF(-DBL_MAX,-DBL_MAX);
-                        foreach (QPointF pt, localMaxs ) {
-                            if ( pt.y() > localMax.y() ) {
-                                localMax = pt;
-                            }
-                        }
-
-                        _isLiveCoordLocalExtremum = true;
-                        _liveCoord = p;
-                        if ( localMin.x() !=  DBL_MAX &&
-                             localMax.x() == -DBL_MAX ) {
-                            _liveCoord = localMin;
-                        } else if ( localMin.x() == DBL_MAX &&
-                                    localMax.x() != -DBL_MAX ) {
-                            _liveCoord = localMax;
-                        } else if ( localMin.x() != DBL_MAX &&
-                                    localMax.x() != DBL_MAX ) {
-                            // pick between extremums
-                            // if mouse above curve, pick local max
-                            if ( mPt.y() > localMax.y() ) {
-                                _liveCoord = localMax;
+                        //
+                        // Choose live coord based on local mins/maxs
+                        //
+                        bool isMaxs = localMaxs.isEmpty() ? false : true;
+                        bool isMins = localMins.isEmpty() ? false : true;
+                        if ( isMaxs && !isMins ) {
+                            if ( mPt.y() > localMaxs.first().y() ) {
+                                // Mouse above curve
+                                _liveCoord = localMaxs.first();
                             } else {
-                                _liveCoord = localMin;
                             }
+                        } else if ( !isMaxs && isMins ) {
+                            if ( mPt.y() < localMins.first().y() ) {
+                                // Mouse below curve
+                                _liveCoord = localMins.first();
+                            } else {
+                            }
+                        } else if ( isMaxs && isMins ) {
+                            // There are local mins and maxes
+                            if ( mPt.y() > localMaxs.first().y() ) {
+                                _liveCoord = localMaxs.first();
+                            } else {
+                                _liveCoord = localMins.first();
+                            }
+                        } else if ( !isMaxs && !isMins ) {
+                            _liveCoord = p;
                         } else {
-                            _isLiveCoordLocalExtremum = false;
+                            qDebug() << "snap [bad scoobs]:3: CurvesView::"
+                                        "mouseMoveEvent()";
+                            exit(-1);
+                        }
+
+
+                        //
+                        // If live coord is an extremum, set flag for painting
+                        //
+                        _isLiveCoordLocalExtremum = false;
+                        int n = curveModel->indexAtTime(_liveCoord.x());
+                        if ( n > 0 && n < rc-1) {
+                            // First and last point not considered
+                            double ya = it[n-1].y()*ys;
+                            double y  = it[n].y()*ys;
+                            double yb = it[n+1].y()*ys;
+                            if ( (y>ya && y>yb) || (y<ya && y<yb) ) {
+                                _isLiveCoordLocalExtremum = true;
+                            }
                         }
                     }
                 }
