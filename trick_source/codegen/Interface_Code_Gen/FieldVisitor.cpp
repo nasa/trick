@@ -122,7 +122,7 @@ bool FieldVisitor::VisitBuiltinType(clang::BuiltinType *bt) {
                 break ;
         }
     }
-    return true;
+    return false;
 }
 
 bool FieldVisitor::VisitConstantArrayType(clang::ConstantArrayType *cat) {
