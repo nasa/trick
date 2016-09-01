@@ -58,6 +58,7 @@ PlotMainWindow::PlotMainWindow(
         gitem = _bookModel->addChild(citem, "Title2",titles.at(1));
         gitem = _bookModel->addChild(citem, "Title3",titles.at(2));
         gitem = _bookModel->addChild(citem, "Title4",titles.at(3));
+        citem = _bookModel->addChild(rootItem, "LiveCoordTime","");
     }
 
 

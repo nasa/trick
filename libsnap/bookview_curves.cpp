@@ -256,8 +256,7 @@ void CoordArrow::paintMe(QPainter &painter, const QTransform &T) const
 CurvesView::CurvesView(QWidget *parent) :
     BookIdxView(parent),
     _errorPath(0),
-    _isMouseDoubleClick(false),
-    _liveCoord(DBL_MAX,DBL_MAX)
+    _isMouseDoubleClick(false)
 {
     setFocusPolicy(Qt::StrongFocus);
     setFrameShape(QFrame::NoFrame);
@@ -429,15 +428,18 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
         QRectF M = _plotMathRect(rootIndex());
         if ( curveIdx == currentIndex() &&
              M.width() > 0 && qAbs(M.height()) > 0 ) {
-            _paintCoordArrow(_liveCoord,painter);
+            _paintLiveCoordArrow(curveModel,curveIdx,painter);
         }
     }
     painter.restore();
 }
 
-void CurvesView::_paintCoordArrow(const QPointF &coord, QPainter& painter)
+void CurvesView::_paintLiveCoordArrow(TrickCurveModel* curveModel,
+                                      const QModelIndex& curveIdx,
+                                      QPainter& painter)
 {
     painter.save();
+    curveModel->map();
 
     // Draw in window coords (+y axis down which accounts for -r*sin(ang) etc)
     QTransform I;
@@ -447,21 +449,43 @@ void CurvesView::_paintCoordArrow(const QPointF &coord, QPainter& painter)
     QTransform T = _coordToPixelTransform();
 
     // Initial arrow
+
+    // Calculate liveCoord based on model liveCoordTime
+    QModelIndex liveIdx = _bookModel()->getDataIndex(QModelIndex(),
+                                                     "LiveCoordTime");
+    double liveTime = model()->data(liveIdx).toDouble();
+    int i = curveModel->indexAtTime(liveTime);
+    TrickModelIterator it = curveModel->begin();
+    double xs = _xScale(curveModel,curveIdx);
+    double ys = _yScale(curveModel,curveIdx);
+    QPointF coord(it[i].x()*xs, it[i].y()*ys);
+
+    // Init arrow struct
     CoordArrow arrow;
     arrow.coord = coord;
 
-    // Arrow text
+    //
+    // If live coord is an extremum, set flag for painting
+    //
+    int rc = curveModel->rowCount();
     QString s;
-    if ( _isLiveCoordLocalExtremum ) {
-        arrow.txt = s.sprintf("<%g, %g>", coord.x(),coord.y());
-    } else {
-        if ( _isLiveCoordInitPoint ) {
-            arrow.txt = s.sprintf("init=(%g, %g)", coord.x(),coord.y());
-        } else if ( _isLiveCoordLastPoint ) {
-            arrow.txt = s.sprintf("last=(%g, %g)", coord.x(),coord.y());
+    if ( i > 0 && i < rc-1) {
+        // First and last point not considered
+        double ya = it[i-1].y()*ys;
+        double y  = it[i].y()*ys;
+        double yb = it[i+1].y()*ys;
+        if ( (y>ya && y>yb) || (y<ya && y<yb) ) {
+            arrow.txt = s.sprintf("<%g, %g>", coord.x(),coord.y());
         } else {
             arrow.txt = s.sprintf("(%g, %g)", coord.x(),coord.y());
         }
+    } else if ( i == 0 ) {
+            arrow.txt = s.sprintf("init=(%g, %g)", coord.x(),coord.y());
+    } else if ( i == rc-1 ) {
+            arrow.txt = s.sprintf("last=(%g, %g)", coord.x(),coord.y());
+    } else {
+        qDebug() << "snap [bad scoobs]: CurvesView::_paintLiveCoordArrow";
+        exit(-1);
     }
 
     // Try to fit arrow into viewport using 45,135,225 and 335 degree angles
@@ -487,6 +511,7 @@ void CurvesView::_paintCoordArrow(const QPointF &coord, QPainter& painter)
         arrow.paintMe(painter,T);
     }
 
+    curveModel->unmap();
     painter.restore();
 }
 
@@ -1217,21 +1242,16 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                     double ys = _yScale(curveModel,currentIndex());
 
                     int rc = curveModel->rowCount() ;
-
-                    _isLiveCoordLocalExtremum = false;
-                    _isLiveCoordInitPoint = false ;
-                    _isLiveCoordLastPoint = false ;
+                    QPointF liveCoord(DBL_MAX,DBL_MAX);
 
                     if ( rc == 0 ) {
 
-                        // "null" out _liveCoord
-                        _liveCoord = QPointF(DBL_MAX,DBL_MAX);
+                        // "null" out liveCoord
+                        liveCoord = QPointF(DBL_MAX,DBL_MAX);
 
                     } else if ( rc == 1 ) {
 
-                        _isLiveCoordInitPoint = true ;
-                        _isLiveCoordLastPoint = true ;
-                        _liveCoord = QPointF(it.x()*xs,it.y()*ys);
+                        liveCoord = QPointF(it.x()*xs,it.y()*ys);
 
                     } else if ( rc == 2 ) {
                         // TODO: Test curve with 2 points
@@ -1240,11 +1260,9 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                         QLineF l0(p0,mPt);
                         QLineF l1(p1,mPt);
                         if ( l0.length() < l1.length() ) {
-                            _isLiveCoordInitPoint = true ;
-                            _liveCoord = p0;
+                            liveCoord = p0;
                         } else {
-                            _isLiveCoordLastPoint = true ;
-                            _liveCoord = p1;
+                            liveCoord = p1;
                         }
 
                     } else if ( rc >= 3 ) {
@@ -1327,53 +1345,41 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                         //
                         if ( j == 0 ) {
                             // Mouse near start of curve, set to start pt
-                            _isLiveCoordInitPoint = true;
-                            _liveCoord = QPointF(it[0].x()*xs,it[0].y()*ys);
+                            liveCoord = QPointF(it[0].x()*xs,it[0].y()*ys);
                         } else if ( k == rc-1 ) {
                             // Mouse near end of curve, set to last pt
-                            _isLiveCoordLastPoint = true;
-                            _liveCoord = QPointF(it[k].x()*xs,it[k].y()*ys);
+                            liveCoord = QPointF(it[k].x()*xs,it[k].y()*ys);
                         } else {
                             bool isMaxs = localMaxs.isEmpty() ? false : true;
                             bool isMins = localMins.isEmpty() ? false : true;
                             if ( isMaxs && !isMins ) {
-                                _liveCoord = localMaxs.first();
+                                liveCoord = localMaxs.first();
                             } else if ( !isMaxs && isMins ) {
-                                _liveCoord = localMins.first();
+                                liveCoord = localMins.first();
                             } else if ( isMaxs && isMins ) {
                                 // There are local mins and maxes
                                 if ( mPt.y() > localMaxs.first().y() ) {
                                     // Mouse above curve
-                                    _liveCoord = localMaxs.first();
+                                    liveCoord = localMaxs.first();
                                 } else {
                                     // Mouse below curve
-                                    _liveCoord = localMins.first();
+                                    liveCoord = localMins.first();
                                 }
                             } else if ( !isMaxs && !isMins ) {
-                                _liveCoord = p;
+                                liveCoord = p;
                             } else {
                                 qDebug() << "snap [bad scoobs]:3: CurvesView::"
                                             "mouseMoveEvent()";
                                 exit(-1);
                             }
                         }
-
-
-                        //
-                        // If live coord is an extremum, set flag for painting
-                        //
-                        _isLiveCoordLocalExtremum = false;
-                        int n = curveModel->indexAtTime(_liveCoord.x());
-                        if ( n > 0 && n < rc-1) {
-                            // First and last point not considered
-                            double ya = it[n-1].y()*ys;
-                            double y  = it[n].y()*ys;
-                            double yb = it[n+1].y()*ys;
-                            if ( (y>ya && y>yb) || (y<ya && y<yb) ) {
-                                _isLiveCoordLocalExtremum = true;
-                            }
-                        }
                     }
+
+                    // Set live coord in model
+                    QModelIndex liveTimeIdx = _bookModel()->getDataIndex(
+                                                               QModelIndex(),
+                                                               "LiveCoordTime");
+                    model()->setData(liveTimeIdx,liveCoord.x());
                 }
                 curveModel->unmap();
                 viewport()->update();

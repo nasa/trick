@@ -258,6 +258,8 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
             idx = index(3,0);
         } else if ( searchItemText == "DefaultPageTitles" ) {
             idx = index(4,0);
+        } else if ( searchItemText == "LiveCoordTime" ) {
+            idx = index(5,0);
         } else {
             qDebug() << "snap [bad scoobies]:3: getIndex() received "
                         "root as a startIdx and had bad child item text of \""

@@ -135,7 +135,8 @@ private:
                          const QModelIndex &plotIdx);
     void _paintCurve(const QModelIndex& curveIdx,
                      const QTransform &T, QPainter& painter, QPen& pen);
-    void _paintCoordArrow(const QPointF& coord, QPainter &painter);
+    void _paintLiveCoordArrow(TrickCurveModel *curveModel,
+                          const QModelIndex &curveIdx, QPainter &painter);
 
     QList<QModelIndex> _curvesInsideMouseRect(const QRectF& R);
 
@@ -143,12 +144,6 @@ private:
     void _keyPressSpace();
     void _keyPressUp();
     void _keyPressDown();
-
-    QPointF _liveCoord;
-    bool _isLiveCoordLocalExtremum;
-    bool _isLiveCoordInitPoint;
-    bool _isLiveCoordLastPoint;
-    CoordArrow _lastArrow;
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,
