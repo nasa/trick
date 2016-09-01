@@ -455,7 +455,13 @@ void CurvesView::_paintCoordArrow(const QPointF &coord, QPainter& painter)
     if ( _isLiveCoordLocalExtremum ) {
         arrow.txt = s.sprintf("<%g, %g>", coord.x(),coord.y());
     } else {
-        arrow.txt = s.sprintf("(%g, %g)", coord.x(),coord.y());
+        if ( _isLiveCoordInitPoint ) {
+            arrow.txt = s.sprintf("init=(%g, %g)", coord.x(),coord.y());
+        } else if ( _isLiveCoordLastPoint ) {
+            arrow.txt = s.sprintf("last=(%g, %g)", coord.x(),coord.y());
+        } else {
+            arrow.txt = s.sprintf("(%g, %g)", coord.x(),coord.y());
+        }
     }
 
     // Try to fit arrow into viewport using 45,135,225 and 335 degree angles
@@ -1212,16 +1218,34 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
 
                     int rc = curveModel->rowCount() ;
 
+                    _isLiveCoordLocalExtremum = false;
+                    _isLiveCoordInitPoint = false ;
+                    _isLiveCoordLastPoint = false ;
+
                     if ( rc == 0 ) {
 
                         // "null" out _liveCoord
-                        _isLiveCoordLocalExtremum = false;
                         _liveCoord = QPointF(DBL_MAX,DBL_MAX);
 
-                    } else if ( rc == 1 || rc == 2 ) {
+                    } else if ( rc == 1 ) {
 
-                        _isLiveCoordLocalExtremum = false;
+                        _isLiveCoordInitPoint = true ;
+                        _isLiveCoordLastPoint = true ;
                         _liveCoord = QPointF(it.x()*xs,it.y()*ys);
+
+                    } else if ( rc == 2 ) {
+                        // TODO: Test curve with 2 points
+                        QPointF p0(it[0].x()*xs,it[0].y()*ys);
+                        QPointF p1(it[1].x()*xs,it[1].y()*ys);
+                        QLineF l0(p0,mPt);
+                        QLineF l1(p1,mPt);
+                        if ( l0.length() < l1.length() ) {
+                            _isLiveCoordInitPoint = true ;
+                            _liveCoord = p0;
+                        } else {
+                            _isLiveCoordLastPoint = true ;
+                            _liveCoord = p1;
+                        }
 
                     } else if ( rc >= 3 ) {
 
@@ -1299,28 +1323,39 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
 
                         //
                         // Choose live coord based on local mins/maxs
+                        // and proximity to start/end points
                         //
-                        bool isMaxs = localMaxs.isEmpty() ? false : true;
-                        bool isMins = localMins.isEmpty() ? false : true;
-                        if ( isMaxs && !isMins ) {
-                            _liveCoord = localMaxs.first();
-                        } else if ( !isMaxs && isMins ) {
-                            _liveCoord = localMins.first();
-                        } else if ( isMaxs && isMins ) {
-                            // There are local mins and maxes
-                            if ( mPt.y() > localMaxs.first().y() ) {
-                                // Mouse above curve
-                                _liveCoord = localMaxs.first();
-                            } else {
-                                // Mouse below curve
-                                _liveCoord = localMins.first();
-                            }
-                        } else if ( !isMaxs && !isMins ) {
-                            _liveCoord = p;
+                        if ( j == 0 ) {
+                            // Mouse near start of curve, set to start pt
+                            _isLiveCoordInitPoint = true;
+                            _liveCoord = QPointF(it[0].x()*xs,it[0].y()*ys);
+                        } else if ( k == rc-1 ) {
+                            // Mouse near end of curve, set to last pt
+                            _isLiveCoordLastPoint = true;
+                            _liveCoord = QPointF(it[k].x()*xs,it[k].y()*ys);
                         } else {
-                            qDebug() << "snap [bad scoobs]:3: CurvesView::"
-                                        "mouseMoveEvent()";
-                            exit(-1);
+                            bool isMaxs = localMaxs.isEmpty() ? false : true;
+                            bool isMins = localMins.isEmpty() ? false : true;
+                            if ( isMaxs && !isMins ) {
+                                _liveCoord = localMaxs.first();
+                            } else if ( !isMaxs && isMins ) {
+                                _liveCoord = localMins.first();
+                            } else if ( isMaxs && isMins ) {
+                                // There are local mins and maxes
+                                if ( mPt.y() > localMaxs.first().y() ) {
+                                    // Mouse above curve
+                                    _liveCoord = localMaxs.first();
+                                } else {
+                                    // Mouse below curve
+                                    _liveCoord = localMins.first();
+                                }
+                            } else if ( !isMaxs && !isMins ) {
+                                _liveCoord = p;
+                            } else {
+                                qDebug() << "snap [bad scoobs]:3: CurvesView::"
+                                            "mouseMoveEvent()";
+                                exit(-1);
+                            }
                         }
 
 

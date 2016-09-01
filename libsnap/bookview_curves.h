@@ -146,6 +146,8 @@ private:
 
     QPointF _liveCoord;
     bool _isLiveCoordLocalExtremum;
+    bool _isLiveCoordInitPoint;
+    bool _isLiveCoordLastPoint;
     CoordArrow _lastArrow;
 
 protected slots:
