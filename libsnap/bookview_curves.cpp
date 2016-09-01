@@ -23,8 +23,8 @@ CoordArrow::CoordArrow(const QString &txt, const QPointF &coord,
     a(a),                // arrow tail length part between arrow head 'b'
     b(b),                // arrow tail length part between 'a' and txt
     m(m),                // distance (margin) between tail and text
-    tipAngle(tipAngle),
-    angle(angle)
+    angle(angle),
+    tipAngle(tipAngle)
 {
 }
 
@@ -1234,14 +1234,19 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
             TrickCurveModel* curveModel = _bookModel()->
                                              getTrickCurveModel(currentIndex());
             if ( curveModel ) {
+
                 curveModel->map();
+                TrickModelIterator it = curveModel->begin();
+                double xs = _xScale(curveModel,currentIndex());
+                double ys = _yScale(curveModel,currentIndex());
+                int rc = curveModel->rowCount() ;
+                QModelIndex liveTimeIdx = _bookModel()->getDataIndex(
+                                                               QModelIndex(),
+                                                               "LiveCoordTime");
+
                 // TODO: do not use hard-coded time name
                 if ( curveModel->x()->name() == "sys.exec.out.time" ) {
-                    TrickModelIterator it = curveModel->begin();
-                    double xs = _xScale(curveModel,currentIndex());
-                    double ys = _yScale(curveModel,currentIndex());
 
-                    int rc = curveModel->rowCount() ;
                     QPointF liveCoord(DBL_MAX,DBL_MAX);
 
                     if ( rc == 0 ) {
@@ -1376,31 +1381,46 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                     }
 
                     // Set live coord in model
-                    QModelIndex liveTimeIdx = _bookModel()->getDataIndex(
-                                                               QModelIndex(),
-                                                               "LiveCoordTime");
                     model()->setData(liveTimeIdx,liveCoord.x());
+
+                } else {  // Curve x is not time e.g. ball xy-position
+
+                    double liveTime = DBL_MAX;
+                    double dMin = DBL_MAX;
+                    TrickModelIterator e = curveModel->end();
+                    while ( it != e ) { // find closest point on curve to mouse
+                        QPointF p(xs*it.x(),ys*it.y());
+                        double d = QLineF(mPt,p).length();
+                        if ( d < dMin ) {
+                            dMin = d;
+                            liveTime = it.t();
+                        }
+                        ++it;
+                    }
+                    // Set live coord in model
+                    model()->setData(liveTimeIdx,liveTime);
                 }
+
                 curveModel->unmap();
                 viewport()->update();
             }
         }
 
-    } else if ( mouseMove->buttons() == Qt::LeftButton ) {
+        } else if ( mouseMove->buttons() == Qt::LeftButton ) {
 
-        QTransform T(Mw/Ww, 0.0,  // div by zero checked at top of method
-                     0.0, Mh/Wh,
-                     0.0, 0.0);
+            QTransform T(Mw/Ww, 0.0,  // div by zero checked at top of method
+                         0.0, Mh/Wh,
+                         0.0, 0.0);
 
-        QPointF wPt = mouseMove->pos()-_mousePressPos;
-        QPointF mPt = _mousePressMathTopLeft-T.map(wPt);
+            QPointF wPt = mouseMove->pos()-_mousePressPos;
+            QPointF mPt = _mousePressMathTopLeft-T.map(wPt);
 
-        double k = 0.88;
-        QRectF insideRect((1-k)*Ww/2.0,(1-k)*Wh/2.0,k*Ww,k*Wh);
-        if ( insideRect.contains(_mousePressPos) ) {
-            // Pan if mouse press pos is deeper inside window
-            M.moveTo(mPt);
-        } else {
+            double k = 0.88;
+            QRectF insideRect((1-k)*Ww/2.0,(1-k)*Wh/2.0,k*Ww,k*Wh);
+            if ( insideRect.contains(_mousePressPos) ) {
+                // Pan if mouse press pos is deeper inside window
+                M.moveTo(mPt);
+            } else {
             // Scrunch if mouse press pos is on perifery of window
             QRectF leftRect(0,0,
                             (1-k)*Ww/2.0, Wh);
