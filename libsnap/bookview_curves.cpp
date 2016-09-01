@@ -1213,8 +1213,10 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                     int rc = curveModel->rowCount() ;
                     if ( rc == 0 ) {
                         // "null" out _liveCoord
+                        _isLiveCoordLocalExtremum = false;
                         _liveCoord = QPointF(DBL_MAX,DBL_MAX);
                     } else if ( rc == 1 ) {
+                        _isLiveCoordLocalExtremum = false;
                         _liveCoord = QPointF(it.x()*xs,it.y()*ys);
                     } else {
                         int i = curveModel->indexAtTime(mPt.x());
