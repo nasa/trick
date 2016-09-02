@@ -1083,7 +1083,7 @@ void CurvesView::mouseReleaseEvent(QMouseEvent *event)
                 }
             }
         } else {
-            event->ignore(); // pass event to parent view for stretch,zoom etc
+            //event->ignore(); // pass event to parent view for stretch,zoom etc
         }
     } else if (  event->button() == Qt::MidButton ) {
         event->ignore();

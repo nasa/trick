@@ -26,8 +26,10 @@ bool PageView::eventFilter(QObject *obj, QEvent *event)
     if ( event->type() == QEvent::MouseButtonRelease ) {
         QMouseEvent *mouseEvent = dynamic_cast<QMouseEvent*>(event);
         if ( mouseEvent ) {
-            if ( !currentIndex().isValid() ) {
-                _toggleView(obj);
+            if (  mouseEvent->button() == Qt::LeftButton ) {
+                if ( !currentIndex().isValid() ) {
+                    _toggleView(obj);
+                }
             }
         }
     }
