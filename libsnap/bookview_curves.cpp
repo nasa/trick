@@ -255,8 +255,7 @@ void CoordArrow::paintMe(QPainter &painter, const QTransform &T) const
 
 CurvesView::CurvesView(QWidget *parent) :
     BookIdxView(parent),
-    _errorPath(0),
-    _isMouseDoubleClick(false)
+    _errorPath(0)
 {
     setFocusPolicy(Qt::StrongFocus);
     setFrameShape(QFrame::NoFrame);
@@ -1037,13 +1036,6 @@ void CurvesView::mousePressEvent(QMouseEvent *event)
 
 void CurvesView::mouseReleaseEvent(QMouseEvent *event)
 {
-    if ( _isMouseDoubleClick ) {
-        // Mouse release on second click of double click
-        _isMouseDoubleClick = false;
-        event->ignore();
-        return;
-    }
-
     if (  event->button() == Qt::LeftButton ) {
         double x0 = _mousePressPos.x();
         double y0 = _mousePressPos.y();
@@ -1058,18 +1050,23 @@ void CurvesView::mouseReleaseEvent(QMouseEvent *event)
             QList<QModelIndex> curveIdxs;
 
             while ( 1 ) {
+
                 curveIdxs = _curvesInsideMouseRect(QRectF(x1-s/2,y1-s/2,s,s));
-                if ( curveIdxs.isEmpty() ) {
-                    // If click not close to any curve, unset current idx
-                    QModelIndex invalidIdx;
-                    selectionModel()->setCurrentIndex(invalidIdx,
-                                            QItemSelectionModel::Clear);
-                    break;
-                } else if ( curveIdxs.size() == 1 ) {
+
+                if ( curveIdxs.size() == 1 ) {
                     // Single curve found in small box around mouse click!
                     QModelIndex curveIdx = curveIdxs.first();
                     selectionModel()->setCurrentIndex(curveIdx,
-                                            QItemSelectionModel::NoUpdate);
+                                                 QItemSelectionModel::NoUpdate);
+                    break;
+                } else if ( curveIdxs.isEmpty() &&  currentIndex().isValid() ) {
+                    // click off curves, current unset
+                    setCurrentIndex(QModelIndex());
+                    break;
+                } else if ( curveIdxs.isEmpty() && !currentIndex().isValid() ) {
+                    // click off, toggle between single and multiplot views
+                    // pass event to ancestors (page view handles toggle)
+                    event->ignore();
                     break;
                 } else if ( curveIdxs.size() > 1 ) {
                     // Multiple curves found in mouse rect, refine search
@@ -1077,17 +1074,17 @@ void CurvesView::mouseReleaseEvent(QMouseEvent *event)
                     if ( s < 2 ) {
                         // Choose closest curve to point and bail
                         selectionModel()->setCurrentIndex(curveIdxs.first(),
-                                                 QItemSelectionModel::NoUpdate);
+                                                          QItemSelectionModel::NoUpdate);
                         break;
                     }
                 } else {
-                    // bad scoobs
+                    qDebug() << "snap [bad scoobs]: "
+                                "CurvesView::mouseReleaseEvent()";
                 }
             }
+        } else {
+            event->ignore(); // pass event to parent view for stretch,zoom etc
         }
-
-        event->ignore(); // allow parent view to receive left mousepress event
-
     } else if (  event->button() == Qt::MidButton ) {
         event->ignore();
     } else if ( event->button() == Qt::RightButton ) {
@@ -1502,20 +1499,6 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
         mouseMove->ignore();
     }
 }
-
-// When double clicking,
-// the first press will be in mousePressEvent===mouseFirstPressEvent
-// the second press is not in mousePressEvent, instead it is here
-// i.e. this is "MouseSecondPressEvent"
-void CurvesView::mouseDoubleClickEvent(QMouseEvent *event)
-{
-    _isMouseDoubleClick = true;
-    if ( _mousePressCurrentIndex != currentIndex() ) {
-        setCurrentIndex(_mousePressCurrentIndex);
-    }
-    event->ignore();
-}
-
 
 QRectF CurvesView::_calcBBox() const
 {

@@ -3,8 +3,7 @@
 PageView::PageView(QWidget *parent) :
     BookIdxView(parent),
     _grid(0),
-    _toggleSingleView(true),
-    _isMouseDoubleClick(false)
+    _toggleSingleView(true)
 {
     setFrameShape(QFrame::NoFrame);
 
@@ -27,24 +26,11 @@ bool PageView::eventFilter(QObject *obj, QEvent *event)
     if ( event->type() == QEvent::MouseButtonRelease ) {
         QMouseEvent *mouseEvent = dynamic_cast<QMouseEvent*>(event);
         if ( mouseEvent ) {
-            if ( mouseEvent->button() == Qt::LeftButton ) {
-                if ( _isMouseDoubleClick ) {
-                    _isMouseDoubleClick = false;
-                    _mouseIdx2 = currentIndex();
-                    _toggleView(obj);
-                    if ( _mouseIdx1.isValid() ) {
-                        // make idx1 current and toggle view
-                        setCurrentIndex(_mouseIdx1);
-                    }
-                } else {
-                    _mouseIdx1 = currentIndex();
-                }
+            if ( !currentIndex().isValid() ) {
+                _toggleView(obj);
             }
         }
-    } else if ( event->type() == QEvent::MouseButtonDblClick ) {
-        _isMouseDoubleClick = true;
     }
-
     viewport()->update();
     return false;
 }

@@ -5,6 +5,7 @@
 #include <QVector>
 #include <QPolygonF>
 #include <QPainter>
+#include <QPixmap>
 #include <QHash>
 #include <QList>
 #include <QColor>
@@ -95,7 +96,6 @@ protected:
     virtual void mousePressEvent(QMouseEvent* event);
     virtual void mouseReleaseEvent(QMouseEvent* event);
     virtual void mouseMoveEvent(QMouseEvent* mouseEvent);
-    virtual void mouseDoubleClickEvent(QMouseEvent *event);
     virtual void keyPressEvent(QKeyEvent *event);
     virtual void currentChanged(const QModelIndex& current,
                                 const QModelIndex& previous);
@@ -119,7 +119,6 @@ private:
     QPoint _mousePressPos;
     QPointF _mousePressMathTopLeft;
     QModelIndex _mousePressCurrentIndex;
-    bool _isMouseDoubleClick;
 
     void _updateAxisLabelUnits(const QModelIndex &curveIdx,QChar axis) const;
 
@@ -137,6 +136,7 @@ private:
                      const QTransform &T, QPainter& painter, QPen& pen);
     void _paintLiveCoordArrow(TrickCurveModel *curveModel,
                           const QModelIndex &curveIdx, QPainter &painter);
+    QPixmap _livePixmap;
 
     QList<QModelIndex> _curvesInsideMouseRect(const QRectF& R);
 
