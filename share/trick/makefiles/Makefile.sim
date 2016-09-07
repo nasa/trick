@@ -19,7 +19,7 @@ PRINT_MAKEFILE_SWIG = @echo "[34mCreating/updating swig Makefile[0m"
 ECHO_CMD = @
 endif
 
-.NOTPARALLEL: all test
+.NOTPARALLEL:
 
 export TRICK_ICG_EXCLUDE
 
