@@ -22,8 +22,8 @@ void LinedRulerView::paintEvent(QPaintEvent *event)
 
     if ( !model() ) return;
 
-    double ptSizeHLine = _hLinePointSize();
-    double ptSizeVLine = _vLinePointSize();
+    double ptSizeHLine = 0.0;
+    double ptSizeVLine = 0.0;
 
     QPen hPen(Qt::black);
     hPen.setWidthF(ptSizeHLine);
@@ -121,9 +121,9 @@ QSize LinedRulerView::minimumSizeHint() const
     if ( _alignment == Qt::AlignTop ||
          _alignment == Qt::AlignBottom ) {
         s.setWidth(50);
-        s.setHeight(8+_pointSize());  // ptSize for axis
+        s.setHeight(8);  // TODO: ptSize for axis??? 8+_pointSize()
     } else {
-        s.setWidth(8+_pointSize());  // ptSize for axis
+        s.setWidth(8);  // TODO: ptSize for axis
         s.setHeight(50);
     }
     return s;
@@ -135,9 +135,9 @@ QSize LinedRulerView::sizeHint() const
     if ( _alignment == Qt::AlignTop ||
          _alignment == Qt::AlignBottom ) {
         s.setWidth(50);
-        s.setHeight(8+_pointSize());  // ptSize for axis
+        s.setHeight(8);  // TODO:??? ptSize for axis
     } else {
-        s.setWidth(8+_pointSize());  // ptSize for axis
+        s.setWidth(8);  // TODO:??? ptSize for axis
         s.setHeight(50);
     }
     return s;

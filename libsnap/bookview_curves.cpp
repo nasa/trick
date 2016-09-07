@@ -315,7 +315,7 @@ void CurvesView::paintEvent(QPaintEvent *event)
     painter.setRenderHint(QPainter::Antialiasing);
 
     QTransform T = _coordToPixelTransform();
-    double ptSizeCurve = _curvePointSize();
+    double ptSizeCurve = 0.0;
     QPen pen;
     pen.setWidthF(ptSizeCurve);
     painter.setPen(pen);

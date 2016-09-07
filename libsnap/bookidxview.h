@@ -50,12 +50,6 @@ public:
     bool _isEqual(double a, double b, ulong maxD=10,
                   bool isNeighborMethod=true) const;
 
-    double _pointSize() const;
-    QPointF _scaledPointSize();
-    double _curvePointSize();
-    double _hLinePointSize();
-    double _vLinePointSize();
-
 protected:
     virtual QModelIndex moveCursor(CursorAction cursorAction,
                                    Qt::KeyboardModifiers modifiers);

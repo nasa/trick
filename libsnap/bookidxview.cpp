@@ -12,13 +12,12 @@ QTransform BookIdxView::_coordToPixelTransform()
     if ( !_curvesView ) return I;
 
     QRectF M = _mathRect();
-    double q = _pointSize()/2.0;
 
     // Window coords (topleft,bottomright)
-    double u0 = q;
-    double v0 = q;
-    double u1 = viewport()->rect().bottomRight().x()-q;
-    double v1 = viewport()->rect().bottomRight().y()-q;
+    double u0 = 0.0;
+    double v0 = 0.0;
+    double u1 = viewport()->rect().bottomRight().x();
+    double v1 = viewport()->rect().bottomRight().y();
 
     // Math coords
     double x0 = M.topLeft().x();
@@ -65,11 +64,8 @@ QRectF BookIdxView::_mathRect()
 
     if ( W != V ) {
 
-        double q = _pointSize()/2.0;
         V.moveTo(_curvesView->viewport()->mapToGlobal(V.topLeft()));
-        V.adjust(q,q,-q,-q);
         W.moveTo(viewport()->mapToGlobal(W.topLeft()));
-        W.adjust(q,q,-q,-q);
         double pixelWidth  = ( V.width() > 0 )  ? M.width()/V.width()   : 0 ;
         double pixelHeight = ( V.height() > 0 ) ? M.height()/V.height() : 0 ;
         QPointF vw = V.topLeft()-W.topLeft();
@@ -117,8 +113,8 @@ void BookIdxView::_setPlotMathRect(const QRectF& mathRect)
 
     QModelIndex plotIdx = _bookModel()->getIndex(rootIndex(),"Plot");
     QModelIndex plotMathRectIdx = _bookModel()->getDataIndex(plotIdx,
-                                                     "PlotMathRect",
-                                                     "Plot");
+                                                             "PlotMathRect",
+                                                             "Plot");
 
     // Flip if y-axis not directed "up" (this happens with bboxes)
     QRectF M = mathRect;
@@ -127,78 +123,6 @@ void BookIdxView::_setPlotMathRect(const QRectF& mathRect)
     }
 
     model()->setData(plotMathRectIdx, M);
-}
-
-double BookIdxView::_pointSize() const
-{
-    double sz=0;
-    if ( !model() ) return sz;
-
-    QModelIndex plotIdx = _bookModel()->getIndex(rootIndex(),"Plot");
-    QModelIndex pointSizeIdx = _bookModel()->getDataIndex(plotIdx,
-                                                     "PlotPointSize","Plot");
-    sz = model()->data(pointSizeIdx).toDouble();
-    return sz;
-}
-
-QPointF BookIdxView::_scaledPointSize()
-{
-    QPointF ptSizeScaled(0,0); // cosmetic
-
-    double ptSize = _pointSize();
-
-    if ( ptSize > 0.0 ) {
-
-        QTransform T = _coordToPixelTransform();
-
-        QTransform P(
-                    T.m11(),   T.m12(),
-                    T.m21(),   T.m22(),
-                    0, 0);
-
-        ptSizeScaled = P.inverted().map(QPointF(ptSize,ptSize));
-    }
-
-    return ptSizeScaled;
-}
-
-double BookIdxView::_curvePointSize()
-{
-    double curvePtSize = 0.0;
-
-    if ( _pointSize() > 0.0 ) {
-        QPointF scaledPointSize = _scaledPointSize();
-        double v = qAbs(scaledPointSize.x());
-        double h = qAbs(scaledPointSize.y());
-        double k = 0.7;  // by experiment (and not perfect)
-        curvePtSize = k*sqrt(v*v + h*h);
-    }
-
-    return curvePtSize;
-}
-
-double BookIdxView::_hLinePointSize()
-{
-    double ptSize = 0.0;
-
-    if ( _pointSize() > 0.0 ) {
-        QPointF scaledPointSize = _scaledPointSize();
-        ptSize = qAbs(scaledPointSize.y());
-    }
-
-    return ptSize;
-}
-
-double BookIdxView::_vLinePointSize()
-{
-    double ptSize = 0.0;
-
-    if ( _pointSize() > 0.0 ) {
-        QPointF scaledPointSize = _scaledPointSize();
-        ptSize = qAbs(scaledPointSize.x());
-    }
-
-    return ptSize;
 }
 
 QList<double> BookIdxView::_majorXTics(const QModelIndex& plotIdx) const

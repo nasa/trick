@@ -26,8 +26,8 @@ void CornerView::paintEvent(QPaintEvent *event)
 
     QTransform T = _coordToPixelTransform();
 
-    double ptSizeHLine = _hLinePointSize();
-    double ptSizeVLine = _vLinePointSize();
+    double ptSizeHLine = 0.0;
+    double ptSizeVLine = 0.0;
 
     QPen hPen(Qt::black);
     hPen.setWidthF(ptSizeHLine);

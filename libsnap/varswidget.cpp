@@ -169,11 +169,11 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
     _addChild(plotItem, "PlotTitle", "");
     _addChild(plotItem, "PlotMathRect", QRectF());
     _addChild(plotItem, "PlotPresentation", "");
-    _addChild(plotItem, "PlotPointSize", 0.0);
     _addChild(plotItem, "PlotXAxisLabel", xName);
     _addChild(plotItem, "PlotYAxisLabel", yName);
 
     QStandardItem *curvesItem = _addChild(plotItem,"Curves");
+
 
     int rc = _monteModel->rowCount(); // a curve per run, so, rc == nCurves
     QList<QColor> colors = _plotModel->createCurveColors(rc);
