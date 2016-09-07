@@ -348,6 +348,7 @@ install: ${ER7_HEADERS}
 uninstall:
 	rm -f ${PREFIX}/bin/trick-CP
 	rm -f ${PREFIX}/bin/trick-ICG
+	rm -f ${PREFIX}/bin/trick-config
 	rm -f ${PREFIX}/bin/trick-dp
 	rm -f ${PREFIX}/bin/trick-dre
 	rm -f ${PREFIX}/bin/trick-gte
