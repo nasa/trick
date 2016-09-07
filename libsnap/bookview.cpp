@@ -981,7 +981,7 @@ void BookView::_printCoplot(const QRect& R,
 
         if ( curveModel ) {
 
-            double ys = _yScale(curveModel,curveIdx);
+            double ys = _bookModel()->yScale(curveIdx);
 
             QPainterPath* path = new QPainterPath;
             paths << path;
@@ -1077,9 +1077,9 @@ void BookView::_printErrorplot(const QRect& R,
     QList<QPointF> pts;
     double k0 = _bookModel()->getDataDouble(curveIdx0,"CurveYScale","Curve");
     double k1 = _bookModel()->getDataDouble(curveIdx1,"CurveYScale","Curve");
-    double ys0 = _yScale(c0,curveIdx0);
-    double ys1 = (k1/k0)*_yScale(c1,curveIdx0); // curveIdx0 for same unit
-    c0->map();                                  // k1/k0 to correct book ysf
+    double ys0 = _bookModel()->yScale(curveIdx0);
+    double ys1 = (k1/k0)*_bookModel()->yScale(curveIdx1);
+    c0->map();
     c1->map();
     TrickModelIterator i0 = c0->begin();
     TrickModelIterator i1 = c1->begin();

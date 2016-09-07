@@ -18,6 +18,9 @@ public:
     explicit PlotBookModel( MonteModel* monteModel,
                             int rows, int columns, QObject * parent = 0 );
 
+    double xScale(const QModelIndex& curveIdx) const;
+    double yScale(const QModelIndex& curveIdx) const;
+
     QStandardItem* addChild(QStandardItem* parentItem,
                             const QString& childTitle,
                             const QVariant &childValue=QVariant());

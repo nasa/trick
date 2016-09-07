@@ -136,7 +136,6 @@ private:
                      const QTransform &T, QPainter& painter, QPen& pen);
     void _paintLiveCoordArrow(TrickCurveModel *curveModel,
                           const QModelIndex &curveIdx, QPainter &painter);
-    QPixmap _livePixmap;
 
     QList<QModelIndex> _curvesInsideMouseRect(const QRectF& R);
 

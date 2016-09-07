@@ -68,11 +68,6 @@ protected:
     QString _curvesXUnit(const QModelIndex& plotIdx) const;
     QString _curvesUnit(const QModelIndex& plotIdx, QChar axis) const;
 
-    double _xScale(TrickCurveModel *curveModel,
-                   const QModelIndex& curveIdx=QModelIndex()) const;
-    double _yScale(TrickCurveModel *curveModel,
-                   const QModelIndex& curveIdx=QModelIndex()) const;
-
 protected:
     QList<QAbstractItemView*> _childViews;
 

@@ -446,3 +446,77 @@ bool PlotBookModel::isChildIndex(const QModelIndex &pidx,
 
     return isChild;
 }
+
+double PlotBookModel::xScale(const QModelIndex& curveIdx) const
+{
+    double xs = 1.0;
+
+    QString tag = data(curveIdx).toString();
+
+    if ( tag != "Curve" ) {
+        qDebug() << "snap [bad scoobs]: PlotBookModel::xScale() : "
+                    "expected tag \"Curve\", instead tag=" << tag ;
+        exit(-1);
+    }
+
+    TrickCurveModel* curveModel = getTrickCurveModel(curveIdx);
+    if ( !curveModel ) {
+        xs = 0.0;
+        return xs;
+    }
+
+    // Unit scale
+    QModelIndex curveXUnitIdx = getDataIndex(curveIdx, "CurveXUnit","Curve");
+    QString bookXUnit = data(curveXUnitIdx).toString();
+    if ( !bookXUnit.isEmpty() && bookXUnit != "--" ) {
+        QString loggedXUnit = curveModel->x()->unit();
+        xs = Unit::convert(1.0,
+                           loggedXUnit.toAscii().constData(),
+                           bookXUnit.toAscii().constData());
+    }
+
+    // Book model x scale
+    double k = getDataDouble(curveIdx,"CurveXScale","Curve");
+    if ( k != 1.0 ) {
+        xs *= k;
+    }
+
+    return xs;
+}
+
+
+double PlotBookModel::yScale(const QModelIndex& curveIdx) const
+{
+    double ys = 1.0;
+
+    QString tag = data(curveIdx).toString();
+
+    if ( tag != "Curve" ) {
+        qDebug() << "snap [bad scoobs]: PlotBookModel::yScale() : "
+                    "expected tag \"Curve\", instead tag=" << tag ;
+        exit(-1);
+    }
+
+    TrickCurveModel* curveModel = getTrickCurveModel(curveIdx);
+    if ( !curveModel ) {
+        ys = 0.0;
+        return ys;
+    }
+
+    // Unit scale
+    QModelIndex curveYUnitIdx = getDataIndex(curveIdx, "CurveYUnit","Curve");
+    QString bookYUnit = data(curveYUnitIdx).toString();
+    if ( !bookYUnit.isEmpty() && bookYUnit != "--" ) {
+        QString loggedYUnit = curveModel->y()->unit();
+        ys = Unit::convert(1.0,loggedYUnit, bookYUnit);
+    }
+
+    // Book model y scale factor
+    double k = getDataDouble(curveIdx,"CurveYScale","Curve");
+    if ( k != 1.0 ) {
+        ys *= k;
+    }
+
+    return ys;
+}
+

@@ -414,8 +414,8 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
         QPainterPath* path = _curve2path.value(curveModel);
 
         // Scale transform (e.g. for unit axis scaling)
-        double xs = _xScale(curveModel,curveIdx);
-        double ys = _yScale(curveModel,curveIdx);
+        double xs = _bookModel()->xScale(curveIdx);
+        double ys = _bookModel()->yScale(curveIdx);
         QTransform Tscaled(T);
         Tscaled = Tscaled.scale(xs,ys);
         painter.setTransform(Tscaled);
@@ -455,8 +455,8 @@ void CurvesView::_paintLiveCoordArrow(TrickCurveModel* curveModel,
     double liveTime = model()->data(liveIdx).toDouble();
     int i = curveModel->indexAtTime(liveTime);
     TrickModelIterator it = curveModel->begin();
-    double xs = _xScale(curveModel,curveIdx);
-    double ys = _yScale(curveModel,curveIdx);
+    double xs = _bookModel()->xScale(curveIdx);
+    double ys = _bookModel()->yScale(curveIdx);
     QPointF coord(it[i].x()*xs, it[i].y()*ys);
 
     // Init arrow struct
@@ -839,9 +839,8 @@ QPainterPath *CurvesView::_createErrorPath(const QModelIndex &curveIdx0,
 
     double k0 = _bookModel()->getDataDouble(curveIdx0,"CurveYScale","Curve");
     double k1 = _bookModel()->getDataDouble(curveIdx1,"CurveYScale","Curve");
-    double ys0 = _yScale(c0,curveIdx0);
-    double ys1 = (k1/k0)*_yScale(c1,curveIdx0); // curveIdx0 for same unit
-                                                // k1/k0 to correct book ysf
+    double ys0 = _bookModel()->yScale(curveIdx0);
+    double ys1 = (k1/k0)*_bookModel()->yScale(curveIdx1);
 
     if ( c0 != 0 && c1 != 0 ) {
 
@@ -1136,8 +1135,8 @@ QList<QModelIndex> CurvesView::_curvesInsideMouseRect(const QRectF& R)
             it = it[i0];
         }
 
-        double xs = _xScale(curveModel,curveIdx);
-        double ys = _yScale(curveModel,curveIdx);
+        double xs = _bookModel()->xScale(curveIdx);
+        double ys = _bookModel()->yScale(curveIdx);
         QPointF q(xs*it.x(),ys*it.y());
         ++it;
         TrickModelIterator e = curveModel->end();
@@ -1234,8 +1233,8 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
 
                 curveModel->map();
                 TrickModelIterator it = curveModel->begin();
-                double xs = _xScale(curveModel,currentIndex());
-                double ys = _yScale(curveModel,currentIndex());
+                double xs = _bookModel()->xScale(currentIndex());
+                double ys = _bookModel()->yScale(currentIndex());
                 int rc = curveModel->rowCount() ;
                 QModelIndex liveTimeIdx = _bookModel()->getDataIndex(
                                                                QModelIndex(),
@@ -1525,8 +1524,8 @@ QRectF CurvesView::_curveBBox(TrickCurveModel* curveModel,
                               const QModelIndex& curveIdx) const
 {
     QPainterPath* path = _curve2path.value(curveModel);
-    double xScale = _xScale(curveModel,curveIdx);
-    double yScale = _yScale(curveModel,curveIdx);
+    double xScale = _bookModel()->xScale(curveIdx);
+    double yScale = _bookModel()->yScale(curveIdx);
     QRectF pathBox = path->boundingRect();
     double w = pathBox.width();
     double h = pathBox.height();
