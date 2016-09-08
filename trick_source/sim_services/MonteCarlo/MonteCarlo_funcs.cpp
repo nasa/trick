@@ -108,8 +108,8 @@ void Trick::MonteCarlo::set_num_runs(unsigned int in_num_runs) {
         runs.push_back(new Trick::MonteRun(this->num_runs++));
     }
     while ( (this->num_runs > in_num_runs) && !runs.empty() ) {
-        delete runs.front();
-        runs.pop_front();
+        delete runs.back();
+        runs.pop_back();
         --this->num_runs;
     }
     update_actual_num_runs();
