@@ -38,7 +38,12 @@ PyObject * attach_units(PyObject * in_units_obj , PyObject * in_object) {
             std::string file_name ;
             int line_no = 0 ;
             if (NULL != tstate && NULL != tstate->frame) {
+#if PY_VERSION_HEX >= 0x03000000
+                PyObject * temp = PyUnicode_AsEncodedString(tstate->frame->f_code->co_filename, "utf-8", "Error ~");
+                file_name = PyBytes_AS_STRING(temp) ;
+#else
                 file_name = PyString_AsString(tstate->frame->f_code->co_filename);
+#endif
 #if (PY_MAJOR_VERSION == 2 ) && (PY_MINOR_VERSION <= 6)
                 line_no = PyCode_Addr2Line(tstate->frame->f_code, tstate->frame->f_lasti) ;
 #else
