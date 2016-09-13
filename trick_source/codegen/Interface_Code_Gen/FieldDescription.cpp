@@ -43,7 +43,7 @@ FieldDescription::FieldDescription(
   units("1") ,
   is_dashdash(false) ,
   line_no(0) ,
-  io(3) ,
+  io(15) ,
   type_enum_string("TRICK_VOID") ,
   is_bitfield(0) ,
   bitfield_width(0) ,
