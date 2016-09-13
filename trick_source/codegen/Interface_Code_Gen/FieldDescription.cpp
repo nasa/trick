@@ -28,7 +28,7 @@ FieldDescription::FieldDescription(
   virtual_inherited(in_virtual_inherited) ,
   units("--") ,
   line_no(0) ,
-  io(3) ,
+  io(15) ,
   type_enum_string("TRICK_VOID") ,
   is_bitfield(0) ,
   bitfield_width(0) ,
