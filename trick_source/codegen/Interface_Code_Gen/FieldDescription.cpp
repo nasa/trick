@@ -267,7 +267,7 @@ void FieldDescription::parseComment(std::string comment) {
 
     if ( chkpnt_io_found == true ) {
         // If a checkpoint I/O spec is found add it to the io field.
-        io |= (chkpnt_io << 2 ) ;
+        io = (chkpnt_io << 2 ) + ( io & 3 ) ;
     } else {
         // else duplicated the io field to the chkpnt io field.
         io |= (io << 2 ) ;
