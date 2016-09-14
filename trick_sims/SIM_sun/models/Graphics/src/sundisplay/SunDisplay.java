@@ -29,27 +29,34 @@ import javax.swing.JPanel;
  */
 
 class NWUPoint {
-    double n;
-    double w;
-    double u;
+
+    // NWUPoint is a point in North-West-Up coordinates.
+    // We use unit vectors in this coordinate system to point to locations on the
+    // celestial sphere.
+    double n; // Positive to the north.
+    double w; // Positive to the west.
+    double u; // Positive up.
     
-    public NWUPoint (double N, double W, double U) {
-        n = N;
-        w = W;
-        u = U;
-    }
-    
-    public NWUPoint (double az, double el) {
-        n =  Math.cos(az) * Math.cos(el);
-        w = -Math.sin(az) * Math.cos(el);
-        u =                 Math.sin(el);
+    // In the the following constructor, az and el are the azimuth and elevation
+    // of an object on the celestial sphere. az is measured from north, and is
+    // positive clock-wise. el is measured from the horizon, and is positive up.
+
+    public NWUPoint (double heading, double elevation) {
+
+        // Create a NWUPoint from compass heading, and elevation.
+        // Note that compass heading is positive clockwise.
+        n =  Math.cos(heading) * Math.cos(elevation);
+        w = -Math.sin(heading) * Math.cos(elevation);
+        u =                      Math.sin(elevation);
     }
 }
 
 class CameraPoint {
-    double x;
-    double y;
-    double z;
+
+    // CameraPoint is a point in Camera coordinates.
+    double x; // Out along the camera line of sight.
+    double y; // Positive to the left.
+    double z; // Positive up.
     
     public CameraPoint (double X, double Y, double Z) {
         x = X;
@@ -57,25 +64,56 @@ class CameraPoint {
         z = Z;
     }
     
-    public CameraPoint (NWUPoint nwu, double elevation, double azimuth) {  
-        x = -nwu.w * Math.cos(azimuth)                         + nwu.n * -Math.sin(azimuth);
-        y = -nwu.w * Math.cos(elevation) * Math.sin(azimuth)   + nwu.n *  Math.cos(azimuth) * Math.cos(elevation) + nwu.u * -Math.sin(elevation);
-        z = -nwu.w * Math.sin(azimuth)   * Math.sin(elevation) + nwu.n *  Math.cos(azimuth) * Math.sin(elevation) + nwu.u *  Math.cos(elevation);
+    public CameraPoint (NWUPoint nwu, double CameraElevation, double CameraHeading) {  
+
+        // Create a CameraPoint from a NWUPoint.
+        //     CameraHeading - Compass heading of the camera.
+        //     CameraElevation - Elevation of the camera above the horizon.
+
+        // NOTE that NWU is a right-hand coordinate system,
+        // and that compass heading (like on a ship or airplane) is
+        // in the opposite direction of a positive z-axis rotation.
+        // Therefore, our z-axis rotation is the negative of CameraHeading.
+        // CameraElevation is a positive rotation. 
+        double yrot =  CameraElevation; 
+        double zrot = -CameraHeading;
+
+        // |camera_x|   | cos(yrot) 0 -sin(yrot) |   | cos(zrot)  sin(zrot) 0 |   |n|
+        // |camera_y| = |    0      1     0      | * |-sin(zrot)  cos(zrot) 0 | * |w|
+        // |camera_z|   | sin(yrot) 0  cos(yrot) |   |    0          0      1 |   |u|
+        //
+        //              |  cos(zrot)* cos(yrot)  cos(yrot)* sin(zrot) -sin(yrot) |   |n|
+        //            = | -sin(zrot)             cos(zrot)             0         | * |w|
+        //              |  cos(zrot)* sin(yrot)  sin(zrot)* sin(yrot)  cos(yrot) |   |u|
+
+        x =  nwu.n *  Math.cos(zrot) * Math.cos(yrot) + nwu.w * Math.cos(yrot) * Math.sin(zrot) + nwu.u * -Math.sin(yrot);
+        y =  nwu.n * -Math.sin(zrot)                  + nwu.w * Math.cos(zrot);
+        z =  nwu.n *  Math.cos(zrot) * Math.sin(yrot) + nwu.w * Math.sin(zrot) * Math.sin(yrot) + nwu.u *  Math.cos(yrot);
     }
 }
 
 class ViewPoint {
-    int x;
-    int y;
+
+    // Viewpoint is a point in JPanel-Graphics2D coordinates. The origin of the
+    // JPanel-Graphics2D coordinates is the upper left hand corner of the JPanel.
+    int x; // Positive to the right.
+    int y; // Positive down.
     
     public ViewPoint (int X, int Y) {
         x = X;
         y = Y;
     }
     
-    public ViewPoint (CameraPoint cp, double d ) {
-        x = (int)(d/2 * (1.0 + cp.x));
-        y = (int)(d/2 * (1.0 - cp.z));
+    public ViewPoint (CameraPoint cp, double origin_x, double origin_y, double scale) {
+
+    // Transform point in Camera Coordinates to ViewPoint (Jpanel-Graphics2D) Coordinates
+    //
+    //                                              |camera_x|
+    // |view_x| = |origin_x| + scale * | 0 -1  0| * |camera_y|
+    // |view_y| = |origin_y|           | 0  0 -1|   |camera_z|
+
+        x = (int)(origin_x + scale * -cp.y);
+        y = (int)(origin_y + scale * -cp.z);
     }
 }
 
@@ -108,7 +146,6 @@ class SkyMap extends JPanel {
     Color skyColor;
     Color groundColor;
     Color textColor;
-    
     
     public SkyMap() {
         sun_azimuth = 0.0;
@@ -167,14 +204,14 @@ class SkyMap extends JPanel {
         double sun_az_rad = Math.toRadians(sun_azimuth);
         double sun_el_rad = Math.toRadians(sun_elevation);
 
-        ViewPoint centerPoint = new ViewPoint( new CameraPoint( 0.0, 0.0, 0.0 ), d );
+        ViewPoint centerPoint = new ViewPoint( new CameraPoint( 0.0, 0.0, 0.0 ), d/2, d/2, d/2 );
         
-        ViewPoint p1 = new ViewPoint( new CameraPoint( new NWUPoint( sun_az_rad, 0.0), obs_el_rad, obs_az_rad), d );
+        ViewPoint p1 = new ViewPoint( new CameraPoint( new NWUPoint( sun_az_rad, 0.0), obs_el_rad, obs_az_rad), d/2, d/2, d/2 );
         
-        ViewPoint p2 = new ViewPoint( new CameraPoint( new NWUPoint( Math.toRadians(  0.0), 0.0), obs_el_rad, obs_az_rad), d );
-        ViewPoint p3 = new ViewPoint( new CameraPoint( new NWUPoint( Math.toRadians(180.0), 0.0), obs_el_rad, obs_az_rad), d );
-        ViewPoint p4 = new ViewPoint( new CameraPoint( new NWUPoint( Math.toRadians( 90.0), 0.0), obs_el_rad, obs_az_rad), d );
-        ViewPoint p5 = new ViewPoint( new CameraPoint( new NWUPoint( Math.toRadians(270.0), 0.0), obs_el_rad, obs_az_rad), d );
+        ViewPoint p2 = new ViewPoint( new CameraPoint( new NWUPoint( Math.toRadians(  0.0), 0.0), obs_el_rad, obs_az_rad), d/2, d/2, d/2 );
+        ViewPoint p3 = new ViewPoint( new CameraPoint( new NWUPoint( Math.toRadians(180.0), 0.0), obs_el_rad, obs_az_rad), d/2, d/2, d/2 );
+        ViewPoint p4 = new ViewPoint( new CameraPoint( new NWUPoint( Math.toRadians( 90.0), 0.0), obs_el_rad, obs_az_rad), d/2, d/2, d/2 );
+        ViewPoint p5 = new ViewPoint( new CameraPoint( new NWUPoint( Math.toRadians(270.0), 0.0), obs_el_rad, obs_az_rad), d/2, d/2, d/2 );
 
         g2d.setPaint(Color.WHITE);
         g2d.drawString("North", p2.x, p2.y);
@@ -190,7 +227,7 @@ class SkyMap extends JPanel {
         g2d.drawLine(centerPoint.x, centerPoint.y, p1.x, p1.y);
         
         // Draw the Sun.
-        ViewPoint sun_point = new ViewPoint( new CameraPoint( new NWUPoint( sun_az_rad, sun_el_rad), obs_el_rad, obs_az_rad), d );
+        ViewPoint sun_point = new ViewPoint( new CameraPoint( new NWUPoint( sun_az_rad, sun_el_rad), obs_el_rad, obs_az_rad), d/2, d/2, d/2 );
         g2d.setPaint(sunColor);
         drawCenteredCircle(g2d, sun_point.x, sun_point.y, 20);
         
@@ -258,7 +295,7 @@ public class SunDisplay extends JFrame implements ActionListener {
         JButton b3 = new JButton("\u25ce");
         b3.addActionListener(this);
         b3.setActionCommand("reset");
-        b3.setToolTipText("Reset");
+        b3.setToolTipText("Camera Reset");
         buttonPane.add(b3);
         
         JButton b4 = new JButton("\u25b2");
