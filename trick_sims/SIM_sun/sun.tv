@@ -1,85 +1,67 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <trickView>
-    <cyclePeriod>1.0</cyclePeriod>
+    <cyclePeriod>0.5</cyclePeriod>
+    <variable>
+        <name>sun_predictor.sun.observer_latitude</name>
+        <tvDouble>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:double">29.55298</value>
+            <format>Decimal</format>
+        </tvDouble>
+        <state>Valid</state>
+        <units>degree</units>
+    </variable>
+    <variable>
+        <name>sun_predictor.sun.observer_longitude</name>
+        <tvDouble>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:double">95.09379</value>
+            <format>Decimal</format>
+        </tvDouble>
+        <state>Valid</state>
+        <units>degree</units>
+    </variable>
+    <variable>
+        <name>sun_predictor.sun.JD</name>
+        <tvDouble>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:double">2457640.489930556</value>
+            <format>Decimal</format>
+        </tvDouble>
+        <state>Valid</state>
+        <units>day</units>
+    </variable>
+    <variable>
+        <name>sun_predictor.sun.right_ascension</name>
+        <tvDouble>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:double">167.8068202634749</value>
+            <format>Decimal</format>
+        </tvDouble>
+        <state>Valid</state>
+        <units>degree</units>
+    </variable>
+    <variable>
+        <name>sun_predictor.sun.declination</name>
+        <tvDouble>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:double">5.231987781012053</value>
+            <format>Decimal</format>
+        </tvDouble>
+        <state>Valid</state>
+        <units>degree</units>
+    </variable>
     <variable>
         <name>sun_predictor.sun.solar_azimuth</name>
         <tvDouble>
-            <value>351.5715817867592</value>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:double">270.6069780426451</value>
             <format>Decimal</format>
         </tvDouble>
-        <units>d</units>
+        <state>Valid</state>
+        <units>degree</units>
     </variable>
-    <stripChart>
-        <domainVariable>Simulation Time (seconds)</domainVariable>
-        <plottedVariable>sun_predictor.sun.solar_azimuth</plottedVariable>
-        <mode>All</mode>
-        <fixedAutoRange>30.0</fixedAutoRange>
-        <areLinesVisible>true</areLinesVisible>
-        <arePointsVisible>false</arePointsVisible>
-        <isLegendVisible>true</isLegendVisible>
-        <areSettingsVisible>true</areSettingsVisible>
-        <isAntiAliased>false</isAntiAliased>
-        <isBackgroundSet>false</isBackgroundSet>
-        <backgroundRgb>0</backgroundRgb>
-        <title>
-            <text>Strip Chart</text>
-            <font>
-                <name>Tahoma</name>
-                <style>1</style>
-                <size>20</size>
-            </font>
-            <rgb>-16777216</rgb>
-        </title>
-        <isHorizontal>false</isHorizontal>
-        <outlineRgb>-16777216</outlineRgb>
-        <plotBackgroundRgb>-1</plotBackgroundRgb>
-        <domainAxis>
-            <label>Simulation Time (seconds)</label>
-            <font>
-                <name>Tahoma</name>
-                <style>1</style>
-                <size>14</size>
-            </font>
-            <rgb>-12566464</rgb>
-            <areTickMarksVisible>true</areTickMarksVisible>
-            <areTickLabelsVisible>true</areTickLabelsVisible>
-            <tickLabelFont>
-                <name>Tahoma</name>
-                <style>0</style>
-                <size>12</size>
-            </tickLabelFont>
-            <tickLabelRgb>-12566464</tickLabelRgb>
-            <range>
-                <lower>18.45</lower>
-                <upper>52.55</upper>
-            </range>
-        </domainAxis>
-        <rangeAxis>
-            <label>Value</label>
-            <font>
-                <name>Tahoma</name>
-                <style>1</style>
-                <size>14</size>
-            </font>
-            <rgb>-12566464</rgb>
-            <areTickMarksVisible>true</areTickMarksVisible>
-            <areTickLabelsVisible>true</areTickLabelsVisible>
-            <tickLabelFont>
-                <name>Tahoma</name>
-                <style>0</style>
-                <size>12</size>
-            </tickLabelFont>
-            <tickLabelRgb>-12566464</tickLabelRgb>
-            <range>
-                <lower>351.3839787876403</lower>
-                <upper>351.58051526290774</upper>
-            </range>
-        </rangeAxis>
-        <bounds>
-            <x>406</x>
-            <y>214</y>
-            <width>684</width>
-            <height>571</height>
-        </bounds>
-    </stripChart>
+    <variable>
+        <name>sun_predictor.sun.solar_elevation</name>
+        <tvDouble>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:double">9.581945411050764</value>
+            <format>Decimal</format>
+        </tvDouble>
+        <state>Valid</state>
+        <units>degree</units>
+    </variable>
 </trickView>
