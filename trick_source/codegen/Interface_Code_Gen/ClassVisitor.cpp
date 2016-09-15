@@ -155,7 +155,6 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
          !hsd.isPathInUserDir(rp)  ||
           hsd.isPathInExclude(rp) ||
           hsd.isPathInICGExclude(rp) ||
-          hsd.isPathInExtLib(rp) ||
           cs.hasICGNo(header_file_name) ) {
         return false ;
     }

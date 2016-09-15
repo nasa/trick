@@ -280,8 +280,12 @@ void PrintAttributes::printClass( ClassValues * cv ) {
                 }
 
                 // if we are successful in opening the map file
-                if ( isFileIncluded( cv->getFileName())) {
-                     printer->printClassMap(class_map_outfile, cv) ;
+                char * rp = almostRealPath(cv->getFileName().c_str()) ;
+                if ( rp != NULL ) {
+                    if ( isFileIncluded( cv->getFileName()) or hsd.isPathInExtLib(rp)) {
+                         printer->printClassMap(class_map_outfile, cv) ;
+                    }
+                    free(rp) ;
                 }
             }
         }
