@@ -26,6 +26,7 @@ static std::map< std::string, std::string> init_map_old_to_ud() {
     init_map["Wh"] = "(W*h)" ;
     init_map["kWh"] = "(kW*h)" ;
     init_map["gal"] = "gallon" ;
+    init_map["dB"] = "1" ;
     init_map["one"] = "1" ;
     init_map["cnt"] = "count" ;
     init_map["--"] = "1" ;
