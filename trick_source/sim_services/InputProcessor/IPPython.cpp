@@ -103,6 +103,7 @@ int Trick::IPPython::init() {
      "import struct\n"
      "import binascii\n"
      "sys.path.append(os.getcwd())\n"
+     "sys.path += map(str.strip, os.environ['TRICK_PYTHON_PATH'].split(':'))\n"
      "import trick\n"
      "sys.path.append(os.getcwd() + \"/Modified_data\")\n"
     ) ;
