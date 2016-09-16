@@ -62,6 +62,8 @@ class FieldDescription : public ConstructValues {
         std::string getEnumString() ;
         void setBitField( bool yes_no ) ;
         void setBitFieldWidth( unsigned int len ) ;
+        void setBitFieldStart( unsigned int len ) ;
+        void setBitFieldByteOffset( unsigned int len ) ;
         unsigned int getBitFieldWidth() ;
         unsigned int getBitFieldStart() ;
         unsigned int getBitFieldByteOffset() ;

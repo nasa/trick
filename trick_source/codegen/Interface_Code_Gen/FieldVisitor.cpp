@@ -215,6 +215,9 @@ bool FieldVisitor::VisitFieldDecl( clang::FieldDecl *field ) {
     if ( field->isBitField()) {
         fdes->setBitField(true) ;
         fdes->setBitFieldWidth(field->getBitWidthValue(field->getASTContext())) ;
+        unsigned int field_offset_bits = field->getASTContext().getFieldOffset(field) + fdes->getBaseClassOffset() * 8 ;
+        fdes->setBitFieldStart( 32 - (field_offset_bits % 32) - fdes->getBitFieldWidth()) ;
+        fdes->setBitFieldByteOffset((field_offset_bits / 32) * 4 ) ;
     }
 
     if ( debug_level >= 3 ) {

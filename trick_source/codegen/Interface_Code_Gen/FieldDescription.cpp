@@ -443,6 +443,14 @@ void FieldDescription::setBitFieldWidth(unsigned int len) {
     bitfield_width = len ;
 }
 
+void FieldDescription::setBitFieldStart(unsigned int sb) {
+    bitfield_start_bit = sb ;
+}
+
+void FieldDescription::setBitFieldByteOffset(unsigned int wo) {
+    bitfield_word_offset = wo ;
+}
+
 unsigned int FieldDescription::getBitFieldWidth() {
     return bitfield_width ;
 }
