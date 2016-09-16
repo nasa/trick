@@ -38,7 +38,8 @@ void ClassValues::addFieldDescription(FieldDescription * in_fdes) {
     field_name_to_info_map[in_fdes->getName()] = in_fdes ;
 }
 
-void ClassValues::addInheritedFieldDescriptions(std::vector<FieldDescription *> in_fdes, unsigned int class_offset ) {
+void ClassValues::addInheritedFieldDescriptions(std::vector<FieldDescription *> in_fdes,
+  unsigned int class_offset, bool virtual_inherited ) {
     // Make a copy of all of the FieldDescription variables.
     field_descripts.insert(field_descripts.end(), in_fdes.begin() , in_fdes.end()) ;
 
@@ -46,7 +47,9 @@ void ClassValues::addInheritedFieldDescriptions(std::vector<FieldDescription *> 
     // Loop through the incoming inherited variable names
     for ( fdit = in_fdes.begin() ; fdit != in_fdes.end() ; fdit++ ) {
 
+        (*fdit)->setBaseClassOffset( class_offset ) ;
         (*fdit)->setInherited( true ) ;
+        (*fdit)->setVirtualInherited( virtual_inherited ) ;
         // Adds the class offset to the field offset giving the total offset to the inherited variable
         // The offset is stored in bits so multiply class_offset by 8.
         (*fdit)->addOffset( class_offset * 8 ) ;

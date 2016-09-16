@@ -36,7 +36,8 @@ class ClassValues : public ConstructValues {
 
         /** Appends a vector of fields to field_descripts.
             A vector comes from adding all inherited fields at once */
-        void addInheritedFieldDescriptions(std::vector<FieldDescription *>, unsigned int class_offset) ;
+        void addInheritedFieldDescriptions(std::vector<FieldDescription *>,
+         unsigned int class_offset, bool virtual_inherited) ;
 
         /** Gets the list of fields in this class */
         std::vector<FieldDescription *> getFieldDescription() ;

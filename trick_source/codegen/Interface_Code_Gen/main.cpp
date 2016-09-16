@@ -43,6 +43,10 @@ llvm::cl::list< std::string > input_file_names(llvm::cl::Positional, llvm::cl::d
 llvm::cl::list< std::string > sink(llvm::cl::Sink, llvm::cl::ZeroOrMore) ;
 llvm::cl::list< std::string > pre_compiled_headers("include", llvm::cl::Prefix, llvm::cl::desc("pre-compiled headers"),
  llvm::cl::value_desc("pre_compiled_headers")) ;
+
+llvm::cl::opt< bool > no_offset_of ("n", llvm::cl::desc("Do not print the offsetof calculations in attributes")) ;
+llvm::cl::alias no_offset_of_alias ("no-offset-of" , llvm::cl::desc("Alias for -n") , llvm::cl::aliasopt(no_offset_of)) ;
+
 //llvm::cl::opt< bool > show_units ("u", llvm::cl::desc("List recognized units")) ;
 
 void ICG_version() {

@@ -39,6 +39,7 @@ class FieldDescription : public ConstructValues {
         /* Accessor functions to the data of the class */
         std::string getContainerClass() ;
         void setContainerClass( std::string in_name ) ;
+        void setBaseClassOffset( unsigned int in_offset ) ;
         unsigned int getBaseClassOffset() ;
         void setFieldOffset( unsigned int in_offset ) ;
         unsigned int getFieldOffset() ;
@@ -80,6 +81,8 @@ class FieldDescription : public ConstructValues {
         bool isStatic() ;
         void setInherited( bool yes_no ) ;
         bool isInherited() ;
+        void setVirtualInherited( bool yes_no ) ;
+        bool isVirtualInherited() ;
         void setAccess( clang::AccessSpecifier in_val ) ;
         clang::AccessSpecifier getAccess() ;
         void addOffset( unsigned int offset ) ;
@@ -96,6 +99,10 @@ class FieldDescription : public ConstructValues {
 
         /** Name of the class this field is in */
         std::string container_class ;
+
+        /** This is copied from the current class we are processing.  It is the class offset to
+            be added to field offset */
+        unsigned int base_class_offset ;
 
         /** The total offset to the current field in bits */
         unsigned int field_offset ;
@@ -150,6 +157,9 @@ class FieldDescription : public ConstructValues {
 
         /** is this field inherited from parent class */
         bool inherited ;
+
+        /** is this field virtual inherited from parent class */
+        bool virtual_inherited ;
 
         /** is an enumeration  */
         bool is_enum ;

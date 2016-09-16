@@ -6,10 +6,14 @@
 #include <string.h>
 #include <iomanip>
 
+#include "llvm/Support/CommandLine.h"
+
 #include "PrintFileContentsBase.hh"
 #include "FieldDescription.hh"
 #include "ClassValues.hh"
 #include "EnumValues.hh"
+
+extern llvm::cl::opt< bool > no_offset_of ;
 
 PrintFileContentsBase::PrintFileContentsBase() {}
 
@@ -74,7 +78,19 @@ void PrintFileContentsBase::print_close_extern_c(std::ofstream & outfile) {
 */
 bool PrintFileContentsBase::determinePrintAttr( ClassValues * c , FieldDescription * fdes ) {
     if ( fdes->getTypeName().compare("void") and fdes->getIO() != 0 and fdes->getEnumString().compare("TRICK_VOID")) {
-        if ( fdes->isStatic() ) {
+        if ( no_offset_of ) {
+            if ( fdes->isStatic() ) {
+                if ( fdes->isInherited() ) {
+                    return ((c->getHasInitAttrFriend() && fdes->getAccess() == clang::AS_protected)
+                         || (fdes->getAccess() == clang::AS_public)) ;
+                } else {
+                    return (c->getHasInitAttrFriend()
+                        || (fdes->getAccess() == clang::AS_public)) ;
+                }
+            } else {
+                return true ;
+            }
+        } else {
             if ( fdes->isInherited() ) {
                 return ((c->getHasInitAttrFriend() && fdes->getAccess() == clang::AS_protected)
                      || (fdes->getAccess() == clang::AS_public)) ;
@@ -82,8 +98,6 @@ bool PrintFileContentsBase::determinePrintAttr( ClassValues * c , FieldDescripti
                 return (c->getHasInitAttrFriend()
                     || (fdes->getAccess() == clang::AS_public)) ;
             }
-        } else {
-            return true ;
         }
     }
     return false ;
