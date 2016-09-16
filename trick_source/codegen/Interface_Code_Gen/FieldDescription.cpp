@@ -37,9 +37,11 @@ ut_system * FieldDescription::u_system = get_u_system() ;
 FieldDescription::FieldDescription(
  std::string in_container_class ) :
   container_class(in_container_class) ,
+  base_class_offset(0) ,
   field_offset(0) ,
   field_width(0) ,
   inherited(false) ,
+  virtual_inherited(false) ,
   units("1") ,
   is_dashdash(false) ,
   line_no(0) ,
@@ -314,6 +316,14 @@ void FieldDescription::setContainerClass(std::string in_name ) {
     container_class = in_name ;
 }
 
+void FieldDescription::setBaseClassOffset(unsigned int in_offset) {
+    base_class_offset = in_offset ;
+}
+
+unsigned int FieldDescription::getBaseClassOffset() {
+    return base_class_offset ;
+}
+
 void FieldDescription::setFieldOffset(unsigned int in_offset) {
     field_offset = in_offset ;
 }
@@ -391,6 +401,14 @@ void FieldDescription::setInherited(bool in_inherited) {
 
 bool FieldDescription::isInherited() {
     return inherited ;
+}
+
+void FieldDescription::setVirtualInherited(bool in_inherited) {
+    virtual_inherited = in_inherited ;
+}
+
+bool FieldDescription::isVirtualInherited() {
+    return virtual_inherited ;
 }
 
 void FieldDescription::setAccess( clang::AccessSpecifier in_val ) {

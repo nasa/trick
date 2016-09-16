@@ -9,6 +9,8 @@
 #include "EnumValues.hh"
 #include "Utilities.hh"
 
+extern llvm::cl::opt< bool > no_offset_of ;
+
 PrintFileContents10::PrintFileContents10() {}
 
 /** Prints the io_src header information */
@@ -157,14 +159,63 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ofstream & outfile ,
  ClassValues * cv , unsigned int index ) {
 
     // For static variables replace the offset field with the address of the static variable
-    if ( fdes->isStatic() ) {
-        outfile << "    attr" ;
-        printNamespaces( outfile, cv , "__" ) ;
-        printContainerClasses( outfile, cv , "__" ) ;
-        outfile << cv->getMangledTypeName() << "[" << index << "].offset = (long)(void *)&" ;
-        printNamespaces( outfile, cv , "::" ) ;
-        printContainerClasses( outfile, cv , "::" ) ;
-        outfile << cv->getName() << "::" << fdes->getName() << " ;\n" ;
+    if ( no_offset_of ) {
+        if ( fdes->isStatic() ) {
+            outfile << "    attr" ;
+            printNamespaces( outfile, cv , "__" ) ;
+            printContainerClasses( outfile, cv , "__" ) ;
+            outfile << cv->getMangledTypeName() << "[" << index << "].offset = (long)(void *)&" ;
+            printNamespaces( outfile, cv , "::" ) ;
+            printContainerClasses( outfile, cv , "::" ) ;
+            outfile << cv->getName() << "::" << fdes->getName() << " ;\n" ;
+        }
+    } else {
+        if ( fdes->isStatic() ) {
+            // print a special offsetof statement if this is a static
+            outfile << "    attr" ;
+            printNamespaces( outfile, cv , "__" ) ;
+            printContainerClasses( outfile, cv , "__" ) ;
+            outfile << cv->getMangledTypeName() << "[" << index << "].offset = (long)(void *)&" ;
+            printNamespaces( outfile, cv , "::" ) ;
+            printContainerClasses( outfile, cv , "::" ) ;
+            outfile << cv->getName() << "::" << fdes->getName() << " ;\n" ;
+        } else if ( fdes->isBitField() ) {
+            // else if this is a bitfield
+            outfile << "    attr" ;
+            printNamespaces( outfile, cv , "__" ) ;
+            printContainerClasses( outfile, cv , "__" ) ;
+            outfile << cv->getMangledTypeName() << "[" << index << "].offset = " ;
+            outfile << fdes->getBitFieldByteOffset() << " ;\n" ;
+            // All bitfield offsets are in terms of unsigned ints.
+            outfile << "    attr" ;
+            printNamespaces( outfile, cv , "__" ) ;
+            printContainerClasses( outfile, cv , "__" ) ;
+            outfile << cv->getMangledTypeName() << "[" << index << "].size = sizeof(unsigned int) ;\n" ;
+        } else if ( fdes->isVirtualInherited() ) {
+            // else if we have a virtually inherited class.
+            outfile << "    attr" ;
+            printNamespaces( outfile, cv , "__" ) ;
+            printContainerClasses( outfile, cv , "__" ) ;
+            outfile << cv->getMangledTypeName() << "[" << index << "].offset = " << fdes->getBaseClassOffset() ;
+            outfile << " + offsetof(" ;
+            outfile << fdes->getContainerClass() << "," << fdes->getName() << ") ;\n" ;
+        } else if ( cv->getMangledTypeName() != cv->getName() ) {
+            // else if we have a template type where mangled_type_name is different then name.
+            outfile << "    attr" ;
+            printNamespaces( outfile, cv , "__" ) ;
+            printContainerClasses( outfile, cv , "__" ) ;
+            outfile << cv->getMangledTypeName() << "[" << index << "].offset = offsetof(" ;
+            outfile << cv->getMangledTypeName() << "," << fdes->getName() << ") ;\n" ;
+        } else {
+            // else print an offsetof statement if this is not a special case
+            outfile << "    attr" ;
+            printNamespaces( outfile, cv , "__" ) ;
+            printContainerClasses( outfile, cv , "__" ) ;
+            outfile << cv->getMangledTypeName() << "[" << index << "].offset = offsetof(" ;
+            printNamespaces( outfile, cv , "::" ) ;
+            printContainerClasses( outfile, cv , "::" ) ;
+            outfile << cv->getMangledTypeName() << "," << fdes->getName() << ") ;\n" ;
+        }
     }
 
     if ( fdes->isSTL()) {
