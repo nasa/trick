@@ -90,6 +90,7 @@ sub gte (@) {
     $def{"TRICK_ICG_NOCOMMENT"} = "" ;
     $def{"TRICK_ICG_EXCLUDE"} = "" ;
     $def{"TRICK_SWIG_EXCLUDE"} = "" ;
+    $def{"TRICK_PYTHON_PATH"} = "" ;
     $def{"TRICK_LDFLAGS"} = "" ;
     $def{"TRICK_MAKE"} = "" ;
     $def{"TRICK_PATH"} = "$trick_home/bin" ;
