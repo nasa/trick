@@ -1,29 +1,49 @@
-# This file can be used by a project to create a library containing the io_* and py_* code that
-# Trick would normally generate during the simulation build process. Sims can then link against this
-# library, reducing compilation time.
+# This file can be used to create a library containing the io_* and py_* code that Trick would
+# normally generate during the simulation build process. Sims can then link against this library,
+# reducing compilation time.
 #
-# To use it, your project should contain a directory that includes the following files:
+# To use it, create a directory that includes a file named S_source.hh that includes all header
+# files for which you want io_* and py_* code generated. This is not the S_source.hh that Trick
+# generates during compilation, but Trick's tools assume this name for now, so you have to use it.
+# Then, in that directory, run the following command:
 #
-# 1. S_source.hh
-#    This file should include all header files for which you want io_* and py_* code generated.
-#    This is not the file that Trick generates during compilation, but Trick's tools assume this
-#    name, so you have to use it.
+# make -f $(TRICK_HOME)/share/trick/makefiles/trickify.mk
 #
-# 2. Makefile
-#    You can name this file whatever you want, but it should include this makefile (the one you're
-#    reading right now) and define the following variables:
+# You can, of course, call this from your own makefile. But remember to switch to the directory
+# containing your S_source.hh first using make's -C option if necessary. For instance:
 #
-#    LIBRARY_NAME
-#    This determines the name of the generated library file. It is prepended with lib and appended
-#    with _trick.a. Thus, the final name is lib$(LIBRARY_NAME)_trick.a
+# all:
+# 	$(MAKE) -C <directory> -f $(TRICK_HOME)/share/trick/makefiles/trickify.mk
 #
-#    INCLUDE_FLAGS
-#    Define this variable to specify the paths to the header files included by your S_source.hh.
-#    For instance: -I$(HOME)/myproject/foo/include -I$(HOME)/myproject/bar/include
+# There are a number of variables you can export from your own makefile or define on the
+# command line when calling make:
 #
-# Then, run make in that directory, and the library will be generated.
+# TRICKIFY_CXX_FLAGS (required)
+# Define this variable to specify compiler flags. Most importantly, include the paths to the header
+# files included by your S_source.hh.
+# For instance: -I$(HOME)/myproject/foo/include -I$(HOME)/myproject/bar/include
 #
-# Example Makefile:
+# TRICKIFY_LIB_NAME (optional)
+# The name of the generated library file. The default value is libtrickified.a. You should
+# choose something more meaningful, like libmyproject_trick.a.
+#
+# TRICKIFY_PTYON_DIR (optional)
+# The directory into which generated Python modules are placed. The default value is python (in
+# the current directory).
+#
+# -----------------------------------------------------------------------------
+#
+# EXAMPLE:
+#
+# For a project with the following structure:
+#
+# $(HOME)/potato/
+#     include/
+#     trickified/
+#         S_source.hh
+#         Makefile
+#
+# The following Makefile would be appropriate:
 #
 # ifndef TRICK_HOME
 #     $(error TRICK_HOME must be set)
@@ -35,47 +55,55 @@
 #     $(error This makefile requires at least Trick 17.1)
 # endif
 #
-# INCLUDE_FLAGS := -I$(HOME)/potato/include
-# LIBRARY_NAME  := potato
+# export TRICKIFY_CXX_FLAGS := -I$(HOME)/potato/include
+# export TRICKIFY_LIB_NAME  := libpotato_trick.a
 #
-# include $(TRICKIFY)
+# all:
+# 	$(MAKE) -f $(TRICKIFY)
+#
+# clean:
+# 	rm -rf $(TRICKIFY_LIB_NAME) build python
+#
+# -----------------------------------------------------------------------------
+#
+# See github.com/nasa/trick/wiki/Trickified-Project-Libraries for more information.
 
-ifndef LIBRARY_NAME
-    $(error LIBRARY_NAME must be set)
+ifndef TRICKIFY_CXX_FLAGS
+    $(error TRICKIFY_CXX_FLAGS must be set)
 endif
 
-ifndef INCLUDE_FLAGS
-    $(error INCLUDE_FLAGS must be set)
-endif
-
+TRICKIFY_LIB_NAME ?= libtrickified.a
+TRICKIFY_PYTHON_DIR ?= python
 TRICK_HOME := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/../../..)
-OBJECTS    := $(shell find . -name "*.i")
-OBJECTS    := $(join $(dir $(OBJECTS)),$(patsubst %.i,py_%.cpp,$(notdir $(OBJECTS))))
-OBJECTS    += $(shell find . -name "*.cpp")
-OBJECTS    := $(OBJECTS:.cpp=.o)
-LIB        := lib$(LIBRARY_NAME)_trick.a
+
+ifneq ($(wildcard build),)
+    OBJECTS := $(shell find build -name "*.i")
+    OBJECTS := $(join $(dir $(OBJECTS)),$(patsubst %.i,py_%.cpp,$(notdir $(OBJECTS))))
+    OBJECTS += $(shell find build -name "*.cpp")
+    OBJECTS := $(OBJECTS:.cpp=.o)
+endif
 
 include $(TRICK_HOME)/share/trick/makefiles/Makefile.common
-TRICK_CFLAGS   += $(INCLUDE_FLAGS)
-TRICK_CXXFLAGS += $(INCLUDE_FLAGS)
+TRICK_CFLAGS   += $(TRICKIFY_CXX_FLAGS)
+TRICK_CXXFLAGS += $(TRICKIFY_CXX_FLAGS)
 
 # Ensure we can process all headers
 undefine TRICK_EXT_LIB_DIRS
 
 # While it would be nice to invoke the implicit archiving rule via a target like:
 #
-# $(LIB): $(LIB)($(OBJECTS))
+# $(TRICKIFY_LIB_NAME): $(TRICKIFY_LIB_NAME)($(OBJECTS))
 #
 # ar is not thread-safe, and, thus, we would have to disable parallelism via
 # .NOTPARALLEL (a file-wide flag), significantly slowing the build process.
 
-$(LIB): $(OBJECTS)
+$(TRICKIFY_LIB_NAME): $(OBJECTS) | $(dir $(TRICKIFY_LIB_NAME))
 	@ar rsc $@ $?
 	$(info Built $@)
 
 # $(OBJECTS) is meant to contain all of the py_* and io_* object file names. We can't construct
 # those until we run ICG and convert_swig. But we can't run the rules for ICG and convert_swig
-# before $(OBJECTS) is expanded because it is a prerequiste of $(LIB), and prerequisites are always
+# before $(OBJECTS) is expanded because it is a prerequiste of $(TRICKIFY_LIB_NAME), and prerequisites are always
 # immediately expanded. Therefore, when make processes this file (for the first time after a clean),
 # $(OBJECTS) is empty, because the find will be executed before ICG and convert_swig have created
 # any files. What we really want is to run ICG and convert_swig before $(OBJECTS) is expanded.
@@ -91,7 +119,7 @@ $(LIB): $(OBJECTS)
 # The file that fits our purpose is build/Makefile_ICG, which is only updated when convert_swig
 # detects header changes. By including and making a rule for that file, we can run ICG and
 # convert_swig, reexecute this makefile if necessary, and update $(OBJECTS) before running the rule
-# for $(LIB). To force this rule to always execute, we add a prerequisite on a non-existent file, a
+# for $(TRICKIFY_LIB_NAME). To force this rule to always execute, we add a prerequisite on a non-existent file, a
 # role the icg rule can conveniently fill. Note that the normal methods of using :: or .PHONY do not
 # work on rules for making makefiles, as they would cause infinite reexecution.
 #
@@ -110,10 +138,10 @@ $(LIB): $(OBJECTS)
 # 11. since no included makefiles have changed, make continues processing the top makefile (this
 #     file)
 # 12. $(OBJECTS) now contains an updated list of files
-# 13. $(LIB) can be executed with the correct prerequisites
+# 13. $(TRICKIFY_LIB_NAME) can be executed with the correct prerequisites
 #
 # Note that build/Makefile_ICG is included after our main target since it contains targets itself,
-# and we want make without an argument to build $(LIB).
+# and we want make without an argument to build $(TRICKIFY_LIB_NAME).
 #
 # Note also that this executes ICG and convert_swig every time this file is processed, regardless
 # of the target. Wasteful, but acceptable.
@@ -127,13 +155,13 @@ build/Makefile_ICG: icg
 icg:
 	@$(TRICK_HOME)/bin/trick-ICG $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) S_source.hh
 
-clean:
-	@rm -rf $(LIB) build
+$(dir $(TRICKIFY_LIB_NAME)) $(TRICKIFY_PYTHON_DIR):
+	@mkdir -p $@
 
-py_%.cpp: %.i
+py_%.cpp: %.i | $(TRICKIFY_PYTHON_DIR)
 	$(info SWIGing $<)
-	@$(SWIG) $(TRICK_INCLUDE) $(TRICK_DEFINES) $(TRICK_VERSIONS) -c++ -python -includeall -ignoremissing -w201,362,389,451 -o $@ $<
+	@$(SWIG) $(TRICK_INCLUDE) $(TRICK_DEFINES) $(TRICK_VERSIONS) -c++ -python -includeall -ignoremissing -w201,362,389,451 -outdir $(TRICKIFY_PYTHON_DIR) -o $@ $<
 
 %.o: %.cpp
 	$(info Compiling $<)
-	@$(CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(PYTHON_INCLUDES) -std=c++11 -Wno-invalid-offsetof -Wno-shadow -Wno-unused-but-set-variable -c -o $@ $<
+	@$(TRICK_CC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(PYTHON_INCLUDES) -std=c++11 -Wno-invalid-offsetof -Wno-shadow -Wno-unused-but-set-variable -c -o $@ $<
