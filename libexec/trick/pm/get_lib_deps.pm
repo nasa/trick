@@ -4,6 +4,7 @@ use File::Basename ;
 use Cwd 'abs_path';
 use File::Path qw(make_path) ;
 use Exporter ();
+use gte ;
 @ISA = qw(Exporter);
 @EXPORT = qw(get_lib_deps write_lib_deps);
 
@@ -25,8 +26,19 @@ sub get_lib_deps ($$) {
     # another field in the trick header, a doxygen style keyword, or the end of comment *.
     # we capture all library dependencies at once into raw_lib_deps
     @raw_lib_deps = ($contents =~ /LIBRARY[ _]DEPENDENC(?:Y|IES)\s*:[^(]*(.*?)\)(?:[A-Z _\t\n\r]+:|\s*[\*@])/gsi) ;
-    foreach ( @raw_lib_deps ) {
-        push @lib_list , (split /\)[ \t\n\r\*]*\(/ , $_)  ;
+    foreach my $r ( @raw_lib_deps ) {
+        # if there is preprocessor directive in the library dependencies, run the text through cpp.
+        if ( $r =~ /#/ ) {
+            (my $cc = gte("TRICK_CC")) =~ s/\n// ;
+            my @defines = $ENV{"TRICK_CFLAGS"} =~ /(-D\S+)/g ;
+            my $temp ;
+            open FILE, "echo \"$r\" | cpp -P @defines |" ;
+            while ( <FILE> ) {
+                $temp .= $_ ;
+            }
+            $r = $temp ;
+        }
+        push @lib_list , (split /\)[ \t\n\r\*]*\(/ , $r)  ;
     }
 
     @inc_paths = $ENV{"TRICK_CFLAGS"} =~ /-I\s*(\S+)/g ;     # get include paths from TRICK_CFLAGS
