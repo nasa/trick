@@ -118,7 +118,10 @@ int Trick::MonteCarlo::slave_process_run() {
         fprintf(fp,
           "# This run can be executed in stand alone (non-Monte Carlo) mode by running\n"
           "# the S_main executable with this file specified as the input file.\n\n");
-        fprintf(fp, "execfile(\"%s\")\n\n", command_line_args_get_input_file());
+        fprintf(fp, "if (sys.version_info > (3, 0)):\n");
+        fprintf(fp, "    exec(open(\"%s\").read())\n", command_line_args_get_input_file());
+        fprintf(fp, "else:\n");
+        fprintf(fp, "    execfile(\"%s\")\n\n", command_line_args_get_input_file());
         fprintf(fp, "trick.mc_set_enabled(0)\n");
         fprintf(fp, "%s" , input);
         fclose(fp);
