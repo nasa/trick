@@ -88,7 +88,7 @@ TRICK_CFLAGS   += $(TRICKIFY_CXX_FLAGS)
 TRICK_CXXFLAGS += $(TRICKIFY_CXX_FLAGS)
 
 # Ensure we can process all headers
-undefine TRICK_EXT_LIB_DIRS
+TRICK_EXT_LIB_DIRS :=
 
 # While it would be nice to invoke the implicit archiving rule via a target like:
 #
