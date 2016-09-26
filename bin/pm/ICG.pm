@@ -369,6 +369,16 @@ sub ICG(\@$$$) {
 
                 # we have library dependencies in an h file. ( possible for c++ )
                 if (exists $header{libdep} or (scalar @exd_file_list != 0) ) {
+                    if ( $header{libdep} =~ /#/ ) {
+                        (my $cc = gte("TRICK_CC")) =~ s/\n// ;
+                        my @defines = $ENV{"TRICK_CFLAGS"} =~ /(-D\S+)/g ;
+                        my $temp ;
+                        open FILE, "echo \"$header{libdep}\" | cpp -P @defines |" ;
+                        while ( <FILE> ) {
+                            $temp .= $_ ;
+                        }
+                        $header{libdep} = $temp ;
+                    }
                     my @lib_list = split /\)[ \t\n\r\*]*\(/ , $header{libdep} ;
                     push @lib_list , @exd_file_list ;
                     foreach my $l (@lib_list) {
