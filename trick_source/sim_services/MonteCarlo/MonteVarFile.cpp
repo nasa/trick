@@ -7,19 +7,21 @@
 #include "trick/message_proto.h"
 #include "trick/exec_proto.h"
 
-Trick::MonteVarFile::MonteVarFile(std::string in_name, std::string in_file_name, unsigned int in_column, std::string in_unit) {
+Trick::MonteVarFile::MonteVarFile(std::string in_name, std::string in_file_name, unsigned int in_column, std::string in_unit) :
+    input_file_stream(NULL)
+{
     this->name = in_name;
-    this->file_name = in_file_name;
     this->column = in_column;
     this->unit = in_unit;
-
-    input_file_stream = new std::ifstream(file_name.c_str(), std::ifstream::in);
-    if (input_file_stream->fail()) { 
-        char string[100];
-        sprintf(string, "Trick:MonteVarFile the input file \"%s\" failed to open", file_name.c_str());
-        exec_terminate_with_return(-1, __FILE__, __LINE__, string);
-   }
+  
+    set_file_name(in_file_name);
     buffer = new char[4096];
+
+}
+
+Trick::MonteVarFile::~MonteVarFile() {
+    delete input_file_stream;
+    delete buffer;
 }
 
 std::string Trick::MonteVarFile::get_next_value() {
@@ -79,3 +81,20 @@ std::string Trick::MonteVarFile::get_next_value() {
 
     return NULL;
 }
+
+void Trick::MonteVarFile::set_file_name(std::string in_file_name) {
+    delete input_file_stream;
+
+    input_file_stream = new std::ifstream(in_file_name.c_str(), std::ifstream::in);
+    if (input_file_stream->fail()) {
+        std::stringstream string_stream;
+        string_stream << "Trick:MonteVarFile the input file \"" << in_file_name <<  "\" failed to open";
+        exec_terminate_with_return(-1, __FILE__, __LINE__, string_stream.str().c_str());
+    }
+    this->file_name = in_file_name;
+}
+
+void Trick::MonteVarFile::set_column(unsigned int in_column) {
+    this->column = in_column;
+}
+
