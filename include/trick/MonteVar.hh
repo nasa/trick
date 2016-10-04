@@ -35,6 +35,12 @@ namespace Trick {
 
         /** Destructor. */
         virtual ~MonteVar() {};
+        /**
+         * Sets the unit
+         *
+         * @param in_unit this variable's units
+         */
+        void set_unit(std::string in_unit) { this->unit = in_unit; }
 
         /** Class MonteCarlo is a friend so it can use the get_next_value method.
          *  The get_next_value method needs to be protected so users cannot use it in the input file

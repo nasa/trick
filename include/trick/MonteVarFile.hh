@@ -87,6 +87,22 @@ namespace Trick {
          */
         MonteVarFile(std::string name, std::string file_name, unsigned int column, std::string unit = "");
 
+        /** Destructor. */
+        virtual ~MonteVarFile();
+        /**
+         * Sets the file name 
+         *
+         * @param in_file_name the name of the file containing this variable's values
+         */
+        void set_file_name(std::string in_file_name);
+
+        /**
+         * Sets the column
+         *
+         * @param in_column the column (starting at 1)  within the file corresponding to this variable
+         */
+        void set_column(unsigned int in_column);
+
         protected:
         virtual std::string get_next_value();
 
