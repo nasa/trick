@@ -30,10 +30,6 @@ testing: $(LIBDIRS)
 	@echo "===== Making TESTING ====="
 	$(MAKE) -C TESTING
 
-xml_catalog: always_make
-	@echo "===== Making XML CATALOG ====="
-	$(MAKE) -C XML
-
 $(LIBDIRS):
 	@ echo ; echo "==: Compile $@"
 	@ $(MAKE) -C $@
