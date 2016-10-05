@@ -49,6 +49,8 @@ namespace Trick {
          */
         MonteVarFixed(std::string name, double value, std::string unit = "");
 
+        void set_value(double in_value);
+
         protected:
         virtual std::string get_next_value();
 
