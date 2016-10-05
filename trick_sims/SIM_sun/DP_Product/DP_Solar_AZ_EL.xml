@@ -16,7 +16,7 @@
             </yaxis>
             <curve>
                 <var units="hr">sys.exec.out.time</var>
-                <var gnuplot_line_style="lines" line_color="#323200" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="d">sun_predictor.sun.solar_elevation</var>
+                <var gnuplot_line_style="lines" line_color="#323200" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="degree">sun_predictor.sun.solar_elevation</var>
             </curve>
         </plot>
     </page>
@@ -25,8 +25,8 @@
         <plot background_color="#fffff0" foreground_color="#000000" grid="Yes" grid_color="azure3">
             <title>Plot</title>
             <curve>
-                <var units="d">sun_predictor.sun.solar_azimuth</var>
-                <var gnuplot_line_style="lines" line_color="brown" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="d">sun_predictor.sun.solar_elevation</var>
+                <var units="degree">sun_predictor.sun.solar_azimuth</var>
+                <var gnuplot_line_style="lines" line_color="brown" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="degree">sun_predictor.sun.solar_elevation</var>
             </curve>
         </plot>
     </page>
@@ -42,7 +42,7 @@
             </yaxis>
             <curve>
                 <var units="hr">sys.exec.out.time</var>
-                <var units="d">sun_predictor.sun.solar_azimuth</var>
+                <var units="degree">sun_predictor.sun.solar_azimuth</var>
             </curve>
         </plot>
     </page>
