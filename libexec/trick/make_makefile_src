@@ -318,27 +318,27 @@ foreach my $ext ( sort keys %object_files_by_type ) {
 print MAKEFILE
 "\${MODEL_c_OBJ}: build\%.o : \%.c
 \t\$(PRINT_COMPILE)
-\t\$(ECHO_CMD)\$(TRICK_CC) \$(TRICK_CFLAGS) \$(TRICK_SYSTEM_CFLAGS) -MMD -MP -c \$< -o \$\@
+\t\$(ECHO_CMD)\$(TRICK_CC) \$(TRICK_CFLAGS) \$(TRICK_SYSTEM_CFLAGS) -I\$(<D) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@
 
 \${MODEL_C_OBJ}: build\%.o : \%.C
 \t\$(PRINT_COMPILE)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c \$< -o \$\@
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@
 
 \${MODEL_cc_OBJ}: build\%.o : \%.cc
 \t\$(PRINT_COMPILE)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c \$< -o \$\@
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@
 
 \${MODEL_cpp_OBJ}: build\%.o : \%.cpp
 \t\$(PRINT_COMPILE)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c \$< -o \$\@
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@
 
 \${MODEL_cxx_OBJ}: build\%.o : \%.cxx
 \t\$(PRINT_COMPILE)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c \$< -o \$\@
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@
 
 \${MODEL_CPLUSPLUS_OBJ}: build\%.o : \%.c++
 \t\$(PRINT_COMPILE)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c \$< -o \$\@
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@
 
 \${MODEL_clex_SRC}: build\%.clex : \%.l
 \t\$(LEX) -o\$\@ \$<
