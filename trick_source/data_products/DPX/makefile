@@ -16,7 +16,7 @@ ifneq ("$(wildcard ${TRICK_HOME}/trick_source/data_products/fermi-ware)","")
 APPDIRS += APPS/FXPLOT
 endif
 
-all: $(LIBDIRS) $(APPDIRS) xml_catalog 
+all: $(LIBDIRS) $(APPDIRS)
 
 .PHONY: $(LIBDIRS) $(APPDIRS)
 
