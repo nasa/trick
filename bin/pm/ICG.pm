@@ -400,6 +400,8 @@ sub ICG(\@$$$) {
                             }
                         } else {
                             $l =~ s/o$// ;
+                            my $file_name = basename($l) ;
+                            my $dir_name = dirname($l) ;
                             foreach my $inc ( $file_path_dir , @inc_paths) {
                                 foreach my $ext ( "cpp" , "cc" , "c" , "c++" , "cxx" , "C" ) {
                                     if ( -e "$inc/$l$ext" ) {
@@ -410,9 +412,9 @@ sub ICG(\@$$$) {
                                         $found = 1 ;
                                         last ;
                                     }
-                                    elsif ( -e "$inc/src/$l$ext" ) {
-                                        #print "found $inc/src/$l$ext\n" ;
-                                        my $f = abs_path(dirname("$inc/src/$l$ext")) . "/" . basename("$inc/src/$l$ext") ;
+                                    elsif ( -e "$inc/$dir_name/src/$file_name$ext" ) {
+                                        #print "found $inc/$dir_name/src/$file_name$ext\n" ;
+                                        my $f = abs_path("$inc/$dir_name/src/$file_name$ext") ;
                                         push @{$$sim_ref{mis_entry_files}} , $f ;
                                         push @{$$sim_ref{head_deps}{$f}{files}} , $f ;
                                         $found = 1 ;

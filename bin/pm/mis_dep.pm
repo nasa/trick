@@ -114,7 +114,7 @@ sub get_depends($$) {
         s/\(|\)|\s+//g ;
         s/\${(.+?)}/$ENV{$1}/eg ;
     }
-    @list_objects = grep /\.o$/ , @lib_list ;
+    @list_objects = grep !/\.so$|\.a$/ , @lib_list ;
     @list_libs = grep /\.so$|\.a$/ , @lib_list ;
 
     # Always add self-dependency 
