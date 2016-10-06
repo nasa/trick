@@ -135,7 +135,7 @@ ifneq ($(GSL_HOME),)
 endif
 
 # -fexceptions is included to propogate execptions through C code.
-TRICK_SYSTEM_CFLAGS = $(TRICK_SYSTEM_CXXFLAGS) -fexceptions
+TRICK_SYSTEM_CFLAGS := $(TRICK_SYSTEM_CXXFLAGS) -fexceptions
 
 # append additional c and cxx flags defined in config_*.mk files.
 TRICK_SYSTEM_CFLAGS   += $(TRICK_ADDITIONAL_CFLAGS)
