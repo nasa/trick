@@ -114,7 +114,7 @@ sub get_depends($$) {
         s/\(|\)|\s+//g ;
         s/\${(.+?)}/$ENV{$1}/eg ;
     }
-    @list_objects = grep !/\.so$|\.a$/ , @lib_list ;
+    @list_objects = grep /\.o$|\.c$|\.cc$|\.cpp$|\.cxx$|\.C$|\.c\+\+$/ , @lib_list ;
     @list_libs = grep /\.so$|\.a$/ , @lib_list ;
 
     # Always add self-dependency 
@@ -123,7 +123,6 @@ sub get_depends($$) {
     # Now for each object, construct full path to object's src and find src file
     foreach my $o (@list_objects) {
 
-        next if ($o == "" or $o == "None" ) ;
         # look for object code with source
         $found_dep = find_depends_file($file,$o,$sim_ref) ;
 
