@@ -199,7 +199,6 @@ bool PrintAttributes::openIOFile(const std::string& header_file_name) {
 
     // no further processing is required if it's not out of date
     if (!isIOFileOutOfDate(realPath, io_file_name)) {
-        std::cout << "Not out of date: " << io_file_name << std::endl;
         return false;
     }
 
