@@ -78,45 +78,33 @@ static void _mkdir(const char *dir) {
         if(*p == '/') {
             *p = 0;
             if ( stat( tmp , &buf ) != 0 ) {
-                if ( mkdir(tmp, S_IRWXU | S_IRWXG | S_IRWXO ) != 0 ) {
-                    std::cout << "[31mUnable to create " << tmp << " for writing.[00m" << std::endl ;
+                int returnValue = mkdir(tmp, S_IRWXU | S_IRWXG | S_IRWXO);
+                if (returnValue) {
+                    std::cout << bold(color(ERROR, "Error")) << "      Unable to create " << quote(bold(tmp)) << " for writing: " << strerror(errno) << std::endl;
                     return ;
                 }
             }
             *p = '/';
         }
     if ( stat( tmp , &buf ) != 0 ) {
-        if ( mkdir(tmp, S_IRWXU | S_IRWXG | S_IRWXO) ) {
-            std::cout << "[31mUnable to create " << tmp << " for writing.[00m" << std::endl ;
+        int returnValue = mkdir(tmp, S_IRWXU | S_IRWXG | S_IRWXO);
+        if (returnValue) {
+            std::cout << bold(color(ERROR, "Error")) << "      Unable to create " << quote(bold(tmp)) << " for writing: " << strerror(errno) << std::endl;
             return ;
         }
     }
 }
 
-bool PrintAttributes::doesIODirectoryExist(std::string io_file_name) {
-    // dirname alters the string so make a temporary copy of io_file_name
-    char * temp_name = strdup(io_file_name.c_str()) ;
-    char * dir_name ;
-    struct stat buf ;
-    bool ret = true ;
-
-    dir_name = dirname((char *)temp_name) ;
-
-    _mkdir(dir_name) ;
-    free(temp_name) ;
-    return ret ;
-}
-
 // this is a subset of tests on the header file to determine if this file is not excluded for any reason.
 bool PrintAttributes::isFileIncluded(std::string header_file_name) {
     // several tests require the real path of the header file.
-    char * rp = almostRealPath(header_file_name.c_str()) ;
+    char * realPath = almostRealPath(header_file_name.c_str()) ;
 
-    if ( rp != NULL ) {
+    if ( realPath != NULL ) {
         // Only include user directories (not system dirs like /usr/include)
-        if ( hsd.isPathInUserDir(rp) ) {
+        if ( hsd.isPathInUserDir(realPath) ) {
             // Don't process files in excluded directories
-            if ( (hsd.isPathInExclude(rp) == false) and (hsd.isPathInICGExclude(rp) == false) ) {
+            if ( (hsd.isPathInExclude(realPath) == false) and (hsd.isPathInICGExclude(realPath) == false) ) {
                 // Only include files that do not have ICG: (No)
                 // hasICGNo uses original header name, not the real path
                 if ( ! cs.hasICGNo(header_file_name) ) {
@@ -128,84 +116,109 @@ bool PrintAttributes::isFileIncluded(std::string header_file_name) {
     return false ;
 }
 
-bool PrintAttributes::openIOFile(std::string header_file_name) {
-    // There are a lot of conditions to be met in order to open an io_src file.  We store
-    // the file names we have visited so we don't have to retest the file each time a new
-    // class/enum is processed.
-    if ( visited_files.find(header_file_name) == visited_files.end() ) {
-        visited_files.insert(header_file_name) ;
-
-        // several tests require the real path of the header file.
-        char * rp = almostRealPath(header_file_name.c_str()) ;
-
-        if ( rp != NULL ) {
-            // Only include user directories (not system dirs like /usr/include)
-            if ( hsd.isPathInUserDir(rp) ) {
-                // Don't process files in excluded directories
-                if ( hsd.isPathInExclude(rp) == false ) {
-                    if ( hsd.isPathInICGExclude(rp) == false ) {
-                        // Only include files that do not have ICG: (No)
-                        // hasICGNo uses original header name, not the real path
-                        if ( ! cs.hasICGNo(header_file_name) ) {
-                            // Don't process files in external library directories
-                            if ( hsd.isPathInExtLib(rp) == false ) {
-                                std::string io_file_name = createIOFileName(std::string(rp)) ;
-                                all_io_files[header_file_name] = io_file_name ;
-                                // Does the io_src directory exist or can we successfully mkdir it?
-                                if ( doesIODirectoryExist(io_file_name) ) {
-                                    // Is the io_src file out of date or does not exist yet
-                                    if ( isIOFileOutOfDate(rp, io_file_name) ) {
-                                        // All conditions have been met.  Store the io_src file name in out_of_date_io_files.
-                                        out_of_date_io_files[header_file_name] = io_file_name ;
-                                        free(rp) ;
-                                        /* This is the first time we are visiting the file,
-                                           open the file and write header information */
-                                        outfile.open(out_of_date_io_files[header_file_name].c_str()) ;
-                                        printer->printIOHeader(outfile, header_file_name) ;
-                                        if ( ! cs.hasTrickHeader(header_file_name) ) {
-                                            std::cout << "[33mNo Trick header comment found in " << header_file_name << "[00m" << std::endl ;
-                                        }
-                                        std::cout << "[35mWriting " << out_of_date_io_files[header_file_name] << "[00m" << std::endl ;
-                                        // Get all of the ignored types from this file.
-                                        ignored_types[header_file_name] = cs.getIgnoreTypes(header_file_name) ;
-                                        return true ;
-                                    }
-                                } else {
-                                    std::cout << "[33mICG skipping " << rp << " (cannot create io_src dir)[00m" << std::endl ;
-                                }
-                            } else {
-                                std::cout << "[33mICG skipping " << rp << " (ext lib dir " <<
-                                 hsd.getPathInExtLib(rp) << ")[00m" << std::endl ;
-                                ext_lib_io_files.insert(header_file_name) ;
-                            }
-                        } else {
-                            std::cout << "[33mICG skipping " << rp << " (ICG No found)[00m" << std::endl ;
-                            icg_no_files.push_back(rp) ;
-                        }
-                    } else {
-                        std::cout << "[33mICG skipping " << rp << " (ICG exclude " <<
-                         hsd.getPathInICGExclude(rp) << ")[00m" << std::endl ;
-                    }
-                } else {
-                    std::cout << "[33mICG skipping " << rp << " (exclude " <<
-                     hsd.getPathInExclude(rp) << ")[00m" << std::endl ;
-                }
-            } else {
-                //std::cout << "[33mICG skipping " << rp << " (not in user path) " << std::endl ;
-            }
-            free(rp) ;
-        } else {
-            std::cout << "[33mICG could not resolve realpath of " << header_file_name << "[00m" << std::endl ;
-        }
-    } else {
-        /* We have visited this file before, if there is a valid io_file name, append to the io_file */
-        if ( out_of_date_io_files.find(header_file_name) != out_of_date_io_files.end() ) {
-            outfile.open(out_of_date_io_files[header_file_name].c_str(), std::fstream::app) ;
+bool PrintAttributes::openIOFile(const std::string& header_file_name) {
+    /**
+     * There are a lot of conditions to be met in order to open an IO file.  We store the headers
+     * we have visited so we don't have to retest the them each time a new class/enum is processed.
+     */
+    if (visited_files.find(header_file_name) != visited_files.end()) {
+        // We have visited this header before. If there is a valid name, append to the existing IO file.
+        if (out_of_date_io_files.find(header_file_name) != out_of_date_io_files.end()) {
+            outfile.open(out_of_date_io_files[header_file_name].c_str(), std::fstream::app);
             return true ;
         }
+        return false;
     }
-    // No io_file was opened.
-    return false ;
+
+    // add it to the list of visited files
+    visited_files.insert(header_file_name) ;
+
+    // several tests require the real path of the header file
+    char* temp = almostRealPath(header_file_name.c_str());
+
+    if (!temp) {
+        std::cout << bold(color(WARNING, "Warning")) << "    ICG could not resolve realpath of " << quote(bold(header_file_name)) << std::endl;
+        return false;
+    }
+
+    const std::string realPath = std::string(temp);
+    const bool verboseBuild = getenv("TRICK_VERBOSE_BUILD");
+
+    /**
+     * Exclude files:
+     * - in system directories
+     * - in TRICK_EXCLUDE directories
+     * - in TRICK_ICG_EXCLUDE directories
+     * - in TRICK_EXT_LIB_DIRS directories
+     * - whose Trick header comments preclude ICG
+     */
+    const std::string skipping = color(INFO, "Skipping   ");
+
+    if (!hsd.isPathInUserDir(realPath)) {
+        return false;
+    }
+
+    if (hsd.isPathInExclude(realPath)) {
+        if (verboseBuild) {
+            std::cout << skipping << "TRICK_EXCLUDE: " << underline(realPath, hsd.getPathInExclude(realPath).size()) << std::endl;
+        }
+        return false;
+    }
+
+    if (hsd.isPathInICGExclude(realPath)) {
+        if (verboseBuild) {
+            std::cout << skipping << "TRICK_ICG_EXCLUDE: " << underline(realPath, hsd.getPathInICGExclude(realPath).size()) << std::endl;
+        }
+        return false;
+    }
+
+    if (hsd.isPathInExtLib(realPath)) {
+        if (verboseBuild) {
+            std::cout << skipping << "TRICK_EXT_LIB_DIRS: " << underline(realPath, hsd.getPathInExtLib(realPath).size()) << std::endl;
+        }
+        ext_lib_io_files.insert(header_file_name) ;
+        return false;
+    }
+
+    if (cs.hasICGNo(header_file_name)) {
+        if (verboseBuild) {
+            std::cout << skipping << "ICG: (NO): " << realPath << std::endl;
+        }
+        icg_no_files.push_back(realPath);
+        return false;
+    }
+
+    // map the header to its IO file
+    const std::string io_file_name = createIOFileName(realPath) ;
+    all_io_files[header_file_name] = io_file_name ;
+
+    // make the parent directories
+    char* name = strdup(io_file_name.c_str());
+    _mkdir(dirname(name));
+    free(name);
+
+    // no further processing is required if it's not out of date
+    if (!isIOFileOutOfDate(realPath, io_file_name)) {
+        std::cout << "Not out of date: " << io_file_name << std::endl;
+        return false;
+    }
+
+    // add it to the map of out of date IO files
+    out_of_date_io_files[header_file_name] = io_file_name ;
+
+    // write header information
+    std::cout << color(INFO, "Writing    ") << out_of_date_io_files[header_file_name] << std::endl;
+    outfile.open(out_of_date_io_files[header_file_name].c_str());
+    printer->printIOHeader(outfile, header_file_name);
+    if (!cs.hasTrickHeader(header_file_name) ) {
+        std::cout << bold(color(WARNING, "Warning    ") + header_file_name) << std::endl
+            << "           No Trick header comment found" << std::endl;
+    }
+
+    // get the ignored types from this header
+    ignored_types[header_file_name] = cs.getIgnoreTypes(header_file_name) ;
+
+    return true ;
 }
 
 /** Determines the io_file_name based on the given header file name */
@@ -280,12 +293,12 @@ void PrintAttributes::printClass( ClassValues * cv ) {
                 }
 
                 // if we are successful in opening the map file
-                char * rp = almostRealPath(cv->getFileName().c_str()) ;
-                if ( rp != NULL ) {
-                    if ( isFileIncluded( cv->getFileName()) or hsd.isPathInExtLib(rp)) {
+                char * realPath = almostRealPath(cv->getFileName().c_str()) ;
+                if ( realPath != NULL ) {
+                    if ( isFileIncluded( cv->getFileName()) or hsd.isPathInExtLib(realPath)) {
                          printer->printClassMap(class_map_outfile, cv) ;
                     }
-                    free(rp) ;
+                    free(realPath) ;
                 }
             }
         }
@@ -341,7 +354,7 @@ void PrintAttributes::createMapFiles() {
     if ( stat( map_dir.c_str() , &buf ) != 0 ) {
         if ( mkdir( map_dir.c_str() , 0755 ) != 0 ) {
             // dir does not exist and cannot make the directory.
-            std::cout << "\033[31mUnable to create " << map_dir.c_str() << " for writing.\033[00m" << std::endl ;
+            std::cout << bold(color(WARNING, "Warning")) << "    Unable to create " << quote(bold(map_dir)) << " for writing" << std::endl ;
         }
     }
 
@@ -381,27 +394,27 @@ void PrintAttributes::addEmptyFiles() {
         if ( visited_files.find(header_file_name) == visited_files.end() ) {
             visited_files.insert(header_file_name) ;
             // several tests require the real path of the header file.
-            char * rp = almostRealPath(header_file_name.c_str()) ;
-            if ( rp != NULL ) {
+            char * realPath = almostRealPath(header_file_name.c_str()) ;
+            if ( realPath != NULL ) {
                 // Only include user directories (not system dirs like /usr/include)
-                if ( hsd.isPathInUserDir(rp) ) {
-                    if ( hsd.isPathInExclude(rp) == false ) {
-                        if ( hsd.isPathInICGExclude(rp) == false ) {
+                if ( hsd.isPathInUserDir(realPath) ) {
+                    if ( hsd.isPathInExclude(realPath) == false ) {
+                        if ( hsd.isPathInICGExclude(realPath) == false ) {
                             // Only include files that do not have ICG: (No)
                             // hasICGNo uses original header name, not the real path
                             if ( ! cs.hasICGNo(header_file_name) ) {
                                 // Don't process files in excluded directories
-                                if ( hsd.isPathInExtLib(rp) == false ) {
-                                    std::string io_file_name = createIOFileName(std::string(rp)) ;
-                                    empty_header_files.insert(rp) ;
+                                if ( hsd.isPathInExtLib(realPath) == false ) {
+                                    std::string io_file_name = createIOFileName(std::string(realPath)) ;
+                                    empty_header_files.insert(realPath) ;
                                 } else {
-                                    ext_lib_io_files.insert(rp) ;
+                                    ext_lib_io_files.insert(realPath) ;
                                 }
                             }
                         }
                     }
                 }
-                free(rp) ;
+                free(realPath) ;
             }
         }
     }
@@ -421,59 +434,50 @@ void PrintAttributes::printIOMakefile() {
        return ;
     }
 
-    std::cout << "[34mCreating/updating io_src Makefile[0m" << std::endl ;
+    std::cout << color(INFO, "Writing") << "    Makefile_io_src" << std::endl ;
+
     makefile_io_src.open("build/Makefile_io_src") ;
-
-    makefile_io_src << "TRICK_SYSTEM_CXXFLAGS += -std=c++11" << std::endl ;
-    makefile_io_src << "TRICK_SYSTEM_CXXFLAGS += \\" << std::endl ;
-    makefile_io_src << " -Wno-invalid-offsetof \\" << std::endl ;
-    makefile_io_src << " -Wno-old-style-cast \\" << std::endl ;
-    makefile_io_src << " -Wno-write-strings \\" << std::endl ;
-    makefile_io_src << " -Wno-unused-variable" << std::endl ;
-    makefile_io_src << std::endl ;
-    makefile_io_src << "ifeq ($(IS_CC_CLANG), 0)" << std::endl ;
-    makefile_io_src << "  TRICK_SYSTEM_CXXFLAGS += -Wno-unused-local-typedefs" << std::endl ;
-    makefile_io_src << "  TRICK_SYSTEM_CXXFLAGS += -Wno-unused-but-set-variable" << std::endl ;
-    makefile_io_src << "endif" << std::endl ;
-    makefile_io_src << std::endl ;
-    makefile_io_src << "ifdef TRICK_VERBOSE_BUILD" << std::endl ;
-    makefile_io_src << "PRINT_ICG =" << std::endl ;
-    makefile_io_src << "PRINT_IO_COMPILE =" << std::endl ;
-    makefile_io_src << "PRINT_IO_INC_LINK =" << std::endl ;
-    makefile_io_src << "else" << std::endl ;
-    makefile_io_src << "PRINT_ICG = @echo \"[34mRunning ICG[0m\"" << std::endl ;
-    makefile_io_src << "PRINT_IO_COMPILE = @echo \"[34mCompiling   [0m $(subst $(CURDIR)/build,build,$<)\"" << std::endl ;
-    makefile_io_src << "PRINT_IO_INC_LINK = @echo \"[34mPartial link[0m io objects\"" << std::endl ;
-    makefile_io_src << "endif" << std::endl ;
-    makefile_io_src << std::endl ;
-
-    makefile_io_src << "IO_OBJ_FILES =" ;
+    makefile_io_src << "TRICK_SYSTEM_CXXFLAGS += \\" << std::endl
+        << "    -std=c++11 \\" << std::endl
+        << "    -Wno-invalid-offsetof \\" << std::endl
+        << "    -Wno-old-style-cast \\" << std::endl
+        << "    -Wno-write-strings \\" << std::endl
+        << "    -Wno-unused-variable" << std::endl
+        << std::endl
+        << "ifeq ($(IS_CC_CLANG), 0)" << std::endl
+        << "    TRICK_SYSTEM_CXXFLAGS += -Wno-unused-local-typedefs -Wno-unused-but-set-variable" << std::endl
+        << "endif" << std::endl
+        << std::endl
+        << "ifndef TRICK_VERBOSE_BUILD" << std::endl
+        << "    PRINT_IO_INC_LINK = @echo \"$(call COLOR,Linking)    IO objects\"" << std::endl
+        << "endif" << std::endl
+        << std::endl
+        << "IO_OBJ_FILES =" ;
 
     std::map< std::string , std::string >::iterator mit ;
     for ( mit = all_io_files.begin() ; mit != all_io_files.end() ; mit++ ) {
         size_t found ;
         found = (*mit).second.find_last_of(".") ;
-        makefile_io_src << " \\\n $(CURDIR)/" << (*mit).second.substr(0,found) << ".o" ;
+        makefile_io_src << " \\\n    $(CURDIR)/" << (*mit).second.substr(0,found) << ".o" ;
     }
 
-    makefile_io_src << " \\\n $(CURDIR)/build/class_map.o" << std::endl ;
-    makefile_io_src << std::endl ;
-
-    makefile_io_src << "$(IO_OBJ_FILES) : \%.o : \%.cpp" << std::endl ;
-    makefile_io_src << "\t$(PRINT_IO_COMPILE)" << std::endl ;
-    makefile_io_src << "\t$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c $< -o $@" << std::endl ;
-    makefile_io_src << std::endl ;
-    makefile_io_src << "-include $(IO_OBJ_FILES:.o=.d)" << std::endl ;
-    makefile_io_src << std::endl ;
-
-    makefile_io_src << "OBJECTS += $(LIB_DIR)/io_src.o" << std::endl ;
-    makefile_io_src << "LINK_OBJECTS += $(LIB_DIR)/io_src.o" << std::endl ;
-    makefile_io_src << "$(S_MAIN) : $(LIB_DIR)/io_src.o" << std::endl ;
-    makefile_io_src << std::endl ;
-    makefile_io_src << "$(LIB_DIR)/io_src.o : $(IO_OBJ_FILES) | $(LIB_DIR)" << std::endl ;
-    makefile_io_src << "\t$(PRINT_IO_INC_LINK)" << std::endl ;
-    makefile_io_src << "\t$(ECHO_CMD)$(LD) $(LD_PARTIAL) -o $@ $(LD_FILELIST)build/link_io_objs" << std::endl ;
-    makefile_io_src << std::endl ;
+    makefile_io_src << " \\\n    $(CURDIR)/build/class_map.o" << std::endl
+        << std::endl
+        << "$(IO_OBJ_FILES): \%.o : \%.cpp" << std::endl
+        << "\t$(PRINT_IO_COMPILE)" << std::endl
+        << "\t$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c $< -o $@" << std::endl
+        << std::endl
+        << "-include $(IO_OBJ_FILES:.o=.d)" << std::endl
+        << std::endl
+        << "OBJECTS      += $(LIB_DIR)/io_src.o" << std::endl
+        << "LINK_OBJECTS += $(LIB_DIR)/io_src.o" << std::endl
+        << std::endl
+        << "$(S_MAIN): $(LIB_DIR)/io_src.o" << std::endl
+        << std::endl
+        << "$(LIB_DIR)/io_src.o : $(IO_OBJ_FILES) | $(LIB_DIR)" << std::endl
+        << "\t$(PRINT_IO_INC_LINK)" << std::endl
+        << "\t$(ECHO_CMD)$(LD) $(LD_PARTIAL) -o $@ $(LD_FILELIST)build/link_io_objs" << std::endl
+        << std::endl ;
 
     makefile_io_src.close() ;
 
@@ -489,25 +493,27 @@ void PrintAttributes::printIOMakefile() {
     makefile_ICG.open("build/Makefile_ICG") ;
     link_io_objs.open("build/link_io_objs") ;
     ICG_processed.open("build/ICG_processed") ;
-    makefile_ICG << "$(CURDIR)/build/Makefile_io_src :" ;
+
+    makefile_ICG << "build/Makefile_io_src:" ;
     for ( mit = all_io_files.begin() ; mit != all_io_files.end() ; mit++ ) {
-        makefile_ICG << "\\\n " << (*mit).first ;
+        makefile_ICG << " \\\n    " << (*mit).first ;
         size_t found ;
         found = (*mit).second.find_last_of(".") ;
         link_io_objs << (*mit).second.substr(0,found) << ".o" << std::endl ;
         ICG_processed << (*mit).first << std::endl ;
     }
+    makefile_ICG.close() ;
+
     // Create the list of empty (of classes/enums) header files to be written to ICG_processed.
     addEmptyFiles() ;
     std::set< std::string >::iterator sit ;
     for ( sit = empty_header_files.begin() ; sit != empty_header_files.end() ; sit++ ) {
         ICG_processed << (*sit) << std::endl ;
     }
-    makefile_ICG << std::endl << std::endl ;
-    makefile_ICG.close() ;
+    ICG_processed.close() ;
+
     link_io_objs << "build/class_map.o" << std::endl ;
     link_io_objs.close() ;
-    ICG_processed.close() ;
 
     ext_lib.open("build/ICG_ext_lib") ;
     for ( sit = ext_lib_io_files.begin() ; sit != ext_lib_io_files.end() ; sit++ ) {

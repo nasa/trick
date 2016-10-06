@@ -145,10 +145,11 @@ sub get_lib_deps ($$) {
             $l .= "o" ;
         }
         if ( $found == 0 ) {
+            print STDERR "[1m[33mWarning    [39m$source_file_name[0m\n           " ;
             if ( $l =~ /^(sim_services)/ or $l =~ /^(er7_utils)/ ) {
-                print STDERR "[33mWarning: Not necessary to list $1 dependencies $l[0m\n" ;
+                print STDERR "It is not necessary to list dependencies found in $1: \"[1m$l[0m\"\n" ;
             } else {
-                print STDERR "[33mWarning: Could not find dependency $l[0m\n" ;
+                print STDERR "Could not find dependency \"[1m$l[0m\"\n" ;
             }
         }
     }

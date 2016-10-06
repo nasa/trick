@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <libgen.h>
 #include <stdlib.h>
+#include <sstream>
 
 #include "Utilities.hh"
 
@@ -92,3 +93,31 @@ char * almostRealPath( const char * in_path ) {
     return final_path ;
 }
 
+static const std::string escapeSequence = "[";
+static const std::string defaultForegroundColorSequence = escapeSequence + "39m";
+static const std::string boldSequence = escapeSequence + "1m";
+static const std::string noBoldSequence = escapeSequence + "21m";
+static const std::string underlineSequence = escapeSequence + "4m";
+static const std::string noUnderlineSequence = escapeSequence + "24m";
+
+std::string color(const Color& color, const std::string& text) {
+    std::ostringstream oss;
+    oss << escapeSequence << color << "m" << text << defaultForegroundColorSequence;
+    return oss.str();
+}
+
+std::string bold(const std::string& text) {
+    return boldSequence + text + noBoldSequence;
+}
+
+std::string underline(const std::string& text) {
+    return underlineSequence + text + noUnderlineSequence;
+}
+
+std::string underline(const std::string& text, unsigned length) {
+    return underline(text.substr(0, length)) + text.substr(length);
+}
+
+std::string quote(const std::string& text) {
+    return "\"" + text + "\"";
+}

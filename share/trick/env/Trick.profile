@@ -92,7 +92,6 @@ if [ -f ${TRICK_HOME}/bin/gte ] && [ -f "${PERL}" ] ;  then
         alias ftn_depend='    $trick_perl $trick_bin/ftn_depend'
         alias gte='           $trick_perl $trick_bin/gte'
         alias icg_dep='       $trick_perl $trick_bin/icg_dep'
-        alias make_build='    $trick_perl $trick_bin/make_build'
         alias mis_dep='       $trick_perl $trick_bin/mis_dep'
         alias trick_version='$trick_perl $trick_bin/trick_version'
         if [ x$TRICK_MAKE = x ] ; then

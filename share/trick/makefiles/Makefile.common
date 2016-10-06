@@ -1,31 +1,38 @@
+SHELL := /bin/sh
+CD    := cd
+MV    := /bin/mv
+RM    := /bin/rm
+CP    := /bin/cp
+PWD   = $(shell /bin/pwd)
 
-SHELL  := /bin/sh
-CD     := cd
-MV     := /bin/mv
-RM     := /bin/rm
-CP     := /bin/cp
-PWD    = $(shell /bin/pwd)
+COLOR   = [34m$(1)[0m
+
+ifndef TRICK_VERBOSE_BUILD
+    ECHO_CMD = @
+endif
 
 export TRICK_HOST_TYPE := $(shell export TRICK_HOME=$(TRICK_HOME) && $(TRICK_HOME)/bin/trick-gte TRICK_HOST_TYPE)
-export TRICK_VERSION := $(shell export TRICK_HOME=$(TRICK_HOME) && $(TRICK_HOME)/bin/trick-version -v)
-export TRICK_MAJOR := $(shell export TRICK_HOME=$(TRICK_HOME) && $(TRICK_HOME)/bin/trick-version -y)
-export TRICK_MINOR := $(shell export TRICK_HOME=$(TRICK_HOME) && $(TRICK_HOME)/bin/trick-version -m)
+export TRICK_VERSION   := $(shell export TRICK_HOME=$(TRICK_HOME) && $(TRICK_HOME)/bin/trick-version -v)
+export TRICK_MAJOR     := $(shell export TRICK_HOME=$(TRICK_HOME) && $(TRICK_HOME)/bin/trick-version -y)
+export TRICK_MINOR     := $(shell export TRICK_HOME=$(TRICK_HOME) && $(TRICK_HOME)/bin/trick-version -m)
 
 include $(TRICK_HOME)/share/trick/makefiles/config_${TRICK_HOST_TYPE}.mk
 -include $(TRICK_HOME)/share/trick/makefiles/config_user.mk
 
 ifndef TRICK_CC
- export TRICK_CC := $(CC)
+    export TRICK_CC := $(CC)
 endif
+
 ifndef TRICK_CPPC
- export TRICK_CPPC := $(CXX)
+    export TRICK_CPPC := $(CXX)
 endif
+
 ifndef TRICK_LD
- export TRICK_LD := $(LD)
+    export TRICK_LD := $(LD)
 endif
 
 ifndef TRICK_SFLAGS
- export TRICK_SFLAGS :=
+    export TRICK_SFLAGS :=
 endif
 
 export TRICK_CFLAGS
@@ -46,19 +53,19 @@ export TRICK_SYSTEM_CFLAGS
 export TRICK_SYSTEM_CXXFLAGS
 export TRICK_SYSTEM_SFLAGS
 
-IO_SRC_DIR     := io_src/
-OBJ_DIR        := object_${TRICK_HOST_CPU}
+IO_SRC_DIR       := io_src/
+OBJ_DIR          := object_${TRICK_HOST_CPU}
 TRICK_STATIC_LIB := ${TRICK_LIB_DIR}/libtrick.a
-TRICK_RANLIB =
+TRICK_RANLIB      =
 
 ifndef CONFIG_MK
-ifneq ($(MAKECMDGOALS), clean)
-$(error Please run $(TRICK_HOME)/configure before running make)
-endif
+    ifneq ($(MAKECMDGOALS), clean)
+        $(error Please run $(TRICK_HOME)/configure before running make)
+    endif
 endif
 
 # Where are the libexec executables
-ifneq ("$(wildcard $(TRICK_HOME)/libexec)","")
+ifneq ($(wildcard $(TRICK_HOME)/libexec),)
     LIBEXEC = libexec
 else
     LIBEXEC = lib
@@ -67,86 +74,78 @@ endif
 TRICK_INCLUDES := -I${TRICK_HOME}/trick_source -I${TRICK_HOME}/include -I${TRICK_HOME}/include/trick/compat
 TRICK_VERSIONS := -DTRICK_VER=$(TRICK_MAJOR) -DTRICK_MINOR=$(TRICK_MINOR)
 
-TRICK_SYSTEM_CFLAGS = $(TRICK_INCLUDES) $(TRICK_VERSIONS) -fpic
-TRICK_SYSTEM_CXXFLAGS = $(TRICK_INCLUDES) $(TRICK_VERSIONS) -fpic
-TRICK_SYSTEM_SFLAGS = -I${TRICK_HOME}/share/trick -I${TRICK_HOME}/share $(TRICK_INCLUDES) $(TRICK_VERSIONS)
-
-# append additional c and cxx flags defined in config_*.mk files.
-TRICK_SYSTEM_CFLAGS += $(TRICK_ADDITIONAL_CFLAGS) $(UDUNITS_INCLUDES)
-TRICK_SYSTEM_CXXFLAGS += $(TRICK_ADDITIONAL_CXXFLAGS) $(UDUNITS_INCLUDES)
-
-# -fexceptions is included to propogate execptions through C code.
-TRICK_SYSTEM_CFLAGS += -fexceptions
+TRICK_SYSTEM_CXXFLAGS = $(TRICK_INCLUDES) $(TRICK_VERSIONS) -fpic $(UDUNITS_INCLUDES)
+TRICK_SYSTEM_SFLAGS   = -I${TRICK_HOME}/share/trick -I${TRICK_HOME}/share $(TRICK_INCLUDES) $(TRICK_VERSIONS)
 
 HAVE_ZEROCONF ?= 0
 ifeq ($(HAVE_ZEROCONF),1)
-TRICK_SYSTEM_CFLAGS += -DHAVE_ZEROCONF
-TRICK_SYSTEM_CXXFLAGS += -DHAVE_ZEROCONF
+    TRICK_SYSTEM_CXXFLAGS += -DHAVE_ZEROCONF
 endif
 
 ifeq ($(USE_ER7_UTILS), 1)
-  ER7_UTILS_HOME := $(TRICK_HOME)/trick_source/er7_utils
-  TRICK_SYSTEM_CFLAGS += -DUSE_ER7_UTILS_INTEGRATORS
-  TRICK_SYSTEM_CXXFLAGS += -DUSE_ER7_UTILS_INTEGRATORS
-  TRICK_LIBS += -ler7_utils
- ifneq ($(wildcard ${ER7_UTILS_HOME}/CheckpointHelper),)
-  USE_ER7_UTILS_CHECKPOINTHELPER = 1
-  TRICK_SYSTEM_CFLAGS += -DUSE_ER7_UTILS_CHECKPOINTHELPER
-  TRICK_SYSTEM_CXXFLAGS += -DUSE_ER7_UTILS_CHECKPOINTHELPER
- endif
+    ER7_UTILS_HOME := $(TRICK_HOME)/trick_source/er7_utils
+    TRICK_SYSTEM_CXXFLAGS += -DUSE_ER7_UTILS_INTEGRATORS
+    TRICK_LIBS += -ler7_utils
+    ifneq ($(wildcard ${ER7_UTILS_HOME}/CheckpointHelper),)
+        USE_ER7_UTILS_CHECKPOINTHELPER = 1
+        TRICK_SYSTEM_CXXFLAGS += -DUSE_ER7_UTILS_CHECKPOINTHELPER
+   endif
 endif
 
 ifeq ($(TRICK_FORCE_32BIT), 1)
- TRICK_SYSTEM_CFLAGS += -m32
- TRICK_SYSTEM_CXXFLAGS += -m32
- TRICK_LDFLAGS += -m32
- LD_PARTIAL += -melf_i386
+   TRICK_SYSTEM_CXXFLAGS += -m32
+   TRICK_LDFLAGS         += -m32
+   LD_PARTIAL            += -melf_i386
 endif
 
 IS_CC_CLANG = $(shell ${TRICK_CPPC} -xc /dev/null -dM -E | grep -c __clang__)
 ifeq ($(IS_CC_CLANG), 1)
- TRICK_SYSTEM_CFLAGS += -fcolor-diagnostics
- TRICK_SYSTEM_CXXFLAGS += -fcolor-diagnostics
+   TRICK_SYSTEM_CXXFLAGS += -fcolor-diagnostics
 else
- GCC_MAJOR:=$(shell $(TRICK_CC) -dumpversion | cut -f1 -d.)
- GCC_MINOR:=$(shell $(TRICK_CC) -dumpversion | cut -f2 -d.)
+   GCC_MAJOR := $(shell $(TRICK_CC) -dumpversion | cut -f1 -d.)
+   GCC_MINOR := $(shell $(TRICK_CC) -dumpversion | cut -f2 -d.)
 endif
 
 ifneq ($(HDF5),)
-ifneq ($(HDF5),/usr)
- HDF5_LIB := -L$(HDF5)/lib -lhdf5_hl -lhdf5 -lsz
- HAVE_HDF5_HOME_LIB64 := $(shell test -e ${HDF5}/lib64 && echo "1")
- ifeq ($(HAVE_HDF5_HOME_LIB64),1)
-   HDF5_LIB = -L$(HDF5)/lib64 $(HDF5_LIB)
- endif
-else
- HDF5_LIB = -lhdf5_hl -lhdf5
-endif
-TRICK_EXEC_LINK_LIBS += ${HDF5_LIB}
+    ifneq ($(HDF5),/usr)
+        HDF5_LIB := -L$(HDF5)/lib -lhdf5_hl -lhdf5 -lsz
+        HAVE_HDF5_HOME_LIB64 := $(shell test -e ${HDF5}/lib64 && echo "1")
+        ifeq ($(HAVE_HDF5_HOME_LIB64),1)
+            HDF5_LIB = -L$(HDF5)/lib64 $(HDF5_LIB)
+        endif
+    else
+        HDF5_LIB = -lhdf5_hl -lhdf5
+    endif
+    TRICK_EXEC_LINK_LIBS += ${HDF5_LIB}
 endif
 
 ifneq ($(GSL_HOME),)
-  ifneq ($(GSL_HOME),/usr)
-    HAVE_GSL_HOME_LIB64 := $(shell test -e ${GSL_HOME}/lib64 && echo "1")
-    ifeq ($(HAVE_GSL_HOME_LIB64),1)
-      TRICK_EXEC_LINK_LIBS += -L$(GSL_HOME)/lib64
+    ifneq ($(GSL_HOME),/usr)
+        HAVE_GSL_HOME_LIB64 := $(shell test -e ${GSL_HOME}/lib64 && echo "1")
+        ifeq ($(HAVE_GSL_HOME_LIB64),1)
+            TRICK_EXEC_LINK_LIBS += -L$(GSL_HOME)/lib64
+        endif
+        TRICK_EXEC_LINK_LIBS += -L$(GSL_HOME)/lib
+        ifneq ($(GSL_HOME),/usr/local)
+            TRICK_SYSTEM_CXXFLAGS += -I$(GSL_HOME)/include
+        endif
     endif
-    TRICK_EXEC_LINK_LIBS += -L$(GSL_HOME)/lib
-    ifneq ($(GSL_HOME),/usr/local)
-      TRICK_SYSTEM_CFLAGS += -I$(GSL_HOME)/include
-      TRICK_SYSTEM_CXXFLAGS += -I$(GSL_HOME)/include
-    endif
-  endif
-  TRICK_EXEC_LINK_LIBS += -lgsl -lgslcblas
-  TRICK_SYSTEM_CFLAGS += -D_HAVE_GSL
-  TRICK_SYSTEM_CXXFLAGS += -D_HAVE_GSL
+    TRICK_EXEC_LINK_LIBS  += -lgsl -lgslcblas
+    TRICK_SYSTEM_CXXFLAGS += -D_HAVE_GSL
 endif
 
-TRICK_INCLUDE = $(shell $(PERL) -e '@inc_paths = "${TRICK_CFLAGS}" =~ /-I\s*(\S+)/g ; foreach $$i (@inc_paths) { print "-I$$i " if (-e $$i)}')
-TRICK_INCLUDE += $(shell $(PERL) -e '@inc_paths = "${TRICK_SYSTEM_CFLAGS}" =~ /-I\s*(\S+)/g ; foreach $$i (@inc_paths) { print "-I$$i " if (-e $$i)}')
-TRICK_DEFINES = $(shell $(PERL) -e '@defines = "${TRICK_CFLAGS}" =~ /-D\s*(\S+)/g ; foreach $$i (@defines) { print "-D$$i "}')
-TRICK_DEFINES += $(shell $(PERL) -e '@defines = "${TRICK_SYSTEM_CFLAGS}" =~ /-D\s*(\S+)/g ; foreach $$i (@defines) { print "-D$$i "}')
+# -fexceptions is included to propogate execptions through C code.
+TRICK_SYSTEM_CFLAGS = $(TRICK_SYSTEM_CXXFLAGS) -fexceptions
+
+# append additional c and cxx flags defined in config_*.mk files.
+TRICK_SYSTEM_CFLAGS   += $(TRICK_ADDITIONAL_CFLAGS)
+TRICK_SYSTEM_CXXFLAGS += $(TRICK_ADDITIONAL_CXXFLAGS)
+
+TRICK_INCLUDE  = $(shell $(PERL) -e '@inc_paths = "${TRICK_CFLAGS}" =~ /-I\s*(\S+)/g ; foreach $$i (@inc_paths) { print "-I$$i " if (-e $$i)}') \
+                 $(shell $(PERL) -e '@inc_paths = "${TRICK_SYSTEM_CFLAGS}" =~ /-I\s*(\S+)/g ; foreach $$i (@inc_paths) { print "-I$$i " if (-e $$i)}')
+
+TRICK_DEFINES  = $(shell $(PERL) -e '@defines = "${TRICK_CFLAGS}" =~ /-D\s*(\S+)/g ; foreach $$i (@defines) { print "-D$$i "}') \
+                 $(shell $(PERL) -e '@defines = "${TRICK_SYSTEM_CFLAGS}" =~ /-D\s*(\S+)/g ; foreach $$i (@defines) { print "-D$$i "}')
 
 DEPFILE = $(PWD)/Makefile_deps
 DEPTEMPFILE = $(PWD)/Makefile_temp_depends
-

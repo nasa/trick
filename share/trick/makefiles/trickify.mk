@@ -98,8 +98,8 @@ TRICK_EXT_LIB_DIRS :=
 # .NOTPARALLEL (a file-wide flag), significantly slowing the build process.
 
 $(TRICKIFY_LIB_NAME): $(OBJECTS) | $(dir $(TRICKIFY_LIB_NAME))
+	$(info $(call COLOR,Linking)    $@)
 	@ar rsc $@ $?
-	$(info Built $@)
 
 # $(OBJECTS) is meant to contain all of the py_* and io_* object file names. We can't construct
 # those until we run ICG and convert_swig. But we can't run the rules for ICG and convert_swig
@@ -159,9 +159,9 @@ $(dir $(TRICKIFY_LIB_NAME)) $(TRICKIFY_PYTHON_DIR):
 	@mkdir -p $@
 
 py_%.cpp: %.i | $(TRICKIFY_PYTHON_DIR)
-	$(info SWIGing $<)
+	$(info $(call COLOR,SWIGing)    $<)
 	@$(SWIG) $(TRICK_INCLUDE) $(TRICK_DEFINES) $(TRICK_VERSIONS) -c++ -python -includeall -ignoremissing -w201,362,389,451 -outdir $(TRICKIFY_PYTHON_DIR) -o $@ $<
 
 %.o: %.cpp
-	$(info Compiling $<)
+	$(info $(call COLOR,Compiling)  $<)
 	@$(TRICK_CC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(PYTHON_INCLUDES) -std=c++11 -Wno-invalid-offsetof -Wno-shadow -Wno-unused-but-set-variable -c -o $@ $<

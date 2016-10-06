@@ -360,7 +360,7 @@ sub process_file() {
         }
         close OUT ;
 
-        print "Writing swig_file $out_file\n" ;
+        print "[34mWriting[0m    $out_file\n" ;
     }
 
 }

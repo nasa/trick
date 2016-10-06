@@ -64,27 +64,29 @@ if ( $sim{args}{p} == 0 ) {
 #--------------------------------------------------------------
 # Parse the S_define file
 
-trick_print($sim{fh}, "Parsing S_define..." , "title_cyan" , $sim{args}{v}) ;
+trick_print($sim{fh}, "Parsing    " , "title_blue" , $sim{args}{v}) ;
+trick_print($sim{fh}, "S_define" , "title_white" , $sim{args}{v}) ;
 trick_print($sim{fh}, "\n" , "title_white" , $sim{args}{v}) if ( $sim{args}{v} != 1 ) ;
 
 parse_s_define(\%sim) ;
 
-trick_print( $sim{fh}, "\nCompleted parsing S_define\n\n" , "normal_green" , $ sim{args}{v} ) ;
+trick_print( $sim{fh}, "Finished   " , "normal_blue" , $ sim{args}{v} ) ;
+trick_print( $sim{fh}, "S_define\n" , "normal_white" , $ sim{args}{v} ) ;
 
 #--------------------------------------------------------------
-# Make S_source.c 
+# Make S_source.c
 
-trick_print($sim{fh}, "Creating S_source.c...", "title_cyan", $sim{args}{v});
+trick_print($sim{fh}, "Writing    ", "title_blue", $sim{args}{v});
+trick_print($sim{fh}, "S_source.c\n", "title_white", $sim{args}{v});
 s_source( \%sim ) ;
-trick_print($sim{fh}, " Complete\n", "title_green", $sim{args}{v}) ;
 
 #--------------------------------------------------------------
 # Make Default Data
 
 chdir ($cwd) ;
-trick_print($sim{fh}, "Creating Default_data...", "title_cyan" , $sim{args}{v}) ;
+trick_print($sim{fh}, "Writing    ", "title_blue" , $sim{args}{v}) ;
+trick_print($sim{fh}, "Default_data\n", "title_white" , $sim{args}{v}) ;
 make_default_data( \%sim ) ;
-trick_print($sim{fh}, " Complete\n", "title_green", $sim{args}{v}) ;
 
 close OUTFILE ;
 

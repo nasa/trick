@@ -39,59 +39,59 @@ class HeaderSearchDirs {
             @param path = directory path to be checked
             @return true = path is in user directory, false = path is not in a user dir.
           */
-        bool isPathInUserDir (std::string path) ;
+        bool isPathInUserDir (const std::string& path) ;
 
         /** Returns true if the path argument is in a user model or Trick directory
             @param path = directory path to be checked
             @return true = path is in user directory, false = path is not in a user dir.
           */
-        bool isPathInUserOrTrickDir (std::string path) ;
+        bool isPathInUserOrTrickDir (const std::string& path) ;
 
         /** Returns true if directory is a subdirectory of an excluded directory listed
             in the TRICK_EXCLUDE environment variable.
             @param path = directory path to be checked
             @return true = path is in a system directory, false = not in system directory.
           */
-        bool isPathInExclude (std::string path) ;
+        bool isPathInExclude (const std::string& path) ;
 
         /** Returns true if directory is a subdirectory of an excluded directory listed
             in the TRICK_ICG_EXCLUDE environment variable.
             @param path = directory path to be checked
             @return true = path is in a system directory, false = not in system directory.
           */
-        bool isPathInICGExclude (std::string path) ;
+        bool isPathInICGExclude (const std::string& path) ;
 
         /** Returns true if directory is a subdirectory of an external library directory listed
             in the TRICK_EXT_LIB_DIRS environment variable.
             @param path = directory path to be checked
             @return true = path is in a system directory, false = not in system directory.
           */
-        bool isPathInExtLib (std::string path) ;
+        bool isPathInExtLib (const std::string& path) ;
 
         /** Returns true if directory is a subdirectory of a no comment directory
             in the TRICK_ICG_NOCOMMENT environment variable.
             @param path = directory path to be checked
             @return true = path is in a system directory, false = not in system directory.
           */
-        bool isPathInICGNoComment (std::string path) ;
+        bool isPathInICGNoComment (const std::string& path) ;
 
         /** Returns the TRICK_EXCLUDE directory that contains the path argument.
             @param path = path to be checked
             @return string from TRICK_EXCLUDE that contains the path.
           */
-        std::string getPathInExclude (std::string path) ;
+        std::string getPathInExclude (const std::string& path) ;
 
         /** Returns the TRICK_ICG_EXCLUDE directory that contains the path argument.
             @param path = path to be checked
             @return string from TRICK_ICG_EXCLUDE that contains the path.
           */
-        std::string getPathInICGExclude (std::string path) ;
+        std::string getPathInICGExclude (const std::string& path) ;
 
         /** Returns the TRICK_EXT_LIB_DIRS directory that contains the path argument.
             @param path = path to be checked
             @return string from TRICK_ICG_EXCLUDE that contains the path.
           */
-        std::string getPathInExtLib (std::string path) ;
+        std::string getPathInExtLib (const std::string& path) ;
 
         /** Add all #defines from the command line and built in default predefines
             @param defines = a list of all -D<define> arguments on the command line.

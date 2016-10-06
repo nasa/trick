@@ -524,7 +524,8 @@ sub handle_sim_class ($$$$) {
     $template_args =~ s/class|typename//g ;
     $template_args =~ s/\s//g ;
 
-    trick_print($$sim_ref{fh}, "Processing sim_class $class_name\n" , "normal white" , $$sim_ref{args}{v});
+    trick_print($$sim_ref{fh}, "Processing " , "normal_blue" , $$sim_ref{args}{v});
+    trick_print($$sim_ref{fh}, "$class_name\n" , "normal_white" , $$sim_ref{args}{v});
 
     # grab the entire contents of the class out of the S_define file.
     ($class_contents, $$file_contents) = extract_bracketed($$file_contents,"{}");
@@ -814,9 +815,11 @@ sub handle_line_tag($$) {
     trick_print($$sim_ref{fh},"Line: $s\n", "debug_yellow", $$sim_ref{args}{v}) ;
     if ( $file_name !~ /^\</ and $file_name ne $$sim_ref{last_file} ) {
         if ( exists $$sim_ref{files_visited}{$file_name} ) {
-            trick_print($$sim_ref{fh},"Continuing $file_name\n", "normal_cyan", $$sim_ref{args}{v}) ;
+            trick_print($$sim_ref{fh},"Continuing ", "normal_blue", $$sim_ref{args}{v}) ;
+            trick_print($$sim_ref{fh},"$file_name\n", "normal_white", $$sim_ref{args}{v}) ;
         } else {
-            trick_print($$sim_ref{fh},"Processing $file_name\n", "normal_cyan", $$sim_ref{args}{v}) ;
+            trick_print($$sim_ref{fh},"Processing ", "normal_blue", $$sim_ref{args}{v}) ;
+            trick_print($$sim_ref{fh},"$file_name\n", "normal_white", $$sim_ref{args}{v}) ;
             $$sim_ref{files_visited}{$file_name} = 1 ;
         }
         $$sim_ref{last_file} = $file_name ;

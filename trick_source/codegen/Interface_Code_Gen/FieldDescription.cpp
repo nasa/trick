@@ -242,16 +242,16 @@ void FieldDescription::parseComment(std::string comment) {
             std::string new_units = map_trick_units_to_udunits(units) ;
             if ( units.compare(new_units) ) {
                 if ( ! units_truth_is_scary ) {
-                    std::cout << "\033[33mUnits converted from [" << units << "] to [" << new_units << "] "
-                     << file_name << ":" << line_no << "\033[0m" << std::endl ;
+                    std::cout << bold(color(WARNING, "Warning    ") + file_name + ":" + std::to_string(line_no)) << std::endl
+                        << "           Units converted from " << quote(units) << " to " << quote(new_units) << std::endl;
                 }
                 units = new_units ;
             }
             ut_unit * test_units = ut_parse(u_system, units.c_str() , UT_ASCII) ;
             if ( test_units == NULL ) {
                 // If the units are invalid write an error message and change the units to "1"
-                std::cout << "\033[31mBad units specification [" << units << "] " << file_name << ":" << line_no
-                 << "\033[0m" << std::endl ;
+                std::cout << bold(color(WARNING, "Warning    ") + file_name + ":" + std::to_string(line_no)) << std::endl
+                    << "           Invalid units specification. Changing " << quote(units) << " to " << quote("1") << std::endl;
                 units = "1" ;
             } else {
                 // If the units are valid, free the memory allocated by new_units.
@@ -262,8 +262,8 @@ void FieldDescription::parseComment(std::string comment) {
     }
 
     if ( io == 4 ) {
-        std::cout << "\033[33mWarning: " << file_name << ": line " << line_no << ": " <<
-         "\"--\" is not a valid trick_io value. Setting to *io (3)\033[0m" << std::endl ;
+        std::cout << bold(color(WARNING, "Warning    ") + file_name + ":" + std::to_string(line_no)) << std::endl
+            << "           -- is not a valid trick_io value. Setting to *io" << std::endl ;
         io = 3 ;
     }
 

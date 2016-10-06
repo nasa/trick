@@ -89,11 +89,10 @@ class PrintAttributes {
         /** We are specifying an output directory for all files */
         std::string output_dir ;
 
-        bool openIOFile(std::string header_file_name) ;
+        bool openIOFile(const std::string& header_file_name) ;
 
         bool isFileIncluded(std::string header_file_name) ;
         bool isIOFileOutOfDate(std::string header_file_name, std::string io_file_name ) ;
-        bool doesIODirectoryExist(std::string io_file_name ) ;
 
         /** Adds empty header files to list of processed files. */
         void addEmptyFiles() ;

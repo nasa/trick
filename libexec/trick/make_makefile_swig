@@ -141,8 +141,8 @@ sub make_swig_makefile() {
     my $s_source_full_path = abs_path("S_source.hh") ;
     my $s_source_md5 = md5_hex($s_source_full_path) ;
 
-    $swig_sim_dir = "\$(CURDIR)/trick" ;
-    $swig_src_dir = "\$(CURDIR)/build" ;
+    $swig_sim_dir = "trick" ;
+    $swig_src_dir = "build" ;
 
     foreach $n (@files_to_process) {
         # check to see if the parent directory of each file is writable.
@@ -168,27 +168,20 @@ sub make_swig_makefile() {
     print LINK_PY_OBJS "build/init_swig_modules.o\n" ;
     print LINK_PY_OBJS "build/py_top.o\n" ;
 
-    print MAKEFILE "\
-# SWIG rule
-SWIG_FLAGS ?=
-SWIG_CFLAGS := -I../include \${PYTHON_INCLUDES} -Wno-shadow -Wno-missing-field-initializers
+    print MAKEFILE "SWIG_CFLAGS := -I../include \${PYTHON_INCLUDES} -Wno-shadow -Wno-missing-field-initializers
 ifeq (\$(IS_CC_CLANG), 1)
- SWIG_CFLAGS += -Wno-self-assign -Wno-sometimes-uninitialized -Wno-deprecated-register
+    SWIG_CFLAGS += -Wno-self-assign -Wno-sometimes-uninitialized -Wno-deprecated-register
 endif
 
-ifdef TRICK_VERBOSE_BUILD
-PRINT_SWIG =
-PRINT_COMPILE_SWIG =
-PRINT_SWIG_INC_LINK =
-#PRINT_CONVERT_SWIG =
-else
-PRINT_SWIG = \@echo \"[34mSwig        [0m \$(subst \$(CURDIR)/build,build,\$<)\"
-PRINT_COMPILE_SWIG = \@echo \"[34mCompiling   [0m \$(subst .o,.cpp,\$(subst \$(CURDIR)/build,build,\$@))\"
-PRINT_SWIG_INC_LINK = \@echo \"[34mPartial link[0m swig objects\"
-#PRINT_CONVERT_SWIG = \@echo \"[34mRunning convert_swig[0m\"
+ifndef TRICK_VERBOSE_BUILD
+    PRINT_SWIG          = \$(info \$(call COLOR,SWIGing)    \$<)
+    PRINT_COMPILE_SWIG  = \$(info \$(call COLOR,Compiling)  \$<)
+    PRINT_SWIG_INC_LINK = \$(info \$(call COLOR,Linking)    SWIG objects)
 endif
 
 SWIG_MODULE_OBJECTS = \$(LIB_DIR)/swig_python.o
+OBJECTS            += \$(SWIG_MODULE_OBJECTS)
+LINK_OBJECTS       += \$(SWIG_MODULE_OBJECTS)
 
 SWIG_PY_OBJECTS =" ;
 
@@ -197,14 +190,21 @@ SWIG_PY_OBJECTS =" ;
         my ($swig_f) = $f ;
         $swig_object_dir = dirname($f) ;
         ($swig_file_only) = ($f =~ /([^\/]*)(?:\.h|\.H|\.hh|\.h\+\+|\.hxx|\.hpp)$/) ;
-        print MAKEFILE" \\\n \$(CURDIR)/build$swig_object_dir/py_${swig_file_only}.o" ;
+        print MAKEFILE" \\\n    build$swig_object_dir/py_${swig_file_only}.o" ;
     }
-    print MAKEFILE "\\\n $swig_src_dir/init_swig_modules.o" ;
-    print MAKEFILE "\\\n $swig_src_dir/py_top.o\n\n" ;
+    print MAKEFILE "\\\n    $swig_src_dir/init_swig_modules.o" ;
+    print MAKEFILE "\\\n    $swig_src_dir/py_top.o\n" ;
 
-    print MAKEFILE "\$(SWIG_PY_OBJECTS) : | trick\n" ;
-    print MAKEFILE "trick :\n" ;
-    print MAKEFILE "\t\@mkdir \$\@\n" ;
+    print MAKEFILE "
+TRICK_FIXED_PYTHON = \\
+    $swig_sim_dir/swig_double.py \\
+    $swig_sim_dir/swig_int.py \\
+    $swig_sim_dir/swig_ref.py \\
+    $swig_sim_dir/shortcuts.py \\
+    $swig_sim_dir/unit_test.py \\
+    $swig_sim_dir/sim_services.py \\
+    $swig_sim_dir/exception.py
+" ;
 
     my %swig_dirs ;
     my %python_modules ;
@@ -237,16 +237,11 @@ SWIG_PY_OBJECTS =" ;
         $swig_f =~ s/([^\/]*)(?:\.h|\.H|\.hh|\.h\+\+|\.hxx|\.hpp)$/$1.i/ ;
         $swig_file_only = $1 ;
         my $link_py_obj = "build" . dirname($swig_f) . "/py_${swig_file_only}.o";
-        $swig_f = "\$(CURDIR)/build" . $swig_f ;
+        $swig_f = "build" . $swig_f ;
         $swig_dir = dirname($swig_f) ;
         $swig_object_dir = dirname($swig_f) ;
         $swig_dirs{$swig_dir} = 1 ;
 
-        print MAKEFILE "$swig_object_dir/py_${swig_file_only}.o : $swig_f\n" ;
-        print MAKEFILE "\t\$(PRINT_SWIG)\n" ;
-        print MAKEFILE "\t\$(ECHO_CMD)\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,362,389,401,451 -outdir trick -o $swig_dir/py_${swig_file_only}.cpp \$<\n" ;
-        print MAKEFILE "\t\$(PRINT_COMPILE_SWIG)\n" ;
-        print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) \$(SWIG_CFLAGS) -c $swig_dir/py_${swig_file_only}.cpp -o \$@\n\n" ;
         print LINK_PY_OBJS "$link_py_obj\n" ;
 
         $ii++ ;
@@ -263,48 +258,30 @@ SWIG_PY_OBJECTS =" ;
     my $wd = abs_path(cwd()) ;
 
     print MAKEFILE "
-\$(SWIG_MODULE_OBJECTS) : TRICK_SYSTEM_CXXFLAGS += -Wno-unused-parameter -Wno-redundant-decls
-
-OBJECTS += \$(SWIG_MODULE_OBJECTS)
-LINK_OBJECTS += \$(SWIG_MODULE_OBJECTS)
 \$(S_MAIN): \$(SWIG_MODULE_OBJECTS)
 
-\$(SWIG_MODULE_OBJECTS) : \$(SWIG_PY_OBJECTS) | \$(LIB_DIR)
+\$(SWIG_MODULE_OBJECTS): TRICK_SYSTEM_CXXFLAGS += -Wno-unused-parameter -Wno-redundant-decls
+\$(SWIG_MODULE_OBJECTS): \$(SWIG_PY_OBJECTS) | \$(LIB_DIR)
 \t\$(PRINT_SWIG_INC_LINK)
 \t\$(ECHO_CMD)\$(LD) \$(LD_PARTIAL) -o \$\@ \$(LD_FILELIST)build/link_py_objs
-\n\n" ;
 
-    print MAKEFILE "$swig_src_dir/py_top.cpp : $swig_src_dir/top.i\n" ;
-    print MAKEFILE "\t\$(PRINT_SWIG)\n" ;
-    print MAKEFILE "\t\$(ECHO_CMD)\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) -c++ -python -includeall -ignoremissing -w201,303,362,389,401,451 -outdir $swig_sim_dir -o \$@ \$<\n\n" ;
+S_main: \$(TRICK_FIXED_PYTHON)
 
-    print MAKEFILE "$swig_src_dir/py_top.o : $swig_src_dir/py_top.cpp\n" ;
-    print MAKEFILE "\t\$(PRINT_COMPILE_SWIG)\n" ;
-    print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) \$(SWIG_CFLAGS) -c \$< -o \$@\n\n" ;
+\$(TRICK_FIXED_PYTHON): $swig_sim_dir/\% : \${TRICK_HOME}/share/trick/swig/\%
+\t\$(ECHO_CMD)/bin/cp -f \$< \$@
 
-    print MAKEFILE "$swig_src_dir/init_swig_modules.o : $swig_src_dir/init_swig_modules.cpp\n" ;
-    print MAKEFILE "\t\$(PRINT_COMPILE_SWIG)\n" ;
-    print MAKEFILE "\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) \$(SWIG_CFLAGS) -c \$< -o \$@\n\n" ;
+py_%.cpp: %.i
+\t\$(PRINT_SWIG)
+\t\$(ECHO_CMD)\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,362,389,401,451 -outdir trick -o \$@ \$<
 
-    print MAKEFILE "TRICK_FIXED_PYTHON = \\
- $swig_sim_dir/swig_double.py \\
- $swig_sim_dir/swig_int.py \\
- $swig_sim_dir/swig_ref.py \\
- $swig_sim_dir/shortcuts.py \\
- $swig_sim_dir/unit_test.py \\
- $swig_sim_dir/sim_services.py \\
- $swig_sim_dir/exception.py\n\n" ;
-    print MAKEFILE "S_main: \$(TRICK_FIXED_PYTHON)\n\n" ;
+%.o: %.cpp
+\t\$(PRINT_COMPILE_SWIG)
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) \$(SWIG_CFLAGS) -c -o \$@ \$<
 
-    print MAKEFILE "\$(TRICK_FIXED_PYTHON) : $swig_sim_dir/\% : \${TRICK_HOME}/share/trick/swig/\%\n" ;
-    print MAKEFILE "\t\$(ECHO_CMD)/bin/cp -f \$< \$@\n\n" ;
+# We don't really need to keep these, but make prints out a huge \"rm -f\" when it automatically
+# deletes intermediate files, and I don't know how to silence that.
+.PRECIOUS: py_%.cpp" ;
 
-    foreach (keys %swig_dirs) {
-        print MAKEFILE "$_:\n" ;
-        print MAKEFILE "\tmkdir -p $_\n\n" ;
-    }
-
-    print MAKEFILE "\n" ;
     close MAKEFILE ;
     close LINK_PY_OBJS ;
 
@@ -491,9 +468,9 @@ LINK_OBJECTS += \$(SWIG_MODULE_OBJECTS)
     }
 
     open MAKEFILECONV , ">build/Makefile_convert_swig" or return ;
-    print MAKEFILECONV "\$(CURDIR)/build/convert_swig_last_run :" ;
+    print MAKEFILECONV "build/convert_swig_last_run:" ;
     foreach $f ( @files_to_process ) {
-        print MAKEFILECONV " \\\n $f" ;
+        print MAKEFILECONV " \\\n    $f" ;
     }
     close MAKEFILECONV ;
 
