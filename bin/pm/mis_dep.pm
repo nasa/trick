@@ -123,6 +123,7 @@ sub get_depends($$) {
     # Now for each object, construct full path to object's src and find src file
     foreach my $o (@list_objects) {
 
+        next if ($o == "" or $o == "None" ) ;
         # look for object code with source
         $found_dep = find_depends_file($file,$o,$sim_ref) ;
 
