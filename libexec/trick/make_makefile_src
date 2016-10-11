@@ -413,7 +413,7 @@ sie: S_sie.resource
 
 S_sie.resource: \$(S_MAIN)
 \t\$(info [34mWriting[0m    S_sie.resource)
-\t\$(ECHO_CMD)\$(S_MAIN) sie\n" ;
+\t\$(ECHO_CMD)./\$(S_MAIN) sie\n" ;
 
 # write out the override files we have read in
 foreach $k ( sort keys %files_by_dir ) {
