@@ -308,7 +308,7 @@ foreach my $ext ( sort keys %object_files_by_type ) {
         $print_ext = $ext ;
     }
     print MAKEFILE "MODEL_${print_ext}_OBJ =" ;
-    foreach $f ( @{$object_files_by_type{$print_ext}} ) {
+    foreach $f ( @{$object_files_by_type{$ext}} ) {
         print MAKEFILE " \\\n    \$($f)" ;
     }
     print MAKEFILE "\n\n" ;
