@@ -2,8 +2,14 @@
 #include <iostream>
 #include <sstream>
 
+
 #include "ClassValues.hh"
 #include "FieldDescription.hh"
+
+#ifdef __APPLE__
+#include "llvm/Support/CommandLine.h"
+extern llvm::cl::opt< bool > no_offset_of ;
+#endif
 
 ClassValues::ClassValues() :
   has_init_attr_friend(false) ,
@@ -23,18 +29,23 @@ ClassValues::~ClassValues() {
 void ClassValues::addFieldDescription(FieldDescription * in_fdes) {
     field_descripts.push_back(in_fdes) ;
 
-    // Test to see if the new field overloads a field of the same name.  If it does
-    // then fully qualify the name of the inherited field (the one already in field_name_to_info).
-    std::map< std::string , FieldDescription * >::iterator mit = field_name_to_info_map.find(in_fdes->getName()) ;
-    if ( mit != field_name_to_info_map.end() ) {
-        // If the matched variable is inherited, qualify it with its container class name.
-        if ( (*mit).second->isInherited() ) {
-            (*mit).second->setName( (*mit).second->getContainerClass() + "::" + (*mit).second->getName() ) ;
-            field_name_to_info_map[(*mit).second->getName()] = (*mit).second ;
-            field_name_to_info_map.erase(mit) ;
+#ifdef __APPLE__
+    if ( no_offset_of ) {
+#else
+    {
+#endif
+        // Test to see if the new field overloads a field of the same name.  If it does
+        // then fully qualify the name of the inherited field (the one already in field_name_to_info).
+        std::map< std::string , FieldDescription * >::iterator mit = field_name_to_info_map.find(in_fdes->getName()) ;
+        if ( mit != field_name_to_info_map.end() ) {
+            // If the matched variable is inherited, qualify it with its container class name.
+            if ( (*mit).second->isInherited() ) {
+                (*mit).second->setName( (*mit).second->getContainerClass() + "::" + (*mit).second->getName() ) ;
+                field_name_to_info_map[(*mit).second->getName()] = (*mit).second ;
+                field_name_to_info_map.erase(mit) ;
+            }
         }
     }
-
     field_name_to_info_map[in_fdes->getName()] = in_fdes ;
 }
 
@@ -45,44 +56,50 @@ void ClassValues::addInheritedFieldDescriptions(std::vector<FieldDescription *> 
 
     std::vector<FieldDescription *>::iterator fdit ;
     // Loop through the incoming inherited variable names
-    for ( fdit = in_fdes.begin() ; fdit != in_fdes.end() ; fdit++ ) {
+#ifdef __APPLE__
+    if ( no_offset_of ) {
+#else
+    {
+#endif
+        for ( fdit = in_fdes.begin() ; fdit != in_fdes.end() ; fdit++ ) {
 
-        (*fdit)->setBaseClassOffset( class_offset ) ;
-        (*fdit)->setInherited( true ) ;
-        (*fdit)->setVirtualInherited( virtual_inherited ) ;
-        // Adds the class offset to the field offset giving the total offset to the inherited variable
-        // The offset is stored in bits so multiply class_offset by 8.
-        (*fdit)->addOffset( class_offset * 8 ) ;
+            (*fdit)->setBaseClassOffset( class_offset ) ;
+            (*fdit)->setInherited( true ) ;
+            (*fdit)->setVirtualInherited( virtual_inherited ) ;
+            // Adds the class offset to the field offset giving the total offset to the inherited variable
+            // The offset is stored in bits so multiply class_offset by 8.
+            (*fdit)->addOffset( class_offset * 8 ) ;
 
-        std::string in_name = (*fdit)->getName() ;
-        // search existing names for incoming inherited variable name.
-        std::map< std::string , FieldDescription * >::iterator mit = field_name_to_info_map.find(in_name) ;
-        // if the variable name already exists we have overloaded variable names.
-        if ( mit != field_name_to_info_map.end() ) {
-            // the incoming variable is known to be inherited.  Qualify it with its container class name.
-            (*fdit)->setName( (*fdit)->getContainerClass() + "::" + (*fdit)->getName() ) ;
-            field_name_to_info_map[(*fdit)->getName()] = *fdit ;
-
-            // If the matched variable is also inherited, qualify it with its container class name.
-            if ( (*mit).second->isInherited() ) {
-                (*mit).second->setName( (*mit).second->getContainerClass() + "::" + (*mit).second->getName() ) ;
-                field_name_to_info_map[(*mit).second->getName()] = (*mit).second ;
-                field_name_to_info_map.erase(mit) ;
-                // Mark this name is one that we always have to qualify.
-                field_names_to_qualify.insert(in_name) ;
-            }
-        } else {
-            // incoming name did not match an existing variable name.
-            // Test to see if there variables of this name need to be qualified.
-            if ( field_names_to_qualify.find(in_name) == field_names_to_qualify.end() ) {
-                // The name is not overloaded (yet), add the unqualified inherited name straight into map.
-                field_name_to_info_map[in_name] = *fdit ;
-                // Upgrade the inherited variable's container class to the current class.
-                //(*fdit)->setContainerClass( name ) ;
-            } else {
-                // The name is overloaded by other inherited variables... qualify the name.
+            std::string in_name = (*fdit)->getName() ;
+            // search existing names for incoming inherited variable name.
+            std::map< std::string , FieldDescription * >::iterator mit = field_name_to_info_map.find(in_name) ;
+            // if the variable name already exists we have overloaded variable names.
+            if ( mit != field_name_to_info_map.end() ) {
+                // the incoming variable is known to be inherited.  Qualify it with its container class name.
                 (*fdit)->setName( (*fdit)->getContainerClass() + "::" + (*fdit)->getName() ) ;
                 field_name_to_info_map[(*fdit)->getName()] = *fdit ;
+
+                // If the matched variable is also inherited, qualify it with its container class name.
+                if ( (*mit).second->isInherited() ) {
+                    (*mit).second->setName( (*mit).second->getContainerClass() + "::" + (*mit).second->getName() ) ;
+                    field_name_to_info_map[(*mit).second->getName()] = (*mit).second ;
+                    field_name_to_info_map.erase(mit) ;
+                    // Mark this name is one that we always have to qualify.
+                    field_names_to_qualify.insert(in_name) ;
+                }
+            } else {
+                // incoming name did not match an existing variable name.
+                // Test to see if there variables of this name need to be qualified.
+                if ( field_names_to_qualify.find(in_name) == field_names_to_qualify.end() ) {
+                    // The name is not overloaded (yet), add the unqualified inherited name straight into map.
+                    field_name_to_info_map[in_name] = *fdit ;
+                    // Upgrade the inherited variable's container class to the current class.
+                    //(*fdit)->setContainerClass( name ) ;
+                } else {
+                    // The name is overloaded by other inherited variables... qualify the name.
+                    (*fdit)->setName( (*fdit)->getContainerClass() + "::" + (*fdit)->getName() ) ;
+                    field_name_to_info_map[(*fdit)->getName()] = *fdit ;
+                }
             }
         }
     }
