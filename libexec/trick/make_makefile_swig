@@ -274,7 +274,7 @@ py_%.cpp: %.i
 \t\$(PRINT_SWIG)
 \t\$(ECHO_CMD)\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,362,389,401,451 -outdir trick -o \$@ \$<
 
-%.o: %.cpp
+\$(SWIG_PY_OBJECTS): %.o: %.cpp
 \t\$(PRINT_COMPILE_SWIG)
 \t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) \$(SWIG_CFLAGS) -c -o \$@ \$<
 
