@@ -17,7 +17,6 @@ export TRICK_ICG_EXCLUDE
 SHELL = /bin/bash
 
 all test: $(TRICK_STATIC_LIB) S_source.hh \
-    build/S_define.deps \
     build/Makefile_io_src \
     build/Makefile_src \
     build/Makefile_swig \
@@ -25,7 +24,7 @@ all test: $(TRICK_STATIC_LIB) S_source.hh \
 	@$(MAKE) --no-print-directory -f build/Makefile_src $@ 2>&1 | tee build/MAKE_out ; exit $${PIPESTATUS[0]}
 
 build:
-	mkdir $@
+	@mkdir $@
 
 debug: all
 debug: TRICK_CPFLAGS += --debug
@@ -38,6 +37,8 @@ $(TRICK_STATIC_LIB):
 S_source.hh build/S_define.lib_deps: S_define | build
 	$(PRINT_CP)
 	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/configuration_processor $(TRICK_CPFLAGS)
+	$(PRINT_S_DEF_DEPS)
+	$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_SFLAGS) $(TRICK_SYSTEM_SFLAGS) -M -MT S_source.hh -MF build/S_define.deps -x c++ S_define
 
 # Automatic and manual ICG rules
 build/Makefile_io_src: | S_source.hh build
@@ -51,11 +52,6 @@ ICG:
 force_ICG:
 	$(PRINT_ICG)
 	$(ECHO_CMD)${TRICK_HOME}/bin/trick-ICG -f -m ${TRICK_ICGFLAGS} ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} S_source.hh
-
-# Build dependencies for recreating S_source.hh
-build/S_define.deps: | build
-	$(PRINT_S_DEF_DEPS)
-	$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_SFLAGS) $(TRICK_SYSTEM_SFLAGS) -M -MT S_source.hh -MF build/S_define.deps -x c++ S_define
 
 # Create makefile for source code
 build/Makefile_src: | build/Makefile_io_src build/S_define.lib_deps
