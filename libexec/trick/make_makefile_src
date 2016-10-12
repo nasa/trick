@@ -53,7 +53,7 @@ if ( scalar @ARGV ) {
     for my $f ( @ARGV ) {
         my $deps_changed ;
         my @resolved_files ;
-        print "Updating Dependencies for $f\n" ;
+        print "[34mTracing[0m    " , "$f\n" ;
         ($deps_changed , @resolved_files ) = write_lib_deps($f) ;
         $any_deps_changed |= $deps_changed ;
     }

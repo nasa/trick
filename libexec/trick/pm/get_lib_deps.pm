@@ -187,10 +187,10 @@ sub write_lib_deps($) {
         close OLDLIBDEP ;
         chomp @old_resolved ;
         if ( @old_resolved ~~ @resolved_files ) {
-            print "Library dependencies unchanged for $source_file_name\n" ;
+            #print "Library dependencies unchanged for $source_file_name\n" ;
             $deps_changed = 0 ;
         } else {
-            print "Library dependencies changed for $source_file_name\n" ;
+            #print "Library dependencies changed for $source_file_name\n" ;
             $deps_changed = 1 ;
         }
     } else {
