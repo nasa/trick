@@ -153,7 +153,7 @@ build/Makefile_ICG: icg
 	@$(TRICK_HOME)/libexec/trick/convert_swig
 
 icg:
-	@$(TRICK_HOME)/bin/trick-ICG $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) S_source.hh
+	@$(TRICK_HOME)/bin/trick-ICG $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(TRICK_ICGFLAGS) S_source.hh
 
 $(dir $(TRICKIFY_LIB_NAME)) $(TRICKIFY_PYTHON_DIR):
 	@mkdir -p $@
