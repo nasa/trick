@@ -239,8 +239,8 @@ LIB_DIR = build/lib
 
 ifndef TRICK_VERBOSE_BUILD
     PRINT_COMPILE    = \$(info \$(call COLOR,Compiling)  \$<)
-    PRINT_INC_LINK   = \$(info \$(call COLOR,Linking)    Contents of \$(dir \$<))
-    PRINT_EXE_LINK   = \$(info \$(call COLOR,Linking)    \$(S_MAIN))
+    PRINT_INC_LINK   = \$(info \$(call COLOR,Linking)    model objects)
+    PRINT_EXE_LINK   = \$(info \$(call COLOR,Linking)    \$@)
     ifeq (\$(MAKECMDGOALS), all)
         \$(info \$(call COLOR,Building with the following compilation flags:))
         \$(info TRICK_CFLAGS   = [36m\$(TRICK_CFLAGS)[0m)
@@ -255,123 +255,51 @@ S_OBJECT_FILES = build/S_source.o
 my %object_files_by_type ;
 my %model_build_dirs ;
 $num_inc_objs = 0 ;
-# list out all of the source and object files
+# List out all of the object files and put the list in a file that we can pass to the linker.
+# Passing all of them directly to the linker in the command line can exceed the line limit.
+open LINK_MODEL_OBJS, ">build/link_model_objs" or die "Could not open build/link_model_objs" ;
+print MAKEFILE "MODEL_OBJECTS =" ;
 foreach $k ( sort keys %files_by_dir ) {
-    foreach my $ext ( qw{ c C cc cxx cpp c++ l y} ) {
-        my $print_ext ;
-        if ( $ext eq "c++" ) {
-            $print_ext = "CPLUSPLUS" ;
-        } else {
-            $print_ext = $ext ;
-        }
+    foreach my $ext ( qw{ c C cc cxx cpp c++ } ) {
         if ( scalar @{$files_by_dir{$k}{$ext}} ne 0 ) {
-            print MAKEFILE "MODEL_${print_ext}_OBJ_$files_by_dir{$k}{dir_num} =" ;
             foreach $f ( @{$files_by_dir{$k}{$ext}} ) {
                 print MAKEFILE " \\\n    build$k/$files_by_dir{$k}{src_dir}$f" . "o" ;
+                print LINK_MODEL_OBJS "build$k/$files_by_dir{$k}{src_dir}$f" . "o\n" ;
             }
-            push @{$object_files_by_type{$ext}}, "MODEL_${print_ext}_OBJ_$files_by_dir{$k}{dir_num}" ;
-
-            print MAKEFILE "\n\n\$(MODEL_${print_ext}_OBJ_$files_by_dir{$k}{dir_num}): | build$k/$files_by_dir{$k}{src_dir}\n" ;
-            if ( ! exists $model_build_dirs{"build$k/$files_by_dir{$k}{src_dir}"}) {
-                $model_build_dirs{"build$k/$files_by_dir{$k}{src_dir}"} = 1 ;
-                print MAKEFILE "\nbuild$k/$files_by_dir{$k}{src_dir}:\n" ;
-                print MAKEFILE "\t\@mkdir -p \$\@\n\n" ;
-            }
-
-            print MAKEFILE "build/lib/o_${print_ext}_$files_by_dir{$k}{dir_num}.o: \$(MODEL_${print_ext}_OBJ_$files_by_dir{$k}{dir_num})\n" ;
-            print MAKEFILE "\t\$(PRINT_INC_LINK)\n" ;
-            print MAKEFILE "\t\$(ECHO_CMD)\$(LD) \$(LD_PARTIAL) -o \$\@ \$^\n\n" ;
             $num_inc_objs++ ;
         }
     }
-    if ( scalar @{$files_by_dir{$k}{l}} ne 0 ) {
-        print MAKEFILE "MODEL_clex_SRC_$files_by_dir{$k}{dir_num} =" ;
-        foreach $f ( @{$files_by_dir{$k}{l}} ) {
-            print MAKEFILE " \\\n    build$k/$files_by_dir{$k}{src_dir}$f" . "clex" ;
-        }
-        print MAKEFILE "\n\n" ;
-    }
-    if ( scalar @{$files_by_dir{$k}{y}} ne 0 ) {
-        print MAKEFILE "MODEL_y_c_SRC_$files_by_dir{$k}{dir_num} =" ;
-        foreach $f ( @{$files_by_dir{$k}{y}} ) {
-            print MAKEFILE " \\\n    build$k/$files_by_dir{$k}{src_dir}$f" . "y.c" ;
-        }
-        print MAKEFILE "\n\n" ;
-    }
 }
-
-foreach my $ext ( sort keys %object_files_by_type ) {
-    my $print_ext ;
-    if ( $ext eq "c++" ) {
-        $print_ext = "CPLUSPLUS" ;
-    } else {
-        $print_ext = $ext ;
-    }
-    print MAKEFILE "MODEL_${print_ext}_OBJ =" ;
-    foreach $f ( @{$object_files_by_type{$ext}} ) {
-        print MAKEFILE " \\\n    \$($f)" ;
-    }
-    print MAKEFILE "\n\n" ;
-}
+close LINK_MODEL_OBJS ;
 
 # Write out the compile rules for each type of file.
-print MAKEFILE
-"\${MODEL_c_OBJ}: build\%.o : \%.c
+print MAKEFILE "
+
+# These targets should have an order-only dependency on their directories, which would require
+# moving them to a .SECONDEXPANSION section and would complicate the rules. However, these
+# directories appear to be created as part of the read_lib_deps function, so I'm leaving it out
+# for now.
+
+build/%.o : /%.c
 \t\$(PRINT_COMPILE)
 \t\$(ECHO_CMD)\$(TRICK_CC) \$(TRICK_CFLAGS) \$(TRICK_SYSTEM_CFLAGS) -I\$(<D) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@
 
-\${MODEL_C_OBJ}: build\%.o : \%.C
-\t\$(PRINT_COMPILE)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@
+define compile_rule
+build/%.o: /%.\$1
+\t\$\$(PRINT_COMPILE)
+\t\$\$(ECHO_CMD)\$\$(TRICK_CPPC) \$\$(TRICK_CXXFLAGS) \$\$(TRICK_SYSTEM_CXXFLAGS) -I\$\$(<D) -I\$\$(<D)/../include -MMD -MP -c \$\$< -o \$\$@
+endef
 
-\${MODEL_cc_OBJ}: build\%.o : \%.cc
-\t\$(PRINT_COMPILE)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@
+EXTENSIONS := C cc cpp cxx c++
+\$(foreach EXTENSION,\$(EXTENSIONS),\$(eval \$(call compile_rule,\$(EXTENSION))))
 
-\${MODEL_cpp_OBJ}: build\%.o : \%.cpp
-\t\$(PRINT_COMPILE)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@
+-include \$(MODEL_OBJECTS:.o=.d)
 
-\${MODEL_cxx_OBJ}: build\%.o : \%.cxx
-\t\$(PRINT_COMPILE)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@
+OBJECTS = \$(LIB_DIR)/models.o
 
-\${MODEL_CPLUSPLUS_OBJ}: build\%.o : \%.c++
-\t\$(PRINT_COMPILE)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@
-
-\${MODEL_clex_SRC}: build\%.clex : \%.l
-\t\$(LEX) -o\$\@ \$<
-
-\${MODEL_y_c_SRC}: build\%.y.c : \%.y
-\t\$(YACC) -o\$\@ \$<
-
-\${MODEL_y_OBJ}: build\%.o : \%.y.c
-\t\$(PRINT_COMPILE)
-\t\$(ECHO_CMD)cd \$(<D) ; \$(TRICK_CC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c \${<F} -o \$\@
-
--include \$(MODEL_c_OBJ:.o=.d)
--include \$(MODEL_C_OBJ:.o=.d)
--include \$(MODEL_cc_OBJ:.o=.d)
--include \$(MODEL_cpp_OBJ:.o=.d)
--include \$(MODEL_cxx_OBJ:.o=.d)
--include \$(MODEL_CPLUSPLUS_OBJ:.o=.d)
-
-OBJECTS =" ;
-
-foreach $k ( sort keys %files_by_dir ) {
-    foreach my $ext ( qw{ c C cc cxx cpp c++ l y} ) {
-        my $print_ext ;
-        if ( $ext eq "c++" ) {
-            $print_ext = "CPLUSPLUS" ;
-        } else {
-            $print_ext = $ext ;
-        }
-        if ( scalar @{$files_by_dir{$k}{$ext}} ne 0 ) {
-            print MAKEFILE " \\\n    build/lib/o_${print_ext}_$files_by_dir{$k}{dir_num}.o" ;
-        }
-    }
-}
+\$(LIB_DIR)/models.o: \$(MODEL_OBJECTS)
+\t\$(PRINT_INC_LINK)
+\t\$(ECHO_CMD)\$(LD) \$(LD_PARTIAL) -o \$@ \$(LD_FILELIST)build/link_model_objs" ;
 
 # print out the libraries we link
 print MAKEFILE "\n\nREAD_ONLY_LIBS =";
@@ -393,7 +321,7 @@ S_main: \$(S_MAIN) S_sie.resource
 \$(S_MAIN): \${TRICK_STATIC_LIB} \$(OBJECTS) \$(S_OBJECT_FILES)
 \t\$(PRINT_EXE_LINK)
 \t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_LDFLAGS) -o \$@ \\
-\t\t\$(S_OBJECT_FILES) \$(LD_FILELIST)build/link_objs \$(LINK_OBJECTS)\\
+\t\t\$(S_OBJECT_FILES) \$(LIB_DIR)/models.o \$(LINK_OBJECTS)\\
 \t\t\${TRICK_USER_LINK_LIBS} \${READ_ONLY_LIBS} \\
 \t\t\$(LD_WHOLE_ARCHIVE) \${TRICK_LIBS} \$(LD_NO_WHOLE_ARCHIVE)\\
 \t\t\${TRICK_EXEC_LINK_LIBS}
@@ -427,23 +355,6 @@ print MAKEFILE "\n-include build/Makefile_io_src\n" ;
 print MAKEFILE "include build/Makefile_swig\n" ;
 print MAKEFILE "-include S_overrides.mk\n" ;
 close MAKEFILE ;
-
-# write out all of partial linked objects to link_objs that is read in during final linking
-open LINKOBJS, ">build/link_objs" or die "Could not open build/link_objs" ;
-foreach $k ( sort keys %files_by_dir ) {
-    foreach my $ext ( qw{ c C cc cxx cpp c++ l y} ) {
-        my $print_ext ;
-        if ( $ext eq "c++" ) {
-            $print_ext = "CPLUSPLUS" ;
-        } else {
-            $print_ext = $ext ;
-        }
-        if ( scalar @{$files_by_dir{$k}{$ext}} ne 0 ) {
-            print LINKOBJS "build/lib/o_${print_ext}_$files_by_dir{$k}{dir_num}.o\n" ;
-        }
-    }
-}
-close LINKOBJS ;
 
 # write out all of files we processed as dependencies to Makefile_src
 open MAKEFILEDEPS, ">build/Makefile_src_deps" or die "Could not open build/Makefile_src_deps" ;
