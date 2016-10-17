@@ -6,7 +6,6 @@
 #include <QPolygonF>
 #include <QPainter>
 #include <QPixmap>
-#include <QHash>
 #include <QList>
 #include <QColor>
 #include <QMouseEvent>
@@ -16,6 +15,7 @@
 #include <QSizeF>
 #include <QLineF>
 #include <QItemSelectionModel>
+#include <QEasingCurve>
 #include <stdlib.h>
 #include <float.h>
 #include "bookidxview.h"
@@ -102,11 +102,8 @@ protected:
 
 
 private:
-    QHash<TrickCurveModel*,QPainterPath*> _curve2path;
     QPainterPath* _errorPath;
-    QPainterPath* _createPainterPath(TrickCurveModel *curveModel);
-    QPainterPath* _createErrorPath(const QModelIndex& curveIdx0,
-                                   const QModelIndex &curveIdx1);
+
     QRectF _bbox();
     QPainterPath _sinPath();
     QPainterPath _stepPath();
@@ -120,17 +117,12 @@ private:
     QPointF _mousePressMathTopLeft;
     QModelIndex _mousePressCurrentIndex;
 
-    void _updateAxisLabelUnits(const QModelIndex &curveIdx,QChar axis) const;
-
     QRectF _currBBox;
 
-    QRectF _curveBBox(TrickCurveModel *curveModel,
-                      const QModelIndex &curveIdx) const ;
-    QRectF _calcBBox() const ;
+    QRectF _curveBBox(const QModelIndex &curveIdx) const ;
 
     void _paintCoplot(const QTransform& T,QPainter& painter,QPen& pen);
     void _paintErrorplot(QPainter& painter, const QPen &pen,
-                         QPainterPath *errorPath,
                          const QModelIndex &plotIdx);
     void _paintCurve(const QModelIndex& curveIdx,
                      const QTransform &T, QPainter& painter, QPen& pen);

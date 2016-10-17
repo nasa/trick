@@ -288,7 +288,11 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             _addChild(plotItem, "PlotName", _descrPlotTitle(plot));
             _addChild(plotItem, "PlotTitle",      plot->title());
             _addChild(plotItem, "PlotMathRect", QRectF());
-            _addChild(plotItem, "PlotPresentation", "");
+            if ( numRuns == 2 && plot->curves().size() == 1 ) {
+                _addChild(plotItem, "PlotPresentation", "error");
+            } else {
+                _addChild(plotItem, "PlotPresentation", "coplot");
+            }
             _addChild(plotItem, "PlotPointSize", 0.0);
             _addChild(plotItem, "PlotXAxisLabel", plot->xAxisLabel());
             _addChild(plotItem, "PlotYAxisLabel", plot->yAxisLabel());
@@ -316,6 +320,15 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                               runId, curveId, colors);
                 }
             }
+
+            // Initialize plot math rect to curves bounding box
+            QModelIndex curvesIdx = curvesItem->index();
+            QRectF bbox = _bookModel->calcCurvesBBox(curvesIdx);
+            QModelIndex plotIdx = plotItem->index();
+            QModelIndex plotMathRectIdx = _bookModel->getDataIndex(plotIdx,
+                                                                 "PlotMathRect",
+                                                                 "Plot");
+            _bookModel->setData(plotMathRectIdx,bbox);
         }
         pageNum++;
     }
@@ -533,12 +546,12 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     }
     _addChild(curveItem, "CurveColor", color);
 
-    // End blocking signals to speed up curve insertion
-    block = _bookModel->blockSignals(block);
-
     // Finally, add actual curve model data with signals turned on
     QVariant v = PtrToQVariant<TrickCurveModel>::convert(curveModel);
     _addChild(curveItem, "CurveData", v);
+
+    // End blocking signals
+    block = _bookModel->blockSignals(block);
 }
 
 bool DPTreeWidget::_isDP(const QString &fp)

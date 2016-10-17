@@ -1,8 +1,7 @@
 #include "bookview_xaxislabel.h"
 
 XAxisLabelView::XAxisLabelView(QWidget *parent) :
-    BookIdxView(parent),
-    _xAxisLabelText("")
+    BookIdxView(parent)
 {
     setFrameShape(QFrame::NoFrame);
 }
@@ -19,7 +18,7 @@ void XAxisLabelView::paintEvent(QPaintEvent *event)
 
     int vw = viewport()->width();
     QFontMetrics fm = viewport()->fontMetrics();
-    QString txt = fm.elidedText(_xAxisLabelText, Qt::ElideLeft, vw);
+    QString txt = fm.elidedText(_xAxisLabelText(), Qt::ElideLeft, vw);
     QRect bb = fm.tightBoundingRect(txt);
     int bw = bb.width();
     int bh = bb.height();
@@ -41,7 +40,7 @@ QSize XAxisLabelView::sizeHint() const
 {
     QSize s;
     QFontMetrics fm = viewport()->fontMetrics();
-    QRect bb = fm.boundingRect(_xAxisLabelText);
+    QRect bb = fm.boundingRect(_xAxisLabelText());
     s.setWidth(bb.width());
     s.setHeight(2*bb.height()); // 2 is arbitrary
     return s;
@@ -55,12 +54,13 @@ void XAxisLabelView::wheelEvent(QWheelEvent *e)
     // Extract what is inside curly brackets in Plot[XY]AxisLabel
     // e.g. if PlotXAxisLabel == "Time {s}" return "s"
     QString unit;
-    int openCurly = _xAxisLabelText.indexOf('{');
+    QString xAxisLabelText = _xAxisLabelText();
+    int openCurly = xAxisLabelText.indexOf('{');
     if ( openCurly >= 0 ) {
-        int closeCurly = _xAxisLabelText.indexOf('}');
+        int closeCurly = xAxisLabelText.indexOf('}');
         if ( closeCurly > openCurly+1 ) {
             // e.g. for "Time {s}" ->  openCurly=5 closeCurly=7
-            unit = _xAxisLabelText.mid(openCurly+1, closeCurly-openCurly-1);
+            unit = xAxisLabelText.mid(openCurly+1, closeCurly-openCurly-1);
         }
     }
     if ( unit.isEmpty() || unit == "--" ) {
@@ -116,6 +116,26 @@ void XAxisLabelView::wheelEvent(QWheelEvent *e)
     }
 }
 
+QString XAxisLabelView::_xAxisLabelText() const
+{
+    QString label;
+
+    if ( !model() ) return label;
+    QModelIndex plotIdx = rootIndex();
+    if ( !plotIdx.isValid() ) return label;
+    QString plotTag = model()->data(plotIdx).toString();
+    if ( plotTag != "Plot" ) return label;
+
+    label = _bookModel()->getDataString(plotIdx,"PlotXAxisLabel");
+
+    QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
+    QString unit = _bookModel()->getCurvesXUnit(curvesIdx);
+
+    label = label + " {" + unit + "}";
+
+    return label;
+}
+
 void XAxisLabelView::dataChanged(const QModelIndex &topLeft,
                                  const QModelIndex &bottomRight)
 {
@@ -126,8 +146,6 @@ void XAxisLabelView::dataChanged(const QModelIndex &topLeft,
     QModelIndex tagIdx = model()->index(topLeft.row(),0,topLeft.parent());
     QString tag = model()->data(tagIdx).toString();
     if ( tag != "PlotXAxisLabel" ) return;
-
-    _xAxisLabelText = model()->data(topLeft).toString();
 
     viewport()->update(); // important to use viewport()->update(), not update()
                           // since refresh will not be immediate with update()
@@ -143,7 +161,8 @@ void XAxisLabelView::rowsInserted(const QModelIndex &pidx, int start, int end)
         QModelIndex idx = model()->index(i,0,pidx);
         if ( model()->data(idx).toString() == "PlotXAxisLabel" ) {
             idx = model()->sibling(i,1,idx);
-            _xAxisLabelText = model()->data(idx).toString();
+            viewport()->update();
+            break;
         }
     }
 }

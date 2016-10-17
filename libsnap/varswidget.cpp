@@ -168,14 +168,18 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
     _addChild(plotItem, "PlotName", plotName);
     _addChild(plotItem, "PlotTitle", "");
     _addChild(plotItem, "PlotMathRect", QRectF());
-    _addChild(plotItem, "PlotPresentation", "");
+    int rc = _monteModel->rowCount(); // a curve per run, so, rc == nCurves
+    if ( rc == 2 ) {
+        _addChild(plotItem, "PlotPresentation", "error");
+    } else {
+        _addChild(plotItem, "PlotPresentation", "coplot");
+    }
     _addChild(plotItem, "PlotXAxisLabel", xName);
     _addChild(plotItem, "PlotYAxisLabel", yName);
 
     QStandardItem *curvesItem = _addChild(plotItem,"Curves");
 
 
-    int rc = _monteModel->rowCount(); // a curve per run, so, rc == nCurves
     QList<QColor> colors = _plotModel->createCurveColors(rc);
     for ( int r = 0; r < rc; ++r) {
 
@@ -222,6 +226,15 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
         QVariant v = PtrToQVariant<TrickCurveModel>::convert(curveModel);
         _addChild(curveItem, "CurveData", v);
     }
+
+    // Initialize plot math rect to curves bounding box
+    QModelIndex curvesIdx = curvesItem->index();
+    QRectF bbox = _plotModel->calcCurvesBBox(curvesIdx);
+    QModelIndex plotIdx = plotItem->index();
+    QModelIndex plotMathRectIdx = _plotModel->getDataIndex(plotIdx,
+                                                           "PlotMathRect",
+                                                           "Plot");
+    _plotModel->setData(plotMathRectIdx,bbox);
 }
 
 QStandardItem* VarsWidget::_addChild(QStandardItem *parentItem,

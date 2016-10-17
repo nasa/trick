@@ -3,7 +3,10 @@
 
 #include <QStandardItemModel>
 #include <QStandardItem>
+#include <QHash>
+#include <QPainterPath>
 #include "libsnap/montemodel.h"
+#include "libsnap/unit.h"
 #include "libsnap/utils.h"
 
 #include <QList>
@@ -17,9 +20,15 @@ public:
                             QObject *parent = 0);
     explicit PlotBookModel( MonteModel* monteModel,
                             int rows, int columns, QObject * parent = 0 );
+    ~PlotBookModel();
 
+    virtual bool setData(const QModelIndex &idx,
+                         const QVariant &value, int role=Qt::EditRole);
+
+public:
     double xScale(const QModelIndex& curveIdx) const;
     double yScale(const QModelIndex& curveIdx) const;
+    QRectF calcCurvesBBox(const QModelIndex& curvesIdx) const;
 
     QStandardItem* addChild(QStandardItem* parentItem,
                             const QString& childTitle,
@@ -49,8 +58,15 @@ public:
     int getDataInt(const QModelIndex& startIdx,
                          const QString& searchItemText,
                          const QString &expectedStartIdxText=QString()) const;
-    TrickCurveModel* getTrickCurveModel(const QModelIndex& curvesIdx, int i) const;
+
+    TrickCurveModel* getTrickCurveModel(const QModelIndex& curvesIdx,
+                                        int i) const;
     TrickCurveModel* getTrickCurveModel(const QModelIndex& curveIdx) const;
+
+    QPainterPath* getCurvePainterPath(const QModelIndex& curveIdx) const;
+    QPainterPath* getCurvesErrorPath(const QModelIndex& curvesIdx);
+    QString getCurvesXUnit(const QModelIndex& curvesIdx);
+    QString getCurvesYUnit(const QModelIndex& curvesIdx);
 
     QModelIndexList getIndexList(const QModelIndex& startIdx,
                         const QString& searchItemText,
@@ -77,6 +93,9 @@ private:
                         const QString& ancestorText,
                         const QString &expectedStartIdxText=QString()) const;
 
+    QHash<TrickCurveModel*,QPainterPath*> _curve2path;
+    QPainterPath* _createPainterPath(TrickCurveModel *curveModel);
+    QPainterPath* _createCurvesErrorPath(const QModelIndex& curvesIdx) const;
 };
 
 #endif // PLOTBOOKMODEL_H

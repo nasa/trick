@@ -22,7 +22,7 @@ protected:
     void wheelEvent(QWheelEvent *e);
 
 private:
-    QString _yAxisLabelText;
+    QString _yAxisLabelText() const;
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,
