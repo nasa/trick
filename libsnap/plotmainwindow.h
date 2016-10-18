@@ -65,7 +65,6 @@ private:
     QMenuBar* _menuBar;
     QMenu *_fileMenu;
     QAction *_pdfAction;
-    QAction *_vectorPdfAction;
     QAction *_exitAction;
     TimeItLinux _timer;
 
