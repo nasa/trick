@@ -423,7 +423,7 @@ void PrintAttributes::addEmptyFiles() {
 void PrintAttributes::printIOMakefile() {
     std::ofstream makefile_io_src ;
     std::ofstream makefile_ICG ;
-    std::ofstream link_io_objs ;
+    std::ofstream io_link_list ;
     std::ofstream ICG_processed ;
     std::ofstream ext_lib ;
     unsigned int ii ;
@@ -436,46 +436,33 @@ void PrintAttributes::printIOMakefile() {
     std::cout << color(INFO, "Writing") << "    Makefile_io_src" << std::endl ;
 
     makefile_io_src.open("build/Makefile_io_src") ;
-    makefile_io_src << "TRICK_SYSTEM_CXXFLAGS += \\" << std::endl
-        << "    -std=c++11 \\" << std::endl
-        << "    -Wno-invalid-offsetof \\" << std::endl
-        << "    -Wno-old-style-cast \\" << std::endl
-        << "    -Wno-write-strings \\" << std::endl
-        << "    -Wno-unused-variable" << std::endl
+    makefile_io_src
+        << "TRICK_SYSTEM_CXXFLAGS += -std=c++11 -Wno-invalid-offsetof -Wno-old-style-cast -Wno-write-strings -Wno-unused-variable" << std::endl
         << std::endl
         << "ifeq ($(IS_CC_CLANG), 0)" << std::endl
         << "    TRICK_SYSTEM_CXXFLAGS += -Wno-unused-local-typedefs -Wno-unused-but-set-variable" << std::endl
         << "endif" << std::endl
         << std::endl
-        << "ifndef TRICK_VERBOSE_BUILD" << std::endl
-        << "    PRINT_IO_INC_LINK = @echo \"$(call COLOR,Linking)    IO objects\"" << std::endl
-        << "endif" << std::endl
-        << std::endl
-        << "IO_OBJ_FILES =" ;
+        << "IO_OBJECTS =" ;
 
     std::map< std::string , std::string >::iterator mit ;
     for ( mit = all_io_files.begin() ; mit != all_io_files.end() ; mit++ ) {
         size_t found ;
         found = (*mit).second.find_last_of(".") ;
-        makefile_io_src << " \\\n    $(CURDIR)/" << (*mit).second.substr(0,found) << ".o" ;
+        makefile_io_src << " \\\n    " << (*mit).second.substr(0,found) << ".o" ;
     }
 
-    makefile_io_src << " \\\n    $(CURDIR)/build/class_map.o" << std::endl
+    makefile_io_src << " \\\n    build/class_map.o" << std::endl
         << std::endl
-        << "$(IO_OBJ_FILES): \%.o : \%.cpp" << std::endl
+        << "LINK_LISTS += $(LD_FILELIST)build/io_link_list" << std::endl
+        << std::endl
+        << "$(S_MAIN): $(IO_OBJECTS)" << std::endl
+        << std::endl
+        << "$(IO_OBJECTS): \%.o : \%.cpp" << std::endl
         << "\t$(PRINT_IO_COMPILE)" << std::endl
         << "\t$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c $< -o $@" << std::endl
         << std::endl
-        << "-include $(IO_OBJ_FILES:.o=.d)" << std::endl
-        << std::endl
-        << "OBJECTS      += $(LIB_DIR)/io_src.o" << std::endl
-        << "LINK_OBJECTS += $(LIB_DIR)/io_src.o" << std::endl
-        << std::endl
-        << "$(S_MAIN): $(LIB_DIR)/io_src.o" << std::endl
-        << std::endl
-        << "$(LIB_DIR)/io_src.o : $(IO_OBJ_FILES) | $(LIB_DIR)" << std::endl
-        << "\t$(PRINT_IO_INC_LINK)" << std::endl
-        << "\t$(ECHO_CMD)$(LD) $(LD_PARTIAL) -o $@ $(LD_FILELIST)build/link_io_objs" << std::endl
+        << "-include $(IO_OBJECTS:.o=.d)" << std::endl
         << std::endl ;
 
     makefile_io_src.close() ;
@@ -484,13 +471,12 @@ void PrintAttributes::printIOMakefile() {
        Makefile_ICG lists all headers as dependencies of Makefile_io_src
        causing ICG to run if any header file changes.
 
-       link_io_objs lists all io_src object files to be partially
-       linked into a single io_object.
+       io_link_list lists all io object files to be linked.
 
        ICG_process lists all header files to be used by SWIG.
      */
     makefile_ICG.open("build/Makefile_ICG") ;
-    link_io_objs.open("build/link_io_objs") ;
+    io_link_list.open("build/io_link_list") ;
     ICG_processed.open("build/ICG_processed") ;
 
     makefile_ICG << "build/Makefile_io_src:" ;
@@ -498,7 +484,7 @@ void PrintAttributes::printIOMakefile() {
         makefile_ICG << " \\\n    " << (*mit).first ;
         size_t found ;
         found = (*mit).second.find_last_of(".") ;
-        link_io_objs << (*mit).second.substr(0,found) << ".o" << std::endl ;
+        io_link_list << (*mit).second.substr(0,found) << ".o" << std::endl ;
         ICG_processed << (*mit).first << std::endl ;
     }
     makefile_ICG.close() ;
@@ -511,8 +497,8 @@ void PrintAttributes::printIOMakefile() {
     }
     ICG_processed.close() ;
 
-    link_io_objs << "build/class_map.o" << std::endl ;
-    link_io_objs.close() ;
+    io_link_list << "build/class_map.o" << std::endl ;
+    io_link_list.close() ;
 
     ext_lib.open("build/ICG_ext_lib") ;
     for ( sit = ext_lib_io_files.begin() ; sit != ext_lib_io_files.end() ; sit++ ) {

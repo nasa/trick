@@ -164,11 +164,12 @@ sub make_swig_makefile() {
     @files_to_process = sort keys %temp_hash ;
 
     open MAKEFILE , ">build/Makefile_swig" or return ;
-    open LINK_PY_OBJS , ">build/link_py_objs" or return ;
-    print LINK_PY_OBJS "build/init_swig_modules.o\n" ;
-    print LINK_PY_OBJS "build/py_top.o\n" ;
+    open PY_LINK_LIST , ">build/py_link_list" or return ;
+    print PY_LINK_LIST "build/init_swig_modules.o\n" ;
+    print PY_LINK_LIST "build/py_top.o\n" ;
 
     print MAKEFILE "SWIG_CFLAGS := -I../include \${PYTHON_INCLUDES} -Wno-shadow -Wno-missing-field-initializers
+
 ifeq (\$(IS_CC_CLANG), 1)
     SWIG_CFLAGS += -Wno-self-assign -Wno-sometimes-uninitialized -Wno-deprecated-register
 endif
@@ -176,14 +177,9 @@ endif
 ifndef TRICK_VERBOSE_BUILD
     PRINT_SWIG          = \$(info \$(call COLOR,SWIGing)    \$<)
     PRINT_COMPILE_SWIG  = \$(info \$(call COLOR,Compiling)  \$<)
-    PRINT_SWIG_INC_LINK = \$(info \$(call COLOR,Linking)    SWIG objects)
 endif
 
-SWIG_MODULE_OBJECTS = \$(LIB_DIR)/swig_python.o
-OBJECTS            += \$(SWIG_MODULE_OBJECTS)
-LINK_OBJECTS       += \$(SWIG_MODULE_OBJECTS)
-
-SWIG_PY_OBJECTS =" ;
+SWIG_OBJECTS =" ;
 
     foreach my $f ( @files_to_process ) {
         my ($swig_dir, $swig_object_dir , $swig_module_dir , $swig_file_only) ;
@@ -242,7 +238,7 @@ TRICK_FIXED_PYTHON = \\
         $swig_object_dir = dirname($swig_f) ;
         $swig_dirs{$swig_dir} = 1 ;
 
-        print LINK_PY_OBJS "$link_py_obj\n" ;
+        print PY_LINK_LIST "$link_py_obj\n" ;
 
         $ii++ ;
     }
@@ -258,12 +254,11 @@ TRICK_FIXED_PYTHON = \\
     my $wd = abs_path(cwd()) ;
 
     print MAKEFILE "
-\$(S_MAIN): \$(SWIG_MODULE_OBJECTS)
+LINK_LISTS += \$(LD_FILELIST)build/py_link_list
 
-\$(SWIG_MODULE_OBJECTS): TRICK_SYSTEM_CXXFLAGS += -Wno-unused-parameter -Wno-redundant-decls
-\$(SWIG_MODULE_OBJECTS): \$(SWIG_PY_OBJECTS) | \$(LIB_DIR)
-\t\$(PRINT_SWIG_INC_LINK)
-\t\$(ECHO_CMD)\$(LD) \$(LD_PARTIAL) -o \$\@ \$(LD_FILELIST)build/link_py_objs
+\$(S_MAIN): \$(SWIG_OBJECTS)
+
+#\$(SWIG_OBJECTS): TRICK_SYSTEM_CXXFLAGS += -Wno-unused-parameter -Wno-redundant-decls
 
 S_main: \$(TRICK_FIXED_PYTHON)
 
@@ -274,7 +269,7 @@ py_%.cpp: %.i
 \t\$(PRINT_SWIG)
 \t\$(ECHO_CMD)\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,362,389,401,451 -outdir trick -o \$@ \$<
 
-\$(SWIG_PY_OBJECTS): %.o: %.cpp
+\$(SWIG_OBJECTS): %.o: %.cpp
 \t\$(PRINT_COMPILE_SWIG)
 \t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) \$(SWIG_CFLAGS) -c -o \$@ \$<
 
@@ -283,7 +278,7 @@ py_%.cpp: %.i
 .PRECIOUS: py_%.cpp" ;
 
     close MAKEFILE ;
-    close LINK_PY_OBJS ;
+    close PY_LINK_LIST ;
 
     open SWIGLIB , ">build/S_library_swig" or return ;
     foreach my $f ( @files_to_process ) {

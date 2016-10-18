@@ -235,12 +235,10 @@ ifeq (\$(MAKECMDGOALS), test)
     S_MAIN  = T_main_\${TRICK_HOST_CPU}.exe
 endif
 
-LIB_DIR = build/lib
-
 ifndef TRICK_VERBOSE_BUILD
     PRINT_COMPILE    = \$(info \$(call COLOR,Compiling)  \$<)
-    PRINT_INC_LINK   = \$(info \$(call COLOR,Linking)    model objects)
     PRINT_EXE_LINK   = \$(info \$(call COLOR,Linking)    \$@)
+    PRINT_SIE        = \$(info \$(call COLOR,Writing)    \$@)
     ifeq (\$(MAKECMDGOALS), all)
         \$(info \$(call COLOR,Building with the following compilation flags:))
         \$(info TRICK_CFLAGS   = [36m\$(TRICK_CFLAGS)[0m)
@@ -248,32 +246,34 @@ ifndef TRICK_VERBOSE_BUILD
     endif
 endif
 
-S_OBJECT_FILES = build/S_source.o
+S_OBJECTS = build/S_source.o
 
-\$(S_OBJECT_FILES): | \$(LIB_DIR)\n\n" ;
+" ;
 
 my %object_files_by_type ;
 my %model_build_dirs ;
 $num_inc_objs = 0 ;
 # List out all of the object files and put the list in a file that we can pass to the linker.
 # Passing all of them directly to the linker in the command line can exceed the line limit.
-open LINK_MODEL_OBJS, ">build/link_model_objs" or die "Could not open build/link_model_objs" ;
+open MODEL_LINK_LIST, ">build/model_link_list" or die "Could not open build/model_link_list" ;
 print MAKEFILE "MODEL_OBJECTS =" ;
 foreach $k ( sort keys %files_by_dir ) {
     foreach my $ext ( qw{ c C cc cxx cpp c++ } ) {
         if ( scalar @{$files_by_dir{$k}{$ext}} ne 0 ) {
             foreach $f ( @{$files_by_dir{$k}{$ext}} ) {
                 print MAKEFILE " \\\n    build$k/$files_by_dir{$k}{src_dir}$f" . "o" ;
-                print LINK_MODEL_OBJS "build$k/$files_by_dir{$k}{src_dir}$f" . "o\n" ;
+                print MODEL_LINK_LIST "build$k/$files_by_dir{$k}{src_dir}$f" . "o\n" ;
             }
             $num_inc_objs++ ;
         }
     }
 }
-close LINK_MODEL_OBJS ;
+close MODEL_LINK_LIST ;
 
 # Write out the compile rules for each type of file.
 print MAKEFILE "
+
+LINK_LISTS += \$(LD_FILELIST)build/model_link_list
 
 # These targets should have an order-only dependency on their directories, which would require
 # moving them to a .SECONDEXPANSION section and would complicate the rules. However, these
@@ -293,13 +293,7 @@ endef
 EXTENSIONS := C cc cpp cxx c++
 \$(foreach EXTENSION,\$(EXTENSIONS),\$(eval \$(call compile_rule,\$(EXTENSION))))
 
--include \$(MODEL_OBJECTS:.o=.d)
-
-OBJECTS = \$(LIB_DIR)/models.o
-
-\$(LIB_DIR)/models.o: \$(MODEL_OBJECTS)
-\t\$(PRINT_INC_LINK)
-\t\$(ECHO_CMD)\$(LD) \$(LD_PARTIAL) -o \$@ \$(LD_FILELIST)build/link_model_objs" ;
+-include \$(MODEL_OBJECTS:.o=.d)" ;
 
 # print out the libraries we link
 print MAKEFILE "\n\nREAD_ONLY_LIBS =";
@@ -318,18 +312,9 @@ test: all
 S_main: \$(S_MAIN) S_sie.resource
 \t\$(info [32mTrick Build Process Complete[00m)
 
-\$(S_MAIN): \${TRICK_STATIC_LIB} \$(OBJECTS) \$(S_OBJECT_FILES)
+\$(S_MAIN): \$(TRICK_STATIC_LIB) \$(S_OBJECTS) \$(MODEL_OBJECTS)
 \t\$(PRINT_EXE_LINK)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_LDFLAGS) -o \$@ \\
-\t\t\$(S_OBJECT_FILES) \$(LIB_DIR)/models.o \$(LINK_OBJECTS)\\
-\t\t\${TRICK_USER_LINK_LIBS} \${READ_ONLY_LIBS} \\
-\t\t\$(LD_WHOLE_ARCHIVE) \${TRICK_LIBS} \$(LD_NO_WHOLE_ARCHIVE)\\
-\t\t\${TRICK_EXEC_LINK_LIBS}
-
-\$(OBJECTS): | \$(LIB_DIR)
-
-\$(LIB_DIR):
-\t\@mkdir -p \$@
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_LDFLAGS) -o \$@ \$(S_OBJECTS) \$(LINK_LISTS) \$(TRICK_USER_LINK_LIBS) \$(READ_ONLY_LIBS) \$(LD_WHOLE_ARCHIVE) \$(TRICK_LIBS) \$(LD_NO_WHOLE_ARCHIVE) \$(TRICK_EXEC_LINK_LIBS)
 
 build/S_source.o: build/S_source.cpp
 \t\$(PRINT_COMPILE)
@@ -340,7 +325,7 @@ build/S_source.o: build/S_source.cpp
 sie: S_sie.resource
 
 S_sie.resource: \$(S_MAIN)
-\t\$(info [34mWriting[0m    S_sie.resource)
+\t\$(PRINT_SIE)
 \t\$(ECHO_CMD)./\$(S_MAIN) sie\n" ;
 
 # write out the override files we have read in
@@ -351,9 +336,10 @@ foreach $k ( sort keys %files_by_dir ) {
     }
 }
 
-print MAKEFILE "\n-include build/Makefile_io_src\n" ;
-print MAKEFILE "include build/Makefile_swig\n" ;
-print MAKEFILE "-include S_overrides.mk\n" ;
+print MAKEFILE "
+-include build/Makefile_io_src
+include build/Makefile_swig
+-include S_overrides.mk" ;
 close MAKEFILE ;
 
 # write out all of files we processed as dependencies to Makefile_src
