@@ -91,8 +91,9 @@ PlotMainWindow::PlotMainWindow(
 #endif
     }
 
-    _plotTreeView = new QTreeView(lsplit);
-    _plotTreeView->setModel(_bookModel);
+    // TO DEBUG: Uncomment out the next two lines
+    //_plotTreeView = new QTreeView(lsplit);
+    //_plotTreeView->setModel(_bookModel);
 
     // Vars/DP Notebook
     _nbDPVars = new QTabWidget(lsplit);
