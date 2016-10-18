@@ -273,24 +273,25 @@ void PlotMainWindow::savePdf(const QString& fname)
 
 void PlotMainWindow::_savePdf()
 {
-    /*
     QString fname = QFileDialog::getSaveFileName(this,
                                                  QString("Save As PDF"),
                                                  QString(""),
                                                  tr("files (*.pdf)"));
 
-    */
-    QString fname = "/home/vetter/dev/trick-07.23.1/trick_sims/SIM_ball_L1/dog.pdf";
+    //QString fname = "/users/kvetter/dev/dog.pdf";
+
     if ( ! fname.isEmpty() ) {
         _bookView->savePdf(fname);
-        //exit(-1);
 
+        /*
         QString program = "evince";
         QStringList arguments;
         arguments << fname;
         QProcess *myProcess = new QProcess(this);
         myProcess->start(program, arguments);
+        */
 
+        /*
         QFileInfo fi(fname);
         double l = log10(fi.size());
         if ( l >= 3 && l < 6 ) {
@@ -300,6 +301,7 @@ void PlotMainWindow::_savePdf()
         } else {
             qDebug() << "dog.pdf.size=" << fi.size() << "bytes";
         }
+        */
     }
 }
 

@@ -1139,6 +1139,9 @@ void BookView::_printXAxisLabel(const QRect& R,
                                 const QModelIndex &plotIdx)
 {
     QString s = _bookModel()->getDataString(plotIdx,"PlotXAxisLabel","Plot");
+    QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves", "Plot");
+    QString u = _bookModel()->getCurvesXUnit(curvesIdx);
+    s = s + " {" + u + "}";
 
     QFontMetrics fm = painter->fontMetrics();
     QRect bbox = fm.boundingRect(s);
@@ -1468,6 +1471,10 @@ void BookView::_printYAxisLabel(const QRect& R,
                                  const QModelIndex &plotIdx)
 {
     QString s = _bookModel()->getDataString(plotIdx,"PlotYAxisLabel","Plot");
+    QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves", "Plot");
+    QString u = _bookModel()->getCurvesYUnit(curvesIdx);
+    s = s + " {" + u + "}";
+
     QFontMetrics fm = painter->fontMetrics();
     s = fm.elidedText(s, Qt::ElideLeft, R.height());
     QRect bbox = fm.boundingRect(s);
