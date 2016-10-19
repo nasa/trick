@@ -160,7 +160,7 @@ $(dir $(TRICKIFY_LIB_NAME)) $(TRICKIFY_PYTHON_DIR):
 
 py_%.cpp: %.i | $(TRICKIFY_PYTHON_DIR)
 	$(info $(call COLOR,SWIGing)    $<)
-	@$(SWIG) $(TRICK_INCLUDE) $(TRICK_DEFINES) $(TRICK_VERSIONS) -c++ -python -includeall -ignoremissing -w201,362,389,451 -outdir $(TRICKIFY_PYTHON_DIR) -o $@ $<
+	@$(SWIG) $(TRICK_INCLUDE) $(TRICK_DEFINES) $(TRICK_VERSIONS) $(SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,320,362,389,401,451 -outdir $(TRICKIFY_PYTHON_DIR) -o $@ $<
 
 %.o: %.cpp
 	$(info $(call COLOR,Compiling)  $<)
