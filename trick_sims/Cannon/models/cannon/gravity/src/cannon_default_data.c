@@ -9,16 +9,18 @@ LIBRARY_DEPENDENCY: ((cannon_default_data.o))
 #include "sim_services/include/Flag.h"
 
 /* Entry Point */
-int cannon_default_data(CANNON* C)
+int cannon_default_data( CANNON* C )
 {
     const double PI = 3.141592 ; 
 
-    C->pos[0] = 0.0 ;
-    C->pos[1] = 0.0 ;
-    C->acc[0] = 0.0 ;
-    C->acc[1] = -9.81 ;
+    C->pos0[0] = 0.0 ;
+    C->pos0[1] = 0.0 ;
+    C->acc0[0] = 0.0 ;
+    C->acc0[1] = -9.81 ;
     C->init_angle = PI/6 ;
     C->init_speed  = 50.0 ;
+    C->impactTime = 0.0 ;
+    C->time = 0.0 ;
 
     /*
      * Regula falsi dynamic event impact setup

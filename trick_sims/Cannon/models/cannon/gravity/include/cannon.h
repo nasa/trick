@@ -16,17 +16,19 @@ typedef struct {
         double vel0[2] ;   /* *i m Init velocity of cannonball */
         double acc0[2] ;   /* *i m Init acceleration of cannonball */
 
+        double init_speed ; /* *i m/s Init barrel speed */
+        double init_angle ; /* *i rad Angle of cannon */
+
         double pos[2] ;   /*  m xy-position */
         double vel[2] ;   /*  m/s xy-velocity */
         double acc[2] ;   /*  m/s2 xy-acceleration  */
-        double init_speed ; /* *i m/s Init barrel speed */
-        double init_angle ; /* *i rad Angle of cannon */
+
+        double impactTime;
+        double time;
 
         /* Impact */
         REGULA_FALSI rf ; /* -- Dynamic event  params for impact */
         int impact ;      /* -- Has impact occured? */
-
-        FILE *fp ;        /* -- file pointer */
 
         /* Communication Connection */
         TCDevice connection ;  /* -- Socket connection for sending position */
