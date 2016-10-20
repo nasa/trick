@@ -164,4 +164,4 @@ py_%.cpp: %.i | $(TRICKIFY_PYTHON_DIR)
 
 %.o: %.cpp
 	$(info $(call COLOR,Compiling)  $<)
-	@$(TRICK_CC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(PYTHON_INCLUDES) -std=c++11 -Wno-invalid-offsetof -Wno-shadow -Wno-unused-but-set-variable -c -o $@ $<
+	@$(TRICK_CC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(PYTHON_INCLUDES) -std=c++11 -Wno-invalid-offsetof -Wno-shadow -c -o $@ $<
