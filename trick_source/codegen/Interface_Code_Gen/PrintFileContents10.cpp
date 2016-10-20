@@ -272,7 +272,7 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ofstream & outfile ,
         printContainerClasses( outfile, cv , "__" ) ;
         outfile << cv->getMangledTypeName() << "[" << index << "].type_name) ;\n" ;
 
-        outfile << "    mm->add_attr_info(next_attr , &attr"  ;
+        outfile << "    trick_MM->add_attr_info(next_attr , &attr"  ;
         printNamespaces( outfile, cv , "__" ) ;
         printContainerClasses( outfile, cv , "__" ) ;
         outfile << cv->getMangledTypeName() << "[" << index << "], __FILE__ , __LINE__ ) ;\n" ;
@@ -287,7 +287,7 @@ void PrintFileContents10::print_inherited_add_attr_info( std::ofstream & outfile
     }
     for ( cit = cv->inherit_classes_begin() ; cit != cv->inherit_classes_end() ; cit++ ) {
         outfile << "    next_attr =  \"" << *cit << "\" ;\n" ;
-        outfile << "    mm->add_attr_info( next_attr , &temp_attr , __FILE__ , __LINE__ ) ;\n" ;
+        outfile << "    trick_MM->add_attr_info( next_attr , &temp_attr , __FILE__ , __LINE__ ) ;\n" ;
     }
 }
 
@@ -307,9 +307,7 @@ void PrintFileContents10::print_init_attr_func( std::ofstream & outfile , ClassV
 "            return ;\n"
 "    }\n"
 "    initialized_1337 = 1 ;\n\n"
-"    Trick::MemoryManager * mm ;\n"
-"    std::string next_attr ;\n"
-"    mm = trick_MM ;\n" ;
+"    std::string next_attr ;\n" ;
 
     if ( cv->getMangledTypeName() != cv->getName() ) {
         outfile << "    typedef " << cv->getName() << " " << cv->getMangledTypeName() << " ;\n\n" ;
