@@ -20,8 +20,8 @@ int cannon_init( CANNON* C) {
         C->acc[0] = C->acc0[0] ; 
         C->acc[1] = C->acc0[1] ; 
 
-        C->impactTime = 0;
-        C->impact = 0;
+        C->impactTime = 1.0;
+        C->impact = 0.0;
 
         return 0 ; 
 }

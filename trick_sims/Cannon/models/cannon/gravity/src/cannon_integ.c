@@ -19,6 +19,7 @@ int cannon_integ(
         &C->pos[1] ,
         &C->vel[0] ,
         &C->vel[1] ,
+        &C->time ,
         NULL
     );
 
@@ -28,6 +29,7 @@ int cannon_integ(
         &C->vel[1] ,
         &C->acc[0] ,
         &C->acc[1] ,
+        &C->timeRate ,
         NULL
     );
 
@@ -40,6 +42,7 @@ int cannon_integ(
         &C->pos[1] ,
         &C->vel[0] ,
         &C->vel[1] ,
+        &C->time ,
         NULL
     );
 
