@@ -13,7 +13,7 @@
 /**
  *
  */
-int Trick::MemoryManager::add_attr_info( std::string & user_type_string , ATTRIBUTES * attr , const char * file_name , unsigned int line_num ) {
+int Trick::MemoryManager::add_attr_info( const std::string & user_type_string , ATTRIBUTES * attr , const char * file_name , unsigned int line_num ) {
 
     std::string user_type_name ;
     std::string sub_attr_name ;

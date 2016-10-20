@@ -411,7 +411,7 @@ namespace Trick {
              @param attr      - pointer to parent attributes structure.
              @return 0 on success, otherwise failure. 
              */
-            int add_attr_info(std::string& type_name , ATTRIBUTES* attr , const char * file_name = "None" , unsigned int line_num = 0 ) ;
+            int add_attr_info(const std::string& type_name , ATTRIBUTES* attr , const char * file_name = "None" , unsigned int line_num = 0 ) ;
 
             /**
              Adds a template name translation to our map.  The base template type is mangled to the io_src name

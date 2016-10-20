@@ -1,10 +1,9 @@
 
-#include <iostream>
-#include <fstream>
 #include <sys/stat.h>
 #include <libgen.h>
 #include <string.h>
 #include <iomanip>
+#include <sstream>
 
 #include "llvm/Support/CommandLine.h"
 
@@ -18,59 +17,59 @@ extern llvm::cl::opt< bool > no_offset_of ;
 PrintFileContentsBase::PrintFileContentsBase() {}
 
 // provide empty default implementation of these routines.
-void PrintFileContentsBase::printClassMapHeader(std::ofstream & out, std::string function_name ) {}
-void PrintFileContentsBase::printClassMap(std::ofstream & out, ClassValues * cv) {}
-void PrintFileContentsBase::printClassMapFooter(std::ofstream & out) {}
+void PrintFileContentsBase::printClassMapHeader(std::ostream & ostream, std::string function_name ) {}
+void PrintFileContentsBase::printClassMap(std::ostream & ostream, ClassValues * cv) {}
+void PrintFileContentsBase::printClassMapFooter(std::ostream & ostream) {}
 
-void PrintFileContentsBase::printEnumMapHeader(std::ofstream & out, std::string function_name ) {}
-void PrintFileContentsBase::printEnumMap(std::ofstream & out, EnumValues * ev) {}
-void PrintFileContentsBase::printEnumMapFooter(std::ofstream & out) {}
+void PrintFileContentsBase::printEnumMapHeader(std::ostream & ostream, std::string function_name ) {}
+void PrintFileContentsBase::printEnumMap(std::ostream & ostream, EnumValues * ev) {}
+void PrintFileContentsBase::printEnumMapFooter(std::ostream & ostream) {}
 
-void PrintFileContentsBase::print_units_map(std::ofstream & outfile, ClassValues * cv ) {
+void PrintFileContentsBase::print_units_map(std::ostream & ostream, ClassValues * cv ) {
     ClassValues::FieldIterator fit ;
     unsigned int ii ;
 
-    outfile << "struct UnitsMap" ;
-    printNamespaces( outfile, cv , "__" ) ;
-    printContainerClasses( outfile, cv , "__" ) ;
-    outfile << cv->getMangledTypeName() ;
-    outfile << " {\n" ;
-    outfile << "    UnitsMap" ;
-    printNamespaces( outfile, cv , "__" ) ;
-    printContainerClasses( outfile, cv , "__" ) ;
-    outfile << cv->getMangledTypeName() ;
-    outfile << "() {\n" ;
+    ostream << "struct UnitsMap" ;
+    printNamespaces( ostream, cv , "__" ) ;
+    printContainerClasses( ostream, cv , "__" ) ;
+    ostream << cv->getMangledTypeName() ;
+    ostream << " {\n" ;
 
-    outfile << "        Trick::UnitsMap * units_map_ptr __attribute__((unused)) = Trick::UnitsMap::units_map() ;\n" ;
+    std::ostringstream text;
+
     for ( fit = cv->field_begin() ; fit != cv->field_end() ; fit++ ) {
         if ( determinePrintAttr(cv , *fit) and (*fit)->getUnits().compare("1")) {
             FieldDescription * fdes = *fit ;
-            outfile << "        units_map_ptr->add_param(\"" ;
-            printContainerClasses( outfile, cv , "__" ) ;
-            outfile << cv->getName() << "_" << fdes->getName() << "\", \"" << fdes->getUnits() << "\") ;\n" ;
+            text << "        units_map_ptr->add_param(\"" ;
+            printContainerClasses( text, cv , "__" ) ;
+            text << cv->getName() << "_" << fdes->getName() << "\", \"" << fdes->getUnits() << "\") ;\n" ;
         }
     }
-    outfile << "    }\n" ;
-    outfile << "} ;\n\n" ;
 
-    outfile << "UnitsMap" ;
-    printNamespaces( outfile, cv , "__" ) ;
-    printContainerClasses( outfile, cv , "__" ) ;
-    outfile << cv->getMangledTypeName() ;
-    outfile << " um" ;
-    printNamespaces( outfile, cv , "__" ) ;
-    printContainerClasses( outfile, cv , "__" ) ;
-    outfile << cv->getMangledTypeName() ;
-    outfile << " ;\n\n" ;
+    if (text.str().size()) {
+        ostream << "    UnitsMap" ;
+        printNamespaces( ostream, cv , "__" ) ;
+        printContainerClasses( ostream, cv , "__" ) ;
+        ostream << cv->getMangledTypeName() ;
+        ostream << "() {\n" ;
+        ostream << "        Trick::UnitsMap * units_map_ptr = Trick::UnitsMap::units_map() ;\n" ;
+        ostream << text.str() ;
+        ostream << "    }\n" ;
+    }
+    ostream << "} um" ;
+    printNamespaces( ostream, cv , "__" ) ;
+    printContainerClasses( ostream, cv , "__" ) ;
+    ostream << cv->getMangledTypeName() ;
+    ostream << " ;\n" ;
 }
 
 /* Utility routines for printing */
-void PrintFileContentsBase::print_open_extern_c(std::ofstream & outfile) {
-    outfile << "extern \"C\" {\n\n" ;
+void PrintFileContentsBase::print_open_extern_c(std::ostream & ostream) {
+    ostream << "extern \"C\" {\n\n" ;
 }
 
-void PrintFileContentsBase::print_close_extern_c(std::ofstream & outfile) {
-    outfile << "\n} //extern \"C\"\n\n" ;
+void PrintFileContentsBase::print_close_extern_c(std::ostream & ostream) {
+    ostream << "\n} //extern \"C\"\n\n" ;
 }
 
 /* internal function determines if a particular field is printable based
@@ -104,34 +103,30 @@ bool PrintFileContentsBase::determinePrintAttr( ClassValues * c , FieldDescripti
 }
 
 /** Prints namespace containers of a class delimited by delim */
-void PrintFileContentsBase::printNamespaces( std::ofstream & outfile , ConstructValues * c , const char * delim ) {
-    ClassValues::NamespaceIterator nsi ;
-    for ( nsi = c->namespace_begin() ; nsi != c->namespace_end() ; nsi++ ) {
-        outfile << *nsi << delim ;
+void PrintFileContentsBase::printNamespaces( std::ostream & ostream , ConstructValues * c , const char * delim ) {
+    for ( ClassValues::NamespaceIterator nsi = c->namespace_begin() ; nsi != c->namespace_end() ; ++nsi ) {
+        ostream << *nsi << delim ;
     }
 }
 
 /** Prints namespace open block */
-void PrintFileContentsBase::printOpenNamespaceBlocks( std::ofstream & outfile , ClassValues * c ) {
-    ClassValues::NamespaceIterator nsi ;
-    for ( nsi = c->namespace_begin() ; nsi != c->namespace_end() ; nsi++ ) {
-        outfile << "namespace " << *nsi << " {\n" ;
+void PrintFileContentsBase::printOpenNamespaceBlocks( std::ostream & ostream , ClassValues * c ) {
+    for ( ClassValues::NamespaceIterator nsi = c->namespace_begin() ; nsi != c->namespace_end() ; ++nsi ) {
+        ostream << "namespace " << *nsi << " {\n" ;
     }
 }
 
 /** Prints namespace close block */
-void PrintFileContentsBase::printCloseNamespaceBlocks( std::ofstream & outfile , ClassValues * c ) {
-    ClassValues::NamespaceIterator nsi ;
-    for ( nsi = c->namespace_begin() ; nsi != c->namespace_end() ; nsi++ ) {
-        outfile << "}\n" ;
+void PrintFileContentsBase::printCloseNamespaceBlocks( std::ostream & ostream , ClassValues * c ) {
+    for ( ClassValues::NamespaceIterator nsi = c->namespace_begin() ; nsi != c->namespace_end() ; ++nsi ) {
+        ostream << "}\n" ;
     }
 }
 
 /** Prints class containers of a class delimited by delim */
-void PrintFileContentsBase::printContainerClasses( std::ofstream & outfile , ConstructValues * c , const char * delim ) {
-    ClassValues::ContainerClassIterator ci ;
-    for ( ci = c->container_class_begin() ; ci != c->container_class_end() ; ci++ ) {
-        outfile << *ci << delim ;
+void PrintFileContentsBase::printContainerClasses( std::ostream & ostream , ConstructValues * c , const char * delim ) {
+    for ( ClassValues::ContainerClassIterator ci = c->container_class_begin() ; ci != c->container_class_end() ; ci++ ) {
+        ostream << *ci << delim ;
     }
 }
 
