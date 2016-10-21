@@ -23,12 +23,13 @@ typedef struct {
         double vel[2] ;   /*  m/s xy-velocity */
         double acc[2] ;   /*  m/s2 xy-acceleration  */
 
-        double impactTime;
         double time;
+        double timeRate;
 
         /* Impact */
         REGULA_FALSI rf ; /* -- Dynamic event  params for impact */
         int impact ;      /* -- Has impact occured? */
+        double impactTime;
 
         /* Communication Connection */
         TCDevice connection ;  /* -- Socket connection for sending position */
