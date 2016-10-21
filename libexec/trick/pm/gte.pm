@@ -88,6 +88,7 @@ sub gte (@) {
     $def{"TRICK_HOME"} = "$trick_home" ;
     $def{"TRICK_HOST_CPU_USER_SUFFIX"} = "" ;
     $def{"TRICK_ICGFLAGS"} = "" ;
+    $def{"TRICK_ICG_COMPAT15"} = "" ;
     $def{"TRICK_ICG_NOCOMMENT"} = "" ;
     $def{"TRICK_ICG_EXCLUDE"} = "" ;
     $def{"TRICK_SWIG_EXCLUDE"} = "" ;

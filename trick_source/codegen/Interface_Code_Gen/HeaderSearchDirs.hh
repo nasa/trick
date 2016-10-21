@@ -75,6 +75,13 @@ class HeaderSearchDirs {
           */
         bool isPathInICGNoComment (const std::string& path) ;
 
+        /** Returns true if directory is a subdirectory of a compatible 15 directory
+            in the TRICK_ICG_COMPAT15 environment variable.
+            @param path = directory path to be checked
+            @return true = path is in a system directory, false = not in system directory.
+          */
+        bool isPathInCompat15 (const std::string& path) ;
+
         /** Returns the TRICK_EXCLUDE directory that contains the path argument.
             @param path = path to be checked
             @return string from TRICK_EXCLUDE that contains the path.
@@ -126,17 +133,8 @@ class HeaderSearchDirs {
         /** Adds ${TRICK_HOME}/trick_source to the search directories */
         void AddTrickSearchDirs () ;
 
-        /** Create list of EXCLUDE directories  */
-        void AddExcludeDirs () ;
-
-        /** Create list of ICG_EXCLUDE directories  */
-        void AddICGExcludeDirs () ;
-
-        /** Create list of EXT_LIB_DIRS directories  */
-        void AddExtLibDirs () ;
-
-        /** Create list of ICG_NOCOMMENT directories  */
-        void AddICGNoCommentDirs () ;
+        /** Create list of directories  */
+        void AddDirsAndFiles(std::string env_var, std::vector<std::string> & var_list ) ;
 
         /** Apply all search directories to the preprocessor. */
         void ApplyHeaderSearchOptions () ;
@@ -152,6 +150,9 @@ class HeaderSearchDirs {
 
         /** List of directoris to exclude comments from the TRICK_ICG_NOCOMMENT environment variable */
         std::vector<std::string> icg_nocomment_dirs ;
+
+        /** List of directoris to write offsetof lines compatible with Trick 15 and earlier */
+        std::vector<std::string> compat15_dirs ;
 
         /** Map of file names to in icg_nocomment_dir used as a cache */
         std::map< std::string , bool > icg_nocomment_files ;

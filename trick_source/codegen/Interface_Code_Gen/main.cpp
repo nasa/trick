@@ -44,10 +44,8 @@ llvm::cl::list< std::string > sink(llvm::cl::Sink, llvm::cl::ZeroOrMore) ;
 llvm::cl::list< std::string > pre_compiled_headers("include", llvm::cl::Prefix, llvm::cl::desc("pre-compiled headers"),
  llvm::cl::value_desc("pre_compiled_headers")) ;
 
-llvm::cl::opt< bool > no_offset_of ("n", llvm::cl::desc("Do not print the offsetof calculations in attributes")) ;
-llvm::cl::alias no_offset_of_alias ("no-offset-of" , llvm::cl::desc("Alias for -n") , llvm::cl::aliasopt(no_offset_of)) ;
-
-//llvm::cl::opt< bool > show_units ("u", llvm::cl::desc("List recognized units")) ;
+llvm::cl::opt< bool > global_compat15 ("c", llvm::cl::desc("Print the offsetof calculations in attributes")) ;
+llvm::cl::alias compat15_alias ("compat15" , llvm::cl::desc("Alias for -c") , llvm::cl::aliasopt(global_compat15)) ;
 
 void ICG_version() {
     std::cout << "Trick Interface Code Generator (trick-ICG) " << TRICK_VERSION << std::endl ;

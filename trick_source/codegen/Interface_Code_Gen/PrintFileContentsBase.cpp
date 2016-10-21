@@ -12,7 +12,7 @@
 #include "ClassValues.hh"
 #include "EnumValues.hh"
 
-extern llvm::cl::opt< bool > no_offset_of ;
+extern llvm::cl::opt< bool > global_compat15 ;
 
 PrintFileContentsBase::PrintFileContentsBase() {}
 
@@ -77,7 +77,15 @@ void PrintFileContentsBase::print_close_extern_c(std::ostream & ostream) {
 */
 bool PrintFileContentsBase::determinePrintAttr( ClassValues * c , FieldDescription * fdes ) {
     if ( fdes->getTypeName().compare("void") and fdes->getIO() != 0 and fdes->getEnumString().compare("TRICK_VOID")) {
-        if ( no_offset_of ) {
+        if ( global_compat15 or c->isCompat15()) {
+            if ( fdes->isInherited() ) {
+                return ((c->getHasInitAttrFriend() && fdes->getAccess() == clang::AS_protected)
+                     || (fdes->getAccess() == clang::AS_public)) ;
+            } else {
+                return (c->getHasInitAttrFriend()
+                    || (fdes->getAccess() == clang::AS_public)) ;
+            }
+        } else {
             if ( fdes->isStatic() ) {
                 if ( fdes->isInherited() ) {
                     return ((c->getHasInitAttrFriend() && fdes->getAccess() == clang::AS_protected)
@@ -89,14 +97,7 @@ bool PrintFileContentsBase::determinePrintAttr( ClassValues * c , FieldDescripti
             } else {
                 return true ;
             }
-        } else {
-            if ( fdes->isInherited() ) {
-                return ((c->getHasInitAttrFriend() && fdes->getAccess() == clang::AS_protected)
-                     || (fdes->getAccess() == clang::AS_public)) ;
-            } else {
-                return (c->getHasInitAttrFriend()
-                    || (fdes->getAccess() == clang::AS_public)) ;
-            }
+
         }
     }
     return false ;

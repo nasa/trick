@@ -68,6 +68,8 @@ class ClassValues : public ConstructValues {
         bool getHasInitAttrFriend() ;
         void setPOD(bool in_val) ;
         bool isPOD() ;
+        void setSize(unsigned int size) ;
+        unsigned int getSize() ;
         void setAbstract(bool in_val) ;
         bool isAbstract() ;
         void setHasDefaultConstructor(bool in_val) ;
@@ -78,6 +80,8 @@ class ClassValues : public ConstructValues {
         void setMangledTypeName( std::string in_val ) ;
         std::string getMangledTypeName() ;
         std::string getFullyQualifiedMangledTypeName() ;
+        void setCompat15(bool in_val) ;
+        bool isCompat15() ;
 
         void print_namespaces(std::ostream & os, const char * delimiter) ;
 
@@ -102,6 +106,9 @@ class ClassValues : public ConstructValues {
         /** Is this class plain old data? */
         bool is_pod ;
 
+        /** Size of class in bytes */
+        unsigned int size ;
+
         /** Is this class abstract? */
         bool is_abstract ;
 
@@ -113,6 +120,10 @@ class ClassValues : public ConstructValues {
 
         /** Mangled type name. Templates will have a mangled_type_name.  */
         std::string mangled_type_name ;
+
+        /** Generate Trick 15 compatible io_src code */
+        bool compat15 ;
+
 } ;
 
 #endif

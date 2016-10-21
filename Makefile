@@ -193,7 +193,7 @@ endif
 # header files.
 .PHONY: icg_sim_serv
 icg_sim_serv: $(ICG_EXE)
-	${TRICK_HOME}/bin/trick-ICG -s -m -n ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_HOME}/include/trick/files_to_ICG.hh
+	${TRICK_HOME}/bin/trick-ICG -s -m ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_HOME}/include/trick/files_to_ICG.hh
 
 # 1.1.1.4.1 Build the Interface Code Generator (ICG) executable.
 $(ICG_EXE) :
