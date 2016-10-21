@@ -57,19 +57,22 @@ void ClassValues::addInheritedFieldDescriptions(std::vector<FieldDescription *> 
 
     std::vector<FieldDescription *>::iterator fdit ;
     // Loop through the incoming inherited variable names
+    for ( fdit = in_fdes.begin() ; fdit != in_fdes.end() ; fdit++ ) {
+
+        (*fdit)->setBaseClassOffset( class_offset ) ;
+        (*fdit)->setInherited( true ) ;
+        (*fdit)->setVirtualInherited( virtual_inherited ) ;
+        // Adds the class offset to the field offset giving the total offset to the inherited variable
+        // The offset is stored in bits so multiply class_offset by 8.
+        (*fdit)->addOffset( class_offset * 8 ) ;
+    }
+
 #ifdef __APPLE__
     if ( !global_compat15 and !compat15 ) {
 #else
     {
 #endif
         for ( fdit = in_fdes.begin() ; fdit != in_fdes.end() ; fdit++ ) {
-
-            (*fdit)->setBaseClassOffset( class_offset ) ;
-            (*fdit)->setInherited( true ) ;
-            (*fdit)->setVirtualInherited( virtual_inherited ) ;
-            // Adds the class offset to the field offset giving the total offset to the inherited variable
-            // The offset is stored in bits so multiply class_offset by 8.
-            (*fdit)->addOffset( class_offset * 8 ) ;
 
             std::string in_name = (*fdit)->getName() ;
             // search existing names for incoming inherited variable name.
