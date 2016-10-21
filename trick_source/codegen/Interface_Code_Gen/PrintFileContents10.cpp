@@ -44,20 +44,18 @@ void PrintFileContents10::printIOHeader(std::ostream & ostream , std::string hea
 
 /** Prints enumeration attributes */
 void PrintFileContents10::print_enum_attr(std::ostream & ostream , EnumValues * e ) {
-    EnumValues::NameValueIterator nvit ;
-
     print_open_extern_c(ostream) ;
     ostream << "ENUM_ATTR enum" ;
     printNamespaces( ostream, e , "__" ) ;
     printContainerClasses( ostream, e , "__" ) ;
     ostream << e->getName() << "[] = {\n" ;
-    for ( nvit = e->begin() ; nvit != e->end() ; nvit++ ) {
+    for ( EnumValues::NameValueIterator nvit = e->begin() ; nvit != e->end() ; nvit++ ) {
         ostream << "{\"";
         printNamespaces( ostream, e , "::" ) ;
         printContainerClasses( ostream, e , "::" ) ;
         ostream << (*nvit).first << "\" , " << (*nvit).second << " , 0x0 } ,\n" ;
     }
-    ostream << "{\"\" , 0 , 0x0 }\n} ;\n\n" ;
+    ostream << "{\"\" , 0 , 0x0 }\n} ;\n" ;
     print_close_extern_c(ostream) ;
 }
 
@@ -291,11 +289,11 @@ void PrintFileContents10::print_init_attr_func( std::ostream & ostream , ClassVa
     printContainerClasses( ostream, cv , "__" ) ;
     ostream << cv->getMangledTypeName() ;
     ostream << "() {\n\n"
-"    static int initialized_1337 ;\n"
-"    if ( initialized_1337 ) {\n"
+"    static int initialized ;\n"
+"    if ( initialized ) {\n"
 "            return ;\n"
 "    }\n"
-"    initialized_1337 = 1 ;\n\n" ;
+"    initialized = 1 ;\n\n" ;
 
     if ( cv->getMangledTypeName() != cv->getName() ) {
         ostream << "    typedef " << cv->getName() << " " << cv->getMangledTypeName() << " ;\n\n" ;
@@ -324,9 +322,9 @@ void PrintFileContents10::print_enum_io_src_sizeof( std::ostream & ostream , Enu
         ostream << "    return( sizeof(" ;
         printNamespaces( ostream, ev , "::" ) ;
         printContainerClasses( ostream, ev , "::" ) ;
-        ostream << ev->getName() << "));\n}\n\n" ;
+        ostream << ev->getName() << "));\n}\n" ;
     } else {
-        ostream << "    return(sizeof(int)) ;\n}\n\n" ;
+        ostream << "    return(sizeof(int)) ;\n}\n" ;
     }
     print_close_extern_c(ostream) ;
 }
@@ -352,13 +350,13 @@ void PrintFileContents10::print_io_src_sizeof( std::ostream & ostream , ClassVal
     printContainerClasses( ostream, cv , "__" ) ;
     ostream << cv->getMangledTypeName() << "( void ) {\n" ;
     ostream << "    return( sizeof(" ;
-    // Template types 
+    // Template types
     if ( cv->getMangledTypeName() == cv->getName() ) {
         printNamespaces( ostream, cv , "::" ) ;
         printContainerClasses( ostream, cv , "::" ) ;
     }
-    ostream << cv->getName() << "));\n"
-"}\n\n" ;
+    ostream << cv->getName() << ") );\n"
+"}\n" ;
 }
 
 /** Prints the io_src_allocate function */
