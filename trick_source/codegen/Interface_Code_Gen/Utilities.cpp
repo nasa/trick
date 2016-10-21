@@ -69,6 +69,10 @@ std::string getFileName( clang::CompilerInstance & ci , clang::SourceLocation sl
 }
 
 #include <iostream>
+char * almostRealPath( const std::string& in_path ) {
+    return almostRealPath(in_path.c_str());
+}
+
 /*
    This function returns almost absolute path of the directory of the incoming path.
    It does not follow the last symbolic link.
