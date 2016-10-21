@@ -8,7 +8,7 @@
 
 #ifdef __APPLE__
 #include "llvm/Support/CommandLine.h"
-extern llvm::cl::opt< bool > no_offset_of ;
+extern llvm::cl::opt< bool > global_compat15 ;
 #endif
 
 ClassValues::ClassValues() :
@@ -16,7 +16,8 @@ ClassValues::ClassValues() :
   is_pod(false) ,
   is_abstract(false) ,
   has_default_constructor(false) ,
-  has_public_destructor(false)
+  has_public_destructor(false),
+  compat15(false)
 {}
 
 ClassValues::~ClassValues() {
@@ -30,7 +31,7 @@ void ClassValues::addFieldDescription(FieldDescription * in_fdes) {
     field_descripts.push_back(in_fdes) ;
 
 #ifdef __APPLE__
-    if ( no_offset_of ) {
+    if ( !global_compat15 and !compat15 ) {
 #else
     {
 #endif
@@ -56,19 +57,22 @@ void ClassValues::addInheritedFieldDescriptions(std::vector<FieldDescription *> 
 
     std::vector<FieldDescription *>::iterator fdit ;
     // Loop through the incoming inherited variable names
+    for ( fdit = in_fdes.begin() ; fdit != in_fdes.end() ; fdit++ ) {
+
+        (*fdit)->setBaseClassOffset( class_offset ) ;
+        (*fdit)->setInherited( true ) ;
+        (*fdit)->setVirtualInherited( virtual_inherited ) ;
+        // Adds the class offset to the field offset giving the total offset to the inherited variable
+        // The offset is stored in bits so multiply class_offset by 8.
+        (*fdit)->addOffset( class_offset * 8 ) ;
+    }
+
 #ifdef __APPLE__
-    if ( no_offset_of ) {
+    if ( !global_compat15 and !compat15 ) {
 #else
     {
 #endif
         for ( fdit = in_fdes.begin() ; fdit != in_fdes.end() ; fdit++ ) {
-
-            (*fdit)->setBaseClassOffset( class_offset ) ;
-            (*fdit)->setInherited( true ) ;
-            (*fdit)->setVirtualInherited( virtual_inherited ) ;
-            // Adds the class offset to the field offset giving the total offset to the inherited variable
-            // The offset is stored in bits so multiply class_offset by 8.
-            (*fdit)->addOffset( class_offset * 8 ) ;
 
             std::string in_name = (*fdit)->getName() ;
             // search existing names for incoming inherited variable name.
@@ -203,6 +207,14 @@ bool ClassValues::isPOD() {
     return is_pod ;
 }
 
+void ClassValues::setSize(unsigned int in_size) {
+    size = in_size ;
+}
+
+unsigned int ClassValues::getSize() {
+    return size ;
+}
+
 void ClassValues::setAbstract(bool in_val) {
     is_abstract = in_val ;
 }
@@ -264,6 +276,14 @@ std::string ClassValues::getFullyQualifiedMangledTypeName() {
     }
     oss << getMangledTypeName() ;
     return oss.str() ;
+}
+
+void ClassValues::setCompat15(bool in_val) {
+    compat15 = in_val ;
+}
+
+bool ClassValues::isCompat15() {
+    return compat15 ;
 }
 
 void ClassValues::print_namespaces(std::ostream & os, const char * delimiter) {

@@ -7,7 +7,7 @@
 #include "EnumValues.hh"
 #include "Utilities.hh"
 
-extern llvm::cl::opt< bool > no_offset_of ;
+extern llvm::cl::opt< bool > global_compat15 ;
 
 PrintFileContents10::PrintFileContents10() {}
 
@@ -35,6 +35,7 @@ void PrintFileContents10::printIOHeader(std::ostream & ostream , std::string hea
 "#include \"trick/MemoryManager.hh\"\n"
 "#include \"trick/attributes.h\"\n"
 "#include \"trick/parameter_types.h\"\n"
+"#include \"trick/ClassSizeCheck.hh\"\n"
 "#include \"trick/UnitsMap.hh\"\n"
 "#include \"trick/checkpoint_stl.hh\"\n"
 "#include \"" << header_file_name << "\"\n"
@@ -149,17 +150,7 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ostream & ostream , 
  ClassValues * cv , unsigned int index ) {
 
     // For static variables replace the offset field with the address of the static variable
-    if ( no_offset_of ) {
-        if ( fdes->isStatic() ) {
-            ostream << "    attr" ;
-            printNamespaces( ostream, cv , "__" ) ;
-            printContainerClasses( ostream, cv , "__" ) ;
-            ostream << cv->getMangledTypeName() << "[" << index << "].offset = (long)(void *)&" ;
-            printNamespaces( ostream, cv , "::" ) ;
-            printContainerClasses( ostream, cv , "::" ) ;
-            ostream << cv->getName() << "::" << fdes->getName() << " ;\n" ;
-        }
-    } else {
+    if ( global_compat15 or cv->isCompat15()) {
         if ( fdes->isStatic() ) {
             // print a special offsetof statement if this is a static
             ostream << "    attr" ;
@@ -205,6 +196,16 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ostream & ostream , 
             printNamespaces( ostream, cv , "::" ) ;
             printContainerClasses( ostream, cv , "::" ) ;
             ostream << cv->getMangledTypeName() << "," << fdes->getName() << ") ;\n" ;
+        }
+    } else {
+        if ( fdes->isStatic() ) {
+            ostream << "    attr" ;
+            printNamespaces( ostream, cv , "__" ) ;
+            printContainerClasses( ostream, cv , "__" ) ;
+            ostream << cv->getMangledTypeName() << "[" << index << "].offset = (long)(void *)&" ;
+            printNamespaces( ostream, cv , "::" ) ;
+            printContainerClasses( ostream, cv , "::" ) ;
+            ostream << cv->getName() << "::" << fdes->getName() << " ;\n" ;
         }
     }
 
@@ -297,6 +298,21 @@ void PrintFileContents10::print_init_attr_func( std::ostream & ostream , ClassVa
 
     if ( cv->getMangledTypeName() != cv->getName() ) {
         ostream << "    typedef " << cv->getName() << " " << cv->getMangledTypeName() << " ;\n\n" ;
+    }
+
+    if ( !global_compat15 and !cv->isCompat15()) {
+        ostream << "    if ( sizeof(" ;
+        printNamespaces( ostream, cv , "::" ) ;
+        printContainerClasses( ostream, cv , "::" ) ;
+        ostream << cv->getName() << ") > " << cv->getSize() << ") {\n" ;
+        ostream << "        Trick::ClassSizeCheck::class_size_check()->add_diff(\"" ;
+        printNamespaces( ostream, cv , "::" ) ;
+        printContainerClasses( ostream, cv , "::" ) ;
+        ostream << cv->getName() << "\" , Trick::ClassSizeDiffInfo((sizeof(" ;
+        printNamespaces( ostream, cv , "::" ) ;
+        printContainerClasses( ostream, cv , "::" ) ;
+        ostream << cv->getName() << ") - " << cv->getSize() << ") , \"" << cv->getFileName() << "\")) ;\n" ;
+        ostream << "    }\n" ;
     }
 
     unsigned int ii = 0 ;

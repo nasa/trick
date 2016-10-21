@@ -158,6 +158,8 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
           cs.hasICGNo(header_file_name) ) {
         return false ;
     }
+    cval.setCompat15(hsd.isPathInCompat15(rp)) ;
+    free(rp) ;
 
     // If this class needs a default constructor, then the complier will generate one and we can call it.
     if ( rec->needsImplicitDefaultConstructor() ) {
@@ -182,6 +184,8 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
     cval.setAbstract(rec->isAbstract()) ;
     cval.setName(rec->getNameAsString()) ;
     cval.setPOD(rec->isPOD()) ;
+
+    cval.setSize(rec->getASTContext().getASTRecordLayout(rec).getSize().getQuantity()) ;
 
     clang::CXXRecordDecl::base_class_iterator bcii ;
 

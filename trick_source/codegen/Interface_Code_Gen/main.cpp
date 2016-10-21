@@ -40,8 +40,8 @@ llvm::cl::alias force_alias("force" , llvm::cl::desc("Alias for -f") , llvm::cl:
 llvm::cl::list<std::string> input_file_names(llvm::cl::Positional, llvm::cl::desc("<input_file>"), llvm::cl::ZeroOrMore);
 llvm::cl::list<std::string> sink(llvm::cl::Sink, llvm::cl::ZeroOrMore);
 llvm::cl::list<std::string> pre_compiled_headers("include", llvm::cl::Prefix, llvm::cl::desc("pre-compiled headers"), llvm::cl::value_desc("pre_compiled_headers"));
-llvm::cl::opt<bool> no_offset_of("n", llvm::cl::desc("Do not print the offsetof calculations in attributes"));
-llvm::cl::alias no_offset_of_alias("no-offset-of" , llvm::cl::desc("Alias for -n") , llvm::cl::aliasopt(no_offset_of));
+llvm::cl::opt<bool> global_compat15("c", llvm::cl::desc("Print the offsetof calculations in attributes"));
+llvm::cl::alias compat15_alias("compat15", llvm::cl::desc("Alias for -c"), llvm::cl::aliasopt(global_compat15));
 
 /**
 Most of the main program is pieced together from examples on the web. We are doing the following:

@@ -52,6 +52,7 @@ PURPOSE:
 
 #include \"trick/attributes.h\"
 #include \"trick/populate_attribute_maps.hh\"
+#include \"trick/ClassSizeCheck.hh\"
 
 #include \"trick/SimObject.hh\"
 #include \"trick/JobData.hh\"
@@ -178,6 +179,8 @@ PURPOSE:
 
     #---------------------------
     # Memory Init
+    print S_SOURCE "Trick::ClassSizeCheck * Trick::ClassSizeCheck::pInstance = NULL ;\n" ;
+
     print S_SOURCE "\n/* Memory Init */\n" ,
      "void memory_init( void ) {\n\n" ;
 
@@ -220,6 +223,8 @@ PURPOSE:
     print S_SOURCE $$sim_ref{create_connections} ;
 
     print S_SOURCE "\n" ,
+     " " x 4 , "Trick::ClassSizeCheck::class_size_check()->print_nonzero_diffs() ;\n" ,
+     " " x 4 , "Trick::ClassSizeCheck::reset_instance() ;\n" ,
      " " x 4 , "return ;\n" ,
      "}\n\n" ;
 
