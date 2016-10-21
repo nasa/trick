@@ -5,7 +5,7 @@ LIBRARY DEPENDENCIES:
     (
      (cannon/gravity/src/cannon_default_data.c)
      (cannon/gravity/src/cannon_init.c)
-     (cannon/gravity/src/cannon_deriv_impact.c)
+     (cannon/gravity/src/cannon_deriv.c)
      (cannon/gravity/src/cannon_integ.c)
      (cannon/gravity/src/cannon_impact.c)
     )
@@ -26,7 +26,7 @@ class CannonSimObject : public Trick::SimObject {
 
             ("initialization") cannon_init( &cannon ) ;
 
-            ("derivative") cannon_deriv_impact( &cannon ) ;
+            ("derivative") cannon_deriv( &cannon ) ;
             ("integration") trick_ret = cannon_integ( &cannon ) ;
 
             ("dynamic_event") cannon_impact( &cannon) ;
