@@ -84,7 +84,7 @@ int Trick::MemoryManager::add_attr_info( const std::string & user_type_string , 
     if ( size_func == NULL)  {
         std::stringstream message;
         message << "(" << file_name << ":" << line_num 
-            << "): Couldn't find an io_src_sizeof_ function for type"
+            << "): Couldn't find an io_src_sizeof_ function for type "
             << user_type_string.c_str() << "[" << size_func_name.c_str() << "()].";
         emitWarning(message.str());
     }
