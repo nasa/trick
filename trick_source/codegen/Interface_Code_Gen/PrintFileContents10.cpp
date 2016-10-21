@@ -307,7 +307,7 @@ void PrintFileContents10::print_init_attr_func( std::ostream & ostream , ClassVa
         }
     }
     print_inherited_add_attr_info(ostream, cv ) ;
-    ostream << "}\n\n" ;
+    ostream << "}\n" ;
     printCloseNamespaceBlocks(ostream, cv) ;
 }
 
@@ -355,8 +355,7 @@ void PrintFileContents10::print_io_src_sizeof( std::ostream & ostream , ClassVal
         printNamespaces( ostream, cv , "::" ) ;
         printContainerClasses( ostream, cv , "::" ) ;
     }
-    ostream << cv->getName() << ") );\n"
-"}\n" ;
+    ostream << cv->getName() << ") );\n}\n\n" ;
 }
 
 /** Prints the io_src_allocate function */
