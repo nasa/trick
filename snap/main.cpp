@@ -117,7 +117,8 @@ int main(int argc, char *argv[])
     QStringList dps;
     QStringList runDirs;
     foreach ( QString f, opts.rundps ) {
-        if ( f.startsWith("DP_") ) {
+        QFileInfo fi(f);
+        if ( fi.fileName().startsWith("DP_") ) {
             dps << f;
         } else {
             runDirs << f;
