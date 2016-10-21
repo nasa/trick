@@ -264,8 +264,8 @@ sub parse_s_define ($) {
                     }
                 }
                 if ( $found == 0 ) {
-                    trick_print( $$sim_ref{fh}, "\nCould not find S_define LIBRARY_DEPENDENCY $object_file\n\n",
-                     "title_red", $$sim_ref{args}{v} );
+                    trick_print( $$sim_ref{fh}, "[1m[33mWarning    [39mS_define\n", "title_white", $$sim_ref{args}{v} );
+                    trick_print( $$sim_ref{fh}, "           Could not find dependency \"[1m$object_file\"\n", "title_white", $$sim_ref{args}{v} );
                 }
             }
         }
