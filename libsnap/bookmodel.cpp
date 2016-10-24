@@ -530,9 +530,7 @@ double PlotBookModel::xScale(const QModelIndex& curveIdx) const
     QString bookXUnit = data(curveXUnitIdx).toString();
     if ( !bookXUnit.isEmpty() && bookXUnit != "--" ) {
         QString loggedXUnit = curveModel->x()->unit();
-        xs = Unit::convert(1.0,
-                           loggedXUnit.toAscii().constData(),
-                           bookXUnit.toAscii().constData());
+        xs = Unit::convert(1.0, loggedXUnit,bookXUnit);
     }
 
     // Book model x scale

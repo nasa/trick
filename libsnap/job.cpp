@@ -214,7 +214,7 @@ void Job::_parseJobId(const QString &jobId)
         if ( !ok ) {
             _err_stream << "snap [bad scoobies]: Couldn't determine thread_id "
                         << "from jobId \"" << jobId << "\"";
-            throw std::runtime_error(_err_string.toAscii().constData());
+            throw std::runtime_error(_err_string.toLatin1().constData());
         }
 
     } else {
@@ -223,7 +223,7 @@ void Job::_parseJobId(const QString &jobId)
         QString stid;
         int idx6;
         for ( idx6 = idx5-1 ; idx6 > 0 ; idx6-- ) {
-            if ( isdigit(name.at(idx6).toAscii()) ) {
+            if ( isdigit(name.at(idx6).toLatin1()) ) {
                 stid.prepend(name.at(idx6));
             } else {
                 if ( name.at(idx6) == 'C' && name.at(idx6-1) == '_' ) {

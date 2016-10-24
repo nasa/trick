@@ -17,7 +17,7 @@ Monte::Monte(const QString& dirname, int beginRun, int endRun) :
     if ( _beginRun < 0 ) {
         _err_stream << "snap [error]: Monte::Monte() constructor has "
                     << "negative number for beginRun argument";
-        throw std::invalid_argument(_err_string.toAscii().constData());
+        throw std::invalid_argument(_err_string.toLatin1().constData());
     }
 }
 
@@ -41,7 +41,7 @@ bool Monte::_setDir(const QString &montedir)
     if ( ! mdir.exists() ) {
         _err_stream << "snap [error]: couldn't find run directory: "
                     << montedir << "\n";
-        throw std::invalid_argument(_err_string.toAscii().constData());
+        throw std::invalid_argument(_err_string.toLatin1().constData());
     }
 
     QStringList filters;
@@ -55,7 +55,7 @@ bool Monte::_setDir(const QString &montedir)
     if ( _runs.empty() ) {
         _err_stream << "snap [error]: no RUN dirs in "
                     << _montedir << "\n";
-        throw std::invalid_argument(_err_string.toAscii().constData());
+        throw std::invalid_argument(_err_string.toLatin1().constData());
     }
 
     // Get RUN_00000
@@ -78,7 +78,7 @@ bool Monte::_setDir(const QString &montedir)
     if ( trks.empty() ) {
         _err_stream << "snap [error]: no trk logfiles found in "
                     << _montedir << "\n";
-        throw std::invalid_argument(_err_string.toAscii().constData());
+        throw std::invalid_argument(_err_string.toLatin1().constData());
     }
 
     //
@@ -115,7 +115,7 @@ bool Monte::_setDir(const QString &montedir)
                     << _runs.at(0) << "-" << _runs.at(_runs.size()-1)
                     << " in directory:\n"
                     << _montedir << "\n";
-        throw std::invalid_argument(_err_string.toAscii().constData());
+        throw std::invalid_argument(_err_string.toLatin1().constData());
     }
 
     //
@@ -134,7 +134,7 @@ bool Monte::_setDir(const QString &montedir)
                             << " contains file " << ftrk
                             << " but run "
                             << run << " does not.";
-                throw std::invalid_argument(_err_string.toAscii().constData());
+                throw std::invalid_argument(_err_string.toLatin1().constData());
             }
             QString trk(_montedir + "/" + run + "/" + ftrk);
             TrickModel* m = new TrickModel("sys.exec.out.time",trk,trk);
@@ -154,7 +154,7 @@ bool Monte::_setDir(const QString &montedir)
                                 << ") than run "
                                 << run << "/" << ftrk << "("
                                    << ncols << ")";
-                    throw std::invalid_argument(_err_string.toAscii().
+                    throw std::invalid_argument(_err_string.toLatin1().
                                                 constData());
                 }
                 for ( int col = 0; col < ncols; ++col) {
@@ -167,7 +167,7 @@ bool Monte::_setDir(const QString &montedir)
                                     << "      " << params.at(col) << "\n"
                                     << "      " << param << "\n"
                                     << "in column " << col << ".";
-                        throw std::invalid_argument(_err_string.toAscii().
+                        throw std::invalid_argument(_err_string.toLatin1().
                                                     constData());
                     }
                 }
@@ -209,7 +209,7 @@ QStandardItemModel *Monte::inputModel()
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         _err_stream << "snap [error]: could not open "
                     << monteInputsFileName << "\n";
-        throw std::runtime_error(_err_string.toAscii().constData());
+        throw std::runtime_error(_err_string.toLatin1().constData());
     }
     QTextStream in(&file);
 
@@ -229,7 +229,7 @@ QStandardItemModel *Monte::inputModel()
         _err_stream << "snap [error]: error parsing monte carlo input file: "
                     << monteInputsFileName << "."
                     << "Couldn't find/parse \"NUM_RUNS:\" line.";
-        throw std::invalid_argument(_err_string.toAscii().constData());
+        throw std::invalid_argument(_err_string.toLatin1().constData());
     }
     if ( nRuns != _runs.size() ) {
         _err_stream << "snap [error]: error parsing monte carlo input file.  "
@@ -241,7 +241,7 @@ QStandardItemModel *Monte::inputModel()
                     << monteInputsFileName << "\n"
                     << "and monte directory:"
                     << _montedir << "\n";
-        throw std::invalid_argument(_err_string.toAscii().constData());
+        throw std::invalid_argument(_err_string.toLatin1().constData());
     }
 
     //
@@ -261,7 +261,7 @@ QStandardItemModel *Monte::inputModel()
         _err_stream << "snap [error]: error parsing monte carlo input file: "
                     << monteInputsFileName << "."
                     << "Couldn't find \"VARS:\" line";
-        throw std::invalid_argument(_err_string.toAscii().constData());
+        throw std::invalid_argument(_err_string.toLatin1().constData());
     }
     while ( !in.atEnd() ) {
         QString var = in.readLine();
@@ -285,7 +285,7 @@ QStandardItemModel *Monte::inputModel()
         _err_stream << "snap [error]: error parsing monte carlo input file: "
                     << monteInputsFileName << "."
                     << "Couldn't find \"DATA:\" line";
-        throw std::invalid_argument(_err_string.toAscii().constData());
+        throw std::invalid_argument(_err_string.toLatin1().constData());
     }
 
     //
@@ -345,7 +345,7 @@ QStandardItemModel *Monte::inputModel()
                                 << "Look in file:"
                                 << "\n\n"
                                 << "File:\n" << monteInputsFileName;
-                            throw std::invalid_argument(_err_string.toAscii().constData());
+                            throw std::invalid_argument(_err_string.toLatin1().constData());
                         }
                     }
                 } else {
@@ -370,7 +370,7 @@ QStandardItemModel *Monte::inputModel()
                         << "File:\n" << monteInputsFileName
                         << "Line:\n" << dataLine+1;
 
-            throw std::invalid_argument(_err_string.toAscii().constData());
+            throw std::invalid_argument(_err_string.toLatin1().constData());
         }
         nDataLines++;
     }

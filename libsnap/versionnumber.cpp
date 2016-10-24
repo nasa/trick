@@ -70,7 +70,7 @@ VersionNumber::VersionNumber(const QString &s) :
         _err_stream << "snap [error]: "
                     << " version number error found with the string \""
                     << s << "\"";
-        throw std::runtime_error(_err_string.toAscii().constData());
+        throw std::runtime_error(_err_string.toLatin1().constData());
     }
 
     _isValid = true;

@@ -74,7 +74,7 @@ void SJobExecThreadInfo::_calcThreadInfo()
                         << " at top of file "
                         << _sJobExecutionFileName ;
             throw std::runtime_error(
-                        _err_string.toAscii().constData());
+                        _err_string.toLatin1().constData());
         }
 
         if ( _trickVersion >= VersionNumber("13.4.dev-0") ) {
@@ -121,7 +121,7 @@ void SJobExecThreadInfo::_calcThreadInfo()
                                 << " in file "
                                 << _sJobExecutionFileName ;
                     throw std::runtime_error(
-                                _err_string.toAscii().constData());
+                                _err_string.toLatin1().constData());
                 }
 
             }
@@ -144,7 +144,7 @@ void SJobExecThreadInfo::_calcThreadInfo()
                             << _sJobExecutionFileName << ". "
                             << "Token is \"" << line << "\"";
                 throw std::runtime_error(
-                            _err_string.toAscii().constData());
+                            _err_string.toLatin1().constData());
             }
 
             isFinishedReading = true;
@@ -184,7 +184,7 @@ void SJobExecThreadInfo::_calcThreadInfo()
                                 << "Token is \"" << line << "\"."
                                 << "Search for \"advance_sim_time\"";
                     throw std::runtime_error(
-                                _err_string.toAscii().constData());
+                                _err_string.toLatin1().constData());
                 }
                 break;
             }
@@ -197,7 +197,7 @@ void SJobExecThreadInfo::_calcThreadInfo()
                         << _sJobExecutionFileName << ". "
                         << "Could not find \"advance_sim_time\"";
             throw std::runtime_error(
-                        _err_string.toAscii().constData());
+                        _err_string.toLatin1().constData());
         }
     }
 

@@ -24,7 +24,7 @@
 #include "libsnap/trickmodel.h"
 #include "libsnap/trickcurvemodel.h"
 
-#define TXT(X) X.toAscii().constData()
+#define TXT(X) X.toLatin1().constData()
 
 class Snap : public QObject
 {

@@ -48,14 +48,14 @@ bool Runs::_setDirs(const QStringList &dirs)
         if ( ! QFileInfo(run).exists() ) {
             _err_stream << "snap [error]: couldn't find run directory: "
                         << run << "\n";
-            throw std::invalid_argument(_err_string.toAscii().constData());
+            throw std::invalid_argument(_err_string.toLatin1().constData());
         }
         QDir runDir(run);
         QStringList ltrks = runDir.entryList(filter_trk, QDir::Files);
         if ( ltrks.empty() ) {
             _err_stream << "snap [error]: no *.trk files in run directory: "
                         << run << "\n";
-            throw std::invalid_argument(_err_string.toAscii().constData());
+            throw std::invalid_argument(_err_string.toLatin1().constData());
         }
         QStringList fullPathTrks;
         foreach (QString trk, ltrks) {

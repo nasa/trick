@@ -158,12 +158,12 @@ int main(int argc, char *argv[])
             foreach ( QString run, runDirs ) {
                 Snap snap(run,opts.start,opts.stop);
                 SnapReport rpt(snap);
-                fprintf(stderr,"%s",rpt.report().toAscii().constData());
+                fprintf(stderr,"%s",rpt.report().toLatin1().constData());
             }
         }
     } catch (std::exception &e) {
         fprintf(stderr,"\n%s\n",e.what());
-        fprintf(stderr,"%s\n",opts.usage().toAscii().constData());
+        fprintf(stderr,"%s\n",opts.usage().toLatin1().constData());
         exit(-1);
     }
 
@@ -314,7 +314,7 @@ int main(int argc, char *argv[])
                     ret = 0;
                 } else {
                     fprintf(stderr, "snap [error]: Failed to write: %s\n",
-                            opts.trkOutFile.toAscii().constData());
+                            opts.trkOutFile.toLatin1().constData());
                     ret = -1;
                 }
             } else {
@@ -364,7 +364,7 @@ int main(int argc, char *argv[])
                         ret = 0;
                     } else {
                         fprintf(stderr, "snap [error]: Failed to write: %s\n",
-                                fname.toAscii().constData());
+                                fname.toLatin1().constData());
                         ret = -1;
                         break;
                     }
@@ -402,7 +402,7 @@ int main(int argc, char *argv[])
 
     } catch (std::exception &e) {
         fprintf(stderr,"\n%s\n",e.what());
-        fprintf(stderr,"%s\n",opts.usage().toAscii().constData());
+        fprintf(stderr,"%s\n",opts.usage().toLatin1().constData());
         exit(-1);
     }
 
@@ -419,7 +419,7 @@ void presetRunsDPs(QStringList* defRunDirs,
         if ( !fi.exists() ) {
             fprintf(stderr,
                     "snapq [error] : couldn't find file/directory: \"%s\".\n",
-                    f.toAscii().constData());
+                    f.toLatin1().constData());
             *ok = false;
             return;
         }
@@ -505,7 +505,7 @@ void presetPresentation(QString* presVar, const QString& pres, bool* ok)
     if ( pres != "error" && pres != "compare" ) {
         fprintf(stderr,"snap [error] : option -presentation, set to \"%s\", "
                 "should be \"error\" or \"compare\"\n",
-                pres.toAscii().constData());
+                pres.toLatin1().constData());
         *ok = false;
     }
 }
@@ -516,15 +516,15 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
     QFileInfo ftrki(ftrk);
     if ( ftrki.exists() ) {
         fprintf(stderr, "snapq [error]: Will not overwrite %s\n",
-                ftrk.toAscii().constData());
+                ftrk.toLatin1().constData());
         return false;
     }
 
     fprintf(stdout, "\nsnap [info]: extracting the following params "
                     "into %s:\n\n",
-                    ftrk.toAscii().constData());
+                    ftrk.toLatin1().constData());
     foreach ( QString param, paramList ) {
-        fprintf(stdout, "    %s\n", param.toAscii().constData());
+        fprintf(stdout, "    %s\n", param.toLatin1().constData());
     }
     fprintf(stdout, "\n");
 
@@ -561,8 +561,8 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
         if ( !c) {
             fprintf(stderr, "snap [error]: could not find curve: \n    ("
                     "%s,%s)\n",
-                    timeName.toAscii().constData(),
-                    yParam.toAscii().constData());
+                    timeName.toLatin1().constData(),
+                    yParam.toLatin1().constData());
             return false;
         }
 
@@ -573,7 +573,7 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
         if ( c->rowCount() == 0 ) {
             // No data
             fprintf(stderr, "snap [error]: no data found in %s\n",
-                    c->tableName().toAscii().constData());
+                    c->tableName().toLatin1().constData());
             return false;
         }
 
@@ -583,7 +583,7 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
             // 0.0 is not first time - yield error
             fprintf(stderr, "snap [error]: start time in data is not 0.0 "
                             " for the following trk\n    %s\n",
-                    c->trkFile().toAscii().constData());
+                    c->trkFile().toLatin1().constData());
             return false;
         }
 
@@ -647,7 +647,7 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
                         "Assuming regular frequency, the following should be "
                         "true: (np-1)*f == endTime-startTime.  It is not.  "
                         "(%d-1)*%.8lf == %.8lf != %.8lf\n",
-                        curve->trkFile().toAscii().constData(),
+                        curve->trkFile().toLatin1().constData(),
                         s,e,f,rc,rc,f,d,a);
                 return false;
             }
@@ -671,7 +671,7 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
     QFile trk(ftrk);
     if (!trk.open(QIODevice::WriteOnly)) {
         fprintf(stderr,"snap: [error] could not open %s\n",
-                ftrk.toAscii().constData());
+                ftrk.toLatin1().constData());
         return false;
     }
     QDataStream out(&trk);
@@ -734,7 +734,7 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
                                 "snap [error]: File %s has bad timestamp "
                                 " %.8lf.  This timestamp is not a multiple "
                                 "of the expected frequency %.8lf. \n",
-                                curve->trkFile().toAscii().constData(),
+                                curve->trkFile().toLatin1().constData(),
                                 t, fExpected);
                         curve->unmap();
                         trk.close();
@@ -769,7 +769,7 @@ bool writeCsv(const QString& fcsv, const QString& timeName,
     QFileInfo fcsvi(fcsv);
     if ( fcsvi.exists() ) {
         fprintf(stderr, "snapq [error]: Will not overwrite %s\n",
-                fcsv.toAscii().constData());
+                fcsv.toLatin1().constData());
         return false;
     }
 
@@ -777,7 +777,7 @@ bool writeCsv(const QString& fcsv, const QString& timeName,
     QFile csv(fcsv);
     if (!csv.open(QIODevice::WriteOnly)) {
         fprintf(stderr,"snap: [error] could not open %s\n",
-                fcsv.toAscii().constData());
+                fcsv.toLatin1().constData());
         return false;
     }
     QTextStream out(&csv);
@@ -873,7 +873,7 @@ void presetExistsFile(QString* ignoreMe, const QString& fname, bool* ok)
     if ( !fi.exists() ) {
         fprintf(stderr,
                 "snap [error] : Couldn't find file: \"%s\".\n",
-                fname.toAscii().constData());
+                fname.toLatin1().constData());
         *ok = false;
         return;
     }
@@ -886,7 +886,7 @@ bool convert2csv(const QString& ftrk, const QString& fcsv)
     QFileInfo fcsvi(fcsv);
     if ( fcsvi.exists() ) {
         fprintf(stderr, "snap [error]: Will not overwrite %s\n",
-                fcsv.toAscii().constData());
+                fcsv.toLatin1().constData());
         return false;
     }
 
@@ -894,7 +894,7 @@ bool convert2csv(const QString& ftrk, const QString& fcsv)
     QFile csv(fcsv);
     if (!csv.open(QIODevice::WriteOnly)) {
         fprintf(stderr,"snap: [error] could not open %s\n",
-                fcsv.toAscii().constData());
+                fcsv.toLatin1().constData());
         return false;
     }
     QTextStream out(&csv);
@@ -938,7 +938,7 @@ bool convert2trk(const QString& csvFileName, const QString& trkFileName)
     QFile file(csvFileName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
         fprintf(stderr, "csv2trk [error]: Cannot read file %s!",
-                csvFileName.toAscii().constData());
+                csvFileName.toLatin1().constData());
     }
     CSV csv(&file);
 
@@ -947,7 +947,7 @@ bool convert2trk(const QString& csvFileName, const QString& trkFileName)
     QStringList list = csv.parseLine() ;
     if ( list.size() == 1 && list.at(0).isEmpty() ) {
         fprintf(stderr, "csv2trk [error]: Empty csv file \"%s\"",
-                csvFileName.toAscii().constData());
+                csvFileName.toLatin1().constData());
         return false;
     }
     foreach ( QString s, list ) {
@@ -963,7 +963,7 @@ bool convert2trk(const QString& csvFileName, const QString& trkFileName)
                 unitString.chop(1);
             }
             Unit u;
-            if ( u.isUnit(unitString.toAscii().constData()) ) {
+            if ( u.isUnit(unitString.toLatin1().constData()) ) {
                 p.unit = unitString;
             }
         }
@@ -975,7 +975,7 @@ bool convert2trk(const QString& csvFileName, const QString& trkFileName)
     QFileInfo ftrki(trkFileName);
     if ( ftrki.exists() ) {
         fprintf(stderr, "snap [error]: Will not overwrite %s\n",
-                trkFileName.toAscii().constData());
+                trkFileName.toLatin1().constData());
         return false;
     }
 
@@ -983,7 +983,7 @@ bool convert2trk(const QString& csvFileName, const QString& trkFileName)
 
     if (!trk.open(QIODevice::WriteOnly)) {
         fprintf(stderr,"snap [error]: could not open %s\n",
-                trkFileName.toAscii().constData());
+                trkFileName.toLatin1().constData());
         return false;
     }
     QDataStream out(&trk);
@@ -1006,9 +1006,9 @@ bool convert2trk(const QString& csvFileName, const QString& trkFileName)
                 QFileInfo fi(csvFileName);
                 fprintf(stderr,
                  "snap [error]: Bad value \"%s\" on line %d in file %s\n",
-                        s.toAscii().constData(),
+                        s.toLatin1().constData(),
                         line,
-                        fi.absoluteFilePath().toAscii().constData());
+                        fi.absoluteFilePath().toLatin1().constData());
                 file.close();
                 trk.remove();
                 return false;

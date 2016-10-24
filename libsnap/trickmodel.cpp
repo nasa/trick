@@ -33,7 +33,7 @@ bool TrickModel::_load_trick_header()
     if (!file.open(QIODevice::ReadOnly)) {
         _err_stream << "snap [error]: could not open "
                     << _trkfile << "\n";
-        throw std::runtime_error(_err_string.toAscii().constData());
+        throw std::runtime_error(_err_string.toLatin1().constData());
     }
     QDataStream in(&file);
 
@@ -50,7 +50,7 @@ bool TrickModel::_load_trick_header()
     } else {
         _err_stream << "snap [error]: unrecognized file or Trick version: "
                     << _trkfile << "\n";
-        throw std::runtime_error(_err_string.toAscii().constData());
+        throw std::runtime_error(_err_string.toLatin1().constData());
     }
 
     in.readRawData(data,1) ; // -
@@ -84,7 +84,7 @@ bool TrickModel::_load_trick_header()
     if ( nbytes % _row_size != 0 ) {
         _err_stream << "snap [error]: trk file \""
                     << file.fileName() << "\" is corrupt!\n";
-        throw std::runtime_error(_err_string.toAscii().constData());
+        throw std::runtime_error(_err_string.toLatin1().constData());
     }
 
     int maxRows = nbytes/_row_size;
@@ -95,7 +95,7 @@ bool TrickModel::_load_trick_header()
     if ( !tParam ) {
         _err_stream << "snap [error]: couldn't find time param \""
                     << _timeName << "\" trkfile=" << _trkfile;
-        throw std::runtime_error(_err_string.toAscii().constData());
+        throw std::runtime_error(_err_string.toLatin1().constData());
     }
 
     // Save address of begin location of data for map()
@@ -133,7 +133,7 @@ bool TrickModel::_load_trick_header()
                         << " specified by user "
                         << "exceeded all timestamps in non-empty file:\n    "
                         << _trkfile;
-            throw std::range_error(_err_string.toAscii().constData());
+            throw std::range_error(_err_string.toLatin1().constData());
         }
     }
 
@@ -186,11 +186,11 @@ void TrickModel::map()
 {
     if ( _data ) return; // already mapped
 
-    _fd = open(_trkfile.toAscii().constData(), O_RDONLY);
+    _fd = open(_trkfile.toLatin1().constData(), O_RDONLY);
     if ( _fd < 0 ) {
         _err_stream << "snap [error]: TrickModel could not open "
                     << _trkfile << "\n";
-        throw std::runtime_error(_err_string.toAscii().constData());
+        throw std::runtime_error(_err_string.toLatin1().constData());
     }
     fstat(_fd, &_fstat);
 
@@ -199,7 +199,7 @@ void TrickModel::map()
     if ( (void*)_mem == MAP_FAILED ) {
         _err_stream << "snap [error]: TrickModel couldn't allocate memory for : "
                     << _trkfile << "\n";
-        throw std::runtime_error(_err_string.toAscii().constData());
+        throw std::runtime_error(_err_string.toLatin1().constData());
     }
 
     _data = _mem + _pos_beg_data;
@@ -293,7 +293,7 @@ void TrickModel::_write_binary_qstring(QDataStream& out, const QString &str)
 {
     qint32 size_str = (qint32) str.size();
     out << size_str;
-    out.writeRawData(str.toAscii().constData(),str.size());
+    out.writeRawData(str.toLatin1().constData(),str.size());
 }
 
 int TrickModel::_idxAtTimeBinarySearch (TrickModelIterator& it,

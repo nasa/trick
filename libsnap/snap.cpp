@@ -72,7 +72,7 @@ void Snap::_load()
     }
     if ( _thread0 == 0 ) {
         _err_stream << "snap [error]: no main thread with id==0 found!!!";
-        throw std::runtime_error(_err_string.toAscii().constData());
+        throw std::runtime_error(_err_string.toLatin1().constData());
     }
 
     _is_realtime  = _thread0->isRealTime();
@@ -323,9 +323,9 @@ void Snap::_set_data_table_top_jobs()
                                 value(job->thread_id())->avgRunTime()));
         table->setData(table->index(row,3),QVariant(job->freq()));
         table->setData(table->index(row,4),
-                       QVariant(job->job_name().toAscii().constData()));
+                       QVariant(job->job_name().toLatin1().constData()));
         table->setData(table->index(row,5),
-                       QVariant(job->job_id().toAscii().constData()));
+                       QVariant(job->job_id().toLatin1().constData()));
     }
 }
 
@@ -394,7 +394,7 @@ TrickModel *Snap::_createModel( const QString &trk,
     QFile file(trk);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         _err_stream << "snap [error]: couldn't read/open file: " << trk << "\n";
-        throw std::invalid_argument(_err_string.toAscii().constData());
+        throw std::invalid_argument(_err_string.toLatin1().constData());
     } else {
         file.close();
     }
@@ -410,7 +410,7 @@ TrickModel *Snap::_createModel( const QString &trk,
                     << trk
                     << "\""
                     << "  - bailing like Rob Bailey!!!";
-        throw std::invalid_argument(_err_string.toAscii().constData());
+        throw std::invalid_argument(_err_string.toLatin1().constData());
     }
 
     try {
@@ -420,7 +420,7 @@ TrickModel *Snap::_createModel( const QString &trk,
     catch (std::range_error &e) {
         _err_stream << e.what() << "\n\n";
         _err_stream << "snap [error]: -start or -stop options have bad vals\n";
-        throw std::range_error(_err_string.toAscii().constData());
+        throw std::range_error(_err_string.toLatin1().constData());
     }
 
 
@@ -634,7 +634,7 @@ QString SnapReport::report()
     /*
     if ( ! _snap.is_realtime() ) {
         rpt.append("Oh Snap!!! - The following sim run had realtime disabled!\n");
-        rpt += str.sprintf("          %s\n",_snap.rundir().toAscii().constData());
+        rpt += str.sprintf("          %s\n",_snap.rundir().toLatin1().constData());
         rpt.append("Try again!\n");
         return rpt;
     }
@@ -649,14 +649,14 @@ QString SnapReport::report()
 "************************************************************************\n\n");
 
     rpt += str.sprintf("%20s = %s\n", "Run directory ",
-                                     _snap.rundir().toAscii().constData());
+                                     _snap.rundir().toLatin1().constData());
     rpt += str.sprintf("%20s = %8.3lf\n", "Start time ", _snap.start());
     rpt += str.sprintf("%20s = %8.3lf\n", "Stop time ",_snap.stop());
     QString yesNo("Yes");
     if ( !_snap.is_realtime() ) {
         yesNo = QString("No");
     }
-    rpt += str.sprintf("%20s = %s\n", "Real-time ",yesNo.toAscii().constData());
+    rpt += str.sprintf("%20s = %s\n", "Real-time ",yesNo.toLatin1().constData());
     rpt += str.sprintf("%20s = %d\n", "Num jobs", _snap.num_jobs());
     rpt += str.sprintf("%20s = %d\n", "Num frames",_snap.num_frames());
     rpt += str.sprintf("%20s = %d\n", "Num overruns",_snap.num_overruns());
@@ -667,7 +667,7 @@ QString SnapReport::report()
     rpt += str.sprintf("%20s = %.6lf\n","Frame stddev",_snap.frame_stddev());
     rpt += str.sprintf("%20s = %d\n", "Num threads",_snap.num_threads());
     rpt += str.sprintf("%20s = %s\n","Thread list",
-                                   _snap.thread_listing().toAscii().constData());
+                                   _snap.thread_listing().toLatin1().constData());
     rpt += endsection;
 
     //
@@ -745,7 +745,7 @@ QString SnapReport::report()
                     rpt += str.sprintf(" %10s", "--");
                 }
                 rpt += str.sprintf("     %-50s\n",
-                                   job->job_name().toAscii().constData());
+                                   job->job_name().toLatin1().constData());
             }
             if ( ii == thread->numJobs()-1 ) {
                 break;
@@ -773,7 +773,7 @@ QString SnapReport::report()
                    job->thread_id(),
                    _snap.threads()->hash()->value(job->thread_id())->avgRunTime(),
                    job->freq(),
-                   job->job_name().toAscii().constData() );
+                   job->job_name().toLatin1().constData() );
 
     }
     rpt += endsection;
@@ -799,7 +799,7 @@ QString SnapReport::report()
                 _snap.threads()->hash()->value(job->thread_id())->
                                      runtime(job->max_timestamp()),
                 job->freq(),
-                job->job_name().toAscii().constData() );
+                job->job_name().toLatin1().constData() );
 
     }
     rpt += endsection;
@@ -881,7 +881,7 @@ QString SnapReport::report()
                           value(job->thread_id())->runtime(tt),
                     rt,
                     job->freq(),
-                    job->job_name().toAscii().constData()) ;
+                    job->job_name().toLatin1().constData()) ;
 
 
             // limit printout of jobs
@@ -950,7 +950,7 @@ void Snap::_setLogFileNames()
             _err_stream << "snap [error]: cannot find " << _fileNameTrickJobs
                         << " or log_snap_trickjobs.trk files in "
                         << "directory " << _rundir;
-            throw std::invalid_argument(_err_string.toAscii().constData());
+            throw std::invalid_argument(_err_string.toLatin1().constData());
         }
     }
 
@@ -967,7 +967,7 @@ void Snap::_setLogFileNames()
     if ( _fileNamesUserJobs.isEmpty() ) {
         _err_stream << "snap [error]: no *userjob*.trk files found in "
                     << "directory " << _rundir;
-        throw std::invalid_argument(_err_string.toAscii().constData());
+        throw std::invalid_argument(_err_string.toLatin1().constData());
     }
 
     _fileNameLogFrame = _rundir + "/log_frame.trk";
@@ -977,7 +977,7 @@ void Snap::_setLogFileNames()
             _err_stream << "snap [error]: cannot find log_frame.trk or "
                         << "log_snap_frame.trk files n "
                         << "directory " << _rundir;
-            throw std::invalid_argument(_err_string.toAscii().constData());
+            throw std::invalid_argument(_err_string.toLatin1().constData());
         }
     }
 }

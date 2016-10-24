@@ -29,7 +29,7 @@ void yyerror(const char *str)
     msg += "  Error found in file: " + dpFileName() + "\n";
     msg += "  Error found on line: " + QString("%1").arg(yylineno) + "\n";
     msg += "      Last Token Read: " + QString(yytext) + "\n";
-    throw std::runtime_error(msg.toAscii().constData());
+    throw std::runtime_error(msg.toLatin1().constData());
 }
 
 int yywrap()

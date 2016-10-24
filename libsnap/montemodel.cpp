@@ -53,7 +53,7 @@ TrickCurveModel *MonteModel::curve(const QModelIndex &xIdx,
                 break;
             }
         }
-        throw std::runtime_error(_err_string.toAscii().constData());
+        throw std::runtime_error(_err_string.toLatin1().constData());
     }
 
     return new TrickCurveModel(tm,0,xcol,ycol,yparam,
@@ -86,7 +86,7 @@ TrickCurveModel *MonteModel::curve(int row,
                        "          time param:\n\n                \""
                     << tparam << "\"\n\n          in file:\n\n                "
                     << tm->trkFile();
-        throw std::runtime_error(_err_string.toAscii().constData());
+        throw std::runtime_error(_err_string.toLatin1().constData());
     }
     int ycol = tm->paramColumn(yparam) ;
     QString xp = xparam;
@@ -108,7 +108,7 @@ TrickCurveModel *MonteModel::curve(int row,
                 break;
             }
         }
-        throw std::runtime_error(_err_string.toAscii().constData());
+        throw std::runtime_error(_err_string.toLatin1().constData());
     }
 
     return new TrickCurveModel(tm,tcol,xcol,ycol,yparam,

@@ -207,7 +207,7 @@ Unit::Unit(const char *name)
         _err_stream  << "treat [error]: Unit::Unit(const char* unitName) "
                      << "called with bad or unsupported "
                      <<  "unitName=\"" << name << "\".\n";
-        throw std::runtime_error(_err_string.toAscii().constData());
+        throw std::runtime_error(_err_string.toLatin1().constData());
     }
 }
 
@@ -752,7 +752,7 @@ int Unit::_isOperand(const char *str)
 
 double Unit::convert(double value, const QString &from, const QString &to)
 {
-    return convert(value, from.toAscii().constData(), to.toAscii().constData());
+    return convert(value, from.toLatin1().constData(), to.toLatin1().constData());
 }
 
 
@@ -766,14 +766,14 @@ double Unit::convert(double value, const char *from, const char *to)
                     << " the value " << value << " from unit \"" << from
                     <<  "\" to unit \"" << to << "\" because "
                      << "\"" << from << "\" is not a recognized unit.\n";
-        throw std::runtime_error(_err_string.toAscii().constData());
+        throw std::runtime_error(_err_string.toLatin1().constData());
     }
     if ( !toUnit.isUnit(to) ) {
         _err_stream << "treat [error]: Unit::convert() cannot convert "
                     << " the value " << value << " from unit \"" << from
                     <<  "\" to unit \"" << to << "\" because "
                      << "\"" << to << "\" is not a recognized unit.\n";
-        throw std::runtime_error(_err_string.toAscii().constData());
+        throw std::runtime_error(_err_string.toLatin1().constData());
     }
 
     if ( !fromUnit._canConvert(&toUnit) ) {
@@ -783,7 +783,7 @@ double Unit::convert(double value, const char *from, const char *to)
                     <<  "\" to unit \"" << to << "\" because "
                     << "\"" << from << " and \"" << to
                     << "\" are not in the same family.\n";
-        throw std::runtime_error(_err_string.toAscii().constData());
+        throw std::runtime_error(_err_string.toLatin1().constData());
     }
 
     double scale = fromUnit.convert(&toUnit);

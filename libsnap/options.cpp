@@ -342,7 +342,7 @@ void Options::_addOption(const QString &nameSpec,
             fprintf(stderr,"Only one root option (non hyphenated) "
                     "should be present.  Too many were add()ed.\n"
                     "The offending option was %s\n",
-                    nameSpec.toAscii().constData());
+                    nameSpec.toLatin1().constData());
             exit(-1);
         }
     }
@@ -441,8 +441,8 @@ void Options::parse(int argc, char **argv, const QString& programName,
                 fprintf(stderr,"%s [error]: while parsing commandline. "
                         "Mandatory option=\"%s\" "
                         "was not specified.\n",
-                        programName.toAscii().constData(),
-                        opt->nameSpec().toAscii().constData());
+                        programName.toLatin1().constData(),
+                        opt->nameSpec().toLatin1().constData());
                 *ok = false;
                 return;
             }
@@ -499,10 +499,10 @@ void Options::parse(int argc, char **argv, const QString& programName,
             if ( rootStringVals.size() == 0 && rootOption->isMandatory() ) {
                 *ok = false;
                 fprintf(stderr,"%s [error]: while parsing commandline. ",
-                        programName.toAscii().constData());
+                        programName.toLatin1().constData());
                 fprintf(stderr,"  Root option=\"%s\" has no values, but should "
                         "have at least %d specified",
-                        rootOption->nameSpec().toAscii().constData(),
+                        rootOption->nameSpec().toLatin1().constData(),
                         rootOption->valueQuantifier().min());
             } else {
                 uint min =  rootOption->valueQuantifier().min()  ;
@@ -510,26 +510,26 @@ void Options::parse(int argc, char **argv, const QString& programName,
                 if ( (uint) rootStringVals.size() < min ) {
                     *ok = false;
                     fprintf(stderr,"%s [error]: while parsing commandline. ",
-                            programName.toAscii().constData());
+                            programName.toLatin1().constData());
                     fprintf(stderr,"  Root option=\"%s\" needs "
                             "a minimum of %d "
                             "values, but only %d present: \n",
-                            rootOption->nameSpec().toAscii().constData(),
+                            rootOption->nameSpec().toLatin1().constData(),
                             min,
                             rootStringVals.size());
                 } else if ( (uint) rootStringVals.size() > max ) {
                     *ok = false;
                     fprintf(stderr,"%s [error]: while parsing commandline. ",
-                            programName.toAscii().constData());
+                            programName.toLatin1().constData());
                     fprintf(stderr,"  Root option=\"%s\" accepts "
                             "a max of %d values. There are %d present: \n",
-                            rootOption->nameSpec().toAscii().constData(),
+                            rootOption->nameSpec().toLatin1().constData(),
                             max,
                             rootStringVals.size());
                 }
                 if ( !*ok ) {
                     foreach ( QString v, rootStringVals ) {
-                        fprintf(stderr,"        %s\n", v.toAscii().constData());
+                        fprintf(stderr,"        %s\n", v.toLatin1().constData());
                     }
                 }
             }
@@ -625,9 +625,9 @@ QVariantList Options::_extractOptValsFromArgs(Option *opt,
         if ( ! *ok && j < opt->valueQuantifier().min() ) {
             fprintf(stderr, "Option=\"%s\" is of type %s but "
                             "had value \"%s\" which is wrong type\n",
-                            opt->nameSpec().toAscii().constData(),
+                            opt->nameSpec().toLatin1().constData(),
                             opt->defaultValue().typeName(),
-                            valString.toAscii().constData());
+                            valString.toLatin1().constData());
             break;
         }
     }
@@ -636,7 +636,7 @@ QVariantList Options::_extractOptValsFromArgs(Option *opt,
         if ( (uint) listVals.size() < opt->valueQuantifier().min() ) {
             fprintf(stderr, "Option=\"%s\" is missing value or "
                             "did not have minimum number of values specified.",
-                            opt->nameSpec().toAscii().constData());
+                            opt->nameSpec().toLatin1().constData());
             *ok = false;
         }
     }

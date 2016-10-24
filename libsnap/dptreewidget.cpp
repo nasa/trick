@@ -478,7 +478,7 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
                         << "\n\nin RUN:\n\n "
                         << "         "
                         << runDir ;
-            throw std::runtime_error(_err_string.toAscii().constData());
+            throw std::runtime_error(_err_string.toLatin1().constData());
         }
     } else {
 
@@ -520,7 +520,7 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
             foreach ( QString txy, txyParams ) {
                 _err_stream << "        " << txy << "\n";
             }
-            throw std::runtime_error(_err_string.toAscii().constData());
+            throw std::runtime_error(_err_string.toLatin1().constData());
         }
     }
 

@@ -100,7 +100,7 @@ QStringList TrickTableModel::_trks(const QString &runDir)
     if ( trkList.empty() ) {
         _err_stream << "snap [error]: no trk logfiles found in "
                     << runDir << "\n";
-        throw std::invalid_argument(_err_string.toAscii().constData());
+        throw std::invalid_argument(_err_string.toLatin1().constData());
     }
 
     return trkList;

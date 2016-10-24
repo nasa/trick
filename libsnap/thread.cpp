@@ -35,7 +35,7 @@ void Thread::addJob(Job* job)
                     << "job with threadId that doesn't match other jobs. "
                     << "Conflicing jobs are:\n    "  << _jobs.at(0)->job_name()
                     << "\nand\n    " << job->job_name() ;
-        throw std::runtime_error(_err_string.toAscii().constData());
+        throw std::runtime_error(_err_string.toLatin1().constData());
     }
 
     if ( _jobs.isEmpty() ) {
@@ -64,7 +64,7 @@ void Thread::_do_stats()
         msg += "snap [error]: couldn't find job";
         msg += " trick_sys.sched.advance_sim_time.";
         msg += " Cannot determine thread0's frequency.";
-        throw std::runtime_error(msg.toAscii().constData());
+        throw std::runtime_error(msg.toLatin1().constData());
     }
 
 
@@ -104,7 +104,7 @@ void Thread::_do_stats()
             _err_stream << "snap [bad scoobies]: cannot find advance_sim_time "
                         <<   " parameter for thread0 frame calculation."
                         << "  Trick may have changed the name.";
-            throw std::runtime_error(_err_string.toAscii().constData());
+            throw std::runtime_error(_err_string.toLatin1().constData());
         }
         TrickModelIterator iamf = timeToSyncWithAMFChildrenCurve->begin();
 
@@ -309,7 +309,7 @@ void Thread::_frameModelSet()
             _err_stream << "snap [error]: cannot find log_frame.trk or "
                         << "log_snap_frame.trk files in directory "
                         << _runDir;
-            throw std::invalid_argument(_err_string.toAscii().constData());
+            throw std::invalid_argument(_err_string.toLatin1().constData());
         }
     }
     try {
@@ -320,14 +320,14 @@ void Thread::_frameModelSet()
     catch (std::range_error &e) {
         _err_stream << e.what() << "\n\n";
         _err_stream << "snap [error]: -start or -stop opts have bad vals\n";
-        throw std::range_error(_err_string.toAscii().constData());
+        throw std::range_error(_err_string.toLatin1().constData());
     }
 
     int nFrames = _frameModel->rowCount();
     if ( nFrames == 0 ) {
         _err_stream << "snap [error]: file \"" << _frameModel->tableName()
                     << "\" has no points";
-        throw std::invalid_argument(_err_string.toAscii().constData());
+        throw std::invalid_argument(_err_string.toLatin1().constData());
     }
 
     int frameSchedTimeCol = -1;
@@ -356,7 +356,7 @@ void Thread::_frameModelSet()
                         << " in file \""
                         << _frameModel->tableName()
                         << "\"";
-            throw std::invalid_argument(_err_string.toAscii().constData());
+            throw std::invalid_argument(_err_string.toLatin1().constData());
     }
 
     _frameSchedTimeCol = frameSchedTimeCol;

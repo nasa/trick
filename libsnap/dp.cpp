@@ -19,7 +19,7 @@ DPProduct::DPProduct(const QString &fileName) :
         if (!file.open(QIODevice::ReadOnly)) {
             _err_stream << "snap [error]: could not open "
                         << file.fileName();
-            throw std::runtime_error(_err_string.toAscii().constData());
+            throw std::runtime_error(_err_string.toLatin1().constData());
         }
         QTextStream in(&file);
         QString inString = in.readAll();
@@ -54,7 +54,7 @@ void DPProduct::_handleDP05File(QString &contents)
 
     product = this; // TODO: product is global, need to fix the hack
 
-    YY_BUFFER_STATE bufferState = yy_scan_string(contents.toAscii().constData());
+    YY_BUFFER_STATE bufferState = yy_scan_string(contents.toLatin1().constData());
     Q_UNUSED(bufferState);
     yyparse();
 }
@@ -66,13 +66,13 @@ void DPProduct::_handleDPXMLFile(const QString &xmlfile)
     if (!file.open(QIODevice::ReadOnly)) {
         _err_stream << "snap [error]: could not open "
                     << xmlfile << "\n";
-        throw std::runtime_error(_err_string.toAscii().constData());
+        throw std::runtime_error(_err_string.toLatin1().constData());
     }
     if (!_doc->setContent(&file)) {
         file.close();
         _err_stream << "snap [error]: could not parse "
                     << xmlfile << "\n";
-        throw std::runtime_error(_err_string.toAscii().constData());
+        throw std::runtime_error(_err_string.toLatin1().constData());
     }
     file.close();
 
@@ -142,7 +142,7 @@ QStringList DPProduct::paramList(const QString &fileName)
         if (!file.open(QIODevice::ReadOnly)) {
             _err_stream << "snap [error]: could not open "
                         << file.fileName();
-            throw std::runtime_error(_err_string.toAscii().constData());
+            throw std::runtime_error(_err_string.toLatin1().constData());
         }
 
         QTextStream in(&file);
@@ -582,15 +582,15 @@ DPCurve::DPCurve(const QDomElement &e) : _t(0), _x(0), _y(0)
                 } else {
                     _y = var;
                 }
-                setLineColor(var->lineColor().toAscii().constData());
+                setLineColor(var->lineColor().toLatin1().constData());
                 if ( !var->lineStyle().isEmpty() ) {
-                    setLineStyle(var->lineStyle().toAscii().constData());
+                    setLineStyle(var->lineStyle().toLatin1().constData());
                 }
                 if ( count > 1 ) {
                     _err_stream << "snap [error]: DPPlot can't handle "
                                 << "multiple y vars found in "
                                 << e.ownerDocument().toString() << "\n";
-                    throw std::runtime_error(_err_string.toAscii().constData());
+                    throw std::runtime_error(_err_string.toLatin1().constData());
                 }
                 count++;
             } else if ( tag == "varcase" ) {
