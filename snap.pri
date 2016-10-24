@@ -17,4 +17,9 @@ isEmpty(PREFIX) {
 }
 INSTALL_LIBDIR = $${PREFIX}/lib
 
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += widgets
+    QT += printsupport
+}
+
 #CONFIG += debug
