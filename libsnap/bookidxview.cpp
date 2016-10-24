@@ -233,7 +233,7 @@ QList<double> BookIdxView::_calcTicSet(double aIn, double bIn,
                 // keep going
                 x0 = x;
                 x += d;
-                if ( isinf(x) ) {
+                if ( fpclassify(x) == FP_INFINITE ) {
                     break;
                 }
             } else if ( x > a ) {
@@ -251,7 +251,7 @@ QList<double> BookIdxView::_calcTicSet(double aIn, double bIn,
             } else if ( x > a ) {
                 // keep going
                 x -= d;
-                if ( isinf(x) ) {
+                if ( fpclassify(x) == FP_INFINITE ) {
                     break;
                 }
                 x0 = x;
@@ -296,7 +296,7 @@ QList<double> BookIdxView::_calcTicSet(double aIn, double bIn,
             if ( _isEqual(x,a) ) {
                 X << x;
                 x += d*u;
-                if ( isinf(x) ) break; else continue;
+                if ( fpclassify(x) == FP_INFINITE ) break; else continue;
             } else if ( x < a ) { // x not in [a,b]... continue search
                 x0 = x;
                 double xu = x+d*u;
@@ -318,14 +318,14 @@ QList<double> BookIdxView::_calcTicSet(double aIn, double bIn,
                 } else {
                     x += d;
                 }
-                if ( isinf(x) ) break; else continue;
+                if ( fpclassify(x) == FP_INFINITE ) break; else continue;
             } else if ( _isEqual(x,b) ) { // x in [a,b]... and no more
                 X << x;
                 break;
             } else if ( x < b ) { // x in [a,b]... try to find another
                 X << x;
                 x += d*u;
-                if ( isinf(x) ) break; else continue;
+                if ( fpclassify(x) == FP_INFINITE ) break; else continue;
                 continue;
             } else if ( x > b ) { // x > [a,b]
                 break;
