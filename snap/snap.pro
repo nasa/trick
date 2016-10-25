@@ -32,6 +32,6 @@ OTHER_FILES +=
 
 INCLUDEPATH += $$PWD/..
 
-unix:macx:!symbian: LIBS += -L$$PWD/../lib -lsnap
+LIBS += -L$$PWD/../lib -lsnap
 
 PRE_TARGETDEPS += $$PWD/../lib/libsnap.a

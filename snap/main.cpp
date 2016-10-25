@@ -18,7 +18,9 @@ using namespace std;
 #include "libsnap/runs.h"
 #include "libsnap/plotmainwindow.h"
 #include "libsnap/roundoff.h"
+#ifdef __linux
 #include "libsnap/timeit_linux.h"
+#endif
 #include "libsnap/timestamps.h"
 #include "libsnap/tricktablemodel.h"
 #include "libsnap/dp.h"
@@ -306,10 +308,7 @@ int main(int argc, char *argv[])
                 if ( timeName.isEmpty() ) {
                     timeName = "sys.exec.out.time" ;
                 }
-                //TimeItLinux timer;
-                //timer.start();
                 bool r = writeTrk(opts.trkOutFile,timeName,params,monteModel);
-                //timer.snap("time=");
                 if ( r ) {
                     ret = 0;
                 } else {
@@ -377,12 +376,16 @@ int main(int argc, char *argv[])
 
         } else {
             if ( dps.size() > 0 ) {
+#ifdef __linux
                 TimeItLinux timer;
                 timer.start();
+#endif
                 PlotMainWindow w(opts.timeName,
                                  opts.presentation, ".", dps, titles,
                                  monteModel, varsModel, monteInputsModel);
+#ifdef __linux
                 timer.snap("time=");
+#endif
                 w.show();
                 ret = a.exec();
             } else {
