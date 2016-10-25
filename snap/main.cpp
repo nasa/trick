@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
 
     try {
 
-        QApplication::setGraphicsSystem("raster");
+        //QApplication::setGraphicsSystem("raster");
         QApplication a(argc, argv);
 
         MonteModel* monteModel = 0;
