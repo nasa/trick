@@ -225,7 +225,7 @@ void BookView::savePdf(const QString &fname)
     //
     // Set pen
     //
-    QPen pen(QColor((Qt::black)));
+    QPen pen((QColor(Qt::black)));
     double pointSize = printer.logicalDpiX()/72.0;
     pen.setWidthF(pointSize);
     painter.setPen(pen);
