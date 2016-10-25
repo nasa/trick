@@ -1,6 +1,5 @@
 #include "monte.h"
 #include <QDebug>
-#include "timeit_linux.h"
 
 QString Monte::_err_string;
 QTextStream Monte::_err_stream(&Monte::_err_string);

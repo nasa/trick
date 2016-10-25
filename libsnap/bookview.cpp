@@ -1,8 +1,5 @@
 #include "bookview.h"
 
-#include "libsnap/timeit_linux.h"
-static TimeItLinux timer;
-
 BookView::BookView(QWidget *parent) :
     BookIdxView(parent)
 {

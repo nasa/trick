@@ -1,6 +1,5 @@
 #include "runs.h"
 #include <QDebug>
-#include "timeit_linux.h"
 
 QString Runs::_err_string;
 QTextStream Runs::_err_stream(&Runs::_err_string);

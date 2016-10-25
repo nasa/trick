@@ -26,7 +26,6 @@
 #include "libsnap/monteinputsview.h"
 #include "libsnap/rangeinput.h"
 #include "libsnap/bookview.h"
-#include "libsnap/timeit_linux.h"
 
 class PlotMainWindow : public QMainWindow
 {
@@ -66,7 +65,6 @@ private:
     QMenu *_fileMenu;
     QAction *_pdfAction;
     QAction *_exitAction;
-    TimeItLinux _timer;
 
     QTabWidget* _nbDPVars;
     VarsWidget* _varsWidget;

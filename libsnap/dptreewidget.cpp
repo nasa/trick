@@ -1,7 +1,5 @@
 #include "dptreewidget.h"
 
-#include "libsnap/timeit_linux.h"
-
 QString DPTreeWidget::_err_string;
 QTextStream DPTreeWidget::_err_stream(&DPTreeWidget::_err_string);
 
@@ -251,11 +249,6 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
 
     QStandardItem *pagesItem = _bookModel->itemFromIndex(pagesIdx);
 
-//#define TIME_ME
-#ifdef TIME_ME
-                TimeItLinux timer;
-                 timer.start();
-#endif
     foreach (DPPage* page, dp.pages() ) {
 
         // Page
@@ -332,9 +325,6 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
         }
         pageNum++;
     }
-#ifdef TIME_ME
-    timer.snap("loadtime(dptreewidget)=");
-#endif
 
     this->setCursor(currCursor);
 }
