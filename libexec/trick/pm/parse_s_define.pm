@@ -517,7 +517,7 @@ sub handle_sim_class ($$$$) {
     $s =~ s/ZZZYYYXXX(\d+)ZZZYYYXXX//esg ;
 
     # grab the class name and the name of the class we are inheriting from
-    ($full_template_args, $class_name, $inherit_class) = $s =~ /(?:template\s+<([^>]+)>)?\s*class\s+(\S+)\s*(?::\s*public\s*(.*\S))?/ ;
+    ($full_template_args, $class_name, $inherit_class) = $s =~ /(?:\s*template\s*<\s*([^>]+?)\s*>)?\s*class\s+(\w+)\s*(?::\s*public\s+(.+?)\s*)$/ ;
 
     $template_args = $full_template_args ;
     $template_args =~ s/class|typename//g ;
