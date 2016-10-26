@@ -733,7 +733,7 @@ public abstract class TrickApplication extends SingleFrameApplication implements
         }
         try {
             ProcessBuilder process = new ProcessBuilder(UIUtils.getTrickBin() +
-              File.separator + executable,  arguments);
+              File.separator + "trick-" + executable,  arguments);
             process.redirectOutput(ProcessBuilder.Redirect.INHERIT);
             process.redirectError(ProcessBuilder.Redirect.INHERIT);
             process.start();
