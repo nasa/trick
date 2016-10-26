@@ -165,7 +165,7 @@ public class StripChart extends JXPanel {
                 });
                 addFocusListener(new FocusAdapter() {
                     @Override
-					public void focusLost(FocusEvent event) {
+                    public void focusLost(FocusEvent event) {
                         setText(Double.toString(fixedAutoRange));
                     }
                 });
