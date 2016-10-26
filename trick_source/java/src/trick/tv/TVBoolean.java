@@ -23,7 +23,7 @@ public class TVBoolean extends VSBoolean implements TrickViewFluent<TVBoolean.Fo
 
         Boolean {
             public String format(boolean value) {
-                return value ? "True" : "False";
+                return value ? "1" : "0";
             }
         };
 
