@@ -4,11 +4,12 @@ PURPOSE:    ( Try Trick integration )
 #include "../include/cannon.h"
 #include "../include/cannon_integ_proto.h"
 
-int cannon_deriv(
-      CANNON* C )
-{
-        C->acc[0] = 0.0 ;
-        C->acc[1] = -9.81 ;
+int cannon_deriv( CANNON* C ) {
 
-        return 0 ; 
+      if (!C->impact) {
+          C->acc[0] =  0.00 ;
+          C->acc[1] = -9.81 ;
+          C->timeRate = 1.00;
+      }
+      return 0 ; 
 }

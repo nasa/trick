@@ -26,8 +26,9 @@ double cannon_impact( CANNON* C )
 
         C->vel[0] = 0.0 ; C->vel[1] = 0.0 ;
         C->acc[0] = 0.0 ; C->acc[1] = 0.0 ;
+        C->impactTime = C->time; 
 
-        fprintf(stderr, "\n\nIMPACT: time = %.9f, pos = %.9f\n\n", now, C->pos[0] ) ;
+        fprintf(stderr, "\n\nIMPACT: SimTime = %.9f, ModelTime = %.9f, pos = %.9f\n\n", now, C->impactTime, C->pos[0] ) ;
     }
 
     return ( tgo ) ;

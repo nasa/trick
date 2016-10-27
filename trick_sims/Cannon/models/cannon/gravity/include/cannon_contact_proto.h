@@ -13,8 +13,8 @@ extern "C" {
 #endif
 
 int cannon_integ(CANNON*) ;
-int cannon_deriv_impact(CANNON*) ;
 double cannon_impact(CANNON*) ;
+double cannon_deriv(CANNON*) ;
 int cannon_init(CANNON*) ;
 int cannon_default_data(CANNON*) ;
 
