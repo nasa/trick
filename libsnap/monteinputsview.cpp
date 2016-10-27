@@ -11,7 +11,11 @@ MonteInputsView::MonteInputsView(QWidget *parent) :
 
     QHeaderView* headerView = horizontalHeader();
     headerView->setTextElideMode(Qt::ElideLeft);
+#if QT_VERSION >= 0x050000
     headerView->setSectionResizeMode(QHeaderView::ResizeToContents);
+#else
+    headerView->setResizeMode(QHeaderView::ResizeToContents);
+#endif
     connect(headerView,SIGNAL(sectionClicked(int)),
             this,SLOT(_viewHeaderSectionClicked(int)));
 
