@@ -2,6 +2,7 @@
 PURPOSE:    ( Analytical Cannon )
 *****************************************************************************/
 #include <stdio.h>
+#include <math.h>
 #include "../include/cannon.h"
 #include "../include/cannon_analytic_proto.h"
 
@@ -15,11 +16,12 @@ int cannon_analytic( CANNON* C )
     C->pos[1] = C->pos0[1] + (C->vel0[1] + (0.5) * C->acc0[1] * C->time) * C->time ; 
     if (C->pos[1] < 0.0) {
         C->impact = 1;
-        C->impactTime = -(2 * C->vel0[1] / C->acc0[1]);
+        C->impactTime = (- C->vel0[1] - sqrt( C->vel0[1] * C->vel0[1] - 2 * C->pos0[1]))/C->acc[1];
         C->pos[0] = C->impactTime * C->vel0[0];
         C->pos[1] = 0.0;
         C->vel[0] = 0.0;
         C->vel[1] = 0.0;
+        fprintf(stderr, "\n\nIMPACT: ModelTime = %.9f, pos = %.9f\n\n", C->impactTime, C->pos[0] ) ;
     }
 
     /*
