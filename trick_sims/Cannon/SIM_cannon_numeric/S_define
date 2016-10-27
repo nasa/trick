@@ -1,6 +1,6 @@
 /************************TRICK HEADER*************************
 PURPOSE:
-    (This S_define is used with RUN_integ input file)
+    (Cannon Numeric)
 LIBRARY DEPENDENCIES:
     (
      (cannon/gravity/src/cannon_default_data.c)
@@ -23,12 +23,9 @@ class CannonSimObject : public Trick::SimObject {
 
         CannonSimObject() {
             ("default_data") cannon_default_data( &cannon ) ;
-
             ("initialization") cannon_init( &cannon ) ;
-
             ("derivative") cannon_deriv( &cannon ) ;
             ("integration") trick_ret = cannon_integ( &cannon ) ;
-
             ("dynamic_event") cannon_impact( &cannon) ;
         }
 } ;
