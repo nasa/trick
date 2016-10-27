@@ -10,8 +10,6 @@ COMPILE_DIRS = \
     Cannon/SIM_amoeba \
     Cannon/SIM_cannon_aero \
     Cannon/SIM_cannon_analytic \
-    Cannon/SIM_cannon_contact \
-    Cannon/SIM_cannon_dt \
     Cannon/SIM_cannon_eulercromer \
     Cannon/SIM_cannon_integ \
     Cannon/SIM_cannon_jet \
@@ -30,8 +28,6 @@ TEST_DIRS = \
     Cannon/SIM_amoeba \
     Cannon/SIM_cannon_aero \
     Cannon/SIM_cannon_analytic \
-    Cannon/SIM_cannon_contact \
-    Cannon/SIM_cannon_dt \
     Cannon/SIM_cannon_eulercromer \
     Cannon/SIM_cannon_integ \
     Cannon/SIM_cannon_jet \
