@@ -26,7 +26,7 @@ bool EnumVisitor::VisitType(clang::Type *t) {
 }
 
 bool EnumVisitor::VisitEnumDecl(clang::EnumDecl *ed) {
-    eval.setFileName(getFileName(ci , ed->getRBraceLoc(), hsd)) ;
+    eval.setFileName(getFileName(ci , ed->getSourceRange().getEnd(), hsd)) ;
     return true;
 }
 

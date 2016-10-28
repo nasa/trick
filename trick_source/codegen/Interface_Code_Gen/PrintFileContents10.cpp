@@ -300,6 +300,7 @@ void PrintFileContents10::print_init_attr_func( std::ostream & ostream , ClassVa
         ostream << "    typedef " << cv->getName() << " " << cv->getMangledTypeName() << " ;\n\n" ;
     }
 
+#if 0
     if ( !global_compat15 and !cv->isCompat15()) {
         ostream << "    if ( sizeof(" ;
         printNamespaces( ostream, cv , "::" ) ;
@@ -314,6 +315,7 @@ void PrintFileContents10::print_init_attr_func( std::ostream & ostream , ClassVa
         ostream << cv->getName() << ") - " << cv->getSize() << ") , \"" << cv->getFileName() << "\")) ;\n" ;
         ostream << "    }\n" ;
     }
+#endif
 
     unsigned int ii = 0 ;
     for ( fit = cv->field_begin() ; fit != cv->field_end() ; fit++ ) {

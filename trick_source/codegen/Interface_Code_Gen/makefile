@@ -48,7 +48,8 @@ endif
 endif
 
 ifeq ($(TRICK_HOST_TYPE),Darwin)
-CLANGLIBS += -lLLVMOption -lLLVMMCParser -lLLVMBitReader -lLLVMMC -lLLVMSupport $(shell $(LLVM_HOME)/bin/llvm-config --system-libs)
+CLANGLIBS += $(shell $(LLVM_HOME)/bin/llvm-config --libs)
+CLANGLIBS += $(shell $(LLVM_HOME)/bin/llvm-config --system-libs)
 CLANGLIBS += -lc++abi
 endif
 
