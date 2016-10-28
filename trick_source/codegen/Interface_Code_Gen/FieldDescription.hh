@@ -53,6 +53,7 @@ class FieldDescription : public ConstructValues {
         unsigned int getLineNo() ;
         void setMangledTypeName( std::string in_val ) ;
         std::string getMangledTypeName() ;
+        std::string getFullyQualifiedMangledTypeName(const std::string& delimiter = "::") ;
         std::string getUnits() ;
         bool isDashDashUnits() ;
         void setIO(unsigned int) ;
@@ -91,8 +92,6 @@ class FieldDescription : public ConstructValues {
 
         /** Adds an array dimension to the field */
         void addArrayDim( int in_dim ) ;
-
-        friend std::ostream & operator << (std::ostream & os , FieldDescription & cv ) ;
 
     private:
 

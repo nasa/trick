@@ -375,6 +375,13 @@ std::string FieldDescription::getMangledTypeName() {
     return mangled_type_name ;
 }
 
+std::string FieldDescription::getFullyQualifiedMangledTypeName(const std::string& delimiter) {
+    std::ostringstream oss ;
+    printNamespacesAndContainerClasses(oss, delimiter) ;
+    oss << getMangledTypeName() ;
+    return oss.str() ;
+}
+
 std::string FieldDescription::getUnits() {
     return units ;
 }
@@ -516,44 +523,4 @@ int FieldDescription::getArrayDim(unsigned int dim_num) {
 
 void FieldDescription::addArrayDim( int in_dim ) {
     array_sizes[num_dims++] = in_dim ;
-}
-
-std::ostream & operator << (std::ostream & os , FieldDescription & fdes ) {
-    os << "    name = " << fdes.name << std::endl ;
-    os << "    file_name = " << fdes.file_name << std::endl ;
-    os << "    namespaces =" ;
-    ConstructValues::NamespaceIterator it ;
-    for ( it = fdes.namespace_begin() ; it != fdes.namespace_end() ; it++ ) {
-        os << " " << *it ;
-    }
-    os << std::endl ;
-    os << "    parent classes =" ;
-    for ( it = fdes.container_class_begin() ; it != fdes.container_class_end() ; it++ ) {
-        os << " " << *it ;
-    }
-    os << std::endl ;
-    os << "    line_no = " << fdes.line_no << std::endl ;
-    os << "    container_class = " << fdes.container_class << std::endl ;
-    os << "    type_name = " << fdes.type_name << std::endl ;
-    os << "    mangled_type_name = " << fdes.mangled_type_name << std::endl ;
-    os << "    type_enum_string = " << fdes.type_enum_string << std::endl ;
-    os << "    units = " << fdes.units << std::endl ;
-    os << "    io = " << fdes.io << std::endl ;
-    os << "    description = " << fdes.description << std::endl ;
-    os << "    access = " << fdes.access << std::endl ;
-    os << "    is_bitfield = " << fdes.is_bitfield << std::endl ;
-    os << "    bitfield_width = " << fdes.bitfield_width << std::endl ;
-    os << "    bitfield_start_bit = " << fdes.bitfield_start_bit << std::endl ;
-    os << "    bitfield_word_offset = " << fdes.bitfield_word_offset << std::endl ;
-    os << "    num_dims = " << fdes.num_dims << std::endl ;
-    os << "    array_sizes =" ;
-    for( unsigned int ii = 0 ; ii < 8 ; ii++ ) {
-        os << " " << fdes.array_sizes[ii] ;
-    }
-    os << std::endl ;
-    os << "    is_enum = " << fdes.is_enum << std::endl ;
-    os << "    is_record = " << fdes.is_record << std::endl ;
-    os << "    is_static = " << fdes.is_static << std::endl ;
-
-    return os ;
 }

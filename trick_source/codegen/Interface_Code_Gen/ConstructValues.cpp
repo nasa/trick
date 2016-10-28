@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <clang/AST/DeclTemplate.h>
 
 #include "ConstructValues.hh"
 
@@ -39,7 +40,6 @@ void ConstructValues::getNamespacesAndClasses( const clang::DeclContext * Ctx ) 
     for (ContextsTy::reverse_iterator I = Contexts.rbegin(), E = Contexts.rend(); I != E; ++I) {
         if (const clang::NamespaceDecl *nd = clang::dyn_cast<clang::NamespaceDecl>(*I)) {
             if (! nd->isAnonymousNamespace()) {
-                //std::cout << "namespace " << nd->getIdentifier()->getName().str() << std::endl ;
                 std::string temp_name = nd->getIdentifier()->getName().str() ;
                 if ( temp_name.compare("std") and temp_name.compare("__1")) {
                     addNamespace(nd->getIdentifier()->getName().str()) ;
@@ -47,8 +47,23 @@ void ConstructValues::getNamespacesAndClasses( const clang::DeclContext * Ctx ) 
             }
         } else if (const clang::RecordDecl *rd = clang::dyn_cast<clang::RecordDecl>(*I)) {
             if (rd->getIdentifier()) {
-                //std::cout << "in class " << rd->getName().str() << std::endl ;
-                addContainerClass(rd->getName().str()) ;
+                if (const clang::ClassTemplateSpecializationDecl *td = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(*I)) {
+                    std::string text;
+                    llvm::raw_string_ostream stream(text);
+                    stream << td->getName().str() << "<";
+                    const clang::TemplateArgumentList& arguments = td->getTemplateArgs();
+                    unsigned end = arguments.size() - 1;
+                    for (unsigned i = 0; i < end; ++i) {
+                        arguments[i].print(printingPolicy, stream);
+                        stream << ", ";
+                    }
+                    arguments[end].print(printingPolicy, stream);
+                    stream << ">";
+                    addContainerClass(stream.str());
+                }
+                else {
+                    addContainerClass(rd->getName().str()) ;
+                }
             }
         }
     }
@@ -62,16 +77,57 @@ void ConstructValues::addContainerClass( std::string in_name ) {
     container_classes.push_back(in_name) ;
 }
 
-std::string ConstructValues::getFullyQualifiedName() {
-    std::ostringstream oss ;
-    NamespaceIterator ni ;
+std::string ConstructValues::getFullyQualifiedName(const std::string& delimiter) {
+    std::ostringstream oss;
+    printNamespaces(oss, delimiter);
+    printContainerClasses(oss, delimiter);
+    oss << name;
+    return oss.str();
+}
 
-    for ( ni = namespace_begin() ; ni != namespace_end() ; ni++ ) {
-        oss << (*ni) << "::" ;
+void ConstructValues::printOpenNamespaceBlocks(std::ostream& ostream) {
+    for (auto name : namespaces) {
+        ostream << "namespace " << name << " {" << std::endl;
     }
-    for ( ni = container_class_begin() ; ni != container_class_end() ; ni++ ) {
-        oss << (*ni) << "::" ;
+}
+
+void ConstructValues::printCloseNamespaceBlocks(std::ostream& ostream) {
+    for (auto name : namespaces) {
+        ostream << "}" << std::endl;
     }
+}
+
+void ConstructValues::printNamespaces(std::ostream& ostream, const std::string& delimiter) {
+    for (auto name : namespaces) {
+        ostream << name << delimiter;
+    }
+}
+
+void ConstructValues::printContainerClasses(std::ostream& ostream, const std::string& delimiter) {
+    for (auto clazz : container_classes) {
+        ostream << clazz << delimiter;
+    }
+}
+
+void ConstructValues::printNamespacesAndContainerClasses(std::ostream& ostream, const std::string& delimiter) {
+    printNamespaces(ostream, delimiter);
+    printContainerClasses(ostream, delimiter);
+}
+
+std::string ConstructValues::getNamespacesAndContainerClasses(const std::string& delimiter) {
+    std::string result = "";
+    for (auto name : namespaces) {
+        result += name + delimiter;
+    }
+    for (auto clazz : container_classes) {
+        result += clazz + delimiter;
+    }
+    return result;
+}
+
+std::string ConstructValues::getFullyQualifiedTypeName(const std::string& delimiter) {
+    std::ostringstream oss ;
+    printNamespacesAndContainerClasses(oss, delimiter) ;
     oss << name ;
     return oss.str() ;
 }

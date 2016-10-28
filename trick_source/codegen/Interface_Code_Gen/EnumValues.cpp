@@ -17,26 +17,3 @@ void EnumValues::setHasDefinition( bool in ) {
 bool EnumValues::getHasDefinition() {
     return has_definition ;
 }
-
-std::ostream & operator << (std::ostream & os , EnumValues & ev ) {
-    os << "    name = " << ev.name << std::endl ;
-    os << "    file_name = " << ev.file_name << std::endl ;
-    os << "    namespaces =" ;
-    ConstructValues::NamespaceIterator it ;
-    for ( it = ev.namespace_begin() ; it != ev.namespace_end() ; it++ ) {
-        os << " " << *it ;
-    }
-    os << std::endl ;
-    os << "    parent classes =" ;
-    for ( it = ev.container_class_begin() ; it != ev.container_class_end() ; it++ ) {
-        os << " " << *it ;
-    }
-    os << std::endl ;
-
-    EnumValues::NameValueIterator eit ;
-    for ( eit = ev.begin() ; eit != ev.end() ; eit++ ) {
-        os << "      " << (*eit).first << " " << (*eit).second << std::endl ;
-    }
-
-    return os ;
-}

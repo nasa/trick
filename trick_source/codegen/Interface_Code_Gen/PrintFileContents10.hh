@@ -103,6 +103,8 @@ class PrintFileContents10 : public PrintFileContentsBase {
 
         /** Prints stl clear function */
         void print_clear_stl(std::ostream & outfile , FieldDescription * fdes , ClassValues * in_class) ;
+
+        void printStlFunction(const std::string& name, const std::string& parameters, const std::string& call, std::ostream& ostream, FieldDescription& fieldDescription, ClassValues& classValues);
 } ;
 
 #endif

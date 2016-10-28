@@ -296,7 +296,7 @@ bool FieldVisitor::ProcessTemplate(std::string in_name , clang::CXXRecordDecl * 
         if ( debug_level >= 4 ) {
             std::cout << "Added template class from FieldVisitor ProcessTemplate " ;
             std::cout << in_name << std::endl ;
-            std::cout << *fdes << std::endl ;
+            //std::cout << *fdes << std::endl ;
         }
     }
 

@@ -40,27 +40,25 @@ class ClassValues : public ConstructValues {
          unsigned int class_offset, bool virtual_inherited) ;
 
         /** Gets the list of fields in this class */
-        std::vector<FieldDescription *> getFieldDescription() ;
+        const std::vector<FieldDescription*>& getFieldDescriptions() {
+            return field_descripts ;
+        }
 
         void clearFieldDescription() ;
 
-        typedef std::vector< FieldDescription * >::iterator FieldIterator ;
-        FieldIterator field_begin() { return field_descripts.begin() ; } ;
-        FieldIterator field_end() { return field_descripts.end() ; } ;
-
         /** Appends an inherited class name to the list this class inherits from */
         void addInheritedClass( std::string class_name ) ;
+
+        /** Gets the list of inherited classes */
+        const std::vector<std::string>& getInheritedClasses() {
+            return inherited_classes ;
+        }
 
         void saveInheritAncestry( ClassValues * in_cv ) ;
         void setContainerClassForFields() ;
         void clearAmbiguousVariables() ;
 
         void clearInheritedClass() ;
-
-        typedef std::vector< std::string >::iterator InheritedClassesIterator ;
-        InheritedClassesIterator inherit_classes_begin() { return inherited_classes.begin() ; } ;
-        InheritedClassesIterator inherit_classes_end() { return inherited_classes.end() ; } ;
-        unsigned int getNumInheritedClasses() { return inherited_classes.size() ; } ;
 
         void setVirtualInherited(bool in_inh) ;
         bool isVirtualInherited() ;
@@ -76,19 +74,15 @@ class ClassValues : public ConstructValues {
         bool getHasDefaultConstructor() ;
         void setHasPublicDestructor(bool in_val) ;
         bool getHasPublicDestructor() ;
-        std::string getFullyQualifiedTypeName() ;
         void setMangledTypeName( std::string in_val ) ;
         std::string getMangledTypeName() ;
-        std::string getFullyQualifiedMangledTypeName() ;
+        std::string getFullyQualifiedMangledTypeName(const std::string& delimiter = "::") ;
+        std::string getFullyQualifiedNameIfEqual();
         void setCompat15(bool in_val) ;
         bool isCompat15() ;
-
-        void print_namespaces(std::ostream & os, const char * delimiter) ;
-
-        friend std::ostream & operator << (std::ostream & os , ClassValues & cv ) ;
+        bool isInStandardNamespace();
 
     private:
-        /** List of fields (data members) contained in the class */
         std::vector< FieldDescription * > field_descripts ;
 
         std::map< std::string , FieldDescription * > field_name_to_info_map ;

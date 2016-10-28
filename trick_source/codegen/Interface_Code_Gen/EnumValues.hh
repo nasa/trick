@@ -32,14 +32,12 @@ class EnumValues : public ConstructValues {
 
         void addEnum(std::string in_name , long long in_val) ;
 
-        typedef std::vector< NameValuePair >::iterator NameValueIterator ;
-        NameValueIterator begin() { return enum_values.begin() ; } ;
-        NameValueIterator end() { return enum_values.end() ; } ;
-
-        friend std::ostream & operator << (std::ostream & os , EnumValues & ev ) ;
-
         void setHasDefinition( bool in ) ;
         bool getHasDefinition() ;
+
+        const std::vector<NameValuePair>& getPairs() {
+            return enum_values;
+        }
 
     private:
 

@@ -22,7 +22,6 @@
 #include "CommentSaver.hh"
 #include "TranslationUnitVisitor.hh"
 #include "PrintAttributes.hh"
-#include "PrintAttributesFactory.hh"
 #include "Utilities.hh"
 
 /* Command line arguments.  These work better as globals, as suggested in llvm/CommandLine documentation */
@@ -65,9 +64,9 @@ int main(int argc, char * argv[]) {
      */
     llvm::cl::ParseCommandLineOptions(argc, argv);
 
-    if (!validAttributesVersion(attr_version)) {
+    /*if (!validAttributesVersion(attr_version)) {
         return -1;
-    }
+    }*/
 
     if (input_file_names.empty()) {
         std::cerr << "No header file specified" << std::endl;

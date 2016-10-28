@@ -55,21 +55,8 @@ class PrintFileContentsBase {
         /* internal function determines if a particular field is printable */
         bool determinePrintAttr(ClassValues * c , FieldDescription *fdes) ;
 
-        /** Prints namespace containers of a class delimited by delim */
-        void printNamespaces(std::ostream & ostream, ConstructValues * c , const char * delim ) ;
-
-        /** Prints namespace open block */
-        void printOpenNamespaceBlocks( std::ostream & ostream, ClassValues * c ) ;
-
-        /** Prints namespace close block */
-        void printCloseNamespaceBlocks( std::ostream & ostream, ClassValues * c ) ;
-
-        /* Note: There are no open/close namespace blocks for enums.  The
-           enum attributes do not have anything that needs to be enclosed in
-           namespaces */
-
-        /** Prints class containers of a class delimited by delim */
-        void printContainerClasses(std::ostream & ostream, ConstructValues * c , const char * delim ) ;
+        /* gets a vector of fields that can be printed */
+        std::vector<FieldDescription*> getPrintableFields(ClassValues& classValues);
 
 } ;
 

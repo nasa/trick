@@ -13,7 +13,7 @@
 
 #include "PrintAttributes.hh"
 #include "PrintFileContentsBase.hh"
-#include "PrintAttributesFactory.hh"
+#include "PrintFileContents10.hh"
 #include "HeaderSearchDirs.hh"
 #include "CommentSaver.hh"
 #include "ClassValues.hh"
@@ -30,7 +30,7 @@ PrintAttributes::PrintAttributes(int in_attr_version , HeaderSearchDirs & in_hsd
    sim_services_flag( in_sim_services_flag ) ,
    output_dir( in_output_dir )
 {
-    printer = createFileContents(in_attr_version) ;
+    printer = new PrintFileContents10() ;
 }
 
 /**

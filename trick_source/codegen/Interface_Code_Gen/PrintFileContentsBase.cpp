@@ -26,41 +26,22 @@ void PrintFileContentsBase::printEnumMap(std::ostream & ostream, EnumValues * ev
 void PrintFileContentsBase::printEnumMapFooter(std::ostream & ostream) {}
 
 void PrintFileContentsBase::print_units_map(std::ostream & ostream, ClassValues * cv ) {
-    ClassValues::FieldIterator fit ;
-    unsigned int ii ;
+    const std::string name = cv->getFullyQualifiedMangledTypeName("__");
+    ostream << "struct UnitsMap" << name << " {\n" ;
 
-    ostream << "struct UnitsMap" ;
-    printNamespaces( ostream, cv , "__" ) ;
-    printContainerClasses( ostream, cv , "__" ) ;
-    ostream << cv->getMangledTypeName() ;
-    ostream << " {\n" ;
-
-    std::ostringstream text;
-
-    for ( fit = cv->field_begin() ; fit != cv->field_end() ; fit++ ) {
-        if ( determinePrintAttr(cv , *fit) and (*fit)->getUnits().compare("1")) {
-            FieldDescription * fdes = *fit ;
-            text << "        units_map_ptr->add_param(\"" ;
-            printContainerClasses( text, cv , "__" ) ;
-            text << cv->getName() << "_" << fdes->getName() << "\", \"" << fdes->getUnits() << "\") ;\n" ;
+    auto fields = getPrintableFields(*cv);
+    if (fields.size()) {
+        ostream << "    UnitsMap" << name << "() {\n"
+                << "        Trick::UnitsMap* units_map_ptr = Trick::UnitsMap::units_map();\n" ;
+        for (auto& field : fields) {
+            ostream << "        units_map_ptr->add_param(\"" ;
+            cv->printContainerClasses(ostream, "__");
+            ostream << cv->getName() << "_" << field->getName() << "\", \"" << field->getUnits() << "\") ;\n" ;
         }
-    }
-
-    if (text.str().size()) {
-        ostream << "    UnitsMap" ;
-        printNamespaces( ostream, cv , "__" ) ;
-        printContainerClasses( ostream, cv , "__" ) ;
-        ostream << cv->getMangledTypeName() ;
-        ostream << "() {\n" ;
-        ostream << "        Trick::UnitsMap * units_map_ptr = Trick::UnitsMap::units_map() ;\n" ;
-        ostream << text.str() ;
         ostream << "    }\n" ;
     }
-    ostream << "} um" ;
-    printNamespaces( ostream, cv , "__" ) ;
-    printContainerClasses( ostream, cv , "__" ) ;
-    ostream << cv->getMangledTypeName() ;
-    ostream << " ;\n" ;
+
+    ostream << "} um" << name << ";\n" ;
 }
 
 /* Utility routines for printing */
@@ -103,31 +84,13 @@ bool PrintFileContentsBase::determinePrintAttr( ClassValues * c , FieldDescripti
     return false ;
 }
 
-/** Prints namespace containers of a class delimited by delim */
-void PrintFileContentsBase::printNamespaces( std::ostream & ostream , ConstructValues * c , const char * delim ) {
-    for ( ClassValues::NamespaceIterator nsi = c->namespace_begin() ; nsi != c->namespace_end() ; ++nsi ) {
-        ostream << *nsi << delim ;
+std::vector<FieldDescription*> PrintFileContentsBase::getPrintableFields(ClassValues& classValues) {
+    std::vector<FieldDescription*> results;
+    for (auto& field : classValues.getFieldDescriptions()) {
+        if (determinePrintAttr(&classValues, field) and field->getUnits().compare("1")) {
+            results.push_back(field);
+        }
     }
-}
-
-/** Prints namespace open block */
-void PrintFileContentsBase::printOpenNamespaceBlocks( std::ostream & ostream , ClassValues * c ) {
-    for ( ClassValues::NamespaceIterator nsi = c->namespace_begin() ; nsi != c->namespace_end() ; ++nsi ) {
-        ostream << "namespace " << *nsi << " {\n" ;
-    }
-}
-
-/** Prints namespace close block */
-void PrintFileContentsBase::printCloseNamespaceBlocks( std::ostream & ostream , ClassValues * c ) {
-    for ( ClassValues::NamespaceIterator nsi = c->namespace_begin() ; nsi != c->namespace_end() ; ++nsi ) {
-        ostream << "}\n" ;
-    }
-}
-
-/** Prints class containers of a class delimited by delim */
-void PrintFileContentsBase::printContainerClasses( std::ostream & ostream , ConstructValues * c , const char * delim ) {
-    for ( ClassValues::ContainerClassIterator ci = c->container_class_begin() ; ci != c->container_class_end() ; ci++ ) {
-        ostream << *ci << delim ;
-    }
+    return results;
 }
 

@@ -7,6 +7,8 @@
 #include <utility>
 
 #include "clang/AST/Decl.h"
+#include <clang/AST/PrettyPrinter.h>
+#include <clang/Basic/LangOptions.h>
 
 /**
 
@@ -39,17 +41,26 @@ class ConstructValues {
 
         void addNamespace(std::string in_name) ;
 
-        typedef std::vector< std::string >::iterator NamespaceIterator ;
-        NamespaceIterator namespace_begin() { return namespaces.begin() ; } ;
-        NamespaceIterator namespace_end() { return namespaces.end() ; } ;
+        const std::vector<std::string>& getNamespaces() {
+            return namespaces;
+        }
+
 
         void addContainerClass(std::string in_name) ;
 
-        typedef std::vector< std::string >::iterator ContainerClassIterator ;
-        ContainerClassIterator container_class_begin() { return container_classes.begin() ; } ;
-        ContainerClassIterator container_class_end() { return container_classes.end() ; } ;
+        const std::vector<std::string>& getContainerClasses() {
+            return container_classes;
+        }
 
-        std::string getFullyQualifiedName() ;
+        std::string getFullyQualifiedName(const std::string& delimiter = "::") ;
+
+        void printOpenNamespaceBlocks(std::ostream& ostream);
+        void printCloseNamespaceBlocks(std::ostream& ostream);
+        void printNamespaces(std::ostream& ostream, const std::string& delimiter = "::") ;
+        void printContainerClasses(std::ostream& ostream, const std::string& delimiter = "::") ;
+        void printNamespacesAndContainerClasses(std::ostream& ostream, const std::string& delimiter = "::") ;
+        std::string getNamespacesAndContainerClasses(const std::string& delimiter = "::") ;
+        std::string getFullyQualifiedTypeName(const std::string& delimiter = "::")  ;
 
     protected:
 
@@ -64,6 +75,8 @@ class ConstructValues {
 
         /** File where construct is defined */
         std::string file_name ;
+
+        const clang::PrintingPolicy printingPolicy = clang::PrintingPolicy(clang::LangOptions());
 
 } ;
 

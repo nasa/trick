@@ -175,10 +175,6 @@ void ClassValues::clearAmbiguousVariables() {
 
 }
 
-std::vector<FieldDescription *> ClassValues::getFieldDescription() {
-    return field_descripts ;
-}
-
 void ClassValues::clearFieldDescription() {
     field_descripts.clear() ;
 }
@@ -239,20 +235,6 @@ bool ClassValues::getHasPublicDestructor() {
     return has_public_destructor ;
 }
 
-std::string ClassValues::getFullyQualifiedTypeName() {
-    std::ostringstream oss ;
-    NamespaceIterator ni ;
-
-    for ( ni = namespace_begin() ; ni != namespace_end() ; ni++ ) {
-        oss << (*ni) << "::" ;
-    }
-    for ( ni = container_class_begin() ; ni != container_class_end() ; ni++ ) {
-        oss << (*ni) << "::" ;
-    }
-    oss << name ;
-    return oss.str() ;
-}
-
 void ClassValues::setMangledTypeName( std::string in_val ) {
     mangled_type_name = in_val ;
 }
@@ -264,19 +246,22 @@ std::string ClassValues::getMangledTypeName() {
     return mangled_type_name ;
 }
 
-std::string ClassValues::getFullyQualifiedMangledTypeName() {
+std::string ClassValues::getFullyQualifiedMangledTypeName(const std::string& delimiter) {
     std::ostringstream oss ;
-    NamespaceIterator ni ;
-
-    for ( ni = namespace_begin() ; ni != namespace_end() ; ni++ ) {
-        oss << (*ni) << "::" ;
-    }
-    for ( ni = container_class_begin() ; ni != container_class_end() ; ni++ ) {
-        oss << (*ni) << "::" ;
-    }
+    printNamespacesAndContainerClasses(oss, delimiter) ;
     oss << getMangledTypeName() ;
     return oss.str() ;
 }
+
+std::string ClassValues::getFullyQualifiedNameIfEqual() {
+    std::string result;
+    if (getName() == getMangledTypeName()) {
+        result += getNamespacesAndContainerClasses();
+    }
+    result += getName();
+    return result;
+}
+
 
 void ClassValues::setCompat15(bool in_val) {
     compat15 = in_val ;
@@ -286,38 +271,6 @@ bool ClassValues::isCompat15() {
     return compat15 ;
 }
 
-void ClassValues::print_namespaces(std::ostream & os, const char * delimiter) {
-    unsigned int ii ;
-    for ( ii = 0 ; ii < namespaces.size() ; ii++ ) {
-        os << namespaces[ii] << delimiter ;
-    }
-}
-
-std::ostream & operator << (std::ostream & os , ClassValues & cv ) {
-    os << "  name = " << cv.name << std::endl ;
-    os << "  mangled_name = " << cv.mangled_type_name << std::endl ;
-    os << "  file_name = " << cv.file_name << std::endl ;
-    os << "  namespaces =" ;
-    ConstructValues::NamespaceIterator it ;
-    for ( it = cv.namespace_begin() ; it != cv.namespace_end() ; it++ ) {
-        os << " " << *it ;
-    }
-    os << std::endl ;
-    os << "  parent classes =" ;
-    for ( it = cv.container_class_begin() ; it != cv.container_class_end() ; it++ ) {
-        os << " " << *it ;
-    }
-    os << std::endl ;
-    os << "  has_init_attr_friend = " << cv.has_init_attr_friend << std::endl ;
-    os << "  is_pod = " << cv.is_pod << std::endl ;
-    os << "  is_abstract = " << cv.is_abstract << std::endl ;
-    os << "  has_default_constructor = " << cv.has_default_constructor << std::endl ;
-    os << "  has_public_destructor = " << cv.has_public_destructor << std::endl ;
-
-    ClassValues::FieldIterator fit ;
-    for ( fit = cv.field_begin() ; fit != cv.field_end() ; fit++ ) {
-        os << **fit << std::endl ;
-    }
-
-    return os ;
+bool ClassValues::isInStandardNamespace() {
+    return namespaces.size() && !namespaces[0].compare("std");
 }

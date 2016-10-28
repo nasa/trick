@@ -209,7 +209,7 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
                     //std::cout << "    [34m" << getFileName(ci , rd->getSourceRange().getEnd(), hsd) << "[00m" << std::endl ;
                     CXXRecordVisitor inherit_cvis(ci , cs, hsd , pa, false) ;
                     inherit_cvis.TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(rd)) ;
-                    cval.addInheritedFieldDescriptions(inherit_cvis.get_class_data()->getFieldDescription(),
+                    cval.addInheritedFieldDescriptions(inherit_cvis.get_class_data()->getFieldDescriptions(),
                      inherit_class_offset, false) ;
                     // clear the field list in the inherited class so they are not freed when inherit_cvis
                     // goes out of scope.
@@ -260,7 +260,7 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
                     //std::cout << "    [34m" << getFileName(ci , rd->getSourceRange().getEnd(), hsd) << "[00m" << std::endl ;
                     CXXRecordVisitor inherit_cvis(ci , cs, hsd , pa, false) ;
                     inherit_cvis.TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(rd)) ;
-                    cval.addInheritedFieldDescriptions(inherit_cvis.get_class_data()->getFieldDescription(), inherit_class_offset, true) ;
+                    cval.addInheritedFieldDescriptions(inherit_cvis.get_class_data()->getFieldDescriptions(), inherit_class_offset, true) ;
                     // clear the field list in the inherited class so they are not freed when inherit_cvis goes out of scope.
                     inherit_cvis.get_class_data()->clearFieldDescription() ;
                     // If we are inheriting from a template specialization, don't save the inherited class.  This list
@@ -300,7 +300,7 @@ bool CXXRecordVisitor::VisitFriendDecl( clang::FriendDecl *fd ) {
             //nd->dump() ;
             std::string init_func = std::string("init_attr") ;
             std::stringstream name_sp ;
-            cval.print_namespaces( name_sp , "__") ;
+            cval.printNamespaces( name_sp , "__") ;
             init_func += name_sp.str() + cval.getName() ;
             std::string friend_str = nd->getName().str() ;
             if ( ! friend_str.find(init_func) ) {
