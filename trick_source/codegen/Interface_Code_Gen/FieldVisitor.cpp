@@ -347,9 +347,7 @@ static std::map<std::string, bool> init_stl_classes() {
 }
 
 static bool checkForPrivateTemplateArgs( clang::ClassTemplateSpecializationDecl * ctsd ) {
-    unsigned int ii ;
-    for ( ii = 0 ; ii < ctsd->getTemplateArgs().size() ; ii++ ) {
-        const clang::TemplateArgument & ta = ctsd->getTemplateArgs().get(ii) ;
+    for (auto& ta : ctsd->getTemplateArgs().asArray()) {
         if ( ta.getKind() == clang::TemplateArgument::Type ) {
             clang::QualType qt = ta.getAsType() ;
             //std::cout << qt.getAsString() << std::endl ;
@@ -376,9 +374,7 @@ static bool checkForPrivateTemplateArgs( clang::ClassTemplateSpecializationDecl 
 }
 
 static bool checkForConstTemplateArgs( clang::ClassTemplateSpecializationDecl * ctsd ) {
-    unsigned int ii ;
-    for ( ii = 0 ; ii < ctsd->getTemplateArgs().size() ; ii++ ) {
-        const clang::TemplateArgument & ta = ctsd->getTemplateArgs().get(ii) ;
+    for (auto& ta : ctsd->getTemplateArgs().asArray()) {
         if ( ta.getKind() == clang::TemplateArgument::Type ) {
             clang::QualType qt = ta.getAsType() ;
             //std::cout << qt.getAsString() << std::endl ;
