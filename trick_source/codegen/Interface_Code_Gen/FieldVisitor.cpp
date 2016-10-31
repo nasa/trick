@@ -361,9 +361,7 @@ static bool checkForPrivateTemplateArgs( clang::ClassTemplateSpecializationDecl 
                     if (t->getTypeClass() == clang::Type::Record ) {
                         clang::CXXRecordDecl * crd = t->getAsCXXRecordDecl() ;
                         if ( clang::isa<clang::ClassTemplateSpecializationDecl>(crd) ) {
-                            clang::ClassTemplateSpecializationDecl * inner_ctsd ;
-                            inner_ctsd = clang::cast<clang::ClassTemplateSpecializationDecl>(crd) ;
-                            return checkForPrivateTemplateArgs(inner_ctsd) ;
+                            return checkForPrivateTemplateArgs(clang::cast<clang::ClassTemplateSpecializationDecl>(crd)) ;
                         }
                     }
                 }
@@ -388,9 +386,7 @@ static bool checkForConstTemplateArgs( clang::ClassTemplateSpecializationDecl * 
                     if (t->getTypeClass() == clang::Type::Record ) {
                         clang::CXXRecordDecl * crd = t->getAsCXXRecordDecl() ;
                         if ( clang::isa<clang::ClassTemplateSpecializationDecl>(crd) ) {
-                            clang::ClassTemplateSpecializationDecl * inner_ctsd ;
-                            inner_ctsd = clang::cast<clang::ClassTemplateSpecializationDecl>(crd) ;
-                            return checkForConstTemplateArgs(inner_ctsd) ;
+                            return checkForConstTemplateArgs(clang::cast<clang::ClassTemplateSpecializationDecl>(crd)) ;
                         }
                     }
                 }
