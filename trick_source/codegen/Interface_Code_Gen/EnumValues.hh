@@ -39,6 +39,8 @@ class EnumValues : public ConstructValues {
             return enum_values;
         }
 
+        friend std::ostream & operator << (std::ostream & os , EnumValues & ev ) ;
+
     private:
 
         /** List of enums and their values */

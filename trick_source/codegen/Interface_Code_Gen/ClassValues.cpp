@@ -274,3 +274,30 @@ bool ClassValues::isCompat15() {
 bool ClassValues::isInStandardNamespace() {
     return namespaces.size() && !namespaces[0].compare("std");
 }
+
+std::ostream & operator << (std::ostream & ostream, ClassValues & cv) {
+    ostream << "  name = " << cv.name << std::endl ;
+    ostream << "  mangled_name = " << cv.mangled_type_name << std::endl ;
+    ostream << "  file_name = " << cv.file_name << std::endl ;
+    ostream << "  namespaces =" ;
+    for (auto& name : cv.getNamespaces()) {
+        ostream << " " << name ;
+    }
+    ostream << std::endl ;
+    ostream << "  parent classes =" ;
+    for (auto& clazz : cv.getContainerClasses()) {
+        ostream << " " << clazz ;
+    }
+    ostream << std::endl ;
+    ostream << "  has_init_attr_friend = " << cv.has_init_attr_friend << std::endl ;
+    ostream << "  is_pod = " << cv.is_pod << std::endl ;
+    ostream << "  is_abstract = " << cv.is_abstract << std::endl ;
+    ostream << "  has_default_constructor = " << cv.has_default_constructor << std::endl ;
+    ostream << "  has_public_destructor = " << cv.has_public_destructor << std::endl ;
+
+    for (auto& field : cv.getFieldDescriptions()) {
+        ostream << field << std::endl ;
+    }
+
+    return ostream ;
+}

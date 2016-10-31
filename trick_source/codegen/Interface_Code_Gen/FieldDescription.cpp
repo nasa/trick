@@ -524,3 +524,42 @@ int FieldDescription::getArrayDim(unsigned int dim_num) {
 void FieldDescription::addArrayDim( int in_dim ) {
     array_sizes[num_dims++] = in_dim ;
 }
+
+std::ostream & operator << (std::ostream & ostream , FieldDescription & fieldDescription ) {
+    ostream << "    name = " << fieldDescription.name << std::endl ;
+    ostream << "    file_name = " << fieldDescription.file_name << std::endl ;
+    ostream << "    namespaces =" ;
+    for (auto& name : fieldDescription.getNamespaces()) {
+        ostream << " " << fieldDescription ;
+    }
+    ostream << std::endl ;
+    ostream << "    parent classes =" ;
+    for (auto& clazz : fieldDescription.getContainerClasses()) {
+        ostream << " " << clazz ;
+    }
+    ostream << std::endl ;
+    ostream << "    line_no = " << fieldDescription.line_no << std::endl ;
+    ostream << "    container_class = " << fieldDescription.container_class << std::endl ;
+    ostream << "    type_name = " << fieldDescription.type_name << std::endl ;
+    ostream << "    mangled_type_name = " << fieldDescription.mangled_type_name << std::endl ;
+    ostream << "    type_enum_string = " << fieldDescription.type_enum_string << std::endl ;
+    ostream << "    units = " << fieldDescription.units << std::endl ;
+    ostream << "    io = " << fieldDescription.io << std::endl ;
+    ostream << "    description = " << fieldDescription.description << std::endl ;
+    ostream << "    access = " << fieldDescription.access << std::endl ;
+    ostream << "    is_bitfield = " << fieldDescription.is_bitfield << std::endl ;
+    ostream << "    bitfield_width = " << fieldDescription.bitfield_width << std::endl ;
+    ostream << "    bitfield_start_bit = " << fieldDescription.bitfield_start_bit << std::endl ;
+    ostream << "    bitfield_word_offset = " << fieldDescription.bitfield_word_offset << std::endl ;
+    ostream << "    num_dims = " << fieldDescription.num_dims << std::endl ;
+    ostream << "    array_sizes =" ;
+    for( unsigned int ii = 0 ; ii < 8 ; ii++ ) {
+        ostream << " " << fieldDescription.array_sizes[ii] ;
+    }
+    ostream << std::endl ;
+    ostream << "    is_enum = " << fieldDescription.is_enum << std::endl ;
+    ostream << "    is_record = " << fieldDescription.is_record << std::endl ;
+    ostream << "    is_static = " << fieldDescription.is_static << std::endl ;
+
+    return ostream ;
+}

@@ -40,6 +40,7 @@ void ConstructValues::getNamespacesAndClasses( const clang::DeclContext * Ctx ) 
     for (ContextsTy::reverse_iterator I = Contexts.rbegin(), E = Contexts.rend(); I != E; ++I) {
         if (const clang::NamespaceDecl *nd = clang::dyn_cast<clang::NamespaceDecl>(*I)) {
             if (! nd->isAnonymousNamespace()) {
+                //std::cout << "namespace " << nd->getIdentifier()->getName().str() << std::endl ;
                 std::string temp_name = nd->getIdentifier()->getName().str() ;
                 if ( temp_name.compare("std") and temp_name.compare("__1")) {
                     addNamespace(nd->getIdentifier()->getName().str()) ;
@@ -47,6 +48,7 @@ void ConstructValues::getNamespacesAndClasses( const clang::DeclContext * Ctx ) 
             }
         } else if (const clang::RecordDecl *rd = clang::dyn_cast<clang::RecordDecl>(*I)) {
             if (rd->getIdentifier()) {
+                //std::cout << "in class " << rd->getName().str() << std::endl ;
                 if (const clang::ClassTemplateSpecializationDecl *td = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(*I)) {
                     std::string text;
                     llvm::raw_string_ostream stream(text);

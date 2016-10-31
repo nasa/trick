@@ -82,6 +82,8 @@ class ClassValues : public ConstructValues {
         bool isCompat15() ;
         bool isInStandardNamespace();
 
+        friend std::ostream & operator << (std::ostream & os , ClassValues & cv ) ;
+
     private:
         std::vector< FieldDescription * > field_descripts ;
 

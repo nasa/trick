@@ -93,6 +93,8 @@ class FieldDescription : public ConstructValues {
         /** Adds an array dimension to the field */
         void addArrayDim( int in_dim ) ;
 
+        friend std::ostream & operator << (std::ostream & os , FieldDescription & cv ) ;
+
     private:
 
         /** Line number in current file where field is */
