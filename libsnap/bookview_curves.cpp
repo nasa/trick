@@ -1087,6 +1087,7 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
             // Pan if mouse press pos is deeper inside window
             M.moveTo(mPt);
             _setPlotMathRect(M);
+            viewport()->update();
         } else {
             // Scrunch if mouse press pos is on perifery of window
             QRectF leftRect(0,0,
@@ -1157,6 +1158,7 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
             }
 
             _setPlotMathRect(M);
+            viewport()->update();
         }
     } else {
         mouseMove->ignore();
