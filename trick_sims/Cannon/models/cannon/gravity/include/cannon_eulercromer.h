@@ -1,22 +1,18 @@
 
 /*************************************************************************
-PURPOSE:      (Cannonball Prototypes)
+PURPOSE: ( Cannonball EulerCromer Model )
 **************************************************************************/
 
-#ifndef CANNON_INTEG_PROTO_H
-#define CANNON_INTEG_PROTO_H
-#include <stdio.h>
-#include "cannon.h"
+#ifndef CANNON_EULERCROMER_H
+#define CANNON_EULERCROMER_H
+
+#include "cannon_common.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-int cannon_integ(CANNON*) ;
 int cannon_deriv(CANNON*) ;
-int cannon_init(CANNON*) ;
-int cannon_default_data(CANNON*) ;
-
+int cannon_ec_integ(CANNON*) ;
 #ifdef __cplusplus
 }
 #endif

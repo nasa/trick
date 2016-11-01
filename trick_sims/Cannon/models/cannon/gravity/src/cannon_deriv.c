@@ -2,7 +2,6 @@
 PURPOSE:    ( Try Trick integration )
 *****************************************************************************/
 #include "../include/cannon.h"
-#include "../include/cannon_integ_proto.h"
 
 int cannon_deriv( CANNON* C ) {
 

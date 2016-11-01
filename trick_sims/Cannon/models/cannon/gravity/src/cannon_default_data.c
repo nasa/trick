@@ -5,20 +5,19 @@ LIBRARY_DEPENDENCY: ((cannon_default_data.o))
 
 /* Model Include files */
 #include "../include/cannon.h"
-#include "../include/cannon_integ_proto.h"
 #include "sim_services/include/Flag.h"
 
-/* Entry Point */
-int cannon_default_data( CANNON* C )
-{
-    const double PI = 3.141592 ; 
+int cannon_default_data( CANNON* C ) {
 
-    C->pos0[0] = 0.0 ;
-    C->pos0[1] = 0.0 ;
-    C->acc0[0] = 0.0 ;
-    C->acc0[1] = -9.81 ;
+    const double PI = 3.1415926535; 
+
+    C->acc[0] = 0.0;
+    C->acc[1] = -9.81;
     C->init_angle = PI/6 ;
     C->init_speed  = 50.0 ;
+    C->pos0[0] = 0.0 ;
+    C->pos0[1] = 0.0 ;
+
     C->impactTime = 0.0 ;
     C->time = 0.0 ;
 
@@ -38,7 +37,7 @@ int cannon_default_data( CANNON* C )
     C->rf.error_tol = 1.0e-9 ;
     C->rf.mode = Decreasing ;
 
-    C->impact = No ;
+    C->impact = 0 ;
 
     return(0) ;
 }

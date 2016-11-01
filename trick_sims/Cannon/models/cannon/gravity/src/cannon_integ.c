@@ -1,15 +1,10 @@
 /*****************************************************************************
-PURPOSE:    ( Try Trick integration )
+PURPOSE: ( Integration Job for SIM_cannon_numeric )
 *****************************************************************************/
-
-#include <stdio.h>
-#include "sim_services/Integrator/include/integrator_c_intf.h"
 #include "../include/cannon.h"
-#include "../include/cannon_integ_proto.h"
+#include "sim_services/Integrator/include/integrator_c_intf.h"
 
-int cannon_integ(
-      CANNON* C )
-{
+int cannon_integ( CANNON* C ) {
 
     int ipass;
 

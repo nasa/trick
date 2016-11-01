@@ -1,23 +1,16 @@
-
 /*************************************************************************
-PURPOSE:      (Cannonball Prototypes)
+PURPOSE: ( Cannon Analytic Model )
 **************************************************************************/
+#ifndef CANNON_COMMON_H
+#define CANNON_COMMON_H
 
-#ifndef CANNON_CONTACT_PROTO_H
-#define CANNON_CONTACT_PROTO_H
-#include <stdio.h>
 #include "cannon.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-int cannon_integ(CANNON*) ;
-double cannon_impact(CANNON*) ;
-double cannon_deriv(CANNON*) ;
-int cannon_init(CANNON*) ;
 int cannon_default_data(CANNON*) ;
-
+int cannon_init(CANNON*) ;
 #ifdef __cplusplus
 }
 #endif
