@@ -5,6 +5,107 @@
 
 #include "ConstructValues.hh"
 
+//====================================================================================
+
+bool ConstructValues::ContainerClass::extractTemplateArgType(const clang::TemplateArgument& ta) {
+    clang::QualType qt = ta.getAsType() ;
+    const clang::Type * t = qt.getTypePtrOrNull() ;
+    if ( t != NULL ) {
+        ContainerClass inner_cc ;
+        if (t->getTypeClass() == clang::Type::Record and t->getAsCXXRecordDecl()) {
+            clang::CXXRecordDecl * crd = t->getAsCXXRecordDecl() ;
+            if ( clang::isa<clang::ClassTemplateSpecializationDecl>(crd) ) {
+                // template argument is a template specialization
+                if (!inner_cc.extractType(clang::cast<clang::ClassTemplateSpecializationDecl>(crd))) {
+                    return false ;
+                }
+            } else {
+                // template argument record type, but not a template specialization
+                inner_cc.name = qt.getAsString() ;
+            }
+        } else {
+            // template argument not a record type.
+            inner_cc.name = qt.getAsString() ;
+        }
+        template_args.push_back(inner_cc) ;
+    }
+    return true ;
+}
+
+bool ConstructValues::ContainerClass::extractType(const clang::RecordDecl * rd) {
+    if (! rd->getIdentifier()) {
+        return false ;
+    }
+    // Set the name of this type.
+    name = rd->getName().str() ;
+    // If this type is a template specialization we need to save the template argument types.
+    if (const clang::ClassTemplateSpecializationDecl *ctsd = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(rd)) {
+        for (const clang::TemplateArgument& ta : ctsd->getTemplateArgs().asArray()) {
+            if ( ta.getKind() == clang::TemplateArgument::Type ) {
+                // Class types and intrinsic types
+                if ( !extractTemplateArgType(ta) ) {
+                    return false ;
+                }
+            } else if ( ta.getKind() == clang::TemplateArgument::Pack ) {
+                // a Pack is the variables in a variadric template
+                for (const clang::TemplateArgument& pack_ta : ta.getPackAsArray()) {
+                    if ( pack_ta.getKind() == clang::TemplateArgument::Type ) {
+                        if ( !extractTemplateArgType(pack_ta) ) {
+                            return false ;
+                        }
+                    }
+                }
+            } else {
+                // This template argument is not a clang::TemplateArgument::Type.  We don't currently handle these.
+                return false ;
+            }
+        }
+    }
+    // if we reach the end then we can deal with the class name, return true.
+    return true ;
+}
+
+static void mangle_template_param(std::string &work_string, const std::string & delimiter) {
+    if ( !delimiter.compare("__") ) {
+        std::replace( work_string.begin(), work_string.end(), '*', '_') ;
+        std::replace( work_string.begin(), work_string.end(), '[', '_') ;
+        std::replace( work_string.begin(), work_string.end(), ']', '_') ;
+        work_string.erase(std::remove_if(work_string.begin(), work_string.end(),
+        (int(*)(int))std::isspace), work_string.end()) ;
+    }
+}
+
+void ConstructValues::ContainerClass::printTemplateList(std::ostream& ostream, const std::string& delimiter) {
+    if ( template_args.size() ) {
+        std::string obracket("<"), comma(","), cbracket(">"), work_string ;
+        if ( !delimiter.compare("__") ) {
+             obracket = comma = cbracket = "_" ;
+        }
+        ostream << obracket ;
+        unsigned int arg_size = template_args.size() - 1 ;
+        for (unsigned int ii = 0 ; ii < arg_size ; ii++ ) {
+            work_string = template_args[ii].name ;
+            mangle_template_param(work_string, delimiter) ;
+            ostream << work_string ;
+            template_args[ii].printTemplateList(ostream, delimiter);
+            ostream << comma ;
+        }
+        work_string = template_args[arg_size].name ;
+        mangle_template_param(work_string, delimiter) ;
+        ostream << work_string ;
+        template_args[arg_size].printTemplateList(ostream, delimiter);
+        ostream << cbracket ;
+    }
+}
+
+void ConstructValues::ContainerClass::printContainerClass(std::ostream& ostream, const std::string& delimiter) {
+    ostream << name ;
+    printTemplateList(ostream, delimiter) ;
+    ostream << delimiter ;
+}
+
+//====================================================================================
+
 ConstructValues::ConstructValues() {}
 
 void ConstructValues::setName(std::string in_name) {
@@ -28,7 +129,7 @@ void ConstructValues::clearNamespacesAndClasses() {
     container_classes.clear() ;
 }
 
-void ConstructValues::getNamespacesAndClasses( const clang::DeclContext * Ctx ) {
+bool ConstructValues::getNamespacesAndClasses( const clang::DeclContext * Ctx ) {
     // Save container namespaces and classes.
     typedef clang::SmallVector<const clang::DeclContext *, 8> ContextsTy;
     ContextsTy Contexts;
@@ -43,40 +144,18 @@ void ConstructValues::getNamespacesAndClasses( const clang::DeclContext * Ctx ) 
                 //std::cout << "namespace " << nd->getIdentifier()->getName().str() << std::endl ;
                 std::string temp_name = nd->getIdentifier()->getName().str() ;
                 if ( temp_name.compare("std") and temp_name.compare("__1")) {
-                    addNamespace(nd->getIdentifier()->getName().str()) ;
+                    namespaces.push_back(nd->getIdentifier()->getName().str()) ;
                 }
             }
         } else if (const clang::RecordDecl *rd = clang::dyn_cast<clang::RecordDecl>(*I)) {
-            if (rd->getIdentifier()) {
-                //std::cout << "in class " << rd->getName().str() << std::endl ;
-                if (const clang::ClassTemplateSpecializationDecl *td = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(*I)) {
-                    std::string text;
-                    llvm::raw_string_ostream stream(text);
-                    stream << td->getName().str() << "<";
-                    const clang::TemplateArgumentList& arguments = td->getTemplateArgs();
-                    unsigned end = arguments.size() - 1;
-                    for (unsigned i = 0; i < end; ++i) {
-                        arguments[i].print(printingPolicy, stream);
-                        stream << ", ";
-                    }
-                    arguments[end].print(printingPolicy, stream);
-                    stream << ">";
-                    addContainerClass(stream.str());
-                }
-                else {
-                    addContainerClass(rd->getName().str()) ;
-                }
+            ContainerClass cc ;
+            if (!cc.extractType(rd)) {
+                return false ;
             }
+            container_classes.push_back(cc) ;
         }
     }
-}
-
-void ConstructValues::addNamespace( std::string in_name ) {
-    namespaces.push_back(in_name) ;
-}
-
-void ConstructValues::addContainerClass( std::string in_name ) {
-    container_classes.push_back(in_name) ;
+    return true ;
 }
 
 std::string ConstructValues::getFullyQualifiedName(const std::string& delimiter) {
@@ -106,8 +185,8 @@ void ConstructValues::printNamespaces(std::ostream& ostream, const std::string& 
 }
 
 void ConstructValues::printContainerClasses(std::ostream& ostream, const std::string& delimiter) {
-    for (auto clazz : container_classes) {
-        ostream << clazz << delimiter;
+    for (auto c : container_classes) {
+        c.printContainerClass(ostream, delimiter);
     }
 }
 
@@ -121,8 +200,10 @@ std::string ConstructValues::getNamespacesAndContainerClasses(const std::string&
     for (auto name : namespaces) {
         result += name + delimiter;
     }
-    for (auto clazz : container_classes) {
-        result += clazz + delimiter;
+    for (auto c : container_classes) {
+        std::stringstream ss ;
+        c.printContainerClass(ss, delimiter);
+        result += ss.str() ;
     }
     return result;
 }

@@ -161,6 +161,11 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
     cval.setCompat15(hsd.isPathInCompat15(rp)) ;
     free(rp) ;
 
+    // If we have trouble determining the containing namespace and classes skip this variable.
+    if ( !cval.getNamespacesAndClasses(rec->getDeclContext())) {
+        return false ;
+    }
+
     // If this class needs a default constructor, then the complier will generate one and we can call it.
     if ( rec->needsImplicitDefaultConstructor() ) {
         cval.setHasDefaultConstructor(true) ;
@@ -187,10 +192,10 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
 
     cval.setSize(rec->getASTContext().getASTRecordLayout(rec).getSize().getQuantity()) ;
 
-    clang::CXXRecordDecl::base_class_iterator bcii ;
 
     //std::cout << "parsing " << cval.getName() << std::endl ;
     //std::cout << "    [34mprocessing inheritance " <<  rec->getNumBases() << " " << rec->getNumVBases() << "[00m" << std::endl ;
+    clang::CXXRecordDecl::base_class_iterator bcii ;
     for ( bcii = rec->bases_begin() ; bcii != rec->bases_end() ; bcii++ ) {
         if ( !bcii->isVirtual() ) {
             const clang::Type * temp = bcii->getType().getTypePtr() ;
@@ -278,8 +283,6 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
             }
         }
     }
-
-    cval.getNamespacesAndClasses(rec->getDeclContext()) ;
 
     // clears obscured inherited variables caused by diamond inheritance
     cval.clearAmbiguousVariables() ;

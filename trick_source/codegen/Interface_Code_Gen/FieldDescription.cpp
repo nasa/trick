@@ -529,14 +529,10 @@ std::ostream & operator << (std::ostream & ostream , FieldDescription & fieldDes
     ostream << "    name = " << fieldDescription.name << std::endl ;
     ostream << "    file_name = " << fieldDescription.file_name << std::endl ;
     ostream << "    namespaces =" ;
-    for (auto& name : fieldDescription.getNamespaces()) {
-        ostream << " " << fieldDescription ;
-    }
+    fieldDescription.printNamespaces(ostream) ;
     ostream << std::endl ;
     ostream << "    parent classes =" ;
-    for (auto& clazz : fieldDescription.getContainerClasses()) {
-        ostream << " " << clazz ;
-    }
+    fieldDescription.printContainerClasses(ostream) ;
     ostream << std::endl ;
     ostream << "    line_no = " << fieldDescription.line_no << std::endl ;
     ostream << "    container_class = " << fieldDescription.container_class << std::endl ;
