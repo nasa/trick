@@ -169,10 +169,10 @@ DPC_delta_curve::DPC_delta_curve( DPM_curve*               Curve_spec,
 DPC_delta_curve::~DPC_delta_curve() {
 
     // We ONLY delete what we create.
-    if ( delta_x_var ) { delete delta_x_var; };
-    if ( delta_y_var ) { delete delta_y_var; };
-    if ( ds[0] ) { delete ds[0]; };
-    if ( ds[1] ) { delete ds[1]; };
+    delete delta_x_var;
+    delete delta_y_var;
+    delete ds[0];
+    delete ds[1];
     if ( x_actual_units ) { free( x_actual_units); }
     if ( y_actual_units ) { free( y_actual_units); }
     if ( run_dir1 ) { free( run_dir1); }

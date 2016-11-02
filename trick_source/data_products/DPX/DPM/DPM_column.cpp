@@ -69,7 +69,7 @@ DPM_column::DPM_column(DPM_component *Parent, xmlNode *Base_node) throw  (std::i
 DPM_column::~DPM_column() {
   if (unitspec) { free (unitspec); }
   if (label) { free (label); }
-  if (column_var) { delete column_var ; }
+  delete column_var ;
 }
 
 // MEMBER FUNCTION

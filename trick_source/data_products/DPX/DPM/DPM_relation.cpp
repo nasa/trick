@@ -103,9 +103,9 @@ DPM_relation::DPM_relation(DPM_component *Parent, xmlNode *Base_node)  throw (st
 // MEMBER FUNCTION
 DPM_relation::~DPM_relation() {
 
-  if (xaxis) { delete xaxis; }
-  if (yaxis) { delete yaxis; }
-  if (zaxis) { delete zaxis; }
+  delete xaxis;
+  delete yaxis;
+  delete zaxis;
   if (title) { free( title); }
   // destroy each of the curves in the curves list
   int i;

@@ -125,17 +125,17 @@ DPC_product::~DPC_product() {
     int n_pages, pagix;
     int n_tables, tabix;
 
-    if (product_spec) { delete product_spec; }
-    if (datastream_supplier) { delete datastream_supplier; }
+    delete product_spec;
+    delete datastream_supplier;
     n_pages = (int)page_list.size();
     for (pagix = 0 ; pagix < n_pages ; pagix ++) {
         page = page_list[pagix];
-        if (page) { delete page; }
+        delete page;
     }
     n_tables = (int)table_list.size();
     for (tabix = 0 ; tabix < n_tables ; tabix ++) {
         table = table_list[tabix];
-        if (table) { delete table; }
+        delete table;
     }
 }
 
