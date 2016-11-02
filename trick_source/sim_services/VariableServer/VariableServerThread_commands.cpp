@@ -98,6 +98,7 @@ int Trick::VariableServerThread::var_remove(std::string in_name) {
     for ( ii = 0 ; ii < vars.size() ; ii++ ) {
         std::string var_name = vars[ii]->ref->reference;
         if ( ! var_name.compare(in_name) ) {
+            delete vars[ii];
             vars.erase(vars.begin() + ii) ;
             break ;
         }
@@ -188,7 +189,10 @@ int Trick::VariableServerThread::var_exists(std::string in_name) {
 }
 
 int Trick::VariableServerThread::var_clear() {
-    vars.clear() ;
+    while( !vars.empty() ) {
+        delete vars.back();
+        vars.pop_back();
+    }
     return(0) ;
 }
 
