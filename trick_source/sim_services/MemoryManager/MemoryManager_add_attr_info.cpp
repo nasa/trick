@@ -40,38 +40,30 @@ int Trick::MemoryManager::add_attr_info( const std::string & user_type_string , 
         return 0 ;
     }
 
-    spos = user_type_name.find("<") ;
-    if ( spos != std::string::npos ) {
-        std::replace( user_type_name.begin(), user_type_name.end(), '*', ' ') ;
-        spos = user_type_name.find("[") ;
-        if ( spos != std::string::npos ) {
-            user_type_name.erase( spos ) ;
-        }
-        user_type_name.erase(std::remove_if(user_type_name.begin(), user_type_name.end(), (int(*)(int))std::isspace), user_type_name.end()) ;
-        mit = template_name_map.find(user_type_name) ;
-        if ( mit != template_name_map.end() ) {
-            user_type_name = template_name_map[user_type_name] ;
-        }
-    }
-
-    std::replace( user_type_name.begin(), user_type_name.end(), ':', '_') ;
-    std::replace( user_type_name.begin(), user_type_name.end(), '<', '_') ;
-    std::replace( user_type_name.begin(), user_type_name.end(), ',', '_') ;
-    std::replace( user_type_name.begin(), user_type_name.end(), '*', ' ') ;
+    // The user type name may start as const Foo<int>::Bar[4].  We need to convert that to Foo_int___Bar
+    // remove const from the typename if it exists
     spos = user_type_name.find("const ") ;
     if ( spos != std::string::npos ) {
         user_type_name.erase( spos , spos + 6) ;
     }
+    // remove any brackets
+/*
     spos = user_type_name.find("[") ;
     if ( spos != std::string::npos ) {
         user_type_name.erase( spos ) ;
     }
-    spos = user_type_name.find(">") ;
-    if ( spos != std::string::npos ) {
-        user_type_name.erase( spos ) ;
-    }
+*/
+    // replace ":<>,*[]" with '_'
+    std::replace( user_type_name.begin(), user_type_name.end(), ':', '_') ;
+    std::replace( user_type_name.begin(), user_type_name.end(), '<', '_') ;
+    std::replace( user_type_name.begin(), user_type_name.end(), '>', '_') ;
+    std::replace( user_type_name.begin(), user_type_name.end(), ',', '_') ;
+    std::replace( user_type_name.begin(), user_type_name.end(), '*', '_') ;
+    std::replace( user_type_name.begin(), user_type_name.end(), '[', '_') ;
+    std::replace( user_type_name.begin(), user_type_name.end(), ']', '_') ;
+    // remove spaces
     user_type_name.erase(std::remove_if(user_type_name.begin(), user_type_name.end(), (int(*)(int))std::isspace), user_type_name.end()) ;
-    
+
     // Attempt to find an io_src_sizeof function for the named user type.
     size_func_name = "io_src_sizeof_" + user_type_name ;
     for ( ii = 0 ; ii < dlhandles.size() && size_func == NULL ; ii++ ) {
@@ -83,7 +75,7 @@ int Trick::MemoryManager::add_attr_info( const std::string & user_type_string , 
 
     if ( size_func == NULL)  {
         std::stringstream message;
-        message << "(" << file_name << ":" << line_num 
+        message << "(" << file_name << ":" << line_num
             << "): Couldn't find an io_src_sizeof_ function for type "
             << user_type_string.c_str() << "[" << size_func_name.c_str() << "()].";
         emitWarning(message.str());

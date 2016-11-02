@@ -22,14 +22,10 @@ std::ostream & operator << (std::ostream & ostream , EnumValues & ev ) {
     ostream << "    name = " << ev.name << std::endl ;
     ostream << "    file_name = " << ev.file_name << std::endl ;
     ostream << "    namespaces =" ;
-    for (auto& name : ev.getNamespaces()) {
-        ostream << " " << name ;
-    }
+    ev.printNamespaces(ostream) ;
     ostream << std::endl ;
     ostream << "    parent classes =" ;
-    for (auto& clazz : ev.getContainerClasses()) {
-        ostream << " " << clazz ;
-    }
+    ev.printContainerClasses(ostream) ;
     ostream << std::endl ;
 
     for (auto& pair : ev.getPairs()) {

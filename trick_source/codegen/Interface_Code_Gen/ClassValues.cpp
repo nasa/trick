@@ -280,14 +280,10 @@ std::ostream & operator << (std::ostream & ostream, ClassValues & cv) {
     ostream << "  mangled_name = " << cv.mangled_type_name << std::endl ;
     ostream << "  file_name = " << cv.file_name << std::endl ;
     ostream << "  namespaces =" ;
-    for (auto& name : cv.getNamespaces()) {
-        ostream << " " << name ;
-    }
+    cv.printNamespaces(ostream) ;
     ostream << std::endl ;
     ostream << "  parent classes =" ;
-    for (auto& clazz : cv.getContainerClasses()) {
-        ostream << " " << clazz ;
-    }
+    cv.printContainerClasses(ostream) ;
     ostream << std::endl ;
     ostream << "  has_init_attr_friend = " << cv.has_init_attr_friend << std::endl ;
     ostream << "  is_pod = " << cv.is_pod << std::endl ;

@@ -262,6 +262,9 @@ static std::string mangle_string( std::string in_name ) {
     std::replace( mangled_name.begin(), mangled_name.end(), ',', '_') ;
     std::replace( mangled_name.begin(), mangled_name.end(), ':', '_') ;
     std::replace( mangled_name.begin(), mangled_name.end(), '*', '_') ;
+    std::replace( mangled_name.begin(), mangled_name.end(), ']', '_') ;
+    std::replace( mangled_name.begin(), mangled_name.end(), '[', '_') ;
+
     return mangled_name ;
 }
 
@@ -270,7 +273,11 @@ std::map < std::string , std::string > FieldVisitor::processed_templates ;
 bool FieldVisitor::ProcessTemplate(std::string in_name , clang::CXXRecordDecl * crd ) {
 
     // Save container namespaces and classes.
-    fdes->getNamespacesAndClasses(crd->getDeclContext()) ;
+    // If we have trouble getting the namespaces and classes immediately return.
+    if ( !fdes->getNamespacesAndClasses(crd->getDeclContext())) {
+        fdes->setIO(0) ;
+        return false ;
+    }
 
     size_t pos ;
 
@@ -481,20 +488,35 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
        will be typed as a record.  We test if we have a template specialization type.
        If so process the template type and return */
     clang::RecordDecl * rd = rt->getDecl()->getDefinition() ;
-    if ( rd != NULL and clang::ClassTemplateSpecializationDecl::classof(rd) ) {
-        if ( checkForPrivateTemplateArgs( clang::cast<clang::ClassTemplateSpecializationDecl>(rd)) ) {
-            fdes->setIO(0) ;
-            if ( debug_level >= 3 ) {
-                std::cout << "    template using private/protected class as argument, not processing" << std::endl ;
+    if ( rd != NULL ) {
+        if ( clang::ClassTemplateSpecializationDecl::classof(rd) ) {
+            if ( checkForPrivateTemplateArgs( clang::cast<clang::ClassTemplateSpecializationDecl>(rd)) ) {
+                fdes->setIO(0) ;
+                if ( debug_level >= 3 ) {
+                    std::cout << "    template using private/protected class as argument, not processing" << std::endl ;
+                }
+                return false ;
             }
-            return false ;
+            if ( debug_level >= 3 ) {
+                rd->dump() ;
+                std::cout << "    tst_string = " << tst_string << std::endl ;
+                std::cout << "    is_a_template_specialization" << std::endl ;
+            }
+            return ProcessTemplate(tst_string, clang::cast<clang::CXXRecordDecl>(rd)) ;
+        } else if (tst_string.find(">::") != std::string::npos) {
+            /* Hacky check to see if we are using an embedded class within a template definition.
+              template <class T> class A {
+                public: class B { T t ;} ;
+              };
+
+              class C {
+                public: A<int>::B ab ;    // This is the pattern we are looking for.
+              } ;
+               There must be a better way to determine this condition
+               We need to make attributes for th A<int>::B class.
+             */
+            return ProcessTemplate(tst_string, clang::cast<clang::CXXRecordDecl>(rd)) ;
         }
-        if ( debug_level >= 3 ) {
-            rd->dump() ;
-            std::cout << "    tst_string = " << tst_string << std::endl ;
-            std::cout << "    is_a_template_specialization" << std::endl ;
-        }
-        return ProcessTemplate(tst_string, clang::cast<clang::CXXRecordDecl>(rd)) ;
     }
 
     /* Test to see if we have an embedded anonymous struct/union.  e.g. SB is anonymous below.
@@ -562,7 +584,7 @@ bool FieldVisitor::VisitVarDecl( clang::VarDecl *v ) {
         clang::QualType ct = qt.getCanonicalType() ;
         std::string tst_string = ct.getAsString() ;
         if ( debug_level >= 3 ) {
-            std::cout << "\033[33mFieldVisitor VisitVarDecl: Processing canonical type\033[00m" << std::endl ;
+            std::cout << "\033[33mFieldVisitor VisitVarDecl: Processing canonical type " << tst_string << "\033[00m" << std::endl ;
             ct.dump() ;
         }
         TraverseType(ct) ;

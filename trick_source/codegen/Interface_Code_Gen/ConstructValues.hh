@@ -21,9 +21,24 @@
   @date July 2012
 
  */
-
 class ConstructValues {
     public:
+
+        /*
+           A ContainerClass may be a regular class (zero template_args) or a templated class
+           The same routines are used to extract the names of the classes from the clang::RecordDecl
+           data and the to print the class name with or without template arguments.
+         */
+        class ContainerClass {
+            public:
+                bool extractType(const clang::RecordDecl * rd) ;
+                void printTemplateList(std::ostream& ostream, const std::string & delimiter) ;
+                void printContainerClass(std::ostream& ostream, const std::string & delimiter) ;
+            private:
+                bool extractTemplateArgType(const clang::TemplateArgument& ta) ;
+                std::string name ;
+                std::vector<ContainerClass> template_args ;
+        } ;
 
         ConstructValues() ;
 
@@ -36,20 +51,13 @@ class ConstructValues {
         /** Clears current namespaces and classes */
         void clearNamespacesAndClasses() ;
 
-        /** Gets all of the container namespaces and classes this construct resides in */
-        void getNamespacesAndClasses( const clang::DeclContext * Ctx ) ;
-
-        void addNamespace(std::string in_name) ;
+        /** Gets all of the container namespaces and classes this construct resides in
+            returns true if namespaces and classes were succsssfully retrieved.
+          */
+        bool getNamespacesAndClasses( const clang::DeclContext * Ctx ) ;
 
         const std::vector<std::string>& getNamespaces() {
             return namespaces;
-        }
-
-
-        void addContainerClass(std::string in_name) ;
-
-        const std::vector<std::string>& getContainerClasses() {
-            return container_classes;
         }
 
         std::string getFullyQualifiedName(const std::string& delimiter = "::") ;
@@ -71,7 +79,7 @@ class ConstructValues {
         std::vector<std::string> namespaces ;
 
         /** List of container classes this construct is contained within */
-        std::vector<std::string> container_classes ;
+        std::vector<ContainerClass> container_classes ;
 
         /** File where construct is defined */
         std::string file_name ;
