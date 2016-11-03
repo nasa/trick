@@ -668,7 +668,10 @@ clean: tidy clean_obj clean_model_io_src clean_lex_yacc_src
 real_clean: clean
 
 spotless: clean
-\t@ echo \"Removed all S_mains\"\n" ;
+\t@ echo \"Removed all S_mains\"
+
+distclean: clean
+\t-rm -f makefile\n" ;
 
     foreach $k ( sort keys %files_by_dir ) {
         if ($files_by_dir{$k}{"writable"}) {
@@ -786,7 +789,7 @@ clean_obj: clean_model_c_obj clean_model_cpp_obj clean_model_io_obj clean_lex_ya
         print MAKEFILE "\t@ mkdir -p \$\@\n" ;
     }
 
-    print MAKEFILE "\napocalypse: spotless\n" ;
+    print MAKEFILE "\napocalypse: distclean\n" ;
     foreach my $l ( @{$$sim_ref{sim_libraries}} ) {
         print MAKEFILE "\t- \$(MAKE) -C $l spotless\n" ;
     }

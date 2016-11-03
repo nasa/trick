@@ -39,8 +39,11 @@ S_define:
 model_dirs:
 	@${TRICK_HOME}/bin/C3PO -z
 
-tidy clean real_clean spotless apocalypse sie ICG force_ICG help convert_swig S_define_exp:
+tidy clean real_clean spotless sie ICG force_ICG help convert_swig S_define_exp:
 	@if [ -f Makefile_sim ] ; then $(MAKE) --no-print-directory -f Makefile_sim $@ ; else echo "No Makefile_sim found" ; fi
+
+distclean apocalypse:
+	@if [ -f Makefile_sim ] ; then $(MAKE) --no-print-directory -f Makefile_sim $@ ; else rm makefile; fi
 
 # Dependencies to other files that may cause a re-CP
 -include object_${TRICK_HOST_CPU}/S_define.deps
