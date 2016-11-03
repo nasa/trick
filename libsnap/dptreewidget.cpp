@@ -521,7 +521,14 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     _addChild(curveItem, "CurveXUnit", xUnit);
     _addChild(curveItem, "CurveYName", y->name());
     _addChild(curveItem, "CurveYUnit", y->unit());
-    _addChild(curveItem, "CurveRunID", runId);
+    QString runDirName = QFileInfo(curveModel->trkFile()).dir().dirName();
+    bool ok;
+    int curveRunId = runDirName.mid(4).toInt(&ok);
+    if ( ok ) {
+        _addChild(curveItem, "CurveRunID", curveRunId);
+    } else {
+        _addChild(curveItem, "CurveRunID", runId);
+    }
     _addChild(curveItem, "CurveXScale",      x->scaleFactor());
     _addChild(curveItem, "CurveXBias",       x->bias());
     _addChild(curveItem, "CurveYScale",      y->scaleFactor());

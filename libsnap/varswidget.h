@@ -8,6 +8,8 @@
 #include <QGridLayout>
 #include <QLineEdit>
 #include <QListView>
+#include <QFileInfo>
+#include <QDir>
 #include <float.h>
 #include "dp.h"
 #include "libsnap/montemodel.h"

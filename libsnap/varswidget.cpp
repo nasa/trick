@@ -208,7 +208,14 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
         _addChild(curveItem, "CurveXUnit", curveModel->t()->unit()); // yes,t
         _addChild(curveItem, "CurveYName", yName);
         _addChild(curveItem, "CurveYUnit", curveModel->y()->unit());
-        _addChild(curveItem, "CurveRunID", r);
+        QString runDirName = QFileInfo(curveModel->trkFile()).dir().dirName();
+        bool ok;
+        int runId = runDirName.mid(4).toInt(&ok);
+        if ( ok ) {
+            _addChild(curveItem, "CurveRunID", runId);
+        } else {
+            _addChild(curveItem, "CurveRunID", r);
+        }
         _addChild(curveItem, "CurveXScale", 1.0);
         _addChild(curveItem, "CurveXBias", 0.0);
         _addChild(curveItem, "CurveYScale", 1.0);

@@ -6,6 +6,7 @@
 #include <QTreeView>
 #include <QFileSystemModel>
 #include <QFileInfo>
+#include <QDir>
 #include <QHash>
 #include "dp.h"
 #include "dpfilterproxymodel.h"
