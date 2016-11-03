@@ -74,6 +74,9 @@ clean: tidy
 
 spotless: clean
 
-apocalypse: clean
+distclean: clean
+	-rm -f makefile
+
+apocalypse: distclean
 	@echo "[31mI love the smell of napalm in the morning[0m"
 endif
