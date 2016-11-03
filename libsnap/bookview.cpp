@@ -259,15 +259,6 @@ void BookView::_printPage(QPainter *painter, const QModelIndex &pageIdx)
 
     painter->save();
 
-    QString family("Liberation Serif");
-    QFontDatabase fontdb;
-    foreach ( QString s, fontdb.families() ) {
-        if ( s == family ) {
-            painter->setFont(family);
-            break;
-        }
-    }
-
     int margin = 96;
 
     QRect pageTitleRect = _printPageTitle(painter,pageIdx);
