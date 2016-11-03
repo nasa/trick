@@ -1029,6 +1029,14 @@ void BookView::_printCoplot(const QRect& R,
     QList<QColor> colors = _bookModel()->createCurveColors(paths.size());
     QPen pen = painter->pen();
 
+    if ( paths.size() > 20 ) {
+        pen.setWidthF(8.0);  // smaller point size if many curves
+    } else if ( paths.size() > 5 && paths.size() < 20 ) {
+        pen.setWidthF(12.0);
+    } else if ( paths.size() < 5 ) {
+        pen.setWidthF(16.0);
+    }
+
     int i = 0;
     foreach ( QPainterPath* path, paths ) {
         pen.setColor(colors.at(i));
@@ -1116,6 +1124,7 @@ void BookView::_printErrorplot(const QRect& R,
     painter->save();
     painter->setRenderHint(QPainter::Antialiasing);
     QPen magentaPen(_bookModel()->createCurveColors(3).at(2));
+    magentaPen.setWidthF(16.0);
     painter->setPen(magentaPen);
     painter->drawPath(path);
     painter->restore();
