@@ -295,6 +295,10 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
             idx = index(4,0);
         } else if ( searchItemText == "LiveCoordTime" ) {
             idx = index(5,0);
+        } else if ( searchItemText == "StartTime" ) {
+            idx = index(6,0);
+        } else if ( searchItemText == "StopTime" ) {
+            idx = index(7,0);
         } else {
             qDebug() << "snap [bad scoobies]:3: getIndex() received "
                         "root as a startIdx and had bad child item text of \""
@@ -625,10 +629,20 @@ QPainterPath* PlotBookModel::_createPainterPath(TrickCurveModel *curveModel)
     TrickModelIterator it = curveModel->begin();
     const TrickModelIterator e = curveModel->end();
 
-    path->moveTo(it.x(),it.y());
+    double start = getDataDouble(QModelIndex(),"StartTime");
+    double stop = getDataDouble(QModelIndex(),"StopTime");
+    bool isFirst = true;
     while (it != e) {
-            path->lineTo(it.x(),it.y());
-            ++it;
+        double t = it.t();
+        if ( t >= start && t <= stop ) {
+            if ( isFirst ) {
+                path->moveTo(it.x(),it.y());
+                isFirst = false;
+            } else {
+                path->lineTo(it.x(),it.y());
+            }
+        }
+        ++it;
     }
 
     curveModel->unmap();
@@ -693,17 +707,21 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
     TrickModelIterator i1 = c1->begin();
     const TrickModelIterator e0 = c0->end();
     const TrickModelIterator e1 = c1->end();
+    double start = getDataDouble(QModelIndex(),"StartTime");
+    double stop = getDataDouble(QModelIndex(),"StopTime");
     bool isFirst = true;
     while (i0 != e0 && i1 != e1) {
         double t0 = i0.t();
         double t1 = i1.t();
         if ( qAbs(t1-t0) < 0.000001 ) {
             double d = ys0*i0.y() - ys1*i1.y();
-            if ( isFirst ) {
-                path->moveTo(t0,d);
-                isFirst = false;
-            } else {
-                path->lineTo(t0,d);
+            if ( t0 >= start && t0 <= stop ) {
+                if ( isFirst ) {
+                    path->moveTo(t0,d);
+                    isFirst = false;
+                } else {
+                    path->lineTo(t0,d);
+                }
             }
             ++i0;
             ++i1;

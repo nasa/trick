@@ -294,7 +294,7 @@ int main(int argc, char *argv[])
 
         if ( isPdf ) {
             // TODO: Shouldn't timeName use opts.timeName if specified?
-            PlotMainWindow w(opts.timeName,
+            PlotMainWindow w(opts.timeName, opts.start, opts.stop,
                              opts.presentation, QString(), dps, titles,
                              monteModel, varsModel, monteInputsModel);
             w.savePdf(opts.pdfOutFile);
@@ -380,7 +380,7 @@ int main(int argc, char *argv[])
                 TimeItLinux timer;
                 timer.start();
 #endif
-                PlotMainWindow w(opts.timeName,
+                PlotMainWindow w(opts.timeName, opts.start, opts.stop,
                                  opts.presentation, ".", dps, titles,
                                  monteModel, varsModel, monteInputsModel);
 #ifdef __linux
@@ -390,7 +390,7 @@ int main(int argc, char *argv[])
                 ret = a.exec();
             } else {
 
-                PlotMainWindow w(opts.timeName,
+                PlotMainWindow w(opts.timeName, opts.start, opts.stop,
                                opts.presentation, runDirs.at(0), QStringList(),
                                titles, monteModel, varsModel, monteInputsModel);
                 w.show();

@@ -14,8 +14,8 @@
 
 #include "plotmainwindow.h"
 
-PlotMainWindow::PlotMainWindow(
-        const QString& timeName,
+PlotMainWindow::PlotMainWindow(const QString& timeName,
+        double startTime, double stopTime,
         const QString &presentation,
         const QString &dpDir,
         const QStringList& dpFiles,
@@ -59,6 +59,8 @@ PlotMainWindow::PlotMainWindow(
         gitem = _bookModel->addChild(citem, "Title3",titles.at(2));
         gitem = _bookModel->addChild(citem, "Title4",titles.at(3));
         citem = _bookModel->addChild(rootItem, "LiveCoordTime","");
+        citem = _bookModel->addChild(rootItem, "StartTime",startTime);
+        citem = _bookModel->addChild(rootItem, "StopTime",stopTime);
     }
 
 
@@ -91,9 +93,12 @@ PlotMainWindow::PlotMainWindow(
 #endif
     }
 
-    // TO DEBUG: Uncomment out the next two lines
-    //_plotTreeView = new QTreeView(lsplit);
-    //_plotTreeView->setModel(_bookModel);
+    // TO DEBUG: Uncomment the next line (TODO: -debug option)
+//#define DEBUG_BOOKMODEL
+#ifdef DEBUG_BOOKMODEL
+    _plotTreeView = new QTreeView(lsplit);
+    _plotTreeView->setModel(_bookModel);
+#endif
 
     // Vars/DP Notebook
     _nbDPVars = new QTabWidget(lsplit);
@@ -130,6 +135,7 @@ PlotMainWindow::PlotMainWindow(
     }
 
     // Start/Stop times input
+#ifdef TODO
     RangeInput* rangeInput = new RangeInput(this);
     QSizePolicy sp(QSizePolicy::Preferred,QSizePolicy::Preferred);
     rangeInput->setSizePolicy(sp);
@@ -140,6 +146,7 @@ PlotMainWindow::PlotMainWindow(
             this, SLOT(_startTimeChanged(double)));
     connect(rangeInput,SIGNAL(maxChanged(double)),
             this, SLOT(_stopTimeChanged(double)));
+#endif
 
 
 

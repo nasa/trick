@@ -33,6 +33,8 @@ class PlotMainWindow : public QMainWindow
 
 public:
     explicit PlotMainWindow( const QString& timeName,
+                             double startTime,
+                             double stopTime,
                              const QString& presentation,
                              const QString& dpDir,
                              const QStringList& dpFiles,

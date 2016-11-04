@@ -1043,7 +1043,17 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                     }
 
                     // Set live coord in model
-                    model()->setData(liveTimeIdx,liveCoord.x());
+                    double start = _bookModel()->getDataDouble(QModelIndex(),
+                                                               "StartTime");
+                    double stop = _bookModel()->getDataDouble(QModelIndex(),
+                                                "StopTime");
+                    if ( liveCoord.x() <= start ) {
+                        model()->setData(liveTimeIdx,start);
+                    } else if ( liveCoord.x() >= stop ) {
+                        model()->setData(liveTimeIdx,stop);
+                    } else {
+                        model()->setData(liveTimeIdx,liveCoord.x());
+                    }
 
                 } else {  // Curve x is not time e.g. ball xy-position
 
@@ -1059,8 +1069,19 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                         }
                         ++it;
                     }
+
                     // Set live coord in model
-                    model()->setData(liveTimeIdx,liveTime);
+                    double start = _bookModel()->getDataDouble(QModelIndex(),
+                                                             "StartTime");
+                    double stop = _bookModel()->getDataDouble(QModelIndex(),
+                                                            "StopTime");
+                    if ( liveTime <= start ) {
+                        model()->setData(liveTimeIdx,start);
+                    } else if ( liveTime >= stop ) {
+                        model()->setData(liveTimeIdx,stop);
+                    } else {
+                        model()->setData(liveTimeIdx,liveTime);
+                    }
                 }
 
                 curveModel->unmap();
