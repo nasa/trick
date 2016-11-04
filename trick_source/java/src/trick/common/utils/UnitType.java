@@ -1,7 +1,3 @@
-
-//========================================
-//  Package
-//========================================
 package trick.common.utils;
 
 import java.util.ArrayList;
@@ -154,8 +150,8 @@ public enum UnitType {
       new Unit("giga-", "G", false, 0.0, GIGA),
       new Unit("tera-", "T", false, 0.0, TERA)
     };
-    
-    
+
+
     public static final String OPERATORS="+-/*()^"; //ignore the "(" as an operator
     public static final Map<Character, Integer> OPERATOR_LEVELS = new HashMap<Character, Integer>();
     static {
@@ -167,7 +163,7 @@ public enum UnitType {
         OPERATOR_LEVELS.put('-', 3);
         OPERATOR_LEVELS.put('(', 4);
     }
-    
+
     /** valid units for this type */
     private final ArrayList<Unit> units;
 
@@ -198,10 +194,10 @@ public enum UnitType {
     public List<Unit> getAll() {
         return Collections.unmodifiableList(units);
     }
-    
+
     /**
      * Converts the value of a specified units to the preferred units.
-     * 
+     *
      * @param fromValue from value
      * @param fromUnitStr from unit
      * @param toUnitStr to unit
@@ -209,17 +205,17 @@ public enum UnitType {
      * @throws IllegalUnitConversionException IllegalUnitConversionException
      */
     public static double convertUnits(double fromValue, String fromUnitStr, String toUnitStr) throws IllegalUnitConversionException {
-    	Unit fromUnit = getExpressionUnit(fromUnitStr);
-    	Unit toUnit = getExpressionUnit(toUnitStr);
-    	
-    	if (!isConvertible(fromUnitStr, toUnitStr)) {
-    		throw new IllegalUnitConversionException(fromUnitStr, toUnitStr);
-    	}
-    	
-    	double derivedFactor1 = fromUnit.factor1 - toUnit.factor1 / toUnit.factor2;
-    	double derivedFactor2 = fromUnit.factor2 / toUnit.factor2;
-    	
-    	return (fromValue * derivedFactor2 + derivedFactor1);
+        Unit fromUnit = getExpressionUnit(fromUnitStr);
+        Unit toUnit = getExpressionUnit(toUnitStr);
+
+        if (!isConvertible(fromUnitStr, toUnitStr)) {
+            throw new IllegalUnitConversionException(fromUnitStr, toUnitStr);
+        }
+
+        double derivedFactor1 = fromUnit.factor1 - toUnit.factor1 / toUnit.factor2;
+        double derivedFactor2 = fromUnit.factor2 / toUnit.factor2;
+
+        return (fromValue * derivedFactor2 + derivedFactor1);
     }
 
     /**
@@ -240,47 +236,47 @@ public enum UnitType {
         }
         return null;
     }
-    
+
     /**
      * Returns the primitive unit if it is a primitive units,
      * otherwise return a complex units that is made out of primitive units.
-     * 
+     *
      * @param expression full expression to parse
      * @return an instance of {@link Unit}
      */
     public static Unit getExpressionUnit(String expression) {
-    	Unit ret = null;
-    	
-    	ret = getPrimitiveUnit(expression);
-    	if (ret != null) {
-    		return ret;
-    	}
-    	
-    	UnitInfixExpression unitExpression = new UnitInfixExpression(expression);
-    	
-    	ret = unitExpression.getUnit();
-    	
-    	return ret;
+        Unit ret = null;
+
+        ret = getPrimitiveUnit(expression);
+        if (ret != null) {
+            return ret;
+        }
+
+        UnitInfixExpression unitExpression = new UnitInfixExpression(expression);
+
+        ret = unitExpression.getUnit();
+
+        return ret;
     }
-    
+
     /**
      * Gets the {@link Unit} based on its abbreviation.
-     * 
-     * @param abbreviation	the units abbreviation.
+     *
+     * @param abbreviation    the units abbreviation.
      * @return the corresponding Unit, or null if the abbreviation doesn't exist.
      */
     public static Unit getPrimitiveUnit(String abbreviation) {
-    	Unit ret = null;
-    	for (UnitType type : UnitType.values()) {
+        Unit ret = null;
+        for (UnitType type : UnitType.values()) {
             for (Unit unit : type.getAll()) {
                 if (unit.abbreviation.equals(abbreviation)) {
                     ret = unit;
                 }
             }
         }
-    	return ret;
+        return ret;
     }
-    
+
     /**
      * gets all valid unit alternatives for <code>expression</code>.
      * This method handles compound units resulting from multiplication,
@@ -301,7 +297,7 @@ public enum UnitType {
         }
         return results;
     }
-    
+
     /**
      * gets all valid unit alternatives for <code>tail</code>, concatenating
      * each result to <code>head</code>, and appending each concatenation to
@@ -354,20 +350,20 @@ public enum UnitType {
 
         /** the abbreviation to use following a value */
         public final String abbreviation;
-        
+
         public double factor1;
         public double factor2;
 
         /** whether or not metric prefixes are valid */
         final boolean isPrefixable;
-        
+
         public Unit(String name, String abbreviation, boolean isPrefixable, double factor1, double factor2) {
-        	this(name, abbreviation, isPrefixable);
-        	this.factor1 = factor1;
-        	this.factor2 = factor2;
+            this(name, abbreviation, isPrefixable);
+            this.factor1 = factor1;
+            this.factor2 = factor2;
         }
-        
-        /** constructor 
+
+        /** constructor
          * @param name name of unit
          * @param abbreviation  abbreviation of unit
          * @param isPrefixable  true or false
@@ -383,17 +379,14 @@ public enum UnitType {
             return abbreviation;
         }
     }
-    
-    /**
- 	 * Exception for handling illegal unit conversion.
-     */
+
     public static class IllegalUnitConversionException extends Exception {
-        
-		private static final long serialVersionUID = 2800176399857985431L;
-		
-		public IllegalUnitConversionException(String fromUnit, String toUnit) { 
-    		super("Illegal Unit Conversion", new Throwable("Can't convert " + fromUnit + " -> " + toUnit));
-    	}
+
+        private static final long serialVersionUID = 2800176399857985431L;
+
+        public IllegalUnitConversionException(String fromUnit, String toUnit) {
+            super("Illegal Unit Conversion", new Throwable("Can't convert " + fromUnit + " -> " + toUnit));
+        }
     }
 
 }
