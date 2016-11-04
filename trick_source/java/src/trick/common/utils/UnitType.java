@@ -152,18 +152,6 @@ public enum UnitType {
     };
 
 
-    public static final String OPERATORS="+-/*()^"; //ignore the "(" as an operator
-    public static final Map<Character, Integer> OPERATOR_LEVELS = new HashMap<Character, Integer>();
-    static {
-        OPERATOR_LEVELS.put(')', 0);
-        OPERATOR_LEVELS.put('^', 1);
-        OPERATOR_LEVELS.put('*', 2);
-        OPERATOR_LEVELS.put('/', 2);
-        OPERATOR_LEVELS.put('+', 3);
-        OPERATOR_LEVELS.put('-', 3);
-        OPERATOR_LEVELS.put('(', 4);
-    }
-
     /** valid units for this type */
     private final ArrayList<Unit> units;
 
@@ -196,7 +184,7 @@ public enum UnitType {
     }
 
     /**
-     * Converts the value of a specified units to the preferred units.
+     * converts the value of a specified units to the preferred units
      *
      * @param fromValue from value
      * @param fromUnitStr from unit
@@ -238,8 +226,8 @@ public enum UnitType {
     }
 
     /**
-     * Returns the primitive unit if it is a primitive units,
-     * otherwise return a complex units that is made out of primitive units.
+     * returns the primitive unit if it is a primitive unit.
+     * Otherwise, returns a complex unit that is made out of primitive units.
      *
      * @param expression full expression to parse
      * @return an instance of {@link Unit}
@@ -260,10 +248,10 @@ public enum UnitType {
     }
 
     /**
-     * Gets the {@link Unit} based on its abbreviation.
+     * gets the {@link Unit} based on its abbreviation
      *
-     * @param abbreviation    the units abbreviation.
-     * @return the corresponding Unit, or null if the abbreviation doesn't exist.
+     * @param abbreviation the units abbreviation
+     * @return the corresponding Unit, or null if the abbreviation doesn't exist
      */
     public static Unit getPrimitiveUnit(String abbreviation) {
         Unit ret = null;
@@ -305,7 +293,7 @@ public enum UnitType {
      * from multiplication, division, or exponentiation.
      *
      * @param head the (already processed) head of the units expression
-     * @param tail the (not yet processed) tai of the units expression
+     * @param tail the (not yet processed) tail of the units expression
      * @param results the list to which to append results
      */
     private static void getAll(String head, String tail, List<String> results) {
@@ -324,7 +312,7 @@ public enum UnitType {
     }
 
     /**
-     * Determines if <code>fromUnits</code> can legally be converted to
+     * determines if <code>fromUnits</code> can legally be converted to
      * <code>toUnits</code>. This method handles compound units resulting
      * from multiplication, division, or exponentiation.
      *
@@ -363,7 +351,9 @@ public enum UnitType {
             this.factor2 = factor2;
         }
 
-        /** constructor
+        /**
+         * constructor
+         *
          * @param name name of unit
          * @param abbreviation  abbreviation of unit
          * @param isPrefixable  true or false
