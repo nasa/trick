@@ -1,3 +1,4 @@
+TRICK_HOME := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))../..)
 
 # Get JAVAC definition
 include ${TRICK_HOME}/makefiles/Makefile.common
