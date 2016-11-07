@@ -81,8 +81,8 @@ int main(int argc, char *argv[])
     opts.add("-rt:{0,1}",&opts.isReportRT,false, "print realtime text report");
     opts.add("-start", &opts.start, 1.0, "start time", preset_start);
     opts.add("-stop", &opts.stop,1.0e20, "stop time", preset_stop);
-    opts.add("-pres",&opts.presentation,"error",
-             "present plot with two curves as compare or error (default)",
+    opts.add("-pres",&opts.presentation,"",
+             "present plot with two curves as coplot,error or error+coplot",
              presetPresentation);
     opts.add("-beginRun",&opts.beginRun,0,
              "begin run (inclusive) in set of Monte carlo RUNs",
@@ -291,11 +291,20 @@ int main(int argc, char *argv[])
         }
         titles << title;
 
+        // Default presentation
+        QString presentation = opts.presentation;
+        if ( opts.presentation.isEmpty() ) {
+            presentation = "coplot";
+            int rc = monteModel->rowCount();
+            if ( rc == 2 ) {
+                presentation = "error";
+            }
+        }
 
         if ( isPdf ) {
             // TODO: Shouldn't timeName use opts.timeName if specified?
             PlotMainWindow w(opts.timeName, opts.start, opts.stop,
-                             opts.presentation, QString(), dps, titles,
+                             presentation, QString(), dps, titles,
                              monteModel, varsModel, monteInputsModel);
             w.savePdf(opts.pdfOutFile);
 
@@ -381,7 +390,7 @@ int main(int argc, char *argv[])
                 timer.start();
 #endif
                 PlotMainWindow w(opts.timeName, opts.start, opts.stop,
-                                 opts.presentation, ".", dps, titles,
+                                 presentation, ".", dps, titles,
                                  monteModel, varsModel, monteInputsModel);
 #ifdef __linux
                 timer.snap("time=");
@@ -391,7 +400,7 @@ int main(int argc, char *argv[])
             } else {
 
                 PlotMainWindow w(opts.timeName, opts.start, opts.stop,
-                               opts.presentation, runDirs.at(0), QStringList(),
+                               presentation, runDirs.at(0), QStringList(),
                                titles, monteModel, varsModel, monteInputsModel);
                 w.show();
                 ret = a.exec();
@@ -505,9 +514,10 @@ void presetPresentation(QString* presVar, const QString& pres, bool* ok)
 {
     Q_UNUSED(presVar);
 
-    if ( pres != "error" && pres != "compare" ) {
+    if ( !pres.isEmpty() && pres != "coplot" && pres != "error" &&
+         pres != "error+coplot" ) {
         fprintf(stderr,"snap [error] : option -presentation, set to \"%s\", "
-                "should be \"error\" or \"compare\"\n",
+                "should be \"coplot\", \"error\" or \"error+coplot\"\n",
                 pres.toLatin1().constData());
         *ok = false;
     }

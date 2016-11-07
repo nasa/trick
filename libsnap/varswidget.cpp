@@ -170,7 +170,9 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
     _addChild(plotItem, "PlotMathRect", QRectF());
     int rc = _monteModel->rowCount(); // a curve per run, so, rc == nCurves
     if ( rc == 2 ) {
-        _addChild(plotItem, "PlotPresentation", "error");
+        QString presentation = _plotModel->getDataString(QModelIndex(),
+                                                         "Presentation");
+        _addChild(plotItem, "PlotPresentation", presentation);
     } else {
         _addChild(plotItem, "PlotPresentation", "coplot");
     }

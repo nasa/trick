@@ -61,6 +61,7 @@ PlotMainWindow::PlotMainWindow(const QString& timeName,
         citem = _bookModel->addChild(rootItem, "LiveCoordTime","");
         citem = _bookModel->addChild(rootItem, "StartTime",startTime);
         citem = _bookModel->addChild(rootItem, "StopTime",stopTime);
+        citem = _bookModel->addChild(rootItem, "Presentation",_presentation);
     }
 
 

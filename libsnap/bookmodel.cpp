@@ -299,6 +299,8 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
             idx = index(6,0);
         } else if ( searchItemText == "StopTime" ) {
             idx = index(7,0);
+        } else if ( searchItemText == "Presentation" ) {
+            idx = index(8,0);
         } else {
             qDebug() << "snap [bad scoobies]:3: getIndex() received "
                         "root as a startIdx and had bad child item text of \""

@@ -315,9 +315,14 @@ void CurvesView::paintEvent(QPaintEvent *event)
     if ( nCurves == 2 ) {
         QString plotPresentation = _bookModel()->getDataString(rootIndex(),
                                                      "PlotPresentation","Plot");
+        if ( plotPresentation.isEmpty() ) {
+            plotPresentation = _bookModel()->getDataString(QModelIndex(),
+                                                           "Presentation");
+        }
+
         if ( plotPresentation == "coplot" ) {
             _paintCoplot(T,painter,pen);
-        } else if (plotPresentation == "error" || plotPresentation.isEmpty()) {
+        } else if ( plotPresentation == "error" ) {
             _paintErrorplot(painter,pen,rootIndex());
         } else if ( plotPresentation == "error+coplot" ) {
             _paintErrorplot(painter,pen,rootIndex());

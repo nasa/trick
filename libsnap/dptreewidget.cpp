@@ -282,7 +282,9 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             _addChild(plotItem, "PlotTitle",      plot->title());
             _addChild(plotItem, "PlotMathRect", QRectF());
             if ( numRuns == 2 && plot->curves().size() == 1 ) {
-                _addChild(plotItem, "PlotPresentation", "error");
+                QString presentation = _bookModel->getDataString(QModelIndex(),
+                                                               "Presentation");
+                _addChild(plotItem, "PlotPresentation", presentation);
             } else {
                 _addChild(plotItem, "PlotPresentation", "coplot");
             }
