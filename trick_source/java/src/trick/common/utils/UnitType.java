@@ -18,13 +18,7 @@ import java.util.regex.Pattern;
 public enum UnitType {
 
     Angle(new ArrayList<Unit>() {{
-        add(new Unit("radians", "rad", false, 0.0, 1.0));
-        add(new Unit("pico-radians", "prad", false, 0.0, 1.0 * PICO));
-        add(new Unit("nano-radians", "nrad", false, 0.0, 1.0 * NANO));
-        add(new Unit("micro-radians", "urad", false, 0.0, 1.0 * MICRO));
-        add(new Unit("milli-radians", "mrad", false, 0.0, 1.0 * MILLI));
-        add(new Unit("centi-radians", "crad", false, 0.0, 1.0 * CENTI));
-        add(new Unit("deci-radians", "drad", false, 0.0, 1.0 * DECI));
+        add(new Unit("radians", "rad", true, 0.0, 1.0));
         add(new Unit("degrees", "degree", false, 0.0, 0.0174532925199433));
         add(new Unit("arc-seconds", "arcsecond", false, 0.0, 4.848136811095362e-06));
         add(new Unit("arc-minutes", "arcminute", false, 0.0, 0.000290888208666));
@@ -355,8 +349,8 @@ public enum UnitType {
          * constructor
          *
          * @param name name of unit
-         * @param abbreviation  abbreviation of unit
-         * @param isPrefixable  true or false
+         * @param abbreviation abbreviation of unit
+         * @param isPrefixable true or false
          */
         public Unit(String name, String abbreviation, boolean isPrefixable) {
             this.name = name;
