@@ -181,7 +181,7 @@ QString PageTitleView::_elideRunsTitle(QString title)
     if ( title.count('\n') > 3 ) {
         int j = 0;
         int k = 0;
-        for ( int i = 0 ; i < 3; ++i ) {
+        for ( int i = 0 ; i < 2; ++i ) {
             j = title.indexOf('\n',k);
             k = j+1;
         }
