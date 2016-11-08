@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
     opts.parse(argc,argv, QString("snap"), &ok);
 
     if ( !ok ) {
-        qDebug() << opts.usage();
+        fprintf(stderr,"%s\n",opts.usage().toLatin1().constData());
         return -1;
     }
 
@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
     if ( opts.rundps.isEmpty() ) {
         if ( opts.trk2csvFile.isEmpty() && opts.csv2trkFile.isEmpty() ) {
             fprintf(stderr,"snap [error] : no RUNs specified\n");
-            qDebug() << opts.usage();
+            fprintf(stderr,"%s\n",opts.usage().toLatin1().constData());
             return -1;
         }
     }
