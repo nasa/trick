@@ -40,6 +40,10 @@ Option::FPresetDouble preset_start;
 Option::FPresetDouble preset_stop;
 Option::FPresetQStringList presetRunsDPs;
 Option::FPostsetQStringList postsetRunsDPs;
+Option::FPresetQString presetPresentation;
+Option::FPresetUInt presetBeginRun;
+Option::FPresetUInt presetEndRun;
+Option::FPresetQString presetOutputFile;
 
 class SnapOptions : public Options
 {
@@ -61,13 +65,11 @@ class SnapOptions : public Options
     QString timeName;
     QString trk2csvFile;
     QString csv2trkFile;
+    QString outputFileName;
 };
 
 SnapOptions opts;
 
-Option::FPresetQString presetPresentation;
-Option::FPresetUInt presetBeginRun;
-Option::FPresetUInt presetEndRun;
 
 int main(int argc, char *argv[])
 {
@@ -108,6 +110,9 @@ int main(int argc, char *argv[])
     opts.add("-csv2trk", &opts.csv2trkFile, QString(""),
              "Name of csv file to convert to trk (fname subs csv with trk)",
              presetExistsFile);
+    opts.add("-o", &opts.outputFileName, QString(""),
+             "Name of file to output with trk2csv and csv2trk options",
+             presetOutputFile);
 
     opts.parse(argc,argv, QString("snap"), &ok);
 
@@ -136,8 +141,12 @@ int main(int argc, char *argv[])
     }
 
     if ( !opts.trk2csvFile.isEmpty() ) {
-        QFileInfo fi(opts.trk2csvFile);
-        QString csvOutFile = QString("%1.csv").arg(fi.baseName());
+        QString csvOutFile = opts.outputFileName;
+        if ( csvOutFile.isEmpty() ) {
+            QFileInfo fi(opts.trk2csvFile);
+            csvOutFile = fi.absolutePath() + "/" +
+                         QString("%1.csv").arg(fi.baseName());
+        }
         bool ret = convert2csv(opts.trk2csvFile, csvOutFile);
         if ( !ret )  {
             fprintf(stderr, "snap [error]: Aborting trk to csv conversion!\n");
@@ -146,8 +155,12 @@ int main(int argc, char *argv[])
     }
 
     if ( !opts.csv2trkFile.isEmpty() ) {
-        QFileInfo fi(opts.csv2trkFile);
-        QString trkOutFile = QString("%1.trk").arg(fi.baseName());
+        QString trkOutFile = opts.outputFileName;
+        if ( trkOutFile.isEmpty() ) {
+            QFileInfo fi(opts.csv2trkFile);
+            trkOutFile = fi.absolutePath() + "/" +
+                         QString("%1.trk").arg(fi.baseName());
+        }
         bool ret = convert2trk(opts.csv2trkFile, trkOutFile);
         if ( !ret )  {
             fprintf(stderr, "snap [error]: Aborting csv to trk conversion!\n");
@@ -519,6 +532,18 @@ void presetPresentation(QString* presVar, const QString& pres, bool* ok)
         fprintf(stderr,"snap [error] : option -presentation, set to \"%s\", "
                 "should be \"coplot\", \"error\" or \"error+coplot\"\n",
                 pres.toLatin1().constData());
+        *ok = false;
+    }
+}
+
+void presetOutputFile(QString* presVar, const QString& fname, bool* ok)
+{
+    Q_UNUSED(presVar);
+
+    QFileInfo fi(fname);
+    if ( fi.exists() ) {
+        fprintf(stderr, "snap [error]: Will not overwrite %s\n",
+                fname.toLatin1().constData());
         *ok = false;
     }
 }
