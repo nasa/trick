@@ -2,14 +2,14 @@
  * Usage: dr_client <host> <port>
  *
  * Description: This is a client to Trick sim's data record server.
- *              The matching write from the server side is called "dr_comm_send" 
- *              and can be found in the 
- *              $TRICK_HOME/trick_source/sim_services/exec directory.  
+ *              The matching write from the server side is called "dr_comm_send"
+ *              and can be found in the
+ *              $TRICK_HOME/trick_source/sim_services/exec directory.
  *
- *              The data packet coming from the server contains a file to write to, 
+ *              The data packet coming from the server contains a file to write to,
  *              and a packet of data (checkpoint, s_job_execution or data recording
  *              files). So dr_client reads the data, and dumps it to the file
- *              specified by the server. 
+ *              specified by the server.
  *
  * Example: dr_client wave 7777
  *
@@ -27,7 +27,7 @@ typedef struct {
 } DataFiles ;
 
 int  dr_comm_receive( TCDevice* connection, char** file_name, char** msg ) ;
-void dump_data (  DataFiles* df, 
+void dump_data (  DataFiles* df,
                  TCDevice* connection, char** file_name, char** msg ) ;
 
 
@@ -77,10 +77,10 @@ int dr_comm_receive( TCDevice* connection, char** file_name, char** msg ) {
   int size_filename ;
   int size_msg ;
 
-  tc_read(connection, (char*) &size_filename, 4); 
-  tc_read(connection, (char*) &size_msg, 4); 
-  tc_read(connection, *file_name, size_filename); 
-  tc_read(connection, *msg, size_msg); 
+  tc_read(connection, (char*) &size_filename, 4);
+  tc_read(connection, (char*) &size_msg, 4);
+  tc_read(connection, *file_name, size_filename);
+  tc_read(connection, *msg, size_msg);
 
   return( size_msg ) ;
 }
@@ -93,7 +93,7 @@ void dump_data ( DataFiles* df,
    int found ;
    FILE* fp ;
 
-   while ( 1 ) { 
+   while ( 1 ) {
 
       /* Get data from dr server */
       size_msg = dr_comm_receive( connection, file_name, msg ) ;
@@ -106,7 +106,7 @@ void dump_data ( DataFiles* df,
       /* Which file to write to? */
       found = 0 ;
       for ( ii = 0 ; ii < df->n_files ; ii++ ) {
-         if ( ! strcmp( df->file_name[ii], *file_name ) ) { 
+         if ( ! strcmp( df->file_name[ii], *file_name ) ) {
             found = 1 ;
             break ;
          }
@@ -126,7 +126,7 @@ void dump_data ( DataFiles* df,
 
       /* Write record to the file */
       if ( fp != NULL ) {
-         fwrite( *msg, size_msg, 1, fp ) ; 
+         fwrite( *msg, size_msg, 1, fp ) ;
       } else {
          fprintf(stderr, "ERROR: Can't open \"%s\"\n", *file_name);
          exit(-1);

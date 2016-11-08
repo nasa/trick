@@ -1,6 +1,6 @@
 /*
 PURPOSE:
-	(Generate a LELF_HANDED quaternion using an Euler PITCH_ROLL_YAW sequence 
+	(Generate a LELF_HANDED quaternion using an Euler PITCH_ROLL_YAW sequence
          OR generate an Euler  PITCH_ROLL_YAW sequence using a quaternion.)
 
 PROGRAMMERS:
@@ -20,7 +20,7 @@ int euler213_quat(
 {
 
    double haft_angle[3];
-   double mat00, mat01, mat10, mat11, mat20, mat21, mat22; 
+   double mat00, mat01, mat10, mat11, mat20, mat21, mat22;
    double s1;
    double c1;
    double s2;
@@ -39,25 +39,25 @@ int euler213_quat(
        s2 = sin(haft_angle[1]);
        c2 = cos(haft_angle[1]);
        s3 = sin(haft_angle[2]);
-       c3 = cos(haft_angle[2]); 
-       
+       c3 = cos(haft_angle[2]);
+
        quat[0] =  c1*c2*c3 + s1*s2*s3;
        quat[1] = -c1*s2*c3 - s1*c2*s3;
        quat[2] = -s1*c2*c3 + c1*s2*s3;
        quat[3] = -c1*c2*s3 + s1*s2*c3;
 
-      
+
    }
    else if (method == 1){
 #define TOLERANCE 1.0e-15
        /* Within normal range for asin function */
        mat21 = 2. * (quat[2] * quat[3] + quat[0] * quat[1]);
-       
+
        if (-1.0 <= -mat21 && -mat21 <= 1.0) {
                angle[1] = asin(-mat21);
                if (M_ABS(angle[1] - M_PI_2) < 1.0e-6) {
                        mat10 = 2. * (quat[1] * quat[2] + quat[0] * quat[3]);
-                       mat00 = 1. - 2. * (quat[2] * quat[2] + quat[3] * quat[3]);	       
+                       mat00 = 1. - 2. * (quat[2] * quat[2] + quat[3] * quat[3]);
         	       angle[0] = atan2(mat10, mat00);
         	       angle[1] = M_PI_2;
         	       angle[2] = 0.0;
@@ -68,7 +68,7 @@ int euler213_quat(
         	       }
                } else if (M_ABS(angle[1] + M_PI_2) < 1.0e-6) {
                        mat10 = 2. * (quat[1] * quat[2] + quat[0] * quat[3]);
-                       mat00 = 1. - 2. * (quat[2] * quat[2] + quat[3] * quat[3]);	       
+                       mat00 = 1. - 2. * (quat[2] * quat[2] + quat[3] * quat[3]);
         	       angle[0] = atan2(-mat10, mat00);
         	       angle[1] = -M_PI_2;
         	       angle[2] = 0.0;
@@ -90,7 +90,7 @@ int euler213_quat(
        /* Out of normal range for asin func, but within tolerance */
         else if (1.0 < -mat21 && -mat21 <= (1.0 + TOLERANCE)) {
                 mat10 = 2. * (quat[1] * quat[2] + quat[0] * quat[3]);
-                mat00 = 1. - 2. * (quat[2] * quat[2] + quat[3] * quat[3]);		
+                mat00 = 1. - 2. * (quat[2] * quat[2] + quat[3] * quat[3]);
                 angle[0] = atan2(mat10, mat00);
                 angle[1] = M_PI_2;
                 angle[2] = 0.0;
@@ -101,7 +101,7 @@ int euler213_quat(
                 }
         } else if ((-1.0 - TOLERANCE) <= -mat21 && -mat21 < -1.0) {
                 mat10 = 2. * (quat[1] * quat[2] + quat[0] * quat[3]);
-                mat00 = 1. - 2. * (quat[2] * quat[2] + quat[3] * quat[3]);		
+                mat00 = 1. - 2. * (quat[2] * quat[2] + quat[3] * quat[3]);
                 angle[0] = atan2(-mat10, mat00);
                 angle[1] = -M_PI_2;
                 angle[2] = 0.0;
@@ -111,7 +111,7 @@ int euler213_quat(
                     error_flag[3]=1;
                 }
         }
-        /* Error: Out of normal range & beyond tolerance 
+        /* Error: Out of normal range & beyond tolerance
            for asin func */
         else {
                 double zero = 0.0;
@@ -131,7 +131,7 @@ int euler213_quat(
         /* Compute euler angles from tranformation */
         if (M_ABS(mat21 + 1.0) < 1.0e-6) {
                 mat10 = 2. * (quat[1] * quat[2] + quat[0] * quat[3]);
-                mat00 = 1. - 2. * (quat[2] * quat[2] + quat[3] * quat[3]);		
+                mat00 = 1. - 2. * (quat[2] * quat[2] + quat[3] * quat[3]);
                 angle[0] = atan2(mat10, mat00) + prev[2];
                 angle[1] = M_PI_2;
                 angle[2] = prev[2];
@@ -143,7 +143,7 @@ int euler213_quat(
 
         } else if (M_ABS(mat21 - 1.0) < 1.0e-6) {
                 mat10 = 2. * (quat[1] * quat[2] + quat[0] * quat[3]);
-                mat00 = 1. - 2. * (quat[2] * quat[2] + quat[3] * quat[3]);		
+                mat00 = 1. - 2. * (quat[2] * quat[2] + quat[3] * quat[3]);
                 angle[0] = atan2(-mat10, mat00) - prev[2];
                 angle[1] = -M_PI_2;
                 angle[2] = prev[2];

@@ -30,14 +30,14 @@ static const char *usage_doc[] = {
 
 void print_doc(char *doc[], int nlines) {
     int i;
-    for (i=0; i < nlines; i++) { 
+    for (i=0; i < nlines; i++) {
         cerr << doc[i] << '\n';
     }
     cerr.flush();
 }
 
 void usage() {
-    print_doc((char **)usage_doc,N_USAGE_LINES); 
+    print_doc((char **)usage_doc,N_USAGE_LINES);
 }
 
 int main(int argc, char* argv[])
@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
                 exit(EXIT_FAILURE);
             }
         }
-    } 
+    }
 
     if (trk_file_name == NULL) {
         cerr << prog_name << ": No Trick binary data file name was supplied.\n";
@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
         cerr << "No parameters found in the Trk data log file.\n";
         cerr.flush();
         exit(EXIT_FAILURE);
-    } 
+    }
 
     if (( param_names = TrickBinaryGetVariableNames(trk_file_name)) == NULL ) {
         cerr << "Unable get parameter names from the Trk data log file.\n";

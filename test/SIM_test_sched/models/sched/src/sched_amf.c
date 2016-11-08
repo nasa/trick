@@ -1,6 +1,6 @@
 /********************************* TRICK HEADER *******************************
 PURPOSE:                     ( Test scheduling )
-REFERENCE:                   ( None ) 
+REFERENCE:                   ( None )
 ASSUMPTIONS AND LIMITATIONS: ( None )
 CLASS:                       ( asynchronous_mustfinish )
 LIBRARY DEPENDENCY:          ( sched_amf.o )
@@ -23,7 +23,7 @@ int sched_amf(
       sprintf(test, "Test %d", i);
       add_test_result("sched_amf: Things are in order", test, "");
       i++;
-      S->amf = 1 ; 
+      S->amf = 1 ;
    } else {
       /* Things are out of order */
       sprintf(test, "Test %d", i);

@@ -86,7 +86,7 @@ TEST_F(ITimerTest, TimerNotEnabled) {
 TEST_F(ITimerTest, TimerStartSuccess) {
     //req.add_requirement("timer");
 	//"The ITimer shall sleep when commanded, thereby releasing the processor for a specified amount of time.");
-	
+
 	sec = 0.05;
 
 	Trick::ITimer *iTim;
@@ -94,7 +94,7 @@ TEST_F(ITimerTest, TimerStartSuccess) {
 
 	iTim->init();
 	iTim->enable();
-	
+
 	tim_st = dClk.wall_clock_time();
 
 	iTim->start(sec);
@@ -103,7 +103,7 @@ TEST_F(ITimerTest, TimerStartSuccess) {
 	/* Cause simulation to wait until "sec" seconds have passed */
 	iTim->pause();
 
-	tim_elap = dClk.wall_clock_time() - tim_st;	
+	tim_elap = dClk.wall_clock_time() - tim_st;
 	EXPECT_NEAR((tim_elap+2000), sec*1e6, TOL);
 
 	delete iTim;
@@ -140,12 +140,12 @@ TEST_F(ITimerTest, TimerStartReset) {
 TEST_F(ITimerTest, TimerStartStop) {
     //req.add_requirement("timer");
 	//"The ITimer shall stop when commanded if the time until alarm has not yet expired.");
- 
+
     sec = 0.05;
- 
+
     Trick::ITimer *iTim;
     iTim = new Trick::ITimer;
- 
+
     iTim->init();
     iTim->enable();
 
@@ -164,8 +164,8 @@ TEST_F(ITimerTest, TimerStartStop) {
     tim_elap = dClk.wall_clock_time() - tim_st;
 
 	EXPECT_NEAR(tim_elap, 0, TOL);
-	
-    
+
+
     delete iTim;
 }
 
@@ -173,12 +173,12 @@ TEST_F(ITimerTest, TimerStartStop) {
 TEST_F(ITimerTest, TimerStartFailure) {
     //req.add_requirement("timer");
 	//"The ITimer shall not initiate with start times that are negative or less than 10 ms");
-	
+
 	sec = 0.05;
 
     Trick::ITimer *iTim;
     iTim = new Trick::ITimer;
- 
+
     iTim->init();
     iTim->enable();
 

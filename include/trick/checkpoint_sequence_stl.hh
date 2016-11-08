@@ -241,7 +241,7 @@ int restore_sequence_i(STL & in_stl , std::string object_name , std::string var_
 
     //message_publish(1, "RESTORE_SEQUENCE_STL %s_%s\n", object_name.c_str() , var_name.c_str()) ;
 
-    items_ref = ref_attributes((char *)(object_name + std::string("_") + var_name).c_str()) ; 
+    items_ref = ref_attributes((char *)(object_name + std::string("_") + var_name).c_str()) ;
 
     if ( items_ref != NULL ) {
         in_stl.clear() ;

@@ -13,7 +13,7 @@
 #include "trick/MonteVar.hh"
 #include "trick/reference.h"
 
-// This block of code disowns the pointer on the python side so you can reassign 
+// This block of code disowns the pointer on the python side so you can reassign
 // python variables without freeing the C++ class underneath
 #ifdef SWIG
 %feature("compactdefaultargs","0") ;

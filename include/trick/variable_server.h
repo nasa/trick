@@ -20,7 +20,7 @@ extern "C" {
 typedef struct {
     REF2 ref;
     double scale_factor;
-    double bias;  
+    double bias;
 } VARIABLE_NODE;
 
 typedef struct {

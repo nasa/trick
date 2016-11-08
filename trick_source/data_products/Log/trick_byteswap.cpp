@@ -1,11 +1,11 @@
 /*
-PURPOSE: 
+PURPOSE:
      (Routines for swapping byte order.  Borrowed from ISP.)
-REFERENCE: 
+REFERENCE:
      ((None))
 ASSUMPTIONS AND LIMITATIONS:
      ((None))
-CLASS: 
+CLASS:
      (N/A)
 LIBRARY DEPENDENCY:
     ((trick_byteswap.o))
@@ -76,7 +76,7 @@ float trick_byteswap_float(       /* RETURN: -- swapped bytes */
        *(((unsigned char *)&output) + 1) = *(((unsigned char *)&input) + 2);
        *(((unsigned char *)&output) + 2) = *(((unsigned char *)&input) + 1);
        *(((unsigned char *)&output) + 3) = *(((unsigned char *)&input));
-     
+
        return(output);
 }
 
@@ -100,7 +100,7 @@ long trick_byteswap_long(         /* RETURN: -- swapped byte */
                *(((unsigned char*)&output)+1) = *(((unsigned char*)&input)+6);
                *(((unsigned char*)&output)+2) = *(((unsigned char*)&input)+5);
                *(((unsigned char*)&output)+3) = *(((unsigned char*)&input)+4);
-          
+
                out += 4;
                *(((unsigned char*)out)   ) = *(((unsigned char*)&input)+3);
                *(((unsigned char*)out)+ 1) = *(((unsigned char*)&input)+2);

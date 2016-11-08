@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include "trick/RefParseContext.hh"
 
-/** 
- Constructor 
+/**
+ Constructor
  */ RefParseContext::RefParseContext( Trick::MemoryManager *in_mem_mgr, std::istream* in_is = &std::cin ) {
 
    // Set verif input and echo input flags.
@@ -18,8 +18,8 @@
 
 }
 
-/** 
- Destructor 
+/**
+ Destructor
  */
 RefParseContext::~RefParseContext() {
     destroy_scanner();

@@ -55,8 +55,8 @@ int tc_blockio(TCDevice * device, TCCommBlocking blockflag);
 /* Check to see if a connection is valid */
 int tc_isValid(TCDevice * device);
 
-/* Set the time in secs that a blocking read 
- * will wait before timing out 
+/* Set the time in secs that a blocking read
+ * will wait before timing out
  */
 int tc_set_blockio_timeout_limit(TCDevice * device, double limit);
 

@@ -62,7 +62,7 @@ void Trick::MonteCarlo::shutdown_slaves() {
     }
 }
 void Trick::MonteCarlo::print_statistics(FILE** fp) {
-    static const char *exit_status_string[] = 
+    static const char *exit_status_string[] =
       {"Incomplete", "Complete", "Core Dumped", "Timed Out",
        "No Permission to Output Directory", "Bad Input" } ;
 

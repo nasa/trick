@@ -5,7 +5,7 @@
 // whether or not the current/next pair exist.
 // 0 - exists
 // 1 - does not exist
-// 
+//
 // !bix: index of the current time/value pair
 // bix: index of the next time/value pair
 //

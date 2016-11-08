@@ -1,6 +1,6 @@
 /******************************TRICK HEADER*************************************
 PURPOSE:                     ( Test variable server )
-REFERENCE:                   ( None ) 
+REFERENCE:                   ( None )
 ASSUMPTIONS AND LIMITATIONS: ( None )
 CLASS:                       ( scheduled )
 LIBRARY DEPENDENCY:          ( VS.o )
@@ -38,7 +38,7 @@ int VSTest::init() {
 	// default cycle rate
 	cycle_rate = 0.01;
 	sprintf(msg,"trick.var_cycle(%.2f)\n", cycle_rate);
-	vs_write(msg);	
+	vs_write(msg);
 
 	return (0);
 }

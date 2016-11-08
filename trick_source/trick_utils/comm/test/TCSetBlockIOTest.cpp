@@ -22,7 +22,7 @@ class TCSetBlockIOTest : public testing::Test {
       }
 
       void TearDown(){
-   
+
          free(device);
       }
 };
@@ -32,7 +32,7 @@ TEST_F( TCSetBlockIOTest, testNoDevice ) {
    int set_blockio_status = tc_set_blockio_timeout_limit( NULL, 0 );
 
    EXPECT_EQ( set_blockio_status, -1 );
-} 
+}
 
 TEST_F( TCSetBlockIOTest, testSuccess ) {
 
@@ -40,4 +40,4 @@ TEST_F( TCSetBlockIOTest, testSuccess ) {
 
    EXPECT_EQ( set_blockio_status, 0 );
    EXPECT_EQ( device->blockio_limit, 5 );
-} 
+}

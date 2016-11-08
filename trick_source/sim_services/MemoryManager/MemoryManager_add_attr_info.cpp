@@ -29,7 +29,7 @@ int Trick::MemoryManager::add_attr_info( const std::string & user_type_string , 
     unsigned int ii ;
     std::set<std::string>::iterator it ;
     std::map<std::string,std::string>::iterator mit;
-    
+
     /** @par Design Details: */
 
     user_type_name = user_type_string ;
@@ -102,7 +102,7 @@ int Trick::MemoryManager::add_attr_info( const std::string & user_type_string , 
 
         if ( init_sub_attr != NULL ) {     // If the initialization function was found,
             (*init_sub_attr)() ;           // then call it.
-        } else {  
+        } else {
             std::stringstream message;
             message << " ATTRIBUTES init routine for type \""
                     << user_type_name.c_str() << "\" not found.";
@@ -112,12 +112,12 @@ int Trick::MemoryManager::add_attr_info( const std::string & user_type_string , 
 
     } else { // The named user type isn't a structure type. Maybe it's an enumeration type.
 
-        // Check to see whether the user type name is in the enumeration_map. 
+        // Check to see whether the user type name is in the enumeration_map.
         ENUMERATION_MAP::iterator curr_pos = enumeration_map.find( user_type_name);
 
         // If it's not in the enumeration map then
         if (curr_pos == enumeration_map.end()) {
-            
+
             // Construct the name of the enumeration attributes.
             enum_attr_name = "enum" + user_type_name ;
 
@@ -143,7 +143,7 @@ int Trick::MemoryManager::add_attr_info( const std::string & user_type_string , 
             enum_attr = curr_pos->second;
         }
 
-        // Set the type information in the ATTRIBUTES structure that we are populating.      
+        // Set the type information in the ATTRIBUTES structure that we are populating.
         attr->type = TRICK_ENUMERATED ;
         attr->attr = enum_attr;
     }

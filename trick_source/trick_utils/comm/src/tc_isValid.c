@@ -28,7 +28,7 @@ int tc_isValid(TCDevice * device)
         if ((nread <= 0) && (tc_errno != TRICKCOMM_EAGAIN)) {
 
             ret = 0; /* The socket is not valid */
-        } 
+        }
         else {
 
             ret = 1; /* The socket is valid */

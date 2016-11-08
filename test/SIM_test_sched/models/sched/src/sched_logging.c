@@ -1,6 +1,6 @@
 /********************************* TRICK HEADER *******************************
 PURPOSE:                     ( Test scheduling )
-REFERENCE:                   ( None ) 
+REFERENCE:                   ( None )
 ASSUMPTIONS AND LIMITATIONS: ( None )
 CLASS:                       ( logging )
 LIBRARY DEPENDENCY:          ( sched_logging.o )

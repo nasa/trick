@@ -218,7 +218,7 @@ namespace Trick {
              @par Python Usage:
              @code trick.checkpoint() @endcode
              @param file_name - optional: name of checkpoint file to dump (default is "chkpnt_<time>")
-             @param print_status - optional: boolean yes (C integer 1) = print the dump checkpoint status message 
+             @param print_status - optional: boolean yes (C integer 1) = print the dump checkpoint status message
              @param obj_list_str - optional: sim objects list string for checkpointing (default is dump all)
              @return always 0
              */
@@ -243,7 +243,7 @@ namespace Trick {
              @par Python Usage:
              @code trick.dmtcp_checkpoint() @endcode
              @param file_name - optional: name of checkpoint file to dump (default is "dmtcp_chkpnt_<time>")
-             @param print_status - optional: boolean yes (C integer 1) = print the dump checkpoint status message 
+             @param print_status - optional: boolean yes (C integer 1) = print the dump checkpoint status message
              @param obj_list_str - optional: sim objects list string for checkpointing (default is dump all)
              @return always 0
              */
@@ -261,7 +261,7 @@ namespace Trick {
             virtual int dmtcp_checkpoint(double in_time) ;
 
             /* helper function to generate DMTCP restart script file name */
-            void setDMTCPFilename( std::string file_name = ""); 
+            void setDMTCPFilename( std::string file_name = "");
 
             /**
              * Executes the pre_init_checkpoint

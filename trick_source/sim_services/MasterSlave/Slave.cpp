@@ -100,9 +100,9 @@ int Trick::Slave::init() {
         exec_set_freeze_command(int(connection->read_command())) ;
         /** @li Read and set the pre_init, post_init, and end checkpoint flags according to the master. */
         chkpnt_flag = (int)connection->read_time();
-        checkpoint_pre_init(chkpnt_flag>>2 & 0x1); 
-        checkpoint_post_init(chkpnt_flag>>1 & 0x1); 
-        checkpoint_end(chkpnt_flag & 0x1); 
+        checkpoint_pre_init(chkpnt_flag>>2 & 0x1);
+        checkpoint_post_init(chkpnt_flag>>1 & 0x1);
+        checkpoint_end(chkpnt_flag & 0x1);
 
         dlclose(dlhandle) ;
 
@@ -193,7 +193,7 @@ int Trick::Slave::end_of_frame() {
         if (reconnected) {
             slave_command = MS_ReconnectCmd;
 
-            if (msg_published) 
+            if (msg_published)
                 reconnected = false;
             else
                 sent_reconnect_cmd = true;
@@ -211,7 +211,7 @@ int Trick::Slave::end_of_frame() {
                 /** @li if reading the master time returned an error exit the sim if sync_error_terminate == true */
                 message_publish(MSG_ERROR , "Slave lost sync with master. sync_error_terminate is true: Slave is terminating.\n") ;
                 exec_terminate_with_return(-1, __FILE__, __LINE__ , "Slave lost sync with master") ;
-            } 
+            }
             else {
                 if (slave_command != MS_FreezeCmd){
                     /** @li if reading the master time returned an error freeze the sim if sync_error_terminate == false */
@@ -234,7 +234,7 @@ int Trick::Slave::end_of_frame() {
                     /** @li if reading the master mode command returned an error exit the sim if sync_error_terminate == true */
                     message_publish(MSG_ERROR , "Slave lost sync with master. sync_error_terminate is true: Slave is terminating.\n") ;
                     exec_terminate_with_return(-1, __FILE__, __LINE__ , "Slave lost sync with master") ;
-                } 
+                }
                 else {
                     if (slave_command != MS_FreezeCmd) {
                         /** @li if reading the master mode command returned an error freeze the sim if sync_error_terminate == false */
@@ -292,7 +292,7 @@ fprintf(stderr, "SLAVE GOT ACK %d\n", command);
                 exec_set_exec_command((SIM_COMMAND)command) ;
                 if (reconnected) {
                     message_publish(MSG_INFO , "Slave has reconnected to master.\n") ;
-                    if (sent_reconnect_cmd) 
+                    if (sent_reconnect_cmd)
                         reconnected = false;
                     else
                         msg_published = true;

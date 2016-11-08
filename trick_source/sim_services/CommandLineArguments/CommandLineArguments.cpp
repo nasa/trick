@@ -89,7 +89,7 @@ std::string & Trick::CommandLineArguments::get_cmdline_name_ref() {
       -# Save the simulation executable name as the full first argument
       -# Get the current working directory
       -# Save the current working directory as the default input directory.
-   -# If a relative or full directory is present in the command line arguments 
+   -# If a relative or full directory is present in the command line arguments
       -# split the command line argument on the last "/" character
       -# Save the back half of the split as the simulation executable name
       -# Save the current working directory
@@ -147,16 +147,16 @@ int Trick::CommandLineArguments::process_sim_args(int nargs , char **args) {
         // change back to the current directory
         chdir(buf);
     }
-    
+
     free(buf) ;
     free(buf2) ;
 
     if ( argc > 1 ) {
-    
+
         /* First argument is the input file name: '<Run_dir>/<file_name>' */
         input_file = argv[1] ;
         run_dir = argv[1] ;
-    
+
         found = run_dir.find_last_of("/") ;
         if ( found != std::string::npos ) {
             run_dir.erase(found) ;
@@ -212,7 +212,7 @@ int Trick::CommandLineArguments::output_dir_timestamped_on() {
     time_t date ;
     struct tm *curr_time ;
     char temp_str[256] ;
-    
+
     date = time(NULL) ;
     curr_time = localtime(&date) ;
 

@@ -14,7 +14,7 @@
 #include "trick/rand_generator.h"
 #include "trick/StlRandomGenerator.hh"
 
-// This block of code disowns the pointer on the python side so you can reassign 
+// This block of code disowns the pointer on the python side so you can reassign
 // python variables without freeing the C++ class underneath
 #ifdef SWIG
 %feature("compactdefaultargs","0") ;

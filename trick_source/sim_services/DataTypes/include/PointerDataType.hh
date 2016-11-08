@@ -22,7 +22,7 @@ class PointerDataType : public DataType {
     PointerDataType( TypeDictionary * typeDictionary,
                      std::string typeSpecifierName,
                      unsigned int n_dims,
-                     int dims[] ) throw (std::logic_error); 
+                     int dims[] ) throw (std::logic_error);
     /**
      Constructor for ArrayDataType.
      @param typeDictionary The Type Dictionary.

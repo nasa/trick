@@ -40,7 +40,7 @@ int Trick::MemoryManager::ref_allocate(REF2 * R , int num ) {
         // FIXME: Is this correct? Or is this an old Bogus kludge?
         *((char **)R->address) = (char*)resize_array( *((char **) R->address), num);
     }
-    
+
     /** @li Return the error status.*/
     return (0);
 

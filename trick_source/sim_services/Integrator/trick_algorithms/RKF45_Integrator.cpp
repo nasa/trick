@@ -4,7 +4,7 @@
 /**
  */
 void Trick::RKF45_Integrator::initialize(int State_size, double Dt) {
-    
+
     int i;
     const int n_steps = 6;
 

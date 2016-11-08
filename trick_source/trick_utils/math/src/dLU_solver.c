@@ -10,7 +10,7 @@
 
    REFERENCE: (((Cholesksy) (The cholesky book) (book) (Publisher) (Date) (Pages)))
 
-   ASSUMPTIONS AND LIMITATIONS: (([A] is a square matrix) ([A] is symmetric) ([A] is positive definite) (Only the lower 
+   ASSUMPTIONS AND LIMITATIONS: (([A] is a square matrix) ([A] is symmetric) ([A] is positive definite) (Only the lower
    triangular of [A] needs to be loaded.))
 
    PROGRAMMERS: (((Robert W. Bailey) (LinCom Corp) (2/1/91) (Trick-CR-00000) (Initial Release))) */

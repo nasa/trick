@@ -113,7 +113,7 @@ std::ostream& operator<< (std::ostream& s, const DPM_column *column) {
   }
 
   s << column->column_var;
-  
+
 
   s << "</column>";
   s << std::endl;

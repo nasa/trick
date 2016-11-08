@@ -13,7 +13,7 @@ double dS_function(             /* Return: -- 0.0 <= value <= 1.0 */
                       double mid_point, /* In: 'x' value where 's' function returns 0.5 */
                       double one_point, /* In: 'x' value where 's' function returns 1.0 */
                       double sign)
-{                                      /* In: 'x' axis sign evaluation flag: -1 = evaluate -'X' axis, 1 = evaluate +'X' 
+{                                      /* In: 'x' axis sign evaluation flag: -1 = evaluate -'X' axis, 1 = evaluate +'X'
                                           axis */
 
     double temp, temp1;

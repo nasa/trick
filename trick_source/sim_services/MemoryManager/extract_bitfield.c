@@ -28,23 +28,23 @@ int extract_bitfield_any(int value,     /* In: Value to extract bits from */
 
     if (un.c[sizeof(long) - 1] == 1) {
 
-        /* 
-         * Big endian 
+        /*
+         * Big endian
          */
 
         mask = 0x00000001 << (start + bits - 1);
 
         if (mask & value) {
 
-            /* 
-             * This is a negative value 
+            /*
+             * This is a negative value
              */
 
             for (i = start, j = 0; j < bits; i++, j++) {
-                /* 
-                 * First, turn off all bits associated with 
+                /*
+                 * First, turn off all bits associated with
                  * this bit field within the unsigned integer.
-                 * Then assign the input value to the 
+                 * Then assign the input value to the
                  * appropriate bits in the unsigned integer.
                  */
                 mask = 0x00000001 << i;
@@ -55,15 +55,15 @@ int extract_bitfield_any(int value,     /* In: Value to extract bits from */
             sbf = -((sbf >> start) + 1);
         } else {
 
-            /* 
-             * This is a positive value 
+            /*
+             * This is a positive value
              */
 
             for (i = start, j = 0; j < bits; i++, j++) {
-                /* 
-                 * First, turn off all bits associated with 
+                /*
+                 * First, turn off all bits associated with
                  * this bit field within the unsigned integer.
-                 * Then assign the input value to the appropriate 
+                 * Then assign the input value to the appropriate
                  * bits in the unsigned integer.
                  */
                 mask = 0x00000001 << i;
@@ -75,11 +75,11 @@ int extract_bitfield_any(int value,     /* In: Value to extract bits from */
         }
     } else {
 
-        /* 
-         * Little endian 
+        /*
+         * Little endian
          */
 
-        /* 
+        /*
          * Shift the bit field contents of the current value
          * to the lsb of the underlying int.
          */

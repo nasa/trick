@@ -20,7 +20,7 @@ int dmtcp_is_enabled() ;
 /* call DMTCP funcion dmtcpRunCommand() */
 int call_dmtcp();
 
-/* DMTCP jobs to run pre, post, and restart. Arguments for dmtcpInstallHooks() - defined in dmtcp/src/dmtcpaware.c */ 
+/* DMTCP jobs to run pre, post, and restart. Arguments for dmtcpInstallHooks() - defined in dmtcp/src/dmtcpaware.c */
 void dmtcp_pre_checkpoint() ;
 void dmtcp_post_checkpoint() ;
 void dmtcp_restart() ;

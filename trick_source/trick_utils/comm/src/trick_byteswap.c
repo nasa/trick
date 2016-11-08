@@ -1,6 +1,6 @@
 
-/* 
-   PURPOSE: (Routines for swapping byte order.  Borrowed from ISP.) 
+/*
+   PURPOSE: (Routines for swapping byte order.  Borrowed from ISP.)
 
    REFERENCE: ((None))
 

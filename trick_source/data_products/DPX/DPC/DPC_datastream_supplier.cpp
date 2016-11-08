@@ -5,7 +5,7 @@
 
 // CONSTRUCTOR
 DPC_datastream_supplier::DPC_datastream_supplier( DPM_product *Product ) {
-  
+
     product = Product;
     data_stream_factory = new DataStreamFactory();
 }
@@ -28,7 +28,7 @@ DataStream *DPC_datastream_supplier::getDataStream( const char *VarName,
 
     DataStream *ds = NULL;
     DataStream *tds = NULL;
-    DataStream *utds = NULL;  
+    DataStream *utds = NULL;
 
     const char *run_dir  = Run->getDir() ;
     const char *timename = Run->getTimeName() ;
@@ -49,20 +49,20 @@ DataStream *DPC_datastream_supplier::getDataStream( const char *VarName,
 
             n_inputs  = extfn->NumberOfInputs();
             n_outputs = extfn->NumberOfOutputs();
-      
+
             instreams = (DataStream**)calloc( sizeof( DataStream*), (size_t)n_inputs );
-      
+
             for (input_ix =0 ; input_ix < n_inputs ; input_ix++) {
                 instreams[input_ix] =
                     data_stream_factory->create( run_dir,
                                                  extfn->getInputVar( input_ix),
-                                                 timename ); 
-            } 
+                                                 timename );
+            }
 
             ds = data_stream_factory->create( extfn->getFName(), n_inputs, instreams, n_outputs, output_index);
         }
     }
-  
+
     if (ds == NULL) {
         ds = data_stream_factory->create( run_dir, VarName, timename);
     }
@@ -88,10 +88,10 @@ DataStream *DPC_datastream_supplier::getDataStream( const char *VarName,
 						    const char *Machine,
 						    const unsigned short Port,
 						    DPM_time_constraints* in_time_constraints ) {
-  
+
     DataStream *ds = NULL;
     DataStream *tds = NULL;
-    DataStream *utds = NULL;  
+    DataStream *utds = NULL;
 
     ds = data_stream_factory->create( Machine, Port , VarName);
 

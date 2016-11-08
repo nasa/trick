@@ -49,12 +49,12 @@ int tc_init_mcast_client(TCDevice * mcast_client_device)
     mcast_client_device->client_id = 0;
     strcpy(mcast_client_device->client_tag, "<empty>");
 
-    /* 
+    /*
        As the values of the TTL field increase, routers will expand the number of hops they will forward a multicast
        packet. To provide meaningful scope control, multicast routers enforce the following "thresholds" on
        forwarding based on the TTL field:
 
-       0 restricted to the same host 1 restricted to the same subnet 32 restricted to the same site 64 restricted to 
+       0 restricted to the same host 1 restricted to the same subnet 32 restricted to the same site 64 restricted to
        the same region 128 restricted to the same continent 255 unrestricted */
     if (setsockopt(mcast_client_device->socket, IPPROTO_IP, IP_MULTICAST_TTL,
                    &mcast_client_device->ttl, (socklen_t) sizeof(mcast_client_device->ttl)) < 0) {

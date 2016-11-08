@@ -13,14 +13,14 @@ int euler123_quat(
     double angle[3],	/* Inout: r  Method=1, 0=ROLL, 1=PITCH, 2=YAW. */
     double quat[4],	/* Inout: r  Method=0, left handed quaternion matrix. */
     int method, 	/*    In: -- 0 = Make quaternion from angles,
-    			             1 = Make angles from quaternion 
+    			             1 = Make angles from quaternion
     			             2 = Make angles from quaternion but use previous
     				     values to prevent singularities. */
     double *prev)	/*   In: r  Previous values of euler angles. */
 {
 
    double haft_angle[3];
-   double mat00, mat01, mat10, mat11, mat20, mat21, mat22; 
+   double mat00, mat01, mat10, mat11, mat20, mat21, mat22;
    double s1;
    double c1;
    double s2;
@@ -32,7 +32,7 @@ int euler123_quat(
    static unsigned short error_flag[5] = {0, 0, 0, 0, 0}; /* Send errors only once */
 
    if (method == 0){
-   
+
        /* Compute sines and cosines of 0.5*eulers */
        V_SCALE(haft_angle, angle, 0.5);
        s1 = sin(haft_angle[0]);
@@ -40,9 +40,9 @@ int euler123_quat(
        s2 = sin(haft_angle[1]);
        c2 = cos(haft_angle[1]);
        s3 = sin(haft_angle[2]);
-       c3 = cos(haft_angle[2]); 
-       
-       quat[0] =  c1*c2*c3 - s1*s2*s3; 
+       c3 = cos(haft_angle[2]);
+
+       quat[0] =  c1*c2*c3 - s1*s2*s3;
        quat[1] = -c1*s2*s3 - s1*c2*c3;
        quat[2] = -c1*s2*c3 + s1*c2*s3;
        quat[3] = -c1*c2*s3 - s1*s2*c3;
@@ -52,7 +52,7 @@ int euler123_quat(
 #define TOLERANCE 1.0e-15
 
        mat20 = 2. * (quat[1] * quat[3] - quat[0] * quat[2]);
-       
+
        /* Within normal range for asin function */
        if (-1.0 <= mat20 && mat20 <= 1.0) {
                angle[1] = asin(mat20);
@@ -79,7 +79,7 @@ int euler123_quat(
         		   error_flag[1]=1;
         	       }
                } else {
-	       
+
                        mat00 = 1. - 2. * (quat[2] * quat[2] + quat[3] * quat[3]);
                        mat10 = 2. * (quat[1] * quat[2] + quat[0] * quat[3]);
                        mat21 = 2. * (quat[2] * quat[3] + quat[0] * quat[1]);
@@ -88,7 +88,7 @@ int euler123_quat(
         	       angle[2] = atan2(-mat10, mat00);
                }
        }
-       /* Out of normal range for asin function, 
+       /* Out of normal range for asin function,
           but within tolerance */
        else if (1.0 < mat20 && mat20 <= (1.0 + TOLERANCE)) {
                mat01 = 2. * (quat[1] * quat[2] - quat[0] * quat[3]);
@@ -113,7 +113,7 @@ int euler123_quat(
         	   error_flag[3]=1;
                }
        }
-       /* Error: Out of normal range and beyond tolerance 
+       /* Error: Out of normal range and beyond tolerance
           for asin function */
        else {
                double zero = 0.0;

@@ -23,14 +23,14 @@ PROGRAMMERS:
 #include "trick/trick_math.h"
 
 int euler213(double angle[3],   /* In:  r  Method=0, 0=PITCH , 1=ROLL , 2=YAW */
-             double mat[3][3],  /* Out: r  Method=0, 
+             double mat[3][3],  /* Out: r  Method=0,
                                            Coordinate tranformation matrix   */
              int method,        /* In: 0 = Make matrix from angles,
                                        1 = Make angles from matrix,
-                                       2 = Make angles from matrix but use 
-                                           previous values to prevent 
+                                       2 = Make angles from matrix but use
+                                           previous values to prevent
                                            singularities */
-             double *prev,      /* In: r   prev[3], Previous values of 
+             double *prev,      /* In: r   prev[3], Previous values of
                                            euler angles */
              char *file,        /* In: file_name of caller of this function */
              int lineno)
@@ -121,7 +121,7 @@ int euler213(double angle[3],   /* In:  r  Method=0, 0=PITCH , 1=ROLL , 2=YAW */
                             error_flag[3]=1;
                         }
                 }
-                /* Error: Out of normal range & beyond tolerance 
+                /* Error: Out of normal range & beyond tolerance
                    for asin func */
                 else {
                         double zero = 0.0;

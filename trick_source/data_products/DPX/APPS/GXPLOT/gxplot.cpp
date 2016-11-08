@@ -71,7 +71,7 @@ int main(int argc, char * argv[] ) {
     //Make a DPM_session parse tree
     try {
         session_parse_tree = new DPM_parse_tree(session_file_name);
-    } 
+    }
     catch (std::invalid_argument) {
         cerr << "ERROR: <session> specification is invalid and un-usable. Quitting." << endl;
         exit(1);
@@ -82,7 +82,7 @@ int main(int argc, char * argv[] ) {
     //Make a DPM_session object
     try {
         session = new DPM_session( NULL, root_node);
-    } 
+    }
     catch (std::invalid_argument) {
         cerr << "ERROR: <session> specification is invalid and un-usable. Quitting." << endl;
         exit(1);
@@ -97,7 +97,7 @@ int main(int argc, char * argv[] ) {
     for (product_ix = 0; product_ix < n_product_files; product_ix++ ) {
 
         DPC_product *product;
-        
+
         char product_file_fullname[1024];
 
         const char *product_file_name = session->product_file_list[product_ix];
@@ -106,7 +106,7 @@ int main(int argc, char * argv[] ) {
         if (file_exists( product_file_name)) {
 
              strcpy(product_file_fullname, product_file_name );
-        } 
+        }
         else {
 
              copy_prefix(product_file_fullname, session_file_name);
@@ -117,7 +117,7 @@ int main(int argc, char * argv[] ) {
         try {
 
             product = new DPC_product( session, product_file_fullname);
-        } 
+        }
         catch  (std::invalid_argument) {
 
             cerr << "ERROR: Unable to create the product specified by file: \"" << product_file_name << "\"" << endl;

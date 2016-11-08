@@ -11,7 +11,7 @@ Trick::MessageCout::MessageCout() {
     name = "cout" ;
 }
 
-void Trick::MessageCout::update( unsigned int level , std::string header , std::string message ) { 
+void Trick::MessageCout::update( unsigned int level , std::string header , std::string message ) {
 
     /** @par Design Details: */
     std::string color_code ;
@@ -39,7 +39,7 @@ void Trick::MessageCout::update( unsigned int level , std::string header , std::
 
     /** @li Prints the received message to the standard output stream. */
     if (enabled && level < 100 ) {
-        
+
         // Building the final string in a temporary stream ensures an automic call to cout, which prevents
         // multithreaded sims from interleaving header and message elements.
         std::ostringstream oss;
@@ -50,5 +50,5 @@ void Trick::MessageCout::update( unsigned int level , std::string header , std::
         }
         std::cout << oss.str() << std::flush;
     }
-} 
+}
 

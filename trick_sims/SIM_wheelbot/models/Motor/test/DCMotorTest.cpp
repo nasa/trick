@@ -3,10 +3,10 @@
 #include "DCMotor.hh"
 
 TEST( MotorModelTest , one ) {
-    // Attempt to create a Motor 
+    // Attempt to create a Motor
    DCMotor * motor;
    motor = new DCMotor(8.0, 7.0);
-   EXPECT_NE( (void*)0, motor); 
+   EXPECT_NE( (void*)0, motor);
    //delete motor;
 }
 
@@ -51,7 +51,7 @@ TEST( MotorModelTest , seven ) {
     double motorVoltage = (16.0);
     motor.update (motorVoltage );
     EXPECT_DOUBLE_EQ( 14.0, motor.motorTorque );
-    
+
 }
 
 TEST( MotorModelTest , eight ) {
@@ -60,7 +60,7 @@ TEST( MotorModelTest , eight ) {
     double motorVoltage = (16.0);
     motor.update (motorVoltage );
     EXPECT_DOUBLE_EQ( 2.0, motor.motorCurrent );
-    
+
 }
 
 TEST( MotorModelTest , nine ) {
@@ -69,7 +69,7 @@ TEST( MotorModelTest , nine ) {
     double motorVoltage = (24.0);
     motor.update (motorVoltage );
     EXPECT_DOUBLE_EQ( 3.0, motor.currentLoad );
-    
+
 }
 
 
@@ -79,5 +79,5 @@ TEST( MotorModelTest , ten ) {
     double motorVoltage = (-24.0);
     motor.update (motorVoltage );
     EXPECT_DOUBLE_EQ( 3.0, motor.currentLoad );
-    
+
 }

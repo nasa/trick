@@ -17,8 +17,8 @@ class ScheduledJobQueueTest : public ::testing::Test {
 
         ScheduledJobQueueTest() {}
         ~ScheduledJobQueueTest() {}
-        virtual void SetUp() {} 
-        virtual void TearDown() {} 
+        virtual void SetUp() {}
+        virtual void TearDown() {}
 
 } ;
 
@@ -30,22 +30,22 @@ TEST_F( ScheduledJobQueueTest , PushJobsbyJobOrder ) {
     EXPECT_EQ( sjq.size() , (unsigned int)0) ;
     EXPECT_TRUE( sjq.empty() ) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_1") ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_1") ;
     job_ptr->sim_object_id = 1 ;
     job_ptr->job_class = 100 ;
     sjq.push(job_ptr) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_2") ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_2") ;
     job_ptr->sim_object_id = 1 ;
     job_ptr->job_class = 100 ;
     sjq.push(job_ptr) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_3") ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_3") ;
     job_ptr->sim_object_id = 1 ;
     job_ptr->job_class = 100 ;
     sjq.push(job_ptr) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_4") ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_4") ;
     job_ptr->sim_object_id = 1 ;
     job_ptr->job_class = 100 ;
     sjq.push(job_ptr) ;
@@ -77,22 +77,22 @@ TEST_F( ScheduledJobQueueTest , PushJobsbySimObjectOrder ) {
 
     EXPECT_EQ( sjq.size() , (unsigned int)0) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_3") ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_3") ;
     job_ptr->sim_object_id = 3 ;
     job_ptr->job_class = 100 ;
     sjq.push(job_ptr) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_4") ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_4") ;
     job_ptr->sim_object_id = 4 ;
     job_ptr->job_class = 100 ;
     sjq.push(job_ptr) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_1") ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_1") ;
     job_ptr->sim_object_id = 1 ;
     job_ptr->job_class = 100 ;
     sjq.push(job_ptr) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_2") ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_2") ;
     job_ptr->sim_object_id = 2 ;
     job_ptr->job_class = 100 ;
     sjq.push(job_ptr) ;
@@ -120,22 +120,22 @@ TEST_F( ScheduledJobQueueTest , PushJobsbyPhaseOrder ) {
 
     EXPECT_EQ( sjq.size() , (unsigned int)0) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_3", "", 3) ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_3", "", 3) ;
     job_ptr->sim_object_id = 1 ;
     job_ptr->job_class = 100 ;
     sjq.push(job_ptr) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_4", "", 4) ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_4", "", 4) ;
     job_ptr->sim_object_id = 1 ;
     job_ptr->job_class = 100 ;
     sjq.push(job_ptr) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_1", "", 1) ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_1", "", 1) ;
     job_ptr->sim_object_id = 1 ;
     job_ptr->job_class = 100 ;
     sjq.push(job_ptr) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_2", "", 2) ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_2", "", 2) ;
     job_ptr->sim_object_id = 1 ;
     job_ptr->job_class = 100 ;
     sjq.push(job_ptr) ;
@@ -163,22 +163,22 @@ TEST_F( ScheduledJobQueueTest , PushJobsbyJobClassOrder ) {
 
     EXPECT_EQ( sjq.size() , (unsigned int)0) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_103", NULL, 1.0 , "job_3", "", 1) ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_103", NULL, 1.0 , "job_3", "", 1) ;
     job_ptr->sim_object_id = 1 ;
     job_ptr->job_class = 103 ;
     sjq.push(job_ptr) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_101", NULL, 1.0 , "job_4", "", 1) ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_101", NULL, 1.0 , "job_4", "", 1) ;
     job_ptr->sim_object_id = 1 ;
     job_ptr->job_class = 104 ;
     sjq.push(job_ptr) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_102", NULL, 1.0 , "job_1", "", 1) ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_102", NULL, 1.0 , "job_1", "", 1) ;
     job_ptr->sim_object_id = 1 ;
     job_ptr->job_class = 101 ;
     sjq.push(job_ptr) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_2", "", 1) ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_2", "", 1) ;
     job_ptr->sim_object_id = 1 ;
     job_ptr->job_class = 102 ;
     sjq.push(job_ptr) ;
@@ -206,22 +206,22 @@ TEST_F( ScheduledJobQueueTest , PushJobsIgnoreSimObject ) {
 
     EXPECT_EQ( sjq.size() , (unsigned int)0) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_103", NULL, 1.0 , "job_1", "", 1) ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_103", NULL, 1.0 , "job_1", "", 1) ;
     job_ptr->sim_object_id = 3 ;
     job_ptr->job_class = 100 ;
     sjq.push_ignore_sim_object(job_ptr) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_101", NULL, 1.0 , "job_2", "", 1) ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_101", NULL, 1.0 , "job_2", "", 1) ;
     job_ptr->sim_object_id = 4 ;
     job_ptr->job_class = 100 ;
     sjq.push_ignore_sim_object(job_ptr) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_102", NULL, 1.0 , "job_3", "", 1) ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_102", NULL, 1.0 , "job_3", "", 1) ;
     job_ptr->sim_object_id = 1 ;
     job_ptr->job_class = 100 ;
     sjq.push_ignore_sim_object(job_ptr) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_4", "", 1) ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_4", "", 1) ;
     job_ptr->sim_object_id = 2 ;
     job_ptr->job_class = 100 ;
     sjq.push_ignore_sim_object(job_ptr) ;
@@ -249,22 +249,22 @@ TEST_F( ScheduledJobQueueTest , TopJob ) {
 
     EXPECT_TRUE( sjq.top() == NULL ) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_1") ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_1") ;
     job_ptr->sim_object_id = 1 ;
     job_ptr->job_class = 100 ;
     sjq.push(job_ptr) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_2") ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_2") ;
     job_ptr->sim_object_id = 1 ;
     job_ptr->job_class = 100 ;
     sjq.push(job_ptr) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_3") ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_3") ;
     job_ptr->sim_object_id = 1 ;
     job_ptr->job_class = 100 ;
     sjq.push(job_ptr) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_4") ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_4") ;
     job_ptr->sim_object_id = 1 ;
     job_ptr->job_class = 100 ;
     sjq.push(job_ptr) ;
@@ -290,28 +290,28 @@ TEST_F( ScheduledJobQueueTest , FindNextJob ) {
     Trick::JobData * job_ptr ;
     long long curr_time ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_1") ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_1") ;
     job_ptr->sim_object_id = 1 ;
     job_ptr->job_class = 100 ;
     job_ptr->cycle_tics = (long long)(job_ptr->cycle * 1000000) ;
     job_ptr->stop_tics = 1000000000 ;
     sjq.push(job_ptr) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 2.0 , "job_2") ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 2.0 , "job_2") ;
     job_ptr->sim_object_id = 1 ;
     job_ptr->job_class = 100 ;
     job_ptr->cycle_tics = (long long)(job_ptr->cycle * 1000000) ;
     job_ptr->stop_tics = 1000000000 ;
     sjq.push(job_ptr) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 4.0 , "job_3") ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 4.0 , "job_3") ;
     job_ptr->sim_object_id = 1 ;
     job_ptr->job_class = 100 ;
     job_ptr->cycle_tics = (long long)(job_ptr->cycle * 1000000) ;
     job_ptr->stop_tics = 1000000000 ;
     sjq.push(job_ptr) ;
 
-    // Time = 0.0 
+    // Time = 0.0
     curr_time = 0 ;
     sjq.reset_curr_index() ;
     sjq.set_next_job_call_time(1000000000) ;
@@ -328,7 +328,7 @@ TEST_F( ScheduledJobQueueTest , FindNextJob ) {
     job_ptr = sjq.find_next_job(curr_time) ;
     EXPECT_TRUE( job_ptr == NULL ) ;
 
-    // Time = 1.0 
+    // Time = 1.0
     curr_time = sjq.get_next_job_call_time() ;
     EXPECT_EQ( curr_time , 1000000 ) ;
     sjq.reset_curr_index() ;
@@ -340,7 +340,7 @@ TEST_F( ScheduledJobQueueTest , FindNextJob ) {
     job_ptr = sjq.find_next_job(curr_time) ;
     EXPECT_TRUE( job_ptr == NULL ) ;
 
-    // Time = 2.0 
+    // Time = 2.0
     curr_time = sjq.get_next_job_call_time() ;
     EXPECT_EQ( curr_time , 2000000 ) ;
     sjq.reset_curr_index() ;
@@ -355,7 +355,7 @@ TEST_F( ScheduledJobQueueTest , FindNextJob ) {
     job_ptr = sjq.find_next_job(curr_time) ;
     EXPECT_TRUE( job_ptr == NULL ) ;
 
-    // Time = 3.0 
+    // Time = 3.0
     curr_time = sjq.get_next_job_call_time() ;
     EXPECT_EQ( curr_time , 3000000 ) ;
     sjq.reset_curr_index() ;
@@ -367,7 +367,7 @@ TEST_F( ScheduledJobQueueTest , FindNextJob ) {
     job_ptr = sjq.find_next_job(curr_time) ;
     EXPECT_TRUE( job_ptr == NULL ) ;
 
-    // Time = 4.0 
+    // Time = 4.0
     curr_time = sjq.get_next_job_call_time() ;
     EXPECT_EQ( curr_time , 4000000 ) ;
     sjq.reset_curr_index() ;
@@ -385,7 +385,7 @@ TEST_F( ScheduledJobQueueTest , FindNextJob ) {
     job_ptr = sjq.find_next_job(curr_time) ;
     EXPECT_TRUE( job_ptr == NULL ) ;
 
-    // Time = 5.0 
+    // Time = 5.0
     curr_time = sjq.get_next_job_call_time() ;
     EXPECT_EQ( curr_time , 5000000 ) ;
     sjq.reset_curr_index() ;
@@ -399,12 +399,12 @@ TEST_F( ScheduledJobQueueTest , FindNextJob ) {
 }
 
 TEST_F( ScheduledJobQueueTest , TestNextJob ) {
-	//req.add_requirement("1758653947 3664773300");	
+	//req.add_requirement("1758653947 3664773300");
 
     Trick::JobData * job_ptr ;
     long long curr_time ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 3.0 , "job_1") ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 3.0 , "job_1") ;
     job_ptr->sim_object_id = 1 ;
     job_ptr->job_class = 100 ;
     job_ptr->cycle_tics = (long long)(job_ptr->cycle * 1000000) ;
@@ -412,7 +412,7 @@ TEST_F( ScheduledJobQueueTest , TestNextJob ) {
     job_ptr->system_job_class = true ;
     sjq.push(job_ptr) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_2") ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_2") ;
     job_ptr->sim_object_id = 1 ;
     job_ptr->job_class = 100 ;
     job_ptr->cycle_tics = (long long)(job_ptr->cycle * 1000000) ;
@@ -420,7 +420,7 @@ TEST_F( ScheduledJobQueueTest , TestNextJob ) {
     job_ptr->system_job_class = true ;
     sjq.push(job_ptr) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 2.0 , "job_3") ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 2.0 , "job_3") ;
     job_ptr->sim_object_id = 1 ;
     job_ptr->job_class = 100 ;
     job_ptr->cycle_tics = (long long)(job_ptr->cycle * 1000000) ;
@@ -428,7 +428,7 @@ TEST_F( ScheduledJobQueueTest , TestNextJob ) {
     job_ptr->system_job_class = true ;
     sjq.push(job_ptr) ;
 
-    // Time = 0.0 
+    // Time = 0.0
     curr_time = 0 ;
     sjq.reset_curr_index() ;
     sjq.set_next_job_call_time(1000000000) ;
@@ -458,7 +458,7 @@ TEST_F( ScheduledJobQueueTest , TestNextJob ) {
     sjq.set_next_job_call_time(1000000000) ;
     EXPECT_EQ( sjq.get_next_job_call_time() , 1000000 ) ;
 
-    // Time = 1.0 
+    // Time = 1.0
     curr_time = sjq.get_next_job_call_time() ;
     EXPECT_EQ( curr_time , 1000000 ) ;
     sjq.reset_curr_index() ;
@@ -473,7 +473,7 @@ TEST_F( ScheduledJobQueueTest , TestNextJob ) {
     job_ptr = sjq.find_next_job(curr_time) ;
     EXPECT_TRUE( job_ptr == NULL ) ;
 
-    // Time = 2.0 
+    // Time = 2.0
     curr_time = sjq.get_next_job_call_time() ;
     EXPECT_EQ( curr_time , 2000000 ) ;
     sjq.reset_curr_index() ;
@@ -494,7 +494,7 @@ TEST_F( ScheduledJobQueueTest , TestNextJob ) {
     job_ptr = sjq.find_next_job(curr_time) ;
     EXPECT_TRUE( job_ptr == NULL ) ;
 
-    // Time = 3.0 
+    // Time = 3.0
     sjq.reset_curr_index() ;
     sjq.set_next_job_call_time(1000000000) ;
     curr_time = sjq.get_next_job_call_time() ;
@@ -521,27 +521,27 @@ TEST_F( ScheduledJobQueueTest , InstrumentBeforeAll ) {
 
     Trick::JobData * job_ptr ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_1") ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_1") ;
     job_ptr->sim_object_id = 1 ;
     job_ptr->job_class = 100 ;
     sjq.push(job_ptr) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_2") ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_2") ;
     job_ptr->sim_object_id = 1 ;
     job_ptr->job_class = 100 ;
     sjq.push(job_ptr) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_3") ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_3") ;
     job_ptr->sim_object_id = 1 ;
     job_ptr->job_class = 100 ;
     sjq.push(job_ptr) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_4") ; 
+    job_ptr = new Trick::JobData(0, 2 , "class_100", NULL, 1.0 , "job_4") ;
     job_ptr->sim_object_id = 1 ;
     job_ptr->job_class = 100 ;
     sjq.push(job_ptr) ;
 
-    job_ptr = new Trick::JobData(0, 2 , "instrumentation", NULL, 1.0 , "instrument_1") ; 
+    job_ptr = new Trick::JobData(0, 2 , "instrumentation", NULL, 1.0 , "instrument_1") ;
     sjq.instrument_before( job_ptr ) ;
 
 }

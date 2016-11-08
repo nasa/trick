@@ -32,6 +32,6 @@ class PointerValue : public Value {
     std::string toString();
 
     private:
-    void* value; 
+    void* value;
 };
 #endif

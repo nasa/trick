@@ -52,7 +52,7 @@ namespace Trick {
       Trick 07 to the current version.  The contents of the file are binary and is not included here.  The HDF5 layout
       of the file follows.
 
-      @verbatim 
+      @verbatim
 GROUP "/" {
     GROUP "header" {
         DATASET "file_names" {
@@ -89,7 +89,7 @@ GROUP "/" {
 
             #ifndef SWIG
             /**
-             @brief DRHDF5 default constructor. 
+             @brief DRHDF5 default constructor.
              */
             DRHDF5() {}
             #endif

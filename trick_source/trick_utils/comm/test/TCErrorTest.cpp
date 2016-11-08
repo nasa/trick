@@ -22,7 +22,7 @@ class TCErrorTest : public testing::Test {
       }
 
       void TearDown(){
-   
+
          free(device);
       }
 };
@@ -32,7 +32,7 @@ TEST_F( TCErrorTest, testNoDevice ) {
    int error_status = tc_error( NULL, 0 );
 
    EXPECT_EQ( error_status, -1 );
-} 
+}
 
 TEST_F( TCErrorTest, testNoErrorHandler ) {
 
@@ -41,7 +41,7 @@ TEST_F( TCErrorTest, testNoErrorHandler ) {
    int error_status = tc_error( device, 0 );
 
    EXPECT_EQ( error_status, 0 );
-} 
+}
 
 TEST_F( TCErrorTest, testOn ) {
 
@@ -49,7 +49,7 @@ TEST_F( TCErrorTest, testOn ) {
 
    EXPECT_EQ( device->error_handler->report_level, TRICK_ERROR_ALL );
    EXPECT_EQ( error_status, 0 );
-} 
+}
 
 TEST_F( TCErrorTest, testOff ) {
 
@@ -57,5 +57,5 @@ TEST_F( TCErrorTest, testOff ) {
 
    EXPECT_EQ( device->error_handler->report_level, TRICK_ERROR_SILENT );
    EXPECT_EQ( error_status, 0 );
-} 
+}
 

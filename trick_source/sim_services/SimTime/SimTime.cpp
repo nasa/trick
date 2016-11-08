@@ -49,39 +49,39 @@ int Trick::SimTime::init_times() {
 }
 
 double Trick::SimTime::get_rettime() {
-    
+
     return(exec_get_sim_time());
 
 }
 
 double Trick::SimTime::get_gmttime() {
-    
+
     return(exec_get_sim_time() + gmt_sec_ref);
 
 }
 
 double Trick::SimTime::get_mettime() {
-    
+
     return(exec_get_sim_time() + met_sec_ref);
 
 }
 
 TIME_OFFSET * Trick::SimTime::get_rettime_struct() {
-    
+
     GET_TIME(ret_time, 0.0);
 
     return(&ret_time) ;
 }
 
 TIME_OFFSET * Trick::SimTime::get_gmttime_struct() {
-    
+
     GET_TIME(gmt_time, gmt_sec_ref);
 
     return(&gmt_time) ;
 }
 
 TIME_OFFSET * Trick::SimTime::get_mettime_struct() {
-    
+
     GET_TIME(met_time, met_sec_ref);
 
     return(&met_time) ;

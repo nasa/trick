@@ -18,7 +18,7 @@ TrickBinary::TrickBinary(char * file_name , char * param_name ) {
         char *name_ptr ;
         char *units_ptr ;
         int len ;
-        int ii ; 
+        int ii ;
         int type ;
         int size ;
         std::map<int, TRICK_TYPE> seven_to_ten_params  ;
@@ -97,7 +97,7 @@ TrickBinary::TrickBinary(char * file_name , char * param_name ) {
                                 // If this is an 05 log file, we need to convert the units to 07 units
                                 // ( where explicit asterisk for multiplication is required. )
                                 if ( !strncmp( file_type , "Trick-05" , 8 ) )  {
-                                        char new_units_spec[100]; 
+                                        char new_units_spec[100];
                                         new_units_spec[0] = 0;
                                         if ( convert_units_spec (units_ptr, new_units_spec) != 0 ) {
                                                 printf (" ERROR: Attempt to convert Trick-05 units spec \"%s\" failed.\n\n",units_ptr);
@@ -397,7 +397,7 @@ int TrickBinaryReadByteOrder( FILE* fp ) {
         return swap ;
 }
 
-int TrickBinaryGetNumVariables(const char* file_name) { 
+int TrickBinaryGetNumVariables(const char* file_name) {
 
         int num_params ;
         FILE *fp ;
@@ -416,13 +416,13 @@ int TrickBinaryGetNumVariables(const char* file_name) {
         return num_params ;
 }
 
-char** TrickBinaryGetVariableNames(const char* file_name) { 
+char** TrickBinaryGetVariableNames(const char* file_name) {
 
         int swap ;
         char *name_ptr ;
         char *units_ptr ;
         int len ;
-        int ii ; 
+        int ii ;
         int type ;
         int size ;
         int num_params ;
@@ -483,13 +483,13 @@ char** TrickBinaryGetVariableNames(const char* file_name) {
         return( variable_names ) ;
 }
 
-char** TrickBinaryGetVariableUnits(const char* file_name) { 
+char** TrickBinaryGetVariableUnits(const char* file_name) {
 
         int swap ;
         char *name_ptr ;
         char *units_ptr ;
         int len ;
-        int ii ; 
+        int ii ;
         int type ;
         int size ;
         int num_params ;
@@ -557,7 +557,7 @@ int TrickBinaryLocateParam( const char * file_name , const char * param_name ) {
         int ii ;
         char** var_names ;
 
-        num_vars = TrickBinaryGetNumVariables( file_name) ; 
+        num_vars = TrickBinaryGetNumVariables( file_name) ;
         if ( num_vars == 0 ) {
                 return 0 ;
         }
@@ -578,6 +578,6 @@ int TrickBinaryLocateParam( const char * file_name , const char * param_name ) {
         for ( ii = 0 ; ii < num_vars ; ii++ ) {
                 delete[] var_names[ii] ;
         }
-         
+
         return(found) ;
 }

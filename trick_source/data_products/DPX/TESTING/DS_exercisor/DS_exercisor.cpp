@@ -30,7 +30,7 @@ int DS_exercisor::run() {
       cout << "t -> getTimeUnit" << endl;
       cout << "b -> begin"       << endl;
       cout << "e -> end"         << endl;
-      cout << "s -> step"        << endl;    
+      cout << "s -> step"        << endl;
       cout << "================" << endl;
     } break;
     case '!' : {
@@ -46,7 +46,7 @@ int DS_exercisor::run() {
     } break;
     case 'p' : {
       ret = testds->peek(&time, &value);
-      cout << "peek:" << "time = " << time  << "     " << "value= " << value << endl;    
+      cout << "peek:" << "time = " << time  << "     " << "value= " << value << endl;
       cout << "     " << "ret= " << ret << endl;
     } break;
     case 'f' : {
@@ -55,11 +55,11 @@ int DS_exercisor::run() {
     } break;
     case 'u' : {
       unitspec = testds->getUnit();
-      cout << "getUnit:" << "unitspec= " << "\"" << unitspec << "\"" << endl;    
+      cout << "getUnit:" << "unitspec= " << "\"" << unitspec << "\"" << endl;
     } break;
     case 't' : {
       timeunitspec = testds->getTimeUnit();
-      cout << "getTimeUnit:" << "timeunitspec= " << "\"" << timeunitspec << "\"" << endl;        
+      cout << "getTimeUnit:" << "timeunitspec= " << "\"" << timeunitspec << "\"" << endl;
     } break;
     case 'b' : {
       testds->begin();

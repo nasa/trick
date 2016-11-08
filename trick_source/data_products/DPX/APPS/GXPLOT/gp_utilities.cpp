@@ -52,7 +52,7 @@ int filterPostScriptColor( const char *psName, GPViewPageNode* gp_view_page_node
     string directive;
     string page_fg_color = "";
     string page_bg_color = "";
-    int i; 
+    int i;
     int total_num_curves = 0 ;
     string next_lt ;
     string new_buf_ptr ;

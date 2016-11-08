@@ -63,7 +63,7 @@ DPC_product::DPC_product( DPM_session          *Session,
     const char* session_mode = Session->AttributeValue("mode");
 
     if ((session_mode == NULL) || (strcasecmp( session_mode, "plot") == 0)) {
- 
+
         // ###############################################################
         // Create subordinate pages.
         // ###############################################################

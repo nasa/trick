@@ -38,13 +38,13 @@ TEST(NavigatorTest, distanceTo_three) {
 
 TEST(NavigatorTest, convertMapToPlatform_one)
 {
-  //Tests if the mapPoint gets converted to platform correctly 
+  //Tests if the mapPoint gets converted to platform correctly
   Point location(5,4);
-  Navigator navigator(PI/6, location);  
-  Point mapPoint(6,9);  
+  Navigator navigator(PI/6, location);
+  Point mapPoint(6,9);
   Point platformPoint;
   platformPoint = navigator.convertMapToPlatform(mapPoint);
-  
+
   EXPECT_EQ(platformPoint.x, 1);
   EXPECT_EQ(platformPoint.y, 5);
 }
@@ -111,23 +111,23 @@ TEST(NavigatorTest, convertPlatformToMap_one)
 {
   //Tests if Platform points get converted to mapPoints correctly
   Point location(-8,-9);
-  Navigator navigator(PI/6, location);    
-  Point platformPoint(11,4);  
+  Navigator navigator(PI/6, location);
+  Point platformPoint(11,4);
   Point mapPoint;
   mapPoint = navigator.convertPlatformToMap(platformPoint);
-  
+
   EXPECT_EQ (mapPoint.x, 3);
-  EXPECT_EQ (mapPoint.y, -5);  
+  EXPECT_EQ (mapPoint.y, -5);
 }
 
 TEST(NavigatorTest, bearingTo_one)
 {
   Point location(0,0);
-  Navigator navigator(PI/6, location);      
-  Point mapPoint(3,0);   
+  Navigator navigator(PI/6, location);
+  Point mapPoint(3,0);
   double bearing;
   bearing = navigator.bearingTo(mapPoint);
-  
+
   EXPECT_NEAR (bearing, (-PI/6), FP_TOLERANCE);
 }
 
@@ -138,6 +138,6 @@ TEST(NavigatorTest, bearingTo_two)
   Point mapPoint(20,20);
   double bearing;
   bearing = navigator.bearingTo(mapPoint);
-  std::cout << "bearing = " << bearing << std::endl; 
+  std::cout << "bearing = " << bearing << std::endl;
   EXPECT_NEAR (bearing, (-PI/6), FP_TOLERANCE);
 }

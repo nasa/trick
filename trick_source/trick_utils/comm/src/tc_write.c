@@ -116,8 +116,8 @@ int tc_write_(TCDevice * device, char *buffer, int size, const char *file, int l
         }
     }
 
-    /* 
-     * If write didn't write all bytes, handle it 
+    /*
+     * If write didn't write all bytes, handle it
      */
     switch (error) {
         case TC_READWRITE_TIMEOUT:

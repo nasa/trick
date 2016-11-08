@@ -228,7 +228,7 @@ namespace Trick {
 
             /**
              Test whether the given variable_name is in use .
-             @return 0 = FALSE, 1 = TRUE. 
+             @return 0 = FALSE, 1 = TRUE.
              */
             int var_exists(std::string var_name);
 
@@ -334,35 +334,35 @@ namespace Trick {
 
             /**
              Checkpoint all allocations known to the MemoryManager to a file.
-             @param filename 
+             @param filename
              */
             void write_checkpoint( const char* filename);
 
             /**
              Checkpoint the named variable (allocation) and it dependencies to the given stream.
              @param out_s output stream.
-             @param var_name 
+             @param var_name
              */
             void write_checkpoint( std::ostream& out_s, const char* var_name);
 
             /**
              Checkpoint the named variable (allocation) and it dependencies to a file.
-             @param filename 
-             @param var_name 
+             @param filename
+             @param var_name
              */
             void write_checkpoint( const char* filename, const char* var_name);
 
             /**
              Checkpoint the named variables and their dependencies to a stream.
              @param out_s output stream.
-             @param var_name_list 
+             @param var_name_list
              */
             void write_checkpoint( std::ostream& out_s, std::vector<const char*>& var_name_list);
 
             /**
              Checkpoint the named variables and their dependencies to a file.
-             @param filename 
-             @param var_name_list 
+             @param filename
+             @param var_name_list
              */
             void write_checkpoint( const char* filename, std::vector<const char*>& var_name_list);
 
@@ -409,7 +409,7 @@ namespace Trick {
              (child) ATTRIBUTES to the attr field of the given (parent) ATTRIBUTES structure.
              @param type_name - user defined type name.
              @param attr      - pointer to parent attributes structure.
-             @return 0 on success, otherwise failure. 
+             @return 0 on success, otherwise failure.
              */
             int add_attr_info(const std::string& type_name , ATTRIBUTES* attr , const char * file_name = "None" , unsigned int line_num = 0 ) ;
 
@@ -417,7 +417,7 @@ namespace Trick {
              Adds a template name translation to our map.  The base template type is mangled to the io_src name
              @param template_name - base template type name
              @param attr_name - mangled attribute name
-             @return 0 on success, otherwise failure. 
+             @return 0 on success, otherwise failure.
              */
             int add_template_name_trans(std::string template_name , std::string attr_name) ;
 
@@ -520,12 +520,12 @@ namespace Trick {
             int get_enumerated(const char* name, V_DATA* v_data);
 
             /**
-             Return the number of array elements in the allocation. 
+             Return the number of array elements in the allocation.
              @param ptr address.
              */
             int get_size(void *addr);
 
-            /** 
+            /**
              Return the number of array elements in the allocation following ptr.
              @param ptr - pointer.
              */
@@ -732,8 +732,8 @@ namespace Trick {
             /**
              Assign the value(s) in v_tree to the variable at the given address.
              The object at the address may be a singleton or an array of up to
-             eight dimensions. If v_tree is NULL, then assign nil values. 
-            
+             eight dimensions. If v_tree is NULL, then assign nil values.
+
              @param base_addr - Base address of the variable in which data is being assigned.
              @param attr - Attributes of the variable.
              @param curr_dim - The dimension of interest in the variable.

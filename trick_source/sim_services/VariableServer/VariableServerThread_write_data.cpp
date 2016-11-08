@@ -126,7 +126,7 @@ int Trick::VariableServerThread::write_binary_data( int Start, char *buf1, int P
                         // TRICK_NUMBER_OF_TYPES is an error case
                         temp_i = 0 ;
                         memcpy(&buf1[offset] , &temp_i , (size_t)size) ;
-                    break ; 
+                    break ;
                     default:
                         memcpy(&buf1[offset] , address , (size_t)size) ;
                     break ;

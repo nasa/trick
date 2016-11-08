@@ -35,7 +35,7 @@ namespace Trick {
             void dmtcpSystemCmd( const std::string& str );
             void dmtcpCleanup();
             void dmtcpSafestoreDir();
-            void dmtcpRenameCmd();            
+            void dmtcpRenameCmd();
 
             bool isSpecialCharacter( const std::string& str );
 

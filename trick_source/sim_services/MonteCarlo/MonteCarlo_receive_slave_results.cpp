@@ -25,11 +25,11 @@ void Trick::MonteCarlo::receive_slave_results() {
     }
     /**
      * <li> If the slave is in the INITIALIZING state, it will send us the
-     * machine name and port over which it is listening for new runs. 
+     * machine name and port over which it is listening for new runs.
      */
     if (curr_slave->state == MonteSlave::INITIALIZING) {
         if (verbosity >= ALL) {
-            message_publish(MSG_INFO, "Monte [Master] Receiving initialization information from %s:%d.\n", 
+            message_publish(MSG_INFO, "Monte [Master] Receiving initialization information from %s:%d.\n",
                             curr_slave->machine_name.c_str(), curr_slave->id) ;
         }
         read_machine_name(curr_slave) ;
@@ -45,7 +45,7 @@ void Trick::MonteCarlo::receive_slave_results() {
         exit_status = ntohl(exit_status);
         tc_disconnect(&connection_device);
         /**
-         * <ul><li> This run may have already been resolved by another curr_slave if 
+         * <ul><li> This run may have already been resolved by another curr_slave if
          * this curr_slave was marked as having timed out. If that is the case,
          * discard these results.
          */
@@ -57,8 +57,8 @@ void Trick::MonteCarlo::receive_slave_results() {
         /** <li> Otherwise, check the exit status: */
         } else {
             switch (exit_status) {
-                /** <ul><li> Unkown errors, core dumps, and 
-                  * successfully completed runs are not redispatched. 
+                /** <ul><li> Unkown errors, core dumps, and
+                  * successfully completed runs are not redispatched.
                   */
                 default:
                     if (verbosity >= ERROR) {
@@ -79,17 +79,17 @@ void Trick::MonteCarlo::receive_slave_results() {
                     if (verbosity >= ERROR) {
                         message_publish(MSG_ERROR, "Monte [Master] %s:%d reported core dump for run %d. Skipping.\n",
                                         curr_slave->machine_name.c_str(), curr_slave->id, curr_slave->current_run->id) ;
-                    } 
+                    }
                     resolve_run(curr_slave, MonteRun::CORED);
                 break;
                 case MonteRun::COMPLETE:
                     resolve_run(curr_slave, MonteRun::COMPLETE);
                 break;
                 /**
-                 * <li> Timeouts and permission errors are redispatched. However, 
+                 * <li> Timeouts and permission errors are redispatched. However,
                  * we must first check to see if this run has already been processed
                  * in #check_timeouts, which can occur when the master determines
-                 * that a curr_slave has timed out, and then that curr_slave itself reports 
+                 * that a curr_slave has timed out, and then that curr_slave itself reports
                  * a timeout or permission error. </ul>
                  */
                 case MonteRun::TIMEDOUT:
@@ -98,7 +98,7 @@ void Trick::MonteCarlo::receive_slave_results() {
                                         curr_slave->machine_name.c_str(), curr_slave->id, curr_slave->current_run->id) ;
                     }
                     if (!(curr_slave->state == MonteSlave::UNRESPONSIVE_RUNNING ||
-                          curr_slave->state == MonteSlave::UNRESPONSIVE_STOPPING)) 
+                          curr_slave->state == MonteSlave::UNRESPONSIVE_STOPPING))
                     {
                         handle_retry(curr_slave, MonteRun::TIMEDOUT);
                     }
@@ -109,7 +109,7 @@ void Trick::MonteCarlo::receive_slave_results() {
                                         curr_slave->machine_name.c_str(), curr_slave->id, curr_slave->current_run->id) ;
                     }
                     if (!(curr_slave->state == MonteSlave::UNRESPONSIVE_RUNNING ||
-                          curr_slave->state == MonteSlave::UNRESPONSIVE_STOPPING)) 
+                          curr_slave->state == MonteSlave::UNRESPONSIVE_STOPPING))
                     {
                         handle_retry(curr_slave, MonteRun::NO_PERM);
                     }
@@ -142,7 +142,7 @@ void Trick::MonteCarlo::read_machine_name(Trick::MonteSlave *curr_slave) {
 
     tc_read(&connection_device, (char *)&num_bytes, (int)sizeof(num_bytes));
     num_bytes = ntohl(num_bytes) ;
-    if (tc_read(&connection_device, slave_name, num_bytes) == num_bytes ) { 
+    if (tc_read(&connection_device, slave_name, num_bytes) == num_bytes ) {
         curr_slave->state = MonteSlave::READY;
         slave_name[num_bytes] = '\0';
         curr_slave->machine_name = std::string(slave_name);

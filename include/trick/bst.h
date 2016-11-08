@@ -6,7 +6,7 @@
 
 #define RIGHTLEAF 1   /* get right inner leaf in delete */
 #define LEFTLEAF 0    /* get left inner leaf in delete */
- 
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,7 +47,7 @@ bstNode *bstGetParent(bstNode *node);            /* get the parent node of a nod
 void *bstDelete(bstNode *node,BST *bst);         /* delete a node from the tree */
 void bstDeleteNodes (BST * bst, bstNode * node);
 int bstGetCount(BST *bst);                       /* get the number of nodes in the tree */
-bstNode* bstInsert(void *info,BST *bst);         /* insert a new node into the tree */  
+bstNode* bstInsert(void *info,BST *bst);         /* insert a new node into the tree */
 void bstPrintAscending(FILE *output, BST *bst);  /* print the nodes in ascending order */
 void bstPrintDescending(FILE *output, BST *bst); /* print the nodes in descending order */
 void bstInit(BST *bst);                          /* intialize the BST structure */

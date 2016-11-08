@@ -31,7 +31,7 @@ static struct {
     {TRICK_WSTRING,              "TRICK_WSTRING"},
     {TRICK_VOID_PTR,             "TRICK_VOID_PTR"},
     {TRICK_ENUMERATED,           "TRICK_ENUMERATED"},
-    {TRICK_STRUCTURED,           "TRICK_STRUCTURED"} 
+    {TRICK_STRUCTURED,           "TRICK_STRUCTURED"}
 };
 
 #define N_PAIRS (sizeof(trick_type_name_map)/sizeof(trick_type_name_map[0]))

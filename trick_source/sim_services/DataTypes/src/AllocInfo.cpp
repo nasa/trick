@@ -15,7 +15,7 @@ const std::string AllocInfo::localPrefix = "trick_local_";
 const std::string AllocInfo::externPrefix = "trick_extern_";
 unsigned int AllocInfo::nextSerialNumber = 0;
 
-// PRIVATE MEMBER FUNCTION 
+// PRIVATE MEMBER FUNCTION
 void AllocInfo::initialize( const std::string& varName,
                             const std::string& typeSpecName,
                             unsigned int       dimsCount,

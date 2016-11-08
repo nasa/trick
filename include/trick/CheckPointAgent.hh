@@ -21,11 +21,11 @@ namespace Trick {
     typedef struct {
         VarNameElementType type;
         int index;
-        std::string name; 
+        std::string name;
     } VarNameElement;
 
 /**
- Base Class for dumping a checkpoint. 
+ Base Class for dumping a checkpoint.
  */
     class CheckPointAgent {
 
@@ -60,7 +60,7 @@ namespace Trick {
          Push struct element name onto the left-side name stack.
          */
         virtual void push_struct_elem( const char* name) ;
-    
+
         /**
          Push array element index onto the left-side name stack.
          */
@@ -76,8 +76,8 @@ namespace Trick {
          object to the name on the left-side stack.
          */
         virtual void assign_rvalue( std::ostream& chkpnt_os,
-                                    void*       address, 
-                                    ATTRIBUTES* attr, 
+                                    void*       address,
+                                    ATTRIBUTES* attr,
                                     int         curr_dim,
                                     int         offset
                                     )=0;

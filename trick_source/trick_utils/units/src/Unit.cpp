@@ -73,9 +73,9 @@ UCFn *Unit::Conversion_to (const char *in_units_name) {
     if ((other = new Unit(in_units_name))==NULL) {
         throw CONVERSION_ERROR();
     }
-     
+
     ucf = this->Conversion_to(other);
-     
+
     delete other;
     return ucf;
 }

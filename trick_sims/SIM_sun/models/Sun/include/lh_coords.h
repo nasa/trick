@@ -10,7 +10,7 @@ void equatorial_to_local_horiz(double lat,   /* Observer's latitude       IN */
                                double ra,    /* Right Ascension (degrees) IN */
                                double decl,  /* Declination (degrees)     IN */
                                double *az,   /* Azimuth (degrees)         OUT */
-                               double *el) ; /* Elevation (degrees)       OUT */ 
+                               double *el) ; /* Elevation (degrees)       OUT */
 
 #ifdef __cplusplus
 }

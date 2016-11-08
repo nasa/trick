@@ -14,7 +14,7 @@
 
 #include "trick/MonteVar.hh"
 
-// This block of code disowns the pointer on the python side so you can reassign 
+// This block of code disowns the pointer on the python side so you can reassign
 // python variables without freeing the C++ class underneath
 #ifdef SWIG
 %feature("compactdefaultargs","0") ;
@@ -23,7 +23,7 @@
         this = $action(*args)
         try: self.this.append(this)
         except: self.this = this
-        this.own(0) 
+        this.own(0)
         self.this.own(0)
 %}
 #endif
@@ -90,7 +90,7 @@ namespace Trick {
         /** Destructor. */
         virtual ~MonteVarFile();
         /**
-         * Sets the file name 
+         * Sets the file name
          *
          * @param in_file_name the name of the file containing this variable's values
          */

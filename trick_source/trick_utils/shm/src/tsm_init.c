@@ -24,7 +24,7 @@ key_t my_ftok(const char* path, int proj_id) {
     // where p= proj_id, d=device, i=inode
     //return ((key_t)( (proj_id<<24) + (long)(st.st_dev<<16) + (long)(st.st_ino & 0xFFFF) ));
     // however, the device (st_dev) is not necessarily the same from machine to machine
-    // which means if you run a checkpointed sim on a different machine, the shared memory 
+    // which means if you run a checkpointed sim on a different machine, the shared memory
     // keys would be different and therefore would not work.
     // So we will do our own key generation using st_size instead of st_dev:
     size_8bit = st.st_size;
@@ -97,7 +97,7 @@ int tsm_init(TSMDevice * shm_device)
         // initialize the lock
         pthread_rwlock_init(shm_device->rwlock_addr, &shm_device->rwlattr);
     }
-    
+
     fprintf(stderr, "Trick shared memory %d init Successful (shmid=%d)\n", proj_id, shm_device->shmid);
 
     proj_id++;

@@ -10,13 +10,13 @@
 
 /**
  * @par Detailed Design:
- * This function is responsible for actually issuing the system call that 
+ * This function is responsible for actually issuing the system call that
  * will create the slave simulations on the appropriate machines.
  */
 void Trick::MonteCarlo::spawn_slaves() {
     /** <ul><li> For all slaves: */
     for (std::vector<MonteSlave *>::size_type i = 0; i < slaves.size(); ++i) {
-        /** <ul><li> If the slave is in the UNINITIALZED state, then 
+        /** <ul><li> If the slave is in the UNINITIALZED state, then
           * set up the command string for starting the slave.
           */
         if (slaves[i]->state == MonteSlave::UNINITIALIZED) {
@@ -86,8 +86,8 @@ void Trick::MonteCarlo::default_slave_dispatch_pre_text(Trick::MonteSlave* slave
                 if (slave_to_init->user_remote_shell.empty()) {
                     slave_to_init->user_remote_shell = unix_ssh;
                     if (verbosity >= ERROR) {
-                        message_publish(MSG_WARNING, "Monte: TRICK_USER_REMOTE_SH specified for Slave %s:%d, but no shell given.\n" 
-                                                     "Defaulting to %s.\n", 
+                        message_publish(MSG_WARNING, "Monte: TRICK_USER_REMOTE_SH specified for Slave %s:%d, but no shell given.\n"
+                                                     "Defaulting to %s.\n",
                                         machine_name.c_str(), slave_to_init->id, slave_to_init->user_remote_shell.c_str()) ;
                     }
                 }
@@ -101,8 +101,8 @@ void Trick::MonteCarlo::default_slave_dispatch_pre_text(Trick::MonteSlave* slave
         buffer += " " + slave_to_init->remote_shell_args + " " + slave_to_init->machine_name + " '";
     }
 
-    /** <li> Add the user command string to allow passing 
-     * of environment variables and such to the slave. 
+    /** <li> Add the user command string to allow passing
+     * of environment variables and such to the slave.
      */
     if (!user_cmd_string.empty()) {
         buffer += user_cmd_string + "; ";

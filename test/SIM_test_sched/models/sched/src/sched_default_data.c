@@ -11,7 +11,7 @@ PROGRAMMERS:                 ((vetter) (Tue Aug 26 13:22:44 CDT 2003))
 
 /* RETURN: -- Always return zero */
 /* INOUT:  -- Parameter */
-int sched_default_data(SCHEDULE *S) 
+int sched_default_data(SCHEDULE *S)
 {
 #define BIG_TGO 10000
 #define No 0
@@ -35,5 +35,5 @@ int sched_default_data(SCHEDULE *S)
     S->rf.error_tol  = 1.0e-6 ;
     S->rf.mode       = Increasing ;
 
-    return(0) ; 
+    return(0) ;
 }

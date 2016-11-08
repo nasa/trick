@@ -23,7 +23,7 @@ int Trick::MemoryManager::var_exists( std::string var_name) {
     if (variable_pos != variable_map.end()) {
         pthread_mutex_unlock(&mm_mutex);
         return (1);
-    } 
+    }
     pthread_mutex_unlock(&mm_mutex);
     return (0);
 }

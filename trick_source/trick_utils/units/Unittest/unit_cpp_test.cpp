@@ -16,7 +16,7 @@ int pretty_close (double a, double b) {
 
      if ( fabs(a + b) > TOLERANCE ) {
 	  if ( ( ( 2.0 * fabs(a-b)) / fabs(a+b)) > TOLERANCE )  {
-	       return 0;    
+	       return 0;
 	  }
      }
      return close;
@@ -25,7 +25,7 @@ int pretty_close (double a, double b) {
 
 void validate_conv_fn (Unit *u1, Unit *u2, double c1, double c0) {
      UCFn *cf;
-     
+
      test_number ++;
      cout << "TEST " << test_number << ":" << endl;
      cout << "expecting {" << c1 << "," << c0 << "}" << endl;
@@ -46,11 +46,11 @@ void validate_conv_fn (Unit *u1, Unit *u2, double c1, double c0) {
 
 void test_conversion ( Unit *u1, Unit *u2) {
      UCFn *cf;
-     
+
      test_number ++;
      try {
 	  cout << "TEST " << test_number << ":" << endl;
-	  cout << "Try " << u1 << " to " << u2 << endl; 
+	  cout << "Try " << u1 << " to " << u2 << endl;
 	  cf  = u1->Conversion_to(u2);
 	  cout << "Conversion function: " << cf << endl;
 	  delete cf;
@@ -63,11 +63,11 @@ void test_conversion ( Unit *u1, Unit *u2) {
 
 void test_conversion_exception ( Unit *u1, Unit *u2) {
      UCFn *cf;
-     
+
      test_number ++;
      try {
 	  cout << "TEST " << test_number << ":" << endl;
-	  cout << "Try " << u1 << " to " << u2 << " (We expect an exception)" << endl; 
+	  cout << "Try " << u1 << " to " << u2 << " (We expect an exception)" << endl;
 	  cf  = u1->Conversion_to(u2);
 	  cout << "Conversion function: " << cf << endl;
 	  delete cf;
@@ -75,7 +75,7 @@ void test_conversion_exception ( Unit *u1, Unit *u2) {
          n_failures++ ;
      } catch (Unit::CONVERSION_ERROR) {
 	  cout << "RESULT: PASS." << endl << endl;
-     }     
+     }
 }
 
 void test_unit_creation (const char *u_str) {
@@ -92,7 +92,7 @@ void test_unit_creation (const char *u_str) {
      } catch (Unit::CONVERSION_ERROR) {
 	  cout << "RESULT: FAIL." << endl << endl;
          n_failures++ ;
-     }     
+     }
 }
 
 void test_unit_exception (const char *u_str) {
@@ -109,7 +109,7 @@ void test_unit_exception (const char *u_str) {
          n_failures++ ;
      } catch (Unit::CONVERSION_ERROR) {
 	  cout << "RESULT: PASS." << endl << endl;
-     }     
+     }
 }
 
 
@@ -127,7 +127,7 @@ cout << "=======================================================================
 	  Unit *Day     = new Unit("day");
 
 	  validate_conv_fn (Second ,Second,                            1.0, 0.0 );
-	  validate_conv_fn (Second ,Minute,                     (1.0/60.0), 0.0 );       
+	  validate_conv_fn (Second ,Minute,                     (1.0/60.0), 0.0 );
 	  validate_conv_fn (Second ,Hour,                (1.0/(60.0*60.0)), 0.0 );
 	  validate_conv_fn (Second ,Day,            (1.0/(60.0*60.0*24.0)), 0.0 );
 
@@ -148,7 +148,7 @@ cout << "=======================================================================
 	  Unit *Mile           = new Unit("mi");
 	  Unit *Nautical_Mile  = new Unit("n.m.");
 	  Unit *Kilofoot       = new Unit("kft");
-     
+
 	  validate_conv_fn (Meter ,Meter,                                1.0, 0.0 );
 	  validate_conv_fn (Meter ,Foot,                             3.28084, 0.0 );
 	  validate_conv_fn (Meter ,Inch,                             39.3701, 0.0 );
@@ -164,7 +164,7 @@ cout << "=======================================================================
 	  validate_conv_fn (Yard ,Foot,                                   3.0, 0.0);
 	  validate_conv_fn (Yard ,Inch,                                  36.0, 0.0);
 	  validate_conv_fn (Mile ,Foot,                                5280.0, 0.0);
-	  validate_conv_fn (Nautical_Mile ,Foot,                   6076.11549, 0.0);     
+	  validate_conv_fn (Nautical_Mile ,Foot,                   6076.11549, 0.0);
 	  validate_conv_fn (Kilofoot ,Foot,                            1000.0, 0.0);
 
      }
@@ -200,7 +200,7 @@ cout << "=======================================================================
 	  Unit *PoundMass     = new Unit("lbm");
 	  Unit *Gram          = new Unit("g");
 	  Unit *MetricTon     = new Unit("mt");
-	
+
 	  validate_conv_fn (Kilogram, Kilogram,                           1.0, 0.0);
 	  validate_conv_fn (Kilogram, Slug,                   (1.0/14.593902), 0.0);
 	  validate_conv_fn (Kilogram, PoundMass,                   2.20462262, 0.0);
@@ -279,7 +279,7 @@ cout << "=======================================================================
 	  cout << "new Unit = " << Deg_Fahrenheit << endl;
 	  Unit *Deg_Rankine    = new Unit("R");
 	  cout << "new Unit = " << Deg_Rankine << endl << endl;
-	  
+
 	  test_conversion (Deg_Celsius ,Deg_Kelvin );
 	  test_conversion (Deg_Celsius ,Deg_Fahrenheit );
 	  test_conversion (Deg_Celsius ,Deg_Rankine );
@@ -289,7 +289,7 @@ cout << "=======================================================================
 	  test_conversion (Deg_Rankine ,Deg_Celsius );
 	  test_conversion (Deg_Rankine ,Deg_Kelvin );
 	  test_conversion (Deg_Rankine ,Deg_Fahrenheit );
-	  
+
 	  cout << "TEST " << test_number << ":  0 Celsius" << endl;
 	  test_number ++;
 	  C_val = 0.0;
@@ -337,7 +337,7 @@ cout << "=======================================================================
 	  R_val = Deg_Celsius->Convert_to(C_val, "R");
 	  cout << C_val << "C = " << F_val << "F = " << K_val << "K = " << R_val << "R" << endl;
 	  cout << endl;
-	  
+
 	  cout << "TEST " << test_number << ": 310.0 Kelvin" << endl;
 	  test_number ++;
 	  K_val = 310.0;
@@ -364,42 +364,42 @@ cout << "=======================================================================
 	  F_val = Deg_Rankine->Convert_to(R_val, "F");
 	  cout << C_val << "C = " << F_val << "F = " << K_val << "K = " << R_val << "R" << endl;
 	  cout << endl;
-	    
+
 	  delete Deg_Celsius;
 	  delete Deg_Kelvin;
 	  delete Deg_Fahrenheit;
 	  delete Deg_Rankine;
      }
-     
+
      cout << endl << "INVERSES:" << endl;
      {
 	  Unit *Seconds = new Unit ("1/s");
 	  cout << "new Unit = " << Seconds << endl;
 	  Unit *Minutes = new Unit ("1/min");
 	  cout << "new Unit = " << Minutes << endl << endl;
-	  
+
 	  test_conversion (Seconds ,Minutes );
 	  test_conversion (Minutes ,Seconds );
-	  
+
 	  delete Seconds;
 	  delete Minutes;
      }
-     
+
      cout << endl << "PRODUCTS CONTAINING A TEMPERATURE PRIMITIVE:" << endl;
      {
 	  Unit *Celsius_seconds = new Unit ("C*s");
 	  cout << "new Unit = " << Celsius_seconds << endl;
 	  Unit *Fahrenheit_minutes = new Unit ("F*min");
 	  cout << "new Unit = " << Fahrenheit_minutes << endl << endl;
-	  
+
 	  test_conversion (Celsius_seconds ,Fahrenheit_minutes );
 	  test_conversion (Fahrenheit_minutes ,Celsius_seconds );
-	  
+
 	  delete Celsius_seconds;
 	  delete Fahrenheit_minutes;
      }
-     
-     
+
+
      cout << endl << "PRODUCTS of TEMPERATURE PRIMITIVE:" << endl;
      {
 	  Unit *Celsius_squared = new Unit ("C2");
@@ -408,28 +408,28 @@ cout << "=======================================================================
 	  cout << "new Unit = " << Fahrenheit_squared << endl;
 	  Unit *Celsius_Fahrenheit = new Unit ("C*F");
 	  cout << "new Unit = " << Celsius_Fahrenheit << endl << endl;
-	  
+
 	  test_conversion_exception (Celsius_squared ,Fahrenheit_squared );
 	  test_conversion_exception (Fahrenheit_squared ,Celsius_squared );
 
 	  test_conversion (Fahrenheit_squared ,Fahrenheit_squared );
 	  test_conversion (Celsius_Fahrenheit ,Celsius_Fahrenheit);
-	  
+
 	  delete Celsius_squared;
 	  delete Fahrenheit_squared;
      }
-     
+
 
      cout << endl << "RATIOS CONTAINING A TEMPERATURE PRIMITIVE:" << endl;
-     {    
+     {
 	  Unit *Deg_Celsius_per_second= new Unit ("C/s");
 	  cout << "new Unit = " << Deg_Celsius_per_second << endl;
 	  Unit *Deg_Fahrenheit_per_second= new Unit ("F/s");
 	  cout << "new Unit = " << Deg_Fahrenheit_per_second << endl << endl;
-	  
+
 	  test_conversion (Deg_Celsius_per_second ,Deg_Fahrenheit_per_second );
 	  test_conversion (Deg_Fahrenheit_per_second ,Deg_Celsius_per_second );
-	  
+
 	  delete Deg_Celsius_per_second;
 	  delete Deg_Fahrenheit_per_second;
      }
@@ -441,10 +441,10 @@ cout << "=======================================================================
 	  cout << "new Unit = " << Newton << endl;
 	  Unit *Poundal = new Unit("lbm*ft/s2");
 	  cout << "new Unit = " << Poundal << endl << endl;
-	  
+
 	  test_conversion (Newton ,Poundal );
 	  test_conversion (Poundal, Newton);
-	  
+
 	  delete Newton;
 	  delete Poundal;
      }
@@ -458,10 +458,10 @@ cout << "=======================================================================
 	  cout << "new Unit = " << CNewton << endl;
 	  Unit *CPoundal = new Unit("lbm*ft/s*s");
 	  cout << "new Unit = " << CPoundal << endl << endl;
-	  
+
 	  test_conversion (CNewton ,CPoundal );
 	  test_conversion (CPoundal, CNewton);
-	  
+
 	  delete CNewton;
 	  delete CPoundal;
      }
@@ -474,14 +474,14 @@ cout << "=======================================================================
 	  cout << "new Unit = " << Meters_per_minute_squared_2 << endl;
 	  Unit *Meters_per_minute_squared_3 = new Unit ("m/s/s");
 	  cout << "new Unit = " << Meters_per_minute_squared_3 << endl << endl;
-	  
+
 	  test_conversion (Meters_per_minute_squared_1 ,Meters_per_minute_squared_2);
 	  test_conversion (Meters_per_minute_squared_1 ,Meters_per_minute_squared_3);
 	  test_conversion (Meters_per_minute_squared_2 ,Meters_per_minute_squared_1);
 	  test_conversion (Meters_per_minute_squared_2 ,Meters_per_minute_squared_3);
 	  test_conversion (Meters_per_minute_squared_3 ,Meters_per_minute_squared_1);
 	  test_conversion (Meters_per_minute_squared_3 ,Meters_per_minute_squared_2);
-	  
+
 	  delete Meters_per_minute_squared_1;
 	  delete Meters_per_minute_squared_2;
 	  delete Meters_per_minute_squared_3;

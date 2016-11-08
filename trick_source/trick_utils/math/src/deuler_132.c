@@ -36,7 +36,7 @@ PROGRAMMERS:
 
 int euler132(
         double angle[3],    /* In: r   method=0, 0=ROLL , 1=YAW , 2=PITCH */
-        double mat[3][3],   /* Out: r  method=0, 
+        double mat[3][3],   /* Out: r  method=0,
                                     Coordinate tranformation matrix   */
         int method,         /* In: 0 = Make matrix from angles,
                                    1 = Make angles from matrix,
@@ -110,8 +110,8 @@ int euler132(
                                 angle[2] = atan2(mat[2][0], mat[0][0]);
                         }
                 }
-                /* Out of normal range for asin function, 
-                 * but within tolerance 
+                /* Out of normal range for asin function,
+                 * but within tolerance
                  */
                 else if (1.0 < -mat[1][0] && -mat[1][0] <= (1.0 + TOLERANCE)) {
                         angle[1] = M_PI_2;
@@ -133,8 +133,8 @@ int euler132(
                             error_flag[3]=1;
                         }
                 }
-                /* Error: Out of normal range and beyond tolerance 
-                 * for asin function 
+                /* Error: Out of normal range and beyond tolerance
+                 * for asin function
                  */
                 else {
                         double zero = 0.0;

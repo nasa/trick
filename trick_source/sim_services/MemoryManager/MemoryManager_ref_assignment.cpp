@@ -96,7 +96,7 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
                    std::cout.flush();
                }
                break;
-           case TRICK_ENUMERATED : 
+           case TRICK_ENUMERATED :
                if (v_tree && v_tree->v_data) {
                    if ((size_t)attr->size == sizeof(int)) {
                        assign_addr = (char*)base_addr + offset * sizeof(int);
@@ -127,7 +127,7 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
            case TRICK_UNSIGNED_LONG :
                assign_addr = (char*)base_addr + offset * sizeof(long);
                if (v_tree && v_tree->v_data) {
-                   long input_value; 
+                   long input_value;
                    input_value = vval_long(v_tree->v_data);
                    if (cf == NULL) {
                        *(long *)assign_addr = input_value;
@@ -197,7 +197,7 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
                break;
            case TRICK_BITFIELD :
            case TRICK_UNSIGNED_BITFIELD : {
-                   int input_value; 
+                   int input_value;
                    assign_addr = (char*)base_addr + offset * (size_t)attr->size;
                    if (v_tree && v_tree->v_data) {
                        input_value = vval_int(v_tree->v_data);
@@ -273,7 +273,7 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
 
            if (v_tree && v_tree->v_data) {
 
-               if ((remaining_dimensions == 1) && (v_tree->v_data->type == TRICK_STRING)) { 
+               if ((remaining_dimensions == 1) && (v_tree->v_data->type == TRICK_STRING)) {
                    *(char**)assign_addr = mm_strdup( vval_string(v_tree->v_data));
                } else {
                    *(void**)assign_addr = vval_voidp(v_tree->v_data);
@@ -314,12 +314,12 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
                }
 
            } else if ( (attr->type == TRICK_WCHAR) &&
-                       (remaining_dimensions == 1)) { 
+                       (remaining_dimensions == 1)) {
 
                assign_addr = (char*)base_addr + offset * size_of_curr_dim * sizeof(wchar_t);
 
                if ((v_tree) &&
-                   (v_tree->v_data->type == TRICK_WSTRING) &&  
+                   (v_tree->v_data->type == TRICK_WSTRING) &&
                    (v_tree->v_data->value.wcp != NULL)) {
 
                        int rhs_len = (int)wcslen(v_tree->v_data->value.wcp) + 1;
@@ -333,7 +333,7 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
                            return (1);
                        }
                } else if ((v_tree) &&
-                          (v_tree->v_data->type == TRICK_STRING) && 
+                          (v_tree->v_data->type == TRICK_STRING) &&
                           (v_tree->v_data->value.cp != NULL)) {
 
                        int rhs_len = (int)ncs_to_wcs_len(v_tree->v_data->value.cp) + 1;

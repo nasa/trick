@@ -1,5 +1,5 @@
 /*
-PURPOSE: 
+PURPOSE:
     (For master/slave sim, this is slave info)
 PROGRAMMERS:
     (((Eddie J. Paddock) (LinCom) (April 1996) (--) (Initial Version))

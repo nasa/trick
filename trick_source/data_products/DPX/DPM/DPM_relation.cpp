@@ -157,7 +157,7 @@ const char * DPM_relation::getXAxisLabel() {
       candidate_label = xaxis->getLabel();
   } else {
       candidate_label = NULL;
-  } 
+  }
   // If an Y-Axis label wasn't supplied, see if there is a common
   // variable name that will serve as a label.
   if (candidate_label == NULL) {
@@ -172,7 +172,7 @@ const char * DPM_relation::getXAxisLabel() {
           if (strcmp( candidate_label, short_name) != 0 ) {
                return (NULL);
           }
-      } 
+      }
   }
   return (candidate_label);
 }
@@ -187,7 +187,7 @@ const char * DPM_relation::getYAxisLabel() {
       candidate_label = yaxis->getLabel();
   } else {
       candidate_label = NULL;
-  } 
+  }
   // If an Y-Axis label wasn't supplied, see if there is a common
   // variable name that will serve as a label.
   if (candidate_label == NULL) {
@@ -202,7 +202,7 @@ const char * DPM_relation::getYAxisLabel() {
           if (strcmp( candidate_label, short_name) != 0 ) {
                return (NULL);
           }
-      } 
+      }
   }
   return (candidate_label);
 }
@@ -217,7 +217,7 @@ const char * DPM_relation::getZAxisLabel() {
       candidate_label = zaxis->getLabel();
   } else {
       candidate_label = NULL;
-  } 
+  }
   // If an Z-Axis label wasn't supplied, see if there is a common
   // variable name that will serve as a label.
   if (candidate_label == NULL) {
@@ -232,7 +232,7 @@ const char * DPM_relation::getZAxisLabel() {
           if (strcmp( candidate_label, short_name) != 0 ) {
                return (NULL);
           }
-      } 
+      }
   }
   return (candidate_label);
 }

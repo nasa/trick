@@ -178,7 +178,7 @@ int Trick::IPPython::parse_condition(std::string in_string, int & cond_return_va
 
 }
 
-//Restart job that reloads event_list from checkpointable structures 
+//Restart job that reloads event_list from checkpointable structures
 int Trick::IPPython::restart() {
     /* Make shortcut names for all known sim_objects. */
     get_TMM_named_variables() ;

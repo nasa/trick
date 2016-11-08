@@ -1,7 +1,7 @@
 /********************************* TRICK HEADER *******************************
-*	PURPOSE:                     ( Data record test ) 
+*	PURPOSE:                     ( Data record test )
 *	REFERENCES:                  ( None )
-*	ASSUMPTIONS AND LIMITATIONS: ( None ) 
+*	ASSUMPTIONS AND LIMITATIONS: ( None )
 *	PROGRAMMERS:                 ( (Lindsay Landry) (L3) (7-22-2013) )
 ********************************************************************************/
 #include <wchar.h>
@@ -20,32 +20,32 @@ typedef enum {
 
 typedef struct {
     unsigned int var1 :14;
-    unsigned int var2 :5; 
+    unsigned int var2 :5;
     unsigned int var3 :12;
-    unsigned int var4 :1; 
+    unsigned int var4 :1;
 } UINT_BITS;
-   
+
 typedef struct {
-    int var1 :7; 
+    int var1 :7;
     int var2 :16;
-    int var3 :3; 
-    int var4 :6; 
+    int var3 :3;
+    int var4 :6;
 } INT_BITS;
-    
+
 typedef struct {
-    unsigned char var1 :3; 
-    unsigned char var2 :2; 
-    unsigned char var3 :2; 
-    unsigned char var4 :1; 
+    unsigned char var1 :3;
+    unsigned char var2 :2;
+    unsigned char var3 :2;
+    unsigned char var4 :1;
 } UCHAR_BITS;
-    
+
 typedef struct {
-    char var1 :2; 
-    char var2 :2; 
-    char var3 :2; 
-    char var4 :2; 
+    char var1 :2;
+    char var2 :2;
+    char var3 :2;
+    char var4 :2;
 } CHAR_BITS;
-  
+
 typedef struct {
     unsigned short var1 :4;
     unsigned short var2 :2;
@@ -70,7 +70,7 @@ typedef struct {
 } MIX_BITS;
 
 
-class DRTypes { 
+class DRTypes {
 	public:
 
 		char 				a;
@@ -103,7 +103,7 @@ class DRTypes {
 		int init();
 
 	private:
-		void bitfieldInit(int bitSizes[], bool sign);	
+		void bitfieldInit(int bitSizes[], bool sign);
 };
 
 #endif

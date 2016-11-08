@@ -4,7 +4,7 @@
 #include "trick/Executive.hh"
 
 /**
-@details 
+@details
 -# Assign the name of the sim_object.
 -# Call add_sim_object(Trick::SimObject *, const char *) for component objects that
    are to be processed before the current object.

@@ -67,7 +67,7 @@ GPViewCurveNode::GPViewCurveNode( Widget          Toplevel,
         curve_y_label = Curve->getYAttribute("label");
     } else {
         std::string curve_y_units    = (dpc_curve->getYAttribute("units")) ?  dpc_curve->getYAttribute("units") : "1";
-        curve_y_label    = curve_y_var_name + "(" + curve_y_units + ")"; 
+        curve_y_label    = curve_y_var_name + "(" + curve_y_units + ")";
     }
 
     std::string curve_title = curve_y_label + " VS. " + curve_x_label + " ["+data_src_label+"]";

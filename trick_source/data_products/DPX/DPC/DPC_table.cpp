@@ -156,7 +156,7 @@ DPC_table::~DPC_table() {
         if (ds) { delete ds; }
     }
 
-    if (dsData) { delete dsData; } 
+    if (dsData) { delete dsData; }
 }
 
 // MEMBER FUNCTION

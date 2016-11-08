@@ -1,4 +1,4 @@
-/******************************************************************* 
+/*******************************************************************
  * Reference(s):
  * (1) Meeus,Jean."Astronomical Algorithms",
  * 2nd Edition, Willmann-Bell, Inc.
@@ -53,7 +53,7 @@ void GST_secs_time( double JD, double *GST ) {
      }
 
      /*  Ref(1), page 87 */
-     theta_0 = UT * 1.00273790935 + cap_theta_0; 
+     theta_0 = UT * 1.00273790935 + cap_theta_0;
 
      if (theta_0 >= 0.0) {
           theta_0 = fmod(theta_0, 86400.0);
@@ -61,7 +61,7 @@ void GST_secs_time( double JD, double *GST ) {
           theta_0 = fmod(theta_0, 86400.0) + 86400.0;
      }
 
-     *GST = theta_0; 
+     *GST = theta_0;
 
 }
 

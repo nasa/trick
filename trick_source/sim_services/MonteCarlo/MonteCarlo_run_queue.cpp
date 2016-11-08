@@ -22,7 +22,7 @@ int Trick::MonteCarlo::run_queue(Trick::ScheduledJobQueue* queue, std::string in
         ret = curr_job->call() ;
         if ( ret != 0 ) {
             except_file = in_string ;
-            throw Trick::ExecutiveException(ret , curr_job->name.c_str() , 0 , 
+            throw Trick::ExecutiveException(ret , curr_job->name.c_str() , 0 ,
                                         curr_job->job_class_name + " job did not return 0") ;
         }
     }

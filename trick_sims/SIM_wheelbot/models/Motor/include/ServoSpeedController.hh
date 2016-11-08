@@ -4,7 +4,7 @@
 #include "motorSpeedController.hh"
 #include "ServoMotor.hh"
 
-class ServoSpeedController : public MotorSpeedController 
+class ServoSpeedController : public MotorSpeedController
 {
   public:
     ServoSpeedController (ServoMotor& Servo_Motor, char side);

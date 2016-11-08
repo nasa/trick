@@ -12,7 +12,7 @@ DPV_pointer test_view::create_product_view( DPC_product* product){
 
   return ( (DPV_pointer)0x01111111 );
 }
-  
+
 DPV_pointer test_view::create_page_view( DPV_pointer parent_data,
 					  DPC_page* page) {
   long pdata = (long)parent_data;
@@ -81,7 +81,7 @@ DPV_pointer test_view::create_table_view( DPV_pointer parent_data,
   int i,j;
   double * values;
   double time;
- 
+
   cout << "=====================" << endl;
   cout << "TABLE VIEW." << endl;
   cout << "=====================" << endl;
@@ -113,26 +113,26 @@ DPV_pointer test_view::create_table_view( DPV_pointer parent_data,
   }
 
   values = new double[n_columns];
-  
+
   for (i=0; i<5 ; i++) {
        if ( table->getRow(&time, values)) {
             cout << "time: " << time ;
             for (j=0; j<n_columns ; j++) {
-                 cout << " " << values[j]; 
+                 cout << " " << values[j];
             }
             cout << endl;
        }
   }
-   
+
 // To test begin() Re-initialize the values, begin() and doing it again.
   cout << "The following 5 lines should be the same as the previous 5 lines." << endl;
   for (i=0; i<5 ; i++) { values[i] = 0.0; }
-  table->begin(); 
+  table->begin();
   for (i=0; i<5 ; i++) {
        if ( table->getRow(&time, values)) {
             cout << "time: " << time ;
             for (j=0; j<n_columns ; j++) {
-                 cout << " " << values[j]; 
+                 cout << " " << values[j];
             }
             cout << endl;
        }

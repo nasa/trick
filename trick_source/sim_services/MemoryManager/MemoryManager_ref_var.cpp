@@ -30,7 +30,7 @@ int Trick::MemoryManager::ref_var( REF2* R,
         pthread_mutex_unlock(&mm_mutex);
         return (MM_OK);
     } else {
-        // ERROR. 
+        // ERROR.
     }
     pthread_mutex_unlock(&mm_mutex);
 

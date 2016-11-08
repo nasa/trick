@@ -64,7 +64,7 @@ void* Trick::MemoryManager::
     }
     if (n_elems == 0) {
         std::stringstream message;
-        message << "declare_extern_var() can't register \"" << var_name 
+        message << "declare_extern_var() can't register \"" << var_name
                 << "\" because one or more of its constrained dimensions "
                 << "is zero, thus making its total size zero.";
         emitError(message.str());
@@ -204,7 +204,7 @@ void* Trick::MemoryManager::
     void* res_address = NULL;
     int cdims[8];
     int n_cdims;
- 
+
     ADefParseContext* context = NULL;
     std::stringstream alloc_decl_sstream;
 

@@ -65,20 +65,20 @@ TEST( ArenaTest, calcOffset_three )
 
 TEST ( ArenaTest, getGridSquare_one)
 {
-  //Tests to make sure getGridSquare gets the gridSquare pointer at the location specified 
+  //Tests to make sure getGridSquare gets the gridSquare pointer at the location specified
   //Which in this case is the first gridSquare
   Arena arena(10,7);
   GridSquare *agridsquare = arena.getGridSquare(0,0);
-  EXPECT_EQ (agridsquare, arena.grid); 
+  EXPECT_EQ (agridsquare, arena.grid);
 }
 
 TEST ( ArenaTest, getGridSquare_two)
 {
-  //Tests if the gridSquare that getGridSquare picked up is the correct gridSquare 
+  //Tests if the gridSquare that getGridSquare picked up is the correct gridSquare
   //by counting the spaces in memory
   Arena arena(10,7);
   GridSquare *agridsquare = arena.getGridSquare(2,3);
-  EXPECT_EQ (agridsquare, arena.grid + 32); 
+  EXPECT_EQ (agridsquare, arena.grid + 32);
 }
 
 TEST (ArenaTest, getGridSquare_three)
@@ -90,7 +90,7 @@ TEST (ArenaTest, getGridSquare_three)
 
 TEST( ArenaTest, calcOffset2_one )
 {
-  //Checks to make sure calcOffset function returns 1 if the if-statements 
+  //Checks to make sure calcOffset function returns 1 if the if-statements
   //evaluate to false
   //failure case for first if-statement in calcOffset function
     Arena arena(10,7);
@@ -123,7 +123,7 @@ TEST(ArenaTest, calcOffset2_four)
   //failure case for second if-statement in calcOffset function
   Arena arena(10,7);
   GridSquare *agridSquare = arena.getGridSquare(15,10);
-  size_t sz;  
+  size_t sz;
   EXPECT_EQ (arena.calcOffset(agridSquare, sz), 1);
 }
 
@@ -135,7 +135,7 @@ TEST(ArenaTest, getGridSquareCoordinates_one)
   Point coordinate;
   std::cout << std::endl;
   std::cout << "The following error message is expected from this test." << std::endl;
-  EXPECT_EQ (arena.getGridSquareCoordinates(agridSquare, coordinate),1); 
+  EXPECT_EQ (arena.getGridSquareCoordinates(agridSquare, coordinate),1);
   std::cout << std::endl;
 }
 
@@ -151,11 +151,11 @@ TEST(ArenaTest, getGridSquareCoordinates_two)
 
 TEST(ArenaTest, getGridSquareCoordinates_three)
 {
-  //Tests the arithmetic within the getGridSquareCooordinates function 
+  //Tests the arithmetic within the getGridSquareCooordinates function
   //once the first if-statement evaluates to true
   Arena arena(10,7);
   GridSquare *agridSquare = arena.getGridSquare(9,6);
-  Point coordinate; 
+  Point coordinate;
   arena.getGridSquareCoordinates(agridSquare, coordinate);
   EXPECT_EQ (coordinate.x, 9);
   EXPECT_EQ (coordinate.y, 6);
@@ -163,8 +163,8 @@ TEST(ArenaTest, getGridSquareCoordinates_three)
 
 TEST(ArenaTest, movementCostEstimate_one)
 {
-  //Failure case for the if-statement 
-  //Ensures that the movementCostEstimate function fails appropiately 
+  //Failure case for the if-statement
+  //Ensures that the movementCostEstimate function fails appropiately
   Arena arena(10,7);
   GridSquare *agridSquare = arena.getGridSquare(11,3);
   GridSquare *anothergridSquare = arena.getGridSquare(12,4);
@@ -199,8 +199,8 @@ TEST(ArenaTest, movementCostEstimate_three)
 
 TEST(ArenaTest, distanceBetween_one)
 {
-  //Failure case for the if-statement 
-  //Ensures that the distanceBetween function fails appropiately 
+  //Failure case for the if-statement
+  //Ensures that the distanceBetween function fails appropiately
   Arena arena(10,7);
   GridSquare *agridSquare = arena.getGridSquare(11,3);
   GridSquare *anothergridSquare = arena.getGridSquare(12,4);
@@ -236,7 +236,7 @@ TEST(ArenaTest, distanceBetween_three)
 
 TEST(ArenaTest, blockunblock_one)
 {
-  //Tests to ensure that the block and unblock functions change the isBlocked member 
+  //Tests to ensure that the block and unblock functions change the isBlocked member
   //respective to their names
   Arena arena(10,7);
   GridSquare *agridSquare = arena.getGridSquare(1,2);
@@ -257,16 +257,16 @@ TEST(ArenaTest, mark_one)
 
 TEST(ArenaTest, getNeighbors_one)
 {
-  //Tests that error message displays when trying to 
+  //Tests that error message displays when trying to
   std::cout << std::endl;
   std::cout << "The following error messages are expected from this test." << std::endl;
   Arena arena(10,7);
-  std::vector<GridSquare*> neighbors;  
+  std::vector<GridSquare*> neighbors;
   GridSquare *agridSquare = arena.getGridSquare(11,22);
   neighbors = arena.getNeighbors(agridSquare);
-  int length = neighbors.size();  
+  int length = neighbors.size();
   std::cout << std::endl; std::cout << std::endl;
-  EXPECT_EQ (length, 0);  
+  EXPECT_EQ (length, 0);
 }
 
 TEST(ArenaTest, getNeighbors_two)
@@ -274,24 +274,24 @@ TEST(ArenaTest, getNeighbors_two)
   //Tests that getNeighbors returns the correct amount of neighbors within the vector
   Arena arena(3,3);
   GridSquare *agridSquare = arena.getGridSquare(1,1);
-  std::vector<GridSquare*> neighbors; 
+  std::vector<GridSquare*> neighbors;
   neighbors = arena.getNeighbors(agridSquare);
-  int length = neighbors.size();  
+  int length = neighbors.size();
   EXPECT_EQ (length, 8);
 }
 
 TEST(ArenaTest, getNeighbors_three)
 {
-  //Tests that getNeighbors returns the correct amount of neighbors when 
+  //Tests that getNeighbors returns the correct amount of neighbors when
   //certain neighbors are blocked
   Arena arena(3,3);
   GridSquare *agridSquare = arena.getGridSquare(1,1);
-  std::vector<GridSquare*> neighbors; 
+  std::vector<GridSquare*> neighbors;
   arena.block(0,0);
   arena.block(2,0);
   arena.block(2,2);
-  neighbors = arena.getNeighbors(agridSquare);  
-  int length = neighbors.size();  
+  neighbors = arena.getNeighbors(agridSquare);
+  int length = neighbors.size();
   EXPECT_EQ (length, 5);
 }
 
@@ -300,8 +300,8 @@ TEST(ArenaTest, getNeighbors_four)
   //Tests that getNeighbors returns the correct GridSquare pointers in the neighbors vector
   Arena arena(3,3);
   GridSquare *agridSquare = arena.getGridSquare(1,1);
-  std::vector<GridSquare*> neighbors; 
-  
+  std::vector<GridSquare*> neighbors;
+
   arena.block(0,0);
   GridSquare* n0_1 = arena.getGridSquare(0,1);//0,1
   GridSquare* n0_2 = arena.getGridSquare(0,2);//0,2
@@ -310,66 +310,66 @@ TEST(ArenaTest, getNeighbors_four)
   arena.block(2,0);
   GridSquare* n2_1 = arena.getGridSquare(2,1);//2,1
   arena.block(2,2);
-  
-  neighbors = arena.getNeighbors(agridSquare); 
+
+  neighbors = arena.getNeighbors(agridSquare);
   std::vector<GridSquare*>::iterator neighborsIterator;
-  
+
   //Test for (0,1) gridSquare
   bool n0_1_found_flag = false;
   neighborsIterator = find (neighbors.begin(),neighbors.end(), n0_1); //search for neighbor (0,1) in neighbors
   if (neighborsIterator != neighbors.end()) //if the value is found
     n0_1_found_flag = true; //change the found flag to true
-    
-    
+
+
   Point point;
   arena.getGridSquareCoordinates(*neighborsIterator,point);
   std::cout << point.x << " "<< point.y << std::endl;
-  
+
   EXPECT_EQ(n0_1_found_flag, true);
-  
+
   //Test for (0,2) gridSquare
   bool n0_2_found_flag = false;
   neighborsIterator = find (neighbors.begin(),neighbors.end(), n0_2); //search for neighbor (0,2) in neighbors
   if (neighborsIterator != neighbors.end()) //if the value is found
     n0_2_found_flag = true; //change the found flag to true
-    
+
   arena.getGridSquareCoordinates(*neighborsIterator,point);
   std::cout << point.x << " "<< point.y << std::endl;
-  
+
   EXPECT_EQ(n0_2_found_flag, true);
-  
+
    //Test for (1,0) gridSquare
   bool n1_0_found_flag = false;
   neighborsIterator = find (neighbors.begin(),neighbors.end(), n1_0); //search for neighbor (0,2) in neighbors
   if (neighborsIterator != neighbors.end()) //if the value is found
     n1_0_found_flag = true; //change the found flag to true
-    
+
   arena.getGridSquareCoordinates(*neighborsIterator,point);
   std::cout << point.x << " "<< point.y << std::endl;
-  
+
   EXPECT_EQ(n1_0_found_flag, true);
-  
+
    //Test for (1,2) gridSquare
   bool n1_2_found_flag = false;
   neighborsIterator = find (neighbors.begin(),neighbors.end(), n1_2); //search for neighbor (1,2) in neighbors
   if (neighborsIterator != neighbors.end()) //if the value is found
     n1_2_found_flag = true; //change the found flag to true
-    
+
   arena.getGridSquareCoordinates(*neighborsIterator,point);
   std::cout << point.x << " "<< point.y << std::endl;
-  
+
   EXPECT_EQ(n1_2_found_flag, true);
-  
+
    //Test for (2,1) gridSquare
   bool n2_1_found_flag = false;
   neighborsIterator = find (neighbors.begin(),neighbors.end(), n2_1); //search for neighbor (2,1) in neighbors
   if (neighborsIterator != neighbors.end()) //if the value is found
     n2_1_found_flag = true; //change the found flag to true
-    
+
   arena.getGridSquareCoordinates(*neighborsIterator,point);
   std::cout << point.x << " "<< point.y << std::endl;
-  
-  EXPECT_EQ(n2_1_found_flag, true); 
-  
-  
+
+  EXPECT_EQ(n2_1_found_flag, true);
+
+
 }

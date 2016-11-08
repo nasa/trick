@@ -88,12 +88,12 @@ int Trick::Integrator::integrate_2nd_order_ode (
 /**
  */
 void Trick::Integrator::state_in (double* arg1, ...) {
-    
+
     va_list ap;
     int i;
-    double* narg; 
+    double* narg;
 
-    va_start(ap, arg1); 
+    va_start(ap, arg1);
 
     i=0;
     narg = arg1;
@@ -101,7 +101,7 @@ void Trick::Integrator::state_in (double* arg1, ...) {
     while (narg != (double*)NULL) {
         state[i] = *narg;
         if (verbosity) message_publish(MSG_DEBUG,"  %g", *narg);
-        narg = va_arg(ap, double*); 
+        narg = va_arg(ap, double*);
         i++;
     };
     if (verbosity) message_publish(MSG_DEBUG,"\n");
@@ -111,12 +111,12 @@ void Trick::Integrator::state_in (double* arg1, ...) {
 /**
  */
 void Trick::Integrator::deriv_in ( double* arg1, ...) {
-    
+
     va_list ap;
     int i;
-    double* narg; 
+    double* narg;
 
-    va_start(ap, arg1); 
+    va_start(ap, arg1);
 
     i=0;
     narg = arg1;
@@ -124,7 +124,7 @@ void Trick::Integrator::deriv_in ( double* arg1, ...) {
     while (narg != (double*)NULL) {
         deriv[intermediate_step][i] = *narg;
         if (verbosity) message_publish(MSG_DEBUG,"  %g",*narg);
-        narg = va_arg(ap, double*); 
+        narg = va_arg(ap, double*);
         i++;
     };
     va_end(ap);
@@ -158,12 +158,12 @@ void Trick::Integrator::deriv2_in ( double* arg1, ...) {
 /**
  */
 void Trick::Integrator::state_out (double* arg1, ...) {
-    
+
     va_list ap;
     int i;
-    double* narg; 
+    double* narg;
 
-    va_start(ap, arg1); 
+    va_start(ap, arg1);
 
     i=0;
     narg = arg1;
@@ -171,7 +171,7 @@ void Trick::Integrator::state_out (double* arg1, ...) {
     while (narg != (double*)NULL) {
         *narg = state_ws[intermediate_step][i];
         if (verbosity) message_publish(MSG_DEBUG,"  %g",*narg);
-        narg = va_arg(ap, double*); 
+        narg = va_arg(ap, double*);
         i++;
     };
     if (verbosity) message_publish(MSG_DEBUG,"\n");

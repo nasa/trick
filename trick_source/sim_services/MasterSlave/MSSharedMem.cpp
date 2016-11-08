@@ -23,7 +23,7 @@ Trick::MSSharedMem::~MSSharedMem() {
 int Trick::MSSharedMem::set_sync_wait_limit(double in_limit) {
     /** @par Detailed Design */
     if ( in_limit > 0.0 ) {
-        /** @li if the incoming limit time is greater than zero, we will use it 
+        /** @li if the incoming limit time is greater than zero, we will use it
                 as the timeout value during read and write */
         sync_wait_limit = in_limit ;
     } else {
@@ -60,7 +60,7 @@ int Trick::MSSharedMem::process_sim_args() {
 
 int Trick::MSSharedMem::accept() {
 
-    int ret ; 
+    int ret ;
     /** @par Detailed Design */
     /** @li Call tsm_init to create shared memory for master. */
     tsm_dev.size = sizeof(MSSharedMemData);
@@ -83,7 +83,7 @@ int Trick::MSSharedMem::accept() {
 }
 
 int Trick::MSSharedMem::connect() {
-    int ret ; 
+    int ret ;
     /** @par Detailed Design */
     /** @li Call tsm_init to create shared memory for slave. */
     if (tsm_dev.size == 0) {
@@ -125,7 +125,7 @@ long long Trick::MSSharedMem::read_time() {
     struct timespec ts_Start;
 
     /** @par Detailed Design */
-    clock_gettime(CLOCK_THREAD_CPUTIME_ID, &ts_Start);    
+    clock_gettime(CLOCK_THREAD_CPUTIME_ID, &ts_Start);
 
     /** @li Get time from shared memory */
     while (MSQ_ISEMPTY(shm_addr->master_time)) {
@@ -153,7 +153,7 @@ MS_SIM_COMMAND Trick::MSSharedMem::read_command() {
     struct timespec ts_Start;
 
     /** @par Detailed Design */
-    clock_gettime(CLOCK_THREAD_CPUTIME_ID, &ts_Start);    
+    clock_gettime(CLOCK_THREAD_CPUTIME_ID, &ts_Start);
 
     if (getpid() == shm_addr->master_pid) {
     /** @li Get slave command from shared memory */
@@ -203,7 +203,7 @@ int Trick::MSSharedMem::read_port() {
     struct timespec ts_Start;
 
     /** @par Detailed Design */
-    clock_gettime(CLOCK_THREAD_CPUTIME_ID, &ts_Start);    
+    clock_gettime(CLOCK_THREAD_CPUTIME_ID, &ts_Start);
 
     /** @li Get port number from shared memory */
     while (shm_addr->slave_port == MS_ERROR_PORT) {
@@ -228,7 +228,7 @@ char Trick::MSSharedMem::read_name(char * read_data, size_t size) {
     struct timespec ts_Start;
 
     /** @par Detailed Design */
-    clock_gettime(CLOCK_THREAD_CPUTIME_ID, &ts_Start);    
+    clock_gettime(CLOCK_THREAD_CPUTIME_ID, &ts_Start);
 
     /** @li Get name (character array) from shared memory */
     while (shm_addr->chkpnt_name[0] == MS_ERROR_NAME) {

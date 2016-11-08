@@ -23,7 +23,7 @@ class TCReadByteSwapTest : public testing::Test {
       }
 
       void TearDown(){
-   
+
          free(device);
       }
 };

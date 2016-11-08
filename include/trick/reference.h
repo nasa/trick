@@ -60,14 +60,14 @@ typedef struct {
     V_DATA v_data;          /**< ** Value */
     ATTRIBUTES* attr;       /**< -- Parameter attributes */
     ATTRIBUTES* ref_attr;   /**< -- Dynamically allocated reference attribute. */
-    int create_add_path ;   /**< ** bool to shortcut to resolve address */ 
-    DLLIST * address_path ; /**< ** shortcut to resolve address */ 
+    int create_add_path ;   /**< ** bool to shortcut to resolve address */
+    DLLIST * address_path ; /**< ** shortcut to resolve address */
 } REF2;
 
 /**
  * Get the value of the variable referenced by R.
  * @param R variable reference.
- * @param V pointer to V_DATA object into which the value is to be assigned. 
+ * @param V pointer to V_DATA object into which the value is to be assigned.
  * @todo isn't this obsolete?
  */
 int ref_to_value( REF2* R, V_DATA* V);

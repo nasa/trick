@@ -88,7 +88,7 @@ void* Trick::MemoryManager::resize_array( void *address, int n_cdims, int *cdims
 
     /** @li Determine the number of constrained dimensions in the existing allocation.*/
     pre_n_cdims = 0;
-    for (ii=0 ; ii<alloc_info->num_index ; ii++) { 
+    for (ii=0 ; ii<alloc_info->num_index ; ii++) {
        if (alloc_info->index[ii]!=0) {
            pre_n_cdims++;
        }
@@ -113,7 +113,7 @@ void* Trick::MemoryManager::resize_array( void *address, int n_cdims, int *cdims
             emitError(message.str());
         }
         return ( (void*)NULL);
-    } 
+    }
 
     /** @li Calculate the new number of elements to be allocated. */
     new_n_elems = 1;
@@ -137,7 +137,7 @@ void* Trick::MemoryManager::resize_array( void *address, int n_cdims, int *cdims
             emitError(message.str());
             pthread_mutex_unlock(&mm_mutex);
             return ((void*)NULL);
-        }  
+        }
     } else if ((alloc_info->type == TRICK_STRING) && (n_stars == 0 ) ) {
         new_address = new (std::nothrow) std::string[new_n_elems];
         if (new_address == NULL) {

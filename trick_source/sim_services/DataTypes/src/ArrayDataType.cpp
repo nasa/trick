@@ -310,7 +310,7 @@ bool ArrayDataType::getElementInfo( LexicalAnalyzer* lexer, void* baseAddress, V
     bool errorCondition = false;
     nextToken = lexer->getToken();
     if (nextToken = Token::Integer) {
-       int index = std::atoi( (lexer->getText()).c_str() ); 
+       int index = std::atoi( (lexer->getText()).c_str() );
     }
     if ( (index >= 0) && (index < elementCount)) {
         const DataType*   elementDataType = subType->getDataType();

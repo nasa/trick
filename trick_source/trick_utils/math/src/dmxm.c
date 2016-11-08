@@ -1,4 +1,4 @@
-/* 
+/*
    PURPOSE: (Matrix multiplication)
 
    ASSUMPTIONS AND LIMITATIONS: ((3x3 Matrix implementation))

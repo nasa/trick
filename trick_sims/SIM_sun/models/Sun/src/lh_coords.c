@@ -1,4 +1,4 @@
-/******************************************************************* 
+/*******************************************************************
  * Reference(s):
  * (1) Meeus,Jean."Astronomical Algorithms",
  * 2nd Edition, Willmann-Bell, Inc.
@@ -7,7 +7,7 @@
  */
 
 #include <math.h>
-#include "lh_coords.h" 
+#include "lh_coords.h"
 
 #ifndef PI
 #define PI 3.14159264
