@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
              "List of RUN dirs and DP files",
              presetRunsDPs, postsetRunsDPs);
     opts.add("-rt:{0,1}",&opts.isReportRT,false, "print realtime text report");
-    opts.add("-start", &opts.start, 1.0, "start time", preset_start);
+    opts.add("-start", &opts.start, 0.0, "start time", preset_start);
     opts.add("-stop", &opts.stop,1.0e20, "stop time", preset_stop);
     opts.add("-pres",&opts.presentation,"",
              "present plot with two curves as coplot,error or error+coplot",
