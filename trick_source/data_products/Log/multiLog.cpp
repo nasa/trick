@@ -17,7 +17,7 @@ LogMultiGroup::LogMultiGroup( vector<string>& runDirs ) {
         vector < string >::const_iterator run;
         for (run = runDirs.begin(); run != runDirs.end() ; run++) {
                 strcpy(path, (*run).c_str());
-                LogGroup* lg = new LogGroup(path) ; 
+                LogGroup* lg = new LogGroup(path) ;
                 logGroups_.push_back(lg);
         }
 
@@ -27,14 +27,14 @@ LogMultiGroup::LogMultiGroup( vector<string>& runDirs ) {
 /**
  * LogMultiGroup destructor
  */
-LogMultiGroup::~LogMultiGroup( ) 
+LogMultiGroup::~LogMultiGroup( )
 {
 
         vector < LogGroup* >::const_iterator lg;
         for (lg = logGroups_.begin(); lg != logGroups_.end() ; lg++) {
                 delete *lg ;
         }
-         
+
 } ;
 
 
@@ -44,14 +44,14 @@ LogMultiGroup::~LogMultiGroup( )
  */
 IterOverLogGroups::IterOverLogGroups( LogMultiGroup* lmg,
                                       vector<string>& runs,
-                                      vector<string>& paramNames ) 
+                                      vector<string>& paramNames )
 {
         int found ;
         string runDirName ;
         int tIdx, tLogIdx ;
         int vIdx, vLogIdx ;
 
-        lmg_ = lmg ; 
+        lmg_ = lmg ;
 
         // Mapping from log group to an array of log indices
         map< LogGroup*, set< int > > lg2log ;
@@ -64,9 +64,9 @@ IterOverLogGroups::IterOverLogGroups( LogMultiGroup* lmg,
         // Go ahead and convert to doubles as well
         int idx = 0 ;
         for (lg = lmg->logGroups_.begin(); lg != lmg->logGroups_.end(); lg++) {
-                
+
                 (*lg)->convertToDoubleYes();
-                  
+
                 runDirName = (*lg)->getDataDir() ;
                 for (ss = runs.begin(); ss != runs.end(); ss++ ) {
                         if ( runDirName == *ss ) {
@@ -87,10 +87,10 @@ IterOverLogGroups::IterOverLogGroups( LogMultiGroup* lmg,
 
                 for (ss = paramNames.begin(); ss != paramNames.end(); ss++ ) {
 
-                        (*lg)->getParamIdx( "sys.exec.out.time", 
+                        (*lg)->getParamIdx( "sys.exec.out.time",
                                             &tIdx, &tLogIdx,
-                                            (*ss).c_str(), 
-                                            &vIdx, &vLogIdx ) ; 
+                                            (*ss).c_str(),
+                                            &vIdx, &vLogIdx ) ;
 
                         ParamIdx* pi = new ParamIdx ;
                         pi->logIdx = vLogIdx ;
@@ -100,7 +100,7 @@ IterOverLogGroups::IterOverLogGroups( LogMultiGroup* lmg,
                         // Keep list of log data sets with this group
                         // Weed out duplicates
                         found = 0 ;
-                        for (ii = logIndices.begin(); 
+                        for (ii = logIndices.begin();
                                  ii != logIndices.end(); ii++ ) {
 
                                 if (vLogIdx == *ii) {
@@ -126,7 +126,7 @@ IterOverLogGroups::IterOverLogGroups( LogMultiGroup* lmg,
         map < LogGroup*, set< int > >::const_iterator ll;
         for (ll = lg2log.begin(); ll != lg2log.end(); ll++) {
 
-                key = (*ll).first ; 
+                key = (*ll).first ;
 
                 IterPreserveTime* iter = new IterPreserveTime(
                                                 key,
@@ -153,7 +153,7 @@ void IterOverLogGroups::begin()
         }
 }
 
-// Finished iterating on all log groups in multigroup? 
+// Finished iterating on all log groups in multigroup?
 bool IterOverLogGroups::end()
 {
         int end = 1 ;
@@ -169,16 +169,16 @@ bool IterOverLogGroups::end()
         return( end ) ;
 }
 
-// Increment list of iterators which operate on each log group 
-void IterOverLogGroups::operator++(int) 
+// Increment list of iterators which operate on each log group
+void IterOverLogGroups::operator++(int)
 {
-                          
+
         static vector < IterPreserveTime* >::const_iterator ili ;
 
-        for (ili = listLogGroupIterators_.begin(); 
+        for (ili = listLogGroupIterators_.begin();
                  ili != listLogGroupIterators_.end(); ili++) {
 
-                // *ili is an element of list of iterators... 
+                // *ili is an element of list of iterators...
                 // *(*ili) is the iterator to iterate  --- Confusing!
                 (*(*ili))++ ;
         }
@@ -191,7 +191,7 @@ double IterOverLogGroups::getVal(string runName, string paramName)
         static int varIdx ;
         static int runIdx ;
 
- 
+
         lg     = runDirName2lg_[runName] ;
         runIdx = runDirName2runIdx_[runName] ;
         logIdx = runs_[runIdx][paramName]->logIdx ;

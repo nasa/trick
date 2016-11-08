@@ -3,7 +3,7 @@ PURPOSE:
     (This header file defines the "RELEASE()" macro for supported platforms.
      The release function should yield the processor from the processes that
      makes the call. This allows the UNIX schedular to arbitrate process
-     priorities during spinloops based on the status of processes waiting 
+     priorities during spinloops based on the status of processes waiting
      to run)
 PROGRAMMER:
     (((Eddie J. Paddock ) (LinCom) (2/96) (--) (Realtime))
@@ -13,7 +13,7 @@ PROGRAMMER:
 #ifndef RELEASE_H
 #define RELEASE_H
 
-#if __sgi 
+#if __sgi
 
 #define RELEASE() sginap(0)
 #define RELEASE_1() sginap(1)

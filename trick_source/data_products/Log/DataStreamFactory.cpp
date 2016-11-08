@@ -129,7 +129,7 @@ DataStream* DataStreamFactory::create( const char* iRunDir,
                                 	(char *)paramName.c_str(),
                                 	(char *)timeName) ) {
         		closedir(dirp) ;
-            	stream = new MatLab4(full_path , 
+            	stream = new MatLab4(full_path ,
 									 (char *)paramName.c_str(),
             						 (char *)timeName ) ;
             	free( full_path ) ;

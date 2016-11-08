@@ -927,7 +927,7 @@ void Trick::ClassicCheckPointAgent::write_rvalue( std::ostream& chkpnt_os, void*
 
             ref_string = ref_string_from_ptr( pointer, attr, curr_dim);
 
-            chkpnt_os << ref_string.c_str() ; 
+            chkpnt_os << ref_string.c_str() ;
 
         } else { // Fixed dimension
 

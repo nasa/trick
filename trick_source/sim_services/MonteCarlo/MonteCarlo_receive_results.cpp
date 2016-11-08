@@ -46,7 +46,7 @@ void Trick::MonteCarlo::receive_results() {
         current_run = ntohl(current_run);
 
         /**
-         * <ul><li> This run may have already been resolved by another curr_slave if 
+         * <ul><li> This run may have already been resolved by another curr_slave if
          * this curr_slave was marked as having timed out. If that is the case,
          * discard these results.
          */

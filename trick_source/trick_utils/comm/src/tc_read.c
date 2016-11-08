@@ -56,21 +56,21 @@ int tc_read_(TCDevice * device, char *buffer, int size, const char *file, int li
         ref_time = tc_clock_init();
     }
 
-    /* 
-     * Spin until all requested data is 
-     * available, an error is returned from recv, or a timeout 
-     * limit has been reached. This code is needed for the 
+    /*
+     * Spin until all requested data is
+     * available, an error is returned from recv, or a timeout
+     * limit has been reached. This code is needed for the
      * socket because sockets can return less
-     * data than what was requested when data packets 
-     * cross block boundries.  
+     * data than what was requested when data packets
+     * cross block boundries.
      */
     while (nbytes != size) {
 
-        /* 
-         * recvfrom will return -1 with tc_errno set to TC_EWOULDBLOCK 
-         * if this is a non-blocking socket (blockio = NOBLOCKIO) 
-         * and no data is available.  recvfrom will usually return 0 
-         * for a broken connection. 
+        /*
+         * recvfrom will return -1 with tc_errno set to TC_EWOULDBLOCK
+         * if this is a non-blocking socket (blockio = NOBLOCKIO)
+         * and no data is available.  recvfrom will usually return 0
+         * for a broken connection.
          */
         while ((tmp_nbytes = recvfrom(device->socket, data, (size_t) tmp_size,
                                       TC_NOSIGNAL, (struct sockaddr *) &device->cliAddr, &cliLen)) < 0

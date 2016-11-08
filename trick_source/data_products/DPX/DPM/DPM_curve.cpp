@@ -57,7 +57,7 @@ int DPM_curve::Initialize(xmlNode *base_node) {
                            std::cerr << "       elements in a <curve>."                << std::endl;
                            return -1;
                        break;
-                       } 
+                       }
                    }
                    axis_index++;
                } else {
@@ -72,7 +72,7 @@ int DPM_curve::Initialize(xmlNode *base_node) {
               if (current_node->type == XML_ELEMENT_NODE) {
                   if ( strcmp( (const char *)current_node->name, "varcase") == 0) {
                       xmlNode *child_current_node = current_node->children;
-                      axis_index = 0; 
+                      axis_index = 0;
                       while (child_current_node != NULL) {
                           if (child_current_node->type == XML_ELEMENT_NODE) {
                               if ( strcmp( (const char *)child_current_node->name, "var") == 0) {
@@ -95,7 +95,7 @@ int DPM_curve::Initialize(xmlNode *base_node) {
                                               std::cerr << "       elements in a <varcase>."              << std::endl;
                                               return -1;
                                           break;
-                                      } 
+                                      }
                                   }
                                   axis_index++;
                               } else {
@@ -122,7 +122,7 @@ int DPM_curve::Initialize(xmlNode *base_node) {
 
     if ( !(number_of_axes == 2) && !(number_of_axes == 3)) {
         return -1;
-    } 
+    }
 
     return 0;
 }
@@ -138,7 +138,7 @@ DPM_curve::DPM_curve(DPM_component *Parent, xmlNode *Base_node)  throw (std::inv
 
 // MEMBER FUNCTION
 DPM_curve::~DPM_curve() {
-  
+
 // FIXME delete all of the elements of the varcase lists.
   if (x_varcase_list.size()) { x_varcase_list.clear(); }
   if (y_varcase_list.size()) { y_varcase_list.clear(); }
@@ -207,7 +207,7 @@ DPM_var *DPM_curve::getZVar(unsigned int index) {
 const char * DPM_curve::getXVarName(unsigned int case_index) {
   if (case_index < x_varcase_list.size())  {
     return ( x_varcase_list[case_index]->getName());
-  } else { 
+  } else {
     return NULL;
   }
 }
@@ -216,7 +216,7 @@ const char * DPM_curve::getXVarName(unsigned int case_index) {
 const char * DPM_curve::getYVarName(unsigned int case_index) {
   if (case_index < y_varcase_list.size())  {
     return ( y_varcase_list[case_index]->getName());
-  } else { 
+  } else {
     return NULL;
   }
 }
@@ -225,7 +225,7 @@ const char * DPM_curve::getYVarName(unsigned int case_index) {
 const char * DPM_curve::getZVarName(unsigned int case_index) {
   if (case_index < z_varcase_list.size())  {
     return ( z_varcase_list[case_index]->getName());
-  } else { 
+  } else {
     return NULL;
   }
 }
@@ -244,7 +244,7 @@ const char * DPM_curve::getXCommonName() {
      if (strcmp( candidate_label, short_name) != 0 ) {
         return (NULL);
      }
-  } 
+  }
   return ( candidate_label);
 }
 
@@ -262,7 +262,7 @@ const char * DPM_curve::getYCommonName() {
      if (strcmp( candidate_label, short_name) != 0 ) {
         return (NULL);
      }
-  } 
+  }
   return ( candidate_label);
 }
 
@@ -280,7 +280,7 @@ const char * DPM_curve::getZCommonName() {
      if (strcmp( candidate_label, short_name) != 0 ) {
         return (NULL);
      }
-  } 
+  }
   return ( candidate_label);
 }
 

@@ -29,10 +29,10 @@ typedef enum {
 typedef struct {
 
     Euler_Seq euler_sequence;   /* --   Euler rotation sequence */
-    double euler_angles[3];     /* (rad)  Euler rot angles from 
+    double euler_angles[3];     /* (rad)  Euler rot angles from
                                         Frame 1 to Frame 2 */
-    double location[3];         /* (m)  Frame 1 origin to Frame 2 
-                                        origin vector, referenced 
+    double location[3];         /* (m)  Frame 1 origin to Frame 2
+                                        origin vector, referenced
                                         to Frame 1 */
 } TRANSFORM;
 

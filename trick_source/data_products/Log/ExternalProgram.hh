@@ -16,7 +16,7 @@ class ExternalProgram : public DataStream {
         int end();
         int step();
 
-   // This section is unique to the external program 
+   // This section is unique to the external program
    public:
         ExternalProgram( const char* sharedLibName,
                          int numInputs, DataStream** istreams,
@@ -34,9 +34,9 @@ class ExternalProgram : public DataStream {
 
         // Input streams which are created from program inputs
         vector < DataStream* >istreams_;
-                                                                                
+
         char *error;
-                                                                                
+
         char *sharedLibName_;
         void *progHandle_;
         double *progInput_;     // Input into external program
@@ -46,11 +46,11 @@ class ExternalProgram : public DataStream {
         double *input_;         // Sized to nInputs
         double *output_;        // Sized to nOutputs
 
-        // Since this is a "stream", only one external program output 
+        // Since this is a "stream", only one external program output
         // will be accessed.  The outputIdx_ is the index of the parameter
         // to access.
         int outputIdx_ ;
-                                                                                
+
         // This is the program that will be dynamically linked.
         // The program is normally created by a developer.
         // The program takes a set of inputs and generates
@@ -58,7 +58,7 @@ class ExternalProgram : public DataStream {
         int (*external_program) (double *in, int numIn,
                                  double *out, int numOut);
 
-        // Run the external shared library program and load the 
+        // Run the external shared library program and load the
         // output value and time stamp associated with outputIdx
         int getOutputValue( double* timeStamp, double* outputValue ) ;
 } ;

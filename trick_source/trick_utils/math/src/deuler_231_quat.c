@@ -20,7 +20,7 @@ int euler231_quat(
 {
 
    double haft_angle[3];
-   double mat00, mat01, mat02, mat11, mat20, mat21, mat22; 
+   double mat00, mat01, mat02, mat11, mat20, mat21, mat22;
    double s1;
    double c1;
    double s2;
@@ -30,7 +30,7 @@ int euler231_quat(
    double tmp;
    int ret = 0;
    static unsigned short error_flag[5] = {0, 0, 0, 0, 0}; /* Send errors only once */
-   
+
    if (method == 0){
        /* Compute sines and cosines of 0.5*eulers */
        V_SCALE(haft_angle, angle, 0.5);
@@ -39,13 +39,13 @@ int euler231_quat(
        s2 = sin(haft_angle[1]);
        c2 = cos(haft_angle[1]);
        s3 = sin(haft_angle[2]);
-       c3 = cos(haft_angle[2]); 
+       c3 = cos(haft_angle[2]);
 
        quat[0] =  c1*c2*c3 - s1*s2*s3;
        quat[1] = -c1*c2*s3 - s1*s2*c3;
        quat[2] = -c1*s2*s3 - s1*c2*c3;
        quat[3] = -c1*s2*c3 + s1*c2*s3;
-      
+
    }
    else if (method == 1){
 #define TOLERANCE 1.0e-15

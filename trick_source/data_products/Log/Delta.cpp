@@ -20,7 +20,7 @@ Delta::Delta(const char * deltaStatement, const char* timeName)
         // The delta statement is formatted like:
         // delta(<var1:run1>, <var2:run2>)
 
-        // Extract <var1:run1> <var2:run2> 
+        // Extract <var1:run1> <var2:run2>
         ret = sscanf(deltaStatement, "delta(%[^,],%[^)]", vr1, vr2);
         if ( ret != 2 ) {
                 fprintf(stderr, "ERROR: Delta::Delta() received bad spec "
@@ -35,14 +35,14 @@ Delta::Delta(const char * deltaStatement, const char* timeName)
         dsg_.add(dataStream2_);
 }
 
-Delta::~Delta() 
+Delta::~Delta()
 {
         delete dataStream1_ ;
         delete dataStream2_ ;
 }
 
 
-int Delta::get( double * time , double * value ) 
+int Delta::get( double * time , double * value )
 {
         int ret ;
         double val1, val2 ;
@@ -61,7 +61,7 @@ int Delta::get( double * time , double * value )
         return(ret) ;
 }
 
-int Delta::peek( double * time , double * value ) 
+int Delta::peek( double * time , double * value )
 {
         int ret ;
         double val1, val2 ;
@@ -74,18 +74,18 @@ int Delta::peek( double * time , double * value )
         return(ret) ;
 }
 
-void Delta::begin() 
+void Delta::begin()
 {
         dsg_.begin();
         return ;
 }
 
-int Delta::end() 
+int Delta::end()
 {
         return (dsg_.end()) ;
 }
 
-int Delta::step() 
+int Delta::step()
 {
         dsg_.step();
         return(0) ;

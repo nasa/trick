@@ -74,7 +74,7 @@ DPC_page::DPC_page( DPC_datastream_supplier *DS_Supplier,
                 try {
                     // Make a plot.
                     plot = new DPC_delta_plot( DS_Supplier,
-                                               RunListp, 
+                                               RunListp,
                                                relation,
                                                &total_time_constraints );
                     // Put the new plot in the plot list.

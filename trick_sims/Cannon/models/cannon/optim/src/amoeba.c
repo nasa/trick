@@ -68,7 +68,7 @@ void amoeba_shrink( AMOEBA* A ) {
         for ( ii = 0 ; ii < A->num_vertices ; ii++ ) {
                 x = A->vertices[ii] ;
                 for ( jj = 0 ; jj < A->num_dims ; jj++ ) {
-                        x[jj] = x_0[jj] + AMOEBA_ETA*( x[jj] - x_0[jj] ) ; 
+                        x[jj] = x_0[jj] + AMOEBA_ETA*( x[jj] - x_0[jj] ) ;
                 }
         }
 
@@ -120,8 +120,8 @@ int amoeba_contract( AMOEBA* A ) {
                 fprintf(stderr,">> Try contraction.\n");
         }
 
-        /* Contract if F(x_r) < F(x_n-1) */ 
-        if ( my_func(x_r) >= my_func(x_n_1) ) { 
+        /* Contract if F(x_r) < F(x_n-1) */
+        if ( my_func(x_r) >= my_func(x_n_1) ) {
                 if ( A->debug ) {
                         fprintf(stderr,">> Reject contraction.\n");
                 }
@@ -129,7 +129,7 @@ int amoeba_contract( AMOEBA* A ) {
         }
 
         /* Calculate contraction point
-         * x_contract = x_center + zeta*(x_center - x_worst) 
+         * x_contract = x_center + zeta*(x_center - x_worst)
          */
         for ( ii = 0 ; ii < A->num_dims ; ii++ ) {
                 x_cont[ii] = x_c[ii] + AMOEBA_ZETA*(x_c[ii] - x_n[ii]) ;
@@ -138,45 +138,45 @@ int amoeba_contract( AMOEBA* A ) {
         if ( my_func(x_cont) >= my_func(x_n) ) {
                 /* Accept contraction point */
 
-                if ( A->debug ) { 
+                if ( A->debug ) {
                         fprintf(stderr,">> Accept contraction about x_cont(");
                         amoeba_print_point( A->num_dims, x_cont ) ;
-                        fprintf(stderr,")  F(x_cont)=%.2lf \n", 
+                        fprintf(stderr,")  F(x_cont)=%.2lf \n",
                                 my_func(x_cont) ) ;
                 }
 
                 for ( ii = 0 ; ii < A->num_dims+1 ; ii++ ) {
-                        x_n[ii] = x_cont[ii] ; 
+                        x_n[ii] = x_cont[ii] ;
                 }
 
                 return 1 ;
 
         } else {
                 /* Reject contraction point */
-                if ( A->debug ) { 
+                if ( A->debug ) {
                         fprintf(stderr,">> Reject contraction about x_cont(");
                         amoeba_print_point( A->num_dims, x_cont ) ;
-                        fprintf(stderr,")  F(x_cont)=%.2lf \n", 
+                        fprintf(stderr,")  F(x_cont)=%.2lf \n",
                                 my_func(x_cont) ) ;
                 }
 
                 return 0 ;
-        } 
+        }
 
 }
 
 void amoeba_calc_expansion_point( AMOEBA* A ) {
-                                                                                
+
         int ii ;
         double* x_r ;
         double* x_c ;
         double* x_e ;
-                                                                                
+
         /* Short hand */
         x_r = A->x_refl ;
         x_c = A->x_cent ;
         x_e = A->x_expa ;
-                                                                                
+
         /* Calculate expansion point
          * x_expa = x_refl + beta*(x_refl - x_cent)
          */
@@ -204,8 +204,8 @@ int amoeba_expand( AMOEBA* A ) {
                 fprintf(stderr,">> Try expansion.\n");
         }
 
-        /* Expand if F(x_r) > F(x_0) */ 
-        if ( my_func(x_r) <= my_func(x_0) ) { 
+        /* Expand if F(x_r) > F(x_0) */
+        if ( my_func(x_r) <= my_func(x_0) ) {
                 if ( A->debug ) {
                         fprintf(stderr,">> Reject expansion.\n");
                 }
@@ -218,38 +218,38 @@ int amoeba_expand( AMOEBA* A ) {
 
         if ( my_func(x_e) >= my_func(x_r) ) {
                 /* Accept expansion point */
-                if ( A->debug ) { 
+                if ( A->debug ) {
                         fprintf(stderr,"Accept x_e(");
                         amoeba_print_point( A->num_dims, x_e ) ;
                         fprintf(stderr,")  F(x_e)=%.2lf \n", my_func(x_e) ) ;
                 }
 
                 for ( ii = 0 ; ii < A->num_dims+1 ; ii++ ) {
-                        x_n[ii] = x_e[ii] ; 
+                        x_n[ii] = x_e[ii] ;
                 }
         } else {
                 /* Accept reflection point */
-                if ( A->debug ) { 
+                if ( A->debug ) {
                         fprintf(stderr,"Accept x_r(");
                         amoeba_print_point( A->num_dims, x_r ) ;
                         fprintf(stderr,")  F(x_r)=%.2lf \n", my_func(x_r) ) ;
                 }
                 for ( ii = 0 ; ii < A->num_dims+1 ; ii++ ) {
-                        x_n[ii] = x_r[ii] ; 
+                        x_n[ii] = x_r[ii] ;
                 }
-        } 
+        }
 
         return 1 ;
 }
 
-double amoeba_distance_between( int num_dims, double* x, double* y ) { 
+double amoeba_distance_between( int num_dims, double* x, double* y ) {
 
         int ii ;
         double sum_squares ;
 
         sum_squares = 0 ;
         for ( ii = 0 ; ii < num_dims ; ii++ ) {
-                sum_squares += (x[ii] - y[ii])*(x[ii] - y[ii]); 
+                sum_squares += (x[ii] - y[ii])*(x[ii] - y[ii]);
         }
 
         return ( sqrt(sum_squares) ) ;
@@ -280,13 +280,13 @@ int amoeba_satisfied( AMOEBA* A ) {
                 x = A->vertices[ii] ;
                 for ( jj = ii+1 ; jj < A->num_vertices ; jj++ ) {
                         y = A->vertices[jj] ;
-                        dist = amoeba_distance_between( A->num_dims, x, y ) ; 
-                        if ( dist > max_dist ) { 
+                        dist = amoeba_distance_between( A->num_dims, x, y ) ;
+                        if ( dist > max_dist ) {
                                 max_dist = dist ;
                         }
                 }
         }
-        if ( max_dist < A->epsilon ) { 
+        if ( max_dist < A->epsilon ) {
                 return 1 ;
         }
 
@@ -299,14 +299,14 @@ int amoeba_satisfied( AMOEBA* A ) {
                 for ( jj = ii+1 ; jj < A->num_vertices ; jj++ ) {
                         f2 = A->vertices[jj][A->num_dims] ;
                         dist = fabs( f1 - f2 ) ;
-                        if ( dist > max_dist ) { 
+                        if ( dist > max_dist ) {
                                 max_dist = dist ;
                         }
                 }
         }
         if ( max_dist < A->epsilon ) {
                 return 1 ;
-        } 
+        }
 
         /*
          * Unsatisfied amoeba :-(
@@ -359,7 +359,7 @@ int amoeba_reflect( AMOEBA* A ) {
                         fprintf(stderr,")  F(x_r)=%.2lf \n", my_func(x_r) ) ;
                 }
                 for ( ii = 0 ; ii < A->num_dims+1 ; ii++ ) {
-                        x_n[ii] = x_r[ii] ; 
+                        x_n[ii] = x_r[ii] ;
                 }
                 return 1 ;
         } else {
@@ -379,7 +379,7 @@ void amoeba_order( AMOEBA* A ) {
         /* Order vertices based on function results.
          * Order from best to worst (i.e. max to min)
          */
-        qsort( A->vertices, 
+        qsort( A->vertices,
                A->num_vertices, sizeof(double*),
                amoeba_compare_vertices) ;
 
@@ -391,7 +391,7 @@ void amoeba_order( AMOEBA* A ) {
                 for ( ii = 0 ; ii < A->num_vertices - 1 ; ii++ ) {
                         A->x_cent[jj] +=  A->vertices[ii][jj] ;
                 }
-                A->x_cent[jj] /= (double)(A->num_vertices - 1.0 ) ; 
+                A->x_cent[jj] /= (double)(A->num_vertices - 1.0 ) ;
         }
 
         if ( A->debug ) {
@@ -405,8 +405,8 @@ int amoeba_compare_vertices( const void* ap, const void* bp ) {
 
         double a, b ;
 
-        a = my_func( *((double**) ap) ) ; 
-        b = my_func( *((double**) bp) ) ; 
+        a = my_func( *((double**) ap) ) ;
+        b = my_func( *((double**) bp) ) ;
 
         if ( a > b ) {
                 return -1 ;
@@ -418,10 +418,10 @@ int amoeba_compare_vertices( const void* ap, const void* bp ) {
 }
 
 /*
- * num_dims: Number of dimensions in domain space.  
- *           Example: If the function we are maximizing is F(x,y,z) 
+ * num_dims: Number of dimensions in domain space.
+ *           Example: If the function we are maximizing is F(x,y,z)
  *                    The number of dims is 3.
- * 
+ *
  * epsilon: The error tolerance before amoeba algorithm stops
  *          A good number is something like: 1.0e-9
  *
@@ -435,7 +435,7 @@ int amoeba_compare_vertices( const void* ap, const void* bp ) {
  * Second : If "simplex_point" is NULL, it is assumed user setup
  *          A->init_simplex before entering amoeba_init.
  */
-void amoeba_init(  AMOEBA* A, int num_dims, double epsilon, int max_steps, 
+void amoeba_init(  AMOEBA* A, int num_dims, double epsilon, int max_steps,
                   double* simplex_point, double simplex_size ) {
 
         int ii, jj ;
@@ -456,15 +456,15 @@ void amoeba_init(  AMOEBA* A, int num_dims, double epsilon, int max_steps,
 
         A->vertices = (double**) malloc (A->num_vertices*sizeof(double));
         for ( ii = 0 ; ii < A->num_vertices ; ii++ ) {
-                A->vertices[ii] = (double*) malloc 
+                A->vertices[ii] = (double*) malloc
                                      ((A->num_dims+1)*sizeof(double));
         }
 
         if ( simplex_point != NULL ) {
-                /*  
+                /*
                  * Use "simplex_point" as one vertice of first simplex. Then
-                 * move in "simplex_size" along unit vectors to create the 
-                 * rest of the first guess simplex. 
+                 * move in "simplex_size" along unit vectors to create the
+                 * rest of the first guess simplex.
                  *
                  * First_simplex = simplex_point + simplex_size*unit_vecs
                  */
@@ -473,11 +473,11 @@ void amoeba_init(  AMOEBA* A, int num_dims, double epsilon, int max_steps,
                 }
                 /* Load function vals with zero */
                 A->vertices[0][jj] = 0.0 ;
-        
-                for ( ii = 1 ; ii < A->num_vertices ; ii++ ) { 
+
+                for ( ii = 1 ; ii < A->num_vertices ; ii++ ) {
                         for ( jj = 0 ; jj < A->num_dims ; jj++ ) {
                                 if ( jj+1 == ii ) {
-                                        A->vertices[ii][jj] = 
+                                        A->vertices[ii][jj] =
                                               simplex_point[jj] - simplex_size ;
                                 } else {
                                        A->vertices[ii][jj] = simplex_point[jj] ;
@@ -489,7 +489,7 @@ void amoeba_init(  AMOEBA* A, int num_dims, double epsilon, int max_steps,
 
         } else {
                 /* Assume user has defined first simplex */
-                for ( ii = 0 ; ii < A->num_vertices ; ii++ ) { 
+                for ( ii = 0 ; ii < A->num_vertices ; ii++ ) {
                         for ( jj = 0 ; jj < A->num_dims ; jj++ ) {
                                 A->vertices[ii][jj] = A->init_simplex[ii][jj] ;
                         }
@@ -535,7 +535,7 @@ void amoeba_print_point( int num_dims, double* point ) {
 
         int ii;
 
-        for ( ii = 0 ; ii < num_dims-1 ; ii++ ) { 
+        for ( ii = 0 ; ii < num_dims-1 ; ii++ ) {
                 fprintf(stderr,"%.2lf   ", point[ii]);
         }
         fprintf(stderr,"%.2lf", point[num_dims-1]);
@@ -545,7 +545,7 @@ void amoeba_print( AMOEBA* A ) {
 
         int ii, jj ;
 
-        for ( ii = 0 ; ii < A->num_vertices ; ii++ ) { 
+        for ( ii = 0 ; ii < A->num_vertices ; ii++ ) {
                 for ( jj = 0 ; jj < A->num_dims ; jj++ ) {
                         fprintf(stderr,"%.2lf   ", A->vertices[ii][jj] ) ;
                 }

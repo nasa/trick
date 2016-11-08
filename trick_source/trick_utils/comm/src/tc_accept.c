@@ -86,8 +86,8 @@ int tc_accept_(TCDevice * listen_device, TCDevice * device, const char *file, in
         }
     }
 
-    /* 
-     *  After accept, initialize device & Shake hands with client  
+    /*
+     *  After accept, initialize device & Shake hands with client
      */
 
     /* Save the address of the new connection */

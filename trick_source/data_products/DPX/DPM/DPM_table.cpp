@@ -20,7 +20,7 @@ int DPM_table::Initialize( xmlNode *base_node) {
     if ( strcmp( (char *)base_node->name, "table") != 0) {
         std::cerr << "ERROR: Expected <table> but didnt find it." << std::endl;
         return -1;
-    } 
+    }
     /* Process children */
     xmlNode *current_node = base_node->children;
 
@@ -66,7 +66,7 @@ int DPM_table::Initialize( xmlNode *base_node) {
     time_constraints = new DPM_time_constraints(tstart, tstop, frequency);
 
     // Validation criteria:
-    // 1. Table requires at least one column (DPM_column) in the column_list.     
+    // 1. Table requires at least one column (DPM_column) in the column_list.
 
     n_columns = (int)column_list.size();
     if (n_columns < 1) {

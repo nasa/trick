@@ -131,7 +131,7 @@ p_i = v_i \cdot S: i \in 0..2
 An expression of type double, which represents the scalar magnitude of
 the vector V.
 \f[
-\left | V \right | \equiv \sqrt{ \sum_{i=0}^{2}v_{i}^2 } 
+\left | V \right | \equiv \sqrt{ \sum_{i=0}^{2}v_{i}^2 }
 \f]
 */
 #define V_MAG( vect ) \
@@ -169,8 +169,8 @@ storing it in the matrix skew ( double[3][3] ).
 \f[
 SKEW =
 \begin{bmatrix}
-   0 & -v_2 &  v_1 \\ 
- v_2 &    0 & -v_0 \\ 
+   0 & -v_2 &  v_1 \\
+ v_2 &    0 & -v_0 \\
 -v_1 &  v_0 &  0
 \end{bmatrix}
 \f]
@@ -187,8 +187,8 @@ SKEW =
 \b V_DOT(A, B)
 
 An expression returning type double, which represents the
-dot product (scalar product) of A and B.  
-It is equivalent to: 
+dot product (scalar product) of A and B.
+It is equivalent to:
 \f[
 \sum_{i=0}^{2} a_i \cdot b_i
 \f]
@@ -224,9 +224,9 @@ outer_{i,j} = v_i \cdot v_j: i,j \in 0..2
 \b V_CROSS(CROSS, A, B )
 
 Assign cross product of vectors A and B to vector CROSS.
-This is equivalent to: 
+This is equivalent to:
 \f[
-CROSS =  
+CROSS =
 \left \langle
 \left ( a_1 \cdot b_2 - a_2 \cdot b_1 \right ),
 \left ( a_2 \cdot b_0 - a_0 \cdot b_2 \right ),
@@ -246,7 +246,7 @@ CROSS =
 \b VxV_ADD(C, A, B)
 
 \f[
-C = C + A * B 
+C = C + A * B
 \f]
 */
 #define VxV_ADD( sum, vect1, vect2 ) { \
@@ -260,7 +260,7 @@ C = C + A * B
 \b VxV_SUB(C , A, B )
 
 \f[
-C = C - A * B 
+C = C - A * B
 \f]
 */
 #define VxV_SUB( diff , vect1, vect2 ) { \
@@ -342,7 +342,7 @@ S=S+I
 @page VECTOR_MACROS
 \b V_NEGATE(D, S)
 
-Assign the negative of vector S to the vector D. 
+Assign the negative of vector S to the vector D.
 \f[
 D=-S
 \f]

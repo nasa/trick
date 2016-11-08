@@ -13,8 +13,8 @@ extern Trick::MemoryManager* trick_MM;
  */
 extern "C" void* TMM_declare_var( TRICK_TYPE type, const char*class_name, int n_stars, const char* var_name, int n_cdims, int *cdims) {
     if (trick_MM != NULL) {
-        std::string sclass_name = class_name; 
-        std::string svar_name = var_name; 
+        std::string sclass_name = class_name;
+        std::string svar_name = var_name;
         return ( trick_MM->declare_var( type, sclass_name, n_stars, svar_name, n_cdims, cdims));
     } else {
         Trick::MemoryManager::emitError("TMM_declare_var() called before MemoryManager instantiation. Returning NULL.") ;
@@ -87,8 +87,8 @@ extern "C" void* TMM_declare_operatornew_var( const char * class_name, unsigned 
  */
 extern "C" void* TMM_declare_ext_var( void* addr, TRICK_TYPE type, const char*class_name, int n_stars, const char* var_name, int n_cdims, int *cdims) {
     if (trick_MM != NULL) {
-        std::string sclass_name = class_name; 
-        std::string svar_name = var_name; 
+        std::string sclass_name = class_name;
+        std::string svar_name = var_name;
         return ( trick_MM->declare_extern_var( addr, type, sclass_name, n_stars, svar_name, n_cdims, cdims));
     } else {
         Trick::MemoryManager::emitError("TMM_declare_ext_var() called before MemoryManager instantiation. Returning NULL.\n") ;
@@ -129,7 +129,7 @@ extern "C" void* TMM_declare_ext_var_s( void* addr, const char* declaration) {
  This is the C Language, "identify the array by address", version of Trick::MemoryManager::resize_array.
  Resize each of the dimensions of the array at the given address. n_cdims specifies the number
  of dimensions and must match those of the array being resized. cdims specifies the new sizes
- for each of the dimensions.  
+ for each of the dimensions.
  */
 void* TMM_resize_array_a(void *address, int n_cdims, int *cdims){
     if (trick_MM != NULL) {
@@ -145,7 +145,7 @@ void* TMM_resize_array_a(void *address, int n_cdims, int *cdims){
  This is the C Language, "identify the array by name", version of Trick::MemoryManager::resize_array.
  Resize each of the dimensions of the array whose name is given. n_cdims specifies the number
  of dimensions and must match those of the array being resized. cdims specifies the new sizes
- for each of the dimensions.  
+ for each of the dimensions.
  */
 void* TMM_resize_array_n(const char *name, int n_cdims, int *cdims){
     if (trick_MM != NULL) {
@@ -416,7 +416,7 @@ extern "C" int TMM_add_shared_library_symbols(const char* filename) {
  */
 extern "C" void* add_var( TRICK_TYPE type, const char* stype, VAR_DECLARE* var_declare, char* units) {
     if (trick_MM != NULL) {
-        return( trick_MM->add_var(type, stype, var_declare, units )); 
+        return( trick_MM->add_var(type, stype, var_declare, units ));
     } else {
         Trick::MemoryManager::emitError("add_var() called before MemoryManager instantiation. Returning NULL.\n") ;
         return ((void*)NULL);
@@ -442,13 +442,13 @@ extern "C" int add_vars( TRICK_TYPE type, const char* stype, VAR_LIST* var_list,
  */
 extern "C" int ref_allocate(REF2 *R, int num) {
     if (trick_MM != NULL) {
-        return( trick_MM->ref_allocate( R, num)); 
+        return( trick_MM->ref_allocate( R, num));
     } else {
         Trick::MemoryManager::emitError("ref_allocate() called before MemoryManager instantiation.\n") ;
         return (1);
     }
 }
- 
+
 /**
  @relates Trick::MemoryManager
  This is the C Language version of Trick::MemoryManager::ref_attributes( name).
@@ -481,7 +481,7 @@ extern "C" int ref_assignment(REF2* R, V_TREE* V) {
  */
 extern "C" int ref_var(REF2 *R, char* name) {
     if (trick_MM != NULL) {
-        return( trick_MM->ref_var( R, name)); 
+        return( trick_MM->ref_var( R, name));
     } else {
         Trick::MemoryManager::emitError("ref_var() called before MemoryManager instantiation.\n") ;
         return (1);
@@ -494,7 +494,7 @@ extern "C" int ref_var(REF2 *R, char* name) {
  */
 extern "C" int get_size(void *addr) {
     if (trick_MM != NULL) {
-        return( trick_MM->get_size( addr)); 
+        return( trick_MM->get_size( addr));
     } else {
         Trick::MemoryManager::emitError("get_size() called before MemoryManager instantiation.\n") ;
         return (0);
@@ -507,7 +507,7 @@ extern "C" int get_size(void *addr) {
  */
 extern "C" int get_truncated_size(void *addr) {
     if (trick_MM != NULL) {
-        return( trick_MM->get_truncated_size( addr)); 
+        return( trick_MM->get_truncated_size( addr));
     } else {
         Trick::MemoryManager::emitError("get_truncated_size() called before MemoryManager instantiation.\n") ;
         return (0);
@@ -524,7 +524,7 @@ extern "C" int io_get_fixed_truncated_size(char *ptr __attribute__ ((unused)),
                                            int dims __attribute__ ((unused)),
                                            ATTRIBUTES * left_type __attribute__ ((unused))) {
     Trick::MemoryManager::emitError("io_get_fixed_truncated_size() is not implemented yet.\n") ;
-    return(0); 
+    return(0);
 }
 
 /**

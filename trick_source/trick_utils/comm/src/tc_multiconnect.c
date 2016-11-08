@@ -77,7 +77,7 @@ int tc_multiconnect(TCDevice * dev_ptr, char *my_tag, char *other_tag, TrickErro
         return (status);
     }
 
-    /* 
+    /*
      * Initialize Broadcast Info Structure
      */
     gethostname(name, (size_t) 80);
@@ -123,8 +123,8 @@ int tc_multiconnect(TCDevice * dev_ptr, char *my_tag, char *other_tag, TrickErro
     bc_info.addr.sin_addr.s_addr = inet_addr(TC_MULT_GROUP);
     bc_info.addr.sin_port = htons(TC_MULT_PORT);
 
-    /* 
-     * Create socket to listen for connections 
+    /*
+     * Create socket to listen for connections
      */
     if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
         perror("tc_multiconnect socket");
@@ -187,20 +187,20 @@ int tc_multiconnect(TCDevice * dev_ptr, char *my_tag, char *other_tag, TrickErro
 
         if (nbytes == sizeof(read_me)) {
 
-            /* 
+            /*
              * Read information from peer
              */
             read_me.port = ntohl((uint32_t) read_me.port);
             read_me.pid = ntohl((uint32_t) read_me.pid);
             read_me.conn_initiated = ntohl((uint32_t) read_me.conn_initiated);
 
-            /* May I connect with this peer? Rules: Don't connect to myself! Don't connect to someone with same tag as 
+            /* May I connect with this peer? Rules: Don't connect to myself! Don't connect to someone with same tag as
                myself Do connect to someone with same "other tag" */
             if (curr_pid != read_me.pid &&
                 strcmp(bc_info.send_me.my_tag, read_me.my_tag) &&
                 !strcmp(bc_info.send_me.other_tag, read_me.other_tag)) {
 
-                /* Decide who will function as client Whoever has smaller pid will be the client If same pid, decide by 
+                /* Decide who will function as client Whoever has smaller pid will be the client If same pid, decide by
                    a string compare */
                 if (curr_pid < read_me.pid) {
                     i_am_client = 1;
@@ -208,8 +208,8 @@ int tc_multiconnect(TCDevice * dev_ptr, char *my_tag, char *other_tag, TrickErro
                     i_am_client = (strcmp(name, read_me.addr) > 0) ? 1 : 0;
                 }
 
-                /* 
-                 * Client Peer initiates the connection 
+                /*
+                 * Client Peer initiates the connection
                  */
                 if (i_am_client == 1) {
 
@@ -264,7 +264,7 @@ int tc_multiconnect(TCDevice * dev_ptr, char *my_tag, char *other_tag, TrickErro
         }
     } else {
 
-        /* 
+        /*
          * Server accepts
          */
         status = 1;

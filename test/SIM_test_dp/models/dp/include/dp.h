@@ -1,7 +1,7 @@
 /********************************* TRICK HEADER *******************************
-PURPOSE:                     ( Data products test ) 
+PURPOSE:                     ( Data products test )
 REFERENCES:                  ( None )
-ASSUMPTIONS AND LIMITATIONS: ( None ) 
+ASSUMPTIONS AND LIMITATIONS: ( None )
 PROGRAMMERS:                 ( (Keith Vetter) (Titan) (8-20-2002) )
 *******************************************************************************/
 
@@ -10,7 +10,7 @@ PROGRAMMERS:                 ( (Keith Vetter) (Titan) (8-20-2002) )
 
 typedef struct {
 
-   short          si[3] ;   /*  ohm -- */ 
+   short          si[3] ;   /*  ohm -- */
    int             i[3] ;   /*  m -- */
    long            l[3] ;   /*  amp -- */
    float           f[3] ;   /*  m/s2 -- */
@@ -29,10 +29,10 @@ typedef struct {
 } STRUCT_2 ;
 
 typedef struct {
- 
+
    STRUCT_2 s2[3][2] ;      /* -- */
 
-} STRUCT_3 ; 
+} STRUCT_3 ;
 
 typedef struct {
 

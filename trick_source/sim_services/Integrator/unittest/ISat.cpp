@@ -65,7 +65,7 @@ void calc_gravity( SATELLITE * S,
 
 }
 
-// 
+//
 // Reference: ISS SIGI Attitude Processor Orbit Equations EG2/Rodolfo Gonzalez 20 Aug 2003
 void orb_elem_to_intl( ORBITAL_ELEMENTS * O,          /* IN  */
                        PLANET           * P,          /* IN  */
@@ -146,7 +146,7 @@ int main(int argc, const char* argv[]) {
     planet.mass   = LUNAR_MASS;
     planet.radius = LUNAR_RADIUS;
 
-    orbital_elements.semi_major_axis = 2000000; // meters 
+    orbital_elements.semi_major_axis = 2000000; // meters
     orbital_elements.eccentricity = 0.2;
     orbital_elements.inclination = 5.0 * RADIANS_PER_DEGREE;
     orbital_elements.argument_of_perigee = 0.0;
@@ -208,6 +208,6 @@ int main(int argc, const char* argv[]) {
         std::cout << "(" << satellite.pos[0] <<","<< satellite.pos[1] <<","<< satellite.pos[2] << ")" << std::endl;
 
         tick++;
-        
+
     } while (sim_time < 10.0);
 }

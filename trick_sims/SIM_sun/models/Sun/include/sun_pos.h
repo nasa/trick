@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 /**
- * Calculate the Sun's position at the given Julian day number. 
+ * Calculate the Sun's position at the given Julian day number.
  * @param JD The Julian day number.
  * @param sun_right_ascension.
  * @param sun_declination.

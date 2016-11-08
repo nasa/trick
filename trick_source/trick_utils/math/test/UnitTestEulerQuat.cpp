@@ -4,7 +4,7 @@
 using namespace std;
 
 class EulerQuatTest : public ::testing::Test {
-   
+
    public:
 
       TRANSFORM init_data;
@@ -52,7 +52,7 @@ class EulerQuatTest : public ::testing::Test {
           double eul_error[3];
 
           M_IDENT(mat_error);
-          V_INIT(eul_error);          
+          V_INIT(eul_error);
           QxQt(Q_error, Q, quat);
           quat_to_mat(mat_error, Q_error);
           euler_matrix(eul_error, mat_error, 0 , this->init_data.euler_sequence);
@@ -70,7 +70,7 @@ class EulerQuatTest : public ::testing::Test {
       void test_euler_to_quat(){
           double Q[4];
           euler_quat(this->init_data.euler_angles, Q, 0,  this->init_data.euler_sequence);
-          compare_quat( Q ); 
+          compare_quat( Q );
           return;
       }
       void test_quat_to_euler(int test){
@@ -79,7 +79,7 @@ class EulerQuatTest : public ::testing::Test {
           if(this->method == 1){
               euler_quat(eul, this->quat, this->method, this->init_data.euler_sequence);
           }
-          else { 
+          else {
              switch (this->init_data.euler_sequence) {
                  case Roll_Pitch_Yaw:
                      euler123_quat( eul, this->quat, 2, this->init_data.euler_angles );
@@ -119,7 +119,7 @@ TEST_F(EulerQuatTest, euler123_to_quat)
       euler_matrix(init_data.euler_angles, mat, 0 , init_data.euler_sequence);
       mat_to_quat(quat, mat);
       test_euler_to_quat();
-  }  
+  }
   EXPECT_EQ(num_pass, num_tests);
 }
 
@@ -135,7 +135,7 @@ TEST_F(EulerQuatTest, euler132_to_quat)
       euler_matrix(init_data.euler_angles, mat, 0 , init_data.euler_sequence);
       mat_to_quat(quat, mat);
       test_euler_to_quat();
-  }  
+  }
   EXPECT_EQ(num_pass, num_tests);
 }
 
@@ -151,7 +151,7 @@ TEST_F(EulerQuatTest, euler231_to_quat)
       euler_matrix(init_data.euler_angles, mat, 0 , init_data.euler_sequence);
       mat_to_quat(quat, mat);
       test_euler_to_quat();
-  }  
+  }
   EXPECT_EQ(num_pass, num_tests);
 }
 
@@ -167,7 +167,7 @@ TEST_F(EulerQuatTest, euler213_to_quat)
       euler_matrix(init_data.euler_angles, mat, 0 , init_data.euler_sequence);
       mat_to_quat(quat, mat);
       test_euler_to_quat();
-  }  
+  }
   EXPECT_EQ(num_pass, num_tests);
 }
 
@@ -183,7 +183,7 @@ TEST_F(EulerQuatTest, euler312_to_quat)
       euler_matrix(init_data.euler_angles, mat, 0 , init_data.euler_sequence);
       mat_to_quat(quat, mat);
       test_euler_to_quat();
-  }  
+  }
   EXPECT_EQ(num_pass, num_tests);
 }
 
@@ -199,7 +199,7 @@ TEST_F(EulerQuatTest, euler321_to_quat)
       euler_matrix(init_data.euler_angles, mat, 0 , init_data.euler_sequence);
       mat_to_quat(quat, mat);
       test_euler_to_quat();
-  }  
+  }
   EXPECT_EQ(num_pass, num_tests);
 }
 
@@ -216,7 +216,7 @@ TEST_F(EulerQuatTest, quat_to_euler123_method1)
       euler_matrix(init_data.euler_angles, mat, 0 , init_data.euler_sequence);
       mat_to_quat(quat, mat);
       test_quat_to_euler(1);
-  }  
+  }
   EXPECT_EQ(num_pass, num_tests);
 }
 
@@ -232,7 +232,7 @@ TEST_F(EulerQuatTest, quat_to_euler123_method2)
       euler_matrix(init_data.euler_angles, mat, 0 , init_data.euler_sequence);
       mat_to_quat(quat, mat);
       test_quat_to_euler(2);
-  }  
+  }
   EXPECT_EQ(num_pass, num_tests);
 }
 
@@ -248,7 +248,7 @@ TEST_F(EulerQuatTest, quat_to_euler132_method1)
       euler_matrix(init_data.euler_angles, mat, 0 , init_data.euler_sequence);
       mat_to_quat(quat, mat);
       test_quat_to_euler(1);
-  }  
+  }
   EXPECT_EQ(num_pass, num_tests);
 }
 
@@ -264,7 +264,7 @@ TEST_F(EulerQuatTest, quat_to_euler132_method2)
       euler_matrix(init_data.euler_angles, mat, 0 , init_data.euler_sequence);
       mat_to_quat(quat, mat);
       test_quat_to_euler(2);
-  }  
+  }
   EXPECT_EQ(num_pass, num_tests);
 }
 
@@ -280,7 +280,7 @@ TEST_F(EulerQuatTest, quat_to_euler231_method1)
       euler_matrix(init_data.euler_angles, mat, 0 , init_data.euler_sequence);
       mat_to_quat(quat, mat);
       test_quat_to_euler(1);
-  }  
+  }
   EXPECT_EQ(num_pass, num_tests);
 }
 
@@ -296,7 +296,7 @@ TEST_F(EulerQuatTest, quat_to_euler231_method2)
       euler_matrix(init_data.euler_angles, mat, 0 , init_data.euler_sequence);
       mat_to_quat(quat, mat);
       test_quat_to_euler(2);
-  }  
+  }
   EXPECT_EQ(num_pass, num_tests);
 }
 
@@ -312,7 +312,7 @@ TEST_F(EulerQuatTest, quat_to_euler213_method1)
       euler_matrix(init_data.euler_angles, mat, 0 , init_data.euler_sequence);
       mat_to_quat(quat, mat);
       test_quat_to_euler(1);
-  }  
+  }
   EXPECT_EQ(num_pass, num_tests);
 }
 
@@ -328,7 +328,7 @@ TEST_F(EulerQuatTest, quat_to_euler213_method2)
       euler_matrix(init_data.euler_angles, mat, 0 , init_data.euler_sequence);
       mat_to_quat(quat, mat);
       test_quat_to_euler(2);
-  }  
+  }
   EXPECT_EQ(num_pass, num_tests);
 }
 
@@ -344,7 +344,7 @@ TEST_F(EulerQuatTest, quat_to_euler312_method1)
       euler_matrix(init_data.euler_angles, mat, 0 , init_data.euler_sequence);
       mat_to_quat(quat, mat);
       test_quat_to_euler(1);
-  }  
+  }
   EXPECT_EQ(num_pass, num_tests);
 }
 
@@ -360,7 +360,7 @@ TEST_F(EulerQuatTest, quat_to_euler312_method2)
       euler_matrix(init_data.euler_angles, mat, 0 , init_data.euler_sequence);
       mat_to_quat(quat, mat);
       test_quat_to_euler(2);
-  }  
+  }
   EXPECT_EQ(num_pass, num_tests);
 }
 
@@ -376,7 +376,7 @@ TEST_F(EulerQuatTest, quat_to_euler321_method1)
       euler_matrix(init_data.euler_angles, mat, 0 , init_data.euler_sequence);
       mat_to_quat(quat, mat);
       test_quat_to_euler(1);
-  }  
+  }
   EXPECT_EQ(num_pass, num_tests);
 }
 
@@ -392,7 +392,7 @@ TEST_F(EulerQuatTest, quat_to_euler321_method2)
       euler_matrix(init_data.euler_angles, mat, 0 , init_data.euler_sequence);
       mat_to_quat(quat, mat);
       test_quat_to_euler(2);
-  }  
+  }
   EXPECT_EQ(num_pass, num_tests);
 }
 

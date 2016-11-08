@@ -229,37 +229,37 @@ void mc_set_data_listen_device_port(int port_number) ;
 
 /**
  * @relates Trick::MonteCarlo
- * Sets the port for the connection_device. 
+ * Sets the port for the connection_device.
  */
 void mc_set_connection_device_port(int port_number) ;
 
 /**
  * @relates Trick::MonteCarlo
- * Sets the port for the data_connection_device. 
+ * Sets the port for the data_connection_device.
  */
 void mc_set_data_connection_device_port(int port_number) ;
 
 /**
  * @relates Trick::MonteCarlo
- * Gets the port for the listen_device. 
+ * Gets the port for the listen_device.
  */
 int  mc_get_listen_device_port() ;
 
 /**
  * @relates Trick::MonteCarlo
- * Gets the port for the data_listen_device. 
+ * Gets the port for the data_listen_device.
  */
 int  mc_get_data_listen_device_port() ;
 
 /**
  * @relates Trick::MonteCarlo
- * Gets the port for the connection_device. 
+ * Gets the port for the connection_device.
  */
 int  mc_get_connection_device_port() ;
 
 /**
  * @relates Trick::MonteCarlo
- * Gets the port for the data_connection_device. 
+ * Gets the port for the data_connection_device.
  */
 int  mc_get_data_connection_device_port() ;
 

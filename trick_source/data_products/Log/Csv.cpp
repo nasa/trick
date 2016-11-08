@@ -24,7 +24,7 @@ Csv::Csv(char * file_name , char * param_name ) {
         header = new char[20480] ;
         fgets( header , 20480 , fp_ );
 
-        // remove trailing newline 
+        // remove trailing newline
         header[strlen(header)-1] = '\0' ;
 
         field_num_ = 0 ;
@@ -157,7 +157,7 @@ int CsvLocateParam( char * file_name , char * param_name ) {
                 header = new char[20480] ;
                 fgets( header , 20480 , fp );
 
-                // remove trailing newline 
+                // remove trailing newline
                 header[strlen(header)-1] = '\0' ;
                 next_field = strtok( header , "," ) ;
                 do {

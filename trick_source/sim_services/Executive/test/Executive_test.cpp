@@ -825,7 +825,7 @@ TEST_F(ExecutiveTest , SetSignalHandlers) {
 
 TEST_F(ExecutiveTest , JobOnOff) {
 	//req.add_requirement("2445198072");
-	
+
     Trick::JobData * curr_job ;
 
     exec_add_sim_object(&so1 , "so1") ;

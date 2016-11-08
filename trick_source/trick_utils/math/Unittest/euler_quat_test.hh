@@ -4,7 +4,7 @@
 using namespace std;
 
 class EulerQuatTest {
-   
+
    public:
 
       TRANSFORM init_data;
@@ -50,7 +50,7 @@ class EulerQuatTest {
           double eul_error[3];
 
           M_IDENT(mat_error);
-          V_INIT(eul_error);          
+          V_INIT(eul_error);
           QxQt(Q_error, Q, quat);
           quat_to_mat(mat_error, Q_error);
           euler_matrix(eul_error, mat_error, 0 , this->init_data.euler_sequence);
@@ -64,7 +64,7 @@ class EulerQuatTest {
       void test_euler_to_quat(){
           double Q[4];
           euler_quat(this->init_data.euler_angles, Q, 0,  this->init_data.euler_sequence);
-          compare_quat( Q ); 
+          compare_quat( Q );
           return;
       }
       void test_quat_to_euler(int test){
@@ -73,7 +73,7 @@ class EulerQuatTest {
           if(this->method == 1){
               euler_quat(eul, this->quat, this->method, this->init_data.euler_sequence);
           }
-          else { 
+          else {
              switch (this->init_data.euler_sequence) {
                  case Roll_Pitch_Yaw:
                      euler123_quat( eul, this->quat, 2, this->init_data.euler_angles );

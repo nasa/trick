@@ -23,11 +23,11 @@ int main( int argc, char*argv[]) {
       t_test = t;
 
       rf.error = sin( t_test);
-      tgo = regula_falsi(t_test, &rf); 
+      tgo = regula_falsi(t_test, &rf);
       while ( ( (t_test + tgo) < t_next) && !root) {
-          t_test += tgo; 
+          t_test += tgo;
           rf.error = sin( t_test);
-          tgo = regula_falsi(t_test, &rf); 
+          tgo = regula_falsi(t_test, &rf);
 
           if (fabs(tgo) < rf.error_tol) {
               printf("ROOT @ %18.14g\n", t_test);

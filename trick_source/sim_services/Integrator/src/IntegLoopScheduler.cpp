@@ -258,7 +258,7 @@ void Trick::IntegLoopScheduler::restart_checkpoint()
 
 /**
  Rebuild the integration loop's job queues.
- This method is called internally upon adding or deleting sim objects, 
+ This method is called internally upon adding or deleting sim objects,
  and is called externally (S_define level) during initialization and
  after a checkpoint restart.
  */
@@ -315,7 +315,7 @@ void Trick::IntegLoopScheduler::clear_queue (
 }
 
 /**
- Call the enabled derivative jobs. 
+ Call the enabled derivative jobs.
  */
 void Trick::IntegLoopScheduler::call_deriv_jobs ()
 {
@@ -638,8 +638,8 @@ int Trick::IntegLoopScheduler::write_s_job_execution(FILE *fp)
 }
 
 /**
- Adds the incoming instrumentation job before target job if specified, or all jobs in the list. 
- @param instrument_job Pointer to the job that should be run previously. 
+ Adds the incoming instrumentation job before target job if specified, or all jobs in the list.
+ @param instrument_job Pointer to the job that should be run previously.
  */
 int Trick::IntegLoopScheduler::instrument_job_before (
     Trick::JobData * instrument_job)
@@ -660,7 +660,7 @@ int Trick::IntegLoopScheduler::instrument_job_before (
 
 /**
  Adds the incoming instrumentation job after target job if specified, or all jobs in the list.
- @param instrument_job Pointer to the job that should be run after each job. 
+ @param instrument_job Pointer to the job that should be run after each job.
  */
 int Trick::IntegLoopScheduler::instrument_job_after (
     Trick::JobData * instrument_job)
@@ -679,7 +679,7 @@ int Trick::IntegLoopScheduler::instrument_job_after (
 
 /**
  Removes all jobs in the list that match the name in_job.
- @param in_job name of the job that should be removed. 
+ @param in_job name of the job that should be removed.
  */
 int Trick::IntegLoopScheduler::instrument_job_remove(std::string in_job)
 {

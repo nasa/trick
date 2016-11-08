@@ -21,5 +21,5 @@ int cannon_master_shutdown()
     }
     trick_test_add_parent("Sim_Monte Simulation", "MonteCarlo Analysis", "1452306647");
     call_write_output();
-    return ( 0 ); 
+    return ( 0 );
 }

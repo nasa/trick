@@ -1,10 +1,10 @@
 
 /******************NOTES**********************************************
  * The BC635 clock requires special hardware to work. These tests
- * ensure that the TPRO class properly handles cases in which no 
+ * ensure that the TPRO class properly handles cases in which no
  * hardware is in use.
  *
- * Listed requirements are under requirement Trick-153 (3.7.1.2) 
+ * Listed requirements are under requirement Trick-153 (3.7.1.2)
  * Real-time control shall be able to use an external clock source
  *********************************************************************/
 
@@ -12,7 +12,7 @@
 #include <iostream>
 #include <sys/types.h>
 #include <signal.h>
- 
+
 #include "gtest/gtest.h"
 #include "trick/Clock.hh"
 #include "trick/clock_proto.h"

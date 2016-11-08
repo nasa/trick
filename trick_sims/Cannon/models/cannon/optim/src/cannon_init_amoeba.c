@@ -9,8 +9,8 @@ PROGRAMMERS: (Keith)
 #include "../include/amoeba_proto.h"
 
 int cannon_init_amoeba(
-      AMOEBA* A  )           
+      AMOEBA* A  )
 {
         amoeba_init( A, 4, 1.0e-3, 100, NULL, 0.0 ) ;
-        return ( 0 ); 
+        return ( 0 );
 }

@@ -23,7 +23,7 @@ PROGRAMMERS:
 
 int euler123(
         double angle[3],    /* In:  r  Method=0, 0=ROLL , 1=PITCH , 2=YAW */
-        double mat[3][3],   /* Out: r  method=0, 
+        double mat[3][3],   /* Out: r  method=0,
                                        Coordinate tranformation matrix   */
         int method, /* In: 0 = Make matrix from angles,
                            1 = Make angles from matrix,
@@ -96,7 +96,7 @@ int euler123(
                                 angle[2] = atan2(-mat[1][0], mat[0][0]);
                         }
                 }
-                /* Out of normal range for asin function, 
+                /* Out of normal range for asin function,
                    but within tolerance */
                 else if (1.0 < mat[2][0] && mat[2][0] <= (1.0 + TOLERANCE)) {
                         angle[0] = atan2(mat[0][1], mat[1][1]);
@@ -117,7 +117,7 @@ int euler123(
                             error_flag[3]=1;
                         }
                 }
-                /* Error: Out of normal range and beyond tolerance 
+                /* Error: Out of normal range and beyond tolerance
                    for asin function */
                 else {
                         double zero = 0.0;

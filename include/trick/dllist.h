@@ -47,7 +47,7 @@ typedef struct _DLLIST
     DLLNODE* tail;
     int (*compare)(void* info1,void* info2);
 }DLLIST;
-      
+
 
 
 /******************** function prototypes ********************/
@@ -74,21 +74,21 @@ DLLPOS DLL_FindIndex(int n,DLLIST*);          /* find position at given index */
                                               /* return: position of nth element */
 
 void* DLL_GetAt(DLLPOS pos,DLLIST*);          /* gets info at a position */
-                                              /* return: the info at pos */ 
+                                              /* return: the info at pos */
 
 void* DLL_SetAt(DLLPOS pos,void* data,DLLIST*);          /* sets info at a position */
-                                              /* return: the info previously at pos */ 
+                                              /* return: the info previously at pos */
 
 void* DLL_RemoveAt(DLLPOS,DLLIST*);           /* removes a position from the list */
                                               /* return: the info at the position being removed */
 
 void DLL_RemoveAll(DLLIST*);                  /* removes all elements in the list */
-                                              /* return: none */ 
+                                              /* return: none */
 
 DLLPOS DLL_InsertBefore(DLLPOS pos,void* data,DLLIST*);  /* inserts an element before pos */
                                               /* return: the new pos holding data */
 
-DLLPOS DLL_InsertAfter(DLLPOS pos,void* data,DLLIST*);   /* inserts an element after pos */    
+DLLPOS DLL_InsertAfter(DLLPOS pos,void* data,DLLIST*);   /* inserts an element after pos */
                                               /* return: the new pos holding data */
 
 void* DLL_GetNext(DLLPOS*,DLLIST*);            /* gets the next position in the list */

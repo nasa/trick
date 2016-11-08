@@ -15,7 +15,7 @@ void Trick::MemoryManager::get_alloc_deps_in_allocation(ALLOC_INFO* alloc_info )
 
     if (alloc_info == NULL) {
         std::cout << "ERROR: Trick::MemoryManager::get_alloc_deps_in_allocation called with alloc_info == NULL." << std::endl;
-        std::cout.flush();  
+        std::cout.flush();
         return;
     }
 
@@ -167,13 +167,13 @@ void Trick::MemoryManager::get_alloc_deps_in_arrayed_class(
             } else {
                 if (debug_level) {
                     std::cout << __FUNCTION__ << ": Pointer ("<< (void*)pointer <<") refers to memory that the MemoryManager doesn't know about." << std::endl;
-                    std::cout.flush();  
+                    std::cout.flush();
                 }
             }
         } else {
             if (debug_level) {
                 std::cout << __FUNCTION__ << ": Allocation reference is NULL." << std::endl;
-                std::cout.flush();  
+                std::cout.flush();
             }
         }
 
@@ -214,18 +214,18 @@ void Trick::MemoryManager::get_alloc_deps_in_intrinsic( void* address, ATTRIBUTE
                 if (alloc_info != NULL) {
                     if (debug_level) {
                         std::cout << __FUNCTION__ <<  ": @" << (void*)address << "." << attr->name << "[" << offset << "] points to @" << (void*)pointer << std::endl;
-                    } 
+                    }
                     get_alloc_deps_in_allocation(alloc_info);
                 } else {
                     if (debug_level) {
                         std::cout << __FUNCTION__ <<  ": Pointer ("<< (void*)pointer <<") refers to memory that the MemoryManager doesn't know about." << std::endl;
-                        std::cout.flush();  
-                    } 
+                        std::cout.flush();
+                    }
                 }
             } else {
                 if (debug_level) {
                     std::cout << __FUNCTION__ <<  ": Allocation reference is NULL." << std::endl;
-                    std::cout.flush();  
+                    std::cout.flush();
                 }
             }
 

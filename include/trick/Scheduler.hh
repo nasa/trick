@@ -59,7 +59,7 @@ namespace Trick {
 
             /**
              * Formats cyclic jobs to be written to the S_job_execution file
-             * @param fp - open file pointer to write jobs data 
+             * @param fp - open file pointer to write jobs data
              * @param curr_queue - queue to parse and write to file
              * @return always 0
              */

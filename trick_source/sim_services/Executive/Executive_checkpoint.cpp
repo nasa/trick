@@ -23,7 +23,7 @@ int Trick::Executive::checkpoint() {
 
     /* copy all of the job information in a checkpointable array */
     if ( num_all_jobs > 0 ) {
-        all_jobs_for_checkpoint = (Trick::JobData *)TMM_declare_var( TRICK_STRUCTURED, "Trick::JobData", 
+        all_jobs_for_checkpoint = (Trick::JobData *)TMM_declare_var( TRICK_STRUCTURED, "Trick::JobData",
          0 , "all_jobs" , 1 , (int *)&num_all_jobs) ;
         for ( ii = 0 ; ii < num_all_jobs ; ii++ ) {
             all_jobs_for_checkpoint[ii] = *(all_jobs_vector[ii]) ;

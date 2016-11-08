@@ -155,7 +155,7 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
                     dim_type = trick_byteswap_int(dim_type) ;
                 }
 
-                // dim bytes = ( num_dim * 4 ) 
+                // dim bytes = ( num_dim * 4 )
                 fread(&dim_bytes, 4, 1, fp_) ;
                 if (swap_) {
                     dim_bytes = trick_byteswap_int(dim_bytes) ;
@@ -196,7 +196,7 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
                 if (offset % 8) {
                     fseek(fp_, 8 - (offset % 8), SEEK_CUR) ;
                 }
-                
+
                 // for mxSTRUCT_CLASS
                 if (array_class == mxSTRUCT_CLASS) {
                     int field_name_len, each_field_name_len;
@@ -205,43 +205,43 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
                     if (swap_) {
                         each_field_name_len = trick_byteswap_short(each_field_name_len);
                     }
-                   
+
                     fseek(fp_, 4, SEEK_CUR);
                     fread(&field_name_len, 4, 1, fp_);
                     if (swap_) {
                         field_name_len = trick_byteswap_short(field_name_len);
                     }
-                                       
+
                     field_found = false;
                     field_num = field_name_len / each_field_name_len;
                     for (field_index = 0; field_index < field_num; field_index++) {
                         field_name = new char[each_field_name_len];
                         fread(field_name, each_field_name_len, 1, fp_);
-                        
-                        variable_name = new char[name_bytes+each_field_name_len+1]; 
+
+                        variable_name = new char[name_bytes+each_field_name_len+1];
                         strcpy(variable_name, name);
-                        
+
                         strcat(variable_name, ".");
                         strcat(variable_name, field_name);
 
-                        if (!strcmp( variable_name , param_name )) {  
+                        if (!strcmp( variable_name , param_name )) {
                             name = new char[strlen(variable_name)];
                             strcpy(name, variable_name);
                             field_found = true;
                             delete field_name;
                             delete variable_name;
                             break;
-                        } 
+                        }
                         delete field_name;
                         delete variable_name;
                     }
-                                       
+
                     if (field_found) {
                         fseek(fp_, (field_num-field_index-1)*each_field_name_len, SEEK_CUR);
                     }
-                    
+
                     ii = 0;
-                    while (ii < field_num) {                       
+                    while (ii < field_num) {
                         // Numeric array for each field
                         // this is either 0 or num_bytes if non_zero
                         fread(&temp, 4, 1, fp_) ;
@@ -251,7 +251,7 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
                         if ( (temp >> 16 ) == 0) {
                             // data_type
                             field_data_type = temp;
-    
+
                             // bytes
                             fread(&field_bytes, 4, 1, fp_) ;
                             if (swap_) {
@@ -261,7 +261,7 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
                             field_bytes = temp >> 16;
                             field_data_type = temp & 0x0000FFFF;
                         }
-                        
+
                         if (ii == field_index) {
                             break;
                         } else {
@@ -269,34 +269,34 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
                             ii++;
                         }
                     }
-                    
+
                     if (field_found ){
                         if (field_data_type == MI_MATRIX) {
                             // array type is always miUINT32
                             fread(&array_type, 4, 1, fp_) ;
-                            
+
                             // array bytes is always 8
                             fread(&array_bytes, 4, 1, fp_) ;
-                            
+
                             // array flags
                             fread(array_flags, 8, 1, fp_) ;
                             if (swap_) {
                                 array_flags[0] = trick_byteswap_int(array_flags[0]) ;
                             }
-    
+
                             // dim type is always miINT32
                             fread(&dim_type, 4, 1, fp_) ;
                             if (swap_) {
                                 dim_type = trick_byteswap_int(dim_type) ;
                             }
-                           
+
                             fread(&dim_bytes, 4, 1, fp_) ;
                             if (swap_) {
                                 dim_bytes = trick_byteswap_int(dim_bytes) ;
                             }
-                            
+
                             num_dims = dim_bytes / 4;
-                            
+
                             dims = new int[num_dims];
                             for (ii = 0; ii < num_dims; ii++) {
                                 fread(&dims[ii], 4, 1, fp_) ;
@@ -304,24 +304,24 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
                                     dims[ii] = trick_byteswap_int(dims[ii]) ;
                                 }
                             }
-                           
+
                             // each array name
                             fread(&temp, 4, 1, fp_) ;
                             fread(&temp, 4, 1, fp_);
-                            
+
                             // field data, could be a small data element format if we
                             // have a data element takes up only 1 to 4 bytes.
                             // if first 2 bytes of the tag are not 0, the tag uses the small
-                            // data element format. 
+                            // data element format.
                             fread(&temp, 4, 1, fp_) ;
                             if (swap_) {
                                 temp = trick_byteswap_short(temp) ;
                             }
-                            
+
                             if ( (temp >> 16 ) == 0) {
                                 // data_type
                                 real_type = temp;
-    
+
                                 // bytes
                                 fread(&real_bytes, 4, 1, fp_) ;
                                 if (swap_) {
@@ -330,9 +330,9 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
                             } else {
                                 real_bytes = temp >> 16;
                                 real_type = temp & 0x0000FFFF;
-    
+
                             }
-                        
+
                             // TODO: make sure else part
                         } else {
                             // Everythig else we skip
@@ -344,8 +344,8 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
                         real_bytes = 0;
                         real_type = 0;
                     }
-                   
-                } else {                            
+
+                } else {
                     // real data type
                     fread(&real_type, 4, 1, fp_) ;
                     if (swap_) {
@@ -357,7 +357,7 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
                         real_bytes = trick_byteswap_int(real_bytes) ;
                     }
                 }
-                
+
                 switch (real_type) {
                 case MI_INT8:
                     type = TRICK_CHARACTER;
@@ -411,7 +411,7 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
 
                 // TODO: Array bounds checking
                 if (array_class == mxSTRUCT_CLASS) {
-                    
+
                     if (!strcmp(name, param_name)) {
                         y_value_.size_ = size;
                         y_value_.type_ = type;
@@ -419,7 +419,7 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
                         y_value_.num_dims_ = num_dims;
                         y_value_.dims_ = dims;
                         y_value_.data_offset_ = ftell(fp_) ;
-                        found = param_found = true;                       
+                        found = param_found = true;
                     }
                     if (!strcmp(name, time_name)) {
                         time_value_.size_ = size;
@@ -440,7 +440,7 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
                         y_value_.data_offset_ = ftell(fp_) ;
                         found = param_found = true;
                     }
-    
+
                     if ( !strcmp(name, time_name)) {
                         time_value_.size_ = size;
                         time_value_.type_ = type;
@@ -451,11 +451,11 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
                         found = time_found = true;
                     }
                 }
-                          
+
                 // skip past this array
                 fseek(fp_, real_bytes, SEEK_CUR) ;
-                if (array_class != mxSTRUCT_CLASS) {    
-                    
+                if (array_class != mxSTRUCT_CLASS) {
+
                     // make sure that we are on a 64 bit boundary
                     offset = ftell(fp_) ;
                     if (offset % 8) {
@@ -471,15 +471,15 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
                         if (swap_) {
                             img_bytes = trick_byteswap_int(img_bytes) ;
                         }
-    
+
                         fseek(fp_, img_bytes, SEEK_CUR) ;
-    
+
                         // make sure that we are on a 64 bit boundary
                         offset = ftell(fp_) ;
                         if (offset % 8) {
                             fseek(fp_, 8 - (offset % 8), SEEK_CUR) ;
                         }
-    
+
                     }
                 } else {
                     // for mxSTRUCT_CLASS, skip pass all the other fields
@@ -500,15 +500,15 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
                             bytes = temp >> 16;
                         }
                         fseek(fp_, bytes, SEEK_CUR);
-                        field_index++;                     
+                        field_index++;
                     }
-                    
+
                     // make sure that we are on a 64 bit boundary
                     offset = ftell(fp_) ;
                     if (offset % 8) {
                         fseek(fp_, 8 - (offset % 8), SEEK_CUR) ;
                     }
-                   
+
                 }
 
                 if ( !found) {
@@ -579,7 +579,7 @@ int MatLab::get(double * time, double * value) {
 
     long offset;
 
-    
+
     if (curr_row_ < y_value_.dims_[0] && curr_row_ < time_value_.dims_[0]) {
         offset = time_value_.data_offset_ + time_value_.dims_[0]
                 * time_value_.field_num_ * time_value_.size_ + curr_row_
@@ -593,7 +593,7 @@ int MatLab::get(double * time, double * value) {
         fseek(fp_, offset, SEEK_SET) ;
         *value = getvalue(&y_value_) ;
         curr_row_++;
-       
+
         return ( 1 );
     }
 
@@ -654,7 +654,7 @@ int MatLabLocateParam(char * file_name, char * param_name, char * time_name) {
     int y_field_num, time_field_num;
     FILE *fp;
     int field_index, field_num;
-    
+
     if ((fp = fopen(file_name, "r")) == 0) {
         printf("ERROR:  Couldn't open \"%s\"\n", file_name) ;
         return (0);
@@ -697,7 +697,7 @@ int MatLabLocateParam(char * file_name, char * param_name, char * time_name) {
 
         param_found = time_found = false;
         while ( (!param_found || !time_found) && !feof(fp)) {
-           
+
             // this is either 0 or num_bytes if non_zero
             fread(&temp, 4, 1, fp) ;
             if (swap) {
@@ -738,7 +738,7 @@ int MatLabLocateParam(char * file_name, char * param_name, char * time_name) {
                     dim_type = trick_byteswap_int(dim_type) ;
                 }
 
-                // dim bytes = ( num_dim * 4 ) 
+                // dim bytes = ( num_dim * 4 )
                 fread(&dim_bytes, 4, 1, fp) ;
                 if (swap) {
                     dim_bytes = trick_byteswap_int(dim_bytes) ;
@@ -779,7 +779,7 @@ int MatLabLocateParam(char * file_name, char * param_name, char * time_name) {
                 if (offset % 8) {
                     fseek(fp, 8 - (offset % 8), SEEK_CUR) ;
                 }
-                
+
                 // for mxSTRUCT_CLASS
                 if (array_class == mxSTRUCT_CLASS) {
                     int field_name_len, each_field_name_len;
@@ -788,25 +788,25 @@ int MatLabLocateParam(char * file_name, char * param_name, char * time_name) {
                     if (swap) {
                         each_field_name_len = trick_byteswap_short(each_field_name_len);
                     }
-                    
+
                     fseek(fp, 4, SEEK_CUR);
                     fread(&field_name_len, 4, 1, fp);
                     if (swap) {
                         field_name_len = trick_byteswap_short(field_name_len);
                     }
-                    
+
                     field_num = field_name_len / each_field_name_len;
-                    
+
                     field_found = false;
                     for (field_index = 0; field_index < field_num; field_index++) {
                         field_name = new char[each_field_name_len];
-                        fread(field_name, each_field_name_len, 1, fp);                       
-                        variable_name = new char[name_bytes+each_field_name_len+1]; 
-                        strcpy(variable_name, name);                        
+                        fread(field_name, each_field_name_len, 1, fp);
+                        variable_name = new char[name_bytes+each_field_name_len+1];
+                        strcpy(variable_name, name);
                         strcat(variable_name, ".");
                         strcat(variable_name, field_name);
 
-                        if (!strcmp( variable_name , param_name ) ) {  
+                        if (!strcmp( variable_name , param_name ) ) {
                             name = new char[strlen(variable_name)];
                             strcpy(name, variable_name);
                             field_found = true;
@@ -817,8 +817,8 @@ int MatLabLocateParam(char * file_name, char * param_name, char * time_name) {
                         delete field_name;
                         delete variable_name;
                     }
-                    
-                    if (field_found) {                  
+
+                    if (field_found) {
                         fseek(fp, (field_num-field_index-1)*each_field_name_len, SEEK_CUR);
                     }
                     ii = 0;
@@ -830,7 +830,7 @@ int MatLabLocateParam(char * file_name, char * param_name, char * time_name) {
                             temp = trick_byteswap_int(temp) ;
                         }
                         if ( (temp >> 16 ) == 0) {
-                            
+
                             // bytes
                             fread(&bytes, 4, 1, fp) ;
                             if (swap) {
@@ -840,9 +840,9 @@ int MatLabLocateParam(char * file_name, char * param_name, char * time_name) {
                             bytes = temp >> 16;
                         }
                         fseek(fp, bytes, SEEK_CUR);
-                        ii++;                     
-                    }                    
-                } else {                            
+                        ii++;
+                    }
+                } else {
                     // real data type
                     fread(&real_type, 4, 1, fp) ;
                     if (swap) {
@@ -854,31 +854,31 @@ int MatLabLocateParam(char * file_name, char * param_name, char * time_name) {
                         real_bytes = trick_byteswap_int(real_bytes) ;
                     }
                 }
-               
+
                 // TODO: Array bounds checking
                 if (array_class == mxSTRUCT_CLASS) {
-                   
+
                     if (!strcmp(name, param_name)) {
                         param_found = true;
                     }
-    
+
                     if (!strcmp(name, time_name)) {
-                        
+
                        time_found = true;
                     }
                 } else {
-                    
+
                     if (!strncmp(name, param_name, name_bytes)) {
-                        param_found = true;                       
+                        param_found = true;
                     }
                     if (!strncmp(name, time_name, name_bytes)) {
                         time_found = true;
                     }
-                    
+
                 }
                 delete name;
                 delete dims;
-                
+
                 if (param_found && time_found) {
                     fclose(fp);
                     return(1);
@@ -886,13 +886,13 @@ int MatLabLocateParam(char * file_name, char * param_name, char * time_name) {
                 if (array_class != mxSTRUCT_CLASS) {
                     // skip past this array
                     fseek(fp, real_bytes, SEEK_CUR) ;
-    
+
                     // make sure that we are on a 64 bit boundary
                     offset = ftell(fp) ;
                     if (offset % 8) {
                         fseek(fp, 8 - (offset % 8), SEEK_CUR) ;
                     }
-    
+
                     // skip over the imaginary part if any right now
                     if (array_complex) {
                         // real data type
@@ -902,15 +902,15 @@ int MatLabLocateParam(char * file_name, char * param_name, char * time_name) {
                         if (swap) {
                             img_bytes = trick_byteswap_int(img_bytes) ;
                         }
-    
+
                         fseek(fp, img_bytes, SEEK_CUR) ;
-    
+
                         // make sure that we are on a 64 bit boundary
                         offset = ftell(fp) ;
                         if (offset % 8) {
                             fseek(fp, 8 - (offset % 8), SEEK_CUR) ;
                         }
-    
+
                     }
                 }
             } else {

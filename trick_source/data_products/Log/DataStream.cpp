@@ -7,7 +7,7 @@ DataStream::DataStream() {
         unitTimeStr_ = "s" ;
 }
 
-DataStream::~DataStream() 
+DataStream::~DataStream()
 {
         // Nada
 }
@@ -18,11 +18,11 @@ int DataStream::getValueAtTime(double time , double * value ) {
         int ret = 0 ;
 
         begin() ;
-        while ( (ret = get( &value_time , value )) && 
+        while ( (ret = get( &value_time , value )) &&
                 (fabs( value_time - time ) > 1e-9 )) ;
 
         return(ret) ;
-        
+
 }
 
 string DataStream::getFileName() {

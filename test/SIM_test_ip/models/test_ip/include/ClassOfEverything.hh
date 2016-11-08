@@ -65,7 +65,7 @@ typedef const struct ConstStruct_ {
 } ConstStruct ;
 #endif
 
-class AlsoCannotCopy { 
+class AlsoCannotCopy {
    friend class InputProcessor ;
    friend void init_attrClassOfEverything() ;
 
@@ -140,7 +140,7 @@ class TTT {
 } ;
 
 //typedef TTT< int , double > my_TTT_int_double ;
-    
+
 #define NUM 8
 
 typedef union {

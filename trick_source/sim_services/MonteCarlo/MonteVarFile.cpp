@@ -13,7 +13,7 @@ Trick::MonteVarFile::MonteVarFile(std::string in_name, std::string in_file_name,
     this->name = in_name;
     this->column = in_column;
     this->unit = in_unit;
-  
+
     set_file_name(in_file_name);
     buffer = new char[4096];
 
@@ -48,7 +48,7 @@ std::string Trick::MonteVarFile::get_next_value() {
             ntokens++;
         }
 
-        // Verify the input column number is valid 
+        // Verify the input column number is valid
         if ( (column == 0) || (column > ntokens) ) {
             char string[100];
             sprintf(string, "Trick:MonteVarFile An invalid column number %d, valid column numbers are 1 - %d", column, ntokens);

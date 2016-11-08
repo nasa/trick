@@ -38,7 +38,7 @@ int Trick::InputProcessor::process_sim_args() {
     /* Process all other calling arguments */
     for (i = 2; i < argc; i++) {
 
-        /* 
+        /*
          * If there are more than 2 calling arguments
          */
 

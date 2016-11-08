@@ -1,6 +1,6 @@
 /* This is an attempt at keeping data sizes consistent across machines
-by defining a INT8,INT16, and INT32 type for use as 8,16,and 32 bit 
-integers.  These won't work well with i/o like printf, but are useful 
+by defining a INT8,INT16, and INT32 type for use as 8,16,and 32 bit
+integers.  These won't work well with i/o like printf, but are useful
 for transfering binary data from one machine to another. */
 
 #ifndef SIZEDATA_H

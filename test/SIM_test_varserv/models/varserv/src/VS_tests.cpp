@@ -1,6 +1,6 @@
 /******************************TRICK HEADER*************************************
 PURPOSE:                     ( Test variable server )
-REFERENCE:                   ( None ) 
+REFERENCE:                   ( None )
 ASSUMPTIONS AND LIMITATIONS: ( None )
 CLASS:                       ( scheduled )
 LIBRARY DEPENDENCY:          ( VS.o )
@@ -36,12 +36,12 @@ int VSTest::strcmp_IgnoringWhiteSpace(const char* s1, const char* s2) {
 
 // Expect cycle time of 0.01 s
 int VSTest::testCycle() {
-    char msg[256]; 
+    char msg[256];
     char suite[] = "VariableServerTest";
 /*
     int num, num2;
     double cpu_t, cpu_st;
-    struct rusage cpu_usg;    
+    struct rusage cpu_usg;
 
     sprintf(msg,"trick.var_add(\"vsx.vst.l\")\n");
     vs_write(msg);
@@ -49,7 +49,7 @@ int VSTest::testCycle() {
     // currently bad programming, could get stuck in this loop
     while (true) {
         getrusage(RUSAGE_SELF, &cpu_usg);
-        cpu_st = ((double) cpu_usg.ru_utime.tv_sec) + ((double) cpu_usg.ru_utime.tv_usec/1000000.0);  
+        cpu_st = ((double) cpu_usg.ru_utime.tv_sec) + ((double) cpu_usg.ru_utime.tv_usec/1000000.0);
 
         num = tc_pending(&bob);
         //first read.
@@ -60,15 +60,15 @@ int VSTest::testCycle() {
 
     while (true) {
         getrusage(RUSAGE_SELF, &cpu_usg);
-        cpu_t = ((double) cpu_usg.ru_utime.tv_sec) + ((double) cpu_usg.ru_utime.tv_usec/1000000.0);          
+        cpu_t = ((double) cpu_usg.ru_utime.tv_sec) + ((double) cpu_usg.ru_utime.tv_usec/1000000.0);
 
         num2 = tc_pending(&bob);
-       
+
         if (num2 == 2*num) {
             break;
-        }       
+        }
     }
-    
+
     //std::cout << cpu_t - cpu_st << std::endl;
 
     sprintf(msg,"trick.var_clear()\n");
@@ -119,7 +119,7 @@ int VSTest::testAddRemove() {
     vs_read();
     result = strcmp_IgnoringWhiteSpace("0  -1234  -405039 {ft}", got_read);
     TRICK_EXPECT_EQ(result, 0, suite, "VariableChangeUnits")
-    trick_test_add_parent( suite , "VariableChangeUnits" , "2710769246");    
+    trick_test_add_parent( suite , "VariableChangeUnits" , "2710769246");
 
     // REMOVE SINGLE VARIABLE
     sprintf(msg,"trick.var_remove(\"vsx.vst.e\")\n");
@@ -127,7 +127,7 @@ int VSTest::testAddRemove() {
     vs_read();
     result = strcmp_IgnoringWhiteSpace("0  -1234", got_read);
     TRICK_EXPECT_EQ(result, 0, suite, "VariableRemove")
-    trick_test_add_parent( suite , "VariableRemove" , "806750761");   
+    trick_test_add_parent( suite , "VariableRemove" , "806750761");
 
     // CLEAR VARIABLE SERVER
     sprintf(msg,"trick.var_clear()\n");
@@ -175,7 +175,7 @@ int VSTest::testPause() {
     vs_write(msg);
     sprintf(msg,"trick.var_add(\"vsx.vst.i\")\n");
     vs_write(msg);
-    
+
     // PAUSE
     sprintf(msg,"trick.var_pause()\n");
     vs_write(msg);

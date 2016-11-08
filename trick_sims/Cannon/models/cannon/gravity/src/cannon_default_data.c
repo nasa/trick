@@ -9,7 +9,7 @@ LIBRARY_DEPENDENCY: ((cannon_default_data.o))
 
 int cannon_default_data( CANNON* C ) {
 
-    const double PI = 3.1415926535; 
+    const double PI = 3.1415926535;
 
     C->acc[0] = 0.0;
     C->acc[1] = -9.81;

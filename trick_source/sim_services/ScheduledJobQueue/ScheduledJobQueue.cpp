@@ -45,7 +45,7 @@ Trick::ScheduledJobQueue::~ScheduledJobQueue( ) {
 -# Increment the size of the queue.
 */
 int Trick::ScheduledJobQueue::push( JobData * new_job ) {
- 
+
     unsigned int ii , jj ;
 
     /* Allocate additional memory for the additional job in the queue */
@@ -53,7 +53,7 @@ int Trick::ScheduledJobQueue::push( JobData * new_job ) {
 
     new_job->set_handled(true) ;
 
-    /* Find the correct insertion spot in the queue by comparing 
+    /* Find the correct insertion spot in the queue by comparing
        the job_class, the phase, the sim_object id, and the job_id in that order. */
     /* While searching for the correct insertion spot, copy all jobs that precede
        the incoming job to the newly allocated queue space. */
@@ -280,7 +280,7 @@ Trick::JobData * Trick::ScheduledJobQueue::get_next_job() {
     /* return NULL if we are at the end of the list  */
     if ( curr_index >= list_size ) {
         curr_index = list_size ;
-        return(NULL) ; 
+        return(NULL) ;
     } else {
         /* return the next enabled job, or NULL if we reach the end of the list */
         while (curr_index < list_size ) {
@@ -290,7 +290,7 @@ Trick::JobData * Trick::ScheduledJobQueue::get_next_job() {
             }
         }
     }
-    return(NULL) ; 
+    return(NULL) ;
 }
 
 /**
@@ -305,7 +305,7 @@ Trick::JobData * Trick::ScheduledJobQueue::get_next_job() {
            set the overall job call time to the current job's next job call time.
         -# Increment the #curr_index.
         -# Return the current job if the job is enabled.
-    -# Else 
+    -# Else
         -# If the job's next job call time is lower than the overall next job call time
            set the overall job call time to the current job's next job call time.
         -# Increment the #curr_index.

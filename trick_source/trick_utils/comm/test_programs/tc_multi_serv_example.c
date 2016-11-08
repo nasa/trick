@@ -154,7 +154,7 @@ fprintf(stderr,"Starting continuous_connect %d\n", pthread_self());
 
    return((void *)NULL) ;
 }
-   
+
 int main( int argc, char *argv[] ) {
 
    int       ctr;
@@ -168,10 +168,10 @@ int main( int argc, char *argv[] ) {
 
    if (argc >= 2) {
       if (!strcmp(argv[1] , "-h")) {
-         fprintf(stderr,"usage: %s [tag_name]\n",argv[0]);  
+         fprintf(stderr,"usage: %s [tag_name]\n",argv[0]);
          exit(0) ;
       }
-      else 
+      else
          strcpy(other_tag , argv[1]) ;
    }
 
@@ -261,8 +261,8 @@ int main( int argc, char *argv[] ) {
 
 #if (__sun)
 /* This bogus handler is in here because the Sun machines
-   sometimes generate a bogus SIGALRM from usleeps that 
-   cause the program to exit.  This handler just catches 
+   sometimes generate a bogus SIGALRM from usleeps that
+   cause the program to exit.  This handler just catches
    that signal and continues processing
  */
 
@@ -276,7 +276,7 @@ void stupid( int sig ) {
 void sigint_hndlr( int sig )
 {
    int i ;
- 
+
    if (pthread_equal(pthread_self() , thread_id)) {
       fprintf(stderr,"Disconnecting devices...\n" );
 
@@ -290,6 +290,6 @@ void sigint_hndlr( int sig )
 
    /* Exit the application. */
    exit(0);
-    
+
 }
 

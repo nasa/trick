@@ -21,7 +21,7 @@
 #endif
 */
 
-/** 
+/**
  *  Below are the supported types of integration schemes.
  */
 typedef enum {
@@ -128,7 +128,7 @@ namespace Trick {
         virtual void set_verbosity(int level);
         virtual void reset() {}
         virtual Integrator_type get_Integrator_type() { return (User_Defined); };
-        
+
     };
 
     Integrator* getIntegrator( Integrator_type Alg, unsigned int State_size, double Dt = 0.0 );

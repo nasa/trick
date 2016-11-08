@@ -1,7 +1,7 @@
 /********************************* TRICK HEADER *******************************
-PURPOSE:                     ( Variable server test ) 
+PURPOSE:                     ( Variable server test )
 REFERENCES:                  ( None )
-ASSUMPTIONS AND LIMITATIONS: ( None ) 
+ASSUMPTIONS AND LIMITATIONS: ( None )
 PROGRAMMERS:                 ( (Lindsay Landry) (L3) (9-12-2013) )
 ********************************************************************************/
 #include <wchar.h>
@@ -11,7 +11,7 @@ PROGRAMMERS:                 ( (Lindsay Landry) (L3) (9-12-2013) )
 
 #ifndef VS_HH
 #define VS_HH
-class VSTest { 
+class VSTest {
 	public:
 
 		unsigned short port_num;
@@ -25,7 +25,7 @@ class VSTest {
 		unsigned char 		b;
 		short				c;
 		unsigned short  	d;
-		int 				e; /*  M xy-position */ 
+		int 				e; /*  M xy-position */
 		unsigned int 		f;
 		long				g;
 		unsigned long		h;

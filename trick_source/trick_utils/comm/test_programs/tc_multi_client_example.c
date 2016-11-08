@@ -46,7 +46,7 @@ int main( int argc, char *argv[] ) {
 
    if (argc >= 2) {
       if (!strcmp(argv[1] , "-h")) {
-         fprintf(stderr,"usage: %s [tag_name]\n",argv[0]);  
+         fprintf(stderr,"usage: %s [tag_name]\n",argv[0]);
          exit(0) ;
       }
       else {
@@ -78,11 +78,11 @@ int main( int argc, char *argv[] ) {
                     (TrickErrorDataPtr)NULL,
                     TRICK_ERROR_TRIVIAL);
 
-   /* It is possible for multiple multiconnects to try and 
-      initiate simultaneously causing some of the connects 
-      to fail.  This happens if all of the clients have the 
+   /* It is possible for multiple multiconnects to try and
+      initiate simultaneously causing some of the connects
+      to fail.  This happens if all of the clients have the
       same tag and are connecting to the same server.  This is
-      the V.R. scenario.  Continue trying to connect 
+      the V.R. scenario.  Continue trying to connect
       until successful.
     */
    do {
@@ -130,8 +130,8 @@ int main( int argc, char *argv[] ) {
 
 #if (__sun)
 /* This bogus handler is in here because the Sun machines
-   sometimes generate a bogus SIGALRM from usleeps that 
-   cause the program to exit.  This handler just catches 
+   sometimes generate a bogus SIGALRM from usleeps that
+   cause the program to exit.  This handler just catches
    that signal and continues processing
  */
 
@@ -143,12 +143,12 @@ void stupid( int sig ) {
 /* Interupt signal handler. */
 void sigint_hndlr( int sig )
 {
- 
+
    fprintf(stderr,"client: disconnected...\n" );
 
    if (tc_isValid(device))
       tc_disconnect(device);
- 
+
    /* Exit the application. */
    exit( 1 );
 }

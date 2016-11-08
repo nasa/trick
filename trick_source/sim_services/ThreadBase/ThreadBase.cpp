@@ -168,7 +168,7 @@ int Trick::ThreadBase::execute_priority() {
             min_priority = sched_get_priority_min(SCHED_FIFO);
 
             /* Since Trick's max priority starts at 1 and moves to lower priorties as the number goes up and Linux's
-               priorities goes up as the number goes up and maxes out at "max_priority", we need to offset as follows: 
+               priorities goes up as the number goes up and maxes out at "max_priority", we need to offset as follows:
              */
             proc_priority = max_priority - (rt_priority - 1);
 
@@ -236,7 +236,7 @@ int Trick::ThreadBase::execute_priority() {
         if (proc_priority < min_priority) {
 
             message_publish(MSG_WARNING, "Warning: Trick CPU priority at %d is too low.\n", rt_priority);
-            message_publish(MSG_WARNING, "This corresponds to a Darwin thread priority of %d.\n", proc_priority); 
+            message_publish(MSG_WARNING, "This corresponds to a Darwin thread priority of %d.\n", proc_priority);
             message_publish(MSG_WARNING, "The Darwin thread priority range is %d:%d (min:max).\n", min_priority, max_priority);
             message_publish(MSG_WARNING, "The corresponding minimum Trick priority is %d.\n", (max_priority - min_priority) + 1);
             message_publish(MSG_WARNING, "Setting Trick priority to minimum!\n");
@@ -245,7 +245,7 @@ int Trick::ThreadBase::execute_priority() {
         } else if (proc_priority > max_priority) {
 
             message_publish(MSG_WARNING, "Warning: Trick CPU priority at %d is too high.\n", rt_priority);
-            message_publish(MSG_WARNING, "This corresponds to a Darwin thread priority of %d.\n", proc_priority); 
+            message_publish(MSG_WARNING, "This corresponds to a Darwin thread priority of %d.\n", proc_priority);
             message_publish(MSG_WARNING, "The Darwin thread priority range is %d:%d (min:max).\n", min_priority, max_priority);
             message_publish(MSG_WARNING, "The maximum Trick priority is 1. Setting to maximum!\n");
             proc_priority = max_priority;

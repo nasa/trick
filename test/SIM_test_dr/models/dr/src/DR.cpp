@@ -1,6 +1,6 @@
 /******************************TRICK HEADER*************************************
 PURPOSE:                     ( Test data record )
-REFERENCE:                   ( None ) 
+REFERENCE:                   ( None )
 ASSUMPTIONS AND LIMITATIONS: ( None )
 CLASS:                       ( scheduled )
 LIBRARY DEPENDENCY:          ( DR.o )

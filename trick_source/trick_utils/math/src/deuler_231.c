@@ -24,14 +24,14 @@ PROGRAMMERS:
 
 int euler231( /* Return: --   None. */
         double angle[3],    /* In: r  Method=0, 0=PITCH, 1=YAW, 2=ROLL */
-        double mat[3][3],   /* Out: r  Method=0, 
+        double mat[3][3],   /* Out: r  Method=0,
                                        Coordinate tranformation matrix   */
         int method,         /* In: 0 = Make matrix from angles,
                                    1 = Make angles from matrix,
-                                   2 = Make angles from matrix but 
-                                       use previous values to 
+                                   2 = Make angles from matrix but
+                                       use previous values to
                                        prevent singularities */
-        double *prev,       /* In: r   prev[3], Previous values of 
+        double *prev,       /* In: r   prev[3], Previous values of
                                        euler angles */
         char *file,         /* In: File_name of caller of this function */
         int lineno)         /* In: line # of call to this function in fname */

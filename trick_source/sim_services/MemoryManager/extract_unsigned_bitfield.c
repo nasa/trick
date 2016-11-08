@@ -27,8 +27,8 @@ unsigned int extract_unsigned_bitfield_any(unsigned int value,  /* In: Value to 
 
     if (un.c[sizeof(long) - 1] == 1) {
 
-        /* 
-         * Big endian 
+        /*
+         * Big endian
          */
 
         mask = 0x00000001 << (start + bits - 1);
@@ -44,8 +44,8 @@ unsigned int extract_unsigned_bitfield_any(unsigned int value,  /* In: Value to 
         bf = bf >> start;
     } else {
 
-        /* 
-         * Little endian 
+        /*
+         * Little endian
          */
 
         /* Shift the bit field contents of the current value to the lsb of the underlying int. */

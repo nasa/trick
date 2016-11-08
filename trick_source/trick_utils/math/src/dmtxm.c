@@ -1,4 +1,4 @@
-/* 
+/*
    PURPOSE: (Matrix transpose times matrix)
 
    ASSUMPTIONS AND LIMITATIONS: ((3x3 Matrix implementation))

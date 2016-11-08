@@ -56,7 +56,7 @@ namespace Trick {
 
             #ifndef SWIG
             /**
-             @brief DRAscii default constructor. 
+             @brief DRAscii default constructor.
              */
             DRAscii() {}
             #endif
@@ -94,17 +94,17 @@ namespace Trick {
              @brief @userdesc Command to set the printf format for the group's float variable values in the
              log file (default is "%20.8g").
              @par Python Usage:
-             @code <dr_group>.set_ascii_float_format("<in_ascii_float_format>") @endcode 
+             @code <dr_group>.set_ascii_float_format("<in_ascii_float_format>") @endcode
              @param in_ascii_float_format - printf format string
              @return always 0
             */
             int set_ascii_float_format(std::string in_ascii_float_format) ;
 
             /**
-             @brief @userdesc Command to set the printf format for the group's double variable values in the 
+             @brief @userdesc Command to set the printf format for the group's double variable values in the
              log file (default is "%20.16g").  If single_prec_only is set, then default is "%20.8g".
              @par Python Usage:
-             @code <dr_group>.set_ascii_double_format("<in_ascii_double_format>") @endcode 
+             @code <dr_group>.set_ascii_double_format("<in_ascii_double_format>") @endcode
              @param in_ascii_double_format - printf format string
              @return always 0
             */
@@ -115,7 +115,7 @@ namespace Trick {
              file (default is ",").  When the delimiter is a comma (","), the log file name
              extension will be .csv, otherwise the log file extension will be .txt.
              @par Python Usage:
-             @code <dr_group>.set_delimiter("<in_delimiter>") @endcode 
+             @code <dr_group>.set_delimiter("<in_delimiter>") @endcode
              @param in_delimiter - the delimiter string
              @return always 0
             */
@@ -125,7 +125,7 @@ namespace Trick {
              @brief @userdesc Command to print double variable values as single precision (float) in the log file
              to save space (default is false).
              @par Python Usage:
-             @code <dr_group>.set_single_prec_only(<in_single_prec_only>) @endcode 
+             @code <dr_group>.set_single_prec_only(<in_single_prec_only>) @endcode
              @param in_single_prec_only - boolean true indicates print doubles as single precision
              @return always 0
             */

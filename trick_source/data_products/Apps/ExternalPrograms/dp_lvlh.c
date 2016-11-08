@@ -1,6 +1,6 @@
 /*
 PURPOSE:
-       (Compute LVLH relative position and velocity given 
+       (Compute LVLH relative position and velocity given
         two inertial state vectors)
 
 REFERENCE:

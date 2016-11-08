@@ -1,4 +1,4 @@
-#if ( __APPLE__ ) 
+#if ( __APPLE__ )
 #       include <GLUT/glut.h>
 #else
 #       include <GL/glut.h>
@@ -67,7 +67,7 @@ SceneElement::SceneElement(const char* model_name) {
 void SceneElement::init() {
     if (model_init_func != 0) {
       (*model_init_func)();
-    } 
+    }
 }
 
 void SceneElement::display() {
@@ -78,7 +78,7 @@ void SceneElement::display() {
     glMultMatrixd((GLdouble*)R);
     if (model_display_func != 0) {
       (*model_display_func)();
-    } 
+    }
     glPopMatrix();
 
 }

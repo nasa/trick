@@ -35,7 +35,7 @@ void* Trick::MemoryManager::io_src_allocate_class(const char* class_name, int nu
 
     for (ii = 0; ii < strlen(alloc_fn_name); ii++) {
         if ( alloc_fn_name[ii] == ':') {
-            alloc_fn_name[ii] = '_'; 
+            alloc_fn_name[ii] = '_';
         }
     }
 
@@ -124,12 +124,12 @@ void Trick::MemoryManager::io_src_delete_class(ALLOC_INFO * alloc_info) {
     }
 }
 
-// MEMBER FUNCTION: size_t Trick::MemoryManager::io_src_sizeof_user_type( const char* user_type_name); 
+// MEMBER FUNCTION: size_t Trick::MemoryManager::io_src_sizeof_user_type( const char* user_type_name);
 /**
  * There should be a function whose name is of the form:
  *      io_src_sizeof_<user_type>
  * linked into the simulation executable. We need to find
- * it and call it. 
+ * it and call it.
  */
 size_t Trick::MemoryManager::io_src_sizeof_user_type( const char* user_type_name) {
 

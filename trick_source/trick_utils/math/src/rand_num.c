@@ -1,7 +1,7 @@
 /*
    PURPOSE: (Switching logic for selected random number sequence generator)
 
-   ASSUMPTIONS AND LIMITATIONS: ((Option 0: Uniform - Single Linear Congruential Generator) (Option 1: Uniform - Triple 
+   ASSUMPTIONS AND LIMITATIONS: ((Option 0: Uniform - Single Linear Congruential Generator) (Option 1: Uniform - Triple
    Linear Congruential Generator) (Option 2: Normalized Gaussian - Pseudo) (Option 3: Normalized Gaussian - Box Muller
    - Bell shaped) (Note: Options 2 and 3 can use either the single LCG or the triple LCG))
 

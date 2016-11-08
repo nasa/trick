@@ -43,7 +43,7 @@ void main()
       fflush(stdin);
       switch(ch)
       {
-         case '1':    
+         case '1':
            newitem=(ITEM*)malloc(sizeof(ITEM));
            printf("\nEnter a string\n");
            scanf("%s",buffer);
@@ -56,7 +56,7 @@ void main()
            break;
          case '2':
            printf("Enter key\n");
-     
+
            scanf("%d",&newnum);
            printf("Looking for %d\n",newnum);
            tempitem.key=newnum;
@@ -68,13 +68,13 @@ void main()
            }
            else
            {
-              printf("Item not found\n"); 
+              printf("Item not found\n");
            }
            break;
          case '3':
            printf("Enter key\n");
            scanf("%d",&newnum);
-           tempitem.key=newnum; 
+           tempitem.key=newnum;
            node=bstFind(&tempitem,&bst);
            if(node != NULL)
            {
@@ -84,7 +84,7 @@ void main()
            }
            else
            {
-              printf("Item not found\n"); 
+              printf("Item not found\n");
            }
            break;
          default:done=1;

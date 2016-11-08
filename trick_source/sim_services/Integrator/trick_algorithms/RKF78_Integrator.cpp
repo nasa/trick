@@ -19,13 +19,13 @@ void Trick::RKF78_Integrator::initialize(int State_size, double Dt) {
     deriv = INTEG_ALLOC( double*, n_steps);
     for(i=0; i<n_steps ; i++) {
         deriv[i] = INTEG_ALLOC( double, num_state);
-    } 
+    }
 
     /** Allocate the workspace.*/
     state_ws = INTEG_ALLOC( double*, n_steps);
     for(i=0; i<n_steps ; i++) {
         state_ws[i] = INTEG_ALLOC( double, num_state);
-    } 
+    }
 }
 
 /**

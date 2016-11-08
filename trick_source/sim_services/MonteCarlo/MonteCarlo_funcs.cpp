@@ -114,7 +114,7 @@ void Trick::MonteCarlo::set_num_runs(unsigned int in_num_runs) {
     }
     update_actual_num_runs();
 }
-  
+
 unsigned int Trick::MonteCarlo::get_num_runs() {
     return num_runs;
 }
@@ -163,17 +163,17 @@ void Trick::MonteCarlo::add_variable(Trick::MonteVar *variable) {
     variables.push_back(variable);
 }
 
-/** 
+/**
  * @par Detailed Design:
- * Get a pointer to a MonteVar by name. Note this is used in conjunction with 
+ * Get a pointer to a MonteVar by name. Note this is used in conjunction with
  * %factory so that swig produces methods returning all derived types
  */
 Trick::MonteVar * Trick::MonteCarlo::get_variable(std::string variable_name) {
 
     for (std::vector<Trick::MonteVar *>::const_iterator i = variables.begin(); i != variables.end(); ++i) {
         if ( (*i) and (*i)->name.compare(variable_name) == 0 ) {
-            return (*i); 
-        } 
+            return (*i);
+        }
     }
     return (NULL);
 }
@@ -251,7 +251,7 @@ void Trick::MonteCarlo::disable_slave(std::string name, bool disabled){
             }
             return;
         }
-    }    
+    }
 }
 
 int Trick::MonteCarlo::process_sim_args() {
@@ -290,7 +290,7 @@ int Trick::MonteCarlo::shutdown() {
             run_queue(&slave_post_queue, "in slave_post queue") ;
             tc_disconnect(&data_connection_device);
         } else {
-            if (verbosity >= ERROR) 
+            if (verbosity >= ERROR)
                 message_publish(MSG_ERROR, "Monte ERROR: Child failed to connect to data connection.\n") ;
         }
     }

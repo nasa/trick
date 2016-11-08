@@ -33,7 +33,7 @@ MatLab4::MatLab4(char * file_name , char * param_name , char * time_name ) {
            printf("ERROR:  Couldn't open \"%s\"\n" , file_name ) ;
            exit(-1) ;
         }
-        
+
         // we use fseek calls to move around so I need to know the max offset of the file
         fseek( fp_ , 0 , SEEK_END ) ;
         max_offset = ftell(fp_) ;
@@ -62,7 +62,7 @@ MatLab4::MatLab4(char * file_name , char * param_name , char * time_name ) {
 
                 // read the type in
                 fread( &temp , 4 , 1 , fp_ ) ;
-                if ( ! strncmp( (char *)&temp , "MATL" , 4 )) { 
+                if ( ! strncmp( (char *)&temp , "MATL" , 4 )) {
                         fclose(fp_) ;
                         return ;
                 }
@@ -124,7 +124,7 @@ MatLab4::MatLab4(char * file_name , char * param_name , char * time_name ) {
                         fclose(fp_) ;
                         return ;
                 }
-                
+
                 fread( &row , 4 , 1 , fp_ ) ;
                 if ( swap_ ) { row = trick_byteswap_int(row) ; }
 
@@ -137,7 +137,7 @@ MatLab4::MatLab4(char * file_name , char * param_name , char * time_name ) {
                 fread( &len , 4 , 1 , fp_ ) ;
                 if ( swap_ ) { len = trick_byteswap_int(len) ; }
 
-                temp_ptr = new char[len +1] ; 
+                temp_ptr = new char[len +1] ;
                 fread( temp_ptr , len , 1 , fp_ ) ;
 
                 if ( ! strncmp( temp_ptr , param_name , len ) && y_value_.field_num_ < column ) {
@@ -204,7 +204,7 @@ double MatLab4::getvalue(struct MatLab4Var * mv ) {
         }
         return(0.0) ;
 }
-                      
+
 int MatLab4::get( double * time , double * value ) {
 
         long offset ;
@@ -283,7 +283,7 @@ int MatLab4LocateParam( char *file_name , char *param_name , char *time_name ) {
            printf("ERROR:  Couldn't open \"%s\"\n" , file_name ) ;
            exit(-1) ;
         }
-        
+
         // we use fseek calls to move around so I need to know the max offset of the file
         fseek( fp , 0 , SEEK_END ) ;
         max_offset = ftell(fp) ;
@@ -312,7 +312,7 @@ int MatLab4LocateParam( char *file_name , char *param_name , char *time_name ) {
 
                 // read the type in
                 fread( &temp , 4 , 1 , fp ) ;
-                if ( !strncmp( (char *)&temp , "MATL" , 4 )) { 
+                if ( !strncmp( (char *)&temp , "MATL" , 4 )) {
                         return(0) ;
                 }
 
@@ -375,7 +375,7 @@ int MatLab4LocateParam( char *file_name , char *param_name , char *time_name ) {
                 fread( &len , 4 , 1 , fp ) ;
                 if ( swap ) { len = trick_byteswap_int(len) ; }
 
-                temp_ptr = new char[len +1] ; 
+                temp_ptr = new char[len +1] ;
                 fread( temp_ptr , len , 1 , fp ) ;
 
                 if ( ! strncmp( temp_ptr , param_name , len ) && y_field_num < column ) {
@@ -389,7 +389,7 @@ int MatLab4LocateParam( char *file_name , char *param_name , char *time_name ) {
                 if ( mat_type != 0 ) {
                         fprintf(stderr,"Unknown matrix type for %s\n", temp_ptr) ;
                 }
-                
+
                 if ( param_found && time_found ) {
                         fclose(fp) ;
                         delete temp_ptr ;
@@ -401,7 +401,7 @@ int MatLab4LocateParam( char *file_name , char *param_name , char *time_name ) {
                 // skip to next parameter
                 fseek( fp ,  row * column * size * ( 1 + imaginary ) , SEEK_CUR ) ;
                 offset = ftell(fp) ;
-                       
+
         }
 
         fclose(fp) ;

@@ -44,7 +44,7 @@ double uniform_rnd_1(RAND_GENERATOR * G)
     static long m = 2147483647; /* Value of m based on F. Clark note, 4/22/92 */
     double new_random_number;
 
-    /* 
+    /*
      *  NOTE:  This function behaves slightly different from
      *  ICDS's g_rnd().
      *   ICDS g_rnd():

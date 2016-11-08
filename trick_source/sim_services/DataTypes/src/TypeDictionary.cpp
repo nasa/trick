@@ -7,7 +7,7 @@
 // MEMBER FUNCTION
 TypeDictionary::TypeDictionary() {
 
-    // Add builtin types. 
+    // Add builtin types.
     addTypeDefinition("void", new PrimitiveDataType<void>() );
     addTypeDefinition("char", new PrimitiveDataType<char>() );
     addTypeDefinition("short", new PrimitiveDataType<short>() );

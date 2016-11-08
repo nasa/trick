@@ -103,7 +103,7 @@ typedef enum {
     TC_COMM_ENABLED = 1     /* -- Enabled flag value  */
 } TCCommFlag;
 
-/* 
+/*
  * WARNING : These flags are the reverse logic of BLOCKIO and NOBLOCKIO.
  *           This is so that if a user does not set the blockio_flag
  *          in a device, the device will default to blocking
@@ -112,7 +112,7 @@ typedef enum {
     TC_COMM_BLOCKIO = 0,        /* -- Set blocking I/O     */
     TC_COMM_NOBLOCKIO = 1,      /* -- Set non-blocking I/O */
     TC_COMM_TIMED_BLOCKIO = 2,  /* -- Set timed software block_io */
-    TC_COMM_ALL_OR_NOTHING = 3  /* -- Set non-blocking to 
+    TC_COMM_ALL_OR_NOTHING = 3  /* -- Set non-blocking to
                                           all or nothing */
 } TCCommBlocking;
 
@@ -147,7 +147,7 @@ typedef struct {
     char addr[40];                  /* ** address of connection */
     int port;                       /* ** port of connection */
     int pid;                        /* ** pid of connection */
-    int conn_initiated;             /* ** Return flag to initiate 
+    int conn_initiated;             /* ** Return flag to initiate
                                           connection */
     int disabled;                   /* ** 0=Communication enabled
                                           1=device disabled */

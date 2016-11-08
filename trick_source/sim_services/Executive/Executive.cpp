@@ -58,7 +58,7 @@ Trick::Executive::Executive() {
     old_time_tic_value = 1000000 ;
     time_tic_value = 1000000 ;
 
-    // Set the JobData copy of the time_tic_value to the executive value 
+    // Set the JobData copy of the time_tic_value to the executive value
     Trick::JobData::set_time_tic_value(time_tic_value) ;
 
     // These trap flags are set in init_signal_handlers()

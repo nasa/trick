@@ -64,7 +64,7 @@ Trick::MemoryManager::MemoryManager()
     primitive_types.insert(std::string("uint32_t")) ;
     primitive_types.insert(std::string("int64_t")) ;
     primitive_types.insert(std::string("uint64_t")) ;
-    
+
     trick_MM = this;
     return ;
 }

@@ -28,9 +28,9 @@ typedef enum {
 
     UNIFORM_RND_1,      /* Single Linear Congruential Generator */
     UNIFORM_RND_TRIPLE, /* Triple Linear Congruential Generator */
-    GAUSS_RND_PSEUDO,   /* Normalized Quasi-Gaussian Triangular 
+    GAUSS_RND_PSEUDO,   /* Normalized Quasi-Gaussian Triangular
                                Generator */
-    GAUSS_RND_BELL,     /* Normalized Gaussian Bell-Shaped 
+    GAUSS_RND_BELL,     /* Normalized Gaussian Bell-Shaped
                                Generator */
     RND_NUM_1           /* Return a value of 1 */
 } rand_generator;
@@ -45,22 +45,22 @@ typedef enum {
 
 typedef struct {
 
-    rand_generator option;      /* -- Random number generator 
+    rand_generator option;      /* -- Random number generator
                                       option */
-    uniform_generator uniform;  /* -- Uniform Random number 
+    uniform_generator uniform;  /* -- Uniform Random number
                                       generator option */
-    unsigned long seed_1;  /* -- Seed for uniform RNG 
+    unsigned long seed_1;  /* -- Seed for uniform RNG
                                  single LCG */
-    long seed_trpl;        /* -- Seed for uniform RNG 
-                                 triple LCG make this seed 
+    long seed_trpl;        /* -- Seed for uniform RNG
+                                 triple LCG make this seed
                                  negative for initializing
                                  the RNG table */
-    int iff;               /* -- Initialization flag for 
+    int iff;               /* -- Initialization flag for
                                  triple LCG */
     double table[98];      /* -- Table for RNG triple LCG */
     int sigma_range;       /* -- Sigma range for output random num
                                  Must be > 0 for triangular gauss.
-                                 Must be >= 0 for bell gauss, 
+                                 Must be >= 0 for bell gauss,
                                  0 gives infinite sigma. */
     long ix1;              /* -- Intermidiate Radom Number */
     long ix2;              /* -- Intermidiate Radom Number */
@@ -69,7 +69,7 @@ typedef struct {
 } RAND_GENERATOR;
 
 /*
- * Trick's interface to the GNU Scientific Library's 
+ * Trick's interface to the GNU Scientific Library's
  * random number generators
  */
 typedef enum {
@@ -95,7 +95,7 @@ typedef struct {
     int rel_max;          /* -- Maximum is a relative maximum */
     int sigma_range;      /* --  Sigma range for output random num
                                  Must be > 0 for triangular gauss.
-                                 Must be >= 0 for bell gauss, 
+                                 Must be >= 0 for bell gauss,
                                  0 gives infinite sigma.            */
     uniform_generator uniform; /* -- Uniform Random number generator option */
 

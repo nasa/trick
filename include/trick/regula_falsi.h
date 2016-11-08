@@ -22,11 +22,11 @@ extern "C" {
 
 typedef enum {
 
-    Decreasing = -1,   /* Sets time to go = 0 only 
+    Decreasing = -1,   /* Sets time to go = 0 only
                           for a decreasing err function */
-    Any,               /* Sets time to go = 0, 
+    Any,               /* Sets time to go = 0,
                           decreasing/increasing err function */
-    Increasing         /* Sets time to go = 0 only for 
+    Increasing         /* Sets time to go = 0 only for
                           an increasing err function */
 } Regula_Falsi;
 
@@ -34,7 +34,7 @@ typedef struct {
 
     int lower_set;       /* --  Yes = Lower bounds has been set */
     int upper_set;       /* --  Yes = Upper bounds has been set */
-    int iterations;      /* --  Total num of iterations 
+    int iterations;      /* --  Total num of iterations
                                 used to fire event */
     int fires;           /* --  Total num of times event fired */
     double x_lower;      /* --  Lower value from error func */
@@ -45,7 +45,7 @@ typedef struct {
     double error;        /* --  New Error value from err func */
     double last_error;   /* --  Last pass error value */
     double last_tgo;     /* s   Last pass Time to go value */
-    double error_tol;    /* --  Tolerance on error below 
+    double error_tol;    /* --  Tolerance on error below
                                 which tgo=0 */
     Regula_Falsi mode;   /* --  Operating mode for regula falsi */
     Regula_Falsi function_slope;  /* --  Operating mode for regula falsi */

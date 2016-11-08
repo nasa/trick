@@ -7,7 +7,7 @@ void Trick::MemoryManager::clear_rvalue( void* base_address, ATTRIBUTES* attr, i
     char* final_address;
     int remaining_dimensions = attr->num_index - curr_dim;
 
-    /** @par Detailed Description: */ 
+    /** @par Detailed Description: */
 
     /** @par
         If we're referencing a singleton then calculate the address
@@ -116,27 +116,27 @@ void Trick::MemoryManager::clear_rvalue( void* base_address, ATTRIBUTES* attr, i
 
        extent = attr->index[curr_dim].size ;
 
-       /**  @par 
+       /**  @par
             If the array is unconstrained (i.e., it's a pointer) then we just need to check
             whether the pointer is NULL.
         */
-       if ( extent == 0) { 
+       if ( extent == 0) {
            final_address = (char*)base_address;
            *(void**)final_address = NULL;
 
-       /** @par 
+       /** @par
            If the array (at this dimension) is constrained (i.e., it's a fixed array )
            then it is nil if and only if each of it's sub-elements (at the next dimension,
            which can themselves be arrays) are nil. So, for each of the elements in current
            dimension, we recursively call is_nil_valued() on each of the sub-elements to
            find out whether this array is nil valued and return the result.
-           */ 
+           */
        } else {
            int ii;
 
            for (ii=0; ii < extent; ii++) {
-               clear_rvalue( base_address, attr, curr_dim + 1, offset * extent + ii); 
-           } 
+               clear_rvalue( base_address, attr, curr_dim + 1, offset * extent + ii);
+           }
        }
 
     } else {
@@ -156,7 +156,7 @@ void Trick::MemoryManager::clear_class( char *address, ATTRIBUTES * A) {
      */
 
     for (jj = 0; A[jj].name[0] != '\0'; jj++) {
-        /* 
+        /*
          * For all the parameters in this data structure...
          */
 
@@ -181,7 +181,7 @@ void Trick::MemoryManager::clear_class( char *address, ATTRIBUTES * A) {
                     if ( A[jj].attr != NULL ) {
                         clear_class( element_addr, (ATTRIBUTES*)(A[jj].attr));
                     }
-                } 
+                }
             } else {
                 clear_rvalue( element_addr, &(A[jj]), 0, 0);
             }
@@ -230,7 +230,7 @@ void Trick::MemoryManager::clear_var( void* address) {
     if (alloc_info != NULL) {
         reference_attr = make_reference_attr( alloc_info);
         if (alloc_info->type == TRICK_STRUCTURED ) {
-            if (alloc_info->num_index != 0) { 
+            if (alloc_info->num_index != 0) {
                 clear_arrayed_class( (char*)(alloc_info->start), reference_attr, 0, 0) ;
             } else {
                 clear_class( (char*)(alloc_info->start), alloc_info->attr) ;
@@ -253,7 +253,7 @@ void Trick::MemoryManager::clear_var( const char* name) {
 
     VARIABLE_MAP::iterator pos;
     ALLOC_INFO *alloc_info;
-    
+
     pthread_mutex_lock(&mm_mutex);
     pos = variable_map.find( name);
 
@@ -264,7 +264,7 @@ void Trick::MemoryManager::clear_var( const char* name) {
         clear_var( alloc_info->start);
     } else {
         std::stringstream message;
-        message << "Can't clear variable \"" << name 
+        message << "Can't clear variable \"" << name
                 << "\" because it doesn't exist.";
         emitError(message.str());
     }
@@ -308,7 +308,7 @@ void Trick::MemoryManager::reset_memory() {
     n_addrs = deletion_list.size();
     for (ii = 0 ; ii < n_addrs ; ii ++) {
         delete_var( deletion_list[ii], false);
-    } 
+    }
 
     // reset counter to 100mil.  This (hopefully) ensures all alloc'ed ids are after external variables.
     alloc_info_map_counter = 100000000 ;

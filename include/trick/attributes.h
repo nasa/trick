@@ -39,7 +39,7 @@ typedef struct {
 typedef struct {
     int size;       /**< -- If ATTRIBUTES.type == TRICK_BITFIELD or ATTRIBUTES.type ==
                             TRICK_UNSIGNED_BITFIELD, then ATTRIBUTES.index.size[0]
-                            represents the number of bits in the bitfield. 
+                            represents the number of bits in the bitfield.
 
                             Otherwise:
 
@@ -58,7 +58,7 @@ typedef struct {
  * ATTRIBUTES are data structures that represent detailed descriptions of data
  * types, including how an instance of a datatype is represented in memory.
  * ATTRIBUTES are fundemental to the design of Trick's Memory Management.
- * 
+ *
  * The ICG code generator generates arrays of ATTRIBUTES, of varying lengths,
  * for each of the structured datat types that it finds in a header (.h or .hh)
  * file. These generated ATTRIBUTES are stored in a directory entitled ./io_src.

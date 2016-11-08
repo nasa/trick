@@ -24,7 +24,7 @@ class TCIsValidTest : public testing::Test {
       }
 
       void TearDown(){
-   
+
          free(device);
       }
 };
@@ -34,7 +34,7 @@ TEST_F( TCIsValidTest, testNullDevice ) {
    int tcisvalid_status = tc_isValid( NULL );
 
    EXPECT_EQ( tcisvalid_status, 0 );
-} 
+}
 
 TEST_F( TCIsValidTest, testInvalidSocket ) {
 
@@ -43,12 +43,12 @@ TEST_F( TCIsValidTest, testInvalidSocket ) {
    int tcisvalid_status = tc_isValid( device );
 
    EXPECT_EQ( tcisvalid_status, 0 );
-} 
+}
 
 TEST_F( TCIsValidTest, testValidSocket ) {
 
    int tcisvalid_status = tc_isValid( device );
 
    EXPECT_EQ( tcisvalid_status, 0 );
-} 
+}
 

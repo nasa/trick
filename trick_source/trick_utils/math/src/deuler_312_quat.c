@@ -1,6 +1,6 @@
 /*
 PURPOSE:
-	(Generate a LELF_HANDED quaternion using an Euler YAW_ROLL_PITCH sequence 
+	(Generate a LELF_HANDED quaternion using an Euler YAW_ROLL_PITCH sequence
          OR generate an Euler YAW_ROLL_PITCH sequence using a quaternion.)
 
 PROGRAMMERS:
@@ -20,19 +20,19 @@ int euler312_quat(
 {
 
    double haft_angle[3];
-   double mat00, mat01, mat02, mat10, mat11, mat12,  mat22; 
-   double s1;		   
-   double c1;		   
-   double s2;		   
-   double c2;		   
-   double s3;		   
-   double c3;		   
+   double mat00, mat01, mat02, mat10, mat11, mat12,  mat22;
+   double s1;
+   double c1;
+   double s2;
+   double c2;
+   double s3;
+   double c3;
    double tmp;
    int ret = 0;
    static unsigned short error_flag[5] = {0, 0, 0, 0, 0}; /* Send errors only once */
 
    if (method == 0){
-   
+
        /* Compute sines and cosines of 0.5*eulers */
        V_SCALE(haft_angle, angle, 0.5);
        s1 = sin(haft_angle[0]);
@@ -40,18 +40,18 @@ int euler312_quat(
        s2 = sin(haft_angle[1]);
        c2 = cos(haft_angle[1]);
        s3 = sin(haft_angle[2]);
-       c3 = cos(haft_angle[2]); 
-       
-       quat[0] =  c1*c2*c3 - s1*s2*s3; 
+       c3 = cos(haft_angle[2]);
+
+       quat[0] =  c1*c2*c3 - s1*s2*s3;
        quat[1] = -c1*s2*c3 + s1*c2*s3;
        quat[2] = -c1*c2*s3 - s1*s2*c3;
        quat[3] = -c1*s2*s3 - s1*c2*c3;
-            
+
    } else if (method == 1) {
 #define TOLERANCE 1.0e-15
 
        mat12 =  2.*(quat[2]*quat[3] - quat[0]*quat[1]);
-       
+
        /* Within normal range for asin function */
        if (-1.0 <= mat12 && mat12 <= 1.0) {
                angle[1] = asin(mat12);

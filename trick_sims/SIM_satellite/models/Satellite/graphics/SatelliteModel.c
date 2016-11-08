@@ -41,7 +41,7 @@ void Satellite_initialize(void) {
    nozzleTextureID = MakeTexture(Nozzle_texture, NOZZLE_TEXTURE_WIDTH, NOZZLE_TEXTURE_HEIGHT);
 
   if (displayListID == 0) {
-      /* Build Display list.*/   
+      /* Build Display list.*/
       double cosine[33];
       double sine[33];
 
@@ -62,12 +62,12 @@ void Satellite_initialize(void) {
 
       double radius6 = 1.016;
       double station6 = -4.8260;
- 
+
       double radius7 = 1.27;
       double station7 = -6.0858;
 
       int ii;
-      for(ii=0 ; ii <= 32 ; ii++) {   
+      for(ii=0 ; ii <= 32 ; ii++) {
           double angle = (PI*2*ii)/32.0;
           cosine[ii] = cos(angle);
           sine[ii] = sin(angle);
@@ -82,9 +82,9 @@ void Satellite_initialize(void) {
           glEnable(GL_TEXTURE_2D);
 
           glBegin(GL_QUAD_STRIP);
-          for(ii=0 ; ii <= 32 ; ii++) {   
+          for(ii=0 ; ii <= 32 ; ii++) {
 
-              double t = (double)ii/32.0;  
+              double t = (double)ii/32.0;
 
               glTexCoord2d( 0.0, t);
               glNormal3d( (station2-station1)/radius2-radius1, sine[ii], cosine[ii]);
@@ -135,7 +135,7 @@ void Satellite_initialize(void) {
 
           glBegin(GL_QUAD_STRIP);
           for(ii=0 ; ii <= 32 ; ii++) {
-              double t = (double)ii/32.0;  
+              double t = (double)ii/32.0;
               glTexCoord2d( 0.0, t);
               glNormal3d( 0.0, sine[ii], cosine[ii]);
               glVertex3d( station5, sine[ii]*radius5, cosine[ii]*radius5);
@@ -148,7 +148,7 @@ void Satellite_initialize(void) {
 
           glBegin(GL_QUAD_STRIP);
           for(ii=0 ; ii <= 32 ; ii++) {
-              double t = (double)ii/32.0;  
+              double t = (double)ii/32.0;
               glTexCoord2d( 0.5, t);
               glNormal3d( 0.0, sine[ii], cosine[ii]);
               glVertex3d( station6, sine[ii]*radius6, cosine[ii]*radius6);
@@ -158,12 +158,12 @@ void Satellite_initialize(void) {
           }
           glEnd();
 
-      glEndList(); 
+      glEndList();
   }
 }
 
 void Satellite_display(void) {
 
-    glCallList(displayListID); 
+    glCallList(displayListID);
 
 }

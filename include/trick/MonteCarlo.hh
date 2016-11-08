@@ -258,7 +258,7 @@ namespace Trick {
         int run_queue(Trick::ScheduledJobQueue* queue, std::string in_string) ;
 
         int open_file(std::string file_name, FILE** file_ptr) ;
- 
+
         void write_to_run_files(std::string file_name) ;
 
         int initialize_sockets() ;
@@ -473,14 +473,14 @@ namespace Trick {
         bool get_dry_run();
 
         /**
-         * Returns true if executive is running as the slave, 
+         * Returns true if executive is running as the slave,
          * based on value of slave_id (which is > 0 for slave).
          */
         bool is_slave();
 
         /**
-         * Returns true if executive is running as the master, 
-         * based on the value of slave_id (which is 0 for master). 
+         * Returns true if executive is running as the master,
+         * based on the value of slave_id (which is 0 for master).
          */
         bool is_master();
 
@@ -673,7 +673,7 @@ namespace Trick {
         void stop_slave(unsigned int id);
 
         /**
-         * Disables the slave at initialization of the Master. Must be called before master_init is called               
+         * Disables the slave at initialization of the Master. Must be called before master_init is called
          * (i.e. in input file, default_data jobs, or initialization jobs with a phase number = 0)
          *
          * @param name the name of the slave to disable
@@ -696,73 +696,73 @@ namespace Trick {
         int shutdown();
 
         /** Gets #current_run being processed
-         * 
+         *
          * @return the current run number
          */
         unsigned int get_current_run() ;
 
         /** Sets the #current_run being processed
-         * 
+         *
          * @param run_num the number to set the run
          */
         void set_current_run(int run_num) ;
 
         /** Retrieves the #data_connection_device
-         * 
+         *
          * @return the address of the data_connection_device
          */
         TCDevice* get_data_connection_device();
 
-        /** Allows the user to set the port number for 
+        /** Allows the user to set the port number for
          * the listen_device
          *
          * @param port_number number for the port
          */
         void set_listen_device_port(int port_number) ;
 
-        /** Allows the user to set the port number for 
+        /** Allows the user to set the port number for
          * the data_listen_device
          *
          * @param port_number number for the port
          */
         void set_data_listen_device_port(int port_number) ;
 
-        /** Allows the user to set the port number for 
+        /** Allows the user to set the port number for
          * the connection_device
          *
          * @param port_number number for the port
          */
         void set_connection_device_port(int port_number) ;
 
-        /** Allows the user to set the port number for 
+        /** Allows the user to set the port number for
          * the data_connection_device
          *
          * @param port_number number for the port
          */
         void set_data_connection_device_port(int port_number) ;
 
-        /** Allows the user to get the port number for 
+        /** Allows the user to get the port number for
          * the listen_device
          *
          * @return the port number
          */
         int  get_listen_device_port() ;
 
-        /** Allows the user to get the port number for 
+        /** Allows the user to get the port number for
          * the data_listen_device
          *
          * @return the port number
          */
         int  get_data_listen_device_port() ;
 
-        /** Allows the user to get the port number for 
+        /** Allows the user to get the port number for
          * the connection_device
          *
          * @return the port number
          */
         int  get_connection_device_port() ;
 
-        /** Allows the user to get the port number for 
+        /** Allows the user to get the port number for
          * the data_connection_device
          *
          * @return the port number
@@ -814,7 +814,7 @@ namespace Trick {
         void read_machine_name(MonteSlave *curr_slave);
 
         void set_disconnected_state(MonteSlave *curr_slave);
- 
+
         void read_slave_port(MonteSlave *curr_slave);
 
         /**
@@ -931,7 +931,7 @@ namespace Trick {
         int instrument_job_after(Trick::JobData* instrument_job);
         int instrument_job_remove(std::string in_job);
         int write_s_job_execution(FILE* fp);
-        
+
 
         /**
          * Determines if the specified stings are equivalent, ignoring case.

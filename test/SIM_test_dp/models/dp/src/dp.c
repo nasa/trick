@@ -1,6 +1,6 @@
 /********************************* TRICK HEADER *******************************
 PURPOSE:                     ( Test data products )
-REFERENCE:                   ( None ) 
+REFERENCE:                   ( None )
 ASSUMPTIONS AND LIMITATIONS: ( None )
 CLASS:                       ( scheduled )
 LIBRARY DEPENDENCY:          ( dp.o )
@@ -28,14 +28,14 @@ int dp(
 
    int i,j,k,l,m,n ;
 
-   LOOP DP->s3[n].s2[m][l].s1[k][j].si[i]  = (short)          (i+1) ;  
-   LOOP DP->s3[n].s2[m][l].s1[k][j].i[i]   = (int)            (i+1) ;  
-   LOOP DP->s3[n].s2[m][l].s1[k][j].l[i]   = (long)           (i+1) ;  
-   LOOP DP->s3[n].s2[m][l].s1[k][j].f[i]   = (float)          (i+1) ;  
-   LOOP DP->s3[n].s2[m][l].s1[k][j].d[i]   = (double)         (i+1) ;  
-   LOOP DP->s3[n].s2[m][l].s1[k][j].us[i]  = (unsigned short) (i+1) ;  
-   LOOP DP->s3[n].s2[m][l].s1[k][j].ui[i]  = (unsigned int)   (i+1) ;  
-   LOOP DP->s3[n].s2[m][l].s1[k][j].ul[i]  = (unsigned long)  (i+1) ;  
+   LOOP DP->s3[n].s2[m][l].s1[k][j].si[i]  = (short)          (i+1) ;
+   LOOP DP->s3[n].s2[m][l].s1[k][j].i[i]   = (int)            (i+1) ;
+   LOOP DP->s3[n].s2[m][l].s1[k][j].l[i]   = (long)           (i+1) ;
+   LOOP DP->s3[n].s2[m][l].s1[k][j].f[i]   = (float)          (i+1) ;
+   LOOP DP->s3[n].s2[m][l].s1[k][j].d[i]   = (double)         (i+1) ;
+   LOOP DP->s3[n].s2[m][l].s1[k][j].us[i]  = (unsigned short) (i+1) ;
+   LOOP DP->s3[n].s2[m][l].s1[k][j].ui[i]  = (unsigned int)   (i+1) ;
+   LOOP DP->s3[n].s2[m][l].s1[k][j].ul[i]  = (unsigned long)  (i+1) ;
    LOOP DP->s3[n].s2[m][l].s1[k][j].ll[i]  = (long long)      (i+1) ;
 
    /* LOOP printf("\"dp.test.s3[%d].s2[%d][%d].s1[%d][%d].d[%d]\" ,\n",

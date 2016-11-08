@@ -1,6 +1,6 @@
 
 /*
-PURPOSE: (Define the Error conditions and error messages for the 
+PURPOSE: (Define the Error conditions and error messages for the
           trick math routines)
 PROGRAMMERS: (((Alex Lin) (NASA) (8/02) () (--)))
 */

@@ -21,7 +21,7 @@
 #endif
 
 // our line colors for multiple curves on same plot
-#define NUM_COLORS 16 
+#define NUM_COLORS 16
 static const char* colors[NUM_COLORS] = {
     "#000000",       // black
     "#ff0000",       // red

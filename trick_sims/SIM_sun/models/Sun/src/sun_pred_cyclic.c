@@ -33,7 +33,7 @@ int sun_pred_cyclic( SUN_PRED* S,
        JD_to_Calendar_Date (S->JD, &S->utc.year, &S->utc.month, &dday );
 
        S->utc.day  = (int)dday;
-       tsec = (dday - S->utc.day ) * SECONDS_PER_DAY + 0.5; 
+       tsec = (dday - S->utc.day ) * SECONDS_PER_DAY + 0.5;
        S->utc.hour = (int)( tsec / 3600.0 ); tsec = tsec - ( S->utc.hour * 3600.0 );
        S->utc.min  = (int)( tsec / 60.0 );   tsec = tsec - ( S->utc.min  * 60.0 );
        S->utc.sec  = (int)( tsec );
@@ -45,7 +45,7 @@ int sun_pred_cyclic( SUN_PRED* S,
        JD_to_Calendar_Date (JDL, &S->local_time.year, &S->local_time.month, &dday );
 
        S->local_time.day  = (int)dday;
-       tsec = (dday - S->local_time.day ) * SECONDS_PER_DAY + 0.5; 
+       tsec = (dday - S->local_time.day ) * SECONDS_PER_DAY + 0.5;
        S->local_time.hour = (int)( tsec / 3600.0 ); tsec = tsec - ( S->local_time.hour * 3600.0 );
        S->local_time.min  = (int)( tsec / 60.0 );   tsec = tsec - ( S->local_time.min  * 60.0 );
        S->local_time.sec  = (int)( tsec );
@@ -64,12 +64,12 @@ int sun_pred_cyclic( SUN_PRED* S,
                return -1;
        }
 
-       /* Calculate the local hour angle of the Sun. */  
-       S->hour_angle = S->sidereal_time_at_Greenwich * ( 360.0 / 86400.0 ) - 
+       /* Calculate the local hour angle of the Sun. */
+       S->hour_angle = S->sidereal_time_at_Greenwich * ( 360.0 / 86400.0 ) -
                S->observer_longitude - S->right_ascension;
 
 
-       /* Calculate the local azimuth and elevation of the Sun. */ 
+       /* Calculate the local azimuth and elevation of the Sun. */
        equatorial_to_local_horiz(S->observer_latitude,
                                  S->hour_angle,
                                  S->right_ascension,

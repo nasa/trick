@@ -13,7 +13,7 @@ namespace Trick {
     : table(Table),
       breakPointArrays(BreakPointArrays),
       breakPointArraySizes(BreakPointArraySizes),
-      nParams(NParams) {};  
+      nParams(NParams) {};
 
     double eval (double param1, ...) throw(std::logic_error) ;
     double eval (double params[]) throw(std::logic_error) ;

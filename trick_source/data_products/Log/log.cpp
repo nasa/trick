@@ -93,7 +93,7 @@ LogData::~LogData()
 /** Return the number of variable (not values) in binary log file header
  *
  *  If log header contains "a[0-1].b[0-1], x.y[4-5]" there are 2
- *  variables NOT 6. 
+ *  variables NOT 6.
  */
 int LogData::getNumVars()
 {
@@ -103,7 +103,7 @@ int LogData::getNumVars()
 /** Set the number of variables (not values) in binary log file header
  *
  *  If log header contains "a[0-1].b[0-1], x.y[4-5]" there are 2
- *  variables NOT 6. 
+ *  variables NOT 6.
  *
  *  This should be used with care!  Currently -only- a parse routine
  *  in LogGroup uses it.  I could have made LogGroup a friend... but
@@ -114,7 +114,7 @@ void LogData::setNumVars(int nVars)
         nVars_ = nVars;
 }
 
-/** Close a Trick data log 
+/** Close a Trick data log
  * @see rewind() close()
  */
 int LogData::close()
@@ -130,8 +130,8 @@ int LogData::close()
         return (1);
 }
 
-/** Puts next read at beginning of data log 
- *  @see open() close() 
+/** Puts next read at beginning of data log
+ *  @see open() close()
  */
 int LogData::rewind()
 {
@@ -154,7 +154,7 @@ int LogData::rewind()
         return (0);
 }
 
-/** Open a data log at location specified by path 
+/** Open a data log at location specified by path
  *  Path will normally point to a RUN_ directory
  *  @see rewind() close()
  */
@@ -184,7 +184,7 @@ int LogData::open(char *pathToBinaryData)
         binFilePath_ = new char[strlen(pathToBinaryData) + 1];
         strcpy(binFilePath_, pathToBinaryData);
 
-        // Open first binary file (log*.000) 
+        // Open first binary file (log*.000)
         ret = openCurrBinaryFile();
         if ( ret == -1 ) {
                 return(-1);
@@ -199,7 +199,7 @@ int LogData::open(char *pathToBinaryData)
         delete[]currRecord_;
         currRecord_ = new char[sizeRecord_];
 
-        // Initialize the value array's size and types 
+        // Initialize the value array's size and types
         // Values are elements in record, each one has a size and type
 
         // Allocate value attributes
@@ -253,7 +253,7 @@ void LogData::enableStats()
         int ii;
         double val, tval;
 
-        // Stats on, just return 
+        // Stats on, just return
         if (isEnabledStats_) {
                 return;
         } else {
@@ -266,8 +266,8 @@ void LogData::enableStats()
                                 "something other than sys.exec.out.time\n");
                 exit(-1);
         }
-        // Mins and maxs 
-        rewind();               // Start at top of records 
+        // Mins and maxs
+        rewind();               // Start at top of records
         while (getNextRecord() != NULL) {
 
                 // Get time stamp and BE SURE to reset pointers
@@ -340,7 +340,7 @@ int LogData::countNumBinaryFiles(char *pathToBinaryData)
                 if (len_dname == len_binFileName + len_extension &&
                     !strncmp(dp->d_name, binFileName_, len_binFileName)) {
 
-                        // We have found bin file name, 
+                        // We have found bin file name,
                         // make sure it has a binary extension
                         binary = 1;
                         for (ii = len_dname - 1; ii >= len_dname - 3; ii--) {
@@ -350,7 +350,7 @@ int LogData::countNumBinaryFiles(char *pathToBinaryData)
                                 }
                         }
 
-                        // If this is a binary file, 
+                        // If this is a binary file,
                         // 000-999 extension, increment count
                         if (binary) {
                                 count++;
@@ -396,7 +396,7 @@ int LogData::openCurrBinaryFile()
                        file);
                 return(-1);
         }
-        // Close previous binary file if not first file to open 
+        // Close previous binary file if not first file to open
         if (currBinExtension_ > 0) {
                 fclose(fp_);
         }
@@ -412,7 +412,7 @@ int LogData::openCurrBinaryFile()
         return (1);
 }
 
-/** Request to convert all data from log file into doubles 
+/** Request to convert all data from log file into doubles
  *  @see convertToDoubleNo()
 */
 int LogData::convertToDoubleYes()
@@ -431,9 +431,9 @@ int LogData::convertToDoubleNo()
 }
 
 /** Get number of records within a Trick binary log e.g.
- *  
+ *
  *  If time, x and y are logged, where time, x & y are doubles
- *  And the Trick binary files contains 29616 bytes, we'd have 
+ *  And the Trick binary files contains 29616 bytes, we'd have
  *  29616/24 = 1,234 records.
  */
 int LogData::getNumRecords()
@@ -461,7 +461,7 @@ int LogData::getNumRecords()
                         sprintf(extension, "%d", ii);
                 }
 
-                // Allocate & construct file name 
+                // Allocate & construct file name
                 // (+3 for '/' ,  '.' & null terminator)
                 len = strlen(binFilePath_) + strlen(binFileName_) +
                     strlen(extension) + 3;
@@ -493,7 +493,7 @@ int LogData::isEOF()
         return (isEOF_);
 }
 
-/** Return size of record in bytes e.g. 
+/** Return size of record in bytes e.g.
  *
  *  If a record contains time, x, y, i, j where
  *  time, x, & y are doubles and i,j are ints
@@ -535,7 +535,7 @@ int LogData::calcNumValRecord()
         return (nVals);
 }
 
-/** Retrieve number of values in a record 
+/** Retrieve number of values in a record
  *  (calculated by calcNumValRecord())
  *  nVals_ set once in the open routine
  */
@@ -544,8 +544,8 @@ int LogData::getNumValRecord()
         return (nVals_);
 }
 
-/** Read the next binary record in current binary file 
- * For external data logs we just return a 1 
+/** Read the next binary record in current binary file
+ * For external data logs we just return a 1
  **/
 char *LogData::getNextRecord()
 {
@@ -556,7 +556,7 @@ char *LogData::getNextRecord()
         // Reset variable index to first variable
         currVarIndex_ = 0;
 
-        // Reset variable pointer to top of record 
+        // Reset variable pointer to top of record
         currValPtr_ = (unsigned char *) currRecord_;
         currValIdx_ = 0;
         bytesRead_ = 0;
@@ -613,7 +613,7 @@ void *LogData::advanceCurrValPtr()
        }
 
 /**
- * Main function for byte-by-byte grabbing values out of a binary record 
+ * Main function for byte-by-byte grabbing values out of a binary record
  * TODO: Can I use a Template<> ???
  */
 void *LogData::getNextVal()
@@ -742,7 +742,7 @@ void *LogData::getNextVal()
                 }
                 currVal_.d = (double) d;
                 if (!convertToDouble_) {
-                        // If converting, scaling done later 
+                        // If converting, scaling done later
                         currVal_.d *= scaleVal_[currValIdx_];
                         currVal_.d *= unitVal_[currValIdx_];
                         currVal_.d += biasVal_[currValIdx_];
@@ -807,7 +807,7 @@ void *LogData::getNextVal()
 }
 
 /** Get value in record at given index e.g.
- * 
+ *
  *  So if the current record contains a[0-1], b[0-1]
  *  getVal(2) will return b[0]'s value
  */
@@ -830,7 +830,7 @@ void *LogData::getVal(int index)
                         binFileName_, getNumValRecord());
                 exit(-1);
         }
-        // Reset variable pointer to top of current record 
+        // Reset variable pointer to top of current record
         currValPtr_ = (unsigned char *) currRecord_;
         currValIdx_ = 0;
         bytesRead_ = 0;
@@ -862,7 +862,7 @@ int LogData::getSize(int idx)
  * If header has a[0-1].b[3], x[0-1].y[0-1]
  * getParamIdx( "x[1].y[0]" ) returns 4 since
  * x[1].y[0] is 4rth idx into
- * a[0].b[3], a[1].b[3], x[0].y[0], x[0].y[1], x[1].y[0], x[1].y[1]  
+ * a[0].b[3], a[1].b[3], x[0].y[0], x[0].y[1], x[1].y[0], x[1].y[1]
  *
  * If this log data is external data just pass back index
  * to external parameter.  No worries about multi-dimensions :)
@@ -980,7 +980,7 @@ int LogData::setMin(int paramIdx, double min)
         return (1);
 }
 
-/** Set unit for parameter 
+/** Set unit for parameter
  *  Internally this will set a scale factor from unit in log
  *  file to unit given as argument.  If the unit passed is
  *  NULL, the scale factor will be set to 1.0.
@@ -1169,8 +1169,8 @@ int LogGroup::convertToDoubleYes()
         return (0);
 }
 
-/** Get number of records in this log group 
- *  Return the max number of records among all the Trick logs 
+/** Get number of records in this log group
+ *  Return the max number of records among all the Trick logs
  */
 int LogGroup::getNumRecords()
 {
@@ -1189,9 +1189,9 @@ int LogGroup::getNumRecords()
         return (max);
 }
 
-/** Enable statistics (min/max...) 
- *  This will actually calculate stats on the first pass 
- *  Find absolute min/max value for a param 
+/** Enable statistics (min/max...)
+ *  This will actually calculate stats on the first pass
+ *  Find absolute min/max value for a param
  *  This will move the file offsets in the binary files
  *  Maybe we'll add the "ftell()" later!
  */
@@ -1255,7 +1255,7 @@ int LogGroup::setMin(int logIdx, int paramIdx, double min)
         return (1);
 }
 
-/** Set unit for parameter 
+/** Set unit for parameter
  *  @see LogData::setUnit()
  */
 int LogGroup::setUnit(int logIdx, int paramIdx, std::string u)
@@ -1266,7 +1266,7 @@ int LogGroup::setUnit(int logIdx, int paramIdx, std::string u)
         return (1);
 }
 
-/** Set unit for parameter 
+/** Set unit for parameter
  *  @see LogData::setUnit()
  */
 int LogGroup::setUnit(const char *paramName, std::string u)
@@ -1292,7 +1292,7 @@ int LogGroup::setUnit(const char *paramName, std::string u)
 /** Get the value of a paramter at a given time stamp
  *  Return value around an epsilon of time stamp
  */
-int LogGroup::getValueAtTime( const char *paramName, 
+int LogGroup::getValueAtTime( const char *paramName,
                               double time, double* value ) {
 
         int tIdx, tLogIdx;
@@ -1309,13 +1309,13 @@ int LogGroup::getValueAtTime( const char *paramName,
                                 "parameter name.\n");
                 exit(-1);
         }
-        
+
         // Get the value at time
         rr = log[yLogIdx]->getValueAtTime(tIdx, time,
                                           yIdx, &vv) ;
         *value = vv ;
 
-        return(rr); 
+        return(rr);
 
 }
 
@@ -1381,12 +1381,12 @@ char *LogGroup::getNextRecord()
  *
  * x&y Idx are parameter indices into the x&y LogData files
  *
- * xVarName & yVarName may be in different log data groups, 
+ * xVarName & yVarName may be in different log data groups,
  * so it get's a little complicated.  Also there may
  * more than one param with same xVarName (time) or same yVarName!
  *
  * The algorithm here will find first group with yVarName, and then
- * see if xVarName is in same group.  If all possibilities of 
+ * see if xVarName is in same group.  If all possibilities of
  * getting x & y out same log data group are exhausted, it will
  * then choose y to be last group it found it in, then find
  * first x with xVarName.  Thus x & y will be pulled out of
@@ -1409,7 +1409,7 @@ int LogGroup::getParamIdx(const char *xVarName, int *xIdx, int *xLogDataIdx,
                         *yLogDataIdx = i;
                         yFoundIdx = *yIdx;
                         if ((*xIdx = log[i]->getParamIdx(xVarName)) != -1) {
-                                // Yippee.  x & y in same group  
+                                // Yippee.  x & y in same group
                                 *xLogDataIdx = *yLogDataIdx;
                                 break;
                         }
@@ -1420,7 +1420,7 @@ int LogGroup::getParamIdx(const char *xVarName, int *xIdx, int *xLogDataIdx,
                 // So x & y not in same group
 
                 if (yFoundIdx != -1) {
-                        // Let's see if xVarName is in a different 
+                        // Let's see if xVarName is in a different
                         // log data group than y
                         // Choose first one you find
                         *yIdx = yFoundIdx;
@@ -1444,7 +1444,7 @@ int LogGroup::getParamIdx(const char *xVarName, int *xIdx, int *xLogDataIdx,
                         fprintf(stderr,
                                 "ERROR: Couldn't find y param \"%s\".\n"
                                 " Param is not in log header for "
-                                "run: \"%s\".\n", 
+                                "run: \"%s\".\n",
                                 yVarName, getDataDir());
                         return(-1);
                 }
@@ -1479,12 +1479,12 @@ int LogGroup::getHeaders()
         nHeaders_ = 0;
         while ((dp = readdir(dirp)) != NULL) {
                 if (strstr(dp->d_name, ".header") != NULL) {
-                        len  = strlen(dp->d_name) + 
-                               strlen(pathToBinaryData_) + 2 ;  
+                        len  = strlen(dp->d_name) +
+                               strlen(pathToBinaryData_) + 2 ;
                         full_header_name = (char*) malloc ( len ) ;
                         sprintf(full_header_name, "%s/%s",
                                 pathToBinaryData_, dp->d_name);
-                        if (!strncmp(dp->d_name, "log_", 4) && 
+                        if (!strncmp(dp->d_name, "log_", 4) &&
                              is04BinaryHeader_(full_header_name)) {
                                 if (strlen(dp->d_name) > maxLengthHeaderName) {
                                         maxLengthHeaderName =
@@ -1521,13 +1521,13 @@ bool LogGroup::is04BinaryHeader_( const char* file_name )
 {
         FILE* fp ;
         char* rc ;
-        char str[4][256] ; 
+        char str[4][256] ;
         char line[1024] ;
 
 
         fp = fopen( file_name, "r" ) ;
         if ( fp == NULL ) {
-                fprintf(stderr, "Died while attempting to open \"%s\".\n", 
+                fprintf(stderr, "Died while attempting to open \"%s\".\n",
                         file_name);
                 exit(-1) ;
         }
@@ -1540,7 +1540,7 @@ bool LogGroup::is04BinaryHeader_( const char* file_name )
                 return 0 ;
         }
 
-        if ( sscanf(line, "%s %s %s %s", 
+        if ( sscanf(line, "%s %s %s %s",
                           str[0], str[1], str[2], str[3]) == 4 ) {
 
                 if (!strcmp(str[1], "byte_order")) {
@@ -1603,7 +1603,7 @@ int LogGroup::isEOF()
 
 IterMultiRun::IterMultiRun( LogGroup* lg1, set<int>& logIndices1,
                             LogGroup* lg2, set<int>& logIndices2,
-                            double frequency, 
+                            double frequency,
                             double startTime, double stopTime ) {
 
         // Two iterators for iterating over both runs
@@ -1625,7 +1625,7 @@ IterMultiRun::~IterMultiRun()
         delete iter2_ ;
 }
 
-void IterMultiRun::begin() 
+void IterMultiRun::begin()
 {
         iter1_->begin();
         iter2_->begin();
@@ -1668,7 +1668,7 @@ void IterMultiRun::operator++(int) {
                 (*iter2_)++ ;
         }
 
-        // Now that a time step has occured 
+        // Now that a time step has occured
         // Get the new mininum time stamp
         t1 = iter1_->getTime();
         t2 = iter2_->getTime();
@@ -1683,7 +1683,7 @@ void IterMultiRun::operator++(int) {
                 (*this)++ ;
         }
 
-        // If time < start time requested by user, 
+        // If time < start time requested by user,
         // continue marching through time until start time reached
         if (minTime < startTime_) {
                 (*this)++ ;
@@ -1691,12 +1691,12 @@ void IterMultiRun::operator++(int) {
 }
 
 IterPreserveTime::IterPreserveTime( LogGroup* lg, set<int>& logIndices,
-                                    double frequency, 
-                                    double startTime, double stopTime ) 
+                                    double frequency,
+                                    double startTime, double stopTime )
 {
         unsigned int ii ;
 
-        lg_ = lg ; 
+        lg_ = lg ;
         startTime_ = startTime ;
         stopTime_ = stopTime ;
         logIndices_ = logIndices ;
@@ -1718,12 +1718,12 @@ IterPreserveTime::IterPreserveTime( LogGroup* lg, set<int>& logIndices,
         timeIdx_ = new int[logIndices.size()];
         for (ii = 0; ii < logIndices.size(); ii++ ) {
                 // TODO: get real time stamp
-                // It is safe for now to assume it's 
+                // It is safe for now to assume it's
                 // the first param logged
-                timeIdx_[ii] = 0 ; 
+                timeIdx_[ii] = 0 ;
         }
 
-        currTime_ = new double[logIndices.size()] ; 
+        currTime_ = new double[logIndices.size()] ;
 }
 
 IterPreserveTime::~IterPreserveTime()
@@ -1731,7 +1731,7 @@ IterPreserveTime::~IterPreserveTime()
 }
 
 
-void IterPreserveTime::begin() 
+void IterPreserveTime::begin()
 {
         double timeStamp;
 
@@ -1740,7 +1740,7 @@ void IterPreserveTime::begin()
         // Reset frequency
         if ( frequency_ == 0.0 ) {
                 nextFrequencyCheck_ = DBL_MAX;
-        } else { 
+        } else {
                 if ( startTime_ == 0.0 ) {
                         nextFrequencyCheck_ = startTime_ + frequency_ ;
                 } else {
@@ -1756,7 +1756,7 @@ void IterPreserveTime::begin()
                 lg_->log[*logIdx_]->getNextRecord() ;
         }
 
-        // If time < start time requested by user, 
+        // If time < start time requested by user,
         // continue marching through time until start time reached
         timeStamp = 0.0 ;
         while ( timeStamp < startTime_ ) {
@@ -1794,11 +1794,11 @@ void IterPreserveTime::operator++(int) {
 // data points if the time stamps do not match
 double IterPreserveTime::getTime( ) {
 
-        double minTime = DBL_MAX; 
-        int ii = 0 ; 
+        double minTime = DBL_MAX;
+        int ii = 0 ;
 
-        for (logIdx_ = logIndices_.begin() ; logIdx_ != logIndices_.end() ; 
-                logIdx_++) { 
+        for (logIdx_ = logIndices_.begin() ; logIdx_ != logIndices_.end() ;
+                logIdx_++) {
 
                 if ( ! lg_->log[*logIdx_]->isEOF() ) {
                         currTime_[ii] = *((double *) lg_->log[*logIdx_]->
@@ -1806,7 +1806,7 @@ double IterPreserveTime::getTime( ) {
                 } else {
                         currTime_[ii] = DBL_MAX ;
                 }
-        
+
                 if (currTime_[ii] < minTime) {
                         minTime = currTime_[ii];
                 }
@@ -1816,12 +1816,12 @@ double IterPreserveTime::getTime( ) {
         return( minTime ) ;
 }
 
-// Advance through records in each data log synchronously 
+// Advance through records in each data log synchronously
 //
-// Example: If data log "A" is recorded at 1.0 second, 
+// Example: If data log "A" is recorded at 1.0 second,
 // and "B" at 10 seconds.  Both will advance at time zero.
 // Then at time=1.0, log "A" will have a record read.  "B" will not be read.
-// At time=2.0 through time=9.0 the same will occur. A advances, B stays put. 
+// At time=2.0 through time=9.0 the same will occur. A advances, B stays put.
 // At time=10.0, both A and B will be read from.  Both will advance.
 // This keeps the data on the same time stamp on like intervals.
 //
@@ -1851,7 +1851,7 @@ int IterPreserveTime::stepInTime() {
 
         // Get all values in all data log groups
         // Also get mininum time stamp from all log data files
-        minTime = getTime(); 
+        minTime = getTime();
 
         // Take a step through time (sounds like a song)
         // Check for EOF along the way
@@ -1873,10 +1873,10 @@ int IterPreserveTime::stepInTime() {
                 return(1) ;
         }
 
-        // Now that a time step has occured 
+        // Now that a time step has occured
         // Get the new mininum time stamp and associated
         // values from all log data files
-        minTime = getTime(); 
+        minTime = getTime();
 
         // Step depending on frequency
         if (minTime <= stopTime_) {
@@ -1884,16 +1884,16 @@ int IterPreserveTime::stepInTime() {
                 // Handle Frequency (if specified)
                 if ( nextFrequencyCheck_ != DBL_MAX ) {
 
-                        if ( NEXTFREQ_EQUALS_MINTIME ) { 
+                        if ( NEXTFREQ_EQUALS_MINTIME ) {
 
                                 // Frequency synced with a data point
-                                // Stops recursion 
+                                // Stops recursion
                                 NEXTFREQ_INCR ;
 
                         } else if ( minTime - nextFrequencyCheck_ > 0 ) {
 
                                 // Mintime exceeded nextFreqCheck
-                                // Frequency must be higher than 
+                                // Frequency must be higher than
                                 // data frequency
 
                                 // Bump nextFrequencyCheck past minTime
@@ -1910,14 +1910,14 @@ int IterPreserveTime::stepInTime() {
                                 } else {
 
                                         // No sync, keep iterating through data
-                                        return(0); 
+                                        return(0);
                                 }
                         } else {
-        
+
                                 // Mintime is less than nextFreq check
                                 // Need to iterate again
                                 return(0) ;
-                        } 
+                        }
                 }
         }
 

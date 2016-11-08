@@ -34,7 +34,7 @@ int Trick::MonteCarlo::slave_process_run() {
     tc_disconnect(&connection_device);
 
     /**
-     * <li> fork() a child process to execute the simulation. 
+     * <li> fork() a child process to execute the simulation.
      * This allows the slave to monitor the child and continue running
      * if it crashes or times out.
      */

@@ -364,7 +364,7 @@ class IntegLoopScheduler;
 
         /**
          * Create a SimObjectIntegInfo that represents the specified sim object,
-         * adding the representation to the set of such and populating the 
+         * adding the representation to the set of such and populating the
          * object with the jobs in the sim object that pertain to integration.
          * @param sim_object The sim object to be represented.
          */

@@ -9,7 +9,7 @@
 
 int main( int narg, char** args ) {
 
-  TCDevice listen_device ;  
+  TCDevice listen_device ;
   TCDevice connection ;
 
   int verbose ;
@@ -102,7 +102,7 @@ int main( int narg, char** args ) {
   sum_time = (double)(total.QuadPart * 0.0000001 ) ;
 #endif
 
-  fprintf(stderr, "Avg packet round trip : %lf \n", 
+  fprintf(stderr, "Avg packet round trip : %lf \n",
                   sum_time/(double)num_packets );
 
   return 0 ;

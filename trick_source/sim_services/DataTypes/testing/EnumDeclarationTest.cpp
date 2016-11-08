@@ -157,7 +157,7 @@ TEST(EnumDeclaration, print_singleton_value) {
 
     int result = ss.str().compare("Monday");
 
-    EXPECT_EQ(0, result); 
+    EXPECT_EQ(0, result);
 
 
     class Foo { public : Foo () {

@@ -51,7 +51,7 @@ int main (int argc, char * argv[] ) {
      }else {
         printf("FAIL\n\n"); n_failures++;
      }
-     
+
 
      printf("Test 3\n");
      printf("Create Units_t objects from units specifiers: \"kg*m/s2\" and \"lbm*ft/s2\".\n");
@@ -81,7 +81,7 @@ int main (int argc, char * argv[] ) {
      }else {
         printf("FAIL\n\n"); n_failures++;
      }
-     
+
      printf("Test 6\n");
      printf("We also expect them to be correct, i.e., we expect: 1 Newton = 7.23301 Poundals.\n");
 
@@ -92,7 +92,7 @@ int main (int argc, char * argv[] ) {
      }else {
         printf("FAIL\n\n"); n_failures++;
      }
-     
+
      printf("Test conversion of unit specifications from Pre-07 to 07.\n");
      printf("Test 7\n"); test_convert_spec("ft");
      printf("Test 8\n"); test_convert_spec("insl2");

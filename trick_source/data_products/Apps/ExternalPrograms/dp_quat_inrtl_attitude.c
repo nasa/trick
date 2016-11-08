@@ -1,6 +1,6 @@
 /*
 PURPOSE:
-     (Extract Inertial referenced Euler angles from a body to inertial 
+     (Extract Inertial referenced Euler angles from a body to inertial
        quaternian)
 
 REFERENCE:
@@ -10,8 +10,8 @@ ASSUMPTIONS AND LIMITATIONS:
      ((Euler sequence is input interactively by user.))
 
 PROGRAMMERS:
-     (((Robert W. Bailey) (LinCom Corp) (4/9/91) 
-       (Trick-CR-00004) (Gravity / Inertial Frame Models)) 
+     (((Robert W. Bailey) (LinCom Corp) (4/9/91)
+       (Trick-CR-00004) (Gravity / Inertial Frame Models))
        ((David Strack) (LinCom Corp) (3/19/96) (Implemented for ICDS models))
        (Dorci L. Smith) (TSC-AEU) (May 2002) (Reduce ext program size))
 */

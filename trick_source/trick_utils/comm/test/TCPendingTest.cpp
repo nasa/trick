@@ -24,7 +24,7 @@ class TCPendingTest : public testing::Test {
       }
 
       void TearDown(){
-   
+
          free(device);
       }
 };
@@ -34,7 +34,7 @@ TEST_F( TCPendingTest, testNullDevice ) {
    int tcpending_status = tc_pending( NULL );
 
    EXPECT_EQ( tcpending_status, -1 );
-} 
+}
 
 /*
 TEST_F( TCPendingTest, testInvalidSocket ) {
@@ -44,5 +44,5 @@ TEST_F( TCPendingTest, testInvalidSocket ) {
    int tcpending_status = tc_pending( device );
 
    EXPECT_EQ( tcpending_status, 0 );
-} 
+}
 */

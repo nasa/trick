@@ -5,7 +5,7 @@
 
 DPM_var::DPM_var(const char* Name)
         :DPM_component() {
-   name = strdup( Name);        
+   name = strdup( Name);
 }
 
 int DPM_var::Initialize( xmlNode *base_node) {

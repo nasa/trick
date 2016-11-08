@@ -16,7 +16,7 @@ extern "C" int env_add_var( const char * variable_name, const char * value) {
     std::string var_string ;
     std::string value_string ;
 
-    // Add handling for NULL string.  
+    // Add handling for NULL string.
     if ( variable_name == NULL ) {
         var_string.clear() ;
     } else {
@@ -49,7 +49,7 @@ extern "C" const char * env_get_var( const char * variable_name ) {
 
     std::string var_string ;
 
-    // Add handling for NULL string.  
+    // Add handling for NULL string.
     if ( variable_name == NULL ) {
         var_string.clear() ;
     } else {

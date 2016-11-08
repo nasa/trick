@@ -1,6 +1,6 @@
 /*
 PURPOSE:
-	(Generate a LELF_HANDED quaternion using an Euler YAW_PITCH_ROLL sequence 
+	(Generate a LELF_HANDED quaternion using an Euler YAW_PITCH_ROLL sequence
          OR generate an Euler YAW_PITCH_ROLL sequence using a quaternion.)
 
 PROGRAMMERS:
@@ -13,14 +13,14 @@ int euler321_quat(
     double angle[3],	/* Inout: r  Method=1, 0=YAW, 1=PITCH, 2=ROLL. */
     double quat[4],	/* Inout: r  Method=0, left handed quaternion matrix. */
     int method, 	/*    In: -- 0 = Make quaternion from angles,
-    			             1 = Make angles from quaternion 
+    			             1 = Make angles from quaternion
     			             2 = Make angles from quaternion but use previous
     				     values to prevent singularities. */
     double *prev)	/*   In: r  Previous values of euler angles. */
 {
 
    double haft_angle[3];
-   double mat00, mat01, mat02, mat12, mat20, mat21, mat22; 
+   double mat00, mat01, mat02, mat12, mat20, mat21, mat22;
    double s1;
    double c1;
    double s2;
@@ -29,8 +29,8 @@ int euler321_quat(
    double c3;
    double tmp;
    int ret = 0;
-   static unsigned short error_flag[5] = {0, 0, 0, 0, 0}; /* Send errors only once */  
-   
+   static unsigned short error_flag[5] = {0, 0, 0, 0, 0}; /* Send errors only once */
+
    if (method == 0){
 
        /* Compute sines and cosines of 0.5*yaw, .5*pitch, and .5*roll */
@@ -40,13 +40,13 @@ int euler321_quat(
        s2 = sin(haft_angle[1]);
        c2 = cos(haft_angle[1]);
        s3 = sin(haft_angle[2]);
-       c3 = cos(haft_angle[2]); 
-       
+       c3 = cos(haft_angle[2]);
+
        quat[0] =  c3*c2*c1 + s3*s2*s1;
        quat[1] = -s3*c2*c1 + c3*s2*s1;
        quat[2] = -c3*s2*c1 - s3*c2*s1;
        quat[3] = -c3*c2*s1 + s3*s2*c1;
-      
+
    }else if (method == 1){
 #define TOLERANCE 1.0e-15
 
@@ -57,7 +57,7 @@ int euler321_quat(
            angle[1] = asin(-mat02);
            if (M_ABS(angle[1] - M_PI_2) < 1.0e-6) {
            	   mat20 = 2.*(quat[1]*quat[3] + quat[2]*quat[0]);
-           	   mat21 = 2.*(quat[2]*quat[3] - quat[1]*quat[0]);	   
+           	   mat21 = 2.*(quat[2]*quat[3] - quat[1]*quat[0]);
             	   angle[0] = atan2(mat21, mat20);
             	   angle[1] = M_PI_2;
             	   angle[2] = 0.0;
@@ -68,7 +68,7 @@ int euler321_quat(
             	   }
            } else if (M_ABS(angle[1] + M_PI_2) < 1.0e-6) {
            	   mat20 = 2.*(quat[1]*quat[3] + quat[2]*quat[0]);
-           	   mat21 = 2.*(quat[2]*quat[3] - quat[1]*quat[0]);	   
+           	   mat21 = 2.*(quat[2]*quat[3] - quat[1]*quat[0]);
             	   angle[0] = atan2(-mat21, -mat20);
             	   angle[1] = -M_PI_2;
             	   angle[2] = 0.0;
@@ -89,7 +89,7 @@ int euler321_quat(
        /* Out of normal range for asin func, but within tolerance */
        else if (1.0 < -mat02 && -mat02 <= (1.0 + TOLERANCE)) {
            mat20 = 2.*(quat[1]*quat[3] + quat[2]*quat[0]);
-           mat21 = 2.*(quat[2]*quat[3] - quat[1]*quat[0]);	   
+           mat21 = 2.*(quat[2]*quat[3] - quat[1]*quat[0]);
            angle[0] = atan2(mat21, mat20);
            angle[1] = M_PI_2;
            angle[2] = 0.0;
@@ -100,7 +100,7 @@ int euler321_quat(
            }
        } else if ((-1.0 - TOLERANCE) <= -mat02 && -mat02 < -1.0) {
            mat20 = 2.*(quat[1]*quat[3] + quat[2]*quat[0]);
-           mat21 = 2.*(quat[2]*quat[3] - quat[1]*quat[0]);	 
+           mat21 = 2.*(quat[2]*quat[3] - quat[1]*quat[0]);
            angle[0] = atan2(-mat21, -mat20);
            angle[1] = -M_PI_2;
            angle[2] = 0.0;
@@ -129,7 +129,7 @@ int euler321_quat(
         /* Compute euler angles from tranformation */
         if (M_ABS(mat02 + 1.0) < 1.0e-6) {
             mat20 = 2.*(quat[1]*quat[3] + quat[2]*quat[0]);
-            mat21 = 2.*(quat[2]*quat[3] - quat[1]*quat[0]);	  
+            mat21 = 2.*(quat[2]*quat[3] - quat[1]*quat[0]);
             angle[0] = atan2(mat21, mat20) + prev[2];
             angle[1] = M_PI_2;
             angle[2] = prev[2];
@@ -141,7 +141,7 @@ int euler321_quat(
 
         } else if (M_ABS(mat02 - 1.0) < 1.0e-6) {
             mat20 = 2.*(quat[1]*quat[3] + quat[2]*quat[0]);
-            mat21 = 2.*(quat[2]*quat[3] - quat[1]*quat[0]);	  
+            mat21 = 2.*(quat[2]*quat[3] - quat[1]*quat[0]);
             angle[0] = atan2(-mat21, -mat20) + prev[2];
             angle[1] = -M_PI_2;
             angle[2] = prev[2];
@@ -154,7 +154,7 @@ int euler321_quat(
             mat00 = 1. - 2.*(quat[2]*quat[2] + quat[3]*quat[3]);
             mat01 =	 2.*(quat[1]*quat[2] - quat[0]*quat[3]);
             mat12 =	 2.*(quat[2]*quat[3] + quat[1]*quat[0]);
-            mat22 = 1. - 2.*(quat[1]*quat[1] + quat[2]*quat[2]);		    
+            mat22 = 1. - 2.*(quat[1]*quat[1] + quat[2]*quat[2]);
             angle[0] = atan2(mat01, mat00);
             angle[1] = asin(-mat02);
             angle[2] = atan2(mat12, mat22);

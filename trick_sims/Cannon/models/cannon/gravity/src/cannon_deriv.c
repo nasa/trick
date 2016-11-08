@@ -10,5 +10,5 @@ int cannon_deriv( CANNON* C ) {
           C->acc[1] = -9.81 ;
           C->timeRate = 1.00;
       }
-      return 0 ; 
+      return 0 ;
 }

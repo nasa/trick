@@ -88,7 +88,7 @@ static int call_next_job(Trick::JobData * curr_job, Trick::ScheduledJobQueue & j
             -# For each scheduled jobs whose next call time is equal to the current queue time
                 -# Call call_next_job(Trick::JobData * curr_job, Trick::ScheduledJobQueue & job_queue, bool rt_nap, long long curr_time_tics)
     -# Switch if the child is a asynchronous thread
-        -# For each scheduled jobs 
+        -# For each scheduled jobs
             -# Call call_next_job(Trick::JobData * curr_job, Trick::ScheduledJobQueue & job_queue, bool rt_nap, long long curr_time_tics)
     -# Set the child complete flag
 */

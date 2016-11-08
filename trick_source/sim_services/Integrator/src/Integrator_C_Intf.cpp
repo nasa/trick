@@ -11,23 +11,23 @@ extern Trick::Integrator* trick_curr_integ ;
 
 extern "C" int integrate() {
     return (trick_curr_integ->integrate());
-} 
+}
 
 extern "C" int integrate_1st_order_ode(const double* deriv, double* state) {
     return (trick_curr_integ->integrate_1st_order_ode(deriv, state));
-} 
+}
 
 extern "C" int integrate_2nd_order_ode(const double* acc, double* vel, double * pos) {
     return (trick_curr_integ->integrate_2nd_order_ode(acc, vel, pos));
-} 
+}
 
 extern "C" double get_integ_time() {
     return (trick_curr_integ->time);
-} 
+}
 
 extern "C" void set_integ_time(double time_value) {
     trick_curr_integ->time = time_value;
-} 
+}
 
 extern "C" void load_state(double* arg1, ... ) {
 
@@ -42,7 +42,7 @@ extern "C" void load_state(double* arg1, ... ) {
         if (trick_curr_integ->verbosity) message_publish(MSG_DEBUG,"LOAD STATE:\n");
         while (narg != (double*)NULL) {
             trick_curr_integ->state[i] = *narg;
-            if (trick_curr_integ->verbosity) message_publish(MSG_DEBUG,"%g\n",*narg); 
+            if (trick_curr_integ->verbosity) message_publish(MSG_DEBUG,"%g\n",*narg);
             narg = va_arg(ap, double*);
             i++;
         };
@@ -72,7 +72,7 @@ extern "C" void load_deriv( double* arg1, ...) {
         va_start(ap, arg1);
         i=0;
         narg = arg1;
-        if (trick_curr_integ->verbosity) message_publish(MSG_DEBUG,"LOAD DERIV: \n"); 
+        if (trick_curr_integ->verbosity) message_publish(MSG_DEBUG,"LOAD DERIV: \n");
         while (narg != (double*)NULL) {
             trick_curr_integ->deriv[trick_curr_integ->intermediate_step][i] = *narg;
             if (trick_curr_integ->verbosity) message_publish(MSG_DEBUG,"%g\n",*narg);
@@ -94,7 +94,7 @@ extern "C" void load_indexed_deriv(unsigned int index , double deriv) {
         message_publish(MSG_ERROR, "Integ load_indexed_deriv ERROR: trick_curr_integ is not set.\n") ;
     }
 }
-  
+
 extern "C" void load_deriv2( double* arg1, ...) {
 
     va_list ap;
@@ -117,7 +117,7 @@ extern "C" void load_deriv2( double* arg1, ...) {
         message_publish(MSG_ERROR, "Integ load_deriv ERROR: trick_curr_integ is not set.\n") ;
     }
 }
-  
+
 extern "C" void load_indexed_deriv2(unsigned int index , double deriv2) {
 
     if (trick_curr_integ != NULL) {

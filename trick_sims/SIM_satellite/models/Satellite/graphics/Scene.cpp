@@ -1,4 +1,4 @@
-#if ( __APPLE__ ) 
+#if ( __APPLE__ )
 #include <GLUT/glut.h>
 #else
 #include <GL/glut.h>
@@ -93,7 +93,7 @@ void keyboard(unsigned char key, int x, int y) {
 
 
 void display() {
- 
+
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
     glLoadIdentity();
@@ -196,7 +196,7 @@ void comm_read() {
         // Camera up is in the positive World-Z direction;
         satellite_camera->up[0] = 0.0;
         satellite_camera->up[1] = 0.0;
-        satellite_camera->up[2] = 1.0; 
+        satellite_camera->up[2] = 1.0;
 
         glutPostRedisplay();
 

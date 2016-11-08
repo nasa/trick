@@ -28,7 +28,7 @@ int Trick::Executive::check_all_jobs_handled() {
             current_job = curr_obj->jobs[jj] ;
             if ( ! current_job->get_handled() ) {
                  message_publish(MSG_WARNING, "Warning: Job %s of job class \"%s\"is not handled by any scheduler\n" ,
-                 current_job->name.c_str(), current_job->job_class_name.c_str()) ; 
+                 current_job->name.c_str(), current_job->job_class_name.c_str()) ;
                  ret++ ;
             }
         }

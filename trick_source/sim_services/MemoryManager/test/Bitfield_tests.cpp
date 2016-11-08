@@ -13,52 +13,52 @@ namespace Trick {
 
 typedef struct {
     unsigned int var1 :14;
-    unsigned int var2 :5; 
+    unsigned int var2 :5;
     unsigned int var3 :12;
-    unsigned int var4 :1; 
+    unsigned int var4 :1;
 } uintBits;
 
 typedef struct {
-    int var1 :7; 
+    int var1 :7;
     int var2 :16;
-    int var3 :3; 
-    int var4 :6; 
+    int var3 :3;
+    int var4 :6;
 } intBits;
 
 typedef struct {
-    unsigned char var1 :3; 
-    unsigned char var2 :2; 
-    unsigned char var3 :2; 
-    unsigned char var4 :1; 
+    unsigned char var1 :3;
+    unsigned char var2 :2;
+    unsigned char var3 :2;
+    unsigned char var4 :1;
 } ucharBits;
 
 typedef struct {
-    char var1 :2; 
-    char var2 :2; 
-    char var3 :2; 
-    char var4 :2; 
+    char var1 :2;
+    char var2 :2;
+    char var3 :2;
+    char var4 :2;
 } charBits;
 
 typedef struct {
-    unsigned short var1 :4; 
-    unsigned short var2 :2; 
-    unsigned short var3 :9; 
-    unsigned short var4 :1; 
+    unsigned short var1 :4;
+    unsigned short var2 :2;
+    unsigned short var3 :9;
+    unsigned short var4 :1;
 } ushortBits;
 
 typedef struct {
-    short var1 :8; 
-    short var2 :1; 
-    short var3 :2; 
-    short var4 :5; 
+    short var1 :8;
+    short var2 :1;
+    short var3 :2;
+    short var4 :5;
 } shortBits;
 
 /* this struct should be the size of the largest member
  *  * (in this case, unsigned int) */
 typedef struct {
-    unsigned char var1 :3; 
-    short var2 :8; 
-    int var3 :9; 
+    unsigned char var1 :3;
+    short var2 :8;
+    int var3 :9;
     unsigned int var4 :12;
 } mixBits;
 
@@ -94,7 +94,7 @@ class BitfieldsTest : public ::testing::Test {
         		bitVals[1] = 0;
         		bitVals[2] = (1 << (bitSizes[2]/2)) - 1;
         		bitVals[3] = (1 << bitSizes[3]) - 1;
-    		}   
+    		}
 
     		for (unsigned int i = 0; i < 4; i++) {
 
@@ -115,18 +115,18 @@ class BitfieldsTest : public ::testing::Test {
         			EXPECT_EQ(num, bitVals[i]);
         		}
         	}
-        	
+
 			bitRep.b.var1 = bitVals[0];
         	bitRep.b.var2 = bitVals[1];
         	bitRep.b.var3 = bitVals[2];
         	bitRep.b.var4 = bitVals[3];
-        
+
 			EXPECT_EQ(test, bitRep.total);
 
         	//printf("Decimal: %d %d %d %d\n", bitVals[0], bitVals[1], bitVals[2], bitVals[3]);
         	return 0;
 		}
-        
+
 
 };
 
@@ -148,7 +148,7 @@ TEST_F(BitfieldsTest, UnsignedChar) {
 
 	int bitSizes[4] = {3, 2, 2, 1};
 
-	bitTest <unsigned char, ucharBits> (bitSizes, false);	
+	bitTest <unsigned char, ucharBits> (bitSizes, false);
 }
 
 TEST_F(BitfieldsTest, UnsignedShort) {
@@ -159,7 +159,7 @@ TEST_F(BitfieldsTest, UnsignedShort) {
 	bitTest <unsigned short, ushortBits> (bitSizes, false);
 }
 TEST_F(BitfieldsTest, Int) {
-	//req.add_requirement("1151502390"); 
+	//req.add_requirement("1151502390");
 
 	int bitSizes[4] = {7, 16, 3, 6};
 

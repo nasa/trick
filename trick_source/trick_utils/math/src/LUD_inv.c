@@ -24,7 +24,7 @@ int LUD_inv(                    /* RETURN: -- Zero */
     double *mdata;
 
     // Duplicate the input matrix because LU_dcmp alters
-    // the matrix passed to it. 
+    // the matrix passed to it.
     work_matrix = malloc(n * sizeof(double *));
     mdata = (double *) malloc(n * n * sizeof(double));
     for (i = 0; i < n; i++) {

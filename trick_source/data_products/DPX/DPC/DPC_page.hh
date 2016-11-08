@@ -46,9 +46,9 @@ public:
      */
     void notify( DPV_view *view, DPV_message msg);
 
-// ============================ 
+// ============================
 // DPV_VIEW INTERFACE FUNCTIONS
-// ============================ 
+// ============================
 
     /**
      * Return the value of the attribute (if any) associated with the key.

@@ -27,37 +27,37 @@ unsigned int insert_bitfield_any(unsigned int bitfield, /* In: Bitfiled to inser
     /* Mask out sign extension bits in case the value is negative */
     value &= (0xFFFFFFFF >> (32 - bits));
 
-    /* 
+    /*
      * Create a mask for the purpose of clearing the previous value of
-     * the bit field parameter for which an input was received, while 
-     * preserving the other values in the underlying memory location 
+     * the bit field parameter for which an input was received, while
+     * preserving the other values in the underlying memory location
      * shared by other bit field parameters.  Do a bitwise AND of this
      * mask with the underlying bit field memory location.  The input
      * value has been copied into an unsigned int.  Shift the bits of
      * that unsigned int the appropriate number of bits so that the bit
-     * position of the input value withing the unsigned int maps to the 
-     * bit position at which it needs to be stored in the underlying bit 
-     * field memory location. Do a bitwise OR of the shifted value with 
-     * the underlying bit field memory location, thus replacing the 
-     * previous value of the input bit field parameter with the input 
-     * value while preserving the values of other bit field parameters 
+     * position of the input value withing the unsigned int maps to the
+     * bit position at which it needs to be stored in the underlying bit
+     * field memory location. Do a bitwise OR of the shifted value with
+     * the underlying bit field memory location, thus replacing the
+     * previous value of the input bit field parameter with the input
+     * value while preserving the values of other bit field parameters
      * that share the same underlying memory location.
      * On big endian architectures, the most significant byte (MSB) of an
      * integer is the first byte (i.e, the byte at the starting memory
      * location of the integer).  On little endian architectures. the
-     * least significant byte (LSB) is the first byte.  The manner in 
+     * least significant byte (LSB) is the first byte.  The manner in
      * which bit fields are packed into a structure is not defined in
-     * the ANSI standard, but what has been observed on several 
+     * the ANSI standard, but what has been observed on several
      * platforms is that the bit field values are stored in the order in
-     * which they were declared, with the first bit field starting at 
+     * which they were declared, with the first bit field starting at
      * the first byte.  Therefore, the first bit field of a structure
-     * on a big endian machine is stored at the high order end of its 
+     * on a big endian machine is stored at the high order end of its
      * memory location; on a little endian machine, the first bit field
-     * is stored at the low order end of its memory location.  These 
-     * storage differences influence the construction of the bit field 
+     * is stored at the low order end of its memory location.  These
+     * storage differences influence the construction of the bit field
      * mask and the number of bits by which the input value is shifted.
      *
-     * Keith says that the comment above might be the longest 
+     * Keith says that the comment above might be the longest
      * in Trick source code.  I haven't read it.  It might even
      * be longer than the sum total of all other comments.
      * When the comments are longer than the code it worries me.

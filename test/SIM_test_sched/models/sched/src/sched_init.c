@@ -15,5 +15,5 @@ int sched_init(
 
 {
        S->mass = S->mass*1.0000013 + 0.0000013 ; /* Massive masses */
-       return(0) ; 
+       return(0) ;
 }

@@ -39,10 +39,10 @@ int ref_to_value(REF2 * R, V_DATA * V)
 
     char *address = 0;
 
-    /* 
-     * This function is called from within the YACC parser. 
-     * This function relies on the REF data structure to be filled -- 
-     * YACC fills part of the REF struct and ref_attributes() fills 
+    /*
+     * This function is called from within the YACC parser.
+     * This function relies on the REF data structure to be filled --
+     * YACC fills part of the REF struct and ref_attributes() fills
      * the rest.
      *
      * This function will get the value of the parameter pointed by REF and

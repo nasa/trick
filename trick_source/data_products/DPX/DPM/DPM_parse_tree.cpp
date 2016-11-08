@@ -1,7 +1,7 @@
 
 #include <DPM/DPM_parse_tree.hh>
 
-int DPM_parse_tree::Initialize(const char *XMLFileName) { 
+int DPM_parse_tree::Initialize(const char *XMLFileName) {
 
    int rc;
    xmlParserCtxtPtr parser_context;
@@ -54,7 +54,7 @@ DPM_parse_tree::DPM_parse_tree(const char *XMLFileName) throw (std::invalid_argu
 
 // DESTRUCTOR
 DPM_parse_tree::~DPM_parse_tree() {
-    
+
    if (doc) {
        xmlFreeDoc(doc);
    }

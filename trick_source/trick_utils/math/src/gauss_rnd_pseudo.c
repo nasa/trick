@@ -10,7 +10,7 @@
 
    LIBRARY DEPENDENCY: ((gauss_rnd_pseudo.o) (uniform_rnd_1.o) (uniform_rnd_triple.o))
 
-   PROGRAMMERS: (((Ray Li) (LMES/DUAL) (96 Nov) (1.0) (ICDS random number generator)) ((Robert Gay) (LinCom) (May 1998) 
+   PROGRAMMERS: (((Ray Li) (LMES/DUAL) (96 Nov) (1.0) (ICDS random number generator)) ((Robert Gay) (LinCom) (May 1998)
    (--) (Trick format)) ((Robert Gay) (Titan-LinCom) (Aug 2001) (--) (Updates to put routines into trick math))) */
 
 #include "trick/rand_generator.h"

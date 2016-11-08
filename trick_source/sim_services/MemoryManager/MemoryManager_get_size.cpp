@@ -53,7 +53,7 @@ int Trick::MemoryManager::get_truncated_size(void *addr) {
 int Trick::MemoryManager::io_get_fixed_truncated_size(char *ptr, ATTRIBUTES * A, char *str, int dims, ATTRIBUTES * left_type)
 {
 
-#if 1 
+#if 1
     int i = 0, j;
     long offset;
     int my_index[9];

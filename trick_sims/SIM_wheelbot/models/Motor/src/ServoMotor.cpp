@@ -8,7 +8,7 @@ ServoMotor::ServoMotor (char side)
 double ServoMotor::getActualSpeed(int PulseWidth)
 {
   _PulseWidth = PulseWidth;
-  
+
   if (_side == 'L')
   {
      actualspeed = -1.8147280722744906e+001 * pow(_PulseWidth,0)
