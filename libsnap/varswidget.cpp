@@ -76,7 +76,13 @@ void VarsWidget::_varsSelectModelSelectionChanged(
 
     } else {  // Multiple items selected (make pages of 6 plots per page)
         QModelIndex currIdx = _plotSelectModel->currentIndex();
-        QModelIndex pageIdx = _plotModel->getIndex(currIdx, "Page");
+        QModelIndex pageIdx;
+        if ( !currIdx.isValid() ) {
+            QStandardItem* pageItem = _createPageItem();
+            pageIdx = _plotModel->indexFromItem(pageItem);
+        } else {
+            pageIdx = _plotModel->getIndex(currIdx, "Page");
+        }
         QStandardItem* pageItem = _plotModel->itemFromIndex(pageIdx);
         QModelIndexList currVarIdxs = currVarSelection.indexes();
         while ( ! currVarIdxs.isEmpty() ) {
