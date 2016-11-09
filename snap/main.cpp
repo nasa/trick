@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
     bool ok;
     int ret = -1;
 
-    opts.add("[RUNs and DPs:{0,1000}]",
+    opts.add("[RUNs and DPs:{0,2000}]",
              &opts.rundps, QStringList(),
              "List of RUN dirs and DP files",
              presetRunsDPs, postsetRunsDPs);
