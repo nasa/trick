@@ -104,7 +104,6 @@ protected:
 private:
     QPainterPath* _errorPath;
 
-    QRectF _bbox();
     QPainterPath _sinPath();
     QPainterPath _stepPath();
 
@@ -116,8 +115,6 @@ private:
     QPoint _mousePressPos;
     QPointF _mousePressMathTopLeft;
     QModelIndex _mousePressCurrentIndex;
-
-    QRectF _currBBox;
 
     QRectF _curveBBox(const QModelIndex &curveIdx) const ;
 

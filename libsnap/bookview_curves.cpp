@@ -1249,6 +1249,16 @@ void CurvesView::_keyPressSpace()
                                                    "PlotPresentation","Plot");
     model()->setData(plotPresentationIdx,plotPresentation);
 
+    // Recalculate plot math rect to contain curves in toggled presentation
+    QRectF bbox = _bookModel()->calcCurvesBBox(curvesIdx);
+    QRectF plotMathRect = _plotMathRect(rootIndex());
+    double x0 = plotMathRect.left();
+    double y0 = bbox.top();
+    double w = plotMathRect.width();
+    double h = bbox.height();
+    QRectF R(x0,y0,w,h);
+    _setPlotMathRect(R);
+
     viewport()->update();
 }
 

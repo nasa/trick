@@ -80,7 +80,7 @@ QRectF BookIdxView::_mathRect()
     return M;
 }
 
-// The viewport math rect is in the BookModel under Plot.PlotViewport
+// The viewport math rect is in the BookModel under Plot.PlotMathRect
 QRectF BookIdxView::_plotMathRect(const QModelIndex& plotIdx) const
 {
     QRectF M;
