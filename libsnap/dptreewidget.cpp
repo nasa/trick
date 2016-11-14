@@ -3,6 +3,34 @@
 QString DPTreeWidget::_err_string;
 QTextStream DPTreeWidget::_err_stream(&DPTreeWidget::_err_string);
 
+DPTreeView::DPTreeView(QWidget *parent) : QTreeView(parent) {}
+
+void DPTreeView::currentChanged(const QModelIndex &current,
+                                const QModelIndex &previous)
+{
+    QAbstractItemView::currentChanged(current,previous);
+    if ( allColumnsShowFocus() ) {
+        if ( previous.isValid() ) {
+            QRect prevRect = visualRect(previous);
+            prevRect.setX(0);
+            prevRect.setWidth(viewport()->width());
+            viewport()->update(prevRect);
+        }
+        if ( current.isValid() ) {
+            QRect currRect = visualRect(current);
+            currRect.setX(0);
+            currRect.setWidth(viewport()->width());
+            viewport()->update(currRect);
+        }
+    }
+}
+
+void DPTreeView::selectionChanged(const QItemSelection &selected,
+                                  const QItemSelection &deselected)
+{
+    QAbstractItemView::selectionChanged(selected,deselected);
+}
+
 DPTreeWidget::DPTreeWidget(const QString& timeName,
                            const QString &dpDirName,
                            const QStringList &dpFiles,
@@ -31,7 +59,7 @@ DPTreeWidget::DPTreeWidget(const QString& timeName,
             this,SLOT(_searchBoxTextChanged(QString)));
     _gridLayout->addWidget(_searchBox,0,0);
 
-    _dpTreeView = new QTreeView(parent);
+    _dpTreeView = new DPTreeView(parent);
     _dpTreeView->setModel(_dpFilterModel);
     QModelIndex proxyRootIdx = _dpFilterModel->mapFromSource(_dpModelRootIdx);
     _dpTreeView->setRootIndex(proxyRootIdx);

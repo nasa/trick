@@ -14,6 +14,21 @@
 #include "libsnap/bookmodel.h"
 #include "libsnap/utils.h"
 
+// This class introduced to fix Qt bug:
+// https://codereview.qt-project.org/#/c/65171/3
+class DPTreeView : public QTreeView
+{
+    Q_OBJECT
+public:
+    explicit DPTreeView(QWidget *parent = 0);
+
+protected:
+    virtual void currentChanged(const QModelIndex &current,
+                                const QModelIndex &previous);
+    virtual void selectionChanged(const QItemSelection &selected,
+                                  const QItemSelection &deselected);
+};
+
 // Data Products TreeView with Search Box
 
 class DPTreeWidget : public QWidget
@@ -45,7 +60,7 @@ private:
     QItemSelectionModel*  _bookSelectModel;
     QGridLayout* _gridLayout ;
     QLineEdit* _searchBox;
-    QTreeView* _dpTreeView ;
+    DPTreeView* _dpTreeView ;
     DPFilterProxyModel* _dpFilterModel;
     QFileSystemModel* _dpModel ;
     QModelIndex _dpModelRootIdx;
