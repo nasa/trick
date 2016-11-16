@@ -14,6 +14,7 @@
 #include <QFileInfo>
 #include <QStringList>
 #include <QFileDialog>
+#include <QMessageBox>
 #include <QLineEdit>
 #include <QSizePolicy>
 #include <QTreeView>

@@ -286,30 +286,45 @@ void PlotMainWindow::_savePdf()
                                                  QString(""),
                                                  tr("files (*.pdf)"));
 
-    //QString fname = "/users/kvetter/dev/dog.pdf";
-
     if ( ! fname.isEmpty() ) {
-        _bookView->savePdf(fname);
 
-        /*
-        QString program = "evince";
-        QStringList arguments;
-        arguments << fname;
-        QProcess *myProcess = new QProcess(this);
-        myProcess->start(program, arguments);
-        */
-
-        /*
-        QFileInfo fi(fname);
-        double l = log10(fi.size());
-        if ( l >= 3 && l < 6 ) {
-            qDebug() << "dog.pdf.size=" << fi.size()/1000 << "K";
-        } else if ( l >= 6 && l < 9 ) {
-            qDebug() << "dog.pdf.size=" << fi.size()/1000000 << "MB";
-        } else {
-            qDebug() << "dog.pdf.size=" << fi.size() << "bytes";
+        int ret = QMessageBox::Save;
+        if ( !fname.endsWith(".pdf") ) {
+            fname += ".pdf";
+            QFileInfo fi(fname);
+            if ( fi.exists() ) {
+                QMessageBox msgBox;
+                msgBox.setStandardButtons(QMessageBox::Save|
+                                          QMessageBox::Cancel);
+                QString msg;
+                msg = "Overwrite: " + fi.fileName() + "?";
+                msgBox.setText(msg);
+                msgBox.setDefaultButton(QMessageBox::Save);
+                ret = msgBox.exec();
+            }
         }
-        */
+
+        if ( ret == QMessageBox::Save ) {
+            //QString fname = "/users/kvetter/dev/dog.pdf";
+            _bookView->savePdf(fname);
+            /*
+            QString program = "evince";
+            QStringList arguments;
+            arguments << fname;
+            QProcess *myProcess = new QProcess(this);
+            myProcess->start(program, arguments);
+
+            QFileInfo fi(fname);
+            double l = log10(fi.size());
+            if ( l >= 3 && l < 6 ) {
+                qDebug() << "dog.pdf.size=" << fi.size()/1000 << "K";
+            } else if ( l >= 6 && l < 9 ) {
+                qDebug() << "dog.pdf.size=" << fi.size()/1000000 << "MB";
+            } else {
+                qDebug() << "dog.pdf.size=" << fi.size() << "bytes";
+            }
+            */
+        }
     }
 }
 
