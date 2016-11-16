@@ -482,6 +482,13 @@ void CurvesView::_paintLiveCoordArrow(TrickCurveModel* curveModel,
         exit(-1);
     }
 
+    // Prepend RunID to live text if more than 5 runs
+    if ( model()->rowCount(curveIdx.parent()) > 5 ) {
+        int id = _bookModel()->getDataInt(curveIdx,"CurveRunID","Curve");
+        QString runID = QString("RUN_%1: ").arg(id);
+        arrow.txt.prepend(runID);
+    }
+
     // Try to fit arrow into viewport using 45,135,225 and 335 degree angles
     // off of horiz (counterclockwise)
     QList<double> angles;
@@ -497,11 +504,6 @@ void CurvesView::_paintLiveCoordArrow(TrickCurveModel* curveModel,
     }
 
     if ( isFits ) {
-        /*
-        if ( _lastArrow ==  ) {
-        } else {
-        }
-        */
         arrow.paintMe(painter,T);
     }
 
