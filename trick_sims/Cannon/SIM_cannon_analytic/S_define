@@ -3,7 +3,6 @@ PURPOSE:
     (This S_define works with the RUN_analytic input file)
 LIBRARY DEPENDENCIES:
     (
-      (cannon/gravity/src/cannon_default_data.c)
       (cannon/gravity/src/cannon_init.c)
       (cannon/gravity/src/cannon_analytic.c)     
     )

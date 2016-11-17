@@ -1,12 +1,12 @@
 /*****************************************************************************
-PURPOSE:    ( Analytical Cannon )
+PURPOSE: ( Analytical Cannon )
 *****************************************************************************/
 #include <stdio.h>
 #include <math.h>
-#include "../include/cannon.h"
+#include "../include/cannon_analytic.h"
 
-int cannon_analytic( CANNON* C )
-{
+int cannon_analytic( CANNON* C ) {
+
     C->acc[0] =  0.00;
     C->acc[1] = -9.81 ;
     C->vel[0] = C->vel0[0] + C->acc[0] * C->time ;
@@ -25,12 +25,6 @@ int cannon_analytic( CANNON* C )
         }
     }
 
-    /*
-     * Increment time by the time delta associated with this job
-     * Note that the 0.01 matches the frequency of this job
-     * as specified in the S_define.
-     */
-    C->time += 0.01 ;
-
-    return 0 ;
+    C->time += 0.01 ; /* This should match rate of the job in the S_define. */
+    return 0 ; 
 }

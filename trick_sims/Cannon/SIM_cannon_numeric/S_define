@@ -3,11 +3,8 @@ PURPOSE:
     (Cannon Numeric)
 LIBRARY DEPENDENCIES:
     (
-     (cannon/gravity/src/cannon_default_data.c)
      (cannon/gravity/src/cannon_init.c)
-     (cannon/gravity/src/cannon_deriv.c)
-     (cannon/gravity/src/cannon_integ.c)
-     (cannon/gravity/src/cannon_impact.c)
+     (cannon/gravity/src/cannon_numeric.c)
     )
 *************************************************************/
 

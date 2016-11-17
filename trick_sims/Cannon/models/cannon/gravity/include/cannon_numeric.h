@@ -6,7 +6,7 @@ PURPOSE: ( Cannonball Numeric Model )
 #ifndef CANNON_NUMERIC_H
 #define CANNON_NUMERIC_H
 
-#include "cannon_common.h"
+#include "cannon.h"
 
 #ifdef __cplusplus
 extern "C" {
