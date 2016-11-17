@@ -886,8 +886,18 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
         QString presentation = _bookModel()->getDataString(rootIndex(),
                                                    "PlotPresentation","Plot");
 
-        if ( tag == "Curve" &&
-             (presentation == "coplot" || presentation.isEmpty()) ) {
+        // If shift pressed while moving the mouse, do not update
+        // the live coordinate.  This saves the live coord from
+        // being updated while moving the mouse.
+        Qt::KeyboardModifiers keymods = mouseMove->modifiers();
+        bool shiftPressed = false;
+        if ( keymods & Qt::ShiftModifier ) {
+            shiftPressed = true;
+        }
+
+        if ( !shiftPressed &&
+             (tag == "Curve" &&
+             (presentation == "coplot" || presentation.isEmpty())) ) {
 
             QRectF M = _mathRect();
 
