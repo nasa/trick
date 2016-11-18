@@ -403,7 +403,7 @@ QVector<qreal> PlotBookModel::getLineStylePattern(
     QString s =  getDataString(curveIdx,"CurveLineStyle","Curve");
     s = s.toLower();
 
-    if ( s == "plain" ) {
+    if ( s == "plain" || s.isEmpty()) {
         // pattern is empty
     } else if ( s == "dash" ) {
         pattern << 5 << 3;
