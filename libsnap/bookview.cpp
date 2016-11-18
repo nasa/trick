@@ -1026,7 +1026,6 @@ void BookView::_printCoplot(const QRect& R,
     painter->save();
     painter->setRenderHint(QPainter::Antialiasing);
 
-    QList<QColor> colors = _bookModel()->createCurveColors(paths.size());
     QPen pen = painter->pen();
 
     if ( paths.size() > 20 ) {
@@ -1039,7 +1038,10 @@ void BookView::_printCoplot(const QRect& R,
 
     int i = 0;
     foreach ( QPainterPath* path, paths ) {
-        pen.setColor(colors.at(i));
+        QModelIndex curveIdx = model()->index(i,0,curvesIdx);
+        QColor color( _bookModel()->getDataString(curveIdx,
+                                                  "CurveColor","Curve"));
+        pen.setColor(color);
         painter->setPen(pen);
         painter->drawPath(*path);
         delete path;
