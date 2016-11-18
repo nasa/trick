@@ -5,6 +5,7 @@
 #include <QStandardItem>
 #include <QHash>
 #include <QPainterPath>
+#include <QVector>
 #include "libsnap/montemodel.h"
 #include "libsnap/unit.h"
 #include "libsnap/utils.h"
@@ -59,6 +60,9 @@ public:
                          const QString& searchItemText,
                          const QString &expectedStartIdxText=QString()) const;
 
+    // Convenience for getting QPen line style (see Qt doc)
+    QVector<qreal> getLineStylePattern(const QModelIndex& curveIdx) const;
+
     TrickCurveModel* getTrickCurveModel(const QModelIndex& curvesIdx,
                                         int i) const;
     TrickCurveModel* getTrickCurveModel(const QModelIndex& curveIdx) const;
@@ -79,6 +83,8 @@ public:
 
     // Curve Colors
     QList<QColor> createCurveColors(int nCurves);
+
+    // Line style
 
 signals:
     

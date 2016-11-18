@@ -403,6 +403,12 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
             color = color.lighter(180);
         }
         pen.setColor(color);
+
+        // Line style
+        QVector<qreal> pattern = _bookModel()->getLineStylePattern(curveIdx);
+        pen.setDashPattern(pattern);
+
+        // Set pen
         painter.setPen(pen);
 
         // Get painter path

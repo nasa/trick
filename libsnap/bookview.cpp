@@ -1042,6 +1042,7 @@ void BookView::_printCoplot(const QRect& R,
         QColor color( _bookModel()->getDataString(curveIdx,
                                                   "CurveColor","Curve"));
         pen.setColor(color);
+        pen.setDashPattern(_bookModel()->getLineStylePattern(curveIdx));
         painter->setPen(pen);
         painter->drawPath(*path);
         delete path;

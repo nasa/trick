@@ -394,6 +394,43 @@ int PlotBookModel::getDataInt(const QModelIndex &startIdx,
     return i;
 }
 
+// no_line, thick_line and x_thick_line currently unsupported
+QVector<qreal> PlotBookModel::getLineStylePattern(
+                                             const QModelIndex &curveIdx) const
+{
+    QVector<qreal> pattern;
+
+    QString s =  getDataString(curveIdx,"CurveLineStyle","Curve");
+    s = s.toLower();
+
+    if ( s == "plain" ) {
+        // pattern is empty
+    } else if ( s == "dash" ) {
+        pattern << 5 << 3;
+    } else if ( s == "fine_dash" ) {
+        pattern << 1 << 2;
+    } else if ( s == "med_fine_dash" ) {
+        pattern << 3 << 2;
+    } else if ( s == "long_dash" ) {
+        pattern << 8 << 5;
+    } else if ( s == "x_long_dash" ) {
+        pattern << 12 << 8;
+    } else if ( s == "dot_dash" ) {
+        pattern << 12 << 4 << 1 << 4;
+    } else if ( s == "2_dot_dash" ) {
+        pattern << 12 << 3 << 1 << 2 << 1 << 3;
+    } else if ( s == "3_dot_dash" ) {
+        pattern << 12 << 3 << 1 << 2 << 1 << 2 << 1 << 3;
+    } else if ( s == "4_dot_dash" ) {
+        pattern << 16 << 3 << 1 << 2 << 1 << 2 << 1 << 2 << 1 << 3;
+    } else {
+        qDebug() << "snap [error]: PlotBookModel::getLineStylePattern(): "
+                    " Unsupported line style \"" << s << "\" given.";
+    }
+
+    return pattern;
+}
+
 // i'th curve under curves idx
 TrickCurveModel *PlotBookModel::getTrickCurveModel(const QModelIndex& curvesIdx,
                                                    int i) const
