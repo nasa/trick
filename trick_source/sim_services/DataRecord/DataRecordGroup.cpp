@@ -1,4 +1,5 @@
 
+#include <algorithm>
 #include <string>
 #include <iostream>
 #include <sstream>
@@ -243,6 +244,21 @@ int Trick::DataRecordGroup::add_variable( std::string in_name , std::string alia
     new_var->name = in_name ;
     new_var->alias = alias ;
     rec_buffer.push_back(new_var) ;
+    return 0 ;
+}
+
+int Trick::DataRecordGroup::remove_variable( std::string in_name ) {
+
+    // Trim leading spaces
+    in_name.erase( 0, in_name.find_first_not_of( " \t" ) );
+    // Trim trailing spaces
+    in_name.erase( in_name.find_last_not_of( " \t" ) + 1);
+
+    rec_buffer.erase( std::remove_if( rec_buffer.begin(), rec_buffer.end(),
+      [&]( DataRecordBuffer* buffer ) {
+          return !buffer->name.compare( in_name );
+      } ),
+      rec_buffer.end() );
     return 0 ;
 }
 

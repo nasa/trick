@@ -309,9 +309,18 @@ namespace Trick {
              @code <dr_group>.add_variable("<in_name>" [,"<alias>"]) @endcode
              @param in_name - the name of the variable to record
              @param alias - (optional) the name to call the variable in the log file instead of @e in_name
-             @return 0 if successful, -1 if variable not found
+             @return always 0
             */
             virtual int add_variable(std::string in_name , std::string alias = "" ) ;
+
+            /**
+             @brief @userdesc Command to remove a variable from recording.
+             @par Python Usage:
+             @code <dr_group>.remove_variable("<in_name>") @endcode
+             @param in_name - the name of the variable to not record
+             @return always 0
+            */
+            virtual int remove_variable(std::string in_name) ;
 
             /**
              @brief This routine allows users to add variables through an already created REF2 structure.
