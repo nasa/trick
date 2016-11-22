@@ -16,6 +16,7 @@
 #include <QList>
 #include <QTransform>
 #include <QVector2D>
+#include <math.h>
 
 #include "libsnap/bookidxview.h"
 #include "bookview_page.h"

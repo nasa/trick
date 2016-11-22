@@ -424,6 +424,102 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
         // Draw curve!
         painter.drawPath(*path);
 
+        // Draw symbols on curve (if there are any)
+        QString symbolStyle = _bookModel()->getDataString(curveIdx,
+                                               "CurveSymbolStyle", "Curve");
+        symbolStyle = symbolStyle.toLower();
+        if ( !symbolStyle.isEmpty() && symbolStyle != "none" ) {
+            pattern.clear();
+            pen.setDashPattern(pattern); // plain lines for drawing symbols
+            QTransform I;
+            painter.setTransform(I);
+            double w = pen.widthF();
+            pen.setWidthF(0.0);
+            painter.setPen(pen);
+            QPointF pLast;
+            for ( int i = 0; i < path->elementCount(); ++i ) {
+                QPainterPath::Element el = path->elementAt(i);
+                QPointF p(el.x,el.y);
+                p = Tscaled.map(p);
+                if ( i > 0 ) {
+                    double r = 16.0;
+                    double x = pLast.x()-r/2.0;
+                    double y = pLast.y()-r/2.0;
+                    QRectF R(x,y,r,r);
+                    if ( R.contains(p) ) {
+                        continue;
+                    }
+                }
+                if ( symbolStyle == "circle" ) {
+                    painter.drawEllipse(p,2,2);
+                } else if ( symbolStyle == "thick_circle" ) {
+                    pen.setWidth(2.0);
+                    painter.setPen(pen);
+                    painter.drawEllipse(p,3,3);
+                } else if ( symbolStyle == "solid_circle" ) {
+                    pen.setWidthF(2.0);
+                    painter.setPen(pen);
+                    painter.drawEllipse(p,1,1);
+                } else if ( symbolStyle == "square" ) {
+                    double x = p.x()-2.0;
+                    double y = p.y()-2.0;
+                    painter.drawRect(QRectF(x,y,4,4));
+                } else if ( symbolStyle == "thick_square") {
+                    pen.setWidthF(2.0);
+                    painter.setPen(pen);
+                    double x = p.x()-3.0;
+                    double y = p.y()-3.0;
+                    painter.drawRect(QRectF(x,y,6,6));
+                } else if ( symbolStyle == "solid_square" ) {
+                    pen.setWidthF(4.0);
+                    painter.setPen(pen);
+                    painter.drawPoint(p); // happens to be a solid square
+                } else if ( symbolStyle == "star" ) { // *
+                    double r = 3.0;
+                    QPointF a(p.x()+r*cos(18.0*M_PI/180.0),
+                              p.y()-r*sin(18.0*M_PI/180.0));
+                    QPointF b(p.x(),p.y()-r);
+                    QPointF c(p.x()-r*cos(18.0*M_PI/180.0),
+                              p.y()-r*sin(18.0*M_PI/180.0));
+                    QPointF d(p.x()-r*cos(54.0*M_PI/180.0),
+                              p.y()+r*sin(54.0*M_PI/180.0));
+                    QPointF e(p.x()+r*cos(54.0*M_PI/180.0),
+                              p.y()+r*sin(54.0*M_PI/180.0));
+                    painter.drawLine(p,a);
+                    painter.drawLine(p,b);
+                    painter.drawLine(p,c);
+                    painter.drawLine(p,d);
+                    painter.drawLine(p,e);
+                } else if ( symbolStyle == "xx" ) {
+                    pen.setWidthF(2.0);
+                    painter.setPen(pen);
+                    QPointF a(p.x()+2.0,p.y()+2.0);
+                    QPointF b(p.x()-2.0,p.y()+2.0);
+                    QPointF c(p.x()-2.0,p.y()-2.0);
+                    QPointF d(p.x()+2.0,p.y()-2.0);
+                    painter.drawLine(p,a);
+                    painter.drawLine(p,b);
+                    painter.drawLine(p,c);
+                    painter.drawLine(p,d);
+                } else if ( symbolStyle == "triangle" ) {
+                    double r = 3.0;
+                    QPointF a(p.x(),p.y()-r);
+                    QPointF b(p.x()-r*cos(30.0*M_PI/180.0),
+                              p.y()+r*sin(30.0*M_PI/180.0));
+                    QPointF c(p.x()+r*cos(30.0*M_PI/180.0),
+                              p.y()+r*sin(30.0*M_PI/180.0));
+                    painter.drawLine(a,b);
+                    painter.drawLine(b,c);
+                    painter.drawLine(c,a);
+                }
+
+                pLast = p;
+            }
+            pen.setWidthF(w);
+            painter.setPen(pen);
+            painter.setTransform(Tscaled);
+        }
+
         // Draw coordinate arrow (arrow with (x,y) label) if needed
         QRectF M = _plotMathRect(rootIndex());
         if ( curveIdx == currentIndex() &&

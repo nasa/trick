@@ -18,6 +18,7 @@
 #include <QEasingCurve>
 #include <stdlib.h>
 #include <float.h>
+#include <math.h>
 #include "bookidxview.h"
 #include "libsnap/unit.h"
 
