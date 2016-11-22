@@ -930,11 +930,11 @@ void BookView::_printCurves(const QRect& R,
     if ( nCurves == 2 ) {
         QString plotPresentation = _bookModel()->getDataString(plotIdx,
                                                      "PlotPresentation","Plot");
-        if ( plotPresentation == "coplot" ) {
+        if ( plotPresentation == "compare" ) {
             _printCoplot(R,painter,plotIdx);
         } else if (plotPresentation == "error" || plotPresentation.isEmpty()) {
             _printErrorplot(R,painter,plotIdx);
-        } else if ( plotPresentation == "error+coplot" ) {
+        } else if ( plotPresentation == "error+compare" ) {
             _printErrorplot(R,painter,plotIdx);
             _printCoplot(R,painter,plotIdx);
         } else {

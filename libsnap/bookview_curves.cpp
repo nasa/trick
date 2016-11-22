@@ -320,11 +320,11 @@ void CurvesView::paintEvent(QPaintEvent *event)
                                                            "Presentation");
         }
 
-        if ( plotPresentation == "coplot" ) {
+        if ( plotPresentation == "compare" ) {
             _paintCoplot(T,painter,pen);
         } else if ( plotPresentation == "error" ) {
             _paintErrorplot(painter,pen,rootIndex());
-        } else if ( plotPresentation == "error+coplot" ) {
+        } else if ( plotPresentation == "error+compare" ) {
             _paintErrorplot(painter,pen,rootIndex());
             _paintCoplot(T,painter,pen);
         } else {
@@ -819,7 +819,7 @@ void CurvesView::mouseReleaseEvent(QMouseEvent *event)
         double d = qSqrt((x1-x0)*(x1-x0)+(y1-y0)*(y1-y0));
         QString presentation = _bookModel()->getDataString(rootIndex(),
                                                    "PlotPresentation","Plot");
-        if ( d < 10 && (presentation == "coplot" || presentation.isEmpty()) ) {
+        if ( d < 10 && (presentation == "compare" || presentation.isEmpty()) ) {
             // d < 10, to hopefully catch click and not a drag
             int s = 24; // side length for rect around mouse click
             QList<QModelIndex> curveIdxs;
@@ -999,7 +999,7 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
 
         if ( !shiftPressed &&
              (tag == "Curve" &&
-             (presentation == "coplot" || presentation.isEmpty())) ) {
+             (presentation == "compare" || presentation.isEmpty())) ) {
 
             QRectF M = _mathRect();
 
@@ -1337,7 +1337,7 @@ void CurvesView::currentChanged(const QModelIndex &current,
 }
 
 // For two curves hitting the spacebar will toggle between viewing
-// the two curves in error, coplot and error+coplot views
+// the two curves in error, compare and error+compare views
 void CurvesView::_keyPressSpace()
 {
     QModelIndex curvesIdx = _bookModel()->getIndex(rootIndex(),"Curves","Plot");
@@ -1348,10 +1348,10 @@ void CurvesView::_keyPressSpace()
                                                    "PlotPresentation","Plot");
 
     if ( plotPresentation == "error" || plotPresentation.isEmpty() ) {
-        plotPresentation = "coplot";
-    } else if ( plotPresentation == "coplot" ) {
-        plotPresentation = "error+coplot";
-    } else if ( plotPresentation == "error+coplot" ) {
+        plotPresentation = "compare";
+    } else if ( plotPresentation == "compare" ) {
+        plotPresentation = "error+compare";
+    } else if ( plotPresentation == "error+compare" ) {
         plotPresentation = "error";
     } else {
         qDebug() << "snap [bad scoobs]: _keyPressSpace() : "

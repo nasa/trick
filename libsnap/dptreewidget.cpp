@@ -314,7 +314,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                                                                "Presentation");
                 _addChild(plotItem, "PlotPresentation", presentation);
             } else {
-                _addChild(plotItem, "PlotPresentation", "coplot");
+                _addChild(plotItem, "PlotPresentation", "compare");
             }
             _addChild(plotItem, "PlotPointSize", 0.0);
             _addChild(plotItem, "PlotXAxisLabel", plot->xAxisLabel());

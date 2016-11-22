@@ -627,7 +627,7 @@ QRectF PlotBookModel::calcCurvesBBox(const QModelIndex &curvesIdx) const
 
     QModelIndex plotIdx = curvesIdx.parent();
     QString presentation = getDataString(plotIdx,"PlotPresentation","Plot");
-    if ( presentation == "coplot" || presentation == "error+coplot" ) {
+    if ( presentation == "compare" || presentation == "error+compare" ) {
         int rc = rowCount(curvesIdx);
         for (int i = 0; i < rc; ++i) {
             QModelIndex curveIdx = index(i,0,curvesIdx);
@@ -642,7 +642,7 @@ QRectF PlotBookModel::calcCurvesBBox(const QModelIndex &curvesIdx) const
             QRectF scaledPathBox(topLeft,QSizeF(xs*w,ys*h));
             bbox = bbox.united(scaledPathBox);
         }
-        if ( presentation == "error+coplot" ) {
+        if ( presentation == "error+compare" ) {
             QPainterPath* errorPath = _createCurvesErrorPath(curvesIdx);
             bbox = bbox.united(errorPath->boundingRect());
             delete errorPath;

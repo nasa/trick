@@ -180,7 +180,7 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
                                                          "Presentation");
         _addChild(plotItem, "PlotPresentation", presentation);
     } else {
-        _addChild(plotItem, "PlotPresentation", "coplot");
+        _addChild(plotItem, "PlotPresentation", "compare");
     }
     _addChild(plotItem, "PlotXAxisLabel", xName);
     _addChild(plotItem, "PlotYAxisLabel", yName);

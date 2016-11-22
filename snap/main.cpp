@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
     opts.add("-start", &opts.start, 0.0, "start time", preset_start);
     opts.add("-stop", &opts.stop,1.0e20, "stop time", preset_stop);
     opts.add("-pres",&opts.presentation,"",
-             "present plot with two curves as coplot,error or error+coplot",
+             "present plot with two curves as compare,error or error+compare",
              presetPresentation);
     opts.add("-beginRun",&opts.beginRun,0,
              "begin run (inclusive) in set of Monte carlo RUNs",
@@ -307,7 +307,7 @@ int main(int argc, char *argv[])
         // Default presentation
         QString presentation = opts.presentation;
         if ( opts.presentation.isEmpty() ) {
-            presentation = "coplot";
+            presentation = "compare";
             int rc = monteModel->rowCount();
             if ( rc == 2 ) {
                 presentation = "error";
@@ -540,10 +540,10 @@ void presetPresentation(QString* presVar, const QString& pres, bool* ok)
 {
     Q_UNUSED(presVar);
 
-    if ( !pres.isEmpty() && pres != "coplot" && pres != "error" &&
-         pres != "error+coplot" ) {
+    if ( !pres.isEmpty() && pres != "compare" && pres != "error" &&
+         pres != "error+compare" ) {
         fprintf(stderr,"snap [error] : option -presentation, set to \"%s\", "
-                "should be \"coplot\", \"error\" or \"error+coplot\"\n",
+                "should be \"compare\", \"error\" or \"error+compare\"\n",
                 pres.toLatin1().constData());
         *ok = false;
     }
