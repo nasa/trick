@@ -336,27 +336,6 @@ void CurvesView::paintEvent(QPaintEvent *event)
         _paintCoplot(T,painter,pen);
     }
 
-#if 0
-    // TODO
-
-    // Draw symbol on each curve point
-    /* if  ( _scatterShape != QCPScatterStyle::ssNone ) { QCPScatterStyle s; s.setShape(_scatterShape);
-        s.setSize(_scatterSize);
-        QTransform t = _coordToPixelTransform();
-        for ( int i = 0; i < _painterPath.elementCount(); ++i ) {
-            QPainterPath::Element el = _painterPath.elementAt(i);
-            QPointF p(el.x,el.y);
-            p = t.map(p);
-            s.drawShape(painter,p);
-        }
-    }
-    */
-
-    // Draw the curve
-    painter->setTransform(_coordToPixelTransform());
-    painter->drawPath(_painterPath);
-#endif
-
     // Restore the painter state off the painter stack
     painter.restore();
 }
