@@ -359,6 +359,19 @@ int main(int argc, char *argv[])
                 timeName = "sys.exec.out.time" ;
             }
 
+            // If there are no tables, print a message
+            int nTables = 0;
+            foreach ( QString dpFileName, dps ) {
+                DPProduct dp(dpFileName);
+                nTables += dp.tables().size();
+            }
+            if ( nTables == 0 ) {
+                fprintf(stderr, "snap [error]: In order to create csv files "
+                        "using the -dp2csv option, there must be "
+                        "data product TABLEs in the DP files.\n");
+                exit(-1);
+            }
+
             int i = 0;
             foreach ( QString dpFileName, dps ) {
                 DPProduct dp(dpFileName);
