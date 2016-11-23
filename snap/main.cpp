@@ -66,6 +66,7 @@ class SnapOptions : public Options
     QString trk2csvFile;
     QString csv2trkFile;
     QString outputFileName;
+    bool isDebug;
 };
 
 SnapOptions opts;
@@ -113,6 +114,7 @@ int main(int argc, char *argv[])
     opts.add("-o", &opts.outputFileName, QString(""),
              "Name of file to output with trk2csv and csv2trk options",
              presetOutputFile);
+    opts.add("-debug:{0,1}",&opts.isDebug,false, "Show book model tree etc.");
 
     opts.parse(argc,argv, QString("snap"), &ok);
 
@@ -316,7 +318,8 @@ int main(int argc, char *argv[])
 
         if ( isPdf ) {
             // TODO: Shouldn't timeName use opts.timeName if specified?
-            PlotMainWindow w(opts.timeName, opts.start, opts.stop,
+            PlotMainWindow w(opts.isDebug,
+                             opts.timeName, opts.start, opts.stop,
                              presentation, QString(), dps, titles,
                              monteModel, varsModel, monteInputsModel);
             w.savePdf(opts.pdfOutFile);
@@ -415,7 +418,8 @@ int main(int argc, char *argv[])
                 TimeItLinux timer;
                 timer.start();
 #endif
-                PlotMainWindow w(opts.timeName, opts.start, opts.stop,
+                PlotMainWindow w(opts.isDebug,
+                                 opts.timeName, opts.start, opts.stop,
                                  presentation, ".", dps, titles,
                                  monteModel, varsModel, monteInputsModel);
 #ifdef __linux
@@ -425,9 +429,11 @@ int main(int argc, char *argv[])
                 ret = a.exec();
             } else {
 
-                PlotMainWindow w(opts.timeName, opts.start, opts.stop,
-                               presentation, runDirs.at(0), QStringList(),
-                               titles, monteModel, varsModel, monteInputsModel);
+                PlotMainWindow w(opts.isDebug,
+                                 opts.timeName, opts.start, opts.stop,
+                                 presentation, runDirs.at(0), QStringList(),
+                                 titles, monteModel,
+                                 varsModel, monteInputsModel);
                 w.show();
                 ret = a.exec();
             }

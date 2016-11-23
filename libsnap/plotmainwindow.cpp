@@ -14,7 +14,9 @@
 
 #include "plotmainwindow.h"
 
-PlotMainWindow::PlotMainWindow(const QString& timeName,
+PlotMainWindow::PlotMainWindow(
+        bool isDebug,
+        const QString& timeName,
         double startTime, double stopTime,
         const QString &presentation,
         const QString &dpDir,
@@ -25,6 +27,7 @@ PlotMainWindow::PlotMainWindow(const QString& timeName,
         QStandardItemModel *monteInputsModel,
         QWidget *parent) :
     QMainWindow(parent),
+    _isDebug(isDebug),
     _timeName(timeName),
     _presentation(presentation),
     _dpDir(dpDir),
@@ -94,12 +97,10 @@ PlotMainWindow::PlotMainWindow(const QString& timeName,
 #endif
     }
 
-    // TO DEBUG: Uncomment the next line (TODO: -debug option)
-//#define DEBUG_BOOKMODEL
-#ifdef DEBUG_BOOKMODEL
-    _plotTreeView = new QTreeView(lsplit);
-    _plotTreeView->setModel(_bookModel);
-#endif
+    if ( _isDebug ) {
+        _plotTreeView = new QTreeView(lsplit);
+        _plotTreeView->setModel(_bookModel);
+    }
 
     // Vars/DP Notebook
     _nbDPVars = new QTabWidget(lsplit);
