@@ -70,6 +70,9 @@ namespace Trick {
             /** @brief Removes a data recording group. */
             int remove_group(Trick::DataRecordGroup * in_group ) ;
 
+            /** @brief Removes all data recording groups. */
+            void remove_all_groups() ;
+
             /** @brief Gets a data recording group. */
             Trick::DataRecordGroup * get_group(std::string group_name) ;
 

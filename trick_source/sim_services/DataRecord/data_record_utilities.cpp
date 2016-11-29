@@ -68,6 +68,10 @@ extern "C" int remove_data_record_group( Trick::DataRecordGroup * in_group ) {
     return -1 ;
 }
 
+extern "C" void remove_all_data_record_groups() {
+    the_drd->remove_all_groups() ;
+}
+
 extern "C" Trick::DataRecordGroup * get_data_record_group( std::string in_name ) {
     if ( the_drd != NULL ) {
         return the_drd->get_group(in_name) ;
