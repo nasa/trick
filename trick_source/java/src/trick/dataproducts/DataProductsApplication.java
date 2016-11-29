@@ -605,10 +605,10 @@ public abstract class DataProductsApplication extends TrickApplication {
         if (plotDevice.equals(Session.DEVICE_OPTIONS[Session.FILE_DEVICE])) {
             printStatusMessage("Generating postscript file(s) ...\n");
         } else {
-            printStatusMessage("===>>>Launching " + command[0] + "<<<===\n");
+            printStatusMessage("===>>>Launching " + command[0] + " " + command[1] + "<<<===\n");
         }
         ProcessBuilder pb = new ProcessBuilder(command);
-
+        pb.redirectErrorStream(true);
         captureProcessMessage(pb.start());
     }
 
@@ -625,17 +625,10 @@ public abstract class DataProductsApplication extends TrickApplication {
 
             BufferedReader stdInput = new BufferedReader(new InputStreamReader(runtimeProcess.getInputStream()));
 
-            BufferedReader stdError = new BufferedReader(new InputStreamReader(runtimeProcess.getErrorStream()));
-
             String s = null;
 
             // read the output from the command
             while ((s = stdInput.readLine()) != null) {
-                printStatusMessage(s + "\n");
-            }
-
-            // read any errors from the attempted command
-            while ((s = stdError.readLine()) != null) {
                 printStatusMessage(s + "\n");
             }
         } catch (IOException ioe) {
