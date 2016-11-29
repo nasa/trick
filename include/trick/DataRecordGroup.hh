@@ -318,9 +318,15 @@ namespace Trick {
              @par Python Usage:
              @code <dr_group>.remove_variable("<in_name>") @endcode
              @param in_name - the name of the variable to not record
-             @return always 0
             */
-            virtual int remove_variable(std::string in_name) ;
+            virtual void remove_variable(std::string in_name) ;
+
+            /**
+             @brief @userdesc Command to remove all variables from recording.
+             @par Python Usage:
+             @code <dr_group>.remove_all_variable() @endcode
+            */
+            virtual void remove_all_variables() ;
 
             /**
              @brief This routine allows users to add variables through an already created REF2 structure.
