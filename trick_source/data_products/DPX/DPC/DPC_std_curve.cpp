@@ -121,7 +121,7 @@ DPC_std_curve::DPC_std_curve(
                 success = 1;
 
             } else {
-                std::cerr << "ERROR: Variable \"" << y_var_name << "\" was\'nt found in " << std::endl
+                std::cerr << "ERROR: Variable \"" << y_var_name << "\" wasn't found in " << std::endl
                           << "Run Directory \"" << run_dir << "\"" << std::endl;
                 std::cerr.flush();
             }
@@ -154,12 +154,12 @@ DPC_std_curve::DPC_std_curve(
 
                 } else {
                     delete ds[0]; ds[0] = NULL;
-                    std::cerr << "Variable \"" << y_var_name << "\" was\'nt found in " << std::endl
+                    std::cerr << "Variable \"" << y_var_name << "\" wasn't found in " << std::endl
                               << "Run Directory \"" << run_dir << "\"" << std::endl;
                     std::cerr.flush();
                 }
             } else {
-                std::cerr << "Variable \"" << x_var_name << "\" was\'nt found in " << std::endl
+                std::cerr << "Variable \"" << x_var_name << "\" wasn't found in " << std::endl
                           << "Run Directory \"" << run_dir << "\"" << std::endl;
                 std::cerr.flush();
             }
