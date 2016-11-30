@@ -1,3 +1,6 @@
+#include <cerrno>
+#include <cstring>
+#include <iostream>
 
 #include <stdlib.h>
 #include <string.h>
@@ -176,7 +179,7 @@ TrickBinary::TrickBinary(char * file_name , char * param_name ) {
                 record_ = new char[record_size_] ;
         }
         else {
-           printf("ERROR:  Couldn't open \"%s\"\n" , file_name ) ;
+            std::cout << "ERROR:  Couldn't open \"" << file_name << "\": " << std::strerror(errno) << std::endl;
         }
 }
 
@@ -408,7 +411,7 @@ int TrickBinaryGetNumVariables(const char* file_name) {
                 fread(&num_params , 4 , 1 , fp ) ;
                 if ( swap ) { num_params = trick_byteswap_int(num_params) ; }
         } else {
-                printf("ERROR:  Couldn't open \"%s\"\n" , file_name ) ;
+                std::cout << "ERROR:  Couldn't open \"" << file_name << "\": " << std::strerror(errno) << std::endl;
                 return(0) ;
         }
 
@@ -474,7 +477,7 @@ char** TrickBinaryGetVariableNames(const char* file_name) {
                  }
         }
         else {
-                printf("ERROR:  Couldn't open \"%s\"\n" , file_name ) ;
+                std::cout << "ERROR:  Couldn't open \"" << file_name << "\": " << std::strerror(errno) << std::endl;
                 return(0) ;
         }
 
@@ -541,7 +544,7 @@ char** TrickBinaryGetVariableUnits(const char* file_name) {
                  }
         }
         else {
-                printf("ERROR:  Couldn't open \"%s\"\n" , file_name ) ;
+                std::cout << "ERROR:  Couldn't open \"" << file_name << "\": " << std::strerror(errno) << std::endl;
                 return(0) ;
         }
 

@@ -1,4 +1,6 @@
-
+#include <cerrno>
+#include <cstring>
+#include <iostream>
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
@@ -16,7 +18,7 @@ Csv::Csv(char * file_name , char * param_name ) {
         len = strlen(param_name) ;
 
         if ((fp_ = fopen(file_name , "r")) == 0 ) {
-           printf("ERROR:  Couldn't open \"%s\"\n" , file_name ) ;
+           std::cout << "ERROR:  Couldn't open \"" << file_name << "\": " << std::strerror(errno) << std::endl;
            exit(-1) ;
         }
 
@@ -173,7 +175,7 @@ int CsvLocateParam( char * file_name , char * param_name ) {
 
         }
         else {
-           printf("ERROR:  Couldn't open \"%s\"\n" , file_name ) ;
+           std::cout << "ERROR:  Couldn't open \"" << file_name << "\": " << std::strerror(errno) << std::endl;
         }
 
         return(0) ;

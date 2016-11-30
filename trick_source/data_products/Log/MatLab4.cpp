@@ -1,3 +1,6 @@
+#include <cerrno>
+#include <cstring>
+#include <iostream>
 
 #include <stdlib.h>
 #include <string.h>
@@ -30,7 +33,7 @@ MatLab4::MatLab4(char * file_name , char * param_name , char * time_name ) {
         TRICK_GET_BYTE_ORDER(my_byte_order) ;
 
         if ((fp_ = fopen(file_name , "r")) == 0 ) {
-           printf("ERROR:  Couldn't open \"%s\"\n" , file_name ) ;
+           std::cout << "ERROR:  Couldn't open \"" << file_name << "\": " << std::strerror(errno) << std::endl;
            exit(-1) ;
         }
 
@@ -280,7 +283,7 @@ int MatLab4LocateParam( char *file_name , char *param_name , char *time_name ) {
         TRICK_GET_BYTE_ORDER(my_byte_order) ;
 
         if ((fp = fopen(file_name , "r")) == 0 ) {
-           printf("ERROR:  Couldn't open \"%s\"\n" , file_name ) ;
+           std::cout << "ERROR:  Couldn't open \"" << file_name << "\": " << std::strerror(errno) << std::endl;
            exit(-1) ;
         }
 

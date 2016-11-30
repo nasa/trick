@@ -1,3 +1,7 @@
+#include <cerrno>
+#include <cstring>
+#include <iostream>
+
 #include <stdlib.h>
 #include <string.h>
 #if __sgi | __sun
@@ -70,7 +74,7 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
     fileName_ = file_name;
 
     if ((fp_ = fopen(file_name, "r")) == 0) {
-        printf("ERROR:  Couldn't open \"%s\"\n", file_name) ;
+        std::cout << "ERROR:  Couldn't open \"" << file_name << "\": " << std::strerror(errno) << std::endl;
         return;
     }
 
@@ -656,7 +660,7 @@ int MatLabLocateParam(char * file_name, char * param_name, char * time_name) {
     int field_index, field_num;
 
     if ((fp = fopen(file_name, "r")) == 0) {
-        printf("ERROR:  Couldn't open \"%s\"\n", file_name) ;
+        std::cout << "ERROR:  Couldn't open \"" << file_name << "\": " << std::strerror(errno) << std::endl;
         return (0);
     }
 
