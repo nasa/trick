@@ -5,16 +5,18 @@ RM    := /bin/rm
 CP    := /bin/cp
 PWD   = $(shell /bin/pwd)
 
+export TRICK_HOME := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))../../..)
+
 COLOR   = [34m$(1)[0m
 
 ifndef TRICK_VERBOSE_BUILD
     ECHO_CMD = @
 endif
 
-export TRICK_HOST_TYPE := $(shell export TRICK_HOME=$(TRICK_HOME) && $(TRICK_HOME)/bin/trick-gte TRICK_HOST_TYPE)
-export TRICK_VERSION   := $(shell export TRICK_HOME=$(TRICK_HOME) && $(TRICK_HOME)/bin/trick-version -v)
-export TRICK_MAJOR     := $(shell export TRICK_HOME=$(TRICK_HOME) && $(TRICK_HOME)/bin/trick-version -y)
-export TRICK_MINOR     := $(shell export TRICK_HOME=$(TRICK_HOME) && $(TRICK_HOME)/bin/trick-version -m)
+export TRICK_HOST_TYPE := $(shell  $(TRICK_HOME)/bin/trick-gte TRICK_HOST_TYPE)
+export TRICK_VERSION   := $(shell  $(TRICK_HOME)/bin/trick-version -v)
+export TRICK_MAJOR     := $(shell  $(TRICK_HOME)/bin/trick-version -y)
+export TRICK_MINOR     := $(shell  $(TRICK_HOME)/bin/trick-version -m)
 
 include $(TRICK_HOME)/share/trick/makefiles/config_${TRICK_HOST_TYPE}.mk
 -include $(TRICK_HOME)/share/trick/makefiles/config_user.mk

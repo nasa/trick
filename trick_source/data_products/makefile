@@ -2,6 +2,8 @@
 # Makefile for Data Products Libs And Apps
 #
 
+TRICK_HOME := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))../..)
+
 include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 LIB_DIR = lib_${TRICK_HOST_CPU}
