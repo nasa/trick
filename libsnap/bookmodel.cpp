@@ -732,7 +732,7 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
     QString dpUnits0 = getDataString(curveIdx0,"CurveYUnit","Curve");
     double ys0 = 1.0;
     double ys1 = ys0;
-    if ( c0->y()->unit() != dpUnits0 ) {
+    if ( !dpUnits0.isEmpty() && c0->y()->unit() != dpUnits0 ) {
         ys0 = Unit::convert(1.0,c0->y()->unit(),dpUnits0);
     }
     if ( c0->y()->unit() != c1->y()->unit() ) {
