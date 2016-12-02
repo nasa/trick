@@ -179,13 +179,13 @@ QList<QColor> PlotBookModel::createCurveColors(int nCurves)
         QColor red(200,30,30);
         QColor magenta(130,15,120);
         QColor green(60,180,45);
-        QColor yellow(222,222,10);
+        QColor black(0,0,0);
         QColor gray(145,170,192);
         QColor pink(255,192,255);
         QColor medblue(49,140,250);
         QList<QColor> handPickedColors;
         handPickedColors << blue << red << magenta
-                         << green << burntorange << yellow
+                         << green << burntorange << black
                          << gray << pink << medblue;
         for (int i = 0; i < nCurves; ++i ) {
             colors << handPickedColors.at(i);
