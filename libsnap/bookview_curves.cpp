@@ -604,16 +604,16 @@ void CurvesView::_paintLegend(const QModelIndex &curvesIdx, QPainter &painter)
     }
 
     QStringList runs;
-    QStringList curveNames;
+    QStringList curveYNames;
     for ( int i = 0; i < nCurves; ++i ) {
 
         QModelIndex curveIdx = model()->index(i,0,curvesIdx);
 
         // Curve name
-        QString curveName = _bookModel()->getDataString(curveIdx,
+        QString curveYName = _bookModel()->getDataString(curveIdx,
                                                         "CurveYName", "Curve");
-        if ( !curveNames.contains(curveName) ) {
-            curveNames.append(curveName);
+        if ( !curveYNames.contains(curveYName) ) {
+            curveYNames.append(curveYName);
         }
 
         // Run
@@ -628,7 +628,7 @@ void CurvesView::_paintLegend(const QModelIndex &curvesIdx, QPainter &painter)
     }
 
     int nRuns = runs.size();
-    int nCurveNames = curveNames.size();
+    int nCurveYNames = curveYNames.size();
 
     QList<QPen*> pens;
     QStringList symbols;
@@ -639,7 +639,7 @@ void CurvesView::_paintLegend(const QModelIndex &curvesIdx, QPainter &painter)
         QModelIndex curveIdx = model()->index(i,0,curvesIdx);
 
         // Label
-        if ( nRuns == 1 && 2 <= nCurveNames && nCurveNames <= 6 ) {
+        if ( nRuns == 1 && 2 <= nCurveYNames && nCurveYNames <= 6 ) {
             QString label =  _bookModel()->getDataString(curveIdx,
                                                         "CurveYLabel", "Curve");
             if ( label.isEmpty() ) {
@@ -649,7 +649,7 @@ void CurvesView::_paintLegend(const QModelIndex &curvesIdx, QPainter &painter)
                 label = label.mid(i+1);
             }
             labels << label;
-        } else if ( nCurveNames == 1 && 2 <= nRuns && nRuns <= 6 ) {
+        } else if ( nCurveYNames == 1 && 2 <= nRuns && nRuns <= 6 ) {
             // Label (use RUN dir name)
             TrickCurveModel* curveModel = _bookModel()->
                     getTrickCurveModel(curveIdx);

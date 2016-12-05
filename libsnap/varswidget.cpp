@@ -105,7 +105,7 @@ void VarsWidget::_varsSearchBoxTextChanged(const QString &rx)
     _varsFilterModel->setFilterRegExp(rx);
 }
 
-QModelIndex VarsWidget::_findSinglePlotPageWithCurve(const QString& curveName)
+QModelIndex VarsWidget::_findSinglePlotPageWithCurve(const QString& curveYName)
 {
     QModelIndex retPageIdx;
 
@@ -119,7 +119,7 @@ QModelIndex VarsWidget::_findSinglePlotPageWithCurve(const QString& curveName)
                 QModelIndex yIdx =  _plotModel->getDataIndex(curveIdx,
                                                          "CurveYName", "Curve");
                 QString yName =  _plotModel->data(yIdx).toString();
-                isExists = isExists && (yName == curveName);
+                isExists = isExists && (yName == curveYName);
             }
             if ( isExists ) {
                 retPageIdx = pageIdx;
@@ -208,8 +208,6 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
 
         QStandardItem *curveItem = _addChild(curvesItem,"Curve");
 
-        QString curveName = QString("Curve_%0").arg(r);
-        _addChild(curveItem, "CurveName", curveName);
         _addChild(curveItem, "CurveTime", tName);
         _addChild(curveItem, "CurveTimeUnit", curveModel->t()->unit());
         _addChild(curveItem, "CurveXName", xName);

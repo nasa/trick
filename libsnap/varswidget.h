@@ -49,7 +49,7 @@ private:
 
     int _currQPIdx;
 
-    QModelIndex _findSinglePlotPageWithCurve(const QString& curveName);
+    QModelIndex _findSinglePlotPageWithCurve(const QString& curveYName);
     QStandardItem* _createPageItem();
     QStandardItem* _addChild(QStandardItem* parentItem,
                    const QString& childTitle,

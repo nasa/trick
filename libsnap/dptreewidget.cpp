@@ -453,10 +453,6 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     // Curve
     QStandardItem *curveItem = _addChild(curvesItem,"Curve");
 
-    // Curve Name
-    QString curveName = QString("Curve_%0_%1").arg(curveId).arg(runId);
-    _addChild(curveItem, "CurveName", curveName);
-
     TrickCurveModel* curveModel = 0 ;
 
     // Get x&y params that match this run
