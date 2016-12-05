@@ -310,7 +310,7 @@ void CurvesView::paintEvent(QPaintEvent *event)
     pen.setWidthF(ptSizeCurve);
     painter.setPen(pen);
 
-    // Draw!
+    // Draw curves
     painter.setTransform(T);
     if ( nCurves == 2 ) {
         QString plotPresentation = _bookModel()->getDataString(rootIndex(),
@@ -338,6 +338,9 @@ void CurvesView::paintEvent(QPaintEvent *event)
 
     // Restore the painter state off the painter stack
     painter.restore();
+
+    // Draw legend (if it best to draw)
+    _paintLegend(curvesIdx,painter);
 }
 
 
@@ -429,68 +432,8 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
                         continue;
                     }
                 }
-                if ( symbolStyle == "circle" ) {
-                    painter.drawEllipse(p,2,2);
-                } else if ( symbolStyle == "thick_circle" ) {
-                    pen.setWidth(2.0);
-                    painter.setPen(pen);
-                    painter.drawEllipse(p,3,3);
-                } else if ( symbolStyle == "solid_circle" ) {
-                    pen.setWidthF(2.0);
-                    painter.setPen(pen);
-                    painter.drawEllipse(p,1,1);
-                } else if ( symbolStyle == "square" ) {
-                    double x = p.x()-2.0;
-                    double y = p.y()-2.0;
-                    painter.drawRect(QRectF(x,y,4,4));
-                } else if ( symbolStyle == "thick_square") {
-                    pen.setWidthF(2.0);
-                    painter.setPen(pen);
-                    double x = p.x()-3.0;
-                    double y = p.y()-3.0;
-                    painter.drawRect(QRectF(x,y,6,6));
-                } else if ( symbolStyle == "solid_square" ) {
-                    pen.setWidthF(4.0);
-                    painter.setPen(pen);
-                    painter.drawPoint(p); // happens to be a solid square
-                } else if ( symbolStyle == "star" ) { // *
-                    double r = 3.0;
-                    QPointF a(p.x()+r*cos(18.0*M_PI/180.0),
-                              p.y()-r*sin(18.0*M_PI/180.0));
-                    QPointF b(p.x(),p.y()-r);
-                    QPointF c(p.x()-r*cos(18.0*M_PI/180.0),
-                              p.y()-r*sin(18.0*M_PI/180.0));
-                    QPointF d(p.x()-r*cos(54.0*M_PI/180.0),
-                              p.y()+r*sin(54.0*M_PI/180.0));
-                    QPointF e(p.x()+r*cos(54.0*M_PI/180.0),
-                              p.y()+r*sin(54.0*M_PI/180.0));
-                    painter.drawLine(p,a);
-                    painter.drawLine(p,b);
-                    painter.drawLine(p,c);
-                    painter.drawLine(p,d);
-                    painter.drawLine(p,e);
-                } else if ( symbolStyle == "xx" ) {
-                    pen.setWidthF(2.0);
-                    painter.setPen(pen);
-                    QPointF a(p.x()+2.0,p.y()+2.0);
-                    QPointF b(p.x()-2.0,p.y()+2.0);
-                    QPointF c(p.x()-2.0,p.y()-2.0);
-                    QPointF d(p.x()+2.0,p.y()-2.0);
-                    painter.drawLine(p,a);
-                    painter.drawLine(p,b);
-                    painter.drawLine(p,c);
-                    painter.drawLine(p,d);
-                } else if ( symbolStyle == "triangle" ) {
-                    double r = 3.0;
-                    QPointF a(p.x(),p.y()-r);
-                    QPointF b(p.x()-r*cos(30.0*M_PI/180.0),
-                              p.y()+r*sin(30.0*M_PI/180.0));
-                    QPointF c(p.x()+r*cos(30.0*M_PI/180.0),
-                              p.y()+r*sin(30.0*M_PI/180.0));
-                    painter.drawLine(a,b);
-                    painter.drawLine(b,c);
-                    painter.drawLine(c,a);
-                }
+
+                __paintSymbol(p,symbolStyle,painter);
 
                 pLast = p;
             }
@@ -647,6 +590,272 @@ void CurvesView::_paintErrorplot(QPainter &painter, const QPen &pen,
     }
 }
 
+void CurvesView::_paintLegend(const QModelIndex &curvesIdx, QPainter &painter)
+{
+    int nCurves = model()->rowCount(curvesIdx);
+    if ( nCurves > 6 ) {
+        return;
+    }
+
+    QString pres = _bookModel()->getDataString(rootIndex(),
+                                               "PlotPresentation","Plot");
+    if ( pres == "error" ) {
+        return;
+    }
+
+    QStringList runs;
+    QStringList curveNames;
+    for ( int i = 0; i < nCurves; ++i ) {
+
+        QModelIndex curveIdx = model()->index(i,0,curvesIdx);
+
+        // Curve name
+        QString curveName = _bookModel()->getDataString(curveIdx,
+                                                        "CurveYName", "Curve");
+        if ( !curveNames.contains(curveName) ) {
+            curveNames.append(curveName);
+        }
+
+        // Run
+        TrickCurveModel* curveModel = _bookModel()->
+                                      getTrickCurveModel(curvesIdx,i);
+        QString trk = curveModel->trkFile();
+        QFileInfo trkInfo(trk);
+        QString run = trkInfo.absolutePath();
+        if ( !runs.contains(run) ) {
+            runs.append(run);
+        }
+    }
+
+    int nRuns = runs.size();
+    int nCurveNames = curveNames.size();
+
+    QList<QPen*> pens;
+    QStringList symbols;
+    QStringList labels;
+
+    for ( int i = 0; i < nCurves; ++i ) {
+
+        QModelIndex curveIdx = model()->index(i,0,curvesIdx);
+
+        // Label
+        if ( nRuns == 1 && 2 <= nCurveNames && nCurveNames <= 6 ) {
+            QString label =  _bookModel()->getDataString(curveIdx,
+                                                        "CurveYLabel", "Curve");
+            if ( label.isEmpty() ) {
+                label = _bookModel()->getDataString(curveIdx,
+                                                    "CurveYName", "Curve");
+                int i = label.lastIndexOf('.');
+                label = label.mid(i+1);
+            }
+            labels << label;
+        } else if ( nCurveNames == 1 && 2 <= nRuns && nRuns <= 6 ) {
+            // Label (use RUN dir name)
+            TrickCurveModel* curveModel = _bookModel()->
+                    getTrickCurveModel(curveIdx);
+            QString trk = curveModel->trkFile();
+            QString runName = QFileInfo(trk).dir().dirName();
+            labels << runName;
+        } else {
+            continue;  // if no labels, no legend
+        }
+
+        // Pen
+        QString penColor = _bookModel()->getDataString(curveIdx,
+                                                       "CurveColor", "Curve");
+        QPen* pen = new QPen(penColor);
+        QVector<qreal> pat = _bookModel()->getLineStylePattern(curveIdx);
+        pen->setDashPattern(pat);
+        pens << pen;
+
+        // Symbol
+        symbols << _bookModel()->getDataString(curveIdx,
+                                               "CurveSymbolStyle", "Curve");
+
+    }
+
+    if ( pres == "error+compare" ) {
+        QPen* magentaPen = new QPen(_bookModel()->createCurveColors(3).at(2));
+        pens << magentaPen;
+        symbols << "none";
+        labels << "error";
+    }
+
+    __paintLegend(pens,symbols,labels,painter);
+
+    // Clean up
+    foreach ( QPen* pen, pens ) {
+        delete pen;
+    }
+}
+
+// pens,symbols and labels are ordered/collated foreach legend curve/label
+void CurvesView::__paintLegend(const QList<QPen *> &pens,
+                               const QStringList &symbols,
+                               const QStringList &labels,
+                               QPainter &painter)
+{
+    QPen origPen = painter.pen();
+
+    int n = pens.size();
+
+    // Width Of Legend Box
+    const int ml = 10; // marginLeft
+    const int mr = 10; // marginRight
+    const int s = 10;  // spaceBetweenLineAndLabel
+    const int l = 30;  // line width , e.g. ~5 for: *-----* Gravity
+    int w = 0;
+    foreach (QString label, labels ) {
+        int labelWidth = painter.fontMetrics().boundingRect(label).width();
+        int ww = ml + l + s + labelWidth + mr;
+        if ( ww > w ) {
+            w = ww;
+        }
+    }
+
+    // Height Of Legend Box
+    const int v = 3;  // vertical space between legend entries
+    const int mt = 5; // marginTop
+    const int mb = 5; // marginBot
+    int sh = 0;
+    foreach (QString label, labels ) {
+        sh += painter.fontMetrics().boundingRect(label).height();
+    }
+    int h = (n-1)*v + mt + mb + sh;
+
+    // Legend box top left point
+    const int top = 5;   // top margin
+    const int right = 10; // right margin
+    QRect V = viewport()->rect();
+    QPoint legendTopLeft(V.width()-w-right,top);
+
+    // Legend box
+    QRect LegendBox(legendTopLeft,QSize(w,h));
+
+    // Draw legend box with semi-transparent background
+    QColor bg(255,255,255,220);
+    painter.setBrush(bg);
+    QPen penGray(QColor(120,120,120,255));
+    painter.setPen(penGray);
+    painter.drawRect(LegendBox);
+    painter.setPen(origPen);
+
+    QRect lastBB;
+    for ( int i = 0; i < n; ++i ) {
+
+        QString label = labels.at(i);
+
+        // Calc bounding rect (bb) for line and label
+        QPoint topLeft;
+        if ( i == 0 ) {
+            topLeft.setX(legendTopLeft.x()+ml);
+            topLeft.setY(legendTopLeft.y()+mt);
+        } else {
+            topLeft.setX(lastBB.bottomLeft().x());
+            topLeft.setY(lastBB.bottomLeft().y()+v);
+        }
+        QRect bb = painter.fontMetrics().boundingRect(label);
+        bb.moveTopLeft(topLeft);
+        bb.setWidth(l+s+bb.width());
+
+        // Draw line segment
+        QPen* pen = pens.at(i);
+        painter.setPen(*pen);
+        QPoint p1(bb.left(),bb.center().y());
+        QPoint p2(bb.left()+l,bb.center().y());
+        painter.drawLine(p1,p2);
+
+        // Draw symbols on line segment endpoints
+        QString symbol = symbols.at(i);
+        __paintSymbol(p1,symbol,painter);
+        __paintSymbol(p2,symbol,painter);
+
+        // Draw label
+        QRect labelRect(bb);
+        QPoint p(bb.topLeft().x()+l+s, bb.topLeft().y());
+        labelRect.moveTopLeft(p);
+        painter.drawText(labelRect, Qt::AlignLeft|Qt::AlignVCenter, label);
+
+        lastBB = bb;
+    }
+
+
+    painter.setPen(origPen);
+}
+
+void CurvesView::__paintSymbol(const QPointF& p,
+                               const QString &symbol, QPainter &painter)
+{
+
+    QPen origPen = painter.pen();
+    QPen pen = painter.pen();
+
+    if ( symbol == "circle" ) {
+        painter.drawEllipse(p,2,2);
+    } else if ( symbol == "thick_circle" ) {
+        pen.setWidth(2.0);
+        painter.setPen(pen);
+        painter.drawEllipse(p,3,3);
+    } else if ( symbol == "solid_circle" ) {
+        pen.setWidthF(2.0);
+        painter.setPen(pen);
+        painter.drawEllipse(p,1,1);
+    } else if ( symbol == "square" ) {
+        double x = p.x()-2.0;
+        double y = p.y()-2.0;
+        painter.drawRect(QRectF(x,y,4,4));
+    } else if ( symbol == "thick_square") {
+        pen.setWidthF(2.0);
+        painter.setPen(pen);
+        double x = p.x()-3.0;
+        double y = p.y()-3.0;
+        painter.drawRect(QRectF(x,y,6,6));
+    } else if ( symbol == "solid_square" ) {
+        pen.setWidthF(4.0);
+        painter.setPen(pen);
+        painter.drawPoint(p); // happens to be a solid square
+    } else if ( symbol == "star" ) { // *
+        double r = 3.0;
+        QPointF a(p.x()+r*cos(18.0*M_PI/180.0),
+                  p.y()-r*sin(18.0*M_PI/180.0));
+        QPointF b(p.x(),p.y()-r);
+        QPointF c(p.x()-r*cos(18.0*M_PI/180.0),
+                  p.y()-r*sin(18.0*M_PI/180.0));
+        QPointF d(p.x()-r*cos(54.0*M_PI/180.0),
+                  p.y()+r*sin(54.0*M_PI/180.0));
+        QPointF e(p.x()+r*cos(54.0*M_PI/180.0),
+                  p.y()+r*sin(54.0*M_PI/180.0));
+        painter.drawLine(p,a);
+        painter.drawLine(p,b);
+        painter.drawLine(p,c);
+        painter.drawLine(p,d);
+        painter.drawLine(p,e);
+    } else if ( symbol == "xx" ) {
+        pen.setWidthF(2.0);
+        painter.setPen(pen);
+        QPointF a(p.x()+2.0,p.y()+2.0);
+        QPointF b(p.x()-2.0,p.y()+2.0);
+        QPointF c(p.x()-2.0,p.y()-2.0);
+        QPointF d(p.x()+2.0,p.y()-2.0);
+        painter.drawLine(p,a);
+        painter.drawLine(p,b);
+        painter.drawLine(p,c);
+        painter.drawLine(p,d);
+    } else if ( symbol == "triangle" ) {
+        double r = 3.0;
+        QPointF a(p.x(),p.y()-r);
+        QPointF b(p.x()-r*cos(30.0*M_PI/180.0),
+                  p.y()+r*sin(30.0*M_PI/180.0));
+        QPointF c(p.x()+r*cos(30.0*M_PI/180.0),
+                  p.y()+r*sin(30.0*M_PI/180.0));
+        painter.drawLine(a,b);
+        painter.drawLine(b,c);
+        painter.drawLine(c,a);
+    }
+
+    painter.setPen(origPen);
+}
+
 QSize CurvesView::minimumSizeHint() const
 {
     QSize s(50,50);
@@ -757,7 +966,7 @@ QList<QColor> CurvesView::_createColorBands(int nBands, bool isRainbow)
 
         // Handpicked band of colors for smaller number of curves
         colorBands << blue << red << magenta
-                   << green << orange << yellow
+                   << green << orange << black
                    << gray << pink << medblue;
 
         for ( int i = 0 ; i < nBands-10; ++i ) {
@@ -828,7 +1037,7 @@ void CurvesView::mouseReleaseEvent(QMouseEvent *event)
                     if ( s < 2 ) {
                         // Choose closest curve to point and bail
                         selectionModel()->setCurrentIndex(curveIdxs.first(),
-                                                          QItemSelectionModel::NoUpdate);
+                                                 QItemSelectionModel::NoUpdate);
                         break;
                     }
                 } else {
