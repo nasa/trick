@@ -60,6 +60,15 @@ private:
                          QPainter *painter, const QModelIndex& plotIdx);
     void _printCurves(const QRect& R,
                       QPainter *painter, const QModelIndex& plotIdx);
+    void _printLegend(const QRect& R,
+                      const QModelIndex &curvesIdx, QPainter &painter);
+    void __printLegend(const QRect& R,
+                       const QList<QPen*>& pens,
+                       const QStringList& symbols,
+                       const QStringList& labels,
+                       QPainter& painter);
+    void __printSymbol(const QPointF &p, const QString& symbol,
+                       QPainter &painter);
     void _printCoplot(const QRect& R,
                       QPainter *painter, const QModelIndex& plotIdx);
     void _printErrorplot(const QRect& R,

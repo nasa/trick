@@ -131,7 +131,8 @@ private:
                        const QStringList& symbols,
                        const QStringList& labels,
                        QPainter& painter);
-    void __paintSymbol(const QPointF &p, const QString& symbol, QPainter& painter);
+    void __paintSymbol(const QPointF &p, const QString& symbol,
+                       QPainter& painter);
 
     QList<QModelIndex> _curvesInsideMouseRect(const QRectF& R);
 

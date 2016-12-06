@@ -339,7 +339,7 @@ void CurvesView::paintEvent(QPaintEvent *event)
     // Restore the painter state off the painter stack
     painter.restore();
 
-    // Draw legend (if it best to draw)
+    // Draw legend (if needed)
     _paintLegend(curvesIdx,painter);
 }
 
