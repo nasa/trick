@@ -338,8 +338,7 @@ foreach $k ( sort keys %files_by_dir ) {
 
 print MAKEFILE "
 -include build/Makefile_io_src
-include build/Makefile_swig
--include S_overrides.mk" ;
+include build/Makefile_swig" ;
 close MAKEFILE ;
 
 # write out all of files we processed as dependencies to Makefile_src
