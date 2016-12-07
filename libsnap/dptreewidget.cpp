@@ -1,5 +1,9 @@
 #include "dptreewidget.h"
 
+#ifdef __linux
+#include "libsnap/timeit_linux.h"
+#endif
+
 QString DPTreeWidget::_err_string;
 QTextStream DPTreeWidget::_err_stream(&DPTreeWidget::_err_string);
 
@@ -269,7 +273,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
     this->setCursor(QCursor(Qt::WaitCursor));
 
     DPProduct dp(dpfile);
-    int numRuns = _monteModel->rowCount();
+    int rc = _monteModel->rowCount();
     int pageNum = 0 ;
 
     // Pages
@@ -309,7 +313,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             _addChild(plotItem, "PlotName", _descrPlotTitle(plot));
             _addChild(plotItem, "PlotTitle",      plot->title());
             _addChild(plotItem, "PlotMathRect", QRectF());
-            if ( numRuns == 2 && plot->curves().size() == 1 ) {
+            if ( rc == 2 && plot->curves().size() == 1 ) {
                 QString presentation = _bookModel->getDataString(QModelIndex(),
                                                                "Presentation");
                 _addChild(plotItem, "PlotPresentation", presentation);
@@ -333,16 +337,47 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
 
             // Curves
             QStandardItem *curvesItem = _addChild(plotItem,"Curves");
-            int nColors = plot->curves().size()*numRuns;
+            int nColors = plot->curves().size()*rc;
             QList<QColor> colors = _bookModel->createCurveColors(nColors);
+
+            // Turn off model signals when adding children for speedup
+            bool block = _bookModel->blockSignals(true);
 
             int colorId = 0;
             foreach (DPCurve* dpcurve, plot->curves() ) {
-                for ( int runId = 0; runId < numRuns; ++runId) {
+
+                // Setup progress bar dialog for time intensive loads
+                QProgressDialog progress("Loading curves...", "Abort", 0, rc, this);
+                progress.setWindowModality(Qt::WindowModal);
+                progress.setMinimumDuration(500);
+
+#ifdef __linux
+                TimeItLinux timer;
+                timer.start();
+#endif
+                for ( int r = 0; r < rc; ++r) {
                     QString color = colors.at(colorId++).name();
-                    _addCurve(curvesItem, dpcurve, _monteModel, runId, color);
+                    _addCurve(curvesItem, dpcurve, _monteModel, r, color);
+#ifdef __linux
+                    int secs = qRound(timer.stop()/1000000.0);
+                    div_t d = div(secs,60);
+                    QString msg = QString("Loaded %1 of %2 curves "
+                                          "(%3 min %4 sec)")
+                                       .arg(r+1).arg(rc).arg(d.quot).arg(d.rem);
+                    progress.setLabelText(msg);
+#endif
+                    progress.setValue(r);
+                    if (progress.wasCanceled()) {
+                        break;
+                    }
                 }
+
+                // Update progress dialog
+                progress.setValue(rc);
             }
+
+            // Turn signals back on before adding curveModel
+            block = _bookModel->blockSignals(block);
 
             // Initialize plot math rect to curves bounding box
             QModelIndex curvesIdx = curvesItem->index();
@@ -447,9 +482,6 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
                              DPCurve *dpcurve, MonteModel *monteModel,
                              int runId, const QString& defaultColor)
 {
-    // Begin blocking signals to speed up curve insertion
-    bool block = _bookModel->blockSignals(true);
-
     // Curve
     QStandardItem *curveItem = _addChild(curvesItem,"Curve");
 
@@ -572,9 +604,6 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     // Finally, add actual curve model data with signals turned on
     QVariant v = PtrToQVariant<TrickCurveModel>::convert(curveModel);
     _addChild(curveItem, "CurveData", v);
-
-    // End blocking signals
-    block = _bookModel->blockSignals(block);
 }
 
 bool DPTreeWidget::_isDP(const QString &fp)

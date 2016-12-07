@@ -10,6 +10,7 @@
 #include <QListView>
 #include <QFileInfo>
 #include <QDir>
+#include <QProgressDialog>
 #include <float.h>
 #include "dp.h"
 #include "libsnap/montemodel.h"

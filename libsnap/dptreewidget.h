@@ -8,6 +8,7 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QHash>
+#include <QProgressDialog>
 #include "dp.h"
 #include "dpfilterproxymodel.h"
 #include "libsnap/montemodel.h"

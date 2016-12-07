@@ -1,5 +1,9 @@
 #include "varswidget.h"
 
+#ifdef __linux
+#include "libsnap/timeit_linux.h"
+#endif
+
 VarsWidget::VarsWidget(QStandardItemModel* varsModel,
                        MonteModel *monteModel,
                        PlotBookModel *plotModel,
@@ -187,9 +191,27 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
 
     QStandardItem *curvesItem = _addChild(plotItem,"Curves");
 
+    // Setup progress bar dialog for time intensive loads
+    QProgressDialog progress("Loading curves...", "Abort", 0, rc, this);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.setMinimumDuration(500);
+
+#ifdef __linux
+    TimeItLinux timer;
+    timer.start();
+#endif
+
+    // Turn off model signals when adding children for significant speedup
+    bool block = _plotModel->blockSignals(true);
 
     QList<QColor> colors = _plotModel->createCurveColors(rc);
     for ( int r = 0; r < rc; ++r) {
+
+        // Update progress dialog
+        progress.setValue(r);
+        if (progress.wasCanceled()) {
+            break;
+        }
 
         //
         // Create curves
@@ -203,8 +225,6 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
             exit(-1);
         }
 
-        // Turn off model signals when adding children for significant speedup
-        bool block = _plotModel->blockSignals(true);
 
         QStandardItem *curveItem = _addChild(curvesItem,"Curve");
 
@@ -232,13 +252,25 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
         _addChild(curveItem, "CurveLineStyle", "");
         _addChild(curveItem, "CurveYLabel", "");
 
-        // Turn signals back on before adding curveModel
-        block = _plotModel->blockSignals(block);
 
         // Add actual curve model data
         QVariant v = PtrToQVariant<TrickCurveModel>::convert(curveModel);
         _addChild(curveItem, "CurveData", v);
+
+#ifdef __linux
+        int secs = qRound(timer.stop()/1000000.0);
+        div_t d = div(secs,60);
+        QString msg = QString("Loaded %1 of %2 curves (%3 min %4 sec)")
+                             .arg(r+1).arg(rc).arg(d.quot).arg(d.rem);
+        progress.setLabelText(msg);
+#endif
     }
+
+    // Turn signals back on before adding curveModel
+    block = _plotModel->blockSignals(block);
+
+    // Update progress dialog
+    progress.setValue(rc);
 
     // Initialize plot math rect to curves bounding box
     QModelIndex curvesIdx = curvesItem->index();
@@ -248,6 +280,7 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
                                                            "PlotMathRect",
                                                            "Plot");
     _plotModel->setData(plotMathRectIdx,bbox);
+
 }
 
 QStandardItem* VarsWidget::_addChild(QStandardItem *parentItem,
