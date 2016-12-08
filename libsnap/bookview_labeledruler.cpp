@@ -186,6 +186,7 @@ void LabeledRulerView::dataChanged(const QModelIndex &topLeft,
 
     if ( topLeft == _plotMathRectIdx(rootIndex()) ) {
         viewport()->update();
+        updateGeometry();
     }
 }
 
