@@ -153,10 +153,11 @@ QVariant TrickTableModel::headerData(int section,
                                      Qt::Orientation orientation,
                                      int role) const
 {
+    Q_UNUSED(role);
+
     QVariant v;
     if ( orientation == Qt::Horizontal ) {
         v = _params.at(section);
-        //qDebug() << "moo=" << v.toString() << role;
     }
     return v;
 }

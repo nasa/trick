@@ -216,12 +216,11 @@ void PlotBookModel::_initModel()
 {
     setColumnCount(2);
     QStandardItem *rootItem = invisibleRootItem();
-    QStandardItem *citem;
 
-    citem = addChild(rootItem, "SessionStartTime",-DBL_MAX);
-    citem = addChild(rootItem, "SessionStopTime",DBL_MAX);
-    citem = addChild(rootItem, "Pages","");
-    citem = addChild(rootItem, "Tables","");
+    addChild(rootItem, "SessionStartTime",-DBL_MAX);
+    addChild(rootItem, "SessionStopTime",DBL_MAX);
+    addChild(rootItem, "Pages","");
+    addChild(rootItem, "Tables","");
 }
 
 //

@@ -14,15 +14,13 @@ void LabeledRulerView::paintEvent(QPaintEvent *event)
 
     if ( !model() ) return;
 
+
     QRect W = viewport()->rect();
-
-    QRectF M = _mathRect();
-
-    QRect V = _curvesView->viewport()->rect();
     if ( W.width() == 0.0 || W.height() == 0.0 ) {
         return;
     }
 
+    QRectF M = _mathRect();
 
     QModelIndex plotIdx = _bookModel()->getIndex(rootIndex(),"Plot");
 
@@ -34,13 +32,6 @@ void LabeledRulerView::paintEvent(QPaintEvent *event)
     } else {
         // No support (yet) for right and top axes
         return;
-    }
-
-    double minGap;
-    if ( _alignment == Qt::AlignBottom ) {
-        minGap = fontMetrics().boundingRect("xx").width();
-    } else if ( _alignment == Qt::AlignLeft ) {
-        minGap = fontMetrics().boundingRect("X").height();
     }
 
     QTransform T = _coordToPixelTransform();
@@ -75,6 +66,14 @@ void LabeledRulerView::paintEvent(QPaintEvent *event)
     }
 
 #if 0
+
+    double minGap;
+    if ( _alignment == Qt::AlignBottom ) {
+        minGap = fontMetrics().boundingRect("xx").width();
+    } else if ( _alignment == Qt::AlignLeft ) {
+        minGap = fontMetrics().boundingRect("X").height();
+    }
+
     while (1) {
 
         if ( _isFits(boxes,W,minGap,_alignment) ) {

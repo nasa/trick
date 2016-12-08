@@ -21,7 +21,7 @@ class Runs
   public:
     Runs();
     Runs(const QStringList &runDirs, double startTime=0, double endTime=1.0e20);
-    ~Runs();
+    virtual ~Runs();
     virtual QStringList params() const { return _params; }
     virtual QStringList runs() const { return _runs; }
     virtual QList<TrickModel*>* models(const QString& param);

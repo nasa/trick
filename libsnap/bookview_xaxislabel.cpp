@@ -74,7 +74,7 @@ void XAxisLabelView::wheelEvent(QWheelEvent *e)
     QList<QString> angles;
     angles << "r" << "d" ;
     QList<QString> masses;
-    masses << "kg" << "sl" << "lbm", "g" ;
+    masses << "kg" << "sl" << "lbm" << "g" ;
     QList<QString> forces;
     forces <<   "N" << "kN" << "oz" << "lbf";
     QList<QString> speeds;

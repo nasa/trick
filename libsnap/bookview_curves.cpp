@@ -13,7 +13,7 @@ CoordArrow::CoordArrow() :
 {
 }
 
-CoordArrow::CoordArrow(const QString &txt, const QPointF &coord,
+CoordArrow::CoordArrow(const QPointF &coord,
                        double r, double h,
                        double a, double b, double m,
                        double angle, double tipAngle) :
@@ -294,6 +294,8 @@ void CurvesView::setCurrentCurveRunID(int runID)
 
 void CurvesView::paintEvent(QPaintEvent *event)
 {
+    Q_UNUSED(event);
+
     if ( !model() ) return;
 
     QModelIndex curvesIdx = _bookModel()->getIndex(rootIndex(),"Curves","Plot");
@@ -1521,6 +1523,9 @@ void CurvesView::keyPressEvent(QKeyEvent *event)
 void CurvesView::currentChanged(const QModelIndex &current,
                                 const QModelIndex &previous)
 {
+    Q_UNUSED(current);
+    Q_UNUSED(previous);
+
     viewport()->update();
 }
 

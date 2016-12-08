@@ -10,6 +10,8 @@ class Role
         alignment(Qt::AlignRight | Qt::AlignVCenter)
     {}
 
+    virtual ~Role() {}
+
     QString format;
     int alignment;
 

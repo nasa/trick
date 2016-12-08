@@ -56,9 +56,7 @@ class CoordArrow
 {
   public:
     CoordArrow();
-    CoordArrow(
-               const QString& txt,
-               const QPointF& coord,
+    CoordArrow(const QPointF& coord,
                double r, double h,
                double a, double b, double m,
                double angle, double tipAngle);

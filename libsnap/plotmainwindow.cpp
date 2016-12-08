@@ -55,16 +55,15 @@ PlotMainWindow::PlotMainWindow(
     if ( titles.size() == 4 ) {
         QStandardItem *rootItem = _bookModel->invisibleRootItem();
         QStandardItem *citem;
-        QStandardItem *gitem;
         citem = _bookModel->addChild(rootItem, "DefaultPageTitles","");
-        gitem = _bookModel->addChild(citem, "Title1",titles.at(0));
-        gitem = _bookModel->addChild(citem, "Title2",titles.at(1));
-        gitem = _bookModel->addChild(citem, "Title3",titles.at(2));
-        gitem = _bookModel->addChild(citem, "Title4",titles.at(3));
-        citem = _bookModel->addChild(rootItem, "LiveCoordTime","");
-        citem = _bookModel->addChild(rootItem, "StartTime",startTime);
-        citem = _bookModel->addChild(rootItem, "StopTime",stopTime);
-        citem = _bookModel->addChild(rootItem, "Presentation",_presentation);
+        _bookModel->addChild(citem, "Title1",titles.at(0));
+        _bookModel->addChild(citem, "Title2",titles.at(1));
+        _bookModel->addChild(citem, "Title3",titles.at(2));
+        _bookModel->addChild(citem, "Title4",titles.at(3));
+        _bookModel->addChild(rootItem, "LiveCoordTime","");
+        _bookModel->addChild(rootItem, "StartTime",startTime);
+        _bookModel->addChild(rootItem, "StopTime",stopTime);
+        _bookModel->addChild(rootItem, "Presentation",_presentation);
     }
 
 
@@ -235,6 +234,9 @@ void PlotMainWindow::_bookViewCurrentChanged(const QModelIndex &currIdx,
 void PlotMainWindow::_bookModelRowsInserted(const QModelIndex &pidx,
                                             int start, int end)
 {
+    Q_UNUSED(start);
+    Q_UNUSED(end);
+
     if ( _monteInputsView ) {
         if ( _bookModel->isIndex(pidx,"Curve") ) {
             QModelIndex miCurrIdx = _monteInputsView->currentIndex();

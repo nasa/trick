@@ -60,9 +60,9 @@ void MonteInputsView::_selectModelCurrentChanged(
 
     if ( ! curr.model() ) return ;
 
+#if 0
     QModelIndex runIdx = curr.model()->index(curr.row(),0);
     int runId = curr.model()->data(runIdx).toInt();
-#if 0
     _plotBookView->selectRun(runId);
 #endif
 }

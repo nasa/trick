@@ -803,8 +803,7 @@ double Unit::convert(double value, const char *from, const char *to)
  */
 double Unit::convert(Unit * u)
 {
-
-        int ret1, ret2;
+        int ret1;
         int lastPrimWasOperand; // 0 or 1
         char lastOperand[2];
         double scale;
@@ -845,7 +844,7 @@ double Unit::convert(Unit * u)
                         // Finished scanning over unit
                         break;
                 }
-                ret2 = this->_getNextPrimitiveOrOperand();
+                this->_getNextPrimitiveOrOperand();
 
                 if (_isOperand(u->_currPrimitive)) {
 
