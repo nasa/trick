@@ -113,7 +113,6 @@ private:
     QRectF _mousePressMathRect;
     QPoint _mousePressPos;
     QPointF _mousePressMathTopLeft;
-    QModelIndex _mousePressCurrentIndex;
 
     QRectF _curveBBox(const QModelIndex &curveIdx) const ;
 

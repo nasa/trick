@@ -986,7 +986,6 @@ void CurvesView::mousePressEvent(QMouseEvent *event)
         _mousePressPos = event->pos();
         _mousePressMathTopLeft = _mathRect().topLeft();
         _mousePressMathRect = _mathRect();
-        _mousePressCurrentIndex = currentIndex();
         event->ignore();
     } else if (  event->button() == Qt::MidButton ) {
         event->ignore();
