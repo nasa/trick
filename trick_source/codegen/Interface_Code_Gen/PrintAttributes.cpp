@@ -80,7 +80,7 @@ static void _mkdir(const char *dir) {
             if ( stat( tmp , &buf ) != 0 ) {
                 int returnValue = mkdir(tmp, S_IRWXU | S_IRWXG | S_IRWXO);
                 if (returnValue) {
-                    std::cout << bold(color(ERROR, "Error")) << "      Unable to create " << quote(bold(tmp)) << " for writing: " << strerror(errno) << std::endl;
+                    std::cerr << bold(color(ERROR, "Error")) << "      Unable to create " << quote(bold(tmp)) << " for writing: " << strerror(errno) << std::endl;
                     return ;
                 }
             }
@@ -89,7 +89,7 @@ static void _mkdir(const char *dir) {
     if ( stat( tmp , &buf ) != 0 ) {
         int returnValue = mkdir(tmp, S_IRWXU | S_IRWXG | S_IRWXO);
         if (returnValue) {
-            std::cout << bold(color(ERROR, "Error")) << "      Unable to create " << quote(bold(tmp)) << " for writing: " << strerror(errno) << std::endl;
+            std::cerr << bold(color(ERROR, "Error")) << "      Unable to create " << quote(bold(tmp)) << " for writing: " << strerror(errno) << std::endl;
             return ;
         }
     }

@@ -74,7 +74,7 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
     fileName_ = file_name;
 
     if ((fp_ = fopen(file_name, "r")) == 0) {
-        std::cout << "ERROR:  Couldn't open \"" << file_name << "\": " << std::strerror(errno) << std::endl;
+        std::cerr << "ERROR:  Couldn't open \"" << file_name << "\": " << std::strerror(errno) << std::endl;
         return;
     }
 
@@ -660,7 +660,7 @@ int MatLabLocateParam(char * file_name, char * param_name, char * time_name) {
     int field_index, field_num;
 
     if ((fp = fopen(file_name, "r")) == 0) {
-        std::cout << "ERROR:  Couldn't open \"" << file_name << "\": " << std::strerror(errno) << std::endl;
+        std::cerr << "ERROR:  Couldn't open \"" << file_name << "\": " << std::strerror(errno) << std::endl;
         return (0);
     }
 

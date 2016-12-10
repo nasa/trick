@@ -1021,7 +1021,7 @@ int LogData::setUnit(int paramIdx, std::string to_units)
             unitVal_[paramIdx] = cv_convert_double(converter, 1.0 ) - biasVal_[paramIdx] ;
             cv_free(converter) ;
         } else {
-            std::cout << "Units conversion error from " << from_units << " to " << to_units << std::endl ;
+            std::cerr << "Units conversion error from " << from_units << " to " << to_units << std::endl ;
             return -1 ;
         }
 

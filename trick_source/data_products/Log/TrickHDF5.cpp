@@ -21,7 +21,7 @@ TrickHDF5::TrickHDF5(char *file_name , char *parameter_name , char *time_name) {
      * Open the HDF5 file.
      */
     if ( (file = H5Fopen( file_name, H5F_ACC_RDONLY, H5P_DEFAULT )) < 0 ) {
-        cout << "ERROR:  Couldn't open file \"" << file_name << "\"" << endl;
+        cerr << "ERROR:  Couldn't open file \"" << file_name << "\"" << endl;
         exit(-1);
     }
 
@@ -31,7 +31,7 @@ TrickHDF5::TrickHDF5(char *file_name , char *parameter_name , char *time_name) {
      */
     root_group = H5Gopen( file, "/", H5P_DEFAULT );
     if ( root_group < 0 ) {
-        cout << "ERROR:  Couldn't open group \"" <<  "/" << "\"" << endl;
+        cerr << "ERROR:  Couldn't open group \"" <<  "/" << "\"" << endl;
         exit(-1);
     }
 
@@ -77,13 +77,13 @@ TrickHDF5::TrickHDF5(char *file_name , char *parameter_name , char *time_name) {
      */
     parameter_dataset = H5PTopen( root_group, parameter_name );
     if ( H5PTis_valid(parameter_dataset) < 0 ) {
-        cout << "ERROR:  Couldn't open packet table \""
+        cerr << "ERROR:  Couldn't open packet table \""
              << parameter_name << "\"" << endl;
         exit(-1);
     }
     time_dataset = H5PTopen( root_group, time_name );
     if ( H5PTis_valid(time_dataset) < 0 ) {
-        cout << "ERROR:  Couldn't open packet table \""
+        cerr << "ERROR:  Couldn't open packet table \""
              << time_name << "\"" << endl;
         exit(-1);
     }
@@ -185,14 +185,14 @@ int HDF5LocateParam( const char * file_name, const char * parameter_name ) {
     //! Open an existing HDF5 file and get a file identifier.
     hid_t file = H5Fopen(file_name, H5F_ACC_RDONLY, H5P_DEFAULT);
     if (file < 0) {
-        cout << "ERROR:  Couldn't open file \"" << file_name << "\"" << endl;
+        cerr << "ERROR:  Couldn't open file \"" << file_name << "\"" << endl;
         return 0;
     }
 
     //! Open group containing data.
     hid_t group = H5Gopen(file, "/", H5P_DEFAULT);
     if (group < 0) {
-        cout << "ERROR:  Couldn't open group \"" <<  "/" << "\"" << endl;
+        cerr << "ERROR:  Couldn't open group \"" <<  "/" << "\"" << endl;
         return 0;
     }
 
@@ -205,7 +205,7 @@ int HDF5LocateParam( const char * file_name, const char * parameter_name ) {
      */
     hid_t packet_table = H5PTopen(group, parameter_name);
     if ( H5PTis_valid(packet_table) < 0 ) {
-        cout << "ERROR:  Couldn't open packet table \""
+        cerr << "ERROR:  Couldn't open packet table \""
              << parameter_name << "\"" << endl;
         return 0;
     }
