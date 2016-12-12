@@ -362,7 +362,16 @@ void CurvesView::_paintCoplot(const QTransform &T,QPainter &painter,QPen &pen)
     if ( clickedCurveIdx.isValid() ) {
         // Paint clicked curve on top of other curves so it shows
         _paintCurve(clickedCurveIdx,T,painter,pen);
+
+        // Draw coordinate arrow (arrow with (x,y) label) if needed
+        QRectF M = _plotMathRect(rootIndex());
+        if ( M.width() > 0 && qAbs(M.height()) > 0 ) {
+            TrickCurveModel* curveModel = _bookModel()->
+                                            getTrickCurveModel(clickedCurveIdx);
+            _paintLiveCoordArrow(curveModel,clickedCurveIdx,painter);
+        }
     }
+
 }
 
 void CurvesView::_paintCurve(const QModelIndex& curveIdx,
@@ -442,13 +451,6 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
             pen.setWidthF(w);
             painter.setPen(pen);
             painter.setTransform(Tscaled);
-        }
-
-        // Draw coordinate arrow (arrow with (x,y) label) if needed
-        QRectF M = _plotMathRect(rootIndex());
-        if ( curveIdx == currentIndex() &&
-             M.width() > 0 && qAbs(M.height()) > 0 ) {
-            _paintLiveCoordArrow(curveModel,curveIdx,painter);
         }
     }
     painter.restore();
