@@ -38,6 +38,9 @@ class Monte : public Runs
     static QTextStream _err_stream;
 
     bool _setDir(const QString& montedir);
+
+    QStandardItemModel* _inputModelTrick07(const QString& monteInputFile);
+    QStandardItemModel* _inputModelTrick17(const QString& monteInputFile);
 };
 
 

@@ -200,14 +200,45 @@ QStandardItemModel *Monte::inputModel()
 {
     QStandardItemModel* m = 0 ;
 
-    QString monteInputsFileName("monte_runs");
-    monteInputsFileName.prepend("/");
-    monteInputsFileName.prepend(_montedir);
+    QString monteInputFile("monte_runs");
+    monteInputFile.prepend("/");
+    monteInputFile.prepend(_montedir);
 
-    QFile file(monteInputsFileName);
+    QFile file(monteInputFile);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         _err_stream << "snap [error]: could not open "
-                    << monteInputsFileName << "\n";
+                    << monteInputFile << "\n";
+        throw std::runtime_error(_err_string.toLatin1().constData());
+    }
+    QTextStream in(&file);
+
+    bool isTrick07 = false;
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        if ( line.startsWith("NUM_RUNS:") ) {
+            isTrick07 = true;
+            break;
+        }
+    }
+    file.close();
+
+    if ( isTrick07 ) {
+        m = _inputModelTrick07(monteInputFile);
+    } else {
+        m = _inputModelTrick17(monteInputFile);
+    }
+
+    return m;
+}
+
+QStandardItemModel *Monte::_inputModelTrick07(const QString &monteInputFile)
+{
+    QStandardItemModel* m = 0;
+
+    QFile file(monteInputFile);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        _err_stream << "snap [error]: could not open "
+                    << monteInputFile << "\n";
         throw std::runtime_error(_err_string.toLatin1().constData());
     }
     QTextStream in(&file);
@@ -226,7 +257,7 @@ QStandardItemModel *Monte::inputModel()
     }
     if ( !isNumRuns ) {
         _err_stream << "snap [error]: error parsing monte carlo input file: "
-                    << monteInputsFileName << "."
+                    << monteInputFile << "."
                     << "Couldn't find/parse \"NUM_RUNS:\" line.";
         throw std::invalid_argument(_err_string.toLatin1().constData());
     }
@@ -237,7 +268,7 @@ QStandardItemModel *Monte::inputModel()
                     << "however there are actually "
                     << _runs.size() << ".\n"
                     << "See input file:\n"
-                    << monteInputsFileName << "\n"
+                    << monteInputFile << "\n"
                     << "and monte directory:"
                     << _montedir << "\n";
         throw std::invalid_argument(_err_string.toLatin1().constData());
@@ -258,7 +289,7 @@ QStandardItemModel *Monte::inputModel()
     }
     if ( ! isVars ) {
         _err_stream << "snap [error]: error parsing monte carlo input file: "
-                    << monteInputsFileName << "."
+                    << monteInputFile << "."
                     << "Couldn't find \"VARS:\" line";
         throw std::invalid_argument(_err_string.toLatin1().constData());
     }
@@ -282,7 +313,7 @@ QStandardItemModel *Monte::inputModel()
     }
     if ( !isData ) {
         _err_stream << "snap [error]: error parsing monte carlo input file: "
-                    << monteInputsFileName << "."
+                    << monteInputFile << "."
                     << "Couldn't find \"DATA:\" line";
         throw std::invalid_argument(_err_string.toLatin1().constData());
     }
@@ -343,7 +374,7 @@ QStandardItemModel *Monte::inputModel()
                                 << " can't find the RUN_ directory. "
                                 << "Look in file:"
                                 << "\n\n"
-                                << "File:\n" << monteInputsFileName;
+                                << "File:\n" << monteInputFile;
                             throw std::invalid_argument(_err_string.toLatin1().constData());
                         }
                     }
@@ -366,18 +397,118 @@ QStandardItemModel *Monte::inputModel()
                         << "VARS list, but only " << dataVals.size()
                         << " fields on line number " << nDataLines << ".  "
                         << "\n\n"
-                        << "File:\n" << monteInputsFileName
+                        << "File:\n" << monteInputFile
                         << "Line:\n" << dataLine+1;
 
             throw std::invalid_argument(_err_string.toLatin1().constData());
         }
         nDataLines++;
     }
-    if ( nDataLines != runs().size() ) {
+
+    file.close();
+
+    return m;
+}
+
+QStandardItemModel *Monte::_inputModelTrick17(const QString &monteInputFile)
+{
+    QStandardItemModel* m = 0;
+
+    QFile file(monteInputFile);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        _err_stream << "snap [error]: could not open "
+                    << monteInputFile << "\n";
+        throw std::runtime_error(_err_string.toLatin1().constData());
+    }
+    QTextStream in(&file);
+
+    QString line = in.readLine();
+
+    //
+    // Sanity check num runs
+    //
+    int nRuns = 0 ;
+    bool ok = false;
+    int lineNum = 1;
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        nRuns = line.split(' ').at(0).trimmed().toInt(&ok) + 1;
+        if ( !ok || nRuns != lineNum ) {
+            _err_stream << "snap [error]: error parsing "
+                        << monteInputFile << " around line number " << lineNum;
+            throw std::invalid_argument(_err_string.toLatin1().constData());
+        }
+        ++lineNum;
+    }
+    if ( nRuns != _runs.size() ) {
+        _err_stream << "snap [error]: error parsing "
+                    << monteInputFile
+                    << ". The monte carlo input file run_num in column 0 "
+                       "indicates that there are "
+                    << nRuns << " RUN directories, "
+                    << "however there are actually "
+                    << _runs.size() << ".\n"
+                    << "See input file:\n"
+                    << monteInputFile << "\n"
+                    << "and monte directory:"
+                    << _montedir << "\n";
+        throw std::invalid_argument(_err_string.toLatin1().constData());
+    }
+
+    //
+    // Get Vars
+    //
+    in.seek(0); // Go to beginning of file
+    line = in.readLine();
+    QStringList vars = line.split(' ',QString::SkipEmptyParts);
+    vars.replace(0,"RunId");
+
+    //
+    // Allocate table items
+    //
+    nRuns = runs().size(); // If beginRun,endRun set, runs could be a subset
+    m = new QStandardItemModel(nRuns,vars.size());
+
+    //
+    // Data
+    //
+    lineNum = 0;
+    while (!in.atEnd()) {
+        ++lineNum;
+        line = in.readLine();
+        QStringList vals = line.split(' ',QString::SkipEmptyParts);
+        if ( vals.size() != vars.size() ) {
+            _err_stream << "snap [error]: error parsing "
+                        << monteInputFile
+                        << ".  There are " << vars.size()
+                        << " variables specified in top line, but only "
+                        << vals.size()
+                        << " values on line number " << lineNum;
+            throw std::invalid_argument(_err_string.toLatin1().constData());
+        }
+
+        int runId = vals.at(0).toInt();
+        if ( runId < _beginRun || runId > _endRun ) {
+            continue;
+        }
+
+        int nv = vals.size();
+        for ( int c = 0; c < nv; ++c) {
+            QString val = vals.at(c) ;
+            double v = val.toDouble();
+            if ( c == 0 ) {
+                int ival = val.toInt();
+                val = val.sprintf("%d",ival);
+            } else {
+                val = val.sprintf("%.4lf",v);
+            }
+            NumSortItem *item = new NumSortItem(val);
+            m->setItem(lineNum-1,c,item);
+            m->setHeaderData(c,Qt::Horizontal,vars.at(c));
+        }
     }
 
     file.close();
 
     return m;
-
 }
