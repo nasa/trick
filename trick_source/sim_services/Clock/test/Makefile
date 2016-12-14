@@ -48,17 +48,17 @@ GetTimeOfDayClock_test.o : GetTimeOfDayClock_test.cpp
 	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c $<
 
 GetTimeOfDayClock_test : ${GETTIMEOFDAY_CLOCK_OBJECTS}
-	$(TRICK_CPPC) $(TRICK_LDFLAGS) -o $@ $^ ${LIBS}
+	$(TRICK_CPPC) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ ${LIBS}
 
 TPROCTEClock_test.o : TPROCTEClock_test.cpp
 	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c $<
 
 TPROCTEClock_test : ${TPROCTE_CLOCK_OBJECTS}
-	$(TRICK_CPPC) $(TRICK_LDFLAGS) -o $@ $^ ${LIBS}
+	$(TRICK_CPPC) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ ${LIBS}
 
 BC635Clock_test.o : BC635Clock_test.cpp
 	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c $<
 
 BC635Clock_test : ${BC635_CLOCK_OBJECTS}
-	$(TRICK_CPPC) $(TRICK_LDFLAGS) -o $@ $^ ${LIBS}
+	$(TRICK_CPPC) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ ${LIBS}
 

@@ -56,6 +56,7 @@ export TRICK_USER_LINK_LIBS
 export TRICK_SYSTEM_CFLAGS
 export TRICK_SYSTEM_CXXFLAGS
 export TRICK_SYSTEM_SFLAGS
+export TRICK_SYSTEM_LDFLAGS
 export SWIG_FLAGS
 
 IO_SRC_DIR       := io_src/
@@ -99,7 +100,7 @@ endif
 
 ifeq ($(TRICK_FORCE_32BIT), 1)
    TRICK_SYSTEM_CXXFLAGS += -m32
-   TRICK_LDFLAGS         += -m32
+   TRICK_SYSTEM_LDFLAGS  += -m32
    LD_PARTIAL            += -melf_i386
 endif
 

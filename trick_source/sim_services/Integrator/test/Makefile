@@ -50,5 +50,5 @@ Integrator_unittest.o : Integrator_unittest.cc
 	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c $<
 
 Integrator_unittest : Integrator_unittest.o
-	$(TRICK_CPPC) $(TRICK_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CPPC) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 

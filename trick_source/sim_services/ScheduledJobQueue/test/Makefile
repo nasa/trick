@@ -33,5 +33,5 @@ ScheduledJobQueue_test.o : ScheduledJobQueue_test.cpp
 	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c $<
 
 ScheduledJobQueue_test : ScheduledJobQueue_test.o
-	$(TRICK_CPPC) $(TRICK_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CPPC) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
