@@ -1,6 +1,7 @@
 
 #include <string.h>
 #include <iostream>
+#include <sstream>
 #include <stdlib.h>
 #include <udunits2.h>
 #include "trick/VariableServer.hh"
@@ -109,45 +110,65 @@ int Trick::VariableServerThread::var_remove(std::string in_name) {
 }
 
 int Trick::VariableServerThread::var_units(std::string var_name, std::string units_name) {
-
-    unsigned int ii ;
-
-    for ( ii = 0 ; ii < vars.size() ; ii++ ) {
-        if ( ! std::string(vars[ii]->ref->reference).compare(var_name) ) {
-            if (!units_name.compare("xx")) {
-                vars[ii]->ref->units = strdup(vars[ii]->ref->attr->units);
-            }
-            else if (!units_name.compare("--")) {
-                vars[ii]->ref->units = strdup("1");
-            }
-            else {
-                std::string new_units = map_trick_units_to_udunits(units_name) ;
-                if ( units_name.compare(new_units) ) {
-                    std::cout << "\033[33mUnits converted from [" << units_name << "] to [" << new_units
-                     << "] in Variable Server for " << var_name << "\033[0m" << std::endl ;
-                }
-                ut_unit * from = ut_parse(Trick::UdUnits::get_u_system(), vars[ii]->ref->attr->units, UT_ASCII) ;
-                if ( !from ) {
-                    message_publish(MSG_ERROR, "Variable Server Error: var_units Units conversion error for \"%s\".\n",
-                     var_name.c_str());
-                    return -1 ;
-                }
-                ut_unit * to = ut_parse(Trick::UdUnits::get_u_system(), new_units.c_str(), UT_ASCII) ;
-                if ( !to ) {
-                    message_publish(MSG_ERROR, "Variable Server Error: var_units Units conversion error for \"%s\".\n",
-                     var_name.c_str());
-                    return -1 ;
-                }
-                cv_converter * conversion_factor = ut_get_converter(from,to) ;
-                if ( conversion_factor != NULL ) {
-                    // only assign conversion_factor if it is not NULL, otherwise leave previous value.
-                    vars[ii]->conversion_factor = conversion_factor ;
-                }
-                vars[ii]->ref->units = strdup(units_name.c_str());
-                ut_free(from) ;
-                ut_free(to) ;
-            }
+    for ( VariableReference* variable : vars ) {
+        if ( std::string(variable->ref->reference).compare(var_name) ) {
+            continue;
         }
+
+        if (!units_name.compare("xx")) {
+            units_name = variable->ref->attr->units;
+        }
+
+        auto publish = [](MESSAGE_TYPE type, const std::string& message) {
+            std::ostringstream oss;
+            oss << "Variable Server: " << message << std::endl;
+            message_publish(type, oss.str().c_str());
+        };
+
+        std::string new_units = map_trick_units_to_udunits(units_name) ;
+        if ( units_name.compare(new_units) ) {
+            std::ostringstream oss;
+            oss << "[" << var_name << "] old-style units converted from ["
+                << units_name << "] to [" << new_units << "]";
+            publish(MSG_WARNING, oss.str());
+        }
+
+        auto publishError = [&](const std::string& units) {
+            std::ostringstream oss;
+            oss << "units error for [" << var_name << "] [" << units << "]";
+            publish(MSG_ERROR, oss.str());
+        };
+
+        ut_unit * from = ut_parse(Trick::UdUnits::get_u_system(), variable->ref->attr->units, UT_ASCII) ;
+        if ( !from ) {
+            publishError(variable->ref->attr->units);
+            ut_free(from) ;
+            return -1 ;
+        }
+
+        ut_unit * to = ut_parse(Trick::UdUnits::get_u_system(), new_units.c_str(), UT_ASCII) ;
+        if ( !to ) {
+            publishError(new_units);
+            ut_free(from) ;
+            ut_free(to) ;
+            return -1 ;
+        }
+
+        cv_converter * conversion_factor = ut_get_converter(from, to) ;
+        ut_free(from) ;
+        ut_free(to) ;
+        if ( !conversion_factor ) {
+            std::ostringstream oss;
+            oss << "[" << var_name << "] cannot convert units from [" << variable->ref->attr->units
+                << "] to [" << new_units << "]";
+            publish(MSG_ERROR, oss.str());
+            return -1 ;
+        }
+
+        cv_free(variable->conversion_factor);
+        variable->conversion_factor = conversion_factor ;
+        free(variable->ref->units);
+        variable->ref->units = strdup(new_units.c_str());
     }
     return(0) ;
 }
