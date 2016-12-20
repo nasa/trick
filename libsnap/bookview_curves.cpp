@@ -254,7 +254,7 @@ void CoordArrow::paintMe(QPainter &painter, const QTransform &T) const
 
 
 CurvesView::CurvesView(QWidget *parent) :
-    BookIdxView(parent)
+    BookIdxView(parent),_pixmap(0)
 {
     setFocusPolicy(Qt::StrongFocus);
     setFrameShape(QFrame::NoFrame);
@@ -267,6 +267,9 @@ CurvesView::CurvesView(QWidget *parent) :
 
 CurvesView::~CurvesView()
 {
+    if ( _pixmap ) {
+        delete _pixmap;
+    }
 }
 
 void CurvesView::setCurrentCurveRunID(int runID)
@@ -348,37 +351,48 @@ void CurvesView::paintEvent(QPaintEvent *event)
 
 void CurvesView::_paintCoplot(const QTransform &T,QPainter &painter,QPen &pen)
 {
-    QModelIndex clickedCurveIdx;
-    QModelIndex curvesIdx = _bookModel()->getIndex(rootIndex(),"Curves","Plot");
-    int rc = model()->rowCount(curvesIdx);
-    for ( int i = 0; i < rc; ++i ) {
-        QModelIndex curveIdx = model()->index(i,0,curvesIdx);
-        if ( curveIdx != currentIndex() ) {
-            _paintCurve(curveIdx,T,painter,pen);
-        } else {
-            clickedCurveIdx = curveIdx;
-        }
-    }
-    if ( clickedCurveIdx.isValid() ) {
-        // Paint clicked curve on top of other curves so it shows
-        _paintCurve(clickedCurveIdx,T,painter,pen);
+    if ( !_pixmap ) return;
+
+    painter.save();
+
+    // Draw pixmap of all curves
+    QTransform I;
+    painter.setTransform(I);
+    painter.drawPixmap(viewport()->rect(),*_pixmap);
+
+    // If curve is selected
+    QModelIndex gpidx = currentIndex().parent().parent();
+    QString tag = model()->data(currentIndex()).toString();
+    if ( currentIndex().isValid() && tag == "Curve" && gpidx == rootIndex()) {
+
+        // Lighten unselected curves to semi-transparent bg
+        QColor bg(255,255,255,190);
+        QBrush origBrush = painter.brush();
+        painter.setBrush(bg);
+        painter.fillRect(viewport()->rect(),bg);
+        painter.setBrush(origBrush);
+
+        // Paint curve (possibly with linestyle, symbols etc.)
+        _paintCurve(currentIndex(),T,painter);
 
         // Draw coordinate arrow (arrow with (x,y) label) if needed
         QRectF M = _plotMathRect(rootIndex());
         if ( M.width() > 0 && qAbs(M.height()) > 0 ) {
             TrickCurveModel* curveModel = _bookModel()->
-                                            getTrickCurveModel(clickedCurveIdx);
-            _paintLiveCoordArrow(curveModel,clickedCurveIdx,painter);
+                                             getTrickCurveModel(currentIndex());
+            _paintLiveCoordArrow(curveModel,currentIndex(),painter);
         }
     }
 
+    painter.restore();
 }
 
 void CurvesView::_paintCurve(const QModelIndex& curveIdx,
                              const QTransform& T,
-                             QPainter& painter, QPen& pen)
+                             QPainter& painter)
 {
     painter.save();
+    QPen origPen = painter.pen();
 
     QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
                                                           "CurveData","Curve");
@@ -387,13 +401,13 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
 
     if ( curveModel ) {
 
-        // Color curves
-        QColor color( _bookModel()->getDataString(curveIdx,
-                                                  "CurveColor","Curve"));
-        if ( curveIdx == currentIndex() ) {
+        // Line color
+        QPen pen;  // 0 width
+        QColor color(_bookModel()->getDataString(curveIdx,
+                                                 "CurveColor","Curve"));
+        if ( currentIndex() == curveIdx ) {
+            // If curve selected, draw with darker color
             color = color.darker(200);
-        } else if ( currentIndex().isValid() ) {
-            color = color.lighter(180);
         }
         pen.setColor(color);
 
@@ -453,6 +467,7 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
             painter.setTransform(Tscaled);
         }
     }
+    painter.setPen(origPen);
     painter.restore();
 }
 
@@ -879,7 +894,44 @@ void CurvesView::dataChanged(const QModelIndex &topLeft,
 
     if ( topLeft.column() != 1 ) return;
 
+    QString tag = model()->data(topLeft.sibling(topLeft.row(),0)).toString();
+
+    if ( tag == "PlotMathRect" && topLeft.parent() == rootIndex() ) {
+
+        QRectF M = model()->data(topLeft).toRectF();
+
+        if ( M.size().width() > 0 && M.size().height() != 0 ) {
+            if ( _pixmap ) {
+                delete _pixmap;
+            }
+            _pixmap = _createLivePixmap();
+        }
+    }
+
     viewport()->update();
+}
+
+QPixmap* CurvesView::_createLivePixmap()
+{
+    QPixmap* livePixmap = new QPixmap(viewport()->rect().size());
+    livePixmap->fill(Qt::white);
+
+    QPainter painter(livePixmap);
+    painter.setRenderHint(QPainter::Antialiasing);
+
+    QTransform T = _coordToPixelTransform();
+
+    QModelIndex curvesIdx = _bookModel()->getIndex(rootIndex(),"Curves","Plot");
+    int rc = model()->rowCount(curvesIdx);
+    for ( int i = 0; i < rc; ++i ) {
+        QModelIndex curveIdx = model()->index(i,0,curvesIdx);
+        TrickCurveModel* curveModel =_bookModel()->getTrickCurveModel(curveIdx);
+        if ( curveModel ) {
+            _paintCurve(curveIdx,T,painter);
+        }
+    }
+
+    return livePixmap;
 }
 
 // TODO: This thing does nothing!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1526,8 +1578,20 @@ void CurvesView::currentChanged(const QModelIndex &current,
 {
     Q_UNUSED(current);
     Q_UNUSED(previous);
-
     viewport()->update();
+}
+
+void CurvesView::resizeEvent(QResizeEvent *event)
+{
+    QRectF M = _plotMathRect(rootIndex());
+
+    if ( M.size().width() > 0 && M.size().height() != 0 ) {
+        if ( _pixmap ) {
+            delete _pixmap;
+        }
+        _pixmap = _createLivePixmap();
+    }
+    QAbstractItemView::resizeEvent(event);
 }
 
 // For two curves hitting the spacebar will toggle between viewing

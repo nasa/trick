@@ -98,6 +98,7 @@ protected:
     virtual void keyPressEvent(QKeyEvent *event);
     virtual void currentChanged(const QModelIndex& current,
                                 const QModelIndex& previous);
+    virtual void resizeEvent(QResizeEvent *event);
 
 
 private:
@@ -120,7 +121,7 @@ private:
     void _paintErrorplot(QPainter& painter, const QPen &pen,
                          const QModelIndex &plotIdx);
     void _paintCurve(const QModelIndex& curveIdx,
-                     const QTransform &T, QPainter& painter, QPen& pen);
+                     const QTransform &T, QPainter& painter);
     void _paintLiveCoordArrow(TrickCurveModel *curveModel,
                           const QModelIndex &curveIdx, QPainter &painter);
     void _paintLegend(const QModelIndex& curvesIdx, QPainter &painter);
@@ -132,6 +133,9 @@ private:
                        QPainter& painter);
 
     QList<QModelIndex> _curvesInsideMouseRect(const QRectF& R);
+
+    QPixmap* _pixmap;
+    QPixmap* _createLivePixmap();
 
     // Key Events
     void _keyPressSpace();
