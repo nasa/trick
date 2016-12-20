@@ -34,7 +34,7 @@ void* MemMgr::declare_var( const std::string& typeSpecifier,
                            void*              suppliedAllocation ) {
 
     if ( var_exists( variableName )) {
-        std::cout << "ERROR: Variable " << variableName << " already declared." << std::endl;
+        std::cerr << "ERROR: Variable " << variableName << " already declared." << std::endl;
         return ((void*)NULL);
     }
 

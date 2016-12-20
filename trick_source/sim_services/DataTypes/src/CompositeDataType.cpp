@@ -136,13 +136,13 @@ void* CompositeDataType::createInstance(unsigned int num) const {
     if (allocator == NULL) {
         // Allocate using calloc.
         if ((address = calloc( (size_t)num, (size_t)structSize ))  == NULL) {
-            std::cout << "ERROR: Out of memory." << std::endl;
+            std::cerr << "ERROR: Out of memory." << std::endl;
             return ((void*)NULL);
         }
     } else {
         // Allocate using the allocator.
         if ((address = allocator( num)) == NULL) {
-            std::cout << "ERROR: Out of memory." << std::endl;
+            std::cerr << "ERROR: Out of memory." << std::endl;
             return ((void*)NULL);
         }
     }

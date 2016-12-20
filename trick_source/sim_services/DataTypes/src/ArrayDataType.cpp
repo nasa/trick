@@ -204,7 +204,7 @@ void* ArrayDataType::createInstance(unsigned int num) const {
     if (subType != NULL) {
         return subType->createInstance( num * elementCount );
     } else {
-        std::cout << "ERROR: Can't create an instance of an unvalidated type." << std::endl;
+        std::cerr << "ERROR: Can't create an instance of an unvalidated type." << std::endl;
         return (void*) NULL;
     }
 }

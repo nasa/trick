@@ -14,7 +14,7 @@ void Trick::MemoryManager::get_stl_dependencies( ALLOC_INFO* alloc_info ) {
     }
 
     if (alloc_info == NULL) {
-        std::cout << "ERROR: Trick::MemoryManager::get_stl_dependencies called with alloc_info == NULL." << std::endl;
+        std::cerr << "ERROR: Trick::MemoryManager::get_stl_dependencies called with alloc_info == NULL." << std::endl;
         std::cout.flush();
         return;
     }

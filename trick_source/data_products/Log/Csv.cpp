@@ -18,7 +18,7 @@ Csv::Csv(char * file_name , char * param_name ) {
         len = strlen(param_name) ;
 
         if ((fp_ = fopen(file_name , "r")) == 0 ) {
-           std::cout << "ERROR:  Couldn't open \"" << file_name << "\": " << std::strerror(errno) << std::endl;
+           std::cerr << "ERROR:  Couldn't open \"" << file_name << "\": " << std::strerror(errno) << std::endl;
            exit(-1) ;
         }
 
@@ -175,7 +175,7 @@ int CsvLocateParam( char * file_name , char * param_name ) {
 
         }
         else {
-           std::cout << "ERROR:  Couldn't open \"" << file_name << "\": " << std::strerror(errno) << std::endl;
+           std::cerr << "ERROR:  Couldn't open \"" << file_name << "\": " << std::strerror(errno) << std::endl;
         }
 
         return(0) ;

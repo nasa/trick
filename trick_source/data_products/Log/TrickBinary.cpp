@@ -179,7 +179,7 @@ TrickBinary::TrickBinary(char * file_name , char * param_name ) {
                 record_ = new char[record_size_] ;
         }
         else {
-            std::cout << "ERROR:  Couldn't open \"" << file_name << "\": " << std::strerror(errno) << std::endl;
+            std::cerr << "ERROR:  Couldn't open \"" << file_name << "\": " << std::strerror(errno) << std::endl;
         }
 }
 
@@ -411,7 +411,7 @@ int TrickBinaryGetNumVariables(const char* file_name) {
                 fread(&num_params , 4 , 1 , fp ) ;
                 if ( swap ) { num_params = trick_byteswap_int(num_params) ; }
         } else {
-                std::cout << "ERROR:  Couldn't open \"" << file_name << "\": " << std::strerror(errno) << std::endl;
+                std::cerr << "ERROR:  Couldn't open \"" << file_name << "\": " << std::strerror(errno) << std::endl;
                 return(0) ;
         }
 
@@ -477,7 +477,7 @@ char** TrickBinaryGetVariableNames(const char* file_name) {
                  }
         }
         else {
-                std::cout << "ERROR:  Couldn't open \"" << file_name << "\": " << std::strerror(errno) << std::endl;
+                std::cerr << "ERROR:  Couldn't open \"" << file_name << "\": " << std::strerror(errno) << std::endl;
                 return(0) ;
         }
 
@@ -544,7 +544,7 @@ char** TrickBinaryGetVariableUnits(const char* file_name) {
                  }
         }
         else {
-                std::cout << "ERROR:  Couldn't open \"" << file_name << "\": " << std::strerror(errno) << std::endl;
+                std::cerr << "ERROR:  Couldn't open \"" << file_name << "\": " << std::strerror(errno) << std::endl;
                 return(0) ;
         }
 

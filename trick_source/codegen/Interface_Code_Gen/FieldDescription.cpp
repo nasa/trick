@@ -24,7 +24,7 @@ static ut_system * get_u_system() {
     /* Initialize the udunits-2 library */
     ut_set_error_message_handler(ut_ignore) ;
     if( (u_system = ut_read_xml( NULL )) == NULL ) {
-        std::cout << "Error initializing udunits-2 unit system" << std::endl ;
+        std::cerr << "Error initializing udunits-2 unit system" << std::endl ;
         exit(-1);
     }
     ut_set_error_message_handler(ut_write_to_stderr) ;
@@ -98,7 +98,7 @@ std::string FieldDescription::get_regex_field(std::string input , const char * e
     } else {
         //char error_msg[1024] ;
         //regerror( ret , &reg_expr , (char *)error_msg , 1024 ) ;
-        //std::cout << error_msg << std::endl ;
+        //std::cerr << error_msg << std::endl ;
     }
     return std::string() ;
 }

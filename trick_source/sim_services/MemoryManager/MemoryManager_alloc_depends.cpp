@@ -14,7 +14,7 @@ void Trick::MemoryManager::get_alloc_deps_in_allocation(ALLOC_INFO* alloc_info )
     }
 
     if (alloc_info == NULL) {
-        std::cout << "ERROR: Trick::MemoryManager::get_alloc_deps_in_allocation called with alloc_info == NULL." << std::endl;
+        std::cerr << "ERROR: Trick::MemoryManager::get_alloc_deps_in_allocation called with alloc_info == NULL." << std::endl;
         std::cout.flush();
         return;
     }
