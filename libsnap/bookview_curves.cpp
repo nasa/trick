@@ -244,7 +244,7 @@ void CoordArrow::paintMe(QPainter &painter, const QTransform &T) const
     painter.setPen(origPen);
 
     // Draw coord text i.e. (x,y)
-    painter.drawText(txtBox,Qt::AlignCenter,txt);
+    painter.drawText(txtBox,Qt::TextDontClip|Qt::AlignCenter,txt);
 
     // Restore painter
     painter.setPen(origPen);
