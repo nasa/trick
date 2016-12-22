@@ -1110,7 +1110,6 @@ void CurvesView::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
-
 QList<QModelIndex> CurvesView::_curvesInsideMouseRect(const QRectF& R)
 {
     QList<QModelIndex> curveIdxs;
@@ -1135,9 +1134,20 @@ QList<QModelIndex> CurvesView::_curvesInsideMouseRect(const QRectF& R)
     for (int i = 0; i < nCurves; ++i) {
 
         QModelIndex curveIdx = model()->index(i,0,curvesIdx);
-        TrickCurveModel* curveModel =_bookModel()->getTrickCurveModel(curveIdx);
 
-        if ( !curveModel ) continue;
+        // Ignore paths whose bounding box does not intersect math click rect
+        // This speeds up a special case of selecting a spike which falls
+        // outside most other curves
+        QPainterPath* path = _bookModel()->getCurvePainterPath(curveIdx);
+        if ( !path->intersects(mathClickRect) ) {
+            // path's bbox does not intersect mathClickRect
+            continue;
+        }
+
+        TrickCurveModel* curveModel =_bookModel()->getTrickCurveModel(curveIdx);
+        if ( !curveModel ) {
+            continue;
+        }
 
         curveModel->map();
         TrickModelIterator it = curveModel->begin();
