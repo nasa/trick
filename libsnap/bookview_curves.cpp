@@ -1135,13 +1135,17 @@ QList<QModelIndex> CurvesView::_curvesInsideMouseRect(const QRectF& R)
 
         QModelIndex curveIdx = model()->index(i,0,curvesIdx);
 
-        // Ignore paths whose bounding box does not intersect math click rect
-        // This speeds up a special case of selecting a spike which falls
-        // outside most other curves
-        QPainterPath* path = _bookModel()->getCurvePainterPath(curveIdx);
-        if ( !path->intersects(mathClickRect) ) {
-            // path's bbox does not intersect mathClickRect
-            continue;
+        double xs = _bookModel()->xScale(curveIdx);
+        double ys = _bookModel()->yScale(curveIdx);
+
+        if ( xs == 1.0 && ys == 1.0 ) {
+            QPainterPath* path = _bookModel()->getCurvePainterPath(curveIdx);
+            if ( !path->intersects(mathClickRect) ) {
+                // Ignore paths whose bounding box does not intersect
+                // math click rect. This speeds up a special case of
+                // selecting a spike which falls outside most other curves
+                continue;
+            }
         }
 
         TrickCurveModel* curveModel =_bookModel()->getTrickCurveModel(curveIdx);
@@ -1164,8 +1168,6 @@ QList<QModelIndex> CurvesView::_curvesInsideMouseRect(const QRectF& R)
             it = it[i0];
         }
 
-        double xs = _bookModel()->xScale(curveIdx);
-        double ys = _bookModel()->yScale(curveIdx);
         QPointF q(xs*it.x(),ys*it.y());
         ++it;
         TrickModelIterator e = curveModel->end();
