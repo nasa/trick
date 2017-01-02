@@ -132,7 +132,8 @@ private:
     void __paintSymbol(const QPointF &p, const QString& symbol,
                        QPainter& painter);
 
-    QList<QModelIndex> _curvesInsideMouseRect(const QRectF& R);
+    QList<QModelIndex> _curvesInsideMouseRect(const QRectF& R,
+                                              const QModelIndexList &curveIdxs);
 
     QPixmap* _pixmap;
     QPixmap* _createLivePixmap();

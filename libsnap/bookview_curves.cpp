@@ -1065,11 +1065,20 @@ void CurvesView::mouseReleaseEvent(QMouseEvent *event)
         if ( d < 10 && (presentation == "compare" || presentation.isEmpty()) ) {
             // d < 10, to hopefully catch click and not a drag
             int s = 24; // side length for rect around mouse click
-            QList<QModelIndex> curveIdxs;
+
+            // Make list of all curve idxs
+            QModelIndexList curveIdxs;
+            QModelIndex curvesIdx = _bookModel()->getIndex(rootIndex(),
+                                                           "Curves","Plot");
+            int nCurves = model()->rowCount(curvesIdx);
+            for ( int i = 0; i < nCurves; ++i ) {
+                curveIdxs << model()->index(i,0,curvesIdx);
+            }
 
             while ( 1 ) {
 
-                curveIdxs = _curvesInsideMouseRect(QRectF(x1-s/2,y1-s/2,s,s));
+                curveIdxs = _curvesInsideMouseRect(QRectF(x1-s/2,y1-s/2,s,s),
+                                                   curveIdxs);
 
                 if ( curveIdxs.size() == 1 ) {
                     // Single curve found in small box around mouse click!
@@ -1110,9 +1119,11 @@ void CurvesView::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
-QList<QModelIndex> CurvesView::_curvesInsideMouseRect(const QRectF& R)
+QModelIndexList CurvesView::_curvesInsideMouseRect(
+                                               const QRectF& R,
+                                               const QModelIndexList& curveIdxs)
 {
-    QList<QModelIndex> curveIdxs;
+    QModelIndexList idxs;
 
     QRectF  W = viewport()->rect();
     QRectF M = _mathRect();
@@ -1123,17 +1134,13 @@ QList<QModelIndex> CurvesView::_curvesInsideMouseRect(const QRectF& R)
     QTransform T( a,    0,
                   0,    b, /*+*/ c,    d);
     QRectF mathClickRect = T.mapRect(R);
-    QModelIndex curvesIdx = _bookModel()->getIndex(rootIndex(),"Curves","Plot");
-    int nCurves = model()->rowCount(curvesIdx);
 
     double t0 = mathClickRect.left();
     double t1 = mathClickRect.right();
 
     double dMin = DBL_MAX;
 
-    for (int i = 0; i < nCurves; ++i) {
-
-        QModelIndex curveIdx = model()->index(i,0,curvesIdx);
+    foreach (QModelIndex curveIdx, curveIdxs) {
 
         double xs = _bookModel()->xScale(curveIdx);
         double ys = _bookModel()->yScale(curveIdx);
@@ -1208,9 +1215,9 @@ QList<QModelIndex> CurvesView::_curvesInsideMouseRect(const QRectF& R)
                     if ( d < dMin ) {
                         // Curve with min distance will be first
                         dMin = d;
-                        curveIdxs.prepend(curveIdx);
+                        idxs.prepend(curveIdx);
                     } else {
-                        curveIdxs << curveIdx;
+                        idxs << curveIdx;
                     }
 
                     break;
@@ -1226,7 +1233,7 @@ QList<QModelIndex> CurvesView::_curvesInsideMouseRect(const QRectF& R)
         curveModel->unmap();
     }
 
-    return curveIdxs;
+    return idxs;
 }
 
 void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
