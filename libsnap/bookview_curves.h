@@ -16,6 +16,7 @@
 #include <QLineF>
 #include <QItemSelectionModel>
 #include <QEasingCurve>
+#include <QImage>
 #include <stdlib.h>
 #include <float.h>
 #include <math.h>
@@ -132,8 +133,7 @@ private:
     void __paintSymbol(const QPointF &p, const QString& symbol,
                        QPainter& painter);
 
-    QList<QModelIndex> _curvesInsideMouseRect(const QRectF& R,
-                                              const QModelIndexList &curveIdxs);
+    QModelIndex _chooseCurveNearMousePoint(const QPoint& pt);
 
     QPixmap* _pixmap;
     QPixmap* _createLivePixmap();

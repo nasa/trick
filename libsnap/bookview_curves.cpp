@@ -1,10 +1,5 @@
 #include "bookview_curves.h"
 
-#ifdef __linux
-#include "libsnap/timeit_linux.h"
-#endif
-
-
 CoordArrow::CoordArrow() :
     coord(QPointF(DBL_MAX,DBL_MAX)),
     r(2.0),
@@ -1067,59 +1062,23 @@ void CurvesView::mouseReleaseEvent(QMouseEvent *event)
         QString presentation = _bookModel()->getDataString(rootIndex(),
                                                    "PlotPresentation","Plot");
         if ( d < 10 && (presentation == "compare" || presentation.isEmpty()) ) {
-#ifdef __linux
-                //TimeItLinux timer;
-                //timer.start();
-#endif
             // d < 10, to hopefully catch click and not a drag
-            int s = 24; // side length for rect around mouse click
-
-            // Make list of all curve idxs
-            QModelIndexList curveIdxs;
-            QModelIndex curvesIdx = _bookModel()->getIndex(rootIndex(),
-                                                           "Curves","Plot");
-            int nCurves = model()->rowCount(curvesIdx);
-            for ( int i = 0; i < nCurves; ++i ) {
-                curveIdxs << model()->index(i,0,curvesIdx);
-            }
-
-            while ( 1 ) {
-
-                curveIdxs = _curvesInsideMouseRect(QRectF(x1-s/2,y1-s/2,s,s),
-                                                   curveIdxs);
-
-                if ( curveIdxs.size() == 1 ) {
-                    // Single curve found in small box around mouse click!
-                    QModelIndex curveIdx = curveIdxs.first();
-                    selectionModel()->setCurrentIndex(curveIdx,
+            QModelIndex curveIdx = _chooseCurveNearMousePoint(event->pos());
+            if ( curveIdx.isValid() ) {
+                // Curve found in small box around mouse click!
+                selectionModel()->setCurrentIndex(curveIdx,
                                                  QItemSelectionModel::NoUpdate);
-                    break;
-                } else if ( curveIdxs.isEmpty() &&  currentIndex().isValid() ) {
-                    // click off curves, current unset
-                    setCurrentIndex(QModelIndex());
-                    break;
-                } else if ( curveIdxs.isEmpty() && !currentIndex().isValid() ) {
-                    // click off, toggle between single and multiplot views
-                    // pass event to ancestors (page view handles toggle)
-                    event->ignore();
-                    break;
-                } else if ( curveIdxs.size() > 1 ) {
-                    // Multiple curves found in mouse rect, refine search
-                    s /= 2;
-                    if ( s < 2 ) {
-                        // Choose one of the curves to point and bail
-                        selectionModel()->setCurrentIndex(curveIdxs.first(),
-                                                 QItemSelectionModel::NoUpdate);
-                        break;
-                    }
-                } else {
-                    qDebug() << "snap [bad scoobs]: "
-                                "CurvesView::mouseReleaseEvent()";
-                }
+            } else if ( !curveIdx.isValid() &&  currentIndex().isValid() ) {
+                // click off curves, current unset
+                setCurrentIndex(QModelIndex());
+            } else if ( !curveIdx.isValid() && !currentIndex().isValid() ) {
+                // click off, toggle between single and multiplot views
+                // pass event to ancestors (page view handles toggle)
+                event->ignore();
+            } else {
+                qDebug() << "snap [bad scoobs]: "
+                            "CurvesView::mouseReleaseEvent()";
             }
-#ifdef __linux
-                //timer.snap("time=");
-#endif
         } else {
             //event->ignore(); // pass event to parent view for stretch,zoom etc
         }
@@ -1130,122 +1089,97 @@ void CurvesView::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
-QModelIndexList CurvesView::_curvesInsideMouseRect(
-                                               const QRectF& R,
-                                               const QModelIndexList& curveIdxs)
+// Choose first curve found within 12 pixel square about pt
+QModelIndex CurvesView::_chooseCurveNearMousePoint(const QPoint &pt)
 {
-    QModelIndexList idxs;
+    QModelIndex idx;
 
-    QRectF  W = viewport()->rect();
+    QImage img(viewport()->rect().size(),QImage::Format_Mono);
+
+    QPainter painter(&img);
+    QPen penBlack(img.colorTable().at(0));
+    penBlack.setWidth(0);
+    painter.setPen(penBlack);
+
+    QTransform T = _coordToPixelTransform();  // _paintCurve sets painter tform
+
+    int s = 12; // side length of small square around mouse click
+
+    QRectF R(pt.x()-s/2,pt.y()-s/2,s,s);
+
+    QRectF W = viewport()->rect();
     QRectF M = _mathRect();
     double a = M.width()/W.width();
     double b = M.height()/W.height();
     double c = M.x() - a*W.x();
     double d = M.y() - b*W.y();
-    QTransform T( a,    0,
+    QTransform U( a,    0,
                   0,    b, /*+*/ c,    d);
-    QRectF mathClickRect = T.mapRect(R);
+    M = U.mapRect(R);
 
-    // Make set of lines that form rectangle around mathClickRect
-    QLineF ll(mathClickRect.topLeft(), mathClickRect.bottomLeft());
-    QLineF rr(mathClickRect.topRight(), mathClickRect.bottomRight());
-    QLineF tt(mathClickRect.topLeft(), mathClickRect.topRight());
-    QLineF bb(mathClickRect.bottomLeft(), mathClickRect.bottomRight());
-    QList<QLineF> lines;
-    lines << ll << rr << tt << bb;
+    QModelIndex curvesIdx = _bookModel()->getIndex(rootIndex(),"Curves","Plot");
+    int rc = model()->rowCount(curvesIdx);
+    for ( int i = rc-1; i >= 0; --i ) {  // check curves from top to bottom
 
-    double t0 = mathClickRect.left();
-    double t1 = mathClickRect.right();
+        // fill image with white (see help for QImage::fill(int))
+        img.fill(1);
 
-    double dMin = DBL_MAX;
+        // Get underlying path that goes with curve
+        QModelIndex curveIdx = model()->index(i,0,curvesIdx);
+        QPainterPath* path = _bookModel()->getCurvePainterPath(curveIdx);
+        if ( !path ) {
+            continue;
+        }
 
-    foreach (QModelIndex curveIdx, curveIdxs) {
-
+        // Curve can be scaled by unit or scale factor
         double xs = _bookModel()->xScale(curveIdx);
         double ys = _bookModel()->yScale(curveIdx);
+        QTransform Tscaled(T);
+        Tscaled = Tscaled.scale(xs,ys);
+        painter.setTransform(Tscaled);
 
+        // Ignore paths whose bounding box does not intersect
+        // math click rect. This speeds up a special case of
+        // selecting a spike which falls outside most other curves
         if ( xs == 1.0 && ys == 1.0 ) {
-            QPainterPath* path = _bookModel()->getCurvePainterPath(curveIdx);
-            if ( !path->intersects(mathClickRect) ) {
-                // Ignore paths whose bounding box does not intersect
-                // math click rect. This speeds up a special case of
-                // selecting a spike which falls outside most other curves
+            // TODO: Lazily checking for xs==ys==1.0 because of scaling issues
+            if ( !path->intersects(M) ) {
                 continue;
             }
         }
 
-        TrickCurveModel* curveModel =_bookModel()->getTrickCurveModel(curveIdx);
-        if ( !curveModel ) {
-            continue;
-        }
+        // Draw curve onto monochrome image
+        painter.drawPath(*path);
 
-        curveModel->map();
-        TrickModelIterator it = curveModel->begin();
-
-        QString xName = _bookModel()->getDataString(curveIdx,
-                                                    "CurveXName","Curve");
-        bool isXTime = false;
-        if ( xName == "sys.exec.out.time" ) { // TODO: Time name
-            isXTime = true;
-            int i0 = curveModel->indexAtTime(t0);
-            if ( i0 > 0 ) {
-                --i0; // start one step back
+        // Check, pixel by pixel, to see if the curve
+        // is in small rectangle around mouse click
+        bool isFound = false;
+        for ( int x = pt.x()-s/2; x < pt.x()+s/2; ++x ) {
+            if ( x >= img.width() ) {
+                continue;
             }
-            it = it[i0];
-        }
-
-        QPointF q(xs*it.x(),ys*it.y());
-        ++it;
-        TrickModelIterator e = curveModel->end();
-        while ( it != e ) {
-            double t = it.t();
-            QPointF p(xs*it.x(),ys*it.y());
-            QLineF qp(q,p);
-            QPointF pt;
-            QLineF::IntersectType itype;
-            bool isIntersects = false;
-            foreach ( QLineF line, lines ) {
-                itype = qp.intersect(line,&pt);
-                if ( itype == QLineF::BoundedIntersection ) {
-                    isIntersects = true;
-
-                    // Calc distance from mouse click point to curve line seg
-                    double d;
-                    QLineF pq(p,q);
-                    QLineF qc(q,R.center());
-                    QLineF pc(p,R.center());
-                    double alpha = qp.angleTo(qc);
-                    double beta  = pq.angleTo(pc) ;
-                    double a = qp.length();
-                    double b = qc.length();
-                    if ( alpha >= 90.0 ) {
-                        d = b;
-                    } else if ( beta >= 90.0 ) {
-                        d = a;
-                    } else {
-                        d = b*sin(alpha*M_PI/180.0);
-                    }
-                    if ( d < dMin ) {
-                        // Curve with min distance will be first
-                        dMin = d;
-                        idxs.prepend(curveIdx);
-                    } else {
-                        idxs << curveIdx;
-                    }
+            for ( int y = pt.y()-s/2; y < pt.y()+s/2; ++y ) {
+                if ( y >= img.height() ) {
+                    continue;
+                }
+                QRgb pix = img.pixel(x,y);
+                if ( qRed(pix) == 0 ) {
+                    // qRed(pix) is arbitrary. Pen is black and has no red.
+                    isFound = true;
                     break;
                 }
             }
-            if ( isIntersects || (isXTime && t > t1) ) {
-                break;
-            }
-            q = p;
-            ++it;
+            if ( isFound ) break;
+        }
+        if ( isFound ) {
+            idx = curveIdx;  // choose first curve inside rect and bail
+            break;
         }
 
-        curveModel->unmap();
+
     }
 
-    return idxs;
+    return idx;
 }
 
 void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
