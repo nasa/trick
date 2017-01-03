@@ -1,5 +1,9 @@
 #include "bookview_curves.h"
 
+#ifdef __linux
+#include "libsnap/timeit_linux.h"
+#endif
+
 
 CoordArrow::CoordArrow() :
     coord(QPointF(DBL_MAX,DBL_MAX)),
@@ -1063,6 +1067,10 @@ void CurvesView::mouseReleaseEvent(QMouseEvent *event)
         QString presentation = _bookModel()->getDataString(rootIndex(),
                                                    "PlotPresentation","Plot");
         if ( d < 10 && (presentation == "compare" || presentation.isEmpty()) ) {
+#ifdef __linux
+                //TimeItLinux timer;
+                //timer.start();
+#endif
             // d < 10, to hopefully catch click and not a drag
             int s = 24; // side length for rect around mouse click
 
@@ -1099,7 +1107,7 @@ void CurvesView::mouseReleaseEvent(QMouseEvent *event)
                     // Multiple curves found in mouse rect, refine search
                     s /= 2;
                     if ( s < 2 ) {
-                        // Choose closest curve to point and bail
+                        // Choose one of the curves to point and bail
                         selectionModel()->setCurrentIndex(curveIdxs.first(),
                                                  QItemSelectionModel::NoUpdate);
                         break;
@@ -1109,6 +1117,9 @@ void CurvesView::mouseReleaseEvent(QMouseEvent *event)
                                 "CurvesView::mouseReleaseEvent()";
                 }
             }
+#ifdef __linux
+                //timer.snap("time=");
+#endif
         } else {
             //event->ignore(); // pass event to parent view for stretch,zoom etc
         }
@@ -1134,6 +1145,14 @@ QModelIndexList CurvesView::_curvesInsideMouseRect(
     QTransform T( a,    0,
                   0,    b, /*+*/ c,    d);
     QRectF mathClickRect = T.mapRect(R);
+
+    // Make set of lines that form rectangle around mathClickRect
+    QLineF ll(mathClickRect.topLeft(), mathClickRect.bottomLeft());
+    QLineF rr(mathClickRect.topRight(), mathClickRect.bottomRight());
+    QLineF tt(mathClickRect.topLeft(), mathClickRect.topRight());
+    QLineF bb(mathClickRect.bottomLeft(), mathClickRect.bottomRight());
+    QList<QLineF> lines;
+    lines << ll << rr << tt << bb;
 
     double t0 = mathClickRect.left();
     double t1 = mathClickRect.right();
@@ -1182,12 +1201,6 @@ QModelIndexList CurvesView::_curvesInsideMouseRect(
             double t = it.t();
             QPointF p(xs*it.x(),ys*it.y());
             QLineF qp(q,p);
-            QLineF ll(mathClickRect.topLeft(), mathClickRect.bottomLeft());
-            QLineF rr(mathClickRect.topRight(), mathClickRect.bottomRight());
-            QLineF tt(mathClickRect.topLeft(), mathClickRect.topRight());
-            QLineF bb(mathClickRect.bottomLeft(), mathClickRect.bottomRight());
-            QList<QLineF> lines;
-            lines << ll << rr << tt << bb;
             QPointF pt;
             QLineF::IntersectType itype;
             bool isIntersects = false;
@@ -1219,7 +1232,6 @@ QModelIndexList CurvesView::_curvesInsideMouseRect(
                     } else {
                         idxs << curveIdx;
                     }
-
                     break;
                 }
             }
