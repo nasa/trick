@@ -214,6 +214,8 @@ void PlotView::setModel(QAbstractItemModel *model)
         if ( bview ) {
             bview->setCurvesView(_curvesView);
         }
+        connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+                view, SLOT(dataChanged(QModelIndex,QModelIndex)));
     }
     this->setCurvesView(_curvesView);
     QAbstractItemView::setModel(model);
