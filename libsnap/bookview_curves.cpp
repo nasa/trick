@@ -402,6 +402,7 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
 
         // Line color
         QPen pen;  // 0 width
+        pen.setWidth(0);
         QColor color(_bookModel()->getDataString(curveIdx,
                                                  "CurveColor","Curve"));
         if ( currentIndex() == curveIdx ) {
