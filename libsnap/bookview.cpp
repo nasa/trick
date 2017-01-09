@@ -943,7 +943,58 @@ void BookView::_printCurves(const QRect& R,
             exit(-1);
         }
     } else {
-        _printCoplot(R,painter,plotIdx);
+
+        if ( nCurves >= 20 ) {
+
+            // Use pixmaps to reduce file size if nCurves >= 20
+            double rw = R.width()/painter->device()->logicalDpiX();
+            double rh = R.height()/painter->device()->logicalDpiY();
+            QPixmap nullPixmap(1,1); // used for dpi
+            QPainter nullPainter(&nullPixmap);
+            int w = 2*qRound(rw)*nullPainter.device()->logicalDpiX();
+            int h = 2*qRound(rh)*nullPainter.device()->logicalDpiY();
+            QPixmap pixmap(w,h);
+            pixmap.fill(Qt::white);
+            QPainter pixmapPainter(&pixmap);
+            QPen pen;
+            pen.setWidth(0);
+            pixmapPainter.setRenderHint(QPainter::Antialiasing);
+
+            QRectF M = _plotMathRect(plotIdx);
+            double a = w/M.width();
+            double b = h/M.height();
+            double c = -a*M.x();
+            double d = -b*M.y();
+            QTransform T( a,    0,
+                          0,    b,
+                          c,    d);
+
+            for ( int i = 0; i < nCurves; ++i ) {
+                QModelIndex curveIdx = model()->index(i,0,curvesIdx);
+                QPainterPath* path =_bookModel()->getCurvePainterPath(curveIdx);
+                if ( path ) {
+                    // Line color
+                    QColor color(_bookModel()->getDataString(curveIdx,
+                                                         "CurveColor","Curve"));
+                    pen.setColor(color);
+                    pixmapPainter.setPen(pen);
+
+                    // Scale transform (e.g. for unit axis scaling)
+                    double xs = _bookModel()->xScale(curveIdx);
+                    double ys = _bookModel()->yScale(curveIdx);
+                    QTransform Tscaled(T);
+                    Tscaled = Tscaled.scale(xs,ys);
+                    pixmapPainter.setTransform(Tscaled);
+
+                    // Draw curve!
+                    pixmapPainter.drawPath(*path);
+                }
+            }
+            QRectF S(pixmap.rect());
+            painter->drawPixmap(R,pixmap,S);
+        } else {
+            _printCoplot(R,painter,plotIdx);
+        }
     }
 
     // Restore the painter state off the painter stack
