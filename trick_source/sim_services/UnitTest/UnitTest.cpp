@@ -136,7 +136,7 @@ int Trick::UnitTest::write_output() {
                 out << "\" time=\"0\" classname=\"" << it->first << "\"" ;
 
                 // parent stuff goes here
-                out << " parent=\"" << curr_case->parent << "\"" ;
+                //out << " parent=\"" << curr_case->parent << "\"" ;
 
                 if ( curr_case->failure_string.compare("") ) {
                     out << " >" << std::endl  ;
