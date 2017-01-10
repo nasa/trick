@@ -8,18 +8,18 @@ use File::Basename ;
 use strict ;
 
 sub extract_trick_header($$$$) {
-   
+
     my ($file_name , $contents, $verbose, $indent) = @_ ;
     my $trick_header = "" ;
     my %header ;
- 
+
     if ($contents =~ /\/\*((.*?)PURPOSE:(.*?))\*+\//is ) {
         $trick_header = $1 ;
         $trick_header =~ s/^.*?([A-Za-z])/$1/s ;
         $trick_header =~ s/(\))[^)]*$/$1/s ;
         $trick_header =~ s///g ;
     }
- 
+
     $header{doc_title} = $1 if $trick_header =~                   /DOC TITLE:[^(]*(.*?)\)([A-Z _\t\n\r]+:|[ \t\n\r]*$)/si ;
     $header{purpose}   = $1 if $trick_header =~                     /PURPOSE:[^(]*(.*?)\)([A-Z _\t\n\r]+:|[ \t\n\r]*$)/si ;
     $header{reference} = $1 if $trick_header =~                   /REFERENCE:[^(]*(.*?)\)([A-Z _\t\n\r]+:|[ \t\n\r]*$)/si ;
@@ -33,7 +33,7 @@ sub extract_trick_header($$$$) {
     $header{python_module} = $1 if $trick_header =~        /PYTHON[ _]MODULE:[^(]*(.*?)\)([A-Z _\t\n\r]+:|[ \t\n\r]*$)/si ;
     $header{programmers} = $1 if $trick_header =~               /PROGRAMMERS:[^(]*(.*?)\)([A-Z _\t\n\r]+:|[ \t\n\r]*$)/si ;
     $header{language}  = $1 if $trick_header =~                    /LANGUAGE:[^(]*(.*?)\)([A-Z _\t\n\r]+:|[ \t\n\r]*$)/si ;
-  
+
     #   if ( $verbose ) {
     #           print " "x$indent , "/*\n" ;
     #           print " "x($indent+3) , "DOC TITLE:\n\t$header{doc_title})\n" if ( exists $header{doc_title} )  ;
@@ -46,9 +46,16 @@ sub extract_trick_header($$$$) {
     #           print " "x($indent+3) , "LANGUAGE:\n\t$header{language})\n" if ( exists $header{language} )  ;
     #           print " "x$indent , "*/\n\n" ;
     #   }
- 
+
+    if ( $contents =~ /(?:@|\\)trick_li(?:nk|b)_dependency\s*{\s*(.*?)\s*}/) {
+        my @lib_list ;
+        @lib_list = ($contents =~ m/(?:@|\\)trick_li(?:nk|b)_dependency\s*{\s*(.*?)\s*}/gs) ;
+        # save doxygen style trick_lib_dependency fields in field = liblist.
+        $header{liblist} = [@lib_list] ;
+    }
+
     $header{language} = "CPP" if ( $header{language} =~ /c[p\+]+/i ) ;
- 
+
     return %header ;
 
 }

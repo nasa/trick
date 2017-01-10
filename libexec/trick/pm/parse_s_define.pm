@@ -250,6 +250,8 @@ sub parse_s_define ($) {
         $header{libdep} =~ s/\(\(/\(/ ;
         $header{libdep} =~ s/\)\)/\)/ ;
         @lib_list = $header{libdep} =~  m/\((.+?)\)/sg ;
+        # Append any library deps in doxygen style comments.
+        push @lib_list , @{$header{liblist}} if ( exists $header{liblist} ) ;
         foreach my $object_file (@lib_list) {
             #print "[33m look for object $object_file[00m\n" ;
             if ( $object_file =~ /^\// ) {
