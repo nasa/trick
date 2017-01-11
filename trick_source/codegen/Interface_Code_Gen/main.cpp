@@ -128,8 +128,13 @@ int main(int argc, char * argv[]) {
     hsd.addSearchDirs(include_dirs);
 
     // Add a preprocessor callback to search for TRICK_ICG
+#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 9))
+    std::unique_ptr<FindTrickICG> ftg(new FindTrickICG(ci, hsd, print_trick_icg != llvm::cl::BOU_FALSE )) ;
+    pp.addPPCallbacks(std::move(ftg)) ;
+#else
     FindTrickICG * ftg = new FindTrickICG(ci, hsd, print_trick_icg != llvm::cl::BOU_FALSE ) ;
     pp.addPPCallbacks(ftg) ;
+#endif
 
 #if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 8))
     pp.getBuiltinInfo().initializeBuiltins(pp.getIdentifierTable(), pp.getLangOpts());
