@@ -408,6 +408,7 @@ static std::map<std::string, bool> stl_classes = init_stl_classes() ;
 bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
     if ( debug_level >= 3 ) {
         std::cout << "FieldVisitor VisitRecordType" << std::endl ;
+        std::cout << rt->getDecl()->getQualifiedNameAsString() << std::endl ;
         rt->dump() ;
     }
     /* String types are typed as records but we treat them differently.
@@ -421,7 +422,9 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
         return false ;
     }
     // FILE * types resolve to these typenames.  We need to ignore them
-    if (!type_name.compare("__sFILE") || !type_name.compare("_IO_FILE")) {
+    if (!type_name.compare("__sFILE") ||
+        !type_name.compare("_IO_FILE") ||
+        !type_name.compare("__gnu_cxx::__normal_iterator")) {
         fdes->setIO(0) ;
         return false ;
     }
