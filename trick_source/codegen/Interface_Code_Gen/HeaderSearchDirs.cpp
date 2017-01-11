@@ -305,6 +305,9 @@ bool HeaderSearchDirs::isPathInCompat15 (const std::string& in_dir ) {
             return true ;
         }
     }
+    if ( trick_icg_present.find(in_dir) != trick_icg_present.end() ) {
+        return true ;
+    }
 
     return false ;
 }
@@ -362,4 +365,12 @@ void HeaderSearchDirs::addDefines ( std::vector<std::string> & defines ) {
     }
     pp.setPredefines(pp.getPredefines() + "\n" + predefines) ;
 
+}
+
+void HeaderSearchDirs::addTrickICGFoundFile ( std::string file_name ) {
+    char * rp = almostRealPath(file_name.c_str()) ;
+    if ( rp != NULL ) {
+        trick_icg_present.insert(rp) ;
+        free(rp) ;
+    }
 }

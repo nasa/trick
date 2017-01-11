@@ -105,6 +105,11 @@ class HeaderSearchDirs {
           */
         void addDefines ( std::vector<std::string> & defines ) ;
 
+        /** Add a file name to the set of files that we found TRICK_ICG used.
+            @param file_name = file_name string
+          */
+        void addTrickICGFoundFile ( std::string file_name ) ;
+
     private:
         /** Are we ICG'ing the sim_services files? */
         bool sim_services ;
@@ -154,8 +159,12 @@ class HeaderSearchDirs {
         /** List of directoris to write offsetof lines compatible with Trick 15 and earlier */
         std::vector<std::string> compat15_dirs ;
 
+        /** set of file names with trick_icg_present */
+        std::set< std::string > trick_icg_present ;
+
         /** Map of file names to in icg_nocomment_dir used as a cache */
         std::map< std::string , bool > icg_nocomment_files ;
+
 } ;
 
 #endif

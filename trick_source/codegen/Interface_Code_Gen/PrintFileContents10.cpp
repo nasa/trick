@@ -201,27 +201,6 @@ void PrintFileContents10::print_init_attr_func( std::ostream & ostream , ClassVa
             << "    }\n"
             << "    initialized = 1;\n\n" ;
 
-#if 0
-    if ( cv->getMangledTypeName() != cv->getName() ) {
-        ostream << "    typedef " << cv->getName() << " " << cv->getMangledTypeName() << " ;\n\n" ;
-    }
-
-    if ( !global_compat15 and !cv->isCompat15()) {
-        ostream << "    if ( sizeof(" ;
-        printNamespaces( ostream, cv , "::" ) ;
-        printContainerClasses( ostream, cv , "::" ) ;
-        ostream << cv->getName() << ") > " << cv->getSize() << ") {\n" ;
-        ostream << "        Trick::ClassSizeCheck::class_size_check()->add_diff(\"" ;
-        printNamespaces( ostream, cv , "::" ) ;
-        printContainerClasses( ostream, cv , "::" ) ;
-        ostream << cv->getName() << "\" , Trick::ClassSizeDiffInfo((sizeof(" ;
-        printNamespaces( ostream, cv , "::" ) ;
-        printContainerClasses( ostream, cv , "::" ) ;
-        ostream << cv->getName() << ") - " << cv->getSize() << ") , \"" << cv->getFileName() << "\")) ;\n" ;
-        ostream << "    }\n" ;
-    }
-#endif
-
     unsigned int ii = 0;
     for ( auto field : cv->getFieldDescriptions() ) {
         if ( determinePrintAttr(cv, field) ) {
