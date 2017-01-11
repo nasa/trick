@@ -270,7 +270,8 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
         if ( rt->getDecl()->getDeclName() ) {
             std::string type_name = rt->getDecl()->getQualifiedNameAsString() ;
             // Handle the string class differently than regular records.
-            if ( ! type_name.compare("std::basic_string") || !type_name.compare("std::__1::basic_string")) { 
+            if ( ! type_name.compare("std::basic_string") || !type_name.compare("std::__1::basic_string") ||
+                 ! type_name.compare("std::__cxx11::basic_string")) { 
                 fdes->setEnumString("TRICK_STRING") ;
                 fdes->setTypeName("std::string") ;
                 fdes->setHasType(true) ;
