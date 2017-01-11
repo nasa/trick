@@ -131,7 +131,7 @@ int Trick::IPPython::init() {
     }
 
     if ( verify_input ) {
-       exec_terminate_with_return(1 , __FILE__ , __LINE__ , "Input file verification complete\n" ) ;
+       exec_terminate_with_return(ret , __FILE__ , __LINE__ , "Input file verification complete\n" ) ;
     }
 
     fclose(input_fp) ;
