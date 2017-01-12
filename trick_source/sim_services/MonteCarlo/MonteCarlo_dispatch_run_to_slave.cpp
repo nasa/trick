@@ -24,10 +24,10 @@ void Trick::MonteCarlo::dispatch_run_to_slave(MonteRun *in_run, MonteSlave *in_s
             for (std::vector<std::string>::size_type j = 0; j < in_run->variables.size(); ++j) {
                 buffer += in_run->variables[j] + "\n";
             }
-            buffer += std::string("trick.set_output_dir(\"") + buffer_stream.str() + std::string("\");\n");
+            buffer += std::string("trick.set_output_dir(\"") + buffer_stream.str() + std::string("\")\n");
             buffer_stream.str("");
             buffer_stream << in_run->id ;
-            buffer += std::string("trick.mc_set_current_run(") + buffer_stream.str() + std::string(");\n");
+            buffer += std::string("trick.mc_set_current_run(") + buffer_stream.str() + std::string(")\n");
 
             if (verbosity >= INFORMATIONAL) {
                 message_publish(MSG_INFO, "Monte [Master] Dispatching run %d to %s:%d.\n",
