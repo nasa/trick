@@ -31,7 +31,7 @@ sub read_lib_deps($@) {
                chomp @all_lines ;
                read_lib_deps($indent + 1 , @all_lines) ;
             } else {
-                print "[34mTracing[0m    " , " " x $indent, "$l\n" ;
+                print "[34mDepTracing[0m " , " " x $indent, "$l\n" ;
                 if ( -e $l ) {
                     my $deps_changed ;
                     my @resolved_files ;
@@ -53,7 +53,7 @@ if ( scalar @ARGV ) {
     for my $f ( @ARGV ) {
         my $deps_changed ;
         my @resolved_files ;
-        print "[34mTracing[0m    " , "$f\n" ;
+        print "[34mDepTracing[0m " , "$f\n" ;
         ($deps_changed , @resolved_files ) = write_lib_deps($f) ;
         $any_deps_changed |= $deps_changed ;
     }
@@ -100,7 +100,7 @@ my ( $sp_dir , $src_dir , $sp_file , $base_name , $suffix) ;
 my @temp_array ;
 
 my @exclude_dirs ;
-@exclude_dirs = split /:/ , $ENV{"TRICK_EXCLUDE"};
+@exclude_dirs = split /:/ , "$ENV{TRICK_EXCLUDE}:$ENV{TRICK_EXT_LIB_DIRS}";
 # See if there are any elements in the exclude_dirs array
 if (scalar @exclude_dirs) {
     @exclude_dirs = sort(@exclude_dirs );
