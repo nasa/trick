@@ -38,11 +38,9 @@ void HeaderSearchDirs::AddCompilerBuiltInSearchDirs () {
 #if __linux
     std::stringstream icg_dir ;
     icg_dir << LLVM_HOME << "/lib/clang/" ;
-    icg_dir << __clang_major__ << "." << __clang_minor__ ;
-#if (__clang_major__ > 3) || ((__clang_major__ == 3) && (__clang_minor__ >= 4))
-#ifdef __clang_patchlevel__
-    icg_dir << "." << __clang_patchlevel__  ;
-#endif
+    icg_dir << LIBCLANG_MAJOR << "." << LIBCLANG_MINOR ;
+#ifdef LIBCLANG_PATCHLEVEL
+    icg_dir << "." << LIBCLANG_PATCHLEVEL  ;
 #endif
     icg_dir << "/include" ;
     char * resolved_path = realpath(icg_dir.str().c_str(), NULL ) ;
@@ -80,11 +78,7 @@ void HeaderSearchDirs::AddCompilerBuiltInSearchDirs () {
             //std::cout << "dir = " << dir << std::endl ;
             if ( resolved_path != NULL ) {
                 //std::cout << "gcc resolved_path = " << resolved_path << std::endl ;
-#if (__clang_major__ == 3) && (__clang_minor__ >= 3)
                 hso.AddPath(resolved_path , clang::frontend::System, IsFramework, IsSysRootRelative);
-#else
-                hso.AddPath(resolved_path , clang::frontend::System, IsUserSupplied, IsFramework, IsSysRootRelative);
-#endif
                 free(resolved_path) ;
             }
         } else if ( !strncmp( line, "#include <...>", 14 )) {
@@ -107,11 +101,7 @@ void HeaderSearchDirs::AddUserSearchDirs ( std::vector<std::string> & include_di
         char * resolved_path = almostRealPath(include_dirs[ii].c_str()) ;
         if ( resolved_path != NULL ) {
             //std::cout << "adding resolved_path = " << resolved_path << std::endl ;
-#if (__clang_major__ == 3) && (__clang_minor__ >= 3)
             hso.AddPath(resolved_path , clang::frontend::Angled, false, true);
-#else
-            hso.AddPath(resolved_path , clang::frontend::Angled, true, false, true);
-#endif
             // Add the path as a system path as well for those included files that are erroneously in <>
         }
     }
@@ -124,11 +114,7 @@ void HeaderSearchDirs::AddTrickSearchDirs () {
     if ( trick_home != NULL ) {
         std::string temp_dir = std::string(trick_home) + "/trick_source" ;
         char * resolved_path = almostRealPath(temp_dir.c_str() ) ;
-#if (__clang_major__ == 3) && (__clang_minor__ >= 3)
         hso.AddPath(resolved_path , clang::frontend::Quoted, false, true);
-#else
-        hso.AddPath(resolved_path , clang::frontend::Quoted, true, false, true);
-#endif
         trick_source_dir = std::string(resolved_path) ;
         free(resolved_path) ;
     }

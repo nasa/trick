@@ -62,15 +62,6 @@ Most of the main program is pieced together from examples on the web. We are doi
 */
 int main( int argc , char * argv[] ) {
 
-#if (__clang_major__ == 3) && (__clang_minor__ >= 5)
-    clang::TargetOptions to;
-#elif (__clang_major__ == 3) && (__clang_minor__ >= 3)
-    clang::TargetOptions * to = new clang::TargetOptions() ;
-#else
-    clang::TargetOptions to;
-#endif
-    clang::CompilerInstance ci;
-
     /* Gather all of the command line arguments into lists of include directories, defines, and input files.
        All other arguments will be ignored. */
     llvm::cl::SetVersionPrinter(ICG_version) ;
@@ -90,67 +81,54 @@ int main( int argc , char * argv[] ) {
         return 1 ;
     }
 
-#if (__clang_major__ == 3) && (__clang_minor__ >= 3)
-    ci.createDiagnostics();
-#else
-    ci.createDiagnostics(0,NULL);
-#endif
-    clang::DiagnosticOptions & diago = ci.getDiagnosticOpts() ;
-    diago.ShowColors = 1 ;
-    ci.getDiagnostics().setIgnoreAllWarnings(true) ;
-#if ( GCC_MAJOR == 4 ) && ( GCC_MINOR <= 2 )
-    ci.getDiagnostics().setSuppressAllDiagnostics() ;
-#endif
-
-    // Set all of the defaults to c++
+    clang::CompilerInstance ci;
+#if (LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR < 9)
     clang::CompilerInvocation::setLangDefaults(ci.getLangOpts() , clang::IK_CXX) ;
+#endif
+    ci.createDiagnostics();
+    ci.getDiagnosticOpts().ShowColors = 1 ;
+    ci.getDiagnostics().setIgnoreAllWarnings(true) ;
     ci.getLangOpts().CXXExceptions = true ;
-
     // Activate C++11 parsing
-#if (__clang_major__ == 3) && (__clang_minor__ >= 3)
+    ci.getLangOpts().Bool = true ;
+    ci.getLangOpts().WChar = true ;
+    ci.getLangOpts().CPlusPlus = true ;
     ci.getLangOpts().CPlusPlus11 = true ;
-#else
-    ci.getLangOpts().CPlusPlus0x = true ;
-#endif
-
-    // Set the default target architecture
-#if (__clang_major__ == 3) && (__clang_minor__ >= 5)
-    to.Triple = llvm::sys::getDefaultTargetTriple();
-#elif (__clang_major__ == 3) && (__clang_minor__ >= 3)
-    to->Triple = llvm::sys::getDefaultTargetTriple();
-#else
-    to.Triple = llvm::sys::getDefaultTargetTriple();
-#endif
-
-#if (__clang_major__ == 3) && (__clang_minor__ >= 5)
-    std::shared_ptr<clang::TargetOptions> shared_to  = std::make_shared<clang::TargetOptions>(to) ;
-    clang::TargetInfo *pti = clang::TargetInfo::CreateTargetInfo(ci.getDiagnostics(), shared_to);
-#else
-    clang::TargetInfo *pti = clang::TargetInfo::CreateTargetInfo(ci.getDiagnostics(), to);
-#endif
-    ci.setTarget(pti);
+    ci.getLangOpts().CXXOperatorNames = true ;
 
     // Create all of the necessary managers.
     ci.createFileManager();
     ci.createSourceManager(ci.getFileManager());
-#if (__clang_major__ == 3) && (__clang_minor__ >= 5)
+
+#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
+    clang::TargetOptions to;
+    to.Triple = llvm::sys::getDefaultTargetTriple();
+    std::shared_ptr<clang::TargetOptions> shared_to  = std::make_shared<clang::TargetOptions>(to) ;
+    clang::TargetInfo *pti = clang::TargetInfo::CreateTargetInfo(ci.getDiagnostics(), shared_to);
+    ci.setTarget(pti);
     ci.createPreprocessor(clang::TU_Complete);
 #else
+    clang::TargetOptions * to = new clang::TargetOptions() ;
+    to->Triple = llvm::sys::getDefaultTargetTriple();
+    clang::TargetInfo *pti = clang::TargetInfo::CreateTargetInfo(ci.getDiagnostics(), to);
+    ci.setTarget(pti);
     ci.createPreprocessor();
 #endif
 
-    clang::HeaderSearch & hs = ci.getPreprocessor().getHeaderSearchInfo() ;
-    clang::HeaderSearchOptions & hso = ci.getHeaderSearchOpts() ;
-    clang::Preprocessor & pp = ci.getPreprocessor() ;
+    // Set all of the defaults to c++
+#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 9))
+    llvm::Triple trip (to.Triple) ;
+    clang::CompilerInvocation::setLangDefaults(ci.getLangOpts(), clang::IK_CXX, trip, ppo) ;
+    // setting the language defaults clears the c++11 flag.
+    ci.getLangOpts().CPlusPlus11 = true ;
+#endif
+    clang::Preprocessor& pp = ci.getPreprocessor();
 
     // Add all of the include directories to the preprocessor
-    HeaderSearchDirs hsd(hs , hso , pp, sim_services_flag) ;
+    HeaderSearchDirs hsd(ci.getPreprocessor().getHeaderSearchInfo(), ci.getHeaderSearchOpts(), pp, sim_services_flag) ;
     hsd.addSearchDirs ( include_dirs ) ;
 
-    // Tell the preprocessor to use its default predefines
-    clang::PreprocessorOptions & ppo = ci.getPreprocessorOpts() ;
-    ppo.UsePredefines = true;
-#if (__clang_major__ == 3) && (__clang_minor__ >= 8)
+#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 8))
     pp.getBuiltinInfo().initializeBuiltins(pp.getIdentifierTable(), pp.getLangOpts());
 #else
     pp.getBuiltinInfo().InitializeBuiltins(pp.getIdentifierTable(), pp.getLangOpts());
@@ -160,12 +138,7 @@ int main( int argc , char * argv[] ) {
 
     // Add our comment saver as a comment handler in the preprocessor
     CommentSaver cs(ci.getSourceManager()) ;
-#if (__clang_major__ == 3) && (__clang_minor__ >= 3)
     pp.addCommentHandler(&cs) ;
-#else
-    pp.AddCommentHandler(&cs) ;
-#endif
-
 
     PrintAttributes pa( attr_version, hsd, cs, ci, force, sim_services_flag) ;
 
@@ -174,9 +147,8 @@ int main( int argc , char * argv[] ) {
 
     // Tell the compiler to use our ICGASTconsumer
     ICGASTConsumer *astConsumer = new ICGASTConsumer(ci, hsd, cs, pa);
-#if (__clang_major__ == 3) && (__clang_minor__ >= 6)
-    std::unique_ptr<clang::ASTConsumer> unique_ast(astConsumer) ;
-    ci.setASTConsumer(std::move(unique_ast));
+#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 6))
+    ci.setASTConsumer(std::move(std::unique_ptr<clang::ASTConsumer>(astConsumer)));
 #else
     ci.setASTConsumer(astConsumer);
 #endif
@@ -195,7 +167,7 @@ int main( int argc , char * argv[] ) {
 
     // Open up the input file and parse it.
     const clang::FileEntry *pFile = ci.getFileManager().getFile(input_file_full_path);
-#if (__clang_major__ == 3) && (__clang_minor__ >= 5)
+#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
     ci.getSourceManager().setMainFileID(ci.getSourceManager().createFileID(pFile, clang::SourceLocation(), clang::SrcMgr::C_User));
 #else
     ci.getSourceManager().createMainFileID(pFile);
