@@ -13,6 +13,7 @@ lib_Darwin_*
 *.tab.h
 *.swp
 *.dox
+*.pyc
 Makefile_jsc_dirs
 .DS_Store
 bin/trick-ICG
