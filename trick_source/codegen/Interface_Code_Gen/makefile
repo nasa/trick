@@ -50,6 +50,7 @@ endif
 endif
 
 ifeq ($(TRICK_HOST_TYPE),Darwin)
+CXXFLAGS += -std=c++11
 CLANGLIBS += $(shell $(LLVM_HOME)/bin/llvm-config --libs)
 CLANGLIBS += $(shell $(LLVM_HOME)/bin/llvm-config --system-libs)
 CLANGLIBS += -lc++abi

@@ -100,6 +100,9 @@ int main( int argc , char * argv[] ) {
     ci.createFileManager();
     ci.createSourceManager(ci.getFileManager());
 
+    clang::PreprocessorOptions & ppo = ci.getPreprocessorOpts() ;
+    ppo.UsePredefines = true;
+
 #if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
     clang::TargetOptions to;
     to.Triple = llvm::sys::getDefaultTargetTriple();

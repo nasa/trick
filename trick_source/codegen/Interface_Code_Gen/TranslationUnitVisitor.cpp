@@ -46,29 +46,33 @@ bool TranslationUnitVisitor::TraverseDecl(clang::Decl *d) {
                In this case the CXXRecordDecl file name will not match the current file name, and is
                in fact empty */
             clang::RecordDecl * rd = crd->getDefinition() ;
-            if ( rd != NULL and ! getFileName(ci , crd->getRBraceLoc(), hsd).empty() ) {
-                //crd->dump() ; std::cout << std::endl ;
-                if ( isInUserCode(ci , crd->getRBraceLoc(), hsd) ) {
-                    CXXRecordVisitor cvis(ci , cs, hsd , pa, false, false, true) ;
+            if ( rd != NULL ) {
+                std::string rd_file = getFileName(ci , rd->getSourceRange().getEnd(), hsd) ;
+                std::string crd_file = getFileName(ci , crd->getSourceRange().getEnd(), hsd) ;
+                if (!crd_file.empty() and !crd_file.compare(rd_file)) {
+                    //crd->dump() ; std::cout << std::endl ;
+                    if ( isInUserCode(ci , crd->getSourceRange().getEnd(), hsd) ) {
+                        CXXRecordVisitor cvis(ci , cs, hsd , pa, false, false, true) ;
 
-                    cvis.TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(d)) ;
-                    pa.printClass(cvis.get_class_data()) ;
+                        cvis.TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(d)) ;
+                        pa.printClass(cvis.get_class_data()) ;
 
-                    /* Check to see if the struct/class is forward declared in the same file.
-                       If it is, then remove the notation that it is forward declared.  This
-                       is to allow C structs to be forward declared and typedeffed and io_src
-                       code will be generated for both the original structure name and typedeffed
-                       name.
+                        /* Check to see if the struct/class is forward declared in the same file.
+                           If it is, then remove the notation that it is forward declared.  This
+                           is to allow C structs to be forward declared and typedeffed and io_src
+                           code will be generated for both the original structure name and typedeffed
+                           name.
 
-                       struct Astruct ;
-                       typedef struct Astruct {} Bstruct ;
-                    */
-                    std::set< std::string >::iterator it ;
-                    std::string file_name = getFileName(ci , d->getLocEnd(), hsd) ;
-                    std::string source_type = cvis.get_class_data()->getName() ;
-                    it = fwd_declared_classes[file_name].find(source_type) ;
-                    if ( it != fwd_declared_classes[file_name].end() ) {
-                        fwd_declared_classes[file_name].erase(it) ;
+                           struct Astruct ;
+                           typedef struct Astruct {} Bstruct ;
+                        */
+                        std::set< std::string >::iterator it ;
+                        std::string file_name = getFileName(ci , d->getLocEnd(), hsd) ;
+                        std::string source_type = cvis.get_class_data()->getName() ;
+                        it = fwd_declared_classes[file_name].find(source_type) ;
+                        if ( it != fwd_declared_classes[file_name].end() ) {
+                            fwd_declared_classes[file_name].erase(it) ;
+                        }
                     }
                 }
             } else {
@@ -81,7 +85,7 @@ bool TranslationUnitVisitor::TraverseDecl(clang::Decl *d) {
         break ;
         case clang::Decl::Enum : {
             clang::EnumDecl * ed = static_cast<clang::EnumDecl *>(d) ;
-            if ( isInUserCode(ci , ed->getRBraceLoc(), hsd) ) {
+            if ( isInUserCode(ci , ed->getSourceRange().getEnd(), hsd) ) {
                 EnumVisitor evis(ci, hsd) ;
                 evis.TraverseDecl(ed) ;
                 //if ( evis.get_enum_data() != NULL ) {

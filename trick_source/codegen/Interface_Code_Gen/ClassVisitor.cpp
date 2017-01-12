@@ -61,7 +61,7 @@ bool CXXRecordVisitor::TraverseDecl(clang::Decl *d) {
                process embedded classes that have public access. */
             clang::RecordDecl * rd = crd->getDefinition() ;
             if ( rd != NULL and rd->getAccess() == clang::AS_public ) {
-                if ( isInUserCode(ci , crd->getRBraceLoc(), hsd) ) {
+                if ( isInUserCode(ci , crd->getSourceRange().getEnd(), hsd) ) {
                     CXXRecordVisitor embedded_cvis(ci , cs, hsd , pa, false, false, true) ;
                     embedded_cvis.TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(d)) ;
                     pa.printClass(embedded_cvis.get_class_data()) ;
@@ -149,7 +149,7 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
         cval.setHasPublicDestructor(true) ;
     }
 
-    std::string file_name = getFileName(ci , rec->getRBraceLoc(), hsd) ;
+    std::string file_name = getFileName(ci , rec->getSourceRange().getEnd(), hsd) ;
     char * rp = almostRealPath(file_name.c_str()) ;
     if ( rp == NULL ) {
         return false ;
@@ -178,13 +178,13 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
                 clang::RecordDecl * rd = rt->getDecl() ;
                 //std::cout << "    [34m" << cval.getName() << " inherits from " << rd->getNameAsString() << "[00m" << std::endl ;
                 //rd->dump() ; std::cout << std::endl ;
-                if ( isInUserOrTrickCode(ci , rd->getRBraceLoc(), hsd) ) {
+                if ( isInUserOrTrickCode(ci , rd->getSourceRange().getEnd(), hsd) ) {
                     const clang::ASTRecordLayout &record_layout = rec->getASTContext().getASTRecordLayout(rec);
                     unsigned int inherit_class_offset ;
 
                     inherit_class_offset = record_layout.getBaseClassOffset(llvm::cast<clang::CXXRecordDecl>(rd)).getQuantity() ;
                     //std::cout << "    [34minherit_class_offset = " << inherit_class_offset << "[00m" << std::endl ;
-                    //std::cout << "    [34m" << getFileName(ci , rd->getRBraceLoc(), hsd) << "[00m" << std::endl ;
+                    //std::cout << "    [34m" << getFileName(ci , rd->getSourceRange().getEnd(), hsd) << "[00m" << std::endl ;
                     CXXRecordVisitor inherit_cvis(ci , cs, hsd , pa, true, bcii->isVirtual(), false, inherit_class_offset) ;
                     inherit_cvis.TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(rd)) ;
                     cval.addInheritedFieldDescriptions(inherit_cvis.get_class_data()->getFieldDescription()) ;
@@ -220,7 +220,7 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
                 clang::RecordDecl * rd = rt->getDecl() ;
                 //std::cout << "    [34m" << cval.getName() << " virtually inherits from " << rd->getNameAsString() << "[00m" << std::endl ;
                 //rd->dump() ; std::cout << std::endl ;
-                if ( isInUserOrTrickCode(ci , rd->getRBraceLoc(), hsd) ) {
+                if ( isInUserOrTrickCode(ci , rd->getSourceRange().getEnd(), hsd) ) {
                     const clang::ASTRecordLayout &record_layout = rec->getASTContext().getASTRecordLayout(rec);
                     unsigned int inherit_class_offset ;
 
@@ -229,7 +229,7 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
                     inherit_class_offset = record_layout.getVBaseClassOffset(llvm::cast<clang::CXXRecordDecl>(rd)).getQuantity() ;
 
                     //std::cout << "    [34minherit_class_offset = " << inherit_class_offset << "[00m" << std::endl ;
-                    //std::cout << "    [34m" << getFileName(ci , rd->getRBraceLoc(), hsd) << "[00m" << std::endl ;
+                    //std::cout << "    [34m" << getFileName(ci , rd->getSourceRange().getEnd(), hsd) << "[00m" << std::endl ;
                     CXXRecordVisitor inherit_cvis(ci , cs, hsd , pa, true, bcii->isVirtual(), false, inherit_class_offset) ;
                     inherit_cvis.TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(rd)) ;
                     cval.addInheritedFieldDescriptions(inherit_cvis.get_class_data()->getFieldDescription()) ;
