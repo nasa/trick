@@ -172,6 +172,11 @@ int Trick::DRHDF5::format_specific_init() {
          */
         hdf5_info->dataset = H5PTcreate_fl(root_group, rec_buffer[ii]->ref->reference, datatype, chunk_size, 1) ;
 
+        if ( hdf5_info->dataset == H5I_BADID ) {
+            message_publish(MSG_ERROR, "An error occured in data record group \"%s\" when adding \"%s\".\n",
+             group_name.c_str() , rec_buffer[ii]->ref->reference) ;
+        }
+
         hdf5_info->drb = rec_buffer[ii] ;
         /* Add the new parameter element to the end of the vector.
          *  This effectively increases the vector size by one. */
