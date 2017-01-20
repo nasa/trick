@@ -10,7 +10,9 @@ import itertools
 import os
 import re
 import socket
+import struct
 import threading
+import time
 
 class VariableServerError(Exception):
     pass
@@ -916,6 +918,51 @@ class VariableServer:
         self._asynchronous_socket.shutdown(socket.SHUT_RDWR)
         self._synchronous_socket.close()
         self._asynchronous_socket.close()
+
+def fromPID(pid, timeout=None):
+    """
+    Connect to the simulation at the given pid. This is done by
+    listening on the multicast channel over which all sims broadcast
+    their existance.
+
+    Parameters
+    ----------
+    pid : int
+        The sim's process ID.
+    timeout : positive float or None
+        How long to look for the sim before giving up. Pass None to wait
+        indefinitely.
+
+    Returns
+    -------
+    VariableServer
+        A VariableServer connected to the sim at pid.
+
+    Raises
+    ------
+    socket.timeout
+        If a timeout occurs.
+    """
+    clock = time.time()
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.bind(('', 9265))
+    sock.setsockopt(
+      socket.IPPROTO_IP,
+      socket.IP_ADD_MEMBERSHIP,
+      struct.pack("=4sl", socket.inet_aton('224.3.14.15'), socket.INADDR_ANY))
+    fileInterface = sock.makefile()
+
+    # the socket will clean itself up when it's garbage-collected
+    while True:
+        if timeout is not None:
+            timeout -= (time.time() - clock)
+            clock = time.time()
+            sock.settimeout(timeout)
+
+        host, port, _, processId = fileInterface.readline().split('\t')[:4]
+        if int(processId) == int(pid):
+            return VariableServer(host, port)
 
 def _parse_value(text):
     """
