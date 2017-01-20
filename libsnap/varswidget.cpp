@@ -150,7 +150,7 @@ QStandardItem* VarsWidget::_createPageItem()
 
     QString title = QString("QP_%0").arg(_currQPIdx++);
     _addChild(pageItem, "PageName", title);
-    _addChild(pageItem, "PageTitle", title);
+    _addChild(pageItem, "PageTitle", "Koviz");
     _addChild(pageItem, "PageStartTime", -DBL_MAX);
     _addChild(pageItem, "PageStopTime",   DBL_MAX);
     _addChild(pageItem, "PageBackgroundColor", "#FFFFFF");

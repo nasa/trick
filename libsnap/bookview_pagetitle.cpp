@@ -156,8 +156,12 @@ void PageTitleView::rowsInserted(const QModelIndex &pidx, int start, int end)
             QString t1 = _bookModel()->getDataString(dptIdx,
                                                      "Title1",
                                                      "DefaultPageTitles");
-            if ( t1 != "Snap Plots!" ) {
-                // Default title overwritten by -t1 optional title
+
+            if ( pageTitle.isEmpty() && t1.startsWith("koviz") ) {
+                // Since subtitle has RUNs, don't use t1 (it has RUNs too)
+                pageTitle = "Koviz Plots";
+            } else if ( !t1.startsWith("koviz") ) {
+                // DP page title overwritten by -t1 optional title
                 pageTitle = t1;
             }
 

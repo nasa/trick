@@ -38,7 +38,14 @@ PlotMainWindow::PlotMainWindow(
     _monteInputsView(0),
     _dpTreeWidget(0)
 {
-    setWindowTitle(tr("Snap!"));
+    // Window title
+    if ( titles.size() >= 1 && !titles.at(0).isEmpty() ) {
+        // Set window title to -t1 title
+        setWindowTitle(titles.at(0));
+    } else {
+        setWindowTitle(tr("koviz!"));
+    }
+
     createMenu();
 
     // Central Widget and main layout

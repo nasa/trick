@@ -271,7 +271,18 @@ int main(int argc, char *argv[])
         QStringList titles;
         QString title = opts.title1;
         if ( title.isEmpty() ) {
-            title  = "Snap Plots!";
+            title = "koviz ";
+            if ( isMonte ) {
+                title += runDirs.at(0);
+            } else {
+                if ( runDirs.size() == 1 ) {
+                    title += runDirs.at(0);
+                } else if ( runDirs.size() == 2 ) {
+                    title += runDirs.at(0) + " " + runDirs.at(1);
+                } else if ( runDirs.size() > 2 ) {
+                    title += runDirs.at(0) + " " + runDirs.at(1) + "...";
+                }
+            }
         }
         titles << title;
 
