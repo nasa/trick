@@ -377,6 +377,8 @@ py_%.cpp: %.i
     }
     open INITFILE , ">trick/__init__.py" or return ;
 
+    print INITFILE "from pkgutil import extend_path\n" ;
+    print INITFILE "__path__ = extend_path(__path__, __name__)\n" ;
     print INITFILE "import sys\n" ;
     print INITFILE "import os\n" ;
     print INITFILE "sys.path.append(os.getcwd() + \"/trick\")\n" ;
