@@ -7,6 +7,7 @@
 #include "EnumVisitor.hh"
 #include "EnumValues.hh"
 #include "Utilities.hh"
+#include "BraceMacro.hh"
 
 extern llvm::cl::opt< int > debug_level ;
 
@@ -26,7 +27,7 @@ bool EnumVisitor::VisitType(clang::Type *t) {
 }
 
 bool EnumVisitor::VisitEnumDecl(clang::EnumDecl *ed) {
-    eval.setFileName(getFileName(ci , ed->getSourceRange().getEnd(), hsd)) ;
+    eval.setFileName(getFileName(ci , ed->RBRACELOC(), hsd)) ;
     return true;
 }
 

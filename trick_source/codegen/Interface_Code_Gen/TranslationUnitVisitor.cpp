@@ -18,6 +18,7 @@
 #include "VariableVisitor.hh"
 #include "Utilities.hh"
 #include "PrintAttributes.hh"
+#include "BraceMacro.hh"
 
 TranslationUnitVisitor::TranslationUnitVisitor(clang::CompilerInstance & in_ci , HeaderSearchDirs & in_hsd ,
   CommentSaver & in_cs , PrintAttributes & in_pa ) :
@@ -47,11 +48,11 @@ bool TranslationUnitVisitor::TraverseDecl(clang::Decl *d) {
                in fact empty */
             clang::RecordDecl * rd = crd->getDefinition() ;
             if ( rd != NULL ) {
-                std::string rd_file = getFileName(ci , rd->getSourceRange().getEnd(), hsd) ;
-                std::string crd_file = getFileName(ci , crd->getSourceRange().getEnd(), hsd) ;
+                std::string rd_file = getFileName(ci , rd->RBRACELOC(), hsd) ;
+                std::string crd_file = getFileName(ci , crd->RBRACELOC(), hsd) ;
                 if (!crd_file.empty() and !crd_file.compare(rd_file)) {
                     //crd->dump() ; std::cout << std::endl ;
-                    if ( isInUserCode(ci , crd->getSourceRange().getEnd(), hsd) ) {
+                    if ( isInUserCode(ci , crd->RBRACELOC(), hsd) ) {
                         CXXRecordVisitor cvis(ci , cs, hsd , pa, true) ;
 
                         cvis.TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(d)) ;
@@ -85,7 +86,7 @@ bool TranslationUnitVisitor::TraverseDecl(clang::Decl *d) {
         break ;
         case clang::Decl::Enum : {
             clang::EnumDecl * ed = static_cast<clang::EnumDecl *>(d) ;
-            if ( isInUserCode(ci , ed->getSourceRange().getEnd(), hsd) ) {
+            if ( isInUserCode(ci , ed->RBRACELOC(), hsd) ) {
                 EnumVisitor evis(ci, hsd) ;
                 evis.TraverseDecl(ed) ;
                 //if ( evis.get_enum_data() != NULL ) {
