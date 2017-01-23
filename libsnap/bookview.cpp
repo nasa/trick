@@ -606,8 +606,11 @@ QRect BookView::_printPageTitle(QPainter* painter, const QModelIndex &pageIdx)
     QString title1 = model()->data(title1Idx).toString();
     QString t1 = _bookModel()->getDataString(defTitlesIdx,
                                              "Title1","DefaultPageTitles");
-    if ( t1 != "Snap Plots!" ) {
-        // Default title overwritten by -t1 optional title
+    if ( title1.isEmpty() && t1.startsWith("koviz") ) {
+        // Since subtitle has RUNs, don't use t1 (it has RUNs too)
+        title1 = "Koviz Plots";
+    } else if ( !t1.startsWith("koviz") ) {
+        // DP page title overwritten by -t1 optional title
         title1 = t1;
     }
     QString title2 = model()->data(title2Idx).toString();
