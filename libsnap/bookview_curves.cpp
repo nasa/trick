@@ -906,6 +906,23 @@ void CurvesView::dataChanged(const QModelIndex &topLeft,
             }
             _pixmap = _createLivePixmap();
         }
+    } else if ( tag == "PlotMathRect" && topLeft.parent() != rootIndex() ) {
+        // Another plot has changed its PlotMathRect.
+        // Synchronize this plot's PlotMathRect with the changed one
+        // to keep zoom/pan synchronized across plots.
+
+        // Only synchronize when x variables are time (normal case).
+        if ( _isXTime(topLeft.parent()) && _isXTime(rootIndex()) ) {
+            QRectF M = model()->data(topLeft).toRectF();
+            QModelIndex plotRectIdx = _bookModel()->getDataIndex(rootIndex(),
+                                                         "PlotMathRect","Plot");
+            QRectF R = model()->data(plotRectIdx).toRectF();
+            if ( M.left() != R.left() || M.right() != R.right() ) {
+                R.setLeft(M.left());
+                R.setRight(M.right());
+                model()->setData(plotRectIdx,R);
+            }
+        }
     }
 
     viewport()->update();
@@ -932,6 +949,30 @@ QPixmap* CurvesView::_createLivePixmap()
     }
 
     return livePixmap;
+}
+
+// If any of the curves in plot has a curve with x being time, return true
+bool CurvesView::_isXTime(const QModelIndex &plotIdx)
+{
+    bool isXTime = false;
+
+    bool isExistsCurves = _bookModel()->isChildIndex(plotIdx, "Plot", "Curves");
+
+    if ( isExistsCurves ) {
+        QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
+        int rc = model()->rowCount(curvesIdx);
+        for ( int i = 0; i < rc ; ++i ) {
+            QModelIndex curveIdx = model()->index(i,0,curvesIdx);
+            QString xName = _bookModel()->getDataString(curveIdx,
+                                                        "CurveXName","Curve");
+            if ( xName == "sys.exec.out.time" ) { // TODO: TimeName
+                isXTime = true;
+                break;
+            }
+        }
+    }
+
+    return isXTime;
 }
 
 // TODO: This thing does nothing!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

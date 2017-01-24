@@ -138,6 +138,8 @@ private:
     QPixmap* _pixmap;
     QPixmap* _createLivePixmap();
 
+    bool _isXTime(const QModelIndex& plotIdx);
+
     // Key Events
     void _keyPressSpace();
     void _keyPressUp();
