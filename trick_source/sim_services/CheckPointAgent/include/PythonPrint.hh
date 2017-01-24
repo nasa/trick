@@ -1,5 +1,5 @@
-#ifndef CLASSICCHECKPOINT_HH
-#define CLASSICCHECKPOINT_HH
+#ifndef PYTHONPRINT_HH
+#define PYTHONPRINT_HH
 
 #include <stddef.h> // for NULL
 #include <string>
