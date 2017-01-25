@@ -900,12 +900,15 @@ void CurvesView::dataChanged(const QModelIndex &topLeft,
 
         QRectF M = model()->data(topLeft).toRectF();
 
-        if ( M.size().width() > 0 && M.size().height() != 0 ) {
+        if ( M.size().width() > 0 && M.size().height() != 0 && _lastM != M ) {
             if ( _pixmap ) {
                 delete _pixmap;
             }
             _pixmap = _createLivePixmap();
         }
+
+        _lastM = M;  // Saved so that pixmap is not recreated if M unchanged
+
     } else if ( tag == "PlotMathRect" && topLeft.parent() != rootIndex() ) {
         // Another plot has changed its PlotMathRect.
         // Synchronize this plot's PlotMathRect with the changed one

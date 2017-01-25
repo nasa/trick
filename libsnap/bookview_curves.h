@@ -136,6 +136,7 @@ private:
     QModelIndex _chooseCurveNearMousePoint(const QPoint& pt);
 
     QPixmap* _pixmap;
+    QRectF _lastM;
     QPixmap* _createLivePixmap();
 
     bool _isXTime(const QModelIndex& plotIdx);
