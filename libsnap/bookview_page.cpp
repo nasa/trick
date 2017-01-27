@@ -27,11 +27,24 @@ bool PageView::eventFilter(QObject *obj, QEvent *event)
         QMouseEvent *mouseEvent = dynamic_cast<QMouseEvent*>(event);
         if ( mouseEvent ) {
             if (  mouseEvent->button() == Qt::LeftButton ) {
-                if ( !currentIndex().isValid() ) {
+                Qt::KeyboardModifiers keymods = mouseEvent->modifiers();
+                bool isShift = false;
+                if ( keymods & Qt::ShiftModifier ) {
+                    isShift = true;
+                }
+                if ( !currentIndex().isValid() || isShift ) {
+                    // Toggle between single/multi view when:
+                    //   1. Mouse clicked into white space and
+                    //      there is no "selected" curve
+                    //      If a curve is selected and mouse is
+                    //      clicked into white space, the curve
+                    //      is deselected (in curves view)
+                    //   2. Shift key held down when mouse clicked
                     _toggleView(obj);
                 }
             }
         }
+
     }
     viewport()->update();
     return false;

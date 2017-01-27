@@ -1098,7 +1098,16 @@ void CurvesView::mousePressEvent(QMouseEvent *event)
 
 void CurvesView::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (  event->button() == Qt::LeftButton ) {
+    bool isShift = false;
+    Qt::KeyboardModifiers keymods = event->modifiers();
+    if ( keymods & Qt::ShiftModifier ) {
+        isShift = true;
+    }
+
+    if (  event->button() == Qt::LeftButton && isShift ) {
+        // Toggle between single/multi views when clicking with shift key
+        event->ignore();
+    } else if (  event->button() == Qt::LeftButton && !isShift ) {
         double x0 = _mousePressPos.x();
         double y0 = _mousePressPos.y();
         double x1 = event->pos().x();
@@ -1111,18 +1120,20 @@ void CurvesView::mouseReleaseEvent(QMouseEvent *event)
             QModelIndex curveIdx = _chooseCurveNearMousePoint(event->pos());
             if ( curveIdx.isValid() ) {
                 // Curve found in small box around mouse click!
-                selectionModel()->setCurrentIndex(curveIdx,
+                if ( currentIndex() == curveIdx ) {
+                    // If current curve clicked again - "deselect"
+                    setCurrentIndex(QModelIndex());
+                } else {
+                    // If curve other than current clicked - "select" it
+                    selectionModel()->setCurrentIndex(curveIdx,
                                                  QItemSelectionModel::NoUpdate);
+                }
             } else if ( !curveIdx.isValid() &&  currentIndex().isValid() ) {
-                // click off curves, current unset
+                // click off curves, current unset i.e. "deselect curve"
                 setCurrentIndex(QModelIndex());
-            } else if ( !curveIdx.isValid() && !currentIndex().isValid() ) {
-                // click off, toggle between single and multiplot views
-                // pass event to ancestors (page view handles toggle)
-                event->ignore();
-            } else {
-                qDebug() << "snap [bad scoobs]: "
-                            "CurvesView::mouseReleaseEvent()";
+            } else if ( !curveIdx.isValid() &&  !currentIndex().isValid() ) {
+                // click off curves when nothing selected -> toggle single/multi
+                event->ignore(); // pass event to page view
             }
         } else {
             //event->ignore(); // pass event to parent view for stretch,zoom etc
