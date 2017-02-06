@@ -872,6 +872,30 @@ void CurvesView::__paintSymbol(const QPointF& p,
         painter.drawLine(a,b);
         painter.drawLine(b,c);
         painter.drawLine(c,a);
+    } else if ( symbol == "thick_triangle" ) {
+        pen.setWidthF(2.0);
+        painter.setPen(pen);
+        double r = 4.0;
+        QPointF a(p.x(),p.y()-r);
+        QPointF b(p.x()-r*cos(30.0*M_PI/180.0),
+                  p.y()+r*sin(30.0*M_PI/180.0));
+        QPointF c(p.x()+r*cos(30.0*M_PI/180.0),
+                  p.y()+r*sin(30.0*M_PI/180.0));
+        painter.drawLine(a,b);
+        painter.drawLine(b,c);
+        painter.drawLine(c,a);
+    } else if ( symbol == "solid_triangle" ) {
+        pen.setWidthF(2.0);
+        painter.setPen(pen);
+        double r = 3.0;
+        QPointF a(p.x(),p.y()-r);
+        QPointF b(p.x()-r*cos(30.0*M_PI/180.0),
+                  p.y()+r*sin(30.0*M_PI/180.0));
+        QPointF c(p.x()+r*cos(30.0*M_PI/180.0),
+                  p.y()+r*sin(30.0*M_PI/180.0));
+        painter.drawLine(a,b);
+        painter.drawLine(b,c);
+        painter.drawLine(c,a);
     }
 
     painter.setPen(origPen);

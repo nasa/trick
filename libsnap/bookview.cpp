@@ -1277,14 +1277,42 @@ void BookView::__printSymbol(const QPointF &p,
         painter.drawLine(p,d);
     } else if ( symbol == "triangle" ) {
         double r = 48.0;
+        pen.setJoinStyle(Qt::MiterJoin);
+        painter.setPen(pen);
         QPointF a(p.x(),p.y()-r);
         QPointF b(p.x()-r*cos(30.0*M_PI/180.0),
                   p.y()+r*sin(30.0*M_PI/180.0));
         QPointF c(p.x()+r*cos(30.0*M_PI/180.0),
                   p.y()+r*sin(30.0*M_PI/180.0));
-        painter.drawLine(a,b);
-        painter.drawLine(b,c);
-        painter.drawLine(c,a);
+        QPolygonF triangle;
+        triangle << a << b << c;
+        painter.drawConvexPolygon(triangle);
+    } else if ( symbol == "thick_triangle" ) {
+        pen.setWidthF(24.0);
+        pen.setJoinStyle(Qt::MiterJoin);
+        painter.setPen(pen);
+        double r = 48.0;
+        QPointF a(p.x(),p.y()-r);
+        QPointF b(p.x()-r*cos(30.0*M_PI/180.0),
+                  p.y()+r*sin(30.0*M_PI/180.0));
+        QPointF c(p.x()+r*cos(30.0*M_PI/180.0),
+                  p.y()+r*sin(30.0*M_PI/180.0));
+        QPolygonF triangle;
+        triangle << a << b << c;
+        painter.drawConvexPolygon(triangle);
+    } else if ( symbol == "solid_triangle" ) {
+        pen.setWidthF(36.0);
+        pen.setJoinStyle(Qt::MiterJoin);
+        painter.setPen(pen);
+        double r = 36.0;
+        QPointF a(p.x(),p.y()-r);
+        QPointF b(p.x()-r*cos(30.0*M_PI/180.0),
+                  p.y()+r*sin(30.0*M_PI/180.0));
+        QPointF c(p.x()+r*cos(30.0*M_PI/180.0),
+                  p.y()+r*sin(30.0*M_PI/180.0));
+        QPolygonF triangle;
+        triangle << a << b << c;
+        painter.drawConvexPolygon(triangle);
     }
 
     painter.setPen(origPen);
