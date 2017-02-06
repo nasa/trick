@@ -52,7 +52,6 @@ export TRICK_GTE_EXT
 export TRICK_HOST_CPU := $(shell export TRICK_CC=$(TRICK_CC) && $(TRICK_HOME)/bin/trick-gte TRICK_HOST_CPU)
 export TRICK_EXEC_LINK_LIBS = ${PTHREAD_LIBS} $(PYTHON_LIB) $(UDUNITS_LDFLAGS) $(PLATFORM_LIBS) -lm -ldl
 export TRICK_LIBS = ${RPATH} -L${TRICK_LIB_DIR} -ltrick -ltrick_pyip -ltrick_comm -ltrick_math -ltrick_units -ltrick_mm
-export TRICK_USER_LINK_LIBS
 export TRICK_SYSTEM_CFLAGS
 export TRICK_SYSTEM_CXXFLAGS
 export TRICK_SYSTEM_SFLAGS

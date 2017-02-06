@@ -11,6 +11,8 @@ endif
 
 .NOTPARALLEL:
 
+export TRICK_ICG_EXCLUDE
+
 # Use /bin/bash as the shell so we can use PIPESTATUS
 SHELL = /bin/bash
 
