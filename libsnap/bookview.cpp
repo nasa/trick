@@ -1011,8 +1011,10 @@ void BookView::_printCurves(const QRect& R,
 void BookView::_printLegend(const QRect& R,
                             const QModelIndex &curvesIdx, QPainter &painter)
 {
+    const int maxEntries = 7;
+
     int nCurves = model()->rowCount(curvesIdx);
-    if ( nCurves > 6 ) {
+    if ( nCurves > maxEntries ) {
         return;
     }
 
@@ -1059,7 +1061,7 @@ void BookView::_printLegend(const QRect& R,
         QModelIndex curveIdx = model()->index(i,0,curvesIdx);
 
         // Label
-        if ( nRuns == 1 && 2 <= nCurveYNames && nCurveYNames <= 6 ) {
+        if ( nRuns == 1 && 2 <= nCurveYNames && nCurveYNames <= maxEntries ) {
             QString label =  _bookModel()->getDataString(curveIdx,
                                                         "CurveYLabel", "Curve");
             if ( label.isEmpty() ) {
@@ -1069,7 +1071,7 @@ void BookView::_printLegend(const QRect& R,
                 label = label.mid(i+1);
             }
             labels << label;
-        } else if ( nCurveYNames == 1 && 2 <= nRuns && nRuns <= 6 ) {
+        } else if ( nCurveYNames == 1 && 2 <= nRuns && nRuns <= maxEntries ) {
             // Label (use RUN dir name)
             TrickCurveModel* curveModel = _bookModel()->
                     getTrickCurveModel(curveIdx);
