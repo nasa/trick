@@ -947,9 +947,9 @@ void BookView::_printCurves(const QRect& R,
         }
     } else {
 
-        if ( nCurves >= 20 ) {
+        if ( nCurves >= 64 ) {
 
-            // Use pixmaps to reduce file size if nCurves >= 20
+            // Use pixmaps to reduce file size if nCurves >= 64
             double rw = R.width()/painter->device()->logicalDpiX();
             double rh = R.height()/painter->device()->logicalDpiY();
             QPixmap nullPixmap(1,1); // used for dpi
