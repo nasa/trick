@@ -1313,9 +1313,39 @@ void BookView::__printSymbol(const QPointF &p,
         QPolygonF triangle;
         triangle << a << b << c;
         painter.drawConvexPolygon(triangle);
-    }
+    } else if ( symbol.startsWith("number_") && symbol.size() == 8 ) {
+        QFont origFont = painter.font();
+        QBrush origBrush = painter.brush();
 
-    painter.setPen(origPen);
+        // Calculate bbox to draw text in
+        QString number = symbol.right(1); // last char is '0'-'9'
+        QFont font = painter.font();
+        font.setPointSize(6);
+        painter.setFont(font);
+        QFontMetrics fm = painter.fontMetrics();
+        QRectF bbox(fm.tightBoundingRect(number));
+        bbox.moveCenter(p);
+
+        // Draw solid circle around number
+        QRectF box(bbox);
+        double l = 3.0*qMax(box.width(),box.height())/2.0;
+        box.setWidth(l);
+        box.setHeight(l);
+        box.moveCenter(p);
+        QBrush brush(pen.color());
+        painter.setBrush(brush);
+        painter.drawEllipse(box);
+
+        // Draw number in white in middle of circle
+        QPen whitePen("white");
+        painter.setPen(whitePen);
+        painter.drawText(bbox,Qt::AlignCenter,number);
+
+        painter.setFont(origFont);
+        painter.setBrush(origBrush);
+
+        painter.setPen(origPen);
+    }
 }
 
 void BookView::_printCoplot(const QRect& R,

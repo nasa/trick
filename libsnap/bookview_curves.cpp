@@ -449,7 +449,7 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
                 QPointF p(el.x,el.y);
                 p = Tscaled.map(p);
                 if ( i > 0 ) {
-                    double r = 16.0;
+                    double r = 32.0;
                     double x = pLast.x()-r/2.0;
                     double y = pLast.y()-r/2.0;
                     QRectF R(x,y,r,r);
@@ -896,6 +896,37 @@ void CurvesView::__paintSymbol(const QPointF& p,
         painter.drawLine(a,b);
         painter.drawLine(b,c);
         painter.drawLine(c,a);
+    } else if ( symbol.startsWith("number_") && symbol.size() == 8 ) {
+
+        QFont origFont = painter.font();
+        QBrush origBrush = painter.brush();
+
+        // Calculate bbox to draw text in
+        QString number = symbol.right(1); // last char is '0'-'9'
+        QFont font = painter.font();
+        font.setPointSize(7);
+        painter.setFont(font);
+        QFontMetrics fm = painter.fontMetrics();
+        QRectF bbox(fm.tightBoundingRect(number));
+        bbox.moveCenter(p);
+
+        // Draw solid circle around number
+        QRectF box(bbox);
+        double l = 3.0*qMax(box.width(),box.height())/2.0;
+        box.setWidth(l);
+        box.setHeight(l);
+        box.moveCenter(p);
+        QBrush brush(pen.color());
+        painter.setBrush(brush);
+        painter.drawEllipse(box);
+
+        // Draw number in white in middle of circle
+        QPen whitePen("white");
+        painter.setPen(whitePen);
+        painter.drawText(bbox,Qt::AlignCenter,number);
+
+        painter.setFont(origFont);
+        painter.setBrush(origBrush);
     }
 
     painter.setPen(origPen);
