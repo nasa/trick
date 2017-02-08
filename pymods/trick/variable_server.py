@@ -1003,6 +1003,8 @@ def fromPID(pid, timeout=None):
     while True:
         if timeout is not None:
             timeout -= (time.time() - clock)
+            if timeout < 0:
+                raise socket.timeout
             clock = time.time()
             sock.settimeout(timeout)
 
