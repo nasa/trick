@@ -227,14 +227,6 @@ print MAKEFILE
 #
 ################################################################################
 
-include \${TRICK_HOME}/share/trick/makefiles/Makefile.common
-
-S_MAIN  = S_main_\${TRICK_HOST_CPU}.exe
-ifeq (\$(MAKECMDGOALS), test)
-    TRICK_HOST_CPU := \$(shell \$(TRICK_HOME)/bin/trick-gte TRICK_HOST_CPU)_test
-    S_MAIN  = T_main_\${TRICK_HOST_CPU}.exe
-endif
-
 ifndef TRICK_VERBOSE_BUILD
     PRINT_COMPILE    = \$(info \$(call COLOR,Compiling)  \$<)
     PRINT_EXE_LINK   = \$(info \$(call COLOR,Linking)    \$@)
@@ -335,12 +327,6 @@ foreach $k ( sort keys %files_by_dir ) {
         print MAKEFILE "$files_by_dir{$k}{overrides}\n" ;
     }
 }
-
-print MAKEFILE "
--include build/Makefile_io_src
-include build/Makefile_swig
--include S_overrides.mk" ;
-close MAKEFILE ;
 
 # write out all of files we processed as dependencies to Makefile_src
 open MAKEFILEDEPS, ">build/Makefile_src_deps" or die "Could not open build/Makefile_src_deps" ;

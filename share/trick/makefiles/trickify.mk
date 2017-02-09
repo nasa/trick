@@ -78,7 +78,7 @@ TRICK_HOME := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/../../..)
 
 ifneq ($(wildcard build),)
     OBJECTS := $(shell find build -name "*.i")
-    OBJECTS := $(join $(dir $(OBJECTS)),$(patsubst %.i,py_%.cpp,$(notdir $(OBJECTS))))
+    OBJECTS := $(join $(dir $(OBJECTS)),$(patsubst %.i,%.cpp,$(notdir $(OBJECTS))))
     OBJECTS += $(shell find build -name "*.cpp")
     OBJECTS := $(OBJECTS:.cpp=.o)
 endif
@@ -158,7 +158,7 @@ icg:
 $(dir $(TRICKIFY_LIB_NAME)) $(TRICKIFY_PYTHON_DIR):
 	@mkdir -p $@
 
-py_%.cpp: %.i | $(TRICKIFY_PYTHON_DIR)
+%.cpp: %.i | $(TRICKIFY_PYTHON_DIR)
 	$(info $(call COLOR,SWIGing)    $<)
 	@$(SWIG) $(TRICK_INCLUDE) $(TRICK_DEFINES) $(TRICK_VERSIONS) $(SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -outdir $(TRICKIFY_PYTHON_DIR) -o $@ $<
 

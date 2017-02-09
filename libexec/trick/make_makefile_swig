@@ -166,7 +166,7 @@ sub make_swig_makefile() {
     open MAKEFILE , ">build/Makefile_swig" or return ;
     open PY_LINK_LIST , ">build/py_link_list" or return ;
     print PY_LINK_LIST "build/init_swig_modules.o\n" ;
-    print PY_LINK_LIST "build/py_top.o\n" ;
+    print PY_LINK_LIST "build/top.o\n" ;
 
     print MAKEFILE "SWIG_CFLAGS := -I../include \${PYTHON_INCLUDES} -Wno-shadow -Wno-missing-field-initializers
 
@@ -179,17 +179,20 @@ ifndef TRICK_VERBOSE_BUILD
     PRINT_COMPILE_SWIG  = \$(info \$(call COLOR,Compiling)  \$<)
 endif
 
-SWIG_OBJECTS =" ;
+SWIG_I =" ;
 
     foreach my $f ( @files_to_process ) {
         my ($swig_dir, $swig_object_dir , $swig_module_dir , $swig_file_only) ;
         my ($swig_f) = $f ;
         $swig_object_dir = dirname($f) ;
         ($swig_file_only) = ($f =~ /([^\/]*)(?:\.h|\.H|\.hh|\.h\+\+|\.hxx|\.hpp)$/) ;
-        print MAKEFILE" \\\n    build$swig_object_dir/py_${swig_file_only}.o" ;
+        print MAKEFILE" \\\n    build$swig_object_dir/py_${swig_file_only}.i" ;
     }
+    print MAKEFILE "\\\n    $swig_src_dir/top.i\n" ;
+    print MAKEFILE "\nSWIG_SRC = \$(subst .i,.cpp,\$(SWIG_I))\n" ;
+    print MAKEFILE "\nSWIG_OBJECTS = \$(subst .cpp,.o,\$(SWIG_SRC))\n" ;
+    print MAKEFILE "OTHER_SWIG_OBJECTS =" ;
     print MAKEFILE "\\\n    $swig_src_dir/init_swig_modules.o" ;
-    print MAKEFILE "\\\n    $swig_src_dir/py_top.o\n" ;
 
     print MAKEFILE "
 TRICK_FIXED_PYTHON = \\
@@ -202,12 +205,11 @@ TRICK_FIXED_PYTHON = \\
     $swig_sim_dir/exception.py
 " ;
 
-    my %swig_dirs ;
     my %python_modules ;
     $ii = 0 ;
     foreach my $f ( @files_to_process ) {
 
-        my ($swig_dir, $swig_object_dir , $swig_module_dir , $swig_file_only) ;
+        my ($swig_module_dir , $swig_file_only) ;
         my ($swig_f) = $f ;
 
 # TODO: Add back python modules
@@ -224,7 +226,6 @@ TRICK_FIXED_PYTHON = \\
             push @{$python_modules{"root"}} , $f ;
 #        }
 
-        my $md5_sum = md5_hex($f) ;
         # check if .sm file was accidentally ##included instead of #included
         if ( rindex($swig_f,".sm") != -1 ) {
            #trick_print($$sim_ref{fh}, "\nError: $swig_f should be in a #include not a ##include  \n\n", "title_red", $$sim_ref{args}{v}) ;
@@ -233,11 +234,6 @@ TRICK_FIXED_PYTHON = \\
         $swig_f =~ s/([^\/]*)(?:\.h|\.H|\.hh|\.h\+\+|\.hxx|\.hpp)$/$1.i/ ;
         $swig_file_only = $1 ;
         my $link_py_obj = "build" . dirname($swig_f) . "/py_${swig_file_only}.o";
-        $swig_f = "build" . $swig_f ;
-        $swig_dir = dirname($swig_f) ;
-        $swig_object_dir = dirname($swig_f) ;
-        $swig_dirs{$swig_dir} = 1 ;
-
         print PY_LINK_LIST "$link_py_obj\n" ;
 
         $ii++ ;
@@ -256,7 +252,7 @@ TRICK_FIXED_PYTHON = \\
     print MAKEFILE "
 LINK_LISTS += \$(LD_FILELIST)build/py_link_list
 
-\$(S_MAIN): \$(SWIG_OBJECTS)
+\$(S_MAIN): \$(SWIG_OBJECTS) \$(OTHER_SWIG_OBJECTS)
 
 #\$(SWIG_OBJECTS): TRICK_SYSTEM_CXXFLAGS += -Wno-unused-parameter -Wno-redundant-decls
 
@@ -265,17 +261,17 @@ S_main: \$(TRICK_FIXED_PYTHON)
 \$(TRICK_FIXED_PYTHON): $swig_sim_dir/\% : \${TRICK_HOME}/share/trick/swig/\%
 \t\$(ECHO_CMD)/bin/cp -f \$< \$@
 
-py_%.cpp: %.i
+\$(SWIG_SRC) : %.cpp: %.i
 \t\$(PRINT_SWIG)
 \t\$(ECHO_CMD)\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -outdir trick -o \$@ \$<
 
-\$(SWIG_OBJECTS): %.o: %.cpp
+\$(SWIG_I) : build/convert_swig_last_run
+
+\$(SWIG_OBJECTS) \$(OTHER_SWIG_OBJECTS): %.o: %.cpp
 \t\$(PRINT_COMPILE_SWIG)
 \t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) \$(SWIG_CFLAGS) -c -o \$@ \$<
 
-# We don't really need to keep these, but make prints out a huge \"rm -f\" when it automatically
-# deletes intermediate files, and I don't know how to silence that.
-.PRECIOUS: py_%.cpp" ;
+" ;
 
     close MAKEFILE ;
     close PY_LINK_LIST ;
@@ -294,7 +290,7 @@ py_%.cpp: %.i
     print TOPFILE "\%{\n#include \"../S_source.hh\"\n\n" ;
     print TOPFILE @instances ;
     print TOPFILE "\n\%}\n\n" ;
-    print TOPFILE "\%import \"build$wd/S_source.i\"\n\n" ;
+    print TOPFILE "\%import \"build$wd/py_S_source.i\"\n\n" ;
     print TOPFILE @instances ;
     close TOPFILE ;
 

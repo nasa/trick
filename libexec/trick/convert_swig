@@ -146,7 +146,7 @@ if ( scalar @ARGV == 0 ) {
 
         $swig_dir = dirname($f) ;
         $swig_dir = "build/$swig_dir" ;
-        $swig_file = "$swig_dir/${base_file}.i" ;
+        $swig_file = "$swig_dir/py_${base_file}.i" ;
 
         #print "$swig_file\n" ;
         if ( -e $swig_file ) {
@@ -275,6 +275,7 @@ sub process_file() {
 
                         if ( $exclude == 0 ) {
                             $file_name =~ s/\.[^\.]+\"/\.i\"/ ;
+                            $file_name = dirname($file_name) . "/py_" . basename($file_name) ;
                         }
                         $contents .= "\%import $file_name\n" ;
                     } else {
@@ -301,7 +302,7 @@ sub process_file() {
         $out_file = basename($f) ;
         $out_file =~ s/\.h.*$/\.i/ ;
 
-        $out_file = "$out_dir/$out_file" ;
+        $out_file = "$out_dir/py_$out_file" ;
 
         if ( ! -e $out_dir ) {
             make_path($out_dir) ;

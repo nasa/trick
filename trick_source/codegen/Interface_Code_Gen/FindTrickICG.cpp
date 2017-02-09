@@ -54,8 +54,14 @@ void FindTrickICG::If(clang::SourceLocation Loc, clang::SourceRange ConditionRan
             if ( print_msgs ) {
                 print_header() ;
                 std::string loc_str = Loc.printToString(ci.getSourceManager()) ;
-                std::cout << color(WARNING,
-                 std::string("Warning: TRICK_ICG used in preprocessor conditional ") + loc_str) << std::endl ;
+                char * rpath = almostRealPath(loc_str.c_str()) ;
+                if ( rpath ) {
+                     std::cout << color(WARNING,
+                      std::string("Warning: TRICK_ICG used in preprocessor conditional ") + rpath) << std::endl ;
+                } else {
+                     std::cout << color(WARNING,
+                      std::string("Warning: TRICK_ICG used in preprocessor conditional ") + loc_str) << std::endl ;
+                }
             }
         }
     }
