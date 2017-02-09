@@ -329,8 +329,8 @@ void CurvesView::paintEvent(QPaintEvent *event)
         } else if ( plotPresentation == "error" ) {
             _paintErrorplot(painter,pen,rootIndex());
         } else if ( plotPresentation == "error+compare" ) {
-            _paintErrorplot(painter,pen,rootIndex());
             _paintCoplot(T,painter,pen);
+            _paintErrorplot(painter,pen,rootIndex()); // overlay error on coplot
         } else {
             qDebug() << "snap [bad scoobs]: paintEvent() : PlotPresentation="
                      << plotPresentation << "not recognized.";
