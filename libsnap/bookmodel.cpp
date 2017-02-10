@@ -654,6 +654,15 @@ QRectF PlotBookModel::calcCurvesBBox(const QModelIndex &curvesIdx) const
         qDebug() << "snap [bad scoobs]: PlotBookModel::calcCurvesBBox() ";
         exit(-1);
     }
+
+    // If bbox is flat (e.g. zero error plot) make box around flat curve
+    if ( bbox.height() == 0.0 ) {
+        double top = bbox.y()+1.0;
+        double bot = bbox.y()-1.0;
+        bbox.setY(top);
+        bbox.setBottom(bot);
+    }
+
     return bbox;
 }
 
