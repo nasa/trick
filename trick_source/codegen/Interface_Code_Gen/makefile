@@ -1,4 +1,4 @@
-
+TRICK_HOME := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))../../..)
 # The config_${HOST_TYPE}.mk file provides LLVM_HOME
 include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
