@@ -1268,11 +1268,11 @@ QModelIndex CurvesView::_chooseCurveNearMousePoint(const QPoint &pt)
         // is in small rectangle around mouse click
         bool isFound = false;
         for ( int x = pt.x()-s/2; x < pt.x()+s/2; ++x ) {
-            if ( x >= img.width() ) {
+            if ( x < 0 || x >= img.width() ) {
                 continue;
             }
             for ( int y = pt.y()-s/2; y < pt.y()+s/2; ++y ) {
-                if ( y >= img.height() ) {
+                if ( y < 0 || y >= img.height() ) {
                     continue;
                 }
                 QRgb pix = img.pixel(x,y);
