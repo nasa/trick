@@ -475,6 +475,14 @@ void CurvesView::_paintLiveCoordArrow(TrickCurveModel* curveModel,
                                       const QModelIndex& curveIdx,
                                       QPainter& painter)
 {
+    // Return and do not draw if Options->isShowLiveCoord is off
+    QModelIndex isShowIdx = _bookModel()->getDataIndex(QModelIndex(),
+                                                       "IsShowLiveCoord");
+    bool isShowLiveCoord = model()->data(isShowIdx).toBool();
+    if ( !isShowLiveCoord ) {
+        return;
+    }
+
     painter.save();
     curveModel->map();
 

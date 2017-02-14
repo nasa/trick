@@ -71,6 +71,7 @@ PlotMainWindow::PlotMainWindow(
         _bookModel->addChild(rootItem, "StartTime",startTime);
         _bookModel->addChild(rootItem, "StopTime",stopTime);
         _bookModel->addChild(rootItem, "Presentation",_presentation);
+        _bookModel->addChild(rootItem, "IsShowLiveCoord",true);
     }
 
 
@@ -176,11 +177,18 @@ void PlotMainWindow::createMenu()
 {
     _menuBar = new QMenuBar;
     _fileMenu = new QMenu(tr("&File"), this);
+    _optsMenu = new QMenu(tr("&Options"), this);
     _pdfAction = _fileMenu->addAction(tr("Save As P&DF"));
     _exitAction = _fileMenu->addAction(tr("E&xit"));
+    _showLiveCoordAction = _optsMenu->addAction(tr("ShowLiveCoord"));
+    _showLiveCoordAction->setCheckable(true);
+    _showLiveCoordAction->setChecked(true);
     _menuBar->addMenu(_fileMenu);
+    _menuBar->addMenu(_optsMenu);
     connect(_pdfAction, SIGNAL(triggered()),this, SLOT(_savePdf()));
     connect(_exitAction, SIGNAL(triggered()),this, SLOT(close()));
+    connect(_showLiveCoordAction, SIGNAL(triggered()),
+            this, SLOT(_toggleShowLiveCoord()));
     setMenuWidget(_menuBar);
 }
 
@@ -335,6 +343,20 @@ void PlotMainWindow::_savePdf()
             }
             */
         }
+    }
+}
+
+void PlotMainWindow::_toggleShowLiveCoord()
+{
+    QModelIndex isShowIdx = _bookModel->getDataIndex(QModelIndex(),
+                                                     "IsShowLiveCoord");
+    bool isShowLiveCoord = _bookModel->data(isShowIdx).toBool();
+    if ( isShowLiveCoord ) {
+        _bookModel->setData(isShowIdx,false);  // hide
+        _showLiveCoordAction->setChecked(false);
+    } else {
+        _bookModel->setData(isShowIdx,true);   // show
+        _showLiveCoordAction->setChecked(true);
     }
 }
 

@@ -68,8 +68,10 @@ private:
     void createMenu();
     QMenuBar* _menuBar;
     QMenu *_fileMenu;
+    QMenu *_optsMenu;
     QAction *_pdfAction;
     QAction *_exitAction;
+    QAction *_showLiveCoordAction;
 
     QTabWidget* _nbDPVars;
     VarsWidget* _varsWidget;
@@ -88,6 +90,7 @@ private slots:
      void _plotModelRowsAboutToBeRemoved(const QModelIndex& pidx,
                                          int start, int end);
      void _savePdf();
+     void _toggleShowLiveCoord();
 
      void _startTimeChanged(double startTime);
      void _stopTimeChanged(double stopTime);
