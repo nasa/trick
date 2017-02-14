@@ -55,6 +55,12 @@ endif
 ifneq ($(wildcard ${TRICK_HOME}/share/trick/makefiles/Makefile.common),)
 include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
+S_MAIN  = S_main_${TRICK_HOST_CPU}.exe
+ifeq ($(MAKECMDGOALS), test)
+    TRICK_HOST_CPU := $(shell $(TRICK_HOME)/bin/trick-gte TRICK_HOST_CPU)_test
+    S_MAIN  = T_main_${TRICK_HOST_CPU}.exe
+endif
+
 ifndef TRICK_VERBOSE_BUILD
     PRINT_CP            = $(info $(call COLOR,Running)    configuration_processor)
     PRINT_ICG           = $(info $(call COLOR,Running)    ICG)
@@ -82,7 +88,7 @@ $(TRICK_STATIC_LIB):
 	@exit -1
 
 # CP creates S_source.hh required for ICG and SWIG processing
-S_source.hh build/S_define.lib_deps: S_define | build
+S_source.hh: S_define | build
 	$(PRINT_CP)
 	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/configuration_processor $(TRICK_CPFLAGS)
 	$(PRINT_S_DEF_DEPS)
@@ -102,7 +108,7 @@ force_ICG:
 	$(ECHO_CMD)${TRICK_HOME}/bin/trick-ICG -f -m ${TRICK_ICGFLAGS} ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} S_source.hh
 
 # Create makefile for source code
-build/Makefile_src: | build/Makefile_io_src build/S_define.lib_deps
+build/Makefile_src: | build/Makefile_io_src S_source.hh
 	$(PRINT_MAKEFILE_SRC)
 	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/make_makefile_src $?
 
@@ -165,12 +171,12 @@ clean: tidy
 	-rm -f DP_Product/DP_rt_frame DP_Product/DP_rt_itimer
 	-rm -f DP_Product/DP_rt_jobs DP_Product/DP_rt_timeline DP_Product/DP_mem_stats
 	-rm -rf build trick
+	-rm -f makefile
 
 spotless: clean
 
 distclean: clean
-	-rm -f makefile
 
-apocalypse: distclean
+apocalypse: clean
 	@echo "[31mI love the smell of napalm in the morning[0m"
 

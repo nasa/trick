@@ -58,12 +58,6 @@ export TRICK_SYSTEM_SFLAGS
 export TRICK_SYSTEM_LDFLAGS
 export SWIG_FLAGS
 
-S_MAIN  = S_main_${TRICK_HOST_CPU}.exe
-ifeq ($(MAKECMDGOALS), test)
-    TRICK_HOST_CPU := $(shell $(TRICK_HOME)/bin/trick-gte TRICK_HOST_CPU)_test
-    S_MAIN  = T_main_${TRICK_HOST_CPU}.exe
-endif
-
 IO_SRC_DIR       := io_src/
 OBJ_DIR          := object_${TRICK_HOST_CPU}
 TRICK_STATIC_LIB := ${TRICK_LIB_DIR}/libtrick.a
