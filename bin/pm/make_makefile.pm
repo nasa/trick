@@ -664,14 +664,14 @@ tidy:
 \t-rm -rf lib_* object_* S_main* T_main* tags
 
 clean: tidy clean_obj clean_model_io_src clean_lex_yacc_src
+\t-rm -rf makefile
 
 real_clean: clean
 
 spotless: clean
 \t@ echo \"Removed all S_mains\"
 
-distclean: clean
-\t-rm -f makefile\n" ;
+distclean: clean\n" ;
 
     foreach $k ( sort keys %files_by_dir ) {
         if ($files_by_dir{$k}{"writable"}) {
