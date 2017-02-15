@@ -1,6 +1,6 @@
-# This file can be used to create a library containing the io_* and py_* code
-# that Trick would normally generate during the simulation build process. Sims
-# can then link against this library, reducing compilation time.
+# This file can be used to create an object file containing the io_* and py_*
+# code that Trick would normally generate during the simulation build process.
+# Sims can then link against this object file, reducing compilation time.
 #
 # To use it, create a directory that includes a file named S_source.hh that
 # includes all header files for which you want io_* and py_* code generated.
@@ -25,9 +25,9 @@
 # paths to the header files included by your S_source.hh. For instance:
 # -I$(HOME)/myproject/foo/include -I$(HOME)/myproject/bar/include
 #
-# TRICKIFY_LIB_NAME (optional)
-# The name of the generated library file. The default value is libtrickified.a.
-# You should choose something more meaningful, like libmyproject_trick.a.
+# TRICKIFY_OBJECT_NAME (optional)
+# The name of the generated object file. The default value is trickified.o.
+# You should choose something more meaningful, like trickified_myproject.o.
 #
 # TRICKIFY_PTYON_DIR (optional)
 # The directory into which generated Python modules are placed. The default
@@ -58,13 +58,13 @@
 # endif
 #
 # export TRICKIFY_CXX_FLAGS := -I$(HOME)/potato/include
-# export TRICKIFY_LIB_NAME  := libpotato_trick.a
+# export TRICKIFY_OBJECT_NAME := trickified_potato.o
 #
 # all:
 # 	$(MAKE) -f $(TRICKIFY)
 #
 # clean:
-# 	rm -rf $(TRICKIFY_LIB_NAME) build python
+# 	rm -rf $(TRICKIFY_OBJECT_NAME) build python
 #
 # -----------------------------------------------------------------------------
 #
@@ -75,7 +75,7 @@ ifndef TRICKIFY_CXX_FLAGS
     $(error TRICKIFY_CXX_FLAGS must be set)
 endif
 
-TRICKIFY_LIB_NAME ?= libtrickified.a
+TRICKIFY_OBJECT_NAME ?= trickified.o
 TRICKIFY_PYTHON_DIR ?= python
 TRICK_HOME := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/../../..)
 
@@ -93,19 +93,25 @@ TRICK_CXXFLAGS += $(TRICKIFY_CXX_FLAGS)
 # Ensure we can process all headers
 TRICK_EXT_LIB_DIRS :=
 
-# While it would be nice to invoke the implicit archiving rule via a target
-# like:
+# When given a library, the linker will only link in objects that are known to
+# be needed at link time. However, Trick uses dlsym to dynamically load the
+# objects we'll be creating here. It cannot be known which objects will be
+# needed at link time, so the sim has to link them all. In that case, we might
+# as well create an object (which will be fully linked in by the sim) instead
+# of a library (which would require the use of the -whole-archive option).
 #
-# $(TRICKIFY_LIB_NAME): $(TRICKIFY_LIB_NAME)($(OBJECTS))
-#
-# ar is not thread-safe, and, thus, we would have to disable parallelism via
-# .NOTPARALLEL (a file-wide flag), significantly slowing the build process.
-
-$(TRICKIFY_LIB_NAME): $(OBJECTS) | $(dir $(TRICKIFY_LIB_NAME))
+# One disadvantage of this approach is that we have to link all of the objects
+# in this rule no matter how many have changed, whereas ar would allow us to
+# replace only the changed objects. However, Trickified projects are
+# necessarily used as third-party libraries, and so would be expected to
+# change infrequently. Moreover, the methods for force-linking a library differ
+# between Linux and Mac, so obviating the need for it simplifies a Trickified
+# project's user-facing makefile.
+$(TRICKIFY_OBJECT_NAME): $(OBJECTS) | $(dir $(TRICKIFY_OBJECT_NAME))
 	$(info $(call COLOR,Linking)    $@)
-	@ar rsc $@ $?
+	ld -r -o $@ $^
 
-$(dir $(TRICKIFY_LIB_NAME)) $(TRICKIFY_PYTHON_DIR):
+$(dir $(TRICKIFY_OBJECT_NAME)) $(TRICKIFY_PYTHON_DIR):
 	@mkdir -p $@
 
 %.cpp: %.i | $(TRICKIFY_PYTHON_DIR)
@@ -119,11 +125,11 @@ $(dir $(TRICKIFY_LIB_NAME)) $(TRICKIFY_PYTHON_DIR):
 # $(OBJECTS) is meant to contain all of the py_* and io_* object file names. We
 # can't construct those until we run ICG and convert_swig. But we can't run the
 # rule for ICG and convert_swig before $(OBJECTS) is expanded because it is a
-# prerequiste of $(TRICKIFY_LIB_NAME), and prerequisites are always immediately
-# expanded. Therefore, when make processes this file (for the first time after
-# a clean), $(OBJECTS) is empty, because the find will be executed before ICG
-# and convert_swig have created any files. What we really want is to run ICG
-# and convert_swig before $(OBJECTS) is expanded.
+# prerequiste of $(TRICKIFY_OBJECT_NAME), and prerequisites are always
+# immediately expanded. Therefore, when make processes this file (for the first
+# time after a clean), $(OBJECTS) is empty, because the find will be executed
+# before ICG and convert_swig have created any files. What we really want is to
+# run ICG and convert_swig before $(OBJECTS) is expanded.
 #
 # We can do this by taking advantage of (abusing) make's behavior in the
 # presence of included files. When you include another file, make attempts to
