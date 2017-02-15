@@ -58,7 +58,7 @@ void Trick::MemoryManager::restore_stls_in_class( std::string name, char* addres
     }
 
     if (attr == NULL) {
-        std::cerr << "ERROR: Trick::MemoryManager::restore_stls called with attr = NULL." << std::endl;
+        std::cerr << "ERROR: Trick::MemoryManager::restore_stls called with name = " << name << " and attr = NULL." << std::endl;
         return;
     }
 
