@@ -109,7 +109,7 @@ TRICK_EXT_LIB_DIRS :=
 # project's user-facing makefile.
 $(TRICKIFY_OBJECT_NAME): $(OBJECTS) | $(dir $(TRICKIFY_OBJECT_NAME))
 	$(info $(call COLOR,Linking)    $@)
-	ld -r -o $@ $^
+	@ld -r -o $@ $^
 
 $(dir $(TRICKIFY_OBJECT_NAME)) $(TRICKIFY_PYTHON_DIR):
 	@mkdir -p $@
