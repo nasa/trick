@@ -6,6 +6,7 @@
 #include <QGridLayout>
 #include <QLabel>
 #include <QStandardItemModel>
+#include <QFontMetrics>
 #include <QDebug>
 
 #include "bookidxview.h"

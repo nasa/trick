@@ -193,6 +193,14 @@ QString PageTitleView::_elideRunsTitle(QString title)
         s += "...)";
     }
 
+    // Take out newline chars and see if title fits
+    QString fs = s.replace('\n',' ');
+    QFontMetrics fm = fontMetrics();
+    int fw = fm.width(fs);
+    if ( fw < width() ) {
+        s = fs;
+    }
+
     return s;
 }
 
