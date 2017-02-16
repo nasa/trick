@@ -125,7 +125,7 @@ $(dir $(TRICKIFY_OBJECT_NAME)) $(TRICKIFY_PYTHON_DIR):
 # $(OBJECTS) is meant to contain all of the py_* and io_* object file names. We
 # can't construct those until we run ICG and convert_swig. But we can't run the
 # rule for ICG and convert_swig before $(OBJECTS) is expanded because it is a
-# prerequiste of $(TRICKIFY_OBJECT_NAME), and prerequisites are always
+# prerequisite of $(TRICKIFY_OBJECT_NAME), and prerequisites are always
 # immediately expanded. Therefore, when make processes this file (for the first
 # time after a clean), $(OBJECTS) is empty, because the find will be executed
 # before ICG and convert_swig have created any files. What we really want is to
@@ -133,29 +133,36 @@ $(dir $(TRICKIFY_OBJECT_NAME)) $(TRICKIFY_PYTHON_DIR):
 #
 # We can do this by taking advantage of (abusing) make's behavior in the
 # presence of included files. When you include another file, make attempts to
-# update that file, and then reexecutes the original makefile with a clean
+# update that file, and then re-executes the original makefile with a clean
 # slate if any of the included files changed. So we need a rule that:
 #
 # 1. Executes only if S_source.hh or anything in its include tree changes.
 # 2. Runs ICG and convert_swig to generate py_* and io_* files.
 # 3. Updates its dependency file.
 #
-# We can then include the dependency file to trigger make to reexecute this
+# We can then include the dependency file to trigger make to re-execute this
 # main makefile if changes were detected, thus updating $(OBJECTS) to the
 # latest results of ICG and convert_swig.
 #
 # gcc's option to automatically generate dependency information is exactly
 # what we need. It will produce a file containing a make rule whose
-# dependencies are everyting in S_source.hh's include tree plus S_source.hh
+# dependencies are everything in S_source.hh's include tree plus S_source.hh
 # itself. By telling gcc to make the target of the rule the same target we use
 # to execute the gcc call, we end up with a target that maintains its own
 # dependency list. The method is laid out in more detail here:
 # http://make.mad-scientist.net/papers/advanced-auto-dependency-generation/
 
-build/S_source.d:
+# CURDIR is used to produce absolute paths in S_source.d, which allows it to be
+# included from external makefiles. It is specifically intended to be included
+# from a Trickified project's user-facing makefile. That is, the one the user
+# is intended to include in a sim's S_overrides.mk. This allows the project to
+# automatically build their Trickified object as part of a simulation build,
+# but only when necessary as specified by the dependencies.
+
+$(CURDIR)/build/S_source.d:
 	@$(TRICK_HOME)/bin/trick-ICG $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(TRICK_ICGFLAGS) S_source.hh
 	@$(TRICK_HOME)/libexec/trick/make_makefile_swig
 	@$(TRICK_HOME)/libexec/trick/convert_swig
-	@$(TRICK_CC) -MM -MP -MT $@ -MF $@ $(TRICKIFY_CXX_FLAGS) S_source.hh
+	@$(TRICK_CC) -MM -MP -MT $@ -MF $@ $(TRICKIFY_CXX_FLAGS) $(CURDIR)/S_source.hh
 
--include build/S_source.d
+-include $(CURDIR)/build/S_source.d
