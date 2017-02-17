@@ -143,9 +143,9 @@ Simulation make options:\n\
     make spotless                - Performs a clean\n\
     make apocalypse              - Performs a clean"
 
+-include S_overrides.mk
 CLEAN_TARGETS = tidy clean spotless distclean apocalypse
 ifeq ($(findstring ${MAKECMDGOALS},$(CLEAN_TARGETS)),)
--include S_overrides.mk
 -include build/S_define.deps
 -include build/Makefile_src
 -include build/Makefile_src_deps
