@@ -118,8 +118,9 @@ private:
 
     QRectF _curveBBox(const QModelIndex &curveIdx) const ;
 
-    void _paintCoplot(const QTransform& T,QPainter& painter,QPen& pen);
-    void _paintErrorplot(QPainter& painter, const QPen &pen,
+    void _paintCoplot(const QTransform& T, QPainter& painter,QPen& pen);
+    void _paintErrorplot(const QTransform& T,
+                         QPainter& painter, const QPen &pen,
                          const QModelIndex &plotIdx);
     void _paintCurve(const QModelIndex& curveIdx,
                      const QTransform &T, QPainter& painter);

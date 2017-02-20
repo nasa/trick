@@ -315,7 +315,6 @@ void CurvesView::paintEvent(QPaintEvent *event)
     painter.setPen(pen);
 
     // Draw curves
-    painter.setTransform(T);
     if ( nCurves == 2 ) {
         QString plotPresentation = _bookModel()->getDataString(rootIndex(),
                                                      "PlotPresentation","Plot");
@@ -327,10 +326,10 @@ void CurvesView::paintEvent(QPaintEvent *event)
         if ( plotPresentation == "compare" ) {
             _paintCoplot(T,painter,pen);
         } else if ( plotPresentation == "error" ) {
-            _paintErrorplot(painter,pen,rootIndex());
+            _paintErrorplot(T,painter,pen,rootIndex());
         } else if ( plotPresentation == "error+compare" ) {
             _paintCoplot(T,painter,pen);
-            _paintErrorplot(painter,pen,rootIndex()); // overlay error on coplot
+            _paintErrorplot(T,painter,pen,rootIndex()); // overlay err on coplot
         } else {
             qDebug() << "snap [bad scoobs]: paintEvent() : PlotPresentation="
                      << plotPresentation << "not recognized.";
@@ -427,6 +426,19 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
         QTransform Tscaled(T);
         Tscaled = Tscaled.scale(xs,ys);
         painter.setTransform(Tscaled);
+
+        // Draw "Flatline=#" label if curve is flat (constant)
+        QRectF cbox = path->boundingRect();
+        if ( cbox.height() == 0.0 ) {
+            QString yval;
+            double ys = _bookModel()->yScale(curveIdx);
+            yval = yval.sprintf("Flatline=%g",cbox.y()*ys);
+            QRectF tbox = Tscaled.mapRect(cbox);
+            QTransform I;
+            painter.setTransform(I);
+            painter.drawText(tbox.topLeft()-QPointF(0,5),yval);
+            painter.setTransform(Tscaled);
+        }
 
         // Draw curve!
         painter.drawPath(*path);
@@ -562,9 +574,12 @@ void CurvesView::_paintLiveCoordArrow(TrickCurveModel* curveModel,
     painter.restore();
 }
 
-void CurvesView::_paintErrorplot(QPainter &painter, const QPen &pen,
+void CurvesView::_paintErrorplot(const QTransform &T,
+                                 QPainter &painter, const QPen &pen,
                                  const QModelIndex& plotIdx)
 {
+    painter.save();
+
     QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
     int rc = model()->rowCount(curvesIdx);
     if ( rc != 2 ) {
@@ -599,13 +614,31 @@ void CurvesView::_paintErrorplot(QPainter &painter, const QPen &pen,
         // Normal case: x and y params/units match and x is time
         //
 
-        // Magenta for difference/error curve
-        QPen magentaPen(pen);
-        magentaPen.setColor(_bookModel()->createCurveColors(3).at(2));
-        painter.setPen(magentaPen);
-
         // Draw error curve!
         QPainterPath* errorPath = _bookModel()->getCurvesErrorPath(curvesIdx);
+        QRectF ebox = errorPath->boundingRect();
+        QPen ePen(pen);
+        if ( ebox.height() == 0.0 && ebox.y() == 0.0 ) {
+            // Color green if error plot is flatline zero
+            ePen.setColor(_bookModel()->createCurveColors(4).at(3)); // green
+        } else {
+            ePen.setColor(_bookModel()->createCurveColors(3).at(2)); // magenta
+        }
+        painter.setPen(ePen);
+        if ( ebox.height() == 0.0 ) {
+            // Flatline
+            QString yval;
+            if ( ebox.y() == 0.0 ) {
+                yval = yval.sprintf("Flatline=0.0");
+            } else {
+                yval = yval.sprintf("Flatline=%g",ebox.y());
+            }
+            QTransform I;
+            painter.setTransform(I);
+            QRectF tbox = T.mapRect(ebox);
+            painter.drawText(tbox.topLeft()-QPointF(0,5),yval);
+        }
+        painter.setTransform(T);
         painter.drawPath(*errorPath);
         delete errorPath;
 
@@ -615,6 +648,9 @@ void CurvesView::_paintErrorplot(QPainter &painter, const QPen &pen,
                     "or x is not time.";
         exit(-1);
     }
+
+    painter.setPen(pen);
+    painter.restore();
 }
 
 void CurvesView::_paintLegend(const QModelIndex &curvesIdx, QPainter &painter)

@@ -1354,7 +1354,6 @@ void BookView::_printCoplot(const QRect& R,
     QTransform T = _coordToDotTransform(R,plotIdx);
 
     QList<QPainterPath*> paths;
-    QRectF bbox;  // TODO: this has helped debugging but not needed
     QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
     int rc = model()->rowCount(curvesIdx);
     for ( int i = 0; i < rc; ++i ) {
@@ -1414,10 +1413,24 @@ void BookView::_printCoplot(const QRect& R,
                     path->lineTo(p);
                 }
             }
-            curveModel->unmap();
 
+            // If curve is flat (constant), label with "Flatline=#"
             QRectF curveBBox = path->boundingRect();
-            bbox = bbox.united(curveBBox);
+            if ( curveBBox.height() == 0.0 ) {
+                it = curveModel->begin();
+                double y = it.y()*ys;  // y is constant, so can use first point
+                QString yval;
+                yval = yval.sprintf("Flatline=%g",y);
+                int h = fontMetrics().height();
+                QColor color( _bookModel()->getDataString(curveIdx,
+                                                  "CurveColor","Curve"));
+                QPen pen = painter->pen();
+                pen.setColor(color);
+                painter->setPen(pen);
+                painter->drawText(curveBBox.topLeft()-QPointF(0,h+10),yval);
+            }
+
+            curveModel->unmap();
         }
     }
 
@@ -1477,7 +1490,6 @@ void BookView::_printCoplot(const QRect& R,
         delete path;
         ++i;
     }
-    //painter->drawPath(*path2);
     painter->restore();
 }
 
@@ -1552,13 +1564,37 @@ void BookView::_printErrorplot(const QRect& R,
         }
     }
 
-    // Print!
     painter->save();
     painter->setRenderHint(QPainter::Antialiasing);
-    QPen magentaPen(_bookModel()->createCurveColors(3).at(2));
-    magentaPen.setWidthF(16.0);
-    painter->setPen(magentaPen);
-    painter->drawPath(path);
+
+    // Set pen color
+    QPen origPen = painter->pen();
+    QPen ePen(painter->pen());
+    ePen.setWidthF(16.0);
+    QRectF curveBBox = path.boundingRect();
+    if (curveBBox.height() == 0.0 && !pts.isEmpty() && pts.first().y() == 0.0) {
+        // Color green if error plot is flatline zero
+        ePen.setColor(_bookModel()->createCurveColors(4).at(3)); // green
+    } else {
+        ePen.setColor(_bookModel()->createCurveColors(3).at(2)); // magenta
+    }
+    painter->setPen(ePen);
+
+    if ( curveBBox.height() == 0.0 && !pts.isEmpty() ) {
+        // If curve is flat (constant), label with "Flatline=#"
+        QString yval;
+        if ( pts.at(0).y() == 0.0 ) {
+            yval = yval.sprintf("Flatline=0.0");
+        } else {
+            yval = yval.sprintf("Flatline=%g",pts.at(0).y());
+        }
+        int h = fontMetrics().height();
+        painter->drawText(curveBBox.topLeft()-QPointF(0,h+10),yval);
+    }
+
+    painter->drawPath(path);  // print!
+
+    painter->setPen(origPen);
     painter->restore();
 }
 
