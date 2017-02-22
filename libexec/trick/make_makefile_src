@@ -14,6 +14,23 @@ my %processed_files ;
 my %non_lib_processed_files ;
 my $any_deps_changed = 0 ;
 
+sub exist_lib_deps(@) {
+    my (@files_to_process) = @_ ;
+    foreach my $l ( @files_to_process ) {
+        next if ( $l eq "" ) ;
+        next if ( $l =~ /^-|\.a$/ ) ;
+        next if ( ! -e $l ) ;
+        my ( $file, $dir, $suffix) = fileparse($l, qr/\.[^.]*/) ;
+        my ($lib_dep_file_name) = "build$dir${file}${suffix}.lib_deps" ;
+        if ( ! -e $lib_dep_file_name ) {
+            $any_deps_changed =1 ;
+            print "[34mNewDep[0m     $l\n" ;
+            return 1 ;
+        }
+    }
+    return 0 ;
+}
+
 sub read_lib_deps($@) {
     my ($indent , @files_to_process) = @_ ;
     foreach my $l ( @files_to_process ) {
@@ -51,6 +68,9 @@ if ( scalar @ARGV ) {
     # Arguments are all files (headers and source) that are newer than the makefile.
     # Keep track if any dependencies changed
     for my $f ( @ARGV ) {
+        # filter out Makefie_io_src and S_source.hh from the argument list, these are dependencies in the makefile
+        # S_source.hh will be passed in as a full path again if the file has changed.
+        next if ( $f eq "build/Makefile_io_src" or $f eq "S_source.hh") ;
         my $deps_changed ;
         my @resolved_files ;
         print "[34mDepTracing[0m " , "$f\n" ;
@@ -62,13 +82,6 @@ if ( scalar @ARGV ) {
     $any_deps_changed = 1 ;
 }
 
-# if no dependencies have changed, "touch" Makefile_src and exit
-if ( $any_deps_changed == 0 ) {
-    utime(undef, undef, "build/Makefile_src") ;
-    exit ;
-}
-
-# If we are here dependencies have changed, or we're running for the first time.
 # Read in dependency tree starting at the roots.  The dependency tree starts with all of the
 # header files ICG processed and the lib deps listed in the S_define file.
 open FILE, "build/ICG_processed" or die 'cannot open build/ICG_processed' ;
@@ -84,6 +97,16 @@ close FILE ;
 push @top_file_names , @s_define_lib_deps ;
 chomp @top_file_names ;
 
+# See if any depenendices lack a .lib_deps file.  If it does we need to continue
+$any_deps_changed |= exist_lib_deps(@top_file_names) ;
+
+# if no dependencies have changed, "touch" Makefile_src and exit
+if ( $any_deps_changed == 0 ) {
+    utime(undef, undef, "build/Makefile_src") ;
+    exit ;
+}
+
+# We are here if dependencies have changed or we're running for the first time.
 # Read in all of the lib_dep files.
 # read_lib_deps wil create lib_dep files that don't exist and read them in too.
 read_lib_deps(0, @top_file_names) ;
@@ -231,7 +254,7 @@ ifndef TRICK_VERBOSE_BUILD
     PRINT_COMPILE    = \$(info \$(call COLOR,Compiling)  \$<)
     PRINT_EXE_LINK   = \$(info \$(call COLOR,Linking)    \$@)
     PRINT_SIE        = \$(info \$(call COLOR,Writing)    \$@)
-    ifeq (\$(MAKECMDGOALS), all)
+    ifeq (\$(MAKECMDGOALS),)
         \$(info \$(call COLOR,Building with the following compilation flags:))
         \$(info TRICK_CFLAGS   = [36m\$(TRICK_CFLAGS)[0m)
         \$(info TRICK_CXXFLAGS = [36m\$(TRICK_CXXFLAGS)[0m)
@@ -332,7 +355,8 @@ foreach $k ( sort keys %files_by_dir ) {
 open MAKEFILEDEPS, ">build/Makefile_src_deps" or die "Could not open build/Makefile_src_deps" ;
 print MAKEFILEDEPS "build/Makefile_src:" ;
 print MAKEFILEDEPS map {"\\\n $_"} (sort keys %non_lib_processed_files) ;
-print MAKEFILEDEPS "\n" ;
+print MAKEFILEDEPS "\n\n" ;
+print MAKEFILEDEPS map {"$_:\n"} (sort keys %non_lib_processed_files) ;
 close MAKEFILEDEPS ;
 
 # write out all of the files we used to S_library_list

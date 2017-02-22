@@ -95,7 +95,7 @@ S_source.hh: S_define | build
 	$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_SFLAGS) $(TRICK_SYSTEM_SFLAGS) -M -MT S_source.hh -MF build/S_define.deps -x c++ S_define
 
 # Automatic and manual ICG rules
-build/Makefile_io_src: | S_source.hh build
+build/Makefile_io_src: S_source.hh | build
 	$(PRINT_ICG)
 	$(ECHO_CMD)${TRICK_HOME}/bin/trick-ICG -m ${TRICK_ICGFLAGS} ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} S_source.hh
 
@@ -108,12 +108,12 @@ force_ICG:
 	$(ECHO_CMD)${TRICK_HOME}/bin/trick-ICG -f -m ${TRICK_ICGFLAGS} ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} S_source.hh
 
 # Create makefile for source code
-build/Makefile_src: | build/Makefile_io_src S_source.hh
+build/Makefile_src: build/Makefile_io_src S_source.hh
 	$(PRINT_MAKEFILE_SRC)
 	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/make_makefile_src $?
 
 # Create makefile for SWIG code
-build/Makefile_swig: | build/Makefile_io_src
+build/Makefile_swig: build/Makefile_io_src
 	$(PRINT_MAKEFILE_SWIG)
 	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/make_makefile_swig $?
 
