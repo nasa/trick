@@ -1366,6 +1366,7 @@ void BookView::_printCoplot(const QRect& R,
 
         if ( curveModel ) {
 
+            double xs = _bookModel()->xScale(curveIdx);
             double ys = _bookModel()->yScale(curveIdx);
 
             QPainterPath* path = new QPainterPath;
@@ -1379,7 +1380,7 @@ void BookView::_printCoplot(const QRect& R,
 
             while (it != e) {
 
-                QPointF p(it.x(),it.y()*ys);
+                QPointF p(it.x()*xs,it.y()*ys);
                 p = T.map(p);
 
                 if ( pts.size() == 0 ) {
