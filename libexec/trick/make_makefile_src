@@ -68,9 +68,10 @@ if ( scalar @ARGV ) {
     # Arguments are all files (headers and source) that are newer than the makefile.
     # Keep track if any dependencies changed
     for my $f ( @ARGV ) {
-        # filter out Makefie_io_src and S_source.hh from the argument list, these are dependencies in the makefile
+        # Filter out Makefile_io_src_deps, Makefie_io_src, and S_source.hh from the argument list.
+        # These are dependencies in the makefile.
         # S_source.hh will be passed in as a full path again if the file has changed.
-        next if ( $f eq "build/Makefile_io_src" or $f eq "S_source.hh") ;
+        next if ( $f eq "build/Makefile_src_deps" or $f eq "build/Makefile_io_src" or $f eq "S_source.hh") ;
         my $deps_changed ;
         my @resolved_files ;
         print "[34mDepTracing[0m " , "$f\n" ;

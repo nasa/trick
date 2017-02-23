@@ -64,7 +64,6 @@ endif
 ifndef TRICK_VERBOSE_BUILD
     PRINT_CP            = $(info $(call COLOR,Running)    configuration_processor)
     PRINT_ICG           = $(info $(call COLOR,Running)    ICG)
-    PRINT_S_DEF_DEPS    = $(info $(call COLOR,Tracing)    S_define)
     PRINT_CONVERT_SWIG  = $(info $(call COLOR,Running)    convert_swig)
     PRINT_MAKEFILE_SRC  = $(info $(call COLOR,Writing)    Makefile_src)
     PRINT_MAKEFILE_SWIG = $(info $(call COLOR,Writing)    Makefile_swig)
@@ -87,11 +86,12 @@ $(TRICK_STATIC_LIB):
 	@exit -1
 
 # CP creates S_source.hh required for ICG and SWIG processing
-S_source.hh: S_define | build
+S%source.hh S%source.cpp: S_define build/S_define.d | build
+	$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_SFLAGS) $(TRICK_SYSTEM_SFLAGS) -M -MT S_source.hh -MF build/S_define.d -x c++ S_define
 	$(PRINT_CP)
 	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/configuration_processor $(TRICK_CPFLAGS)
-	$(PRINT_S_DEF_DEPS)
-	$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_SFLAGS) $(TRICK_SYSTEM_SFLAGS) -M -MT S_source.hh -MF build/S_define.deps -x c++ S_define
+
+build/S_define.d: ;
 
 # Automatic and manual ICG rules
 ICG:
@@ -109,9 +109,11 @@ build/Makefile_io_src: S_source.hh | build
 
 # Create makefile for source code
 #build/Makefile_src: build/ICG_processed build/ICG_no_found build/S_define.lib_deps
-build/Makefile_src: build/Makefile_io_src S_source.hh
+build/Makefile_src: build/Makefile_src_deps build/Makefile_io_src S_source.hh
 	$(PRINT_MAKEFILE_SRC)
 	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/make_makefile_src $?
+
+build/Makefile_src_deps: ;
 
 # Create makefile for SWIG code
 #build/Makefile_swig: build/ICG_processed
@@ -142,14 +144,13 @@ Simulation make options:\n\
 -include S_overrides.mk
 CLEAN_TARGETS = tidy clean spotless distclean apocalypse
 ifeq ($(findstring ${MAKECMDGOALS},$(CLEAN_TARGETS)),)
--include build/S_define.deps
+-include build/S_define.d
 -include build/Makefile_src
 -include build/Makefile_src_deps
 -include build/Makefile_io_src
 -include build/Makefile_swig
 -include build/Makefile_ICG
 -include build/Makefile_convert_swig
--include build/Makefile_src_deps
 endif
 
 else
