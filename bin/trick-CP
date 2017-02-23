@@ -70,8 +70,7 @@ ifndef TRICK_VERBOSE_BUILD
     PRINT_MAKEFILE_SWIG = $(info $(call COLOR,Writing)    Makefile_swig)
 endif
 
-all: $(S_MAIN) S_sie.resource
-	$(info [32mTrick Build Process Complete[00m)
+all:
 
 test: TRICK_SYSTEM_CFLAGS += -DTRICK_UNIT_TEST
 test: TRICK_SYSTEM_CXXFLAGS += -DTRICK_UNIT_TEST

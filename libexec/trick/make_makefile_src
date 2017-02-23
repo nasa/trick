@@ -82,6 +82,10 @@ if ( scalar @ARGV ) {
     $any_deps_changed = 1 ;
 }
 
+if ( ! -e "build/Makefile_src") {
+    $any_deps_changed = 1 ;
+}
+
 # Read in dependency tree starting at the roots.  The dependency tree starts with all of the
 # header files ICG processed and the lib deps listed in the S_define file.
 open FILE, "build/ICG_processed" or die 'cannot open build/ICG_processed' ;
@@ -280,12 +284,20 @@ $num_inc_objs = 0 ;
 # List out all of the object files and put the list in a file that we can pass to the linker.
 # Passing all of them directly to the linker in the command line can exceed the line limit.
 open MODEL_LINK_LIST, ">build/model_link_list" or die "Could not open build/model_link_list" ;
-print MAKEFILE "
-# MODEL_OBJECTS ================================================================
-
-MODEL_OBJECTS =" ;
-foreach $k ( sort keys %files_by_dir ) {
-    foreach my $ext ( qw{ c C cc cxx cpp c++ } ) {
+#foreach $k ( sort keys %files_by_dir ) {
+#    foreach my $ext ( qw{ c C cc cxx cpp c++ } ) {
+#        if ( scalar @{$files_by_dir{$k}{$ext}} ne 0 ) {
+#            foreach $f ( @{$files_by_dir{$k}{$ext}} ) {
+#                print MAKEFILE " \\\n    build$k/$files_by_dir{$k}{src_dir}$f" . "o" ;
+#                print MODEL_LINK_LIST "build$k/$files_by_dir{$k}{src_dir}$f" . "o\n" ;
+#            }
+#            $num_inc_objs++ ;
+#        }
+#    }
+#}
+foreach my $ext ( qw{ c C cc cxx cpp c++ } ) {
+    print MAKEFILE "\n\nMODEL_${ext}_OBJECTS =" ;
+    foreach $k ( sort keys %files_by_dir ) {
         if ( scalar @{$files_by_dir{$k}{$ext}} ne 0 ) {
             foreach $f ( @{$files_by_dir{$k}{$ext}} ) {
                 print MAKEFILE " \\\n    build$k/$files_by_dir{$k}{src_dir}$f" . "o" ;
@@ -297,6 +309,13 @@ foreach $k ( sort keys %files_by_dir ) {
 }
 close MODEL_LINK_LIST ;
 
+print MAKEFILE "\n\nMODEL_OBJECTS =" ;
+foreach my $ext ( qw{ c C cc cxx cpp c++ } ) {
+    print MAKEFILE " \${MODEL_${ext}_OBJECTS}" ;
+}
+print MAKEFILE "\n" ;
+
+
 # Write out the compile rules for each type of file.
 print MAKEFILE "
 
@@ -305,18 +324,38 @@ print MAKEFILE "
 # directories appear to be created as part of the read_lib_deps function, so I'm leaving it out
 # for now.
 
-build/%.o : /%.c build/%.d
+\${MODEL_c_OBJECTS} : build/%.o : /%.c build/%.d
 \t\$(PRINT_COMPILE)
 \t\$(ECHO_CMD)\$(TRICK_CC) \$(TRICK_CFLAGS) \$(TRICK_SYSTEM_CFLAGS) -I\$(<D) -I\$(<D)/../include -MMD -MP -c -o \$\@ \$<
 
-define create_compile_rule
-build/%.o: /%.\$1 build/%.d
-\t\$\$(PRINT_COMPILE)
-\t\$\$(ECHO_CMD)\$\$(TRICK_CPPC) \$\$(TRICK_CXXFLAGS) \$\$(TRICK_SYSTEM_CXXFLAGS) -I\$\$(<D) -I\$\$(<D)/../include -MMD -MP -c -o \$\$@ \$\$<
-endef
+\${MODEL_cc_OBJECTS} : build/%.o : /%.cc build/%.d
+\t\$(PRINT_COMPILE)
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@
 
-EXTENSIONS := C cc cpp cxx c++
-\$(foreach EXTENSION,\$(EXTENSIONS),\$(eval \$(call create_compile_rule,\$(EXTENSION))))
+\${MODEL_cpp_OBJECTS} : build/%.o : /%.cpp build/%.d
+\t\$(PRINT_COMPILE)
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@
+
+\${MODEL_C_OBJECTS} : build/%.o : /%.C build/%.d
+\t\$(PRINT_COMPILE)
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@
+
+\${MODEL_cxx_OBJECTS} : build/%.o : /%.cxx build/%.d
+\t\$(PRINT_COMPILE)
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@
+
+\${MODEL_c++_OBJECTS} : build/%.o : /%.c++ build/%.d
+\t\$(PRINT_COMPILE)
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@
+
+#define compile_rule
+#build/%.o: /%.\$1
+#\t\$\$(PRINT_COMPILE)
+#\t\$\$(ECHO_CMD)\$\$(TRICK_CPPC) \$\$(TRICK_CXXFLAGS) \$\$(TRICK_SYSTEM_CXXFLAGS) -I\$\$(<D) -I\$\$(<D)/../include -MMD -MP -c \$\$< -o \$\$@
+#endef
+#
+#EXTENSIONS := C cc cpp cxx c++
+#\$(foreach EXTENSION,\$(EXTENSIONS),\$(eval \$(call compile_rule,\$(EXTENSION))))
 
 \$(MODEL_OBJECTS:.o=.d): ;
 
@@ -335,6 +374,9 @@ foreach ( @all_read_only_libs ) {
 }
 
 print MAKEFILE "
+
+all: \$(S_MAIN) S_sie.resource
+\t\$(info [32mTrick Build Process Complete[00m)
 
 \$(S_MAIN): \$(TRICK_STATIC_LIB) \$(S_OBJECTS) \$(MODEL_OBJECTS)
 \t\$(PRINT_EXE_LINK)
