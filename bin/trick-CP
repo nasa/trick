@@ -70,18 +70,18 @@ ifndef TRICK_VERBOSE_BUILD
     PRINT_MAKEFILE_SWIG = $(info $(call COLOR,Writing)    Makefile_swig)
 endif
 
-all test: $(TRICK_STATIC_LIB) S_source.hh \
-    build/Makefile_io_src \
-    build/Makefile_src \
-    build/Makefile_swig \
-    build/convert_swig_last_run \
-    S_main
+all: $(S_MAIN) S_sie.resource
+	$(info [32mTrick Build Process Complete[00m)
+
+test: TRICK_SYSTEM_CFLAGS += -DTRICK_UNIT_TEST
+test: TRICK_SYSTEM_CXXFLAGS += -DTRICK_UNIT_TEST
+test: all
+
+debug: TRICK_CPFLAGS += --debug
+debug: all
 
 build:
-	@mkdir $@
-
-debug: all
-debug: TRICK_CPFLAGS += --debug
+	@mkdir -p $@
 
 $(TRICK_STATIC_LIB):
 	$(info Cannot find $@. Please build Trick for this platform.)
@@ -95,10 +95,6 @@ S_source.hh: S_define | build
 	$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_SFLAGS) $(TRICK_SYSTEM_SFLAGS) -M -MT S_source.hh -MF build/S_define.deps -x c++ S_define
 
 # Automatic and manual ICG rules
-build/Makefile_io_src: S_source.hh | build
-	$(PRINT_ICG)
-	$(ECHO_CMD)${TRICK_HOME}/bin/trick-ICG -m ${TRICK_ICGFLAGS} ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} S_source.hh
-
 ICG:
 	$(PRINT_ICG)
 	$(ECHO_CMD)${TRICK_HOME}/bin/trick-ICG -m ${TRICK_ICGFLAGS} ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} S_source.hh
@@ -107,30 +103,31 @@ force_ICG:
 	$(PRINT_ICG)
 	$(ECHO_CMD)${TRICK_HOME}/bin/trick-ICG -f -m ${TRICK_ICGFLAGS} ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} S_source.hh
 
+# Create makefile for IO code
+build/Makefile_io_src: S_source.hh | build
+	$(PRINT_ICG)
+	$(ECHO_CMD)${TRICK_HOME}/bin/trick-ICG -m ${TRICK_ICGFLAGS} ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} $<
+
 # Create makefile for source code
+#build/Makefile_src: build/ICG_processed build/ICG_no_found build/S_define.lib_deps
 build/Makefile_src: build/Makefile_io_src S_source.hh
 	$(PRINT_MAKEFILE_SRC)
 	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/make_makefile_src $?
 
 # Create makefile for SWIG code
+#build/Makefile_swig: build/ICG_processed
 build/Makefile_swig: build/Makefile_io_src
 	$(PRINT_MAKEFILE_SWIG)
-	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/make_makefile_swig $?
+	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/make_makefile_swig
 
-# Automatic and manual convert_swig rules
-build/convert_swig_last_run: | build/Makefile_swig
-	$(PRINT_CONVERT_SWIG)
+# Forcibly (re)create all SWIG input (.i) files. This rule is never run by the normal
+# build process.
+.PHONY: convert_swig
+convert_swig: build/S_library_swig
 	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/convert_swig ${TRICK_CONVERT_SWIG_FLAGS}
-	@touch $@
-
-convert_swig:
-	$(PRINT_CONVERT_SWIG)
-	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/convert_swig ${TRICK_CONVERT_SWIG_FLAGS}
-	@touch build/convert_swig_last_run
 
 # Force S_define_exp to be remade each time this rule runs
 .PHONY: S_define_exp
-
 S_define_exp:
 	$(TRICK_CC) -E -C -xc++ ${TRICK_SFLAGS} $(TRICK_SYSTEM_SFLAGS) S_define > $@
 

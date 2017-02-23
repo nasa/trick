@@ -454,16 +454,17 @@ void PrintAttributes::printIOMakefile() {
 
     makefile_io_src << " \\\n    build/class_map.o" << std::endl
         << std::endl
-        << "LINK_LISTS += $(LD_FILELIST)build/io_link_list" << std::endl
+        << "$(IO_OBJECTS): \%.o : \%.cpp \%.d" << std::endl
+        << "\t$(PRINT_COMPILE)" << std::endl
+        << "\t$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c -o $@ $<" << std::endl
+        << std::endl
+        << "$(IO_OBJECTS:.o=.d): \%.d: ;" << std::endl
+        << std::endl
+        << "-include $(IO_OBJECTS:.o=.d)" << std::endl
         << std::endl
         << "$(S_MAIN): $(IO_OBJECTS)" << std::endl
         << std::endl
-        << "$(IO_OBJECTS): \%.o : \%.cpp" << std::endl
-        << "\t$(PRINT_COMPILE)" << std::endl
-        << "\t$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c $< -o $@" << std::endl
-        << std::endl
-        << "-include $(IO_OBJECTS:.o=.d)" << std::endl
-        << std::endl ;
+        << "LINK_LISTS += $(LD_FILELIST)build/io_link_list" << std::endl;
 
     makefile_io_src.close() ;
 

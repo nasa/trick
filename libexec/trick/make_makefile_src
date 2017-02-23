@@ -261,8 +261,17 @@ ifndef TRICK_VERBOSE_BUILD
     endif
 endif
 
+# S_OBJECTS ====================================================================
+
 S_OBJECTS = build/S_source.o
 
+build/S_source.o: build/S_source.cpp build/S_source.d
+\t\$(PRINT_COMPILE)
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c -o \$\@ \$\<
+
+build/S_source.d: ;
+
+-include build/S_source.d
 " ;
 
 my %object_files_by_type ;
@@ -271,7 +280,10 @@ $num_inc_objs = 0 ;
 # List out all of the object files and put the list in a file that we can pass to the linker.
 # Passing all of them directly to the linker in the command line can exceed the line limit.
 open MODEL_LINK_LIST, ">build/model_link_list" or die "Could not open build/model_link_list" ;
-print MAKEFILE "MODEL_OBJECTS =" ;
+print MAKEFILE "
+# MODEL_OBJECTS ================================================================
+
+MODEL_OBJECTS =" ;
 foreach $k ( sort keys %files_by_dir ) {
     foreach my $ext ( qw{ c C cc cxx cpp c++ } ) {
         if ( scalar @{$files_by_dir{$k}{$ext}} ne 0 ) {
@@ -288,54 +300,47 @@ close MODEL_LINK_LIST ;
 # Write out the compile rules for each type of file.
 print MAKEFILE "
 
-LINK_LISTS += \$(LD_FILELIST)build/model_link_list
-
 # These targets should have an order-only dependency on their directories, which would require
 # moving them to a .SECONDEXPANSION section and would complicate the rules. However, these
 # directories appear to be created as part of the read_lib_deps function, so I'm leaving it out
 # for now.
 
-build/%.o : /%.c
+build/%.o : /%.c build/%.d
 \t\$(PRINT_COMPILE)
-\t\$(ECHO_CMD)\$(TRICK_CC) \$(TRICK_CFLAGS) \$(TRICK_SYSTEM_CFLAGS) -I\$(<D) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@
+\t\$(ECHO_CMD)\$(TRICK_CC) \$(TRICK_CFLAGS) \$(TRICK_SYSTEM_CFLAGS) -I\$(<D) -I\$(<D)/../include -MMD -MP -c -o \$\@ \$<
 
-define compile_rule
-build/%.o: /%.\$1
+define create_compile_rule
+build/%.o: /%.\$1 build/%.d
 \t\$\$(PRINT_COMPILE)
-\t\$\$(ECHO_CMD)\$\$(TRICK_CPPC) \$\$(TRICK_CXXFLAGS) \$\$(TRICK_SYSTEM_CXXFLAGS) -I\$\$(<D) -I\$\$(<D)/../include -MMD -MP -c \$\$< -o \$\$@
+\t\$\$(ECHO_CMD)\$\$(TRICK_CPPC) \$\$(TRICK_CXXFLAGS) \$\$(TRICK_SYSTEM_CXXFLAGS) -I\$\$(<D) -I\$\$(<D)/../include -MMD -MP -c -o \$\$@ \$\$<
 endef
 
 EXTENSIONS := C cc cpp cxx c++
-\$(foreach EXTENSION,\$(EXTENSIONS),\$(eval \$(call compile_rule,\$(EXTENSION))))
+\$(foreach EXTENSION,\$(EXTENSIONS),\$(eval \$(call create_compile_rule,\$(EXTENSION))))
 
--include \$(MODEL_OBJECTS:.o=.d)" ;
+\$(MODEL_OBJECTS:.o=.d): ;
+
+-include \$(MODEL_OBJECTS:.o=.d)
+
+LINK_LISTS += \$(LD_FILELIST)build/model_link_list
+" ;
 
 # print out the libraries we link
-print MAKEFILE "\n\nREAD_ONLY_LIBS =";
+print MAKEFILE "
+# S_MAIN =======================================================================
+
+READ_ONLY_LIBS =";
 foreach ( @all_read_only_libs ) {
     print MAKEFILE " \\\n    $_" ;
 }
 
 print MAKEFILE "
 
-all: S_main
-
-test: TRICK_SYSTEM_CXXFLAGS += -DTRICK_UNIT_TEST
-test: TRICK_SYSTEM_CFLAGS += -DTRICK_UNIT_TEST
-test: all
-
-S_main: \$(S_MAIN) S_sie.resource
-\t\$(info [32mTrick Build Process Complete[00m)
-
 \$(S_MAIN): \$(TRICK_STATIC_LIB) \$(S_OBJECTS) \$(MODEL_OBJECTS)
 \t\$(PRINT_EXE_LINK)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_SYSTEM_LDFLAGS) -o \$@ \$(S_OBJECTS) \$(LINK_LISTS) \$(TRICK_LDFLAGS) \$(TRICK_USER_LINK_LIBS) \$(READ_ONLY_LIBS) \$(LD_WHOLE_ARCHIVE) \$(TRICK_LIBS) \$(LD_NO_WHOLE_ARCHIVE) \$(TRICK_EXEC_LINK_LIBS)
+\t\$(ECHO_CMD)\$(TRICK_CPPC) -o \$@ \$(TRICK_SYSTEM_LDFLAGS) \$(S_OBJECTS) \$(LINK_LISTS) \$(TRICK_LDFLAGS) \$(TRICK_USER_LINK_LIBS) \$(READ_ONLY_LIBS) \$(LD_WHOLE_ARCHIVE) \$(TRICK_LIBS) \$(LD_NO_WHOLE_ARCHIVE) \$(TRICK_EXEC_LINK_LIBS)
 
-build/S_source.o: build/S_source.cpp
-\t\$(PRINT_COMPILE)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c \$\< -o \$\@
-
--include build/S_source.d
+# SIE ==========================================================================
 
 sie: S_sie.resource
 

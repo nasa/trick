@@ -146,21 +146,10 @@ if ( scalar @ARGV == 0 ) {
 
         $swig_dir = dirname($f) ;
         $swig_dir = "build/$swig_dir" ;
-        $swig_file = "$swig_dir/py_${base_file}.i" ;
+        $swig_file = "$swig_dir/${base_file}_py.i" ;
 
         #print "$swig_file\n" ;
-        if ( -e $swig_file ) {
-            if ( !exists $sim{mod_date}{$f} ) {
-                $sim{mod_date}{$f} = (stat $f)[9] ;
-            }
-            $sim{swig_mod_date}{$f} = (stat $swig_file)[9] ;
-            if ( $sim{mod_date}{$f} > $sim{swig_mod_date}{$f} ) {
-                $out_of_date{$f} = 1 ;
-            }
-        } else {
-            $out_of_date{$f} = 1 ;
-            $sim{swig_mod_date}{$f} = 0 ;
-        }
+        $out_of_date{$f} = 1 ;
     }
 } else {
     #print "HERE I AM @ARGV\n" ;
@@ -274,8 +263,7 @@ sub process_file() {
                         $file_name = "\"build" . $file_name . "\"" ;
 
                         if ( $exclude == 0 ) {
-                            $file_name =~ s/\.[^\.]+\"/\.i\"/ ;
-                            $file_name = dirname($file_name) . "/py_" . basename($file_name) ;
+                            $file_name =~ s/\.[^\.]+\"/\_py.i\"/ ;
                         }
                         $contents .= "\%import $file_name\n" ;
                     } else {
@@ -300,9 +288,9 @@ sub process_file() {
 
         my $out_file ;
         $out_file = basename($f) ;
-        $out_file =~ s/\.h.*$/\.i/ ;
+        $out_file =~ s/\.h.*$/_py\.i/ ;
 
-        $out_file = "$out_dir/py_$out_file" ;
+        $out_file = "$out_dir/${out_file}" ;
 
         if ( ! -e $out_dir ) {
             make_path($out_dir) ;

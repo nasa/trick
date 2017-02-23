@@ -179,22 +179,8 @@ ifndef TRICK_VERBOSE_BUILD
     PRINT_COMPILE_SWIG  = \$(info \$(call COLOR,Compiling)  \$<)
 endif
 
-SWIG_I =" ;
+# TRICK_FIXED_PYTHON ===========================================================
 
-    foreach my $f ( @files_to_process ) {
-        my ($swig_dir, $swig_object_dir , $swig_module_dir , $swig_file_only) ;
-        my ($swig_f) = $f ;
-        $swig_object_dir = dirname($f) ;
-        ($swig_file_only) = ($f =~ /([^\/]*)(?:\.h|\.H|\.hh|\.h\+\+|\.hxx|\.hpp)$/) ;
-        print MAKEFILE" \\\n    build$swig_object_dir/py_${swig_file_only}.i" ;
-    }
-    print MAKEFILE "\\\n    $swig_src_dir/top.i\n" ;
-    print MAKEFILE "\nSWIG_SRC = \$(subst .i,.cpp,\$(SWIG_I))\n" ;
-    print MAKEFILE "\nSWIG_OBJECTS = \$(subst .cpp,.o,\$(SWIG_SRC))\n" ;
-    print MAKEFILE "OTHER_SWIG_OBJECTS =" ;
-    print MAKEFILE "\\\n    $swig_src_dir/init_swig_modules.o" ;
-
-    print MAKEFILE "
 TRICK_FIXED_PYTHON = \\
     $swig_sim_dir/swig_double.py \\
     $swig_sim_dir/swig_int.py \\
@@ -203,7 +189,48 @@ TRICK_FIXED_PYTHON = \\
     $swig_sim_dir/unit_test.py \\
     $swig_sim_dir/sim_services.py \\
     $swig_sim_dir/exception.py
-" ;
+
+\$(TRICK_FIXED_PYTHON): $swig_sim_dir/\% : \${TRICK_HOME}/share/trick/swig/\%
+\t\$(ECHO_CMD)/bin/cp -f \$< \$@
+
+all: \$(TRICK_FIXED_PYTHON)
+
+# SWIG_I =======================================================================
+
+SWIG_I =" ;
+
+    foreach my $f ( @files_to_process ) {
+        my ($swig_dir, $swig_object_dir , $swig_module_dir , $swig_file_only) ;
+        my ($swig_f) = $f ;
+        $swig_object_dir = dirname($f) ;
+        ($swig_file_only) = ($f =~ /([^\/]*)(?:\.h|\.H|\.hh|\.h\+\+|\.hxx|\.hpp)$/) ;
+        print MAKEFILE" \\\n    build$swig_object_dir/${swig_file_only}_py.i" ;
+    }
+
+    print MAKEFILE "
+
+define create_convert_swig_rule
+build/%_py.i: /%.\$1
+\t\$(ECHO_CMD)\${TRICK_HOME}/\$(LIBEXEC)/trick/convert_swig \${TRICK_CONVERT_SWIG_FLAGS} \$\$<
+endef
+
+EXTENSIONS := H h hh hxx h++ hpp
+\$(foreach EXTENSION,\$(EXTENSIONS),\$(eval \$(call create_convert_swig_rule,\$(EXTENSION))))
+
+build/top.i: build/CP_instances
+\t\${ECHO_CMD}\${TRICK_HOME}/\${LIBEXEC}/trick/create_top_dot_i
+
+# SWIG_SRC =====================================================================
+
+SWIG_SRC = \$(subst .i,.cpp,\$(SWIG_I)) $swig_src_dir/top.cpp
+
+\$(SWIG_SRC) : %.cpp: %.i
+\t\$(PRINT_SWIG)
+\t\$(ECHO_CMD)\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -outdir trick -o \$@ \$<
+
+# SWIG_OBJECTS =================================================================
+
+SWIG_OBJECTS = \$(subst .cpp,.o,\$(SWIG_SRC)) $swig_src_dir/init_swig_modules.o\n" ;
 
     my %python_modules ;
     $ii = 0 ;
@@ -233,7 +260,7 @@ TRICK_FIXED_PYTHON = \\
         }
         $swig_f =~ s/([^\/]*)(?:\.h|\.H|\.hh|\.h\+\+|\.hxx|\.hpp)$/$1.i/ ;
         $swig_file_only = $1 ;
-        my $link_py_obj = "build" . dirname($swig_f) . "/py_${swig_file_only}.o";
+        my $link_py_obj = "build" . dirname($swig_f) . "/${swig_file_only}_py.o";
         print PY_LINK_LIST "$link_py_obj\n" ;
 
         $ii++ ;
@@ -250,27 +277,13 @@ TRICK_FIXED_PYTHON = \\
     my $wd = abs_path(cwd()) ;
 
     print MAKEFILE "
-LINK_LISTS += \$(LD_FILELIST)build/py_link_list
-
-\$(S_MAIN): \$(SWIG_OBJECTS) \$(OTHER_SWIG_OBJECTS)
-
-#\$(SWIG_OBJECTS): TRICK_SYSTEM_CXXFLAGS += -Wno-unused-parameter -Wno-redundant-decls
-
-S_main: \$(TRICK_FIXED_PYTHON)
-
-\$(TRICK_FIXED_PYTHON): $swig_sim_dir/\% : \${TRICK_HOME}/share/trick/swig/\%
-\t\$(ECHO_CMD)/bin/cp -f \$< \$@
-
-\$(SWIG_SRC) : %.cpp: %.i
-\t\$(PRINT_SWIG)
-\t\$(ECHO_CMD)\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -outdir trick -o \$@ \$<
-
-\$(SWIG_I) : build/convert_swig_last_run
-
-\$(SWIG_OBJECTS) \$(OTHER_SWIG_OBJECTS): %.o: %.cpp
+\$(SWIG_OBJECTS): %.o: %.cpp
 \t\$(PRINT_COMPILE_SWIG)
 \t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) \$(SWIG_CFLAGS) -c -o \$@ \$<
 
+\$(S_MAIN): \$(SWIG_OBJECTS)
+
+LINK_LISTS += \$(LD_FILELIST)build/py_link_list
 " ;
 
     close MAKEFILE ;
@@ -281,18 +294,6 @@ S_main: \$(TRICK_FIXED_PYTHON)
         print SWIGLIB "$f\n" ;
     }
     close SWIGLIB ;
-
-    open S_INSTANCE , "build/CP_instances" or return ;
-    my @instances = <S_INSTANCE> ;
-    close S_INSTANCE ;
-    open TOPFILE , ">build/top.i" or return ;
-    print TOPFILE "\%module top\n\n" ;
-    print TOPFILE "\%{\n#include \"../S_source.hh\"\n\n" ;
-    print TOPFILE @instances ;
-    print TOPFILE "\n\%}\n\n" ;
-    print TOPFILE "\%import \"build$wd/py_S_source.i\"\n\n" ;
-    print TOPFILE @instances ;
-    close TOPFILE ;
 
     open INITSWIGFILE , ">build/init_swig_modules.cpp" or return ;
     print INITSWIGFILE "#include <Python.h>\n" ;
