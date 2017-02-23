@@ -622,6 +622,52 @@ double PlotBookModel::yScale(const QModelIndex& curveIdx) const
     return ys;
 }
 
+double PlotBookModel::xBias(const QModelIndex &curveIdx) const
+{
+    double xb = 0.0;
+
+    QString tag = data(curveIdx).toString();
+
+    if ( tag != "Curve" ) {
+        qDebug() << "snap [bad scoobs]: PlotBookModel::xBias() : "
+                    "expected tag \"Curve\", instead tag=" << tag ;
+        exit(-1);
+    }
+
+    TrickCurveModel* curveModel = getTrickCurveModel(curveIdx);
+    if ( !curveModel ) {
+        xb = 0.0;
+        return xb;
+    }
+
+    xb = getDataDouble(curveIdx,"CurveXBias","Curve");
+
+    return xb;
+}
+
+double PlotBookModel::yBias(const QModelIndex &curveIdx) const
+{
+    double yb = 0.0;
+
+    QString tag = data(curveIdx).toString();
+
+    if ( tag != "Curve" ) {
+        qDebug() << "snap [bad scoobs]: PlotBookModel::yBias() : "
+                    "expected tag \"Curve\", instead tag=" << tag ;
+        exit(-1);
+    }
+
+    TrickCurveModel* curveModel = getTrickCurveModel(curveIdx);
+    if ( !curveModel ) {
+        yb = 0.0;
+        return yb;
+    }
+
+    yb = getDataDouble(curveIdx,"CurveYBias","Curve");
+
+    return yb;
+}
+
 QRectF PlotBookModel::calcCurvesBBox(const QModelIndex &curvesIdx) const
 {
     QRectF bbox;
@@ -635,11 +681,13 @@ QRectF PlotBookModel::calcCurvesBBox(const QModelIndex &curvesIdx) const
             QPainterPath* path = getCurvePainterPath(curveIdx);
             double xs = xScale(curveIdx);
             double ys = yScale(curveIdx);
+            double xb = xBias(curveIdx);
+            double yb = yBias(curveIdx);
             QRectF pathBox = path->boundingRect();
             double w = pathBox.width();
             double h = pathBox.height();
-            QPointF topLeft(xs*pathBox.topLeft().x(),
-                            (ys*pathBox.topLeft().y()));
+            QPointF topLeft(xs*pathBox.topLeft().x()+xb,
+                           (ys*pathBox.topLeft().y()+yb));
             QRectF scaledPathBox(topLeft,QSizeF(xs*w,ys*h));
             bbox = bbox.united(scaledPathBox);
         }

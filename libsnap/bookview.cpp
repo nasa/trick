@@ -1368,6 +1368,8 @@ void BookView::_printCoplot(const QRect& R,
 
             double xs = _bookModel()->xScale(curveIdx);
             double ys = _bookModel()->yScale(curveIdx);
+            double xb = _bookModel()->xBias(curveIdx);
+            double yb = _bookModel()->yBias(curveIdx);
 
             QPainterPath* path = new QPainterPath;
             paths << path;
@@ -1380,7 +1382,7 @@ void BookView::_printCoplot(const QRect& R,
 
             while (it != e) {
 
-                QPointF p(it.x()*xs,it.y()*ys);
+                QPointF p(it.x()*xs+xb,it.y()*ys+yb);
                 p = T.map(p);
 
                 if ( pts.size() == 0 ) {
@@ -1419,7 +1421,7 @@ void BookView::_printCoplot(const QRect& R,
             QRectF curveBBox = path->boundingRect();
             if ( curveBBox.height() == 0.0 ) {
                 it = curveModel->begin();
-                double y = it.y()*ys;  // y is constant, so can use first point
+                double y = it.y()*ys+yb;  // y is constant, so use first point
                 QString yval;
                 yval = yval.sprintf("Flatline=%g",y);
                 int h = fontMetrics().height();

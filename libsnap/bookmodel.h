@@ -29,6 +29,8 @@ public:
 public:
     double xScale(const QModelIndex& curveIdx) const;
     double yScale(const QModelIndex& curveIdx) const;
+    double xBias(const QModelIndex& curveIdx) const;
+    double yBias(const QModelIndex& curveIdx) const;
     QRectF calcCurvesBBox(const QModelIndex& curvesIdx) const;
 
     QStandardItem* addChild(QStandardItem* parentItem,

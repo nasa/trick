@@ -423,8 +423,11 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
         // Scale transform (e.g. for unit axis scaling)
         double xs = _bookModel()->xScale(curveIdx);
         double ys = _bookModel()->yScale(curveIdx);
+        double xb = _bookModel()->xBias(curveIdx);
+        double yb = _bookModel()->yBias(curveIdx);
         QTransform Tscaled(T);
         Tscaled = Tscaled.scale(xs,ys);
+        Tscaled = Tscaled.translate(xb/xs,yb/ys);
         painter.setTransform(Tscaled);
 
         // Draw "Flatline=#" label if curve is flat (constant)
@@ -432,7 +435,8 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
         if ( cbox.height() == 0.0 ) {
             QString yval;
             double ys = _bookModel()->yScale(curveIdx);
-            yval = yval.sprintf("Flatline=%g",cbox.y()*ys);
+            double yb = _bookModel()->yBias(curveIdx);
+            yval = yval.sprintf("Flatline=%g",cbox.y()*ys+yb);
             QRectF tbox = Tscaled.mapRect(cbox);
             QTransform I;
             painter.setTransform(I);
@@ -515,7 +519,9 @@ void CurvesView::_paintLiveCoordArrow(TrickCurveModel* curveModel,
     TrickModelIterator it = curveModel->begin();
     double xs = _bookModel()->xScale(curveIdx);
     double ys = _bookModel()->yScale(curveIdx);
-    QPointF coord(it[i].x()*xs, it[i].y()*ys);
+    double xb = _bookModel()->xBias(curveIdx);
+    double yb = _bookModel()->yBias(curveIdx);
+    QPointF coord(it[i].x()*xs+xb, it[i].y()*ys+yb);
 
     // Init arrow struct
     CoordArrow arrow;
@@ -528,10 +534,10 @@ void CurvesView::_paintLiveCoordArrow(TrickCurveModel* curveModel,
     QString s;
     if ( i > 0 && i < rc-1) {
         // First and last point not considered
-        double ya = it[i-1].y()*ys;
-        double y  = it[i].y()*ys;
-        double yb = it[i+1].y()*ys;
-        if ( (y>ya && y>yb) || (y<ya && y<yb) ) {
+        double y1 = it[i-1].y()*ys+yb;
+        double y  = it[i].y()*ys+yb;
+        double y2 = it[i+1].y()*ys+yb;
+        if ( (y>y1 && y>y2) || (y<y1 && y<y2) ) {
             arrow.txt = s.sprintf("<%g, %g>", coord.x(),coord.y());
         } else {
             arrow.txt = s.sprintf("(%g, %g)", coord.x(),coord.y());
@@ -1291,14 +1297,17 @@ QModelIndex CurvesView::_chooseCurveNearMousePoint(const QPoint &pt)
         // Curve can be scaled by unit or scale factor
         double xs = _bookModel()->xScale(curveIdx);
         double ys = _bookModel()->yScale(curveIdx);
+        double xb = _bookModel()->xBias(curveIdx);
+        double yb = _bookModel()->yBias(curveIdx);
         QTransform Tscaled(T);
         Tscaled = Tscaled.scale(xs,ys);
+        Tscaled = Tscaled.translate(xb/xs,yb/ys);
         painter.setTransform(Tscaled);
 
         // Ignore paths whose bounding box does not intersect
         // math click rect. This speeds up a special case of
         // selecting a spike which falls outside most other curves
-        if ( xs == 1.0 && ys == 1.0 ) {
+        if ( xs == 1.0 && ys == 1.0 && xb == 0 && yb == 0 ) {
             // TODO: Lazily checking for xs==ys==1.0 because of scaling issues
             if ( !path->intersects(M) ) {
                 continue;
@@ -1385,6 +1394,8 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                 TrickModelIterator it = curveModel->begin();
                 double xs = _bookModel()->xScale(currentIndex());
                 double ys = _bookModel()->yScale(currentIndex());
+                double xb = _bookModel()->xBias(currentIndex());
+                double yb = _bookModel()->yBias(currentIndex());
                 int rc = curveModel->rowCount() ;
                 QModelIndex liveTimeIdx = _bookModel()->getDataIndex(
                             QModelIndex(),
@@ -1402,12 +1413,12 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
 
                     } else if ( rc == 1 ) {
 
-                        liveCoord = QPointF(it.x()*xs,it.y()*ys);
+                        liveCoord = QPointF(it.x()*xs+xb,it.y()*ys+yb);
 
                     } else if ( rc == 2 ) {
                         // TODO: Test curve with 2 points
-                        QPointF p0(it[0].x()*xs,it[0].y()*ys);
-                        QPointF p1(it[1].x()*xs,it[1].y()*ys);
+                        QPointF p0(it[0].x()*xs+xb,it[0].y()*ys+yb);
+                        QPointF p1(it[1].x()*xs+xb,it[1].y()*ys+yb);
                         QLineF l0(p0,mPt);
                         QLineF l1(p1,mPt);
                         if ( l0.length() < l1.length() ) {
@@ -1668,21 +1679,6 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
     } else {
         mouseMove->ignore();
     }
-}
-
-QRectF CurvesView::_curveBBox(const QModelIndex& curveIdx) const
-{
-    QPainterPath* path = _bookModel()->getCurvePainterPath(curveIdx);
-    double xScale = _bookModel()->xScale(curveIdx);
-    double yScale = _bookModel()->yScale(curveIdx);
-    QRectF pathBox = path->boundingRect();
-    double w = pathBox.width();
-    double h = pathBox.height();
-    QPointF topLeft(xScale*pathBox.topLeft().x(),
-                    (yScale*pathBox.topLeft().y()));
-    QRectF scaledPathBox(topLeft,QSizeF(xScale*w,yScale*h));
-
-    return scaledPathBox;
 }
 
 void CurvesView::keyPressEvent(QKeyEvent *event)
