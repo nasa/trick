@@ -252,6 +252,9 @@ build/S_source.o: build/S_source.cpp build/S_source.d
 build/S_source.d: ;
 
 -include build/S_source.d
+
+# MODEL_OBJECTS ================================================================
+
 " ;
 
 my %object_files_by_type ;
@@ -261,7 +264,7 @@ $num_inc_objs = 0 ;
 # Passing all of them directly to the linker in the command line can exceed the line limit.
 open MODEL_LINK_LIST, ">build/model_link_list" or die "Could not open build/model_link_list" ;
 foreach my $ext ( qw{ c C cc cxx cpp c++ } ) {
-    print MAKEFILE "\n\nMODEL_${ext}_OBJECTS :=" ;
+    print MAKEFILE "MODEL_${ext}_OBJECTS :=" ;
     foreach $k ( sort keys %files_by_dir ) {
         if ( scalar @{$files_by_dir{$k}{$ext}} ne 0 ) {
             foreach $f ( @{$files_by_dir{$k}{$ext}} ) {
@@ -271,15 +274,14 @@ foreach my $ext ( qw{ c C cc cxx cpp c++ } ) {
             $num_inc_objs++ ;
         }
     }
+    print MAKEFILE "\n\n"
 }
 close MODEL_LINK_LIST ;
 
-print MAKEFILE "\n\nMODEL_OBJECTS :=" ;
+print MAKEFILE "MODEL_OBJECTS :=" ;
 foreach my $ext ( qw{ c C cc cxx cpp c++ } ) {
     print MAKEFILE " \${MODEL_${ext}_OBJECTS}" ;
 }
-print MAKEFILE "\n" ;
-
 
 # Write out the compile rules for each type of file.
 print MAKEFILE "
