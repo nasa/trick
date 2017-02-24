@@ -184,15 +184,15 @@ p_i = m_{i,j} \cdot S: i\in 0..2
 \f]
 */
 #define MxSCALAR( prod , mat , scalar ) { \
-   prod[0][0]=mat[0][0] * scalar ; \
-   prod[0][1]=mat[0][1] * scalar ; \
-   prod[0][2]=mat[0][2] * scalar ; \
-   prod[1][0]=mat[1][0] * scalar ; \
-   prod[1][1]=mat[1][1] * scalar ; \
-   prod[1][2]=mat[1][2] * scalar ; \
-   prod[2][0]=mat[2][0] * scalar ; \
-   prod[2][1]=mat[2][1] * scalar ; \
-   prod[2][2]=mat[2][2] * scalar ; \
+   prod[0][0]=mat[0][0] * (scalar); \
+   prod[0][1]=mat[0][1] * (scalar); \
+   prod[0][2]=mat[0][2] * (scalar); \
+   prod[1][0]=mat[1][0] * (scalar); \
+   prod[1][1]=mat[1][1] * (scalar); \
+   prod[1][2]=mat[1][2] * (scalar); \
+   prod[2][0]=mat[2][0] * (scalar); \
+   prod[2][1]=mat[2][1] * (scalar); \
+   prod[2][2]=mat[2][2] * (scalar); \
 }
 
 /**
