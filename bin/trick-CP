@@ -55,12 +55,6 @@ endif
 ifneq ($(wildcard ${TRICK_HOME}/share/trick/makefiles/Makefile.common),)
 include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
-S_MAIN  = S_main_${TRICK_HOST_CPU}.exe
-ifeq ($(MAKECMDGOALS), test)
-    TRICK_HOST_CPU := $(shell $(TRICK_HOME)/bin/trick-gte TRICK_HOST_CPU)_test
-    S_MAIN  = T_main_${TRICK_HOST_CPU}.exe
-endif
-
 ifndef TRICK_VERBOSE_BUILD
     PRINT_CP            = $(info $(call COLOR,Running)    configuration_processor)
     PRINT_ICG           = $(info $(call COLOR,Running)    ICG)
@@ -70,6 +64,8 @@ ifndef TRICK_VERBOSE_BUILD
 endif
 
 all:
+	$(info [32mTrick Build Process Complete[00m)
+
 
 test: TRICK_SYSTEM_CFLAGS += -DTRICK_UNIT_TEST
 test: TRICK_SYSTEM_CXXFLAGS += -DTRICK_UNIT_TEST
@@ -86,12 +82,13 @@ $(TRICK_STATIC_LIB):
 	@exit -1
 
 # CP creates S_source.hh required for ICG and SWIG processing
-S%source.hh S%source.cpp: S_define build/S_define.d | build
-	$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_SFLAGS) $(TRICK_SYSTEM_SFLAGS) -M -MT S_source.hh -MF build/S_define.d -x c++ S_define
+S_source.hh: S_define | build
 	$(PRINT_CP)
 	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/configuration_processor $(TRICK_CPFLAGS)
 
-build/S_define.d: ;
+build/Makefile_S_define: S_source.hh
+	$(PRINT_S_DEF_DEPS)
+	$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_SFLAGS) $(TRICK_SYSTEM_SFLAGS) -MM -MT S_source.hh -MF build/Makefile_S_define -x c++ S_define
 
 # Automatic and manual ICG rules
 ICG:
@@ -141,16 +138,22 @@ Simulation make options:\n\
     make spotless                - Performs a clean\n\
     make apocalypse              - Performs a clean"
 
--include S_overrides.mk
 CLEAN_TARGETS = tidy clean spotless distclean apocalypse
 ifeq ($(findstring ${MAKECMDGOALS},$(CLEAN_TARGETS)),)
--include build/S_define.d
+-include build/Makefile_S_define
 -include build/Makefile_src
 -include build/Makefile_src_deps
 -include build/Makefile_io_src
 -include build/Makefile_swig
 -include build/Makefile_ICG
--include build/Makefile_convert_swig
+endif
+-include S_overrides.mk
+-include build/Makefile_overrides
+
+ifeq ($(MAKECMDGOALS),)
+    $(info $(call COLOR,Building with the following compilation flags:))
+    $(info TRICK_CFLAGS   = [36m$(TRICK_CFLAGS)[0m)
+    $(info TRICK_CXXFLAGS = [36m$(TRICK_CXXFLAGS)[0m)
 endif
 
 else

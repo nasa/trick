@@ -461,13 +461,6 @@ LINK_LISTS += \$(LD_FILELIST)build/py_link_list
         }
     }
 
-    open MAKEFILECONV , ">build/Makefile_convert_swig" or return ;
-    print MAKEFILECONV "build/convert_swig_last_run:" ;
-    foreach $f ( @files_to_process ) {
-        print MAKEFILECONV " \\\n    $f" ;
-    }
-    close MAKEFILECONV ;
-
     return ;
 }
 

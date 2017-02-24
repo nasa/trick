@@ -206,32 +206,6 @@ foreach $k ( sort keys %files_by_dir ) {
     $_ = $k ;
     ($files_by_dir{$k}{dir_num} = $_) =~ s#^/## ;
     $files_by_dir{$k}{dir_num} =~ s/[\/.]/_/g ;
-    # if a particular directory had an override file, save that into memory
-    if (open OV_FILE, "$k/makefile_overrides") {
-        while ( <OV_FILE> ) {
-            s/(#.*)// ;
-            my ($comment) = $1 ;
-            s/\$[{(]CURDIR[})]\/(\S+)/$k\/$1/g ;
-            s/(?:\$[{(]CURDIR[})]\/)?(\S*)\$[{(]OBJ_DIR[})]/$k\/$1object_\${TRICK_HOST_CPU}/g ;
-            s/\$[{(]CURDIR[})]/$k/g ;
-            while ( s,/[^/]+/\.\.,, ) {}
-            s//$comment/ ;
-            if ( s/^objects\s*:\s*// ) {
-                foreach my $ext ( qw{c C cc cxx cpp CPLUSPLUS l y} ) {
-                    $files_by_dir{$k}{overrides} .= "\$(MODEL_${ext}_OBJ_$files_by_dir{$k}{dir_num}): $_" ;
-                }
-            }
-            elsif ( s/^depend\s*:\s*// ) {
-                $files_by_dir{$k}{overrides} .= "depend_$files_by_dir{$k}{dir_num}: $_" ;
-            }
-            elsif ( s/([cfhy]|C|cc|cxx|cpp|CPLUSPLUS)_objects\s*:\s*// ) {
-                $files_by_dir{$k}{overrides} .= "\$(MODEL_$1_OBJ_$files_by_dir{$k}{dir_num}): $_" ;
-            }
-            else {
-                $files_by_dir{$k}{overrides} .= $_ ;
-            }
-        }
-    }
 }
 
 my $wd = abs_path(cwd()) ;
@@ -259,11 +233,12 @@ ifndef TRICK_VERBOSE_BUILD
     PRINT_COMPILE    = \$(info \$(call COLOR,Compiling)  \$<)
     PRINT_EXE_LINK   = \$(info \$(call COLOR,Linking)    \$@)
     PRINT_SIE        = \$(info \$(call COLOR,Writing)    \$@)
-    ifeq (\$(MAKECMDGOALS),)
-        \$(info \$(call COLOR,Building with the following compilation flags:))
-        \$(info TRICK_CFLAGS   = [36m\$(TRICK_CFLAGS)[0m)
-        \$(info TRICK_CXXFLAGS = [36m\$(TRICK_CXXFLAGS)[0m)
-    endif
+endif
+
+S_MAIN  = S_main_\${TRICK_HOST_CPU}.exe
+ifeq (\$(MAKECMDGOALS), test)
+    TRICK_HOST_CPU := \$(shell \$(TRICK_HOME)/bin/trick-gte TRICK_HOST_CPU)_test
+    S_MAIN  = T_main_\${TRICK_HOST_CPU}.exe
 endif
 
 # S_OBJECTS ====================================================================
@@ -285,19 +260,8 @@ $num_inc_objs = 0 ;
 # List out all of the object files and put the list in a file that we can pass to the linker.
 # Passing all of them directly to the linker in the command line can exceed the line limit.
 open MODEL_LINK_LIST, ">build/model_link_list" or die "Could not open build/model_link_list" ;
-#foreach $k ( sort keys %files_by_dir ) {
-#    foreach my $ext ( qw{ c C cc cxx cpp c++ } ) {
-#        if ( scalar @{$files_by_dir{$k}{$ext}} ne 0 ) {
-#            foreach $f ( @{$files_by_dir{$k}{$ext}} ) {
-#                print MAKEFILE " \\\n    build$k/$files_by_dir{$k}{src_dir}$f" . "o" ;
-#                print MODEL_LINK_LIST "build$k/$files_by_dir{$k}{src_dir}$f" . "o\n" ;
-#            }
-#            $num_inc_objs++ ;
-#        }
-#    }
-#}
 foreach my $ext ( qw{ c C cc cxx cpp c++ } ) {
-    print MAKEFILE "\n\nMODEL_${ext}_OBJECTS =" ;
+    print MAKEFILE "\n\nMODEL_${ext}_OBJECTS :=" ;
     foreach $k ( sort keys %files_by_dir ) {
         if ( scalar @{$files_by_dir{$k}{$ext}} ne 0 ) {
             foreach $f ( @{$files_by_dir{$k}{$ext}} ) {
@@ -310,7 +274,7 @@ foreach my $ext ( qw{ c C cc cxx cpp c++ } ) {
 }
 close MODEL_LINK_LIST ;
 
-print MAKEFILE "\n\nMODEL_OBJECTS =" ;
+print MAKEFILE "\n\nMODEL_OBJECTS :=" ;
 foreach my $ext ( qw{ c C cc cxx cpp c++ } ) {
     print MAKEFILE " \${MODEL_${ext}_OBJECTS}" ;
 }
@@ -377,7 +341,6 @@ foreach ( @all_read_only_libs ) {
 print MAKEFILE "
 
 all: \$(S_MAIN) S_sie.resource
-\t\$(info [32mTrick Build Process Complete[00m)
 
 \$(S_MAIN): \$(TRICK_STATIC_LIB) \$(S_OBJECTS) \$(MODEL_OBJECTS)
 \t\$(PRINT_EXE_LINK)
@@ -392,12 +355,39 @@ S_sie.resource: \$(S_MAIN)
 \t\$(ECHO_CMD)./\$(S_MAIN) sie\n" ;
 
 # write out the override files we have read in
+open MAKEFILEOVER, ">build/Makefile_overrides" or die "Could not open build/Makefile_overrides" ;
 foreach $k ( sort keys %files_by_dir ) {
-    if ( exists $files_by_dir{$k}{overrides} ) {
-        print MAKEFILE "\n# Overrides from $k\n\n" ;
-        print MAKEFILE "$files_by_dir{$k}{overrides}\n" ;
+    # if a particular directory had an override file, save that into memory
+    if (open OV_FILE, "$k/makefile_overrides") {
+        while ( <OV_FILE> ) {
+            s/(#.*)// ;
+            my ($comment) = $1 ;
+            s/\$[{(]CURDIR[})]\/(\S+)/$k\/$1/g ;
+            s/(?:\$[{(]CURDIR[})]\/)?(\S*)\$[{(]OBJ_DIR[})]/$k\/$1object_\${TRICK_HOST_CPU}/g ;
+            s/\$[{(]CURDIR[})]/$k/g ;
+            while ( s,/[^/]+/\.\.,, ) {}
+            s//$comment/ ;
+            if ( s/^objects\s*:\s*// ) {
+                foreach my $ext ( qw{c C cc cxx cpp CPLUSPLUS l y} ) {
+                    $files_by_dir{$k}{overrides} .= "\$(MODEL_${ext}_OBJ_$files_by_dir{$k}{dir_num}): $_" ;
+                }
+            }
+            elsif ( s/^depend\s*:\s*// ) {
+                $files_by_dir{$k}{overrides} .= "depend_$files_by_dir{$k}{dir_num}: $_" ;
+            }
+            elsif ( s/([cfhy]|C|cc|cxx|cpp|CPLUSPLUS)_objects\s*:\s*// ) {
+                $files_by_dir{$k}{overrides} .= "\$(MODEL_$1_OBJ_$files_by_dir{$k}{dir_num}): $_" ;
+            }
+            else {
+                $files_by_dir{$k}{overrides} .= $_ ;
+            }
+        }
+        close OV_FILE ;
+        print MAKEFILEOVER "\n# Overrides from $k\n\n" ;
+        print MAKEFILEOVER "$files_by_dir{$k}{overrides}\n" ;
     }
 }
+close MAKEFILEOVER ;
 
 # write out all of files we processed as dependencies to Makefile_src
 open MAKEFILEDEPS, ">build/Makefile_src_deps" or die "Could not open build/Makefile_src_deps" ;
