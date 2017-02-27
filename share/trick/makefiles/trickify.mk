@@ -80,10 +80,10 @@ TRICKIFY_PYTHON_DIR ?= python
 TRICK_HOME := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/../../..)
 
 ifneq ($(wildcard build),)
-    OBJECTS := $(shell find build -name "*.i")
-    OBJECTS := $(join $(dir $(OBJECTS)),$(patsubst %.i,%.cpp,$(notdir $(OBJECTS))))
-    OBJECTS += $(shell find build -name "*.cpp")
-    OBJECTS := $(OBJECTS:.cpp=.o)
+    SWIG_OBJECTS := $(shell tail -n +2  build/S_library_swig)
+    SWIG_OBJECTS := $(addprefix build,$(addsuffix _py.o,$(basename $(SWIG_OBJECTS))))
+    IO_OBJECTS := $(shell find build -name "io_*.cpp")
+    IO_OBJECTS := $(IO_OBJECTS:.cpp=.o)
 endif
 
 include $(TRICK_HOME)/share/trick/makefiles/Makefile.common
@@ -107,29 +107,42 @@ TRICK_EXT_LIB_DIRS :=
 # change infrequently. Moreover, the methods for force-linking a library differ
 # between Linux and Mac, so obviating the need for it simplifies a Trickified
 # project's user-facing makefile.
-$(TRICKIFY_OBJECT_NAME): $(OBJECTS) | $(dir $(TRICKIFY_OBJECT_NAME))
+$(TRICKIFY_OBJECT_NAME): $(SWIG_OBJECTS) $(IO_OBJECTS) | $(dir $(TRICKIFY_OBJECT_NAME))
 	$(info $(call COLOR,Linking)    $@)
 	@ld -r -o $@ $^
 
 $(dir $(TRICKIFY_OBJECT_NAME)) $(TRICKIFY_PYTHON_DIR):
 	@mkdir -p $@
 
-%.cpp: %.i | $(TRICKIFY_PYTHON_DIR)
+$(IO_OBJECTS): %.o: %.cpp
+	$(info $(call COLOR,Compiling)  $<)
+	@$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -std=c++11 -Wno-invalid-offsetof -c -o $@ $<
+
+$(SWIG_OBJECTS): %.o: %.cpp
+	$(info $(call COLOR,Compiling)  $<)
+	@$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(PYTHON_INCLUDES) -Wno-unused-parameter -Wno-shadow -c -o $@ $<
+
+$(SWIG_OBJECTS:.o=.cpp): %.cpp: %.i | $(TRICKIFY_PYTHON_DIR)
 	$(info $(call COLOR,SWIGing)    $<)
 	@$(SWIG) $(TRICK_INCLUDE) $(TRICK_DEFINES) $(TRICK_VERSIONS) $(SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -outdir $(TRICKIFY_PYTHON_DIR) -o $@ $<
 
-%.o: %.cpp
-	$(info $(call COLOR,Compiling)  $<)
-	@$(TRICK_CC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(PYTHON_INCLUDES) -std=c++11 -Wno-invalid-offsetof -Wno-shadow -c -o $@ $<
+define create_convert_swig_rule
+build/%_py.i: /%.$1
+	${TRICK_HOME}/$(LIBEXEC)/trick/convert_swig ${TRICK_CONVERT_SWIG_FLAGS} $$<
+endef
 
-# $(OBJECTS) is meant to contain all of the py_* and io_* object file names. We
-# can't construct those until we run ICG and convert_swig. But we can't run the
-# rule for ICG and convert_swig before $(OBJECTS) is expanded because it is a
-# prerequisite of $(TRICKIFY_OBJECT_NAME), and prerequisites are always
-# immediately expanded. Therefore, when make processes this file (for the first
-# time after a clean), $(OBJECTS) is empty, because the find will be executed
-# before ICG and convert_swig have created any files. What we really want is to
-# run ICG and convert_swig before $(OBJECTS) is expanded.
+EXTENSIONS := H h hh hxx h++ hpp
+$(foreach EXTENSION,$(EXTENSIONS),$(eval $(call create_convert_swig_rule,$(EXTENSION))))
+
+# SWIG_OBJECTS and IO_OBJECTS are meant to contain all of the *_py and io_*
+# object file names, respectively, by looking at products of ICG and
+# make_makefile_swig. However, we can't run a rule for ICG before those
+# variables are expanded because they are prerequisites of
+# TRICKIFY_OBJECT_NAME, and prerequisites are immediately expanded.
+# Therefore, when make processes this file (for the first time after a clean),
+# the variables are empty because the files from which they are populated have
+# yet to be created by ICG. What we really want is to run ICG before OBJECTS is
+# expanded, but only if we need to.
 #
 # We can do this by taking advantage of (abusing) make's behavior in the
 # presence of included files. When you include another file, make attempts to
@@ -137,12 +150,12 @@ $(dir $(TRICKIFY_OBJECT_NAME)) $(TRICKIFY_PYTHON_DIR):
 # slate if any of the included files changed. So we need a rule that:
 #
 # 1. Executes only if S_source.hh or anything in its include tree changes.
-# 2. Runs ICG and convert_swig to generate py_* and io_* files.
+# 2. Runs ICG and make_makefile_swig to generate io_* files and S_library_swig.
 # 3. Updates its dependency file.
 #
 # We can then include the dependency file to trigger make to re-execute this
-# main makefile if changes were detected, thus updating $(OBJECTS) to the
-# latest results of ICG and convert_swig.
+# main makefile if changes were detected, thus updating SWIG_OBJECTS and
+# IO_OBJECTS to the latest results of ICG and make_makefile_swig.
 #
 # gcc's option to automatically generate dependency information is exactly
 # what we need. It will produce a file containing a make rule whose
@@ -161,8 +174,7 @@ $(dir $(TRICKIFY_OBJECT_NAME)) $(TRICKIFY_PYTHON_DIR):
 
 $(CURDIR)/build/S_source.d:
 	@$(TRICK_HOME)/bin/trick-ICG $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(TRICK_ICGFLAGS) S_source.hh
-	@$(TRICK_HOME)/libexec/trick/make_makefile_swig
-	@$(TRICK_HOME)/libexec/trick/convert_swig
+	@$(TRICK_HOME)/$(LIBEXEC)/trick/make_makefile_swig
 	@$(TRICK_CC) -MM -MP -MT $@ -MF $@ $(TRICKIFY_CXX_FLAGS) $(CURDIR)/S_source.hh
 
 -include $(CURDIR)/build/S_source.d
