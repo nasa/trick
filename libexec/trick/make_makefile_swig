@@ -224,7 +224,7 @@ build/top.i: build/CP_instances
 
 SWIG_SRC = \$(subst .i,.cpp,\$(SWIG_I)) $swig_src_dir/top.cpp
 
-\$(SWIG_SRC) : %.cpp: %.i
+\$(SWIG_SRC) : %.cpp: %.i | \$(SWIG_I)
 \t\$(PRINT_SWIG)
 \t\$(ECHO_CMD)\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -outdir trick -o \$@ \$<
 
