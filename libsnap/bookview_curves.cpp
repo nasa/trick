@@ -251,7 +251,6 @@ void CoordArrow::paintMe(QPainter &painter, const QTransform &T) const
     painter.restore();
 }
 
-
 CurvesView::CurvesView(QWidget *parent) :
     BookIdxView(parent),_pixmap(0)
 {
@@ -436,7 +435,7 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
             QString yval;
             double ys = _bookModel()->yScale(curveIdx);
             double yb = _bookModel()->yBias(curveIdx);
-            yval = yval.sprintf("Flatline=%g",cbox.y()*ys+yb);
+            yval = QString("Flatline=%1").arg(_format(cbox.y()*ys+yb));
             QRectF tbox = Tscaled.mapRect(cbox);
             QTransform I;
             painter.setTransform(I);
@@ -538,14 +537,18 @@ void CurvesView::_paintLiveCoordArrow(TrickCurveModel* curveModel,
         double y  = it[i].y()*ys+yb;
         double y2 = it[i+1].y()*ys+yb;
         if ( (y>y1 && y>y2) || (y<y1 && y<y2) ) {
-            arrow.txt = s.sprintf("<%g, %g>", coord.x(),coord.y());
+            arrow.txt = QString("<%1, %2>").arg(_format(coord.x()))
+                                           .arg(_format(coord.y()));
         } else {
-            arrow.txt = s.sprintf("(%g, %g)", coord.x(),coord.y());
+            arrow.txt = QString("(%1, %2)").arg(_format(coord.x()))
+                                           .arg(_format(coord.y()));
         }
     } else if ( i == 0 ) {
-            arrow.txt = s.sprintf("init=(%g, %g)", coord.x(),coord.y());
+            arrow.txt = QString("init=(%1, %2)").arg(_format(coord.x()))
+                                                .arg(_format(coord.y()));
     } else if ( i == rc-1 ) {
-            arrow.txt = s.sprintf("last=(%g, %g)", coord.x(),coord.y());
+            arrow.txt = QString("last=(%1, %2)").arg(_format(coord.x()))
+                                                .arg(_format(coord.y()));
     } else {
         qDebug() << "snap [bad scoobs]: CurvesView::_paintLiveCoordArrow";
         exit(-1);
@@ -1083,6 +1086,19 @@ bool CurvesView::_isXTime(const QModelIndex &plotIdx)
     }
 
     return isXTime;
+}
+
+QString CurvesView::_format(double d)
+{
+    QString s;
+    s = s.sprintf("%.9g",d);
+    QVariant v(s);
+    double x = v.toDouble();
+    double e = qAbs(x-d);
+    if ( e > 1.0e-9 ) {
+        s = s.sprintf("%.9lf",d);
+    }
+    return s;
 }
 
 // TODO: This thing does nothing!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

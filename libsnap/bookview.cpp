@@ -1422,15 +1422,23 @@ void BookView::_printCoplot(const QRect& R,
             if ( curveBBox.height() == 0.0 ) {
                 it = curveModel->begin();
                 double y = it.y()*ys+yb;  // y is constant, so use first point
-                QString yval;
-                yval = yval.sprintf("Flatline=%g",y);
+                QString s;
+                s = s.sprintf("%.9g",y);
+                QVariant v(s);
+                double y2 = v.toDouble();
+                double e = qAbs(y-y2);
+                if ( e > 1.0e-9 ) {
+                    // If %.9g loses too much accuracy, use %lf
+                    s = s.sprintf("%.9lf",y);
+                }
+                s = QString("Flatline=%1").arg(s);
                 int h = fontMetrics().height();
                 QColor color( _bookModel()->getDataString(curveIdx,
                                                   "CurveColor","Curve"));
                 QPen pen = painter->pen();
                 pen.setColor(color);
                 painter->setPen(pen);
-                painter->drawText(curveBBox.topLeft()-QPointF(0,h+10),yval);
+                painter->drawText(curveBBox.topLeft()-QPointF(0,h+10),s);
             }
 
             curveModel->unmap();

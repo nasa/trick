@@ -140,6 +140,8 @@ private:
 
     bool _isXTime(const QModelIndex& plotIdx);
 
+    QString _format(double d);
+
     // Key Events
     void _keyPressSpace();
     void _keyPressUp();
