@@ -959,7 +959,7 @@ sub write_rules ($$$$) {
 
     print MAKEFILE "\n\n#MODEL_C_OBJ_$dir_info{dir_num}\n\n" ;
     foreach $n ( @{$dir_info{c}} ) {
-        print MAKEFILE "$k/object_\${TRICK_HOST_CPU}/$n" . "o : $k/$dir_info{src_dir}$n" . "c\n" ;
+        print MAKEFILE "$k/object_\${TRICK_HOST_CPU}/$n" . "o : $k/$dir_info{src_dir}$n" . "c | $k/object_\${TRICK_HOST_CPU}\n" ;
         if ( $dir_info{writable} ) {
             print MAKEFILE "\tcd $k/$dir_info{src_dir} ; \$(TRICK_CC) \$(TRICK_CFLAGS) -MMD -MP -c \${\@F:.o=.c} -o \$\@\n" ;
             print MAKEFILE "\t\@cd $k/$dir_info{src_dir} ; \${TRICK_HOME}/bin/depend_objs ${n}c\n" ;
@@ -974,7 +974,7 @@ sub write_rules ($$$$) {
     print MAKEFILE "\n\n#MODEL_CPP_OBJ_$dir_info{dir_num}\n\n" ;
     foreach $n ( @{$dir_info{cpp}} ) {
         my $ext = $$re_cpp_ref{"$k/$dir_info{src_dir}$n"} ;
-        print MAKEFILE "$k/object_\${TRICK_HOST_CPU}/$n" . "o : $k/$dir_info{src_dir}$n$ext\n" ;
+        print MAKEFILE "$k/object_\${TRICK_HOST_CPU}/$n" . "o : $k/$dir_info{src_dir}$n$ext | $k/object_\${TRICK_HOST_CPU}\n" ;
         if ( $dir_info{writable} ) {
             #print MAKEFILE "\t\@echo \"Compiling $k/$dir_info{src_dir}[33m\${\@F:.o=.$ext}[00m\"\n" ;
             print MAKEFILE "\tcd $k/$dir_info{src_dir} ; \$(TRICK_CPPC) \$(TRICK_CXXFLAGS) -MMD -MP -c \${\@F:.o=.$ext} -o \$\@\n" ;
