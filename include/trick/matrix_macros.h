@@ -308,7 +308,7 @@ Assigns the product of A, B, and V to P.
 p_i = \sum_{j=0}^{2} A_{i,j} \left( \sum_{k=0}^{2} B_{j,k} \cdot v_i \right) : i\in 0..2
 \f]
 */
-#define MxMxV(prod, mat1, mat2, v ) { \
+#define MxMxV(prod, mat1, mat2, vect ) { \
   prod[0] = mat1[0][0] *(mat2[0][0] * vect[0] + mat2[0][1] * vect[1] + mat2[0][2] * vect[2])+\
             mat1[0][1] *(mat2[1][0] * vect[0] + mat2[1][1] * vect[1] + mat2[1][2] * vect[2])+\
             mat1[0][2] *(mat2[2][0] * vect[0] + mat2[2][1] * vect[1] + mat2[2][2] * vect[2]);\
