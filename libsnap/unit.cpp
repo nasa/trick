@@ -407,7 +407,7 @@ int Unit::_getNextPrimitiveOrOperand()
  *     4: "kgNM/s2" & "gNM/s3" are not same since s2 & s3 different dims
  *     5: "kgNM" & "gNs" are not same type since M & s are diff
  */
-bool Unit::_canConvert(Unit * u)
+bool Unit::canConvert(Unit * u)
 {
 
         // Assume that units being compared are valid 
@@ -776,7 +776,7 @@ double Unit::convert(double value, const char *from, const char *to)
         throw std::runtime_error(_err_string.toLatin1().constData());
     }
 
-    if ( !fromUnit._canConvert(&toUnit) ) {
+    if ( !fromUnit.canConvert(&toUnit) ) {
 
         _err_stream << "treat [error]: Unit::convert() cannot convert "
                     << " the value " << value << " from unit \"" << from
@@ -811,7 +811,7 @@ double Unit::convert(Unit * u)
         double conversion1, conversion2;
 
         // Are units same basic type
-        if (!this->_canConvert(u)) {
+        if (!this->canConvert(u)) {
                 if ( !strcmp(u->getUnitName(), "--") || 
                         !strcmp(this->getUnitName(), "--") ) {
                         // If any of the units are "--" there will be

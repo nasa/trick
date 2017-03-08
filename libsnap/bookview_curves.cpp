@@ -590,73 +590,34 @@ void CurvesView::_paintErrorplot(const QTransform &T,
     painter.save();
 
     QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
-    int rc = model()->rowCount(curvesIdx);
-    if ( rc != 2 ) {
-        qDebug() << "snap [bad scoobs]: BookView::_printErrorplot()";
-        exit(-1);
-    }
+    QPainterPath* errorPath = _bookModel()->getCurvesErrorPath(curvesIdx);
 
-    QModelIndex i0 = model()->index(0,0,curvesIdx);
-    QModelIndex i1 = model()->index(1,0,curvesIdx);
-
-    QString curveXName0 = _bookModel()->getDataString(i0,"CurveXName","Curve");
-    QString curveXUnit0 = _bookModel()->getDataString(i0,"CurveXName","Curve");
-    QString curveYName0 = _bookModel()->getDataString(i0,"CurveYName","Curve");
-    QString curveYUnit0 = _bookModel()->getDataString(i0,"CurveYName","Curve");
-
-    QString curveXName1 = _bookModel()->getDataString(i1,"CurveXName","Curve");
-    QString curveXUnit1 = _bookModel()->getDataString(i1,"CurveXName","Curve");
-    QString curveYName1 = _bookModel()->getDataString(i1,"CurveYName","Curve");
-    QString curveYUnit1 = _bookModel()->getDataString(i1,"CurveYName","Curve");
-
-
-    // TODO: indicate if error curve is flat,
-    // TODO: need to put name of time in model
-    //       so user has settable timename (not hardcoded "sys.exec.out.time")
-    // TODO: error plot when x is not time e.g. x/y position
-    //       d=sqrt((x0-x1)*(x0-x1)+(y0-y1)*(y0-y1))
-    QString timeName("sys.exec.out.time");
-    if ( curveXName0 == timeName &&
-         curveXName0 == curveXName1 && curveXUnit0 == curveXUnit1 &&
-         curveYName0 == curveYName1 && curveYUnit0 == curveYUnit1 ) {
-        //
-        // Normal case: x and y params/units match and x is time
-        //
-
-        // Draw error curve!
-        QPainterPath* errorPath = _bookModel()->getCurvesErrorPath(curvesIdx);
-        QRectF ebox = errorPath->boundingRect();
-        QPen ePen(pen);
-        if ( ebox.height() == 0.0 && ebox.y() == 0.0 ) {
-            // Color green if error plot is flatline zero
-            ePen.setColor(_bookModel()->createCurveColors(4).at(3)); // green
-        } else {
-            ePen.setColor(_bookModel()->createCurveColors(3).at(2)); // magenta
-        }
-        painter.setPen(ePen);
-        if ( ebox.height() == 0.0 ) {
-            // Flatline
-            QString yval;
-            if ( ebox.y() == 0.0 ) {
-                yval = yval.sprintf("Flatline=0.0");
-            } else {
-                yval = yval.sprintf("Flatline=%g",ebox.y());
-            }
-            QTransform I;
-            painter.setTransform(I);
-            QRectF tbox = T.mapRect(ebox);
-            painter.drawText(tbox.topLeft()-QPointF(0,5),yval);
-        }
-        painter.setTransform(T);
-        painter.drawPath(*errorPath);
-        delete errorPath;
-
+    QRectF ebox = errorPath->boundingRect();
+    QPen ePen(pen);
+    if ( ebox.height() == 0.0 && ebox.y() == 0.0 ) {
+        // Color green if error plot is flatline zero
+        ePen.setColor(_bookModel()->createCurveColors(4).at(3)); // green
     } else {
-        // TODO:!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        qDebug() << "snap [todo]: Handle error plot when name/units different "
-                    "or x is not time.";
-        exit(-1);
+        ePen.setColor(_bookModel()->createCurveColors(3).at(2)); // magenta
     }
+    painter.setPen(ePen);
+    if ( ebox.height() == 0.0 ) {
+        // Flatline
+        QString yval;
+        if ( ebox.y() == 0.0 ) {
+            yval = yval.sprintf("Flatline=0.0");
+        } else {
+            yval = yval.sprintf("Flatline=%g",ebox.y());
+        }
+        QTransform I;
+        painter.setTransform(I);
+        QRectF tbox = T.mapRect(ebox);
+        painter.drawText(tbox.topLeft()-QPointF(0,5),yval);
+    }
+    painter.setTransform(T);
+    painter.drawPath(*errorPath);
+
+    delete errorPath;
 
     painter.setPen(pen);
     painter.restore();
@@ -1751,6 +1712,33 @@ void CurvesView::_keyPressSpace()
         exit(-1);
     }
 
+    // Make units the same (in the book model)
+    QModelIndex idx0 = model()->index(0,0,curvesIdx);
+    QModelIndex idx1 = model()->index(1,0,curvesIdx);
+    QString dpYUnit0 = _bookModel()->getDataString(idx0,"CurveYUnit","Curve");
+    QString dpYUnit1 = _bookModel()->getDataString(idx1,"CurveYUnit","Curve");
+    TrickCurveModel* c0 = _bookModel()->getTrickCurveModel(curvesIdx,0);
+    if ( c0->y()->unit() != dpYUnit0 ) {
+        if ( dpYUnit0.isEmpty() || dpYUnit0 == "--" ) {
+            QModelIndex unitIdx0 = _bookModel()->getDataIndex(idx0,
+                                                         "CurveYUnit", "Curve");
+            model()->setData(unitIdx0,c0->y()->unit());
+            dpYUnit0 = c0->y()->unit();
+        }
+    }
+    if ( dpYUnit0 != dpYUnit1 ) {
+        // Make dp units the same (if in same family)
+        Unit u0(dpYUnit0.toLatin1().constData());
+        Unit u1(dpYUnit1.toLatin1().constData());
+        if ( u0.canConvert(&u1) ) {
+            QModelIndex unitIdx1 = _bookModel()->getDataIndex(idx1,
+                                                        "CurveYUnit", "Curve");
+            model()->setData(unitIdx1,dpYUnit0);
+        }
+    }
+
+
+    // Set presentation
     QModelIndex plotPresentationIdx = _bookModel()->getDataIndex(rootIndex(),
                                                    "PlotPresentation","Plot");
     model()->setData(plotPresentationIdx,plotPresentation);

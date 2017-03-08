@@ -56,6 +56,10 @@ class Unit {
         double convert(const char *unitStr);
         double convert(Unit * u);
 
+        // Are units in same family? e.g. NM == kNcm
+        bool canConvert(Unit *);
+        //bool canConvert(const char* u); // convenience
+
       private:
 
 #define NUM_UNIT_TYPES      12  // Types are time,length ...
@@ -68,8 +72,6 @@ class Unit {
         int _isPrimitive(const char *);  // Primitives are things like "s", "ft"...
         int _isOperand(const char *);    // Operands are /,*,2,3
         int _getPrimitiveType(const char *);     // Given a primitive string, 
-        bool _canConvert(Unit *);    // Units same type? (NM == kNcm)
-        bool _canConvert(const char* u); // convenience
         // this returns
         // the unit type that prim belongs to
         // Types are 0 - NUM_UNIT_TYPES

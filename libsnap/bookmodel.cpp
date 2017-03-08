@@ -751,6 +751,7 @@ QPainterPath* PlotBookModel::_createPainterPath(TrickCurveModel *curveModel)
 //
 // returned path is scaled
 //
+// Note: error paths do not do CurveYScale (or bias)
 QPainterPath* PlotBookModel::_createCurvesErrorPath(
                                             const QModelIndex &curvesIdx) const
 {
@@ -785,18 +786,44 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
         exit(-1);
     }
 
-    // Note: error paths do not do CurveYScale (or bias)
-    QModelIndex curveIdx0 = index(0,0,curvesIdx);
-    QString dpUnits0 = getDataString(curveIdx0,"CurveYUnit","Curve");
-    double ys0 = 1.0;
-    double ys1 = ys0;
-    if ( !dpUnits0.isEmpty() && c0->y()->unit() != dpUnits0 ) {
-        ys0 = Unit::convert(1.0,c0->y()->unit(),dpUnits0);
-    }
-    if ( c0->y()->unit() != c1->y()->unit() ) {
-        ys1 = ys0*Unit::convert(1.0,c1->y()->unit(),c0->y()->unit());
+    QModelIndex idx0 = index(0,0,curvesIdx);
+    QModelIndex idx1 = index(1,0,curvesIdx);
+
+    QString curveXName0 = getDataString(idx0,"CurveXName","Curve");
+    QString curveXUnit0 = getDataString(idx0,"CurveXUnit","Curve");
+    QString curveYName0 = getDataString(idx0,"CurveYName","Curve");
+
+    QString curveXName1 = getDataString(idx1,"CurveXName","Curve");
+    QString curveXUnit1 = getDataString(idx1,"CurveXUnit","Curve");
+    QString curveYName1 = getDataString(idx1,"CurveYName","Curve");
+
+    // TODO: need to put name of time in model
+    //       so user has settable timename (not hardcoded "sys.exec.out.time")
+    // TODO: error plot when x is not time e.g. x/y position
+    //       d=sqrt((x0-x1)*(x0-x1)+(y0-y1)*(y0-y1))
+    QString timeName("sys.exec.out.time");
+    if ( curveXName0 != timeName ||
+         curveXName0 != curveXName1 || curveXUnit0 != curveXUnit1 ||
+         curveYName0 != curveYName1 ) {
+        //
+        // x/y params do not match, x units do not match or x is not time
+        //
+        // TODO: Handle all the cases
+        fprintf(stderr,"snap [todo]: Handle error plot when names or xunits"
+                       "different or x is not time.  Aborting!");
+        exit(-1);
     }
 
+    QString dpUnits0 = getDataString(idx0,"CurveYUnit","Curve");
+    double ys0 = 1.0;
+    double ys1 = 1.0;
+    if ( !dpUnits0.isEmpty() && c0->y()->unit() != dpUnits0 ) {
+        ys0 = Unit::convert(1.0,c0->y()->unit(),dpUnits0);
+        ys1 = ys0;
+    }
+    if ( c0->y()->unit() != c1->y()->unit() ) {
+        ys1 = ys1*Unit::convert(1.0,c1->y()->unit(),c0->y()->unit());
+    }
 
     c0->map();
     c1->map();
@@ -892,7 +919,8 @@ QString PlotBookModel::getCurvesYUnit(const QModelIndex &curvesIdx)
 
     int rc = rowCount(curvesIdx);
 
-    if ( rc >= 1 ) {
+    if ( rc == 1 || rc > 2 ) {
+        // Normal case
         QModelIndex curve0Idx = index(0,0,curvesIdx);
         QString yunit0 = getDataString(curve0Idx,"CurveYUnit","Curve");
         if ( yunit0 == "--" || yunit0.isEmpty() ) {
@@ -910,7 +938,13 @@ QString PlotBookModel::getCurvesYUnit(const QModelIndex &curvesIdx)
                 break;
             }
         }
-
+    } else if ( rc == 2 ) {
+        // Error/Compare plot case (use units from first curve)
+        QModelIndex idx0 = index(0,0,curvesIdx);
+        yunit = getDataString(idx0,"CurveYUnit","Curve");
+        if ( yunit == "--" || yunit.isEmpty() ) {
+            yunit = getTrickCurveModel(idx0)->y()->unit();
+        }
     } else {
         yunit = "--";
     }
