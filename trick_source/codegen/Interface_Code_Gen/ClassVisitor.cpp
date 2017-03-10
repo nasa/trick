@@ -278,6 +278,11 @@ bool CXXRecordVisitor::VisitFriendDecl( clang::FriendDecl *fd ) {
             if ( ! friend_str.find(init_func) ) {
                 //std::cout << "        [32mfound a friend![00m" << std::endl ;
                 cval.setHasInitAttrFriend(true) ;
+            } else if ( ! friend_str.find("init_attr") ) {
+                std::cerr << "\033[33mWarning\033[0m    " << cval.getFileName() << ":" <<
+                 ci.getSourceManager().getSpellingLineNumber(fd->getSourceRange().getBegin()) << ":" << std::endl ;
+                std::cerr << "           friend " << friend_str << " does not match expected name " <<
+                  init_func << std::endl ;
             }
         }
     }
