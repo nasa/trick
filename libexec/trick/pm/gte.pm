@@ -55,9 +55,11 @@ sub gte (@) {
                     printf STDERR "[33mCannot find TRICK_CC = $temp, using /usr/bin/gcc\n" ;
                     $ret = `/usr/bin/gcc -dumpversion` ;
                 }
-            }
-            else {
-                $ret = `$ENV{TRICK_CC} -dumpversion` ;
+            } else {
+                # remove possible ccache from TRICK_CC
+                my ($temp) = $ENV{TRICK_CC} ;
+                $temp =~ s/.*?ccache\s+// ;
+                $ret = `$temp -dumpversion` ;
             }
         }
         else {

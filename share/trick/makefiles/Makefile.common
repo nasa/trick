@@ -49,7 +49,7 @@ export TRICK_SWIG_EXCLUDE
 export TRICK_EXT_LIB_DIRS
 export TRICK_PYTHON_PATH
 export TRICK_GTE_EXT
-export TRICK_HOST_CPU := $(shell export TRICK_CC=$(TRICK_CC) && $(TRICK_HOME)/bin/trick-gte TRICK_HOST_CPU)
+export TRICK_HOST_CPU := $(shell $(TRICK_HOME)/bin/trick-gte TRICK_HOST_CPU)
 export TRICK_EXEC_LINK_LIBS = ${PTHREAD_LIBS} $(PYTHON_LIB) $(UDUNITS_LDFLAGS) $(PLATFORM_LIBS) -lm -ldl
 export TRICK_LIBS = ${RPATH} -L${TRICK_LIB_DIR} -ltrick -ltrick_pyip -ltrick_comm -ltrick_math -ltrick_units -ltrick_mm
 export TRICK_SYSTEM_CFLAGS
@@ -147,7 +147,7 @@ TRICK_SYSTEM_CFLAGS := $(TRICK_SYSTEM_CXXFLAGS) -fexceptions
 TRICK_SYSTEM_CFLAGS   += $(TRICK_ADDITIONAL_CFLAGS)
 TRICK_SYSTEM_CXXFLAGS += $(TRICK_ADDITIONAL_CXXFLAGS)
 
-TRICK_INCLUDE  = $(shell $(PERL) -e '@inc_paths = "${TRICK_CFLAGS}" =~ /-I\s*(\S+)/g ; foreach $$i (@inc_paths) { print "-I$$i " if (-e $$i)}') \
+TRICK_INCLUDE  = $(shell $(PERL) -e '@inc_paths = "${TRICK_CFLAGS}" =~ /-I\s*(\S+)/g ; foreach $$i (@inc_paths) { print "-I$$i " if (-e $$i and $$i ne "/usr/include")}') \
                  $(shell $(PERL) -e '@inc_paths = "${TRICK_SYSTEM_CFLAGS}" =~ /-I\s*(\S+)/g ; foreach $$i (@inc_paths) { print "-I$$i " if (-e $$i)}')
 
 TRICK_DEFINES  = $(shell $(PERL) -e '@defines = "${TRICK_CFLAGS}" =~ /-D\s*(\S+)/g ; foreach $$i (@defines) { print "-D$$i "}') \
