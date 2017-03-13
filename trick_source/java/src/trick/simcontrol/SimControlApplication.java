@@ -1173,11 +1173,11 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         statusMsgPane.setEditorKit(new StyledEditorKit());    
         statusMsgPane.putClientProperty(JXEditorPane.HONOR_DISPLAY_PROPERTIES, true);
         statusMsgPane.setBackground(Color.black);
-        //statusMsgPane.setContentType("text/html");
-        
-        Font font = new Font("Monospaced", Font.PLAIN, 12);
+
+        int curr_font_size = statusMsgPane.getFont().getSize() ;
+        Font font = new Font("Monospaced", Font.PLAIN, curr_font_size);
         statusMsgPane.setFont(font);
-        
+
         JPanel statusMsgPanel = UIUtils.createSearchableTitledPanel("Status Messages", statusMsgPane, new FindBar(statusMsgPane.getSearchable()));
         return statusMsgPanel;
     }
