@@ -458,7 +458,7 @@ void PrintAttributes::printIOMakefile() {
         << "\t$(PRINT_COMPILE)" << std::endl
         << "\t$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c -o $@ $<" << std::endl
         << std::endl
-        << "$(IO_OBJECTS:.o=.d): \%.d: ;" << std::endl
+        << "$(IO_OBJECTS:.o=.d): ;" << std::endl
         << std::endl
         << "-include $(IO_OBJECTS:.o=.d)" << std::endl
         << std::endl
