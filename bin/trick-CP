@@ -48,6 +48,9 @@ if ( -f "S_define" ) {
 __END__
 # CP found at SUB_TRICK_BIN
 
+# Disable built-in implicit rules to increase build speed.
+.SUFFIXES:
+
 ifndef TRICK_HOME
     export TRICK_HOME := SUB_TRICK_HOME
 endif
