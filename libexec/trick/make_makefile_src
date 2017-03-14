@@ -119,13 +119,11 @@ read_lib_deps(0, @top_file_names) ;
 #print map {"$_\n"} (sort keys %processed_files) ;
 
 my ($n , $f , $k , $i , $m);
-my $num_inc_objs ;
 my @all_cfly_files ;
 my @all_read_only_libs ;
 my @all_compile_libs ;
 my %files_by_dir ;
 my ( $sp_dir , $src_dir , $sp_file , $base_name , $suffix) ;
-my @temp_array ;
 
 my @exclude_dirs ;
 @exclude_dirs = split /:/ , "$ENV{TRICK_EXCLUDE}:$ENV{TRICK_EXT_LIB_DIRS}";
@@ -259,19 +257,15 @@ build/S_source.d: ;
 
 my %object_files_by_type ;
 my %model_build_dirs ;
-$num_inc_objs = 0 ;
 # List out all of the object files and put the list in a file that we can pass to the linker.
 # Passing all of them directly to the linker in the command line can exceed the line limit.
 open MODEL_LINK_LIST, ">build/model_link_list" or die "Could not open build/model_link_list" ;
 foreach my $ext ( qw{ c C cc cxx cpp c++ } ) {
     print MAKEFILE "MODEL_${ext}_OBJECTS :=" ;
     foreach $k ( sort keys %files_by_dir ) {
-        if ( scalar @{$files_by_dir{$k}{$ext}} ne 0 ) {
-            foreach $f ( @{$files_by_dir{$k}{$ext}} ) {
-                print MAKEFILE " \\\n    build$k/$files_by_dir{$k}{src_dir}$f" . "o" ;
-                print MODEL_LINK_LIST "build$k/$files_by_dir{$k}{src_dir}$f" . "o\n" ;
-            }
-            $num_inc_objs++ ;
+        foreach $f ( @{$files_by_dir{$k}{$ext}} ) {
+            print MAKEFILE " \\\n    build$k/$files_by_dir{$k}{src_dir}$f" . "o" ;
+            print MODEL_LINK_LIST "build$k/$files_by_dir{$k}{src_dir}$f" . "o\n" ;
         }
     }
     print MAKEFILE "\n\n"
