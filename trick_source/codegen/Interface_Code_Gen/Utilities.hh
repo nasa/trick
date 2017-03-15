@@ -10,7 +10,8 @@
 enum Color {
     ERROR = 31,
     WARNING = 33,
-    INFO = 34
+    INFO = 34,
+    SKIP = 95
 };
 
 std::string trim( const std::string& str, const std::string& whitespace = " \t\n\r" ) ;

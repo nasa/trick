@@ -18,7 +18,6 @@
 #include "CommentSaver.hh"
 #include "ClassValues.hh"
 #include "EnumValues.hh"
-#include "Utilities.hh"
 
 PrintAttributes::PrintAttributes(int in_attr_version , HeaderSearchDirs & in_hsd ,
   CommentSaver & in_cs , clang::CompilerInstance & in_ci, bool in_force , bool in_sim_services_flag ,
@@ -130,65 +129,14 @@ bool PrintAttributes::openIOFile(const std::string& header_file_name) {
         return false;
     }
 
-    // add it to the list of visited files
     visited_files.insert(header_file_name) ;
 
-    // several tests require the real path of the header file
-    char* temp = almostRealPath(header_file_name.c_str());
-
-    if (!temp) {
-        std::cout << bold(color(WARNING, "Warning")) << "    ICG could not resolve realpath of " << quote(bold(header_file_name)) << std::endl;
-        return false;
-    }
-
-    const std::string realPath = std::string(temp);
-    const bool verboseBuild = getenv("TRICK_VERBOSE_BUILD");
-
-    /**
-     * Exclude files:
-     * - in system directories
-     * - in TRICK_EXCLUDE directories
-     * - in TRICK_ICG_EXCLUDE directories
-     * - in TRICK_EXT_LIB_DIRS directories
-     * - whose Trick header comments preclude ICG
-     */
-    const std::string skipping = color(INFO, "Skipping   ");
-
-    if (!hsd.isPathInUserDir(realPath)) {
-        return false;
-    }
-
-    if (hsd.isPathInExclude(realPath)) {
-        if (verboseBuild) {
-            std::cout << skipping << "TRICK_EXCLUDE: " << underline(realPath, hsd.getPathInExclude(realPath).size()) << std::endl;
-        }
-        return false;
-    }
-
-    if (hsd.isPathInICGExclude(realPath)) {
-        if (verboseBuild) {
-            std::cout << skipping << "TRICK_ICG_EXCLUDE: " << underline(realPath, hsd.getPathInICGExclude(realPath).size()) << std::endl;
-        }
-        return false;
-    }
-
-    if (hsd.isPathInExtLib(realPath)) {
-        if (verboseBuild) {
-            std::cout << skipping << "TRICK_EXT_LIB_DIRS: " << underline(realPath, hsd.getPathInExtLib(realPath).size()) << std::endl;
-        }
-        ext_lib_io_files.insert(header_file_name) ;
-        return false;
-    }
-
-    if (cs.hasICGNo(header_file_name)) {
-        if (verboseBuild) {
-            std::cout << skipping << "ICG: (NO): " << realPath << std::endl;
-        }
-        icg_no_files.push_back(realPath);
+    if (isHeaderExcluded(header_file_name)) {
         return false;
     }
 
     // map the header to its IO file
+    char* realPath  = almostRealPath(header_file_name.c_str());
     const std::string io_file_name = createIOFileName(realPath) ;
     all_io_files[header_file_name] = io_file_name ;
 
@@ -199,8 +147,10 @@ bool PrintAttributes::openIOFile(const std::string& header_file_name) {
 
     // no further processing is required if it's not out of date
     if (!isIOFileOutOfDate(realPath, io_file_name)) {
+        free(realPath);
         return false;
     }
+    free(realPath);
 
     // add it to the map of out of date IO files
     out_of_date_io_files[header_file_name] = io_file_name ;
@@ -213,9 +163,6 @@ bool PrintAttributes::openIOFile(const std::string& header_file_name) {
         std::cout << bold(color(WARNING, "Warning    ") + header_file_name) << std::endl
             << "           No Trick header comment found" << std::endl;
     }
-
-    // get the ignored types from this header
-    ignored_types[header_file_name] = cs.getIgnoreTypes(header_file_name) ;
 
     return true ;
 }
@@ -273,66 +220,59 @@ std::string PrintAttributes::createIOFileName(std::string header_file_name) {
 }
 
 void PrintAttributes::printClass( ClassValues * cv ) {
-    // If the class name is not empty and the filename is not empty
-    if ( (! cv->getName().empty()) and !cv->getFileName().empty() ) {
-        // If we have not processed this class before
-        if ( processed_classes[cv->getFileName()].find(cv->getFullyQualifiedMangledTypeName()) ==
-             processed_classes[cv->getFileName()].end() ) {
-            // mark the class as processed.
-            processed_classes[cv->getFileName()].insert(cv->getFullyQualifiedMangledTypeName()) ;
-            // If the class name is not specified as ignored in Trick header ICG_IGNORE field.
-            if ( ignored_types[cv->getFileName()].find(cv->getName()) == ignored_types[cv->getFileName()].end() and
-                 ignored_types[cv->getFileName()].find(cv->getFullyQualifiedName()) == ignored_types[cv->getFileName()].end() ) {
-                // if we are successful in opening the io_src file
-                if ( openIOFile( cv->getFileName()) ) {
-                    // print the attributes
-                    printer->printClass(outfile, cv) ;
-                    // close the io_src file
-                    outfile.close() ;
-                }
+    ClassValues& classValues = *cv;
 
-                // if we are successful in opening the map file
-                char * realPath = almostRealPath(cv->getFileName().c_str()) ;
-                if ( realPath != NULL ) {
-                    if ( isFileIncluded( cv->getFileName()) or hsd.isPathInExtLib(realPath)) {
-                         printer->printClassMap(class_map_outfile, cv) ;
-                    }
-                    free(realPath) ;
-                }
-            }
+    if (classValues.isNameOrFileNameEmpty()) {
+        return;
+    }
+
+    if (hasBeenProcessed(classValues)) {
+        return;
+    }
+
+    if (isIgnored(classValues)) {
+        return;
+    }
+
+    const std::string& fileName = classValues.getFileName();
+    if (openIOFile(fileName)) {
+        printer->printClass(outfile, cv);
+        outfile.close();
+    }
+
+    char* realPath = almostRealPath(fileName.c_str());
+    if (realPath) {
+        if (isFileIncluded(fileName) or hsd.isPathInExtLib(realPath)) {
+             printer->printClassMap(class_map_outfile, cv);
         }
+        free(realPath);
     }
 }
 
-void PrintAttributes::printEnum( EnumValues * ev ) {
-    // If the enum name is not empty and the filename is not empty
-    if ( (! ev->getName().empty()) and !ev->getFileName().empty() ) {
-        // If we have not processed this enum before
-        if ( processed_enums[ev->getFileName()].find(ev->getFullyQualifiedName()) == processed_enums[ev->getFileName()].end() ) {
-            // mark the enum as processed.
-            processed_enums[ev->getFileName()].insert(ev->getFullyQualifiedName()) ;
-            // If the enum name is not specified as ignored in Trick header ICG_IGNORE field.
-            if ( ignored_types[ev->getFileName()].find(ev->getName()) == ignored_types[ev->getFileName()].end() and
-                 ignored_types[ev->getFileName()].find(ev->getFullyQualifiedName()) == ignored_types[ev->getFileName()].end()) {
-                // if we are successful in opening the io_src file
-                if ( openIOFile( ev->getFileName()) ) {
-                    // print the attributes and close the io_src file
-                    printer->printEnum(outfile, ev) ;
-                    outfile.close() ;
-                }
+void PrintAttributes::printEnum(EnumValues* ev) {
+    EnumValues& enumValues = *ev;
 
-                // if we are successful in opening the map file
-                if ( isFileIncluded( ev->getFileName())) {
-                     printer->printEnumMap(enum_map_outfile, ev) ;
-                }
-            }
-        }
+    if (enumValues.isNameOrFileNameEmpty()) {
+        return;
     }
-}
 
-void PrintAttributes::removeMapFiles() {
-    //remove("io_src/class_map.cpp") ;
-    //remove("io_src/enum_map.cpp") ;
+    if (hasBeenProcessed(enumValues)) {
+        return;
+    }
+
+    if (isIgnored(enumValues)) {
+        return;
+    }
+
+    const std::string& fileName = enumValues.getFileName();
+    if (openIOFile(fileName)) {
+        printer->printEnum(outfile, ev) ;
+        outfile.close() ;
+    }
+
+    if (isFileIncluded(fileName)) {
+         printer->printEnumMap(enum_map_outfile, ev) ;
+    }
 }
 
 void PrintAttributes::createMapFiles() {
@@ -383,40 +323,29 @@ void PrintAttributes::closeMapFiles() {
     }
 }
 
-void PrintAttributes::addEmptyFiles() {
-    // Make a list of the empty files we processed.
-    // This list is written to the ICG_processed file and used by other processors.
-    clang::SourceManager::fileinfo_iterator fi ;
-    for ( fi = ci.getSourceManager().fileinfo_begin() ; fi != ci.getSourceManager().fileinfo_end() ; fi++ ) {
+// Make a list of the empty files we processed.
+// This list is written to the ICG_processed file and used by other processors.
+std::set<std::string> PrintAttributes::getEmptyFiles() {
+    std::set<std::string> emptyFiles;
+    for (auto fi = ci.getSourceManager().fileinfo_begin() ; fi != ci.getSourceManager().fileinfo_end() ; ++fi ) {
         const clang::FileEntry * fe = (*fi).first ;
         std::string header_file_name = fe->getName() ;
-        if ( visited_files.find(header_file_name) == visited_files.end() ) {
-            visited_files.insert(header_file_name) ;
-            // several tests require the real path of the header file.
-            char * realPath = almostRealPath(header_file_name.c_str()) ;
-            if ( realPath != NULL ) {
-                // Only include user directories (not system dirs like /usr/include)
-                if ( hsd.isPathInUserDir(realPath) ) {
-                    if ( hsd.isPathInExclude(realPath) == false ) {
-                        if ( hsd.isPathInICGExclude(realPath) == false ) {
-                            // Only include files that do not have ICG: (No)
-                            // hasICGNo uses original header name, not the real path
-                            if ( ! cs.hasICGNo(header_file_name) ) {
-                                // Don't process files in excluded directories
-                                if ( hsd.isPathInExtLib(realPath) == false ) {
-                                    std::string io_file_name = createIOFileName(std::string(realPath)) ;
-                                    empty_header_files.insert(realPath) ;
-                                } else {
-                                    ext_lib_io_files.insert(realPath) ;
-                                }
-                            }
-                        }
-                    }
-                }
-                free(realPath) ;
-            }
+
+        if ( visited_files.find(header_file_name) != visited_files.end() ) {
+            continue;
         }
+
+        visited_files.insert(header_file_name) ;
+
+        if (isHeaderExcluded(header_file_name)) {
+            continue;
+        }
+
+        char* path  = almostRealPath(header_file_name.c_str());
+        emptyFiles.insert(path);
+        free(path) ;
     }
+    return emptyFiles;
 }
 
 //TODO: Move this into PrintFileContents10.
@@ -491,10 +420,8 @@ void PrintAttributes::printIOMakefile() {
     makefile_ICG.close() ;
 
     // Create the list of empty (of classes/enums) header files to be written to ICG_processed.
-    addEmptyFiles() ;
-    std::set< std::string >::iterator sit ;
-    for ( sit = empty_header_files.begin() ; sit != empty_header_files.end() ; sit++ ) {
-        ICG_processed << (*sit) << std::endl ;
+    for ( auto& file : getEmptyFiles() ) {
+        ICG_processed << file << std::endl ;
     }
     ICG_processed.close() ;
 
@@ -502,8 +429,8 @@ void PrintAttributes::printIOMakefile() {
     io_link_list.close() ;
 
     ext_lib.open("build/ICG_ext_lib") ;
-    for ( sit = ext_lib_io_files.begin() ; sit != ext_lib_io_files.end() ; sit++ ) {
-        ext_lib << (*sit) << std::endl ;
+    for ( auto& file : ext_lib_io_files ) {
+        ext_lib << file << std::endl ;
     }
     ext_lib.close() ;
 }
@@ -517,4 +444,95 @@ void PrintAttributes::printICGNoFiles() {
         }
         icg_no_outfile.close() ;
     }
+}
+
+bool PrintAttributes::hasBeenProcessed(EnumValues& enumValues) {
+    return hasBeenProcessed(enumValues.getFullyQualifiedName(), processed_enums[enumValues.getFileName()]);
+}
+
+bool PrintAttributes::hasBeenProcessed(ClassValues& classValues) {
+    return hasBeenProcessed(classValues.getFullyQualifiedMangledTypeName(), processed_classes[classValues.getFileName()]);
+}
+
+bool PrintAttributes::hasBeenProcessed(const std::string& name, std::set<std::string>& processedSet) {
+    bool processed = processedSet.find(name) != processedSet.end();
+    if (!processed) {
+        processedSet.insert(name);
+    }
+    return processed;
+}
+
+bool PrintAttributes::isIgnored(ConstructValues& constructValues) {
+    const std::string& fileName = constructValues.getFileName();
+    if (ignored_types.find(fileName) == ignored_types.end()) {
+        ignored_types[fileName] = cs.getIgnoreTypes(fileName) ;
+    }
+
+    std::set<std::string>& constructs = ignored_types[fileName];
+
+    const bool ignored = constructs.find(constructValues.getName()) != constructs.end() or
+                         constructs.find(constructValues.getFullyQualifiedName()) != constructs.end();
+
+    if (ignored and verboseBuild) {
+        std::cout << skipping << "ICG Ignore Type: " << constructValues.getName() << " (from " << fileName << ")" << std::endl;
+    }
+
+    return ignored;
+}
+
+bool PrintAttributes::isHeaderExcluded(const std::string& header) {
+    char* temp = almostRealPath(header.c_str());
+    if (!temp) {
+        return true;
+    }
+    const std::string path = std::string(temp);
+    free(temp);
+
+    /**
+     * Exclude files:
+     * - in system directories
+     * - in TRICK_EXCLUDE directories
+     * - in TRICK_ICG_EXCLUDE directories
+     * - in TRICK_EXT_LIB_DIRS directories
+     * - whose Trick header comments preclude ICG
+     */
+    if (!hsd.isPathInUserDir(path)) {
+        return true;
+    }
+
+    if (hsd.isPathInExclude(path)) {
+        if (verboseBuild) {
+            std::cout << skipping << "TRICK_EXCLUDE: " << underline(path, hsd.getPathInExclude(path).size()) << std::endl;
+        }
+        return true;
+    }
+
+    if (hsd.isPathInICGExclude(path)) {
+        if (verboseBuild) {
+            std::cout << skipping << "TRICK_ICG_EXCLUDE: " << underline(path, hsd.getPathInICGExclude(path).size()) << std::endl;
+        }
+        return true;
+    }
+
+    if (hsd.isPathInExtLib(path)) {
+        if (verboseBuild) {
+            std::cout << skipping << "TRICK_EXT_LIB_DIRS: " << underline(path, hsd.getPathInExtLib(path).size()) << std::endl;
+        }
+        ext_lib_io_files.insert(header) ;
+        return true;
+    }
+
+    if (cs.hasICGNo(header)) {
+        if (verboseBuild) {
+            std::cout << skipping << "ICG: (NO): " << path << std::endl;
+        }
+        icg_no_files.push_back(path);
+        return true;
+    }
+
+    return false;
+}
+
+void PrintAttributes::markHeaderAsVisited(const std::string& header) {
+    visited_files.insert(header);
 }

@@ -67,8 +67,10 @@ class ConstructValues {
         void printNamespaces(std::ostream& ostream, const std::string& delimiter = "::") ;
         void printContainerClasses(std::ostream& ostream, const std::string& delimiter = "::") ;
         void printNamespacesAndContainerClasses(std::ostream& ostream, const std::string& delimiter = "::") ;
+
         std::string getNamespacesAndContainerClasses(const std::string& delimiter = "::") ;
         std::string getFullyQualifiedTypeName(const std::string& delimiter = "::")  ;
+        bool isNameOrFileNameEmpty();
 
     protected:
 

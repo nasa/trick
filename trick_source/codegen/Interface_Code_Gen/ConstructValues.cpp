@@ -166,6 +166,10 @@ std::string ConstructValues::getFullyQualifiedName(const std::string& delimiter)
     return oss.str();
 }
 
+bool ConstructValues::isNameOrFileNameEmpty() {
+    return name.empty() or file_name.empty();
+}
+
 void ConstructValues::printOpenNamespaceBlocks(std::ostream& ostream) {
     for (auto name : namespaces) {
         ostream << "namespace " << name << " {" << std::endl;

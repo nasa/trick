@@ -94,6 +94,11 @@ char * almostRealPath( const char * in_path ) {
     }
     free(file_copy_path) ;
     free(dir_copy_path) ;
+
+    if (!final_path) {
+        std::cout << bold(color(WARNING, "Warning")) << "    ICG could not resolve realpath of " << quote(bold(in_path)) << std::endl;
+    }
+
     return final_path ;
 }
 

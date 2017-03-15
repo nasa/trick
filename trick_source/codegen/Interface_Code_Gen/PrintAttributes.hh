@@ -8,11 +8,13 @@
 #include <vector>
 #include <map>
 #include <set>
+#include "Utilities.hh"
 
 namespace clang {
     class CompilerInstance ;
 }
 
+class ConstructValues ;
 class ClassValues ;
 class EnumValues ;
 class PrintFileContentsBase ;
@@ -38,7 +40,6 @@ class PrintAttributes {
          clang::CompilerInstance & in_ci, bool force , bool sim_services, std::string output_dir ) ;
 
         /** Prints all of the processed classes and enumerations */
-        virtual void removeMapFiles() ;
         virtual void createMapFiles() ;
         virtual void closeMapFiles() ;
 
@@ -54,7 +55,13 @@ class PrintAttributes {
         /** Prints an enum to the io_src file */
         virtual void printEnum( EnumValues * in_enum) ;
 
+        bool isHeaderExcluded(const std::string& header);
+        void markHeaderAsVisited(const std::string& header);
+
     protected:
+
+        const bool verboseBuild = getenv("TRICK_VERBOSE_BUILD");
+        const std::string skipping = color(SKIP, "Skipping   ");
 
         /** Directory to put class and enum map files */
         std::string map_dir ;
@@ -93,9 +100,12 @@ class PrintAttributes {
 
         bool isFileIncluded(std::string header_file_name) ;
         bool isIOFileOutOfDate(std::string header_file_name, std::string io_file_name ) ;
+        bool hasBeenProcessed(EnumValues& enumValues);
+        bool hasBeenProcessed(ClassValues& classValues);
+        bool hasBeenProcessed(const std::string& name, std::set<std::string>& processedSet);
+        bool isIgnored(ConstructValues& constructValues);
 
-        /** Adds empty header files to list of processed files. */
-        void addEmptyFiles() ;
+        std::set<std::string> getEmptyFiles();
 
         /** Determines the io_file_name based on the given header file name
             @param header_file_name = full path to header file
@@ -111,9 +121,6 @@ class PrintAttributes {
 
         /** set of external library header files */
         std::set< std::string > ext_lib_io_files ;
-
-        /** set of headers that have no class/enums */
-        std::set< std::string > empty_header_files ;
 
         /** map of open files to the out of date io_src file */
         std::map< std::string , std::string > out_of_date_io_files ;

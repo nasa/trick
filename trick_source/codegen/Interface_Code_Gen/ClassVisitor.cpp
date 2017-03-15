@@ -152,11 +152,9 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
     // Return false to stop processing if this header file is excluded by one of many reasons.
     std::string header_file_name = getFileName(ci , rec->RBRACELOC(), hsd) ;
     char * rp = almostRealPath(header_file_name.c_str()) ;
-    if (  rp == NULL ||
-         !hsd.isPathInUserDir(rp)  ||
-          hsd.isPathInExclude(rp) ||
-          hsd.isPathInICGExclude(rp) ||
-          cs.hasICGNo(header_file_name) ) {
+    if ( rp == NULL || pa.isHeaderExcluded(header_file_name) ) {
+        // mark the header as visited so PrintAttributes doesn't process it during addEmptyFiles()
+        pa.markHeaderAsVisited(header_file_name);
         return false ;
     }
     cval.setCompat15(hsd.isPathInCompat15(rp)) ;

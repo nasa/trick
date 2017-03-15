@@ -145,15 +145,12 @@ sub make_swig_makefile() {
     $swig_src_dir = "build" ;
 
     foreach $n (@files_to_process) {
-        # check to see if the parent directory of each file is writable.
-        # If it isn't, then don't add it to the list of files to requiring ICG
-
         $f = abs_path(dirname($n)) . "/" . basename($n) ;
         my ($continue) = 1 ;
         foreach my $ie ( @swig_exclude_dirs ) {
-            # if file location begins with $ie (an IGC exclude dir)
+            # if file location begins with $ie (a SWIG exclude dir)
             if ( $f =~ /^\Q$ie/ ) {
-                print "CP(swig) skipping $f (ICG exclude dir $ie)\n" ;
+                print "CP(swig) skipping $f (SWIG exclude dir $ie)\n" ;
                 $continue = 0 ;
                 last ;  # break out of loop
             }
