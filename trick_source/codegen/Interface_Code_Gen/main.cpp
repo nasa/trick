@@ -14,6 +14,7 @@
 #include "clang/Basic/TargetInfo.h"
 #include "clang/Basic/FileManager.h"
 #include "clang/Lex/Preprocessor.h"
+#include "clang/Lex/PreprocessorOptions.h"
 #include "clang/Basic/Diagnostic.h"
 #include "clang/Parse/ParseAST.h"
 

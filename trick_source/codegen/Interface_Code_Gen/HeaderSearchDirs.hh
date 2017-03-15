@@ -5,6 +5,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <set>
 
 #include "clang/Lex/HeaderSearch.h"
 #include "clang/Lex/HeaderSearchOptions.h"
