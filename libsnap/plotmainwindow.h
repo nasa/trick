@@ -74,6 +74,7 @@ private:
     QAction *_pdfAction;
     QAction *_exitAction;
     QAction *_showLiveCoordAction;
+    QAction *_clearPlotsAction;
 
     QTabWidget* _nbDPVars;
     VarsWidget* _varsWidget;
@@ -93,6 +94,7 @@ private slots:
                                          int start, int end);
      void _savePdf();
      void _toggleShowLiveCoord();
+     void _clearPlots();
 
      void _startTimeChanged(double startTime);
      void _stopTimeChanged(double stopTime);
