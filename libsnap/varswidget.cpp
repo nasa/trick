@@ -243,7 +243,21 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
             _addChild(curveItem, "CurveRunID", r);
         }
         _addChild(curveItem, "CurveXScale", 1.0);
-        _addChild(curveItem, "CurveXBias", 0.0);
+        double shiftVal = _plotModel->getDataDouble(QModelIndex(),
+                                                    "ShiftRunValue");
+        QString shiftRunDir = _plotModel->getDataString(QModelIndex(),
+                                                        "ShiftRunDir");
+        if ( !shiftRunDir.isEmpty() ) {
+            QString curveRunDir = QFileInfo(curveModel->trkFile()).
+                                  absolutePath();
+            if ( shiftRunDir == curveRunDir ) {
+                _addChild(curveItem, "CurveXBias", shiftVal);
+            } else {
+                _addChild(curveItem, "CurveXBias", 0.0);
+            }
+        } else {
+            _addChild(curveItem, "CurveXBias", shiftVal);
+        }
         _addChild(curveItem, "CurveYScale", 1.0);
         _addChild(curveItem, "CurveYBias", 0.0);
         _addChild(curveItem, "CurveColor", colors.at(r).name());

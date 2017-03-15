@@ -22,11 +22,11 @@ class VarsWidget : public QWidget
     Q_OBJECT
 public:
     explicit VarsWidget(QStandardItemModel* varsModel,
-                          MonteModel* monteModel,
-                          PlotBookModel* plotModel,
-                          QItemSelectionModel*  plotSelectModel,
-                          MonteInputsView* monteInputsView,
-                          QWidget *parent = 0);
+                        MonteModel* monteModel,
+                        PlotBookModel* plotModel,
+                        QItemSelectionModel*  plotSelectModel,
+                        MonteInputsView* monteInputsView,
+                        QWidget *parent = 0);
 
     void clearSelection();
 

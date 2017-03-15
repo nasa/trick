@@ -302,6 +302,10 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
             idx = index(8,0);
         } else if ( searchItemText == "IsShowLiveCoord" ) {
             idx = index(9,0);
+        } else if ( searchItemText == "ShiftRunDir" ) {
+            idx = index(10,0);
+        } else if ( searchItemText == "ShiftRunValue" ) {
+            idx = index(11,0);
         } else {
             qDebug() << "snap [bad scoobies]:3: getIndex() received "
                         "root as a startIdx and had bad child item text of \""

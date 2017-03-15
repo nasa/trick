@@ -66,6 +66,7 @@ class SnapOptions : public Options
     QString trk2csvFile;
     QString csv2trkFile;
     QString outputFileName;
+    QString shiftString;
     bool isDebug;
 };
 
@@ -114,6 +115,9 @@ int main(int argc, char *argv[])
     opts.add("-o", &opts.outputFileName, QString(""),
              "Name of file to output with trk2csv and csv2trk options",
              presetOutputFile);
+    opts.add("-shift", &opts.shiftString, QString(""),
+             "time shift run curves by value "
+             "(e.g. -shift \"[RUN_a:]1.075\")");
     opts.add("-debug:{0,1}",&opts.isDebug,false, "Show book model tree etc.");
 
     opts.parse(argc,argv, QString("snap"), &ok);
@@ -139,6 +143,66 @@ int main(int argc, char *argv[])
             fprintf(stderr,"snap [error] : no RUNs specified\n");
             fprintf(stderr,"%s\n",opts.usage().toLatin1().constData());
             return -1;
+        }
+    }
+
+    QString shiftRunFullPath;
+    double shiftVal;
+    if ( !opts.shiftString.isEmpty() ) {
+        if ( opts.shiftString.contains(':') ) {
+            // e.g. koviz RUN_a RUN_b -shift "RUN_a:0.00125"
+            QString shiftRun       = opts.shiftString.split(':').at(0);
+            QString shiftValString = opts.shiftString.split(':').at(1);
+            if ( shiftRun.isEmpty() || shiftValString.isEmpty() ) {
+                fprintf(stderr,"snap [error] : -shift option value \"%s\""
+                               "is malformed.\n"
+                               "Use this syntax -shift \"<run>:<val>\"\n",
+                               opts.shiftString.toLatin1().constData());
+                return -1;
+            }
+
+            bool isFound = false;
+            QFileInfo fi(shiftRun);
+            shiftRunFullPath = fi.absoluteFilePath();
+            foreach ( QString runDir, runDirs ) {
+                QFileInfo fir(runDir);
+                QString runDirFullPath = fir.absoluteFilePath();
+                if ( runDirFullPath == shiftRunFullPath ) {
+                    isFound = true;
+                    break;
+                }
+            }
+            if ( !isFound ) {
+                fprintf(stderr,"snap [error] : -shift option \"%s\" "
+                               "does not specify a valid run to shift.\n"
+                               "Use this syntax -shift \"<run>:<val>\" "
+                               "where <run> is one of the runs in the \n"
+                               "commandline set of runs e.g. %s.\n",
+                        opts.shiftString.toLatin1().constData(),
+                        runDirs.at(0).toLatin1().constData());
+                return -1;
+            }
+
+            QVariant q(shiftValString);
+            shiftVal = q.toDouble(&ok);
+            if ( !ok ) {
+                fprintf(stderr,"snap [error] : option -shift \"%s\" "
+                               "does not specify a valid shift value.\n"
+                               "Use this syntax -shift \"[<run>:]<val>\"\n",
+                               opts.shiftString.toLatin1().constData());
+                return -1;
+            }
+        } else {
+            // e.g. koviz RUN_a -shift 0.00125
+            QVariant q(opts.shiftString);
+            shiftVal = q.toDouble(&ok);
+            if ( !ok ) {
+                fprintf(stderr,"snap [error] : option -shift \"%s\" "
+                               "does not specify a valid shift value.\n"
+                               "Use this syntax -shift \"[<run>:]<val>\"\n",
+                               opts.shiftString.toLatin1().constData());
+                return -1;
+            }
         }
     }
 
@@ -331,6 +395,7 @@ int main(int argc, char *argv[])
             // TODO: Shouldn't timeName use opts.timeName if specified?
             PlotMainWindow w(opts.isDebug,
                              opts.timeName, opts.start, opts.stop,
+                             shiftRunFullPath, shiftVal,
                              presentation, QString(), dps, titles,
                              monteModel, varsModel, monteInputsModel);
             w.savePdf(opts.pdfOutFile);
@@ -431,6 +496,7 @@ int main(int argc, char *argv[])
 #endif
                 PlotMainWindow w(opts.isDebug,
                                  opts.timeName, opts.start, opts.stop,
+                                 shiftRunFullPath,shiftVal,
                                  presentation, ".", dps, titles,
                                  monteModel, varsModel, monteInputsModel);
 #ifdef __linux
@@ -442,6 +508,7 @@ int main(int argc, char *argv[])
 
                 PlotMainWindow w(opts.isDebug,
                                  opts.timeName, opts.start, opts.stop,
+                                 shiftRunFullPath,shiftVal,
                                  presentation, runDirs.at(0), QStringList(),
                                  titles, monteModel,
                                  varsModel, monteInputsModel);

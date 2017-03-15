@@ -37,6 +37,8 @@ public:
                              const QString& timeName,
                              double startTime,
                              double stopTime,
+                             const QString& shiftRunDir,
+                             double shiftRunValue,
                              const QString& presentation,
                              const QString& dpDir,
                              const QStringList& dpFiles,

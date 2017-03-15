@@ -18,6 +18,8 @@ PlotMainWindow::PlotMainWindow(
         bool isDebug,
         const QString& timeName,
         double startTime, double stopTime,
+        const QString& shiftRunDir,
+        double shiftRunValue,
         const QString &presentation,
         const QString &dpDir,
         const QStringList& dpFiles,
@@ -70,8 +72,14 @@ PlotMainWindow::PlotMainWindow(
         _bookModel->addChild(rootItem, "LiveCoordTime","");
         _bookModel->addChild(rootItem, "StartTime",startTime);
         _bookModel->addChild(rootItem, "StopTime",stopTime);
-        _bookModel->addChild(rootItem, "Presentation",_presentation);
+        if ( shiftRunDir.isEmpty() ) {
+            _bookModel->addChild(rootItem, "Presentation",_presentation);
+        } else {
+            _bookModel->addChild(rootItem, "Presentation","compare");
+        }
         _bookModel->addChild(rootItem, "IsShowLiveCoord",true);
+        _bookModel->addChild(rootItem, "ShiftRunDir",shiftRunDir);
+        _bookModel->addChild(rootItem, "ShiftRunValue",shiftRunValue);
     }
 
 

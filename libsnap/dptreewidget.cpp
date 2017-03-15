@@ -588,7 +588,21 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
         _addChild(curveItem, "CurveRunID", runId);
     }
     _addChild(curveItem, "CurveXScale",      x->scaleFactor());
-    _addChild(curveItem, "CurveXBias",       x->bias());
+
+    double shiftVal = _bookModel->getDataDouble(QModelIndex(),
+                                                "ShiftRunValue");
+    QString shiftRunDir = _bookModel->getDataString(QModelIndex(),
+                                                    "ShiftRunDir");
+    if ( !shiftRunDir.isEmpty() ) {
+        QString curveRunDir = QFileInfo(curveModel->trkFile()).absolutePath();
+        if ( shiftRunDir == curveRunDir ) {
+            _addChild(curveItem, "CurveXBias", shiftVal);
+        } else {
+            _addChild(curveItem, "CurveXBias", 0.0);
+        }
+    } else {
+        _addChild(curveItem, "CurveXBias", shiftVal);
+    }
     _addChild(curveItem, "CurveYScale",      y->scaleFactor());
     _addChild(curveItem, "CurveYBias",       y->bias());
     _addChild(curveItem, "CurveSymbolStyle", y->symbolStyle());

@@ -997,9 +997,17 @@ void CurvesView::dataChanged(const QModelIndex &topLeft,
                 model()->setData(plotRectIdx,R);
             }
         }
+    } else if ( topLeft.parent().parent().parent() == rootIndex() ) {
+        if ( tag == "CurveXBias" ) {
+            if ( _pixmap ) {
+                delete _pixmap;
+            }
+            _pixmap = _createLivePixmap();
+        }
     }
 
     viewport()->update();
+    update();
 }
 
 QPixmap* CurvesView::_createLivePixmap()
