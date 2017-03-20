@@ -97,6 +97,18 @@ void mc_set_user_cmd_string(const char *user_cmd_string);
 
 /**
  * @relates Trick::MonteCarlo
+ * set #Trick::MonteCarlo::slave_sim_options
+ */
+void mc_set_slave_sim_options(const char *slave_sim_options);
+
+/**
+ * @relates Trick::MonteCarlo
+ * get #Trick::MonteCarlo::slave_sim_options
+ */
+const char *mc_get_slave_sim_options();
+
+/**
+ * @relates Trick::MonteCarlo
  * @copydoc get_user_cmd_string
  */
 const char *mc_get_user_cmd_string();

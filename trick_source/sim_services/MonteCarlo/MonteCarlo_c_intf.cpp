@@ -104,6 +104,19 @@ extern "C" const char *mc_get_user_cmd_string() {
     return NULL ;
 }
 
+extern "C" void mc_set_slave_sim_options(const char *slave_sim_options) {
+    if ( the_mc != NULL ) {
+        the_mc->slave_sim_options = std::string(slave_sim_options ? slave_sim_options : "");
+    }
+}
+
+extern "C" const char *mc_get_slave_sim_options() {
+    if ( the_mc != NULL ) {
+        return the_mc->slave_sim_options.c_str();
+    }
+    return NULL ;
+}
+
 extern "C" void mc_set_custom_pre_text(const char *custom_pre_text) {
     if ( the_mc != NULL ) {
         the_mc->set_custom_pre_text(std::string(custom_pre_text ? custom_pre_text : ""));
