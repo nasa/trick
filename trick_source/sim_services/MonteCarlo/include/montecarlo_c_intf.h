@@ -103,6 +103,18 @@ const char *mc_get_user_cmd_string();
 
 /**
  * @relates Trick::MonteCarlo
+ * set #Trick::MonteCarlo::slave_sim_options
+ */
+void mc_set_slave_sim_options(const char *slave_sim_options);
+
+/**
+ * @relates Trick::MonteCarlo
+ * get #Trick::MonteCarlo::slave_sim_options
+ */
+const char *mc_get_slave_sim_options();
+
+/**
+ * @relates Trick::MonteCarlo
  * @copydoc set_custom_pre_text
  */
 void mc_set_custom_pre_text(const char *custom_pre_text);

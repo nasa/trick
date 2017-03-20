@@ -257,6 +257,9 @@ namespace Trick {
             ALL            /**< report all messages (error, informational & warning) */
         };
 
+        /** Options to be passed to the slave sim. */
+        std::string slave_sim_options;
+
         private:
         int run_queue(Trick::ScheduledJobQueue* queue, std::string in_string) ;
 

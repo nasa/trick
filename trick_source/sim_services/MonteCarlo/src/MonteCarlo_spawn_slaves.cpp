@@ -53,6 +53,11 @@ void Trick::MonteCarlo::initialize_slave(Trick::MonteSlave* slave_to_init) {
        << " -O " << run_directory;
     buffer += ss.str();
 
+    /** <li> Append user sim options. */
+    if (!slave_sim_options.empty()) {
+        buffer += " " + slave_sim_options;
+    }
+
     /** <li> if this is a custom slave dispatch, append the #custom_post_text. */
     if (custom_slave_dispatch) {
         buffer += custom_post_text;
