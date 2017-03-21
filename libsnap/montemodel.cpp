@@ -27,40 +27,6 @@ MonteModel::~MonteModel()
     //delete _runs;
 }
 
-TrickCurveModel *MonteModel::curve(const QModelIndex &xIdx,
-                                   const QModelIndex &yIdx,
-                                   double xScaleFactor,
-                                   double yScaleFactor) const
-{
-    QString yparam = _params.at(yIdx.column());
-    QList<TrickModel*>* models = _runs->models(yparam);
-    TrickModel* tm = models->at(yIdx.row());
-    int ycol = tm->paramColumn(yparam) ;
-
-    QString xparam = _params.at(xIdx.column());
-    int xcol = tm->paramColumn(xparam) ;
-    if ( xcol < 0 ) {
-        _err_stream << "snap [error]: MonteModel::curve(): Could not find "
-                    << "(x,y) pair:\n\n"
-                    << "        x=" << xparam << "\n"
-                    << "        y=" << yparam << "\n\n"
-                    << "in the following RUNs:\n\n";
-        int i = 0;
-        foreach (  QString run, _runs->runs() ) {
-            _err_stream << "        " << run << "\n";
-            if ( ++i > 10 ) {
-                _err_stream << "...<more>";
-                break;
-            }
-        }
-        throw std::runtime_error(_err_string.toLatin1().constData());
-    }
-
-    return new TrickCurveModel(tm,0,xcol,ycol,yparam,
-                               xScaleFactor,yScaleFactor);
-}
-
-
 TrickCurveModel *MonteModel::curve(int row,
                                    const QString &tparam,
                                    const QString &xparam,

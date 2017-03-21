@@ -38,10 +38,6 @@ class MonteModel : public QStandardItemModel
                        QObject *parent = 0);
     ~MonteModel();
 
-    TrickCurveModel* curve(const QModelIndex& xIdx,
-                           const QModelIndex& yIdx,
-                           double xScaleFactor=1.0,
-                           double yScaleFactor=1.0) const;
     TrickCurveModel* curve(int row,
                            const QString& tparam,
                            const QString& xparam,
