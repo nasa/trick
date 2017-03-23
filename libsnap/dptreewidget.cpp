@@ -601,7 +601,7 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
             _addChild(curveItem, "CurveXBias", 0.0);
         }
     } else {
-        _addChild(curveItem, "CurveXBias", shiftVal);
+        _addChild(curveItem, "CurveXBias", x->bias());
     }
     _addChild(curveItem, "CurveYScale",      y->scaleFactor());
     _addChild(curveItem, "CurveYBias",       y->bias());
