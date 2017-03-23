@@ -17,7 +17,7 @@ int Trick::MonteCarlo::slave_process_run() {
     /** <ul><li> Read the length of the incoming message. */
     if (tc_read(&connection_device, (char *)&size, (int)sizeof(size)) != (int)sizeof(size) || (size = ntohl(size)) < 0) {
         if (verbosity >= ERROR) {
-            message_publish(MSG_ERROR, "Monte [%s:%d] : Lost connection to Master while receiving new run.\nShutting down.\n",
+            message_publish(MSG_ERROR, "Monte [%s:%d] Lost connection to Master while receiving new run.\nShutting down.\n",
                             machine_name.c_str(), slave_id) ;
         }
         slave_shutdown();
@@ -26,7 +26,7 @@ int Trick::MonteCarlo::slave_process_run() {
     /** <li> Read the incoming message. */
     if (tc_read(&connection_device, input, size) != size) {
         if (verbosity >= ERROR) {
-            message_publish(MSG_ERROR, "Monte [%s:%d] : Lost connection to Master while receiving new run.\nShutting down.\n",
+            message_publish(MSG_ERROR, "Monte [%s:%d] Lost connection to Master while receiving new run.\nShutting down.\n",
                             machine_name.c_str(), slave_id) ;
         }
         slave_shutdown();
@@ -41,7 +41,7 @@ int Trick::MonteCarlo::slave_process_run() {
     pid_t pid = fork();
     if (pid == -1) {
         if (verbosity >= ERROR) {
-            message_publish(MSG_ERROR, "Monte [%s:%d] : Unable to fork new process for run.\nShutting down.\n",
+            message_publish(MSG_ERROR, "Monte [%s:%d] Unable to fork new process for run.\nShutting down.\n",
                             machine_name.c_str(), slave_id) ;
         }
         slave_shutdown();
@@ -53,39 +53,39 @@ int Trick::MonteCarlo::slave_process_run() {
             /* (Alex) On the Mac this check gives a lot of false positives.  I've commented out the code for now. */
             /*
             if (verbosity >= ERROR) {
-                message_publish(MSG_ERROR, "Monte [%s:%d] : Error while waiting for run to finish.\nShutting down.\n",
+                message_publish(MSG_ERROR, "Monte [%s:%d] Error while waiting for run to finish.\nShutting down.\n",
                                 machine_name.c_str(), slave_id) ;
             }
             slave_shutdown();
             */
         }
-        /** <li> Extract the exit status of the child. */
-        MonteRun::ExitStatus exit_status;
+
         if (WIFEXITED(return_value)) {
-            exit_status = (MonteRun::ExitStatus)WEXITSTATUS(return_value);
-            if (exit_status == 0) {
-                exit_status = MonteRun::COMPLETE;
-            }
-        } else {
-            int signal = WTERMSIG(return_value);
-            exit_status = signal == SIGALRM ? MonteRun::TIMEDOUT : MonteRun::CORED;
-            if (verbosity >= ERROR) {
-                message_publish(MSG_ERROR, "Monte [%s:%d] : Run killed by signal %d.\n",
-                                machine_name.c_str(), slave_id, signal) ;
-            }
+            // A successful sim sends its exit status to the master itself in
+            // its shutdown job. Users can subvert this by calling exit, in
+            // which case the master will eventually deem this run to have
+            // timed out. But who would do that?!
+            return 0;
+        }
+
+        int signal = WTERMSIG(return_value);
+        /** <li> Extract the exit status of the child. */
+        MonteRun::ExitStatus exit_status = signal == SIGALRM ? MonteRun::TIMEDOUT : MonteRun::CORED;
+        if (verbosity >= ERROR) {
+            message_publish(MSG_ERROR, "Monte [%s:%d] Run killed by signal %d: %s\n",
+                            machine_name.c_str(), slave_id, signal, strsignal(signal)) ;
         }
         connection_device.port = master_port;
         if (tc_connect(&connection_device) != TC_SUCCESS) {
             if (verbosity >= ERROR) {
-                message_publish(MSG_ERROR, "Monte [%s:%d] : Lost connection to Master before results could be returned.\nShutting down.\n",
+                message_publish(MSG_ERROR, "Monte [%s:%d] Lost connection to Master before results could be returned.\nShutting down.\n",
                                 machine_name.c_str(), slave_id) ;
             }
             slave_shutdown();
         }
         if (verbosity >= ALL) {
-            message_publish(MSG_INFO, "Monte [%s:%d] : Sending run exit status to master %d.\n",
+            message_publish(MSG_INFO, "Monte [%s:%d] Sending run exit status to master %d.\n",
                             machine_name.c_str(), slave_id, exit_status) ;
-
         }
         /** <li> Write the slaves id to the master. </ul> */
         int id = htonl(slave_id);
@@ -97,7 +97,6 @@ int Trick::MonteCarlo::slave_process_run() {
         return 0;
     /** <li> Child process: */
     } else {
-
         input[size] = '\0';
         if ( ip_parse(input) != 0 ) {
             exit(MonteRun::BAD_INPUT);

@@ -48,7 +48,6 @@ void Trick::MonteCarlo::initialize_slave(Trick::MonteSlave* slave_to_init) {
        << " " << command_line_args_get_input_file()
        << " --monte_host " << machine_name
        << " --monte_sync_port " << listen_device.port
-       << " --monte_data_port " << data_listen_device.port
        << " --monte_client_id " << slave_to_init->id
        << " -O " << run_directory;
     buffer += ss.str();

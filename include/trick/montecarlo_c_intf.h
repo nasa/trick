@@ -199,13 +199,13 @@ void mc_stop_slave(unsigned int id);
 
 /**
  * @relates Trick::MonteCarlo
- * Gets the data_connection_device and tc_write()s the given buffer.
+ * Gets the connection_device and tc_write()s the given buffer.
  */
 void mc_write(char *buffer, int size);
 
 /**
  * @relates Trick::MonteCarlo
- * Gets the data_connection_device and tc_read()s the incoming string.
+ * Gets the connection_device and tc_read()s the incoming string.
  */
 void mc_read(char *buffer, int size);
 
@@ -223,21 +223,9 @@ void mc_set_current_run(int num_run) ;
 
 /**
  * @relates Trick::MonteCarlo
- * Gets the data_connection_device.
- */
-TCDevice* mc_get_connection_device() ;
-
-/**
- * @relates Trick::MonteCarlo
  * Sets the port for the listen_device.
  */
 void mc_set_listen_device_port(int port_number) ;
-
-/**
- * @relates Trick::MonteCarlo
- * Sets the port for the data_listen_device.
- */
-void mc_set_data_listen_device_port(int port_number) ;
 
 /**
  * @relates Trick::MonteCarlo
@@ -247,33 +235,15 @@ void mc_set_connection_device_port(int port_number) ;
 
 /**
  * @relates Trick::MonteCarlo
- * Sets the port for the data_connection_device.
- */
-void mc_set_data_connection_device_port(int port_number) ;
-
-/**
- * @relates Trick::MonteCarlo
  * Gets the port for the listen_device.
  */
 int  mc_get_listen_device_port() ;
 
 /**
  * @relates Trick::MonteCarlo
- * Gets the port for the data_listen_device.
- */
-int  mc_get_data_listen_device_port() ;
-
-/**
- * @relates Trick::MonteCarlo
  * Gets the port for the connection_device.
  */
 int  mc_get_connection_device_port() ;
-
-/**
- * @relates Trick::MonteCarlo
- * Gets the port for the data_connection_device.
- */
-int  mc_get_data_connection_device_port() ;
 
 #ifdef __cplusplus
 }

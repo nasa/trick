@@ -23,7 +23,7 @@ int Trick::MonteCarlo::master_init() {
     /** <li> If this is a dry run return else initialize sockets: */
     if (dry_run) {
        return 0 ;
-    } else {
-       return initialize_sockets() ;
     }
+
+    return initialize_sockets() ;
 }

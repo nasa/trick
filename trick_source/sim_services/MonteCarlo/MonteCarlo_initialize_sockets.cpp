@@ -13,8 +13,6 @@ int Trick::MonteCarlo::initialize_sockets() {
     /** set tc_error to zero for TCDevices to turn off advisory messages. */
     tc_error(&listen_device, 0);
     tc_error(&connection_device, 0);
-    tc_error(&data_listen_device, 0);
-    tc_error(&data_connection_device, 0);
 
     /** <ul><li> Initialize the sockets for communication with slaves. */
     int return_value = socket_init(&listen_device);
@@ -24,14 +22,7 @@ int Trick::MonteCarlo::initialize_sockets() {
         }
         return return_value;
     }
-
-    return_value = socket_init(&data_listen_device);
-    if (return_value != TC_SUCCESS) {
-        if (verbosity >= ERROR) {
-            message_publish(MSG_ERROR, "Monte [Master] Failed to initialize data communication socket.\n") ;
-        }
-        return return_value;
-    }
+    tc_blockio(&listen_device, TC_COMM_NOBLOCKIO);
 
     /** <li> If no slaves were specified, add one on localhost. */
     if (slaves.empty()) {

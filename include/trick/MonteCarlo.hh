@@ -333,12 +333,6 @@ namespace Trick {
         /** Device over which data is sent and received. */
         TCDevice connection_device;                     /**< \n trick_units(--) */
 
-        /** Device over which connections are accepted between the Slave child and Master. */
-        TCDevice data_listen_device;                    /**< \n trick_units(--) */
-
-        /** Device over which data is sent and received between Slave child and Master. */
-        TCDevice data_connection_device;                /**< \n trick_units(--) */
-
         /** Runs to be dispatched. */
         std::deque <Trick::MonteRun *> runs;                 /**< \n trick_io(**) trick_units(--) */
 
@@ -380,9 +374,6 @@ namespace Trick {
 
         /** Port on which the master is listening. This value is unspecified for the master. */
         unsigned int master_port;                       /**< \n trick_units(--) */
-
-        /** Port on which the master is listening for data. This value is unspecified for the master. */
-        unsigned int data_port;                         /**< \n trick_units(--) */
 
         /** Unique identifier. This value is zero for the master. */
         unsigned int slave_id;                          /**< \n trick_units(--) */
@@ -710,12 +701,6 @@ namespace Trick {
          */
         void set_current_run(int run_num) ;
 
-        /** Retrieves the #data_connection_device
-         *
-         * @return the address of the data_connection_device
-         */
-        TCDevice* get_data_connection_device();
-
         /** Allows the user to set the port number for
          * the listen_device
          *
@@ -724,25 +709,11 @@ namespace Trick {
         void set_listen_device_port(int port_number) ;
 
         /** Allows the user to set the port number for
-         * the data_listen_device
-         *
-         * @param port_number number for the port
-         */
-        void set_data_listen_device_port(int port_number) ;
-
-        /** Allows the user to set the port number for
          * the connection_device
          *
          * @param port_number number for the port
          */
         void set_connection_device_port(int port_number) ;
-
-        /** Allows the user to set the port number for
-         * the data_connection_device
-         *
-         * @param port_number number for the port
-         */
-        void set_data_connection_device_port(int port_number) ;
 
         /** Allows the user to get the port number for
          * the listen_device
@@ -752,25 +723,14 @@ namespace Trick {
         int  get_listen_device_port() ;
 
         /** Allows the user to get the port number for
-         * the data_listen_device
-         *
-         * @return the port number
-         */
-        int  get_data_listen_device_port() ;
-
-        /** Allows the user to get the port number for
          * the connection_device
          *
          * @return the port number
          */
         int  get_connection_device_port() ;
 
-        /** Allows the user to get the port number for
-         * the data_connection_device
-         *
-         * @return the port number
-         */
-        int  get_data_connection_device_port() ;
+        int write(char* data, int size);
+        int read(char* data, int size);
 
 #if 0
         /**
@@ -811,14 +771,9 @@ namespace Trick {
         /** Receives from any slaves that are ready to return results. */
         void receive_results();
 
-        /** Receives the results from the slave */
-        void receive_slave_results() ;
-
-        void read_machine_name(MonteSlave *curr_slave);
-
-        void set_disconnected_state(MonteSlave *curr_slave);
-
-        void read_slave_port(MonteSlave *curr_slave);
+        void handle_initialization(MonteSlave& slave);
+        void handle_run_data(MonteSlave& slave);
+        void set_disconnected_state(MonteSlave& slave);
 
         /**
          * Handles the retrying of the current run of the specified slave with the specified exit status.
@@ -828,7 +783,7 @@ namespace Trick {
          *
          * @see max_tries
          */
-        void handle_retry(MonteSlave *slave, MonteRun::ExitStatus exit_status);
+        void handle_retry(MonteSlave& slave, MonteRun::ExitStatus exit_status);
 
         /**
          * Resolves the current run of the specified slave with the specified exit status.
@@ -836,7 +791,7 @@ namespace Trick {
          * @param slave the slave processing the run
          * @param exit_status the exit status of the run
          */
-        void resolve_run(MonteSlave *slave, MonteRun::ExitStatus exit_status);
+        void resolve_run(MonteSlave& slave, MonteRun::ExitStatus exit_status);
 
         /** Checks dispatched runs for timeouts. */
         void check_timeouts();
@@ -916,7 +871,7 @@ namespace Trick {
          *
          * @return 0 on success
          */
-        int slave();
+        int execute_as_slave();
 
         /** Processes an incoming run. */
         int slave_process_run();

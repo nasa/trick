@@ -8,30 +8,30 @@
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
 
-void Trick::MonteCarlo::dispatch_run_to_slave(MonteRun *in_run, MonteSlave *in_slave) {
-    if (in_slave && in_run) {
-        current_run = in_run->id;
-        if (prepare_run(in_run) == -1) {
+void Trick::MonteCarlo::dispatch_run_to_slave(MonteRun *run, MonteSlave *slave) {
+    if (slave && run) {
+        current_run = run->id;
+        if (prepare_run(run) == -1) {
             return;
         }
-        in_slave->state = MonteSlave::RUNNING;
-        connection_device.hostname = (char*)in_slave->machine_name.c_str();
-        connection_device.port = in_slave->port;
+        slave->state = MonteSlave::RUNNING;
+        connection_device.hostname = (char*)slave->machine_name.c_str();
+        connection_device.port = slave->port;
         if (tc_connect(&connection_device) == TC_SUCCESS) {
             std::stringstream buffer_stream;
-            buffer_stream << run_directory << "/RUN_" << std::setw(5) << std::setfill('0') << in_run->id;
+            buffer_stream << run_directory << "/RUN_" << std::setw(5) << std::setfill('0') << run->id;
             std::string buffer = "";
-            for (std::vector<std::string>::size_type j = 0; j < in_run->variables.size(); ++j) {
-                buffer += in_run->variables[j] + "\n";
+            for (std::vector<std::string>::size_type j = 0; j < run->variables.size(); ++j) {
+                buffer += run->variables[j] + "\n";
             }
             buffer += std::string("trick.set_output_dir(\"") + buffer_stream.str() + std::string("\")\n");
             buffer_stream.str("");
-            buffer_stream << in_run->id ;
+            buffer_stream << run->id ;
             buffer += std::string("trick.mc_set_current_run(") + buffer_stream.str() + std::string(")\n");
 
             if (verbosity >= INFORMATIONAL) {
                 message_publish(MSG_INFO, "Monte [Master] Dispatching run %d to %s:%d.\n",
-		     in_run->id, in_slave->machine_name.c_str(), in_slave->id) ;
+		     run->id, slave->machine_name.c_str(), slave->id) ;
             }
 
             int command = htonl(MonteSlave::PROCESS_RUN);
@@ -41,23 +41,23 @@ void Trick::MonteCarlo::dispatch_run_to_slave(MonteRun *in_run, MonteSlave *in_s
             tc_write(&connection_device, (char*)buffer.c_str(), (int)buffer.length());
 
             if (verbosity >= INFORMATIONAL) {
-                message_publish(MSG_INFO, "Parameterization of run %d :\n%s\n", in_run->id, buffer.c_str()) ;
+                message_publish(MSG_INFO, "Parameterization of run %d :\n%s\n", run->id, buffer.c_str()) ;
             }
 
             tc_disconnect(&connection_device);
 
-            ++in_slave->num_dispatches;
-            in_slave->current_run = in_run;
+            ++slave->num_dispatches;
+            slave->current_run = run;
 
             struct timeval time_val;
             gettimeofday(&time_val, NULL);
-            in_run->start_time = time_val.tv_sec + (double)time_val.tv_usec / 1000000;
-            ++in_run->num_tries;
+            run->start_time = time_val.tv_sec + (double)time_val.tv_usec / 1000000;
+            ++run->num_tries;
         } else {
-            in_slave->state = Trick::MonteSlave::DISCONNECTED;
+            slave->state = Trick::MonteSlave::DISCONNECTED;
             if (verbosity >= ERROR) {
-                message_publish(MSG_ERROR, "Monte [Master] Lost connection to %s:%d while dispatching run.\n",
-                                in_slave->machine_name.c_str(), in_slave->id) ;
+                message_publish(MSG_ERROR, "Monte [Master] Failed to connect to %s:%d to dispatch run.\n",
+                                slave->machine_name.c_str(), slave->id) ;
             }
         }
     }

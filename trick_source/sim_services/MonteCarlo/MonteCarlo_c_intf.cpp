@@ -209,23 +209,14 @@ extern "C" void mc_stop_slave(unsigned int id) {
 
 extern "C" void mc_write(char *buffer, int size) {
     if ( the_mc != NULL ) {
-        TCDevice *data_conn = the_mc->get_data_connection_device();
-        tc_write(data_conn, buffer, size) ;
+        the_mc->write(buffer, size) ;
     }
 }
 
 extern "C" void mc_read(char *buffer, int size) {
     if ( the_mc != NULL ) {
-        TCDevice *data_conn = the_mc->get_data_connection_device();
-        tc_read(data_conn, buffer, size) ;
+        the_mc->read(buffer, size) ;
     }
-}
-
-extern "C" TCDevice* mc_get_connection_device() {
-    if ( the_mc != NULL ) {
-        return (the_mc->get_data_connection_device());
-    }
-    return NULL ;
 }
 
 extern "C" unsigned int mc_get_current_run() {
@@ -247,21 +238,9 @@ extern "C" void mc_set_listen_device_port(int port_number) {
     }
 }
 
-extern "C" void mc_set_data_listen_device_port(int port_number) {
-    if ( the_mc != NULL ) {
-        the_mc->set_data_listen_device_port(port_number);
-    }
-}
-
 extern "C" void mc_set_connection_device_port(int port_number) {
     if ( the_mc != NULL ) {
         the_mc->set_connection_device_port(port_number);
-    }
-}
-
-extern "C" void mc_set_data_connection_device_port(int port_number) {
-    if ( the_mc != NULL ) {
-        the_mc->set_data_connection_device_port(port_number);
     }
 }
 
@@ -272,24 +251,9 @@ extern "C" int mc_get_listen_device_port() {
     return -1 ;
 }
 
-extern "C" int mc_get_data_listen_device_port() {
-    if ( the_mc != NULL ) {
-        return the_mc->get_data_listen_device_port();
-    }
-    return -1 ;
-}
-
 extern "C" int mc_get_connection_device_port() {
     if ( the_mc != NULL ) {
         return the_mc->get_connection_device_port();
     }
     return -1 ;
 }
-
-extern "C" int mc_get_data_connection_device_port() {
-    if ( the_mc != NULL ) {
-        return the_mc->get_data_connection_device_port();
-    }
-    return -1 ;
-}
-
