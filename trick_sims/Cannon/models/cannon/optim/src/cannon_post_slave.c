@@ -13,6 +13,6 @@ int cannon_post_slave(
 {
 
      /* Send slave results */
-     tc_write( mc_get_connection_device(), (char*) C, sizeof(CANNON_AERO) );
+     mc_write( (char*) C, sizeof(CANNON_AERO) );
      return(0) ;
 }

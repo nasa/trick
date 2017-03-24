@@ -55,7 +55,8 @@ void Trick::MonteCarlo::handle_initialization(Trick::MonteSlave& slave) {
         }
         size = ntohl(size);
 
-        char name[size + 1] = {};
+        char name[size + 1];
+        name[size] = '\0';
         if (tc_read(&connection_device, name, size) != size) {
             set_disconnected_state(slave);
             return;
