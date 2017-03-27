@@ -13,6 +13,7 @@ use gte ;
 use trick_version ;
 use Digest::MD5 qw(md5_hex) ;
 use File::Path qw(make_path) ;
+use html ;
 
 ##
 ## ================================================================================
@@ -51,8 +52,9 @@ my $help = '';  # option variable with default value (false)
 my $stls = 0;  # option variable with default value (false)
 
 my ( @include_dirs , @defines) ;
-my ( @swig_exclude_dirs) ;
-my ( @exclude_dirs) ;
+my @exclude_paths ;
+my @swig_exclude_paths ;
+my @ext_lib_paths ;
 my %sim ;
 my %out_of_date ;
 my ($version, $thread, $year) ;
@@ -122,11 +124,9 @@ if ( $help ) {
 
 @include_dirs = $ENV{"TRICK_CFLAGS"} =~ /-I\s*(\S+)/g ; # get include paths from TRICK_CFLAGS
 
-@swig_exclude_dirs = split /:/ , $ENV{"TRICK_SWIG_EXCLUDE"} ;
-if ( scalar @swig_exclude_dirs == 0 ) {
-    @swig_exclude_dirs = split /:/ , $ENV{"TRICK_ICG_EXCLUDE"} ;
-}
-@exclude_dirs = split /:/ , $ENV{"TRICK_EXCLUDE"} ;
+@exclude_paths = map abs_path($_), split /:/ , $ENV{"TRICK_EXCLUDE"} ;
+@swig_exclude_paths = map abs_path($_), split /:/ , $ENV{"TRICK_SWIG_EXCLUDE"} ;
+@ext_lib_paths = map abs_path($_), split /:/ , $ENV{"TRICK_EXT_LIB_DIRS"} ;
 @defines = $ENV{"TRICK_CFLAGS"} =~ /(-D\S+)/g ;       # get defines from TRICK_CFLAGS
 if ( $ENV{"TRICK_CFLAGS"} !~ /DTRICK_VER=/ ) {
     push @defines , "-DTRICK_VER=$year" ;
@@ -222,54 +222,50 @@ sub process_file() {
 
 ##      For each of the #includes in the out_of_date header file
 ##      create a corresponding %import directive.
+        outer:
         foreach (split /^/, $raw_contents) {
 
-            if ( /^(\s*\#\s*include\s+)([^\n]+)/ ) {
-                my ( $include ) = $1 ;
-                my ( $file_name ) = $2 ;
+            if ( /^\s*\#\s*include\s+([^\n]+)/ ) {
+                my $file_name = $1 ;
+
+                # strip trailing whitespace
                 $file_name =~ s/\s+$// ;
-                if ( $file_name !~ /\</ ) {
-                    if ( $file_name !~ /\"sim_services/ and $file_name !~ /\"trick_utils/ and $file_name !~ /\"trick\//)  {
-                        my $exclude = 0 ;
-                        my $temp_file_name ;
 
-                        $temp_file_name = $file_name ;
-                        $temp_file_name =~ s/"//g ;
-                        # Check if include file's path begins with dot dot (..)
-                        if ( $temp_file_name =~ /^\.\./ ) {
-                            # include file location is relative to the input file's path.
-                            # Get the absolute path to this include file... use this from now on.
-                            $file_name = abs_path(dirname($f)) . "/" . $temp_file_name ;
-                            # Re-insert double quotes around include file.
-                            #$file_name = "\"" . $file_name . "\"" ;
-                        } elsif ( $temp_file_name !~ /^\// ) {
-                            foreach my $i ( dirname($f) , @include_dirs ) {
-                                if ( -e ( "$i/$temp_file_name" ) ) {
-                                    $file_name = abs_path(dirname("$i/$temp_file_name")) . "/" . basename($temp_file_name) ;
-                                    last ;
-                                }
-                            }
-                        } else {
-                            $file_name = $temp_file_name ;
-                        }
+                # ignore <> includes
+                if ( $file_name =~ /\</ ) {
+                    next ;
+                }
 
-                        foreach my $i ( @swig_exclude_dirs ) {
-                            if ( $file_name =~ /^\"\Q$i/ ) {
-                                $exclude = 1 ;
-                                last ;
-                            }
-                        }
-                        $file_name =~ s/^"// ;
-                        $file_name = "\"build" . $file_name . "\"" ;
+                # normalize trick includes
+                $file_name =~ s/"//g ;
+                if ( $file_name =~ /sim_services/ or $file_name =~ /trick_utils/ or $file_name =~ /trick\//)  {
+                    $contents .= "\%import \"trick/" . basename($file_name) . "\"\n" ;
+                    next ;
+                }
 
-                        if ( $exclude == 0 ) {
-                            $file_name =~ s/\.[^\.]+\"/\_py.i\"/ ;
+                # Convert relative paths to absolute paths
+                if ( $file_name !~ /^\// ) {
+                    foreach my $i ( dirname($f) , @include_dirs ) {
+                        my $candidate_path = "$i/$file_name" ;
+                        if ( -e $candidate_path ) {
+                            $file_name = $candidate_path ;
+                            last ;
                         }
-                        $contents .= "\%import $file_name\n" ;
-                    } else {
-                        $contents .= "\%import(module=\"sim_services\") $file_name\n" ;
                     }
                 }
+
+                # Get the canonical path (resolve ., .., and symbolic links)
+                $file_name = abs_path($file_name) ;
+
+                foreach my $i ( @exclude_paths, @swig_exclude_paths, @ext_lib_paths ) {
+                    if ( $file_name =~ /^\Q$i/ ) {
+                        next outer ;
+                    }
+                }
+
+                $file_name = "build" . $file_name ;
+                $file_name =~ s/\.[^\.]+?$/\_py.i/ ;
+                $contents .= "\%import \"$file_name\"\n" ;
             } else {
                 $contents .= $_ ;
             }
@@ -310,7 +306,7 @@ sub process_file() {
 
         print OUT "\%module m$md5_sum\n\n" ;
 
-        print OUT "#include \"trick/swig/trick_swig.i\"\n\n" ;
+        print OUT "%include \"trick/swig/trick_swig.i\"\n\n" ;
 
         print OUT "
 \%insert(\"begin\") \%{

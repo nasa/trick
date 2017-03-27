@@ -24,3 +24,4 @@ bin/trick-trk2csv
 aclocal.m4
 autom4te.cache
 trick_test
+gmon.out

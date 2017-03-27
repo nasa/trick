@@ -61,7 +61,7 @@ class PrintAttributes {
     protected:
 
         const bool verboseBuild = getenv("TRICK_VERBOSE_BUILD");
-        const std::string skipping = color(SKIP, "Skipping   ");
+        const std::string skipping = color(SKIP, "ICG Skip   ");
 
         /** Directory to put class and enum map files */
         std::string map_dir ;

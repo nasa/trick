@@ -161,7 +161,7 @@ void HeaderSearchDirs::AddDirsAndFiles(std::string env_var, std::vector<std::str
                     }
                 } else {
                     std::cout << bold(color(WARNING, "Warning")) << "    Cannot find " <<
-                     env_var << " directory " << quote(bold(item)) << std::endl ;
+                     env_var << " path " << quote(bold(item)) << std::endl ;
                 }
             }
         }

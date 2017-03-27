@@ -2,10 +2,9 @@
 
 import os
 
-path = os.path.abspath(os.getcwd())
-
 with open('build/CP_instances') as cp_instances:
     with open('build/top.i', 'w') as top:
+        path = os.path.abspath(os.getcwd())
         instances = ''.join(cp_instances.readlines())
         top.write(
           '%module top\n'

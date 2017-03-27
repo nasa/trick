@@ -9,156 +9,146 @@ use Cwd 'abs_path';
 use gte ;
 use Digest::MD5 qw(md5_hex) ;
 use trick_version ;
+use html ;
 use strict ;
 
-my @exclude_dirs ;
-my @swig_exclude_dirs ;
+my @exclude_paths ;
+my @swig_exclude_paths ;
+my @ext_lib_paths ;
 my @files_to_process ;
 my @ext_lib_files ;
+my %md5s ;
+my $verbose_build = exists($ENV{'TRICK_VERBOSE_BUILD'}) ;
 
-sub get_exclude_dirs() {
-    @exclude_dirs = split /:/ , $ENV{"TRICK_EXCLUDE"};
-    # See if there are any elements in the exclude_dirs array
-    if (scalar @exclude_dirs) {
-        @exclude_dirs = sort(@exclude_dirs );
-        # Error check - delete any element that is null
-        # (note: sort forced all blank names to front of array
-        @exclude_dirs = map { s/(^\s+|\s+$)//g ; $_ } @exclude_dirs ;
-        while ( not length @exclude_dirs[0] ) {
-            # Delete an element from the left side of an array (element zero)
-            shift @exclude_dirs ;
+sub get_paths {
+    my @paths = split /:/ , $ENV{$_[0]} ;
+    if (scalar @paths) {
+        @paths = sort(@paths ) ;
+        # trim whitespace
+        @paths = map { s/(^\s+|\s+$)//g ; $_ } @paths ;
+        # Remove empty elements. Sort forced all blank names to the front.
+        while ( not length @paths[0] ) {
+            shift @paths ;
         }
-        @exclude_dirs = map { (-e $_) ? abs_path($_) : $_ } @exclude_dirs ;
+        @paths = map { (-e $_) ? abs_path($_) : $_ } @paths ;
     }
-
-    @swig_exclude_dirs = split /:/ , $ENV{"TRICK_SWIG_EXCLUDE"};
-    # See if there are any elements in the swig_exclude_dirs array
-    if (scalar @swig_exclude_dirs) {
-        @swig_exclude_dirs = sort(@swig_exclude_dirs );
-        # Error check - delete any element that is null
-        # (note: sort forced all blank names to front of array
-        @swig_exclude_dirs = map { s/(^\s+|\s+$)//g ; $_ } @swig_exclude_dirs ;
-        while ( not length @swig_exclude_dirs[0] ) {
-            # Delete an element from the left side of an array (element zero)
-            shift @swig_exclude_dirs ;
-        }
-        @swig_exclude_dirs = map { (-e $_) ? abs_path($_) : $_ } @swig_exclude_dirs ;
-    }
-
-    # If there were no directories listed in TRICK_SWIG_EXCLUDE then copy the ones from ICG_EXCLUDE.
-    if ( scalar @swig_exclude_dirs == 0 ) {
-        @swig_exclude_dirs = split /:/ , $ENV{"TRICK_ICG_EXCLUDE"};
-        # See if there are any elements in the swig_exclude_dirs array
-        if (scalar @swig_exclude_dirs) {
-            @swig_exclude_dirs = sort(@swig_exclude_dirs );
-            # Error check - delete any element that is null
-            # (note: sort forced all blank names to front of array
-            @swig_exclude_dirs = map { s/(^\s+|\s+$)//g ; $_ } @swig_exclude_dirs ;
-            while ( not length @swig_exclude_dirs[0] ) {
-                # Delete an element from the left side of an array (element zero)
-                shift @swig_exclude_dirs ;
-            }
-            @swig_exclude_dirs = map { (-e $_) ? abs_path($_) : $_ } @swig_exclude_dirs ;
-        }
-    }
+    return @paths ;
 }
 
 sub read_files_to_process() {
     my @include_paths ;
-    my @icg_processed ;
     my $cc ;
     my @defines ;
     my ($version, $thread, $year) ;
-    my $s_source_full_path = abs_path("S_source.hh") ;
-    my %compiler_file_list ;
-
-    open FILE, "build/ICG_processed" or die 'could not open build/ICG_processed' ;
-    @icg_processed = <FILE> ;
-    close FILE ;
-    chomp @icg_processed ;
 
     ($version, $thread) = get_trick_version() ;
     ($year) = $version =~ /^(\d+)/ ;
     ($cc = gte("TRICK_CC")) =~ s/\n// ;
-    @include_paths = $ENV{"TRICK_CFLAGS"} =~ /(-I\s*\S+)/g ; # get include paths from TRICK_CFLAGS
+
+    # add -I paths and #defines
+    foreach my $value ( "TRICK_CFLAGS", "TRICK_CXXFLAGS" ) {
+        push @include_paths, $ENV{$value} =~ /(-I\s*\S+)/g ;
+        push @defines, $ENV{$value} =~ /(-D\S+)/g ;
+    }
     push @include_paths , ("-I".$ENV{"TRICK_HOME"}."/include") ;
     push @include_paths , ("-I".$ENV{"TRICK_HOME"}."/include/trick/compat") ;
     push @include_paths , ("-I".$ENV{"TRICK_HOME"}."/trick_source" , "-I../include") ;
-    @defines = $ENV{"TRICK_CFLAGS"} =~ /(-D\S+)/g ;       # get defines from TRICK_CFLAGS
     push @defines , "-DTRICK_VER=$year" ;
     push @defines , "-DSWIG" ;
     push @defines , "-std=c++11" ;
 
-    # Get the list header files from the compiler to compare to what get_headers processed.
+    # get the list of header files from the compiler
     open FILE_LIST, "$cc -MM @include_paths @defines S_source.hh |" ;
     my $dir ;
-    $dir = dirname($s_source_full_path) ;
+    $dir = dirname(abs_path("S_source.hh")) ;
+    my %files ;
+    my %ext_libs ;
     while ( <FILE_LIST> ) {
         next if ( /^#/ or /^\s+\\/ ) ;
-        my $word ;
-        foreach $word ( split ) {
+        outer:
+        foreach my $word ( split ) {
             next if ( $word eq "\\" or $word =~ /o:/ ) ;
             if ( $word !~ /^\// and $dir ne "\/" ) {
                 $word = "$dir/$word" ;
             }
             $word = abs_path(dirname($word)) . "/" . basename($word) ;
-            # filter out system headers that are missed by the compiler -MM flag
-            next if ( $word =~ /^\/usr\/include/) ;
-            #print "gcc found $word\n" ;
-            $compiler_file_list{$word} = 1 ;
+
+            # skip duplicate files
+            next if (exists($md5s{$word})) ;
+
+            # remove system headers that are missed by the compiler -MM flag
+            next if ( $word =~ /^\/usr\/include/ ) ;
+
+            # remove Trick headers
+            my $trick_home = $ENV{'TRICK_HOME'} ;
+            next if ( $word =~ /^\Q$trick_home\/include/ ) ;
+            next if ( $word =~ /^\Q$trick_home\/trick_source/ ) ;
+
+            # remove paths in TRICK_EXCLUDE
+            foreach my $path ( @exclude_paths ) {
+                if ( $word =~ /^\Q$path\E(.*)/ ) {
+                    print "[95mSWIG Skip[39m  TRICK_EXCLUDE: [4m$path[24m$1\n" if $verbose_build ;
+                    next outer ;
+                }
+            }
+
+            # remove paths in TRICK_SWIG_EXCLUDE
+            foreach my $path ( @swig_exclude_paths ) {
+                if ( $word =~ /^\Q$path\E(.*)/ ) {
+                    print "[95mSWIG Skip[39m  TRICK_SWIG_EXCLUDE: [4m$path[24m$1\n" if $verbose_build ;
+                    next outer ;
+                }
+            }
+
+            # we'll be needing this later
+            $md5s{$word} = md5_hex($word) ;
+
+            # separate paths in TRICK_EXT_LIB_DIRS
+            foreach my $path ( @ext_lib_paths ) {
+                if ( $word =~ /^\Q$path\E(.*)/ ) {
+                    print "[95mSWIG Skip[39m  TRICK_EXT_LIB_DIRS: [4m$path[24m$1\n" if $verbose_build ;
+                    $ext_libs{$word} = 1 ;
+                    next outer ;
+                }
+            }
+            $files{$word} = 1 ;
         }
     }
-
-    foreach my $i ( @icg_processed ) {
-        $i = abs_path(dirname($i)) . "/" . basename($i) ;
-        if ( exists $compiler_file_list{$i} ) {
-            push @files_to_process , $i ;
-        }
-    }
-
-    open FILE, "build/ICG_ext_lib" or die 'could not open build/ICG_ext_lib' ;
-    my @unfiltered_ext_lib_files = <FILE> ;
-    close FILE ;
-    chomp @unfiltered_ext_lib_files ;
-
-    foreach my $e ( @unfiltered_ext_lib_files ) {
-        $e = abs_path(dirname($e)) . "/" . basename($e) ;
-        if ( exists $compiler_file_list{$e} ) {
-            push @ext_lib_files , $e ;
-        }
-    }
-
+    @ext_lib_files = sort keys %ext_libs ;
+    @files_to_process = sort keys %files ;
 }
 
-sub make_swig_makefile() {
+sub write_makefile_swig_deps() {
+    open DEPENDENCIES_FILE , ">build/Makefile_swig_deps" or return ;
+    print DEPENDENCIES_FILE "build/Makefile_swig: \\\n" ;
+    foreach my $file ( @files_to_process, @ext_lib_files ) {
+        print DEPENDENCIES_FILE "    " . $file . " \\\n" ;
+    }
+}
+
+sub has_swig_no($) {
+    my %trick_header = extract_trick_header( $_[0], do { local( @ARGV, $/ ) = $_[0] ; <> }, 0, 0 ) ;
+    my $result = $trick_header{swig} =~ /^NO$/i ;
+    print "[95mSWIG Skip[39m  SWIG: (NO): $_[0]\n" if $verbose_build and $result ;
+    return $result ;
+}
+
+sub purge_swig_no_files() {
+    @files_to_process = grep { !has_swig_no($_) } @files_to_process ;
+    @ext_lib_files = grep { !has_swig_no($_) } @ext_lib_files ;
+}
+
+sub write_makefile_swig() {
 
     my ($n , $f , $k , $m);
     my %temp_hash ;
     my ($ii) ;
     my ($swig_sim_dir, $swig_src_dir) ;
     my (%py_module_map) ;
-
-    my $s_source_full_path = abs_path("S_source.hh") ;
-    my $s_source_md5 = md5_hex($s_source_full_path) ;
+    my $s_source_md5 = md5_hex(abs_path("S_source.hh")) ;
 
     $swig_sim_dir = "trick" ;
     $swig_src_dir = "build" ;
-
-    foreach $n (@files_to_process) {
-        $f = abs_path(dirname($n)) . "/" . basename($n) ;
-        my ($continue) = 1 ;
-        foreach my $ie ( @swig_exclude_dirs ) {
-            # if file location begins with $ie (a SWIG exclude dir)
-            if ( $f =~ /^\Q$ie/ ) {
-                print "CP(swig) skipping $f (SWIG exclude dir $ie)\n" ;
-                $continue = 0 ;
-                last ;  # break out of loop
-            }
-        }
-        next if ( $continue == 0 ) ;
-        $temp_hash{$f} = 1;
-    }
-    @files_to_process = sort keys %temp_hash ;
 
     open MAKEFILE , ">build/Makefile_swig" or return ;
     open PY_LINK_LIST , ">build/py_link_list" or return ;
@@ -221,13 +211,13 @@ build/top.i: build/CP_instances
 
 SWIG_SRC = \$(subst .i,.cpp,\$(SWIG_I)) $swig_src_dir/top.cpp
 
-\$(SWIG_SRC) : %.cpp: %.i | \$(SWIG_I)
+\$(SWIG_SRC) : %.cpp: %.i %.d | \$(SWIG_I)
 \t\$(PRINT_SWIG)
 \t\$(ECHO_CMD)\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -MMD -MP -outdir trick -o \$@ \$<
 
-\$(SWIG_OBJECTS:.o=.d): ;
+\$(SWIG_SRC:.cpp=.d): ;
 
--include \$(SWIG_OBJECTS:.o=.d)
+-include \$(SWIG_SRC:.cpp=.d)
 
 # SWIG_OBJECTS =================================================================
 
@@ -300,14 +290,11 @@ LINK_LISTS += \$(LD_FILELIST)build/py_link_list
     print INITSWIGFILE "#include <Python.h>\n" ;
     print INITSWIGFILE "#if PY_VERSION_HEX >= 0x03000000\n" ;
     print INITSWIGFILE "extern \"C\" {\n\n" ;
-    foreach $f ( @files_to_process ) {
-        my $md5_sum = md5_hex($f) ;
-        print INITSWIGFILE "PyObject * PyInit__m${md5_sum}(void) ; /* $f */\n" ;
+
+    foreach $f ( @files_to_process, @ext_lib_files ) {
+        print INITSWIGFILE "PyObject * PyInit__m$md5s{$f}(void) ; /* $f */\n" ;
     }
-    foreach $f ( @ext_lib_files ) {
-        my $md5_sum = md5_hex($f) ;
-        print INITSWIGFILE "PyObject * PyInit__m${md5_sum}(void) ; /* $f */\n" ;
-    }
+
     print INITSWIGFILE "PyObject * PyInit__sim_services(void) ;\n" ;
     print INITSWIGFILE "PyObject * PyInit__top(void) ;\n" ;
     print INITSWIGFILE "PyObject * PyInit__swig_double(void) ;\n" ;
@@ -315,17 +302,11 @@ LINK_LISTS += \$(LD_FILELIST)build/py_link_list
     print INITSWIGFILE "PyObject * PyInit__swig_ref(void) ;\n" ;
 
     print INITSWIGFILE "\nvoid init_swig_modules(void) {\n\n" ;
-    foreach $f ( @files_to_process ) {
+    foreach $f ( @files_to_process, @ext_lib_files ) {
         next if ( $f =~ /S_source.hh/ ) ;
-        my $md5_sum = md5_hex($f) ;
-        print INITSWIGFILE "    PyImport_AppendInittab(\"_m${md5_sum}\", PyInit__m${md5_sum}) ;\n" ;
-    }
-    foreach $f ( @ext_lib_files ) {
-        my $md5_sum = md5_hex($f) ;
-        print INITSWIGFILE "    PyImport_AppendInittab(\"_m${md5_sum}\", PyInit__m${md5_sum}) ;\n" ;
+        print INITSWIGFILE "    PyImport_AppendInittab(\"_m$md5s{$f}\", PyInit__m$md5s{$f}) ;\n" ;
     }
     print INITSWIGFILE "    PyImport_AppendInittab(\"_m${s_source_md5}\", PyInit__m${s_source_md5}) ;\n" ;
-
     print INITSWIGFILE "    PyImport_AppendInittab(\"_sim_services\", PyInit__sim_services) ;\n" ;
     print INITSWIGFILE "    PyImport_AppendInittab(\"_top\", PyInit__top) ;\n" ;
     print INITSWIGFILE "    PyImport_AppendInittab(\"_swig_double\", PyInit__swig_double) ;\n" ;
@@ -335,14 +316,11 @@ LINK_LISTS += \$(LD_FILELIST)build/py_link_list
     print INITSWIGFILE "#else\n" ;
 
     print INITSWIGFILE "extern \"C\" {\n\n" ;
-    foreach $f ( @files_to_process ) {
-        my $md5_sum = md5_hex($f) ;
-        print INITSWIGFILE "void init_m${md5_sum}(void) ; /* $f */\n" ;
+
+    foreach $f ( @files_to_process, @ext_lib_files ) {
+        print INITSWIGFILE "void init_m$md5s{$f}(void) ; /* $f */\n" ;
     }
-    foreach $f ( @ext_lib_files ) {
-        my $md5_sum = md5_hex($f) ;
-        print INITSWIGFILE "void init_m${md5_sum}(void) ; /* $f */\n" ;
-    }
+
     print INITSWIGFILE "void init_sim_services(void) ;\n" ;
     print INITSWIGFILE "void init_top(void) ;\n" ;
     print INITSWIGFILE "void init_swig_double(void) ;\n" ;
@@ -350,17 +328,11 @@ LINK_LISTS += \$(LD_FILELIST)build/py_link_list
     print INITSWIGFILE "void init_swig_ref(void) ;\n" ;
 
     print INITSWIGFILE "\nvoid init_swig_modules(void) {\n\n" ;
-    foreach $f ( @files_to_process ) {
+    foreach $f ( @files_to_process, @ext_lib_files) {
         next if ( $f =~ /S_source.hh/ ) ;
-        my $md5_sum = md5_hex($f) ;
-        print INITSWIGFILE "    init_m${md5_sum}() ;\n" ;
-    }
-    foreach $f ( @ext_lib_files ) {
-        my $md5_sum = md5_hex($f) ;
-        print INITSWIGFILE "    init_m${md5_sum}() ;\n" ;
+        print INITSWIGFILE "    init_m$md5s{$f}() ;\n" ;
     }
     print INITSWIGFILE "    init_m${s_source_md5}() ;\n" ;
-
     print INITSWIGFILE "    init_sim_services() ;\n" ;
     print INITSWIGFILE "    init_top() ;\n" ;
     print INITSWIGFILE "    init_swig_double() ;\n" ;
@@ -415,10 +387,9 @@ LINK_LISTS += \$(LD_FILELIST)build/py_link_list
     }
 
     foreach $f ( @ext_lib_files ) {
-        my $md5_sum = md5_hex($f) ;
         print INITFILE "# $f\n" ;
-        print INITFILE "import _m${md5_sum}\n" ;
-        print INITFILE "from m${md5_sum} import *\n" ;
+        print INITFILE "import _m$md5s{$f}\n" ;
+        print INITFILE "from m$md5s{$f} import *\n" ;
         print INITFILE "combine_cvars(all_cvars, cvar)\n" ;
         print INITFILE "cvar = None\n\n" ;
     }
@@ -458,13 +429,20 @@ LINK_LISTS += \$(LD_FILELIST)build/py_link_list
 
         while ( $temp_str =~ s/\/.*?$// ) {
             open INITFILE , ">trick/$temp_str/__init__.py" or return ;
-            close INITFILE ;
+            close initfile ;
         }
     }
 
     return ;
 }
 
-get_exclude_dirs() ;
+@exclude_paths = get_paths( "TRICK_EXCLUDE" ) ;
+@swig_exclude_paths = get_paths( "TRICK_SWIG_EXCLUDE" ) ;
+@ext_lib_paths = get_paths( "TRICK_EXT_LIB_DIRS" ) ;
 read_files_to_process() ;
-make_swig_makefile() ;
+write_makefile_swig_deps() ;
+
+# Remove SWIG: (NO) files, but not before they're written to the dependency file.
+# If SWIG: (NO) is removed, Makefile_swig needs to be regenerated.
+purge_swig_no_files() ;
+write_makefile_swig() ;

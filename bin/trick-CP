@@ -116,10 +116,11 @@ build/Makefile_src: build/Makefile_src_deps build/Makefile_io_src S_source.hh
 build/Makefile_src_deps: ;
 
 # Create makefile for SWIG code
-#build/Makefile_swig: build/ICG_processed
-build/Makefile_swig: build/Makefile_io_src
+build/Makefile_swig: S_source.hh build/Makefile_swig_deps
 	$(PRINT_MAKEFILE_SWIG)
 	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/make_makefile_swig
+
+build/Makefile_swig_deps: ;
 
 # Forcibly (re)create all SWIG input (.i) files. This rule is never run by the normal
 # build process.
@@ -148,6 +149,7 @@ ifeq ($(findstring ${MAKECMDGOALS},$(CLEAN_TARGETS)),)
 -include build/Makefile_src_deps
 -include build/Makefile_io_src
 -include build/Makefile_swig
+-include build/Makefile_swig_deps
 -include build/Makefile_ICG
 endif
 -include S_overrides.mk
