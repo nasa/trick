@@ -29,9 +29,9 @@ void CornerView::paintEvent(QPaintEvent *event)
     double ptSizeHLine = 0.0;
     double ptSizeVLine = 0.0;
 
-    QPen hPen(Qt::black);
+    QPen hPen = painter.pen();
     hPen.setWidthF(ptSizeHLine);
-    QPen vPen(Qt::black);
+    QPen vPen = painter.pen();
     vPen.setWidthF(ptSizeVLine);
 
     const QRectF M = _mathRect();
