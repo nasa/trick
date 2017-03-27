@@ -1,5 +1,6 @@
 #include "simobject.h"
 #include <QtCore/qmath.h>  // qSqrt
+#include <QVector>
 #include <limits.h> // Max/Min
 
 bool simObjectAvgTimeGreaterThan(const SimObject& a, const SimObject& b)

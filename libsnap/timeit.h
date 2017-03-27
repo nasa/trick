@@ -1,6 +1,7 @@
 #ifndef TIMEIT_H
 #define TIMEIT_H
 
+#include <stdio.h>
 #include <QString>
 
 class TimeIt
