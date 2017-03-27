@@ -53,8 +53,8 @@ void BookIdxView::setCurvesView(QAbstractItemView *view)
 QRectF BookIdxView::_mathRect()
 {
     if ( !_curvesView ) {
-        qDebug() << "snap [bad scoobs]: BookIdxView::_mathRect() "
-                    "called without _curvesView set. view=" << this;
+        fprintf(stderr, "snap [bad scoobs]: BookIdxView::_mathRect() "
+                        "called without _curvesView set.\n");
         exit(-1);
     }
 
@@ -607,8 +607,8 @@ PlotBookModel* BookIdxView::_bookModel() const
     PlotBookModel* bookModel = dynamic_cast<PlotBookModel*>(model());
 
     if ( !bookModel ) {
-        qDebug() << "snap [bad scoobs]: BookIdxView::_bookModel() "
-                    "could not cast model() to a PlotBookModel*.";
+        fprintf(stderr,"snap [bad scoobs]: BookIdxView::_bookModel() "
+                       "could not cast model() to a PlotBookModel*.\n");
         exit(-1);
     }
 
@@ -662,8 +662,8 @@ QString BookIdxView::_curvesXUnit(const QModelIndex& plotIdx) const
 QString BookIdxView::_curvesUnit(const QModelIndex &plotIdx, QChar axis) const
 {
     if ( axis != 'x' && axis != 'y' ) {
-        qDebug() << "snap [bad scoobs]: BookIdxView::_curvesUnit called with "
-                    "bad axis=" << axis;
+        fprintf(stderr,"snap [bad scoobs]: BookIdxView::_curvesUnit "
+                       "called with bad axis=%c\n", axis.toLatin1());
         exit(-1);
     }
 

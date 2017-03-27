@@ -11,7 +11,6 @@
 #include <vector>
 #include <string>
 #include <QString>
-#include <QDebug>
 #include <stdexcept>
 using namespace std ;
 
@@ -39,7 +38,9 @@ int yywrap()
 
 void msg(const QString& str, bool isPrint=false)
 {
-    if ( isPrint ) qDebug() << str;
+    if ( isPrint ) {
+        fprintf(stderr,"%s\n",str.toLatin1().constData());
+    }
 }
 
 

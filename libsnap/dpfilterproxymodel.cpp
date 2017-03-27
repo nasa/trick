@@ -1,5 +1,4 @@
 #include "dpfilterproxymodel.h"
-#include <QDebug>
 
 // static to get around const
 QHash<QString,bool> DPFilterProxyModel::_acceptedDPFileCache;

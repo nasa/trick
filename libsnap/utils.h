@@ -2,7 +2,6 @@
 #define UTILS_H
 
 #include <QVariant>
-#include <QDebug>
 
 long round_10(long a);
 int getIndexAtTime( int ntimestamps, double* timestamps, double time);

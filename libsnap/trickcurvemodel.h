@@ -1,7 +1,6 @@
 #ifndef TRICK_CURVEMODEL_H
 #define TRICK_CURVEMODEL_H
 
-#include <QDebug>
 #include <QAbstractTableModel>
 #include <QDataStream>
 #include "snaptable.h"

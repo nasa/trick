@@ -1,6 +1,5 @@
 #include "timestamps.h"
 #include "roundoff.h"
-#include <QDebug>
 
 int TimeStamps::_lastIdx(0);
 

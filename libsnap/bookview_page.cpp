@@ -116,16 +116,16 @@ void PageView::rowsInserted(const QModelIndex &pidx, int start, int end)
 
     int nPlotsToAdd = end-start+1;
     if ( nPlotsToAdd != 1 ) {
-        qDebug() << "snap [bad scoobs]: PageView::rowsInserted(). "
-                    "Attempting to insert more than a single row.";
+        fprintf(stderr,"snap [bad scoobs]: PageView::rowsInserted(). "
+                       "Attempting to insert more than a single row.\n");
         exit(-1);
     }
 
     int nPlots = model()->rowCount(pidx);
 
     if ( start != nPlots-1 || end != nPlots-1 ) {
-        qDebug() << "snap [bad scoobs]: PageView::rowsInserted(). "
-                    "Attempting to insert a row instead of appending it.";
+        fprintf(stderr,"snap [bad scoobs]: PageView::rowsInserted(). "
+                       "Attempting to insert a row instead of appending it.\n");
         exit(-1);
     }
 
@@ -194,8 +194,8 @@ void PageView::rowsInserted(const QModelIndex &pidx, int start, int end)
         break;
     }
     default: {
-        qDebug() << "snap [current limitation]: 7 plots max on DP :(";
-        qDebug() << "Aborting!!!";
+        fprintf(stderr,"snap [current limitation]: 7 plots max on DP :(  "
+                       "Aborting!!!\n");
         exit(-1);
     }
     }

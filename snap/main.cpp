@@ -8,7 +8,6 @@
 #include <string>
 using namespace std;
 
-#include <QDebug>
 #include <QDir>
 #include <QFileInfo>
 #include <QTextStream>

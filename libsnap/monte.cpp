@@ -1,5 +1,4 @@
 #include "monte.h"
-#include <QDebug>
 
 QString Monte::_err_string;
 QTextStream Monte::_err_stream(&Monte::_err_string);

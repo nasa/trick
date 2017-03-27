@@ -9,7 +9,6 @@
 #include <QMouseEvent>
 #include <QRubberBand>
 #include <QApplication>
-#include <QDebug>
 
 #include "bookidxview.h"
 #include "bookview_plottitle.h"

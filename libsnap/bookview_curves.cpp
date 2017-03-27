@@ -60,9 +60,9 @@ QRectF CoordArrow::boundingBox(const QPainter& painter,
         atl.setX(pt.x()+r*cos(angle));
         atl.setY(pt.y()-r*sin(angle));
     } else {
-        qDebug() << "snap [bad scoobs]: CoorArrow::boundingBox(): "
-                    "arrow angle <=0,==90,==270 or >=360. "
-                    "May want to support it.  Bailing!!!";
+        fprintf(stderr,"snap [bad scoobs]: CoorArrow::boundingBox(): "
+                       "arrow angle <=0,==90,==270 or >=360. "
+                       "May want to support it.  Bailing!!!\n");
         exit(-1);
     }
 
@@ -103,9 +103,9 @@ QRectF CoordArrow::txtBoundingBox(const QPainter& painter,
         tl.setX(pt.x() + (r+h+a)*cos(angle) + b + m);
         tl.setY(pt.y() - (r+h+a)*sin(angle) - th/2.0);
     } else {
-        qDebug() << "snap [bad scoobs]: CoorArrow::txtBBox(): "
-                    "arrow angle <=0,==90,==270 or >=360. "
-                    "May want to support it.  Bailing!!!";
+        fprintf(stderr,"snap [bad scoobs]: CoorArrow::txtBBox(): "
+                       "arrow angle <=0,==90,==270 or >=360. "
+                       "May want to support it.  Bailing!!!\n");
         exit(-1);
     }
 
@@ -216,9 +216,9 @@ void CoordArrow::paintMe(QPainter &painter, const QTransform &T) const
         txtBox.setTopLeft(tl);
         txtBox.setSize(QSize(tw,th));
     } else {
-        qDebug() << "snap [bad scoobs]: CoorArrow::paintMe(): "
-                    "arrow angle <=0,==90,==270 or >=360. "
-                    "May want to support it.  Bailing!!!";
+        fprintf(stderr,"snap [bad scoobs]: CoorArrow::paintMe(): "
+                       "arrow angle <=0,==90,==270 or >=360. "
+                       "May want to support it.  Bailing!!!\n");
         exit(-1);
     }
 
@@ -330,8 +330,9 @@ void CurvesView::paintEvent(QPaintEvent *event)
             _paintCoplot(T,painter,pen);
             _paintErrorplot(T,painter,pen,rootIndex()); // overlay err on coplot
         } else {
-            qDebug() << "snap [bad scoobs]: paintEvent() : PlotPresentation="
-                     << plotPresentation << "not recognized.";
+            fprintf(stderr,"snap [bad scoobs]: paintEvent() : "
+                           "PlotPresentation=\"%s\" not recognized.\n",
+                           plotPresentation.toLatin1().constData());
             exit(-1);
         }
     } else {
@@ -556,7 +557,7 @@ void CurvesView::_paintLiveCoordArrow(TrickCurveModel* curveModel,
             arrow.txt = QString("last=(%1, %2)").arg(_format(coord.x()))
                                                 .arg(_format(coord.y()));
     } else {
-        qDebug() << "snap [bad scoobs]: CurvesView::_paintLiveCoordArrow";
+        fprintf(stderr,"snap [bad scoobs]: CurvesView::_paintLiveCoordArrow\n");
         exit(-1);
     }
 
@@ -1432,13 +1433,13 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                         } else if ( i > 0 ) {
                             dt = p.x() - (it[i-1].x()*xs+xb);
                         } else {
-                            qDebug() << "snap [bad scoobs]:1: "
-                                        "CurvesView::mouseMoveEvent() ";
+                            fprintf(stderr,"snap [bad scoobs]:1: "
+                                           "CurvesView::mouseMoveEvent()\n");
                             exit(-1);
                         }
                         if ( dt < 1.0e-9 ) {
-                            qDebug() << "snap [bad scoobs]:2: "
-                                        "CurvesView::mouseMoveEvent() " << i;
+                            fprintf(stderr,"snap [bad scoobs]:2: "
+                                           "CurvesView::mouseMoveEvent()\n");
                             exit(-1);
                         }
 
@@ -1522,8 +1523,8 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                             } else if ( !isMaxs && !isMins ) {
                                 liveCoord = p;
                             } else {
-                                qDebug() << "snap [bad scoobs]:3: CurvesView::"
-                                            "mouseMoveEvent()";
+                                fprintf(stderr,"snap [bad scoobs]:3: "
+                                              "CurvesView::mouseMoveEvent()\n");
                                 exit(-1);
                             }
                         }
@@ -1722,8 +1723,9 @@ void CurvesView::_keyPressSpace()
     } else if ( plotPresentation == "error+compare" ) {
         plotPresentation = "error";
     } else {
-        qDebug() << "snap [bad scoobs]: _keyPressSpace() : "
-                 << "plotPresentation=" << plotPresentation;
+        fprintf(stderr,"snap [bad scoobs]: _keyPressSpace() : "
+                       "plotPresentation=\"%s\"\n",
+                       plotPresentation.toLatin1().constData());
         exit(-1);
     }
 

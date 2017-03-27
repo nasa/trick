@@ -346,11 +346,11 @@ void PlotMainWindow::_savePdf()
             QFileInfo fi(fname);
             double l = log10(fi.size());
             if ( l >= 3 && l < 6 ) {
-                qDebug() << "dog.pdf.size=" << fi.size()/1000 << "K";
+                fprintf(stderr,"dog.pdf.size=%lf K\n", fi.size()/1000);
             } else if ( l >= 6 && l < 9 ) {
-                qDebug() << "dog.pdf.size=" << fi.size()/1000000 << "MB";
+                fprintf(stderr,"dog.pdf.size=%lf MB\n", fi.size()/1000000);
             } else {
-                qDebug() << "dog.pdf.size=" << fi.size() << "bytes";
+                fprintf(stderr,"dog.pdf.size=%lf bytes\n", fi.size());
             }
             */
         }

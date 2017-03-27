@@ -1,8 +1,5 @@
 #include "sjobexecthreadinfo.h"
 
-#include <QDebug>
-
-
 QString SJobExecThreadInfo::_err_string;
 QTextStream SJobExecThreadInfo::_err_stream(&SJobExecThreadInfo::_err_string);
 

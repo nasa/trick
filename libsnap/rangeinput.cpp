@@ -1,5 +1,4 @@
 #include "rangeinput.h"
-#include <QDebug>
 
 RangeInput::RangeInput(QWidget *parent) :
     QFrame(parent)

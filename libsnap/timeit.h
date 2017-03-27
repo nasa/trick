@@ -1,7 +1,6 @@
 #ifndef TIMEIT_H
 #define TIMEIT_H
 
-#include <QDebug>
 #include <QString>
 
 class TimeIt
@@ -18,7 +17,7 @@ public:
 
     void snap(const char* msg)
     {
-        qDebug() << msg << stop()/1000000.0;
+        fprintf(stderr,"%s %lf\n",msg,stop()/1000000.0);
         start();
     }
     virtual void start() = 0;

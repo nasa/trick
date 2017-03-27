@@ -1,5 +1,4 @@
 #include "runs.h"
-#include <QDebug>
 
 QString Runs::_err_string;
 QTextStream Runs::_err_stream(&Runs::_err_string);
@@ -64,14 +63,6 @@ bool Runs::_setDirs(const QStringList &dirs)
         }
         runToTrks.insert(run,fullPathTrks);
     }
-#if 0
-    foreach ( QString r, _runs ) {
-        QStringList l = runToTrks.value(r);
-        foreach ( QString t, l ) {
-            qDebug() << "t=" << t;
-        }
-    }
-#endif
 
     QHash<QPair<QString,QString>,TrickModel*> ptrkToModel;
     foreach (QString trk, trks.keys() ) {
@@ -102,16 +93,6 @@ bool Runs::_setDirs(const QStringList &dirs)
             _paramToModels.value(p)->append(m);
         }
     }
-
-#if 0
-    foreach ( QString p, _params ) {
-        qDebug() << p;
-        for ( int i = 0 ; i < _paramToModels.value(p)->size(); ++i ) {
-            TrickModel* m = _paramToModels.value(p)->at(i);
-            qDebug() << "    " << (void*) m;
-        }
-    }
-#endif
 
     return ok;
 }

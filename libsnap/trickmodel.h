@@ -12,7 +12,7 @@
 #include <QHash>
 #include <QFile>
 #include <QDataStream>
-#include <QDebug>
+#include <QTextStream>
 #include <QAbstractTableModel>
 #include <vector>
 #include "snaptable.h"

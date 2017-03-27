@@ -221,7 +221,7 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
             // This should not happen
             // It could be ignored but I'll exit(-1) because I think
             // if this happens it's a programming error, not a user error
-            qDebug() << "snap [bad scoobs]: varswidget.cpp";
+            fprintf(stderr, "snap [bad scoobs]: varswidget.cpp\n");
             exit(-1);
         }
 
