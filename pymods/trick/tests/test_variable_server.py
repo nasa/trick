@@ -71,7 +71,7 @@ class TestVariableServer(unittest.TestCase):
         self.variable_server.add_variables()
 
         # repeated call
-        for x in range(2):
+        for _ in range(2):
             self.variable_server.add_variables(*self.variables)
             self.assertEqual(self.variables, self.variable_server._variables)
 
@@ -94,14 +94,14 @@ class TestVariableServer(unittest.TestCase):
         self.variable_server.remove_variables()
         self.assertEqual(self.variables, self.variable_server._variables)
         # repeated call
-        for x in range(2):
+        for _ in range(2):
             self.variable_server.remove_variables(*self.variables)
             self.assertFalse(self.variable_server._variables)
 
     def test_remove_all_variables(self):
         self.variable_server.add_variables(*self.variables)
         # repeated call
-        for x in range(2):
+        for _ in range(2):
             self.variable_server.remove_all_variables()
             self.assertFalse(self.variable_server._variables)
 
@@ -118,7 +118,7 @@ class TestVariableServer(unittest.TestCase):
         def foo():
             pass
         self.variable_server.register_callback(foo)
-        self.assertEqual({foo: ((), {})}, self.variable_server._callbacks)
+        self.assertEqual({foo: ([], {})}, self.variable_server._callbacks)
         args = 1, 2
         kwargs = {'a': 3, 'b': 4}
         self.variable_server.register_callback(foo, args, kwargs)
@@ -130,7 +130,7 @@ class TestVariableServer(unittest.TestCase):
             pass
         self.variable_server.register_callback(foo)
         # repeated call
-        for x in range(2):
+        for _ in range(2):
             self.variable_server.deregister_callback(foo)
             self.assertFalse(self.variable_server._callbacks)
 

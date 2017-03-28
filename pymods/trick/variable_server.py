@@ -15,6 +15,9 @@ import threading
 import time
 
 class VariableServerError(Exception):
+    '''
+    Variable Server communication I/O error.
+    '''
     pass
 
 class UnitsConversionError(VariableServerError):
@@ -41,18 +44,18 @@ class UnexpectedMessageError(VariableServerError):
 
     Attributes
     ----------
-    expectedId : int
+    expected_id : int
         The expected message indicator.
-    actualId : int
+    actual_id : int
         The actual message indicator.
     """
-    def __init__(self, expectedId, actualId):
+    def __init__(self, expected_id, actual_id):
         super(UnexpectedMessageError, self).__init__(
           'Unexpected message received. Expected ID = {0}. Actual ID = {1}'
-          .format(expectedId, actualId)
+          .format(expected_id, actual_id)
         )
-        self.expectedId = expectedId
-        self.actualId = actualId
+        self.expected_id = expected_id
+        self.actual_id = actual_id
 
 class ValueCountError(VariableServerError):
     """
@@ -74,7 +77,7 @@ class ValueCountError(VariableServerError):
         self.expected = expected
         self.actual = actual
 
-def _create_enum(name, field_names, ordinalValues=True):
+def _create_enum(name, field_names, ordinal_values=True):
     """
     Create a namedtuple with automatic values.
 
@@ -84,14 +87,14 @@ def _create_enum(name, field_names, ordinalValues=True):
         The name of the namedtuple.
     field_names : iterable of str
         The field names.
-    ordinalValues : bool
+    ordinal_values : bool
         True to assign each field an ordinal number, starting at 0. This
         creates a classic number-based enum.
         False to use the field names themselves as the values for the
         fields. This creates a string-based enum.
     """
     return namedtuple(name, field_names)(
-      *(range(len(field_names)) if ordinalValues else field_names)
+      *(range(len(field_names)) if ordinal_values else field_names)
     )
 
 class Message(namedtuple('Message', ['indicator', 'data'])):
@@ -146,10 +149,16 @@ class Variable(object):
 
     @property
     def value(self):
+        '''
+        Get the converted value.
+        '''
         return self._type(self._value)
 
     @value.setter
     def value(self, value):
+        '''
+        Set the value.
+        '''
         self._value = value
 
     def __str__(self):
@@ -161,7 +170,7 @@ class Variable(object):
           self.value,
           ' {0}'.format(self.units) if self.units is not None else '')
 
-class VariableServer:
+class VariableServer(object):
     """
     Send commands to and receive responses from a simulation's
     variable server.
@@ -201,6 +210,9 @@ class VariableServer:
 
         # Define a local function to be used by the sampling thread.
         def update_variables():
+            '''
+            Continuously update variables.
+            '''
             while True:
                 try:
                     values = self._read_values(False)
@@ -341,8 +353,8 @@ class VariableServer:
         _assert_value_count(1, len(values))
 
         # check for units conversion
-        value, actualUnits = _parse_value(values[0])
-        _assert_units_conversion(name, units, actualUnits)
+        value, actual_units = _parse_value(values[0])
+        _assert_units_conversion(name, units, actual_units)
 
         return type_(value)
 
@@ -499,7 +511,7 @@ class VariableServer:
 
         # remove existing variables
         variables = [variable for variable in variables
-          if variable not in self._variables]
+                     if variable not in self._variables]
 
         # check for type_ and units conversion errors
         self.get_values(*variables)
@@ -580,7 +592,7 @@ class VariableServer:
         self.send('trick.var_cycle({0})'.format(float(period)),
                   self.Channel.ASYNC)
 
-    def register_callback(self, function, args=(), kwargs={}):
+    def register_callback(self, function, args=None, kwargs=None):
         """
         Call function whenever new variable values are sampled.
         Registering an aleady-registered function replaces its existing
@@ -597,6 +609,10 @@ class VariableServer:
         kwargs : dict
             The keyword arguments to be passed to the function.
         """
+        if args is None:
+            args = []
+        if kwargs is None:
+            kwargs = {}
         self._callbacks[function] = args, kwargs
 
     def deregister_callback(self, function):
@@ -611,7 +627,7 @@ class VariableServer:
         """
         self._callbacks.pop(function, None)
 
-    def register_error_callback(self, function, args=(), kwargs={}):
+    def register_error_callback(self, function, args=None, kwargs=None):
         """
         Call function if an error occurs while sampling variable values.
         Registering an aleady-registered function replaces its existing
@@ -629,6 +645,10 @@ class VariableServer:
         kwargs : dict
             The keyword arguments to be passed to the function.
         """
+        if args is None:
+            args = []
+        if kwargs is None:
+            kwargs = {}
         self._error_callbacks[function] = args, kwargs
 
     def deregister_error_callback(self, function):
@@ -834,15 +854,15 @@ class VariableServer:
         """
         command = '{0}\n'.format(command)
 
-        for socket in {
-            self.Channel.SYNC: [self._synchronous_socket],
-            self.Channel.ASYNC: [self._asynchronous_socket],
-            self.Channel.BOTH: [self._synchronous_socket,
-                                self._asynchronous_socket]
+        for channel in {
+          self.Channel.SYNC: [self._synchronous_socket],
+          self.Channel.ASYNC: [self._asynchronous_socket],
+          self.Channel.BOTH: [self._synchronous_socket,
+                              self._asynchronous_socket]
         }[channel]:
-            socket.sendall(command)
+            channel.sendall(command)
 
-    def readline(self, synchronousChannel=True):
+    def readline(self, synchronous_channel=True):
         """
         Read a newline-terminated line, blocking if necessary. Calling
         this directly is only necessary if you have directly called
@@ -853,7 +873,7 @@ class VariableServer:
         -------
         Message
             The next available message.
-        synchronousChannel : bool
+        synchronous_channel : bool
             True to read from the synchronous channel.
             False to read from the asynchronous channel.
 
@@ -862,9 +882,10 @@ class VariableServer:
         IOError
             If the remote endpoint has closed the connection.
         """
-        fileInterface = (self._synchronous_file_interface if synchronousChannel
-          else self._asynchronous_file_interface)
-        line = fileInterface.readline()
+        file_interface = (self._synchronous_file_interface
+                          if synchronous_channel
+                          else self._asynchronous_file_interface)
+        line = file_interface.readline()
         if not line:
             raise IOError("The remote endpoint has closed the connection")
         line = line.rstrip(os.linesep).split('\t', 1)
@@ -888,7 +909,7 @@ class VariableServer:
           .format(name, ', "{0}"'.format(units) if units is not None else ''),
           channel)
 
-    def _var_remove(self, name, channel=Channel.ASYNC):
+    def _var_remove(self, name):
         """
         Send a var_remove command to the variable server.
 
@@ -913,13 +934,13 @@ class VariableServer:
         """
         self.send('trick.var_send()', channel)
 
-    def _read_values(self, synchronousChannel=True):
+    def _read_values(self, synchronous_channel=True):
         """
         Read a set of variable values.
 
         Parameters
         ----------
-        synchronousChannel : bool
+        synchronous_channel : bool
             True to read from the synchronous channel.
             False to read from the asynchronous channel.
 
@@ -935,7 +956,7 @@ class VariableServer:
         UnexpectedMessageError
             If the next message is not a set of variable values.
         """
-        message = self.readline(synchronousChannel)
+        message = self.readline(synchronous_channel)
         _assert_message_type(message, Message.Indicator.VAR_SEND)
         return message.data.split('\t')
 
@@ -965,7 +986,7 @@ class VariableServer:
         self._asynchronous_socket.close()
         self._thread.join()
 
-def fromPID(pid, timeout=None):
+def from_pid(pid, timeout=None):
     """
     Connect to the simulation at the given pid. This is done by
     listening on the multicast channel over which all sims broadcast
@@ -997,7 +1018,7 @@ def fromPID(pid, timeout=None):
       socket.IPPROTO_IP,
       socket.IP_ADD_MEMBERSHIP,
       struct.pack("=4sl", socket.inet_aton('224.3.14.15'), socket.INADDR_ANY))
-    fileInterface = sock.makefile()
+    file_interface = sock.makefile()
 
     # the socket will clean itself up when it's garbage-collected
     while True:
@@ -1008,8 +1029,8 @@ def fromPID(pid, timeout=None):
             clock = time.time()
             sock.settimeout(timeout)
 
-        host, port, _, processId = fileInterface.readline().split('\t')[:4]
-        if int(processId) == int(pid):
+        host, port, _, process_id = file_interface.readline().split('\t')[:4]
+        if int(process_id) == int(pid):
             return VariableServer(host, port)
 
 def _parse_value(text):
@@ -1053,7 +1074,7 @@ def _assert_message_type(message, indicator):
     if message.indicator != indicator:
         raise UnexpectedMessageError(indicator, message.indicator)
 
-def _assert_units_conversion(name, expectedUnits, actualUnits):
+def _assert_units_conversion(name, expected_units, actual_units):
     """
     Raise an error if the actual units do not match the expected units.
 
@@ -1061,9 +1082,9 @@ def _assert_units_conversion(name, expectedUnits, actualUnits):
     ----------
     name : str
         The name of the variable being tested.
-    expectedUnits : str
+    expected_units : str
         The expected units.
-    actualUnits : str
+    actual_units : str
         The actual units.
 
     Raises
@@ -1071,8 +1092,8 @@ def _assert_units_conversion(name, expectedUnits, actualUnits):
     UnitsConversionError
         If the actual units do not match the expected units.
     """
-    if expectedUnits != actualUnits and expectedUnits != 'xx':
-        raise UnitsConversionError(name, expectedUnits)
+    if expected_units != actual_units and expected_units != 'xx':
+        raise UnitsConversionError(name, expected_units)
 
 def _assert_value_count(expected, actual):
     """
