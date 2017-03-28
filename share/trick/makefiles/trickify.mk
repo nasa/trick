@@ -126,13 +126,9 @@ $(SWIG_OBJECTS): %.o: %.cpp
 	$(info $(call COLOR,Compiling)  $<)
 	@$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(PYTHON_INCLUDES) -Wno-unused-parameter -Wno-shadow -c -o $@ $<
 
-$(SWIG_OBJECTS:.o=.cpp): %.cpp: %.i %.d | $(TRICKIFY_PYTHON_DIR) $(SWIG_OBJECTS:.o=.i)
+$(SWIG_OBJECTS:.o=.cpp): %.cpp: %.i | $(TRICKIFY_PYTHON_DIR) $(SWIG_OBJECTS:.o=.i)
 	$(info $(call COLOR,SWIGing)    $<)
-	@$(SWIG) $(TRICK_INCLUDE) $(TRICK_DEFINES) $(TRICK_VERSIONS) $(SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -MMD -MP -outdir $(TRICKIFY_PYTHON_DIR) -o $@ $<
-
-$(SWIG_OBJECTS:.o=.d): ;
-
--include $(SWIG_OBJECTS:.o=.d)
+	@$(SWIG) $(TRICK_INCLUDE) $(TRICK_DEFINES) $(TRICK_VERSIONS) $(SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -outdir $(TRICKIFY_PYTHON_DIR) -o $@ $<
 
 define create_convert_swig_rule
 build/%_py.i: /%.$1
