@@ -30,23 +30,11 @@ extern "C" void set_integ_time(double time_value) {
 }
 
 extern "C" void load_state(double* arg1, ... ) {
-
-    va_list ap;
-    int i;
-    double* narg;
-
+    va_list argp;
     if (trick_curr_integ != NULL) {
-        va_start(ap, arg1);
-        i=0;
-        narg = arg1;
-        if (trick_curr_integ->verbosity) message_publish(MSG_DEBUG,"LOAD STATE:\n");
-        while (narg != (double*)NULL) {
-            trick_curr_integ->state[i] = *narg;
-            if (trick_curr_integ->verbosity) message_publish(MSG_DEBUG,"%g\n",*narg);
-            narg = va_arg(ap, double*);
-            i++;
-        };
-        va_end(ap);
+        va_start(argp, arg1);
+        trick_curr_integ->state_in(arg1, argp);
+        va_end(argp);
     } else {
        message_publish(MSG_ERROR, "Integ load_state ERROR: trick_curr_integ is not set.\n") ;
     }
@@ -64,24 +52,13 @@ extern "C" void load_indexed_state(unsigned int index , double state) {
 
 extern "C" void load_deriv( double* arg1, ...) {
 
-    va_list ap;
-    int i;
-    double* narg;
-
+    va_list argp;
     if (trick_curr_integ != NULL) {
-        va_start(ap, arg1);
-        i=0;
-        narg = arg1;
-        if (trick_curr_integ->verbosity) message_publish(MSG_DEBUG,"LOAD DERIV: \n");
-        while (narg != (double*)NULL) {
-            trick_curr_integ->deriv[trick_curr_integ->intermediate_step][i] = *narg;
-            if (trick_curr_integ->verbosity) message_publish(MSG_DEBUG,"%g\n",*narg);
-            narg = va_arg(ap, double*);
-            i++;
-        };
-        va_end(ap);
+        va_start(argp, arg1);
+        trick_curr_integ->deriv_in(arg1, argp);
+        va_end(argp);
     } else {
-        message_publish(MSG_ERROR, "Integ load_deriv ERROR: trick_curr_integ is not set.\n") ;
+       message_publish(MSG_ERROR, "Integ load_deriv ERROR: trick_curr_integ is not set.\n") ;
     }
 }
 
@@ -97,24 +74,13 @@ extern "C" void load_indexed_deriv(unsigned int index , double deriv) {
 
 extern "C" void load_deriv2( double* arg1, ...) {
 
-    va_list ap;
-    int i;
-    double* narg;
-
+    va_list argp;
     if (trick_curr_integ != NULL) {
-        va_start(ap, arg1);
-        i=0;
-        narg = arg1;
-        if (trick_curr_integ->verbosity) message_publish(MSG_DEBUG,"LOAD DERIV2:\n");
-        while (narg != (double*)NULL) {
-            trick_curr_integ->deriv2[trick_curr_integ->intermediate_step][i] = *narg;
-            if (trick_curr_integ->verbosity) message_publish(MSG_DEBUG,"%g\n",*narg);
-            narg = va_arg(ap, double*);
-            i++;
-        };
-        va_end(ap);
+        va_start(argp, arg1);
+        trick_curr_integ->deriv2_in(arg1, argp);
+        va_end(argp);
     } else {
-        message_publish(MSG_ERROR, "Integ load_deriv ERROR: trick_curr_integ is not set.\n") ;
+       message_publish(MSG_ERROR, "Integ load_deriv2 ERROR: trick_curr_integ is not set.\n") ;
     }
 }
 
@@ -130,24 +96,13 @@ extern "C" void load_indexed_deriv2(unsigned int index , double deriv2) {
 
 extern "C" void unload_state (double* arg1, ...) {
 
-    va_list ap;
-    int i;
-    double* narg;
-
+    va_list argp;
     if (trick_curr_integ != NULL) {
-        va_start(ap, arg1);
-        i=0;
-        narg = arg1;
-        if (trick_curr_integ->verbosity) message_publish(MSG_DEBUG,"UNLOAD STATE:\n");
-        while (narg != (double*)NULL) {
-            *narg = trick_curr_integ->state_ws[trick_curr_integ->intermediate_step][i];
-            if (trick_curr_integ->verbosity) message_publish(MSG_DEBUG,"%g\n",*narg);
-            narg = va_arg(ap, double*);
-            i++;
-        };
-        va_end(ap);
+        va_start(argp, arg1);
+        trick_curr_integ->state_out(arg1, argp);
+        va_end(argp);
     } else {
-        message_publish(MSG_ERROR, "Integ unload_state ERROR: trick_curr_integ is not set.\n") ;
+       message_publish(MSG_ERROR, "Integ unload_state ERROR: trick_curr_integ is not set.\n") ;
     }
 }
 

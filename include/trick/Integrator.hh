@@ -14,7 +14,7 @@
     #define INTEG_ALLOC(typespec, num) (typespec*)calloc((size_t)num,sizeof(typespec))
     #define INTEG_FREE(p) free(p)
 #endif
-
+#include <cstdarg>
 /*
 #ifdef USE_ER7_UTILS_INTEGRATORS
 #include "er7_utils/integration/core/include/integration_technique.hh"
@@ -63,6 +63,9 @@ namespace Trick {
         virtual int integrate_2nd_order_ode (
            double const* accel, double* velocity, double* position);
 
+#ifndef SWIGPYTHON
+        void state_in (double* arg1, va_list argp);
+#endif
         void state_in (double* arg1, ...)
 #ifndef SWIGPYTHON
         #ifdef __GNUC__
@@ -72,6 +75,9 @@ namespace Trick {
         #endif
 #endif
         ;
+#ifndef SWIGPYTHON
+        void deriv_in (double* arg1, va_list argp);
+#endif
         void deriv_in (double* arg1, ...)
 #ifndef SWIGPYTHON
         #ifdef __GNUC__
@@ -81,6 +87,9 @@ namespace Trick {
         #endif
 #endif
         ;
+#ifndef SWIGPYTHON
+        void state_out (double* arg1, va_list argp);
+#endif
         void state_out(double* arg1, ...)
 #ifndef SWIGPYTHON
         #ifdef __GNUC__
@@ -91,6 +100,9 @@ namespace Trick {
 #endif
         ;
 
+#ifndef SWIGPYTHON
+        void deriv2_in (double* arg1, va_list argp);
+#endif
         void deriv2_in (double* arg1, ...)
 #ifndef SWIGPYTHON
         #ifdef __GNUC__
