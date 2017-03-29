@@ -1,4 +1,4 @@
-
+TRICK_HOME := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))../../..)
 export TRICK_HOST_CPU := $(shell $(TRICK_HOME)/bin/trick-gte TRICK_HOST_CPU)
 
 # List out sims we want to compile
