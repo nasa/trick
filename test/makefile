@@ -1,4 +1,4 @@
-TRICK_HOME := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))../../..)
+TRICK_HOME := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))..)
 export TRICK_HOST_CPU := $(shell $(TRICK_HOME)/bin/trick-gte TRICK_HOST_CPU)
 
 # List out sims we want to compile
@@ -54,7 +54,7 @@ $(UNIT_TEST_RESULTS): $(TRICK_HOME)/trick_test/%.xml : %/T_main_${TRICK_HOST_CPU
 	@ cd $* ; ./T_main_${TRICK_HOST_CPU}_test.exe RUN_test/unit_test.py
 
 DR_RESULTS = $(TRICK_HOME)/test/SIM_test_dr/RUN_test
-data_record_results: $(UNIT_TEST_RESULTS)
+data_record_results: $(TRICK_HOME)/trick_test/SIM_test_dr.xml $(DR_RESULTS)
 	diff $(DR_RESULTS)/log_DR_bitfieldsASCII.csv $(DR_RESULTS)/Ref_Logs/log_DR_bitfieldsASCII_Master.csv
 	diff $(DR_RESULTS)/log_DR_typesASCII.csv $(DR_RESULTS)/Ref_Logs/log_DR_typesASCII_Master.csv
 ifneq ($(wildcard $(DR_RESULTS)/Ref_Logs/typesB_${TRICK_HOST_CPU}.trk), )
