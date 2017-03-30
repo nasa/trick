@@ -135,13 +135,10 @@ void RefParseContext::init_scanner() {
     // Allocate the scanner structure.
     yylex_init( &scanner);
 
-    // Set the file to be parsed.
-    //yyset_in( fp_in, &scanner);
-
     // Set the file where output messages are to go.
-    yyset_out( stdout, &scanner);
+    yyset_out( stdout, scanner);
 
-    //yyset_lineno( 1, &scanner);
+    yyset_lineno( 1, scanner);
 
     yyset_extra( this, scanner);
 
