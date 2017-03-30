@@ -200,6 +200,15 @@ void PageView::rowsInserted(const QModelIndex &pidx, int start, int end)
     }
     }
 
+    // Calling updateGeometry on child widgets will cause child widgets to
+    // recalculate size via sizeHint().  Recalculating size is necessary for
+    // some children like LabelRulerView which must be resized so that plot
+    // y-axes are aligned vertically across plots on a page
+    QList<QWidget *> widgets = this->findChildren<QWidget*>();
+    foreach (QWidget* widget, widgets) {
+        widget->updateGeometry();
+    }
+
 }
 
 void PageView::_plotViewCurrentChanged(const QModelIndex &currIdx,

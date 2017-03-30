@@ -3,7 +3,8 @@
 LabeledRulerView::LabeledRulerView(Qt::Alignment alignment,
                                    QWidget *parent) :
     BookIdxView(parent),
-    _alignment(alignment)
+    _alignment(alignment),
+    _margin5(5)
 {
     setFrameShape(QFrame::NoFrame);
 }
@@ -57,6 +58,10 @@ void LabeledRulerView::paintEvent(QPaintEvent *event)
         QFontMetrics fm = viewport()->fontMetrics();
         QRectF bb = fm.boundingRect(strVal);
         bb.moveCenter(center);
+        if ( _alignment == Qt::AlignLeft ) {
+            bb.setLeft(W.left());
+            bb.setRight(W.right()-_margin5);
+        }
 
         LabelBox box;
         box.center = center;
@@ -117,7 +122,11 @@ void LabeledRulerView::paintEvent(QPaintEvent *event)
     QPainter painter(viewport());
     painter.save();
     foreach ( LabelBox box, boxes ) {
-        painter.drawText(box.bb, Qt::AlignHCenter|Qt::AlignVCenter, box.strVal);
+        if ( _alignment == Qt::AlignLeft ) {
+            painter.drawText(box.bb,Qt::AlignRight|Qt::AlignVCenter,box.strVal);
+        } else {
+            painter.drawText(box.bb,Qt::AlignCenter,box.strVal);
+        }
     }
     painter.restore();
     painter.end();
@@ -134,45 +143,67 @@ QSize LabeledRulerView::sizeHint() const
 {
     QSize s(0,0);
 
-    QList<double> modelTics;
-    QModelIndex plotIdx = _bookModel()->getIndex(rootIndex(),"Plot");
     if ( _alignment == Qt::AlignBottom ) {
-        modelTics = _majorXTics(plotIdx);
+        s = _sizeHintBottom();
     } else if ( _alignment == Qt::AlignLeft ) {
-        modelTics = _majorYTics(plotIdx);
+        s = _sizeHintLeft();
     } else {
-        // No support (yet) for right and top axes
-        return s;
+        fprintf(stderr, "snap [bad scoobs]: LabeledRulerView::sizeHint() "
+                        "Bad alignment.  Aborting!!!\n");
+        exit(-1);
     }
+
+    return s;
+}
+
+// Note: In order to align y axes across plots on a page, the size hint for
+//       the left tic numbers takes all the plots on a page into account.
+//       The sizehint is the same forall plots on the page.
+QSize LabeledRulerView::_sizeHintLeft() const
+{
+    QSize s(0,0);
+
+    QModelIndex pageIdx = _bookModel()->getIndex(rootIndex(),"Plot").
+                          parent().parent();
+    QModelIndexList plotIdxs = _bookModel()->plotIdxs(pageIdx);
+    QFontMetrics fm = viewport()->fontMetrics();
+    double w = 0;
+    double h = 0;
+    foreach ( QModelIndex plotIdx, plotIdxs ) {
+        QList<double> modelTics = _majorYTics(plotIdx);
+        foreach ( double tic, modelTics ) {
+            QString strVal = _format(tic);
+            QRectF bb = fm.boundingRect(strVal);
+            if ( bb.width() > w )  w = bb.width();
+            if ( bb.height() > h ) h = bb.height();
+        }
+    }
+
+    s.setWidth(w+3*_margin5);  // 3 is arbitrary
+    s.setHeight(h);
+
+    return s;
+}
+
+QSize LabeledRulerView::_sizeHintBottom() const
+{
+    QSize s(0,0);
+
+    QModelIndex plotIdx = _bookModel()->getIndex(rootIndex(),"Plot");
+    QList<double> modelTics = _majorXTics(plotIdx);
 
     double w = 0;
     double h = 0;
     QFontMetrics fm = viewport()->fontMetrics();
     foreach ( double tic, modelTics ) {
         QString strVal = _format(tic);
-        QRectF bb ;
-        if ( _alignment == Qt::AlignBottom ) {
-            bb = fm.boundingRect(strVal);
-        } else if ( _alignment == Qt::AlignLeft ) {
-            bb = fm.boundingRect(strVal);
-        }
-        if ( bb.width() > w ) {
-            w = bb.width();
-        }
-        if ( bb.height() > h ) {
-            h = bb.height();
-        }
+        QRectF bb = fm.boundingRect(strVal);
+        if ( bb.width() > w )  w = bb.width();
+        if ( bb.height() > h ) h = bb.height();
     }
 
-    /* Give some margin around number */
-    if ( _alignment == Qt::AlignLeft ) {
-        w *= 1.61;  // arbitrarily chose ~golden ratio
-    } else if ( Qt::AlignBottom ) {
-        h *= 1.61;
-    }
-
-    s.setWidth(w);
-    s.setHeight(h);
+    s.setWidth(w*1.61);   // arbitrary margin with scale
+    s.setHeight(h*1.61);
 
     return s;
 }

@@ -2,6 +2,9 @@
 #define LABELEDRULERVIEW_H
 
 #include <QPainter>
+#include <QFont>
+#include <QFontMetrics>
+#include <QFontInfo>
 #include "bookidxview.h"
 
 struct LabelBox
@@ -27,6 +30,8 @@ protected:
 private:
     Qt::Alignment _alignment;
 
+    const int _margin5;
+
     bool _isFits(const QList<LabelBox>& boxes,
                  const QRectF& W,
                  double minGap, Qt::Alignment alignment);
@@ -41,6 +46,9 @@ private:
 
     QList<LabelBox> _halfBoxSet(const QList<LabelBox>& boxes,
                                 Qt::Alignment alignment);
+
+    QSize _sizeHintLeft() const;
+    QSize _sizeHintBottom() const;
 
 signals:
 
