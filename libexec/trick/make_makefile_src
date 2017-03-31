@@ -287,32 +287,32 @@ print MAKEFILE "
 
 \${MODEL_c_OBJECTS} : build/%.o : /%.c build/%.d
 \t\$(PRINT_COMPILE)
-\t\$(ECHO_CMD)\$(TRICK_CC) \$(TRICK_CFLAGS) \$(TRICK_SYSTEM_CFLAGS) -I\$(<D) -I\$(<D)/../include -MMD -MP -c -o \$\@ \$<
+\t\$(ECHO_CMD)\$(TRICK_CC) \$(TRICK_CFLAGS) \$(TRICK_SYSTEM_CFLAGS) -I\$(<D)/../include -MMD -MP -c -o \$\@ \$<
 
 \${MODEL_cc_OBJECTS} : build/%.o : /%.cc build/%.d
 \t\$(PRINT_COMPILE)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@
 
 \${MODEL_cpp_OBJECTS} : build/%.o : /%.cpp build/%.d
 \t\$(PRINT_COMPILE)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@
 
 \${MODEL_C_OBJECTS} : build/%.o : /%.C build/%.d
 \t\$(PRINT_COMPILE)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@
 
 \${MODEL_cxx_OBJECTS} : build/%.o : /%.cxx build/%.d
 \t\$(PRINT_COMPILE)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@
 
 \${MODEL_c++_OBJECTS} : build/%.o : /%.c++ build/%.d
 \t\$(PRINT_COMPILE)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@
 
 #define compile_rule
 #build/%.o: /%.\$1
 #\t\$\$(PRINT_COMPILE)
-#\t\$\$(ECHO_CMD)\$\$(TRICK_CPPC) \$\$(TRICK_CXXFLAGS) \$\$(TRICK_SYSTEM_CXXFLAGS) -I\$\$(<D) -I\$\$(<D)/../include -MMD -MP -c \$\$< -o \$\$@
+#\t\$\$(ECHO_CMD)\$\$(TRICK_CPPC) \$\$(TRICK_CXXFLAGS) \$\$(TRICK_SYSTEM_CXXFLAGS) -I\$\$(<D)/../include -MMD -MP -c \$\$< -o \$\$@
 #endef
 #
 #EXTENSIONS := C cc cpp cxx c++
