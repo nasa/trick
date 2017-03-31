@@ -772,7 +772,8 @@ clean_obj: clean_model_c_obj clean_model_cpp_obj clean_model_io_obj clean_lex_ya
     print MAKEFILE "\$(LIB_DIR)/lib_${sim_dir_name}.a : \$(OBJECTS) \$(IO_OBJECTS) \$(DEFAULT_DATA_OBJECTS)\n" ;
     print MAKEFILE "\t@ echo \"[36mCreating libraries...[00m\"\n" ;
     print MAKEFILE "\t\@ rm -rf \$\@\n" ;
-    print MAKEFILE "\tar crs \$\@ \$(LIB_DIR)/*.o || touch \$\@\n\n" ;
+    print MAKEFILE "\tcd \$(LIB_DIR) \; ar crs \$\@ *.o || touch \$\@\n\n" ;
+
 
     # print out the sim directory libraries
     foreach my $l ( @{$$sim_ref{sim_libraries}} ) {
