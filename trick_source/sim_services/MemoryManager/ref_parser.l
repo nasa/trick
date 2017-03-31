@@ -138,8 +138,6 @@ void RefParseContext::init_scanner() {
     // Set the file where output messages are to go.
     yyset_out( stdout, scanner);
 
-    yyset_lineno( 1, scanner);
-
     yyset_extra( this, scanner);
 
 }
