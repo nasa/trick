@@ -11,6 +11,7 @@ std::string trim( const std::string& str, const std::string& whitespace = " \t\n
 bool isInUserCode( clang::CompilerInstance & ci , clang::SourceLocation sl , HeaderSearchDirs & hsd ) ;
 bool isInUserOrTrickCode( clang::CompilerInstance & ci , clang::SourceLocation sl , HeaderSearchDirs & hsd ) ;
 std::string getFileName( clang::CompilerInstance & ci , clang::SourceLocation sl , HeaderSearchDirs & hsd ) ;
+char * almostRealPath( const std::string& in_path ) ;
 char * almostRealPath( const char * in_path ) ;
 
 #endif
