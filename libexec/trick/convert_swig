@@ -257,7 +257,8 @@ sub process_file() {
                 # Get the canonical path (resolve ., .., and symbolic links)
                 $file_name = abs_path($file_name) ;
 
-                foreach my $i ( @exclude_paths, @swig_exclude_paths, @ext_lib_paths ) {
+                # Skip excluded paths
+                foreach my $i ( @exclude_paths, @swig_exclude_paths ) {
                     if ( $file_name =~ /^\Q$i/ ) {
                         next outer ;
                     }
