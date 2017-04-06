@@ -322,6 +322,13 @@ void CurvesView::paintEvent(QPaintEvent *event)
                                                            "Presentation");
         }
 
+        // Paint plot background white
+        QColor bg(255,255,255);
+        QBrush origBrush = painter.brush();
+        painter.setBrush(bg);
+        painter.fillRect(viewport()->rect(),bg);
+        painter.setBrush(origBrush);
+
         if ( plotPresentation == "compare" ) {
             _paintCoplot(T,painter,pen);
         } else if ( plotPresentation == "error" ) {
@@ -598,12 +605,6 @@ void CurvesView::_paintErrorplot(const QTransform &T,
 
     QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
     QPainterPath* errorPath = _bookModel()->getCurvesErrorPath(curvesIdx);
-
-    QColor bg(255,255,255);
-    QBrush origBrush = painter.brush();
-    painter.setBrush(bg);
-    painter.fillRect(viewport()->rect(),bg);
-    painter.setBrush(origBrush);
 
     QRectF ebox = errorPath->boundingRect();
     QPen ePen(pen);
