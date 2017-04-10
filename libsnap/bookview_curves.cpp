@@ -597,6 +597,114 @@ void CurvesView::_paintLiveCoordArrow(TrickCurveModel* curveModel,
     painter.restore();
 }
 
+void CurvesView::_paintErrorLiveCoordArrow(QPainterPath* path,
+                                           QPainter& painter)
+{
+    // Return and do not draw if Options->isShowLiveCoord is off
+    QModelIndex isShowIdx = _bookModel()->getDataIndex(QModelIndex(),
+                                                       "IsShowLiveCoord");
+    bool isShowLiveCoord = model()->data(isShowIdx).toBool();
+    if ( !isShowLiveCoord ) {
+        return;
+    }
+
+    if ( !currentIndex().isValid() ) {
+        return;
+    }
+
+    painter.save();
+
+    // Draw in window coords (+y axis down which accounts for -r*sin(ang) etc)
+    QTransform I;
+    painter.setTransform(I);
+
+    // Map math coord to window pt
+    QTransform T = _coordToPixelTransform();
+
+    // Initial arrow
+
+    // Calculate liveCoord based on model liveCoordTime
+    QModelIndex liveIdx = _bookModel()->getDataIndex(QModelIndex(),
+                                                     "LiveCoordTime");
+    double liveTime = model()->data(liveIdx).toDouble();
+    int high = path->elementCount()-1;
+    int i = _idxAtTimeBinarySearch(path,0,high,liveTime);
+    QPainterPath::Element el = path->elementAt(i);
+
+    QPointF coord(el.x,el.y);
+    CoordArrow arrow;
+    arrow.coord = coord;
+
+    //
+    // If live coord is an extremum, set flag for painting
+    //
+    if ( i > 0 && i < high) {
+        // Not first or last point
+        double y1 = path->elementAt(i-1).y;
+        double y  = path->elementAt(i).y;
+        double y2 = path->elementAt(i+1).y;
+        if ( (y>y1 && y>y2) || (y<y1 && y<y2) ) {
+            arrow.txt = QString("<%1, %2>").arg(_format(coord.x()))
+                                           .arg(_format(coord.y()));
+        } else {
+            arrow.txt = QString("(%1, %2)").arg(_format(coord.x()))
+                                           .arg(_format(coord.y()));
+        }
+    } else if ( i == 0 ) {
+            arrow.txt = QString("init=(%1, %2)").arg(_format(coord.x()))
+                                                .arg(_format(coord.y()));
+    } else if ( i == high ) {
+            arrow.txt = QString("last=(%1, %2)").arg(_format(coord.x()))
+                                                .arg(_format(coord.y()));
+    } else {
+        fprintf(stderr,"snap [bad scoobs]: "
+                       "CurvesView::_paintErrorLiveCoordArrow\n");
+        exit(-1);
+    }
+
+    // Try to fit arrow into viewport using 45,135,225 and 335 degree angles
+    // off of horiz (counterclockwise)
+    QList<double> angles;
+    angles << 1*(M_PI/4) << 3*(M_PI/4) << 5*(M_PI/4) << 7*(M_PI/4);
+    bool isFits = false;
+    foreach ( double angle, angles ) {
+        arrow.angle = angle;
+        QRect arrowBBox = arrow.boundingBox(painter,T).toRect();
+        if ( viewport()->rect().contains(arrowBBox) ) {
+            isFits = true;
+            break;
+        }
+    }
+
+    if ( isFits ) {
+        arrow.paintMe(painter,T);
+    }
+
+    painter.restore();
+}
+
+int CurvesView::_idxAtTimeBinarySearch(QPainterPath* path,
+                                       int low, int high, double time)
+{
+        if (high <= 0 ) {
+                return 0;
+        }
+        if (low >= high) {
+                return ( path->elementAt(high).x > time ) ? high-1 : high;
+        } else {
+                int mid = (low + high)/2;
+                if (time == path->elementAt(mid).x ) {
+                        return mid;
+                } else if ( time < path->elementAt(mid).x ) {
+                        return _idxAtTimeBinarySearch(path,
+                                                      low, mid-1, time);
+                } else {
+                        return _idxAtTimeBinarySearch(path,
+                                                      mid+1, high, time);
+                }
+        }
+}
+
 void CurvesView::_paintErrorplot(const QTransform &T,
                                  QPainter &painter, const QPen &pen,
                                  const QModelIndex& plotIdx)
@@ -630,6 +738,7 @@ void CurvesView::_paintErrorplot(const QTransform &T,
     }
     painter.setTransform(T);
     painter.drawPath(*errorPath);
+    _paintErrorLiveCoordArrow(errorPath,painter);
 
     delete errorPath;
 
@@ -1241,6 +1350,18 @@ void CurvesView::mouseReleaseEvent(QMouseEvent *event)
                 // click off curves when nothing selected -> toggle single/multi
                 event->ignore(); // pass event to page view
             }
+        } else if ( d < 10 && presentation == "error" ) {
+            if ( currentIndex().isValid() ) {
+                setCurrentIndex(QModelIndex());  // toggle to deselect
+            } else {
+                QModelIndex plotIdx = rootIndex();
+                if ( !_bookModel()->isIndex(plotIdx,"Plot") ) {
+                    fprintf(stderr, "snap [bad scoobs]: "
+                                    "CurvesView::mouseReleaseEvent()\n");
+                    exit(-1);
+                }
+                setCurrentIndex(plotIdx);
+            }
         } else {
             //event->ignore(); // pass event to parent view for stretch,zoom etc
         }
@@ -1370,23 +1491,22 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
             shiftPressed = true;
         }
 
+        QRectF M = _mathRect();
+        double a = M.width()/W.width();
+        double b = M.height()/W.height();
+        double c = M.x() - a*W.x();
+        double d = M.y() - b*W.y();
+        QTransform T(a, 0,
+                     0, b, /*+*/ c, d);
+        QPointF wPt = mouseMove->pos();
+        QPointF mPt = T.map(wPt);
+
         if ( !shiftPressed &&
              (tag == "Curve" &&
              (presentation == "compare" || presentation.isEmpty())) ) {
 
-            QRectF M = _mathRect();
-
-            double a = M.width()/W.width();
-            double b = M.height()/W.height();
-            double c = M.x() - a*W.x();
-            double d = M.y() - b*W.y();
-            QTransform T(a, 0,
-                         0, b, /*+*/ c, d);
-            QPointF wPt = mouseMove->pos();
-            QPointF mPt = T.map(wPt);
-
             TrickCurveModel* curveModel = _bookModel()->
-                    getTrickCurveModel(currentIndex());
+                                          getTrickCurveModel(currentIndex());
             if ( curveModel ) {
 
                 curveModel->map();
@@ -1582,6 +1702,176 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                 curveModel->unmap();
                 viewport()->update();
             }
+
+        } else if ( !shiftPressed && tag == "Plot" &&
+                    (presentation == "error" ||
+                     presentation == "error+compare")) {
+
+            // TODO: This code block is almost a duplicate of the code block
+            //       above for compare plot.  The difference is that the
+            //       error data is an unscaled/biased QPainterPath.
+            QModelIndex curvesIdx =  _bookModel()->getIndex(rootIndex(),
+                                                            "Curves","Plot");
+            QPainterPath* path = _bookModel()->getCurvesErrorPath(curvesIdx);
+            QModelIndex liveTimeIdx = _bookModel()->getDataIndex(
+                                                               QModelIndex(),
+                                                               "LiveCoordTime");
+
+            int rc = path->elementCount();
+            QPointF liveCoord(DBL_MAX,DBL_MAX);
+
+            if ( rc == 0 ) {
+
+                // "null" out liveCoord
+                liveCoord = QPointF(DBL_MAX,DBL_MAX);
+
+            } else if ( rc == 1 ) {
+
+                QPainterPath::Element el = path->elementAt(0);
+                liveCoord = QPointF(el.x,el.y);
+
+            } else if ( rc == 2 ) {
+
+                QPainterPath::Element el0 = path->elementAt(0);
+                QPainterPath::Element el1 = path->elementAt(1);
+                QPointF p0(el0.x,el0.y);
+                QPointF p1(el1.x,el1.y);
+                QLineF l0(p0,mPt);
+                QLineF l1(p1,mPt);
+                if ( l0.length() < l1.length() ) {
+                    liveCoord = p0;
+                } else {
+                    liveCoord = p1;
+                }
+
+            } else if ( rc >= 3 ) {
+
+                int i =  _idxAtTimeBinarySearch(path,0,rc-1,mPt.x());
+                QPainterPath::Element el = path->elementAt(i);
+                QPointF p(el.x,el.y);
+
+                //
+                // Find dt between p and prev or next point
+                //
+                double dt = 0.0;
+                if ( i == 0 ) {
+                    // Start point
+                    dt = path->elementAt(1).x - p.x();
+                } else if ( i > 0 ) {
+                    dt = p.x() - path->elementAt(i-1).x;
+                } else {
+                    fprintf(stderr,"snap [bad scoobs]:4: "
+                                   "CurvesView::mouseMoveEvent()\n");
+                    exit(-1);
+                }
+                if ( dt < 1.0e-9 ) {
+                    fprintf(stderr,"snap [bad scoobs]:5: "
+                                   "CurvesView::mouseMoveEvent()\n");
+                    exit(-1);
+                }
+
+
+                //
+                // Make "neighborhood" around mouse point
+                //
+                QRectF M = _plotMathRect(rootIndex());
+                QRectF W = viewport()->rect();
+                double Wr = 2.0*fontMetrics().xHeight(); // near mouse
+                double Mr = Wr*(M.width()/W.width());
+
+                int di = qFloor(Mr/dt);
+                int j = i-di;
+                j = (j < 0) ? 0 : j;
+                int k = i+di;
+                k = (k >= rc) ? rc-1 : k;
+
+                //
+                // Find local min/maxs in neighborhood
+                //
+                QList<QPointF> localMaxs;
+                QList<QPointF> localMins;
+                for (int m = j; m <= k; ++m ) {
+                    QPointF pt(path->elementAt(m).x,path->elementAt(m).y);
+                    if ( m > 0 && m < k ) {
+                        double yPrev = path->elementAt(m-1).y;
+                        double y  = path->elementAt(m).y;
+                        double yNext = path->elementAt(m+1).y;
+                        if ( y > yPrev && y > yNext ) {
+                            if ( localMaxs.isEmpty() ) {
+                                localMaxs << pt;
+                            } else {
+                                if ( pt.y() > localMaxs.first().y() ) {
+                                    localMaxs.prepend(pt);
+                                } else {
+                                    localMaxs << pt;
+                                }
+                            }
+                        } else if ( y < yPrev && y < yNext ) {
+                            if ( localMins.isEmpty() ) {
+                                localMins << pt;
+                            } else {
+                                if ( pt.y() < localMins.first().y() ) {
+                                    localMins.prepend(pt);
+                                } else {
+                                    localMins << pt;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                //
+                // Choose live coord based on local mins/maxs
+                // and proximity to start/end points
+                //
+                if ( j == 0 ) {
+                    // Mouse near start of curve, set to start pt
+                    liveCoord = QPointF(path->elementAt(0).x,
+                                        path->elementAt(0).y);
+                } else if ( k == rc-1 ) {
+                    // Mouse near end of curve, set to last pt
+                    liveCoord = QPointF(path->elementAt(k).x,
+                                        path->elementAt(k).y);
+                } else {
+                    bool isMaxs = localMaxs.isEmpty() ? false : true;
+                    bool isMins = localMins.isEmpty() ? false : true;
+                    if ( isMaxs && !isMins ) {
+                        liveCoord = localMaxs.first();
+                    } else if ( !isMaxs && isMins ) {
+                        liveCoord = localMins.first();
+                    } else if ( isMaxs && isMins ) {
+                        // There are local mins and maxes
+                        if ( mPt.y() > localMaxs.first().y() ) {
+                            // Mouse above curve
+                            liveCoord = localMaxs.first();
+                        } else {
+                            // Mouse below curve
+                            liveCoord = localMins.first();
+                        }
+                    } else if ( !isMaxs && !isMins ) {
+                        liveCoord = p;
+                    } else {
+                        fprintf(stderr,"snap [bad scoobs]:6: "
+                                       "CurvesView::mouseMoveEvent()\n");
+                        exit(-1);
+                    }
+                }
+            }
+
+            // Set live coord in model
+            double start = _bookModel()->getDataDouble(QModelIndex(),
+                                                       "StartTime");
+            double stop = _bookModel()->getDataDouble(QModelIndex(),
+                                                      "StopTime");
+            if ( mPt.x() <= start ) {
+                model()->setData(liveTimeIdx,start);
+            } else if ( mPt.x() >= stop ) {
+                model()->setData(liveTimeIdx,stop);
+            } else {
+                model()->setData(liveTimeIdx,liveCoord.x());
+            }
+
+            viewport()->update();
         }
 
     } else if ( mouseMove->buttons() == Qt::LeftButton ) {

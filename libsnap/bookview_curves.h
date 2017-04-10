@@ -124,6 +124,7 @@ private:
                      const QTransform &T, QPainter& painter);
     void _paintLiveCoordArrow(TrickCurveModel *curveModel,
                           const QModelIndex &curveIdx, QPainter &painter);
+    void _paintErrorLiveCoordArrow(QPainterPath* path, QPainter& painter);
     void _paintLegend(const QModelIndex& curvesIdx, QPainter &painter);
     void __paintLegend(const QList<QPen*>& pens,
                        const QStringList& symbols,
@@ -141,6 +142,9 @@ private:
     bool _isXTime(const QModelIndex& plotIdx);
 
     QString _format(double d);
+
+    int _idxAtTimeBinarySearch(QPainterPath* path,
+                               int low, int high, double time);
 
     // Key Events
     void _keyPressSpace();
