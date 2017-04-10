@@ -15,7 +15,6 @@ void CornerView::setModel(QAbstractItemModel *model)
     }
 }
 
-// TODO: We could get fancy and, optionally, round the corners
 void CornerView::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
@@ -23,8 +22,6 @@ void CornerView::paintEvent(QPaintEvent *event)
     if ( !model() ) return;
 
     QPainter painter(viewport());
-
-    QTransform T = _coordToPixelTransform();
 
     double ptSizeHLine = 0.0;
     double ptSizeVLine = 0.0;
@@ -34,11 +31,11 @@ void CornerView::paintEvent(QPaintEvent *event)
     QPen vPen = painter.pen();
     vPen.setWidthF(ptSizeVLine);
 
-    const QRectF M = _mathRect();
-    double x0 = M.left();
-    double y0 = M.top();
-    double x1 = M.right();
-    double y1 = M.bottom();
+    const QRect V = viewport()->rect();
+    double x0 = V.left();
+    double y0 = V.top();
+    double x1 = V.right();
+    double y1 = V.bottom();
 
     QVector<QPointF> hlines;
     QVector<QPointF> vlines;
@@ -68,7 +65,6 @@ void CornerView::paintEvent(QPaintEvent *event)
     // Draw!
     //
     painter.save();
-    painter.setTransform(T);
     painter.setPen(hPen);
     painter.drawLines(hlines);
     painter.setPen(vPen);
