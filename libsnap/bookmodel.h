@@ -59,8 +59,11 @@ public:
                          const QString& searchItemText,
                          const QString &expectedStartIdxText=QString()) const;
     int getDataInt(const QModelIndex& startIdx,
-                         const QString& searchItemText,
-                         const QString &expectedStartIdxText=QString()) const;
+                   const QString& searchItemText,
+                   const QString &expectedStartIdxText=QString()) const;
+    QHash<QString,QVariant> getDataHash(const QModelIndex& startIdx,
+                          const QString& searchItemText,
+                          const QString &expectedStartIdxText=QString()) const;
 
     // Convenience for getting QPen line style (see Qt doc)
     QVector<qreal> getLineStylePattern(const QModelIndex& curveIdx) const;

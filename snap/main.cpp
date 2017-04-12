@@ -33,6 +33,8 @@ bool writeCsv(const QString& fcsv, const QString& timeName,
               DPTable* dpTable, const QString &runDir);
 bool convert2csv(const QString& ftrk, const QString& fcsv);
 bool convert2trk(const QString& csvFileName, const QString &trkFileName);
+QHash<QString,QVariant> getShiftHash(const QString& shiftString,
+                                const QStringList &runDirs);
 
 Option::FPresetQString presetExistsFile;
 Option::FPresetDouble preset_start;
@@ -116,7 +118,7 @@ int main(int argc, char *argv[])
              presetOutputFile);
     opts.add("-shift", &opts.shiftString, QString(""),
              "time shift run curves by value "
-             "(e.g. -shift \"[RUN_a:]1.075\")");
+             "(e.g. -shift \"RUN_a:1.075,RUN_b:2.0\")");
     opts.add("-debug:{0,1}",&opts.isDebug,false, "Show book model tree etc.");
 
     opts.parse(argc,argv, QString("snap"), &ok);
@@ -145,65 +147,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    QString shiftRunFullPath;
-    double shiftVal;
-    if ( !opts.shiftString.isEmpty() ) {
-        if ( opts.shiftString.contains(':') ) {
-            // e.g. koviz RUN_a RUN_b -shift "RUN_a:0.00125"
-            QString shiftRun       = opts.shiftString.split(':').at(0);
-            QString shiftValString = opts.shiftString.split(':').at(1);
-            if ( shiftRun.isEmpty() || shiftValString.isEmpty() ) {
-                fprintf(stderr,"snap [error] : -shift option value \"%s\""
-                               "is malformed.\n"
-                               "Use this syntax -shift \"<run>:<val>\"\n",
-                               opts.shiftString.toLatin1().constData());
-                return -1;
-            }
-
-            bool isFound = false;
-            QFileInfo fi(shiftRun);
-            shiftRunFullPath = fi.absoluteFilePath();
-            foreach ( QString runDir, runDirs ) {
-                QFileInfo fir(runDir);
-                QString runDirFullPath = fir.absoluteFilePath();
-                if ( runDirFullPath == shiftRunFullPath ) {
-                    isFound = true;
-                    break;
-                }
-            }
-            if ( !isFound ) {
-                fprintf(stderr,"snap [error] : -shift option \"%s\" "
-                               "does not specify a valid run to shift.\n"
-                               "Use this syntax -shift \"<run>:<val>\" "
-                               "where <run> is one of the runs in the \n"
-                               "commandline set of runs e.g. %s.\n",
-                        opts.shiftString.toLatin1().constData(),
-                        runDirs.at(0).toLatin1().constData());
-                return -1;
-            }
-
-            QVariant q(shiftValString);
-            shiftVal = q.toDouble(&ok);
-            if ( !ok ) {
-                fprintf(stderr,"snap [error] : option -shift \"%s\" "
-                               "does not specify a valid shift value.\n"
-                               "Use this syntax -shift \"[<run>:]<val>\"\n",
-                               opts.shiftString.toLatin1().constData());
-                return -1;
-            }
-        } else {
-            // e.g. koviz RUN_a -shift 0.00125
-            QVariant q(opts.shiftString);
-            shiftVal = q.toDouble(&ok);
-            if ( !ok ) {
-                fprintf(stderr,"snap [error] : option -shift \"%s\" "
-                               "does not specify a valid shift value.\n"
-                               "Use this syntax -shift \"[<run>:]<val>\"\n",
-                               opts.shiftString.toLatin1().constData());
-                return -1;
-            }
-        }
-    }
+    QHash<QString,QVariant> shifts = getShiftHash(opts.shiftString, runDirs);
 
     if ( !opts.trk2csvFile.isEmpty() ) {
         QString csvOutFile = opts.outputFileName;
@@ -394,7 +338,7 @@ int main(int argc, char *argv[])
             // TODO: Shouldn't timeName use opts.timeName if specified?
             PlotMainWindow w(opts.isDebug,
                              opts.timeName, opts.start, opts.stop,
-                             shiftRunFullPath, shiftVal,
+                             shifts,
                              presentation, QString(), dps, titles,
                              monteModel, varsModel, monteInputsModel);
             w.savePdf(opts.pdfOutFile);
@@ -495,7 +439,7 @@ int main(int argc, char *argv[])
 #endif
                 PlotMainWindow w(opts.isDebug,
                                  opts.timeName, opts.start, opts.stop,
-                                 shiftRunFullPath,shiftVal,
+                                 shifts,
                                  presentation, ".", dps, titles,
                                  monteModel, varsModel, monteInputsModel);
 #ifdef __linux
@@ -507,7 +451,7 @@ int main(int argc, char *argv[])
 
                 PlotMainWindow w(opts.isDebug,
                                  opts.timeName, opts.start, opts.stop,
-                                 shiftRunFullPath,shiftVal,
+                                 shifts,
                                  presentation, runDirs.at(0), QStringList(),
                                  titles, monteModel,
                                  varsModel, monteInputsModel);
@@ -1154,4 +1098,96 @@ bool convert2trk(const QString& csvFileName, const QString& trkFileName)
     file.close();
 
     return true;
+}
+
+// shiftString has the form "[RUN_0:]val0[,RUN_1:val1,...]"
+// This function returns a hash RUN_0->val0, RUN_1->val1...
+QHash<QString,QVariant> getShiftHash(const QString& shiftString,
+                                     const QStringList& runDirs)
+{
+    QHash<QString,QVariant> shifts;
+
+    if (shiftString.isEmpty() || runDirs.isEmpty() ) return shifts; // empty map
+
+    QStringList shiftStrings = shiftString.split(',',QString::SkipEmptyParts);
+    foreach ( QString s, shiftStrings ) {
+
+        QString shiftRunFullPath;
+        double shiftVal;
+        if ( s.contains(':') ) {
+            // e.g. koviz RUN_a RUN_b -shift "RUN_a:0.00125"
+            QString shiftRun       = s.split(':').at(0);
+            QString shiftValString = s.split(':').at(1);
+            if ( shiftRun.isEmpty() || shiftValString.isEmpty() ) {
+                fprintf(stderr,"snap [error] : -shift option value \"%s\""
+                               "is malformed.\n"
+                               "Use this syntax -shift \"<run>:<val>\"\n",
+                        opts.shiftString.toLatin1().constData());
+                exit(-1);
+            }
+
+            bool isFound = false;
+            QFileInfo fi(shiftRun);
+            shiftRunFullPath = fi.absoluteFilePath();
+            foreach ( QString runDir, runDirs ) {
+                QFileInfo fir(runDir);
+                QString runDirFullPath = fir.absoluteFilePath();
+                if ( runDirFullPath == shiftRunFullPath ) {
+                    isFound = true;
+                    break;
+                }
+            }
+            if ( !isFound ) {
+                fprintf(stderr,"snap [error] : -shift option \"%s\" "
+                               "does not specify a valid run to shift.\n"
+                               "Use this syntax -shift \"<run>:<val>\" "
+                               "where <run> is one of the runs in the \n"
+                               "commandline set of runs e.g. %s.\n",
+                        s.toLatin1().constData(),
+                        runDirs.at(0).toLatin1().constData());
+                exit(-1);
+            }
+
+            QVariant q(shiftValString);
+            bool ok;
+            shiftVal = q.toDouble(&ok);
+            if ( !ok ) {
+                fprintf(stderr,"snap [error] : option -shift \"%s\" "
+                               "does not specify a valid shift value.\n"
+                               "Use this syntax -shift \"[<run>:]<val>\"\n",
+                        s.toLatin1().constData());
+                exit(-1);
+            }
+
+        } else {
+            // e.g. koviz RUN_a -shift 0.00125
+            if ( runDirs.size() != 1 ) {
+                fprintf(stderr,"snap [error] : option -shift \"%s\" "
+                               "does not specify a valid shift string.\n"
+                               "Use the run:val syntax when there are "
+                               "multiple runs.\n"
+                               "Use this syntax -shift \"[<run>:]<val>\"\n",
+                        s.toLatin1().constData());
+                exit(-1);
+            }
+            QVariant q(s);
+            bool ok;
+            shiftVal = q.toDouble(&ok);
+            if ( !ok ) {
+                fprintf(stderr,"snap [error] : option -shift \"%s\" "
+                               "does not specify a valid shift value.\n"
+                               "Use this syntax -shift \"[<run>:]<val>\"\n",
+                        s.toLatin1().constData());
+                exit(-1);
+            }
+
+            QFileInfo fi(runDirs.at(0));
+            shiftRunFullPath = fi.absoluteFilePath();
+        }
+
+        shifts.insert(shiftRunFullPath,shiftVal);
+
+    }
+
+    return shifts;
 }

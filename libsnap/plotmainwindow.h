@@ -10,6 +10,7 @@
 #include <QGridLayout>
 #include <QSplitter>
 #include <QList>
+#include <QHash>
 #include <QStandardItemModel>
 #include <QFileInfo>
 #include <QStringList>
@@ -37,8 +38,7 @@ public:
                              const QString& timeName,
                              double startTime,
                              double stopTime,
-                             const QString& shiftRunDir,
-                             double shiftRunValue,
+                             const QHash<QString,QVariant>& shifts,//rundir->val
                              const QString& presentation,
                              const QString& dpDir,
                              const QStringList& dpFiles,

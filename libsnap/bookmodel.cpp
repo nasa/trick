@@ -306,10 +306,8 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
             idx = index(8,0);
         } else if ( searchItemText == "IsShowLiveCoord" ) {
             idx = index(9,0);
-        } else if ( searchItemText == "ShiftRunDir" ) {
+        } else if ( searchItemText == "RunToShiftHash" ) {
             idx = index(10,0);
-        } else if ( searchItemText == "ShiftRunValue" ) {
-            idx = index(11,0);
         } else {
             fprintf(stderr,"snap [bad scoobs]:3: getIndex() received "
                            "root as a startIdx and had bad child "
@@ -391,6 +389,16 @@ int PlotBookModel::getDataInt(const QModelIndex &startIdx,
         exit(-1);
     }
     return i;
+}
+
+QHash<QString,QVariant> PlotBookModel::getDataHash(const QModelIndex &startIdx,
+                                 const QString &searchItemText,
+                                 const QString &expectedStartIdxText) const
+{
+    QModelIndex dataIdx = getDataIndex(startIdx,searchItemText,
+                                       expectedStartIdxText);
+    QHash<QString,QVariant> hash = data(dataIdx).toHash();
+    return hash;
 }
 
 // no_line, thick_line and x_thick_line currently unsupported
