@@ -1566,7 +1566,8 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                         }
                         if ( dt < 1.0e-9 ) {
                             fprintf(stderr,"snap [bad scoobs]:2: "
-                                           "CurvesView::mouseMoveEvent()\n");
+                                           "CurvesView::mouseMoveEvent() "
+                                           "dt < 1.0e-9 \n");
                             exit(-1);
                         }
 
@@ -1766,7 +1767,8 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                 }
                 if ( dt < 1.0e-9 ) {
                     fprintf(stderr,"snap [bad scoobs]:5: "
-                                   "CurvesView::mouseMoveEvent()\n");
+                                   "CurvesView::mouseMoveEvent() "
+                                   "dt < 1.0e-9 \n");
                     exit(-1);
                 }
 
