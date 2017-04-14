@@ -131,7 +131,6 @@ QList<double> BookIdxView::_majorXTics(const QModelIndex& plotIdx) const
     QRectF r = _plotMathRect(plotIdx);
     double a = r.left();
     double b = r.right();
-    //X = calcTicSet(a,b, M_PI/2.0);
     X = _calcTicSet(a,b,1.0,10.0);
     return X;
 }
@@ -142,8 +141,7 @@ QList<double> BookIdxView::_minorXTics() const
     QRectF r = _plotMathRect(rootIndex());
     double a = r.left();
     double b = r.right();
-    //X = calcTicSet(a,b,M_PI/8.0);
-    X = _calcTicSet(a,b,1.0/4.0,10.0);
+    X = _calcMinorTicSet(a,b);
     return X;
 }
 
@@ -163,8 +161,30 @@ QList<double> BookIdxView::_minorYTics() const
     QRectF r = _plotMathRect(rootIndex());
     double a = r.bottom();
     double b = r.top();
-    Y = _calcTicSet(a,b,1.0/4.0,10.0);
+    Y = _calcMinorTicSet(a,b);
     return Y;
+}
+
+QList<double> BookIdxView::_calcMinorTicSet(double a, double b) const
+{
+    QList<double> Minors;
+
+    QList<double> Majors = _calcTicSet(a,b,1.0,10.0);
+
+    if ( Majors.size() >= 2 ) {
+        double d = (Majors.at(1)-Majors.at(0))/4.0;
+        double x = Majors.at(0);
+        if ( x-d-d-d >= a ) Minors << x-d-d-d;
+        if ( x-d-d >= a )   Minors << x-d-d;
+        if ( x-d >= a )     Minors << x-d;
+        foreach (double x, Majors) {
+            if ( x+d <= b )     Minors << x+d;
+            if ( x+d+d <= b )   Minors << x+d+d;
+            if ( x+d+d+d <= b ) Minors << x+d+d+d;
+        }
+    }
+
+    return Minors;
 }
 
 //
@@ -287,8 +307,9 @@ QList<double> BookIdxView::_calcTicSet(double aIn, double bIn,
     //              Refine hop distance scale from n^k to (n^(k-1))
     //              Try again (go back to x0 (rabbithole))
     //
-    while ( X.isEmpty() ) {  // |X| > 0 (unless a problem occurs)
+    while ( X.size() < 2 ) {  // |X| >= 2 (unless a problem occurs)
 
+        X.clear();
         double x = x0;  // Start search x <= a (keeps X ordered)
         d = pow(n,k);
 
@@ -337,7 +358,6 @@ QList<double> BookIdxView::_calcTicSet(double aIn, double bIn,
 
         k -= 1.0;   // smaller d = n^(k), n^(k-1), n^(k-2)...
     }
-    k += 1.0;
 
     // Clean up the set by removing any points not strictly within [a,b]
     for ( int i = X.size()-1; i >= 0; --i ) {
@@ -346,6 +366,36 @@ QList<double> BookIdxView::_calcTicSet(double aIn, double bIn,
             X.removeAt(i);
         }
     }
+
+    // Shrink tic set until |X| <=7
+    // Tics are removed in favor of keeping tics "even" in order
+    // to keep them the same while panning
+    while ( X.size() > 7 ) {
+        double x = X.at(0);
+        QString s = QString::asprintf("%g",x);
+        if ( s.contains('e') ) {
+            int n = s.indexOf('e');
+            s = s.left(n);
+        }
+        bool isEven = false;
+        if ( s.endsWith('0') || s.endsWith('2') || s.endsWith('4') ||
+             s.endsWith('6') || s.endsWith('8') ) {
+            isEven = true;
+        }
+
+        for ( int i = X.size()-1; i >= 0; --i ) {
+            if ( isEven ) {
+                if ( i%2 != 0 ) {
+                    X.removeAt(i);
+                }
+            } else {
+                if ( i%2 == 0 ) {
+                    X.removeAt(i);
+                }
+            }
+        }
+    }
+
     if ( X.isEmpty() ) {
         X << a;
     }

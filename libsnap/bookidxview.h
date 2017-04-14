@@ -47,6 +47,7 @@ public:
     QList<double> _minorYTics() const;
     QList<double> _calcTicSet(double aIn, double bIn,
                               double u, double n) const;
+    QList<double> _calcMinorTicSet(double a, double b) const;
     bool _isEqual(double a, double b, ulong maxD=10,
                   bool isNeighborMethod=true) const;
 
