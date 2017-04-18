@@ -57,9 +57,6 @@ DR_RESULTS = $(TRICK_HOME)/test/SIM_test_dr/RUN_test
 data_record_results: $(TRICK_HOME)/trick_test/SIM_test_dr.xml $(DR_RESULTS)
 	diff $(DR_RESULTS)/log_DR_bitfieldsASCII.csv $(DR_RESULTS)/Ref_Logs/log_DR_bitfieldsASCII_Master.csv
 	diff $(DR_RESULTS)/log_DR_typesASCII.csv $(DR_RESULTS)/Ref_Logs/log_DR_typesASCII_Master.csv
-ifneq ($(wildcard $(DR_RESULTS)/Ref_Logs/typesB_${TRICK_HOST_CPU}.trk), )
-	cmp -b $(DR_RESULTS)/log_DR_bitfieldsBINARY.trk $(DR_RESULTS)/Ref_Logs/bitfB_${TRICK_HOST_CPU}.trk
-	cmp -b $(DR_RESULTS)/log_DR_typesBINARY.trk $(DR_RESULTS)/Ref_Logs/typesB_${TRICK_HOST_CPU}.trk
-endif
-
+	cmp -b $(DR_RESULTS)/log_DR_bitfieldsBINARY.trk $(DR_RESULTS)/Ref_Logs/log_DR_bitfieldsBINARY.trk
+	cmp -b $(DR_RESULTS)/log_DR_typesBINARY.trk $(DR_RESULTS)/Ref_Logs/log_DR_typesBINARY.trk
 
