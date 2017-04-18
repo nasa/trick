@@ -587,7 +587,9 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     } else {
         _addChild(curveItem, "CurveRunID", runId);
     }
-    _addChild(curveItem, "CurveXScale",      x->scaleFactor());
+    _addChild(curveItem, "CurveXMinRange", x->minRange());
+    _addChild(curveItem, "CurveXMaxRange", x->maxRange());
+    _addChild(curveItem, "CurveXScale", x->scaleFactor());
 
     QHash<QString,QVariant> shifts = _bookModel->getDataHash(QModelIndex(),
                                                              "RunToShiftHash");
@@ -598,6 +600,8 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     } else {
         _addChild(curveItem, "CurveXBias", x->bias());
     }
+    _addChild(curveItem, "CurveYMinRange",   y->minRange());
+    _addChild(curveItem, "CurveYMaxRange",   y->maxRange());
     _addChild(curveItem, "CurveYScale",      y->scaleFactor());
     _addChild(curveItem, "CurveYBias",       y->bias());
     _addChild(curveItem, "CurveSymbolStyle", y->symbolStyle());

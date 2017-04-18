@@ -707,7 +707,9 @@ DPVar::DPVar(const QDomElement &e) :
     _bias(0.0),
     _symbol(QString()),
     _symbolSize(QString()),
-    _timeName(QString())
+    _timeName(QString()),
+    _minRange(-DBL_MAX),
+    _maxRange(DBL_MAX)
 {
     QDomElement el = e;
 
@@ -758,6 +760,16 @@ DPVar::DPVar(const QDomElement &e) :
     QString timeName("time_name");
     if ( el.hasAttribute(timeName) ) {
         _timeName = el.attributeNode(timeName).value().simplified();
+    }
+
+    QString min("min");
+    if ( el.hasAttribute(min) ) {
+        _minRange = el.attributeNode(min).value().simplified().toDouble();
+    }
+
+    QString max("max");
+    if ( el.hasAttribute(max) ) {
+        _maxRange = el.attributeNode(max).value().simplified().toDouble();
     }
 }
 

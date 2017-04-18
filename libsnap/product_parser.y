@@ -297,10 +297,10 @@ x_var: DP_X_VARIABLE ':' DP_STR {
                 }
         }
         | x_var DP_MIN_RANGE ':' DP_FLOAT {
-                currPlot->setXMinRange($4);
+                currXVar->setMinRange($4);
         }
         | x_var DP_MAX_RANGE ':' DP_FLOAT {
-                currPlot->setXMaxRange($4);
+                currXVar->setMaxRange($4);
         }
         | x_var DP_SCALE_FACTOR ':' DP_FLOAT {
                 if ( isXYPair ) {
@@ -352,10 +352,10 @@ y_var: DP_Y_VARIABLE ':' DP_STR {
                 }
         }
         | y_var DP_MIN_RANGE ':' DP_FLOAT  {
-                currPlot->setYMinRange($4);
+                currYVar->setMinRange($4);
         }
         | y_var DP_MAX_RANGE ':' DP_FLOAT {
-                currPlot->setYMaxRange($4);
+                currYVar->setMaxRange($4);
         }
         | y_var DP_SCALE_FACTOR ':' DP_FLOAT {
                 if ( isXYPair ) {
