@@ -372,7 +372,8 @@ QList<double> BookIdxView::_calcTicSet(double aIn, double bIn,
     // to keep them the same while panning
     while ( X.size() > 7 ) {
         double x = X.at(0);
-        QString s = QString::asprintf("%g",x);
+        QString s;
+        s = s.sprintf("%g",x);
         if ( s.contains('e') ) {
             int n = s.indexOf('e');
             s = s.left(n);
