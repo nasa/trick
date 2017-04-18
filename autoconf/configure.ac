@@ -2,7 +2,7 @@ dnl To generate a new top level configure script from this autoconf directory
 dnl 1.  aclocal
 dnl 2.  autoconf -o ../configure
 
-AC_INIT([Trick],[16+])
+AC_INIT([Trick],[17+])
 AC_LANG(C++)
 
 AC_CONFIG_AUX_DIR([autoconf])
@@ -198,6 +198,8 @@ dnl Save the full path of the compiler
 CC=`which $CC`
 CXX=`which $CXX`
 
+AC_PATH_PROG(TEE, tee, notee)
+AS_IF([test "$ac_cv_path_TEE" = "notee"],AC_MSG_ERROR([could not find tee]),[])
 AC_PATH_PROG(LD, ld, nold)
 AS_IF([test "$ac_cv_path_LD" = "nold"],AC_MSG_ERROR([could not find ld]),[])
 AC_PROG_LEX

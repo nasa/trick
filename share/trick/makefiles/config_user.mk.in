@@ -8,6 +8,7 @@ YACC   = @BISON@
 SWIG   = @SWIG@
 PYTHON = @PYTHON@
 CLANG  = @CLANG@
+TEE    = @TEE@
 
 USE_JAVA = @USE_JAVA@
 JAVAC  = @JAVA_CC@

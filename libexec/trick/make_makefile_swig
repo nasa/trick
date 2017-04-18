@@ -178,7 +178,8 @@ TRICK_FIXED_PYTHON = \\
     $swig_sim_dir/exception.py
 
 \$(TRICK_FIXED_PYTHON): $swig_sim_dir/\% : \${TRICK_HOME}/share/trick/swig/\%
-\t\$(ECHO_CMD)/bin/cp -f \$< \$@
+\t\@echo /bin/cp -f \$< \$@ >> \$(MAKE_OUT)
+\t\$(ECHO_CMD)/bin/cp -f \$< \$@ 2>&1 | \$(TEE) -a \$(MAKE_OUT)
 
 all: \$(TRICK_FIXED_PYTHON)
 
@@ -198,14 +199,16 @@ SWIG_I =" ;
 
 define create_convert_swig_rule
 build/%_py.i: /%.\$1
-\t\$(ECHO_CMD)\${TRICK_HOME}/\$(LIBEXEC)/trick/convert_swig \${TRICK_CONVERT_SWIG_FLAGS} \$\$<
+\t\@echo \${TRICK_HOME}/\$(LIBEXEC)/trick/convert_swig \${TRICK_CONVERT_SWIG_FLAGS} \$\$< >> \$(MAKE_OUT)
+\t\$(ECHO_CMD)\${TRICK_HOME}/\$(LIBEXEC)/trick/convert_swig \${TRICK_CONVERT_SWIG_FLAGS} \$\$< 2>&1 | \$(TEE) -a \$(MAKE_OUT)
 endef
 
 EXTENSIONS := H h hh hxx h++ hpp
 \$(foreach EXTENSION,\$(EXTENSIONS),\$(eval \$(call create_convert_swig_rule,\$(EXTENSION))))
 
 build/top.i: build/CP_instances
-\t\${ECHO_CMD}\${TRICK_HOME}/\${LIBEXEC}/trick/create_top_dot_i
+\t\@echo \${TRICK_HOME}/\${LIBEXEC}/trick/create_top_dot_i >> \$(MAKE_OUT)
+\t\${ECHO_CMD}\${TRICK_HOME}/\${LIBEXEC}/trick/create_top_dot_i 2>&1 | \$(TEE) -a \$(MAKE_OUT)
 
 # SWIG_SRC =====================================================================
 
@@ -213,7 +216,8 @@ SWIG_SRC = \$(subst .i,.cpp,\$(SWIG_I)) $swig_src_dir/top.cpp
 
 \$(SWIG_SRC) : %.cpp: %.i | \$(SWIG_I)
 \t\$(PRINT_SWIG)
-\t\$(ECHO_CMD)\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -outdir trick -o \$@ \$<
+\t\@echo \$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -outdir trick -o \$@ \$< >> \$(MAKE_OUT)
+\t\$(ECHO_CMD)\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -outdir trick -o \$@ \$< 2>&1 | \$(TEE) -a \$(MAKE_OUT)
 
 # SWIG_OBJECTS =================================================================
 
@@ -266,7 +270,8 @@ SWIG_OBJECTS = \$(subst .cpp,.o,\$(SWIG_SRC)) $swig_src_dir/init_swig_modules.o\
     print MAKEFILE "
 \$(SWIG_OBJECTS): %.o: %.cpp
 \t\$(PRINT_COMPILE_SWIG)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) \$(SWIG_CFLAGS) -Wno-unused-parameter -c -o \$@ \$<
+\t\@echo \$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) \$(SWIG_CFLAGS) -Wno-unused-parameter -c -o \$@ \$< >> \$(MAKE_OUT)
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) \$(SWIG_CFLAGS) -Wno-unused-parameter -c -o \$@ \$< 2>&1 | \$(TEE) -a \$(MAKE_OUT)
 
 \$(S_MAIN): \$(SWIG_OBJECTS)
 

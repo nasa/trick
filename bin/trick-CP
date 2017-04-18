@@ -66,6 +66,9 @@ ifndef TRICK_VERBOSE_BUILD
     PRINT_MAKEFILE_SWIG = $(info $(call COLOR,Writing)    Makefile_swig)
 endif
 
+MAKE_OUT := build/MAKE_out
+REMOVE_MAKE_OUT := $(shell rm -f $(MAKE_OUT))
+
 all:
 	$(info [32mTrick Build Process Complete[00m)
 
