@@ -25,8 +25,7 @@
 Trick::IPPython * the_pip ;
 
 //Constructor
-Trick::IPPython::IPPython() : Trick::InputProcessor::InputProcessor() {
-
+Trick::IPPython::IPPython() : Trick::InputProcessor::InputProcessor() , units_conversion_msgs(true) {
     the_pip = this ;
     return ;
 }
@@ -65,6 +64,14 @@ void Trick::IPPython::get_TMM_named_variables() {
             PyRun_SimpleString(ss.str().c_str()) ;
         }
     }
+}
+
+bool Trick::IPPython::get_units_conversion_msgs() {
+    return units_conversion_msgs ;
+}
+
+void Trick::IPPython::shoot_the_units_conversion_messenger(bool onoff) {
+    units_conversion_msgs = !onoff ;
 }
 
 //Initialize and run the Python input processor on the user input file.
@@ -193,3 +200,14 @@ int Trick::IPPython::shutdown() {
     return(0) ;
 }
 
+void shoot_the_units_conversion_messenger() {
+    the_pip->shoot_the_units_conversion_messenger(true) ;
+}
+
+void revive_the_units_conversion_messenger() {
+    the_pip->shoot_the_units_conversion_messenger(false) ;
+}
+
+int check_units_conversion_messenger_for_signs_of_life() {
+    return the_pip->get_units_conversion_msgs() ;
+}

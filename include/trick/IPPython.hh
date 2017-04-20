@@ -36,7 +36,8 @@ namespace Trick {
             /** Returned value from event condition evaluation.\n */
             int return_val ;                              /**< trick_io(**) trick_units(--) */
 
-            /** Input processor mutex for protection for var server and event processing.\n */ pthread_mutex_t ip_mutex;                     /**< trick_io(**) trick_units(--) */
+            /** Input processor mutex for protection for var server and event processing.\n */
+            pthread_mutex_t ip_mutex;                     /**< trick_io(**) trick_units(--) */
 
             /**
              @brief Constructor.
@@ -47,6 +48,16 @@ namespace Trick {
              @brief Creates python handles for all memory manager named variables.
             */
             void get_TMM_named_variables() ;
+
+            /**
+             @brief Get the status of the units conversion message flag
+            */
+            bool get_units_conversion_msgs() ;
+
+            /**
+             @brief Setting to see units conversions warnings
+            */
+            void shoot_the_units_conversion_messenger(bool onoff) ;
 
             /**
              @brief Initialize and run the Python input processor on the user input file.
@@ -75,6 +86,11 @@ namespace Trick {
              @return always 0
             */
             int restart() ;
+
+        protected :
+            /** false = see units conversion messages, true = head in sand */
+            bool units_conversion_msgs ;
+
     } ;
 
 }
@@ -82,6 +98,12 @@ namespace Trick {
 extern "C" {
 //SWIG generated routine.
 void init_swig_modules(void) ;
+
+/* Call this if you you refuse to fix your units problems and want to shoot the messenger instead */
+void shoot_the_units_conversion_messenger() ;
+void revive_the_units_conversion_messenger() ;
+
+int check_units_conversion_messenger_for_signs_of_life() ;
 }
 
 #endif

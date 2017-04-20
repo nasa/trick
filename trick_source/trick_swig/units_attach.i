@@ -9,6 +9,7 @@
 #include <udunits2.h>
 #include "trick/swig/swig_double.hh"
 #include "trick/map_trick_units_to_udunits.hh"
+#include "trick/IPPython.hh"
 
 %}
 
@@ -50,8 +51,10 @@ PyObject * attach_units(PyObject * in_units_obj , PyObject * in_object) {
                 line_no = PyFrame_GetLineNumber(tstate->frame) ;
 #endif
             }
-            std::cout << "\033[33mUnits converted from [" << in_units << "] to [" << new_units << "] "
-             << file_name << ":" << line_no << "\033[0m" << std::endl ;
+            if ( check_units_conversion_messenger_for_signs_of_life() ) {
+                std::cout << "\033[33mUnits converted from [" << in_units << "] to [" << new_units << "] "
+                 << file_name << ":" << line_no << "\033[0m" << std::endl ;
+            }
             in_units = new_units ;
         }
     }
