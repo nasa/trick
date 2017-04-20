@@ -1,7 +1,8 @@
-
 #ifndef MTV_HH
 #define MTV_HH
-
+/*
+    PURPOSE: ( MTV Class - Malfunction events for Malfunction Trick View )
+*/
 #include <string>
 #include "trick/IPPythonEvent.hh"
 

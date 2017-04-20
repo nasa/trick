@@ -1,11 +1,8 @@
-
-/**
- * Provides a map of class/struct attributes and enumeration attributes
- */
-
 #ifndef ATTRIBUTESMAP_HH
 #define ATTRIBUTESMAP_HH
-
+/*
+    PURPOSE: ( Provides a map of class/struct attributes and enumeration attributes)
+*/
 #include <map>
 #include <string>
 #include <fstream>

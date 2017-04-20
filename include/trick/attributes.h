@@ -1,6 +1,11 @@
 #ifndef ATTRIBUTES_H
 #define ATTRIBUTES_H
 
+/*
+    PURPOSE: ( Defines data-structures that Trick uses to describe
+               C/C++ data-types found in a simulation header files.)
+*/
+
 #include <stddef.h>
 #include "trick/parameter_types.h"
 

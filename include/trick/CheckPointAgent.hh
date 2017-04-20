@@ -1,6 +1,9 @@
 #ifndef CHECKPOINTAGENT_HH
 #define CHECKPOINTAGENT_HH
-
+/*
+    PURPOSE: ( CheckPointAgent - virtual base class for a component that
+               writes an external representation of the simulation state.)
+*/
 #include "trick/attributes.h"
 #include "trick/io_alloc.h"
 #include <stdio.h>

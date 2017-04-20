@@ -1,6 +1,8 @@
 #ifndef MESSAGETCDEVICE_HH
 #define MESSAGETCDEVICE_HH
-
+/*
+    PURPOSE: ( MessageTCDevice Class )
+*/
 #include <pthread.h>
 #include <vector>
 

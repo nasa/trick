@@ -1,7 +1,8 @@
-
 #ifndef IPPYTHONEVENT_HH
 #define IPPYTHONEVENT_HH
-
+/*
+    PURPOSE: ( IPPythonEvent Class provides python input file event capability.)
+*/
 #include <string>
 #include "trick/Event.hh"
 #include "trick/reference.h"

@@ -1,7 +1,8 @@
-
 #ifndef MESSAGELCOUT_HH
 #define MESSAGELCOUT_HH
-
+/*
+    PURPOSE: ( MessageLCout Class )
+*/
 #include <iostream>
 #include <map>
 #include <stdlib.h>

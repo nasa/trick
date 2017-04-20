@@ -1,7 +1,8 @@
-
 #ifndef MESSAGEPUBLISHER_HH
 #define MESSAGEPUBLISHER_HH
-
+/*
+    PURPOSE: ( MessagePublisher Class )
+*/
 #include <string>
 #include <list>
 #include "trick/MessageSubscriber.hh"

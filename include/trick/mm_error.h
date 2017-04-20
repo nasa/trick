@@ -1,6 +1,8 @@
 #ifndef MM_ERROR_H
 #define MM_ERROR_H
-
+/*
+    PURPOSE: ( Memory Manager Error Types )
+*/
     typedef enum {
         MM_OK,
         MM_ASSIGNMENT_LIST,

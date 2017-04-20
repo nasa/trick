@@ -1,7 +1,8 @@
-
 #ifndef MESSAGESUBSCRIBER_HH
 #define MESSAGESUBSCRIBER_HH
-
+/*
+    PURPOSE: ( MessageSubscriber Class )
+*/
 #include <streambuf>
 #include <iostream>
 #include <string>

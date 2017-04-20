@@ -1,6 +1,8 @@
 #ifndef EVENTINSTRUMENT_HH
 #define EVENTINSTRUMENT_HH
-
+/*
+    PURPOSE: ( EventInstrument Class )
+*/
 #include <string>
 #include "trick/Event.hh"
 #include "trick/InstrumentBase.hh"
