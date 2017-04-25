@@ -313,6 +313,10 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             _addChild(plotItem, "PlotName", _descrPlotTitle(plot));
             _addChild(plotItem, "PlotTitle",      plot->title());
             _addChild(plotItem, "PlotMathRect", QRectF());
+            _addChild(plotItem, "PlotXMinRange",  plot->xMinRange());
+            _addChild(plotItem, "PlotXMaxRange",  plot->xMaxRange());
+            _addChild(plotItem, "PlotYMinRange",  plot->yMinRange());
+            _addChild(plotItem, "PlotYMaxRange",  plot->yMaxRange());
             if ( rc == 2 && plot->curves().size() == 1 ) {
                 QString presentation = _bookModel->getDataString(QModelIndex(),
                                                                "Presentation");
@@ -323,10 +327,6 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             _addChild(plotItem, "PlotPointSize", 0.0);
             _addChild(plotItem, "PlotXAxisLabel", plot->xAxisLabel());
             _addChild(plotItem, "PlotYAxisLabel", plot->yAxisLabel());
-            _addChild(plotItem, "PlotXMinRange",  plot->xMinRange());
-            _addChild(plotItem, "PlotXMaxRange",  plot->xMaxRange());
-            _addChild(plotItem, "PlotYMinRange",  plot->yMinRange());
-            _addChild(plotItem, "PlotYMaxRange",  plot->yMaxRange());
             _addChild(plotItem, "PlotStartTime",  plot->startTime());
             _addChild(plotItem, "PlotStopTime",   plot->stopTime());
             _addChild(plotItem, "PlotGridOnOff",  plot->grid());
@@ -382,11 +382,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             // Initialize plot math rect to curves bounding box
             QModelIndex curvesIdx = curvesItem->index();
             QRectF bbox = _bookModel->calcCurvesBBox(curvesIdx);
-            QModelIndex plotIdx = plotItem->index();
-            QModelIndex plotMathRectIdx = _bookModel->getDataIndex(plotIdx,
-                                                                 "PlotMathRect",
-                                                                 "Plot");
-            _bookModel->setData(plotMathRectIdx,bbox);
+            _bookModel->setPlotMathRect(bbox,plotItem->index());
         }
         pageNum++;
     }

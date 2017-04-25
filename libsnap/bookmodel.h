@@ -89,7 +89,8 @@ public:
     // Curve Colors
     QList<QColor> createCurveColors(int nCurves);
 
-    // Line style
+    // Convenience wrapper for setting PlotMathRect
+    void setPlotMathRect(const QRectF& mathRect, const QModelIndex &plotIdx);
 
 signals:
     

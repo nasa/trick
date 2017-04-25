@@ -163,9 +163,7 @@ void YAxisLabelView::wheelEvent(QWheelEvent *e)
 
         // Recalculate and update bounding box (since unit change)
         QRectF bbox = _bookModel()->calcCurvesBBox(curvesIdx);
-        QModelIndex mathRectIdx = _bookModel()->getDataIndex(rootIndex(),
-                                                         "PlotMathRect","Plot");
-        model()->setData(mathRectIdx,bbox);
+        _bookModel()->setPlotMathRect(bbox,rootIndex());
     }
 }
 

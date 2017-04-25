@@ -52,6 +52,20 @@ bool PlotBookModel::setData(const QModelIndex &idx,
     return QStandardItemModel::setData(idx,value,role);
 }
 
+void PlotBookModel::setPlotMathRect(const QRectF& mathRect,
+                                    const QModelIndex& plotIdx)
+{
+    QModelIndex plotMathRectIdx = getDataIndex(plotIdx, "PlotMathRect","Plot");
+
+    // Flip if y-axis not directed "up" (this happens with bboxes)
+    QRectF M = mathRect;
+    if ( M.top() < M.bottom() ) {
+        M = QRectF(M.bottomLeft(),M.topRight());
+    }
+
+    setData(plotMathRectIdx, M);
+}
+
 QStandardItem *PlotBookModel::addChild(QStandardItem *parentItem,
                                        const QString &childTitle,
                                        const QVariant &childValue)
@@ -726,6 +740,29 @@ QRectF PlotBookModel::calcCurvesBBox(const QModelIndex &curvesIdx) const
         double bot = bbox.y()-1.0;
         bbox.setY(top);
         bbox.setBottom(bot);
+    }
+
+    // Flip if y-axis not directed "up" (this happens with bboxes)
+    if ( bbox.top() < bbox.bottom() ) {
+        bbox = QRectF(bbox.bottomLeft(),bbox.topRight());
+    }
+
+    // Fit bbox within PlotXYMinMax bounds
+    double plotXMinRange = getDataDouble(plotIdx,"PlotXMinRange","Plot");
+    double plotXMaxRange = getDataDouble(plotIdx,"PlotXMaxRange","Plot");
+    double plotYMinRange = getDataDouble(plotIdx,"PlotYMinRange","Plot");
+    double plotYMaxRange = getDataDouble(plotIdx,"PlotYMaxRange","Plot");
+    if ( bbox.left() < plotXMinRange ) {
+        bbox.setLeft(plotXMinRange);
+    }
+    if ( bbox.right() > plotXMaxRange ) {
+        bbox.setRight(plotXMaxRange);
+    }
+    if ( bbox.top() > plotYMaxRange ) {
+        bbox.setTop(plotYMaxRange);
+    }
+    if ( bbox.bottom() < plotYMinRange ) {
+        bbox.setBottom(plotYMinRange);
     }
 
     return bbox;

@@ -315,7 +315,7 @@ bool PlotView::eventFilter(QObject *obj, QEvent *event)
                     QPointF mo  = T.map(wo);
                     QPointF mbr = T.map(wbr);
                     QRectF mrect(mo,mbr);
-                    _setPlotMathRect(mrect);
+                    _bookModel()->setPlotMathRect(mrect,rootIndex());
                     _curvesView->viewport()->update();
                     foreach ( QAbstractItemView* childView, _childViews ) {
                         childView->viewport()->update();

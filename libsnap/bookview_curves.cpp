@@ -1117,7 +1117,14 @@ void CurvesView::dataChanged(const QModelIndex &topLeft,
             if ( M.left() != R.left() || M.right() != R.right() ) {
                 R.setLeft(M.left());
                 R.setRight(M.right());
-                model()->setData(plotRectIdx,R);
+                double plotXMinRange = _bookModel()->getDataDouble(rootIndex(),
+                                                        "PlotXMinRange","Plot");
+                double plotXMaxRange = _bookModel()->getDataDouble(rootIndex(),
+                                                        "PlotXMaxRange","Plot");
+                if ( R.left() >= plotXMinRange && R.right() <= plotXMaxRange ) {
+                    // Set R if within PlotXMin/MaxRange
+                    _bookModel()->setPlotMathRect(R,rootIndex());
+                }
             }
         }
     } else if ( topLeft.parent().parent().parent() == rootIndex() ) {
@@ -1306,7 +1313,7 @@ void CurvesView::mousePressEvent(QMouseEvent *event)
         QModelIndex curvesIdx = _bookModel()->getIndex(rootIndex(),
                                                        "Curves","Plot");
         QRectF bbox = _bookModel()->calcCurvesBBox(curvesIdx);
-        _setPlotMathRect(bbox);
+        _bookModel()->setPlotMathRect(bbox,rootIndex());
         viewport()->update();
     }
 }
@@ -1894,7 +1901,7 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
         if ( insideRect.contains(_mousePressPos) ) {
             // Pan if mouse press pos is deeper inside window
             M.moveTo(mPt);
-            _setPlotMathRect(M);
+            _bookModel()->setPlotMathRect(M,rootIndex());
             viewport()->update();
         } else {
             // Scrunch if mouse press pos is on perifery of window
@@ -1965,7 +1972,7 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                 // shouldn't happen, but ignore in any case
             }
 
-            _setPlotMathRect(M);
+            _bookModel()->setPlotMathRect(M,rootIndex());
             viewport()->update();
         }
     } else {
@@ -2067,7 +2074,7 @@ void CurvesView::_keyPressSpace()
     double w = plotMathRect.width();
     double h = bbox.height();
     QRectF R(x0,y0,w,h);
-    _setPlotMathRect(R);
+    _bookModel()->setPlotMathRect(R,rootIndex());
 
     viewport()->update();
 }

@@ -39,7 +39,6 @@ public:
     QRectF _mathRect() ;
     QRectF _plotMathRect(const QModelIndex &plotIdx) const ;
     QModelIndex _plotMathRectIdx(const QModelIndex& plotIdx) const;
-    void _setPlotMathRect(const QRectF& mathRect);
 
     QList<double> _majorXTics(const QModelIndex &plotIdx) const;
     QList<double> _minorXTics() const;
