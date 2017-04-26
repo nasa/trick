@@ -178,6 +178,10 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
     _addChild(plotItem, "PlotName", plotName);
     _addChild(plotItem, "PlotTitle", "");
     _addChild(plotItem, "PlotMathRect", QRectF());
+    _addChild(plotItem, "PlotXMinRange", -DBL_MAX);
+    _addChild(plotItem, "PlotXMaxRange",  DBL_MAX);
+    _addChild(plotItem, "PlotYMinRange", -DBL_MAX);
+    _addChild(plotItem, "PlotYMaxRange",  DBL_MAX);
     int rc = _monteModel->rowCount(); // a curve per run, so, rc == nCurves
     if ( rc == 2 ) {
         QString presentation = _plotModel->getDataString(QModelIndex(),
