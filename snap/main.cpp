@@ -1112,12 +1112,13 @@ QHash<QString,QVariant> getShiftHash(const QString& shiftString,
     QStringList shiftStrings = shiftString.split(',',QString::SkipEmptyParts);
     foreach ( QString s, shiftStrings ) {
 
+        s = s.trimmed();
         QString shiftRunFullPath;
         double shiftVal;
         if ( s.contains(':') ) {
             // e.g. koviz RUN_a RUN_b -shift "RUN_a:0.00125"
-            QString shiftRun       = s.split(':').at(0);
-            QString shiftValString = s.split(':').at(1);
+            QString shiftRun       = s.split(':').at(0).trimmed();
+            QString shiftValString = s.split(':').at(1).trimmed();
             if ( shiftRun.isEmpty() || shiftValString.isEmpty() ) {
                 fprintf(stderr,"snap [error] : -shift option value \"%s\""
                                "is malformed.\n"
