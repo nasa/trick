@@ -1711,7 +1711,7 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                 viewport()->update();
             }
 
-        } else if ( !shiftPressed && tag == "Plot" &&
+        } else if ( !shiftPressed && (tag == "Plot" || tag == "Curve") &&
                     (presentation == "error" ||
                      presentation == "error+compare")) {
 
