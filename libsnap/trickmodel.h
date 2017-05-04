@@ -337,7 +337,7 @@ class TrickModelIterator
 
   private:
 
-    int i;
+    quint64 i;
     double _xScaleFactor;
     double _yScaleFactor;
     const TrickModel* _model;

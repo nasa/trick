@@ -50,7 +50,14 @@ QString CSV::readLine(){
 }
 
 QStringList CSV::parseLine(){
-	return parseLine(readLine());
+    QStringList list;
+    QString line(m_device->readLine(1024*1024));
+    if ( line.isEmpty() ) {
+        return list; // empty list - file end, hopefully!!!
+    }
+    line.chop(1); // chops off \n
+    list = line.split(',');
+    return list;
 }
 
 #if 0

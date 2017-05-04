@@ -1023,7 +1023,7 @@ bool convert2trk(const QString& csvFileName, const QString& trkFileName)
     // Parse first line to get param list
     QList<Param> params;
     QStringList list = csv.parseLine() ;
-    if ( list.size() == 1 && list.at(0).isEmpty() ) {
+    if ( list.isEmpty() ) {
         fprintf(stderr, "csv2trk [error]: Empty csv file \"%s\"",
                 csvFileName.toLatin1().constData());
         return false;
@@ -1076,7 +1076,7 @@ bool convert2trk(const QString& csvFileName, const QString& trkFileName)
     while ( 1 ) {
         ++line;
         QStringList list = csv.parseLine() ;
-        if ( list.size() == 1 && list.at(0).isEmpty() ) break;
+        if ( list.isEmpty() ) break;  // end of file, hopefully!!!
         foreach ( QString s, list ) {
             bool ok;
             double val = s.toDouble(&ok);
