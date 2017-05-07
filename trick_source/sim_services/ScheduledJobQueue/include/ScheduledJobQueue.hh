@@ -71,7 +71,7 @@ namespace Trick {
 
             /**
              * @brief Sets the curr_index to value.
-             * @param value - Value of index.
+             * @param ii - Value of index.
              * @return always 0.
              */
             int set_curr_index( unsigned int ii ) ;
@@ -122,8 +122,6 @@ namespace Trick {
              * @brief Adds the incoming instrumentation job before target job if specified, or all jobs in list.
              * Will reallocate list to accommodate additional instrumentation jobs.
              * @param instrumentation_job  - name of the instrument job
-             * @param target_job - name of the target job, empty string means all jobs are to be instrumented
-             * @param in_event - instrumentation data to be stored with instrument job
              * @return number of insertions made
              */
             int instrument_before(JobData * instrumentation_job) ;
@@ -132,8 +130,6 @@ namespace Trick {
              * @brief Adds the incoming instrumentation job after target job if specified, or all jobs in the list.
              * Will reallocate list to accommodate additional instrumentation jobs.
              * @param instrumentation_job - name of the instrument job
-             * @param target_job - name of the target job, empty string means all jobs are to be instrumented
-             * @param in_event - instrumentation data to be stored with instrument job
              * @return number of insertions made
              */
             int instrument_after(JobData * instrumentation_job) ;
@@ -142,7 +138,6 @@ namespace Trick {
              * @brief Removes all jobs in the list that match the name job_name.
              * If in_event is specified, only remove this event's instrument job.
              * @param job_name - name of the instrument job
-             * @param in_event - instrumentation data to be stored with instrument job
              * @return always 0
              */
             int instrument_remove(std::string job_name) ;

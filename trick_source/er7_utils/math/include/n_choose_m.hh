@@ -76,7 +76,7 @@ public:
    /**
     * Resize the triangle if the current number of rows is less than the
     * specified size.
-    * @param new_triangle_nrows Requested number of rows in the triangle.
+    * @param new_size Requested number of rows in the triangle.
     * @throw std::overflow_error if new_triangle_nrows > 68.
     */
    void resize (unsigned int new_size);

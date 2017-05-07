@@ -179,7 +179,7 @@ namespace Trick {
 
             /**
              * Sets/Resets the static time_tic value
-             * @param time_tic_value - number of tics per second
+             * @param in_time_tic_value - number of tics per second
              * @return always 0
              */
             static int set_time_tic_value(long long in_time_tic_value) ;
@@ -187,7 +187,6 @@ namespace Trick {
             /**
              * Sets/Resets the job cycle rate
              * @param rate - desired cycle rate in seconds
-             * @param time_tic_value - number of tics per second
              * @return always 0
              */
             virtual int set_cycle(double rate) ;
@@ -214,10 +213,10 @@ namespace Trick {
 
             /**
              * Adds another job as a dependency to this job
-             * @param depend - JobData instance of depends_on job
+             * @param in_tag - JobData instance of depends_on job
              * @return always 0
              */
-            virtual int add_tag( std::string ) ;
+            virtual int add_tag( std::string in_tag) ;
 
             /**
              * Adds another job as a dependency to this job

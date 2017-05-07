@@ -52,15 +52,15 @@ namespace Trick {
 
          @param address Address of the variable.
          @param attr ATTRIBUTES of the variable.
-         @param curr_dim 
-         @param offset 
+         @param curr_dim Dimensions of the array
+         @param offset Offset into the array
          */
         void assign_rvalue( std::ostream& chkpnt_os, void* address, ATTRIBUTES* attr, int curr_dim, int offset);
 
         /**
          Restore memory allocations from a checkpoint stream.
          @param checkpoint_stream Input stream from which the checkpoint is read.
-         @return
+         @return 0/1 success flag
          */
         int restore( std::istream* checkpoint_stream);
 
@@ -72,7 +72,6 @@ namespace Trick {
          @param address - address of the object within which we are checking for nil values.
          @param attr - attr describing the object at the address. 
          @param curr_dim - dimension of the sub-element being checked. 
-         @param offset - offset of the sub-element 
          @param offset - if the object specified by @b address and @b attr is arrayed, then this
                          parameter specifies where, within the array, the sub-object to be
                          checked, is located.
@@ -86,7 +85,7 @@ namespace Trick {
          The pointer must be an address that is being managed by MM (the MemoryManager) or a
          character string (char* or wchar_t*).
 
-         @param pointer 
+         @param pointer Pointer to be converted.
          @param attr ATTRIBUTES of the pointer.
          @param curr_dim current dimension.
          @return text expression that represents the pointer.

@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 /**
- * @class Trick::MessagePublisher::MESSAGE_TYPE message_proto.h
+ * @enum Trick::MessagePublisher::MESSAGE_TYPE
  * The MESSAGE_TYPE enumeration represents types of messages to publish, which corresponds to the displayed color of the message.
  */
     typedef enum {
