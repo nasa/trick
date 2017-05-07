@@ -173,7 +173,6 @@ namespace er7_utils {
        * Destruct and deallocate a previously allocated object.
        * @tparam T Type of the object to be deallocated.
        * @param obj Object to be destructed, as a reference to a pointer.
-       * @return Array of allocated objects.
        */
       template <typename T>
       inline void delete_object (T*& obj) {
@@ -540,7 +539,7 @@ namespace er7_utils {
 
       /**
        * Deallocate an array of some primitive type
-       * @tparam T
+       * @tparam T    Array type.
        * @param arr   Array to be deallocated.
        */
       template<typename T>
@@ -632,7 +631,7 @@ namespace er7_utils {
        * Allocate contents of a 2D array, where the array is declared as
        * @code T ** array @endcode
        * @tparam        T     Array type
-       * @tparam        outer Array outer dimension
+       * @param         outer Array outer dimension
        * @param         inner Array inner dimension
        * @return Allocated 2D array.
        */
@@ -680,7 +679,6 @@ namespace er7_utils {
 
       /**
        * Specialization of replicate_2D_array for double.
-       * @tparam        T     Array type
        * @tparam        M     Array outer dimension
        * @param[in]     size  Array inner dimension
        * @param[in]     src   Source 2D array
@@ -752,7 +750,6 @@ namespace er7_utils {
 
       /**
        * Specialization of deallocate_2D_array for double.
-       * @tparam        T     Array type
        * @tparam        M     Array outer dimension
        * @param[in,out] arr   Array to be deallocated
        */
@@ -768,12 +765,11 @@ namespace er7_utils {
       /**
        * Deallocate a 2D array.
        * @tparam        T     Array type
-       * @tparam        outer Array outer dimension
        * @param[in,out] arr   Array to be deallocated
        */
       template<typename T>
       inline void deallocate_2D_array (
-         unsigned int outer ER7_UTILS_UNUSED,
+         unsigned int,
          T **& arr)
       {
          if (arr != NULL) {
