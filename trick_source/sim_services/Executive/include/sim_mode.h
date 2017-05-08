@@ -7,7 +7,7 @@ PROGRAMMERS:
 */
 
 /**
- * @class SIM_COMMAND sim_mode.h
+ * @enum SIM_COMMAND
  * The SIM_COMMAND enumeration represents the TRICK simulation commmands.
  */
 
@@ -24,7 +24,7 @@ typedef enum {
 } SIM_COMMAND;
 
 /**
- * @class SIM_MODE sim_mode.h
+ * @enum SIM_MODE
  * The SIM_MODE enumeration represents the TRICK simulation modes.
  */
 

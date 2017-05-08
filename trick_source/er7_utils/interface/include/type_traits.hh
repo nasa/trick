@@ -163,7 +163,8 @@ namespace er7_utils {
           * uses dynamic_cast.
           * @tparam T Type to be deduced.
           *   This parameter is a polymorphic class in this base implementation.
-          * @tparam is_class True if T is a polymorphic class, false otherwise.
+          * @tparam is_polymorphic True if T is a polymorphic class,
+          *   false otherwise.
           *   This parameter is true in this base implementation.
           */
          template <typename T, bool is_polymorphic>

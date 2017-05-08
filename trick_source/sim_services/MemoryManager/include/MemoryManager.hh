@@ -297,7 +297,7 @@ namespace Trick {
 
             /**
              Forget about the variable with the given name and deallocate the memory associated with it.
-             @param address - the address of the variable.
+             @param var_name - the address of the variable.
              @return 0 = SUCCESS, 1 = FAILURE
              */
             int delete_var(const char* var_name);
@@ -313,7 +313,7 @@ namespace Trick {
             /**
              Forget about the external variable with the given name. DOES NOT attempt to deallocate the
              memory at the given address.
-             @param address - the address of the external variable.
+             @param var_name - the address of the external variable.
              @return 0 = SUCCESS, 1 = FAILURE
              */
             int delete_extern_var(const char* var_name);
@@ -326,35 +326,35 @@ namespace Trick {
 
             /**
              Checkpoint all allocations known to the MemoryManager to a file.
-             @param filename 
+             @param filename  Name of file to be written.
              */
             void write_checkpoint( const char* filename);
 
             /**
              Checkpoint the named variable (allocation) and it dependencies to the given stream.
              @param out_s output stream.
-             @param var_name 
+             @param var_name  Variable name.
              */
             void write_checkpoint( std::ostream& out_s, const char* var_name);
 
             /**
              Checkpoint the named variable (allocation) and it dependencies to a file.
-             @param filename 
-             @param var_name 
+             @param filename  Checkpoint file.
+             @param var_name  Variable name.
              */
             void write_checkpoint( const char* filename, const char* var_name);
 
             /**
              Checkpoint the named variables and their dependencies to a stream.
              @param out_s output stream.
-             @param var_name_list 
+             @param var_name_list List of variable names.
              */
             void write_checkpoint( std::ostream& out_s, std::vector<const char*>& var_name_list);
 
             /**
              Checkpoint the named variables and their dependencies to a file.
-             @param filename 
-             @param var_name_list 
+             @param filename output file name.
+             @param var_name_list List of variable names.
              */
             void write_checkpoint( const char* filename, std::vector<const char*>& var_name_list);
 
@@ -513,13 +513,13 @@ namespace Trick {
 
             /**
              Return the number of array elements in the allocation. 
-             @param ptr address.
+             @param addr Address.
              */
             int get_size(void *addr);
 
             /** 
              Return the number of array elements in the allocation following ptr.
-             @param ptr - pointer.
+             @param addr Address.
              */
             int get_truncated_size(void *addr);
 
@@ -549,7 +549,7 @@ namespace Trick {
 
             /**
              Opens a handle to the shared library file.  The handles are used to look for io_src functions.
-             @param name The name of the file to open.
+             @param file_name The name of the file to open.
              */
             int add_shared_library_symbols( const char * file_name );
 
@@ -593,7 +593,7 @@ namespace Trick {
             Write the contents of the variable with the given name to the given stream.
             In other words, checkpoint a single variable to a file.
             @param out_s - output stream.
-            @param address - address of the variable.
+            @param var_name - Name of the variable.
              */
             void write_var( std::ostream& out_s, const char* var_name );
 
@@ -758,16 +758,13 @@ namespace Trick {
 
             /**
              Call the default destructor for one or more instances of the named class.
-             @param class_name The name of the class to allocate.
-             @param num The number of instances to allocate.
-             @return The address of the allocation, or NULL on failure.
+             @param alloc_info The alloc_info struct that contains the address and type to delete.
              */
             void io_src_destruct_class(ALLOC_INFO * alloc_info);
 
             /**
              Call the proper class/struct delete for the address given in the ALLOC_INFO struct.
-             @alloc_info The alloc_info struct that contains the address and type to delete.
-             @return none.
+             @param alloc_info The alloc_info struct that contains the address and type to delete.
              */
             void io_src_delete_class(ALLOC_INFO * alloc_info);
 

@@ -84,7 +84,7 @@ class IntegLoopScheduler;
          * Designate the specified sim object as integrated by the specified
          * scheduler.
          * @param sim_object  Simulation object.
-         * @param scheduler  Integration loop scheduler.
+         * @param integrator  Integration loop scheduler.
          */
         void set_integrated_by (
             Trick::SimObject * sim_object,

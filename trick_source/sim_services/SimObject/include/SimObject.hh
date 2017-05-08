@@ -62,7 +62,7 @@ namespace Trick {
              * @param name - name of lower level SimObject
              * @return always 0
              */
-            int add_pre_component_object(SimObject *, std::string name) ;
+            int add_pre_component_object(SimObject * in_object, std::string name) ;
 
             /**
              * Includes a lower level SimObject where the lower level jobs are called after this SimObject
@@ -70,7 +70,7 @@ namespace Trick {
              * @param name - name of lower level SimObject
              * @return always 0
              */
-            int add_post_component_object(SimObject *, std::string name) ;
+            int add_post_component_object(SimObject * in_object, std::string name) ;
 
             /**
              * Adds a job to the sim_object.  This call is typically in the S_source.cpp file
