@@ -24,7 +24,7 @@ Purpose: ()
 // Integration includes
 #include "er7_utils/integration/core/include/integrator_constructor_utils.hh"
 #include "er7_utils/integration/core/include/priming_integration_controls.hh"
-#include "er7_utils/integration/rk2_heun/include/rk2_heun_integrator_constructor.hh"
+#include "er7_utils/integration/rk2_heun/include/rk2_heun_first_order_ode_integrator.hh"
 
 // Model includes
 #include "../include/beeman_integrator_constructor.hh"
