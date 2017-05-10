@@ -26,7 +26,7 @@ using namespace std;
 #include "libsnap/snap.h"
 #include "libsnap/csv.h"
 
-QStandardItemModel* createVarsModel(const QStringList& runDirs);
+QStandardItemModel* createVarsModel(Runs* runs);
 bool writeTrk(const QString& ftrk, const QString &timeName,
                QStringList& paramList, MonteModel* monteModel);
 bool writeCsv(const QString& fcsv, const QString& timeName,
@@ -35,6 +35,13 @@ bool convert2csv(const QString& ftrk, const QString& fcsv);
 bool convert2trk(const QString& csvFileName, const QString &trkFileName);
 QHash<QString,QVariant> getShiftHash(const QString& shiftString,
                                 const QStringList &runDirs);
+QHash<QString,QString> getVarMap(const QString& mapString);
+QStandardItemModel* monteInputModel(const QString &monteDir,
+                                    const QStringList &runs);
+QStandardItemModel* monteInputModelTrick07(const QString &monteInputFile,
+                                           const QStringList &runs);
+QStandardItemModel* monteInputModelTrick17(const QString &monteInputFile,
+                                           const QStringList &runs);
 
 Option::FPresetQString presetExistsFile;
 Option::FPresetDouble preset_start;
@@ -68,6 +75,7 @@ class SnapOptions : public Options
     QString csv2trkFile;
     QString outputFileName;
     QString shiftString;
+    QString map;
     bool isDebug;
 };
 
@@ -119,6 +127,8 @@ int main(int argc, char *argv[])
     opts.add("-shift", &opts.shiftString, QString(""),
              "time shift run curves by value "
              "(e.g. -shift \"RUN_a:1.075,RUN_b:2.0\")");
+    opts.add("-map", &opts.map, QString(""),
+             "variable mapping (e.g. -map trick.x=spots.x)");
     opts.add("-debug:{0,1}",&opts.isDebug,false, "Show book model tree etc.");
 
     opts.parse(argc,argv, QString("snap"), &ok);
@@ -148,6 +158,8 @@ int main(int argc, char *argv[])
     }
 
     QHash<QString,QVariant> shifts = getShiftHash(opts.shiftString, runDirs);
+
+    QHash<QString,QString> varMap = getVarMap(opts.map);
 
     if ( !opts.trk2csvFile.isEmpty() ) {
         QString csvOutFile = opts.outputFileName;
@@ -262,17 +274,54 @@ int main(int argc, char *argv[])
         }
 
         if ( isMonte ) {
-            Monte* monte = new Monte(runDirs.at(0),opts.beginRun,opts.endRun);
-            monteInputsModel = monte->inputModel();
-            monteModel = new MonteModel(monte);
-            QString run0 = runDirs.at(0) + "/" + monte->runs().at(0);
-            QStringList runDirs0; runDirs0 << run0;
-            varsModel = createVarsModel(runDirs0);
+
+            QDir monteDir(runDirs.at(0));
+            if ( ! monteDir.exists() ) {
+                fprintf(stderr,
+                        "snap [error]: couldn't find monte directory: %s\n",
+                        runDirs.at(0).toLatin1().constData());
+                exit(-1);
+            }
+
+            // Make list of RUNs in the monte directory
+            QStringList filters;
+            filters << "RUN_*";
+            monteDir.setNameFilters(filters);
+            QStringList monteRuns = monteDir.entryList(filters, QDir::Dirs);
+            if ( monteRuns.empty() ) {
+                fprintf(stderr, "snap [error]: no RUN dirs in %s \n",
+                        runDirs.at(0).toLatin1().constData());
+                exit(-1);
+            }
+
+            // Make subset of runs based on beginRun and endRun option
+            QStringList monteRunsSubset;
+            QStringList monteInputRuns;
+            foreach ( QString run, monteRuns ) {
+                bool ok = false;
+                unsigned int runId = run.mid(4).toInt(&ok);
+                if ( ok && (runId < opts.beginRun || runId > opts.endRun) ) {
+                    continue;
+                }
+                monteRunsSubset.append(runDirs.at(0) + "/" + run);
+                monteInputRuns.append(run);
+            }
+            if ( monteRunsSubset.empty() ) {
+                fprintf(stderr,"snap [error]: after applying -beginRun=%d "
+                               " and -endRun=%d options for monte dir=%s\n",
+                               opts.beginRun,opts.endRun,
+                               runDirs.at(0).toLatin1().constData());
+                exit(-1);
+            }
+
+            runs = new Runs(monteRunsSubset,varMap);
+            monteInputsModel = monteInputModel(monteDir.dirName(),
+                                               monteInputRuns);
         } else {
-            runs = new Runs(runDirs);
-            monteModel = new MonteModel(runs);
-            varsModel = createVarsModel(runDirs);
+            runs = new Runs(runDirs,varMap);
         }
+        monteModel = new MonteModel(runs);
+        varsModel = createVarsModel(runs);
 
         // Make a list of titles
         QStringList titles;
@@ -499,42 +548,22 @@ void postsetRunsDPs (QStringList* rundps, bool* ok)
     Q_UNUSED(dirs);
 }
 
-QStandardItemModel* createVarsModel(const QStringList& runDirs)
+QStandardItemModel* createVarsModel(Runs* runs)
 {
-    if ( runDirs.isEmpty() ) return 0;
+    if ( runs == 0 ) return 0;
 
-    QStringList commonParams;
+    QStandardItemModel* varsModel = new QStandardItemModel(0,1);
 
-    QSet<QString> paramSet;
-    foreach ( QString runDir, runDirs ) {
-        QStringList runList;
-        runList << runDir;
-        Runs run(runList);
-        QSet<QString> runParamSet = run.params().toSet();
-        if ( paramSet.isEmpty() ) {
-            paramSet = runParamSet;
-        } else {
-            paramSet = paramSet.intersect(runParamSet);
-        }
-    }
-
-    foreach ( QString param, paramSet ) {
-        // Don't add sys.exec.out.time to list since
-        // there's no need to plot sys.exec.out.time
+    QStringList params = runs->params();
+    params.sort();
+    QStandardItem *rootItem = varsModel->invisibleRootItem();
+    foreach (QString param, params) {
         if ( param == "sys.exec.out.time" ) continue;
-        commonParams << param;
-    }
-    commonParams.sort();
-
-    QStandardItemModel* pm = new QStandardItemModel(0,1);
-
-    QStandardItem *rootItem = pm->invisibleRootItem();
-    for ( int i = 0; i < commonParams.size(); ++i) {
-        QStandardItem *varItem = new QStandardItem(commonParams.at(i));
+        QStandardItem *varItem = new QStandardItem(param);
         rootItem->appendRow(varItem);
     }
 
-    return pm;
+    return varsModel;
 }
 
 void presetBeginRun(uint* beginRunId, uint runId, bool* ok)
@@ -1191,4 +1220,373 @@ QHash<QString,QVariant> getShiftHash(const QString& shiftString,
     }
 
     return shifts;
+}
+
+// An example mapString is "trick.pos[0]=spots.posx,trick.pos[1]=spots.posy"
+// In this example, getVarMap would return the following hash:
+//                 trick.pos[0]->spots.posx,
+//                 trick.pos[1]->spots.posy
+QHash<QString, QString> getVarMap(const QString& mapString)
+{
+    QHash<QString,QString> varMap;
+
+    if (mapString.isEmpty() ) return varMap; // empty map
+
+    QStringList maps = mapString.split(',',QString::SkipEmptyParts);
+    foreach ( QString s, maps ) {
+        s = s.trimmed();
+        if ( s.contains('=') ) {
+            QString key = s.split('=').at(0).trimmed();
+            QString val = s.split('=').at(1).trimmed();
+            if ( key.isEmpty() || val.isEmpty() ) {
+                fprintf(stderr,"snap [error] : -map option value \"%s\""
+                               "is malformed.\n"
+                               "Use this syntax -map \"key=val,key=val...\"\n",
+                               mapString.toLatin1().constData());
+                exit(-1);
+            }
+            varMap.insert(key,val);
+        } else {
+            // error
+            fprintf(stderr,"snap [error] : -map option value \"%s\""
+                           "is malformed.\n"
+                           "Use this syntax -map \"key=val,key=val...\"\n",
+                           mapString.toLatin1().constData());
+            exit(-1);
+        }
+
+    }
+
+    return varMap;
+}
+
+//
+// Create table model from monte_runs file
+//
+//       Var0        Var1                         Varn
+// Run0  val00       val01                        val0n
+// Run1  val10       val11                        val1n
+// ...
+// Runm  valm0       valm1                        valmn
+//
+QStandardItemModel* monteInputModel(const QString &monteDir,
+                                    const QStringList &runs)
+{
+    QStandardItemModel* m = 0 ;
+
+    QString monteInputFile("monte_runs");
+    monteInputFile.prepend("/");
+    monteInputFile.prepend(monteDir);
+
+    QFile file(monteInputFile);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        fprintf(stderr, "snap [error]: could not open %s\n",
+                         monteInputFile.toLatin1().constData());
+        exit(-1);
+    }
+    QTextStream in(&file);
+
+    bool isTrick07 = false;
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        if ( line.startsWith("NUM_RUNS:") ) {
+            isTrick07 = true;
+            break;
+        }
+    }
+    file.close();
+
+    if ( isTrick07 ) {
+        m = monteInputModelTrick07(monteInputFile,runs);
+    } else {
+        m = monteInputModelTrick17(monteInputFile,runs);
+    }
+
+    return m;
+}
+
+QStandardItemModel* monteInputModelTrick07(const QString &monteInputFile,
+                                           const QStringList& runs)
+{
+    QStandardItemModel* m = 0;
+
+    QFile file(monteInputFile);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        fprintf(stderr, "snap [error]: could not open %s\n",
+                        monteInputFile.toLatin1().constData());
+        exit(-1);
+    }
+    QTextStream in(&file);
+
+    //
+    // Get Num Runs
+    //
+    int nRuns = 0 ;
+    bool isNumRuns = false;
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        if ( line.startsWith("NUM_RUNS:") ) {
+            nRuns = line.split(':').at(1).trimmed().toInt(&isNumRuns);
+            break;
+        }
+    }
+    if ( !isNumRuns ) {
+        fprintf(stderr, "snap [error]: error parsing monte carlo input file: "
+                        "%s.   Couldn't find/parse \"NUM_RUNS:\" line.\n",
+                        monteInputFile.toLatin1().constData());
+        exit(-1);
+    }
+
+    //
+    // Get Vars
+    //
+    QStringList vars;
+    bool isVars = false;
+    bool isData = false;
+    while ( !in.atEnd() ) {
+        QString line = in.readLine();
+        if ( line.startsWith("VARS:") ) {
+            isVars = true;
+            break;
+        }
+    }
+    if ( ! isVars ) {
+        fprintf(stderr, "snap [error]: error parsing monte carlo input file: "
+                        "%s.   Couldn't find/parse \"VARS:\" line.\n",
+                        monteInputFile.toLatin1().constData());
+        exit(-1);
+    }
+    while ( !in.atEnd() ) {
+        QString var = in.readLine();
+        if ( !var.startsWith("DATA:") ) {
+            int delim = var.indexOf(' ');
+            var = var.mid(0,delim);
+            var = var.split('.').last();
+            //if ( var.split('.').last() == "RunId" ) {
+            if ( var == "RunId" ) {
+                var = "RunId";
+            }
+            if ( ! var.isEmpty() ) {
+                vars.append(var); //<----------------------- meat
+            }
+        } else {
+            isData = true;
+            break;
+        }
+    }
+    if ( !isData ) {
+        fprintf(stderr, "snap [error]: error parsing monte carlo input file: "
+                        "%s.   Couldn't find/parse \"DATA:\" line.\n",
+                        monteInputFile.toLatin1().constData());
+        exit(-1);
+    }
+
+    //
+    // Allocate table items
+    //
+    nRuns = runs.size();
+    m = new QStandardItemModel(nRuns,vars.size());
+
+    //
+    // Set table header for rows and get begin/end run ids
+    //
+    int beginRun = INT_MAX;
+    int endRun = 0;
+    int r = 0 ;
+    foreach ( QString run, runs ) {
+        int runId = run.mid(4).toInt(); // 4 is for RUN_
+        if ( runId < beginRun ) {
+            beginRun = runId;
+        }
+        if ( runId > endRun ) {
+            endRun = runId;
+        }
+        QString runName = QString("%0").arg(runId);
+        m->setHeaderData(r,Qt::Vertical,runName);
+        r++;
+    }
+
+    //
+    // Get Data
+    //
+    int nDataLines = 0 ;
+    while (!in.atEnd()) {
+        QString dataLine = in.readLine();
+        int hashIdx = dataLine.indexOf('#');
+        if ( hashIdx >= 0 ) {
+            dataLine = dataLine.mid(0,hashIdx);
+        }
+        dataLine = dataLine.trimmed();
+        QStringList dataVals = dataLine.split(' ',QString::SkipEmptyParts);
+        if ( dataVals.empty() ) continue;
+        bool isSkip = false;
+        if ( dataVals.size() == vars.size() ) {
+            for ( int c = 0; c < dataVals.size(); ++c) {
+                QString val = dataVals.at(c) ;
+                if ( c == 0 ) {
+                    // First val is the runId
+                    int runId = val.toInt();
+                    if ( runId < beginRun || runId > endRun ) {
+                        // Skip runs outside of optional runSubset
+                        isSkip = true;
+                        break;
+                    } else {
+                        QString runName= QString("%0").arg(runId);
+                        runName = runName.rightJustified(5, '0');
+                        runName.prepend("RUN_");
+                        if ( ! runs.contains(runName) ) {
+                            fprintf(stderr,
+                                 "snap [error]: error parsing monte carlo "
+                                 "input file. RunID for Run=%s"
+                                 " is in the monte carlo input file, but "
+                                 " can't find the RUN_ directory. "
+                                 "Look in file:"
+                                 "\n\n"
+                                 "File:%s\n",
+                                    runName.toLatin1().constData(),
+                                    monteInputFile.toLatin1().constData());
+                            exit(-1);
+                        }
+                    }
+                } else {
+                    // Not a run, this is a monte carlo param input value
+                    double v = val.toDouble();
+                    val = val.sprintf("%.4lf",v);
+                }
+                NumSortItem *item = new NumSortItem(val);
+                m->setItem(nDataLines,c,item); //<----------------------- meat
+                m->setHeaderData(c,Qt::Horizontal,vars.at(c));
+            }
+            if ( isSkip ) {
+                // Skip run outside of beginRun,endRun subset
+                continue;
+            }
+        } else {
+            fprintf(stderr,
+                    "snap [error]: error parsing monte carlo input file.  "
+                    "There are %d variables in VARS list, but only %d fields "
+                    "on line number %d.\n\n"
+                    "File:%s\n"
+                    "Line:%s\n",
+                    vars.size(), dataVals.size(),
+                    nDataLines,
+                    monteInputFile.toLatin1().constData(),
+                    dataLine.toLatin1().constData());
+            exit(-1);
+        }
+        nDataLines++;
+    }
+
+    file.close();
+
+    return m;
+}
+
+QStandardItemModel* monteInputModelTrick17(const QString &monteInputFile,
+                                           const QStringList& runs)
+{
+    QStandardItemModel* m = 0;
+
+    QFile file(monteInputFile);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        fprintf(stderr,"snap [error]: could not open %s\n",
+                       monteInputFile.toLatin1().constData());
+        exit(-1);
+    }
+    QTextStream in(&file);
+
+    QString line = in.readLine();
+
+    //
+    // Sanity check num runs
+    //
+    int nRuns = 0 ;
+    bool ok = false;
+    int lineNum = 1;
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        nRuns = line.split(' ').at(0).trimmed().toInt(&ok) + 1;
+        if ( !ok || nRuns != lineNum ) {
+            fprintf(stderr,"snap [error]: error parsing %s "
+                           " around line number %d\n",
+                           monteInputFile.toLatin1().constData(),lineNum);
+            exit(-1);
+        }
+        ++lineNum;
+    }
+
+    //
+    // Get Vars
+    //
+    in.seek(0); // Go to beginning of file
+    line = in.readLine();
+    QStringList vars = line.split(' ',QString::SkipEmptyParts);
+    vars.replace(0,"RunId");
+
+    //
+    // Allocate table items
+    //
+    nRuns = runs.size(); // If beginRun,endRun set, runs could be a subset
+    m = new QStandardItemModel(nRuns,vars.size());
+
+    //
+    // Set table header for rows and get begin/end run ids
+    //
+    int beginRun = INT_MAX;
+    int endRun = 0;
+    int r = 0 ;
+    foreach ( QString run, runs ) {
+        int runId = run.mid(4).toInt(); // 4 is for RUN_
+        if ( runId < beginRun ) {
+            beginRun = runId;
+        }
+        if ( runId > endRun ) {
+            endRun = runId;
+        }
+        QString runName = QString("%0").arg(runId);
+        m->setHeaderData(r,Qt::Vertical,runName);
+        r++;
+    }
+
+    //
+    // Data
+    //
+    lineNum = 0;
+    while (!in.atEnd()) {
+        ++lineNum;
+        line = in.readLine();
+        QStringList vals = line.split(' ',QString::SkipEmptyParts);
+        if ( vals.size() != vars.size() ) {
+            fprintf(stderr, "snap [error]: error parsing %s.  There "
+                            "are %d variables specified in top line, "
+                            "but only %d values on line number %d.\n",
+                           monteInputFile.toLatin1().constData(),
+                           vars.size(),vals.size(),lineNum);
+            exit(-1);
+        }
+
+        int runId = vals.at(0).toInt();
+        if ( runId < beginRun || runId > endRun ) {
+            continue;
+        }
+
+        int nv = vals.size();
+        for ( int c = 0; c < nv; ++c) {
+            QString val = vals.at(c) ;
+            double v = val.toDouble();
+            if ( c == 0 ) {
+                int ival = val.toInt();
+                val = val.sprintf("%d",ival);
+            } else {
+                val = val.sprintf("%.4lf",v);
+            }
+            NumSortItem *item = new NumSortItem(val);
+            m->setItem(lineNum-1,c,item);
+            m->setHeaderData(c,Qt::Horizontal,vars.at(c));
+        }
+    }
+
+    file.close();
+
+    return m;
 }

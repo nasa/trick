@@ -10,9 +10,6 @@
 //
 // Monte carlo model
 //
-// Rows are RUNs
-// Columns are curves of the yparam where t=x=sys.exec.out.time
-//
 //***********************************************************************
 //        sys.exec.out.time    yparam1    yparam2......yparamj.....yparamN
 // RUN_0  curve00              curve01    curve02..................curve0N
@@ -20,14 +17,8 @@
 //  .
 // RUN_i                                              curve(i,j).........
 //  .
-// RUN_N  curveN0              curveN1    curveN2..................curveNN
+// RUN_M  curveM0              curveM1    curveM2..................curveMN
 //***********************************************************************
-//
-// curve(QModelIdx) returns a TrickCurveModel* for RUN,yparam (t=x=time)
-// e.g.
-// QModelIdx idx(runi,yparamj)
-// TrickCurveModel* curve = monteModel->curve(idx);
-//
 class MonteModel : public QStandardItemModel
 {
   Q_OBJECT
@@ -41,9 +32,7 @@ class MonteModel : public QStandardItemModel
     TrickCurveModel* curve(int row,
                            const QString& tparam,
                            const QString& xparam,
-                           const QString& yparam,
-                           double xScaleFactor=1.0,
-                           double yScaleFactor=1.0) const;
+                           const QString& yparam) const;
 
     virtual QVariant headerData(int sect,
                                 Qt::Orientation orientation=Qt::Horizontal,
@@ -55,14 +44,10 @@ class MonteModel : public QStandardItemModel
     QStringList _params;
     QStringList _runDirs;
 
-    static QString _err_string;
-    static QTextStream _err_stream;
-
 signals:
 
 public slots:
 
 };
-
 
 #endif // MONTE_H

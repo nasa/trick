@@ -168,7 +168,7 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
     QStandardItem* plotsItem = _plotModel->itemFromIndex(plotsIdx);
     QStandardItem* plotItem = _addChild(plotsItem, "Plot");
 
-    QString tName = _monteModel->headerData(0).toString();
+    QString tName = "sys.exec.out.time";
     QString xName(tName);
     QString yName = _varsFilterModel->data(varIdx).toString();
 
@@ -225,7 +225,12 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
             // This should not happen
             // It could be ignored but I'll exit(-1) because I think
             // if this happens it's a programming error, not a user error
-            fprintf(stderr, "snap [bad scoobs]: varswidget.cpp\n");
+            fprintf(stderr, "snap [bad scoobs]: varswidget.cpp\n"
+                            "curve(%d,%s,%s,%s) failed.  Aborting!!!\n",
+                    r,
+                    tName.toLatin1().constData(),
+                    xName.toLatin1().constData(),
+                    yName.toLatin1().constData());
             exit(-1);
         }
 
