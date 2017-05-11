@@ -42,11 +42,11 @@ sun\_predictor.sun.utc                           | CALENDAR\_DATE | --
 
 **NOTE:** 0 <= Solar Azimuth < 360 degrees. North = 0, East = 90, South = 180, West = 270.
 
-###Scenarios
+### Scenarios
 
-####[RUN_Winter](RUN_Winter/RESULTS.md)
+#### [RUN_Winter](RUN_Winter/RESULTS.md)
 
-####[RUN_Summer](RUN_Summer/RESULTS.md)
+#### [RUN_Summer](RUN_Summer/RESULTS.md)
 
 ### References
 Meeus, Jean, (1998) "Astronomical Algorithms", Willmann-Bell, Inc. ISBN 0-943396-61-1.
