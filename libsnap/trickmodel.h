@@ -146,6 +146,30 @@ class TrickModel : public QAbstractTableModel
             {
                 return (double) *((int*)(addr));
             }
+            case TRICK_07_UNSIGNED_CHARACTER:
+            {
+                return (double) *((unsigned char*)(addr));
+            }
+            case TRICK_07_SHORT:
+            {
+                return (double) *((short int*)(addr));
+            }
+            case TRICK_07_UNSIGNED_SHORT:
+            {
+                return (double) *((unsigned short int*)(addr));
+            }
+            case TRICK_07_UNSIGNED_INTEGER:
+            {
+                return (double) *((unsigned int*)(addr));
+            }
+            case TRICK_07_LONG:
+            {
+                return (double) *((long int*)(addr));
+            }
+            case TRICK_07_BOOLEAN:
+            {
+                return (double) *((bool *)(addr));
+            }
             default:
             {
                 fprintf(stderr,
@@ -176,6 +200,30 @@ class TrickModel : public QAbstractTableModel
             case TRICK_10_INTEGER:
             {
                 return (double) *((int*)(addr));
+            }
+            case TRICK_10_UNSIGNED_CHARACTER:
+            {
+                return (double) *((unsigned char*)(addr));
+            }
+            case TRICK_10_SHORT:
+            {
+                return (double) *((short int*)(addr));
+            }
+            case TRICK_10_UNSIGNED_SHORT:
+            {
+                return (double) *((unsigned short int*)(addr));
+            }
+            case TRICK_10_UNSIGNED_INTEGER:
+            {
+                return (double) *((unsigned int*)(addr));
+            }
+            case TRICK_10_LONG:
+            {
+                return (double) *((long int*)(addr));
+            }
+            case TRICK_10_BOOLEAN:
+            {
+                return (double) *((bool *)(addr));
             }
             default:
             {
