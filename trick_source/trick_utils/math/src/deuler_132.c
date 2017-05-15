@@ -43,7 +43,7 @@ int euler132(
                                    2 = Make angles from matrix but use previous
                                        values to prevent singularities */
         double *prev,       /* In: r prev[3], Previous values of euler angles */
-        char *file,         /* In: file_name of caller of this function */
+        const char *file,         /* In: file_name of caller of this function */
         int lineno)         /* In: line # of call to this function in fname */
 {
 

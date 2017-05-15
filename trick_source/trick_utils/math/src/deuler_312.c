@@ -32,7 +32,7 @@ int euler312(
                                        values to prevent singularities */
         double *prev,       /* In: r   prev[3], Previous values of
                                        euler angles */
-        char *file,         /* In: file_name of caller of this function */
+        const char *file,         /* In: file_name of caller of this function */
         int lineno)         /* In: line # of call to this function in fname */
 {
         double s1;              /* SINE OF YAW */

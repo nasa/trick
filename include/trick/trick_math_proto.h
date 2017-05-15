@@ -81,37 +81,37 @@ double dS_function(double x, double zero_point, double mid_point,
  * @ingroup TRICK_MATH
  */
 int euler123(double angle[3], double mat[3][3], int method,
-             double *prev, char *file, int lineno);
+             double *prev, const char *file, int lineno);
 
 /**
  * @ingroup TRICK_MATH
  */
 int euler132(double angle[3], double mat[3][3], int method,
-             double *prev, char *file, int lineno);
+             double *prev, const char *file, int lineno);
 
 /**
  * @ingroup TRICK_MATH
  */
 int euler213(double angle[3], double mat[3][3], int method,
-             double *prev, char *file, int lineno);
+             double *prev, const char *file, int lineno);
 
 /**
  * @ingroup TRICK_MATH
  */
 int euler231(double angle[3], double mat[3][3], int method,
-             double *prev, char *file, int lineno);
+             double *prev, const char *file, int lineno);
 
 /**
  * @ingroup TRICK_MATH
  */
 int euler312(double angle[3], double mat[3][3], int method,
-             double *prev, char *file, int lineno);
+             double *prev, const char *file, int lineno);
 
 /**
  * @ingroup TRICK_MATH
  */
 int euler321(double angle[3], double mat[3][3], int method,
-             double *prev, char *file, int lineno);
+             double *prev, const char *file, int lineno);
 
 /**
  * @ingroup TRICK_MATH
