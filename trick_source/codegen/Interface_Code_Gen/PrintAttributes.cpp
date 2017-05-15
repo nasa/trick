@@ -386,7 +386,7 @@ void PrintAttributes::printIOMakefile() {
         << "$(IO_OBJECTS): \%.o : \%.cpp \%.d" << std::endl
         << "\t$(PRINT_COMPILE)" << std::endl
         << "\t@echo $(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c -o $@ $< >> $(MAKE_OUT)" << std::endl
-        << "\t$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c -o $@ $< 2>&1 | $(TEE) -a $(MAKE_OUT)" << std::endl
+        << "\t$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c -o $@ $< 2>&1 | $(TEE) -a $(MAKE_OUT) ; exit $${PIPESTATUS[0]}" << std::endl
         << std::endl
         << "$(IO_OBJECTS:.o=.d): ;" << std::endl
         << std::endl

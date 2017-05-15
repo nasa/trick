@@ -246,7 +246,7 @@ S_OBJECTS = build/S_source.o
 build/S_source.o: build/S_source.cpp build/S_source.d
 \t\$(PRINT_COMPILE)
 \t\@echo \$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c -o \$\@ \$\< >> \$(MAKE_OUT)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c -o \$\@ \$\< 2>&1 | \$(TEE) -a \$(MAKE_OUT)
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c -o \$\@ \$\< 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
 
 build/S_source.d: ;
 
@@ -289,37 +289,37 @@ print MAKEFILE "
 \${MODEL_c_OBJECTS} : build/%.o : /%.c build/%.d
 \t\$(PRINT_COMPILE)
 \t\@echo \$(TRICK_CC) \$(TRICK_CFLAGS) \$(TRICK_SYSTEM_CFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@ >> \$(MAKE_OUT)
-\t\$(ECHO_CMD)\$(TRICK_CC) \$(TRICK_CFLAGS) \$(TRICK_SYSTEM_CFLAGS) -I\$(<D)/../include -MMD -MP -c -o \$\@ \$< 2>&1 | \$(TEE) -a \$(MAKE_OUT)
+\t\$(ECHO_CMD)\$(TRICK_CC) \$(TRICK_CFLAGS) \$(TRICK_SYSTEM_CFLAGS) -I\$(<D)/../include -MMD -MP -c -o \$\@ \$< 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
 
 \${MODEL_cc_OBJECTS} : build/%.o : /%.cc build/%.d
 \t\$(PRINT_COMPILE)
 \t\@echo \$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@ >> \$(MAKE_OUT)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@ 2>&1 | \$(TEE) -a \$(MAKE_OUT)
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@ 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
 
 \${MODEL_cpp_OBJECTS} : build/%.o : /%.cpp build/%.d
 \t\$(PRINT_COMPILE)
 \t\@echo \$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@ >> \$(MAKE_OUT)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@ 2>&1 | \$(TEE) -a \$(MAKE_OUT)
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@ 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
 
 \${MODEL_C_OBJECTS} : build/%.o : /%.C build/%.d
 \t\$(PRINT_COMPILE)
 \t\@echo \$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@ >> \$(MAKE_OUT)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@ 2>&1 | \$(TEE) -a \$(MAKE_OUT)
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@ 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
 
 \${MODEL_cxx_OBJECTS} : build/%.o : /%.cxx build/%.d
 \t\$(PRINT_COMPILE)
 \t\@echo \$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@ >> \$(MAKE_OUT)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@ 2>&1 | \$(TEE) -a \$(MAKE_OUT)
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@ 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
 
 \${MODEL_c++_OBJECTS} : build/%.o : /%.c++ build/%.d
 \t\$(PRINT_COMPILE)
 \t\@echo \$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@ >> \$(MAKE_OUT)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@ 2>&1 | \$(TEE) -a \$(MAKE_OUT)
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@ 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
 
 #define compile_rule
 #build/%.o: /%.\$1
 #\t\$\$(PRINT_COMPILE)
-#\t\$\$(ECHO_CMD)\$\$(TRICK_CPPC) \$\$(TRICK_CXXFLAGS) \$\$(TRICK_SYSTEM_CXXFLAGS) -I\$\$(<D)/../include -MMD -MP -c \$\$< -o \$\$@ 2>&1 | \$(TEE) -a \$(MAKE_OUT)
+#\t\$\$(ECHO_CMD)\$\$(TRICK_CPPC) \$\$(TRICK_CXXFLAGS) \$\$(TRICK_SYSTEM_CXXFLAGS) -I\$\$(<D)/../include -MMD -MP -c \$\$< -o \$\$@ 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
 #endef
 #
 #EXTENSIONS := C cc cpp cxx c++
@@ -348,7 +348,7 @@ all: \$(S_MAIN) S_sie.resource
 \$(S_MAIN): \$(TRICK_STATIC_LIB) \$(S_OBJECTS) \$(MODEL_OBJECTS)
 \t\$(PRINT_EXE_LINK)
 \t\@echo \$(TRICK_CPPC) -o \$@ \$(TRICK_SYSTEM_LDFLAGS) \$(S_OBJECTS) \$(LINK_LISTS) \$(TRICK_LDFLAGS) \$(TRICK_USER_LINK_LIBS) \$(READ_ONLY_LIBS) \$(LD_WHOLE_ARCHIVE) \$(TRICK_LIBS) \$(LD_NO_WHOLE_ARCHIVE) \$(TRICK_EXEC_LINK_LIBS) >> \$(MAKE_OUT)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) -o \$@ \$(TRICK_SYSTEM_LDFLAGS) \$(S_OBJECTS) \$(LINK_LISTS) \$(TRICK_LDFLAGS) \$(TRICK_USER_LINK_LIBS) \$(READ_ONLY_LIBS) \$(LD_WHOLE_ARCHIVE) \$(TRICK_LIBS) \$(LD_NO_WHOLE_ARCHIVE) \$(TRICK_EXEC_LINK_LIBS) 2>&1 | \$(TEE) -a \$(MAKE_OUT)
+\t\$(ECHO_CMD)\$(TRICK_CPPC) -o \$@ \$(TRICK_SYSTEM_LDFLAGS) \$(S_OBJECTS) \$(LINK_LISTS) \$(TRICK_LDFLAGS) \$(TRICK_USER_LINK_LIBS) \$(READ_ONLY_LIBS) \$(LD_WHOLE_ARCHIVE) \$(TRICK_LIBS) \$(LD_NO_WHOLE_ARCHIVE) \$(TRICK_EXEC_LINK_LIBS) 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
 
 # SIE ==========================================================================
 
@@ -357,7 +357,7 @@ sie: S_sie.resource
 S_sie.resource: \$(S_MAIN)
 \t\$(PRINT_SIE)
 \t\@echo ./\$(S_MAIN) sie
-\t\$(ECHO_CMD)./\$(S_MAIN) sie 2>&1 | \$(TEE) -a \$(MAKE_OUT)\n" ;
+\t\$(ECHO_CMD)./\$(S_MAIN) sie 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}\n" ;
 
 # write out the override files we have read in
 open MAKEFILEOVER, ">build/Makefile_overrides" or die "Could not open build/Makefile_overrides" ;
