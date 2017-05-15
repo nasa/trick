@@ -1,4 +1,4 @@
-#SIM\_cannon\_analytic
+# SIM\_cannon\_analytic
 ---
 This is first of eight Trick-based simulations that one builds in the Trick
 Tutorial (Section 3). It's purpose is to introduce some of the fundamentals

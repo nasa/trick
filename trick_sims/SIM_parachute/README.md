@@ -1,4 +1,4 @@
-#SIM_parachute
+# SIM_parachute
 
 ![Picture of Parachutist](images/Parachutist.png)
 
