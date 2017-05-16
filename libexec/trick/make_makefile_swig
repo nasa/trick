@@ -192,7 +192,9 @@ SWIG_I =" ;
         my ($swig_f) = $f ;
         $swig_object_dir = dirname($f) ;
         ($swig_file_only) = ($f =~ /([^\/]*)(?:\.h|\.H|\.hh|\.h\+\+|\.hxx|\.hpp)$/) ;
-        print MAKEFILE" \\\n    build$swig_object_dir/${swig_file_only}_py.i" ;
+        if ($swig_file_only) {
+            print MAKEFILE" \\\n    build$swig_object_dir/${swig_file_only}_py.i" ;
+        }
     }
 
     print MAKEFILE "
