@@ -398,6 +398,26 @@ unsigned int FieldDescription::getIO() {
     return io ;
 }
 
+unsigned int FieldDescription::getChkpntIO() {
+    return io >> 2 & 3 ;
+}
+
+bool FieldDescription::isWriteable() {
+    return io & 1;
+}
+
+bool FieldDescription::isReadable() {
+    return io & 2;
+}
+
+bool FieldDescription::isCheckpointable() {
+    return io & 4;
+}
+
+bool FieldDescription::isRestorable() {
+    return io & 8;
+}
+
 std::string FieldDescription::getDescription() {
     return description ;
 }

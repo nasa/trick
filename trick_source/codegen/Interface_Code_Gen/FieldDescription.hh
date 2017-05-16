@@ -58,6 +58,11 @@ class FieldDescription : public ConstructValues {
         bool isDashDashUnits() ;
         void setIO(unsigned int) ;
         unsigned int getIO() ;
+        unsigned int getChkpntIO() ;
+        bool isReadable() ;
+        bool isWriteable();
+        bool isCheckpointable();
+        bool isRestorable();
         std::string getDescription() ;
         void setEnumString(std::string) ;
         std::string getEnumString() ;

@@ -57,31 +57,13 @@ void PrintFileContentsBase::print_close_extern_c(std::ostream & ostream) {
    on access to the field and the presense of init_attr friends.
 */
 bool PrintFileContentsBase::determinePrintAttr( ClassValues * c , FieldDescription * fdes ) {
-    if ( fdes->getTypeName().compare("void") and fdes->getIO() != 0 and fdes->getEnumString().compare("TRICK_VOID")) {
-        if ( global_compat15 or c->isCompat15()) {
-            if ( fdes->isInherited() ) {
-                return ((c->getHasInitAttrFriend() && fdes->getAccess() == clang::AS_protected)
-                     || (fdes->getAccess() == clang::AS_public)) ;
-            } else {
-                return (c->getHasInitAttrFriend()
-                    || (fdes->getAccess() == clang::AS_public)) ;
-            }
-        } else {
-            if ( fdes->isStatic() ) {
-                if ( fdes->isInherited() ) {
-                    return ((c->getHasInitAttrFriend() && fdes->getAccess() == clang::AS_protected)
-                         || (fdes->getAccess() == clang::AS_public)) ;
-                } else {
-                    return (c->getHasInitAttrFriend()
-                        || (fdes->getAccess() == clang::AS_public)) ;
-                }
-            } else {
-                return true ;
-            }
-
-        }
+    if ( !fdes->getTypeName().compare("void") or !fdes->getChkpntIO() or !fdes->getEnumString().compare("TRICK_VOID")) {
+        return false;
     }
-    return false ;
+    if ( fdes->getAccess() == clang::AS_public or (!fdes->isStatic() and !global_compat15 and !c->isCompat15())) {
+        return true;
+    }
+    return c->getHasInitAttrFriend() && ( !fdes->isInherited() || fdes->getAccess() == clang::AS_protected ) ;
 }
 
 std::vector<FieldDescription*> PrintFileContentsBase::getPrintableFields(ClassValues& classValues) {

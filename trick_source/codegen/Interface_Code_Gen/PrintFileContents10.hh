@@ -86,9 +86,6 @@ class PrintFileContents10 : public PrintFileContentsBase {
         /** Prints the io_src_delete function */
         void print_io_src_delete(std::ostream & outfile , ClassValues * cv ) ;
 
-        /** Prints stl helper function prototypes */
-        void print_stl_helper_proto(std::ostream & outfile , ClassValues * in_class) ;
-
         /** Prints stl helper function */
         void print_stl_helper(std::ostream & outfile , ClassValues * in_class) ;
 

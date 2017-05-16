@@ -166,12 +166,16 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ostream & ostream , 
             ostream << prefix << field << " = " << field << "_" << fullyQualifiedMangledClassNameUnderscores + "_" + fieldName + " ;\n";
         };
 
-        print("checkpoint_stl");
-        print("post_checkpoint_stl");
-        print("restore_stl");
+        if ( fdes->isCheckpointable() ) {
+            print("checkpoint_stl");
+            print("post_checkpoint_stl");
+        }
 
-        if ( fdes->hasSTLClear() ) {
-            print("clear_stl");
+        if ( fdes->isRestorable() ) {
+            print("restore_stl");
+            if ( fdes->hasSTLClear() ) {
+                print("clear_stl");
+            }
         }
     }
 
@@ -299,37 +303,6 @@ void PrintFileContents10::print_io_src_delete( std::ostream & ostream , ClassVal
     }
 }
 
-void PrintFileContents10::print_stl_helper_proto(std::ostream & ostream , ClassValues * cv ) {
-    auto& fieldDescriptions = cv->getFieldDescriptions();
-
-    if (!fieldDescriptions.size()) {
-        return;
-    }
-
-    print_open_extern_c(ostream) ;
-
-    for (auto& field : cv->getFieldDescriptions()) {
-        if ( field->isSTL() and determinePrintAttr(cv, field) ) {
-            const std::string classAndFieldName = cv->getFullyQualifiedMangledTypeName("__") + "_" + field->getName();
-
-            auto print = [&](const std::string& name) {
-                ostream << "void " << name << "_" << classAndFieldName
-                    << "(void* start_address, const char* obj_name , const char* var_name);" << std::endl ;
-            };
-
-            print("checkpoint_stl");
-            print("post_checkpoint_stl");
-            print("restore_checkpoint_stl");
-
-            if ( field->hasSTLClear() ) {
-                ostream << "void clear_stl_" << classAndFieldName << "(void* start_address);" << std::endl ;
-            }
-        }
-    }
-
-    print_close_extern_c(ostream) ;
-}
-
 void PrintFileContents10::print_checkpoint_stl(std::ostream & ostream , FieldDescription * fdes , ClassValues * cv ) {
     printStlFunction("checkpoint", "void* start_address, const char* obj_name , const char* var_name", "checkpoint_stl(*stl, obj_name, var_name)", ostream, *fdes, *cv);
 }
@@ -357,11 +330,15 @@ void PrintFileContents10::print_stl_helper(std::ostream & ostream , ClassValues 
 
     for (auto& field : fieldDescriptions) {
         if ( field->isSTL() and determinePrintAttr(cv, field) ) {
-            print_checkpoint_stl(ostream, field, cv) ;
-            print_post_checkpoint_stl(ostream, field, cv) ;
-            print_restore_stl(ostream, field, cv) ;
-            if (field->hasSTLClear()) {
-                print_clear_stl(ostream, field, cv) ;
+            if (field->isCheckpointable()) {
+                print_checkpoint_stl(ostream, field, cv) ;
+                print_post_checkpoint_stl(ostream, field, cv) ;
+            }
+            if (field->isRestorable()) {
+                print_restore_stl(ostream, field, cv) ;
+                if (field->hasSTLClear()) {
+                    print_clear_stl(ostream, field, cv) ;
+                }
             }
         }
     }
@@ -370,7 +347,6 @@ void PrintFileContents10::print_stl_helper(std::ostream & ostream , ClassValues 
 }
 
 void PrintFileContents10::printClass( std::ostream & ostream , ClassValues * cv ) {
-    print_stl_helper_proto(ostream, cv) ;
     print_class_attr(ostream, cv) ;
     print_stl_helper(ostream, cv) ;
     print_init_attr_func(ostream, cv) ;
