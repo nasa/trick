@@ -68,6 +68,11 @@ sub read_files_to_process() {
         outer:
         foreach my $word ( split ) {
             next if ( $word eq "\\" or $word =~ /o:/ ) ;
+
+            # skip unsupported extensions
+            next if not $word =~ /\.(H|h|hh|hxx|h++|hpp)$/ ;
+
+            # get the absolute path
             if ( $word !~ /^\// and $dir ne "\/" ) {
                 $word = "$dir/$word" ;
             }
@@ -76,15 +81,15 @@ sub read_files_to_process() {
             # skip duplicate files
             next if (exists($md5s{$word})) ;
 
-            # remove system headers that are missed by the compiler -MM flag
+            # skip system headers that are missed by the compiler -MM flag
             next if ( $word =~ /^\/usr\/include/ ) ;
 
-            # remove Trick headers
+            # skip Trick headers
             my $trick_home = $ENV{'TRICK_HOME'} ;
             next if ( $word =~ /^\Q$trick_home\/include/ ) ;
             next if ( $word =~ /^\Q$trick_home\/trick_source/ ) ;
 
-            # remove paths in TRICK_EXCLUDE
+            # skip paths in TRICK_EXCLUDE
             foreach my $path ( @exclude_paths ) {
                 if ( $word =~ /^\Q$path\E(.*)/ ) {
                     print "[95mSWIG Skip[39m  TRICK_EXCLUDE: [4m$path[24m$1\n" if $verbose_build ;
@@ -92,7 +97,7 @@ sub read_files_to_process() {
                 }
             }
 
-            # remove paths in TRICK_SWIG_EXCLUDE
+            # skip paths in TRICK_SWIG_EXCLUDE
             foreach my $path ( @swig_exclude_paths ) {
                 if ( $word =~ /^\Q$path\E(.*)/ ) {
                     print "[95mSWIG Skip[39m  TRICK_SWIG_EXCLUDE: [4m$path[24m$1\n" if $verbose_build ;
@@ -120,10 +125,11 @@ sub read_files_to_process() {
 
 sub write_makefile_swig_deps() {
     open DEPENDENCIES_FILE , ">build/Makefile_swig_deps" or return ;
-    print DEPENDENCIES_FILE "build/Makefile_swig: \\\n" ;
+    print DEPENDENCIES_FILE "build/Makefile_swig:" ;
     foreach my $file ( @files_to_process, @ext_lib_files ) {
-        print DEPENDENCIES_FILE "    " . $file . " \\\n" ;
+        print DEPENDENCIES_FILE " \\\n    " . $file ;
     }
+    close DEPENDENCIES_FILE ;
 }
 
 sub has_swig_no($) {
@@ -187,14 +193,11 @@ all: \$(TRICK_FIXED_PYTHON)
 
 SWIG_I =" ;
 
-    foreach my $f ( @files_to_process ) {
-        my ($swig_dir, $swig_object_dir , $swig_module_dir , $swig_file_only) ;
-        my ($swig_f) = $f ;
-        $swig_object_dir = dirname($f) ;
-        ($swig_file_only) = ($f =~ /([^\/]*)(?:\.h|\.H|\.hh|\.h\+\+|\.hxx|\.hpp)$/) ;
-        if ($swig_file_only) {
-            print MAKEFILE" \\\n    build$swig_object_dir/${swig_file_only}_py.i" ;
-        }
+    foreach my $file ( @files_to_process ) {
+        (my $swig_file = $file) =~ s/\.[^.]*/_py.i/ ;
+        print MAKEFILE " \\\n    build$swig_file" ;
+        $swig_file =~ s/i$/o/ ;
+        print PY_LINK_LIST "build$swig_file\n" ;
     }
 
     print MAKEFILE "
@@ -223,53 +226,8 @@ SWIG_SRC = \$(subst .i,.cpp,\$(SWIG_I)) $swig_src_dir/top.cpp
 
 # SWIG_OBJECTS =================================================================
 
-SWIG_OBJECTS = \$(subst .cpp,.o,\$(SWIG_SRC)) $swig_src_dir/init_swig_modules.o\n" ;
+SWIG_OBJECTS = \$(subst .cpp,.o,\$(SWIG_SRC)) $swig_src_dir/init_swig_modules.o
 
-    my %python_modules ;
-    $ii = 0 ;
-    foreach my $f ( @files_to_process ) {
-
-        my ($swig_module_dir , $swig_file_only) ;
-        my ($swig_f) = $f ;
-
-# TODO: Add back python modules
-#        if ( $$sim_ref{python_module}{$f} ne "" ) {
-#            #print "[31mpython module for $f = $$sim_ref{python_module}{$f}[0m\n" ;
-#            my ($temp_str) = $$sim_ref{python_module}{$f} ;
-#            $temp_str =~ s/\./\//g ;
-#            $swig_module_dir = "$temp_str/" ;
-#            $temp_str =~ $$sim_ref{python_module}{$f} ;
-#            $temp_str =~ s/\\/\./g ;
-#            push @{$python_modules{$temp_str}} , $f ;
-#        } else {
-#            $swig_module_dir = "" ;
-            push @{$python_modules{"root"}} , $f ;
-#        }
-
-        # check if .sm file was accidentally ##included instead of #included
-        if ( rindex($swig_f,".sm") != -1 ) {
-           #trick_print($$sim_ref{fh}, "\nError: $swig_f should be in a #include not a ##include  \n\n", "title_red", $$sim_ref{args}{v}) ;
-           exit -1 ;
-        }
-        $swig_f =~ s/([^\/]*)(?:\.h|\.H|\.hh|\.h\+\+|\.hxx|\.hpp)$/$1.i/ ;
-        $swig_file_only = $1 ;
-        my $link_py_obj = "build" . dirname($swig_f) . "/${swig_file_only}_py.o";
-        print PY_LINK_LIST "$link_py_obj\n" ;
-
-        $ii++ ;
-    }
-
-    foreach $m ( keys %python_modules ) {
-        next if ( $m eq "root") ;
-        my ($temp_str) = $m ;
-        $temp_str =~ s/\./\//g ;
-        print MAKEFILE "$swig_sim_dir/$m:\n" ;
-        print MAKEFILE "\tmkdir -p \$@\n\n" ;
-    }
-
-    my $wd = abs_path(cwd()) ;
-
-    print MAKEFILE "
 \$(SWIG_OBJECTS): %.o: %.cpp
 \t\$(PRINT_COMPILE_SWIG)
 \t\@echo \$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) \$(SWIG_CFLAGS) -Wno-unused-parameter -c -o \$@ \$< >> \$(MAKE_OUT)
@@ -356,12 +314,6 @@ LINK_LISTS += \$(LD_FILELIST)build/py_link_list
     print INITFILE "import os\n" ;
     print INITFILE "sys.path.append(os.getcwd() + \"/trick\")\n" ;
 
-    foreach $m ( keys %python_modules ) {
-        next if ( $m eq "root") ;
-        my ($temp_str) = $m ;
-        $temp_str =~ s/\./\//g ;
-        print INITFILE "sys.path.append(os.getcwd() + \"/trick/$temp_str\")\n" ;
-    }
     print INITFILE "\n" ;
     print INITFILE "import _sim_services\n" ;
     print INITFILE "from sim_services import *\n\n" ;
@@ -371,25 +323,7 @@ LINK_LISTS += \$(LD_FILELIST)build/py_link_list
     print INITFILE "combine_cvars(all_cvars, cvar)\n" ;
     print INITFILE "cvar = None\n\n" ;
 
-    foreach $m ( keys %python_modules ) {
-        next if ( $m eq "root") ;
-        my ($temp_str) = $m ;
-        $temp_str =~ s/\//\./g ;
-        print INITFILE "import $temp_str\n" ;
-    }
-    print INITFILE "\n" ;
-
-    foreach $f ( @{$python_modules{"root"}} ) {
-        next if ( $f =~ /S_source.hh/ ) ;
-        my $md5_sum = md5_hex($f) ;
-        print INITFILE "# $f\n" ;
-        print INITFILE "import _m${md5_sum}\n" ;
-        print INITFILE "from m${md5_sum} import *\n" ;
-        print INITFILE "combine_cvars(all_cvars, cvar)\n" ;
-        print INITFILE "cvar = None\n\n" ;
-    }
-
-    foreach $f ( @ext_lib_files ) {
+    foreach $f ( @files_to_process, @ext_lib_files ) {
         print INITFILE "# $f\n" ;
         print INITFILE "import _m$md5s{$f}\n" ;
         print INITFILE "from m$md5s{$f} import *\n" ;
@@ -412,29 +346,6 @@ LINK_LISTS += \$(LD_FILELIST)build/py_link_list
     print INITFILE "from exception import *\n\n" ;
     print INITFILE "cvar = all_cvars\n\n" ;
     close INITFILE ;
-
-    foreach $m ( keys %python_modules ) {
-        next if ( $m eq "root") ;
-        my ($temp_str) = $m ;
-        $temp_str =~ s/\./\//g ;
-        if ( ! -e "trick/$temp_str" ) {
-            mkpath("trick/$temp_str", {mode=>0775}) ;
-        }
-        open INITFILE , ">trick/$temp_str/__init__.py" or return ;
-        foreach $f ( @{$python_modules{$m}} ) {
-            next if ( $f =~ /S_source.hh/ ) ;
-            my $md5_sum = md5_hex($f) ;
-            print INITFILE "# $f\n" ;
-            print INITFILE "import _m${md5_sum}\n" ;
-            print INITFILE "from m${md5_sum} import *\n\n" ;
-        }
-        close INITFILE ;
-
-        while ( $temp_str =~ s/\/.*?$// ) {
-            open INITFILE , ">trick/$temp_str/__init__.py" or return ;
-            close initfile ;
-        }
-    }
 
     return ;
 }
