@@ -44,6 +44,7 @@ endif
 ifeq ($(TRICK_HOST_TYPE),Linux)
 CLANGLIBS += $(shell $(LLVM_HOME)/bin/llvm-config --libs)
 ifeq ($(CLANG_MINOR_GTEQ5),1)
+CXXFLAGS += -std=c++11
 # Fedora 21 adds -ledit as a system lib, but it isn't installed, or required.
 CLANGLIBS += $(filter-out -ledit,$(shell $(LLVM_HOME)/bin/llvm-config --system-libs))
 endif
