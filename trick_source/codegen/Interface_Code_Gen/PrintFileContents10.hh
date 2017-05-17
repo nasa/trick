@@ -53,7 +53,7 @@ class PrintFileContents10 : public PrintFileContentsBase {
         void print_enum_attr(std::ostream & outfile , EnumValues * in_enum) ;
 
         /** Prints attributes for a field */
-        void print_field_attr(std::ostream & outfile ,  FieldDescription * fdes ) ;
+        void print_field_attr(std::ostream & outfile , FieldDescription & fdes ) ;
 
         /** Prints class attributes */
         void print_class_attr(std::ostream & outfile , ClassValues * in_class) ;

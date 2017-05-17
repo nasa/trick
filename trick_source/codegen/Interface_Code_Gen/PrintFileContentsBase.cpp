@@ -41,7 +41,7 @@ void PrintFileContentsBase::print_units_map(std::ostream & ostream, ClassValues 
         ostream << "    }\n" ;
     }
 
-    ostream << "} um" << name << ";\n" ;
+    ostream << "} um" << name << ";\n\n" ;
 }
 
 /* Utility routines for printing */
@@ -56,20 +56,20 @@ void PrintFileContentsBase::print_close_extern_c(std::ostream & ostream) {
 /* internal function determines if a particular field is printable based
    on access to the field and the presense of init_attr friends.
 */
-bool PrintFileContentsBase::determinePrintAttr( ClassValues * c , FieldDescription * fdes ) {
-    if ( !fdes->getTypeName().compare("void") or !fdes->getChkpntIO() or !fdes->getEnumString().compare("TRICK_VOID")) {
+bool PrintFileContentsBase::isPrintable( ClassValues * c , FieldDescription * fdes , unsigned int ioMask) {
+    if ( !(fdes->getIO() & ioMask) || !fdes->getTypeName().compare("void") || !fdes->getEnumString().compare("TRICK_VOID")) {
         return false;
     }
-    if ( fdes->getAccess() == clang::AS_public or (!fdes->isStatic() and !global_compat15 and !c->isCompat15())) {
+    if ( fdes->getAccess() == clang::AS_public || (!fdes->isStatic() && !global_compat15 && !c->isCompat15())) {
         return true;
     }
     return c->getHasInitAttrFriend() && ( !fdes->isInherited() || fdes->getAccess() == clang::AS_protected ) ;
 }
 
-std::vector<FieldDescription*> PrintFileContentsBase::getPrintableFields(ClassValues& classValues) {
+std::vector<FieldDescription*> PrintFileContentsBase::getPrintableFields(ClassValues& classValues, unsigned int ioMask) {
     std::vector<FieldDescription*> results;
     for (auto& field : classValues.getFieldDescriptions()) {
-        if (determinePrintAttr(&classValues, field) and field->getUnits().compare("1")) {
+        if (isPrintable(&classValues, field)) {
             results.push_back(field);
         }
     }
