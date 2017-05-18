@@ -160,7 +160,7 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ostream & ostream , 
 
     if ( fdes->isSTL() ) {
         auto print = [&](const std::string& field) {
-            ostream << prefix << field << " = " << field << "_" << fullyQualifiedMangledClassNameUnderscores + "_" + fieldName + " ;\n";
+            ostream << prefix << field << " = " << field << "_" << fullyQualifiedMangledClassNameUnderscores + "_" + sanitize(fieldName) + " ;\n";
         };
 
         if ( fdes->isCheckpointable() ) {
@@ -404,7 +404,7 @@ void PrintFileContents10::printEnumMapFooter( std::ostream & ostream ) {
 void PrintFileContents10::printStlFunction(const std::string& name, const std::string& parameters, const std::string& call, std::ostream& ostream, FieldDescription& fieldDescription, ClassValues& classValues) {
     const std::string typeName = fieldDescription.getTypeName();
     const std::string functionName = name + "_stl";
-    ostream << "void " << functionName << "_" << classValues.getFullyQualifiedMangledTypeName("__") << "_" << fieldDescription.getName()
+    ostream << "void " << functionName << "_" << classValues.getFullyQualifiedMangledTypeName("__") << "_" << sanitize(fieldDescription.getName())
             << "(" << parameters << ") {" << std::endl
             << "    " << typeName << "* stl = reinterpret_cast<" << typeName << "*>(start_address);" << std::endl
             << "    " << call << ";" << std::endl

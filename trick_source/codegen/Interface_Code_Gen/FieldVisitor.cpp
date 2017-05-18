@@ -252,22 +252,6 @@ bool FieldVisitor::VisitPointerType(clang::PointerType *p) {
     return true;
 }
 
-static std::string mangle_string( std::string in_name ) {
-    // convert characters not valid in a function name to underscores
-    std::string mangled_name = in_name ;
-    // Create a mangled type name, some characters have to converted to underscores.
-    std::replace( mangled_name.begin(), mangled_name.end(), '<', '_') ;
-    std::replace( mangled_name.begin(), mangled_name.end(), '>', '_') ;
-    std::replace( mangled_name.begin(), mangled_name.end(), ' ', '_') ;
-    std::replace( mangled_name.begin(), mangled_name.end(), ',', '_') ;
-    std::replace( mangled_name.begin(), mangled_name.end(), ':', '_') ;
-    std::replace( mangled_name.begin(), mangled_name.end(), '*', '_') ;
-    std::replace( mangled_name.begin(), mangled_name.end(), ']', '_') ;
-    std::replace( mangled_name.begin(), mangled_name.end(), '[', '_') ;
-
-    return mangled_name ;
-}
-
 std::map < std::string , std::string > FieldVisitor::processed_templates ;
 
 bool FieldVisitor::ProcessTemplate(std::string in_name , clang::CXXRecordDecl * crd ) {
@@ -284,7 +268,7 @@ bool FieldVisitor::ProcessTemplate(std::string in_name , clang::CXXRecordDecl * 
     // Check to see if we've processed this template before
     // If not we need to create attributes for this template
     if ( processed_templates.find(in_name) == processed_templates.end() ) {
-        std::string mangled_name = mangle_string(in_name) ;
+        std::string mangled_name = sanitize(in_name) ;
 
         // save off the mangled name of this template to be used if another variable is the same template type
         processed_templates[in_name] = fdes->getContainerClass() + "_" +
