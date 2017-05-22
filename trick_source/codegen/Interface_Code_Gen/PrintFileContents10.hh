@@ -53,7 +53,7 @@ class PrintFileContents10 : public PrintFileContentsBase {
         void print_enum_attr(std::ostream & outfile , EnumValues * in_enum) ;
 
         /** Prints attributes for a field */
-        void print_field_attr(std::ostream & outfile ,  FieldDescription * fdes ) ;
+        void print_field_attr(std::ostream & outfile , FieldDescription & fdes ) ;
 
         /** Prints class attributes */
         void print_class_attr(std::ostream & outfile , ClassValues * in_class) ;
@@ -85,9 +85,6 @@ class PrintFileContents10 : public PrintFileContentsBase {
 
         /** Prints the io_src_delete function */
         void print_io_src_delete(std::ostream & outfile , ClassValues * cv ) ;
-
-        /** Prints stl helper function prototypes */
-        void print_stl_helper_proto(std::ostream & outfile , ClassValues * in_class) ;
 
         /** Prints stl helper function */
         void print_stl_helper(std::ostream & outfile , ClassValues * in_class) ;

@@ -53,10 +53,10 @@ class PrintFileContentsBase {
         void print_close_extern_c(std::ostream & ostream) ;
 
         /* internal function determines if a particular field is printable */
-        bool determinePrintAttr(ClassValues * c , FieldDescription *fdes) ;
+        bool isPrintable(ClassValues * c , FieldDescription *fdes , unsigned int ioMask = 0xFFFFFFF) ;
 
         /* gets a vector of fields that can be printed */
-        std::vector<FieldDescription*> getPrintableFields(ClassValues& classValues);
+        std::vector<FieldDescription*> getPrintableFields(ClassValues& classValues, unsigned int ioMask = 0xFFFFFFF);
 
 } ;
 

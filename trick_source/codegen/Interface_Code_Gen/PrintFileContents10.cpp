@@ -1,4 +1,4 @@
-
+#include <algorithm>
 #include <sstream>
 
 #include "PrintFileContents10.hh"
@@ -54,51 +54,51 @@ void PrintFileContents10::print_enum_attr(std::ostream & ostream , EnumValues * 
 }
 
 /** Prints attributes for a field */
-void PrintFileContents10::print_field_attr(std::ostream & ostream ,  FieldDescription * fdes ) {
+void PrintFileContents10::print_field_attr(std::ostream & ostream ,  FieldDescription & fdes ) {
     int array_dim ;
 
-    ostream << "{\"" << fdes->getName() << "\""                               // name
-            << ", \"" << fdes->getFullyQualifiedMangledTypeName("__") << "\"" // type_name
-            << ", \"" << fdes->getUnits() << "\""                             // units
+    ostream << "{\"" << fdes.getName() << "\""                               // name
+            << ", \"" << fdes.getFullyQualifiedMangledTypeName("__") << "\"" // type_name
+            << ", \"" << fdes.getUnits() << "\""                             // units
             << ", \"\", \"\"," << std::endl                                   // alias, user_defined
-            << "  \"" << fdes->getDescription() << "\"," << std::endl         // description
-            << "  " << fdes->getIO()                                          // io
-            << "," << fdes->getEnumString() ;                                 // type
+            << "  \"" << fdes.getDescription() << "\"," << std::endl         // description
+            << "  " << fdes.getIO()                                          // io
+            << "," << fdes.getEnumString() ;                                 // type
     // There are several cases when printing the size of a variable.
-    if ( fdes->isBitField() ) {
+    if ( fdes.isBitField() ) {
         // bitfields are handled in 4 byte (32 bit) chunks
         ostream << ", 4" ;
-    } else if (  fdes->isRecord() or fdes->isEnum() or fdes->getTypeName().empty() ) {
+    } else if (  fdes.isRecord() or fdes.isEnum() or fdes.getTypeName().empty() ) {
         // records enums use io_src_get_size. The sentinel has no typename
         ostream << ", 0" ;
     } else {
         // print size of the underlying type
-        ostream << ", sizeof(" << fdes->getTypeName() << ")" ;
+        ostream << ", sizeof(" << fdes.getTypeName() << ")" ;
     }
     ostream << ", 0, 0, Language_CPP" ; // range_min, range_max, language
-    ostream << ", " << (fdes->isStatic() << 1) + (fdes->isDashDashUnits() << 2) << "," << std::endl ; // mods
-    if ( fdes->isBitField() ) {
+    ostream << ", " << (fdes.isStatic() << 1) + (fdes.isDashDashUnits() << 2) << "," << std::endl ; // mods
+    if ( fdes.isBitField() ) {
         // For bitfields we need the offset to start on 4 byte boundaries because that is what our
         // insert and extract bitfield routines work with.
-        ostream << "  " << (fdes->getFieldOffset() - (fdes->getFieldOffset() % 32)) / 8 ; // offset
+        ostream << "  " << (fdes.getFieldOffset() - (fdes.getFieldOffset() % 32)) / 8 ; // offset
     } else {
-        ostream << "  " << (fdes->getFieldOffset() / 8) ; // offset
+        ostream << "  " << (fdes.getFieldOffset() / 8) ; // offset
     }
     ostream << ", NULL" ; // attr
-    ostream << ", " << fdes->getNumDims() ;                // num_index
+    ostream << ", " << fdes.getNumDims() ;                // num_index
 
     ostream << ", {" ;
-    if ( fdes->isBitField() ) {
-        ostream << "{" << fdes->getBitFieldWidth() ; // size of bitfield
-        ostream << ", " << 32 - (fdes->getFieldOffset() % 32) - fdes->getBitFieldWidth() << "}" ; // start bit
+    if ( fdes.isBitField() ) {
+        ostream << "{" << fdes.getBitFieldWidth() ; // size of bitfield
+        ostream << ", " << 32 - (fdes.getFieldOffset() % 32) - fdes.getBitFieldWidth() << "}" ; // start bit
     } else {
-        array_dim = fdes->getArrayDim(0) ;
+        array_dim = fdes.getArrayDim(0) ;
         if ( array_dim < 0 ) array_dim = 0 ;
         ostream << "{" << array_dim << ", 0}" ; // index 0
     }
     unsigned int ii ;
     for ( ii = 1 ; ii < 8 ; ii++ ) {
-        array_dim = fdes->getArrayDim(ii) ;
+        array_dim = fdes.getArrayDim(ii) ;
         if ( array_dim < 0 ) array_dim = 0 ;
         ostream << ", {" << array_dim << ", 0}" ; // indexes 1 through 7
     }
@@ -113,17 +113,14 @@ void PrintFileContents10::print_class_attr(std::ostream & ostream , ClassValues 
     print_open_extern_c(ostream) ;
     ostream << "ATTRIBUTES attr" << c->getFullyQualifiedMangledTypeName("__") << "[] = {" << std::endl ;
 
-    for (auto& fieldDescription : c->getFieldDescriptions()) {
-        if ( determinePrintAttr(c , fieldDescription) ) {
-            print_field_attr(ostream, fieldDescription) ;
+    for (FieldDescription* fieldDescription : getPrintableFields(*c)) {
+            print_field_attr(ostream, *fieldDescription) ;
             ostream << "," << std::endl ;
-        }
     }
     // Print an empty sentinel attribute at the end of the class.
-    FieldDescription * new_fdes = new FieldDescription(std::string("")) ;
+    FieldDescription new_fdes(std::string("")) ;
     print_field_attr(ostream, new_fdes) ;
     ostream << " };" << std::endl ;
-    delete new_fdes ;
 
     print_close_extern_c(ostream) ;
 }
@@ -163,15 +160,19 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ostream & ostream , 
 
     if ( fdes->isSTL() ) {
         auto print = [&](const std::string& field) {
-            ostream << prefix << field << " = " << field << "_" << fullyQualifiedMangledClassNameUnderscores + "_" + fieldName + " ;\n";
+            ostream << prefix << field << " = " << field << "_" << fullyQualifiedMangledClassNameUnderscores + "_" + sanitize(fieldName) + " ;\n";
         };
 
-        print("checkpoint_stl");
-        print("post_checkpoint_stl");
-        print("restore_stl");
+        if ( fdes->isCheckpointable() ) {
+            print("checkpoint_stl");
+            print("post_checkpoint_stl");
+        }
 
-        if ( fdes->hasSTLClear() ) {
-            print("clear_stl");
+        if ( fdes->isRestorable() ) {
+            print("restore_stl");
+            if ( fdes->hasSTLClear() ) {
+                print("clear_stl");
+            }
         }
     }
 
@@ -202,10 +203,8 @@ void PrintFileContents10::print_init_attr_func( std::ostream & ostream , ClassVa
             << "    initialized = 1;\n\n" ;
 
     unsigned int ii = 0;
-    for ( auto field : cv->getFieldDescriptions() ) {
-        if ( determinePrintAttr(cv, field) ) {
-            print_field_init_attr_stmts(ostream, field, cv, ii++) ;
-        }
+    for ( FieldDescription* field : getPrintableFields(*cv) ) {
+        print_field_init_attr_stmts(ostream, field, cv, ii++) ;
     }
     print_inherited_add_attr_info(ostream, cv ) ;
     ostream << "}\n" ;
@@ -299,37 +298,6 @@ void PrintFileContents10::print_io_src_delete( std::ostream & ostream , ClassVal
     }
 }
 
-void PrintFileContents10::print_stl_helper_proto(std::ostream & ostream , ClassValues * cv ) {
-    auto& fieldDescriptions = cv->getFieldDescriptions();
-
-    if (!fieldDescriptions.size()) {
-        return;
-    }
-
-    print_open_extern_c(ostream) ;
-
-    for (auto& field : cv->getFieldDescriptions()) {
-        if ( field->isSTL() and determinePrintAttr(cv, field) ) {
-            const std::string classAndFieldName = cv->getFullyQualifiedMangledTypeName("__") + "_" + field->getName();
-
-            auto print = [&](const std::string& name) {
-                ostream << "void " << name << "_" << classAndFieldName
-                    << "(void* start_address, const char* obj_name , const char* var_name);" << std::endl ;
-            };
-
-            print("checkpoint_stl");
-            print("post_checkpoint_stl");
-            print("restore_checkpoint_stl");
-
-            if ( field->hasSTLClear() ) {
-                ostream << "void clear_stl_" << classAndFieldName << "(void* start_address);" << std::endl ;
-            }
-        }
-    }
-
-    print_close_extern_c(ostream) ;
-}
-
 void PrintFileContents10::print_checkpoint_stl(std::ostream & ostream , FieldDescription * fdes , ClassValues * cv ) {
     printStlFunction("checkpoint", "void* start_address, const char* obj_name , const char* var_name", "checkpoint_stl(*stl, obj_name, var_name)", ostream, *fdes, *cv);
 }
@@ -347,7 +315,8 @@ void PrintFileContents10::print_clear_stl(std::ostream & ostream , FieldDescript
 }
 
 void PrintFileContents10::print_stl_helper(std::ostream & ostream , ClassValues * cv ) {
-    auto& fieldDescriptions = cv->getFieldDescriptions();
+    std::vector<FieldDescription*> fieldDescriptions = getPrintableFields(*cv, 0x3 << 2);
+    fieldDescriptions.erase(std::remove_if(fieldDescriptions.begin(), fieldDescriptions.end(), [](FieldDescription* field) {return !field->isSTL();}), fieldDescriptions.end());
 
     if (!fieldDescriptions.size()) {
         return;
@@ -355,10 +324,12 @@ void PrintFileContents10::print_stl_helper(std::ostream & ostream , ClassValues 
 
     print_open_extern_c(ostream) ;
 
-    for (auto& field : fieldDescriptions) {
-        if ( field->isSTL() and determinePrintAttr(cv, field) ) {
+    for (FieldDescription* field : fieldDescriptions) {
+        if (field->isCheckpointable()) {
             print_checkpoint_stl(ostream, field, cv) ;
             print_post_checkpoint_stl(ostream, field, cv) ;
+        }
+        if (field->isRestorable()) {
             print_restore_stl(ostream, field, cv) ;
             if (field->hasSTLClear()) {
                 print_clear_stl(ostream, field, cv) ;
@@ -370,7 +341,6 @@ void PrintFileContents10::print_stl_helper(std::ostream & ostream , ClassValues 
 }
 
 void PrintFileContents10::printClass( std::ostream & ostream , ClassValues * cv ) {
-    print_stl_helper_proto(ostream, cv) ;
     print_class_attr(ostream, cv) ;
     print_stl_helper(ostream, cv) ;
     print_init_attr_func(ostream, cv) ;
@@ -434,7 +404,7 @@ void PrintFileContents10::printEnumMapFooter( std::ostream & ostream ) {
 void PrintFileContents10::printStlFunction(const std::string& name, const std::string& parameters, const std::string& call, std::ostream& ostream, FieldDescription& fieldDescription, ClassValues& classValues) {
     const std::string typeName = fieldDescription.getTypeName();
     const std::string functionName = name + "_stl";
-    ostream << "void " << functionName << "_" << classValues.getFullyQualifiedMangledTypeName("__") << "_" << fieldDescription.getName()
+    ostream << "void " << functionName << "_" << classValues.getFullyQualifiedMangledTypeName("__") << "_" << sanitize(fieldDescription.getName())
             << "(" << parameters << ") {" << std::endl
             << "    " << typeName << "* stl = reinterpret_cast<" << typeName << "*>(start_address);" << std::endl
             << "    " << call << ";" << std::endl

@@ -6,6 +6,14 @@
 
 #include "Utilities.hh"
 
+std::string sanitize(const std::string& text) {
+    std::string result = text;
+    for (char c : {'<', '>', ' ', ',', ':', '*', '[', ']'}) {
+        std::replace(result.begin(), result.end(), c, '_');
+    }
+    return result ;
+}
+
 // removes leading and trailing whitespace from a string
 std::string trim(const std::string& str, const std::string& whitespace ) {
     size_t strBegin = str.find_first_not_of(whitespace);

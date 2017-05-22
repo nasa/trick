@@ -1,4 +1,4 @@
-SHELL := /bin/sh
+SHELL := /bin/bash
 CD    := cd
 MV    := /bin/mv
 RM    := /bin/rm
