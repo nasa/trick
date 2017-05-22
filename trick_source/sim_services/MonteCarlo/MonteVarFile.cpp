@@ -1,6 +1,7 @@
 #include <sstream>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 #include <limits>
 
 #include "trick/MonteVarFile.hh"
