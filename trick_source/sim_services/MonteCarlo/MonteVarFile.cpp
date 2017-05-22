@@ -88,7 +88,10 @@ void Trick::MonteVarFile::set_file_name(std::string in_file_name) {
     input_file_stream = new std::ifstream(in_file_name.c_str(), std::ifstream::in);
     if (input_file_stream->fail()) {
         std::stringstream string_stream;
-        string_stream << "Trick:MonteVarFile the input file \"" << in_file_name <<  "\" failed to open";
+
+        string_stream << "Error: " << strerror(errno) << std::endl
+                      << "       Trick:MonteVarFile input file \"" << in_file_name <<  "\" failed to open";
+
         exec_terminate_with_return(-1, __FILE__, __LINE__, string_stream.str().c_str());
     }
     this->file_name = in_file_name;
