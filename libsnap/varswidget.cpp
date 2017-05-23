@@ -4,13 +4,15 @@
 #include "libsnap/timeit_linux.h"
 #endif
 
-VarsWidget::VarsWidget(QStandardItemModel* varsModel,
+VarsWidget::VarsWidget(const QString &timeName,
+                       QStandardItemModel* varsModel,
                        MonteModel *monteModel,
                        PlotBookModel *plotModel,
                        QItemSelectionModel *plotSelectModel,
                        MonteInputsView *monteInputsView,
                        QWidget *parent) :
     QWidget(parent),
+    _timeName(timeName),
     _varsModel(varsModel),
     _monteModel(monteModel),
     _plotModel(plotModel),
@@ -168,8 +170,7 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
     QStandardItem* plotsItem = _plotModel->itemFromIndex(plotsIdx);
     QStandardItem* plotItem = _addChild(plotsItem, "Plot");
 
-    QString tName = "sys.exec.out.time";
-    QString xName(tName);
+    QString xName(_timeName);
     QString yName = _varsFilterModel->data(varIdx).toString();
 
     int plotId = plotItem->row();
@@ -220,7 +221,8 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
         //
         // Create curves
         //
-        TrickCurveModel* curveModel = _monteModel->curve(r,tName,xName,yName);
+        TrickCurveModel* curveModel = _monteModel->curve(r,
+                                                         _timeName,xName,yName);
         if ( !curveModel ) {
             // This should not happen
             // It could be ignored but I'll exit(-1) because I think
@@ -228,7 +230,7 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
             fprintf(stderr, "snap [bad scoobs]: varswidget.cpp\n"
                             "curve(%d,%s,%s,%s) failed.  Aborting!!!\n",
                     r,
-                    tName.toLatin1().constData(),
+                    _timeName.toLatin1().constData(),
                     xName.toLatin1().constData(),
                     yName.toLatin1().constData());
             exit(-1);
@@ -237,7 +239,7 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
 
         QStandardItem *curveItem = _addChild(curvesItem,"Curve");
 
-        _addChild(curveItem, "CurveTime", tName);
+        _addChild(curveItem, "CurveTimeName", _timeName);
         _addChild(curveItem, "CurveTimeUnit", curveModel->t()->unit());
         _addChild(curveItem, "CurveXName", xName);
         _addChild(curveItem, "CurveXUnit", curveModel->t()->unit()); // yes,t

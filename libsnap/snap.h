@@ -37,7 +37,9 @@ class Snap : public QObject
 friend class LoadThread;
 
 public:
-    Snap(const QString& irundir, double istart=1.0, double istop=1.0e20,
+    Snap(const QString& irundir,
+         const QString& timeName,
+         double istart=1.0, double istop=1.0e20,
          bool is_delay_load=false);
     ~Snap();
 
@@ -111,6 +113,7 @@ private:
     Snap() {}
 
     QString _rundir;
+    QString _timeName;
 
     void _setLogFileNames();
     QString _fileNameLogFrame;

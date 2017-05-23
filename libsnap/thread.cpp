@@ -11,12 +11,15 @@ static bool intLessThan(int a, int b)
     return a < b;
 }
 
-Thread::Thread(const QString &runDir, double startTime, double stopTime) :
-    _runDir(runDir),_startTime(startTime),_stopTime(stopTime),
+Thread::Thread(const QString &runDir, const QString &timeName,
+               double startTime, double stopTime) :
+    _runDir(runDir),_timeName(timeName),
+    _startTime(startTime),_stopTime(stopTime),
     _threadId(-1), _sJobExecThreadInfo(runDir),
     _avg_runtime(0),_avg_load(0), _tidx_max_runtime(0),
     _max_runtime(0), _max_load(0),_stdev(0),_freq(0.0),
-    _num_overruns(0),_runtimeCurve(0),_frameModel(0),_frameModelIsRealTime(false)
+    _num_overruns(0),_runtimeCurve(0),_frameModel(0),
+    _frameModelIsRealTime(false)
 
 {
 }
@@ -84,7 +87,7 @@ void Thread::_do_stats()
     QString tableName = QString("Thread %1 Runtime").arg(_threadId);
     _runtimeCurve = new SnapTable(tableName);
     _runtimeCurve->insertColumns(0,2);
-    _runtimeCurve->setHeaderData(0,Qt::Horizontal,QString("sys.exec.out.time"));
+    _runtimeCurve->setHeaderData(0,Qt::Horizontal,_timeName);
     _runtimeCurve->setHeaderData(1,Qt::Horizontal,QString("ThreadRunTime"));
     _runtimeCurve->insertRows(0,_frameCount);
 
@@ -314,7 +317,7 @@ void Thread::_frameModelSet()
     }
     try {
         QString trk(fileNameLogFrame);
-        _frameModel = new TrickModel("sys.exec.out.time",
+        _frameModel = new TrickModel(_timeName,
                                      trk,trk,_startTime,_stopTime);
     }
     catch (std::range_error &e) {
@@ -483,15 +486,17 @@ double Thread::avgJobLoad(Job *job) const
 }
 
 Threads::Threads(const QString &runDir, const QList<Job*>& jobs,
+                 const QString& timeName,
                  double startTime, double stopTime) :
-    _jobs(jobs),_startTime(startTime),_stopTime(stopTime)
+    _jobs(jobs),_timeName(timeName),
+    _startTime(startTime),_stopTime(stopTime)
 {
     foreach ( Job* job, _jobs ) {
 
         int tid = job->thread_id();
         if ( ! _ids.contains(tid) ) {
             _ids.append(tid);
-            Thread* thread = new Thread(runDir,startTime,stopTime);
+            Thread* thread = new Thread(runDir,_timeName,startTime,stopTime);
             _threads.insert(tid,thread);
         }
 

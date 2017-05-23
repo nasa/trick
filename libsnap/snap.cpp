@@ -25,9 +25,12 @@ bool topThreadGreaterThan(const QPair<double,Thread*>& a,
 QString Snap::_err_string;
 QTextStream Snap::_err_stream(&Snap::_err_string);
 
-Snap::Snap(const QString &irundir, double istart, double istop,
+Snap::Snap(const QString &irundir,
+           const QString &timeName,
+           double istart, double istop,
            bool is_delay_load) :
-    _rundir(irundir), _start(istart),_stop(istop), _is_realtime(false),
+    _rundir(irundir), _timeName(timeName),
+    _start(istart),_stop(istop), _is_realtime(false),
     _curr_sort_method(NoSort), _trickJobModel(0),_modelFrame(0),
     _num_overruns(0), _numFrames(0), _frame_avg(0.0),_frame_stddev(0),
     _threads(0),_simobjects(0),_progress(0)
@@ -61,7 +64,7 @@ void Snap::_load()
 
     _curr_sort_method = SortByJobAvgTime;
 
-    _threads = new Threads(_rundir,_jobs,_start,_stop);
+    _threads = new Threads(_rundir,_jobs,_timeName,_start,_stop);
 
     _thread0 = 0 ;
     foreach ( Thread* thread, threads()->hash()->values() ) {
@@ -414,7 +417,7 @@ TrickModel *Snap::_createModel( const QString &trk,
     }
 
     try {
-        model = new TrickModel("sys.exec.out.time",
+        model = new TrickModel(_timeName,
                                trk,trk,start,stop);
     }
     catch (std::range_error &e) {

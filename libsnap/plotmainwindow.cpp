@@ -123,7 +123,7 @@ PlotMainWindow::PlotMainWindow(
 
     // Vars Tab
     QFrame* varsFrame = new QFrame(lsplit);
-    _varsWidget = new VarsWidget(_varsModel, _monteModel, _bookModel,
+    _varsWidget = new VarsWidget(_timeName, _varsModel, _monteModel, _bookModel,
                                   _bookView->selectionModel(), _monteInputsView,
                                  varsFrame);
     _nbDPVars->addTab(varsFrame,"Vars");

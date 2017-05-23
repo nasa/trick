@@ -9,8 +9,10 @@ Runs::Runs() :
 {
 }
 
-Runs::Runs(const QStringList &runDirs,
+Runs::Runs(const QString& timeName,
+           const QStringList &runDirs,
            const QHash<QString,QString>& varMap, int beginRun, int endRun) :
+    _timeName(timeName),
     _runs(runDirs),
     _varMap(varMap),
     _beginRun(beginRun),
@@ -76,7 +78,7 @@ void Runs::_init()
         if (progress.wasCanceled()) {
             exit(0);
         }
-        TrickModel* m = new TrickModel("sys.exec.out.time",trk,trk);
+        TrickModel* m = new TrickModel(_timeName,trk,trk);
         m->unmap();
         _models.append(m);
         int ncols = m->columnCount();
@@ -160,11 +162,18 @@ TrickCurveModel* Runs::curve(int row,
     if ( tcol < 0 ) {
         if ( _varMap.contains(tparam) ) {
             tcol = tm->paramColumn(_varMap.value(tparam)) ;
+        }
+        if ( tcol < 0 ) {
+            foreach (QString timeName, _timeName.split("=") ) {
+                timeName = timeName.trimmed();
+                tcol = tm->paramColumn(timeName);
+                if ( tcol > 0 ) {
+                    break;
+                }
+            }
             if ( tcol < 0 ) {
                 return 0;
             }
-        } else {
-            return 0;
         }
     }
 
@@ -188,11 +197,24 @@ TrickCurveModel* Runs::curve(int row,
     if ( xcol < 0 ) {
         if ( _varMap.contains(xp) ) {
             xcol = tm->paramColumn(_varMap.value(xp));
+        }
+        if ( xcol < 0 ) {
+            QStringList tNames = _timeName.split("=");
+            QStringList timeNames;
+            foreach ( QString tName, tNames ) {
+                timeNames << tName.trimmed();
+            }
+            if ( timeNames.contains(xp) ) {
+                foreach ( QString timeName, timeNames ) {
+                    xcol = tm->paramColumn(timeName);
+                    if ( xcol > 0 ) {
+                        break;
+                    }
+                }
+            }
             if ( xcol < 0 ) {
                 return 0;
             }
-        } else {
-            return 0;
         }
     }
 

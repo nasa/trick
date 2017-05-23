@@ -31,7 +31,8 @@ bool writeTrk(const QString& ftrk, const QString &timeName,
                QStringList& paramList, MonteModel* monteModel);
 bool writeCsv(const QString& fcsv, const QString& timeName,
               DPTable* dpTable, const QString &runDir);
-bool convert2csv(const QString& ftrk, const QString& fcsv);
+bool convert2csv(const QString& timeName,
+                 const QString& ftrk, const QString& fcsv);
 bool convert2trk(const QString& csvFileName, const QString &trkFileName);
 QHash<QString,QVariant> getShiftHash(const QString& shiftString,
                                 const QStringList &runDirs);
@@ -107,8 +108,8 @@ int main(int argc, char *argv[])
     opts.add("-t2",&opts.title2,"", "Subtitle");
     opts.add("-t3",&opts.title3,"", "User title");
     opts.add("-t4",&opts.title4,"", "Date title");
-    opts.add("-timeName", &opts.timeName, QString(""),
-             "Time name for RUN data");
+    opts.add("-timeName", &opts.timeName, QString("sys.exec.out.time"),
+             "Time variable (e.g. -timeName sys.exec.out.time=mySimTime)");
     opts.add("-pdf", &opts.pdfOutFile, QString(""),
              "Name of pdf output file");
     opts.add("-dp2trk", &opts.trkOutFile, QString(""),
@@ -168,7 +169,15 @@ int main(int argc, char *argv[])
             csvOutFile = fi.absolutePath() + "/" +
                          QString("%1.csv").arg(fi.baseName());
         }
-        bool ret = convert2csv(opts.trk2csvFile, csvOutFile);
+        bool ret;
+        try {
+            ret = convert2csv(opts.timeName.split("=").at(0),
+                               opts.trk2csvFile, csvOutFile);
+        } catch (std::exception &e) {
+            fprintf(stderr,"\n%s\n",e.what());
+            fprintf(stderr,"%s\n",opts.usage().toLatin1().constData());
+            exit(-1);
+        }
         if ( !ret )  {
             fprintf(stderr, "snap [error]: Aborting trk to csv conversion!\n");
             return -1;
@@ -192,7 +201,7 @@ int main(int argc, char *argv[])
     try {
         if ( opts.isReportRT ) {
             foreach ( QString run, runDirs ) {
-                Snap snap(run,opts.start,opts.stop);
+                Snap snap(run,opts.timeName,opts.start,opts.stop);
                 SnapReport rpt(snap);
                 fprintf(stderr,"%s",rpt.report().toLatin1().constData());
             }
@@ -314,11 +323,11 @@ int main(int argc, char *argv[])
                 exit(-1);
             }
 
-            runs = new Runs(monteRunsSubset,varMap);
+            runs = new Runs(opts.timeName,monteRunsSubset,varMap);
             monteInputsModel = monteInputModel(monteDir.dirName(),
                                                monteInputRuns);
         } else {
-            runs = new Runs(runDirs,varMap);
+            runs = new Runs(opts.timeName,runDirs,varMap);
         }
         monteModel = new MonteModel(runs);
         varsModel = createVarsModel(runs);
@@ -384,7 +393,6 @@ int main(int argc, char *argv[])
         }
 
         if ( isPdf ) {
-            // TODO: Shouldn't timeName use opts.timeName if specified?
             PlotMainWindow w(opts.isDebug,
                              opts.timeName, opts.start, opts.stop,
                              shifts,
@@ -397,11 +405,8 @@ int main(int argc, char *argv[])
             QStringList params = DPProduct::paramList(dps);
 
             if ( monteModel->rowCount() == 1 ) {
-                QString timeName = opts.timeName ;
-                if ( timeName.isEmpty() ) {
-                    timeName = "sys.exec.out.time" ;
-                }
-                bool r = writeTrk(opts.trkOutFile,timeName,params,monteModel);
+                bool r = writeTrk(opts.trkOutFile,
+                                  opts.timeName,params,monteModel);
                 if ( r ) {
                     ret = 0;
                 } else {
@@ -422,12 +427,6 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "snap [error]: Exactly one RUN dir must be "
                                 "specified with the -csv option.\n");
                 exit(-1);
-            }
-
-            // TODO: This code for timeName repeated from above (consolidate)
-            QString timeName = opts.timeName ;
-            if ( timeName.isEmpty() ) {
-                timeName = "sys.exec.out.time" ;
             }
 
             // If there are no tables, print a message
@@ -464,7 +463,9 @@ int main(int argc, char *argv[])
                         ++i;
                     }
 
-                    bool r = writeCsv(fname,timeName,dpTable,runDirs.at(0));
+                    bool r = writeCsv(fname,
+                                      opts.timeName.split("=").at(0),
+                                      dpTable,runDirs.at(0));
                     if ( r ) {
                         ret = 0;
                     } else {
@@ -487,7 +488,8 @@ int main(int argc, char *argv[])
                 timer.start();
 #endif
                 PlotMainWindow w(opts.isDebug,
-                                 opts.timeName, opts.start, opts.stop,
+                                 opts.timeName.split("=").at(0),
+                                 opts.start, opts.stop,
                                  shifts,
                                  presentation, ".", dps, titles,
                                  monteModel, varsModel, monteInputsModel);
@@ -499,7 +501,8 @@ int main(int argc, char *argv[])
             } else {
 
                 PlotMainWindow w(opts.isDebug,
-                                 opts.timeName, opts.start, opts.stop,
+                                 opts.timeName.split("=").at(0),
+                                 opts.start, opts.stop,
                                  shifts,
                                  presentation, runDirs.at(0), QStringList(),
                                  titles, monteModel,
@@ -986,9 +989,10 @@ void presetExistsFile(QString* ignoreMe, const QString& fname, bool* ok)
     }
 }
 
-bool convert2csv(const QString& ftrk, const QString& fcsv)
+bool convert2csv(const QString& timeName,
+                 const QString& ftrk, const QString& fcsv)
 {
-    TrickModel m("sys.exec.out.time", ftrk);
+    TrickModel m(timeName, ftrk);
 
     QFileInfo fcsvi(fcsv);
     if ( fcsvi.exists() ) {

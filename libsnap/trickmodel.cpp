@@ -90,13 +90,20 @@ bool TrickModel::_load_trick_header()
     int maxRows = nbytes/_row_size;
 
     // Make sure time param exists in model and set time column
-    if ( !_param2column.contains(_timeName) ) {
+    bool isFoundTime = false;
+    foreach (QString timeName, _timeName.split("=")) {
+        if ( _param2column.contains(timeName)) {
+            _timeCol = _param2column.value(timeName) ;
+            isFoundTime = true;
+            break;
+        }
+    }
+    if ( ! isFoundTime ) {
         _err_stream << "snap [error]: couldn't find time param \""
                     << _timeName << "\" in trkfile=" << _trkfile
                     << ".  Try setting -timeName on commandline option.";
         throw std::runtime_error(_err_string.toLatin1().constData());
     }
-    _timeCol = _param2column.value(_timeName) ;
 
     // Save address of begin location of data for map()
     // Also, calc number of rows (timestamped records between start & stop time)

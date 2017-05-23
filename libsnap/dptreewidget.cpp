@@ -192,8 +192,7 @@ void DPTreeWidget::_setupModel()
     // The dp filter models takes a list of params that are common between runs.
     // Only DP_files which have params which are in all runs will show in tree
     QStringList dpParams;
-    dpParams << "sys.exec.out.time";  // this is always common, but may not be
-                                      // in dpVarsModel - so add it
+    dpParams << _timeName; // always common,but may not be in dpVarsModel,so add
     for (int i = 0; i < _dpVarsModel->rowCount(); ++i ) {
         QModelIndex idx = _dpVarsModel->index(i,0);
         QString param = _dpVarsModel->data(idx).toString();
@@ -437,17 +436,8 @@ void DPTreeWidget::_createDPTables(const QString &dpfile)
                 // TODO: need to change this, but plotmodel->data() uses it
                 QStandardItem *curveItem = _addChild(varsItem, "Curve");
 
-                // Get time name for this variable
-                QString tName = "sys.exec.out.time";
-                if ( !_timeName.isEmpty() ) {
-                    tName = _timeName;
-                }
-                if ( !var->timeName().isEmpty() && _timeName.isEmpty() ) {
-                    tName = var->timeName();
-                }
-
                 // Children
-                _addChild(curveItem, "CurveTime",        tName);
+                _addChild(curveItem, "CurveTimeName",    _timeName);
                 _addChild(curveItem, "CurveXName",       var->name());
                 _addChild(curveItem, "CurveXUnit",       var->unit());
                 _addChild(curveItem, "CurveYName",       var->name());
@@ -486,37 +476,29 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     // Get x&y params that match this run
     DPVar* x = 0;
     DPVar* y = 0;
-    QString tName = "sys.exec.out.time";  // can be reset in this if block
-    if ( !_timeName.isEmpty() ) {
-        tName = _timeName;
-    }
     QString xName;
     QString xUnit;
     QString yName;
     if ( dpcurve->xyPairs().isEmpty() ) {
         // Find out what x&y to use for curve
-        // It can be in xypairs
         x = dpcurve->x();
         y = dpcurve->y();
         xName = x->name();
         xUnit = x->unit();
         yName = y->name();
-        if ( !y->timeName().isEmpty() && _timeName.isEmpty() ) {
-            tName = y->timeName();  // note that y supercedes x
-        } else if ( !x->timeName().isEmpty() && _timeName.isEmpty() ) {
-            tName = x->timeName();
-        }
+
         if ( xName.isEmpty() ) {
-            xName = tName;
-            xUnit = dpcurve->t()->unit();
+            xName = _timeName;
+            xUnit = "s";
         }
-        curveModel = monteModel->curve(runId, tName, xName, yName);
+
+        curveModel = monteModel->curve(runId, _timeName, xName, yName);
         if ( !curveModel ) {
             QString runDir = monteModel->
                                 headerData(runId,Qt::Vertical).toString();
             _err_stream << "snap [error]: could not find parameter: \n\n"
                         << "        " << "("
-                        << tName << " , "
+                        << _timeName << " , "
                         << xName << " , "
                         << yName << ") "
                         << "\n\nin RUN:\n\n "
@@ -532,25 +514,26 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
             xName = xyPair->x()->name();
             xUnit = xyPair->x()->unit();
             yName = xyPair->y()->name();
-            if ( !xyPair->y()->timeName().isEmpty() && _timeName.isEmpty() ) {
-                tName = xyPair->y()->timeName();
-            } else if ( !xyPair->x()->timeName().isEmpty()
-                        && _timeName.isEmpty() ) {
-                tName = xyPair->x()->timeName();
+            if ( !xyPair->y()->timeName().isEmpty() &&
+                  xyPair->y()->timeName() != _timeName ) {
+                fprintf(stderr,"koviz [todo]: DPTreeWidget::_addCurve() "
+                               "xyPair->y()->timeName() != _timeName \n");
+            }
+            if ( !xyPair->x()->timeName().isEmpty() &&
+                  xyPair->x()->timeName() != _timeName ) {
+                fprintf(stderr,"koviz [todo]: DPTreeWidget::_addCurve() "
+                               "xyPair->x()->timeName() != _timeName \n");
             }
             if ( xName.isEmpty() ) {
-                xName = tName;
+                xName = _timeName;
                 xUnit = "--";
             }
-            txyParams << "(" + tName  + " , " + xName + " , " + yName + ")";
-            curveModel = _monteModel->curve(runId, tName, xName, yName);
+            txyParams << "(" + _timeName  + " , " + xName + " , " + yName + ")";
+            curveModel = _monteModel->curve(runId, _timeName, xName, yName);
             if ( curveModel ) {
                 x = xyPair->x();
                 y = xyPair->y();
                 break;
-            } else {
-                // Reset tName back to default
-                tName = "sys.exec.out.time";
             }
         }
 
@@ -564,12 +547,13 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
             foreach ( QString txy, txyParams ) {
                 _err_stream << "        " << txy << "\n";
             }
+            _err_stream << "\n        Try using the -map option.\n";
             throw std::runtime_error(_err_string.toLatin1().constData());
         }
     }
 
     // Curve children
-    _addChild(curveItem, "CurveTime", tName);
+    _addChild(curveItem, "CurveTimeName", _timeName);
     _addChild(curveItem, "CurveTimeUnit", dpcurve->t()->unit());
     _addChild(curveItem, "CurveXName", xName);
     _addChild(curveItem, "CurveXUnit", xUnit);

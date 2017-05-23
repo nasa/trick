@@ -527,7 +527,7 @@ void CurvesView::_paintLiveCoordArrow(TrickCurveModel* curveModel,
                                                      "LiveCoordTime");
     double liveTime = model()->data(liveIdx).toDouble();
     int i = 0;
-    if ( curveModel->x()->name() == "sys.exec.out.time" ) {
+    if ( curveModel->x()->name() == curveModel->t()->name() ) {
         i = curveModel->indexAtTime((liveTime-xb)/xs);
     } else {
         // e.g. ball xy curve where x is position[0]
@@ -1177,7 +1177,9 @@ bool CurvesView::_isXTime(const QModelIndex &plotIdx)
             QModelIndex curveIdx = model()->index(i,0,curvesIdx);
             QString xName = _bookModel()->getDataString(curveIdx,
                                                         "CurveXName","Curve");
-            if ( xName == "sys.exec.out.time" ) { // TODO: TimeName
+            QString tName = _bookModel()->getDataString(curveIdx,
+                                                       "CurveTimeName","Curve");
+            if ( xName == tName ) {
                 isXTime = true;
                 break;
             }
@@ -1527,8 +1529,10 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                             QModelIndex(),
                             "LiveCoordTime");
 
-                // TODO: do not use hard-coded time name
-                if ( curveModel->x()->name() == "sys.exec.out.time" ) {
+                QString timeName = _bookModel()->getDataString(currentIndex(),
+                                                               "CurveTimeName",
+                                                               "Curve");
+                if ( curveModel->x()->name() == timeName ) {
 
                     QPointF liveCoord(DBL_MAX,DBL_MAX);
 

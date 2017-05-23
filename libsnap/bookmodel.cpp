@@ -851,20 +851,18 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
     QString curveXUnit1 = getDataString(idx1,"CurveXUnit","Curve");
     QString curveYName1 = getDataString(idx1,"CurveYName","Curve");
 
-    // TODO: need to put name of time in model
-    //       so user has settable timename (not hardcoded "sys.exec.out.time")
     // TODO: error plot when x is not time e.g. x/y position
     //       d=sqrt((x0-x1)*(x0-x1)+(y0-y1)*(y0-y1))
-    QString timeName("sys.exec.out.time");
-    if ( curveXName0 != timeName ||
+    if (((curveXName0 != c0->t()->name())&&(curveXName1 != c1->t()->name())) ||
          curveXName0 != curveXName1 || curveXUnit0 != curveXUnit1 ||
          curveYName0 != curveYName1 ) {
         //
         // x/y params do not match, x units do not match or x is not time
         //
-        // TODO: Handle all the cases
-        fprintf(stderr,"snap [todo]: Handle error plot when names or xunits"
-                       "different or x is not time.  Aborting!");
+        fprintf(stderr,"snap [todo]: Handle error plot when xnames or xunits "
+                       "different, x is not time or curve->t()->name() != "
+                       "curveXName\n"
+                       "Aborting!\n");
         exit(-1);
     }
 

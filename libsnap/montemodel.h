@@ -11,7 +11,7 @@
 // Monte carlo model
 //
 //***********************************************************************
-//        sys.exec.out.time    yparam1    yparam2......yparamj.....yparamN
+//        timeName             yparam1    yparam2......yparamj.....yparamN
 // RUN_0  curve00              curve01    curve02..................curve0N
 // RUN_1  curve10              curve11    curve12..................curve1N
 //  .

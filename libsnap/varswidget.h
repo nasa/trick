@@ -21,7 +21,8 @@ class VarsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit VarsWidget(QStandardItemModel* varsModel,
+    explicit VarsWidget(const QString& timeName,
+                        QStandardItemModel* varsModel,
                         MonteModel* monteModel,
                         PlotBookModel* plotModel,
                         QItemSelectionModel*  plotSelectModel,
@@ -36,6 +37,7 @@ signals:
 public slots:
 
 private:
+    QString _timeName;
     QStandardItemModel* _varsModel;
     MonteModel* _monteModel;
     PlotBookModel* _plotModel;
