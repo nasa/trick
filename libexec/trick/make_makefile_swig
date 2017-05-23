@@ -194,7 +194,7 @@ all: \$(TRICK_FIXED_PYTHON)
 SWIG_I =" ;
 
     foreach my $file ( @files_to_process ) {
-        (my $swig_file = $file) =~ s/\.[^.]*/_py.i/ ;
+        (my $swig_file = $file) =~ s/\.[^.]*$/_py.i/ ;
         print MAKEFILE " \\\n    build$swig_file" ;
         $swig_file =~ s/i$/o/ ;
         print PY_LINK_LIST "build$swig_file\n" ;
