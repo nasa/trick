@@ -2,7 +2,7 @@ package trick_print ;
 
 use Exporter ();
 @ISA = qw(Exporter);
-@EXPORT = qw(trick_print);
+@EXPORT = qw(trick_print trick_formatted_print);
 
 use strict ;
 
@@ -42,11 +42,21 @@ sub trick_print($$$$) {
             print $fh "$message" ;
         }
     }
- 
+
     # print the message to the screen
     if ( $verbose >= $message_type{$mt}{level} ) {
         $message =~ s/(\n)?$/[00m$1/s ;
         print "[$message_type{$mt}{color}m$message" ;
+    }
+}
+
+sub trick_formatted_print {
+    my ($file, @strings) = @_;
+    for (my $i = 0; $i < @strings; ++$i) {
+        print $strings[$i];
+        if ($i % 2) {
+            print $file $strings[$i];
+        }
     }
 }
 

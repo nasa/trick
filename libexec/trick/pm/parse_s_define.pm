@@ -266,8 +266,7 @@ sub parse_s_define ($) {
                     }
                 }
                 if ( $found == 0 ) {
-                    trick_print( $$sim_ref{fh}, "[1m[33mWarning    [39mS_define\n", "title_white", $$sim_ref{args}{v} );
-                    trick_print( $$sim_ref{fh}, "           Could not find dependency \"[1m$object_file\"\n", "title_white", $$sim_ref{args}{v} );
+                    trick_formatted_print($$sim_ref{fh}, "[1m[33m", "Warning    ", "[39m", "S_define\n", "[0m", "           Could not find dependency \"", "[1m", "$object_file", "[0m", "\"\n");
                 }
             }
         }
@@ -849,7 +848,7 @@ sub handle_compiler_directive($$) {
             ($rel_file_name) = $1 ;
             $file_name = find_header_file($rel_file_name , \@{$$sim_ref{inc_paths}}) ;
             if ( $file_name eq "" ) {
-                trick_print($$sim_ref{fh}, "could not find $rel_file_name\n" , "title_red", $$sim_ref{args}{v});
+                trick_formatted_print($$sim_ref{fh}, "[91m[1m", "Error      ", "[0m", "Could not find included file \"", "[1m", "$rel_file_name", "[0m", "\"\n") ;
                 exit -1 ;
             }
             trick_print($$sim_ref{fh},"  Found include: $file_name\n", "debug_white", $$sim_ref{args}{v}) ;
