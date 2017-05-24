@@ -155,10 +155,11 @@ void HeaderSearchDirs::AddDirsAndFiles(std::string env_var, std::vector<std::str
                     std::ifstream file_or_dir(resolved_path) ;
                     file_or_dir.seekg(0, std::ios::end) ;
                     if ( !file_or_dir.good()) {
-                        var_list.push_back(std::string(resolved_path) + std::string("/"));
+                        var_list.push_back(std::string(resolved_path) + "/");
                     } else {
                         var_list.push_back(std::string(resolved_path));
                     }
+                    free(resolved_path);
                 } else {
                     std::cout << bold(color(WARNING, "Warning")) << "    Cannot find " <<
                      env_var << " path " << quote(bold(item)) << std::endl ;

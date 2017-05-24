@@ -481,7 +481,7 @@ bool PrintAttributes::isIgnored(ConstructValues& constructValues) {
     return ignored;
 }
 
-bool PrintAttributes::isHeaderExcluded(const std::string& header) {
+bool PrintAttributes::isHeaderExcluded(const std::string& header, bool exclude_ext_libs) {
     char* temp = almostRealPath(header.c_str());
     if (!temp) {
         return true;
@@ -494,7 +494,7 @@ bool PrintAttributes::isHeaderExcluded(const std::string& header) {
      * - in system directories
      * - in TRICK_EXCLUDE directories
      * - in TRICK_ICG_EXCLUDE directories
-     * - in TRICK_EXT_LIB_DIRS directories
+     * - in TRICK_EXT_LIB_DIRS directories (if requested)
      * - whose Trick header comments preclude ICG
      */
     if (!hsd.isPathInUserDir(path)) {
@@ -515,7 +515,7 @@ bool PrintAttributes::isHeaderExcluded(const std::string& header) {
         return true;
     }
 
-    if (hsd.isPathInExtLib(path)) {
+    if (hsd.isPathInExtLib(path) && exclude_ext_libs) {
         if (verboseBuild) {
             std::cout << skipping << "TRICK_EXT_LIB_DIRS: " << underline(path, hsd.getPathInExtLib(path).size()) << std::endl;
         }

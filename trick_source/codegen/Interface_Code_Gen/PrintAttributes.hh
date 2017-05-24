@@ -55,7 +55,7 @@ class PrintAttributes {
         /** Prints an enum to the io_src file */
         virtual void printEnum( EnumValues * in_enum) ;
 
-        bool isHeaderExcluded(const std::string& header);
+        bool isHeaderExcluded(const std::string& header, bool exclude_ext_libs = true);
         void markHeaderAsVisited(const std::string& header);
 
     protected:

@@ -152,7 +152,7 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
     // Return false to stop processing if this header file is excluded by one of many reasons.
     std::string header_file_name = getFileName(ci , rec->RBRACELOC(), hsd) ;
     char * rp = almostRealPath(header_file_name.c_str()) ;
-    if ( rp == NULL || pa.isHeaderExcluded(header_file_name) ) {
+    if ( rp == NULL || pa.isHeaderExcluded(header_file_name, false) ) {
         // mark the header as visited so PrintAttributes doesn't process it during addEmptyFiles()
         pa.markHeaderAsVisited(header_file_name);
         return false ;
@@ -212,26 +212,26 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
                     //std::cout << "    [34minherit_class_offset = " << inherit_class_offset << "[00m" << std::endl ;
                     //std::cout << "    [34m" << getFileName(ci , rd->RBRACELOC(), hsd) << "[00m" << std::endl ;
                     CXXRecordVisitor inherit_cvis(ci , cs, hsd , pa, false) ;
-                    inherit_cvis.TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(rd)) ;
-                    cval.addInheritedFieldDescriptions(inherit_cvis.get_class_data()->getFieldDescriptions(),
-                     inherit_class_offset, false) ;
-                    // clear the field list in the inherited class so they are not freed when inherit_cvis
-                    // goes out of scope.
-                    inherit_cvis.get_class_data()->clearFieldDescription() ;
-                    // If we are inheriting from a template specialization, don't save the inherited class.  This list
-                    // is maintained to call init_attr of the inherited classes.  A template specialization does not
-                    // havethese attributes.
-                    if ( ! isTypeTemplateSpecialization(temp) ) {
-                        // We want to save the inherited class data, but it's going to go out of scope so we need
-                        // to make a copy of it.
-                        ClassValues * icv = new ClassValues(*(inherit_cvis.get_class_data())) ;
-                        // The inherited classes of this inherited class are not required in the copy,
-                        // and they are going out of scope
-                        cval.saveInheritAncestry(icv) ;
-                        icv->clearInheritedClass() ;
+                    if (inherit_cvis.TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(rd))) {
+                        cval.addInheritedFieldDescriptions(inherit_cvis.get_class_data()->getFieldDescriptions(), inherit_class_offset, false) ;
+                        // clear the field list in the inherited class so they are not freed when inherit_cvis
+                        // goes out of scope.
+                        inherit_cvis.get_class_data()->clearFieldDescription() ;
+                        // If we are inheriting from a template specialization, don't save the inherited class.  This list
+                        // is maintained to call init_attr of the inherited classes.  A template specialization does not
+                        // havethese attributes.
+                        if ( ! isTypeTemplateSpecialization(temp) ) {
+                            // We want to save the inherited class data, but it's going to go out of scope so we need
+                            // to make a copy of it.
+                            ClassValues * icv = new ClassValues(*(inherit_cvis.get_class_data())) ;
+                            // The inherited classes of this inherited class are not required in the copy,
+                            // and they are going out of scope
+                            cval.saveInheritAncestry(icv) ;
+                            icv->clearInheritedClass() ;
 
-                        // Save the copy of the inherited class to the current class
-                        cval.addInheritedClass(inherit_cvis.get_class_data()->getFullyQualifiedTypeName()) ;
+                            // Save the copy of the inherited class to the current class
+                            cval.addInheritedClass(inherit_cvis.get_class_data()->getFullyQualifiedTypeName()) ;
+                        }
                     }
                 }
             }
