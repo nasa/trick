@@ -5,13 +5,13 @@ QTextStream Runs::_err_stream(&Runs::_err_string);
 
 Runs::Runs() :
     _runs(QStringList()),
-    _varMap(QHash<QString,QString>())
+    _varMap(QHash<QString,QStringList>())
 {
 }
 
 Runs::Runs(const QString& timeName,
            const QStringList &runDirs,
-           const QHash<QString,QString>& varMap, int beginRun, int endRun) :
+           const QHash<QString,QStringList>& varMap, int beginRun, int endRun) :
     _timeName(timeName),
     _runs(runDirs),
     _varMap(varMap),
@@ -86,9 +86,16 @@ void Runs::_init()
         for ( int col = 0; col < ncols; ++col) {
             QString p = m->param(col).name();
             foreach (QString key, _varMap.keys() ) {
-                QString val = _varMap.value(key);
-                if ( p == val ) {
-                    p = key;
+                QStringList vals = _varMap.value(key);
+                bool isFound = false;
+                foreach ( QString val, vals ) {
+                    if ( p == val ) {
+                        p = key;
+                        isFound = true;
+                        break;
+                    }
+                }
+                if ( isFound ) {
                     break;
                 }
             }
@@ -130,10 +137,17 @@ void Runs::_init()
                     break;
                 }
                 if ( _varMap.contains(p) ) {
-                    QString pmap = _varMap.value(p);
-                    QPair<QString,QString> ptrk = qMakePair(pmap,trk);
-                    if ( ptrkToModel.contains(ptrk) ) {
-                        m = ptrkToModel.value(ptrk);
+                    QStringList vals = _varMap.value(p);
+                    bool isFound = false;
+                    foreach ( QString val, vals ) {
+                        QPair<QString,QString> ptrk = qMakePair(val,trk);
+                        if ( ptrkToModel.contains(ptrk) ) {
+                            m = ptrkToModel.value(ptrk);
+                            isFound = true;
+                            break;
+                        }
+                    }
+                    if ( isFound ) {
                         break;
                     }
                 }
@@ -161,13 +175,19 @@ TrickCurveModel* Runs::curve(int row,
     int tcol = tm->paramColumn(tparam) ;
     if ( tcol < 0 ) {
         if ( _varMap.contains(tparam) ) {
-            tcol = tm->paramColumn(_varMap.value(tparam)) ;
+            foreach ( QString tval, _varMap.value(tparam) ) {
+                tcol = tm->paramColumn(tval);
+                if ( tcol >= 0 ) {
+                    break;
+                }
+            }
+
         }
         if ( tcol < 0 ) {
             foreach (QString timeName, _timeName.split("=") ) {
                 timeName = timeName.trimmed();
                 tcol = tm->paramColumn(timeName);
-                if ( tcol > 0 ) {
+                if ( tcol >= 0 ) {
                     break;
                 }
             }
@@ -180,7 +200,12 @@ TrickCurveModel* Runs::curve(int row,
     int ycol = tm->paramColumn(yparam) ;
     if ( ycol < 0 ) {
         if ( _varMap.contains(yparam) ) {
-            ycol = tm->paramColumn(_varMap.value(yparam));
+            foreach ( QString yval, _varMap.value(yparam) ) {
+                ycol = tm->paramColumn(yval);
+                if ( ycol >= 0 ) {
+                    break;
+                }
+            }
             if ( ycol < 0 ) {
                 return 0;
             }
@@ -196,7 +221,12 @@ TrickCurveModel* Runs::curve(int row,
     int xcol = tm->paramColumn(xp) ;
     if ( xcol < 0 ) {
         if ( _varMap.contains(xp) ) {
-            xcol = tm->paramColumn(_varMap.value(xp));
+            foreach ( QString xval, _varMap.value(xp) ) {
+                xcol = tm->paramColumn(xval);
+                if ( xcol >= 0 ) {
+                    break;
+                }
+            }
         }
         if ( xcol < 0 ) {
             QStringList tNames = _timeName.split("=");
@@ -207,7 +237,7 @@ TrickCurveModel* Runs::curve(int row,
             if ( timeNames.contains(xp) ) {
                 foreach ( QString timeName, timeNames ) {
                     xcol = tm->paramColumn(timeName);
-                    if ( xcol > 0 ) {
+                    if ( xcol >= 0 ) {
                         break;
                     }
                 }

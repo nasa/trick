@@ -23,7 +23,7 @@ class Runs
   public:
     Runs();
     Runs(const QString& timeName,
-         const QStringList &runDirs, const QHash<QString, QString> &varMap,
+         const QStringList &runDirs, const QHash<QString,QStringList> &varMap,
          int beginRun=0, int endRun=1.0e6);
     virtual ~Runs();
     virtual QStringList params() const { return _params; }
@@ -36,7 +36,7 @@ class Runs
   private:
     QString _timeName;
     QStringList _runs;
-    QHash<QString,QString> _varMap;
+    QHash<QString,QStringList> _varMap;
     int _beginRun;
     int _endRun;
     QStringList _params;

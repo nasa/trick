@@ -36,7 +36,7 @@ bool convert2csv(const QString& timeName,
 bool convert2trk(const QString& csvFileName, const QString &trkFileName);
 QHash<QString,QVariant> getShiftHash(const QString& shiftString,
                                 const QStringList &runDirs);
-QHash<QString,QString> getVarMap(const QString& mapString);
+QHash<QString,QStringList> getVarMap(const QString& mapString);
 QStandardItemModel* monteInputModel(const QString &monteDir,
                                     const QStringList &runs);
 QStandardItemModel* monteInputModelTrick07(const QString &monteInputFile,
@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
 
     QHash<QString,QVariant> shifts = getShiftHash(opts.shiftString, runDirs);
 
-    QHash<QString,QString> varMap = getVarMap(opts.map);
+    QHash<QString,QStringList> varMap = getVarMap(opts.map);
 
     if ( !opts.trk2csvFile.isEmpty() ) {
         QString csvOutFile = opts.outputFileName;
@@ -1226,13 +1226,13 @@ QHash<QString,QVariant> getShiftHash(const QString& shiftString,
     return shifts;
 }
 
-// An example mapString is "trick.pos[0]=spots.posx,trick.pos[1]=spots.posy"
+// An example mapString is "px=trick.pos[0]=spots.posx,trick.pos[1]=spots.posy"
 // In this example, getVarMap would return the following hash:
-//                 trick.pos[0]->spots.posx,
-//                 trick.pos[1]->spots.posy
-QHash<QString, QString> getVarMap(const QString& mapString)
+//                 px->[trick.pos[0],spots.posx]
+//                 trick.pos[1]->[spots.posy]
+QHash<QString,QStringList> getVarMap(const QString& mapString)
 {
-    QHash<QString,QString> varMap;
+    QHash<QString,QStringList> varMap;
 
     if (mapString.isEmpty() ) return varMap; // empty map
 
@@ -1240,22 +1240,34 @@ QHash<QString, QString> getVarMap(const QString& mapString)
     foreach ( QString s, maps ) {
         s = s.trimmed();
         if ( s.contains('=') ) {
-            QString key = s.split('=').at(0).trimmed();
-            QString val = s.split('=').at(1).trimmed();
-            if ( key.isEmpty() || val.isEmpty() ) {
+            QStringList list = s.split('=');
+            QString key = list.at(0).trimmed();
+            if ( key.isEmpty() ) {
                 fprintf(stderr,"snap [error] : -map option value \"%s\""
-                               "is malformed.\n"
-                               "Use this syntax -map \"key=val,key=val...\"\n",
-                               mapString.toLatin1().constData());
+                        "is malformed.\n"
+                        "Use this syntax -map \"key=val1=val2...,key=val...\"\n",
+                        mapString.toLatin1().constData());
                 exit(-1);
             }
-            varMap.insert(key,val);
+            QStringList vals;
+            for (int i = 1; i < list.size(); ++i ) {
+                QString val = list.at(i);
+                if ( val.isEmpty() ) {
+                    fprintf(stderr,"snap [error] : -map option value \"%s\""
+                       "is malformed.\n"
+                       "Use this syntax -map \"key=val1=val2...,key=val...\"\n",
+                       mapString.toLatin1().constData());
+                    exit(-1);
+                }
+                vals << val;
+            }
+            varMap.insert(key,vals);
         } else {
             // error
             fprintf(stderr,"snap [error] : -map option value \"%s\""
-                           "is malformed.\n"
-                           "Use this syntax -map \"key=val,key=val...\"\n",
-                           mapString.toLatin1().constData());
+                       "is malformed.\n"
+                       "Use this syntax -map \"key=val1=val2...,key=val...\"\n",
+                       mapString.toLatin1().constData());
             exit(-1);
         }
 
