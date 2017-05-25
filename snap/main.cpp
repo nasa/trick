@@ -29,14 +29,15 @@ using namespace std;
 QStandardItemModel* createVarsModel(Runs* runs);
 bool writeTrk(const QString& ftrk, const QString &timeName,
                QStringList& paramList, MonteModel* monteModel);
-bool writeCsv(const QString& fcsv, const QString& timeName,
+bool writeCsv(const QString& fcsv, const QStringList& timeNames,
               DPTable* dpTable, const QString &runDir);
-bool convert2csv(const QString& timeName,
+bool convert2csv(const QStringList& timeNames,
                  const QString& ftrk, const QString& fcsv);
 bool convert2trk(const QString& csvFileName, const QString &trkFileName);
 QHash<QString,QVariant> getShiftHash(const QString& shiftString,
                                 const QStringList &runDirs);
 QHash<QString,QStringList> getVarMap(const QString& mapString);
+QStringList getTimeNames(const QString& timeName);
 QStandardItemModel* monteInputModel(const QString &monteDir,
                                     const QStringList &runs);
 QStandardItemModel* monteInputModelTrick07(const QString &monteInputFile,
@@ -159,8 +160,8 @@ int main(int argc, char *argv[])
     }
 
     QHash<QString,QVariant> shifts = getShiftHash(opts.shiftString, runDirs);
-
     QHash<QString,QStringList> varMap = getVarMap(opts.map);
+    QStringList timeNames = getTimeNames(opts.timeName);
 
     if ( !opts.trk2csvFile.isEmpty() ) {
         QString csvOutFile = opts.outputFileName;
@@ -171,8 +172,7 @@ int main(int argc, char *argv[])
         }
         bool ret;
         try {
-            ret = convert2csv(opts.timeName.split("=").at(0),
-                               opts.trk2csvFile, csvOutFile);
+            ret = convert2csv(timeNames,opts.trk2csvFile, csvOutFile);
         } catch (std::exception &e) {
             fprintf(stderr,"\n%s\n",e.what());
             fprintf(stderr,"%s\n",opts.usage().toLatin1().constData());
@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
     try {
         if ( opts.isReportRT ) {
             foreach ( QString run, runDirs ) {
-                Snap snap(run,opts.timeName,opts.start,opts.stop);
+                Snap snap(run,timeNames,opts.start,opts.stop);
                 SnapReport rpt(snap);
                 fprintf(stderr,"%s",rpt.report().toLatin1().constData());
             }
@@ -323,11 +323,11 @@ int main(int argc, char *argv[])
                 exit(-1);
             }
 
-            runs = new Runs(opts.timeName,monteRunsSubset,varMap);
+            runs = new Runs(timeNames,monteRunsSubset,varMap);
             monteInputsModel = monteInputModel(monteDir.dirName(),
                                                monteInputRuns);
         } else {
-            runs = new Runs(opts.timeName,runDirs,varMap);
+            runs = new Runs(timeNames,runDirs,varMap);
         }
         monteModel = new MonteModel(runs);
         varsModel = createVarsModel(runs);
@@ -463,9 +463,7 @@ int main(int argc, char *argv[])
                         ++i;
                     }
 
-                    bool r = writeCsv(fname,
-                                      opts.timeName.split("=").at(0),
-                                      dpTable,runDirs.at(0));
+                    bool r = writeCsv(fname,timeNames,dpTable,runDirs.at(0));
                     if ( r ) {
                         ret = 0;
                     } else {
@@ -873,7 +871,7 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
     return true;
 }
 
-bool writeCsv(const QString& fcsv, const QString& timeName,
+bool writeCsv(const QString& fcsv, const QStringList& timeNames,
               DPTable* dpTable, const QString& runDir)
 {
     QFileInfo fcsvi(fcsv);
@@ -900,7 +898,7 @@ bool writeCsv(const QString& fcsv, const QString& timeName,
 
     // Csv header
     QString header;
-    header = timeName + ",";
+    header = timeNames.at(0) + ",";
     foreach ( DPVar* var, dpTable->vars() ) {
         QString unit("");
         //unit = " {--}"; // TODO: Unit name and unit conversion
@@ -917,7 +915,7 @@ bool writeCsv(const QString& fcsv, const QString& timeName,
     }
 
 
-    TrickTableModel ttm(timeName, runDir, params);
+    TrickTableModel ttm(timeNames, runDir, params);
     int rc = ttm.rowCount();
     int cc = ttm.columnCount();
     for ( int r = 0 ; r < rc; ++r ) {
@@ -989,10 +987,10 @@ void presetExistsFile(QString* ignoreMe, const QString& fname, bool* ok)
     }
 }
 
-bool convert2csv(const QString& timeName,
+bool convert2csv(const QStringList& timeNames,
                  const QString& ftrk, const QString& fcsv)
 {
-    TrickModel m(timeName, ftrk);
+    TrickModel m(timeNames, ftrk);
 
     QFileInfo fcsvi(fcsv);
     if ( fcsvi.exists() ) {
@@ -1274,6 +1272,16 @@ QHash<QString,QStringList> getVarMap(const QString& mapString)
     }
 
     return varMap;
+}
+
+QStringList getTimeNames(const QString& timeName)
+{
+    QStringList timeNames;
+    QStringList names = timeName.split('=',QString::SkipEmptyParts);
+    foreach ( QString s, names ) {
+        timeNames << s.trimmed();
+    }
+    return timeNames;
 }
 
 //

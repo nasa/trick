@@ -7,12 +7,12 @@
 QString TrickModel::_err_string;
 QTextStream TrickModel::_err_stream(&TrickModel::_err_string);
 
-TrickModel::TrickModel(const QString& timeName,
+TrickModel::TrickModel(const QStringList& timeNames,
                        const QString& trkfile,
                        const QString& tableName,
                        double startTime, double stopTime, QObject *parent) :
     QAbstractTableModel(parent),
-    _timeName(timeName),
+    _timeNames(timeNames),
     _trkfile(trkfile),
     _tableName(tableName),
     _startTime(startTime),
@@ -91,7 +91,7 @@ bool TrickModel::_load_trick_header()
 
     // Make sure time param exists in model and set time column
     bool isFoundTime = false;
-    foreach (QString timeName, _timeName.split("=")) {
+    foreach (QString timeName, _timeNames) {
         if ( _param2column.contains(timeName)) {
             _timeCol = _param2column.value(timeName) ;
             isFoundTime = true;
@@ -100,7 +100,7 @@ bool TrickModel::_load_trick_header()
     }
     if ( ! isFoundTime ) {
         _err_stream << "snap [error]: couldn't find time param \""
-                    << _timeName << "\" in trkfile=" << _trkfile
+                    << _timeNames.join('=') << "\" in trkfile=" << _trkfile
                     << ".  Try setting -timeName on commandline option.";
         throw std::runtime_error(_err_string.toLatin1().constData());
     }

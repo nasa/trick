@@ -19,7 +19,7 @@ TrickTableModel::TrickTableModel(QObject *parent) :
 }
 
 
-TrickTableModel::TrickTableModel(const QString& timeName,
+TrickTableModel::TrickTableModel(const QStringList& timeNames,
                                  const QString& runDir,
                                  const QStringList &paramList,
                                  QObject *parent)
@@ -30,7 +30,7 @@ TrickTableModel::TrickTableModel(const QString& timeName,
 {
     _colCount = paramList.count()+1; // +1 for timestamp
     _params = paramList;
-    _params.prepend(timeName);
+    _params.prepend(timeNames.at(0));
 
     // Get list of trk files in RUN
     QStringList trks = _trks(runDir);
@@ -39,15 +39,19 @@ TrickTableModel::TrickTableModel(const QString& timeName,
     // Also make hash of param->trkModel
     int nVars = paramList.count();
     int cntVars = 0;
+    QString timeName;
     foreach ( QString trk, trks ) {
         QString rtrk = runDir + "/" + trk;
-        TrickModel* trkModel = new TrickModel(timeName,rtrk,rtrk);
+        TrickModel* trkModel = new TrickModel(timeNames,rtrk,rtrk);
         trkModel->map();
         foreach ( QString paramName, paramList ) {
             int cc = trkModel->columnCount();
             for ( int i = 0; i < cc; ++i ) {
                 Parameter param = trkModel->param(i);
-                if ( param.name() == timeName ) continue;
+                if ( timeNames.contains(param.name()) ) {
+                    timeName = param.name();
+                    continue;
+                }
                 if ( param.name() == paramName ) {
                     if ( _param2model.contains(param.name()) ) continue;
                     if ( !_trkModels.contains(trkModel) ) {

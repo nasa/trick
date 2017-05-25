@@ -23,8 +23,8 @@ class Thread
   friend class Threads;
 
   public:
-    Thread(const QString& runDir, const QString& timeName);
-    Thread(const QString &runDir, const QString& timeName,
+    Thread(const QString& runDir, const QStringList& timeNames);
+    Thread(const QString &runDir, const QStringList& timeNames,
            double startTime=0.0, double stopTime=1.0e20);
     ~Thread();
 
@@ -63,7 +63,7 @@ class Thread
   private:
 
     QString _runDir;
-    QString _timeName;
+    QStringList _timeNames;
     double _startTime;
     double _stopTime;
     int _threadId;
@@ -103,7 +103,7 @@ class Threads
 {
   public:
     Threads(const QString& runDir, const QList<Job *> &jobs,
-            const QString &timeName,
+            const QStringList &timeNames,
             double startTime=0.0, double stopTime=1.0e20);
     ~Threads();
     const QMap<int,Thread*>* hash() { return &_threads; }
@@ -113,7 +113,7 @@ class Threads
     QList<Job*> _jobs;
     QList<int> _ids;
     QMap<int,Thread*> _threads;
-    QString _timeName;
+    QStringList _timeNames;
     double _startTime ;
     double _stopTime ;
 };

@@ -26,10 +26,10 @@ QString Snap::_err_string;
 QTextStream Snap::_err_stream(&Snap::_err_string);
 
 Snap::Snap(const QString &irundir,
-           const QString &timeName,
+           const QStringList &timeNames,
            double istart, double istop,
            bool is_delay_load) :
-    _rundir(irundir), _timeName(timeName),
+    _rundir(irundir), _timeNames(timeNames),
     _start(istart),_stop(istop), _is_realtime(false),
     _curr_sort_method(NoSort), _trickJobModel(0),_modelFrame(0),
     _num_overruns(0), _numFrames(0), _frame_avg(0.0),_frame_stddev(0),
@@ -64,7 +64,7 @@ void Snap::_load()
 
     _curr_sort_method = SortByJobAvgTime;
 
-    _threads = new Threads(_rundir,_jobs,_timeName,_start,_stop);
+    _threads = new Threads(_rundir,_jobs,_timeNames,_start,_stop);
 
     _thread0 = 0 ;
     foreach ( Thread* thread, threads()->hash()->values() ) {
@@ -417,7 +417,7 @@ TrickModel *Snap::_createModel( const QString &trk,
     }
 
     try {
-        model = new TrickModel(_timeName,
+        model = new TrickModel(_timeNames,
                                trk,trk,start,stop);
     }
     catch (std::range_error &e) {

@@ -14,7 +14,7 @@ class TrickTableModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    explicit TrickTableModel(const QString &timeName,
+    explicit TrickTableModel(const QStringList &timeNames,
                              const QString& runDir,
                              const QStringList& paramList,
                              QObject *parent = 0);

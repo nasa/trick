@@ -9,10 +9,10 @@ Runs::Runs() :
 {
 }
 
-Runs::Runs(const QString& timeName,
+Runs::Runs(const QStringList &timeNames,
            const QStringList &runDirs,
            const QHash<QString,QStringList>& varMap, int beginRun, int endRun) :
-    _timeName(timeName),
+    _timeNames(timeNames),
     _runs(runDirs),
     _varMap(varMap),
     _beginRun(beginRun),
@@ -78,7 +78,7 @@ void Runs::_init()
         if (progress.wasCanceled()) {
             exit(0);
         }
-        TrickModel* m = new TrickModel(_timeName,trk,trk);
+        TrickModel* m = new TrickModel(_timeNames,trk,trk);
         m->unmap();
         _models.append(m);
         int ncols = m->columnCount();
@@ -184,8 +184,7 @@ TrickCurveModel* Runs::curve(int row,
 
         }
         if ( tcol < 0 ) {
-            foreach (QString timeName, _timeName.split("=") ) {
-                timeName = timeName.trimmed();
+            foreach (QString timeName, _timeNames ) {
                 tcol = tm->paramColumn(timeName);
                 if ( tcol >= 0 ) {
                     break;
@@ -229,13 +228,8 @@ TrickCurveModel* Runs::curve(int row,
             }
         }
         if ( xcol < 0 ) {
-            QStringList tNames = _timeName.split("=");
-            QStringList timeNames;
-            foreach ( QString tName, tNames ) {
-                timeNames << tName.trimmed();
-            }
-            if ( timeNames.contains(xp) ) {
-                foreach ( QString timeName, timeNames ) {
+            if ( _timeNames.contains(xp) ) {
+                foreach ( QString timeName, _timeNames ) {
                     xcol = tm->paramColumn(timeName);
                     if ( xcol >= 0 ) {
                         break;
