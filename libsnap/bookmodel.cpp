@@ -2,16 +2,20 @@
 #include <float.h>
 #include "libsnap/unit.h"
 
-PlotBookModel::PlotBookModel(MonteModel *monteModel, QObject *parent) :
+PlotBookModel::PlotBookModel(const QStringList& timeNames,
+                             MonteModel *monteModel, QObject *parent) :
     QStandardItemModel(parent),
+    _timeNames(timeNames),
     _monteModel(monteModel)
 {
     _initModel();
 }
 
-PlotBookModel::PlotBookModel(MonteModel *monteModel,
+PlotBookModel::PlotBookModel(const QStringList& timeNames,
+                             MonteModel *monteModel,
                              int rows, int columns, QObject *parent) :
     QStandardItemModel(rows,columns,parent),
+    _timeNames(timeNames),
     _monteModel(monteModel)
 {
     _initModel();
@@ -851,18 +855,17 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
     QString curveXUnit1 = getDataString(idx1,"CurveXUnit","Curve");
     QString curveYName1 = getDataString(idx1,"CurveYName","Curve");
 
-    // TODO: error plot when x is not time e.g. x/y position
-    //       d=sqrt((x0-x1)*(x0-x1)+(y0-y1)*(y0-y1))
-    if (((curveXName0 != c0->t()->name())&&(curveXName1 != c1->t()->name())) ||
-         curveXName0 != curveXName1 || curveXUnit0 != curveXUnit1 ||
-         curveYName0 != curveYName1 ) {
-        //
-        // x/y params do not match, x units do not match or x is not time
-        //
-        fprintf(stderr,"snap [todo]: Handle error plot when xnames or xunits "
-                       "different, x is not time or curve->t()->name() != "
-                       "curveXName\n"
+    if (!_timeNames.contains(curveXName0)) {
+        // TODO: error plot when x is not time e.g. x/y position
+        //       d=sqrt((x0-x1)*(x0-x1)+(y0-y1)*(y0-y1))
+        fprintf(stderr,"snap [todo]: Handle error plot when x is not time.\n"
                        "Aborting!\n");
+        exit(-1);
+    }
+    if ( curveXName0 != curveXName1 || curveXUnit0 != curveXUnit1 ||
+         curveYName0 != curveYName1 ) {
+        fprintf(stderr,"snap [todo]: Handle error plot when xynames or xunits "
+                       "are different.\n  Aborting!\n");
         exit(-1);
     }
 

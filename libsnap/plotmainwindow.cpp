@@ -14,9 +14,8 @@
 
 #include "plotmainwindow.h"
 
-PlotMainWindow::PlotMainWindow(
-        bool isDebug,
-        const QString& timeName,
+PlotMainWindow::PlotMainWindow(bool isDebug,
+        const QStringList &timeNames,
         double startTime, double stopTime,
         const QHash<QString,QVariant>& shifts, // rundir->shiftvalue
         const QString &presentation,
@@ -29,7 +28,7 @@ PlotMainWindow::PlotMainWindow(
         QWidget *parent) :
     QMainWindow(parent),
     _isDebug(isDebug),
-    _timeName(timeName),
+    _timeNames(timeNames),
     _presentation(presentation),
     _dpDir(dpDir),
     _dpFiles(dpFiles),
@@ -59,7 +58,7 @@ PlotMainWindow::PlotMainWindow(
     lgrid->addWidget(lsplit,0,0);
 
     // Create models
-    _bookModel = new PlotBookModel(monteModel,0,1,parent);
+    _bookModel = new PlotBookModel(_timeNames,monteModel,0,1,parent);
     if ( titles.size() == 4 ) {
         QStandardItem *rootItem = _bookModel->invisibleRootItem();
         QStandardItem *citem;
@@ -123,7 +122,8 @@ PlotMainWindow::PlotMainWindow(
 
     // Vars Tab
     QFrame* varsFrame = new QFrame(lsplit);
-    _varsWidget = new VarsWidget(_timeName, _varsModel, _monteModel, _bookModel,
+    _varsWidget = new VarsWidget(_timeNames.at(0), _varsModel,
+                                 _monteModel, _bookModel,
                                   _bookView->selectionModel(), _monteInputsView,
                                  varsFrame);
     _nbDPVars->addTab(varsFrame,"Vars");
@@ -136,7 +136,8 @@ PlotMainWindow::PlotMainWindow(
     _nbDPVars->addTab(_dpFrame,"DP");
     if ( ! _dpFiles.isEmpty() ) {
         // DP files specified on commandline
-        _dpTreeWidget = new  DPTreeWidget(_timeName, _dpDir, _dpFiles, _varsModel,
+        _dpTreeWidget = new  DPTreeWidget(_timeNames.at(0), _dpDir,
+                                          _dpFiles, _varsModel,
                                           _monteModel, _bookModel,
                                           _bookView->selectionModel(), _dpFrame);
         _nbDPVars->setCurrentIndex(1);
@@ -214,7 +215,7 @@ void PlotMainWindow::_nbCurrentChanged(int i)
         // So instead of creating the DPTreeWidget alongside the VarsWidget,
         // the DPTreeWidget is created when the DP tab is clicked.
         //
-        _dpTreeWidget = new  DPTreeWidget(_timeName, _dpDir, _dpFiles,
+        _dpTreeWidget = new  DPTreeWidget(_timeNames.at(0), _dpDir, _dpFiles,
                                           _varsModel, _monteModel, _bookModel,
                                           _bookView->selectionModel(),_dpFrame);
     }

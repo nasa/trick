@@ -394,7 +394,7 @@ int main(int argc, char *argv[])
 
         if ( isPdf ) {
             PlotMainWindow w(opts.isDebug,
-                             opts.timeName, opts.start, opts.stop,
+                             timeNames, opts.start, opts.stop,
                              shifts,
                              presentation, QString(), dps, titles,
                              monteModel, varsModel, monteInputsModel);
@@ -486,7 +486,7 @@ int main(int argc, char *argv[])
                 timer.start();
 #endif
                 PlotMainWindow w(opts.isDebug,
-                                 opts.timeName.split("=").at(0),
+                                 timeNames,
                                  opts.start, opts.stop,
                                  shifts,
                                  presentation, ".", dps, titles,
@@ -499,7 +499,7 @@ int main(int argc, char *argv[])
             } else {
 
                 PlotMainWindow w(opts.isDebug,
-                                 opts.timeName.split("=").at(0),
+                                 timeNames,
                                  opts.start, opts.stop,
                                  shifts,
                                  presentation, runDirs.at(0), QStringList(),

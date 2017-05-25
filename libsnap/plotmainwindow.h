@@ -35,7 +35,7 @@ class PlotMainWindow : public QMainWindow
 
 public:
     explicit PlotMainWindow( bool isDebug,
-                             const QString& timeName,
+                             const QStringList& timeNames,
                              double startTime,
                              double stopTime,
                              const QHash<QString,QVariant>& shifts,//rundir->val
@@ -54,7 +54,7 @@ public:
 
 private:
     bool _isDebug;
-    QString _timeName;
+    QStringList _timeNames;
     QString _presentation;
     QString _dpDir;
     QStringList _dpFiles;

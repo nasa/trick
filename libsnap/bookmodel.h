@@ -17,9 +17,9 @@ class PlotBookModel : public QStandardItemModel
 {
     Q_OBJECT
 public:
-    explicit PlotBookModel( MonteModel* monteModel,
+    explicit PlotBookModel(const QStringList &timeNames, MonteModel* monteModel,
                             QObject *parent = 0);
-    explicit PlotBookModel( MonteModel* monteModel,
+    explicit PlotBookModel(const QStringList &timeNames, MonteModel* monteModel,
                             int rows, int columns, QObject * parent = 0 );
     ~PlotBookModel();
 
@@ -97,6 +97,7 @@ signals:
 public slots:
 
 private:
+    QStringList _timeNames;
     MonteModel* _monteModel;
     void _initModel();
     QModelIndex _pageIdx(const QModelIndex& idx) const ;
