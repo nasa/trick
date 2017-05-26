@@ -1382,16 +1382,13 @@ QStandardItemModel* monteInputModelTrick07(const QString &monteInputFile,
     }
     while ( !in.atEnd() ) {
         QString var = in.readLine();
+        if ( var.startsWith('#')) continue;
         if ( !var.startsWith("DATA:") ) {
             int delim = var.indexOf(' ');
             var = var.mid(0,delim);
             var = var.split('.').last();
-            //if ( var.split('.').last() == "RunId" ) {
-            if ( var == "RunId" ) {
-                var = "RunId";
-            }
             if ( ! var.isEmpty() ) {
-                vars.append(var); //<----------------------- meat
+                vars.append(var);
             }
         } else {
             isData = true;
@@ -1435,57 +1432,57 @@ QStandardItemModel* monteInputModelTrick07(const QString &monteInputFile,
     //
     int nDataLines = 0 ;
     while (!in.atEnd()) {
+
         QString dataLine = in.readLine();
+
+        //
+        // Get runId
+        //
         int hashIdx = dataLine.indexOf('#');
-        if ( hashIdx >= 0 ) {
-            dataLine = dataLine.mid(0,hashIdx);
+        if ( hashIdx < 0 ) {
+            fprintf(stderr, "koviz [error]: Each dataline in monte_runs should "
+                            "have a runId following a hash mark.\n"
+                            "The following line does not:\n    \"%s\"\n",
+                            dataLine.toLatin1().constData());
+            exit(-1);
         }
-        dataLine = dataLine.trimmed();
+        int runId = dataLine.mid(hashIdx+1).trimmed().toInt();
+        if ( runId < beginRun || runId > endRun ) {
+            continue;
+        }
+
+        //
+        // Get RUN_<nnnn> dir
+        //
+        QString runName= QString("%0").arg(runId);
+        runName = runName.rightJustified(5, '0');
+        runName.prepend("RUN_");
+        if ( ! runs.contains(runName) ) {
+            fprintf(stderr,
+                    "snap [error]: error parsing monte carlo "
+                    "input file. RunID for Run=%s"
+                    " is in the monte carlo input file, but "
+                    " can't find the RUN_ directory. "
+                    "Look in file:"
+                    "\n\n"
+                    "File:%s\n",
+                    runName.toLatin1().constData(),
+                    monteInputFile.toLatin1().constData());
+            exit(-1);
+        }
+        int c = 0;
+        QString runIdString ;
+        runIdString = runIdString.sprintf("%d",runId);
+        NumSortItem *runIdItem = new NumSortItem(runIdString);
+        m->setItem(nDataLines,c,runIdItem);
+        m->setHeaderData(c,Qt::Horizontal,"RunId");
+
+        //
+        // Monte carlo input data values
+        //
+        dataLine = dataLine.mid(0,hashIdx).trimmed();
         QStringList dataVals = dataLine.split(' ',QString::SkipEmptyParts);
-        if ( dataVals.empty() ) continue;
-        bool isSkip = false;
-        if ( dataVals.size() == vars.size() ) {
-            for ( int c = 0; c < dataVals.size(); ++c) {
-                QString val = dataVals.at(c) ;
-                if ( c == 0 ) {
-                    // First val is the runId
-                    int runId = val.toInt();
-                    if ( runId < beginRun || runId > endRun ) {
-                        // Skip runs outside of optional runSubset
-                        isSkip = true;
-                        break;
-                    } else {
-                        QString runName= QString("%0").arg(runId);
-                        runName = runName.rightJustified(5, '0');
-                        runName.prepend("RUN_");
-                        if ( ! runs.contains(runName) ) {
-                            fprintf(stderr,
-                                 "snap [error]: error parsing monte carlo "
-                                 "input file. RunID for Run=%s"
-                                 " is in the monte carlo input file, but "
-                                 " can't find the RUN_ directory. "
-                                 "Look in file:"
-                                 "\n\n"
-                                 "File:%s\n",
-                                    runName.toLatin1().constData(),
-                                    monteInputFile.toLatin1().constData());
-                            exit(-1);
-                        }
-                    }
-                } else {
-                    // Not a run, this is a monte carlo param input value
-                    double v = val.toDouble();
-                    val = val.sprintf("%.4lf",v);
-                }
-                NumSortItem *item = new NumSortItem(val);
-                m->setItem(nDataLines,c,item); //<----------------------- meat
-                m->setHeaderData(c,Qt::Horizontal,vars.at(c));
-            }
-            if ( isSkip ) {
-                // Skip run outside of beginRun,endRun subset
-                continue;
-            }
-        } else {
+        if ( dataVals.size() != vars.size() ) {
             fprintf(stderr,
                     "snap [error]: error parsing monte carlo input file.  "
                     "There are %d variables in VARS list, but only %d fields "
@@ -1498,6 +1495,16 @@ QStandardItemModel* monteInputModelTrick07(const QString &monteInputFile,
                     dataLine.toLatin1().constData());
             exit(-1);
         }
+        c = 1;
+        foreach ( QString val, dataVals ) {
+            double v = val.toDouble();
+            val = val.sprintf("%.4lf",v);
+            NumSortItem *item = new NumSortItem(val);
+            m->setItem(nDataLines,c,item);
+            m->setHeaderData(c,Qt::Horizontal,vars.at(c-1));
+            ++c;
+        }
+
         nDataLines++;
     }
 
