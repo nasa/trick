@@ -169,16 +169,9 @@ $(foreach EXTENSION,$(EXTENSIONS),$(eval $(call create_convert_swig_rule,$(EXTEN
 # dependency list. The method is laid out in more detail here:
 # http://make.mad-scientist.net/papers/advanced-auto-dependency-generation/
 
-# CURDIR is used to produce absolute paths in S_source.d, which allows it to be
-# included from external makefiles. It is specifically intended to be included
-# from a Trickified project's user-facing makefile. That is, the one the user
-# is intended to include in a sim's S_overrides.mk. This allows the project to
-# automatically build their Trickified object as part of a simulation build,
-# but only when necessary as specified by the dependencies.
-
-$(CURDIR)/build/S_source.d:
+build/S_source.d:
 	@$(TRICK_HOME)/bin/trick-ICG $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(TRICK_ICGFLAGS) S_source.hh
 	@$(TRICK_HOME)/$(LIBEXEC)/trick/make_makefile_swig
-	@$(TRICK_CC) -MM -MP -MT $@ -MF $@ $(TRICKIFY_CXX_FLAGS) $(CURDIR)/S_source.hh
+	@$(TRICK_CC) -MM -MP -MT $@ -MF $@ $(TRICKIFY_CXX_FLAGS) S_source.hh
 
--include $(CURDIR)/build/S_source.d
+-include build/S_source.d
