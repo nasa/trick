@@ -40,10 +40,12 @@ QHash<QString,QStringList> getVarMap(const QString& mapString);
 QStringList getTimeNames(const QString& timeName);
 QStandardItemModel* monteInputModel(const QString &monteDir,
                                     const QStringList &runs);
+QStandardItemModel* runsInputModel(const QStringList &runs);
 QStandardItemModel* monteInputModelTrick07(const QString &monteInputFile,
                                            const QStringList &runs);
 QStandardItemModel* monteInputModelTrick17(const QString &monteInputFile,
                                            const QStringList &runs);
+QStringList runsSubset(const QStringList& runsList, uint beginRun, uint endRun);
 
 Option::FPresetQString presetExistsFile;
 Option::FPresetDouble preset_start;
@@ -303,31 +305,21 @@ int main(int argc, char *argv[])
                 exit(-1);
             }
 
-            // Make subset of runs based on beginRun and endRun option
-            QStringList monteRunsSubset;
-            QStringList monteInputRuns;
-            foreach ( QString run, monteRuns ) {
-                bool ok = false;
-                unsigned int runId = run.mid(4).toInt(&ok);
-                if ( ok && (runId < opts.beginRun || runId > opts.endRun) ) {
-                    continue;
-                }
-                monteRunsSubset.append(runDirs.at(0) + "/" + run);
-                monteInputRuns.append(run);
-            }
-            if ( monteRunsSubset.empty() ) {
-                fprintf(stderr,"snap [error]: after applying -beginRun=%d "
-                               " and -endRun=%d options for monte dir=%s\n",
-                               opts.beginRun,opts.endRun,
-                               runDirs.at(0).toLatin1().constData());
-                exit(-1);
+            QStringList runsList = runsSubset(monteRuns,
+                                              opts.beginRun,opts.endRun);
+            QStringList monteRunsList;
+            foreach ( QString run, runsList ) {
+                monteRunsList << runDirs.at(0) + "/" + run;
             }
 
-            runs = new Runs(timeNames,monteRunsSubset,varMap);
-            monteInputsModel = monteInputModel(monteDir.dirName(),
-                                               monteInputRuns);
+            runs = new Runs(timeNames,monteRunsList,varMap);
+            monteInputsModel = monteInputModel(monteDir.absolutePath(),
+                                               runsList);
         } else {
-            runs = new Runs(timeNames,runDirs,varMap);
+            QStringList runsList = runsSubset(runDirs,
+                                              opts.beginRun,opts.endRun);
+            runs = new Runs(timeNames,runsList,varMap);
+            monteInputsModel = runsInputModel(runsList);
         }
         monteModel = new MonteModel(runs);
         varsModel = createVarsModel(runs);
@@ -1620,4 +1612,84 @@ QStandardItemModel* monteInputModelTrick17(const QString &monteInputFile,
     file.close();
 
     return m;
+}
+
+QStandardItemModel* runsInputModel(const QStringList &runs)
+{
+    QStandardItemModel* m = 0;
+
+    bool ok;
+
+    bool isRunNamesNumeric = true;
+    foreach ( QString run, runs ) {
+        int i = run.lastIndexOf("RUN_");
+        int runId = run.mid(i+4).toInt(&ok); // 4 is for RUN_
+        Q_UNUSED(runId);
+        if ( !ok ) {
+            isRunNamesNumeric = false;
+            break;
+        }
+    }
+
+    if ( isRunNamesNumeric ) {
+        m = new QStandardItemModel(runs.size(),1);
+        int r = 0 ;
+        m->setHeaderData(0,Qt::Horizontal,"RunId");
+        foreach ( QString run, runs ) {
+            int i = run.lastIndexOf("RUN_");
+            int runId = run.mid(i+4).toInt(&ok); // 4 is for RUN_
+            QString runName = QString("%0").arg(runId);
+            runName = runName.rightJustified(5, '0');
+            runName.prepend("RUN_");
+            m->setHeaderData(r,Qt::Vertical,runName);
+
+            QString runIdString ;
+            runIdString = runIdString.sprintf("%d",runId);
+            NumSortItem *runIdItem = new NumSortItem(runIdString);
+            m->setItem(r,0,runIdItem);
+
+            r++;
+        }
+    } else {
+        m = new QStandardItemModel(runs.size(),2);
+        int r = 0 ;
+        m->setHeaderData(0,Qt::Horizontal,"RunId");
+        m->setHeaderData(1,Qt::Horizontal,"RunName");
+        foreach ( QString run, runs ) {
+            QString runName = run.split('/').last();
+            m->setHeaderData(r,Qt::Vertical,runName);
+            QString runIdString ;
+            runIdString = runIdString.sprintf("%d",r);
+            NumSortItem *runIdItem = new NumSortItem(runIdString);
+            QStandardItem* runNameItem = new QStandardItem(runName);
+            m->setItem(r,0,runIdItem);
+            m->setItem(r,1,runNameItem);
+            r++;
+        }
+    }
+
+    return m;
+}
+
+// Make subset of runs based on beginRun and endRun option
+QStringList runsSubset(const QStringList& runsList, uint beginRun, uint endRun)
+{
+    QStringList subset;
+
+    foreach ( QString run, runsList ) {
+        bool ok = false;
+        unsigned int runId = run.mid(4).toInt(&ok);
+        if ( ok && (runId < beginRun || runId > endRun) ) {
+            continue;
+        }
+        subset.append(run);
+    }
+    if ( subset.empty() ) {
+        fprintf(stderr,"koviz [error]: main::runsSubset() is empty.  "
+                       "-beginRun -endRun options may be at fault.\n"
+                       "Aborting!!!");
+        exit(-1);
+    }
+
+    return subset;
 }
