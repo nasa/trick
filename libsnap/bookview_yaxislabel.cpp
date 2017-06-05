@@ -22,13 +22,14 @@ void YAxisLabelView::paintEvent(QPaintEvent *event)
     QString txt = fm.elidedText(_yAxisLabelText(), Qt::ElideLeft, vh);
     QRect bb = fm.tightBoundingRect(txt);
     int bw = bb.width();
+    int bh = bb.height();
 
     // Draw!
     QPainter painter(viewport());
     painter.save();
-    painter.translate( vw, (vh+bw)/2-5);
+    painter.translate(vw/2+bh-1,(vh+bw)/2);
     painter.rotate(270);
-    painter.drawText(0,0, txt);
+    painter.drawText(0,0,txt);
     painter.restore();
 }
 
