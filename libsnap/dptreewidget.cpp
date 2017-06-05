@@ -42,6 +42,7 @@ DPTreeWidget::DPTreeWidget(const QString& timeName,
                            MonteModel* monteModel,
                            PlotBookModel *bookModel,
                            QItemSelectionModel *bookSelectModel,
+                           MonteInputsView *monteInputsView,
                            QWidget *parent) :
     QWidget(parent),
     _timeName(timeName),
@@ -51,6 +52,7 @@ DPTreeWidget::DPTreeWidget(const QString& timeName,
     _monteModel(monteModel),
     _bookModel(bookModel),
     _bookSelectModel(bookSelectModel),
+    _monteInputsView(monteInputsView),
     _gridLayout(0),
     _searchBox(0)
 {
@@ -339,6 +341,13 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             int nColors = plot->curves().size()*rc;
             QList<QColor> colors = _bookModel->createCurveColors(nColors);
 
+            QHash<int,QString> run2color;
+            for ( int r = 0; r < rc; ++r ) {
+                QModelIndex runIdx = _monteInputsView->model()->index(r,0);
+                int runId = _monteInputsView->model()->data(runIdx).toInt();
+                run2color.insert(runId, colors.at(r).name());
+            }
+
             // Turn off model signals when adding children for speedup
             bool block = _bookModel->blockSignals(true);
 
@@ -355,7 +364,12 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                 timer.start();
 #endif
                 for ( int r = 0; r < rc; ++r) {
-                    QString color = colors.at(colorId++).name();
+                    QString color;
+                    if ( plot->curves().size() == 1 ) {
+                        color = run2color.value(r);
+                    } else {
+                        color = colors.at(colorId++).name();
+                    }
                     _addCurve(curvesItem, dpcurve, _monteModel, r, color);
 #ifdef __linux
                     int secs = qRound(timer.stop()/1000000.0);

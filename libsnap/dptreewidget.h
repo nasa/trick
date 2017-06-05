@@ -14,6 +14,7 @@
 #include "libsnap/montemodel.h"
 #include "libsnap/bookmodel.h"
 #include "libsnap/utils.h"
+#include "libsnap/monteinputsview.h"
 
 // This class introduced to fix Qt bug:
 // https://codereview.qt-project.org/#/c/65171/3
@@ -43,6 +44,7 @@ public:
                           MonteModel* monteModel,
                           PlotBookModel* bookModel,
                           QItemSelectionModel*  bookSelectModel,
+                          MonteInputsView* monteInputsView,
                           QWidget *parent = 0);
     ~DPTreeWidget();
     
@@ -59,6 +61,7 @@ private:
     MonteModel* _monteModel;
     PlotBookModel* _bookModel;
     QItemSelectionModel*  _bookSelectModel;
+    MonteInputsView* _monteInputsView;
     QGridLayout* _gridLayout ;
     QLineEdit* _searchBox;
     DPTreeView* _dpTreeView ;

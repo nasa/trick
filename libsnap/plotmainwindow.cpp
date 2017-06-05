@@ -107,10 +107,8 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
             // Hide if viewing only a single or two RUNs
             _monteInputsView->hide();
         }
-#if 0
         connect(_monteInputsHeaderView,SIGNAL(sectionClicked(int)),
             this,SLOT(_monteInputsHeaderViewClicked(int)));
-#endif
     }
 
     if ( _isDebug ) {
@@ -143,7 +141,8 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
         _dpTreeWidget = new  DPTreeWidget(_timeNames.at(0), _dpDir,
                                           _dpFiles, _varsModel,
                                           _monteModel, _bookModel,
-                                          _bookView->selectionModel(), _dpFrame);
+                                          _bookView->selectionModel(),
+                                          _monteInputsView, _dpFrame);
         _nbDPVars->setCurrentIndex(1);
     }
     connect(_nbDPVars,SIGNAL(currentChanged(int)),
@@ -221,7 +220,8 @@ void PlotMainWindow::_nbCurrentChanged(int i)
         //
         _dpTreeWidget = new  DPTreeWidget(_timeNames.at(0), _dpDir, _dpFiles,
                                           _varsModel, _monteModel, _bookModel,
-                                          _bookView->selectionModel(),_dpFrame);
+                                          _bookView->selectionModel(),
+                                          _monteInputsView,_dpFrame);
     }
 }
 
@@ -409,52 +409,60 @@ void PlotMainWindow::_monteInputsHeaderViewClicked(int section)
 
     if ( !_bookModel ) return;
 
-    QHash<int,QString> run2color;
     int rc = _monteInputsModel->rowCount();
-    qreal sH = 0.1;
-    qreal eH = 1.0-sH;
-    qreal m = (eH-sH)/rc;
-    for ( int i = 0; i < rc; ++i ) {
-        QModelIndex runIdx = _monteInputsModel->index(i,0);
+    QList<QColor> colors = _bookModel->createCurveColors(rc);
+
+    QHash<int,QString> run2color;
+    for ( int r = 0; r < rc; ++r ) {
+        QModelIndex runIdx = _monteInputsModel->index(r,0);
         int runId = _monteInputsModel->data(runIdx).toInt();
-        qreal h = m*i + sH;
-        QColor c = QColor::fromHsvF(h,1,0.85);
-        QString s = c.name();
-        run2color.insert(runId, s);
+        run2color.insert(runId, colors.at(r).name());
     }
 
     QModelIndexList pageIdxs = _bookModel->pageIdxs();
     foreach ( QModelIndex pageIdx, pageIdxs ) {
         QModelIndexList plotIdxs = _bookModel->plotIdxs(pageIdx);
         foreach ( QModelIndex plotIdx, plotIdxs ) {
+            // Turn off signals so pixmaps are not created as each color changes
+            bool block = _bookModel->blockSignals(true);
+            QModelIndex changeColorIdx;
+            QString     changeColorFrom;
+            QString     changeColorTo;
             QModelIndex curvesIdx = _bookModel->getIndex(plotIdx,
                                                          "Curves", "Plot");
             QModelIndexList curveIdxs = _bookModel->curveIdxs(curvesIdx);
-            bool isFirst = true;
             int r = 0;
             foreach ( QModelIndex curveIdx, curveIdxs ) {
-                // This is to speed things up when montecarlo since
-                // getIndex() is a bit expensive
-                if ( isFirst ) {
-                    QModelIndex rIdx = _bookModel->getIndex(curveIdx,
-                                                    "CurveRunID",
-                                                    "Curve");
-                    r = rIdx.row();
-                    isFirst = false;
-                }
-                QModelIndex runIdx = _bookModel->index(r,0,curveIdx);
-                int runId = _bookModel->data(runIdx).toInt();
+                int runId = _bookModel->getDataInt(curveIdx,
+                                                   "CurveRunID",
+                                                   "Curve");
+                QString nextColor = run2color.value(runId);
                 QModelIndex colorIdx = _bookModel->getIndex(curveIdx,
-                                                    "CurveColor", "Curve");
-                QStandardItem* item = _bookModel->itemFromIndex(colorIdx);
-                item->setData(run2color.value(runId));
+                                                            "CurveColor",
+                                                            "Curve");
+                colorIdx = _bookModel->sibling(colorIdx.row(),1,colorIdx);
+                QString currColor = _bookModel->data(colorIdx).toString();
+                if ( nextColor != currColor ) {
+                    changeColorIdx  = colorIdx;
+                    changeColorFrom = currColor;
+                    changeColorTo   = nextColor;
+                }
+                _bookModel->setData(colorIdx,nextColor);
+                ++r;
             }
+
+            // Set one curve color back to its original color
+            // before turning the signals back on
+            _bookModel->setData(changeColorIdx,changeColorFrom);
+
+            // Turn signals back on
+            block = _bookModel->blockSignals(block);
+
+            // Set one curve color while signals on so that the dataChanged
+            // signal will fire and a new pixmap will be created
+            _bookModel->setData(changeColorIdx,changeColorTo);
         }
     }
-
-#if 0
-    _plotBookView->replot();
-#endif
 }
 
 void PlotMainWindow::_monteInputsViewCurrentChanged(const QModelIndex &currIdx,
@@ -468,6 +476,3 @@ void PlotMainWindow::_monteInputsViewCurrentChanged(const QModelIndex &currIdx,
         _bookView->setCurrentCurveRunID(runID);
     }
 }
-
-
-

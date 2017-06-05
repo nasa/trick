@@ -210,6 +210,14 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
     bool block = _plotModel->blockSignals(true);
 
     QList<QColor> colors = _plotModel->createCurveColors(rc);
+
+    QHash<int,QString> run2color;
+    for ( int r = 0; r < rc; ++r ) {
+        QModelIndex runIdx = _monteInputsView->model()->index(r,0);
+        int runId = _monteInputsView->model()->data(runIdx).toInt();
+        run2color.insert(runId, colors.at(r).name());
+    }
+
     for ( int r = 0; r < rc; ++r) {
 
         // Update progress dialog
@@ -248,11 +256,10 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
         QString runDirName = QFileInfo(curveModel->trkFile()).dir().dirName();
         bool ok;
         int runId = runDirName.mid(4).toInt(&ok);
-        if ( ok ) {
-            _addChild(curveItem, "CurveRunID", runId);
-        } else {
-            _addChild(curveItem, "CurveRunID", r);
+        if ( !ok ) {
+            runId = r;
         }
+        _addChild(curveItem, "CurveRunID", runId);
         _addChild(curveItem, "CurveXScale", 1.0);
         QHash<QString,QVariant> shifts = _plotModel->getDataHash(QModelIndex(),
                                                               "RunToShiftHash");
@@ -265,7 +272,7 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
         }
         _addChild(curveItem, "CurveYScale", 1.0);
         _addChild(curveItem, "CurveYBias", 0.0);
-        _addChild(curveItem, "CurveColor", colors.at(r).name());
+        _addChild(curveItem, "CurveColor", run2color.value(runId));
         _addChild(curveItem, "CurveSymbolStyle", "");
         _addChild(curveItem, "CurveSymbolSize", "");
         _addChild(curveItem, "CurveLineStyle", "");

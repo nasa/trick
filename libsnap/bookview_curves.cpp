@@ -1133,6 +1133,11 @@ void CurvesView::dataChanged(const QModelIndex &topLeft,
                 delete _pixmap;
             }
             _pixmap = _createLivePixmap();
+        } else if ( tag == "CurveColor") {
+            if ( _pixmap ) {
+                delete _pixmap;
+            }
+            _pixmap = _createLivePixmap();
         }
     }
 
