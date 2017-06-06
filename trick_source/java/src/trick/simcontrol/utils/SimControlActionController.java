@@ -191,7 +191,15 @@ public class SimControlActionController {
 		maxField.addActionListener( 
 				new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						slider.setDoubleMaximum(Double.valueOf(maxField.getText()));
+						// CTLaChance - 05-22-17
+						// Cap the maximum possible value to 1000.
+						if(Double.valueOf(maxField.getText()) > 1000) {
+							maxField.setText(Double.toString(1000));
+							slider.setDoubleMaximum(1000);
+						}
+						else {
+							slider.setDoubleMaximum(Double.valueOf(maxField.getText()));
+						}
 					}
 				});
 		
