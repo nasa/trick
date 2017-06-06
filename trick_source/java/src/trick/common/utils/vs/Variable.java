@@ -20,7 +20,7 @@ import trick.common.utils.VariableServerConnection;
 public class Variable<T extends VariableServerFluent> implements Serializable, Cloneable {
 
     /** possible states */
-    public enum State {Unknown, Invalid, Valid};
+    public enum State {Unknown, Invalid, Valid, NaN};
 
     /** name */
     public final String name;
@@ -124,6 +124,9 @@ public class Variable<T extends VariableServerFluent> implements Serializable, C
     public void setValue(String value) {
         if (value.equals("BAD_REF")) {
             state = State.Invalid;
+        }
+        else if (value.equals("-nan")) {
+            state = State.NaN;
         }
         else {
             this.value.fromVariableServer(value);

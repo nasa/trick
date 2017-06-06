@@ -13,6 +13,7 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.io.IOException;
+import java.lang.NumberFormatException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -604,6 +605,8 @@ public class VariableTable extends JXTable {
                             return "<Invalid Reference>";
                         case Valid:
                             return variable.getValue();
+                        case NaN:
+                            return "<NaN>";
                         default:
                             return "<Unknown>";
                     }
