@@ -5,16 +5,14 @@ PURPOSE: (Set the initial data values)
 /* Model Include files */
 #include <math.h>
 #include "../include/cannon.h"
-#include "sim_services/include/Flag.h"
+#include "trick/Flag.h"
 
 /* default data job */
 int cannon_default_data( CANNON* C ) {
 
-    const double PI = 3.1415926535; 
-
     C->acc[0] = 0.0;
     C->acc[1] = -9.81;
-    C->init_angle = PI/6 ;
+    C->init_angle = M_PI/6 ;
     C->init_speed  = 50.0 ;
     C->pos0[0] = 0.0 ;
     C->pos0[1] = 0.0 ;

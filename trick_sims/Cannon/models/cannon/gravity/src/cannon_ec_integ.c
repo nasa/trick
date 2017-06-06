@@ -2,7 +2,7 @@
 PURPOSE: ( Integration Job for Euler-Cromer Example )
 *****************************************************************************/
 
-#include "sim_services/Integrator/include/integrator_c_intf.h"
+#include "trick/integrator_c_intf.h"
 #include "../include/cannon.h"
 
 int cannon_ec_integ( CANNON* C ) {

@@ -4,7 +4,7 @@ PURPOSE: (Represent the state and initial conditions of a cannonball)
 **************************************************************************/
 #ifndef CANNON_H
 #define CANNON_H
-#include "sim_services/Integrator/include/regula_falsi.h"
+#include "trick/regula_falsi.h"
 #include "trick_utils/comm/include/tc.h"
 #include "trick_utils/comm/include/tc_proto.h"
 
