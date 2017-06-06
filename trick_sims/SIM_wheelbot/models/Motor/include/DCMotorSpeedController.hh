@@ -1,3 +1,6 @@
+/*
+ * PURPOSE: (DCMotorSpeedController class)
+ */
 #ifndef DC_MOTOR_SPEED_CONTROLLER_HH
 #define DC_MOTOR_SPEED_CONTROLLER_HH
 

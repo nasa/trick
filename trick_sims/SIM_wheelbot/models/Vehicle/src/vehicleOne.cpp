@@ -12,9 +12,6 @@ PROGRAMMERS:
 #include "Vehicle/include/vehicleOne.hh"
 #include <iostream>
 #include <math.h>
-#ifndef PI
-#define PI 3.1415926535
-#endif
 
 int VehicleOne::default_data() {
 
@@ -28,7 +25,7 @@ int VehicleOne::default_data() {
     slowDownDistance = 0.5;
     arrivalDistance  = 0.1;
     wheelSpeedLimit = 8.880;
-    headingRateLimit = PI/4;
+    headingRateLimit = M_PI/4;
 
     // DCMotor Parameters
     // At 5v the following parameters will result in a current of
@@ -179,7 +176,7 @@ int VehicleOne::state_deriv() {
    return 0;
 }
 
-#include "sim_services/Integrator/include/integrator_c_intf.h"
+#include "trick/integrator_c_intf.h"
 
 int VehicleOne::state_integ() {
     int integration_step;
@@ -217,8 +214,8 @@ int VehicleOne::state_integ() {
               );
 
     if (!integration_step) {
-        if (heading < -PI) heading +=  2*PI;
-        if (heading >  PI) heading += -2*PI;
+        if (heading < -M_PI) heading +=  2*M_PI;
+        if (heading >  M_PI) heading += -2*M_PI;
     }
 
     return(integration_step);
