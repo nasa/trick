@@ -9,10 +9,10 @@ QT       += xml
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = snap
+TARGET = koviz
 TEMPLATE = lib
 
-include($$PWD/../snap.pri)
+include($$PWD/../koviz.pri)
 
 CONFIG += staticlib
 
@@ -23,7 +23,7 @@ release {
 }
 
 DESTDIR = $$PWD/../lib
-BUILDDIR = $$PWD/../build/libsnap
+BUILDDIR = $$PWD/../build/libkoviz
 OBJECTS_DIR = $$BUILDDIR/obj
 MOC_DIR     = $$BUILDDIR/moc
 RCC_DIR     = $$BUILDDIR/rcc

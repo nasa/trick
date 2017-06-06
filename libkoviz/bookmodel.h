@@ -6,9 +6,9 @@
 #include <QHash>
 #include <QPainterPath>
 #include <QVector>
-#include "libsnap/montemodel.h"
-#include "libsnap/unit.h"
-#include "libsnap/utils.h"
+#include "montemodel.h"
+#include "unit.h"
+#include "utils.h"
 
 #include <QList>
 #include <QColor>

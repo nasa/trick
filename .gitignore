@@ -1,17 +1,13 @@
-snap.pro.user
-snap.pro.user.1.3
-snap.pro.user.*
-snapx/snapx.pro.user
-libsnaprt/libsnaprt.pro.user
-monte/monte.pro.user
+koviz.pro.user
+koviz.pro.user.1.3
+koviz.pro.user.*
 Makefile
 build
 test/runs/*
 bin/*
 lib/*
-testsnap/runs
-libsnap/product_lexer.cpp
-libsnap/product_lexer.h
-libsnap/product_parser.cpp
-libsnap/product_parser.h
+libkoviz/product_lexer.cpp
+libkoviz/product_lexer.h
+libkoviz/product_parser.cpp
+libkoviz/product_parser.h
 

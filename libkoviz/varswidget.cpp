@@ -1,7 +1,7 @@
 #include "varswidget.h"
 
 #ifdef __linux
-#include "libsnap/timeit_linux.h"
+#include "timeit_linux.h"
 #endif
 
 VarsWidget::VarsWidget(const QString &timeName,

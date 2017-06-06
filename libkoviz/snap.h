@@ -20,9 +20,9 @@
 #include "simobject.h"
 #include "frame.h"
 #include "utils.h"
-#include "libsnap/snaptable.h"
-#include "libsnap/trickmodel.h"
-#include "libsnap/trickcurvemodel.h"
+#include "snaptable.h"
+#include "trickmodel.h"
+#include "trickcurvemodel.h"
 
 #define TXT(X) X.toLatin1().constData()
 

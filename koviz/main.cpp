@@ -13,18 +13,18 @@ using namespace std;
 #include <QTextStream>
 #include <stdio.h>
 
-#include "libsnap/options.h"
-#include "libsnap/runs.h"
-#include "libsnap/plotmainwindow.h"
-#include "libsnap/roundoff.h"
+#include "libkoviz/options.h"
+#include "libkoviz/runs.h"
+#include "libkoviz/plotmainwindow.h"
+#include "libkoviz/roundoff.h"
 #ifdef __linux
-#include "libsnap/timeit_linux.h"
+#include "libkoviz/timeit_linux.h"
 #endif
-#include "libsnap/timestamps.h"
-#include "libsnap/tricktablemodel.h"
-#include "libsnap/dp.h"
-#include "libsnap/snap.h"
-#include "libsnap/csv.h"
+#include "libkoviz/timestamps.h"
+#include "libkoviz/tricktablemodel.h"
+#include "libkoviz/dp.h"
+#include "libkoviz/snap.h"
+#include "libkoviz/csv.h"
 
 QStandardItemModel* createVarsModel(Runs* runs);
 bool writeTrk(const QString& ftrk, const QString &timeName,

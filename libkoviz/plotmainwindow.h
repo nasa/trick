@@ -20,14 +20,14 @@
 #include <QSizePolicy>
 #include <QTreeView>
 
-#include "libsnap/monte.h"
-#include "libsnap/dp.h"
-#include "libsnap/bookmodel.h"
-#include "libsnap/dptreewidget.h"
-#include "libsnap/varswidget.h"
-#include "libsnap/monteinputsview.h"
-#include "libsnap/rangeinput.h"
-#include "libsnap/bookview.h"
+#include "monte.h"
+#include "dp.h"
+#include "bookmodel.h"
+#include "dptreewidget.h"
+#include "varswidget.h"
+#include "monteinputsview.h"
+#include "rangeinput.h"
+#include "bookview.h"
 
 class PlotMainWindow : public QMainWindow
 {

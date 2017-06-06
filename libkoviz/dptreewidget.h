@@ -11,10 +11,10 @@
 #include <QProgressDialog>
 #include "dp.h"
 #include "dpfilterproxymodel.h"
-#include "libsnap/montemodel.h"
-#include "libsnap/bookmodel.h"
-#include "libsnap/utils.h"
-#include "libsnap/monteinputsview.h"
+#include "montemodel.h"
+#include "bookmodel.h"
+#include "utils.h"
+#include "monteinputsview.h"
 
 // This class introduced to fix Qt bug:
 // https://codereview.qt-project.org/#/c/65171/3

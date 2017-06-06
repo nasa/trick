@@ -21,7 +21,7 @@
 #include <float.h>
 #include <math.h>
 #include "bookidxview.h"
-#include "libsnap/unit.h"
+#include "unit.h"
 
 // ---------------------------------------------------------
 // Use . since backslash makes a C++ multi-line comment

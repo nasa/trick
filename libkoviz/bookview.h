@@ -19,9 +19,9 @@
 #include <QPolygonF>
 #include <math.h>
 
-#include "libsnap/bookidxview.h"
+#include "bookidxview.h"
 #include "bookview_page.h"
-#include "libsnap/bookmodel.h"
+#include "bookmodel.h"
 
 class BookView : public BookIdxView
 {

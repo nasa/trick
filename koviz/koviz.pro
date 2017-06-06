@@ -4,13 +4,13 @@ QT  += xml
 
 CONFIG -= app_bundle
 
-include($$PWD/../snap.pri)
+include($$PWD/../koviz.pri)
 
 release {
     QMAKE_CXXFLAGS_RELEASE -= -g
 }
 
-TARGET = snap
+TARGET = koviz
 target.path = $$PREFIX/bin
 INSTALLS += target
 
@@ -32,6 +32,6 @@ OTHER_FILES +=
 
 INCLUDEPATH += $$PWD/..
 
-LIBS += -L$$PWD/../lib -lsnap
+LIBS += -L$$PWD/../lib -lkoviz
 
-PRE_TARGETDEPS += $$PWD/../lib/libsnap.a
+PRE_TARGETDEPS += $$PWD/../lib/libkoviz.a

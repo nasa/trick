@@ -1,5 +1,5 @@
 #include "dp.h"
-#include "libsnap/options.h"
+#include "options.h"
 
 DPProduct* product;// hack to pass to yacc parser
 

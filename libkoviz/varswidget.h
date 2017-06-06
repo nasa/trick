@@ -13,8 +13,8 @@
 #include <QProgressDialog>
 #include <float.h>
 #include "dp.h"
-#include "libsnap/montemodel.h"
-#include "libsnap/bookmodel.h"
+#include "montemodel.h"
+#include "bookmodel.h"
 #include "monteinputsview.h"
 
 class VarsWidget : public QWidget
