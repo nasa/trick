@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
 
     if ( opts.rundps.isEmpty() ) {
         if ( opts.trk2csvFile.isEmpty() && opts.csv2trkFile.isEmpty() ) {
-            fprintf(stderr,"snap [error] : no RUNs specified\n");
+            fprintf(stderr,"koviz [error] : no RUNs specified\n");
             fprintf(stderr,"%s\n",opts.usage().toLatin1().constData());
             return -1;
         }
@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
             exit(-1);
         }
         if ( !ret )  {
-            fprintf(stderr, "snap [error]: Aborting trk to csv conversion!\n");
+            fprintf(stderr, "koviz [error]: Aborting trk to csv conversion!\n");
             return -1;
         }
     }
@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
         }
         bool ret = convert2trk(opts.csv2trkFile, trkOutFile);
         if ( !ret )  {
-            fprintf(stderr, "snap [error]: Aborting csv to trk conversion!\n");
+            fprintf(stderr, "koviz [error]: Aborting csv to trk conversion!\n");
             return -1;
         }
     }
@@ -247,7 +247,7 @@ int main(int argc, char *argv[])
 
         if ( (isPdf && isTrk) || (isPdf && isCsv) || (isTrk && isCsv) ) {
             fprintf(stderr,
-                    "snap [error] : you may not use the -pdf, -trk and -csv "
+                    "koviz [error] : you may not use the -pdf, -trk and -csv "
                     "options together.");
             exit(-1);
         }
@@ -255,7 +255,7 @@ int main(int argc, char *argv[])
         // If outputting to pdf, you must have a DP file and RUN dir
         if ( isPdf && (dps.size() == 0 || runDirs.size() == 0) ) {
             fprintf(stderr,
-                    "snap [error] : when using the -pdf option you must "
+                    "koviz [error] : when using the -pdf option you must "
                     "specify a DP product file and RUN directory\n");
             exit(-1);
         }
@@ -263,7 +263,7 @@ int main(int argc, char *argv[])
         // If outputting to trk, you must have a DP file and RUN dir
         if ( isTrk && (dps.size() == 0 || runDirs.size() == 0) ) {
             fprintf(stderr,
-                    "snap [error] : when using the -trk option you must "
+                    "koviz [error] : when using the -trk option you must "
                     "specify a DP product file and RUN directory\n");
             exit(-1);
         }
@@ -271,7 +271,7 @@ int main(int argc, char *argv[])
         // If outputting to csv, you must have a DP file and RUN dir
         if ( isCsv && (dps.size() == 0 || runDirs.size() == 0) ) {
             fprintf(stderr,
-                    "snap [error] : when using the -csv option you must "
+                    "koviz [error] : when using the -csv option you must "
                     "specify a DP product file and RUN directory\n");
             exit(-1);
         }
@@ -289,7 +289,7 @@ int main(int argc, char *argv[])
             QDir monteDir(runDirs.at(0));
             if ( ! monteDir.exists() ) {
                 fprintf(stderr,
-                        "snap [error]: couldn't find monte directory: %s\n",
+                        "koviz [error]: couldn't find monte directory: %s\n",
                         runDirs.at(0).toLatin1().constData());
                 exit(-1);
             }
@@ -300,7 +300,7 @@ int main(int argc, char *argv[])
             monteDir.setNameFilters(filters);
             QStringList monteRuns = monteDir.entryList(filters, QDir::Dirs);
             if ( monteRuns.empty() ) {
-                fprintf(stderr, "snap [error]: no RUN dirs in %s \n",
+                fprintf(stderr, "koviz [error]: no RUN dirs in %s \n",
                         runDirs.at(0).toLatin1().constData());
                 exit(-1);
             }
@@ -402,12 +402,12 @@ int main(int argc, char *argv[])
                 if ( r ) {
                     ret = 0;
                 } else {
-                    fprintf(stderr, "snap [error]: Failed to write: %s\n",
+                    fprintf(stderr, "koviz [error]: Failed to write: %s\n",
                             opts.trkOutFile.toLatin1().constData());
                     ret = -1;
                 }
             } else {
-                fprintf(stderr, "snap [error]: Only one RUN allowed with "
+                fprintf(stderr, "koviz [error]: Only one RUN allowed with "
                                  "the -trk option.\n");
                 exit(-1);
             }
@@ -416,7 +416,7 @@ int main(int argc, char *argv[])
 
 
             if ( runDirs.size() != 1 ) {
-                fprintf(stderr, "snap [error]: Exactly one RUN dir must be "
+                fprintf(stderr, "koviz [error]: Exactly one RUN dir must be "
                                 "specified with the -csv option.\n");
                 exit(-1);
             }
@@ -428,7 +428,7 @@ int main(int argc, char *argv[])
                 nTables += dp.tables().size();
             }
             if ( nTables == 0 ) {
-                fprintf(stderr, "snap [error]: In order to create csv files "
+                fprintf(stderr, "koviz [error]: In order to create csv files "
                         "using the -dp2csv option, there must be "
                         "data product TABLEs in the DP files.\n");
                 exit(-1);
@@ -459,7 +459,7 @@ int main(int argc, char *argv[])
                     if ( r ) {
                         ret = 0;
                     } else {
-                        fprintf(stderr, "snap [error]: Failed to write: %s\n",
+                        fprintf(stderr, "koviz [error]: Failed to write: %s\n",
                                 fname.toLatin1().constData());
                         ret = -1;
                         break;
@@ -525,7 +525,7 @@ void presetRunsDPs(QStringList* defRunDirs,
         QFileInfo fi(f);
         if ( !fi.exists() ) {
             fprintf(stderr,
-                    "snapq [error] : couldn't find file/directory: \"%s\".\n",
+                    "koviz [error] : couldn't find file/directory: \"%s\".\n",
                     f.toLatin1().constData());
             *ok = false;
             return;
@@ -564,7 +564,7 @@ void presetBeginRun(uint* beginRunId, uint runId, bool* ok)
     Q_UNUSED(beginRunId);
 
     if ( runId > opts.endRun ) {
-        fprintf(stderr,"snap [error] : option -beginRun, set to %d, "
+        fprintf(stderr,"koviz [error] : option -beginRun, set to %d, "
                 "must be greater than "
                 " -endRun which is set to %d\n",
                 runId, opts.endRun);
@@ -577,7 +577,7 @@ void presetEndRun(uint* endRunId, uint runId, bool* ok)
     Q_UNUSED(endRunId);
 
     if ( runId < opts.beginRun ) {
-        fprintf(stderr,"snap [error] : option -endRun, set to %d, "
+        fprintf(stderr,"koviz [error] : option -endRun, set to %d, "
                 "must be greater than "
                 "-beginRun which is set to %d\n",
                 runId,opts.beginRun);
@@ -591,7 +591,7 @@ void presetPresentation(QString* presVar, const QString& pres, bool* ok)
 
     if ( !pres.isEmpty() && pres != "compare" && pres != "error" &&
          pres != "error+compare" ) {
-        fprintf(stderr,"snap [error] : option -presentation, set to \"%s\", "
+        fprintf(stderr,"koviz [error] : option -presentation, set to \"%s\", "
                 "should be \"compare\", \"error\" or \"error+compare\"\n",
                 pres.toLatin1().constData());
         *ok = false;
@@ -604,7 +604,7 @@ void presetOutputFile(QString* presVar, const QString& fname, bool* ok)
 
     QFileInfo fi(fname);
     if ( fi.exists() ) {
-        fprintf(stderr, "snap [error]: Will not overwrite %s\n",
+        fprintf(stderr, "koviz [error]: Will not overwrite %s\n",
                 fname.toLatin1().constData());
         *ok = false;
     }
@@ -615,12 +615,12 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
 {
     QFileInfo ftrki(ftrk);
     if ( ftrki.exists() ) {
-        fprintf(stderr, "snapq [error]: Will not overwrite %s\n",
+        fprintf(stderr, "koviz [error]: Will not overwrite %s\n",
                 ftrk.toLatin1().constData());
         return false;
     }
 
-    fprintf(stdout, "\nsnap [info]: extracting the following params "
+    fprintf(stdout, "\nkoviz [info]: extracting the following params "
                     "into %s:\n\n",
                     ftrk.toLatin1().constData());
     foreach ( QString param, paramList ) {
@@ -659,7 +659,7 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
 
         // Error check: see if MonteModel could not find curve (timeName,yParam)
         if ( !c) {
-            fprintf(stderr, "snap [error]: could not find curve: \n    ("
+            fprintf(stderr, "koviz [error]: could not find curve: \n    ("
                     "%s,%s)\n",
                     timeName.toLatin1().constData(),
                     yParam.toLatin1().constData());
@@ -672,7 +672,7 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
         // Error check:   make sure curve has data
         if ( c->rowCount() == 0 ) {
             // No data
-            fprintf(stderr, "snap [error]: no data found in %s\n",
+            fprintf(stderr, "koviz [error]: no data found in %s\n",
                     c->tableName().toLatin1().constData());
             return false;
         }
@@ -681,7 +681,7 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
         int i = c->indexAtTime(0.0);
         if ( i != 0 ) {
             // 0.0 is not first time - yield error
-            fprintf(stderr, "snap [error]: start time in data is not 0.0 "
+            fprintf(stderr, "koviz [error]: start time in data is not 0.0 "
                             " for the following trk\n    %s\n",
                     c->trkFile().toLatin1().constData());
             return false;
@@ -702,7 +702,7 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
         c->unmap();
     }
     if ( params.size() < 2 ) {
-        fprintf(stderr,"snap [error]: Could not find any params in RUN that "
+        fprintf(stderr,"koviz [error]: Could not find any params in RUN that "
                        "are in DP files\n\n");
         return false;
     }
@@ -740,7 +740,7 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
 
             if ( qAbs(d-a) > 1.0e-6 ) {
                 fprintf(stderr,
-                        "snap [error]: frequency for data in %s is "
+                        "koviz [error]: frequency for data in %s is "
                         "irregular.  RUN timeline is [%.8lf-%.8lf].  "
                         "Frequency is assumed to be t[1] == %.8lf.  "
                         "Number of data points, np == %d.  "
@@ -770,7 +770,7 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
     // Open trk file for writing
     QFile trk(ftrk);
     if (!trk.open(QIODevice::WriteOnly)) {
-        fprintf(stderr,"snap: [error] could not open %s\n",
+        fprintf(stderr,"koviz: [error] could not open %s\n",
                 ftrk.toLatin1().constData());
         return false;
     }
@@ -831,7 +831,7 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
                     if ( qAbs(t-lastTime) > 1.0e-9 &&
                          qAbs(fExpected-fActual) > 1.0e-9 ) {
                         fprintf(stderr,
-                                "snap [error]: File %s has bad timestamp "
+                                "koviz [error]: File %s has bad timestamp "
                                 " %.8lf.  This timestamp is not a multiple "
                                 "of the expected frequency %.8lf. \n",
                                 curve->trkFile().toLatin1().constData(),
@@ -868,7 +868,7 @@ bool writeCsv(const QString& fcsv, const QStringList& timeNames,
 {
     QFileInfo fcsvi(fcsv);
     if ( fcsvi.exists() ) {
-        fprintf(stderr, "snapq [error]: Will not overwrite %s\n",
+        fprintf(stderr, "koviz [error]: Will not overwrite %s\n",
                 fcsv.toLatin1().constData());
         return false;
     }
@@ -876,7 +876,7 @@ bool writeCsv(const QString& fcsv, const QStringList& timeNames,
     // Open trk file for writing
     QFile csv(fcsv);
     if (!csv.open(QIODevice::WriteOnly)) {
-        fprintf(stderr,"snap: [error] could not open %s\n",
+        fprintf(stderr,"koviz: [error] could not open %s\n",
                 fcsv.toLatin1().constData());
         return false;
     }
@@ -940,7 +940,7 @@ void preset_start(double* time, double new_time, bool* ok)
     if ( *ok ) {
         // Start time should be less than stop time
         if ( new_time > opts.stop ) {
-            fprintf(stderr,"snap [error] : Trying to set option -start to "
+            fprintf(stderr,"koviz [error] : Trying to set option -start to "
                     "%g; however stop time is %g.  Start should be less than "
                     "stop time.  Current start time is t=%g.\n",
                     new_time, opts.stop,*time);
@@ -956,7 +956,7 @@ void preset_stop(double* time, double new_time, bool* ok)
     if ( *ok ) {
         // Stop time should be greater than start time
         if ( new_time < opts.start ) {
-            fprintf(stderr,"snap [error] : Trying to set option -stop to "
+            fprintf(stderr,"koviz [error] : Trying to set option -stop to "
                     "%g; however start time is %g.  Start should be less than "
                     "stop time.  -stop is currently t=%g.\n",
                     new_time, opts.start,*time);
@@ -972,7 +972,7 @@ void presetExistsFile(QString* ignoreMe, const QString& fname, bool* ok)
     QFileInfo fi(fname);
     if ( !fi.exists() ) {
         fprintf(stderr,
-                "snap [error] : Couldn't find file: \"%s\".\n",
+                "koviz [error] : Couldn't find file: \"%s\".\n",
                 fname.toLatin1().constData());
         *ok = false;
         return;
@@ -986,7 +986,7 @@ bool convert2csv(const QStringList& timeNames,
 
     QFileInfo fcsvi(fcsv);
     if ( fcsvi.exists() ) {
-        fprintf(stderr, "snap [error]: Will not overwrite %s\n",
+        fprintf(stderr, "koviz [error]: Will not overwrite %s\n",
                 fcsv.toLatin1().constData());
         return false;
     }
@@ -994,7 +994,7 @@ bool convert2csv(const QStringList& timeNames,
     // Open csv file stream
     QFile csv(fcsv);
     if (!csv.open(QIODevice::WriteOnly)) {
-        fprintf(stderr,"snap: [error] could not open %s\n",
+        fprintf(stderr,"koviz: [error] could not open %s\n",
                 fcsv.toLatin1().constData());
         return false;
     }
@@ -1038,7 +1038,7 @@ bool convert2trk(const QString& csvFileName, const QString& trkFileName)
 {
     QFile file(csvFileName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
-        fprintf(stderr, "csv2trk [error]: Cannot read file %s!",
+        fprintf(stderr, "koviz [error]: Cannot read file %s!",
                 csvFileName.toLatin1().constData());
     }
     CSV csv(&file);
@@ -1047,7 +1047,7 @@ bool convert2trk(const QString& csvFileName, const QString& trkFileName)
     QList<Param> params;
     QStringList list = csv.parseLine() ;
     if ( list.isEmpty() ) {
-        fprintf(stderr, "csv2trk [error]: Empty csv file \"%s\"",
+        fprintf(stderr, "koviz [error]: Empty csv file \"%s\"",
                 csvFileName.toLatin1().constData());
         return false;
     }
@@ -1075,7 +1075,7 @@ bool convert2trk(const QString& csvFileName, const QString& trkFileName)
 
     QFileInfo ftrki(trkFileName);
     if ( ftrki.exists() ) {
-        fprintf(stderr, "snap [error]: Will not overwrite %s\n",
+        fprintf(stderr, "koviz [error]: Will not overwrite %s\n",
                 trkFileName.toLatin1().constData());
         return false;
     }
@@ -1083,7 +1083,7 @@ bool convert2trk(const QString& csvFileName, const QString& trkFileName)
     QFile trk(trkFileName);
 
     if (!trk.open(QIODevice::WriteOnly)) {
-        fprintf(stderr,"snap [error]: could not open %s\n",
+        fprintf(stderr,"koviz [error]: could not open %s\n",
                 trkFileName.toLatin1().constData());
         return false;
     }
@@ -1106,7 +1106,7 @@ bool convert2trk(const QString& csvFileName, const QString& trkFileName)
             if ( !ok ) {
                 QFileInfo fi(csvFileName);
                 fprintf(stderr,
-                 "snap [error]: Bad value \"%s\" on line %d in file %s\n",
+                 "koviz [error]: Bad value \"%s\" on line %d in file %s\n",
                         s.toLatin1().constData(),
                         line,
                         fi.absoluteFilePath().toLatin1().constData());
@@ -1143,7 +1143,7 @@ QHash<QString,QVariant> getShiftHash(const QString& shiftString,
             QString shiftRun       = s.split(':').at(0).trimmed();
             QString shiftValString = s.split(':').at(1).trimmed();
             if ( shiftRun.isEmpty() || shiftValString.isEmpty() ) {
-                fprintf(stderr,"snap [error] : -shift option value \"%s\""
+                fprintf(stderr,"koviz [error] : -shift option value \"%s\""
                                "is malformed.\n"
                                "Use this syntax -shift \"<run>:<val>\"\n",
                         opts.shiftString.toLatin1().constData());
@@ -1162,7 +1162,7 @@ QHash<QString,QVariant> getShiftHash(const QString& shiftString,
                 }
             }
             if ( !isFound ) {
-                fprintf(stderr,"snap [error] : -shift option \"%s\" "
+                fprintf(stderr,"koviz [error] : -shift option \"%s\" "
                                "does not specify a valid run to shift.\n"
                                "Use this syntax -shift \"<run>:<val>\" "
                                "where <run> is one of the runs in the \n"
@@ -1176,7 +1176,7 @@ QHash<QString,QVariant> getShiftHash(const QString& shiftString,
             bool ok;
             shiftVal = q.toDouble(&ok);
             if ( !ok ) {
-                fprintf(stderr,"snap [error] : option -shift \"%s\" "
+                fprintf(stderr,"koviz [error] : option -shift \"%s\" "
                                "does not specify a valid shift value.\n"
                                "Use this syntax -shift \"[<run>:]<val>\"\n",
                         s.toLatin1().constData());
@@ -1186,7 +1186,7 @@ QHash<QString,QVariant> getShiftHash(const QString& shiftString,
         } else {
             // e.g. koviz RUN_a -shift 0.00125
             if ( runDirs.size() != 1 ) {
-                fprintf(stderr,"snap [error] : option -shift \"%s\" "
+                fprintf(stderr,"koviz [error] : option -shift \"%s\" "
                                "does not specify a valid shift string.\n"
                                "Use the run:val syntax when there are "
                                "multiple runs.\n"
@@ -1198,7 +1198,7 @@ QHash<QString,QVariant> getShiftHash(const QString& shiftString,
             bool ok;
             shiftVal = q.toDouble(&ok);
             if ( !ok ) {
-                fprintf(stderr,"snap [error] : option -shift \"%s\" "
+                fprintf(stderr,"koviz [error] : option -shift \"%s\" "
                                "does not specify a valid shift value.\n"
                                "Use this syntax -shift \"[<run>:]<val>\"\n",
                         s.toLatin1().constData());
@@ -1233,7 +1233,7 @@ QHash<QString,QStringList> getVarMap(const QString& mapString)
             QStringList list = s.split('=');
             QString key = list.at(0).trimmed();
             if ( key.isEmpty() ) {
-                fprintf(stderr,"snap [error] : -map option value \"%s\""
+                fprintf(stderr,"koviz [error] : -map option value \"%s\""
                         "is malformed.\n"
                         "Use this syntax -map \"key=val1=val2...,key=val...\"\n",
                         mapString.toLatin1().constData());
@@ -1243,7 +1243,7 @@ QHash<QString,QStringList> getVarMap(const QString& mapString)
             for (int i = 1; i < list.size(); ++i ) {
                 QString val = list.at(i);
                 if ( val.isEmpty() ) {
-                    fprintf(stderr,"snap [error] : -map option value \"%s\""
+                    fprintf(stderr,"koviz [error] : -map option value \"%s\""
                        "is malformed.\n"
                        "Use this syntax -map \"key=val1=val2...,key=val...\"\n",
                        mapString.toLatin1().constData());
@@ -1254,7 +1254,7 @@ QHash<QString,QStringList> getVarMap(const QString& mapString)
             varMap.insert(key,vals);
         } else {
             // error
-            fprintf(stderr,"snap [error] : -map option value \"%s\""
+            fprintf(stderr,"koviz [error] : -map option value \"%s\""
                        "is malformed.\n"
                        "Use this syntax -map \"key=val1=val2...,key=val...\"\n",
                        mapString.toLatin1().constData());
@@ -1296,7 +1296,7 @@ QStandardItemModel* monteInputModel(const QString &monteDir,
 
     QFile file(monteInputFile);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        fprintf(stderr, "snap [error]: could not open %s\n",
+        fprintf(stderr, "koviz [error]: could not open %s\n",
                          monteInputFile.toLatin1().constData());
         exit(-1);
     }
@@ -1328,7 +1328,7 @@ QStandardItemModel* monteInputModelTrick07(const QString &monteInputFile,
 
     QFile file(monteInputFile);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        fprintf(stderr, "snap [error]: could not open %s\n",
+        fprintf(stderr, "koviz [error]: could not open %s\n",
                         monteInputFile.toLatin1().constData());
         exit(-1);
     }
@@ -1347,7 +1347,7 @@ QStandardItemModel* monteInputModelTrick07(const QString &monteInputFile,
         }
     }
     if ( !isNumRuns ) {
-        fprintf(stderr, "snap [error]: error parsing monte carlo input file: "
+        fprintf(stderr, "koviz [error]: error parsing monte carlo input file: "
                         "%s.   Couldn't find/parse \"NUM_RUNS:\" line.\n",
                         monteInputFile.toLatin1().constData());
         exit(-1);
@@ -1367,7 +1367,7 @@ QStandardItemModel* monteInputModelTrick07(const QString &monteInputFile,
         }
     }
     if ( ! isVars ) {
-        fprintf(stderr, "snap [error]: error parsing monte carlo input file: "
+        fprintf(stderr, "koviz [error]: error parsing monte carlo input file: "
                         "%s.   Couldn't find/parse \"VARS:\" line.\n",
                         monteInputFile.toLatin1().constData());
         exit(-1);
@@ -1388,7 +1388,7 @@ QStandardItemModel* monteInputModelTrick07(const QString &monteInputFile,
         }
     }
     if ( !isData ) {
-        fprintf(stderr, "snap [error]: error parsing monte carlo input file: "
+        fprintf(stderr, "koviz [error]: error parsing monte carlo input file: "
                         "%s.   Couldn't find/parse \"DATA:\" line.\n",
                         monteInputFile.toLatin1().constData());
         exit(-1);
@@ -1451,7 +1451,7 @@ QStandardItemModel* monteInputModelTrick07(const QString &monteInputFile,
         runName.prepend("RUN_");
         if ( ! runs.contains(runName) ) {
             fprintf(stderr,
-                    "snap [error]: error parsing monte carlo "
+                    "koviz [error]: error parsing monte carlo "
                     "input file. RunID for Run=%s"
                     " is in the monte carlo input file, but "
                     " can't find the RUN_ directory. "
@@ -1476,7 +1476,7 @@ QStandardItemModel* monteInputModelTrick07(const QString &monteInputFile,
         QStringList dataVals = dataLine.split(' ',QString::SkipEmptyParts);
         if ( dataVals.size() != vars.size() ) {
             fprintf(stderr,
-                    "snap [error]: error parsing monte carlo input file.  "
+                    "koviz [error]: error parsing monte carlo input file.  "
                     "There are %d variables in VARS list, but only %d fields "
                     "on line number %d.\n\n"
                     "File:%s\n"
@@ -1512,7 +1512,7 @@ QStandardItemModel* monteInputModelTrick17(const QString &monteInputFile,
 
     QFile file(monteInputFile);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        fprintf(stderr,"snap [error]: could not open %s\n",
+        fprintf(stderr,"koviz [error]: could not open %s\n",
                        monteInputFile.toLatin1().constData());
         exit(-1);
     }
@@ -1530,7 +1530,7 @@ QStandardItemModel* monteInputModelTrick17(const QString &monteInputFile,
         QString line = in.readLine();
         nRuns = line.split(' ').at(0).trimmed().toInt(&ok) + 1;
         if ( !ok || nRuns != lineNum ) {
-            fprintf(stderr,"snap [error]: error parsing %s "
+            fprintf(stderr,"koviz [error]: error parsing %s "
                            " around line number %d\n",
                            monteInputFile.toLatin1().constData(),lineNum);
             exit(-1);
@@ -1580,7 +1580,7 @@ QStandardItemModel* monteInputModelTrick17(const QString &monteInputFile,
         line = in.readLine();
         QStringList vals = line.split(' ',QString::SkipEmptyParts);
         if ( vals.size() != vars.size() ) {
-            fprintf(stderr, "snap [error]: error parsing %s.  There "
+            fprintf(stderr, "koviz [error]: error parsing %s.  There "
                             "are %d variables specified in top line, "
                             "but only %d values on line number %d.\n",
                            monteInputFile.toLatin1().constData(),

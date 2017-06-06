@@ -60,7 +60,7 @@ QRectF CoordArrow::boundingBox(const QPainter& painter,
         atl.setX(pt.x()+r*cos(angle));
         atl.setY(pt.y()-r*sin(angle));
     } else {
-        fprintf(stderr,"snap [bad scoobs]: CoorArrow::boundingBox(): "
+        fprintf(stderr,"koviz [bad scoobs]: CoorArrow::boundingBox(): "
                        "arrow angle <=0,==90,==270 or >=360. "
                        "May want to support it.  Bailing!!!\n");
         exit(-1);
@@ -103,7 +103,7 @@ QRectF CoordArrow::txtBoundingBox(const QPainter& painter,
         tl.setX(pt.x() + (r+h+a)*cos(angle) + b + m);
         tl.setY(pt.y() - (r+h+a)*sin(angle) - th/2.0);
     } else {
-        fprintf(stderr,"snap [bad scoobs]: CoorArrow::txtBBox(): "
+        fprintf(stderr,"koviz [bad scoobs]: CoorArrow::txtBBox(): "
                        "arrow angle <=0,==90,==270 or >=360. "
                        "May want to support it.  Bailing!!!\n");
         exit(-1);
@@ -216,7 +216,7 @@ void CoordArrow::paintMe(QPainter &painter, const QTransform &T) const
         txtBox.setTopLeft(tl);
         txtBox.setSize(QSize(tw,th));
     } else {
-        fprintf(stderr,"snap [bad scoobs]: CoorArrow::paintMe(): "
+        fprintf(stderr,"koviz [bad scoobs]: CoorArrow::paintMe(): "
                        "arrow angle <=0,==90,==270 or >=360. "
                        "May want to support it.  Bailing!!!\n");
         exit(-1);
@@ -337,7 +337,7 @@ void CurvesView::paintEvent(QPaintEvent *event)
             _paintCoplot(T,painter,pen);
             _paintErrorplot(T,painter,pen,rootIndex()); // overlay err on coplot
         } else {
-            fprintf(stderr,"snap [bad scoobs]: paintEvent() : "
+            fprintf(stderr,"koviz [bad scoobs]: paintEvent() : "
                            "PlotPresentation=\"%s\" not recognized.\n",
                            plotPresentation.toLatin1().constData());
             exit(-1);
@@ -564,7 +564,7 @@ void CurvesView::_paintLiveCoordArrow(TrickCurveModel* curveModel,
             arrow.txt = QString("last=(%1, %2)").arg(_format(coord.x()))
                                                 .arg(_format(coord.y()));
     } else {
-        fprintf(stderr,"snap [bad scoobs]: CurvesView::_paintLiveCoordArrow\n");
+        fprintf(stderr,"koviz [bad scoobs]: CurvesView::_paintLiveCoordArrow\n");
         exit(-1);
     }
 
@@ -657,7 +657,7 @@ void CurvesView::_paintErrorLiveCoordArrow(QPainterPath* path,
             arrow.txt = QString("last=(%1, %2)").arg(_format(coord.x()))
                                                 .arg(_format(coord.y()));
     } else {
-        fprintf(stderr,"snap [bad scoobs]: "
+        fprintf(stderr,"koviz [bad scoobs]: "
                        "CurvesView::_paintErrorLiveCoordArrow\n");
         exit(-1);
     }
@@ -1370,7 +1370,7 @@ void CurvesView::mouseReleaseEvent(QMouseEvent *event)
             } else {
                 QModelIndex plotIdx = rootIndex();
                 if ( !_bookModel()->isIndex(plotIdx,"Plot") ) {
-                    fprintf(stderr, "snap [bad scoobs]: "
+                    fprintf(stderr, "koviz [bad scoobs]: "
                                     "CurvesView::mouseReleaseEvent()\n");
                     exit(-1);
                 }
@@ -1576,12 +1576,12 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                         } else if ( i > 0 ) {
                             dt = p.x() - (it[i-1].x()*xs+xb);
                         } else {
-                            fprintf(stderr,"snap [bad scoobs]:1: "
+                            fprintf(stderr,"koviz [bad scoobs]:1: "
                                            "CurvesView::mouseMoveEvent()\n");
                             exit(-1);
                         }
                         if ( dt < 1.0e-9 ) {
-                            fprintf(stderr,"snap [bad scoobs]:2: "
+                            fprintf(stderr,"koviz [bad scoobs]:2: "
                                            "CurvesView::mouseMoveEvent() "
                                            "dt < 1.0e-9 \n");
                             exit(-1);
@@ -1667,7 +1667,7 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                             } else if ( !isMaxs && !isMins ) {
                                 liveCoord = p;
                             } else {
-                                fprintf(stderr,"snap [bad scoobs]:3: "
+                                fprintf(stderr,"koviz [bad scoobs]:3: "
                                               "CurvesView::mouseMoveEvent()\n");
                                 exit(-1);
                             }
@@ -1777,12 +1777,12 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                 } else if ( i > 0 ) {
                     dt = p.x() - path->elementAt(i-1).x;
                 } else {
-                    fprintf(stderr,"snap [bad scoobs]:4: "
+                    fprintf(stderr,"koviz [bad scoobs]:4: "
                                    "CurvesView::mouseMoveEvent()\n");
                     exit(-1);
                 }
                 if ( dt < 1.0e-9 ) {
-                    fprintf(stderr,"snap [bad scoobs]:5: "
+                    fprintf(stderr,"koviz [bad scoobs]:5: "
                                    "CurvesView::mouseMoveEvent() "
                                    "dt < 1.0e-9 \n");
                     exit(-1);
@@ -1869,7 +1869,7 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                     } else if ( !isMaxs && !isMins ) {
                         liveCoord = p;
                     } else {
-                        fprintf(stderr,"snap [bad scoobs]:6: "
+                        fprintf(stderr,"koviz [bad scoobs]:6: "
                                        "CurvesView::mouseMoveEvent()\n");
                         exit(-1);
                     }
@@ -2038,7 +2038,7 @@ void CurvesView::_keyPressSpace()
     } else if ( plotPresentation == "error+compare" ) {
         plotPresentation = "error";
     } else {
-        fprintf(stderr,"snap [bad scoobs]: _keyPressSpace() : "
+        fprintf(stderr,"koviz [bad scoobs]: _keyPressSpace() : "
                        "plotPresentation=\"%s\"\n",
                        plotPresentation.toLatin1().constData());
         exit(-1);

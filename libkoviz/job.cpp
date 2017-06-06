@@ -50,7 +50,7 @@ inline void Job::_do_stats()
 
     if ( ! _curve ) {
         // TODO: throw exception
-        fprintf(stderr,"snap [error]: Job::_do_stats() called without setting:");
+        fprintf(stderr,"koviz [error]: Job::_do_stats() called without setting:");
         fprintf(stderr," curve\n");
         exit(-1);
     }

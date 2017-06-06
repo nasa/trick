@@ -165,7 +165,7 @@ Option::Option(const QString &nameSpec,
         _fpresetQStringList = (FPresetQStringList*)presetCB;
         _fpostsetQStringList = (FPostsetQStringList*)postsetCB;
     } else {
-        fprintf(stderr,"snap [bad scoobs]: default value=\"%s\" "
+        fprintf(stderr,"koviz [bad scoobs]: default value=\"%s\" "
                        "given to Option::Option() constructor "
                        "has an unsupported type of \"%s\"\n",
                        _defaultValue.toString().toLatin1().constData(),
@@ -286,14 +286,14 @@ void Option::setValue(const QVariant &val, bool* ok)
             _fpostsetQStringList(_addrQStringList, ok);
         }
     } else {
-        fprintf(stderr,"snap [bad scoobs]: bad type to Option::setValue()\n");
+        fprintf(stderr,"koviz [bad scoobs]: bad type to Option::setValue()\n");
     }
 }
 
 void Option::setValue(const QVariantList &vals)
 {
     Q_UNUSED(vals);
-    fprintf(stderr,"snap [TODO]: setValue(const QVariantList &vals)\n");
+    fprintf(stderr,"koviz [TODO]: setValue(const QVariantList &vals)\n");
     exit(-1);
 }
 
@@ -340,8 +340,9 @@ void Options::_addOption(const QString &nameSpec,
     if ( opt->isRootOption() ) {
         _nRootOptions++;
         if ( _nRootOptions > 1 ) {
-            fprintf(stderr,"Only one root option (non hyphenated) "
-                    "should be present.  Too many were add()ed.\n"
+            fprintf(stderr,"koviz [error]: Only one root option "
+                    "(non hyphenated) should be present.  Too many "
+                    "were add()ed.\n"
                     "The offending option was %s\n",
                     nameSpec.toLatin1().constData());
             exit(-1);
@@ -474,7 +475,7 @@ void Options::parse(int argc, char **argv, const QString& programName,
                 if ( opt->type() == QVariant::Bool ) {
                     opt->setValue(QVariant(true),ok);
                 } else {
-                    fprintf(stderr,"snap [error]: Option=\"%s\" "
+                    fprintf(stderr,"koviz [error]: Option=\"%s\" "
                                    "does not have a value specified.\n",
                                    opt->name().toLatin1().constData());
                     *ok = false;

@@ -54,7 +54,7 @@ int BookView::_pageIdxToTabId(const QModelIndex &pageIdx)
                 break;
             }
         } else {
-            fprintf(stderr,"snap [bad scoobs]: BookView::_pageIdxToTabId()\n");
+            fprintf(stderr,"koviz [bad scoobs]: BookView::_pageIdxToTabId()\n");
             exit(-1);
         }
     }
@@ -83,12 +83,12 @@ QModelIndex BookView::_tabIdToPageIdx(int tabId)
             }
         }
         if ( row < 0 ) {
-            fprintf(stderr,"snap [bad scoobs]:1: BookView::_tabIdToPageIdx() "
+            fprintf(stderr,"koviz [bad scoobs]:1: BookView::_tabIdToPageIdx() "
                            "Could not find page using tabId=%d\n", tabId);
             exit(-1);
         }
     } else {
-        fprintf(stderr,"snap [bad scoobs]:2: BookView::_tabIdToPageIdx()\n");
+        fprintf(stderr,"koviz [bad scoobs]:2: BookView::_tabIdToPageIdx()\n");
         exit(-1);
     }
 
@@ -569,7 +569,7 @@ void BookView::_printPage(QPainter *painter, const QModelIndex &pageIdx)
                    axisLinePtSize, ticWidth, ticHeight);
 
     } else {
-        fprintf(stderr,"snap [error]: _printPage() : cannot print more than "
+        fprintf(stderr,"koviz [error]: _printPage() : cannot print more than "
                        "7 plots on a page.\n");
         exit(-1);
     }
@@ -941,7 +941,7 @@ void BookView::_printCurves(const QRect& R,
             _printErrorplot(R,painter,plotIdx);
             _printCoplot(R,painter,plotIdx);
         } else {
-            fprintf(stderr,"snap [bad scoobs]: printCurves() : pres=\"%s\" "
+            fprintf(stderr,"koviz [bad scoobs]: printCurves() : pres=\"%s\" "
                            "not recognized.\n",
                            plotPresentation.toLatin1().constData());
             exit(-1);
@@ -1521,7 +1521,7 @@ void BookView::_printErrorplot(const QRect& R,
     TrickCurveModel* c1 = QVariantToPtr<TrickCurveModel>::convert(v1);
 
     if ( c0 == 0 || c1 == 0 ) {
-        fprintf(stderr,"snap [bad scoobs]:1: BookView::_printErrorplot()\n");
+        fprintf(stderr,"koviz [bad scoobs]:1: BookView::_printErrorplot()\n");
         exit(-1);
     }
 
@@ -1551,7 +1551,7 @@ void BookView::_printErrorplot(const QRect& R,
             } else if ( t1 < t0 ) {
                 ++i1;
             } else {
-                fprintf(stderr,"snap [bad scoobs]:2: _printErrorplot()\n");
+                fprintf(stderr,"koviz [bad scoobs]:2: _printErrorplot()\n");
                 exit(-1);
             }
         }
@@ -2030,19 +2030,19 @@ void BookView::rowsInserted(const QModelIndex &pidx, int start, int end)
 void BookView::rowsAboutToBeRemoved(const QModelIndex &pidx, int start, int end)
 {
     if ( start != end ) {
-        fprintf(stderr,"snap [bad scoobs]:1: BookView::rowsAboutToBeRemoved(): "
+        fprintf(stderr,"koviz [bad scoobs]:1:BookView::rowsAboutToBeRemoved(): "
                        "TODO: support deleting multiple rows at once.\n");
         exit(-1);
     }
     if ( start < 0 || start >= _childViews.size() ) {
-        fprintf(stderr,"snap [bad scoobs]:2: BookView::rowsAboutToBeRemoved(): "
+        fprintf(stderr,"koviz [bad scoobs]:2:BookView::rowsAboutToBeRemoved(): "
                        "childViews list not in sync with model.\n");
         exit(-1);
     }
 
     QModelIndex pageIdx = model()->index(start,0,pidx);
     if ( model()->data(pageIdx).toString() != "Page" ) {
-        fprintf(stderr,"snap [bad scoobs]:3 BookView::rowsAboutToBeRemoved(): "
+        fprintf(stderr,"koviz [bad scoobs]:3 BookView::rowsAboutToBeRemoved(): "
                        "page deletion support only!!!\n");
         exit(-1);
     }

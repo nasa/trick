@@ -52,7 +52,7 @@ void PageTitleView::setModel(QAbstractItemModel *model)
     QList<QStandardItem*> items = bookModel->findItems("DefaultPageTitles",
                                                        Qt::MatchStartsWith);
     if ( items.isEmpty() ) {
-        fprintf(stderr,"snap [bad scoobs]: PageTitleView::setModel() can't "
+        fprintf(stderr,"koviz [bad scoobs]: PageTitleView::setModel() can't "
                        "find DefaultPageTitles.\n");
         exit(-1);
     }
@@ -131,7 +131,7 @@ void PageTitleView::rowsInserted(const QModelIndex &pidx, int start, int end)
                                             findItems("DefaultPageTitles",
                                                       Qt::MatchStartsWith);
             if ( items.isEmpty() ) {
-                fprintf(stderr,"snap [bad scoobs]: PageTitleView::setModel() "
+                fprintf(stderr,"koviz [bad scoobs]: PageTitleView::setModel() "
                                "can't find DefaultPageTitles\n");
                 exit(-1);
             }

@@ -173,7 +173,7 @@ class TrickModel : public QAbstractTableModel
             default:
             {
                 fprintf(stderr,
-                        "snap [error]: can't handle trick 07 type \"%d\"\n"
+                        "koviz [error]: can't handle trick 07 type \"%d\"\n"
                         "              Look in trick_types.h for type.\n",
                         paramtype);
                 exit(-1);
@@ -228,7 +228,7 @@ class TrickModel : public QAbstractTableModel
             default:
             {
                 fprintf(stderr,
-                        "snap [error]: can't handle trick 10 type \"%d\"\n"
+                        "koviz [error]: can't handle trick 10 type \"%d\"\n"
                         "              Look in trick_types.h for type\n.",
                         paramtype);
                 exit(-1);

@@ -137,7 +137,7 @@ QModelIndex PlotBookModel::_plotIdx(const QModelIndex &idx) const
         pltIdx = p3Idx;
     } else {
         fprintf(stderr,
-                "snap [bad scoobs]: PlotBookModel::_plotIdx() failed.\n");
+                "koviz [bad scoobs]: PlotBookModel::_plotIdx() failed.\n");
         exit(-1);
     }
 
@@ -158,7 +158,7 @@ QModelIndex PlotBookModel::_ancestorIdx(const QModelIndex &startIdx,
         if ( !isIndex(startIdx, expectedStartIdxText) ) {
             QStandardItem* startItem = itemFromIndex(startIdx);
             QString startText = startItem->text();
-            fprintf(stderr, "snap [bad scoobies]: _ancestorIdx() received a "
+            fprintf(stderr, "koviz [bad scoobies]: _ancestorIdx() received a "
                             "startIdx with tag=\"%s\". The expected start "
                             "item text was \"%s\".  The ancestor tag to "
                             "find was \"%s\".\n",
@@ -287,7 +287,7 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
             if ( !isIndex(startIdx, expectedStartIdxText) ) {
                 QStandardItem* startItem = itemFromIndex(startIdx);
                 QString startText = startItem->text();
-                fprintf(stderr,"snap [bad scoobs]:1: getIndex() received a "
+                fprintf(stderr,"koviz [bad scoobs]:1: getIndex() received a "
                                "startIdx with tag=\"%s\".  The expected start "
                                "item text was \"%s\".\n",
                                startText.toLatin1().constData(),
@@ -295,7 +295,7 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
                 exit(-1);
             }
         } else {
-            fprintf(stderr,"snap [bad scoobs]:2: getIndex() received an "
+            fprintf(stderr,"koviz [bad scoobs]:2: getIndex() received an "
                            "invalid startIdx. The startIdx "
                            "was expected to have this text \"%s\".\n",
                            expectedStartIdxText.toLatin1().constData());
@@ -327,7 +327,7 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
         } else if ( searchItemText == "RunToShiftHash" ) {
             idx = index(10,0);
         } else {
-            fprintf(stderr,"snap [bad scoobs]:3: getIndex() received "
+            fprintf(stderr,"koviz [bad scoobs]:3: getIndex() received "
                            "root as a startIdx and had bad child "
                            "item text of \"%s\".\n",
                            searchItemText.toLatin1().constData());
@@ -349,7 +349,7 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
         }
         if ( !isFound ) {
             fprintf(stderr,
-                    "snap [bad scoobs]:4:PlotBookModel::getIndex()\n"
+                    "koviz [bad scoobs]:4:PlotBookModel::getIndex()\n"
                     "expectedStartIdxText=%s\n"
                     "searchItemText=%s\n",
                     expectedStartIdxText.toLatin1().constData(),
@@ -388,7 +388,7 @@ double PlotBookModel::getDataDouble(const QModelIndex &startIdx,
     bool ok;
     double d = data(dataIdx).toDouble(&ok);
     if ( !ok ) {
-        fprintf(stderr,"snap [bad scoobs]: PlotBookModel::getDataDouble()\n");
+        fprintf(stderr,"koviz [bad scoobs]: PlotBookModel::getDataDouble()\n");
         exit(-1);
     }
     return d;
@@ -403,7 +403,7 @@ int PlotBookModel::getDataInt(const QModelIndex &startIdx,
     bool ok;
     int i = data(dataIdx).toInt(&ok);
     if ( !ok ) {
-        fprintf(stderr,"snap [bad scoobs]: PlotBookModel::getDataInt()\n");
+        fprintf(stderr,"koviz [bad scoobs]: PlotBookModel::getDataInt()\n");
         exit(-1);
     }
     return i;
@@ -449,7 +449,7 @@ QVector<qreal> PlotBookModel::getLineStylePattern(
     } else if ( s == "4_dot_dash" ) {
         pattern << 16 << 3 << 1 << 2 << 1 << 2 << 1 << 2 << 1 << 3;
     } else {
-        fprintf(stderr,"snap [error]: PlotBookModel::getLineStylePattern(): "
+        fprintf(stderr,"koviz [error]: PlotBookModel::getLineStylePattern(): "
                        " Unsupported line style \"%s\" given.",
                        s.toLatin1().constData());
     }
@@ -462,7 +462,7 @@ TrickCurveModel *PlotBookModel::getTrickCurveModel(const QModelIndex& curvesIdx,
                                                    int i) const
 {
     if ( !isIndex(curvesIdx, "Curves") ) {
-        fprintf(stderr,"snap [bad scoobs]:1: "
+        fprintf(stderr,"koviz [bad scoobs]:1: "
                        "PlotBookModel::getTrickCurveModel()\n");
         exit(-1);
     }
@@ -476,7 +476,7 @@ TrickCurveModel *PlotBookModel::getTrickCurveModel(
                                              const QModelIndex &curveIdx) const
 {
     if ( !isIndex(curveIdx, "Curve") ) {
-        fprintf(stderr,"snap [bad scoobs]:2: "
+        fprintf(stderr,"koviz [bad scoobs]:2: "
                        "PlotBookModel::getTrickCurveModel()\n");
         exit(-1);
     }
@@ -498,7 +498,7 @@ QPainterPath* PlotBookModel::getCurvePainterPath(
     if ( _curve2path.contains(curveModel) ) {
         path = _curve2path.value(curveModel);
     } else {
-        fprintf(stderr,"snap [bad scoobs]: "
+        fprintf(stderr,"koviz [bad scoobs]: "
                        "PlotBookModel::getCurvePainterPath()\n");
         exit(-1);
     }
@@ -535,7 +535,7 @@ QModelIndexList PlotBookModel::getIndexList(const QModelIndex &startIdx,
         // Made so startIdx doesn't have to be the parent PageIdx
         QModelIndex pageIdx = getIndex(startIdx, "Page", expectedStartIdxText);
         if ( !pageIdx.isValid() ) {
-            fprintf(stderr,"snap [bad scoobs]: getIndexList() received "
+            fprintf(stderr,"koviz [bad scoobs]: getIndexList() received "
                            "startItemText=\"%s\" and searchItemText=\"%s\".  "
                            "Unable to find list for the item text.",
                            startItemText.toLatin1().constData(),
@@ -587,7 +587,7 @@ double PlotBookModel::xScale(const QModelIndex& curveIdx) const
     QString tag = data(curveIdx).toString();
 
     if ( tag != "Curve" ) {
-        fprintf(stderr,"snap [bad scoobs]: PlotBookModel::xScale() : "
+        fprintf(stderr,"koviz [bad scoobs]: PlotBookModel::xScale() : "
                        "expected tag \"Curve\", instead tag=\"%s\".\n",
                        tag.toLatin1().constData());
         exit(-1);
@@ -624,7 +624,7 @@ double PlotBookModel::yScale(const QModelIndex& curveIdx) const
     QString tag = data(curveIdx).toString();
 
     if ( tag != "Curve" ) {
-        fprintf(stderr,"snap [bad scoobs]: PlotBookModel::yScale() : "
+        fprintf(stderr,"koviz [bad scoobs]: PlotBookModel::yScale() : "
                        "expected tag \"Curve\", instead tag=\"%s\".\n",
                        tag.toLatin1().constData());
         exit(-1);
@@ -660,7 +660,7 @@ double PlotBookModel::xBias(const QModelIndex &curveIdx) const
     QString tag = data(curveIdx).toString();
 
     if ( tag != "Curve" ) {
-        fprintf(stderr,"snap [bad scoobs]: PlotBookModel::xBias() : "
+        fprintf(stderr,"koviz [bad scoobs]: PlotBookModel::xBias() : "
                        "expected tag \"Curve\", instead tag=\"%s\".\n",
                        tag.toLatin1().constData());
         exit(-1);
@@ -684,7 +684,7 @@ double PlotBookModel::yBias(const QModelIndex &curveIdx) const
     QString tag = data(curveIdx).toString();
 
     if ( tag != "Curve" ) {
-        fprintf(stderr,"snap [bad scoobs]: PlotBookModel::yBias() : "
+        fprintf(stderr,"koviz [bad scoobs]: PlotBookModel::yBias() : "
                        "expected tag \"Curve\", instead tag=\"%s\".\n",
                        tag.toLatin1().constData());
         exit(-1);
@@ -734,7 +734,7 @@ QRectF PlotBookModel::calcCurvesBBox(const QModelIndex &curvesIdx) const
         bbox = errorPath->boundingRect();
         delete errorPath;
     } else {
-        fprintf(stderr,"snap [bad scoobs]: PlotBookModel::calcCurvesBBox()\n");
+        fprintf(stderr,"koviz [bad scoobs]: PlotBookModel::calcCurvesBBox()\n");
         exit(-1);
     }
 
@@ -814,13 +814,13 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
     QPainterPath* path = new QPainterPath;
 
     if ( !isIndex(curvesIdx,"Curves") ) {
-        fprintf(stderr,"snap [bad scoobies]:1:"
+        fprintf(stderr,"koviz [bad scoobies]:1:"
                        "PlotBookModel::_createErrorPath()\n");
         exit(-1);
     }
 
     if ( rowCount(curvesIdx) != 2 ) {
-        fprintf(stderr,"snap [bad scoobies]:2:"
+        fprintf(stderr,"koviz [bad scoobies]:2:"
                        "PlotBookModel::_createErrorPath(): "
                        "Expected two curves for creating an error path.\n");
 
@@ -831,14 +831,14 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
     TrickCurveModel* c1 = getTrickCurveModel(curvesIdx,1);
 
     if ( c0 == 0 || c1 == 0 ) {
-        fprintf(stderr,"snap [bad scoobs]:3: "
+        fprintf(stderr,"koviz [bad scoobs]:3: "
                        "PlotBookModel::_createErrorPath(). "
                        "Null curveModel!\n ");
         exit(-1);
     }
 
     if ( c0->t()->unit() != c1->t()->unit() ) {
-        fprintf(stderr,"snap [bad scoobs]:4: "
+        fprintf(stderr,"koviz [bad scoobs]:4: "
                        "PlotBookModel::_createErrorPath().  "
                        "TODO: curveModels time units do not match.\n");
         exit(-1);
@@ -858,13 +858,13 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
     if (!_timeNames.contains(curveXName0)) {
         // TODO: error plot when x is not time e.g. x/y position
         //       d=sqrt((x0-x1)*(x0-x1)+(y0-y1)*(y0-y1))
-        fprintf(stderr,"snap [todo]: Handle error plot when x is not time.\n"
+        fprintf(stderr,"koviz [todo]: Handle error plot when x is not time.\n"
                        "Aborting!\n");
         exit(-1);
     }
     if ( curveXName0 != curveXName1 || curveXUnit0 != curveXUnit1 ||
          curveYName0 != curveYName1 ) {
-        fprintf(stderr,"snap [todo]: Handle error plot when xynames or xunits "
+        fprintf(stderr,"koviz [todo]: Handle error plot when xynames or xunits "
                        "are different.\n  Aborting!\n");
         exit(-1);
     }
@@ -910,7 +910,7 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
             } else if ( t1 < t0 ) {
                 ++i1;
             } else {
-                fprintf(stderr,"snap [bad scoobs]:5: "
+                fprintf(stderr,"koviz [bad scoobs]:5: "
                                "PlotBookModel::_createErrorPath()\n");
                 exit(-1);
             }
@@ -929,7 +929,7 @@ QString PlotBookModel::getCurvesXUnit(const QModelIndex &curvesIdx)
     QString xunit;
 
     if ( !isIndex(curvesIdx,"Curves") ) {
-        fprintf(stderr,"snap [bad scoobs] PlotBookModel::getCurvesXUnit()\n)");
+        fprintf(stderr,"koviz [bad scoobs] PlotBookModel::getCurvesXUnit()\n)");
         exit(-1);
     }
 
@@ -968,7 +968,7 @@ QString PlotBookModel::getCurvesYUnit(const QModelIndex &curvesIdx)
     QString yunit;
 
     if ( !isIndex(curvesIdx,"Curves") ) {
-        fprintf(stderr,"snap [bad scoobs] PlotBookModel::_getCurvesYUnit()\n");
+        fprintf(stderr,"koviz [bad scoobs] PlotBookModel::_getCurvesYUnit()\n");
         exit(-1);
     }
 

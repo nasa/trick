@@ -235,7 +235,7 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
             // This should not happen
             // It could be ignored but I'll exit(-1) because I think
             // if this happens it's a programming error, not a user error
-            fprintf(stderr, "snap [bad scoobs]: varswidget.cpp\n"
+            fprintf(stderr, "koviz [bad scoobs]: varswidget.cpp\n"
                             "curve(%d,%s,%s,%s) failed.  Aborting!!!\n",
                     r,
                     _timeName.toLatin1().constData(),

@@ -148,7 +148,7 @@ QSize LabeledRulerView::sizeHint() const
     } else if ( _alignment == Qt::AlignLeft ) {
         s = _sizeHintLeft();
     } else {
-        fprintf(stderr, "snap [bad scoobs]: LabeledRulerView::sizeHint() "
+        fprintf(stderr, "koviz [bad scoobs]: LabeledRulerView::sizeHint() "
                         "Bad alignment.  Aborting!!!\n");
         exit(-1);
     }

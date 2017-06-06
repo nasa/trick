@@ -53,7 +53,7 @@ void BookIdxView::setCurvesView(QAbstractItemView *view)
 QRectF BookIdxView::_mathRect()
 {
     if ( !_curvesView ) {
-        fprintf(stderr, "snap [bad scoobs]: BookIdxView::_mathRect() "
+        fprintf(stderr, "koviz [bad scoobs]: BookIdxView::_mathRect() "
                         "called without _curvesView set.\n");
         exit(-1);
     }
@@ -447,7 +447,7 @@ bool BookIdxView::_isEqual(double a, double b, ulong maxD,
             }
         } else {
             // bad scoobies
-            fprintf(stderr, "bad scoobs in _isEqual(a,b)\n");
+            fprintf(stderr, "koviz [bad scoobs] in _isEqual(a,b)\n");
             return false;
         }
 
@@ -467,7 +467,7 @@ bool BookIdxView::_isEqual(double a, double b, ulong maxD,
             k = log2(qAbs(a));
         } else {
             // bad scoobs
-            fprintf(stderr, "bad scoobies in _isEqual(a,b)\n");
+            fprintf(stderr, "koviz [bad scoobs] in _isEqual(a,b)\n");
             return false;
         }
         k = floor(k);
@@ -639,7 +639,7 @@ PlotBookModel* BookIdxView::_bookModel() const
     PlotBookModel* bookModel = dynamic_cast<PlotBookModel*>(model());
 
     if ( !bookModel ) {
-        fprintf(stderr,"snap [bad scoobs]: BookIdxView::_bookModel() "
+        fprintf(stderr,"koviz [bad scoobs]: BookIdxView::_bookModel() "
                        "could not cast model() to a PlotBookModel*.\n");
         exit(-1);
     }
@@ -694,7 +694,7 @@ QString BookIdxView::_curvesXUnit(const QModelIndex& plotIdx) const
 QString BookIdxView::_curvesUnit(const QModelIndex &plotIdx, QChar axis) const
 {
     if ( axis != 'x' && axis != 'y' ) {
-        fprintf(stderr,"snap [bad scoobs]: BookIdxView::_curvesUnit "
+        fprintf(stderr,"koviz [bad scoobs]: BookIdxView::_curvesUnit "
                        "called with bad axis=%c\n", axis.toLatin1());
         exit(-1);
     }
