@@ -91,7 +91,7 @@ sun_predictor.sun.local_time.sec    = current_local_time.second
 # Start the display VarServer Client
 #==========================================
 varServerPort = trick.var_server_get_port();
-SunDisplay_path = "models/Graphics/dist/SunDisplay.jar"
+SunDisplay_path = "models/graphics/dist/SunDisplay.jar"
 
 if (os.path.isfile(SunDisplay_path)) :
     SunDisplay_cmd = "java -jar " \
