@@ -74,7 +74,7 @@ void Snap::_load()
         }
     }
     if ( _thread0 == 0 ) {
-        _err_stream << "snap [error]: no main thread with id==0 found!!!";
+        _err_stream << "koviz [error]: no main thread with id==0 found!!!";
         throw std::runtime_error(_err_string.toLatin1().constData());
     }
 
@@ -396,7 +396,7 @@ TrickModel *Snap::_createModel( const QString &trk,
 
     QFile file(trk);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        _err_stream << "snap [error]: couldn't read/open file: " << trk << "\n";
+        _err_stream << "koviz [error]: couldn't read/open file: " << trk << "\n";
         throw std::invalid_argument(_err_string.toLatin1().constData());
     } else {
         file.close();
@@ -406,7 +406,7 @@ TrickModel *Snap::_createModel( const QString &trk,
     // If trk file is less than 50 bytes, it can't be legit
     //
     if ( file.size() < 50 ) {
-        _err_stream << "snap [error]: "
+        _err_stream << "koviz [error]: "
                     << "suspicious filesize of "
                     << file.size()
                     << " for file \""
@@ -422,7 +422,7 @@ TrickModel *Snap::_createModel( const QString &trk,
     }
     catch (std::range_error &e) {
         _err_stream << e.what() << "\n\n";
-        _err_stream << "snap [error]: -start or -stop options have bad vals\n";
+        _err_stream << "koviz [error]: -start or -stop options have bad vals\n";
         throw std::range_error(_err_string.toLatin1().constData());
     }
 
@@ -648,7 +648,7 @@ QString SnapReport::report()
 
     rpt.append(
 "************************************************************************\n"
-"*                            Snap! Results                             *\n"
+"*                            Koviz Results                             *\n"
 "************************************************************************\n\n");
 
     rpt += str.sprintf("%20s = %s\n", "Run directory ",
@@ -950,7 +950,7 @@ void Snap::_setLogFileNames()
     if ( !QFileInfo(_fileNameTrickJobs).exists() ) {
         _fileNameTrickJobs = _rundir + "/log_snap_trickjobs.trk";
         if ( !QFileInfo(_fileNameTrickJobs).exists() ) {
-            _err_stream << "snap [error]: cannot find " << _fileNameTrickJobs
+            _err_stream << "koviz [error]: cannot find " << _fileNameTrickJobs
                         << " or log_snap_trickjobs.trk files in "
                         << "directory " << _rundir;
             throw std::invalid_argument(_err_string.toLatin1().constData());
@@ -968,7 +968,7 @@ void Snap::_setLogFileNames()
         _fileNamesUserJobs << path;
     }
     if ( _fileNamesUserJobs.isEmpty() ) {
-        _err_stream << "snap [error]: no *userjob*.trk files found in "
+        _err_stream << "koviz [error]: no *userjob*.trk files found in "
                     << "directory " << _rundir;
         throw std::invalid_argument(_err_string.toLatin1().constData());
     }
@@ -977,7 +977,7 @@ void Snap::_setLogFileNames()
     if ( !QFileInfo(_fileNameLogFrame).exists() ) {
         _fileNameLogFrame = _rundir + "/log_snap_frame.trk";
         if ( !QFileInfo(_fileNameLogFrame).exists() ) {
-            _err_stream << "snap [error]: cannot find log_frame.trk or "
+            _err_stream << "koviz [error]: cannot find log_frame.trk or "
                         << "log_snap_frame.trk files n "
                         << "directory " << _rundir;
             throw std::invalid_argument(_err_string.toLatin1().constData());

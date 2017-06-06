@@ -206,7 +206,7 @@ void BookView::savePdf(const QString &fname)
     // Setup printer
     //
     QPrinter printer(QPrinter::HighResolution);
-    printer.setCreator("Snap!");
+    printer.setCreator("Koviz");
     printer.setDocName(fname);
     printer.setOutputFormat(QPrinter::PdfFormat);
     printer.setPageSize(QPrinter::Letter);

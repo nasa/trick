@@ -31,7 +31,7 @@ bool TrickModel::_load_trick_header()
     QFile file(_trkfile);
 
     if (!file.open(QIODevice::ReadOnly)) {
-        _err_stream << "snap [error]: could not open "
+        _err_stream << "koviz [error]: could not open "
                     << _trkfile << "\n";
         throw std::runtime_error(_err_string.toLatin1().constData());
     }
@@ -48,7 +48,7 @@ bool TrickModel::_load_trick_header()
     } else if ( data[0] == '0' && data[1] == '7' ) {
         _trick_version = TrickVersion07;
     } else {
-        _err_stream << "snap [error]: unrecognized file or Trick version: "
+        _err_stream << "koviz [error]: unrecognized file or Trick version: "
                     << _trkfile << "\n";
         throw std::runtime_error(_err_string.toLatin1().constData());
     }
@@ -82,7 +82,7 @@ bool TrickModel::_load_trick_header()
     // Sanity check.  The bytes remaining should be a multiple of the record size
     qint64 nbytes = file.bytesAvailable();
     if ( nbytes % _row_size != 0 ) {
-        _err_stream << "snap [error]: trk file \""
+        _err_stream << "koviz [error]: trk file \""
                     << file.fileName() << "\" is corrupt!\n";
         throw std::runtime_error(_err_string.toLatin1().constData());
     }
@@ -99,7 +99,7 @@ bool TrickModel::_load_trick_header()
         }
     }
     if ( ! isFoundTime ) {
-        _err_stream << "snap [error]: couldn't find time param \""
+        _err_stream << "koviz [error]: couldn't find time param \""
                     << _timeNames.join('=') << "\" in trkfile=" << _trkfile
                     << ".  Try setting -timeName on commandline option.";
         throw std::runtime_error(_err_string.toLatin1().constData());
@@ -135,7 +135,7 @@ bool TrickModel::_load_trick_header()
         }
 
         if ( !isStart && maxRows > 0 ) {
-            _err_stream << "snap [error]: startTime of "
+            _err_stream << "koviz [error]: startTime of "
                         << _startTime
                         << " specified by user "
                         << "exceeded all timestamps in non-empty file:\n    "
@@ -195,7 +195,7 @@ void TrickModel::map()
 
     _fd = open(_trkfile.toLatin1().constData(), O_RDONLY);
     if ( _fd < 0 ) {
-        _err_stream << "snap [error]: TrickModel could not open "
+        _err_stream << "koviz [error]: TrickModel could not open "
                     << _trkfile << "\n";
         throw std::runtime_error(_err_string.toLatin1().constData());
     }
@@ -204,7 +204,7 @@ void TrickModel::map()
     _mem = (ptrdiff_t)mmap(NULL,_fstat.st_size,PROT_READ,MAP_SHARED,_fd,0);
 
     if ( (void*)_mem == MAP_FAILED ) {
-        _err_stream << "snap [error]: TrickModel couldn't allocate memory for : "
+        _err_stream << "koviz [error]: TrickModel couldn't allocate memory for : "
                     << _trkfile << "\n";
         throw std::runtime_error(_err_string.toLatin1().constData());
     }

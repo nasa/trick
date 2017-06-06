@@ -17,7 +17,7 @@ DPProduct::DPProduct(const QString &fileName) :
     } else {
         QFile file(fileName);
         if (!file.open(QIODevice::ReadOnly)) {
-            _err_stream << "snap [error]: could not open "
+            _err_stream << "koviz [error]: could not open "
                         << file.fileName();
             throw std::runtime_error(_err_string.toLatin1().constData());
         }
@@ -64,13 +64,13 @@ void DPProduct::_handleDPXMLFile(const QString &xmlfile)
     _doc = new QDomDocument(xmlfile);
     QFile file(xmlfile);
     if (!file.open(QIODevice::ReadOnly)) {
-        _err_stream << "snap [error]: could not open "
+        _err_stream << "koviz [error]: could not open "
                     << xmlfile << "\n";
         throw std::runtime_error(_err_string.toLatin1().constData());
     }
     if (!_doc->setContent(&file)) {
         file.close();
-        _err_stream << "snap [error]: could not parse "
+        _err_stream << "koviz [error]: could not parse "
                     << xmlfile << "\n";
         throw std::runtime_error(_err_string.toLatin1().constData());
     }
@@ -140,7 +140,7 @@ QStringList DPProduct::paramList(const QString &fileName)
         QFile file(fileName);
 
         if (!file.open(QIODevice::ReadOnly)) {
-            _err_stream << "snap [error]: could not open "
+            _err_stream << "koviz [error]: could not open "
                         << file.fileName();
             throw std::runtime_error(_err_string.toLatin1().constData());
         }
@@ -587,7 +587,7 @@ DPCurve::DPCurve(const QDomElement &e) : _t(0), _x(0), _y(0)
                     setLineStyle(var->lineStyle().toLatin1().constData());
                 }
                 if ( count > 1 ) {
-                    _err_stream << "snap [error]: DPPlot can't handle "
+                    _err_stream << "koviz [error]: DPPlot can't handle "
                                 << "multiple y vars found in "
                                 << e.ownerDocument().toString() << "\n";
                     throw std::runtime_error(_err_string.toLatin1().constData());

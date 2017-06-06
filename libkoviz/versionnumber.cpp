@@ -67,7 +67,7 @@ VersionNumber::VersionNumber(const QString &s) :
     }
 
     if ( !ok) {
-        _err_stream << "snap [error]: "
+        _err_stream << "koviz [error]: "
                     << " version number error found with the string \""
                     << s << "\"";
         throw std::runtime_error(_err_string.toLatin1().constData());

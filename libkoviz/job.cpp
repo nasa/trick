@@ -212,7 +212,7 @@ void Job::_parseJobId(const QString &jobId)
         bool ok = false;
         _thread_id = strThreadId.toDouble(&ok);
         if ( !ok ) {
-            _err_stream << "snap [bad scoobies]: Couldn't determine thread_id "
+            _err_stream << "koviz [bad scoobies]: Couldn't determine thread_id "
                         << "from jobId \"" << jobId << "\"";
             throw std::runtime_error(_err_string.toLatin1().constData());
         }

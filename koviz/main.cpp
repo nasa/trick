@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
              "variable mapping (e.g. -map trick.x=spots.x)");
     opts.add("-debug:{0,1}",&opts.isDebug,false, "Show book model tree etc.");
 
-    opts.parse(argc,argv, QString("snap"), &ok);
+    opts.parse(argc,argv, QString("koviz"), &ok);
 
     if ( !ok ) {
         fprintf(stderr,"%s\n",opts.usage().toLatin1().constData());

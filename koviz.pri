@@ -1,10 +1,10 @@
 # =============================================================================
 #
-# Snap - Fast report quality plotting for Trick simulation data
+# koviz - Fast plotting for Trick simulation data
 #
 # =============================================================================
 
-PROJECT_NAME = snap
+PROJECT_NAME = koviz
 PROJECT_VERSION = 1.0.0
 
 INSTALL_PREFIX = /usr/local

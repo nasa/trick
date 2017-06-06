@@ -74,7 +74,7 @@ void PageTitleView::setModel(QAbstractItemModel *model)
                                                 "DefaultPageTitles");
     QString t1 = _bookModel()->getDataString(dptIdx,
                                              "Title1","DefaultPageTitles");
-    if ( t1 != "Snap Plots!" ) {
+    if ( t1 != "Koviz Plots!" ) {
         // Default title overwritten by -t1 optional title
         pageTitle = t1;
     }

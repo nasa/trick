@@ -102,7 +102,7 @@ QStringList TrickTableModel::_trks(const QString &runDir)
     filter_trk << "*.trk";
     trkList = dir.entryList(filter_trk, QDir::Files);
     if ( trkList.empty() ) {
-        _err_stream << "snap [error]: no trk logfiles found in "
+        _err_stream << "koviz [error]: no trk logfiles found in "
                     << runDir << "\n";
         throw std::invalid_argument(_err_string.toLatin1().constData());
     }

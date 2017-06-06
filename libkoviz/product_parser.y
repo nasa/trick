@@ -24,7 +24,7 @@ void yyerror(const char *str)
 {
     Q_UNUSED(str);
     QString msg;
-    msg += "snap dp: [error] : DP product parser error \n";
+    msg += "koviz [error] : DP product parser error \n";
     msg += "  Error found in file: " + dpFileName() + "\n";
     msg += "  Error found on line: " + QString("%1").arg(yylineno) + "\n";
     msg += "      Last Token Read: " + QString(yytext) + "\n";

@@ -34,7 +34,7 @@ Thread::~Thread()
 void Thread::addJob(Job* job)
 {
     if ( !_jobs.isEmpty() && _threadId != job->thread_id() ) {
-        _err_stream << "snap [bad scoobies]: Thread::addJob() called with "
+        _err_stream << "koviz [bad scoobies]: Thread::addJob() called with "
                     << "job with threadId that doesn't match other jobs. "
                     << "Conflicing jobs are:\n    "  << _jobs.at(0)->job_name()
                     << "\nand\n    " << job->job_name() ;
@@ -64,7 +64,7 @@ void Thread::_do_stats()
 
     if ( _threadId == 0 && _freq == 0.0 ) {
         QString msg;
-        msg += "snap [error]: couldn't find job";
+        msg += "koviz [error]: couldn't find job";
         msg += " trick_sys.sched.advance_sim_time.";
         msg += " Cannot determine thread0's frequency.";
         throw std::runtime_error(msg.toLatin1().constData());
@@ -104,7 +104,7 @@ void Thread::_do_stats()
             }
         }
         if ( timeToSyncWithAMFChildrenCurve == 0 ) {
-            _err_stream << "snap [bad scoobies]: cannot find advance_sim_time "
+            _err_stream << "koviz [bad scoobies]: cannot find advance_sim_time "
                         <<   " parameter for thread0 frame calculation."
                         << "  Trick may have changed the name.";
             throw std::runtime_error(_err_string.toLatin1().constData());
@@ -127,7 +127,7 @@ void Thread::_do_stats()
             if ( ov > 0.0 ) _num_overruns++;
 
             // Get frame time, which excludes waitOnWallClock & waitOnAMFChidren
-            // Snap calculates frame time (ft) by excluding executive
+            // Koviz calculates frame time (ft) by excluding executive
             // time waiting to sync with wall clock but includes
             // the sync with amf children
             int amfIdx  = timeToSyncWithAMFChildrenCurve->indexAtTime(it.t());
@@ -192,7 +192,7 @@ void Thread::_do_stats()
                     if ( job->isFrameTimerJob() ) {
                         // For Trick 13
                         // Do not use child frame scheduling time for frame
-                        // time sum.  Snap reports the sum of the userjobs,
+                        // time sum.  Koviz reports the sum of the userjobs,
                         // not the frame scheduling time since the frame
                         // scheduling time includes executive overhead
                         // (e.g. the frame logging itself).
@@ -309,7 +309,7 @@ void Thread::_frameModelSet()
     if ( !QFileInfo(fileNameLogFrame).exists() ) {
         fileNameLogFrame = _runDir + "/log_snap_frame.trk";
         if ( !QFileInfo(fileNameLogFrame).exists() ) {
-            _err_stream << "snap [error]: cannot find log_frame.trk or "
+            _err_stream << "koviz [error]: cannot find log_frame.trk or "
                         << "log_snap_frame.trk files in directory "
                         << _runDir;
             throw std::invalid_argument(_err_string.toLatin1().constData());
@@ -322,13 +322,13 @@ void Thread::_frameModelSet()
     }
     catch (std::range_error &e) {
         _err_stream << e.what() << "\n\n";
-        _err_stream << "snap [error]: -start or -stop opts have bad vals\n";
+        _err_stream << "koviz [error]: -start or -stop opts have bad vals\n";
         throw std::range_error(_err_string.toLatin1().constData());
     }
 
     int nFrames = _frameModel->rowCount();
     if ( nFrames == 0 ) {
-        _err_stream << "snap [error]: file \"" << _frameModel->tableName()
+        _err_stream << "koviz [error]: file \"" << _frameModel->tableName()
                     << "\" has no points";
         throw std::invalid_argument(_err_string.toLatin1().constData());
     }
@@ -354,7 +354,7 @@ void Thread::_frameModelSet()
         QString param  = ( frameSchedTimeCol  < 0 ) ?
                     Frame::frame_sched_time : Frame::frame_overrun_time ;
         // Shouldn't happen unless trick renames that param
-        _err_stream << "snap [error]: Couldn't find parameter "
+        _err_stream << "koviz [error]: Couldn't find parameter "
                         << param
                         << " in file \""
                         << _frameModel->tableName()

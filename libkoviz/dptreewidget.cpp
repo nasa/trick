@@ -510,7 +510,7 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
         if ( !curveModel ) {
             QString runDir = monteModel->
                                 headerData(runId,Qt::Vertical).toString();
-            _err_stream << "snap [error]: could not find parameter: \n\n"
+            _err_stream << "koviz [error]: could not find parameter: \n\n"
                         << "        " << "("
                         << _timeName << " , "
                         << xName << " , "
@@ -554,7 +554,7 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
         if ( !curveModel ) {
             QString runDir = monteModel->
                                 headerData(runId,Qt::Vertical).toString();
-            _err_stream << "snap [error]: could not find matching xypair "
+            _err_stream << "koviz [error]: could not find matching xypair "
                            "parameter in RUN:\n\n"
                         << "        " << runDir << "\n\n"
                            "Tried the following :\n\n";

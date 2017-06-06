@@ -74,10 +74,10 @@ private:
     bool _isMandatory;     // e.g. treat <SIM_dir> # SIM_dir is mandatory
 
     bool _isRootOption;    // this is for an "option" that has no -o <option>
-                          // e.g. snapq -startTime 100 <RUN_dir>
+                          // e.g. koviz -startTime 100 <RUN_dir>
                           // RUN_dir is a rootOption, -startTime is not
 
-    Quantifier _quantifier;   // e.g. snapdiff <RUN1> <RUN2>, the root option
+    Quantifier _quantifier;   // e.g. koviz <RUN1> <RUN2>, the root option
                           // take 2 vals so quantSpec is {2}
 
     // Instead of using a set() method, the user passes

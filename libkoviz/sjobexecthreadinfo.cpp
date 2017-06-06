@@ -65,7 +65,7 @@ void SJobExecThreadInfo::_calcThreadInfo()
     while (1) {
         QString line = in.readLine();
         if (line.isNull()) {
-            _err_stream << "snap [bad scoobies]: "
+            _err_stream << "koviz [bad scoobies]: "
                         << "parse error.  Couldn't find line "
                         << threadName
                         << " at top of file "
@@ -112,7 +112,7 @@ void SJobExecThreadInfo::_calcThreadInfo()
                 bool ok = true;
                 _freq = line.toDouble(&ok);
                 if ( !ok ) {
-                    _err_stream << "snap [bad scoobies]: "
+                    _err_stream << "koviz [bad scoobies]: "
                                 << "parse error.  Couldn't determine "
                                 << "frequency for AMF thread " << _threadId
                                 << " in file "
@@ -134,7 +134,7 @@ void SJobExecThreadInfo::_calcThreadInfo()
             if ( ok || line == "unassigned" || line == "none assigned" ) {
                 _rtCPUNumber = line;
             } else {
-                _err_stream << "snap [bad scoobies]: "
+                _err_stream << "koviz [bad scoobies]: "
                             << "parse error.  Couldn't determine "
                             << "rt_cpu_number for thread " << _threadId
                             << " in file "
@@ -159,7 +159,7 @@ void SJobExecThreadInfo::_calcThreadInfo()
     // Get Main thread frame time (thread0:trick_sys.sched.advance_sim_time )
     //
     // TODO: I don't think Trick reports the freq of advance_sim_time
-    //       correctly in S_job_execution because the snapq curve
+    //       correctly in S_job_execution because the koviz curve
     //       of advance_sim_time is not (at least in RUN_orlando) the
     //       S_job_execution freq... but I'm keeping this
     if ( _threadId == 0 ) {
@@ -173,7 +173,7 @@ void SJobExecThreadInfo::_calcThreadInfo()
                 bool ok = true;
                 _freq = fields.at(5).trimmed().toDouble(&ok);
                 if ( !ok ) {
-                    _err_stream << "snap [bad scoobies]: "
+                    _err_stream << "koviz [bad scoobies]: "
                                 << "parse error.  Couldn't determine "
                                 << "freq for thread " << _threadId
                                 << " in file "
@@ -187,7 +187,7 @@ void SJobExecThreadInfo::_calcThreadInfo()
             }
         }
         if ( _freq == 0.0 ) {
-            _err_stream << "snap [bad scoobies]: "
+            _err_stream << "koviz [bad scoobies]: "
                         << "parse error.  Couldn't determine "
                         << "freq for thread " << _threadId
                         << " in file "
