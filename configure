@@ -2621,7 +2621,7 @@ ac_configure="$SHELL $ac_aux_dir/configure"  # Please don't use this var.
 
 
 PATH="/opt/rh/devtoolset-3/root/usr/bin:${PATH}"
-XTRAINCPATHS="-I/usr/include/libxml2/ -I/usr/X11/include"
+XTRAINCPATHS="-I/usr/include/libxml2/ -I/usr/X11/include -I/usr/local/opt/libxml2/include -I/usr/local/opt/libxml2/include/libxml2"
 CFLAGS="$CFLAGS $XTRAINCPATHS"
 CPPFLAGS="$CPPFLAGS $XTRAINCPATHS"
 

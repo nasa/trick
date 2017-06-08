@@ -7,7 +7,7 @@ CPP = c++
 
 DPX_DIR  = ..
 
-INCLUDE_DIRS = -I${DPX_DIR} -I../.. -I${TRICK_HOME}/include -I/usr/include/libxml2
+INCLUDE_DIRS = -I${DPX_DIR} -I../.. -I${TRICK_HOME}/include -I/usr/include/libxml2 -I/usr/local/opt/libxml2/include/libxml2
 
 CFLAGS = -g -Wall $(UDUNITS_INCLUDES)
 
