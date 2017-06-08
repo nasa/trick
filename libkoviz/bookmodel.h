@@ -92,6 +92,9 @@ public:
     // Convenience wrapper for setting PlotMathRect
     void setPlotMathRect(const QRectF& mathRect, const QModelIndex &plotIdx);
 
+    // Utility for abbreviating a list of run:var names
+    QStringList abbreviateLabels(const QStringList &labels);
+
 signals:
     
 public slots:
@@ -109,6 +112,11 @@ private:
     QHash<TrickCurveModel*,QPainterPath*> _curve2path;
     QPainterPath* _createPainterPath(TrickCurveModel *curveModel);
     QPainterPath* _createCurvesErrorPath(const QModelIndex& curvesIdx) const;
+
+    QString _commonRootName(const QStringList& names, const QString& sep);
+    QString __commonRootName(const QString& a, const QString& b,
+                             const QString& sep);
+
 };
 
 #endif // PLOTBOOKMODEL_H

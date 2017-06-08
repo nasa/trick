@@ -785,9 +785,6 @@ void CurvesView::_paintLegend(const QModelIndex &curvesIdx, QPainter &painter)
         }
     }
 
-    int nRuns = runs.size();
-    int nCurveYNames = curveYNames.size();
-
     QList<QPen*> pens;
     QStringList symbols;
     QStringList labels;
@@ -796,27 +793,20 @@ void CurvesView::_paintLegend(const QModelIndex &curvesIdx, QPainter &painter)
 
         QModelIndex curveIdx = model()->index(i,0,curvesIdx);
 
-        // Label
-        if ( nRuns == 1 && 2 <= nCurveYNames && nCurveYNames <= maxEntries ) {
-            QString label =  _bookModel()->getDataString(curveIdx,
+        // Label (run:var)
+        TrickCurveModel* curveModel = _bookModel()->
+                                                   getTrickCurveModel(curveIdx);
+        QString trk = curveModel->trkFile();
+        QString runName = QFileInfo(trk).dir().absolutePath();
+
+        QString curveName =  _bookModel()->getDataString(curveIdx,
                                                         "CurveYLabel", "Curve");
-            if ( label.isEmpty() ) {
-                label = _bookModel()->getDataString(curveIdx,
+        if ( curveName.isEmpty() ) {
+            curveName = _bookModel()->getDataString(curveIdx,
                                                     "CurveYName", "Curve");
-                int i = label.lastIndexOf('.');
-                label = label.mid(i+1);
-            }
-            labels << label;
-        } else if ( nCurveYNames == 1 && 2 <= nRuns && nRuns <= maxEntries ) {
-            // Label (use RUN dir name)
-            TrickCurveModel* curveModel = _bookModel()->
-                    getTrickCurveModel(curveIdx);
-            QString trk = curveModel->trkFile();
-            QString runName = QFileInfo(trk).dir().dirName();
-            labels << runName;
-        } else {
-            continue;  // if no labels, no legend
         }
+        QString label = runName + ":" + curveName;
+        labels << label;
 
         // Pen
         QString penColor = _bookModel()->getDataString(curveIdx,
@@ -829,8 +819,9 @@ void CurvesView::_paintLegend(const QModelIndex &curvesIdx, QPainter &painter)
         // Symbol
         symbols << _bookModel()->getDataString(curveIdx,
                                                "CurveSymbolStyle", "Curve");
-
     }
+
+    labels = _bookModel()->abbreviateLabels(labels);
 
     if ( pres == "error+compare" ) {
         QPen* magentaPen = new QPen(_bookModel()->createCurveColors(3).at(2));

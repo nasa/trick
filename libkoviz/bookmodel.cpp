@@ -1006,3 +1006,116 @@ QString PlotBookModel::getCurvesYUnit(const QModelIndex &curvesIdx)
 
     return yunit;
 }
+
+// Example:
+//
+//     labels:
+//        "/the/rain/in/spain/falls/on/the/plain:ball.state.pos",
+//        "/the/rain/in/spokane/falls/on/the/hills:ball.state.vel",
+//        "/the/rain/in/space/falls/on/houston:ball.state.acc"
+//
+//     returns:
+//         "spain/falls/on/the/plain:pos",
+//         "spokane/falls/on/the/hills:vel",
+//         "space/falls/on/houston:acc"
+//
+QStringList PlotBookModel::abbreviateLabels(const QStringList &labels)
+{
+    QStringList lbls;
+
+    QStringList runs;
+    QStringList vars;
+    foreach (QString label, labels) {
+        if ( !label.contains(":") ) {
+            fprintf(stderr,"koviz [bad scoobs]: _abbreviateLabels\n");
+            exit(-1);
+        }
+        runs << label.split(":").at(0);
+        vars << label.split(":").at(1);
+    }
+    QString runsRootName = _commonRootName(runs,"/");
+    QString varsRootName = _commonRootName(vars,".");
+    int i = runsRootName.size();
+    int j = varsRootName.size();
+
+    foreach (QString label, labels) {
+
+        QString run = label.split(":").at(0);
+        run = run.mid(i);
+        if ( i > 0 && run.startsWith("/") ) {
+            run = run.mid(1); // remove prepended '/'
+        }
+
+        QString var = label.split(":").at(1);
+        var = var.mid(j);
+        if ( j > 0 && var.startsWith(".") ) {
+            var = var.mid(1); // remove prepended '.'
+        }
+
+        QString s;
+        if ( !run.isEmpty() && !var.isEmpty() ) {
+            s = run + ":" + var;
+        } else if ( !run.isEmpty() && var.isEmpty() ) {
+            s = run;
+        } else if ( run.isEmpty() && !var.isEmpty() ) {
+            s = var;
+        }
+
+        lbls << s;
+    }
+
+    return lbls;
+}
+
+// Example:
+//     names:
+//        name[0]=/the/rain/in/spain/falls/on/the/plain
+//        name[1]=/the/rain/in/spokane/falls/on/the/hills
+//        name[2]=/the/rain/in/space/falls/on/houston
+//        sep = /
+//
+//     returns "/the/rain/in"
+QString PlotBookModel::_commonRootName(const QStringList &names,
+                                       const QString &sep)
+{
+    QString root;
+
+    if ( names.isEmpty() ) return root;
+
+    root = names.at(0);
+    foreach ( QString name, names ) {
+        root = __commonRootName(root,name,sep);
+    }
+
+    return root;
+}
+
+// Example:
+//     a = /the/rain/in/spain/falls/on/the/plain
+//     b = /the/rain/in/spokane/falls/on/the/hills
+//     sep = /
+//
+//     returns "/the/rain/in"
+QString PlotBookModel::__commonRootName(const QString &a, const QString &b,
+                                        const QString &sep)
+{
+    QString root;
+
+    QStringList as = a.split(sep);
+    QStringList bs = b.split(sep);
+    QStringList names ;
+
+    for (int i = 0; i < as.size(); ++i) {
+        if ( bs.size() <= i ) {
+            break;
+        }
+        if ( as.at(i) != bs.at(i) ) {
+            break;
+        }
+        names << as.at(i);
+    }
+
+    root = names.join(sep) ;
+
+    return root;
+}
