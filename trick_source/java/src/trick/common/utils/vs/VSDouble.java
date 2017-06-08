@@ -12,7 +12,7 @@ public class VSDouble extends VSValue<Double> {
 
     @Override
     public void fromVariableServer(String string) {
-        setValue(Double.parseDouble(string.trim()));
+        setValue(Double.parseDouble(handleUndefinedValues(string).trim()));
     }
 
     @Override
