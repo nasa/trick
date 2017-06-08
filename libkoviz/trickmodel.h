@@ -14,6 +14,8 @@
 #include <QDataStream>
 #include <QTextStream>
 #include <QAbstractTableModel>
+#include <QString>
+#include <QStringList>
 #include <vector>
 #include "snaptable.h"
 #include "trick_types.h"

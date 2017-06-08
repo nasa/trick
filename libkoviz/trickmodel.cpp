@@ -100,7 +100,7 @@ bool TrickModel::_load_trick_header()
     }
     if ( ! isFoundTime ) {
         _err_stream << "koviz [error]: couldn't find time param \""
-                    << _timeNames.join('=') << "\" in trkfile=" << _trkfile
+                    << _timeNames.join("=") << "\" in trkfile=" << _trkfile
                     << ".  Try setting -timeName on commandline option.";
         throw std::runtime_error(_err_string.toLatin1().constData());
     }
