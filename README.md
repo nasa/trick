@@ -7,7 +7,7 @@ evaluation, flight software development and testing, flight vehicle dynamic
 loads analysis, and virtual and hardware in the loop training.  Trick's purpose
 is to provide a common set of simulation capabilities allowing the domain experts
 to concentrate on their domain specific models, rather than simulation-specific
-functions like an job ordering, input file processing, or data recording.
+functions like an job ordering, input file processing or data recording.
 
 ### Installing Trick
 
