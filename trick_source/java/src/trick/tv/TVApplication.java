@@ -370,6 +370,22 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
         }
     };
 
+    // CTL Actions
+    protected void toggleTreePane() {
+        if(variableTree.getParent().getParent().isVisible()) {
+            variableTree.getParent().getParent().setVisible(false);
+        }
+        else {
+            variableTree.getParent().getParent().setVisible(true);
+        }
+    }
+
+    protected void toggleSearchPane() {
+        if(searchPanel.isVisible())
+            searchPanel.setVisible(false);
+        else
+            searchPanel.setVisible(true);
+    }
 
     @Override
     protected void initialize(final String[] args) {
@@ -1597,6 +1613,25 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
             add(new JMenuItem(stripChartAction));
             add(new JMenuItem(removeAction));
             add(new JMenuItem(clearLogsAction));
+        }}, 1);
+
+        //CTL
+        menuBar.add(new JMenu("View") {{
+            add(new JMenuItem("Toggle Tree Pane") {{
+                addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        toggleTreePane();
+                    }
+                });
+            }});
+            
+            add(new JMenuItem("Toggle Search Pane") {{
+                addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        toggleSearchPane();
+                    }
+                });
+            }});
         }}, 1);
 
         return menuBar;
