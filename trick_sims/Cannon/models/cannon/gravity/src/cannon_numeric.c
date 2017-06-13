@@ -57,12 +57,12 @@ double cannon_impact( CANNON* C ) {
     now = get_integ_time() ;
     tgo = regula_falsi( now, &(C->rf) ) ;
     if (tgo == 0.0) {
-        C->impact = 1 ;
         now = get_integ_time() ;
         reset_regula_falsi( now, &(C->rf) ) ;
+        C->impact = 1 ;
+        C->impactTime = now;
         C->vel[0] = 0.0 ; C->vel[1] = 0.0 ;
         C->acc[0] = 0.0 ; C->acc[1] = 0.0 ;
-        C->impactTime = C->time; 
         fprintf(stderr, "\n\nIMPACT: SimTime = %.9f, ModelTime = %.9f, pos = %.9f\n\n", now, C->impactTime, C->pos[0] ) ;
     }
     return ( tgo ) ;
