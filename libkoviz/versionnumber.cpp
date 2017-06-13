@@ -26,6 +26,7 @@ VersionNumber::VersionNumber(const QString &s) :
         return;
     }
 
+
     QString sNum;
     for ( int i = 0 ; i < s.length(); ++i ) {
         if ( s.at(i).isDigit() ) {
@@ -59,7 +60,9 @@ VersionNumber::VersionNumber(const QString &s) :
                 _patch = l3.at(0).toInt(&ok);
             }
             if ( ok && l3.length() == 2 ) {
-                _revision = l3.at(1).toInt(&ok);
+                if ( !l3.at(1).isEmpty() ) {
+                    _revision = l3.at(1).toInt(&ok);
+                }
             }
         }
     } else {
