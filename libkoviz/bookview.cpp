@@ -1371,43 +1371,20 @@ void BookView::_printCoplot(const QRect& R,
             TrickModelIterator it = curveModel->begin();
             const TrickModelIterator e = curveModel->end();
 
-            QList<QPointF> pts;
-
+            bool isFirst = true;
             while (it != e) {
 
                 QPointF p(it.x()*xs+xb,it.y()*ys+yb);
                 p = T.map(p);
 
-                if ( pts.size() == 0 ) {
-                    path->moveTo(p.x(),p.y()); // for first point only
-                } else if ( pts.size() >= 2 ) {
-                    QVector2D v0(pts.at(1)-pts.at(0));
-                    QVector2D v1(p-pts.at(0));
-                    v0.normalize();
-                    v1.normalize();
-                    double dot = QVector2D::dotProduct(v0,v1);
-                    double ang = 180*acos(dot)/M_PI;
-                    double dx = p.x()-pts.at(0).x();
-                    double dy = p.y()-pts.at(0).y();
-                    double d = sqrt(dx*dx+dy*dy);
-
-                    // TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! DO THIS!!!!
-                    if ( ang > 60 || d > 0 ) {
-                        // fuzzily non-colinear or
-                        // distance between p0 and p over 1/6th inch
-                        path->lineTo(pts.last());
-                        pts.clear();
-                    }
-                }
-
-                pts << p;
-
-                ++it;
-            }
-            if ( !pts.isEmpty() ) {
-                foreach ( QPointF p, pts ) {
+                if ( isFirst ) {
+                    path->moveTo(p.x(),p.y());
+                    isFirst = false;
+                } else {
                     path->lineTo(p);
                 }
+
+                ++it;
             }
 
             // If curve is flat (constant), label with "Flatline=#"
