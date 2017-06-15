@@ -37,6 +37,7 @@ bool convert2trk(const QString& csvFileName, const QString &trkFileName);
 QHash<QString,QVariant> getShiftHash(const QString& shiftString,
                                 const QStringList &runDirs);
 QHash<QString,QStringList> getVarMap(const QString& mapString);
+QHash<QString,QStringList> getVarMapFromFile(const QString& mapFileName);
 QStringList getTimeNames(const QString& timeName);
 QStandardItemModel* monteInputModel(const QString &monteDir,
                                     const QStringList &runs);
@@ -80,6 +81,7 @@ class SnapOptions : public Options
     QString outputFileName;
     QString shiftString;
     QString map;
+    QString mapFile;
     bool isDebug;
 };
 
@@ -133,6 +135,8 @@ int main(int argc, char *argv[])
              "(e.g. -shift \"RUN_a:1.075,RUN_b:2.0\")");
     opts.add("-map", &opts.map, QString(""),
              "variable mapping (e.g. -map trick.x=spots.x)");
+    opts.add("-mapFile", &opts.mapFile, QString(""),
+             "variable mapping file (e.g. -mapFile myMapFile.txt)");
     opts.add("-debug:{0,1}",&opts.isDebug,false, "Show book model tree etc.");
 
     opts.parse(argc,argv, QString("koviz"), &ok);
@@ -161,8 +165,19 @@ int main(int argc, char *argv[])
         }
     }
 
+    if ( !opts.map.isEmpty() && !opts.mapFile.isEmpty() ) {
+        fprintf(stderr,"koviz [error] : the -map and -mapFile cannot be "
+                       "used together.  Please use one or the other.\n");
+        exit(-1);
+    }
+    QHash<QString,QStringList> varMap;
+    if ( !opts.map.isEmpty() ) {
+        varMap = getVarMap(opts.map);
+    } else if ( !opts.mapFile.isEmpty() ) {
+        varMap = getVarMapFromFile(opts.mapFile);
+    }
+
     QHash<QString,QVariant> shifts = getShiftHash(opts.shiftString, runDirs);
-    QHash<QString,QStringList> varMap = getVarMap(opts.map);
     QStringList timeNames = getTimeNames(opts.timeName);
 
     if ( !opts.trk2csvFile.isEmpty() ) {
@@ -1241,7 +1256,7 @@ QHash<QString,QStringList> getVarMap(const QString& mapString)
             }
             QStringList vals;
             for (int i = 1; i < list.size(); ++i ) {
-                QString val = list.at(i);
+                QString val = list.at(i).trimmed();
                 if ( val.isEmpty() ) {
                     fprintf(stderr,"koviz [error] : -map option value \"%s\""
                        "is malformed.\n"
@@ -1262,6 +1277,35 @@ QHash<QString,QStringList> getVarMap(const QString& mapString)
         }
 
     }
+
+    return varMap;
+}
+
+QHash<QString,QStringList> getVarMapFromFile(const QString& mapFileName)
+{
+    QHash<QString,QStringList> varMap;
+
+    if (mapFileName.isEmpty() ) return varMap; // empty map
+
+    QFile file(mapFileName);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
+        fprintf(stderr, "koviz [error]: Cannot read map file \"%s\".\n",
+                mapFileName.toLatin1().constData());
+        fprintf(stderr, "Aborting!!!\n");
+        exit(-1);
+    }
+
+    QTextStream in(&file);
+
+    QString mapString;
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        mapString += line;
+    }
+
+    file.close();
+
+    varMap = getVarMap(mapString);
 
     return varMap;
 }
