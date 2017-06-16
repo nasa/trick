@@ -43,6 +43,7 @@ import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -378,6 +379,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
         else {
             variableTree.getParent().getParent().setVisible(true);
         }
+
     }
 
     protected void toggleSearchPane() {
@@ -1617,7 +1619,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
 
         //CTL
         menuBar.add(new JMenu("View") {{
-            add(new JMenuItem("Toggle Tree Pane") {{
+            add(new JCheckBoxMenuItem("Toggle Tree Pane", true) {{
                 addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent actionEvent) {
                         toggleTreePane();
@@ -1625,7 +1627,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
                 });
             }});
             
-            add(new JMenuItem("Toggle Search Pane") {{
+            add(new JCheckBoxMenuItem("Toggle Search Pane", true) {{
                 addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent actionEvent) {
                         toggleSearchPane();
