@@ -157,7 +157,7 @@ public class SortedListModel extends AbstractListModel {
     }
     
     /**
-     * Checks to see if the list contains the sepcified element.
+     * Checks to see if the list contains the specified element.
      *
      * @param element    Element whose presence in this list is to be tested.
      *
