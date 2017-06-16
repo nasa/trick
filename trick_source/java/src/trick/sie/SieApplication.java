@@ -698,7 +698,7 @@ public class SieApplication extends TrickApplication implements TreeSelectionLis
     private static String getData(SieTemplate template) {
         StringBuffer ret = new StringBuffer();
         if (template.description == null || template.description.isEmpty()) {
-            ret.append("\tNot Sepcified\n");
+            ret.append("\tNot Specified\n");
         } else {
             ret.append("\t" + template.description + "\n");
         }   
