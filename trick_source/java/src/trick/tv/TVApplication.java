@@ -383,10 +383,12 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
     }
 
     protected void toggleSearchPane() {
-        if(searchPanel.isVisible())
+        if(searchPanel.isVisible()) {
             searchPanel.setVisible(false);
-        else
+        }
+        else {
             searchPanel.setVisible(true);
+        }
     }
 
     @Override
