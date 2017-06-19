@@ -45,6 +45,7 @@ llvm::cl::list<std::string> pre_compiled_headers("include", llvm::cl::Prefix, ll
 llvm::cl::opt<bool> global_compat15("c", llvm::cl::desc("Print the offsetof calculations in attributes")) ;
 llvm::cl::opt<llvm::cl::boolOrDefault> print_trick_icg("print-TRICK-ICG", llvm::cl::desc("Print warnings where TRICK_ICG may cause io_src inconsistencies")) ;
 llvm::cl::alias compat15_alias ("compat15" , llvm::cl::desc("Alias for -c") , llvm::cl::aliasopt(global_compat15)) ;
+llvm::cl::opt<bool> m32("m32", llvm::cl::desc("Generate io code for use with 32bit mode"), llvm::cl::init(false), llvm::cl::ZeroOrMore) ;
 
 /**
 Most of the main program is pieced together from examples on the web. We are doing the following:
@@ -102,14 +103,22 @@ int main(int argc, char * argv[]) {
     // Set the default target architecture
 #if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
     clang::TargetOptions to;
-    to.Triple = llvm::sys::getDefaultTargetTriple();
+    if ( m32 ) {
+        to.Triple = llvm::Triple(llvm::sys::getDefaultTargetTriple()).get32BitArchVariant().str();
+    } else {
+        to.Triple = llvm::sys::getDefaultTargetTriple();
+    }
     std::shared_ptr<clang::TargetOptions> shared_to  = std::make_shared<clang::TargetOptions>(to) ;
     clang::TargetInfo *pti = clang::TargetInfo::CreateTargetInfo(ci.getDiagnostics(), shared_to);
     ci.setTarget(pti);
     ci.createPreprocessor(clang::TU_Complete);
 #else
     clang::TargetOptions * to = new clang::TargetOptions() ;
-    to->Triple = llvm::sys::getDefaultTargetTriple();
+    if ( m32 ) {
+        to->Triple = llvm::Triple(llvm::sys::getDefaultTargetTriple()).get32BitArchVariant().str();
+    } else {
+        to->Triple = llvm::sys::getDefaultTargetTriple();
+    }
     clang::TargetInfo *pti = clang::TargetInfo::CreateTargetInfo(ci.getDiagnostics(), to);
     ci.setTarget(pti);
     ci.createPreprocessor();

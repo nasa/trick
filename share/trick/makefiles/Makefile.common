@@ -105,6 +105,7 @@ ifeq ($(USE_ER7_UTILS), 1)
 endif
 
 ifeq ($(TRICK_FORCE_32BIT), 1)
+   TRICK_ICGFLAGS += -m32
    TRICK_SYSTEM_CXXFLAGS += -m32
    TRICK_SYSTEM_LDFLAGS  += -m32
    LD_PARTIAL            += -melf_i386
