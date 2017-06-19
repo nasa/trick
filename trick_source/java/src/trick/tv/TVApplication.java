@@ -2,6 +2,7 @@ package trick.tv;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -155,6 +156,9 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
     /** field for manually entering variables */
     JXTextField manualField;
 
+    /** check box for toggling Variable Tree visibility */
+    protected JCheckBoxMenuItem variableTreeCheckBox;
+
     /** dialog for opening and saving files */
     JFileChooser fileChooser;
 
@@ -210,6 +214,8 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
     final String defaultUnitsKey = "defaultUnits";
     final String characterArraysAsStringsKey = "characterArraysAsStrings";
     final String validateAddressesKey = "validateAddresses";
+    final String searchPanelVisibleKey = "searchPanelVisible";
+    final String variableTreeVisibleKey = "variableTreeVisible";
 
     /** new action */
     protected AbstractAction newAction = new AbstractAction("New",
@@ -371,26 +377,6 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
         }
     };
 
-    // CTL Actions
-    protected void toggleTreePane() {
-        if(variableTree.getParent().getParent().isVisible()) {
-            variableTree.getParent().getParent().setVisible(false);
-        }
-        else {
-            variableTree.getParent().getParent().setVisible(true);
-        }
-
-    }
-
-    protected void toggleSearchPane() {
-        if(searchPanel.isVisible()) {
-            searchPanel.setVisible(false);
-        }
-        else {
-            searchPanel.setVisible(true);
-        }
-    }
-
     @Override
     protected void initialize(final String[] args) {
         super.initialize(args);
@@ -449,6 +435,8 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
 
         // Initialize the tree search panel.
         searchPanel = new SearchPanel() {{
+            setVisible(Boolean.parseBoolean(trickProperties.getProperty(
+              searchPanelVisibleKey, Boolean.toString(true))));
             setEnabled(false);
             setFontSize(Float.parseFloat(trickProperties.getProperty(
               fontSizeKey, Integer.toString(getFont().getSize()))));
@@ -473,6 +461,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
                 public void actionPerformed(ActionEvent actionEvent) {
                     List<SieTemplate> selection = getSelectedValues();
                     if (!selection.isEmpty()) {
+                        setVariableTreeVisible(true);
                         variableTree.expandParent(selection.get(0).toString());
                     }
                 }
@@ -494,6 +483,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
                     }
                     public void actionPerformed(ActionEvent actionEvent) {
                         if (variable != null) {
+                            setVariableTreeVisible(true);
                             variableTree.expandParent(variable.name);
                         }
                     }
@@ -1619,20 +1609,33 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
             add(new JMenuItem(clearLogsAction));
         }}, 1);
 
-        //CTL
         menuBar.add(new JMenu("View") {{
-            add(new JCheckBoxMenuItem("Toggle Tree Pane", true) {{
+            setMnemonic(KeyEvent.VK_V);
+            variableTreeCheckBox = new JCheckBoxMenuItem("Variable Tree") {{
+                setToolTipText("Toggle visibility of the Variable Tree.");
+                setMnemonic(KeyEvent.VK_V);
+                setSelected(Boolean.parseBoolean(trickProperties.getProperty(
+                  variableTreeVisibleKey, Boolean.toString(true))));
                 addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent actionEvent) {
-                        toggleTreePane();
+                        setVariableTreeVisible(isSelected());
                     }
                 });
-            }});
-            
-            add(new JCheckBoxMenuItem("Toggle Search Pane", true) {{
+            }};
+            add(variableTreeCheckBox);
+
+            add(new JCheckBoxMenuItem("Search Panel") {{
+                setToolTipText("Toggle visibility of the Search Panel.");
+                setMnemonic(KeyEvent.VK_S);
+                setSelected(Boolean.parseBoolean(trickProperties.getProperty(
+                  searchPanelVisibleKey, Boolean.toString(true))));
                 addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent actionEvent) {
-                        toggleSearchPane();
+                        if (!isSelected()) {
+                            searchPanel.setPreferredSize(searchPanel.getSize());
+                        }
+                        searchPanel.setVisible(isSelected());
+                        ((JSplitPane)searchPanel.getParent()).resetToPreferredSizes();
                     }
                 });
             }});
@@ -1668,6 +1671,8 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
     public JComponent createMainPanel() {
         return new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, new JScrollPane(variableTree) {{
             setPreferredSize(new Dimension(200, 0));
+            setVisible(Boolean.parseBoolean(trickProperties.getProperty(
+              variableTreeVisibleKey, Boolean.toString(true))));
         }}, new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, searchPanel, new JXPanel(new BorderLayout()) {{
             add(new JScrollPane(variableTable), BorderLayout.CENTER);
 
@@ -1723,12 +1728,27 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
             add(manualPanel, BorderLayout.SOUTH);
         }}) {{
             setName("innerSplitPane");
-            setOneTouchExpandable(true);
         }}) {{
             setName("outerSplitPane");
             setBorder(new CompoundBorder(getBorder(), new EmptyBorder(5, 5, 0, 5)));
-            setOneTouchExpandable(true);
         }};
+    }
+
+    protected void setVariableTreeVisible(boolean visible) {
+        Container container = variableTree.getParent().getParent();
+
+        if (container.isVisible() == visible) {
+            return;
+        }
+
+        if (!visible) {
+            container.setPreferredSize(container.getSize());
+        }
+
+        container.setVisible(visible);
+        variableTreeCheckBox.setSelected(visible);
+        ((JSplitPane)container.getParent()).resetToPreferredSizes();
+
     }
 
     @Override
@@ -1922,6 +1942,8 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
         trickProperties.setProperty(defaultUnitsKey, Boolean.toString(defaultAllUnits));
         trickProperties.setProperty(characterArraysAsStringsKey, Boolean.toString(characterArraysAsStrings));
         trickProperties.setProperty(validateAddressesKey, Boolean.toString(validateAddresses));
+        trickProperties.setProperty(searchPanelVisibleKey, Boolean.toString(searchPanel.isVisible()));
+        trickProperties.setProperty(variableTreeVisibleKey, Boolean.toString(variableTreeCheckBox.isSelected()));
         for (UnitType type : UnitType.values()) {
             trickProperties.setProperty(type.toString(),
               defaultUnits.get(type.ordinal()).toString());
