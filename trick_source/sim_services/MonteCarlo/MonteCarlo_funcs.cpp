@@ -300,6 +300,14 @@ int Trick::MonteCarlo::shutdown() {
     return 0;
 }
 
+/** @par Detailed Design: */
+int Trick::MonteCarlo::socket_init(TCDevice *in_listen_device) {
+    if (default_port_flag) {
+        in_listen_device->port = 0;
+    }
+    return tc_init(in_listen_device);
+}
+
 void Trick::MonteCarlo::handle_retry(MonteSlave& slave, MonteRun::ExitStatus exit_status) {
     if (max_tries <= 0 || slave.current_run->num_tries < max_tries) {
         // Add the run to the retry queue.
@@ -521,12 +529,14 @@ void Trick::MonteCarlo::set_current_run(int run_num) {
 
 void Trick::MonteCarlo::set_listen_device_port(int port_number) {
         listen_device.port = port_number ;
+        default_port_flag = false ;
 }
 
 void Trick::MonteCarlo::set_connection_device_port(int port_number) {
     // This port is passed to slave as an argument, do not override
     if (is_master()) {
         connection_device.port = port_number ;
+        default_port_flag = false ;
     }
 }
 

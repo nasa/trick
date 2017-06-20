@@ -324,6 +324,9 @@ namespace Trick {
         /** Highest level of messages to report. */
         Verbosity verbosity;                            /**< \n trick_units(--) */
 
+        /** Default to false and randomly find port numbers. True, use the user provided port numbers. */
+        bool default_port_flag;                         /**< \n trick_units(--) */
+
         /** Device over which connections are accepted. */
         TCDevice listen_device;                         /**< \n trick_units(--) */
 
@@ -737,6 +740,13 @@ namespace Trick {
 #endif
 
         protected:
+        /**
+         * Initializes sockets.
+         *
+         * @return 0 on success
+         */
+        int socket_init(TCDevice *listen_device);
+
         /**
          * Initializes the master.
          *

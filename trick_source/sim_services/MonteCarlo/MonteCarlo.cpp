@@ -11,6 +11,7 @@ Trick::MonteCarlo::MonteCarlo() :
     timeout(120),
     max_tries(2),
     verbosity(INFORMATIONAL),
+    default_port_flag(1),
     num_runs(0),
     actual_num_runs(0),
     num_results(0),
@@ -28,8 +29,8 @@ Trick::MonteCarlo::MonteCarlo() :
     memset(&listen_device, 0, sizeof(TCDevice)) ;
     memset(&connection_device, 0, sizeof(TCDevice)) ;
 
-    listen_device.port = 0;
-    connection_device.port = 0;
+    listen_device.port = 7200;
+    connection_device.port = 7200;
 
     listen_device.disable_handshaking = TC_COMM_TRUE;
     connection_device.disable_handshaking = TC_COMM_TRUE;
