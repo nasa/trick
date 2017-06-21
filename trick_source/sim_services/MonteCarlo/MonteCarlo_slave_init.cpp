@@ -29,7 +29,7 @@ int Trick::MonteCarlo::slave_init() {
     /** <li> Initialize the sockets. */
     tc_error(&listen_device, 0);
     tc_error(&connection_device, 0);
-    socket_init(&listen_device);
+    tc_init(&listen_device);
     listen_device.disable_handshaking = TC_COMM_TRUE;
 
     /** <li> Connect to the master and write the port over which we are listening for new runs. */
