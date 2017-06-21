@@ -15,7 +15,7 @@ int Trick::MonteCarlo::initialize_sockets() {
     tc_error(&connection_device, 0);
 
     /** <ul><li> Initialize the sockets for communication with slaves. */
-    int return_value = socket_init(&listen_device);
+    int return_value = tc_init(&listen_device);
     if (return_value != TC_SUCCESS) {
         if (verbosity >= ERROR) {
             message_publish(MSG_ERROR, "Monte [Master] Failed to initialize status communication socket.\n") ;
