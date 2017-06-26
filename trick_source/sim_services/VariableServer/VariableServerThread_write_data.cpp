@@ -244,9 +244,8 @@ int Trick::VariableServerThread::write_data() {
                 if( len + strlen( val ) + 2 > MAX_MSG_LEN ) {
 
                     if (debug >= 2) {
-                        message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending %d ascii bytes:",
-                                        &connection, connection.client_tag, (int)strlen(buf1)) ;
-                        message_publish(MSG_NORMAL, "%s\n", buf1);
+                        message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending %d ascii bytes:\n%s\n",
+                                        &connection, connection.client_tag, (int)strlen(buf1), buf1) ;
                     }
 
                     ret = tc_write(&connection, (char *) buf1, len);
@@ -266,9 +265,8 @@ int Trick::VariableServerThread::write_data() {
                 buf1[ strlen(buf1) - 1 ] = '\n';
 
                 if (debug >= 2) {
-                    message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending %d ascii bytes:",
-                                    &connection, connection.client_tag, (int)strlen(buf1)) ;
-                    message_publish(MSG_NORMAL, "%s\n", buf1);
+                    message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending %d ascii bytes:\n%s\n",
+                                    &connection, connection.client_tag, (int)strlen(buf1), buf1) ;
                 }
                 ret = tc_write(&connection, (char *) buf1, (int)strlen(buf1));
                 if ( ret != (int)strlen(buf1) ) {

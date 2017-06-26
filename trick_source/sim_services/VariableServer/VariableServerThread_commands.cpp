@@ -200,8 +200,7 @@ int Trick::VariableServerThread::var_exists(std::string in_name) {
         /* send ascii "1" or "0" */
         sprintf(buf1, "%d\t%d\n", VS_VAR_EXISTS, (error==false));
         if (debug >= 2) {
-            message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending:", &connection, connection.client_tag) ;
-            message_publish(MSG_NORMAL, "%s\n", buf1);
+            message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending:\n%s\n", &connection, connection.client_tag, buf1) ;
         }
         tc_write(&connection, (char *) buf1, strlen(buf1));
     }
@@ -394,8 +393,7 @@ int Trick::VariableServerThread::send_list_size() {
         // ascii
         sprintf(buf1, "%d\t%d\n", VS_LIST_SIZE, var_count);
         if (debug >= 2) {
-            message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending number of event variables:", &connection, connection.client_tag) ;
-            message_publish(MSG_NORMAL, "%s\n", buf1);
+            message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending number of event variables:\n%s\n", &connection, connection.client_tag, buf1) ;
         }
         tc_write(&connection, (char *) buf1, strlen(buf1));
     }
