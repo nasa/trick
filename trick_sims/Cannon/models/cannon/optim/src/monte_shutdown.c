@@ -16,7 +16,7 @@ int cannon_master_shutdown()
         add_test_result("Sim_Monte Simulation", "MonteCarlo Analysis", "");
     } else {
         char str[40];
-        snprintf(str, 40, "Actual runs is %d, should be 8.\n", answer);
+        snprintf(str, sizeof(str), "Actual runs is %d, should be 8.\n", answer);
         add_test_result("Sim_Monte Simulation", "MonteCarlo Analysis", str);
     }
     trick_test_add_parent("Sim_Monte Simulation", "MonteCarlo Analysis", "1452306647");
