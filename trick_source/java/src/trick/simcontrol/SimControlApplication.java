@@ -1411,7 +1411,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     	private void retrieveHostPort() {
     	    try {
     	    	multicastSocket = new MulticastSocket(9265);
-    	        InetAddress group = InetAddress.getByName("224.3.14.15");
+    	        InetAddress group = InetAddress.getByName("239.3.14.15");
     	        multicastSocket.joinGroup(group);
     	         
     	        byte[] buffer = new byte[1024];
