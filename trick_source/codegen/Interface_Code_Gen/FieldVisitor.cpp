@@ -299,44 +299,6 @@ bool FieldVisitor::ProcessTemplate(std::string in_name , clang::CXXRecordDecl * 
     return false ;
 }
 
-static std::map<std::string, bool> init_stl_classes() {
-    std::map<std::string, bool> my_map ;
-    my_map.insert(std::pair<std::string, bool>("std::deque", 1)) ;
-    my_map.insert(std::pair<std::string, bool>("std::list", 1)) ;
-    my_map.insert(std::pair<std::string, bool>("std::map", 1)) ;
-    my_map.insert(std::pair<std::string, bool>("std::multiset", 1)) ;
-    my_map.insert(std::pair<std::string, bool>("std::multimap", 1)) ;
-    my_map.insert(std::pair<std::string, bool>("std::pair", 0)) ;
-    my_map.insert(std::pair<std::string, bool>("std::priority_queue", 0)) ;
-    my_map.insert(std::pair<std::string, bool>("std::queue", 0)) ;
-    my_map.insert(std::pair<std::string, bool>("std::set", 1)) ;
-    my_map.insert(std::pair<std::string, bool>("std::stack", 0)) ;
-    my_map.insert(std::pair<std::string, bool>("std::vector", 1)) ;
-    my_map.insert(std::pair<std::string, bool>("std::__1::deque", 1)) ;
-    my_map.insert(std::pair<std::string, bool>("std::__1::list", 1)) ;
-    my_map.insert(std::pair<std::string, bool>("std::__1::map", 1)) ;
-    my_map.insert(std::pair<std::string, bool>("std::__1::multiset", 1)) ;
-    my_map.insert(std::pair<std::string, bool>("std::__1::multimap", 1)) ;
-    my_map.insert(std::pair<std::string, bool>("std::__1::pair", 0)) ;
-    my_map.insert(std::pair<std::string, bool>("std::__1::priority_queue", 0)) ;
-    my_map.insert(std::pair<std::string, bool>("std::__1::queue", 0)) ;
-    my_map.insert(std::pair<std::string, bool>("std::__1::set", 1)) ;
-    my_map.insert(std::pair<std::string, bool>("std::__1::stack", 0)) ;
-    my_map.insert(std::pair<std::string, bool>("std::__1::vector", 1)) ;
-    my_map.insert(std::pair<std::string, bool>("std::__cxx11::deque", 1)) ;
-    my_map.insert(std::pair<std::string, bool>("std::__cxx11::list", 1)) ;
-    my_map.insert(std::pair<std::string, bool>("std::__cxx11::map", 1)) ;
-    my_map.insert(std::pair<std::string, bool>("std::__cxx11::multiset", 1)) ;
-    my_map.insert(std::pair<std::string, bool>("std::__cxx11::multimap", 1)) ;
-    my_map.insert(std::pair<std::string, bool>("std::__cxx11::pair", 0)) ;
-    my_map.insert(std::pair<std::string, bool>("std::__cxx11::priority_queue", 0)) ;
-    my_map.insert(std::pair<std::string, bool>("std::__cxx11::queue", 0)) ;
-    my_map.insert(std::pair<std::string, bool>("std::__cxx11::set", 1)) ;
-    my_map.insert(std::pair<std::string, bool>("std::__cxx11::stack", 0)) ;
-    my_map.insert(std::pair<std::string, bool>("std::__cxx11::vector", 1)) ;
-    return my_map ;
-}
-
 static bool checkForPrivateTemplateArgs( clang::ClassTemplateSpecializationDecl * ctsd ) {
     for (const clang::TemplateArgument& ta : ctsd->getTemplateArgs().asArray()) {
         if ( ta.getKind() == clang::TemplateArgument::Type ) {
@@ -387,7 +349,41 @@ static bool checkForConstTemplateArgs( clang::ClassTemplateSpecializationDecl * 
     return false ;
 }
 
-static std::map<std::string, bool> stl_classes = init_stl_classes() ;
+static const std::map<std::string, bool> stl_classes = {
+    {"std::deque", true},
+    {"std::list", true},
+    {"std::map", true},
+    {"std::multiset", true},
+    {"std::multimap", true},
+    {"std::pair", false},
+    {"std::priority_queue", false},
+    {"std::queue", false},
+    {"std::set", true},
+    {"std::stack", false},
+    {"std::vector", true},
+    {"std::__1::deque", true},
+    {"std::__1::list", true},
+    {"std::__1::map", true},
+    {"std::__1::multiset", true},
+    {"std::__1::multimap", true},
+    {"std::__1::pair", false},
+    {"std::__1::priority_queue", false},
+    {"std::__1::queue", false},
+    {"std::__1::set", true},
+    {"std::__1::stack", false},
+    {"std::__1::vector", true},
+    {"std::__cxx11::deque", true},
+    {"std::__cxx11::list", true},
+    {"std::__cxx11::map", true},
+    {"std::__cxx11::multiset", true},
+    {"std::__cxx11::multimap", true},
+    {"std::__cxx11::pair", false},
+    {"std::__cxx11::priority_queue", false},
+    {"std::__cxx11::queue", false},
+    {"std::__cxx11::set", true},
+    {"std::__cxx11::stack", false},
+    {"std::__cxx11::vector", true},
+};
 
 bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
     if ( debug_level >= 3 ) {
@@ -433,7 +429,7 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
     // Test if we have some type from STL.
     if (!tst_string.compare( 0 , 5 , "std::")) {
         // If we have some type from std, figure out if it is one we support.
-        for ( std::map<std::string, bool>::iterator it = stl_classes.begin() ; it != stl_classes.end() ; it++ ) {
+        for ( std::map<std::string, bool>::const_iterator it = stl_classes.begin() ; it != stl_classes.end() ; it++ ) {
             /* Mark STL types that are not strings and exit */
             if (!tst_string.compare( 0 , (*it).first.size() , (*it).first)) {
 
