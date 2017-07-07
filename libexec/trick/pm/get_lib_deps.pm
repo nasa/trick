@@ -17,7 +17,6 @@ sub get_lib_deps ($$) {
     my (@inc_paths) ;
     my (@raw_lib_deps) ;
 
-
     # Doxygen style
     @lib_list = ($contents =~ /(?:@|\\)trick_li(?:nk|b)_dependency\s*{\s*(.*?)\s*}/gs) ;
 
@@ -180,13 +179,14 @@ sub write_lib_deps($) {
     }
 
     if ( -e $lib_dep_file_name ) {
-        # If the library dependeny file exists open the old lib dep file
+        # If the library dependency file exists open the old lib dep file
         # and compare the new and old lists.
         open OLDLIBDEP, "$lib_dep_file_name" ;
         my @old_resolved = <OLDLIBDEP> ;
         close OLDLIBDEP ;
         chomp @old_resolved ;
-        if ( @old_resolved ~~ @resolved_files ) {
+
+        if (join(", ", @old_resolved) eq join(", ", @resolved_files)) {
             #print "Library dependencies unchanged for $source_file_name\n" ;
             $deps_changed = 0 ;
         } else {
@@ -194,7 +194,7 @@ sub write_lib_deps($) {
             $deps_changed = 1 ;
         }
     } else {
-        # If the library dependeny does not exist, the deps changed.
+        # If the library dependency does not exist, the deps changed.
         $deps_changed = 1 ;
     }
 
