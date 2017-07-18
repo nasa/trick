@@ -172,6 +172,10 @@ class TrickModel : public QAbstractTableModel
             {
                 return (double) *((bool *)(addr));
             }
+            case TRICK_07_BITFIELD:
+            {
+                return (double) *((int *)(addr));
+            }
             default:
             {
                 fprintf(stderr,
@@ -226,6 +230,10 @@ class TrickModel : public QAbstractTableModel
             case TRICK_10_BOOLEAN:
             {
                 return (double) *((bool *)(addr));
+            }
+            case TRICK_10_BITFIELD:
+            {
+                return (double) *((int *)(addr));
             }
             default:
             {
