@@ -1392,8 +1392,10 @@ QModelIndex CurvesView::_chooseCurveNearMousePoint(const QPoint &pt)
     QTransform T = _coordToPixelTransform();  // _paintCurve sets painter tform
 
     int s = 12; // side length of small square around mouse click
-
     QRectF R(pt.x()-s/2,pt.y()-s/2,s,s);
+
+    // Speed up test by drawing clipped to small square
+    painter.setClipRect(R);
 
     QRectF W = viewport()->rect();
     QRectF M = _mathRect();
@@ -1439,7 +1441,7 @@ QModelIndex CurvesView::_chooseCurveNearMousePoint(const QPoint &pt)
             }
         }
 
-        // Draw curve onto monochrome image
+        // Draw curve onto monochrome image (clipped to small square)
         painter.drawPath(*path);
 
         // Check, pixel by pixel, to see if the curve
