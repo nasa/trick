@@ -5,6 +5,7 @@ use Cwd 'abs_path';
 use File::Path qw(make_path) ;
 use Exporter ();
 use gte ;
+use match::smart;
 @ISA = qw(Exporter);
 @EXPORT = qw(get_lib_deps write_lib_deps);
 
@@ -186,7 +187,7 @@ sub write_lib_deps($) {
         my @old_resolved = <OLDLIBDEP> ;
         close OLDLIBDEP ;
         chomp @old_resolved ;
-        if ( @old_resolved ~~ @resolved_files ) {
+        if ( @old_resolved |M| @resolved_files ) {
             #print "Library dependencies unchanged for $source_file_name\n" ;
             $deps_changed = 0 ;
         } else {
