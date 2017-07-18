@@ -1,0 +1,71 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+print "\n";
+
+printf "%s", "Trick Measurement Units Overview" . "\n";
+printf "%s", "--------------------------------" . "\n";
+
+printf "%25s%-4s%-4s%-4s%-4s",      "Time: ", "s", "min", "hr", "day";                      print "\n";
+printf "%25s%-4s%-4s%-4s%-4s%-4s",  "Angular Displacement: ", "r", "d", "as", "am", "rev";  print "\n";
+printf "%25s%-4s",                  "Voltage: ", "v";                                       print "\n";
+printf "%25s%-4s",                  "Amperage: ", "amp";                                    print "\n";
+printf "%25s%-4s",                  "Resistance: ", "ohm";                                  print "\n";
+printf "%25s%-4s",                  "Sound: ", "dB";                                        print "\n";
+printf "%25s%-4s%-4s%-4s%-4s",      "Unitless: ", "--", "cnt", "one", "mol";                print "\n";
+
+print "\n";
+
+printf "%s", "Metric System Units" . "\n";
+printf "%s", "-------------------" . "\n";
+
+printf "%25s%-4s",                  "Linear Displacement: ", "m";                           print "\n";
+printf "%25s%-4s%-4s",              "Mass: ", "g", "mt";                                    print "\n";
+printf "%25s%-4s",                  "Force: ", "N";                                         print "\n";
+printf "%25s%-4s%-4s",              "Temperature: ", "C", "K";                              print "\n";
+printf "%25s%-4s%-4s",              "Energy: ", "J", "TNT";                                 print "\n";
+printf "%25s%-4s",                  "Power: ", "W";                                         print "\n";
+printf "%25s%-4s%-4s",              "Pressure: ", "Pa", "atm";                              print "\n";
+
+print "\n";
+
+printf "%s", "Imperial System Units" . "\n";
+printf "%s", "---------------------" . "\n";
+
+printf "%25s%-4s%-4s%-4s%-4s%-4s",  "Linear Displacement: ", "ft", "in", "yd", "mi", "n.m.";    print "\n";
+printf "%25s%-4s%-4s",              "Mass: ", "sl", "lbm";                                      print "\n";
+printf "%25s%-4s%-4s",              "Force: ", "oz", "lbf";                                     print "\n";
+printf "%25s%-4s%-4s",              "Temperature: ", "R", "F";                                  print "\n";
+printf "%25s%-4s",                  "Energy: ", "BTU";                                          print "\n";
+printf "%25s%-4s",                  "Power: ", "hp";                                            print "\n";
+printf "%25s%-4s",                  "Pressure: ", "psi";                                        print "\n";
+
+print "\n";
+
+printf "%s", "Metric System Prefixes for Multiples and Submultiples" . "\n";
+printf "%s", "-----------------------------------------------------" . "\n";
+
+printf "%25s%-4s", "e-24: ", "y";   print "\n";
+printf "%25s%-4s", "e-21: ", "z";   print "\n";
+printf "%25s%-4s", "e-18: ", "a";   print "\n";
+printf "%25s%-4s", "e-15: ", "f";   print "\n";
+printf "%25s%-4s", "e-12: ", "p";   print "\n";
+printf "%25s%-4s", "e-9: ", "n";    print "\n";
+printf "%25s%-4s", "e-6: ", "u";    print "\n";
+printf "%25s%-4s", "e-3: ", "m";    print "\n";
+printf "%25s%-4s", "e-2: ", "c";    print "\n";
+printf "%25s%-4s", "e-1: ", "d";    print "\n";
+printf "%25s%-4s", "e+1: ", "da";   print "\n";
+printf "%25s%-4s", "e+2: ", "h";    print "\n";
+printf "%25s%-4s", "e+3: ", "k";    print "\n";
+printf "%25s%-4s", "e+6: ", "M";    print "\n";
+printf "%25s%-4s", "e+9: ", "G";    print "\n";
+printf "%25s%-4s", "e+12: ", "T";   print "\n";
+printf "%25s%-4s", "e+15: ", "P";   print "\n";
+printf "%25s%-4s", "e+18: ", "E";   print "\n";
+printf "%25s%-4s", "e+21: ", "Z";   print "\n";
+printf "%25s%-4s", "e+24: ", "Y";   print "\n";
+
+print "\n";
