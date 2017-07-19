@@ -45,6 +45,7 @@ DPTreeWidget::DPTreeWidget(const QString& timeName,
                            MonteInputsView *monteInputsView,
                            QWidget *parent) :
     QWidget(parent),
+    _idNum(0),
     _timeName(timeName),
     _dpDirName(dpDirName),
     _dpFiles(),
@@ -71,8 +72,6 @@ DPTreeWidget::DPTreeWidget(const QString& timeName,
     _dpTreeView->setRootIndex(proxyRootIdx);
     _dpTreeView->setFocusPolicy(Qt::ClickFocus);
     _gridLayout->addWidget(_dpTreeView,1,0);
-    connect(_dpTreeView,SIGNAL(clicked(QModelIndex)),
-            this, SLOT(_dpTreeViewClicked(QModelIndex)));
     connect(_dpTreeView->selectionModel(),
             SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this, SLOT(_dpTreeViewCurrentChanged(QModelIndex,QModelIndex)));
@@ -212,9 +211,7 @@ void DPTreeWidget::_setupModel()
 void DPTreeWidget::_createDP(const QString &dpfile)
 {
     _createDPPages(dpfile);
-    // Disable tables since Tim needs DP pages now
-    // and the tables are still awful slow
-    //_createDPTables(dpfile);
+    _createDPTables(dpfile);
 }
 
 void DPTreeWidget::_searchBoxTextChanged(const QString &rx)
@@ -223,42 +220,32 @@ void DPTreeWidget::_searchBoxTextChanged(const QString &rx)
     _dpFilterModel->setFilterRegExp(rx);
 }
 
-void DPTreeWidget::_dpTreeViewClicked(const QModelIndex &idx)
-{
-    Q_UNUSED(idx);
-
-    QModelIndexList idxs =  _dpTreeView->selectionModel()->selectedRows();
-    foreach ( QModelIndex idx, idxs ) {
-        QModelIndex srcIdx = _dpFilterModel->mapToSource(idx);
-        QString fp = _dpModel->filePath(srcIdx);
-        if ( _isDP(fp) ) {
-            bool isCreated = false;
-            foreach (QModelIndex pageIdx, _bookModel->pageIdxs() ) {
-                QModelIndex pageNameIdx = _bookModel->getIndex(pageIdx,
-                                                               "PageName",
-                                                               "Page");
-                QModelIndex pageNameDataIdx = pageNameIdx.sibling(
-                                                    pageNameIdx.row(),1);
-                QString pageName = _bookModel->data(pageNameDataIdx).toString();
-                if ( pageName == fp ) {
-                    _bookSelectModel->setCurrentIndex(pageIdx,
-                                                  QItemSelectionModel::Current);
-                    isCreated = true;
-                    break;
-                }
-            }
-            if ( !isCreated ) {
-                _createDP(fp);
-            }
-        }
-    }
-}
-
 void DPTreeWidget::_dpTreeViewCurrentChanged(const QModelIndex &currIdx,
                                              const QModelIndex &prevIdx)
 {
     Q_UNUSED(prevIdx);
-    _dpTreeViewClicked(currIdx);
+
+    QModelIndex srcIdx = _dpFilterModel->mapToSource(currIdx);
+    QString fp = _dpModel->filePath(srcIdx);
+    if ( _isDP(fp) ) {
+        bool isCreated = false;
+        foreach (QModelIndex pageIdx, _bookModel->pageIdxs() ) {
+            QString pageName = _bookModel->getDataString(pageIdx,
+                                                         "PageName","Page");
+            QString pageFileName = pageName.split(":").at(0);
+            if ( pageFileName == fp ) {
+                _bookSelectModel->setCurrentIndex(pageIdx,
+                                                  QItemSelectionModel::Current);
+                isCreated = true;
+                break;
+            }
+        }
+        if ( !isCreated ) {
+            _createDP(fp);
+            _bookSelectModel->setCurrentIndex(_bookModel->pageIdxs().last(),
+                                              QItemSelectionModel::Current);
+        }
+    }
 }
 
 //
@@ -269,13 +256,11 @@ void DPTreeWidget::_dpTreeViewCurrentChanged(const QModelIndex &currIdx,
 //
 void DPTreeWidget::_createDPPages(const QString& dpfile)
 {
-
     QCursor currCursor = this->cursor();
     this->setCursor(QCursor(Qt::WaitCursor));
 
     DPProduct dp(dpfile);
     int rc = _monteModel->rowCount();
-    int pageNum = 0 ;
 
     // Pages
     QModelIndex pagesIdx = _bookModel->getIndex(QModelIndex(), "Pages");
@@ -286,14 +271,10 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
 
         // Page
         QStandardItem *pageItem = _addChild(pagesItem,"Page");
-        QModelIndex pageIdx = _bookModel->indexFromItem(pageItem);
-        _bookSelectModel->setCurrentIndex(pageIdx,QItemSelectionModel::Current);
 
         // PageName
         QString pageName = dpfile;
-        if ( pageNum > 0 ) {
-            pageName += QString("_%0").arg(pageNum);
-        }
+        pageName += QString(":dp.page.%0").arg(_idNum++);
         _addChild(pageItem, "PageName", pageName);
 
         _addChild(pageItem, "PageTitle", page->title());
@@ -397,7 +378,6 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             QRectF bbox = _bookModel->calcCurvesBBox(curvesIdx);
             _bookModel->setPlotMathRect(bbox,plotItem->index());
         }
-        pageNum++;
     }
 
     this->setCursor(currCursor);
@@ -423,48 +403,52 @@ void DPTreeWidget::_createDPTables(const QString &dpfile)
 
         // TableName
         QString tableName = dpfile;
-        if ( tableNum > 0 ) {
-            tableName += QString("_%0").arg(tableNum);
-        }
+        tableName += QString(":dp.table.%0").arg(_idNum++);
         _addChild(tableItem, "TableName", tableName);
 
         _addChild(tableItem, "TableTitle", table->title());
+        _addChild(tableItem, "TableTimeName", _timeName);
         _addChild(tableItem, "TableStartTime", table->startTime());
         _addChild(tableItem, "TableStopTime", table->stopTime());
         _addChild(tableItem, "TableDelimiter", table->delimiter());
-
-        // This is used to initially allocate the number of table columns.
-        // It doesn't have to match the actual count...
-        // It speeds up the table creation
-        _addChild(tableItem, "TableVarCount", numRuns*table->vars().count());
 
         // Vars
         QStandardItem *varsItem = _addChild(tableItem, "TableVars");
 
         for ( int i = 0 ; i < numRuns ; ++i ) {
 
-            // Make the table vars curves so handled the same way datawise
             foreach (DPVar* var, table->vars() ) {
 
-                // Curve (not to be confused with a plot curve)
-                // TODO: need to change this, but plotmodel->data() uses it
-                QStandardItem *curveItem = _addChild(varsItem, "Curve");
+                QStandardItem *varItem = _addChild(varsItem,"TableVar");
 
                 // Children
-                _addChild(curveItem, "CurveTimeName",    _timeName);
-                _addChild(curveItem, "CurveXName",       var->name());
-                _addChild(curveItem, "CurveXUnit",       var->unit());
-                _addChild(curveItem, "CurveYName",       var->name());
-                _addChild(curveItem, "CurveYUnit",       var->unit());
-                _addChild(curveItem, "TableVarScale",    var->scaleFactor());
-                _addChild(curveItem, "TableVarBias",     var->bias());
-                _addChild(curveItem, "TableVarMinRange", var->minRange());
-                _addChild(curveItem, "TableVarMaxRange", var->maxRange());
-                _addChild(curveItem, "CurveRunID",       i);
-                _addChild(curveItem, "TableCurveData");
-                _addChild(curveItem, "TableVarFormat",     var->format());
+                _addChild(varItem, "TableVarName",     var->name());
+                _addChild(varItem, "TableVarLabel",    var->label());
+                _addChild(varItem, "TableVarUnit",     var->unit());
+                _addChild(varItem, "TableVarScale",    var->scaleFactor());
+                _addChild(varItem, "TableVarBias",     var->bias());
+                _addChild(varItem, "TableVarMinRange", var->minRange());
+                _addChild(varItem, "TableVarMaxRange", var->maxRange());
+                _addChild(varItem, "TableVarFormat",   var->format());
+
+                // The actual data for the variable will be a trick curve model
+                TrickCurveModel* curveModel = _monteModel->curve(i, _timeName,
+                                                      var->name(), var->name());
+                if ( !curveModel ) {
+                    _err_stream << "koviz [error]: couldn't find parameter:\n\n"
+                                << "        " << "("
+                                << _timeName << " , "
+                                << var->name() << " , "
+                                << var->name() << ") \n";
+                    throw std::runtime_error(
+                                            _err_string.toLatin1().constData());
+                }
+
+                QVariant v=PtrToQVariant<TrickCurveModel>::convert(curveModel);
+                _addChild(varItem, "TableVarData",v);
             }
         }
+
         tableNum++;
     }
 

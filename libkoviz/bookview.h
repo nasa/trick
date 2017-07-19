@@ -21,6 +21,7 @@
 
 #include "bookidxview.h"
 #include "bookview_page.h"
+#include "bookview_tablepage.h"
 #include "bookmodel.h"
 
 class BookView : public BookIdxView
@@ -40,8 +41,8 @@ private:
     QVBoxLayout* _mainLayout;
     QTabWidget* _nb;
 
-    int _pageIdxToTabId(const QModelIndex& pageIdx);
-    QModelIndex _tabIdToPageIdx(int tabId);
+    int _modelIdxToTabId(const QModelIndex& idx);
+    QModelIndex _tabIdToModelIdx(int tabId);
 
 private:
     QTransform _coordToDotTransform(const QRectF &curvesRect,
@@ -108,7 +109,6 @@ public slots:
 
 protected slots:
     void _nbCloseRequested(int tabId);
-    void _nbCurrentChanged(int tabId);
     void _pageViewCurrentChanged(const QModelIndex& currIdx,
                                  const QModelIndex& prevIdx);
 

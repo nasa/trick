@@ -15,8 +15,6 @@ class PageTitleView : public BookIdxView
     Q_OBJECT
 public:
     explicit PageTitleView(QWidget *parent = 0);
-
-protected:
     virtual void setModel(QAbstractItemModel *model);
 
 private:

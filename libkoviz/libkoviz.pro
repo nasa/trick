@@ -43,6 +43,8 @@ SOURCES += bookmodel.cpp \
            bookview_labeledruler.cpp \
            bookview_yaxislabel.cpp \
            bookview_xaxislabel.cpp \
+           bookview_tablepage.cpp \
+           bookview_table.cpp \
            dp.cpp \
            varswidget.cpp \
            dptreewidget.cpp \
@@ -88,6 +90,8 @@ HEADERS  += bookmodel.h \
             bookview_plottitle.h \
             bookview_xaxislabel.h \
             bookview_yaxislabel.h \
+            bookview_tablepage.h \
+            bookview_table.h \
             dp.h \
             varswidget.h \
             dptreewidget.h \

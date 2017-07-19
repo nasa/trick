@@ -53,6 +53,7 @@ signals:
 public slots:
 
 private:
+    int _idNum;
     QString _timeName;
     QString _dpDirName;
     QStringList _dpFiles;
@@ -86,7 +87,6 @@ private:
 
 private slots:
     void _searchBoxTextChanged(const QString &rx);
-     void _dpTreeViewClicked(const QModelIndex& idx);
      void _dpTreeViewCurrentChanged(const QModelIndex &currIdx,
                                     const QModelIndex &prevIdx);
 

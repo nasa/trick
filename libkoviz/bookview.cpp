@@ -12,8 +12,6 @@ BookView::BookView(QWidget *parent) :
 
     connect(_nb,SIGNAL(tabCloseRequested(int)),
             this,SLOT(_nbCloseRequested(int)));
-    connect(_nb, SIGNAL(currentChanged(int)),
-            this,SLOT(_nbCurrentChanged(int)));
 
     _mainLayout->addWidget(_nb);
 
@@ -26,7 +24,17 @@ void BookView::currentChanged(const QModelIndex &current,
 {
     Q_UNUSED(previous);
     if ( _bookModel()->isIndex(current,"Page") ) {
-         _nb->setCurrentIndex(current.row());
+        QString pageName = _bookModel()->getDataString(current,
+                                                       "PageName","Page");
+        pageName = pageName.split(":").at(0);
+        QFileInfo fi(pageName);
+        pageName = fi.fileName();
+        for (int i = 0; i < _nb->count(); ++i) {
+            if ( _nb->tabText(i) == pageName ) {
+                _nb->setCurrentIndex(i);
+                break;
+            }
+        }
     }
 }
 
@@ -37,58 +45,72 @@ void BookView::selectionChanged(const QItemSelection &selected,
     Q_UNUSED(deselected);
 }
 
-int BookView::_pageIdxToTabId(const QModelIndex &pageIdx)
+int BookView::_modelIdxToTabId(const QModelIndex &idx)
 {
     int tabId = -1;
 
-    QString pageName = _bookModel()->getDataString(pageIdx,"PageName","Page");
+    QString name;
+    QString tag = model()->data(idx).toString();
+    if ( tag == "Page" ) {
+        name = _bookModel()->getDataString(idx,"PageName","Page");
+    } else if ( tag == "Table" ) {
+        name = _bookModel()->getDataString(idx,"TableName","Table");
+    } else {
+        fprintf(stderr,"koviz [bad scoobs]:1: BookView::_modelIdxToTabId\n");
+        exit(-1);
+    }
 
     int nTabs = _nb->count();
     for ( int i = 0; i < nTabs; ++i ) {
 
         QString tabToolTip = _nb->tabToolTip(i);
-        QString wt = _nb->tabWhatsThis(i);
-        if ( wt == "Page" ) {
-            if ( pageName == tabToolTip ) {
-                tabId = i;
-                break;
-            }
-        } else {
-            fprintf(stderr,"koviz [bad scoobs]: BookView::_pageIdxToTabId()\n");
-            exit(-1);
+        if ( tabToolTip == name ) {
+            tabId = i;
+            break;
         }
+    }
+
+    if ( tabId == -1 ) {
+        fprintf(stderr,"koviz [bad scoobs]:2: BookView::_modelIdxToTabId()\n");
+        exit(-1);
     }
 
     return tabId;
 }
 
-QModelIndex BookView::_tabIdToPageIdx(int tabId)
+QModelIndex BookView::_tabIdToModelIdx(int tabId)
 {
     QModelIndex idx;
 
     QString tabToolTip = _nb->tabToolTip(tabId);
     QString wt = _nb->tabWhatsThis(tabId);
+
+    QModelIndex pidx;
     if ( wt == "Page" ) {
-        QModelIndex pagesIdx = _bookModel()->getIndex(QModelIndex(), "Pages");
-        int row = -1;
-        int rc = model()->rowCount(pagesIdx);
-        for ( int i = 0; i < rc ; ++i ) {
-            QModelIndex pageIdx = model()->index(i,0,pagesIdx);
-            QString pageName = _bookModel()->getDataString(pageIdx,
-                                                           "PageName","Page");
-            if ( pageName == tabToolTip ) {
-                row = i;
-                idx = model()->index(row,0,pagesIdx);
-                break;
-            }
+        pidx = _bookModel()->getIndex(QModelIndex(), "Pages");
+    } else if ( wt == "Table") {
+        pidx = _bookModel()->getIndex(QModelIndex(), "Tables");
+    }
+
+    int rc = model()->rowCount(pidx);
+    for ( int i = 0; i < rc ; ++i ) {
+        QString name;
+        if ( wt == "Page") {
+            QModelIndex pageIdx = model()->index(i,0,pidx);
+            name = _bookModel()->getDataString(pageIdx,"PageName","Page");
+        } else if ( wt == "Table" ) {
+            QModelIndex tableIdx = model()->index(i,0,pidx);
+            name = _bookModel()->getDataString(tableIdx,"TableName","Table");
         }
-        if ( row < 0 ) {
-            fprintf(stderr,"koviz [bad scoobs]:1: BookView::_tabIdToPageIdx() "
-                           "Could not find page using tabId=%d\n", tabId);
-            exit(-1);
+        if ( name == tabToolTip ) {
+            idx = model()->index(i,0,pidx);
+            break;
         }
-    } else {
-        fprintf(stderr,"koviz [bad scoobs]:2: BookView::_tabIdToPageIdx()\n");
+    }
+
+    if ( !idx.isValid() ) {
+        fprintf(stderr,"koviz [bad scoobs]:1: BookView::_tabIdToPageIdx() "
+                       "Could not find page/table using tabId=%d\n", tabId);
         exit(-1);
     }
 
@@ -236,7 +258,7 @@ void BookView::savePdf(const QString &fname)
     int nTabs = _nb->count();
     for ( int i = 0; i < nTabs; ++i) {
 
-        QModelIndex pageIdx = _tabIdToPageIdx(i);
+        QModelIndex pageIdx = _tabIdToModelIdx(i);
         _printPage(&painter,pageIdx);
 
         // Insert new page in pdf booklet
@@ -1937,18 +1959,8 @@ void BookView::_nbCloseRequested(int tabId)
 {
     if ( model() == 0 ) return;
 
-    QModelIndex pageIdx = _tabIdToPageIdx(tabId);
+    QModelIndex pageIdx = _tabIdToModelIdx(tabId);
     model()->removeRow(pageIdx.row(),pageIdx.parent()); // rowsAboutToBeRemoved deletes page
-}
-
-void BookView::_nbCurrentChanged(int tabId)
-{
-    if ( selectionModel() ) {
-        QModelIndex pagesIdx = _bookModel()->getIndex(QModelIndex(),"Pages");
-        QModelIndex pageIdx = model()->index(tabId, 0,pagesIdx);
-        selectionModel()->setCurrentIndex(pageIdx,
-                                          QItemSelectionModel::NoUpdate);
-    }
 }
 
 void BookView::_pageViewCurrentChanged(const QModelIndex &currIdx,
@@ -1967,31 +1979,47 @@ void BookView::dataChanged(const QModelIndex &topLeft,
 
 void BookView::rowsInserted(const QModelIndex &pidx, int start, int end)
 {
-    if ( model()->data(pidx).toString() != "Pages" &&
-         model()->data(pidx).toString() != "Page" ) return;
+    if (  model()->data(pidx).toString() != "Page" &&
+          model()->data(pidx).toString() != "Table" ) {
+        return;
+    }
 
     for ( int i = start; i <= end; ++i ) {
         QModelIndex idx = model()->index(i,0,pidx);
         QString cText = model()->data(idx).toString();
-        if ( cText == "Page" ) {
+
+        if ( cText == "PageName" ) {
             PageView* pageView = new PageView;
             _childViews << pageView;
             pageView->setModel(model());
-            pageView->setRootIndex(idx);
+            pageView->setRootIndex(idx.parent());
             connect(pageView->selectionModel(),
                     SIGNAL(currentChanged(QModelIndex,QModelIndex)),
                     this,
                     SLOT(_pageViewCurrentChanged(QModelIndex,QModelIndex)));
             int tabId = _nb->addTab(pageView,"Page");
+            QString pageName = _bookModel()->getDataString(pidx,
+                                                           "PageName","Page");
+            QString shortName = pageName.split(":").at(0);
+            QFileInfo fi(shortName);
+            shortName = fi.fileName();
+            _nb->setTabToolTip(tabId,pageName);
+            _nb->setTabText(tabId,shortName);
             _nb->setTabWhatsThis(tabId, "Page");
-        } else if ( cText == "PageName" ) {
-            QModelIndex pageNameIdx = _bookModel()->index(i,1,pidx);
-            QString pageName = model()->data(pageNameIdx).toString();
-            QFileInfo fi(pageName);
-            QString fName = fi.fileName();
-            int row = pidx.row();
-            _nb->setTabToolTip(row,pageName);
-            _nb->setTabText(row,fName);
+        } else if ( cText == "TableName") {
+            TablePageView* tablePageView = new TablePageView;
+            _childViews << tablePageView;
+            tablePageView->setModel(model());
+            tablePageView->setRootIndex(idx.parent());
+            int tabId = _nb->addTab(tablePageView,"Table");
+            QString tableName = _bookModel()->getDataString(pidx,
+                                                           "TableName","Table");
+            QString shortName = tableName.split(":").at(0) + ".table";
+            QFileInfo fi(shortName);
+            shortName = fi.fileName();
+            _nb->setTabToolTip(tabId,tableName);
+            _nb->setTabText(tabId,shortName);
+            _nb->setTabWhatsThis(tabId, "Table");
         }
     }
 }
@@ -2009,18 +2037,18 @@ void BookView::rowsAboutToBeRemoved(const QModelIndex &pidx, int start, int end)
         exit(-1);
     }
 
-    QModelIndex pageIdx = model()->index(start,0,pidx);
-    if ( model()->data(pageIdx).toString() != "Page" ) {
-        fprintf(stderr,"koviz [bad scoobs]:3 BookView::rowsAboutToBeRemoved(): "
-                       "page deletion support only!!!\n");
-        exit(-1);
-    }
+    QModelIndex idx = model()->index(start,0,pidx);
 
-    int tabId = _pageIdxToTabId(pageIdx);
+    int tabId = _modelIdxToTabId(idx);
+    QWidget* widget = _nb->widget(tabId);
     _nb->removeTab(tabId);
 
-    QAbstractItemView* pageView = _childViews.at(start);
-    disconnect(pageView,0,0,0);
-    _childViews.removeAt(start);
-    delete pageView;
+    foreach ( QAbstractItemView* view, _childViews ) {
+        if ( view == widget ) {
+            disconnect(view,0,0,0);
+            _childViews.removeOne(view);
+            delete view;
+            break;
+        }
+    }
 }

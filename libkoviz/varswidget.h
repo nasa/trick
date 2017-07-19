@@ -50,7 +50,7 @@ private:
     QSortFilterProxyModel* _varsFilterModel;
     QItemSelectionModel* _varsSelectModel;
 
-    int _currQPIdx;
+    int _qpId;
 
     QModelIndex _findSinglePlotPageWithCurve(const QString& curveYName);
     QStandardItem* _createPageItem();

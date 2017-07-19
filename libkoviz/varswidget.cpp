@@ -18,7 +18,7 @@ VarsWidget::VarsWidget(const QString &timeName,
     _plotModel(plotModel),
     _plotSelectModel(plotSelectModel),
     _monteInputsView(monteInputsView),
-    _currQPIdx(0)
+    _qpId(0)
 {
     // Setup models
     _varsFilterModel = new QSortFilterProxyModel;
@@ -150,8 +150,8 @@ QStandardItem* VarsWidget::_createPageItem()
     QStandardItem* pagesItem = _plotModel->itemFromIndex(pagesIdx);
     QStandardItem* pageItem = _addChild(pagesItem, "Page");
 
-    QString title = QString("QP_%0").arg(_currQPIdx++);
-    _addChild(pageItem, "PageName", title);
+    QString pageName = QString("QP_%0:qp.page.%0").arg(_qpId++);
+    _addChild(pageItem, "PageName", pageName);
     _addChild(pageItem, "PageTitle", "Koviz");
     _addChild(pageItem, "PageStartTime", -DBL_MAX);
     _addChild(pageItem, "PageStopTime",   DBL_MAX);
@@ -174,7 +174,7 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
     QString yName = _varsFilterModel->data(varIdx).toString();
 
     int plotId = plotItem->row();
-    QString plotName = QString("QPlot_%0").arg(plotId);
+    QString plotName = QString("qp.plot.%0").arg(plotId);
 
     _addChild(plotItem, "PlotName", plotName);
     _addChild(plotItem, "PlotTitle", "");

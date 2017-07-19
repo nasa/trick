@@ -65,6 +65,8 @@ void PageTitleView::setModel(QAbstractItemModel *model)
                                                         "PageTitle","Page");
         pageTitleIdx = bookModel->index(pageTitleIdx.row(),1,rootIndex());
         pageTitle = bookModel->data(pageTitleIdx).toString();
+    } else if ( bookModel->isChildIndex(rootIndex(),"Table","TableTitle") ) {
+        pageTitle = bookModel->getDataString(rootIndex(),"TableTitle","Table");
     } else {
         pageTitle = pItem->child(0,1)->text();
     }
@@ -110,6 +112,9 @@ void PageTitleView::dataChanged(const QModelIndex &topLeft,
     if ( model()->data(idx0).toString() == "PageTitle" ) {
         QString title = model()->data(topLeft).toString();
         _title1->setText(title);
+    } else if ( model()->data(idx0).toString() == "TableTitle" ) {
+        QString title = model()->data(topLeft).toString();
+        _title1->setText(title);
     }
 }
 
@@ -117,14 +122,15 @@ void PageTitleView::rowsInserted(const QModelIndex &pidx, int start, int end)
 {
     if ( pidx != rootIndex() ) return;
 
-    if ( !_bookModel()->isChildIndex(rootIndex(),"Page","PageTitle") ) {
+    if ( !_bookModel()->isChildIndex(rootIndex(),"Page","PageTitle") &&
+         !_bookModel()->isChildIndex(rootIndex(),"Table","TableTitle") ) {
         return;
     }
 
     for ( int i = start; i <= end; ++i ) {
         QModelIndex idx = model()->index(i,0,pidx);
         QString cText = model()->data(idx).toString();
-        if ( cText == "PageTitle" ) {
+        if ( cText == "PageTitle" || cText == "TableTitle") {
             PlotBookModel* bookModel = _bookModel();
 
             QList<QStandardItem*> items = bookModel->
@@ -146,6 +152,10 @@ void PageTitleView::rowsInserted(const QModelIndex &pidx, int start, int end)
                 pageTitleIdx = bookModel->index(pageTitleIdx.row(),1,
                                                 rootIndex());
                 pageTitle = bookModel->data(pageTitleIdx).toString();
+            } else if ( bookModel->
+                        isChildIndex(rootIndex(),"Table","TableTitle") ) {
+                pageTitle = bookModel->getDataString(rootIndex(),
+                                                     "TableTitle","Table");
             } else {
                 pageTitle = pItem->child(0,1)->text();
             }
