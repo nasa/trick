@@ -10,9 +10,13 @@ print "-" x 50 . "\n";
 print "Trick Units Overview\n";
 print "-" x 50 . "\n";
 print "Trick uses UDUNITS2 as its unit specification and conversion package.\n";
-print "More information about this package can be found at: http://www.unidata.ucar.edu/software/udunits/\n";
+print "More information about this package can be found at: " . color('blue') . "http://www.unidata.ucar.edu/software/udunits/\n";
 print color('red');
-print "NOTE: The following list is NOT comprehensive. More units are available in the udunits xml databases. Run 'udunits2 -h' and navigate to the xml database to learn more.\n";
+print "NOTE: The following list is NOT comprehensive. More units are available in the udunits xml databases here:\n";
+print color('magenta');
+print "http://www.unidata.ucar.edu/software/udunits/udunits-2.2.25/doc/udunits/udunits2.html#Database\n";
+print color('red');
+print "Users can also run the 'udunits2 -h' command and navigate to the appropriate xml database to learn more.\n";
 print color('white');
 
 print "\n";
