@@ -479,8 +479,7 @@ void BookView::_printPage(QPainter *painter, const QModelIndex &pageIdx)
         rr.setRight(r.right()-margin);
                           //int q, int wm0, int wm1, int wm2, int hm3, int hm4,
         _printPlot(rr,painter,model()->index(0,0,plotsIdx),
-                   //q,0,0,0,0,0,  // margins
-                   q,0,0,0,24,24,48,  // margins
+                   q,0,0,24,24,24,48,  // margins
                    titleFontSize,
                    axisLabelFontSize, ticLabelFontSize,
                    axisLinePtSize, ticWidth, ticHeight);
@@ -489,7 +488,7 @@ void BookView::_printPage(QPainter *painter, const QModelIndex &pageIdx)
         r.moveTo(r.bottomLeft());
         rr = r; rr.setRight(r.right()-margin);
         _printPlot(rr,painter,model()->index(1,0,plotsIdx),
-                   q,0,0,0,24,24,48,
+                   q,0,0,24,24,24,48,
                    titleFontSize,
                    axisLabelFontSize, ticLabelFontSize,
                    axisLinePtSize, ticWidth, ticHeight);
@@ -497,7 +496,7 @@ void BookView::_printPage(QPainter *painter, const QModelIndex &pageIdx)
         r.moveTo(r.bottomLeft());
         rr = r; rr.setRight(r.right()-margin);
         _printPlot(rr,painter,model()->index(2,0,plotsIdx),
-                   q,0,0,0,24,24,48,
+                   q,0,0,24,24,24,48,
                    titleFontSize,
                    axisLabelFontSize, ticLabelFontSize,
                    axisLinePtSize, ticWidth, ticHeight);
@@ -505,7 +504,7 @@ void BookView::_printPage(QPainter *painter, const QModelIndex &pageIdx)
         r.moveTo(tlr.topRight());
         rr = r; rr.moveLeft(r.left()+margin);
         _printPlot(rr,painter,model()->index(3,0,plotsIdx),
-                   q,0,0,0,24,24,48,
+                   q,0,0,24,24,24,48,
                    titleFontSize,
                    axisLabelFontSize, ticLabelFontSize,
                    axisLinePtSize, ticWidth, ticHeight);
@@ -513,7 +512,7 @@ void BookView::_printPage(QPainter *painter, const QModelIndex &pageIdx)
         r.moveTo(r.bottomLeft());
         rr = r; rr.moveLeft(r.left()+margin);
         _printPlot(rr,painter,model()->index(4,0,plotsIdx),
-                   q,0,0,0,24,24,48,
+                   q,0,0,24,24,24,48,
                    titleFontSize,
                    axisLabelFontSize, ticLabelFontSize,
                    axisLinePtSize, ticWidth, ticHeight);
@@ -521,7 +520,7 @@ void BookView::_printPage(QPainter *painter, const QModelIndex &pageIdx)
         r.moveTo(r.bottomLeft());
         rr = r; rr.moveLeft(r.left()+margin);
         _printPlot(rr,painter,model()->index(5,0,plotsIdx),
-                   q,0,0,0,24,24,48,
+                   q,0,0,24,24,24,48,
                    titleFontSize,
                    axisLabelFontSize, ticLabelFontSize,
                    axisLinePtSize, ticWidth, ticHeight);
@@ -846,7 +845,24 @@ void BookView::_printPlot(const QRect &R,
     int yalh = fmAxisLabel.boundingRect(yAxisLabel).height();
     int tlh = fmTics.xHeight();
 
-    int ytlw = 200; // TODO: Calculate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // Calculate y-tic-label width (~200)
+    // All plots on the page should be vertically aligned.
+    // The easy way to do this is to make the y-tic-label width
+    // the max y-tic-label width of all formatted tic labels on the entire page
+    int ytlw = 0;
+    QModelIndex pageIdx = plotIdx.parent().parent();
+    QModelIndexList plotIdxs = _bookModel()->plotIdxs(pageIdx);
+    foreach ( QModelIndex plotIdx, plotIdxs ) {
+        QList<double> modelTics = _majorYTics(plotIdx);
+        foreach ( double tic, modelTics ) {
+            QString strVal = _format(tic);
+            QRectF bb = fmTics.boundingRect(strVal);
+            if ( bb.width() > ytlw ) {
+                ytlw = bb.width();
+            }
+        }
+    }
+
 
     //
     // Calculate all rectangles (see ascii drawing above)
