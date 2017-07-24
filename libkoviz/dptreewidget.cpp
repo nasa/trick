@@ -415,7 +415,45 @@ void DPTreeWidget::_createDPTables(const QString &dpfile)
         // Vars
         QStandardItem *varsItem = _addChild(tableItem, "TableVars");
 
+        // If time is not first variable in table var list, set flag to add it
+        bool isTime = false;
+        if ( !table->vars().isEmpty() ) {
+            if (table->vars().at(0)->name() == _timeName ) {
+                isTime = true;
+            }
+        }
+
         for ( int i = 0 ; i < numRuns ; ++i ) {
+
+            if ( !isTime ) {
+                QStandardItem *varItem = _addChild(varsItem,"TableVar");
+
+                // Children
+                _addChild(varItem, "TableVarName",     _timeName);
+                _addChild(varItem, "TableVarLabel",    _timeName);
+                _addChild(varItem, "TableVarUnit",     "s");
+                _addChild(varItem, "TableVarScale",    1.0);
+                _addChild(varItem, "TableVarBias",     0.0);
+                _addChild(varItem, "TableVarMinRange", -DBL_MAX);
+                _addChild(varItem, "TableVarMaxRange", DBL_MAX);
+                _addChild(varItem, "TableVarFormat",   "");
+
+                // The actual data for the variable will be a trick curve model
+                TrickCurveModel* curveModel = _monteModel->curve(i, _timeName,
+                                                          _timeName,_timeName);
+                if ( !curveModel ) {
+                    _err_stream << "koviz [error]: couldn't find parameter:\n\n"
+                                << "        " << "("
+                                << _timeName << " , "
+                                << _timeName << " , "
+                                << _timeName << ") \n";
+                    throw std::runtime_error(
+                                            _err_string.toLatin1().constData());
+                }
+
+                QVariant v=PtrToQVariant<TrickCurveModel>::convert(curveModel);
+                _addChild(varItem, "TableVarData",v);
+            }
 
             foreach (DPVar* var, table->vars() ) {
 
