@@ -69,7 +69,6 @@ private:
     int _mRgt;
 
     QStringList _columnLabels() const;
-    int _columnWidth() const;
 
     QStringList _format(const QList<double>& vals);
     QStringList __format(const QList<double>& vals, const char *format);

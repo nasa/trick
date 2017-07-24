@@ -69,7 +69,15 @@ void BookTableView::paintEvent(QPaintEvent *event)
     }
     QStringList labels = _columnLabels();
 
-    int w = _columnWidth();
+    // Calculate column width
+    int w = fm.width("0123456789");
+    foreach ( QString label, labels ) {
+        if ( fm.width(label) > w ) {
+            w = fm.width(label);
+        }
+    }
+    w = _mLft + w + _mRgt;
+
     int nCols = W.width()/w;
     if ( nCols > labels.size() ) {
         nCols = labels.size();
@@ -277,20 +285,6 @@ QStringList BookTableView::_columnLabels() const
         }
     }
     return columnLabels;
-}
-
-int BookTableView::_columnWidth() const
-{
-    // Calculate width of column - maximum of all label widths
-    int w = 0;
-    QFontMetrics fm = fontMetrics();
-    foreach ( QString label, _columnLabels() ) {
-        if ( fm.width(label) > w ) {
-            w = fm.width(label);
-        }
-    }
-    w = _mLft + w + _mRgt;
-    return w;
 }
 
 QSize BookTableView::minimumSizeHint() const
