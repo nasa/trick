@@ -221,9 +221,6 @@ QTransform BookView::_coordToDotTransform(const QRectF& C,
 
 void BookView::savePdf(const QString &fname)
 {
-    QModelIndex pagesIdx = _bookModel()->getIndex(QModelIndex(),"Pages");
-    int pageCnt = model()->rowCount(pagesIdx);
-
     //
     // Setup printer
     //
@@ -255,16 +252,21 @@ void BookView::savePdf(const QString &fname)
     //
     // Print pages
     //
+    bool isFirst = true;
     int nTabs = _nb->count();
     for ( int i = 0; i < nTabs; ++i) {
 
-        QModelIndex pageIdx = _tabIdToModelIdx(i);
-        _printPage(&painter,pageIdx);
-
-        // Insert new page in pdf booklet
-        if ( i < pageCnt-1 ) {
+        QModelIndex idx = _tabIdToModelIdx(i);
+        QString tag = model()->data(idx).toString();
+        if ( tag != "Page") {
+            continue; // only print pages (i.e. not tables)
+        }
+        if ( isFirst ) {
+            isFirst = false;
+        } else {
             printer.newPage();
         }
+        _printPage(&painter,idx);
     }
 
     //
