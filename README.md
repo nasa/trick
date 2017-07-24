@@ -21,7 +21,7 @@ the wiki pages.
 
 ### Tutorial
 
-The [Trick Tutorial](https://github.com/nasa/Trick/wiki/TutorialHome)
+The [Trick Tutorial](https://github.com/nasa/Trick/wiki/Tutorial)
 is located in share/doc/trick/Tutorial. Markdown and PDF versions are available.
 
 ### Related Projects that use Trick
