@@ -6,7 +6,6 @@
 #include <QFont>
 #include <QFontMetrics>
 #include <QFontInfo>
-#include <QGuiApplication>
 #include <QPalette>
 #include <QBrush>
 #include <QPen>
@@ -15,6 +14,13 @@
 #include <QHash>
 #include <QString>
 #include <QStringList>
+
+#include <QtGlobal>
+#if QT_VERSION >= 0x050000
+    #include <QGuiApplication>
+#else
+    #include <QtGui/QApplication>
+#endif
 
 #include "bookmodel.h"
 #include "trickcurvemodel.h"

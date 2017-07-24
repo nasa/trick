@@ -26,7 +26,12 @@ void BookTableView::paintEvent(QPaintEvent *event)
     QPen penOrig = painter.pen();
     QFontMetrics fm = painter.fontMetrics();
 
+#include <QtGlobal>
+#if QT_VERSION >= 0x050000
     QPalette palette = QGuiApplication::palette();
+#else
+    QPalette palette = QApplication::palette();
+#endif
     QPen penLight(palette.midlight().color());
     QPen penTxt(palette.text().color());
 
