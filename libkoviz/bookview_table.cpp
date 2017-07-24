@@ -200,7 +200,28 @@ QStringList BookTableView::_format(const QList<double> &vals)
             }
         }
         QString fmt = QString("%.%1lf").arg(maxPrecision);
-        list = __format(vals,fmt.toLatin1().constData());
+        list = __format(vals,fmt);
+
+        // If adjacent string values are the same, but the values are not
+        // - try to reformat with higher precision
+        // This is mainly to make timestamps different
+        int i = 0;
+        while (i < 9) {
+            bool isFormat = false;
+            for (int j = 0; j < list.size()-1; ++j) {
+                if (list.at(j) == list.at(j+1) && vals.at(j) != vals.at(j+1)) {
+                    fmt = QString("%.%1lf").arg(maxPrecision+i);
+                    list = __format(vals,fmt);
+                    isFormat = true;
+                    break;
+                }
+            }
+            if ( !isFormat ) {
+                break;
+            }
+            ++i;
+        }
+
     } else {
         int minExponent = INT_MAX;
         for ( int i = 0; i < list.size(); ++i ) {
@@ -228,13 +249,13 @@ QStringList BookTableView::_format(const QList<double> &vals)
 }
 
 QStringList BookTableView::__format(const QList<double> &vals,
-                                    const char* format)
+                                    const QString& format)
 {
     QStringList list;
 
     foreach ( double v, vals ) {
         QString s;
-        s = s.sprintf(format,v);
+        s = s.sprintf(format.toLatin1().constData(),v);
         list << s;
     }
 

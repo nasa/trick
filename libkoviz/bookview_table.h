@@ -71,7 +71,7 @@ private:
     QStringList _columnLabels() const;
 
     QStringList _format(const QList<double>& vals);
-    QStringList __format(const QList<double>& vals, const char *format);
+    QStringList __format(const QList<double>& vals, const QString &format);
 
 signals:
 
