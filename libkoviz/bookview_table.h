@@ -14,6 +14,7 @@
 #include <QHash>
 #include <QString>
 #include <QStringList>
+#include <QKeyEvent>
 
 #include <QtGlobal>
 #if QT_VERSION >= 0x050000
@@ -53,6 +54,7 @@ protected:
                               QItemSelectionModel::SelectionFlags command);
     virtual QRegion visualRegionForSelection(
                               const QItemSelection &selection) const;
+    virtual void keyPressEvent(QKeyEvent *event);
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,

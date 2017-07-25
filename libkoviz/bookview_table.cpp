@@ -476,3 +476,24 @@ QRegion BookTableView::visualRegionForSelection(
     QRegion region;
     return region;
 }
+
+void BookTableView::keyPressEvent(QKeyEvent *event)
+{
+    if ( event->key() == Qt::Key_PageUp ) {
+        int step = verticalScrollBar()->pageStep();
+        int val = verticalScrollBar()->value();
+        verticalScrollBar()->setValue(val-step);
+    } else if ( event->key() == Qt::Key_PageDown ) {
+        int step = verticalScrollBar()->pageStep();
+        int val = verticalScrollBar()->value();
+        verticalScrollBar()->setValue(val+step);
+    } else if ( event->key() == Qt::Key_Up ) {
+        int step = verticalScrollBar()->singleStep();
+        int val = verticalScrollBar()->value();
+        verticalScrollBar()->setValue(val-step);
+    } else if ( event->key() == Qt::Key_Down ) {
+        int step = verticalScrollBar()->singleStep();
+        int val = verticalScrollBar()->value();
+        verticalScrollBar()->setValue(val+step);
+    }
+}
