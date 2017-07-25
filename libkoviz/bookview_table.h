@@ -26,6 +26,7 @@
 #include "bookmodel.h"
 #include "trickcurvemodel.h"
 #include "unit.h"
+#include "timestamps.h"
 
 class BookTableView : public QAbstractItemView
 {

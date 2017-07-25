@@ -390,6 +390,13 @@ void BookTableView::dataChanged(const QModelIndex &topLeft,
         // Based on column labels, set horizontal scrollbar range
         int nCols = _columnLabels().size();
         horizontalScrollBar()->setRange(0,nCols);
+
+    } else if ( tag == "LiveCoordTime" ) {
+
+        double liveTime = _bookModel()->getDataDouble(QModelIndex(),
+                                                      "LiveCoordTime");
+        int i = TimeStamps::idxAtTime(_timeStamps,liveTime);
+        verticalScrollBar()->setValue(i+1);
     }
 
     viewport()->update();
