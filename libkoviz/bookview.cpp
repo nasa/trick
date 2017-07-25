@@ -1055,7 +1055,7 @@ void BookView::_printLegend(const QRect& R,
     const int maxEntries = 7;
 
     int nCurves = model()->rowCount(curvesIdx);
-    if ( nCurves > maxEntries ) {
+    if ( nCurves > maxEntries || nCurves <= 1 ) {
         return;
     }
 
