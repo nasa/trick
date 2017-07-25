@@ -502,5 +502,13 @@ void BookTableView::keyPressEvent(QKeyEvent *event)
         int step = verticalScrollBar()->singleStep();
         int val = verticalScrollBar()->value();
         verticalScrollBar()->setValue(val+step);
+    } else if ( event->key() == Qt::Key_Right ) {
+        int step = horizontalScrollBar()->singleStep();
+        int val = horizontalScrollBar()->value();
+        horizontalScrollBar()->setValue(val+step);
+    } else if ( event->key() == Qt::Key_Left ) {
+        int step = horizontalScrollBar()->singleStep();
+        int val = horizontalScrollBar()->value();
+        horizontalScrollBar()->setValue(val-step);
     }
 }
