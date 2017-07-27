@@ -1722,7 +1722,8 @@ QStringList runsSubset(const QStringList& runsList, uint beginRun, uint endRun)
 
     foreach ( QString run, runsList ) {
         bool ok = false;
-        unsigned int runId = run.mid(4).toInt(&ok);
+        QString runName = QFileInfo(run).fileName();
+        unsigned int runId = runName.mid(4).toInt(&ok);
         if ( ok && (runId < beginRun || runId > endRun) ) {
             continue;
         }
