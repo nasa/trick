@@ -19,7 +19,7 @@ public:
    * @param curve_node a pointer to a libxml2 xmlNode of type XML_ELEMENT_NODE,
    * and whose name is "curve".
    */
-  DPM_curve(DPM_component *parent, xmlNode *curve_node) throw (std::invalid_argument);
+  DPM_curve(DPM_component *parent, xmlNode *curve_node) ;
   /**
    * Destructor for DPM_curve.
    */

@@ -178,7 +178,7 @@ std::string EnumDataType::getTypeSpecName() const {
     return name;
 }
 
-void EnumDataType::addEnumerator( std::string name, int value) throw(std::logic_error) {
+void EnumDataType::addEnumerator( std::string name, int value)  {
 
     Enumerator* enumerator = new Enumerator( name, value );
     enum_list.push_back(enumerator);

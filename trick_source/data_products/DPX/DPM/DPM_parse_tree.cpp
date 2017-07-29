@@ -45,7 +45,7 @@ int DPM_parse_tree::Initialize(const char *XMLFileName) {
 
 
 // CONSTRUCTOR
-DPM_parse_tree::DPM_parse_tree(const char *XMLFileName) throw (std::invalid_argument) {
+DPM_parse_tree::DPM_parse_tree(const char *XMLFileName)  {
 
     if ( Initialize( XMLFileName) < 0) {
         throw std::invalid_argument("DPM_parse_tree is un-usable.");

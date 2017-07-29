@@ -17,7 +17,7 @@ public:
   /**
    * Constructor.
    */
-  DPM_parse_tree(const char *XMLFileName) throw (std::invalid_argument);
+  DPM_parse_tree(const char *XMLFileName) ;
 
   /**
    * Destructor

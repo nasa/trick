@@ -21,7 +21,7 @@ void AllocInfo::initialize( const std::string& varName,
                             unsigned int       dimsCount,
                             int *              dims,
                             TypeDictionary*    typeDictionary,
-                            void*              suppliedAllocation) throw (std::logic_error) {
+                            void*              suppliedAllocation)  {
 
     // Because they can be resized, all allocations are really arrays,
     // whether they have 0, 1, or many elements.
@@ -86,7 +86,7 @@ AllocInfo::AllocInfo( const std::string& varName,
                       unsigned int       dimsCount,
                       int *              dims,
                       TypeDictionary*    typeDictionary,
-                      void*              suppliedAllocation) throw (std::logic_error) {
+                      void*              suppliedAllocation)  {
 
     initialize(varName, typeSpecName, dimsCount, dims, typeDictionary, suppliedAllocation);
 }
@@ -94,7 +94,7 @@ AllocInfo::AllocInfo( const std::string& varName,
 // CONSTRUCTOR
 AllocInfo::AllocInfo( const std::string& declaration,
                       TypeDictionary*    typeDictionary,
-                      void*              suppliedAllocation) throw (std::logic_error) {
+                      void*              suppliedAllocation)  {
 
     int dims[TRICK_MAX_INDEX];
     ParsedDeclaration* parsedDeclaration = new ParsedDeclaration( declaration );

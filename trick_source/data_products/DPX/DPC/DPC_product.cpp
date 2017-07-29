@@ -12,7 +12,7 @@
 
 DPC_product::DPC_product( DPM_session          *Session,
                           const char           *ProductFileName
-                          ) throw (std::invalid_argument) {
+                          )  {
 
     DPM_time_constraints *my_time_constraints;
     DPM_time_constraints *parentTimeConstraints;

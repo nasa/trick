@@ -38,7 +38,7 @@ const DataType* TypeDictionary::getDataType(std::string name ) {
 }
 
 // MEMBER FUNCTION
-void TypeDictionary::addTypeDefinition(std::string name, DataType * typeSpec) throw (std::logic_error) {
+void TypeDictionary::addTypeDefinition(std::string name, DataType * typeSpec)  {
 
     const DataType* preExistingDataType = getDataType(name);
 

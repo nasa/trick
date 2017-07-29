@@ -126,7 +126,7 @@ public:
                            int offset,
                            std::string typeName,
                            unsigned n_dims,
-                           int dims[]) throw (std::logic_error);
+                           int dims[]) ;
 
     /**
      Add a static data member to the CompositeDataType.
@@ -141,7 +141,7 @@ public:
                          void * memberAddress,
                          std::string typeSpecName,
                          unsigned int n_dims,
-                         int dims[] ) throw (std::logic_error);
+                         int dims[] ) ;
 
     /**
      Add a bitfield data member to the CompositeDataType.

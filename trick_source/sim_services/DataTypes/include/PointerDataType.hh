@@ -22,7 +22,7 @@ class PointerDataType : public DataType {
     PointerDataType( TypeDictionary * typeDictionary,
                      std::string typeSpecifierName,
                      unsigned int n_dims,
-                     int dims[] ) throw (std::logic_error);
+                     int dims[] ) ;
     /**
      Constructor for ArrayDataType.
      @param typeDictionary The Type Dictionary.
@@ -30,7 +30,7 @@ class PointerDataType : public DataType {
      @param dims dimension sizes.
      */
     PointerDataType( TypeDictionary * typeDictionary,
-                     std::string typeSpecifierName ) throw (std::logic_error);
+                     std::string typeSpecifierName ) ;
 
     /* ==================================================================== */
     /*                         RULE OF THREE INTERFACE                      */

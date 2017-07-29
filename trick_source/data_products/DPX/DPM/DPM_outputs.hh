@@ -21,7 +21,7 @@ public:
   /**
    * XML based constructor.
    */
-  DPM_outputs(DPM_component *parent, xmlNode *outputs_node) throw (std::invalid_argument);
+  DPM_outputs(DPM_component *parent, xmlNode *outputs_node) ;
 
   /**
    * Destructor.

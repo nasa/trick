@@ -26,7 +26,7 @@ class ArrayDataType : public DataType {
     ArrayDataType( TypeDictionary* typeDictionary,
                    std::string typeSpecifierName,
                    unsigned int n_dims,
-                   int dims[] ) throw (std::logic_error) ;
+                   int dims[] )  ;
     /**
      Constructor for ArrayDataType.
      @param typeDictionary The Type Dictionary.
@@ -35,7 +35,7 @@ class ArrayDataType : public DataType {
      */
     ArrayDataType( TypeDictionary* typeDictionary,
                    std::string typeSpecName,
-                   unsigned int dimensionSize ) throw (std::logic_error);
+                   unsigned int dimensionSize ) ;
 
     /**
      Create an ArrayDataType with a different elementCount, but otherwise

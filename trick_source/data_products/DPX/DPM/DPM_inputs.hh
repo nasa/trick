@@ -21,7 +21,7 @@ public:
   /**
    * Constructor.
    */
-  DPM_inputs(DPM_component *parent, xmlNode *inputs_node) throw (std::invalid_argument);
+  DPM_inputs(DPM_component *parent, xmlNode *inputs_node) ;
 
   /**
    * Destructor.

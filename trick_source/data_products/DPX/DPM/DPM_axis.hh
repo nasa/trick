@@ -34,7 +34,7 @@ public:
    * @param axis_node this is a pointer to an xmlNode whose type is
    *        XML_ELEMENT_NODE and whose name is either "xaxis" or "yaxis".
    */
-  DPM_axis(DPM_component *parent, xmlNode *axis_node) throw (std::invalid_argument);
+  DPM_axis(DPM_component *parent, xmlNode *axis_node) ;
 
   /**
    * Destructor.

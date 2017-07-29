@@ -64,7 +64,7 @@ namespace Trick {
              @par NOTE:
              Only one instance of the MemoryManager is allowed to exist per process.
              */
-            MemoryManager() throw (std::logic_error) ;
+            MemoryManager() ;
 
             /**
              Memory Manager destructor.

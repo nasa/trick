@@ -38,7 +38,7 @@ bool ArrayDataType::initArrayDataType( TypeDictionary* typeDictionary, std::stri
 }
 
 // CONSTRUCTOR
-ArrayDataType:: ArrayDataType( TypeDictionary* typeDictionary, std::string typeSpecName, unsigned int n_dims, int dims[] ) throw (std::logic_error) {
+ArrayDataType:: ArrayDataType( TypeDictionary* typeDictionary, std::string typeSpecName, unsigned int n_dims, int dims[] )  {
 
     if( this->initArrayDataType( typeDictionary, typeSpecName, n_dims, dims) ) {
         throw std::logic_error("ArrayDataType constructor(1) error.");
@@ -46,7 +46,7 @@ ArrayDataType:: ArrayDataType( TypeDictionary* typeDictionary, std::string typeS
 }
 
 // CONSTRUCTOR
-ArrayDataType:: ArrayDataType( TypeDictionary* typeDictionary, std::string typeSpecName, unsigned int dimensionSize ) throw (std::logic_error) {
+ArrayDataType:: ArrayDataType( TypeDictionary* typeDictionary, std::string typeSpecName, unsigned int dimensionSize )  {
 
     int n = dimensionSize;
     if( this->initArrayDataType( typeDictionary, typeSpecName, 1, &n) ) {

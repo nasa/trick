@@ -21,7 +21,7 @@ public:
   /**
    * XML Constructor.
    */
-  DPM_product(DPM_component *parent, xmlNode *product_node) throw (std::invalid_argument);
+  DPM_product(DPM_component *parent, xmlNode *product_node) ;
 
   /**
    * Destructor

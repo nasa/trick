@@ -20,7 +20,7 @@ public:
    * @param measurement_node this is a pointer to an xmlNode whose type is
    *        XML_ELEMENT_NODE and whose name is "measurement".
    */
-  DPM_measurement(DPM_component *parent, xmlNode *measurement_node) throw (std::invalid_argument);
+  DPM_measurement(DPM_component *parent, xmlNode *measurement_node) ;
 
   /**
    * Destructor.

@@ -11,7 +11,7 @@ DPC_std_curve::DPC_std_curve(
                              DPM_curve*               Curve_spec,
                              DPM_run*                 Run,
                              DPC_datastream_supplier *ds_supplier,
-                             DPM_time_constraints    *Time_constraints ) throw (std::logic_error)
+                             DPM_time_constraints    *Time_constraints )
     : DPC_curve() {
 
     char work[255];
