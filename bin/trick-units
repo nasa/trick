@@ -22,25 +22,6 @@ print color('white');
 print "\n";
 
 print "-" x 50 . "\n";
-print "Unit Specification Unicode Characters\n";
-print "-" x 50 . "\n";
-printf "%26s%s", "°: ", "U+00B0 (Degree Sign)"; print "\n";
-printf "%26s%s", "²: ", "U+00B2 (Superscript Two)"; print "\n";
-printf "%26s%s", "³: ", "U+00B3 (Superscript Three)"; print "\n";
-printf "%26s%s", "Ω: ", "U+03A9 (Greek Uppercase Omega)"; print "\n";
-printf "%26s%s", "μ: ", "U+03BC (Greek Lowercase Mu)"; print "\n";
-printf "%26s%s", "π: ", "U+03C0 (Greek Lowercase Pi)"; print "\n";
-printf "%27s%s", "′: ", "U+2032 (Prime)"; print "\n";
-printf "%27s%s", "″: ", "U+2033 (Double Prime)"; print "\n";
-printf "%27s%s", "℃ : ", "U+2103 (Degree Celsius)"; print "\n";
-printf "%27s%s", "℉ : ", "U+2109 (Degree Fahrenheit)"; print "\n";
-printf "%27s%s", "Ω: ", "U+2126 (Ohm Sign)"; print "\n";
-printf "%27s%s", "K: ", "U+212A (Kelvin Sign)"; print "\n";
-printf "%27s%s", "Å: ", "U+212B (Angstrom Sign)"; print "\n";
-
-print "\n";
-
-print "-" x 50 . "\n";
 print "Unit Prefixes\n";
 print "-" x 50 . "\n";
 printf "%25s%s", "e+24: ", "Y, yotta";   print "\n";
@@ -200,5 +181,24 @@ print "-" x 50 . "\n";
 printf "%25s%s", "Hertz: ", "Hz, hertz, 1/s"; print "\n";
 printf "%25s%s", "Kilohertz: ", "kHz, kilohertz, kiloHz"; print "\n";
 printf "%25s%s", "Megahertz: ", "MHz, megahertz, megaHz"; print "\n";
+
+print "\n";
+
+print "-" x 50 . "\n";
+print "Unit Specification Unicode Characters\n";
+print "-" x 50 . "\n";
+printf "%26s%s", "°: ", "U+00B0 (Degree Sign)"; print "\n";
+printf "%26s%s", "²: ", "U+00B2 (Superscript Two)"; print "\n";
+printf "%26s%s", "³: ", "U+00B3 (Superscript Three)"; print "\n";
+printf "%26s%s", "Ω: ", "U+03A9 (Greek Uppercase Omega)"; print "\n";
+printf "%26s%s", "μ: ", "U+03BC (Greek Lowercase Mu)"; print "\n";
+printf "%26s%s", "π: ", "U+03C0 (Greek Lowercase Pi)"; print "\n";
+printf "%27s%s", "′: ", "U+2032 (Prime)"; print "\n";
+printf "%27s%s", "″: ", "U+2033 (Double Prime)"; print "\n";
+printf "%27s%s", "℃ : ", "U+2103 (Degree Celsius)"; print "\n";
+printf "%27s%s", "℉ : ", "U+2109 (Degree Fahrenheit)"; print "\n";
+printf "%27s%s", "Ω: ", "U+2126 (Ohm Sign)"; print "\n";
+printf "%27s%s", "K: ", "U+212A (Kelvin Sign)"; print "\n";
+printf "%27s%s", "Å: ", "U+212B (Angstrom Sign)"; print "\n";
 
 print "\n";
