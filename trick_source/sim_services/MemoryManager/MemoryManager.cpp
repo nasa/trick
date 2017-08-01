@@ -11,7 +11,7 @@ int Trick::MemoryManager::instance_count = 0;
 
 // CONSTRUCTOR
 Trick::MemoryManager::MemoryManager()
-    throw (std::logic_error) {
+{
 
 
     // The MemoryManager is a singleton. That is only one instance of it is allowed.

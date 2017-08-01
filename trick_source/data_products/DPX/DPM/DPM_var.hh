@@ -27,7 +27,7 @@ class DPM_var:public DPM_component {
      * @param VarNode is a pointer to an xmlNode whose type is
      *        XML_ELEMENT_NODE and whose name is "var".
      */
-    DPM_var(DPM_component * parent, xmlNode * VarNode) throw(std::invalid_argument);
+    DPM_var(DPM_component * parent, xmlNode * VarNode) ;
 
     /**
      * Destructor.

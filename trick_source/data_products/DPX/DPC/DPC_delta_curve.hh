@@ -25,7 +25,7 @@ public:
                     DPM_run* RUN1,
                     DPM_run* RUN2,
                     DPC_datastream_supplier *ds_supplier,
-                    DPM_time_constraints* Time_constraints ) throw (std::logic_error);
+                    DPM_time_constraints* Time_constraints ) ;
 
     /**
      * Destructor.

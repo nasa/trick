@@ -11,7 +11,7 @@ DPC_delta_plot::DPC_delta_plot( DPC_datastream_supplier *DS_Supplier,
                                 DPM_run *Run1,
                                 DPM_run *Run2,
                                 DPM_relation            *Relation,
-                                DPM_time_constraints    *ParentTimeConstraints ) throw (std::invalid_argument)
+                                DPM_time_constraints    *ParentTimeConstraints )
     : DPC_plot( Relation)
 {
 
@@ -80,7 +80,7 @@ DPC_delta_plot::DPC_delta_plot( DPC_datastream_supplier *DS_Supplier,
 DPC_delta_plot::DPC_delta_plot( DPC_datastream_supplier *DS_Supplier,
                                 std::vector <DPM_run *> *RunListp,
                                 DPM_relation            *Relation,
-                                DPM_time_constraints    *ParentTimeConstraints ) throw (std::invalid_argument)
+                                DPM_time_constraints    *ParentTimeConstraints )
     : DPC_plot( Relation)
 {
 

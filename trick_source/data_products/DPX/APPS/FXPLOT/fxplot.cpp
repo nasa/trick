@@ -492,7 +492,7 @@ class FplotArgs {
     char* device;
     const char* session_file;
 
-    FplotArgs(int argc, char* argv[]) throw (std::invalid_argument) {
+    FplotArgs(int argc, char* argv[]) {
         int ii;
         char* cp ;
 

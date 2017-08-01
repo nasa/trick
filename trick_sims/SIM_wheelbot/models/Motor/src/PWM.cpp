@@ -4,14 +4,14 @@
 
 PWM::PWM ( double HighVoltage,
            double LowVoltage,
-           double DutyCycle) throw (std::logic_error) {
+           double DutyCycle) {
 
    highVoltage = HighVoltage;
    lowVoltage  = LowVoltage;
    setDutyCycle( DutyCycle);
 }
 
-void PWM::setDutyCycle( double DutyCycle) throw (std::logic_error) {
+void PWM::setDutyCycle( double DutyCycle) {
    if (( DutyCycle >= 0.0 ) && ( DutyCycle <= 1.0 )) {
        dutyCycle = DutyCycle;
    } else {

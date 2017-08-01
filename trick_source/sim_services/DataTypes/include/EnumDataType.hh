@@ -118,7 +118,7 @@ public:
      the struct, union or class.
      @param type_decl TypeDeclaration of the data-member.
      */
-    void addEnumerator( std::string member_name, int value) throw(std::logic_error) ;
+    void addEnumerator( std::string member_name, int value)  ;
 
 private:
     EnumDataType() {};

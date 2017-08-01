@@ -24,7 +24,7 @@ int DPM_var::Initialize( xmlNode *base_node) {
 }
 
 // CONSTRUCTOR
-DPM_var::DPM_var(DPM_component *Parent, xmlNode *Base_node) throw (std::invalid_argument)
+DPM_var::DPM_var(DPM_component *Parent, xmlNode *Base_node)
      : DPM_component (Parent, Base_node) {
 
      if ( Initialize( Base_node) < 0) {

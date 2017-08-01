@@ -36,7 +36,7 @@ bool PointerDataType::initPointerDataType( TypeDictionary * typeDictionary, std:
 }
 
 // CONSTRUCTOR
-PointerDataType:: PointerDataType( TypeDictionary * typeDictionary, std::string typeSpecName, unsigned int n_dims, int dims[]) throw (std::logic_error) {
+PointerDataType:: PointerDataType( TypeDictionary * typeDictionary, std::string typeSpecName, unsigned int n_dims, int dims[])  {
 
    if( this->initPointerDataType( typeDictionary, typeSpecName, n_dims, dims) ) {
        throw std::logic_error("PointerDataType constructor(1) error.");
@@ -44,7 +44,7 @@ PointerDataType:: PointerDataType( TypeDictionary * typeDictionary, std::string 
 }
 
 // CONSTRUCTOR
-PointerDataType::PointerDataType( TypeDictionary* typeDictionary, std::string typeSpecifierName) throw (std::logic_error) {
+PointerDataType::PointerDataType( TypeDictionary* typeDictionary, std::string typeSpecifierName)  {
 
    int dims[1] = {-1};
    if( this->initPointerDataType( typeDictionary, typeSpecName, 1, dims) ) {

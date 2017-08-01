@@ -30,7 +30,7 @@ public:
 		DPM_run   * Run,
 		DPM_table *Table,
 		DPM_time_constraints *parent_time_constraints )
-              throw (std::invalid_argument);
+              ;
 
   /**
    * Destructor.

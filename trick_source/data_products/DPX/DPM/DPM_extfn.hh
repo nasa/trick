@@ -21,7 +21,7 @@ public:
   /**
    * XML constructor.
    */
-  DPM_extfn(DPM_component *parent, xmlNode *extfn_node) throw (std::invalid_argument);
+  DPM_extfn(DPM_component *parent, xmlNode *extfn_node) ;
 
   /**
    * Destructor.

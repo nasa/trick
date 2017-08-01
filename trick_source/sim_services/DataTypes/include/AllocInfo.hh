@@ -46,13 +46,13 @@ class AllocInfo {
                unsigned int       dimensionsCount,
                int*               dimensions,
                TypeDictionary*    typeDictionary,
-               void*              suppliedAllocation = 0) throw (std::logic_error) ;
+               void*              suppliedAllocation = 0)  ;
     /**
       AllocInfo destructor.
      */
     AllocInfo( const std::string& declaration,
                TypeDictionary*    typeDictionary,
-               void*              suppliedAllocation = 0) throw (std::logic_error) ;
+               void*              suppliedAllocation = 0)  ;
     /**
       AllocInfo destructor.
      */
@@ -165,7 +165,7 @@ class AllocInfo {
                      unsigned int       dimensionsCount,
                      int *              dimensions,
                      TypeDictionary*    typeDictionary,
-                     void*              suppliedAllocation ) throw (std::logic_error) ;
+                     void*              suppliedAllocation )  ;
 
     std::string     name;                        /**< ** Object name */
     void*           start;                       /**< ** Address where this allocation starts */

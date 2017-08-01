@@ -2,7 +2,7 @@
 #include <sstream>
 #include "EnumDictionary.hh"
 
-int EnumDictionary::getValue(std::string name ) throw(std::logic_error) {
+int EnumDictionary::getValue(std::string name )  {
 
     enumDictionaryIterator = enumDictionary.find(name);
     if (enumDictionaryIterator == enumDictionary.end()) {
@@ -14,7 +14,7 @@ int EnumDictionary::getValue(std::string name ) throw(std::logic_error) {
     }
 }
 
-void EnumDictionary::addEnumerator(std::string name, int value) throw(std::logic_error) {
+void EnumDictionary::addEnumerator(std::string name, int value)  {
 
     enumDictionaryIterator = enumDictionary.find(name);
     if (enumDictionaryIterator == enumDictionary.end()) {

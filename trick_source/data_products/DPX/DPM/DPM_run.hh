@@ -20,7 +20,7 @@ public:
    * @param RunNode is a pointer to an xmlNode whose type is
    *        XML_ELEMENT_NODE and whose name is "run".
    */
-  DPM_run(DPM_component *parent, xmlNode *RunNode) throw (std::invalid_argument);
+  DPM_run(DPM_component *parent, xmlNode *RunNode) ;
 
   /**
    * Destructor.

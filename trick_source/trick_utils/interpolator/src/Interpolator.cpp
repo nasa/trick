@@ -5,7 +5,7 @@
 #include "trick/Interpolator.hh"
 
 double Trick::Interpolator::eval (double param[], unsigned int param_index, unsigned int offset)
-        throw (std::logic_error) {
+{
 
     double x, x_lower, x_upper;
     double f_x, f_x_lower, f_x_upper;
@@ -46,13 +46,13 @@ double Trick::Interpolator::eval (double param[], unsigned int param_index, unsi
 }
 
 double Trick::Interpolator::eval (double params[])
-       throw (std::logic_error) {
+{
 
     return ( eval( params, 0,0));
 }
 
 double Trick::Interpolator::eval (double param1, ...)
-       throw (std::logic_error) {
+{
 
     double params[256];
     va_list ap;

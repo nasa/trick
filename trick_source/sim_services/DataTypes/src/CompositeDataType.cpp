@@ -235,7 +235,7 @@ void CompositeDataType::addRegularMember( std::string memberName,
                                                int member_offset,
                                                std::string typeSpecName,
                                                unsigned int n_dims,
-                                               int dims[] ) throw(std::logic_error) {
+                                               int dims[] )  {
 
     int memberCount = memberList.size() ;
     for (int ii=0 ; ii < memberCount ; ii++) {
@@ -256,7 +256,7 @@ void CompositeDataType::addStaticMember( std::string memberName,
                                          void * memberAddress,
                                          std::string typeSpecName,
                                          unsigned int n_dims,
-                                         int dims[] ) throw(std::logic_error) {
+                                         int dims[] )  {
 
     int memberCount = memberList.size() ;
     for (int ii=0 ; ii < memberCount ; ii++) {

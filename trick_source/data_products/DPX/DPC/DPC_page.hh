@@ -25,7 +25,7 @@ public:
     DPC_page( DPC_datastream_supplier *DS_Supplier,
               std::vector <DPM_run *> *RunListp,
               DPM_page *PageSpec,
-              DPM_time_constraints *ParentTimeConstraints ) throw (std::invalid_argument) ;
+              DPM_time_constraints *ParentTimeConstraints )  ;
 
     /**
      * DESTRUCTOR.

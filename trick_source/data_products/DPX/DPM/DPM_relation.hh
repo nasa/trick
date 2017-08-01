@@ -24,7 +24,7 @@ public:
    * @param plot_node a pointer to a libxml2 xmlNode of type XML_ELEMENT_NODE,
    * and whose name is "plot".
    */
-  DPM_relation(DPM_component *parent, xmlNode *plot_node) throw (std::invalid_argument);
+  DPM_relation(DPM_component *parent, xmlNode *plot_node) ;
   /**
    * Destructor for DPM_relation.
    */

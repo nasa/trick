@@ -25,7 +25,7 @@ class TypeDictionary {
      Add a type definiton to the dictionary.
      */
     void addTypeDefinition(std::string name, DataType * typeSpec)
-         throw(std::logic_error);
+         ;
 
     /**
      */

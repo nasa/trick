@@ -17,11 +17,11 @@ class PWM {
 
     PWM( double HighVoltage,
          double LowVoltage,
-         double DutyCycle) throw (std::logic_error);
+         double DutyCycle);
 
     ~PWM() {}
 
-    void   setDutyCycle( double DutyCycle) throw (std::logic_error);
+    void   setDutyCycle( double DutyCycle);
     double getDutyCycle() const;
     double getAverageVoltage() const;
 

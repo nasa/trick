@@ -25,7 +25,7 @@ public:
                     DPM_run *Run2,
                     DPM_relation *Relation,
                     DPM_time_constraints *parent_time_constraints )
-        throw (std::invalid_argument);
+        ;
 
     /**
      * Constructor for Contrast session
@@ -34,7 +34,7 @@ public:
                     std::vector <DPM_run *> *RunListp,
                     DPM_relation *Relation,
                     DPM_time_constraints *parent_time_constraints )
-        throw (std::invalid_argument);
+        ;
 
     /**
      * Destructor.

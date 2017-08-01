@@ -17,12 +17,12 @@ public:
     /**
      Add a name/value pair to the dictionary.
      */
-    void addEnumerator(std::string name, int value) throw(std::logic_error);
+    void addEnumerator(std::string name, int value) ;
 
     /**
      Get the value associated with the given string.i FIXME: what of string not found?
      */
-    int getValue(std::string name) throw(std::logic_error) ;
+    int getValue(std::string name)  ;
 
     /**
      */
