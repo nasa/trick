@@ -84,7 +84,7 @@ print "Angle\n";
 print "-" x 50 . "\n";
 printf "%25s%s", "Radians: ", "rad, radian[s]"; print "\n";
 printf "%25s%s", "Degrees: ", "°, degree[s]"; print "\n";
-printf "%25s%s", "Arcminutes: ", "′, arcminutess]"; print "\n";
+printf "%25s%s", "Arcminutes: ", "′, arcminute[s]"; print "\n";
 printf "%25s%s", "Arcseconds: ", "″, arcsecond[s]"; print "\n";
 
 print "\n";
