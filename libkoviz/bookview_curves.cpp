@@ -2055,7 +2055,7 @@ void CurvesView::_keyPressSpace()
         // Make dp units the same (if in same family)
         Unit u0(dpYUnit0.toLatin1().constData());
         Unit u1(dpYUnit1.toLatin1().constData());
-        if ( u0.canConvert(&u1) ) {
+        if ( u0.canConvert(u1) ) {
             QModelIndex unitIdx1 = _bookModel()->getDataIndex(idx1,
                                                          "CurveYUnit", "Curve");
             model()->setData(unitIdx1,dpYUnit0);

@@ -1,955 +1,401 @@
-/******************************************************************************r
-*                                                                              *
-* Trick Simulation Environment Software                                        *
-*                                                                              *
-* Copyright (c) 1996,1997 LinCom Corporation, Houston, TX                      *
-* All rights reserved.                                                         *
-*                                                                              *
-* Copyrighted by LinCom Corporation and proprietary to it. Any unauthorized    *
-* use of Trick Software including source code, object code or executables is   *
-* strictly prohibited and LinCom assumes no liability for such actions or      *
-* results thereof.                                                             *
-*                                                                              *
-* Trick Software has been developed under NASA Government Contracts and        *
-* access to it may be granted for Government work by the following contact:    *
-*                                                                              *
-* Contact: Charles Gott, Branch Chief                                          *
-*          Simulation and Graphics Branch                                      *
-*          Automation, Robotics, & Simulation Division                         *
-*          NASA, Johnson Space Center, Houston, TX                             *
-*                                                                              *
-*******************************************************************************/
-/**
-    File: unit.cpp
-    @author Keith Vetter
-    @version May 2002
-*/
-
 /*
- *
- * This is a very small subset of unit conversions.  I'm looking at this now,
- * in 2013 and see how fragile it is.  It was really the ability to not
- * use operators that made this so messy.  For instance, one can say kgm/s2.
- * If I redo this, I'll use a lexxer.
- *
- * I just looked at this comment in 2014
- * and totally agree that it needs to go,
- * especially in light of Tim using delimiters
+ *  Author: Keith Vetter
+ *  Notes: I completely rewrote this in August 2017.
  */
 
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
 #include "unit.h"
 
-/**
- * Unit strings
- */
-const char *const Unit::_unitStrings[NUM_UNIT_TYPES][MAX_UNITS_FOR_TYPE] = {
-        {"s", "min", "hr", "day", "ms", "us", ""},      // Time
-        {"m", "M", "ft", "in", "mm", "cm",              // Length
-         "km", "yd", "mi", "nm", "kft", ""},
-        {"r", "d", "as", "am", "rev", "mr", ""},        // Angle
-        {"kg", "sl", "lbm", "g", "mt", ""},             // Mass
-        {"N", "kN", "oz", "lbf", ""},                   // Force
-        {"v", "kv", ""},                                // Voltage
-        {"amp", "mamp", ""},                            // Current
-        {"ohm", "mohm", ""},                            // Resistance
-        {"C", "K", "R", "F", ""},                       // Temperature
-        {"dB", ""},                                     // Sound
-        {"J", "mJ", "uJ", "kJ", "MJ", ""},              // Energy
-        {"--", "cnt", "one", "1", ""}                   // Unitless
-};
+QHash<QPair<QString,QString>,double> Unit::_scales = Unit::_initScales();
 
-/**
- *  Conversion factors 
- */
-const double Unit::_conversions[NUM_UNIT_TYPES][MAX_UNITS_FOR_TYPE] = {
-
-        // Time
-        {
-         1.000000000000,        // s -> s
-         60.000000000000,       // s -> min
-         3600.000000000000,     // s -> hr
-         86400.00000000000,     // s -> day
-         0.001000000000,        // s -> ms
-         0.000001000000         // s -> us
-         },
-
-        // Length
-        {
-         1.000000000000,        // M -> M 
-         1.000000000000,        // M -> m 
-         0.3048000000000000,    // M -> ft
-         0.0254000000000000,    // M -> in
-         0.0010000000000000,    // M -> mm
-         0.010000000000000,     // M -> cm
-         1000.000000000000,     // M -> km
-         0.9143999999999998,    // M -> yd
-         1609.344000000000,     // M -> mi
-         1852.000000000000,     // M -> nm
-         304.80000000000000     // M -> kft
-         },
-
-        // Angle
-        {
-         1.000000000000,        // r -> M 
-         0.0174532925199433,    // r -> d 
-         4.848136811095362e-06, // r -> as 
-         0.0002908882086657216, // r -> am 
-         6.28318530717958647,   // r -> rev 
-         0.001000000000000      // r -> mr 
-         },
-
-        // Mass 
-        {
-         1.000000000000,        // kg -> kg 
-         14.59390293000000,     // kg -> sl 
-         0.4535923697760192,    // kg -> lbm 
-         0.0010000000000000,    // kg -> g 
-         1000.000000000000      // kg -> mt 
-         },
-
-        // Force
-        {
-         1.000000000000,        // N -> N 
-         1000.000000000000,     // N -> kN 
-         0.2780138509537812,    // N -> oz 
-         4.4482216152605        // N -> lbf 
-         },
-
-        // Voltage
-        {
-         1.000000000000,        // v -> v 
-         1000.000000000000      // v -> kv
-         },
-
-        // Current 
-        {
-         1.000000000000,        // amp -> amp 
-         0.0010000000000000     // amp -> mamp
-         },
-
-        // Resistance
-        {
-         1.000000000000,        // ohm -> ohm 
-         0.0010000000000000,    // ohm -> mohm
-         0.0                    // ohm -> ""
-         },
-
-        // Temperature
-        {
-         1.000000000000,        // C -> C 
-         -273.15,               // C -> K  
-         -273.15, 0.555555555555556,    // C -> R 
-         -17.7777777777778, 0.555555555555556   // C -> F
-         },
-
-        // Sound
-        {
-         1.000000000000,        // dB -> dB 
-         0.0                    // dB -> ""
-         },
-
-        // Energy
-        {
-         1.000000000000,        // J->J
-         0.001000000000,        // J->mJ
-         0.000000100000,        // J->uJ
-         1000.000000000,        // J->kJ
-         1000000.000000         // J->MJ
-         },
-
-        // Unitless
-        {
-         1.0,                   // -- -> --
-         1.0,                   // -- -> cnt
-         1.0,                   // -- -> one
-         1.0                    // -- -> 1
-         }
-};
-
-/**
- * For error exception
- */
-QString Unit::_err_string;
-QTextStream Unit::_err_stream(&_err_string);
-
-/**
- * Unit Constructor
- */
-Unit::Unit()
+Unit::Unit() :
+    _name("--")
 {
-        _unitName =  "--";
 }
 
-/**
- * Unit Constructor that takes unit name
- */
-Unit::Unit(const char *name)
+Unit::Unit(const QString &name) :
+    _name(name)
 {
-    bool isError = false;
-
-    if (strlen(name) < MAX_LEN_UNIT_STR) {
-
-        if (isUnit(name)) {
-            _unitName = name ;
-        } else {
-            isError = true;
-        }
-    } else {
-        isError = false;
-    }
-
-    if ( isError ) {
-        _err_stream  << "treat [error]: Unit::Unit(const char* unitName) "
-                     << "called with bad or unsupported "
-                     <<  "unitName=\"" << name << "\".\n";
-        throw std::runtime_error(_err_string.toLatin1().constData());
-    }
 }
 
-/**
- * Unit Destructor
- */
 Unit::~Unit()
 {
-        // Nothing to do
 }
 
-/**  Get the unit name string e.g. "in", "mi", "kg" */
-const char *Unit::getUnitName()
+QString Unit::name() const
 {
-        return (_unitName.c_str());
+    return _name;
 }
 
-/**  Get the unit name string e.g. "in", "mi", "kg" */
-string Unit::setUnitName(const char * name )
+void Unit::setName(const QString& name )
 {
-        _unitName = name ;
-        return (_unitName);
+    _name = name ;
 }
 
-// Reset scan for GetNextPrimitive
-void Unit::_resetNextPrimitive()
+bool Unit::canConvert(const Unit &to) const
 {
-        _currPrimitiveIndex = 0;
+    bool can = false;
+
+    QString fam1 = _family(this->name());
+    QString fam2 = _family(to.name());
+
+    if ( fam1 == fam2 ) {
+        can = true;
+    }
+
+    return can;
 }
 
-//
-// In a nutshell, this member takes unitName and passes 
-// primitive units AND operands of unitName after successive calls.
-//
-// E.g. NM/s2 would return N, M, /, s, 2 after 5 successive calls
-//
-int Unit::_getNextPrimitiveOrOperand()
+bool Unit::isUnit(const QString &name)
 {
+    bool ok = false;
 
-        /*
-         * This assumes that the unit name is valid (i.e. it has been checked
-         * by IsUnit.
-         * I also depends on currPrimitiveIndex.  If there is a need to 
-         * redo the primitive scan, then run ResetNextPrimitive
-         */
-
-        /*
-         * Returns 0 if there is no next primitive (done with name)
-         * Otherwise it returns 1
-         */
-
-        char str[32];
-        int i, j, k;
-        int lenUnitName;
-
-        lenUnitName = _unitName.length() ;
-
-        // Have we already scanned the entire unit string ?
-        if (_currPrimitiveIndex >= lenUnitName) {
-                _currPrimitive[0] = '\0';
-                return (0);
+    QList<QPair<QString,QString> > pairs = _scales.keys();
+    for ( int i = 0; i < pairs.size(); ++i ) {
+        QPair<QString,QString> pair = pairs.at(i);
+        if ( pair.second == name ) {
+            ok = true;
+            break;
         }
+    }
 
-        j = 0;
-        str[0] = '\0';
-        for (i = _currPrimitiveIndex; i < lenUnitName; i++) {
-
-                // Handle "*,/,2,3"
-                if (_unitName[i] == '*' || _unitName[i] == '/' ||
-                    _unitName[i] == '2' || _unitName[i] == '3') {
-
-                        str[0] = _unitName[i];
-                        str[1] = '\0';
-                        break;
-                }
-
-                str[j] = _unitName[i];
-                str[j + 1] = '\0';
-
-                // Found a primitive unit type
-                if (_isPrimitive(str)) {
-
-                        // sl,rev,day,dB,min,amp,mm,ms,mohm,min
-                        // have conflicts with
-                        // s ,r  ,d  ,d ,mi ,am ,m ,m ,m,  ,m
-                        if (!strcmp(str, "s")) {
-                                k = i + 1;
-                                if (k < lenUnitName && _unitName[i + 1] == 'l') {
-                                        // Slugs -vs- Seconds conflict 
-                                        // (slugs win)
-                                        strcpy(str, "sl");
-                                        i = i + 1;
-                                }
-                        } else if (!strcmp(str, "m")) {
-                                k = i + 1;
-                                if (k < lenUnitName &&
-                                        (_unitName[i + 1] == 's' ||
-                                         _unitName[i + 1] == 'm' ||
-                                         _unitName[i + 1] == 'J' )) {
-                                        // ms -vs- s conflict (ms wins)
-                                        // or
-                                        // mm -vs- m (mm wins)
-                                        if ( _unitName[i+1] == 's' ) {
-                                            strcpy(str, "ms");
-                                        } else if ( _unitName[i+1] == 'J' ) {
-                                            // mJ is millijoules, not m*J
-                                            strcpy(str, "mJ");
-                                        } else {
-                                            strcpy(str, "mm");
-                                        }
-                                        i = i + 1;
-                                } else if ( i+2 < lenUnitName &&
-                                            _unitName[i+1] == 'i' &&
-                                            _unitName[i+2] == 'n' ) {
-                                    strcpy(str, "min");
-                                    i = i+2;
-                                } else {
-                                    k = i + 3;
-                                        if (k < lenUnitName
-                                            && _unitName[i + 1] == 'o'
-                                            && _unitName[i + 2] == 'h'
-                                            && _unitName[i + 3] == 'm' ) {
-                                                // mohm beats m ohm
-                                                strcpy(str, "mohm");
-                                                i = i + 3;
-                                        }
-                                }
-                        } else if (!strcmp(str, "M")) {
-                            k = i + 1;
-                            if (k < lenUnitName && _unitName[i + 1] == 'J') {
-                                // MJ is Megajoules, not M*J
-                                strcpy(str, "MJ");
-                                i = i + 1;
-                            }
-                        } else if (!strcmp(str, "r")) {
-                                k = i + 2;
-                                if (k < lenUnitName && _unitName[i + 1] == 'e'
-                                    && _unitName[i + 2] == 'v') {
-                                        // Revolutions -vs- Radians (revs win)
-                                        strcpy(str, "rev");
-                                        i = i + 2;
-                                }
-                        } else if (!strcmp(str, "d")) {
-                                k = i + 1;
-                                if (k < lenUnitName && _unitName[i + 1] == 'B') {
-                                        // Decibals -vs- Degrees (dB wins)
-                                        strcpy(str, "dB");
-                                        i = i + 1;
-                                } else {
-                                        if (k < lenUnitName
-                                            && _unitName[i + 1] == 'a'
-                                            && _unitName[i + 2] == 'y') {
-                                                // degrees -vs- days (days win)
-                                                strcpy(str, "day");
-                                                i = i + 2;
-                                        }
-                                }
-                        } else if (!strcmp(str, "mi")) {
-                                k = i + 1;
-                                if (k < lenUnitName && _unitName[i + 1] == 'n') {
-                                        // Minutes -vs- miles (miles wins)
-                                        strcpy(str, "min");
-                                        i = i + 1;
-                                }
-                        } else if (!strcmp(str, "am")) {
-                                k = i + 1;
-                                if (k < lenUnitName && _unitName[i + 1] == 'p') {
-                                        // Amp -vs- arc minutes (Amps wins)
-                                        strcpy(str, "amp");
-                                        i = i + 1;
-                                }
-                        }
-                        // We found it, so break
-                        break;
-
-                } else {
-                        j++;
-                }
-        }
-
-        _currPrimitiveIndex = i + 1;
-        strcpy(_currPrimitive, str);
-
-        return (1);
-}
-
-/**
- * Compare two unit constructs to see if they are the same
- * overall type (same family). Are we comparing apples to apples???
- *
- * Return 1 if in same family, 0 otherwise
- * 
- * e.g. 
- *     1: "kg" & "g" are same type
- *     2: "kgNM/s2" & "gkNcm/hr2" are same type
- *     3: "M" & "s" are not the same since feet & seconds are NOT same family
- *     4: "kgNM/s2" & "gNM/s3" are not same since s2 & s3 different dims
- *     5: "kgNM" & "gNs" are not same type since M & s are diff
- */
-bool Unit::canConvert(Unit * u)
-{
-
-        // Assume that units being compared are valid 
-        // (IsUnit check already done) 
-
-        int ret1, ret2;
-
-        u->_resetNextPrimitive();
-        this->_resetNextPrimitive();
-
-        while (1) {
-
-                ret1 = u->_getNextPrimitiveOrOperand();
-                ret2 = this->_getNextPrimitiveOrOperand();
-
-                if (ret1 != ret2) {
-                        // u & this have different number of primitive units/ops
-                        return (false);
-                }
-
-                if (ret1 == 0 && ret2 == 0) {
-                        // All comparisons have been done on each unit
-                        // They are the same
-                        return (true);
-                }
-
-                if (!strcmp(u->_currPrimitive, this->_currPrimitive)) {
-                        // Identical, so continue go on to next primitives 
-                        continue;
-                } else {
-                        if (_isOperand(u->_currPrimitive)
-                            || _isOperand(this->_currPrimitive)) {
-                                // Operands weren't identical, so not same type
-                                return (false);
-                        }
-
-                        if (u->_getPrimitiveType(u->_currPrimitive) ==
-                            this->_getPrimitiveType(this->_currPrimitive)) {
-                                continue;
-                        } else {
-                            // This is a complete hack because I'm going to
-                            // either rewrite this thing, use the Tricklab
-                            // version or get something off the internet
-                            //
-                            // The hack is  because people use N*m and
-                            // by convention write the English unit
-                            // "backwards" as ft*lbf
-                            //
-                            // All this does is check if next operand is *,
-                            // and allows commutativity
-
-                            int tPrev0 = u->_getPrimitiveType(u->_currPrimitive);
-                            int tPrev1 = _getPrimitiveType(_currPrimitive);
-
-                            ret1 = u->_getNextPrimitiveOrOperand();
-                            ret2 = this->_getNextPrimitiveOrOperand();
-                            if (ret1 != ret2) return (false);
-
-                            // Next primitive must be * operand
-                            if ( strcmp(u->_currPrimitive,"*") ||
-                                 strcmp(this->_currPrimitive,"*") ) {
-                                return (false);
-                            }
-
-                            ret1 = u->_getNextPrimitiveOrOperand();
-                            ret2 = this->_getNextPrimitiveOrOperand();
-                            if (ret1 != ret2) return (false);
-
-                            int tNext0 = u->_getPrimitiveType(u->_currPrimitive);
-                            int tNext1 = _getPrimitiveType(_currPrimitive);
-
-                            if ( tPrev0 == tNext1 && tPrev1 == tNext0 ) {
-                                // e.g. N*m ~ ft*lbf which is convertable
-                                continue;
-                            }
-
-                            return (false);
-                        }
-                }
-        }
-}
-
-/**
- * Check and see if something like "NMs2*slkvrev" is valid or not
- *
- * By the way that ugly thing is valid!!!
- */
-int Unit::isUnit(const char *unitStr)
-{
-
-
-        char str[32];
-        int i, j, k;
-        int lenUnitStr;
-        int lastPrimitive;      // Index into last char of last primitive parsed
-        char prevChar;
-
-        j = 0;
-        lenUnitStr = strlen(unitStr);
-        for (i = 0; i < lenUnitStr; i++) {
-
-                // Handle "*,/,2,3"
-                if (unitStr[i] == '*' || unitStr[i] == '/' ||
-                    unitStr[i] == '2' || unitStr[i] == '3') {
-
-                        if (i == 0) {
-                                // Error: Units don't start with *,/,2,3
-                                return (0);
-                        }
-
-                        prevChar = unitStr[i - 1];
-
-                        if (isalpha(prevChar) || prevChar == '1' ) {
-                                // OK: E.g. NM2, NMs2/ft, 1/s
-                                continue;
-
-                        } else {
-
-                                if (prevChar == '*' || prevChar == '/') {
-                                        // Error: e.g. NM**, NM*/, NM/2, NM*3
-                                        return (0);
-                                }
-                                if (prevChar == '2' || prevChar == '3') {
-                                        if (unitStr[i] != '/'
-                                            && unitStr[i] != '*') {
-                                                // Error: e.g. NM22, NM&3
-                                                return (0);
-                                        } else {
-                                                // OK: E.g. NM2/s 
-                                                continue;
-                                        }
-                                }
-                        }
-                }
-
-                str[j] = unitStr[i];
-                str[j + 1] = '\0';
-
-                // Found a primitive unit type
-                if (_isPrimitive(str)) {
-
-                        // sl,rev,day,dB,min,amp,mm,ms,mohm
-                        // have conflicts with
-                        // s ,r  ,d  ,d ,mi ,am ,m ,m ,m
-                        if (!strcmp(str, "s")) {
-                                k = i + 1;
-                                if (k < lenUnitStr && unitStr[i + 1] == 'l') {
-                                        // Slugs -vs- Seconds conflict 
-                                        // (slugs win)
-                                        strcpy(str, "sl");
-                                        i = i + 1;
-                                }
-                        } else if (!strcmp(str, "m")) {
-                                k = i + 1;
-                                if (k < lenUnitStr &&
-                                        (unitStr[i + 1] == 's'||
-                                         unitStr[i + 1] == 'm' ||
-                                         unitStr[i + 1] == 'J' ) ) {
-                                        // ms -vs- m conflict
-                                        // mJ -vs- m conflict
-                                        // mm -vs- m conflict
-                                        if ( unitStr[i+1] == 's' ) {
-                                            strcpy(str, "ms");
-                                        } else if ( unitStr[i+1] == 'J' ) {
-                                            strcpy(str, "mJ");
-                                        } else {
-                                            strcpy(str, "mm");
-                                        }
-                                        i = i + 1;
-                                } else if ( i+2 < lenUnitStr &&
-                                            _unitName[i+1] == 'i' &&
-                                            _unitName[i+2] == 'n' ) {
-                                    strcpy(str, "min");
-                                    i = i+2;
-                                } else {
-                                        k = i + 3;
-                                        if (k < lenUnitStr
-                                            && _unitName[i + 1] == 'o'
-                                            && _unitName[i + 2] == 'h'
-                                            && _unitName[i + 3] == 'm' ) {
-                                                // mohm beats m ohm
-                                                strcpy(str, "mohm");
-                                                i = i + 3;
-                                        }
-                                }
-                        } else if (!strcmp(str, "M")) {
-                            k = i + 1;
-                            if (k < lenUnitStr && unitStr[i + 1] == 'J') {
-                                // MJ is Megajoules, not M*J
-                                strcpy(str, "MJ");
-                                i = i + 1;
-                            }
-                        } else if (!strcmp(str, "r")) {
-                                k = i + 2;
-                                if (k < lenUnitStr && unitStr[i + 1] == 'e'
-                                    && unitStr[i + 2] == 'v') {
-                                        // Revolutions -vs- Radians (revs win)
-                                        strcpy(str, "rev");
-                                        i = i + 2;
-                                }
-                        } else if (!strcmp(str, "d")) {
-                                k = i + 1;
-                                if (k < lenUnitStr && unitStr[i + 1] == 'B') {
-                                        // Decibals -vs- Degrees (dB wins)
-                                        strcpy(str, "dB");
-                                        i = i + 1;
-                                } else {
-                                        k = i + 2;
-                                        if (k < lenUnitStr
-                                            && unitStr[i + 1] == 'a'
-                                            && unitStr[i + 2] == 'y') {
-                                                // degrees -vs- days (days win)
-                                                strcpy(str, "day");
-                                                i = i + 2;
-                                        }
-                                }
-                        } else if (!strcmp(str, "mi")) {
-                                k = i + 1;
-                                if (k < lenUnitStr && unitStr[i + 1] == 'n') {
-                                        // Minutes -vs- miles (miles wins)
-                                        strcpy(str, "min");
-                                        i = i + 1;
-                                }
-                        } else if (!strcmp(str, "am")) {
-                                k = i + 1;
-                                if (k < lenUnitStr && unitStr[i + 1] == 'p') {
-                                        // Amp -vs- am (Amps wins)
-                                        strcpy(str, "amp");
-                                        i = i + 1;
-                                }
-                        }
-
-                        lastPrimitive = i;
-                        j = 0;
-
-                } else {
-                        j++;
-                }
-        }
-
-        // Was last primitive counted on end of unit str
-        // Or right before a trailing "2 or 3"
-        if ((lastPrimitive == lenUnitStr - 1) ||
-            ((lastPrimitive == lenUnitStr - 2) &&
-             ((unitStr[lenUnitStr - 1] == '2') ||
-              (unitStr[lenUnitStr - 1] == '3')))) {
-                return (1);
-        } else {
-                return (0);
-        }
-}
-
-/** Is unit string primitive e.g. kg - NOT kgM/s2 which is an aggregate */
-int Unit::_isPrimitive(const char *unitStr)
-{
-
-        int i, j;
-
-        for (i = 0; i < NUM_UNIT_TYPES; i++) {
-                for (j = 0; j < MAX_UNITS_FOR_TYPE; j++) {
-                        if (_unitStrings[i][j][0] == '\0') {
-                                break;
-                        }
-
-                        if (!strcmp(unitStr, _unitStrings[i][j])) {
-                                return (1);
-                        }
-                }
-        }
-
-        return (0);
-}
-
-/**
- * Returns conversion factor for primitive
- *
- * e.g. getPrimitiveConversion("min") returns 60 (sec is base of unit type)
- */
-double Unit::_getPrimitiveConversion(const char *unitStr)
-{
-        int type;
-        int i;
-
-        type = _getPrimitiveType(unitStr);
-        if (type == -1) {
-                return (0.0);
-        }
-
-        for (i = 0; i < MAX_UNITS_FOR_TYPE; i++) {
-                if (_unitStrings[type][i][0] == '\0') {
-                        return (0.0);
-                }
-
-                if (!strcmp(unitStr, _unitStrings[type][i])) {
-                        return (_conversions[type][i]);
-                }
-        }
-
-        return(0.0);
-}
-
-/**
- * Return type associated with string 
- * 
- * e.g. getPrimitiveType("min") -> returns idx to "sec"
- */
-int Unit::_getPrimitiveType(const char *unitStr)
-{
-        int i, j;
-
-        for (i = 0; i < NUM_UNIT_TYPES; i++) {
-                for (j = 0; j < MAX_UNITS_FOR_TYPE; j++) {
-                        if (_unitStrings[i][j][0] == '\0') {
-                                break;
-                        }
-
-                        if (!strcmp(unitStr, _unitStrings[i][j])) {
-                                return (i);
-                        }
-                }
-        }
-
-        // Couldn't find it 
-        return (-1);
-}
-
-/**
- * Is string passed in an operand (*,/,2,3) ?
- */
-int Unit::_isOperand(const char *str)
-{
-
-        if (strlen(str) == 1 &&
-            (str[0] == '/' || str[0] == '*' ||
-             str[0] == '2' || str[0] == '3')) {
-                return (1);
-        } else {
-                return (0);
-        }
+    return ok;
 }
 
 
 double Unit::convert(double value, const QString &from, const QString &to)
 {
-    return convert(value, from.toLatin1().constData(), to.toLatin1().constData());
-}
-
-
-double Unit::convert(double value, const char *from, const char *to)
-{
-    Unit fromUnit(from);
-    Unit toUnit(to);
-
-    if ( !fromUnit.isUnit(from) ) {
-        _err_stream << "treat [error]: Unit::convert() cannot convert "
-                    << " the value " << value << " from unit \"" << from
-                    <<  "\" to unit \"" << to << "\" because "
-                     << "\"" << from << "\" is not a recognized unit.\n";
-        throw std::runtime_error(_err_string.toLatin1().constData());
-    }
-    if ( !toUnit.isUnit(to) ) {
-        _err_stream << "treat [error]: Unit::convert() cannot convert "
-                    << " the value " << value << " from unit \"" << from
-                    <<  "\" to unit \"" << to << "\" because "
-                     << "\"" << to << "\" is not a recognized unit.\n";
-        throw std::runtime_error(_err_string.toLatin1().constData());
+    if ( from == to ) {
+        return value;
     }
 
-    if ( !fromUnit.canConvert(&toUnit) ) {
-
-        _err_stream << "treat [error]: Unit::convert() cannot convert "
-                    << " the value " << value << " from unit \"" << from
-                    <<  "\" to unit \"" << to << "\" because "
-                    << "\"" << from << " and \"" << to
-                    << "\" are not in the same family.\n";
-        throw std::runtime_error(_err_string.toLatin1().constData());
+    if ( from == "C" || from == "R" || from == "K" || from == "F" ) {
+        return _convertTemp(value,from,to);
     }
 
-    double scale = fromUnit.convert(&toUnit);
+    if ( !isUnit(from) ) {
+        fprintf(stderr,"koviz [error]: Attempting to convert "
+                       "unsupported unit=\"%s\"\n",from.toLatin1().constData());
+        exit(-1);
+    }
+    if ( !isUnit(to) ) {
+        fprintf(stderr,"koviz [error]: Attempting to convert "
+                       "unsupported unit=\"%s\"\n",to.toLatin1().constData());
+        exit(-1);
+    }
 
-    return(scale*value);
+    QString fam1 = _family(from);
+    QString fam2 = _family(to);
+    QString family = fam1 = fam2;
+
+    if ( fam1 != fam2 ) {
+        fprintf(stderr,"koviz [error]: Attempting to convert "
+                       "unit=\"%s\" to unit=\"%s\"; however "
+                       "these units are not in the same family.\n",
+                        from.toLatin1().constData(), to.toLatin1().constData());
+        exit(-1);
+    }
+
+    double scale1 = _scales.value(qMakePair(family,from));
+    double scale2 = _scales.value(qMakePair(family,to));
+    double scale = scale1/scale2;
+
+    /*
+    fprintf(stderr,"convert %g {%s} = %g {%s}\n",
+                    value,from.toLatin1().constData(),
+                    value*scale, to.toLatin1().constData());
+    */
+
+    return value*scale;
 }
 
-
-/**
- * Compute the scale factor to convert from one unit to another
- *
- * E.g.
- *      u1 = ft/s
- *      u2 = in/hr
- *      
- *   then u1.Convert(&u2) returns 43800 (u1 -> u2) 
- */
-double Unit::convert(Unit * u)
+QHash<QPair<QString, QString>, double> Unit::_initScales()
 {
-        int ret1;
-        int lastPrimWasOperand; // 0 or 1
-        char lastOperand[2];
-        double scale;
-        double lastScale;
-        double conversion1, conversion2;
+    QHash<QPair<QString, QString>, double> map;
 
-        // Are units same basic type
-        if (!this->canConvert(u)) {
-                if ( !strcmp(u->getUnitName(), "--") || 
-                        !strcmp(this->getUnitName(), "--") ) {
-                        // If any of the units are "--" there will be
-                        // no conversion
-                        return(1.0);
-                }
+    // Time
+    map.insert(QPair<QString,QString>("s","s"),       1.0);
+    map.insert(QPair<QString,QString>("s","min"),    60.0);
+    map.insert(QPair<QString,QString>("s","hr"),   3600.0);
+    map.insert(QPair<QString,QString>("s","day"), 86400.0);
+    map.insert(QPair<QString,QString>("s","ms"),      0.001);
+    map.insert(QPair<QString,QString>("s","us"),      0.000001);
 
-                fprintf(stderr,
-                        "ERROR: Unit conversion: Units must be same type.\n");
-                fprintf(stderr,
-                        "       Incompatible units were \"%s\" and \"%s\" \n",
-                        this->_unitName.c_str(), u->_unitName.c_str());
-                return (0);
-        }
-        // Get ready to scan units
-        u->_resetNextPrimitive();
-        this->_resetNextPrimitive();
+    // Distance
+    map.insert(QPair<QString,QString>("m","m"),       1.0);
+    map.insert(QPair<QString,QString>("m","M"),       1.0);
+    map.insert(QPair<QString,QString>("m","ft"),      0.3048);
+    map.insert(QPair<QString,QString>("m","in"),      0.0254);
+    map.insert(QPair<QString,QString>("m","mm"),      0.001);
+    map.insert(QPair<QString,QString>("m","cm"),      0.01);
+    map.insert(QPair<QString,QString>("m","km"),   1000.0);
+    map.insert(QPair<QString,QString>("m","yd"),      0.9143999999999998);
+    map.insert(QPair<QString,QString>("m","mi"),   1609.344);
+    map.insert(QPair<QString,QString>("m","nm"),   1852.0);
+    map.insert(QPair<QString,QString>("m","kft"),   304.8);
 
-        // Initialize operand to multiplication
-        lastOperand[0] = '*';
-        lastPrimWasOperand = 0;
+    // Speed
+    map.insert(QPair<QString,QString>("m/s","m/s"),       1.0);
+    map.insert(QPair<QString,QString>("m/s","cm/s"),      0.01);
+    map.insert(QPair<QString,QString>("m/s","in/s"),      0.0254);
+    map.insert(QPair<QString,QString>("m/s","ft/s"),      0.3048);
+    map.insert(QPair<QString,QString>("m/s","mph"),    1609.344/3600.0);
+    map.insert(QPair<QString,QString>("m/s","km/hr"),  1000.0/3600.0);
+    map.insert(QPair<QString,QString>("m/s","kmh"),    1000.0/3600.0);
 
-        // Do conversion !!! 
-        scale = 1;
-        while (1) {
+    // Acceleration
+    map.insert(QPair<QString,QString>("m/s2","m/s2"),       1.0);
+    map.insert(QPair<QString,QString>("m/s2","cm/s2"),      0.01);
+    map.insert(QPair<QString,QString>("m/s2","in/s2"),      0.0254);
+    map.insert(QPair<QString,QString>("m/s2","ft/s2"),      0.3048);
 
-                // Scanning unit, one primitive at a time
-                ret1 = u->_getNextPrimitiveOrOperand();
-                if (ret1 != 1) {
-                        // Finished scanning over unit
-                        break;
-                }
-                this->_getNextPrimitiveOrOperand();
+    // Angle
+    map.insert(QPair<QString,QString>("r","r"),      1.0);
+    map.insert(QPair<QString,QString>("r","d"),      0.0174532925199433);
+    map.insert(QPair<QString,QString>("r","as"),     4.848136811095362e-06);
+    map.insert(QPair<QString,QString>("r","am"),     0.0002908882086657216);
+    map.insert(QPair<QString,QString>("r","rev"),    6.28318530717958647);
+    map.insert(QPair<QString,QString>("r","mr"),     0.001000000000000);
 
-                if (_isOperand(u->_currPrimitive)) {
+    // Angular velocity
+    map.insert(QPair<QString,QString>("r/s","r/s"),     1.0);
+    map.insert(QPair<QString,QString>("r/s","d/s"),     0.0174532925199433);
+    map.insert(QPair<QString,QString>("r/s","rev/s"),   6.28318530717958647);
+    map.insert(QPair<QString,QString>("r/s","rpm"), 6.28318530717958647/60.0);
 
-                        // Show that last primitive parsed was an operand
-                        lastPrimWasOperand = 1;
+    // Angular acceleration
+    map.insert(QPair<QString,QString>("r/s2","r/s2"),      1.0);
+    map.insert(QPair<QString,QString>("r/s2","d/s2"),      0.0174532925199433);
+    map.insert(QPair<QString,QString>("r/s2","rev/s2"),    6.28318530717958647);
 
-                        if (u->_currPrimitive[0] == '*' ||
-                            u->_currPrimitive[0] == '/') {
-                                lastOperand[0] = u->_currPrimitive[0];
-                                continue;
-                        } else {
-                                // Handle square & cube   
-                                if (u->_currPrimitive[0] == '2') {
-                                        // Square
-                                        scale = scale * lastScale;
-                                } else {
-                                        // Cube
-                                        scale = scale * lastScale * lastScale;
-                                }
-                                // After square & cube, operand defaults to '*'
-                                lastOperand[0] = '*';
-                        }
-                } else {
+    // Mass
+    map.insert(QPair<QString,QString>("kg","kg"),      1.0);
+    map.insert(QPair<QString,QString>("kg","sl"),     14.59390293000000);
+    map.insert(QPair<QString,QString>("kg","lbm"),     0.4535923697760192);
+    map.insert(QPair<QString,QString>("kg","g"),       0.001);
+    map.insert(QPair<QString,QString>("kg","mt"),   1000.0);
 
-                        // If last primitive parsed wasn't
-                        // operand make default of mult
-                        // This is part of handling things 
-                        // like NMs2 where no '*' present
-                        if (!lastPrimWasOperand) {
-                                lastOperand[0] = '*';
-                        }
-                        lastPrimWasOperand = 0;
+    // Force
+    map.insert(QPair<QString,QString>("N","N"),      1.0);
+    map.insert(QPair<QString,QString>("N","kN"),  1000.0);
+    map.insert(QPair<QString,QString>("N","oz"),     0.2780138509537812);
+    map.insert(QPair<QString,QString>("N","lbf"),    4.4482216152605);
 
-                        // Get conversion factors primitives
-                        conversion1 =
-                            u->_getPrimitiveConversion(u->_currPrimitive);
-                        conversion2 =
-                            this->_getPrimitiveConversion(this->_currPrimitive);
+    // Torque
+    map.insert(QPair<QString,QString>("N*m","N*m"),      1.0);
+    map.insert(QPair<QString,QString>("N*m","lbf*ft"),   1.35581795);
+    map.insert(QPair<QString,QString>("N*m","lbf*in"),   0.112984829);
+    map.insert(QPair<QString,QString>("N*m","oz*in"),    0.00706155195);
 
-                        if (lastOperand[0] == '*') {
-                                lastScale = conversion2 / conversion1;
-                        } else {
-                                lastScale = conversion1 / conversion2;
-                        }
-                        scale = scale * lastScale;
-                }
-        }
+    // Pressure
+    map.insert(QPair<QString,QString>("N/m2","N/m2"),      1.0);
+    map.insert(QPair<QString,QString>("N/m2","psi"),    6894.75719);
+    map.insert(QPair<QString,QString>("N/m2","oz/in2"),  430.922332);
 
-        return (scale);
+    // Density
+    map.insert(QPair<QString,QString>("kg/m3","kg/m3"),     1.0);
+    map.insert(QPair<QString,QString>("kg/m3","g/cm3"),  1000.0);
+    map.insert(QPair<QString,QString>("kg/m3","lb/ft3"),   16.018463374);
+    map.insert(QPair<QString,QString>("kg/m3","oz/in3"), 1729.994044387);
+
+    // Voltage
+    map.insert(QPair<QString,QString>("v","v"),      1.0);
+    map.insert(QPair<QString,QString>("v","kv"),  1000.0);
+
+    // Current
+    map.insert(QPair<QString,QString>("amp","amp"),   1.0);
+    map.insert(QPair<QString,QString>("amp","mamp"),  0.001);
+
+    // Resistance
+    map.insert(QPair<QString,QString>("ohm","ohm"),   1.0);
+    map.insert(QPair<QString,QString>("ohm","mohm"),  0.001);
+
+    // Sound
+    map.insert(QPair<QString,QString>("dB","dB"),   1.0);
+
+    // Energy
+    map.insert(QPair<QString,QString>("J","J"),        1.0);
+    map.insert(QPair<QString,QString>("J","mJ"),       0.001);
+    map.insert(QPair<QString,QString>("J","uJ"),       0.000001);
+    map.insert(QPair<QString,QString>("J","kJ"),    1000.0);
+    map.insert(QPair<QString,QString>("J","MJ"), 1000000.0);
+
+    // Temperature (uses scale and bias, hard-coded in convertTemp())
+    map.insert(QPair<QString,QString>("C","C"),  0.0);
+    map.insert(QPair<QString,QString>("C","K"),  0.0);
+    map.insert(QPair<QString,QString>("C","R"),  0.0);
+    map.insert(QPair<QString,QString>("C","F"),  0.0);
+
+    // Unitless
+    map.insert(QPair<QString,QString>("--","--"),  1.0);
+    map.insert(QPair<QString,QString>("--","cnt"), 1.0);
+    map.insert(QPair<QString,QString>("--","one"), 1.0);
+    map.insert(QPair<QString,QString>("--","1"),   1.0);
+
+    return map;
 }
 
-/**
- * Convert val from one unit to another
- *
- * E.g.
- *      u1 = ft
- *      u2 = in
- *      
- *   then u1.Convert(3, &u2) returns 36 (inches) 
- */
-double Unit::convert(double val, Unit * u)
+QString Unit::_family(const QString &name)
 {
+    QString family;
 
-        double scale;
+    QList<QPair<QString,QString> > pairs = _scales.keys();
+    for ( int i = 0; i < pairs.size(); ++i ) {
+        QPair<QString,QString> pair = pairs.at(i);
+        if ( pair.second == name ) {
+            family = pair.first;
+            break;
+        }
+    }
 
-        scale = this->convert(u);
-
-        return (scale * val);
-
+    return family;
 }
 
-/**
- * Convert val from one unit to another (defined by string)
- *
- * E.g.
- *      u1 = ft
- *      u2 = "in"
- *      
- *   then u1.Convert(3, &u2) returns 36 (inches) 
- */
-double Unit::convert(double val, const char *unitStr)
+double Unit::_convertTemp(double value, const QString &from, const QString &to)
 {
-        Unit u = Unit(unitStr);
-        if (!u.isUnit(unitStr)) {
-                return (0);
+    double ret = 0.0;
+
+    if ( from != "C" && from != "R" && from != "K" && from != "F" ) {
+        fprintf(stderr,"koviz [bad scoobs]: Attempting to convert "
+                       "unit=\"%s\" to unit=\"%s\"; however "
+                       "these units are not temperature.\n",
+                        from.toLatin1().constData(), to.toLatin1().constData());
+        exit(-1);
+    }
+    if ( to != "C" && to != "R" && to != "K" && to != "F" ) {
+        fprintf(stderr,"koviz [error]: Attempting to convert "
+                       "unit=\"%s\" to unit=\"%s\"; however "
+                       "\"%s\" is not temperature.\n",
+                        from.toLatin1().constData(), to.toLatin1().constData(),
+                        to.toLatin1().constData());
+        exit(-1);
+    }
+
+    if ( from == to ) {
+
+        ret = value;
+
+    } else {
+
+        double celsius;
+        if ( from == "C" ) {
+            celsius = value;
+        } else if ( from == "R" ) {
+            celsius = (value - 491.67)*5.0/9.0;
+        } else if ( from == "F" ) {
+            celsius = (value - 32.0)*5.0/9.0;
+        } else if ( from == "K" ) {
+            celsius = value - 273.15;
         }
 
-        return (this->convert(val, &u));
-}
-
-/**
- * Return conversion factor from one unit to another (defined by string)
- *
- * E.g.
- *      u1 = ft
- *      u2 = "in" 
- *      
- *   then u1.Convert(&u2) returns 12 (inches) 
- */
-double Unit::convert(const char *unitStr)
-{
-        Unit u = Unit(unitStr);
-        if (!u.isUnit(unitStr)) {
-                return (0);
+        if ( to == "C" ) {
+            ret = celsius;
+        } else if ( to == "R" ) {
+            ret = (celsius + 273.15)*9.0/5.0;
+        } else if ( to == "F" ) {
+            ret = celsius*9.0/5.0 + 32.0;
+        } else if ( to == "K" ) {
+            ret = celsius + 273.15;
         }
+    }
 
-        return (this->convert(&u));
+    return ret;
 }
+
+/*
+    // TODO: make unit test with the following
+    convert(1.0,"s","s");    // 1
+    convert(1.0,"min","s");  // 60
+    convert(1.0,"hr","min"); // 60
+    convert(1.0,"day","hr"); // 24
+    convert(1.0,"s","ms");   // 1000
+    convert(1.0,"ms","us");  // 1000
+
+    convert(1.0,"m","m");    // 1
+    convert(1.0,"m","M");    // 1
+    convert(1.0,"ft","in");  // 12
+    convert(1.0,"cm","mm");  // 10
+    convert(1.0,"mi","yd");  // 1760
+    convert(1.0,"mi","ft");  // 5280
+    convert(5.0,"km","mi");  // 3.10685595
+    convert(1.0,"mi","nm");  // 0.86897624
+    convert(1.0,"kft","ft"); // 1000
+    convert(1.0,"ft","M"); // 0.3048
+
+    convert(1.0,"m/s","m/s");    // 1
+    convert(1.0,"in/s","cm/s");  // 2.54
+    convert(1.0,"mph","ft/s");   // 1.46666667
+    convert(55.0,"mph","km/hr"); // 88.5139203
+
+    convert(1.0,"m/s2","m/s2");    // 1
+    convert(9.81,"m/s2","ft/s2");  // 32.1850394
+    convert(1.0,"in/s2","cm/s2");  // 2.54
+
+    convert(1.0,"r","r");    //      1.0
+    convert(1.0,"r","d");    //     57.295779513
+    convert(1.0,"r","as");   // 206264.8062471 (seconds)
+    convert(1.0,"r","am");   //   3437.746770785 (minutes)
+    convert(1.0,"r","mr");   //   1000.0 (milliradians)
+    convert(720,"d","rev");   //     2.0
+
+    convert(1.0,"r/s","r/s");   // 1
+    convert(1.0,"r/s","d/s");   // 57.2957779
+    convert(1.0,"rev/s","rpm"); // 60
+    convert(6.0,"d/s","rpm");   // 1
+
+    convert(1.0,"r/s2","r/s2");     // 1
+    convert(1.0,"r/s2","d/s2");     // 57.2957779
+    convert(720.0,"d/s2","rev/s2"); // 2
+
+    convert(1.0,"kg/m3","kg/m3");    // 1
+    convert(1.0,"kg/m3","g/cm3");    // 0.001
+    convert(1.0,"lb/ft3","oz/in3");  // 0.009259259
+
+    convert(1.0,"N/m2","N/m2");    // 1
+    convert(1.0,"psi","oz/in2");   // 16
+
+    convert(-50.0,"C","F");  // -58.0F
+    convert( 21.0,"C","K");  // 294.15K (room temp)
+    convert( 100.0,"C","R"); // 671.67R
+    convert( 212.0,"F","C"); // 100C
+    convert( 90.0,"F","K");  // 305.37K
+    convert( 100.0,"F","R"); // 559.67R
+    convert( 300.0,"K","F"); // 80.33F
+    convert( 60.0,"K","F");  // -213.15C
+    convert( 220.0,"K","R"); // 396R
+    convert( 300.0,"R","F"); // -159.67F
+    convert( 500.0,"R","C"); // 4.63C
+    convert( 180.0,"R","K"); // 100K
+
+    convert(1.0,"kg","kg");   // 1
+    convert(1.0,"sl","lbm");  // 32.174
+    convert(1.0,"g","mt");    // 1e-06
+
+    convert(1.0,"N","N");    // 1
+    convert(1.0,"N","oz");   // 3.59694309
+    convert(1.0,"kN","lbf"); // 224.8089431
+
+    convert(1.0,"N*m","N*m");       // 1
+    convert(1.0,"N*m","oz*in");     // 141.611928936
+    convert(1.0,"lbf*ft","lbf*in"); // 12
+
+    convert(1.0,"v","v");    // 1
+    convert(1.0,"kv","v");   // 1000
+
+    convert(1.0,"amp","amp");    // 1
+    convert(1.0,"amp","mamp");   // 1000
+
+    convert(1.0,"ohm","ohm");    // 1
+    convert(1.0,"ohm","mohm");   // 1000
+
+    convert(1.0,"dB","dB");    // 1
+
+    convert(1.0,"J","J");    // 1
+    convert(1.0,"J","mJ");   // 1000
+    convert(1.0,"J","uJ");   // 1.0e6
+    convert(1.0,"J","kJ");   // 0.001
+    convert(1.0,"J","MJ");   // 1.0e-6
+
+    convert(1.0,"--","--");     // 1
+    convert(1.0,"cnt","one");   // 1
+    convert(1.0,"cnt","1");     // 1
+*/
