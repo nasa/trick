@@ -9,6 +9,7 @@
 #include <QHash>
 #include <QPair>
 #include <QString>
+#include <QStringList>
 #include <stdio.h>
 
 class Unit {
@@ -24,6 +25,8 @@ class Unit {
     bool canConvert(const Unit& to) const;
     static bool isUnit(const QString& name);
     static double convert(double value, const QString& from, const QString& to);
+    static QString next(const QString& unit);
+    static QString prev(const QString& unit);
 
   private:
 

@@ -108,6 +108,74 @@ double Unit::convert(double value, const QString &from, const QString &to)
     return value*scale;
 }
 
+QString Unit::next(const QString &unit)
+{
+    QString u;
+
+    QString family = _family(unit);
+
+    if ( family.isEmpty() ) {
+        return u;  // return empty string if unit dne
+    }
+
+    QStringList units;
+    QList<QPair<QString,QString> > pairs = _scales.keys();
+    for ( int i = 0; i < pairs.size(); ++i ) {
+        QPair<QString,QString> pair = pairs.at(i);
+        if ( pair.first == family ) {
+            units << pair.second;
+        }
+    }
+    units.sort();
+
+    for ( int i = 0; i < units.size(); ++i ) {
+        if ( units.at(i) == unit ) {
+            if ( i == units.size()-1 ) {
+                u = units.at(0);
+            } else {
+                u = units.at(i+1);
+            }
+            break;
+        }
+    }
+
+    return u;
+}
+
+QString Unit::prev(const QString &unit)
+{
+    QString u;
+
+    QString family = _family(unit);
+
+    if ( family.isEmpty() ) {
+        return u;  // return empty string if unit dne
+    }
+
+    QStringList units;
+    QList<QPair<QString,QString> > pairs = _scales.keys();
+    for ( int i = 0; i < pairs.size(); ++i ) {
+        QPair<QString,QString> pair = pairs.at(i);
+        if ( pair.first == family ) {
+            units << pair.second;
+        }
+    }
+    units.sort();
+
+    for ( int i = 0; i < units.size(); ++i ) {
+        if ( units.at(i) == unit ) {
+            if ( i == 0 ) {
+                u = units.last();
+            } else {
+                u = units.at(i-1);
+            }
+            break;
+        }
+    }
+
+    return u;
+}
+
 QHash<QPair<QString, QString>, double> Unit::_initScales()
 {
     QHash<QPair<QString, QString>, double> map;
