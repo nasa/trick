@@ -11,8 +11,8 @@ this simulation calculates the position of the Sun in the sky over time.
 ### Inputs
 Variable                                       | Type           |  Units
 -----------------------------------------------|----------------|-------
-sun\_predictor.sun.observer\_latitude          | double         | d
-sun\_predictor.sun.observer\_longitude         | double         | d
+sun\_predictor.sun.observer\_latitude          | double         | degree
+sun\_predictor.sun.observer\_longitude         | double         | degree
 sun\_predictor.sun.observer\_offset\_from\_UTC | int            | hr
 sun\_predictor.sun.local\_time                 | CALENDAR\_DATE | --
 
@@ -30,13 +30,13 @@ sec                        |  double            | s
 Variable                                         | Type           | Units
 -------------------------------------------------|----------------|--------
 sun\_predictor.sun.JD                            | double         | day
-sun\_predictor.sun.right\_ascension              | double         | d
-sun\_predictor.sun.declination                   | double         | d
-sun\_predictor.sun.hour\_angle                   | double         | d
+sun\_predictor.sun.right\_ascension              | double         | degree
+sun\_predictor.sun.declination                   | double         | degree
+sun\_predictor.sun.hour\_angle                   | double         | degree
 sun\_predictor.sun.local\_sidereal\_time         | double         | s
 sun\_predictor.sun.sidereal\_time\_at\_Greenwich | double         | s
-sun\_predictor.sun.solar\_azimuth                | double         | d
-sun\_predictor.sun.solar\_elevation              | double         | d
+sun\_predictor.sun.solar\_azimuth                | double         | degree
+sun\_predictor.sun.solar\_elevation              | double         | degree
 sun\_predictor.sun.local\_time                   | CALENDAR\_DATE | --
 sun\_predictor.sun.utc                           | CALENDAR\_DATE | --
 
