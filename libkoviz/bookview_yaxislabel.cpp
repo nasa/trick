@@ -98,9 +98,7 @@ void YAxisLabelView::rowsInserted(const QModelIndex &pidx, int start, int end)
     }
 }
 
-// Changes unit for some common conversions
-//
-// TODO: There is code duplication in XAxisLabelView
+// Change curve units based on current unit
 void YAxisLabelView::wheelEvent(QWheelEvent *e)
 {
     QModelIndex curvesIdx;
@@ -109,57 +107,21 @@ void YAxisLabelView::wheelEvent(QWheelEvent *e)
     }
 
     if ( curvesIdx.isValid() ) {
+
         QString unit = _bookModel()->getCurvesYUnit(curvesIdx);
-
-        QList<QString> times;
-        times << "s" << "ms" << "us" << "min" << "hr" << "day" ;
-        QList<QString> lengths;
-        lengths <<  "m" << "ft" << "in" << "mm" << "cm" << "km" ;
-        QList<QString> angles;
-        angles << "r" << "d" ;
-        QList<QString> masses;
-        masses << "kg" << "sl" << "lbm" << "g" ;
-        QList<QString> forces;
-        forces <<   "N" << "kN" << "oz" << "lbf";
-        QList<QString> speeds;
-        speeds << "m/s" << "cm/s" << "ft/s" ;
-
-        QList<QList<QString> > units;
-        units << times << lengths << angles << masses << forces << speeds;
-
-        QString nextUnit = unit;
-        int len = units.length();
-        for (int i = 0; i < len; ++i) {
-            QList<QString> unitFamily = units.at(i);
-            if ( unitFamily.contains(unit) ) {
-                int j = unitFamily.indexOf(unit);
-                int k = 0;
-                if ( e->delta() > 0 ) {
-                    k = j+1;
-                    if ( k >= unitFamily.length() ) {
-                        k = 0;
-                    }
-                    nextUnit = unitFamily.at(k);
-                } else {
-                    k = j-1;
-                    if ( k < 0 ) {
-                        k = unitFamily.length()-1;
-                    }
-                }
-                nextUnit = unitFamily.at(k);
-            }
+        if ( e->delta() > 0 ) {
+            unit = Unit::next(unit);
+        } else if ( e->delta() < 0 ) {
+            unit = Unit::prev(unit);
         }
-
-        QModelIndex curvesIdx = _bookModel()->getIndex(rootIndex(),
-                                                       "Curves","Plot");
 
         QModelIndexList curveIdxs = _bookModel()->getIndexList(curvesIdx,
                                                               "Curve","Curves");
-        // Set all curves to next unit
+        // Set all curves to next/prev unit
         foreach (QModelIndex curveIdx, curveIdxs ) {
             QModelIndex yUnitIdx = _bookModel()->getDataIndex(curveIdx,
                                                          "CurveYUnit", "Curve");
-            model()->setData(yUnitIdx,nextUnit);
+            model()->setData(yUnitIdx,unit);
         }
 
         // Recalculate and update bounding box (since unit change)
