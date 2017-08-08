@@ -24,7 +24,8 @@ class Unit {
     void setName(const QString& name);
     bool canConvert(const Unit& to) const;
     static bool isUnit(const QString& name);
-    static double convert(double value, const QString& from, const QString& to);
+    static double scale(const QString& from, const QString& to);
+    static double bias(const QString& from, const QString& to);
     static QString next(const QString& unit);
     static QString prev(const QString& unit);
 
@@ -32,7 +33,9 @@ class Unit {
 
     QString _name;
     static QHash<QPair<QString,QString>,double> _scales;
+    static QHash<QPair<QString,QString>,double> _biases;
     static QHash<QPair<QString,QString>,double> _initScales();
+    static QHash<QPair<QString,QString>,double> _initBiases();
     static QString _family(const QString& name);
     static double _convertTemp(double value,
                                const QString& from, const QString& to);

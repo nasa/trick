@@ -6,6 +6,7 @@
 #include "unit.h"
 
 QHash<QPair<QString,QString>,double> Unit::_scales = Unit::_initScales();
+QHash<QPair<QString,QString>,double> Unit::_biases = Unit::_initBiases();
 
 Unit::Unit() :
     _name("--")
@@ -62,14 +63,10 @@ bool Unit::isUnit(const QString &name)
 }
 
 
-double Unit::convert(double value, const QString &from, const QString &to)
+double Unit::scale(const QString &from, const QString &to)
 {
     if ( from == to ) {
-        return value;
-    }
-
-    if ( from == "C" || from == "R" || from == "K" || from == "F" ) {
-        return _convertTemp(value,from,to);
+        return 1.0;
     }
 
     if ( !isUnit(from) ) {
@@ -97,15 +94,62 @@ double Unit::convert(double value, const QString &from, const QString &to)
 
     double scale1 = _scales.value(qMakePair(family,from));
     double scale2 = _scales.value(qMakePair(family,to));
-    double scale = scale1/scale2;
+    double sf = scale1/scale2;
 
     /*
-    fprintf(stderr,"convert %g {%s} = %g {%s}\n",
-                    value,from.toLatin1().constData(),
-                    value*scale, to.toLatin1().constData());
+    fprintf(stderr,"scale factor from={%s} to={%s} is %g\n",
+                    from.toLatin1().constData(),
+                    to.toLatin1().constData(), sf);
     */
 
-    return value*scale;
+    return sf;
+}
+
+double Unit::bias(const QString &from, const QString &to)
+{
+    if ( from == to ) {
+        return 0.0;
+    }
+
+    if ( !isUnit(from) ) {
+        fprintf(stderr,"koviz [error]: Attempting to convert "
+                       "unsupported unit=\"%s\"\n",from.toLatin1().constData());
+        exit(-1);
+    }
+    if ( !isUnit(to) ) {
+        fprintf(stderr,"koviz [error]: Attempting to convert "
+                       "unsupported unit=\"%s\"\n",to.toLatin1().constData());
+        exit(-1);
+    }
+
+    QString fam1 = _family(from);
+    QString fam2 = _family(to);
+    QString family = fam1 = fam2;
+
+    if ( fam1 != fam2 ) {
+        fprintf(stderr,"koviz [error]: Attempting to convert "
+                       "unit=\"%s\" to unit=\"%s\"; however "
+                       "these units are not in the same family.\n",
+                        from.toLatin1().constData(), to.toLatin1().constData());
+        exit(-1);
+    }
+
+    double b = 0.0;
+
+    if ( family == "C" ) {
+        double bias1 = _biases.value(qMakePair(family,from));
+        double bias2 = _biases.value(qMakePair(family,to));
+        double scale2 = _scales.value(qMakePair(family,to));
+        b = (bias1-bias2)/scale2;
+    }
+
+    /*
+    fprintf(stderr,"bias factor from={%s} to={%s} is %g\n",
+                    from.toLatin1().constData(),
+                    to.toLatin1().constData(), b);
+    */
+
+    return b;
 }
 
 QString Unit::next(const QString &unit)
@@ -250,6 +294,7 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
 
     // Torque
     map.insert(QPair<QString,QString>("N*m","N*m"),      1.0);
+    map.insert(QPair<QString,QString>("N*m","N*M"),      1.0);
     map.insert(QPair<QString,QString>("N*m","lbf*ft"),   1.35581795);
     map.insert(QPair<QString,QString>("N*m","lbf*in"),   0.112984829);
     map.insert(QPair<QString,QString>("N*m","oz*in"),    0.00706155195);
@@ -287,17 +332,31 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     map.insert(QPair<QString,QString>("J","kJ"),    1000.0);
     map.insert(QPair<QString,QString>("J","MJ"), 1000000.0);
 
-    // Temperature (uses scale and bias, hard-coded in convertTemp())
-    map.insert(QPair<QString,QString>("C","C"),  0.0);
-    map.insert(QPair<QString,QString>("C","K"),  0.0);
-    map.insert(QPair<QString,QString>("C","R"),  0.0);
-    map.insert(QPair<QString,QString>("C","F"),  0.0);
+    // Temperature (uses bias)
+    map.insert(QPair<QString,QString>("C","C"),  1.0);
+    map.insert(QPair<QString,QString>("C","K"),  1.0);
+    map.insert(QPair<QString,QString>("C","R"),  5.0/9.0);
+    map.insert(QPair<QString,QString>("C","F"),  5.0/9.0);
 
     // Unitless
     map.insert(QPair<QString,QString>("--","--"),  1.0);
     map.insert(QPair<QString,QString>("--","cnt"), 1.0);
     map.insert(QPair<QString,QString>("--","one"), 1.0);
     map.insert(QPair<QString,QString>("--","1"),   1.0);
+
+    return map;
+}
+
+// All biases are 0 - except temperature
+QHash<QPair<QString, QString>, double> Unit::_initBiases()
+{
+    QHash<QPair<QString, QString>, double> map;
+
+    // Temperature
+    map.insert(QPair<QString,QString>("C","C"),    0.0);
+    map.insert(QPair<QString,QString>("C","R"), -273.15);
+    map.insert(QPair<QString,QString>("C","K"), -273.15);
+    map.insert(QPair<QString,QString>("C","F"),  -17.777777778);
 
     return map;
 }

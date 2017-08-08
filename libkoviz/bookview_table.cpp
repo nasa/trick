@@ -58,13 +58,14 @@ void BookTableView::paintEvent(QPaintEvent *event)
         if ( unit.isEmpty() ) {
             unit = curveModel->y()->unit();
         } else {
-            sf *= Unit::convert(1.0,curveModel->y()->unit(),unit);
+            sf *= Unit::scale(curveModel->y()->unit(),unit);
         }
         units << unit;
         scaleFactors << sf;
 
         double bias = _bookModel()->getDataDouble(tableVarIdx,
                                                   "TableVarBias","TableVar");
+        bias += Unit::bias(curveModel->y()->unit(),unit);  // for temperature
         biases << bias;
     }
     QStringList labels = _columnLabels();

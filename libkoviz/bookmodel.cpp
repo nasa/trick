@@ -604,7 +604,7 @@ double PlotBookModel::xScale(const QModelIndex& curveIdx) const
     QString bookXUnit = data(curveXUnitIdx).toString();
     if ( !bookXUnit.isEmpty() && bookXUnit != "--" ) {
         QString loggedXUnit = curveModel->x()->unit();
-        xs = Unit::convert(1.0, loggedXUnit,bookXUnit);
+        xs = Unit::scale(loggedXUnit,bookXUnit);
     }
 
     // Book model x scale
@@ -641,7 +641,7 @@ double PlotBookModel::yScale(const QModelIndex& curveIdx) const
     QString bookYUnit = data(curveYUnitIdx).toString();
     if ( !bookYUnit.isEmpty() && bookYUnit != "--" ) {
         QString loggedYUnit = curveModel->y()->unit();
-        ys = Unit::convert(1.0,loggedYUnit, bookYUnit);
+        ys = Unit::scale(loggedYUnit, bookYUnit);
     }
 
     // Book model y scale factor
@@ -672,7 +672,18 @@ double PlotBookModel::xBias(const QModelIndex &curveIdx) const
         return xb;
     }
 
-    xb = getDataDouble(curveIdx,"CurveXBias","Curve");
+    // Unit bias (for temperature)
+    QModelIndex curveXUnitIdx = getDataIndex(curveIdx, "CurveXUnit","Curve");
+    QString bookXUnit = data(curveXUnitIdx).toString();
+    if ( !bookXUnit.isEmpty() && bookXUnit != "--" ) {
+        QString loggedXUnit = curveModel->x()->unit();
+        xb = Unit::bias(loggedXUnit, bookXUnit);
+    }
+
+    double b = getDataDouble(curveIdx,"CurveXBias","Curve");
+    if ( b != 0.0 ) {
+        xb += b;
+    }
 
     return xb;
 }
@@ -696,7 +707,18 @@ double PlotBookModel::yBias(const QModelIndex &curveIdx) const
         return yb;
     }
 
-    yb = getDataDouble(curveIdx,"CurveYBias","Curve");
+    // Unit bias (for temperature)
+    QModelIndex curveYUnitIdx = getDataIndex(curveIdx, "CurveYUnit","Curve");
+    QString bookYUnit = data(curveYUnitIdx).toString();
+    if ( !bookYUnit.isEmpty() && bookYUnit != "--" ) {
+        QString loggedYUnit = curveModel->y()->unit();
+        yb = Unit::bias(loggedYUnit, bookYUnit);
+    }
+
+    double b = getDataDouble(curveIdx,"CurveYBias","Curve");
+    if ( b != 0.0 ) {
+        yb += b;
+    }
 
     return yb;
 }
@@ -872,12 +894,16 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
     QString dpUnits0 = getDataString(idx0,"CurveYUnit","Curve");
     double ys0 = 1.0;
     double ys1 = 1.0;
-    if ( !dpUnits0.isEmpty() && c0->y()->unit() != dpUnits0 ) {
-        ys0 = Unit::convert(1.0,c0->y()->unit(),dpUnits0);
-        ys1 = ys0;
-    }
-    if ( c0->y()->unit() != c1->y()->unit() ) {
-        ys1 = ys1*Unit::convert(1.0,c1->y()->unit(),c0->y()->unit());
+    double yb0 = 0.0; // bias for temperature
+    double yb1 = 0.0;
+    if ( !dpUnits0.isEmpty() ) {
+        ys0 = Unit::scale(c0->y()->unit(),dpUnits0);
+        yb0  = Unit::bias(c0->y()->unit(),dpUnits0);
+        ys1 = Unit::scale(c1->y()->unit(),dpUnits0);
+        yb1  = Unit::bias(c1->y()->unit(),dpUnits0);
+    } else {
+        ys1 = Unit::scale(c1->y()->unit(),c0->y()->unit());
+        yb1  = Unit::bias(c1->y()->unit(),c0->y()->unit());
     }
 
     c0->map();
@@ -893,7 +919,7 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
         double t0 = i0.t();
         double t1 = i1.t();
         if ( qAbs(t1-t0) < 0.000001 ) {
-            double d = ys0*i0.y() - ys1*i1.y();
+            double d = (ys0*i0.y()+yb0) - (ys1*i1.y()+yb1);
             if ( t0 >= start && t0 <= stop ) {
                 if ( isFirst ) {
                     path->moveTo(t0,d);
