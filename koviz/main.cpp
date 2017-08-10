@@ -83,6 +83,13 @@ class SnapOptions : public Options
     QString map;
     QString mapFile;
     bool isDebug;
+    QString legend1;
+    QString legend2;
+    QString legend3;
+    QString legend4;
+    QString legend5;
+    QString legend6;
+    QString legend7;
 };
 
 SnapOptions opts;
@@ -138,6 +145,13 @@ int main(int argc, char *argv[])
     opts.add("-mapFile", &opts.mapFile, QString(""),
              "variable mapping file (e.g. -mapFile myMapFile.txt)");
     opts.add("-debug:{0,1}",&opts.isDebug,false, "Show book model tree etc.");
+    opts.add("-l1",&opts.legend1,"", "Legend label 1");
+    opts.add("-l2",&opts.legend2,"", "Legend label 2");
+    opts.add("-l3",&opts.legend3,"", "Legend label 3");
+    opts.add("-l4",&opts.legend4,"", "Legend label 4");
+    opts.add("-l5",&opts.legend5,"", "Legend label 5");
+    opts.add("-l6",&opts.legend6,"", "Legend label 6");
+    opts.add("-l7",&opts.legend7,"", "Legend label 7");
 
     opts.parse(argc,argv, QString("koviz"), &ok);
 
@@ -399,11 +413,16 @@ int main(int argc, char *argv[])
             }
         }
 
+        // Make a list of legend labels
+        QStringList legends;
+        legends << opts.legend1 << opts.legend2 << opts.legend3
+                << opts.legend4 << opts.legend5 << opts.legend6 << opts.legend7;
+
         if ( isPdf ) {
             PlotMainWindow w(opts.isDebug,
                              timeNames, opts.start, opts.stop,
                              shifts,
-                             presentation, QString(), dps, titles,
+                             presentation, QString(), dps, titles, legends,
                              monteModel, varsModel, monteInputsModel);
             w.savePdf(opts.pdfOutFile);
 
@@ -496,7 +515,7 @@ int main(int argc, char *argv[])
                                  timeNames,
                                  opts.start, opts.stop,
                                  shifts,
-                                 presentation, ".", dps, titles,
+                                 presentation, ".", dps, titles, legends,
                                  monteModel, varsModel, monteInputsModel);
 #ifdef __linux
                 timer.snap("time=");
@@ -510,7 +529,7 @@ int main(int argc, char *argv[])
                                  opts.start, opts.stop,
                                  shifts,
                                  presentation, runDirs.at(0), QStringList(),
-                                 titles, monteModel,
+                                 titles, legends, monteModel,
                                  varsModel, monteInputsModel);
                 w.show();
                 ret = a.exec();

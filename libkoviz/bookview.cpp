@@ -1128,6 +1128,24 @@ void BookView::_printLegend(const QRect& R,
 
     labels = _bookModel()->abbreviateLabels(labels);
 
+    // If commandline -l1-7 option used, override legend labels
+    QModelIndex legendIdx = _bookModel()->getIndex(QModelIndex(),
+                                                   "LegendLabels","");
+    QString l1 = _bookModel()->getDataString(legendIdx,"Label1","LegendLabels");
+    QString l2 = _bookModel()->getDataString(legendIdx,"Label2","LegendLabels");
+    QString l3 = _bookModel()->getDataString(legendIdx,"Label3","LegendLabels");
+    QString l4 = _bookModel()->getDataString(legendIdx,"Label4","LegendLabels");
+    QString l5 = _bookModel()->getDataString(legendIdx,"Label5","LegendLabels");
+    QString l6 = _bookModel()->getDataString(legendIdx,"Label6","LegendLabels");
+    QString l7 = _bookModel()->getDataString(legendIdx,"Label7","LegendLabels");
+    if (!l1.isEmpty() && labels.size() > 0) labels.replace(0,l1);
+    if (!l2.isEmpty() && labels.size() > 1) labels.replace(1,l2);
+    if (!l3.isEmpty() && labels.size() > 2) labels.replace(2,l3);
+    if (!l4.isEmpty() && labels.size() > 3) labels.replace(3,l4);
+    if (!l5.isEmpty() && labels.size() > 4) labels.replace(4,l5);
+    if (!l6.isEmpty() && labels.size() > 5) labels.replace(5,l6);
+    if (!l7.isEmpty() && labels.size() > 6) labels.replace(6,l7);
+
     if ( pres == "error+compare" ) {
         QPen* magentaPen = new QPen(_bookModel()->createCurveColors(3).at(2));
         pens << magentaPen;

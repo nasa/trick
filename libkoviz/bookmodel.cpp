@@ -326,6 +326,8 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
             idx = index(9,0);
         } else if ( searchItemText == "RunToShiftHash" ) {
             idx = index(10,0);
+        } else if ( searchItemText == "LegendLabels" ) {
+            idx = index(11,0);
         } else {
             fprintf(stderr,"koviz [bad scoobs]:3: getIndex() received "
                            "root as a startIdx and had bad child "

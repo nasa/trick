@@ -22,6 +22,7 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
         const QString &dpDir,
         const QStringList& dpFiles,
         const QStringList& titles,
+        const QStringList &legends,
         MonteModel* monteModel,
         QStandardItemModel* varsModel,
         QStandardItemModel *monteInputsModel,
@@ -78,7 +79,18 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
         _bookModel->addChild(rootItem, "IsShowLiveCoord",true);
         _bookModel->addChild(rootItem, "RunToShiftHash",shifts);
     }
-
+    if ( legends.size() == 7 ) {
+        QStandardItem *rootItem = _bookModel->invisibleRootItem();
+        QStandardItem *citem;
+        citem = _bookModel->addChild(rootItem, "LegendLabels","");
+        _bookModel->addChild(citem, "Label1",legends.at(0));
+        _bookModel->addChild(citem, "Label2",legends.at(1));
+        _bookModel->addChild(citem, "Label3",legends.at(2));
+        _bookModel->addChild(citem, "Label4",legends.at(3));
+        _bookModel->addChild(citem, "Label5",legends.at(4));
+        _bookModel->addChild(citem, "Label6",legends.at(5));
+        _bookModel->addChild(citem, "Label7",legends.at(6));
+    }
 
     // Create Plot Tabbed Notebook View Widget
     _bookView = new BookView();
