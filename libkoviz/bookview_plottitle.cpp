@@ -25,12 +25,9 @@ void PlotTitleView::_update()
         return;
     }
 
-    QModelIndex plotTitleIdx  = bookModel->getIndex(rootIndex(),
-                                                    "PlotTitle","Plot");
-    plotTitleIdx = bookModel->index(plotTitleIdx.row(),1,rootIndex());
-    QString plotTitle = bookModel->data(plotTitleIdx).toString();
+    QString title = bookModel->getDataString(rootIndex(),"PlotTitle","Plot");
 
-    _label->setText(plotTitle);
+    _label->setText(title);
 }
 
 
