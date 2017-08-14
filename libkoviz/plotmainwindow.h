@@ -44,6 +44,7 @@ public:
                              const QStringList& dpFiles,
                              const QStringList& titles,
                              const QStringList& legends,
+                             const QString& orient,
                              MonteModel* monteModel,
                              QStandardItemModel* varsModel,
                              QStandardItemModel* monteInputsModel=0,

@@ -57,6 +57,7 @@ Option::FPresetQString presetPresentation;
 Option::FPresetUInt presetBeginRun;
 Option::FPresetUInt presetEndRun;
 Option::FPresetQString presetOutputFile;
+Option::FPresetQString presetOrientation;
 
 class SnapOptions : public Options
 {
@@ -90,6 +91,7 @@ class SnapOptions : public Options
     QString legend5;
     QString legend6;
     QString legend7;
+    QString orient;
 };
 
 SnapOptions opts;
@@ -152,6 +154,9 @@ int main(int argc, char *argv[])
     opts.add("-l5",&opts.legend5,"", "Legend label 5");
     opts.add("-l6",&opts.legend6,"", "Legend label 6");
     opts.add("-l7",&opts.legend7,"", "Legend label 7");
+    opts.add("-orient",&opts.orient,"landscape",
+             "PDF page orientation - landscape (default) and portrait",
+             presetOrientation);
 
     opts.parse(argc,argv, QString("koviz"), &ok);
 
@@ -423,6 +428,7 @@ int main(int argc, char *argv[])
                              timeNames, opts.start, opts.stop,
                              shifts,
                              presentation, QString(), dps, titles, legends,
+                             opts.orient,
                              monteModel, varsModel, monteInputsModel);
             w.savePdf(opts.pdfOutFile);
 
@@ -516,6 +522,7 @@ int main(int argc, char *argv[])
                                  opts.start, opts.stop,
                                  shifts,
                                  presentation, ".", dps, titles, legends,
+                                 opts.orient,
                                  monteModel, varsModel, monteInputsModel);
 #ifdef __linux
                 timer.snap("time=");
@@ -529,7 +536,7 @@ int main(int argc, char *argv[])
                                  opts.start, opts.stop,
                                  shifts,
                                  presentation, runDirs.at(0), QStringList(),
-                                 titles, legends, monteModel,
+                                 titles, legends, opts.orient, monteModel,
                                  varsModel, monteInputsModel);
                 w.show();
                 ret = a.exec();
@@ -640,6 +647,18 @@ void presetOutputFile(QString* presVar, const QString& fname, bool* ok)
     if ( fi.exists() ) {
         fprintf(stderr, "koviz [error]: Will not overwrite %s\n",
                 fname.toLatin1().constData());
+        *ok = false;
+    }
+}
+
+void presetOrientation(QString* presVar, const QString& orient, bool* ok)
+{
+    Q_UNUSED(presVar);
+
+    if ( orient != "landscape" && orient != "portrait" && !orient.isEmpty() ) {
+        fprintf(stderr, "koviz [error]: option -orient set to \"%s\", "
+                        "should be \"landscape\" or \"portrait\"\n",
+                orient.toLatin1().constData());
         *ok = false;
     }
 }

@@ -23,6 +23,7 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
         const QStringList& dpFiles,
         const QStringList& titles,
         const QStringList &legends,
+        const QString &orient,
         MonteModel* monteModel,
         QStandardItemModel* varsModel,
         QStandardItemModel *monteInputsModel,
@@ -91,6 +92,8 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
         _bookModel->addChild(citem, "Label6",legends.at(5));
         _bookModel->addChild(citem, "Label7",legends.at(6));
     }
+    QStandardItem *rootItem = _bookModel->invisibleRootItem();
+    _bookModel->addChild(rootItem, "Orientation", orient);
 
     // Create Plot Tabbed Notebook View Widget
     _bookView = new BookView();
