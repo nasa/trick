@@ -424,6 +424,47 @@ QModelIndex BookTableView::indexAt(const QPoint &point) const
 {
     Q_UNUSED(point);
     QModelIndex idx;
+
+    QRect W = viewport()->rect();
+    if ( W.width() == 0.0 || W.height() == 0.0 ) {
+        return idx; // invalid idx
+    }
+
+    // Calculate column width (TODO: this is cut-n-paste code from paintEvent)
+    QFontMetrics fm = fontMetrics();
+    QStringList labels = _columnLabels();
+    int w = fm.width("0123456789");
+    foreach ( QString label, labels ) {
+        if ( fm.width(label) > w ) {
+            w = fm.width(label);
+        }
+    }
+    w = _mLft + w + _mRgt;
+
+    int nCols = W.width()/w;
+    if ( nCols > labels.size() ) {
+        nCols = labels.size();
+    }
+
+    double hsb    = horizontalScrollBar()->value();
+    double hsbmax = horizontalScrollBar()->maximum();
+    int q = (hsb/hsbmax)*labels.size();
+    if ( q > labels.size()-nCols ) {
+        q = labels.size()-nCols;
+    }
+
+    QModelIndex tableVarsIdx = _bookModel()->getIndex(rootIndex(),
+                                                      "TableVars","Table");
+    QModelIndexList tableVarIdxs = _bookModel()->getIndexList(tableVarsIdx,
+                                                        "TableVar","TableVars");
+
+    int x = point.x();
+    int j = x/w + q;
+
+    if ( j < tableVarIdxs.size() ) {
+        idx = tableVarIdxs.at(j);
+    }
+
     return idx;
 }
 
@@ -512,4 +553,34 @@ void BookTableView::keyPressEvent(QKeyEvent *event)
         int val = horizontalScrollBar()->value();
         horizontalScrollBar()->setValue(val-step);
     }
+}
+
+void BookTableView::wheelEvent(QWheelEvent *e)
+{
+    QModelIndex tableVarIdx = indexAt(e->pos());
+
+    if ( !tableVarIdx.isValid() ) return;
+
+    QString s = _bookModel()->getDataString(tableVarIdx,
+                                            "TableVarName","TableVar");
+    QString unit = _bookModel()->getDataString(tableVarIdx,
+                                               "TableVarUnit","TableVar");
+    if ( unit.isEmpty() ) {
+        QModelIndex curveIdx = _bookModel()->getDataIndex(tableVarIdx,
+                                                     "TableVarData","TableVar");
+        QVariant v = _bookModel()->data(curveIdx);
+        TrickCurveModel* curveModel =QVariantToPtr<TrickCurveModel>::convert(v);
+        unit = curveModel->y()->unit();
+    }
+
+    if ( e->delta() > 0 ) {
+        unit = Unit::next(unit);
+    } else if ( e->delta() < 0 ) {
+        unit = Unit::prev(unit);
+    }
+
+    QModelIndex tableVarUnitIdx = _bookModel()->getDataIndex(tableVarIdx,
+                                                     "TableVarUnit","TableVar");
+    model()->setData(tableVarUnitIdx,unit);
+    viewport()->update();
 }

@@ -56,6 +56,7 @@ protected:
     virtual QRegion visualRegionForSelection(
                               const QItemSelection &selection) const;
     virtual void keyPressEvent(QKeyEvent *event);
+    void wheelEvent(QWheelEvent *e);
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,
