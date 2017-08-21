@@ -135,7 +135,7 @@ void FieldDescription::parseComment(std::string comment) {
     //std::cout << "2. " << comment << std::endl ;
 
     // remove optional doxygen keyword
-    comment = get_regex_field(comment , "(\\\\\\w+[ \t\n\r]*)?(.*)" , 2) ;
+    comment = get_regex_field(comment , "(\\\\[a-zA-Z0-9]+)?[ \t\n\r]*(.*)" , 2) ;
     //std::cout << "3. " << comment << std::endl ;
 
     ret_str = get_regex_field(comment , "@?trick_chkpnt_io[\\({]([^\\)}]+)[\\)}]" , 1) ;
