@@ -330,6 +330,8 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
             idx = index(11,0);
         } else if ( searchItemText == "Orientation" ) {
             idx = index(12,0);
+        } else if ( searchItemText == "TimeMatchTolerance" ) {
+            idx = index(13,0);
         } else {
             fprintf(stderr,"koviz [bad scoobs]:3: getIndex() received "
                            "root as a startIdx and had bad child "
@@ -910,6 +912,9 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
         yb1  = Unit::bias(c1->y()->unit(),c0->y()->unit());
     }
 
+    // By default the tolerance is 0.000001
+    double tolerance = getDataDouble(QModelIndex(),"TimeMatchTolerance");
+
     c0->map();
     c1->map();
     TrickModelIterator i0 = c0->begin();
@@ -922,7 +927,7 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
     while (i0 != e0 && i1 != e1) {
         double t0 = i0.t();
         double t1 = i1.t();
-        if ( qAbs(t1-t0) < 0.000001 ) {
+        if ( qAbs(t1-t0) < tolerance ) {
             double d = (ys0*i0.y()+yb0) - (ys1*i1.y()+yb1);
             if ( t0 >= start && t0 <= stop ) {
                 if ( isFirst ) {

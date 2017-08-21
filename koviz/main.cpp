@@ -52,6 +52,7 @@ QStringList sessionFileRuns(const QString& sessionFile);
 QStringList sessionFileDPs(const QString& sessionFile);
 QString sessionFileDevice(const QString& sessionFile);
 QString sessionFilePresentation(const QString& sessionFile);
+double sessionFileTimeMatchTolerance(const QString& sessionFile);
 
 Option::FPresetQString presetExistsFile;
 Option::FPresetDouble preset_start;
@@ -193,12 +194,6 @@ int main(int argc, char *argv[])
             exit(-1);
         }
         dps << sessionFileDPs(opts.sessionFile);
-        if ( dps.isEmpty() ) {
-            fprintf(stderr,"koviz [error]: no DP files "
-                           "specified in session_file=\"%s\"\n",
-                    opts.sessionFile.toLatin1().constData());
-            exit(-1);
-        }
     }
 
     if ( opts.rundps.isEmpty() && opts.sessionFile.isEmpty() ) {
@@ -467,9 +462,15 @@ int main(int argc, char *argv[])
         legends << opts.legend1 << opts.legend2 << opts.legend3
                 << opts.legend4 << opts.legend5 << opts.legend6 << opts.legend7;
 
+        // Time match tolerance
+        double tolerance = 0.000001;
+        if ( !opts.sessionFile.isEmpty() ) {
+            tolerance = sessionFileTimeMatchTolerance(opts.sessionFile);
+        }
+
         if ( isPdf ) {
             PlotMainWindow w(opts.isDebug,
-                             timeNames, opts.start, opts.stop,
+                             timeNames, opts.start, opts.stop, tolerance,
                              shifts,
                              presentation, QString(), dps, titles, legends,
                              opts.orient,
@@ -563,7 +564,7 @@ int main(int argc, char *argv[])
 #endif
                 PlotMainWindow w(opts.isDebug,
                                  timeNames,
-                                 opts.start, opts.stop,
+                                 opts.start, opts.stop, tolerance,
                                  shifts,
                                  presentation, ".", dps, titles, legends,
                                  opts.orient,
@@ -577,7 +578,7 @@ int main(int argc, char *argv[])
 
                 PlotMainWindow w(opts.isDebug,
                                  timeNames,
-                                 opts.start, opts.stop,
+                                 opts.start, opts.stop, tolerance,
                                  shifts,
                                  presentation, runDirs.at(0), QStringList(),
                                  titles, legends, opts.orient, monteModel,
@@ -1962,4 +1963,37 @@ QString sessionFilePresentation(const QString& sessionFile)
     file.close();
 
     return presentation;
+}
+
+double sessionFileTimeMatchTolerance(const QString& sessionFile)
+{
+    double tolerance = 0.000001;
+
+    QFile file(sessionFile);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
+        fprintf(stderr, "koviz [error]: Cannot read session file %s!\n",
+                sessionFile.toLatin1().constData());
+        exit(-1);
+    }
+
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        if ( line.contains("TIME_MATCH_TOLERANCE:",Qt::CaseInsensitive) ) {
+            int i = line.indexOf("TIME_MATCH_TOLERANCE:",0,Qt::CaseInsensitive);
+            bool ok;
+            tolerance = line.mid(i+21).trimmed().toDouble(&ok);
+            if ( !ok ) {
+                fprintf(stderr,"koviz [error]: time match tolerance in session"
+                               "file %s is corrupt.\n",
+                        sessionFile.toLatin1().constData());
+                exit(-1);
+            }
+            break;
+        }
+    }
+
+    file.close();
+
+    return tolerance;
 }

@@ -38,6 +38,7 @@ public:
                              const QStringList& timeNames,
                              double startTime,
                              double stopTime,
+                             double timeMatchTolerance,
                              const QHash<QString,QVariant>& shifts,//rundir->val
                              const QString& presentation,
                              const QString& dpDir,

@@ -17,6 +17,7 @@
 PlotMainWindow::PlotMainWindow(bool isDebug,
         const QStringList &timeNames,
         double startTime, double stopTime,
+        double timeMatchTolerance,
         const QHash<QString,QVariant>& shifts, // rundir->shiftvalue
         const QString &presentation,
         const QString &dpDir,
@@ -94,6 +95,7 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
     }
     QStandardItem *rootItem = _bookModel->invisibleRootItem();
     _bookModel->addChild(rootItem, "Orientation", orient);
+    _bookModel->addChild(rootItem, "TimeMatchTolerance", timeMatchTolerance);
 
     // Create Plot Tabbed Notebook View Widget
     _bookView = new BookView();
