@@ -48,6 +48,11 @@ QStandardItemModel* monteInputModelTrick17(const QString &monteInputFile,
                                            const QStringList &runs);
 QStringList runsSubset(const QStringList& runsList, uint beginRun, uint endRun);
 
+QStringList sessionFileRuns(const QString& sessionFile);
+QStringList sessionFileDPs(const QString& sessionFile);
+QString sessionFileDevice(const QString& sessionFile);
+QString sessionFilePresentation(const QString& sessionFile);
+
 Option::FPresetQString presetExistsFile;
 Option::FPresetDouble preset_start;
 Option::FPresetDouble preset_stop;
@@ -92,6 +97,7 @@ class SnapOptions : public Options
     QString legend6;
     QString legend7;
     QString orient;
+    QString sessionFile;
 };
 
 SnapOptions opts;
@@ -157,6 +163,8 @@ int main(int argc, char *argv[])
     opts.add("-orient",&opts.orient,"landscape",
              "PDF page orientation - landscape (default) and portrait",
              presetOrientation);
+    opts.add("-session",&opts.sessionFile,"","session file name",
+             presetExistsFile);
 
     opts.parse(argc,argv, QString("koviz"), &ok);
 
@@ -171,17 +179,41 @@ int main(int argc, char *argv[])
         QFileInfo fi(f);
         if ( fi.fileName().startsWith("DP_") ) {
             dps << f;
-        } else {
+        } else if ( fi.isDir() ) {
             runDirs << f;
         }
     }
+    if ( !opts.sessionFile.isEmpty() ) {
+        runDirs << sessionFileRuns(opts.sessionFile);
 
-    if ( opts.rundps.isEmpty() ) {
+        if ( runDirs.isEmpty() ) {
+            fprintf(stderr,"koviz [error]: no RUNs "
+                           "specified in session_file=\"%s\"\n",
+                    opts.sessionFile.toLatin1().constData());
+            exit(-1);
+        }
+        dps << sessionFileDPs(opts.sessionFile);
+        if ( dps.isEmpty() ) {
+            fprintf(stderr,"koviz [error]: no DP files "
+                           "specified in session_file=\"%s\"\n",
+                    opts.sessionFile.toLatin1().constData());
+            exit(-1);
+        }
+    }
+
+    if ( opts.rundps.isEmpty() && opts.sessionFile.isEmpty() ) {
         if ( opts.trk2csvFile.isEmpty() && opts.csv2trkFile.isEmpty() ) {
             fprintf(stderr,"koviz [error] : no RUNs specified\n");
             fprintf(stderr,"%s\n",opts.usage().toLatin1().constData());
-            return -1;
+            exit(-1);
         }
+    }
+    if ( runDirs.isEmpty() ) {
+        fprintf(stderr, "koviz [error]: no RUNs specified.\n"
+                "       Possible causes:\n"
+                "         1) RUNs not specified on commandline\n"
+                "         2) Forgot to use -session option for session file\n");
+        exit(-1);
     }
 
     if ( !opts.map.isEmpty() && !opts.mapFile.isEmpty() ) {
@@ -269,9 +301,17 @@ int main(int argc, char *argv[])
             isTrk = true;
         }
 
+        QString pdfOutFile;
         bool isPdf = false;
         if ( !opts.pdfOutFile.isEmpty() ) {
+            pdfOutFile = opts.pdfOutFile;
             isPdf = true;
+        } else if ( !opts.sessionFile.isEmpty() ) {
+            QString device = sessionFileDevice(opts.sessionFile);
+            if ( device != "terminal" ) {
+                pdfOutFile = device;
+                isPdf = true;
+            }
         }
 
         bool isCsv = false;
@@ -408,9 +448,12 @@ int main(int argc, char *argv[])
         }
         titles << title;
 
-        // Default presentation
+        // Presentation
         QString presentation = opts.presentation;
-        if ( opts.presentation.isEmpty() ) {
+        if ( presentation.isEmpty() && !opts.sessionFile.isEmpty() ) {
+            presentation = sessionFilePresentation(opts.sessionFile);
+        }
+        if ( presentation.isEmpty() ){
             presentation = "compare";
             int rc = monteModel->rowCount();
             if ( rc == 2 ) {
@@ -430,7 +473,7 @@ int main(int argc, char *argv[])
                              presentation, QString(), dps, titles, legends,
                              opts.orient,
                              monteModel, varsModel, monteInputsModel);
-            w.savePdf(opts.pdfOutFile);
+            w.savePdf(pdfOutFile);
 
         } else if ( isTrk ) {
 
@@ -1775,4 +1818,147 @@ QStringList runsSubset(const QStringList& runsList, uint beginRun, uint endRun)
     }
 
     return subset;
+}
+
+QStringList sessionFileRuns(const QString& sessionFile)
+{
+    QStringList runs;
+
+    QFile file(sessionFile);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
+        fprintf(stderr, "koviz [error]: Cannot read session file %s!\n",
+                sessionFile.toLatin1().constData());
+        exit(-1);
+    }
+
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        if ( line.contains("RUN:",Qt::CaseInsensitive) ) {
+            int i = line.indexOf("RUN:",0,Qt::CaseInsensitive);
+            QString run = line.mid(i+4).trimmed();
+            if ( run.startsWith("\"") ) {
+                run = run.mid(1);
+            }
+            if ( run.endsWith("\"") ) {
+                run.chop(1);
+            }
+            runs << run;
+        }
+    }
+
+    file.close();
+
+    return runs;
+}
+
+QStringList sessionFileDPs(const QString& sessionFile)
+{
+    QStringList dps;
+
+    QFile file(sessionFile);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
+        fprintf(stderr, "koviz [error]: Cannot read session file %s!\n",
+                sessionFile.toLatin1().constData());
+        exit(-1);
+    }
+
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        if ( line.contains("PRODUCT:",Qt::CaseInsensitive) ) {
+            int i = line.indexOf("PRODUCT:",0,Qt::CaseInsensitive);
+            QString dp = line.mid(i+8).trimmed();
+            if ( dp.startsWith("\"") ) {
+                dp = dp.mid(1);
+            }
+            if ( dp.endsWith("\"") ) {
+                dp.chop(1);
+            }
+            dps << dp;
+        }
+    }
+
+    file.close();
+
+    return dps;
+}
+
+// If device is "file", return filename; otherwise return "terminal"
+QString sessionFileDevice(const QString& sessionFile)
+{
+    QString device("terminal");
+
+    QFile file(sessionFile);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
+        fprintf(stderr, "koviz [error]: Cannot read session file %s!\n",
+                sessionFile.toLatin1().constData());
+        exit(-1);
+    }
+
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        if ( line.contains("DEVICE:",Qt::CaseInsensitive) ) {
+            int i = line.indexOf("DEVICE:",0,Qt::CaseInsensitive);
+            device = line.mid(i+7).trimmed();
+            if ( device.startsWith("\"") ) {
+                device = device.mid(1);
+            }
+            if ( device.endsWith("\"") ) {
+                device.chop(1);
+            }
+            QStringList list = device.split(" ",QString::SkipEmptyParts);
+            if ( !QString::compare(list.at(0),"FILE",Qt::CaseInsensitive) ) {
+                device = list.at(1); // device is filename
+                if ( device == "terminal") { //just in case filename=="terminal"
+                    device = "terminal.pdf";
+                }
+            }
+            break;
+        }
+    }
+
+    file.close();
+
+    return device;
+}
+
+QString sessionFilePresentation(const QString& sessionFile)
+{
+    QString presentation;
+
+    QFile file(sessionFile);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
+        fprintf(stderr, "koviz [error]: Cannot read session file %s!\n",
+                sessionFile.toLatin1().constData());
+        exit(-1);
+    }
+
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        if ( line.contains("PRESENTATION:",Qt::CaseInsensitive) ) {
+            int i = line.indexOf("PRESENTATION:",0,Qt::CaseInsensitive);
+            presentation = line.mid(i+13).trimmed();
+            if ( presentation.startsWith("\"") ) {
+                presentation = presentation.mid(1);
+            }
+            if ( presentation.endsWith("\"") ) {
+                presentation.chop(1);
+            }
+            if ( presentation == "single") {
+                fprintf(stderr,"koviz [error]: session file has presentation "
+                               "set to \"single\".  For now, koviz only "
+                               "supports \"compare\", \"error\" and "
+                               "\"error+compare\"\n");
+                exit(-1);
+            }
+            break;
+        }
+    }
+
+    file.close();
+
+    return presentation;
 }
