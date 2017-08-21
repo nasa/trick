@@ -90,7 +90,7 @@ my $class_def   = qr/(?:class|struct)\s*                   # keyword class or st
              /sx ;
 my $template_def   = qr/template\s*                        # keyword template
             <[^>]+>\s*                                     # template parameters
-            (class|struct)                                 # keyword class or struct
+            (?:class|struct)                               # keyword class or struct
             \s+[_A-Za-z]\w*\s*                             # class name
                /sx ;
 my $template_var_def  = qr/(?:\:\:)?[_A-Za-z][:\w]*\s*     # template name
