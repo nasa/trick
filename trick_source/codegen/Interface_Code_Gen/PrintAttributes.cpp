@@ -366,10 +366,10 @@ void PrintAttributes::printIOMakefile() {
 
     makefile_io_src.open("build/Makefile_io_src") ;
     makefile_io_src
-        << "TRICK_SYSTEM_CXXFLAGS += -std=c++11 -Wno-invalid-offsetof -Wno-old-style-cast -Wno-write-strings -Wno-unused-variable" << std::endl
+        << "TRICK_IO_CXXFLAGS += -std=c++11 -Wno-invalid-offsetof -Wno-old-style-cast -Wno-write-strings -Wno-unused-variable" << std::endl
         << std::endl
         << "ifeq ($(IS_CC_CLANG), 0)" << std::endl
-        << "    TRICK_SYSTEM_CXXFLAGS += -Wno-unused-local-typedefs -Wno-unused-but-set-variable" << std::endl
+        << "    TRICK_IO_CXXFLAGS += -Wno-unused-local-typedefs -Wno-unused-but-set-variable" << std::endl
         << "endif" << std::endl
         << std::endl
         << "IO_OBJECTS =" ;
@@ -385,8 +385,8 @@ void PrintAttributes::printIOMakefile() {
         << std::endl
         << "$(IO_OBJECTS): \%.o : \%.cpp \%.d" << std::endl
         << "\t$(PRINT_COMPILE)" << std::endl
-        << "\t@echo $(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c -o $@ $< >> $(MAKE_OUT)" << std::endl
-        << "\t$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c -o $@ $< 2>&1 | $(TEE) -a $(MAKE_OUT) ; exit $${PIPESTATUS[0]}" << std::endl
+        << "\t@echo $(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(TRICK_IO_CXXFLAGS) -MMD -MP -c -o $@ $< >> $(MAKE_OUT)" << std::endl
+        << "\t$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(TRICK_IO_CXXFLAGS) -MMD -MP -c -o $@ $< 2>&1 | $(TEE) -a $(MAKE_OUT) ; exit $${PIPESTATUS[0]}" << std::endl
         << std::endl
         << "$(IO_OBJECTS:.o=.d): ;" << std::endl
         << std::endl
