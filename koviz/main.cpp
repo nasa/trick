@@ -208,7 +208,8 @@ int main(int argc, char *argv[])
             exit(-1);
         }
     }
-    if ( runDirs.isEmpty() ) {
+    if ( runDirs.isEmpty() &&
+         opts.trk2csvFile.isEmpty() && opts.csv2trkFile.isEmpty()) {
         fprintf(stderr, "koviz [error]: no RUNs specified.\n"
                 "       Possible causes:\n"
                 "         1) RUNs not specified on commandline\n"
