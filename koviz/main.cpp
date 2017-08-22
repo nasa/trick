@@ -53,6 +53,7 @@ QStringList sessionFileDPs(const QString& sessionFile);
 QString sessionFileDevice(const QString& sessionFile);
 QString sessionFilePresentation(const QString& sessionFile);
 double sessionFileTimeMatchTolerance(const QString& sessionFile);
+double sessionFileFrequency(const QString& sessionFile);
 
 Option::FPresetQString presetExistsFile;
 Option::FPresetDouble preset_start;
@@ -468,9 +469,16 @@ int main(int argc, char *argv[])
             tolerance = sessionFileTimeMatchTolerance(opts.sessionFile);
         }
 
+        // Frequency
+        double frequency = 0.0;
+        if ( !opts.sessionFile.isEmpty() ) {
+            frequency = sessionFileFrequency(opts.sessionFile);
+        }
+
         if ( isPdf ) {
             PlotMainWindow w(opts.isDebug,
-                             timeNames, opts.start, opts.stop, tolerance,
+                             timeNames, opts.start, opts.stop,
+                             tolerance, frequency,
                              shifts,
                              presentation, QString(), dps, titles, legends,
                              opts.orient,
@@ -564,7 +572,8 @@ int main(int argc, char *argv[])
 #endif
                 PlotMainWindow w(opts.isDebug,
                                  timeNames,
-                                 opts.start, opts.stop, tolerance,
+                                 opts.start, opts.stop,
+                                 tolerance, frequency,
                                  shifts,
                                  presentation, ".", dps, titles, legends,
                                  opts.orient,
@@ -578,7 +587,8 @@ int main(int argc, char *argv[])
 
                 PlotMainWindow w(opts.isDebug,
                                  timeNames,
-                                 opts.start, opts.stop, tolerance,
+                                 opts.start, opts.stop,
+                                 tolerance, frequency,
                                  shifts,
                                  presentation, runDirs.at(0), QStringList(),
                                  titles, legends, opts.orient, monteModel,
@@ -1996,4 +2006,37 @@ double sessionFileTimeMatchTolerance(const QString& sessionFile)
     file.close();
 
     return tolerance;
+}
+
+double sessionFileFrequency(const QString& sessionFile)
+{
+    double frequency = 0.0;
+
+    QFile file(sessionFile);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
+        fprintf(stderr, "koviz [error]: Cannot read session file %s!\n",
+                sessionFile.toLatin1().constData());
+        exit(-1);
+    }
+
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        if ( line.contains("FREQUENCY:",Qt::CaseInsensitive) ) {
+            int i = line.indexOf("FREQUENCY:",0,Qt::CaseInsensitive);
+            bool ok;
+            frequency = line.mid(i+10).trimmed().toDouble(&ok);
+            if ( !ok ) {
+                fprintf(stderr,"koviz [error]: frequency spec in session"
+                               "file %s is corrupt.\n",
+                        sessionFile.toLatin1().constData());
+                exit(-1);
+            }
+            break;
+        }
+    }
+
+    file.close();
+
+    return frequency;
 }

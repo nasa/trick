@@ -332,6 +332,8 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
             idx = index(12,0);
         } else if ( searchItemText == "TimeMatchTolerance" ) {
             idx = index(13,0);
+        } else if ( searchItemText == "Frequency" ) {
+            idx = index(14,0);
         } else {
             fprintf(stderr,"koviz [bad scoobs]:3: getIndex() received "
                            "root as a startIdx and had bad child "
@@ -810,11 +812,18 @@ QPainterPath* PlotBookModel::_createPainterPath(TrickCurveModel *curveModel)
     TrickModelIterator it = curveModel->begin();
     const TrickModelIterator e = curveModel->end();
 
+    double f = getDataDouble(QModelIndex(),"Frequency");
     double start = getDataDouble(QModelIndex(),"StartTime");
     double stop = getDataDouble(QModelIndex(),"StopTime");
     bool isFirst = true;
     while (it != e) {
         double t = it.t();
+        if ( f > 0.0 ) {
+            if ( fabs(t-round(t/f)*f) > 1.0e-9 ) { // t not divisible by f?
+                ++it;
+                continue;
+            }
+        }
         if ( t >= start && t <= stop ) {
             if ( isFirst ) {
                 path->moveTo(it.x(),it.y());
@@ -915,6 +924,9 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
     // By default the tolerance is 0.000001
     double tolerance = getDataDouble(QModelIndex(),"TimeMatchTolerance");
 
+    // Frequency of data to show (f=0.0, the default, is all data)
+    double f = getDataDouble(QModelIndex(),"Frequency");
+
     c0->map();
     c1->map();
     TrickModelIterator i0 = c0->begin();
@@ -928,6 +940,13 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
         double t0 = i0.t();
         double t1 = i1.t();
         if ( qAbs(t1-t0) < tolerance ) {
+            if ( f > 0.0 ) {
+                if (fabs(t0-round(t0/f)*f) > 1.0e-9) { // t0 not divisible by f?
+                    ++i0;
+                    ++i1;
+                    continue;
+                }
+            }
             double d = (ys0*i0.y()+yb0) - (ys1*i1.y()+yb1);
             if ( t0 >= start && t0 <= stop ) {
                 if ( isFirst ) {
