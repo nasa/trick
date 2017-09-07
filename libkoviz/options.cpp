@@ -318,11 +318,22 @@ QString Options::usage()
     s << endl;
     s << "usage: " <<  _programName << endl;
 
+    QStringList optNames;
     foreach ( Option* opt, _opts.values() ) {
-        s << right << qSetFieldWidth(15) << opt->nameSpec()
-           << left << qSetFieldWidth(0) << "      "
-           << left << qSetFieldWidth(60) << opt->info()
-           << qSetFieldWidth(1) << endl;
+        optNames << opt->name();
+    }
+    optNames.sort();
+
+    foreach ( QString optName, optNames ) {
+        foreach ( Option* opt, _opts.values() ) {
+            if ( opt->name() == optName ) {
+                s << right << qSetFieldWidth(15) << opt->nameSpec()
+                  << left << qSetFieldWidth(0) << "      "
+                  << left << qSetFieldWidth(60) << opt->info()
+                  << qSetFieldWidth(1) << endl;
+                break;
+            }
+        }
     }
     s << endl;
 
