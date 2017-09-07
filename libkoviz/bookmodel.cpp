@@ -358,10 +358,14 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
         if ( !isFound ) {
             fprintf(stderr,
                     "koviz [bad scoobs]:4:PlotBookModel::getIndex()\n"
+                    "startIdxText=%s\n"
                     "expectedStartIdxText=%s\n"
-                    "searchItemText=%s\n",
+                    "searchItemText=%s\n"
+                    "rowCountStartIdx=%d\n",
+                    data(startIdx).toString().toLatin1().constData(),
                     expectedStartIdxText.toLatin1().constData(),
-                    searchItemText.toLatin1().constData());
+                    searchItemText.toLatin1().constData(),
+                    rowCount(startIdx));
             exit(-1);
         }
     }
