@@ -404,10 +404,9 @@ public class SunDisplay extends JFrame implements ActionListener {
         System.out.println("Connecting to: " + host + ":" + port);
         evd.connectToServer(host, port);
 
-        evd.out.writeBytes("trick.var_set_client_tag(\"SunDisplay\") \n");
-        evd.out.flush();
-      
-        evd.out.writeBytes("trick.var_add(\"sun_predictor.sun.JD\") \n" +
+        evd.out.writeBytes("trick.var_set_client_tag(\"SunDisplay\") \n" +
+                           "trick.var_pause() \n" +
+                           "trick.var_add(\"sun_predictor.sun.JD\") \n" +
                            "trick.var_add(\"sun_predictor.sun.observer_latitude\") \n" +
                            "trick.var_add(\"sun_predictor.sun.observer_longitude\") \n" +
                            "trick.var_add(\"sun_predictor.sun.observer_offset_from_UTC\") \n" +
@@ -430,13 +429,9 @@ public class SunDisplay extends JFrame implements ActionListener {
                            "trick.var_add(\"sun_predictor.sun.utc.hour\") \n" +
                            "trick.var_add(\"sun_predictor.sun.utc.min\") \n" +
                            "trick.var_add(\"sun_predictor.sun.utc.sec\") \n" +
-                           ""
-                          );
-                           
-        evd.out.flush();
-        evd.out.writeBytes("trick.var_ascii() \n" +
+                           "trick.var_ascii() \n" +
                            "trick.var_cycle(0.1) \n" +
-                           "trick.var_send() \n" );
+                           "trick.var_unpause() \n" );
         evd.out.flush();
 
         Boolean go = true;

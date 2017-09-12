@@ -46,7 +46,7 @@ class SkyView extends JPanel {
         scale = mapScale;
         setScale(mapScale);
         skyColor = Color.BLACK;
-        planetColor = new Color(100,200,200);
+        planetColor = new Color(128,128,255);
         satelliteColor = new Color(255,0,0);
         planetRadius = 6378000;
         satellitePos  = new double[] {0.0, planetRadius + 200000};
@@ -65,7 +65,13 @@ class SkyView extends JPanel {
         }
     }
 
-    public void drawCenteredCircle(Graphics2D g, int x, int y, int r) {
+    public void drawCenteredOval(Graphics2D g, int x, int y, int rh, int rv) {
+        x = x-(rh/2);
+        y = y-(rv/2);
+        g.drawOval(x,y,rh,rv);
+    }
+
+    public void fillCenteredCircle(Graphics2D g, int x, int y, int r) {
         x = x-(r/2);
         y = y-(r/2);
         g.fillOval(x,y,r,r);
@@ -83,15 +89,34 @@ class SkyView extends JPanel {
         g2d.setPaint(Color.BLACK);
         g2d.fillRect(0, 0, width, height);
 
+        int pr0  = (int)(scale * planetRadius);
+        int pr30 = (int)(scale * planetRadius * Math.cos(Math.toRadians(30)));
+        int pr60 = (int)(scale * planetRadius * Math.cos(Math.toRadians(60)));
+
         //  Draw Planet
         g2d.setPaint(planetColor);
-        drawCenteredCircle(g2d, worldOriginX, worldOriginY, (int)(scale * 2 * planetRadius));
+        fillCenteredCircle(g2d, worldOriginX, worldOriginY, 2 * pr0);
+
+        g2d.setPaint(Color.BLACK);
+         
+        // Circles of Latitude
+        g2d.drawLine(worldOriginX - pr60, worldOriginY - pr30 , worldOriginX + pr60, worldOriginY - pr30);
+        g2d.drawLine(worldOriginX - pr30, worldOriginY - pr60 , worldOriginX + pr30, worldOriginY - pr60);
+        g2d.drawLine(worldOriginX - pr0,  worldOriginY, worldOriginX + pr0, worldOriginY ); // Equator
+        g2d.drawLine(worldOriginX - pr30, worldOriginY + pr60 , worldOriginX + pr30, worldOriginY + pr60);
+        g2d.drawLine(worldOriginX - pr60, worldOriginY + pr30 , worldOriginX + pr60, worldOriginY + pr30);
+
+        // Meridians
+        g2d.drawLine(worldOriginX, worldOriginY - pr0, worldOriginX, worldOriginY + pr0 );
+        drawCenteredOval(g2d, worldOriginX, worldOriginY, 2 * pr60, 2 * pr0);
+        drawCenteredOval(g2d, worldOriginX, worldOriginY, 2 * pr30, 2 * pr0);
+        drawCenteredOval(g2d, worldOriginX, worldOriginY, 2 * pr0, 2 * pr0);
 
         //  Draw Satellite
         g2d.setPaint(satelliteColor);
         int sx = (int)(worldOriginX + scale * satellitePos[0]);
         int sy = (int)(worldOriginY - scale * satellitePos[1]);
-        drawCenteredCircle(g2d, sx, sy, (int)(10));
+        fillCenteredCircle(g2d, sx, sy, (int)(10));
     }
 
     @Override
@@ -171,16 +196,13 @@ public class SatDisplay extends JFrame {
         System.out.println("Connecting to: " + host + ":" + port);
         sd.connectToServer(host, port);
 
-        sd.out.writeBytes("trick.var_set_client_tag(\"SatDisplay\") \n");
-        sd.out.flush();
-
-        sd.out.writeBytes("trick.var_add(\"dyn.satellite.pos[0]\") \n" +
-                          "trick.var_add(\"dyn.satellite.pos[1]\") \n" );
-        sd.out.flush();
-
-        sd.out.writeBytes("trick.var_ascii() \n" +
-                           "trick.var_cycle(0.1) \n" +
-                           "trick.var_send() \n" );
+        sd.out.writeBytes("trick.var_set_client_tag(\"SatDisplay\") \n" +
+                          "trick.var_pause() \n" +
+                          "trick.var_add(\"dyn.satellite.pos[0]\") \n" +
+                          "trick.var_add(\"dyn.satellite.pos[1]\") \n" + 
+                          "trick.var_ascii() \n" +
+                          "trick.var_cycle(0.1) \n" +
+                          "trick.var_unpause()\n" );
         sd.out.flush();
 
         Boolean go = true;

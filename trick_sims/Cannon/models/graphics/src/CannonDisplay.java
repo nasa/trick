@@ -737,18 +737,19 @@ public class CannonDisplay extends JFrame {
         // Configure the Variable Server to cyclically send us the following varibales.
         // Tell the variable server:
         //  1) We want the values of the following variables:
-        evd.out.writeBytes( "trick.var_add(\"dyn.cannon.impact\")\n" +
+        evd.out.writeBytes( "trick.var_pause() \n" +
+                            "trick.var_add(\"dyn.cannon.impact\")\n" +
                             "trick.var_add(\"dyn.cannon.pos[0]\")\n" +
                             "trick.var_add(\"dyn.cannon.pos[1]\")\n" +
                             "trick.var_add(\"dyn.cannon.vel[0]\")\n" +
                             "trick.var_add(\"dyn.cannon.vel[1]\")\n" +
-                            "trick.var_add(\"trick_sys.sched.mode\")\n");
+                            "trick.var_add(\"trick_sys.sched.mode\")\n" +
         //  2) We want the responses in ASCII:
-        evd.out.writeBytes("trick.var_ascii() \n");
+                            "trick.var_ascii() \n" +
         //  3) We want values to be updated at the specified rate:
-        evd.out.writeBytes( String.format("trick.var_cycle(%.3f)\n", dt));
+                            String.format("trick.var_cycle(%.3f)\n", dt) +
         //  4) Start sending values as specified.
-        evd.out.writeBytes("trick.var_send() \n" );
+                            "trick.var_unpause() \n" );
         evd.out.flush();
 
         while (go) {
