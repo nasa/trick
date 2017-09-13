@@ -377,6 +377,21 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             QModelIndex curvesIdx = curvesItem->index();
             QRectF bbox = _bookModel->calcCurvesBBox(curvesIdx);
             _bookModel->setPlotMathRect(bbox,plotItem->index());
+
+            // Reset monte carlo input view current idx to signal current changed
+            int currRunId = _currSelectedRun();
+            if ( currRunId > 0 ) {
+                QModelIndex curveIdx = _bookModel->index(currRunId,0,curvesIdx);
+                int curveRunId = _bookModel->getDataInt(curveIdx,
+                                                        "CurveRunID","Curve");
+                if ( curveRunId == currRunId ) {
+                    // Reset monte input view's current index which will set
+                    // plot view's curr idx (by way of signal/slot connections)
+                    QModelIndex currIdx = _monteInputsView->currentIndex();
+                    _monteInputsView->setCurrentIndex(QModelIndex());
+                    _monteInputsView->setCurrentIndex(currIdx);
+                }
+            }
         }
     }
 
@@ -684,4 +699,21 @@ QString DPTreeWidget::_descrPlotTitle(DPPlot *plot)
     }
 
     return plotTitle;
+}
+
+int DPTreeWidget::_currSelectedRun()
+{
+    int runId = -1;
+    if ( _monteInputsView ) {
+        runId = _monteInputsView->currSelectedRun();
+    } else {
+        QItemSelection currSel = _bookSelectModel->selection();
+        foreach ( QModelIndex idx , currSel.indexes() ) {
+            if ( _bookModel->isIndex(idx, "Curve") ) {
+                runId = idx.row();
+                break;
+            }
+        }
+    }
+    return runId;
 }

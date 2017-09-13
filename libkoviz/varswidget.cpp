@@ -307,6 +307,19 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
                                                            "Plot");
     _plotModel->setData(plotMathRectIdx,bbox);
 
+    // Reset monte carlo input view current idx to signal current changed
+    int currRunId = _currSelectedRun();
+    if ( currRunId > 0 ) {
+        QModelIndex curveIdx = _plotModel->index(currRunId,0,curvesIdx);
+        int curveRunId = _plotModel->getDataInt(curveIdx,"CurveRunID","Curve");
+        if ( curveRunId == currRunId ) {
+            // Reset monte input view's current index which will set
+            // plot view's current index (by way of signal/slot connections)
+            QModelIndex currIdx = _monteInputsView->currentIndex();
+            _monteInputsView->setCurrentIndex(QModelIndex());
+            _monteInputsView->setCurrentIndex(currIdx);
+        }
+    }
 }
 
 QStandardItem* VarsWidget::_addChild(QStandardItem *parentItem,
