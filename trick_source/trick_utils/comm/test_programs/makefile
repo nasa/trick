@@ -12,11 +12,11 @@
 -include ${TRICK_HOME}/makefiles/Makefile.common
 
 ifndef TRICK_HOST_CPU
-TRICK_HOST_CPU := $(shell gte TRICK_HOST_CPU)
+TRICK_HOST_CPU := $(shell trick-gte TRICK_HOST_CPU)
 endif
 
 ifndef TRICK_HOST_TYPE
-TRICK_HOST_TYPE := $(shell gte TRICK_HOST_TYPE)
+TRICK_HOST_TYPE := $(shell trick-gte TRICK_HOST_TYPE)
 endif
 
 

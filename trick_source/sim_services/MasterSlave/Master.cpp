@@ -129,9 +129,9 @@ int Trick::SlaveInfo::start() {
     }
 
     if (strstr(passp->pw_shell, "csh")) {
-        startup_command << " setenv TRICK_HOST_CPU `gte TRICK_HOST_CPU` ; " ;
+        startup_command << " setenv TRICK_HOST_CPU `trick-gte TRICK_HOST_CPU` ; " ;
     } else {
-        startup_command << " export TRICK_HOST_CPU=`gte TRICK_HOST_CPU` ; " ;
+        startup_command << " export TRICK_HOST_CPU=`trick-gte TRICK_HOST_CPU` ; " ;
     }
 
 
