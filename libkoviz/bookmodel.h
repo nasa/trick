@@ -12,6 +12,7 @@
 
 #include <QList>
 #include <QColor>
+#include <math.h>
 
 class PlotBookModel : public QStandardItemModel
 {
