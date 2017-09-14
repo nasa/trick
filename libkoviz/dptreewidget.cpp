@@ -379,8 +379,11 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             _bookModel->setPlotMathRect(bbox,plotItem->index());
 
             // Reset monte carlo input view current idx to signal current changed
-            int currRunId = _currSelectedRun();
-            if ( currRunId > 0 ) {
+            int currRunId = -1;
+            if ( _monteInputsView ) {
+                currRunId = _monteInputsView->currentRun();
+            }
+            if ( currRunId >= 0 ) {
                 QModelIndex curveIdx = _bookModel->index(currRunId,0,curvesIdx);
                 int curveRunId = _bookModel->getDataInt(curveIdx,
                                                         "CurveRunID","Curve");
@@ -699,21 +702,4 @@ QString DPTreeWidget::_descrPlotTitle(DPPlot *plot)
     }
 
     return plotTitle;
-}
-
-int DPTreeWidget::_currSelectedRun()
-{
-    int runId = -1;
-    if ( _monteInputsView ) {
-        runId = _monteInputsView->currSelectedRun();
-    } else {
-        QItemSelection currSel = _bookSelectModel->selection();
-        foreach ( QModelIndex idx , currSel.indexes() ) {
-            if ( _bookModel->isIndex(idx, "Curve") ) {
-                runId = idx.row();
-                break;
-            }
-        }
-    }
-    return runId;
 }

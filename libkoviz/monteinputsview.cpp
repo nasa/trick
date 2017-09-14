@@ -38,14 +38,14 @@ void MonteInputsView::setModel(QAbstractItemModel *model)
             SLOT(_selectModelCurrentChanged(QModelIndex,QModelIndex)));
 }
 
-int MonteInputsView::currSelectedRun()
+int MonteInputsView::currentRun()
 {
     int runId = -1;
-    QItemSelection monteInputSel =  selectionModel()->selection();
-    if ( monteInputSel.size() > 0 ) {
-        QModelIndex selIdx = monteInputSel.indexes().at(0);
-        bool ok = false;
-        runId = model()->data(selIdx).toInt(&ok);
+    if ( currentIndex().isValid() ) {
+        QModelIndex runIdx = model()->sibling(currentIndex().row(),0,
+                                              currentIndex());
+        bool ok;
+        runId = model()->data(runIdx).toInt(&ok);
         if ( !ok ) {
             runId = -1;
         }

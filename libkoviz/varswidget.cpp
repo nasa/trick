@@ -308,8 +308,12 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
     _plotModel->setData(plotMathRectIdx,bbox);
 
     // Reset monte carlo input view current idx to signal current changed
-    int currRunId = _currSelectedRun();
-    if ( currRunId > 0 ) {
+    int currRunId = -1;
+    if ( _monteInputsView ) {
+        currRunId = _monteInputsView->currentRun();
+    }
+
+    if ( currRunId >= 0 ) {
         QModelIndex curveIdx = _plotModel->index(currRunId,0,curvesIdx);
         int curveRunId = _plotModel->getDataInt(curveIdx,"CurveRunID","Curve");
         if ( curveRunId == currRunId ) {
@@ -333,7 +337,10 @@ QStandardItem* VarsWidget::_addChild(QStandardItem *parentItem,
 // This is really a hackish helper for _varsSelectModelSelectionChanged()
 void VarsWidget::_selectCurrentRunOnPageItem(QStandardItem* pageItem)
 {
-    int runId = _currSelectedRun();
+    int runId = -1;
+    if ( _monteInputsView ) {
+        runId = _monteInputsView->currentRun();
+    }
 
     if ( runId >= 0 ) {
         QItemSelection currSel = _plotSelectModel->selection();
@@ -348,21 +355,4 @@ void VarsWidget::_selectCurrentRunOnPageItem(QStandardItem* pageItem)
             }
         }
     }
-}
-
-int VarsWidget::_currSelectedRun()
-{
-    int runId = -1;
-    if ( _monteInputsView ) {
-        runId = _monteInputsView->currSelectedRun();
-    } else {
-        QItemSelection currSel = _plotSelectModel->selection();
-        foreach ( QModelIndex idx , currSel.indexes() ) {
-            if ( _plotModel->isIndex(idx, "Curve") ) {
-                runId = idx.row();
-                break;
-            }
-        }
-    }
-    return runId;
 }

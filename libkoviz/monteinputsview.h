@@ -9,7 +9,7 @@ class MonteInputsView : public QTableView
 public:
     explicit MonteInputsView(QWidget *parent = 0);
     virtual void setModel(QAbstractItemModel *model);
-    int currSelectedRun();
+    int currentRun();
 
 private:
     QItemSelectionModel* _selectModel;

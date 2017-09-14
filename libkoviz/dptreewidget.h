@@ -81,7 +81,6 @@ private:
                    MonteModel* monteModel, int runId, const QString &defaultColor);
     bool _isDP(const QString& fp);
     QString _descrPlotTitle(DPPlot* plot);
-    int _currSelectedRun();
 
     static QString _err_string;
     static QTextStream _err_stream;

@@ -60,7 +60,6 @@ private:
     void _addPlotToPage(QStandardItem* pageItem,
                                  const QModelIndex &varIdx);
     void _selectCurrentRunOnPageItem(QStandardItem* pageItem);
-    int _currSelectedRun();
 
 
 private slots:
