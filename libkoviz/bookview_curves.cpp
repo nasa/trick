@@ -378,7 +378,7 @@ void CurvesView::_paintCoplot(const QTransform &T,QPainter &painter,QPen &pen)
         painter.setBrush(origBrush);
 
         // Paint curve (possibly with linestyle, symbols etc.)
-        _paintCurve(currentIndex(),T,painter);
+        _paintCurve(currentIndex(),T,painter,true);
 
         // Draw coordinate arrow (arrow with (x,y) label) if needed
         QRectF M = _plotMathRect(rootIndex());
@@ -394,7 +394,7 @@ void CurvesView::_paintCoplot(const QTransform &T,QPainter &painter,QPen &pen)
 
 void CurvesView::_paintCurve(const QModelIndex& curveIdx,
                              const QTransform& T,
-                             QPainter& painter)
+                             QPainter& painter, bool isHighlight)
 {
     painter.save();
     QPen origPen = painter.pen();
@@ -411,8 +411,7 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
         pen.setWidth(0);
         QColor color(_bookModel()->getDataString(curveIdx,
                                                  "CurveColor","Curve"));
-        if ( currentIndex() == curveIdx ) {
-            // If curve selected, draw with darker color
+        if ( isHighlight ) {
             color = color.darker(200);
         }
         pen.setColor(color);
@@ -1170,7 +1169,7 @@ QPixmap* CurvesView::_createLivePixmap()
         QModelIndex curveIdx = model()->index(i,0,curvesIdx);
         TrickCurveModel* curveModel =_bookModel()->getTrickCurveModel(curveIdx);
         if ( curveModel ) {
-            _paintCurve(curveIdx,T,painter);
+            _paintCurve(curveIdx,T,painter,false);
         }
     }
 

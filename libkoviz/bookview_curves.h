@@ -121,7 +121,8 @@ private:
                          QPainter& painter, const QPen &pen,
                          const QModelIndex &plotIdx);
     void _paintCurve(const QModelIndex& curveIdx,
-                     const QTransform &T, QPainter& painter);
+                     const QTransform &T, QPainter& painter,
+                     bool isHighlight);
     void _paintLiveCoordArrow(TrickCurveModel *curveModel,
                           const QModelIndex &curveIdx, QPainter &painter);
     void _paintErrorLiveCoordArrow(QPainterPath* path, QPainter& painter);
