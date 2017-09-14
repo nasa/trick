@@ -265,16 +265,13 @@ void PlotMainWindow::_bookViewCurrentChanged(const QModelIndex &currIdx,
         }
     }
 
-    if ( !currIdx.isValid() && prevIdx.isValid() ) {
+    if ( !currIdx.isValid() ) {
         if ( _monteInputsView ) {
-            if ( _bookModel->isIndex(prevIdx,"Curve") ) {
-                // Clicked off curves in _bookView,
-                // so clear current in monte and all CurveViews
-                QModelIndex invalidIdx;
-                _monteInputsView->setCurrentIndex(invalidIdx);
-                _bookView->setCurrentCurveRunID(-1);
-
-            }
+            // Clicked into whitespace in a CurvesView,
+            // so clear current run in monte input view and all CurveViews
+            QModelIndex invalidIdx;
+            _monteInputsView->setCurrentIndex(invalidIdx);
+            _bookView->setCurrentCurveRunID(-1);
         }
     }
 }
