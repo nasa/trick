@@ -118,15 +118,19 @@ void YAxisLabelView::wheelEvent(QWheelEvent *e)
         QModelIndexList curveIdxs = _bookModel()->getIndexList(curvesIdx,
                                                               "Curve","Curves");
         // Set all curves to next/prev unit
+        bool block = model()->blockSignals(true);
         foreach (QModelIndex curveIdx, curveIdxs ) {
             QModelIndex yUnitIdx = _bookModel()->getDataIndex(curveIdx,
                                                          "CurveYUnit", "Curve");
             model()->setData(yUnitIdx,unit);
         }
+        block = model()->blockSignals(block);
 
         // Recalculate and update bounding box (since unit change)
         QRectF bbox = _bookModel()->calcCurvesBBox(curvesIdx);
         _bookModel()->setPlotMathRect(bbox,rootIndex());
+
+        viewport()->update();
     }
 }
 
