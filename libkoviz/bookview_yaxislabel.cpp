@@ -108,11 +108,12 @@ void YAxisLabelView::wheelEvent(QWheelEvent *e)
 
     if ( curvesIdx.isValid() ) {
 
-        QString unit = _bookModel()->getCurvesYUnit(curvesIdx);
+        QString fromUnit = _bookModel()->getCurvesYUnit(curvesIdx);
+        QString toUnit;
         if ( e->delta() > 0 ) {
-            unit = Unit::next(unit);
+            toUnit = Unit::next(fromUnit);
         } else if ( e->delta() < 0 ) {
-            unit = Unit::prev(unit);
+            toUnit = Unit::prev(fromUnit);
         }
 
         QModelIndexList curveIdxs = _bookModel()->getIndexList(curvesIdx,
@@ -122,13 +123,19 @@ void YAxisLabelView::wheelEvent(QWheelEvent *e)
         foreach (QModelIndex curveIdx, curveIdxs ) {
             QModelIndex yUnitIdx = _bookModel()->getDataIndex(curveIdx,
                                                          "CurveYUnit", "Curve");
-            model()->setData(yUnitIdx,unit);
+            model()->setData(yUnitIdx,toUnit);
         }
         block = model()->blockSignals(block);
 
         // Recalculate and update bounding box (since unit change)
-        QRectF bbox = _bookModel()->calcCurvesBBox(curvesIdx);
-        _bookModel()->setPlotMathRect(bbox,rootIndex());
+        double scale = Unit::scale(fromUnit,toUnit);
+        double bias = Unit::bias(fromUnit,toUnit);
+        QModelIndex plotMathRectIdx = _bookModel()->getDataIndex(rootIndex(),
+                                                   "PlotMathRect","Plot");
+        QRectF R = model()->data(plotMathRectIdx).toRectF();
+        R.moveTop(R.y()*scale+bias);  // bias for temperature
+        R.setHeight(R.height()*scale);
+        _bookModel()->setPlotMathRect(R,rootIndex());
 
         viewport()->update();
     }
