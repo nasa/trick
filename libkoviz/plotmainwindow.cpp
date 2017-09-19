@@ -110,6 +110,10 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
             SIGNAL(rowsInserted(QModelIndex,int,int)),
             this,
             SLOT(_bookModelRowsInserted(QModelIndex,int,int)));
+    connect(_bookModel,
+            SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+            this,
+            SLOT(_bookModelRowsAboutToBeRemoved(QModelIndex,int,int)));
 
     msplit->addWidget(_bookView);
 
@@ -299,8 +303,8 @@ void PlotMainWindow::_bookModelRowsInserted(const QModelIndex &pidx,
     }
 }
 
-void PlotMainWindow::_plotModelRowsAboutToBeRemoved(const QModelIndex &pidx,
-                                                 int start, int end)
+void PlotMainWindow::_bookModelRowsAboutToBeRemoved(const QModelIndex &pidx,
+                                                    int start, int end)
 {
     Q_UNUSED(pidx);
     Q_UNUSED(start);

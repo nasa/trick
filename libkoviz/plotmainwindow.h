@@ -94,7 +94,7 @@ private:
 
 private slots:
      void _nbCurrentChanged(int i);
-     void _plotModelRowsAboutToBeRemoved(const QModelIndex& pidx,
+     void _bookModelRowsAboutToBeRemoved(const QModelIndex& pidx,
                                          int start, int end);
      void _savePdf();
      void _toggleShowLiveCoord();
