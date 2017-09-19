@@ -264,8 +264,11 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
 
     // Pages
     QModelIndex pagesIdx = _bookModel->getIndex(QModelIndex(), "Pages");
-
     QStandardItem *pagesItem = _bookModel->itemFromIndex(pagesIdx);
+
+    // Page0 plots
+    QModelIndex page0Idx = _bookModel->index(0,0,pagesIdx);
+    QModelIndexList siblingPlotIdxs = _bookModel->plotIdxs(page0Idx);
 
     foreach (DPPage* page, dp.pages() ) {
 
@@ -373,10 +376,23 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             // Turn signals back on before adding curveModel
             block = _bookModel->blockSignals(block);
 
-            // Initialize plot math rect to curves bounding box
+            // Initialize plot math rect
             QModelIndex curvesIdx = curvesItem->index();
             QRectF bbox = _bookModel->calcCurvesBBox(curvesIdx);
-            _bookModel->setPlotMathRect(bbox,plotItem->index());
+            QModelIndex plotIdx = plotItem->index();
+            QModelIndex plotMathRectIdx = _bookModel->getDataIndex(plotIdx,
+                                                                 "PlotMathRect",
+                                                                 "Plot");
+            foreach ( QModelIndex siblingPlotIdx, siblingPlotIdxs ) {
+                bool isXTime = _bookModel->isXTime(siblingPlotIdx);
+                if ( isXTime ) {
+                    QRectF sibPlotRect = _bookModel->getPlotMathRect(siblingPlotIdx);
+                    bbox.setLeft(sibPlotRect.left());
+                    bbox.setRight(sibPlotRect.right());
+                    break;
+                }
+            }
+            _bookModel->setData(plotMathRectIdx,bbox);
 
             // Reset monte carlo input view current idx to signal current changed
             int currRunId = -1;

@@ -1117,7 +1117,8 @@ void CurvesView::dataChanged(const QModelIndex &topLeft,
         // to keep zoom/pan synchronized across plots.
 
         // Only synchronize when x variables are time (normal case).
-        if ( _isXTime(topLeft.parent()) && _isXTime(rootIndex()) ) {
+        if ( _bookModel()->isXTime(topLeft.parent()) &&
+             _bookModel()->isXTime(rootIndex()) ) {
             QRectF M = model()->data(topLeft).toRectF();
             QModelIndex plotRectIdx = _bookModel()->getDataIndex(rootIndex(),
                                                          "PlotMathRect","Plot");
@@ -1174,32 +1175,6 @@ QPixmap* CurvesView::_createLivePixmap()
     }
 
     return livePixmap;
-}
-
-// If any of the curves in plot has a curve with x being time, return true
-bool CurvesView::_isXTime(const QModelIndex &plotIdx)
-{
-    bool isXTime = false;
-
-    bool isExistsCurves = _bookModel()->isChildIndex(plotIdx, "Plot", "Curves");
-
-    if ( isExistsCurves ) {
-        QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
-        int rc = model()->rowCount(curvesIdx);
-        for ( int i = 0; i < rc ; ++i ) {
-            QModelIndex curveIdx = model()->index(i,0,curvesIdx);
-            QString xName = _bookModel()->getDataString(curveIdx,
-                                                        "CurveXName","Curve");
-            QString tName = _bookModel()->getDataString(curveIdx,
-                                                       "CurveTimeName","Curve");
-            if ( xName == tName ) {
-                isXTime = true;
-                break;
-            }
-        }
-    }
-
-    return isXTime;
 }
 
 QString CurvesView::_format(double d)

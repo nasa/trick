@@ -179,6 +179,12 @@ QModelIndex PlotBookModel::_ancestorIdx(const QModelIndex &startIdx,
 
 QModelIndexList PlotBookModel::plotIdxs(const QModelIndex &pageIdx) const
 {
+    QModelIndexList plotIdxs;
+
+    if ( !pageIdx.isValid() ) {
+        return plotIdxs;  // return empty list
+    }
+
     QModelIndex plotsIdx = getIndex(pageIdx,"Plots", "Page");
     return getIndexList(plotsIdx, "Plot", "Plots");
 }
@@ -231,6 +237,22 @@ QList<QColor> PlotBookModel::createCurveColors(int nCurves)
     }
 
     return colors;
+}
+
+QRectF PlotBookModel::getPlotMathRect(const QModelIndex &plotIdx)
+{
+    QRectF M;
+
+    QModelIndex plotMathRectIdx = getDataIndex(plotIdx, "PlotMathRect","Plot");
+    plotMathRectIdx = plotMathRectIdx.sibling(plotMathRectIdx.row(),1);
+    M = data(plotMathRectIdx).toRectF();
+
+    // Flip if y-axis not directed "up" (this happens with bboxes)
+    if ( M.topLeft().y() < M.bottomLeft().y() ) {
+        M = QRectF(M.bottomLeft(),M.topRight());
+    }
+
+    return M;
 }
 
 void PlotBookModel::_initModel()
@@ -1063,6 +1085,30 @@ QString PlotBookModel::getCurvesYUnit(const QModelIndex &curvesIdx)
     }
 
     return yunit;
+}
+
+// If *any* of the curves in plot has a curve with x being time, return true
+bool PlotBookModel::isXTime(const QModelIndex &plotIdx) const
+{
+    bool isXTime = false;
+
+    bool isExistsCurves = isChildIndex(plotIdx, "Plot", "Curves");
+
+    if ( isExistsCurves ) {
+        QModelIndex curvesIdx = getIndex(plotIdx,"Curves","Plot");
+        int rc = rowCount(curvesIdx);
+        for ( int i = 0; i < rc ; ++i ) {
+            QModelIndex curveIdx = index(i,0,curvesIdx);
+            QString xName = getDataString(curveIdx, "CurveXName","Curve");
+            QString tName = getDataString(curveIdx, "CurveTimeName","Curve");
+            if ( xName == tName ) {
+                isXTime = true;
+                break;
+            }
+        }
+    }
+
+    return isXTime;
 }
 
 // Example:

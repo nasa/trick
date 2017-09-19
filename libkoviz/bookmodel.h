@@ -77,6 +77,7 @@ public:
     QPainterPath* getCurvesErrorPath(const QModelIndex& curvesIdx);
     QString getCurvesXUnit(const QModelIndex& curvesIdx);
     QString getCurvesYUnit(const QModelIndex& curvesIdx);
+    bool isXTime(const QModelIndex& plotIdx) const;
 
     QModelIndexList getIndexList(const QModelIndex& startIdx,
                         const QString& searchItemText,
@@ -90,7 +91,8 @@ public:
     // Curve Colors
     QList<QColor> createCurveColors(int nCurves);
 
-    // Convenience wrapper for setting PlotMathRect
+    // Convenience wrappers for get/setting PlotMathRect
+    QRectF getPlotMathRect(const QModelIndex &plotIdx);
     void setPlotMathRect(const QRectF& mathRect, const QModelIndex &plotIdx);
 
     // Utility for abbreviating a list of run:var names

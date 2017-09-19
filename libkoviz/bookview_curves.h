@@ -140,8 +140,6 @@ private:
     QRectF _lastM;
     QPixmap* _createLivePixmap();
 
-    bool _isXTime(const QModelIndex& plotIdx);
-
     QString _format(double d);
 
     int _idxAtTimeBinarySearch(QPainterPath* path,

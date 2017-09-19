@@ -166,8 +166,11 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
                                 const QModelIndex &varIdx)
 {
     QModelIndex pageIdx = _plotModel->indexFromItem(pageItem);
+    QModelIndex pagesIdx = _plotModel->parent(pageIdx);
+    QModelIndex page0Idx = _plotModel->index(0,0,pagesIdx);
     QModelIndex plotsIdx = _plotModel->getIndex(pageIdx, "Plots", "Page");
     QStandardItem* plotsItem = _plotModel->itemFromIndex(plotsIdx);
+    QModelIndexList siblingPlotIdxs = _plotModel->plotIdxs(page0Idx);
     QStandardItem* plotItem = _addChild(plotsItem, "Plot");
 
     QString xName(_timeName);
@@ -298,13 +301,22 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
     // Update progress dialog
     progress.setValue(rc);
 
-    // Initialize plot math rect to curves bounding box
+    // Initialize plot math rect
     QModelIndex curvesIdx = curvesItem->index();
     QRectF bbox = _plotModel->calcCurvesBBox(curvesIdx);
     QModelIndex plotIdx = plotItem->index();
     QModelIndex plotMathRectIdx = _plotModel->getDataIndex(plotIdx,
                                                            "PlotMathRect",
                                                            "Plot");
+    foreach ( QModelIndex siblingPlotIdx, siblingPlotIdxs ) {
+        bool isXTime = _plotModel->isXTime(siblingPlotIdx);
+        if ( isXTime ) {
+            QRectF sibPlotRect = _plotModel->getPlotMathRect(siblingPlotIdx);
+            bbox.setLeft(sibPlotRect.left());
+            bbox.setRight(sibPlotRect.right());
+            break;
+        }
+    }
     _plotModel->setData(plotMathRectIdx,bbox);
 
     // Reset monte carlo input view current idx to signal current changed
