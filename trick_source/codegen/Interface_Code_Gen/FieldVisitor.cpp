@@ -301,6 +301,7 @@ bool FieldVisitor::ProcessTemplate(std::string in_name , clang::CXXRecordDecl * 
 
 static std::map<std::string, bool> init_stl_classes() {
     std::map<std::string, bool> my_map ;
+    my_map.insert(std::pair<std::string, bool>("std::array", 0)) ;
     my_map.insert(std::pair<std::string, bool>("std::deque", 1)) ;
     my_map.insert(std::pair<std::string, bool>("std::list", 1)) ;
     my_map.insert(std::pair<std::string, bool>("std::map", 1)) ;
@@ -312,6 +313,7 @@ static std::map<std::string, bool> init_stl_classes() {
     my_map.insert(std::pair<std::string, bool>("std::set", 1)) ;
     my_map.insert(std::pair<std::string, bool>("std::stack", 0)) ;
     my_map.insert(std::pair<std::string, bool>("std::vector", 1)) ;
+    my_map.insert(std::pair<std::string, bool>("std::__1::array", 0)) ;
     my_map.insert(std::pair<std::string, bool>("std::__1::deque", 1)) ;
     my_map.insert(std::pair<std::string, bool>("std::__1::list", 1)) ;
     my_map.insert(std::pair<std::string, bool>("std::__1::map", 1)) ;
@@ -323,6 +325,7 @@ static std::map<std::string, bool> init_stl_classes() {
     my_map.insert(std::pair<std::string, bool>("std::__1::set", 1)) ;
     my_map.insert(std::pair<std::string, bool>("std::__1::stack", 0)) ;
     my_map.insert(std::pair<std::string, bool>("std::__1::vector", 1)) ;
+    my_map.insert(std::pair<std::string, bool>("std::__cxx11::array", 0)) ;
     my_map.insert(std::pair<std::string, bool>("std::__cxx11::deque", 1)) ;
     my_map.insert(std::pair<std::string, bool>("std::__cxx11::list", 1)) ;
     my_map.insert(std::pair<std::string, bool>("std::__cxx11::map", 1)) ;

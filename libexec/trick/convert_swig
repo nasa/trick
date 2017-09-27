@@ -101,16 +101,18 @@ my $template_var_def  = qr/(?:\:\:)?[_A-Za-z][:\w]*\s*     # template name
 # This list is the list of all STL types to ignore.
 my %all_stl_names = qw(vector 1 list 1 deque 1 set 1 multiset 1 map 1 multimap 1 hash_set 1
      hash_multiset 1 hash_map 1 hash_multimap 1 stack 1 queue 1 priority_queue 1 bitset 1 auto_ptr 1
+     array 1
      std::vector 1 std::list 1 std::deque 1 std::set 1 std::multiset 1 std::map 1 std::multimap 1 std::hash_set 1
      std::hash_multiset 1 std::hash_map 1 std::hash_multimap 1 std::stack 1 std::queue 1 std::priority_queue 1
-     std::bitset 1 std::auto_ptr 1 pair 1 std::pair 1 std::tr1::shared_ptr 1) ;
+     std::bitset 1 std::auto_ptr 1 pair 1 std::pair 1 std::tr1::shared_ptr 1 std::array 1) ;
 
 # This is a partial list of STL types to ignore.  We do not ignore vector, map, list if we allow STLs
 my %stl_names = qw(deque 1 set 1 multiset 1 multimap 1 hash_set 1
      hash_multiset 1 hash_map 1 hash_multimap 1 stack 1 queue 1 priority_queue 1 bitset 1 auto_ptr 1
+     array 1
      std::deque 1 std::set 1 std::multiset 1 std::multimap 1 std::hash_set 1
      std::hash_multiset 1 std::hash_map 1 std::hash_multimap 1 std::stack 1 std::queue 1 std::priority_queue 1
-     std::bitset 1 std::auto_ptr 1 pair 1 std::pair 1 std::tr1::shared_ptr 1) ;
+     std::bitset 1 std::auto_ptr 1 pair 1 std::pair 1 std::tr1::shared_ptr 1 std::array 1) ;
 
 Getopt::Long::Configure ("bundling");
 GetOptions ( "stl|s" => sub { $stls = 1 } ,
