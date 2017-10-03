@@ -63,6 +63,52 @@ public class TVInteger extends VSInteger implements TrickViewFluent<TVInteger.Fo
             public int parse(String value) {
                 return new BigInteger(value, 16).intValue();
             }
+        },
+
+        BinaryReverseBytes {
+            public String format(int value, boolean unsigned) {
+                return Integer.toBinaryString(Integer.reverseBytes(value));
+            }
+
+            public int parse(String value) {
+                return Integer.reverseBytes(new BigInteger(value, 2).intValue());
+            }
+        },
+
+        DecimalReverseBytes {
+            public String format(int value, boolean unsigned) {
+                value = Integer.reverseBytes(value);
+                if (unsigned && value < 0) {
+                    return Long.toString(value + 4294967296L);
+                }
+                else {
+                    return Integer.toString(value);
+                }
+            }
+
+            public int parse(String value) {
+                return Integer.reverseBytes(new BigInteger(value, 10).intValue());
+            }
+        },
+
+        OctalReverseBytes {
+            public String format(int value, boolean unsigned) {
+                return Integer.toOctalString(Integer.reverseBytes(value));
+            }
+
+            public int parse(String value) {
+                return Integer.reverseBytes(new BigInteger(value, 8).intValue());
+            }
+        },
+
+        HexadecimalReverseBytes {
+            public String format(int value, boolean unsigned) {
+                return Integer.toHexString(Integer.reverseBytes(value));
+            }
+
+            public int parse(String value) {
+                return Integer.reverseBytes(new BigInteger(value, 16).intValue());
+            }
         };
 
         public abstract String format(int value, boolean unsigned);

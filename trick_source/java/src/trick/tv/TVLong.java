@@ -64,6 +64,53 @@ public class TVLong extends VSLong implements TrickViewFluent<TVLong.Format> {
             public long parse(String value) {
                 return new BigInteger(value, 16).longValue();
             }
+        },
+
+        BinaryReverseBytes {
+            public String format(long value, boolean unsigned) {
+                return Long.toBinaryString(Long.reverseBytes(value));
+            }
+
+            public long parse(String value) {
+                return Long.reverseBytes(new BigInteger(value, 2).longValue());
+            }
+        },
+
+        DecimalReverseBytes {
+            public String format(long value, boolean unsigned) {
+                value = Long.reverseBytes(value);
+                if (unsigned && value < 0) {
+                    return new BigInteger(Long.toString(value)).add(
+                      new BigInteger("18446744073709551616")).toString();
+                }
+                else {
+                    return Long.toString(value);
+                }
+            }
+
+            public long parse(String value) {
+                return Long.reverseBytes(new BigInteger(value, 10).longValue());
+            }
+        },
+
+        OctalReverseBytes {
+            public String format(long value, boolean unsigned) {
+                return Long.toOctalString(Long.reverseBytes(value));
+            }
+
+            public long parse(String value) {
+                return Long.reverseBytes(new BigInteger(value, 8).longValue());
+            }
+        },
+
+        HexadecimalReverseBytes {
+            public String format(long value, boolean unsigned) {
+                return Long.toHexString(Long.reverseBytes(value));
+            }
+
+            public long parse(String value) {
+                return Long.reverseBytes(new BigInteger(value, 16).longValue());
+            }
         };
 
         public abstract String format(long value, boolean unsigned);
