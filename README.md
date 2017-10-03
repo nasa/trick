@@ -1,34 +1,16 @@
-![trick_logo](https://raw.github.com/nasa/Trick/master/trick-0.png)
+<img src="https://raw.github.com/nasa/Trick/master/trick-0.png" alt="Trick Logo" align="left" height=120px>
 
-The Trick Simulation Environment is developed at the NASA Johnson Space Center.
-Trick's flexible feature set enables users to build applications for all phases
-of space vehicle development including early vehicle design and performance
-evaluation, flight software development and testing, flight vehicle dynamic
-loads analysis, and virtual and hardware in the loop training.  Trick's purpose
-is to provide a common set of simulation capabilities allowing the domain experts
-to concentrate on their domain specific models, rather than simulation-specific
-functions like an job ordering, input file processing, or data recording.
+<p align=justify>
+The Trick Simulation Environment, developed at the NASA Johnson Space Center, is a powerful simulation development framework that enables users to build applications for all phases of space vehicle development. Trick expedites the creation of simulations for early vehicle design, performance evaluation, flight software development, flight vehicle dynamic load analysis, and virtual/hardware in the loop training. Trick's purpose is to provide a common set of simulation capabilities that allow users to concentrate on their domain specific models, rather than simulation-specific functions like job ordering, input file processing, or data recording.
+</p>
 
-### Installing Trick
+| [Install Guide](Install-Guide) | [Tutorial](Tutorial) | [Documentation](Documentation-Home) |
+|:-:|:-:|:-:|
+| Follow the installation guide to properly configure Trick on your operating system. | Complete the tutorial to become familiar with the basics. | Visit the documentation for a more complete understanding of Trick. |
 
-The [Installing Trick](https://github.com/nasa/Trick/wiki/Installing-Trick)
-wiki page includes instructions to install Trick.
+| [Related Projects](Related-Projects) | [Frequently Asked Questions](FAQ) | [How-To Guides](How-To-Guides) |
+|:-:|:-:|:-:|
+| View some of the many projects that use Trick. | Read some of the most frequently asked questions pertaining to Trick. | See a collection of how-to guides detailing common Trick processes. |
 
-### User's Guide
-
-The full [User's Guide](https://github.com/nasa/Trick/wiki/Users-Guide) is in
-the wiki pages.
-
-### Tutorial
-
-The [Trick Tutorial](https://github.com/nasa/Trick/wiki/Tutorial)
-is located in share/doc/trick/Tutorial. Markdown and PDF versions are available.
-
-### Related Projects that use Trick
-
-* The [Input Device Framework (IDF)](https://github.com/nasa/IDF)  
-* [trick_variable_server_connection](https://github.com/SMASH-Lab/trick_variable_server_connection)
-
-### License
-
+---
 Trick is released under the NASA Open Source Agreement Version 1.3 [license](LICENSE).
