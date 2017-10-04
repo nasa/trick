@@ -812,16 +812,16 @@ QRectF PlotBookModel::calcCurvesBBox(const QModelIndex &curvesIdx) const
     double plotXMaxRange = getDataDouble(plotIdx,"PlotXMaxRange","Plot");
     double plotYMinRange = getDataDouble(plotIdx,"PlotYMinRange","Plot");
     double plotYMaxRange = getDataDouble(plotIdx,"PlotYMaxRange","Plot");
-    if ( bbox.left() < plotXMinRange ) {
+    if ( plotXMinRange != -DBL_MAX ) {
         bbox.setLeft(plotXMinRange);
     }
-    if ( bbox.right() > plotXMaxRange ) {
+    if ( plotXMaxRange != DBL_MAX ) {
         bbox.setRight(plotXMaxRange);
     }
-    if ( bbox.top() > plotYMaxRange ) {
+    if ( plotYMaxRange != DBL_MAX ) {
         bbox.setTop(plotYMaxRange);
     }
-    if ( bbox.bottom() < plotYMinRange ) {
+    if ( plotYMinRange != -DBL_MAX ) {
         bbox.setBottom(plotYMinRange);
     }
 
