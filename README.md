@@ -1,5 +1,5 @@
 <p align=center>
-<img src="https://raw.github.com/nasa/Trick/master/trick-0.png" alt="Trick Logo" height=100px>
+<img src="https://raw.github.com/nasa/Trick/master/TrickLogo.png" alt="Trick Logo" height=150px>
 </p>
 
 <p align=justify>
