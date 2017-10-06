@@ -177,7 +177,7 @@ void Trick::FrameLog::add_recording_vars_for_jobs() {
         (*fdrg_it)->set_thread(ii);
         if ( ii > 0 ) {
             std::ostringstream group_name ;
-            group_name << "frame_userjobs_C" << ii ;
+            group_name << "trick_frame_userjobs_C" << ii ;
             (*fdrg_it)->add_variable( group_name.str() + ".frame_sched_time") ;
         }
     }
@@ -784,7 +784,7 @@ int Trick::FrameLog::create_DP_job_files() {
             fprintf(fpx, "            <curve>\n");
             fprintf(fpx, "                <var>sys.exec.out.time</var>\n");
             std::ostringstream group_name ;
-            group_name << "frame_userjobs_C" << (page_count * 8 + ii + 1) ;
+            group_name << "trick_frame_userjobs_C" << (page_count * 8 + ii + 1) ;
             fprintf(fpx, "                <var scale=\"%g\" line_color=\"red\" label=\"Frame Sched Time\">%s.frame_sched_time</var>\n",
                          time_scale,group_name.str().c_str());
             fprintf(fpx, "            </curve>\n");
