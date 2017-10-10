@@ -48,14 +48,28 @@ QString DPProduct::title()
 
 void DPProduct::_handleDP05File(QString &contents)
 {
-    // Remove all characters up to PLOTS: key word
-    int i = contents.indexOf("PLOTS:",0,Qt::CaseInsensitive);
+    // Remove all characters up to PLOTS: or TABLES: key word
+    int i = -1;
+    int j = contents.indexOf("PLOTS:",0,Qt::CaseInsensitive);
+    int k = contents.indexOf("TABLES:",0,Qt::CaseInsensitive);
+    if ( j >= 0 && k >= 0 ) {
+        i = ( j < k ) ? j : k;
+    } else if ( j >= 0 && k < 0 ) {
+        i = j;
+    } else if ( k >= 0 && j < 0 ) {
+        i = k;
+    }
+    if ( i == -1 ) {
+        fprintf(stderr,"koviz [error]: no PLOTS: or TABLES: in %s\n",
+                _fileName.toLatin1().constData());
+        exit(-1);
+    }
     contents = contents.remove(0,i-1);
 
     product = this; // TODO: product is global, need to fix the hack
 
-    YY_BUFFER_STATE bufferState = yy_scan_string(contents.toLatin1().constData());
-    Q_UNUSED(bufferState);
+    YY_BUFFER_STATE state = yy_scan_string(contents.toLatin1().constData());
+    Q_UNUSED(state);
     yyparse();
 }
 
