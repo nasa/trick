@@ -996,9 +996,16 @@ void BookView::_printCurves(const QRect& R,
         }
     } else {
 
-        if ( nCurves >= 64 ) {
+        int nElements = 0;
+        for ( int i = 0; i < nCurves; ++i ) {
+            QModelIndex curveIdx = _bookModel()->index(i,0,curvesIdx);
+            QPainterPath* path = _bookModel()->getCurvePainterPath(curveIdx);
+            nElements += path->elementCount();
+        }
 
-            // Use pixmaps to reduce file size if nCurves >= 64
+        if ( nElements > 100000 || nCurves > 64 ) {
+
+            // Use pixmaps to reduce file size
             double rw = R.width()/painter->device()->logicalDpiX();
             double rh = R.height()/painter->device()->logicalDpiY();
             QPixmap nullPixmap(1,1); // used for dpi
