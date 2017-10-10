@@ -42,6 +42,9 @@ namespace Trick {
          */
         void set_unit(std::string in_unit) { this->unit = in_unit; }
 
+        // Composite the various elements of this MonteVar.
+        virtual std::string describe_variable() = 0;
+
         /** Class MonteCarlo is a friend so it can use the get_next_value method.
          *  The get_next_value method needs to be protected so users cannot use it in the input file
          */

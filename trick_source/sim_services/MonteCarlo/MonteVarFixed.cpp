@@ -9,12 +9,23 @@ Trick::MonteVarFixed::MonteVarFixed(std::string in_name, double in_value, std::s
     this->unit = in_unit;
 }
 
+// Composite the various properties of this MonteVarFixed.
+std::string Trick::MonteVarFixed::describe_variable()
+{
+    std::stringstream ss;
+
+    ss << "#NAME:\t" << this->name << "\n"
+       << "#TYPE:\tFIXED\n" 
+       << "#UNIT:\t" << this->unit << "\n";
+
+    return ss.str();
+}
+
 void Trick::MonteVarFixed::set_value(double in_value) {
     std::ostringstream string_stream;
     string_stream << std::setprecision(15) << in_value ;
     this->value = string_stream.str();
 }
-
 
 std::string Trick::MonteVarFixed::get_next_value() {
     std::ostringstream string_stream;

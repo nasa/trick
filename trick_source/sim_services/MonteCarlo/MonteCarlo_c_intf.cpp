@@ -16,7 +16,7 @@ extern "C" int mc_get_enabled() {
     if ( the_mc != NULL ) {
         return the_mc->get_enabled();
     }
-    return 0 ;
+    return 0 ; 
 }
 
 extern "C" void mc_set_dry_run(int dry_run) {

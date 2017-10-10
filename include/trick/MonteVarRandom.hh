@@ -185,6 +185,9 @@ namespace Trick {
          */
         double get_absolute_max() const { return (randist.rel_max) ? (randist.mu + randist.max) : randist.max; }
 
+        // Describes the properties of this variable.
+        std::string describe_variable();
+
         protected:
         virtual std::string get_next_value();
 
