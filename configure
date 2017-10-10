@@ -5469,7 +5469,7 @@ if test "$JAVA_CC" = "gcj"; then
 fi
 test -z "$JAVA_CC" && as_fn_error $? "no acceptable java compiler found in \$PATH" "$LINENO" 5
 
-        JAVA_VER=`$JAVA_CC -version 2>&1 | $ac_cv_path_PERL -ne 'print $& if /\d+\.\d+/'`
+        JAVA_VER=`$JAVA_CC -version 2>&1 | $ac_cv_path_PERL -ne 'print $& if /\d+(\.\d+)?/'`
         { $as_echo "$as_me:${as_lineno-$LINENO}: checking $JAVA_CC version >= 1.8" >&5
 $as_echo_n "checking $JAVA_CC version >= 1.8... " >&6; }
 

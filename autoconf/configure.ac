@@ -140,7 +140,7 @@ AC_DEFUN([AX_JAVA],[
     AS_IF([test "$USE_JAVA" = "1"],[
         AC_PROG_AWK
         AX_PROG_JAVA_CC(javac)
-        JAVA_VER=`$JAVA_CC -version 2>&1 | $ac_cv_path_PERL -ne 'print $& if /\d+\.\d+/'`
+        JAVA_VER=`$JAVA_CC -version 2>&1 | $ac_cv_path_PERL -ne 'print $& if /\d+(\.\d+)?/'`
         AC_MSG_CHECKING([$JAVA_CC version >= 1.8])
         AX_COMPARE_VERSION([$JAVA_VER],[ge],[1.8], [AC_MSG_RESULT([yes])],
          [AC_MSG_RESULT([no])
