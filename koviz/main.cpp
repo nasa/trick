@@ -1849,13 +1849,14 @@ QStringList sessionFileRuns(const QString& sessionFile)
         if ( line.contains("RUN:",Qt::CaseInsensitive) ) {
             int i = line.indexOf("RUN:",0,Qt::CaseInsensitive);
             QString run = line.mid(i+4).trimmed();
-            if ( run.startsWith("\"") ) {
-                run = run.mid(1);
+            run = run.remove("\"");
+            if ( run.isEmpty() ) {
+                fprintf(stderr,"koviz [error]: empty run specification in "
+                               "session file %s.\n",
+                               sessionFile.toLatin1().constData());
+                exit(-1);
             }
-            if ( run.endsWith("\"") ) {
-                run.chop(1);
-            }
-            runs << run;
+            runs << run.split(" ",QString::SkipEmptyParts).at(0);
         }
     }
 
