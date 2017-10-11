@@ -1,4 +1,3 @@
-
 #include <sys/stat.h>
 #include <libgen.h>
 
@@ -57,25 +56,36 @@ int Trick::MonteCarlo::open_file(std::string file_name, FILE** file_ptr) {
     return 0;
 }
 
-void Trick::MonteCarlo::write_to_run_files(std::string file_name) {
-
-    /** <li> Write the number of runs. */
-    fprintf(run_header_file, "trick.mc_set_num_runs(%d)\n", num_runs);
-
-    /** <li> Write the variables. */
-    fprintf(run_data_file, "#run_num ");
-    for (std::vector<std::string>::size_type i = 0; i < variables.size(); ++i) {
-        if (variables[i]->unit.empty()) {
-            fprintf(run_header_file, "\nvar%zu = trick.MonteVarFile(\"%s\", \"%s\", %zu)\n",
-              i, variables[i]->name.c_str(), file_name.c_str(), i + 2);
-        }
-        else {
-            fprintf(run_header_file, "\nvar%zu = trick.MonteVarFile(\"%s\", \"%s\", %zu, \"%s\")\n",
-              i, variables[i]->name.c_str(), file_name.c_str(), i + 2, variables[i]->unit.c_str());
-        }
-        fprintf(run_header_file, "trick_mc.mc.add_variable(var%zu)\n", i);
-        fprintf(run_data_file, "%s  ", variables[i]->name.c_str());
+void Trick::MonteCarlo::write_to_run_files(std::string file_name)
+{
+    // Write a description of each variable.
+    for(std::vector<std::string>::size_type i = 0; i < variables.size(); ++i)
+    {
+        fprintf(run_data_file, "%s\n", variables[i]->describe_variable().c_str());
     }
 
+    // Data file header.
+    fprintf(run_data_file, "# RUN\t");
+    for(std::vector<std::string>::size_type i = 0; i < variables.size(); ++i)
+    {
+        fprintf(run_data_file, "%s\t", variables[i]->name.c_str());
+    }
     fprintf(run_data_file, "\n");
+
+    // Write the input file lines that configured the initial state of the Monte Carlo simulation.
+    fprintf(run_header_file, "trick.mc_set_num_runs(%d)\n", num_runs);
+    for (std::vector<std::string>::size_type i = 0; i < variables.size(); ++i)
+    {
+        if (variables[i]->unit.empty())
+        {
+            fprintf(run_header_file, "\nvar%zu = trick.MonteVarFile(\"%s\", \"%s\", %zu)\n",
+            i, variables[i]->name.c_str(), file_name.c_str(), i + 2);
+        }
+        else
+        {
+            fprintf(run_header_file, "\nvar%zu = trick.MonteVarFile(\"%s\", \"%s\", %zu, \"%s\")\n",
+            i, variables[i]->name.c_str(), file_name.c_str(), i + 2, variables[i]->unit.c_str());
+        }
+        fprintf(run_header_file, "trick_mc.mc.add_variable(var%zu)\n", i);
+    }
 }

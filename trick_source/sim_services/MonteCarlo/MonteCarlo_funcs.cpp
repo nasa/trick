@@ -440,10 +440,10 @@ int  Trick::MonteCarlo::prepare_run(MonteRun *curr_run) {
             }
         }
         /** <li> Create the data file </ul>*/
-        fprintf(run_data_file, "%05u  ", curr_run->id);
+        fprintf(run_data_file, "%05u\t", curr_run->id);
         for (std::vector<std::string>::size_type i = 0; i < variables.size(); ++i) {
             if (i>0) {
-                fprintf(run_data_file, " ");
+                fprintf(run_data_file, "\t");
             }
             fprintf(run_data_file, "%s", variables[i]->value.c_str());
         }

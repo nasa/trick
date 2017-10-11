@@ -56,6 +56,9 @@ namespace Trick {
          */
         MonteVarCalculated(std::string name, std::string unit = "");
 
+        // Describes the various properties of this variable.
+        std::string describe_variable();
+
         protected:
         virtual std::string get_next_value();
 

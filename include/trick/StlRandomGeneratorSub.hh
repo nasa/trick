@@ -87,7 +87,6 @@ public:
 };
 #endif
 
-
 ///@brief Sub class for object that includes a <random> engine and a distribution
 ///
 ///@note partial specialization exists for Distribution = std::poisson_distribution<int>
@@ -134,7 +133,6 @@ public:
 
     virtual ~StlRandomGeneratorSub() { }
 
-
     ///@brief return next pseudo-random number
     virtual TRICK_GSL_RETURN_TYPE operator()()
     {
@@ -148,14 +146,12 @@ public:
 #endif
     }
 
-
     ///@brief reset seed for underlying uniform pseudo-random number generator
     virtual void set_seed(unsigned long in_seed)
     {
         initialSeed = in_seed;
         engine.seed(initialSeed);
     }
-
 
     ///@brief reset parameters for the distribution
     ///
@@ -209,8 +205,6 @@ private:
 #endif
 
 };
-
-
 
 #ifdef _HAVE_TR1_RANDOM
 

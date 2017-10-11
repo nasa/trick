@@ -4,6 +4,7 @@
 #include <cmath>
 #include <limits>
 
+#include "trick/MonteVar.hh"
 #include "trick/MonteVarRandom.hh"
 #include "trick/exec_proto.h"
 
@@ -64,6 +65,27 @@ Trick::MonteVarRandom::MonteVarRandom(std::string in_name, Distribution in_distr
 Trick::MonteVarRandom::~MonteVarRandom()
 {
     delete stlGenPtr;
+}
+
+// Composite the various properties of this MonteVarRandom.
+std::string Trick::MonteVarRandom::describe_variable()
+{
+    std::string dist_list[] = {"GAUSSIAN", "FLAT", "POISSON"};
+    std::stringstream ss;
+
+    ss << "#NAME:\t\t\t" << this->name << "\n"
+       << "#TYPE:\t\t\tRANDOM\n" 
+       << "#UNIT:\t\t\t" << this->unit << "\n"
+       << "#DISTRIBUTION:\t" << dist_list[this->randist.type] << "\n"
+       << "#SEED:\t\t\t" << this->randist.seed << "\n"
+       << "#SIGMA:\t\t\t" << this->randist.sigma << "\n"
+       << "#MU:\t\t\t" << this->randist.mu << "\n"
+       << "#MIN:\t\t\t" << this->randist.min << "\n"
+       << "#MAX:\t\t\t" << this->randist.max << "\n"
+       << "#REL_MIN:\t\t" << this->randist.rel_min << "\n"
+       << "#REL_MAX:\t\t" << this->randist.rel_max << "\n";
+
+    return ss.str();
 }
 
 void Trick::MonteVarRandom::set_seed(unsigned long seed) {

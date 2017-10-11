@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 
 #include "trick/MonteVarCalculated.hh"
 #include "trick/memorymanager_c_intf.h"
@@ -13,6 +14,18 @@ Trick::MonteVarCalculated::MonteVarCalculated(std::string in_name, std::string i
     if (ref2 == NULL) {
         message_publish(MSG_ERROR, "Monte : MonteVarCalculated could not find parameter %s.\n", name.c_str()) ;
     }
+}
+
+// Composite the various properties of this MonteVarCalculated.
+std::string Trick::MonteVarCalculated::describe_variable()
+{
+    std::stringstream ss;
+
+    ss << "#NAME:\t" << this->name << "\n"
+       << "#TYPE:\tCALCULATED\n" 
+       << "#UNIT:\t" << this->unit << "\n";
+
+    return ss.str();
 }
 
 std::string Trick::MonteVarCalculated::get_next_value() {

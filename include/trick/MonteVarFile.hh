@@ -94,14 +94,19 @@ namespace Trick {
          *
          * @param in_file_name the name of the file containing this variable's values
          */
-        void set_file_name(std::string in_file_name);
 
+        
+        void set_file_name(std::string in_file_name);
+        
         /**
          * Sets the column
          *
          * @param in_column the column (starting at 1)  within the file corresponding to this variable
          */
         void set_column(unsigned int in_column);
+        
+        // Describes the various properties of this variable.
+        std::string describe_variable();
 
         protected:
         virtual std::string get_next_value();

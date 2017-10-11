@@ -17,12 +17,25 @@ Trick::MonteVarFile::MonteVarFile(std::string in_name, std::string in_file_name,
 
     set_file_name(in_file_name);
     buffer = new char[4096];
-
 }
 
 Trick::MonteVarFile::~MonteVarFile() {
     delete input_file_stream;
     delete buffer;
+}
+
+// Composite the various properties of this MonteVarFile.
+std::string Trick::MonteVarFile::describe_variable()
+{
+    std::stringstream ss;
+
+    ss << "#NAME:\t\t" << this->name << "\n"
+       << "#TYPE:\t\tFILE\n" 
+       << "#UNIT:\t\t" << this->unit << "\n"
+       << "#FILE:\t\t" << this->file_name << "\n"
+       << "#COLUMN:\t" << this->column << "\n";
+
+    return ss.str();
 }
 
 std::string Trick::MonteVarFile::get_next_value() {
