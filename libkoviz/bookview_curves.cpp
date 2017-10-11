@@ -399,10 +399,7 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
     painter.save();
     QPen origPen = painter.pen();
 
-    QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
-                                                          "CurveData","Curve");
-    QVariant v = model()->data(curveDataIdx);
-    TrickCurveModel* curveModel =QVariantToPtr<TrickCurveModel>::convert(v);
+    TrickCurveModel* curveModel = _bookModel()->getTrickCurveModel(curveIdx);
 
     if ( curveModel ) {
 
@@ -1168,10 +1165,7 @@ QPixmap* CurvesView::_createLivePixmap()
     int rc = model()->rowCount(curvesIdx);
     for ( int i = 0; i < rc; ++i ) {
         QModelIndex curveIdx = model()->index(i,0,curvesIdx);
-        TrickCurveModel* curveModel =_bookModel()->getTrickCurveModel(curveIdx);
-        if ( curveModel ) {
-            _paintCurve(curveIdx,T,painter,false);
-        }
+        _paintCurve(curveIdx,T,painter,false);
     }
 
     return livePixmap;
