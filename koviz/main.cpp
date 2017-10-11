@@ -1926,6 +1926,17 @@ QString sessionFileDevice(const QString& sessionFile)
                 if ( device == "terminal") { //just in case filename=="terminal"
                     device = "terminal.pdf";
                 }
+            } else {
+                if ( !device.compare("terminal",Qt::CaseInsensitive) ) {
+                    device = "terminal";
+                } else {
+                    fprintf(stderr, "koviz [error]: bad device specification "
+                                    "\"%s\" in session file %s.  Device should "
+                                    "be file <filename> or terminal.\n",
+                                    device.toLatin1().constData(),
+                                    sessionFile.toLatin1().constData());
+                    exit(-1);
+                }
             }
             break;
         }
