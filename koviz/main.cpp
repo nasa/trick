@@ -1915,11 +1915,12 @@ QString sessionFileDevice(const QString& sessionFile)
         if ( line.contains("DEVICE:",Qt::CaseInsensitive) ) {
             int i = line.indexOf("DEVICE:",0,Qt::CaseInsensitive);
             device = line.mid(i+7).trimmed();
-            if ( device.startsWith("\"") ) {
-                device = device.mid(1);
-            }
-            if ( device.endsWith("\"") ) {
-                device.chop(1);
+            device = device.remove("\"");
+            if ( device.isEmpty() ) {
+                fprintf(stderr,"koviz [error]: empty device specification in "
+                               "session file %s.\n",
+                               sessionFile.toLatin1().constData());
+                exit(-1);
             }
             QStringList list = device.split(" ",QString::SkipEmptyParts);
             if ( !QString::compare(list.at(0),"FILE",Qt::CaseInsensitive) ) {
@@ -1931,12 +1932,7 @@ QString sessionFileDevice(const QString& sessionFile)
                 if ( !device.compare("terminal",Qt::CaseInsensitive) ) {
                     device = "terminal";
                 } else {
-                    fprintf(stderr, "koviz [error]: bad device specification "
-                                    "\"%s\" in session file %s.  Device should "
-                                    "be file <filename> or terminal.\n",
-                                    device.toLatin1().constData(),
-                                    sessionFile.toLatin1().constData());
-                    exit(-1);
+                    // device is considered to be a filename
                 }
             }
             break;
