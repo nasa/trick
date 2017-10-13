@@ -28,7 +28,8 @@ using namespace std;
 
 QStandardItemModel* createVarsModel(Runs* runs);
 bool writeTrk(const QString& ftrk, const QString &timeName,
-               QStringList& paramList, MonteModel* monteModel);
+              double start, double stop, double timeShift,
+              QStringList& paramList, MonteModel* monteModel);
 bool writeCsv(const QString& fcsv, const QStringList& timeNames,
               DPTable* dpTable, const QString &runDir);
 bool convert2csv(const QStringList& timeNames,
@@ -77,7 +78,7 @@ class SnapOptions : public Options
     unsigned int beginRun;
     unsigned int endRun;
     QString pdfOutFile;
-    QString trkOutFile;
+    QString dp2trkOutFile;
     QString csvOutFile;
     QString title1;
     QString title2;
@@ -134,7 +135,7 @@ int main(int argc, char *argv[])
              "Time variable (e.g. -timeName sys.exec.out.time=mySimTime)");
     opts.add("-pdf", &opts.pdfOutFile, QString(""),
              "Name of pdf output file");
-    opts.add("-dp2trk", &opts.trkOutFile, QString(""),
+    opts.add("-dp2trk", &opts.dp2trkOutFile, QString(""),
              "Produce *.trk with variables from DP_Products");
     opts.add("-dp2csv", &opts.csvOutFile, QString(""),
              "Produce *.csv tables from from DP_Product tables");
@@ -294,7 +295,7 @@ int main(int argc, char *argv[])
         Runs* runs = 0;
 
         bool isTrk = false;
-        if ( !opts.trkOutFile.isEmpty() ) {
+        if ( !opts.dp2trkOutFile.isEmpty() ) {
             isTrk = true;
         }
 
@@ -490,18 +491,34 @@ int main(int argc, char *argv[])
             QStringList params = DPProduct::paramList(dps);
 
             if ( monteModel->rowCount() == 1 ) {
-                bool r = writeTrk(opts.trkOutFile,
-                                  opts.timeName,params,monteModel);
+                QHash<QString,QVariant> shifts = getShiftHash(opts.shiftString,
+                                                              runDirs);
+                double timeShift = 0.0;
+                if ( shifts.size() == 1 ) {
+                    bool ok;
+                    timeShift = shifts.values().at(0).toDouble(&ok);
+                    if ( !ok ) {
+                        fprintf(stderr, "koviz [bad scoobs]: -shift <value> "
+                                        "cannot be converted to a double.\n");
+                        exit(-1);
+                    }
+                }
+                bool r = writeTrk(opts.dp2trkOutFile,
+                                  opts.timeName,
+                                  opts.start,
+                                  opts.stop,
+                                  timeShift,
+                                  params,monteModel);
                 if ( r ) {
                     ret = 0;
                 } else {
                     fprintf(stderr, "koviz [error]: Failed to write: %s\n",
-                            opts.trkOutFile.toLatin1().constData());
+                            opts.dp2trkOutFile.toLatin1().constData());
                     ret = -1;
                 }
             } else {
                 fprintf(stderr, "koviz [error]: Only one RUN allowed with "
-                                 "the -trk option.\n");
+                                 "the -trk and -dp2trk options.\n");
                 exit(-1);
             }
 
@@ -719,7 +736,8 @@ void presetOrientation(QString* presVar, const QString& orient, bool* ok)
 }
 
 bool writeTrk(const QString& ftrk, const QString& timeName,
-               QStringList& paramList, MonteModel* monteModel)
+              double start, double stop, double timeShift,
+              QStringList& paramList, MonteModel* monteModel)
 {
     QFileInfo ftrki(ftrk);
     if ( ftrki.exists() ) {
@@ -728,13 +746,14 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
         return false;
     }
 
-    fprintf(stdout, "\nkoviz [info]: extracting the following params "
+    // Print message
+    fprintf(stderr, "\nkoviz [info]: extracting the following params "
                     "into %s:\n\n",
                     ftrk.toLatin1().constData());
     foreach ( QString param, paramList ) {
-        fprintf(stdout, "    %s\n", param.toLatin1().constData());
+        fprintf(stderr, "    %s\n", param.toLatin1().constData());
     }
-    fprintf(stdout, "\n");
+    fprintf(stderr, "\n");
 
     //
     // Make param list
@@ -785,16 +804,6 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
             return false;
         }
 
-        // Error check: first timestamp should be 0.0
-        int i = c->indexAtTime(0.0);
-        if ( i != 0 ) {
-            // 0.0 is not first time - yield error
-            fprintf(stderr, "koviz [error]: start time in data is not 0.0 "
-                            " for the following trk\n    %s\n",
-                    c->trkFile().toLatin1().constData());
-            return false;
-        }
-
         // Make a Param (for trk header)
         Param p;
         p.name = yParam;
@@ -815,65 +824,30 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
         return false;
     }
 
-
-    // Guess frequency foreach curve
-    // Also get min start and max stop time
-    // Use first 10 time stamps
-    //
-    // Assuming (checked above) that first timestamp == 0.0
-    //    If each curve can begin at its own time, there is addeded complexity.
-    //    For example:
-    //    f0=0.25 c0 = (-0.65, -0.4, -0.15, 0.1, 0.35...)
-    //    f1=0.10 c1 = (0.0, 0.1, 0.2, 0.3...)
-    //    If one begins at -0.65, f1's genned timestamps would be off:
-    //             f1's timestamps (-0.65, -0.55,..., -0.05, 0.05...) is bad
-    //
-    double stopTime = -1.0e20;
-    QHash<TrickCurveModel*, double> curve2freq;
-    QList<double> freqs;
+    // Make time stamps list
+    QList<double> timeStamps;
     foreach ( TrickCurveModel* curve, curves ) {
 
-        if ( !curve ) continue ; // skip time "curve"
+        if ( !curve ) continue ;
 
         curve->map();
+
         TrickModelIterator it = curve->begin();
-
-        int rc = curve->rowCount();
-        if ( rc > 1 ) {
-            double f = it[1].t();  // since it[0].t() == 0 and assume reg freq
-            double s = it[0].t();
-            double e = it[rc-1].t();
-            double d = e - s ;    // Actual delta time
-            double a = (rc-1)*f;  // approximately delta time using freqency
-
-            if ( qAbs(d-a) > 1.0e-6 ) {
-                fprintf(stderr,
-                        "koviz [error]: frequency for data in %s is "
-                        "irregular.  RUN timeline is [%.8lf-%.8lf].  "
-                        "Frequency is assumed to be t[1] == %.8lf.  "
-                        "Number of data points, np == %d.  "
-                        "Assuming regular frequency, the following should be "
-                        "true: (np-1)*f == endTime-startTime.  It is not.  "
-                        "(%d-1)*%.8lf == %.8lf != %.8lf\n",
-                        curve->trkFile().toLatin1().constData(),
-                        s,e,f,rc,rc,f,d,a);
-                return false;
+        TrickModelIterator end = curve->end();
+        while ( it != end ) {
+            double t = it.t();
+            if ( t < start ) {
+                ++it;
+                continue;
             }
-
-            if ( e > stopTime ) stopTime = e;
-
-            ROUNDOFF(f,f);
-            freqs.append(f);
-            curve2freq.insert(curve,f);
+            if ( t > stop ) {
+                break;
+            }
+            TimeStamps::insert(t,timeStamps);
+            ++it;
         }
         curve->unmap();
     }
-    TimeStamps::usort(freqs);
-
-    // Create list of timestamps based on frequency of data of each curve.
-    // This assumes that each curve starts at 0.0
-    // This is the first "curve"
-    TimeStamps timeStamps(freqs,stopTime);
 
     // Open trk file for writing
     QFile trk(ftrk);
@@ -897,10 +871,11 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
     qint64 fileSize = headerSize + dataSize;
     trk.resize(fileSize);
 
+    int nTimeStamps = timeStamps.count();
+
+    // Write time stamps and data
     int i = 0;
     foreach ( TrickCurveModel* curve, curves ) {
-
-        int nTimeStamps = timeStamps.count();
 
         if ( !curve ) {
             // write time stamps
@@ -909,54 +884,23 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
                 qint64 paramOffset = 0;
                 qint64 offset = headerSize + recordOffset + paramOffset;
                 trk.seek(offset);
-                out << timeStamps.at(j);
+                out << timeStamps.at(j)+timeShift;
             }
         } else {
+            // write curve data
             curve->map();
             TrickModelIterator it = curve->begin();
-            TrickModelIterator e = curve->end();
-            double lastValue = 0.0; // if j == 0, lastValue inited at bottom
-            double lastTime = 0.0;  // start time assumed to be 0.0
             for ( int j = 0 ; j < nTimeStamps; ++j ) {
+
                 double timeStamp = timeStamps.at(j);
-                double t = it.t();
-                double v;
-                if ( t-timeStamp < 1.0e-9 ) {
-                    // Curve time is on or just greater than timeline timestamp
-                    if ( it != e ) {
-                        v = it.y();
-                    } else {
-                        // The timeline's stoptime is > than curve stoptime,
-                        // let value be last value in curve
-                        int rc = curve->rowCount();
-                        v = it[rc-1].y();
-                    }
-                    ++it;
-                } else {
-                    // Curve time is not on timeline
-                    double fExpected = curve2freq.value(curve);
-                    double fActual = t-lastTime;
-                    if ( qAbs(t-lastTime) > 1.0e-9 &&
-                         qAbs(fExpected-fActual) > 1.0e-9 ) {
-                        fprintf(stderr,
-                                "koviz [error]: File %s has bad timestamp "
-                                " %.8lf.  This timestamp is not a multiple "
-                                "of the expected frequency %.8lf. \n",
-                                curve->trkFile().toLatin1().constData(),
-                                t, fExpected);
-                        curve->unmap();
-                        trk.close();
-                        return false;
-                    }
-                    v = lastValue;
-                }
+                int k = curve->indexAtTime(timeStamp);
+                double v = it[k].y();
+
                 qint64 recordOffset = j*recordSize;
                 qint64 paramOffset = i*sizeof(double);
                 qint64 offset = headerSize + recordOffset + paramOffset;
                 trk.seek(offset);
                 out << v;
-                lastValue = v;
-                lastTime = t;
             }
             curve->unmap();
         }

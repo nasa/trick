@@ -1,36 +1,23 @@
 #ifndef TIMESTAMPS_H
 #define TIMESTAMPS_H
 
-#include <QObject>
+#include <QList>
 
-class TimeStamps : public QObject
+class TimeStamps
 {
-    Q_OBJECT
 public:
-    explicit TimeStamps(QList<double> freqs, double stopTime,
-               QObject *parent = 0);
-    double at(int i);
-    int count() { return _timeStamps.count(); }
+    static int idxAtTime(const QList<double>& list, double time);
+    static void insert(double t, QList<double> &list);
 
-    static double leastCommonMultiple(const QList<double>& xs);
     static void usort(QList<double>& list);
     static QList<double> merge(const QList<double>& listA,
                                const QList<double>& listB);
-    static void insert(double t, QList<double> &list);
-    static int idxAtTime(const QList<double>& list, double time);
 
 private:
-    TimeStamps();
-    QList<double> _freqs;
-    double _stopTime;
-
-    double _lcm;
-    QList<double> _timeStampsToLCM;
-    QList<double> _timeStamps;
-
+    TimeStamps() {}
     static int _lastIdx ;
     static int _idxAtTimeBinarySearch(const QList<double>& list,
-                               int low, int high, double time);
+                                      int low, int high, double time);
 };
 
 #endif // TIMESTAMPS_H
