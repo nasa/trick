@@ -128,53 +128,24 @@ QStringList DPProduct::paramList(const QString &fileName)
 {
     QStringList params;
 
-    QFileInfo finfo(fileName);
-
-    if ( finfo.suffix() == "xml" ) {
-
-        DPProduct dp(fileName);
-        QHash<QString,int> paramHash;
-        foreach (DPPage* page, dp.pages() ) {
-            foreach ( DPPlot* plot, page->plots() ) {
-                foreach ( DPCurve* curve, plot->curves() ) {
-                    paramHash.insert(curve->t()->name(),0);
-                    paramHash.insert(curve->x()->name(),0);
-                    paramHash.insert(curve->y()->name(),0);
+    DPProduct dp(fileName);
+    foreach (DPPage* page, dp.pages() ) {
+        foreach ( DPPlot* plot, page->plots() ) {
+            foreach ( DPCurve* curve, plot->curves() ) {
+                QString t = curve->t()->name();
+                QString x = curve->x()->name();
+                QString y = curve->y()->name();
+                if ( !params.contains(t) && !t.isEmpty() ) {
+                    params.append(t);
+                }
+                if ( !params.contains(x) && !x.isEmpty() ) {
+                    params.append(x);
+                }
+                if ( !params.contains(y) && !y.isEmpty() ) {
+                    params.append(y);
                 }
             }
         }
-
-        params = paramHash.keys();
-
-    } else if ( finfo.isFile() && finfo.suffix().isEmpty() &&
-                finfo.fileName().startsWith("DP_") ) {
-
-        // Trick 05/07 DP_Product files
-
-        QFile file(fileName);
-
-        if (!file.open(QIODevice::ReadOnly)) {
-            _err_stream << "koviz [error]: could not open "
-                        << file.fileName();
-            throw std::runtime_error(_err_string.toLatin1().constData());
-        }
-
-        QTextStream in(&file);
-        QString inString = in.readAll();
-
-        int idx = 0;
-        QRegExp rx("([XY]_Variable)|(Variable)\\s*:",Qt::CaseInsensitive);
-        while ( 1 ) {
-            idx = inString.indexOf(rx,idx);
-            if ( idx < 0 ) break;
-            int idxStart = inString.indexOf('\"',idx);
-            idx = idxStart+1;
-            int idxEnd   = inString.indexOf('\"',idx);
-            idx = idxEnd;
-            params.append(inString.mid(idxStart+1,idxEnd-idxStart-1));
-        }
-
-        file.close();
     }
 
     return params;
