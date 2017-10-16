@@ -15,13 +15,11 @@ Trick::MonteVarFile::MonteVarFile(std::string in_name, std::string in_file_name,
     this->unit = in_unit;
 
     set_file_name(in_file_name);
-    buffer = new char[4096];
 }
 
 Trick::MonteVarFile::~MonteVarFile()
 {
     delete input_file_stream;
-    delete buffer;
 }
 
 // Composite the various properties of this MonteVarFile.
@@ -42,10 +40,11 @@ std::string Trick::MonteVarFile::get_next_value()
 {
     if (input_file_stream->good())
     {
+        std::string line;
         // Skip the comments and empty lines in the data file.
         do
         {
-            input_file_stream->getline(buffer, 4096);
+            std::getline(*input_file_stream, line);
 
             if(input_file_stream->eof())
             {
@@ -53,13 +52,12 @@ std::string Trick::MonteVarFile::get_next_value()
                 return "EOF";
             }
         }
-        while(buffer[0] == '#' || buffer[0] == '\0');
+        while(line[0] == '#' || line[0] == '\0');
 
         // Count the number of columns in the input file.
         char *token;
         unsigned int ntokens = 0;
-        char temp_str[4096];
-        strcpy(temp_str, buffer);
+        char* temp_str = strdup(line.c_str());
         token = strtok(temp_str, " \t");
         while (token != NULL)
         {
@@ -76,7 +74,7 @@ std::string Trick::MonteVarFile::get_next_value()
         }
 
         // Get the next value.
-        strcpy(temp_str, buffer);
+        temp_str = strdup(line.c_str());
         token = strtok(temp_str, " \t");
 
         for(unsigned int i = 1; i < column; i++)
