@@ -58,6 +58,9 @@ void LabeledRulerView::paintEvent(QPaintEvent *event)
         QFontMetrics fm = viewport()->fontMetrics();
         QRectF bb = fm.boundingRect(strVal);
         bb.moveCenter(center);
+        if ( bb.right() > W.right() ) {
+            bb.translate(W.right()-bb.right(),0.0);  // move bb inside W
+        }
         if ( _alignment == Qt::AlignLeft ) {
             bb.setLeft(W.left());
             bb.setRight(W.right()-_margin5);
