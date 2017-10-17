@@ -73,9 +73,6 @@ namespace Trick {
         /** The input file stream. */
         std::ifstream *input_file_stream; /**< \n trick_units(--) */
 
-        /** A character buffer. */
-        char *buffer;                     /**< \n trick_units(--) */
-
         public:
         /**
          * Constructs a MonteVarFile with the specified name, file name, column, and units.
