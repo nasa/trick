@@ -20,11 +20,11 @@ endif
 BASE_OBJECTS = ../object_${TRICK_HOST_CPU}/Clock.o\
                ../object_${TRICK_HOST_CPU}/clock_c_intf.o
 
-BC635_CLOCK_OBJECTS        = ${BASE_OBJECTS} BC635Clock_test.o ../object_${TRICK_HOST_CPU}/BC635Clock.o
+BC635_CLOCK_OBJECTS        = ${BASE_OBJECTS} BC635Clock_test.o ../object_${TRICK_HOST_CPU}/BC635Clock.o exec_get_rt_nap_stub.o
 
-GETTIMEOFDAY_CLOCK_OBJECTS = ${BASE_OBJECTS} GetTimeOfDayClock_test.o ../object_${TRICK_HOST_CPU}/GetTimeOfDayClock.o
+GETTIMEOFDAY_CLOCK_OBJECTS = ${BASE_OBJECTS} GetTimeOfDayClock_test.o ../object_${TRICK_HOST_CPU}/GetTimeOfDayClock.o exec_get_rt_nap_stub.o
 
-TPROCTE_CLOCK_OBJECTS      = ${BASE_OBJECTS} TPROCTEClock_test.o ../object_${TRICK_HOST_CPU}/TPROCTEClock.o
+TPROCTE_CLOCK_OBJECTS      = ${BASE_OBJECTS} TPROCTEClock_test.o ../object_${TRICK_HOST_CPU}/TPROCTEClock.o exec_get_rt_nap_stub.o
 
 
 # All tests produced by this Makefile.  Remember to add new tests you
@@ -62,3 +62,5 @@ BC635Clock_test.o : BC635Clock_test.cpp
 BC635Clock_test : ${BC635_CLOCK_OBJECTS}
 	$(TRICK_CPPC) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ ${LIBS}
 
+exec_get_rt_nap_stub.o : exec_get_rt_nap_stub.cpp
+	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c $<
