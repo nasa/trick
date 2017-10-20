@@ -570,7 +570,31 @@ sub handle_sim_class ($$$$) {
     while ( $class_contents =~ /^(.*?)$class_name\s*\([^;]*{/s ) {
         my (@int_job_calls, @double_job_calls) ;
         $constructor_found = 1 ;
-        $class_contents =~ s/^(.*?$class_name[^{]+)//s ;
+        # grab the constructor's argument list
+        $class_contents =~ s/^(.*?$class_name[^(]*)//s ;
+        $temp_content = $1 ;
+        $final_contents .= $temp_content ;
+        ($temp_content, $class_contents) = extract_bracketed($class_contents,"()");
+        $final_contents .= $temp_content ;
+        # a colon after the constructor arguments starts a member initializer list
+        if ( $class_contents =~ /^\s*:/s )
+        {
+            my $in_init_list = 1 ;
+            while ( $in_init_list ) {
+                $class_contents =~ s/^([^{(]+)//s ;
+                $temp_content = $1 ;
+                $final_contents .= $temp_content ;
+                # member initializers can have either parentheses or curly braces
+                ($temp_content, $class_contents) = extract_bracketed($class_contents,"(){}");
+                $final_contents .= $temp_content ;
+                # there's another initializer if there is a comma
+                if ( $class_contents !~ /^\s*,/ ) {
+                    $in_init_list = 0;
+                }
+            }
+        }
+
+        $class_contents =~ s/^([^{]*)//s ;
         $temp_content = $1 ;
         $final_contents .= $temp_content ;
 
