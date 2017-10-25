@@ -4,213 +4,172 @@ PageTitleView::PageTitleView(QWidget *parent) :
     BookIdxView(parent)
 {
     setFrameShape(QFrame::NoFrame);
-
-    _grid = new QGridLayout;
-    _grid->setContentsMargins(0, 0, 8, 8);
-    _grid->setSpacing(0);
-
-    QFont font1;
-    int pointSize = font().pointSize();
-    font1.setPointSize(pointSize+4);
-
-    _title1 = new QLabel(this);
-    _title1->setAlignment(Qt::AlignHCenter| Qt::AlignVCenter);
-    _title1->setFont(font1);
-
-    _title2 = new QLabel(this);
-    _title2->setAlignment(Qt::AlignHCenter| Qt::AlignTop);
-
-    // Default to username
-    _title3 = new QLabel(this);
-    _title3->setAlignment(Qt::AlignRight| Qt::AlignBottom);
-
-    // Default to date
-    _title4 = new QLabel(this);
-    _title4->setAlignment(Qt::AlignRight| Qt::AlignTop);
-
-    _grid->addWidget(_title1,0,0,1,1);
-    _grid->addWidget(_title2,1,0,1,1);
-    _grid->addWidget(_title3,0,1,1,1);
-    _grid->addWidget(_title4,1,1,1,1);
-
-    _grid->setRowStretch(0,1);
-    _grid->setRowStretch(1,1);
-
-    _grid->setColumnStretch(0,10);
-    _grid->setColumnStretch(1,1);
-
-    setLayout(_grid);
 }
 
-void PageTitleView::setModel(QAbstractItemModel *model)
+void PageTitleView::paintEvent(QPaintEvent *event)
 {
+    Q_UNUSED(event);
 
-    QAbstractItemView::setModel(model);
+    if ( !model() ) return;
 
-    PlotBookModel* bookModel = _bookModel();
+    QPainter painter(viewport());
+    painter.save();
+    painter.setRenderHint(QPainter::Antialiasing);
 
-    QList<QStandardItem*> items = bookModel->findItems("DefaultPageTitles",
-                                                       Qt::MatchStartsWith);
-    if ( items.isEmpty() ) {
-        fprintf(stderr,"koviz [bad scoobs]: PageTitleView::setModel() can't "
-                       "find DefaultPageTitles.\n");
-        exit(-1);
-    }
-    QStandardItem* titleItem;
-    QStandardItem* pItem = items.at(0);
+    QFont origFont = painter.font();
+    QPaintDevice* paintDevice = painter.device();
+    QRect R(0,0,paintDevice->width(),paintDevice->height());
 
-    QString pageTitle ;
-    if ( bookModel->isChildIndex(rootIndex(),"Page","PageTitle") ) {
-        QModelIndex pageTitleIdx  = bookModel->getIndex(rootIndex(),
-                                                        "PageTitle","Page");
-        pageTitleIdx = bookModel->index(pageTitleIdx.row(),1,rootIndex());
-        pageTitle = bookModel->data(pageTitleIdx).toString();
-    } else if ( bookModel->isChildIndex(rootIndex(),"Table","TableTitle") ) {
-        pageTitle = bookModel->getDataString(rootIndex(),"TableTitle","Table");
-    } else {
-        pageTitle = pItem->child(0,1)->text();
-    }
-
-    QModelIndex rootIdx = QModelIndex();
-    QModelIndex dptIdx = _bookModel()->getIndex(rootIdx,
-                                                "DefaultPageTitles");
-    QString t1 = _bookModel()->getDataString(dptIdx,
+    //
+    // Get title strings from model
+    //
+    QModelIndex pageIdx = rootIndex();
+    QModelIndex title1Idx = _bookModel()->getDataIndex(pageIdx,
+                                                       "PageTitle", "Page");
+    QModelIndex defTitlesIdx = _bookModel()->getIndex(QModelIndex(),
+                                                      "DefaultPageTitles");
+    QModelIndex title2Idx = _bookModel()->getDataIndex(defTitlesIdx,
+                                                       "Title2",
+                                                       "DefaultPageTitles");
+    QModelIndex title3Idx = _bookModel()->getDataIndex(defTitlesIdx,
+                                                       "Title3",
+                                                       "DefaultPageTitles");
+    QModelIndex title4Idx = _bookModel()->getDataIndex(defTitlesIdx,
+                                                       "Title4",
+                                                       "DefaultPageTitles");
+    QString title1 = model()->data(title1Idx).toString();
+    QString t1 = _bookModel()->getDataString(defTitlesIdx,
                                              "Title1","DefaultPageTitles");
-    if ( t1 != "Koviz Plots!" ) {
-        // Default title overwritten by -t1 optional title
-        pageTitle = t1;
+    if ( title1.isEmpty() && t1.startsWith("koviz") ) {
+        // Since subtitle has RUNs, don't use t1 (it has RUNs too)
+        title1 = "Koviz Plots";
+    } else if ( !t1.startsWith("koviz") ) {
+        // DP page title overwritten by -t1 optional title
+        title1 = t1;
+    }
+    QString title2 = model()->data(title2Idx).toString();
+    QString title3 = model()->data(title3Idx).toString();
+    QString title4 = model()->data(title4Idx).toString();
+
+    // For estimating width of title3/4 so that main title is left of title3/4
+    QFont font(origFont);
+    font.setPointSize(11);
+    QFontMetrics fm11(font,paintDevice);
+    int w34 = fm11.boundingRect(title4).width();
+
+    // Draw main title
+    //
+    font.setPointSize(14);
+    painter.setFont(font);
+    QFontMetrics fm1(font,paintDevice);
+    int margin = 0;
+    int w = fm1.boundingRect(title1).width();
+    int x = (R.width()-w34-w)/2;
+    int y = margin + fm1.ascent();
+    if ( !title1.isEmpty() ) {
+        painter.drawText(x,y,title1);
     }
 
-    _title1->setText(pageTitle);
-
-    titleItem = pItem->child(1,1);
-    _title2->setText(_elideRunsTitle(titleItem->text()));
-    titleItem = pItem->child(2,1);
-    _title3->setText(titleItem->text());
-    titleItem = pItem->child(3,1);
-    _title4->setText(titleItem->text());
-}
-
-// TODO: Handle changes to default title and titles 2,3 and 4
-void PageTitleView::dataChanged(const QModelIndex &topLeft,
-                                const QModelIndex &bottomRight)
-{
-    QModelIndex pidx = topLeft.parent();
-    if ( pidx != bottomRight.parent() ) return;
-
-    // TODO: For now and only handle single item changes
-    if ( topLeft != bottomRight ) return;
-
-    // TODO: if default title changes, this fails
-    if ( pidx != rootIndex() ) return;
-
-    // Value is in column 1
-    if ( topLeft.column() != 1 ) return;
-
-    int row = topLeft.row();
-    QModelIndex idx0 = model()->index(row,0,pidx);
-    if ( model()->data(idx0).toString() == "PageTitle" ) {
-        QString title = model()->data(topLeft).toString();
-        _title1->setText(title);
-    } else if ( model()->data(idx0).toString() == "TableTitle" ) {
-        QString title = model()->data(topLeft).toString();
-        _title1->setText(title);
-    }
-}
-
-void PageTitleView::rowsInserted(const QModelIndex &pidx, int start, int end)
-{
-    if ( pidx != rootIndex() ) return;
-
-    if ( !_bookModel()->isChildIndex(rootIndex(),"Page","PageTitle") &&
-         !_bookModel()->isChildIndex(rootIndex(),"Table","TableTitle") ) {
-        return;
-    }
-
-    for ( int i = start; i <= end; ++i ) {
-        QModelIndex idx = model()->index(i,0,pidx);
-        QString cText = model()->data(idx).toString();
-        if ( cText == "PageTitle" || cText == "TableTitle") {
-            PlotBookModel* bookModel = _bookModel();
-
-            QList<QStandardItem*> items = bookModel->
-                                            findItems("DefaultPageTitles",
-                                                      Qt::MatchStartsWith);
-            if ( items.isEmpty() ) {
-                fprintf(stderr,"koviz [bad scoobs]: PageTitleView::setModel() "
-                               "can't find DefaultPageTitles\n");
-                exit(-1);
+    //
+    // Draw subtitle with RUNs
+    //
+    if ( !title2.isEmpty() ) {
+        font.setPointSize(11);
+        painter.setFont(font);
+        QFontMetrics fm2(font,paintDevice);
+        QStringList lines = title2.split('\n', QString::SkipEmptyParts);
+        if ( lines.size() == 1 ) {
+            // single RUN
+            x = (R.width()-w34-fm2.boundingRect(title2).width())/2;
+            y += fm1.lineSpacing();
+            painter.drawText(x,y,title2);
+        } else if ( lines.size() > 1 ) {
+            // multiple RUNs (show two RUNs and elide rest with elipsis)
+            QString s1 = lines.at(0);
+            QString s2 = lines.at(1);
+            if ( lines.size() > 2 ) {
+                if ( !s2.endsWith(',') ) {
+                    s2 += ",";
+                }
+                s2 += "...)";
             }
-            QStandardItem* titleItem;
-            QStandardItem* pItem = items.at(0);
-
-            QString pageTitle ;
-            if ( bookModel->isChildIndex(rootIndex(),"Page","PageTitle") ) {
-                QModelIndex pageTitleIdx  = bookModel->getIndex(rootIndex(),
-                                                                "PageTitle",
-                                                                "Page");
-                pageTitleIdx = bookModel->index(pageTitleIdx.row(),1,
-                                                rootIndex());
-                pageTitle = bookModel->data(pageTitleIdx).toString();
-            } else if ( bookModel->
-                        isChildIndex(rootIndex(),"Table","TableTitle") ) {
-                pageTitle = bookModel->getDataString(rootIndex(),
-                                                     "TableTitle","Table");
+            QString s = s1 + " " + s2;
+            w = fm2.boundingRect(s).width();
+            y += fm1.lineSpacing();
+            if ( w < 0.6*R.width() ) {
+                // print on single line
+                x = (R.width()-w34-w)/2;
+                painter.drawText(x,y,s);
             } else {
-                pageTitle = pItem->child(0,1)->text();
+                // print on two lines
+                QString s;
+                if ( s1.size() > s2.size() ) {
+                    x = (R.width()-w34-fm2.boundingRect(s1).width())/2;
+                } else {
+                    x = (R.width()-w34-fm2.boundingRect(s2).width())/2;
+                }
+                painter.drawText(x,y,s1);
+                if ( s1.startsWith('(') ) {
+                    x += fm2.width('(');
+                }
+                y += fm2.lineSpacing();
+                painter.drawText(x,y,s2);
             }
-
-            QModelIndex rootIdx = QModelIndex();
-            QModelIndex dptIdx = _bookModel()->getIndex(rootIdx,
-                                                        "DefaultPageTitles");
-            QString t1 = _bookModel()->getDataString(dptIdx,
-                                                     "Title1",
-                                                     "DefaultPageTitles");
-
-            if ( pageTitle.isEmpty() && t1.startsWith("koviz") ) {
-                // Since subtitle has RUNs, don't use t1 (it has RUNs too)
-                pageTitle = "Koviz Plots";
-            } else if ( !t1.startsWith("koviz") ) {
-                // DP page title overwritten by -t1 optional title
-                pageTitle = t1;
-            }
-
-            _title1->setText(pageTitle);
-
-            titleItem = pItem->child(1,1);
-            _title2->setText(_elideRunsTitle(titleItem->text()));
-            titleItem = pItem->child(2,1);
-            _title3->setText(titleItem->text());
-            titleItem = pItem->child(3,1);
-            _title4->setText(titleItem->text());
         }
+        y += fm2.lineSpacing();
     }
-}
 
-QString PageTitleView::_elideRunsTitle(QString title)
-{
-    QString s = title;
+    //
+    // Draw title3 and title4 (align on colon if possible)
+    //
+    font.setPointSize(11);
+    painter.setFont(font);
+    QFontMetrics fm3(font,paintDevice);
+    if ( !title3.isEmpty() && title3.contains(':') &&
+         !title4.isEmpty() && title4.contains(':') ) {
 
-
-    if ( title.count('\n') > 3 ) {
-        int j = 0;
-        int k = 0;
-        for ( int i = 0 ; i < 2; ++i ) {
-            j = title.indexOf('\n',k);
-            k = j+1;
+        // Normal case, most likely user,date with colons
+        // e.g. user: vetter
+        //      date: July 8, 2016
+        int i = title3.indexOf(':');
+        QString s31 = title3.left(i);
+        QString s32 = title3.mid(i+1);
+        i = title4.indexOf(':');
+        QString s41 = title4.left(i);
+        QString s42 = title4.mid(i+1);
+        if ( s32.size() > s42.size() ) {
+            w = fm3.boundingRect(s32).width();
+        } else {
+            w = fm3.boundingRect(s42).width();
         }
-        s = title.left(j);
-        s += "...)";
+        x = R.width()-w-margin;
+        y = (R.height() - fm3.lineSpacing())/2;
+        painter.drawText(x,y,s32);
+        y += fm3.lineSpacing();
+        painter.drawText(x,y,s42);
+        x -= fm3.boundingRect(" : ").width();
+        y -= fm3.lineSpacing();
+        painter.drawText(x,y," : ");
+        y += fm3.lineSpacing();
+        painter.drawText(x,y," : ");
+        x -= fm3.boundingRect(s31).width();
+        y -= fm3.lineSpacing();
+        painter.drawText(x,y,s31);
+        x += fm3.boundingRect(s31).width();
+        x -= fm3.boundingRect(s41).width();
+        y += fm3.lineSpacing();
+        painter.drawText(x,y,s41);
+
+    } else {
+        // title3,title4 are custom (i.e. not colon delimited user/date)
+        x = R.width() - fm3.boundingRect(title3).width() - margin;
+        y = (R.height() - fm3.lineSpacing())/2;
+        painter.drawText(x,y,title3);
+        x = R.width() - fm3.boundingRect(title4).width() - margin;
+        y += fm3.lineSpacing();
+        painter.drawText(x,y,title4);
     }
 
-    // Take out newline chars and see if title fits
-    QString fs = s.replace('\n',' ');
-    QFontMetrics fm = fontMetrics();
-    int fw = fm.width(fs);
-    if ( fw < width() ) {
-        s = fs;
-    }
-
-    return s;
+    painter.setFont(origFont);
+    painter.restore();
 }
-

@@ -2,11 +2,9 @@
 #define PAGETITLEVIEW_H
 
 #include <QAbstractItemView>
-#include <QVBoxLayout>
-#include <QGridLayout>
-#include <QLabel>
 #include <QStandardItemModel>
 #include <QFontMetrics>
+#include <QPainter>
 
 #include "bookidxview.h"
 
@@ -15,21 +13,9 @@ class PageTitleView : public BookIdxView
     Q_OBJECT
 public:
     explicit PageTitleView(QWidget *parent = 0);
-    virtual void setModel(QAbstractItemModel *model);
 
-private:
-    QGridLayout* _grid;
-    QLabel* _title1;
-    QLabel* _title2;
-    QLabel* _title3;
-    QLabel* _title4;
-
-    QString _elideRunsTitle(QString title);
-
-protected slots:
-    virtual void dataChanged(const QModelIndex &topLeft,
-                             const QModelIndex &bottomRight);
-    virtual void rowsInserted(const QModelIndex &parent, int start, int end);
+protected:
+    virtual void paintEvent(QPaintEvent * event);
 
 };
 
