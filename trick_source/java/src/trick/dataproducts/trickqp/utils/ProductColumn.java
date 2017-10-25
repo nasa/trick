@@ -7,6 +7,7 @@ package trick.dataproducts.trickqp.utils;
 //========================================
 //  Imports
 //========================================
+import trick.common.utils.DataReader;
 
 /**
  * Defines column data for Trick QP GUI.
@@ -20,6 +21,7 @@ public class ProductColumn {
     //  Public data
     //========================================
     public static String[] GUI_FIELD_LABELS    = new String[] {"Format"};
+    public DataReader dataReader;
 
     //========================================
     //  Protected data
@@ -45,6 +47,7 @@ public class ProductColumn {
     public ProductColumn() {
         this.setLabel( "Column" );
         this.setUnits( "--" );
+        this.dataReader = null;
     }
 
     /**
@@ -57,6 +60,7 @@ public class ProductColumn {
         this.setLabel( "Column" );
         this.setUnits( "--" );
         this.setVar( var );
+        this.dataReader = null;
     }
 
     //========================================

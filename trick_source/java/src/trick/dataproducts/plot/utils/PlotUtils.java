@@ -112,6 +112,7 @@ public class PlotUtils {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                theColumn.dataReader = eachReader;
                 varDataReaderList.add(eachReader);
             }
             eachRow.append("\n");
@@ -143,14 +144,21 @@ public class PlotUtils {
             while (true) {
                 eachRow.append(lineIndex + "\t");
                 // get one value for each variable at a time
-                for (DataReader eachReader : varDataReaderList) {
+                for (ProductColumn theColumn : theTable.getColumnList()) {
                     try {
-                        eachVarValue = eachReader.getVarValue();
+                        eachVarValue = theColumn.dataReader.getVarValue();
 
                         if (Double.isNaN(eachVarValue)) {
                             break;
                         }
-                        eachRow.append(eachVarValue + "\t");
+
+                        String fmt = theColumn.getFormat();
+                        if (fmt != null && fmt != "") {
+                            eachRow.append( String.format(fmt, eachVarValue) + "\t");
+                        } else {
+                            eachRow.append(eachVarValue + "\t");
+                        }
+
                     } catch (FileNotFoundException e) {
                         System.err.println(e);
                     } catch (IOException e) {
@@ -178,6 +186,9 @@ public class PlotUtils {
             // end data reader
             for (DataReader eachReader : varDataReaderList) {
                 eachReader.endRead();
+            }
+            for (ProductColumn theColumn : theTable.getColumnList()) {
+                theColumn.dataReader = null;
             }
         }
     }
