@@ -23,9 +23,13 @@ void PageTitleView::paintEvent(QPaintEvent *event)
     //
     // Get title strings from model
     //
-    QModelIndex pageIdx = rootIndex();
-    QModelIndex title1Idx = _bookModel()->getDataIndex(pageIdx,
-                                                       "PageTitle", "Page");
+    QModelIndex title1Idx;
+    if ( _bookModel()->isIndex(rootIndex(),"Page")) {
+        title1Idx = _bookModel()->getDataIndex(rootIndex(),"PageTitle","Page");
+    } else {
+        title1Idx = _bookModel()->getDataIndex(rootIndex(),
+                                               "TableTitle","Table");
+    }
     QModelIndex defTitlesIdx = _bookModel()->getIndex(QModelIndex(),
                                                       "DefaultPageTitles");
     QModelIndex title2Idx = _bookModel()->getDataIndex(defTitlesIdx,
