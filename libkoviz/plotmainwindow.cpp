@@ -214,7 +214,8 @@ void PlotMainWindow::createMenu()
     _pdfAction  = _fileMenu->addAction(tr("Save As P&DF"));
     _exitAction = _fileMenu->addAction(tr("E&xit"));
     _showLiveCoordAction = _optsMenu->addAction(tr("ShowLiveCoord"));
-    _clearPlotsAction          = _optsMenu->addAction(tr("ClearPlots"));
+    _clearPlotsAction  = _optsMenu->addAction(tr("ClearPlots"));
+    _clearTablesAction = _optsMenu->addAction(tr("ClearTables"));
     _showLiveCoordAction->setCheckable(true);
     _showLiveCoordAction->setChecked(true);
     _menuBar->addMenu(_fileMenu);
@@ -225,6 +226,8 @@ void PlotMainWindow::createMenu()
             this, SLOT(_toggleShowLiveCoord()));
     connect(_clearPlotsAction, SIGNAL(triggered()),
             this, SLOT(_clearPlots()));
+    connect(_clearTablesAction, SIGNAL(triggered()),
+            this, SLOT(_clearTables()));
     setMenuWidget(_menuBar);
 }
 
@@ -400,6 +403,15 @@ void PlotMainWindow::_clearPlots()
     int nPages = _bookModel->rowCount(pagesIdx);
     for (int i = nPages-1; i >= 0; --i) {
         _bookModel->removeRow(i,pagesIdx);
+    }
+}
+
+void PlotMainWindow::_clearTables()
+{
+    QModelIndex tablesIdx = _bookModel->getIndex(QModelIndex(),"Tables");
+    int nTables = _bookModel->rowCount(tablesIdx);
+    for (int i = nTables-1; i >= 0; --i) {
+        _bookModel->removeRow(i,tablesIdx);
     }
 }
 
