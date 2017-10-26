@@ -99,7 +99,6 @@ public class PlotUtils {
 
             // build up the data reader list for reading the data and write the variable names on table
             // variable names row
-            eachRow.append("Line#\t");
             for (ProductColumn theColumn : theTable.getColumnList()) {
                 DataReader eachReader = getVarDataReader(runDir, theColumn.getVar());
                 eachRow.append(theColumn.getVar().getShortName() + " {" + theColumn.getVar().getUnits() + "}" + "\t");
@@ -142,7 +141,6 @@ public class PlotUtils {
             int lineIndex = 0;
 
             while (true) {
-                eachRow.append(lineIndex + "\t");
                 // get one value for each variable at a time
                 for (ProductColumn theColumn : theTable.getColumnList()) {
                     try {
