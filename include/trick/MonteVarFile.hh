@@ -73,6 +73,10 @@ namespace Trick {
         /** The input file stream. */
         std::ifstream *input_file_stream; /**< \n trick_units(--) */
 
+        private:
+        // Used to store the current position of the stream for file opening and closing.
+        std::streampos stream_position;
+
         public:
         /**
          * Constructs a MonteVarFile with the specified name, file name, column, and units.

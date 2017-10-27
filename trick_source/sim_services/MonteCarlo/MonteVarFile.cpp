@@ -34,6 +34,17 @@ std::string Trick::MonteVarFile::describe_variable() {
 }
 
 std::string Trick::MonteVarFile::get_next_value() {
+
+    // Reopen the file if not open.
+    if(!input_file_stream->is_open()) {
+        input_file_stream->open(this->file_name.c_str(), std::ifstream::in);
+
+        // If the stream position has been set, re-open file to this position.
+        if(this->stream_position != NULL) {
+            input_file_stream->seekg(this->stream_position);
+        }
+    }
+
     if (input_file_stream->good()) {
         std::string line;
         // Skip the comments and empty lines in the data file.
@@ -46,6 +57,10 @@ std::string Trick::MonteVarFile::get_next_value() {
             }
         }
         while(line[0] == '#' || line[0] == '\0');
+
+        // Store the current stream position and close the file.
+        this->stream_position = input_file_stream->tellg();
+        input_file_stream->close();
 
         // Count the number of columns in the input file.
         char *token;
