@@ -103,7 +103,7 @@ std::string Trick::MonteVarFile::get_next_value() {
 void Trick::MonteVarFile::set_file_name(std::string in_file_name) {
     delete input_file_stream;
 
-    input_file_stream = new std::ifstream(in_file_name.c_str(), std::ifstream::in);
+    input_file_stream = new std::ifstream();
     if (input_file_stream->fail()) {
         std::stringstream string_stream;
 
