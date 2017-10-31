@@ -40,7 +40,7 @@ std::string Trick::MonteVarFile::get_next_value() {
         input_file_stream->open(this->file_name.c_str(), std::ifstream::in);
 
         // If the stream position has been set, re-open file to this position.
-        if(this->stream_position != NULL) {
+        if(this->stream_position != 0) {
             input_file_stream->seekg(this->stream_position);
         }
     }
