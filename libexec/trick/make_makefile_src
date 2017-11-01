@@ -243,7 +243,7 @@ endif
 
 S_OBJECTS = build/S_source.o
 
-build/S_source.o: build/S_source.cpp build/S_source.d
+build/S_source.o: build/S_source.cpp | build/S_source.d
 \t\$(PRINT_COMPILE)
 \t\@echo \$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c -o \$\@ \$\< >> \$(MAKE_OUT)
 \t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c -o \$\@ \$\< 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
@@ -286,32 +286,32 @@ print MAKEFILE "
 # directories appear to be created as part of the read_lib_deps function, so I'm leaving it out
 # for now.
 
-\${MODEL_c_OBJECTS} : build/%.o : /%.c build/%.d
+\${MODEL_c_OBJECTS} : build/%.o : /%.c | build/%.d
 \t\$(PRINT_COMPILE)
 \t\@echo \$(TRICK_CC) \$(TRICK_CFLAGS) \$(TRICK_SYSTEM_CFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@ >> \$(MAKE_OUT)
 \t\$(ECHO_CMD)\$(TRICK_CC) \$(TRICK_CFLAGS) \$(TRICK_SYSTEM_CFLAGS) -I\$(<D)/../include -MMD -MP -c -o \$\@ \$< 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
 
-\${MODEL_cc_OBJECTS} : build/%.o : /%.cc build/%.d
+\${MODEL_cc_OBJECTS} : build/%.o : /%.cc | build/%.d
 \t\$(PRINT_COMPILE)
 \t\@echo \$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@ >> \$(MAKE_OUT)
 \t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@ 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
 
-\${MODEL_cpp_OBJECTS} : build/%.o : /%.cpp build/%.d
+\${MODEL_cpp_OBJECTS} : build/%.o : /%.cpp | build/%.d
 \t\$(PRINT_COMPILE)
 \t\@echo \$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@ >> \$(MAKE_OUT)
 \t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@ 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
 
-\${MODEL_C_OBJECTS} : build/%.o : /%.C build/%.d
+\${MODEL_C_OBJECTS} : build/%.o : /%.C | build/%.d
 \t\$(PRINT_COMPILE)
 \t\@echo \$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@ >> \$(MAKE_OUT)
 \t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@ 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
 
-\${MODEL_cxx_OBJECTS} : build/%.o : /%.cxx build/%.d
+\${MODEL_cxx_OBJECTS} : build/%.o : /%.cxx | build/%.d
 \t\$(PRINT_COMPILE)
 \t\@echo \$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@ >> \$(MAKE_OUT)
 \t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@ 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
 
-\${MODEL_c++_OBJECTS} : build/%.o : /%.c++ build/%.d
+\${MODEL_c++_OBJECTS} : build/%.o : /%.c++ | build/%.d
 \t\$(PRINT_COMPILE)
 \t\@echo \$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@ >> \$(MAKE_OUT)
 \t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -I\$(<D)/../include -MMD -MP -c \$< -o \$\@ 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
