@@ -327,7 +327,7 @@ TEST_F(MonteCarloTest, MonteVarFile) {
     Trick::MonteVarFile var0("time_to_fire_1", "M_jet_firings_inline", 2) ;
     EXPECT_EQ(exec.variables.size(), 0) ;
     exec.add_variable(&var0) ;
-    EXPECT_EQ(var0.get_next_value(), "time_to_fire_1 = 1") ;
+    EXPECT_EQ(var0.get_next_value(), "time_to_fire_1 = 1.0000") ;
     EXPECT_EQ(exec.variables.size(), 1) ;
 }
 
