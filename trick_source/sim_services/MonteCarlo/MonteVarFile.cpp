@@ -9,9 +9,9 @@
 #include "trick/exec_proto.h"
 
 Trick::MonteVarFile::MonteVarFile(std::string in_name, std::string in_file_name, unsigned int in_column, std::string in_unit) : input_file_stream(NULL) {
-    this->name = in_name;
-    this->column = in_column;
-    this->unit = in_unit;
+    name = in_name;
+    column = in_column;
+    unit = in_unit;
 
     set_file_name(in_file_name);
 }
@@ -24,16 +24,20 @@ Trick::MonteVarFile::~MonteVarFile() {
 std::string Trick::MonteVarFile::describe_variable() {
     std::stringstream ss;
 
-    ss << "#NAME:\t\t" << this->name << "\n"
+    ss << "#NAME:\t\t" << name << "\n"
        << "#TYPE:\t\tFILE\n"
-       << "#UNIT:\t\t" << this->unit << "\n"
-       << "#FILE:\t\t" << this->file_name << "\n"
-       << "#COLUMN:\t" << this->column << "\n";
+       << "#UNIT:\t\t" << unit << "\n"
+       << "#FILE:\t\t" << file_name << "\n"
+       << "#COLUMN:\t" << column << "\n";
 
     return ss.str();
 }
 
 std::string Trick::MonteVarFile::get_next_value() {
+    // Open the file and seek to the previous position.
+    input_file_stream->open(file_name.c_str(), std::ifstream::in);
+    input_file_stream->seekg(stream_position);
+
     if (input_file_stream->good()) {
         std::string line;
         // Skip the comments and empty lines in the data file.
@@ -46,6 +50,10 @@ std::string Trick::MonteVarFile::get_next_value() {
             }
         }
         while(line[0] == '#' || line[0] == '\0');
+
+        // Store the current stream position and close the file.
+        stream_position = input_file_stream->tellg();
+        input_file_stream->close();
 
         // Count the number of columns in the input file.
         char *token;
@@ -75,13 +83,13 @@ std::string Trick::MonteVarFile::get_next_value() {
         }
 
         // Return the value as a string.
-        this->value = token;
+        value = token;
         std::stringstream ss;
 
         if(unit.empty())
-            ss << this->name << " = " << token;
+            ss << name << " = " << token;
         else
-            ss << this->name << " = " << "trick.attach_units(\"" << unit << "\", " << token << ")";
+            ss << name << " = " << "trick.attach_units(\"" << unit << "\", " << token << ")";
 
         return ss.str();
     }
@@ -95,7 +103,7 @@ std::string Trick::MonteVarFile::get_next_value() {
 void Trick::MonteVarFile::set_file_name(std::string in_file_name) {
     delete input_file_stream;
 
-    input_file_stream = new std::ifstream(in_file_name.c_str(), std::ifstream::in);
+    input_file_stream = new std::ifstream();
     if (input_file_stream->fail()) {
         std::stringstream string_stream;
 
@@ -104,9 +112,9 @@ void Trick::MonteVarFile::set_file_name(std::string in_file_name) {
 
         exec_terminate_with_return(-1, __FILE__, __LINE__, string_stream.str().c_str());
     }
-    this->file_name = in_file_name;
+    file_name = in_file_name;
 }
 
 void Trick::MonteVarFile::set_column(unsigned int in_column) {
-    this->column = in_column;
+    column = in_column;
 }
