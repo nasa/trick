@@ -242,7 +242,7 @@ sub process_file() {
                 # normalize trick includes
                 $file_name =~ s/"//g ;
                 if ( $file_name =~ /sim_services/ or $file_name =~ /trick_utils/ or $file_name =~ /trick\//)  {
-                    $contents .= "\%import \"trick/" . basename($file_name) . "\"\n" ;
+                    $contents .= "\%import(module=\"sim_services\") \"trick/" . basename($file_name) . "\"\n" ;
                     next ;
                 }
 
