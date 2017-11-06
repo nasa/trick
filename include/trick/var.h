@@ -1,8 +1,10 @@
-
-#include "trick/value.h"
-
 #ifndef VAR_H
 #define VAR_H
+/*
+    PURPOSE: ( Variable declarator structures. )
+*/
+
+#include "trick/value.h"
 
 /**
  * VAR_DECLARE represents a declarator.

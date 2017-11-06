@@ -3,7 +3,7 @@
 
 #include "DPM_product.hh"
 #include "float.h"
-#include <stdio.h> 
+#include <stdio.h>
 
 int DPM_product::Initialize( xmlNode *base_node) {
 
@@ -11,7 +11,7 @@ int DPM_product::Initialize( xmlNode *base_node) {
     double tstop     = DBL_MAX;
     double frequency = DBL_MAX;
     title   = (char *)NULL;
-  
+
     int n_pages, n_tables;
 
     if (base_node == NULL) {
@@ -20,7 +20,7 @@ int DPM_product::Initialize( xmlNode *base_node) {
     }
     if (strcmp((char*) base_node->name, "product") != 0) {
         std::cerr << "ERROR: Expected <product> specification but alas didnt find it." << std::endl;
-        return -1; 
+        return -1;
     }
     /* Process children */
     xmlNode *current_node = base_node->children;
@@ -29,7 +29,7 @@ int DPM_product::Initialize( xmlNode *base_node) {
         if (current_node->type == XML_ELEMENT_NODE) {
             DPM_page  *page;
             DPM_extfn *ext_prog;
-            DPM_table *table; 
+            DPM_table *table;
             if ( strcmp( (char *)current_node->name, "page") == 0) {
                 try {
                     page = new DPM_page( this, current_node);
@@ -63,7 +63,7 @@ int DPM_product::Initialize( xmlNode *base_node) {
             } else if ( strcmp( (const char *)current_node->name, "title") == 0) {
                 xmlNode *text_node = current_node->children;
                 title = strdup( (const char *)text_node->content);
-	  
+
             } else if ( strcmp( (const char *)current_node->name, "tstart") == 0) {
                 xmlNode *text_node = current_node->children;
                 tstart = strtod((const char *)text_node->content,(char **)NULL);
@@ -75,7 +75,7 @@ int DPM_product::Initialize( xmlNode *base_node) {
             } else if ( strcmp( (const char *)current_node->name, "frequency") == 0) {
                 xmlNode *text_node = current_node->children;
                 frequency = strtod((const char *)text_node->content,(char**)NULL);
-	  
+
             } else {
                 std::cerr << "WARNING: <product> specification contains an unknown element \"<" << current_node->name << ">\". Skipping." << std::endl;
             }
@@ -92,13 +92,13 @@ int DPM_product::Initialize( xmlNode *base_node) {
        std::cerr << "ERROR: <product> specification requires at least one <page> or <table> specification." << std::endl;
        return -1;
     }
-  
+
     xmlCleanupParser();
     return 0;
 }
 
 // XML CONSTRUCTOR
-DPM_product::DPM_product(DPM_component *Parent, xmlNode *Base_node) throw (std::invalid_argument)
+DPM_product::DPM_product(DPM_component *Parent, xmlNode *Base_node)
   : DPM_component (Parent, Base_node) {
 
   if ( Initialize( Base_node) < 0) {

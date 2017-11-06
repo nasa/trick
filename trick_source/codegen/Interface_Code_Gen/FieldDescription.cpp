@@ -24,7 +24,7 @@ static ut_system * get_u_system() {
     /* Initialize the udunits-2 library */
     ut_set_error_message_handler(ut_ignore) ;
     if( (u_system = ut_read_xml( NULL )) == NULL ) {
-        std::cout << "Error initializing udunits-2 unit system" << std::endl ;
+        std::cerr << "Error initializing udunits-2 unit system" << std::endl ;
         exit(-1);
     }
     ut_set_error_message_handler(ut_write_to_stderr) ;
@@ -37,12 +37,15 @@ ut_system * FieldDescription::u_system = get_u_system() ;
 FieldDescription::FieldDescription(
  std::string in_container_class ) :
   container_class(in_container_class) ,
+  base_class_offset(0) ,
   field_offset(0) ,
   field_width(0) ,
   inherited(false) ,
+  virtual_inherited(false) ,
   units("1") ,
+  is_dashdash(false) ,
   line_no(0) ,
-  io(3) ,
+  io(15) ,
   type_enum_string("TRICK_VOID") ,
   is_bitfield(0) ,
   bitfield_width(0) ,
@@ -95,7 +98,7 @@ std::string FieldDescription::get_regex_field(std::string input , const char * e
     } else {
         //char error_msg[1024] ;
         //regerror( ret , &reg_expr , (char *)error_msg , 1024 ) ;
-        //std::cout << error_msg << std::endl ;
+        //std::cerr << error_msg << std::endl ;
     }
     return std::string() ;
 }
@@ -132,7 +135,7 @@ void FieldDescription::parseComment(std::string comment) {
     //std::cout << "2. " << comment << std::endl ;
 
     // remove optional doxygen keyword
-    comment = get_regex_field(comment , "(\\\\\\w+[ \t\n\r]*)?(.*)" , 2) ;
+    comment = get_regex_field(comment , "(\\\\[a-zA-Z0-9]+)?[ \t\n\r]*(.*)" , 2) ;
     //std::cout << "3. " << comment << std::endl ;
 
     ret_str = get_regex_field(comment , "@?trick_chkpnt_io[\\({]([^\\)}]+)[\\)}]" , 1) ;
@@ -233,21 +236,22 @@ void FieldDescription::parseComment(std::string comment) {
         units.erase(remove_if(units.begin(), units.end(), isspace), units.end());
         if ( !units.compare("--") ) {
             units = "1" ;
+            is_dashdash = true ;
         } else {
             // map old unit names to new names
             std::string new_units = map_trick_units_to_udunits(units) ;
             if ( units.compare(new_units) ) {
                 if ( ! units_truth_is_scary ) {
-                    std::cout << "\033[33mUnits converted from [" << units << "] to [" << new_units << "] "
-                     << file_name << ":" << line_no << "\033[0m" << std::endl ;
+                    std::cout << bold(color(WARNING, "Warning    ") + file_name + ":" + std::to_string(line_no)) << std::endl
+                        << "           Units converted from " << quote(units) << " to " << quote(new_units) << std::endl;
                 }
                 units = new_units ;
             }
             ut_unit * test_units = ut_parse(u_system, units.c_str() , UT_ASCII) ;
             if ( test_units == NULL ) {
                 // If the units are invalid write an error message and change the units to "1"
-                std::cout << "\033[31mBad units specification [" << units << "] " << file_name << ":" << line_no
-                 << "\033[0m" << std::endl ;
+                std::cout << bold(color(WARNING, "Warning    ") + file_name + ":" + std::to_string(line_no)) << std::endl
+                    << "           Invalid units specification. Changing " << quote(units) << " to " << quote("1") << std::endl;
                 units = "1" ;
             } else {
                 // If the units are valid, free the memory allocated by new_units.
@@ -258,14 +262,14 @@ void FieldDescription::parseComment(std::string comment) {
     }
 
     if ( io == 4 ) {
-        std::cout << "\033[33mWarning: " << file_name << ": line " << line_no << ": " <<
-         "\"--\" is not a valid trick_io value. Setting to *io (3)\033[0m" << std::endl ;
+        std::cout << bold(color(WARNING, "Warning    ") + file_name + ":" + std::to_string(line_no)) << std::endl
+            << "           -- is not a valid trick_io value. Setting to *io" << std::endl ;
         io = 3 ;
     }
 
     if ( chkpnt_io_found == true ) {
         // If a checkpoint I/O spec is found add it to the io field.
-        io |= (chkpnt_io << 2 ) ;
+        io = (chkpnt_io << 2 ) + ( io & 3 ) ;
     } else {
         // else duplicated the io field to the chkpnt io field.
         io |= (io << 2 ) ;
@@ -310,6 +314,14 @@ std::string FieldDescription::getContainerClass() {
 
 void FieldDescription::setContainerClass(std::string in_name ) {
     container_class = in_name ;
+}
+
+void FieldDescription::setBaseClassOffset(unsigned int in_offset) {
+    base_class_offset = in_offset ;
+}
+
+unsigned int FieldDescription::getBaseClassOffset() {
+    return base_class_offset ;
 }
 
 void FieldDescription::setFieldOffset(unsigned int in_offset) {
@@ -363,8 +375,19 @@ std::string FieldDescription::getMangledTypeName() {
     return mangled_type_name ;
 }
 
+std::string FieldDescription::getFullyQualifiedMangledTypeName(const std::string& delimiter) {
+    std::ostringstream oss ;
+    printNamespacesAndContainerClasses(oss, delimiter) ;
+    oss << getMangledTypeName() ;
+    return oss.str() ;
+}
+
 std::string FieldDescription::getUnits() {
     return units ;
+}
+
+bool FieldDescription::isDashDashUnits() {
+    return is_dashdash ;
 }
 
 void FieldDescription::setIO(unsigned int in_io) {
@@ -373,6 +396,26 @@ void FieldDescription::setIO(unsigned int in_io) {
 
 unsigned int FieldDescription::getIO() {
     return io ;
+}
+
+unsigned int FieldDescription::getChkpntIO() {
+    return io >> 2 & 3 ;
+}
+
+bool FieldDescription::isWriteable() {
+    return io & 1;
+}
+
+bool FieldDescription::isReadable() {
+    return io & 2;
+}
+
+bool FieldDescription::isCheckpointable() {
+    return io & 4;
+}
+
+bool FieldDescription::isRestorable() {
+    return io & 8;
 }
 
 std::string FieldDescription::getDescription() {
@@ -385,6 +428,14 @@ void FieldDescription::setInherited(bool in_inherited) {
 
 bool FieldDescription::isInherited() {
     return inherited ;
+}
+
+void FieldDescription::setVirtualInherited(bool in_inherited) {
+    virtual_inherited = in_inherited ;
+}
+
+bool FieldDescription::isVirtualInherited() {
+    return virtual_inherited ;
 }
 
 void FieldDescription::setAccess( clang::AccessSpecifier in_val ) {
@@ -417,6 +468,14 @@ bool FieldDescription::isBitField() {
 
 void FieldDescription::setBitFieldWidth(unsigned int len) {
     bitfield_width = len ;
+}
+
+void FieldDescription::setBitFieldStart(unsigned int sb) {
+    bitfield_start_bit = sb ;
+}
+
+void FieldDescription::setBitFieldByteOffset(unsigned int wo) {
+    bitfield_word_offset = wo ;
 }
 
 unsigned int FieldDescription::getBitFieldWidth() {
@@ -486,42 +545,37 @@ void FieldDescription::addArrayDim( int in_dim ) {
     array_sizes[num_dims++] = in_dim ;
 }
 
-std::ostream & operator << (std::ostream & os , FieldDescription & fdes ) {
-    os << "    name = " << fdes.name << std::endl ;
-    os << "    file_name = " << fdes.file_name << std::endl ;
-    os << "    namespaces =" ;
-    ConstructValues::NamespaceIterator it ;
-    for ( it = fdes.namespace_begin() ; it != fdes.namespace_end() ; it++ ) {
-        os << " " << *it ;
-    }
-    os << std::endl ;
-    os << "    parent classes =" ;
-    for ( it = fdes.container_class_begin() ; it != fdes.container_class_end() ; it++ ) {
-        os << " " << *it ;
-    }
-    os << std::endl ;
-    os << "    line_no = " << fdes.line_no << std::endl ;
-    os << "    container_class = " << fdes.container_class << std::endl ;
-    os << "    type_name = " << fdes.type_name << std::endl ;
-    os << "    mangled_type_name = " << fdes.mangled_type_name << std::endl ;
-    os << "    type_enum_string = " << fdes.type_enum_string << std::endl ;
-    os << "    units = " << fdes.units << std::endl ;
-    os << "    io = " << fdes.io << std::endl ;
-    os << "    description = " << fdes.description << std::endl ;
-    os << "    access = " << fdes.access << std::endl ;
-    os << "    is_bitfield = " << fdes.is_bitfield << std::endl ;
-    os << "    bitfield_width = " << fdes.bitfield_width << std::endl ;
-    os << "    bitfield_start_bit = " << fdes.bitfield_start_bit << std::endl ;
-    os << "    bitfield_word_offset = " << fdes.bitfield_word_offset << std::endl ;
-    os << "    num_dims = " << fdes.num_dims << std::endl ;
-    os << "    array_sizes =" ;
+std::ostream & operator << (std::ostream & ostream , FieldDescription & fieldDescription ) {
+    ostream << "    name = " << fieldDescription.name << std::endl ;
+    ostream << "    file_name = " << fieldDescription.file_name << std::endl ;
+    ostream << "    namespaces =" ;
+    fieldDescription.printNamespaces(ostream) ;
+    ostream << std::endl ;
+    ostream << "    parent classes =" ;
+    fieldDescription.printContainerClasses(ostream) ;
+    ostream << std::endl ;
+    ostream << "    line_no = " << fieldDescription.line_no << std::endl ;
+    ostream << "    container_class = " << fieldDescription.container_class << std::endl ;
+    ostream << "    type_name = " << fieldDescription.type_name << std::endl ;
+    ostream << "    mangled_type_name = " << fieldDescription.mangled_type_name << std::endl ;
+    ostream << "    type_enum_string = " << fieldDescription.type_enum_string << std::endl ;
+    ostream << "    units = " << fieldDescription.units << std::endl ;
+    ostream << "    io = " << fieldDescription.io << std::endl ;
+    ostream << "    description = " << fieldDescription.description << std::endl ;
+    ostream << "    access = " << fieldDescription.access << std::endl ;
+    ostream << "    is_bitfield = " << fieldDescription.is_bitfield << std::endl ;
+    ostream << "    bitfield_width = " << fieldDescription.bitfield_width << std::endl ;
+    ostream << "    bitfield_start_bit = " << fieldDescription.bitfield_start_bit << std::endl ;
+    ostream << "    bitfield_word_offset = " << fieldDescription.bitfield_word_offset << std::endl ;
+    ostream << "    num_dims = " << fieldDescription.num_dims << std::endl ;
+    ostream << "    array_sizes =" ;
     for( unsigned int ii = 0 ; ii < 8 ; ii++ ) {
-        os << " " << fdes.array_sizes[ii] ;
+        ostream << " " << fieldDescription.array_sizes[ii] ;
     }
-    os << std::endl ;
-    os << "    is_enum = " << fdes.is_enum << std::endl ;
-    os << "    is_record = " << fdes.is_record << std::endl ;
-    os << "    is_static = " << fdes.is_static << std::endl ;
+    ostream << std::endl ;
+    ostream << "    is_enum = " << fieldDescription.is_enum << std::endl ;
+    ostream << "    is_record = " << fieldDescription.is_record << std::endl ;
+    ostream << "    is_static = " << fieldDescription.is_static << std::endl ;
 
-    return os ;
+    return ostream ;
 }

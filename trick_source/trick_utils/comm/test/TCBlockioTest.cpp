@@ -21,7 +21,7 @@ class TCBlockioTest : public testing::Test {
       }
 
       void TearDown(){
-   
+
          free(device);
       }
 };
@@ -32,29 +32,29 @@ TEST_F( TCBlockioTest, testNullDevice ) {
    int blockio_status = tc_blockio( NULL, TC_COMM_ALL_OR_NOTHING );
 
    EXPECT_EQ( TC_EWOULDBLOCK, blockio_status );
-} 
+}
 
 TEST_F( TCBlockioTest, testTC_COMM_BLOCKIO ) {
 
    (void) tc_blockio( device, TC_COMM_BLOCKIO );
    EXPECT_EQ( TC_COMM_BLOCKIO, device->blockio_type);
-} 
+}
 
 TEST_F( TCBlockioTest, testTC_COMM_NOBLOCKIO ) {
 
    (void) tc_blockio( device, TC_COMM_NOBLOCKIO );
    EXPECT_EQ( TC_COMM_NOBLOCKIO, device->blockio_type);
-} 
+}
 
 TEST_F( TCBlockioTest, testTC_COMM_TIMED_BLOCKIO ) {
 
    (void) tc_blockio( device, TC_COMM_TIMED_BLOCKIO );
    EXPECT_EQ( TC_COMM_TIMED_BLOCKIO, device->blockio_type );
-} 
+}
 
 TEST_F( TCBlockioTest, testTC_COMM_ALL_OR_NOTHING ) {
 
    (void) tc_blockio( device, TC_COMM_ALL_OR_NOTHING );
    EXPECT_EQ( TC_COMM_ALL_OR_NOTHING, device->blockio_type );
-} 
+}
 #endif

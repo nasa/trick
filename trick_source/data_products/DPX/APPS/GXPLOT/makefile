@@ -28,14 +28,6 @@ else
      XLIBS = -L/usr/X11R6/lib64 -L/usr/X11R6/lib -lXt -lX11 ${LIBXML}
 endif
 
-ifneq ($(HDF5),)
-ifneq ($(HDF5),/usr)
- HDF5_LIB = -L$(HDF5)/lib -L$(HDF5)/lib64 -lhdf5_hl -lhdf5 -lsz
-else
- HDF5_LIB = -lhdf5_hl -lhdf5
-endif
-endif
-
 DP_LIBS         = -L../../../lib_${TRICK_HOST_CPU} -llog -lvar -leqparse -L${TRICK_LIB_DIR} -ltrick_units
 MODEL_LIBS      = -L${DPX_DIR}/lib_${TRICK_HOST_CPU} -lDPM
 CONTROLLER_LIBS = -L${DPX_DIR}/lib_${TRICK_HOST_CPU} -lDPC

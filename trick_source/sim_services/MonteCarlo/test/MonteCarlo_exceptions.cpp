@@ -65,22 +65,6 @@ TEST_F(MonteCarloTest, MonteVarFile_BadFileException) {
     EXPECT_EQ(got_exception, true);
 }
 
-TEST_F(MonteCarloTest, MonteVarFile_FileException) {
-    bool got_exception = false;
-
-    try {
-        Trick::MonteVarFile var("time_to_fire_1", "M_jet_firings_inline", 1) ;
-        var.get_next_value();
-        var.input_file_stream->close();
-        var.get_next_value();
-        var.get_next_value();
-    } catch (Trick::ExecutiveException &e) {
-        std::cout << e.message << std::endl;
-        got_exception = true;
-    }
-    EXPECT_EQ(got_exception, true);
-}
-
 TEST_F(MonteCarloTest, TestMonteVarRandom_Exception) {
     bool got_exception = false;
 

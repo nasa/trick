@@ -13,15 +13,15 @@ namespace Trick {
     : table(Table),
       breakPointArrays(BreakPointArrays),
       breakPointArraySizes(BreakPointArraySizes),
-      nParams(NParams) {};  
+      nParams(NParams) {};
 
-    double eval (double param1, ...) throw(std::logic_error) ;
-    double eval (double params[]) throw(std::logic_error) ;
+    double eval (double param1, ...) ;
+    double eval (double params[]) ;
 
     private:
 
     Interpolator(){};
-    double eval (double param[], unsigned int param_index, unsigned int offset) throw(std::logic_error) ;
+    double eval (double param[], unsigned int param_index, unsigned int offset) ;
 
     // DATA MEMBERS
     double*  table;                  /**< Interpolation data. */

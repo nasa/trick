@@ -4,6 +4,7 @@
 #include <cmath>
 #include <limits>
 
+#include "trick/MonteVar.hh"
 #include "trick/MonteVarRandom.hh"
 #include "trick/exec_proto.h"
 
@@ -31,12 +32,12 @@ Trick::MonteVarRandom::MonteVarRandom(std::string in_name, Distribution in_distr
 #if (defined(_HAVE_TR1_RANDOM) || defined(_HAVE_STL_RANDOM))
     unsigned long seed = randist.seed;
     double unused = 0.0;
-    StlRandomGenerator::StlDistribution stlDist = 
+    StlRandomGenerator::StlDistribution stlDist =
         static_cast<StlRandomGenerator::StlDistribution>(distribution);
-    StlRandomGenerator::StlEngine stlEngine = 
+    StlRandomGenerator::StlEngine stlEngine =
         static_cast<StlRandomGenerator::StlEngine>(engineType);
     if (engineType != NO_ENGINE) {
-        // note: in practice, these will have to be changed by calling set_mu, etc, 
+        // note: in practice, these will have to be changed by calling set_mu, etc,
         // in the input file after construction.
 
         switch (randist.type) {
@@ -64,6 +65,27 @@ Trick::MonteVarRandom::MonteVarRandom(std::string in_name, Distribution in_distr
 Trick::MonteVarRandom::~MonteVarRandom()
 {
     delete stlGenPtr;
+}
+
+// Composite the various properties of this MonteVarRandom.
+std::string Trick::MonteVarRandom::describe_variable()
+{
+    std::string dist_list[] = {"GAUSSIAN", "FLAT", "POISSON"};
+    std::stringstream ss;
+
+    ss << "#NAME:\t\t\t" << this->name << "\n"
+       << "#TYPE:\t\t\tRANDOM\n" 
+       << "#UNIT:\t\t\t" << this->unit << "\n"
+       << "#DISTRIBUTION:\t" << dist_list[this->randist.type] << "\n"
+       << "#SEED:\t\t\t" << this->randist.seed << "\n"
+       << "#SIGMA:\t\t\t" << this->randist.sigma << "\n"
+       << "#MU:\t\t\t" << this->randist.mu << "\n"
+       << "#MIN:\t\t\t" << this->randist.min << "\n"
+       << "#MAX:\t\t\t" << this->randist.max << "\n"
+       << "#REL_MIN:\t\t" << this->randist.rel_min << "\n"
+       << "#REL_MAX:\t\t" << this->randist.rel_max << "\n";
+
+    return ss.str();
 }
 
 void Trick::MonteVarRandom::set_seed(unsigned long seed) {
@@ -138,19 +160,19 @@ std::string Trick::MonteVarRandom::get_next_value() {
         double sigma_range = static_cast<double>(randist.sigma_range) * randist.sigma;
         double min = get_absolute_min();
         double max = get_absolute_max();
-        
+
         unsigned int count = 0;
         while (count < 100) {
             return_value = (*stlGenPtr)();
             count++;
-            
+
             if (return_value.d < min || return_value.d > max) {
                 continue;
             } else {
-                
+
                 if (0 == randist.sigma_range // 0== means sigma_range algorithm is turned off
-                    || std::fabs(return_value.d - randist.mu) <= sigma_range) { 
-                    break; 
+                    || std::fabs(return_value.d - randist.mu) <= sigma_range) {
+                    break;
                 }
             }
         }
@@ -159,7 +181,7 @@ std::string Trick::MonteVarRandom::get_next_value() {
             sprintf(string, "Trick:MonteVarRandom failed to generate a random value for variable \"%s\"\n", name.c_str());
             exec_terminate_with_return(-1, __FILE__, __LINE__, string);
         }
-        
+
     } else {
         if (trick_gsl_rand(&randist, &return_value) != 0) {
             char string[100];
@@ -167,7 +189,7 @@ std::string Trick::MonteVarRandom::get_next_value() {
             exec_terminate_with_return(-1, __FILE__, __LINE__, string);
         }
     }
-    
+
     switch (randist.type) {
         case TRICK_GSL_POISSON:
             // STL returns int, GSL returns unsigned int
@@ -189,19 +211,19 @@ std::string Trick::MonteVarRandom::get_next_value() {
     if (unit.empty()) {
         return name + std::string(" = ") + value ;
     } else {
-        return name + std::string(" = trick.attach_units(\"") + unit + std::string("\", ")  + value + 
+        return name + std::string(" = trick.attach_units(\"") + unit + std::string("\", ")  + value +
                std::string(")") ;
     }
 }
 
-///@details Update the full set of STL random settings 
+///@details Update the full set of STL random settings
 /// (Call after any of the settings: randist.mu .set_min, max, min_is_relative, max_is_relative
-/// are called.) 
+/// are called.)
 void
 Trick::MonteVarRandom::updateStlRandom() {
-    
+
     if (stlGenPtr) {
-        
+
         switch (randist.type) {
         case GAUSSIAN:
             stlGenPtr->set_param(randist.mu, randist.sigma);

@@ -14,6 +14,7 @@ int dr_disable() ;
 int dr_enable_group( const char * in_name ) ;
 int dr_disable_group( const char * in_name ) ;
 int dr_record_now_group( const char * in_name ) ;
+void remove_all_data_record_groups() ;
 
 #ifdef __cplusplus
 int add_data_record_group( Trick::DataRecordGroup * in_group, Trick::DR_Buffering buffering = Trick::DR_Not_Specified ) ;

@@ -71,8 +71,8 @@ class UDT3 {
     double Y;
     double Z;
     int    I;
-    double M2[3][4];    /* r */
-    double M3[2][3][4]; /* d */
+    double M2[3][4];    /* rad */
+    double M3[2][3][4]; /* degree */
     char   C[10];
     UDT2   N;
     UDT2   NA[2];

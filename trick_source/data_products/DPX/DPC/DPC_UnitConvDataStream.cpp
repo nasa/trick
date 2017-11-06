@@ -23,7 +23,7 @@ DPC_UnitConvDataStream::DPC_UnitConvDataStream(DataStream* ds, const char *ToUni
 
     // If the user has specified a units conversion and those units are valid ...
     if ( to != NULL ) {
-        // If the recorded data file doesn't contain the units in which the data is recorded ... 
+        // If the recorded data file doesn't contain the units in which the data is recorded ...
         if ((recorded_units == NULL) || (strcmp(recorded_units,"") == 0)) {
             // If the user didn't give us a hint as to what the units are (using var@from_units) ...
             if ((FromUnitsHint == NULL) || (strcmp(FromUnitsHint,"") == 0)) {
@@ -71,7 +71,7 @@ DPC_UnitConvDataStream::DPC_UnitConvDataStream(DataStream* ds, const char *ToUni
             cf = cv_get_trivial() ;
         }
     } else { // The user has not specified a units conversion or the units were not valid.
-        // If the recorded data file doesn't contain the units in which the data is recorded ... 
+        // If the recorded data file doesn't contain the units in which the data is recorded ...
         if ((recorded_units == NULL) || (strcmp(recorded_units,"") == 0)) {
             // If the user didn't give us a hint as to what the units are (using var@from_units) ...
             if ((FromUnitsHint == NULL) || (strcmp(FromUnitsHint,"") == 0)) {
@@ -102,14 +102,12 @@ DPC_UnitConvDataStream::~DPC_UnitConvDataStream() {
 // MEMBER FUNCTION
 int DPC_UnitConvDataStream::get(double* timestamp, double* paramValue) {
     double time, value;
+    int ret ;
 
-    if ( source_ds->get(&time, &value) ) {
-        *timestamp  = time;
-        *paramValue = cv_convert_double(cf, value) ;;
-        return (1);
-    } else {
-        return (0);
-    }
+    ret = source_ds->get(&time, &value) ;
+    *timestamp  = time;
+    *paramValue = cv_convert_double(cf, value) ;;
+    return ret ;
 }
 
 // MEMBER FUNCTION

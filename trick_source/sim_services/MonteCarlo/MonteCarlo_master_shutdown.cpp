@@ -38,6 +38,10 @@ void Trick::MonteCarlo::master_shutdown() {
     print_statistics(&stdout) ;
     fclose(file_ptr) ;
 
+    if ( !except_return and failed_runs.size() > 0 ) {
+        except_return = -2 ;
+    }
+
     exit(except_return);
 }
 
@@ -58,9 +62,9 @@ void Trick::MonteCarlo::shutdown_slaves() {
     }
 }
 void Trick::MonteCarlo::print_statistics(FILE** fp) {
-    static const char *exit_status_string[] = 
+    static const char *exit_status_string[] =
       {"Incomplete", "Complete", "Core Dumped", "Timed Out",
-       "No Permission to Output Directory"                  } ;
+       "No Permission to Output Directory", "Bad Input" } ;
 
     fprintf(*fp,
       "\nMonte Carlo complete: %u runs (%zu successful) (%zu errors) (%u out of range)\n",

@@ -15,7 +15,7 @@ namespace Trick {
 
 class ADefParseContext {
 
-    public: 
+    public:
 
         int debug ;                          /**< -- Debug level */
         std::istream *is;                    /**< ** Input Stream */

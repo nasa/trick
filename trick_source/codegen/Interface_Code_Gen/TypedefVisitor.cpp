@@ -107,20 +107,19 @@ bool TypedefVisitor::VisitTemplateSpecializationType(clang::TemplateSpecializati
         CXXRecordVisitor cvis(ci, cs, hsd, pa, true) ;
         cvis.TraverseCXXRecordDecl(clang::cast<clang::CXXRecordDecl>(td)) ;
         cval = cvis.get_class_data() ;
-        // Check to see if this typedef is to a STL.  If it is we don't want it.
-        if ((cval->namespace_begin() == cval->namespace_end()) or
-            (cval->namespace_begin() != cval->namespace_end() and cval->namespace_begin()->compare("std")) ) {
+
+        if (cval->isInStandardNamespace()) {
+            if ( debug_level >= 4 ) {
+                std::cout << "\nTypedefVisitor VisitTemplateSpecializationType not adding class" << std::endl ;
+            }
+            cval = NULL ;
+        } else {
             cval->setName(typedef_name) ;
             cval->clearNamespacesAndClasses() ;
             cval->getNamespacesAndClasses(typedef_decl_context) ;
             // Set the filename of the typedeffed target to the file where the typedef is.
             cval->setFileName(getFileName( ci , typedef_location.getBegin() , hsd )) ;
             pa.printClass(cval) ;
-        } else {
-            if ( debug_level >=4 ) {
-                std::cout << "\nTypedefVisitor VisitTemplateSpecializationType not adding class" << std::endl ;
-            }
-            cval = NULL ;
         }
     }
 

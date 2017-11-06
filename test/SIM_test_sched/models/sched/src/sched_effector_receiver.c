@@ -1,6 +1,6 @@
 /********************************* TRICK HEADER *******************************
 PURPOSE:                     ( Test scheduling )
-REFERENCE:                   ( None ) 
+REFERENCE:                   ( None )
 ASSUMPTIONS AND LIMITATIONS: ( None )
 CLASS:                       ( effector_receiver )
 LIBRARY DEPENDENCY:          ( sched_effector_receiver.o )

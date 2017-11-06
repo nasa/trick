@@ -8,6 +8,7 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.ArrayList;
 
 import javax.swing.AbstractAction;
@@ -313,7 +314,7 @@ public abstract class RunTimeTrickApplication extends TrickApplication {
             parseArguments(arguments, new OptionParser());
         }
         catch (Exception exception) {
-            System.out.println(exception);
+            exception.printStackTrace();
             System.exit(0);
         }
 
@@ -335,7 +336,7 @@ public abstract class RunTimeTrickApplication extends TrickApplication {
      * @param arguments the arguments
      * @param optionParser the option parser to use
      */
-    protected void parseArguments(String[] arguments, OptionParser optionParser) {
+    protected OptionSet parseArguments(String[] arguments, OptionParser optionParser) {
         OptionSpec<String> hostSpec = optionParser.accepts(hostKey, "The name of the machine to connect to.")
           .withRequiredArg().ofType(String.class);
 
@@ -354,10 +355,12 @@ public abstract class RunTimeTrickApplication extends TrickApplication {
           .withRequiredArg().ofType(DisconnectBehavior.class);
 
         OptionSpec<Double> minimumCyclePeriodSpec = optionParser.accepts(minimumCyclePeriodKey,
-          "Minimum update cycle period (in seconds).").withRequiredArg().ofType(Double.class);
+          "Minimum update cycle period (in seconds).")
+          .withRequiredArg().ofType(Double.class);
 
         OptionSpec<Double> cyclePeriodSpec = optionParser.accepts(cyclePeriodKey,
-          "Update cycle period (in seconds).").withRequiredArg().ofType(Double.class);
+          "Update cycle period (in seconds).")
+          .withRequiredArg().ofType(Double.class);
 
         OptionSpec<Integer> xSpec = optionParser.accepts(xKey, "X position of the window.")
           .withRequiredArg().ofType(Integer.class);
@@ -373,11 +376,13 @@ public abstract class RunTimeTrickApplication extends TrickApplication {
 
         optionParser.accepts("help", "Print this help message.");
 
-        OptionSet options = optionParser.parse(arguments);
+        // Mac application bundles launched via "open" are sometimes passed a "process serial number" of the form -psn_X_YYYYYYY. Ignore it.
+        ArrayList<String> sanitizedArguments = new ArrayList<>(Arrays.asList(arguments));
+        sanitizedArguments.removeIf(element -> element.startsWith("-psn_"));
+        OptionSet options = optionParser.parse(sanitizedArguments.toArray(new String[sanitizedArguments.size()]));
         if (options.has("help") || !options.nonOptionArguments().isEmpty()) {
             try {
-                System.out.println(
-                  "Options may be abbreviated and use a single hyphen if unambiguous.");
+                System.out.println("Options may be abbreviated and use a single hyphen if unambiguous.");
                 optionParser.printHelpOn(System.out);
             }
             catch (IOException e) {}
@@ -436,6 +441,7 @@ public abstract class RunTimeTrickApplication extends TrickApplication {
             trickProperties.setProperty(heightKey, (options.valueOf(heightSpec).toString()));
         }
 
+        return options;
     }
 
     @Override

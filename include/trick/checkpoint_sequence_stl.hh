@@ -7,6 +7,7 @@
 #define CHECKPOINT_SEQUENCE_STL_HH
 
 #include <string>
+#include <array>
 #include <vector>
 #include <list>
 #include <deque>
@@ -99,6 +100,23 @@ int checkpoint_sequence_s(STL & in_stl , std::string object_name , std::string v
         }
     }
     return 0 ;
+}
+
+// -----------
+// std::array
+
+// This template is only enabled if the items in the array are an STL
+template <typename ITEM_TYPE, std::size_t N,
+          typename std::enable_if<is_stl_container<ITEM_TYPE>::value>::type* >
+int checkpoint_stl(std::array<ITEM_TYPE,N> & in_stl , std::string object_name , std::string var_name ) {
+    return checkpoint_sequence_s( in_stl , object_name , var_name ) ;
+}
+
+// This template is only enabled if the items in the array are NOT an STL, except for std::string
+template <typename ITEM_TYPE, std::size_t N,
+          typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* >
+int checkpoint_stl(std::array<ITEM_TYPE,N> & in_stl , std::string object_name , std::string var_name ) {
+    return checkpoint_sequence_i( in_stl , object_name , var_name ) ;
 }
 
 // -----------
@@ -196,6 +214,11 @@ int delete_sequence_alloc(STL & in_stl __attribute__ ((unused)), std::string obj
     return 0 ;
 }
 
+template <class ITEM_TYPE, std::size_t N>
+int delete_stl(std::array<ITEM_TYPE,N> & in_stl , std::string object_name , std::string var_name ) {
+    return delete_sequence_alloc( in_stl , object_name , var_name ) ;
+}
+
 template <class ITEM_TYPE, typename _Alloc>
 int delete_stl(std::vector<ITEM_TYPE,_Alloc> & in_stl , std::string object_name , std::string var_name ) {
     return delete_sequence_alloc( in_stl , object_name , var_name ) ;
@@ -241,7 +264,7 @@ int restore_sequence_i(STL & in_stl , std::string object_name , std::string var_
 
     //message_publish(1, "RESTORE_SEQUENCE_STL %s_%s\n", object_name.c_str() , var_name.c_str()) ;
 
-    items_ref = ref_attributes((char *)(object_name + std::string("_") + var_name).c_str()) ; 
+    items_ref = ref_attributes((char *)(object_name + std::string("_") + var_name).c_str()) ;
 
     if ( items_ref != NULL ) {
         in_stl.clear() ;
@@ -282,6 +305,69 @@ int restore_sequence_s(STL & in_stl , std::string object_name , std::string var_
             index_string << ii ;
             restore_stl(vt, object_name + "_" + var_name , index_string.str()) ;
             in_stl.insert( in_stl.end(), vt ) ;
+        }
+        delete_stl( in_stl , object_name , var_name ) ;
+    }
+
+    return 0 ;
+}
+
+// -----------
+// std::array
+
+// This template is only enabled if the items in the array are an STL
+template <typename ITEM_TYPE, std::size_t N,
+          typename std::enable_if<is_stl_container<ITEM_TYPE>::value>::type* >
+int restore_stl(std::array<ITEM_TYPE,N> & in_stl , std::string object_name , std::string var_name ) {
+    unsigned int ii ;
+    unsigned int cont_size ;
+
+    REF2 * items_ref ;
+    std::string * items ;
+    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+
+    //message_publish(1, "%s\n", __PRETTY_FUNCTION__) ;
+
+    items_ref = ref_attributes((char *)(object_name + "_" + var_name).c_str()) ;
+
+    if ( items_ref != NULL ) {
+        items = (std::string *)items_ref->address ;
+        cont_size = get_size((char *)items) ;
+
+        for ( ii = 0 ; ii < cont_size ; ii++ ) {
+            typename std::array<ITEM_TYPE,N>::value_type vt ;
+            std::ostringstream index_string ;
+            index_string << ii ;
+            restore_stl(vt, object_name + "_" + var_name , index_string.str()) ;
+            in_stl[ii] = vt ;
+        }
+        delete_stl( in_stl , object_name , var_name ) ;
+    }
+
+    return 0 ;
+}
+
+// This template is only enabled if the items in the array are NOT an STL, except for std::string
+template <typename ITEM_TYPE, std::size_t N,
+          typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* >
+int restore_stl(std::array<ITEM_TYPE,N> & in_stl , std::string object_name , std::string var_name ) {
+    unsigned int ii ;
+    unsigned int cont_size ;
+
+    REF2 * items_ref ;
+    typename std::array<ITEM_TYPE,N>::value_type * items ;
+    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+
+    //message_publish(1, "RESTORE_SEQUENCE_STL %s_%s\n", object_name.c_str() , var_name.c_str()) ;
+
+    items_ref = ref_attributes((char *)(object_name + std::string("_") + var_name).c_str()) ;
+
+    if ( items_ref != NULL ) {
+        items = (typename std::array<ITEM_TYPE,N>::value_type *)items_ref->address ;
+        cont_size = get_size((char *)items) ;
+
+        for ( ii = 0 ; ii < cont_size ; ii++ ) {
+            in_stl[ii] = items[ii] ;
         }
         delete_stl( in_stl , object_name , var_name ) ;
     }

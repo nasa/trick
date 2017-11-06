@@ -1,9 +1,0 @@
-/**
-@page LEVEL2 Trick Checkpoint Writer
-
-The Trick CheckPointWriter is a C++ Class that implements checkpointing.
-
-See Also:
-- Trick::CheckPointAgent
-- Trick::ClassicCheckPointAgent
-*/

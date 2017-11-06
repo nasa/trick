@@ -22,7 +22,7 @@ foreach $argnum (0 .. $#ARGV) {
     } elsif ($arg =~ /-t/ ) {
         $makefileAddArgs = $makefileAddArgs . " test ";
     } else {
-        print "Warning: Ignoring unrecognized argument $arg\n"
+        $ENV{TRICK_CPFLAGS} .= " $arg" ;
     }
 }
 
@@ -48,10 +48,143 @@ if ( -f "S_define" ) {
 __END__
 # CP found at SUB_TRICK_BIN
 
+# Disable built-in implicit rules to increase build speed.
+.SUFFIXES:
+
 ifndef TRICK_HOME
     export TRICK_HOME := SUB_TRICK_HOME
 endif
 
-include ${TRICK_HOME}/share/trick/makefiles/Makefile.sim
+ifneq ($(wildcard ${TRICK_HOME}/share/trick/makefiles/Makefile.common),)
+include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
+
+ifndef TRICK_VERBOSE_BUILD
+    PRINT_CP            = $(info $(call COLOR,Running)    configuration_processor)
+    PRINT_ICG           = $(info $(call COLOR,Running)    ICG)
+    PRINT_CONVERT_SWIG  = $(info $(call COLOR,Running)    convert_swig)
+    PRINT_MAKEFILE_SRC  = $(info $(call COLOR,Writing)    Makefile_src)
+    PRINT_MAKEFILE_SWIG = $(info $(call COLOR,Writing)    Makefile_swig)
+endif
+
+MAKE_OUT := build/MAKE_out
+REMOVE_MAKE_OUT := $(shell rm -f $(MAKE_OUT))
+
+all:
+	$(info [32mTrick Build Process Complete[00m)
+
+
+test: TRICK_SYSTEM_CFLAGS += -DTRICK_UNIT_TEST
+test: TRICK_SYSTEM_CXXFLAGS += -DTRICK_UNIT_TEST
+test: all
+
+debug: TRICK_CPFLAGS += --debug
+debug: all
+
+build:
+	@mkdir -p $@
+
+$(TRICK_STATIC_LIB):
+	$(info Cannot find $@. Please build Trick for this platform.)
+	@exit -1
+
+# CP creates S_source.hh required for ICG and SWIG processing
+S_source.hh: S_define | build
+	$(PRINT_CP)
+	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/configuration_processor $(TRICK_CPFLAGS)
+
+build/Makefile_S_define: S_source.hh
+	$(PRINT_S_DEF_DEPS)
+	$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_SFLAGS) $(TRICK_SYSTEM_SFLAGS) -MM -MT S_source.hh -MF build/Makefile_S_define -x c++ S_define
+
+# Automatic and manual ICG rules
+ICG:
+	$(PRINT_ICG)
+	$(ECHO_CMD)${TRICK_HOME}/bin/trick-ICG -m ${TRICK_ICGFLAGS} ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} S_source.hh
+
+force_ICG:
+	$(PRINT_ICG)
+	$(ECHO_CMD)${TRICK_HOME}/bin/trick-ICG -f -m ${TRICK_ICGFLAGS} ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} S_source.hh
+
+# Create makefile for IO code
+build/Makefile_io_src: S_source.hh | build
+	$(PRINT_ICG)
+	$(ECHO_CMD)${TRICK_HOME}/bin/trick-ICG -m ${TRICK_ICGFLAGS} ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} $<
+
+# Create makefile for source code
+#build/Makefile_src: build/ICG_processed build/ICG_no_found build/S_define.lib_deps
+build/Makefile_src: build/Makefile_src_deps build/Makefile_io_src S_source.hh
+	$(PRINT_MAKEFILE_SRC)
+	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/make_makefile_src $?
+
+build/Makefile_src_deps: ;
+
+# Create makefile for SWIG code
+build/Makefile_swig: S_source.hh build/Makefile_swig_deps
+	$(PRINT_MAKEFILE_SWIG)
+	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/make_makefile_swig
+
+build/Makefile_swig_deps: ;
+
+# Forcibly (re)create all SWIG input (.i) files. This rule is never run by the normal
+# build process.
+.PHONY: convert_swig
+convert_swig: build/S_library_swig
+	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/convert_swig ${TRICK_CONVERT_SWIG_FLAGS}
+
+# Force S_define_exp to be remade each time this rule runs
+.PHONY: S_define_exp
+S_define_exp:
+	$(TRICK_CC) -E -C -xc++ ${TRICK_SFLAGS} $(TRICK_SYSTEM_SFLAGS) S_define > $@
+
+help:
+	@echo -e "\
+Simulation make options:\n\
+    make [debug] [TRICK_VERBOSE_BUILD=1] - Makes everything: S_main and S_sie.resource\n\
+    make sie                     - Builds the S_sie.resource file.\n\
+    make clean                   - Removes all object files in simulation directory\n\
+    make spotless                - Performs a clean\n\
+    make apocalypse              - Performs a clean"
+
+CLEAN_TARGETS = tidy clean spotless distclean apocalypse
+ifeq ($(findstring ${MAKECMDGOALS},$(CLEAN_TARGETS)),)
+-include build/Makefile_S_define
+-include build/Makefile_src
+-include build/Makefile_src_deps
+-include build/Makefile_io_src
+-include build/Makefile_swig
+-include build/Makefile_swig_deps
+-include build/Makefile_ICG
+endif
 -include S_overrides.mk
+-include build/Makefile_overrides
+
+ifeq ($(MAKECMDGOALS),)
+    $(info $(call COLOR,Building with the following compilation flags:))
+    $(info TRICK_CFLAGS   = [36m$(TRICK_CFLAGS)[0m)
+    $(info TRICK_CXXFLAGS = [36m$(TRICK_CXXFLAGS)[0m)
+endif
+
+else
+all:
+	$(error error with TRICK_HOME, cannot find ${TRICK_HOME}/share/trick/makefiles/Makefile.common)
+endif
+
+tidy:
+	-rm -f S_source.hh S_sie.resource
+	-rm -f S_main* T_main*
+	-rm -f build/Makefile_*
+	-rm -f S_default.dat
+
+clean: tidy
+	-rm -f DP_Product/DP_rt_frame DP_Product/DP_rt_itimer
+	-rm -f DP_Product/DP_rt_jobs DP_Product/DP_rt_timeline DP_Product/DP_mem_stats
+	-rm -rf build trick
+	-rm -f makefile
+
+spotless: clean
+
+distclean: clean
+
+apocalypse: clean
+	@echo "[31mI love the smell of napalm in the morning[0m"
 

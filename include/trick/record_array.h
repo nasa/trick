@@ -22,16 +22,16 @@ typedef struct
    /* create and initialize a record array */
 RecordArray* Array_Create(void);
 
-   /* Appends a record to the end of the array (allocating memory if necessary) 
-    * And returns a pointer to the start of that record 
+   /* Appends a record to the end of the array (allocating memory if necessary)
+    * And returns a pointer to the start of that record
     */
 
 void* Array_AddRecord(RecordArray* pArray);
 
 
    /* Gets a pointer to the record stored at the zero based record index given by nRecord.
-    * If nRecord is greater than the record count - 1, realloc is called to make the 
-    * record buffer larger 
+    * If nRecord is greater than the record count - 1, realloc is called to make the
+    * record buffer larger
     */
 
 void* Array_GetAt(int nRecord,RecordArray* pArray);
@@ -64,7 +64,7 @@ void* Array_GetBuffer(RecordArray* pArray);
 
 
    /* returns a pointer to the buffer prefixed with an INT32 value which holds the
-      record count 
+      record count
     */
 
 void* Array_GetBufferWithSize(RecordArray* pArray);

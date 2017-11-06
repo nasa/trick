@@ -99,6 +99,9 @@
 #include "trick/RKF78_Integrator.hh"
 #include "trick/RKG4_Integrator.hh"
 
+#include "trick/SimTime.hh"
+#include "trick/simtime_proto.h"
+
 #include "trick/MSSocket.hh"
 #include "trick/MSSharedMem.hh"
 #include "trick/Master.hh"
@@ -164,7 +167,7 @@ def traceit(frame, event, arg):
                 filename.endswith(".pyo")):
                 filename = filename[:-1]
             line = linecache.getline(filename, lineno)
-            print "%s:%s: %s" % (filename, lineno, line.rstrip())
+            print (filename,":",lineno,": ",line.rstrip())
     return traceit
 %}
 

@@ -1,9 +1,0 @@
-
-/**
-@page LEVEL2 Safety Requirements
-
-There are no safety requirements for this software.  Any simulations that use
-trick functions to control hazards are responsible for maintaining their safety
-requirements.
-
-*/

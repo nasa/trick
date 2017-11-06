@@ -36,19 +36,23 @@ class ClassValues : public ConstructValues {
 
         /** Appends a vector of fields to field_descripts.
             A vector comes from adding all inherited fields at once */
-        void addInheritedFieldDescriptions(std::vector<FieldDescription *>, unsigned int class_offset) ;
+        void addInheritedFieldDescriptions(std::vector<FieldDescription *>,
+         unsigned int class_offset, bool virtual_inherited) ;
 
         /** Gets the list of fields in this class */
-        std::vector<FieldDescription *> getFieldDescription() ;
+        const std::vector<FieldDescription*>& getFieldDescriptions() {
+            return field_descripts ;
+        }
 
         void clearFieldDescription() ;
 
-        typedef std::vector< FieldDescription * >::iterator FieldIterator ;
-        FieldIterator field_begin() { return field_descripts.begin() ; } ;
-        FieldIterator field_end() { return field_descripts.end() ; } ;
-
         /** Appends an inherited class name to the list this class inherits from */
         void addInheritedClass( std::string class_name ) ;
+
+        /** Gets the list of inherited classes */
+        const std::vector<std::string>& getInheritedClasses() {
+            return inherited_classes ;
+        }
 
         void saveInheritAncestry( ClassValues * in_cv ) ;
         void setContainerClassForFields() ;
@@ -56,34 +60,31 @@ class ClassValues : public ConstructValues {
 
         void clearInheritedClass() ;
 
-        typedef std::vector< std::string >::iterator InheritedClassesIterator ;
-        InheritedClassesIterator inherit_classes_begin() { return inherited_classes.begin() ; } ;
-        InheritedClassesIterator inherit_classes_end() { return inherited_classes.end() ; } ;
-        unsigned int getNumInheritedClasses() { return inherited_classes.size() ; } ;
-
         void setVirtualInherited(bool in_inh) ;
         bool isVirtualInherited() ;
         void setHasInitAttrFriend(bool in_val) ;
         bool getHasInitAttrFriend() ;
         void setPOD(bool in_val) ;
         bool isPOD() ;
+        void setSize(unsigned int size) ;
+        unsigned int getSize() ;
         void setAbstract(bool in_val) ;
         bool isAbstract() ;
         void setHasDefaultConstructor(bool in_val) ;
         bool getHasDefaultConstructor() ;
         void setHasPublicDestructor(bool in_val) ;
         bool getHasPublicDestructor() ;
-        std::string getFullyQualifiedTypeName() ;
         void setMangledTypeName( std::string in_val ) ;
         std::string getMangledTypeName() ;
-        std::string getFullyQualifiedMangledTypeName() ;
-
-        void print_namespaces(std::ostream & os, const char * delimiter) ;
+        std::string getFullyQualifiedMangledTypeName(const std::string& delimiter = "::") ;
+        std::string getFullyQualifiedNameIfEqual();
+        void setCompat15(bool in_val) ;
+        bool isCompat15() ;
+        bool isInStandardNamespace();
 
         friend std::ostream & operator << (std::ostream & os , ClassValues & cv ) ;
 
     private:
-        /** List of fields (data members) contained in the class */
         std::vector< FieldDescription * > field_descripts ;
 
         std::map< std::string , FieldDescription * > field_name_to_info_map ;
@@ -101,6 +102,9 @@ class ClassValues : public ConstructValues {
         /** Is this class plain old data? */
         bool is_pod ;
 
+        /** Size of class in bytes */
+        unsigned int size ;
+
         /** Is this class abstract? */
         bool is_abstract ;
 
@@ -112,6 +116,10 @@ class ClassValues : public ConstructValues {
 
         /** Mangled type name. Templates will have a mangled_type_name.  */
         std::string mangled_type_name ;
+
+        /** Generate Trick 15 compatible io_src code */
+        bool compat15 ;
+
 } ;
 
 #endif

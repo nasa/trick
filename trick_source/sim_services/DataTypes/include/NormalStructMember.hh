@@ -40,7 +40,7 @@ public:
      */
     bool validate();
 
-    /** 
+    /**
     */
     MemberClass::e getMemberClass() const {
         return MemberClass::NORMAL;

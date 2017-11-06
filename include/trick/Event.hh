@@ -1,6 +1,8 @@
 #ifndef EVENT_HH
 #define EVENT_HH
-
+/*
+    PURPOSE: ( Event Class )
+*/
 #include <string>
 #include "trick/mm_macros.hh"
 #include "trick/exec_proto.h"

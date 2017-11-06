@@ -28,7 +28,7 @@ public:
    * @param column_node this is a pointer to an xmlNode whose type is
    *        XML_ELEMENT_NODE and whose name is "column".
    */
-  DPM_column(DPM_component *parent, xmlNode *column_node) throw (std::invalid_argument);
+  DPM_column(DPM_component *parent, xmlNode *column_node) ;
 
   /**
    * Destructor.

@@ -94,14 +94,14 @@ void IBall_sim( Integrator_type Alg,
         integ(I, &ball);
 
         // Advance time.
-        tick++;        
+        tick++;
         sim_time = tick * seconds_per_tick ;
 
         // If we are looking for roots ...
         if ( doing_dynamic_events ) {
             double tgo;
 
-            // ###RF### Given the current error, estimate how far (in time) we are from a root. 
+            // ###RF### Given the current error, estimate how far (in time) we are from a root.
             rf.error = ball.pos[0];
             tgo = regula_falsi(sim_time, &rf);
 
@@ -123,10 +123,10 @@ void IBall_sim( Integrator_type Alg,
 
                     t_test += tgo;
 
-                    // ###RF### Given the current error, estimate how far (in time) we are from the root. 
+                    // ###RF### Given the current error, estimate how far (in time) we are from the root.
                     rf.error = ball.pos[0];
                     tgo = regula_falsi( t_test, &rf);
-    
+
                     // If the estimated time-to-go is less than the chosen tolerance, then we have our root.
                     if (fabs( tgo) < rf.error_tol) {
                         printf("ROOT@ %18.14g\n", t_test);
@@ -197,7 +197,7 @@ int main(int argc, const char* argv[]) {
 //          break;
         default:
             std::cerr << "Invalid test number." << std::endl;
-        } 
+        }
 
         strcpy (dataout_name, "IBall_");
         strcat (dataout_name, Algorithm_name);
@@ -208,7 +208,7 @@ int main(int argc, const char* argv[]) {
 
         if (test_number > 0) {
             gplout << ", \\" << std::endl;
-        } 
+        }
 
         gplout << "\"" << dataout_name << "\" using 3:2 title \'" << Algorithm_name << "\' with lines";
 

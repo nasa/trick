@@ -11,7 +11,6 @@ Trick::MonteCarlo::MonteCarlo() :
     timeout(120),
     max_tries(2),
     verbosity(INFORMATIONAL),
-    default_port_flag(1),
     num_runs(0),
     actual_num_runs(0),
     num_results(0),
@@ -22,31 +21,21 @@ Trick::MonteCarlo::MonteCarlo() :
 
     slaves_head = NULL;
 
-    char hostname[HOST_NAME_MAX + 1];
-    gethostname(hostname, HOST_NAME_MAX);
+    char hostname[_POSIX_HOST_NAME_MAX + 1];
+    gethostname(hostname, _POSIX_HOST_NAME_MAX);
     machine_name = hostname;
 
     memset(&listen_device, 0, sizeof(TCDevice)) ;
     memset(&connection_device, 0, sizeof(TCDevice)) ;
-    memset(&data_listen_device, 0, sizeof(TCDevice)) ;
-    memset(&data_connection_device, 0, sizeof(TCDevice)) ;
 
-    listen_device.port = 7200;
-    connection_device.port = 7200;
+    listen_device.port = 0;
+    connection_device.port = 0;
 
     listen_device.disable_handshaking = TC_COMM_TRUE;
     connection_device.disable_handshaking = TC_COMM_TRUE;
 
-    data_listen_device.port = 7400;
-    data_connection_device.port = 7400;
-
-    data_listen_device.disable_handshaking = TC_COMM_TRUE;
-    data_connection_device.disable_handshaking = TC_COMM_TRUE;
-
     tc_error(&listen_device, 0);
     tc_error(&connection_device, 0);
-    tc_error(&data_listen_device, 0);
-    tc_error(&data_connection_device, 0);
 
     int num_classes = 0;
     class_map["monte_master_init"] = num_classes;
@@ -79,12 +68,8 @@ Trick::MonteCarlo::~MonteCarlo() {
     /* tc_error allocates memory in the constructor */
     free(listen_device.error_handler) ;
     free(connection_device.error_handler) ;
-    free(data_listen_device.error_handler) ;
-    free(data_connection_device.error_handler) ;
     listen_device.error_handler = NULL ;
     connection_device.error_handler = NULL ;
-    data_listen_device.error_handler = NULL ;
-    data_connection_device.error_handler = NULL ;
 }
 
 

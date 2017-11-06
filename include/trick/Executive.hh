@@ -178,6 +178,9 @@ namespace Trick {
             /** Queue to hold end of frame jobs.\n */
             Trick::ScheduledJobQueue end_of_frame_queue ;     /**< trick_io(**) */
 
+            /** Queue to hold thread sync.\n */
+            Trick::ScheduledJobQueue thread_sync_queue ;     /**< trick_io(**) */
+
             /** Queue to hold shutdown jobs.\n */
             Trick::ScheduledJobQueue shutdown_queue ;         /**< trick_io(**) */
 
@@ -268,6 +271,12 @@ namespace Trick {
             */
             void reset_job_call_times() ;
 
+            /**
+             Internal call to test if thread is ready to run
+             @return bool
+            */
+            bool isThreadReadyToRun( Trick::Threads * curr_thread , long long time_tics) ;
+
         public:
 
             Executive() ;
@@ -297,7 +306,7 @@ namespace Trick {
              @code <my_char*> = trick.exec_get_current_version() @endcode
              @return string (C const char*) Executive::current_version
             */
-            std::string get_current_version() ;
+            const std::string & get_current_version() ;
 
             /**
              @userdesc Command to get the debugger command value.
@@ -305,7 +314,7 @@ namespace Trick {
              @code <my_char*> = trick.exec_get_debugger_command() @endcode
              @return string (C const char*) Executive::debugger_command
             */
-            std::string get_debugger_command() ;
+            const std::string & get_debugger_command() ;
 
             /**
              @userdesc Command to get the current Executive Mode command.
@@ -914,6 +923,18 @@ namespace Trick {
              * @return always 0
              */
             virtual int advance_sim_time() ;
+
+            /**
+             * Job to synchronize AMF and ASYNC threads to the master.
+             * @return always 0
+             */
+            virtual int thread_sync() ;
+
+            /**
+             * Job to synchronize SCHEDULED threads to the master.
+             * @return always 0
+             */
+            virtual int scheduled_thread_sync() ;
 
             /**
              * @brief freeze_init job that initialized the freeze_scheduled loop

@@ -1,3 +1,6 @@
+/*
+ * PURPOSE: (VehicleController class)
+ */
 #ifndef VEHICLE_CONTROLLER_HH
 #define VEHICLE_CONTROLLER_HH
 

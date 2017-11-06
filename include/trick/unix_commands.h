@@ -6,7 +6,7 @@
 #ifndef _UNIX_COMMANDS
 #define _UNIX_COMMANDS
 
-#if __sgi 
+#if __sgi
 #define unix_ssh "/usr/freeware/bin/ssh"
 #define unix_rsh "/usr/bsd/rsh"
 #elif __sun

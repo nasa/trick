@@ -54,7 +54,7 @@ int Ball::state_integ() {
        &state_out->velocity[1] ,
        &state_out->acceleration[0] ,
        &state_out->acceleration[1] ,
-       NULL 
+       NULL
    );
 
    /* CALL THE TRICK INTEGRATION SERVICE */

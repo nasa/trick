@@ -13,7 +13,7 @@ int DPM_extfn::Initialize( xmlNode *base_node) {
     if ( strcmp( (char *)base_node->name, "extfn") != 0) {
         std::cerr << "ERROR: Expected <extfn> specification but didnt find it." << std::endl;
         return -1;
-    } 
+    }
 
     xmlNode *current_node = base_node->children;
 
@@ -52,8 +52,8 @@ int DPM_extfn::Initialize( xmlNode *base_node) {
 
     // Validation
     // 1. function name is required. Its needed to identify the external dynamically loaded function.
-    // 2. inputs are required. 
-    // 3. outputs are required. 
+    // 2. inputs are required.
+    // 3. outputs are required.
 
     if (fname == NULL) {
         std::cerr << "ERROR: <extfn> specification is missing an <fname> (function name) specification." << std::endl;
@@ -71,7 +71,7 @@ int DPM_extfn::Initialize( xmlNode *base_node) {
 }
 
 // XML CONSTRUCTOR
-DPM_extfn::DPM_extfn(DPM_component *Parent, xmlNode *Base_node) throw (std::invalid_argument)
+DPM_extfn::DPM_extfn(DPM_component *Parent, xmlNode *Base_node)
   : DPM_component (Parent, Base_node) {
 
   if ( Initialize( Base_node) < 0) {
@@ -132,8 +132,8 @@ std::ostream& operator<< (std::ostream& s, const DPM_extfn *extfn) {
   }
   s << ">";
   s << std::endl;
-  s << extfn->inputs; 
-  s << extfn->outputs; 
+  s << extfn->inputs;
+  s << extfn->outputs;
   s << "</relation>";
   s << std::endl;
   return s;

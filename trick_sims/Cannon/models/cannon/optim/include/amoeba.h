@@ -1,5 +1,5 @@
 /*
- * Vetter's implementation of the Nelder-Mead "amoeba" algorithm. 
+ * Vetter's implementation of the Nelder-Mead "amoeba" algorithm.
  * Was made strictly for Trick tutorial.  Was a whim.
  * Reference for algorithm (not code):
  * http://www.research.ibm.com/infoecon/paps/html/amec99_bundle/node8.html
@@ -8,10 +8,10 @@
 #ifndef AMOEBA_H
 #define AMOEBA_H
 
-#define AMOEBA_ALPHA 1.0     /* reflection constant */ 
-#define AMOEBA_BETA  1.0     /* expansion constant */ 
-#define AMOEBA_ZETA  0.5     /* contraction constant */ 
-#define AMOEBA_ETA   0.5     /* shrinkage constant */ 
+#define AMOEBA_ALPHA 1.0     /* reflection constant */
+#define AMOEBA_BETA  1.0     /* expansion constant */
+#define AMOEBA_ZETA  0.5     /* contraction constant */
+#define AMOEBA_ETA   0.5     /* shrinkage constant */
 
 typedef enum {
 
@@ -37,8 +37,8 @@ typedef struct {
         double*  x_refl ;       /* -- Point of reflection */
         double*  x_expa ;       /* -- Point of expansion */
         double*  x_cont ;       /* -- Point of contraction */
-        double*  curr_point ;   /* -- Current point of interest for sim use: 
-                                      Simplex vertice, centroid, reflection, 
+        double*  curr_point ;   /* -- Current point of interest for sim use:
+                                      Simplex vertice, centroid, reflection,
                                       expansion or contraction point */
         int curr_vertex ;       /* -- Current vertex for sim state machine */
         AMOEBA_STATE state ;    /* -- For sim's amoeba state machine */
@@ -48,7 +48,7 @@ typedef struct {
 #ifdef __cplusplus
 extern "C" {
 #endif
-void amoeba_init( AMOEBA* A, int num_dims, double epsilon, int max_steps, 
+void amoeba_init( AMOEBA* A, int num_dims, double epsilon, int max_steps,
                   double* simplex_point, double simplex_size ) ;
 void amoeba_print( AMOEBA* A ) ;
 void amoeba_print_point( int num_dims, double* point ) ;

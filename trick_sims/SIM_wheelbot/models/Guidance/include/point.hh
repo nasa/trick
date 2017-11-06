@@ -1,3 +1,6 @@
+/*
+ * PURPOSE: (Class to represent a point)
+ */
 #ifndef POINT_HH
 #define POINT_HH
 class Point {

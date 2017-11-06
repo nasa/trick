@@ -1,4 +1,4 @@
-
+TRICK_HOME := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))../../..)
 include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 # override the trick lib file for this directory.

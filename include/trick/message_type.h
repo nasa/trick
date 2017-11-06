@@ -1,6 +1,8 @@
 #ifndef MESSAGE_TYPE_H
 #define MESSAGE_TYPE_H
-
+/*
+    PURPOSE: ( Define message types for the message publisher. )
+*/
 #ifdef __cplusplus
 extern "C" {
 #endif

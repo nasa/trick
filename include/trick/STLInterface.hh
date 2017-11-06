@@ -1,7 +1,8 @@
-
 #ifndef STLINTERFACE_HH
 #define STLINTERFACE_HH
-
+/*
+    PURPOSE: ( STLInterface Class )
+*/
 #include <string>
 
 namespace Trick {

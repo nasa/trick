@@ -66,7 +66,7 @@ int Trick::MessagePublisher::publish(int level , std::string message) {
         }
     } else {
         // If there are no subscribers, that probably means things have not been inited yet... just print message only
-        
+
         // Building the final string in a temporary stream ensures an automic call to cout, which prevents
         // multithreaded sims from interleaving header and message elements.
         std::ostringstream oss;

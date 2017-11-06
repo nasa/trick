@@ -1,6 +1,8 @@
 #ifndef RTIEVENT_H
 #define RTIEVENT_H
-
+/*
+    PURPOSE: ( Real Time Injector Classes )
+*/
 #include <string>
 #include <sstream>
 #include <stdlib.h>

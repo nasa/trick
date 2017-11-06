@@ -121,7 +121,7 @@ int Trick::Executive::write_s_job_execution(FILE *fp) {
     for ( ii = 0 ; ii < other_schedulers.size() ; ii++ ) {
         other_schedulers[ii]->write_s_job_execution(fp) ;
     }
-    
+
     fprintf(fp, "\n===================================================================================================\n") ;
 
     fclose(fp);

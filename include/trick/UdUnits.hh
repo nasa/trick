@@ -1,7 +1,8 @@
-
 #ifndef UDUNITS_HH
 #define UDUNITS_HH
-
+/*
+    PURPOSE: ( UdUnits Class )
+*/
 #include <udunits2.h>
 #include <string>
 

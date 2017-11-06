@@ -1,5 +1,5 @@
 
-/* 
+/*
  *  Get system clock reference time
  */
 

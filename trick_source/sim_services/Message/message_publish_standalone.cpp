@@ -22,7 +22,7 @@ extern "C" int message_publish_standalone(int level, const char * format_msg, ..
     date = time(NULL) ;
     strftime(date_buf, (size_t) 20, "%Y/%m/%d,%H:%M:%S", localtime(&date));
     (void) gethostname(hostname, (size_t) 48);
-    fprintf(stdout, "|L %d|%s|  |%s|T %d|%.2f| %s" , level, 
+    fprintf(stdout, "|L %d|%s|  |%s|T %d|%.2f| %s" , level,
             // so that we don't call any exec routines, use process id 0 and sim time 0.0
             date_buf, hostname , 0, 0.0, msg_buf) ;
     fflush(stdout) ;

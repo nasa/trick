@@ -75,14 +75,22 @@ int Trick::DRAscii::format_specific_init() {
     /* Start with the 1st item in the buffer which should be "sys.exec.out.time" */
     out_stream << rec_buffer[0]->ref->reference ;
     if ( rec_buffer[0]->ref->attr->units != NULL ) {
-        out_stream << " {" << rec_buffer[0]->ref->attr->units << "}" ;
+        if ( rec_buffer[0]->ref->attr->mods & TRICK_MODS_UNITSDASHDASH ) {
+            out_stream << " {--}" ;
+        } else {
+            out_stream << " {" << rec_buffer[0]->ref->attr->units << "}" ;
+        }
     }
     /* Write out specified recorded parameters */
     for (jj = 1; jj < rec_buffer.size() ; jj++) {
         out_stream << delimiter << rec_buffer[jj]->ref->reference ;
 
         if ( rec_buffer[jj]->ref->attr->units != NULL ) {
-            out_stream << " {" << rec_buffer[jj]->ref->attr->units << "}" ;
+            if ( rec_buffer[jj]->ref->attr->mods & TRICK_MODS_UNITSDASHDASH ) {
+                out_stream << " {--}" ;
+            } else {
+                out_stream << " {" << rec_buffer[jj]->ref->attr->units << "}" ;
+            }
         }
     }
     out_stream << std::endl ;

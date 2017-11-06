@@ -6,27 +6,21 @@
     <frequency>0.0</frequency>
     <page>
         <title>Page</title>
-        <tstart>0.0</tstart>
-        <tstop>0.0</tstop>
+        <tstart>-1.0E20</tstart>
+        <tstop>1.0E20</tstop>
         <frequency>0.0</frequency>
-        <plot background_color="" font="" foreground_color="" grid="Off" grid_color="" xmax="0.0" xmin="0.0" ymax="0.0" ymin="0.0">
+        <plot background_color="" font="" foreground_color="" grid="Off" grid_color="">
             <title>Plot</title>
-            <tstart>0.0</tstart>
-            <tstop>0.0</tstop>
-            <frequency>0.0</frequency>
             <curve>
-                <var units="--">sys.exec.out.time</var>
-                <var units="--" line_color="blue">ball.state.out.position[0]</var>
+                <var units="s">sys.exec.out.time</var>
+                <var units="m" line_color="blue">ball.state.output.position[0]</var>
             </curve>
         </plot>
-        <plot background_color="" font="" foreground_color="" grid="Off" grid_color="" xmax="0.0" xmin="0.0" ymax="0.0" ymin="0.0">
+        <plot background_color="" font="" foreground_color="" grid="Off" grid_color="">
             <title>Plot</title>
-            <tstart>0.0</tstart>
-            <tstop>0.0</tstop>
-            <frequency>0.0</frequency>
             <curve>
-                <var units="--">sys.exec.out.time</var>
-                <var units="--" line_color="red">ball.state.out.position[1]</var>
+                <var units="s">sys.exec.out.time</var>
+                <var units="m" line_color="red">ball.state.output.position[1]</var>
             </curve>
         </plot>
     </page>

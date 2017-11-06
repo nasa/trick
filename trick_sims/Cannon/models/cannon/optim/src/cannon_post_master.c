@@ -20,7 +20,7 @@ int cannon_post_master(
         (void)C ;
 
         /* Read slave's results */
-        tc_read( mc_get_connection_device(),(char*) &C_curr, sizeof(CANNON_AERO) );
+        mc_read( (char*) &C_curr, sizeof(CANNON_AERO) );
 
         fprintf(stderr, "%03d> F(", mc_get_current_run());
         amoeba_print_point(4, A->curr_point) ;

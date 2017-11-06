@@ -14,6 +14,20 @@
 
 #include "trick/MonteVar.hh"
 
+// This block of code disowns the pointer on the python side so you can reassign
+// python variables without freeing the C++ class underneath
+#ifdef SWIG
+%feature("compactdefaultargs","0") ;
+%feature("shadow") Trick::MonteVarFile::MonteVarFile(std::string name, std::string file_name, unsigned int column) %{
+    def __init__(self, *args):
+        this = $action(*args)
+        try: self.this.append(this)
+        except: self.this = this
+        this.own(0)
+        self.this.own(0)
+%}
+#endif
+
 namespace Trick {
 
     /**
@@ -59,8 +73,9 @@ namespace Trick {
         /** The input file stream. */
         std::ifstream *input_file_stream; /**< \n trick_units(--) */
 
-        /** A character buffer. */
-        char *buffer;                     /**< \n trick_units(--) */
+        private:
+        // Used to store the current position of the stream for file opening and closing.
+        std::streampos stream_position;
 
         public:
         /**
@@ -72,6 +87,27 @@ namespace Trick {
          * @param unit this variable's units
          */
         MonteVarFile(std::string name, std::string file_name, unsigned int column, std::string unit = "");
+
+        /** Destructor. */
+        virtual ~MonteVarFile();
+        /**
+         * Sets the file name
+         *
+         * @param in_file_name the name of the file containing this variable's values
+         */
+
+        
+        void set_file_name(std::string in_file_name);
+        
+        /**
+         * Sets the column
+         *
+         * @param in_column the column (starting at 1)  within the file corresponding to this variable
+         */
+        void set_column(unsigned int in_column);
+        
+        // Describes the various properties of this variable.
+        std::string describe_variable();
 
         protected:
         virtual std::string get_next_value();

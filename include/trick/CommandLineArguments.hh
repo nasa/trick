@@ -95,7 +95,7 @@ namespace Trick {
             std::string & get_input_file_ref() ;
 
             /**
-             @brief @userdesc Command to get the default directory. 
+             @brief @userdesc Command to get the default directory.
              @par Python Usage:
              @code <my_default_dir> = trick.command_line_args_get_default_dir() @endcode
              @return string default_dir

@@ -35,7 +35,7 @@
  \code FOO::BAR (*A)[3][4] = (FOO::BAR(*)[3][4])trick_MM->declare_var("FOO::BAR my_array[3][4]"); \endcode
  */
 
-// PUBLIC MEMBER FUNCTION: void* Trick::MemoryManager::declare_var(TRICK_TYPE type,std::string user_type_name, int n_stars, std::string var_name, int n_cdims, int *cdims); 
+// PUBLIC MEMBER FUNCTION: void* Trick::MemoryManager::declare_var(TRICK_TYPE type,std::string user_type_name, int n_stars, std::string var_name, int n_cdims, int *cdims);
 void* Trick::MemoryManager::declare_var( TRICK_TYPE type,
                                         std::string user_type_name,
                                         int n_stars,

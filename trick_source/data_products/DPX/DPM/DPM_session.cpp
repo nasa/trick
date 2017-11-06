@@ -120,7 +120,7 @@ int DPM_session::Initialize( xmlNode *SessionNode ) {
     return 0;
 }
 
-DPM_session::DPM_session(DPM_component *Parent, xmlNode *SessionNode) throw (std::invalid_argument)
+DPM_session::DPM_session(DPM_component *Parent, xmlNode *SessionNode)
  : DPM_component(Parent, SessionNode) {
 
   if ( Initialize( SessionNode) < 0) {

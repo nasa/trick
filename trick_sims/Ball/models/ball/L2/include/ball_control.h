@@ -23,10 +23,10 @@ PROGRAMMERS:
 typedef struct { /* BCONTROL_IN ----------------------------------------------*/
 
   Flag   active ;          /* --  Yes = control system active */
-  double target_altitude ; /* M   Altitude to achieve and hold */
-  double dead_zone ;       /* M   delta altitude about target altitude where
+  double target_altitude ; /* m   Altitude to achieve and hold */
+  double dead_zone ;       /* m   delta altitude about target altitude where
                                   no jets are fired */
-  double max_rate ;        /* M/s Maximum allowed altitude rate of change */
+  double max_rate ;        /* m/s Maximum allowed altitude rate of change */
 
 } BCONTROL_IN ; /*------------------------------------------------------------*/
 
@@ -38,8 +38,8 @@ typedef struct { /* BCONTROL_OUT ---------------------------------------------*/
 
 typedef struct { /* BCONTROL_WORK --------------------------------------------*/
 
-  double last_altitude ;   /* *io M  Sensed altitude from last pass */
-  double rate_est ;        /* M/s Estimated altitude rate of change */
+  double last_altitude ;   /* *io m  Sensed altitude from last pass */
+  double rate_est ;        /* m/s Estimated altitude rate of change */
 
 } BCONTROL_WORK ; /*----------------------------------------------------------*/
 

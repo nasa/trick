@@ -1,6 +1,11 @@
 #ifndef PARAMETER_TYPES_H
 #define PARAMETER_TYPES_H
 
+/*
+    PURPOSE: ( Defines the Trick data-types, used in ATTRIBUTES descriptions of
+               variables, found in io_src files.)
+*/
+
 #ifdef __cplusplus
 extern "C" {
 #endif

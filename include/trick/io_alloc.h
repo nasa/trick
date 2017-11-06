@@ -1,5 +1,9 @@
 #ifndef IO_ALLOC_H
 #define IO_ALLOC_H
+/*
+    PURPOSE: (The ALLOC_INFO structure describes a chunk of
+              memory that the MemoryManager knows about.)
+*/
 #include "trick/attributes.h"
 #include "trick/parameter_types.h"
 

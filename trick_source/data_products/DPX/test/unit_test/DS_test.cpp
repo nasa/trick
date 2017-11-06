@@ -70,7 +70,7 @@ std::string DSTest::run(char ch) {
 	// b -> begin
 	// e -> end
 	// s -> step
-	
+
     switch (ch) {
 		case 'g' : {
 			ret = testds->get(&time, &value);
@@ -113,8 +113,8 @@ std::string DSTest::run(char ch) {
     	} break;
     	default : {
 			s << "Invalid command";
-		} break;   
-	}   
+		} break;
+	}
   	return s.str();
 }
 
@@ -123,10 +123,10 @@ std::string DSTest::run(char ch) {
 // ASCII (CSV) DATASTREAM
 TEST_F(DSTest, DataStream_Ascii) {
   	//req.add_requirement("32631267");
-	
+
 	RUN_dir = "../TEST_DATA/RUN_ASCII";
     VarName = "sun_predictor.sun.solar_azimuth";
-	
+
 	data_stream_factory = new DataStreamFactory();
     testds = data_stream_factory->create(RUN_dir, VarName, NULL);
 
@@ -150,7 +150,7 @@ TEST_F(DSTest, DataStream_Ascii) {
     output = run('g');
     result = strcmp_IgnoreWhiteSpace(
 		"get : time = 0     value = 351.283     return = 1", output.c_str());
-	EXPECT_EQ(result, 0);	
+	EXPECT_EQ(result, 0);
 
 	output = run('g');
 	result = strcmp_IgnoreWhiteSpace(
@@ -205,47 +205,47 @@ TEST_F(DSTest, DataStream_Binary) {
     output = run('f');
     result = strcmp_IgnoreWhiteSpace(
     	"getFileName : filename = \"../TEST_DATA/RUN_BINARY/log_helios.trk\"", output.c_str());
-    EXPECT_EQ(result, 0); 
-    
+    EXPECT_EQ(result, 0);
+
 	// GET UNIT
     output = run('u');
     result = strcmp_IgnoreWhiteSpace("getUnit : unitspec = \"degree\"", output.c_str());
-    EXPECT_EQ(result, 0); 
-    
+    EXPECT_EQ(result, 0);
+
 	// GET TIME UNIT
     output = run('t');
     result = strcmp_IgnoreWhiteSpace("getTimeUnit : timeunitspec = \"s\"", output.c_str());
-    EXPECT_EQ(result, 0); 
-    
+    EXPECT_EQ(result, 0);
+
 	// GET
     output = run('g');
     result = strcmp_IgnoreWhiteSpace(
 		"get : time = 0     value = -36.7426     return = 1", output.c_str());
-    EXPECT_EQ(result, 0);   
-    
+    EXPECT_EQ(result, 0);
+
 	output = run('g');
     result = strcmp_IgnoreWhiteSpace(
 		"get : time = 1     value = -36.743     return = 1", output.c_str());
-    EXPECT_EQ(result, 0); 
-    
+    EXPECT_EQ(result, 0);
+
 	// PEEK
     output = run('p');
     result = strcmp_IgnoreWhiteSpace(
 		"peek : time = 2     value= -36.7434     return = 1", output.c_str());
-    EXPECT_EQ(result, 0); 
-    
+    EXPECT_EQ(result, 0);
+
 	output = run('p');
     result = strcmp_IgnoreWhiteSpace(
 		"peek : time = 2     value= -36.7434     return = 1", output.c_str());
-    EXPECT_EQ(result, 0); 
-    
+    EXPECT_EQ(result, 0);
+
 	// BEGIN
     output = run('b');
     output = run('g');
     result = strcmp_IgnoreWhiteSpace(
 		"get : time = 0     value = -36.7426      return = 1", output.c_str());
-    EXPECT_EQ(result, 0); 
-    
+    EXPECT_EQ(result, 0);
+
 	// STEP
     output = run('s');
     output = run('s');
@@ -258,8 +258,8 @@ TEST_F(DSTest, DataStream_Binary) {
 	output = run('e');
 	result = strcmp_IgnoreWhiteSpace("end : return = 0", output.c_str());
 	EXPECT_EQ(result, 0);
-	
-	delete data_stream_factory;    
+
+	delete data_stream_factory;
 }
 
 // MATLAB DATASTREAM
@@ -271,52 +271,52 @@ TEST_F(DSTest, DataStream_MatLab) {
 
     data_stream_factory = new DataStreamFactory();
     testds = data_stream_factory->create(RUN_dir, VarName, "s_simtime");
-	
+
 	// GET FILE NAME
 	output = run('f');
 	result = strcmp_IgnoreWhiteSpace(
 		"getFileName : filename= \"../TEST_DATA/RUN_MATLAB/nasa_p1.mat\"", output.c_str());
 	EXPECT_EQ(result, 0);
-	
+
 	// GET UNIT
 	output = run('u');
 	result = strcmp_IgnoreWhiteSpace("getUnit : unitspec= \"1\"", output.c_str());
 	EXPECT_EQ(result, 0);
-	
+
 	// GET TIME UNIT
 	output = run('t');
 	result = strcmp_IgnoreWhiteSpace("getTimeUnit : timeunitspec = \"s\"", output.c_str());
 	EXPECT_EQ(result, 0);
-	
+
 	// GET
 	output = run('g');
 	result = strcmp_IgnoreWhiteSpace(
 		"get : time = 0     value = -210.146     return = 1", output.c_str());
 	EXPECT_EQ(result, 0);
-	 
+
 	output = run('g');
 	result = strcmp_IgnoreWhiteSpace(
 		"get : time = 0.05     value = -210.146     return = 1", output.c_str());
 	EXPECT_EQ(result, 0);
-	
+
 	// PEEK
 	output = run('p');
 	result = strcmp_IgnoreWhiteSpace(
 		"peek : time = 0.1     value= -210.146     return = 1", output.c_str());
 	EXPECT_EQ(result, 0);
-	
+
 	output = run('p');
 	result = strcmp_IgnoreWhiteSpace(
 		"peek : time = 0.1     value= -210.146     return = 1", output.c_str());
 	EXPECT_EQ(result, 0);
-	
+
 	// BEGIN
 	output = run('b');
 	output = run('g');
 	result = strcmp_IgnoreWhiteSpace(
 		"get : time = 0     value = -210.146     return = 1", output.c_str());
 	EXPECT_EQ(result, 0);
-	 
+
 	// STEP
 	output = run('s');
 	output = run('s');
@@ -324,12 +324,12 @@ TEST_F(DSTest, DataStream_MatLab) {
 	result = strcmp_IgnoreWhiteSpace(
 		"get : time = 0.15     value= -210.146     return = 1", output.c_str());
 	EXPECT_EQ(result, 0);
-	 
+
 	// END
 	output = run('e');
 	result = strcmp_IgnoreWhiteSpace("end : return = 0", output.c_str());
 	EXPECT_EQ(result, 0);
-	
+
 	delete data_stream_factory;
 }
 
@@ -343,7 +343,7 @@ TEST_F(DSTest, DataStream_Delta) {
 	char DeltaName[1000];
 
 	char* a = "sun_predictor.sun.solar_azimuth:../TEST_DATA/BUNCHORUNS/RUN1";
-	char* b = "sun_predictor.sun.solar_azimuth:../TEST_DATA/BUNCHORUNS/RUN2";	
+	char* b = "sun_predictor.sun.solar_azimuth:../TEST_DATA/BUNCHORUNS/RUN2";
 
 	sprintf(DeltaName, "delta(%s, %s)", a, b);
 
@@ -385,7 +385,7 @@ TEST_F(DSTest, DataStream_DPCUnitConv) {
 TEST_F(DSTest, DataStream_DPCTimeCstr) {
 	//req.add_requirement("3610816325");
 
-	int i;	
+	int i;
 	DPM_time_constraints *time_constraints;
 
 	RUN_dir = "../TEST_DATA/RUN_BINARY";
@@ -420,8 +420,8 @@ TEST_F(DSTest, DataStream_DPCTimeCstr) {
 	output = run('e');
     result = strcmp_IgnoreWhiteSpace("end : return = 1", output.c_str());
     EXPECT_EQ(result, 0);
-	
-	delete data_stream_factory; 
+
+	delete data_stream_factory;
 	delete testds;
 }
 

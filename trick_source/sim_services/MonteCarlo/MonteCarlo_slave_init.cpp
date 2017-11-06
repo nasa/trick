@@ -16,7 +16,7 @@ int Trick::MonteCarlo::slave_init() {
     if (access(run_directory.c_str(), F_OK) != 0) {
         if (mkdir(run_directory.c_str(), 0775) == -1) {
             if (verbosity >= ERROR) {
-                message_publish(MSG_ERROR, "Monte [%s:%d] : Unable to create directory %s.\nTerminating.\n",
+                message_publish(MSG_ERROR, "Monte [%s:%d] Unable to create directory %s.\nTerminating.\n",
                             run_directory.c_str(), machine_name.c_str(), slave_id) ;
             }
             exit(-1);
@@ -29,29 +29,28 @@ int Trick::MonteCarlo::slave_init() {
     /** <li> Initialize the sockets. */
     tc_error(&listen_device, 0);
     tc_error(&connection_device, 0);
-    tc_error(&data_listen_device, 0);
-    tc_error(&data_connection_device, 0);
-    socket_init(&listen_device);
+    tc_init(&listen_device);
     listen_device.disable_handshaking = TC_COMM_TRUE;
 
     /** <li> Connect to the master and write the port over which we are listening for new runs. */
+    connection_device.port = master_port;
     if (tc_connect(&connection_device) != TC_SUCCESS) {
         if (verbosity >= ERROR) {
-            message_publish(MSG_ERROR, "Monte [%s:%d] : Failed to initialize communication sockets.\nTerminating.\n",
+            message_publish(MSG_ERROR, "Monte [%s:%d] Failed to initialize communication sockets.\nTerminating.\n",
                             machine_name.c_str(), slave_id) ;
         }
         exit(-1);
     }
 
     if (verbosity >= ALL) {
-        message_publish(MSG_INFO, "Monte [%s:%d] : Making initial connection with Master.\n",
+        message_publish(MSG_INFO, "Monte [%s:%d] Making initial connection with Master.\n",
                         machine_name.c_str(), slave_id) ;
     }
 
     int id = htonl(slave_id);
     tc_write(&connection_device, (char *)&id, (int)sizeof(id));
 
-    char hostname[HOST_NAME_MAX];
+    char hostname[_POSIX_HOST_NAME_MAX] = {};
     gethostname(hostname, sizeof(hostname)-1);
 
     int num_bytes = htonl(strlen(hostname));

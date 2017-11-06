@@ -12,7 +12,7 @@
  */
 class ChkPtParseContext {
 
-public: 
+public:
 
     int debug ;                      /**< -- Debug level */
     int verify_input;                /**< -- Verify input runstream syntax flag */

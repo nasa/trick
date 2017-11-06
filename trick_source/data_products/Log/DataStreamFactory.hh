@@ -31,12 +31,12 @@ class DataStreamFactory {
 
    public:
         DataStreamFactory() {}
-        ~DataStreamFactory() ; 
-        DataStream* create(const char* path, const char* paramName , 
+        ~DataStreamFactory() ;
+        DataStream* create(const char* path, const char* paramName ,
                            const char* timeName );
         DataStream* create( const char* sharedLibName,
                             int nInputStreams, DataStream** istreams,
-                            int nOutputStreams, int outputIdx) ; 
+                            int nOutputStreams, int outputIdx) ;
         DataStream* create(const char* machine, const unsigned short port ,
                            const char* paramName );
 

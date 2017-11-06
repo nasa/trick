@@ -26,12 +26,12 @@ int Trick::MSSocket::set_sync_wait_limit(double in_limit) {
     /** @par Detailed Design */
     sync_wait_limit = in_limit ;
     if ( in_limit > 0.0 ) {
-        /** @li if the incoming limit time is greater than zero, set the socket 
+        /** @li if the incoming limit time is greater than zero, set the socket
                 to TC_COMM_TIMED_BLOCKIO with the time limit of in_limit */
         tc_blockio(&tc_dev, TC_COMM_TIMED_BLOCKIO);
         tc_set_blockio_timeout_limit(&tc_dev, sync_wait_limit);
     } else {
-        /** @li if the incoming limit time is less than or equal to zero, set the socket 
+        /** @li if the incoming limit time is less than or equal to zero, set the socket
                 to TC_COMM_BLOCKIO (infinite block) */
         tc_blockio(&tc_dev, TC_COMM_BLOCKIO);
     }
@@ -49,18 +49,18 @@ std::string Trick::MSSocket::add_sim_args( std::string slave_type ) {
     gethostname(master_host, (size_t) 80);
 
     /** @li if master is running with dmtcp slave or vice versa, use "_dmtcp_multiconnect_tag"
-            for sync_port_tag. on restart, dmtcp will retain original slave pid, which will not 
+            for sync_port_tag. on restart, dmtcp will retain original slave pid, which will not
             match restarted master pid. sync_port_tag must match for master and slave(s) to
             connect/reconnect via tc_multiconnect() */
 
-    if  (slave_type == "dmtcp") 
+    if  (slave_type == "dmtcp")
         temp_stream << master_host << "_dmtcp_multiconnect_tag" ;
     else
         temp_stream << master_host << "_" << getpid() ;
 
     sync_port_tag = temp_stream.str() ;
 
-    /** @li return the unique identifier with the "-p" argument that is 
+    /** @li return the unique identifier with the "-p" argument that is
             specific to master/slave communications. */
     return("-p " + temp_stream.str()) ;
 }
@@ -91,7 +91,7 @@ int Trick::MSSocket::process_sim_args() {
 
 int Trick::MSSocket::accept() {
 
-    int ret ; 
+    int ret ;
     /** @par Detailed Design */
     /** @li Call tc_multiconnect to connect this master.  Use "master" as the my_tag argument */
     ret = tc_multiconnect(&tc_dev, (char *)"master", (char *)sync_port_tag.c_str(), NULL);
@@ -100,7 +100,7 @@ int Trick::MSSocket::accept() {
 }
 
 int Trick::MSSocket::connect() {
-    int ret ; 
+    int ret ;
     /** @par Detailed Design */
     /** @li Call tc_multiconnect to connect this slave.  Use "slave" as the my_tag argument */
     ret = tc_multiconnect(&tc_dev, (char *)"slave", (char *)sync_port_tag.c_str(), NULL);
@@ -126,7 +126,7 @@ int Trick::MSSocket::disconnect() {
 long long Trick::MSSocket::read_time() {
 
     long long in_time = 0 ;
-    int ret ; 
+    int ret ;
 
     /** @par Detailed Design */
     /** @li Call tc_read to get the time */
@@ -143,7 +143,7 @@ long long Trick::MSSocket::read_time() {
 MS_SIM_COMMAND Trick::MSSocket::read_command() {
 
     MS_SIM_COMMAND command ;
-    int ret ; 
+    int ret ;
 
     /** @par Detailed Design */
     /** @li Call tc_read to get the command */
@@ -161,7 +161,7 @@ MS_SIM_COMMAND Trick::MSSocket::read_command() {
 int Trick::MSSocket::read_port() {
 
     int in_port = 0 ;
-    int ret ; 
+    int ret ;
 
     /** @par Detailed Design */
     /** @li Call tc_read to get the port number */
@@ -177,7 +177,7 @@ int Trick::MSSocket::read_port() {
 
 char Trick::MSSocket::read_name(char * read_data, size_t size) {
 
-    int ret ; 
+    int ret ;
 
     /** @par Detailed Design */
     /** @li Call tc_read to get the name (character array) */
@@ -193,7 +193,7 @@ char Trick::MSSocket::read_name(char * read_data, size_t size) {
 
 int Trick::MSSocket::write_time(long long in_time) {
 
-    int ret ; 
+    int ret ;
 
     /** @par Detailed Design */
     /** @li Call tc_write to write the time */
@@ -205,7 +205,7 @@ int Trick::MSSocket::write_time(long long in_time) {
 
 int Trick::MSSocket::write_command(MS_SIM_COMMAND command) {
 
-    int ret ; 
+    int ret ;
 
     /** @par Detailed Design */
     /** @li Call tc_write to write the command */
@@ -217,7 +217,7 @@ int Trick::MSSocket::write_command(MS_SIM_COMMAND command) {
 
 int Trick::MSSocket::write_port(int in_port) {
 
-    int ret ; 
+    int ret ;
 
     /** @par Detailed Design */
     /** @li Call tc_write to write the port number */

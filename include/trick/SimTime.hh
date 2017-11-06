@@ -1,7 +1,8 @@
-
 #ifndef SIMTIME_HH
 #define SIMTIME_HH
-
+/*
+    PURPOSE: ( SimTime Class )
+*/
 #include "trick/time_offset.h"
 
 namespace Trick {

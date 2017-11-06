@@ -63,6 +63,52 @@ public class TVShort extends VSShort implements TrickViewFluent<TVShort.Format> 
             public short parse(String value) {
                 return new BigInteger(value, 16).shortValue();
             }
+        },
+
+        BinaryReverseBytes {
+            public String format(short value, boolean unsigned) {
+                return Integer.toBinaryString(Short.reverseBytes(value) & 0xFFFF);
+            }
+
+            public short parse(String value) {
+                return Short.reverseBytes(new BigInteger(value, 2).shortValue());
+            }
+        },
+
+        DecimalReverseBytes {
+            public String format(short value, boolean unsigned) {
+                value = Short.reverseBytes(value);
+                if (unsigned && value < 0) {
+                    return Integer.toString(value + 65536);
+                }
+                else {
+                    return Short.toString(value);
+                }
+            }
+
+            public short parse(String value) {
+                return Short.reverseBytes(new BigInteger(value, 10).shortValue());
+            }
+        },
+
+        OctalReverseBytes {
+            public String format(short value, boolean unsigned) {
+                return Integer.toOctalString(Short.reverseBytes(value) & 0xFFFF);
+            }
+
+            public short parse(String value) {
+                return Short.reverseBytes(new BigInteger(value, 8).shortValue());
+            }
+        },
+
+        HexadecimalReverseBytes {
+            public String format(short value, boolean unsigned) {
+                return Integer.toHexString(Short.reverseBytes(value) & 0xFFFF);
+            }
+
+            public short parse(String value) {
+                return Short.reverseBytes(new BigInteger(value, 16).shortValue());
+            }
         };
 
         public abstract String format(short value, boolean unsigned);

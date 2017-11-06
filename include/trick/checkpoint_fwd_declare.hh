@@ -5,6 +5,7 @@
 #ifndef CHECKPOINT_FWD_DECLARE
 #define CHECKPOINT_FWD_DECLARE
 
+#include <array>
 #include <vector>
 #include <list>
 #include <deque>
@@ -22,6 +23,15 @@
 // to the recursive templates.
 
 // Checkpoint routines
+
+// array
+template <typename ITEM_TYPE, std::size_t N,
+          typename std::enable_if<is_stl_container<ITEM_TYPE>::value>::type* = nullptr >
+int checkpoint_stl(std::array<ITEM_TYPE,N> & in_stl , std::string object_name , std::string var_name ) ;
+
+template <typename ITEM_TYPE, std::size_t N,
+          typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* = nullptr >
+int checkpoint_stl(std::array<ITEM_TYPE,N> & in_stl , std::string object_name , std::string var_name ) ;
 
 // vector
 template <typename ITEM_TYPE, typename _Alloc,
@@ -163,6 +173,15 @@ int checkpoint_stl(std::stack<ITEM_TYPE, _Sequence> & in_stl , std::string objec
 /* ===================================================================================================== */
 
 // Restore routines
+
+// array
+template <typename ITEM_TYPE, std::size_t N,
+          typename std::enable_if<is_stl_container<ITEM_TYPE>::value>::type* = nullptr >
+int restore_stl(std::array<ITEM_TYPE,N> & in_stl , std::string object_name , std::string var_name ) ;
+
+template <typename ITEM_TYPE, std::size_t N,
+          typename std::enable_if<!is_stl_container<ITEM_TYPE>::value>::type* = nullptr >
+int restore_stl(std::array<ITEM_TYPE,N> & in_stl , std::string object_name , std::string var_name ) ;
 
 // vector
 template <typename ITEM_TYPE, typename _Alloc,

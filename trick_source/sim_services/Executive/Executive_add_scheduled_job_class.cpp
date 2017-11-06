@@ -4,10 +4,10 @@
 #include "trick/Executive.hh"
 
 /**
-@details 
--# Gets the size of the class map. 
--# Add the incoming job class string as a key to the class_job map. Assign it the value of 
-   of ( scheduled_job_class_base + size_of_map ) 
+@details
+-# Gets the size of the class map.
+-# Add the incoming job class string as a key to the class_job map. Assign it the value of
+   of ( scheduled_job_class_base + size_of_map )
  */
 int Trick::Executive::add_scheduled_job_class( std::string in_name ) {
 

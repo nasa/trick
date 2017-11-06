@@ -36,7 +36,7 @@ int tc_write_byteswap(TCDevice * device, char *buffer, int size, ATTRIBUTES * at
         pthread_setspecific(key, swap_buffer) ;
     }
     if ( (unsigned int)size > swap_buffer->size ) {
-        unsigned int new_size = (unsigned int)size ; 
+        unsigned int new_size = (unsigned int)size ;
         if ( new_size % 4 ) {
             new_size = new_size - ( new_size % 4 ) + 4 ;
         }

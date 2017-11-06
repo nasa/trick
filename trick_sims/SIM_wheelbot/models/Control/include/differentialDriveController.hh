@@ -1,3 +1,6 @@
+/*
+ * PURPOSE: (DifferentialDriveController class)
+ */
 #ifndef DIFFERENTIAL_DRIVE_CONTROLER_HH
 #define DIFFERENTIAL_DRIVE_CONTROLER_HH
 

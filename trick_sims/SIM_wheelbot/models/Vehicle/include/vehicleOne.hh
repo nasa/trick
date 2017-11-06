@@ -28,10 +28,10 @@ class VehicleOne {
     // Vehicle Controller Parameters
     double slowDownDistance;          /* m */
     double arrivalDistance;           /* m */
-    double wheelSpeedLimit;           /* r/s */
-    double headingRateLimit;          /* r/s */
-    double wheelDragConstant;         /* */
-    double corningStiffness;          /* */
+    double wheelSpeedLimit;           /* rad/s */
+    double headingRateLimit;          /* rad/s */
+    double wheelDragConstant;         /* -- */
+    double corningStiffness;          /* -- */
 
     // DCMotor Parameters
     double DCMotorInternalResistance; /* ohm */
@@ -41,12 +41,12 @@ class VehicleOne {
     double velocity[2];              /* m/s */
     double acceleration[2];          /* m/s2 */
 
-    double heading;                  /* r */
-    double headingRate;              /* r/s */
-    double headingAccel;             /* r/s2 */
+    double heading;                  /* rad */
+    double headingRate;              /* rad/s */
+    double headingAccel;             /* rad/s2 */
 
-    double rightMotorSpeed;          /* r/s */
-    double leftMotorSpeed;           /* r/s */
+    double rightMotorSpeed;          /* rad/s */
+    double leftMotorSpeed;           /* rad/s */
 
     // Forces
     double driveForce[2];            /* N */

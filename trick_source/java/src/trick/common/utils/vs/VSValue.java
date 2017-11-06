@@ -44,4 +44,19 @@ public abstract class VSValue<T> implements VariableServerFluent, Cloneable {
         }
     }
 
+    protected String handleUndefinedValues(String input) {
+        if(input.equals("inf")) {
+            input = "Infinity";
+        }
+        else if(input.equals("-inf")) {
+            input = "-Infinity";
+        }
+        else if(input.equals("nan")) {
+            input = "NaN";
+        }
+        else if(input.equals("-nan")) {
+            input = "-NaN";
+        }
+        return input;
+    }
 }

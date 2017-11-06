@@ -40,17 +40,17 @@ void DataStreamGroup::add( DataStream* ds ) {
         currTime_.push_back(0.0);
 }
 
-void DataStreamGroup::clear() 
+void DataStreamGroup::clear()
 {
         dataStreams_.clear() ;
 }
 
 void DataStreamGroup::setPreserveTimeOn() {
-        preserveTime_ = 1 ; 
+        preserveTime_ = 1 ;
 }
 
 void DataStreamGroup::setPreserveTimeOff() {
-        preserveTime_ = 0 ; 
+        preserveTime_ = 0 ;
 }
 
 void DataStreamGroup::begin()
@@ -59,11 +59,11 @@ void DataStreamGroup::begin()
         double timeStamp ;
 
         isEOF_ = 0 ;
-                                                                                
+
         for ( ii = 0; ii < dataStreams_.size(); ii++ ) {
                 dataStreams_[ii]->begin();
         }
-                                                                                
+
         // Reset frequency
         if ( frequency_ == 0.0 ) {
                 nextFrequencyCheck_ = DBL_MAX;
@@ -74,9 +74,9 @@ void DataStreamGroup::begin()
                         nextFrequencyCheck_ = startTime_ ;
                 }
         }
-	
-	// Changed from 1.0 to 0.0 since this variable is increased by 1 first 
-	// for getting next frequency check in stepInTime_ method. 
+
+	// Changed from 1.0 to 0.0 since this variable is increased by 1 first
+	// for getting next frequency check in stepInTime_ method.
         frequencyMultiple_ = 0.0 ;
 
         // If time < start time requested by user,
@@ -86,17 +86,17 @@ void DataStreamGroup::begin()
                 step() ;
                 timeStamp = getTime();
         }
- 
+
         // Grab data from each stream without stepping
         for ( ii = 0; ii < dataStreams_.size(); ii++ ) {
                 dataStreams_[ii]->peek(&lastRead_[dataStreams_[ii]].time,
                                        &lastRead_[dataStreams_[ii]].value);
-                                       
+
         }
 }
 
 
-bool DataStreamGroup::end() 
+bool DataStreamGroup::end()
 {
         return isEOF_ ;
 }
@@ -115,8 +115,8 @@ void DataStreamGroup::step() {
         if ( preserveTime_ ) {
                 pVal = currTime_[0] ;
                 stepAgain = 0 ;
-                for ( ii = 1 ; ii < currTime_.size() ; ii++ ) { 
-                        if ( pVal != currTime_[ii] ) { 
+                for ( ii = 1 ; ii < currTime_.size() ; ii++ ) {
+                        if ( pVal != currTime_[ii] ) {
                                 stepAgain = 1 ;
                         }
                 }
@@ -139,20 +139,20 @@ void DataStreamGroup::step() {
 // In the case of error plotting, you do not want any extra
 // data points if the time stamps do not match
 double DataStreamGroup::getTime( ) {
-                                                                                
+
         double minTime = DBL_MAX;
         double time, val ;
         unsigned int ii ;
-                                                                                
+
         for ( ii = 0 ; ii < dataStreams_.size() ; ii++ ) {
-                                                                                
+
                 if ( ! dataStreams_[ii]->end() ) {
                         dataStreams_[ii]->peek(&time, &val) ;
                         currTime_[ii] = time ;
                 } else {
                         currTime_[ii] = DBL_MAX ;
                 }
-                                                                                
+
                 if (currTime_[ii] < minTime) {
                         minTime = currTime_[ii];
                 }
@@ -162,12 +162,12 @@ double DataStreamGroup::getTime( ) {
 }
 
 
-// Advance through records in each data stream synchronously 
+// Advance through records in each data stream synchronously
 //
-// Example: If data stream "A" is recorded at 1.0 second, 
+// Example: If data stream "A" is recorded at 1.0 second,
 // and "B" at 10 seconds.  Both will advance at time zero.
 // Then at time=1.0, log "A" will have a record read.  "B" will not be read.
-// At time=2.0 through time=9.0 the same will occur. A advances, B stays put. 
+// At time=2.0 through time=9.0 the same will occur. A advances, B stays put.
 // At time=10.0, both A and B will be read from.  Both will advance.
 // This keeps the data on the same time stamp on like intervals.
 //
@@ -198,15 +198,15 @@ int DataStreamGroup::stepInTime_() {
         int isEOF ;
 
         double t, x ;
-        
+
         // Get all values in all data log groups
         // Also get mininum time stamp from all log data files
-        minTime = getTime(); 
+        minTime = getTime();
 
         // Take a step through time (sounds like a song)
         for ( ii = 0 ; ii < dataStreams_.size() ; ii++ ) {
                 if ( currTime_[ii] == minTime && !dataStreams_[ii]->end() ) {
-                        dataStreams_[ii]->get(&t, &x); 
+                        dataStreams_[ii]->get(&t, &x);
                 }
         }
 
@@ -223,10 +223,10 @@ int DataStreamGroup::stepInTime_() {
                 return(1) ;
         }
 
-        // Now that a time step has occured 
+        // Now that a time step has occured
         // Get the new mininum time stamp and associated
         // values from all log data files
-        minTime = getTime(); 
+        minTime = getTime();
 
 
         // Step depending on frequency
@@ -235,16 +235,16 @@ int DataStreamGroup::stepInTime_() {
                 // Handle Frequency (if specified)
                 if ( nextFrequencyCheck_ != DBL_MAX ) {
 
-                        if ( NEXTFREQ_EQUALS_MINTIME ) { 
+                        if ( NEXTFREQ_EQUALS_MINTIME ) {
 
                                 // Frequency synced with a data point
-                                // Stops recursion 
+                                // Stops recursion
                                 NEXTFREQ_INCR ;
 
                         } else if ( minTime - nextFrequencyCheck_ > 0.0 ) {
 
                                 // Mintime exceeded nextFreqCheck
-                                // Frequency must be higher than 
+                                // Frequency must be higher than
                                 // data frequency
 
                                 // Bump nextFrequencyCheck past minTime
@@ -261,14 +261,14 @@ int DataStreamGroup::stepInTime_() {
                                 } else {
 
                                         // No sync, keep iterating through data
-                                        return(0); 
+                                        return(0);
                                 }
                         } else {
-        
+
                                 // Mintime is less than nextFreq check
                                 // Need to iterate again
                                 return(0) ;
-                        } 
+                        }
                 }
         }
 
@@ -283,7 +283,7 @@ int DataStreamGroup::stepInTime_() {
 
 
 
-// Advance through records in each data stream synchronously 
+// Advance through records in each data stream synchronously
 // Reading will stop when one of the streams is out of data
 int DataStreamGroup::matchTimeStamps() {
 
@@ -292,7 +292,7 @@ int DataStreamGroup::matchTimeStamps() {
         int frequency_match ;
         double maxTime ;
 
-        frequency_match = 0 ; 
+        frequency_match = 0 ;
         while ( !frequency_match ) {
 
                 matched_time_stamps = 0 ;
@@ -301,7 +301,7 @@ int DataStreamGroup::matchTimeStamps() {
 
                         // get the next record out of the file and find the maximum time stamp
                         for ( ii = 0 ; ii < dataStreams_.size() ; ii++ ) {
-                                if ( ! dataStreams_[ii]->get(&lastRead_[dataStreams_[ii]].time, 
+                                if ( ! dataStreams_[ii]->get(&lastRead_[dataStreams_[ii]].time,
                                         &lastRead_[dataStreams_[ii]].value) ) {
                                         isEOF_ = 1 ;
                                         return(0) ;
@@ -321,7 +321,7 @@ int DataStreamGroup::matchTimeStamps() {
                         for ( ii = 0 ; ii < dataStreams_.size() ; ii++ ) {
                                 while ( maxTime -
                                         lastRead_[dataStreams_[ii]].time > timeMatchTolerance_ ) {
-                                        if ( ! dataStreams_[ii]->get(&lastRead_[dataStreams_[ii]].time, 
+                                        if ( ! dataStreams_[ii]->get(&lastRead_[dataStreams_[ii]].time,
                                                 &lastRead_[dataStreams_[ii]].value)) {
                                                 isEOF_ = 1 ;
                                                 return(0) ;

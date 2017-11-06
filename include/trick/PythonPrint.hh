@@ -1,5 +1,5 @@
-#ifndef CLASSICCHECKPOINT_HH
-#define CLASSICCHECKPOINT_HH
+#ifndef PYTHONPRINT_HH
+#define PYTHONPRINT_HH
 
 #include <stddef.h> // for NULL
 #include <string>
@@ -35,8 +35,8 @@ class PythonPrint: public CheckPointAgent {
      object to the name on the left-side stack.
      */
     virtual void assign_rvalue( std::ostream& chkpnt_os,
-                                void*       address, 
-                                ATTRIBUTES* attr, 
+                                void*       address,
+                                ATTRIBUTES* attr,
                                 int         curr_dim,
                                 int         offset
                                 );
@@ -45,7 +45,7 @@ class PythonPrint: public CheckPointAgent {
      */
     virtual int restore( std::istream* checkpoint_stream);
 
-    /** 
+    /**
      Write a single value of an intrinsic type located at the given address and offset.
 
      @param address - address of the object that contains the value to be written.
@@ -53,12 +53,12 @@ class PythonPrint: public CheckPointAgent {
      @param offset - if the object specified by address and attr is arrayed, then this
                      parameter specifies where, within the array the single value is
                      located. @c offset=0 means that the address points to the value
-                     to be written. 
+                     to be written.
      */
     static void write_singleton( std::ostream& chkpnt_os, void* address,
      ATTRIBUTES* attr, int offset, bool write_units = true , bool in_list = false );
 
-    /** 
+    /**
      I NEED DOCUMENTATION!
      */
     static void write_rvalue( std::ostream& chkpnt_os, void* address,
@@ -69,8 +69,8 @@ class PythonPrint: public CheckPointAgent {
      suitable for the right side of an assignment statement.
      The pointer must be an address that is being managed by MM (the MemoryManager) or a
      character string (char* or wchar_t*).
- 
-     @param pointer 
+
+     @param pointer
      @param attr ATTRIBUTES of the pointer.
      @param curr_dim current dimension.
      @return text expression that represents the pointer.

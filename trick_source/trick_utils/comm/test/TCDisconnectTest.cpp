@@ -23,7 +23,7 @@ class TCDisconnectTest : public testing::Test {
       }
 
       void TearDown(){
-   
+
          free(device);
       }
 };
@@ -33,11 +33,11 @@ TEST_F( TCDisconnectTest, testNoDevice ) {
    int disconnect_status = tc_disconnect( NULL );
 
    EXPECT_EQ( disconnect_status, TC_DRIVER_ALREADY_DISCONNECTED );
-} 
+}
 
 TEST_F( TCDisconnectTest, testSuccess ) {
 
    int disconnect_status = tc_disconnect( device );
 
    EXPECT_EQ( disconnect_status, TC_SUCCESS );
-} 
+}

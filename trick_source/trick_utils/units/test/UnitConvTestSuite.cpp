@@ -50,7 +50,7 @@ TEST(UnitsInterface, Newton_to_Pound)
   Units_t* Newton = (Units_t*) NULL;
   Units_t* Pound = (Units_t*) NULL;
   double pounds;
-  
+
   ASSERT_EQ(CONV_OK, conv_fn_s("kg*m/s2", "lbm*ft/s2", &Newton_to_Pound));
 
   Newton = new_units("kg*m/s2");

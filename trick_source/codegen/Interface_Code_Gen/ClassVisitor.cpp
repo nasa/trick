@@ -16,6 +16,7 @@
 #include "Utilities.hh"
 #include "CommentSaver.hh"
 #include "PrintAttributes.hh"
+#include "BraceMacro.hh"
 
 extern llvm::cl::opt< int > debug_level ;
 
@@ -56,7 +57,7 @@ bool CXXRecordVisitor::TraverseDecl(clang::Decl *d) {
             clang::RecordDecl * rd = crd->getDefinition() ;
             if ( rd != NULL ) {
                 if ( rd->getAccess() == clang::AS_public ) {
-                    if ( isInUserCode(ci , crd->getRBraceLoc(), hsd) ) {
+                    if ( isInUserCode(ci , crd->RBRACELOC(), hsd) ) {
                         CXXRecordVisitor embedded_cvis(ci , cs, hsd , pa, true) ;
                         embedded_cvis.TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(d)) ;
                         pa.printClass(embedded_cvis.get_class_data()) ;
@@ -149,14 +150,18 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
     }
 
     // Return false to stop processing if this header file is excluded by one of many reasons.
-    std::string header_file_name = getFileName(ci , rec->getRBraceLoc(), hsd) ;
+    std::string header_file_name = getFileName(ci , rec->RBRACELOC(), hsd) ;
     char * rp = almostRealPath(header_file_name.c_str()) ;
-    if (  rp == NULL ||
-         !hsd.isPathInUserDir(rp)  ||
-          hsd.isPathInExclude(rp) ||
-          hsd.isPathInICGExclude(rp) ||
-          hsd.isPathInExtLib(rp) ||
-          cs.hasICGNo(header_file_name) ) {
+    if ( rp == NULL || pa.isHeaderExcluded(header_file_name, false) ) {
+        // mark the header as visited so PrintAttributes doesn't process it during addEmptyFiles()
+        pa.markHeaderAsVisited(header_file_name);
+        return false ;
+    }
+    cval.setCompat15(hsd.isPathInCompat15(rp)) ;
+    free(rp) ;
+
+    // If we have trouble determining the containing namespace and classes skip this variable.
+    if ( !cval.getNamespacesAndClasses(rec->getDeclContext())) {
         return false ;
     }
 
@@ -184,10 +189,12 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
     cval.setName(rec->getNameAsString()) ;
     cval.setPOD(rec->isPOD()) ;
 
-    clang::CXXRecordDecl::base_class_iterator bcii ;
+    cval.setSize(rec->getASTContext().getASTRecordLayout(rec).getSize().getQuantity()) ;
+
 
     //std::cout << "parsing " << cval.getName() << std::endl ;
     //std::cout << "    [34mprocessing inheritance " <<  rec->getNumBases() << " " << rec->getNumVBases() << "[00m" << std::endl ;
+    clang::CXXRecordDecl::base_class_iterator bcii ;
     for ( bcii = rec->bases_begin() ; bcii != rec->bases_end() ; bcii++ ) {
         if ( !bcii->isVirtual() ) {
             const clang::Type * temp = bcii->getType().getTypePtr() ;
@@ -197,34 +204,34 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
                 clang::RecordDecl * rd = rt->getDecl() ;
                 //std::cout << "    [34m" << cval.getName() << " inherits from " << rd->getNameAsString() << "[00m" << std::endl ;
                 //rd->dump() ; std::cout << std::endl ;
-                if ( isInUserOrTrickCode(ci , rd->getRBraceLoc(), hsd) ) {
+                if ( isInUserOrTrickCode(ci , rd->RBRACELOC(), hsd) ) {
                     const clang::ASTRecordLayout &record_layout = rec->getASTContext().getASTRecordLayout(rec);
                     unsigned int inherit_class_offset ;
 
                     inherit_class_offset = record_layout.getBaseClassOffset(llvm::cast<clang::CXXRecordDecl>(rd)).getQuantity() ;
                     //std::cout << "    [34minherit_class_offset = " << inherit_class_offset << "[00m" << std::endl ;
-                    //std::cout << "    [34m" << getFileName(ci , rd->getRBraceLoc(), hsd) << "[00m" << std::endl ;
+                    //std::cout << "    [34m" << getFileName(ci , rd->RBRACELOC(), hsd) << "[00m" << std::endl ;
                     CXXRecordVisitor inherit_cvis(ci , cs, hsd , pa, false) ;
-                    inherit_cvis.TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(rd)) ;
-                    cval.addInheritedFieldDescriptions(inherit_cvis.get_class_data()->getFieldDescription(),
-                     inherit_class_offset) ;
-                    // clear the field list in the inherited class so they are not freed when inherit_cvis
-                    // goes out of scope.
-                    inherit_cvis.get_class_data()->clearFieldDescription() ;
-                    // If we are inheriting from a template specialization, don't save the inherited class.  This list
-                    // is maintained to call init_attr of the inherited classes.  A template specialization does not
-                    // havethese attributes.
-                    if ( ! isTypeTemplateSpecialization(temp) ) {
-                        // We want to save the inherited class data, but it's going to go out of scope so we need
-                        // to make a copy of it.
-                        ClassValues * icv = new ClassValues(*(inherit_cvis.get_class_data())) ;
-                        // The inherited classes of this inherited class are not required in the copy,
-                        // and they are going out of scope
-                        cval.saveInheritAncestry(icv) ;
-                        icv->clearInheritedClass() ;
+                    if (inherit_cvis.TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(rd))) {
+                        cval.addInheritedFieldDescriptions(inherit_cvis.get_class_data()->getFieldDescriptions(), inherit_class_offset, false) ;
+                        // clear the field list in the inherited class so they are not freed when inherit_cvis
+                        // goes out of scope.
+                        inherit_cvis.get_class_data()->clearFieldDescription() ;
+                        // If we are inheriting from a template specialization, don't save the inherited class.  This list
+                        // is maintained to call init_attr of the inherited classes.  A template specialization does not
+                        // havethese attributes.
+                        if ( ! isTypeTemplateSpecialization(temp) ) {
+                            // We want to save the inherited class data, but it's going to go out of scope so we need
+                            // to make a copy of it.
+                            ClassValues * icv = new ClassValues(*(inherit_cvis.get_class_data())) ;
+                            // The inherited classes of this inherited class are not required in the copy,
+                            // and they are going out of scope
+                            cval.saveInheritAncestry(icv) ;
+                            icv->clearInheritedClass() ;
 
-                        // Save the copy of the inherited class to the current class
-                        cval.addInheritedClass(inherit_cvis.get_class_data()->getFullyQualifiedTypeName()) ;
+                            // Save the copy of the inherited class to the current class
+                            cval.addInheritedClass(inherit_cvis.get_class_data()->getFullyQualifiedTypeName()) ;
+                        }
                     }
                 }
             }
@@ -245,7 +252,7 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
                 //std::cout << "    [34m" << cval.getName() << " virtually inherits from "
                 // << rd->getNameAsString() << "[00m" << std::endl ;
                 //rd->dump() ; std::cout << std::endl ;
-                if ( isInUserOrTrickCode(ci , rd->getRBraceLoc(), hsd) ) {
+                if ( isInUserOrTrickCode(ci , rd->RBRACELOC(), hsd) ) {
                     const clang::ASTRecordLayout &record_layout = rec->getASTContext().getASTRecordLayout(rec);
                     unsigned int inherit_class_offset ;
 
@@ -254,10 +261,10 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
                     inherit_class_offset = record_layout.getVBaseClassOffset(llvm::cast<clang::CXXRecordDecl>(rd)).getQuantity() ;
 
                     //std::cout << "    [34minherit_class_offset = " << inherit_class_offset << "[00m" << std::endl ;
-                    //std::cout << "    [34m" << getFileName(ci , rd->getRBraceLoc(), hsd) << "[00m" << std::endl ;
+                    //std::cout << "    [34m" << getFileName(ci , rd->RBRACELOC(), hsd) << "[00m" << std::endl ;
                     CXXRecordVisitor inherit_cvis(ci , cs, hsd , pa, false) ;
                     inherit_cvis.TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(rd)) ;
-                    cval.addInheritedFieldDescriptions(inherit_cvis.get_class_data()->getFieldDescription(), inherit_class_offset) ;
+                    cval.addInheritedFieldDescriptions(inherit_cvis.get_class_data()->getFieldDescriptions(), inherit_class_offset, true) ;
                     // clear the field list in the inherited class so they are not freed when inherit_cvis goes out of scope.
                     inherit_cvis.get_class_data()->clearFieldDescription() ;
                     // If we are inheriting from a template specialization, don't save the inherited class.  This list
@@ -275,8 +282,6 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
             }
         }
     }
-
-    cval.getNamespacesAndClasses(rec->getDeclContext()) ;
 
     // clears obscured inherited variables caused by diamond inheritance
     cval.clearAmbiguousVariables() ;
@@ -297,12 +302,17 @@ bool CXXRecordVisitor::VisitFriendDecl( clang::FriendDecl *fd ) {
             //nd->dump() ;
             std::string init_func = std::string("init_attr") ;
             std::stringstream name_sp ;
-            cval.print_namespaces( name_sp , "__") ;
+            cval.printNamespaces( name_sp , "__") ;
             init_func += name_sp.str() + cval.getName() ;
             std::string friend_str = nd->getName().str() ;
             if ( ! friend_str.find(init_func) ) {
                 //std::cout << "        [32mfound a friend![00m" << std::endl ;
                 cval.setHasInitAttrFriend(true) ;
+            } else if ( ! friend_str.find("init_attr") ) {
+                std::cerr << bold(color(WARNING,"Warning")) << "    " << cval.getFileName() << ":" <<
+                 ci.getSourceManager().getSpellingLineNumber(fd->getSourceRange().getBegin()) << ":" << std::endl ;
+                std::cerr << "           friend " << friend_str << " does not match expected name " <<
+                  init_func << std::endl ;
             }
         }
     }

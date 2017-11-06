@@ -122,7 +122,7 @@ bool FieldVisitor::VisitBuiltinType(clang::BuiltinType *bt) {
                 break ;
         }
     }
-    return true;
+    return false;
 }
 
 bool FieldVisitor::VisitConstantArrayType(clang::ConstantArrayType *cat) {
@@ -215,6 +215,9 @@ bool FieldVisitor::VisitFieldDecl( clang::FieldDecl *field ) {
     if ( field->isBitField()) {
         fdes->setBitField(true) ;
         fdes->setBitFieldWidth(field->getBitWidthValue(field->getASTContext())) ;
+        unsigned int field_offset_bits = field->getASTContext().getFieldOffset(field) + fdes->getBaseClassOffset() * 8 ;
+        fdes->setBitFieldStart( 32 - (field_offset_bits % 32) - fdes->getBitFieldWidth()) ;
+        fdes->setBitFieldByteOffset((field_offset_bits / 32) * 4 ) ;
     }
 
     if ( debug_level >= 3 ) {
@@ -249,32 +252,23 @@ bool FieldVisitor::VisitPointerType(clang::PointerType *p) {
     return true;
 }
 
-static std::string mangle_string( std::string in_name ) {
-    // convert characters not valid in a function name to underscores
-    std::string mangled_name = in_name ;
-    // Create a mangled type name, some characters have to converted to underscores.
-    std::replace( mangled_name.begin(), mangled_name.end(), '<', '_') ;
-    std::replace( mangled_name.begin(), mangled_name.end(), '>', '_') ;
-    std::replace( mangled_name.begin(), mangled_name.end(), ' ', '_') ;
-    std::replace( mangled_name.begin(), mangled_name.end(), ',', '_') ;
-    std::replace( mangled_name.begin(), mangled_name.end(), ':', '_') ;
-    std::replace( mangled_name.begin(), mangled_name.end(), '*', '_') ;
-    return mangled_name ;
-}
-
 std::map < std::string , std::string > FieldVisitor::processed_templates ;
 
 bool FieldVisitor::ProcessTemplate(std::string in_name , clang::CXXRecordDecl * crd ) {
 
     // Save container namespaces and classes.
-    fdes->getNamespacesAndClasses(crd->getDeclContext()) ;
+    // If we have trouble getting the namespaces and classes immediately return.
+    if ( !fdes->getNamespacesAndClasses(crd->getDeclContext())) {
+        fdes->setIO(0) ;
+        return false ;
+    }
 
     size_t pos ;
 
     // Check to see if we've processed this template before
     // If not we need to create attributes for this template
     if ( processed_templates.find(in_name) == processed_templates.end() ) {
-        std::string mangled_name = mangle_string(in_name) ;
+        std::string mangled_name = sanitize(in_name) ;
 
         // save off the mangled name of this template to be used if another variable is the same template type
         processed_templates[in_name] = fdes->getContainerClass() + "_" +
@@ -307,6 +301,7 @@ bool FieldVisitor::ProcessTemplate(std::string in_name , clang::CXXRecordDecl * 
 
 static std::map<std::string, bool> init_stl_classes() {
     std::map<std::string, bool> my_map ;
+    my_map.insert(std::pair<std::string, bool>("std::array", 0)) ;
     my_map.insert(std::pair<std::string, bool>("std::deque", 1)) ;
     my_map.insert(std::pair<std::string, bool>("std::list", 1)) ;
     my_map.insert(std::pair<std::string, bool>("std::map", 1)) ;
@@ -318,6 +313,7 @@ static std::map<std::string, bool> init_stl_classes() {
     my_map.insert(std::pair<std::string, bool>("std::set", 1)) ;
     my_map.insert(std::pair<std::string, bool>("std::stack", 0)) ;
     my_map.insert(std::pair<std::string, bool>("std::vector", 1)) ;
+    my_map.insert(std::pair<std::string, bool>("std::__1::array", 0)) ;
     my_map.insert(std::pair<std::string, bool>("std::__1::deque", 1)) ;
     my_map.insert(std::pair<std::string, bool>("std::__1::list", 1)) ;
     my_map.insert(std::pair<std::string, bool>("std::__1::map", 1)) ;
@@ -329,6 +325,7 @@ static std::map<std::string, bool> init_stl_classes() {
     my_map.insert(std::pair<std::string, bool>("std::__1::set", 1)) ;
     my_map.insert(std::pair<std::string, bool>("std::__1::stack", 0)) ;
     my_map.insert(std::pair<std::string, bool>("std::__1::vector", 1)) ;
+    my_map.insert(std::pair<std::string, bool>("std::__cxx11::array", 0)) ;
     my_map.insert(std::pair<std::string, bool>("std::__cxx11::deque", 1)) ;
     my_map.insert(std::pair<std::string, bool>("std::__cxx11::list", 1)) ;
     my_map.insert(std::pair<std::string, bool>("std::__cxx11::map", 1)) ;
@@ -344,9 +341,7 @@ static std::map<std::string, bool> init_stl_classes() {
 }
 
 static bool checkForPrivateTemplateArgs( clang::ClassTemplateSpecializationDecl * ctsd ) {
-    unsigned int ii ;
-    for ( ii = 0 ; ii < ctsd->getTemplateArgs().size() ; ii++ ) {
-        const clang::TemplateArgument & ta = ctsd->getTemplateArgs().get(ii) ;
+    for (const clang::TemplateArgument& ta : ctsd->getTemplateArgs().asArray()) {
         if ( ta.getKind() == clang::TemplateArgument::Type ) {
             clang::QualType qt = ta.getAsType() ;
             //std::cout << qt.getAsString() << std::endl ;
@@ -360,9 +355,32 @@ static bool checkForPrivateTemplateArgs( clang::ClassTemplateSpecializationDecl 
                     if (t->getTypeClass() == clang::Type::Record ) {
                         clang::CXXRecordDecl * crd = t->getAsCXXRecordDecl() ;
                         if ( clang::isa<clang::ClassTemplateSpecializationDecl>(crd) ) {
-                            clang::ClassTemplateSpecializationDecl * inner_ctsd ;
-                            inner_ctsd = clang::cast<clang::ClassTemplateSpecializationDecl>(crd) ;
-                            return checkForPrivateTemplateArgs(inner_ctsd) ;
+                            return checkForPrivateTemplateArgs(clang::cast<clang::ClassTemplateSpecializationDecl>(crd)) ;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return false ;
+}
+
+static bool checkForConstTemplateArgs( clang::ClassTemplateSpecializationDecl * ctsd ) {
+    for (const clang::TemplateArgument& ta : ctsd->getTemplateArgs().asArray()) {
+        if ( ta.getKind() == clang::TemplateArgument::Type ) {
+            clang::QualType qt = ta.getAsType() ;
+            //std::cout << qt.getAsString() << std::endl ;
+            if ( qt.isConstQualified() ) {
+                //std::cout << "  is const qualified" << std::endl ;
+                return true ;
+            } else {
+                //std::cout << "  is public embedded class" << std::endl ;
+                const clang::Type * t = qt.getTypePtrOrNull() ;
+                if ( t != NULL ) {
+                    if (t->getTypeClass() == clang::Type::Record ) {
+                        clang::CXXRecordDecl * crd = t->getAsCXXRecordDecl() ;
+                        if ( clang::isa<clang::ClassTemplateSpecializationDecl>(crd) ) {
+                            return checkForConstTemplateArgs(clang::cast<clang::ClassTemplateSpecializationDecl>(crd)) ;
                         }
                     }
                 }
@@ -377,20 +395,23 @@ static std::map<std::string, bool> stl_classes = init_stl_classes() ;
 bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
     if ( debug_level >= 3 ) {
         std::cout << "FieldVisitor VisitRecordType" << std::endl ;
+        std::cout << rt->getDecl()->getQualifiedNameAsString() << std::endl ;
         rt->dump() ;
     }
     /* String types are typed as records but we treat them differently.
        The attributes type is set to TRICK_STRING instead of TRICK_STRUCTURE.
        The type is set to std::string.  We can return false here to stop processing of this type. */
     std::string type_name = rt->getDecl()->getQualifiedNameAsString() ;
-    if ( ! type_name.compare("std::basic_string") || !type_name.compare("std::__1::basic_string") || 
+    if ( ! type_name.compare("std::basic_string") || !type_name.compare("std::__1::basic_string") ||
          ! type_name.compare("std::__cxx11::basic_string") ) {
         fdes->setEnumString("TRICK_STRING") ;
         fdes->setTypeName("std::string") ;
         return false ;
     }
     // FILE * types resolve to these typenames.  We need to ignore them
-    if (!type_name.compare("__sFILE") || !type_name.compare("_IO_FILE")) {
+    if (!type_name.compare("__sFILE") ||
+        !type_name.compare("_IO_FILE") ||
+        !type_name.compare("__gnu_cxx::__normal_iterator")) {
         fdes->setIO(0) ;
         return false ;
     }
@@ -430,6 +451,12 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
                         fdes->setIO(0) ;
                     }
 
+                    // If the template is using a const type the STL checkpoint code will not compile,
+                    // we need to ignore the variable.
+                    if ( checkForConstTemplateArgs( ctsd )) {
+                        fdes->setIO(0) ;
+                    }
+
                     fdes->setEnumString("TRICK_STL") ;
                     fdes->setSTL(true) ;
                     fdes->setTypeName(tst_string) ;
@@ -451,20 +478,35 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
        will be typed as a record.  We test if we have a template specialization type.
        If so process the template type and return */
     clang::RecordDecl * rd = rt->getDecl()->getDefinition() ;
-    if ( rd != NULL and clang::ClassTemplateSpecializationDecl::classof(rd) ) {
-        if ( checkForPrivateTemplateArgs( clang::cast<clang::ClassTemplateSpecializationDecl>(rd)) ) {
-            fdes->setIO(0) ;
-            if ( debug_level >= 3 ) {
-                std::cout << "    template using private/protected class as argument, not processing" << std::endl ;
+    if ( rd != NULL ) {
+        if ( clang::ClassTemplateSpecializationDecl::classof(rd) ) {
+            if ( checkForPrivateTemplateArgs( clang::cast<clang::ClassTemplateSpecializationDecl>(rd)) ) {
+                fdes->setIO(0) ;
+                if ( debug_level >= 3 ) {
+                    std::cout << "    template using private/protected class as argument, not processing" << std::endl ;
+                }
+                return false ;
             }
-            return false ;
+            if ( debug_level >= 3 ) {
+                rd->dump() ;
+                std::cout << "    tst_string = " << tst_string << std::endl ;
+                std::cout << "    is_a_template_specialization" << std::endl ;
+            }
+            return ProcessTemplate(tst_string, clang::cast<clang::CXXRecordDecl>(rd)) ;
+        } else if (tst_string.find(">::") != std::string::npos) {
+            /* Hacky check to see if we are using an embedded class within a template definition.
+              template <class T> class A {
+                public: class B { T t ;} ;
+              };
+
+              class C {
+                public: A<int>::B ab ;    // This is the pattern we are looking for.
+              } ;
+               There must be a better way to determine this condition
+               We need to make attributes for th A<int>::B class.
+             */
+            return ProcessTemplate(tst_string, clang::cast<clang::CXXRecordDecl>(rd)) ;
         }
-        if ( debug_level >= 3 ) {
-            rd->dump() ;
-            std::cout << "    tst_string = " << tst_string << std::endl ;
-            std::cout << "    is_a_template_specialization" << std::endl ;
-        }
-        return ProcessTemplate(tst_string, clang::cast<clang::CXXRecordDecl>(rd)) ;
     }
 
     /* Test to see if we have an embedded anonymous struct/union.  e.g. SB is anonymous below.
@@ -532,7 +574,7 @@ bool FieldVisitor::VisitVarDecl( clang::VarDecl *v ) {
         clang::QualType ct = qt.getCanonicalType() ;
         std::string tst_string = ct.getAsString() ;
         if ( debug_level >= 3 ) {
-            std::cout << "\033[33mFieldVisitor VisitVarDecl: Processing canonical type\033[00m" << std::endl ;
+            std::cout << "\033[33mFieldVisitor VisitVarDecl: Processing canonical type " << tst_string << "\033[00m" << std::endl ;
             ct.dump() ;
         }
         TraverseType(ct) ;

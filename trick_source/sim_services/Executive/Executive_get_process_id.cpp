@@ -16,7 +16,7 @@ unsigned int Trick::Executive::get_process_id() {
             }
         }
     }
-    
+
     return(0) ;
 
 }

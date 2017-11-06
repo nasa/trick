@@ -13,7 +13,7 @@
 /**
  *
  */
-int Trick::MemoryManager::add_attr_info( std::string & user_type_string , ATTRIBUTES * attr , const char * file_name , unsigned int line_num ) {
+int Trick::MemoryManager::add_attr_info( const std::string & user_type_string , ATTRIBUTES * attr , const char * file_name , unsigned int line_num ) {
 
     std::string user_type_name ;
     std::string sub_attr_name ;
@@ -29,7 +29,7 @@ int Trick::MemoryManager::add_attr_info( std::string & user_type_string , ATTRIB
     unsigned int ii ;
     std::set<std::string>::iterator it ;
     std::map<std::string,std::string>::iterator mit;
-    
+
     /** @par Design Details: */
 
     user_type_name = user_type_string ;
@@ -40,38 +40,30 @@ int Trick::MemoryManager::add_attr_info( std::string & user_type_string , ATTRIB
         return 0 ;
     }
 
-    spos = user_type_name.find("<") ;
-    if ( spos != std::string::npos ) {
-        std::replace( user_type_name.begin(), user_type_name.end(), '*', ' ') ;
-        spos = user_type_name.find("[") ;
-        if ( spos != std::string::npos ) {
-            user_type_name.erase( spos ) ;
-        }
-        user_type_name.erase(std::remove_if(user_type_name.begin(), user_type_name.end(), (int(*)(int))std::isspace), user_type_name.end()) ;
-        mit = template_name_map.find(user_type_name) ;
-        if ( mit != template_name_map.end() ) {
-            user_type_name = template_name_map[user_type_name] ;
-        }
-    }
-
-    std::replace( user_type_name.begin(), user_type_name.end(), ':', '_') ;
-    std::replace( user_type_name.begin(), user_type_name.end(), '<', '_') ;
-    std::replace( user_type_name.begin(), user_type_name.end(), ',', '_') ;
-    std::replace( user_type_name.begin(), user_type_name.end(), '*', ' ') ;
+    // The user type name may start as const Foo<int>::Bar[4].  We need to convert that to Foo_int___Bar
+    // remove const from the typename if it exists
     spos = user_type_name.find("const ") ;
     if ( spos != std::string::npos ) {
         user_type_name.erase( spos , spos + 6) ;
     }
+    // remove any brackets
+/*
     spos = user_type_name.find("[") ;
     if ( spos != std::string::npos ) {
         user_type_name.erase( spos ) ;
     }
-    spos = user_type_name.find(">") ;
-    if ( spos != std::string::npos ) {
-        user_type_name.erase( spos ) ;
-    }
+*/
+    // replace ":<>,*[]" with '_'
+    std::replace( user_type_name.begin(), user_type_name.end(), ':', '_') ;
+    std::replace( user_type_name.begin(), user_type_name.end(), '<', '_') ;
+    std::replace( user_type_name.begin(), user_type_name.end(), '>', '_') ;
+    std::replace( user_type_name.begin(), user_type_name.end(), ',', '_') ;
+    std::replace( user_type_name.begin(), user_type_name.end(), '*', '_') ;
+    std::replace( user_type_name.begin(), user_type_name.end(), '[', '_') ;
+    std::replace( user_type_name.begin(), user_type_name.end(), ']', '_') ;
+    // remove spaces
     user_type_name.erase(std::remove_if(user_type_name.begin(), user_type_name.end(), (int(*)(int))std::isspace), user_type_name.end()) ;
-    
+
     // Attempt to find an io_src_sizeof function for the named user type.
     size_func_name = "io_src_sizeof_" + user_type_name ;
     for ( ii = 0 ; ii < dlhandles.size() && size_func == NULL ; ii++ ) {
@@ -83,8 +75,8 @@ int Trick::MemoryManager::add_attr_info( std::string & user_type_string , ATTRIB
 
     if ( size_func == NULL)  {
         std::stringstream message;
-        message << "(" << file_name << ":" << line_num 
-            << "): Couldn't find an io_src_sizeof_ function for type"
+        message << "(" << file_name << ":" << line_num
+            << "): Couldn't find an io_src_sizeof_ function for type "
             << user_type_string.c_str() << "[" << size_func_name.c_str() << "()].";
         emitWarning(message.str());
     }
@@ -110,7 +102,7 @@ int Trick::MemoryManager::add_attr_info( std::string & user_type_string , ATTRIB
 
         if ( init_sub_attr != NULL ) {     // If the initialization function was found,
             (*init_sub_attr)() ;           // then call it.
-        } else {  
+        } else {
             std::stringstream message;
             message << " ATTRIBUTES init routine for type \""
                     << user_type_name.c_str() << "\" not found.";
@@ -120,12 +112,12 @@ int Trick::MemoryManager::add_attr_info( std::string & user_type_string , ATTRIB
 
     } else { // The named user type isn't a structure type. Maybe it's an enumeration type.
 
-        // Check to see whether the user type name is in the enumeration_map. 
+        // Check to see whether the user type name is in the enumeration_map.
         ENUMERATION_MAP::iterator curr_pos = enumeration_map.find( user_type_name);
 
         // If it's not in the enumeration map then
         if (curr_pos == enumeration_map.end()) {
-            
+
             // Construct the name of the enumeration attributes.
             enum_attr_name = "enum" + user_type_name ;
 
@@ -151,7 +143,7 @@ int Trick::MemoryManager::add_attr_info( std::string & user_type_string , ATTRIB
             enum_attr = curr_pos->second;
         }
 
-        // Set the type information in the ATTRIBUTES structure that we are populating.      
+        // Set the type information in the ATTRIBUTES structure that we are populating.
         attr->type = TRICK_ENUMERATED ;
         attr->attr = enum_attr;
     }

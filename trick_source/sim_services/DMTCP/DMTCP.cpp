@@ -81,7 +81,7 @@ int Trick::DMTCP::post() {
     renameRestartScript();
 
     post_queue.reset_curr_index() ;
-    
+
     while ( (curr_job = post_queue.get_next_job()) != NULL )
         curr_job->call() ;
 
@@ -175,7 +175,7 @@ std::string Trick::DMTCP::getScriptName() {
     if ( ( mmw_script_name == default_script_name.str() ) or ( !isSpecialCharacter( mmw_script_name ) ) )
         restart_script_name = mmw_script_name;
 
-    // User specifed an invalid script name 
+    // User specifed an invalid script name
     else {
         std::cout << mmw_script_name.c_str() << " is not a valid name. The default DMTCP script name will be used: " << default_script_name.str() << endl;
         restart_script_name = default_script_name.str();
@@ -214,7 +214,7 @@ void Trick::DMTCP::dmtcpRenameCmd() {
     }
 
     // There is a bug in DMTCP that causes the DMTCP Coordinator (see dmtcp::DmtcpCoordinator::writeRestartScript())
-    // to not recognize ENV_VAR_CHECKPOINT_DIR when dumping a checkpoint from a restarted checkpoint. 
+    // to not recognize ENV_VAR_CHECKPOINT_DIR when dumping a checkpoint from a restarted checkpoint.
     // As a result, DMTCP writes the restart script to the current directory.
     // This code just checks to see if it's in the current dir, if so, move it to the ENV_VAR_CHECKPOINT_DIR with the new script name.
     ifstream no_env_dmtcp_file( no_env_dmtcp_restart_script.str().c_str() );
@@ -249,7 +249,7 @@ void Trick::DMTCP::dmtcpSystemCmd( const string& str ) {
 
     if ( real_system_ptr != NULL )
         (*real_system_ptr)( str.c_str() ) ;
-    else 
+    else
         system( str.c_str() );
 }
 
@@ -290,7 +290,7 @@ void Trick::DMTCP::dmtcpCleanup() {
 
     sprintf( dmtcp_restart_script_sh, "%s/dmtcp_restart_script.sh", lsp->env );
     unlink(dmtcp_restart_script_sh) ;
-    
+
     if ( !dmtcp_checkpoint_jobs_queue.empty() )
         dmtcp_checkpoint_jobs_queue.pop();
 #endif

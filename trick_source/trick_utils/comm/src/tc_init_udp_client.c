@@ -23,7 +23,6 @@
 #include "trick/tc_proto.h"
 #include "trick/trick_byteswap.h"
 
-static struct sockaddr_in sockin;
 
 int tc_init_udp_client(TCDevice * udp_client_device)
 {
@@ -33,6 +32,9 @@ int tc_init_udp_client(TCDevice * udp_client_device)
     int on = 1;
     struct hostent *h;
     int the_socket;
+    struct sockaddr_in sockin;
+
+    memset(&sockin, 0 , sizeof(struct sockaddr_in)) ;
 
     if (!udp_client_device) {
         trick_error_report(udp_client_device->error_handler,

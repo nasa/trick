@@ -1,14 +1,6 @@
 
 include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
-ifneq ($(HDF5),)
-ifneq ($(HDF5),/usr)
- HDF5_LIB = -L$(HDF5)/lib -L$(HDF5)/lib64 -lhdf5_hl -lhdf5 -lsz
-else
- HDF5_LIB = -lhdf5_hl -lhdf5
-endif
-endif
-
 RM = rm -rf
 CC = gcc
 CPP = g++
@@ -46,7 +38,8 @@ else
     XLIBS = -L/usr/X11R6/lib64 -L/usr/X11R6/lib -lXm -lXt -lX11 -ldl
 endif
 
-GTEST_LIBS = ${GTEST_HOME}/lib/libgtest.a ${GTEST_HOME}/lib/libgtest_main.a
+GTEST_LIBS = -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main
+
 DP_LIBS         = -L${TRICK_HOME}/trick_source/data_products/lib_${TRICK_HOST_CPU} \
                   -llog -lvar -leqparse -ltrick_units
 MODEL_LIBS      = -lxml2 \

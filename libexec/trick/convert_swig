@@ -13,6 +13,7 @@ use gte ;
 use trick_version ;
 use Digest::MD5 qw(md5_hex) ;
 use File::Path qw(make_path) ;
+use html ;
 
 ##
 ## ================================================================================
@@ -51,8 +52,9 @@ my $help = '';  # option variable with default value (false)
 my $stls = 0;  # option variable with default value (false)
 
 my ( @include_dirs , @defines) ;
-my ( @swig_exclude_dirs) ;
-my ( @exclude_dirs) ;
+my @exclude_paths ;
+my @swig_exclude_paths ;
+my @ext_lib_paths ;
 my %sim ;
 my %out_of_date ;
 my ($version, $thread, $year) ;
@@ -88,7 +90,8 @@ my $class_def   = qr/(?:class|struct)\s*                   # keyword class or st
              /sx ;
 my $template_def   = qr/template\s*                        # keyword template
             <[^>]+>\s*                                     # template parameters
-            class\s*[_A-Za-z]\w*\s*                        # keyword class and class name
+            (?:class|struct)                               # keyword class or struct
+            \s+[_A-Za-z]\w*\s*                             # class name
                /sx ;
 my $template_var_def  = qr/(?:\:\:)?[_A-Za-z][:\w]*\s*     # template name
             <[\w\s\*,:<>]*>\s*                             # template parameters
@@ -98,16 +101,18 @@ my $template_var_def  = qr/(?:\:\:)?[_A-Za-z][:\w]*\s*     # template name
 # This list is the list of all STL types to ignore.
 my %all_stl_names = qw(vector 1 list 1 deque 1 set 1 multiset 1 map 1 multimap 1 hash_set 1
      hash_multiset 1 hash_map 1 hash_multimap 1 stack 1 queue 1 priority_queue 1 bitset 1 auto_ptr 1
+     array 1
      std::vector 1 std::list 1 std::deque 1 std::set 1 std::multiset 1 std::map 1 std::multimap 1 std::hash_set 1
      std::hash_multiset 1 std::hash_map 1 std::hash_multimap 1 std::stack 1 std::queue 1 std::priority_queue 1
-     std::bitset 1 std::auto_ptr 1 pair 1 std::pair 1 std::tr1::shared_ptr 1) ;
+     std::bitset 1 std::auto_ptr 1 pair 1 std::pair 1 std::tr1::shared_ptr 1 std::array 1) ;
 
 # This is a partial list of STL types to ignore.  We do not ignore vector, map, list if we allow STLs
 my %stl_names = qw(deque 1 set 1 multiset 1 multimap 1 hash_set 1
      hash_multiset 1 hash_map 1 hash_multimap 1 stack 1 queue 1 priority_queue 1 bitset 1 auto_ptr 1
+     array 1
      std::deque 1 std::set 1 std::multiset 1 std::multimap 1 std::hash_set 1
      std::hash_multiset 1 std::hash_map 1 std::hash_multimap 1 std::stack 1 std::queue 1 std::priority_queue 1
-     std::bitset 1 std::auto_ptr 1 pair 1 std::pair 1 std::tr1::shared_ptr 1) ;
+     std::bitset 1 std::auto_ptr 1 pair 1 std::pair 1 std::tr1::shared_ptr 1 std::array 1) ;
 
 Getopt::Long::Configure ("bundling");
 GetOptions ( "stl|s" => sub { $stls = 1 } ,
@@ -122,11 +127,9 @@ if ( $help ) {
 
 @include_dirs = $ENV{"TRICK_CFLAGS"} =~ /-I\s*(\S+)/g ; # get include paths from TRICK_CFLAGS
 
-@swig_exclude_dirs = split /:/ , $ENV{"TRICK_SWIG_EXCLUDE"} ;
-if ( scalar @swig_exclude_dirs == 0 ) {
-    @swig_exclude_dirs = split /:/ , $ENV{"TRICK_ICG_EXCLUDE"} ;
-}
-@exclude_dirs = split /:/ , $ENV{"TRICK_EXCLUDE"} ;
+@exclude_paths = map abs_path($_), split /:/ , $ENV{"TRICK_EXCLUDE"} ;
+@swig_exclude_paths = map abs_path($_), split /:/ , $ENV{"TRICK_SWIG_EXCLUDE"} ;
+@ext_lib_paths = map abs_path($_), split /:/ , $ENV{"TRICK_EXT_LIB_DIRS"} ;
 @defines = $ENV{"TRICK_CFLAGS"} =~ /(-D\S+)/g ;       # get defines from TRICK_CFLAGS
 if ( $ENV{"TRICK_CFLAGS"} !~ /DTRICK_VER=/ ) {
     push @defines , "-DTRICK_VER=$year" ;
@@ -146,21 +149,10 @@ if ( scalar @ARGV == 0 ) {
 
         $swig_dir = dirname($f) ;
         $swig_dir = "build/$swig_dir" ;
-        $swig_file = "$swig_dir/${base_file}.i" ;
+        $swig_file = "$swig_dir/${base_file}_py.i" ;
 
         #print "$swig_file\n" ;
-        if ( -e $swig_file ) {
-            if ( !exists $sim{mod_date}{$f} ) {
-                $sim{mod_date}{$f} = (stat $f)[9] ;
-            }
-            $sim{swig_mod_date}{$f} = (stat $swig_file)[9] ;
-            if ( $sim{mod_date}{$f} > $sim{swig_mod_date}{$f} ) {
-                $out_of_date{$f} = 1 ;
-            }
-        } else {
-            $out_of_date{$f} = 1 ;
-            $sim{swig_mod_date}{$f} = 0 ;
-        }
+        $out_of_date{$f} = 1 ;
     }
 } else {
     #print "HERE I AM @ARGV\n" ;
@@ -233,52 +225,51 @@ sub process_file() {
 
 ##      For each of the #includes in the out_of_date header file
 ##      create a corresponding %import directive.
+        outer:
         foreach (split /^/, $raw_contents) {
 
-            if ( /^(\s*\#\s*include\s+)([^\n]+)/ ) {
-                my ( $include ) = $1 ;
-                my ( $file_name ) = $2 ;
+            if ( /^\s*\#\s*include\s+([^\n]+)/ ) {
+                my $file_name = $1 ;
+
+                # strip trailing whitespace
                 $file_name =~ s/\s+$// ;
-                if ( $file_name !~ /\</ ) {
-                    if ( $file_name !~ /\"sim_services/ and $file_name !~ /\"trick_utils/ and $file_name !~ /\"trick\//)  {
-                        my $exclude = 0 ;
-                        my $temp_file_name ;
 
-                        $temp_file_name = $file_name ;
-                        $temp_file_name =~ s/"//g ;
-                        # Check if include file's path begins with dot dot (..)
-                        if ( $temp_file_name =~ /^\.\./ ) {
-                            # include file location is relative to the input file's path.
-                            # Get the absolute path to this include file... use this from now on.
-                            $file_name = abs_path(dirname($f)) . "/" . $temp_file_name ;
-                            # Re-insert double quotes around include file.
-                            #$file_name = "\"" . $file_name . "\"" ;
-                        } elsif ( $temp_file_name !~ /^\// ) {
-                            foreach my $i ( dirname($f) , @include_dirs ) {
-                                if ( -e ( "$i/$temp_file_name" ) ) {
-                                    $file_name = abs_path(dirname("$i/$temp_file_name")) . "/" . basename($temp_file_name) ;
-                                    last ;
-                                }
-                            }
-                        }
+                # ignore <> includes
+                if ( $file_name =~ /\</ ) {
+                    next ;
+                }
 
-                        foreach my $i ( @swig_exclude_dirs ) {
-                            if ( $file_name =~ /^\"\Q$i/ ) {
-                                $exclude = 1 ;
-                                last ;
-                            }
-                        }
-                        $file_name =~ s/^"// ;
-                        $file_name = "\"build" . $file_name . "\"" ;
+                # normalize trick includes
+                $file_name =~ s/"//g ;
+                if ( $file_name =~ /sim_services/ or $file_name =~ /trick_utils/ or $file_name =~ /trick\//)  {
+                    $contents .= "\%import(module=\"sim_services\") \"trick/" . basename($file_name) . "\"\n" ;
+                    next ;
+                }
 
-                        if ( $exclude == 0 ) {
-                            $file_name =~ s/\.[^\.]+\"/\.i\"/ ;
+                # Convert relative paths to absolute paths
+                if ( $file_name !~ /^\// ) {
+                    foreach my $i ( dirname($f) , @include_dirs ) {
+                        my $candidate_path = "$i/$file_name" ;
+                        if ( -e $candidate_path ) {
+                            $file_name = $candidate_path ;
+                            last ;
                         }
-                        $contents .= "\%import $file_name\n" ;
-                    } else {
-                        $contents .= "\%import(module=\"sim_services\") $file_name\n" ;
                     }
                 }
+
+                # Get the canonical path (resolve ., .., and symbolic links)
+                $file_name = abs_path($file_name) ;
+
+                # Skip excluded paths
+                foreach my $i ( @exclude_paths, @swig_exclude_paths ) {
+                    if ( $file_name =~ /^\Q$i/ ) {
+                        next outer ;
+                    }
+                }
+
+                $file_name = "build" . $file_name ;
+                $file_name =~ s/\.[^\.]+?$/\_py.i/ ;
+                $contents .= "\%import \"$file_name\"\n" ;
             } else {
                 $contents .= $_ ;
             }
@@ -297,9 +288,9 @@ sub process_file() {
 
         my $out_file ;
         $out_file = basename($f) ;
-        $out_file =~ s/\.h.*$/\.i/ ;
+        $out_file =~ s/(\.h|\.H|\.hh|\.h\+\+|\.hxx|\.hpp)$/_py\.i/ ;
 
-        $out_file = "$out_dir/$out_file" ;
+        $out_file = "$out_dir/${out_file}" ;
 
         if ( ! -e $out_dir ) {
             make_path($out_dir) ;
@@ -319,7 +310,7 @@ sub process_file() {
 
         print OUT "\%module m$md5_sum\n\n" ;
 
-        print OUT "#include \"trick/swig/trick_swig.i\"\n\n" ;
+        print OUT "%include \"trick/swig/trick_swig.i\"\n\n" ;
 
         print OUT "
 \%insert(\"begin\") \%{
@@ -358,7 +349,7 @@ sub process_file() {
         }
         close OUT ;
 
-        print "Writing swig_file $out_file\n" ;
+        print "[34mWriting[0m    $out_file\n" ;
     }
 
 }
@@ -627,30 +618,33 @@ sub process_class($$$$$) {
         }
 
         if ( $template_var_def_str ne "" )  {
-            #print "*** template_var = $template_var_def_str ***\n" ;
-            $template_var_def_str =~ /(.*?)([_A-Za-z]\w*)\s*;/s ;
-            my ($template_full_type) = $1 ;
-            my ($var_name) = $2 ;
-            #print "*** var_name = $var_name ***\n" ;
-            $$new_contents_ref .= $template_var_def_str ;
+            # if there is a whiff of const in the template we are punting.
+            if ( $template_var_def_str !~ /^const|[<,\s]const\s/ ) {
+                #print "*** template_var = $template_var_def_str ***\n" ;
+                $template_var_def_str =~ /(.*?)([_A-Za-z]\w*)\s*;/s ;
+                my ($template_full_type) = $1 ;
+                my ($var_name) = $2 ;
+                #print "*** var_name = $var_name ***\n" ;
+                $$new_contents_ref .= $template_var_def_str ;
 
-            $template_full_type =~ /([_A-Za-z][:\w]*)\s*</ ;
-            my ($template_type) = $1 ;
-            # ignore some STL types and types that involve std::wstring
-            if ( ((  $stls and ! exists $stl_names{$template_type})
-               or ( !$stls and ! exists $all_stl_names{$template_type} ))
-               and $template_full_type !~ /(std::)?wstring/ ) {
+                $template_full_type =~ /([_A-Za-z][:\w]*)\s*</ ;
+                my ($template_type) = $1 ;
+                # ignore some STL types and types that involve std::wstring
+                if ( ((  $stls and ! exists $stl_names{$template_type})
+                   or ( !$stls and ! exists $all_stl_names{$template_type} ))
+                   and $template_full_type !~ /(std::)?wstring/ ) {
 
-                my ($template_type_no_sp) = $template_full_type ;
-                $template_type_no_sp =~ s/\s//g ;
-                #print "*** template_type_no_sp = $template_type_no_sp ***\n" ;
-                if ( ! exists $processed_templates{$template_type_no_sp} ) {
-                    $$new_contents_ref .= "\n#define TRICK_SWIG_TEMPLATE_$class_name${var_name}_template\n" ;
-                    $template_typedefs .= "\n#ifdef TRICK_SWIG_TEMPLATE_$class_name${var_name}_template\n" ;
-                    $template_typedefs .= "\%template ($class_name${var_name}_template) $template_full_type ;\n" ;
-                    $template_typedefs .= "#undef TRICK_SWIG_TEMPLATE_$class_name${var_name}_template\n" ;
-                    $template_typedefs .= "#endif\n" ;
-                    $processed_templates{$template_type_no_sp} = 1 ;
+                    my ($template_type_no_sp) = $template_full_type ;
+                    $template_type_no_sp =~ s/\s//g ;
+                    #print "*** template_type_no_sp = $template_type_no_sp ***\n" ;
+                    if ( ! exists $processed_templates{$template_type_no_sp} ) {
+                        $$new_contents_ref .= "\n#define TRICK_SWIG_TEMPLATE_$class_name${var_name}_template\n" ;
+                        $template_typedefs .= "\n#ifdef TRICK_SWIG_TEMPLATE_$class_name${var_name}_template\n" ;
+                        $template_typedefs .= "\%template ($class_name${var_name}_template) $template_full_type ;\n" ;
+                        $template_typedefs .= "#undef TRICK_SWIG_TEMPLATE_$class_name${var_name}_template\n" ;
+                        $template_typedefs .= "#endif\n" ;
+                        $processed_templates{$template_type_no_sp} = 1 ;
+                    }
                 }
             }
         }

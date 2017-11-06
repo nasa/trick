@@ -221,7 +221,7 @@ std::set< std::string > CommentSaver::getIgnoreTypes( std::string file_name ) {
             start = th_str.find( "trick_exclude_typename", start ) ;
         }
 
-        std::transform(th_str.begin(), th_str.end(), th_str.begin(), ::toupper) ;
+        //std::transform(th_str.begin(), th_str.end(), th_str.begin(), ::toupper) ;
 
         memset(pmatch , 0 , sizeof(pmatch)) ;
 

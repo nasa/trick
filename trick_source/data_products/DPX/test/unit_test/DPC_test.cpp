@@ -13,15 +13,15 @@
 //#include "trick_utils/reqs/include/RequirementScribe.hh"
 
 namespace Trick {
- 
+
 class DPCTest : public ::testing::Test {
     protected:
         //Trick::RequirementScribe req;
-        std::string testxml[15]; 
-    
+        std::string testxml[15];
+
         DPCTest() {}
         ~DPCTest() {}
-        virtual void SetUp(); 
+        virtual void SetUp();
         virtual void TearDown();
 
 		std::string parseDPCData(const char* name);
@@ -78,7 +78,7 @@ std::string DPCTest::parseDPCData(const char* name) {
 
     int n_product_files;
     int product_ix;
-	std::stringstream output; 
+	std::stringstream output;
 
 	session_file_name = name;
 
@@ -91,7 +91,7 @@ std::string DPCTest::parseDPCData(const char* name) {
     } catch (std::invalid_argument) {
         std::cerr << "ERROR: <session> specification is invalid and un-usable. Quitting." << std::endl;
         exit(1);
-    }   
+    }
 
     root_node = session_parse_tree->getRootNode();
 
@@ -100,13 +100,13 @@ std::string DPCTest::parseDPCData(const char* name) {
     } catch (std::invalid_argument) {
         std::cerr << "ERROR: <session> specification is invalid and un-usable. Quitting." << std::endl;
         exit(1);
-    }   
+    }
 
     delete session_parse_tree;
 
     n_product_files = session->product_file_list.size();
 
-    for ( product_ix = 0; product_ix < n_product_files; product_ix++ ) { 
+    for ( product_ix = 0; product_ix < n_product_files; product_ix++ ) {
         DPC_product *product;
         char tmp [50];
         sprintf(tmp, "../TEST_DATA/%s", session->product_file_list[product_ix]);
@@ -195,7 +195,7 @@ TEST_F(DPCTest, VarvsTime_Binary) {
 
 // Session 1_2
 TEST_F(DPCTest, VarvsTime_CSV) {
-	//req.add_requirement("2416241399 32631267");	
+	//req.add_requirement("2416241399 32631267");
 
     std::string tmp = parseDPCData(testxml[1].c_str());
 	//std::cout << tmp;
@@ -413,7 +413,7 @@ TEST_F(DPCTest, MultiplePlots) {
 		"Attribute grid: 			 yes"
 		"Attribute background_color: #fff0ff"
 		"Attribute font: 			 -*-new century schoolbook-bold-r-*--12-*-*-*-*-*-*-*"
-		"CURVE VIEW:" 
+		"CURVE VIEW:"
 		"X Var Name: sys.exec.out.time 					X Units: s"
 		"Y Var Name: sun_predictor.sun.solar_elevation 	Y Units: degree"
 		"RUN Directory: RUN_BINARY"
@@ -429,7 +429,7 @@ TEST_F(DPCTest, MultiplePlots) {
 		"Attribute grid:			 yes"
 		"Attribute background_color: #f0fff0"
 		"Attribute font: 			 -*-new century schoolbook-bold-r-*--12-*-*-*-*-*-*-*"
-		"CURVE VIEW:" 
+		"CURVE VIEW:"
 		"X Var Name: sys.exec.out.time 					X Units: s"
 		"Y Var Name: sun_predictor.sun.solar_azimuth 	Y Units: degree"
 		"RUN Directory: RUN_BINARY"
@@ -445,7 +445,7 @@ TEST_F(DPCTest, MultiplePlots) {
 		"Attribute grid: 			 yes"
 		"Attribute background_color: #fffff0"
 		"Attribute font: 			 -*-new century schoolbook-bold-r-*--12-*-*-*-*-*-*-*"
-		"CURVE VIEW:" 
+		"CURVE VIEW:"
 		"X Var Name: sun_predictor.sun.solar_azimuth 	X Units: degree"
 		"Y Var Name: sun_predictor.sun.solar_elevation 	Y Units: degree"
 		"RUN Directory: RUN_BINARY"
@@ -477,7 +477,7 @@ TEST_F(DPCTest, MultPlots_MultTables) {
 		"Attribute grid: 			 yes"
 		"Attribute background_color: 	#885588"
 		"Attribute font: 			 -*-new century schoolbook-bold-r-*--12-*-*-*-*-*-*-*"
-		"CURVE VIEW:" 
+		"CURVE VIEW:"
 		"X Var Name: sys.exec.out.time		 			X Units: s"
 		"Y Var Name: sun_predictor.sun.solar_elevation 	Y Units: degree"
 		"RUN Directory: RUN_BINARY"
@@ -489,19 +489,19 @@ TEST_F(DPCTest, MultPlots_MultTables) {
 
 		"PAGE VIEW: 	Attribute background_color: #885588"
 		"Attribute presentation: 		SIMPLE"
-		
+
 		"PLOT VIEW: 	Plot title: Sun Elevation vs. Azimuth"
 		"Number of Curves: 1"
 		"X-axis label: Azimuth 		Y-axis label: Elevation"
 		"Attribute grid: 				yes"
 		"Attribute background_color: 	#fffff0"
 		"Attribute font: 				-*-new century schoolbook-bold-r-*--12-*-*-*-*-*-*-*"
-		"CURVE VIEW:" 
+		"CURVE VIEW:"
 		"X Var Name: sun_predictor.sun.solar_azimuth 	X Units: degree"
 		"Y Var Name: sun_predictor.sun.solar_elevation 	Y Units: degree"
 		"RUN Directory: RUN_BINARY"
 		"Attribute y line_color: 		#323200"
-		"First 5 points:" 
+		"First 5 points:"
 		"<356.052,-36.9048>[0] <356.057,-36.9051>[1] <356.062,-36.9053>[2]"
 		"<356.067,-36.9056>[3] <356.071,-36.9058>[4]"
 		"FINALIZE PLOT VIEW. FINALIZE PAGE VIEW."
@@ -624,11 +624,11 @@ TEST_F(DPCTest, ComparisonCurves) {
     	"PRODUCT VIEW: 	Attribute version: 1.0"
 		"PAGE VIEW: Page title: Page of Squiggles"
 		"Attribute presentation: comparison"
-	
+
 		"PLOT VIEW: 	Plot title: Squiggle 1"
 		"Number of Curves: 2"
 		"X-axis label: time		Y-axis label: JD"
-		"CURVE VIEW:" 
+		"CURVE VIEW:"
 		"X Var Name: sys.exec.out.time 		X Units: s"
 		"Y Var Name: sun_predictor.sun.JD 	Y Units: day"
 		"RUN Directory: RUN5"
@@ -652,7 +652,7 @@ TEST_F(DPCTest, ComparisonCurves) {
 		"Y Var Name: sun_predictor.sun.declination 	Y Units: degree"
 		"RUN Directory: RUN5"
 		"First 5 points:"
-		"<0,-18.1012>[0] <1,-18.1012>[1] <2,-18.1012>[2]" 
+		"<0,-18.1012>[0] <1,-18.1012>[1] <2,-18.1012>[2]"
 		"<3,-18.1012>[3] <4,-18.1012>[4]"
 		"CURVE VIEW:"
 		"X Var Name: sys.exec.out.time 				X Units: s"
@@ -683,7 +683,7 @@ TEST_F(DPCTest, ComparisonCurves) {
 		"FINALIZE PLOT VIEW. FINALIZE PAGE VIEW. FINALIZE PRODUCT VIEW.",
 		tmp.c_str());
     EXPECT_EQ(result, 0);
-} 
+}
 
 // Session 9_2
 TEST_F(DPCTest, DeltaCurves) {
@@ -695,7 +695,7 @@ TEST_F(DPCTest, DeltaCurves) {
 		"PRODUCT VIEW: 	Attribute version: 1.0"
 		"PAGE VIEW: 	Page title: Page of Squiggles"
 		"Attribute presentation: DELTA"
-		
+
 		"PLOT VIEW: 	Plot title: Squiggle 1"
 		"Number of Curves: 1"
 		"X-axis label: time		Y-axis label: JD"
@@ -704,14 +704,14 @@ TEST_F(DPCTest, DeltaCurves) {
 		"Y Var Name: DELTA(sun_predictor.sun.JD) 	Y Units: day"
 		"RUN Directory: RUN1 - RUN2"
 		"First 5 points:"
-		"<0,-0.0416667>[0] <1,-0.0416667>[1] <2,-0.0416667>[2]" 
+		"<0,-0.0416667>[0] <1,-0.0416667>[1] <2,-0.0416667>[2]"
 		"<3,-0.0416667>[3] <4,-0.0416667>[4]"
 		"FINALIZE PLOT VIEW."
 
-		"PLOT VIEW: 	Plot title: Squiggle 2" 
+		"PLOT VIEW: 	Plot title: Squiggle 2"
 		"Number of Curves: 1"
 		"X-axis label: time		Y-axis label: declination"
-		"CURVE VIEW:" 
+		"CURVE VIEW:"
 		"X Var Name: sys.exec.out.time 						X Units: s"
 		"Y Var Name: DELTA(sun_predictor.sun.declination) 	Y Units: degree"
 		"RUN Directory: RUN1 - RUN2"
@@ -723,7 +723,7 @@ TEST_F(DPCTest, DeltaCurves) {
 		"PLOT VIEW: 	Plot title: Squiggle 3"
 		"Number of Curves: 1"
 		"X-axis label: time		Y-axis label: hour_angle"
-		"CURVE VIEW:" 
+		"CURVE VIEW:"
 		"X Var Name: sys.exec.out.time 						X Units: s"
 		"Y Var Name: DELTA(sun_predictor.sun.hour_angle) 	Y Units: degree"
 		"RUN Directory: RUN1 - RUN2"

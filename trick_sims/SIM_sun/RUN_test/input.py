@@ -28,8 +28,8 @@ if STRIPCHART:
 """                 LOCATION                 """
 """ ======================================== """
 # JSC MAIN Gate
-sun_predictor.sun.observer_latitude  = trick.sim_services.attach_units("d" , 29.55298)
-sun_predictor.sun.observer_longitude = trick.sim_services.attach_units("d" , 95.09379)
+sun_predictor.sun.observer_latitude  = trick.sim_services.attach_units("degree" , 29.55298)
+sun_predictor.sun.observer_longitude = trick.sim_services.attach_units("degree" , 95.09379)
 
 # Mom's House
 #sun_predictor.sun.observer_latitude  = trick.sim_services.attach_units("d" , 38.842677)
@@ -91,7 +91,7 @@ sun_predictor.sun.local_time.sec    = current_local_time.second
 # Start the display VarServer Client
 #==========================================
 varServerPort = trick.var_server_get_port();
-SunDisplay_path = "models/Graphics/dist/SunDisplay.jar"
+SunDisplay_path = "models/graphics/dist/SunDisplay.jar"
 
 if (os.path.isfile(SunDisplay_path)) :
     SunDisplay_cmd = "java -jar " \

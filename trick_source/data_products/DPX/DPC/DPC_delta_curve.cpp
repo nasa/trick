@@ -9,7 +9,7 @@ DPC_delta_curve::DPC_delta_curve( DPM_curve*               Curve_spec,
                                   DPM_run*                 RUN1,
                                   DPM_run*                 RUN2,
                                   DPC_datastream_supplier *ds_supplier,
-                                  DPM_time_constraints    *Time_constraints ) throw (std::logic_error)
+                                  DPM_time_constraints    *Time_constraints )
     : DPC_curve()
 {
 
@@ -130,13 +130,13 @@ DPC_delta_curve::DPC_delta_curve( DPM_curve*               Curve_spec,
 
     // Make sure we know what units we're actually getting from DataStream #2.
     run2_ds_units = ds[1]->getUnit().c_str();
-    
-    // ds1 and ds2 had better be supplying the same units. 
+
+    // ds1 and ds2 had better be supplying the same units.
     if ( run1_ds_units != run2_ds_units ) {
         std::cerr << "ERROR: The two data streams of a delta plot have different units." << std::endl;
         std::cerr.flush();
         throw(std::logic_error("Failed to create DataStream"));
-    } 
+    }
 
     y_actual_units = strdup( run1_ds_units.c_str());
 
@@ -152,27 +152,27 @@ DPC_delta_curve::DPC_delta_curve( DPM_curve*               Curve_spec,
     // ------------------------
     work[0] ='\0';
     if ((temp_s = strrchr(run_dir1,'/')) != NULL) {
-        strcpy(work, temp_s+1); 
+        strcpy(work, temp_s+1);
     } else {
-        strcpy(work, run_dir1); 
-    } 
-    strcat(work, " - "); 
+        strcpy(work, run_dir1);
+    }
+    strcat(work, " - ");
     if ((temp_s = strrchr(run_dir2,'/')) != NULL) {
-        strcat(work, temp_s+1); 
+        strcat(work, temp_s+1);
     } else {
-        strcat(work, run_dir2); 
-    } 
+        strcat(work, run_dir2);
+    }
     data_src_label = strdup(work);
 }
-                                           
+
 // DESTRUCTOR
 DPC_delta_curve::~DPC_delta_curve() {
 
     // We ONLY delete what we create.
-    if ( delta_x_var ) { delete delta_x_var; };
-    if ( delta_y_var ) { delete delta_y_var; };
-    if ( ds[0] ) { delete ds[0]; };
-    if ( ds[1] ) { delete ds[1]; };
+    delete delta_x_var;
+    delete delta_y_var;
+    delete ds[0];
+    delete ds[1];
     if ( x_actual_units ) { free( x_actual_units); }
     if ( y_actual_units ) { free( y_actual_units); }
     if ( run_dir1 ) { free( run_dir1); }
@@ -215,7 +215,7 @@ int DPC_delta_curve::getXY(double *X_value, double *Y_value) {
             eos = ! ds[1]->get( &t2, &v2);
         }
     }
-    if (!eos) { 
+    if (!eos) {
         *X_value = cv_convert_double(time_conversion,t1);
         *Y_value = v1 - v2;
         return(1);

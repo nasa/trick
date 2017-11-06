@@ -1,6 +1,6 @@
 
 /**
-    A variable class 
+    A variable class
     @author Keith Vetter
     @version May 2002
     @see Unit
@@ -28,8 +28,8 @@ class Var {
                const Var &operator= (Var& right) ;      // Assignment
 
                enum  enumType {
-                   CHAR, SHORT, INT, LONG, UNSIGNED_CHAR, UNSIGNED_SHORT, 
-	            UNSIGNED_INTEGER, UNSIGNED_LONG, FLOAT, DOUBLE, LONG_LONG, 
+                   CHAR, SHORT, INT, LONG, UNSIGNED_CHAR, UNSIGNED_SHORT,
+	            UNSIGNED_INTEGER, UNSIGNED_LONG, FLOAT, DOUBLE, LONG_LONG,
 	            UNSIGNED_LONG_LONG, VOID, NONE }  ;
 
                // Get Var Info
@@ -75,7 +75,7 @@ class Var {
                int   compareNames( const char* name );
 
                bool isProgramOutput ;
-     
+
        private:
 
                int calcNumDimensions();
@@ -88,7 +88,7 @@ class Var {
                string timeName_;   // name of time variable e.g. sys.exec.out.time
                string timeLabel_;   // e.g. "time"
 
-               int   byteSize_;  // a[0-5]: 6*(4bytes/double) = 24 bytes in all 
+               int   byteSize_;  // a[0-5]: 6*(4bytes/double) = 24 bytes in all
                int   nDimensions_; // a[0-3].b[1-6].c[3] has 4*6*1=24 dimensions
 
                enum   enumType varType_;

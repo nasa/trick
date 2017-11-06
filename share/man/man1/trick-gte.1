@@ -1,0 +1,33 @@
+.TH trick-gte 1 "August 1, 2016" "Trick" "Trick User's Manual"
+.SH NAME
+trick-gte \- Trick Get Trick Environment
+.SH SYNOPSIS
+\fBtrick-gte\fP [OPTIONS]...
+.SH DESCRIPTION
+The Trick Get Trick Environment (trick-gte) command prints out the value of environment
+variables used by Trick.  trick-gte will print the value of the environment variable
+if the user has set it, or trick-gte will print a default values it stores within itself.
+.TP
+\fBENVIRONMENT_VARIABLE\fP
+Prints the value of the environemnt variable if it exists or prints out the default value
+stored in trick-gte.
+.TP
+\fBS_source\fP
+Used by trick-CP to store the values of all Trick environment variables into the simulation.
+Not typically used outside of trick-CP.
+.TP
+\fB-e<pattern>\fP
+Print out all Trick environment variables that match \fIpattern\fP.  The pattern may be
+a string or perl regular expression.
+.SH "SEE ALSO"
+All Trick model developers and users should go through the tutorial found
+in the \fITrick Simulation Environment User Training Materials\fP.
+The canonical reference for all Trick commands, files and utilities is the
+\fITrick Simulation Environment User's Guide\fP.  Information specific to a
+given release of Trick tools is contained in the \fITrick Simulation
+Environment Version Description\fP for that release.
+.SH HISTORY
+1996-2002 : \fBgte\fP originally written in C by Greg Alexander
+
+2003-present : \fBtrick-gte\fP ported to Perl by Alex Lin
+

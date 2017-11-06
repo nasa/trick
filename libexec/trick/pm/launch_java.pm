@@ -35,6 +35,7 @@ sub launch_java($$) {
         $command = "java -classpath $java_dir/dist/*:$java_dir/lib/*:$java_dir/lib/ \\
              -Xdock:name=\"$name\" \\
              -Xdock:icon=$java_dir/resources/trick_icon.png \\
+             -Djava.net.preferIPv4Stack=true \\
              $application" ;
     } else {
         $command = "java -cp $java_dir/dist/*:$java_dir/lib/*:$java_dir/lib/ $application" ;

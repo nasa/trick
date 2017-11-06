@@ -33,7 +33,7 @@ int LUT_inv(double **y, double **a, int n);
 
 /**
 * @ingroup TRICK_MATH
-* 
+*
 */
 void LU_bksb(double *b, double **a, int n, int *indx);
 
@@ -81,37 +81,37 @@ double dS_function(double x, double zero_point, double mid_point,
  * @ingroup TRICK_MATH
  */
 int euler123(double angle[3], double mat[3][3], int method,
-             double *prev, char *file, int lineno);
+             double *prev, const char *file, int lineno);
 
 /**
  * @ingroup TRICK_MATH
  */
 int euler132(double angle[3], double mat[3][3], int method,
-             double *prev, char *file, int lineno);
+             double *prev, const char *file, int lineno);
 
 /**
  * @ingroup TRICK_MATH
  */
 int euler213(double angle[3], double mat[3][3], int method,
-             double *prev, char *file, int lineno);
+             double *prev, const char *file, int lineno);
 
 /**
  * @ingroup TRICK_MATH
  */
 int euler231(double angle[3], double mat[3][3], int method,
-             double *prev, char *file, int lineno);
+             double *prev, const char *file, int lineno);
 
 /**
  * @ingroup TRICK_MATH
  */
 int euler312(double angle[3], double mat[3][3], int method,
-             double *prev, char *file, int lineno);
+             double *prev, const char *file, int lineno);
 
 /**
  * @ingroup TRICK_MATH
  */
 int euler321(double angle[3], double mat[3][3], int method,
-             double *prev, char *file, int lineno);
+             double *prev, const char *file, int lineno);
 
 /**
  * @ingroup TRICK_MATH
@@ -253,7 +253,7 @@ void dmxv(double prod[], double mat[3][3], double vect[]);
 
 /**
  * @ingroup TRICK_MATH
- * 
+ *
  */
 double drandom_gaussian(double std_deviation, int range);
 
@@ -571,7 +571,7 @@ double gauss_rnd_bell(RAND_GENERATOR * G);
          euler312( ang, mat, method, prev, __FILE__, __LINE__ )
 #define euler_321( ang, mat, method, prev ) \
          euler321( ang, mat, method, prev, __FILE__, __LINE__ )
-	 
+
 #define deuler_123_quat( ang, quat, method ) \
           euler123_quat( ang, quat, method, (double*)0 )
 #define deuler_132_quat( ang, quat, method ) \
@@ -584,5 +584,5 @@ double gauss_rnd_bell(RAND_GENERATOR * G);
           euler312_quat( ang, quat, method, (double*)0 )
 #define deuler_321_quat( ang, quat, method ) \
           euler321_quat( ang, quat, method, (double*)0 )
-	  	 	 
+
 #endif

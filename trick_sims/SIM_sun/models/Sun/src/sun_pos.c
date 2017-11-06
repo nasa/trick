@@ -1,4 +1,4 @@
-/******************************************************************* 
+/*******************************************************************
  * Reference(s):
  * (1) Meeus,Jean."Astronomical Algorithms",
  * 2nd Edition, Willmann-Bell, Inc.
@@ -72,7 +72,7 @@ int sun_pos_at_JD (double JD,
      right_ascension = norm_mod(right_ascension, 360.0);
 
      tmp_d = sin( epsilon * DEG_TO_RAD ) * sin (Suns_true_longitude * DEG_TO_RAD);
-     declination = RAD_TO_DEG * asin (tmp_d); 
+     declination = RAD_TO_DEG * asin (tmp_d);
 
      *sun_right_ascension = right_ascension;
      *sun_declination     = declination;

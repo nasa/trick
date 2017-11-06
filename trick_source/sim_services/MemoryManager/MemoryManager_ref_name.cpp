@@ -1,4 +1,4 @@
-/* 
+/*
    PURPOSE: (Construct a parse tree representation of a parameter reference name from the input file.)
 
    PROGRAMMERS: (((Robert W. Bailey) (LinCom) (7/95) (CR#600) (--)) ((Robert W. Bailey) (LinCom Corp) (Feb 1991) (v1.0)
@@ -12,7 +12,7 @@
 #include "trick/reference.h"
 #include "trick/parameter_types.h"
 #include "trick/mm_error.h"
-#include <stdlib.h> 
+#include <stdlib.h>
 
 //FIXME TODO make a error file
 /////// MM_NO_ERROR 0
@@ -76,7 +76,7 @@ int Trick::MemoryManager::ref_name(REF2 * R, char *name) {
         }
     } else {
         addr = (char *)R->address + attr->offset;
-        if ( R->create_add_path ) { 
+        if ( R->create_add_path ) {
             ADDRESS_NODE * address_node ;
 
             if ( attr->offset != 0 ) {

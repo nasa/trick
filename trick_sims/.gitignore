@@ -21,6 +21,9 @@ S_sie.resource
 S_source.cpp
 S_source.hh
 T_main_*
-trick
+**/SIM_*/trick
+**/graphics/dist
+**/graphics/manifest
+**/graphics/build
 jitlib
 build

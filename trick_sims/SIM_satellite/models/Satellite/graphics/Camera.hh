@@ -3,7 +3,7 @@
 class Camera {
 
 public:
-    Camera(); 
+    Camera();
     void look();
 
     double pos[3];

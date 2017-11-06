@@ -81,7 +81,7 @@ namespace Trick {
 
             #ifndef SWIG
             /**
-             @brief DRBinary default constructor. 
+             @brief DRBinary default constructor.
              */
             DRBinary() {}
             #endif

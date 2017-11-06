@@ -20,7 +20,7 @@ import org.jfree.data.Range;
 
 import trick.common.utils.vs.Variable;
 import trick.sie.utils.SieEnumeration;
-import trick.stripchart.StripChart;
+import trick.tv.StripChart;
 
 public class TVBean {
 

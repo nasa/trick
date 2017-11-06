@@ -2,6 +2,7 @@ package trick.tv;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -43,6 +44,7 @@ import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -102,8 +104,8 @@ import trick.sie.utils.SieResourceDomParser;
 import trick.sie.utils.SieTemplate;
 import trick.sie.utils.SieTreeModel;
 import trick.sie.utils.TreeModelSortingFilter.Sorting;
-import trick.stripchart.StripChart;
-import trick.stripchart.StripChartManager;
+import trick.tv.StripChart;
+import trick.tv.StripChartManager;
 import trick.tv.VariableTable.Position;
 
 /**
@@ -153,6 +155,9 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
 
     /** field for manually entering variables */
     JXTextField manualField;
+
+    /** check box for toggling Variable Tree visibility */
+    protected JCheckBoxMenuItem variableTreeCheckBox;
 
     /** dialog for opening and saving files */
     JFileChooser fileChooser;
@@ -209,6 +214,8 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
     final String defaultUnitsKey = "defaultUnits";
     final String characterArraysAsStringsKey = "characterArraysAsStrings";
     final String validateAddressesKey = "validateAddresses";
+    final String searchPanelVisibleKey = "searchPanelVisible";
+    final String variableTreeVisibleKey = "variableTreeVisible";
 
     /** new action */
     protected AbstractAction newAction = new AbstractAction("New",
@@ -370,7 +377,6 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
         }
     };
 
-
     @Override
     protected void initialize(final String[] args) {
         super.initialize(args);
@@ -429,6 +435,8 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
 
         // Initialize the tree search panel.
         searchPanel = new SearchPanel() {{
+            setVisible(Boolean.parseBoolean(trickProperties.getProperty(
+              searchPanelVisibleKey, Boolean.toString(true))));
             setEnabled(false);
             setFontSize(Float.parseFloat(trickProperties.getProperty(
               fontSizeKey, Integer.toString(getFont().getSize()))));
@@ -453,6 +461,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
                 public void actionPerformed(ActionEvent actionEvent) {
                     List<SieTemplate> selection = getSelectedValues();
                     if (!selection.isEmpty()) {
+                        setVariableTreeVisible(true);
                         variableTree.expandParent(selection.get(0).toString());
                     }
                 }
@@ -474,6 +483,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
                     }
                     public void actionPerformed(ActionEvent actionEvent) {
                         if (variable != null) {
+                            setVariableTreeVisible(true);
                             variableTree.expandParent(variable.name);
                         }
                     }
@@ -635,7 +645,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
     }
 
     @Override
-    protected void parseArguments(String[] arguments, OptionParser optionParser) {
+    protected OptionSet parseArguments(String[] arguments, OptionParser optionParser) {
         // Add class-specific arguments to the parser before allowing the superclass to parse.
         OptionSpec<String> autoOpenFileSpec = optionParser.accepts(autoOpenFileKey,
           "File to open at startup.").withRequiredArg().ofType(String.class);
@@ -649,11 +659,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
         optionParser.accepts(stripChartsOnlyKey, "Display strip charts only.");
 
         // The superclass handles all malformed arguments.
-        super.parseArguments(arguments, optionParser);
-
-        // This repeats some of the parsing done by the superclass, but there's
-        // not a clean way of passing the results down, so live with it for now.
-        OptionSet options = optionParser.parse(arguments);
+        OptionSet options = super.parseArguments(arguments, optionParser);
 
         if (options.has(autoOpenFileKey)) {
             trickProperties.setProperty(autoOpenFileKey, options.valueOf(autoOpenFileSpec));
@@ -666,6 +672,8 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
         }
 
         stripChartsOnly = options.has(stripChartsOnlyKey);
+
+        return options;
     }
 
     @Override
@@ -1601,6 +1609,38 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
             add(new JMenuItem(clearLogsAction));
         }}, 1);
 
+        menuBar.add(new JMenu("View") {{
+            setMnemonic(KeyEvent.VK_V);
+            variableTreeCheckBox = new JCheckBoxMenuItem("Variable Tree") {{
+                setToolTipText("Toggle visibility of the Variable Tree.");
+                setMnemonic(KeyEvent.VK_V);
+                setSelected(Boolean.parseBoolean(trickProperties.getProperty(
+                  variableTreeVisibleKey, Boolean.toString(true))));
+                addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        setVariableTreeVisible(isSelected());
+                    }
+                });
+            }};
+            add(variableTreeCheckBox);
+
+            add(new JCheckBoxMenuItem("Search Panel") {{
+                setToolTipText("Toggle visibility of the Search Panel.");
+                setMnemonic(KeyEvent.VK_S);
+                setSelected(Boolean.parseBoolean(trickProperties.getProperty(
+                  searchPanelVisibleKey, Boolean.toString(true))));
+                addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        if (!isSelected()) {
+                            searchPanel.setPreferredSize(searchPanel.getSize());
+                        }
+                        searchPanel.setVisible(isSelected());
+                        ((JSplitPane)searchPanel.getParent()).resetToPreferredSizes();
+                    }
+                });
+            }});
+        }}, 1);
+
         return menuBar;
     }
 
@@ -1631,6 +1671,8 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
     public JComponent createMainPanel() {
         return new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, new JScrollPane(variableTree) {{
             setPreferredSize(new Dimension(200, 0));
+            setVisible(Boolean.parseBoolean(trickProperties.getProperty(
+              variableTreeVisibleKey, Boolean.toString(true))));
         }}, new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, searchPanel, new JXPanel(new BorderLayout()) {{
             add(new JScrollPane(variableTable), BorderLayout.CENTER);
 
@@ -1686,12 +1728,27 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
             add(manualPanel, BorderLayout.SOUTH);
         }}) {{
             setName("innerSplitPane");
-            setOneTouchExpandable(true);
         }}) {{
             setName("outerSplitPane");
             setBorder(new CompoundBorder(getBorder(), new EmptyBorder(5, 5, 0, 5)));
-            setOneTouchExpandable(true);
         }};
+    }
+
+    protected void setVariableTreeVisible(boolean visible) {
+        Container container = variableTree.getParent().getParent();
+
+        if (container.isVisible() == visible) {
+            return;
+        }
+
+        if (!visible) {
+            container.setPreferredSize(container.getSize());
+        }
+
+        container.setVisible(visible);
+        variableTreeCheckBox.setSelected(visible);
+        ((JSplitPane)container.getParent()).resetToPreferredSizes();
+
     }
 
     @Override
@@ -1885,6 +1942,8 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
         trickProperties.setProperty(defaultUnitsKey, Boolean.toString(defaultAllUnits));
         trickProperties.setProperty(characterArraysAsStringsKey, Boolean.toString(characterArraysAsStrings));
         trickProperties.setProperty(validateAddressesKey, Boolean.toString(validateAddresses));
+        trickProperties.setProperty(searchPanelVisibleKey, Boolean.toString(searchPanel.isVisible()));
+        trickProperties.setProperty(variableTreeVisibleKey, Boolean.toString(variableTreeCheckBox.isSelected()));
         for (UnitType type : UnitType.values()) {
             trickProperties.setProperty(type.toString(),
               defaultUnits.get(type.ordinal()).toString());

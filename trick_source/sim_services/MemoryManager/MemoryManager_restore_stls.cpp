@@ -14,7 +14,7 @@ void Trick::MemoryManager::restore_stls( ALLOC_INFO* alloc_info ) {
     }
 
     if (alloc_info == NULL) {
-        std::cout << "ERROR: Trick::MemoryManager::restore_stls called with alloc_info == NULL." << std::endl;
+        std::cerr << "ERROR: Trick::MemoryManager::restore_stls called with alloc_info == NULL." << std::endl;
         std::cout.flush();
         return;
     }
@@ -58,7 +58,7 @@ void Trick::MemoryManager::restore_stls_in_class( std::string name, char* addres
     }
 
     if (attr == NULL) {
-        std::cerr << "ERROR: Trick::MemoryManager::restore_stls called with attr = NULL." << std::endl;
+        std::cerr << "ERROR: Trick::MemoryManager::restore_stls called with name = " << name << " and attr = NULL." << std::endl;
         return;
     }
 

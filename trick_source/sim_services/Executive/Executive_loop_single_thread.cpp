@@ -72,7 +72,7 @@ int Trick::Executive::loop_single_thread() {
             if ( ret != 0 ) {
                 exec_terminate_with_return(ret , curr_job->name.c_str() , 0 , "scheduled job did not return 0") ;
             }
-            /* System jobs next call time are not set until after they run. 
+            /* System jobs next call time are not set until after they run.
                Test their next job call time after they have been called */
             if ( curr_job->system_job_class ) {
                 main_sched_queue->test_next_job_call_time(curr_job , time_tics) ;

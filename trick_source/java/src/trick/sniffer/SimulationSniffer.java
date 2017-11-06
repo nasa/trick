@@ -63,7 +63,7 @@ public class SimulationSniffer extends Thread {
     public void run() {
         try {
             multicastSocket = new MulticastSocket(9265) {{
-                joinGroup(InetAddress.getByName("224.3.14.15"));
+                joinGroup(InetAddress.getByName("239.3.14.15"));
             }};
             byte[] buffer = new byte[4096];
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);

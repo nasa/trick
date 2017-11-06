@@ -25,8 +25,7 @@
 Trick::IPPython * the_pip ;
 
 //Constructor
-Trick::IPPython::IPPython() : Trick::InputProcessor::InputProcessor() {
-
+Trick::IPPython::IPPython() : Trick::InputProcessor::InputProcessor() , units_conversion_msgs(true) {
     the_pip = this ;
     return ;
 }
@@ -67,6 +66,14 @@ void Trick::IPPython::get_TMM_named_variables() {
     }
 }
 
+bool Trick::IPPython::get_units_conversion_msgs() {
+    return units_conversion_msgs ;
+}
+
+void Trick::IPPython::shoot_the_units_conversion_messenger(bool onoff) {
+    units_conversion_msgs = !onoff ;
+}
+
 //Initialize and run the Python input processor on the user input file.
 int Trick::IPPython::init() {
     /** @par Detailed Design: */
@@ -83,10 +90,18 @@ int Trick::IPPython::init() {
     pthread_mutexattr_settype(&m_attr, PTHREAD_MUTEX_RECURSIVE) ;
     pthread_mutex_init(&ip_mutex , &m_attr) ;
 
+    // Run Py_Initialze first for python 2.x
+#if PY_VERSION_HEX < 0x03000000
     Py_Initialize();
+#endif
 
     /* Run the Swig generated routine in S_source_wrap.cpp. */
     init_swig_modules() ;
+
+    // Run Py_Initialze after init_swig_modules for python 3.x
+#if PY_VERSION_HEX >= 0x03000000
+    Py_Initialize();
+#endif
 
     /* Import simulation specific routines into interpreter. */
     PyRun_SimpleString(
@@ -95,6 +110,8 @@ int Trick::IPPython::init() {
      "import struct\n"
      "import binascii\n"
      "sys.path.append(os.getcwd())\n"
+     "sys.path.append(os.path.join(os.environ['TRICK_HOME'], 'pymods'))\n"
+     "sys.path += map(str.strip, os.environ['TRICK_PYTHON_PATH'].split(':'))\n"
      "import trick\n"
      "sys.path.append(os.getcwd() + \"/Modified_data\")\n"
     ) ;
@@ -122,7 +139,7 @@ int Trick::IPPython::init() {
     }
 
     if ( verify_input ) {
-       exec_terminate_with_return(1 , __FILE__ , __LINE__ , "Input file verification complete\n" ) ;
+       exec_terminate_with_return(ret , __FILE__ , __LINE__ , "Input file verification complete\n" ) ;
     }
 
     fclose(input_fp) ;
@@ -133,12 +150,13 @@ int Trick::IPPython::init() {
 //Command to parse the given string.
 int Trick::IPPython::parse(std::string in_string) {
 
+    int ret ;
     pthread_mutex_lock(&ip_mutex);
     in_string += "\n" ;
-    PyRun_SimpleString(in_string.c_str()) ;
+    ret = PyRun_SimpleString(in_string.c_str()) ;
     pthread_mutex_unlock(&ip_mutex);
 
-    return 0 ;
+    return ret ;
 
 }
 
@@ -168,7 +186,7 @@ int Trick::IPPython::parse_condition(std::string in_string, int & cond_return_va
 
 }
 
-//Restart job that reloads event_list from checkpointable structures 
+//Restart job that reloads event_list from checkpointable structures
 int Trick::IPPython::restart() {
     /* Make shortcut names for all known sim_objects. */
     get_TMM_named_variables() ;
@@ -182,3 +200,14 @@ int Trick::IPPython::shutdown() {
     return(0) ;
 }
 
+void shoot_the_units_conversion_messenger() {
+    the_pip->shoot_the_units_conversion_messenger(true) ;
+}
+
+void revive_the_units_conversion_messenger() {
+    the_pip->shoot_the_units_conversion_messenger(false) ;
+}
+
+int check_units_conversion_messenger_for_signs_of_life() {
+    return the_pip->get_units_conversion_msgs() ;
+}

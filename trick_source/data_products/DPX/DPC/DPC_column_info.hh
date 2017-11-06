@@ -14,7 +14,7 @@ public:
         var = Var;
         units = strdup(Units_s);
         ds_ix = DS_ix;
-		time_conversion = Conversion_fn; 
+		time_conversion = Conversion_fn;
     }
 
     DPM_var    *var;

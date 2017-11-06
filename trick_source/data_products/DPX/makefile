@@ -16,7 +16,7 @@ ifneq ("$(wildcard ${TRICK_HOME}/trick_source/data_products/fermi-ware)","")
 APPDIRS += APPS/FXPLOT
 endif
 
-all: $(LIBDIRS) $(APPDIRS) xml_catalog 
+all: $(LIBDIRS) $(APPDIRS)
 
 .PHONY: $(LIBDIRS) $(APPDIRS)
 
@@ -29,10 +29,6 @@ docs: always_make
 testing: $(LIBDIRS)
 	@echo "===== Making TESTING ====="
 	$(MAKE) -C TESTING
-
-xml_catalog: always_make
-	@echo "===== Making XML CATALOG ====="
-	$(MAKE) -C XML
 
 $(LIBDIRS):
 	@ echo ; echo "==: Compile $@"

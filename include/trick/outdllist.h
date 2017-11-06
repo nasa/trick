@@ -30,7 +30,7 @@ typedef struct _DLLIST {
     DLLNODE* tail;
     int (*compare)(void* info1,void* info2);
 }DLLIST;
- 
+
 
 DLLIST* DLL_Create();
 

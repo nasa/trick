@@ -10,7 +10,8 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 # Flags passed to the preprocessor.
 TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra -DGTEST_HAS_TR1_TUPLE=0
 
-LIBS = ${GTEST_HOME}/lib/libgtest.a ${GTEST_HOME}/lib/libgtest_main.a
+LIBS = -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main
+
 
 ifeq ($(TRICK_HOST_TYPE), Linux)
     LIBS += -lpthread -lrt
@@ -19,11 +20,11 @@ endif
 BASE_OBJECTS = ../object_${TRICK_HOST_CPU}/Clock.o\
                ../object_${TRICK_HOST_CPU}/clock_c_intf.o
 
-BC635_CLOCK_OBJECTS        = ${BASE_OBJECTS} BC635Clock_test.o ../object_${TRICK_HOST_CPU}/BC635Clock.o
+BC635_CLOCK_OBJECTS        = ${BASE_OBJECTS} BC635Clock_test.o ../object_${TRICK_HOST_CPU}/BC635Clock.o exec_get_rt_nap_stub.o
 
-GETTIMEOFDAY_CLOCK_OBJECTS = ${BASE_OBJECTS} GetTimeOfDayClock_test.o ../object_${TRICK_HOST_CPU}/GetTimeOfDayClock.o
+GETTIMEOFDAY_CLOCK_OBJECTS = ${BASE_OBJECTS} GetTimeOfDayClock_test.o ../object_${TRICK_HOST_CPU}/GetTimeOfDayClock.o exec_get_rt_nap_stub.o
 
-TPROCTE_CLOCK_OBJECTS      = ${BASE_OBJECTS} TPROCTEClock_test.o ../object_${TRICK_HOST_CPU}/TPROCTEClock.o
+TPROCTE_CLOCK_OBJECTS      = ${BASE_OBJECTS} TPROCTEClock_test.o ../object_${TRICK_HOST_CPU}/TPROCTEClock.o exec_get_rt_nap_stub.o
 
 
 # All tests produced by this Makefile.  Remember to add new tests you
@@ -47,17 +48,19 @@ GetTimeOfDayClock_test.o : GetTimeOfDayClock_test.cpp
 	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c $<
 
 GetTimeOfDayClock_test : ${GETTIMEOFDAY_CLOCK_OBJECTS}
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ ${LIBS}
+	$(TRICK_CPPC) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ ${LIBS}
 
 TPROCTEClock_test.o : TPROCTEClock_test.cpp
 	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c $<
 
 TPROCTEClock_test : ${TPROCTE_CLOCK_OBJECTS}
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ ${LIBS}
+	$(TRICK_CPPC) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ ${LIBS}
 
 BC635Clock_test.o : BC635Clock_test.cpp
 	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c $<
 
 BC635Clock_test : ${BC635_CLOCK_OBJECTS}
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ ${LIBS}
+	$(TRICK_CPPC) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ ${LIBS}
 
+exec_get_rt_nap_stub.o : exec_get_rt_nap_stub.cpp
+	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c $<

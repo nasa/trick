@@ -72,7 +72,15 @@ void Trick::AttributesMap::print_xml(std::ofstream & sie_out ) {
             std::replace(type_name.begin(), type_name.end(), ':', '_');
             sie_out << std::endl << "      type=\"" << type_remove_dims(type_name) << "\"" ;
             sie_out << std::endl << "      io_attributes=\"" << attr->io << "\"" ;
-            sie_out << std::endl << "      units=\"" << attr->units << "\"" ;
+            sie_out << std::endl << "      units=\"" ;
+            // If the mods bit is set for using -- as the units
+            if ( attr->mods & TRICK_MODS_UNITSDASHDASH ) {
+                sie_out << "--" ;
+            } else {
+                sie_out << attr->units ;
+            }
+            sie_out << "\"" ;
+
             std::string description = attr->des;
             if ( ! description.empty() ) {
                 sie_out << std::endl << "      description=\"" << replace_special_chars(description) << "\"" ;

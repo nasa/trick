@@ -5,6 +5,7 @@
 #ifndef CHECKPOINT_IS_STL_CONTAINER
 #define CHECKPOINT_IS_STL_CONTAINER
 
+#include <array>
 #include <vector>
 #include <list>
 #include <deque>
@@ -17,6 +18,11 @@
 template <typename T>
 struct is_stl_container {
   static const bool value = false;
+};
+
+template <typename T,std::size_t N>
+struct is_stl_container<std::array<T,N> > {
+  static const bool value = true;
 };
 
 template <typename T,typename _Alloc>

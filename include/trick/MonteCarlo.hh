@@ -7,14 +7,16 @@
 
 #include <deque>
 #include <vector>
+#include <climits>
 
 #include "trick/MonteVar.hh"
 #include "trick/Executive.hh"
 #include "trick/RemoteShell.hh"
 #include "trick/tc.h"
 
-#ifndef HOST_NAME_MAX
-#define HOST_NAME_MAX 128
+#ifdef SWIG
+// This instructs SWIG to use dynamic_cast and return one of the derived type for the get_variable function.
+%factory(Trick::MonteVar * Trick::MonteCarlo::get_variable, Trick::MonteVarCalculated, Trick::MonteVarFile, Trick::MonteVarFixed, Trick::MonteVarRandom) ;
 #endif
 
 namespace Trick {
@@ -39,6 +41,7 @@ namespace Trick {
             CORED,      /**< core dumped */
             TIMEDOUT,   /**< timed out */
             NO_PERM,    /**< could not write output files */
+            BAD_INPUT,  /**< problem parseing monte carlo input */
             UNKNOWN     /**< unrecognized return code */
         };
 
@@ -251,11 +254,14 @@ namespace Trick {
             ALL            /**< report all messages (error, informational & warning) */
         };
 
+        /** Options to be passed to the slave sim. */
+        std::string slave_sim_options;
+
         private:
         int run_queue(Trick::ScheduledJobQueue* queue, std::string in_string) ;
 
         int open_file(std::string file_name, FILE** file_ptr) ;
- 
+
         void write_to_run_files(std::string file_name) ;
 
         int initialize_sockets() ;
@@ -318,20 +324,11 @@ namespace Trick {
         /** Highest level of messages to report. */
         Verbosity verbosity;                            /**< \n trick_units(--) */
 
-        /** Default to false and randomly find port numbers. True, use the user provided port numbers. */
-        bool default_port_flag;                         /**< \n trick_units(--) */
-
         /** Device over which connections are accepted. */
         TCDevice listen_device;                         /**< \n trick_units(--) */
 
         /** Device over which data is sent and received. */
         TCDevice connection_device;                     /**< \n trick_units(--) */
-
-        /** Device over which connections are accepted between the Slave child and Master. */
-        TCDevice data_listen_device;                    /**< \n trick_units(--) */
-
-        /** Device over which data is sent and received between Slave child and Master. */
-        TCDevice data_connection_device;                /**< \n trick_units(--) */
 
         /** Runs to be dispatched. */
         std::deque <Trick::MonteRun *> runs;                 /**< \n trick_io(**) trick_units(--) */
@@ -374,9 +371,6 @@ namespace Trick {
 
         /** Port on which the master is listening. This value is unspecified for the master. */
         unsigned int master_port;                       /**< \n trick_units(--) */
-
-        /** Port on which the master is listening for data. This value is unspecified for the master. */
-        unsigned int data_port;                         /**< \n trick_units(--) */
 
         /** Unique identifier. This value is zero for the master. */
         unsigned int slave_id;                          /**< \n trick_units(--) */
@@ -470,14 +464,14 @@ namespace Trick {
         bool get_dry_run();
 
         /**
-         * Returns true if executive is running as the slave, 
+         * Returns true if executive is running as the slave,
          * based on value of slave_id (which is > 0 for slave).
          */
         bool is_slave();
 
         /**
-         * Returns true if executive is running as the master, 
-         * based on the value of slave_id (which is 0 for master). 
+         * Returns true if executive is running as the master,
+         * based on the value of slave_id (which is 0 for master).
          */
         bool is_master();
 
@@ -625,6 +619,13 @@ namespace Trick {
         void add_variable(Trick::MonteVar *variable);
 
         /**
+         * Gets the specified variable.
+         *
+         * @param variable name to get
+         */
+        Trick::MonteVar * get_variable(std::string variable_name);
+
+        /**
          * Adds a new slave with the specified machine name.
          *
          * @param machine_name the target machine's name
@@ -663,7 +664,7 @@ namespace Trick {
         void stop_slave(unsigned int id);
 
         /**
-         * Disables the slave at initialization of the Master. Must be called before master_init is called               
+         * Disables the slave at initialization of the Master. Must be called before master_init is called
          * (i.e. in input file, default_data jobs, or initialization jobs with a phase number = 0)
          *
          * @param name the name of the slave to disable
@@ -686,78 +687,47 @@ namespace Trick {
         int shutdown();
 
         /** Gets #current_run being processed
-         * 
+         *
          * @return the current run number
          */
         unsigned int get_current_run() ;
 
         /** Sets the #current_run being processed
-         * 
+         *
          * @param run_num the number to set the run
          */
         void set_current_run(int run_num) ;
 
-        /** Retrieves the #data_connection_device
-         * 
-         * @return the address of the data_connection_device
-         */
-        TCDevice* get_data_connection_device();
-
-        /** Allows the user to set the port number for 
+        /** Allows the user to set the port number for
          * the listen_device
          *
          * @param port_number number for the port
          */
         void set_listen_device_port(int port_number) ;
 
-        /** Allows the user to set the port number for 
-         * the data_listen_device
-         *
-         * @param port_number number for the port
-         */
-        void set_data_listen_device_port(int port_number) ;
-
-        /** Allows the user to set the port number for 
+        /** Allows the user to set the port number for
          * the connection_device
          *
          * @param port_number number for the port
          */
         void set_connection_device_port(int port_number) ;
 
-        /** Allows the user to set the port number for 
-         * the data_connection_device
-         *
-         * @param port_number number for the port
-         */
-        void set_data_connection_device_port(int port_number) ;
-
-        /** Allows the user to get the port number for 
+        /** Allows the user to get the port number for
          * the listen_device
          *
          * @return the port number
          */
         int  get_listen_device_port() ;
 
-        /** Allows the user to get the port number for 
-         * the data_listen_device
-         *
-         * @return the port number
-         */
-        int  get_data_listen_device_port() ;
-
-        /** Allows the user to get the port number for 
+        /** Allows the user to get the port number for
          * the connection_device
          *
          * @return the port number
          */
         int  get_connection_device_port() ;
 
-        /** Allows the user to get the port number for 
-         * the data_connection_device
-         *
-         * @return the port number
-         */
-        int  get_data_connection_device_port() ;
+        int write(char* data, int size);
+        int read(char* data, int size);
 
 #if 0
         /**
@@ -767,13 +737,6 @@ namespace Trick {
 #endif
 
         protected:
-        /**
-         * Initializes sockets.
-         *
-         * @return 0 on success
-         */
-        int socket_init(TCDevice *listen_device);
-
         /**
          * Initializes the master.
          *
@@ -798,14 +761,9 @@ namespace Trick {
         /** Receives from any slaves that are ready to return results. */
         void receive_results();
 
-        /** Receives the results from the slave */
-        void receive_slave_results() ;
-
-        void read_machine_name(MonteSlave *curr_slave);
-
-        void set_disconnected_state(MonteSlave *curr_slave);
- 
-        void read_slave_port(MonteSlave *curr_slave);
+        void handle_initialization(MonteSlave& slave);
+        void handle_run_data(MonteSlave& slave);
+        void set_disconnected_state(MonteSlave& slave);
 
         /**
          * Handles the retrying of the current run of the specified slave with the specified exit status.
@@ -815,7 +773,7 @@ namespace Trick {
          *
          * @see max_tries
          */
-        void handle_retry(MonteSlave *slave, MonteRun::ExitStatus exit_status);
+        void handle_retry(MonteSlave& slave, MonteRun::ExitStatus exit_status);
 
         /**
          * Resolves the current run of the specified slave with the specified exit status.
@@ -823,7 +781,7 @@ namespace Trick {
          * @param slave the slave processing the run
          * @param exit_status the exit status of the run
          */
-        void resolve_run(MonteSlave *slave, MonteRun::ExitStatus exit_status);
+        void resolve_run(MonteSlave& slave, MonteRun::ExitStatus exit_status);
 
         /** Checks dispatched runs for timeouts. */
         void check_timeouts();
@@ -903,7 +861,7 @@ namespace Trick {
          *
          * @return 0 on success
          */
-        int slave();
+        int execute_as_slave();
 
         /** Processes an incoming run. */
         int slave_process_run();
@@ -921,7 +879,7 @@ namespace Trick {
         int instrument_job_after(Trick::JobData* instrument_job);
         int instrument_job_remove(std::string in_job);
         int write_s_job_execution(FILE* fp);
-        
+
 
         /**
          * Determines if the specified stings are equivalent, ignoring case.

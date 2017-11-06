@@ -1,0 +1,204 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Term::ANSIColor;
+
+print "\n";
+
+print "-" x 50 . "\n";
+print "Trick Units Overview\n";
+print "-" x 50 . "\n";
+print "Trick uses UDUNITS2 as its unit specification and conversion package.\n";
+print "More information about this package can be found at: " . color('blue') . "http://www.unidata.ucar.edu/software/udunits/\n";
+print color('red');
+print "NOTE: The following list is NOT comprehensive. More units are available in the udunits xml databases here:\n";
+print color('magenta');
+print "http://www.unidata.ucar.edu/software/udunits/udunits-2.2.25/doc/udunits/udunits2.html#Database\n";
+print color('red');
+print "Users can also run the 'udunits2 -h' command and navigate to the appropriate xml database to learn more.\n";
+print color('white');
+
+print "\n";
+
+print "-" x 50 . "\n";
+print "Unit Prefixes\n";
+print "-" x 50 . "\n";
+printf "%25s%s", "e+24: ", "Y, yotta";   print "\n";
+printf "%25s%s", "e+21: ", "Z, zetta";   print "\n";
+printf "%25s%s", "e+18: ", "E, exa";   print "\n";
+printf "%25s%s", "e+15: ", "P, peta";   print "\n";
+printf "%25s%s", "e+12: ", "T, tera";   print "\n";
+printf "%25s%s", "e+9: ", "G, giga";    print "\n";
+printf "%25s%s", "e+6: ", "M, mega";    print "\n";
+printf "%25s%s", "e+3: ", "k, kilo";    print "\n";
+printf "%25s%s", "e+2: ", "h, hecto";    print "\n";
+printf "%25s%s", "e+1: ", "da, deka";   print "\n";
+printf "%25s%s", "e-1: ", "d, deci";    print "\n";
+printf "%25s%s", "e-2: ", "c, centi";    print "\n";
+printf "%25s%s", "e-3: ", "m, milli";    print "\n";
+printf "%25s%s", "e-6: ", "μ, u, micro";    print "\n";
+printf "%25s%s", "e-9: ", "n, nano";    print "\n";
+printf "%25s%s", "e-12: ", "p, pico";   print "\n";
+printf "%25s%s", "e-15: ", "f, femto";   print "\n";
+printf "%25s%s", "e-18: ", "a, atto";   print "\n";
+printf "%25s%s", "e-21: ", "z, zepto";   print "\n";
+printf "%25s%s", "e-24: ", "y, yocto";   print "\n";
+
+print "\n";
+
+print "-" x 50 . "\n";
+print "Commonly Used Units\n";
+print "-" x 50 . "\n";
+
+print "\n";
+
+print "Time\n";
+print "-" x 50 . "\n";
+printf "%25s%s", "Days: ", "d, day[s]"; print "\n";
+printf "%25s%s", "Hours: ", "h, hour[s]"; print "\n";
+printf "%25s%s", "Minutes: ", "m, minute[s]"; print "\n";
+printf "%25s%s", "Seconds: ", "s, second[s]"; print "\n";
+printf "%25s%s", "Milliseconds: ", "ms, millisecond[s]"; print "\n";
+printf "%25s%s", "Microseconds: ", "μs, microsecond[s]"; print "\n";
+
+print "\n";
+
+print "Length\n";
+print "-" x 50 . "\n";
+printf "%25s%s", "Astronomical Units: ", "au, astronomical_unit[s]"; print "\n";
+printf "%25s%s", "Nautical Miles: ", "nmile, nautical_mile[s]"; print "\n";
+printf "%25s%s", "Kilometers: ", "km, kilometer[s]"; print "\n";
+printf "%25s%s", "Meters: ", "m, meter[s]"; print "\n";
+printf "%25s%s", "Centimeters: ", "cm, centimeter[s]"; print "\n";
+printf "%25s%s", "Millimeters: ", "mm, millimeter[s]"; print "\n";
+printf "%25s%s", "Micrometers: ", "μm, um, micrometer[s]"; print "\n";
+printf "%25s%s", "Miles: ", "mi, mile[s]"; print "\n";
+printf "%25s%s", "Yards: ", "yd, yard[s]"; print "\n";
+printf "%25s%s", "Feet: ", "ft, foot, feet"; print "\n";
+printf "%25s%s", "Inches: ", "in, inch[es]"; print "\n";
+
+print "\n";
+
+print "Angle\n";
+print "-" x 50 . "\n";
+printf "%25s%s", "Radians: ", "rad, radian[s]"; print "\n";
+printf "%25s%s", "Degrees: ", "°, degree[s]"; print "\n";
+printf "%25s%s", "Arcminutes: ", "′, arcminute[s]"; print "\n";
+printf "%25s%s", "Arcseconds: ", "″, arcsecond[s]"; print "\n";
+
+print "\n";
+
+print "Mass\n";
+print "-" x 50 . "\n";
+printf "%25s%s", "Kilograms: ", "kg, kilogram[s]"; print "\n";
+printf "%25s%s", "Grams: ", "g, gram[s]"; print "\n";
+printf "%25s%s", "Slugs: ", "slug[s]"; print "\n";
+printf "%25s%s", "Pounds: ", "lb, pound[s]"; print "\n";
+
+print "\n";
+
+print "Force\n";
+print "-" x 50 . "\n";
+printf "%25s%s", "Newtons: ", "N, newton[s], kg.m/s^2, kg.m/s²"; print "\n";
+printf "%25s%s", "Pound Force: ", "lbf, pound[s]_force"; print "\n";
+
+print "\n";
+
+print "Voltage\n";
+print "-" x 50 . "\n";
+printf "%25s%s", "Volts: ", "V, volt[s]"; print "\n";
+printf "%25s%s", "Millivolts: ", "mV, millivolt[s]"; print "\n";
+printf "%25s%s", "Microvolts: ", "μV, uV, microvolt[s]"; print "\n";
+
+print "\n";
+
+print "Current\n";
+print "-" x 50 . "\n";
+printf "%25s%s", "Amperes: ", "A, amp[s], ampere[s]"; print "\n";
+printf "%25s%s", "Milliamperes: ", "mA, milliamp[s]"; print "\n";
+printf "%25s%s", "Microamperes: ", "μA, uA, microamp[s]"; print "\n";
+
+print "\n";
+
+print "Resistance\n";
+print "-" x 50 . "\n";
+printf "%25s%s", "Ohms: ", "Ω, ohm[s]"; print "\n";
+printf "%25s%s", "Kiloohms: ", "kΩ, kiloohm[s]"; print "\n";
+printf "%25s%s", "Megaohms: ", "MΩ, megaohm[s]"; print "\n";
+
+print "\n";
+
+print "Temperature\n";
+print "-" x 50 . "\n";
+printf "%25s%s", "Kelvin: ", "K, °K, degK"; print "\n";
+printf "%25s%s", "Centigrade: ", "°C, degC"; print "\n";
+printf "%25s%s", "Fahrenheit: ", "°F, degF"; print "\n";
+printf "%25s%s", "Rankine: ", "°R, degF"; print "\n";
+
+print "\n";
+
+print "Energy\n";
+print "-" x 50 . "\n";
+printf "%25s%s", "Joules: ", "J, joule[s]"; print "\n";
+printf "%25s%s", "Megajoules: ", "MJ, Mjoule[s], megajoule[s]"; print "\n";
+printf "%25s%s", "Watt Hours: ", "W.h, watt.hour[s]"; print "\n";
+printf "%25s%s", "Kilowatt Hours: ", "kW.h, kilowatt.hour[s]"; print "\n";
+printf "%25s%s", "BTUs: ", "BTU[s]"; print "\n";
+
+print "\n";
+
+print "Power\n";
+print "-" x 50 . "\n";
+printf "%25s%s", "Watt: ", "W, watt[s]"; print "\n";
+printf "%25s%s", "Kilowatt: ", "kW, kilowatt[s]"; print "\n";
+printf "%25s%s", "Megawatt: ", "MW, megawatt[s]"; print "\n";
+printf "%25s%s", "Horsepower: ", "hp, horsepower"; print "\n";
+
+print "\n";
+
+print "Pressure\n";
+print "-" x 50 . "\n";
+printf "%25s%s", "Pascals: ", "Pa, pascal[s]"; print "\n";
+printf "%25s%s", "Atmospheres: ", "atm, atmosphere[s]"; print "\n";
+printf "%25s%s", "Inches of Mercury: ", "inHg, inch[es]_Hg"; print "\n";
+printf "%25s%s", "Millimeters of Mercury: ", "mmHg, millimeter[s]_Hg"; print "\n";
+printf "%25s%s", "Pounds per Square Inch: ", "psi"; print "\n";
+
+print "\n";
+
+print "Volume\n";
+print "-" x 50 . "\n";
+printf "%25s%s", "Liter: ", "l, liter[s]"; print "\n";
+printf "%25s%s", "Cubic Centimeters (cc): ", "cm^3, cm³, (cm)³"; print "\n";
+printf "%25s%s", "Gallon: ", "gallon[s]"; print "\n";
+printf "%25s%s", "Ounces: ", "oz"; print "\n";
+
+print "\n";
+
+print "Frequency\n";
+print "-" x 50 . "\n";
+printf "%25s%s", "Hertz: ", "Hz, hertz, 1/s"; print "\n";
+printf "%25s%s", "Kilohertz: ", "kHz, kilohertz, kiloHz"; print "\n";
+printf "%25s%s", "Megahertz: ", "MHz, megahertz, megaHz"; print "\n";
+
+print "\n";
+
+print "-" x 50 . "\n";
+print "Unit Specification Unicode Characters\n";
+print "-" x 50 . "\n";
+printf "%26s%s", "°: ", "U+00B0 (Degree Sign)"; print "\n";
+printf "%26s%s", "²: ", "U+00B2 (Superscript Two)"; print "\n";
+printf "%26s%s", "³: ", "U+00B3 (Superscript Three)"; print "\n";
+printf "%26s%s", "Ω: ", "U+03A9 (Greek Uppercase Omega)"; print "\n";
+printf "%26s%s", "μ: ", "U+03BC (Greek Lowercase Mu)"; print "\n";
+printf "%26s%s", "π: ", "U+03C0 (Greek Lowercase Pi)"; print "\n";
+printf "%27s%s", "′: ", "U+2032 (Prime)"; print "\n";
+printf "%27s%s", "″: ", "U+2033 (Double Prime)"; print "\n";
+printf "%27s%s", "℃ : ", "U+2103 (Degree Celsius)"; print "\n";
+printf "%27s%s", "℉ : ", "U+2109 (Degree Fahrenheit)"; print "\n";
+printf "%27s%s", "Ω: ", "U+2126 (Ohm Sign)"; print "\n";
+printf "%27s%s", "K: ", "U+212A (Kelvin Sign)"; print "\n";
+printf "%27s%s", "Å: ", "U+212B (Angstrom Sign)"; print "\n";
+
+print "\n";

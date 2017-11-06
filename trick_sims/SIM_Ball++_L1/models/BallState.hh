@@ -33,7 +33,7 @@ class BallStateInput {
   double mass;                        /**< trick_units(kg)  Total mass.                          */
   double position[2];                 /**< trick_units(m)   X(horizontal), Y(vertical) position. */
   double speed;                       /**< trick_units(m/s) Linear speed.                        */
-  double elevation;                   /**< trick_units(r)   Trajectory angle with respect to the horizontal. */
+  double elevation;                   /**< trick_units(rad) Trajectory angle with respect to the horizontal. */
 
   BallStateInput() ;
 };

@@ -492,7 +492,7 @@ class FplotArgs {
     char* device;
     const char* session_file;
 
-    FplotArgs(int argc, char* argv[]) throw (std::invalid_argument) {
+    FplotArgs(int argc, char* argv[]) {
         int ii;
         char* cp ;
 
@@ -506,7 +506,7 @@ class FplotArgs {
                 device = strdup(cp);
 
             } else {
-                session_file = argv[ii]; 
+                session_file = argv[ii];
                 if ( access( session_file, R_OK|F_OK ) ) {
                     if (session_file == NULL) {
                         throw std::invalid_argument("Can't find/read session file.");
@@ -521,7 +521,7 @@ class FplotArgs {
     }
 
     private:
-       FplotArgs() {}; 
+       FplotArgs() {};
 };
 
 void usage()
@@ -554,7 +554,7 @@ int main(int argc, char* argv[] ) {
     } catch (std::invalid_argument) {
         usage();
         exit(1);
-    } 
+    }
 
     XtSetLanguageProc (NULL, NULL, NULL);
 

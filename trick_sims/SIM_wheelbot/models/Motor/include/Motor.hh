@@ -11,10 +11,10 @@ class Motor
   public:
 
     Motor ();
-    
+
     virtual void update (const PWM& PulseWidth) = 0;
     virtual ~Motor();
-    
+
     virtual double getActualSpeed ();
 };
 #endif

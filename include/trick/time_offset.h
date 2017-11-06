@@ -1,7 +1,8 @@
-
 #ifndef TIME_OFFSET_H
 #define TIME_OFFSET_H
-
+/*
+    PURPOSE: ( TIME_OFFSET struct )
+*/
 #ifdef __cplusplus
 extern "C" {
 #endif

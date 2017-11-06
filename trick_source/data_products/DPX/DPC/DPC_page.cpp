@@ -5,7 +5,7 @@
 DPC_page::DPC_page( DPC_datastream_supplier *DS_Supplier,
                     std::vector <DPM_run *> *RunListp,
                     DPM_page                *PageSpec,
-                    DPM_time_constraints    *ParentTimeConstraints )  throw (std::invalid_argument)
+                    DPM_time_constraints    *ParentTimeConstraints )
 {
 
     DPM_time_constraints *my_time_constraints;
@@ -74,7 +74,7 @@ DPC_page::DPC_page( DPC_datastream_supplier *DS_Supplier,
                 try {
                     // Make a plot.
                     plot = new DPC_delta_plot( DS_Supplier,
-                                               RunListp, 
+                                               RunListp,
                                                relation,
                                                &total_time_constraints );
                     // Put the new plot in the plot list.

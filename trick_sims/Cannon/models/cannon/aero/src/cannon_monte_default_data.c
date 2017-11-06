@@ -23,7 +23,7 @@ int cannon_monte_default_data(CANNON_AERO* C)
 
 
     /* Regula Falsi impact critter setup */
-    #define MY_BIG_TGO 10000                                                                              
+    #define MY_BIG_TGO 10000
     C->rf.lower_set  = No ;
     C->rf.upper_set  = No ;
     C->rf.iterations = 0 ;

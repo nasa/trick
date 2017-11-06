@@ -67,7 +67,7 @@ GPViewCurveNode::GPViewCurveNode( Widget          Toplevel,
         curve_y_label = Curve->getYAttribute("label");
     } else {
         std::string curve_y_units    = (dpc_curve->getYAttribute("units")) ?  dpc_curve->getYAttribute("units") : "1";
-        curve_y_label    = curve_y_var_name + "(" + curve_y_units + ")"; 
+        curve_y_label    = curve_y_var_name + "(" + curve_y_units + ")";
     }
 
     std::string curve_title = curve_y_label + " VS. " + curve_x_label + " ["+data_src_label+"]";
@@ -141,6 +141,10 @@ GPViewCurveNode::GPViewCurveNode( Widget          Toplevel,
               ( x*atof(curve_x_scale_factor.c_str()) + atof(curve_x_bias.c_str()) ),
               ( y*atof(curve_y_scale_factor.c_str()) + atof(curve_y_bias.c_str()) ) );
         }
+        // Print the final point from getXY
+        fprintf( curve_data_fp,"%e\t%e\n",
+           ( x*atof(curve_x_scale_factor.c_str()) + atof(curve_x_bias.c_str()) ),
+           ( y*atof(curve_y_scale_factor.c_str()) + atof(curve_y_bias.c_str()) ) );
         fclose(curve_data_fp);
 
         if ( Curve_number == 0 ) {

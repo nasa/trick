@@ -1,4 +1,4 @@
-/* 
+/*
    PURPOSE: (Check for data which is configured in the input files but was not mapped to any imports or exports from
    the S_define file.)
 
@@ -616,7 +616,7 @@ void trick_error_report(TrickErrorHndlr * error_hndlr,  /* In: Error object */
     vsprintf(message, format, args);
     va_end(args);
 
-    /* 
+    /*
      * Call error handling function only if error level of this error
      * message is greater than the reporting level for this error handler.
      */

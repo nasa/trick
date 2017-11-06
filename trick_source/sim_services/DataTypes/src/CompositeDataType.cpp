@@ -136,13 +136,13 @@ void* CompositeDataType::createInstance(unsigned int num) const {
     if (allocator == NULL) {
         // Allocate using calloc.
         if ((address = calloc( (size_t)num, (size_t)structSize ))  == NULL) {
-            std::cout << "ERROR: Out of memory." << std::endl;
+            std::cerr << "ERROR: Out of memory." << std::endl;
             return ((void*)NULL);
         }
     } else {
         // Allocate using the allocator.
         if ((address = allocator( num)) == NULL) {
-            std::cout << "ERROR: Out of memory." << std::endl;
+            std::cerr << "ERROR: Out of memory." << std::endl;
             return ((void*)NULL);
         }
     }
@@ -235,7 +235,7 @@ void CompositeDataType::addRegularMember( std::string memberName,
                                                int member_offset,
                                                std::string typeSpecName,
                                                unsigned int n_dims,
-                                               int dims[] ) throw(std::logic_error) {
+                                               int dims[] )  {
 
     int memberCount = memberList.size() ;
     for (int ii=0 ; ii < memberCount ; ii++) {
@@ -256,7 +256,7 @@ void CompositeDataType::addStaticMember( std::string memberName,
                                          void * memberAddress,
                                          std::string typeSpecName,
                                          unsigned int n_dims,
-                                         int dims[] ) throw(std::logic_error) {
+                                         int dims[] )  {
 
     int memberCount = memberList.size() ;
     for (int ii=0 ; ii < memberCount ; ii++) {

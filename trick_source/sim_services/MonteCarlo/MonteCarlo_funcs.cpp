@@ -108,13 +108,13 @@ void Trick::MonteCarlo::set_num_runs(unsigned int in_num_runs) {
         runs.push_back(new Trick::MonteRun(this->num_runs++));
     }
     while ( (this->num_runs > in_num_runs) && !runs.empty() ) {
-        delete runs.front();
-        runs.pop_front();
+        delete runs.back();
+        runs.pop_back();
         --this->num_runs;
     }
     update_actual_num_runs();
 }
-  
+
 unsigned int Trick::MonteCarlo::get_num_runs() {
     return num_runs;
 }
@@ -153,7 +153,29 @@ void Trick::MonteCarlo::get_ranges(std::vector<MonteRange *> &ranges) {
 }
 
 void Trick::MonteCarlo::add_variable(Trick::MonteVar *variable) {
+    for (std::vector<Trick::MonteVar *>::const_iterator i = variables.begin(); i != variables.end(); ++i) {
+        if ( (*i)->name.compare(variable->name) == 0 ) {
+            message_publish(MSG_WARNING, "Monte WARNING: Cannot add new MonteVar \"%s\", variable of that name already exists.\n",
+                    variable->name.c_str() );
+            return;
+        }
+    }
     variables.push_back(variable);
+}
+
+/**
+ * @par Detailed Design:
+ * Get a pointer to a MonteVar by name. Note this is used in conjunction with
+ * %factory so that swig produces methods returning all derived types
+ */
+Trick::MonteVar * Trick::MonteCarlo::get_variable(std::string variable_name) {
+
+    for (std::vector<Trick::MonteVar *>::const_iterator i = variables.begin(); i != variables.end(); ++i) {
+        if ( (*i) and (*i)->name.compare(variable_name) == 0 ) {
+            return (*i);
+        }
+    }
+    return (NULL);
 }
 
 void Trick::MonteCarlo::add_slave(std::string in_machine_name) {
@@ -182,16 +204,16 @@ void Trick::MonteCarlo::add_slave(Trick::MonteSlave *in_slave) {
  * This function has an effect only if the slave exists and is in the STOPPING, UNRESPONSIVE_STOPPING, or STOPPED state.
  */
 void Trick::MonteCarlo::start_slave(unsigned int id) {
-    if (MonteSlave *curr_slave = get_slave(id)) {
+    if (MonteSlave *slave = get_slave(id)) {
         if (verbosity >= ALL) {
-            message_publish(MSG_INFO, "Monte [Master] Starting %s:%d.\n", curr_slave->machine_name.c_str(), curr_slave->id) ;
+            message_publish(MSG_INFO, "Monte [Master] Starting %s:%d.\n", slave->machine_name.c_str(), slave->id) ;
         }
-        if (curr_slave->state == Trick::MonteSlave::STOPPING) {
-            curr_slave->state = Trick::MonteSlave::RUNNING;
-        } else if (curr_slave->state == Trick::MonteSlave::UNRESPONSIVE_STOPPING) {
-            curr_slave->state = Trick::MonteSlave::UNRESPONSIVE_RUNNING;
-        } else if (curr_slave->state == Trick::MonteSlave::STOPPED) {
-            curr_slave->state = Trick::MonteSlave::READY;
+        if (slave->state == Trick::MonteSlave::STOPPING) {
+            slave->state = Trick::MonteSlave::RUNNING;
+        } else if (slave->state == Trick::MonteSlave::UNRESPONSIVE_STOPPING) {
+            slave->state = Trick::MonteSlave::UNRESPONSIVE_RUNNING;
+        } else if (slave->state == Trick::MonteSlave::STOPPED) {
+            slave->state = Trick::MonteSlave::READY;
         }
     }
 }
@@ -201,16 +223,16 @@ void Trick::MonteCarlo::start_slave(unsigned int id) {
  * This function has an effect only if the slave exists and is in the READY, RUNNING, or UNRESPONSIVE_RUNNING state.
  */
 void Trick::MonteCarlo::stop_slave(unsigned int id) {
-    if (MonteSlave *curr_slave = get_slave(id)) {
+    if (MonteSlave *slave = get_slave(id)) {
         if (verbosity >= ALL) {
-            message_publish(MSG_INFO, "Monte [Master] Stopping %s:%d.\n", curr_slave->machine_name.c_str(), curr_slave->id) ;
+            message_publish(MSG_INFO, "Monte [Master] Stopping %s:%d.\n", slave->machine_name.c_str(), slave->id) ;
         }
-        if (curr_slave->state == Trick::MonteSlave::READY) {
-            curr_slave->state = Trick::MonteSlave::STOPPED;
-        } else if (curr_slave->state == Trick::MonteSlave::RUNNING) {
-            curr_slave->state = Trick::MonteSlave::STOPPING;
-        } else if (curr_slave->state == Trick::MonteSlave::UNRESPONSIVE_RUNNING) {
-            curr_slave->state = Trick::MonteSlave::UNRESPONSIVE_STOPPING;
+        if (slave->state == Trick::MonteSlave::READY) {
+            slave->state = Trick::MonteSlave::STOPPED;
+        } else if (slave->state == Trick::MonteSlave::RUNNING) {
+            slave->state = Trick::MonteSlave::STOPPING;
+        } else if (slave->state == Trick::MonteSlave::UNRESPONSIVE_RUNNING) {
+            slave->state = Trick::MonteSlave::UNRESPONSIVE_STOPPING;
         }
     }
 }
@@ -229,7 +251,7 @@ void Trick::MonteCarlo::disable_slave(std::string name, bool disabled){
             }
             return;
         }
-    }    
+    }
 }
 
 int Trick::MonteCarlo::process_sim_args() {
@@ -240,13 +262,8 @@ int Trick::MonteCarlo::process_sim_args() {
         for (int i = 2; i < argc; ++i) {
             if (!strncmp("--monte_host", argv[i], 12)) {
                 connection_device.hostname = strdup(argv[++i]);
-                data_connection_device.hostname = strdup(argv[i]);
             } else if (!strncmp("--monte_sync_port", argv[i], 17)) {
                 sscanf(argv[++i], "%d", &master_port);
-                connection_device.port = master_port;
-            } else if (!strncmp("--monte_data_port", argv[i], 17)) {
-                sscanf(argv[++i], "%d", &data_port);
-                data_connection_device.port = data_port;
             } else if (!strncmp("--monte_client_id", argv[i], 12)) {
                 sscanf(argv[++i], "%d", &slave_id);
             }
@@ -259,77 +276,65 @@ int Trick::MonteCarlo::process_sim_args() {
 int Trick::MonteCarlo::shutdown() {
     /** <ul><li> If this is a slave, run the shutdown jobs. */
     if (enabled && is_slave()) {
-        data_connection_device.port = data_port;
-        if (tc_connect(&data_connection_device) == TC_SUCCESS) {
+        connection_device.port = master_port;
+        if (tc_connect(&connection_device) == TC_SUCCESS) {
+            int exit_status = MonteRun::COMPLETE;
+            if (verbosity >= ALL) {
+                message_publish(MSG_INFO, "Monte [%s:%d] Sending run exit status to master: %d\n",
+                                machine_name.c_str(), slave_id, exit_status) ;
+            }
             int id = htonl(slave_id);
-            tc_write(&data_connection_device, (char *)&id, (int)sizeof(id));
-            int run_num = htonl(current_run);
-            tc_write(&data_connection_device, (char *)&run_num, (int)sizeof(run_num));
-            run_queue(&slave_post_queue, "in slave_post queue") ;
-            tc_disconnect(&data_connection_device);
+            tc_write(&connection_device, (char*)&id, (int)sizeof(id));
+            exit_status = htonl(exit_status);
+            tc_write(&connection_device, (char*)&exit_status, (int)sizeof(exit_status));
+            run_queue(&slave_post_queue, "in slave_post queue");
+            tc_disconnect(&connection_device);
         } else {
-            if (verbosity >= ERROR) 
-                message_publish(MSG_ERROR, "Monte ERROR: Child failed to connect to data connection.\n") ;
+            if (verbosity >= ERROR)
+                message_publish(
+                  MSG_ERROR,
+                  "Monte [%s:%d] Failed to connect to master.\n",
+                  machine_name.c_str(), slave_id);
         }
     }
     return 0;
 }
 
-/** @par Detailed Design: */
-int Trick::MonteCarlo::socket_init(TCDevice *in_listen_device) {
-    //  Modify the port number based on pid number to
-    //  prevent two sims calling tc_init at the same time
-    //  and getting the same port number.  However, if the
-    //  user wants to use their own port numbers then do not 
-    //  modify it.
-    if (default_port_flag) {
-        in_listen_device->port += getpid()%1000;
-    }
-    for (int i = 0; i < 200; ++i) {
-        /** <ul><li> Initialize the listening device. */
-        if (tc_init(in_listen_device) == TC_SUCCESS) {
-            return TC_SUCCESS;
-        }
-        ++in_listen_device->port;
-    }
-    return TC_COULD_NOT_LISTEN_SOCKET ;
-}
-
-void Trick::MonteCarlo::handle_retry(MonteSlave *curr_slave, MonteRun::ExitStatus exit_status) {
-    if (max_tries <= 0 || curr_slave->current_run->num_tries < max_tries) {
+void Trick::MonteCarlo::handle_retry(MonteSlave& slave, MonteRun::ExitStatus exit_status) {
+    if (max_tries <= 0 || slave.current_run->num_tries < max_tries) {
         // Add the run to the retry queue.
         if (verbosity >= ERROR) {
-            message_publish(MSG_ERROR, "Monte [Master] Queueing run %d for retry.\n", curr_slave->current_run->id) ;
+            message_publish(MSG_ERROR, "Monte [Master] Queueing run %d for retry.\n", slave.current_run->id) ;
         }
-        runs.push_back(curr_slave->current_run);
+        runs.push_back(slave.current_run);
     } else {
         if (verbosity >= ERROR) {
             message_publish(MSG_ERROR, "Monte [Master] Run %d has reached its maximum allowed tries and has been skipped.\n",
-                            curr_slave->current_run->id) ;
+                            slave.current_run->id) ;
         }
-        resolve_run(curr_slave, exit_status);
+        resolve_run(slave, exit_status);
     }
 }
 
 /** @par Detailed Design: */
-void Trick::MonteCarlo::resolve_run(MonteSlave *curr_slave, MonteRun::ExitStatus exit_status) {
+void Trick::MonteCarlo::resolve_run(MonteSlave& slave, MonteRun::ExitStatus exit_status) {
     if (exit_status != MonteRun::COMPLETE) {
-        failed_runs.push_back(curr_slave->current_run);
+        failed_runs.push_back(slave.current_run);
     }
 
     /** <li> Update the bookkeeping. */
     struct timeval time_val;
     gettimeofday(&time_val, NULL);
-    curr_slave->current_run->end_time = time_val.tv_sec + (double)time_val.tv_usec / 1000000;
-    curr_slave->current_run->exit_status = exit_status;
+    slave.current_run->end_time = time_val.tv_sec + (double)time_val.tv_usec / 1000000;
+    slave.current_run->exit_status = exit_status;
 
-    ++curr_slave->num_results;
-    curr_slave->cpu_time += curr_slave->current_run->end_time - curr_slave->current_run->start_time;
+    ++slave.num_results;
+    slave.cpu_time += slave.current_run->end_time - slave.current_run->start_time;
 
     ++num_results;
 
     if (verbosity >= ALL) {
-        message_publish(MSG_INFO, "Monte [Master] Run %d has been resolved as: %d.\n",curr_slave->current_run->id, exit_status) ;
+        message_publish(MSG_INFO, "Monte [Master] Run %d has been resolved as: %d.\n",slave.current_run->id, exit_status) ;
     }
 }
 
@@ -352,7 +357,7 @@ void Trick::MonteCarlo::check_timeouts() {
                     message_publish(MSG_ERROR, "Monte [Master] %s:%d has not responded for run %d.\n",
                                     slaves[i]->machine_name.c_str(), slaves[i]->id, slaves[i]->current_run->id) ;
                 }
-                handle_retry(slaves[i], MonteRun::TIMEDOUT);
+                handle_retry(*slaves[i], MonteRun::TIMEDOUT);
             }
             /** </ul><li> Update the slave's state. */
             slaves[i]->state = slaves[i]->state == MonteSlave::RUNNING ?
@@ -435,10 +440,10 @@ int  Trick::MonteCarlo::prepare_run(MonteRun *curr_run) {
             }
         }
         /** <li> Create the data file </ul>*/
-        fprintf(run_data_file, "%05u  ", curr_run->id);
+        fprintf(run_data_file, "%05u\t", curr_run->id);
         for (std::vector<std::string>::size_type i = 0; i < variables.size(); ++i) {
             if (i>0) {
-                fprintf(run_data_file, " ");
+                fprintf(run_data_file, "\t");
             }
             fprintf(run_data_file, "%s", variables[i]->value.c_str());
         }
@@ -514,33 +519,14 @@ void Trick::MonteCarlo::set_current_run(int run_num) {
     current_run = run_num ;
 }
 
-TCDevice* Trick::MonteCarlo::get_data_connection_device() {
-    return (&data_connection_device);
-}
-
 void Trick::MonteCarlo::set_listen_device_port(int port_number) {
         listen_device.port = port_number ;
-        default_port_flag = false ;
-}
-
-void Trick::MonteCarlo::set_data_listen_device_port(int port_number) {
-        data_listen_device.port = port_number ;
-        default_port_flag = false ;
 }
 
 void Trick::MonteCarlo::set_connection_device_port(int port_number) {
     // This port is passed to slave as an argument, do not override
     if (is_master()) {
         connection_device.port = port_number ;
-        default_port_flag = false ;
-    }
-}
-
-void Trick::MonteCarlo::set_data_connection_device_port(int port_number) {
-    // This port is passed to slave as an argument, do not override
-    if (is_master()) {
-        data_connection_device.port = port_number ;
-        default_port_flag = false ;
     }
 }
 
@@ -548,16 +534,8 @@ int Trick::MonteCarlo::get_listen_device_port() {
     return listen_device.port ;
 }
 
-int Trick::MonteCarlo::get_data_listen_device_port() {
-    return data_listen_device.port ;
-}
-
 int Trick::MonteCarlo::get_connection_device_port() {
     return connection_device.port ;
-}
-
-int  Trick::MonteCarlo::get_data_connection_device_port() {
-    return data_connection_device.port ;
 }
 
 int Trick::MonteCarlo::instrument_job_before( Trick::JobData* instrument_job) {
@@ -629,4 +607,12 @@ int Trick::MonteCarlo::write_s_job_execution(FILE *fp) {
     slave_shutdown_queue.write_sched_queue(fp) ;
 
     return 0;
+}
+
+int Trick::MonteCarlo::write(char* data, int size) {
+    return tc_write(&connection_device, data, size);
+}
+
+int Trick::MonteCarlo::read(char* data, int size) {
+    return tc_read(&connection_device, data, size);
 }

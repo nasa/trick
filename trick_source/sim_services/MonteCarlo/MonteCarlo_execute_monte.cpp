@@ -17,7 +17,7 @@ int Trick::MonteCarlo::execute_monte() {
             master();
         } else {
             slave_init();
-            slave();
+            execute_as_slave();
         }
     }
     return(0);

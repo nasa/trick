@@ -1,11 +1,11 @@
 SHELL = /bin/sh
 
 ifndef TRICK_HOST_CPU
-TRICK_HOST_CPU := $(shell gte TRICK_HOST_CPU)
+TRICK_HOST_CPU := $(shell trick-gte TRICK_HOST_CPU)
 endif
 
 ifndef TRICK_HOST_TYPE
-TRICK_HOST_TYPE := $(shell gte TRICK_HOST_TYPE)
+TRICK_HOST_TYPE := $(shell trick-gte TRICK_HOST_TYPE)
 endif
 
 
@@ -30,8 +30,8 @@ INCLUDES = -I..
 top:
 	@ if [ "${TRICK_HOME}" != "" ] ; then  \
 	      $(MAKE) -e all                   \
-	      "CC =  `gte TRICK_CC` "          \
-	      "CPP = `gte TRICK_CPPC` ";       \
+	      "CC =  `trick-gte TRICK_CC` "          \
+	      "CPP = `trick-gte TRICK_CPPC` ";       \
 	else                                   \
  	      $(MAKE) all                      \
 	      "TRICK_HOST_TYPE = `uname -s` "  \

@@ -45,7 +45,7 @@ size_t wcs_to_ncs(const wchar_t * wcs, char *ncs, size_t ncs_max_len)
 
         if (iswprint(wcint)) {
             int len;
-            /* The wide character is printable in the current locale, so create a multibyte, external representation of 
+            /* The wide character is printable in the current locale, so create a multibyte, external representation of
                it. Note that the external representation will also be printable in the current locale. */
 
             if (wcint == '\'') {
@@ -125,7 +125,7 @@ size_t ncs_to_wcs(const char *ncs, wchar_t * wcs, size_t w_max_size)
 
     memset(&state, '\0', sizeof(state));
 
-    /* While we have another wide-character and there is sufficient space to store it ... The extra (len > 0 ) check is 
+    /* While we have another wide-character and there is sufficient space to store it ... The extra (len > 0 ) check is
        for the Macs because mbrtowc still returns values > 0 if len == 0 */
     while (((nbytes = mbrtowc(&wc_in, ncs, len, &state)) > 0) && (len > 0)) {
 

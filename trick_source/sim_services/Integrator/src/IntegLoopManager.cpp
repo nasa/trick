@@ -238,7 +238,7 @@ Trick::IntegLoopScheduler* Trick::IntegrationManager::get_integrated_by (
 
 /**
  Note the scheduler responsible for integrating the specified sim object.
- This annotation makes it possible to automatically remove a sim object from 
+ This annotation makes it possible to automatically remove a sim object from
  some integration loop if that object is added to another loop.
  @param sim_object A sim object integrated by the specified integ loop.
  @param integrator The integ loop that integrates the specified sim object.

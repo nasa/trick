@@ -28,7 +28,7 @@ class TCConnectTest : public testing::Test {
       }
 
       void TearDown(){
-   
+
          free(device);
       }
 };
@@ -51,7 +51,7 @@ TEST_F( TCConnectTest, testDisabledDevice ) {
 
 }
 
-TEST_F( TCConnectTest, testNullHostname ) { 
+TEST_F( TCConnectTest, testNullHostname ) {
 
    device->hostname = NULL;
 

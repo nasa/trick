@@ -97,6 +97,18 @@ void mc_set_user_cmd_string(const char *user_cmd_string);
 
 /**
  * @relates Trick::MonteCarlo
+ * set #Trick::MonteCarlo::slave_sim_options
+ */
+void mc_set_slave_sim_options(const char *slave_sim_options);
+
+/**
+ * @relates Trick::MonteCarlo
+ * get #Trick::MonteCarlo::slave_sim_options
+ */
+const char *mc_get_slave_sim_options();
+
+/**
+ * @relates Trick::MonteCarlo
  * @copydoc get_user_cmd_string
  */
 const char *mc_get_user_cmd_string();
@@ -187,13 +199,13 @@ void mc_stop_slave(unsigned int id);
 
 /**
  * @relates Trick::MonteCarlo
- * Gets the data_connection_device and tc_write()s the given buffer.
+ * Gets the connection_device and tc_write()s the given buffer.
  */
 void mc_write(char *buffer, int size);
 
 /**
  * @relates Trick::MonteCarlo
- * Gets the data_connection_device and tc_read()s the incoming string.
+ * Gets the connection_device and tc_read()s the incoming string.
  */
 void mc_read(char *buffer, int size);
 
@@ -211,57 +223,27 @@ void mc_set_current_run(int num_run) ;
 
 /**
  * @relates Trick::MonteCarlo
- * Gets the data_connection_device.
- */
-TCDevice* mc_get_connection_device() ;
-
-/**
- * @relates Trick::MonteCarlo
  * Sets the port for the listen_device.
  */
 void mc_set_listen_device_port(int port_number) ;
 
 /**
  * @relates Trick::MonteCarlo
- * Sets the port for the data_listen_device.
- */
-void mc_set_data_listen_device_port(int port_number) ;
-
-/**
- * @relates Trick::MonteCarlo
- * Sets the port for the connection_device. 
+ * Sets the port for the connection_device.
  */
 void mc_set_connection_device_port(int port_number) ;
 
 /**
  * @relates Trick::MonteCarlo
- * Sets the port for the data_connection_device. 
- */
-void mc_set_data_connection_device_port(int port_number) ;
-
-/**
- * @relates Trick::MonteCarlo
- * Gets the port for the listen_device. 
+ * Gets the port for the listen_device.
  */
 int  mc_get_listen_device_port() ;
 
 /**
  * @relates Trick::MonteCarlo
- * Gets the port for the data_listen_device. 
- */
-int  mc_get_data_listen_device_port() ;
-
-/**
- * @relates Trick::MonteCarlo
- * Gets the port for the connection_device. 
+ * Gets the port for the connection_device.
  */
 int  mc_get_connection_device_port() ;
-
-/**
- * @relates Trick::MonteCarlo
- * Gets the port for the data_connection_device. 
- */
-int  mc_get_data_connection_device_port() ;
 
 #ifdef __cplusplus
 }

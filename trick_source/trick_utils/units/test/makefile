@@ -10,7 +10,7 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 TRICK_CPPFLAGS += -I${GTEST_HOME}/include -I$(TRICK_HOME)/include -g -Wall -Wextra -DGTEST_HAS_TR1_TUPLE=0
 
 TRICK_LIBS = ${TRICK_LIB_DIR}/libtrick_units.a
-TRICK_EXEC_LINK_LIBS += ${GTEST_HOME}/lib/libgtest.a ${GTEST_HOME}/lib/libgtest_main.a
+TRICK_EXEC_LINK_LIBS += -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main
 
 #Added pthreads for Ubuntu
 TRICK_EXEC_LINK_LIBS += -lpthread
@@ -37,19 +37,19 @@ UnitTestSuite.o : UnitTestSuite.cpp
 
 UnitTestSuite : UnitTestSuite.o
 	@echo 'Building UnitTestSuite'
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CPPC) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 UnitConvTestSuite.o : UnitConvTestSuite.cpp
 	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c $<
 
 UnitConvTestSuite : UnitConvTestSuite.o
 	@echo 'Building UnitConvTestSuite'
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CPPC) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 #TestSuite3.o : UnitTestSuite3.cpp
 #	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c $<
 
 #UnitTestSuite3 : UnitTestSuite3.o
 #	echo "GTEST_HOME  = " ${GTEST_HOME}
-#	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+#	$(TRICK_CPPC) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 

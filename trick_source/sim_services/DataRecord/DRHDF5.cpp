@@ -172,6 +172,11 @@ int Trick::DRHDF5::format_specific_init() {
          */
         hdf5_info->dataset = H5PTcreate_fl(root_group, rec_buffer[ii]->ref->reference, datatype, chunk_size, 1) ;
 
+        if ( hdf5_info->dataset == H5I_BADID ) {
+            message_publish(MSG_ERROR, "An error occured in data record group \"%s\" when adding \"%s\".\n",
+             group_name.c_str() , rec_buffer[ii]->ref->reference) ;
+        }
+
         hdf5_info->drb = rec_buffer[ii] ;
         /* Add the new parameter element to the end of the vector.
          *  This effectively increases the vector size by one. */
@@ -185,7 +190,11 @@ int Trick::DRHDF5::format_specific_init() {
         buf = type_string(rec_buffer[ii]->ref->attr->type, rec_buffer[ii]->ref->attr->size );
         H5PTappend( param_types_id, 1, buf.c_str() );
         /* Param Units */
-        H5PTappend( param_units_id, 1, rec_buffer[ii]->ref->attr->units );
+        if ( rec_buffer[ii]->ref->attr->mods & TRICK_MODS_UNITSDASHDASH ) {
+            H5PTappend( param_units_id, 1, "--" );
+        } else {
+            H5PTappend( param_units_id, 1, rec_buffer[ii]->ref->attr->units );
+        }
         /* Param Name */
         H5PTappend( param_names_id, 1, rec_buffer[ii]->ref->reference );
 

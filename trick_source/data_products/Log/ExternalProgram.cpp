@@ -6,7 +6,7 @@
 
 ExternalProgram::ExternalProgram( const char* sharedLibName,
                                    int nInputStreams, DataStream** istreams,
-                                   int nOutputs, int outputIdx ) 
+                                   int nOutputs, int outputIdx )
 {
         char msg[80];
         int ii ;
@@ -46,7 +46,7 @@ ExternalProgram::ExternalProgram( const char* sharedLibName,
         output_ = new double[nOutputs];
 
         // Since this is a "stream", only one output value
-        // will be returned (see get()).  The output index passed 
+        // will be returned (see get()).  The output index passed
         // in indicates which output to pass back.
         if ( nOutputs_ <= outputIdx ) {
                 cerr << "ERROR: External program output index exceeds total "
@@ -56,9 +56,9 @@ ExternalProgram::ExternalProgram( const char* sharedLibName,
         outputIdx_ = outputIdx ;
 }
 
-ExternalProgram::~ExternalProgram() 
+ExternalProgram::~ExternalProgram()
 {
-        unsigned int ii ; 
+        unsigned int ii ;
 
         delete[] input_ ;
         delete[] output_ ;
@@ -68,7 +68,7 @@ ExternalProgram::~ExternalProgram()
         }
 }
 
-int ExternalProgram::step() 
+int ExternalProgram::step()
 {
         dsg_.step();
         return(0) ;
@@ -86,7 +86,7 @@ int ExternalProgram::peek(double* timeStamp, double* paramValue)
 
 /**
  * Advance (step) through stream
- * And get parameter and time stamp values, 
+ * And get parameter and time stamp values,
  */
 int ExternalProgram::get(double* timeStamp, double* outputValue)
 {
@@ -125,7 +125,7 @@ int ExternalProgram::getOutputValue( double* timeStamp, double* outputValue )
 }
 
 /**
- * Advance through data 
+ * Advance through data
  * Get parameter and time stamp values
  */
 void ExternalProgram::begin()

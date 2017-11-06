@@ -125,7 +125,7 @@ int main(int argc, const char* argv[]) {
 //          break;
         default:
             std::cerr << "Invalid test number." << std::endl;
-        } 
+        }
 
         strcpy (dataout_name, "IBall_");
         strcat (dataout_name, Algorithm_name);
@@ -136,7 +136,7 @@ int main(int argc, const char* argv[]) {
 
         if (test_number > 0) {
             gplout << ", \\" << std::endl;
-        } 
+        }
 
         gplout << "\"" << dataout_name << "\" using 3:2 title \'" << Algorithm_name << "\' with lines";
 

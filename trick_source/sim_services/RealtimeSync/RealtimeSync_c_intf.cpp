@@ -103,14 +103,14 @@ extern "C" int real_time_lock_memory(int yes_no) {
     int ret = 0 ;
 #if __linux
     if ( yes_no ) {
-        if ((ret = mlockall(MCL_CURRENT | MCL_FUTURE)) != 0 ) { 
+        if ((ret = mlockall(MCL_CURRENT | MCL_FUTURE)) != 0 ) {
             perror("Error locking memory.");
             message_publish(MSG_ERROR, "Error %d when requesting memory lock.\n", errno);
         } else {
             message_publish(MSG_INFO, "Sim locked memory\n");
         }
     } else {
-        if ( (ret = munlockall()) != 0 ) { 
+        if ( (ret = munlockall()) != 0 ) {
             perror("Error unlocking memory.");
             message_publish(MSG_ERROR, "Error %d when requesting memory unlock.\n", errno);
         } else {

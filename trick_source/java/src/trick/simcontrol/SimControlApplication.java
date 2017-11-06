@@ -225,12 +225,12 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 
     @Action
     public void startTV() {
-        launchTrickApplication("trick-tv",  "--host " + host + " --port " + port);
+        launchTrickApplication("tv",  "--host " + host + " --port " + port);
     }
 
     @Action
     public void startMTV() {
-        launchTrickApplication("trick-mtv",  host + " " + port);
+        launchTrickApplication("mtv",  host + " " + port);
     }
 
     @Action
@@ -1173,11 +1173,11 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         statusMsgPane.setEditorKit(new StyledEditorKit());    
         statusMsgPane.putClientProperty(JXEditorPane.HONOR_DISPLAY_PROPERTIES, true);
         statusMsgPane.setBackground(Color.black);
-        //statusMsgPane.setContentType("text/html");
-        
-        Font font = new Font("Monospaced", Font.PLAIN, 12);
+
+        int curr_font_size = statusMsgPane.getFont().getSize() ;
+        Font font = new Font("Monospaced", Font.PLAIN, curr_font_size);
         statusMsgPane.setFont(font);
-        
+
         JPanel statusMsgPanel = UIUtils.createSearchableTitledPanel("Status Messages", statusMsgPane, new FindBar(statusMsgPane.getSearchable()));
         return statusMsgPanel;
     }
@@ -1411,7 +1411,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     	private void retrieveHostPort() {
     	    try {
     	    	multicastSocket = new MulticastSocket(9265);
-    	        InetAddress group = InetAddress.getByName("224.3.14.15");
+    	        InetAddress group = InetAddress.getByName("239.3.14.15");
     	        multicastSocket.joinGroup(group);
     	         
     	        byte[] buffer = new byte[1024];

@@ -37,8 +37,8 @@ int tc_connect_(TCDevice * device, const char *file, int line)
 #endif
 
 
-    /* 
-     * Connection disabled? 
+    /*
+     * Connection disabled?
      */
     if (!device) {
         TrickErrorHndlr *temp_error_hndlr = NULL;
@@ -57,8 +57,8 @@ int tc_connect_(TCDevice * device, const char *file, int line)
         return (TC_CONN_DISABLED);
     }
 
-    /* 
-     * Set up error handling 
+    /*
+     * Set up error handling
      */
     if (device->client_tag[0] == '\0') {
         strcpy(device->client_tag, "<empty>");
@@ -79,8 +79,8 @@ int tc_connect_(TCDevice * device, const char *file, int line)
     }
 #endif
 
-   /* 
-    * Open socket 
+   /*
+    * Open socket
     */
 
     the_socket = socket( TRICKCOMM_SOCKET_FAMILY, SOCK_STREAM, TRICKCOMM_SOCKET_PROTO );
@@ -97,8 +97,8 @@ int tc_connect_(TCDevice * device, const char *file, int line)
     setsockopt(the_socket, IPPROTO_TCP, TCP_NODELAY, (const char *) &on, (socklen_t) sizeof(on));
 
 
-    /* 
-     * Initialize socket address struct 
+    /*
+     * Initialize socket address struct
      */
     memset((void *) &sockin, 0, (size_t) sizeof(sockin));
     sockin.sin_family = TRICKCOMM_SOCKET_FAMILY;
@@ -115,7 +115,7 @@ int tc_connect_(TCDevice * device, const char *file, int line)
     memcpy((void *) &(sockin.sin_addr.s_addr), (const void *) ip_host->h_addr, (size_t) ip_host->h_length);
 
 
-    /* 
+    /*
      *  Establish the connection to the selected server
      */
 #if _DMTCP
@@ -147,7 +147,7 @@ int tc_connect_(TCDevice * device, const char *file, int line)
     }
 
 
-    /* 
+    /*
      * Shake hands with server (fill device struct)
      */
 

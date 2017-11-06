@@ -4,6 +4,7 @@ use File::Basename ;
 use Cwd 'abs_path';
 use File::Path qw(make_path) ;
 use Exporter ();
+use gte ;
 @ISA = qw(Exporter);
 @EXPORT = qw(get_lib_deps write_lib_deps);
 
@@ -16,7 +17,6 @@ sub get_lib_deps ($$) {
     my (@inc_paths) ;
     my (@raw_lib_deps) ;
 
-
     # Doxygen style
     @lib_list = ($contents =~ /(?:@|\\)trick_li(?:nk|b)_dependency\s*{\s*(.*?)\s*}/gs) ;
 
@@ -25,8 +25,19 @@ sub get_lib_deps ($$) {
     # another field in the trick header, a doxygen style keyword, or the end of comment *.
     # we capture all library dependencies at once into raw_lib_deps
     @raw_lib_deps = ($contents =~ /LIBRARY[ _]DEPENDENC(?:Y|IES)\s*:[^(]*(.*?)\)(?:[A-Z _\t\n\r]+:|\s*[\*@])/gsi) ;
-    foreach ( @raw_lib_deps ) {
-        push @lib_list , (split /\)[ \t\n\r\*]*\(/ , $_)  ;
+    foreach my $r ( @raw_lib_deps ) {
+        # if there is preprocessor directive in the library dependencies, run the text through cpp.
+        if ( $r =~ /#/ ) {
+            (my $cc = gte("TRICK_CC")) =~ s/\n// ;
+            my @defines = $ENV{"TRICK_CFLAGS"} =~ /(-D\S+)/g ;
+            my $temp ;
+            open FILE, "echo \"$r\" | cpp -P @defines |" ;
+            while ( <FILE> ) {
+                $temp .= $_ ;
+            }
+            $r = $temp ;
+        }
+        push @lib_list , (split /\)[ \t\n\r\*]*\(/ , $r)  ;
     }
 
     @inc_paths = $ENV{"TRICK_CFLAGS"} =~ /-I\s*(\S+)/g ;     # get include paths from TRICK_CFLAGS
@@ -133,10 +144,11 @@ sub get_lib_deps ($$) {
             $l .= "o" ;
         }
         if ( $found == 0 ) {
+            print STDERR "[1m[33mWarning    [39m$source_file_name[0m\n           " ;
             if ( $l =~ /^(sim_services)/ or $l =~ /^(er7_utils)/ ) {
-                print STDERR "[33mWarning: Not necessary to list $1 dependencies $l[0m\n" ;
+                print STDERR "It is not necessary to list dependencies found in $1: \"[1m$l[0m\"\n" ;
             } else {
-                print STDERR "[33mWarning: Could not find dependency $l[0m\n" ;
+                print STDERR "Could not find dependency \"[1m$l[0m\"\n" ;
             }
         }
     }
@@ -167,21 +179,22 @@ sub write_lib_deps($) {
     }
 
     if ( -e $lib_dep_file_name ) {
-        # If the library dependeny file exists open the old lib dep file
+        # If the library dependency file exists open the old lib dep file
         # and compare the new and old lists.
         open OLDLIBDEP, "$lib_dep_file_name" ;
         my @old_resolved = <OLDLIBDEP> ;
         close OLDLIBDEP ;
         chomp @old_resolved ;
-        if ( @old_resolved ~~ @resolved_files ) {
-            print "Library dependencies unchanged for $source_file_name\n" ;
+
+        if (join(", ", @old_resolved) eq join(", ", @resolved_files)) {
+            #print "Library dependencies unchanged for $source_file_name\n" ;
             $deps_changed = 0 ;
         } else {
-            print "Library dependencies changed for $source_file_name\n" ;
+            #print "Library dependencies changed for $source_file_name\n" ;
             $deps_changed = 1 ;
         }
     } else {
-        # If the library dependeny does not exist, the deps changed.
+        # If the library dependency does not exist, the deps changed.
         $deps_changed = 1 ;
     }
 

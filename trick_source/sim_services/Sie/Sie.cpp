@@ -37,9 +37,8 @@ int Trick::Sie::process_sim_args() {
             /* If main is being invoked by the configuration processor (cp) to generate the sie resource file... */
             /* Generate the sie resource file */
             sie_print_xml();
-            std::cout << "Created S_sie.resource file." << std::endl ;
 
-            // Silently exit the sim without printing the termination message 
+            // Silently exit the sim without printing the termination message
             exit(0) ;
         }
     }

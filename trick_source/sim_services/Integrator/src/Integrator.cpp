@@ -85,97 +85,84 @@ int Trick::Integrator::integrate_2nd_order_ode (
     return rc;
 }
 
-/**
- */
-void Trick::Integrator::state_in (double* arg1, ...) {
-    
-    va_list ap;
-    int i;
-    double* narg; 
-
-    va_start(ap, arg1); 
-
-    i=0;
-    narg = arg1;
+void Trick::Integrator::state_in (double* arg1, va_list argp) {
+    int i = 0;
+    double* next_arg = arg1;
     if (verbosity) message_publish(MSG_DEBUG, "LOAD STATE: ");
-    while (narg != (double*)NULL) {
-        state[i] = *narg;
-        if (verbosity) message_publish(MSG_DEBUG,"  %g", *narg);
-        narg = va_arg(ap, double*); 
+    while (next_arg != (double*) NULL) { 
+        state[i] = *next_arg;
+        if (verbosity) message_publish(MSG_DEBUG,"  %g", *next_arg);
+        next_arg = va_arg(argp, double*);
         i++;
-    };
+    }
     if (verbosity) message_publish(MSG_DEBUG,"\n");
-    va_end(ap);
 }
 
-/**
- */
+void Trick::Integrator::state_in (double* arg1, ...) {
+    va_list argp;
+    va_start(argp, arg1);
+    state_in(arg1, argp);
+    va_end(argp);
+}
+
+void Trick::Integrator::deriv_in ( double* arg1, va_list argp) {
+    int i = 0;
+    double* next_arg = arg1;
+    if (verbosity) message_publish(MSG_DEBUG, "LOAD DERIV: ");
+    while (next_arg != (double*) NULL) {
+        deriv[intermediate_step][i] = *next_arg;
+        if (verbosity) message_publish(MSG_DEBUG,"  %g", *next_arg);
+        next_arg = va_arg(argp, double*);
+        i++;
+    }
+    if (verbosity) message_publish(MSG_DEBUG,"\n");
+}
+
 void Trick::Integrator::deriv_in ( double* arg1, ...) {
-    
-    va_list ap;
-    int i;
-    double* narg; 
+    va_list argp;
+    va_start(argp, arg1);
+    deriv_in(arg1, argp);
+    va_end(argp);
+}
 
-    va_start(ap, arg1); 
-
-    i=0;
-    narg = arg1;
-    if (verbosity) message_publish(MSG_DEBUG,"LOAD DERIV: ");
-    while (narg != (double*)NULL) {
-        deriv[intermediate_step][i] = *narg;
-        if (verbosity) message_publish(MSG_DEBUG,"  %g",*narg);
-        narg = va_arg(ap, double*); 
+void Trick::Integrator::deriv2_in ( double* arg1, va_list argp) {
+    int i = 0;
+    double* next_arg = arg1;
+    if (verbosity) message_publish(MSG_DEBUG, "LOAD DERIV2: ");
+    while (next_arg != (double*) NULL) {
+        deriv2[intermediate_step][i] = *next_arg;
+        if (verbosity) message_publish(MSG_DEBUG,"  %g", *next_arg);
+        next_arg = va_arg(argp, double*);
         i++;
-    };
-    va_end(ap);
+    }
     if (verbosity) message_publish(MSG_DEBUG,"\n");
 }
 
-/**
-  */
 void Trick::Integrator::deriv2_in ( double* arg1, ...) {
-
-    va_list ap;
-    int i;
-    double* narg;
-
-    va_start(ap, arg1);
-
-    i=0;
-    narg = arg1;
-    if (verbosity) message_publish(MSG_DEBUG,"LOAD DERIV2: ");
-    while (narg != (double*)NULL) {
-        deriv2[intermediate_step][i] = *narg;
-        if (verbosity) message_publish(MSG_DEBUG,"  %g",*narg);
-        narg = va_arg(ap, double*);
-        i++;
-    };
-    if (verbosity) message_publish(MSG_DEBUG,"\n");
-    va_end(ap);
+    va_list argp;
+    va_start(argp, arg1);
+    deriv2_in(arg1, argp);
+    va_end(argp);
 }
 
-
-/**
- */
-void Trick::Integrator::state_out (double* arg1, ...) {
-    
-    va_list ap;
-    int i;
-    double* narg; 
-
-    va_start(ap, arg1); 
-
-    i=0;
-    narg = arg1;
-    if (verbosity) message_publish(MSG_DEBUG,"UNLOAD STATE: ");
-    while (narg != (double*)NULL) {
-        *narg = state_ws[intermediate_step][i];
-        if (verbosity) message_publish(MSG_DEBUG,"  %g",*narg);
-        narg = va_arg(ap, double*); 
+void Trick::Integrator::state_out (double* arg1, va_list argp) {
+    int i = 0;
+    double* next_arg = arg1;
+    if (verbosity) message_publish(MSG_DEBUG, "UNLOAD STATE: ");
+    while (next_arg != (double*) NULL) {
+        *next_arg = state_ws[intermediate_step][i];
+        if (verbosity) message_publish(MSG_DEBUG,"  %g", *next_arg);
+        next_arg = va_arg(argp, double*);
         i++;
-    };
+    }
     if (verbosity) message_publish(MSG_DEBUG,"\n");
-    va_end(ap);
+}
+
+void Trick::Integrator::state_out (double* arg1, ...) {
+    va_list argp;
+    va_start(argp, arg1);
+    state_out(arg1, argp);
+    va_end(argp);
 }
 
 bool Trick::Integrator::get_first_step_deriv() {

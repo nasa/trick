@@ -25,7 +25,7 @@ public:
     DPC_page( DPC_datastream_supplier *DS_Supplier,
               std::vector <DPM_run *> *RunListp,
               DPM_page *PageSpec,
-              DPM_time_constraints *ParentTimeConstraints ) throw (std::invalid_argument) ;
+              DPM_time_constraints *ParentTimeConstraints )  ;
 
     /**
      * DESTRUCTOR.
@@ -46,9 +46,9 @@ public:
      */
     void notify( DPV_view *view, DPV_message msg);
 
-// ============================ 
+// ============================
 // DPV_VIEW INTERFACE FUNCTIONS
-// ============================ 
+// ============================
 
     /**
      * Return the value of the attribute (if any) associated with the key.

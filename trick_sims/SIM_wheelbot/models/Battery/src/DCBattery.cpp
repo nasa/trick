@@ -11,7 +11,7 @@ void DCBattery :: update ()
 {
     actualVoltage = idealVoltage - internalResistance * current;
     actualVoltage = std :: min (idealVoltage, actualVoltage);
-    actualVoltage = std :: max (0.0, actualVoltage);      
+    actualVoltage = std :: max (0.0, actualVoltage);
 }
 double DCBattery :: getActualVoltage ()
 {

@@ -55,9 +55,11 @@ sub gte (@) {
                     printf STDERR "[33mCannot find TRICK_CC = $temp, using /usr/bin/gcc\n" ;
                     $ret = `/usr/bin/gcc -dumpversion` ;
                 }
-            }
-            else {
-                $ret = `$ENV{TRICK_CC} -dumpversion` ;
+            } else {
+                # remove possible ccache from TRICK_CC
+                my ($temp) = $ENV{TRICK_CC} ;
+                $temp =~ s/.*?ccache\s+// ;
+                $ret = `$temp -dumpversion` ;
             }
         }
         else {
@@ -88,10 +90,12 @@ sub gte (@) {
     $def{"TRICK_HOME"} = "$trick_home" ;
     $def{"TRICK_HOST_CPU_USER_SUFFIX"} = "" ;
     $def{"TRICK_ICGFLAGS"} = "" ;
+    $def{"TRICK_ICG_COMPAT15"} = "" ;
     $def{"TRICK_ICG_NOCOMMENT"} = "" ;
     $def{"TRICK_ICG_EXCLUDE"} = "" ;
     $def{"TRICK_SWIG_EXCLUDE"} = "" ;
     $def{"TRICK_EXT_LIB_DIRS"} = "" ;
+    $def{"TRICK_PYTHON_PATH"} = "" ;
     $def{"TRICK_LDFLAGS"} = "" ;
     $def{"TRICK_MAKE"} = "" ;
     $def{"TRICK_PATH"} = "$trick_home/bin" ;
@@ -100,6 +104,7 @@ sub gte (@) {
     $def{"TRICK_SFLAGS"} = "" ;
     $def{"TRICK_SYSTEM_CFLAGS"} = "" ;
     $def{"TRICK_SYSTEM_CXXFLAGS"} = "" ;
+    $def{"TRICK_SYSTEM_LDFLAGS"} = "" ;
     $def{"TRICK_USER_HOME"} = "$ENV{HOME}/trick_sims" ;
     $def{"TRICK_USER_CSHRC"} = "$ENV{HOME}/.Trick_user_cshrc" ;
     $def{"TRICK_USER_LINK_LIBS"} = "" ;

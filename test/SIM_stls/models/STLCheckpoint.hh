@@ -1,5 +1,5 @@
 /*
-    PURPOSE: (Illustrate how to checkpoint STLs) 
+    PURPOSE: (Illustrate how to checkpoint STLs)
     LIBRARY_DEPENDENCIES: (
       (STLCheckpoint.o)
     )
@@ -21,7 +21,7 @@
 class STLCheckpoint {
 
     public:
-    
+
         STLCheckpoint() ;
         STLCheckpoint(std::string in_name) ;
         int speak() ;

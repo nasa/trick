@@ -1,0 +1,22 @@
+/************************************************************
+PURPOSE:
+    ( Simulate a satellite orbiting the Earth. )
+LIBRARY DEPENDENCIES:
+    ((satellite/src/Satellite.cpp))
+*************************************************************/
+#include "sim_objects/default_trick_sys.sm"
+##include "satellite/include/Satellite.hh"
+class SatelliteSimObject : public Trick::SimObject {
+    public:
+    Satellite satellite;
+
+    SatelliteSimObject() {
+        ("default_data")     satellite.default_data() ;
+        ("initialization")   satellite.state_init() ;
+        ("derivative")   satellite.state_deriv() ;
+        ("integration")   trick_ret = satellite.state_integ() ;
+    }
+};
+
+SatelliteSimObject dyn;
+IntegLoop dyn_integloop(0.002) dyn;

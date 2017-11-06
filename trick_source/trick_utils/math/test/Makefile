@@ -11,8 +11,7 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 TRICK_CPPFLAGS += -I${GTEST_HOME}/include -I$(TRICK_HOME)/include -g -Wall -Wextra -DGTEST_HAS_TR1_TUPLE=0
 
 TRICK_LIBS = ${TRICK_LIB_DIR}/libtrick_math.a
-TRICK_EXEC_LINK_LIBS += ${GTEST_HOME}/lib/libgtest.a ${GTEST_HOME}/lib/libgtest_main.a -lpthread
-
+TRICK_EXEC_LINK_LIBS += -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main -lpthread
 TRICK_EXEC_LINK_LIBS += -lm
 
 GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
@@ -34,4 +33,4 @@ UnitTestEulerQuat.o : UnitTestEulerQuat.cpp
 
 UnitTestEulerQuat : UnitTestEulerQuat.o
 	@echo 'Building UnitTestEulerQuat'
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CPPC) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)

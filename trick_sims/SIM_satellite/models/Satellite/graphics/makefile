@@ -3,12 +3,12 @@ CC       = gcc
 
 ifeq ($(shell uname), Darwin)
        GL_LIBS  = -framework GLUT -framework OpenGL
-       TC_LIBS = -L${TRICK_HOME}/lib -ltrick_comm
+       TC_LIBS = -L${TRICK_HOME}/lib -L${TRICK_HOME}/lib64 -ltrick_comm
        LDFLAGS =
 else
        GL_LIBS  = -lGL -lGLU -lglut
-       TC_LIBS = -L${TRICK_HOME}/lib -ltrick_comm -lrt
-       LDFLAGS = -Wl,--export-dynamic
+       TC_LIBS = -L${TRICK_HOME}/lib -L${TRICK_HOME}/lib64 -ltrick_comm -lrt
+       LDFLAGS = -ldl
 endif
 
 CFLAGS = -I${TRICK_HOME}/include
@@ -22,7 +22,6 @@ OBJECTS = Camera.o Scene.o SceneElement.o SatelliteModel.o Ball.o
 
 .cpp.o:
 	${CPP} ${CFLAGS} ${INCDIRS} -c $<
-	echo $(NARF)
 
 all: Scene
 

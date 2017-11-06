@@ -26,7 +26,7 @@ typedef struct { /* BSTATE_IN ------------------------------------------------*/
   double mass ;            /**< (kg)  Total mass */
   double position[2] ;     /**< (m)   X(horizontal),Y(vertical) position */
   double speed ;           /**< (m/s) Linear speed */
-  double elevation ;       /**< (r)   Trajectory angle with respect to the horizontal */
+  double elevation ;       /**< (rad)   Trajectory angle with respect to the horizontal */
   int print_off;           /**< (--)  Set to nonzero to suppress output */
 } BSTATE_IN ; /*--------------------------------------------------------------*/
 

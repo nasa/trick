@@ -11,7 +11,7 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -I${TRICK_HOME}/trick_source -I${TRICK_HOME}/include/trick/compat -g -Wall -Wextra -DGTEST_HAS_TR1_TUPLE=0 -DUSE_ER7_UTILS_INTEGRATORS=1
 
 TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick -ltrick_mm -ltrick_units -ltrick -ltrick_mm
-TRICK_EXEC_LINK_LIBS += ${GTEST_HOME}/lib/libgtest.a ${GTEST_HOME}/lib/libgtest_main.a
+TRICK_EXEC_LINK_LIBS += -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
@@ -50,5 +50,5 @@ Integrator_unittest.o : Integrator_unittest.cc
 	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c $<
 
 Integrator_unittest : Integrator_unittest.o
-	$(TRICK_LD) $(TRICK_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CPPC) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 

@@ -1,4 +1,6 @@
-
+#include <cerrno>
+#include <cstring>
+#include <iostream>
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
@@ -16,7 +18,7 @@ Csv::Csv(char * file_name , char * param_name ) {
         len = strlen(param_name) ;
 
         if ((fp_ = fopen(file_name , "r")) == 0 ) {
-           printf("ERROR:  Couldn't open \"%s\"\n" , file_name ) ;
+           std::cerr << "ERROR:  Couldn't open \"" << file_name << "\": " << std::strerror(errno) << std::endl;
            exit(-1) ;
         }
 
@@ -24,7 +26,7 @@ Csv::Csv(char * file_name , char * param_name ) {
         header = new char[20480] ;
         fgets( header , 20480 , fp_ );
 
-        // remove trailing newline 
+        // remove trailing newline
         header[strlen(header)-1] = '\0' ;
 
         field_num_ = 0 ;
@@ -51,7 +53,11 @@ Csv::Csv(char * file_name , char * param_name ) {
                                                 unitTimeStr_ = start_unit + 1 ;
                                         }
                                         else {
-                                                unitStr_ = map_trick_units_to_udunits(start_unit + 1) ;
+                                                if ( !strcmp(start_unit + 1,"--") ) {
+                                                    unitStr_ = strdup(start_unit + 1) ;
+                                                } else {
+                                                    unitStr_ = map_trick_units_to_udunits(start_unit + 1) ;
+                                                }
                                         }
                                 }
                                 break ;
@@ -153,7 +159,7 @@ int CsvLocateParam( char * file_name , char * param_name ) {
                 header = new char[20480] ;
                 fgets( header , 20480 , fp );
 
-                // remove trailing newline 
+                // remove trailing newline
                 header[strlen(header)-1] = '\0' ;
                 next_field = strtok( header , "," ) ;
                 do {
@@ -169,7 +175,7 @@ int CsvLocateParam( char * file_name , char * param_name ) {
 
         }
         else {
-           printf("ERROR:  Couldn't open \"%s\"\n" , file_name ) ;
+           std::cerr << "ERROR:  Couldn't open \"" << file_name << "\": " << std::strerror(errno) << std::endl;
         }
 
         return(0) ;

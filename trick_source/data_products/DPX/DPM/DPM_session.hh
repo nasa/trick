@@ -26,7 +26,7 @@ public:
   /**
    * XML Constructor.
    */
-  DPM_session(DPM_component *parent, xmlNode *SessionNode) throw (std::invalid_argument);
+  DPM_session(DPM_component *parent, xmlNode *SessionNode) ;
 
   /**
    * Destructor

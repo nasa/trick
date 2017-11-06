@@ -30,7 +30,7 @@ TEST( BatteryTest , four ) {
     battery.setCurrent(6.0);
     battery.update ();
     EXPECT_DOUBLE_EQ( 0.0, battery.actualVoltage );
-    
+
 }
 
 TEST( BatteryTest , five ) {
@@ -39,7 +39,7 @@ TEST( BatteryTest , five ) {
     battery.setCurrent(4.0);
     battery.update ();
     EXPECT_DOUBLE_EQ( 1.0, battery.actualVoltage );
-    
+
 }
 
 TEST( BatteryTest , six ) {
@@ -48,5 +48,5 @@ TEST( BatteryTest , six ) {
     battery.setCurrent(-4.0);
     battery.update ();
     EXPECT_DOUBLE_EQ( 9.0, battery.actualVoltage );
-    
+
 }

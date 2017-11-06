@@ -7,6 +7,7 @@
 #include "EnumVisitor.hh"
 #include "EnumValues.hh"
 #include "Utilities.hh"
+#include "BraceMacro.hh"
 
 extern llvm::cl::opt< int > debug_level ;
 
@@ -26,7 +27,7 @@ bool EnumVisitor::VisitType(clang::Type *t) {
 }
 
 bool EnumVisitor::VisitEnumDecl(clang::EnumDecl *ed) {
-    eval.setFileName(getFileName(ci , ed->getRBraceLoc(), hsd)) ;
+    eval.setFileName(getFileName(ci , ed->RBRACELOC(), hsd)) ;
     return true;
 }
 
@@ -62,27 +63,7 @@ bool EnumVisitor::VisitEnumType(clang::EnumType *et) {
         //std::cout << "\n[34mReplaced Enum name = " << eval->getName() << "[00m" << std::endl ;
     }
 
-    const clang::DeclContext * Ctx = td->getDeclContext() ;
-    typedef clang::SmallVector<const clang::DeclContext *, 8> ContextsTy;
-    ContextsTy Contexts;
-    // Collect contexts.
-    while (Ctx && clang::isa<clang::NamedDecl>(Ctx)) {
-        Contexts.push_back(Ctx);
-        Ctx = Ctx->getParent();
-    };
-    for (ContextsTy::reverse_iterator I = Contexts.rbegin(), E = Contexts.rend(); I != E; ++I) {
-        if (const clang::NamespaceDecl *nd = clang::dyn_cast<clang::NamespaceDecl>(*I)) {
-            if (! nd->isAnonymousNamespace()) {
-                //std::cout << "namespace " << nd->getIdentifier()->getName().str() << std::endl ;
-                eval.addNamespace(nd->getIdentifier()->getName().str()) ;
-            }
-        } else if (const clang::RecordDecl *rd = clang::dyn_cast<clang::RecordDecl>(*I)) {
-            if (rd->getIdentifier()) {
-                //std::cout << "in class " << rd->getName().str() << std::endl ;
-                eval.addContainerClass(rd->getName().str()) ;
-            }
-        }
-    }
+    eval.getNamespacesAndClasses(td->getDeclContext()) ;
     return true ;
 }
 

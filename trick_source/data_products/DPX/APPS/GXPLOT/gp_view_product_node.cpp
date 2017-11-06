@@ -22,7 +22,7 @@ GPViewProductNode::~GPViewProductNode() {
     n = (int)page_node_list.size();
     for (i=0 ; i<n; i++ ) {
         page_view_node = page_node_list[i];
-        if (page_view_node) { delete page_view_node; }
+        delete page_view_node;
     }
 
 }

@@ -12,7 +12,7 @@ double regula_falsi(
 {
     if (R->iterations > 0 &&
         ((M_ABS(R->error) < R->error_tol) ||
-        (M_ABS(R->last_error - R->error) < R->error_tol))) 
+        (M_ABS(R->last_error - R->error) < R->error_tol)))
     {
         if (R->mode == Any) {
             /* The tgo is now zero */

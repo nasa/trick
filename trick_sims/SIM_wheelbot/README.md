@@ -1,4 +1,4 @@
-#SIM\_wheelbot
+# SIM\_wheelbot
 
 ---
 
@@ -29,8 +29,8 @@ Variable                                       | Type           | Units | Defaul
 -----------------------------------------------|----------------|-------|--------------
 veh.vehicle.distanceBetweenWheels              | double         | m     | 0.183
 veh.vehicle.wheelRadius                        | double         | m     | 0.045
-veh.vehicle.wheelSpeedLimit                    | double         | r/s   | 8.880
-veh.vehicle.headingRateLimit                   | double         | r/s   | 𝛑/4
+veh.vehicle.wheelSpeedLimit                    | double         | rad/s | 8.880
+veh.vehicle.headingRateLimit                   | double         | rad/s | 𝛑/4
 veh.vehicle.wheelDragConstant                  | double         | --    | 1.875
 veh.vehicle.corningStiffness                   | double         | --    | 10.0
 veh.vehicle.slowDownDistance                   | double         | --    | 0.5 
@@ -50,15 +50,15 @@ Variable                                       | Type           | Units
 -----------------------------------------------|----------------|-------
 veh.vehicle.position                           | double[2]      | m
 veh.vehicle.velocity                           | double[2]      | m
-veh.vehicle.heading                            | double         | r
-veh.vehicle.headingRate                        | double         | r
+veh.vehicle.heading                            | double         | rad
+veh.vehicle.headingRate                        | double         | rad
 
 
 ### Outputs
 Variable                                      | Type           | Units
 ----------------------------------------------|----------------|--------
 veh.vehicle.acceleration                      | double[2]      | m
-veh.vehicle.headingAccel                      | double         | r
+veh.vehicle.headingAccel                      | double         | rad
 veh.vehicle.driveForce                        | double[2]      | N
 veh.vehicle.lateralTireForce                  | double[2]      | N
 veh.vehicle.rollingResistForce                | double[2]      | N

@@ -1,8 +1,8 @@
 
 trick.frame_log_off()
-real_time.rt_sync.enable()
+trick.real_time_enable()
 trick_sys.sched.set_software_frame(0.01)
-real_time.itimer.disable()
+trick.itimer_disable()
 
 trick_sys.sched.set_enable_freeze(True)
 trick_sys.sched.set_freeze_command(True)

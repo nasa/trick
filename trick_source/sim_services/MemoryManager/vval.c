@@ -348,7 +348,7 @@ wchar_t *vval_wstring(V_DATA * V)
     switch (V->type) {
         case TRICK_STRING:{
 
-#if 0   
+#if 0
 // FIXME
                 wchar_t *wcs;
                 size_t wcs_size;

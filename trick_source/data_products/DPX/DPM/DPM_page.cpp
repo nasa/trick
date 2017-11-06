@@ -26,7 +26,7 @@ int DPM_page::Initialize( xmlNode *base_node) {
     while (current_node != NULL) {
         if (current_node->type == XML_ELEMENT_NODE) {
             if ( strcmp( (const char *)current_node->name, "title") == 0) {
-                xmlNode *text_node = current_node->children; 
+                xmlNode *text_node = current_node->children;
                 title = strdup( (const char *)text_node->content);
             } else if ( strcmp( (const char *)current_node->name, "tstart") == 0) {
                 xmlNode *text_node = current_node->children;
@@ -41,10 +41,10 @@ int DPM_page::Initialize( xmlNode *base_node) {
                 DPM_relation *relation;
                 try {
                     relation = new DPM_relation(this, current_node);
-                } catch (std::invalid_argument) { 
+                } catch (std::invalid_argument) {
                     relation = NULL;
                     std::cerr << "ERROR: <page> specification contains an invalid <plot> specification." << std::endl;
-                } 
+                }
                 if (relation != NULL) {
                     relation_list.push_back(relation);
                 }

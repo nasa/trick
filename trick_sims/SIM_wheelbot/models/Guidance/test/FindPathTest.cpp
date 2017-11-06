@@ -2,19 +2,19 @@
 #include "findpath.hh"
 #include "arena.hh"
 #include <algorithm>
-#include <vector> 
+#include <vector>
 
 TEST(FindPathTest, FindPath_one)
 {
  //Tests the failure case of the FindPath function
- //This is when the goal is completely blocked 
+ //This is when the goal is completely blocked
  Arena arena(10,7);
  Arena* testarena;
  testarena = &arena;
- 
+
  GridSquare *origin = arena.getGridSquare(2,1);
- GridSquare *goal = arena.getGridSquare(7,5); 
- 
+ GridSquare *goal = arena.getGridSquare(7,5);
+
  arena.block(7,4);
  arena.block(6,4);
  arena.block(8,4);
@@ -22,29 +22,29 @@ TEST(FindPathTest, FindPath_one)
  arena.block(8,5);
  arena.block(6,6);
  arena.block(8,6);
- 
+
  std::cout << std::endl;
-  
+
  std::vector<Point> returnvalue = FindPath(origin,goal,testarena);
- 
+
  std::cout << std::endl;
  std::cout << std::endl;
- 
+
  EXPECT_EQ(returnvalue.size(),0);
-  
+
 }
 
 TEST(FindPathTest, FindPath_two)
 {
- //Tests if FindPath finds a path 
+ //Tests if FindPath finds a path
  Arena arena(10,7);
  Arena* testarena;
  testarena = &arena;
- 
+
  GridSquare *origin = arena.getGridSquare(2,1);
- GridSquare *goal = arena.getGridSquare(7,5); 
- 
- 
+ GridSquare *goal = arena.getGridSquare(7,5);
+
+
  arena.block(2,0);
  arena.block(7,1);
  arena.block(0,2);
@@ -61,11 +61,11 @@ TEST(FindPathTest, FindPath_two)
  arena.block(2,5);
  arena.block(6,6);
  arena.block(7,6);
- 
+
  std::vector<Point> returnvalue = FindPath(origin,goal,testarena);
- 
+
  EXPECT_GT(returnvalue.size(),0);
-  
+
 }
 
 TEST(FindPathTest, FindPath_three)
@@ -74,11 +74,11 @@ TEST(FindPathTest, FindPath_three)
  Arena arena(10,7);
  Arena* testarena;
  testarena = &arena;
- 
+
  GridSquare *origin = arena.getGridSquare(2,1);
- GridSquare *goal = arena.getGridSquare(2,1); 
- 
- 
+ GridSquare *goal = arena.getGridSquare(2,1);
+
+
  arena.block(2,0);
  arena.block(7,1);
  arena.block(0,2);
@@ -95,11 +95,11 @@ TEST(FindPathTest, FindPath_three)
  arena.block(2,5);
  arena.block(6,6);
  arena.block(7,6);
- 
+
  std::vector<Point> returnvalue = FindPath(origin,goal,testarena);
- 
+
  EXPECT_EQ(returnvalue.size(),1);
-  
+
 }
 
 TEST(FindPathTest, FindPath_four)
@@ -108,12 +108,12 @@ TEST(FindPathTest, FindPath_four)
  Arena arena(10,7);
  Arena* testarena;
  testarena = &arena;
- 
+
  GridSquare *origin = arena.getGridSquare(11,13);
- GridSquare *goal = arena.getGridSquare(2,1); 
- 
- 
- 
+ GridSquare *goal = arena.getGridSquare(2,1);
+
+
+
  arena.block(2,0);
  arena.block(7,1);
  arena.block(0,2);
@@ -130,14 +130,14 @@ TEST(FindPathTest, FindPath_four)
  arena.block(2,5);
  arena.block(6,6);
  arena.block(7,6);
- 
+
  std::cout << std::endl;
  std::vector<Point> returnvalue = FindPath(origin,goal,testarena);
  std::cout << std::endl;
  std::cout << std::endl;
- 
+
  EXPECT_EQ(returnvalue.size(),0);
-  
+
 }
 
 TEST(FindPathTest, FindPath_five)
@@ -146,11 +146,11 @@ TEST(FindPathTest, FindPath_five)
  Arena arena(10,7);
  Arena* testarena;
  testarena = &arena;
- 
+
  GridSquare *origin = arena.getGridSquare(2,1);
- GridSquare *goal = arena.getGridSquare(11,12); 
- 
- 
+ GridSquare *goal = arena.getGridSquare(11,12);
+
+
  arena.block(2,0);
  arena.block(7,1);
  arena.block(0,2);
@@ -167,16 +167,16 @@ TEST(FindPathTest, FindPath_five)
  arena.block(2,5);
  arena.block(6,6);
  arena.block(7,6);
- 
+
  std::cout << std::endl;
- 
+
  std::vector<Point> returnvalue = FindPath(origin,goal,testarena);
- 
+
  std::cout << std::endl;
  std::cout << std::endl;
- 
+
  EXPECT_EQ(returnvalue.size(),0);
-  
+
 }
 
 /*TEST(FindPathTest, FindPath_three)
@@ -185,11 +185,11 @@ TEST(FindPathTest, FindPath_five)
   Arena arena(10,7);
  Arena* testarena;
  testarena = &arena;
- 
+
  GridSquare *origin = arena.getGridSquare(2,1);
- GridSquare *goal = arena.getGridSquare(7,5); 
- 
- 
+ GridSquare *goal = arena.getGridSquare(7,5);
+
+
  arena.block(2,0);
  arena.block(7,1);
  arena.block(0,2);
@@ -206,9 +206,9 @@ TEST(FindPathTest, FindPath_five)
  arena.block(2,5);
  arena.block(6,6);
  arena.block(7,6);
- 
+
  std::vector<Point> desiredvalues (7);
- 
+
  desiredvalues[0].x = 2;
  desiredvalues[0].y = 1;
  desiredvalues[1].x = 3;
@@ -223,9 +223,9 @@ TEST(FindPathTest, FindPath_five)
  desiredvalues[5].y = 5;
  desiredvalues[6].x = 7;
  desiredvalues[6].y = 5;
- 
+
  std::vector<Point> returnvalue = FindPath(origin,goal,testarena);
- 
+
  EXPECT_EQ(desiredvalues[0].x, returnvalue[0].x);
  EXPECT_EQ(desiredvalues[0].y, returnvalue[0].y);
  EXPECT_EQ(desiredvalues[1].x, returnvalue[1].x);

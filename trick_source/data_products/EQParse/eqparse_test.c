@@ -404,7 +404,7 @@ int main()
         }
 
        /*-------------------------------------------------------
-        *   Test operators 
+        *   Test operators
         */
         fprintf(stderr, "\n[36mTesting operators and precedence.[00m\n");
 
@@ -487,7 +487,7 @@ int main()
         }
 
        /*-------------------------------------------------------
-        *   Test expressions 
+        *   Test expressions
         */
         fprintf(stderr, "\n[36mTesting parenthetical expressions.[00m\n");
 
@@ -535,7 +535,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // log(exp((cos(x)*cos(x) + sin(x)*sin(x))^100)) 
+        // log(exp((cos(x)*cos(x) + sin(x)*sin(x))^100))
         strcpy(equation1, "log(exp((cos(x)*cos(x) + sin(x)*sin(x))^100))");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 3.21, &y);
@@ -546,7 +546,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // log(exp((cos(x)^2 + sin(x)^2)^100)) 
+        // log(exp((cos(x)^2 + sin(x)^2)^100))
         strcpy(equation1, "log(exp((cos(x)^2 + sin(x)^2)^100))");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 3.21, &y);
@@ -569,7 +569,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // (-1)*(-2)*(-cos(0)) 
+        // (-1)*(-2)*(-cos(0))
         strcpy(equation1, "(-1)*(-2)*(-cos(0))");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 3.0, &y);
@@ -635,7 +635,7 @@ int main()
         }
 
 #ifndef __sun
-        // acos(2) x: out of domain 
+        // acos(2) x: out of domain
         strcpy(equation1, "acos(2)");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 0.0, &y);
@@ -646,7 +646,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // asin(2) x: out of domain 
+        // asin(2) x: out of domain
         strcpy(equation1, "asin(2)");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 0.0, &y);
@@ -658,7 +658,7 @@ int main()
         }
 #endif
 
-        // atanh(2) x: out of domain 
+        // atanh(2) x: out of domain
         strcpy(equation1, "atanh(2)");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 0.0, &y);
@@ -669,7 +669,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // besy0(-2) x: out of domain 
+        // besy0(-2) x: out of domain
         strcpy(equation1, "besy0(-2)");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 0.0, &y);
@@ -680,7 +680,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // besy1(-2) x: out of domain 
+        // besy1(-2) x: out of domain
         strcpy(equation1, "besy1(-2)");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 0.0, &y);
@@ -691,7 +691,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // inverf(2) x: out of domain 
+        // inverf(2) x: out of domain
         strcpy(equation1, "inverf(2)");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 0.0, &y);
@@ -702,7 +702,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // invnorm(2) x: out of domain 
+        // invnorm(2) x: out of domain
         strcpy(equation1, "invnorm(2)");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 0.0, &y);
@@ -713,7 +713,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // log(0) x: out of domain 
+        // log(0) x: out of domain
         strcpy(equation1, "log(0)");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 0.0, &y);
@@ -724,7 +724,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // log(-1) x: out of domain 
+        // log(-1) x: out of domain
         strcpy(equation1, "log(-1)");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 0.0, &y);
@@ -735,7 +735,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // log10(0) x: out of domain 
+        // log10(0) x: out of domain
         strcpy(equation1, "log10(0)");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 0.0, &y);
@@ -746,7 +746,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // log10(-1) x: out of domain 
+        // log10(-1) x: out of domain
         strcpy(equation1, "log10(-1)");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 0.0, &y);
@@ -757,7 +757,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // sqrt(-1) x: out of domain 
+        // sqrt(-1) x: out of domain
         strcpy(equation1, "sqrt(-1)");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 0.0, &y);
@@ -815,7 +815,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // Passing '_' by itself 
+        // Passing '_' by itself
         strcpy(equation1, "_");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 0.0, &y);
@@ -826,7 +826,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // '_' at end 
+        // '_' at end
         strcpy(equation1, "1 + x_");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 0.0, &y);
@@ -837,7 +837,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // '_' at beginning 
+        // '_' at beginning
         strcpy(equation1, "_x + x");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 0.0, &y);
@@ -848,7 +848,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // '_' not preceded by M 
+        // '_' not preceded by M
         strcpy(equation1, "N_PI");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 0.0, &y);
@@ -859,7 +859,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // '_' not followed by P or E 
+        // '_' not followed by P or E
         strcpy(equation1, "M_pI");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 0.0, &y);
@@ -870,7 +870,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // "M_P" not followed by I 
+        // "M_P" not followed by I
         strcpy(equation1, "M_PE");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 0.0, &y);
@@ -914,7 +914,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // Num args don't match 
+        // Num args don't match
         strcpy(equation1, "sin(x,32)");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 0.0, &y);
@@ -925,7 +925,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // Mispelled div() 
+        // Mispelled div()
         strcpy(equation1, "dev(x,32)");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 0.0, &y);
@@ -936,7 +936,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // Mispelled atan2() 
+        // Mispelled atan2()
         strcpy(equation1, "atuna2(x,32)");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 0.0, &y);
@@ -947,7 +947,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // Args don't match 
+        // Args don't match
         strcpy(equation1, "atan2(x)");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 0.0, &y);
@@ -958,7 +958,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // Illegal character anywhere 
+        // Illegal character anywhere
         strcpy(equation1, "sin(x) = 1");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 0.0, &y);
@@ -969,7 +969,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // Illegal character anywhere 
+        // Illegal character anywhere
         strcpy(equation1, "7!");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 0.0, &y);
@@ -981,7 +981,7 @@ int main()
         }
 
 
-        // Illegal character anywhere 
+        // Illegal character anywhere
         strcpy(equation1, "sin(x) + x|7 + x^2");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 0.0, &y);
@@ -992,7 +992,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // Illegal character anywhere 
+        // Illegal character anywhere
         strcpy(equation1, "x|7");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 0.0, &y);
@@ -1025,7 +1025,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // Operands without operator 
+        // Operands without operator
         strcpy(equation1, "sin(x1)");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 0.0, &y);
@@ -1058,7 +1058,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // Two letter variable 
+        // Two letter variable
         strcpy(equation1, "xy + 1");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 0.0, &y);
@@ -1069,7 +1069,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // Missing paren  
+        // Missing paren
         strcpy(equation1, "(x + 2");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 0.0, &y);
@@ -1162,7 +1162,7 @@ int main()
 
 
        /*-------------------------------------------------------
-        * Other Tests  
+        * Other Tests
         */
         fprintf(stderr, "\n[36mMore tests.[00m\n");
 
@@ -1180,7 +1180,7 @@ int main()
         }
 #endif
 
-        // Curly braces 
+        // Curly braces
         strcpy(equation1, "sin( {x + 1}^2 )");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 1.0, &y);
@@ -1191,7 +1191,7 @@ int main()
                 printf("[32m[PASS][00m %s\n", equation2);
         }
 
-        // Square brackets 
+        // Square brackets
         strcpy(equation1, "[sin( {x + 1}^2 )]*[ ( x + 1) ]");
         strcpy(equation2, equation1);
         ret = equationparse(equation1, 1.0, &y);

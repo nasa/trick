@@ -507,7 +507,7 @@ void PageViewNode::print() {
 
 void PageViewNode::generate_PS(const char* ps_file_name) {
 
-    // Generate Postscript    
+    // Generate Postscript
     int i, n_plots ;
     int n_horizontal_cells, n_vertical_cells;
     Widget *xy_widget_list;

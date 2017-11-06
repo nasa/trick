@@ -1,5 +1,5 @@
 /**
-    A class interface for variables 
+    A class interface for variables
     @author Keith Vetter
     @version May 2002
 */
@@ -66,9 +66,9 @@ int Var::getNumDims() {
        if ( varName_[0] == '\0' ) {
                printf("ERROR: Must set varName before calling getNumDims().\n");
                return( -1 ) ;
-       } 
+       }
 
-       // numDimensions was previously calculated 
+       // numDimensions was previously calculated
        return ( nDimensions_ ) ;
 }
 
@@ -91,11 +91,11 @@ double Var::getScaleFactor() {
        return ( scaleFactor_ ) ;
 }
 
-/** Get variable's bias (offset or shift) 
- *   
+/** Get variable's bias (offset or shift)
+ *
  *  bias is the shift value for a variable
- *  So for a list of values 1.0, 2.0, 3.0 with a bias of say 8.0 
- *  My list becomes 9.0, 10.0, 11.0 
+ *  So for a list of values 1.0, 2.0, 3.0 with a bias of say 8.0
+ *  My list becomes 9.0, 10.0, 11.0
  */
 double Var::getBias() {
        return ( bias_ ) ;
@@ -115,7 +115,7 @@ double Var::getMaxRange() {
        return ( maxRange_ ) ;
 }
 
-/** Get variable's unit 
+/** Get variable's unit
  */
 std::string Var::getUnit() {
        return ( unit_ ) ;
@@ -135,9 +135,9 @@ std::string Var::setTimeUnit(std::string unit_name) {
        return ( timeUnit_ ) ;
 }
 
-/** 
+/**
  * Return variable name without dimensions
- * e.g. if varName == a[0-9].b[1-2].c 
+ * e.g. if varName == a[0-9].b[1-2].c
  *         a.b.c will be returned
  */
 const char* Var::getVarNameNoDims( ) {
@@ -145,17 +145,17 @@ const char* Var::getVarNameNoDims( ) {
        int ii, jj ;
        int len;
        char * temp_name ;
-    
+
        // Reallocate short name
-       len = varName_.length() ; 
+       len = varName_.length() ;
        temp_name = new char[len + 1] ;
-    
+
        jj = 0 ;
        for ( ii = 0; ii < len ; ii++ ) {
                temp_name[jj] = varName_[ii];
                if ( varName_[ii] == '[' || varName_[ii] == '(' ) {
                        jj--;
-                       while ( varName_[ii] != ']' && 
+                       while ( varName_[ii] != ']' &&
                                varName_[ii] != ')' && ii < len ) {
                                ii++;
                        }
@@ -165,7 +165,7 @@ const char* Var::getVarNameNoDims( ) {
        temp_name[jj] = '\0' ;
        shortName_ = temp_name ;
        delete[] temp_name ;
-    
+
        return(shortName_.c_str());
 }
 
@@ -185,7 +185,7 @@ int Var::compareNames( const char* name ) {
 
        ret = strcmp(this->getVarNameNoDims(),v->getVarNameNoDims());
        delete v ;
-   
+
        return(ret);
 }
 
@@ -196,7 +196,7 @@ int Var::compareNames( const char* name ) {
  *      getDimOffset("a.b[7].c[8]") returns 4
  *      since a.b[7] is the 4rth element of a.b[3-24].c[8] .
  *      a.b[3].c[8] is 0th, a.b[4].c[8] is the 1rst etc...
- */ 
+ */
 int Var::getDimOffset( const char* param ) {
 
        unsigned int i,j,k ;
@@ -220,14 +220,14 @@ int Var::getDimOffset( const char* param ) {
                // a[0-1].b[8].c has 3 params -> "a" "b" "c"
                unsigned int  numParams ;
 
-               /* 
+               /*
                 * a[0-1].b[8].c has (0,1),(8,8),(?,?) as dims
                 * a, b & c are MULTI, SINGLE & NONE dimensional
                 */
-               DIM * dims; 
-    
+               DIM * dims;
+
                // a[0-1].b[8].c parNames "a[0-1]" "b[8]" & "c"
-               char** parName ; 
+               char** parName ;
 
        } v1, v2 ;
 
@@ -242,25 +242,25 @@ int Var::getDimOffset( const char* param ) {
        v1.parName        = new char*[nParms] ;
        v2.parName        = new char*[nParms] ;
        int len = varName_.size() + 1 ;
-       for ( i = 0 ; i < nParms ; i++ ) { 
+       for ( i = 0 ; i < nParms ; i++ ) {
                v1.parName[i] = new char[len] ;
                v2.parName[i] = new char[len] ;
        }
-  
+
        // Do some allocation
        // Added nParms, since multidims expanded outgrow original string
        // e.g. a[0-2][2-3].b[0-9].c -> a[0-2].[2-3].b[0-9].c
        str    = new char[varName_.size()+1+nParms] ;
        v1name = new char[varName_.size()+1+nParms] ;
        v2name = new char[strlen(param)+1+nParms] ;
-  
+
        // Initialize v1 and v2 strings
        strcpy(v1name, varName_.c_str());
        strcpy(v2name, param);
 
-       /* 
+       /*
         * To handle multi dim specs, do the following ugliness
-        * change things like a[0].b[0-2][9-18][3-4] -> a[0].b[0-2].[9-18].[3-4] 
+        * change things like a[0].b[0-2][9-18][3-4] -> a[0].b[0-2].[9-18].[3-4]
         * Unfortunately, this was an afterthought, and it was hurried (sorry)
         */
        j = 0 ;
@@ -286,9 +286,9 @@ int Var::getDimOffset( const char* param ) {
       }
       str[j] = '\0' ;
       strcpy(v2name, str);
-    
-    
-      /* Get param names out of variable name */ 
+
+
+      /* Get param names out of variable name */
       /* a[0-1].b[8].c -> "a[0-1]", "b[8]", "c" */
       j = 0 ;
       v1.numParams = 0 ;
@@ -299,12 +299,12 @@ int Var::getDimOffset( const char* param ) {
                        strcpy(v1.parName[v1.numParams], str);
                        j = 0 ;
                        v1.numParams++ ;
-               } 
+               }
       }
       str[j] = '\0' ;
       strcpy(v1.parName[v1.numParams], str);
       v1.numParams++ ;
-      
+
       /* Get dimensions for each param name */
       for ( i = 0 ; i < v1.numParams; i++ ) {
 
@@ -316,7 +316,7 @@ int Var::getDimOffset( const char* param ) {
 
                        if ( v1.parName[i][j] == '[' ) {
                                j++ ;
-    
+
                                /* Assign lower dimension of param */
                                k = 0 ;
                                while ( isdigit( v1.parName[i][j] ) ) {
@@ -325,7 +325,7 @@ int Var::getDimOffset( const char* param ) {
                                }
                                str[k] = '\0' ;
                                v1.dims[i].lower = atoi(str) ;
-    
+
                                /* Handle upper dimension */
                                if ( v1.parName[i][j] == '-' ) {
                                        /* Multi-dimensional */
@@ -346,8 +346,8 @@ int Var::getDimOffset( const char* param ) {
                        }
                }
       }
-    
-      /* Get param names out of variable name */ 
+
+      /* Get param names out of variable name */
       /* a[0-1].b[8].c -> "a[0-1]", "b[8]", "c" */
       j = 0 ;
       v2.numParams = 0 ;
@@ -358,13 +358,13 @@ int Var::getDimOffset( const char* param ) {
                        strcpy(v2.parName[v2.numParams], str);
                        j = 0 ;
                        v2.numParams++ ;
-               } 
+               }
       }
       str[j] = '\0' ;
       strcpy(v2.parName[v2.numParams], str);
       v2.numParams++ ;
-      
-    
+
+
       /* Get dimensions for each param name */
       for ( i = 0 ; i < v2.numParams; i++ ) {
                v2.dims[i].dimensional = NONE ;
@@ -374,7 +374,7 @@ int Var::getDimOffset( const char* param ) {
 
                        if ( v2.parName[i][j] == '[' ) {
                                j++ ;
-    
+
                                /* Assign lower dimension of param */
                                k = 0 ;
                                while ( isdigit( v2.parName[i][j] ) ) {
@@ -383,7 +383,7 @@ int Var::getDimOffset( const char* param ) {
                                }
                                str[k] = '\0' ;
                                v2.dims[i].lower = atoi(str) ;
-    
+
                                /* Handle upper dimension */
                                if ( v2.parName[i][j] == '-' ) {
                                        /* Multi-dimensional */
@@ -404,24 +404,24 @@ int Var::getDimOffset( const char* param ) {
                        }
                }
       }
-    
+
       /* First make sure that v2 is in v1's space */
       for ( i = 0 ; i < v1.numParams ; i++ ) {
                if ( v1.dims[i].dimensional == MULTI ) {
-                       if ( v2.dims[i].lower < v1.dims[i].lower || 
+                       if ( v2.dims[i].lower < v1.dims[i].lower ||
                                v2.dims[i].upper > v1.dims[i].upper )  {
                                VAR_DELETE ;
-                               return ( -1 ) ; /* v2 not in v1's space */ 
-                       } 
+                               return ( -1 ) ; /* v2 not in v1's space */
+                       }
                }
                if ( v1.dims[i].dimensional == SINGLE ) {
                        if ( v1.dims[i].lower != v2.dims[i].lower ) {
                                VAR_DELETE ;
-                               return ( -1 ) ; /* v2 not in v1's space */ 
+                               return ( -1 ) ; /* v2 not in v1's space */
                        }
                }
       }
-    
+
       /* Next make sure that v2 is a single dimensional var */
       for ( i = 0 ; i < v2.numParams ; i++ ) {
                if ( v2.dims[i].dimensional == MULTI ) {
@@ -429,17 +429,17 @@ int Var::getDimOffset( const char* param ) {
                        return(-1);
                }
       }
-    
+
       /* Calculate offset of v2 into v1's space */
-    
+
       /* First, get all offsets into each dimension & size of each dimension */
       for ( i = 0 ; i < v1.numParams ; i++ ) {
                offsets[i] = v2.dims[i].upper - v1.dims[i].lower ;
                sizedims[i] = v1.dims[i].upper - v1.dims[i].lower + 1 ;
       }
-    
-      /* 
-       * Now go through magical algorithm to get offset 
+
+      /*
+       * Now go through magical algorithm to get offset
        * Think of it like an odometer where each cylinder has a different
        * number of numbers, and the numbers on each cylinder can
        * range from any start to stop point
@@ -448,12 +448,12 @@ int Var::getDimOffset( const char* param ) {
        * say v2 = x0[y0].x1[y1]...xN[yN]
        *
        * let si = ai - bi + 1  (i = 0..N)
-       * let oi = yi - ai      (i = 0..N) 
+       * let oi = yi - ai      (i = 0..N)
        *
        * offset= sN*sN-1*...s1(o0) + sN*sN-1*...s2(o1) + ... + sN(oN-1) + oN + 1
-       * 
-       * Then offset = offset - 1 for indexing 
-       */ 
+       *
+       * Then offset = offset - 1 for indexing
+       */
        for ( i = 0 ; i < v1.numParams ; i++ ) {
                sizeproducts[i] = 1 ;
                for ( j = i+1 ; j < v1.numParams ; j++ ) {
@@ -469,17 +469,17 @@ int Var::getDimOffset( const char* param ) {
                        return(-1);
                }
        }
-    
+
        VAR_DELETE ;
-    
+
        return ( offset ) ;
 }
 
 /**
  * Get byte size of variable e.g.
  *
- *  a[0-5]: 6*(4bytes/double) = 24 bytes in all 
- *  
+ *  a[0-5]: 6*(4bytes/double) = 24 bytes in all
+ *
  */
 int Var::getSize(  ) {
        return( byteSize_ ) ;
@@ -490,15 +490,15 @@ string Var::setVarName( const char* name ) {
 
        // Reallocate varName_
        varName_ = name ;
-    
-       // Set number of dimensions for variable 
+
+       // Set number of dimensions for variable
        nDimensions_ = calcNumDimensions();
-    
-       // Set byte size 
+
+       // Set byte size
        if ( varType_ != NONE ) {
           byteSize_ = calcByteSize();
        }
-       
+
        return( varName_ ) ;
 }
 
@@ -509,58 +509,58 @@ Var::enumType Var::getType ( ) {
 
 /** Get variable's type size (double->8, float->4 ...)*/
 int Var::getTypeSize () {
-   
+
        // I am avoiding another switch statement on type here
-    
+
        int totalSize ;
        int numDims ;
 
        // Get total byte size for variable and number of dimensions
        totalSize = calcByteSize() ;
-       numDims   = getNumDims() ; 
-   
+       numDims   = getNumDims() ;
+
        // So type size will be total size divided by number of dims
        return ( totalSize/numDims ) ;
 }
 
 /** Set variable type (double, float, int...) */
 int Var::setType ( char* type ) {
-   
+
        if         ( !strcasecmp(type, "char") ) {
                 varType_ = CHAR ;
-       } else if  ( !strcasecmp(type, "short") ) {    
+       } else if  ( !strcasecmp(type, "short") ) {
                 varType_ = SHORT ;
-       } else if  ( !strcasecmp(type, "int") ) {    
+       } else if  ( !strcasecmp(type, "int") ) {
                 varType_ = INT ;
-       } else if  ( !strcasecmp(type, "long") ) {    
+       } else if  ( !strcasecmp(type, "long") ) {
                 varType_ = LONG ;
-       } else if  ( !strcasecmp(type, "unsigned_char") ) {    
+       } else if  ( !strcasecmp(type, "unsigned_char") ) {
                 varType_ = UNSIGNED_CHAR ;
-       } else if  ( !strcasecmp(type, "unsigned_short") ) {    
+       } else if  ( !strcasecmp(type, "unsigned_short") ) {
                 varType_ = UNSIGNED_SHORT ;
-       } else if  ( !strcasecmp(type, "unsigned_int") ) {    
+       } else if  ( !strcasecmp(type, "unsigned_int") ) {
                 varType_ = UNSIGNED_INTEGER ;
-       } else if  ( !strcasecmp(type, "unsigned_long") ) {    
+       } else if  ( !strcasecmp(type, "unsigned_long") ) {
                 varType_ = UNSIGNED_LONG ;
-       } else if  ( !strcasecmp(type, "float") ) {    
+       } else if  ( !strcasecmp(type, "float") ) {
                 varType_ = FLOAT ;
-       } else if  ( !strcasecmp(type, "double") ) {    
+       } else if  ( !strcasecmp(type, "double") ) {
                 varType_ = DOUBLE ;
-       } else if  ( !strcasecmp(type, "long_long") ) {    
+       } else if  ( !strcasecmp(type, "long_long") ) {
                 varType_ = LONG_LONG ;
-       } else if  ( !strcasecmp(type, "unsigned_long_long") ) {    
+       } else if  ( !strcasecmp(type, "unsigned_long_long") ) {
                 varType_ = UNSIGNED_LONG_LONG ;
-       } else if  ( !strcasecmp(type, "void") ) {    
+       } else if  ( !strcasecmp(type, "void") ) {
                 varType_ = VOID ;
        } else {
                 varType_ = NONE ;
                 return( -1 ) ;
        }
-    
+
        return ( 0 ) ;
 }
 
-/** Calculates and returns -total- bytesize of variable */ 
+/** Calculates and returns -total- bytesize of variable */
 int Var::calcByteSize() {
 
        int size;
@@ -575,40 +575,40 @@ int Var::calcByteSize() {
 
        switch ( varType_ ) {
                case CHAR:
-                        size = sizeof(char); 
+                        size = sizeof(char);
                         break;
                case SHORT:
-                        size = sizeof(short); 
+                        size = sizeof(short);
                         break;
                case INT:
-                        size = sizeof(int); 
+                        size = sizeof(int);
                         break;
                case LONG:
-                        size = sizeof(long); 
+                        size = sizeof(long);
                         break;
                case UNSIGNED_CHAR:
-                        size = sizeof(unsigned char); 
+                        size = sizeof(unsigned char);
                         break;
                case UNSIGNED_SHORT:
-                        size = sizeof(unsigned short); 
+                        size = sizeof(unsigned short);
                         break;
                case UNSIGNED_INTEGER:
-                        size = sizeof(unsigned int); 
+                        size = sizeof(unsigned int);
                         break ;
                case UNSIGNED_LONG:
-                        size = sizeof(unsigned long); 
+                        size = sizeof(unsigned long);
                         break ;
                case FLOAT:
-                        size = sizeof(float); 
+                        size = sizeof(float);
                         break;
                case DOUBLE:
-                        size = sizeof(double); 
+                        size = sizeof(double);
                         break;
                case LONG_LONG:
-                        size = sizeof(long long); 
+                        size = sizeof(long long);
                         break ;
                case UNSIGNED_LONG_LONG:
-                        size = sizeof(unsigned long long); 
+                        size = sizeof(unsigned long long);
                         break ;
                case VOID:
                         size = 0;
@@ -625,13 +625,13 @@ int Var::calcByteSize() {
        }
 
        totalSize = size*nDimensions_ ;
-        
+
        return( totalSize );
 }
 
 /* Calculate and return total number of dimensions of variable e.g.
  *
- * Input a[0-4].b[8-9], 
+ * Input a[0-4].b[8-9],
  * Returns: 5*2 = 10 dimensions
  */
 int Var::calcNumDimensions() {
@@ -641,77 +641,77 @@ int Var::calcNumDimensions() {
        char* dim1;
        char* dim2;
        int  d1, d2;
-       int  numDims; 
+       int  numDims;
        int  numDimSpecs;
-    
+
        // Dims can't be longer than varName
        stringLen = varName_.size();
        dim1 = new char[stringLen+1] ;
        dim2 = new char[stringLen+1] ;
-       
+
        numDimSpecs = 0 ;
        numDims = 1 ;
        for ( i = 0; i < stringLen; i++ ) {
-                
+
                 if ( varName_[i] == ']' ) {
                                cerr << "ERROR: Missing open bracket in"
                                     << varName_ << endl ;
                                return( -1 );
                 }
-    
+
                 if ( varName_[i] == '[' ) {
-    
+
                        j = 0;
                        while ( varName_[i] != ']' ) {
-    
+
                               i++ ;
-    
+
                               // Missing close bracket?
                               if ( i == stringLen ) {
                                        cerr << "ERROR: Missing close bracket in"
                                             << varName_ << endl ;
                                        return( -1 ) ;
                               }
-    
-                              // Get dimension 1          
+
+                              // Get dimension 1
                               j = 0;
                               dim1[0] = '\0';
                               while ( isdigit(varName_[i]) ) {
-                                          
+
                                       dim1[j] = varName_[i] ;
-                                     
+
                                        i++; j++;
-    
+
                                        if ( i == stringLen  ) {
                                               cerr << "ERROR: Missing close "
-                                                   << "bracket in " 
+                                                   << "bracket in "
                                                    << varName_ << endl ;
                                               return( -1 ) ;
                                        }
                                        if ( j > 7 ) {
                                               printf("ERROR: Dimension spec "
-                                                     "too long.\n"); 
+                                                     "too long.\n");
                                               return( -1 ) ;
                                        }
                               }
                               dim1[j] = '\0';
-    
+
                               // Get dimension 2
                               j = 0 ;
                               if ( varName_[i] == '-' ) {
-    
+
                                        i++ ;
-    
+
                                        // Multi-dimensional
                                        while ( isdigit(varName_[i]) ) {
-                                      
+
                                                dim2[j] = varName_[i] ;
-                                        
+
                                                i++; j++;
-       
+
                                                if ( i == stringLen  ) {
                                                        cerr << "ERROR: Missing "
-                                                            << "close bracket" 
+                                                            << "close bracket"
                                                             << " in "
                                                             << varName_
                                                             << endl ;
@@ -719,50 +719,50 @@ int Var::calcNumDimensions() {
                                                }
                                                if ( j > 7 ) {
                                                        cerr << "ERROR: Dim "
-                                                            << "spec too long " 
+                                                            << "spec too long "
                                                             << "in "
                                                             << varName_
                                                             << endl ;
                                                        return( -1 ) ;
                                                }
-                                      
+
                                        }
                                        dim2[j] = '\0';
-    
-                               } else if ( varName_[i] == ']' ) {   
-    
+
+                               } else if ( varName_[i] == ']' ) {
+
                                        // Single dimensional
                                        strcpy(dim2, dim1);
-    
+
                                } else {
                                        cerr << "ERROR: Dimension has syntax "
                                             << "error with "
-                                            << varName_ << endl ; 
+                                            << varName_ << endl ;
                                        return( -1 ) ;
                                }
                        }
-               
+
                        if ( dim1[0] == '\0' || dim2[0] == '\0' ) {
                                cerr << "ERROR: Bad syntax in dimension "
-                                    << "specification for " 
+                                    << "specification for "
                                     << varName_ << endl ;
                                return( -1 );
                        }
-    
+
                        // Calculate number of dimensions
                        d1 = atoi(dim1);
                        d2 = atoi(dim2);
                        numDims = numDims * ( d2 - d1 + 1 ) ;
-    
+
                        // Increment number of dimension specs
                        numDimSpecs++ ;
                }
-       }             
-    
+       }
+
        // Free dims
        delete[] dim1 ;
        delete[] dim2 ;
-    
+
        return( numDims );
 }
 
@@ -773,7 +773,7 @@ int Var::calcNumDimensions() {
   * a[0-9][0-2].b[2-3].c has 4 parms "a[0-9], a[0-2], b[2-3] & c"
   */
 int Var::getNumParms() {
-  
+
        unsigned int i ;
        int nParms ;
 
@@ -784,11 +784,11 @@ int Var::getNumParms() {
        nParms = 1 ;
        for ( i = 0 ; i < varName_.size() ; i++ ) {
                if ( varName_[i] == '.' ) {
-                       nParms++ ; 
+                       nParms++ ;
                }
                if ( varName_[i] == ']' && varName_[i+1] == '['  ) {
                        nParms++ ;
-               }	
+               }
        }
 
        return(nParms);

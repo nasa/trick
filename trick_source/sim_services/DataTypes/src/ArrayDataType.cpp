@@ -38,7 +38,7 @@ bool ArrayDataType::initArrayDataType( TypeDictionary* typeDictionary, std::stri
 }
 
 // CONSTRUCTOR
-ArrayDataType:: ArrayDataType( TypeDictionary* typeDictionary, std::string typeSpecName, unsigned int n_dims, int dims[] ) throw (std::logic_error) {
+ArrayDataType:: ArrayDataType( TypeDictionary* typeDictionary, std::string typeSpecName, unsigned int n_dims, int dims[] )  {
 
     if( this->initArrayDataType( typeDictionary, typeSpecName, n_dims, dims) ) {
         throw std::logic_error("ArrayDataType constructor(1) error.");
@@ -46,7 +46,7 @@ ArrayDataType:: ArrayDataType( TypeDictionary* typeDictionary, std::string typeS
 }
 
 // CONSTRUCTOR
-ArrayDataType:: ArrayDataType( TypeDictionary* typeDictionary, std::string typeSpecName, unsigned int dimensionSize ) throw (std::logic_error) {
+ArrayDataType:: ArrayDataType( TypeDictionary* typeDictionary, std::string typeSpecName, unsigned int dimensionSize )  {
 
     int n = dimensionSize;
     if( this->initArrayDataType( typeDictionary, typeSpecName, 1, &n) ) {
@@ -204,7 +204,7 @@ void* ArrayDataType::createInstance(unsigned int num) const {
     if (subType != NULL) {
         return subType->createInstance( num * elementCount );
     } else {
-        std::cout << "ERROR: Can't create an instance of an unvalidated type." << std::endl;
+        std::cerr << "ERROR: Can't create an instance of an unvalidated type." << std::endl;
         return (void*) NULL;
     }
 }
@@ -310,7 +310,7 @@ bool ArrayDataType::getElementInfo( LexicalAnalyzer* lexer, void* baseAddress, V
     bool errorCondition = false;
     nextToken = lexer->getToken();
     if (nextToken = Token::Integer) {
-       int index = std::atoi( (lexer->getText()).c_str() ); 
+       int index = std::atoi( (lexer->getText()).c_str() );
     }
     if ( (index >= 0) && (index < elementCount)) {
         const DataType*   elementDataType = subType->getDataType();

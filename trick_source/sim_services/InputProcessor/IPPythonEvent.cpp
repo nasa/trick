@@ -165,7 +165,7 @@ void Trick::IPPythonEvent::restart() {
 //Command to create a new condition using a model variable (or reset an existing condition variable), num is index starting at 0.
 int Trick::IPPythonEvent::condition_var(int num, std::string varname, std::string comment) {
     /** @par Detailed Design: */
-    /** @li Find the variable reference for the varname string and pass it to condition() */ 
+    /** @li Find the variable reference for the varname string and pass it to condition() */
     REF2* ref = ref_attributes((char*)varname.c_str());
     /** @li Emit an error if specified varname does not exist. */
     if (ref==NULL) {
@@ -180,7 +180,7 @@ int Trick::IPPythonEvent::condition_var(int num, std::string varname, std::strin
 //Command to create a new condition using a model job (or reset an existing condition job), num is index starting at 0.
 int Trick::IPPythonEvent::condition_job(int num, std::string jobname, std::string comment) {
     /** @par Detailed Design: */
-    /** @li Find the job for the jobname string and pass it to condition() */ 
+    /** @li Find the job for the jobname string and pass it to condition() */
     JobData *job = exec_get_job(jobname.c_str(),1);
     /** @li Emit an error if specified jobname does not exist. */
     if (job==NULL) {
@@ -201,7 +201,7 @@ int Trick::IPPythonEvent::condition(int num, std::string str, std::string commen
     /** @par Detailed Design: */
 
     if (num == condition_count) {
-        /** @li Add a new condition when num is sequential, i.e. it is equal to condition_count */ 
+        /** @li Add a new condition when num is sequential, i.e. it is equal to condition_count */
         condition_count++;
         if (condition_count == 1) {
             cond = (Trick::condition_t *)TMM_declare_var_s("Trick::condition_t[1]");
@@ -353,7 +353,7 @@ int Trick::IPPythonEvent::action_job(int num, std::string jobname, std::string c
 //Command to create a new action to turn a model job ON, num is index starting at 0.
 int Trick::IPPythonEvent::action_job_on(int num, std::string jobname, std::string comment) {
     /** @par Detailed Design: */
-    /** @li Find the job for the jobname string and pass it to action() */ 
+    /** @li Find the job for the jobname string and pass it to action() */
     JobData *job = exec_get_job(jobname.c_str(),1);
     /** @li Emit an error if specified jobname does not exist. */
     if (job==NULL) {
@@ -367,7 +367,7 @@ int Trick::IPPythonEvent::action_job_on(int num, std::string jobname, std::strin
 //Command to create a new action to turn a model job OFF, num is index starting at 0.
 int Trick::IPPythonEvent::action_job_off(int num, std::string jobname, std::string comment) {
     /** @par Detailed Design: */
-    /** @li Find the job for the jobname string and pass it to action() */ 
+    /** @li Find the job for the jobname string and pass it to action() */
     JobData *job = exec_get_job(jobname.c_str(),1);
     /** @li Emit an error if specified jobname does not exist. */
     if (job==NULL) {
@@ -381,9 +381,9 @@ int Trick::IPPythonEvent::action_job_off(int num, std::string jobname, std::stri
 //Command to create a new action and set its input string (or reset an existing action string), num is index starting at 0.
 int Trick::IPPythonEvent::action(int num, std::string str, std::string comment, JobData *job, int act_type) {
     /** @par Detailed Design: */
- 
+
     if (num == action_count) {
-        /** @li Add a new action when num is sequential, i.e. it is equal to action_count */ 
+        /** @li Add a new action when num is sequential, i.e. it is equal to action_count */
         action_count++;
         if (action_count == 1) {
             act = (Trick::action_t *)TMM_declare_var_s("Trick::action_t[1]");

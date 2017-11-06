@@ -8,10 +8,17 @@ class testSimObject : public Trick::SimObject {
             return 0  ;
         } ;
 
+        /* This job takes longer than 0.1 seconds to run */
+        int slow_print_time (int thread) {
+            message_publish(1, "thread %d: time = %8.2f\n", thread, exec_get_sim_time()) ;
+            usleep(100000) ;
+            return 0  ;
+        } ;
+
         testSimObject() {
-            (10.0, "scheduled") print_time(0) ;
-            C1 (5.0, "scheduled") print_time(1) ;
-            C2 (1.0, "scheduled") print_time(2) ;
+            (1.0, "scheduled") print_time(0) ;
+            C1 (0.5, "scheduled") print_time(1) ;
+            C2 (0.1, "scheduled") slow_print_time(2) ;
         }
 
 } ;

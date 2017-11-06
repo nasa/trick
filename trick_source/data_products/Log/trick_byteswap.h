@@ -1,4 +1,4 @@
-/* 
+/*
 PURPOSE:
      (Byte swapping.)
 REFERENCE:
@@ -19,7 +19,7 @@ ICG:
 /* *************************************************************** */
 /* *************************************************************** */
 
-#ifndef _TRICK_BYTESWAP_H_        
+#ifndef _TRICK_BYTESWAP_H_
 #define _TRICK_BYTESWAP_H_
 
 /* Use the #defines to change the names of the functions

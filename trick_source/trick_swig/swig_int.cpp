@@ -1227,3 +1227,14 @@ PyObject * swig_int::__len__() {
     return PyInt_FromLong(1) ;
 }
 
+//**********************************************************************************************
+
+// New for python 3
+
+int swig_int::__index__() {
+    return value ;
+}
+
+PyObject * swig_int::__bool__() {
+    return __nonzero__() ;
+}

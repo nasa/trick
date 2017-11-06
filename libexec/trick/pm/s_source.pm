@@ -20,7 +20,6 @@ sub s_source($) {
 
     # Get Trick version
     my ($version, $thread) = get_trick_version() ;
-    $thread =~ s/\d+\.// ;
 
     #---------------------------
     # Get date
@@ -53,6 +52,7 @@ PURPOSE:
 
 #include \"trick/attributes.h\"
 #include \"trick/populate_attribute_maps.hh\"
+#include \"trick/ClassSizeCheck.hh\"
 
 #include \"trick/SimObject.hh\"
 #include \"trick/JobData.hh\"
@@ -179,13 +179,15 @@ PURPOSE:
 
     #---------------------------
     # Memory Init
+    print S_SOURCE "Trick::ClassSizeCheck * Trick::ClassSizeCheck::pInstance = NULL ;\n" ;
+
     print S_SOURCE "\n/* Memory Init */\n" ,
      "void memory_init( void ) {\n\n" ;
 
     print S_SOURCE " " x 4 , "ALLOC_INFO * ai ;\n" ;
-    print S_SOURCE " " x 4 , "exec_set_version_date_tag\( \"@(#)CP Version $version-$thread, $date\" \) ;\n" ;
+    print S_SOURCE " " x 4 , "exec_set_version_date_tag\( \"@(#)CP Version $version, $date\" \) ;\n" ;
     print S_SOURCE " " x 4 , "exec_set_build_date\( \"$date\" \) ;\n" ;
-    print S_SOURCE " " x 4 , "exec_set_current_version\( \"$version-$thread\" \) ;\n\n" ;
+    print S_SOURCE " " x 4 , "exec_set_current_version\( \"$version\" \) ;\n\n" ;
 
     print S_SOURCE " " x 4 , "populate_sim_services_class_map\(\) ;\n" ;
     print S_SOURCE " " x 4 , "populate_sim_services_enum_map\(\) ;\n" ;
@@ -221,6 +223,8 @@ PURPOSE:
     print S_SOURCE $$sim_ref{create_connections} ;
 
     print S_SOURCE "\n" ,
+     " " x 4 , "Trick::ClassSizeCheck::class_size_check()->print_nonzero_diffs() ;\n" ,
+     " " x 4 , "Trick::ClassSizeCheck::reset_instance() ;\n" ,
      " " x 4 , "return ;\n" ,
      "}\n\n" ;
 

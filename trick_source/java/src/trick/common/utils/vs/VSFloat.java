@@ -12,7 +12,6 @@ public class VSFloat extends VSValue<Float> {
 
     @Override
     public void fromVariableServer(String string) {
-        setValue(Float.parseFloat(string.trim()));
+        setValue(Float.parseFloat(handleUndefinedValues(string).trim()));
     }
-
 }

@@ -62,12 +62,21 @@ template<typename T > static int typemap_in_scalar( T & output , PyObject *input
         output = (T)PyFloat_AsDouble(input) ;
     } else if ( PyInt_Check(input) ) {
         output = (T)PyInt_AsLong(input) ;
+#if PY_VERSION_HEX >= 0x03000000
+    } else if ( PyUnicode_Check(input) ) {
+        if ( PyUnicode_GET_SIZE(input) == 1 ) {
+            PyObject * temp = PyUnicode_AsEncodedString(input, "utf-8", "Error ~");
+            char * temp_str = PyBytes_AS_STRING(temp) ;
+            output = (T)temp_str[0] ;
+        }
+#else
     } else if ( PyString_Check(input) ) {
         // scalar char as a string.  Set the value of the output to the value of the first char.
         if ( PyString_Size(input) == 1 ) {
             char * temp_str = PyString_AsString(input) ;
             output = (T)temp_str[0] ;
         }
+#endif
     } else {
         ret = -1 ;
     }
@@ -129,10 +138,16 @@ template<typename T > static T * typemap_in_1d( PyObject *input , unsigned int o
                 return NULL;
             }
         }
+#if PY_VERSION_HEX >= 0x03000000
+    } else if ( PyUnicode_Check(input) ) {
+        unsigned int size = PyUnicode_GET_SIZE(input) ;
+        PyObject * temp = PyUnicode_AsEncodedString(input, "utf-8", "Error ~");
+        char * temp_str = PyBytes_AS_STRING(temp) ;
+#else
     } else if ( PyString_Check(input) ) {
         unsigned int size = PyString_Size(input) ;
         char * temp_str = PyString_AsString(input) ;
-
+#endif
         if ( size > out_size ) {
            PyErr_SetString(PyExc_TypeError,"List too long to fit.");
            return NULL ;
@@ -218,8 +233,14 @@ template<typename T > static int typemap_in_1dp( PyObject *input , const char * 
         *output = reinterpret_cast< T * >(argp2) ;
     } else {
         if ( !strncmp( basetype , "char" , 4 )) {
+#if PY_VERSION_HEX >= 0x03000000
+            if ( PyUnicode_Check(input) ) {
+                PyObject * temp = PyUnicode_AsEncodedString(input, "utf-8", "Error ~");
+                *output = (T *)TMM_strdup(PyBytes_AS_STRING(temp)) ;
+#else
             if ( PyString_Check(input) ) {
                 *output = (T *)TMM_strdup(PyString_AsString(input)) ;
+#endif
             } else {
                 PyErr_SetString(PyExc_TypeError,"swig_int (char): Input must be of type List, string, or a pointer type");
                 return -1;
@@ -305,10 +326,16 @@ template<typename T, typename baseT > static void * typemap_in_2d( PyObject *inp
                         new_array[ii][jj] = (baseT)PyInt_AsLong(o2) ;
                     }
                 }
+#if PY_VERSION_HEX >= 0x03000000
+            } else if ( PyUnicode_Check(o) ) {
+                unsigned int size = PyUnicode_GET_SIZE(o) ;
+                PyObject * temp = PyUnicode_AsEncodedString(o, "utf-8", "Error ~");
+                char * temp_str = PyBytes_AS_STRING(temp) ;
+#else
             } else if ( PyString_Check(o) ) {
                 unsigned int size = PyString_Size(o) ;
                 char * temp_str = PyString_AsString(o) ;
-
+#endif
                 if ( size > out_dim1 ) {
                    PyErr_SetString(PyExc_TypeError,"String too long to fit.");
                    return NULL ;

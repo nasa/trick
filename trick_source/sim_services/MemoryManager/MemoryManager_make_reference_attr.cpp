@@ -3,7 +3,7 @@
 
 #include "trick/MemoryManager.hh"
 
-static char * nil_units = "1";
+static const char * nil_units = "1";
 
 // MEMBER FUNCTION
 ATTRIBUTES* Trick::MemoryManager::make_reference_attr( ALLOC_INFO* alloc_info) {

@@ -23,7 +23,7 @@ public:
     /**
      * CONSTRUCTOR.
      */
-    DPC_product( DPM_session *Session, const char *ProductFileName) throw (std::invalid_argument) ;
+    DPC_product( DPM_session *Session, const char *ProductFileName)  ;
 
     /**
      * DESTRUCTOR.
@@ -66,9 +66,9 @@ public:
      */
     DPC_table *getTable( unsigned int index);
 
-// ============================ 
+// ============================
 // VIEW INTERFACE FUNCTIONS
-// ============================ 
+// ============================
 
     /**
      * Get the title of the product;

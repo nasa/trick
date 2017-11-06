@@ -12,6 +12,20 @@
 
 #include "trick/MonteVar.hh"
 
+// This block of code disowns the pointer on the python side so you can reassign
+// python variables without freeing the C++ class underneath
+#ifdef SWIG
+%feature("compactdefaultargs","0") ;
+%feature("shadow") Trick::MonteVarFixed::MonteVarFixed(std::string name, double value) %{
+    def __init__(self, *args):
+        this = $action(*args)
+        try: self.this.append(this)
+        except: self.this = this
+        this.own(0)
+        self.this.own(0)
+%}
+#endif
+
 namespace Trick {
 
     /**
@@ -34,6 +48,11 @@ namespace Trick {
          * @param unit this variable's units
          */
         MonteVarFixed(std::string name, double value, std::string unit = "");
+        
+        void set_value(double in_value);
+        
+        // Describes the properties of this variable.
+        std::string describe_variable();
 
         protected:
         virtual std::string get_next_value();

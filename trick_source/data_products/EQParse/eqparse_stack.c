@@ -2,7 +2,7 @@
  * Author  : Peter Mosbach (adapted from internet src)
  * Date    : August 2003
  * Desc    : Stack funtions for equation parser.  There are two
- *           stacks.  A stack for longs and a stack for chars. 
+ *           stacks.  A stack for longs and a stack for chars.
  */
 
 #include <stdio.h>

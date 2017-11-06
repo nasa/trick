@@ -7,6 +7,8 @@
 #include <utility>
 
 #include "clang/AST/Decl.h"
+#include <clang/AST/PrettyPrinter.h>
+#include <clang/Basic/LangOptions.h>
 
 /**
 
@@ -19,9 +21,24 @@
   @date July 2012
 
  */
-
 class ConstructValues {
     public:
+
+        /*
+           A ContainerClass may be a regular class (zero template_args) or a templated class
+           The same routines are used to extract the names of the classes from the clang::RecordDecl
+           data and the to print the class name with or without template arguments.
+         */
+        class ContainerClass {
+            public:
+                bool extractType(const clang::RecordDecl * rd) ;
+                void printTemplateList(std::ostream& ostream, const std::string & delimiter) ;
+                void printContainerClass(std::ostream& ostream, const std::string & delimiter) ;
+            private:
+                bool extractTemplateArgType(const clang::TemplateArgument& ta) ;
+                std::string name ;
+                std::vector<ContainerClass> template_args ;
+        } ;
 
         ConstructValues() ;
 
@@ -34,22 +51,26 @@ class ConstructValues {
         /** Clears current namespaces and classes */
         void clearNamespacesAndClasses() ;
 
-        /** Gets all of the container namespaces and classes this construct resides in */
-        void getNamespacesAndClasses( const clang::DeclContext * Ctx ) ;
+        /** Gets all of the container namespaces and classes this construct resides in
+            returns true if namespaces and classes were succsssfully retrieved.
+          */
+        bool getNamespacesAndClasses( const clang::DeclContext * Ctx ) ;
 
-        void addNamespace(std::string in_name) ;
+        const std::vector<std::string>& getNamespaces() {
+            return namespaces;
+        }
 
-        typedef std::vector< std::string >::iterator NamespaceIterator ;
-        NamespaceIterator namespace_begin() { return namespaces.begin() ; } ;
-        NamespaceIterator namespace_end() { return namespaces.end() ; } ;
+        std::string getFullyQualifiedName(const std::string& delimiter = "::") ;
 
-        void addContainerClass(std::string in_name) ;
+        void printOpenNamespaceBlocks(std::ostream& ostream);
+        void printCloseNamespaceBlocks(std::ostream& ostream);
+        void printNamespaces(std::ostream& ostream, const std::string& delimiter = "::") ;
+        void printContainerClasses(std::ostream& ostream, const std::string& delimiter = "::") ;
+        void printNamespacesAndContainerClasses(std::ostream& ostream, const std::string& delimiter = "::") ;
 
-        typedef std::vector< std::string >::iterator ContainerClassIterator ;
-        ContainerClassIterator container_class_begin() { return container_classes.begin() ; } ;
-        ContainerClassIterator container_class_end() { return container_classes.end() ; } ;
-
-        std::string getFullyQualifiedName() ;
+        std::string getNamespacesAndContainerClasses(const std::string& delimiter = "::") ;
+        std::string getFullyQualifiedTypeName(const std::string& delimiter = "::")  ;
+        bool isNameOrFileNameEmpty();
 
     protected:
 
@@ -60,10 +81,12 @@ class ConstructValues {
         std::vector<std::string> namespaces ;
 
         /** List of container classes this construct is contained within */
-        std::vector<std::string> container_classes ;
+        std::vector<ContainerClass> container_classes ;
 
         /** File where construct is defined */
         std::string file_name ;
+
+        const clang::PrintingPolicy printingPolicy = clang::PrintingPolicy(clang::LangOptions());
 
 } ;
 

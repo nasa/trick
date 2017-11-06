@@ -276,7 +276,7 @@ TEST_F(MonteCarloTest, TestSettingValues) {
     EXPECT_EQ(exec.get_verbosity(), exec.INFORMATIONAL) ;
     exec.set_verbosity(exec.ALL) ;
     EXPECT_EQ(exec.get_verbosity(), exec.ALL) ;
-    
+
 }
 
 TEST_F(MonteCarloTest, TestRanges) {
@@ -327,7 +327,7 @@ TEST_F(MonteCarloTest, MonteVarFile) {
     Trick::MonteVarFile var0("time_to_fire_1", "M_jet_firings_inline", 2) ;
     EXPECT_EQ(exec.variables.size(), 0) ;
     exec.add_variable(&var0) ;
-    EXPECT_EQ(var0.get_next_value(), "time_to_fire_1 = 1") ;
+    EXPECT_EQ(var0.get_next_value(), "time_to_fire_1 = 1.0000") ;
     EXPECT_EQ(exec.variables.size(), 1) ;
 }
 
@@ -436,7 +436,7 @@ TEST_F(MonteCarloTest, MonteVarRandom_NonGSL) {
     var4.set_max(4.0) ;
     var4.set_seed(12345);
     // for this test, let sigma_range default to 1   var4.set_sigma_range(0) ;
-    
+
     exec.add_variable(&var4) ;
     // Test MonteVarRandom
     // non GSL library variables
@@ -460,7 +460,7 @@ TEST_F(MonteCarloTest, MonteVarFixed) {
     EXPECT_EQ(var5.name, "time_to_fire_5") ;
     EXPECT_EQ(var5.unit, "") ;
     EXPECT_EQ(exec.variables.size(), 1) ;
-} 
+}
 
 ///@brief check that the final distribution is correct. (Bug 6950: The non-GSL was wrong for GAUSSIAN and FLAT)
 TEST_F(MonteCarloTest, MonteVarRandom_Gaussian_distributionMatchesSpec) {
@@ -470,44 +470,44 @@ TEST_F(MonteCarloTest, MonteVarRandom_Gaussian_distributionMatchesSpec) {
 
     Trick::MonteVarRandom var6("time_to_fire_1", Trick::MonteVarRandom::GAUSSIAN) ;
     exec.add_variable(&var6) ;
-    
+
     double expected_mean  = 10.0 ;
     double expected_sigma = 2.0 ;
-    
+
     var6.set_seed(12345) ;
     var6.set_mu(expected_mean) ;
     var6.set_sigma(expected_sigma) ;
     var6.set_min(-10.0) ;
     var6.set_max(10.0) ;
     var6.set_sigma_range(0) ;
-    
+
     // maintain running sums for calculating mean and variance
     double mean = 0.0 ;
     double sum_variance = 0.0 ;
     int    n = 0 ;
     double delta = 0.0 ;
     int    numRuns = 100 ;
-    
+
     for (int ii = 0; ii <= numRuns; ++ii) {
-        
+
         {
             var6.get_next_value() ;
             str = var6.value ;
             std::stringstream sstream(str) ;
             sstream >> value ;
         }
-        
+
         n++ ;
         delta = value - mean ;
         mean += delta / (double)n ;
         sum_variance += delta * (value - mean) ;
     }
-    
+
     // final statistics
     double variance = sum_variance / (double) (n - 1) ;
     double sigma = sqrt(variance) ;
-    
-    
+
+
     EXPECT_NEAR(expected_mean,  mean,  0.05 * expected_mean) ;
     EXPECT_NEAR(expected_sigma, sigma, 0.10 * expected_sigma) ;
 }
@@ -523,49 +523,49 @@ TEST_F(MonteCarloTest, MonteVarRandom_Gaussian_nonGslSigmaRangeDefaulted_maxDevi
 
     Trick::MonteVarRandom var7("time_to_fire_1", Trick::MonteVarRandom::GAUSSIAN) ;
     exec.add_variable(&var7) ;
-    
+
     double expected_mean  = 10.0 ;
     double expected_sigma = 2.0 ;
-    
+
     var7.set_seed(12345) ;
     var7.set_mu(expected_mean) ;
     var7.set_sigma(expected_sigma) ;
     var7.set_min(-10.0) ;
     var7.set_max(10.0) ;
-    
+
     // without this call, default sigma_range is 1
     // var7.set_sigma_range(0) ;
-    
+
     int    num_runs = 100 ;
     double sigmas_max_deviation_from_mean = 0.0 ;
     double deviation_sigmas = 0.0 ;
-    
+
     for (int ii = 0; ii <= num_runs; ++ii) {
-        
+
         {
             var7.get_next_value() ;
             str = var7.value ;
             std::stringstream sstream(str) ;
             sstream >> value ;
         }
-        
+
         deviation_sigmas = fabs( (value - expected_mean) / expected_sigma ) ;
-        
+
         if (deviation_sigmas > sigmas_max_deviation_from_mean) {
             sigmas_max_deviation_from_mean = deviation_sigmas ;
         }
     }
-    
-    // Loose constraint: anything .LE. 1 will pass. 
+
+    // Loose constraint: anything .LE. 1 will pass.
     // (Doesn't require the largest deviations to be around 1.
     // In other words, even max deviations of zero would pass.)
     //EXPECT_LE(sigmas_max_deviation_from_mean, 1.0) ;
-    
-    // tighter constraint: the max deviation with 100 runs 
+
+    // tighter constraint: the max deviation with 100 runs
     // should be pretty close to but still <= 1.0.
     // This specifies the range 0.9 .. 1.0
     EXPECT_NEAR(sigmas_max_deviation_from_mean, 0.95, 0.05) ;
-} 
+}
 
 ///@brief test set_sigma_range feature works for STL random
 TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_nonGslSigmaRangeDefaulted_maxDeviationFromMeanIs1Sigma) {
@@ -575,49 +575,49 @@ TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_nonGslSigmaRangeDefaulted_maxD
 
     Trick::MonteVarRandom var9("time_to_fire_1", Trick::MonteVarRandom::GAUSSIAN, "", Trick::MonteVarRandom::TRICK_DEFAULT_ENGINE) ;
     exec.add_variable(&var9) ;
-    
+
     double expected_mean  = 10.0 ;
     double expected_sigma = 2.0 ;
-    
+
     var9.set_seed(12345) ;
     var9.set_mu(expected_mean) ;
     var9.set_sigma(expected_sigma) ;
     var9.set_min(-10.0) ;
     var9.set_max(10.0) ;
-    
+
     // without this call, default sigma_range is 1
     // var9.set_sigma_range(0) ;
-    
+
     int    num_runs = 1000 ;
     double sigmas_max_deviation_from_mean = 0.0 ;
     double deviation_sigmas = 0.0 ;
-    
+
     for (int ii = 0; ii <= num_runs; ++ii) {
-        
+
         {
             var9.get_next_value() ;
             str = var9.value ;
             std::stringstream sstream(str) ;
             sstream >> value ;
         }
-        
+
         deviation_sigmas = fabs( (value - expected_mean) / expected_sigma ) ;
-        
+
         if (deviation_sigmas > sigmas_max_deviation_from_mean) {
             sigmas_max_deviation_from_mean = deviation_sigmas ;
         }
     }
-    
-    // Loose constraint: anything .LE. 1 will pass. 
+
+    // Loose constraint: anything .LE. 1 will pass.
     // (Doesn't require the largest deviations to be around 1.
     // In other words, even max deviations of zero would pass.)
     //EXPECT_LE(sigmas_max_deviation_from_mean, 1.0) ;
-    
-    // tighter constraint: the max deviation with 100 runs 
+
+    // tighter constraint: the max deviation with 100 runs
     // should be pretty close to but still <= 1.0.
     // This specifies the range 0.9 .. 1.0
     EXPECT_NEAR(sigmas_max_deviation_from_mean, 0.95, 0.05) ;
-} 
+}
 
 
 #endif // not _HAVE_GSL
@@ -632,39 +632,39 @@ TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_distributionMatchesSpec) {
     Trick::MonteVarRandom var8("time_to_fire_1", Trick::MonteVarRandom::GAUSSIAN, "--",
                                 Trick::MonteVarRandom::TRICK_DEFAULT_ENGINE) ;
     exec.add_variable(&var8) ;
-    
+
     double expected_mean  = 10.0 ;
     double expected_sigma = 2.0 ;
-    
+
     var8.set_seed(12345) ;
     var8.set_sigma_range(0) ;
     var8.set_mu(expected_mean) ;
     var8.set_sigma(expected_sigma) ;
     var8.set_min(-10.0) ;
     var8.set_max(10.0) ;
-    
+
     // maintain running sums for calculating mean and variance
     double mean = 0.0 ;
     double sum_variance = 0.0 ;
     int    n = 0 ;
     double delta = 0.0 ;
     int    numRuns = 100 ;
-    
+
     for (int ii = 0; ii <= numRuns; ++ii) {
-        
+
         {
             var8.get_next_value() ;
             str = var8.value ;
             std::stringstream sstream(str) ;
             sstream >> value ;
         }
-        
+
         n++ ;
         delta = value - mean ;
         mean += delta / (double)n ;
         sum_variance += delta * (value - mean) ;
     }
-    
+
     // final statistics
     double variance = sum_variance / (double) (n - 1) ;
     double sigma = sqrt(variance) ;
@@ -674,7 +674,7 @@ TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_distributionMatchesSpec) {
 }
 
 
-///@breif test relative min/max work as expected for STL 
+///@breif test relative min/max work as expected for STL
 TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_relativeMinMaxWorks) {
     //req.add_requirement("3932595803");
     std::string str ;
@@ -682,10 +682,10 @@ TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_relativeMinMaxWorks) {
 
     Trick::MonteVarRandom var6("time_to_fire_1", Trick::MonteVarRandom::GAUSSIAN) ;
     exec.add_variable(&var6) ;
-    
+
     double expected_mean  = 10.0 ;
     double expected_sigma = 2.0 ;
-    
+
     var6.set_seed(12345) ;
     var6.set_sigma_range(0) ;
     var6.set_mu(expected_mean) ;
@@ -694,12 +694,12 @@ TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_relativeMinMaxWorks) {
     var6.set_max(1.0) ;
     var6.set_min_is_relative(true) ;
     var6.set_max_is_relative(true) ;
-    
+
     // maintain running sums for calculating mean and variance
     int    numRuns = 100 ;
     double saw_min =  1000.0;
     double saw_max = -1000.0;
-    
+
     for (int ii = 0; ii <= numRuns; ++ii) {
         {
             var6.get_next_value() ;
@@ -714,14 +714,14 @@ TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_relativeMinMaxWorks) {
             saw_max = value;
         }
     }
-    
-    // these conditions should be true if valid 
+
+    // these conditions should be true if valid
     // relative min/max range of 10 +/- 1 is being imposed
     EXPECT_NEAR(9.05, saw_min, 0.05) ;
     EXPECT_NEAR(10.95, saw_max, 0.05) ;
 }
 
-///@breif test relative min/max works after calling set_mu, as expected for STL 
+///@breif test relative min/max works after calling set_mu, as expected for STL
 TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_callSetMu_relativeMinMaxWorks) {
     //req.add_requirement("3932595803");
     std::string str ;
@@ -729,10 +729,10 @@ TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_callSetMu_relativeMinMaxWorks)
 
     Trick::MonteVarRandom var11("time_to_fire_1", Trick::MonteVarRandom::GAUSSIAN) ;
     exec.add_variable(&var11) ;
-    
+
     double expected_mean  = 10.0 ;
     double expected_sigma = 2.0 ;
-    
+
     var11.set_seed(12345) ;
     var11.set_sigma_range(0) ;
     var11.set_mu(expected_mean + 100.0) ;
@@ -742,12 +742,12 @@ TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_callSetMu_relativeMinMaxWorks)
     var11.set_min_is_relative(true) ;
     var11.set_max_is_relative(true) ;
     var11.set_mu(expected_mean) ;
-    
+
     // maintain running sums for calculating mean and variance
     int    numRuns = 100 ;
     double saw_min =  1000.0;
     double saw_max = -1000.0;
-    
+
     for (int ii = 0; ii <= numRuns; ++ii) {
         {
             var11.get_next_value() ;
@@ -762,14 +762,14 @@ TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_callSetMu_relativeMinMaxWorks)
             saw_max = value;
         }
     }
-    
-    // these conditions should be true if valid 
+
+    // these conditions should be true if valid
     // relative min/max range of 10 +/- 1 is being imposed
     EXPECT_NEAR(9.05, saw_min, 0.05) ;
     EXPECT_NEAR(10.95, saw_max, 0.05) ;
 }
 
-///@breif test absolute min/max works after changing from relative, as expected for STL 
+///@breif test absolute min/max works after changing from relative, as expected for STL
 TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_changeToAbsolute_MinMaxWorks) {
     //req.add_requirement("3932595803");
     std::string str ;
@@ -777,25 +777,25 @@ TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_changeToAbsolute_MinMaxWorks) 
 
     Trick::MonteVarRandom var11("time_to_fire_1", Trick::MonteVarRandom::GAUSSIAN) ;
     exec.add_variable(&var11) ;
-    
+
     double expected_mean  = 10.0 ;
     double expected_sigma = 2.0 ;
-    
+
     var11.set_seed(12345) ;
     var11.set_sigma_range(0) ;
     var11.set_mu(expected_mean) ;
     var11.set_sigma(expected_sigma) ;
     var11.set_min(9.0) ;
     var11.set_max(11.0) ;
-    
+
     var11.set_min_is_relative(false) ;
     var11.set_max_is_relative(false) ;
-    
+
     // maintain running sums for calculating mean and variance
     int    numRuns = 100 ;
     double saw_min =  1000.0;
     double saw_max = -1000.0;
-    
+
     for (int ii = 0; ii <= numRuns; ++ii) {
         {
             var11.get_next_value() ;
@@ -810,8 +810,8 @@ TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_changeToAbsolute_MinMaxWorks) 
             saw_max = value;
         }
     }
-    
-    // these conditions should be true if valid 
+
+    // these conditions should be true if valid
     // relative min/max range of 10 +/- 1 is being imposed
     EXPECT_NEAR(9.05, saw_min, 0.05) ;
     EXPECT_NEAR(10.95, saw_max, 0.05) ;
@@ -825,10 +825,10 @@ TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_setSeed_TakesEffect) {
 
     Trick::MonteVarRandom var10("time_to_fire_1", Trick::MonteVarRandom::GAUSSIAN) ;
     exec.add_variable(&var10) ;
-    
+
     double expected_mean  = 10.0 ;
     double expected_sigma = 2.0 ;
-    
+
     var10.set_seed(12345) ;
     var10.set_sigma_range(0) ;
     var10.set_mu(expected_mean) ;
@@ -837,9 +837,9 @@ TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_setSeed_TakesEffect) {
     var10.set_max(10.0) ;
     var10.set_min_is_relative(true) ;
     var10.set_max_is_relative(true) ;
-    
+
     int numRuns = 10;
-    
+
     for (int ii = 0; ii < numRuns; ++ii) {
         {
             var10.get_next_value() ;
@@ -849,9 +849,9 @@ TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_setSeed_TakesEffect) {
         }
     }
     double first_value = value;
-    
+
     var10.set_seed(12345) ;
-    
+
     for (int ii = 0; ii < numRuns; ++ii) {
         {
             var10.get_next_value() ;
@@ -861,7 +861,7 @@ TEST_F(MonteCarloTest, MonteVarRandom_StlGaussian_setSeed_TakesEffect) {
         }
     }
     double second_value = value;
-    
+
     EXPECT_NEAR(first_value, second_value, 0.000001) ;
 }
 

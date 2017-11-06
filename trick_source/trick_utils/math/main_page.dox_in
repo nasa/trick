@@ -1,8 +1,0 @@
-/**
-@page LEVEL2 Math Utilities
-
-@subpage VECTOR_MACROS "Vector Macros"<br>
-@subpage MATRIX_MACROS "Matrix Macros"<br>
-@subpage QUATERNIAN_MACROS "Quaternian Macros"<br>
-@ref TRICK_MATH "Trick Math Utilities"<br>
-*/

@@ -534,7 +534,7 @@ struct {
     { Temperature, "degF","C",    "degrees-fahrenheit",1,English, {{ -17.777777777777778, 0.55555555555555556   }} },
     { Temperature, "R",   "C",    "degrees-rankine",  1,English,  {{ -273.15            , 0.55555555555555556   }} },
     { Temperature, "degR","C",    "degrees-rankine",  1,English,  {{ -273.15            , 0.55555555555555556   }} },
-  
+
     { Sound,       "dB",  "dB",   "decibels",         1,Standard, {{ 0.0                , 1.0                   }} },
 
     {Energy,       "J",   "J",    "joule",            9,Metric,   {{ 0.0                , 1.0                   }} },
@@ -613,8 +613,8 @@ struct {
     { Unitless,    "cnt", "--",   "<Unitless>",       1,Standard, {{ 0.0                , 1.0                   }} },
     { Unitless,    "count", "--", "<Unitless>",       1,Standard, {{ 0.0                , 1.0                   }} },
     { Unitless,    "mol", "--",   "<Unitless>",       7,Standard, {{ 0.0                , 6.02214179e+23        }} },
-    { Unitless,    "one", "--",   "<Unitless>",       1,Standard, {{ 0.0                , 1.0                   }} }, 
-    
+    { Unitless,    "one", "--",   "<Unitless>",       1,Standard, {{ 0.0                , 1.0                   }} },
+
     {Frequency,     "Hz",  "Hz",   "hertz",           10,Metric,  {{ 0.0                , 1.0                   }} },
     {Frequency,    "pHz",  "Hz",   "pico-hertz",      10,Metric,  {{ 0.0                , 1.0 * PICO            }} },
     {Frequency,    "nHz",  "Hz",   "nano-hertz",      10,Metric,  {{ 0.0                , 1.0 * NANO            }} },
@@ -1145,8 +1145,8 @@ void list_units(void)
     }
 }
 
-/* 
- * 
+/*
+ *
  */
 int convert_units_spec(const char *old_units_spec, char *new_units_spec)
 {

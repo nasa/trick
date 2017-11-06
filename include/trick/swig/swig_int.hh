@@ -83,6 +83,9 @@ class swig_int {
 
         PyObject * __len__() ;
 
+        int __index__() ;
+        PyObject * __bool__() ;
+
 } ;
 
 #endif

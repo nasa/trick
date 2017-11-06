@@ -12,7 +12,7 @@ int Trick::Executive::set_sim_object_onoff(std::string sim_object_name, int on) 
         if ( ! sim_objects[ii]->name.compare(sim_object_name) ) {
             so = sim_objects[ii] ;
             for ( jj = 0 ; jj < so->jobs.size() ; jj++ ) {
-                so->jobs[jj]->disabled = !on ; 
+                so->jobs[jj]->disabled = !on ;
             }
             return(0) ;
         }

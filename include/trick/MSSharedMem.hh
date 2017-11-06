@@ -38,7 +38,7 @@ PROGRAMMERS:
 #define MSQ_INIT(q)      q##_front = q##_back = 0
 #define MSQ_ISEMPTY(q)   (q##_front==q##_back)
 #define MSQ_FRONT(q)     q[q##_front]
-#define MSQ_POP(q)       ++q##_front %= (MSQ_MAXSIZE) 
+#define MSQ_POP(q)       ++q##_front %= (MSQ_MAXSIZE)
 #define MSQ_SIZE(q)      q##_back-q##_front
 #define MSQ_PUSH(q,data) q[q##_back] = data ; ++q##_back %= (MSQ_MAXSIZE)
 //-----------------------------------------------------------------------------
@@ -47,9 +47,9 @@ namespace Trick {
 
     /**
      * This class is shared memory based MSConnect class to connect master and slaves.
-     * It defines the master/slave connection calls as well as the calls used by 
-     * both sides to send the time and mode commands.  
-     * 
+     * It defines the master/slave connection calls as well as the calls used by
+     * both sides to send the time and mode commands.
+     *
      * @author Eddie J. Paddock (Apr 1996)
      * @author Scott Killingsworth (Sep 1997)
      * @author Many other Trick developers of the past
@@ -66,8 +66,8 @@ namespace Trick {
         MSQ_DECLARE (master_command, MS_SIM_COMMAND)
         MSQ_DECLARE (slave_command, MS_SIM_COMMAND)
         // checkpoint data is not sent every frame, so dont need a queue
-        int slave_port;                         /**< trick_units(--) slave's dmtcp checkpoint port */              
-        char chkpnt_name[256];                  /**< trick_units(--) checkpoint dir/filename */              
+        int slave_port;                         /**< trick_units(--) slave's dmtcp checkpoint port */
+        char chkpnt_name[256];                  /**< trick_units(--) checkpoint dir/filename */
     } MSSharedMemData;
 
     class MSSharedMem : public MSConnect {
@@ -88,7 +88,7 @@ namespace Trick {
             /**
              @brief Sets the wait time limit for communications between the master and slaves.
              Any @c in_limit <= 0.0 means an infinite wait limit.
-             @param in_limit - the desired wait limit.  
+             @param in_limit - the desired wait limit.
              @return always 0
              */
             virtual int set_sync_wait_limit(double in_limit) ;

@@ -34,9 +34,9 @@ dyn.baseball.vel[0] = 43.30
 dyn.baseball.vel[1] = 0.0
 dyn.baseball.vel[2] = 25.0
 
-dyn.baseball.theta  = trick.attach_units("d" , -90.0)
-dyn.baseball.phi    = trick.attach_units("d" , 1.0)
-dyn.baseball.omega0 = trick.attach_units("rev/s" , 30.0)
+dyn.baseball.theta  = trick.attach_units("degree" , -90.0)
+dyn.baseball.phi    = trick.attach_units("degree" , 1.0)
+dyn.baseball.omega0 = trick.attach_units("revolution/s" , 30.0)
 
 dyn_integloop.getIntegrator(trick.Runge_Kutta_4, 6)
 

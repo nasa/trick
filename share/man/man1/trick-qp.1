@@ -1,0 +1,29 @@
+.TH trick-qp 1 "August 1, 2016" "Trick" "Trick User's Manual"
+.SH NAME
+trick-qp \- Trick Quick Plot
+.SH SYNOPSIS
+\fBtrick-qp\fP
+.SH DESCRIPTION
+Quick plot may be used to select simulation variables and to layout plots and tables
+using these variables.  Quick plot can use \fBtrick-fxplot\fP, \fBtrick-gxplot\fP, and
+\fBtrick-jxplot\fP to visualize the user selections.  Quick plot is used to save this
+layout information to data product files used with \fBtrick-dp\fP.
+.SH FILES
+.TP
+\fI/tmp/DP_<alin>.xml\fP
+Used to temporarily save the state of the trick-qp selections when calling the
+plotting utilities from trick-qp.
+.SH "SEE ALSO"
+\fBtrick-qp\fP(1), \fBtrick-fxplot\fP(1), \fBtrick-gxplot\fP(1), \fBtrick-jxplot\fP(1)
+.PP
+All Trick model developers and users should go through the tutorial found
+in the \fITrick Simulation Environment User Training Materials\fP.
+The canonical reference for all Trick commands, files and utilities is the
+\fITrick Simulation Environment User's Guide\fP.  Information specific to a
+given release of Trick tools is contained in the \fITrick Simulation
+Environment Version Description\fP for that release.
+.SH HISTORY
+2003-2009 : \fBtrick-qp\fP written n Tcl/TK by Keith Vetter
+
+2010-present : \fBtrick-qp\fP ported to Java by Hong Chen
+

@@ -53,7 +53,7 @@ double DPM_time_constraints::getFrequency() {
 
 // MEMBER FUNCTION
 DPM_time_constraints operator+ ( DPM_time_constraints &tc1,
-				  DPM_time_constraints &tc2) {   
+				  DPM_time_constraints &tc2) {
 
   DPM_time_constraints tc_out;
 

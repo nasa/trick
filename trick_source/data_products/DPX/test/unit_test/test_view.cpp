@@ -9,7 +9,7 @@ std::string Test_view::getOutput() {
 }
 
 DPV_pointer Test_view::render_product( DPC_product* product){
-	const char *temp_cstr;  
+	const char *temp_cstr;
 
 	s << "PRODUCT VIEW:" << std::endl;
     s << "Attribute version: " <<  product->getAttribute("version") << std::endl;
@@ -25,7 +25,7 @@ DPV_pointer Test_view::render_product( DPC_product* product){
 
 	return ( (DPV_pointer)0x01111111 );
 }
-  
+
 DPV_pointer Test_view::render_page( DPV_pointer parent_data, DPC_page* page) {
   	const char *temp_cstr;
 
@@ -35,35 +35,35 @@ DPV_pointer Test_view::render_page( DPV_pointer parent_data, DPC_page* page) {
   	}
 	if ((temp_cstr = page->getAttribute("foreground_color")) != NULL) {
         s << "Attribute foreground_color: " << temp_cstr << std::endl;
-    } 
+    }
 	if ((temp_cstr = page->getAttribute("background_color")) != NULL) {
         s << "Attribute background_color: " << temp_cstr << std::endl;
-    } 
+    }
 	if ((temp_cstr = page->getAttribute("hcells")) != NULL) {
         s << "Attribute hcells: " << temp_cstr << std::endl;
-    } 
+    }
 	if ((temp_cstr = page->getAttribute("foreground_color")) != NULL) {
         s << "Attribute vcells: " << temp_cstr << std::endl;
-    } 
+    }
 	if ((temp_cstr = page->getAttribute("presentation")) != NULL) {
         s << "Attribute presentation: " << temp_cstr << std::endl;
-    } 
+    }
 	if ((temp_cstr = page->getAttribute("gnuplot_template")) != NULL) {
         s << "Attribute gnuplot_template: " << temp_cstr << std::endl;
-    } 	
+    }
 	if ((temp_cstr = page->getAttribute("gnuplot_object")) != NULL) {
         s << "Attribute gnuplot_object: " << temp_cstr << std::endl;
-    } 
+    }
 	if ((temp_cstr = page->getAttribute("gnuplot_geom")) != NULL) {
         s << "Attribute gnuplot_geom: " << temp_cstr << std::endl;
-    } 
+    }
 	if ((temp_cstr = page->getAttribute("gnuplot_plot_ratio")) != NULL) {
         s << "Attribute gnuplot_plot_ratio: " << temp_cstr << std::endl;
-    } 
+    }
 	if ((temp_cstr = page->getAttribute("gnuplot_page_orientation")) != NULL) {
         s << "Attribute gnuplot_page_orientation: " << temp_cstr << std::endl;
-    } 
-	
+    }
+
 
   	return ( (DPV_pointer)0x02222222 );
 }
@@ -152,13 +152,13 @@ DPV_pointer Test_view::render_table( DPV_pointer parent_data, DPC_table  *table)
   	}
 
   	values = new double[n_columns];
-  
+
 	for (i=0; i<5 ; i++) {
     	if ( table->getRow(&time, values)) {
         	begin1 << "time: " << time << " values: ";
 			s << "time: " << time << " values: ";
             for (j=0; j<n_columns ; j++) {
-                 begin1 << " " << values[j]; 
+                 begin1 << " " << values[j];
 				 s << " " << values[j];
             }
 			begin1 << std::endl;
@@ -169,12 +169,12 @@ DPV_pointer Test_view::render_table( DPV_pointer parent_data, DPC_table  *table)
   	// To test begin() Re-initialize the values, begin() and doing it again.
   	// The following lines should be the same as the previous lines.
   	for (i=0; i<n_columns ; i++) { values[i] = 0.0; }
-  	table->begin(); 
+  	table->begin();
   	for (i=0; i<5 ; i++) {
        	if ( table->getRow(&time, values)) {
 			begin2 << "time: " << time << " values: ";
             for (j=0; j<n_columns ; j++) {
-                 begin2 << " " << values[j]; 
+                 begin2 << " " << values[j];
             }
             begin2 << std::endl;
        	}

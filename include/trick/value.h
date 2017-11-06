@@ -62,12 +62,12 @@ typedef struct {
  it may represent data array of up to 8 dimensions.
  @dot
  digraph V_TREE {
-    { node 
+    { node
         [ shape = plaintext,
           label = "V_TREE*\n(to initialize a \[3\]\[2\] array )"]
         p
     }
-    { node 
+    { node
         [shape = record, label="{V_TREE|{<f0>data|<f1>down|<f2>next}}" ]
         n0 n1 n2
         n00 n01 n10 n11 n20 n21

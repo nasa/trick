@@ -1,6 +1,8 @@
 #ifndef INTEGRATOR_C_INTF_H
 #define INTEGRATOR_C_INTF_H
 
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

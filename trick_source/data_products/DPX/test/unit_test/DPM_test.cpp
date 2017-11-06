@@ -12,15 +12,15 @@
 #include "DPM/DPM_product.hh"
 
 namespace Trick {
- 
+
 class DPMTest : public ::testing::Test {
     protected:
         //Trick::RequirementScribe req;
-		std::string testxml[10];	
-	
+		std::string testxml[10];
+
 		DPMTest() {}
 		~DPMTest() {}
-		virtual void SetUp(); 
+		virtual void SetUp();
         virtual void TearDown();
 
 		std::string parseTestData(const char* name);
@@ -47,7 +47,7 @@ int strcmp_IgnoringWhiteSpace(const char* s1, const char* s2) {
 
 
 void DPMTest::SetUp() {
-	
+
 	testxml[0] = "../TEST_DATA/product_1.xml";
     testxml[1] = "../TEST_DATA/product_2.xml";
     testxml[2] = "../TEST_DATA/product_3.xml";
@@ -72,13 +72,13 @@ std::string DPMTest::parseTestData(const char* name) {
 
 	std::stringstream s;
 	std::string tmp;
-   
+
 	LIBXML_TEST_VERSION
     if ((parser_context = xmlNewParserCtxt()) == NULL) {
         fprintf(stderr,"Out of Memory\n");
         exit(1);
     }
- 
+
 	doc = xmlCtxtReadFile(parser_context, name, NULL, XML_PARSE_DTDVALID+XML_PARSE_NOERROR);
 
 	if (parser_context->valid) {
@@ -113,11 +113,11 @@ TEST_F(DPMTest, ValidateDTD) {
     if ((parser_context = xmlNewParserCtxt()) == NULL) {
         fprintf(stderr,"Out of Memory\n");
         exit(1);
-    }   
+    }
 
 	for (i=0 ; i<(sizeof(testxml)/sizeof(testxml[0])) ; i++) {
     	doc = xmlCtxtReadFile(parser_context, testxml[i].c_str(), NULL, XML_PARSE_DTDVALID+XML_PARSE_NOERROR);
-		
+
 		if (i < 9) {
 			ASSERT_TRUE(parser_context->valid);
 		} else {
@@ -131,7 +131,7 @@ TEST_F(DPMTest, ValidateDTD) {
 // Product 1
 TEST_F(DPMTest, VarvsTime_NoAttributes) {
 	//req.add_requirement("2416241399");
-	
+
 	std::string tmp = parseTestData(testxml[0].c_str());
 	int result = strcmp_IgnoringWhiteSpace(
 		"<product version=\"1.0\">"
@@ -225,8 +225,8 @@ TEST_F(DPMTest, VarvsTime_Attributes) {
 		"<tstart>0</tstart>"
 		"<tstop>1.79769e+308</tstop>"
 		"<frequency>1.79769e+308</frequency>"
-		"<plot grid=\"yes\" grid_color=\"blue\"" 
-		"font=\"-*-new century schoolbook-bold-r-*--12-*-*-*-*-*-*-*\"" 
+		"<plot grid=\"yes\" grid_color=\"blue\""
+		"font=\"-*-new century schoolbook-bold-r-*--12-*-*-*-*-*-*-*\""
 		"background_color=\"#eef0ff\">"
 		"<title>Sun Elevation vs. Time</title>"
 		"<tstart>0</tstart>"
@@ -351,7 +351,7 @@ TEST_F(DPMTest, MultiplePlots) {
 		"<tstart>0</tstart>"
 		"<tstop>1.79769e+308</tstop>"
 		"<frequency>1.79769e+308</frequency>"
-		"<plot grid=\"yes\" font=\"-*-new century schoolbook-bold-r-*--12-*-*-*-*-*-*-*\"" 
+		"<plot grid=\"yes\" font=\"-*-new century schoolbook-bold-r-*--12-*-*-*-*-*-*-*\""
 		"background_color=\"#fff0ff\">"
 		"<title>Sun Elevation vs. Time</title>"
 		"<tstart>0</tstart>"

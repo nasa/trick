@@ -37,8 +37,10 @@ extern "C" {
                 On = 1,
                 No = 0,
                 Yes = 1,
+#ifndef SWIG
                 False = 0,
                 True = 1,
+#endif
                 Disconnect = 0,
                 Connect = 1,
                 Inactive = 0,

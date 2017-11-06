@@ -131,7 +131,7 @@ public class MonteMonitorApplication extends RunTimeTrickApplication {
             newSlaveTextField.setText(text);
             if (!text.isEmpty()) {
                 try {
-                    variableServerConnection.put("trick_sys.sched.add_slave(\"" + text + "\")");
+                    variableServerConnection.put("trick_mc.mc.add_slave(\"" + text + "\")");
                 }
                 catch (Exception e) {}
             }
@@ -144,8 +144,8 @@ public class MonteMonitorApplication extends RunTimeTrickApplication {
 
         variableServerConnection.pause();
         variableServerConnection.put("trick.var_set_client_tag(\"TRICK_Monte\")");
-        variableServerConnection.add("trick_sys.sched.enabled");
-        variableServerConnection.add("trick_sys.sched.slave_id");
+        variableServerConnection.add("trick_mc.mc.enabled");
+        variableServerConnection.add("trick_mc.mc.slave_id");
         variableServerConnection.poll();
 
         String[] data = variableServerConnection.get().split("\t");
@@ -159,9 +159,9 @@ public class MonteMonitorApplication extends RunTimeTrickApplication {
                 // Start getting updates in an infinite backgound Worker thread.
                 new Monitor().execute();
                 variableServerConnection.clear();
-                variableServerConnection.add("trick_sys.sched.actual_num_runs");
-                variableServerConnection.add("trick_sys.sched.num_results");
-                variableServerConnection.add("trick_sys.sched.num_slaves");
+                variableServerConnection.add("trick_mc.mc.actual_num_runs");
+                variableServerConnection.add("trick_mc.mc.num_results");
+                variableServerConnection.add("trick_mc.mc.num_slaves");
                 sendCyclePeriod();
                 variableServerConnection.unpause();
             }
@@ -270,7 +270,7 @@ public class MonteMonitorApplication extends RunTimeTrickApplication {
      */
     private void runSlave(Slave slave) {
         try {
-            variableServerConnection.put("trick_sys.sched.start_slave(" + slave.id + ")");
+            variableServerConnection.put("trick_mc.mc.start_slave(" + slave.id + ")");
         }
         catch (Exception e) {}
     }
@@ -282,7 +282,7 @@ public class MonteMonitorApplication extends RunTimeTrickApplication {
      */
     private void stopSlave(Slave slave) {
         try {
-            variableServerConnection.put("trick_sys.sched.stop_slave(" + slave.id + ")");
+            variableServerConnection.put("trick_mc.mc.stop_slave(" + slave.id + ")");
         }
         catch (Exception e) {}
     }
@@ -511,20 +511,20 @@ public class MonteMonitorApplication extends RunTimeTrickApplication {
                 int numSlaves = Integer.parseInt(data[dataIndex++]);
 
                 while(slaveCount < numSlaves) {
-                    variableServerConnection.add("trick_sys.sched.slaves_head[" + slaveCount + "][0].id");
-                    variableServerConnection.add("trick_sys.sched.slaves_head[" + slaveCount + "][0].state");
-                    variableServerConnection.add("trick_sys.sched.slaves_head[" + slaveCount + "][0].machine_name");
-                    variableServerConnection.add("trick_sys.sched.slaves_head[" + slaveCount + "][0].current_run[0].id");
-                    variableServerConnection.add("trick_sys.sched.slaves_head[" + slaveCount + "][0].num_results");
+                    variableServerConnection.add("trick_mc.mc.slaves_head[" + slaveCount + "][0].id");
+                    variableServerConnection.add("trick_mc.mc.slaves_head[" + slaveCount + "][0].state");
+                    variableServerConnection.add("trick_mc.mc.slaves_head[" + slaveCount + "][0].machine_name");
+                    variableServerConnection.add("trick_mc.mc.slaves_head[" + slaveCount + "][0].current_run[0].id");
+                    variableServerConnection.add("trick_mc.mc.slaves_head[" + slaveCount + "][0].num_results");
                     ++slaveCount;
                 }
 
                 while(slaveCount > numSlaves) {
-                    variableServerConnection.remove("trick_sys.sched.slaves_head[" + slaveCount + "][0].id");
-                    variableServerConnection.remove("trick_sys.sched.slaves_head[" + slaveCount + "][0].state");
-                    variableServerConnection.remove("trick_sys.sched.slaves_head[" + slaveCount + "][0].machine_name");
-                    variableServerConnection.remove("trick_sys.sched.slaves_head[" + slaveCount + "][0].current_run[0].id");
-                    variableServerConnection.remove("trick_sys.sched.slaves_head[" + slaveCount + "][0].num_results");
+                    variableServerConnection.remove("trick_mc.mc.slaves_head[" + slaveCount + "][0].id");
+                    variableServerConnection.remove("trick_mc.mc.slaves_head[" + slaveCount + "][0].state");
+                    variableServerConnection.remove("trick_mc.mc.slaves_head[" + slaveCount + "][0].machine_name");
+                    variableServerConnection.remove("trick_mc.mc.slaves_head[" + slaveCount + "][0].current_run[0].id");
+                    variableServerConnection.remove("trick_mc.mc.slaves_head[" + slaveCount + "][0].num_results");
                     --slaveCount;
                 }
 

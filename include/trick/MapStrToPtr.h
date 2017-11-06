@@ -57,7 +57,7 @@ typedef struct _MapStrToPtr
 
 /* create and initialize a table that maps strings to pointers.
    The size specifies the number of lists maintained by the map.  For maximum efficiency use a prime
-   number for nSize that is close to the average number of elements being stored in the table. 
+   number for nSize that is close to the average number of elements being stored in the table.
    The string to pointer map can store an arbitrary number of elements with the maximum size
    being limited by the computer's memory
 */
@@ -68,7 +68,7 @@ MapStrToPtr* SM_Create(int nSize);
 
 /* delete a map that associates strings with pointers
    this does not free the user-defined data that the table is storing.. enumerate through the table and
-   remove all user-defined data first 
+   remove all user-defined data first
 */
 
 void SM_Delete(MapStrToPtr* Map);
@@ -76,7 +76,7 @@ void SM_Delete(MapStrToPtr* Map);
 
 
 /* lookup the data that is associated with the string given by key
-   return: a pointer to the data, or NULL if the string given by key is not in the map 
+   return: a pointer to the data, or NULL if the string given by key is not in the map
 */
 
 void* SM_Lookup(char* key, MapStrToPtr* Map);
@@ -92,7 +92,7 @@ void* SM_Map(char* key, void* data, MapStrToPtr* Map);
 
 
 /* unmap a string and pointer.  This is the inverse of the map function.  The return value is a pointer to the
-   data mapped to the key.  If the key is not found, NULL is returned 
+   data mapped to the key.  If the key is not found, NULL is returned
 */
 
 void* SM_RemoveKey(char* key, MapStrToPtr* Map);
@@ -131,7 +131,7 @@ typedef struct _StrMapIterator
 }StrMapIterator;
 
 
-/* creates and initializes an iterator.  Pass the map that you want to iterate on as the map parameter 
+/* creates and initializes an iterator.  Pass the map that you want to iterate on as the map parameter
    To re-use this iterator on a different map, call SMI_Attach */
 
 StrMapIterator* SMI_Create(MapStrToPtr* Map);
@@ -147,7 +147,7 @@ void SMI_Attach(MapStrToPtr* Map,StrMapIterator* iter);
 
 
 /* gets the first element in a map, key will be modified to point to the key at this location.  Do not free
-   this key.  In Addition, always call SMI_GetFirst, before calling SMI_GetNext or SMI_GetPrev  
+   this key.  In Addition, always call SMI_GetFirst, before calling SMI_GetNext or SMI_GetPrev
    return: pointer to the data stored at this map location */
 
 void * SMI_GetFirst(char** key, StrMapIterator* iter);

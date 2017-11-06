@@ -1,6 +1,6 @@
 /******************************TRICK HEADER*************************************
 PURPOSE:                     ( Test variable server )
-REFERENCE:                   ( None ) 
+REFERENCE:                   ( None )
 ASSUMPTIONS AND LIMITATIONS: ( None )
 CLASS:                       ( scheduled )
 LIBRARY DEPENDENCY:          ( VS.o )

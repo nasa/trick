@@ -87,6 +87,9 @@ long long Trick::Clock::clock_spin(long long req_time) {
     curr_time = clock_time() ;
     /* Perform spin loop to allow current time to catch up to requested time */
     while (curr_time < req_time) {
+        if ( exec_get_rt_nap() == 1 ) {
+            RELEASE();
+        }
         curr_time = clock_time();
     }
     return curr_time ;

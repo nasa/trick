@@ -62,8 +62,8 @@ double eval(stack * stk, stack1 * no)
                                 z = mod(x, y);
                                 break;
 
-                                /* The inline comments give the equivalent 
-                                 * gnuplot function 
+                                /* The inline comments give the equivalent
+                                 * gnuplot function
                                  */
                         case (char)0xA2:      /* abs(x) */
                                 z = fabs(y);

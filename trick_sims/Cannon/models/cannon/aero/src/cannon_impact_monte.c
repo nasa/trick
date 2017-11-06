@@ -17,11 +17,11 @@ double cannon_impact_monte( CANNON_AERO* C)
 
     tgo = regula_falsi( get_integ_time() , &(C->rf) ) ;
     if (tgo == 0.0) {
-   
-        now = get_integ_time() ; 
+
+        now = get_integ_time() ;
         /*  Ball impact */
         reset_regula_falsi( now , &(C->rf) ) ;
-           
+
         C->vel[0] = 0.0 ; C->vel[1] = 0.0 ; C->vel[2] = 0.0 ;
         C->acc[0] = 0.0 ; C->acc[1] = 0.0 ; C->acc[2] = 0.0 ;
         C->g = 0.0 ;

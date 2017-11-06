@@ -234,7 +234,7 @@ int Trick::CheckPointRestart::do_checkpoint(std::string file_name, bool print_st
             }
             _Exit(0) ;
         }
-    } 
+    }
     else {
     // no fork
         if (obj_list.empty()) {

@@ -6,7 +6,7 @@
 #ifndef CHECKPOINT_STL_HH
 #define CHECKPOINT_STL_HH
 
-// vector, list, deque, set , multiset
+// array, vector, list, deque, set, multiset
 #include "trick/checkpoint_sequence_stl.hh"
 
 // map, multimap

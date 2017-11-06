@@ -18,25 +18,19 @@ bool EnumValues::getHasDefinition() {
     return has_definition ;
 }
 
-std::ostream & operator << (std::ostream & os , EnumValues & ev ) {
-    os << "    name = " << ev.name << std::endl ;
-    os << "    file_name = " << ev.file_name << std::endl ;
-    os << "    namespaces =" ;
-    ConstructValues::NamespaceIterator it ;
-    for ( it = ev.namespace_begin() ; it != ev.namespace_end() ; it++ ) {
-        os << " " << *it ;
-    }
-    os << std::endl ;
-    os << "    parent classes =" ;
-    for ( it = ev.container_class_begin() ; it != ev.container_class_end() ; it++ ) {
-        os << " " << *it ;
-    }
-    os << std::endl ;
+std::ostream & operator << (std::ostream & ostream , EnumValues & ev ) {
+    ostream << "    name = " << ev.name << std::endl ;
+    ostream << "    file_name = " << ev.file_name << std::endl ;
+    ostream << "    namespaces =" ;
+    ev.printNamespaces(ostream) ;
+    ostream << std::endl ;
+    ostream << "    parent classes =" ;
+    ev.printContainerClasses(ostream) ;
+    ostream << std::endl ;
 
-    EnumValues::NameValueIterator eit ;
-    for ( eit = ev.begin() ; eit != ev.end() ; eit++ ) {
-        os << "      " << (*eit).first << " " << (*eit).second << std::endl ;
+    for (auto& pair : ev.getPairs()) {
+        ostream << "      " << pair.first << " " << pair.second << std::endl ;
     }
 
-    return os ;
+    return ostream ;
 }

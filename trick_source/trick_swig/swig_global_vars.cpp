@@ -2,14 +2,14 @@
 #ifndef SWIGUNUSED
 # if defined(__GNUC__)
 #   if !(defined(__cplusplus)) || (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4))
-#     define SWIGUNUSED __attribute__ ((__unused__)) 
+#     define SWIGUNUSED __attribute__ ((__unused__))
 #   else
 #     define SWIGUNUSED
 #   endif
 # elif defined(__ICC)
-#   define SWIGUNUSED __attribute__ ((__unused__)) 
+#   define SWIGUNUSED __attribute__ ((__unused__))
 # else
-#   define SWIGUNUSED 
+#   define SWIGUNUSED
 # endif
 #endif
 
@@ -17,7 +17,7 @@
 # ifdef __cplusplus
 #   define SWIGUNUSEDPARM(p)
 # else
-#   define SWIGUNUSEDPARM(p) p SWIGUNUSED 
+#   define SWIGUNUSEDPARM(p) p SWIGUNUSED
 # endif
 #endif
 
@@ -50,7 +50,7 @@ SWIG_Python_str_AsChar(PyObject *str)
 #if PY_VERSION_HEX >= 0x03000000
 #  define SWIG_Python_str_DelForPy3(x) free( (void*) (x) )
 #else
-#  define SWIG_Python_str_DelForPy3(x) 
+#  define SWIG_Python_str_DelForPy3(x)
 #endif
 
 extern "C" {
@@ -197,7 +197,7 @@ extern "C" {
         (char *)"swigvarlink",              /* Type name (tp_name) */
         sizeof(swig_varlinkobject),         /* Basic size (tp_basicsize) */
         0,                                  /* Itemsize (tp_itemsize) */
-        (destructor) swig_varlink_dealloc,  /* Deallocator (tp_dealloc) */ 
+        (destructor) swig_varlink_dealloc,  /* Deallocator (tp_dealloc) */
         (printfunc) swig_varlink_print,     /* Print (tp_print) */
         (getattrfunc) swig_varlink_getattr, /* get attr (tp_getattr) */
         (setattrfunc) swig_varlink_setattr, /* Set attr (tp_setattr) */

@@ -21,7 +21,7 @@ int euler132_quat(
 {
 
    double haft_angle[3];
-   double mat00, mat01, mat02, mat10, mat11, mat12, mat20; 
+   double mat00, mat01, mat02, mat10, mat11, mat12, mat20;
    double s1;
    double c1;
    double s2;
@@ -40,9 +40,9 @@ int euler132_quat(
        s2 = sin(haft_angle[1]);
        c2 = cos(haft_angle[1]);
        s3 = sin(haft_angle[2]);
-       c3 = cos(haft_angle[2]); 
-       
-       quat[0] =  c1*c2*c3 + s1*s2*s3; 
+       c3 = cos(haft_angle[2]);
+
+       quat[0] =  c1*c2*c3 + s1*s2*s3;
        quat[1] = -s1*c2*c3 + c1*s2*s3;
        quat[2] = -c1*c2*s3 + s1*s2*c3;
        quat[3] = -c1*s2*c3 - s1*c2*s3;
@@ -52,7 +52,7 @@ int euler132_quat(
 #define TOLERANCE 1.0e-15
 
        mat10 = 2. * (quat[1] * quat[2] + quat[0] * quat[3]);
-       
+
        /* Within normal range for asin function */
        if (-1.0 <= -mat10 && -mat10 <= 1.0) {
                angle[1] = asin(-mat10);
@@ -87,8 +87,8 @@ int euler132_quat(
         	       angle[2] = atan2(mat20, mat00);
                }
        }
-       /* Out of normal range for asin function, 
-        * but within tolerance 
+       /* Out of normal range for asin function,
+        * but within tolerance
         */
        else if (1.0 < -mat10 && -mat10 <= (1.0 + TOLERANCE)) {
                mat01 = 2. * (quat[1] * quat[2] - quat[0] * quat[3]);
@@ -113,8 +113,8 @@ int euler132_quat(
         	   error_flag[3]=1;
                }
        }
-       /* Error: Out of normal range and beyond tolerance 
-        * for asin function 
+       /* Error: Out of normal range and beyond tolerance
+        * for asin function
         */
        else {
                double zero = 0.0;

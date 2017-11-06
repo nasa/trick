@@ -156,7 +156,7 @@ void * Trick::VariableServerListenThread::thread_body() {
         /* Set up destination address */
         memset(&mcast_addr, 0, sizeof(mcast_addr));
         mcast_addr.sin_family = AF_INET;
-        mcast_addr.sin_addr.s_addr = inet_addr("224.3.14.15");
+        mcast_addr.sin_addr.s_addr = inet_addr("239.3.14.15");
         mcast_addr.sin_port = htons((uint16_t) 9265);
     }
 

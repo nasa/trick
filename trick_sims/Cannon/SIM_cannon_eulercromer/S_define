@@ -3,17 +3,15 @@ PURPOSE:
     (This S_define is used with RUN_integ input file)
 LIBRARY DEPENDENCIES:
     (
-     (cannon/gravity/src/cannon_default_data.c)
      (cannon/gravity/src/cannon_init.c)
-     (cannon/gravity/src/cannon_deriv.c)
+     (cannon/gravity/src/cannon_numeric.c)
      (cannon/gravity/src/cannon_ec_integ.c)
     )
 *************************************************************/
 
 #include "sim_objects/default_trick_sys.sm"
 
-##include "cannon/gravity/include/cannon.h"
-##include "cannon/gravity/include/cannon_eulercromer_proto.h"
+##include "cannon/gravity/include/cannon_eulercromer.h"
 
 class CannonSimObject : public Trick::SimObject {
 

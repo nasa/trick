@@ -1,6 +1,9 @@
 #ifndef CHECKPOINTAGENT_HH
 #define CHECKPOINTAGENT_HH
-
+/*
+    PURPOSE: ( CheckPointAgent - virtual base class for a component that
+               writes an external representation of the simulation state.)
+*/
 #include "trick/attributes.h"
 #include "trick/io_alloc.h"
 #include <stdio.h>
@@ -21,11 +24,11 @@ namespace Trick {
     typedef struct {
         VarNameElementType type;
         int index;
-        std::string name; 
+        std::string name;
     } VarNameElement;
 
 /**
- Base Class for dumping a checkpoint. 
+ Base Class for dumping a checkpoint.
  */
     class CheckPointAgent {
 
@@ -60,7 +63,7 @@ namespace Trick {
          Push struct element name onto the left-side name stack.
          */
         virtual void push_struct_elem( const char* name) ;
-    
+
         /**
          Push array element index onto the left-side name stack.
          */
@@ -76,8 +79,8 @@ namespace Trick {
          object to the name on the left-side stack.
          */
         virtual void assign_rvalue( std::ostream& chkpnt_os,
-                                    void*       address, 
-                                    ATTRIBUTES* attr, 
+                                    void*       address,
+                                    ATTRIBUTES* attr,
                                     int         curr_dim,
                                     int         offset
                                     )=0;
@@ -95,7 +98,7 @@ namespace Trick {
         bool reduced_checkpoint;  /**< ** Reduced Checkpoint flag. */
         bool hexfloat_checkpoint; /**< ** HexFloat Checkpoint flag. */
         int  debug_level;         /**< ** Debug Level. */
-        std::vector <VarNameElement *> leftside_stack; /**< ** Left-side name stack. */
+        std::vector < VarNameElement > leftside_stack; /**< ** Left-side name stack. */
 
 
     };

@@ -73,7 +73,7 @@ int Trick::MemoryManager::read_checkpoint(const char* filename ) {
 
 int Trick::MemoryManager::read_checkpoint_from_string(const char* s ) {
 
-    // Create a stream from the string argument. 
+    // Create a stream from the string argument.
     std::stringstream ss;
 
     if ( s!= NULL) {
@@ -84,7 +84,7 @@ int Trick::MemoryManager::read_checkpoint_from_string(const char* s ) {
              */
             ss << ";" ;
         }
-        return ( read_checkpoint( &ss )); 
+        return ( read_checkpoint( &ss ));
     } else {
         emitError("Checkpoint string is NULL.") ;
     }

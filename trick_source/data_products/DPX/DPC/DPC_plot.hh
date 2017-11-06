@@ -58,9 +58,9 @@ public:
         return( relation->setTitle(in_title));
     }
 
-// ============================ 
+// ============================
 // DPV_VIEW INTERFACE FUNCTIONS
-// ============================ 
+// ============================
 
     /**
      * Return the value of the attribute (if any) associated with the key.

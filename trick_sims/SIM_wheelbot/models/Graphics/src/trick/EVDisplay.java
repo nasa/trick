@@ -229,17 +229,14 @@ public class EVDisplay extends JFrame {
         System.out.println("Connecting to: " + host + ":" + port);
         evd.connectToServer(host, port);
 
-        evd.out.writeBytes("trick.var_set_client_tag(\"EVDisplay\") \n");
-        evd.out.flush();
-
-        evd.out.writeBytes("trick.var_add(\"veh.vehicle.position[0]\") \n" +
+        evd.out.writeBytes("trick.var_set_client_tag(\"EVDisplay\") \n" +
+                           "trick.var_pause() \n" +
+                           "trick.var_add(\"veh.vehicle.position[0]\") \n" +
                            "trick.var_add(\"veh.vehicle.position[1]\") \n" +
-                           "trick.var_add(\"veh.vehicle.heading\") \n");
-        evd.out.flush();
-
-        evd.out.writeBytes("trick.var_ascii() \n" +
+                           "trick.var_add(\"veh.vehicle.heading\") \n" + 
+                           "trick.var_ascii() \n" +
                            "trick.var_cycle(0.1) \n" +
-                           "trick.var_send() \n" );
+                           "trick.var_unpause() \n" );
         evd.out.flush();
 
         Boolean go = true;

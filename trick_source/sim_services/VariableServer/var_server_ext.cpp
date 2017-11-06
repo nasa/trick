@@ -6,6 +6,7 @@
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
 #include "trick/memorymanager_c_intf.h"
+#include "trick/map_trick_units_to_udunits.hh"
 
 extern Trick::VariableServer * the_vs ;
 
@@ -524,7 +525,11 @@ int var_set_base( const char  * var , T value , const char * units ) {
             V_DATA v_data ;
             v_tree.v_data = &v_data ;
             var_set_value( v_data , value) ;
-            ref->units = (char *)units ;
+            if ( units != NULL ) {
+                ref->units = (char *)(map_trick_units_to_udunits(units).c_str()) ;
+            } else {
+                ref->units = (char *)units ;
+            }
             ref_assignment(ref , &v_tree) ;
             free(ref) ;
         } else {

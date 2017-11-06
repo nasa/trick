@@ -1993,9 +1993,10 @@ def main():
     test = int(test_so.obj.ikg)
     TRICK_EXPECT_EQ( test , 20, test_suite , "int" )
 
-    test_so.obj.ikg = 20
-    test = long(test_so.obj.ikg)
-    TRICK_EXPECT_EQ( test , 20, test_suite , "long" )
+    if sys.version_info < (3,0):
+        test_so.obj.ikg = 20
+        test = long(test_so.obj.ikg)
+        TRICK_EXPECT_EQ( test , 20, test_suite , "long" )
 
     test_so.obj.ikg = 20
     test = float(test_so.obj.ikg)
@@ -2003,7 +2004,10 @@ def main():
 
     test_so.obj.ikg = 20
     test = oct(test_so.obj.ikg)
-    TRICK_EXPECT_EQ( test , "024", test_suite , "oct" )
+    if sys.version_info >= (3,0):
+        TRICK_EXPECT_EQ( test , "0o24", test_suite , "oct" )
+    else:
+        TRICK_EXPECT_EQ( test , "024", test_suite , "oct" )
 
     test_so.obj.ikg = 20
     test = hex(test_so.obj.ikg)
@@ -2493,9 +2497,10 @@ def main():
     test = int(test_so.obj.dkg)
     TRICK_EXPECT_NEAR( test , 20, 0.0001, test_suite , "int" )
 
-    test_so.obj.dkg = 20
-    test = long(test_so.obj.dkg)
-    TRICK_EXPECT_NEAR( test , 20, 0.0001, test_suite , "long" )
+    if sys.version_info < (3,0):
+        test_so.obj.dkg = 20
+        test = long(test_so.obj.dkg)
+        TRICK_EXPECT_NEAR( test , 20, 0.0001, test_suite , "long" )
 
     test_so.obj.dkg = 20
     test = float(test_so.obj.dkg)

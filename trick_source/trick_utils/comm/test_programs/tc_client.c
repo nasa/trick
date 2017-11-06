@@ -13,7 +13,7 @@ int main( int narg, char** args ) {
   /* Parse args */
   verbose = 0 ;
   if ( narg < 4 || narg > 5  ) {
-    fprintf(stderr, 
+    fprintf(stderr,
        "USAGE: tc_client <host> <num_packets> <packet_size> [-v]\n");
     exit(-1);
   }
@@ -23,7 +23,7 @@ int main( int narg, char** args ) {
   num_packets = atoi(args[2]) ;
   msg_len     = atoi(args[3]) ;
   if ( msg_len < 1 || num_packets < 1 ) {
-    fprintf(stderr, 
+    fprintf(stderr,
        "USAGE: tc_client <host> <num_packets> <packet_size> [-v]\n");
   }
 
@@ -54,6 +54,6 @@ int main( int narg, char** args ) {
     tc_write(&connection, msg, msg_len);
     tc_read(&connection, msg, msg_len);
   }
-  
+
   return 0 ;
 }

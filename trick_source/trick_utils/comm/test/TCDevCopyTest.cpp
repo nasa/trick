@@ -27,7 +27,7 @@ class TCDevCopyTest : public testing::Test {
       }
 
       void TearDown(){
-   
+
          free(src_device);
          free(dest_device);
       }
@@ -38,18 +38,18 @@ TEST_F( TCDevCopyTest, testNullSrcDest ) {
    int tcdev_status = tc_dev_copy( NULL, NULL );
 
    EXPECT_EQ( tcdev_status, -1 );
-} 
+}
 
 TEST_F( TCDevCopyTest, testNullSrc ) {
 
    int tcdev_status = tc_dev_copy( dest_device, NULL );
 
    EXPECT_EQ( tcdev_status, -1 );
-} 
+}
 
 TEST_F( TCDevCopyTest, testNullDest ) {
 
    int tcdev_status = tc_dev_copy( NULL, src_device );
 
    EXPECT_EQ( tcdev_status, -1 );
-} 
+}

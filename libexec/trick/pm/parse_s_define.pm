@@ -250,6 +250,8 @@ sub parse_s_define ($) {
         $header{libdep} =~ s/\(\(/\(/ ;
         $header{libdep} =~ s/\)\)/\)/ ;
         @lib_list = $header{libdep} =~  m/\((.+?)\)/sg ;
+        # Append any library deps in doxygen style comments.
+        push @lib_list , @{$header{liblist}} if ( exists $header{liblist} ) ;
         foreach my $object_file (@lib_list) {
             #print "[33m look for object $object_file[00m\n" ;
             if ( $object_file =~ /^\// ) {
@@ -264,8 +266,7 @@ sub parse_s_define ($) {
                     }
                 }
                 if ( $found == 0 ) {
-                    trick_print( $$sim_ref{fh}, "\nCould not find S_define LIBRARY_DEPENDENCY $object_file\n\n",
-                     "title_red", $$sim_ref{args}{v} );
+                    trick_formatted_print($$sim_ref{fh}, "[1m[33m", "Warning    ", "[39m", "S_define\n", "[0m", "           Could not find dependency \"", "[1m", "$object_file", "[0m", "\"\n");
                 }
             }
         }
@@ -517,14 +518,14 @@ sub handle_sim_class ($$$$) {
     $s =~ s/ZZZYYYXXX(\d+)ZZZYYYXXX//esg ;
 
     # grab the class name and the name of the class we are inheriting from
-    ($full_template_args) = $s =~ /template\s+<([^>]+)>/ ;
-    ($class_name, $inherit_class) = $s =~ /class\s+(\S+)\s*:\s*public\s*(.*\S)/ ;
+    ($full_template_args, $class_name, $inherit_class) = $s =~ /(?:\s*template\s*<\s*([^>]+?)\s*>)?\s*class\s+(\w+)\s*(?::\s*public\s+(.+?)\s*)?$/ ;
 
     $template_args = $full_template_args ;
     $template_args =~ s/class|typename//g ;
     $template_args =~ s/\s//g ;
 
-    trick_print($$sim_ref{fh}, "Processing sim_class $class_name\n" , "normal white" , $$sim_ref{args}{v});
+    trick_print($$sim_ref{fh}, "Processing " , "normal_blue" , $$sim_ref{args}{v});
+    trick_print($$sim_ref{fh}, "$class_name\n" , "normal_white" , $$sim_ref{args}{v});
 
     # grab the entire contents of the class out of the S_define file.
     ($class_contents, $$file_contents) = extract_bracketed($$file_contents,"{}");
@@ -569,7 +570,31 @@ sub handle_sim_class ($$$$) {
     while ( $class_contents =~ /^(.*?)$class_name\s*\([^;]*{/s ) {
         my (@int_job_calls, @double_job_calls) ;
         $constructor_found = 1 ;
-        $class_contents =~ s/^(.*?$class_name[^{]+)//s ;
+        # grab the constructor's argument list
+        $class_contents =~ s/^(.*?$class_name[^(]*)//s ;
+        $temp_content = $1 ;
+        $final_contents .= $temp_content ;
+        ($temp_content, $class_contents) = extract_bracketed($class_contents,"()");
+        $final_contents .= $temp_content ;
+        # a colon after the constructor arguments starts a member initializer list
+        if ( $class_contents =~ /^\s*:/s )
+        {
+            my $in_init_list = 1 ;
+            while ( $in_init_list ) {
+                $class_contents =~ s/^([^{(]+)//s ;
+                $temp_content = $1 ;
+                $final_contents .= $temp_content ;
+                # member initializers can have either parentheses or curly braces
+                ($temp_content, $class_contents) = extract_bracketed($class_contents,"(){}");
+                $final_contents .= $temp_content ;
+                # there's another initializer if there is a comma
+                if ( $class_contents !~ /^\s*,/ ) {
+                    $in_init_list = 0;
+                }
+            }
+        }
+
+        $class_contents =~ s/^([^{]*)//s ;
         $temp_content = $1 ;
         $final_contents .= $temp_content ;
 
@@ -814,9 +839,11 @@ sub handle_line_tag($$) {
     trick_print($$sim_ref{fh},"Line: $s\n", "debug_yellow", $$sim_ref{args}{v}) ;
     if ( $file_name !~ /^\</ and $file_name ne $$sim_ref{last_file} ) {
         if ( exists $$sim_ref{files_visited}{$file_name} ) {
-            trick_print($$sim_ref{fh},"Continuing $file_name\n", "normal_cyan", $$sim_ref{args}{v}) ;
+            trick_print($$sim_ref{fh},"Continuing ", "normal_blue", $$sim_ref{args}{v}) ;
+            trick_print($$sim_ref{fh},"$file_name\n", "normal_white", $$sim_ref{args}{v}) ;
         } else {
-            trick_print($$sim_ref{fh},"Processing $file_name\n", "normal_cyan", $$sim_ref{args}{v}) ;
+            trick_print($$sim_ref{fh},"Processing ", "normal_blue", $$sim_ref{args}{v}) ;
+            trick_print($$sim_ref{fh},"$file_name\n", "normal_white", $$sim_ref{args}{v}) ;
             $$sim_ref{files_visited}{$file_name} = 1 ;
         }
         $$sim_ref{last_file} = $file_name ;
@@ -845,7 +872,7 @@ sub handle_compiler_directive($$) {
             ($rel_file_name) = $1 ;
             $file_name = find_header_file($rel_file_name , \@{$$sim_ref{inc_paths}}) ;
             if ( $file_name eq "" ) {
-                trick_print($$sim_ref{fh}, "could not find $rel_file_name\n" , "title_red", $$sim_ref{args}{v});
+                trick_formatted_print($$sim_ref{fh}, "[91m[1m", "Error      ", "[0m", "Could not find included file \"", "[1m", "$rel_file_name", "[0m", "\"\n") ;
                 exit -1 ;
             }
             trick_print($$sim_ref{fh},"  Found include: $file_name\n", "debug_white", $$sim_ref{args}{v}) ;

@@ -1,0 +1,29 @@
+.TH trick-dre 1 "August 1, 2016" "Trick" "Trick User's Manual"
+.SH NAME
+trick-dre \- Trick Data Recording Editor
+.SH SYNOPSIS
+\fBtrick-dre\fP
+.SH DESCRIPTION
+The Trick Data Recording Editor creates input files describing data recording groups.
+The dre presents a hierarchial list of variables the user may select to include in the
+data recording group.  The user is alos able to set the various parameters associated
+with a data recording group such as name and recording frequency.
+.SH FILES
+.TP
+\fISIM_<simulation>/Modified_data/file_name.dr\fP
+The output of the dre is typically stored in the Modified_data directory and ends
+in the suffix .dr.
+.SH "SEE ALSO"
+\fBtrick-dp\fP(1), \fBtrick-qp\fP(1)
+.PP
+All Trick model developers and users should go through the tutorial found
+in the \fITrick Simulation Environment User Training Materials\fP.
+The canonical reference for all Trick commands, files and utilities is the
+\fITrick Simulation Environment User's Guide\fP.  Information specific to a
+given release of Trick tools is contained in the \fITrick Simulation
+Environment Version Description\fP for that release.
+.SH HISTORY
+2001-2009 : \fBtrick-dre\fP originally written in Tcl/TK by Keith Vetter
+
+2010-present : \fBtrick-dre\fP ported to Java by Hong Chen
+

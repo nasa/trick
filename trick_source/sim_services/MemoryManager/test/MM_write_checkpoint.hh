@@ -7,7 +7,7 @@ typedef enum {
     } MONTH;
 
 typedef struct udt1 {
-  double x; 
+  double x;
   struct udt1 *udt_p;
   double *dbl_p;
   MONTH *month_p;

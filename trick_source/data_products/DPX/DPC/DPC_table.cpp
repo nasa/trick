@@ -13,7 +13,7 @@ DPC_table::DPC_table( DPC_datastream_supplier *DS_Supplier,
                       DPM_run                 *Run,
                       DPM_table               *Table_spec,
                       DPM_time_constraints    *ParentTimeConstraints )
-    throw (std::invalid_argument) {
+     {
 
     DPM_time_constraints *my_time_constraints;
     DPM_time_constraints total_time_constraints;
@@ -156,7 +156,7 @@ DPC_table::~DPC_table() {
         if (ds) { delete ds; }
     }
 
-    if (dsData) { delete dsData; } 
+    if (dsData) { delete dsData; }
 }
 
 // MEMBER FUNCTION

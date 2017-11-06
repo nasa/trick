@@ -8,10 +8,10 @@ extern ut_system * u_system ;
 
 // CONSTRUCTOR
 DPC_std_curve::DPC_std_curve(
-                             DPM_curve*               Curve_spec, 
+                             DPM_curve*               Curve_spec,
                              DPM_run*                 Run,
                              DPC_datastream_supplier *ds_supplier,
-                             DPM_time_constraints    *Time_constraints ) throw (std::logic_error)
+                             DPM_time_constraints    *Time_constraints )
     : DPC_curve() {
 
     char work[255];
@@ -22,8 +22,8 @@ DPC_std_curve::DPC_std_curve(
     const char*  run_dir = Run->getDir();
     unsigned int number_of_cases = Curve_spec->NumberOfVarCases();
 
-    x_actual_units = NULL;  
-    y_actual_units = NULL;  
+    x_actual_units = NULL;
+    y_actual_units = NULL;
 
     data_src_label = NULL;
     time_conversion = NULL;
@@ -120,9 +120,9 @@ DPC_std_curve::DPC_std_curve(
                 // We've successfully initialized our curve from the variable-pair.
                 success = 1;
 
-            } else {        
-                std::cerr << "ERROR: Variable \"" << y_var_name << "\" was\'nt found in " << std::endl
-                          << "Run Directory \"" << run_dir << "\"" << std::endl; 
+            } else {
+                std::cerr << "ERROR: Variable \"" << y_var_name << "\" wasn't found in " << std::endl
+                          << "Run Directory \"" << run_dir << "\"" << std::endl;
                 std::cerr.flush();
             }
 
@@ -154,13 +154,13 @@ DPC_std_curve::DPC_std_curve(
 
                 } else {
                     delete ds[0]; ds[0] = NULL;
-                    std::cerr << "Variable \"" << y_var_name << "\" was\'nt found in " << std::endl
-                              << "Run Directory \"" << run_dir << "\"" << std::endl; 
+                    std::cerr << "Variable \"" << y_var_name << "\" wasn't found in " << std::endl
+                              << "Run Directory \"" << run_dir << "\"" << std::endl;
                     std::cerr.flush();
                 }
             } else {
-                std::cerr << "Variable \"" << x_var_name << "\" was\'nt found in " << std::endl
-                          << "Run Directory \"" << run_dir << "\"" << std::endl; 
+                std::cerr << "Variable \"" << x_var_name << "\" wasn't found in " << std::endl
+                          << "Run Directory \"" << run_dir << "\"" << std::endl;
                 std::cerr.flush();
             }
         }
@@ -188,7 +188,7 @@ DPC_std_curve::DPC_std_curve(
 DPC_std_curve::~DPC_std_curve() {
 
     // We ONLY delete what we create.
-    if ( ds[0] ) { 
+    if ( ds[0] ) {
         delete ds[0];
         ds[0] = NULL;
     };
@@ -246,16 +246,16 @@ int DPC_std_curve::getXY(double *X_value, double *Y_value) {
                     eos = ! ds[1]->get( &t2, &v2);
                 }
             }
-            if (!eos) { 
-                *X_value = v1;
-                *Y_value = v2;
+            *X_value = v1;
+            *Y_value = v2;
+            if (!eos) {
                 return(1);
             }
-        } else {     
+        } else {
             eos = !ds[0]->get( &t1, &v1);
+            *X_value = cv_convert_double(time_conversion,t1);
+            *Y_value = v1;
             if (!eos) {
-                *X_value = cv_convert_double(time_conversion,t1);
-                *Y_value = v1;
                 return(1);
 	    }
 	}

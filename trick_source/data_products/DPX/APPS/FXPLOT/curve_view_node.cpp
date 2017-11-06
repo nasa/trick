@@ -216,6 +216,11 @@ CurveViewNode::CurveViewNode( Widget        Toplevel,
         }
     }
 
+    // Save the final point from getXY
+    fermi_curve->points[ fermi_curve->nPoints ].x = (x * x_scale_val) + x_bias_val;
+    fermi_curve->points[ fermi_curve->nPoints ].y = (y * y_scale_val) + y_bias_val;
+    fermi_curve->nPoints ++;
+
     //------------------------------------------------------------------
     // Set the XYCurve's remaining elements.
     //------------------------------------------------------------------

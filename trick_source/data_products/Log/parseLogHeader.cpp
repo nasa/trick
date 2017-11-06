@@ -1,5 +1,5 @@
 /**
-    Used to parse a Trick log header file, and load info for Log Classes 
+    Used to parse a Trick log header file, and load info for Log Classes
     @author Keith Vetter
     @version May 2002
 */
@@ -49,17 +49,17 @@ int LogGroup::parseLogHeaders()
                 // Full path of log header
                 sprintf(headerName, "%s/%s", pathToBinaryData_, headers_[i]);
 
-                // Open log header 
+                // Open log header
                 if ((fp_ = fopen(headerName, "r")) == NULL) {
                         fprintf(stderr,
                                 "\nERROR:\nCouldn't open file \"%s\" \n",
                                 headerName);
                         return (-1);
                 }
-                // Allocate strings, we know that buffers can't be 
+                // Allocate strings, we know that buffers can't be
                 // longer than file!
                 // Since headers are typically small, allocate them at ]
-                // the header size 
+                // the header size
                 fseek(fp_, 0, SEEK_END);
                 headerSize = ftell(fp_);
                 ::rewind(fp_);
@@ -129,7 +129,7 @@ int LogGroup::parseLogHeaders()
                                         return (-1);
                                 }
 
-                                // For Release-07 we need to convert the old unit specs by 
+                                // For Release-07 we need to convert the old unit specs by
                                 // adding explicit asterisk for multiplication. )
                                 {
                                         char new_units_spec[100];
@@ -145,7 +145,11 @@ int LogGroup::parseLogHeaders()
                                 }
 
                                 // Initialize Unit class
-                                currVar->setUnit(map_trick_units_to_udunits(str3));
+                                if ( ! strcmp(str3,"--")) {
+                                    currVar->setUnit(str3);
+                                } else {
+                                    currVar->setUnit(map_trick_units_to_udunits(str3));
+                                }
 
                                 // Set Var Name
                                 currVar->setVarName(str4) ;

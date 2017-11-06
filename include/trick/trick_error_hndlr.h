@@ -24,23 +24,23 @@ extern "C" {
 
 typedef enum {
     TRICK_ERROR_ALL = 0,      /* -- No error: Report everything. */
-    TRICK_ERROR_TRIVIAL = 1,  /* -- Trivial level: 
+    TRICK_ERROR_TRIVIAL = 1,  /* -- Trivial level:
                                     Informational: can ignore  */
-    TRICK_ERROR_ADVISORY = 2, /* -- Advisory level: 
+    TRICK_ERROR_ADVISORY = 2, /* -- Advisory level:
                                     Can probably ignore these  */
 
-    TRICK_ERROR_CAUTION = 3,  /* -- Caution level: 
+    TRICK_ERROR_CAUTION = 3,  /* -- Caution level:
                                     May not want to ignore these */
-    TRICK_ERROR_WARNING = 4,  /* -- Warning level: 
+    TRICK_ERROR_WARNING = 4,  /* -- Warning level:
                                     Should probably not ignore */
-    TRICK_ERROR_ALERT = 5,    /* -- Alert level: 
-                                    Should be corrected, 
+    TRICK_ERROR_ALERT = 5,    /* -- Alert level:
+                                    Should be corrected,
                                     may not recover */
-    TRICK_ERROR_FATAL = 6,  /* -- Fatal level: 
+    TRICK_ERROR_FATAL = 6,  /* -- Fatal level:
                                   Must be corrected, no recovery */
-    TRICK_ERROR_ABORT = 7,  /* -- Abort level: 
+    TRICK_ERROR_ABORT = 7,  /* -- Abort level:
                                   Things are too bad, just abort */
-    TRICK_ERROR_SILENT = 8  /* -- Silent: Do not report 
+    TRICK_ERROR_SILENT = 8  /* -- Silent: Do not report
                                       any error of any kind */
 } TrickErrorLevel;
 
@@ -69,7 +69,7 @@ typedef struct _TrickErrorHndlr {
 
 
 /* Define error object access functions */
-void trick_error_func_default( 
+void trick_error_func_default(
         TrickErrorHndlr * error_hndlr, /* IN: -- Error object */
         TrickErrorLevel level,         /* IN: -- Error level */
         char *file,        /* IN: -- File in which error ocurred */
@@ -99,9 +99,9 @@ void trick_error_set_report_level(
 
 void trick_error_set_stream(
         TrickErrorHndlr * error_hndlr, /* INOUT: -- Err handler data */
-        TrickErrorLevel level,         /* IN: -- Err reporting level 
+        TrickErrorLevel level,         /* IN: -- Err reporting level
                                                  stream to set. */
-        FILE * stream);                /* IN: -- Err stream for 
+        FILE * stream);                /* IN: -- Err stream for
                                                  reporting level. */
 
 void trick_error_set_all_streams(
@@ -114,14 +114,14 @@ void trick_error_copy_streams(
 
 void trick_error_set_send_hs_flag(
         TrickErrorHndlr * error_hndlr, /* INOUT: -- Err handler data */
-        TrickErrorLevel level,         /* IN: -- Error reporting level 
+        TrickErrorLevel level,         /* IN: -- Error reporting level
                                                  stream to set. */
         int use_send_hs);              /* IN: -- 1=use send_hs;
                                                  else use fprintf */
 
 void trick_error_set_all_send_hs_flags(
         TrickErrorHndlr * error_hndlr,  /* INOUT: -- Err handler data */
-        int use_send_hs);               /* IN: -- 1= use send_hs; 
+        int use_send_hs);               /* IN: -- 1= use send_hs;
                                                   else use fprintf */
 
 void trick_error_copy_send_hs_flags(
@@ -139,7 +139,7 @@ TrickErrorLevel trick_error_get_report_level(
 
 FILE *trick_error_get_stream(
         TrickErrorHndlr * error_hndlr,  /* INOUT: -- Error hdler data */
-        TrickErrorLevel level);         /* IN: -- Error reporting 
+        TrickErrorLevel level);         /* IN: -- Error reporting
                                                   level stream to get */
 
 FILE *trick_error_get_curr_stream(
@@ -147,15 +147,15 @@ FILE *trick_error_get_curr_stream(
 
 int trick_error_get_send_hs_flag(
         TrickErrorHndlr * error_hndlr,  /* INOUT: -- Err hdler data */
-        TrickErrorLevel level);         /* IN: -- Err report level 
+        TrickErrorLevel level);         /* IN: -- Err report level
                                                   stream to get. */
 
 int trick_error_get_curr_send_hs_flag(
         TrickErrorHndlr * error_hndlr); /* INOUT: -- Err hdler data */
 
-void trick_error_report(        
+void trick_error_report(
         TrickErrorHndlr * error_hndlr, /* IN: -- Error object */
-        TrickErrorLevel error_level,   /* IN: -- Err level for 
+        TrickErrorLevel error_level,   /* IN: -- Err level for
                                                  this error */
         const char *file,              /* IN: -- File in which error_ occured */
         int line,                      /* IN: -- Line number where error_ occured */

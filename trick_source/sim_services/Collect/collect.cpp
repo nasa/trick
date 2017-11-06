@@ -10,7 +10,7 @@ to the new list.  The old list a collector will be freed.
 @details
 -# Get the current list length
 -# Allocate enough space to accomodate the current list + 1. (+1 for the size of the list)
--# Set the size of the new list in the first slot of the new list. 
+-# Set the size of the new list in the first slot of the new list.
 -# Copy the old list to the new.
 -# Append the new item to the new list.
 -# Delete the old list
@@ -52,7 +52,7 @@ to the new list.  The old list a collector will be freed.
 -# Get the current list length
 -# Count the number of items in the list that do not match the collectee.
 -# Allocate enough space to accomodate the new list. (+1 for the size of the list)
--# Set the size of the new list in the first slot of the new list. 
+-# Set the size of the new list in the first slot of the new list.
 -# Copy all of the items that do not match collectee to the new list
 -# Delete the old list
 -# Return the new list

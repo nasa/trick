@@ -10,7 +10,7 @@ char* Trick::MemoryManager::mm_strdup( const char* s) {
 
     /** @par Design: */
     /** @li Allocate sufficient space for the duplicate character string. */
-    extent = (int)strlen(s)+1; 
+    extent = (int)strlen(s)+1;
 
     /** @li Allocate the duplicate character string */
     allocation = (char*)declare_var(TRICK_CHARACTER, "", 0, "", 1, &extent);

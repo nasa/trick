@@ -1,4 +1,5 @@
 
+#include <algorithm>
 #include <string>
 #include <iostream>
 #include <sstream>
@@ -60,6 +61,7 @@ Trick::DataRecordGroup::DataRecordGroup( std::string in_name ) :
  freq(DR_Always),
  start(0.0) ,
  cycle(0.1) ,
+ time_value_attr() ,
  num_variable_names(0),
  variable_names(NULL),
  variable_alias(NULL),
@@ -243,6 +245,46 @@ int Trick::DataRecordGroup::add_variable( std::string in_name , std::string alia
     new_var->alias = alias ;
     rec_buffer.push_back(new_var) ;
     return 0 ;
+}
+
+void Trick::DataRecordGroup::remove_variable( std::string in_name ) {
+    // Trim leading spaces
+    in_name.erase( 0, in_name.find_first_not_of( " \t" ) );
+    // Trim trailing spaces
+    in_name.erase( in_name.find_last_not_of( " \t" ) + 1);
+
+    if (!in_name.compare("sys.exec.out.time")) {
+        // This class assumes sim time is always the first variable.
+        // Removing it results in errors.
+        return;
+    }
+
+    auto remove_from = [&](std::vector<DataRecordBuffer*>& buffer) {
+        for (auto i = buffer.begin(); i != buffer.end(); ++i) {
+            if (!(*i)->name.compare(in_name)) {
+                delete *i;
+                buffer.erase(i);
+                break;
+            }
+        }
+    };
+
+    remove_from(rec_buffer);
+    remove_from(change_buffer);
+}
+
+void Trick::DataRecordGroup::remove_all_variables() {
+    // remove all but the first variable, which is sim time
+    for (auto i = rec_buffer.begin() + 1; i != rec_buffer.end(); ++i) {
+        delete *i;
+    }
+    rec_buffer.erase(rec_buffer.begin() + 1, rec_buffer.end());
+
+    // remove everything
+    for (auto variable : change_buffer) {
+        delete variable;
+    }
+    change_buffer.clear();
 }
 
 int Trick::DataRecordGroup::add_variable( REF2 * ref2 ) {
@@ -484,8 +526,14 @@ int Trick::DataRecordGroup::write_header() {
         out_stream << "log_" << group_name << "\t"
             << type_string(rec_buffer[jj]->ref->attr->type,
                            rec_buffer[jj]->ref->attr->size) << "\t"
-            << std::setw(6)<<rec_buffer[jj]->ref->attr->units << "\t"
-            << rec_buffer[jj]->ref->reference << std::endl ;
+            << std::setw(6) ;
+
+        if ( rec_buffer[jj]->ref->attr->mods & TRICK_MODS_UNITSDASHDASH ) {
+            out_stream << "--" ;
+        } else {
+            out_stream << rec_buffer[jj]->ref->attr->units ;
+        }
+        out_stream << "\t" << rec_buffer[jj]->ref->reference << std::endl ;
     }
 
     // Send all unwritten characters in the buffer to its output/file.
@@ -624,22 +672,16 @@ int Trick::DataRecordGroup::disable() {
 
 int Trick::DataRecordGroup::shutdown() {
 
-    unsigned int jj ;
-
     // Force write out all data
     record = true ; // If user disabled group, make sure any recorded data gets written out
     write_data(true) ;
     format_specific_shutdown() ;
 
-    for (jj = 0; jj < rec_buffer.size() ; jj++) {
-        delete rec_buffer[jj] ;
-    }
-    rec_buffer.clear() ;
+    remove_all_variables();
 
-    for (jj = 0; jj < change_buffer.size() ; jj++) {
-        delete change_buffer[jj] ;
-    }
-    change_buffer.clear() ;
+    // remove_all_variables does not remove sim time
+    delete rec_buffer[0];
+    rec_buffer.clear();
 
     if ( writer_buff ) {
         free(writer_buff) ;

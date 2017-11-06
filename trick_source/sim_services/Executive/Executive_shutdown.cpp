@@ -1,4 +1,4 @@
-/* 
+/*
    PURPOSE: (Graceful Simulation termination with timing data output.)
 
    PROGRAMMERS:

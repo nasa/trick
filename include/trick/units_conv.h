@@ -71,7 +71,7 @@ typedef struct {
 
 /**
  * @ingroup UNITS_C_INTF
- * Allocate and initialize a new Units_t according to the given units specifier. 
+ * Allocate and initialize a new Units_t according to the given units specifier.
  */
 Units_t *new_units (const char *units_s);
 
@@ -85,7 +85,7 @@ Conv_Status_t conv_fn_u(const Units_t *f_units,     /* IN  */
 
 /**
  * @ingroup UNITS_C_INTF
- * Create a conversion object (UnitsConvFn_t) that converts from f_units to t_units. 
+ * Create a conversion object (UnitsConvFn_t) that converts from f_units to t_units.
  */
 Conv_Status_t conv_fn_s(const char    *f_units_s,   /* IN  */
                         const char    *t_units_s,   /* IN  */
