@@ -750,3 +750,622 @@ QString BookIdxView::_curvesUnit(const QModelIndex &plotIdx, QChar axis) const
 
     return curvesUnit;
 }
+
+// Get title strings from model
+QStringList BookIdxView::_pageTitles(const QModelIndex &titleIdx) const
+{
+    QStringList titles;
+
+    QModelIndex title1Idx;
+    if ( _bookModel()->isIndex(titleIdx,"Page")) {
+        title1Idx = _bookModel()->getDataIndex(titleIdx,"PageTitle","Page");
+    } else {
+        title1Idx = _bookModel()->getDataIndex(titleIdx,
+                                               "TableTitle","Table");
+    }
+    QModelIndex defTitlesIdx = _bookModel()->getIndex(QModelIndex(),
+                                                      "DefaultPageTitles");
+    QModelIndex title2Idx = _bookModel()->getDataIndex(defTitlesIdx,
+                                                       "Title2",
+                                                       "DefaultPageTitles");
+    QModelIndex title3Idx = _bookModel()->getDataIndex(defTitlesIdx,
+                                                       "Title3",
+                                                       "DefaultPageTitles");
+    QModelIndex title4Idx = _bookModel()->getDataIndex(defTitlesIdx,
+                                                       "Title4",
+                                                       "DefaultPageTitles");
+    QString title1 = model()->data(title1Idx).toString();
+    QString t1 = _bookModel()->getDataString(defTitlesIdx,
+                                             "Title1","DefaultPageTitles");
+    if ( title1.isEmpty() && t1.startsWith("koviz") ) {
+        // Since subtitle has RUNs, don't use t1 (it has RUNs too)
+        title1 = "Koviz Plots";
+    } else if ( !t1.startsWith("koviz") ) {
+        // DP page title overwritten by -t1 optional title
+        title1 = t1;
+    }
+    QString title2 = model()->data(title2Idx).toString();
+    QString title3 = model()->data(title3Idx).toString();
+    QString title4 = model()->data(title4Idx).toString();
+
+    titles << title1 << title2 << title3 << title4;
+
+    return titles;
+}
+
+QRect BookIdxView::_paintPageTitle(const QModelIndex& titleIdx,
+                                   QPainter& painter)
+{
+    painter.save();
+    painter.setRenderHint(QPainter::Antialiasing);
+
+    QFont origFont = painter.font();
+    QPaintDevice* paintDevice = painter.device();
+    QRect R(0,0,paintDevice->width(),paintDevice->height());
+
+    // Get titles from model
+    QString title1 = _pageTitles(titleIdx).at(0);
+    QString title2 = _pageTitles(titleIdx).at(1);
+    QString title3 = _pageTitles(titleIdx).at(2);
+    QString title4 = _pageTitles(titleIdx).at(3);
+
+    // Main title fonts and placement (drawing occurs later)
+    QFont font(origFont);
+    font.setPointSize(14);
+    painter.setFont(font);
+    QFontMetrics fm1(font,paintDevice);
+    int w1 = fm1.boundingRect(title1).width();
+    int x = 0;
+    int y = fm1.ascent();
+    int yMainTitle = y;
+
+    // Legend
+    int legendRight=0;
+    int legendBottom=0;
+    if ( _bookModel()->isPlotLegendsSame(titleIdx)) {
+        QModelIndexList plotIdxs = _bookModel()->plotIdxs(titleIdx);
+        QModelIndex curvesIdx = _bookModel()->getIndex(plotIdxs.at(0),
+                                                       "Curves","Plot");
+
+        // Print legend in box that is about 3 entries in height
+        QFont legendFont = painter.font();
+        legendFont.setPointSize(8);
+        QFontMetrics fml(legendFont,painter.device());
+        int c = fml.averageCharWidth();
+        int h3  = fml.ascent() + 2*fml.lineSpacing() + fml.descent();
+        QRect S(R);
+        S.setTopLeft(QPoint(R.x()+10*c,yMainTitle));
+        S.setHeight(h3);
+        QRect L = _paintPageLegend(S,curvesIdx,painter);
+        legendRight = L.right();
+        legendBottom = L.bottom();
+    }
+
+    //
+    // Draw title3 and title4 (align on colon if possible)
+    //
+    int leftTitle34 = 0;
+    font.setPointSize(11);
+    painter.setFont(font);
+    QFontMetrics fm3(font,paintDevice);
+    if ( !title3.isEmpty() && title3.contains(':') &&
+         !title4.isEmpty() && title4.contains(':') ) {
+
+        // Normal case, most likely user,date with colons
+        // e.g. user: vetter
+        //      date: July 8, 2016
+        int i = title3.indexOf(':');
+        QString s31 = title3.left(i);
+        QString s32 = title3.mid(i+1);
+        i = title4.indexOf(':');
+        QString s41 = title4.left(i);
+        QString s42 = title4.mid(i+1);
+        int w3;
+        if ( s32.size() > s42.size() ) {
+            w3 = fm3.boundingRect(s32).width();
+        } else {
+            w3 = fm3.boundingRect(s42).width();
+        }
+        x = R.width()-w3;
+        y = yMainTitle;
+        painter.drawText(x,y,s32);
+        y += fm3.lineSpacing();
+        painter.drawText(x,y,s42);
+        x -= fm3.boundingRect(" : ").width();
+        y -= fm3.lineSpacing();
+        painter.drawText(x,y," : ");
+        y += fm3.lineSpacing();
+        painter.drawText(x,y," : ");
+        x -= fm3.boundingRect(s31).width();
+        y -= fm3.lineSpacing();
+        painter.drawText(x,y,s31);
+        leftTitle34 = x;
+        x += fm3.boundingRect(s31).width();
+        x -= fm3.boundingRect(s41).width();
+        y += fm3.lineSpacing();
+        painter.drawText(x,y,s41);
+        if ( x < leftTitle34 ) {
+            leftTitle34 = x;
+        }
+
+    } else {
+        // title3,title4 are custom (i.e. not colon delimited user/date)
+        x = R.width() - fm3.boundingRect(title3).width();
+        y = (R.height() - fm3.lineSpacing())/2;
+        painter.drawText(x,y,title3);
+        leftTitle34 = x;
+        x = R.width() - fm3.boundingRect(title4).width();
+        y += fm3.lineSpacing();
+        painter.drawText(x,y,title4);
+        if ( x < leftTitle34 ) {
+            leftTitle34 = x;
+        }
+    }
+
+    // Draw main title
+    //
+    font.setPointSize(14);
+    painter.setFont(font);
+    x = (legendRight+leftTitle34-w1)/2;
+    y = yMainTitle;
+    if ( !title1.isEmpty() ) {
+        painter.drawText(x,y,title1);
+    }
+
+    //
+    // Draw subtitle with RUNs
+    //
+    if ( !title2.isEmpty() ) {
+        font.setPointSize(11);
+        painter.setFont(font);
+        QFontMetrics fm2(font,paintDevice);
+        QStringList lines = title2.split('\n', QString::SkipEmptyParts);
+        if ( lines.size() == 1 ) {
+            // single RUN
+            int w2 = fm2.boundingRect(title2).width();
+            x = (legendRight+leftTitle34-w2)/2;
+            y += fm1.lineSpacing();
+            painter.drawText(x,y,title2);
+        } else if ( lines.size() > 1 ) {
+            // multiple RUNs (show two RUNs and elide rest with elipsis)
+            QString s1 = lines.at(0);
+            QString s2 = lines.at(1);
+            if ( lines.size() > 2 ) {
+                if ( !s2.endsWith(',') ) {
+                    s2 += ",";
+                }
+                s2 += "...)";
+            }
+            QString s = s1 + " " + s2;
+            int w2 = fm2.boundingRect(s).width();
+            y += fm1.lineSpacing();
+            if ( w2 < 0.6*R.width() ) {
+                // print on single line
+                x = (legendRight+leftTitle34-w2)/2;
+                painter.drawText(x,y,s);
+            } else {
+                // print on two lines
+                if ( s1.size() > s2.size() ) {
+                    x =(legendRight+leftTitle34-fm2.boundingRect(s1).width())/2;
+                } else {
+                    x =(legendRight+leftTitle34-fm2.boundingRect(s2).width())/2;
+                }
+                painter.drawText(x,y,s1);
+                if ( s1.startsWith('(') ) {
+                    x += fm2.width('(');
+                }
+                y += fm2.lineSpacing();
+                painter.drawText(x,y,s2);
+            }
+        }
+        y += fm2.lineSpacing();
+    }
+
+    painter.setFont(origFont);
+    painter.restore();
+
+    // Estimate bounding box of page title
+    QRect B(R);
+    if ( y > legendBottom ) {
+        B.setBottom(y);
+    } else {
+        B.setBottom(legendBottom);
+    }
+    return B;
+}
+
+void BookIdxView::_paintCurvesLegend(const QRect& R,
+                                     const QModelIndex &curvesIdx,
+                                     QPainter &painter)
+{
+    const int maxEntries = 7;
+
+    int nCurves = model()->rowCount(curvesIdx);
+    if ( nCurves > maxEntries || nCurves <= 1 ) {
+        return;
+    }
+
+    // If all plots on the page have the same legend, PageTitle will show legend
+    if (_bookModel()->isPlotLegendsSame(curvesIdx.parent().parent().parent())) {
+        return;
+    }
+
+    QString pres = _bookModel()->getDataString(curvesIdx.parent(),
+                                               "PlotPresentation","Plot");
+    if ( pres == "error" ) {
+        return;
+    }
+
+    QModelIndex plotIdx = curvesIdx.parent();
+    QList<QPen*> pens = _bookModel()->legendPens(plotIdx);
+    QStringList symbols = _bookModel()->legendSymbols(plotIdx);
+    QStringList labels = _bookModel()->legendLabels(plotIdx);
+
+    if ( pres == "error+compare" ) {
+        QPen* magentaPen = new QPen(_bookModel()->createCurveColors(3).at(2));
+        pens << magentaPen;
+        symbols << "none";
+        labels << "error";
+    }
+
+    __paintCurvesLegend(R,pens,symbols,labels,painter);
+
+    // Clean up
+    foreach ( QPen* pen, pens ) {
+        delete pen;
+    }
+}
+
+// pens,symbols and labels are ordered/collated foreach legend curve/label
+void BookIdxView::__paintCurvesLegend(const QRect& R,
+                                      const QList<QPen *> &pens,
+                                      const QStringList &symbols,
+                                      const QStringList &labels,
+                                      QPainter &painter)
+{
+    QPen origPen = painter.pen();
+
+    int n = pens.size();
+
+    // Width Of Legend Box
+    const int fw = painter.fontMetrics().averageCharWidth();
+    const int ml = fw; // marginLeft
+    const int mr = fw; // marginRight
+    const int s = fw;  // spaceBetweenLineAndLabel
+    const int l = 4*fw;  // line width , e.g. ~5 for: *-----* Gravity
+    int w = 0;
+    foreach (QString label, labels ) {
+        int labelWidth = painter.fontMetrics().boundingRect(label).width();
+        int ww = ml + l + s + labelWidth + mr;
+        if ( ww > w ) {
+            w = ww;
+        }
+    }
+
+    // Height Of Legend Box
+    const int ls = painter.fontMetrics().lineSpacing();
+    const int fh = painter.fontMetrics().height();
+    const int v = ls/8;  // vertical space between legend entries (0 works)
+    const int mt = fh/4; // marginTop
+    const int mb = fh/4; // marginBot
+    int sh = 0;
+    foreach (QString label, labels ) {
+        sh += painter.fontMetrics().boundingRect(label).height();
+    }
+    int h = (n-1)*v + mt + mb + sh;
+
+    // Legend box top left point
+    const int top = fh/4;   // top margin
+    const int right = fw/2; // right margin
+    QPoint legendTopLeft(R.right()-w-right,R.top()+top);
+
+    // Legend box
+    QRect LegendBox(legendTopLeft,QSize(w,h));
+
+    // Draw legend box with semi-transparent background
+    QColor bg(255,255,255,220);
+    painter.setBrush(bg);
+    QPen penGray(QColor(120,120,120,255));
+    painter.setPen(penGray);
+    painter.drawRect(LegendBox);
+    painter.setPen(origPen);
+
+    QRect lastBB;
+    for ( int i = 0; i < n; ++i ) {
+
+        QString label = labels.at(i);
+
+        // Calc bounding rect (bb) for line and label
+        QPoint topLeft;
+        if ( i == 0 ) {
+            topLeft.setX(legendTopLeft.x()+ml);
+            topLeft.setY(legendTopLeft.y()+mt);
+        } else {
+            topLeft.setX(lastBB.bottomLeft().x());
+            topLeft.setY(lastBB.bottomLeft().y()+v);
+        }
+        QRect bb = painter.fontMetrics().boundingRect(label);
+        bb.moveTopLeft(topLeft);
+        bb.setWidth(l+s+bb.width());
+
+        // Draw line segment
+        QPen* pen = pens.at(i);
+        painter.setPen(*pen);
+        QPoint p1(bb.left(),bb.center().y());
+        QPoint p2(bb.left()+l,bb.center().y());
+        painter.drawLine(p1,p2);
+
+        // Draw symbols on line segment endpoints
+        QString symbol = symbols.at(i);
+        __paintSymbol(p1,symbol,painter);
+        __paintSymbol(p2,symbol,painter);
+
+        // Draw label
+        QRect labelRect(bb);
+        QPoint p(bb.topLeft().x()+l+s, bb.topLeft().y());
+        labelRect.moveTopLeft(p);
+        painter.drawText(labelRect, Qt::AlignLeft|Qt::AlignVCenter, label);
+
+        lastBB = bb;
+    }
+
+    painter.setPen(origPen);
+}
+
+QRect BookIdxView::_paintPageLegend(const QRect &R,
+                                 const QModelIndex &curvesIdx,
+                                 QPainter &painter)
+{
+    const int maxEntries = 7;
+
+    int nCurves = model()->rowCount(curvesIdx);
+    if ( nCurves > maxEntries || nCurves <= 1 ) {
+        return QRect();
+    }
+
+    QModelIndex plotIdx = curvesIdx.parent();
+    QString pres = _bookModel()->getDataString(plotIdx,
+                                               "PlotPresentation","Plot");
+    if ( pres == "error" ) {
+        return QRect();
+    }
+
+    QList<QPen*> pens = _bookModel()->legendPens(plotIdx);
+    QStringList symbols = _bookModel()->legendSymbols(plotIdx);
+    QStringList labels = _bookModel()->legendLabels(plotIdx);
+
+    if ( pres == "error+compare" ) {
+        QPen* magentaPen = new QPen(_bookModel()->createCurveColors(3).at(2));
+        pens << magentaPen;
+        symbols << "none";
+        labels << "error";
+    }
+
+    QRect B = __paintPageLegend(R,pens,symbols,labels,painter);
+
+    // Clean up
+    foreach ( QPen* pen, pens ) {
+        delete pen;
+    }
+
+    return B;
+}
+
+// pens,symbols and labels are ordered/collated foreach legend curve/label
+// Returns bounding box of painted area (B)
+QRect BookIdxView::__paintPageLegend(const QRect &R,
+                                  const QList<QPen *> &pens,
+                                  const QStringList &symbols,
+                                  const QStringList &labels,
+                                  QPainter &painter)
+{
+    QFont origFont = painter.font();
+    QPen origPen = painter.pen();
+
+    QFont font(origFont);
+    font.setPointSize(8);
+    painter.setFont(font);
+    QFontMetrics fm = painter.fontMetrics();
+
+    const int c = fm.averageCharWidth();
+    const int v = 0;   // vertical space between legend entries
+    const int s = c;   // spaceBetweenLineAndLabel
+    const int l = 5*c; // line width
+    const int q = 5*c; // space between legend columns
+
+    QRect lastBB;
+    QRect B; // current overall bounding box (union of bbs)
+    for ( int i = 0; i < pens.size(); ++i ) {
+
+        QPoint topLeft;
+        if ( i == 0 ) {
+            topLeft.setX(R.x());
+            topLeft.setY(R.y());
+        } else {
+            topLeft.setX(lastBB.bottomLeft().x());
+            topLeft.setY(lastBB.bottomLeft().y()+v);
+        }
+
+        // Calc bbox for legend entry
+        int labelWidth  = fm.boundingRect(labels.at(i)).width();
+        int labelHeight = fm.boundingRect(labels.at(i)).height();
+        QRect bb(topLeft,QSize(l+s+labelWidth,labelHeight));
+
+        if ( bb.bottom() > R.bottom() ) {
+            bb.moveTopLeft(QPoint(B.right()+q,R.top()));
+        }
+
+        _paintLegendEntry(bb,
+                          l,s,
+                          *pens.at(i),
+                          symbols.at(i),
+                          labels.at(i),
+                          painter);
+
+        B = B.united(bb);
+        lastBB = bb;
+    }
+
+    painter.setFont(origFont);
+    painter.setPen(origPen);
+
+    return B;
+}
+
+// Note: symbols can be drawn outside of R
+void BookIdxView::_paintLegendEntry(const QRect &R,
+                                      int l,  // line width
+                                      int s,  // spaceBetweenLineAndLabel
+                                      const QPen &pen,
+                                      const QString &symbol,
+                                      const QString &label,
+                                      QPainter &painter)
+{
+    QPen origPen = painter.pen();
+
+    // Draw line segment
+    painter.setPen(pen);
+    QPoint p1(R.left(),R.center().y());
+    QPoint p2(R.left()+l,R.center().y());
+    painter.drawLine(p1,p2);
+
+    // Draw symbols on line segment endpoints
+    __paintSymbol(p1,symbol,painter);
+    __paintSymbol(p2,symbol,painter);
+
+    // Draw label
+    QRect labelRect(R);
+    QPoint p(R.topLeft().x()+l+s, R.topLeft().y());
+    labelRect.moveTopLeft(p);
+    painter.drawText(labelRect, Qt::AlignLeft, label);
+
+    painter.setPen(origPen);
+}
+
+void BookIdxView::__paintSymbol(const QPointF& p,
+                               const QString &symbol, QPainter &painter)
+{
+
+    QPen origPen = painter.pen();
+    QPen pen = painter.pen();
+
+    if ( symbol == "circle" ) {
+        painter.drawEllipse(p,2,2);
+    } else if ( symbol == "thick_circle" ) {
+        pen.setWidth(2.0);
+        painter.setPen(pen);
+        painter.drawEllipse(p,3,3);
+    } else if ( symbol == "solid_circle" ) {
+        pen.setWidthF(2.0);
+        painter.setPen(pen);
+        painter.drawEllipse(p,1,1);
+    } else if ( symbol == "square" ) {
+        double x = p.x()-2.0;
+        double y = p.y()-2.0;
+        painter.drawRect(QRectF(x,y,4,4));
+    } else if ( symbol == "thick_square") {
+        pen.setWidthF(2.0);
+        painter.setPen(pen);
+        double x = p.x()-3.0;
+        double y = p.y()-3.0;
+        painter.drawRect(QRectF(x,y,6,6));
+    } else if ( symbol == "solid_square" ) {
+        pen.setWidthF(4.0);
+        painter.setPen(pen);
+        painter.drawPoint(p); // happens to be a solid square
+    } else if ( symbol == "star" ) { // *
+        double r = 3.0;
+        QPointF a(p.x()+r*cos(18.0*M_PI/180.0),
+                  p.y()-r*sin(18.0*M_PI/180.0));
+        QPointF b(p.x(),p.y()-r);
+        QPointF c(p.x()-r*cos(18.0*M_PI/180.0),
+                  p.y()-r*sin(18.0*M_PI/180.0));
+        QPointF d(p.x()-r*cos(54.0*M_PI/180.0),
+                  p.y()+r*sin(54.0*M_PI/180.0));
+        QPointF e(p.x()+r*cos(54.0*M_PI/180.0),
+                  p.y()+r*sin(54.0*M_PI/180.0));
+        painter.drawLine(p,a);
+        painter.drawLine(p,b);
+        painter.drawLine(p,c);
+        painter.drawLine(p,d);
+        painter.drawLine(p,e);
+    } else if ( symbol == "xx" ) {
+        pen.setWidthF(2.0);
+        painter.setPen(pen);
+        QPointF a(p.x()+2.0,p.y()+2.0);
+        QPointF b(p.x()-2.0,p.y()+2.0);
+        QPointF c(p.x()-2.0,p.y()-2.0);
+        QPointF d(p.x()+2.0,p.y()-2.0);
+        painter.drawLine(p,a);
+        painter.drawLine(p,b);
+        painter.drawLine(p,c);
+        painter.drawLine(p,d);
+    } else if ( symbol == "triangle" ) {
+        double r = 3.0;
+        QPointF a(p.x(),p.y()-r);
+        QPointF b(p.x()-r*cos(30.0*M_PI/180.0),
+                  p.y()+r*sin(30.0*M_PI/180.0));
+        QPointF c(p.x()+r*cos(30.0*M_PI/180.0),
+                  p.y()+r*sin(30.0*M_PI/180.0));
+        painter.drawLine(a,b);
+        painter.drawLine(b,c);
+        painter.drawLine(c,a);
+    } else if ( symbol == "thick_triangle" ) {
+        pen.setWidthF(2.0);
+        painter.setPen(pen);
+        double r = 4.0;
+        QPointF a(p.x(),p.y()-r);
+        QPointF b(p.x()-r*cos(30.0*M_PI/180.0),
+                  p.y()+r*sin(30.0*M_PI/180.0));
+        QPointF c(p.x()+r*cos(30.0*M_PI/180.0),
+                  p.y()+r*sin(30.0*M_PI/180.0));
+        painter.drawLine(a,b);
+        painter.drawLine(b,c);
+        painter.drawLine(c,a);
+    } else if ( symbol == "solid_triangle" ) {
+        pen.setWidthF(2.0);
+        painter.setPen(pen);
+        double r = 3.0;
+        QPointF a(p.x(),p.y()-r);
+        QPointF b(p.x()-r*cos(30.0*M_PI/180.0),
+                  p.y()+r*sin(30.0*M_PI/180.0));
+        QPointF c(p.x()+r*cos(30.0*M_PI/180.0),
+                  p.y()+r*sin(30.0*M_PI/180.0));
+        painter.drawLine(a,b);
+        painter.drawLine(b,c);
+        painter.drawLine(c,a);
+    } else if ( symbol.startsWith("number_") && symbol.size() == 8 ) {
+
+        QFont origFont = painter.font();
+        QBrush origBrush = painter.brush();
+
+        // Calculate bbox to draw text in
+        QString number = symbol.right(1); // last char is '0'-'9'
+        QFont font = painter.font();
+        font.setPointSize(7);
+        painter.setFont(font);
+        QFontMetrics fm = painter.fontMetrics();
+        QRectF bbox(fm.tightBoundingRect(number));
+        bbox.moveCenter(p);
+
+        // Draw solid circle around number
+        QRectF box(bbox);
+        double l = 3.0*qMax(box.width(),box.height())/2.0;
+        box.setWidth(l);
+        box.setHeight(l);
+        box.moveCenter(p);
+        QBrush brush(pen.color());
+        painter.setBrush(brush);
+        painter.drawEllipse(box);
+
+        // Draw number in white in middle of circle
+        QPen whitePen("white");
+        painter.setPen(whitePen);
+        painter.drawText(bbox,Qt::AlignCenter,number);
+
+        painter.setFont(origFont);
+        painter.setBrush(origBrush);
+    }
+
+    painter.setPen(origPen);
+}

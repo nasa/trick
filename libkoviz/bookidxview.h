@@ -3,6 +3,8 @@
 
 #include <QAbstractItemView>
 #include <QMouseEvent>
+#include <QPainter>
+#include <QPen>
 #include <qmath.h>
 #include "bookmodel.h"
 #include "unit.h"
@@ -67,6 +69,35 @@ protected:
 
     QString _curvesXUnit(const QModelIndex& plotIdx) const;
     QString _curvesUnit(const QModelIndex& plotIdx, QChar axis) const;
+
+protected:
+    QStringList _pageTitles(const QModelIndex& titleIdx) const;
+    QRect _paintPageTitle(const QModelIndex &titleIdx, QPainter &painter);
+    QRect _paintPageLegend(const QRect& R,
+                           const QModelIndex& curvesIdx, QPainter &painter);
+    void _paintCurvesLegend(const QRect &R,
+                            const QModelIndex& curvesIdx, QPainter &painter);
+    void __paintCurvesLegend(const QRect &R,
+                             const QList<QPen*>& pens,
+                             const QStringList& symbols,
+                             const QStringList& labels,
+                             QPainter& painter);
+    void _paintLegendEntry(const QRect &R,
+                           int l, // line width
+                           int s, // space between line and label
+                           const QPen& pen,
+                           const QString& symbol,
+                           const QString& label,
+                           QPainter& painter);
+    virtual void __paintSymbol(const QPointF &p, const QString& symbol,
+                               QPainter& painter);
+
+private:
+    QRect __paintPageLegend(const QRect& R,
+                       const QList<QPen*>& pens,
+                       const QStringList& symbols,
+                       const QStringList& labels,
+                       QPainter& painter);
 
 protected:
     QList<QAbstractItemView*> _childViews;

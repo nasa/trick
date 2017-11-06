@@ -126,13 +126,6 @@ private:
     void _paintLiveCoordArrow(TrickCurveModel *curveModel,
                           const QModelIndex &curveIdx, QPainter &painter);
     void _paintErrorLiveCoordArrow(QPainterPath* path, QPainter& painter);
-    void _paintLegend(const QModelIndex& curvesIdx, QPainter &painter);
-    void __paintLegend(const QList<QPen*>& pens,
-                       const QStringList& symbols,
-                       const QStringList& labels,
-                       QPainter& painter);
-    void __paintSymbol(const QPointF &p, const QString& symbol,
-                       QPainter& painter);
 
     QModelIndex _chooseCurveNearMousePoint(const QPoint& pt);
 

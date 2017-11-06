@@ -3,7 +3,6 @@
 
 #include <QAbstractItemView>
 #include <QStandardItemModel>
-#include <QFontMetrics>
 #include <QPainter>
 
 #include "bookidxview.h"
@@ -17,6 +16,10 @@ public:
 protected:
     virtual void paintEvent(QPaintEvent * event);
 
+protected slots:
+    virtual void dataChanged(const QModelIndex &topLeft,
+                             const QModelIndex &bottomRight,
+                             const QVector<int> &roles = QVector<int>());
 };
 
 #endif // PAGETITLEVIEW_H

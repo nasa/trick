@@ -5,6 +5,7 @@
 #include <QStandardItem>
 #include <QHash>
 #include <QPainterPath>
+#include <QPen>
 #include <QVector>
 #include "montemodel.h"
 #include "unit.h"
@@ -96,7 +97,15 @@ public:
     void setPlotMathRect(const QRectF& mathRect, const QModelIndex &plotIdx);
 
     // Utility for abbreviating a list of run:var names
-    QStringList abbreviateLabels(const QStringList &labels);
+    QStringList abbreviateLabels(const QStringList &labels) const;
+
+    // Legend
+    QStringList legendSymbols(const QModelIndex &plotIdx) const ;
+    QStringList legendColors(const QModelIndex &plotIdx) const ;
+    QStringList legendLinestyles(const QModelIndex &plotIdx) const ;
+    QStringList legendLabels(const QModelIndex &plotIdx) const ;
+    QList<QPen*> legendPens(const QModelIndex &plotIdx) const ;
+    bool isPlotLegendsSame(const QModelIndex& pageIdx) const ;
 
 signals:
     
@@ -116,9 +125,9 @@ private:
     QPainterPath* _createPainterPath(TrickCurveModel *curveModel);
     QPainterPath* _createCurvesErrorPath(const QModelIndex& curvesIdx) const;
 
-    QString _commonRootName(const QStringList& names, const QString& sep);
+    QString _commonRootName(const QStringList& names, const QString& sep) const;
     QString __commonRootName(const QString& a, const QString& b,
-                             const QString& sep);
+                             const QString& sep) const;
 
 };
 
