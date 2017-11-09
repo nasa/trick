@@ -27,7 +27,7 @@ Trick::VariableServerListenThread::VariableServerListenThread() :
 
 Trick::VariableServerListenThread::~VariableServerListenThread() {
     if ( listen_dev.hostname != NULL ) {
-        free(listen_dev.hostname) ;
+        free((char*)listen_dev.hostname) ;
     }
     if ( listen_dev.error_handler != NULL ) {
         free(listen_dev.error_handler) ;

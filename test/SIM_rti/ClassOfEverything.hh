@@ -55,8 +55,8 @@ class ClassOfEverything {
    float * fap[4] ;   /* kg blah */
    float ** fpp ;     /* kg blah */
 
-   float  f_rad ; /* r float test value */
-   double d_deg ; /* d blah */
+   float  f_rad ; /* rad float test value */
+   double d_deg ; /* degree blah */
 
    char c ;            /* -- blah */
    char ca[20] ;       /* -- blah */

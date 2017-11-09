@@ -391,9 +391,8 @@ TEST_F(ExecutiveTest , AddDepends) {
 TEST_F(ExecutiveTest , UnhandledJobs) {
     //req.add_requirement("r_exec_jobs");
 	//"The Executive Scheduler shall provide the capability to list jobs not handled by any scheduler."
-    Trick::JobData * curr_job ;
 
-    curr_job = so1.add_job(0, 100, "unhandled", NULL, 1, "unhandled_job", "") ;
+    so1.add_job(0, 100, "unhandled", NULL, 1, "unhandled_job", "") ;
     exec_add_sim_object(&so1 , "so1") ;
     EXPECT_EQ(exec.check_all_jobs_handled() , 1 ) ;
 }

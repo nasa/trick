@@ -26,7 +26,7 @@ Trick::MessageTCDeviceListenThread::MessageTCDeviceListenThread(MessageTCDevice 
 Trick::MessageTCDeviceListenThread::~MessageTCDeviceListenThread() {
     free(listen_dev.error_handler) ;
     if ( listen_dev.hostname ) {
-       free(listen_dev.hostname) ;
+       free((char*)listen_dev.hostname) ;
     }
     close(listen_dev.socket) ;
 }

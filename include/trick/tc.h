@@ -133,7 +133,7 @@ typedef struct {
     struct in_addr client_addr;        /* ** client tag, other side.        Set by tc_connect. */
     TrickErrorHndlr *error_handler;    /* ** error handler.                 User specified.
                                                                               Defaults if unspecified.*/
-    char *hostname;                    /* -- Hostname of server/client.     User specified. */
+    const char *hostname;                    /* -- Hostname of server/client.     User specified. */
     int port;                          /* -- TCP/IP Port number.            User specified. */
     struct sockaddr_in remoteServAddr; /* ** Remote server address for UDP. Set by tc_init_udp_client or
                                                                                    tc_init_mcast_client */

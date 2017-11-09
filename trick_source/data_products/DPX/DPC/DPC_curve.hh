@@ -94,7 +94,7 @@ public:
      * Get the next (X, Y) pair for the curve.
      * @return 1 if data was returned in x_value and y_value, 0 if there is no more data.
      */
-    virtual int getXY(double *x_value, double *y_value) {
+    virtual int getXY(double *, double *) {
         return 0;
     }
 
