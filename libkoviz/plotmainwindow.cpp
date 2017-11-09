@@ -488,7 +488,7 @@ void PlotMainWindow::_monteInputsHeaderViewClicked(int section)
             _bookModel->setData(changeColorIdx,changeColorFrom);
 
             // Turn signals back on
-            block = _bookModel->blockSignals(block);
+            _bookModel->blockSignals(block);
 
             // Set one curve color while signals on so that the dataChanged
             // signal will fire and a new pixmap will be created

@@ -374,7 +374,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             }
 
             // Turn signals back on before adding curveModel
-            block = _bookModel->blockSignals(block);
+            _bookModel->blockSignals(block);
 
             // Initialize plot math rect
             QModelIndex curvesIdx = curvesItem->index();

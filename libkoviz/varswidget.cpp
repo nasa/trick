@@ -296,7 +296,7 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
     }
 
     // Turn signals back on before adding curveModel
-    block = _plotModel->blockSignals(block);
+    _plotModel->blockSignals(block);
 
     // Update progress dialog
     progress.setValue(rc);

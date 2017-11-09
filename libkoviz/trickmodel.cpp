@@ -78,8 +78,13 @@ bool TrickModel::_load_trick_header()
         Parameter* p = _col2param.value(cc);
         _paramtypes.push_back(p->type());
     }
+    if ( _row_size == 0 ) {
+        _err_stream << "koviz [error]: trk file \""
+                    << file.fileName() << "\" is corrupt!\n";
+        throw std::runtime_error(_err_string.toLatin1().constData());
+    }
 
-    // Sanity check.  The bytes remaining should be a multiple of the record size
+    // Sanity check. Bytes remaining should be a multiple of the record size
     qint64 nbytes = file.bytesAvailable();
     if ( nbytes % _row_size != 0 ) {
         _err_stream << "koviz [error]: trk file \""

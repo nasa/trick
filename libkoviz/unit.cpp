@@ -377,57 +377,6 @@ QString Unit::_family(const QString &name)
     return family;
 }
 
-double Unit::_convertTemp(double value, const QString &from, const QString &to)
-{
-    double ret = 0.0;
-
-    if ( from != "C" && from != "R" && from != "K" && from != "F" ) {
-        fprintf(stderr,"koviz [bad scoobs]: Attempting to convert "
-                       "unit=\"%s\" to unit=\"%s\"; however "
-                       "these units are not temperature.\n",
-                        from.toLatin1().constData(), to.toLatin1().constData());
-        exit(-1);
-    }
-    if ( to != "C" && to != "R" && to != "K" && to != "F" ) {
-        fprintf(stderr,"koviz [error]: Attempting to convert "
-                       "unit=\"%s\" to unit=\"%s\"; however "
-                       "\"%s\" is not temperature.\n",
-                        from.toLatin1().constData(), to.toLatin1().constData(),
-                        to.toLatin1().constData());
-        exit(-1);
-    }
-
-    if ( from == to ) {
-
-        ret = value;
-
-    } else {
-
-        double celsius;
-        if ( from == "C" ) {
-            celsius = value;
-        } else if ( from == "R" ) {
-            celsius = (value - 491.67)*5.0/9.0;
-        } else if ( from == "F" ) {
-            celsius = (value - 32.0)*5.0/9.0;
-        } else if ( from == "K" ) {
-            celsius = value - 273.15;
-        }
-
-        if ( to == "C" ) {
-            ret = celsius;
-        } else if ( to == "R" ) {
-            ret = (celsius + 273.15)*9.0/5.0;
-        } else if ( to == "F" ) {
-            ret = celsius*9.0/5.0 + 32.0;
-        } else if ( to == "K" ) {
-            ret = celsius + 273.15;
-        }
-    }
-
-    return ret;
-}
-
 /*
     // TODO: make unit test with the following
     convert(1.0,"s","s");    // 1

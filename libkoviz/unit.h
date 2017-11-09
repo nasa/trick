@@ -37,8 +37,6 @@ class Unit {
     static QHash<QPair<QString,QString>,double> _initScales();
     static QHash<QPair<QString,QString>,double> _initBiases();
     static QString _family(const QString& name);
-    static double _convertTemp(double value,
-                               const QString& from, const QString& to);
 
 };
 #endif

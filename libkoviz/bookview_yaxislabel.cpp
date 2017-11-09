@@ -125,7 +125,7 @@ void YAxisLabelView::wheelEvent(QWheelEvent *e)
                                                          "CurveYUnit", "Curve");
             model()->setData(yUnitIdx,toUnit);
         }
-        block = model()->blockSignals(block);
+        model()->blockSignals(block);
 
         // Recalculate and update bounding box (since unit change)
         double scale = Unit::scale(fromUnit,toUnit);

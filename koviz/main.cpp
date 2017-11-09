@@ -1418,12 +1418,11 @@ QStandardItemModel* monteInputModelTrick07(const QString &monteInputFile,
     //
     // Get Num Runs
     //
-    int nRuns = 0 ;
     bool isNumRuns = false;
     while (!in.atEnd()) {
         QString line = in.readLine();
         if ( line.startsWith("NUM_RUNS:") ) {
-            nRuns = line.split(':').at(1).trimmed().toInt(&isNumRuns);
+            line.split(':').at(1).trimmed().toInt(&isNumRuns);
             break;
         }
     }
@@ -1478,7 +1477,7 @@ QStandardItemModel* monteInputModelTrick07(const QString &monteInputFile,
     //
     // Allocate table items
     //
-    nRuns = runs.size();
+    int nRuns = runs.size();
     m = new QStandardItemModel(nRuns,vars.size());
 
     //
