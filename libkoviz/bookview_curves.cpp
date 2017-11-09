@@ -281,15 +281,21 @@ void CurvesView::setCurrentCurveRunID(int runID)
     QModelIndex plotIdx = rootIndex();
     QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
     int rc = model()->rowCount(curvesIdx);
+    int nMatches = 0;
+    QModelIndex curveIdx;
     for (int i = 0 ; i < rc; ++i ) {
         QModelIndex idx = model()->index(i,0,curvesIdx);
         if ( model()->data(idx).toString() == "Curve" ) {
             int curveRunID = _bookModel()->getDataInt(idx,"CurveRunID","Curve");
             if ( curveRunID == runID ) {
-                setCurrentIndex(idx);
-                break;
+                ++nMatches;
+                curveIdx = idx;
             }
         }
+    }
+    if ( nMatches == 1 ) {
+        // If runID matches a single curve, make curve current
+        setCurrentIndex(curveIdx);
     }
 }
 
