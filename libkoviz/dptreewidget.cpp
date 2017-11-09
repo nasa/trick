@@ -99,6 +99,9 @@ DPTreeWidget::~DPTreeWidget()
         _dir = 0;
     }
 
+    if ( _dpFilterModel ) {
+        delete _dpFilterModel;
+    }
 }
 
 //

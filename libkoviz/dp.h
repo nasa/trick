@@ -85,6 +85,7 @@ public:
     DPCurve() : _t(0),_x(0),_y(0) {}
 
     DPCurve(const QDomElement& e);
+    ~DPCurve();
     DPVar* t();
     DPVar* x();
     DPVar* y();
@@ -122,6 +123,7 @@ class DPPlot
 public:
     DPPlot(const QDomElement& e);
     DPPlot(const char* title);
+    ~DPPlot();
     QString title() { return _title ; }
     QString xAxisLabel();
     QString yAxisLabel();
@@ -178,6 +180,7 @@ class DPPage
 public:
     DPPage(const QDomElement& e);
     DPPage(const char* title);
+    ~DPPage();
     QString title() const { return _title ; }
     QList<DPPlot*> plots() { return _plots; }
     DPPlot* addPlot(const char* title);
@@ -206,6 +209,7 @@ class DPTable
 public:
     DPTable(const char* title);
     DPTable(const QDomElement& e);
+    ~DPTable();
 
     QString title() const { return _title ; }
     QString delimiter() const { return _delimiter; }

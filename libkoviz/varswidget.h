@@ -28,6 +28,7 @@ public:
                         QItemSelectionModel*  plotSelectModel,
                         MonteInputsView* monteInputsView,
                         QWidget *parent = 0);
+    ~VarsWidget();
 
     void clearSelection();
 

@@ -50,6 +50,16 @@ VarsWidget::VarsWidget(const QString &timeName,
             SLOT(_varsSelectModelSelectionChanged(QItemSelection,QItemSelection)));
 }
 
+VarsWidget::~VarsWidget()
+{
+    if ( _varsSelectModel ) {
+        delete _varsSelectModel;
+    }
+    if ( _varsFilterModel ) {
+        delete _varsFilterModel;
+    }
+}
+
 
 void VarsWidget::_varsSelectModelSelectionChanged(
                                 const QItemSelection &currVarSelection,

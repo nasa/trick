@@ -39,6 +39,19 @@ DPProduct::~DPProduct()
 {
     if ( _doc ) delete _doc;
     product = 0 ;
+    foreach ( DPPage* page, _pages ) {
+        if ( page ) {
+            delete page;
+        }
+    }
+    _pages.clear();
+
+    foreach ( DPTable* table, _tables ) {
+        if ( table ) {
+            delete table;
+        }
+    }
+    _tables.clear();
 }
 
 QString DPProduct::title()
@@ -69,8 +82,8 @@ void DPProduct::_handleDP05File(QString &contents)
     product = this; // TODO: product is global, need to fix the hack
 
     YY_BUFFER_STATE state = yy_scan_string(contents.toLatin1().constData());
-    Q_UNUSED(state);
     yyparse();
+    yy_delete_buffer(state);
 }
 
 void DPProduct::_handleDPXMLFile(const QString &xmlfile)
@@ -234,6 +247,16 @@ DPPage::DPPage(const char *title) :
 {
 }
 
+DPPage::~DPPage()
+{
+    foreach ( DPPlot* plot, _plots ) {
+        if ( plot ) {
+            delete plot;
+        }
+    }
+    _plots.clear();
+}
+
 DPPlot *DPPage::addPlot(const char *title)
 {
     DPPlot* plot = new DPPlot(title);
@@ -372,6 +395,16 @@ DPPlot::DPPlot(const char *title) :
     _foregroundColor(""),
     _font("")
 {
+}
+
+DPPlot::~DPPlot()
+{
+    foreach ( DPCurve* curve, _curves ) {
+        if ( curve ) {
+            delete curve;
+        }
+    }
+    _curves.clear();
 }
 
 QString DPPlot::xAxisLabel()
@@ -585,6 +618,13 @@ DPCurve::DPCurve(const QDomElement &e) : _t(0), _x(0), _y(0)
         }
         n = n.nextSibling();
     }
+}
+
+DPCurve::~DPCurve()
+{
+    if ( _t ) delete _t;
+    if ( _x ) delete _x;
+    if ( _y ) delete _y;
 }
 
 DPVar *DPCurve::setXVarName(const char *name)
@@ -815,6 +855,15 @@ DPTable::DPTable(const char *title) :
 {
 }
 
+DPTable::~DPTable()
+{
+    foreach ( DPVar* var, _vars ) {
+        if ( var ) {
+            delete var;
+        }
+    }
+    _vars.clear();
+}
 
 DPVar *DPTable::addVar(const char *title)
 {
