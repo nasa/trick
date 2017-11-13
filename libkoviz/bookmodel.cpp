@@ -29,6 +29,16 @@ PlotBookModel::~PlotBookModel()
         }
     }
     _curve2path.clear();
+
+    foreach ( QModelIndex pageIdx, pageIdxs() ) {
+        foreach ( QModelIndex plotIdx, plotIdxs(pageIdx) ) {
+            QModelIndex curvesIdx = getIndex(plotIdx,"Curves","Plot");
+            foreach (QModelIndex curveIdx, curveIdxs(curvesIdx)) {
+                TrickCurveModel* c =  getTrickCurveModel(curveIdx);
+                delete c;
+            }
+        }
+    }
 }
 
 bool PlotBookModel::setData(const QModelIndex &idx,

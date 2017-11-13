@@ -790,6 +790,10 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
                     "%s,%s)\n",
                     timeName.toLatin1().constData(),
                     yParam.toLatin1().constData());
+            foreach ( TrickCurveModel* curveModel, curves ) {
+                delete curveModel;
+            }
+            delete c;
             return false;
         }
 
@@ -801,6 +805,10 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
             // No data
             fprintf(stderr, "koviz [error]: no data found in %s\n",
                     c->tableName().toLatin1().constData());
+            foreach ( TrickCurveModel* curveModel, curves ) {
+                delete curveModel;
+            }
+            delete c;
             return false;
         }
 
@@ -911,6 +919,9 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
     // Clean up
     //
     trk.close();
+    foreach ( TrickCurveModel* curveModel, curves ) {
+        delete curveModel;
+    }
 
     return true;
 }
