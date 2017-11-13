@@ -1167,6 +1167,19 @@ bool convert2trk(const QString& csvFileName, const QString& trkFileName)
             bool ok;
             double val = s.toDouble(&ok);
             if ( !ok ) {
+                QStringList vals = s.split(":");
+                if (vals.length() == 3 ) {
+                    // Try converting to a utc timestamp
+                    val = 3600.0*vals.at(0).toDouble(&ok);
+                    if ( ok ) {
+                        val += 60.0*vals.at(1).toDouble(&ok);
+                        if ( ok ) {
+                            val += vals.at(2).toDouble(&ok);
+                        }
+                    }
+                }
+            }
+            if ( !ok ) {
                 QFileInfo fi(csvFileName);
                 fprintf(stderr,
                  "koviz [error]: Bad value \"%s\" on line %d in file %s\n",
