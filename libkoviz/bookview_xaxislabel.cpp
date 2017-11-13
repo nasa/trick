@@ -46,9 +46,10 @@ QSize XAxisLabelView::sizeHint() const
     return s;
 }
 
-// Change curve units based on current unit
+// TODO: Change curve units based on current unit
 void XAxisLabelView::wheelEvent(QWheelEvent *e)
 {
+    Q_UNUSED(e);
     return;
 }
 

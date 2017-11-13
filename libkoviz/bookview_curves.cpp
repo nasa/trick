@@ -362,6 +362,8 @@ void CurvesView::paintEvent(QPaintEvent *event)
 
 void CurvesView::_paintCoplot(const QTransform &T,QPainter &painter,QPen &pen)
 {
+    Q_UNUSED(pen);
+
     if ( !_pixmap ) return;
 
     painter.save();
