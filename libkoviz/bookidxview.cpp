@@ -1168,7 +1168,7 @@ QRect BookIdxView::__paintPageLegend(const QRect &R,
     QFontMetrics fm = painter.fontMetrics();
 
     const int c = fm.averageCharWidth();
-    const int v = 0;   // vertical space between legend entries
+    const int v = fm.leading();   // vertical space between legend entries
     const int s = c;   // spaceBetweenLineAndLabel
     const int l = 5*c; // line width
     const int q = 5*c; // space between legend columns
