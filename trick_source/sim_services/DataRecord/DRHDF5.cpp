@@ -216,7 +216,7 @@ int Trick::DRHDF5::format_specific_init() {
    DataRecordGroup.  This routine writes out all of the buffered data of a variable
    in one or two HDF5 calls.
 */
-int Trick::DRHDF5::write_data(bool must_write) {
+int Trick::DRHDF5::write_data(bool) {
 
 #ifdef HDF5
     unsigned int local_buffer_num ;

@@ -21,6 +21,7 @@ int Trick::UdUnits::read_default_xml() {
 }
 
 int Trick::UdUnits::read_user_xml(std::string file_name) {
+    (void)file_name;
     return 0 ;
 }
 
