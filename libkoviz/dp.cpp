@@ -314,7 +314,7 @@ DPPlot::DPPlot(const QDomElement &e) :
     _isGrid(true),
     _gridColor("#E1E1E1"),
     _backgroundColor("#FFFFFF"),
-    _foregroundColor(""),
+    _foregroundColor("#000000"),
     _font("")
 {
     QDomElement el = e;
@@ -392,7 +392,7 @@ DPPlot::DPPlot(const char *title) :
     _isGrid(true),
     _gridColor("#E1E1E1"),
     _backgroundColor("#FFFFFF"),
-    _foregroundColor(""),
+    _foregroundColor("#000000"),
     _font("")
 {
 }

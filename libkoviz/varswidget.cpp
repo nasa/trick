@@ -192,10 +192,14 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
     _addChild(plotItem, "PlotName", plotName);
     _addChild(plotItem, "PlotTitle", "");
     _addChild(plotItem, "PlotMathRect", QRectF());
+    _addChild(plotItem, "PlotStartTime", -DBL_MAX);
+    _addChild(plotItem, "PlotStopTime",   DBL_MAX);
     _addChild(plotItem, "PlotXMinRange", -DBL_MAX);
     _addChild(plotItem, "PlotXMaxRange",  DBL_MAX);
     _addChild(plotItem, "PlotYMinRange", -DBL_MAX);
     _addChild(plotItem, "PlotYMaxRange",  DBL_MAX);
+    _addChild(plotItem, "PlotBackgroundColor", "#FFFFFF");
+    _addChild(plotItem, "PlotForegroundColor", "#000000");
     int rc = _monteModel->rowCount(); // a curve per run, so, rc == nCurves
     if ( rc == 2 ) {
         QString presentation = _plotModel->getDataString(QModelIndex(),
@@ -290,6 +294,10 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
         _addChild(curveItem, "CurveSymbolSize", "");
         _addChild(curveItem, "CurveLineStyle", "");
         _addChild(curveItem, "CurveYLabel", "");
+        _addChild(curveItem, "CurveXMinRange", -DBL_MAX);
+        _addChild(curveItem, "CurveXMaxRange",  DBL_MAX);
+        _addChild(curveItem, "CurveYMinRange", -DBL_MAX);
+        _addChild(curveItem, "CurveYMaxRange",  DBL_MAX);
 
 
         // Add actual curve model data

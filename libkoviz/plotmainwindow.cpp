@@ -211,7 +211,8 @@ void PlotMainWindow::createMenu()
     _menuBar = new QMenuBar;
     _fileMenu = new QMenu(tr("&File"), this);
     _optsMenu = new QMenu(tr("&Options"), this);
-    _pdfAction  = _fileMenu->addAction(tr("Save As P&DF"));
+    _pdfAction  = _fileMenu->addAction(tr("Save &PDF"));
+    _dpAction  = _fileMenu->addAction(tr("Save &DP"));
     _exitAction = _fileMenu->addAction(tr("E&xit"));
     _showLiveCoordAction = _optsMenu->addAction(tr("ShowLiveCoord"));
     _clearPlotsAction  = _optsMenu->addAction(tr("ClearPlots"));
@@ -220,6 +221,7 @@ void PlotMainWindow::createMenu()
     _showLiveCoordAction->setChecked(true);
     _menuBar->addMenu(_fileMenu);
     _menuBar->addMenu(_optsMenu);
+    connect(_dpAction, SIGNAL(triggered()),this, SLOT(_saveDP()));
     connect(_pdfAction, SIGNAL(triggered()),this, SLOT(_savePdf()));
     connect(_exitAction, SIGNAL(triggered()),this, SLOT(close()));
     connect(_showLiveCoordAction, SIGNAL(triggered()),
@@ -327,6 +329,328 @@ bool PlotMainWindow::_isMONTE(const QString &fp)
     return ( fi.baseName().left(6) == "MONTE_" && fi.isDir() ) ;
 }
 
+void PlotMainWindow::_saveDP()
+{
+    QString fname = QFileDialog::getSaveFileName(this,
+                                                 QString("Save DP"),
+                                                 QString(""),
+                                                 tr("files (DP*)"));
+
+    if ( fname.isEmpty() ) {
+        return;
+    }
+
+    QString i1("  ");
+    QString i2("    ");
+    QString i3("      ");
+    QString i4("        ");
+
+    // Open DP file for writing
+    QFile dp(fname);
+    if (!dp.open(QIODevice::WriteOnly)) {
+        fprintf(stderr,"koviz: [error] could not open %s\n",
+                fname.toLatin1().constData());
+        return;
+    }
+    QTextStream out(&dp);
+
+    // Title
+    out << "Koviz\n\n";
+
+    // Plots
+    out << "PLOTS:\n";
+
+    // Pages
+    int pageNum = 1;
+    QModelIndexList pageIdxs = _bookModel->pageIdxs();
+    foreach ( QModelIndex pageIdx, pageIdxs ) {
+        QString pageTitle = _bookModel->getDataString(pageIdx,
+                                                      "PageTitle","Page");
+        if ( pageTitle == "Koviz" ) {
+            pageTitle.clear();
+        }
+        out << i1 << "Page " << pageNum << ":" << " \"" << pageTitle << "\"\n";
+
+        double pageStart = _bookModel->getDataDouble(pageIdx,
+                                                     "PageStartTime","Page");
+        if ( pageStart != -DBL_MAX ) {
+            out << i2 << "start: " << pageStart << "\n";
+        }
+
+        double pageStop = _bookModel->getDataDouble(pageIdx,
+                                                    "PageStopTime","Page");
+        if ( pageStop != DBL_MAX ) {
+            out << i2 << "stop: " << pageStop << "\n";
+        }
+
+        QString pageBG = _bookModel->getDataString(pageIdx,
+                                                   "PageBackgroundColor",
+                                                   "Page");
+        if ( pageBG != "#FFFFFF") {
+            out << i2 << "background_color: \"" << pageBG << "\"\n";
+        }
+
+        QString pageFG = _bookModel->getDataString(pageIdx,
+                                                   "PageForegroundColor",
+                                                   "Page");
+        if ( pageFG != "#000000") {
+            out << i2  << "foreground_color: \"" << pageFG << "\"\n";
+        }
+
+        out << "\n";
+
+        int plotNum = 1;
+        QModelIndexList plotIdxs = _bookModel->plotIdxs(pageIdx);
+        foreach ( QModelIndex plotIdx, plotIdxs ) {
+            QString plotTitle = _bookModel->getDataString(plotIdx,
+                                                          "PlotTitle","Plot");
+            out << i2 << "Plot " << plotNum << ":"
+                << " \"" << plotTitle << "\"\n";
+
+            double plotStart = _bookModel->getDataDouble(plotIdx,
+                                                         "PlotStartTime",
+                                                         "Plot");
+            if ( plotStart != -DBL_MAX ) {
+                out << i3 << "start: " << plotStart << "\n";
+            }
+
+            double plotStop = _bookModel->getDataDouble(plotIdx,
+                                                        "PlotStopTime","Plot");
+            if ( plotStop != DBL_MAX ) {
+                out << i3 << "stop: " << plotStop << "\n";
+            }
+
+            double plotXMin = _bookModel->getDataDouble(plotIdx,
+                                                        "PlotXMinRange","Plot");
+            if ( plotXMin != -DBL_MAX ) {
+                out << i3 << "x_min_range: " << plotXMin << "\n";
+            }
+
+            double plotXMax = _bookModel->getDataDouble(plotIdx,
+                                                        "PlotXMaxRange","Plot");
+            if ( plotXMax != DBL_MAX ) {
+                out << i3 << "x_max_range: " << plotXMax << "\n";
+            }
+
+            double plotYMin = _bookModel->getDataDouble(plotIdx,
+                                                        "PlotYMinRange","Plot");
+            if ( plotYMin != -DBL_MAX ) {
+                out << i3 << "y_min_range: " << plotYMin << "\n";
+            }
+
+            double plotYMax = _bookModel->getDataDouble(plotIdx,
+                                                        "PlotYMaxRange","Plot");
+            if ( plotYMax != DBL_MAX ) {
+                out << i3 << "y_max_range: " << plotYMax << "\n";
+            }
+
+            QString plotBG = _bookModel->getDataString(plotIdx,
+                                                       "PlotBackgroundColor",
+                                                       "Plot");
+            if ( plotBG != "#FFFFFF") {
+                out << i3 << "background_color: \"" << plotBG << "\"\n";
+            }
+
+            QString plotFG = _bookModel->getDataString(plotIdx,
+                                                       "PlotForegroundColor",
+                                                       "Plot");
+            if ( plotFG != "#000000" ) {
+                out << i3 << "foreground_color: \"" << plotFG << "\"\n";
+            }
+
+
+            QModelIndex curvesIdx = _bookModel->getIndex(plotIdx,
+                                                         "Curves","Plot");
+            QModelIndexList curveIdxs = _bookModel->curveIdxs(curvesIdx);
+
+            QString xAxisLabel = _bookModel->getDataString(plotIdx,
+                                                           "PlotXAxisLabel",
+                                                           "Plot");
+            bool isXAxisLabel = true;
+            foreach ( QModelIndex curveIdx, curveIdxs ) {
+                QString xName = _bookModel->getDataString(curveIdx,
+                                                          "CurveXName",
+                                                          "Curve");
+                if ( xName == xAxisLabel ||
+                     (xName == "sys.exec.out.time" && xAxisLabel == "Time")) {
+                    isXAxisLabel = false;
+                    break;
+                }
+            }
+            if ( isXAxisLabel ) {
+                out << i3 << "x_axis_label: \"" << xAxisLabel << "\"\n" ;
+            }
+
+            QString yAxisLabel = _bookModel->getDataString(plotIdx,
+                                                           "PlotYAxisLabel",
+                                                           "Plot");
+            bool isYAxisLabel = true;
+            foreach ( QModelIndex curveIdx, curveIdxs ) {
+                QString yName = _bookModel->getDataString(curveIdx,
+                                                          "CurveYName",
+                                                          "Curve");
+                if ( yName == yAxisLabel ) {
+                    isYAxisLabel = false;
+                    break;
+                }
+            }
+            if ( isYAxisLabel ) {
+                out << i3 << "y_axis_label: \"" << yAxisLabel << "\"\n" ;
+            }
+
+            QStringList ynames;
+            QString lastXName;
+            foreach ( QModelIndex curveIdx, curveIdxs ) {
+                QString xName = _bookModel->getDataString(curveIdx,
+                                                          "CurveXName",
+                                                          "Curve");
+                QString yName = _bookModel->getDataString(curveIdx,
+                                                          "CurveYName",
+                                                          "Curve");
+                if ( ynames.contains(yName) ) {
+                    continue;
+                }
+                ynames << yName;
+
+                if ( lastXName != xName ) {
+
+                    out << i3 << "x_variable: \"" << xName << "\"\n";
+
+                    QString xUnit = _bookModel->getDataString(curveIdx,
+                                                              "CurveXUnit",
+                                                              "Curve");
+                    if ( !xUnit.isEmpty() ) {
+                        out << i4 << "units: \"" << xUnit << "\"\n";
+                    }
+
+                    double curveXMin = _bookModel->getDataDouble(curveIdx,
+                                                               "CurveXMinRange",
+                                                               "Curve");
+                    if ( curveXMin != -DBL_MAX ) {
+                        out << i4 << "min_range: " << curveXMin << "\n";
+                    }
+
+                    double curveXMax = _bookModel->getDataDouble(curveIdx,
+                                                               "CurveXMaxRange",
+                                                               "Curve");
+                    if ( curveXMax != DBL_MAX ) {
+                        out << i4 << "max_range: " << curveXMax << "\n";
+                    }
+
+                    double curveXScale = _bookModel->getDataDouble(curveIdx,
+                                                                  "CurveXScale",
+                                                                   "Curve");
+                    if ( curveXScale != 1.0 ) {
+                        out << i4 << "scale_factor: " << curveXScale << "\n";
+                    }
+
+                    double curveXBias = _bookModel->getDataDouble(curveIdx,
+                                                                  "CurveXBias",
+                                                                  "Curve");
+                    if ( curveXBias != 0.0 ) {
+                        out << i4 << "bias: " << curveXBias << "\n";
+                    }
+
+                }
+
+                out << i3 << "y_variable: \"" << yName << "\"\n";
+
+                QString yUnit = _bookModel->getDataString(curveIdx,
+                                                          "CurveYUnit",
+                                                          "Curve");
+                if ( !yUnit.isEmpty() ) {
+                    out << i4 << "units: \"" << yUnit << "\"\n";
+                }
+
+                double curveYMin = _bookModel->getDataDouble(curveIdx,
+                                                             "CurveYMinRange",
+                                                             "Curve");
+                if ( curveYMin != -DBL_MAX ) {
+                    out << i4 << "min_range: " << curveYMin << "\n";
+                }
+
+                double curveYMax = _bookModel->getDataDouble(curveIdx,
+                                                             "CurveYMaxRange",
+                                                             "Curve");
+                if ( curveYMax != DBL_MAX ) {
+                    out << i4 << "max_range: " << curveYMax << "\n";
+                }
+
+                double curveYScale = _bookModel->getDataDouble(curveIdx,
+                                                               "CurveYScale",
+                                                               "Curve");
+                if ( curveYScale != 1.0 ) {
+                    out << i4 << "scale_factor: " << curveYScale << "\n";
+                }
+
+                double curveYBias = _bookModel->getDataDouble(curveIdx,
+                                                              "CurveYBias",
+                                                              "Curve");
+                if ( curveYBias != 0.0 ) {
+                    out << i4 << "bias: " << curveYBias << "\n";
+                }
+
+                QString symbolStyle = _bookModel->getDataString(curveIdx,
+                                                             "CurveSymbolStyle",
+                                                             "Curve");
+                if ( !symbolStyle.isEmpty() ) {
+                    out << i4 << "symbol_style: \"" << symbolStyle << "\"\n";
+                }
+
+                QString symbolSize = _bookModel->getDataString(curveIdx,
+                                                              "CurveSymbolSize",
+                                                              "Curve");
+                if ( !symbolSize.isEmpty() ) {
+                    out << i4 << "symbol_size: \"" << symbolSize << "\"\n";
+                }
+
+                QString lineStyle = _bookModel->getDataString(curveIdx,
+                                                              "CurveLineStyle",
+                                                              "Curve");
+                if ( !lineStyle.isEmpty() ) {
+                    out << i4 << "line_style: \"" << lineStyle << "\"\n";
+                }
+
+                // Only do color if it is a named color (not #NNNNNN)
+                QString lineColor = _bookModel->getDataString(curveIdx,
+                                                              "CurveColor",
+                                                              "Curve");
+                if ( !lineColor.isEmpty() && !lineColor.startsWith("#")) {
+                    out << i4 << "line_color: \"" << lineColor << "\"\n";
+                }
+
+                QString yLabel = _bookModel->getDataString(curveIdx,
+                                                           "CurveYLabel",
+                                                           "Curve");
+                if ( !yLabel.isEmpty() ) {
+                    out << i4 << "label: \"" << yLabel << "\"\n";
+                }
+
+                lastXName = xName;
+            }
+
+            out << "\n";
+            ++plotNum;
+        }
+        out << "\n";
+
+        ++pageNum;
+    }
+
+    // Tables
+    int tableNum = 1;
+    QModelIndex tablesIdx = _bookModel->getIndex(QModelIndex(),"Tables");
+    QModelIndexList tableIdxs = _bookModel->getIndexList(tablesIdx,"Table");
+    foreach ( QModelIndex tableIdx, tableIdxs ) {
+        if ( tableNum == 1 ) {
+            out << "TABLES:\n";
+        }
+        // TODO Save DP Tables !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    }
+
+    dp.close();
+}
+
 void PlotMainWindow::savePdf(const QString& fname)
 {
     if ( ! fname.isEmpty() ) {
@@ -337,7 +661,7 @@ void PlotMainWindow::savePdf(const QString& fname)
 void PlotMainWindow::_savePdf()
 {
     QString fname = QFileDialog::getSaveFileName(this,
-                                                 QString("Save As PDF"),
+                                                 QString("Save PDF"),
                                                  QString(""),
                                                  tr("files (*.pdf)"));
 

@@ -19,6 +19,9 @@
 #include <QLineEdit>
 #include <QSizePolicy>
 #include <QTreeView>
+#include <QFile>
+#include <QTextStream>
+#include <QDate>
 
 #include "monte.h"
 #include "dp.h"
@@ -75,6 +78,7 @@ private:
     QMenuBar* _menuBar;
     QMenu *_fileMenu;
     QMenu *_optsMenu;
+    QAction *_dpAction;
     QAction *_pdfAction;
     QAction *_exitAction;
     QAction *_showLiveCoordAction;
@@ -97,6 +101,7 @@ private slots:
      void _nbCurrentChanged(int i);
      void _bookModelRowsAboutToBeRemoved(const QModelIndex& pidx,
                                          int start, int end);
+     void _saveDP();
      void _savePdf();
      void _toggleShowLiveCoord();
      void _clearPlots();
