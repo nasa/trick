@@ -343,7 +343,12 @@ ${ER7_HEADERS} : ${PREFIX}/include/% : trick_source/%
 	install -m 0644 $? $@
 
 install: ${ER7_HEADERS}
-	cp -r bin include $(notdir ${TRICK_LIB_DIR}) libexec share ${PREFIX}
+	@if [ ! -d ${TRICK_LIB_DIR} ]; then \
+		echo "Trick needs to be compiled before you can install it. Run 'make' before attempting to run 'make install'."; \
+	else \
+		cp -r bin include $(notdir ${TRICK_LIB_DIR}) libexec share ${PREFIX}; \
+		echo "Trick has been successfully installed."; \
+	fi
 
 uninstall:
 	rm -f ${PREFIX}/bin/trick-CP
