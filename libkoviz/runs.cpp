@@ -78,7 +78,7 @@ void Runs::_init()
         if (progress.wasCanceled()) {
             exit(0);
         }
-        TrickModel* m = new TrickModel(_timeNames,trk,trk);
+        TrickModel* m = new TrickModel(_timeNames,trk);
         m->unmap();
         _models.append(m);
         int ncols = m->columnCount();

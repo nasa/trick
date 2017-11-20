@@ -42,7 +42,6 @@ class TrickModel : public QAbstractTableModel
 
     explicit TrickModel(const QStringList &timeNames,
                         const QString &trkfile,
-                        const QString &tableName=QString(),
                         double startTime=0.0,
                         double stopTime=1.0e20,
                        QObject *parent = 0);
@@ -50,10 +49,7 @@ class TrickModel : public QAbstractTableModel
 
     QString trkFile() const { return _trkfile; }
 
-    QString  tableName () const { return _tableName ; }
-
     Parameter param(int col) const ;
-
 
     double startTime() { return _startTime; }
     double stopTime() { return _stopTime; }
@@ -79,7 +75,6 @@ class TrickModel : public QAbstractTableModel
 
     QStringList _timeNames;
     QString _trkfile;
-    QString _tableName;
     double _startTime;
     double _stopTime;
 

@@ -9,12 +9,10 @@ QTextStream TrickModel::_err_stream(&TrickModel::_err_string);
 
 TrickModel::TrickModel(const QStringList& timeNames,
                        const QString& trkfile,
-                       const QString& tableName,
                        double startTime, double stopTime, QObject *parent) :
     QAbstractTableModel(parent),
     _timeNames(timeNames),
     _trkfile(trkfile),
-    _tableName(tableName),
     _startTime(startTime),
     _stopTime(stopTime),
     _nrows(0), _row_size(0), _ncols(0), _timeCol(0),_pos_beg_data(0),

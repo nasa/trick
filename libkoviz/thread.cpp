@@ -317,8 +317,7 @@ void Thread::_frameModelSet()
     }
     try {
         QString trk(fileNameLogFrame);
-        _frameModel = new TrickModel(_timeNames,
-                                     trk,trk,_startTime,_stopTime);
+        _frameModel = new TrickModel(_timeNames,trk,_startTime,_stopTime);
     }
     catch (std::range_error &e) {
         _err_stream << e.what() << "\n\n";
@@ -328,7 +327,7 @@ void Thread::_frameModelSet()
 
     int nFrames = _frameModel->rowCount();
     if ( nFrames == 0 ) {
-        _err_stream << "koviz [error]: file \"" << _frameModel->tableName()
+        _err_stream << "koviz [error]: file \"" << _frameModel->trkFile()
                     << "\" has no points";
         throw std::invalid_argument(_err_string.toLatin1().constData());
     }
@@ -357,7 +356,7 @@ void Thread::_frameModelSet()
         _err_stream << "koviz [error]: Couldn't find parameter "
                         << param
                         << " in file \""
-                        << _frameModel->tableName()
+                        << _frameModel->trkFile()
                         << "\"";
             throw std::invalid_argument(_err_string.toLatin1().constData());
     }

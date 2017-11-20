@@ -42,7 +42,7 @@ TrickTableModel::TrickTableModel(const QStringList& timeNames,
     QString timeName;
     foreach ( QString trk, trks ) {
         QString rtrk = runDir + "/" + trk;
-        TrickModel* trkModel = new TrickModel(timeNames,rtrk,rtrk);
+        TrickModel* trkModel = new TrickModel(timeNames,rtrk);
         trkModel->map();
         foreach ( QString paramName, paramList ) {
             int cc = trkModel->columnCount();

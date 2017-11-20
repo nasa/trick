@@ -417,8 +417,7 @@ TrickModel *Snap::_createModel( const QString &trk,
     }
 
     try {
-        model = new TrickModel(_timeNames,
-                               trk,trk,start,stop);
+        model = new TrickModel(_timeNames,trk,start,stop);
     }
     catch (std::range_error &e) {
         _err_stream << e.what() << "\n\n";
