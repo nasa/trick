@@ -40,12 +40,6 @@ class TrickModel : public QAbstractTableModel
         TrickVersion10
     };
 
-    enum Endianness
-    {
-        LittleEndian,
-        BigEndian
-    };
-
     explicit TrickModel(const QStringList &timeNames,
                         const QString &trkfile,
                         const QString &tableName=QString(),
@@ -92,7 +86,6 @@ class TrickModel : public QAbstractTableModel
     QHash<int,Parameter*> _col2param;   // ordered by column
 
     TrickVersion _trick_version;
-    enum Endianness _endianess;
     vector<int> _paramtypes;
     QHash<QString,int> _param2column;
 
