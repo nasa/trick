@@ -5,16 +5,13 @@
 TrickCurveModel::TrickCurveModel(TrickModel* trickmodel,
                                 int tcol, int xcol, int ycol,
                                 const QString &tableName,
-                                double xScaleFactor, double yScaleFactor,
                                 QObject *parent) :
     QAbstractTableModel(parent),
     _trickmodel(trickmodel),
     _tcol(tcol),
     _xcol(xcol),
     _ycol(ycol),
-    _tableName(tableName),
-    _xScaleFactor(xScaleFactor),
-    _yScaleFactor(yScaleFactor)
+    _tableName(tableName)
 {
     _t = _trickmodel->param(tcol);
     _x = _trickmodel->param(xcol);
@@ -28,15 +25,13 @@ TrickCurveModel::~TrickCurveModel()
 
 TrickModelIterator TrickCurveModel::begin() const
 {
-    return TrickModelIterator(0,_trickmodel,_tcol,_xcol,_ycol,
-                              _xScaleFactor,_yScaleFactor);
+    return TrickModelIterator(0,_trickmodel,_tcol,_xcol,_ycol);
 }
 
 TrickModelIterator TrickCurveModel::end() const
 {
     return TrickModelIterator(_trickmodel->rowCount(),
-                              _trickmodel,_tcol,_xcol,_ycol,
-                              _xScaleFactor,_yScaleFactor);
+                              _trickmodel,_tcol,_xcol,_ycol);
 }
 
 

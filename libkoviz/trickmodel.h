@@ -259,24 +259,13 @@ public slots:
 class TrickModelIterator
 {
   public:
-    typedef std::bidirectional_iterator_tag iterator_category;
-    typedef ptrdiff_t difference_type;
-    typedef double value_type;
-    typedef const double *pointer;
-    typedef const double &reference;
 
-    inline TrickModelIterator(double xScaleFactor=1.0,double yScaleFactor=1.0) :
-        i(0),
-        _xScaleFactor(xScaleFactor),_yScaleFactor(yScaleFactor)
-        {}
+    inline TrickModelIterator(): i(0) {}
 
     inline TrickModelIterator(int row, // iterator pos
                               const TrickModel* model,
-                              int tcol, int xcol, int ycol,
-                              double xScaleFactor=1.0,
-                              double yScaleFactor=1.0):
+                              int tcol, int xcol, int ycol):
         i(row),
-        _xScaleFactor(xScaleFactor),_yScaleFactor(yScaleFactor),
         _model(model),
         _row_size(model->_row_size),_data(model->_data),
         _tcol(tcol), _xcol(xcol), _ycol(ycol),
@@ -296,12 +285,12 @@ class TrickModelIterator
 
     inline double x() const
     {
-        return _xScaleFactor*_model->_toDouble(_data+i*_row_size+_xco,_xtype);
+        return _model->_toDouble(_data+i*_row_size+_xco,_xtype);
     }
 
     inline double y() const
     {
-        return _yScaleFactor*_model->_toDouble(_data+i*_row_size+_yco,_ytype);
+        return _model->_toDouble(_data+i*_row_size+_yco,_ytype);
     }
 
     inline TrickModelIterator& operator=(const TrickModelIterator &o)
@@ -396,8 +385,6 @@ class TrickModelIterator
   private:
 
     quint64 i;
-    double _xScaleFactor;
-    double _yScaleFactor;
     const TrickModel* _model;
     int _row_size;
     ptrdiff_t _data;

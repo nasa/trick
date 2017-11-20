@@ -18,8 +18,6 @@ class TrickCurveModel : public QAbstractTableModel
     explicit TrickCurveModel(TrickModel* trickmodel,
                              int tcol, int xcol, int ycol,
                        const QString &tableName=QString(),
-                             double xScaleFactor=1.0,
-                             double yScaleFactor=1.0,
                        QObject *parent = 0);
     ~TrickCurveModel();
 
@@ -52,8 +50,6 @@ class TrickCurveModel : public QAbstractTableModel
     int _xcol;
     int _ycol;
     QString _tableName;
-    double _xScaleFactor;
-    double _yScaleFactor;
 
 signals:
     
