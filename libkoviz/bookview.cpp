@@ -878,8 +878,11 @@ void BookView::_printCurves(const QRect& R,
                     // Scale transform (e.g. for unit axis scaling)
                     double xs = _bookModel()->xScale(curveIdx);
                     double ys = _bookModel()->yScale(curveIdx);
+                    double xb = _bookModel()->xBias(curveIdx);
+                    double yb = _bookModel()->yBias(curveIdx);
                     QTransform Tscaled(T);
                     Tscaled = Tscaled.scale(xs,ys);
+                    Tscaled = Tscaled.translate(xb/xs,yb/ys);
                     pixmapPainter.setTransform(Tscaled);
 
                     // Draw curve!
