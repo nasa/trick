@@ -313,7 +313,9 @@ clean_unit_test:
 	    $(MAKE) -C $$i clean ; \
 	done
 
-clean_doxygen:
+clean_doxygen:	@if [ ! -d ${TRICK_LIB_DIR} ]; then \
+		echo -e "\n\e[31mTrick needs to be compiled before it can be installed. Compiling now. . .\n\e[0m"; \
+	fi
 	@ $(MAKE) -C ${TRICK_HOME}/doxygen clean
 
 
@@ -344,11 +346,19 @@ ${ER7_HEADERS} : ${PREFIX}/include/% : trick_source/%
 
 install: ${ER7_HEADERS}
 	@if [ ! -d ${TRICK_LIB_DIR} ]; then \
-		echo "Trick needs to be compiled before you can install it. Run 'make' before attempting to run 'make install'."; \
-	else \
-		cp -r bin include $(notdir ${TRICK_LIB_DIR}) libexec share ${PREFIX}; \
-		echo "Trick has been successfully installed."; \
+		make; \
 	fi
+
+	@if [ ${PREFIX} = "/usr/local" ]; then \
+	if [[ $EUID -ne 0 ]]; then \
+		echo -e "\n\e[31mInstalling Trick to /usr/local, the default installation location, requires super user privileges."; \
+		echo -e "Please log in as a super user to continue.\e[0m\n"; \
+		exit 1; \
+	fi; \
+	fi
+
+	cp -r bin include $(notdir ${TRICK_LIB_DIR}) libexec share ${PREFIX}
+	@echo -e "\n\e[32mTrick has been installed successfully to ${PREFIX}.\e[0m\n"
 
 uninstall:
 	rm -f ${PREFIX}/bin/trick-CP
