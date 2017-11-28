@@ -10,11 +10,9 @@ QTextStream TrickModel::_err_stream(&TrickModel::_err_string);
 TrickModel::TrickModel(const QStringList& timeNames,
                        const QString& trkfile,
                        double startTime, double stopTime, QObject *parent) :
-    QAbstractTableModel(parent),
-    _timeNames(timeNames),
-    _trkfile(trkfile),
-    _startTime(startTime),
-    _stopTime(stopTime),
+    DataModel(timeNames, trkfile, startTime, stopTime, parent),
+    _timeNames(timeNames),_trkfile(trkfile),
+    _startTime(startTime),_stopTime(stopTime),
     _nrows(0), _row_size(0), _ncols(0), _timeCol(0),_pos_beg_data(0),
     _mem(0), _data(0), _fd(-1), _iteratorTimeIndex(0)
 {
@@ -230,6 +228,11 @@ void TrickModel::unmap()
         delete _iteratorTimeIndex;
         _iteratorTimeIndex = 0;
     }
+}
+
+ModelIterator *TrickModel::begat(int tcol, int xcol, int ycol) const
+{
+    return new TrickModelIterator(0,this,tcol,xcol,ycol);
 }
 
 TrickModel::~TrickModel()

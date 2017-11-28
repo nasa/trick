@@ -17,6 +17,8 @@
 #include <QString>
 #include <QStringList>
 #include <vector>
+
+#include "datamodel.h"
 #include "snaptable.h"
 #include "trick_types.h"
 #include "parameter.h"
@@ -26,7 +28,7 @@ using namespace std;
 class TrickModel;
 class TrickModelIterator;
 
-class TrickModel : public QAbstractTableModel
+class TrickModel : public DataModel
 {
   Q_OBJECT
 
@@ -49,18 +51,16 @@ class TrickModel : public QAbstractTableModel
 
     QString trkFile() const { return _trkfile; }
 
-    Parameter param(int col) const ;
+    virtual Parameter param(int col) const ;
 
-    double startTime() { return _startTime; }
-    double stopTime() { return _stopTime; }
-
-    void map();
-    void unmap();
-    int paramColumn(const QString& param) const
+    virtual void map();
+    virtual void unmap();
+    virtual int paramColumn(const QString& param) const
     {
         return _param2column.value(param,-1);
     }
-    TrickModelIterator begin(int tcol, int xcol, int ycol) const;
+    virtual ModelIterator* begat(int tcol, int xcol, int ycol) const ;
+    virtual TrickModelIterator begin(int tcol, int xcol, int ycol) const;
     TrickModelIterator end(int tcol, int xcol, int ycol) const;
     int indexAtTime(double time);
 
@@ -244,7 +244,7 @@ public slots:
 //
 // Iterates over rows for curve data triple - (time,x,y)
 //
-class TrickModelIterator
+class TrickModelIterator : public ModelIterator
 {
   public:
 
@@ -255,6 +255,7 @@ class TrickModelIterator
                               int tcol, int xcol, int ycol):
         i(row),
         _model(model),
+        _row_count(model->rowCount()),
         _row_size(model->_row_size),_data(model->_data),
         _tcol(tcol), _xcol(xcol), _ycol(ycol),
         _tco(_model->_col2offset.value(tcol)),
@@ -264,6 +265,28 @@ class TrickModelIterator
         _xtype(_model->_paramtypes.at(xcol)),
         _ytype(_model->_paramtypes.at(ycol))
     {
+    }
+
+    virtual void start()
+    {
+        i = 0;
+        _row_count = _model->rowCount();
+    }
+
+    virtual void next()
+    {
+        ++i;
+    }
+
+    virtual bool isDone() const
+    {
+        return ( i >= _row_count ) ;
+    }
+
+    virtual TrickModelIterator* at(int n)
+    {
+        i = n;
+        return this;
     }
 
     inline double t() const
@@ -372,8 +395,9 @@ class TrickModelIterator
 
   private:
 
-    quint64 i;
+    int i;
     const TrickModel* _model;
+    int _row_count;
     int _row_size;
     ptrdiff_t _data;
     int _tcol;
