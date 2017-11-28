@@ -343,7 +343,20 @@ ${ER7_HEADERS} : ${PREFIX}/include/% : trick_source/%
 	install -m 0644 $? $@
 
 install: ${ER7_HEADERS}
+	@if [ ! -d ${TRICK_LIB_DIR} ]; then \
+		make; \
+	fi
+
+	@if [ ${PREFIX} = "/usr/local" ]; then \
+	if [[ $EUID -ne 0 ]]; then \
+		echo -e "\n\e[31mInstalling Trick to /usr/local, the default installation location, requires super user privileges."; \
+		echo -e "Please log in as a super user to continue.\e[0m\n"; \
+		exit 1; \
+	fi; \
+	fi
+
 	cp -r bin include $(notdir ${TRICK_LIB_DIR}) libexec share ${PREFIX}
+	@echo -e "\n\e[32mTrick has been installed successfully to ${PREFIX}.\e[0m\n"
 
 uninstall:
 	rm -f ${PREFIX}/bin/trick-CP
