@@ -313,9 +313,7 @@ clean_unit_test:
 	    $(MAKE) -C $$i clean ; \
 	done
 
-clean_doxygen:	@if [ ! -d ${TRICK_LIB_DIR} ]; then \
-		echo -e "\n\e[31mTrick needs to be compiled before it can be installed. Compiling now. . .\n\e[0m"; \
-	fi
+clean_doxygen:
 	@ $(MAKE) -C ${TRICK_HOME}/doxygen clean
 
 
