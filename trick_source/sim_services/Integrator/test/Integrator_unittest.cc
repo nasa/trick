@@ -161,12 +161,11 @@ void deriv(BALL *B) {
     B->acc[1] = 0;
 }
 
-void init(BALL *B, long *tick) {
+void init(BALL *B) {
    
     const double initial_speed = 50.0 ;
     const double initial_angle = 30.0 ;
  
-    tick = 0;
     B->pos[0] = 0.0;
     B->pos[1] = 0.0;
     B->vel[0] = initial_speed * sin(initial_angle * RAD_PER_DEG);
@@ -176,11 +175,11 @@ void init(BALL *B, long *tick) {
 BALL Ball_sim( Trick::Integrator *integrator) {
 
     BALL   ball;
-    long   tick;
+    long   tick = 0;
     double sim_time;
 
     // Initialization
-    init(&ball, &tick);
+    init(&ball);
 
     // Simulation Loop
     do { 
@@ -202,11 +201,11 @@ BALL Ball_sim( Trick::Integrator *integrator) {
 BALL Ball_eulercromer_sim( Trick::Euler_Cromer_Integrator *integrator ) {
 
     BALL   ball;
-    long   tick;
+    long   tick = 0;
     double sim_time;
 
     // Initialization
-    init(&ball, &tick);
+    init(&ball);
 
     // Simulation Loop
     do { 

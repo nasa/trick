@@ -270,10 +270,10 @@ int Trick::DRHDF5::write_data(bool must_write) {
         pthread_mutex_unlock(&buffer_mutex) ;
 
     }
+#else
+    (void)must_write;
 #endif
-
     return 0 ;
-
 }
 
 /**

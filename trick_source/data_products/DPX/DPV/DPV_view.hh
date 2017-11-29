@@ -30,7 +30,7 @@ public:
    * @param product is a pointer to the instance of DPC_product, for which a
    *        representation is to be rendered.
    */
-  virtual  DPV_pointer render_product(DPC_product* product) {
+  virtual  DPV_pointer render_product( DPC_product* ) {
     return ( (DPV_pointer)NULL);
   };
 
@@ -42,7 +42,7 @@ public:
    * @param page is a pointer to the instance of DPC_page, for which a
    *        viewable representation is to be rendered.
    */
-  virtual  DPV_pointer render_page( DPV_pointer parent_data, DPC_page* page) {
+  virtual  DPV_pointer render_page( DPV_pointer, DPC_page* ) {
     return ( (DPV_pointer)NULL);
   };
 
@@ -54,7 +54,7 @@ public:
    * @param plot is a pointer to the instance of DPC_plot, for which a
    *        viewable representation is to be rendered.
    */
-  virtual DPV_pointer render_plot( DPV_pointer parent_data, DPC_plot* plot) {
+  virtual DPV_pointer render_plot( DPV_pointer, DPC_plot* ) {
     return ( (DPV_pointer)NULL);
   };
 
@@ -66,7 +66,7 @@ public:
    * @param plot is a pointer to the instance of DPC_table, for which a
    *        viewable representation is to be rendered.
    */
-  virtual DPV_pointer render_table( DPV_pointer parent_data, DPC_table  *table) {
+  virtual DPV_pointer render_table( DPV_pointer, DPC_table* ) {
     return ( (DPV_pointer)NULL);
   };
 
@@ -78,7 +78,7 @@ public:
    * @param curve is a pointer to the instance of DPC_curve, for which
    *        a viewable representation is to be rendered.
    */
-  virtual DPV_pointer render_curve( DPV_pointer parent_data, DPC_curve* curve) {
+  virtual DPV_pointer render_curve( DPV_pointer, DPC_curve* ) {
     return ( (DPV_pointer)NULL);
   };
 
@@ -86,29 +86,29 @@ public:
    * Override this member function to perform product view processing after all of
    * the subordinate page views have been rendered (by render_page).
    */
-  virtual void finalize_product_view( DPV_pointer product_view ) {};
+  virtual void finalize_product_view( DPV_pointer ) {};
 
   /**
    * Override this member function to perform page view processing after all of
    * the subordinate plot views have been rendered (by render_plot_view).
    */
-  virtual void finalize_page_view( DPV_pointer page_view ) {};
+  virtual void finalize_page_view( DPV_pointer ) {};
 
   /**
    */
-  virtual void finalize_table_view( DPV_pointer table_view ) {};
+  virtual void finalize_table_view( DPV_pointer ) {};
 
   /**
    * Override this member function to perform plot view processing after all of
    * the subordinate curve views have been rendered (by render_curve_view).
    */
-  virtual void finalize_plot_view( DPV_pointer plot_view ) {};
+  virtual void finalize_plot_view( DPV_pointer ) {};
 
-  virtual void notify_product( DPV_pointer product_view, DPV_message msg) {};
-  virtual void notify_page( DPV_pointer page_view, DPV_message msg) {};
-  virtual void notify_table( DPV_pointer table_view, DPV_message msg) {};
-  virtual void notify_plot( DPV_pointer plot_view, DPV_message msg) {};
-  virtual void notify_curve( DPV_pointer curve_view, DPV_message msg) {};
+  virtual void notify_product( DPV_pointer, DPV_message ) {};
+  virtual void notify_page( DPV_pointer, DPV_message ) {};
+  virtual void notify_table( DPV_pointer, DPV_message ) {};
+  virtual void notify_plot( DPV_pointer, DPV_message ) {};
+  virtual void notify_curve( DPV_pointer, DPV_message ) {};
 
 };
 #endif

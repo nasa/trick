@@ -19,8 +19,8 @@ class TCConnectTest : public testing::Test {
 
          /* device */
          device = (TCDevice *) malloc(sizeof(TCDevice));
-         memset( (void *)device,'\0',sizeof(TCDevice) );
-         device->hostname = "127.0.0.1";
+         memset( (void *)device,'\0',sizeof(device) );
+         device->hostname = strdup("127.0.0.1");
          device->disabled = TC_COMM_FALSE;
          device->disable_handshaking = TC_COMM_DISABLED;
          strcpy(device->client_tag, "<empty>");

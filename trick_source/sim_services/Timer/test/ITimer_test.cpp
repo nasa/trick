@@ -60,13 +60,12 @@ TEST_F(ITimerTest, TimerNotEnabled) {
 	//"The ITimer shall start if and only if the ITimer is enabled to do so.");
 
 
-	bool active_ch, enable_ch;
+	bool active_ch;
 
     Trick::ITimer *iTim;
 	iTim = new Trick::ITimer;
 
 	active_ch = iTim->active;
-	enable_ch = iTim->get_enabled();
 	sec = 0.05;
 
 	iTim->init();

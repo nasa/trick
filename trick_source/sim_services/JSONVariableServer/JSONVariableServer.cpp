@@ -24,12 +24,8 @@ Trick::JSONVariableServer::JSONVariableServer() :
 }
 
 Trick::JSONVariableServer::~JSONVariableServer() {
-    if ( listen_dev.hostname != NULL ) {
         free(listen_dev.hostname) ;
-    }
-    if ( listen_dev.error_handler != NULL ) {
         free(listen_dev.error_handler) ;
-    }
 }
 
 const char * Trick::JSONVariableServer::get_hostname() {

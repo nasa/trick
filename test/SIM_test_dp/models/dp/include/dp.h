@@ -16,8 +16,8 @@ typedef struct {
    float           f[3] ;   /*  m/s2 -- */
    double          d[3] ;   /*  kg*m/s2 -- */
    unsigned short us[3] ;   /*  N -- */
-   unsigned int   ui[3] ;   /*  cnt -- */
-   unsigned long  ul[3] ;   /*  v -- */
+   unsigned int   ui[3] ;   /*  count -- */
+   unsigned long  ul[3] ;   /*  V -- */
    long long      ll[3] ;   /*  K -- */
 
 } STRUCT_1 ;
