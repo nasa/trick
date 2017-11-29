@@ -270,7 +270,7 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
         _addChild(curveItem, "CurveXUnit", curveModel->t().unit()); // yes,t
         _addChild(curveItem, "CurveYName", yName);
         _addChild(curveItem, "CurveYUnit", curveModel->y().unit());
-        QString runDirName = QFileInfo(curveModel->trkFile()).dir().dirName();
+        QString runDirName = QFileInfo(curveModel->fileName()).dir().dirName();
         bool ok;
         int runId = runDirName.mid(4).toInt(&ok);
         if ( !ok ) {
@@ -280,7 +280,7 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
         _addChild(curveItem, "CurveXScale", 1.0);
         QHash<QString,QVariant> shifts = _plotModel->getDataHash(QModelIndex(),
                                                               "RunToShiftHash");
-        QString curveRunDir = QFileInfo(curveModel->trkFile()).absolutePath();
+        QString curveRunDir = QFileInfo(curveModel->fileName()).absolutePath();
         if ( shifts.contains(curveRunDir) ) {
             double shiftVal = shifts.value(curveRunDir).toDouble();
             _addChild(curveItem, "CurveXBias", shiftVal);

@@ -804,7 +804,7 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
         if ( c->rowCount() == 0 ) {
             // No data
             fprintf(stderr, "koviz [error]: no data found in %s\n",
-                    c->trkFile().toLatin1().constData());
+                    c->fileName().toLatin1().constData());
             foreach ( TrickCurveModel* curveModel, curves ) {
                 delete curveModel;
             }

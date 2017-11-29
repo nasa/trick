@@ -20,7 +20,7 @@ class TrickCurveModel : public QAbstractTableModel
                              QObject *parent = 0);
     ~TrickCurveModel();
 
-    QString trkFile() const { return _trickmodel->trkFile(); }
+    QString fileName() const { return _trickmodel->trkFile(); }
 
     Parameter t() const { return _trickmodel->param(_tcol); }
     Parameter x() const { return _trickmodel->param(_xcol); }

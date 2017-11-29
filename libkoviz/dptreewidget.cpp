@@ -632,7 +632,7 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     _addChild(curveItem, "CurveXUnit", xUnit);
     _addChild(curveItem, "CurveYName", y->name());
     _addChild(curveItem, "CurveYUnit", y->unit());
-    QString runDirName = QFileInfo(curveModel->trkFile()).dir().dirName();
+    QString runDirName = QFileInfo(curveModel->fileName()).dir().dirName();
     bool ok;
     int curveRunId = runDirName.mid(4).toInt(&ok);
     if ( ok ) {
@@ -646,7 +646,7 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
 
     QHash<QString,QVariant> shifts = _bookModel->getDataHash(QModelIndex(),
                                                              "RunToShiftHash");
-    QString curveRunDir = QFileInfo(curveModel->trkFile()).absolutePath();
+    QString curveRunDir = QFileInfo(curveModel->fileName()).absolutePath();
     if ( shifts.contains(curveRunDir) ) {
         double shiftVal = shifts.value(curveRunDir).toDouble();
         _addChild(curveItem, "CurveXBias", shiftVal);

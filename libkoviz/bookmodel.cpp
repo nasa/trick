@@ -1289,8 +1289,8 @@ QStringList PlotBookModel::legendLabels(const QModelIndex &plotIdx) const
     foreach ( QModelIndex curveIdx, curveIdxs ) {
         // Label (run:var)
         TrickCurveModel* curveModel = getTrickCurveModel(curveIdx);
-        QString trk = curveModel->trkFile();
-        QString runName = QFileInfo(trk).dir().absolutePath();
+        QString fname = curveModel->fileName();
+        QString runName = QFileInfo(fname).dir().absolutePath();
 
         QString curveName = getDataString(curveIdx,"CurveYLabel","Curve");
         if ( curveName.isEmpty() ) {
