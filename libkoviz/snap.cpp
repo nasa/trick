@@ -584,8 +584,7 @@ bool Snap::_process_jobs(TrickModel* model )
 
     int nParams = model->columnCount();
     for ( int i = 1 ; i < nParams; ++i ) {
-        QString jobId = model->param(i).name();
-        TrickCurveModel* curve = new TrickCurveModel(model,0,i,i,jobId);
+        TrickCurveModel* curve = new TrickCurveModel(model,0,i,i);
         _curves.append(curve);
         Job* job = new Job(curve);
         if ( job->isFrameTimerJob() ) {

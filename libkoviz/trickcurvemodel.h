@@ -17,11 +17,8 @@ class TrickCurveModel : public QAbstractTableModel
 
     explicit TrickCurveModel(TrickModel* trickmodel,
                              int tcol, int xcol, int ycol,
-                       const QString &tableName=QString(),
-                       QObject *parent = 0);
+                             QObject *parent = 0);
     ~TrickCurveModel();
-
-    QString  tableName () const { return _tableName ; }
 
     QString  trkFile () const { return _trickmodel->trkFile(); }
 
@@ -49,7 +46,6 @@ class TrickCurveModel : public QAbstractTableModel
     int _tcol;
     int _xcol;
     int _ycol;
-    QString _tableName;
 
 signals:
     

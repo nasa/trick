@@ -4,14 +4,12 @@
 
 TrickCurveModel::TrickCurveModel(TrickModel* trickmodel,
                                 int tcol, int xcol, int ycol,
-                                const QString &tableName,
                                 QObject *parent) :
     QAbstractTableModel(parent),
     _trickmodel(trickmodel),
     _tcol(tcol),
     _xcol(xcol),
-    _ycol(ycol),
-    _tableName(tableName)
+    _ycol(ycol)
 {
     _t = _trickmodel->param(tcol);
     _x = _trickmodel->param(xcol);

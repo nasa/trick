@@ -242,5 +242,5 @@ TrickCurveModel* Runs::curve(int row,
         }
     }
 
-    return new TrickCurveModel(tm,tcol,xcol,ycol,yparam);
+    return new TrickCurveModel(tm,tcol,xcol,ycol);
 }
