@@ -647,7 +647,7 @@ double PlotBookModel::xScale(const QModelIndex& curveIdx) const
     QModelIndex curveXUnitIdx = getDataIndex(curveIdx, "CurveXUnit","Curve");
     QString bookXUnit = data(curveXUnitIdx).toString();
     if ( !bookXUnit.isEmpty() && bookXUnit != "--" ) {
-        QString loggedXUnit = curveModel->x()->unit();
+        QString loggedXUnit = curveModel->x().unit();
         xs = Unit::scale(loggedXUnit,bookXUnit);
     }
 
@@ -684,7 +684,7 @@ double PlotBookModel::yScale(const QModelIndex& curveIdx) const
     QModelIndex curveYUnitIdx = getDataIndex(curveIdx, "CurveYUnit","Curve");
     QString bookYUnit = data(curveYUnitIdx).toString();
     if ( !bookYUnit.isEmpty() && bookYUnit != "--" ) {
-        QString loggedYUnit = curveModel->y()->unit();
+        QString loggedYUnit = curveModel->y().unit();
         ys = Unit::scale(loggedYUnit, bookYUnit);
     }
 
@@ -720,7 +720,7 @@ double PlotBookModel::xBias(const QModelIndex &curveIdx) const
     QModelIndex curveXUnitIdx = getDataIndex(curveIdx, "CurveXUnit","Curve");
     QString bookXUnit = data(curveXUnitIdx).toString();
     if ( !bookXUnit.isEmpty() && bookXUnit != "--" ) {
-        QString loggedXUnit = curveModel->x()->unit();
+        QString loggedXUnit = curveModel->x().unit();
         xb = Unit::bias(loggedXUnit, bookXUnit);
     }
 
@@ -755,7 +755,7 @@ double PlotBookModel::yBias(const QModelIndex &curveIdx) const
     QModelIndex curveYUnitIdx = getDataIndex(curveIdx, "CurveYUnit","Curve");
     QString bookYUnit = data(curveYUnitIdx).toString();
     if ( !bookYUnit.isEmpty() && bookYUnit != "--" ) {
-        QString loggedYUnit = curveModel->y()->unit();
+        QString loggedYUnit = curveModel->y().unit();
         yb = Unit::bias(loggedYUnit, bookYUnit);
     }
 
@@ -910,7 +910,7 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
         exit(-1);
     }
 
-    if ( c0->t()->unit() != c1->t()->unit() ) {
+    if ( c0->t().unit() != c1->t().unit() ) {
         fprintf(stderr,"koviz [bad scoobs]:4: "
                        "PlotBookModel::_createErrorPath().  "
                        "TODO: curveModels time units do not match.\n");
@@ -948,13 +948,13 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
     double yb0 = 0.0; // bias for temperature
     double yb1 = 0.0;
     if ( !dpUnits0.isEmpty() ) {
-        ys0 = Unit::scale(c0->y()->unit(),dpUnits0);
-        yb0  = Unit::bias(c0->y()->unit(),dpUnits0);
-        ys1 = Unit::scale(c1->y()->unit(),dpUnits0);
-        yb1  = Unit::bias(c1->y()->unit(),dpUnits0);
+        ys0 = Unit::scale(c0->y().unit(),dpUnits0);
+        yb0  = Unit::bias(c0->y().unit(),dpUnits0);
+        ys1 = Unit::scale(c1->y().unit(),dpUnits0);
+        yb1  = Unit::bias(c1->y().unit(),dpUnits0);
     } else {
-        ys1 = Unit::scale(c1->y()->unit(),c0->y()->unit());
-        yb1  = Unit::bias(c1->y()->unit(),c0->y()->unit());
+        ys1 = Unit::scale(c1->y().unit(),c0->y().unit());
+        yb1  = Unit::bias(c1->y().unit(),c0->y().unit());
     }
 
     // By default the tolerance is 0.000001
@@ -1029,14 +1029,14 @@ QString PlotBookModel::getCurvesXUnit(const QModelIndex &curvesIdx)
         QModelIndex curve0Idx = index(0,0,curvesIdx);
         QString xunit0 = getDataString(curve0Idx,"CurveXUnit","Curve");
         if ( xunit0 == "--" || xunit0.isEmpty() ) {
-            xunit0 = getTrickCurveModel(curve0Idx)->x()->unit();
+            xunit0 = getTrickCurveModel(curve0Idx)->x().unit();
         }
         for (int i = 0; i < rc; ++i) {
             QModelIndex curveIdx = index(i,0,curvesIdx);
             xunit = getDataString(curveIdx,"CurveXUnit","Curve");
             if ( xunit == "--" || xunit.isEmpty() ) {
                 TrickCurveModel* curveModel = getTrickCurveModel(curveIdx);
-                xunit = curveModel->x()->unit();
+                xunit = curveModel->x().unit();
             }
             if ( xunit != xunit0 ) {
                 xunit = "--";
@@ -1069,14 +1069,14 @@ QString PlotBookModel::getCurvesYUnit(const QModelIndex &curvesIdx)
         QModelIndex curve0Idx = index(0,0,curvesIdx);
         QString yunit0 = getDataString(curve0Idx,"CurveYUnit","Curve");
         if ( yunit0 == "--" || yunit0.isEmpty() ) {
-            yunit0 = getTrickCurveModel(curve0Idx)->y()->unit();
+            yunit0 = getTrickCurveModel(curve0Idx)->y().unit();
         }
         for (int i = 0; i < rc; ++i) {
             QModelIndex curveIdx = index(i,0,curvesIdx);
             yunit = getDataString(curveIdx,"CurveYUnit","Curve");
             if ( yunit == "--" || yunit.isEmpty() ) {
                 TrickCurveModel* curveModel = getTrickCurveModel(curveIdx);
-                yunit = curveModel->y()->unit();
+                yunit = curveModel->y().unit();
             }
             if ( yunit != yunit0 ) {
                 yunit = "--";
@@ -1088,7 +1088,7 @@ QString PlotBookModel::getCurvesYUnit(const QModelIndex &curvesIdx)
         QModelIndex idx0 = index(0,0,curvesIdx);
         yunit = getDataString(idx0,"CurveYUnit","Curve");
         if ( yunit == "--" || yunit.isEmpty() ) {
-            yunit = getTrickCurveModel(idx0)->y()->unit();
+            yunit = getTrickCurveModel(idx0)->y().unit();
         }
     } else {
         yunit = "--";

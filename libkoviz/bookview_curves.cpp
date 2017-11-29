@@ -531,7 +531,7 @@ void CurvesView::_paintLiveCoordArrow(TrickCurveModel* curveModel,
                                                      "LiveCoordTime");
     double liveTime = model()->data(liveIdx).toDouble();
     int i = 0;
-    if ( curveModel->x()->name() == curveModel->t()->name() ) {
+    if ( curveModel->x().name() == curveModel->t().name() ) {
         i = curveModel->indexAtTime((liveTime-xb)/xs);
     } else {
         // e.g. ball xy curve where x is position[0]
@@ -1192,7 +1192,7 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                 QString timeName = _bookModel()->getDataString(currentIndex(),
                                                                "CurveTimeName",
                                                                "Curve");
-                if ( curveModel->x()->name() == timeName ) {
+                if ( curveModel->x().name() == timeName ) {
 
                     QPointF liveCoord(DBL_MAX,DBL_MAX);
 
@@ -1705,12 +1705,12 @@ void CurvesView::_keyPressSpace()
     QString dpYUnit0 = _bookModel()->getDataString(idx0,"CurveYUnit","Curve");
     QString dpYUnit1 = _bookModel()->getDataString(idx1,"CurveYUnit","Curve");
     TrickCurveModel* c0 = _bookModel()->getTrickCurveModel(curvesIdx,0);
-    if ( c0->y()->unit() != dpYUnit0 ) {
+    if ( c0->y().unit() != dpYUnit0 ) {
         if ( dpYUnit0.isEmpty() || dpYUnit0 == "--" ) {
             QModelIndex unitIdx0 = _bookModel()->getDataIndex(idx0,
                                                          "CurveYUnit", "Curve");
-            model()->setData(unitIdx0,c0->y()->unit());
-            dpYUnit0 = c0->y()->unit();
+            model()->setData(unitIdx0,c0->y().unit());
+            dpYUnit0 = c0->y().unit();
         }
     }
     if ( dpYUnit0 != dpYUnit1 && !dpYUnit0.isEmpty() && !dpYUnit1.isEmpty() ) {

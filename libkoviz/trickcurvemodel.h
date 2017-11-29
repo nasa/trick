@@ -20,13 +20,13 @@ class TrickCurveModel : public QAbstractTableModel
                              QObject *parent = 0);
     ~TrickCurveModel();
 
-    QString  trkFile () const { return _trickmodel->trkFile(); }
+    QString trkFile() const { return _trickmodel->trkFile(); }
 
-    Parameter* t() { return &_t ; }
-    Parameter* x() { return &_x ; }
-    Parameter* y() { return &_y ; }
+    Parameter t() const { return _trickmodel->param(_tcol); }
+    Parameter x() const { return _trickmodel->param(_xcol); }
+    Parameter y() const { return _trickmodel->param(_ycol); }
 
-    void map(){ _trickmodel->map(); }
+    void map() { _trickmodel->map(); }
     void unmap() { _trickmodel->unmap(); }
     TrickModelIterator begin() const;
     TrickModelIterator end() const;
@@ -40,9 +40,6 @@ class TrickCurveModel : public QAbstractTableModel
   private:
 
     TrickModel* _trickmodel;
-    Parameter _t;
-    Parameter _x;
-    Parameter _y;
     int _tcol;
     int _xcol;
     int _ycol;

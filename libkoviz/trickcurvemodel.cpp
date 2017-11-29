@@ -11,9 +11,6 @@ TrickCurveModel::TrickCurveModel(TrickModel* trickmodel,
     _xcol(xcol),
     _ycol(ycol)
 {
-    _t = _trickmodel->param(tcol);
-    _x = _trickmodel->param(xcol);
-    _y = _trickmodel->param(ycol);
 }
 
 // Destructor does not delete _trickModel

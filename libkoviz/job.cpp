@@ -261,7 +261,7 @@ Job::Job(TrickCurveModel* curve) :
     }
 
     _npoints = curve->rowCount();
-    _log_name = curve->y()->name();
+    _log_name = curve->y().name();
 
     _parseJobId(_log_name);
 }

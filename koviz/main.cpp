@@ -815,7 +815,7 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
         // Make a Param (for trk header)
         Param p;
         p.name = yParam;
-        p.unit = c->y()->unit();
+        p.unit = c->y().unit();
         p.type = TRICK_07_DOUBLE;
         p.size = sizeof(double);
 
