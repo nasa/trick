@@ -75,7 +75,8 @@ SOURCES += bookmodel.cpp \
            tricktablemodel.cpp \
            plotmainwindow.cpp \
            rangeinput.cpp \
-           datamodel.cpp
+           datamodel.cpp \
+           curvemodel.cpp
 
 
 
@@ -129,7 +130,8 @@ HEADERS  += bookmodel.h \
             tricktablemodel.h \
             plotmainwindow.h \
             rangeinput.h \
-            datamodel.h
+            datamodel.h \
+            curvemodel.h
 
 FLEXSOURCES = product_lexer.l
 BISONSOURCES = product_parser.y

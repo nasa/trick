@@ -43,11 +43,6 @@ class TrickCurveModel : public QAbstractTableModel
     int _tcol;
     int _xcol;
     int _ycol;
-
-signals:
-    
-public slots:
-    
 };
 
 #endif // TRICKCURVEMODEL_H
