@@ -28,8 +28,7 @@ class TrickCurveModel : public QAbstractTableModel
 
     void map() { _trickmodel->map(); }
     void unmap() { _trickmodel->unmap(); }
-    TrickModelIterator begin() const;
-    TrickModelIterator end() const;
+    ModelIterator* begin() const;
     int indexAtTime(double time) { return _trickmodel->indexAtTime(time); }
 
     virtual int rowCount(const QModelIndex & pidx = QModelIndex() ) const;

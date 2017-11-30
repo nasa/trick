@@ -61,7 +61,9 @@ void Frame::_calc_topjobs()
             threadIdToTimeIdx.insert(threadId,tidx);
         }
 
-        double rt = job->curve()->begin()[tidx].x()/1000000.0;
+        ModelIterator* it = job->curve()->begin();
+        double rt = it->at(tidx)->x()/1000000.0;
+        delete it;
 
         if ( rt < 0 ) {
             rt = 0.0;
@@ -82,7 +84,9 @@ void Frame::_calc_topjobs()
             }
             QPair<double,Job*> ljob = _topjobs.last();
             int ltidx = threadIdToTimeIdx.value(ljob.second->thread_id());
-            double lrt = ljob.second->curve()->begin()[ltidx].x()/1000000.0;
+            ModelIterator* it = ljob.second->curve()->begin();
+            double lrt = it->at(ltidx)->x()/1000000.0;
+            delete it;
             if ( rt > lrt ) {
                 _topjobs.replace(len-1,qMakePair(rt,job));
                 qSort(_topjobs.begin(), _topjobs.end(), frameTopJobsGreaterThan);

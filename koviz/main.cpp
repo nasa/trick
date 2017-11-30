@@ -840,20 +840,20 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
 
         curve->map();
 
-        TrickModelIterator it = curve->begin();
-        TrickModelIterator end = curve->end();
-        while ( it != end ) {
-            double t = it.t();
+        ModelIterator* it = curve->begin();
+        while ( !it->isDone() ) {
+            double t = it->t();
             if ( t < start ) {
-                ++it;
+                it->next();
                 continue;
             }
             if ( t > stop ) {
                 break;
             }
             TimeStamps::insert(t,timeStamps);
-            ++it;
+            it->next();
         }
+        delete it;
         curve->unmap();
     }
 
@@ -897,12 +897,12 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
         } else {
             // write curve data
             curve->map();
-            TrickModelIterator it = curve->begin();
+            ModelIterator* it = curve->begin();
             for ( int j = 0 ; j < nTimeStamps; ++j ) {
 
                 double timeStamp = timeStamps.at(j);
                 int k = curve->indexAtTime(timeStamp);
-                double v = it[k].y();
+                double v = it->at(k)->y();
 
                 qint64 recordOffset = j*recordSize;
                 qint64 paramOffset = i*sizeof(double);
@@ -910,6 +910,7 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
                 trk.seek(offset);
                 out << v;
             }
+            delete it;
             curve->unmap();
         }
         ++i;

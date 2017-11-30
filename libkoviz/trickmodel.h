@@ -267,6 +267,8 @@ class TrickModelIterator : public ModelIterator
     {
     }
 
+    virtual ~TrickModelIterator() {}
+
     virtual void start()
     {
         i = 0;

@@ -537,8 +537,8 @@ void CurvesView::_paintLiveCoordArrow(TrickCurveModel* curveModel,
         // e.g. ball xy curve where x is position[0]
         i = curveModel->indexAtTime(liveTime);
     }
-    TrickModelIterator it = curveModel->begin();
-    QPointF coord(it[i].x()*xs+xb, it[i].y()*ys+yb);
+    ModelIterator* it = curveModel->begin();
+    QPointF coord(it->at(i)->x()*xs+xb, it->at(i)->y()*ys+yb);
 
     // Init arrow struct
     CoordArrow arrow;
@@ -548,12 +548,11 @@ void CurvesView::_paintLiveCoordArrow(TrickCurveModel* curveModel,
     // If live coord is an extremum, set flag for painting
     //
     int rc = curveModel->rowCount();
-    QString s;
     if ( i > 0 && i < rc-1) {
         // First and last point not considered
-        double y1 = it[i-1].y()*ys+yb;
-        double y  = it[i].y()*ys+yb;
-        double y2 = it[i+1].y()*ys+yb;
+        double y1 = it->at(i-1)->y()*ys+yb;
+        double y  = it->at(i)->y()*ys+yb;
+        double y2 = it->at(i+1)->y()*ys+yb;
         if ( (y>y1 && y>y2) || (y<y1 && y<y2) ) {
             arrow.txt = QString("<%1, %2>").arg(_format(coord.x()))
                                            .arg(_format(coord.y()));
@@ -571,6 +570,8 @@ void CurvesView::_paintLiveCoordArrow(TrickCurveModel* curveModel,
         fprintf(stderr,"koviz [bad scoobs]: CurvesView::_paintLiveCoordArrow\n");
         exit(-1);
     }
+
+    delete it;
 
     // Prepend RunID to live text if more than 5 runs
     if ( model()->rowCount(curveIdx.parent()) > 5 ) {
@@ -1179,7 +1180,7 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
             if ( curveModel ) {
 
                 curveModel->map();
-                TrickModelIterator it = curveModel->begin();
+                ModelIterator* it = curveModel->begin();
                 double xs = _bookModel()->xScale(currentIndex());
                 double ys = _bookModel()->yScale(currentIndex());
                 double xb = _bookModel()->xBias(currentIndex());
@@ -1203,11 +1204,11 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
 
                     } else if ( rc == 1 ) {
 
-                        liveCoord = QPointF(it.x()*xs+xb,it.y()*ys+yb);
+                        liveCoord = QPointF(it->x()*xs+xb,it->y()*ys+yb);
 
                     } else if ( rc == 2 ) {
-                        QPointF p0(it[0].x()*xs+xb,it[0].y()*ys+yb);
-                        QPointF p1(it[1].x()*xs+xb,it[1].y()*ys+yb);
+                        QPointF p0(it->at(0)->x()*xs+xb,it->at(0)->y()*ys+yb);
+                        QPointF p1(it->at(1)->x()*xs+xb,it->at(1)->y()*ys+yb);
                         QLineF l0(p0,mPt);
                         QLineF l1(p1,mPt);
                         if ( l0.length() < l1.length() ) {
@@ -1219,7 +1220,7 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                     } else if ( rc >= 3 ) {
 
                         int i = curveModel->indexAtTime((mPt.x()-xb)/xs);
-                        QPointF p(it[i].x()*xs+xb,it[i].y()*ys+yb);
+                        QPointF p(it->at(i)->x()*xs+xb,it->at(i)->y()*ys+yb);
 
                         //
                         // Find dt between p and prev or next point
@@ -1227,9 +1228,9 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                         double dt = 0.0;
                         if ( i == 0 ) {
                             // Start point
-                            dt = it[1].x()*xs+xb - p.x();
+                            dt = it->at(1)->x()*xs+xb - p.x();
                         } else if ( i > 0 ) {
-                            dt = p.x() - (it[i-1].x()*xs+xb);
+                            dt = p.x() - (it->at(i-1)->x()*xs+xb);
                         } else {
                             fprintf(stderr,"koviz [bad scoobs]:1: "
                                            "CurvesView::mouseMoveEvent()\n");
@@ -1262,11 +1263,12 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                         QList<QPointF> localMaxs;
                         QList<QPointF> localMins;
                         for (int m = j; m <= k; ++m ) {
-                            QPointF pt(it[m].x()*xs+xb,it[m].y()*ys+yb);
+                            QPointF pt(it->at(m)->x()*xs+xb,
+                                       it->at(m)->y()*ys+yb);
                             if ( m > 0 && m < k ) {
-                                double yPrev = it[m-1].y()*ys+yb;
-                                double y  = it[m].y()*ys+yb;
-                                double yNext = it[m+1].y()*ys+yb;
+                                double yPrev = it->at(m-1)->y()*ys+yb;
+                                double y  = it->at(m)->y()*ys+yb;
+                                double yNext = it->at(m+1)->y()*ys+yb;
                                 if ( y > yPrev && y > yNext ) {
                                     if ( localMaxs.isEmpty() ) {
                                         localMaxs << pt;
@@ -1297,12 +1299,12 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                         //
                         if ( j == 0 ) {
                             // Mouse near start of curve, set to start pt
-                            liveCoord = QPointF(it[0].x()*xs+xb,
-                                                it[0].y()*ys+yb);
+                            liveCoord = QPointF(it->at(0)->x()*xs+xb,
+                                                it->at(0)->y()*ys+yb);
                         } else if ( k == rc-1 ) {
                             // Mouse near end of curve, set to last pt
-                            liveCoord = QPointF(it[k].x()*xs+xb,
-                                                it[k].y()*ys+yb);
+                            liveCoord = QPointF(it->at(k)->x()*xs+xb,
+                                                it->at(k)->y()*ys+yb);
                         } else {
                             bool isMaxs = localMaxs.isEmpty() ? false : true;
                             bool isMins = localMins.isEmpty() ? false : true;
@@ -1346,15 +1348,14 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
 
                     double liveTime = DBL_MAX;
                     double dMin = DBL_MAX;
-                    TrickModelIterator e = curveModel->end();
-                    while ( it != e ) { // find closest point on curve to mouse
-                        QPointF p(it.x()*xs+xb,it.y()*ys+yb);
+                    while ( !it->isDone() ) { // find closest point on curve to mouse
+                        QPointF p(it->x()*xs+xb,it->y()*ys+yb);
                         double d = QLineF(mPt,p).length();
                         if ( d < dMin ) {
                             dMin = d;
-                            liveTime = it.t();
+                            liveTime = it->t();
                         }
-                        ++it;
+                        it->next();
                     }
 
                     // Set live coord in model
@@ -1371,6 +1372,7 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                     }
                 }
 
+                delete it;
                 curveModel->unmap();
                 viewport()->update();
             }

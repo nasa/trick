@@ -1073,13 +1073,12 @@ void BookView::_printCoplot(const QRect& R,
             paths << path;
 
             curveModel->map();
-            TrickModelIterator it = curveModel->begin();
-            const TrickModelIterator e = curveModel->end();
+            ModelIterator* it = curveModel->begin();
 
             bool isFirst = true;
-            while (it != e) {
+            while ( !it->isDone() ) {
 
-                QPointF p(it.x()*xs+xb,it.y()*ys+yb);
+                QPointF p(it->x()*xs+xb,it->y()*ys+yb);
                 p = T.map(p);
 
                 if ( isFirst ) {
@@ -1089,14 +1088,16 @@ void BookView::_printCoplot(const QRect& R,
                     path->lineTo(p);
                 }
 
-                ++it;
+                it->next();
             }
+            delete it;
 
             // If curve is flat (constant), label with "Flatline=#"
             QRectF curveBBox = path->boundingRect();
             if ( curveBBox.height() == 0.0 ) {
                 it = curveModel->begin();
-                double y = it.y()*ys+yb;  // y is constant, so use first point
+                double y = it->y()*ys+yb;  // y is constant, so use first point
+                delete it;
                 QString s;
                 s = s.sprintf("%.9g",y);
                 QVariant v(s);
@@ -1207,29 +1208,29 @@ void BookView::_printErrorplot(const QRect& R,
     double ys1 = (k1/k0)*_bookModel()->yScale(curveIdx1);
     c0->map();
     c1->map();
-    TrickModelIterator i0 = c0->begin();
-    TrickModelIterator i1 = c1->begin();
-    const TrickModelIterator e0 = c0->end();
-    const TrickModelIterator e1 = c1->end();
-    while (i0 != e0 && i1 != e1) {
-        double t0 = i0.t();
-        double t1 = i1.t();
+    ModelIterator* i0 = c0->begin();
+    ModelIterator* i1 = c1->begin();
+    while ( !i0->isDone() && !i1->isDone() ) {
+        double t0 = i0->t();
+        double t1 = i1->t();
         if ( qAbs(t1-t0) < 0.000001 ) {
-            double d = ys0*i0.y() - ys1*i1.y();
+            double d = ys0*i0->y() - ys1*i1->y();
             pts << QPointF(t0,d);
-            ++i0;
-            ++i1;
+            i0->next();
+            i1->next();
         } else {
             if ( t0 < t1 ) {
-                ++i0;
+                i0->next();
             } else if ( t1 < t0 ) {
-                ++i1;
+                i1->next();
             } else {
                 fprintf(stderr,"koviz [bad scoobs]:2: _printErrorplot()\n");
                 exit(-1);
             }
         }
     }
+    delete i0;
+    delete i1;
     c0->unmap();
     c1->unmap();
 

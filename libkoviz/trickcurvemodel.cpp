@@ -18,17 +18,10 @@ TrickCurveModel::~TrickCurveModel()
 {
 }
 
-TrickModelIterator TrickCurveModel::begin() const
+ModelIterator* TrickCurveModel::begin() const
 {
-    return TrickModelIterator(0,_trickmodel,_tcol,_xcol,_ycol);
+    return new TrickModelIterator(0,_trickmodel,_tcol,_xcol,_ycol);
 }
-
-TrickModelIterator TrickCurveModel::end() const
-{
-    return TrickModelIterator(_trickmodel->rowCount(),
-                              _trickmodel,_tcol,_xcol,_ycol);
-}
-
 
 int TrickCurveModel::rowCount(const QModelIndex &pidx) const
 {

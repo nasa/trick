@@ -111,7 +111,7 @@ void BookTableView::paintEvent(QPaintEvent *event)
         double bias = biases.at(q+j);
         TrickCurveModel* curveModel = curveModels.at(q+j);
         curveModel->map();
-        TrickModelIterator it = curveModel->begin();
+        ModelIterator* it = curveModel->begin();
         QList<double> vals;
         for ( int i = 1; i < nRows; ++i ) {
             double t = _timeStamps.at(p+i-1);
@@ -119,8 +119,8 @@ void BookTableView::paintEvent(QPaintEvent *event)
                 vals << t*sf + bias;
             } else {
                 int k = curveModel->indexAtTime(t);
-                if ( it[k].t() == t ) {
-                    vals << it[k].y()*sf + bias;
+                if ( it->at(k)->t() == t ) {
+                    vals << it->at(k)->y()*sf + bias;
                 } else {
                     vals << 0; // place holder for blank data
                 }
@@ -128,6 +128,7 @@ void BookTableView::paintEvent(QPaintEvent *event)
         }
         QStringList svals = _format(vals);
         col2svals.insert(j,svals);
+        delete it;
         curveModel->unmap();
     }
 
@@ -135,7 +136,7 @@ void BookTableView::paintEvent(QPaintEvent *event)
     for (int j = 0; j < nCols; ++j) {
         TrickCurveModel* curveModel = curveModels.at(q+j);
         curveModel->map();
-        TrickModelIterator it = curveModel->begin();
+        ModelIterator* it = curveModel->begin();
         for ( int i = 0; i < nRows; ++i ) {
             int hline = h*(i+1);
             int baseline = hline - _mBot - fm.descent();
@@ -153,7 +154,7 @@ void BookTableView::paintEvent(QPaintEvent *event)
                 } else {
                     double t = _timeStamps.at(p+i-1);
                     int k = curveModel->indexAtTime(t);
-                    if ( it[k].t() == t ) {
+                    if ( it->at(k)->t() == t ) {
                         s = col2svals.value(j).at(i-1);
                     } else {
                         // s is an empty string since no corresponding time
@@ -166,6 +167,7 @@ void BookTableView::paintEvent(QPaintEvent *event)
         int vline = w*(j+1);
         painter.setPen(penLight);
         painter.drawLine(vline,0,vline,W.height());
+        delete it;
         curveModel->unmap();
     }
 
@@ -349,16 +351,15 @@ void BookTableView::dataChanged(const QModelIndex &topLeft,
                                                           "StopTime");
 
             curveModel->map();
-            TrickModelIterator it = curveModel->begin();
-            const TrickModelIterator e = curveModel->end();
+            ModelIterator* it = curveModel->begin();
 
             int i = 0;
-            while (it != e) {
+            while ( !it->isDone() ) {
 
-                double t = it.t();
+                double t = it->t();
 
                 if ( t < startTime ) {
-                    ++it;
+                    it->next();
                     continue;
                 }
                 if ( t > stopTime ) {
@@ -366,21 +367,22 @@ void BookTableView::dataChanged(const QModelIndex &topLeft,
                 }
                 if ( i >= _timeStamps.size() ) {
                     _timeStamps.append(t);
-                    ++it;
+                    it->next();
                     ++i;
                     continue;
                 }
 
                 double timeStamp = _timeStamps.at(i);
                 if ( t == timeStamp ) {
-                    ++it;
+                    it->next();
                 } else if ( t < timeStamp ) {
                     _timeStamps.insert(i,t);
-                    ++it;
+                    it->next();
                 }
                 ++i;
             }
 
+            delete it;
             curveModel->unmap();
         }
 

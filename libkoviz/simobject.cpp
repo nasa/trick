@@ -34,17 +34,17 @@ void SimObject::_do_stats()
     double begTimeStamp = 0.0;
     double endTimeStamp = 0;
     TrickCurveModel* curve0 = _jobs.at(0)->curve();
-    const TrickModelIterator e0 = curve0->end();
-    TrickModelIterator it0 = curve0->begin();
+    ModelIterator* it0 = curve0->begin();
     bool isFirst = true;
-    while (it0 != e0) {
+    while ( !it0->isDone() ) {
         if ( isFirst ) {
-            begTimeStamp = it0.t();
+            begTimeStamp = it0->t();
             isFirst = false;
         }
-        endTimeStamp = it0.t();
-        ++it0;
+        endTimeStamp = it0->t();
+        it0->next();
     }
+    delete it0;
 
     // Determine cycle (freq) of SimObject
     // Default cycleTime to frameRate (passed in)
@@ -83,18 +83,18 @@ void SimObject::_do_stats()
         double rt = 0;
         foreach ( Job* job, _jobs ) {
             int tidx = currentJobTimeIdx.value(job);
-            const TrickModelIterator e = job->curve()->end();
-            TrickModelIterator it = job->curve()->begin()[tidx];
-            while ( it != e ) {
-                double t = it.t();
+            ModelIterator* it = job->curve()->begin()->at(tidx);
+            while ( !it->isDone() ) {
+                double t = it->t();
                 if ( t < nextTime-1.0e-9 ) {
-                    rt += it.x();
+                    rt += it->x();
                 } else {
                     break;
                 }
                 ++tidx;
-                ++it;
+                it->next();
             }
+            delete it;
             currentJobTimeIdx.insert(job,tidx);
         }
 

@@ -76,16 +76,15 @@ TrickTableModel::TrickTableModel(const QStringList& timeNames,
     foreach ( TrickModel* trkModel, _trkModels ) {
         trkModel->map();
         int timeCol = trkModel->paramColumn(timeName);
-        TrickModelIterator it = trkModel->begin(timeCol,timeCol,timeCol);
-        TrickModelIterator end = trkModel->end(timeCol,timeCol,timeCol);
-        while ( it != end ) {
-            double t = it.t();
+        ModelIterator* it = trkModel->begat(timeCol,timeCol,timeCol);
+        while ( !it->isDone() ) {
+            double t = it->t();
             TimeStamps::insert(t,_timeStamps);
-            ++it;
+            it->next();
         }
+        delete it;
         trkModel->unmap();
     }
-
 }
 
 TrickTableModel::~TrickTableModel()

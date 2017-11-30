@@ -845,32 +845,31 @@ QPainterPath* PlotBookModel::_createPainterPath(TrickCurveModel *curveModel)
 
     curveModel->map();
 
-    TrickModelIterator it = curveModel->begin();
-    const TrickModelIterator e = curveModel->end();
+    ModelIterator* it = curveModel->begin();
 
     double f = getDataDouble(QModelIndex(),"Frequency");
     double start = getDataDouble(QModelIndex(),"StartTime");
     double stop = getDataDouble(QModelIndex(),"StopTime");
     bool isFirst = true;
-    while (it != e) {
-        double t = it.t();
+    while ( !it->isDone() ) {
+        double t = it->t();
         if ( f > 0.0 ) {
             if ( fabs(t-round(t/f)*f) > 1.0e-9 ) { // t not divisible by f?
-                ++it;
+                it->next();
                 continue;
             }
         }
         if ( t >= start && t <= stop ) {
             if ( isFirst ) {
-                path->moveTo(it.x(),it.y());
+                path->moveTo(it->x(),it->y());
                 isFirst = false;
             } else {
-                path->lineTo(it.x(),it.y());
+                path->lineTo(it->x(),it->y());
             }
         }
-        ++it;
+        it->next();
     }
-
+    delete it;
     curveModel->unmap();
 
     return path;
@@ -965,25 +964,23 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
 
     c0->map();
     c1->map();
-    TrickModelIterator i0 = c0->begin();
-    TrickModelIterator i1 = c1->begin();
-    const TrickModelIterator e0 = c0->end();
-    const TrickModelIterator e1 = c1->end();
+    ModelIterator* i0 = c0->begin();
+    ModelIterator* i1 = c1->begin();
     double start = getDataDouble(QModelIndex(),"StartTime");
     double stop = getDataDouble(QModelIndex(),"StopTime");
     bool isFirst = true;
-    while (i0 != e0 && i1 != e1) {
-        double t0 = i0.t();
-        double t1 = i1.t();
+    while ( !i0->isDone() && !i1->isDone() ) {
+        double t0 = i0->t();
+        double t1 = i1->t();
         if ( qAbs(t1-t0) < tolerance ) {
             if ( f > 0.0 ) {
                 if (fabs(t0-round(t0/f)*f) > 1.0e-9) { // t0 not divisible by f?
-                    ++i0;
-                    ++i1;
+                    i0->next();
+                    i1->next();
                     continue;
                 }
             }
-            double d = (ys0*i0.y()+yb0) - (ys1*i1.y()+yb1);
+            double d = (ys0*i0->y()+yb0) - (ys1*i1->y()+yb1);
             if ( t0 >= start && t0 <= stop ) {
                 if ( isFirst ) {
                     path->moveTo(t0,d);
@@ -992,13 +989,13 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
                     path->lineTo(t0,d);
                 }
             }
-            ++i0;
-            ++i1;
+            i0->next();
+            i1->next();
         } else {
             if ( t0 < t1 ) {
-                ++i0;
+                i0->next();
             } else if ( t1 < t0 ) {
-                ++i1;
+                i1->next();
             } else {
                 fprintf(stderr,"koviz [bad scoobs]:5: "
                                "PlotBookModel::_createErrorPath()\n");
@@ -1006,6 +1003,8 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
             }
         }
     }
+    delete i0;
+    delete i1;
     c0->unmap();
     c1->unmap();
 

@@ -62,13 +62,12 @@ inline void Job::_do_stats()
     long sum_squares = 0 ;
     long sum_rt = 0 ;
     long max_rt = 0 ;
-    TrickModelIterator it = _curve->begin();
-    const TrickModelIterator e = _curve->end();
+    ModelIterator* it = _curve->begin();
     int cnt = 0;
-    while (it != e) {
+    while ( !it->isDone() ) {
 
-        double time = it.t();
-        long rt = (long)it.x();
+        double time = it->t();
+        long rt = (long)it->x();
 
         if ( rt < 0 ) {
             rt =  0.0;
@@ -100,8 +99,9 @@ inline void Job::_do_stats()
         sum_rt += rt;
 
         ++cnt;
-        ++it;
+        it->next();
     }
+    delete it;
 
     double ss = (double)sum_squares;
     double s = (double)sum_rt;

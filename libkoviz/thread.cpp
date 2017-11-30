@@ -109,30 +109,27 @@ void Thread::_do_stats()
                         << "  Trick may have changed the name.";
             throw std::runtime_error(_err_string.toLatin1().constData());
         }
-        TrickModelIterator iamf = timeToSyncWithAMFChildrenCurve->begin();
+        ModelIterator* iamf = timeToSyncWithAMFChildrenCurve->begin();
 
-        TrickModelIterator it = _frameModel->begin(0,
-                                                   _frameSchedTimeCol,
-                                                   _frameOverrunTimeCol);
-        const TrickModelIterator e = _frameModel->end(0,
-                                                   _frameSchedTimeCol,
-                                                   _frameOverrunTimeCol);
+        ModelIterator* it = _frameModel->begat(0,
+                                               _frameSchedTimeCol,
+                                               _frameOverrunTimeCol);
         _num_overruns = 0;
         _max_runtime = 0.0;
         int tidx = 0 ;
-        while (it != e) {
+        while ( !it->isDone() ) {
 
             // If overrun time is above 0, tally an overrun.
-            double ov = it.y()/1000000.0;
+            double ov = it->y()/1000000.0;
             if ( ov > 0.0 ) _num_overruns++;
 
             // Get frame time, which excludes waitOnWallClock & waitOnAMFChidren
             // Koviz calculates frame time (ft) by excluding executive
             // time waiting to sync with wall clock but includes
             // the sync with amf children
-            int amfIdx  = timeToSyncWithAMFChildrenCurve->indexAtTime(it.t());
-            double timeToSyncWithAMFChildren = iamf[amfIdx].y()/1000000.0;
-            double frameSchedTime = it.x()/1000000.0;
+            int amfIdx  = timeToSyncWithAMFChildrenCurve->indexAtTime(it->t());
+            double timeToSyncWithAMFChildren = iamf->at(amfIdx)->y()/1000000.0;
+            double frameSchedTime = it->x()/1000000.0;
             double ft = frameSchedTime - timeToSyncWithAMFChildren;
 
             if ( ft < 0 ) ft = 0.0;
@@ -140,18 +137,20 @@ void Thread::_do_stats()
                 _max_runtime = ft;
                 _tidx_max_runtime = tidx;
             }
-            _jobtimestamp2frametime[it.t()] = ft;
+            _jobtimestamp2frametime[it->t()] = ft;
             QModelIndex timeIdx = _runtimeCurve->index(rowCount,0);
             QModelIndex valIdx = _runtimeCurve->index(rowCount,1);
             ++rowCount;
-            _runtimeCurve->setData(timeIdx,it.t());
+            _runtimeCurve->setData(timeIdx,it->t());
             _runtimeCurve->setData(valIdx,ft);
             sum_time += ft*1000000.0;
             sum_squares += ft*ft;
 
-            ++it;
+            it->next();
             ++tidx;
         }
+        delete it;
+        delete iamf;
 
         QModelIndex idx0 = _runtimeCurve->index(0,0);
         _startTime = _runtimeCurve->data(idx0).toDouble();
@@ -165,27 +164,24 @@ void Thread::_do_stats()
         //
         Job* job0 = _jobs.at(0);
         TrickCurveModel* curve = job0->curve();
-        TrickModelIterator it = curve->begin();
-        const TrickModelIterator e = curve->end();
+        ModelIterator* it = curve->begin();
         double frame_time = 0.0;
         _max_runtime = 0.0;
         int frameidx = 0 ;
         int tidx = 0 ;
-        TrickModelIterator it2;
 
-        it = curve->begin();
-        _startTime = it.t();
-        double tnext = it.t() + _freq;
+        _startTime = it->t();
+        double tnext = it->t() + _freq;
         double epsilon = 1.0e-6;
 
         _num_overruns = 0;
-        while (it != e) {
+        while ( !it->isDone() ) {
 
-            double frameTimeStamp = it.t();
+            double frameTimeStamp = it->t();
             QList<double> jobTimeStampsAcrossFrame;
-            while ( it != e && it.t()+epsilon < tnext ) {
+            while ( !it->isDone() && it->t()+epsilon < tnext ) {
 
-                jobTimeStampsAcrossFrame.append(it.t());
+                jobTimeStampsAcrossFrame.append(it->t());
 
                 foreach ( Job* job, _jobs ) {
 
@@ -199,15 +195,16 @@ void Thread::_do_stats()
                         continue;
                     }
 
-                    it2 = job->curve()->begin();
-                    double ft = it2[tidx].x();
+                    ModelIterator* it2 = job->curve()->begin();
+                    double ft = it2->at(tidx)->x();
+                    delete it2;
                     if ( ft < 0 ) {
                         ft = 0.0;
                     }
                     frame_time += ft;
                 }
                 ++tidx;
-                ++it;
+                it->next();
 
                 if ( _freq < epsilon ) {
                     break;
@@ -242,8 +239,10 @@ void Thread::_do_stats()
         }
 
         if ( rowCount > 0 ) {
-            _stopTime = it[rowCount-1].t();
+            _stopTime = it->at(rowCount-1)->t();
         }
+
+        delete it;
     }
 
     double ss = sum_squares;
@@ -376,19 +375,18 @@ int Thread::_calcNumFrames()
     } else {
         Job* job0 = _jobs.at(0);
         TrickCurveModel* curve = job0->curve();
-        TrickModelIterator it = curve->begin();
-        const TrickModelIterator e = curve->end();
+        ModelIterator* it = curve->begin();
         if ( _freq < 0.000001 ) {
             frameCnt = curve->rowCount();
         } else {
-            double tnext = it.t() + _freq;
+            double tnext = it->t() + _freq;
             frameCnt = 1;
-            while (it != e) {
-                if (it.t()+1.0e-6 > tnext) {
+            while ( !it->isDone() ) {
+                if (it->t()+1.0e-6 > tnext) {
                     tnext += _freq;
                     ++frameCnt ;
                 }
-                ++it;
+                it->next();
             }
         }
     }
@@ -402,21 +400,19 @@ void Thread::_frameModelCalcIsRealTime()
 
     if ( _frameModel == 0 ) return;
 
-    TrickModelIterator it = _frameModel->begin(0,
-                                               _frameSchedTimeCol,
-                                               _frameOverrunTimeCol);
-    const TrickModelIterator e = _frameModel->end(0,
-                                               _frameSchedTimeCol,
-                                               _frameOverrunTimeCol);
+    ModelIterator* it = _frameModel->begat(0,
+                                           _frameSchedTimeCol,
+                                           _frameOverrunTimeCol);
     _num_overruns = 0;
-    while (it != e) {
-        double ft = it.x();
+    while (!it->isDone()) {
+        double ft = it->x();
         if ( ft > 0 ) {
             _frameModelIsRealTime = true;
             break;
         }
-        ++it;
+        it->next();
     }
+    delete it;
 }
 
 double Thread::runtime(double timestamp) const

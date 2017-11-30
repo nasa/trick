@@ -67,6 +67,8 @@ class ModelIterator
   public:
     ModelIterator() {}
 
+    virtual ~ModelIterator() {}
+
     virtual void start() = 0;
     virtual void next() = 0;
     virtual bool isDone() const = 0;
