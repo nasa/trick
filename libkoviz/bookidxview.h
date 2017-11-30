@@ -6,6 +6,7 @@
 #include <QPainter>
 #include <QPen>
 #include <qmath.h>
+#include <cmath>
 #include "bookmodel.h"
 #include "unit.h"
 
