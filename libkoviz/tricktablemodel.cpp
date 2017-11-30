@@ -74,7 +74,7 @@ TrickTableModel::TrickTableModel(const QStringList& timeNames,
     foreach ( DataModel* trkModel, _trkModels ) {
         trkModel->map();
         int timeCol = trkModel->paramColumn(timeName);
-        ModelIterator* it = trkModel->begat(timeCol,timeCol,timeCol);
+        ModelIterator* it = trkModel->begin(timeCol,timeCol,timeCol);
         while ( !it->isDone() ) {
             double t = it->t();
             TimeStamps::insert(t,_timeStamps);

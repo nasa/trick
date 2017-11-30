@@ -26,7 +26,7 @@ class CurveModel : public QAbstractTableModel
 
     void map() { _datamodel->map(); }
     void unmap() { _datamodel->unmap(); }
-    ModelIterator* begin() const { return _datamodel->begat(_tcol,_xcol,_ycol);}
+    ModelIterator* begin() const { return _datamodel->begin(_tcol,_xcol,_ycol);}
     int indexAtTime(double time) { return _datamodel->indexAtTime(time); }
 
     virtual int rowCount(const QModelIndex & pidx = QModelIndex() ) const;

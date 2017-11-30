@@ -111,7 +111,7 @@ void Thread::_do_stats()
         }
         ModelIterator* iamf = timeToSyncWithAMFChildrenCurve->begin();
 
-        ModelIterator* it = _frameModel->begat(0,
+        ModelIterator* it = _frameModel->begin(0,
                                                _frameSchedTimeCol,
                                                _frameOverrunTimeCol);
         _num_overruns = 0;
@@ -401,7 +401,7 @@ void Thread::_frameModelCalcIsRealTime()
 
     if ( _frameModel == 0 ) return;
 
-    ModelIterator* it = _frameModel->begat(0,
+    ModelIterator* it = _frameModel->begin(0,
                                            _frameSchedTimeCol,
                                            _frameOverrunTimeCol);
     _num_overruns = 0;

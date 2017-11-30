@@ -46,7 +46,7 @@ class DataModel : public QAbstractTableModel
     virtual void unmap() = 0;
     virtual Parameter param(int col) const = 0;
     virtual int paramColumn(const QString& param) const = 0;
-    virtual ModelIterator* begat(int tcol, int xcol, int ycol) const = 0;
+    virtual ModelIterator* begin(int tcol, int xcol, int ycol) const = 0;
     virtual int indexAtTime(double time) = 0 ;
 
     virtual int rowCount(const QModelIndex& pidx=QModelIndex()) const = 0;

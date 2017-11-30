@@ -59,9 +59,7 @@ class TrickModel : public DataModel
     {
         return _param2column.value(param,-1);
     }
-    virtual ModelIterator* begat(int tcol, int xcol, int ycol) const ;
-    virtual TrickModelIterator begin(int tcol, int xcol, int ycol) const;
-    TrickModelIterator end(int tcol, int xcol, int ycol) const;
+    virtual ModelIterator* begin(int tcol, int xcol, int ycol) const ;
     int indexAtTime(double time);
 
     static void writeTrkHeader(QDataStream &out, const QList<Param>& params);

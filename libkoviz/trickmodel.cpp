@@ -230,7 +230,7 @@ void TrickModel::unmap()
     }
 }
 
-ModelIterator *TrickModel::begat(int tcol, int xcol, int ycol) const
+ModelIterator *TrickModel::begin(int tcol, int xcol, int ycol) const
 {
     return new TrickModelIterator(0,this,tcol,xcol,ycol);
 }
@@ -246,16 +246,6 @@ TrickModel::~TrickModel()
 Parameter TrickModel::param(int col) const
 {
     return *(_col2param.value(col));
-}
-
-TrickModelIterator TrickModel::begin(int tcol, int xcol, int ycol) const
-{
-    return TrickModelIterator(0,this,tcol,xcol,ycol);
-}
-
-TrickModelIterator TrickModel::end(int tcol, int xcol, int ycol) const
-{
-    return TrickModelIterator(this->rowCount(),this,tcol,xcol,ycol);
 }
 
 int TrickModel::indexAtTime(double time)
