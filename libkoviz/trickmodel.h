@@ -103,7 +103,7 @@ class TrickModel : public DataModel
 
     bool _load_trick_header();
     qint32 _load_binary_param(QDataStream& in, int col);
-    int _idxAtTimeBinarySearch (TrickModelIterator& it,
+    int _idxAtTimeBinarySearch (TrickModelIterator *it,
                                int low, int high, double time);
 
     static void _write_binary_param(QDataStream& out, const Param& p);
@@ -304,95 +304,6 @@ class TrickModelIterator : public ModelIterator
     inline double y() const
     {
         return _model->_toDouble(_data+i*_row_size+_yco,_ytype);
-    }
-
-    inline TrickModelIterator& operator=(const TrickModelIterator &o)
-    {
-        // Don't  this->_valueScaleFactor = o._valueScaleFactor;
-        // because it messes up "it=model->begin()"
-        if ( this != &o ) {
-            this->i = o.i;
-            this->_model = o._model;
-            this->_row_size = o._row_size;
-            this->_data = o._data;
-            this->_tcol = o._tcol;
-            this->_xcol = o._xcol;
-            this->_ycol = o._ycol;
-            this->_tco = o._tco;
-            this->_xco = o._xco;
-            this->_yco = o._yco;
-            this->_ttype = o._ttype;
-            this->_xtype = o._xtype;
-            this->_ytype = o._ytype;
-        }
-
-        return *this;
-    }
-
-    inline bool operator==(const TrickModelIterator &o) const
-    {
-        return (i == o.i && _tco == o._tco && _xco == o._xco && _yco == o._yco);
-    }
-
-    inline bool operator!=(const TrickModelIterator &o) const
-    {
-        return (i != o.i || _tco != o._tco || _xco != o._xco || _yco != o._yco);
-    }
-
-    inline TrickModelIterator &operator++() {
-        i++;
-        return *this;
-    }
-
-    inline TrickModelIterator operator++(int) {
-        TrickModelIterator r = *this;
-        i++;
-        return r;
-    }
-
-    inline TrickModelIterator &operator--() {
-        i--;
-        return *this;
-    }
-
-    inline TrickModelIterator operator--(int) {
-        TrickModelIterator r = *this;
-        i--;
-        return r;
-    }
-
-    //
-    // TODO: I think I copied this from qmap iterator
-    //       I think this is not necessary since rows
-    //       are contiguous
-    //       I think you can simply do something like:
-    //                i += j;
-    //                if ( i > _end ) i = end ;
-    //                if ( i < 0 ) i = 0 ;
-    //
-    inline TrickModelIterator operator+(int j) const
-    {
-        TrickModelIterator r = *this;
-        if (j > 0) {
-            while (j--) {
-                ++r;
-            }
-        } else {
-            while (j++) {
-                --r;
-            }
-        }
-
-        return r;
-    }
-
-    inline TrickModelIterator operator-(int j) const { return operator+(-j); }
-    inline TrickModelIterator &operator+=(int j) { return *this = *this + j; }
-    inline TrickModelIterator &operator-=(int j) { return *this = *this - j; }
-
-    inline TrickModelIterator &operator [](int n) {
-        i = n;
-        return *this;
     }
 
   private:

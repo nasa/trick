@@ -260,7 +260,7 @@ TrickModelIterator TrickModel::end(int tcol, int xcol, int ycol) const
 
 int TrickModel::indexAtTime(double time)
 {
-    return _idxAtTimeBinarySearch(*_iteratorTimeIndex,0,rowCount()-1,time);
+    return _idxAtTimeBinarySearch(_iteratorTimeIndex,0,rowCount()-1,time);
 }
 
 void TrickModel::writeTrkHeader(QDataStream &out, const QList<Param>& params)
@@ -307,19 +307,19 @@ void TrickModel::_write_binary_qstring(QDataStream& out, const QString &str)
     out.writeRawData(str.toLatin1().constData(),str.size());
 }
 
-int TrickModel::_idxAtTimeBinarySearch (TrickModelIterator& it,
+int TrickModel::_idxAtTimeBinarySearch (TrickModelIterator* it,
                                        int low, int high, double time)
 {
         if (high <= 0 ) {
                 return 0;
         }
         if (low >= high) {
-                return ( it[high].t() > time ) ? high-1 : high;
+                return ( it->at(high)->t() > time ) ? high-1 : high;
         } else {
                 int mid = (low + high)/2;
-                if (time == it[mid].t()) {
+                if (time == it->at(mid)->t()) {
                         return mid;
-                } else if ( time < it[mid].t() ) {
+                } else if ( time < it->at(mid)->t() ) {
                         return _idxAtTimeBinarySearch(it,
                                                       low, mid-1, time);
                 } else {
