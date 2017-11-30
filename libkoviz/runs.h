@@ -14,8 +14,8 @@
 #include <QStandardItemModel>
 #include <QProgressDialog>
 #include <stdexcept>
-#include "trickmodel.h"
-#include "trickcurvemodel.h"
+#include "datamodel.h"
+#include "curvemodel.h"
 #include "numsortitem.h"
 
 class Runs
@@ -28,10 +28,10 @@ class Runs
     virtual ~Runs();
     virtual QStringList params() const { return _params; }
     virtual QStringList runs() const { return _runs; }
-    TrickCurveModel* curve(int row,
-                           const QString& tparam,
-                           const QString& xparam,
-                           const QString& yparam) const;
+    CurveModel* curve(int row,
+                      const QString& tparam,
+                      const QString& xparam,
+                      const QString& yparam) const;
 
   private:
     QStringList _timeNames;
@@ -40,8 +40,8 @@ class Runs
     int _beginRun;
     int _endRun;
     QStringList _params;
-    QHash<QString,QList<TrickModel*>* > _paramToModels;
-    QList<TrickModel*> _models;
+    QHash<QString,QList<DataModel*>* > _paramToModels;
+    QList<DataModel*> _models;
 
     void _init();
 

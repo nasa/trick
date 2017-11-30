@@ -22,6 +22,7 @@
 #include <math.h>
 #include "bookidxview.h"
 #include "unit.h"
+#include "curvemodel.h"
 
 // ---------------------------------------------------------
 // Use . since backslash makes a C++ multi-line comment
@@ -123,7 +124,7 @@ private:
     void _paintCurve(const QModelIndex& curveIdx,
                      const QTransform &T, QPainter& painter,
                      bool isHighlight);
-    void _paintLiveCoordArrow(TrickCurveModel *curveModel,
+    void _paintLiveCoordArrow(CurveModel *curveModel,
                           const QModelIndex &curveIdx, QPainter &painter);
     void _paintErrorLiveCoordArrow(QPainterPath* path, QPainter& painter);
 

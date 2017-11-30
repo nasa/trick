@@ -5,7 +5,7 @@
 #include <QTextStream>
 #include <stdexcept>
 
-#include "trickcurvemodel.h"
+#include "curvemodel.h"
 
 class Job;
 
@@ -17,7 +17,7 @@ class Job
   public:
     // job_id is logged job name
     // e.g. JOB_bus.SimBus##read_ObcsRouter_C1.1828.00(read_simbus_0.100)
-    Job(TrickCurveModel* curve);
+    Job(CurveModel* curve);
     Job(const QString& job_id);
 
     bool isFrameTimerJob() { return _isFrameTimerJob; }
@@ -35,7 +35,7 @@ class Job
     double max_timestamp();
     double stddev_runtime(); // TODO: make unit test
 
-    inline TrickCurveModel* curve() const { return _curve; }
+    inline CurveModel* curve() const { return _curve; }
     inline int npoints() const { return _npoints; }
 
 private:
@@ -43,7 +43,7 @@ private:
 
     void _parseJobId(const QString& job_id);
 
-    TrickCurveModel* _curve;
+    CurveModel* _curve;
     int _npoints;
     bool _isFrameTimerJob;
 

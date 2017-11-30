@@ -10,6 +10,7 @@
 #include "montemodel.h"
 #include "unit.h"
 #include "utils.h"
+#include "curvemodel.h"
 
 #include <QList>
 #include <QColor>
@@ -70,9 +71,8 @@ public:
     // Convenience for getting QPen line style (see Qt doc)
     QVector<qreal> getLineStylePattern(const QModelIndex& curveIdx) const;
 
-    TrickCurveModel* getTrickCurveModel(const QModelIndex& curvesIdx,
-                                        int i) const;
-    TrickCurveModel* getTrickCurveModel(const QModelIndex& curveIdx) const;
+    CurveModel* getCurveModel(const QModelIndex& curvesIdx, int i) const;
+    CurveModel* getCurveModel(const QModelIndex& curveIdx) const;
 
     QPainterPath* getCurvePainterPath(const QModelIndex& curveIdx) const;
     QPainterPath* getCurvesErrorPath(const QModelIndex& curvesIdx);
@@ -121,8 +121,8 @@ private:
                         const QString& ancestorText,
                         const QString &expectedStartIdxText=QString()) const;
 
-    QHash<TrickCurveModel*,QPainterPath*> _curve2path;
-    QPainterPath* _createPainterPath(TrickCurveModel *curveModel);
+    QHash<CurveModel*,QPainterPath*> _curve2path;
+    QPainterPath* _createPainterPath(CurveModel *curveModel);
     QPainterPath* _createCurvesErrorPath(const QModelIndex& curvesIdx) const;
 
     QString _commonRootName(const QStringList& names, const QString& sep) const;

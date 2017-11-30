@@ -1,5 +1,16 @@
 #include "curvemodel.h"
 
+CurveModel::CurveModel(DataModel *datamodel,
+                       int tcol, int xcol, int ycol,
+                       QObject *parent) :
+    QAbstractTableModel(parent),
+    _datamodel(datamodel),
+    _tcol(tcol),
+    _xcol(xcol),
+    _ycol(ycol)
+{
+}
+
 int CurveModel::rowCount(const QModelIndex &pidx) const
 {
     if ( !pidx.isValid() && _datamodel ) {

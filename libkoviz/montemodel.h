@@ -4,7 +4,7 @@
 #include <QString>
 #include <QTextStream>
 #include <QStandardItemModel>
-#include "trickcurvemodel.h"
+#include "curvemodel.h"
 #include "runs.h"
 
 //
@@ -29,10 +29,10 @@ class MonteModel : public QStandardItemModel
                        QObject *parent = 0);
     ~MonteModel();
 
-    TrickCurveModel* curve(int row,
-                           const QString& tparam,
-                           const QString& xparam,
-                           const QString& yparam) const;
+    CurveModel* curve(int row,
+                      const QString& tparam,
+                      const QString& xparam,
+                      const QString& yparam) const;
 
     virtual QVariant headerData(int sect,
                                 Qt::Orientation orientation=Qt::Horizontal,

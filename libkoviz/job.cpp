@@ -252,7 +252,7 @@ double Job::freq()
 // An example logname:
 // JOB_schedbus.SimBus##read_ALDS15_ObcsRouter_C1.1828.00(read_simbus_0.100)
 
-Job::Job(TrickCurveModel* curve) :
+Job::Job(CurveModel* curve) :
      _curve(curve),_npoints(0),_isFrameTimerJob(false),
      _is_stats(false)
 {

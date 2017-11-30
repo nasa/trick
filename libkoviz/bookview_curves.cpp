@@ -391,8 +391,7 @@ void CurvesView::_paintCoplot(const QTransform &T,QPainter &painter,QPen &pen)
         // Draw coordinate arrow (arrow with (x,y) label) if needed
         QRectF M = _plotMathRect(rootIndex());
         if ( M.width() > 0 && qAbs(M.height()) > 0 ) {
-            TrickCurveModel* curveModel = _bookModel()->
-                                             getTrickCurveModel(currentIndex());
+            CurveModel* curveModel= _bookModel()->getCurveModel(currentIndex());
             _paintLiveCoordArrow(curveModel,currentIndex(),painter);
         }
     }
@@ -407,7 +406,7 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
     painter.save();
     QPen origPen = painter.pen();
 
-    TrickCurveModel* curveModel = _bookModel()->getTrickCurveModel(curveIdx);
+    CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
 
     if ( curveModel ) {
 
@@ -498,7 +497,7 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
     painter.restore();
 }
 
-void CurvesView::_paintLiveCoordArrow(TrickCurveModel* curveModel,
+void CurvesView::_paintLiveCoordArrow(CurveModel *curveModel,
                                       const QModelIndex& curveIdx,
                                       QPainter& painter)
 {
@@ -872,8 +871,7 @@ void CurvesView::rowsInserted(const QModelIndex &pidx, int start, int end)
         QString name = model()->data(curveIdx).toString();
         if ( name == "CurveData" ) {
             QVariant v = model()->data(curveDataIdx);
-            TrickCurveModel* curveModel =
-                                     QVariantToPtr<TrickCurveModel>::convert(v);
+            CurveModel* curveModel = QVariantToPtr<CurveModel>::convert(v);
             if ( curveModel ) {
                 //_setPlotMathRect(_currBBox);
             }
@@ -1175,8 +1173,8 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
              (tag == "Curve" &&
              (presentation == "compare" || presentation.isEmpty())) ) {
 
-            TrickCurveModel* curveModel = _bookModel()->
-                                          getTrickCurveModel(currentIndex());
+            CurveModel* curveModel =
+                                    _bookModel()->getCurveModel(currentIndex());
             if ( curveModel ) {
 
                 curveModel->map();
@@ -1706,7 +1704,7 @@ void CurvesView::_keyPressSpace()
     QModelIndex idx1 = model()->index(1,0,curvesIdx);
     QString dpYUnit0 = _bookModel()->getDataString(idx0,"CurveYUnit","Curve");
     QString dpYUnit1 = _bookModel()->getDataString(idx1,"CurveYUnit","Curve");
-    TrickCurveModel* c0 = _bookModel()->getTrickCurveModel(curvesIdx,0);
+    CurveModel* c0 = _bookModel()->getCurveModel(curvesIdx,0);
     if ( c0->y().unit() != dpYUnit0 ) {
         if ( dpYUnit0.isEmpty() || dpYUnit0 == "--" ) {
             QModelIndex unitIdx0 = _bookModel()->getDataIndex(idx0,

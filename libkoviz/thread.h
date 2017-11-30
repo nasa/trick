@@ -15,6 +15,8 @@
 #include <QRegExp>
 #include <QFileInfo>
 
+#include "datamodel.h"
+
 class Threads;
 
 
@@ -89,7 +91,7 @@ class Thread
 
     SnapTable* _runtimeCurve; // t,runtime curve
 
-    TrickModel* _frameModel;
+    DataModel* _frameModel;
     int _frameSchedTimeCol;
     int _frameOverrunTimeCol;
     bool _frameModelIsRealTime;

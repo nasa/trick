@@ -1060,7 +1060,7 @@ void BookView::_printCoplot(const QRect& R,
         QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
                                                           "CurveData","Curve");
         QVariant v = model()->data(curveDataIdx);
-        TrickCurveModel* curveModel =QVariantToPtr<TrickCurveModel>::convert(v);
+        CurveModel* curveModel =QVariantToPtr<CurveModel>::convert(v);
 
         if ( curveModel ) {
 
@@ -1192,8 +1192,8 @@ void BookView::_printErrorplot(const QRect& R,
                                 getDataIndex(curveIdx0,"CurveData","Curve"));
     QVariant v1 = model()->data(_bookModel()->
                                 getDataIndex(curveIdx1,"CurveData","Curve"));
-    TrickCurveModel* c0 = QVariantToPtr<TrickCurveModel>::convert(v0);
-    TrickCurveModel* c1 = QVariantToPtr<TrickCurveModel>::convert(v1);
+    CurveModel* c0 = QVariantToPtr<CurveModel>::convert(v0);
+    CurveModel* c1 = QVariantToPtr<CurveModel>::convert(v1);
 
     if ( c0 == 0 || c1 == 0 ) {
         fprintf(stderr,"koviz [bad scoobs]:1: BookView::_printErrorplot()\n");

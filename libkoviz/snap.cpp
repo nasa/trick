@@ -99,12 +99,12 @@ Snap::~Snap()
     foreach ( Job* job, _jobs ) {
         delete job;
     }
-    foreach ( TrickCurveModel* curve, _curves ) {
+    foreach ( CurveModel* curve, _curves ) {
         delete curve;
     }
 
     if (_trickJobModel ) delete _trickJobModel;
-    foreach ( TrickModel* m, _userJobModels ) {
+    foreach ( DataModel* m, _userJobModels ) {
         delete m;
     }
     if (_modelFrame ) delete _modelFrame;
@@ -389,10 +389,10 @@ QList<Job *>* Snap::jobs(SortBy sort_method)
     return &_jobs;
 }
 
-TrickModel *Snap::_createModel( const QString &trk,
+DataModel *Snap::_createModel( const QString &trk,
                                double start, double stop)
 {
-    TrickModel* model;
+    DataModel* model;
 
     QFile file(trk);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -417,7 +417,7 @@ TrickModel *Snap::_createModel( const QString &trk,
     }
 
     try {
-        model = new TrickModel(_timeNames,trk,start,stop);
+        model = DataModel::createDataModel(_timeNames,trk,start,stop);
     }
     catch (std::range_error &e) {
         _err_stream << e.what() << "\n\n";
@@ -436,7 +436,7 @@ void Snap::_process_models()
 
     // Trick 13 splits userjobs into separate files
     foreach ( QString userJob, _fileNamesUserJobs ) {
-        TrickModel* userJobModel =  _createModel(userJob,_start, _stop);
+        DataModel* userJobModel =  _createModel(userJob,_start, _stop);
         if ( userJobModel->rowCount() > 0 ) {
             // log*CX*.trk has no timing data (this happens in Trick 13)
             _userJobModels.append(userJobModel);
@@ -447,7 +447,7 @@ void Snap::_process_models()
 
 
     _process_jobs(_trickJobModel);
-    foreach ( TrickModel* userJobModel, _userJobModels ) {
+    foreach ( DataModel* userJobModel, _userJobModels ) {
         _process_jobs(userJobModel);
     }
 
@@ -578,13 +578,13 @@ double Snap::_calc_frame_stddev(double frameAvg)
     return sqrt(sum/_frames.length()) ;
 }
 
-bool Snap::_process_jobs(TrickModel* model )
+bool Snap::_process_jobs(DataModel* model )
 {
     bool ret = true;
 
     int nParams = model->columnCount();
     for ( int i = 1 ; i < nParams; ++i ) {
-        TrickCurveModel* curve = new TrickCurveModel(model,0,i,i);
+        CurveModel* curve = new CurveModel(model,0,i,i);
         _curves.append(curve);
         Job* job = new Job(curve);
         if ( job->isFrameTimerJob() ) {

@@ -34,7 +34,7 @@ PlotBookModel::~PlotBookModel()
         foreach ( QModelIndex plotIdx, plotIdxs(pageIdx) ) {
             QModelIndex curvesIdx = getIndex(plotIdx,"Curves","Plot");
             foreach (QModelIndex curveIdx, curveIdxs(curvesIdx)) {
-                TrickCurveModel* c =  getTrickCurveModel(curveIdx);
+                CurveModel* c =  getCurveModel(curveIdx);
                 delete c;
             }
         }
@@ -49,8 +49,7 @@ bool PlotBookModel::setData(const QModelIndex &idx,
         QModelIndex tagIdx = sibling(idx.row(),0,idx);
         QString tag = data(tagIdx).toString();
         if ( tag == "CurveData" ) {
-            TrickCurveModel* curveModel =
-                    QVariantToPtr<TrickCurveModel>::convert(value);
+            CurveModel* curveModel = QVariantToPtr<CurveModel>::convert(value);
             if ( curveModel ) {
                 if ( _curve2path.contains(curveModel) ) {
                     QPainterPath* currPath = _curve2path.value(curveModel);
@@ -502,32 +501,31 @@ QVector<qreal> PlotBookModel::getLineStylePattern(
 }
 
 // i'th curve under curves idx
-TrickCurveModel *PlotBookModel::getTrickCurveModel(const QModelIndex& curvesIdx,
-                                                   int i) const
+CurveModel *PlotBookModel::getCurveModel(const QModelIndex& curvesIdx,
+                                         int i) const
 {
     if ( !isIndex(curvesIdx, "Curves") ) {
         fprintf(stderr,"koviz [bad scoobs]:1: "
-                       "PlotBookModel::getTrickCurveModel()\n");
+                       "PlotBookModel::getCurveModel()\n");
         exit(-1);
     }
 
     QModelIndex curveIdx = index(i,0,curvesIdx);
-    TrickCurveModel* curveModel = getTrickCurveModel(curveIdx);
+    CurveModel* curveModel = getCurveModel(curveIdx);
     return curveModel;
 }
 
-TrickCurveModel *PlotBookModel::getTrickCurveModel(
-                                             const QModelIndex &curveIdx) const
+CurveModel *PlotBookModel::getCurveModel(const QModelIndex &curveIdx) const
 {
     if ( !isIndex(curveIdx, "Curve") ) {
         fprintf(stderr,"koviz [bad scoobs]:2: "
-                       "PlotBookModel::getTrickCurveModel()\n");
+                       "PlotBookModel::getCurveModel()\n");
         exit(-1);
     }
 
     QModelIndex curveDataIdx = getDataIndex(curveIdx,"CurveData");
     QVariant v = data(curveDataIdx);
-    TrickCurveModel* curveModel =QVariantToPtr<TrickCurveModel>::convert(v);
+    CurveModel* curveModel =QVariantToPtr<CurveModel>::convert(v);
 
     return curveModel;
 }
@@ -537,7 +535,7 @@ QPainterPath* PlotBookModel::getCurvePainterPath(
 {
     QPainterPath* path;
 
-    TrickCurveModel* curveModel = getTrickCurveModel(curveIdx);
+    CurveModel* curveModel = getCurveModel(curveIdx);
 
     if ( _curve2path.contains(curveModel) ) {
         path = _curve2path.value(curveModel);
@@ -637,7 +635,7 @@ double PlotBookModel::xScale(const QModelIndex& curveIdx) const
         exit(-1);
     }
 
-    TrickCurveModel* curveModel = getTrickCurveModel(curveIdx);
+    CurveModel* curveModel = getCurveModel(curveIdx);
     if ( !curveModel ) {
         xs = 0.0;
         return xs;
@@ -674,7 +672,7 @@ double PlotBookModel::yScale(const QModelIndex& curveIdx) const
         exit(-1);
     }
 
-    TrickCurveModel* curveModel = getTrickCurveModel(curveIdx);
+    CurveModel* curveModel = getCurveModel(curveIdx);
     if ( !curveModel ) {
         ys = 0.0;
         return ys;
@@ -710,7 +708,7 @@ double PlotBookModel::xBias(const QModelIndex &curveIdx) const
         exit(-1);
     }
 
-    TrickCurveModel* curveModel = getTrickCurveModel(curveIdx);
+    CurveModel* curveModel = getCurveModel(curveIdx);
     if ( !curveModel ) {
         xb = 0.0;
         return xb;
@@ -745,7 +743,7 @@ double PlotBookModel::yBias(const QModelIndex &curveIdx) const
         exit(-1);
     }
 
-    TrickCurveModel* curveModel = getTrickCurveModel(curveIdx);
+    CurveModel* curveModel = getCurveModel(curveIdx);
     if ( !curveModel ) {
         yb = 0.0;
         return yb;
@@ -839,7 +837,7 @@ QRectF PlotBookModel::calcCurvesBBox(const QModelIndex &curvesIdx) const
 }
 
 // Note: No scaling, the path is straight from the logged data
-QPainterPath* PlotBookModel::_createPainterPath(TrickCurveModel *curveModel)
+QPainterPath* PlotBookModel::_createPainterPath(CurveModel *curveModel)
 {
     QPainterPath* path = new QPainterPath;
 
@@ -899,8 +897,8 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
         exit(-1);
     }
 
-    TrickCurveModel* c0 = getTrickCurveModel(curvesIdx,0);
-    TrickCurveModel* c1 = getTrickCurveModel(curvesIdx,1);
+    CurveModel* c0 = getCurveModel(curvesIdx,0);
+    CurveModel* c1 = getCurveModel(curvesIdx,1);
 
     if ( c0 == 0 || c1 == 0 ) {
         fprintf(stderr,"koviz [bad scoobs]:3: "
@@ -1028,13 +1026,13 @@ QString PlotBookModel::getCurvesXUnit(const QModelIndex &curvesIdx)
         QModelIndex curve0Idx = index(0,0,curvesIdx);
         QString xunit0 = getDataString(curve0Idx,"CurveXUnit","Curve");
         if ( xunit0 == "--" || xunit0.isEmpty() ) {
-            xunit0 = getTrickCurveModel(curve0Idx)->x().unit();
+            xunit0 = getCurveModel(curve0Idx)->x().unit();
         }
         for (int i = 0; i < rc; ++i) {
             QModelIndex curveIdx = index(i,0,curvesIdx);
             xunit = getDataString(curveIdx,"CurveXUnit","Curve");
             if ( xunit == "--" || xunit.isEmpty() ) {
-                TrickCurveModel* curveModel = getTrickCurveModel(curveIdx);
+                CurveModel* curveModel = getCurveModel(curveIdx);
                 xunit = curveModel->x().unit();
             }
             if ( xunit != xunit0 ) {
@@ -1068,13 +1066,13 @@ QString PlotBookModel::getCurvesYUnit(const QModelIndex &curvesIdx)
         QModelIndex curve0Idx = index(0,0,curvesIdx);
         QString yunit0 = getDataString(curve0Idx,"CurveYUnit","Curve");
         if ( yunit0 == "--" || yunit0.isEmpty() ) {
-            yunit0 = getTrickCurveModel(curve0Idx)->y().unit();
+            yunit0 = getCurveModel(curve0Idx)->y().unit();
         }
         for (int i = 0; i < rc; ++i) {
             QModelIndex curveIdx = index(i,0,curvesIdx);
             yunit = getDataString(curveIdx,"CurveYUnit","Curve");
             if ( yunit == "--" || yunit.isEmpty() ) {
-                TrickCurveModel* curveModel = getTrickCurveModel(curveIdx);
+                CurveModel* curveModel = getCurveModel(curveIdx);
                 yunit = curveModel->y().unit();
             }
             if ( yunit != yunit0 ) {
@@ -1087,7 +1085,7 @@ QString PlotBookModel::getCurvesYUnit(const QModelIndex &curvesIdx)
         QModelIndex idx0 = index(0,0,curvesIdx);
         yunit = getDataString(idx0,"CurveYUnit","Curve");
         if ( yunit == "--" || yunit.isEmpty() ) {
-            yunit = getTrickCurveModel(idx0)->y().unit();
+            yunit = getCurveModel(idx0)->y().unit();
         }
     } else {
         yunit = "--";
@@ -1287,7 +1285,7 @@ QStringList PlotBookModel::legendLabels(const QModelIndex &plotIdx) const
 
     foreach ( QModelIndex curveIdx, curveIdxs ) {
         // Label (run:var)
-        TrickCurveModel* curveModel = getTrickCurveModel(curveIdx);
+        CurveModel* curveModel = getCurveModel(curveIdx);
         QString fname = curveModel->fileName();
         QString runName = QFileInfo(fname).dir().absolutePath();
 

@@ -26,7 +26,7 @@ Runs::Runs(const QStringList &timeNames,
 
 Runs::~Runs()
 {
-    foreach ( TrickModel* m, _models ) {
+    foreach ( DataModel* m, _models ) {
         delete m;
     }
     foreach ( QString p, _params ) {
@@ -71,14 +71,14 @@ void Runs::_init()
     progress.setWindowModality(Qt::WindowModal);
     progress.setMinimumDuration(500);
     QHash<QString,QStringList> runToParams;
-    QHash<QPair<QString,QString>,TrickModel*> ptrkToModel;
+    QHash<QPair<QString,QString>,DataModel*> ptrkToModel;
     int i = 0;
     foreach (QString trk, trks ) {
         progress.setValue(i);
         if (progress.wasCanceled()) {
             exit(0);
         }
-        TrickModel* m = new TrickModel(_timeNames,trk);
+        DataModel* m = DataModel::createDataModel(_timeNames,trk);
         m->unmap();
         _models.append(m);
         int ncols = m->columnCount();
@@ -127,9 +127,9 @@ void Runs::_init()
     _params.sort();
 
     foreach ( QString p, _params ) {
-        _paramToModels.insert(p,new QList<TrickModel*>);
+        _paramToModels.insert(p,new QList<DataModel*>);
         foreach ( QString run, _runs ) {
-            TrickModel* m = 0;
+            DataModel* m = 0;
             foreach ( QString trk, runToTrks.value(run) ) {
                 QPair<QString,QString> ptrk = qMakePair(p,trk);
                 if ( ptrkToModel.contains(ptrk) ) {
@@ -157,17 +157,17 @@ void Runs::_init()
     }
 }
 
-TrickCurveModel* Runs::curve(int row,
-                             const QString &tparam,
-                             const QString &xparam,
-                             const QString &yparam) const
+CurveModel* Runs::curve(int row,
+                        const QString &tparam,
+                        const QString &xparam,
+                        const QString &yparam) const
 {
-    QList<TrickModel*>* models = _paramToModels.value(yparam);
+    QList<DataModel*>* models = _paramToModels.value(yparam);
     if ( models == 0 ) {
         return 0;
     }
 
-    TrickModel* tm = models->at(row);
+    DataModel* tm = models->at(row);
     if ( !tm ) {
         return 0;
     }
@@ -242,5 +242,5 @@ TrickCurveModel* Runs::curve(int row,
         }
     }
 
-    return new TrickCurveModel(tm,tcol,xcol,ycol);
+    return new CurveModel(tm,tcol,xcol,ycol);
 }

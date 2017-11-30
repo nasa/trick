@@ -35,7 +35,7 @@ void BookTableView::paintEvent(QPaintEvent *event)
     QPen penTxt(palette.text().color());
 
     // Per table variable, make list of curve models, units, scalefactors etc.
-    QList<TrickCurveModel*> curveModels;
+    QList<CurveModel*> curveModels;
     QStringList units;
     QModelIndex tableVarsIdx = _bookModel()->getIndex(rootIndex(),
                                                       "TableVars","Table");
@@ -47,7 +47,7 @@ void BookTableView::paintEvent(QPaintEvent *event)
         QModelIndex curveIdx = _bookModel()->getDataIndex(tableVarIdx,
                                                      "TableVarData","TableVar");
         QVariant v = _bookModel()->data(curveIdx);
-        TrickCurveModel* curveModel =QVariantToPtr<TrickCurveModel>::convert(v);
+        CurveModel* curveModel = QVariantToPtr<CurveModel>::convert(v);
         curveModels << curveModel;
 
         double sf = _bookModel()->getDataDouble(tableVarIdx,
@@ -109,7 +109,7 @@ void BookTableView::paintEvent(QPaintEvent *event)
     for (int j = 0; j < nCols; ++j) {
         double sf   = scaleFactors.at(q+j);
         double bias = biases.at(q+j);
-        TrickCurveModel* curveModel = curveModels.at(q+j);
+        CurveModel* curveModel = curveModels.at(q+j);
         curveModel->map();
         ModelIterator* it = curveModel->begin();
         QList<double> vals;
@@ -134,7 +134,7 @@ void BookTableView::paintEvent(QPaintEvent *event)
 
     // Draw the table
     for (int j = 0; j < nCols; ++j) {
-        TrickCurveModel* curveModel = curveModels.at(q+j);
+        CurveModel* curveModel = curveModels.at(q+j);
         curveModel->map();
         ModelIterator* it = curveModel->begin();
         for ( int i = 0; i < nRows; ++i ) {
@@ -296,7 +296,7 @@ QStringList BookTableView::_columnLabels() const
         QModelIndex curveIdx = _bookModel()->getDataIndex(tableVarIdx,
                                                      "TableVarData","TableVar");
         QVariant v = _bookModel()->data(curveIdx);
-        TrickCurveModel* curveModel =QVariantToPtr<TrickCurveModel>::convert(v);
+        CurveModel* curveModel = QVariantToPtr<CurveModel>::convert(v);
 
         if ( unit.isEmpty() ) {
             unit = curveModel->y().unit();
@@ -341,7 +341,7 @@ void BookTableView::dataChanged(const QModelIndex &topLeft,
 
         // Get curve model
         QVariant v = _bookModel()->data(dataIdx);
-        TrickCurveModel* curveModel =QVariantToPtr<TrickCurveModel>::convert(v);
+        CurveModel* curveModel =QVariantToPtr<CurveModel>::convert(v);
 
         if ( curveModel ) {
 
@@ -571,7 +571,7 @@ void BookTableView::wheelEvent(QWheelEvent *e)
         QModelIndex curveIdx = _bookModel()->getDataIndex(tableVarIdx,
                                                      "TableVarData","TableVar");
         QVariant v = _bookModel()->data(curveIdx);
-        TrickCurveModel* curveModel =QVariantToPtr<TrickCurveModel>::convert(v);
+        CurveModel* curveModel = QVariantToPtr<CurveModel>::convert(v);
         unit = curveModel->y().unit();
     }
 

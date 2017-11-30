@@ -3,8 +3,6 @@
 #include <QDir>
 #include "runs.h"
 #include "montemodel.h"
-#include "trickcurvemodel.h"
-
 
 QString TrickTableModel::_err_string;
 QTextStream TrickTableModel::_err_stream(&TrickTableModel::_err_string);
@@ -42,7 +40,7 @@ TrickTableModel::TrickTableModel(const QStringList& timeNames,
     QString timeName;
     foreach ( QString trk, trks ) {
         QString rtrk = runDir + "/" + trk;
-        TrickModel* trkModel = new TrickModel(timeNames,rtrk);
+        DataModel* trkModel = DataModel::createDataModel(timeNames,rtrk);
         trkModel->map();
         foreach ( QString paramName, paramList ) {
             int cc = trkModel->columnCount();
@@ -73,7 +71,7 @@ TrickTableModel::TrickTableModel(const QStringList& timeNames,
     }
 
     // Make time stamps list
-    foreach ( TrickModel* trkModel, _trkModels ) {
+    foreach ( DataModel* trkModel, _trkModels ) {
         trkModel->map();
         int timeCol = trkModel->paramColumn(timeName);
         ModelIterator* it = trkModel->begat(timeCol,timeCol,timeCol);
@@ -134,7 +132,7 @@ QVariant TrickTableModel::data(const QModelIndex &idx, int role) const
             }
         } else {
             QString param = _params.at(idx.column());
-            TrickModel* trkModel = _param2model.value(param);
+            DataModel* trkModel = _param2model.value(param);
             if ( trkModel ) {
                 trkModel->map();
                 int r = idx.row();

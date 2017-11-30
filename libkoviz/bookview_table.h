@@ -24,7 +24,7 @@
 #endif
 
 #include "bookmodel.h"
-#include "trickcurvemodel.h"
+#include "curvemodel.h"
 #include "unit.h"
 #include "timestamps.h"
 

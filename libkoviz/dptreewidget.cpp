@@ -476,7 +476,7 @@ void DPTreeWidget::_createDPTables(const QString &dpfile)
                 _addChild(varItem, "TableVarFormat",   "");
 
                 // The actual data for the variable will be a trick curve model
-                TrickCurveModel* curveModel = _monteModel->curve(i, _timeName,
+                CurveModel* curveModel = _monteModel->curve(i, _timeName,
                                                           _timeName,_timeName);
                 if ( !curveModel ) {
                     _err_stream << "koviz [error]: couldn't find parameter:\n\n"
@@ -488,7 +488,7 @@ void DPTreeWidget::_createDPTables(const QString &dpfile)
                                             _err_string.toLatin1().constData());
                 }
 
-                QVariant v=PtrToQVariant<TrickCurveModel>::convert(curveModel);
+                QVariant v=PtrToQVariant<CurveModel>::convert(curveModel);
                 _addChild(varItem, "TableVarData",v);
             }
 
@@ -507,7 +507,7 @@ void DPTreeWidget::_createDPTables(const QString &dpfile)
                 _addChild(varItem, "TableVarFormat",   var->format());
 
                 // The actual data for the variable will be a trick curve model
-                TrickCurveModel* curveModel = _monteModel->curve(i, _timeName,
+                CurveModel* curveModel = _monteModel->curve(i, _timeName,
                                                       var->name(), var->name());
                 if ( !curveModel ) {
                     _err_stream << "koviz [error]: couldn't find parameter:\n\n"
@@ -519,7 +519,7 @@ void DPTreeWidget::_createDPTables(const QString &dpfile)
                                             _err_string.toLatin1().constData());
                 }
 
-                QVariant v=PtrToQVariant<TrickCurveModel>::convert(curveModel);
+                QVariant v=PtrToQVariant<CurveModel>::convert(curveModel);
                 _addChild(varItem, "TableVarData",v);
             }
         }
@@ -544,7 +544,7 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     // Curve
     QStandardItem *curveItem = _addChild(curvesItem,"Curve");
 
-    TrickCurveModel* curveModel = 0 ;
+    CurveModel* curveModel = 0 ;
 
     // Get x&y params that match this run
     DPVar* x = 0;
@@ -668,7 +668,7 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     _addChild(curveItem, "CurveColor", color);
 
     // Finally, add actual curve model data with signals turned on
-    QVariant v = PtrToQVariant<TrickCurveModel>::convert(curveModel);
+    QVariant v = PtrToQVariant<CurveModel>::convert(curveModel);
     _addChild(curveItem, "CurveData", v);
 }
 

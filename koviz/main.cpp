@@ -25,6 +25,10 @@ using namespace std;
 #include "libkoviz/dp.h"
 #include "libkoviz/snap.h"
 #include "libkoviz/csv.h"
+#include "libkoviz/trickmodel.h"
+#include "libkoviz/curvemodel.h"
+#include "libkoviz/roleparam.h"
+#include "libkoviz/trick_types.h"
 
 QStandardItemModel* createVarsModel(Runs* runs);
 bool writeTrk(const QString& ftrk, const QString &timeName,
@@ -760,7 +764,7 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
     // And make curves list (based on param list)
     //
     QList<Param> params;
-    QList<TrickCurveModel*> curves;
+    QList<CurveModel*> curves;
 
     // Time is first "param"
     Param timeParam;
@@ -782,7 +786,7 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
             continue;
         }
 
-        TrickCurveModel* c = monteModel->curve(0,timeName,timeName,yParam);
+        CurveModel* c = monteModel->curve(0,timeName,timeName,yParam);
 
         // Error check: see if MonteModel could not find curve (timeName,yParam)
         if ( !c) {
@@ -790,7 +794,7 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
                     "%s,%s)\n",
                     timeName.toLatin1().constData(),
                     yParam.toLatin1().constData());
-            foreach ( TrickCurveModel* curveModel, curves ) {
+            foreach ( CurveModel* curveModel, curves ) {
                 delete curveModel;
             }
             delete c;
@@ -805,7 +809,7 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
             // No data
             fprintf(stderr, "koviz [error]: no data found in %s\n",
                     c->fileName().toLatin1().constData());
-            foreach ( TrickCurveModel* curveModel, curves ) {
+            foreach ( CurveModel* curveModel, curves ) {
                 delete curveModel;
             }
             delete c;
@@ -834,7 +838,7 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
 
     // Make time stamps list
     QList<double> timeStamps;
-    foreach ( TrickCurveModel* curve, curves ) {
+    foreach ( CurveModel* curve, curves ) {
 
         if ( !curve ) continue ;
 
@@ -883,7 +887,7 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
 
     // Write time stamps and data
     int i = 0;
-    foreach ( TrickCurveModel* curve, curves ) {
+    foreach ( CurveModel* curve, curves ) {
 
         if ( !curve ) {
             // write time stamps
@@ -920,7 +924,7 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
     // Clean up
     //
     trk.close();
-    foreach ( TrickCurveModel* curveModel, curves ) {
+    foreach ( CurveModel* curveModel, curves ) {
         delete curveModel;
     }
 

@@ -246,8 +246,7 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
         //
         // Create curves
         //
-        TrickCurveModel* curveModel = _monteModel->curve(r,
-                                                         _timeName,xName,yName);
+        CurveModel* curveModel = _monteModel->curve(r,_timeName,xName,yName);
         if ( !curveModel ) {
             // This should not happen
             // It could be ignored but I'll exit(-1) because I think
@@ -301,7 +300,7 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
 
 
         // Add actual curve model data
-        QVariant v = PtrToQVariant<TrickCurveModel>::convert(curveModel);
+        QVariant v = PtrToQVariant<CurveModel>::convert(curveModel);
         _addChild(curveItem, "CurveData", v);
 
 #ifdef __linux

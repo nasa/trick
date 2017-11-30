@@ -96,7 +96,7 @@ void Thread::_do_stats()
     int rowCount = 0 ;
     if ( _threadId == 0 && _frameModelIsRealTime ) {
 
-        TrickCurveModel* timeToSyncWithAMFChildrenCurve = 0;
+        CurveModel* timeToSyncWithAMFChildrenCurve = 0;
         foreach ( Job* job, _jobs ) {
             if ( job->job_name().contains("advance_sim_time") ) {
                 timeToSyncWithAMFChildrenCurve = job->curve();
@@ -163,7 +163,7 @@ void Thread::_do_stats()
         // Calc frame runtimes (sum of jobs runtimes per frame), num overruns etc.
         //
         Job* job0 = _jobs.at(0);
-        TrickCurveModel* curve = job0->curve();
+        CurveModel* curve = job0->curve();
         ModelIterator* it = curve->begin();
         double frame_time = 0.0;
         _max_runtime = 0.0;
@@ -316,7 +316,8 @@ void Thread::_frameModelSet()
     }
     try {
         QString trk(fileNameLogFrame);
-        _frameModel = new TrickModel(_timeNames,trk,_startTime,_stopTime);
+        _frameModel = DataModel::createDataModel(_timeNames,trk,
+                                                 _startTime,_stopTime);
     }
     catch (std::range_error &e) {
         _err_stream << e.what() << "\n\n";
@@ -326,7 +327,7 @@ void Thread::_frameModelSet()
 
     int nFrames = _frameModel->rowCount();
     if ( nFrames == 0 ) {
-        _err_stream << "koviz [error]: file \"" << _frameModel->trkFile()
+        _err_stream << "koviz [error]: file \"" << _frameModel->fileName()
                     << "\" has no points";
         throw std::invalid_argument(_err_string.toLatin1().constData());
     }
@@ -355,7 +356,7 @@ void Thread::_frameModelSet()
         _err_stream << "koviz [error]: Couldn't find parameter "
                         << param
                         << " in file \""
-                        << _frameModel->trkFile()
+                        << _frameModel->fileName()
                         << "\"";
             throw std::invalid_argument(_err_string.toLatin1().constData());
     }
@@ -374,7 +375,7 @@ int Thread::_calcNumFrames()
         frameCnt = _frameModel->rowCount();
     } else {
         Job* job0 = _jobs.at(0);
-        TrickCurveModel* curve = job0->curve();
+        CurveModel* curve = job0->curve();
         ModelIterator* it = curve->begin();
         if ( _freq < 0.000001 ) {
             frameCnt = curve->rowCount();

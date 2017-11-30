@@ -7,7 +7,7 @@
 #include <QList>
 #include <QHash>
 #include <QTextStream>
-#include "trickmodel.h"
+#include "datamodel.h"
 #include "timestamps.h"
 
 class TrickTableModel : public QAbstractTableModel
@@ -40,9 +40,9 @@ private:
     int _colCount;
     QList<double> _timeStamps;
 
-    QList<TrickModel*> _trkModels;
+    QList<DataModel*> _trkModels;
     QStringList _params;
-    QHash<QString,TrickModel*> _param2model;
+    QHash<QString,DataModel*> _param2model;
     QStringList _trks(const QString& runDir);
 
 

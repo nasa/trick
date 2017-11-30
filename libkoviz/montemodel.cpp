@@ -22,10 +22,10 @@ MonteModel::~MonteModel()
     // The client is responsible for cleaning up runs
 }
 
-TrickCurveModel *MonteModel::curve(int row,
-                                   const QString &tparam,
-                                   const QString &xparam,
-                                   const QString &yparam) const
+CurveModel *MonteModel::curve(int row,
+                              const QString &tparam,
+                              const QString &xparam,
+                              const QString &yparam) const
 {
     return _runs->curve(row,tparam,xparam,yparam);
 }

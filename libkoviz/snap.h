@@ -21,8 +21,8 @@
 #include "frame.h"
 #include "utils.h"
 #include "snaptable.h"
-#include "trickmodel.h"
-#include "trickcurvemodel.h"
+#include "datamodel.h"
+#include "curvemodel.h"
 
 #define TXT(X) X.toLatin1().constData()
 
@@ -127,21 +127,20 @@ private:
 
     SortBy _curr_sort_method;
     QList<Job*> _jobs;
-    QList<TrickCurveModel*> _curves;
+    QList<CurveModel*> _curves;
     QString _job_logname(const Job* job) const;
     QMap<QString,Job*> _id_to_job;
 
 
-    TrickModel* _createModel(const QString& trk,
-                             double start, double stop);
+    DataModel* _createModel(const QString& trk, double start, double stop);
     void _process_models();
     bool _parse_s_job_execution(const QString& rundir);
     QList<Frame> _process_frames();
-    bool _process_jobs(TrickModel* model);
+    bool _process_jobs(DataModel* model);
 
-    TrickModel* _trickJobModel;
-    QList<TrickModel*> _userJobModels;
-    TrickModel* _modelFrame;
+    DataModel* _trickJobModel;
+    QList<DataModel*> _userJobModels;
+    DataModel* _modelFrame;
     Thread* _thread0;  // main thread
 
     QList<Frame>  _frames;

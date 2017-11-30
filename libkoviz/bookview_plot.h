@@ -18,7 +18,6 @@
 #include "bookview_curves.h"
 #include "bookview_xaxislabel.h"
 #include "bookview_yaxislabel.h"
-#include "trickcurvemodel.h"
 
 class PlotView : public BookIdxView
 {

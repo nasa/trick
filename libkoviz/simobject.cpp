@@ -33,7 +33,7 @@ void SimObject::_do_stats()
     // Get begin/end timestamps
     double begTimeStamp = 0.0;
     double endTimeStamp = 0;
-    TrickCurveModel* curve0 = _jobs.at(0)->curve();
+    CurveModel* curve0 = _jobs.at(0)->curve();
     ModelIterator* it0 = curve0->begin();
     bool isFirst = true;
     while ( !it0->isDone() ) {
