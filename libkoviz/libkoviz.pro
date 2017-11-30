@@ -70,15 +70,12 @@ SOURCES += bookmodel.cpp \
            timeit_linux.cpp \
            timeit_win32.cpp \
            timestamps.cpp \
-           trickcurvemodel.cpp \
            trickmodel.cpp \
            tricktablemodel.cpp \
            plotmainwindow.cpp \
            rangeinput.cpp \
            datamodel.cpp \
            curvemodel.cpp
-
-
 
 HEADERS  += bookmodel.h \
             bookidxview.h \
@@ -125,7 +122,6 @@ HEADERS  += bookmodel.h \
             timeit_win32.h \
             timestamps.h \
             trick_types.h \
-            trickcurvemodel.h \
             trickmodel.h \
             tricktablemodel.h \
             plotmainwindow.h \
