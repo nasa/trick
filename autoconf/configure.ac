@@ -260,6 +260,7 @@ AS_IF([test "$UDUNITS_HOME" = ""],
   UDUNITS_LDFLAGS=-ludunits2
  ],
  [
+  UDUNITS_EXCLUDE=$UDUNITS_HOME
   AC_CHECK_FILE([$UDUNITS_HOME/include/udunits2.h],
    [UDUNITS_INCLUDES=-I$UDUNITS_HOME/include
     UDUNITS_LDFLAGS="-L$UDUNITS_HOME/lib -ludunits2"
@@ -275,6 +276,7 @@ AS_IF([test "$UDUNITS_HOME" = ""],
 )
 AC_SUBST([UDUNITS_INCLUDES])
 AC_SUBST([UDUNITS_LDFLAGS])
+AC_SUBST([UDUNITS_EXCLUDE])
 
 dnl process the other optional command line arguments
 AX_HDF5_HOME([])
