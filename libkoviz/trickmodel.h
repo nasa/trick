@@ -306,7 +306,7 @@ class TrickModelIterator : public ModelIterator
 
   private:
 
-    int i;
+    qint64 i;
     const TrickModel* _model;
     int _row_count;
     int _row_size;
