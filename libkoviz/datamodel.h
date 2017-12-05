@@ -21,26 +21,18 @@ class DataModel : public QAbstractTableModel
 
     explicit DataModel(const QStringList &timeNames,
                        const QString &fileName,
-                       double startTime=0.0,
-                       double stopTime=1.0e20,
                        QObject *parent = 0) :
         QAbstractTableModel(parent),
         _timeNames(timeNames),
-        _fileName(fileName),
-        _startTime(startTime),
-        _stopTime(stopTime)
+        _fileName(fileName)
     {}
 
     ~DataModel() {}
 
     static DataModel* createDataModel(const QStringList& timeNames,
-                                      const QString& fileName,
-                                      double startTime=0.0,
-                                      double stopTime=1.0e20);
+                                      const QString& fileName);
 
     QString fileName() const { return _fileName; }
-    double startTime() { return _startTime; }
-    double stopTime() { return _stopTime; }
 
     virtual void map() = 0;
     virtual void unmap() = 0;
@@ -58,8 +50,6 @@ class DataModel : public QAbstractTableModel
 
     QStringList _timeNames;
     QString _fileName;
-    double _startTime;
-    double _stopTime;
 };
 
 class ModelIterator

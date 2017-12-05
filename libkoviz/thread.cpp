@@ -11,10 +11,8 @@ static bool intLessThan(int a, int b)
     return a < b;
 }
 
-Thread::Thread(const QString &runDir, const QStringList &timeNames,
-               double startTime, double stopTime) :
+Thread::Thread(const QString &runDir, const QStringList &timeNames) :
     _runDir(runDir),_timeNames(timeNames),
-    _startTime(startTime),_stopTime(stopTime),
     _threadId(-1), _sJobExecThreadInfo(runDir),
     _avg_runtime(0),_avg_load(0), _tidx_max_runtime(0),
     _max_runtime(0), _max_load(0),_stdev(0),_freq(0.0),
@@ -152,12 +150,6 @@ void Thread::_do_stats()
         delete it;
         delete iamf;
 
-        QModelIndex idx0 = _runtimeCurve->index(0,0);
-        _startTime = _runtimeCurve->data(idx0).toDouble();
-        int rc = _runtimeCurve->rowCount();
-        QModelIndex idxLast = _runtimeCurve->index(rc-1,0);
-        _stopTime = _runtimeCurve->data(idxLast).toDouble();
-
     } else {
         //
         // Calc frame runtimes (sum of jobs runtimes per frame), num overruns etc.
@@ -170,7 +162,6 @@ void Thread::_do_stats()
         int frameidx = 0 ;
         int tidx = 0 ;
 
-        _startTime = it->t();
         double tnext = it->t() + _freq;
         double epsilon = 1.0e-6;
 
@@ -236,10 +227,6 @@ void Thread::_do_stats()
             frame_time = 0.0;
             frameidx++;
             tnext += _freq;
-        }
-
-        if ( rowCount > 0 ) {
-            _stopTime = it->at(rowCount-1)->t();
         }
 
         delete it;
@@ -316,12 +303,11 @@ void Thread::_frameModelSet()
     }
     try {
         QString trk(fileNameLogFrame);
-        _frameModel = DataModel::createDataModel(_timeNames,trk,
-                                                 _startTime,_stopTime);
+        _frameModel = DataModel::createDataModel(_timeNames,trk);
     }
     catch (std::range_error &e) {
         _err_stream << e.what() << "\n\n";
-        _err_stream << "koviz [error]: -start or -stop opts have bad vals\n";
+        _err_stream << "koviz [error]: _frameModelSet()\n";
         throw std::range_error(_err_string.toLatin1().constData());
     }
 
@@ -482,17 +468,15 @@ double Thread::avgJobLoad(Job *job) const
 }
 
 Threads::Threads(const QString &runDir, const QList<Job*>& jobs,
-                 const QStringList &timeNames,
-                 double startTime, double stopTime) :
-    _jobs(jobs),_timeNames(timeNames),
-    _startTime(startTime),_stopTime(stopTime)
+                 const QStringList &timeNames) :
+    _jobs(jobs),_timeNames(timeNames)
 {
     foreach ( Job* job, _jobs ) {
 
         int tid = job->thread_id();
         if ( ! _ids.contains(tid) ) {
             _ids.append(tid);
-            Thread* thread = new Thread(runDir,_timeNames,startTime,stopTime);
+            Thread* thread = new Thread(runDir,_timeNames);
             _threads.insert(tid,thread);
         }
 

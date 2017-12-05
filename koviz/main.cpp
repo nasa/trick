@@ -271,7 +271,11 @@ int main(int argc, char *argv[])
     try {
         if ( opts.isReportRT ) {
             foreach ( QString run, runDirs ) {
-                Snap snap(run,timeNames,opts.start,opts.stop);
+                if ( opts.start != 0.0 || opts.stop != 1.0e20 ) {
+                    fprintf(stderr, "snap [warning]: when using the -rt option "
+                                    "the -start/stop options are ignored\n");
+                }
+                Snap snap(run,timeNames);
                 SnapReport rpt(snap);
                 fprintf(stderr,"%s",rpt.report().toLatin1().constData());
             }

@@ -2,8 +2,7 @@
 #include "trickmodel.h"
 
 DataModel *DataModel::createDataModel(const QStringList &timeNames,
-                                      const QString &fileName,
-                                      double startTime, double stopTime)
+                                      const QString &fileName)
 {
-    return new TrickModel(timeNames,fileName,startTime,stopTime);
+    return new TrickModel(timeNames,fileName);
 }

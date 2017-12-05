@@ -27,10 +27,9 @@ QTextStream Snap::_err_stream(&Snap::_err_string);
 
 Snap::Snap(const QString &irundir,
            const QStringList &timeNames,
-           double istart, double istop,
            bool is_delay_load) :
     _rundir(irundir), _timeNames(timeNames),
-    _start(istart),_stop(istop), _is_realtime(false),
+    _is_realtime(false),
     _curr_sort_method(NoSort), _trickJobModel(0),_modelFrame(0),
     _num_overruns(0), _numFrames(0), _frame_avg(0.0),_frame_stddev(0),
     _threads(0),_simobjects(0),_progress(0)
@@ -64,7 +63,7 @@ void Snap::_load()
 
     _curr_sort_method = SortByJobAvgTime;
 
-    _threads = new Threads(_rundir,_jobs,_timeNames,_start,_stop);
+    _threads = new Threads(_rundir,_jobs,_timeNames);
 
     _thread0 = 0 ;
     foreach ( Thread* thread, threads()->hash()->values() ) {
@@ -189,8 +188,6 @@ void Snap::_set_data_table_summary()
     SnapTable* table = _table_summary;
 
     table->setData(table->index(r,0),QVariant(rundir())); r++;
-    table->setData(table->index(r,0),QVariant(start())); r++;
-    table->setData(table->index(r,0),QVariant(stop())); r++;
     table->setData(table->index(r,0),QVariant(num_jobs())); r++;
     table->setData(table->index(r,0),QVariant(num_frames())); r++;
     table->setData(table->index(r,0),QVariant(num_overruns())); r++;
@@ -389,8 +386,7 @@ QList<Job *>* Snap::jobs(SortBy sort_method)
     return &_jobs;
 }
 
-DataModel *Snap::_createModel( const QString &trk,
-                               double start, double stop)
+DataModel *Snap::_createModel( const QString &trk)
 {
     DataModel* model;
 
@@ -417,11 +413,11 @@ DataModel *Snap::_createModel( const QString &trk,
     }
 
     try {
-        model = DataModel::createDataModel(_timeNames,trk,start,stop);
+        model = DataModel::createDataModel(_timeNames,trk);
     }
     catch (std::range_error &e) {
         _err_stream << e.what() << "\n\n";
-        _err_stream << "koviz [error]: -start or -stop options have bad vals\n";
+        _err_stream << "koviz [error]: Snap::_createModel()\n";
         throw std::range_error(_err_string.toLatin1().constData());
     }
 
@@ -432,11 +428,11 @@ DataModel *Snap::_createModel( const QString &trk,
 void Snap::_process_models()
 {
     _setLogFileNames();
-    _trickJobModel = _createModel(_fileNameTrickJobs, _start, _stop);
+    _trickJobModel = _createModel(_fileNameTrickJobs);
 
     // Trick 13 splits userjobs into separate files
     foreach ( QString userJob, _fileNamesUserJobs ) {
-        DataModel* userJobModel =  _createModel(userJob,_start, _stop);
+        DataModel* userJobModel =  _createModel(userJob);
         if ( userJobModel->rowCount() > 0 ) {
             // log*CX*.trk has no timing data (this happens in Trick 13)
             _userJobModels.append(userJobModel);
@@ -651,8 +647,6 @@ QString SnapReport::report()
 
     rpt += str.sprintf("%20s = %s\n", "Run directory ",
                                      _snap.rundir().toLatin1().constData());
-    rpt += str.sprintf("%20s = %8.3lf\n", "Start time ", _snap.start());
-    rpt += str.sprintf("%20s = %8.3lf\n", "Stop time ",_snap.stop());
     QString yesNo("Yes");
     if ( !_snap.is_realtime() ) {
         yesNo = QString("No");

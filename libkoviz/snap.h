@@ -39,7 +39,6 @@ friend class LoadThread;
 public:
     Snap(const QString& irundir,
          const QStringList& timeNames,
-         double istart=1.0, double istop=1.0e20,
          bool is_delay_load=false);
     ~Snap();
 
@@ -63,22 +62,6 @@ public:
             dir.chop(1);
         }
         return dir ;
-    }
-
-    double start() const {
-        if ( _thread0 ) {
-            return _thread0->startTime();
-        } else {
-            return _start;
-        }
-    }
-
-    double stop() const  {
-        if ( _thread0 ) {
-            return _thread0->stopTime();
-        } else {
-            return _stop;
-        }
     }
 
     QList<Job *> *jobs(Snap::SortBy sort_method = SortByJobAvgTime) ;
@@ -120,9 +103,6 @@ private:
     QString _fileNameTrickJobs;
     QStringList _fileNamesUserJobs;
 
-    double _start;
-    double _stop;
-
     bool _is_realtime ;
 
     SortBy _curr_sort_method;
@@ -132,7 +112,7 @@ private:
     QMap<QString,Job*> _id_to_job;
 
 
-    DataModel* _createModel(const QString& trk, double start, double stop);
+    DataModel* _createModel(const QString& trk);
     void _process_models();
     bool _parse_s_job_execution(const QString& rundir);
     QList<Frame> _process_frames();

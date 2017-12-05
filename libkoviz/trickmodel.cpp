@@ -8,11 +8,9 @@ QString TrickModel::_err_string;
 QTextStream TrickModel::_err_stream(&TrickModel::_err_string);
 
 TrickModel::TrickModel(const QStringList& timeNames,
-                       const QString& trkfile,
-                       double startTime, double stopTime, QObject *parent) :
-    DataModel(timeNames, trkfile, startTime, stopTime, parent),
+                       const QString& trkfile, QObject *parent) :
+    DataModel(timeNames, trkfile, parent),
     _timeNames(timeNames),_trkfile(trkfile),
-    _startTime(startTime),_stopTime(stopTime),
     _nrows(0), _row_size(0), _ncols(0), _timeCol(0),_pos_beg_data(0),
     _mem(0), _data(0), _fd(-1), _iteratorTimeIndex(0)
 {
@@ -86,8 +84,6 @@ bool TrickModel::_load_trick_header()
         throw std::runtime_error(_err_string.toLatin1().constData());
     }
 
-    int maxRows = nbytes/_row_size;
-
     // Make sure time param exists in model and set time column
     bool isFoundTime = false;
     foreach (QString timeName, _timeNames) {
@@ -105,44 +101,10 @@ bool TrickModel::_load_trick_header()
     }
 
     // Save address of begin location of data for map()
-    // Also, calc number of rows (timestamped records between start & stop time)
     _pos_beg_data = file.pos();
+
+    // Calculate number of timestamped records in file
     _nrows = nbytes/(qint64)_row_size;
-    if  (_startTime != 0.0 || _stopTime != 1.0e20 ) {
-        bool isStart = false;
-        double inputStopTime = _stopTime;
-        _nrows = 0 ;
-        for ( int i = 0 ; i < maxRows ; ++i ) {
-            double timeStamp;
-            in >> timeStamp;
-            in.skipRawData(_row_size-sizeof(double));
-            if ( !isStart && timeStamp >= _startTime-1.0e-9 ) {
-                _pos_beg_data = file.pos()-_row_size;
-                _startTime = timeStamp;
-                isStart = true;
-            }
-            if ( isStart && timeStamp <= inputStopTime+1.0e-9 ) {
-                _nrows++;
-                _stopTime = timeStamp;
-            } else if ( timeStamp > _stopTime ) {
-                if ( isStart && _nrows == 0 ) {
-                    _stopTime = timeStamp;
-                    _nrows++; // odd case!
-                }
-                break;
-            }
-        }
-
-        if ( !isStart && maxRows > 0 ) {
-            _err_stream << "koviz [error]: startTime of "
-                        << _startTime
-                        << " specified by user "
-                        << "exceeded all timestamps in non-empty file:\n    "
-                        << _trkfile;
-            throw std::range_error(_err_string.toLatin1().constData());
-        }
-    }
-
 
     file.close();
 

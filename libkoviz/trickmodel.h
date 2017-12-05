@@ -44,8 +44,6 @@ class TrickModel : public DataModel
 
     explicit TrickModel(const QStringList &timeNames,
                         const QString &trkfile,
-                        double startTime=0.0,
-                        double stopTime=1.0e20,
                        QObject *parent = 0);
     ~TrickModel();
 
@@ -73,8 +71,6 @@ class TrickModel : public DataModel
 
     QStringList _timeNames;
     QString _trkfile;
-    double _startTime;
-    double _stopTime;
 
     QHash<int,Parameter*> _col2param;   // ordered by column
 

@@ -26,14 +26,10 @@ class Thread
 
   public:
     Thread(const QString& runDir, const QStringList& timeNames);
-    Thread(const QString &runDir, const QStringList& timeNames,
-           double startTime=0.0, double stopTime=1.0e20);
     ~Thread();
 
     void addJob(Job* job);  // all jobs added must have same threadId
 
-    double startTime()              const { return _startTime; }
-    double stopTime()              const { return _stopTime; }
     bool   isRealTime()             const { return _frameModelIsRealTime; }
     QList<Job*> jobs()               const { return _jobs; }
     Job*   jobAtIndex(int idx)       const { return _jobs.at(idx); }
@@ -66,8 +62,6 @@ class Thread
 
     QString _runDir;
     QStringList _timeNames;
-    double _startTime;
-    double _stopTime;
     int _threadId;
     SJobExecThreadInfo _sJobExecThreadInfo;
     QList<Job*> _jobs;
@@ -105,8 +99,7 @@ class Threads
 {
   public:
     Threads(const QString& runDir, const QList<Job *> &jobs,
-            const QStringList &timeNames,
-            double startTime=0.0, double stopTime=1.0e20);
+            const QStringList &timeNames);
     ~Threads();
     const QMap<int,Thread*>* hash() { return &_threads; }
 
@@ -116,8 +109,6 @@ class Threads
     QList<int> _ids;
     QMap<int,Thread*> _threads;
     QStringList _timeNames;
-    double _startTime ;
-    double _stopTime ;
 };
 
 #endif // THREAD_H
