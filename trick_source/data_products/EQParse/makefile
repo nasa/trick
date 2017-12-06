@@ -63,6 +63,12 @@ IO_OBJS = $(IO_C_OBJS) $(IO_CPP_OBJS)
 
 OBJECT_FILES = $(IO_OBJS) $(C_OBJS) $(CPP_OBJS) $(F_OBJS)
 
+#############################################
+#			FORMATTING VARIABLES
+#############################################
+REMOVAL_COLOR := @ echo -e "\e[31m\c"
+DEFAULT_COLOR := @ echo -e "\e[0m\c"
+
 #############################################################################
 ##                            MODEL TARGETS                                ##
 #############################################################################
@@ -93,8 +99,11 @@ depend:
 	@ echo "Appended dependencies to $(MAKEFILE)"
 
 clean:
+	$(REMOVAL_COLOR)
 	rm -rf $(OBJ_DIR)
-	rm -f $(LIBDIR)/$(LIBNAME)
+	rm -f $(LIBDIR)/$(LIBNAME) 
+	$(DEFAULT_COLOR)
+	@ echo -e "\e[32mDirectory cleaned.\e[0m"
 
 real_clean: clean
 

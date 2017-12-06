@@ -46,13 +46,16 @@ clean:
 	@ for i in $(APPDIRS) ; do \
 	       $(MAKE) -C $$i clean ; \
           done
-	${RM}  -rf DOCS
+
+	@ $(MAKE) -C TESTING spotless
+	@ $(MAKE) -C APPS spotless
+	
+	@ echo -e "\e[31m\c"
+	${RM} DOCS
 	${RM} ${LIBDIR}
-	$(MAKE) -C TESTING spotless
-	$(MAKE) -C APPS spotless
-	$(MAKE) -C XML clean
 	${RM} *~
 	${RM} *.o
+	@ echo -e "\e[32mDirectory cleaned.\e[0m"
 
 real_clean: clean
 

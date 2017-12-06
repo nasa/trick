@@ -129,6 +129,8 @@ real_clean:
          fi
 
 clean:
+	@ /bin/echo -e "\e[31m\c"
 	rm -rf object_${TRICK_HOST_CPU}
 	rm -rf ${TRICK_HOME}/lib_${TRICK_HOST_CPU}/*.so
+	@ /bin/echo -e "\e[32mDirectory cleaned.\e[0m"
 

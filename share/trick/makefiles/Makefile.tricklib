@@ -161,6 +161,12 @@ $(Y_OBJS) : $(OBJ_DIR)/%.tab.o : $(SRC_DIR)%.tab.c  | $(OBJ_DIR)
 	$(CD_CMD) $(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
 
 
+#############################################
+#			FORMATTING VARIABLES
+#############################################
+REMOVAL_COLOR := @ echo -e "\e[31m\c"
+DEFAULT_COLOR := @ echo -e "\e[0m\c"
+
 #
 # OTHER RULES
 #
@@ -172,17 +178,23 @@ depend:
 	@ echo "Created dependency file $(DEPFILE)"
 
 io_clean: 
+	$(REMOVAL_COLOR)
 	$(RM) -rf io_src
+	$(DEFAULT_COLOR)
+
+clean:
+	$(REMOVAL_COLOR)
+	$(RM) -rf $(OBJ_DIR) $(L_C) $(Y_C) $(Y_H)
+	$(DEFAULT_COLOR)
 
 real_clean: clean io_clean
+	$(REMOVAL_COLOR)
 	$(RM) -rf xml *~ *.bak core
-	@ echo "Directory is really clean!"
-
-clean: 
-	$(RM) -rf $(OBJ_DIR) $(L_C) $(Y_C) $(Y_H)
+	@ echo -e "\e[32mDirectory cleaned.\e[0m"
 
 help :
 	@ echo -e "\n\
+
 Source Directory Make Options:\n\
     make               - Compiles are source files\n\
 \n\

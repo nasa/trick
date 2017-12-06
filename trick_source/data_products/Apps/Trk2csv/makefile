@@ -29,8 +29,10 @@ $(OBJDIR)/trk2ascii.o: trk2ascii.cpp | $(OBJDIR)
 	$(CC) $(DP_CFLAGS) -c trk2ascii.cpp -o $(OBJDIR)/trk2ascii.o
 
 clean:
+	@ echo -e "\e[31m\c"
 	rm -f trk2ascii
 	rm -rf $(OBJDIR)
+	@ echo -e "\e[32mDirectory cleaned.\e[0m"
 
 real_clean: clean
 

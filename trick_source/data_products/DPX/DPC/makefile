@@ -33,6 +33,12 @@ endif
 ifeq ($(TRICK_HOST_TYPE), Darwin)
 endif
 
+#############################################
+#			FORMATTING VARIABLES
+#############################################
+REMOVAL_COLOR := @ echo -e "\e[31m\c"
+DEFAULT_COLOR := @ echo -e "\e[0m\c"
+
 #############################################################################
 ##                            MODEL TARGETS                                ##
 #############################################################################
@@ -52,8 +58,10 @@ ${LIBDIR}:
 	mkdir -p ${LIBDIR}
 
 clean:
+	@ echo -e "\e[31m\c"
 	${RM} *~
 	${RM} ${OBJDIR}
+	@ echo -e "\e[32mDirectory cleaned.\e[0m"
 
 spotless: clean
 	${RM} ${LIBDIR}/${LIBNAME}

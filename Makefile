@@ -135,6 +135,14 @@ endif
 ICG_EXE := ${TRICK_HOME}/bin/trick-ICG
 
 ################################################################################
+#							Formating Variables
+################################################################################
+
+# Appends a newline to the -w / --print-directories leaving message for make.
+# This helps break up directory traversal into blocks.
+MAKE_TRAVERSAL_NEWLINE := | sed '/^make.*: Leaving directory/a\ '
+
+################################################################################
 #                                   RULES
 ################################################################################
 # DEFAULT TARGET
@@ -269,10 +277,21 @@ sim_test:
 #                                 CLEAN Targets
 ################################################################################
 
-
 clean: clean_sim_serv clean_utils clean_swig clean_dp clean_ICG clean_java
 	@/bin/rm -rf $(TRICK_BIN_DIR)
 	@/bin/rm -rf $(TRICK_LIB_DIR)
+
+	@echo -e "\e[31m#                                            #"
+	@echo -e "\e[33m##                                          ##"
+	@echo -e "\e[32m###                                        ###"
+	@echo -e "\e[34m####                                      ####"
+	@echo -e "\e[35m#####                                    #####"
+	@echo -e "\e[39m-----Trick has been successfully cleaned.-----"
+	@echo -e "\e[35m#####                                    #####"
+	@echo -e "\e[34m####                                      ####"
+	@echo -e "\e[32m###                                        ###"
+	@echo -e "\e[33m##                                          ##"
+	@echo -e "\e[31m#                                            #\n"
 
 ifeq ($(USE_ER7_UTILS), 1)
 clean: clean_er7_utils
@@ -280,32 +299,32 @@ endif
 
 clean_sim_serv:
 	@for i in $(SIM_SERV_DIRS) ; do \
-	   $(MAKE) -C $$i real_clean ; \
+	   $(MAKE) -C $$i real_clean $(MAKE_TRAVERSAL_NEWLINE); \
 	done
-	@ $(MAKE) -C ${TRICK_HOME}/trick_source/sim_services/mains real_clean
+	@ $(MAKE) -C ${TRICK_HOME}/trick_source/sim_services/mains real_clean $(MAKE_TRAVERSAL_NEWLINE)
 
 clean_er7_utils: make_er7_makefiles
 	@for i in $(ER7_UTILS_DIRS) ; do \
-	   $(MAKE) -C $$i real_clean ; \
+	   $(MAKE) -C $$i real_clean $ $(MAKE_TRAVERSAL_NEWLINE); \
 	   rm $$i/Makefile; \
 	done
 
 clean_utils:
 	@for i in $(UTILS_DIRS) ; do \
-	   $(MAKE) -C $$i real_clean ; \
+	   $(MAKE) -C $$i real_clean $(MAKE_TRAVERSAL_NEWLINE); \
 	done
 
 clean_swig:
 	@for i in $(SWIG_DIRS) ; do \
-	   $(MAKE) -C $$i real_clean ; \
+	   $(MAKE) -C $$i real_clean $(MAKE_TRAVERSAL_NEWLINE); \
 	done
 
 ifeq ($(USE_ER7_UTILS), 1)
-clean_swig: make_er7_makefiles
+clean_swig: make_er7_makefiles 
 endif
 
 clean_ICG :
-	$(MAKE) -C ${TRICK_HOME}/trick_source/codegen/Interface_Code_Gen  clean
+	@ $(MAKE) -C ${TRICK_HOME}/trick_source/codegen/Interface_Code_Gen clean $(MAKE_TRAVERSAL_NEWLINE)
 
 clean_unit_test:
 	@/bin/rm -rf ${TRICK_HOME}/trick_test/*.xml
@@ -314,14 +333,13 @@ clean_unit_test:
 	done
 
 clean_doxygen:
-	@ $(MAKE) -C ${TRICK_HOME}/doxygen clean
-
+	@ $(MAKE) -C ${TRICK_HOME}/doxygen clean $(MAKE_TRAVERSAL_NEWLINE)
 
 clean_dp:
-	@ $(MAKE) clean -C ${TRICK_HOME}/trick_source/data_products
+	@ $(MAKE) clean -C ${TRICK_HOME}/trick_source/data_products $(MAKE_TRAVERSAL_NEWLINE)
 
 clean_java:
-	@ $(MAKE) -C ${TRICK_HOME}/trick_source/java clean
+	@ $(MAKE) -C ${TRICK_HOME}/trick_source/java clean $(MAKE_TRAVERSAL_NEWLINE)
 
 
 # FIXME: Seems to me that the for loop below should be removed and that the

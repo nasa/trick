@@ -81,16 +81,25 @@ $(SWIG_SRC_FILES): swig_${TRICK_HOST_CPU}/%_wrap.cpp : %.i
 $(TRICK_LIB) : $(SWIG_OBJECT_FILES) $(OBJECT_FILES)
 	ar crs $@ $?
 
+#############################################
+#			FORMATTING VARIABLES
+#############################################
+REMOVAL_COLOR := @ echo -e "\e[31m\c"
+DEFAULT_COLOR := @ echo -e "\e[0m\c"
+MESSAGE_COLOR := @ echo -e "\e[32m\c"
+
 real_clean: clean
 
 clean: clean_python
+	$(REMOVAL_COLOR)
 	$(RM) -rf $(OBJ_DIR) $(TEST_DIR) $(PY_FILES)
-
+	$(DEFAULT_COLOR)
+	@ echo -e "\e[32mDirectory cleaned.\e[0m"
 
 clean_python:
+	$(REMOVAL_COLOR)
 	rm -rf swig_${TRICK_HOST_CPU} sim_services.py swig_double.py swig_int.py swig_ref.py
-
-real_clean: clean
+	$(DEFAULT_COLOR)
 
 # some depends
 swig_int_wrap.cpp: swig_int.cpp

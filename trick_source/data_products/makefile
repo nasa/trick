@@ -38,10 +38,11 @@ real_clean: clean
 
 clean:
 	@ for i in $(LIBDIRS) ; do \
-	       $(MAKE) -C $$i real_clean ; \
-          done
-	@ for i in $(APPDIRS) ; do \
-	       $(MAKE) -C $$i real_clean ; \
-          done
-	@ rm -rf $(LIB_DIR)
+		$(MAKE) -C $$i real_clean ; \
+		done
 
+	@ for i in $(APPDIRS) ; do \
+		$(MAKE) -C $$i real_clean ; \
+		done
+
+	@ rm -rf $(LIB_DIR)

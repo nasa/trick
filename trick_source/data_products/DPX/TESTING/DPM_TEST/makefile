@@ -112,11 +112,13 @@ depend:
 	@ echo "Appended dependencies to $(MAKEFILE)"
 
 clean:
+	@ /bin/echo -e "\e[31m\c"
 	${RM} *~
 	${RM} *.o
 
 spotless: clean
 	${RM} model_test
+	@ /bin/echo -e "\e[32mDirectory cleaned.\e[0m"
 
 
 # Dependencies
