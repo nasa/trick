@@ -160,16 +160,7 @@ $(L_OBJS) : $(OBJ_DIR)/%.lex.o : $(SRC_DIR)%.lex.c $(SRC_DIR)%.tab.h  | $(OBJ_DI
 $(Y_OBJS) : $(OBJ_DIR)/%.tab.o : $(SRC_DIR)%.tab.c  | $(OBJ_DIR)
 	$(CD_CMD) $(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
 
-
-#############################################
-#			FORMATTING VARIABLES
-#############################################
-REMOVAL_COLOR := @ echo -e "\e[31m\c"
-DEFAULT_COLOR := @ echo -e "\e[0m\c"
-
-#
 # OTHER RULES
-#
 
 depend:
 	@ $(TRICK_CPPC) -MM $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(C_SRC) $(CPP_SRC) >> $(DEPTEMPFILE)
@@ -178,17 +169,17 @@ depend:
 	@ echo "Created dependency file $(DEPFILE)"
 
 io_clean: 
-	$(REMOVAL_COLOR)
+	@ echo -e "\e[31m\c"
 	$(RM) -rf io_src
-	$(DEFAULT_COLOR)
+	@ echo -e "\e[0m\c"
 
 clean:
-	$(REMOVAL_COLOR)
+	@ echo -e "\e[31m\c"
 	$(RM) -rf $(OBJ_DIR) $(L_C) $(Y_C) $(Y_H)
-	$(DEFAULT_COLOR)
+	@ echo -e "\e[0m\c"
 
 real_clean: clean io_clean
-	$(REMOVAL_COLOR)
+	@ echo -e "\e[31m\c"
 	$(RM) -rf xml *~ *.bak core
 	@ echo -e "\e[32mDirectory cleaned.\e[0m"
 
@@ -206,4 +197,3 @@ Source Directory Make Options:\n\
 \n\
     make real_clean    - Deletes xml/, io_src/,\n\
                          and object_${TRICK_HOST_CPU}/ directories\n"
-

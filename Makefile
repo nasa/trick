@@ -281,17 +281,10 @@ clean: clean_sim_serv clean_utils clean_swig clean_dp clean_ICG clean_java
 	@/bin/rm -rf $(TRICK_BIN_DIR)
 	@/bin/rm -rf $(TRICK_LIB_DIR)
 
-	@echo -e "\e[31m#                                            #"
-	@echo -e "\e[33m##                                          ##"
-	@echo -e "\e[32m###                                        ###"
-	@echo -e "\e[34m####                                      ####"
-	@echo -e "\e[35m#####                                    #####"
-	@echo -e "\e[39m-----Trick has been successfully cleaned.-----"
-	@echo -e "\e[35m#####                                    #####"
-	@echo -e "\e[34m####                                      ####"
-	@echo -e "\e[32m###                                        ###"
-	@echo -e "\e[33m##                                          ##"
-	@echo -e "\e[31m#                                            #\n"
+	@echo -e "\e[32m####################################"
+	@echo -e "\e[32mTrick has been successfully cleaned."
+	@echo -e "\e[32m####################################\e[0m\n"
+
 
 ifeq ($(USE_ER7_UTILS), 1)
 clean: clean_er7_utils

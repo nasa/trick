@@ -19,12 +19,6 @@ LIBOBJS = ${OBJDIR}/DPV_textbuffer.o
 #.cpp.o:
 #	${CPP} ${CFLAGS} ${INCDIRS} -c $<
 
-#############################################
-#			FORMATTING VARIABLES
-#############################################
-REMOVAL_COLOR := @ echo -e "\e[31m\c"
-DEFAULT_COLOR := @ echo -e "\e[0m\c"
-
 all: ${LIBDIR}/${LIBNAME}
 
 $(LIBOBJS): $(OBJDIR)/%.o : %.cpp | ${OBJDIR}
@@ -40,11 +34,11 @@ ${LIBDIR}:
 	mkdir -p ${LIBDIR}
 
 clean:
-	$(REMOVAL_COLOR)
+	@ echo -e "\e[31m\c"
 	${RM} *~
 	${RM} *.o
 	${RM} ${OBJDIR}
-	$(DEFAULT_COLOR)
+	@ echo -e "\e[0m\c"
 	@ echo -e "\e[32mDirectory cleaned.\e[0m"
 
 spotless: clean

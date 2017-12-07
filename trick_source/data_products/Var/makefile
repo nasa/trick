@@ -39,12 +39,6 @@ MAKEFILE    = makefile
 AWKTEMPFILE = awk.temp
 MAKEDEPEND  = makedepend
 
-#############################################
-#			FORMATTING VARIABLES
-#############################################
-REMOVAL_COLOR := @ echo -e "\e[31m\c"
-DEFAULT_COLOR := @ echo -e "\e[0m\c"
-
 #############################################################################
 ##                            MODEL TARGETS                                ##
 #############################################################################
@@ -67,10 +61,9 @@ depend:
 	@ echo "Appended dependencies to $(MAKEFILE)"
 
 clean:
-	$(REMOVAL_COLOR)
+	@ echo -e "\e[31m\c"
 	rm -rf $(OBJ_DIR)
 	rm -f $(LIBDIR)/$(LIBNAME) 
-	$(DEFAULT_COLOR)
 	@ echo -e "\e[32mDirectory cleaned.\e[0m"
 
 real_clean: clean 

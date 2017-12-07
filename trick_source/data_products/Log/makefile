@@ -49,12 +49,6 @@ ifeq ($(TRICK_DP_FORCE_32BIT), 1)
        DP_CFLAGS += -m32
 endif
 
-#############################################
-#			FORMATTING VARIABLES
-#############################################
-REMOVAL_COLOR := @ echo -e "\e[31m\c"
-DEFAULT_COLOR := @ echo -e "\e[0m\c"
-
 #############################################################################
 ##                            MODEL TARGETS                                ##
 #############################################################################
@@ -71,10 +65,9 @@ $(LIBDIR)/$(LIBNAME): $(CPP_OBJECTS) | $(LIBDIR)
 	ar crs $(LIBDIR)/$(LIBNAME) $?
 
 clean:
-	$(REMOVAL_COLOR)
+	@ echo -e "\e[31m\c"
 	rm -rf $(OBJ_DIR)
 	rm -f $(LIBDIR)/$(LIBNAME) 
-	$(DEFAULT_COLOR)
 	@ echo -e "\e[32mDirectory cleaned.\e[0m"
 
 real_clean: clean
