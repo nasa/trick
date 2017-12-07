@@ -36,11 +36,11 @@ Runs::~Runs()
 
 void Runs::_init()
 {
-    QStringList filter_trk;
-    filter_trk << "*.trk";
-    QStringList trks;
-    QHash<QString,QStringList> runToTrks;
-    QHash<QString,QString> trkToRun;
+    QStringList filter;
+    filter << "*.trk" << "*.csv";
+    QStringList files;
+    QHash<QString,QStringList> runToFiles;
+    QHash<QString,QString> fileToRun;
     foreach ( QString run, _runs ) {
         if ( ! QFileInfo(run).exists() ) {
             _err_stream << "koviz [error]: couldn't find run directory: "
@@ -48,37 +48,37 @@ void Runs::_init()
             throw std::invalid_argument(_err_string.toLatin1().constData());
         }
         QDir runDir(run);
-        QStringList ltrks = runDir.entryList(filter_trk, QDir::Files);
-        if ( ltrks.empty() ) {
-            _err_stream << "koviz [error]: no *.trk files in run directory: "
+        QStringList lfiles = runDir.entryList(filter, QDir::Files);
+        if ( lfiles.empty() ) {
+            _err_stream << "koviz [error]: no *.trk/csv files in run dir: "
                         << run << "\n";
             throw std::invalid_argument(_err_string.toLatin1().constData());
         }
-        QStringList fullPathTrks;
-        foreach (QString trk, ltrks) {
-            QString ftrk = run + '/' + trk;
-            fullPathTrks.append(ftrk);
-            if ( !trks.contains(ftrk) ) {
-                trks << ftrk;
-                trkToRun.insert(ftrk,run);
+        QStringList fullPathFiles;
+        foreach (QString file, lfiles) {
+            QString ffile = run + '/' + file;
+            fullPathFiles.append(ffile);
+            if ( !files.contains(ffile) ) {
+                files << ffile;
+                fileToRun.insert(ffile,run);
             }
         }
-        runToTrks.insert(run,fullPathTrks);
+        runToFiles.insert(run,fullPathFiles);
     }
 
     QProgressDialog progress("Initializing data models...",
-                              "Abort", 0, trks.size(), 0);
+                              "Abort", 0, files.size(), 0);
     progress.setWindowModality(Qt::WindowModal);
     progress.setMinimumDuration(500);
     QHash<QString,QStringList> runToParams;
-    QHash<QPair<QString,QString>,DataModel*> ptrkToModel;
+    QHash<QPair<QString,QString>,DataModel*> pfnameToModel;
     int i = 0;
-    foreach (QString trk, trks ) {
+    foreach (QString fname, files ) {
         progress.setValue(i);
         if (progress.wasCanceled()) {
             exit(0);
         }
-        DataModel* m = DataModel::createDataModel(_timeNames,trk);
+        DataModel* m = DataModel::createDataModel(_timeNames,fname);
         m->unmap();
         _models.append(m);
         int ncols = m->columnCount();
@@ -100,9 +100,9 @@ void Runs::_init()
                 }
             }
             mParams << p;
-            ptrkToModel.insert(qMakePair(p,trk),m);
+            pfnameToModel.insert(qMakePair(p,fname),m);
         }
-        QString run = trkToRun.value(trk);
+        QString run = fileToRun.value(fname);
         QStringList params = runToParams.value(run);
         params.append(mParams);
         params.removeDuplicates();
@@ -110,7 +110,7 @@ void Runs::_init()
         runToParams.insert(run,params);
         ++i;
     }
-    progress.setValue(trks.size());
+    progress.setValue(files.size());
 
     // Make list of params that are in each run (coplottable)
     QSet<QString> paramSet;
@@ -130,19 +130,19 @@ void Runs::_init()
         _paramToModels.insert(p,new QList<DataModel*>);
         foreach ( QString run, _runs ) {
             DataModel* m = 0;
-            foreach ( QString trk, runToTrks.value(run) ) {
-                QPair<QString,QString> ptrk = qMakePair(p,trk);
-                if ( ptrkToModel.contains(ptrk) ) {
-                    m = ptrkToModel.value(ptrk);
+            foreach ( QString fname, runToFiles.value(run) ) {
+                QPair<QString,QString> pfname = qMakePair(p,fname);
+                if ( pfnameToModel.contains(pfname) ) {
+                    m = pfnameToModel.value(pfname);
                     break;
                 }
                 if ( _varMap.contains(p) ) {
                     QStringList vals = _varMap.value(p);
                     bool isFound = false;
                     foreach ( QString val, vals ) {
-                        QPair<QString,QString> ptrk = qMakePair(val,trk);
-                        if ( ptrkToModel.contains(ptrk) ) {
-                            m = ptrkToModel.value(ptrk);
+                        QPair<QString,QString> pfname = qMakePair(val,fname);
+                        if ( pfnameToModel.contains(pfname) ) {
+                            m = pfnameToModel.value(pfname);
                             isFound = true;
                             break;
                         }

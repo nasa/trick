@@ -75,7 +75,8 @@ SOURCES += bookmodel.cpp \
            plotmainwindow.cpp \
            rangeinput.cpp \
            datamodel.cpp \
-           curvemodel.cpp
+           curvemodel.cpp \
+           csvmodel.cpp
 
 HEADERS  += bookmodel.h \
             bookidxview.h \
@@ -127,7 +128,8 @@ HEADERS  += bookmodel.h \
             plotmainwindow.h \
             rangeinput.h \
             datamodel.h \
-            curvemodel.h
+            curvemodel.h \
+            csvmodel.h
 
 FLEXSOURCES = product_lexer.l
 BISONSOURCES = product_parser.y
