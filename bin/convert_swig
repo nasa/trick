@@ -132,6 +132,18 @@ if ( $help ) {
 if ( scalar @swig_exclude_dirs == 0 ) {
     @swig_exclude_dirs = split /:/ , $ENV{"TRICK_ICG_EXCLUDE"} ;
 }
+if (scalar @swig_exclude_dirs) {
+     @swig_exclude_dirs = sort(@swig_exclude_dirs );
+     # Error check - delete any element that is null
+     # (note: sort forced all blank names to front of array
+     @swig_exclude_dirs = map { s/(^\s+|\s+$)//g ; $_ } @swig_exclude_dirs ;
+     while ( not length @swig_exclude_dirs[0] ) {
+         # Delete an element from the left side of an array (element zero)
+         shift @swig_exclude_dirs ;
+     }
+     @swig_exclude_dirs = map { (-e $_) ? abs_path($_) : $_ } @swig_exclude_dirs ;
+ }
+
 push @include_paths , ("-I".$ENV{"TRICK_HOME"}."/trick_source" , "-I../include") ;
 @defines = $ENV{"TRICK_CFLAGS"} =~ /(-D\S+)/g ;       # get defines from TRICK_CFLAGS
 if ( $ENV{"TRICK_CFLAGS"} !~ /DTRICK_VER=/ ) {
@@ -388,6 +400,10 @@ sub process_file($$) {
 
                         foreach my $i ( @swig_exclude_dirs ) {
                             if ( $file_name =~ /^\"\Q$i/ ) {
+                                $exclude = 1 ;
+                                last ;
+                            }
+                            if ( abs_path($file_name) =~ /^\"\Q$i/ ) {
                                 $exclude = 1 ;
                                 last ;
                             }

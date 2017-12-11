@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <stdio.h>
 #include <errno.h>
 #include <limits.h>
@@ -132,9 +133,17 @@ void HeaderSearchDirs::AddICGExcludeDirs () {
             //icg_exclude_dirs.push_back(item);
             item = trim(item) ;
             if ( ! item.empty() ) {
-                char * resolved_path = realpath(item.c_str(), NULL) ;
+                //char * resolved_path = realpath(item.c_str(), NULL) ;
+                char * resolved_path = almostRealPath(item.c_str() ) ;
                 if ( resolved_path ) {
-                    icg_exclude_dirs.push_back(std::string(resolved_path) + std::string("/"));
+                    std::ifstream file_or_dir(resolved_path) ;
+                    file_or_dir.seekg(0, std::ios::end) ;
+                    if ( !file_or_dir.good()) {
+                        icg_exclude_dirs.push_back(std::string(resolved_path) + "/");
+                    } else {
+                        icg_exclude_dirs.push_back(std::string(resolved_path));
+                    }
+                    free(resolved_path) ;
                 } else {
                     std::cout << "Cannot find TRICK_ICG_EXCLUDE directory " << item << std::endl ;
                 }
@@ -156,7 +165,13 @@ void HeaderSearchDirs::AddICGNoCommentDirs () {
             if ( ! item.empty() ) {
                 char * resolved_path = realpath(item.c_str(), NULL) ;
                 if ( resolved_path ) {
-                    icg_nocomment_dirs.push_back(std::string(resolved_path) + std::string("/"));
+                    std::ifstream file_or_dir(resolved_path) ;
+                    file_or_dir.seekg(0, std::ios::end) ;
+                    if ( !file_or_dir.good()) {
+                        icg_nocomment_dirs.push_back(std::string(resolved_path) + "/");
+                    } else {
+                        icg_nocomment_dirs.push_back(std::string(resolved_path));
+                    }
                 } else {
                     std::cout << "Cannot find TRICK_ICG_NOCOMMENT directory " << item << std::endl ;
                 }

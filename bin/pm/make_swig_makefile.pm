@@ -169,6 +169,12 @@ sub make_swig_makefile($$$) {
                         $continue = 0 ;
                         last ;  # break out of loop
                     }
+                    # if an exlude path is a file, then we need to check absolute path vs. absolute path of exclude directory.
+                    if ( abs_path($f) =~ /^\Q$ie/ ) {
+                        trick_print($$sim_ref{fh}, "CP(swig) skipping $f (ICG exclude dir $ie)\n" , "normal_yellow" , $$sim_ref{args}{v}) ;
+                        $continue = 0 ;
+                        last ;  # break out of loop
+                    }
                 }
                 next if ( $continue == 0 ) ;
                 my $temp_str ;

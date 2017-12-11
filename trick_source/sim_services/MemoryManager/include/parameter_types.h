@@ -38,6 +38,9 @@ extern "C" {
 
 const char* trickTypeCharString( TRICK_TYPE type, const char* name);
 
+/* here for backwards compatibility */
+#define TRICK_USER_DEFINED_TYPE TRICK_OPAQUE_TYPE
+
 /* Define int_64t and uint_64t depending on compiler options */
 #if __linux
 #  include <stdint.h>

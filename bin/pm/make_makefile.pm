@@ -166,10 +166,19 @@ sub make_makefile($$$) {
             my $dum = $_ ;
             # if file location begins with $ie (an IGC exclude dir)
             if ( $dum =~ s/^\Q$ie// ) {
-                if ( $dum =~ /^\// ) {
+                if ( $dum eq "" or $dum =~ /^\// ) {
                     trick_print($$sim_ref{fh}, "CP skipping $f (ICG exclude dir $ie)\n" , "normal_yellow" , $$sim_ref{args}{v}) ;
                     $continue = 0 ;
                     last ;  # break out of loop
+                }
+            } else {
+               $dum = abs_path($dum) ;
+                if ( $dum =~ s/^\Q$ie// ) {
+                    if ( $dum eq "" or $dum =~ /^\// ) {
+                        trick_print($$sim_ref{fh}, "CP skipping $f (ICG exclude dir $ie)\n" , "normal_yellow" , $$sim_ref{args}{v}) ;
+                        $continue = 0 ;
+                        last ;  # break out of loop
+                    }
                 }
             }
         }
