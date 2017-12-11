@@ -66,17 +66,25 @@ void Runs::_init()
         runToFiles.insert(run,fullPathFiles);
     }
 
+    // Begin Progress Dialog
+    const int nFiles = files.size();
     QProgressDialog progress("Initializing data models...",
-                              "Abort", 0, files.size(), 0);
+                              "Abort", 0, nFiles, 0);
     progress.setWindowModality(Qt::WindowModal);
     progress.setMinimumDuration(500);
+
     QHash<QString,QStringList> runToParams;
     QHash<QPair<QString,QString>,DataModel*> pfnameToModel;
     int i = 0;
     foreach (QString fname, files ) {
-        progress.setValue(i);
-        if (progress.wasCanceled()) {
-            exit(0);
+        if ( nFiles > 10 ) {
+            // Only show progress when loading many files (10 is arbitrary)
+            progress.setValue(i);
+            if (progress.wasCanceled()) {
+                exit(0);
+            }
+        } else {
+            progress.setValue(files.size());
         }
         DataModel* m = DataModel::createDataModel(_timeNames,fname);
         m->unmap();
@@ -110,7 +118,9 @@ void Runs::_init()
         runToParams.insert(run,params);
         ++i;
     }
-    progress.setValue(files.size());
+
+    // End Progress Dialog
+    progress.setValue(nFiles);
 
     // Make list of params that are in each run (coplottable)
     QSet<QString> paramSet;

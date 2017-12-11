@@ -1,5 +1,4 @@
 #include "csvmodel.h"
-#include "timeit_linux.h"
 
 QString CsvModel::_err_string;
 QTextStream CsvModel::_err_stream(&CsvModel::_err_string);
@@ -85,6 +84,11 @@ void CsvModel::_init()
     _iteratorTimeIndex = new CsvModelIterator(0,this,
                                               _timeCol,_timeCol,_timeCol);
 
+#ifdef __linux
+    TimeItLinux timer;
+    timer.start();
+#endif
+
     // Get number of data rows in csv file
     while ( !in.atEnd() ) {
         in.readLine();
@@ -94,11 +98,27 @@ void CsvModel::_init()
     // Allocate to hold *all* parsed data
     _data = (double*)malloc(_nrows*_ncols*sizeof(double));
 
+    // Begin Progress Dialog
+    QString msg("Loading ");
+    msg += QFileInfo(fileName()).fileName();
+    msg += "...";
+    QProgressDialog progress(msg, "Abort", 0, _nrows-1, 0);
+    progress.setWindowModality(Qt::WindowModal);
+    int row = 0;
+
     // Read in data
     in.seek(0);
     in.readLine(); // csv header line
     int i = 0;
     while ( !in.atEnd() ) {
+        if (progress.wasCanceled()) {
+             break;
+        }
+        if ( row % 10000 == 0 ) {
+            progress.setValue(row);
+        }
+        ++row;
+
         QString line = in.readLine();
         int from = 0;
         while (1) {
@@ -112,7 +132,21 @@ void CsvModel::_init()
             from = j+1;
             ++i;
         }
+
+#ifdef __linux
+        if ( row % 10000 == 0 ) {
+            int secs = qRound(timer.stop()/1000000.0);
+            div_t d = div(secs,60);
+            QString msg = QString("Loaded %1 of %2 lines "
+                                  "(%3 min %4 sec)")
+                    .arg(row).arg(_nrows).arg(d.quot).arg(d.rem);
+            progress.setLabelText(msg);
+        }
+#endif
     }
+
+    // End Progress Dialog
+    progress.setValue(_nrows-1);
 
     file.close();
 }

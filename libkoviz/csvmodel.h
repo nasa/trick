@@ -7,11 +7,14 @@
 #include <QStringList>
 #include <QVariant>
 #include <QTextStream>
+#include <QProgressDialog>
+#include <QFileInfo>
 #include <stdexcept>
 
 #include "datamodel.h"
 #include "parameter.h"
 #include "unit.h"
+#include "timeit_linux.h"
 
 class CsvModel;
 class CsvModelIterator;
