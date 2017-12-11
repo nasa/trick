@@ -273,6 +273,8 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     map.insert(QPair<QString,QString>("r/s","d/s"),     0.0174532925199433);
     map.insert(QPair<QString,QString>("r/s","rev/s"),   6.28318530717958647);
     map.insert(QPair<QString,QString>("r/s","rpm"), 6.28318530717958647/60.0);
+    map.insert(QPair<QString,QString>("r/s","rev/min"),
+                                                    6.28318530717958647/60.0);
 
     // Angular acceleration
     map.insert(QPair<QString,QString>("r/s2","r/s2"),      1.0);
@@ -301,6 +303,8 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
 
     // Pressure
     map.insert(QPair<QString,QString>("N/m2","N/m2"),      1.0);
+    map.insert(QPair<QString,QString>("N/m2","Pa"),        1.0);
+    map.insert(QPair<QString,QString>("N/m2","kPa"),    1000.0);
     map.insert(QPair<QString,QString>("N/m2","psi"),    6894.75719);
     map.insert(QPair<QString,QString>("N/m2","oz/in2"),  430.922332);
 
@@ -337,6 +341,15 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     map.insert(QPair<QString,QString>("C","K"),  1.0);
     map.insert(QPair<QString,QString>("C","R"),  5.0/9.0);
     map.insert(QPair<QString,QString>("C","F"),  5.0/9.0);
+
+    // Power (uses bias)
+    map.insert(QPair<QString,QString>("W","W"),  1.0);
+
+    // Volume rate
+    map.insert(QPair<QString,QString>("m3/s","m3/s"),  1.0);
+
+    // Mass rate
+    map.insert(QPair<QString,QString>("kg/s","kg/s"),  1.0);
 
     // Unitless
     map.insert(QPair<QString,QString>("--","--"),  1.0);
