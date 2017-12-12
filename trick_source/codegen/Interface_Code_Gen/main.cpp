@@ -122,7 +122,11 @@ int main( int argc , char * argv[] ) {
     // Set all of the defaults to c++
 #if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 9))
     llvm::Triple trip (to.Triple) ;
+#if (LIBCLANG_MAJOR >= 5)
+    clang::CompilerInvocation::setLangDefaults(ci.getLangOpts(), clang::InputKind::CXX, trip, ppo) ;
+#else
     clang::CompilerInvocation::setLangDefaults(ci.getLangOpts(), clang::IK_CXX, trip, ppo) ;
+#endif
     // setting the language defaults clears the c++11 flag.
     ci.getLangOpts().CPlusPlus11 = true ;
 #endif
