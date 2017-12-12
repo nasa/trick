@@ -120,6 +120,7 @@
 #include "trick/MessagePublisher.hh"
 #include "trick/MessageSubscriber.hh"
 #include "trick/MessageTCDevice.hh"
+#include "trick/Message_proto.hh"
 #include "trick/message_proto.h"
 #include "trick/MonteCarlo.hh"
 #include "trick/montecarlo_c_intf.h"

@@ -95,11 +95,19 @@ sub read_files_to_process() {
                     print "[95mSWIG Skip[39m  TRICK_EXCLUDE: [4m$path[24m$1\n" if $verbose_build ;
                     next outer ;
                 }
+                if ( abs_path($word) =~ /^\Q$path\E(.*)/ ) {
+                    print "[95mSWIG Skip[39m  TRICK_EXCLUDE: [4m$path[24m$1\n" if $verbose_build ;
+                    next outer ;
+                }
             }
 
             # skip paths in TRICK_SWIG_EXCLUDE
             foreach my $path ( @swig_exclude_paths ) {
                 if ( $word =~ /^\Q$path\E(.*)/ ) {
+                    print "[95mSWIG Skip[39m  TRICK_SWIG_EXCLUDE: [4m$path[24m$1\n" if $verbose_build ;
+                    next outer ;
+                }
+                if ( abs_path($word) =~ /^\Q$path\E(.*)/ ) {
                     print "[95mSWIG Skip[39m  TRICK_SWIG_EXCLUDE: [4m$path[24m$1\n" if $verbose_build ;
                     next outer ;
                 }
@@ -161,7 +169,7 @@ sub write_makefile_swig() {
     print PY_LINK_LIST "build/init_swig_modules.o\n" ;
     print PY_LINK_LIST "build/top.o\n" ;
 
-    print MAKEFILE "SWIG_CFLAGS := -I../include \${PYTHON_INCLUDES} -Wno-shadow -Wno-missing-field-initializers
+    print MAKEFILE "SWIG_CFLAGS := -I../include \${PYTHON_INCLUDES} -Wno-shadow -Wno-missing-field-initializers -Wno-unused-but-set-variable
 
 ifeq (\$(IS_CC_CLANG), 1)
     SWIG_CFLAGS += -Wno-self-assign -Wno-sometimes-uninitialized -Wno-deprecated-register

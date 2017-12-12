@@ -128,7 +128,27 @@ if ( $help ) {
 @include_dirs = $ENV{"TRICK_CFLAGS"} =~ /-I\s*(\S+)/g ; # get include paths from TRICK_CFLAGS
 
 @exclude_paths = map abs_path($_), split /:/ , $ENV{"TRICK_EXCLUDE"} ;
+if (scalar @exclude_paths) {
+    @exclude_paths = sort(@exclude_paths );
+    # Error check - delete any element that is null
+    # (note: sort forced all blank names to front of array
+    @exclude_paths = map { s/(^\s+|\s+$)//g ; $_ } @exclude_paths ;
+    while ( not length @exclude_paths[0] ) {
+        # Delete an element from the left side of an array (element zero)
+        shift @exclude_paths ;
+    }
+}
 @swig_exclude_paths = map abs_path($_), split /:/ , $ENV{"TRICK_SWIG_EXCLUDE"} ;
+if (scalar @swig_exclude_paths) {
+    @swig_exclude_paths = sort(@swig_exclude_paths );
+    # Error check - delete any element that is null
+    # (note: sort forced all blank names to front of array
+    @swig_exclude_paths = map { s/(^\s+|\s+$)//g ; $_ } @swig_exclude_paths ;
+    while ( not length @swig_exclude_paths[0] ) {
+        # Delete an element from the left side of an array (element zero)
+        shift @swig_exclude_paths ;
+    }
+}
 @ext_lib_paths = map abs_path($_), split /:/ , $ENV{"TRICK_EXT_LIB_DIRS"} ;
 @defines = $ENV{"TRICK_CFLAGS"} =~ /(-D\S+)/g ;       # get defines from TRICK_CFLAGS
 if ( $ENV{"TRICK_CFLAGS"} !~ /DTRICK_VER=/ ) {
@@ -211,8 +231,8 @@ sub process_file() {
 
         # remove all comments, they can cause all kinds of trouble
         # leave the line continuation character if present
-        $raw_contents =~ s/\/\/(?:.*?)(\\)?(\n)/$1\n/sg ;
-        $raw_contents =~ s/\/\*(?:.*?)\*\/(\s*\\\n)?/$1/sg ;
+        $raw_contents =~ s/\/\*(?:.*?)\*\/|\/\/(?:.*?)(\\)?(\n)/$1\n/sg ;
+
 
 ##      The init_attr functions cause problems when we try and wrap them with SWIG.
 ##      We can safely remove them from the header files.
@@ -258,7 +278,7 @@ sub process_file() {
                 }
 
                 # Get the canonical path (resolve ., .., and symbolic links)
-                $file_name = abs_path($file_name) ;
+                $file_name = abs_path(dirname($file_name)) . "/" . basename($file_name) ;
 
                 # Skip excluded paths
                 foreach my $i ( @exclude_paths, @swig_exclude_paths ) {
@@ -266,7 +286,6 @@ sub process_file() {
                         next outer ;
                     }
                 }
-
                 $file_name = "build" . $file_name ;
                 $file_name =~ s/\.[^\.]+?$/\_py.i/ ;
                 $contents .= "\%import \"$file_name\"\n" ;

@@ -426,7 +426,7 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
         tst_string.erase(pos , 7) ;
     }
     // clang changes bool to _Bool.  We need to change it back
-    if ((pos = tst_string.find("<_Bool")) != std::string::npos ) {
+    while ((pos = tst_string.find("<_Bool")) != std::string::npos ) {
         tst_string.replace(pos , 6, "<bool") ;
     }
     while ((pos = tst_string.find(" _Bool")) != std::string::npos ) {

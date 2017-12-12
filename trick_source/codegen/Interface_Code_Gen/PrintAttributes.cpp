@@ -240,6 +240,10 @@ void PrintAttributes::printClass( ClassValues * cv ) {
         outfile.close();
     }
 
+    if (!isHeaderExcluded(fileName)) {
+         printer->printClassMap(class_map_outfile, cv);
+    }
+/*
     char* realPath = almostRealPath(fileName.c_str());
     if (realPath) {
         if (isFileIncluded(fileName) or hsd.isPathInExtLib(realPath)) {
@@ -247,6 +251,7 @@ void PrintAttributes::printClass( ClassValues * cv ) {
         }
         free(realPath);
     }
+*/
 }
 
 void PrintAttributes::printEnum(EnumValues* ev) {
@@ -270,9 +275,14 @@ void PrintAttributes::printEnum(EnumValues* ev) {
         outfile.close() ;
     }
 
+    if (!isHeaderExcluded(fileName)) {
+         printer->printEnumMap(enum_map_outfile, ev);
+    }
+/*
     if (isFileIncluded(fileName)) {
          printer->printEnumMap(enum_map_outfile, ev) ;
     }
+*/
 }
 
 void PrintAttributes::createMapFiles() {
@@ -529,6 +539,35 @@ bool PrintAttributes::isHeaderExcluded(const std::string& header, bool exclude_e
         }
         icg_no_files.push_back(path);
         return true;
+    }
+
+    temp = realpath(header.c_str(),NULL);
+    if ( temp ) {
+        const std::string real_path = std::string(temp);
+        free(temp) ;
+        if ( real_path.compare(path) ) {
+            if (hsd.isPathInExclude(real_path)) {
+                if (verboseBuild) {
+                    std::cout << skipping << "TRICK_EXCLUDE: " << underline(real_path, hsd.getPathInExclude(real_path).size()) << std::endl;
+                }
+                return true;
+            }
+
+            if (hsd.isPathInICGExclude(real_path)) {
+                if (verboseBuild) {
+                    std::cout << skipping << "TRICK_ICG_EXCLUDE: " << underline(real_path, hsd.getPathInICGExclude(real_path).size()) << std::endl;
+                }
+                return true;
+            }
+
+            if (hsd.isPathInExtLib(real_path) && exclude_ext_libs) {
+                if (verboseBuild) {
+                    std::cout << skipping << "TRICK_EXT_LIB_DIRS: " << underline(real_path, hsd.getPathInExtLib(real_path).size()) << std::endl;
+                }
+                ext_lib_io_files.insert(header) ;
+                return true;
+            }
+        }
     }
 
     return false;
