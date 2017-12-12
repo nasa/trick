@@ -148,7 +148,10 @@ MAKE_TRAVERSAL_NEWLINE := | sed '/^make.*: Leaving directory/a\ '
 # DEFAULT TARGET
 # 1 Build Trick-core and Trick Data-products.
 all: no_dp dp
-	@ echo ; echo "[32mTrick compilation complete:[00m" ; date
+	@ echo -e "\n\e[32m#####################################\e[0m"
+	@ echo -e "\e[32mTrick has been successfully compiled.\e[34m"
+	@date
+	@ echo -e "\e[32m#####################################\e[0m\n"
 
 ifeq ($(USE_JAVA), 1)
 all: java
@@ -157,35 +160,45 @@ endif
 #-------------------------------------------------------------------------------
 # 1.1 Build Trick-core
 no_dp: $(TRICK_LIB) $(TRICK_SWIG_LIB)
-	@ echo ; echo "Trick libs compiled:" ; date
+	@ echo -e "\e[32mTrick libraries compiled:\e[34m" ; date ; echo -e "\e[0m"
 
 # 1.1.1 Build libTrick.a
 $(TRICK_LIB): $(SIM_SERV_DIRS) $(UTILS_DIRS) | $(TRICK_LIB_DIR)
+	@ echo -e "\e[34m[---Building $@---]\e[0m"
 	ar crs $@ $(SIM_SERV_OBJS) $(UTILS_OBJS)
+	@ echo ""
 
 ifeq ($(USE_ER7_UTILS), 1)
 ER7_UTILS_LIB = $(TRICK_LIB_DIR)/liber7_utils.a
 no_dp: $(ER7_UTILS_LIB)
 
 $(ER7_UTILS_LIB): $(ER7_UTILS_DIRS) | $(TRICK_LIB_DIR)
+	@ echo -e "\e[34m[---Building $@---]\e[0m"
 	ar crs $@ $(ER7_UTILS_OBJS)
+	@ echo ""
 endif
 
 # 1.1.1.1 Compile the objects in the specified sim_services directories.
 .PHONY: $(SIM_SERV_DIRS)
 $(SIM_SERV_DIRS): icg_sim_serv $(TRICK_LIB_DIR)
+	@ echo -e "\e[34m[---Building $@---]\e[0m"
 	@ $(MAKE) -C $@ trick
+	@ echo ""
 
 # 1.1.1.2 Compile the objects in the specified utils directories.
 .PHONY: $(UTILS_DIRS)
 $(UTILS_DIRS): icg_sim_serv
+	@ echo -e "\e[34m[---Building $@---]\e[0m"
 	@ $(MAKE) -C $@ trick
+	@ echo ""
 
 # 1.1.1.3 Compile the objects in the specified er7_utils directories.
 .PHONY: $(ER7_UTILS_DIRS)
 $(ER7_UTILS_DIRS): TRICK_CXXFLAGS += -Wno-unused-parameter
 $(ER7_UTILS_DIRS): make_er7_makefiles icg_sim_serv
+	@ echo -e "\e[34m[---Building $@---]\e[0m"
 	@ $(MAKE) -C $@ trick
+	@ echo ""
 
 .PHONY: make_er7_makefiles
 make_er7_makefiles:
@@ -201,11 +214,15 @@ endif
 # header files.
 .PHONY: icg_sim_serv
 icg_sim_serv: $(ICG_EXE)
+	@ echo -e "\e[34m[---Generating Interface Code---]\e[0m"
 	${TRICK_HOME}/bin/trick-ICG -s -m ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_HOME}/include/trick/files_to_ICG.hh
+	@ echo ""
 
 # 1.1.1.4.1 Build the Interface Code Generator (ICG) executable.
 $(ICG_EXE) :
+	@ echo -e "\e[34m[---Building Interface Code Generator---]\e[0m"
 	$(MAKE) -C trick_source/codegen/Interface_Code_Gen
+	@ echo ""
 
 # 1.1.1.5 Create Trick Library directory.
 $(TRICK_LIB_DIR):
@@ -213,17 +230,23 @@ $(TRICK_LIB_DIR):
 
 # 1.1.2 Build libTrick_pyip.a (Swig Lib)
 $(TRICK_SWIG_LIB): $(SWIG_DIRS) | $(TRICK_LIB_DIR)
+	@ echo -e "\e[34m[---Building $@---]\e[0m"
 	ar crs $@ $(SWIG_OBJS)
+	@ echo ""
 
 .PHONY: $(SWIG_DIRS)
 $(SWIG_DIRS): icg_sim_serv $(TRICK_LIB_DIR)
+	@ echo -e "\e[34m[---Building $@---]\e[0m"
 	@ $(MAKE) -C $@ trick
+	@ echo ""
 
 #-------------------------------------------------------------------------------
 # 1.2 Build Trick's Data-products Applications.
 .PHONY: dp
 dp: ${TRICK_HOME}/trick_source/trick_utils/units
+	@ echo -e "\e[34m[---Building Data-Products Applications---]\e[0m"
 	@ $(MAKE) -C ${TRICK_HOME}/trick_source/data_products
+	@ echo ""
 
 #-------------------------------------------------------------------------------
 # 1.3 Build Trick's Java Tools
@@ -258,7 +281,7 @@ premade:
 ################################################################################
 # This target runs Trick's Unit-tests and simulation-tests.
 test: unit_test sim_test
-	@ echo "All tests completed sucessfully"
+	@ echo -e "\e[33mAll unit tests completed sucessfully.\e[0m"
 
 .PHONY: $(UNIT_TEST_DIRS)
 $(UNIT_TEST_DIRS):

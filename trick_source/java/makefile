@@ -24,13 +24,13 @@ RESOURCES = $(subst src/,,$(shell find src/trick -name resources))
 RESOURCES += $(subst src/,,$(shell find src/trick -name jaxb.index))
 
 all: ${DIST_DIR}/trick.jar resources
-	@echo "[32mJava build successful[0m"
+	@ echo -e "\n\e[32mTrick GUIs compiled:\e[34m" ; date ; echo -e "\e[0m"
 
 ${DEST_DIR} ${DIST_DIR} ${RESOURCES_DIR} ${DOCS_API_DIR}:
 	mkdir -p $@
 
 ${DIST_DIR}/trick.jar: compile ${DIST_DIR}
-	@echo "[36mCreating jar file...[0m"
+	@echo -e "\e[34m[---Creating Trick JAR---]\e[0m"
 	@jar cf ${DIST_DIR}/trick.jar -C ${DEST_DIR} .
 	@cd ${SRC_DIR} && jar uf ${DIST_DIR}/trick.jar ${RESOURCES}
 
@@ -38,7 +38,7 @@ external_jars:
 	@ $(MAKE) -C  $(LIB_DIR)
 
 compile: ${DEST_DIR} external_jars
-	@echo "[36mBuilding Trick GUIs...[0m"
+	@echo -e "\e[34m[---Building Trick GUIs---]\e[0m"
 	@${JAVAC} ${JAVAC_FLAGS} -classpath ${CLASS_PATH} -d ${DEST_DIR} -sourcepath ${SRC_DIR} ${SRC_FILES}
 
 resources: ${RESOURCES_DIR}/trick_icon.png
