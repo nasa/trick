@@ -319,8 +319,6 @@ TEST_F(MonteCarloTest, TestSlaves) {
 }
 
 TEST_F(MonteCarloTest, MonteVarFile) {
-    std::string buffer;
-    std::string buffer2;
     //req.add_requirement("3932595803");
 
     // Test MonteVarFile
