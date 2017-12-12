@@ -27,7 +27,6 @@ using namespace std;
 #include "libkoviz/csv.h"
 #include "libkoviz/trickmodel.h"
 #include "libkoviz/curvemodel.h"
-#include "libkoviz/roleparam.h"
 #include "libkoviz/trick_types.h"
 
 QStandardItemModel* createVarsModel(Runs* runs);
