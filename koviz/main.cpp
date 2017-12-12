@@ -767,15 +767,15 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
     // Make param list
     // And make curves list (based on param list)
     //
-    QList<Param> params;
+    QList<TrickParameter> params;
     QList<CurveModel*> curves;
 
     // Time is first "param"
-    Param timeParam;
-    timeParam.name = timeName;
-    timeParam.unit = "s";
-    timeParam.type = TRICK_07_DOUBLE;
-    timeParam.size = sizeof(double);
+    TrickParameter timeParam;
+    timeParam.setName(timeName);
+    timeParam.setUnit("s");
+    timeParam.setType(TRICK_07_DOUBLE);
+    timeParam.setSize(sizeof(double));
     params << timeParam;
 
     // Each param gets a curve. Make the first curve null since
@@ -821,11 +821,11 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
         }
 
         // Make a Param (for trk header)
-        Param p;
-        p.name = yParam;
-        p.unit = c->y().unit();
-        p.type = TRICK_07_DOUBLE;
-        p.size = sizeof(double);
+        TrickParameter p;
+        p.setName(yParam);
+        p.setUnit(c->y()->unit());
+        p.setType(TRICK_07_DOUBLE);
+        p.setSize(sizeof(double));
 
         // Make params/curves lists (lazily mapping params to curves)
         params.append(p);
@@ -1075,8 +1075,8 @@ bool convert2csv(const QStringList& timeNames,
     // Write csv param list (top line in csv file)
     int cc = m.columnCount();
     for ( int i = 0; i < cc; ++i) {
-        QString pName = m.param(i).name();
-        QString pUnit = m.param(i).unit();
+        QString pName = m.param(i)->name();
+        QString pUnit = m.param(i)->unit();
         out << pName << " {" << pUnit << "}";
         if ( i < cc-1 ) {
             out << ",";
@@ -1116,7 +1116,7 @@ bool convert2trk(const QString& csvFileName, const QString& trkFileName)
     CSV csv(&file);
 
     // Parse first line to get param list
-    QList<Param> params;
+    QList<TrickParameter> params;
     QStringList list = csv.parseLine() ;
     if ( list.isEmpty() ) {
         fprintf(stderr, "koviz [error]: Empty csv file \"%s\"",
@@ -1124,9 +1124,9 @@ bool convert2trk(const QString& csvFileName, const QString& trkFileName)
         return false;
     }
     foreach ( QString s, list ) {
-        Param p;
+        TrickParameter p;
         QStringList plist = s.split(" ", QString::SkipEmptyParts);
-        p.name = plist.at(0);
+        p.setName(plist.at(0));
         if ( plist.size() > 1 ) {
             QString unitString = plist.at(1);
             if ( unitString.startsWith('{') ) {
@@ -1137,11 +1137,11 @@ bool convert2trk(const QString& csvFileName, const QString& trkFileName)
             }
             Unit u;
             if ( u.isUnit(unitString.toLatin1().constData()) ) {
-                p.unit = unitString;
+                p.setUnit(unitString);
             }
         }
-        p.type = TRICK_07_DOUBLE;
-        p.size = sizeof(double);
+        p.setType(TRICK_07_DOUBLE);
+        p.setSize(sizeof(double));
         params.append(p);
     }
 

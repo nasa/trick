@@ -264,11 +264,11 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
         QStandardItem *curveItem = _addChild(curvesItem,"Curve");
 
         _addChild(curveItem, "CurveTimeName", _timeName);
-        _addChild(curveItem, "CurveTimeUnit", curveModel->t().unit());
+        _addChild(curveItem, "CurveTimeUnit", curveModel->t()->unit());
         _addChild(curveItem, "CurveXName", xName);
-        _addChild(curveItem, "CurveXUnit", curveModel->t().unit()); // yes,t
+        _addChild(curveItem, "CurveXUnit", curveModel->t()->unit()); // yes,t
         _addChild(curveItem, "CurveYName", yName);
-        _addChild(curveItem, "CurveYUnit", curveModel->y().unit());
+        _addChild(curveItem, "CurveYUnit", curveModel->y()->unit());
         QString runDirName = QFileInfo(curveModel->fileName()).dir().dirName();
         bool ok;
         int runId = runDirName.mid(4).toInt(&ok);

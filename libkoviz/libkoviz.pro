@@ -114,7 +114,6 @@ HEADERS  += bookmodel.h \
             numsortitem.h \
             parameter.h \
             role.h \
-            roleparam.h \
             roundoff.h \
             runs.h \
             snaptable.h \

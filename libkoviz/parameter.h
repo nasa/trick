@@ -8,20 +8,14 @@ class Parameter
 public:
     Parameter();
 
-    void setName(const QString& name ) { _name = name; }
-    void setUnit(const QString& unit ) { _unit = unit; }
-    void setType(int type) { _type = type; }
-    void setSize(int size) { _size = size; }
+    virtual void setName(const QString& name ) { _name = name; }
+    virtual void setUnit(const QString& unit ) { _unit = unit; }
+    virtual QString name() const { return _name; }
+    virtual QString unit() const { return _unit; }
 
-    QString name() const { return _name; }
-    QString unit() const { return _unit; }
-    int     type() const { return _type; }   // Delete???
-    int     size() const { return _size; }   // Delete???
-private:
+protected:
     QString _name;
     QString _unit;
-    int     _type;
-    int     _size;
 };
 
 #endif // PARAMETER_H

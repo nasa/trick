@@ -45,17 +45,17 @@ TrickTableModel::TrickTableModel(const QStringList& timeNames,
         foreach ( QString paramName, paramList ) {
             int cc = trkModel->columnCount();
             for ( int i = 0; i < cc; ++i ) {
-                Parameter param = trkModel->param(i);
-                if ( timeNames.contains(param.name()) ) {
-                    timeName = param.name();
+                const Parameter* param = trkModel->param(i);
+                if ( timeNames.contains(param->name()) ) {
+                    timeName = param->name();
                     continue;
                 }
-                if ( param.name() == paramName ) {
-                    if ( _param2model.contains(param.name()) ) continue;
+                if ( param->name() == paramName ) {
+                    if ( _param2model.contains(param->name()) ) continue;
                     if ( !_trkModels.contains(trkModel) ) {
                         _trkModels << trkModel;
                     }
-                    _param2model.insert(param.name(),trkModel);
+                    _param2model.insert(param->name(),trkModel);
                     ++cntVars;
                     if ( cntVars == nVars ) break;
                 }

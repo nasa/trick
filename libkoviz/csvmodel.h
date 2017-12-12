@@ -32,7 +32,7 @@ class CsvModel : public DataModel
                       QObject *parent = 0);
     ~CsvModel();
 
-    virtual Parameter param(int col) const ;
+    virtual const Parameter* param(int col) const ;
     virtual void map();
     virtual void unmap();
     virtual int paramColumn(const QString& paramName) const ;

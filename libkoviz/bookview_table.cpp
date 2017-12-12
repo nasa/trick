@@ -56,16 +56,16 @@ void BookTableView::paintEvent(QPaintEvent *event)
         QString unit = _bookModel()->getDataString(tableVarIdx,
                                                    "TableVarUnit","TableVar");
         if ( unit.isEmpty() ) {
-            unit = curveModel->y().unit();
+            unit = curveModel->y()->unit();
         } else {
-            sf *= Unit::scale(curveModel->y().unit(),unit);
+            sf *= Unit::scale(curveModel->y()->unit(),unit);
         }
         units << unit;
         scaleFactors << sf;
 
         double bias = _bookModel()->getDataDouble(tableVarIdx,
                                                   "TableVarBias","TableVar");
-        bias += Unit::bias(curveModel->y().unit(),unit);  // for temperature
+        bias += Unit::bias(curveModel->y()->unit(),unit);  // for temperature
         biases << bias;
     }
     QStringList labels = _columnLabels();
@@ -299,7 +299,7 @@ QStringList BookTableView::_columnLabels() const
         CurveModel* curveModel = QVariantToPtr<CurveModel>::convert(v);
 
         if ( unit.isEmpty() ) {
-            unit = curveModel->y().unit();
+            unit = curveModel->y()->unit();
         }
 
         if ( varLabel.isEmpty() ) {
@@ -572,7 +572,7 @@ void BookTableView::wheelEvent(QWheelEvent *e)
                                                      "TableVarData","TableVar");
         QVariant v = _bookModel()->data(curveIdx);
         CurveModel* curveModel = QVariantToPtr<CurveModel>::convert(v);
-        unit = curveModel->y().unit();
+        unit = curveModel->y()->unit();
     }
 
     if ( e->delta() > 0 ) {

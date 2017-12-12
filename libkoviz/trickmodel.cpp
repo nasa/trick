@@ -67,7 +67,7 @@ bool TrickModel::_load_trick_header()
     for ( int cc = 0; cc < _ncols; ++cc) {
         _col2offset[cc] = _row_size;
         _row_size += _load_binary_param(in,cc);
-        Parameter* p = _col2param.value(cc);
+        TrickParameter* p = _col2param.value(cc);
         _paramtypes.push_back(p->type());
     }
     if ( _row_size == 0 ) {
@@ -114,7 +114,7 @@ bool TrickModel::_load_trick_header()
 // Returns byte size of parameter
 qint32 TrickModel::_load_binary_param(QDataStream& in, int col)
 {
-    Parameter* param  = new Parameter();
+    TrickParameter* param  = new TrickParameter;
 
     qint32 sz;
 
@@ -205,9 +205,9 @@ TrickModel::~TrickModel()
     }
 }
 
-Parameter TrickModel::param(int col) const
+const Parameter* TrickModel::param(int col) const
 {
-    return *(_col2param.value(col));
+    return _col2param.value(col);
 }
 
 int TrickModel::indexAtTime(double time)
@@ -215,7 +215,8 @@ int TrickModel::indexAtTime(double time)
     return _idxAtTimeBinarySearch(_iteratorTimeIndex,0,rowCount()-1,time);
 }
 
-void TrickModel::writeTrkHeader(QDataStream &out, const QList<Param>& params)
+void TrickModel::writeTrkHeader(QDataStream &out,
+                                const QList<TrickParameter>& params)
 {
     // Make it little endian
     out.setByteOrder(QDataStream::LittleEndian);
@@ -237,18 +238,18 @@ void TrickModel::writeTrkHeader(QDataStream &out, const QList<Param>& params)
     //
     // Write trick header param info
     //
-    foreach ( Param p, params ) {
+    foreach ( TrickParameter p, params ) {
         TrickModel::_write_binary_param(out,p);
     }
 }
 
-void TrickModel::_write_binary_param(QDataStream& out, const Param& p)
+void TrickModel::_write_binary_param(QDataStream& out, const TrickParameter& p)
 {
     // Write name, unit and type info
-    TrickModel::_write_binary_qstring(out, p.name);
-    TrickModel::_write_binary_qstring(out, p.unit);
-    qint32 t = (qint32)p.type; out << t;
-    qint32 s = (qint32)p.size; out << s;
+    TrickModel::_write_binary_qstring(out, p.name());
+    TrickModel::_write_binary_qstring(out, p.unit());
+    qint32 t = (qint32)p.type(); out << t;
+    qint32 s = (qint32)p.size(); out << s;
 }
 
 

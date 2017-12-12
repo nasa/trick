@@ -92,7 +92,7 @@ void Runs::_init()
         int ncols = m->columnCount();
         QStringList mParams;
         for ( int col = 0; col < ncols; ++col) {
-            QString p = m->param(col).name();
+            QString p = m->param(col)->name();
             foreach (QString key, _varMap.keys() ) {
                 QStringList vals = _varMap.value(key);
                 bool isFound = false;

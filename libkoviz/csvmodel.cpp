@@ -185,9 +185,9 @@ CsvModel::~CsvModel()
     }
 }
 
-Parameter CsvModel::param(int col) const
+const Parameter* CsvModel::param(int col) const
 {
-    return *(_col2param.value(col));
+    return _col2param.value(col);
 }
 
 int CsvModel::indexAtTime(double time)

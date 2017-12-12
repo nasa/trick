@@ -323,7 +323,7 @@ void Thread::_frameModelSet()
     int nParams = _frameModel->columnCount();
     for ( int i = 0 ; i < nParams; ++i ) {
 
-        QString param = _frameModel->param(i).name();
+        QString param = _frameModel->param(i)->name();
 
         if ( param ==  Frame::frame_sched_time ) {
             frameSchedTimeCol = i;

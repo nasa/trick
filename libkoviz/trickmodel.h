@@ -22,11 +22,39 @@
 #include "snaptable.h"
 #include "trick_types.h"
 #include "parameter.h"
-#include "roleparam.h"
 using namespace std;
 
 class TrickModel;
 class TrickModelIterator;
+
+class TrickParameter : public Parameter
+{
+public:
+    TrickParameter() :
+        _name(""),
+        _unit("--"),
+        _type(0),
+        _size(0)
+    {}
+
+    virtual void setName(const QString& name ) { _name = name; }
+    virtual void setUnit(const QString& unit ) { _unit = unit; }
+    virtual QString name() const { return _name; }
+    virtual QString unit() const { return _unit; }
+
+    void setType(int type) { _type = type; }
+    void setSize(int size) { _size = size; }
+    int type() const { return _type; }
+    int size() const { return _size; }
+
+protected:
+    QString _name;
+    QString _unit;
+
+private:
+    int     _type;
+    int     _size;
+};
 
 class TrickModel : public DataModel
 {
@@ -49,7 +77,7 @@ class TrickModel : public DataModel
 
     QString trkFile() const { return _trkfile; }
 
-    virtual Parameter param(int col) const ;
+    virtual const Parameter* param(int col) const ;
 
     virtual void map();
     virtual void unmap();
@@ -60,7 +88,7 @@ class TrickModel : public DataModel
     virtual ModelIterator* begin(int tcol, int xcol, int ycol) const ;
     int indexAtTime(double time);
 
-    static void writeTrkHeader(QDataStream &out, const QList<Param>& params);
+    static void writeTrkHeader(QDataStream &out, const QList<TrickParameter> &params);
 
     virtual int rowCount(const QModelIndex & pidx = QModelIndex() ) const;
     virtual int columnCount(const QModelIndex & pidx = QModelIndex() ) const;
@@ -72,7 +100,7 @@ class TrickModel : public DataModel
     QStringList _timeNames;
     QString _trkfile;
 
-    QHash<int,Parameter*> _col2param;   // ordered by column
+    QHash<int,TrickParameter*> _col2param;   // ordered by column
 
     TrickVersion _trick_version;
     vector<int> _paramtypes;
@@ -100,7 +128,7 @@ class TrickModel : public DataModel
     int _idxAtTimeBinarySearch (TrickModelIterator *it,
                                int low, int high, double time);
 
-    static void _write_binary_param(QDataStream& out, const Param& p);
+    static void _write_binary_param(QDataStream& out, const TrickParameter &p);
     static void _write_binary_qstring(QDataStream& out, const QString& str);
 
   private:

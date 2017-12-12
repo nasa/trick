@@ -20,9 +20,9 @@ class CurveModel : public QAbstractTableModel
 
     QString fileName() const { return _datamodel->fileName(); }
 
-    Parameter t() const { return _datamodel->param(_tcol); }
-    Parameter x() const { return _datamodel->param(_xcol); }
-    Parameter y() const { return _datamodel->param(_ycol); }
+    const Parameter* t() const { return _datamodel->param(_tcol); }
+    const Parameter* x() const { return _datamodel->param(_xcol); }
+    const Parameter* y() const { return _datamodel->param(_ycol); }
 
     void map() { _datamodel->map(); }
     void unmap() { _datamodel->unmap(); }
