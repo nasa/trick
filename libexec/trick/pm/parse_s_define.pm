@@ -746,7 +746,8 @@ sub handle_sim_class_job($$$) {
         $tag =~ s/\s+//g ;
         @tags = split /,/ , $tag ;
     }
-    $job_push = "job = add_job($child, $job_id, $class, $sup_class_data, $cycle, \"$job_name\", \"\"" ;
+    # do not remove "this->", see issue #532
+    $job_push = "job = this->add_job($child, $job_id, $class, $sup_class_data, $cycle, \"$job_name\", \"\"" ;
 
     if ( $class =~ /^integration$/ ) {
         if ($job_ret !~ /trick_ret/ ) {
