@@ -30,7 +30,6 @@ ${DEST_DIR} ${DIST_DIR} ${RESOURCES_DIR} ${DOCS_API_DIR}:
 	mkdir -p $@
 
 ${DIST_DIR}/trick.jar: compile ${DIST_DIR}
-	@echo -e "\e[34m[---Creating Trick JAR---]\e[0m"
 	@jar cf ${DIST_DIR}/trick.jar -C ${DEST_DIR} .
 	@cd ${SRC_DIR} && jar uf ${DIST_DIR}/trick.jar ${RESOURCES}
 
@@ -38,7 +37,6 @@ external_jars:
 	@ $(MAKE) -C  $(LIB_DIR)
 
 compile: ${DEST_DIR} external_jars
-	@echo -e "\e[34m[---Building Trick GUIs---]\e[0m"
 	@${JAVAC} ${JAVAC_FLAGS} -classpath ${CLASS_PATH} -d ${DEST_DIR} -sourcepath ${SRC_DIR} ${SRC_FILES}
 
 resources: ${RESOURCES_DIR}/trick_icon.png

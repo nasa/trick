@@ -251,6 +251,7 @@ dp: ${TRICK_HOME}/trick_source/trick_utils/units
 #-------------------------------------------------------------------------------
 # 1.3 Build Trick's Java Tools
 java:
+	@ echo -e "\e[34m[---Building Java Tools---]\e[0m"
 	@ $(MAKE) -C ${TRICK_HOME}/trick_source/java
 
 .PHONY: javadoc
