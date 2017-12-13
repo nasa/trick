@@ -282,7 +282,9 @@ premade:
 ################################################################################
 # This target runs Trick's Unit-tests and simulation-tests.
 test: unit_test sim_test
-	@ echo -e "\e[33mAll unit tests completed sucessfully.\e[0m"
+	@ echo -e "\n\e[32m#####################################"
+	@ echo -e "\e[32mAll unit tests completed sucessfully.\e[0m"
+	@ echo -e "\e[32m#####################################\n"
 
 .PHONY: $(UNIT_TEST_DIRS)
 $(UNIT_TEST_DIRS):
