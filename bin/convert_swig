@@ -417,8 +417,8 @@ sub process_file($$) {
                             } else {
                                 $file_name =~ s/\.[^\.]+\"/\.i\"/ ;
                             }
+                            $contents .= "\%import $file_name\n" ;
                         }
-                        $contents .= "\%import $file_name\n" ;
                     } else {
                         $contents .= "\%import(module=\"sim_services\") $file_name\n" ;
                     }
