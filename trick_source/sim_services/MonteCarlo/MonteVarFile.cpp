@@ -45,8 +45,12 @@ std::string Trick::MonteVarFile::get_next_value() {
             std::getline(*input_file_stream, line);
 
             if(input_file_stream->eof()) {
-                input_file_stream->close();
-                return "EOF";
+                if (line.empty()) {
+                    input_file_stream->close();
+                    return "EOF";
+                } else {
+                    input_file_stream->seekg(0, input_file_stream->end);
+                }
             }
         }
         while(line[0] == '#' || line[0] == '\0');

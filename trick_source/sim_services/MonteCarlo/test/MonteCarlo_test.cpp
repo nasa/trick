@@ -319,8 +319,6 @@ TEST_F(MonteCarloTest, TestSlaves) {
 }
 
 TEST_F(MonteCarloTest, MonteVarFile) {
-    std::string buffer;
-    std::string buffer2;
     //req.add_requirement("3932595803");
 
     // Test MonteVarFile
@@ -329,6 +327,24 @@ TEST_F(MonteCarloTest, MonteVarFile) {
     exec.add_variable(&var0) ;
     EXPECT_EQ(var0.get_next_value(), "time_to_fire_1 = 1.0000") ;
     EXPECT_EQ(exec.variables.size(), 1) ;
+}
+
+TEST_F(MonteCarloTest, MonteVarFileWithEOFLine) {
+    Trick::MonteVarFile var0("time_to_fire_1", "MonteCarlo_eof_line", 2) ;
+    EXPECT_EQ(exec.variables.size(), 0) ;
+    exec.add_variable(&var0) ;
+    EXPECT_EQ(var0.get_next_value(), "time_to_fire_1 = 1.0000") ;
+    EXPECT_EQ(exec.variables.size(), 1) ;
+    EXPECT_EQ(var0.get_next_value(), "EOF") ;
+}
+
+TEST_F(MonteCarloTest, MonteVarFileWithLineEndedEOF) {
+    Trick::MonteVarFile var0("time_to_fire_1", "MonteCarlo_line_ended_eof", 2) ;
+    EXPECT_EQ(exec.variables.size(), 0) ;
+    exec.add_variable(&var0) ;
+    EXPECT_EQ(var0.get_next_value(), "time_to_fire_1 = 1.0000") ;
+    EXPECT_EQ(exec.variables.size(), 1) ;
+    EXPECT_EQ(var0.get_next_value(), "EOF") ;
 }
 
 TEST_F(MonteCarloTest, MonteVarRandom_Gaussian) {
