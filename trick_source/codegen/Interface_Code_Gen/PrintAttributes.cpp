@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <libgen.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -30,6 +31,23 @@ PrintAttributes::PrintAttributes(int in_attr_version , HeaderSearchDirs & in_hsd
    output_dir( in_output_dir )
 {
     printer = new PrintFileContents10() ;
+}
+
+void PrintAttributes::addIgnoreTypes() {
+
+    char * env_var_contents = getenv("TRICK_ICG_IGNORE_TYPES") ;
+
+    if( env_var_contents != NULL ) {
+        std::string s = std::string(env_var_contents) ;
+        std::stringstream ss(s);
+        std::string item;
+        while(std::getline(ss, item, ';')) {
+            item = trim(item) ;
+            if ( ! item.empty() ) {
+                global_ignore_types.insert(item) ;
+            }
+        }
+    }
 }
 
 /**
@@ -482,7 +500,9 @@ bool PrintAttributes::isIgnored(ConstructValues& constructValues) {
     std::set<std::string>& constructs = ignored_types[fileName];
 
     const bool ignored = constructs.find(constructValues.getName()) != constructs.end() or
-                         constructs.find(constructValues.getFullyQualifiedName()) != constructs.end();
+                         constructs.find(constructValues.getFullyQualifiedName()) != constructs.end() or
+                         global_ignore_types.find(constructValues.getName()) != global_ignore_types.end() or
+                         global_ignore_types.find(constructValues.getFullyQualifiedName()) != global_ignore_types.end();
 
     if (ignored and verboseBuild) {
         std::cout << skipping << "ICG Ignore Type: " << constructValues.getName() << " (from " << fileName << ")" << std::endl;
