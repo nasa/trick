@@ -474,6 +474,12 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
         return false ;
     }
 
+    // If the type is a private embedded class there will not be any io_src code for the type.  Don't create attributes
+    if ( CXXRecordVisitor::isPrivateEmbeddedClass(tst_string) ) {
+        //std::cout << "Type is a private embedded class!" << std::endl ;
+        fdes->setIO(0) ;
+        return false ;
+    }
     /* Template specialization types will be processed here because the canonical type
        will be typed as a record.  We test if we have a template specialization type.
        If so process the template type and return */
