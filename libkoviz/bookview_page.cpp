@@ -21,6 +21,37 @@ PageView::PageView(QWidget *parent) :
     setLayout(_grid);
 }
 
+void PageView::paintEvent(QPaintEvent *event)
+{
+    Q_UNUSED(event);
+
+    QPalette pal = palette();
+
+    if (_bookModel()->isChildIndex(rootIndex(),"Page","PageBackgroundColor")) {
+
+        QString bgColor = _bookModel()->getDataString(rootIndex(),
+                                                      "PageBackgroundColor",
+                                                      "Page");
+        if ( !bgColor.isEmpty() ) {
+            QColor bg(bgColor);
+            pal.setColor(QPalette::Base,bg);
+        }
+    }
+
+    if (_bookModel()->isChildIndex(rootIndex(),"Page","PageForegroundColor")) {
+
+        QString fgColor = _bookModel()->getDataString(rootIndex(),
+                                                      "PageForegroundColor",
+                                                      "Page");
+        if ( !fgColor.isEmpty() ) {
+            QColor fg(fgColor);
+            pal.setColor(QPalette::Text,fg);
+        }
+    }
+
+    setPalette(pal);
+}
+
 bool PageView::eventFilter(QObject *obj, QEvent *event)
 {
     if ( event->type() == QEvent::MouseButtonRelease ) {

@@ -107,6 +107,10 @@ public:
     QList<QPen*> legendPens(const QModelIndex &plotIdx) const ;
     bool isPlotLegendsSame(const QModelIndex& pageIdx) const ;
 
+    // Page Foreground and Background colors
+    QColor pageBackgroundColor(const QModelIndex& pageIdx) const;
+    QColor pageForegroundColor(const QModelIndex& pageIdx) const;
+
 signals:
     
 public slots:

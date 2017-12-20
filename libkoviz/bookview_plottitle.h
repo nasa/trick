@@ -18,6 +18,7 @@ protected:
 
     virtual QSize minimumSizeHint() const;
     virtual QSize sizeHint() const;
+    virtual void paintEvent(QPaintEvent * event);
 
 private:
     QLabel* _label;

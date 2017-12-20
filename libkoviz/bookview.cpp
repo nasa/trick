@@ -291,6 +291,17 @@ void BookView::_printPage(QPainter *painter, const QModelIndex& pageIdx)
 
     painter->save();
 
+    // Foreground
+    QPen origPen = painter->pen();
+    QColor fg = _bookModel()->pageForegroundColor(pageIdx);
+    QPen pagePen = painter->pen();
+    pagePen.setColor(fg);
+    painter->setPen(pagePen);
+
+    // Background
+    QColor bg = _bookModel()->pageBackgroundColor(pageIdx);
+    painter->fillRect(QRect(0,0,paintDevice->width(),paintDevice->height()),bg);
+
     const int margin = 96;
 
     QRect pageTitleRect = _paintPageTitle(pageIdx,*painter);
@@ -604,6 +615,7 @@ void BookView::_printPage(QPainter *painter, const QModelIndex& pageIdx)
         exit(-1);
     }
 
+    painter->setPen(origPen);
     painter->restore();
 }
 
@@ -850,7 +862,8 @@ void BookView::_printCurves(const QRect& R,
             int w = 2*qRound(rw)*nullPainter.device()->logicalDpiX();
             int h = 2*qRound(rh)*nullPainter.device()->logicalDpiY();
             QPixmap pixmap(w,h);
-            pixmap.fill(Qt::white);
+            QModelIndex pageIdx = plotIdx.parent().parent();
+            pixmap.fill(_bookModel()->pageBackgroundColor(pageIdx));
             QPainter pixmapPainter(&pixmap);
             QPen pen;
             pen.setWidth(0);
@@ -1633,7 +1646,8 @@ void BookView::_printYAxisLabel(const QRect& R,
 
     // Draw!
     painter->save();
-    painter->translate(R.x()+R.width()/2, R.y()+R.height()/2+bbox.width()/2);
+    painter->translate(R.x()+ R.width()-fm.descent()-fm.leading(),
+                       R.y()+R.height()/2+bbox.width()/2);
     painter->rotate(270);
     painter->drawText(0,0,s);
     painter->restore();

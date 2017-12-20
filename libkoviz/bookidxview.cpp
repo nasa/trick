@@ -794,7 +794,7 @@ QStringList BookIdxView::_pageTitles(const QModelIndex &titleIdx) const
     return titles;
 }
 
-QRect BookIdxView::_paintPageTitle(const QModelIndex& titleIdx,
+QRect BookIdxView::_paintPageTitle(const QModelIndex& pageIdx,
                                    QPainter& painter)
 {
     painter.save();
@@ -805,10 +805,10 @@ QRect BookIdxView::_paintPageTitle(const QModelIndex& titleIdx,
     QRect R(0,0,paintDevice->width(),paintDevice->height());
 
     // Get titles from model
-    QString title1 = _pageTitles(titleIdx).at(0);
-    QString title2 = _pageTitles(titleIdx).at(1);
-    QString title3 = _pageTitles(titleIdx).at(2);
-    QString title4 = _pageTitles(titleIdx).at(3);
+    QString title1 = _pageTitles(pageIdx).at(0);
+    QString title2 = _pageTitles(pageIdx).at(1);
+    QString title3 = _pageTitles(pageIdx).at(2);
+    QString title4 = _pageTitles(pageIdx).at(3);
 
     // Main title fonts and placement (drawing occurs later)
     QFont font(origFont);
@@ -823,8 +823,8 @@ QRect BookIdxView::_paintPageTitle(const QModelIndex& titleIdx,
     // Legend
     int legendRight=0;
     int legendBottom=0;
-    if ( _bookModel()->isPlotLegendsSame(titleIdx)) {
-        QModelIndexList plotIdxs = _bookModel()->plotIdxs(titleIdx);
+    if ( _bookModel()->isPlotLegendsSame(pageIdx)) {
+        QModelIndexList plotIdxs = _bookModel()->plotIdxs(pageIdx);
         QModelIndex curvesIdx = _bookModel()->getIndex(plotIdxs.at(0),
                                                        "Curves","Plot");
 
@@ -1009,7 +1009,7 @@ void BookIdxView::_paintCurvesLegend(const QRect& R,
         labels << "error";
     }
 
-    __paintCurvesLegend(R,pens,symbols,labels,painter);
+    __paintCurvesLegend(R,curvesIdx,pens,symbols,labels,painter);
 
     // Clean up
     foreach ( QPen* pen, pens ) {
@@ -1019,6 +1019,7 @@ void BookIdxView::_paintCurvesLegend(const QRect& R,
 
 // pens,symbols and labels are ordered/collated foreach legend curve/label
 void BookIdxView::__paintCurvesLegend(const QRect& R,
+                                      const QModelIndex &curvesIdx,
                                       const QList<QPen *> &pens,
                                       const QStringList &symbols,
                                       const QStringList &labels,
@@ -1063,8 +1064,12 @@ void BookIdxView::__paintCurvesLegend(const QRect& R,
     // Legend box
     QRect LegendBox(legendTopLeft,QSize(w,h));
 
+    // Background color
+    QModelIndex pageIdx = curvesIdx.parent().parent().parent();
+    QColor bg = _bookModel()->pageBackgroundColor(pageIdx);
+    bg.setAlpha(190);
+
     // Draw legend box with semi-transparent background
-    QColor bg(255,255,255,220);
     painter.setBrush(bg);
     QPen penGray(QColor(120,120,120,255));
     painter.setPen(penGray);

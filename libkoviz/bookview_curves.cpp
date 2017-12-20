@@ -115,7 +115,8 @@ QRectF CoordArrow::txtBoundingBox(const QPainter& painter,
     return bbox;
 }
 
-void CoordArrow::paintMe(QPainter &painter, const QTransform &T) const
+void CoordArrow::paintMe(QPainter &painter, const QTransform &T,
+                         const QColor& fg, const QColor& bg) const
 {
     // Save painter
     painter.save();
@@ -223,26 +224,30 @@ void CoordArrow::paintMe(QPainter &painter, const QTransform &T) const
     }
 
     // Draw circle around point
+    painter.setPen(fg);
+    painter.setBrush(bg);
     painter.drawEllipse(pt,qRound(r),qRound(r));
 
     // Draw arrow head (tip on circle, not on point)
     QPolygonF arrowHead(ptsArrowHead);
-    QBrush brush(painter.pen().color());
-    painter.setBrush(brush);
+    painter.setPen(fg);
+    painter.setBrush(fg);
     painter.drawConvexPolygon(arrowHead);
 
     // Draw arrow tail (attached to triangle)
     QPolygonF polyLine(ptsArrowTail);
+    painter.setPen(fg);
+    painter.setBrush(fg);
     painter.drawPolyline(polyLine);
 
-    // Draw background for text box (plain white for now)
-    painter.setPen(QPen(Qt::white));
-    painter.setBrush(QBrush(Qt::white));
+    // Draw background for text box
+    painter.setPen(bg);
+    painter.setBrush(bg);
     painter.drawRect(txtBox);
-    painter.setBrush(origBrush);
-    painter.setPen(origPen);
 
     // Draw coord text i.e. (x,y)
+    painter.setPen(fg);
+    painter.setBrush(bg);
     painter.drawText(txtBox,Qt::TextDontClip|Qt::AlignCenter,txt);
 
     // Restore painter
@@ -328,12 +333,10 @@ void CurvesView::paintEvent(QPaintEvent *event)
                                                            "Presentation");
         }
 
-        // Paint plot background white
-        QColor bg(255,255,255);
-        QBrush origBrush = painter.brush();
-        painter.setBrush(bg);
+        // Plot background
+        QModelIndex pageIdx = rootIndex().parent().parent();
+        QColor bg = _bookModel()->pageBackgroundColor(pageIdx);
         painter.fillRect(viewport()->rect(),bg);
-        painter.setBrush(origBrush);
 
         if ( plotPresentation == "compare" ) {
             _paintCoplot(T,painter,pen);
@@ -379,11 +382,10 @@ void CurvesView::_paintCoplot(const QTransform &T,QPainter &painter,QPen &pen)
     if ( currentIndex().isValid() && tag == "Curve" && gpidx == rootIndex()) {
 
         // Lighten unselected curves to semi-transparent bg
-        QColor bg(255,255,255,190);
-        QBrush origBrush = painter.brush();
-        painter.setBrush(bg);
+        QModelIndex pageIdx = rootIndex().parent().parent();
+        QColor bg = _bookModel()->pageBackgroundColor(pageIdx);
+        bg.setAlpha(190);
         painter.fillRect(viewport()->rect(),bg);
-        painter.setBrush(origBrush);
 
         // Paint curve (possibly with linestyle, symbols etc.)
         _paintCurve(currentIndex(),T,painter,true);
@@ -416,7 +418,13 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
         QColor color(_bookModel()->getDataString(curveIdx,
                                                  "CurveColor","Curve"));
         if ( isHighlight ) {
-            color = color.darker(200);
+            QModelIndex pageIdx = curveIdx.parent().parent().parent().parent();
+            QColor bg = _bookModel()->pageBackgroundColor(pageIdx);
+            if ( bg.lightness() < 128 ) {
+                color = color.lighter(120);
+            } else {
+                color = color.darker(200);
+            }
         }
         pen.setColor(color);
 
@@ -594,7 +602,10 @@ void CurvesView::_paintLiveCoordArrow(CurveModel *curveModel,
     }
 
     if ( isFits ) {
-        arrow.paintMe(painter,T);
+        QModelIndex pageIdx = rootIndex().parent().parent();
+        QColor bg = _bookModel()->pageBackgroundColor(pageIdx);
+        QColor fg = _bookModel()->pageForegroundColor(pageIdx);
+        arrow.paintMe(painter,T,fg,bg);
     }
 
     curveModel->unmap();
@@ -681,7 +692,10 @@ void CurvesView::_paintErrorLiveCoordArrow(QPainterPath* path,
     }
 
     if ( isFits ) {
-        arrow.paintMe(painter,T);
+        QModelIndex pageIdx = rootIndex().parent().parent();
+        QColor bg = _bookModel()->pageBackgroundColor(pageIdx);
+        QColor fg = _bookModel()->pageForegroundColor(pageIdx);
+        arrow.paintMe(painter,T,fg,bg);
     }
 
     painter.restore();
@@ -830,10 +844,13 @@ void CurvesView::dataChanged(const QModelIndex &topLeft,
 QPixmap* CurvesView::_createLivePixmap()
 {
     QPixmap* livePixmap = new QPixmap(viewport()->rect().size());
-    livePixmap->fill(Qt::white);
 
     QPainter painter(livePixmap);
     painter.setRenderHint(QPainter::Antialiasing);
+
+    QModelIndex pageIdx = rootIndex().parent().parent();
+    QColor bg = _bookModel()->pageBackgroundColor(pageIdx);
+    painter.fillRect(viewport()->rect(),bg);
 
     QTransform T = _coordToPixelTransform();
 

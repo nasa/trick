@@ -1366,3 +1366,43 @@ bool PlotBookModel::isPlotLegendsSame(const QModelIndex& pageIdx) const
 
     return ok;
 }
+
+// If PageBackgroundColor dne under pageIdx, returns white
+QColor PlotBookModel::pageBackgroundColor(const QModelIndex &pageIdx) const
+{
+    if ( !isIndex(pageIdx,"Page") ) {
+        fprintf(stderr, "koviz [bad scoobs]: "
+                "PlotBookModel::pageBackgroundColor() pageIdx is bad.\n");
+        exit(-1);
+    }
+
+    QString bgName("white");
+    if ( isChildIndex(pageIdx,"Page","PageBackgroundColor") ) {
+        QString bg = getDataString(pageIdx, "PageBackgroundColor", "Page");
+        if ( !bg.isEmpty() ) {
+            bgName = bg;
+        }
+    }
+
+    return QColor(bgName);
+}
+
+// If PageForegroundColor dne under pageIdx, returns black
+QColor PlotBookModel::pageForegroundColor(const QModelIndex &pageIdx) const
+{
+    if ( !isIndex(pageIdx,"Page") ) {
+        fprintf(stderr, "koviz [bad scoobs]: "
+                "PlotBookModel::pageForegroundColor() pageIdx is bad.\n");
+        exit(-1);
+    }
+
+    QString fgName("black");
+    if ( isChildIndex(pageIdx,"Page","PageForegroundColor") ) {
+        QString fg = getDataString(pageIdx, "PageForegroundColor", "Page");
+        if ( !fg.isEmpty() ) {
+            fgName = fg;
+        }
+    }
+
+    return QColor(fgName);
+}

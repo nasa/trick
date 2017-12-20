@@ -73,12 +73,13 @@ protected:
 
 protected:
     QStringList _pageTitles(const QModelIndex& titleIdx) const;
-    QRect _paintPageTitle(const QModelIndex &titleIdx, QPainter &painter);
+    QRect _paintPageTitle(const QModelIndex &pageIdx, QPainter &painter);
     QRect _paintPageLegend(const QRect& R,
                            const QModelIndex& curvesIdx, QPainter &painter);
     void _paintCurvesLegend(const QRect &R,
                             const QModelIndex& curvesIdx, QPainter &painter);
     void __paintCurvesLegend(const QRect &R,
+                             const QModelIndex& curvesIdx,
                              const QList<QPen*>& pens,
                              const QStringList& symbols,
                              const QStringList& labels,

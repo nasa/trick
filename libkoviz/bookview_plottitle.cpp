@@ -4,30 +4,10 @@ PlotTitleView::PlotTitleView(QWidget *parent) :
     BookIdxView(parent)
 {
     setFrameShape(QFrame::NoFrame);
-
-    _vBoxLayout = new QVBoxLayout;
-    _vBoxLayout->setContentsMargins(0,0,0,0);
-    _vBoxLayout->setSpacing(0);
-
-    _label = new QLabel(this);
-    _label->setText("No Model");
-    _label->setAlignment(Qt::AlignHCenter| Qt::AlignBottom);
-    _vBoxLayout->addWidget(_label);
-
-    setLayout(_vBoxLayout);
 }
 
 void PlotTitleView::_update()
 {
-    PlotBookModel* bookModel = _bookModel();
-
-    if ( !bookModel->isChildIndex(rootIndex(),"Plot","PlotTitle") ) {
-        return;
-    }
-
-    QString title = bookModel->getDataString(rootIndex(),"PlotTitle","Plot");
-
-    _label->setText(title);
 }
 
 
@@ -49,16 +29,6 @@ void PlotTitleView::dataChanged(const QModelIndex &topLeft,
 // TODO: only single append works
 void PlotTitleView::rowsInserted(const QModelIndex &pidx, int start, int end)
 {
-    if ( pidx != rootIndex() ) return;
-
-    for ( int i = start; i <= end; ++i ) {
-        QModelIndex idx = model()->index(i,0,pidx);
-        QString cText = model()->data(idx).toString();
-        if ( cText == "PlotTitle" ) {
-            _update();
-        }
-    }
-
     return;
 }
 
@@ -72,8 +42,39 @@ QSize PlotTitleView::sizeHint() const
 {
     QSize sz;
 
-    QFontMetrics fm = _label->fontMetrics();
-    QRect bb = fm.boundingRect(_label->text());
-    sz = bb.size();
+    if ( _bookModel()->isChildIndex(rootIndex(),"Plot","PlotTitle") ) {
+        QFontMetrics fm = fontMetrics();
+        QString s = _bookModel()->getDataString(rootIndex(),"PlotTitle","Plot");
+        QRect bb = fm.boundingRect(s);
+        sz = bb.size();
+    }
+
     return sz;
+}
+
+void PlotTitleView::paintEvent(QPaintEvent *event)
+{
+    Q_UNUSED(event);
+
+    if ( !model() ) return;
+
+    QPainter painter(viewport());
+
+    painter.save();
+    painter.setRenderHint(QPainter::Antialiasing);
+
+    QFont origFont = painter.font();
+    QPaintDevice* paintDevice = painter.device();
+    QRect R(0,0,paintDevice->width(),paintDevice->height());
+
+    QString s = _bookModel()->getDataString(rootIndex(),"PlotTitle","Plot");
+    QFontMetrics fm = painter.fontMetrics();
+    QRect bbox = fm.boundingRect(s);
+    int x = R.x() + R.width()/2 - bbox.width()/2;
+    int q = (R.height()-bbox.height())/2;
+    int y = R.y() + q + fm.ascent() - 1;
+    painter.drawText(x,y,s);
+
+    painter.setFont(origFont);
+    painter.restore();
 }

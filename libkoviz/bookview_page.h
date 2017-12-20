@@ -7,6 +7,7 @@
 #include <QItemSelectionModel>
 #include <QEvent>
 #include <QMouseEvent>
+#include <QPalette>
 
 #include "bookidxview.h"
 #include "bookview_pagetitle.h"
@@ -21,6 +22,7 @@ public:
     virtual void setRootIndex(const QModelIndex &index);
 
 protected:
+    virtual void paintEvent(QPaintEvent * event);
     virtual bool eventFilter(QObject *obj, QEvent *event);
 
 private:

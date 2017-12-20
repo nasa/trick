@@ -76,7 +76,8 @@ class CoordArrow
 
     QRectF boundingBox(const QPainter &painter, const QTransform &T) const;
     QRectF txtBoundingBox(const QPainter &painter, const QTransform &T) const;
-    void paintMe(QPainter &painter, const QTransform &T) const;
+    void paintMe(QPainter &painter, const QTransform &T,
+                 const QColor &fg, const QColor &bg) const;
 };
 
 class CurvesView : public BookIdxView
