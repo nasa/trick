@@ -1,6 +1,6 @@
 /*
 PURPOSE:
-	(Generate a LELF_HANDED quaternion using an Euler PITCH_ROLL_YAW sequence
+	(Generate a LEFT_HANDED quaternion using an Euler PITCH_ROLL_YAW sequence
          OR generate an Euler  PITCH_ROLL_YAW sequence using a quaternion.)
 
 PROGRAMMERS:
@@ -19,7 +19,7 @@ int euler213_quat(
     double *prev)	/*   In: r  Previous values of euler angles. */
 {
 
-   double haft_angle[3];
+   double half_angle[3];
    double mat00, mat01, mat10, mat11, mat20, mat21, mat22;
    double s1;
    double c1;
@@ -33,13 +33,13 @@ int euler213_quat(
 
    if (method == 0){
        /* Compute sines and cosines of 0.5*eulers */
-       V_SCALE(haft_angle, angle, 0.5);
-       s1 = sin(haft_angle[0]);
-       c1 = cos(haft_angle[0]);
-       s2 = sin(haft_angle[1]);
-       c2 = cos(haft_angle[1]);
-       s3 = sin(haft_angle[2]);
-       c3 = cos(haft_angle[2]);
+       V_SCALE(half_angle, angle, 0.5);
+       s1 = sin(half_angle[0]);
+       c1 = cos(half_angle[0]);
+       s2 = sin(half_angle[1]);
+       c2 = cos(half_angle[1]);
+       s3 = sin(half_angle[2]);
+       c3 = cos(half_angle[2]);
 
        quat[0] =  c1*c2*c3 + s1*s2*s3;
        quat[1] = -c1*s2*c3 - s1*c2*s3;
