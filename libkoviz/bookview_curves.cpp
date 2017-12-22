@@ -723,6 +723,47 @@ int CurvesView::_idxAtTimeBinarySearch(QPainterPath* path,
         }
 }
 
+void CurvesView::_keyPressPeriod()
+{
+    // If curve is selected
+    QModelIndex gpidx = currentIndex().parent().parent();
+    QString tag = model()->data(currentIndex()).toString();
+    if ( currentIndex().isValid() && tag == "Curve" && gpidx == rootIndex()) {
+
+        QModelIndex curveIdx = currentIndex();
+
+        CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
+        curveModel->map();
+
+        // Calculate liveCoord based on model liveCoordTime
+        double xs = _bookModel()->xScale(curveIdx);
+        double ys = _bookModel()->yScale(curveIdx);
+        double xb = _bookModel()->xBias(curveIdx);
+        double yb = _bookModel()->yBias(curveIdx);
+        QModelIndex liveIdx = _bookModel()->getDataIndex(QModelIndex(),
+                                                         "LiveCoordTime");
+        double liveTime = model()->data(liveIdx).toDouble();
+        int i = 0;
+        if ( curveModel->x()->name() == curveModel->t()->name() ) {
+            i = curveModel->indexAtTime((liveTime-xb)/xs);
+        } else {
+            // e.g. ball xy curve where x is position[0]
+            i = curveModel->indexAtTime(liveTime);
+        }
+        ModelIterator* it = curveModel->begin();
+        QPointF coord(it->at(i)->x()*xs+xb, it->at(i)->y()*ys+yb);
+        delete it;
+
+        QString x = _format(coord.x());
+        QString y = _format(coord.y());
+        fprintf(stderr,"coord=(%s,%s)\n",
+                       x.toLatin1().constData(),
+                       y.toLatin1().constData());
+
+        curveModel->unmap();
+    }
+}
+
 void CurvesView::_paintErrorplot(const QTransform &T,
                                  QPainter &painter, const QPen &pen,
                                  const QModelIndex& plotIdx)
@@ -1664,6 +1705,7 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
 void CurvesView::keyPressEvent(QKeyEvent *event)
 {
     switch (event->key()) {
+    case Qt::Key_Period: _keyPressPeriod();break;
     case Qt::Key_Space: _keyPressSpace();break;
     case Qt::Key_Up: _keyPressUp();break;
     case Qt::Key_Down: _keyPressDown();break;

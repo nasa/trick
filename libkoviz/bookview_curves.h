@@ -144,6 +144,7 @@ private:
     void _keyPressSpace();
     void _keyPressUp();
     void _keyPressDown();
+    void _keyPressPeriod();
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,
