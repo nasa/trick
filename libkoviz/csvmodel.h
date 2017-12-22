@@ -65,6 +65,8 @@ class CsvModel : public DataModel
     void _init();
     int _idxAtTimeBinarySearch (CsvModelIterator *it,
                                int low, int high, double time);
+
+    inline double _convert(const QString& s);
 };
 
 class CsvModelIterator : public ModelIterator

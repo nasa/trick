@@ -124,11 +124,11 @@ void CsvModel::_init()
         while (1) {
             int j = line.indexOf(',',from);
             if ( j < 0 ) {
-                _data[i] = line.mid(from,line.size()-from).toDouble();
+                _data[i] = _convert(line.mid(from,line.size()-from));
                 ++i;
                 break;
             }
-            _data[i] = line.mid(from,j-from).toDouble();
+            _data[i] = _convert(line.mid(from,j-from));
             from = j+1;
             ++i;
         }
@@ -215,6 +215,29 @@ int CsvModel::_idxAtTimeBinarySearch (CsvModelIterator* it,
                                                       mid+1, high, time);
                 }
         }
+}
+
+double CsvModel::_convert(const QString &s)
+{
+    double val = 0.0;
+
+    bool ok;
+    val = s.toDouble(&ok);
+    if ( !ok ) {
+        QStringList vals = s.split(":");
+        if (vals.length() == 3 ) {
+            // Try converting to a utc timestamp
+            val = 3600.0*vals.at(0).toDouble(&ok);
+            if ( ok ) {
+                val += 60.0*vals.at(1).toDouble(&ok);
+                if ( ok ) {
+                    val += vals.at(2).toDouble(&ok);
+                }
+            }
+        }
+    }
+
+    return val;
 }
 
 int CsvModel::rowCount(const QModelIndex &pidx) const
