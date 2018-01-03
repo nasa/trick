@@ -125,7 +125,11 @@ QModelIndex PlotBookModel::_pageIdx(const QModelIndex& idx) const
 
 QModelIndexList PlotBookModel::pageIdxs() const
 {
-    return getIndexList(QModelIndex(), "Page");
+    QModelIndexList idxs;
+    if ( isChildIndex(QModelIndex(),"","Pages") ) {
+        idxs = getIndexList(QModelIndex(), "Page");
+    }
+    return idxs;
 }
 
 QModelIndex PlotBookModel::_plotIdx(const QModelIndex &idx) const
@@ -595,10 +599,17 @@ QModelIndexList PlotBookModel::getIndexList(const QModelIndex &startIdx,
     return idxs;
 }
 
-bool PlotBookModel::isIndex(const QModelIndex &idx, const QString &itemText) const
+bool PlotBookModel::isIndex(const QModelIndex &idx, const QString &tag) const
 {
-    if ( !idx.isValid() ) return false;
-    return ( itemFromIndex(idx)->text() == itemText );
+    bool ret = false;
+
+    if ( !idx.isValid() && tag.isEmpty() && idx.model() != 0 ) {
+        ret = true;
+    } else if ( data(idx).toString() == tag ) {
+        ret = true;
+    }
+
+    return ret;
 }
 
 bool PlotBookModel::isChildIndex(const QModelIndex &pidx,
@@ -609,10 +620,10 @@ bool PlotBookModel::isChildIndex(const QModelIndex &pidx,
 
     if (!isIndex(pidx,expectedParentItemText)) return false;
 
-    int rc = itemFromIndex(pidx)->rowCount();
+    int rc = rowCount(pidx);
     for ( int i = 0; i < rc; ++i ) {
         QModelIndex cIdx = index(i,0,pidx);
-        QString cText = itemFromIndex(cIdx)->text();
+        QString cText = data(cIdx).toString();
         if ( cText == childItemText ) {
             isChild = true;
             break;

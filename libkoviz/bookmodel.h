@@ -40,8 +40,7 @@ public:
                             const QString& childTitle,
                             const QVariant &childValue=QVariant());
 
-    bool isIndex(const QModelIndex& idx,
-                  const QString& itemText) const;
+    bool isIndex(const QModelIndex& idx, const QString& tag) const;
 
     bool isChildIndex(const QModelIndex& pidx,
                       const QString &expectedParentItemText,
