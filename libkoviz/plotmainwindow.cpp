@@ -741,22 +741,16 @@ void PlotMainWindow::_clearTables()
 
 void PlotMainWindow::_startTimeChanged(double startTime)
 {
-    QModelIndex startIdx = _bookModel->getIndex(QModelIndex(),
-                                                "SessionStartTime");
-    if ( startIdx.isValid() ) {
-        QStandardItem* item = _bookModel->itemFromIndex(startIdx);
-        item->setData(startTime);
-    }
+    QModelIndex startTimeIdx = _bookModel->getDataIndex(QModelIndex(),
+                                                        "StartTime");
+    _bookModel->setData(startTimeIdx,startTime);
 }
 
 void PlotMainWindow::_stopTimeChanged(double stopTime)
 {
-    QModelIndex stopIdx = _bookModel->getIndex(QModelIndex(),
-                                               "SessionStopTime");
-    if ( stopIdx.isValid() ) {
-        QStandardItem* item = _bookModel->itemFromIndex(stopIdx);
-        item->setData(stopTime);
-    }
+    QModelIndex stopTimeIdx = _bookModel->getDataIndex(QModelIndex(),
+                                                       "StopTime");
+    _bookModel->setData(stopTimeIdx,stopTime);
 }
 
 void PlotMainWindow::_monteInputsHeaderViewClicked(int section)

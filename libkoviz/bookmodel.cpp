@@ -273,8 +273,6 @@ void PlotBookModel::_initModel()
     setColumnCount(2);
     QStandardItem *rootItem = invisibleRootItem();
 
-    addChild(rootItem, "SessionStartTime",-DBL_MAX);
-    addChild(rootItem, "SessionStopTime",DBL_MAX);
     addChild(rootItem, "Pages","");
     addChild(rootItem, "Tables","");
 }
@@ -339,36 +337,32 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
     }
 
     if ( !startIdx.isValid() ) {
-        if ( searchItemText == "SessionStartTime" ) {
+        if ( searchItemText == "Pages" ) {
             idx = index(0,0);
-        } else if ( searchItemText == "SessionStopTime" ) {
-            idx = index(1,0);
-        } else if ( searchItemText == "Pages" ) {
-            idx = index(2,0);
         } else if ( searchItemText == "Tables" ) {
-            idx = index(3,0);
+            idx = index(1,0);
         } else if ( searchItemText == "DefaultPageTitles" ) {
-            idx = index(4,0);
+            idx = index(2,0);
         } else if ( searchItemText == "LiveCoordTime" ) {
-            idx = index(5,0);
+            idx = index(3,0);
         } else if ( searchItemText == "StartTime" ) {
-            idx = index(6,0);
+            idx = index(4,0);
         } else if ( searchItemText == "StopTime" ) {
-            idx = index(7,0);
+            idx = index(5,0);
         } else if ( searchItemText == "Presentation" ) {
-            idx = index(8,0);
+            idx = index(6,0);
         } else if ( searchItemText == "IsShowLiveCoord" ) {
-            idx = index(9,0);
+            idx = index(7,0);
         } else if ( searchItemText == "RunToShiftHash" ) {
-            idx = index(10,0);
+            idx = index(8,0);
         } else if ( searchItemText == "LegendLabels" ) {
-            idx = index(11,0);
+            idx = index(9,0);
         } else if ( searchItemText == "Orientation" ) {
-            idx = index(12,0);
+            idx = index(10,0);
         } else if ( searchItemText == "TimeMatchTolerance" ) {
-            idx = index(13,0);
+            idx = index(11,0);
         } else if ( searchItemText == "Frequency" ) {
-            idx = index(14,0);
+            idx = index(12,0);
         } else {
             fprintf(stderr,"koviz [bad scoobs]:3: getIndex() received "
                            "root as a startIdx and had bad child "
