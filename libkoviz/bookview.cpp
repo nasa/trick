@@ -1064,6 +1064,9 @@ void BookView::_printCoplot(const QRect& R,
 {
     QTransform T = _coordToDotTransform(R,plotIdx);
 
+    double start = _bookModel()->getDataDouble(QModelIndex(),"StartTime");
+    double stop = _bookModel()->getDataDouble(QModelIndex(),"StopTime");
+
     QList<QPainterPath*> paths;
     QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
     int rc = model()->rowCount(curvesIdx);
@@ -1090,6 +1093,11 @@ void BookView::_printCoplot(const QRect& R,
 
             bool isFirst = true;
             while ( !it->isDone() ) {
+
+                if ( it->t() < start || it->t() > stop ) {
+                    it->next();
+                    continue;
+                }
 
                 QPointF p(it->x()*xs+xb,it->y()*ys+yb);
                 p = T.map(p);
@@ -1214,6 +1222,8 @@ void BookView::_printErrorplot(const QRect& R,
     }
 
     // Make list of scaled (e.g. unit) data points
+    double start = _bookModel()->getDataDouble(QModelIndex(),"StartTime");
+    double stop = _bookModel()->getDataDouble(QModelIndex(),"StopTime");
     QList<QPointF> pts;
     double k0 = _bookModel()->getDataDouble(curveIdx0,"CurveYScale","Curve");
     double k1 = _bookModel()->getDataDouble(curveIdx1,"CurveYScale","Curve");
@@ -1227,8 +1237,10 @@ void BookView::_printErrorplot(const QRect& R,
         double t0 = i0->t();
         double t1 = i1->t();
         if ( qAbs(t1-t0) < 0.000001 ) {
-            double d = ys0*i0->y() - ys1*i1->y();
-            pts << QPointF(t0,d);
+            if ( t0 >= start && t0 <= stop ) {
+                double d = ys0*i0->y() - ys1*i1->y();
+                pts << QPointF(t0,d);
+            }
             i0->next();
             i1->next();
         } else {

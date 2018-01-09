@@ -56,8 +56,58 @@ bool PlotBookModel::setData(const QModelIndex &idx,
                     delete currPath;
                     _curve2path.remove(curveModel);
                 }
-                QPainterPath* path = _createPainterPath(curveModel);
+                double start = getDataDouble(QModelIndex(),"StartTime");
+                double stop = getDataDouble(QModelIndex(),"StopTime");
+                QPainterPath* path = _createPainterPath(curveModel,start,stop);
                 _curve2path.insert(curveModel,path);
+            }
+        } else if ( tag == "StartTime" || tag == "StopTime") {
+            double start = -DBL_MAX;
+            double stop = DBL_MAX;
+            if ( tag == "StartTime" ) {
+                if ( isChildIndex(QModelIndex(),"","StopTime") ) {
+                    stop = getDataDouble(QModelIndex(),"StopTime");
+                }
+                bool ok = false;
+                start = value.toDouble(&ok);
+                if ( !ok ) {
+                    fprintf(stderr, "koviz [bad scoobs]: PlotBookModel::setData"
+                                    " bad value for start time\n");
+                    exit(-1);
+                }
+            } else if ( tag == "StopTime" ) {
+                if ( isChildIndex(QModelIndex(),"","StartTime") ) {
+                    start = getDataDouble(QModelIndex(),"StartTime");
+                }
+                bool ok = false;
+                stop = value.toDouble(&ok);
+                if ( !ok ) {
+                    fprintf(stderr, "koviz [bad scoobs]: PlotBookModel::setData"
+                                    " bad value for stop time\n");
+                    exit(-1);
+                }
+            } else {
+                fprintf(stderr, "koviz [bad scoobs]: "
+                                "PlotBookModel::setData()\n");
+                exit(-1);
+            }
+            QModelIndexList pages = pageIdxs();
+            foreach ( QModelIndex pageIdx, pages ) {
+                foreach ( QModelIndex plotIdx, plotIdxs(pageIdx) ) {
+                    QModelIndex curvesIdx = getIndex(plotIdx,"Curves","Plot");
+                    foreach ( QModelIndex curveIdx, curveIdxs(curvesIdx) ) {
+                        CurveModel* curveModel = getCurveModel(curveIdx);
+                        if ( _curve2path.contains(curveModel) ) {
+                            QPainterPath* currPath = _curve2path.value(
+                                                                    curveModel);
+                            delete currPath;
+                            _curve2path.remove(curveModel);
+                        }
+                        QPainterPath* path = _createPainterPath(curveModel,
+                                                                start,stop);
+                        _curve2path.insert(curveModel,path);
+                    }
+                }
             }
         }
     }
@@ -842,7 +892,8 @@ QRectF PlotBookModel::calcCurvesBBox(const QModelIndex &curvesIdx) const
 }
 
 // Note: No scaling, the path is straight from the logged data
-QPainterPath* PlotBookModel::_createPainterPath(CurveModel *curveModel)
+QPainterPath* PlotBookModel::_createPainterPath(CurveModel *curveModel,
+                                               double startTime,double stopTime)
 {
     QPainterPath* path = new QPainterPath;
 
@@ -851,8 +902,6 @@ QPainterPath* PlotBookModel::_createPainterPath(CurveModel *curveModel)
     ModelIterator* it = curveModel->begin();
 
     double f = getDataDouble(QModelIndex(),"Frequency");
-    double start = getDataDouble(QModelIndex(),"StartTime");
-    double stop = getDataDouble(QModelIndex(),"StopTime");
     bool isFirst = true;
     while ( !it->isDone() ) {
         double t = it->t();
@@ -862,7 +911,7 @@ QPainterPath* PlotBookModel::_createPainterPath(CurveModel *curveModel)
                 continue;
             }
         }
-        if ( t >= start && t <= stop ) {
+        if ( t >= startTime && t <= stopTime ) {
             if ( isFirst ) {
                 path->moveTo(it->x(),it->y());
                 isFirst = false;

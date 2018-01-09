@@ -125,7 +125,8 @@ private:
                         const QString &expectedStartIdxText=QString()) const;
 
     QHash<CurveModel*,QPainterPath*> _curve2path;
-    QPainterPath* _createPainterPath(CurveModel *curveModel);
+    QPainterPath* _createPainterPath(CurveModel *curveModel,
+                                     double startTime, double stopTime);
     QPainterPath* _createCurvesErrorPath(const QModelIndex& curvesIdx) const;
 
     QString _commonRootName(const QStringList& names, const QString& sep) const;

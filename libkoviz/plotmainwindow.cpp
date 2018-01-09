@@ -177,7 +177,6 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
     }
 
     // Start/Stop times input
-#ifdef TODO
     RangeInput* rangeInput = new RangeInput(this);
     QSizePolicy sp(QSizePolicy::Preferred,QSizePolicy::Preferred);
     rangeInput->setSizePolicy(sp);
@@ -188,9 +187,6 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
             this, SLOT(_startTimeChanged(double)));
     connect(rangeInput,SIGNAL(maxChanged(double)),
             this, SLOT(_stopTimeChanged(double)));
-#endif
-
-
 
     // Size main window
     QList<int> sizes;
@@ -744,6 +740,16 @@ void PlotMainWindow::_startTimeChanged(double startTime)
     QModelIndex startTimeIdx = _bookModel->getDataIndex(QModelIndex(),
                                                         "StartTime");
     _bookModel->setData(startTimeIdx,startTime);
+
+    QModelIndexList pageIdxs = _bookModel->pageIdxs();
+    foreach ( QModelIndex pageIdx, pageIdxs ) {
+        foreach ( QModelIndex plotIdx, _bookModel->plotIdxs(pageIdx) ) {
+            QModelIndex curvesIdx = _bookModel->getIndex(plotIdx,
+                                                         "Curves","Plot");
+            QRectF bbox = _bookModel->calcCurvesBBox(curvesIdx);
+            _bookModel->setPlotMathRect(bbox,plotIdx);
+        }
+    }
 }
 
 void PlotMainWindow::_stopTimeChanged(double stopTime)
@@ -751,6 +757,16 @@ void PlotMainWindow::_stopTimeChanged(double stopTime)
     QModelIndex stopTimeIdx = _bookModel->getDataIndex(QModelIndex(),
                                                        "StopTime");
     _bookModel->setData(stopTimeIdx,stopTime);
+
+    QModelIndexList pageIdxs = _bookModel->pageIdxs();
+    foreach ( QModelIndex pageIdx, pageIdxs ) {
+        foreach ( QModelIndex plotIdx, _bookModel->plotIdxs(pageIdx) ) {
+            QModelIndex curvesIdx = _bookModel->getIndex(plotIdx,
+                                                         "Curves","Plot");
+            QRectF bbox = _bookModel->calcCurvesBBox(curvesIdx);
+            _bookModel->setPlotMathRect(bbox,plotIdx);
+        }
+    }
 }
 
 void PlotMainWindow::_monteInputsHeaderViewClicked(int section)
