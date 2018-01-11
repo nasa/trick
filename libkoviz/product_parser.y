@@ -8,11 +8,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <vector>
-#include <string>
 #include <QString>
-#include <stdexcept>
-using namespace std ;
 
 extern int yylex(void);
 extern int yylineno;
@@ -28,7 +24,8 @@ void yyerror(const char *str)
     msg += "  Error found in file: " + dpFileName() + "\n";
     msg += "  Error found on line: " + QString("%1").arg(yylineno) + "\n";
     msg += "      Last Token Read: " + QString(yytext) + "\n";
-    throw std::runtime_error(msg.toLatin1().constData());
+    fprintf(stderr, "%s\n",msg.toLatin1().constData());
+    exit(-1);
 }
 
 int yywrap()
