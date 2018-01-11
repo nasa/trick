@@ -8,7 +8,8 @@ QTextStream DPProduct::_err_stream(&DPProduct::_err_string);
 
 DPProduct::DPProduct(const QString &fileName) :
     _fileName(fileName),
-    _doc(0)
+    _doc(0),
+    _program(new DPProgram)
 {
     QFileInfo finfo(fileName);
 
@@ -52,6 +53,10 @@ DPProduct::~DPProduct()
         }
     }
     _tables.clear();
+
+    if ( _program ) {
+        delete _program;
+    }
 }
 
 QString DPProduct::title()
@@ -62,18 +67,18 @@ QString DPProduct::title()
 void DPProduct::_handleDP05File(QString &contents)
 {
     // Remove all characters up to PLOTS: or TABLES: key word
-    int i = -1;
-    int j = contents.indexOf("PLOTS:",0,Qt::CaseInsensitive);
-    int k = contents.indexOf("TABLES:",0,Qt::CaseInsensitive);
-    if ( j >= 0 && k >= 0 ) {
-        i = ( j < k ) ? j : k;
-    } else if ( j >= 0 && k < 0 ) {
-        i = j;
-    } else if ( k >= 0 && j < 0 ) {
-        i = k;
+    QStringList keywords;
+    keywords << "PLOTS:" << "TABLES:" << "PROGRAM:";
+    int i = INT_MAX;
+    foreach (QString keyword, keywords) {
+        int j = contents.indexOf(keyword,0,Qt::CaseInsensitive);
+        if ( j >= 0 && j < i ) {
+            i = j;
+        }
     }
-    if ( i == -1 ) {
-        fprintf(stderr,"koviz [error]: no PLOTS: or TABLES: in %s\n",
+    if ( i == INT_MAX ) {
+        fprintf(stderr,"koviz [error]: no PLOTS: or TABLES: "
+                       "or PROGRAM: keywords in %s\n",
                 _fileName.toLatin1().constData());
         exit(-1);
     }

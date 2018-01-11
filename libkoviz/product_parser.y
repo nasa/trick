@@ -103,31 +103,25 @@ statements:
         ;
 
 program: DP_PROGRAM ':' DP_STR {
-                // DP_STR is program name
-                //product->addProgram($3);
-                msg("product->addProgram() unsupported");
+                product->program()->setFileName($3);
         }
         | program program_input
         | program program_output
         ;
 
 program_input: DP_PROGRAM_IN ':' DP_STR {
-                //product->addProgramInput($3);
-                msg("product->addProgramInput() unsupported");
+                product->program()->addInput($3);
         }
         | program_input DP_STR {
-                //product->addProgramInput($2);
-                msg("product->addProgramInput() unsupported");
+                product->program()->addInput($2);
         }
         ;
 
 program_output: DP_PROGRAM_OUT ':' DP_STR {
-                //product->addProgramOutput($3);
-                msg("product->addProgramOutput() unsupported");
+                product->program()->addOutput($3);
         }
         | program_output DP_STR {
-                //product->addProgramOutput($2);
-                msg("product->addProgramOutput() unsupported");
+                product->program()->addOutput($2);
         }
         ;
 

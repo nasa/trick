@@ -13,10 +13,29 @@
 #include <QHash>
 #include <stdexcept>
 #include <float.h>
+#include <limits.h>
 
 #include "product_lexer.h"
 #include "product_parser.h"
 extern int yyparse(void);
+
+class DPProgram
+{
+  public:
+    DPProgram() {}
+    QString fileName() const {return _fileName; }
+    QStringList inputs() const {return _inputs; }
+    QStringList outputs() const {return _outputs; }
+
+    void setFileName(const QString& fileName) { _fileName = fileName; }
+    void addInput(const QString& input) { _inputs << input;}
+    void addOutput(const QString& output) { _outputs << output; }
+
+  private:
+    QString _fileName;
+    QStringList _inputs;
+    QStringList _outputs;
+};
 
 class DPVar
 {
@@ -251,9 +270,12 @@ public:
     static QStringList paramList(const QString& fileName);
     static QStringList paramList(const QStringList& dpFileNames);
 
+    DPProgram* program() { return _program; }
+
 private:
     QString _fileName;
     QDomDocument* _doc;
+    DPProgram* _program;
     QString _title;
     QList<DPPage*> _pages;
     QList<DPTable*> _tables;
