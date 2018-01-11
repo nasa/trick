@@ -127,29 +127,14 @@ if ( $help ) {
 
 @include_dirs = $ENV{"TRICK_CFLAGS"} =~ /-I\s*(\S+)/g ; # get include paths from TRICK_CFLAGS
 
-@exclude_paths = map abs_path($_), split /:/ , $ENV{"TRICK_EXCLUDE"} ;
-if (scalar @exclude_paths) {
-    @exclude_paths = sort(@exclude_paths );
-    # Error check - delete any element that is null
-    # (note: sort forced all blank names to front of array
-    @exclude_paths = map { s/(^\s+|\s+$)//g ; $_ } @exclude_paths ;
-    while ( not length @exclude_paths[0] ) {
-        # Delete an element from the left side of an array (element zero)
-        shift @exclude_paths ;
-    }
+# Get environment variables, split on colons, strip leading/trailing whitespace, remove empty elements, get absolute paths
+sub get_paths {
+    return map abs_path($_), grep { $_ ne '' } map { s/(^\s+|\s+$)//g ; $_ } split /:/, $ENV{$_[0]} ;
 }
-@swig_exclude_paths = map abs_path($_), split /:/ , $ENV{"TRICK_SWIG_EXCLUDE"} ;
-if (scalar @swig_exclude_paths) {
-    @swig_exclude_paths = sort(@swig_exclude_paths );
-    # Error check - delete any element that is null
-    # (note: sort forced all blank names to front of array
-    @swig_exclude_paths = map { s/(^\s+|\s+$)//g ; $_ } @swig_exclude_paths ;
-    while ( not length @swig_exclude_paths[0] ) {
-        # Delete an element from the left side of an array (element zero)
-        shift @swig_exclude_paths ;
-    }
-}
-@ext_lib_paths = map abs_path($_), split /:/ , $ENV{"TRICK_EXT_LIB_DIRS"} ;
+@exclude_paths      = get_paths( "TRICK_EXCLUDE") ;
+@swig_exclude_paths = get_paths( "TRICK_SWIG_EXCLUDE") ;
+@ext_lib_paths      = get_paths( "TRICK_EXT_LIB_DIRS") ;
+
 @defines = $ENV{"TRICK_CFLAGS"} =~ /(-D\S+)/g ;       # get defines from TRICK_CFLAGS
 if ( $ENV{"TRICK_CFLAGS"} !~ /DTRICK_VER=/ ) {
     push @defines , "-DTRICK_VER=$year" ;
