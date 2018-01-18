@@ -155,8 +155,8 @@ ifeq ($(findstring ${MAKECMDGOALS},$(CLEAN_TARGETS)),)
 -include build/Makefile_swig_deps
 -include build/Makefile_ICG
 endif
--include S_overrides.mk
 -include build/Makefile_overrides
+-include S_overrides.mk
 
 ifeq ($(MAKECMDGOALS),)
     $(info $(call COLOR,Building with the following compilation flags:))
