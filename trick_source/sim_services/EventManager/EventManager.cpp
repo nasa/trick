@@ -178,6 +178,10 @@ int Trick::EventManager::remove_event(Trick::Event * in_event) {
 
     unsigned int ii , jj ;
 
+    if ( ! in_event ) {
+        return 0 ;
+    }
+
     if ( in_event->get_before_after() == Trick::EVENT_NOTARGET ) {
         /* If the event is cyclic, remove the event from the event processor on the event's thread */
         event_processors[in_event->get_thread()]->remove_event(in_event) ;
