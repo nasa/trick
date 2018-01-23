@@ -24,7 +24,8 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
+import javax.sound.sampled.*;
+import java.net.URL;
 /**
  *
  * @author penn
@@ -531,7 +532,7 @@ class TrickSimMode {
 }
 
 public class CannonDisplay extends JFrame {
-       
+
     private RangeView rangeView;
     private ElevationPanel elevPanel;
     private MuzzleVelPanel velPanel;
@@ -541,6 +542,34 @@ public class CannonDisplay extends JFrame {
     private JPanel panelGroup1;
     private ButtonPanel buttonPanel;
 
+    public enum SoundEffect {
+        EXPLOSION("Explosion.wav"),
+        CANNONBOOM("CannonBoom.wav");
+   
+        private Clip clip;
+   
+        SoundEffect(String soundFileName) {
+            try {
+            URL url = this.getClass().getClassLoader().getResource(soundFileName);
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(url);
+            clip = AudioSystem.getClip();
+            clip.open(audioInputStream);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+   
+        public void play() {
+            if (clip.isRunning()) clip.stop(); 
+            clip.setFramePosition(0);
+            clip.start();
+        }
+   
+        static void init() {
+            values();
+        }
+    }
+       
     public CannonDisplay(RangeView arena) {
         setTitle("Cannon Range");
 
@@ -570,6 +599,8 @@ public class CannonDisplay extends JFrame {
         setSize(800, 500);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        SoundEffect.init();
     }
 
     public int getBarrelAngle() {
@@ -654,6 +685,7 @@ public class CannonDisplay extends JFrame {
 
         String host = "localHost";
         int port = 0;
+        boolean boom = false;
 
         // ==========================================================
         // Handle program arguments.
@@ -771,21 +803,18 @@ public class CannonDisplay extends JFrame {
             }
 
             if (simMode == TrickSimMode.RUN) {
-                  evd.resetFireCommand();
+                if (boom) {
+                    SoundEffect.CANNONBOOM.play();
+                    boom = false;
+                }
             }
 
             // Update the display data.
             evd.setCannonBallPos(posx, posy);
             evd.setCannonBallVel(velx, vely);
 
-            // Get inputs from the GUI.
-            angle = evd.getBarrelAngle();
-            speed = evd.getMuzzleVelocity();
-            armCommand  = evd.getArmCommand();
-            fireCommand = evd.getFireCommand();
-
             if (simMode == TrickSimMode.FREEZE) {
-                if (armCommand) {
+                if (evd.getArmCommand()) {
                     evd.out.writeBytes( String.format("dyn.cannon.pos[0] = %.2f ;\n", -0.1020 ));
                     evd.out.writeBytes( String.format("dyn.cannon.pos[1] = %.2f ;\n",  0.9400 ));
                     evd.out.writeBytes( String.format("dyn.cannon.vel[0] = %.2f ;\n",  0.0000 ));
@@ -794,7 +823,9 @@ public class CannonDisplay extends JFrame {
                     evd.resetArmCommand();
                 }
 
-                if (fireCommand) {
+                if (evd.getFireCommand()) {
+                    angle = evd.getBarrelAngle();
+                    speed = evd.getMuzzleVelocity();
                     evd.out.writeBytes( String.format("dyn.cannon.init_angle = %.2f ;\n", Math.toRadians(angle)));
                     evd.out.writeBytes( String.format("dyn.cannon.init_speed = %.2f;\n", speed ));
                     evd.out.writeBytes( String.format("dyn.cannon.pos0[0] = %.2f ;\n", -0.1020 ));
@@ -802,8 +833,9 @@ public class CannonDisplay extends JFrame {
                     evd.out.writeBytes( String.format("dyn.cannon.time = %.2f ;\n",  0.0 ));
                     evd.out.writeBytes( String.format("trick.cannon_init( dyn.cannon );\n" ));
                     evd.out.writeBytes( String.format("trick.exec_run();\n" ));
-                    evd.resetFireCommand();
                     evd.out.flush();
+                    evd.resetFireCommand();
+                    boom = true;
                 }
             }
 
@@ -823,6 +855,7 @@ public class CannonDisplay extends JFrame {
                         exticks = 0;
                         evd.setExplosionPos(posx, posy);
                         explosionModelState = ModelState.ACTIVE;
+                        SoundEffect.EXPLOSION.play();
                     }
                     break; 
                 case ACTIVE:
