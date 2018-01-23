@@ -158,10 +158,12 @@ endif
 -include build/Makefile_overrides
 -include S_overrides.mk
 
+ifndef MAKE_RESTARTS
 ifeq ($(MAKECMDGOALS),)
     $(info $(call COLOR,Building with the following compilation flags:))
     $(info TRICK_CFLAGS   = [36m$(TRICK_CFLAGS)[0m)
     $(info TRICK_CXXFLAGS = [36m$(TRICK_CXXFLAGS)[0m)
+endif
 endif
 
 else
