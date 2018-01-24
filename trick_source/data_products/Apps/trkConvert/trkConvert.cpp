@@ -6,6 +6,7 @@
 #include <exception>
 #include <string>
 #include <stdlib.h>
+#include <cstring>
 
 #include "LogFormatter.hh"
 #include "CSV_Formatter.hh"
