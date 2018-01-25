@@ -128,6 +128,10 @@ bool FieldVisitor::VisitBuiltinType(clang::BuiltinType *bt) {
 bool FieldVisitor::VisitConstantArrayType(clang::ConstantArrayType *cat) {
     //cat->dump() ; std::cout << std::endl ;
     fdes->addArrayDim(cat->getSize().getZExtValue()) ;
+    // If this field is an arrayed STL, skip it!
+    if ( fdes->isSTL() ) {
+        fdes->setIO(0) ;
+    }
     return true;
 }
 
@@ -249,6 +253,10 @@ bool FieldVisitor::VisitFieldDecl( clang::FieldDecl *field ) {
 
 bool FieldVisitor::VisitPointerType(clang::PointerType *p) {
     fdes->addArrayDim(-1) ;
+    // If this field is a pointer to an STL, skip it!
+    if ( fdes->isSTL() ) {
+        fdes->setIO(0) ;
+    }
     return true;
 }
 
