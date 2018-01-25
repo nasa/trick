@@ -15,6 +15,7 @@
 #include "bookmodel.h"
 #include "utils.h"
 #include "monteinputsview.h"
+#include "programmodel.h"
 
 // This class introduced to fix Qt bug:
 // https://codereview.qt-project.org/#/c/65171/3
@@ -69,6 +70,7 @@ private:
     DPFilterProxyModel* _dpFilterModel;
     QFileSystemModel* _dpModel ;
     QModelIndex _dpModelRootIdx;
+    QList<ProgramModel*> _programModels;
 
     void _setupModel();
     void _createDP(const QString& dpfile);
@@ -77,7 +79,7 @@ private:
     QStandardItem* _addChild(QStandardItem* parentItem,
                    const QString& childTitle,
                    const QVariant &childValue=QVariant());
-    void _addCurve(QStandardItem* curvesItem, DPCurve* dpcurve,
+    void _addCurve(QStandardItem* curvesItem, DPCurve* dpcurve, DPProgram *dpprogram,
                    MonteModel* monteModel, int runId, const QString &defaultColor);
     bool _isDP(const QString& fp);
     QString _descrPlotTitle(DPPlot* plot);

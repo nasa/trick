@@ -102,6 +102,11 @@ DPTreeWidget::~DPTreeWidget()
     if ( _dpFilterModel ) {
         delete _dpFilterModel;
     }
+
+    foreach ( ProgramModel* program, _programModels ) {
+        delete program;
+    }
+    _programModels.clear();
 }
 
 //
@@ -265,6 +270,9 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
     DPProduct dp(dpfile);
     int rc = _monteModel->rowCount();
 
+    // Program
+    DPProgram* dpprogram = dp.program();
+
     // Pages
     QModelIndex pagesIdx = _bookModel->getIndex(QModelIndex(), "Pages");
     QStandardItem *pagesItem = _bookModel->itemFromIndex(pagesIdx);
@@ -357,7 +365,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                     } else {
                         color = colors.at(colorId++).name();
                     }
-                    _addCurve(curvesItem, dpcurve, _monteModel, r, color);
+                    _addCurve(curvesItem, dpcurve, dpprogram, _monteModel, r, color);
 #ifdef __linux
                     int secs = qRound(timer.stop()/1000000.0);
                     div_t d = div(secs,60);
@@ -538,7 +546,9 @@ QStandardItem *DPTreeWidget::_addChild(QStandardItem *parentItem,
 }
 
 void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
-                             DPCurve *dpcurve, MonteModel *monteModel,
+                             DPCurve *dpcurve,
+                             DPProgram *dpprogram,
+                             MonteModel *monteModel,
                              int runId, const QString& defaultColor)
 {
     // Curve
@@ -566,9 +576,52 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
         }
 
         curveModel = monteModel->curve(runId, _timeName, xName, yName);
+
         if ( !curveModel ) {
+
+            QString outputCurveName;
+            foreach ( QString out, dpprogram->outputs() ) {
+                if ( out == yName ) {
+                    outputCurveName = yName;
+                    break;
+                }
+            }
+
+            if ( !outputCurveName.isEmpty() ) {
+
+                bool isInput = true;
+                QList<CurveModel*> inputCurves;
+                foreach ( QString inputName, dpprogram->inputs() ) {
+                    CurveModel* inputCurve = monteModel->curve(runId,
+                                                               _timeName,
+                                                               _timeName,
+                                                               inputName);
+                    if ( inputCurve ) {
+                        inputCurves << inputCurve;
+                    } else {
+                        isInput = false;
+                        break;
+                    }
+                }
+
+                if ( isInput ) {
+                    QStringList timeNames;
+                    timeNames << _timeName;
+                    ProgramModel* programModel = new ProgramModel(inputCurves,
+                                                         dpprogram->outputs(),
+                                                         timeNames,
+                                                         dpprogram->fileName());
+                    _programModels << programModel;
+                    int ycol = programModel->paramColumn(outputCurveName);
+                    curveModel = new CurveModel(programModel,0,0,ycol);
+                }
+            }
+        }
+
+        if ( !curveModel ) {
+
             QString runDir = monteModel->
-                                headerData(runId,Qt::Vertical).toString();
+                                      headerData(runId,Qt::Vertical).toString();
             _err_stream << "koviz [error]: could not find parameter: \n\n"
                         << "        " << "("
                         << _timeName << " , "
@@ -577,7 +630,9 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
                         << "\n\nin RUN:\n\n "
                         << "         "
                         << runDir ;
-            throw std::runtime_error(_err_string.toLatin1().constData());
+            fprintf(stderr, "koviz [error]: %s\n",
+                           _err_string.toLatin1().constData());
+            exit(-1);
         }
     } else {
 
