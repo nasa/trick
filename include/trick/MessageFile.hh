@@ -59,7 +59,7 @@ namespace Trick {
              @brief Initializes this subscriber.
              @return always 0
              */
-            int init() ;
+            virtual int init() ;
 
         protected:
             /** The output file stream. \n */

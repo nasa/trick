@@ -115,6 +115,7 @@
 #include "trick/AttributesMap.hh"
 #include "trick/sie_c_intf.h"
 #include "trick/MessageCout.hh"
+#include "trick/MessageThreadedCout.hh"
 #include "trick/MessageFile.hh"
 #include "trick/MessageLCout.hh"
 #include "trick/MessagePublisher.hh"

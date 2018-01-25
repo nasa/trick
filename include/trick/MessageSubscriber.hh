@@ -46,6 +46,11 @@ namespace Trick {
             virtual ~MessageSubscriber() {} ;
 
             /**
+             @brief Initializes the subscriber
+             */
+            virtual int init() { return 0 ; } ;
+
+            /**
              @brief Get a message and send to output. This gets called every time when the message publisher
              that this subscriber subscribes to publishes a message. Actual output done in the derived class.
              @param level - received message level
@@ -53,6 +58,11 @@ namespace Trick {
              @param message - received message text
              */
             virtual void update( unsigned int level , std::string header, std::string message ) = 0 ;
+
+            /**
+             @brief Shutdown the subscriber
+             */
+            virtual int shutdown() { return 0 ; } ;
 
     } ;
 
