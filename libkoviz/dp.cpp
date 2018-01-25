@@ -627,9 +627,29 @@ DPCurve::DPCurve(const QDomElement &e) : _t(0), _x(0), _y(0)
 
 DPCurve::~DPCurve()
 {
-    if ( _t ) delete _t;
-    if ( _x ) delete _x;
-    if ( _y ) delete _y;
+    if ( _t ) {
+        if ( _t == _x ) {
+            _x = 0;
+        }
+        if ( _t == _y ) {
+            _y = 0;
+        }
+        delete _t;
+        _t = 0;
+    }
+
+    if ( _x ) {
+        if ( _x == _y ) {
+            _y = 0;
+        }
+        delete _x;
+        _x = 0;
+    }
+
+    if ( _y ) {
+        delete _y;
+        _y = 0;
+    }
 }
 
 DPVar *DPCurve::setXVarName(const char *name)
