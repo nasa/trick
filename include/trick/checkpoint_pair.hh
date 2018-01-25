@@ -38,17 +38,21 @@ int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name
     var_declare << type_string << " "
      << object_name << "_" << var_name << "_first[1]" ;
     first = (FIRST *)TMM_declare_var_s(var_declare.str().c_str()) ;
-    TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_first").c_str()) ;
-    first[0] = in_pair.first ;
+    if ( first ) {
+        TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_first").c_str()) ;
+        first[0] = in_pair.first ;
 
-    var_declare.str("") ;
-    var_declare.clear() ;
-    type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*second).name(), 0, 0, &status )) ;
-    var_declare << type_string << " "
-     << object_name << "_" << var_name << "_second[1]" ;
-    second = (SECOND *)TMM_declare_var_s(var_declare.str().c_str()) ;
-    TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_second").c_str()) ;
-    second[0] = in_pair.second ;
+        var_declare.str("") ;
+        var_declare.clear() ;
+        type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*second).name(), 0, 0, &status )) ;
+        var_declare << type_string << " "
+         << object_name << "_" << var_name << "_second[1]" ;
+        second = (SECOND *)TMM_declare_var_s(var_declare.str().c_str()) ;
+        if ( second ) {
+            TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_second").c_str()) ;
+            second[0] = in_pair.second ;
+        }
+    }
 
     return 0 ;
 }
@@ -69,16 +73,20 @@ int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name
     var_declare << type_string << " "
      << object_name << "_" << var_name << "_first[1]" ;
     first = (FIRST *)TMM_declare_var_s(var_declare.str().c_str()) ;
-    TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_first").c_str()) ;
-    first[0] = in_pair.first ;
+    if ( first ) {
+        TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_first").c_str()) ;
+        first[0] = in_pair.first ;
 
-    var_declare.str("") ;
-    var_declare.clear() ;
-    var_declare << "std::string "
-     << object_name << "_" << var_name << "_second[1]" ;
-    second = (std::string *)TMM_declare_var_s(var_declare.str().c_str()) ;
-    TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_second").c_str()) ;
-    checkpoint_stl( in_pair.second , object_name + "_" + var_name , "second"  ) ;
+        var_declare.str("") ;
+        var_declare.clear() ;
+        var_declare << "std::string "
+         << object_name << "_" << var_name << "_second[1]" ;
+        second = (std::string *)TMM_declare_var_s(var_declare.str().c_str()) ;
+        if ( second ) {
+            TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_second").c_str()) ;
+            checkpoint_stl( in_pair.second , object_name + "_" + var_name , "second"  ) ;
+        }
+    }
 
     return 0 ;
 }
