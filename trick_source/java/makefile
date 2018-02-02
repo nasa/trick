@@ -4,7 +4,7 @@ TRICK_HOME := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))../..)
 include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 JAVAC ?= javac
-JAVAC_FLAGS = -g -Xlint:unchecked -Xlint:deprecation
+JAVAC_FLAGS = -g -Xlint:unchecked -Xlint:deprecation --add-modules java.se.ee,java.desktop
 
 SRC_DIR   = src
 SRC_FILES = $(shell find ${SRC_DIR} -type f -name \*.java)
