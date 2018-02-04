@@ -80,6 +80,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+int trick_test_enable() ;
+
+int trick_test_set_file_name( const char * in_file_name ) ;
+
+int trick_test_set_test_name( const char * in_test_name ) ;
+
 int trick_test_add_parent(const char * in_test_suite_name,
                           const char * in_test_case,
                           const char * par_num ) ;
