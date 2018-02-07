@@ -1,6 +1,4 @@
-
-% qmake --version ; # Use qt4, e.g. /usr/lib64/qt4/bin/qmake
-% qmake      
+% qmake-qt5  
 % make
-% bin/snap                    ; # for usage
-% bin/snap RUN_dir|MONTE_dir  ; # View trick run or monte carlo data
+% bin/koviz                    ; # for usage
+% bin/koviz RUN_dir|MONTE_dir  ; # View trick run or monte carlo data
