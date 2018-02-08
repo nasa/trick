@@ -489,7 +489,7 @@ int Trick::RealtimeSync::shutdown() {
     os << "\n" <<
      "     REALTIME SHUTDOWN STATS:\n" ;
     if ( active ) {
-        os << "     REALTIME TOTAL OVERRUNS: " << std::setw(12) << frame_overrun_cnt << "\n" ;
+        os << "     REALTIME TOTAL OVERRUNS: " << std::setw(12) << total_overrun << "\n" ;
     }
     if ( sim_end_init_time != 0 ) {
         double init_time = (sim_end_init_time - sim_start_time) / (double)default_clock->clock_tics_per_sec ;
