@@ -97,7 +97,7 @@ def main():
      test_suite , "2D array, single assign, no units" )
 
     ball.obj.daa[0] = trick.attach_units( "lbm",[ 4.0, 5.0, 6.0])
-    TRICK_EXPECT_EQ( str(ball.obj.daa[0]) , "[1.814369479104077 kg, 2.267961848880096 kg, 2.721554218656115 kg]",
+    TRICK_EXPECT_EQ( str(ball.obj.daa[0]) , "[1.81436948 kg, 2.26796185 kg, 2.72155422 kg]",
      test_suite , "2D array, single single row assignment with units conversion" )
 
     TRICK_EXPECT_EQ( str(ball.obj.dap) , "[NULL, NULL, NULL, NULL]", test_suite , "2D array of ptr, initial value" )
@@ -116,7 +116,7 @@ def main():
     ball.obj.dap[3][1] = 75
     ball.obj.dap[3][3] = trick.attach_units("lbm", float(ball.obj.dap[3][3]) + 1.0)
 
-    TRICK_EXPECT_EQ( str(ball.obj.dap[3]) , "[60 kg, 75 kg, 62 kg, 29.02991166566523 kg]",
+    TRICK_EXPECT_EQ( str(ball.obj.dap[3]) , "[60 kg, 75 kg, 62 kg, 29.02991168 kg]",
      test_suite , "2D array of ptr, single item assignment with unit conversion" )
 
     ball.obj.dpp = trick.TMM_declare_var_s("double *[4]")
