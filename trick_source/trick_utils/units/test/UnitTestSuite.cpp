@@ -2,7 +2,7 @@
 #include <gtest/gtest.h>
 #include "../include/Unit.hh"
 #include <math.h>
-#include "trick_utils/reqs/include/RequirementScribe.hh"
+//#include "trick_utils/reqs/include/RequirementScribe.hh"
 
 /*********************FIXME**********************************************************************************
  * 1. The behavior of the conversion between composite units containing
@@ -41,7 +41,7 @@
 * **********************************************************************************************************/
 
 
-#define TOL 1e-13
+#define TOL 1e-7
 #define PI 3.14159265358979323846
 
 namespace Trick {
@@ -61,6 +61,7 @@ double tolerance(int exp)
  * cause an error
 **********************************************************************/
 
+#if 0
 void units_requirements(bool isThrow) {
   Trick::RequirementScribe req;
 
@@ -71,6 +72,7 @@ void units_requirements(bool isThrow) {
   }
 
 }
+#endif
 
 void clean_up_UCFn(UCFn** ptr)
 {
@@ -104,7 +106,7 @@ void test_conversion_no_throw(std::string unitString1, std::string unitString2, 
   clean_up_UCFn(&cf);
   ASSERT_EQ((UCFn*) NULL, cf);
 
-  units_requirements(false);
+  //units_requirements(false);
 
 }
 
@@ -165,13 +167,13 @@ void test_conversion_throw(std::string unitString1, std::string unitString2)
   }
   ASSERT_EQ((UCFn*) NULL, cf);
 
-  units_requirements(true);
+  //units_requirements(true);
 }
 
 class UnitConversion : public ::testing::Test {
 
     protected:
-        Trick::RequirementScribe testReq;
+        //Trick::RequirementScribe testReq;
 
         UnitConversion() {}
         ~UnitConversion() {}
@@ -362,12 +364,12 @@ TEST_F(UnitConversion, KilogramToKilogram)
 
 TEST_F(UnitConversion, KilogramToSlug)
 {
-  test_conversion_no_throw("kg", "sl", 0.0, (1.0/14.5939029372064), TOL);
+  test_conversion_no_throw("kg", "sl", 0.0, (1.0/14.59390), TOL);
 }
 
 TEST_F(UnitConversion, KilogramToPoundMass)
 {
-  test_conversion_no_throw("kg", "lbm", 0.0, (1.0/0.4535923697760192), TOL);
+  test_conversion_no_throw("kg", "lbm", 0.0, (1.0/0.45359237), TOL);
 }
 
 TEST_F(UnitConversion, KilogramToGram)
@@ -399,12 +401,12 @@ TEST_F(UnitConversion, NewtonToKiloNewton)
 
 TEST_F(UnitConversion, NewtonToOunce)
 {
-  test_conversion_no_throw("N", "oz", 0.0, (16.0/4.4482216152605), tolerance(-7));
+  test_conversion_no_throw("N", "oz", 0.0, 3.596944, tolerance(-5));
 }
 
 TEST_F(UnitConversion, NewtonToPoundForce)
 {
-  test_conversion_no_throw("N", "lbf", 0.0, (1.0/4.4482216152605), TOL);
+  test_conversion_no_throw("N", "lbf", 0.0, 0.224809, TOL);
 }
 
 //Voltage Conversions
@@ -632,12 +634,12 @@ TEST_F(UnitConversion, FahrenheitPerSecondToCelsiusPerMinute)
 
 TEST_F(UnitConversion, CompositeNewtonToCompositePoundForce)
 {
-  test_conversion_no_throw("kg*m/s2", "lbm*ft/s*s", 0.0, (1/(0.4535923697760192*0.3048)) , TOL);
+  test_conversion_no_throw("kg*m/s2", "lbm*ft/s*s", 0.0, (1/(0.45359237*0.3048)) , TOL);
 }
 
 TEST_F(UnitConversion, CompositePoundForceToCompositeNewton)
 {
-  test_conversion_no_throw("lbm*ft/s2", "kg*m/s*s", 0.0, (0.4535923697760192*0.3048), TOL);
+  test_conversion_no_throw("lbm*ft/s2", "kg*m/s*s", 0.0, (0.45359237*0.3048), TOL);
 }
 
 TEST_F(UnitConversion, FootPoundsToNewtonMeters)
@@ -647,7 +649,7 @@ TEST_F(UnitConversion, FootPoundsToNewtonMeters)
 
 TEST_F(UnitConversion, FootPoundsToNewtonMetersWithConvertTo)
 {
-  testReq.add_requirement("2060756805");
+  //testReq.add_requirement("2060756805");
 
   ASSERT_NO_THROW(Unit NewtonMeter("N*m"));
   Unit NewtonMeter("N*m");
@@ -660,12 +662,12 @@ TEST_F(UnitConversion, FootPoundsToNewtonMetersWithConvertTo)
 
 TEST_F(UnitConversion, CompositePoundForceToCompositeNewtonCommutative)
 {
-  test_conversion_no_throw("lbm*ft/s*s", "m*kg/s2", 0.0, (0.4535923697760192*0.3048), TOL);
+  test_conversion_no_throw("lbm*ft/s*s", "m*kg/s2", 0.0, (0.45359237*0.3048), TOL);
 }
 
 TEST_F(UnitConversion, CompositeNewtonToCompositePoundForceCommutative)
 {
-  test_conversion_no_throw("m*kg/s2", "lbm*ft/s*s", 0.0, (1/(0.4535923697760192*0.3048)), TOL);
+  test_conversion_no_throw("m*kg/s2", "lbm*ft/s*s", 0.0, (1/(0.45359237*0.3048)), TOL);
 }
 
 //Collection of Denominators
@@ -704,7 +706,7 @@ TEST_F(UnitConversion, PerSecondPerSecondToPerSecondSquared)
 
 TEST_F(UnitConversion, GetUnitName)
 {
-  testReq.add_requirement("");
+  //testReq.add_requirement("");
 
   Unit meter_per_second_squared("m/s2");
   std::string unit = "m/s2";
@@ -716,7 +718,7 @@ TEST_F(UnitConversion, GetUnitName)
 
 TEST_F(UnitConversion, SetUnitName)
 {
-  testReq.add_requirement("");
+  //testReq.add_requirement("");
 
   Unit meter_per_second_squared("m/s2");
   Unit copy;
@@ -737,7 +739,7 @@ TEST_F(UnitConversion, SetUnitName)
 
 TEST_F(UnitConversion, InvalidUnit)
 {
-  testReq.add_requirement("2743423356");
+  //testReq.add_requirement("2743423356");
 
   std::cerr << "The purpose of this test is to throw to an exception. Error messages are expected." << std::endl;
   ASSERT_THROW(Unit u("foo"), Unit::CONVERSION_ERROR);
@@ -751,7 +753,7 @@ TEST_F(UnitConversion, MissingProduct)
 
 TEST_F(UnitConversion, InvalidExponent)
 {
-  testReq.add_requirement("2743423356");
+  //testReq.add_requirement("2743423356");
 
   std::cerr << "The purpose of this test is to throw to an exception. Error messages are expected." << std::endl;
   ASSERT_THROW(Unit u("m4"), Unit::CONVERSION_ERROR);
@@ -760,7 +762,7 @@ TEST_F(UnitConversion, InvalidExponent)
 
 TEST_F(UnitConversion, InvalidRatio)
 {
-  testReq.add_requirement("2743423356");
+  //testReq.add_requirement("2743423356");
 
   std::cerr << "The purpose of this test is to throw to an exception. Error messages are expected." << std::endl;
   ASSERT_THROW(Unit u("/C"), Unit::CONVERSION_ERROR);
@@ -769,7 +771,7 @@ TEST_F(UnitConversion, InvalidRatio)
 
 TEST_F(UnitConversion, InvalidFootPound)
 {
-  testReq.add_requirement("2743423356");
+  //testReq.add_requirement("2743423356");
   std::cerr << "The purpose of this test is to throw to an exception. Error messages are expected." << std::endl;
   ASSERT_THROW(Unit u("lbfft"), Unit::CONVERSION_ERROR);
 }
@@ -779,7 +781,7 @@ TEST_F(UnitConversion, InvalidFootPound)
 
 TEST_F(UnitConversion, NewtonMeterToInvalidFootPound)
 {
-  testReq.add_requirement("2743423356");
+  //testReq.add_requirement("2743423356");
   Unit unit1("N*m");
 
   std::cerr << "The purpose of this test is to throw to an exception. Error messages are expected." << std::endl;

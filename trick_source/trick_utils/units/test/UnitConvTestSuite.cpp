@@ -2,7 +2,7 @@
 #include <gtest/gtest.h>
 #include "../include/units_conv.h"
 
-#define TOL 1e-13
+#define TOL 1e-7
 /*
 double tolerance(int exp)
 {
@@ -50,7 +50,7 @@ TEST(UnitsInterface, Newton_to_Pound)
   Units_t* Newton = (Units_t*) NULL;
   Units_t* Pound = (Units_t*) NULL;
   double pounds;
-  
+
   ASSERT_EQ(CONV_OK, conv_fn_s("kg*m/s2", "lbm*ft/s2", &Newton_to_Pound));
 
   Newton = new_units("kg*m/s2");
@@ -65,7 +65,7 @@ TEST(UnitsInterface, Newton_to_Pound)
 
   pounds = convert_units(1.0, &Newton_to_Pound);
 
-  ASSERT_NEAR((1.0/(0.4535923697760192*0.3048)), pounds, TOL);
+  ASSERT_NEAR((1.0/(0.45359237*0.3048)), pounds, TOL);
 
   clean_up_Units_t(&Newton);
   clean_up_Units_t(&Pound);
