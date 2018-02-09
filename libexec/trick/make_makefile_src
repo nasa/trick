@@ -133,7 +133,7 @@ if (scalar @exclude_dirs) {
     # Error check - delete any element that is null
     # (note: sort forced all blank names to front of array
     @exclude_dirs = map { s/(^\s+|\s+$)//g ; $_ } @exclude_dirs ;
-    while ( not length @exclude_dirs[0] ) {
+    while ( scalar @exclude_dirs and not length @exclude_dirs[0] ) {
         # Delete an element from the left side of an array (element zero)
         shift @exclude_dirs ;
     }
