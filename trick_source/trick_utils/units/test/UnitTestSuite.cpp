@@ -401,12 +401,12 @@ TEST_F(UnitConversion, NewtonToKiloNewton)
 
 TEST_F(UnitConversion, NewtonToOunce)
 {
-  test_conversion_no_throw("N", "oz", 0.0, (16.0/4.4482216152605), tolerance(-7));
+  test_conversion_no_throw("N", "oz", 0.0, 3.596944, tolerance(-5));
 }
 
 TEST_F(UnitConversion, NewtonToPoundForce)
 {
-  test_conversion_no_throw("N", "lbf", 0.0, (1.0/4.4482216152605), TOL);
+  test_conversion_no_throw("N", "lbf", 0.0, 0.224809, TOL);
 }
 
 //Voltage Conversions
