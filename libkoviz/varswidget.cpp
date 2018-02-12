@@ -6,7 +6,7 @@
 
 VarsWidget::VarsWidget(const QString &timeName,
                        QStandardItemModel* varsModel,
-                       MonteModel *monteModel,
+                       const QStringList& runDirs,
                        PlotBookModel *plotModel,
                        QItemSelectionModel *plotSelectModel,
                        MonteInputsView *monteInputsView,
@@ -14,7 +14,7 @@ VarsWidget::VarsWidget(const QString &timeName,
     QWidget(parent),
     _timeName(timeName),
     _varsModel(varsModel),
-    _monteModel(monteModel),
+    _runDirs(runDirs),
     _plotModel(plotModel),
     _plotSelectModel(plotSelectModel),
     _monteInputsView(monteInputsView),
@@ -200,7 +200,7 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
     _addChild(plotItem, "PlotYMaxRange",  DBL_MAX);
     _addChild(plotItem, "PlotBackgroundColor", "#FFFFFF");
     _addChild(plotItem, "PlotForegroundColor", "#000000");
-    int rc = _monteModel->rowCount(); // a curve per run, so, rc == nCurves
+    int rc = _runDirs.count(); // a curve per run, so, rc == nCurves
     if ( rc == 2 ) {
         QString presentation = _plotModel->getDataString(QModelIndex(),
                                                          "Presentation");
@@ -246,7 +246,8 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
         //
         // Create curves
         //
-        CurveModel* curveModel = _monteModel->curve(r,_timeName,xName,yName);
+        CurveModel* curveModel = _plotModel->createCurve(r,_timeName,
+                                                         xName,yName);
         if ( !curveModel ) {
             // This should not happen
             // It could be ignored but I'll exit(-1) because I think

@@ -32,7 +32,7 @@ using namespace std;
 QStandardItemModel* createVarsModel(Runs* runs);
 bool writeTrk(const QString& ftrk, const QString &timeName,
               double start, double stop, double timeShift,
-              QStringList& paramList, MonteModel* monteModel);
+              QStringList& paramList, Runs* runs);
 bool writeCsv(const QString& fcsv, const QStringList& timeNames,
               DPTable* dpTable, const QString &runDir);
 bool convert2csv(const QStringList& timeNames,
@@ -296,10 +296,9 @@ int main(int argc, char *argv[])
         //QApplication::setGraphicsSystem("raster");
         QApplication a(argc, argv);
 
-        MonteModel* monteModel = 0;
+        Runs* runs = 0;
         QStandardItemModel* varsModel = 0;
         QStandardItemModel* monteInputsModel = 0;
-        Runs* runs = 0;
 
         bool isTrk = false;
         if ( !opts.dp2trkOutFile.isEmpty() ) {
@@ -400,7 +399,6 @@ int main(int argc, char *argv[])
             runs = new Runs(timeNames,runsList,varMap);
             monteInputsModel = runsInputModel(runsList);
         }
-        monteModel = new MonteModel(runs);
         varsModel = createVarsModel(runs);
 
         // Make a list of titles
@@ -460,7 +458,7 @@ int main(int argc, char *argv[])
         }
         if ( presentation.isEmpty() ){
             presentation = "compare";
-            int rc = monteModel->rowCount();
+            int rc = runs->runDirs().count();
             if ( rc == 2 ) {
                 presentation = "error";
             }
@@ -490,14 +488,14 @@ int main(int argc, char *argv[])
                              shifts,
                              presentation, QString(), dps, titles, legends,
                              opts.orient,
-                             monteModel, varsModel, monteInputsModel);
+                             runs, varsModel, monteInputsModel);
             w.savePdf(pdfOutFile);
 
         } else if ( isTrk ) {
 
             QStringList params = DPProduct::paramList(dps);
 
-            if ( monteModel->rowCount() == 1 ) {
+            if ( runs->runDirs().count() == 1 ) {
                 QHash<QString,QVariant> shifts = getShiftHash(opts.shiftString,
                                                               runDirs);
                 double timeShift = 0.0;
@@ -515,7 +513,7 @@ int main(int argc, char *argv[])
                                   opts.start,
                                   opts.stop,
                                   timeShift,
-                                  params,monteModel);
+                                  params,runs);
                 if ( r ) {
                     ret = 0;
                 } else {
@@ -601,7 +599,7 @@ int main(int argc, char *argv[])
                                  shifts,
                                  presentation, ".", dps, titles, legends,
                                  opts.orient,
-                                 monteModel, varsModel, monteInputsModel);
+                                 runs, varsModel, monteInputsModel);
 #ifdef __linux
                 timer.snap("time=");
 #endif
@@ -615,7 +613,7 @@ int main(int argc, char *argv[])
                                  tolerance, frequency,
                                  shifts,
                                  presentation, runDirs.at(0), QStringList(),
-                                 titles, legends, opts.orient, monteModel,
+                                 titles, legends, opts.orient, runs,
                                  varsModel, monteInputsModel);
                 w.show();
                 ret = a.exec();
@@ -623,7 +621,6 @@ int main(int argc, char *argv[])
         }
 
         delete varsModel;
-        delete monteModel;
         delete monteInputsModel;
         delete runs;
 
@@ -744,7 +741,7 @@ void presetOrientation(QString* presVar, const QString& orient, bool* ok)
 
 bool writeTrk(const QString& ftrk, const QString& timeName,
               double start, double stop, double timeShift,
-              QStringList& paramList, MonteModel* monteModel)
+              QStringList& paramList, Runs* runs)
 {
     QFileInfo ftrki(ftrk);
     if ( ftrki.exists() ) {
@@ -789,7 +786,7 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
             continue;
         }
 
-        CurveModel* c = monteModel->curve(0,timeName,timeName,yParam);
+        CurveModel* c = runs->curve(0,timeName,timeName,yParam);
 
         // Error check: see if MonteModel could not find curve (timeName,yParam)
         if ( !c) {

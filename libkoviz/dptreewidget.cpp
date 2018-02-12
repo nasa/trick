@@ -39,7 +39,7 @@ DPTreeWidget::DPTreeWidget(const QString& timeName,
                            const QString &dpDirName,
                            const QStringList &dpFiles,
                            QStandardItemModel *dpVarsModel,
-                           MonteModel* monteModel,
+                           const QStringList& runDirs,
                            PlotBookModel *bookModel,
                            QItemSelectionModel *bookSelectModel,
                            MonteInputsView *monteInputsView,
@@ -50,7 +50,7 @@ DPTreeWidget::DPTreeWidget(const QString& timeName,
     _dpDirName(dpDirName),
     _dpFiles(),
     _dpVarsModel(dpVarsModel),
-    _monteModel(monteModel),
+    _runDirs(runDirs),
     _bookModel(bookModel),
     _bookSelectModel(bookSelectModel),
     _monteInputsView(monteInputsView),
@@ -268,7 +268,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
     this->setCursor(QCursor(Qt::WaitCursor));
 
     DPProduct dp(dpfile);
-    int rc = _monteModel->rowCount();
+    int rc = _runDirs.count();
 
     // Program
     DPProgram* dpprogram = dp.program();
@@ -365,7 +365,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                     } else {
                         color = colors.at(colorId++).name();
                     }
-                    _addCurve(curvesItem, dpcurve, dpprogram, _monteModel, r, color);
+                    _addCurve(curvesItem, dpcurve, dpprogram, _runDirs, r, color);
 #ifdef __linux
                     int secs = qRound(timer.stop()/1000000.0);
                     div_t d = div(secs,60);
@@ -434,7 +434,7 @@ void DPTreeWidget::_createDPTables(const QString &dpfile)
     this->setCursor(QCursor(Qt::WaitCursor));
 
     DPProduct dp(dpfile);
-    int numRuns = _monteModel->rowCount();
+    int numRuns = _runDirs.count();
     int tableNum = 0 ;
 
     // Tables
@@ -484,8 +484,8 @@ void DPTreeWidget::_createDPTables(const QString &dpfile)
                 _addChild(varItem, "TableVarFormat",   "");
 
                 // The actual data for the variable will be a trick curve model
-                CurveModel* curveModel = _monteModel->curve(i, _timeName,
-                                                          _timeName,_timeName);
+                CurveModel* curveModel = _bookModel->createCurve(i, _timeName,
+                                                           _timeName,_timeName);
                 if ( !curveModel ) {
                     _err_stream << "koviz [error]: couldn't find parameter:\n\n"
                                 << "        " << "("
@@ -515,7 +515,7 @@ void DPTreeWidget::_createDPTables(const QString &dpfile)
                 _addChild(varItem, "TableVarFormat",   var->format());
 
                 // The actual data for the variable will be a trick curve model
-                CurveModel* curveModel = _monteModel->curve(i, _timeName,
+                CurveModel* curveModel = _bookModel->createCurve(i, _timeName,
                                                       var->name(), var->name());
                 if ( !curveModel ) {
                     _err_stream << "koviz [error]: couldn't find parameter:\n\n"
@@ -548,7 +548,7 @@ QStandardItem *DPTreeWidget::_addChild(QStandardItem *parentItem,
 void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
                              DPCurve *dpcurve,
                              DPProgram *dpprogram,
-                             MonteModel *monteModel,
+                             const QStringList& runDirs,
                              int runId, const QString& defaultColor)
 {
     // Curve
@@ -575,7 +575,7 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
             xUnit = "s";
         }
 
-        curveModel = monteModel->curve(runId, _timeName, xName, yName);
+        curveModel = _bookModel->createCurve(runId, _timeName, xName, yName);
 
         if ( !curveModel ) {
 
@@ -592,10 +592,10 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
                 bool isInput = true;
                 QList<CurveModel*> inputCurves;
                 foreach ( QString inputName, dpprogram->inputs() ) {
-                    CurveModel* inputCurve = monteModel->curve(runId,
-                                                               _timeName,
-                                                               _timeName,
-                                                               inputName);
+                    CurveModel* inputCurve = _bookModel->createCurve(runId,
+                                                                     _timeName,
+                                                                     _timeName,
+                                                                     inputName);
                     if ( inputCurve ) {
                         inputCurves << inputCurve;
                     } else {
@@ -620,8 +620,7 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
 
         if ( !curveModel ) {
 
-            QString runDir = monteModel->
-                                      headerData(runId,Qt::Vertical).toString();
+            QString runDir = _runDirs.at(runId);
             _err_stream << "koviz [error]: could not find parameter: \n\n"
                         << "        " << "("
                         << _timeName << " , "
@@ -657,7 +656,7 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
                 xUnit = "--";
             }
             txyParams << "(" + _timeName  + " , " + xName + " , " + yName + ")";
-            curveModel = _monteModel->curve(runId, _timeName, xName, yName);
+            curveModel = _bookModel->createCurve(runId,_timeName,xName,yName);
             if ( curveModel ) {
                 x = xyPair->x();
                 y = xyPair->y();
@@ -666,8 +665,7 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
         }
 
         if ( !curveModel ) {
-            QString runDir = monteModel->
-                                headerData(runId,Qt::Vertical).toString();
+            QString runDir = _runDirs.at(runId);
             _err_stream << "koviz [error]: could not find matching xypair "
                            "parameter in RUN:\n\n"
                         << "        " << runDir << "\n\n"

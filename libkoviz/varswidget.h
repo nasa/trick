@@ -13,7 +13,6 @@
 #include <QProgressDialog>
 #include <float.h>
 #include "dp.h"
-#include "montemodel.h"
 #include "bookmodel.h"
 #include "monteinputsview.h"
 
@@ -23,7 +22,7 @@ class VarsWidget : public QWidget
 public:
     explicit VarsWidget(const QString& timeName,
                         QStandardItemModel* varsModel,
-                        MonteModel* monteModel,
+                        const QStringList& runDirs,
                         PlotBookModel* plotModel,
                         QItemSelectionModel*  plotSelectModel,
                         MonteInputsView* monteInputsView,
@@ -40,7 +39,7 @@ public slots:
 private:
     QString _timeName;
     QStandardItemModel* _varsModel;
-    MonteModel* _monteModel;
+    QStringList _runDirs;
     PlotBookModel* _plotModel;
     QItemSelectionModel*  _plotSelectModel;
     MonteInputsView* _monteInputsView;

@@ -62,7 +62,6 @@ SOURCES += bookmodel.cpp \
            versionnumber.cpp \
            csv.cpp \
            monte.cpp \
-           montemodel.cpp \
            parameter.cpp \
            runs.cpp \
            snaptable.cpp \
@@ -111,7 +110,6 @@ HEADERS  += bookmodel.h \
             versionnumber.h \
             csv.h \
             monte.h \
-            montemodel.h \
             numsortitem.h \
             parameter.h \
             role.h \

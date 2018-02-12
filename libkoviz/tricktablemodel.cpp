@@ -2,7 +2,6 @@
 
 #include <QDir>
 #include "runs.h"
-#include "montemodel.h"
 
 QString TrickTableModel::_err_string;
 QTextStream TrickTableModel::_err_stream(&TrickTableModel::_err_string);

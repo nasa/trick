@@ -7,7 +7,7 @@
 #include <QPainterPath>
 #include <QPen>
 #include <QVector>
-#include "montemodel.h"
+#include "runs.h"
 #include "unit.h"
 #include "utils.h"
 #include "curvemodel.h"
@@ -20,9 +20,9 @@ class PlotBookModel : public QStandardItemModel
 {
     Q_OBJECT
 public:
-    explicit PlotBookModel(const QStringList &timeNames, MonteModel* monteModel,
+    explicit PlotBookModel(const QStringList &timeNames, Runs* runs,
                             QObject *parent = 0);
-    explicit PlotBookModel(const QStringList &timeNames, MonteModel* monteModel,
+    explicit PlotBookModel(const QStringList &timeNames, Runs* runs,
                             int rows, int columns, QObject * parent = 0 );
     ~PlotBookModel();
 
@@ -70,6 +70,8 @@ public:
     // Convenience for getting QPen line style (see Qt doc)
     QVector<qreal> getLineStylePattern(const QModelIndex& curveIdx) const;
 
+    CurveModel* createCurve(int row, const QString& tName,
+                            const QString& xName, const QString& yName);
     CurveModel* getCurveModel(const QModelIndex& curvesIdx, int i) const;
     CurveModel* getCurveModel(const QModelIndex& curveIdx) const;
 
@@ -116,7 +118,7 @@ public slots:
 
 private:
     QStringList _timeNames;
-    MonteModel* _monteModel;
+    Runs* _runs;
     void _initModel();
     QModelIndex _pageIdx(const QModelIndex& idx) const ;
     QModelIndex _plotIdx(const QModelIndex& idx) const ;

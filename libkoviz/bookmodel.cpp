@@ -3,20 +3,20 @@
 #include "unit.h"
 
 PlotBookModel::PlotBookModel(const QStringList& timeNames,
-                             MonteModel *monteModel, QObject *parent) :
+                             Runs *runs, QObject *parent) :
     QStandardItemModel(parent),
     _timeNames(timeNames),
-    _monteModel(monteModel)
+    _runs(runs)
 {
     _initModel();
 }
 
 PlotBookModel::PlotBookModel(const QStringList& timeNames,
-                             MonteModel *monteModel,
+                             Runs *runs,
                              int rows, int columns, QObject *parent) :
     QStandardItemModel(rows,columns,parent),
     _timeNames(timeNames),
-    _monteModel(monteModel)
+    _runs(runs)
 {
     _initModel();
 }
@@ -546,6 +546,14 @@ QVector<qreal> PlotBookModel::getLineStylePattern(
     }
 
     return pattern;
+}
+
+CurveModel *PlotBookModel::createCurve(int row,
+                                       const QString &tName,
+                                       const QString &xName,
+                                       const QString &yName)
+{
+    return _runs->curve(row,tName,xName,yName);
 }
 
 // i'th curve under curves idx

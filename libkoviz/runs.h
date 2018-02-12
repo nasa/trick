@@ -27,7 +27,7 @@ class Runs
          int beginRun=0, int endRun=1.0e6);
     virtual ~Runs();
     virtual QStringList params() const { return _params; }
-    virtual QStringList runs() const { return _runs; }
+    virtual QStringList runDirs() const { return _runs; }
     CurveModel* curve(int row,
                       const QString& tparam,
                       const QString& xparam,

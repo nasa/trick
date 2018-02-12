@@ -31,6 +31,7 @@
 #include "monteinputsview.h"
 #include "rangeinput.h"
 #include "bookview.h"
+#include "runs.h"
 
 class PlotMainWindow : public QMainWindow
 {
@@ -50,7 +51,7 @@ public:
                              const QStringList& titles,
                              const QStringList& legends,
                              const QString& orient,
-                             MonteModel* monteModel,
+                             Runs* runs,
                              QStandardItemModel* varsModel,
                              QStandardItemModel* monteInputsModel=0,
                              QWidget *parent = 0);
@@ -65,7 +66,7 @@ private:
     QString _presentation;
     QString _dpDir;
     QStringList _dpFiles;
-    MonteModel* _monteModel;
+    Runs* _runs;
     QStandardItemModel* _varsModel;
     QStandardItemModel* _monteInputsModel;
     MonteInputsView* _monteInputsView;

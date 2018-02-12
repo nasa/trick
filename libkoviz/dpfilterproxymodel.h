@@ -7,7 +7,6 @@
 #include <QString>
 #include <QHash>
 
-#include "montemodel.h"
 #include "dp.h"
 
 class DPFilterProxyModel : public QSortFilterProxyModel
