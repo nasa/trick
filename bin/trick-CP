@@ -67,7 +67,6 @@ ifndef TRICK_VERBOSE_BUILD
 endif
 
 MAKE_OUT := build/MAKE_out
-REMOVE_MAKE_OUT := $(shell rm -f $(MAKE_OUT))
 
 all:
 	$(info [32mTrick Build Process Complete[00m)
@@ -90,11 +89,11 @@ $(TRICK_STATIC_LIB):
 # CP creates S_source.hh required for ICG and SWIG processing
 S_source.hh: S_define | build
 	$(PRINT_CP)
-	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/configuration_processor $(TRICK_CPFLAGS)
+	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/configuration_processor $(TRICK_CPFLAGS) 2>&1 | $(TEE) -a $(MAKE_OUT) ; exit $${PIPESTATUS[0]}
 
 build/Makefile_S_define: S_source.hh
 	$(PRINT_S_DEF_DEPS)
-	$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_SFLAGS) $(TRICK_SYSTEM_SFLAGS) -MM -MT S_source.hh -MF build/Makefile_S_define -x c++ S_define
+	$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_SFLAGS) $(TRICK_SYSTEM_SFLAGS) -MM -MT S_source.hh -MF build/Makefile_S_define -x c++ S_define 2>&1 | $(TEE) -a $(MAKE_OUT) ; exit $${PIPESTATUS[0]}
 
 # Automatic and manual ICG rules
 ICG:
@@ -108,20 +107,20 @@ force_ICG:
 # Create makefile for IO code
 build/Makefile_io_src: S_source.hh | build
 	$(PRINT_ICG)
-	$(ECHO_CMD)${TRICK_HOME}/bin/trick-ICG -m ${TRICK_ICGFLAGS} ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} $<
+	$(ECHO_CMD)${TRICK_HOME}/bin/trick-ICG -m ${TRICK_ICGFLAGS} ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} $< 2>&1 | $(TEE) -a $(MAKE_OUT) ; exit $${PIPESTATUS[0]}
 
 # Create makefile for source code
 #build/Makefile_src: build/ICG_processed build/ICG_no_found build/S_define.lib_deps
 build/Makefile_src: build/Makefile_src_deps build/Makefile_io_src S_source.hh
 	$(PRINT_MAKEFILE_SRC)
-	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/make_makefile_src $?
+	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/make_makefile_src $? 2>&1 | $(TEE) -a $(MAKE_OUT) ; exit $${PIPESTATUS[0]}
 
 build/Makefile_src_deps: ;
 
 # Create makefile for SWIG code
 build/Makefile_swig: S_source.hh build/Makefile_swig_deps
 	$(PRINT_MAKEFILE_SWIG)
-	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/make_makefile_swig
+	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/make_makefile_swig 2>&1 | $(TEE) -a $(MAKE_OUT) ; exit $${PIPESTATUS[0]}
 
 build/Makefile_swig_deps: ;
 
@@ -129,7 +128,7 @@ build/Makefile_swig_deps: ;
 # build process.
 .PHONY: convert_swig
 convert_swig: build/S_library_swig
-	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/convert_swig ${TRICK_CONVERT_SWIG_FLAGS}
+	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/convert_swig ${TRICK_CONVERT_SWIG_FLAGS} 2>&1 | $(TEE) -a $(MAKE_OUT) ; exit $${PIPESTATUS[0]}
 
 # Force S_define_exp to be remade each time this rule runs
 .PHONY: S_define_exp
@@ -159,6 +158,7 @@ endif
 -include S_overrides.mk
 
 ifndef MAKE_RESTARTS
+REMOVE_MAKE_OUT := $(shell rm -f $(MAKE_OUT))
 ifeq ($(MAKECMDGOALS),)
     $(info $(call COLOR,Building with the following compilation flags:))
     $(info TRICK_CFLAGS   = [36m$(TRICK_CFLAGS)[0m)
