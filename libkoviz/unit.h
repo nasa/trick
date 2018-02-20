@@ -11,6 +11,7 @@
 #include <QString>
 #include <QStringList>
 #include <stdio.h>
+#include <stdlib.h>
 
 class Unit {
 

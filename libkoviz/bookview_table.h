@@ -15,6 +15,7 @@
 #include <QString>
 #include <QStringList>
 #include <QKeyEvent>
+#include <limits.h>
 
 #include <QtGlobal>
 #if QT_VERSION >= 0x050000

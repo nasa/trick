@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QTextStream>
+#include <stdlib.h>
 #include <stdexcept>
 
 #include "curvemodel.h"
