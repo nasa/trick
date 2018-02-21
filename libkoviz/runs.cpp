@@ -49,6 +49,13 @@ void Runs::_init()
         }
         QDir runDir(run);
         QStringList lfiles = runDir.entryList(filter, QDir::Files);
+        if ( lfiles.contains("log_timeline.csv") ) {
+            lfiles.removeAll("log_timeline.csv");
+        }
+        if ( lfiles.contains("log_timeline_init.csv") ) {
+            lfiles.removeAll("log_timeline_init.csv");
+        }
+
         if ( lfiles.empty() ) {
             _err_stream << "koviz [error]: no *.trk/csv files in run dir: "
                         << run << "\n";
