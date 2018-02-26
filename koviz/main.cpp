@@ -786,7 +786,7 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
             continue;
         }
 
-        CurveModel* c = runs->curve(0,timeName,timeName,yParam);
+        CurveModel* c = runs->curveModel(0,timeName,timeName,yParam);
 
         // Error check: see if MonteModel could not find curve (timeName,yParam)
         if ( !c) {

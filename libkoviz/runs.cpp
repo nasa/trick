@@ -174,7 +174,7 @@ void Runs::_init()
     }
 }
 
-CurveModel* Runs::curve(int row,
+CurveModel* Runs::curveModel(int row,
                         const QString &tparam,
                         const QString &xparam,
                         const QString &yparam) const

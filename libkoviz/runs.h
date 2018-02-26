@@ -28,10 +28,10 @@ class Runs
     virtual ~Runs();
     virtual QStringList params() const { return _params; }
     virtual QStringList runDirs() const { return _runs; }
-    CurveModel* curve(int row,
-                      const QString& tparam,
-                      const QString& xparam,
-                      const QString& yparam) const;
+    CurveModel* curveModel(int row,
+                           const QString& tparam,
+                           const QString& xparam,
+                           const QString& yparam) const;
 
   private:
     QStringList _timeNames;

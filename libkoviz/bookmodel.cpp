@@ -553,7 +553,7 @@ CurveModel *PlotBookModel::createCurve(int row,
                                        const QString &xName,
                                        const QString &yName)
 {
-    return _runs->curve(row,tName,xName,yName);
+    return _runs->curveModel(row,tName,xName,yName);
 }
 
 // i'th curve under curves idx
