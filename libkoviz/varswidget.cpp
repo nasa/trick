@@ -330,8 +330,10 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
         bool isXTime = _plotModel->isXTime(siblingPlotIdx);
         if ( isXTime ) {
             QRectF sibPlotRect = _plotModel->getPlotMathRect(siblingPlotIdx);
-            bbox.setLeft(sibPlotRect.left());
-            bbox.setRight(sibPlotRect.right());
+            if ( sibPlotRect.width() > 0 ) {
+                bbox.setLeft(sibPlotRect.left());
+                bbox.setRight(sibPlotRect.right());
+            }
             break;
         }
     }
