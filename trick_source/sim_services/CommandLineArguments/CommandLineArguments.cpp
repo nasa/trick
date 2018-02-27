@@ -163,6 +163,11 @@ int Trick::CommandLineArguments::process_sim_args(int nargs , char **args) {
         } else {
             run_dir = "." ;
         }
+        /* check existence of run directory */
+        if (access(run_dir.c_str(), F_OK) != 0) {
+            std::cerr << "\nERROR: run directory \"" << run_dir << "\" does not exist. Exiting!" << std::endl ;
+            exit(1);
+        }
 
         output_dir = run_dir ;
 
