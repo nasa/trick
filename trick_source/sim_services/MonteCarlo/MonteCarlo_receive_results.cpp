@@ -81,7 +81,14 @@ void Trick::MonteCarlo::handle_run_data(Trick::MonteSlave& slave) {
     }
 
     /**
-     * <ul><li> This run may have already been resolved by another slave if
+     * <ul><li> Try to remove this run from the queue in case it was requeue by #check_timeouts.
+     * This covers the case in which the master determines that a slave has timed out, requeues
+     * the run, and then the slave reports results.
+     */
+    dequeue_run(slave.current_run);
+
+    /**
+     * <li> This run may have already been resolved by another slave if
      * this slave was marked as having timed out. If that is the case,
      * discard these results.
      */
