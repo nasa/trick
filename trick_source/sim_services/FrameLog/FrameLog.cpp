@@ -11,7 +11,6 @@
 #include "trick/FrameDataRecordGroup.hh"
 #include "trick/exec_proto.hh"
 #include "trick/exec_proto.h"
-#include "trick/clock_proto.h"
 #include "trick/data_record_proto.h"
 #include "trick/command_line_protos.h"
 #include "trick/message_proto.h"
@@ -20,7 +19,7 @@
 Trick::FrameLog * the_fl = NULL ;
 
 //Constructor.
-Trick::FrameLog::FrameLog() {
+Trick::FrameLog::FrameLog(Trick::Clock & in_clock) : clock(in_clock) {
     frame_log_flag = false ;
     drg_trick = NULL ;
     drg_frame = NULL ;
@@ -342,7 +341,7 @@ int Trick::FrameLog::frame_clock_start(Trick::JobData * curr_job ) {
     /** @par Detailed Design: */
     if ( target_job != NULL ) {
         /** @li Set target job's start time. */
-        target_job->rt_start_time = clock_time() ;
+        target_job->rt_start_time = clock.clock_time() ;
     }
 
     return(0) ;
@@ -359,7 +358,7 @@ int Trick::FrameLog::frame_clock_stop(Trick::JobData * curr_job) {
     if ( target_job != NULL ) {
         if ( target_job->rt_start_time >= 0 ) {
             /** @li Set current job's stop time and frame time. */
-            target_job->rt_stop_time = clock_time() ;
+            target_job->rt_stop_time = clock.clock_time() ;
             target_job->frame_time += (target_job->rt_stop_time - target_job->rt_start_time);
             thread = target_job->thread;
 
@@ -678,6 +677,11 @@ int Trick::FrameLog::shutdown() {
     return(0) ;
 
 }
+
+void Trick::FrameLog::set_clock(Trick::Clock & in_clock) {
+    clock = in_clock ;
+}
+
 //Call all the Create routines for the DP directory and all DP files.
 int Trick::FrameLog::create_DP_files() {
     int ret=0;

@@ -588,7 +588,7 @@ class FrameLogSimObject : public Trick::SimObject {
 
         Trick::FrameLog frame_log ;
 
-        FrameLogSimObject() {
+        FrameLogSimObject(Trick::Clock &in_clock) : frame_log(in_clock) {
             // Frame log Instrumentation class jobs.  Not scheduled by default
             {TRK} P0 ("instrumentation") frame_log.frame_clock_start(curr_job) ;
             {TRK} P65535 ("instrumentation") frame_log.frame_clock_stop(curr_job) ;
@@ -606,9 +606,13 @@ class FrameLogSimObject : public Trick::SimObject {
             // the frame_log and rt_sync shutdown jobs should be last in sim
             {TRK} P65535 ("shutdown") frame_log.shutdown() ;
         }
+
+    private:
+        // This object is not copyable
+        void operator =(const FrameLogSimObject &) {};
 }
 
-FrameLogSimObject trick_frame_log ;
+FrameLogSimObject trick_frame_log(trick_real_time.gtod_clock) ;
 #endif
 
 #ifndef TRICK_NO_MASTERSLAVE

@@ -13,6 +13,7 @@ PROGRAMMERS:
 #include "trick/FrameDataRecordGroup.hh"
 #include "trick/attributes.h"
 #include "trick/JobData.hh"
+#include "trick/Clock.hh"
 
 namespace Trick {
 
@@ -77,10 +78,12 @@ namespace Trick {
             /** Save the name of the trick master/slave sim object.\n */
             std::string ms_sim_object_name;      /**<  trick_io(**) */
 
+            Trick::Clock & clock ;               /**<  trick_io(**) */
+
             /**
              @brief Constructor.
             */
-            FrameLog() ;
+            FrameLog(Trick::Clock & in_clock) ;
 
             /**
              @brief Destructor.
@@ -152,6 +155,8 @@ namespace Trick {
             */
             int shutdown() ;
 
+            void set_clock(Trick::Clock & in_clock) ;
+
         private:
             std::vector<std::string> trick_jobs; // ** vector containing all trick job names
             std::vector<std::string> user_jobs;  // ** vector containing all user job names
@@ -187,6 +192,9 @@ namespace Trick {
              @brief Create the DP files to display job timelines.
             */
             int create_DP_timeline_files();
+
+            // This object is not copyable
+            void operator =(const FrameLog &) {};
 
     } ;
 
