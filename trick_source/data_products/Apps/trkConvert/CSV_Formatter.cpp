@@ -4,6 +4,7 @@
  * ================================================================================
  */
 
+void CSV_Formatter::writeHeader(FILE* out_fp, int version, int endianness) {};
 void CSV_Formatter::writeColumnLabel(FILE* out_fp, const char* name, const char* units) {
     fprintf(out_fp,"%s {%s}", name, units);
 }

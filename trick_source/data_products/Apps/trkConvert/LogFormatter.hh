@@ -6,27 +6,27 @@
 class LogFormatter {
 
     public:
-    void writeHeader(FILE* out_fp __attribute__((unused)),
-                     int version __attribute__((unused)),
-                     int endianness __attribute__((unused))) {};
+    virtual void writeHeader(FILE* out_fp,
+                     int version,
+                     int endianness) = 0;
 
-    void writeColumnLabel(FILE* out_fp __attribute__((unused)),
-                                const char* name __attribute__((unused)),
-                                const char* units __attribute__((unused))) {};
+    virtual void writeColumnLabel(FILE* out_fp,
+                                const char* name,
+                                const char* units) = 0;
 
-    void writeColumnLabelSeparator(FILE* out_fp __attribute__((unused))) {};
-    void writeDatumSeparator( FILE* out_fp __attribute__((unused))) {};
-    void writeRecordSeparator(FILE* out_fp __attribute__((unused))) {};
-    void writeDatum(FILE* out_fp __attribute__((unused)), int8_t   datum __attribute__((unused))) {};
-    void writeDatum(FILE* out_fp __attribute__((unused)), uint8_t  datum __attribute__((unused))) {};
-    void writeDatum(FILE* out_fp __attribute__((unused)), int16_t  datum __attribute__((unused))) {};
-    void writeDatum(FILE* out_fp __attribute__((unused)), uint16_t datum __attribute__((unused))) {};
-    void writeDatum(FILE* out_fp __attribute__((unused)), int32_t  datum __attribute__((unused))) {};
-    void writeDatum(FILE* out_fp __attribute__((unused)), uint32_t datum __attribute__((unused))) {};
-    void writeDatum(FILE* out_fp __attribute__((unused)), int64_t  datum __attribute__((unused))) {};
-    void writeDatum(FILE* out_fp __attribute__((unused)), uint64_t datum __attribute__((unused))) {};
-    void writeDatum(FILE* out_fp __attribute__((unused)), float    datum __attribute__((unused))) {};
-    void writeDatum(FILE* out_fp __attribute__((unused)), double   datum __attribute__((unused))) {};
+    virtual void writeColumnLabelSeparator(FILE* out_fp) = 0;
+    virtual void writeDatumSeparator( FILE* out_fp) = 0;
+    virtual void writeRecordSeparator(FILE* out_fp) = 0;
+    virtual void writeDatum(FILE* out_fp, int8_t   datum) = 0;
+    virtual void writeDatum(FILE* out_fp, uint8_t  datum) = 0;
+    virtual void writeDatum(FILE* out_fp, int16_t  datum) = 0;
+    virtual void writeDatum(FILE* out_fp, uint16_t datum) = 0;
+    virtual void writeDatum(FILE* out_fp, int32_t  datum) = 0;
+    virtual void writeDatum(FILE* out_fp, uint32_t datum) = 0;
+    virtual void writeDatum(FILE* out_fp, int64_t  datum) = 0;
+    virtual void writeDatum(FILE* out_fp, uint64_t datum) = 0;
+    virtual void writeDatum(FILE* out_fp, float    datum) = 0;
+    virtual void writeDatum(FILE* out_fp, double   datum) = 0;
     virtual const char* extension() = 0;
 };
 #endif

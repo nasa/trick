@@ -257,8 +257,18 @@ void DataLog::formattedWrite(FILE* out_fp, LogFormatter* formatter) {
                     case TRICK_LONG_LONG: { /*14*/
                         formatter->writeDatum(out_fp, *(int64_t*)&dataRecord[paramOffsets[ii]]);
                     } break;
+                    case TRICK_UNSIGNED_LONG_LONG: { /*15*/
+                        formatter->writeDatum(out_fp, *(uint64_t*)&dataRecord[paramOffsets[ii]]);
+                    } break;
+                    case TRICK_BOOLEAN: { /*17*/
+                        formatter->writeDatum(out_fp, *(uint8_t*)&dataRecord[paramOffsets[ii]]);
+                    } break;
                     default: {
-                        fprintf(stdout, "?");
+                        fprintf(stdout, "Unknown Data Type [%d] of size [%d] bytes.",
+                            paramDescriptions[ii]->dataType,
+                            paramDescriptions[ii]->dataSize);
+                        fflush(stdout);
+                        exit(1);
                     }
                 }
             }
