@@ -86,11 +86,8 @@ real_clean: clean
 clean: clean_python
 	$(RM) -rf $(OBJ_DIR) $(TEST_DIR) $(PY_FILES)
 
-
 clean_python:
 	rm -rf swig_${TRICK_HOST_CPU} sim_services.py swig_double.py swig_int.py swig_ref.py
-
-real_clean: clean
 
 # some depends
 swig_int_wrap.cpp: swig_int.cpp
