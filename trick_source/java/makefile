@@ -30,7 +30,6 @@ CLASS_PATH = $(subst $(space),:,$(wildcard ${LIB_DIR}/*.jar))
 RESOURCES = $(subst src/,,$(shell find src/trick -name resources))
 RESOURCES += $(subst src/,,$(shell find src/trick -name jaxb.index))
 
-
 all: ${DIST_DIR}/trick.jar resources
 	@echo "[32mJava build successful[0m"
 
@@ -73,4 +72,3 @@ clean_obj:
 
 clean_docs:
 	rm -rf ${DOCS_API_DIR}
-
