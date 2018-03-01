@@ -133,7 +133,7 @@ if (scalar @exclude_dirs) {
     # Error check - delete any element that is null
     # (note: sort forced all blank names to front of array
     @exclude_dirs = map { s/(^\s+|\s+$)//g ; $_ } @exclude_dirs ;
-    while ( not length @exclude_dirs[0] ) {
+    while ( scalar @exclude_dirs and not length @exclude_dirs[0] ) {
         # Delete an element from the left side of an array (element zero)
         shift @exclude_dirs ;
     }
@@ -370,7 +370,7 @@ foreach $k ( sort keys %files_by_dir ) {
             s/\$[{(]CURDIR[})]\/(\S+)/$k\/$1/g ;
             s/(?:\$[{(]CURDIR[})]\/)?(\S*)\$[{(]OBJ_DIR[})]/$k\/$1object_\${TRICK_HOST_CPU}/g ;
             s/\$[{(]CURDIR[})]/$k/g ;
-            while ( s,/[^/]+/\.\.,, ) {}
+            while ( s,/[^/.]+/\.\.,, ) {}
             s//$comment/ ;
             if ( s/^objects\s*:\s*// ) {
                 foreach my $ext ( qw{c C cc cxx cpp CPLUSPLUS l y} ) {
@@ -388,8 +388,10 @@ foreach $k ( sort keys %files_by_dir ) {
             }
         }
         close OV_FILE ;
+        print MAKEFILEOVER "\nMAKEFILE_LIST += $k/makefile_overrides\n" ;
         print MAKEFILEOVER "\n# Overrides from $k\n\n" ;
         print MAKEFILEOVER "$files_by_dir{$k}{overrides}\n" ;
+        print MAKEFILEOVER "\nMAKEFILE_LIST := \$(filter-out $k/makefile_overrides,\$(MAKEFILE_LIST))\n" ;
     }
 }
 close MAKEFILEOVER ;

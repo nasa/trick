@@ -93,6 +93,7 @@ sub gte (@) {
     $def{"TRICK_ICG_COMPAT15"} = "" ;
     $def{"TRICK_ICG_NOCOMMENT"} = "" ;
     $def{"TRICK_ICG_EXCLUDE"} = "" ;
+    $def{"TRICK_ICG_IGNORE_TYPES"} = "" ;
     $def{"TRICK_SWIG_EXCLUDE"} = "" ;
     $def{"TRICK_EXT_LIB_DIRS"} = "" ;
     $def{"TRICK_PYTHON_PATH"} = "" ;

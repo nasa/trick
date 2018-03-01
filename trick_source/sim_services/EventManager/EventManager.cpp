@@ -23,7 +23,11 @@
 
 Trick::EventManager * the_em ;
 
-Trick::EventManager::EventManager() { the_em = this ; }
+Trick::EventManager::EventManager() :
+ active_events(NULL),
+ num_active_events(0),
+ num_allocated(0)
+{ the_em = this ; }
 
 //Command to get the event object given the event's name
 Trick::Event * Trick::EventManager::get_event(std::string event_name) {
@@ -52,9 +56,14 @@ int Trick::EventManager::add_to_active_events(Trick::Event * in_event) {
     }
     num_active_events++;
     if (num_active_events == 1) {
-        active_events = (Trick::Event **)TMM_declare_var_s("Trick::Event* [1]");
-    } else {
-        active_events = (Trick::Event **)TMM_resize_array_1d_a(active_events, num_active_events);
+        active_events = (Trick::Event **)TMM_declare_var_s("Trick::Event* [100]");
+        num_allocated = 100 ;
+    } else if ( num_active_events >= num_allocated ) {
+        num_allocated += 100 ;
+        active_events = (Trick::Event **)TMM_resize_array_1d_a(active_events, num_allocated);
+        for ( unsigned int ii = num_active_events ; ii < num_allocated ; ii++ ) {
+            active_events[ii] = NULL ;
+        }
     }
     active_events[num_active_events-1] = in_event ;
     return (0) ;
@@ -178,6 +187,10 @@ int Trick::EventManager::remove_event(Trick::Event * in_event) {
 
     unsigned int ii , jj ;
 
+    if ( ! in_event ) {
+        return 0 ;
+    }
+
     if ( in_event->get_before_after() == Trick::EVENT_NOTARGET ) {
         /* If the event is cyclic, remove the event from the event processor on the event's thread */
         event_processors[in_event->get_thread()]->remove_event(in_event) ;
@@ -205,16 +218,16 @@ int Trick::EventManager::remove_event(Trick::Event * in_event) {
                 active_events[jj - 1] = active_events[jj] ;
             }
             num_active_events-- ;
+            if (num_active_events == 0) {
+                TMM_delete_var_a(active_events);
+                active_events = NULL;
+            }
+            else {
+                active_events[num_active_events] = NULL ;
+            }
+
             break ;
         }
-    }
-
-    if (num_active_events == 0) {
-        TMM_delete_var_a(active_events);
-        active_events = NULL;
-    }
-    else {
-        active_events = (Trick::Event **)TMM_resize_array_1d_a(active_events, num_active_events);
     }
 
     if ( in_event->get_free_on_removal() ) {

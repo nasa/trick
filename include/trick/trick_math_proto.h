@@ -21,6 +21,17 @@ extern "C" {
 
 /**
 * @ingroup TRICK_MATH
+* @brief Generate a transformation matrix for rotation about a given
+* line by a given angle, using Rodrigues’ formula.
+*
+* @param C_out - Transformation matrix for final to initial state.
+* @param k - Vector in the direction of the rotation Axis.
+* @param theta - Angle of rotation in radians.
+*/
+void RotAboutLineByAngle(double C_out[3][3], double k[3], double theta);
+
+/**
+* @ingroup TRICK_MATH
 * Invert matrix using LU Decomposition method.
 */
 int LUD_inv(double **y, double **a, int n, int *indx, double *ycol);

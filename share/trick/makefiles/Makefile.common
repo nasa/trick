@@ -33,30 +33,24 @@ ifndef TRICK_LD
     export TRICK_LD := $(LD)
 endif
 
-ifndef TRICK_SFLAGS
-    export TRICK_SFLAGS :=
-endif
-
-export TRICK_CFLAGS
-export TRICK_CXXFLAGS
-export TRICK_LDFLAGS
-export TRICK_SFLAGS
-export TRICK_EXCLUDE
-export TRICK_ICG_COMPAT15
-export TRICK_ICG_EXCLUDE
-export TRICK_ICG_NOCOMMENT
-export TRICK_SWIG_EXCLUDE
-export TRICK_EXT_LIB_DIRS
-export TRICK_PYTHON_PATH
-export TRICK_GTE_EXT
+export TRICK_CFLAGS := $(TRICK_CFLAGS)
+export TRICK_CXXFLAGS := $(TRICK_CXXFLAGS)
+export TRICK_LDFLAGS := $(TRICK_LDFLAGS)
+export TRICK_SFLAGS := $(TRICK_SFLAGS)
+export TRICK_EXCLUDE := $(TRICK_EXCLUDE)
+export TRICK_ICG_COMPAT15 := $(TRICK_ICG_COMPAT15)
+export TRICK_ICG_EXCLUDE := $(TRICK_ICG_EXCLUDE)
+export TRICK_ICG_IGNORE_TYPES := $(TRICK_ICG_IGNORE_TYPES)
+export TRICK_ICG_NOCOMMENT := $(TRICK_ICG_NOCOMMENT)
+export TRICK_SWIG_EXCLUDE := $(TRICK_SWIG_EXCLUDE)
+export TRICK_EXT_LIB_DIRS := $(TRICK_EXT_LIB_DIRS)
+export TRICK_PYTHON_PATH := $(TRICK_PYTHON_PATH)
+export TRICK_GTE_EXT := $(TRICK_GTE_EXT)
 export TRICK_HOST_CPU := $(shell $(TRICK_HOME)/bin/trick-gte TRICK_HOST_CPU)
-export TRICK_EXEC_LINK_LIBS = ${PTHREAD_LIBS} $(PYTHON_LIB) $(UDUNITS_LDFLAGS) $(PLATFORM_LIBS) -lm -ldl
-export TRICK_LIBS = ${RPATH} -L${TRICK_LIB_DIR} -ltrick -ltrick_pyip -ltrick_comm -ltrick_math -ltrick_units -ltrick_mm
-export TRICK_SYSTEM_CFLAGS
-export TRICK_SYSTEM_CXXFLAGS
-export TRICK_SYSTEM_SFLAGS
-export TRICK_SYSTEM_LDFLAGS
-export SWIG_FLAGS
+export TRICK_EXEC_LINK_LIBS := ${PTHREAD_LIBS} $(PYTHON_LIB) $(UDUNITS_LDFLAGS) $(PLATFORM_LIBS) -lm -ldl
+export TRICK_LIBS := ${RPATH} -L${TRICK_LIB_DIR} -ltrick -ltrick_pyip -ltrick_comm -ltrick_math -ltrick_units -ltrick_mm
+export TRICK_SYSTEM_LDFLAGS := $(TRICK_SYSTEM_LDFLAGS)
+export SWIG_FLAGS := $(SWIG_FLAGS)
 
 IO_SRC_DIR       := io_src/
 OBJ_DIR          := object_${TRICK_HOST_CPU}
@@ -80,14 +74,8 @@ endif
 TRICK_INCLUDES := -I${TRICK_HOME}/trick_source -I${TRICK_HOME}/include -I${TRICK_HOME}/include/trick/compat
 TRICK_VERSIONS := -DTRICK_VER=$(TRICK_MAJOR) -DTRICK_MINOR=$(TRICK_MINOR)
 
-TRICK_SYSTEM_CXXFLAGS = $(TRICK_INCLUDES) $(TRICK_VERSIONS) -fpic $(UDUNITS_INCLUDES)
-TRICK_SYSTEM_SFLAGS   = -I${TRICK_HOME}/share/trick -I${TRICK_HOME}/share $(TRICK_INCLUDES) $(TRICK_VERSIONS)
-
-# We pipe the output of compiler through tee.  If the user wanted gcc color, make sure they get it.
-ifdef GCC_COLORS
-    TRICK_SYSTEM_CXXFLAGS += -fdiagnostics-color=always
-    TRICK_SYSTEM_CFLAGS += -fdiagnostics-color=always
-endif
+export TRICK_SYSTEM_CXXFLAGS := $(TRICK_INCLUDES) $(TRICK_VERSIONS) -fpic $(UDUNITS_INCLUDES)
+export TRICK_SYSTEM_SFLAGS   := -I${TRICK_HOME}/share/trick -I${TRICK_HOME}/share $(TRICK_INCLUDES) $(TRICK_VERSIONS)
 
 HAVE_ZEROCONF ?= 0
 ifeq ($(HAVE_ZEROCONF),1)
@@ -147,8 +135,13 @@ ifneq ($(GSL_HOME),)
     TRICK_SYSTEM_CXXFLAGS += -D_HAVE_GSL
 endif
 
+# We pipe the output of compiler through tee.  If the user wanted gcc color, make sure they get it.
+ifdef GCC_COLORS
+    TRICK_SYSTEM_CXXFLAGS += -fdiagnostics-color=always
+endif
+
 # -fexceptions is included to propogate execptions through C code.
-TRICK_SYSTEM_CFLAGS := $(TRICK_SYSTEM_CXXFLAGS) -fexceptions
+export TRICK_SYSTEM_CFLAGS := $(TRICK_SYSTEM_CXXFLAGS) -fexceptions
 
 # append additional c and cxx flags defined in config_*.mk files.
 TRICK_SYSTEM_CFLAGS   += $(TRICK_ADDITIONAL_CFLAGS)

@@ -40,7 +40,7 @@ void Trick::MonteCarlo::initialize_slave(Trick::MonteSlave* slave_to_init) {
     }
 
     if (!slave_to_init->S_main_name.compare("")) {
-        slave_to_init->S_main_name = "./S_main_${TRICK_HOST_CPU}.exe";
+        slave_to_init->S_main_name = "./S_main_*.exe";
     }
 
     /** <li> Append the S_main executable and slave-specific arguments. */

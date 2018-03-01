@@ -71,9 +71,7 @@ int Trick::MessagePublisher::publish(int level , std::string message) {
         // multithreaded sims from interleaving header and message elements.
         std::ostringstream oss;
         oss << header << message ;
-        std::cout << oss.str() << std::flush ;
-    }
-    return(0) ;
+        std::cout << oss.str() << std::flush ; } return(0) ;
 
 }
 

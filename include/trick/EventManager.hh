@@ -146,6 +146,9 @@ namespace Trick {
             /** Number of active events\n */
             unsigned int num_active_events ;              /**< trick_io(*io) trick_units(--) */
 
+            /** Number of active events allocated\n */
+            unsigned int num_allocated ;                  /**< trick_io(*io) trick_units(--) */
+
             /** All of the event processors, one per thread. */
             std::vector< Trick::EventProcessor * > event_processors ;  /**< trick_io(**) */
 

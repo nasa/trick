@@ -16,7 +16,7 @@ int Trick::MonteCarlo::execute_as_slave() {
         /** <ul><li> On a blocking read, wait for a MonteSlave::Command from the master. */
         if (tc_accept(&listen_device, &connection_device) != TC_SUCCESS) {
             if (verbosity >= ERROR) {
-                message_publish(MSG_ERROR, "Monte [%s:%d] Lost connection to Master.\nShutting down.\n",
+                message_publish(MSG_ERROR, "Monte [%s:%d] Lost connection to Master. Shutting down.\n",
                                 machine_name.c_str(), slave_id) ;
             }
             slave_shutdown();
@@ -24,7 +24,7 @@ int Trick::MonteCarlo::execute_as_slave() {
         int command;
         if (tc_read(&connection_device, (char *)&command, (int)sizeof(command)) != (int)sizeof(command)) {
             if (verbosity >= ERROR) {
-                message_publish(MSG_ERROR, "Monte [%s:%d] Lost connection to Master while receiving instructions.\nShutting down.\n",
+                message_publish(MSG_ERROR, "Monte [%s:%d] Lost connection to Master while receiving instructions. Shutting down.\n",
                                 machine_name.c_str(), slave_id) ;
             }
             slave_shutdown();
@@ -44,7 +44,7 @@ int Trick::MonteCarlo::execute_as_slave() {
             case MonteSlave::SHUTDOWN:
                 /** <li> MonteSlave::SHUTDOWN: Call #slave_shutdown. */
                 if (verbosity >= INFORMATIONAL) {
-                    message_publish(MSG_INFO, "Monte [%s:%d] Shutdown command received from Master.\nShutting down.\n",
+                    message_publish(MSG_INFO, "Monte [%s:%d] Shutdown command received from Master. Shutting down.\n",
                                     machine_name.c_str(), slave_id) ;
                 }
                 slave_shutdown();
@@ -60,7 +60,7 @@ int Trick::MonteCarlo::execute_as_slave() {
             default:
                 /** <li> default: Call #slave_shutdown. */
                 if (verbosity >= ERROR) {
-                message_publish(MSG_ERROR, "Monte [%s:%d] Unrecognized command %d received from Master.\nShutting down.\n",
+                message_publish(MSG_ERROR, "Monte [%s:%d] Unrecognized command %d received from Master. Shutting down.\n",
                                 machine_name.c_str(), slave_id, command) ;
                 }
                 slave_shutdown();

@@ -42,14 +42,16 @@ int Trick::Executive::advance_sim_time() {
     /* Adjust time_tics if one of the threads has a job or async cycle time less than the main thread's next job */
     for (ii = 1; ii < threads.size() ; ii++) {
         Threads * curr_thread = threads[ii] ;
-        if ( (curr_thread->process_type == PROCESS_TYPE_SCHEDULED) &&
-             (curr_thread->job_queue.get_next_job_call_time() < time_tics) ) {
-            time_tics = curr_thread->job_queue.get_next_job_call_time() ;
-        }
-        if ( (curr_thread->process_type == PROCESS_TYPE_AMF_CHILD ) &&
-             (curr_thread->amf_cycle_tics > 0 ) &&
-             (curr_thread->amf_next_tics < time_tics) ) {
-            time_tics = curr_thread->amf_next_tics ;
+        if ( curr_thread->enabled ) {
+            if ( (curr_thread->process_type == PROCESS_TYPE_SCHEDULED) &&
+                 (curr_thread->job_queue.get_next_job_call_time() < time_tics) ) {
+                time_tics = curr_thread->job_queue.get_next_job_call_time() ;
+            }
+            if ( (curr_thread->process_type == PROCESS_TYPE_AMF_CHILD ) &&
+                 (curr_thread->amf_cycle_tics > 0 ) &&
+                 (curr_thread->amf_next_tics < time_tics) ) {
+                time_tics = curr_thread->amf_next_tics ;
+            }
         }
     }
 

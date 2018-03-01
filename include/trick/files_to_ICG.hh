@@ -25,6 +25,7 @@
 #include "trick/MSSharedMem.hh"
 #include "trick/MemoryManager.hh"
 #include "trick/MessageCout.hh"
+#include "trick/MessageThreadedCout.hh"
 #include "trick/MessageFile.hh"
 #include "trick/MessageLCout.hh"
 #include "trick/MessagePublisher.hh"

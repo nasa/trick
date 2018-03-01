@@ -29,7 +29,7 @@ $(JAR_DIR):
 	@ mkdir -p $(JAR_DIR)
 
 jar: compile manifest | $(JAR_DIR)
-	jar cvfm $(JAR_DIR)/$(PROJECT_NAME).jar manifest -C $(CLASSES_DIR) .
+	jar cvfm $(JAR_DIR)/$(PROJECT_NAME).jar manifest -C $(CLASSES_DIR) . -C resources .
 	@ echo "-------------------------------------------------------------------------------"
 	@ echo "                              BUILD COMPLETE"
 	@ echo "The Java jar file (the Java Executable) is located at: $(JAR_DIR)/$(PROJECT_NAME).jar"

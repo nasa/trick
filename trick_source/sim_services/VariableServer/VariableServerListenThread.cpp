@@ -118,6 +118,7 @@ void * Trick::VariableServerListenThread::thread_body() {
 
     int mcast_socket ;
     struct sockaddr_in mcast_addr ;
+    struct sockaddr_in mcast_addr_legacy ;
 
     version = std::string(exec_get_current_version()) ;
     version.erase(version.find_last_not_of(" \t\f\v\n\r")+1);
@@ -154,6 +155,11 @@ void * Trick::VariableServerListenThread::thread_body() {
         mcast_addr.sin_family = AF_INET;
         mcast_addr.sin_addr.s_addr = inet_addr("239.3.14.15");
         mcast_addr.sin_port = htons((uint16_t) 9265);
+
+        memset(&mcast_addr_legacy, 0, sizeof(mcast_addr_legacy));
+        mcast_addr_legacy.sin_family = AF_INET;
+        mcast_addr_legacy.sin_addr.s_addr = inet_addr("224.3.14.15");
+        mcast_addr_legacy.sin_port = htons((uint16_t) 9265);
     }
 
     while (1) {
@@ -178,6 +184,7 @@ void * Trick::VariableServerListenThread::thread_body() {
                  command_line_args_get_input_file() , version.c_str() , user_tag.c_str(), (unsigned short)listen_dev.port ) ;
 
                 sendto(mcast_socket , buf1 , strlen(buf1) , 0 , (struct sockaddr *)&mcast_addr , (socklen_t)sizeof(mcast_addr)) ;
+                sendto(mcast_socket , buf1 , strlen(buf1) , 0 , (struct sockaddr *)&mcast_addr_legacy , (socklen_t)sizeof(mcast_addr)) ;
             }
         }
 

@@ -164,6 +164,7 @@ int main(int argc, char * argv[]) {
 
     PrintAttributes printAttributes(attr_version, hsd, cs, ci, force, sim_services_flag, output_dir);
 
+    printAttributes.addIgnoreTypes() ;
     // Create new class and enum map files
     if (create_map) {
         printAttributes.createMapFiles();

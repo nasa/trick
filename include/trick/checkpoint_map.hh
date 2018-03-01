@@ -55,22 +55,26 @@ int checkpoint_map_ik_id(STL & in_map , std::string object_name , std::string va
         var_declare << type_string << " "
          << object_name << "_" << var_name << "_keys[" << cont_size << "]" ;
         keys = (typename STL::key_type *)TMM_declare_var_s(var_declare.str().c_str()) ;
-        TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_keys").c_str()) ;
-        //message_publish(1, "HERE with %s\n", var_declare) ;
+        if ( keys ) {
+            TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_keys").c_str()) ;
+            //message_publish(1, "HERE with %s\n", var_declare) ;
 
-        var_declare.str("") ;
-        var_declare.clear() ;
-        type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*items).name(), 0, 0, &status )) ;
-        var_declare << type_string << " "
-         << object_name << "_" << var_name << "_data[" << cont_size << "]" ;
-        items = (typename STL::mapped_type *)TMM_declare_var_s(var_declare.str().c_str()) ;
-        TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_data").c_str()) ;
-        //message_publish(1, "HERE with %s\n", var_declare) ;
+            var_declare.str("") ;
+            var_declare.clear() ;
+            type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*items).name(), 0, 0, &status )) ;
+            var_declare << type_string << " "
+             << object_name << "_" << var_name << "_data[" << cont_size << "]" ;
+            items = (typename STL::mapped_type *)TMM_declare_var_s(var_declare.str().c_str()) ;
+            if ( items ) {
+                TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_data").c_str()) ;
+                //message_publish(1, "HERE with %s\n", var_declare) ;
 
-        /* copy the contents of the map the 2 arrays */
-        for ( iter = in_map.begin() , ii = 0 ; iter != in_map.end() ; iter++ , ii++ ) {
-            keys[ii] = iter->first ;
-            items[ii] = iter->second ;
+                /* copy the contents of the map the 2 arrays */
+                for ( iter = in_map.begin() , ii = 0 ; iter != in_map.end() ; iter++ , ii++ ) {
+                    keys[ii] = iter->first ;
+                    items[ii] = iter->second ;
+                }
+            }
         }
     }
     return 0 ;
@@ -111,29 +115,33 @@ int checkpoint_map_ik_sd(STL & in_map , std::string object_name , std::string va
         var_declare << type_string << " "
          << object_name << "_" << var_name << "_keys[" << cont_size << "]" ;
         keys = (typename STL::key_type *)TMM_declare_var_s(var_declare.str().c_str()) ;
-        TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_keys").c_str()) ;
-        //message_publish(1, "HERE with %s\n", var_declare) ;
+        if ( keys ) {
+            TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_keys").c_str()) ;
+            //message_publish(1, "HERE with %s\n", var_declare) ;
 
-        var_declare.str("") ;
-        var_declare.clear() ;
-        var_declare << "std::string "
-         << object_name << "_" << var_name << "_data[" << cont_size << "]" ;
-        items = (std::string *)TMM_declare_var_s(var_declare.str().c_str()) ;
-        TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_data").c_str()) ;
-        //message_publish(1, "HERE with %s\n", var_declare) ;
+            var_declare.str("") ;
+            var_declare.clear() ;
+            var_declare << "std::string "
+             << object_name << "_" << var_name << "_data[" << cont_size << "]" ;
+            items = (std::string *)TMM_declare_var_s(var_declare.str().c_str()) ;
+            if ( items ) {
+                TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_data").c_str()) ;
+                //message_publish(1, "HERE with %s\n", var_declare) ;
 
-        /* copy the contents of the map the 2 arrays */
-        for ( iter = in_map.begin() , ii = 0 ; iter != in_map.end() ; iter++ , ii++ ) {
-            keys[ii] = iter->first ;
+                /* copy the contents of the map the 2 arrays */
+                for ( iter = in_map.begin() , ii = 0 ; iter != in_map.end() ; iter++ , ii++ ) {
+                    keys[ii] = iter->first ;
 
-            std::ostringstream sub_elements ;
-            sub_elements << object_name << "_" << var_name << "_data_" << ii ;
-            items[ii] = sub_elements.str() ;
+                    std::ostringstream sub_elements ;
+                    sub_elements << object_name << "_" << var_name << "_data_" << ii ;
+                    items[ii] = sub_elements.str() ;
 
-            std::ostringstream index_string ;
-            index_string << ii ;
-            //message_publish(1, "recursive call to checkpoint_stl %s\n", __PRETTY_FUNCTION__) ;
-            checkpoint_stl( iter->second , object_name + "_" + var_name + "_data" , index_string.str() ) ;
+                    std::ostringstream index_string ;
+                    index_string << ii ;
+                    //message_publish(1, "recursive call to checkpoint_stl %s\n", __PRETTY_FUNCTION__) ;
+                    checkpoint_stl( iter->second , object_name + "_" + var_name + "_data" , index_string.str() ) ;
+                }
+            }
         }
     }
     return 0 ;
@@ -173,30 +181,34 @@ int checkpoint_map_sk_id(STL & in_map , std::string object_name , std::string va
         var_declare << "std::string "
          << object_name << "_" << var_name << "_keys[" << cont_size << "]" ;
         keys = (std::string *)TMM_declare_var_s(var_declare.str().c_str()) ;
-        TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_keys").c_str()) ;
-        //message_publish(1, "HERE with %s\n", var_declare) ;
+        if ( keys ) {
+            TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_keys").c_str()) ;
+            //message_publish(1, "HERE with %s\n", var_declare) ;
 
-        var_declare.str("") ;
-        var_declare.clear() ;
-        std::string type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*items).name(), 0, 0, &status )) ;
-        var_declare << type_string << " "
-         << object_name << "_" << var_name << "_data[" << cont_size << "]" ;
-        items = (typename STL::mapped_type *)TMM_declare_var_s(var_declare.str().c_str()) ;
-        TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_data").c_str()) ;
-        //message_publish(1, "HERE with %s\n", var_declare) ;
+            var_declare.str("") ;
+            var_declare.clear() ;
+            std::string type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*items).name(), 0, 0, &status )) ;
+            var_declare << type_string << " "
+             << object_name << "_" << var_name << "_data[" << cont_size << "]" ;
+            items = (typename STL::mapped_type *)TMM_declare_var_s(var_declare.str().c_str()) ;
+            if ( items ) {
+                TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_data").c_str()) ;
+                //message_publish(1, "HERE with %s\n", var_declare) ;
 
-        /* copy the contents of the map the 2 arrays */
-        for ( iter = in_map.begin() , ii = 0 ; iter != in_map.end() ; iter++ , ii++ ) {
-            std::ostringstream sub_elements ;
-            sub_elements << object_name << "_" << var_name << "_keys_" << ii ;
-            keys[ii] = sub_elements.str() ;
+                /* copy the contents of the map the 2 arrays */
+                for ( iter = in_map.begin() , ii = 0 ; iter != in_map.end() ; iter++ , ii++ ) {
+                    std::ostringstream sub_elements ;
+                    sub_elements << object_name << "_" << var_name << "_keys_" << ii ;
+                    keys[ii] = sub_elements.str() ;
 
-            std::ostringstream index_string ;
-            index_string << ii ;
-            checkpoint_stl( const_cast<typename STL::key_type &>(iter->first) ,
-             object_name + "_" + var_name + "_keys", index_string.str() ) ;
+                    std::ostringstream index_string ;
+                    index_string << ii ;
+                    checkpoint_stl( const_cast<typename STL::key_type &>(iter->first) ,
+                     object_name + "_" + var_name + "_keys", index_string.str() ) ;
 
-            items[ii] = iter->second ;
+                    items[ii] = iter->second ;
+                }
+            }
         }
     }
     return 0 ;
@@ -235,33 +247,37 @@ int checkpoint_map_stl_sk_sd(STL & in_map , std::string object_name , std::strin
         var_declare << "std::string "
          << object_name << "_" << var_name << "_keys[" << cont_size << "]" ;
         keys = (std::string *)TMM_declare_var_s(var_declare.str().c_str()) ;
-        TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_keys").c_str()) ;
-        //message_publish(1, "HERE with %s\n", var_declare) ;
+        if ( keys ) {
+            TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_keys").c_str()) ;
+            //message_publish(1, "HERE with %s\n", var_declare) ;
 
-        var_declare.str("") ;
-        var_declare.clear() ;
-        var_declare << "std::string "
-         << object_name << "_" << var_name << "_data[" << cont_size << "]" ;
-        items = (std::string *)TMM_declare_var_s(var_declare.str().c_str()) ;
-        TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_data").c_str()) ;
-        //message_publish(1, "HERE with %s\n", var_declare) ;
+            var_declare.str("") ;
+            var_declare.clear() ;
+            var_declare << "std::string "
+             << object_name << "_" << var_name << "_data[" << cont_size << "]" ;
+            items = (std::string *)TMM_declare_var_s(var_declare.str().c_str()) ;
+            if ( items ) {
+                TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_data").c_str()) ;
+                //message_publish(1, "HERE with %s\n", var_declare) ;
 
-        /* copy the contents of the map the 2 arrays */
-        for ( iter = in_map.begin() , ii = 0 ; iter != in_map.end() ; iter++ , ii++ ) {
-            std::ostringstream sub_elements ;
-            sub_elements << object_name << "_" << var_name << "_keys_" << ii ;
-            keys[ii] = sub_elements.str() ;
+                /* copy the contents of the map the 2 arrays */
+                for ( iter = in_map.begin() , ii = 0 ; iter != in_map.end() ; iter++ , ii++ ) {
+                    std::ostringstream sub_elements ;
+                    sub_elements << object_name << "_" << var_name << "_keys_" << ii ;
+                    keys[ii] = sub_elements.str() ;
 
-            std::ostringstream index_string ;
-            index_string << ii ;
-            checkpoint_stl( const_cast<typename STL::key_type &>(iter->first) ,
-             object_name + "_" + var_name + "_keys", index_string.str() ) ;
+                    std::ostringstream index_string ;
+                    index_string << ii ;
+                    checkpoint_stl( const_cast<typename STL::key_type &>(iter->first) ,
+                     object_name + "_" + var_name + "_keys", index_string.str() ) ;
 
-            sub_elements << object_name << "_" << var_name << "_data_" << ii ;
-            items[ii] = sub_elements.str() ;
+                    sub_elements << object_name << "_" << var_name << "_data_" << ii ;
+                    items[ii] = sub_elements.str() ;
 
-            checkpoint_stl( iter->second ,
-             object_name + "_" + var_name + "_data", index_string.str() ) ;
+                    checkpoint_stl( iter->second ,
+                     object_name + "_" + var_name + "_data", index_string.str() ) ;
+                }
+            }
         }
     }
     return 0 ;
