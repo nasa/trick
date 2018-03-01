@@ -12,11 +12,11 @@ void CSV_Formatter::writeColumnLabelSeparator(FILE* out_fp)  { fprintf(out_fp,",
 void CSV_Formatter::writeDatumSeparator(FILE* out_fp)        { fprintf(out_fp,","); }
 void CSV_Formatter::writeRecordSeparator(FILE* out_fp)       { fprintf(out_fp,"\n"); }
 void CSV_Formatter::writeDatum(FILE* out_fp, int8_t datum)   { fprintf(out_fp,"%d", datum); }
-void CSV_Formatter::writeDatum(FILE* out_fp, uint8_t datum)  { fprintf(out_fp,"%ud", datum); }
+void CSV_Formatter::writeDatum(FILE* out_fp, uint8_t datum)  { fprintf(out_fp,"%u", datum); }
 void CSV_Formatter::writeDatum(FILE* out_fp, int16_t datum)  { fprintf(out_fp,"%d", datum); }
-void CSV_Formatter::writeDatum(FILE* out_fp, uint16_t datum) { fprintf(out_fp,"%ud", datum); }
+void CSV_Formatter::writeDatum(FILE* out_fp, uint16_t datum) { fprintf(out_fp,"%u", datum); }
 void CSV_Formatter::writeDatum(FILE* out_fp, int32_t datum)  { fprintf(out_fp,"%d", datum); }
-void CSV_Formatter::writeDatum(FILE* out_fp, uint32_t datum) { fprintf(out_fp,"%ud", datum); }
+void CSV_Formatter::writeDatum(FILE* out_fp, uint32_t datum) { fprintf(out_fp,"%u", datum); }
 void CSV_Formatter::writeDatum(FILE* out_fp, int64_t datum)  { fprintf(out_fp,"%lld", datum); }
 void CSV_Formatter::writeDatum(FILE* out_fp, uint64_t datum) { fprintf(out_fp,"%lld", datum); }
 void CSV_Formatter::writeDatum(FILE* out_fp, float datum)    { fprintf(out_fp,"%.7f", datum); }
