@@ -4,7 +4,14 @@ TRICK_HOME := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))../..)
 include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 JAVAC ?= javac
-JAVAC_FLAGS = -g -Xlint:unchecked -Xlint:deprecation --add-modules java.se.ee
+JAVAC_FLAGS = -g -Xlint:unchecked -Xlint:deprecation
+# delineate 'javac -version' for version number 
+JAVAC_VERSION := $(shell (${JAVAC} -version |& awk '{print $$2}') | awk -F ""."" '{print $$1}')
+
+# include java.se.ee for JAXB xml annotations (for trick-tv) in java version 9
+ifeq ($(JAVAC_VERSION),9)
+	JAVAC_FLAGS += --add-modules java.se.ee
+endif
 
 SRC_DIR   = src
 SRC_FILES = $(shell find ${SRC_DIR} -type f -name \*.java)
@@ -22,6 +29,7 @@ CLASS_PATH = $(subst $(space),:,$(wildcard ${LIB_DIR}/*.jar))
 
 RESOURCES = $(subst src/,,$(shell find src/trick -name resources))
 RESOURCES += $(subst src/,,$(shell find src/trick -name jaxb.index))
+
 
 all: ${DIST_DIR}/trick.jar resources
 	@echo "[32mJava build successful[0m"
@@ -65,3 +73,4 @@ clean_obj:
 
 clean_docs:
 	rm -rf ${DOCS_API_DIR}
+
