@@ -81,9 +81,7 @@ ${LIBDIR}/libDPV.a:
 	$(MAKE) -C ${DPX_DIR}/DPV/UTILS
 
 clean:
-	@ echo -e "\e[31m\c"
 	${RM} $(OBJDIR)
-	@ echo -e "\e[32mDirectory cleaned.\e[0m"
 
 spotless: clean
 

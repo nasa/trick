@@ -65,10 +65,8 @@ $(LIBDIR)/$(LIBNAME): $(CPP_OBJECTS) | $(LIBDIR)
 	ar crs $(LIBDIR)/$(LIBNAME) $?
 
 clean:
-	@ echo -e "\e[31m\c"
 	rm -rf $(OBJ_DIR)
 	rm -f $(LIBDIR)/$(LIBNAME) 
-	@ echo -e "\e[32mDirectory cleaned.\e[0m"
 
 real_clean: clean
 

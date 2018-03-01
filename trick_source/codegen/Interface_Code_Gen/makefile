@@ -75,6 +75,4 @@ $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
 clean:
-	@ echo -e "\e[31m\c"
 	rm -rf $(OBJ_DIR) $(ICG)
-	@ echo -e "\e[32mDirectory cleaned.\e[0m"

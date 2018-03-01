@@ -53,12 +53,10 @@ javadoc: ${DOCS_API_DIR}
 	javadoc -d ${DOCS_API_DIR} -classpath ${CLASS_PATH} -sourcepath ${SRC_DIR} -windowtitle "Trick GUI API" ${JAVA_DOC_LINKS} trick ${SRC_FILES}
 
 clean:
-	@ echo -e "\e[31m\c"
 	rm -rf ${BUILD_DIR}
 	rm -rf ${DIST_DIR}
 	rm -rf ${RESOURCES_DIR}
 	rm -rf ${TEST_REPORTS_DIR}
-	@ echo -e "\e[32mDirectory cleaned.\e[0m"
 
 clean_obj:
 	rm -rf ${BUILD_DIR}

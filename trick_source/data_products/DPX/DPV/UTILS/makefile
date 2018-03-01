@@ -34,12 +34,9 @@ ${LIBDIR}:
 	mkdir -p ${LIBDIR}
 
 clean:
-	@ echo -e "\e[31m\c"
 	${RM} *~
 	${RM} *.o
 	${RM} ${OBJDIR}
-	@ echo -e "\e[0m\c"
-	@ echo -e "\e[32mDirectory cleaned.\e[0m"
 
 spotless: clean
 	${RM} ${LIBDIR}/${LIBNAME}

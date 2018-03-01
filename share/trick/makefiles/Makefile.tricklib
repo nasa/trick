@@ -169,19 +169,13 @@ depend:
 	@ echo "Created dependency file $(DEPFILE)"
 
 io_clean: 
-	@ echo -e "\e[31m\c"
 	$(RM) -rf io_src
-	@ echo -e "\e[0m\c"
 
 clean:
-	@ echo -e "\e[31m\c"
 	$(RM) -rf $(OBJ_DIR) $(L_C) $(Y_C) $(Y_H)
-	@ echo -e "\e[0m\c"
 
 real_clean: clean io_clean
-	@ echo -e "\e[31m\c"
 	$(RM) -rf xml *~ *.bak core
-	@ echo -e "\e[32mDirectory cleaned.\e[0m"
 
 help :
 	@ echo -e "\n\

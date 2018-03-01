@@ -52,12 +52,10 @@ clean:
 	@ $(MAKE) -C TESTING spotless
 	@ $(MAKE) -C APPS spotless
 	
-	@ echo -e "\e[31m\c"
 	${RM} DOCS
 	${RM} ${LIBDIR}
 	${RM} *~
 	${RM} *.o
-	@ echo -e "\e[32mDirectory cleaned.\e[0m"
 
 real_clean: clean
 

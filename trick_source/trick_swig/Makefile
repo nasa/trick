@@ -84,14 +84,10 @@ $(TRICK_LIB) : $(SWIG_OBJECT_FILES) $(OBJECT_FILES)
 real_clean: clean
 
 clean: clean_python
-	@ echo -e "\e[31m\c"
 	$(RM) -rf $(OBJ_DIR) $(TEST_DIR) $(PY_FILES)
-	@ echo -e "\e[32mDirectory cleaned.\e[0m"
 
 clean_python:
-	@ echo -e "\e[31m\c"
 	rm -rf swig_${TRICK_HOST_CPU} sim_services.py swig_double.py swig_int.py swig_ref.py
-	@ echo -e "\e[0m\c"
 
 # some depends
 swig_int_wrap.cpp: swig_int.cpp
