@@ -21,6 +21,7 @@ bin/trick-fxplot
 bin/trick-gxplot
 bin/trick-trk2ascii
 bin/trick-trk2csv
+bin/trick-trkConvert
 aclocal.m4
 autom4te.cache
 trick_test

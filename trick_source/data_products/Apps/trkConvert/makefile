@@ -13,10 +13,13 @@ OBJECTS = CSV_Formatter.o Varlist_Formatter.o trkConvert.o
 .cpp.o:
 	${CPP} ${CFLAGS} ${INCDIRS} -c $<
 
-all: trkConvert
+all: install
 
 trkConvert: $(OBJECTS)
 	$(CPP) -o trkConvert $(OBJECTS) 
+
+install: trkConvert
+	cp trkConvert $${TRICK_HOME}/bin/trick-trkConvert
 
 clean:
 	rm -f *.o

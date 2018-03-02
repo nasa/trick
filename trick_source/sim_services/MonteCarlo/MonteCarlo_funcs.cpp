@@ -397,24 +397,15 @@ Trick::MonteRun *Trick::MonteCarlo::get_next_dispatch() {
     /** <ul><li> While there are remaining runs: */
     while (!runs.empty()) {
         MonteRun *curr_run = runs.front();
-        /** <ul><li> If this run hasn't been dispatched before: */
-        if (curr_run->num_tries == 0) {
-            /** <li> If it is in range, return it. </ul>*/
-            if (in_range(curr_run)) {
-                return curr_run;
-            /** <li> Otherwise, run the pre run jobs and dequeue it. */
-            } else {
-                if (verbosity >= ALL) {
-                    message_publish(MSG_WARNING, "Monte [Master] Run %d is out of range and has been skipped.\n", curr_run->id) ;
-                }
-                prepare_run(curr_run);
-            }
-        /**
-         * <li> If this run has been dispatched before, it may have been requeued due to a slave timeout for which the slave
-         * later returned results. In such a case, do not dispatch it again (return NULL). Otherwise, return it.
-         */
-        } else if (curr_run->exit_status == MonteRun::INCOMPLETE) {
+        /** <li> If it is in range, return it. </ul>*/
+        if (in_range(curr_run)) {
             return curr_run;
+        /** <li> Otherwise, run the pre run jobs and dequeue it. */
+        } else {
+            if (verbosity >= ALL) {
+                message_publish(MSG_WARNING, "Monte [Master] Run %d is out of range and has been skipped.\n", curr_run->id) ;
+            }
+            prepare_run(curr_run);
         }
     }
     return NULL;
