@@ -27,7 +27,7 @@ sub get_paths {
         # trim whitespace
         @paths = map { s/(^\s+|\s+$)//g ; $_ } @paths ;
         # Remove empty elements. Sort forced all blank names to the front.
-        while ( not length @paths[0] ) {
+        while ( scalar @paths and not length @paths[0] ) {
             shift @paths ;
         }
         @paths = map { (-e $_) ? abs_path($_) : $_ } @paths ;

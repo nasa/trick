@@ -142,7 +142,6 @@ depend:
 	@ echo "Appended dependencies to $(MAKEFILE)"
 
 clean:
-	@echo "===== Cleaning DPC_TEST Directory ====="
 	${RM} *~
 	${RM} *.o
 

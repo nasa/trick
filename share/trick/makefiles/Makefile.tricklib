@@ -160,10 +160,7 @@ $(L_OBJS) : $(OBJ_DIR)/%.lex.o : $(SRC_DIR)%.lex.c $(SRC_DIR)%.tab.h  | $(OBJ_DI
 $(Y_OBJS) : $(OBJ_DIR)/%.tab.o : $(SRC_DIR)%.tab.c  | $(OBJ_DIR)
 	$(CD_CMD) $(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
 
-
-#
 # OTHER RULES
-#
 
 depend:
 	@ $(TRICK_CPPC) -MM $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(C_SRC) $(CPP_SRC) >> $(DEPTEMPFILE)
@@ -174,15 +171,15 @@ depend:
 io_clean: 
 	$(RM) -rf io_src
 
+clean:
+	$(RM) -rf $(OBJ_DIR) $(L_C) $(Y_C) $(Y_H)
+
 real_clean: clean io_clean
 	$(RM) -rf xml *~ *.bak core
-	@ echo "Directory is really clean!"
-
-clean: 
-	$(RM) -rf $(OBJ_DIR) $(L_C) $(Y_C) $(Y_H)
 
 help :
 	@ echo -e "\n\
+
 Source Directory Make Options:\n\
     make               - Compiles are source files\n\
 \n\
@@ -194,4 +191,3 @@ Source Directory Make Options:\n\
 \n\
     make real_clean    - Deletes xml/, io_src/,\n\
                          and object_${TRICK_HOST_CPU}/ directories\n"
-
