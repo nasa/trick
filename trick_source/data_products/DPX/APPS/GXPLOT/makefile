@@ -55,6 +55,7 @@ OBJECT_FILES = $(C_OBJECT_FILES) $(CXX_OBJECT_FILES)
 all: ${TRICK_HOME}/bin/trick-gxplot
 
 ${TRICK_HOME}/bin/trick-gxplot: ${LIBDIR}/libDPM.a ${LIBDIR}/libDPC.a ${LIBDIR}/libDPV.a $(OBJECT_FILES)
+	@echo "===== Making gxplot ====="
 	${CPP} ${CFLAGS} ${INCDIRS} -o $@ $(OBJECT_FILES) $(ALL_LIBS) ${XLIBS} ${LIBRTDEF} ${CONTROLLER_LIBS} -lDPV
 
 $(C_OBJECT_FILES) : $(OBJDIR)/%.o : %.c

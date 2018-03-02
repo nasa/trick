@@ -23,23 +23,21 @@ all: $(LIBDIRS) $(APPDIRS)
 always_make:
 
 docs: always_make
-	@ echo -e "\e[34m[---Making Documentation---]\e[0m"
+	@echo "===== Making DOCS ====="
 	doxygen DPX.doxygen
 
 testing: $(LIBDIRS)
-	@ echo -e "\e[34m[---Building TESTING---]\e[0m"
+	@echo "===== Making TESTING ====="
 	$(MAKE) -C TESTING
-	@ echo ""
 
 $(LIBDIRS):
-	@ echo -e "\e[34m[---Building $@---]\e[0m"
+	@ echo ; echo "==: Compile $@"
 	@ $(MAKE) -C $@
-	@ echo ""
 
 $(APPDIRS): $(LIBDIRS)
-	@ echo -e "\e[34m[---Building $@---]\e[0m"
+	@echo "===== Making APPS ====="
+	@ echo ; echo "==: Compile $@"
 	@ $(MAKE) -C $@
-	@ echo ""
 
 clean:
 	@ for i in $(LIBDIRS) ; do \
@@ -48,12 +46,11 @@ clean:
 	@ for i in $(APPDIRS) ; do \
 	       $(MAKE) -C $$i clean ; \
           done
-
-	@ $(MAKE) -C TESTING spotless
-	@ $(MAKE) -C APPS spotless
-	
-	${RM} DOCS
+	${RM}  -rf DOCS
 	${RM} ${LIBDIR}
+	$(MAKE) -C TESTING spotless
+	$(MAKE) -C APPS spotless
+	$(MAKE) -C XML clean
 	${RM} *~
 	${RM} *.o
 

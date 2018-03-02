@@ -25,9 +25,9 @@ clean:
 	$(MAKE) -C UDS clean
 
 spotless:
-	@ $(MAKE) -C DPC_TEST spotless
-	@ $(MAKE) -C DPM_TEST spotless
-	@ $(MAKE) -C DS_exercisor spotless
-	@ $(MAKE) -C DS spotless
-	@ $(MAKE) -C TCDS spotless
-	@ $(MAKE) -C UDS spotless
+	$(MAKE) -C DPC_TEST spotless
+	$(MAKE) -C DPM_TEST spotless
+	$(MAKE) -C DS_exercisor spotless
+	$(MAKE) -C DS spotless
+	$(MAKE) -C TCDS spotless
+	$(MAKE) -C UDS spotless

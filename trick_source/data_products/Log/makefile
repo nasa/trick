@@ -66,7 +66,7 @@ $(LIBDIR)/$(LIBNAME): $(CPP_OBJECTS) | $(LIBDIR)
 
 clean:
 	rm -rf $(OBJ_DIR)
-	rm -f $(LIBDIR)/$(LIBNAME) 
+	rm -f $(LIBDIR)/$(LIBNAME)
 
 real_clean: clean
 

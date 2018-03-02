@@ -23,29 +23,26 @@ APPDIRS = DPX \
     Apps/ExternalPrograms
 
 all: $(LIBDIRS) $(APPDIRS)
-	@ echo -e "\e[32mTrick data-products compiled:\e[34m" ; date ; echo -e "\e[0m"
+	@ echo "[32m== Trick data_products make complete ==[00m"
 
 .PHONY: $(LIBDIRS) $(APPDIRS)
 
 $(LIBDIRS):
-	@ echo -e "\e[34m[---Building $@---]\e[0m"
+	@ echo ; echo "==: Compile data_products/$@"
 	@ $(MAKE) -C $@ 
-	@ echo ""
 
 $(APPDIRS): $(LIBDIRS) 
-	@ echo -e "\e[34m[---Building $@---]\e[0m"
+	@ echo ; echo "==: Compile data_products/$@"
 	@ $(MAKE) -C $@
-	@ echo ""
 
 real_clean: clean
 
 clean:
 	@ for i in $(LIBDIRS) ; do \
-		$(MAKE) -C $$i real_clean ; \
-		done
-
+	       $(MAKE) -C $$i real_clean ; \
+          done
 	@ for i in $(APPDIRS) ; do \
-		$(MAKE) -C $$i real_clean ; \
-		done
-
+	       $(MAKE) -C $$i real_clean ; \
+          done
 	@ rm -rf $(LIB_DIR)
+
