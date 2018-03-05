@@ -91,5 +91,6 @@
 #include "trick/Flag.h"
 #include "trick/wave_form.h"
 #include "trick/rand_generator.h"
+#include "trick/units_conv.h"
 
 #endif
