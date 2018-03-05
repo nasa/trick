@@ -187,6 +187,22 @@ CurveModel* Runs::curveModel(int row,
 
     QList<DataModel*>* models = 0;
 
+    if ( tName.contains(':') || xName.contains(':') || yName.contains(':') ) {
+        QString varName;
+        if ( tName.contains(':') ) {
+            varName = tName;
+        } else if ( xName.contains(':') ) {
+            varName = xName;
+        } else {
+            varName = yName;
+        }
+        fprintf(stderr, "koviz [error]: var=%s contains a colon.\n"
+                "The RUN:var syntax has been superceded by use of koviz maps.  "
+                "See the \"Maps\" section of the User's Guide for info.\n",
+                varName.toLatin1().constData());
+        exit(-1);
+    }
+
     if ( _paramToModels.value(y) ) {
         if ( _paramToModels.value(y)->at(row)->paramColumn(y) >= 0 ) {
             models = _paramToModels.value(y);
