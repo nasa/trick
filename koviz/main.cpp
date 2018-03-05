@@ -228,6 +228,14 @@ int main(int argc, char *argv[])
     } else if ( !opts.mapFile.isEmpty() ) {
         varMap = getVarMapFromFile(opts.mapFile);
     }
+    foreach ( QString key, varMap.keys() ) {
+        if ( key.contains(':') ) {
+            fprintf(stderr, "koviz [error]: bad mapkey=\"%s\". "
+                            "Keys cannot contain colons.\n",
+                    key.toLatin1().constData());
+            exit(-1);
+        }
+    }
 
     QHash<QString,QVariant> shifts = getShiftHash(opts.shiftString, runDirs);
     QStringList timeNames = getTimeNames(opts.timeName);

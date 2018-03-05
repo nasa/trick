@@ -98,20 +98,35 @@ void Runs::_init()
         _models.append(m);
         int ncols = m->columnCount();
         QStringList mParams;
-        for ( int col = 0; col < ncols; ++col) {
+        for ( int col = 0; col < ncols; ++col ) {
             QString p = m->param(col)->name();
             foreach (QString key, _varMap.keys() ) {
+                if ( p == key ) {
+                    break;
+                }
+                QString runDir = QFileInfo(fname).absolutePath();
                 QStringList vals = _varMap.value(key);
-                bool isFound = false;
-                foreach ( QString val, vals ) {
-                    if ( p == val ) {
-                        p = key;
-                        isFound = true;
+                if ( vals.contains(p) ) {
+                    p = key;
+                    break;
+                } else {
+                    bool isFound = false;
+                    foreach ( QString val, vals ) {
+                        if ( val.contains(':') ) {
+                            QStringList l = val.split(':');
+                            QString run = QFileInfo(l.at(0).trimmed()).
+                                                            absoluteFilePath();
+                            QString var =  l.at(1);
+                            if ( run == runDir && p == var) {
+                                p = key;
+                                isFound = true;
+                                break;
+                            }
+                        }
+                    }
+                    if ( isFound ) {
                         break;
                     }
-                }
-                if ( isFound ) {
-                    break;
                 }
             }
             mParams << p;
@@ -153,21 +168,6 @@ void Runs::_init()
                     m = pfnameToModel.value(pfname);
                     break;
                 }
-                if ( _varMap.contains(p) ) {
-                    QStringList vals = _varMap.value(p);
-                    bool isFound = false;
-                    foreach ( QString val, vals ) {
-                        QPair<QString,QString> pfname = qMakePair(val,fname);
-                        if ( pfnameToModel.contains(pfname) ) {
-                            m = pfnameToModel.value(pfname);
-                            isFound = true;
-                            break;
-                        }
-                    }
-                    if ( isFound ) {
-                        break;
-                    }
-                }
             }
             _paramToModels.value(p)->append(m);
         }
@@ -175,11 +175,54 @@ void Runs::_init()
 }
 
 CurveModel* Runs::curveModel(int row,
-                        const QString &tparam,
-                        const QString &xparam,
-                        const QString &yparam) const
+                        const QString &tName,
+                        const QString &xName,
+                        const QString &yName) const
 {
-    QList<DataModel*>* models = _paramToModels.value(yparam);
+    QString runDir = QFileInfo(_runs.at(row)).absoluteFilePath();
+
+    QString t = tName;
+    QString x = xName;
+    QString y = yName;
+
+    QList<DataModel*>* models = 0;
+
+    if ( _paramToModels.value(y) ) {
+        if ( _paramToModels.value(y)->at(row)->paramColumn(y) >= 0 ) {
+            models = _paramToModels.value(y);
+        }
+    }
+
+    if ( models == 0 ) {
+        if ( _varMap.contains(y) ) {
+            QList<DataModel*>* mdls = _paramToModels.value(y);
+            if ( mdls ) {
+                foreach ( QString yval, _varMap.value(y) ) {
+                    if ( yval.contains(':') ) {
+                        QStringList l = yval.split(':');
+                        QString run = QFileInfo(l.at(0).trimmed()).
+                                                        absoluteFilePath();
+                        if ( run == runDir ) {
+                            int ycol = mdls->at(row)->
+                                             paramColumn(l.at(1).trimmed());
+                            if ( ycol >= 0 ) {
+                                models = mdls;
+                                y = l.at(1).trimmed();
+                                break;
+                            }
+                        }
+                    } else {
+                        if ( mdls->at(row)->paramColumn(yval) >= 0 ) {
+                            models = mdls;
+                            y = yval;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     if ( models == 0 ) {
         return 0;
     }
@@ -189,21 +232,34 @@ CurveModel* Runs::curveModel(int row,
         return 0;
     }
 
-    int tcol = tm->paramColumn(tparam) ;
+    int tcol = tm->paramColumn(t) ;
     if ( tcol < 0 ) {
-        if ( _varMap.contains(tparam) ) {
-            foreach ( QString tval, _varMap.value(tparam) ) {
-                tcol = tm->paramColumn(tval);
-                if ( tcol >= 0 ) {
-                    break;
+        if ( _varMap.contains(t) ) {
+            foreach ( QString tval, _varMap.value(t) ) {
+                if ( tval.contains(':') ) {
+                    QStringList l = tval.split(':');
+                    QString run=QFileInfo(l.at(0).trimmed()).absoluteFilePath();
+                    if ( run == runDir ) {
+                        tcol = tm->paramColumn(l.at(1).trimmed());
+                        if ( tcol >= 0 ) {
+                            t = l.at(1).trimmed();
+                            break;
+                        }
+                    }
+                } else {
+                    tcol = tm->paramColumn(tval);
+                    if ( tcol >= 0 ) {
+                        t = tval;
+                        break;
+                    }
                 }
             }
-
         }
         if ( tcol < 0 ) {
             foreach (QString timeName, _timeNames ) {
                 tcol = tm->paramColumn(timeName);
                 if ( tcol >= 0 ) {
+                    t = timeName;
                     break;
                 }
             }
@@ -213,34 +269,33 @@ CurveModel* Runs::curveModel(int row,
         }
     }
 
-    int ycol = tm->paramColumn(yparam) ;
+    int ycol = tm->paramColumn(y) ;
     if ( ycol < 0 ) {
-        if ( _varMap.contains(yparam) ) {
-            foreach ( QString yval, _varMap.value(yparam) ) {
-                ycol = tm->paramColumn(yval);
-                if ( ycol >= 0 ) {
-                    break;
-                }
-            }
-            if ( ycol < 0 ) {
-                return 0;
-            }
-        } else {
-            return 0;
-        }
+        return 0;
     }
 
-    QString xp = xparam;
+    QString xp = x;
     if ( xp.isEmpty() ) {
-        xp = tparam;
+        xp = t;
     }
     int xcol = tm->paramColumn(xp) ;
     if ( xcol < 0 ) {
         if ( _varMap.contains(xp) ) {
             foreach ( QString xval, _varMap.value(xp) ) {
-                xcol = tm->paramColumn(xval);
-                if ( xcol >= 0 ) {
-                    break;
+                if ( xval.contains(':') ) {
+                    QStringList l = xval.split(':');
+                    QString run=QFileInfo(l.at(0).trimmed()).absoluteFilePath();
+                    if ( run == runDir ) {
+                        xcol = tm->paramColumn(l.at(1).trimmed());
+                        if ( xcol >= 0 ) {
+                            break;
+                        }
+                    }
+                } else {
+                    xcol = tm->paramColumn(xval);
+                    if ( xcol >= 0 ) {
+                        break;
+                    }
                 }
             }
         }
