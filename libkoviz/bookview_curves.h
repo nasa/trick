@@ -17,6 +17,7 @@
 #include <QItemSelectionModel>
 #include <QEasingCurve>
 #include <QImage>
+#include <QFontMetrics>
 #include <stdlib.h>
 #include <float.h>
 #include <math.h>

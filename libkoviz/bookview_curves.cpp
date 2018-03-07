@@ -458,7 +458,16 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
             QRectF tbox = Tscaled.mapRect(cbox);
             QTransform I;
             painter.setTransform(I);
-            painter.drawText(tbox.topLeft()-QPointF(0,5),yval);
+            double top = tbox.y()-fontMetrics().ascent();
+            if ( top >= 0 ) {
+                // Draw flatline label over curve
+                painter.drawText(tbox.topLeft()-QPointF(0,5),yval);
+            } else {
+                // Draw flatline label under curve since it would drawn off page
+                painter.drawText(tbox.topLeft()+
+                                 QPointF(0,fontMetrics().ascent())
+                                 +QPointF(0,5),yval);
+            }
             painter.setTransform(Tscaled);
         }
 
