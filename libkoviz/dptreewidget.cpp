@@ -394,13 +394,16 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             QModelIndex plotMathRectIdx = _bookModel->getDataIndex(plotIdx,
                                                                  "PlotMathRect",
                                                                  "Plot");
-            foreach ( QModelIndex siblingPlotIdx, siblingPlotIdxs ) {
-                bool isXTime = _bookModel->isXTime(siblingPlotIdx);
-                if ( isXTime ) {
-                    QRectF sibPlotRect = _bookModel->getPlotMathRect(siblingPlotIdx);
-                    bbox.setLeft(sibPlotRect.left());
-                    bbox.setRight(sibPlotRect.right());
-                    break;
+            if ( _bookModel->isXTime(plotIdx) ) {
+                foreach ( QModelIndex siblingPlotIdx, siblingPlotIdxs ) {
+                    bool isXTime = _bookModel->isXTime(siblingPlotIdx);
+                    if ( isXTime ) {
+                        QRectF sibPlotRect = _bookModel->getPlotMathRect(
+                                                                siblingPlotIdx);
+                        bbox.setLeft(sibPlotRect.left());
+                        bbox.setRight(sibPlotRect.right());
+                        break;
+                    }
                 }
             }
             _bookModel->setData(plotMathRectIdx,bbox);
