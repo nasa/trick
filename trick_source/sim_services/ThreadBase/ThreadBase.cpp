@@ -1,7 +1,7 @@
-
 #include <iostream>
 #include <stdio.h>
 #include <signal.h>
+#include <cstring>
 
 #if __linux
 #include <sys/syscall.h>
@@ -159,8 +159,7 @@ int Trick::ThreadBase::execute_priority() {
 
     if ( rt_priority > 0 ) {
         if (sched_getparam((pid_t) 0, &sparams)) {
-            perror("Error getting process scheduling parameters.");
-            message_publish(MSG_ERROR, "Error %d when getting process scheduling parameters.\n", errno);
+            message_publish(MSG_ERROR, "Failed to get process scheduling parameters: %s\n", std::strerror(errno));
         } else {
 
             /* Get maximum and minimum RT priority */
@@ -183,17 +182,13 @@ int Trick::ThreadBase::execute_priority() {
 
             if (pthread_getschedparam(pthread_self(), &sched_policy, &sparams)) {
 
-                perror("Error getting non-degrading priority.");
-                message_publish(MSG_ERROR, "Error %d when getting non-degrading priority.\n", errno);
+                message_publish(MSG_ERROR, "Failed to get process scheduling parameters: %s\n", std::strerror(errno));
             }
 
             /* Set the process priority. */
             sparams.sched_priority = proc_priority;
             if (pthread_setschedparam(pthread_self(), SCHED_FIFO, &sparams)) {
-                perror("Error setting non-degrading priority.");
-                message_publish(MSG_ERROR, "Error %d when setting non-degrading priority.\n", errno);
-            } else {
-                message_publish(MSG_INFO, "Thread %d: Using non degrading priority = %d.\n", pid, sparams.sched_priority);
+                message_publish(MSG_ERROR, "Failed to set thread priority: %s\n", std::strerror(errno));
             }
         }
     }
@@ -257,9 +252,7 @@ int Trick::ThreadBase::execute_priority() {
         ret = pthread_setschedparam(pthread_self(), sched_policy, &param);
         if (ret != 0) {
 
-            perror("Error setting Darwin thread priority.");
-
-            message_publish(MSG_ERROR, "Error %d: Problem setting Darwin thread priority to %d.\n", errno, param.sched_priority);
+            message_publish(MSG_ERROR, "Failed to set Darwin thread priority to %d: %s\n", param.sched_priority, std::strerror(errno));
             message_publish(MSG_ERROR, "This should correspond to a Trick CPU priority of %d.\n", (max_priority - proc_priority) + 1);
             message_publish(MSG_ERROR, "The current Darwin thread priority is %d.\n", prev_priority);
             message_publish(MSG_ERROR, "The Darwin thread priority range is %d:%d (min:max).\n", min_priority, max_priority);
