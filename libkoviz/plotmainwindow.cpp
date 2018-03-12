@@ -836,9 +836,12 @@ void PlotMainWindow::_monteInputsViewCurrentChanged(const QModelIndex &currIdx,
 {
     Q_UNUSED(prevIdx);
 
-    if ( currIdx.column() == 0 ) {  // column 0 is runID by convention
+    if ( currIdx.isValid() ) {
         // set all curves in bookview with runID to current
-        int runID = _monteInputsView->model()->data(currIdx).toInt();
+        // Note: column 0 is runID by convention
+        QModelIndex runIDIdx = _monteInputsView->model()->sibling(currIdx.row(),
+                                                                  0,currIdx);
+        int runID = _monteInputsView->model()->data(runIDIdx).toInt();
         _bookView->setCurrentCurveRunID(runID);
     }
 }
