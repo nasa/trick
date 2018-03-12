@@ -414,15 +414,17 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                 currRunId = _monteInputsView->currentRun();
             }
             if ( currRunId >= 0 ) {
-                QModelIndex curveIdx = _bookModel->index(currRunId,0,curvesIdx);
-                int curveRunId = _bookModel->getDataInt(curveIdx,
-                                                        "CurveRunID","Curve");
-                if ( curveRunId == currRunId ) {
-                    // Reset monte input view's current index which will set
-                    // plot view's curr idx (by way of signal/slot connections)
-                    QModelIndex currIdx = _monteInputsView->currentIndex();
-                    _monteInputsView->setCurrentIndex(QModelIndex());
-                    _monteInputsView->setCurrentIndex(currIdx);
+                foreach (QModelIndex curveIdx, _bookModel->curveIdxs(curvesIdx)) {
+                    int curveRunId = _bookModel->getDataInt(curveIdx,
+                                                            "CurveRunID","Curve");
+                    if ( curveRunId == currRunId ) {
+                        // Reset monte input view's current index which will set
+                        // plot view's current index (by way of signal/slot connections)
+                        QModelIndex currIdx = _monteInputsView->currentIndex();
+                        _monteInputsView->setCurrentIndex(QModelIndex());
+                        _monteInputsView->setCurrentIndex(currIdx);
+                        break;
+                    }
                 }
             }
         }
