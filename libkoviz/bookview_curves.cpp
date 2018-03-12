@@ -1379,7 +1379,10 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                                 liveCoord = localMins.first();
                             } else if ( isMaxs && isMins ) {
                                 // There are local mins and maxes
-                                if ( mPt.y() > localMaxs.first().y() ) {
+                                if ( wPt.y()/W.height() < 0.125 ) {
+                                    // Mouse in top 1/8th of window
+                                    liveCoord = localMaxs.first();
+                                } else if ( mPt.y() > localMaxs.first().y() ) {
                                     // Mouse above curve
                                     liveCoord = localMaxs.first();
                                 } else {
