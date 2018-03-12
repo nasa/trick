@@ -301,7 +301,9 @@ int main(int argc, char *argv[])
 
     try {
 
-        //QApplication::setGraphicsSystem("raster");
+#if QT_VERSION < 0x040800
+        QApplication::setGraphicsSystem("raster");
+#endif
         QApplication a(argc, argv);
 
         Runs* runs = 0;
