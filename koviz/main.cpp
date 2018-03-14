@@ -503,7 +503,10 @@ int main(int argc, char *argv[])
 
         } else if ( isTrk ) {
 
-            QStringList params = DPProduct::paramList(dps);
+            QStringList params = DPProduct::tableParamList(dps);
+            if ( params.isEmpty() ) {
+                params = DPProduct::paramList(dps);
+            }
 
             if ( runs->runDirs().count() == 1 ) {
                 QHash<QString,QVariant> shifts = getShiftHash(opts.shiftString,

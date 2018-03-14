@@ -270,6 +270,10 @@ public:
     static QStringList paramList(const QString& fileName);
     static QStringList paramList(const QStringList& dpFileNames);
 
+    // Used for -dp2trk option
+    static QStringList tableParamList(const QString& fileName);
+    static QStringList tableParamList(const QStringList& dpFileNames);
+
     DPProgram* program() { return _program; }
 
 private:

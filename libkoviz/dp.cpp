@@ -206,6 +206,57 @@ QStringList DPProduct::paramList(const QStringList &dpFileNames)
     return params;
 }
 
+QStringList DPProduct::tableParamList(const QString &fileName)
+{
+    QStringList params;
+
+    DPProduct dp(fileName);
+    foreach (DPTable* table, dp.tables() ) {
+        foreach ( DPVar* var, table->vars() ) {
+            params << var->name();
+        }
+    }
+
+    return params;
+}
+
+QStringList DPProduct::tableParamList(const QStringList &dpFileNames)
+{
+    QStringList params;
+
+    QHash<QString,int> paramHash;
+    foreach ( QString dpFileName, dpFileNames ) {
+        foreach ( QString param, DPProduct::tableParamList(dpFileName) ) {
+            paramHash.insert(param,0);
+        }
+    }
+
+    params = paramHash.keys();
+    params.sort();
+
+    int timeIdx = params.indexOf("sys.exec.out.time");
+    if ( timeIdx > 0 ) {
+        params.move(timeIdx,0);
+    } else if ( timeIdx < 0 ) {
+        timeIdx = params.indexOf("time");
+        if ( timeIdx > 0 ) {
+            params.move(timeIdx,0);
+        } else {
+            QRegExp rx("*time$") ;
+            rx.setCaseSensitivity(Qt::CaseInsensitive);
+            timeIdx = params.indexOf(rx);
+            if ( timeIdx > 0 ) {
+                params.move(timeIdx,0);
+            } else {
+                // Last resort, add sys.exec.out.time
+                params.insert(0,"sys.exec.out.time");
+            }
+        }
+    }
+
+    return params;
+}
+
 DPPage::DPPage(const QDomElement &e) :
     _startTime(-DBL_MAX),
     _stopTime(DBL_MAX),
