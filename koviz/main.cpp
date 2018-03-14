@@ -95,6 +95,7 @@ class SnapOptions : public Options
     QString map;
     QString mapFile;
     bool isDebug;
+    bool isLegend;
     QString legend1;
     QString legend2;
     QString legend3;
@@ -159,6 +160,7 @@ int main(int argc, char *argv[])
     opts.add("-mapFile", &opts.mapFile, QString(""),
              "variable mapping file (e.g. -mapFile myMapFile.txt)");
     opts.add("-debug:{0,1}",&opts.isDebug,false, "Show book model tree etc.");
+    opts.add("-legend:{0,1}",&opts.isLegend,true, "Show legend");
     opts.add("-l1",&opts.legend1,"", "Legend label 1");
     opts.add("-l2",&opts.legend2,"", "Legend label 2");
     opts.add("-l3",&opts.legend3,"", "Legend label 3");
@@ -497,7 +499,7 @@ int main(int argc, char *argv[])
                              tolerance, frequency,
                              shifts,
                              presentation, QString(), dps, titles, legends,
-                             opts.orient,
+                             opts.orient, opts.isLegend,
                              runs, varsModel, monteInputsModel);
             w.savePdf(pdfOutFile);
 
@@ -611,7 +613,7 @@ int main(int argc, char *argv[])
                                  tolerance, frequency,
                                  shifts,
                                  presentation, ".", dps, titles, legends,
-                                 opts.orient,
+                                 opts.orient, opts.isLegend,
                                  runs, varsModel, monteInputsModel);
 #ifdef __linux
                 timer.snap("time=");
@@ -626,8 +628,8 @@ int main(int argc, char *argv[])
                                  tolerance, frequency,
                                  shifts,
                                  presentation, runDirs.at(0), QStringList(),
-                                 titles, legends, opts.orient, runs,
-                                 varsModel, monteInputsModel);
+                                 titles, legends, opts.orient, opts.isLegend,
+                                 runs, varsModel, monteInputsModel);
                 w.show();
                 ret = a.exec();
             }

@@ -25,7 +25,7 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
         const QStringList& dpFiles,
         const QStringList& titles,
         const QStringList &legends,
-        const QString &orient,
+        const QString &orient, bool isLegend,
         Runs* runs,
         QStandardItemModel* varsModel,
         QStandardItemModel *monteInputsModel,
@@ -98,6 +98,7 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
     _bookModel->addChild(rootItem, "Orientation", orient);
     _bookModel->addChild(rootItem, "TimeMatchTolerance", timeMatchTolerance);
     _bookModel->addChild(rootItem, "Frequency", frequency);
+    _bookModel->addChild(rootItem, "IsLegend", isLegend);
 
     // Create Plot Tabbed Notebook View Widget
     _bookView = new BookView();

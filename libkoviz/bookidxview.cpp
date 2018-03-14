@@ -823,7 +823,10 @@ QRect BookIdxView::_paintPageTitle(const QModelIndex& pageIdx,
     // Legend
     int legendRight=0;
     int legendBottom=0;
-    if ( _bookModel()->isPlotLegendsSame(pageIdx)) {
+    QModelIndex isLegendIdx = _bookModel()->getDataIndex(QModelIndex(),
+                                                         "IsLegend");
+    bool isLegend = _bookModel()->data(isLegendIdx).toBool();
+    if ( isLegend && _bookModel()->isPlotLegendsSame(pageIdx)) {
         QModelIndexList plotIdxs = _bookModel()->plotIdxs(pageIdx);
         QModelIndex curvesIdx = _bookModel()->getIndex(plotIdxs.at(0),
                                                        "Curves","Plot");

@@ -51,6 +51,7 @@ public:
                              const QStringList& titles,
                              const QStringList& legends,
                              const QString& orient,
+                             bool isLegend,
                              Runs* runs,
                              QStandardItemModel* varsModel,
                              QStandardItemModel* monteInputsModel=0,
