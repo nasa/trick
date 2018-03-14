@@ -33,7 +33,7 @@ public class LogHeaderReaderTest {
 
 	@Test(expected = FileNotFoundException.class)
 	public void testGetContentsWithNotFoundFile() throws FileNotFoundException, IOException {
-		DataReader reader = new LogHeaderReader("test" + System.getProperty("file.separator") + "resources" + System.getProperty("file.separator") + "unknowFile.header");
+		DataReader reader = new LogHeaderReader("resources" + System.getProperty("file.separator") + "unknowFile.header");
 		reader.processHeader();
 	}
 	

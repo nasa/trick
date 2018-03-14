@@ -34,20 +34,34 @@ RESOURCES += $(subst src/,,$(shell find src/trick -name jaxb.index))
 all: test
 	@echo "[32mJava test successful[0m"
 test: ${TEST_DIR}/test.jar ${TRICK_TEST}
-	java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_RunTimeTrickApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.common.RunTimeTrickApplicationTest
-	java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_TrickApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.common.TrickApplicationTest
-	# java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_LogHeaderReaderTest.xml barrypitman.junitXmlFormatter.Runner trick.common.utils.LogHeaderReaderTest
-	# java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_UnitTypeTest.xml barrypitman.junitXmlFormatter.Runner trick.common.utils.UnitTypeTest
-	java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_TrickDPApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.dataproducts.trickdp.TrickDPApplicationTest
-	java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_TrickQPApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.dataproducts.trickqp.TrickQPApplicationTest
-	java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_DreApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.dre.DreApplicationTest
-	java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_MonteMonitorApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.montemonitor.MonteMonitorApplicationTest
+	@echo "[36mtrick.common.RunTimeTrickApplicationTest[0m"
+	@java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_RunTimeTrickApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.common.RunTimeTrickApplicationTest
+	@echo "[36mtrick.common.TrickApplicationTest[0m"
+	@java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_TrickApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.common.TrickApplicationTest
+	@echo "[36mtrick.common.utils.LogHeaderReaderTest[0m"
+	@java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_LogHeaderReaderTest.xml barrypitman.junitXmlFormatter.Runner trick.common.utils.LogHeaderReaderTest
+	@# Error with UnitTypeTest
+	@# java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_UnitTypeTest.xml barrypitman.junitXmlFormatter.Runner trick.common.utils.UnitTypeTest
+	@echo "[36mtrick.dataproducts.trickdp.TrickDPApplicationTest[0m"
+	@java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_TrickDPApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.dataproducts.trickdp.TrickDPApplicationTest
+	@echo "[36mtrick.dataproducts.trickqp.TrickQPApplicationTest[0m"
+	@java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_TrickQPApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.dataproducts.trickqp.TrickQPApplicationTest
+	@echo "[36mtrick.dre.DreApplicationTest[0m"
+	@java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_DreApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.dre.DreApplicationTest
+	@echo "[36mtrick.montemonitor.MonteMonitorApplicationTest[0m"
+	@java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_MonteMonitorApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.montemonitor.MonteMonitorApplicationTest
+	@echo "[36mtrick.mtv.MtvApplicationTest[0m"
 	java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_MtvApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.mtv.MtvApplicationTest
-	#java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_SieApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.sie.SieApplicationTest
-	java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_SimControlApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.simcontrol.SimControlApplicationTest
-	java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_SnifferApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.sniffer.SnifferApplicationTest
-	java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_TVApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.tv.TVApplicationTest
-
+	@# SieApplicationTest needs to be updated
+	@# java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_SieApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.sie.SieApplicationTest
+	@echo "[36mtrick.sniffer.SnifferApplicationTest[0m"
+	@java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_SnifferApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.sniffer.SnifferApplicationTest
+	@echo "[36mtrick.tv.TrickApplicationTest[0m"
+	@java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_TVApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.tv.TVApplicationTest
+	@echo "[36mtrick.simcontrol.SimControlApplicationTest[0m"
+	@echo "[33mCLICK OK ON GUI TO CONTINUE[0m"
+	@java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_SimControlApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.simcontrol.SimControlApplicationTest
+	
 ${DEST_DIR} ${TEST_DIR} ${TRICK_TEST}:
 	mkdir -p $@
 
