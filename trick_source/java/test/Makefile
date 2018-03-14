@@ -43,7 +43,7 @@ test: ${TEST_DIR}/test.jar ${TRICK_TEST}
 	java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_DreApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.dre.DreApplicationTest
 	java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_MonteMonitorApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.montemonitor.MonteMonitorApplicationTest
 	java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_MtvApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.mtv.MtvApplicationTest
-	java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_SieApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.sie.SieApplicationTest
+	#java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_SieApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.sie.SieApplicationTest
 	java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_SimControlApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.simcontrol.SimControlApplicationTest
 	java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_SnifferApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.sniffer.SnifferApplicationTest
 	java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_TVApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.tv.TVApplicationTest
