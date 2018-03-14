@@ -22,6 +22,7 @@ DEST_DIR  = ${BUILD_DIR}/classes
 LIB_DIR   = ${TRICK_HOME}/$(LIBEXEC)/trick/java/lib
 DIST_DIR  = ${TRICK_HOME}/$(LIBEXEC)/trick/java/dist
 TEST_DIR  = ${TRICK_HOME}/$(LIBEXEC)/trick/java/test
+TRICK_TEST = ${TRICK_HOME}/trick_test
 
 empty :=
 space := $(empty) $(empty)
@@ -32,7 +33,7 @@ RESOURCES += $(subst src/,,$(shell find src/trick -name jaxb.index))
 
 all: test
 	@echo "[32mJava test successful[0m"
-test: ${TEST_DIR}/test.jar
+test: ${TEST_DIR}/test.jar ${TRICK_TEST}
 	java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_RunTimeTrickApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.common.RunTimeTrickApplicationTest
 	java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_TrickApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.common.TrickApplicationTest
 	# java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_LogHeaderReaderTest.xml barrypitman.junitXmlFormatter.Runner trick.common.utils.LogHeaderReaderTest
@@ -47,7 +48,7 @@ test: ${TEST_DIR}/test.jar
 	java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_SnifferApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.sniffer.SnifferApplicationTest
 	java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_TVApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.tv.TVApplicationTest
 
-${DEST_DIR} ${TEST_DIR}:
+${DEST_DIR} ${TEST_DIR} ${TRICK_TEST}:
 	mkdir -p $@
 
 ${TEST_DIR}/test.jar: compile ${TEST_DIR}
