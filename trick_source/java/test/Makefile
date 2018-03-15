@@ -51,7 +51,7 @@ test: ${TEST_DIR}/test.jar ${TRICK_TEST}
 	@echo "[36mtrick.montemonitor.MonteMonitorApplicationTest[0m"
 	@java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_MonteMonitorApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.montemonitor.MonteMonitorApplicationTest
 	@echo "[36mtrick.mtv.MtvApplicationTest[0m"
-	java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_MtvApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.mtv.MtvApplicationTest
+	@java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_MtvApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.mtv.MtvApplicationTest
 	@# SieApplicationTest needs to be updated
 	@# java -cp "${LIB_DIR}/*:${DIST_DIR}/*:${TEST_DIR}/*" -Dorg.schmant.task.junit4.target=${TRICK_HOME}/trick_test/Java_SieApplicationTest.xml barrypitman.junitXmlFormatter.Runner trick.sie.SieApplicationTest
 	@echo "[36mtrick.sniffer.SnifferApplicationTest[0m"
