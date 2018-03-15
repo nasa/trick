@@ -895,7 +895,7 @@ QRect BookIdxView::_paintPageTitle(const QModelIndex& pageIdx,
     } else {
         // title3,title4 are custom (i.e. not colon delimited user/date)
         x = R.width() - fm3.boundingRect(title3).width();
-        y = (R.height() - fm3.lineSpacing())/2;
+        y = yMainTitle;
         painter.drawText(x,y,title3);
         leftTitle34 = x;
         x = R.width() - fm3.boundingRect(title4).width();
