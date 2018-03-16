@@ -62,7 +62,7 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
     lgrid->addWidget(lsplit,0,0);
 
     // Create models
-    _bookModel = new PlotBookModel(_timeNames,runs,0,1,parent);
+    _bookModel = new PlotBookModel(_timeNames,_runs,0,1,parent);
     if ( titles.size() == 4 ) {
         QStandardItem *rootItem = _bookModel->invisibleRootItem();
         QStandardItem *citem;

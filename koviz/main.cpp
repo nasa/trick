@@ -374,6 +374,10 @@ int main(int argc, char *argv[])
             }
         }
 
+        bool isShowProgress = true;
+        if ( isPdf ) {
+            isShowProgress = false;
+        }
         if ( isMonte ) {
 
             QDir monteDir(runDirs.at(0));
@@ -402,13 +406,13 @@ int main(int argc, char *argv[])
                 monteRunsList << runDirs.at(0) + "/" + run;
             }
 
-            runs = new Runs(timeNames,monteRunsList,varMap);
+            runs = new Runs(timeNames,monteRunsList,varMap,isShowProgress);
             monteInputsModel = monteInputModel(monteDir.absolutePath(),
                                                runsList);
         } else {
             QStringList runsList = runsSubset(runDirs,
                                               opts.beginRun,opts.endRun);
-            runs = new Runs(timeNames,runsList,varMap);
+            runs = new Runs(timeNames,runsList,varMap,isShowProgress);
             monteInputsModel = runsInputModel(runsList);
         }
         varsModel = createVarsModel(runs);

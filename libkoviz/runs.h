@@ -23,11 +23,12 @@ class Runs
   public:
     Runs();
     Runs(const QStringList& timeNames,
-         const QStringList &runDirs, const QHash<QString,QStringList> &varMap,
-         int beginRun=0, int endRun=1.0e6);
+         const QStringList &runDirs,
+         const QHash<QString,QStringList> &varMap,
+         bool isShowProgress);
     virtual ~Runs();
     virtual QStringList params() const { return _params; }
-    virtual QStringList runDirs() const { return _runs; }
+    virtual QStringList runDirs() const { return _runDirs; }
     CurveModel* curveModel(int row,
                       const QString& tName,
                       const QString& xName,
@@ -35,10 +36,9 @@ class Runs
 
   private:
     QStringList _timeNames;
-    QStringList _runs;
+    QStringList _runDirs;
     QHash<QString,QStringList> _varMap;
-    int _beginRun;
-    int _endRun;
+    bool _isShowProgress;
     QStringList _params;
     QHash<QString,QList<DataModel*>* > _paramToModels;
     QList<DataModel*> _models;

@@ -4,19 +4,20 @@ QString Runs::_err_string;
 QTextStream Runs::_err_stream(&Runs::_err_string);
 
 Runs::Runs() :
-    _runs(QStringList()),
-    _varMap(QHash<QString,QStringList>())
+    _runDirs(QStringList()),
+    _varMap(QHash<QString,QStringList>()),
+    _isShowProgress(true)
 {
 }
 
 Runs::Runs(const QStringList &timeNames,
            const QStringList &runDirs,
-           const QHash<QString,QStringList>& varMap, int beginRun, int endRun) :
+           const QHash<QString,QStringList>& varMap,
+           bool isShowProgress) :
     _timeNames(timeNames),
-    _runs(runDirs),
+    _runDirs(runDirs),
     _varMap(varMap),
-    _beginRun(beginRun),
-    _endRun(endRun)
+    _isShowProgress(isShowProgress)
 {
     if ( runDirs.isEmpty() ) {
         return;
@@ -41,7 +42,7 @@ void Runs::_init()
     QStringList files;
     QHash<QString,QStringList> runToFiles;
     QHash<QString,QString> fileToRun;
-    foreach ( QString run, _runs ) {
+    foreach ( QString run, _runDirs ) {
         if ( ! QFileInfo(run).exists() ) {
             _err_stream << "koviz [error]: couldn't find run directory: "
                         << run << "\n";
@@ -75,23 +76,28 @@ void Runs::_init()
 
     // Begin Progress Dialog
     const int nFiles = files.size();
-    QProgressDialog progress("Initializing data models...",
-                              "Abort", 0, nFiles, 0);
-    progress.setWindowModality(Qt::WindowModal);
-    progress.setMinimumDuration(500);
+    QProgressDialog* progress = 0;
+    if ( _isShowProgress ) {
+        progress =  new QProgressDialog("Initializing data models...",
+                                        "Abort", 0, nFiles, 0);
+        progress->setWindowModality(Qt::WindowModal);
+        progress->setMinimumDuration(500);
+    }
 
     QHash<QString,QStringList> runToParams;
     QHash<QPair<QString,QString>,DataModel*> pfnameToModel;
     int i = 0;
     foreach (QString fname, files ) {
-        if ( nFiles > 10 ) {
-            // Only show progress when loading many files (10 is arbitrary)
-            progress.setValue(i);
-            if (progress.wasCanceled()) {
-                exit(0);
+        if ( _isShowProgress ) {
+            if ( nFiles > 7 ) {
+                // Only show progress when loading many files (7 is arbitrary)
+                progress->setValue(i);
+                if (progress->wasCanceled()) {
+                    exit(0);
+                }
+            } else {
+                progress->setValue(files.size());
             }
-        } else {
-            progress.setValue(files.size());
         }
         DataModel* m = DataModel::createDataModel(_timeNames,fname);
         m->unmap();
@@ -142,11 +148,14 @@ void Runs::_init()
     }
 
     // End Progress Dialog
-    progress.setValue(nFiles);
+    if ( _isShowProgress ) {
+        progress->setValue(nFiles);
+        delete progress;
+    }
 
     // Make list of params that are in each run (coplottable)
     QSet<QString> paramSet;
-    foreach ( QString run, _runs ) {
+    foreach ( QString run, _runDirs ) {
         QSet<QString> runParamSet = runToParams.value(run).toSet();
         if ( paramSet.isEmpty() ) {
             paramSet = runParamSet;
@@ -160,7 +169,7 @@ void Runs::_init()
 
     foreach ( QString p, _params ) {
         _paramToModels.insert(p,new QList<DataModel*>);
-        foreach ( QString run, _runs ) {
+        foreach ( QString run, _runDirs ) {
             DataModel* m = 0;
             foreach ( QString fname, runToFiles.value(run) ) {
                 QPair<QString,QString> pfname = qMakePair(p,fname);
@@ -179,7 +188,7 @@ CurveModel* Runs::curveModel(int row,
                         const QString &xName,
                         const QString &yName) const
 {
-    QString runDir = QFileInfo(_runs.at(row)).absoluteFilePath();
+    QString runDir = QFileInfo(_runDirs.at(row)).absoluteFilePath();
 
     QString t = tName;
     QString x = xName;
