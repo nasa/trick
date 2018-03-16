@@ -474,10 +474,6 @@ int main(int argc, char *argv[])
         }
         if ( presentation.isEmpty() ){
             presentation = "compare";
-            int rc = runs->runDirs().count();
-            if ( rc == 2 ) {
-                presentation = "error";
-            }
         }
 
         // Make a list of legend labels
