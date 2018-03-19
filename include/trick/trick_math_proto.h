@@ -9,6 +9,7 @@
 #include "trick/wave_form.h"
 #include "trick/reference_frame.h"
 #include "trick/rand_generator.h"
+#include "trick/RodriguesRotation.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,17 +19,6 @@ extern "C" {
     $TRICK_HOME/trick_source/trick_utils/math/include/trick_math.h
     $TRICK_HOME/trick_source/trick_utils/math/include/trick_math_proto.h
  */
-
-/**
-* @ingroup TRICK_MATH
-* @brief Generate a transformation matrix for rotation about a given
-* line by a given angle, using Rodrigues’ formula.
-*
-* @param C_out - Transformation matrix for final to initial state.
-* @param k - Vector in the direction of the rotation Axis.
-* @param theta - Angle of rotation in radians.
-*/
-void RotAboutLineByAngle(double C_out[3][3], double k[3], double theta);
 
 /**
 * @ingroup TRICK_MATH
