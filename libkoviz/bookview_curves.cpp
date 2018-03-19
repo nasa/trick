@@ -1362,12 +1362,14 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                         // Choose live coord based on local mins/maxs
                         // and proximity to start/end points
                         //
-                        if ( j == 0 ) {
-                            // Mouse near start of curve, set to start pt
+                        if ( j == 0 || wPt.x()/W.width() < 0.02 ) {
+                            // Mouse near curve start or left 2% of window,
+                            // set to start pt
                             liveCoord = QPointF(it->at(0)->x()*xs+xb,
                                                 it->at(0)->y()*ys+yb);
-                        } else if ( k == rc-1 ) {
-                            // Mouse near end of curve, set to last pt
+                        } else if ( k == rc-1 || wPt.x()/W.width() > 0.98 ) {
+                            // Mouse near curve end or right 2% of window,
+                            // set to last pt
                             liveCoord = QPointF(it->at(k)->x()*xs+xb,
                                                 it->at(k)->y()*ys+yb);
                         } else {
