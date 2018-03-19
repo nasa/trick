@@ -140,9 +140,11 @@ int main(int argc, char *argv[])
     opts.add("-pdf", &opts.pdfOutFile, QString(""),
              "Name of pdf output file");
     opts.add("-dp2trk", &opts.dp2trkOutFile, QString(""),
-             "Produce *.trk with variables from DP_Products");
+             "Create trk from DP_ vars, "
+             "e.g. koviz DP_foo RUN_a -dp2trk foo.trk");
     opts.add("-dp2csv", &opts.csvOutFile, QString(""),
-             "Produce *.csv tables from from DP_Product tables");
+             "Create csv from DP_ vars, "
+             "e.g. koviz DP_foo RUN_a -dp2csv foo.csv");
     opts.add("-trk2csv", &opts.trk2csvFile, QString(""),
              "Name of trk file to convert to csv (fname subs trk with csv)",
              presetExistsFile);
