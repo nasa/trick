@@ -59,6 +59,8 @@ QString sessionFilePresentation(const QString& sessionFile);
 double sessionFileTimeMatchTolerance(const QString& sessionFile);
 double sessionFileFrequency(const QString& sessionFile);
 
+QStringList abbreviateRunNames(const QStringList &runNames);
+
 Option::FPresetQString presetExistsFile;
 Option::FPresetDouble preset_start;
 Option::FPresetDouble preset_stop;
@@ -1781,8 +1783,15 @@ QStandardItemModel* runsInputModel(const QStringList &runs)
         int r = 0 ;
         m->setHeaderData(0,Qt::Horizontal,"RunId");
         m->setHeaderData(1,Qt::Horizontal,"RunName");
+
+        QStringList fruns;
         foreach ( QString run, runs ) {
-            QString runName = run.split('/').last();
+            QString frun = QFileInfo(run).absoluteFilePath();
+            fruns << frun;
+        }
+        QStringList runNames = abbreviateRunNames(fruns);
+
+        foreach ( QString runName, runNames ) {
             m->setHeaderData(r,Qt::Vertical,runName);
             QString runIdString ;
             runIdString = runIdString.sprintf("%d",r);
@@ -1795,6 +1804,43 @@ QStandardItemModel* runsInputModel(const QStringList &runs)
     }
 
     return m;
+}
+
+// Example:
+//
+//     names:
+//        "/the/rain/in/spain/falls/on/the/plain/good/grief",
+//        "/the/rain/in/spokane/falls/on/the/hills/good/grief",
+//        "/the/rain/in/space/falls/on/houston/good/grief"
+//
+//     returns:
+//         "spain/falls/on/the/plain",
+//         "spokane/falls/on/the/hills",
+//         "space/falls/on/houston"
+//
+QStringList abbreviateRunNames(const QStringList &runNames)
+{
+    QStringList names;
+
+    QString prefix = Runs::commonPrefix(runNames,"/");
+    QString suffix = Runs::commonSuffix(runNames,"/");
+
+    foreach ( QString s, runNames ) {
+
+        s = s.remove(prefix);
+        if ( s.startsWith("/") ) {
+            s = s.mid(1); // remove prepended '/'
+        }
+
+        s = s.remove(suffix);
+        if ( s.endsWith("/") ) {
+            s.chop(1);
+        }
+
+        names << s;
+    }
+
+    return names;
 }
 
 // Make subset of runs based on beginRun and endRun option

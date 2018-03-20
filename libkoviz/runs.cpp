@@ -341,3 +341,110 @@ CurveModel* Runs::curveModel(int row,
 
     return new CurveModel(tm,tcol,xcol,ycol);
 }
+
+// Example:
+//     names:
+//        name[0]=/the/rain/in/spain/falls/on/the/plain
+//        name[1]=/the/rain/in/spokane/falls/on/the/hills
+//        name[2]=/the/rain/in/space/falls/on/houston
+//        sep = /
+//
+//     returns "/the/rain/in"
+QString Runs::commonPrefix(const QStringList &names, const QString &sep)
+{
+    QString prefix;
+
+    if ( names.isEmpty() ) return prefix;
+
+    prefix = names.at(0);
+    foreach ( QString name, names ) {
+        prefix = __commonPrefix(prefix,name,sep);
+    }
+
+    return prefix;
+}
+
+// Example:
+//     a = /the/rain/in/spain/falls/on/the/plain
+//     b = /the/rain/in/spokane/falls/on/the/hills
+//     sep = /
+//
+//     returns "/the/rain/in"
+QString Runs::__commonPrefix(const QString &a, const QString &b,
+                        const QString &sep)
+{
+    QString prefix;
+
+    QStringList as = a.split(sep);
+    QStringList bs = b.split(sep);
+    QStringList names ;
+
+    for (int i = 0; i < as.size(); ++i) {
+        if ( bs.size() <= i ) {
+            break;
+        }
+        if ( as.at(i) != bs.at(i) ) {
+            break;
+        }
+        names << as.at(i);
+    }
+
+    prefix = names.join(sep) ;
+
+    return prefix;
+}
+
+// Example:
+//     names:
+//        name[0]=/the/rain/in/spain/falls/on/the/plain
+//        name[1]=/the/rain/in/spokane/falls/on/the/plain
+//        name[2]=/the/rain/in/space/falls/on/the/plain
+//        sep = /
+//
+//     returns "falls/on/the/plain"
+QString Runs::commonSuffix(const QStringList &names, const QString &sep)
+{
+    QString suffix;
+
+    if ( names.isEmpty() ) return suffix;
+
+    suffix = names.at(0);
+    foreach ( QString name, names ) {
+        suffix = __commonSuffix(suffix,name,sep);
+    }
+
+    return suffix;
+}
+
+// Example:
+//     a = /the/rain/in/spain/falls/on/the/plain
+//     b = /the/rain/in/spokane/falls/on/the/plain
+//     sep = /
+//
+//     returns "falls/on/the/plain"
+QString Runs::__commonSuffix(const QString &a, const QString &b,
+                             const QString &sep)
+{
+    QString suffix;
+
+    QStringList as = a.split(sep);
+    QStringList bs = b.split(sep);
+    QStringList names ;
+
+    int i = as.size()-1;
+    int j = bs.size()-1;
+    while ( i >= 0 && j >= 0 ) {
+        QString aa = as.at(i);
+        QString bb = bs.at(j);
+        if ( aa != bb ) {
+            break;
+        }
+        names.prepend(aa);
+        --i;
+        --j;
+    }
+
+    suffix = names.join(sep) ;
+
+    return suffix;
+}
