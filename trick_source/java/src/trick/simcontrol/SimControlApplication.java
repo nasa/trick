@@ -487,7 +487,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 
             for (int i = 0; i < simRunDirField.length; i++) {
                 if (i==0) {
-                    simRunDirField[i] = new JTextField(results[4] + System.getProperty("file.separator") + results[5] + " " + results[6]);
+                    simRunDirField[i] = new JTextField(results[4] + java.io.File.separator + results[5] + " " + results[6]);
                 } else {
                     simRunDirField[i] = new JTextField();
                 }
@@ -495,7 +495,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                 overrunField[i].setPreferredSize( new Dimension(60, overrunField[i].getHeight()) );
             }
             simRunDir = results[7];
-            simRunDir = results[4] + System.getProperty("file.separator") + simRunDir;
+            simRunDir = results[4] + java.io.File.separator + simRunDir;
 
             simState.setRunPath(simRunDir);
 
@@ -510,7 +510,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                                   "trick.sim_serives.var_send( ) \n" +
                                   "trick.sim_services.var_clear( ) \n");
                 results = commandSimcom.get().split("\t");
-                simRunDirField[i].setText(results[1] + System.getProperty("file.separator") + results[2] + " " + results[2]);*/
+                simRunDirField[i].setText(results[1] + java.io.File.separator + results[2] + " " + results[2]);*/
             	simRunDirField[i].setText("Slave " + i);
             }
             
@@ -736,7 +736,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
      */
     private void printSendHS() {
     	if (simState != null) {
-    		File sendHS = new File(simState.getRunPath() + System.getProperty("file.separator") + "send_hs");
+    		File sendHS = new File(simState.getRunPath() + java.io.File.separator + "send_hs");
     		if (!sendHS.exists()) {
     			return;
     		}

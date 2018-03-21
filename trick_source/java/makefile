@@ -13,6 +13,10 @@ ifeq ($(JAVAC_VERSION),9)
 	JAVAC_FLAGS += --add-modules java.se.ee
 endif
 
+ifeq ($(JAVAC_VERSION),10)
+	JAVAC_FLAGS += --add-modules java.se.ee
+endif
+
 SRC_DIR   = src
 SRC_FILES = $(shell find ${SRC_DIR} -type f -name \*.java)
 BUILD_DIR = build

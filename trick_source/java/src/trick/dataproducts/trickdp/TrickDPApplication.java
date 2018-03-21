@@ -356,7 +356,7 @@ public class TrickDPApplication extends DataProductsApplication {
             while (!simFilePath.getName().startsWith("SIM_")) {
                 simFilePath = simFilePath.getParentFile();
             }
-            String simExeArg = eachItem+System.getProperty("file.separator")+"input.py";
+            String simExeArg = eachItem+java.io.File.separator+"input.py";
             ProcessBuilder pb = new ProcessBuilder(simExe, simExeArg);
             pb.directory(simFilePath);
             printStatusMessage("cd " + simFilePath.getPath() + "\n");
@@ -869,7 +869,7 @@ public class TrickDPApplication extends DataProductsApplication {
             // TODO: use TrickFileFilter
             FilenameFilter simFilter = new FilenameFilter() {
                 public boolean accept(File path, String filename) {
-                    File myFullPath = new File(path + System.getProperty("file.separator") + filename);
+                    File myFullPath = new File(path + java.io.File.separator + filename);
                     if ( myFullPath.isDirectory() && filename.contains("SIM") ) {
                         return true;
                     } else {
@@ -894,7 +894,7 @@ public class TrickDPApplication extends DataProductsApplication {
      */
     private String appendDirsFromPropertyFile(String simDirs) {
         // prevent the duplicate ones
-        File myDpPropFile = new File(propDirectory + System.getProperty("file.separator") + applicationName + ".properties");
+        File myDpPropFile = new File(propDirectory + java.io.File.separator + applicationName + ".properties");
         if ( myDpPropFile.exists() ) {
             String dpSimDirsProperty = trickProperties.getProperty("TRICK_DP_SIM_DIRS");
             // if the property doesn't exist, return the original string
