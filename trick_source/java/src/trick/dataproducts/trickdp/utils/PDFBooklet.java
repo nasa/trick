@@ -300,7 +300,7 @@ public class PDFBooklet extends JDialog implements ActionListener, ListSelection
 	
 	// For PS view 
 	private void psView() {
-		File selectedFirstFile = new File(fileDir + System.getProperty("file.separator") + selectedPSFileList.getSelectedFirstData().toString());
+		File selectedFirstFile = new File(fileDir + java.io.File.separator + selectedPSFileList.getSelectedFirstData().toString());
 		try {
 			if (selectedFirstFile.exists() && Desktop.isDesktopSupported()) {
 				Desktop.getDesktop().open(selectedFirstFile);
@@ -324,7 +324,7 @@ public class PDFBooklet extends JDialog implements ActionListener, ListSelection
 		for (Object obj : selectedData) {
 			commandBuf.append(" ");
 			commandBuf.append(fileDir);
-			commandBuf.append(System.getProperty("file.separator"));
+			commandBuf.append(java.io.File.separator);
 			commandBuf.append(obj.toString());
 		}		
 		
@@ -357,7 +357,7 @@ public class PDFBooklet extends JDialog implements ActionListener, ListSelection
 		for (Object obj : selectedData) {
 			commandBuf.append(" ");
 			commandBuf.append(fileDir);
-			commandBuf.append(System.getProperty("file.separator"));
+			commandBuf.append(java.io.File.separator);
 			commandBuf.append(obj.toString());
 		}		
 		

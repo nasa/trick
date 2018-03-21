@@ -33,7 +33,7 @@ public class LogHeaderReaderTest {
 
 	@Test(expected = FileNotFoundException.class)
 	public void testGetContentsWithNotFoundFile() throws FileNotFoundException, IOException {
-		DataReader reader = new LogHeaderReader("test" + System.getProperty("file.separator") + "resources" + System.getProperty("file.separator") + "unknowFile.header");
+		DataReader reader = new LogHeaderReader("resources" + java.io.File.separator + "unknowFile.header");
 		reader.processHeader();
 	}
 	
@@ -61,15 +61,15 @@ public class LogHeaderReaderTest {
 		expectedVarList[8].setUnits("N");
 		
 		// ASCII
-		DataReader reader = new LogHeaderReader("test" + System.getProperty("file.separator") + "resources" + System.getProperty("file.separator") + "log_Ball.header");		
+		DataReader reader = new LogHeaderReader("resources" + java.io.File.separator + "log_Ball.header");		
 		assertArrayEquals("Error in getContents for ASCII in DataReader.java", expectedVarList, reader.getRecordedVarList().toArray());
 		
 		// HDF5
-		reader = new LogHeaderReader("test" + System.getProperty("file.separator") + "resources" + System.getProperty("file.separator") + "log_Ball2.header");
+		reader = new LogHeaderReader("resources" + java.io.File.separator + "log_Ball2.header");
 		assertArrayEquals("Error in getContents for HDF5 in DataReader.java", expectedVarList, reader.getRecordedVarList().toArray());
 		
 		// little_endian
-		reader = new LogHeaderReader("test" + System.getProperty("file.separator") + "resources" + System.getProperty("file.separator") + "log_Ball3.header");
+		reader = new LogHeaderReader("resources" + java.io.File.separator + "log_Ball3.header");
 		assertArrayEquals("Error in getContents for little_endian in DataReader.java", expectedVarList, reader.getRecordedVarList().toArray());
 	}
 	

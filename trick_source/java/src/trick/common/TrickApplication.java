@@ -110,9 +110,9 @@ public abstract class TrickApplication extends SingleFrameApplication implements
     // if we want to put the properties into a different location, change here.
     static {
         try {
-            propDirectory = System.getProperty("user.home") + System.getProperty("file.separator") + ".trick";
+            propDirectory = System.getProperty("user.home") + java.io.File.separator + ".trick";
         } catch (Exception e) {
-            propDirectory = System.getenv("TRICK_USER_HOME") + System.getProperty("file.separator") + ".trick";
+            propDirectory = System.getenv("TRICK_USER_HOME") + java.io.File.separator + ".trick";
         }
     }
 
@@ -319,7 +319,7 @@ public abstract class TrickApplication extends SingleFrameApplication implements
         applicationName = getContext().getApplicationClass().getSimpleName();
 
         // set directory for session storage
-        getContext().getLocalStorage().setDirectory(new File(propDirectory + System.getProperty("file.separator") + "." + applicationName));
+        getContext().getLocalStorage().setDirectory(new File(propDirectory + java.io.File.separator + "." + applicationName));
 
         // register property for JToggleButton class so that its state can be saved
         getContext().getSessionStorage().putProperty(JToggleButton.class, this);
@@ -330,7 +330,7 @@ public abstract class TrickApplication extends SingleFrameApplication implements
         // Load any saved user settable properties from properties file
         trickProperties = new Properties();
         try {
-            FileInputStream in = new FileInputStream(propDirectory + System.getProperty("file.separator") + applicationName + ".properties");
+            FileInputStream in = new FileInputStream(propDirectory + java.io.File.separator + applicationName + ".properties");
             trickProperties.load(in);
             in.close();
         }
@@ -384,7 +384,7 @@ public abstract class TrickApplication extends SingleFrameApplication implements
 
         // Save any user settable properties to properties file in user's home directory in .trick dir
         try {
-            FileOutputStream out = new FileOutputStream(propDirectory + System.getProperty("file.separator") + applicationName +".properties");
+            FileOutputStream out = new FileOutputStream(propDirectory + java.io.File.separator + applicationName +".properties");
             trickProperties.store(out, "--- Trick User Properties ---");
             out.close();
         } catch (IOException e) {

@@ -15,7 +15,8 @@ EXTERNAL_JARS = \
     jfreesvg-2.1.jar \
     jopt-simple-4.8.jar \
     junit-4.12.jar \
-    swingx-1.6.1.jar
+    swingx-1.6.1.jar \
+    hamcrest-core-1.3.jar
 
 external_jars : ${EXTERNAL_JARS}
 
@@ -35,6 +36,8 @@ junit-4.12.jar:
 	curl -O http://repo1.maven.org/maven2/junit/junit/4.12/junit-4.12.jar
 swingx-1.6.1.jar :
 	curl -O http://repo.maven.apache.org/maven2/org/swinglabs/swingx/1.6.1/swingx-1.6.1.jar
+hamcrest-core-1.3.jar :
+	curl -O http://repo.maven.apache.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar
 
 clean:
 	rm -f ${EXTERNAL_JARS}
