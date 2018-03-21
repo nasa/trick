@@ -53,6 +53,9 @@ namespace Trick {
             /** Create test xml output.\n*/
             bool enabled ; /**< trick_units(--) */
 
+            /** Send the unit test exit code up the chain to Executive.\n*/
+            bool exit_code_enabled ; /**< trick_units(--) */
+
             /** Name of Unit test\n*/
             std::string name ;
 
@@ -76,6 +79,12 @@ namespace Trick {
              @brief Enable test output.
              */
             bool enable() ;
+
+            /**
+             @brief Enable/Disable exit code return feature.
+             @return always 0
+             */
+            int set_exit_code_enabled( bool in_enable ) ;
 
             /**
              @brief Output message to the file.
