@@ -139,8 +139,8 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
                 this,
                 SLOT(_monteInputsViewCurrentChanged(QModelIndex,QModelIndex)));
         _monteInputsHeaderView = _monteInputsView->horizontalHeader();
-        if ( _monteInputsModel->rowCount() < 3 ) {
-            // Hide if viewing only a single or two RUNs
+        if ( _monteInputsModel->rowCount() == 1 ) {
+            // Hide if only viewing a single RUN
             _monteInputsView->hide();
         }
         connect(_monteInputsHeaderView,SIGNAL(sectionClicked(int)),

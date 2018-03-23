@@ -29,5 +29,7 @@ void PageTitleView::dataChanged(const QModelIndex &topLeft,
 
     if ( tag == "PlotPresentation" ) {
         viewport()->update();
+    } else if ( tag == "CurveColor") {
+        viewport()->update();
     }
 }
