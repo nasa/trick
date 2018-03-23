@@ -107,6 +107,13 @@ class SnapOptions : public Options
     QString legend7;
     QString orient;
     QString sessionFile;
+    QString color1;
+    QString color2;
+    QString color3;
+    QString color4;
+    QString color5;
+    QString color6;
+    QString color7;
 };
 
 SnapOptions opts;
@@ -172,6 +179,13 @@ int main(int argc, char *argv[])
     opts.add("-l5",&opts.legend5,"", "Legend label 5");
     opts.add("-l6",&opts.legend6,"", "Legend label 6");
     opts.add("-l7",&opts.legend7,"", "Legend label 7");
+    opts.add("-c1",&opts.color1,"","Legend color 1 <#rrggbb|colorName>");
+    opts.add("-c2",&opts.color2,"","Legend color 2 <#rrggbb|colorName>");
+    opts.add("-c3",&opts.color3,"","Legend color 3 <#rrggbb|colorName>");
+    opts.add("-c4",&opts.color4,"","Legend color 4 <#rrggbb|colorName>");
+    opts.add("-c5",&opts.color5,"","Legend color 5 <#rrggbb|colorName>");
+    opts.add("-c6",&opts.color6,"","Legend color 6 <#rrggbb|colorName>");
+    opts.add("-c7",&opts.color7,"","Legend color 7 <#rrggbb|colorName>");
     opts.add("-orient",&opts.orient,"landscape",
              "PDF page orientation - landscape (default) and portrait",
              presetOrientation);
@@ -485,6 +499,12 @@ int main(int argc, char *argv[])
         legends << opts.legend1 << opts.legend2 << opts.legend3
                 << opts.legend4 << opts.legend5 << opts.legend6 << opts.legend7;
 
+        // Make a list of user given curve colors
+        QStringList colors;
+        colors << opts.color1 << opts.color2 << opts.color3
+                << opts.color4 << opts.color5 << opts.color6 << opts.color7;
+
+
         // Time match tolerance
         double tolerance = 0.000001;
         if ( !opts.sessionFile.isEmpty() ) {
@@ -502,7 +522,8 @@ int main(int argc, char *argv[])
                              timeNames, opts.start, opts.stop,
                              tolerance, frequency,
                              shifts,
-                             presentation, QString(), dps, titles, legends,
+                             presentation, QString(), dps, titles,
+                             legends, colors,
                              opts.orient, opts.isLegend,
                              runs, varsModel, monteInputsModel);
             w.savePdf(pdfOutFile);
@@ -616,7 +637,8 @@ int main(int argc, char *argv[])
                                  opts.start, opts.stop,
                                  tolerance, frequency,
                                  shifts,
-                                 presentation, ".", dps, titles, legends,
+                                 presentation, ".", dps, titles,
+                                 legends, colors,
                                  opts.orient, opts.isLegend,
                                  runs, varsModel, monteInputsModel);
 #ifdef __linux
@@ -632,7 +654,8 @@ int main(int argc, char *argv[])
                                  tolerance, frequency,
                                  shifts,
                                  presentation, runDirs.at(0), QStringList(),
-                                 titles, legends, opts.orient, opts.isLegend,
+                                 titles, legends, colors,
+                                 opts.orient, opts.isLegend,
                                  runs, varsModel, monteInputsModel);
                 w.show();
                 ret = a.exec();

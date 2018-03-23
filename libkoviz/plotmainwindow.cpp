@@ -24,7 +24,7 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
         const QString &dpDir,
         const QStringList& dpFiles,
         const QStringList& titles,
-        const QStringList &legends,
+        const QStringList &legends, const QStringList &colors,
         const QString &orient, bool isLegend,
         Runs* runs,
         QStandardItemModel* varsModel,
@@ -99,6 +99,18 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
     _bookModel->addChild(rootItem, "TimeMatchTolerance", timeMatchTolerance);
     _bookModel->addChild(rootItem, "Frequency", frequency);
     _bookModel->addChild(rootItem, "IsLegend", isLegend);
+    if ( colors.size() == 7 ) {
+        QStandardItem *rootItem = _bookModel->invisibleRootItem();
+        QStandardItem *citem;
+        citem = _bookModel->addChild(rootItem, "LegendColors","");
+        _bookModel->addChild(citem, "Color1",colors.at(0));
+        _bookModel->addChild(citem, "Color2",colors.at(1));
+        _bookModel->addChild(citem, "Color3",colors.at(2));
+        _bookModel->addChild(citem, "Color4",colors.at(3));
+        _bookModel->addChild(citem, "Color5",colors.at(4));
+        _bookModel->addChild(citem, "Color6",colors.at(5));
+        _bookModel->addChild(citem, "Color7",colors.at(6));
+    }
 
     // Create Plot Tabbed Notebook View Widget
     _bookView = new BookView();

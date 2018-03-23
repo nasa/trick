@@ -296,7 +296,16 @@ QList<QColor> PlotBookModel::createCurveColors(int nCurves)
         }
         colors.removeFirst();
         colors.prepend(burntorange);  // Longhorns #0!
+    }
 
+    // If c1-7 cmdline color option used, override color
+    QModelIndex legendColorsIdx = getIndex(QModelIndex(),"LegendColors");
+    for (int i = 0; i < 7; ++i) {
+        QModelIndex legendColorIdx = index(i,1,legendColorsIdx);
+        QString color = data(legendColorIdx).toString();
+        if ( !color.isEmpty() ) {
+            colors.replace(i,QColor(color));
+        }
     }
 
     return colors;
@@ -415,6 +424,8 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
             idx = index(12,0);
         } else if ( searchItemText == "IsLegend" ) {
             idx = index(13,0);
+        } else if ( searchItemText == "LegendColors" ) {
+            idx = index(14,0);
         } else {
             fprintf(stderr,"koviz [bad scoobs]:3: getIndex() received "
                            "root as a startIdx and had bad child "

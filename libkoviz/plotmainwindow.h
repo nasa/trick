@@ -50,6 +50,7 @@ public:
                              const QStringList& dpFiles,
                              const QStringList& titles,
                              const QStringList& legends,
+                             const QStringList& colors,
                              const QString& orient,
                              bool isLegend,
                              Runs* runs,
