@@ -119,6 +119,7 @@ int Trick::DRBinary::format_specific_init() {
 -# While there is data in memory that has not been written to disk
    -# Write out each of the other parameter values to the temporary #writer_buff
    -# Write #writer_buff to the output file
+-# return the number of bytes written
 */
 int Trick::DRBinary::format_specific_write_data(unsigned int writer_offset) {
 
@@ -173,7 +174,7 @@ int Trick::DRBinary::format_specific_write_data(unsigned int writer_offset) {
 
     write( fp , writer_buff , len) ;
 
-    return(0) ;
+    return(len) ;
 }
 
 /**

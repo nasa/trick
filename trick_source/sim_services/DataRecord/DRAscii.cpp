@@ -1,4 +1,4 @@
-
+ 
 /*
 PURPOSE:
     (Data record in ascii format.)
@@ -105,6 +105,7 @@ int Trick::DRAscii::format_specific_init() {
    -# Write out each of the other parameter values preceded by the delimiter to the temporary #writer_buff
    -# Write #writer_buff to the output file
 -# Flush the output file stream
+-# Return the number of bytes written
 */
 int Trick::DRAscii::format_specific_write_data(unsigned int writer_offset) {
     unsigned int ii ;
@@ -129,7 +130,7 @@ int Trick::DRAscii::format_specific_write_data(unsigned int writer_offset) {
     /*! Flush the output */
     out_stream.flush() ;
 
-    return(0) ;
+    return(strlen(writer_buff)) ;
 }
 
 /**
