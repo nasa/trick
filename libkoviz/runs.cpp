@@ -343,6 +343,43 @@ CurveModel* Runs::curveModel(int row,
 }
 
 // Example:
+//
+//     names:
+//        "/the/rain/in/spain/falls/on/the/plain/good/grief",
+//        "/the/rain/in/spokane/falls/on/the/hills/good/grief",
+//        "/the/rain/in/space/falls/on/houston/good/grief"
+//
+//     returns:
+//         "spain/falls/on/the/plain",
+//         "spokane/falls/on/the/hills",
+//         "space/falls/on/houston"
+//
+QStringList Runs::abbreviateRunNames(const QStringList &runNames)
+{
+    QStringList names;
+
+    QString prefix = Runs::commonPrefix(runNames,"/");
+    QString suffix = Runs::commonSuffix(runNames,"/");
+
+    foreach ( QString s, runNames ) {
+
+        s = s.remove(prefix);
+        if ( s.startsWith("/") ) {
+            s = s.mid(1); // remove prepended '/'
+        }
+
+        s = s.remove(suffix);
+        if ( s.endsWith("/") ) {
+            s.chop(1);
+        }
+
+        names << s;
+    }
+
+    return names;
+}
+
+// Example:
 //     names:
 //        name[0]=/the/rain/in/spain/falls/on/the/plain
 //        name[1]=/the/rain/in/spokane/falls/on/the/hills

@@ -34,6 +34,7 @@ class Runs
                       const QString& xName,
                       const QString& yName) const;
 
+    static QStringList abbreviateRunNames(const QStringList& runNames);
     static QString commonPrefix(const QStringList &names, const QString &sep);
     static QString __commonPrefix(const QString &a, const QString &b,
                                   const QString &sep);

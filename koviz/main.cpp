@@ -59,8 +59,6 @@ QString sessionFilePresentation(const QString& sessionFile);
 double sessionFileTimeMatchTolerance(const QString& sessionFile);
 double sessionFileFrequency(const QString& sessionFile);
 
-QStringList abbreviateRunNames(const QStringList &runNames);
-
 Option::FPresetQString presetExistsFile;
 Option::FPresetDouble preset_start;
 Option::FPresetDouble preset_stop;
@@ -1812,7 +1810,7 @@ QStandardItemModel* runsInputModel(const QStringList &runs)
             QString frun = QFileInfo(run).absoluteFilePath();
             fruns << frun;
         }
-        QStringList runNames = abbreviateRunNames(fruns);
+        QStringList runNames = Runs::abbreviateRunNames(fruns);
 
         foreach ( QString runName, runNames ) {
             m->setHeaderData(r,Qt::Vertical,runName);
@@ -1827,43 +1825,6 @@ QStandardItemModel* runsInputModel(const QStringList &runs)
     }
 
     return m;
-}
-
-// Example:
-//
-//     names:
-//        "/the/rain/in/spain/falls/on/the/plain/good/grief",
-//        "/the/rain/in/spokane/falls/on/the/hills/good/grief",
-//        "/the/rain/in/space/falls/on/houston/good/grief"
-//
-//     returns:
-//         "spain/falls/on/the/plain",
-//         "spokane/falls/on/the/hills",
-//         "space/falls/on/houston"
-//
-QStringList abbreviateRunNames(const QStringList &runNames)
-{
-    QStringList names;
-
-    QString prefix = Runs::commonPrefix(runNames,"/");
-    QString suffix = Runs::commonSuffix(runNames,"/");
-
-    foreach ( QString s, runNames ) {
-
-        s = s.remove(prefix);
-        if ( s.startsWith("/") ) {
-            s = s.mid(1); // remove prepended '/'
-        }
-
-        s = s.remove(suffix);
-        if ( s.endsWith("/") ) {
-            s.chop(1);
-        }
-
-        names << s;
-    }
-
-    return names;
 }
 
 // Make subset of runs based on beginRun and endRun option
