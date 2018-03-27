@@ -262,6 +262,7 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
 
     // Angle
     map.insert(QPair<QString,QString>("r","r"),      1.0);
+    map.insert(QPair<QString,QString>("r","rad"),    1.0);
     map.insert(QPair<QString,QString>("r","d"),      0.0174532925199433);
     map.insert(QPair<QString,QString>("r","as"),     4.848136811095362e-06);
     map.insert(QPair<QString,QString>("r","am"),     0.0002908882086657216);
@@ -270,6 +271,7 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
 
     // Angular velocity
     map.insert(QPair<QString,QString>("r/s","r/s"),     1.0);
+    map.insert(QPair<QString,QString>("r/s","rad/s"),   1.0);
     map.insert(QPair<QString,QString>("r/s","d/s"),     0.0174532925199433);
     map.insert(QPair<QString,QString>("r/s","rev/s"),   6.28318530717958647);
     map.insert(QPair<QString,QString>("r/s","rpm"), 6.28318530717958647/60.0);
@@ -278,6 +280,7 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
 
     // Angular acceleration
     map.insert(QPair<QString,QString>("r/s2","r/s2"),      1.0);
+    map.insert(QPair<QString,QString>("r/s2","rad/s2"),    1.0);
     map.insert(QPair<QString,QString>("r/s2","d/s2"),      0.0174532925199433);
     map.insert(QPair<QString,QString>("r/s2","rev/s2"),    6.28318530717958647);
 
