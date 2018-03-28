@@ -105,6 +105,10 @@ namespace Trick {
              */
             int set_file_name(std::string in_name) ;
 
+            /**
+             @brief Write output to xml file.
+             @return always 0
+             */
             int write_output() ;
     } ;
 
