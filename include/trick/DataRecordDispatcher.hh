@@ -100,6 +100,12 @@ namespace Trick {
             /** @brief Disable a group or all groups */
             int record_now_group( const char * in_name ) ;
 
+            /** @brief set max file size for group */
+            int set_group_max_file_size(const char * in_name, uint64_t bytes) ;
+
+            /** @brief set max file size for all groups */
+            int set_max_file_size(uint64_t bytes) ;
+
             // override the default Schduler::add_sim_object
             virtual int add_sim_object( Trick::SimObject * in_object ) ;
 

@@ -21,29 +21,15 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.Box;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JSeparator;
-import javax.swing.JSplitPane;
-import javax.swing.JTextField;
-import javax.swing.JToolBar;
+import javax.swing.*;
 import javax.swing.tree.TreePath;
 import javax.xml.parsers.ParserConfigurationException;
 
-import javax.swing.JComboBox;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.View;
@@ -119,6 +105,8 @@ public class DreApplication extends TrickApplication {
     private NumberTextField maxFileSize;
 
     private JComboBox<String> sizeUnits;
+
+    private JCheckBox unlimSizeCheckB;
     
     private JRadioButtonMenuItem DRAscii_item;
     private JRadioButtonMenuItem DRBinary_item;
@@ -289,7 +277,8 @@ public class DreApplication extends TrickApplication {
             addVariable(thisValue.toString());
         }
     }
-    
+
+
 	//========================================
 	//	Set/Get methods
 	//========================================
@@ -536,6 +525,7 @@ public class DreApplication extends TrickApplication {
         cycleField= new NumberTextField("0.1", 5);
         cycleField.setMinimumSize(cycleField.getPreferredSize());       
         toolBar.add(cycleField);
+        toolBar.addSeparator();
         toolBar.add(new JLabel(" Max File Size: "));
         maxFileSize = new NumberTextField("1", 4);
         maxFileSize.setMinimumSize((maxFileSize.getPreferredSize()));
@@ -544,6 +534,15 @@ public class DreApplication extends TrickApplication {
         sizeUnits = new JComboBox<>(units);
         sizeUnits.setSelectedItem(sizeUnits.getItemAt(3));
         toolBar.add(sizeUnits);
+        toolBar.addSeparator();
+        unlimSizeCheckB = new JCheckBox("Unlimited File Size", false);
+        unlimSizeCheckB.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateUnlimited();
+            }
+        });
+        toolBar.add(unlimSizeCheckB);
         toolBar.setSize(toolBar.getPreferredSize());
         return toolBar;
     }
@@ -603,6 +602,39 @@ public class DreApplication extends TrickApplication {
     		selectDRBinary();
     	}
     }
+    /**
+     * routine to read the Max File Size from the opened file.
+     *
+     * @param subs String the string read in from the opened file.
+     */
+    private void readFileSize(String subs){
+        StringTokenizer st = new StringTokenizer(subs);
+        maxFileSize.setText(st.nextToken());
+        if(maxFileSize.getText().equals("0")){
+            unlimSizeCheckB.setSelected(true);
+            updateUnlimited();
+        }
+        if(st.hasMoreElements()) {
+            st.nextToken(); // skip shift symbol
+            String shift = st.nextToken();
+            switch (shift) {
+                case "0":
+                    sizeUnits.setSelectedIndex(0);
+                    break;
+                case "10":
+                    sizeUnits.setSelectedIndex(1);
+                    break;
+                case "20":
+                    sizeUnits.setSelectedIndex(2);
+                    break;
+                case "30":
+                    sizeUnits.setSelectedIndex(3);
+                    break;
+            }
+        } else {
+            sizeUnits.setSelectedIndex(0);
+        }
+    }
     
     /**
      * routine to read the contents of the opened file
@@ -641,7 +673,9 @@ public class DreApplication extends TrickApplication {
     							singlePrecisionCheckBox.setState(false);
     						}
     						
-    					}
+    					} else if (line.indexOf("set_max_file_size") != -1){
+    					    readFileSize(line.substring(line.indexOf("(") + 1, line.indexOf(")")));
+                        }
     				} 
     			}
     		}
@@ -777,7 +811,28 @@ public class DreApplication extends TrickApplication {
         fullName.clear();
         nameSegment.clear();
     }
-    
+
+    /**
+     * handler to update GUI after unlimited file size is checked.
+     *
+     */
+    private static String previousFileSize;
+    private static int previousUnitIndex;
+    private void updateUnlimited() {
+        if (unlimSizeCheckB.isSelected()) {
+            previousFileSize = maxFileSize.getText();
+            previousUnitIndex = sizeUnits.getSelectedIndex();
+            maxFileSize.setText("0");
+            maxFileSize.setEnabled(false);
+            sizeUnits.setSelectedIndex(0);
+            sizeUnits.setEnabled(false);
+        } else {
+            maxFileSize.setEnabled(true);
+            sizeUnits.setEnabled(true);
+            maxFileSize.setText(previousFileSize);
+            sizeUnits.setSelectedIndex(previousUnitIndex);
+        }
+    }
     //========================================
     //    Inner classes
     //========================================

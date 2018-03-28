@@ -195,8 +195,13 @@ int Trick::DataRecordGroup::set_buffer_type( int in_buffer_type ) {
     return(0) ;
 }
 
-int Trick::DataRecordGroup::set_max_file_size(uint64_t bytes) {
-    max_file_size = bytes; 
+int Trick::DataRecordGroup::set_max_file_size( uint64_t bytes ) {
+    if(bytes == 0) {
+        max_file_size = UINT64_MAX ;
+    } else {
+    max_file_size = bytes ; 
+    }
+    return(0) ;
 }
 
 int Trick::DataRecordGroup::set_single_prec_only( bool in_single_prec_only ) {
@@ -638,7 +643,7 @@ int Trick::DataRecordGroup::write_data(bool must_write) {
     unsigned int num_to_write ;
     unsigned int writer_offset ;
 
-    if ( record and inited and (buffer_type == DR_No_Buffer or must_write) and (total_bytes_written < max_file_size)) {
+    if ( record and inited and (buffer_type == DR_No_Buffer or must_write) and (total_bytes_written <= max_file_size)) {
 
         // buffer_mutex is used in this one place to prevent forced calls of write_data
         // to not overwrite data being written by the asynchronous thread.
@@ -655,7 +660,7 @@ int Trick::DataRecordGroup::write_data(bool must_write) {
         while ( writer_num != local_buffer_num ) {
 
             writer_offset = writer_num % max_num ;
-            // keep record of bytes written to file. Default max is 1GB
+            //! keep record of bytes written to file. Default max is 1GB
             total_bytes_written += format_specific_write_data(writer_offset) ;
             writer_num++ ;
 
