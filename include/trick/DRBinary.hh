@@ -117,7 +117,7 @@ namespace Trick {
 
         private:
             /** The log file.\n */
-            int fp ;             /**< trick_io(**) trick_units(--) */
+            int fd ;             /**< trick_io(**) trick_units(--) */
 
     } ;
 

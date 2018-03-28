@@ -43,6 +43,7 @@ import javax.swing.JToolBar;
 import javax.swing.tree.TreePath;
 import javax.xml.parsers.ParserConfigurationException;
 
+import javax.swing.JComboBox;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.View;
@@ -113,6 +114,11 @@ public class DreApplication extends TrickApplication {
     
     /** The text field that contains the cycle frequency for recording */
     private NumberTextField cycleField;
+
+    /** The text field that contains the max file size for the group */
+    private NumberTextField maxFileSize;
+
+    private JComboBox<String> sizeUnits;
     
     private JRadioButtonMenuItem DRAscii_item;
     private JRadioButtonMenuItem DRBinary_item;
@@ -364,8 +370,10 @@ public class DreApplication extends TrickApplication {
         view.setComponent(createMainPanel());
         view.setMenuBar(createMenuBar());
         view.setToolBar(createToolBar());
-        
+        getMainFrame().setMinimumSize(getMainFrame().getPreferredSize());
         show(view);
+
+
     }
 
     /**
@@ -528,7 +536,15 @@ public class DreApplication extends TrickApplication {
         cycleField= new NumberTextField("0.1", 5);
         cycleField.setMinimumSize(cycleField.getPreferredSize());       
         toolBar.add(cycleField);
-        
+        toolBar.add(new JLabel(" Max File Size: "));
+        maxFileSize = new NumberTextField("1", 4);
+        maxFileSize.setMinimumSize((maxFileSize.getPreferredSize()));
+        toolBar.add(maxFileSize);
+        String[] units = {"B", "KiB", "MiB", "GiB"};
+        sizeUnits = new JComboBox<>(units);
+        sizeUnits.setSelectedItem(sizeUnits.getItemAt(3));
+        toolBar.add(sizeUnits);
+        toolBar.setSize(toolBar.getPreferredSize());
         return toolBar;
     }
     
@@ -665,6 +681,19 @@ public class DreApplication extends TrickApplication {
     			for (int i = 0; i < variables.size(); i++) {
     				writer.write("drg[DR_GROUP_ID].add_variable(\"" + variables.get(i) + "\")\n");
     			}
+    			String shift = null;
+    			// left shift to convert bytes to [B, KiB, MiB, GiB]
+    			switch(sizeUnits.getSelectedIndex()){
+                    case 0 :    shift = "0";
+                                break;
+                    case 1 :    shift = "10";
+                                break;
+                    case 2 :    shift = "20";
+                                break;
+                    case 3 :    shift = "30";
+                                break;
+                }
+    			writer.write("drg[DR_GROUP_ID].set_max_file_size(" + maxFileSize.getText().trim() +" << " + shift + ");\n");
     			writer.write("trick.add_data_record_group(drg[DR_GROUP_ID], trick." + buffering + ")\n");
     			writer.write("drg[DR_GROUP_ID].enable()\n");
     		}
