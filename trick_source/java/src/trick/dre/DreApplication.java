@@ -7,52 +7,42 @@ package trick.dre;
 //========================================
 //	Imports
 //========================================
-import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.StringTokenizer;
-import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.swing.*;
-import javax.swing.tree.TreePath;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.jdesktop.application.Action;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.View;
 import org.jdesktop.swingx.JXLabel;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
 import trick.common.TrickApplication;
 import trick.common.ui.UIUtils;
 import trick.common.ui.components.NumberTextField;
 import trick.common.ui.panels.ListPanel;
-import trick.sie.utils.SearchPanel;
-import trick.sie.utils.SieResourceDomParser;
-import trick.sie.utils.SieTemplate;
-import trick.sie.utils.SieTreeModel;
-import trick.sie.utils.SieVariableTree;
+import trick.sie.utils.*;
+
+import javax.swing.*;
+import javax.swing.tree.TreePath;
+import javax.xml.parsers.ParserConfigurationException;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.*;
+import java.util.Collection;
+import java.util.StringTokenizer;
+import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
  * Dre - data recording editor application.
  *
- * @author Hong Chen	
+ * @author Hong Chen
  * @since Trick 10
+ *
+ * @author Scott Fennell
+ * @since Trick 17
  */
 public class DreApplication extends TrickApplication {
 	//========================================
@@ -102,11 +92,11 @@ public class DreApplication extends TrickApplication {
     private NumberTextField cycleField;
 
     /** The text field that contains the max file size for the group */
-    private NumberTextField maxFileSize;
+    private NumberTextField maxFileSizeField;
 
-    private JComboBox<String> sizeUnits;
+    private JComboBox<String> sizeUnitsBox;
 
-    private JCheckBox unlimSizeCheckB;
+    private JCheckBox unlimitedSizeBox;
     
     private JRadioButtonMenuItem DRAscii_item;
     private JRadioButtonMenuItem DRBinary_item;
@@ -311,25 +301,19 @@ public class DreApplication extends TrickApplication {
         	resourceFile = new File(sieResourcePath);
         }
         //sieXMLParser = null;
-        if (resourceFile != null && !resourceFile.exists()) {
+        if (!resourceFile.exists()) {
             System.out.println(resourceFile.getName() + " file does not exist. Exit!!!");
             System.exit(0);
         }
     
         try {
 			rootTemplates = SieResourceDomParser.parse(new InputSource(new FileInputStream(resourceFile)));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (ParserConfigurationException | SAXException | IOException e) {
 			e.printStackTrace();
 		}
-        
-        /*try {        	
-            sieXMLParser = new SieResourceXMLParser(resourceFile.getCanonicalPath());           
+
+        /*try {
+            sieXMLParser = new SieResourceXMLParser(resourceFile.getCanonicalPath());
             sieXMLParser.runParser();
         } catch (Exception e) {
             System.out.println("Failed to parse " + resourceFile.getName() + "!");
@@ -502,62 +486,86 @@ public class DreApplication extends TrickApplication {
      */
     @Override
     protected JToolBar createToolBar() {
+
+        JToolBar toolBar = new JToolBar();
+
+        // add buttons
         String[] toolbarActionNames = {"openDR", "saveDR"};
-        JToolBar toolBar = new JToolBar(); 
         for (String actionName : toolbarActionNames) {
             if (actionName.equals("---")) {
                 toolBar.addSeparator();
             } else {
                 toolBar.add(createButton(actionName, false));
             }
-        }      
-        toolBar.addSeparator();       
-        toolBar.add(new JLabel("DR Name (NO SPACE):  "));  
-        nameField = new JTextField(15);
-        nameField.setMinimumSize(nameField.getPreferredSize());
-        nameField.setPreferredSize(nameField.getPreferredSize());
-        nameField.setMaximumSize(nameField.getPreferredSize());        
+        }
+
+        nameFieldInit();
+        cycleFieldInit();
+        maxFileSizeFieldInit();
+        sizeUnitsBoxInit();
+        unlimitedSizeBoxInit();
+
+        toolBar.addSeparator();
+        toolBar.add(new JLabel("DR Name (NO SPACE):  "));
         toolBar.add(nameField);
-        
         toolBar.add(Box.createHorizontalStrut(10));
-        
-        toolBar.add(new JLabel("DR Cycle:  "));   
-        cycleField= new NumberTextField("0.1", 5);
-        cycleField.setMinimumSize(cycleField.getPreferredSize());       
+        toolBar.add(new JLabel("DR Cycle:  "));
         toolBar.add(cycleField);
         toolBar.addSeparator();
         toolBar.add(new JLabel(" Max File Size: "));
-        maxFileSize = new NumberTextField("1", 4);
-        maxFileSize.setMinimumSize((maxFileSize.getPreferredSize()));
-        toolBar.add(maxFileSize);
-        String[] units = {"B", "KiB", "MiB", "GiB"};
-        sizeUnits = new JComboBox<>(units);
-        sizeUnits.setSelectedItem(sizeUnits.getItemAt(3));
-        toolBar.add(sizeUnits);
+        toolBar.add(maxFileSizeField);
+        toolBar.add(sizeUnitsBox);
         toolBar.addSeparator();
-        unlimSizeCheckB = new JCheckBox("Unlimited File Size", false);
-        unlimSizeCheckB.addActionListener(new ActionListener() {
+        toolBar.add(unlimitedSizeBox);
+        toolBar.setSize(toolBar.getPreferredSize());
+
+        return toolBar;
+    }
+
+    private void nameFieldInit() {
+        nameField = new JTextField(15);
+        nameField.setMinimumSize(nameField.getPreferredSize());
+        nameField.setPreferredSize(nameField.getPreferredSize());
+        nameField.setMaximumSize(nameField.getPreferredSize());
+    }
+
+    private void cycleFieldInit() {
+        cycleField = new NumberTextField("0.1", 5);
+        cycleField.setMinimumSize(cycleField.getPreferredSize());
+    }
+
+    private void maxFileSizeFieldInit() {
+        maxFileSizeField = new NumberTextField("1", 4);
+        maxFileSizeField.setMinimumSize((maxFileSizeField.getPreferredSize()));
+    }
+
+    private void sizeUnitsBoxInit() {
+        String[] units = {"B", "KiB", "MiB", "GiB"};
+        sizeUnitsBox = new JComboBox<>(units);
+        sizeUnitsBox.setSelectedItem(sizeUnitsBox.getItemAt(3));
+    }
+
+    private void unlimitedSizeBoxInit() {
+        unlimitedSizeBox = new JCheckBox("Unlimited File Size", false);
+        unlimitedSizeBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 updateUnlimited();
             }
         });
-        toolBar.add(unlimSizeCheckB);
-        toolBar.setSize(toolBar.getPreferredSize());
-        return toolBar;
     }
-    
+
     /**
      * routine to read the Frequency from the opened file.
      * 
      * @param string String the string read in from the opened file.
      */
     private void readFrequency(String string) {
-    	if (string.indexOf("trick.DR_Always") != -1) {
+    	if (string.contains("trick.DR_Always")) {
     		selectDRAlways();
-    	} else if (string.indexOf("trick.DR_Changes") != -1) {
+    	} else if (string.contains("trick.DR_Changes")) {
     		selectDRChanges();
-    	} else if (string.indexOf("trick.DR_Step_Changes") != -1) {
+    	} else if (string.contains("trick.DR_Step_Changes")) {
     		selectDRStepChanges();
     	} else {
     		System.out.println("Frequency Type is not recognized, defaulting to DR_Always");
@@ -571,13 +579,13 @@ public class DreApplication extends TrickApplication {
      * @param string String the string read in from the opened file.
      */
     private void readBuffering(String string) {
-    	if (string.indexOf("trick.DR_Buffer") != -1) {
+    	if (string.contains("trick.DR_Buffer")) {
     		selectDRBuffer();
-    	} else if (string.indexOf("trick.DR_No_Buffer") != -1) {
+    	} else if (string.contains("trick.DR_No_Buffer")) {
     		selectDRNoBuffer();
-    	} else if (string.indexOf("trick.DR_Ring_Buffer") != -1) {
+    	} else if (string.contains("trick.DR_Ring_Buffer")) {
     		selectDRRingBuffer();
-    	} else if (string.indexOf("trick.DR_Thread_Buffer") != -1) {
+    	} else if (string.contains("trick.DR_Thread_Buffer")) {
     		selectDRThreadBuffer();
     	} else {
     		System.out.println("Buffering Type is not recognized, defaulting to DR_Buffer");
@@ -591,17 +599,18 @@ public class DreApplication extends TrickApplication {
      * @param string String the string read in from the opened file.
      */
     private void readFormat(String string) {
-    	if (string.indexOf("DRBinary") != -1) {
+    	if (string.contains("DRBinary")) {
     		selectDRBinary();
-    	} else if (string.indexOf("DRAscii") != -1) {
+    	} else if (string.contains("DRAscii")) {
     		selectDRAscii();
-    	} else if (string.indexOf("DRHDF5") != -1) {
+    	} else if (string.contains("DRHDF5")) {
     		selectDRHDF5();
     	} else {
     		System.out.println("Format Type is not recognized, defaulting to DR_Binary");
     		selectDRBinary();
     	}
     }
+
     /**
      * routine to read the Max File Size from the opened file.
      *
@@ -609,30 +618,56 @@ public class DreApplication extends TrickApplication {
      */
     private void readFileSize(String subs){
         StringTokenizer st = new StringTokenizer(subs);
-        maxFileSize.setText(st.nextToken());
-        if(maxFileSize.getText().equals("0")){
-            unlimSizeCheckB.setSelected(true);
+        String quantity = st.nextToken("<<").trim();
+        maxFileSizeField.setText(quantity);
+        if(maxFileSizeField.getText().equals("0")){
+            unlimitedSizeBox.setSelected(true);
             updateUnlimited();
+        } else {
+            unlimitedSizeBox.setSelected(false);
+            maxFileSizeField.setEnabled(true);
+            sizeUnitsBox.setEnabled(true);
         }
         if(st.hasMoreElements()) {
-            st.nextToken(); // skip shift symbol
-            String shift = st.nextToken();
+            String shift = st.nextToken("<<").trim();
             switch (shift) {
                 case "0":
-                    sizeUnits.setSelectedIndex(0);
+                    sizeUnitsBox.setSelectedItem("B");
                     break;
                 case "10":
-                    sizeUnits.setSelectedIndex(1);
+                    sizeUnitsBox.setSelectedItem("KiB");
                     break;
                 case "20":
-                    sizeUnits.setSelectedIndex(2);
+                    sizeUnitsBox.setSelectedItem("MiB");
                     break;
                 case "30":
-                    sizeUnits.setSelectedIndex(3);
+                    sizeUnitsBox.setSelectedItem("GiB");
                     break;
             }
         } else {
-            sizeUnits.setSelectedIndex(0);
+            sizeUnitsBox.setSelectedItem("B");
+        }
+    }
+
+    /**
+     * helper method to update GUI after unlimited file size is checked.
+     *
+     */
+    private static String previousFileSize;
+    private static int previousUnitIndex;
+    private void updateUnlimited() {
+        if (unlimitedSizeBox.isSelected()) {
+            previousFileSize = maxFileSizeField.getText();
+            previousUnitIndex = sizeUnitsBox.getSelectedIndex();
+            maxFileSizeField.setText("0");
+            maxFileSizeField.setEnabled(false);
+            sizeUnitsBox.setSelectedIndex(0);
+            sizeUnitsBox.setEnabled(false);
+        } else {
+            maxFileSizeField.setEnabled(true);
+            sizeUnitsBox.setEnabled(true);
+            maxFileSizeField.setText(previousFileSize);
+            sizeUnitsBox.setSelectedIndex(previousUnitIndex);
         }
     }
     
@@ -648,42 +683,40 @@ public class DreApplication extends TrickApplication {
     		BufferedReader reader = new BufferedReader(new FileReader(file));
     		try {
     			for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-    				if (line.indexOf("append") != -1) {
+    				if (line.contains("append")) {
     					String[] segment = line.split("\"");
     					readFormat(line);
     					nameField.setText(segment[1]);    			
-    				} else if (line.indexOf("add_data_record_group") != -1) {
+    				} else if (line.contains("add_data_record_group")) {
     				    readBuffering(line);
-    				} else if (line.indexOf("drg[DR_GROUP_ID]") != -1) {
+    				} else if (line.contains("drg[DR_GROUP_ID]")) {
     					int indx = line.indexOf("(");
     					int len = line.length();
-    					if (line.indexOf("set_freq") != -1) {
+    					if (line.contains("set_freq")) {
     						readFrequency(line);
-    					} else if (line.indexOf("enable") != -1) {
+    					} else if (line.contains("enable")) {
     						;
-    					} else if (line.indexOf("set_cycle") != -1) {
+    					} else if (line.contains("set_cycle")) {
     						cycleField.setText(line.substring(indx+1,len-1));
-    					} else if (line.indexOf("add_variable") != -1) {
+    					} else if (line.contains("add_variable")) {
     						selectedVarList.addData(line.substring(indx+2,len-2));
     						variables.add(line.substring(indx+2,len-2));
-    					} else if (line.indexOf("set_single_prec_only") != -1) {
+    					} else if (line.contains("set_single_prec_only")) {
     						if (line.substring(indx+1,len-1).equals("True")) {
     							singlePrecisionCheckBox.setState(true);
     						} else {
     							singlePrecisionCheckBox.setState(false);
     						}
     						
-    					} else if (line.indexOf("set_max_file_size") != -1){
+    					} else if (line.contains("set_max_file_size")){
     					    readFileSize(line.substring(line.indexOf("(") + 1, line.indexOf(")")));
                         }
     				} 
     			}
     		}
     		finally {
-    			if (reader != null) {
-    				reader.close();
-    			}
-    		}
+                reader.close();
+            }
     	}
     	catch (Exception e) {
     		JOptionPane.showMessageDialog(getMainFrame(), e.toString(), "Error Reading File", JOptionPane.ERROR_MESSAGE);
@@ -706,43 +739,49 @@ public class DreApplication extends TrickApplication {
     			writer.write("        DR_GROUP_ID += 1\n");
     			writer.write("except NameError:\n");
     			writer.write("    DR_GROUP_ID = 0\n" +
-    					     "    drg = []\n\n"); 
+    					     "    drg = []\n\n");
     			writer.write("drg.append(trick." + format + "(\"" + nameField.getText().trim() + "\"))\n");
     			writer.write("drg[DR_GROUP_ID].set_freq(trick." + frequency + ")\n");
     			writer.write("drg[DR_GROUP_ID].set_cycle(" + cycleField.getText() + ")\n");
     			writer.write("drg[DR_GROUP_ID].set_single_prec_only(" + single_prec_only + ")\n");
 
-    			for (int i = 0; i < variables.size(); i++) {
-    				writer.write("drg[DR_GROUP_ID].add_variable(\"" + variables.get(i) + "\")\n");
-    			}
-    			String shift = null;
-    			// left shift to convert bytes to [B, KiB, MiB, GiB]
-    			switch(sizeUnits.getSelectedIndex()){
-                    case 0 :    shift = "0";
-                                break;
-                    case 1 :    shift = "10";
-                                break;
-                    case 2 :    shift = "20";
-                                break;
-                    case 3 :    shift = "30";
-                                break;
+                for (String variable : variables) {
+                    writer.write("drg[DR_GROUP_ID].add_variable(\"" + variable + "\")\n");
                 }
-    			writer.write("drg[DR_GROUP_ID].set_max_file_size(" + maxFileSize.getText().trim() +" << " + shift + ");\n");
+                writer.write("drg[DR_GROUP_ID].set_max_file_size(" + maxFileSizeField.getText().trim() +" << " + getShift((String)sizeUnitsBox.getSelectedItem()) + ");\n");
     			writer.write("trick.add_data_record_group(drg[DR_GROUP_ID], trick." + buffering + ")\n");
     			writer.write("drg[DR_GROUP_ID].enable()\n");
     		}
     		finally {
-    			if (writer != null) {
-    				writer.close();
-    			}
-    		}
+                writer.close();
+            }
     	}
     	catch (Exception e) {
     		JOptionPane.showMessageDialog(getMainFrame(), e.toString(),
     				"Error Saving File", JOptionPane.ERROR_MESSAGE);
     	}
-    }    
-    
+    }
+
+
+    /**
+     * helper method to convert ComboBox index to a left shift for filesize units
+     *
+     */
+    private String getShift(String unit) {
+        String shift = null;
+        switch(unit){
+            case "B" :    shift = "0";
+            break;
+            case "KiB" :    shift = "10";
+            break;
+            case "MiB" :    shift = "20";
+            break;
+            case "GiB" :    shift = "30";
+            break;
+        }
+        return shift;
+    }
+
     /**
      * routine to add the subscripts to the variable name being created
      * 
@@ -786,13 +825,13 @@ public class DreApplication extends TrickApplication {
     private void addVariable(String name) {
         String[] segments = name.split("\\.");
 
-        for (int i = 0; i < segments.length ; i++) {
+        for (String segment : segments) {
             VariableName tempName = new VariableName();
-            Matcher matcher = Pattern.compile("\\[.\\]").matcher(segments[i]);
-            tempName.name = segments[i].replaceFirst("\\[.*\\]",""); 
+            Matcher matcher = Pattern.compile("\\[.\\]").matcher(segment);
+            tempName.name = segment.replaceFirst("\\[.*\\]", "");
 
             while (matcher.find()) {
-                String str_idx = matcher.group().substring(1, matcher.group().length()-1);
+                String str_idx = matcher.group().substring(1, matcher.group().length() - 1);
                 tempName.dimensions.add(Integer.parseInt(str_idx));
             }
             nameSegment.add(tempName);
@@ -804,35 +843,15 @@ public class DreApplication extends TrickApplication {
             addName(nameSegment.get(i).name);
             addSubscript(i);
         }
-        for (int i=0; i<fullName.size(); i++) {
-            variables.add(fullName.get(i));
-            selectedVarList.addData(fullName.get(i));
+        for (String aFullName : fullName) {
+            variables.add(aFullName);
+            selectedVarList.addData(aFullName);
         }
         fullName.clear();
         nameSegment.clear();
     }
 
-    /**
-     * handler to update GUI after unlimited file size is checked.
-     *
-     */
-    private static String previousFileSize;
-    private static int previousUnitIndex;
-    private void updateUnlimited() {
-        if (unlimSizeCheckB.isSelected()) {
-            previousFileSize = maxFileSize.getText();
-            previousUnitIndex = sizeUnits.getSelectedIndex();
-            maxFileSize.setText("0");
-            maxFileSize.setEnabled(false);
-            sizeUnits.setSelectedIndex(0);
-            sizeUnits.setEnabled(false);
-        } else {
-            maxFileSize.setEnabled(true);
-            sizeUnits.setEnabled(true);
-            maxFileSize.setText(previousFileSize);
-            sizeUnits.setSelectedIndex(previousUnitIndex);
-        }
-    }
+
     //========================================
     //    Inner classes
     //========================================
@@ -878,7 +897,7 @@ public class DreApplication extends TrickApplication {
                         }
                         
                         JMenuItem firstItem = new JMenuItem(SieTreeModel.getPathName(clickedPath) + clickedNode);
-                        if (clickedNode != null && varTree.getModel().isLeaf(clickedNode) && clickedNode.isTrickManaged()) {  
+                        if (varTree.getModel().isLeaf(clickedNode) && clickedNode.isTrickManaged()) {
 	                        firstItem.addActionListener(new ActionListener() {
 	                        	public void actionPerformed(ActionEvent e) {         		 
 	                        			addVariable(e.getActionCommand());	                        		
