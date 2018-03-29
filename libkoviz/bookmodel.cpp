@@ -248,6 +248,10 @@ QModelIndexList PlotBookModel::plotIdxs(const QModelIndex &pageIdx) const
         return plotIdxs;  // return empty list
     }
 
+    if ( !isChildIndex(pageIdx,"Page","Plots") ) {
+        return plotIdxs;  // return empty list
+    }
+
     QModelIndex plotsIdx = getIndex(pageIdx,"Plots", "Page");
     return getIndexList(plotsIdx, "Plot", "Plots");
 }
@@ -1372,21 +1376,23 @@ bool PlotBookModel::isPlotLegendsSame(const QModelIndex& pageIdx) const
 
         QModelIndexList plotIdxs = this->plotIdxs(pageIdx);
 
-        QStringList symbols0 = legendSymbols(plotIdxs.at(0));
-        QStringList styles0  = legendLinestyles(plotIdxs.at(0));
-        QStringList colors0  = legendColors(plotIdxs.at(0));
-        QStringList labels0  = legendLabels(plotIdxs.at(0));
+        if ( !plotIdxs.isEmpty() ) {
+            QStringList symbols0 = legendSymbols(plotIdxs.at(0));
+            QStringList styles0  = legendLinestyles(plotIdxs.at(0));
+            QStringList colors0  = legendColors(plotIdxs.at(0));
+            QStringList labels0  = legendLabels(plotIdxs.at(0));
 
-        ok = true;
-        foreach ( QModelIndex plotIdx, plotIdxs ) {
-            QStringList symbols = legendSymbols(plotIdx);
-            QStringList styles  = legendLinestyles(plotIdx);
-            QStringList colors  = legendColors(plotIdx);
-            QStringList labels  = legendLabels(plotIdx);
-            if ( symbols0 != symbols || styles0 != styles ||
-                 colors0 != colors || labels0 != labels ) {
-                ok = false;
-                break;
+            ok = true;
+            foreach ( QModelIndex plotIdx, plotIdxs ) {
+                QStringList symbols = legendSymbols(plotIdx);
+                QStringList styles  = legendLinestyles(plotIdx);
+                QStringList colors  = legendColors(plotIdx);
+                QStringList labels  = legendLabels(plotIdx);
+                if ( symbols0 != symbols || styles0 != styles ||
+                     colors0 != colors || labels0 != labels ) {
+                    ok = false;
+                    break;
+                }
             }
         }
     }
