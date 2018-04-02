@@ -537,6 +537,7 @@ public class DreApplication extends TrickApplication {
         toolBar.addSeparator();
         toolBar.add(unlimitedSizeBox);
         toolBar.setSize(toolBar.getPreferredSize());
+        toolBar.addSeparator();
 
         return toolBar;
     }
@@ -554,7 +555,7 @@ public class DreApplication extends TrickApplication {
     }
 
     private void maxFileSizeFieldInit() {
-        maxFileSizeField = new NumberTextField("1", 4);
+        maxFileSizeField = new NumberTextField("1", 10);
         maxFileSizeField.setMinimumSize((maxFileSizeField.getPreferredSize()));
     }
 
@@ -637,7 +638,7 @@ public class DreApplication extends TrickApplication {
      */
     private void readFileSize(String subs) {
         StringTokenizer st = new StringTokenizer(subs);
-        String quantity = st.nextToken("<<").trim();
+        String quantity = st.nextToken("*").trim();
         maxFileSizeField.setText(quantity);
         if (maxFileSizeField.getText().equals("0")) {
             unlimitedSizeBox.setSelected(true);
@@ -648,18 +649,15 @@ public class DreApplication extends TrickApplication {
             sizeUnitsBox.setEnabled(true);
         }
         if (st.hasMoreElements()) {
-            String shift = st.nextToken("<<").trim();
+            String shift = st.nextToken("*").trim();
             switch (shift) {
-                case "0":
-                    sizeUnitsBox.setSelectedItem("B");
-                    break;
-                case "10":
+                case "1024":
                     sizeUnitsBox.setSelectedItem("KiB");
                     break;
-                case "20":
+                case "1048576":
                     sizeUnitsBox.setSelectedItem("MiB");
                     break;
-                case "30":
+                case "1073741824":
                     sizeUnitsBox.setSelectedItem("GiB");
                     break;
             }
@@ -765,7 +763,7 @@ public class DreApplication extends TrickApplication {
                 for (String variable : variables) {
                     writer.write("drg[DR_GROUP_ID].add_variable(\"" + variable + "\")\n");
                 }
-                writer.write("drg[DR_GROUP_ID].set_max_file_size(" + maxFileSizeField.getText().trim() + " << " + getShift((String) sizeUnitsBox.getSelectedItem()) + ");\n");
+                writer.write("drg[DR_GROUP_ID].set_max_file_size(" + maxFileSizeField.getText().trim() + getMultiplier((String) sizeUnitsBox.getSelectedItem()));
                 writer.write("trick.add_data_record_group(drg[DR_GROUP_ID], trick." + buffering + ")\n");
                 writer.write("drg[DR_GROUP_ID].enable()\n");
             } finally {
@@ -779,25 +777,25 @@ public class DreApplication extends TrickApplication {
 
 
     /**
-     * helper method to convert ComboBox index to a left shift for filesize units
+     * helper method to convert ComboBox index to a multiplier for filesize units
      */
-    private String getShift(String unit) {
-        String shift = null;
+    private String getMultiplier(String unit) {
+        String multiplier = null;
         switch (unit) {
             case "B":
-                shift = "0";
+                multiplier = ")\n";
                 break;
             case "KiB":
-                shift = "10";
+                multiplier = " * 1024) # multiply converts KiB to B --Dr. Dre\n";
                 break;
             case "MiB":
-                shift = "20";
+                multiplier = " * 1048576) # multiply converts MiB to B --Dr. Dre\n";
                 break;
             case "GiB":
-                shift = "30";
+                multiplier = " * 1073741824) # multiply converts GiB to B --Dr. Dre\n";
                 break;
         }
-        return shift;
+        return multiplier;
     }
 
     /**
