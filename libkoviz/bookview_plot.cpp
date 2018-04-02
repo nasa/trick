@@ -317,6 +317,7 @@ bool PlotView::eventFilter(QObject *obj, QEvent *event)
                     QRectF mrect(mo,mbr);
                     _bookModel()->setPlotMathRect(mrect,rootIndex());
                     _curvesView->viewport()->update();
+                    _curvesView->setFocus();
                     foreach ( QAbstractItemView* childView, _childViews ) {
                         childView->viewport()->update();
                     }

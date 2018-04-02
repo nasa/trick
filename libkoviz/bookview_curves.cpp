@@ -548,7 +548,9 @@ void CurvesView::_paintLiveCoordArrow(CurveModel *curveModel,
     double liveTime = model()->data(liveIdx).toDouble();
     int i = 0;
     if ( curveModel->x()->name() == curveModel->t()->name() ) {
-        i = curveModel->indexAtTime((liveTime-xb)/xs);
+        double t = (liveTime-xb)/xs;
+        ROUNDOFF(t,t);
+        i = curveModel->indexAtTime(t);
     } else {
         // e.g. ball xy curve where x is position[0]
         i = curveModel->indexAtTime(liveTime);
@@ -768,6 +770,76 @@ void CurvesView::_keyPressPeriod()
         fprintf(stderr,"coord=(%s,%s)\n",
                        x.toLatin1().constData(),
                        y.toLatin1().constData());
+
+        curveModel->unmap();
+    }
+}
+
+void CurvesView::_keyPressArrow(const Qt::ArrowType& arrow)
+{
+    if ( arrow != Qt::LeftArrow && arrow != Qt::RightArrow ) {
+        fprintf(stderr, "koviz [bad scoobs]: "
+                        "CurvesView::_keyPressArrow(%d)\n",arrow);
+        exit(-1);
+    }
+
+    // If curve is selected
+    QModelIndex gpidx = currentIndex().parent().parent();
+    QString tag = model()->data(currentIndex()).toString();
+    if ( currentIndex().isValid() && tag == "Curve" && gpidx == rootIndex()) {
+
+        QModelIndex curveIdx = currentIndex();
+        CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
+        curveModel->map();
+
+        // Calculate liveCoord based on model liveCoordTime
+        double xs = _bookModel()->xScale(curveIdx);
+        double xb = _bookModel()->xBias(curveIdx);
+        QModelIndex liveIdx = _bookModel()->getDataIndex(QModelIndex(),
+                                                         "LiveCoordTime");
+
+        double liveTime = model()->data(liveIdx).toDouble();
+        int i = 0;
+        bool isXTime = (curveModel->x()->name() == curveModel->t()->name());
+        if ( isXTime ) {
+            i = curveModel->indexAtTime((liveTime-xb)/xs);
+        } else {
+            // e.g. ball xy curve where x is position[0]
+            i = curveModel->indexAtTime(liveTime);
+        }
+
+        double timeStamp = liveTime;
+        ModelIterator* it = curveModel->begin();
+        if ( arrow == Qt::LeftArrow ) {
+            while ( i >= 0 ) {
+                it = it->at(i);
+                if ( isXTime ) {
+                    timeStamp = it->x()*xs+xb;
+                } else {
+                    timeStamp = it->t();
+                }
+                if ( qAbs(timeStamp-liveTime) > 1.0e-16 ) {
+                    break;
+                }
+                --i;
+            }
+        } else if ( arrow == Qt::RightArrow ) {
+            it = it->at(i+1);
+            while ( !it->isDone() ) {
+                if ( isXTime ) {
+                    timeStamp = it->x()*xs+xb;
+                } else {
+                    timeStamp = it->t();
+                }
+                if ( qAbs(timeStamp-liveTime) > 1.0e-16 ) {
+                    break;
+                }
+                it->next();
+            }
+        }
+        delete it;
+
+        _bookModel()->setData(liveIdx,timeStamp);
 
         curveModel->unmap();
     }
@@ -1723,6 +1795,8 @@ void CurvesView::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Space: _keyPressSpace();break;
     case Qt::Key_Up: _keyPressUp();break;
     case Qt::Key_Down: _keyPressDown();break;
+    case Qt::Key_Left: _keyPressArrow(Qt::LeftArrow);break;
+    case Qt::Key_Right: _keyPressArrow(Qt::RightArrow);break;
     default: ; // do nothing
     }
 }

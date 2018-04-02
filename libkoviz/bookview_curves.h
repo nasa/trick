@@ -24,6 +24,7 @@
 #include "bookidxview.h"
 #include "unit.h"
 #include "curvemodel.h"
+#include "roundoff.h"
 
 // ---------------------------------------------------------
 // Use . since backslash makes a C++ multi-line comment
@@ -146,6 +147,7 @@ private:
     void _keyPressUp();
     void _keyPressDown();
     void _keyPressPeriod();
+    void _keyPressArrow(const Qt::ArrowType& arrow);
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,
