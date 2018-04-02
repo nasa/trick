@@ -548,9 +548,13 @@ void CurvesView::_paintLiveCoordArrow(CurveModel *curveModel,
     double liveTime = model()->data(liveIdx).toDouble();
     int i = 0;
     if ( curveModel->x()->name() == curveModel->t()->name() ) {
-        double t = (liveTime-xb)/xs;
-        ROUNDOFF(t,t);
-        i = curveModel->indexAtTime(t);
+        if ( xb != 0.0 || xs != 1.0 ) {
+            double t = (liveTime-xb)/xs;
+            ROUNDOFF(t,t);
+            i = curveModel->indexAtTime(t);
+        } else {
+            i = curveModel->indexAtTime((liveTime-xb)/xs);
+        }
     } else {
         // e.g. ball xy curve where x is position[0]
         i = curveModel->indexAtTime(liveTime);
@@ -573,6 +577,12 @@ void CurvesView::_paintLiveCoordArrow(CurveModel *curveModel,
         double y2 = it->at(i+1)->y()*ys+yb;
         if ( (y>y1 && y>y2) || (y<y1 && y<y2) ) {
             arrow.txt = QString("<%1, %2>").arg(_format(coord.x()))
+                                           .arg(_format(coord.y()));
+        } else if ( y1 == y && y != y2 ) {
+            arrow.txt = QString("(%1, %2]").arg(_format(coord.x()))
+                                           .arg(_format(coord.y()));
+        } else if ( y1 != y && y == y2 ) {
+            arrow.txt = QString("[%1, %2)").arg(_format(coord.x()))
                                            .arg(_format(coord.y()));
         } else {
             arrow.txt = QString("(%1, %2)").arg(_format(coord.x()))
@@ -1399,6 +1409,7 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                         //
                         QList<QPointF> localMaxs;
                         QList<QPointF> localMins;
+                        QList<QPointF> flatChangePOIs;
                         for (int m = j; m <= k; ++m ) {
                             QPointF pt(it->at(m)->x()*xs+xb,
                                        it->at(m)->y()*ys+yb);
@@ -1425,6 +1436,16 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                                         } else {
                                             localMins << pt;
                                         }
+                                    }
+                                } else if ( yPrev == y && y != yNext ) {
+                                    if ( mPt.x() <= pt.x() ) {
+                                        // mouse left of change
+                                        flatChangePOIs.prepend(pt);
+                                    }
+                                } else if ( yPrev != y && y == yNext ) {
+                                    if ( mPt.x() >= pt.x() ) {
+                                        // mouse right of change
+                                        flatChangePOIs.prepend(pt);
                                     }
                                 }
                             }
@@ -1464,7 +1485,11 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                                     liveCoord = localMins.first();
                                 }
                             } else if ( !isMaxs && !isMins ) {
-                                liveCoord = p;
+                                if ( !flatChangePOIs.isEmpty() ) {
+                                    liveCoord = flatChangePOIs.first();
+                                } else {
+                                    liveCoord = p;
+                                }
                             } else {
                                 fprintf(stderr,"koviz [bad scoobs]:3: "
                                               "CurvesView::mouseMoveEvent()\n");
