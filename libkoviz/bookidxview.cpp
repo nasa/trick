@@ -759,10 +759,20 @@ QStringList BookIdxView::_pageTitles(const QModelIndex &titleIdx) const
 
     QModelIndex title1Idx;
     if ( _bookModel()->isIndex(titleIdx,"Page")) {
-        title1Idx = _bookModel()->getDataIndex(titleIdx,"PageTitle","Page");
+        if ( _bookModel()->isChildIndex(titleIdx,"Page","PageTitle")) {
+            title1Idx = _bookModel()->getDataIndex(titleIdx,"PageTitle","Page");
+        } else {
+            titles << " " << " " << " " << " ";
+            return titles;
+        }
     } else {
-        title1Idx = _bookModel()->getDataIndex(titleIdx,
-                                               "TableTitle","Table");
+        if ( _bookModel()->isChildIndex(titleIdx,"Table","TableTitle")) {
+            title1Idx = _bookModel()->getDataIndex(titleIdx,
+                                                   "TableTitle","Table");
+        } else {
+            titles << " " << " " << " " << " ";
+            return titles;
+        }
     }
     QModelIndex defTitlesIdx = _bookModel()->getIndex(QModelIndex(),
                                                       "DefaultPageTitles");
@@ -797,10 +807,18 @@ QStringList BookIdxView::_pageTitles(const QModelIndex &titleIdx) const
 QRect BookIdxView::_paintPageTitle(const QModelIndex& pageIdx,
                                    QPainter& painter)
 {
+    // Save state
     painter.save();
     painter.setRenderHint(QPainter::Antialiasing);
-
     QFont origFont = painter.font();
+
+    // Local vars used in geometry calcs
+    int x = 0;
+    int y = 0;
+    int w = 0;
+    QFont font(origFont);
+
+    // Get canvas rectangle (R)
     QPaintDevice* paintDevice = painter.device();
     QRect R(0,0,paintDevice->width(),paintDevice->height());
 
@@ -810,40 +828,59 @@ QRect BookIdxView::_paintPageTitle(const QModelIndex& pageIdx,
     QString title3 = _pageTitles(pageIdx).at(2);
     QString title4 = _pageTitles(pageIdx).at(3);
 
-    // Main title fonts and placement (drawing occurs later)
-    QFont font(origFont);
+    //
+    // Draw main title
+    //
     font.setPointSize(14);
     painter.setFont(font);
-    QFontMetrics fm1(font,paintDevice);
-    int w1 = fm1.boundingRect(title1).width();
-    int x = 0;
-    int y = fm1.ascent();
-    int yMainTitle = y;
-
-    // Legend
-    int legendRight=0;
-    int legendBottom=0;
-    QModelIndex isLegendIdx = _bookModel()->getDataIndex(QModelIndex(),
-                                                         "IsLegend");
-    bool isLegend = _bookModel()->data(isLegendIdx).toBool();
-    if ( isLegend && _bookModel()->isPlotLegendsSame(pageIdx)) {
-        QModelIndexList plotIdxs = _bookModel()->plotIdxs(pageIdx);
-        QModelIndex curvesIdx = _bookModel()->getIndex(plotIdxs.at(0),
-                                                       "Curves","Plot");
-
-        // Print legend in box that is about 3 entries in height
-        QFont legendFont = painter.font();
-        legendFont.setPointSize(8);
-        QFontMetrics fml(legendFont,painter.device());
-        int c = fml.averageCharWidth();
-        int h3  = fml.ascent() + 2*fml.lineSpacing() + fml.descent();
-        QRect S(R);
-        S.setTopLeft(QPoint(R.x()+10*c,yMainTitle));
-        S.setHeight(h3);
-        QRect L = _paintPageLegend(S,curvesIdx,painter);
-        legendRight = L.right();
-        legendBottom = L.bottom();
+    QFontMetrics fm1(font,painter.device());
+    w = fm1.boundingRect(title1).width();
+    x = (R.width()-w)/2;
+    y = fm1.lineSpacing();
+    if ( !title1.isEmpty() && !title1.trimmed().isEmpty() ) {
+        painter.drawText(x,y,title1);
     }
+    int yTitle1 = y;
+
+    //
+    // Draw subtitle with RUNs
+    //
+    font.setPointSize(11);
+    painter.setFont(font);
+    QFontMetrics fm2(font,paintDevice);
+    if ( !title2.isEmpty() && !title2.trimmed().isEmpty() ) {
+        QStringList lines = title2.split('\n', QString::SkipEmptyParts);
+        y += fm1.descent() + fm1.leading() + fm2.ascent();
+        if ( lines.size() == 1 ) {
+            // single RUN
+            w = fm2.boundingRect(title2).width();
+            x = (R.width()-w)/2;
+            painter.drawText(x,y,title2);
+        } else if ( lines.size() > 1 ) {
+            // multiple RUNs (show two RUNs and elide rest with elipsis)
+            QStringList runs;
+            runs << lines.at(0) << lines.at(1);
+            runs = Runs::abbreviateRunNames(runs);
+            QString s1 = runs.at(0);
+            QString s2 = runs.at(1);
+            if ( lines.size() > 2 ) {
+                if ( !s2.endsWith(',') ) {
+                    s2 += ",";
+                }
+                s2 += "...)";
+            }
+            QString s;
+            if ( s1.endsWith(',') ) {
+                s = s1 + s2;
+            } else {
+                s = s1 + "," + s2 ;
+            }
+            w = fm2.boundingRect(s).width();
+            x = (R.width()-w)/2;
+            painter.drawText(x,y,s);
+        }
+    }
+    int yTitle2 = y;
 
     //
     // Draw title3 and title4 (align on colon if possible)
@@ -871,7 +908,11 @@ QRect BookIdxView::_paintPageTitle(const QModelIndex& pageIdx,
             w3 = fm3.boundingRect(s42).width();
         }
         x = R.width()-w3;
-        y = yMainTitle;
+        if ( _bookModel()->isPageLegend(pageIdx) ) {
+            y = yTitle2 + fm2.descent() + fm2.leading() + fm3.ascent();
+        } else {
+            y = yTitle1;
+        }
         painter.drawText(x,y,s32);
         y += fm3.lineSpacing();
         painter.drawText(x,y,s42);
@@ -895,7 +936,11 @@ QRect BookIdxView::_paintPageTitle(const QModelIndex& pageIdx,
     } else {
         // title3,title4 are custom (i.e. not colon delimited user/date)
         x = R.width() - fm3.boundingRect(title3).width();
-        y = yMainTitle;
+        if ( _bookModel()->isPageLegend(pageIdx)) {
+            y = yTitle2 + fm2.descent() + fm2.leading() + fm3.ascent();
+        } else {
+            y = yTitle1;
+        }
         painter.drawText(x,y,title3);
         leftTitle34 = x;
         x = R.width() - fm3.boundingRect(title4).width();
@@ -906,75 +951,33 @@ QRect BookIdxView::_paintPageTitle(const QModelIndex& pageIdx,
         }
     }
 
-    // Draw main title
-    //
-    font.setPointSize(14);
-    painter.setFont(font);
-    x = (legendRight+leftTitle34-w1)/2;
-    y = yMainTitle;
-    if ( !title1.isEmpty() ) {
-        painter.drawText(x,y,title1);
+    // Legend
+    int yBottom = y + fm3.descent() + fm3.leading();
+    if ( _bookModel()->isPageLegend(pageIdx) ) {
+        // Print legend in box that is about 3 entries in height
+        QModelIndexList plotIdxs = _bookModel()->plotIdxs(pageIdx);
+        QModelIndex curvesIdx = _bookModel()->getIndex(plotIdxs.at(0),
+                                                       "Curves","Plot");
+        QFont legendFont = painter.font();
+        legendFont.setPointSize(8);
+        QFontMetrics fml(legendFont,painter.device());
+        int c = fml.averageCharWidth();
+        int h3  = 3*fml.lineSpacing();
+        y = yTitle2 + fm2.descent() + fm2.leading() + fml.ascent();
+        QRect S(R);
+        S.setTopLeft(QPoint(R.x()+10*c,y));
+        S.setHeight(h3);
+        _paintPageLegend(S,curvesIdx,painter);
+        yBottom = S.bottom();
     }
 
-    //
-    // Draw subtitle with RUNs
-    //
-    if ( !title2.isEmpty() ) {
-        font.setPointSize(11);
-        painter.setFont(font);
-        QFontMetrics fm2(font,paintDevice);
-        QStringList lines = title2.split('\n', QString::SkipEmptyParts);
-        if ( lines.size() == 1 ) {
-            // single RUN
-            int w2 = fm2.boundingRect(title2).width();
-            x = (legendRight+leftTitle34-w2)/2;
-            y += fm1.lineSpacing();
-            painter.drawText(x,y,title2);
-        } else if ( lines.size() > 1 ) {
-            // multiple RUNs (show two RUNs and elide rest with elipsis)
-            QString s1 = lines.at(0);
-            QString s2 = lines.at(1);
-            if ( lines.size() > 2 ) {
-                if ( !s2.endsWith(',') ) {
-                    s2 += ",";
-                }
-                s2 += "...)";
-            }
-            QString s = s1 + " " + s2;
-            int w2 = fm2.boundingRect(s).width();
-            y += fm1.lineSpacing();
-            if ( w2 < 0.6*R.width() ) {
-                // print on single line
-                x = (legendRight+leftTitle34-w2)/2;
-                painter.drawText(x,y,s);
-            } else {
-                // print on two lines
-                if ( s1.size() > s2.size() ) {
-                    x =(legendRight+leftTitle34-fm2.boundingRect(s1).width())/2;
-                } else {
-                    x =(legendRight+leftTitle34-fm2.boundingRect(s2).width())/2;
-                }
-                painter.drawText(x,y,s1);
-                if ( s1.startsWith('(') ) {
-                    x += fm2.width('(');
-                }
-                y += fm2.lineSpacing();
-                painter.drawText(x,y,s2);
-            }
-        }
-        y += fm2.lineSpacing();
-    }
-
+    // Restore painter
     painter.setFont(origFont);
     painter.restore();
 
     // Estimate bounding box of page title
     QRect B(R);
-    if ( y > legendBottom ) {
-        B.setBottom(y);
-    } else {
-        B.setBottom(legendBottom);
-    }
+    B.setBottom(yBottom);
     return B;
 }
 

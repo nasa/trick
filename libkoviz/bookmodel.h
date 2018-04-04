@@ -106,6 +106,7 @@ public:
     QStringList legendLinestyles(const QModelIndex &plotIdx) const ;
     QStringList legendLabels(const QModelIndex &plotIdx) const ;
     QList<QPen*> legendPens(const QModelIndex &plotIdx) const ;
+    bool isPageLegend(const QModelIndex& pageIdx) const ;
     bool isPlotLegendsSame(const QModelIndex& pageIdx) const ;
 
     // Page Foreground and Background colors

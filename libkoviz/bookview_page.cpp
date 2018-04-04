@@ -16,7 +16,7 @@ PageView::PageView(QWidget *parent) :
     PageTitleView* titleView = new PageTitleView(this);
     _childViews << titleView;
     _grid->addWidget(titleView,0,0,1,100);
-    _grid->setRowStretch(0,1);
+    _grid->setRowStretch(0,0);  // use PageTitleView sizehint and sizepolicy
 
     setLayout(_grid);
 }

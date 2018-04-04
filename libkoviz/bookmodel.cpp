@@ -1368,6 +1368,32 @@ QList<QPen*> PlotBookModel::legendPens(const QModelIndex &plotIdx) const
     return pens;
 }
 
+bool PlotBookModel::isPageLegend(const QModelIndex &pageIdx) const
+{
+    bool isLegend = false;
+
+    if ( isPlotLegendsSame(pageIdx) ) {
+        int maxCurves = 0;
+        QModelIndexList plotIdxs = this->plotIdxs(pageIdx);
+        foreach ( QModelIndex plotIdx, plotIdxs ) {
+            QModelIndex curvesIdx = getIndex(plotIdx,"Curves","Plot");
+            int nCurves = curveIdxs(curvesIdx).size();
+            if ( nCurves > maxCurves ) {
+                maxCurves = nCurves;
+            }
+        }
+
+        if ( maxCurves > 1 ) {
+            if ( isChildIndex(QModelIndex(),"","IsLegend") ) {
+                QModelIndex isLegendIdx =getDataIndex(QModelIndex(),"IsLegend");
+                isLegend = data(isLegendIdx).toBool() ;
+            }
+        }
+    }
+
+    return isLegend;
+}
+
 bool PlotBookModel::isPlotLegendsSame(const QModelIndex& pageIdx) const
 {
     bool ok = false;
