@@ -36,3 +36,9 @@ class UDT6 {
     char A[128][4];
     char B[128][4];
 };
+
+class UDT7 {
+    public:
+    double A;
+    UDT3** udt3pp;
+};
