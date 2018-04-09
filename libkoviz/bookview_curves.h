@@ -18,6 +18,7 @@
 #include <QEasingCurve>
 #include <QImage>
 #include <QFontMetrics>
+#include <QPoint>
 #include <stdlib.h>
 #include <float.h>
 #include <math.h>
@@ -29,15 +30,25 @@
 // ---------------------------------------------------------
 // Use . since backslash makes a C++ multi-line comment
 //
+//               b
+//         Y...........|<-m->(x,y)
+//        .
+//     a .
+//      .
+//    |_
+//   . -----------------------------Z
+//
+//      Quad1 - angle(Y.Z)===angle===45degrees
+//
 //                b
 // (x,y)<-m->|..........Y
 //                       .
-//                        .  a
+//                      a .
 //                         .
 //                          _|
 //                            .   --------------------Z
 //
-//      angle(Y.Z)===angle===arrowAngle===(2k+1)*45degrees
+//      Quad2 - angle(Y.Z)===angle===135degrees
 //
 // ---------------------------------------------------------
 //
@@ -80,6 +91,9 @@ class CoordArrow
     QRectF txtBoundingBox(const QPainter &painter, const QTransform &T) const;
     void paintMe(QPainter &painter, const QTransform &T,
                  const QColor &fg, const QColor &bg) const;
+    void paintMeCenter(QPainter &painter, const QTransform &T,
+                       const QRect& viewportRect,
+                       const QColor &fg, const QColor &bg) const;
 };
 
 class CurvesView : public BookIdxView

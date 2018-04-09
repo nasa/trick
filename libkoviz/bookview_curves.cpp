@@ -256,6 +256,108 @@ void CoordArrow::paintMe(QPainter &painter, const QTransform &T,
     painter.restore();
 }
 
+void CoordArrow::paintMeCenter(QPainter &painter,
+                               const QTransform &T, const QRect &viewportRect,
+                               const QColor &fg, const QColor &bg) const
+{
+    if (painter.fontMetrics().boundingRect(txt).width() > viewportRect.width()){
+        return;  // don't paint if coord txt will not fit in window
+    }
+
+    // Map math coord to window pt
+    QPointF pt = T.map(coord);
+
+    if ( !viewportRect.contains(pt.toPoint()) ) {
+        return; // don't paint if coord outside of window
+    }
+
+    // Save/set painter
+    painter.save();
+    QBrush origBrush = painter.brush();
+    QPen origPen = painter.pen();
+
+    // Init txtbox
+    QRectF txtbox = painter.fontMetrics().boundingRect(txt);
+    double tw = txtbox.width();
+    double th = txtbox.height();
+
+    // Set txtbox top left corner and arrow tail points
+    QVector<QPointF> ptsArrowTail;
+    QPointF a0;
+    QPointF a1;
+    QPointF a2;
+    if ( pt.y() < viewportRect.height()/2 ) {
+        // pt is in top half of viewport, so draw coord at bot of plot
+        QPointF tl(viewportRect.width()/2.0-tw/2.0,
+                   viewportRect.height()-th);
+        txtbox.moveTopLeft(tl);
+
+        a0.setX(txtbox.center().x());
+        a0.setY(txtbox.top()-m);
+        a1.setX(a0.x());
+        a1.setY(a0.y()-b);
+        a2.setX(pt.x());
+        a2.setY(pt.y());
+
+    } else {
+        // pt is in bot half of viewport, so draw coord at top of plot
+        QPointF tl(viewportRect.width()/2.0-tw/2.0,0);
+        txtbox.moveTopLeft(tl);
+
+        a0.setX(txtbox.center().x());
+        a0.setY(txtbox.bottom()+m);
+        a1.setX(a0.x());
+        a1.setY(a0.y()+b);
+        a2.setX(pt.x());
+        a2.setY(pt.y());
+    }
+    ptsArrowTail << a0 << a1 << a2;
+
+    // Draw background for text box
+    painter.setPen(bg);
+    painter.setBrush(bg);
+    painter.drawRect(txtbox);
+
+    // Draw coord text i.e. (x,y)
+    painter.setPen(fg);
+    painter.setBrush(bg);
+    painter.drawText(txtbox,Qt::TextDontClip|Qt::AlignCenter,txt);
+
+    // Draw arrow tail
+    painter.setPen(fg);
+    painter.setBrush(bg);
+    painter.drawPolyline(ptsArrowTail);
+
+    // Calculate arrow angle
+    double dx = a2.x()-a1.x();
+    double dy = -1*(a2.y()-a1.y());         // -1 since y+ is negative
+    double arrowAngle = atan2(dy,dx)+M_PI;  // +pi to flip arrow head
+
+    // Draw arrow head
+    QVector<QPointF> ptsArrowHead;
+    QPointF tip(pt.x()+r*cos(arrowAngle),
+                pt.y()-r*sin(arrowAngle));  // note: minus since +y is down
+    QPointF p(tip.x()+h*cos(arrowAngle+tipAngle/2.0),
+              tip.y()-h*sin(arrowAngle+tipAngle/2.0));
+    QPointF q(tip.x()+h*cos(arrowAngle-tipAngle/2.0),
+              tip.y()-h*sin(arrowAngle-tipAngle/2.0));
+    ptsArrowHead << tip << q << p;
+    QPolygonF arrowHead(ptsArrowHead);
+    painter.setPen(fg);
+    painter.setBrush(fg);
+    painter.drawConvexPolygon(arrowHead);
+
+    // Draw circle around point
+    painter.setPen(fg);
+    painter.setBrush(bg);
+    painter.drawEllipse(pt,qRound(r),qRound(r));
+
+    // Restore painter
+    painter.setPen(origPen);
+    painter.setBrush(origBrush);
+    painter.restore();
+}
+
 CurvesView::CurvesView(QWidget *parent) :
     BookIdxView(parent),_pixmap(0)
 {
@@ -608,8 +710,7 @@ void CurvesView::_paintLiveCoordArrow(CurveModel *curveModel,
         arrow.txt.prepend(runID);
     }
 
-    // Try to fit arrow into viewport using 45,135,225 and 335 degree angles
-    // off of horiz (counterclockwise)
+    // Try to fit arrow into viewport using different angles
     QList<double> angles;
     angles << 1*(M_PI/4) << 3*(M_PI/4) << 5*(M_PI/4) << 7*(M_PI/4);
     bool isFits = false;
@@ -622,11 +723,14 @@ void CurvesView::_paintLiveCoordArrow(CurveModel *curveModel,
         }
     }
 
+    QModelIndex pageIdx = rootIndex().parent().parent();
+    QColor bg = _bookModel()->pageBackgroundColor(pageIdx);
+    QColor fg = _bookModel()->pageForegroundColor(pageIdx);
     if ( isFits ) {
-        QModelIndex pageIdx = rootIndex().parent().parent();
-        QColor bg = _bookModel()->pageBackgroundColor(pageIdx);
-        QColor fg = _bookModel()->pageForegroundColor(pageIdx);
         arrow.paintMe(painter,T,fg,bg);
+    } else {
+        // Paint arrow in middle of viewport
+        arrow.paintMeCenter(painter,T,viewport()->rect(),fg,bg);
     }
 
     curveModel->unmap();
@@ -698,10 +802,10 @@ void CurvesView::_paintErrorLiveCoordArrow(QPainterPath* path,
         exit(-1);
     }
 
-    // Try to fit arrow into viewport using 45,135,225 and 335 degree angles
-    // off of horiz (counterclockwise)
+    // Try to fit arrow into viewport using different angles
     QList<double> angles;
     angles << 1*(M_PI/4) << 3*(M_PI/4) << 5*(M_PI/4) << 7*(M_PI/4);
+
     bool isFits = false;
     foreach ( double angle, angles ) {
         arrow.angle = angle;
@@ -712,11 +816,14 @@ void CurvesView::_paintErrorLiveCoordArrow(QPainterPath* path,
         }
     }
 
+    QModelIndex pageIdx = rootIndex().parent().parent();
+    QColor bg = _bookModel()->pageBackgroundColor(pageIdx);
+    QColor fg = _bookModel()->pageForegroundColor(pageIdx);
     if ( isFits ) {
-        QModelIndex pageIdx = rootIndex().parent().parent();
-        QColor bg = _bookModel()->pageBackgroundColor(pageIdx);
-        QColor fg = _bookModel()->pageForegroundColor(pageIdx);
         arrow.paintMe(painter,T,fg,bg);
+    } else {
+        // Paint arrow in middle of viewport
+        arrow.paintMeCenter(painter,T,viewport()->rect(),fg,bg);
     }
 
     painter.restore();
