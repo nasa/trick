@@ -66,11 +66,21 @@ Trick::IPPythonEvent::IPPythonEvent() {
     fired = false ;
     hold = false ;
     ran = false ;
-    act = NULL;
-    cond = NULL;
+    action_list = NULL;
+    condition_list = NULL;
 }
 
 Trick::IPPythonEvent::~IPPythonEvent() {
+
+    for (int ii=0; ii<condition_count; ii++) {
+        TMM_delete_var_a(condition_list[ii]);
+    }
+    TMM_delete_var_a(condition_list);
+
+    for (int ii=0; ii<action_count; ii++) {
+        TMM_delete_var_a(action_list[ii]);
+    }
+    TMM_delete_var_a(action_list);
 }
 
 void Trick::IPPythonEvent::set_python_processor(Trick::IPPython * in_ip) {
@@ -147,16 +157,16 @@ void Trick::IPPythonEvent::restart() {
     int jj ;
 
     for (jj=0; jj<condition_count; jj++) {
-        if (cond[jj].cond_type==1) { // condition variable
-            cond[jj].ref = ref_attributes((char*)cond[jj].str.c_str());
+        if (condition_list[jj]->cond_type==1) { // condition variable
+            condition_list[jj]->ref = ref_attributes((char*)condition_list[jj]->str.c_str());
         }
-        if (cond[jj].cond_type==2) { // condition job
-            cond[jj].job = exec_get_job(cond[jj].str.c_str(),1);
+        if (condition_list[jj]->cond_type==2) { // condition job
+            condition_list[jj]->job = exec_get_job(condition_list[jj]->str.c_str(),1);
         }
     }
     for (jj=0; jj<action_count; jj++) {
-        if (act[jj].act_type!=0) { // action job
-            act[jj].job = exec_get_job(act[jj].str.c_str(),1);
+        if (action_list[jj]->act_type!=0) { // action job
+            action_list[jj]->job = exec_get_job(action_list[jj]->str.c_str(),1);
         }
     }
 
@@ -204,39 +214,39 @@ int Trick::IPPythonEvent::condition(int num, std::string str, std::string commen
         /** @li Add a new condition when num is sequential, i.e. it is equal to condition_count */
         condition_count++;
         if (condition_count == 1) {
-            cond = (Trick::condition_t *)TMM_declare_var_s("Trick::condition_t[1]");
+            condition_list =
+                (Trick::condition_t **)TMM_declare_var_s("Trick::condition_t*[1]");
         } else {
-            cond = (Trick::condition_t *)TMM_resize_array_1d_a(cond, condition_count);
+            condition_list =
+                (Trick::condition_t **)TMM_resize_array_1d_a(condition_list, condition_count);
         }
-        cond[num].fired_count = 0;
-        cond[num].fired_time = -1.0;
+        condition_list[num] =
+            (Trick::condition_t *)TMM_declare_var_s("Trick::condition_t");
+         
+        condition_list[num]->fired_count = 0;
+        condition_list[num]->fired_time = -1.0;
     }
     if ((num >=0) && (num < condition_count)) {
         /** @li This is either a new condition or user is changing the condition. */
         /** @li Initialize condition variables - default as enabled. */
-        cond[num].ref = ref ;
-        cond[num].job = job ;
-        cond[num].enabled = true;
-        cond[num].hold = false;
-        cond[num].fired = false;
+        condition_list[num]->ref = ref ;
+        condition_list[num]->job = job ;
+        condition_list[num]->enabled = true;
+        condition_list[num]->hold = false;
+        condition_list[num]->fired = false;
         if (ref != NULL) {
-            cond[num].cond_type = 1;
+            condition_list[num]->cond_type = 1;
         } else if (job != NULL) {
-            cond[num].cond_type = 2;
-        } else cond[num].cond_type = 0;
-        cond[num].str = str;
+            condition_list[num]->cond_type = 2;
+        } else condition_list[num]->cond_type = 0;
+        condition_list[num]->str = str;
         // comment is for display in mtv, if not supplied create a comment containing up to 50 characters of cond string
         if (comment.empty()) {
-            cond[num].comment = str.substr(0,50);
+            condition_list[num]->comment = str.substr(0,50);
         } else {
-            cond[num].comment = comment;
+            condition_list[num]->comment = comment;
         }
         // dummy must contain max conditions used in any event so it can replace any event in mtv when deleted
-#if 0
-        if (num == ip->dummy_event.condition_count) {
-            ip->dummy_event.condition(num, "XXX_DELETED_COND");
-        }
-#endif
     } else {
         /** @li Emit an error if specified index num is not sequential. */
         message_publish(MSG_WARNING, "Event condition not added: condition number %d is not sequential.\n", num) ;
@@ -248,7 +258,7 @@ int Trick::IPPythonEvent::condition(int num, std::string str, std::string commen
 int Trick::IPPythonEvent::condition_hold_on(int num) {
 
     if ((num >=0) && (num < condition_count)) {
-        cond[num].hold = true ;
+        condition_list[num]->hold = true ;
     } else {
         message_publish(MSG_WARNING, "Event condition hold not set. Condition number %d is invalid.\n", num) ;
     }
@@ -259,7 +269,7 @@ int Trick::IPPythonEvent::condition_hold_on(int num) {
 int Trick::IPPythonEvent::condition_hold_off(int num) {
 
     if ((num >=0) && (num < condition_count)) {
-        cond[num].hold = false ;
+        condition_list[num]->hold = false ;
     } else {
         message_publish(MSG_WARNING, "Event condition hold not set. Condition number %d is invalid.\n", num) ;
     }
@@ -270,7 +280,7 @@ int Trick::IPPythonEvent::condition_hold_off(int num) {
 int Trick::IPPythonEvent::condition_enable(int num) {
 
     if ((num >=0) && (num < condition_count)) {
-        cond[num].enabled = true ;
+        condition_list[num]->enabled = true ;
     } else {
         message_publish(MSG_WARNING, "Event condition not enabled. Condition number %d is invalid.\n", num) ;
     }
@@ -281,7 +291,7 @@ int Trick::IPPythonEvent::condition_enable(int num) {
 int Trick::IPPythonEvent::condition_disable(int num) {
 
     if ((num >=0) && (num < condition_count)) {
-        cond[num].enabled = false ;
+        condition_list[num]->enabled = false ;
     } else {
         message_publish(MSG_WARNING, "Event condition not disabled. Condition number %d is invalid.\n", num) ;
     }
@@ -292,7 +302,7 @@ int Trick::IPPythonEvent::condition_disable(int num) {
 bool Trick::IPPythonEvent::condition_fired(int num) {
 
     if ((num >=0) && (num < condition_count)) {
-        return (cond[num].fired ? true : false) ;
+        return (condition_list[num]->fired ? true : false) ;
     } else {
         message_publish(MSG_WARNING, "Event condition fired state not returned. Condition number %d is invalid.\n", num) ;
     }
@@ -303,7 +313,7 @@ bool Trick::IPPythonEvent::condition_fired(int num) {
 int Trick::IPPythonEvent::condition_fired_count(int num) {
 
     if ((num >=0) && (num < condition_count)) {
-        return (cond[num].fired_count) ;
+        return (condition_list[num]->fired_count) ;
     } else {
         message_publish(MSG_WARNING, "Event condition fired count not returned. Condition number %d is invalid.\n", num) ;
     }
@@ -314,7 +324,7 @@ int Trick::IPPythonEvent::condition_fired_count(int num) {
 double Trick::IPPythonEvent::condition_fired_time(int num) {
 
     if ((num >=0) && (num < condition_count)) {
-        return (cond[num].fired_time) ;
+        return (condition_list[num]->fired_time) ;
     } else {
         message_publish(MSG_WARNING, "Event condition fired time not returned. Condition number %d is invalid.\n", num) ;
     }
@@ -325,7 +335,7 @@ double Trick::IPPythonEvent::condition_fired_time(int num) {
 std::string Trick::IPPythonEvent::condition_string(int num) {
 
     if ((num >=0) && (num < condition_count)) {
-        return (cond[num].str) ;
+        return (condition_list[num]->str) ;
     } else {
         message_publish(MSG_WARNING, "Event condition string not returned. Condition number %d is invalid.\n", num) ;
     }
@@ -386,26 +396,29 @@ int Trick::IPPythonEvent::action(int num, std::string str, std::string comment, 
         /** @li Add a new action when num is sequential, i.e. it is equal to action_count */
         action_count++;
         if (action_count == 1) {
-            act = (Trick::action_t *)TMM_declare_var_s("Trick::action_t[1]");
+            action_list = (Trick::action_t **)TMM_declare_var_s("Trick::action_t*[1]");
         } else {
-            act = (Trick::action_t *)TMM_resize_array_1d_a(act, action_count);
+            action_list = (Trick::action_t **)TMM_resize_array_1d_a(action_list, action_count);
         }
-        act[num].ran_count = 0;
-        act[num].ran_time = -1.0;
+        action_list[num] =
+            (Trick::action_t *)TMM_declare_var_s("Trick::action_t");
+
+        action_list[num]->ran_count = 0;
+        action_list[num]->ran_time = -1.0;
     }
     if ((num >=0) && (num < action_count)) {
         /** @li This is either a new action or user is changing the action. */
         /** @li Initialize action variables - default as enabled. */
-        act[num].job = job ;
-        act[num].act_type = act_type ;
-        act[num].enabled = true;
-        act[num].ran = false;
-        act[num].str = str;
+        action_list[num]->job = job ;
+        action_list[num]->act_type = act_type ;
+        action_list[num]->enabled = true;
+        action_list[num]->ran = false;
+        action_list[num]->str = str;
         // comment is for display in mtv, if not supplied create a comment containing up to 50 characters of act string
         if (comment.empty()) {
-            act[num].comment = str.substr(0,50);
+            action_list[num]->comment = str.substr(0,50);
         } else {
-            act[num].comment = comment;
+            action_list[num]->comment = comment;
         }
         // dummy must contain max actions used in any event so it can replace any event in mtv when deleted
 #if 0
@@ -424,7 +437,7 @@ int Trick::IPPythonEvent::action(int num, std::string str, std::string comment, 
 int Trick::IPPythonEvent::action_enable(int num) {
 
     if ((num >=0) && (num < action_count)) {
-        act[num].enabled = true ;
+        action_list[num]->enabled = true ;
     } else {
         message_publish(MSG_WARNING, "Event action not enabled. Action number %d is invalid.\n", num) ;
     }
@@ -435,7 +448,7 @@ int Trick::IPPythonEvent::action_enable(int num) {
 int Trick::IPPythonEvent::action_disable(int num) {
 
     if ((num >=0) && (num < action_count)) {
-        act[num].enabled = false ;
+        action_list[num]->enabled = false ;
     } else {
         message_publish(MSG_WARNING, "Event action not disabled. Action number %d is invalid.\n", num) ;
     }
@@ -446,7 +459,7 @@ int Trick::IPPythonEvent::action_disable(int num) {
 bool Trick::IPPythonEvent::action_ran(int num) {
 
     if ((num >=0) && (num < action_count)) {
-        return (act[num].ran ? true : false) ;
+        return (action_list[num]->ran ? true : false) ;
     } else {
         message_publish(MSG_WARNING, "Event action ran state not returned. Action number %d is invalid.\n", num) ;
     }
@@ -457,7 +470,7 @@ bool Trick::IPPythonEvent::action_ran(int num) {
 int Trick::IPPythonEvent::action_ran_count(int num) {
 
     if ((num >=0) && (num < action_count)) {
-        return (act[num].ran_count) ;
+        return (action_list[num]->ran_count) ;
     } else {
         message_publish(MSG_WARNING, "Event action ran count not returned. Action number %d is invalid.\n", num) ;
     }
@@ -468,7 +481,7 @@ int Trick::IPPythonEvent::action_ran_count(int num) {
 double Trick::IPPythonEvent::action_ran_time(int num) {
 
     if ((num >=0) && (num < action_count)) {
-        return (act[num].ran_time) ;
+        return (action_list[num]->ran_time) ;
     } else {
         message_publish(MSG_WARNING, "Event action ran time not returned. Action number %d is invalid.\n", num) ;
     }
@@ -486,16 +499,16 @@ int Trick::IPPythonEvent::process( long long curr_time ) {
             } else {
                 // it's a read event
                 active = false ;
-                ip->parse(act[0].str) ;
+                ip->parse(action_list[0]->str) ;
                 // keep stats so mtv will show when it ran
                 fired_count++ ;
                 fired_time = curr_time ;
                 ran = true ;
                 ran_count++ ;
                 ran_time = curr_time ;
-                act[0].ran = true ;
-                act[0].ran_count++ ;
-                act[0].ran_time = curr_time ;
+                action_list[0]->ran = true ;
+                action_list[0]->ran_count++ ;
+                action_list[0]->ran_time = curr_time ;
             }
     }
     return 0 ;
@@ -515,54 +528,54 @@ bool Trick::IPPythonEvent::process_user_event( long long curr_time ) {
         /** @li Loop thru all conditions. */
         for (ii=0; ii<condition_count; ii++) {
             /** @li Skip condition if it's been disabled. */
-            if (! cond[ii].enabled ) {
-                cond[ii].fired = false ;
+            if (! condition_list[ii]->enabled ) {
+                condition_list[ii]->fired = false ;
                 continue ;
             }
             /** @li No need to evaluate condition if previously fired and hold is on. */
-            if (cond[ii].hold && cond[ii].fired) {
+            if (condition_list[ii]->hold && condition_list[ii]->fired) {
                 ;
             } else {
                 /** @li Evaluate the condition and set its fired state. */
-                cond[ii].fired = false ;
+                condition_list[ii]->fired = false ;
                 return_val = 0 ;
-                if (cond[ii].ref != NULL) {
+                if (condition_list[ii]->ref != NULL) {
                 // if it's a variable, get it as a boolean
-                    if ( cond[ii].ref->pointer_present ) {
-                        cond[ii].ref->address = follow_address_path(cond[ii].ref) ;
+                    if ( condition_list[ii]->ref->pointer_present ) {
+                        condition_list[ii]->ref->address = follow_address_path(condition_list[ii]->ref) ;
                     }
-                    if ( cond[ii].ref->address != NULL ) {
-                        return_val = *(bool *)cond[ii].ref->address ;
+                    if ( condition_list[ii]->ref->address != NULL ) {
+                        return_val = *(bool *)condition_list[ii]->ref->address ;
                     }
-                } else if (cond[ii].job != NULL) {
+                } else if (condition_list[ii]->job != NULL) {
                 // if it's a job, get its return value
-                    bool save_disabled_state = cond[ii].job->disabled;
-                    cond[ii].job->disabled = false;
-                    return_val = cond[ii].job->call();
-                    cond[ii].job->disabled = save_disabled_state;
+                    bool save_disabled_state = condition_list[ii]->job->disabled;
+                    condition_list[ii]->job->disabled = false;
+                    return_val = condition_list[ii]->job->call();
+                    condition_list[ii]->job->disabled = save_disabled_state;
                 } else {
                 // otherwise use python to evaluate string
                     std::string full_in_string ;
-                    ip->parse_condition(cond[ii].str, return_val) ;
+                    ip->parse_condition(condition_list[ii]->str, return_val) ;
                 }
                 if (return_val) {
                 //TODO: write to log/send_hs that trigger fired
-                    cond[ii].fired = true ;
-                    cond[ii].fired_count++ ;
-                    cond[ii].fired_time = curr_time ;
+                    condition_list[ii]->fired = true ;
+                    condition_list[ii]->fired_count++ ;
+                    condition_list[ii]->fired_time = curr_time ;
                 }
             } // end evaluate condition
             /** @li If cond_all is true, only set event fired/hold after all enabled conditions evaluated. */
             if (ii==0) {
-                fired = cond[ii].fired ;
-                hold  = cond[ii].hold ;
+                fired = condition_list[ii]->fired ;
+                hold  = condition_list[ii]->hold ;
             }  else {
                 if (cond_all) {
-                    fired &= cond[ii].fired ;
-                    hold  &= cond[ii].hold ;
+                    fired &= condition_list[ii]->fired ;
+                    hold  &= condition_list[ii]->hold ;
                 } else {
-                    fired |= cond[ii].fired ;
-                    hold  |= cond[ii].hold ;
+                    fired |= condition_list[ii]->fired ;
+                    hold  |= condition_list[ii]->hold ;
                 }
             }
         } //end condition loop
@@ -586,37 +599,37 @@ bool Trick::IPPythonEvent::process_user_event( long long curr_time ) {
         /** @li Loop thru all actions. */
         for (ii=0; ii<action_count; ii++) {
             /** @li No need to run action if it's been disabled. */
-            if (! act[ii].enabled ) {
-                act[ii].ran = false ;
+            if (! action_list[ii]->enabled ) {
+                action_list[ii]->ran = false ;
                 continue ;
             }
             /** @li Run the action and set its ran state. */
-            if (act[ii].job != NULL) {
+            if (action_list[ii]->job != NULL) {
             // if it's a job, do what the action type tells you
-                switch (act[ii].act_type) {
+                switch (action_list[ii]->act_type) {
                     case 0 : // python, should not get here
                         break;
                     case 1 : // On
-                        act[ii].job->disabled = false;
+                        action_list[ii]->job->disabled = false;
                         break;
                     case 2 : // Off
-                        act[ii].job->disabled = true;
+                        action_list[ii]->job->disabled = true;
                         break;
                     case 3 : // Call
-                        bool save_disabled_state = act[ii].job->disabled;
-                        act[ii].job->disabled = false;
-                        act[ii].job->call();
-                        act[ii].job->disabled = save_disabled_state;
+                        bool save_disabled_state = action_list[ii]->job->disabled;
+                        action_list[ii]->job->disabled = false;
+                        action_list[ii]->job->call();
+                        action_list[ii]->job->disabled = save_disabled_state;
                         break;
                 }
             } else {
             // otherwise use python to evaluate string
-                ip->parse(act[ii].str) ;
+                ip->parse(action_list[ii]->str) ;
             }
             it_ran = true ;
-            act[ii].ran = true ;
-            act[ii].ran_count++ ;
-            act[ii].ran_time = curr_time ;
+            action_list[ii]->ran = true ;
+            action_list[ii]->ran_count++ ;
+            action_list[ii]->ran_time = curr_time ;
             ran = true ;
         }
         /** @li Leave event fired state on if hold is on. */

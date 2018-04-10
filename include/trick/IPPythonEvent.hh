@@ -111,9 +111,9 @@ namespace Trick {
             /** @userdesc Last simulation time that this event ran an action.\n */
             double ran_time ;                       /**< trick_io(*io) trick_units(s) */
             /** Array of event's conditions.\n */
-            condition_t * cond ;                    /**< trick_io(*io) trick_units(--) */
+            condition_t ** condition_list ;         /**< trick_io(*io) trick_units(--) */
             /** Array of event's actions.\n */
-            action_t * act ;                        /**< trick_io(*io) trick_units(--) */
+            action_t ** action_list ;               /**< trick_io(*io) trick_units(--) */
 
             /**
              @brief Constructor.
