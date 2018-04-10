@@ -71,6 +71,8 @@ Trick::DataRecordGroup::DataRecordGroup( std::string in_name ) :
  max_num(100000),
  buffer_num(0),
  writer_num(0),
+ max_file_size(1<<30), // 1 GB
+ total_bytes_written(0),
  writer_buff(NULL),
  single_prec_only(false),
  buffer_type(DR_Buffer),
@@ -193,6 +195,15 @@ int Trick::DataRecordGroup::set_buffer_type( int in_buffer_type ) {
     return(0) ;
 }
 
+int Trick::DataRecordGroup::set_max_file_size( uint64_t bytes ) {
+    if(bytes == 0) {
+        max_file_size = UINT64_MAX ;
+    } else {
+    max_file_size = bytes ; 
+    }
+    return(0) ;
+}
+
 int Trick::DataRecordGroup::set_single_prec_only( bool in_single_prec_only ) {
     single_prec_only = in_single_prec_only ;
     return(0) ;
@@ -248,7 +259,7 @@ int Trick::DataRecordGroup::add_variable( std::string in_name , std::string alia
 }
 
 void Trick::DataRecordGroup::remove_variable( std::string in_name ) {
-    // Trim leading spaces
+    // Trim leading spaces++ 
     in_name.erase( 0, in_name.find_first_not_of( " \t" ) );
     // Trim trailing spaces
     in_name.erase( in_name.find_last_not_of( " \t" ) + 1);
@@ -342,7 +353,7 @@ int Trick::DataRecordGroup::init() {
     int ret ;
 
     // reset counter here so we can "re-init" our recording
-    buffer_num = writer_num = 0 ;
+    buffer_num = writer_num = total_bytes_written = 0 ;
 
     output_dir = command_line_args_get_output_dir() ;
     /* this is the common part of the record file name, the format specific will add the correct suffix */
@@ -632,7 +643,7 @@ int Trick::DataRecordGroup::write_data(bool must_write) {
     unsigned int num_to_write ;
     unsigned int writer_offset ;
 
-    if ( record and inited and (buffer_type == DR_No_Buffer or must_write)) {
+    if ( record and inited and (buffer_type == DR_No_Buffer or must_write) and (total_bytes_written <= max_file_size)) {
 
         // buffer_mutex is used in this one place to prevent forced calls of write_data
         // to not overwrite data being written by the asynchronous thread.
@@ -649,7 +660,8 @@ int Trick::DataRecordGroup::write_data(bool must_write) {
         while ( writer_num != local_buffer_num ) {
 
             writer_offset = writer_num % max_num ;
-            format_specific_write_data(writer_offset) ;
+            //! keep record of bytes written to file. Default max is 1GB
+            total_bytes_written += format_specific_write_data(writer_offset) ;
             writer_num++ ;
 
         }
