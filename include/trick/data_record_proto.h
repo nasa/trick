@@ -14,7 +14,10 @@ int dr_disable() ;
 int dr_enable_group( const char * in_name ) ;
 int dr_disable_group( const char * in_name ) ;
 int dr_record_now_group( const char * in_name ) ;
+int dr_set_max_file_size ( uint64_t bytes ) ;
 void remove_all_data_record_groups() ;
+int set_max_size_record_group (const char * in_name, uint64_t bytes ) ;
+
 
 #ifdef __cplusplus
 int add_data_record_group( Trick::DataRecordGroup * in_group, Trick::DR_Buffering buffering = Trick::DR_Not_Specified ) ;

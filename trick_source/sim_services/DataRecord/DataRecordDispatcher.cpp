@@ -313,6 +313,23 @@ int Trick::DataRecordDispatcher::record_now_group( const char * in_name ) {
     return 0 ;
 }
 
+int Trick::DataRecordDispatcher::set_group_max_file_size(const char * in_name, uint64_t bytes){
+    unsigned int ii ;
+    for ( ii = 0 ; ii < groups.size() ; ii++ ) {
+        if ( in_name == NULL or !groups[ii]->get_group_name().compare(in_name) )
+            groups[ii]->set_max_file_size(bytes) ;
+    }
+    return 0 ;
+}
+
+int Trick::DataRecordDispatcher::set_max_file_size(uint64_t bytes) {
+    unsigned int ii ;
+    for ( ii = 0 ; ii < groups.size() ; ii++ ) {
+        groups[ii]->set_max_file_size(bytes) ;
+    }
+    return 0 ;
+}
+
 /**
 @details
 -# Call every group's init job - only needed when restoring checkpoint
@@ -325,3 +342,4 @@ int Trick::DataRecordDispatcher::init_groups() {
     }
     return 0 ;
 }
+
