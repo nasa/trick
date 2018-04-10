@@ -9,9 +9,11 @@
 int Trick::MemoryManager::delete_var(void* address, bool destroy ) {
 
     if (address == 0) {
-        std::stringstream message;
-        message << "Cannot delete memory at NULL.";
-        emitError(message.str());
+        if (debug_level) {
+            std::stringstream message;
+            message << "Cannot delete memory at NULL.";
+            emitWarning(message.str());
+        }
         return 1;
     }
 
