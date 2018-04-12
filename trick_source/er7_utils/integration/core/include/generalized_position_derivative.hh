@@ -68,7 +68,7 @@ public:
       const double * ER7_UTILS_RESTRICT position,
       const double * ER7_UTILS_RESTRICT velocity,
       const double * ER7_UTILS_RESTRICT acceleration,
-      double * ER7_UTILS_RESTRICT position_second_derivative);
+      double * ER7_UTILS_RESTRICT position_2nd_derivative);
 
 
    // Constructors and destructor
@@ -106,13 +106,17 @@ public:
 
    // Member data
 
-   FirstDerivative first_deriv_fun; /**< trick_io(**) @n
-      Function that computes the first time derivative of
-      generalized position. */
+   /**
+    * Function that computes the first time derivative of
+    * generalized position.
+    */
+   FirstDerivative first_deriv_fun; //!< trick_io(**)
 
-   SecondDerivative second_deriv_fun; /**< trick_io(**) @n
-      Function that computes the second time derivative of
-      generalized position. */
+   /**
+    * Function that computes the second time derivative of
+    * generalized position.
+    */
+   SecondDerivative second_deriv_fun; //!< trick_io(**)
 
 };
 

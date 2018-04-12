@@ -410,12 +410,12 @@ public:
    // Comparison operators.
 
    /**
-    * Returns a<b.
+    * Returns a&lt;b.
     */
    friend bool operator< (const Ratio128 & a, const Ratio128 & b);
 
    /**
-    * Returns a<b.
+    * Returns a&lt;b.
     */
    template<typename T>
    friend bool operator< (T a, const Ratio128 & b)
@@ -424,7 +424,7 @@ public:
    }
 
    /**
-    * Returns a<b.
+    * Returns a&lt;b.
     */
    template<typename T>
    friend bool operator< (const Ratio128 & a, T b)

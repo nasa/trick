@@ -77,7 +77,7 @@ protected:
     * for a simple second order ODE, one in which generalized velocity
     * is time derivative of generalized position.
     * @param[in]     size                State size
-    * @param[in,out] controls_in         Integration controls
+    * @param[in,out] controls            Integration controls
     */
    RKNystrom4SecondOrderODEIntegrator (
       unsigned int size,

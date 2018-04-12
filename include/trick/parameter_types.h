@@ -11,7 +11,6 @@ extern "C" {
 #endif
 
 /**
- * @class Trick::MemoryManager::TRICK_TYPE parameter_types.h
  * The TRICK_TYPE enumeration represents the Trick data types.
  */
     typedef enum {

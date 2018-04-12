@@ -85,8 +85,6 @@ namespace Trick {
              * otherwise adds in_job before each job in the initialization and scheduled queues.
              * Requirement [@ref r_exec_instrument_0]
              * @param instrument_job - the instrument job
-             * @param target_job - name of the target job, empty string means all jobs are to be instrumented
-             * @param in_event - instrumentation data to be stored with instrument job
              * @return always 0
              */
             virtual int instrument_job_before(Trick::JobData * instrument_job ) = 0 ;
@@ -96,8 +94,6 @@ namespace Trick {
              * otherwise adds in_job after each job in the initialization and scheduled queues.
              * Requirement [@ref r_exec_instrument_2]
              * @param instrument_job - the instrument job
-             * @param target_job - name of the target job, empty string means all jobs are to be instrumented
-             * @param in_event - instrumentation data to be stored with instrument job
              * @return always 0
              */
             virtual int instrument_job_after(Trick::JobData * instrument_job ) = 0 ;
@@ -106,7 +102,6 @@ namespace Trick {
              * Removes an instrumentation job with the name in_job in the initialization and scheduled queues.
              * Requirement [@ref r_exec_instrument_3]
              * @param in_job - name of the instrument job
-             * @param in_event - instrumentation data to be searched for
              * @return always 0
              */
             virtual int instrument_job_remove(std::string in_job ) = 0 ;
