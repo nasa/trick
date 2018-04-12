@@ -169,10 +169,12 @@ sub write_makefile_swig() {
     print PY_LINK_LIST "build/init_swig_modules.o\n" ;
     print PY_LINK_LIST "build/top.o\n" ;
 
-    print MAKEFILE "SWIG_CFLAGS := -I../include \${PYTHON_INCLUDES} -Wno-shadow -Wno-missing-field-initializers -Wno-unused-but-set-variable
+    print MAKEFILE "SWIG_CFLAGS := -I../include \${PYTHON_INCLUDES} -Wno-shadow -Wno-missing-field-initializers
 
 ifeq (\$(IS_CC_CLANG), 1)
     SWIG_CFLAGS += -Wno-self-assign -Wno-sometimes-uninitialized -Wno-deprecated-register
+else
+    SWIG_CFLAGS += -Wno-unused-but-set-variable
 endif
 
 ifndef TRICK_VERBOSE_BUILD

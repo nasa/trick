@@ -59,9 +59,9 @@ namespace Trick {
                 size_t max_len ;
                 StringNode * next ;
                 StringNode(size_t str_len) : max_len(str_len) { buffer.reserve(max_len) ; } ;
-                void copy( std::string &header, std::string & color_code, std::string & message ) {
+                void copy( std::string &header, std::string & in_color_code, std::string & message ) {
                     buffer.assign(header, 0, max_len) ;
-                    buffer.append(color_code, 0, max_len - buffer.length()) ;
+                    buffer.append(in_color_code, 0, max_len - buffer.length()) ;
                     buffer.append(message, 0, max_len - buffer.length()) ;
                     buffer.append("\033[00m", 0, max_len - buffer.length()) ;
                 } ;
