@@ -55,6 +55,7 @@ public:
                              bool isLegend,
                              const QString& foreground,
                              const QString& background,
+                             bool isShowTables,
                              Runs* runs,
                              QStandardItemModel* varsModel,
                              QStandardItemModel* monteInputsModel=0,
@@ -70,6 +71,7 @@ private:
     QString _presentation;
     QString _dpDir;
     QStringList _dpFiles;
+    bool _isShowTables;
     Runs* _runs;
     QStandardItemModel* _varsModel;
     QStandardItemModel* _monteInputsModel;

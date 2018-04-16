@@ -114,6 +114,7 @@ class SnapOptions : public Options
     QString color7;
     QString foreground;
     QString background;
+    QString showTables;  // need a string since this can be unset
 };
 
 SnapOptions opts;
@@ -193,6 +194,7 @@ int main(int argc, char *argv[])
              presetExistsFile);
     opts.add("-fg",&opts.foreground,"","Page foreground <#rrggbb|colorName>");
     opts.add("-bg",&opts.background,"","Page background <#rrggbb|colorName>");
+    opts.add("-showTables",&opts.showTables,"","Show DP tables");
 
     opts.parse(argc,argv, QString("koviz"), &ok);
 
@@ -519,6 +521,19 @@ int main(int argc, char *argv[])
             frequency = sessionFileFrequency(opts.sessionFile);
         }
 
+        // Show Tables (don't show if too many runs since it is *slow*)
+        bool isShowTables = (runDirs.size() > 7) ? false : true;
+        if ( !opts.showTables.isEmpty() ) {  // use cmd line opt if set
+            bool ok;
+            isShowTables = Options::stringToBool(opts.showTables,&ok);
+            if ( !ok ) {
+                fprintf(stderr, "koviz [error]: cmd line option -showTables "
+                                "has a value of \"%s\". Expected a boolean.\n",
+                                 opts.showTables.toLatin1().constData());
+                exit(-1);
+            }
+        }
+
         if ( isPdf ) {
             PlotMainWindow w(opts.isDebug,
                              timeNames, opts.start, opts.stop,
@@ -528,6 +543,7 @@ int main(int argc, char *argv[])
                              legends, colors,
                              opts.orient, opts.isLegend,
                              opts.foreground,opts.background,
+                             isShowTables,
                              runs, varsModel, monteInputsModel);
             w.savePdf(pdfOutFile);
 
@@ -644,6 +660,7 @@ int main(int argc, char *argv[])
                                  legends, colors,
                                  opts.orient, opts.isLegend,
                                  opts.foreground,opts.background,
+                                 isShowTables,
                                  runs, varsModel, monteInputsModel);
 #ifdef __linux
                 timer.snap("time=");
@@ -661,6 +678,7 @@ int main(int argc, char *argv[])
                                  titles, legends, colors,
                                  opts.orient, opts.isLegend,
                                  opts.foreground,opts.background,
+                                 isShowTables,
                                  runs, varsModel, monteInputsModel);
                 w.show();
                 ret = a.exec();

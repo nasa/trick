@@ -42,7 +42,7 @@ DPTreeWidget::DPTreeWidget(const QString& timeName,
                            const QStringList& runDirs,
                            PlotBookModel *bookModel,
                            QItemSelectionModel *bookSelectModel,
-                           MonteInputsView *monteInputsView,
+                           MonteInputsView *monteInputsView, bool isShowTables,
                            QWidget *parent) :
     QWidget(parent),
     _idNum(0),
@@ -54,6 +54,7 @@ DPTreeWidget::DPTreeWidget(const QString& timeName,
     _bookModel(bookModel),
     _bookSelectModel(bookSelectModel),
     _monteInputsView(monteInputsView),
+    _isShowTables(isShowTables),
     _gridLayout(0),
     _searchBox(0)
 {
@@ -219,7 +220,9 @@ void DPTreeWidget::_setupModel()
 void DPTreeWidget::_createDP(const QString &dpfile)
 {
     _createDPPages(dpfile);
-    _createDPTables(dpfile);
+    if ( _isShowTables ) {
+        _createDPTables(dpfile);
+    }
 }
 
 void DPTreeWidget::_searchBoxTextChanged(const QString &rx)

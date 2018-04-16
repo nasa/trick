@@ -45,6 +45,7 @@ public:
                           PlotBookModel* bookModel,
                           QItemSelectionModel*  bookSelectModel,
                           MonteInputsView* monteInputsView,
+                          bool isShowTables,
                           QWidget *parent = 0);
     ~DPTreeWidget();
     
@@ -63,6 +64,7 @@ private:
     PlotBookModel* _bookModel;
     QItemSelectionModel*  _bookSelectModel;
     MonteInputsView* _monteInputsView;
+    bool _isShowTables;
     QGridLayout* _gridLayout ;
     QLineEdit* _searchBox;
     DPTreeView* _dpTreeView ;

@@ -27,6 +27,7 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
         const QStringList &legends, const QStringList &colors,
         const QString &orient, bool isLegend,
         const QString &foreground, const QString &background,
+        bool isShowTables,
         Runs* runs,
         QStandardItemModel* varsModel,
         QStandardItemModel *monteInputsModel,
@@ -37,6 +38,7 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
     _presentation(presentation),
     _dpDir(dpDir),
     _dpFiles(dpFiles),
+    _isShowTables(isShowTables),
     _runs(runs),
     _varsModel(varsModel),
     _monteInputsModel(monteInputsModel),
@@ -181,7 +183,8 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
                                           _dpFiles, _varsModel,
                                           _runs->runDirs(), _bookModel,
                                           _bookView->selectionModel(),
-                                          _monteInputsView, _dpFrame);
+                                          _monteInputsView, _isShowTables,
+                                          _dpFrame);
         _nbDPVars->setCurrentIndex(1);
     }
     connect(_nbDPVars,SIGNAL(currentChanged(int)),
@@ -261,7 +264,8 @@ void PlotMainWindow::_nbCurrentChanged(int i)
         _dpTreeWidget = new  DPTreeWidget(_timeNames.at(0), _dpDir, _dpFiles,
                                           _varsModel, _runs->runDirs(), _bookModel,
                                           _bookView->selectionModel(),
-                                          _monteInputsView,_dpFrame);
+                                          _monteInputsView, _isShowTables,
+                                          _dpFrame);
     }
 }
 
