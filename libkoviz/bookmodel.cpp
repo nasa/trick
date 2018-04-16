@@ -430,6 +430,10 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
             idx = index(13,0);
         } else if ( searchItemText == "LegendColors" ) {
             idx = index(14,0);
+        } else if ( searchItemText == "ForegroundColor" ) {
+            idx = index(15,0);
+        } else if ( searchItemText == "BackgroundColor" ) {
+            idx = index(16,0);
         } else {
             fprintf(stderr,"koviz [bad scoobs]:3: getIndex() received "
                            "root as a startIdx and had bad child "

@@ -281,6 +281,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
     QModelIndex page0Idx = _bookModel->index(0,0,pagesIdx);
     QModelIndexList siblingPlotIdxs = _bookModel->plotIdxs(page0Idx);
 
+
     foreach (DPPage* page, dp.pages() ) {
 
         // Page
@@ -294,8 +295,18 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
         _addChild(pageItem, "PageTitle", page->title());
         _addChild(pageItem, "PageStartTime", page->startTime());
         _addChild(pageItem, "PageStopTime", page->stopTime());
-        _addChild(pageItem, "PageBackgroundColor", page->backgroundColor());
-        _addChild(pageItem, "PageForegroundColor", page->foregroundColor());
+        QString bg = _bookModel->getDataString(QModelIndex(),"BackgroundColor");
+        if ( !bg.isEmpty() ) {
+            _addChild(pageItem, "PageBackgroundColor", bg);
+        } else {
+            _addChild(pageItem, "PageBackgroundColor", page->backgroundColor());
+        }
+        QString fg = _bookModel->getDataString(QModelIndex(),"ForegroundColor");
+        if ( !fg.isEmpty() ) {
+            _addChild(pageItem, "PageForegroundColor", fg);
+        } else {
+            _addChild(pageItem, "PageForegroundColor", page->foregroundColor());
+        }
 
         // Plots
         QStandardItem *plotsItem = _addChild(pageItem, "Plots");

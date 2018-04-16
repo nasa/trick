@@ -160,13 +160,22 @@ QStandardItem* VarsWidget::_createPageItem()
     QStandardItem* pagesItem = _plotModel->itemFromIndex(pagesIdx);
     QStandardItem* pageItem = _addChild(pagesItem, "Page");
 
+    QString fg = _plotModel->getDataString(QModelIndex(),"ForegroundColor");
+    if ( fg.isEmpty() ) {
+        fg = "#000000";
+    }
+    QString bg = _plotModel->getDataString(QModelIndex(),"BackgroundColor");
+    if ( bg.isEmpty() ) {
+        bg = "#FFFFFF";
+    }
+
     QString pageName = QString("QP_%0:qp.page.%0").arg(_qpId++);
     _addChild(pageItem, "PageName", pageName);
     _addChild(pageItem, "PageTitle", "Koviz");
     _addChild(pageItem, "PageStartTime", -DBL_MAX);
     _addChild(pageItem, "PageStopTime",   DBL_MAX);
-    _addChild(pageItem, "PageBackgroundColor", "#FFFFFF");
-    _addChild(pageItem, "PageForegroundColor", "#000000");
+    _addChild(pageItem, "PageBackgroundColor", bg);
+    _addChild(pageItem, "PageForegroundColor", fg);
     _addChild(pageItem, "Plots");
 
     return pageItem;

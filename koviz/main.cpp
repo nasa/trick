@@ -112,6 +112,8 @@ class SnapOptions : public Options
     QString color5;
     QString color6;
     QString color7;
+    QString foreground;
+    QString background;
 };
 
 SnapOptions opts;
@@ -189,6 +191,8 @@ int main(int argc, char *argv[])
              presetOrientation);
     opts.add("-session",&opts.sessionFile,"","session file name",
              presetExistsFile);
+    opts.add("-fg",&opts.foreground,"","Page foreground <#rrggbb|colorName>");
+    opts.add("-bg",&opts.background,"","Page background <#rrggbb|colorName>");
 
     opts.parse(argc,argv, QString("koviz"), &ok);
 
@@ -523,6 +527,7 @@ int main(int argc, char *argv[])
                              presentation, QString(), dps, titles,
                              legends, colors,
                              opts.orient, opts.isLegend,
+                             opts.foreground,opts.background,
                              runs, varsModel, monteInputsModel);
             w.savePdf(pdfOutFile);
 
@@ -638,6 +643,7 @@ int main(int argc, char *argv[])
                                  presentation, ".", dps, titles,
                                  legends, colors,
                                  opts.orient, opts.isLegend,
+                                 opts.foreground,opts.background,
                                  runs, varsModel, monteInputsModel);
 #ifdef __linux
                 timer.snap("time=");
@@ -654,6 +660,7 @@ int main(int argc, char *argv[])
                                  presentation, runDirs.at(0), QStringList(),
                                  titles, legends, colors,
                                  opts.orient, opts.isLegend,
+                                 opts.foreground,opts.background,
                                  runs, varsModel, monteInputsModel);
                 w.show();
                 ret = a.exec();

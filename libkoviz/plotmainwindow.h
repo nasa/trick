@@ -53,6 +53,8 @@ public:
                              const QStringList& colors,
                              const QString& orient,
                              bool isLegend,
+                             const QString& foreground,
+                             const QString& background,
                              Runs* runs,
                              QStandardItemModel* varsModel,
                              QStandardItemModel* monteInputsModel=0,

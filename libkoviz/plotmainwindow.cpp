@@ -26,6 +26,7 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
         const QStringList& titles,
         const QStringList &legends, const QStringList &colors,
         const QString &orient, bool isLegend,
+        const QString &foreground, const QString &background,
         Runs* runs,
         QStandardItemModel* varsModel,
         QStandardItemModel *monteInputsModel,
@@ -111,6 +112,8 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
         _bookModel->addChild(citem, "Color6",colors.at(5));
         _bookModel->addChild(citem, "Color7",colors.at(6));
     }
+    _bookModel->addChild(rootItem, "ForegroundColor", foreground);
+    _bookModel->addChild(rootItem, "BackgroundColor", background);
 
     // Create Plot Tabbed Notebook View Widget
     _bookView = new BookView();
