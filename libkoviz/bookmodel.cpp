@@ -1387,7 +1387,7 @@ bool PlotBookModel::isPageLegend(const QModelIndex &pageIdx) const
             }
         }
 
-        if ( maxCurves > 1 ) {
+        if ( maxCurves > 1 && maxCurves < 8 ) {
             if ( isChildIndex(QModelIndex(),"","IsLegend") ) {
                 QModelIndex isLegendIdx =getDataIndex(QModelIndex(),"IsLegend");
                 isLegend = data(isLegendIdx).toBool() ;
