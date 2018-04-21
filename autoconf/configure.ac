@@ -1,6 +1,9 @@
 dnl To generate a new top level configure script from this autoconf directory
 dnl 1.  aclocal
 dnl 2.  autoconf -o ../configure
+dnl If you run into "configure.ac:15: error: possibly undefined macro: AC_MSG_ERROR",
+dnl try:
+dnl     autoreconf -fi
 
 AC_INIT([Trick],[17+])
 AC_LANG(C++)
@@ -206,6 +209,8 @@ AC_PROG_LEX
 AS_IF([test "x$LEX" = "x:"],AC_MSG_ERROR([could not find flex]),[])
 AC_PATH_PROG(BISON, bison, nobison)
 AS_IF([test "$ac_cv_path_BISON" = "nobison"],AC_MSG_ERROR([could not find bison]),[])
+AC_PATH_PROG(CURL, curl, nocurl)
+AS_IF([test "$ac_cv_path_CURL" = "nocurl"],AC_MSG_ERROR([could not find curl]),[])
 AC_PATH_PROG(PERL, perl, noperl)
 AS_IF([test "$ac_cv_path_PERL" = "noperl"],AC_MSG_ERROR([could not find perl]),[])
 AC_PATH_PROG(PYTHON, python${PYTHON_VERSION}, nopython)
