@@ -269,6 +269,25 @@ AC_PATH_PROG(CLANG, clang, noclang, "$LLVM_BIN_DIR:/bin:/usr/bin:/usr/local/bin:
 AS_IF([test "$ac_cv_path_CLANG" = "noclang"],AC_MSG_ERROR([could not find clang]),[])
 AC_SUBST([LLVM_HOME])
 
+AC_DEFUN([AX_CLANG_VERSION], [
+  CLANG_VERSION=""
+  ax_cv_clang_version="`$CLANG --version | grep "version" | sed "s/.*version \([0-9]*\.[0-9]*\.[0-9]*\).*/\1/"`"
+  AS_IF([test "x$ax_cv_clang_version" = "x"],[
+    ax_cv_clang_version=""
+  ])
+  CLANG_VERSION=$ax_cv_clang_version
+  AC_SUBST([CLANG_VERSION])
+])
+AX_CLANG_VERSION
+dnl if llvm/clang, test for version >= 3.4.2
+AS_IF([test "x$CLANG_VERSION" = "x"],[],
+ [AC_MSG_CHECKING([clang version >= 3.4.2])
+  AX_COMPARE_VERSION([$CLANG_VERSION],[ge],[3.4.2], [AC_MSG_RESULT([yes])],
+   [AC_MSG_RESULT([no])
+    AC_MSG_ERROR([Trick requires llvm/clang version >= 3.4.2])
+   ])
+])
+
 AX_CHECK_ZLIB([],AC_MSG_ERROR([could not find zlib]))
 
 dnl look for udunits in /usr/include and /usr/include/udunits2
