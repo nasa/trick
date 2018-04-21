@@ -631,11 +631,12 @@ UDUNITS_EXCLUDE
 UDUNITS_LDFLAGS
 UDUNITS_INCLUDES
 UDUNITS_HOME
+CLANG_VERSION
 LLVM_HOME
 CLANG
 LLVM_CONFIG
-PYTHON_EXTRA_LIBS
 PYTHON_EXTRA_LDFLAGS
+PYTHON_EXTRA_LIBS
 PYTHON_SITE_PKG
 PYTHON_LIBS
 PYTHON_CPPFLAGS
@@ -671,12 +672,14 @@ GNUPLOT
 SWIG
 PYTHON
 PERL
+CURL
 BISON
 LEXLIB
 LEX_OUTPUT_ROOT
 LEX
 LD
 TEE
+GCC_VERSION
 ac_ct_CXX
 CXXFLAGS
 CXX
@@ -3488,7 +3491,36 @@ ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
-AX_GCC_VERSION
+
+
+  GCC_VERSION=""
+  if test "x$GCC" = "xyes"; then :
+
+    if test "x$ax_gcc_version_option" != "xno"; then :
+
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking gcc version" >&5
+$as_echo_n "checking gcc version... " >&6; }
+if ${ax_cv_gcc_version+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+        ax_cv_gcc_version="`$CC -dumpversion`"
+        if test "x$ax_cv_gcc_version" = "x"; then :
+
+          ax_cv_gcc_version=""
+
+fi
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_cv_gcc_version" >&5
+$as_echo "$ax_cv_gcc_version" >&6; }
+      GCC_VERSION=$ax_cv_gcc_version
+
+fi
+
+fi
+
+
 if test "x$GCC_VERSION" = "x"; then :
 
 else
@@ -3833,6 +3865,50 @@ fi
 
 if test "$ac_cv_path_BISON" = "nobison"; then :
   as_fn_error $? "could not find bison" "$LINENO" 5
+fi
+# Extract the first word of "curl", so it can be a program name with args.
+set dummy curl; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_CURL+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $CURL in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_CURL="$CURL" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_CURL="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  test -z "$ac_cv_path_CURL" && ac_cv_path_CURL="nocurl"
+  ;;
+esac
+fi
+CURL=$ac_cv_path_CURL
+if test -n "$CURL"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $CURL" >&5
+$as_echo "$CURL" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+if test "$ac_cv_path_CURL" = "nocurl"; then :
+  as_fn_error $? "could not find curl" "$LINENO" 5
 fi
 # Extract the first word of "perl", so it can be a program name with args.
 set dummy perl; ac_word=$2
@@ -6123,13 +6199,13 @@ $as_echo "$PYTHON_SITE_PKG" >&6; }
 	#
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking python extra libraries" >&5
 $as_echo_n "checking python extra libraries... " >&6; }
-	if test -z "$PYTHON_EXTRA_LDFLAGS"; then
-	   PYTHON_EXTRA_LDFLAGS=`$PYTHON -c "import distutils.sysconfig; \
+	if test -z "$PYTHON_EXTRA_LIBS"; then
+	   PYTHON_EXTRA_LIBS=`$PYTHON -c "import distutils.sysconfig; \
                 conf = distutils.sysconfig.get_config_var; \
                 print (conf('LIBS') + ' ' + conf('SYSLIBS'))"`
 	fi
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $PYTHON_EXTRA_LDFLAGS" >&5
-$as_echo "$PYTHON_EXTRA_LDFLAGS" >&6; }
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $PYTHON_EXTRA_LIBS" >&5
+$as_echo "$PYTHON_EXTRA_LIBS" >&6; }
 
 
 	#
@@ -6137,13 +6213,13 @@ $as_echo "$PYTHON_EXTRA_LDFLAGS" >&6; }
 	#
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking python extra linking flags" >&5
 $as_echo_n "checking python extra linking flags... " >&6; }
-	if test -z "$PYTHON_EXTRA_LIBS"; then
-		PYTHON_EXTRA_LIBS=`$PYTHON -c "import distutils.sysconfig; \
+	if test -z "$PYTHON_EXTRA_LDFLAGS"; then
+		PYTHON_EXTRA_LDFLAGS=`$PYTHON -c "import distutils.sysconfig; \
 			conf = distutils.sysconfig.get_config_var; \
 			print (conf('LINKFORSHARED'))"`
 	fi
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $PYTHON_EXTRA_LIBS" >&5
-$as_echo "$PYTHON_EXTRA_LIBS" >&6; }
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $PYTHON_EXTRA_LDFLAGS" >&5
+$as_echo "$PYTHON_EXTRA_LDFLAGS" >&6; }
 
 
 	#
@@ -6574,6 +6650,66 @@ if test "$ac_cv_path_CLANG" = "noclang"; then :
   as_fn_error $? "could not find clang" "$LINENO" 5
 fi
 
+
+
+
+  CLANG_VERSION=""
+  ax_cv_clang_version="`$CLANG --version | grep "version" | sed "s/.*version \(0-9*\.0-9*\.0-9*\).*/\1/"`"
+  if test "x$ax_cv_clang_version" = "x"; then :
+
+    ax_cv_clang_version=""
+
+fi
+  CLANG_VERSION=$ax_cv_clang_version
+
+
+if test "x$CLANG_VERSION" = "x"; then :
+
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking clang version >= 3.4.2" >&5
+$as_echo_n "checking clang version >= 3.4.2... " >&6; }
+
+
+
+  # Used to indicate true or false condition
+  ax_compare_version=false
+
+  # Convert the two version strings to be compared into a format that
+  # allows a simple string comparison.  The end result is that a version
+  # string of the form 1.12.5-r617 will be converted to the form
+  # 0001001200050617.  In other words, each number is zero padded to four
+  # digits, and non digits are removed.
+
+  ax_compare_version_A=`echo "$CLANG_VERSION" | sed -e 's/\([0-9]*\)/Z\1Z/g' \
+                     -e 's/Z\([0-9]\)Z/Z0\1Z/g' \
+                     -e 's/Z\([0-9][0-9]\)Z/Z0\1Z/g' \
+                     -e 's/Z\([0-9][0-9][0-9]\)Z/Z0\1Z/g' \
+                     -e 's/[^0-9]//g'`
+
+
+  ax_compare_version_B=`echo "3.4.2" | sed -e 's/\([0-9]*\)/Z\1Z/g' \
+                     -e 's/Z\([0-9]\)Z/Z0\1Z/g' \
+                     -e 's/Z\([0-9][0-9]\)Z/Z0\1Z/g' \
+                     -e 's/Z\([0-9][0-9][0-9]\)Z/Z0\1Z/g' \
+                     -e 's/[^0-9]//g'`
+
+
+    ax_compare_version=`echo "x$ax_compare_version_A
+x$ax_compare_version_B" | sed 's/^ *//' | sort -r | sed "s/x${ax_compare_version_A}/true/;s/x${ax_compare_version_B}/false/;1q"`
+
+
+
+    if test "$ax_compare_version" = "true" ; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+    else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+    as_fn_error $? "Trick requires llvm/clang version >= 3.4.2" "$LINENO" 5
+
+  fi
+
+
+fi
 
 #
 # Handle user hints
