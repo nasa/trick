@@ -177,17 +177,6 @@ AC_DEFUN([AX_JSC_DIRS],[
     AC_SUBST([MOTIF_HOME])
 ])
 
-dnl add extra paths to find gcc on RHEL 6 systems
-PATH="/opt/rh/devtoolset-3/root/usr/bin:${PATH}"
-dnl add extra paths to find xml headers and X headers on the mac.
-XTRAINCPATHS="-I/usr/include/libxml2/ -I/usr/X11/include"
-CFLAGS="$CFLAGS $XTRAINCPATHS"
-CPPFLAGS="$CPPFLAGS $XTRAINCPATHS"
-
-dnl look for programs we need to compile and run
-AC_PROG_AWK
-AC_PROG_CC
-AC_PROG_CXX
 AC_DEFUN([AX_GCC_VERSION], [
   GCC_VERSION=""
   AS_IF([test "x$GCC" = "xyes"],[
@@ -203,7 +192,32 @@ AC_DEFUN([AX_GCC_VERSION], [
   ])
   AC_SUBST([GCC_VERSION])
 ])
-AX_GCC_VERSION
+
+dnl get the host_os.
+AC_CANONICAL_HOST
+
+dnl add extra paths to find gcc on RHEL 6 systems
+PATH="/opt/rh/devtoolset-3/root/usr/bin:${PATH}"
+dnl add extra paths to find xml headers and X headers on the mac.
+XTRAINCPATHS="-I/usr/include/libxml2/ -I/usr/X11/include"
+CFLAGS="$CFLAGS $XTRAINCPATHS"
+CPPFLAGS="$CPPFLAGS $XTRAINCPATHS"
+
+dnl look for programs we need to compile and run
+AC_PROG_AWK
+AC_PROG_CC
+AC_PROG_CXX
+
+dnl do not test gcc version on mac.  clang as gcc will return version and it's not >= 4.8
+TEST_GCC=yes
+case "${host_os}" in
+    darwin*)
+        TEST_GCC=no
+        ;;
+    *)
+        ;;
+esac
+AS_IF([test "$TEST_GCC" = "yes"],[AX_GCC_VERSION],[])
 dnl if the compiler is gcc, test for gcc >= 4.8
 AS_IF([test "x$GCC_VERSION" = "x"],[],
  [AC_MSG_CHECKING([gcc version >= 4.8])
