@@ -40,7 +40,7 @@ void Trick::MonteCarlo::dispatch_run_to_slave(MonteRun *run, MonteSlave *slave) 
             tc_write(&connection_device, (char*)&num_bytes, (int)sizeof(num_bytes));
             tc_write(&connection_device, (char*)buffer.c_str(), (int)buffer.length());
 
-            if (verbosity >= INFORMATIONAL) {
+            if (verbosity >= ALL) {
                 message_publish(MSG_INFO, "Parameterization of run %d :\n%s\n", run->id, buffer.c_str()) ;
             }
 

@@ -50,12 +50,14 @@ int checkpoint_sequence_i(STL & in_stl , std::string object_name , std::string v
         var_declare << type_string << " "
          << object_name << "_" << var_name << "[" << cont_size << "]" ;
         items = (typename STL::value_type *)TMM_declare_var_s(var_declare.str().c_str()) ;
-        TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name).c_str()) ;
-        //message_publish(1, "CHECKPOINT_SEQUENCE_STL with %s\n", var_declare) ;
+        if ( items ) {
+            TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name).c_str()) ;
+            //message_publish(1, "CHECKPOINT_SEQUENCE_STL with %s\n", var_declare) ;
 
-        /* copy the contents of the stl */
-        for ( ii = 0 , it = in_stl.begin() , end = in_stl.end() ; it != end ; it++ , ii++ ) {
-            items[ii] = *it ;
+            /* copy the contents of the stl */
+            for ( ii = 0 , it = in_stl.begin() , end = in_stl.end() ; it != end ; it++ , ii++ ) {
+                items[ii] = *it ;
+            }
         }
 
     }
@@ -84,19 +86,21 @@ int checkpoint_sequence_s(STL & in_stl , std::string object_name , std::string v
 
         var_declare << "std::string " << object_name << "_" << var_name << "[" << cont_size << "]" ;
         items = (std::string *)TMM_declare_var_s(var_declare.str().c_str()) ;
-        TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name).c_str()) ;
-        //message_publish(1, "CHECKPOINT_SEQUENCE_STL_STL with %s\n", var_declare.str().c_str()) ;
+        if ( items ) {
+            TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name).c_str()) ;
+            //message_publish(1, "CHECKPOINT_SEQUENCE_STL_STL with %s\n", var_declare.str().c_str()) ;
 
-        /* create the names of the sub stl checkpoint names we're going to be using */
-        for ( ii = 0 , it = in_stl.begin() , end = in_stl.end() ; it != end ; it++ , ii++ ) {
-            std::ostringstream sub_elements ;
-            sub_elements << object_name << "_" << var_name << "_" << ii ;
-            items[ii] = sub_elements.str() ;
+            /* create the names of the sub stl checkpoint names we're going to be using */
+            for ( ii = 0 , it = in_stl.begin() , end = in_stl.end() ; it != end ; it++ , ii++ ) {
+                std::ostringstream sub_elements ;
+                sub_elements << object_name << "_" << var_name << "_" << ii ;
+                items[ii] = sub_elements.str() ;
 
-            std::ostringstream index_string ;
-            index_string << ii ;
-            //message_publish(1, "recursive call to checkpoint_stl %s\n", __PRETTY_FUNCTION__) ;
-            checkpoint_stl( (*it) , object_name + "_" + var_name , index_string.str() ) ;
+                std::ostringstream index_string ;
+                index_string << ii ;
+                //message_publish(1, "recursive call to checkpoint_stl %s\n", __PRETTY_FUNCTION__) ;
+                checkpoint_stl( (*it) , object_name + "_" + var_name , index_string.str() ) ;
+            }
         }
     }
     return 0 ;

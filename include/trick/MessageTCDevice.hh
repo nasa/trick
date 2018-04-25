@@ -86,7 +86,7 @@ namespace Trick {
              @brief Initializes this subscriber.
              @return always 0
              */
-            int init() ;
+            virtual int init() ;
 
             /**
              @brief Restarts this subscriber.
@@ -98,7 +98,7 @@ namespace Trick {
              @brief Shuts down this subscriber.
              @return always 0
              */
-            int shutdown() ;
+            virtual int shutdown() ;
 
             /** The port number for message socket connection. Copied out from listen_thread.\n */
             int port ;             /**< trick_units(--) */

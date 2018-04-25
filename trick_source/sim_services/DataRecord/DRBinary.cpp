@@ -53,6 +53,8 @@ int Trick::DRBinary::format_specific_init() {
 
     unsigned int jj ;
     int write_value ;
+    /* number of bytes written to data record */
+    int bytes = 0 ;
 
     union {
         long l;
@@ -72,45 +74,48 @@ int Trick::DRBinary::format_specific_init() {
     writer_buff[record_size * rec_buffer.size() - 1] = 1 ;
 
     /* start header information in trk file */
-    if ((fp = creat(file_name.c_str(), S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH)) == -1) {
+    if ((fd = creat(file_name.c_str(), S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH)) == -1) {
         record = false ;
         return (-1) ;
     }
+
+
     /* Check to see if data is being recorded in little endian
      * byte order, and add little endian line if so.
      */
     byte_order_union.l = 1 ;
     if (byte_order_union.c[sizeof(long)-1] != 1) {
-        write( fp , "Trick-10-L", (size_t)10 ) ;
+        bytes += write( fd , "Trick-10-L", (size_t)10 ) ;
+        
     } else {
-        write( fp , "Trick-10-B", (size_t)10 ) ;
+        bytes += write( fd , "Trick-10-B", (size_t)10 ) ;
     }
     write_value = rec_buffer.size() ;
-    write( fp , &write_value , sizeof(int) ) ;
+    bytes += write( fd , &write_value , sizeof(int) ) ;
 
     for (jj = 0; jj < rec_buffer.size(); jj++) {
         /* name */
         write_value = strlen(rec_buffer[jj]->ref->reference) ;
-        write( fp , &write_value , sizeof(int)) ;
-        write( fp , rec_buffer[jj]->ref->reference , write_value ) ;
+        bytes += write( fd , &write_value , sizeof(int)) ;
+        bytes += write( fd , rec_buffer[jj]->ref->reference , write_value ) ;
 
         /* units */
         if ( rec_buffer[jj]->ref->attr->mods & TRICK_MODS_UNITSDASHDASH ) {
             write_value = strlen("--") ;
-            write( fp , &write_value , sizeof(int)) ;
-            write( fp , "--" , write_value ) ;
+            bytes += write( fd , &write_value , sizeof(int)) ;
+            bytes += write( fd , "--" , write_value ) ;
         } else {
             write_value = strlen(rec_buffer[jj]->ref->attr->units) ;
-            write( fp , &write_value , sizeof(int)) ;
-            write( fp , rec_buffer[jj]->ref->attr->units , write_value ) ;
+            bytes += write( fd , &write_value , sizeof(int)) ;
+            bytes += write( fd , rec_buffer[jj]->ref->attr->units , write_value ) ;
         }
 
         write_value = rec_buffer[jj]->ref->attr->type ;
-        write( fp , &write_value , sizeof(int)) ;
+        bytes += write( fd , &write_value , sizeof(int)) ;
 
-        write( fp , &rec_buffer[jj]->ref->attr->size , sizeof(int)) ;
+        bytes += write( fd , &rec_buffer[jj]->ref->attr->size , sizeof(int)) ;
     }
-
+    total_bytes_written += bytes;
     return(0) ;
 }
 
@@ -119,6 +124,7 @@ int Trick::DRBinary::format_specific_init() {
 -# While there is data in memory that has not been written to disk
    -# Write out each of the other parameter values to the temporary #writer_buff
    -# Write #writer_buff to the output file
+-# return the number of bytes written
 */
 int Trick::DRBinary::format_specific_write_data(unsigned int writer_offset) {
 
@@ -171,9 +177,7 @@ int Trick::DRBinary::format_specific_write_data(unsigned int writer_offset) {
 
     }
 
-    write( fp , writer_buff , len) ;
-
-    return(0) ;
+    return write( fd , writer_buff , len) ;
 }
 
 /**
@@ -183,8 +187,7 @@ int Trick::DRBinary::format_specific_write_data(unsigned int writer_offset) {
 int Trick::DRBinary::format_specific_shutdown() {
 
     if ( inited ) {
-        close(fp) ;
+        close(fd) ;
     }
     return(0) ;
 }
-

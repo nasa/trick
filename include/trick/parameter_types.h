@@ -11,7 +11,6 @@ extern "C" {
 #endif
 
 /**
- * @class Trick::MemoryManager::TRICK_TYPE parameter_types.h
  * The TRICK_TYPE enumeration represents the Trick data types.
  */
     typedef enum {
@@ -44,6 +43,9 @@ extern "C" {
     } TRICK_TYPE ;
 
 const char* trickTypeCharString( TRICK_TYPE type, const char* name);
+
+/* here for backwards compatibility */
+#define TRICK_USER_DEFINED_TYPE TRICK_OPAQUE_TYPE
 
 /* Define int_64t and uint_64t depending on compiler options */
 #if __linux

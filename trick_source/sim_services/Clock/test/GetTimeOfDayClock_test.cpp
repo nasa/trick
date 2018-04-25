@@ -17,7 +17,7 @@
 #define TICS_PER_SEC 1000000
 
 // Stub for message_publish
-extern "C" int message_publish(int level, const char * format_msg, ...) { return 0; }
+extern "C" int message_publish(int level, const char * format_msg, ...) { (void)level; (void)format_msg; return 0; }
 
 class GetTimeOfDayClockTest : public ::testing::Test {
 

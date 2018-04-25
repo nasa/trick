@@ -18,6 +18,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <cstring>
+#include <cerrno>
 
 #include "trick/CommandLineArguments.hh"
 #include "trick/memorymanager_c_intf.h"
@@ -163,13 +165,18 @@ int Trick::CommandLineArguments::process_sim_args(int nargs , char **args) {
         } else {
             run_dir = "." ;
         }
+        /* check existence of run directory */
+        if (access(run_dir.c_str(), F_OK) != 0) {
+            std::cerr << "\nERROR: while accessing input file directory \"" << run_dir << "\" : " << std::strerror(errno) << std::endl ;
+            exit(1);
+        }
 
         output_dir = run_dir ;
 
         for (ii = 2; ii < argc; ii++) {
             if (!strncmp("-OO", argv[ii], (size_t) 3) || !strncmp("-O", argv[ii], (size_t) 2)) {
                 if (ii == ( argc - 1 )) {
-                    std::cerr << "\nERROR: No directory specified after -O or -OO argument. Exiting!" << std::endl ;
+                    std::cerr << "\nERROR: No directory specified after -O or -OO argument" << std::endl ;
                     exit(1) ;
                 }
                 /* Output data directory */
@@ -182,13 +189,13 @@ int Trick::CommandLineArguments::process_sim_args(int nargs , char **args) {
         /* Create output directory if necessary. */
         if (access(output_dir.c_str(), F_OK) != 0) {
             if (mkdir(output_dir.c_str(), 0775) == -1) {
-                std::cerr << "\nERROR: While trying to create dir \"" << output_dir << "\" Exiting!" << std::endl ;
+                std::cerr << "\nERROR: While trying to create output directory \"" << output_dir << "\" : " << std::strerror(errno) << std::endl ;
                 exit(1) ;
             }
         } else {
             /* check permissions on output directory */
             if (access(output_dir.c_str(), (W_OK|X_OK) ) == -1) {
-                std::cerr << "\nERROR:  Unable to write to \"" << output_dir << "\" Exiting!" << std::endl ;
+                std::cerr << "\nERROR: while writing to output directory \"" << output_dir << "\" : " << std::strerror(errno) << std::endl ;
                 exit(2) ;
             }
         }

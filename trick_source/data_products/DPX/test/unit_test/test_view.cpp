@@ -28,7 +28,7 @@ DPV_pointer Test_view::render_product( DPC_product* product){
 
 DPV_pointer Test_view::render_page( DPV_pointer parent_data, DPC_page* page) {
   	const char *temp_cstr;
-
+	(void)parent_data;
   	s << "PAGE VIEW:" << std::endl;
   	if ((temp_cstr = page->getTitle()) != NULL) {
     	s << "Page title: " << page->getTitle() << std::endl;
@@ -70,7 +70,7 @@ DPV_pointer Test_view::render_page( DPV_pointer parent_data, DPC_page* page) {
 
 DPV_pointer Test_view::render_plot( DPV_pointer parent_data, DPC_plot* plot) {
   	const char *temp_cstr;
-
+	(void)parent_data;
   	s << "PLOT VIEW:" << std::endl;
   	if ((temp_cstr = plot->getTitle()) != NULL) {
   		s << "Plot title: " << plot->getTitle() << std::endl;
@@ -117,7 +117,8 @@ DPV_pointer Test_view::render_plot( DPV_pointer parent_data, DPC_plot* plot) {
 }
 
 DPV_pointer Test_view::render_table( DPV_pointer parent_data, DPC_table  *table) {
-  	const char *temp_cstr;
+	const char *temp_cstr;
+	(void)parent_data;
   	int n_columns, colix;
   	int i,j;
   	double time;
@@ -189,7 +190,7 @@ DPV_pointer Test_view::render_table( DPV_pointer parent_data, DPC_table  *table)
 DPV_pointer Test_view::render_curve( DPV_pointer parent_data, DPC_curve* curve) {
   	int i;
   	const char *temp_cstr;
-
+	(void)parent_data;
   	s << "CURVE VIEW:" << std::endl;
   	s << "X Var Name: " << curve->getXVarName() << std::endl;
   	s << "X Units: " << curve->getXUnits() << std::endl;
@@ -254,18 +255,21 @@ DPV_pointer Test_view::render_curve( DPV_pointer parent_data, DPC_curve* curve) 
 
 void Test_view::finalize_product_view( DPV_pointer product_view ) {
   	s << "FINALIZE PRODUCT VIEW." << std::endl;
-
+	(void)product_view;
 }
 
 void Test_view::finalize_page_view( DPV_pointer page_view ) {
-  	s << "FINALIZE PAGE VIEW." << std::endl;
+	s << "FINALIZE PAGE VIEW." << std::endl;
+	(void)page_view;
 }
 
 void Test_view::finalize_plot_view( DPV_pointer plot_view ) {
-  	s << "FINALIZE PLOT VIEW." << std::endl;
+	s << "FINALIZE PLOT VIEW." << std::endl;
+	(void)plot_view;
 }
 
 void Test_view::finalize_table_view( DPV_pointer table_view ) {
-  	s << "FINALIZE TABLE VIEW." << std::endl;
+	s << "FINALIZE TABLE VIEW." << std::endl;
+	(void)table_view;
 }
 

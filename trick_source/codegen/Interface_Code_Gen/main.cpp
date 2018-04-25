@@ -8,6 +8,7 @@
 
 #include "llvm/Support/Host.h"
 #include "llvm/Support/CommandLine.h"
+#include "llvm/Support/raw_ostream.h"
 
 #include "clang/Frontend/CompilerInstance.h"
 #include "clang/Basic/TargetOptions.h"
@@ -58,9 +59,14 @@ Most of the main program is pieced together from examples on the web. We are doi
 -# Parsing the input file.
 */
 int main(int argc, char * argv[]) {
-    llvm::cl::SetVersionPrinter([] {
-        std::cout << "Trick Interface Code Generator (trick-ICG) " << TRICK_VERSION << std::endl;
-    });
+    llvm::cl::SetVersionPrinter([]
+#if (LIBCLANG_MAJOR >= 6)
+        (llvm::raw_ostream& stream) {stream
+#else
+        {std::cout
+#endif
+            << "Trick Interface Code Generator (trick-ICG) " << TRICK_VERSION << '\n';}
+    );
 
     /**
      * Gather all of the command line arguments into lists of include directories, defines, and input files.
@@ -164,6 +170,7 @@ int main(int argc, char * argv[]) {
 
     PrintAttributes printAttributes(attr_version, hsd, cs, ci, force, sim_services_flag, output_dir);
 
+    printAttributes.addIgnoreTypes() ;
     // Create new class and enum map files
     if (create_map) {
         printAttributes.createMapFiles();

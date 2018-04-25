@@ -21,10 +21,17 @@ class FindTrickICG : public clang::PPCallbacks {
                            clang::FileID PrevFID = clang::FileID()) ;
 
     // callbacks called when the preprocessor directives of types are processed.
+#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
+    virtual void If(clang::SourceLocation Loc, clang::SourceRange ConditionRange, clang::PPCallbacks::ConditionValueKind ConditionValue) ;
+    virtual void ElIf(clang::SourceLocation Loc, clang::SourceRange ConditionRange, clang::PPCallbacks::ConditionValueKind ConditionValue) ;
+    virtual void Ifdef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDefinition &MD) ;
+    virtual void Ifndef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDefinition &MD) ;
+#else
     virtual void If(clang::SourceLocation Loc, clang::SourceRange ConditionRange, bool ConditionValue) ;
     virtual void ElIf(clang::SourceLocation Loc, clang::SourceRange ConditionRange, bool ConditionValue) ;
     virtual void Ifdef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDirective *MD) ;
     virtual void Ifndef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDirective *MD) ;
+#endif
 
     // print a warning about using TRICK_ICG.
     void print_header() ;

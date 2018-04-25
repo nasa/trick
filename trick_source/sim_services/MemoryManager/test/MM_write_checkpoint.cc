@@ -959,3 +959,90 @@ TEST_F(MM_write_checkpoint, Compressed_2d_char_arrays ) {
     EXPECT_EQ(result, 0);
 }
 
+TEST_F(MM_write_checkpoint, ptr_to_array_of_ptrs_to_objects ) {
+
+    // This test is associated with Issue: https://github.com/nasa/trick/issues/587
+
+    // A possible fix to issue 587, involves aggregating condition_t and action_t
+    // objects using a resizable list of pointers rather than a resizable array
+    // of those objects. This is a test explores how this approach woud be
+    // check-pointed.
+
+    std::stringstream ss;
+
+    // Allocate object with a double ptr member, that is
+    // a pointer to an array of pointers to some (3 in this case) objects.
+    UDT7 *udt7_p = (UDT7*)memmgr->declare_var("UDT7 udt7");
+
+    // Initialize the object, and its aggregation.
+    udt7_p->A = 2.71828;
+    UDT3** pp = (UDT3**)memmgr->declare_var("UDT3* udt3p[3]");
+    udt7_p->udt3pp = pp;
+    pp[0] = (UDT3*)memmgr->declare_var("UDT3 udt3A");
+    pp[1] = (UDT3*)memmgr->declare_var("UDT3 udt3B");
+    pp[2] = (UDT3*)memmgr->declare_var("UDT3 udt3C");
+    pp[0]->a = 1;
+    pp[0]->b = 2;
+    pp[1]->a = 4;
+    pp[1]->b = 5;
+    pp[2]->a = 7;
+    pp[2]->b = 8;
+
+    memmgr->set_expanded_arrays(false);
+    // Write the checkpoint.
+    memmgr->write_checkpoint( ss, "udt7");
+
+    // Verify it's what we expected.
+    int result = strcmp_IgnoringWhiteSpace(
+        "// Variable Declarations."
+        "UDT7 udt7;"
+        "UDT3* udt3p[3];"
+        "UDT3 udt3A;"
+        "UDT3 udt3B;"
+        "UDT3 udt3C;"
+        "// Clear all allocations to 0."
+        "clear_all_vars();"
+        "// Variable Assignments."
+        "udt7.A = 2.71828;"
+        "udt7.udt3pp = &udt3p[0].a;"
+        "udt3p[0] = &udt3A;"
+        "udt3p[1] = &udt3B;"
+        "udt3p[2] = &udt3C;"
+        "udt3A.a = 1;"
+        "udt3A.b = 2;"
+        "udt3B.a = 4;"
+        "udt3B.b = 5;"
+        "udt3C.a = 7;"
+        "udt3C.b = 8;"
+    , ss.str().c_str());
+
+    EXPECT_EQ(result, 0);
+
+    // Delete all of the objects that we created.
+    memmgr->delete_var("udt3A");
+    memmgr->delete_var("udt3B");
+    memmgr->delete_var("udt3C");
+    memmgr->delete_var("udt3p");
+    memmgr->delete_var("udt7");
+    udt7_p = (UDT7*)NULL;
+    pp = (UDT3**)NULL;
+
+    // Re-create the objects from a checkpoint.
+    memmgr->read_checkpoint_from_string(ss.str().c_str());
+
+    EXPECT_EQ(result, 0);
+
+    // Get the address of the object we just restored.
+    REF2* ref = memmgr->ref_attributes("udt7");
+    udt7_p = (UDT7*)ref->address;
+
+    // Verify that the values are what they should be.
+    EXPECT_NEAR(udt7_p->A, 2.71828, 0.000001);
+    EXPECT_EQ( udt7_p->udt3pp[0]->a , 1);
+    EXPECT_EQ( udt7_p->udt3pp[0]->b , 2);
+    EXPECT_EQ( udt7_p->udt3pp[1]->a , 4);
+    EXPECT_EQ( udt7_p->udt3pp[1]->b , 5);
+    EXPECT_EQ( udt7_p->udt3pp[2]->a , 7);
+    EXPECT_EQ( udt7_p->udt3pp[2]->b , 8);
+}
+

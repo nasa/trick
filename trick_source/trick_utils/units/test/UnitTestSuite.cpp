@@ -41,7 +41,7 @@
 * **********************************************************************************************************/
 
 
-#define TOL 1e-13
+#define TOL 1e-7
 #define PI 3.14159265358979323846
 
 namespace Trick {
@@ -364,12 +364,12 @@ TEST_F(UnitConversion, KilogramToKilogram)
 
 TEST_F(UnitConversion, KilogramToSlug)
 {
-  test_conversion_no_throw("kg", "sl", 0.0, (1.0/14.5939029372064), TOL);
+  test_conversion_no_throw("kg", "sl", 0.0, (1.0/14.59390), TOL);
 }
 
 TEST_F(UnitConversion, KilogramToPoundMass)
 {
-  test_conversion_no_throw("kg", "lbm", 0.0, (1.0/0.4535923697760192), TOL);
+  test_conversion_no_throw("kg", "lbm", 0.0, (1.0/0.45359237), TOL);
 }
 
 TEST_F(UnitConversion, KilogramToGram)
@@ -401,12 +401,12 @@ TEST_F(UnitConversion, NewtonToKiloNewton)
 
 TEST_F(UnitConversion, NewtonToOunce)
 {
-  test_conversion_no_throw("N", "oz", 0.0, (16.0/4.4482216152605), tolerance(-7));
+  test_conversion_no_throw("N", "oz", 0.0, 3.596944, tolerance(-5));
 }
 
 TEST_F(UnitConversion, NewtonToPoundForce)
 {
-  test_conversion_no_throw("N", "lbf", 0.0, (1.0/4.4482216152605), TOL);
+  test_conversion_no_throw("N", "lbf", 0.0, 0.224809, TOL);
 }
 
 //Voltage Conversions
@@ -634,12 +634,12 @@ TEST_F(UnitConversion, FahrenheitPerSecondToCelsiusPerMinute)
 
 TEST_F(UnitConversion, CompositeNewtonToCompositePoundForce)
 {
-  test_conversion_no_throw("kg*m/s2", "lbm*ft/s*s", 0.0, (1/(0.4535923697760192*0.3048)) , TOL);
+  test_conversion_no_throw("kg*m/s2", "lbm*ft/s*s", 0.0, (1/(0.45359237*0.3048)) , TOL);
 }
 
 TEST_F(UnitConversion, CompositePoundForceToCompositeNewton)
 {
-  test_conversion_no_throw("lbm*ft/s2", "kg*m/s*s", 0.0, (0.4535923697760192*0.3048), TOL);
+  test_conversion_no_throw("lbm*ft/s2", "kg*m/s*s", 0.0, (0.45359237*0.3048), TOL);
 }
 
 TEST_F(UnitConversion, FootPoundsToNewtonMeters)
@@ -662,12 +662,12 @@ TEST_F(UnitConversion, FootPoundsToNewtonMetersWithConvertTo)
 
 TEST_F(UnitConversion, CompositePoundForceToCompositeNewtonCommutative)
 {
-  test_conversion_no_throw("lbm*ft/s*s", "m*kg/s2", 0.0, (0.4535923697760192*0.3048), TOL);
+  test_conversion_no_throw("lbm*ft/s*s", "m*kg/s2", 0.0, (0.45359237*0.3048), TOL);
 }
 
 TEST_F(UnitConversion, CompositeNewtonToCompositePoundForceCommutative)
 {
-  test_conversion_no_throw("m*kg/s2", "lbm*ft/s*s", 0.0, (1/(0.4535923697760192*0.3048)), TOL);
+  test_conversion_no_throw("m*kg/s2", "lbm*ft/s*s", 0.0, (1/(0.45359237*0.3048)), TOL);
 }
 
 //Collection of Denominators

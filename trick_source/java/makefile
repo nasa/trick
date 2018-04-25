@@ -5,6 +5,17 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 JAVAC ?= javac
 JAVAC_FLAGS = -g -Xlint:unchecked -Xlint:deprecation
+# delineate 'javac -version' for version number 
+JAVAC_VERSION := $(shell ${JAVAC} -version 2>&1 | perl -ne 'print /(\d+)/')
+
+# include java.se.ee for JAXB xml annotations (for trick-tv) in java version 9
+ifeq ($(JAVAC_VERSION),9)
+	JAVAC_FLAGS += --add-modules java.se.ee
+endif
+
+ifeq ($(JAVAC_VERSION),10)
+	JAVAC_FLAGS += --add-modules java.se.ee
+endif
 
 SRC_DIR   = src
 SRC_FILES = $(shell find ${SRC_DIR} -type f -name \*.java)

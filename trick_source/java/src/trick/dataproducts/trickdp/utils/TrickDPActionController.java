@@ -408,7 +408,7 @@ public class TrickDPActionController {
      public void launchQP(String[] initialArgs) {
     	 // the command variable program command name and arguments
     	 List<String> command = new ArrayList<String>();
-         String fileSeparator = System.getProperty("file.separator");
+         String fileSeparator = java.io.File.separator;
          String pathSeparator = System.getProperty("path.separator");
          
          String javaPath = UIUtils.getTrickHome() + fileSeparator + "libexec/trick" + fileSeparator + "java";

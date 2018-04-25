@@ -60,7 +60,7 @@ class UDT2 {
     double A;
     double B;
     double C;
-    char*  ss;
+    const char* ss;
     UDT1   udt1;
     UDT1*  udt1_p;
 };

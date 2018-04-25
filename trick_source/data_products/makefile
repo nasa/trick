@@ -18,6 +18,7 @@ LIBDIRS += fermi-ware
 endif
 
 APPDIRS = DPX \
+    Apps/trkConvert \
     Apps/Trk2csv \
     Apps/ExternalPrograms
 

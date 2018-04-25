@@ -27,7 +27,7 @@ sub get_paths {
         # trim whitespace
         @paths = map { s/(^\s+|\s+$)//g ; $_ } @paths ;
         # Remove empty elements. Sort forced all blank names to the front.
-        while ( not length @paths[0] ) {
+        while ( scalar @paths and not length @paths[0] ) {
             shift @paths ;
         }
         @paths = map { (-e $_) ? abs_path($_) : $_ } @paths ;
@@ -95,11 +95,19 @@ sub read_files_to_process() {
                     print "[95mSWIG Skip[39m  TRICK_EXCLUDE: [4m$path[24m$1\n" if $verbose_build ;
                     next outer ;
                 }
+                if ( abs_path($word) =~ /^\Q$path\E(.*)/ ) {
+                    print "[95mSWIG Skip[39m  TRICK_EXCLUDE: [4m$path[24m$1\n" if $verbose_build ;
+                    next outer ;
+                }
             }
 
             # skip paths in TRICK_SWIG_EXCLUDE
             foreach my $path ( @swig_exclude_paths ) {
                 if ( $word =~ /^\Q$path\E(.*)/ ) {
+                    print "[95mSWIG Skip[39m  TRICK_SWIG_EXCLUDE: [4m$path[24m$1\n" if $verbose_build ;
+                    next outer ;
+                }
+                if ( abs_path($word) =~ /^\Q$path\E(.*)/ ) {
                     print "[95mSWIG Skip[39m  TRICK_SWIG_EXCLUDE: [4m$path[24m$1\n" if $verbose_build ;
                     next outer ;
                 }
@@ -165,6 +173,8 @@ sub write_makefile_swig() {
 
 ifeq (\$(IS_CC_CLANG), 1)
     SWIG_CFLAGS += -Wno-self-assign -Wno-sometimes-uninitialized -Wno-deprecated-register
+else
+    SWIG_CFLAGS += -Wno-unused-but-set-variable
 endif
 
 ifndef TRICK_VERBOSE_BUILD

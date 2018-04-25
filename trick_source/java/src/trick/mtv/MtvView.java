@@ -1202,7 +1202,7 @@ public class MtvView extends FrameView {
         comboBox.addItem("Manual OFF");
         mode_selected = false;
 
-        event_table_rows = new Vector<Object>();
+        event_table_rows = new Vector<Vector>();
         event_table_cols = new Vector<String>();
         String[] col_names = {"Active", "Name", "Fired Time", "Fired Count", "Ran Time", "Ran Count", "Hold", "Mode", "Added"};
         for (int ii=0; ii<col_names.length; ii++) {
@@ -1787,7 +1787,7 @@ public class MtvView extends FrameView {
 
             jScrollPane2.setName("jScrollPane2"); // NOI18N
 
-            edit_table_rows = new Vector<Object>();
+            edit_table_rows = new Vector<Vector>();
             edit_table_cols = new Vector<String>();
             user_text = new JTextArea();
             String[] col_names2 = {"Event Syntax", "", "User Data", ""};
@@ -1944,13 +1944,13 @@ public class MtvView extends FrameView {
     private javax.swing.JTable edit_table;
     private javax.swing.table.DefaultTableModel model;
     private JTextArea user_text;
-    public Vector<Object> edit_table_rows;
+    public Vector<Vector> edit_table_rows;
     private Vector<String> edit_table_cols;
     private javax.swing.JTextField eventTextField;
     public ButtonGroup cycle_group;
     public javax.swing.JComboBox comboBox; // Mode
     public javax.swing.JTable event_table;
-    public Vector<Object> event_table_rows;
+    public Vector<Vector> event_table_rows;
     public Vector<String> event_table_cols;
     public boolean mode_selected; // user clicked a row's Mode combobox
     public javax.swing.JTextField host_field;

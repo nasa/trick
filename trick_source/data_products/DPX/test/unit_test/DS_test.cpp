@@ -44,8 +44,8 @@ class DSTest : public :: testing::Test {
 
         std::string run(char ch);
 
-		char* RUN_dir;
-	    char* VarName;
+		const char* RUN_dir;
+	    const char* VarName;
 		std::string output;
 		int result;
 
@@ -342,8 +342,8 @@ TEST_F(DSTest, DataStream_Delta) {
 	RUN_dir = NULL;
 	char DeltaName[1000];
 
-	char* a = "sun_predictor.sun.solar_azimuth:../TEST_DATA/BUNCHORUNS/RUN1";
-	char* b = "sun_predictor.sun.solar_azimuth:../TEST_DATA/BUNCHORUNS/RUN2";
+	const char* a = "sun_predictor.sun.solar_azimuth:../TEST_DATA/BUNCHORUNS/RUN1";
+	const char* b = "sun_predictor.sun.solar_azimuth:../TEST_DATA/BUNCHORUNS/RUN2";
 
 	sprintf(DeltaName, "delta(%s, %s)", a, b);
 

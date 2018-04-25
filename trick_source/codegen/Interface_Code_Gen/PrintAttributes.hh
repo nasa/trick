@@ -39,6 +39,9 @@ class PrintAttributes {
         PrintAttributes( int attr_version , HeaderSearchDirs & hsd , CommentSaver & cs ,
          clang::CompilerInstance & in_ci, bool force , bool sim_services, std::string output_dir ) ;
 
+        /** Adds construct names to ignore from TRICK_ICG_IGNORE_TYPES environment variable */
+        void addIgnoreTypes() ;
+
         /** Prints all of the processed classes and enumerations */
         virtual void createMapFiles() ;
         virtual void closeMapFiles() ;
@@ -127,6 +130,9 @@ class PrintAttributes {
 
         /** List of files that have ICG: No */
         std::vector< std::string > icg_no_files ;
+
+        /** set of types from the TRICK_ICG_IGNORE_TYPES environment variable */
+        std::set< std::string > global_ignore_types ;
 
         /** map of ignored types sorted by file */
         std::map< std::string , std::set< std::string > > ignored_types ;

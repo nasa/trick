@@ -228,7 +228,7 @@ protected:
     * IntegrationControls copy constructor.
     * @param[in] source  The IntegrationControls to be copied.
     */
-   IntegrationControls (const IntegrationControls &);
+   IntegrationControls (const IntegrationControls & source);
 
    /**
     * IntegrationControls non-default constructor.

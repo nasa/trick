@@ -29,7 +29,7 @@ public class WaitForSieApplication extends SieApplication {
      */
     public static void launchAndWait(Class<? extends WaitForSieApplication> applicationClass) {
     	synchronized(lock) {
-    		sieResourcePath = "test" + System.getProperty("file.separator") + "resources" + System.getProperty("file.separator") + "S_sie.resource";
+    		sieResourcePath = "resources" + java.io.File.separator + "S_sie.resource";
     		Application.launch(applicationClass, new String[]{});
     		while(true) {
     			try {

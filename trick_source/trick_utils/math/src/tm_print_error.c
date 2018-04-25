@@ -23,7 +23,7 @@ static char *trick_math_errors[] = {
     /* 13 */ "WARNING: Passed value is beyond the range of the asin function, Euler angles set to NANs",
     /* 14 */ "ERROR: Invalid Euler Rotation Sequence Option",
     /* 15 */ "ERROR: Diagonal Element is too small",
-    /* 16 */ "ERROR: 3x3 matrix has zero determinate"
+    /* 16 */ "ERROR: 3x3 matrix has zero determinant"
 };
 
 /* ENTRY POINT: */

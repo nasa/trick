@@ -1,4 +1,4 @@
-
+ 
 /*
 PURPOSE:
     (Data record in ascii format.)
@@ -46,6 +46,7 @@ int Trick::DRAscii::format_specific_header( std::fstream & out_st ) {
 int Trick::DRAscii::format_specific_init() {
 
     unsigned int jj ;
+    std::streampos before_write;
 
     /* Store log information in csv/txt file */
     if ( ! delimiter.empty()  &&  delimiter.compare(",") != 0 ) {
@@ -70,7 +71,7 @@ int Trick::DRAscii::format_specific_init() {
         record = false ;
         return -1 ;
     }
-
+    before_write = out_stream.tellp();
     // Write out the title line of the recording file
     /* Start with the 1st item in the buffer which should be "sys.exec.out.time" */
     out_stream << rec_buffer[0]->ref->reference ;
@@ -81,6 +82,7 @@ int Trick::DRAscii::format_specific_init() {
             out_stream << " {" << rec_buffer[0]->ref->attr->units << "}" ;
         }
     }
+    
     /* Write out specified recorded parameters */
     for (jj = 1; jj < rec_buffer.size() ; jj++) {
         out_stream << delimiter << rec_buffer[jj]->ref->reference ;
@@ -94,7 +96,7 @@ int Trick::DRAscii::format_specific_init() {
         }
     }
     out_stream << std::endl ;
-
+    total_bytes_written += out_stream.tellp() - before_write;
     return(0) ;
 }
 
@@ -105,6 +107,7 @@ int Trick::DRAscii::format_specific_init() {
    -# Write out each of the other parameter values preceded by the delimiter to the temporary #writer_buff
    -# Write #writer_buff to the output file
 -# Flush the output file stream
+-# Return the number of bytes written
 */
 int Trick::DRAscii::format_specific_write_data(unsigned int writer_offset) {
     unsigned int ii ;
@@ -128,8 +131,8 @@ int Trick::DRAscii::format_specific_write_data(unsigned int writer_offset) {
 
     /*! Flush the output */
     out_stream.flush() ;
-
-    return(0) ;
+    /*! +1 for endl */
+    return(strlen(writer_buff) + 1) ;
 }
 
 /**

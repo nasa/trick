@@ -1,5 +1,6 @@
 
 #include <DPM/DPM_parse_tree.hh>
+#include <stdlib.h>
 
 int DPM_parse_tree::Initialize(const char *XMLFileName) {
 
@@ -23,7 +24,16 @@ int DPM_parse_tree::Initialize(const char *XMLFileName) {
            exit(0);
        }
 
-       doc = xmlCtxtReadFile( parser_context, XMLFileName, NULL, XML_PARSE_DTDVALID );
+       const char* xml_catalog_files = getenv("XML_CATALOG_FILES");
+       if (xml_catalog_files != NULL) {
+           doc = xmlCtxtReadFile( parser_context, XMLFileName, NULL, XML_PARSE_DTDVALID );
+       } else {
+           std::cerr << std::endl
+                     << "The XML_CATALOG_FILES environment variable is not set." << std::endl
+                     << "So, \"" << XMLFileName << "\" cannot be validated against it's DTD." << std::endl
+                     << "It will therefore be parsed without validation." << std::endl << std::endl;
+           doc = xmlCtxtReadFile( parser_context, XMLFileName, NULL, 0 );
+       } 
 
        if (doc == NULL) {
            std::cerr << "ERROR: Parse of XML file \"" << XMLFileName << "\"" << " failed." << std::endl;

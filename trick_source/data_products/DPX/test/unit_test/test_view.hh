@@ -26,11 +26,11 @@ class Test_view: public DPV_view {
 		/**
 		 * The following functions are unused from abstract class DPV_view
 		 */
-		void notify_product( DPV_pointer product_view, DPV_message msg) {};
-		void notify_page( DPV_pointer page_view, DPV_message msg) {};
-		void notify_table( DPV_pointer table_view, DPV_message msg) {};
-		void notify_plot( DPV_pointer plot_view, DPV_message msg) {};
-		void notify_curve( DPV_pointer curve_view, DPV_message msg) {};
+		void notify_product( DPV_pointer, DPV_message) {};
+		void notify_page( DPV_pointer, DPV_message) {};
+		void notify_table( DPV_pointer, DPV_message) {};
+		void notify_plot( DPV_pointer, DPV_message) {};
+		void notify_curve( DPV_pointer, DPV_message) {};
 
 		std::string getOutput();
 

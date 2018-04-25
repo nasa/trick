@@ -3,6 +3,8 @@
  * Establish a connection with a communications server
  */
 
+#include <string.h>
+
 #ifndef __WIN32__
 #include <netdb.h>
 #include <errno.h>
@@ -86,7 +88,7 @@ int tc_connect_(TCDevice * device, const char *file, int line)
     the_socket = socket( TRICKCOMM_SOCKET_FAMILY, SOCK_STREAM, TRICKCOMM_SOCKET_PROTO );
     if ( the_socket == TRICKCOMM_INVALID_SOCKET){
 
-        trick_error_report(device->error_handler,TRICK_ERROR_ALERT, file, line, "%s: could not open socket\n", client_str);
+        trick_error_report(device->error_handler,TRICK_ERROR_ALERT, file, line, "%s: could not open socket: %s\n", client_str, strerror(errno));
 
         return (TC_COULD_NOT_OPEN_SOCKET);
     }
@@ -141,7 +143,7 @@ int tc_connect_(TCDevice * device, const char *file, int line)
 #endif
 
     if ( ret < 0) {
-        trick_error_report(device->error_handler,TRICK_ERROR_ALERT, file, line, "%s: could not connect to host\n", client_str);
+        trick_error_report(device->error_handler,TRICK_ERROR_ALERT, file, line, "%s: could not connect to host: %s\n", client_str, strerror(errno));
         CLOSE_SOCKET(the_socket);
         return (TC_COULD_NOT_CONNECT);
     }

@@ -114,7 +114,7 @@ namespace Trick {
 
             /**
              * Non-default constructor.
-             * @param cycle      The time interval at which the loop's integrate
+             * @param in_cycle   The time interval at which the loop's integrate
              *                   function will be called.
              * @param parent_so  The Trick simulation object that contains this
              *                   IntegLoopScheduler object.

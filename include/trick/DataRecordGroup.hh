@@ -115,6 +115,12 @@ namespace Trick {
             /** Current write to file record number.\n */
             unsigned int writer_num;    /**< trick_io(**) trick_units(--) */
 
+            /** Maximum file size for data record file in bytes.\n */
+            uint64_t max_file_size;    /**< trick_io(**) trick_units(--) */
+           
+            /** Current file size for data record file in bytes.\n */
+            uint64_t total_bytes_written;    /**< trick_io(**) trick_units(--) */
+
             /** Buffer to hold formatted data ready for disk or other destination.\n */
             char * writer_buff ;        /**< trick_io(**) trick_units(--) */
 
@@ -206,6 +212,17 @@ namespace Trick {
              @return always 0
             */
             virtual int set_buffer_type(int buffer_type) ;
+
+            /**
+             @brief @userdesc Command to set the max file size in bytes.
+             This tells the data record group when it stops writing to the disk.
+             @par Python Usage:
+             @code <dr_group>.set_max_file_size(<buffer_type>) @endcode
+             @param type - the file size in bytes
+             @return always 0
+            */
+            virtual int set_max_file_size(uint64_t bytes) ;
+
 
             /**
              @brief @userdesc Command to print double variable values as single precision (float) in the log file to save space.

@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <libgen.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -30,6 +31,23 @@ PrintAttributes::PrintAttributes(int in_attr_version , HeaderSearchDirs & in_hsd
    output_dir( in_output_dir )
 {
     printer = new PrintFileContents10() ;
+}
+
+void PrintAttributes::addIgnoreTypes() {
+
+    char * env_var_contents = getenv("TRICK_ICG_IGNORE_TYPES") ;
+
+    if( env_var_contents != NULL ) {
+        std::string s = std::string(env_var_contents) ;
+        std::stringstream ss(s);
+        std::string item;
+        while(std::getline(ss, item, ';')) {
+            item = trim(item) ;
+            if ( ! item.empty() ) {
+                global_ignore_types.insert(item) ;
+            }
+        }
+    }
 }
 
 /**
@@ -240,6 +258,10 @@ void PrintAttributes::printClass( ClassValues * cv ) {
         outfile.close();
     }
 
+    if (!isHeaderExcluded(fileName)) {
+         printer->printClassMap(class_map_outfile, cv);
+    }
+/*
     char* realPath = almostRealPath(fileName.c_str());
     if (realPath) {
         if (isFileIncluded(fileName) or hsd.isPathInExtLib(realPath)) {
@@ -247,6 +269,7 @@ void PrintAttributes::printClass( ClassValues * cv ) {
         }
         free(realPath);
     }
+*/
 }
 
 void PrintAttributes::printEnum(EnumValues* ev) {
@@ -270,9 +293,14 @@ void PrintAttributes::printEnum(EnumValues* ev) {
         outfile.close() ;
     }
 
+    if (!isHeaderExcluded(fileName)) {
+         printer->printEnumMap(enum_map_outfile, ev);
+    }
+/*
     if (isFileIncluded(fileName)) {
          printer->printEnumMap(enum_map_outfile, ev) ;
     }
+*/
 }
 
 void PrintAttributes::createMapFiles() {
@@ -472,7 +500,9 @@ bool PrintAttributes::isIgnored(ConstructValues& constructValues) {
     std::set<std::string>& constructs = ignored_types[fileName];
 
     const bool ignored = constructs.find(constructValues.getName()) != constructs.end() or
-                         constructs.find(constructValues.getFullyQualifiedName()) != constructs.end();
+                         constructs.find(constructValues.getFullyQualifiedName()) != constructs.end() or
+                         global_ignore_types.find(constructValues.getName()) != global_ignore_types.end() or
+                         global_ignore_types.find(constructValues.getFullyQualifiedName()) != global_ignore_types.end();
 
     if (ignored and verboseBuild) {
         std::cout << skipping << "ICG Ignore Type: " << constructValues.getName() << " (from " << fileName << ")" << std::endl;
@@ -529,6 +559,35 @@ bool PrintAttributes::isHeaderExcluded(const std::string& header, bool exclude_e
         }
         icg_no_files.push_back(path);
         return true;
+    }
+
+    temp = realpath(header.c_str(),NULL);
+    if ( temp ) {
+        const std::string real_path = std::string(temp);
+        free(temp) ;
+        if ( real_path.compare(path) ) {
+            if (hsd.isPathInExclude(real_path)) {
+                if (verboseBuild) {
+                    std::cout << skipping << "TRICK_EXCLUDE: " << underline(real_path, hsd.getPathInExclude(real_path).size()) << std::endl;
+                }
+                return true;
+            }
+
+            if (hsd.isPathInICGExclude(real_path)) {
+                if (verboseBuild) {
+                    std::cout << skipping << "TRICK_ICG_EXCLUDE: " << underline(real_path, hsd.getPathInICGExclude(real_path).size()) << std::endl;
+                }
+                return true;
+            }
+
+            if (hsd.isPathInExtLib(real_path) && exclude_ext_libs) {
+                if (verboseBuild) {
+                    std::cout << skipping << "TRICK_EXT_LIB_DIRS: " << underline(real_path, hsd.getPathInExtLib(real_path).size()) << std::endl;
+                }
+                ext_lib_io_files.insert(header) ;
+                return true;
+            }
+        }
     }
 
     return false;

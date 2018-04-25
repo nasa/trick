@@ -43,8 +43,8 @@ public class TrickApplicationTest {
 	public void testPropertyLocation() {
 		application();
         application();
-        boolean rightLocation = (TrickApplication.propDirectory.equals(System.getenv("HOME") + System.getProperty("file.separator") + ".trick"))
-		                        || (TrickApplication.propDirectory.equals(System.getenv("TRICK_USER_HOME") + System.getProperty("file.separator") + ".trick"));
+        boolean rightLocation = (TrickApplication.propDirectory.equals(System.getenv("HOME") + java.io.File.separator + ".trick"))
+		                        || (TrickApplication.propDirectory.equals(System.getenv("TRICK_USER_HOME") + java.io.File.separator + ".trick"));
 		assertTrue("The default property location is not at ../.trick!", rightLocation);
 	}
 	

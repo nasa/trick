@@ -128,6 +128,10 @@ bool FieldVisitor::VisitBuiltinType(clang::BuiltinType *bt) {
 bool FieldVisitor::VisitConstantArrayType(clang::ConstantArrayType *cat) {
     //cat->dump() ; std::cout << std::endl ;
     fdes->addArrayDim(cat->getSize().getZExtValue()) ;
+    // If this field is an arrayed STL, skip it!
+    if ( fdes->isSTL() ) {
+        fdes->setIO(0) ;
+    }
     return true;
 }
 
@@ -249,6 +253,10 @@ bool FieldVisitor::VisitFieldDecl( clang::FieldDecl *field ) {
 
 bool FieldVisitor::VisitPointerType(clang::PointerType *p) {
     fdes->addArrayDim(-1) ;
+    // If this field is a pointer to an STL, skip it!
+    if ( fdes->isSTL() ) {
+        fdes->setIO(0) ;
+    }
     return true;
 }
 
@@ -426,7 +434,7 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
         tst_string.erase(pos , 7) ;
     }
     // clang changes bool to _Bool.  We need to change it back
-    if ((pos = tst_string.find("<_Bool")) != std::string::npos ) {
+    while ((pos = tst_string.find("<_Bool")) != std::string::npos ) {
         tst_string.replace(pos , 6, "<bool") ;
     }
     while ((pos = tst_string.find(" _Bool")) != std::string::npos ) {
@@ -474,6 +482,12 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
         return false ;
     }
 
+    // If the type is a private embedded class there will not be any io_src code for the type.  Don't create attributes
+    if ( CXXRecordVisitor::isPrivateEmbeddedClass(tst_string) ) {
+        //std::cout << "Type is a private embedded class!" << std::endl ;
+        fdes->setIO(0) ;
+        return false ;
+    }
     /* Template specialization types will be processed here because the canonical type
        will be typed as a record.  We test if we have a template specialization type.
        If so process the template type and return */

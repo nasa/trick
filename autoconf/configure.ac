@@ -1,6 +1,9 @@
 dnl To generate a new top level configure script from this autoconf directory
 dnl 1.  aclocal
 dnl 2.  autoconf -o ../configure
+dnl If you run into "configure.ac:15: error: possibly undefined macro: AC_MSG_ERROR",
+dnl try:
+dnl     autoreconf -fi
 
 AC_INIT([Trick],[17+])
 AC_LANG(C++)
@@ -174,6 +177,25 @@ AC_DEFUN([AX_JSC_DIRS],[
     AC_SUBST([MOTIF_HOME])
 ])
 
+AC_DEFUN([AX_GCC_VERSION], [
+  GCC_VERSION=""
+  AS_IF([test "x$GCC" = "xyes"],[
+    AS_IF([test "x$ax_gcc_version_option" != "xno"],[
+      AC_CACHE_CHECK([gcc version],[ax_cv_gcc_version],[
+        ax_cv_gcc_version="`$CC -dumpversion`"
+        AS_IF([test "x$ax_cv_gcc_version" = "x"],[
+          ax_cv_gcc_version=""
+        ])
+      ])
+      GCC_VERSION=$ax_cv_gcc_version
+    ])
+  ])
+  AC_SUBST([GCC_VERSION])
+])
+
+dnl get the host_os.
+AC_CANONICAL_HOST
+
 dnl add extra paths to find gcc on RHEL 6 systems
 PATH="/opt/rh/devtoolset-3/root/usr/bin:${PATH}"
 dnl add extra paths to find xml headers and X headers on the mac.
@@ -185,7 +207,17 @@ dnl look for programs we need to compile and run
 AC_PROG_AWK
 AC_PROG_CC
 AC_PROG_CXX
-AX_GCC_VERSION
+
+dnl do not test gcc version on mac.  clang as gcc will return version and it's not >= 4.8
+TEST_GCC=yes
+case "${host_os}" in
+    darwin*)
+        TEST_GCC=no
+        ;;
+    *)
+        ;;
+esac
+AS_IF([test "$TEST_GCC" = "yes"],[AX_GCC_VERSION],[])
 dnl if the compiler is gcc, test for gcc >= 4.8
 AS_IF([test "x$GCC_VERSION" = "x"],[],
  [AC_MSG_CHECKING([gcc version >= 4.8])
@@ -206,6 +238,8 @@ AC_PROG_LEX
 AS_IF([test "x$LEX" = "x:"],AC_MSG_ERROR([could not find flex]),[])
 AC_PATH_PROG(BISON, bison, nobison)
 AS_IF([test "$ac_cv_path_BISON" = "nobison"],AC_MSG_ERROR([could not find bison]),[])
+AC_PATH_PROG(CURL, curl, nocurl)
+AS_IF([test "$ac_cv_path_CURL" = "nocurl"],AC_MSG_ERROR([could not find curl]),[])
 AC_PATH_PROG(PERL, perl, noperl)
 AS_IF([test "$ac_cv_path_PERL" = "noperl"],AC_MSG_ERROR([could not find perl]),[])
 AC_PATH_PROG(PYTHON, python${PYTHON_VERSION}, nopython)
@@ -249,6 +283,25 @@ AC_PATH_PROG(CLANG, clang, noclang, "$LLVM_BIN_DIR:/bin:/usr/bin:/usr/local/bin:
 AS_IF([test "$ac_cv_path_CLANG" = "noclang"],AC_MSG_ERROR([could not find clang]),[])
 AC_SUBST([LLVM_HOME])
 
+AC_DEFUN([AX_CLANG_VERSION], [
+  CLANG_VERSION=""
+  ax_cv_clang_version="`$CLANG --version | grep "version" | sed "s/.*version \([0-9]*\.[0-9]*\.[0-9]*\).*/\1/"`"
+  AS_IF([test "x$ax_cv_clang_version" = "x"],[
+    ax_cv_clang_version=""
+  ])
+  CLANG_VERSION=$ax_cv_clang_version
+  AC_SUBST([CLANG_VERSION])
+])
+AX_CLANG_VERSION
+dnl if llvm/clang, test for version >= 3.4.2
+AS_IF([test "x$CLANG_VERSION" = "x"],[],
+ [AC_MSG_CHECKING([clang version >= 3.4.2])
+  AX_COMPARE_VERSION([$CLANG_VERSION],[ge],[3.4.2], [AC_MSG_RESULT([yes])],
+   [AC_MSG_RESULT([no])
+    AC_MSG_ERROR([Trick requires llvm/clang version >= 3.4.2])
+   ])
+])
+
 AX_CHECK_ZLIB([],AC_MSG_ERROR([could not find zlib]))
 
 dnl look for udunits in /usr/include and /usr/include/udunits2
@@ -260,13 +313,14 @@ AS_IF([test "$UDUNITS_HOME" = ""],
   UDUNITS_LDFLAGS=-ludunits2
  ],
  [
+  UDUNITS_EXCLUDE=$UDUNITS_HOME
   AC_CHECK_FILE([$UDUNITS_HOME/include/udunits2.h],
    [UDUNITS_INCLUDES=-I$UDUNITS_HOME/include
-    UDUNITS_LDFLAGS="-L$UDUNITS_HOME/lib -ludunits2"
+    UDUNITS_LDFLAGS="-Wl,-rpath,$UDUNITS_HOME/lib -L$UDUNITS_HOME/lib -ludunits2"
    ],
    [AC_CHECK_FILE([$UDUNITS_HOME/lib/udunits2.h],
     [UDUNITS_INCLUDES=-I$UDUNITS_HOME/lib
-     UDUNITS_LDFLAGS="-L$UDUNITS_HOME/lib -ludunits2"
+     UDUNITS_LDFLAGS="-Wl,-rpath,$UDUNITS_HOME/lib -L$UDUNITS_HOME/lib -ludunits2"
     ],
     AC_MSG_ERROR([could not find udunits2]))
    ]
@@ -275,6 +329,7 @@ AS_IF([test "$UDUNITS_HOME" = ""],
 )
 AC_SUBST([UDUNITS_INCLUDES])
 AC_SUBST([UDUNITS_LDFLAGS])
+AC_SUBST([UDUNITS_EXCLUDE])
 
 dnl process the other optional command line arguments
 AX_HDF5_HOME([])

@@ -60,6 +60,9 @@ bool PrintFileContentsBase::isPrintable( ClassValues * c , FieldDescription * fd
     if ( !(fdes->getIO() & ioMask) || !fdes->getTypeName().compare("void") || !fdes->getEnumString().compare("TRICK_VOID")) {
         return false;
     }
+    if ( fdes->isSTL() and fdes->getNumDims() ) {
+        return false;
+    }
     if ( fdes->getAccess() == clang::AS_public || (!fdes->isStatic() && !global_compat15 && !c->isCompat15())) {
         return true;
     }

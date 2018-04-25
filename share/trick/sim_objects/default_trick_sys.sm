@@ -47,6 +47,7 @@ a replacement SimObject will create an uncompilable sim.
 ##include "trick/MessagePublisher.hh"
 ##include "trick/MessageSubscriber.hh"
 ##include "trick/MessageCout.hh"
+##include "trick/MessageThreadedCout.hh"
 ##include "trick/MessageLCout.hh"
 ##include "trick/MessageFile.hh"
 ##include "trick/MessageTCDevice.hh"
@@ -266,6 +267,7 @@ class MessageSimObject : public Trick::SimObject {
     public:
         Trick::MessagePublisher mpublisher ;
         Trick::MessageCout mcout ;
+        Trick::MessageThreadedCout mtcout ;
         Trick::MessageFile mfile ;
         Trick::MessageTCDevice mdevice ;
         Trick::PlaybackFile pfile ;
@@ -273,11 +275,13 @@ class MessageSimObject : public Trick::SimObject {
         MessageSimObject() {
 
             {TRK} ("default_data") mpublisher.subscribe(&mcout) ;
+            //{TRK} ("default_data") mpublisher.subscribe(&mtcout) ;
             {TRK} ("default_data") mpublisher.subscribe(&mfile) ;
             {TRK} ("default_data") mpublisher.subscribe(&mdevice) ;
             {TRK} ("default_data") mpublisher.subscribe(&pfile) ;
             {TRK} ("default_data") mdevice.default_data() ;
             {TRK} P1 ("initialization") mpublisher.init() ;
+            //{TRK} P1 ("initialization") mtcout.init() ;
             {TRK} P1 ("initialization") mfile.init() ;
             {TRK} P1 ("initialization") pfile.init() ;
             {TRK} P1 ("initialization") mdevice.init() ;
@@ -287,6 +291,7 @@ class MessageSimObject : public Trick::SimObject {
 #ifndef TRICK_NO_DMTCP
             {TRK} P1 ("dmtcp_restart") mdevice.restart() ;
 #endif
+            {TRK} ("shutdown") mtcout.shutdown() ;
             {TRK} ("shutdown") mdevice.shutdown() ;
 
         }
@@ -583,7 +588,7 @@ class FrameLogSimObject : public Trick::SimObject {
 
         Trick::FrameLog frame_log ;
 
-        FrameLogSimObject() {
+        FrameLogSimObject(Trick::Clock &in_clock) : frame_log(in_clock) {
             // Frame log Instrumentation class jobs.  Not scheduled by default
             {TRK} P0 ("instrumentation") frame_log.frame_clock_start(curr_job) ;
             {TRK} P65535 ("instrumentation") frame_log.frame_clock_stop(curr_job) ;
@@ -601,9 +606,13 @@ class FrameLogSimObject : public Trick::SimObject {
             // the frame_log and rt_sync shutdown jobs should be last in sim
             {TRK} P65535 ("shutdown") frame_log.shutdown() ;
         }
+
+    private:
+        // This object is not copyable
+        void operator =(const FrameLogSimObject &) {};
 }
 
-FrameLogSimObject trick_frame_log ;
+FrameLogSimObject trick_frame_log(trick_real_time.gtod_clock) ;
 #endif
 
 #ifndef TRICK_NO_MASTERSLAVE

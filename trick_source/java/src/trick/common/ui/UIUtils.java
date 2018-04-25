@@ -748,11 +748,11 @@ public class UIUtils {
     	ImageIcon imgIcon = null;
     	
     	// if the fileName is a full path
-    	if (fileName.indexOf(System.getProperty("file.separator")) != -1) {
+    	if (fileName.indexOf(java.io.File.separator) != -1) {
     		imgIcon = new ImageIcon(fileName);
     	} else {
     		// if only a file name specified, try to find it at common resources folder
-    		URL imgURL = TrickApplication.class.getResource("resources" + System.getProperty("file.separator") + fileName);
+    		URL imgURL = TrickApplication.class.getResource("resources" + java.io.File.separator + fileName);
     		if (imgURL != null) {
     			imgIcon = new ImageIcon(imgURL);
     		} 
@@ -778,11 +778,11 @@ public class UIUtils {
     	try {		
     		InputStream ins = null;
     		// if the fileName is a full path
-    		if (fileName.indexOf(System.getProperty("file.separator")) != -1) {
+    		if (fileName.indexOf(java.io.File.separator) != -1) {
     			ins = new FileInputStream(fileName);
     		} else {
     		// if only a file name, then find it at common resources area
-    			ins = TrickApplication.class.getResourceAsStream("resources" + System.getProperty("file.separator") + fileName);
+    			ins = TrickApplication.class.getResourceAsStream("resources" + java.io.File.separator + fileName);
     		}
     		return ins;
 		} catch (NullPointerException npe) {

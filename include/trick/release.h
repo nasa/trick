@@ -1,8 +1,7 @@
 /*
 PURPOSE:
     (This header file defines the "RELEASE()" macro for supported platforms.
-     The release function should yield the processor from the processes that
-     makes the call. This allows the UNIX schedular to arbitrate process
+     The release function should yield the processor from the processes that makes the call. This allows the UNIX schedular to arbitrate process
      priorities during spinloops based on the status of processes waiting
      to run)
 PROGRAMMER:

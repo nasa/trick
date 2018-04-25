@@ -1,3 +1,5 @@
+TRICK_HOME := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))../../..)
+
 # set CONFIG_MK to allow compilation without running configure
 CONFIG_MK = 1
 

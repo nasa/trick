@@ -9,6 +9,7 @@
 #include "trick/wave_form.h"
 #include "trick/reference_frame.h"
 #include "trick/rand_generator.h"
+#include "trick/RodriguesRotation.h"
 
 #ifdef __cplusplus
 extern "C" {

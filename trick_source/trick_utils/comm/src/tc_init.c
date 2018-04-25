@@ -3,6 +3,8 @@
  * Set up a device on which to listen for connections
  */
 #include <fcntl.h>
+#include <string.h>
+#include <errno.h>
 
 #ifndef __WIN32__
 #include <netinet/tcp.h>
@@ -61,7 +63,7 @@ int tc_init_with_connection_info( TCDevice * listen_device,
     if (listen_socket == TRICKCOMM_INVALID_SOCKET) {
         trick_error_report(listen_device->error_handler,
                            TRICK_ERROR_ALERT, __FILE__, __LINE__,
-                           "could not open socket on port %d\n", (listen_device->port));
+                           "could not open socket on port %d: %s\n", listen_device->port, strerror(errno));
         return (TC_COULD_NOT_OPEN_SOCKET);
     }
 
@@ -105,7 +107,7 @@ int tc_init_with_connection_info( TCDevice * listen_device,
     if (bind(listen_socket, (struct sockaddr *)&s_in, sizeof(s_in)) < 0) {
         trick_error_report(listen_device->error_handler,
                            TRICK_ERROR_ADVISORY, __FILE__, __LINE__,
-                           "could not bind socket for port %d\n", (listen_device->port));
+                           "could not bind socket for port %d: %s\n", listen_device->port, strerror(errno));
         return (TC_COULD_NOT_BIND_SOCKET);
     }
 
@@ -122,7 +124,7 @@ int tc_init_with_connection_info( TCDevice * listen_device,
             /* listen can get EADDRINUSE when server & client are same machine */
             trick_error_report(listen_device->error_handler,
                                TRICK_ERROR_ADVISORY, __FILE__, __LINE__,
-                               "could not listen on port %d\n", (listen_device->port));
+                               "could not listen on port %d: %s\n", listen_device->port, strerror(errno));
             return (TC_COULD_NOT_LISTEN_SOCKET);
         }
     }

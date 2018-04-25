@@ -25,6 +25,7 @@
 #include "trick/MSSharedMem.hh"
 #include "trick/MemoryManager.hh"
 #include "trick/MessageCout.hh"
+#include "trick/MessageThreadedCout.hh"
 #include "trick/MessageFile.hh"
 #include "trick/MessageLCout.hh"
 #include "trick/MessagePublisher.hh"
@@ -90,5 +91,6 @@
 #include "trick/Flag.h"
 #include "trick/wave_form.h"
 #include "trick/rand_generator.h"
+#include "trick/units_conv.h"
 
 #endif

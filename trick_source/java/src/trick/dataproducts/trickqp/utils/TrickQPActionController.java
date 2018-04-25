@@ -351,7 +351,7 @@ public class TrickQPActionController {
 
             for (int i = 0; i < selectedVars.length; i++) {
                 LogVar varFrom = (LogVar)selectedVars[i];
-                if (varFrom.getName().matches("-(?!>)")) {
+                if ((varFrom.getName().indexOf('-') != -1) || (varFrom.getName().matches("-(?!>)"))) {
                     List<String> vars = get_components_from_array(varFrom.getName()); // expand variable
                     if ( (selectedTreeNodes!=null) && (selectedTreeNodes.size()>0)
                             && (((CommonTreeNode)selectedTreeNodes.get(0)).getNodeType()!=CommonTreeNode.PLOTS_NODE) ) {

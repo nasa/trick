@@ -452,9 +452,9 @@ param: NAME {
                    $$.num_index_left--;
                }
 
-               /* Check to see if previous parameter specified enough dimensions. */
-               if ($$.num_index != $$.attr->num_index) {
-                   message_publish(MSG_ERROR, "Checkpoint Agent - input_parser ERROR.\n");
+               /* Check to see if previous parameter specified too many dimensions. */
+               if ($$.num_index > $$.attr->num_index) {
+                   message_publish(MSG_ERROR, "Checkpoint Agent ERROR. Invalid Reference: \"%s->%s\".\n", $$.reference, $3);
                    $$.ref_type = REF_INVALID;
                }
 
