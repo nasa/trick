@@ -22,6 +22,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QDate>
+#include <QSettings>
 
 #include "monte.h"
 #include "dp.h"
@@ -65,6 +66,10 @@ public:
 
     ~PlotMainWindow();
 
+protected:
+     virtual void closeEvent(QCloseEvent *event);
+
+
 private:
     bool _isDebug;
     QStringList _timeNames;
@@ -103,6 +108,9 @@ private:
 
     bool _isRUN(const QString& fp);
     bool _isMONTE(const QString& fp);
+
+    void _readSettings();
+    void _writeSettings();
 
 private slots:
      void _nbCurrentChanged(int i);

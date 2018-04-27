@@ -213,7 +213,9 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
     msplit->setSizes(sizes);
     msplit->setStretchFactor(0,0);
     msplit->setStretchFactor(1,1);
-    resize(1300,720);
+
+    // Read "INI" (may resize window)
+    _readSettings();
 }
 
 PlotMainWindow::~PlotMainWindow()
@@ -864,4 +866,31 @@ void PlotMainWindow::_monteInputsViewCurrentChanged(const QModelIndex &currIdx,
         int runID = _monteInputsView->model()->data(runIDIdx).toInt();
         _bookView->setCurrentCurveRunID(runID);
     }
+}
+
+void PlotMainWindow::_writeSettings()
+{
+    QSettings settings("JSC", "koviz");
+
+    settings.beginGroup("PlotMainWindow");
+    settings.setValue("size", size());
+    settings.setValue("pos", pos());
+    settings.endGroup();
+}
+
+// On linux the settings file is in ~/.config/JSC/koviz.conf
+void PlotMainWindow::_readSettings()
+{
+    QSettings settings("JSC", "koviz");
+
+    settings.beginGroup("PlotMainWindow");
+    resize(settings.value("size", QSize(1300, 720)).toSize());
+    move(settings.value("pos", QPoint(200, 200)).toPoint());
+    settings.endGroup();
+}
+
+void PlotMainWindow::closeEvent(QCloseEvent *event)
+{
+    _writeSettings();
+    event->accept();
 }
