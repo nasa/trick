@@ -11,7 +11,9 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QProgressDialog>
+#include <QApplication>
 #include <float.h>
+#include <stdlib.h>
 #include "dp.h"
 #include "bookmodel.h"
 #include "monteinputsview.h"
@@ -54,6 +56,7 @@ private:
 
     QModelIndex _findSinglePlotPageWithCurve(const QString& curveYName);
     QStandardItem* _createPageItem();
+    void _addCurves(QModelIndex curvesIdx, const QString& yName);
     QStandardItem* _addChild(QStandardItem* parentItem,
                    const QString& childTitle,
                    const QVariant &childValue=QVariant());

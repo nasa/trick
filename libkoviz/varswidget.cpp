@@ -45,9 +45,9 @@ VarsWidget::VarsWidget(const QString &timeName,
     _listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     _listView->setFocusPolicy(Qt::ClickFocus);
     connect(_varsSelectModel,
-            SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this,
-            SLOT(_varsSelectModelSelectionChanged(QItemSelection,QItemSelection)));
+         SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+         this,
+         SLOT(_varsSelectModelSelectionChanged(QItemSelection,QItemSelection)));
 }
 
 VarsWidget::~VarsWidget()
@@ -69,49 +69,68 @@ void VarsWidget::_varsSelectModelSelectionChanged(
 
     if ( currVarSelection.size() == 0 ) return;
 
-    QModelIndex pageIdx; // for new or selected qp page
     QModelIndexList selIdxs = _varsSelectModel->selection().indexes();
 
-    if ( selIdxs.size() == 1 ) { // Single selection
-
-        QString yName = _varsFilterModel->data(selIdxs.at(0)).toString();
-        pageIdx = _findSinglePlotPageWithCurve(yName) ;
-
-        if ( ! pageIdx.isValid() ) {
-            // No page with single plot of selected var, so create plot of var
-            QStandardItem* pageItem = _createPageItem();
-            _addPlotToPage(pageItem,currVarSelection.indexes().at(0));
-            pageIdx = _plotModel->indexFromItem(pageItem);
-            _plotSelectModel->setCurrentIndex(pageIdx,
-                                              QItemSelectionModel::Current);
-            //_selectCurrentRunOnPageItem(pageItem);
-        } else {
-            _plotSelectModel->setCurrentIndex(pageIdx,
-                                              QItemSelectionModel::NoUpdate);
-        }
-
-    } else {  // Multiple items selected (make pages of 6 plots per page)
-        QModelIndex currIdx = _plotSelectModel->currentIndex();
-        QModelIndex pageIdx;
-        if ( !currIdx.isValid() ) {
-            QStandardItem* pageItem = _createPageItem();
-            pageIdx = _plotModel->indexFromItem(pageItem);
-        } else {
-            pageIdx = _plotModel->getIndex(currIdx, "Page");
-        }
-        QStandardItem* pageItem = _plotModel->itemFromIndex(pageIdx);
+    QModelIndex currIdx = _plotSelectModel->currentIndex();
+    Qt::KeyboardModifiers keymods = QApplication::keyboardModifiers();
+    if ( keymods & Qt::AltModifier && currIdx.isValid() ) {
+        // Add variable to last plot on current page
+        QModelIndex pageIdx = _plotModel->getIndex(currIdx, "Page");
+        QModelIndex plotsIdx = _plotModel->getIndex(pageIdx,"Plots","Page");
+        int nplots = _plotModel->rowCount(plotsIdx);
+        QModelIndex plotIdx = _plotModel->index(nplots-1,0,plotsIdx);
+        QModelIndex curvesIdx = _plotModel->getIndex(plotIdx,
+                                                     "Curves", "Plot");
         QModelIndexList currVarIdxs = currVarSelection.indexes();
-        while ( ! currVarIdxs.isEmpty() ) {
-            QModelIndex varIdx = currVarIdxs.takeFirst();
-            int nPlots = _plotModel->plotIdxs(pageIdx).size();
-            if ( nPlots == 6 ) {
-                pageItem = _createPageItem();
+        foreach (QModelIndex varIdx, currVarIdxs) {
+            QString yName = _varsFilterModel->data(varIdx).toString();
+            _addCurves(curvesIdx,yName);
+        }
+    } else {
+
+        // Add variable to a new plot
+        QModelIndex pageIdx; // for new or selected qp page
+
+        if ( selIdxs.size() == 1 ) { // Single selection
+
+            QString yName = _varsFilterModel->data(selIdxs.at(0)).toString();
+            pageIdx = _findSinglePlotPageWithCurve(yName) ;
+
+            if ( ! pageIdx.isValid() ) {
+                // No page w/ single plot of selected var,so create plot of var
+                QStandardItem* pageItem = _createPageItem();
+                _addPlotToPage(pageItem,currVarSelection.indexes().at(0));
                 pageIdx = _plotModel->indexFromItem(pageItem);
+                _plotSelectModel->setCurrentIndex(pageIdx,
+                                                  QItemSelectionModel::Current);
+                //_selectCurrentRunOnPageItem(pageItem);
+            } else {
+                _plotSelectModel->setCurrentIndex(pageIdx,
+                                                 QItemSelectionModel::NoUpdate);
             }
-            _addPlotToPage(pageItem,varIdx);
-            _plotSelectModel->setCurrentIndex(pageIdx,
-                                              QItemSelectionModel::Current);
-            //_selectCurrentRunOnPageItem(pageItem);
+
+        } else {  // Multiple items selected (make pages of 6 plots per page)
+            QModelIndex currIdx = _plotSelectModel->currentIndex();
+            if ( !currIdx.isValid() ) {
+                QStandardItem* pageItem = _createPageItem();
+                pageIdx = _plotModel->indexFromItem(pageItem);
+            } else {
+                pageIdx = _plotModel->getIndex(currIdx, "Page");
+            }
+            QStandardItem* pageItem = _plotModel->itemFromIndex(pageIdx);
+            QModelIndexList currVarIdxs = currVarSelection.indexes();
+            while ( ! currVarIdxs.isEmpty() ) {
+                QModelIndex varIdx = currVarIdxs.takeFirst();
+                int nPlots = _plotModel->plotIdxs(pageIdx).size();
+                if ( nPlots == 6 ) {
+                    pageItem = _createPageItem();
+                    pageIdx = _plotModel->indexFromItem(pageItem);
+                }
+                _addPlotToPage(pageItem,varIdx);
+                _plotSelectModel->setCurrentIndex(pageIdx,
+                                                  QItemSelectionModel::Current);
+                //_selectCurrentRunOnPageItem(pageItem);
+            }
         }
     }
 }
@@ -185,14 +204,10 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
                                 const QModelIndex &varIdx)
 {
     QModelIndex pageIdx = _plotModel->indexFromItem(pageItem);
-    QModelIndex pagesIdx = _plotModel->parent(pageIdx);
-    QModelIndex page0Idx = _plotModel->index(0,0,pagesIdx);
     QModelIndex plotsIdx = _plotModel->getIndex(pageIdx, "Plots", "Page");
     QStandardItem* plotsItem = _plotModel->itemFromIndex(plotsIdx);
-    QModelIndexList siblingPlotIdxs = _plotModel->plotIdxs(page0Idx);
     QStandardItem* plotItem = _addChild(plotsItem, "Plot");
 
-    QString xName(_timeName);
     QString yName = _varsFilterModel->data(varIdx).toString();
 
     int plotId = plotItem->row();
@@ -217,136 +232,12 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
     } else {
         _addChild(plotItem, "PlotPresentation", "compare");
     }
-    _addChild(plotItem, "PlotXAxisLabel", xName);
+    _addChild(plotItem, "PlotXAxisLabel", _timeName);
     _addChild(plotItem, "PlotYAxisLabel", yName);
 
     QStandardItem *curvesItem = _addChild(plotItem,"Curves");
-
-    // Setup progress bar dialog for time intensive loads
-    QProgressDialog progress("Loading curves...", "Abort", 0, rc, this);
-    progress.setWindowModality(Qt::WindowModal);
-    progress.setMinimumDuration(500);
-
-#ifdef __linux
-    TimeItLinux timer;
-    timer.start();
-#endif
-
-    // Turn off model signals when adding children for significant speedup
-    bool block = _plotModel->blockSignals(true);
-
-    QList<QColor> colors = _plotModel->createCurveColors(rc);
-
-    QHash<int,QString> run2color;
-    for ( int r = 0; r < rc; ++r ) {
-        QModelIndex runIdx = _monteInputsView->model()->index(r,0);
-        int runId = _monteInputsView->model()->data(runIdx).toInt();
-        run2color.insert(runId, colors.at(r).name());
-    }
-
-    for ( int r = 0; r < rc; ++r) {
-
-        // Update progress dialog
-        progress.setValue(r);
-        if (progress.wasCanceled()) {
-            break;
-        }
-
-        //
-        // Create curves
-        //
-        CurveModel* curveModel = _plotModel->createCurve(r,_timeName,
-                                                         xName,yName);
-        if ( !curveModel ) {
-            // This should not happen
-            // It could be ignored but I'll exit(-1) because I think
-            // if this happens it's a programming error, not a user error
-            fprintf(stderr, "koviz [bad scoobs]: varswidget.cpp\n"
-                            "curve(%d,%s,%s,%s) failed.  Aborting!!!\n",
-                    r,
-                    _timeName.toLatin1().constData(),
-                    xName.toLatin1().constData(),
-                    yName.toLatin1().constData());
-            exit(-1);
-        }
-
-
-        QStandardItem *curveItem = _addChild(curvesItem,"Curve");
-
-        _addChild(curveItem, "CurveTimeName", _timeName);
-        _addChild(curveItem, "CurveTimeUnit", curveModel->t()->unit());
-        _addChild(curveItem, "CurveXName", xName);
-        _addChild(curveItem, "CurveXUnit", curveModel->t()->unit()); // yes,t
-        _addChild(curveItem, "CurveYName", yName);
-        _addChild(curveItem, "CurveYUnit", curveModel->y()->unit());
-        QString runDirName = QFileInfo(curveModel->fileName()).dir().dirName();
-        bool ok;
-        int runId = runDirName.mid(4).toInt(&ok);
-        if ( !ok ) {
-            runId = r;
-        }
-        _addChild(curveItem, "CurveRunID", runId);
-        _addChild(curveItem, "CurveXScale", 1.0);
-        QHash<QString,QVariant> shifts = _plotModel->getDataHash(QModelIndex(),
-                                                              "RunToShiftHash");
-        QString curveRunDir = QFileInfo(curveModel->fileName()).absolutePath();
-        if ( shifts.contains(curveRunDir) ) {
-            double shiftVal = shifts.value(curveRunDir).toDouble();
-            _addChild(curveItem, "CurveXBias", shiftVal);
-        } else {
-            _addChild(curveItem, "CurveXBias", 0.0);
-        }
-        _addChild(curveItem, "CurveYScale", 1.0);
-        _addChild(curveItem, "CurveYBias", 0.0);
-        _addChild(curveItem, "CurveColor", run2color.value(runId));
-        _addChild(curveItem, "CurveSymbolStyle", "");
-        _addChild(curveItem, "CurveSymbolSize", "");
-        _addChild(curveItem, "CurveLineStyle", "");
-        _addChild(curveItem, "CurveYLabel", "");
-        _addChild(curveItem, "CurveXMinRange", -DBL_MAX);
-        _addChild(curveItem, "CurveXMaxRange",  DBL_MAX);
-        _addChild(curveItem, "CurveYMinRange", -DBL_MAX);
-        _addChild(curveItem, "CurveYMaxRange",  DBL_MAX);
-
-
-        // Add actual curve model data
-        QVariant v = PtrToQVariant<CurveModel>::convert(curveModel);
-        _addChild(curveItem, "CurveData", v);
-
-#ifdef __linux
-        int secs = qRound(timer.stop()/1000000.0);
-        div_t d = div(secs,60);
-        QString msg = QString("Loaded %1 of %2 curves (%3 min %4 sec)")
-                             .arg(r+1).arg(rc).arg(d.quot).arg(d.rem);
-        progress.setLabelText(msg);
-#endif
-    }
-
-    // Turn signals back on before adding curveModel
-    _plotModel->blockSignals(block);
-
-    // Update progress dialog
-    progress.setValue(rc);
-
-    // Initialize plot math rect
-    QModelIndex curvesIdx = curvesItem->index();
-    QRectF bbox = _plotModel->calcCurvesBBox(curvesIdx);
-    QModelIndex plotIdx = plotItem->index();
-    QModelIndex plotMathRectIdx = _plotModel->getDataIndex(plotIdx,
-                                                           "PlotMathRect",
-                                                           "Plot");
-    foreach ( QModelIndex siblingPlotIdx, siblingPlotIdxs ) {
-        bool isXTime = _plotModel->isXTime(siblingPlotIdx);
-        if ( isXTime ) {
-            QRectF sibPlotRect = _plotModel->getPlotMathRect(siblingPlotIdx);
-            if ( sibPlotRect.width() > 0 ) {
-                bbox.setLeft(sibPlotRect.left());
-                bbox.setRight(sibPlotRect.right());
-            }
-            break;
-        }
-    }
-    _plotModel->setData(plotMathRectIdx,bbox);
+    QModelIndex curvesIdx = _plotModel->indexFromItem(curvesItem);
+    _addCurves(curvesIdx,yName);
 
     // Reset monte carlo input view current idx to signal current changed
     int currRunId = -1;
@@ -399,4 +290,158 @@ void VarsWidget::_selectCurrentRunOnPageItem(QStandardItem* pageItem)
             }
         }
     }
+}
+
+void VarsWidget::_addCurves(QModelIndex curvesIdx, const QString &yName)
+{
+    // Turn off model signals when adding children for significant speedup
+    bool block = _plotModel->blockSignals(true);
+
+    int rc = _runDirs.count();
+    QList<QColor> colors = _plotModel->createCurveColors(rc);
+
+    QHash<int,QString> run2color;
+    for ( int r = 0; r < rc; ++r ) {
+        QModelIndex runIdx = _monteInputsView->model()->index(r,0);
+        int runId = _monteInputsView->model()->data(runIdx).toInt();
+        run2color.insert(runId, colors.at(r).name());
+    }
+
+    // Setup progress bar dialog for time intensive loads
+    QProgressDialog progress("Loading curves...", "Abort", 0, rc, this);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.setMinimumDuration(500);
+
+#ifdef __linux
+    TimeItLinux timer;
+    timer.start();
+#endif
+
+    for ( int r = 0; r < rc; ++r) {
+
+        // Update progress dialog
+        progress.setValue(r);
+        if (progress.wasCanceled()) {
+            break;
+        }
+
+        //
+        // Create curves
+        //
+        CurveModel* curveModel = _plotModel->createCurve(r,_timeName,
+                                                         _timeName,yName);
+        if ( !curveModel ) {
+            // This should not happen
+            // It could be ignored but I'll exit(-1) because I think
+            // if this happens it's a programming error, not a user error
+            fprintf(stderr, "koviz [bad scoobs]: varswidget.cpp\n"
+                            "curve(%d,%s,%s,%s) failed.  Aborting!!!\n",
+                    r,
+                    _timeName.toLatin1().constData(),
+                    _timeName.toLatin1().constData(),
+                    yName.toLatin1().constData());
+            exit(-1);
+        }
+
+
+        QStandardItem* curvesItem = _plotModel->itemFromIndex(curvesIdx);
+
+        QStandardItem *curveItem = _addChild(curvesItem,"Curve");
+
+        _addChild(curveItem, "CurveTimeName", _timeName);
+        _addChild(curveItem, "CurveTimeUnit", curveModel->t()->unit());
+        _addChild(curveItem, "CurveXName", _timeName);
+        _addChild(curveItem, "CurveXUnit", curveModel->t()->unit()); // yes,t
+        _addChild(curveItem, "CurveYName", yName);
+        _addChild(curveItem, "CurveYUnit", curveModel->y()->unit());
+        QString runDirName = QFileInfo(curveModel->fileName()).dir().dirName();
+        bool ok;
+        int runId = runDirName.mid(4).toInt(&ok);
+        if ( !ok ) {
+            runId = r;
+        }
+        _addChild(curveItem, "CurveRunID", runId);
+        _addChild(curveItem, "CurveXScale", 1.0);
+        QHash<QString,QVariant> shifts = _plotModel->getDataHash(QModelIndex(),
+                                                              "RunToShiftHash");
+        QString curveRunDir = QFileInfo(curveModel->fileName()).absolutePath();
+        if ( shifts.contains(curveRunDir) ) {
+            double shiftVal = shifts.value(curveRunDir).toDouble();
+            _addChild(curveItem, "CurveXBias", shiftVal);
+        } else {
+            _addChild(curveItem, "CurveXBias", 0.0);
+        }
+        _addChild(curveItem, "CurveYScale", 1.0);
+        _addChild(curveItem, "CurveYBias", 0.0);
+
+        // Curve color and linestyle
+        int nCurves = _plotModel->rowCount(curvesIdx);
+        if ( rc == 1 ) {
+            // Color each variable differently
+            QList<QColor> curveColors = _plotModel->createCurveColors(nCurves);
+            _addChild(curveItem, "CurveColor", curveColors.at(nCurves-1));
+            _addChild(curveItem, "CurveLineStyle", "plain");
+        } else {
+            // Color RUNs the same and style each variable differently
+            _addChild(curveItem, "CurveColor", run2color.value(runId));
+            div_t q = div(nCurves-1,rc);
+            QStringList styles = _plotModel->lineStyles();
+            QString style = styles.at((q.quot)%(styles.size()));
+            _addChild(curveItem, "CurveLineStyle", style);
+        }
+
+        _addChild(curveItem, "CurveSymbolStyle", "");
+        _addChild(curveItem, "CurveSymbolSize", "");
+        _addChild(curveItem, "CurveYLabel", "");
+        _addChild(curveItem, "CurveXMinRange", -DBL_MAX);
+        _addChild(curveItem, "CurveXMaxRange",  DBL_MAX);
+        _addChild(curveItem, "CurveYMinRange", -DBL_MAX);
+        _addChild(curveItem, "CurveYMaxRange",  DBL_MAX);
+
+        // Add actual curve model data
+        if ( r == rc-1) {
+            // Turn signals on for last curve for pixmap update
+            _plotModel->blockSignals(false);
+        }
+        QVariant v = PtrToQVariant<CurveModel>::convert(curveModel);
+        _addChild(curveItem, "CurveData", v);
+        if ( r == rc-1) {
+            _plotModel->blockSignals(true);
+        }
+
+#ifdef __linux
+        int secs = qRound(timer.stop()/1000000.0);
+        div_t d = div(secs,60);
+        QString msg = QString("Loaded %1 of %2 curves (%3 min %4 sec)")
+                             .arg(r+1).arg(rc).arg(d.quot).arg(d.rem);
+        progress.setLabelText(msg);
+#endif
+    }
+
+    // Turn signals back on before adding curveModel
+    _plotModel->blockSignals(block);
+
+    // Update progress dialog
+    progress.setValue(rc);
+
+    // Initialize plot math rect
+    QRectF bbox = _plotModel->calcCurvesBBox(curvesIdx);
+    QModelIndex plotIdx = curvesIdx.parent();
+    QModelIndex pageIdx = plotIdx.parent().parent();
+    QModelIndex plotMathRectIdx = _plotModel->getDataIndex(plotIdx,
+                                                           "PlotMathRect",
+                                                           "Plot");
+    QModelIndexList siblingPlotIdxs = _plotModel->plotIdxs(pageIdx);
+    foreach ( QModelIndex siblingPlotIdx, siblingPlotIdxs ) {
+        bool isXTime = _plotModel->isXTime(siblingPlotIdx);
+        if ( isXTime ) {
+            QRectF sibPlotRect = _plotModel->getPlotMathRect(siblingPlotIdx);
+            if ( sibPlotRect.width() > 0 ) {
+                bbox.setLeft(sibPlotRect.left());
+                bbox.setRight(sibPlotRect.right());
+            }
+            break;
+        }
+    }
+    _plotModel->setData(plotMathRectIdx,bbox);
 }

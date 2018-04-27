@@ -569,6 +569,17 @@ QVector<qreal> PlotBookModel::getLineStylePattern(
     return pattern;
 }
 
+QStringList PlotBookModel::lineStyles() const
+{
+    QStringList styles;
+
+    styles << "plain" << "dash" << "fine_dash" << "med_fine_dash"
+           << "long_dash" << "x_long_dash" << "dot_dash"
+           << "2_dot_dash" << "3_dot_dash" << "4_dot_dash";
+
+    return styles;
+}
+
 CurveModel *PlotBookModel::createCurve(int row,
                                        const QString &tName,
                                        const QString &xName,

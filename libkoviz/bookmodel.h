@@ -70,6 +70,8 @@ public:
     // Convenience for getting QPen line style (see Qt doc)
     QVector<qreal> getLineStylePattern(const QModelIndex& curveIdx) const;
 
+    QStringList lineStyles() const;
+
     CurveModel* createCurve(int row, const QString& tName,
                             const QString& xName, const QString& yName);
     CurveModel* getCurveModel(const QModelIndex& curvesIdx, int i) const;

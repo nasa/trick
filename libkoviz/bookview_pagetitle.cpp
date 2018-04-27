@@ -65,6 +65,9 @@ void PageTitleView::dataChanged(const QModelIndex &topLeft,
         viewport()->update();
     } else if ( tag == "CurveColor") {
         viewport()->update();
+    } else if ( tag == "CurveData") {
+        viewport()->update();
+        updateGeometry();
     }
 }
 

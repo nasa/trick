@@ -1073,6 +1073,11 @@ void CurvesView::dataChanged(const QModelIndex &topLeft,
                 delete _pixmap;
             }
             _pixmap = _createLivePixmap();
+        } else if ( tag == "CurveData") {
+            if ( _pixmap ) {
+                delete _pixmap;
+            }
+            _pixmap = _createLivePixmap();
         }
     }
 
@@ -1121,19 +1126,19 @@ void CurvesView::rowsInserted(const QModelIndex &pidx, int start, int end)
 {
     if ( pidx.parent().parent() != rootIndex() ) return; // not my plot
 
-    for ( int i = start; i <= end; ++i ) {
-        QModelIndex curveIdx = model()->index(i,0,pidx);
-        QModelIndex curveDataIdx = model()->index(i,1,pidx);
-        QString name = model()->data(curveIdx).toString();
-        if ( name == "CurveData" ) {
-            QVariant v = model()->data(curveDataIdx);
-            CurveModel* curveModel = QVariantToPtr<CurveModel>::convert(v);
-            if ( curveModel ) {
-                //_setPlotMathRect(_currBBox);
+        for ( int i = start; i <= end; ++i ) {
+            QModelIndex curveIdx = model()->index(i,0,pidx);
+            QModelIndex curveDataIdx = model()->index(i,1,pidx);
+            QString name = model()->data(curveIdx).toString();
+            if ( name == "CurveData" ) {
+                QVariant v = model()->data(curveDataIdx);
+                CurveModel* curveModel = QVariantToPtr<CurveModel>::convert(v);
+                if ( curveModel ) {
+                    //_setPlotMathRect(_currBBox);
+                }
+                break;
             }
-            break;
         }
-    }
 }
 
 QPainterPath CurvesView::_sinPath()

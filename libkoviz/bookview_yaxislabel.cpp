@@ -57,7 +57,7 @@ void YAxisLabelView::dataChanged(const QModelIndex &topLeft,
     if ( topLeft != bottomRight ) return; // TODO: support multiple changes
     QModelIndex tagIdx = model()->index(topLeft.row(),0,topLeft.parent());
     QString tag = model()->data(tagIdx).toString();
-    if ( tag == "PlotYAxisLabel" || tag == "CurveYUnit" ) {
+    if ( tag == "PlotYAxisLabel" || tag == "CurveYUnit" || tag == "CurveData") {
 
         QString label;
         if ( _bookModel()->isChildIndex(rootIndex(),"Plot","PlotYAxisLabel")) {
