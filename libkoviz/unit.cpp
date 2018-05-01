@@ -170,7 +170,7 @@ QString Unit::next(const QString &unit)
             units << pair.second;
         }
     }
-    units.sort();
+    units = _sortUnits(units);
 
     for ( int i = 0; i < units.size(); ++i ) {
         if ( units.at(i) == unit ) {
@@ -204,7 +204,7 @@ QString Unit::prev(const QString &unit)
             units << pair.second;
         }
     }
-    units.sort();
+    units = _sortUnits(units);
 
     for ( int i = 0; i < units.size(); ++i ) {
         if ( units.at(i) == unit ) {
@@ -393,6 +393,29 @@ QString Unit::_family(const QString &name)
     }
 
     return family;
+}
+
+QStringList Unit::_sortUnits(const QStringList &unitsIn)
+{
+    QStringList units = unitsIn;
+
+    units.sort();
+
+    if ( units.contains("m") ) {
+        units.clear();
+        units << "m"  << "cm" << "mm" << "km"
+              << "ft" << "in" << "yd" << "mi" << "kft"
+              << "nm";
+    } else if ( units.contains("m/s") ) {
+        units.clear();
+        units << "m/s" << "cm/s" << "mm/s" << "kmh"
+              << "ft/s" << "in/s" << "mph" ;
+    } else if ( units.contains("m/s2") ) {
+        units.clear();
+        units << "m/s2" << "cm/s2" << "mm/s2" << "ft/s2" << "in/s2";
+    }
+
+    return units;
 }
 
 /*

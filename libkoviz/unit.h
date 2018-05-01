@@ -38,6 +38,7 @@ class Unit {
     static QHash<QPair<QString,QString>,double> _initScales();
     static QHash<QPair<QString,QString>,double> _initBiases();
     static QString _family(const QString& name);
+    static QStringList _sortUnits(const QStringList& unitsIn);
 
 };
 #endif
