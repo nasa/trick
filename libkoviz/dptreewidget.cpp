@@ -154,7 +154,7 @@ void DPTreeWidget::_setupModel()
             _dir->cdUp();
             QString path2 = QDir::cleanPath(_dir->absolutePath());
             if ( path1 == path2 ) {
-                // Since cdUP returned same path, assume path1==path2=="/" (root)
+                // Since cdUP returned same path, assume path1==path2=="/"(root)
                 break;
             }
         }
@@ -177,7 +177,7 @@ void DPTreeWidget::_setupModel()
             _dir->cdUp();
             QString path2 = QDir::cleanPath(_dir->absolutePath());
             if ( path1 == path2 ) {
-                // Since cdUP returned same path, assume path1==path2=="/" (root)
+                // Since cdUP returned same path, assume path1==path2=="/"(root)
                 break;
             }
         }
@@ -347,24 +347,25 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
 
             // Curves
             QStandardItem *curvesItem = _addChild(plotItem,"Curves");
-            int nColors = plot->curves().size()*rc;
-            QList<QColor> colors = _bookModel->createCurveColors(nColors);
-
-            QHash<int,QString> run2color;
-            for ( int r = 0; r < rc; ++r ) {
-                QModelIndex runIdx = _monteInputsView->model()->index(r,0);
-                int runId = _monteInputsView->model()->data(runIdx).toInt();
-                run2color.insert(runId, colors.at(r).name());
+            QList<QColor> colors;
+            if ( rc == 1 ) {
+                int nCurves = plot->curves().size();
+                colors = _bookModel->createCurveColors(nCurves);
+            } else {
+                colors = _bookModel->createCurveColors(rc);
             }
+
+            QStringList styles = _bookModel->lineStyles();
 
             // Turn off model signals when adding children for speedup
             bool block = _bookModel->blockSignals(true);
 
-            int colorId = 0;
+            int i = 0;
             foreach (DPCurve* dpcurve, plot->curves() ) {
 
                 // Setup progress bar dialog for time intensive loads
-                QProgressDialog progress("Loading curves...", "Abort", 0, rc, this);
+                QProgressDialog progress("Loading curves...", "Abort",
+                                         0, rc, this);
                 progress.setWindowModality(Qt::WindowModal);
                 progress.setMinimumDuration(500);
 
@@ -372,14 +373,21 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                 TimeItLinux timer;
                 timer.start();
 #endif
+
+                QString style = styles.at(i%(styles.size()));
+                if ( rc == 1 ) {
+                    style = "plain";
+                }
+
                 for ( int r = 0; r < rc; ++r) {
-                    QString color;
-                    if ( plot->curves().size() == 1 ) {
-                        color = run2color.value(r);
-                    } else {
-                        color = colors.at(colorId++).name();
+
+                    QString color = colors.at(r).name();
+                    if ( rc == 1 ) {
+                        color = colors.at(i).name();
                     }
-                    _addCurve(curvesItem, dpcurve, dpprogram, _runDirs, r, color);
+
+                    _addCurve(curvesItem,dpcurve,dpprogram,_runDirs,r,
+                              color,style);
 #ifdef __linux
                     int secs = qRound(timer.stop()/1000000.0);
                     div_t d = div(secs,60);
@@ -393,6 +401,8 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                         break;
                     }
                 }
+
+                ++i;
 
                 // Update progress dialog
                 progress.setValue(rc);
@@ -422,18 +432,18 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             }
             _bookModel->setData(plotMathRectIdx,bbox);
 
-            // Reset monte carlo input view current idx to signal current changed
+            // Reset monte carlo input view current idx to signal curr changed
             int currRunId = -1;
             if ( _monteInputsView ) {
                 currRunId = _monteInputsView->currentRun();
             }
             if ( currRunId >= 0 ) {
-                foreach (QModelIndex curveIdx, _bookModel->curveIdxs(curvesIdx)) {
+                foreach (QModelIndex curveIdx,_bookModel->curveIdxs(curvesIdx)){
                     int curveRunId = _bookModel->getDataInt(curveIdx,
-                                                            "CurveRunID","Curve");
+                                                          "CurveRunID","Curve");
                     if ( curveRunId == currRunId ) {
                         // Reset monte input view's current index which will set
-                        // plot view's current index (by way of signal/slot connections)
+                        // plot view's current index (by way of signal/slots)
                         QModelIndex currIdx = _monteInputsView->currentIndex();
                         _monteInputsView->setCurrentIndex(QModelIndex());
                         _monteInputsView->setCurrentIndex(currIdx);
@@ -568,7 +578,8 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
                              DPCurve *dpcurve,
                              DPProgram *dpprogram,
                              const QStringList& runDirs,
-                             int runId, const QString& defaultColor)
+                             int runId, const QString& defaultColor,
+                             const QString& defaultLineStyle)
 {
     // Curve
     QStandardItem *curveItem = _addChild(curvesItem,"Curve");
@@ -731,7 +742,11 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     _addChild(curveItem, "CurveYBias",       y->bias());
     _addChild(curveItem, "CurveSymbolStyle", y->symbolStyle());
     _addChild(curveItem, "CurveSymbolSize",  y->symbolSize());
-    _addChild(curveItem, "CurveLineStyle",   y->lineStyle());
+    QString lineStyle = y->lineStyle() ;
+    if ( lineStyle.isEmpty() ) {
+        lineStyle = defaultLineStyle;
+    }
+    _addChild(curveItem, "CurveLineStyle",   lineStyle);
     _addChild(curveItem, "CurveYLabel",      y->label());
     QString color = y->lineColor() ;
     if ( color.isEmpty() ) {
