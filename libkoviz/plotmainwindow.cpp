@@ -625,7 +625,7 @@ void PlotMainWindow::_saveDP()
                 QString lineStyle = _bookModel->getDataString(curveIdx,
                                                               "CurveLineStyle",
                                                               "Curve");
-                if ( !lineStyle.isEmpty() ) {
+                if ( !lineStyle.isEmpty() && lineStyle != "plain" ) {
                     out << i4 << "line_style: \"" << lineStyle << "\"\n";
                 }
 
