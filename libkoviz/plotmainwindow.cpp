@@ -195,17 +195,24 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
         lsplit->addWidget(_monteInputsView);
     }
 
-    // Start/Stop times input
-    RangeInput* rangeInput = new RangeInput(this);
+    // Start/Live/Stop times input
+    _timeInput = new TimeInput(this);
+    _timeInput->hideLiveTime();
     QSizePolicy sp(QSizePolicy::Preferred,QSizePolicy::Preferred);
-    rangeInput->setSizePolicy(sp);
-    lsplit->addWidget(rangeInput);
+    _timeInput->setSizePolicy(sp);
+    lsplit->addWidget(_timeInput);
     lsplit->setStretchFactor(0,1);
     lsplit->setStretchFactor(1,0);
-    connect(rangeInput,SIGNAL(minChanged(double)),
+    connect(_timeInput,SIGNAL(startTimeChanged(double)),
             this, SLOT(_startTimeChanged(double)));
-    connect(rangeInput,SIGNAL(maxChanged(double)),
+    connect(_timeInput,SIGNAL(liveTimeChanged(double)),
+            this, SLOT(_liveTimeChanged(double)));
+    connect(_timeInput,SIGNAL(stopTimeChanged(double)),
             this, SLOT(_stopTimeChanged(double)));
+    connect(_bookModel,
+            SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
+            _timeInput,
+            SLOT(_slotDataChanged(QModelIndex,QModelIndex,QVector<int>)));
 
     // Size main window
     QList<int> sizes;
@@ -293,12 +300,17 @@ void PlotMainWindow::_bookViewCurrentChanged(const QModelIndex &currIdx,
     }
 
     if ( !currIdx.isValid() ) {
+        _timeInput->hideLiveTime();
         if ( _monteInputsView ) {
             // Clicked into whitespace in a CurvesView,
             // so clear current run in monte input view and all CurveViews
             QModelIndex invalidIdx;
             _monteInputsView->setCurrentIndex(invalidIdx);
             _bookView->setCurrentCurveRunID(-1);
+        }
+    } else {
+        if ( _bookModel->isIndex(currIdx,"Curve") ) {
+            _timeInput->showLiveTime();
         }
     }
 }
@@ -770,6 +782,74 @@ void PlotMainWindow::_startTimeChanged(double startTime)
                                                          "Curves","Plot");
             QRectF bbox = _bookModel->calcCurvesBBox(curvesIdx);
             _bookModel->setPlotMathRect(bbox,plotIdx);
+        }
+    }
+}
+
+void PlotMainWindow::_liveTimeChanged(double liveTime)
+{
+    QModelIndex liveTimeIdx = _bookModel->getDataIndex(QModelIndex(),
+                                                       "LiveCoordTime");
+    QModelIndex currIdx = _bookView->currentIndex();
+    if ( currIdx.isValid() ) {
+        QString tag = _bookModel->data(currIdx).toString();
+        CurveModel* curveModel = 0;
+        if ( tag == "Curve" ) {
+            curveModel = _bookModel->getCurveModel(currIdx);
+        } else if ( tag == "Page" ) {
+            // If pageIdx, find first curve in first plot with matching runID
+            QModelIndex pageIdx = currIdx;
+            if ( _monteInputsView ) {
+                QModelIndex monteIdx = _monteInputsView->currentIndex();
+                if ( monteIdx.isValid() ) {
+                    QModelIndex runIdx = monteIdx.sibling(monteIdx.row(),0);
+                    int runID = _monteInputsView->model()->data(runIdx).toInt();
+                    QModelIndex plotsIdx = _bookModel->getIndex(pageIdx,
+                                                                "Plots","Page");
+                    QModelIndexList plotIdxs = _bookModel->getIndexList(
+                                                                       plotsIdx,
+                                                                       "Plot",
+                                                                       "Plots");
+                    foreach ( QModelIndex plotIdx, plotIdxs ) {
+                        bool isFound = false;
+                        QModelIndex curvesIdx = _bookModel->getIndex(plotIdx,
+                                                                    "Curves",
+                                                                    "Plot");
+                        QModelIndexList curveIdxs = _bookModel->getIndexList(
+                                                                      curvesIdx,
+                                                                      "Curve",
+                                                                      "Curves");
+                        foreach ( QModelIndex curveIdx, curveIdxs ) {
+                            int curveRunID = _bookModel->getDataInt(curveIdx,
+                                                                   "CurveRunID",
+                                                                   "Curve");
+                            if ( curveRunID == runID ) {
+                                curveModel = _bookModel->getCurveModel(
+                                                                      curveIdx);
+                                isFound = true;
+                                break;
+                            }
+                        }
+                        if ( isFound ) {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if ( curveModel ) {
+            curveModel->map();
+            int i = curveModel->indexAtTime(liveTime);
+            ModelIterator* it = curveModel->begin();
+            double t = it->at(i)->t();
+            curveModel->unmap();
+            QModelIndex rootIdx;
+            double start = _bookModel->getDataDouble(rootIdx,"StartTime");
+            double stop  = _bookModel->getDataDouble(rootIdx,"StopTime");
+            t = (t < start) ? start : t;
+            t = (t > stop)  ? stop  : t;
+            _bookModel->setData(liveTimeIdx,t);
+            _timeInput->setLiveTime(t);
         }
     }
 }

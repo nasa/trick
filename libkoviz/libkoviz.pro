@@ -72,7 +72,7 @@ SOURCES += bookmodel.cpp \
            trickmodel.cpp \
            tricktablemodel.cpp \
            plotmainwindow.cpp \
-           rangeinput.cpp \
+           timeinput.cpp \
            datamodel.cpp \
            curvemodel.cpp \
            csvmodel.cpp \
@@ -124,7 +124,7 @@ HEADERS  += bookmodel.h \
             trickmodel.h \
             tricktablemodel.h \
             plotmainwindow.h \
-            rangeinput.h \
+            timeinput.h \
             datamodel.h \
             curvemodel.h \
             csvmodel.h \

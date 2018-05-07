@@ -30,7 +30,7 @@
 #include "dptreewidget.h"
 #include "varswidget.h"
 #include "monteinputsview.h"
-#include "rangeinput.h"
+#include "timeinput.h"
 #include "bookview.h"
 #include "runs.h"
 
@@ -82,6 +82,7 @@ private:
     QStandardItemModel* _monteInputsModel;
     MonteInputsView* _monteInputsView;
     QHeaderView* _monteInputsHeaderView;
+    TimeInput* _timeInput;
 
     QGridLayout* _layout;
     QGridLayout* _left_lay ;
@@ -123,6 +124,7 @@ private slots:
      void _clearTables();
 
      void _startTimeChanged(double startTime);
+     void _liveTimeChanged(double liveTime);
      void _stopTimeChanged(double stopTime);
      void _monteInputsHeaderViewClicked(int section);
      void _monteInputsViewCurrentChanged(const QModelIndex& currIdx,
