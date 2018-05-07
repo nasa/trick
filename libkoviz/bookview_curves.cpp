@@ -977,7 +977,7 @@ void CurvesView::_paintErrorplot(const QTransform &T,
         // Color green if error plot is flatline zero
         ePen.setColor(_bookModel()->createCurveColors(4).at(3)); // green
     } else {
-        ePen.setColor(_bookModel()->createCurveColors(3).at(2)); // magenta
+        ePen.setColor(_bookModel()->errorLineColor()); // magenta
     }
     painter.setPen(ePen);
     if ( ebox.height() == 0.0 ) {

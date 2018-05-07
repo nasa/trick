@@ -315,6 +315,12 @@ QList<QColor> PlotBookModel::createCurveColors(int nCurves)
     return colors;
 }
 
+QColor PlotBookModel::errorLineColor() const
+{
+    QColor magenta(130,15,120);
+    return magenta;
+}
+
 QRectF PlotBookModel::getPlotMathRect(const QModelIndex &plotIdx)
 {
     QRectF M;

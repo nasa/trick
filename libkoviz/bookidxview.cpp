@@ -1009,7 +1009,7 @@ void BookIdxView::_paintCurvesLegend(const QRect& R,
     QStringList labels = _bookModel()->legendLabels(plotIdx);
 
     if ( pres == "error+compare" ) {
-        QPen* magentaPen = new QPen(_bookModel()->createCurveColors(3).at(2));
+        QPen* magentaPen = new QPen(_bookModel()->errorLineColor());
         pens << magentaPen;
         symbols << "none";
         labels << "error";
@@ -1147,7 +1147,7 @@ QRect BookIdxView::_paintPageLegend(const QRect &R,
     QStringList labels = _bookModel()->legendLabels(plotIdx);
 
     if ( pres == "error+compare" ) {
-        QPen* magentaPen = new QPen(_bookModel()->createCurveColors(3).at(2));
+        QPen* magentaPen = new QPen(_bookModel()->errorLineColor());
         pens << magentaPen;
         symbols << "none";
         labels << "error";

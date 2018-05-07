@@ -94,6 +94,7 @@ public:
 
     // Curve Colors
     QList<QColor> createCurveColors(int nCurves);
+    QColor errorLineColor() const;
 
     // Convenience wrappers for get/setting PlotMathRect
     QRectF getPlotMathRect(const QModelIndex &plotIdx);
