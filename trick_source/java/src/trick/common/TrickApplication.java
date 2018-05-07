@@ -362,8 +362,7 @@ public abstract class TrickApplication extends SingleFrameApplication implements
      */
     @Override
     protected void startup() {
-        // Add this exit listener if the sub class likes the confirmation dialog
-        String defaultValue       = Boolean.toString(true);
+        String defaultValue       = Boolean.toString(false);
         boolean savedExitProperty = new Boolean(trickProperties.getProperty(
                 "confirmExit", defaultValue)).booleanValue();
         if (( savedExitProperty == true ) && (getExitListeners().length==0)) {
