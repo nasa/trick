@@ -9,7 +9,7 @@ PageView::PageView(QWidget *parent) :
 
     // Create/configure gridlayout for page
     _grid = new QGridLayout;
-    _grid->setContentsMargins(0, 0, 5, 0);
+    _grid->setContentsMargins(0, 0, 20, 0);
     _grid->setSpacing(0);
 
     // Create and add titleView
