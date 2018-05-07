@@ -1286,7 +1286,7 @@ void BookView::_printErrorplot(const QRect& R,
     QRectF curveBBox = path.boundingRect();
     if (curveBBox.height() == 0.0 && !pts.isEmpty() && pts.first().y() == 0.0) {
         // Color green if error plot is flatline zero
-        ePen.setColor(_bookModel()->createCurveColors(4).at(3)); // green
+        ePen.setColor(_bookModel()->flatLineColor());
     } else {
         ePen.setColor(_bookModel()->errorLineColor());
     }

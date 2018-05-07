@@ -321,6 +321,12 @@ QColor PlotBookModel::errorLineColor() const
     return magenta;
 }
 
+QColor PlotBookModel::flatLineColor() const
+{
+    QColor green(35,106,26);
+    return green;
+}
+
 QRectF PlotBookModel::getPlotMathRect(const QModelIndex &plotIdx)
 {
     QRectF M;
