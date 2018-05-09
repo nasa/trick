@@ -265,22 +265,45 @@ QList<QColor> PlotBookModel::createCurveColors(int nCurves)
 {
     QList<QColor> colors;
 
-    QColor burntorange(177,79,0); // hook'em!
+    QColor burntorange(177,77,0); // hook'em!
+    QColor red(200,30,30);
+    QColor green(35,106,26);
+    QColor magenta(130,15,120);
+    QColor lightpink("#E5ADE5");
+    QColor darkpink(157,118,157);
+    QColor black(0,0,0);
+    QColor white("#b9bbbd");
+    QColor darkblue(48,85,200);
+    QColor medblue(49,140,250);
+    QColor darkyellow("#808000");
+    QColor lightyellow("#C3C300");
 
-    if ( nCurves < 10 ) {
+    // Some curve colors depend on background color
+    QColor blue(darkblue);
+    QColor bw(black);
+    QColor yellow(darkyellow);
+    QColor pink(darkpink);
+    QString bg = getDataString(QModelIndex(),"BackgroundColor");
+    if ( !bg.isEmpty() ) {
+        QColor bgColor(bg);
+        if ( bgColor.value() < 128 ) {
+            bw = white;
+            blue = medblue;
+            yellow = lightyellow;
+            pink = lightpink;
+        }
+    }
+
+    if ( nCurves == 1 ) {
+        colors << blue ;
+    } else if ( nCurves == 2 ) {
+        colors << blue << red;
+    } else if ( 2 < nCurves && nCurves < 9 ) {
         // Handpicked colors for smaller number of curves
-        QColor blue(48,85,200);
-        QColor red(200,30,30);
-        QColor magenta(130,15,120);
-        QColor green(35,106,26);
-        QColor black(0,0,0);
-        QColor gray(128,150,169);
-        QColor pink(157,118,157);
-        QColor medblue(49,140,250);
         QList<QColor> handPickedColors;
-        handPickedColors << blue << red << magenta
-                         << green << burntorange << black
-                         << gray << pink << medblue;
+        handPickedColors << blue << red << green
+                         << burntorange << magenta
+                         << yellow << pink << bw;
         for (int i = 0; i < nCurves; ++i ) {
             colors << handPickedColors.at(i);
         }
