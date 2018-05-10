@@ -522,7 +522,7 @@ int main(int argc, char *argv[])
         }
 
         // Show Tables (don't show if too many runs since it is *slow*)
-        bool isShowTables = (runDirs.size() > 7) ? false : true;
+        bool isShowTables = (isMonte || runDirs.size() > 7) ? false : true;
         if ( !opts.showTables.isEmpty() ) {  // use cmd line opt if set
             bool ok;
             isShowTables = Options::stringToBool(opts.showTables,&ok);
