@@ -403,16 +403,15 @@ QStringList Unit::_sortUnits(const QStringList &unitsIn)
 
     if ( units.contains("m") ) {
         units.clear();
-        units << "m"  << "cm" << "mm" << "km"
-              << "ft" << "in" << "yd" << "mi" << "kft"
-              << "nmi";
+        units << "mm"  << "cm" << "m" << "km"
+              << "in" << "ft" << "yd" << "mi";
     } else if ( units.contains("m/s") ) {
         units.clear();
-        units << "m/s" << "cm/s" << "mm/s" << "kmh"
-              << "ft/s" << "in/s" << "mph" ;
+        units << "mm/s" << "cm/s" << "m/s" << "kmh"
+              << "in/s" << "ft/s" << "mph" ;
     } else if ( units.contains("m/s2") ) {
         units.clear();
-        units << "m/s2" << "cm/s2" << "mm/s2" << "ft/s2" << "in/s2";
+        units << "cm/s2" << "m/s2" << "in/s2" << "ft/s2";
     }
 
     return units;
