@@ -405,7 +405,7 @@ QStringList Unit::_sortUnits(const QStringList &unitsIn)
         units.clear();
         units << "m"  << "cm" << "mm" << "km"
               << "ft" << "in" << "yd" << "mi" << "kft"
-              << "nm";
+              << "nmi";
     } else if ( units.contains("m/s") ) {
         units.clear();
         units << "m/s" << "cm/s" << "mm/s" << "kmh"
