@@ -7,6 +7,8 @@ Session::Session() :
 {
     _colors << "" << "" << ""
             << "" << "" << "" << "";
+    _legendLabels << "" << "" << ""
+                  << "" << "" << "" << "";
 }
 
 Session::Session(const QString &sessionFileName) :
@@ -16,6 +18,8 @@ Session::Session(const QString &sessionFileName) :
 {
     _colors << "" << "" << ""
             << "" << "" << "" << "";
+    _legendLabels << "" << "" << ""
+                  << "" << "" << "" << "";
 
     QFile file(sessionFileName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
@@ -124,6 +128,17 @@ Session::Session(const QString &sessionFileName) :
                 color.chop(1);
             }
             _colors.replace(colorId-1,color);
+        } else if ( line.contains(QRegExp("[Ll][1-7]:")) ) {
+            int i = line.indexOf(QRegExp("[Ll][1-7]:"),0);
+            int legendId = QString(line.at(i+1)).toInt(); // 1-7
+            QString label = line.mid(i+3).trimmed();
+            if ( label.startsWith("\"") ) {
+                label = label.mid(1);
+            }
+            if ( label.endsWith("\"") ) {
+                label.chop(1);
+            }
+            _legendLabels.replace(legendId-1,label);
         }
     }
 

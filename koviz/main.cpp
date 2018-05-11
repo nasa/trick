@@ -500,8 +500,23 @@ int main(int argc, char *argv[])
 
         // Make a list of legend labels
         QStringList legends;
-        legends << opts.legend1 << opts.legend2 << opts.legend3
-                << opts.legend4 << opts.legend5 << opts.legend6 << opts.legend7;
+        if ( session ) {
+            legends << session->legend1() << session->legend2()
+                    << session->legend3() << session->legend4()
+                    << session->legend5() << session->legend6()
+                    << session->legend7();
+            if ( !opts.legend1.isEmpty() ) { legends.replace(0,opts.legend1); }
+            if ( !opts.legend2.isEmpty() ) { legends.replace(1,opts.legend2); }
+            if ( !opts.legend3.isEmpty() ) { legends.replace(2,opts.legend3); }
+            if ( !opts.legend4.isEmpty() ) { legends.replace(3,opts.legend4); }
+            if ( !opts.legend5.isEmpty() ) { legends.replace(4,opts.legend5); }
+            if ( !opts.legend6.isEmpty() ) { legends.replace(5,opts.legend6); }
+            if ( !opts.legend7.isEmpty() ) { legends.replace(6,opts.legend7); }
+        } else {
+            legends << opts.legend1 << opts.legend2 << opts.legend3
+                    << opts.legend4 << opts.legend5 << opts.legend6
+                    << opts.legend7;
+        }
 
         // Make a list of user given curve colors
         QStringList colors;
