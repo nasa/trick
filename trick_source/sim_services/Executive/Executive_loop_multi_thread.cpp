@@ -72,8 +72,27 @@ int Trick::Executive::loop_multi_thread() {
                     exec_terminate_with_return(ret , curr_job->name.c_str() , 0 , "top_of_frame job did not return 0") ;
                 }
             }
+
+            for (ii = 1; ii < threads.size() ; ii++) {
+
+                Trick::Threads * curr_thread = threads[ii];
+
+                if (curr_thread->process_type == Trick::PROCESS_TYPE_SCHEDULED) {            
+                    curr_thread->top_of_frame_queue.reset_curr_index() ;
+                    while ( (curr_job = curr_thread->top_of_frame_queue.get_next_job()) != NULL ) {
+                        ret = curr_job->call() ;
+                        if ( ret != 0 ) {
+                            exec_terminate_with_return(ret , curr_job->name.c_str() , 0 , "top_of_frame job did not return 0") ;
+                        }
+                    }
+                }
+            }
+            
             frame_count++ ;
         }
+
+    /* Loop through child threads calling their top of frame jobs */
+
 
         /* Call thread sync jobs (wait for threads that are scheduled to finish by current time) */
         thread_sync_queue.reset_curr_index() ;
@@ -171,6 +190,21 @@ int Trick::Executive::loop_multi_thread() {
                 ret = curr_job->call() ;
                 if ( ret != 0 ) {
                     exec_terminate_with_return(ret , curr_job->name.c_str() , 0 , "end_of_frame job did not return 0") ;
+                }
+            }
+                         /* Loop through child threads calling their end of frame jobs */
+            for (ii = 1; ii < threads.size() ; ii++) {
+
+                Trick::Threads * curr_thread = threads[ii];
+
+                if (curr_thread->process_type == Trick::PROCESS_TYPE_SCHEDULED) {
+                    curr_thread->end_of_frame_queue.reset_curr_index();            
+                    while ( (curr_job =  curr_thread->end_of_frame_queue.get_next_job()) != NULL ) {
+                        ret = curr_job->call();
+                        if ( ret != 0 ) {
+                            exec_terminate_with_return(ret , curr_job->name.c_str() , 0 , "end_of_frame job did not return 0");
+                        }
+                    }
                 }
             }
 
