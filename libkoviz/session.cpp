@@ -5,6 +5,8 @@ Session::Session() :
     _presentation("compare"),
     _timeMatchTolerance(1.0e-6)
 {
+    _colors << "" << "" << ""
+            << "" << "" << "" << "";
 }
 
 Session::Session(const QString &sessionFileName) :
@@ -12,6 +14,9 @@ Session::Session(const QString &sessionFileName) :
     _presentation("compare"),
     _timeMatchTolerance(1.0e-6)
 {
+    _colors << "" << "" << ""
+            << "" << "" << "" << "";
+
     QFile file(sessionFileName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
         fprintf(stderr, "koviz [error]: Cannot read session file %s!\n",
@@ -108,6 +113,17 @@ Session::Session(const QString &sessionFileName) :
                         sessionFileName.toLatin1().constData());
                 exit(-1);
             }
+        } else if ( line.contains(QRegExp("[Cc][1-7]:")) ) {
+            int i = line.indexOf(QRegExp("[Cc][1-7]:"),0);
+            int colorId = QString(line.at(i+1)).toInt(); // 1-7
+            QString color = line.mid(i+3).trimmed();
+            if ( color.startsWith("\"") ) {
+                color = color.mid(1);
+            }
+            if ( color.endsWith("\"") ) {
+                color.chop(1);
+            }
+            _colors.replace(colorId-1,color);
         }
     }
 

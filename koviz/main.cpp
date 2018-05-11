@@ -505,8 +505,22 @@ int main(int argc, char *argv[])
 
         // Make a list of user given curve colors
         QStringList colors;
-        colors << opts.color1 << opts.color2 << opts.color3
-                << opts.color4 << opts.color5 << opts.color6 << opts.color7;
+        if ( session ) {
+            colors << session->color1() << session->color2()
+                   << session->color3() << session->color4()
+                   << session->color5() << session->color6()
+                   << session->color7();
+            if ( !opts.color1.isEmpty() ) { colors.replace(0,opts.color1); }
+            if ( !opts.color2.isEmpty() ) { colors.replace(1,opts.color2); }
+            if ( !opts.color3.isEmpty() ) { colors.replace(2,opts.color3); }
+            if ( !opts.color4.isEmpty() ) { colors.replace(3,opts.color4); }
+            if ( !opts.color5.isEmpty() ) { colors.replace(4,opts.color5); }
+            if ( !opts.color6.isEmpty() ) { colors.replace(5,opts.color6); }
+            if ( !opts.color7.isEmpty() ) { colors.replace(6,opts.color7); }
+        } else {
+            colors << opts.color1 << opts.color2 << opts.color3
+                   << opts.color4 << opts.color5 << opts.color6 << opts.color7;
+        }
 
 
         // Time match tolerance
