@@ -28,6 +28,7 @@ using namespace std;
 #include "libkoviz/trickmodel.h"
 #include "libkoviz/curvemodel.h"
 #include "libkoviz/trick_types.h"
+#include "libkoviz/session.h"
 
 QStandardItemModel* createVarsModel(Runs* runs);
 bool writeTrk(const QString& ftrk, const QString &timeName,
@@ -51,13 +52,6 @@ QStandardItemModel* monteInputModelTrick07(const QString &monteInputFile,
 QStandardItemModel* monteInputModelTrick17(const QString &monteInputFile,
                                            const QStringList &runs);
 QStringList runsSubset(const QStringList& runsList, uint beginRun, uint endRun);
-
-QStringList sessionFileRuns(const QString& sessionFile);
-QStringList sessionFileDPs(const QString& sessionFile);
-QString sessionFileDevice(const QString& sessionFile);
-QString sessionFilePresentation(const QString& sessionFile);
-double sessionFileTimeMatchTolerance(const QString& sessionFile);
-double sessionFileFrequency(const QString& sessionFile);
 
 Option::FPresetQString presetExistsFile;
 Option::FPresetDouble preset_start;
@@ -213,8 +207,14 @@ int main(int argc, char *argv[])
             runDirs << f;
         }
     }
+
+    Session* session = 0;
     if ( !opts.sessionFile.isEmpty() ) {
-        runDirs << sessionFileRuns(opts.sessionFile);
+        session = new Session(opts.sessionFile);
+    }
+
+    if ( session ) {
+        runDirs << session->runs();
 
         if ( runDirs.isEmpty() ) {
             fprintf(stderr,"koviz [error]: no RUNs "
@@ -222,7 +222,7 @@ int main(int argc, char *argv[])
                     opts.sessionFile.toLatin1().constData());
             exit(-1);
         }
-        dps << sessionFileDPs(opts.sessionFile);
+        dps << session->dps();
     }
 
     if ( opts.rundps.isEmpty() && opts.sessionFile.isEmpty() ) {
@@ -344,8 +344,8 @@ int main(int argc, char *argv[])
         if ( !opts.pdfOutFile.isEmpty() ) {
             pdfOutFile = opts.pdfOutFile;
             isPdf = true;
-        } else if ( !opts.sessionFile.isEmpty() ) {
-            QString device = sessionFileDevice(opts.sessionFile);
+        } else if ( session ) {
+            QString device = session->device();
             if ( device != "terminal" ) {
                 pdfOutFile = device;
                 isPdf = true;
@@ -491,8 +491,8 @@ int main(int argc, char *argv[])
 
         // Presentation
         QString presentation = opts.presentation;
-        if ( presentation.isEmpty() && !opts.sessionFile.isEmpty() ) {
-            presentation = sessionFilePresentation(opts.sessionFile);
+        if ( presentation.isEmpty() && session ) {
+            presentation = session->presentation();
         }
         if ( presentation.isEmpty() ){
             presentation = "compare";
@@ -511,14 +511,14 @@ int main(int argc, char *argv[])
 
         // Time match tolerance
         double tolerance = 0.000001;
-        if ( !opts.sessionFile.isEmpty() ) {
-            tolerance = sessionFileTimeMatchTolerance(opts.sessionFile);
+        if ( session ) {
+            tolerance = session->timeMatchTolerance();
         }
 
         // Frequency
         double frequency = 0.0;
-        if ( !opts.sessionFile.isEmpty() ) {
-            frequency = sessionFileFrequency(opts.sessionFile);
+        if ( session ) {
+            frequency = session->frequency();
         }
 
         // Show Tables (don't show if too many runs since it is *slow*)
@@ -688,6 +688,9 @@ int main(int argc, char *argv[])
         delete varsModel;
         delete monteInputsModel;
         delete runs;
+        if ( session ) {
+            delete session;
+        }
 
     } catch (std::exception &e) {
         fprintf(stderr,"\n%s\n",e.what());
@@ -1874,221 +1877,4 @@ QStringList runsSubset(const QStringList& runsList, uint beginRun, uint endRun)
     }
 
     return subset;
-}
-
-QStringList sessionFileRuns(const QString& sessionFile)
-{
-    QStringList runs;
-
-    QFile file(sessionFile);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
-        fprintf(stderr, "koviz [error]: Cannot read session file %s!\n",
-                sessionFile.toLatin1().constData());
-        exit(-1);
-    }
-
-    QTextStream in(&file);
-    while (!in.atEnd()) {
-        QString line = in.readLine();
-        if ( line.contains("RUN:",Qt::CaseInsensitive) ) {
-            int i = line.indexOf("RUN:",0,Qt::CaseInsensitive);
-            QString run = line.mid(i+4).trimmed();
-            run = run.remove("\"");
-            if ( run.isEmpty() ) {
-                fprintf(stderr,"koviz [error]: empty run specification in "
-                               "session file %s.\n",
-                               sessionFile.toLatin1().constData());
-                exit(-1);
-            }
-            runs << run.split(" ",QString::SkipEmptyParts).at(0);
-        }
-    }
-
-    file.close();
-
-    return runs;
-}
-
-QStringList sessionFileDPs(const QString& sessionFile)
-{
-    QStringList dps;
-
-    QFile file(sessionFile);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
-        fprintf(stderr, "koviz [error]: Cannot read session file %s!\n",
-                sessionFile.toLatin1().constData());
-        exit(-1);
-    }
-
-    QTextStream in(&file);
-    while (!in.atEnd()) {
-        QString line = in.readLine();
-        if ( line.contains("PRODUCT:",Qt::CaseInsensitive) ) {
-            int i = line.indexOf("PRODUCT:",0,Qt::CaseInsensitive);
-            QString dp = line.mid(i+8).trimmed();
-            if ( dp.startsWith("\"") ) {
-                dp = dp.mid(1);
-            }
-            if ( dp.endsWith("\"") ) {
-                dp.chop(1);
-            }
-            dps << dp;
-        }
-    }
-
-    file.close();
-
-    return dps;
-}
-
-// If device is "file", return filename; otherwise return "terminal"
-QString sessionFileDevice(const QString& sessionFile)
-{
-    QString device("terminal");
-
-    QFile file(sessionFile);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
-        fprintf(stderr, "koviz [error]: Cannot read session file %s!\n",
-                sessionFile.toLatin1().constData());
-        exit(-1);
-    }
-
-    QTextStream in(&file);
-    while (!in.atEnd()) {
-        QString line = in.readLine();
-        if ( line.contains("DEVICE:",Qt::CaseInsensitive) ) {
-            int i = line.indexOf("DEVICE:",0,Qt::CaseInsensitive);
-            device = line.mid(i+7).trimmed();
-            device = device.remove("\"");
-            if ( device.isEmpty() ) {
-                fprintf(stderr,"koviz [error]: empty device specification in "
-                               "session file %s.\n",
-                               sessionFile.toLatin1().constData());
-                exit(-1);
-            }
-            QStringList list = device.split(" ",QString::SkipEmptyParts);
-            if ( !QString::compare(list.at(0),"FILE",Qt::CaseInsensitive) ) {
-                device = list.at(1); // device is filename
-                if ( device == "terminal") { //just in case filename=="terminal"
-                    device = "terminal.pdf";
-                }
-            } else {
-                if ( !device.compare("terminal",Qt::CaseInsensitive) ) {
-                    device = "terminal";
-                } else {
-                    // device is considered to be a filename
-                }
-            }
-            break;
-        }
-    }
-
-    file.close();
-
-    return device;
-}
-
-QString sessionFilePresentation(const QString& sessionFile)
-{
-    QString presentation;
-
-    QFile file(sessionFile);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
-        fprintf(stderr, "koviz [error]: Cannot read session file %s!\n",
-                sessionFile.toLatin1().constData());
-        exit(-1);
-    }
-
-    QTextStream in(&file);
-    while (!in.atEnd()) {
-        QString line = in.readLine();
-        if ( line.contains("PRESENTATION:",Qt::CaseInsensitive) ) {
-            int i = line.indexOf("PRESENTATION:",0,Qt::CaseInsensitive);
-            presentation = line.mid(i+13).trimmed();
-            if ( presentation.startsWith("\"") ) {
-                presentation = presentation.mid(1);
-            }
-            if ( presentation.endsWith("\"") ) {
-                presentation.chop(1);
-            }
-            if ( presentation == "single") {
-                fprintf(stderr,"koviz [error]: session file has presentation "
-                               "set to \"single\".  For now, koviz only "
-                               "supports \"compare\", \"error\" and "
-                               "\"error+compare\"\n");
-                exit(-1);
-            }
-            break;
-        }
-    }
-
-    file.close();
-
-    return presentation;
-}
-
-double sessionFileTimeMatchTolerance(const QString& sessionFile)
-{
-    double tolerance = 0.000001;
-
-    QFile file(sessionFile);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
-        fprintf(stderr, "koviz [error]: Cannot read session file %s!\n",
-                sessionFile.toLatin1().constData());
-        exit(-1);
-    }
-
-    QTextStream in(&file);
-    while (!in.atEnd()) {
-        QString line = in.readLine();
-        if ( line.contains("TIME_MATCH_TOLERANCE:",Qt::CaseInsensitive) ) {
-            int i = line.indexOf("TIME_MATCH_TOLERANCE:",0,Qt::CaseInsensitive);
-            bool ok;
-            tolerance = line.mid(i+21).trimmed().toDouble(&ok);
-            if ( !ok ) {
-                fprintf(stderr,"koviz [error]: time match tolerance in session"
-                               "file %s is corrupt.\n",
-                        sessionFile.toLatin1().constData());
-                exit(-1);
-            }
-            break;
-        }
-    }
-
-    file.close();
-
-    return tolerance;
-}
-
-double sessionFileFrequency(const QString& sessionFile)
-{
-    double frequency = 0.0;
-
-    QFile file(sessionFile);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
-        fprintf(stderr, "koviz [error]: Cannot read session file %s!\n",
-                sessionFile.toLatin1().constData());
-        exit(-1);
-    }
-
-    QTextStream in(&file);
-    while (!in.atEnd()) {
-        QString line = in.readLine();
-        if ( line.contains("FREQUENCY:",Qt::CaseInsensitive) ) {
-            int i = line.indexOf("FREQUENCY:",0,Qt::CaseInsensitive);
-            bool ok;
-            frequency = line.mid(i+10).trimmed().toDouble(&ok);
-            if ( !ok ) {
-                fprintf(stderr,"koviz [error]: frequency spec in session"
-                               "file %s is corrupt.\n",
-                        sessionFile.toLatin1().constData());
-                exit(-1);
-            }
-            break;
-        }
-    }
-
-    file.close();
-
-    return frequency;
 }
