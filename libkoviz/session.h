@@ -19,6 +19,10 @@ public:
     QString presentation() const;
     double timeMatchTolerance() const;
     double frequency() const;
+    QString title1() const { return _titles.at(0); }
+    QString title2() const { return _titles.at(1); }
+    QString title3() const { return _titles.at(2); }
+    QString title4() const { return _titles.at(3); }
     QString color1() const { return _colors.at(0); }
     QString color2() const { return _colors.at(1); }
     QString color3() const { return _colors.at(2); }
@@ -43,6 +47,7 @@ private:
     QString _presentation;
     double _timeMatchTolerance;
     double _frequency;
+    QStringList _titles;
     QStringList _colors;
     QStringList _legendLabels;
 };

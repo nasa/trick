@@ -5,6 +5,7 @@ Session::Session() :
     _presentation("compare"),
     _timeMatchTolerance(1.0e-6)
 {
+    _titles << "" << "" << "" << "";
     _colors << "" << "" << ""
             << "" << "" << "" << "";
     _legendLabels << "" << "" << ""
@@ -16,6 +17,7 @@ Session::Session(const QString &sessionFileName) :
     _presentation("compare"),
     _timeMatchTolerance(1.0e-6)
 {
+    _titles << "" << "" << "" << "";
     _colors << "" << "" << ""
             << "" << "" << "" << "";
     _legendLabels << "" << "" << ""
@@ -117,6 +119,17 @@ Session::Session(const QString &sessionFileName) :
                         sessionFileName.toLatin1().constData());
                 exit(-1);
             }
+        } else if ( line.contains(QRegExp("[Tt][1-4]:")) ) {
+            int i = line.indexOf(QRegExp("[Tt][1-4]:"),0);
+            int titleId = QString(line.at(i+1)).toInt(); // 1-4
+            QString title = line.mid(i+3).trimmed();
+            if ( title.startsWith("\"") ) {
+                title = title.mid(1);
+            }
+            if ( title.endsWith("\"") ) {
+                title.chop(1);
+            }
+            _titles.replace(titleId-1,title);
         } else if ( line.contains(QRegExp("[Cc][1-7]:")) ) {
             int i = line.indexOf(QRegExp("[Cc][1-7]:"),0);
             int colorId = QString(line.at(i+1)).toInt(); // 1-7
