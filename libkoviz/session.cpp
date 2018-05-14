@@ -8,7 +8,8 @@ Session::Session() :
     _fg(""),
     _bg(""),
     _start(-DBL_MAX),
-    _stop(DBL_MAX)
+    _stop(DBL_MAX),
+    _orient("landscape")
 {
     _titles << "" << "" << "" << "";
     _colors << "" << "" << ""
@@ -25,7 +26,8 @@ Session::Session(const QString &sessionFileName) :
     _fg(""),
     _bg(""),
     _start(-DBL_MAX),
-    _stop(DBL_MAX)
+    _stop(DBL_MAX),
+    _orient("landscape")
 {
     _titles << "" << "" << "" << "";
     _colors << "" << "" << ""
@@ -200,6 +202,22 @@ Session::Session(const QString &sessionFileName) :
                 fprintf(stderr,"koviz [error]: stop spec in session "
                                "file %s is corrupt.\n",
                         sessionFileName.toLatin1().constData());
+                exit(-1);
+            }
+        } else if ( line.contains("ORIENT:",Qt::CaseInsensitive) ) {
+            int i = line.indexOf("ORIENT:",0,Qt::CaseInsensitive);
+            _orient = line.mid(i+7).trimmed();
+            if ( _orient.startsWith("\"") ) {
+                _orient = _orient.mid(1);
+            }
+            if ( _orient.endsWith("\"") ) {
+                _orient.chop(1);
+            }
+            if ( _orient != "portrait" && _orient != "landscape" ) {
+                fprintf(stderr,"koviz [error]: session file has orienation "
+                               "set to \"%s\".  Koviz only "
+                               "supports \"portrait\" and \"landscape\"\n",
+                               _orient.toLatin1().constData());
                 exit(-1);
             }
         }

@@ -12,6 +12,7 @@ using namespace std;
 #include <QFileInfo>
 #include <QTextStream>
 #include <stdio.h>
+#include <float.h>
 
 #include "libkoviz/options.h"
 #include "libkoviz/runs.h"
@@ -124,8 +125,8 @@ int main(int argc, char *argv[])
              "List of RUN dirs and DP files",
              presetRunsDPs, postsetRunsDPs);
     opts.add("-rt:{0,1}",&opts.isReportRT,false, "print realtime text report");
-    opts.add("-start", &opts.start, 0.0, "start time", preset_start);
-    opts.add("-stop", &opts.stop,1.0e20, "stop time", preset_stop);
+    opts.add("-start", &opts.start, -DBL_MAX, "start time", preset_start);
+    opts.add("-stop", &opts.stop, DBL_MAX, "stop time", preset_stop);
     opts.add("-pres",&opts.presentation,"",
              "present plot with two curves as compare,error or error+compare",
              presetPresentation);
@@ -181,8 +182,8 @@ int main(int argc, char *argv[])
     opts.add("-c5",&opts.color5,"","Legend color 5 <#rrggbb|colorName>");
     opts.add("-c6",&opts.color6,"","Legend color 6 <#rrggbb|colorName>");
     opts.add("-c7",&opts.color7,"","Legend color 7 <#rrggbb|colorName>");
-    opts.add("-orient",&opts.orient,"landscape",
-             "PDF page orientation - landscape (default) and portrait",
+    opts.add("-orient",&opts.orient,"",
+             "PDF page orientation - landscape or portrait",
              presetOrientation);
     opts.add("-session",&opts.sessionFile,"","session file name",
              presetExistsFile);
@@ -302,7 +303,7 @@ int main(int argc, char *argv[])
     try {
         if ( opts.isReportRT ) {
             foreach ( QString run, runDirs ) {
-                if ( opts.start != 0.0 || opts.stop != 1.0e20 ) {
+                if ( opts.start != -DBL_MAX || opts.stop != DBL_MAX ) {
                     fprintf(stderr, "snap [warning]: when using the -rt option "
                                     "the -start/stop options are ignored\n");
                 }
@@ -582,6 +583,28 @@ int main(int argc, char *argv[])
             bg = session->background();
         }
 
+        // Start time
+        double startTime = opts.start;
+        if ( startTime == -DBL_MAX && session ) {
+            startTime = session->start();
+        }
+
+        // Stop time
+        double stopTime = opts.stop;
+        if ( stopTime == DBL_MAX && session ) {
+            stopTime = session->stop();
+        }
+
+        // Orientation
+        QString orient = opts.orient;
+        if ( orient.isEmpty() ) {
+            if ( session ) {
+                orient = session->orient();
+            } else {
+                orient = "landscape";
+            }
+        }
+
         // Show Tables (don't show if too many runs since it is *slow*)
         bool isShowTables = (isMonte || runDirs.size() > 7) ? false : true;
         if ( !opts.showTables.isEmpty() ) {  // use cmd line opt if set
@@ -597,12 +620,12 @@ int main(int argc, char *argv[])
 
         if ( isPdf ) {
             PlotMainWindow w(opts.isDebug,
-                             timeNames, opts.start, opts.stop,
+                             timeNames, startTime, stopTime,
                              tolerance, frequency,
                              shifts,
                              presentation, QString(), dps, titles,
                              legends, colors,
-                             opts.orient, opts.isLegend,
+                             orient, opts.isLegend,
                              fg, bg,
                              isShowTables,
                              runs, varsModel, monteInputsModel);
@@ -630,8 +653,8 @@ int main(int argc, char *argv[])
                 }
                 bool r = writeTrk(opts.dp2trkOutFile,
                                   opts.timeName,
-                                  opts.start,
-                                  opts.stop,
+                                  startTime,
+                                  stopTime,
                                   timeShift,
                                   params,runs);
                 if ( r ) {
@@ -714,12 +737,12 @@ int main(int argc, char *argv[])
 #endif
                 PlotMainWindow w(opts.isDebug,
                                  timeNames,
-                                 opts.start, opts.stop,
+                                 startTime, stopTime,
                                  tolerance, frequency,
                                  shifts,
                                  presentation, ".", dps, titles,
                                  legends, colors,
-                                 opts.orient, opts.isLegend,
+                                 orient, opts.isLegend,
                                  fg, bg,
                                  isShowTables,
                                  runs, varsModel, monteInputsModel);
@@ -732,12 +755,12 @@ int main(int argc, char *argv[])
 
                 PlotMainWindow w(opts.isDebug,
                                  timeNames,
-                                 opts.start, opts.stop,
+                                 startTime, stopTime,
                                  tolerance, frequency,
                                  shifts,
                                  presentation, runDirs.at(0), QStringList(),
                                  titles, legends, colors,
-                                 opts.orient, opts.isLegend,
+                                 orient, opts.isLegend,
                                  fg, bg,
                                  isShowTables,
                                  runs, varsModel, monteInputsModel);

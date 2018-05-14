@@ -42,6 +42,7 @@ public:
     QString background() const { return _bg; }
     double start() const { return _start; }
     double stop()  const { return _stop; }
+    QString orient() const { return _orient; }
 
 private:
     Session();
@@ -59,6 +60,7 @@ private:
     QString _bg;
     double _start;
     double _stop;
+    QString _orient;
 };
 
 #endif // SESSION_H
