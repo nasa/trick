@@ -3,7 +3,8 @@
 Session::Session() :
     _device("terminal"),
     _presentation("compare"),
-    _timeMatchTolerance(1.0e-6)
+    _timeMatchTolerance(1.0e-6),
+    _frequency(0.0)
 {
     _titles << "" << "" << "" << "";
     _colors << "" << "" << ""
@@ -15,7 +16,8 @@ Session::Session() :
 Session::Session(const QString &sessionFileName) :
     _device("terminal"),
     _presentation("compare"),
-    _timeMatchTolerance(1.0e-6)
+    _timeMatchTolerance(1.0e-6),
+    _frequency(0.0)
 {
     _titles << "" << "" << "" << "";
     _colors << "" << "" << ""
