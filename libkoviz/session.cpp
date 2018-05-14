@@ -6,7 +6,9 @@ Session::Session() :
     _timeMatchTolerance(1.0e-6),
     _frequency(0.0),
     _fg(""),
-    _bg("")
+    _bg(""),
+    _start(-DBL_MAX),
+    _stop(DBL_MAX)
 {
     _titles << "" << "" << "" << "";
     _colors << "" << "" << ""
@@ -21,7 +23,9 @@ Session::Session(const QString &sessionFileName) :
     _timeMatchTolerance(1.0e-6),
     _frequency(0.0),
     _fg(""),
-    _bg("")
+    _bg(""),
+    _start(-DBL_MAX),
+    _stop(DBL_MAX)
 {
     _titles << "" << "" << "" << "";
     _colors << "" << "" << ""
@@ -109,7 +113,7 @@ Session::Session(const QString &sessionFileName) :
             bool ok;
             _timeMatchTolerance = line.mid(i+21).trimmed().toDouble(&ok);
             if ( !ok ) {
-                fprintf(stderr,"koviz [error]: time match tolerance in session"
+                fprintf(stderr,"koviz [error]: time match tolerance in session "
                                "file %s is corrupt.\n",
                         sessionFileName.toLatin1().constData());
                 exit(-1);
@@ -120,7 +124,7 @@ Session::Session(const QString &sessionFileName) :
             bool ok;
             _frequency = line.mid(i+10).trimmed().toDouble(&ok);
             if ( !ok ) {
-                fprintf(stderr,"koviz [error]: frequency spec in session"
+                fprintf(stderr,"koviz [error]: frequency spec in session "
                                "file %s is corrupt.\n",
                         sessionFileName.toLatin1().constData());
                 exit(-1);
@@ -178,6 +182,26 @@ Session::Session(const QString &sessionFileName) :
                 color.chop(1);
             }
             _bg = color;
+        } else if ( line.contains("START:",Qt::CaseInsensitive) ) {
+            int i = line.indexOf("START:",0,Qt::CaseInsensitive);
+            bool ok;
+            _start = line.mid(i+6).trimmed().toDouble(&ok);
+            if ( !ok ) {
+                fprintf(stderr,"koviz [error]: start spec in session "
+                               "file %s is corrupt.\n",
+                        sessionFileName.toLatin1().constData());
+                exit(-1);
+            }
+        } else if ( line.contains("STOP:",Qt::CaseInsensitive) ) {
+            int i = line.indexOf("STOP:",0,Qt::CaseInsensitive);
+            bool ok;
+            _stop = line.mid(i+5).trimmed().toDouble(&ok);
+            if ( !ok ) {
+                fprintf(stderr,"koviz [error]: stop spec in session "
+                               "file %s is corrupt.\n",
+                        sessionFileName.toLatin1().constData());
+                exit(-1);
+            }
         }
     }
 

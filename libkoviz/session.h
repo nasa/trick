@@ -7,6 +7,7 @@
 #include <QFileInfo>
 #include <QTextStream>
 #include <QRegExp>
+#include <float.h>
 
 class Session
 {
@@ -39,6 +40,8 @@ public:
     QString legend7() const { return _legendLabels.at(6); }
     QString foreground() const { return _fg; }
     QString background() const { return _bg; }
+    double start() const { return _start; }
+    double stop()  const { return _stop; }
 
 private:
     Session();
@@ -54,6 +57,8 @@ private:
     QStringList _legendLabels;
     QString _fg;
     QString _bg;
+    double _start;
+    double _stop;
 };
 
 #endif // SESSION_H
