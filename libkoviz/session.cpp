@@ -4,7 +4,9 @@ Session::Session() :
     _device("terminal"),
     _presentation("compare"),
     _timeMatchTolerance(1.0e-6),
-    _frequency(0.0)
+    _frequency(0.0),
+    _fg(""),
+    _bg("")
 {
     _titles << "" << "" << "" << "";
     _colors << "" << "" << ""
@@ -17,7 +19,9 @@ Session::Session(const QString &sessionFileName) :
     _device("terminal"),
     _presentation("compare"),
     _timeMatchTolerance(1.0e-6),
-    _frequency(0.0)
+    _frequency(0.0),
+    _fg(""),
+    _bg("")
 {
     _titles << "" << "" << "" << "";
     _colors << "" << "" << ""
@@ -154,6 +158,26 @@ Session::Session(const QString &sessionFileName) :
                 label.chop(1);
             }
             _legendLabels.replace(legendId-1,label);
+        } else if ( line.contains(QRegExp("[Ff][Gg]:")) ) {
+            int i = line.indexOf(QRegExp("[Ff][Gg]:"),0);
+            QString color = line.mid(i+3).trimmed();
+            if ( color.startsWith("\"") ) {
+                color = color.mid(1);
+            }
+            if ( color.endsWith("\"") ) {
+                color.chop(1);
+            }
+            _fg = color;
+        } else if ( line.contains(QRegExp("[Bb][Gg]:")) ) {
+            int i = line.indexOf(QRegExp("[Bb][Gg]:"),0);
+            QString color = line.mid(i+3).trimmed();
+            if ( color.startsWith("\"") ) {
+                color = color.mid(1);
+            }
+            if ( color.endsWith("\"") ) {
+                color.chop(1);
+            }
+            _bg = color;
         }
     }
 

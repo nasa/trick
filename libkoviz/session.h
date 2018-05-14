@@ -37,6 +37,8 @@ public:
     QString legend5() const { return _legendLabels.at(4); }
     QString legend6() const { return _legendLabels.at(5); }
     QString legend7() const { return _legendLabels.at(6); }
+    QString foreground() const { return _fg; }
+    QString background() const { return _bg; }
 
 private:
     Session();
@@ -50,6 +52,8 @@ private:
     QStringList _titles;
     QStringList _colors;
     QStringList _legendLabels;
+    QString _fg;
+    QString _bg;
 };
 
 #endif // SESSION_H

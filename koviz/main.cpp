@@ -570,6 +570,18 @@ int main(int argc, char *argv[])
             frequency = session->frequency();
         }
 
+        // Foreground
+        QString fg = opts.foreground;
+        if ( fg.isEmpty() && session ) {
+            fg = session->foreground();
+        }
+
+        // Background
+        QString bg = opts.background;
+        if ( bg.isEmpty() && session ) {
+            bg = session->background();
+        }
+
         // Show Tables (don't show if too many runs since it is *slow*)
         bool isShowTables = (isMonte || runDirs.size() > 7) ? false : true;
         if ( !opts.showTables.isEmpty() ) {  // use cmd line opt if set
@@ -591,7 +603,7 @@ int main(int argc, char *argv[])
                              presentation, QString(), dps, titles,
                              legends, colors,
                              opts.orient, opts.isLegend,
-                             opts.foreground,opts.background,
+                             fg, bg,
                              isShowTables,
                              runs, varsModel, monteInputsModel);
             w.savePdf(pdfOutFile);
@@ -708,7 +720,7 @@ int main(int argc, char *argv[])
                                  presentation, ".", dps, titles,
                                  legends, colors,
                                  opts.orient, opts.isLegend,
-                                 opts.foreground,opts.background,
+                                 fg, bg,
                                  isShowTables,
                                  runs, varsModel, monteInputsModel);
 #ifdef __linux
@@ -726,7 +738,7 @@ int main(int argc, char *argv[])
                                  presentation, runDirs.at(0), QStringList(),
                                  titles, legends, colors,
                                  opts.orient, opts.isLegend,
-                                 opts.foreground,opts.background,
+                                 fg, bg,
                                  isShowTables,
                                  runs, varsModel, monteInputsModel);
                 w.show();
