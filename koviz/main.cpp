@@ -262,7 +262,6 @@ int main(int argc, char *argv[])
         }
     }
 
-    QHash<QString,QVariant> shifts = getShiftHash(opts.shiftString, runDirs);
     QStringList timeNames = getTimeNames(opts.timeName);
 
     if ( !opts.trk2csvFile.isEmpty() ) {
@@ -605,6 +604,13 @@ int main(int argc, char *argv[])
             }
         }
 
+        // Shift
+        QString shiftString = opts.shiftString;
+        if ( opts.shiftString.isEmpty() && session ) {
+            shiftString = session->shift();
+        }
+        QHash<QString,QVariant> shifts = getShiftHash(shiftString,runDirs);
+
         // Show Tables (don't show if too many runs since it is *slow*)
         bool isShowTables = (isMonte || runDirs.size() > 7) ? false : true;
         if ( !opts.showTables.isEmpty() ) {  // use cmd line opt if set
@@ -639,7 +645,7 @@ int main(int argc, char *argv[])
             }
 
             if ( runs->runDirs().count() == 1 ) {
-                QHash<QString,QVariant> shifts = getShiftHash(opts.shiftString,
+                QHash<QString,QVariant> shifts = getShiftHash(shiftString,
                                                               runDirs);
                 double timeShift = 0.0;
                 if ( shifts.size() == 1 ) {

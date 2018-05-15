@@ -14,12 +14,12 @@ class Session
 public:
     Session(const QString& sessionFileName);
 
-    QStringList runs() const;
-    QStringList dps() const;
-    QString device() const;
-    QString presentation() const;
-    double timeMatchTolerance() const;
-    double frequency() const;
+    QStringList runs() const { return _runs; }
+    QStringList dps() const { return _dps; }
+    QString device() const { return _device; }
+    QString presentation() const { return _presentation; }
+    double timeMatchTolerance() const { return _timeMatchTolerance; }
+    double frequency() const { return _frequency; }
     QString title1() const { return _titles.at(0); }
     QString title2() const { return _titles.at(1); }
     QString title3() const { return _titles.at(2); }
@@ -43,6 +43,7 @@ public:
     double start() const { return _start; }
     double stop()  const { return _stop; }
     QString orient() const { return _orient; }
+    QString shift() const { return _shift; }
 
 private:
     Session();
@@ -61,6 +62,7 @@ private:
     double _start;
     double _stop;
     QString _orient;
+    QString _shift;
 };
 
 #endif // SESSION_H

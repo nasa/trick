@@ -220,38 +220,17 @@ Session::Session(const QString &sessionFileName) :
                                _orient.toLatin1().constData());
                 exit(-1);
             }
+        } else if ( line.contains("SHIFT:",Qt::CaseInsensitive) ) {
+            int i = line.indexOf("SHIFT:",0,Qt::CaseInsensitive);
+            _shift = line.mid(i+6).trimmed();
+            if ( _shift.startsWith("\"") ) {
+                _shift = _shift.mid(1);
+            }
+            if ( _shift.endsWith("\"") ) {
+                _shift.chop(1);
+            }
         }
     }
 
     file.close();
-}
-
-QStringList Session::runs() const
-{
-    return _runs;
-}
-
-QStringList Session::dps() const
-{
-    return _dps;
-}
-
-QString Session::device() const
-{
-    return _device;
-}
-
-QString Session::presentation() const
-{
-    return _presentation;
-}
-
-double Session::timeMatchTolerance() const
-{
-    return _timeMatchTolerance;
-}
-
-double Session::frequency() const
-{
-    return _frequency;
 }
