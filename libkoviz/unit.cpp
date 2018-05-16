@@ -265,6 +265,7 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     map.insert(QPair<QString,QString>("r","r"),      1.0);
     map.insert(QPair<QString,QString>("r","rad"),    1.0);
     map.insert(QPair<QString,QString>("r","d"),      0.0174532925199433);
+    map.insert(QPair<QString,QString>("r","degree"), 0.0174532925199433);
     map.insert(QPair<QString,QString>("r","as"),     4.848136811095362e-06);
     map.insert(QPair<QString,QString>("r","am"),     0.0002908882086657216);
     map.insert(QPair<QString,QString>("r","rev"),    6.28318530717958647);
@@ -356,11 +357,18 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     // Mass rate
     map.insert(QPair<QString,QString>("kg/s","kg/s"),  1.0);
 
+    // Area
+    map.insert(QPair<QString,QString>("m2","m2"), 1.0);
+
     // Unitless
     map.insert(QPair<QString,QString>("--","--"),  1.0);
     map.insert(QPair<QString,QString>("--","cnt"), 1.0);
     map.insert(QPair<QString,QString>("--","one"), 1.0);
     map.insert(QPair<QString,QString>("--","1"),   1.0);
+
+    // Miscellaneous
+    map.insert(QPair<QString,QString>("rad2/s2","rad2/s2"), 1.0);
+    map.insert(QPair<QString,QString>("m2/s2","m2/s2"), 1.0);
 
     return map;
 }
