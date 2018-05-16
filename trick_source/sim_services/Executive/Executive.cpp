@@ -2,6 +2,9 @@
 #include <iostream>
 #include <math.h>
 #include <sys/stat.h>
+#if __linux
+#include <sys/prctl.h>
+#endif
 
 #include "trick/Executive.hh"
 #include "trick/ExecutiveException.hh"
@@ -48,6 +51,13 @@ Trick::Executive::Executive() {
     software_frame = 1.0;
     frame_count = 0 ;
     stack_trace = true ;
+    /** @li (if on new-enough Linux) allow any process to ptrace this one.
+     *      This allows stack trace / debugger attach when ptrace is
+     *      restricted (e.g. on Ubuntu 16).
+    */
+    #if defined(PR_SET_PTRACER) && defined(PR_SET_PTRACER_ANY)
+    prctl(PR_SET_PTRACER, PR_SET_PTRACER_ANY);
+    #endif
     /** @li Assign default terminate time to MAX_LONG_LONG tics. */
     terminate_time = TRICK_MAX_LONG_LONG - 1;
     time_last_pass_tics = 0 ;
