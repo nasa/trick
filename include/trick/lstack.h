@@ -1,4 +1,6 @@
-/************** stack functions *****************/
+/*
+    PURPOSE: (stack functions)
+*/
 
 #ifndef LSTACK_H
 #define LSTACK_H
@@ -12,7 +14,7 @@ extern "C" {
 
 typedef struct _LSTACK
 {
-    DLLIST list;   /* implementing the stack using a list */
+    DLLIST list;   /* -- implementing the stack using a list */
 }LSTACK;
 
 
