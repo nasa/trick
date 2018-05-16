@@ -363,6 +363,7 @@ int Trick::DataRecordGroup::init() {
 
     // Allocate recording space for time.
     rec_buffer[0]->buffer = (char *)calloc(max_num , rec_buffer[0]->ref->attr->size) ;
+    rec_buffer[0]->last_value = (char *)calloc(1 , rec_buffer[0]->ref->attr->size) ;
 
     /* Loop through all variables looking up names.  Allocate recording space
        according to size of the variable */
@@ -593,7 +594,30 @@ int Trick::DataRecordGroup::data_record(double in_time) {
                 *((double *)(rec_buffer[0]->last_value)) = in_time ;
                 for (jj = 0; jj < rec_buffer.size() ; jj++) {
                     drb = rec_buffer[jj] ;
-                    memcpy( drb->buffer + (buffer_offset * drb->ref->attr->size) , drb->last_value , drb->ref->attr->size ) ;
+                    REF2 * ref = drb->ref ;
+                    int param_size = ref->attr->size ;
+                    if ( buffer_offset == 0 ) {
+                       drb->curr_buffer = drb->buffer ;
+                    } else {
+                       drb->curr_buffer += param_size ;
+                    }
+                    switch ( param_size ) {
+                        case 8:
+                            *(int64_t *)drb->curr_buffer = *(int64_t *)drb->last_value ;
+                            break ;
+                        case 4:
+                            *(int32_t *)drb->curr_buffer = *(int32_t *)drb->last_value ;
+                            break ;
+                        case 2:
+                            *(int16_t *)drb->curr_buffer = *(int16_t *)drb->last_value ;
+                            break ;
+                        case 1:
+                            *(int8_t *)drb->curr_buffer = *(int8_t *)drb->last_value ;
+                            break ;
+                        default:
+                            memcpy( drb->curr_buffer , drb->last_value , param_size ) ;
+                            break ;
+                    }
                 }
                 buffer_num++ ;
             }
