@@ -243,16 +243,29 @@ int main(int argc, char *argv[])
         exit(-1);
     }
 
-    if ( !opts.map.isEmpty() && !opts.mapFile.isEmpty() ) {
+    // Var Map
+    QString mapString = opts.map;
+    if ( session ) {
+        if ( mapString.isEmpty() && !session->map().isEmpty() ) {
+            mapString = session->map();
+        }
+    }
+    QString mapFile = opts.mapFile;
+    if ( session ) {
+        if ( mapFile.isEmpty() && !session->mapFile().isEmpty() ) {
+            mapFile = session->mapFile();
+        }
+    }
+    if ( !mapString.isEmpty() && !mapFile.isEmpty() ) {
         fprintf(stderr,"koviz [error] : the -map and -mapFile cannot be "
                        "used together.  Please use one or the other.\n");
         exit(-1);
     }
     QHash<QString,QStringList> varMap;
-    if ( !opts.map.isEmpty() ) {
-        varMap = getVarMap(opts.map);
-    } else if ( !opts.mapFile.isEmpty() ) {
-        varMap = getVarMapFromFile(opts.mapFile);
+    if ( !mapString.isEmpty() ) {
+        varMap = getVarMap(mapString);
+    } else if ( !mapFile.isEmpty() ) {
+        varMap = getVarMapFromFile(mapFile);
     }
     foreach ( QString key, varMap.keys() ) {
         if ( key.contains(':') ) {

@@ -9,7 +9,10 @@ Session::Session() :
     _bg(""),
     _start(-DBL_MAX),
     _stop(DBL_MAX),
-    _orient("landscape")
+    _orient("landscape"),
+    _timeName(""),
+    _map(""),
+    _mapFile("")
 {
     _titles << "" << "" << "" << "";
     _colors << "" << "" << ""
@@ -27,7 +30,10 @@ Session::Session(const QString &sessionFileName) :
     _bg(""),
     _start(-DBL_MAX),
     _stop(DBL_MAX),
-    _orient("landscape")
+    _orient("landscape"),
+    _timeName(""),
+    _map(""),
+    _mapFile("")
 {
     _titles << "" << "" << "" << "";
     _colors << "" << "" << ""
@@ -237,6 +243,24 @@ Session::Session(const QString &sessionFileName) :
             }
             if ( _timeName.endsWith("\"") ) {
                 _timeName.chop(1);
+            }
+        } else if ( line.contains("map:",Qt::CaseInsensitive) ) {
+            int i = line.indexOf("map:",0,Qt::CaseInsensitive);
+            _map = line.mid(i+4).trimmed();
+            if ( _map.startsWith("\"") ) {
+                _map = _map.mid(1);
+            }
+            if ( _map.endsWith("\"") ) {
+                _map.chop(1);
+            }
+        } else if ( line.contains("mapFile:",Qt::CaseInsensitive) ) {
+            int i = line.indexOf("mapFile:",0,Qt::CaseInsensitive);
+            _mapFile = line.mid(i+8).trimmed();
+            if ( _mapFile.startsWith("\"") ) {
+                _mapFile = _mapFile.mid(1);
+            }
+            if ( _mapFile.endsWith("\"") ) {
+                _mapFile.chop(1);
             }
         }
     }

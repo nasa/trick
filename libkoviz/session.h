@@ -45,6 +45,8 @@ public:
     QString orient() const { return _orient; }
     QString shift() const { return _shift; }
     QString timeName() const { return _timeName; }
+    QString map() const { return _map; }
+    QString mapFile() const { return _mapFile; }
 
 private:
     Session();
@@ -65,6 +67,8 @@ private:
     QString _orient;
     QString _shift;
     QString _timeName;
+    QString _map;
+    QString _mapFile;
 };
 
 #endif // SESSION_H
