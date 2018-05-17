@@ -4,6 +4,7 @@
 #include <QHash>
 #include <QString>
 #include <QDate>
+#include <QRegExp>
 
 #include <string>
 using namespace std;
@@ -1785,33 +1786,47 @@ QStandardItemModel* monteInputModelTrick17(const QString &monteInputFile,
     }
     QTextStream in(&file);
 
+    //
+    // Sanity check - top line should be #NAME:
+    //
     QString line = in.readLine();
-
-    //
-    // Sanity check num runs
-    //
-    int nRuns = 0 ;
-    bool ok = false;
-    int lineNum = 1;
-    while (!in.atEnd()) {
-        QString line = in.readLine();
-        nRuns = line.split(' ').at(0).trimmed().toInt(&ok) + 1;
-        if ( !ok || nRuns != lineNum ) {
-            fprintf(stderr,"koviz [error]: error parsing %s "
-                           " around line number %d\n",
-                           monteInputFile.toLatin1().constData(),lineNum);
-            exit(-1);
-        }
-        ++lineNum;
+    if ( !line.startsWith("#NAME:") ) {
+        fprintf(stderr,"koviz [error]: error parsing %s. "
+                       "First line should begin with \"#NAME:\"\n",
+                       monteInputFile.toLatin1().constData());
+        exit(-1);
     }
 
     //
     // Get Vars
     //
+    QStringList vars;
+    vars << "RunId";
     in.seek(0); // Go to beginning of file
-    line = in.readLine();
-    QStringList vars = line.split(' ',QString::SkipEmptyParts);
-    vars.replace(0,"RunId");
+    while (!in.atEnd()) {
+        line = in.readLine();
+        if ( line.startsWith("#NAME:") ) {
+            QString var = line.split(QRegExp("\\s+")).at(1);
+            vars << var;
+        }
+    }
+
+    //
+    // Get number of runs
+    //
+    bool isCount = false;
+    int nRuns = 0;
+    in.seek(0); // Go to beginning of file
+    while (!in.atEnd()) {
+        line = in.readLine();
+        if ( line.startsWith("00000") ) {
+             isCount = true;
+        }
+        if ( isCount ) {
+            ++nRuns;
+        }
+    }
+
 
     //
     // Allocate table items
@@ -1841,11 +1856,20 @@ QStandardItemModel* monteInputModelTrick17(const QString &monteInputFile,
     //
     // Data
     //
-    lineNum = 0;
+    bool isParseLine = false;
+    int lineNum = 0;
+    int runLine = 0;
+    in.seek(0); // Go to beginning of file
     while (!in.atEnd()) {
         ++lineNum;
         line = in.readLine();
-        QStringList vals = line.split(' ',QString::SkipEmptyParts);
+        if ( line.startsWith("00000") ) {
+             isParseLine = true;
+        }
+        if ( !isParseLine ) {
+            continue;
+        }
+        QStringList vals = line.split(QRegExp("\\s+"),QString::SkipEmptyParts);
         if ( vals.size() != vars.size() ) {
             fprintf(stderr, "koviz [error]: error parsing %s.  There "
                             "are %d variables specified in top line, "
@@ -1871,9 +1895,11 @@ QStandardItemModel* monteInputModelTrick17(const QString &monteInputFile,
                 val = val.sprintf("%.4lf",v);
             }
             NumSortItem *item = new NumSortItem(val);
-            m->setItem(lineNum-1,c,item);
+            m->setItem(runLine,c,item);
             m->setHeaderData(c,Qt::Horizontal,vars.at(c));
         }
+
+        ++runLine;
     }
 
     file.close();
