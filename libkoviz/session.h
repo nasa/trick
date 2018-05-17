@@ -8,6 +8,7 @@
 #include <QTextStream>
 #include <QRegExp>
 #include <float.h>
+#include <stdlib.h>
 
 class Session
 {
