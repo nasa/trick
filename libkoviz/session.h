@@ -44,6 +44,7 @@ public:
     double stop()  const { return _stop; }
     QString orient() const { return _orient; }
     QString shift() const { return _shift; }
+    QString timeName() const { return _timeName; }
 
 private:
     Session();
@@ -63,6 +64,7 @@ private:
     double _stop;
     QString _orient;
     QString _shift;
+    QString _timeName;
 };
 
 #endif // SESSION_H

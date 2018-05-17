@@ -150,12 +150,8 @@ QStringList DPProduct::paramList(const QString &fileName)
     foreach (DPPage* page, dp.pages() ) {
         foreach ( DPPlot* plot, page->plots() ) {
             foreach ( DPCurve* curve, plot->curves() ) {
-                QString t = curve->t()->name();
                 QString x = curve->x()->name();
                 QString y = curve->y()->name();
-                if ( !params.contains(t) && !t.isEmpty() ) {
-                    params.append(t);
-                }
                 if ( !params.contains(x) && !x.isEmpty() ) {
                     params.append(x);
                 }
@@ -169,7 +165,8 @@ QStringList DPProduct::paramList(const QString &fileName)
     return params;
 }
 
-QStringList DPProduct::paramList(const QStringList &dpFileNames)
+QStringList DPProduct::paramList(const QStringList &dpFileNames,
+                                 const QString& timeName)
 {
     QStringList params;
 
@@ -183,23 +180,12 @@ QStringList DPProduct::paramList(const QStringList &dpFileNames)
     params = paramHash.keys();
     params.sort();
 
-    int timeIdx = params.indexOf("sys.exec.out.time");
-    if ( timeIdx > 0 ) {
-        params.move(timeIdx,0);
-    } else {
-        timeIdx = params.indexOf("time");
+    if ( !params.isEmpty() ) {
+        int timeIdx = params.indexOf(timeName);
         if ( timeIdx > 0 ) {
             params.move(timeIdx,0);
         } else {
-            QRegExp rx("*time$") ;
-            rx.setCaseSensitivity(Qt::CaseInsensitive);
-            timeIdx = params.indexOf(rx);
-            if ( timeIdx > 0 ) {
-                params.move(timeIdx,0);
-            } else {
-                // Last resort, add sys.exec.out.time
-                params.insert(0,"sys.exec.out.time");
-            }
+            params.insert(0,timeName);
         }
     }
 
@@ -220,7 +206,8 @@ QStringList DPProduct::tableParamList(const QString &fileName)
     return params;
 }
 
-QStringList DPProduct::tableParamList(const QStringList &dpFileNames)
+QStringList DPProduct::tableParamList(const QStringList &dpFileNames,
+                                      const QString& timeName)
 {
     QStringList params;
 
@@ -234,23 +221,12 @@ QStringList DPProduct::tableParamList(const QStringList &dpFileNames)
     params = paramHash.keys();
     params.sort();
 
-    int timeIdx = params.indexOf("sys.exec.out.time");
-    if ( timeIdx > 0 ) {
-        params.move(timeIdx,0);
-    } else if ( timeIdx < 0 ) {
-        timeIdx = params.indexOf("time");
+    if ( !params.isEmpty() ) {
+        int timeIdx = params.indexOf(timeName);
         if ( timeIdx > 0 ) {
             params.move(timeIdx,0);
-        } else {
-            QRegExp rx("*time$") ;
-            rx.setCaseSensitivity(Qt::CaseInsensitive);
-            timeIdx = params.indexOf(rx);
-            if ( timeIdx > 0 ) {
-                params.move(timeIdx,0);
-            } else {
-                // Last resort, add sys.exec.out.time
-                params.insert(0,"sys.exec.out.time");
-            }
+        } else if ( timeIdx < 0 ) {
+            params.insert(0,timeName);
         }
     }
 
@@ -640,7 +616,7 @@ QString DPPlot::_abbreviate(const QString &label, int maxlen)
 QString DPCurve::_err_string;
 QTextStream DPCurve::_err_stream(&DPCurve::_err_string);
 
-DPCurve::DPCurve(const QDomElement &e) : _t(0), _x(0), _y(0)
+DPCurve::DPCurve(const QDomElement &e) : _x(0), _y(0)
 {
     int count = 0;
     QDomNode n = e.firstChild();
@@ -651,7 +627,6 @@ DPCurve::DPCurve(const QDomElement &e) : _t(0), _x(0), _y(0)
             if ( tag == "var" ) {
                 DPVar* var = new DPVar(e);
                 if ( count == 0 ) {
-                    _t = var; // hack for now since DP xml has no t,x,y
                     _x = var;
                 } else {
                     _y = var;
@@ -678,17 +653,6 @@ DPCurve::DPCurve(const QDomElement &e) : _t(0), _x(0), _y(0)
 
 DPCurve::~DPCurve()
 {
-    if ( _t ) {
-        if ( _t == _x ) {
-            _x = 0;
-        }
-        if ( _t == _y ) {
-            _y = 0;
-        }
-        delete _t;
-        _t = 0;
-    }
-
     if ( _x ) {
         if ( _x == _y ) {
             _y = 0;
@@ -726,16 +690,6 @@ void DPCurve::addXYPair(DPVar *x, DPVar *y)
 {
     DPXYPair* xyPair = new DPXYPair(x,y);
     _xyPairs.append(xyPair);
-}
-
-
-DPVar* DPCurve::t() {
-    if ( !_t ) {
-        _t = new DPVar("sys.exec.out.time");
-        _t->setLabel("time");
-        _t->setUnit("s");
-    }
-    return _t;
 }
 
 DPVar *DPCurve::x()

@@ -710,7 +710,6 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
 
     // Curve children
     _addChild(curveItem, "CurveTimeName", _timeName);
-    _addChild(curveItem, "CurveTimeUnit", dpcurve->t()->unit());
     _addChild(curveItem, "CurveXName", xName);
     _addChild(curveItem, "CurveXUnit", xUnit);
     _addChild(curveItem, "CurveYName", y->name());

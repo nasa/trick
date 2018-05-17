@@ -229,6 +229,15 @@ Session::Session(const QString &sessionFileName) :
             if ( _shift.endsWith("\"") ) {
                 _shift.chop(1);
             }
+        } else if ( line.contains("timeName:",Qt::CaseInsensitive) ) {
+            int i = line.indexOf("timeName:",0,Qt::CaseInsensitive);
+            _timeName = line.mid(i+9).trimmed();
+            if ( _timeName.startsWith("\"") ) {
+                _timeName = _timeName.mid(1);
+            }
+            if ( _timeName.endsWith("\"") ) {
+                _timeName.chop(1);
+            }
         }
     }
 

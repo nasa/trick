@@ -101,11 +101,10 @@ private:
 class DPCurve
 {
 public:
-    DPCurve() : _t(0),_x(0),_y(0) {}
+    DPCurve() : _x(0),_y(0) {}
 
     DPCurve(const QDomElement& e);
     ~DPCurve();
-    DPVar* t();
     DPVar* x();
     DPVar* y();
 
@@ -128,7 +127,6 @@ public:
     void setSymbolSize(const char* size); // tiny,small,medium,large
 
 private:
-    DPVar* _t;
     DPVar* _x;
     DPVar* _y;
     QString _color;  // TODO: should this be a member of y, like symbolStyle?
@@ -268,11 +266,13 @@ public:
 
     // Made for speed and used when filtering for params in DP
     static QStringList paramList(const QString& fileName);
-    static QStringList paramList(const QStringList& dpFileNames);
+    static QStringList paramList(const QStringList& dpFileNames,
+                                 const QString &timeName);
 
     // Used for -dp2trk option
     static QStringList tableParamList(const QString& fileName);
-    static QStringList tableParamList(const QStringList& dpFileNames);
+    static QStringList tableParamList(const QStringList& dpFileNames,
+                                      const QString &timeName);
 
     DPProgram* program() { return _program; }
 

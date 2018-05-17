@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
     opts.add("-t2",&opts.title2,"", "Subtitle");
     opts.add("-t3",&opts.title3,"", "User title");
     opts.add("-t4",&opts.title4,"", "Date title");
-    opts.add("-timeName", &opts.timeName, QString("sys.exec.out.time"),
+    opts.add("-timeName", &opts.timeName, "",
              "Time variable (e.g. -timeName sys.exec.out.time=mySimTime)");
     opts.add("-pdf", &opts.pdfOutFile, QString(""),
              "Name of pdf output file");
@@ -263,7 +263,15 @@ int main(int argc, char *argv[])
         }
     }
 
-    QStringList timeNames = getTimeNames(opts.timeName);
+    // Time Name
+    QString timeName = opts.timeName;
+    if ( timeName.isEmpty() && session ) {
+        timeName = session->timeName();
+    }
+    if ( timeName.isEmpty() ) {
+        timeName = "sys.exec.out.time";
+    }
+    QStringList timeNames = getTimeNames(timeName);
 
     if ( !opts.trk2csvFile.isEmpty() ) {
         QString csvOutFile = opts.outputFileName;
@@ -640,9 +648,9 @@ int main(int argc, char *argv[])
 
         } else if ( isTrk ) {
 
-            QStringList params = DPProduct::tableParamList(dps);
+            QStringList params = DPProduct::tableParamList(dps,timeName);
             if ( params.isEmpty() ) {
-                params = DPProduct::paramList(dps);
+                params = DPProduct::paramList(dps,timeName);
             }
 
             if ( runs->runDirs().count() == 1 ) {
@@ -659,7 +667,7 @@ int main(int argc, char *argv[])
                     }
                 }
                 bool r = writeTrk(opts.dp2trkOutFile,
-                                  opts.timeName,
+                                  timeName,
                                   startTime,
                                   stopTime,
                                   timeShift,
