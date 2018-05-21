@@ -654,6 +654,19 @@ int main(int argc, char *argv[])
                                  opts.showTables.toLatin1().constData());
                 exit(-1);
             }
+        } else {
+            if ( session && !session->showTables().isEmpty() ) {
+                bool ok;
+                isShowTables = Options::stringToBool(session->showTables(),&ok);
+                if ( !ok ) {
+                    fprintf(stderr, "koviz [error]: session file \"%s\" "
+                                    "has a showTables spec with value \"%s\".  "
+                                    "Expected a boolean.\n",
+                            opts.sessionFile.toLatin1().constData(),
+                            opts.showTables.toLatin1().constData());
+                    exit(-1);
+                }
+            }
         }
 
         if ( isPdf ) {

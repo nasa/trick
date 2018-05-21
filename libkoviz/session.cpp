@@ -13,7 +13,8 @@ Session::Session() :
     _timeName(""),
     _map(""),
     _mapFile(""),
-    _isLegend(true)
+    _isLegend(true),
+    _showTables("")
 {
     _titles << "" << "" << "" << "";
     _colors << "" << "" << ""
@@ -281,6 +282,29 @@ Session::Session(const QString &sessionFileName) :
                                isLegendString.toLatin1().constData(),
                                sessionFileName.toLatin1().constData());
                 exit(-1);
+            }
+        } else if ( line.contains("showTables:",Qt::CaseInsensitive) ) {
+            int i = line.indexOf("showTables:",0,Qt::CaseInsensitive);
+            QString showTables = line.mid(i+11).trimmed();
+            if ( showTables.startsWith("\"") ) {
+                showTables = showTables.mid(1);
+            }
+            if ( showTables.endsWith("\"") ) {
+                showTables.chop(1);
+            }
+            bool ok;
+            bool isShow = Options::stringToBool(showTables,&ok);
+            if ( !ok ) {
+                fprintf(stderr,"koviz [error]: bad showTables spec=\"%s\" in "
+                               "session file %s.  Value should be a boolean.\n",
+                               showTables.toLatin1().constData(),
+                               sessionFileName.toLatin1().constData());
+                exit(-1);
+            }
+            if ( isShow ) {
+                _showTables = "true";
+            } else {
+                _showTables = "false";
             }
         }
     }

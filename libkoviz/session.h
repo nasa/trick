@@ -50,6 +50,7 @@ public:
     QString map() const { return _map; }
     QString mapFile() const { return _mapFile; }
     bool isLegend() const { return _isLegend; }
+    QString showTables() const { return _showTables; }
 
 private:
     Session();
@@ -73,6 +74,7 @@ private:
     QString _map;
     QString _mapFile;
     bool _isLegend;
+    QString _showTables; // should be empty or a boolean (poor man's troolean)
 };
 
 #endif // SESSION_H
