@@ -12,7 +12,8 @@ Session::Session() :
     _orient("landscape"),
     _timeName(""),
     _map(""),
-    _mapFile("")
+    _mapFile(""),
+    _isLegend(true)
 {
     _titles << "" << "" << "" << "";
     _colors << "" << "" << ""
@@ -33,7 +34,8 @@ Session::Session(const QString &sessionFileName) :
     _orient("landscape"),
     _timeName(""),
     _map(""),
-    _mapFile("")
+    _mapFile(""),
+    _isLegend(true)
 {
     _titles << "" << "" << "" << "";
     _colors << "" << "" << ""
@@ -261,6 +263,24 @@ Session::Session(const QString &sessionFileName) :
             }
             if ( _mapFile.endsWith("\"") ) {
                 _mapFile.chop(1);
+            }
+        } else if ( line.contains("legend:",Qt::CaseInsensitive) ) {
+            int i = line.indexOf("legend:",0,Qt::CaseInsensitive);
+            QString isLegendString = line.mid(i+7).trimmed();
+            if ( isLegendString.startsWith("\"") ) {
+                isLegendString = isLegendString.mid(1);
+            }
+            if ( isLegendString.endsWith("\"") ) {
+                isLegendString.chop(1);
+            }
+            bool ok;
+            _isLegend = Options::stringToBool(isLegendString,&ok);
+            if ( !ok ) {
+                fprintf(stderr,"koviz [error]: bad legend spec=\"%s\" in "
+                               "session file %s.  Value should be a boolean.\n",
+                               isLegendString.toLatin1().constData(),
+                               sessionFileName.toLatin1().constData());
+                exit(-1);
             }
         }
     }

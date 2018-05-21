@@ -9,6 +9,7 @@
 #include <QRegExp>
 #include <float.h>
 #include <stdlib.h>
+#include "options.h"
 
 class Session
 {
@@ -48,6 +49,7 @@ public:
     QString timeName() const { return _timeName; }
     QString map() const { return _map; }
     QString mapFile() const { return _mapFile; }
+    bool isLegend() const { return _isLegend; }
 
 private:
     Session();
@@ -70,6 +72,7 @@ private:
     QString _timeName;
     QString _map;
     QString _mapFile;
+    bool _isLegend;
 };
 
 #endif // SESSION_H

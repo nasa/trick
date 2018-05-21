@@ -633,6 +633,16 @@ int main(int argc, char *argv[])
         }
         QHash<QString,QVariant> shifts = getShiftHash(shiftString,runDirs);
 
+        // Is Legend
+        bool isLegend = opts.isLegend;
+        if ( session ) {
+            // Since bool is not tri-state, I can't detect if
+            // the commandline was set explicitly, so will just take
+            // the setting in the session file if there is a session
+            // i.e. the session takes precedence over the commandline
+            isLegend = session->isLegend();
+        }
+
         // Show Tables (don't show if too many runs since it is *slow*)
         bool isShowTables = (isMonte || runDirs.size() > 7) ? false : true;
         if ( !opts.showTables.isEmpty() ) {  // use cmd line opt if set
@@ -653,7 +663,7 @@ int main(int argc, char *argv[])
                              shifts,
                              presentation, QString(), dps, titles,
                              legends, colors,
-                             orient, opts.isLegend,
+                             orient, isLegend,
                              fg, bg,
                              isShowTables,
                              runs, varsModel, monteInputsModel);
@@ -770,7 +780,7 @@ int main(int argc, char *argv[])
                                  shifts,
                                  presentation, ".", dps, titles,
                                  legends, colors,
-                                 orient, opts.isLegend,
+                                 orient, isLegend,
                                  fg, bg,
                                  isShowTables,
                                  runs, varsModel, monteInputsModel);
@@ -788,7 +798,7 @@ int main(int argc, char *argv[])
                                  shifts,
                                  presentation, runDirs.at(0), QStringList(),
                                  titles, legends, colors,
-                                 orient, opts.isLegend,
+                                 orient, isLegend,
                                  fg, bg,
                                  isShowTables,
                                  runs, varsModel, monteInputsModel);
