@@ -100,6 +100,7 @@ ICG:
 	$(PRINT_ICG)
 	$(ECHO_CMD)${TRICK_HOME}/bin/trick-ICG -m ${TRICK_ICGFLAGS} ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} S_source.hh
 
+
 force_ICG:
 	$(PRINT_ICG)
 	$(ECHO_CMD)${TRICK_HOME}/bin/trick-ICG -f -m ${TRICK_ICGFLAGS} ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} S_source.hh
@@ -135,6 +136,11 @@ convert_swig: build/S_library_swig
 S_define_exp:
 	$(TRICK_CC) -E -C -xc++ ${TRICK_SFLAGS} $(TRICK_SYSTEM_SFLAGS) S_define > $@
 
+# prints the value of a makefile variable, example invocation "make print-TRICK_CXXFLAGS"
+# This rule is used by trick-config
+print-%:
+	@echo '$*=$($*)'
+
 help:
 	@echo -e "\
 Simulation make options:\n\
@@ -142,7 +148,8 @@ Simulation make options:\n\
     make sie                     - Builds the S_sie.resource file.\n\
     make clean                   - Removes all object files in simulation directory\n\
     make spotless                - Performs a clean\n\
-    make apocalypse              - Performs a clean"
+    make apocalypse              - Performs a clean\n\
+    make print-<variable>        - Prints a makefile or environment variable"
 
 CLEAN_TARGETS = tidy clean spotless distclean apocalypse
 ifeq ($(findstring ${MAKECMDGOALS},$(CLEAN_TARGETS)),)
