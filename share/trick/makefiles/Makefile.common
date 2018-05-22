@@ -155,3 +155,8 @@ TRICK_DEFINES  = $(shell $(PERL) -e '@defines = "${TRICK_CFLAGS}" =~ /-D\s*(\S+)
 
 DEPFILE = $(PWD)/Makefile_deps
 DEPTEMPFILE = $(PWD)/Makefile_temp_depends
+
+# prints the value of a makefile variable, example invocation "make print-TRICK_CXXFLAGS"
+# This rule is used by trick-config
+print-%:
+	@echo '$*=$($*)'

@@ -26,7 +26,7 @@ sub print_prefix() {
 
 # Run a special rule in Makefile.sim that prints the value of the environment variable we request
 sub print_makefile_var($) {
-    open(README, "make -f $ENV{TRICK_HOME}/share/trick/makefiles/Makefile.sim print-@_ | ") or
+    open(README, "make -f $ENV{TRICK_HOME}/share/trick/makefiles/Makefile.common print-@_ | ") or
      die "Couldn't fork $!\n" ;
     while (<README>) {
         /=(.*)/ && print "$1\n" ;
