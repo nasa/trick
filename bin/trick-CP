@@ -136,6 +136,11 @@ convert_swig: build/S_library_swig
 S_define_exp:
 	$(TRICK_CC) -E -C -xc++ ${TRICK_SFLAGS} $(TRICK_SYSTEM_SFLAGS) S_define > $@
 
+# prints the value of a makefile variable, example invocation "make print-TRICK_CXXFLAGS"
+# This rule is used by trick-config
+print-%:
+	@echo '$*=$($*)'
+
 help:
 	@echo -e "\
 Simulation make options:\n\
