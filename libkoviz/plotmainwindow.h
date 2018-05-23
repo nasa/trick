@@ -57,6 +57,8 @@ public:
                              const QString& foreground,
                              const QString& background,
                              bool isShowTables,
+                             QString map,
+                             QString mapFile,
                              Runs* runs,
                              QStandardItemModel* varsModel,
                              QStandardItemModel* monteInputsModel=0,
@@ -76,7 +78,12 @@ private:
     QString _presentation;
     QString _dpDir;
     QStringList _dpFiles;
+    QStringList _titles;
+    QString _foreground;
+    QString _background;
     bool _isShowTables;
+    QString _map;
+    QString _mapFile;
     Runs* _runs;
     QStandardItemModel* _varsModel;
     QStandardItemModel* _monteInputsModel;
@@ -93,6 +100,7 @@ private:
     QMenu *_optsMenu;
     QAction *_dpAction;
     QAction *_pdfAction;
+    QAction *_sessionAction;
     QAction *_exitAction;
     QAction *_showLiveCoordAction;
     QAction *_clearPlotsAction;
@@ -119,6 +127,7 @@ private slots:
                                          int start, int end);
      void _saveDP();
      void _savePdf();
+     void _saveSession();
      void _toggleShowLiveCoord();
      void _clearPlots();
      void _clearTables();

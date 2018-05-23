@@ -679,6 +679,7 @@ int main(int argc, char *argv[])
                              orient, isLegend,
                              fg, bg,
                              isShowTables,
+                             mapString, mapFile,
                              runs, varsModel, monteInputsModel);
             w.savePdf(pdfOutFile);
 
@@ -796,6 +797,7 @@ int main(int argc, char *argv[])
                                  orient, isLegend,
                                  fg, bg,
                                  isShowTables,
+                                 mapString, mapFile,
                                  runs, varsModel, monteInputsModel);
 #ifdef __linux
                 timer.snap("time=");
@@ -814,6 +816,7 @@ int main(int argc, char *argv[])
                                  orient, isLegend,
                                  fg, bg,
                                  isShowTables,
+                                 mapString, mapFile,
                                  runs, varsModel, monteInputsModel);
                 w.show();
                 ret = a.exec();

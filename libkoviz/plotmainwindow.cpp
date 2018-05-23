@@ -28,6 +28,7 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
         const QString &orient, bool isLegend,
         const QString &foreground, const QString &background,
         bool isShowTables,
+        QString map, QString mapFile,
         Runs* runs,
         QStandardItemModel* varsModel,
         QStandardItemModel *monteInputsModel,
@@ -38,7 +39,12 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
     _presentation(presentation),
     _dpDir(dpDir),
     _dpFiles(dpFiles),
+    _titles(titles),
+    _foreground(foreground),
+    _background(background),
     _isShowTables(isShowTables),
+    _map(map),
+    _mapFile(mapFile),
     _runs(runs),
     _varsModel(varsModel),
     _monteInputsModel(monteInputsModel),
@@ -237,6 +243,7 @@ void PlotMainWindow::createMenu()
     _optsMenu = new QMenu(tr("&Options"), this);
     _pdfAction  = _fileMenu->addAction(tr("Save &PDF"));
     _dpAction  = _fileMenu->addAction(tr("Save &DP"));
+    _sessionAction = _fileMenu->addAction(tr("Save &Session"));
     _exitAction = _fileMenu->addAction(tr("E&xit"));
     _showLiveCoordAction = _optsMenu->addAction(tr("ShowLiveCoord"));
     _clearPlotsAction  = _optsMenu->addAction(tr("ClearPlots"));
@@ -247,6 +254,7 @@ void PlotMainWindow::createMenu()
     _menuBar->addMenu(_optsMenu);
     connect(_dpAction, SIGNAL(triggered()),this, SLOT(_saveDP()));
     connect(_pdfAction, SIGNAL(triggered()),this, SLOT(_savePdf()));
+    connect(_sessionAction, SIGNAL(triggered()),this, SLOT(_saveSession()));
     connect(_exitAction, SIGNAL(triggered()),this, SLOT(close()));
     connect(_showLiveCoordAction, SIGNAL(triggered()),
             this, SLOT(_toggleShowLiveCoord()));
@@ -734,6 +742,196 @@ void PlotMainWindow::_savePdf()
             }
             */
         }
+    }
+}
+
+void PlotMainWindow::_saveSession()
+{
+    QString fname = QFileDialog::getSaveFileName(this,
+                                                 QString("Save Session"),
+                                                 QString("session_"),
+                                                 tr("files (session*)"));
+
+    if ( ! fname.isEmpty() ) {
+
+        // Open trk file for writing
+        QFile f(fname);
+        if (!f.open(QIODevice::WriteOnly)) {
+            fprintf(stderr,"koviz: [error] could not open %s\n",
+                    fname.toLatin1().constData());
+            exit(-1);
+        }
+        QTextStream out(&f);
+
+        // Session Title
+        QFileInfo fi(".");
+        QString userName = fi.owner();
+        QDate date = QDate::currentDate();
+        QString fmt("MMMM d, yyyy");
+        QString dateStr = date.toString(fmt);
+        QString sessionTitle = "Session - " + userName + " " + dateStr ;
+        out << sessionTitle;
+        out << "\n\n";
+
+        // RUNs
+        foreach ( QString run, _runs->runDirs() ) {
+            out << "RUN: " << run << "\n";
+        }
+
+        // DPs
+        foreach ( QString dp, _dpFiles ) {
+            out << "PRODUCT: " << dp << "\n";
+        }
+
+        // Title1
+        QModelIndex titlesIdx = _bookModel->getIndex(QModelIndex(),
+                                                     "DefaultPageTitles");
+        QString title1 = _bookModel->getDataString(titlesIdx,
+                                                   "Title1",
+                                                   "DefaultPageTitles");
+        if ( !title1.startsWith("koviz") ) {
+            out << "t1: " << title1 << "\n";
+        } else {
+            out << "t1: \"\"\n";
+        }
+
+        // Title2
+        if ( !_titles.at(1).contains('\n') ) {
+            out << "t2: " << _titles.at(1) << "\n";
+        } else {
+            out << "t2: \"\"\n";
+        }
+
+        // Title3
+        if ( !_titles.at(2).startsWith("User:") ) {
+             out << "t3: " << _titles.at(2) << "\n";
+        } else {
+            out << "t3: \"\"\n";
+        }
+
+        // Title4
+        if ( !_titles.at(3).startsWith("Date:") ) {
+             out << "t4: " << _titles.at(3) << "\n";
+        } else {
+            out << "t4: \"\"\n";
+        }
+
+        // Foreground
+        if ( !_foreground.isEmpty() ) {
+             out << "fg: " << _foreground << "\n";
+        }
+
+        // Background
+        if ( !_background.isEmpty() ) {
+             out << "bg: " << _background << "\n";
+        }
+
+        // Legend/Curve Colors
+        QModelIndex clrIdx = _bookModel->getIndex(QModelIndex(),
+                                                  "LegendColors","");
+        QString c1 = _bookModel->getDataString(clrIdx,"Color1","LegendColors");
+        QString c2 = _bookModel->getDataString(clrIdx,"Color2","LegendColors");
+        QString c3 = _bookModel->getDataString(clrIdx,"Color3","LegendColors");
+        QString c4 = _bookModel->getDataString(clrIdx,"Color4","LegendColors");
+        QString c5 = _bookModel->getDataString(clrIdx,"Color5","LegendColors");
+        QString c6 = _bookModel->getDataString(clrIdx,"Color6","LegendColors");
+        QString c7 = _bookModel->getDataString(clrIdx,"Color7","LegendColors");
+        out << "c1: \"" << c1 << "\"\n" ;
+        out << "c2: \"" << c2 << "\"\n" ;
+        out << "c3: \"" << c3 << "\"\n" ;
+        out << "c4: \"" << c4 << "\"\n" ;
+        out << "c5: \"" << c5 << "\"\n" ;
+        out << "c6: \"" << c6 << "\"\n" ;
+        out << "c7: \"" << c7 << "\"\n" ;
+
+        // Legend labels
+        QModelIndex legIdx = _bookModel->getIndex(QModelIndex(),"LegendLabels");
+        QString l1 = _bookModel->getDataString(legIdx,"Label1","LegendLabels");
+        QString l2 = _bookModel->getDataString(legIdx,"Label2","LegendLabels");
+        QString l3 = _bookModel->getDataString(legIdx,"Label3","LegendLabels");
+        QString l4 = _bookModel->getDataString(legIdx,"Label4","LegendLabels");
+        QString l5 = _bookModel->getDataString(legIdx,"Label5","LegendLabels");
+        QString l6 = _bookModel->getDataString(legIdx,"Label6","LegendLabels");
+        QString l7 = _bookModel->getDataString(legIdx,"Label7","LegendLabels");
+        out << "l1: \"" << l1 << "\"\n" ;
+        out << "l2: \"" << l2 << "\"\n" ;
+        out << "l3: \"" << l3 << "\"\n" ;
+        out << "l4: \"" << l4 << "\"\n" ;
+        out << "l5: \"" << l5 << "\"\n" ;
+        out << "l6: \"" << l6 << "\"\n" ;
+        out << "l7: \"" << l7 << "\"\n" ;
+
+        // Show Legend
+        QString isLegend = _bookModel->getDataString(QModelIndex(),"IsLegend");
+        out << "legend: " << isLegend << "\n";
+
+        // Orientation
+        QString orient = _bookModel->getDataString(QModelIndex(),"Orientation");
+        out << "orient: " << orient << "\n";
+
+        // Presentation
+        QString pres = _bookModel->getDataString(QModelIndex(),"Presentation");
+        out << "presentation: " << pres << "\n";
+
+        // Shift
+        QHash<QString,QVariant> shifts = _bookModel->getDataHash(QModelIndex(),
+                                                             "RunToShiftHash");
+        QString shift;
+        foreach ( QString run, shifts.keys() ) {
+            QString shiftVal = shifts.value(run).toString();
+            shift += run + ":" + shiftVal + ",";
+        }
+        if ( !shift.isEmpty() ) {
+            shift.chop(1); // chop off comma
+            out << "shift: " << shift << "\n";
+        }
+
+        // Show Tables
+        out << "showTables: ";
+        if ( _isShowTables ) {
+            out << "on\n";
+        } else {
+            out << "off\n";
+        }
+
+        // Start/Stop Times
+        double start = _bookModel->getDataDouble(QModelIndex(),"StartTime");
+        double stop  = _bookModel->getDataDouble(QModelIndex(),"StopTime");
+        if ( start != -DBL_MAX ) {
+            out << "start: " << start << "\n";
+        }
+        if ( stop != DBL_MAX ) {
+            out << "stop: "  << stop << "\n";
+        }
+
+        // Timename(s)
+        QString timeNames;
+        foreach ( QString timeName, _timeNames ) {
+            timeNames += timeName + "=";
+        }
+        if ( !timeNames.isEmpty() ) {
+            timeNames.chop(1);
+            out << "timeName: " << timeNames << "\n";
+        }
+
+        // Map or mapfile
+        if ( !_map.isEmpty() && !_mapFile.isEmpty() ) {
+            fprintf(stderr, "koviz [bad scoobs]: PlotMainWindow::_saveSession()"
+                            " commandline options map=%s and mapFile=%s cannot "
+                            "be used together.\n",
+                            _map.toLatin1().constData(),
+                            _mapFile.toLatin1().constData());
+            exit(-1);
+        }
+        if ( !_map.isEmpty() ) {
+            out << "map: " << _map;
+        }
+        if ( !_mapFile.isEmpty() ) {
+            out << "mapFile: " << _mapFile;
+        }
+
+
+        f.close();
     }
 }
 
