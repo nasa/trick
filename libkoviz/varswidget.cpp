@@ -218,6 +218,7 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
     _addChild(plotItem, "PlotMathRect", QRectF());
     _addChild(plotItem, "PlotStartTime", -DBL_MAX);
     _addChild(plotItem, "PlotStopTime",   DBL_MAX);
+    _addChild(plotItem, "PlotGrid", true);
     _addChild(plotItem, "PlotXMinRange", -DBL_MAX);
     _addChild(plotItem, "PlotXMaxRange",  DBL_MAX);
     _addChild(plotItem, "PlotYMinRange", -DBL_MAX);

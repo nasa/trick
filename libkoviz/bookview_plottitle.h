@@ -14,8 +14,6 @@ public:
     explicit PlotTitleView(QWidget *parent = 0);
 
 protected:
-    virtual void _update();
-
     virtual QSize minimumSizeHint() const;
     virtual QSize sizeHint() const;
     virtual void paintEvent(QPaintEvent * event);

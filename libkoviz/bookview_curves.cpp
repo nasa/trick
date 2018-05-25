@@ -440,6 +440,8 @@ void CurvesView::paintEvent(QPaintEvent *event)
         QColor bg = _bookModel()->pageBackgroundColor(pageIdx);
         painter.fillRect(viewport()->rect(),bg);
 
+        _paintGrid(painter,rootIndex());
+
         if ( plotPresentation == "compare" ) {
             _paintCoplot(T,painter,pen);
         } else if ( plotPresentation == "error" ) {
@@ -488,6 +490,9 @@ void CurvesView::_paintCoplot(const QTransform &T,QPainter &painter,QPen &pen)
         QColor bg = _bookModel()->pageBackgroundColor(pageIdx);
         bg.setAlpha(190);
         painter.fillRect(viewport()->rect(),bg);
+
+        // Since grid is too light with semi-transparent bg, paint it
+        _paintGrid(painter,rootIndex());
 
         // Paint curve (possibly with linestyle, symbols etc.)
         _paintCurve(currentIndex(),T,painter,true);
@@ -1097,6 +1102,8 @@ QPixmap* CurvesView::_createLivePixmap()
     painter.fillRect(viewport()->rect(),bg);
 
     QTransform T = _coordToPixelTransform();
+
+    _paintGrid(painter, rootIndex());
 
     QModelIndex curvesIdx = _bookModel()->getIndex(rootIndex(),"Curves","Plot");
     int rc = model()->rowCount(curvesIdx);

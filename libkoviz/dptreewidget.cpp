@@ -339,7 +339,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             _addChild(plotItem, "PlotYAxisLabel", plot->yAxisLabel());
             _addChild(plotItem, "PlotStartTime",  plot->startTime());
             _addChild(plotItem, "PlotStopTime",   plot->stopTime());
-            _addChild(plotItem, "PlotGridOnOff",  plot->grid());
+            _addChild(plotItem, "PlotGrid",       plot->grid());
             _addChild(plotItem, "PlotGridColor",       plot->gridColor());
             _addChild(plotItem, "PlotBackgroundColor", plot->backgroundColor());
             _addChild(plotItem, "PlotForegroundColor", plot->foregroundColor());

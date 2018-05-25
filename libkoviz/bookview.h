@@ -94,6 +94,8 @@ private:
                                  const QModelIndex& plotIdx);
     void _printBottomLeftCorner(const QRect &R, QPainter *painter,
                                 const QModelIndex& plotIdx);
+    void _printGrid(const QRect &R, QPainter *painter,
+                    const QModelIndex& plotIdx, const QRect &curvesRect);
 
 signals:
 

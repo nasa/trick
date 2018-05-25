@@ -93,6 +93,7 @@ protected:
                            QPainter& painter);
     virtual void __paintSymbol(const QPointF &p, const QString& symbol,
                                QPainter& painter);
+    void _paintGrid(QPainter& painter, const QModelIndex &plotIdx);
 
 private:
     QRect __paintPageLegend(const QRect& R,

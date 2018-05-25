@@ -6,29 +6,25 @@ PlotTitleView::PlotTitleView(QWidget *parent) :
     setFrameShape(QFrame::NoFrame);
 }
 
-void PlotTitleView::_update()
-{
-}
-
-
 // TODO: For now and only handle single item changes
 void PlotTitleView::dataChanged(const QModelIndex &topLeft,
                                 const QModelIndex &bottomRight)
 {
     if ( topLeft.parent() != rootIndex() ) return;
-
-    // Value is in column 1
     if ( topLeft.column() != 1 ) return;
-
-    // TODO: For now and only handle single item changes
     if ( topLeft != bottomRight ) return;
 
-    _update();
+    if ( topLeft == _plotMathRectIdx(rootIndex()) ) {
+        viewport()->update();
+    }
 }
 
 // TODO: only single append works
 void PlotTitleView::rowsInserted(const QModelIndex &pidx, int start, int end)
 {
+    Q_UNUSED(pidx);
+    Q_UNUSED(start);
+    Q_UNUSED(end);
     return;
 }
 
@@ -59,6 +55,8 @@ void PlotTitleView::paintEvent(QPaintEvent *event)
     if ( !model() ) return;
 
     QPainter painter(viewport());
+
+    _paintGrid(painter,rootIndex());
 
     painter.save();
     painter.setRenderHint(QPainter::Antialiasing);

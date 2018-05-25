@@ -1381,3 +1381,61 @@ void BookIdxView::__paintSymbol(const QPointF& p,
 
     painter.setPen(origPen);
 }
+
+void BookIdxView::_paintGrid(QPainter &painter, const QModelIndex& plotIdx)
+{
+    // If Grid is off, do not paint grid
+    QModelIndex isGridIdx = _bookModel()->getDataIndex(plotIdx,
+                                                       "PlotGrid","Plot");
+    bool isGrid = _bookModel()->data(isGridIdx).toBool();
+    if ( !isGrid ) {
+        return;
+    }
+
+    QList<double> xtics = _majorXTics(plotIdx);
+    QList<double> ytics = _majorYTics(plotIdx);
+
+    QVector<QPointF> vLines;
+    QVector<QPointF> hLines;
+
+    const QRectF M = _mathRect();
+
+    foreach ( double x, xtics ) {
+        vLines << QPointF(x,M.top()) << QPointF(x,M.bottom());
+    }
+    foreach ( double y, ytics ) {
+        hLines << QPointF(M.left(),y) << QPointF(M.right(),y);
+    }
+
+    bool isAntiAliasing = (QPainter::Antialiasing & painter.renderHints()) ;
+
+    // Grid Color
+    QModelIndex pageIdx = _bookModel()->getIndex(plotIdx,"Page","Plot");
+    QColor color = _bookModel()->pageForegroundColor(pageIdx);
+    color.setAlpha(40);
+
+    // Pen
+    QVector<qreal> dashes;
+    qreal space = 4;
+    dashes << 4 << space ;
+
+    //
+    // Draw!
+    //
+    QPen origPen = painter.pen();
+    QPen pen = painter.pen();
+    pen.setColor(color);
+    painter.save();
+    painter.setRenderHint(QPainter::Antialiasing,false);
+    pen.setWidthF(0.0);
+    pen.setDashPattern(dashes);
+    painter.setPen(pen);
+    painter.setTransform(_coordToPixelTransform());
+    painter.drawLines(hLines);
+    painter.drawLines(vLines);
+    painter.setPen(origPen);
+    if ( isAntiAliasing ) {
+        painter.setRenderHint(QPainter::Antialiasing);
+    }
+    painter.restore();
+}

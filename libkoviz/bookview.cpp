@@ -757,9 +757,12 @@ void BookView::_printPlot(const QRect &R,
     QRect xal(m4.bottomLeft(),QSize(R.width(),xalh));
     QRect m5(xal.bottomLeft(),QSize(R.width(),hm5)); Q_UNUSED(m5);
 
+
     //
     // Paint!
     //
+    QRect gridRect = titleRect.united(curvesRect) ;
+    _printGrid(gridRect,painter,plotIdx,curvesRect);
     _printPlotTitle(titleRect,painter,plotIdx);
 
     // Curves
@@ -1641,6 +1644,56 @@ void BookView::_printBottomLeftCorner(const QRect &R,
     p2.setX(p2.x()-q/2);
     p2.setY(p2.y()-q/2);
     painter->drawLine(p1,p2);
+}
+
+void BookView::_printGrid(const QRect &R, QPainter *painter,
+                          const QModelIndex &plotIdx, const QRect &curvesRect)
+{
+    int q = painter->pen().width();
+
+    QPen origPen = painter->pen();
+    QPen pen = painter->pen();
+    pen.setWidth(q/2);
+
+    // Pen color
+    QModelIndex pageIdx = _bookModel()->getIndex(plotIdx,"Page","Plot");
+    QColor color = _bookModel()->pageForegroundColor(pageIdx);
+    color.setAlpha(60);
+    pen.setColor(color);
+
+    // Pen dash pattern
+    QVector<qreal> dashes;
+    qreal space = 4;
+    dashes << 4 << space ;
+    pen.setDashPattern(dashes);
+
+    // Set Pen
+    painter->setPen(pen);
+
+    // Transform
+    QTransform T = _coordToDotTransform(curvesRect,plotIdx);
+
+    // Vertical lines
+    QList<double> xtics = _majorXTics(plotIdx);
+    foreach ( double x, xtics ) {
+        QPointF a = T.map(QPointF(x,0));
+        a.setY(R.top()+q/2);
+        QPointF b(a);
+        b.setY(R.bottom()-q/2);
+        painter->drawLine(a,b);
+    }
+
+    // Horizontal lines
+    QList<double> ytics = _majorYTics(plotIdx);
+    foreach ( double y, ytics ) {
+        QPointF pt1 = T.map(QPointF(0,y));
+        QPointF pt2(pt1);
+        pt1.setX(R.left()+q/2);
+        pt2.setX(R.right()-q/2);
+        painter->drawLine(pt1,pt2);
+    }
+
+    painter->setPen(origPen);
 }
 
 void BookView::_printYAxisLabel(const QRect& R,
