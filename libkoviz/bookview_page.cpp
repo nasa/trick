@@ -175,6 +175,7 @@ void PageView::rowsInserted(const QModelIndex &pidx, int start, int end)
     case 1: {
         _grid->addWidget(plot,1,0);
         _grid->setRowStretch(1,100);
+        _grid->setColumnStretch(0,100);
         break;
     }
     case 2: {
@@ -196,6 +197,7 @@ void PageView::rowsInserted(const QModelIndex &pidx, int start, int end)
         _grid->addWidget(w3,2,0);
         _grid->addWidget(plot,2,1);
         _grid->setRowStretch(3,0);
+        _grid->setColumnStretch(1,100);
         break;
     }
     case 5: {
