@@ -33,10 +33,10 @@ int yywrap()
   return 1;
 }
 
-void msg(const QString& str, bool isPrint=false)
+void msg(const QString& str, bool isPrint=true)
 {
     if ( isPrint ) {
-        fprintf(stderr,"%s\n",str.toLatin1().constData());
+        fprintf(stderr,"koviz [warning]: %s\n",str.toLatin1().constData());
     }
 }
 
@@ -139,26 +139,19 @@ page: DP_PAGE DP_FLOAT ':' DP_STR
 
 page_options:
         | page_options DP_GNUPLOT_TEMPLATE ':' DP_STR { 
-                // DP_STR == template location on file system
-                //product->getCurrPage()->setGnuplotTemplate($4);
-                msg("page->setGnuplotTemplate() not supported");
+                msg("PAGE.GNUPLOT_TEMPLATE not supported");
         }
         | page_options DP_GNUPLOT_OBJECT ':' DP_STR { 
-                // DP_STR == gnuplot object 
-                //product->getCurrPage()->setGnuplotObject($4);
-                msg("page->setGnuplotObject() not supported");
+                msg("PAGE.GNUPLOT_OBJECT not supported");
         }
         | page_options DP_GNUPLOT_GEOM ':' DP_STR {
-                //product->getCurrPage()->setGnuplotGeom($4);
-                msg("page->setGnuplotGeom() not supported");
+                msg("PAGE.GNUPLOT_GEOM not supported");
         }
         | page_options DP_GNUPLOT_PLOT_RATIO ':' DP_STR {
-                //product->getCurrPage()->setGnuplotPlotRatio($4);
-                msg("page->setGnuplotPlotRatio() not supported");
+                msg("PAGE.GNUPLOT_RATIO not supported");
         }
         | page_options DP_GNUPLOT_PAGE_ORIENTATION ':' DP_STR {
-                //product->getCurrPage()->setGnuplotPageOrientation($4);
-                msg("page->setGnuplotPageOrientation() not supported");
+                msg("PAGE.GNUPLOT_PAGE_ORIENTATION not supported");
         }
         | page_options DP_START ':' DP_FLOAT {
                 currPage->setStartTime($4);
@@ -173,8 +166,7 @@ page_options:
                 currPage->setBackgroundColor($4);
         }
         | page_options DP_FONT ':' DP_STR  {
-                //product->getCurrPage()->setFont($4);
-                msg("page->setGnuplotPageOrientation() not supported");
+                msg("PAGE.FONT spec not supported");
         }
         ;
 
@@ -199,8 +191,8 @@ plot: DP_PLOT DP_FLOAT ':' DP_STR {
                 currPlot->setXAxisLabel($4);
         }
         | plot DP_X_SCALE ':' DP_STR {
-                //currPlot->setXLogScale($4);
-                msg("page->setXLogScale() not supported");
+                msg("PLOT.X_SCALE not supported.  "
+                    "Use X_VARIABLE.SCALE_FACTOR instead.");
         }
         | plot DP_X_MIN_RANGE ':' DP_FLOAT {
                 currPlot->setXMinRange($4);
@@ -212,12 +204,11 @@ plot: DP_PLOT DP_FLOAT ':' DP_STR {
                 currPlot->setYAxisLabel($4);
         }
         | plot DP_Y_SCALE ':' DP_STR {
-                //currPlot->setYLogScale($4);
-                msg("page->setYLogScale() not supported");
+                msg("PLOT.Y_SCALE not supported.  "
+                    "Use Y_VARIABLE.SCALE_FACTOR instead.");
         }
         | plot DP_Y_AXIS_FORMAT ':' DP_STR {
-                //currPlot->setYAxisFormat($4);
-                msg("page->setYAxisFormat() not supported");
+                msg("PLOT.Y_AXIS_FORMAT not supported");
         }
         | plot DP_Y_MIN_RANGE ':' DP_FLOAT {
                 currPlot->setYMinRange($4);
@@ -315,8 +306,7 @@ x_var: DP_X_VARIABLE ':' DP_STR {
                 }
         }
         | x_var DP_TIME_UNITS ':' DP_STR {
-                //currXVar->setTimeUnit($4);
-                msg("plot->setTimeUnit() not supported");
+                msg("X_VARIABLE.TIME_UNITS not supported");
         }
         ;
 
@@ -391,8 +381,7 @@ y_var: DP_Y_VARIABLE ':' DP_STR {
                 }
         }
         | y_var DP_GNUPLOT_FUNCTION_STYLE ':' DP_STR {
-                //currCurve->setGnuplotFunctionStyle($4);
-                msg("plot->setGnuplotFunctionStyle() not supported");
+                msg("Y_VARIABLE.GNUPLOT_FUNCTION_STYLE not supported");
         }
         | y_var DP_TIME_NAME ':' DP_STR {
                 if ( isXYPair ) {
@@ -402,12 +391,10 @@ y_var: DP_Y_VARIABLE ':' DP_STR {
                 }
         }
         | y_var DP_TIME_UNITS ':' DP_STR {
-                //currYVar->setTimeUnit($4);
-                msg("plot->setTimeUnit() not supported");
+                msg("Y_VARIABLE.TIME_UNITS not supported");
         }
         | y_var DP_GNUPLOT_LINE_STYLE ':' DP_STR {
-                //currCurve->setGnuplotLineStyle($4);
-                msg("plot->setGnuplotLineStyle() not supported");
+                msg("Y_VARIABLE.GNUPLOT_LINE_STYLE not supported");
         }
         ;
 
@@ -427,31 +414,29 @@ curve: DP_CURVE ':' {
                 isXYPair = false;
         }
         | curve DP_LABEL ':' DP_STR {
-                //currCurve->setLabel($4);
-                msg("plot->setLabel() not supported");
+                msg("CURVE.LABEL not supported.  "
+                    "Use [XY]_VARIABLE.LABEL instead.");
         }
         | curve DP_LINE_STYLE ':' DP_STR {
-                //currCurve->setLineStyle($4);
-                msg("plot->setLineStyle() not supported");
+                msg("CURVE.LINE_STYLE not supported.  "
+                    "Use Y_VARIABLE.LINE_STYLE instead.");
         }
         | curve DP_LINE_COLOR ':' DP_STR {
                 currCurve->setLineColor($4);
         }
         | curve DP_SYMBOL_STYLE ':' DP_STR {
-                //currCurve->setLineSymbol($4);
-                msg("plot->setLineSymbol() not supported");
+                msg("CURVE.LINE_SYMBOL not supported.  "
+                    "Use Y_VARIABLE.SYMBOL_STYLE instead.");
         }
         | curve DP_SYMBOL_SIZE ':' DP_STR {
-                //currCurve->setLineSymbolSize($4);
-                msg("plot->setLineSymbolSize() not supported");
+                msg("CURVE.SYMBOL_SIZE not supported.  "
+                    "Use Y_VARIABLE.SYMBOL_SIZE instead.");
         }
         | curve DP_GNUPLOT_FUNCTION_STYLE ':' DP_STR {
-                //currCurve->setGnuplotFunctionStyle($4);
-                msg("plot->setGnuplotFunctionStyle() not supported");
+                msg("CURVE.GNUPLOT_FUNCTION_STYLE not supported");
         }
         | curve DP_GNUPLOT_LINE_STYLE ':' DP_STR {
-                //currCurve->setGnuplotLineStyle($4);
-                msg("plot->setGnuplotLineStyle() not supported");
+                msg("CURVE.GNUPLOT_LINE_STYLE not supported");
         }
         ;
 
@@ -478,10 +463,10 @@ table_options:
                 currTable->setDelimiter($4);
         }
         | table_options DP_CHANGE_ONLY ':' DP_STR {
-                //currTable->setChangeOnly($4);
+                msg("TABLE.CHANGE_ONLY not supported");
         }
         | table_options DP_COLUMN_WIDTH ':' DP_FLOAT {
-                //currTable->setColumnWidth((int)$4);
+                msg("TABLE.COLUMN_WIDTH not supported");
         }
         ;
 
