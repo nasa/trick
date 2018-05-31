@@ -199,13 +199,6 @@ foreach $k ( sort keys %files_by_dir ) {
     }
 }
 
-# set the "dir_num" of each directory.
-foreach $k ( sort keys %files_by_dir ) {
-    $_ = $k ;
-    ($files_by_dir{$k}{dir_num} = $_) =~ s#^/## ;
-    $files_by_dir{$k}{dir_num} =~ s/[\/.]/_/g ;
-}
-
 my $wd = abs_path(cwd()) ;
 my $dt = localtime();
 my ($trick_ver) = get_trick_version() ;
@@ -374,14 +367,17 @@ foreach $k ( sort keys %files_by_dir ) {
             s//$comment/ ;
             if ( s/^objects\s*:\s*// ) {
                 foreach my $ext ( qw{c C cc cxx cpp CPLUSPLUS l y} ) {
-                    $files_by_dir{$k}{overrides} .= "\$(MODEL_${ext}_OBJ_$files_by_dir{$k}{dir_num}): $_" ;
+                    foreach my $file (@{$files_by_dir{$k}{$ext}}) {
+                        $files_by_dir{$k}{overrides} .= "build$k/${file}o \\\n" ;
+                    }
                 }
-            }
-            elsif ( s/^depend\s*:\s*// ) {
-                $files_by_dir{$k}{overrides} .= "depend_$files_by_dir{$k}{dir_num}: $_" ;
+                $files_by_dir{$k}{overrides} .= ": $_"
             }
             elsif ( s/([cfhy]|C|cc|cxx|cpp|CPLUSPLUS)_objects\s*:\s*// ) {
-                $files_by_dir{$k}{overrides} .= "\$(MODEL_$1_OBJ_$files_by_dir{$k}{dir_num}): $_" ;
+                foreach my $file (@{$files_by_dir{$k}{$1}}) {
+                    $files_by_dir{$k}{overrides} .= "build$k/${file}o \\\n" ;
+                }
+                $files_by_dir{$k}{overrides} .= ": $_"
             }
             else {
                 $files_by_dir{$k}{overrides} .= $_ ;
