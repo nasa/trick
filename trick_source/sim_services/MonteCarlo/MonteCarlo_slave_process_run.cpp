@@ -70,7 +70,7 @@ int Trick::MonteCarlo::slave_process_run() {
 
         int signal = WTERMSIG(return_value);
         /** <li> Extract the exit status of the child. */
-        MonteRun::ExitStatus exit_status = signal == SIGALRM ? MonteRun::TIMEDOUT : MonteRun::CORED;
+        MonteRun::ExitStatus exit_status = signal == SIGALRM ? MonteRun::MC_RUN_TIMED_OUT : MonteRun::MC_RUN_DUMPED_CORE;
         if (verbosity >= ERROR) {
             message_publish(MSG_ERROR, "Monte [%s:%d] Run killed by signal %d: %s\n",
                             machine_name.c_str(), slave_id, signal, strsignal(signal)) ;
@@ -99,14 +99,14 @@ int Trick::MonteCarlo::slave_process_run() {
     } else {
         input[size] = '\0';
         if ( ip_parse(input) != 0 ) {
-            exit(MonteRun::BAD_INPUT);
+            exit(MonteRun::MC_PROBLEM_PARSING_INPUT);
         }
 
         /** <ul><li> Create the run directory. */
         std::string output_dir = command_line_args_get_output_dir();
         if (access(output_dir.c_str(), F_OK) != 0) {
             if (mkdir(output_dir.c_str(), 0775) == -1) {
-                exit(MonteRun::NO_PERM);
+                exit(MonteRun::MC_CANT_CREATE_OUTPUT_DIR);
             }
         }
 

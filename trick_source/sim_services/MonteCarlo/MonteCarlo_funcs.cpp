@@ -278,7 +278,7 @@ int Trick::MonteCarlo::shutdown() {
     if (enabled && is_slave()) {
         connection_device.port = master_port;
         if (tc_connect(&connection_device) == TC_SUCCESS) {
-            int exit_status = MonteRun::COMPLETE;
+            int exit_status = MonteRun::MC_RUN_COMPLETE;
             if (verbosity >= ALL) {
                 message_publish(MSG_INFO, "Monte [%s:%d] Sending run exit status to master: %d\n",
                                 machine_name.c_str(), slave_id, exit_status) ;
@@ -318,7 +318,7 @@ void Trick::MonteCarlo::handle_retry(MonteSlave& slave, MonteRun::ExitStatus exi
 
 /** @par Detailed Design: */
 void Trick::MonteCarlo::resolve_run(MonteSlave& slave, MonteRun::ExitStatus exit_status) {
-    if (exit_status != MonteRun::COMPLETE) {
+    if (exit_status != MonteRun::MC_RUN_COMPLETE) {
         failed_runs.push_back(slave.current_run);
     }
 
@@ -352,12 +352,12 @@ void Trick::MonteCarlo::check_timeouts() {
              * <ul><li> This run might have been redispatched due to a previous timeout for which the slave actually returned
              * data later. Only process this timeout if the run hasn't been resolved yet.
              */
-            if (slaves[i]->current_run->exit_status == MonteRun::INCOMPLETE) {
+            if (slaves[i]->current_run->exit_status == MonteRun::MC_RUN_INCOMPLETE) {
                 if (verbosity >= ERROR) {
                     message_publish(MSG_ERROR, "Monte [Master] %s:%d has not responded for run %d.\n",
                                     slaves[i]->machine_name.c_str(), slaves[i]->id, slaves[i]->current_run->id) ;
                 }
-                handle_retry(*slaves[i], MonteRun::TIMEDOUT);
+                handle_retry(*slaves[i], MonteRun::MC_RUN_TIMED_OUT);
             }
             /** </ul><li> Update the slave's state. */
             slaves[i]->state = slaves[i]->state == MonteSlave::RUNNING ?

@@ -92,9 +92,9 @@ void Trick::MonteCarlo::handle_run_data(Trick::MonteSlave& slave) {
      * this slave was marked as having timed out. If that is the case,
      * discard these results.
      */
-    if (slave.current_run->exit_status != MonteRun::INCOMPLETE) {
+    if (slave.current_run->exit_status != MonteRun::MC_RUN_INCOMPLETE) {
         // TODO: If a slave times out or core dumps in it's monte_slave_post
-        // jobs, the master will receive a COMPLETE status from the slave's
+        // jobs, the master will receive a MC_RUN_COMPLETE status from the slave's
         // child process and then an error status from the parent, rendering
         // this message incorrect.
         if (verbosity >= ALL) {
@@ -118,39 +118,39 @@ void Trick::MonteCarlo::handle_run_data(Trick::MonteSlave& slave) {
 
     switch (exit_status) {
 
-        case MonteRun::COMPLETE:
-            resolve_run(slave, MonteRun::COMPLETE);
+        case MonteRun::MC_RUN_COMPLETE:
+            resolve_run(slave, MonteRun::MC_RUN_COMPLETE);
             run_queue(&master_post_queue, "in master_post queue") ;
             break;
 
-        case MonteRun::BAD_INPUT:
+        case MonteRun::MC_PROBLEM_PARSING_INPUT:
             if (verbosity >= ERROR) {
                 message_publish(
                   MSG_ERROR,
                   "Monte [Master] %s:%d reported bad input for run %d. Skipping.\n",
                   slave.machine_name.c_str(), slave.id, slave.current_run->id) ;
             }
-            resolve_run(slave, MonteRun::BAD_INPUT);
+            resolve_run(slave, MonteRun::MC_PROBLEM_PARSING_INPUT);
             break;
 
-        case MonteRun::CORED:
+        case MonteRun::MC_RUN_DUMPED_CORE:
             if (verbosity >= ERROR) {
                 message_publish(
                   MSG_ERROR,
                   "Monte [Master] %s:%d reported core dump for run %d. Skipping.\n",
                   slave.machine_name.c_str(), slave.id, slave.current_run->id) ;
             }
-            resolve_run(slave, MonteRun::CORED);
+            resolve_run(slave, MonteRun::MC_RUN_DUMPED_CORE);
             break;
 
-        case MonteRun::NO_PERM:
+        case MonteRun::MC_CANT_CREATE_OUTPUT_DIR:
             if (verbosity >= ERROR) {
                 message_publish(
                   MSG_ERROR,
                   "Monte [Master] %s:%d reported a failure to create output directories for run %d.\n",
                   slave.machine_name.c_str(), slave.id, slave.current_run->id);
             }
-            handle_retry(slave, MonteRun::NO_PERM);
+            handle_retry(slave, MonteRun::MC_CANT_CREATE_OUTPUT_DIR);
             break;
 
         /**
@@ -159,7 +159,7 @@ void Trick::MonteCarlo::handle_run_data(Trick::MonteSlave& slave) {
          * can occur when the master determines that a slave has timed out, and
          * then that slave itself reports a timeout. </ul>
          */
-        case MonteRun::TIMEDOUT:
+        case MonteRun::MC_RUN_TIMED_OUT:
             if (verbosity >= ERROR) {
                 message_publish(
                   MSG_ERROR,
@@ -168,7 +168,7 @@ void Trick::MonteCarlo::handle_run_data(Trick::MonteSlave& slave) {
             }
             if (slave.state != MonteSlave::UNRESPONSIVE_RUNNING &&
                 slave.state != MonteSlave::UNRESPONSIVE_STOPPING) {
-                handle_retry(slave, MonteRun::TIMEDOUT);
+                handle_retry(slave, MonteRun::MC_RUN_TIMED_OUT);
             }
             break;
 
@@ -179,7 +179,7 @@ void Trick::MonteCarlo::handle_run_data(Trick::MonteSlave& slave) {
                   "Monte [Master] %s:%d reported unrecognized exit status (%d) for run %d. Skipping.\n",
                   slave.machine_name.c_str(), slave.id, exit_status, slave.current_run->id);
             }
-            resolve_run(slave, MonteRun::UNKNOWN);
+            resolve_run(slave, MonteRun::MC_UNRECOGNIZED_RETURN_CODE);
             break;
     }
 

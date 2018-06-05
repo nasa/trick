@@ -36,13 +36,13 @@ namespace Trick {
         public:
         /** Details the manner in which this run exited. */
         enum ExitStatus {
-            INCOMPLETE, /**< not completed */
-            COMPLETE,   /**< completed with no errors */
-            CORED,      /**< core dumped */
-            TIMEDOUT,   /**< timed out */
-            NO_PERM,    /**< could not write output files */
-            BAD_INPUT,  /**< problem parseing monte carlo input */
-            UNKNOWN     /**< unrecognized return code */
+            MC_RUN_INCOMPLETE,          /**< not completed */
+            MC_RUN_COMPLETE,            /**< completed with no errors */
+            MC_RUN_DUMPED_CORE,         /**< core dumped */
+            MC_RUN_TIMED_OUT,           /**< timed out */
+            MC_CANT_CREATE_OUTPUT_DIR,  /**< could not write output files */
+            MC_PROBLEM_PARSING_INPUT,   /**< problem parseing monte carlo input */
+            MC_UNRECOGNIZED_RETURN_CODE /**< unrecognized return code */
         };
 
         /** Unique identifier sequentially assigned, starting at zero, by the master. */
@@ -73,7 +73,7 @@ namespace Trick {
             num_tries(0),
             start_time(0),
             end_time(0),
-            exit_status(INCOMPLETE) {}
+            exit_status(MC_RUN_INCOMPLETE) {}
 
     };
 
