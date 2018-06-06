@@ -323,8 +323,14 @@ S_sie.resource: \$(S_MAIN)
 # write out the override files we have read in
 open MAKEFILEOVER, ">build/Makefile_overrides" or die "Could not open build/Makefile_overrides" ;
 foreach $k ( sort keys %files_by_dir ) {
-    # if a particular directory had an override file, save that into memory
-    if (open OV_FILE, "$k/makefile_overrides") {
+    # Look for makefile_overrides in the current directory.
+    # If no such file exists AND this directory is named "src", look for it one level up.
+    # Silly, but baggage we're stuck with.
+    my $makefile_overrides = "$k/makefile_overrides" ;
+    if (not -e $makefile_overrides and $k =~ /\/src$/) {
+        $makefile_overrides = dirname($k) . "/makefile_overrides" ;
+    }
+    if (open OV_FILE, $makefile_overrides) {
         while ( <OV_FILE> ) {
             s/(#.*)// ;
             my ($comment) = $1 ;
@@ -354,10 +360,10 @@ foreach $k ( sort keys %files_by_dir ) {
             }
         }
         close OV_FILE ;
-        print MAKEFILEOVER "\nMAKEFILE_LIST += $k/makefile_overrides\n" ;
-        print MAKEFILEOVER "\n# Overrides from $k\n\n" ;
+        print MAKEFILEOVER "# Overrides from $makefile_overrides\n" ;
+        print MAKEFILEOVER "MAKEFILE_LIST += $makefile_overrides\n\n" ;
         print MAKEFILEOVER "$files_by_dir{$k}{overrides}\n" ;
-        print MAKEFILEOVER "\nMAKEFILE_LIST := \$(filter-out $k/makefile_overrides,\$(MAKEFILE_LIST))\n" ;
+        print MAKEFILEOVER "MAKEFILE_LIST := \$(filter-out $makefile_overrides,\$(MAKEFILE_LIST))\n\n" ;
     }
 }
 close MAKEFILEOVER ;
