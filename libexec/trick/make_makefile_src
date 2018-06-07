@@ -145,25 +145,32 @@ if (scalar @exclude_dirs) {
 @all_compile_libs = sort (grep !/trick_source/ , @all_compile_libs) ;
 @all_cfly_files = sort (grep !/^-|trick_source|a$/ , @all_cfly_files) ;
 
+sub add_file($) {
+    my ($name, $path, $extension) = fileparse($_[0], qr/\.[^.]*/) ;
+    push @{$files_by_dir{$path}{$extension}} , $name ;
+}
+
+sub add_files_in_directory($) {
+    opendir THISDIR, "$_[0]" or die "Could not open $_[0]" ;
+    my @files = grep !/^\./ , readdir THISDIR ;
+    foreach ( @files ) {
+        add_file($_[0] . "/" . $_) ;
+    }
+    closedir THISDIR ;
+}
+
 # split off files by directory
 foreach ( @all_cfly_files ) {
-    my ($name, $path, $extension) = fileparse($_, qr/\.[^.]*/) ;
-    $path = abs_path($path) ;
-    push @{$files_by_dir{$path}{$extension}} , $name ;
+    add_file($_);
 }
 
 # get all of the files required by compiled libraries
 # compile all files as normal files,  we're not going to make a library anymore.
 foreach ( @all_compile_libs ) {
-    my $path = abs_path(dirname($_)) ;
-    opendir THISDIR, "$path" or die "Could not open $path";
-    my @files = grep !/^\.\.\./ , readdir THISDIR;
-    @files = grep /\.[cfly]$|C$|cc$|cxx$|cpp$|c\+\+$/ , @files;
-    foreach ( @files ) {
-        my ($name, $unused, $extension) = fileparse($_, qr/\.[^.]*/) ;
-        push @{$files_by_dir{$path}{$extension}} , $name ;
-    }
-    closedir THISDIR ;
+    my $path = abs_path(dirname($_));
+    add_files_in_directory($path) ;
+    $path .= "/src" ;
+    add_files_in_directory($path) if -e "$path" ;
 }
 
 # sort and weed out duplicate files
@@ -244,7 +251,7 @@ my %files_by_extension ;
 foreach my $directory ( keys %files_by_dir ) {
     foreach my $extension ( grep { /^\.(c|cc|C|cxx|cpp|c\+\+)$/ } keys $files_by_dir{$directory} ) {
         foreach my $file ( @{$files_by_dir{$directory}{$extension}} ) {
-            push @{$files_by_extension{$extension}} , "build$directory/$file.o" ;
+            push @{$files_by_extension{$extension}} , "build$directory$file.o" ;
         }
     }
 }
@@ -267,10 +274,12 @@ foreach my $extension ( keys %files_by_extension ) {
 # Write out the compile rules for each type of file.
 print MAKEFILE "
 
-# These targets should have an order-only dependency on their directories, which would require
-# moving them to a .SECONDEXPANSION section and would complicate the rules. However, these
-# directories appear to be created as part of the read_lib_deps function, so I'm leaving it out
-# for now." ;
+# We use .SECONDEXPANSION here to allow us to use automatic vairiables in the prerequisite list
+# in order to add to each target an order-only dependency on its directory.
+# See https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html
+# and https://www.gnu.org/software/make/manual/html_node/Secondary-Expansion.html
+
+.SECONDEXPANSION:" ;
 
 foreach my $extension ( keys %files_by_extension ) {
     my $compiler = "TRICK_" . ($extension eq ".c" ? "CC" : "CPPC") ;
@@ -278,13 +287,16 @@ foreach my $extension ( keys %files_by_extension ) {
     my $command = "\$($compiler) \$(TRICK_${flags}FLAGS) \$(TRICK_SYSTEM_${flags}FLAGS) -I\$(<D)/../include -MMD -MP -c -o \$\@ \$<" ;
     print MAKEFILE "
 
-\${MODEL_OBJECTS$extension} : build/%.o : /%$extension | build/%.d
+\${MODEL_OBJECTS$extension} : build/%.o : /%$extension | build/%.d \$\$(dir \$\$\@)
 \t\$(PRINT_COMPILE)
 \t\@echo $command >> \$(MAKE_OUT)
 \t\$(ECHO_CMD)$command 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}" ;
 }
 
 print MAKEFILE "
+
+\$(sort \$(dir \$(MODEL_OBJECTS))):
+\t\@mkdir -p \$\@
 
 \$(MODEL_OBJECTS:.o=.d): ;
 
