@@ -1,0 +1,3 @@
+objects: TRICK_CXXFLAGS += -Wfloat-equal
+cpp_objects: TRICK_CXXFLAGS += -Wmissing-include-dirs
+cxx_objects: TRICK_CXXFLAGS += -Wuseless-cast
