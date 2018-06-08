@@ -13,7 +13,8 @@ COMPILE_DIRS = \
 	SIM_test_ip \
 	SIM_test_sched \
 	SIM_test_templates \
-	SIM_threads
+	SIM_threads \
+	SIM_makefile_overrides
 
 SIMS_NEEDING_TEST = \
 	SIM_alloc_test \
