@@ -338,8 +338,8 @@ foreach $k ( sort keys %files_by_dir ) {
     # Look for makefile_overrides in the current directory.
     # If no such file exists AND this directory is named "src", look for it one level up.
     # Silly, but baggage we're stuck with.
-    my $makefile_overrides = "$k/makefile_overrides" ;
-    if (not -e $makefile_overrides and $k =~ /\/src$/) {
+    my $makefile_overrides = "${k}makefile_overrides" ;
+    if (not -e $makefile_overrides and $k =~ /\/src\/$/) {
         $makefile_overrides = dirname($k) . "/makefile_overrides" ;
     }
     if (open OV_FILE, $makefile_overrides) {
@@ -354,7 +354,7 @@ foreach $k ( sort keys %files_by_dir ) {
             if ( s/^objects\s*:\s*// ) {
                 foreach my $extension ( keys %files_by_extension ) {
                     foreach my $file (@{$files_by_dir{$k}{$extension}}) {
-                        $files_by_dir{$k}{overrides} .= "build$k/${file}.o \\\n" ;
+                        $files_by_dir{$k}{overrides} .= "build$k${file}.o \\\n" ;
                     }
                 }
                 $files_by_dir{$k}{overrides} .= ": $_"
@@ -362,7 +362,7 @@ foreach $k ( sort keys %files_by_dir ) {
             elsif ( s/(.+)_objects\s*:\s*// ) {
                 if (scalar @{$files_by_dir{$k}{".$1"}}) {
                     foreach my $file (@{$files_by_dir{$k}{".$1"}}) {
-                        $files_by_dir{$k}{overrides} .= "build$k/$file.o \\\n" ;
+                        $files_by_dir{$k}{overrides} .= "build$k$file.o \\\n" ;
                     }
                     $files_by_dir{$k}{overrides} .= ": $_"
                 }
