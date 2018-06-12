@@ -330,7 +330,7 @@ QList<QColor> PlotBookModel::createCurveColors(int nCurves)
     for (int i = 0; i < 7; ++i) {
         QModelIndex legendColorIdx = index(i,1,legendColorsIdx);
         QString color = data(legendColorIdx).toString();
-        if ( !color.isEmpty() ) {
+        if ( !color.isEmpty() && i < colors.size()) {
             colors.replace(i,QColor(color));
         }
     }
