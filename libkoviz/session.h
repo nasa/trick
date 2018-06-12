@@ -40,6 +40,13 @@ public:
     QString legend5() const { return _legendLabels.at(4); }
     QString legend6() const { return _legendLabels.at(5); }
     QString legend7() const { return _legendLabels.at(6); }
+    QString linestyle1() const { return _linestyles.at(0); }
+    QString linestyle2() const { return _linestyles.at(1); }
+    QString linestyle3() const { return _linestyles.at(2); }
+    QString linestyle4() const { return _linestyles.at(3); }
+    QString linestyle5() const { return _linestyles.at(4); }
+    QString linestyle6() const { return _linestyles.at(5); }
+    QString linestyle7() const { return _linestyles.at(6); }
     QString foreground() const { return _fg; }
     QString background() const { return _bg; }
     double start() const { return _start; }
@@ -64,6 +71,7 @@ private:
     QStringList _titles;
     QStringList _colors;
     QStringList _legendLabels;
+    QStringList _linestyles;
     QString _fg;
     QString _bg;
     double _start;

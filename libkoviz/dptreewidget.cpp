@@ -376,7 +376,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
 
                 QString style = styles.at(i%(styles.size()));
                 if ( rc == 1 ) {
-                    style = "plain";
+                    style = styles.at(0);
                 }
 
                 for ( int r = 0; r < rc; ++r) {
@@ -741,11 +741,23 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     _addChild(curveItem, "CurveYBias",       y->bias());
     _addChild(curveItem, "CurveSymbolStyle", y->symbolStyle());
     _addChild(curveItem, "CurveSymbolSize",  y->symbolSize());
-    QString lineStyle = y->lineStyle() ;
+
+    QString lineStyle = y->lineStyle() ; // DP linestyle
+    int row = _bookModel->indexFromItem(curveItem).row();
+    if ( row < 7 ) {
+        QModelIndex lsIdx = _bookModel->getIndex(QModelIndex(),"Linestyles","");
+        QString lsTag = QString("Linestyle%1").arg(row+1);
+        QString ls = _bookModel->getDataString(lsIdx,lsTag,"Linestyles");
+        if ( !ls.isEmpty() ) {
+            // Use linestyle from commandline
+            lineStyle = ls;
+        }
+    }
     if ( lineStyle.isEmpty() ) {
         lineStyle = defaultLineStyle;
     }
     _addChild(curveItem, "CurveLineStyle",   lineStyle);
+
     _addChild(curveItem, "CurveYLabel",      y->label());
     QString color = y->lineColor() ;
     if ( color.isEmpty() ) {

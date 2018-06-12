@@ -111,6 +111,13 @@ class SnapOptions : public Options
     QString foreground;
     QString background;
     QString showTables;  // need a string since this can be unset
+    QString linestyle1;
+    QString linestyle2;
+    QString linestyle3;
+    QString linestyle4;
+    QString linestyle5;
+    QString linestyle6;
+    QString linestyle7;
 };
 
 SnapOptions opts;
@@ -183,6 +190,13 @@ int main(int argc, char *argv[])
     opts.add("-c5",&opts.color5,"","Legend color 5 <#rrggbb|colorName>");
     opts.add("-c6",&opts.color6,"","Legend color 6 <#rrggbb|colorName>");
     opts.add("-c7",&opts.color7,"","Legend color 7 <#rrggbb|colorName>");
+    opts.add("-ls1",&opts.linestyle1,"","Line style 1");
+    opts.add("-ls2",&opts.linestyle2,"","Line style 2");
+    opts.add("-ls3",&opts.linestyle3,"","Line style 3");
+    opts.add("-ls4",&opts.linestyle4,"","Line style 4");
+    opts.add("-ls5",&opts.linestyle5,"","Line style 5");
+    opts.add("-ls6",&opts.linestyle6,"","Line style 6");
+    opts.add("-ls7",&opts.linestyle7,"","Line style 7");
     opts.add("-orient",&opts.orient,"",
              "PDF page orientation - landscape or portrait",
              presetOrientation);
@@ -579,6 +593,40 @@ int main(int argc, char *argv[])
                    << opts.color4 << opts.color5 << opts.color6 << opts.color7;
         }
 
+        // Make a list of user given linestyles
+        QStringList linestyles;
+        if ( session ) {
+            linestyles << session->linestyle1() << session->linestyle2()
+                       << session->linestyle3() << session->linestyle4()
+                       << session->linestyle5() << session->linestyle6()
+                       << session->linestyle7();
+            if ( !opts.linestyle1.isEmpty() ) {
+                linestyles.replace(0,opts.linestyle1);
+            }
+            if ( !opts.linestyle2.isEmpty() ) {
+                linestyles.replace(1,opts.linestyle2);
+            }
+            if ( !opts.linestyle3.isEmpty() ) {
+                linestyles.replace(2,opts.linestyle3);
+            }
+            if ( !opts.linestyle4.isEmpty() ) {
+                linestyles.replace(3,opts.linestyle4);
+            }
+            if ( !opts.linestyle5.isEmpty() ) {
+                linestyles.replace(4,opts.linestyle5);
+            }
+            if ( !opts.linestyle6.isEmpty() ) {
+                linestyles.replace(5,opts.linestyle6);
+            }
+            if ( !opts.linestyle7.isEmpty() ) {
+                linestyles.replace(6,opts.linestyle7);
+            }
+        } else {
+            linestyles << opts.linestyle1 << opts.linestyle2 << opts.linestyle3
+                       << opts.linestyle4 << opts.linestyle5 << opts.linestyle6
+                       << opts.linestyle7;
+        }
+
 
         // Time match tolerance
         double tolerance = 0.000001;
@@ -675,7 +723,7 @@ int main(int argc, char *argv[])
                              tolerance, frequency,
                              shifts,
                              presentation, QString(), dps, titles,
-                             legends, colors,
+                             legends, colors, linestyles,
                              orient, isLegend,
                              fg, bg,
                              isShowTables,
@@ -793,7 +841,7 @@ int main(int argc, char *argv[])
                                  tolerance, frequency,
                                  shifts,
                                  presentation, ".", dps, titles,
-                                 legends, colors,
+                                 legends, colors, linestyles,
                                  orient, isLegend,
                                  fg, bg,
                                  isShowTables,
@@ -812,7 +860,7 @@ int main(int argc, char *argv[])
                                  tolerance, frequency,
                                  shifts,
                                  presentation, runDirs.at(0), QStringList(),
-                                 titles, legends, colors,
+                                 titles, legends, colors, linestyles,
                                  orient, isLegend,
                                  fg, bg,
                                  isShowTables,

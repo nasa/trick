@@ -376,17 +376,17 @@ void VarsWidget::_addCurves(QModelIndex curvesIdx, const QString &yName)
         _addChild(curveItem, "CurveYBias", 0.0);
 
         // Curve color and linestyle
+        QStringList styles = _plotModel->lineStyles();
         int nCurves = _plotModel->rowCount(curvesIdx);
         if ( rc == 1 ) {
             // Color each variable differently
             QList<QColor> curveColors = _plotModel->createCurveColors(nCurves);
             _addChild(curveItem, "CurveColor", curveColors.at(nCurves-1));
-            _addChild(curveItem, "CurveLineStyle", "plain");
+            _addChild(curveItem, "CurveLineStyle",styles.at(0));
         } else {
             // Color RUNs the same and style each variable differently
             _addChild(curveItem, "CurveColor", run2color.value(runId));
             div_t q = div(nCurves-1,rc);
-            QStringList styles = _plotModel->lineStyles();
             QString style = styles.at((q.quot)%(styles.size()));
             _addChild(curveItem, "CurveLineStyle", style);
         }

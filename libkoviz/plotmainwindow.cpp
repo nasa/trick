@@ -25,6 +25,7 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
         const QStringList& dpFiles,
         const QStringList& titles,
         const QStringList &legends, const QStringList &colors,
+        const QStringList &linestyles,
         const QString &orient, bool isLegend,
         const QString &foreground, const QString &background,
         bool isShowTables,
@@ -122,6 +123,18 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
     }
     _bookModel->addChild(rootItem, "ForegroundColor", foreground);
     _bookModel->addChild(rootItem, "BackgroundColor", background);
+    if ( linestyles.size() == 7 ) {
+        QStandardItem *rootItem = _bookModel->invisibleRootItem();
+        QStandardItem *citem;
+        citem = _bookModel->addChild(rootItem, "Linestyles","");
+        _bookModel->addChild(citem, "Linestyle1",linestyles.at(0));
+        _bookModel->addChild(citem, "Linestyle2",linestyles.at(1));
+        _bookModel->addChild(citem, "Linestyle3",linestyles.at(2));
+        _bookModel->addChild(citem, "Linestyle4",linestyles.at(3));
+        _bookModel->addChild(citem, "Linestyle5",linestyles.at(4));
+        _bookModel->addChild(citem, "Linestyle6",linestyles.at(5));
+        _bookModel->addChild(citem, "Linestyle7",linestyles.at(6));
+    }
 
     // Create Plot Tabbed Notebook View Widget
     _bookView = new BookView();
@@ -860,6 +873,23 @@ void PlotMainWindow::_saveSession()
         out << "l5: \"" << l5 << "\"\n" ;
         out << "l6: \"" << l6 << "\"\n" ;
         out << "l7: \"" << l7 << "\"\n" ;
+
+        // Linestyles
+        QModelIndex lsIdx = _bookModel->getIndex(QModelIndex(),"Linestyles");
+        QString ls1 =_bookModel->getDataString(lsIdx,"Linestyle1","Linestyles");
+        QString ls2 =_bookModel->getDataString(lsIdx,"Linestyle2","Linestyles");
+        QString ls3 =_bookModel->getDataString(lsIdx,"Linestyle3","Linestyles");
+        QString ls4 =_bookModel->getDataString(lsIdx,"Linestyle4","Linestyles");
+        QString ls5 =_bookModel->getDataString(lsIdx,"Linestyle5","Linestyles");
+        QString ls6 =_bookModel->getDataString(lsIdx,"Linestyle6","Linestyles");
+        QString ls7 =_bookModel->getDataString(lsIdx,"Linestyle7","Linestyles");
+        out << "ls1: \"" << ls1 << "\"\n" ;
+        out << "ls2: \"" << ls2 << "\"\n" ;
+        out << "ls3: \"" << ls3 << "\"\n" ;
+        out << "ls4: \"" << ls4 << "\"\n" ;
+        out << "ls5: \"" << ls5 << "\"\n" ;
+        out << "ls6: \"" << ls6 << "\"\n" ;
+        out << "ls7: \"" << ls7 << "\"\n" ;
 
         // Show Legend
         QString isLegend = _bookModel->getDataString(QModelIndex(),"IsLegend");

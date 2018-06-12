@@ -469,6 +469,8 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
             idx = index(15,0);
         } else if ( searchItemText == "BackgroundColor" ) {
             idx = index(16,0);
+        } else if ( searchItemText == "Linestyles" ) {
+            idx = index(17,0);
         } else {
             fprintf(stderr,"koviz [bad scoobs]:3: getIndex() received "
                            "root as a startIdx and had bad child "
@@ -611,6 +613,23 @@ QStringList PlotBookModel::lineStyles() const
     styles << "plain" << "dash" << "fine_dash" << "med_fine_dash"
            << "long_dash" << "x_long_dash" << "dot_dash"
            << "2_dot_dash" << "3_dot_dash" << "4_dot_dash";
+
+    // If commandline -ls1-7 option used, override linestyle
+    QModelIndex legendIdx = getIndex(QModelIndex(), "Linestyles","");
+    QString ls1 = getDataString(legendIdx,"Linestyle1","Linestyles");
+    QString ls2 = getDataString(legendIdx,"Linestyle2","Linestyles");
+    QString ls3 = getDataString(legendIdx,"Linestyle3","Linestyles");
+    QString ls4 = getDataString(legendIdx,"Linestyle4","Linestyles");
+    QString ls5 = getDataString(legendIdx,"Linestyle5","Linestyles");
+    QString ls6 = getDataString(legendIdx,"Linestyle6","Linestyles");
+    QString ls7 = getDataString(legendIdx,"Linestyle7","Linestyles");
+    if (!ls1.isEmpty() && styles.size() > 0) styles.replace(0,ls1);
+    if (!ls2.isEmpty() && styles.size() > 1) styles.replace(1,ls2);
+    if (!ls3.isEmpty() && styles.size() > 2) styles.replace(2,ls3);
+    if (!ls4.isEmpty() && styles.size() > 3) styles.replace(3,ls4);
+    if (!ls5.isEmpty() && styles.size() > 4) styles.replace(4,ls5);
+    if (!ls6.isEmpty() && styles.size() > 5) styles.replace(5,ls6);
+    if (!ls7.isEmpty() && styles.size() > 6) styles.replace(6,ls7);
 
     return styles;
 }
