@@ -27,6 +27,19 @@
 #include "curvemodel.h"
 #include "roundoff.h"
 
+class TimeAndIndex
+{
+  public:
+    TimeAndIndex(double time, const QModelIndex& idx);
+    double time() const;
+    QModelIndex idx() const;
+
+  private:
+    TimeAndIndex() {}
+    double _time;
+    QModelIndex _idx;
+};
+
 // ---------------------------------------------------------
 // Use . since backslash makes a C++ multi-line comment
 //
@@ -134,6 +147,8 @@ private:
     QPoint _mousePressPos;
     QPointF _mousePressMathTopLeft;
 
+    QList<TimeAndIndex*> _markers;
+
     void _paintCoplot(const QTransform& T, QPainter& painter,QPen& pen);
     void _paintErrorplot(const QTransform& T,
                          QPainter& painter, const QPen &pen,
@@ -141,9 +156,7 @@ private:
     void _paintCurve(const QModelIndex& curveIdx,
                      const QTransform &T, QPainter& painter,
                      bool isHighlight);
-    void _paintLiveCoordArrow(CurveModel *curveModel,
-                          const QModelIndex &curveIdx, QPainter &painter);
-    void _paintErrorLiveCoordArrow(QPainterPath* path, QPainter& painter);
+    void _paintMarkers(QPainter& painter);
 
     QModelIndex _chooseCurveNearMousePoint(const QPoint& pt);
 
@@ -162,6 +175,7 @@ private:
     void _keyPressDown();
     void _keyPressPeriod();
     void _keyPressArrow(const Qt::ArrowType& arrow);
+    void _keyPressComma();
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,

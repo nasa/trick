@@ -375,6 +375,9 @@ CurvesView::~CurvesView()
     if ( _pixmap ) {
         delete _pixmap;
     }
+    foreach ( TimeAndIndex* marker, _markers ) {
+        delete marker;
+    }
 }
 
 void CurvesView::setCurrentCurveRunID(int runID)
@@ -464,6 +467,9 @@ void CurvesView::paintEvent(QPaintEvent *event)
 
     // Draw legend (if needed)
     _paintCurvesLegend(viewport()->rect(),curvesIdx,painter);
+
+    // Draw markers
+    _paintMarkers(painter);
 }
 
 
@@ -496,13 +502,6 @@ void CurvesView::_paintCoplot(const QTransform &T,QPainter &painter,QPen &pen)
 
         // Paint curve (possibly with linestyle, symbols etc.)
         _paintCurve(currentIndex(),T,painter,true);
-
-        // Draw coordinate arrow (arrow with (x,y) label) if needed
-        QRectF M = _plotMathRect(rootIndex());
-        if ( M.width() > 0 && qAbs(M.height()) > 0 ) {
-            CurveModel* curveModel= _bookModel()->getCurveModel(currentIndex());
-            _paintLiveCoordArrow(curveModel,currentIndex(),painter);
-        }
     }
 
     painter.restore();
@@ -621,9 +620,7 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
     painter.restore();
 }
 
-void CurvesView::_paintLiveCoordArrow(CurveModel *curveModel,
-                                      const QModelIndex& curveIdx,
-                                      QPainter& painter)
+void CurvesView::_paintMarkers(QPainter &painter)
 {
     // Return and do not draw if Options->isShowLiveCoord is off
     QModelIndex isShowIdx = _bookModel()->getDataIndex(QModelIndex(),
@@ -633,205 +630,141 @@ void CurvesView::_paintLiveCoordArrow(CurveModel *curveModel,
         return;
     }
 
+    // Draw in window coords
     painter.save();
-    curveModel->map();
-
-    // Draw in window coords (+y axis down which accounts for -r*sin(ang) etc)
     QTransform I;
     painter.setTransform(I);
 
-    // Map math coord to window pt
-    QTransform T = _coordToPixelTransform();
+    QModelIndex pageIdx = rootIndex().parent().parent();
+    QColor bg = _bookModel()->pageBackgroundColor(pageIdx);
+    QColor fg = _bookModel()->pageForegroundColor(pageIdx);
 
-    // Initial arrow
-
-    // Calculate liveCoord based on model liveCoordTime
-    double xs = _bookModel()->xScale(curveIdx);
-    double ys = _bookModel()->yScale(curveIdx);
-    double xb = _bookModel()->xBias(curveIdx);
-    double yb = _bookModel()->yBias(curveIdx);
+    TimeAndIndex* liveMarker = 0;
+    QList<TimeAndIndex*> markers;
+    QString tag = model()->data(currentIndex()).toString();
     QModelIndex liveIdx = _bookModel()->getDataIndex(QModelIndex(),
                                                      "LiveCoordTime");
     double liveTime = model()->data(liveIdx).toDouble();
-    int i = 0;
-    if ( curveModel->x()->name() == curveModel->t()->name() ) {
+    if ( currentIndex().isValid() && (tag == "Curve" || tag == "Plot") ) {
+        TimeAndIndex* liveMarker = new TimeAndIndex(liveTime,currentIndex());
+        markers << liveMarker;
+    }
+    markers << _markers;
+
+    foreach ( TimeAndIndex* marker, markers ) {
+
+        // Tag is either "Curve" or "Plot"
+        QString tag = _bookModel()->data(marker->idx()).toString();
+
+        // Scale and bias
+        double xs = 1.0;
+        double ys = 1.0;
+        double xb = 0.0;
+        double yb = 0.0;
+        if ( tag == "Curve") {
+            QModelIndex curveIdx = marker->idx();
+            xs = _bookModel()->xScale(curveIdx);
+            ys = _bookModel()->yScale(curveIdx);
+            xb = _bookModel()->xBias(curveIdx);
+            yb = _bookModel()->yBias(curveIdx);
+        }
+
+        // Get path
+        QPainterPath* path = 0;
+        if ( tag == "Curve" ) {
+            QModelIndex curveIdx = marker->idx();
+            path = _bookModel()->getCurvePainterPath(curveIdx);
+        } else if ( tag == "Plot" ) {
+            QModelIndex plotIdx = marker->idx();
+            QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,
+                                                           "Curves","Plot");
+            path = _bookModel()->getCurvesErrorPath(curvesIdx);
+        }
+
+        // Get element index (i) for live time
+        int high = path->elementCount()-1;
+        int i = 0;
         if ( xb != 0.0 || xs != 1.0 ) {
-            double t = (liveTime-xb)/xs;
+            double t = (marker->time()-xb)/xs;
             ROUNDOFF(t,t);
-            i = curveModel->indexAtTime(t);
+            i = _idxAtTimeBinarySearch(path,0,high,t);
         } else {
-            i = curveModel->indexAtTime((liveTime-xb)/xs);
+            i = _idxAtTimeBinarySearch(path,0,high,marker->time());
         }
-    } else {
-        // e.g. ball xy curve where x is position[0]
-        i = curveModel->indexAtTime(liveTime);
-    }
-    ModelIterator* it = curveModel->begin();
-    QPointF coord(it->at(i)->x()*xs+xb, it->at(i)->y()*ys+yb);
 
-    // Init arrow struct
-    CoordArrow arrow;
-    arrow.coord = coord;
+        // Element/coord at live time
+        QPainterPath::Element el = path->elementAt(i);
+        QPointF coord(el.x*xs+xb,el.y*ys+yb);
 
-    //
-    // If live coord is an extremum, set flag for painting
-    //
-    int rc = curveModel->rowCount();
-    if ( i > 0 && i < rc-1) {
-        // First and last point not considered
-        double y1 = it->at(i-1)->y()*ys+yb;
-        double y  = it->at(i)->y()*ys+yb;
-        double y2 = it->at(i+1)->y()*ys+yb;
-        if ( (y>y1 && y>y2) || (y<y1 && y<y2) ) {
-            arrow.txt = QString("<%1, %2>").arg(_format(coord.x()))
-                                           .arg(_format(coord.y()));
-        } else if ( y1 == y && y != y2 ) {
-            arrow.txt = QString("(%1, %2]").arg(_format(coord.x()))
-                                           .arg(_format(coord.y()));
-        } else if ( y1 != y && y == y2 ) {
-            arrow.txt = QString("[%1, %2)").arg(_format(coord.x()))
-                                           .arg(_format(coord.y()));
+        // Init arrow struct
+        CoordArrow arrow;
+        arrow.coord = coord;
+
+        // Set arrow text (special syntax for extremums)
+        QString x = _format(coord.x());
+        QString y = _format(coord.y());
+        int rc = path->elementCount();
+        if ( i > 0 && i < rc-1) {
+            // First and last point not considered
+            double y1 = path->elementAt(i-1).y*ys+yb;
+            double y  = path->elementAt(i).y*ys+yb;
+            double y2 = path->elementAt(i+1).y*ys+yb;
+            if ( (y>y1 && y>y2) || (y<y1 && y<y2) ) {
+                arrow.txt = QString("<%1, %2>").arg(x).arg(y);
+            } else if ( y1 == y && y != y2 ) {
+                arrow.txt = QString("(%1, %2]").arg(x).arg(y);
+            } else if ( y1 != y && y == y2 ) {
+                arrow.txt = QString("[%1, %2)").arg(x).arg(y);
+            } else {
+                arrow.txt = QString("(%1, %2)").arg(x).arg(y);
+            }
+        } else if ( i == 0 ) {
+            arrow.txt = QString("init=(%1, %2)").arg(x).arg(y);
+        } else if ( i == rc-1 ) {
+            arrow.txt = QString("last=(%1, %2)").arg(x).arg(y);
         } else {
-            arrow.txt = QString("(%1, %2)").arg(_format(coord.x()))
-                                           .arg(_format(coord.y()));
+            fprintf(stderr,"koviz [bad scoobs]: CurvesView::_paintMarkers()\n");
+            exit(-1);
         }
-    } else if ( i == 0 ) {
-            arrow.txt = QString("init=(%1, %2)").arg(_format(coord.x()))
-                                                .arg(_format(coord.y()));
-    } else if ( i == rc-1 ) {
-            arrow.txt = QString("last=(%1, %2)").arg(_format(coord.x()))
-                                                .arg(_format(coord.y()));
-    } else {
-        fprintf(stderr,"koviz [bad scoobs]: CurvesView::_paintLiveCoordArrow\n");
-        exit(-1);
-    }
 
-    delete it;
-
-    // Prepend RunID to live text if more than 5 runs
-    if ( model()->rowCount(curveIdx.parent()) > 5 ) {
-        int id = _bookModel()->getDataInt(curveIdx,"CurveRunID","Curve");
-        QString runID = QString("RUN_%1: ").arg(id);
-        arrow.txt.prepend(runID);
-    }
-
-    // Try to fit arrow into viewport using different angles
-    QList<double> angles;
-    angles << 1*(M_PI/4) << 3*(M_PI/4) << 5*(M_PI/4) << 7*(M_PI/4);
-    bool isFits = false;
-    foreach ( double angle, angles ) {
-        arrow.angle = angle;
-        QRect arrowBBox = arrow.boundingBox(painter,T).toRect();
-        if ( viewport()->rect().contains(arrowBBox) ) {
-            isFits = true;
-            break;
+        // Prepend RunID to live text if more than 5 runs
+        if ( tag == "Curve") {
+            QModelIndex curveIdx = marker->idx();
+            if ( model()->rowCount(curveIdx.parent()) > 5 ) {
+                int id = _bookModel()->getDataInt(curveIdx,"CurveRunID","Curve");
+                QString runID = QString("RUN_%1: ").arg(id);
+                arrow.txt.prepend(runID);
+            }
         }
-    }
 
-    QModelIndex pageIdx = rootIndex().parent().parent();
-    QColor bg = _bookModel()->pageBackgroundColor(pageIdx);
-    QColor fg = _bookModel()->pageForegroundColor(pageIdx);
-    if ( isFits ) {
-        arrow.paintMe(painter,T,fg,bg);
-    } else {
-        // Paint arrow in middle of viewport
-        arrow.paintMeCenter(painter,T,viewport()->rect(),fg,bg);
-    }
+        // Map math coord to window pt
+        QTransform T = _coordToPixelTransform();
 
-    curveModel->unmap();
-    painter.restore();
-}
-
-void CurvesView::_paintErrorLiveCoordArrow(QPainterPath* path,
-                                           QPainter& painter)
-{
-    // Return and do not draw if Options->isShowLiveCoord is off
-    QModelIndex isShowIdx = _bookModel()->getDataIndex(QModelIndex(),
-                                                       "IsShowLiveCoord");
-    bool isShowLiveCoord = model()->data(isShowIdx).toBool();
-    if ( !isShowLiveCoord ) {
-        return;
-    }
-
-    if ( !currentIndex().isValid() ) {
-        return;
-    }
-
-    painter.save();
-
-    // Draw in window coords (+y axis down which accounts for -r*sin(ang) etc)
-    QTransform I;
-    painter.setTransform(I);
-
-    // Map math coord to window pt
-    QTransform T = _coordToPixelTransform();
-
-    // Initial arrow
-
-    // Calculate liveCoord based on model liveCoordTime
-    QModelIndex liveIdx = _bookModel()->getDataIndex(QModelIndex(),
-                                                     "LiveCoordTime");
-    double liveTime = model()->data(liveIdx).toDouble();
-    int high = path->elementCount()-1;
-    int i = _idxAtTimeBinarySearch(path,0,high,liveTime);
-    QPainterPath::Element el = path->elementAt(i);
-
-    QPointF coord(el.x,el.y);
-    CoordArrow arrow;
-    arrow.coord = coord;
-
-    //
-    // If live coord is an extremum, set flag for painting
-    //
-    if ( i > 0 && i < high) {
-        // Not first or last point
-        double y1 = path->elementAt(i-1).y;
-        double y  = path->elementAt(i).y;
-        double y2 = path->elementAt(i+1).y;
-        if ( (y>y1 && y>y2) || (y<y1 && y<y2) ) {
-            arrow.txt = QString("<%1, %2>").arg(_format(coord.x()))
-                                           .arg(_format(coord.y()));
-        } else {
-            arrow.txt = QString("(%1, %2)").arg(_format(coord.x()))
-                                           .arg(_format(coord.y()));
+        // Try to fit arrow into viewport using different angles
+        QList<double> angles;
+        angles << 1*(M_PI/4) << 3*(M_PI/4) << 5*(M_PI/4) << 7*(M_PI/4);
+        bool isFits = false;
+        foreach ( double angle, angles ) {
+            arrow.angle = angle;
+            QRect arrowBBox = arrow.boundingBox(painter,T).toRect();
+            if ( viewport()->rect().contains(arrowBBox) ) {
+                isFits = true;
+                break;
+            }
         }
-    } else if ( i == 0 ) {
-            arrow.txt = QString("init=(%1, %2)").arg(_format(coord.x()))
-                                                .arg(_format(coord.y()));
-    } else if ( i == high ) {
-            arrow.txt = QString("last=(%1, %2)").arg(_format(coord.x()))
-                                                .arg(_format(coord.y()));
-    } else {
-        fprintf(stderr,"koviz [bad scoobs]: "
-                       "CurvesView::_paintErrorLiveCoordArrow\n");
-        exit(-1);
-    }
 
-    // Try to fit arrow into viewport using different angles
-    QList<double> angles;
-    angles << 1*(M_PI/4) << 3*(M_PI/4) << 5*(M_PI/4) << 7*(M_PI/4);
-
-    bool isFits = false;
-    foreach ( double angle, angles ) {
-        arrow.angle = angle;
-        QRect arrowBBox = arrow.boundingBox(painter,T).toRect();
-        if ( viewport()->rect().contains(arrowBBox) ) {
-            isFits = true;
-            break;
+        if ( isFits ) {
+            arrow.paintMe(painter,T,fg,bg);
+        } else if ( marker->idx() == currentIndex() ) {
+            arrow.paintMeCenter(painter,T,viewport()->rect(),fg,bg);
         }
-    }
-
-    QModelIndex pageIdx = rootIndex().parent().parent();
-    QColor bg = _bookModel()->pageBackgroundColor(pageIdx);
-    QColor fg = _bookModel()->pageForegroundColor(pageIdx);
-    if ( isFits ) {
-        arrow.paintMe(painter,T,fg,bg);
-    } else {
-        // Paint arrow in middle of viewport
-        arrow.paintMeCenter(painter,T,viewport()->rect(),fg,bg);
     }
 
     painter.restore();
+
+    if ( liveMarker ) {
+        delete liveMarker;
+    }
 }
 
 int CurvesView::_idxAtTimeBinarySearch(QPainterPath* path,
@@ -1000,7 +933,6 @@ void CurvesView::_paintErrorplot(const QTransform &T,
     }
     painter.setTransform(T);
     painter.drawPath(*errorPath);
-    _paintErrorLiveCoordArrow(errorPath,painter);
 
     delete errorPath;
 
@@ -1941,6 +1873,7 @@ void CurvesView::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Down: _keyPressDown();break;
     case Qt::Key_Left: _keyPressArrow(Qt::LeftArrow);break;
     case Qt::Key_Right: _keyPressArrow(Qt::RightArrow);break;
+    case Qt::Key_Comma: _keyPressComma();break;
     default: ; // do nothing
     }
 }
@@ -2059,4 +1992,56 @@ void CurvesView::_keyPressDown()
             setCurrentIndex(nextCurveIdx);
         }
     }
+}
+
+void CurvesView::_keyPressComma()
+{
+    if ( !currentIndex().isValid() ) return;
+
+    if ( currentIndex().column() != 0 ) return;
+
+    // Get presentation
+    QString tag = _bookModel()->data(currentIndex()).toString();
+
+    // Get live time
+    QModelIndex liveIdx = _bookModel()->getDataIndex(QModelIndex(),
+                                                     "LiveCoordTime");
+    double liveTime = model()->data(liveIdx).toDouble();
+
+    // Add (or remove) marker based on presentation
+    if ( tag == "Curve" || tag == "Plot" ) {
+        bool isRemoved = false;
+        foreach (TimeAndIndex* marker, _markers ) {
+            if ( liveTime == marker->time() &&
+                 marker->idx().row() == currentIndex().row() ) {
+                // Remove marker if same time and same curve (eg toggle off/on)
+                _markers.removeOne(marker);
+                delete marker;
+                isRemoved = true;
+                break;
+            }
+        }
+
+        if ( !isRemoved ) {
+            QModelIndex idx = currentIndex();
+            TimeAndIndex* timeAndIdx = new TimeAndIndex(liveTime,idx);
+            _markers << timeAndIdx;
+        }
+    }
+}
+
+TimeAndIndex::TimeAndIndex(double time, const QModelIndex &idx) :
+    _time(time),
+    _idx(idx)
+{
+}
+
+double TimeAndIndex::time() const
+{
+    return _time;
+}
+
+QModelIndex TimeAndIndex::idx() const
+{
+    return _idx;
 }
