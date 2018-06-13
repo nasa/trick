@@ -9,19 +9,19 @@ TimeInput::TimeInput(QWidget *parent) :
     _startTimeInput->setAlignment(Qt::AlignRight);
 #if QT_VERSION >= QT_VERSION_CHECK(4,8,0)
     _startTimeInput->setPlaceholderText("Start Time");
-    _startTimeInput->setValidator(&_validator);
+    _startTimeInput->setValidator(&_startValidator);
 #endif
     _liveTimeInput = new QLineEdit(this);
     _liveTimeInput->setAlignment(Qt::AlignRight);
 #if QT_VERSION >= QT_VERSION_CHECK(4,8,0)
     _liveTimeInput->setPlaceholderText("Live Time");
-    _liveTimeInput->setValidator(&_validator);
+    _liveTimeInput->setValidator(&_liveValidator);
 #endif
     _stopTimeInput = new QLineEdit(this);
     _stopTimeInput->setAlignment(Qt::AlignRight);
 #if QT_VERSION >= QT_VERSION_CHECK(4,8,0)
     _stopTimeInput->setPlaceholderText("Stop Time");
-    _stopTimeInput->setValidator(&_validator);
+    _stopTimeInput->setValidator(&_stopValidator);
 #endif
 
     connect(_startTimeInput, SIGNAL(editingFinished()),
@@ -63,6 +63,9 @@ void TimeInput::_slotStartTimeChanged()
 {
     double min = _startTimeInput->text().toDouble();
     emit startTimeChanged(min);
+    if ( min < -1.7e+308 ) {
+        _startTimeInput->clear();
+    }
 }
 
 void TimeInput::_slotLiveTimeChanged()
@@ -75,6 +78,9 @@ void TimeInput::_slotStopTimeChanged()
 {
     double max = _stopTimeInput->text().toDouble();
     emit stopTimeChanged(max);
+    if ( max > 1.7e+308 ) {
+        _stopTimeInput->clear();
+    }
 }
 
 void TimeInput::_slotDataChanged(const QModelIndex &topLeft,
@@ -109,4 +115,28 @@ QString TimeInput::_format(double d)
         s = s.sprintf("%.9lf",d);
     }
     return s;
+}
+
+StartDoubleValidator::StartDoubleValidator(QObject *parent) :
+    QDoubleValidator(parent)
+{
+}
+
+void StartDoubleValidator::fixup(QString &input) const
+{
+    if ( input.isEmpty() ) {
+        input = QString("%1").arg(-DBL_MAX);
+    }
+}
+
+StopDoubleValidator::StopDoubleValidator(QObject *parent) :
+    QDoubleValidator(parent)
+{
+}
+
+void StopDoubleValidator::fixup(QString &input) const
+{
+    if ( input.isEmpty() ) {
+        input = QString("%1").arg(DBL_MAX);
+    }
 }

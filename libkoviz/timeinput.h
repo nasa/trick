@@ -7,6 +7,22 @@
 #include <QDoubleValidator>
 #include <QModelIndex>
 #include <qglobal.h>
+#include <float.h>
+
+// Need empty string to be valid
+class StartDoubleValidator : public QDoubleValidator
+{
+  public:
+    StartDoubleValidator(QObject *parent = Q_NULLPTR);
+    virtual void fixup(QString &input) const;
+};
+
+class StopDoubleValidator : public QDoubleValidator
+{
+  public:
+    StopDoubleValidator(QObject *parent = Q_NULLPTR);
+    virtual void fixup(QString &input) const;
+};
 
 class TimeInput : public QFrame
 {
@@ -40,7 +56,9 @@ private:
     QLineEdit* _stopTimeInput;
     QString _format(double d);
 #if QT_VERSION >= QT_VERSION_CHECK(4,8,0)
-    QDoubleValidator _validator;
+    StartDoubleValidator _startValidator;
+    StopDoubleValidator _stopValidator;
+    QDoubleValidator _liveValidator;
 #endif
 
 };
