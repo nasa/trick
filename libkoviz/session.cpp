@@ -23,6 +23,8 @@ Session::Session() :
                   << "" << "" << "" << "";
     _linestyles << "" << "" << ""
                 << "" << "" << "" << "";
+    _symbolstyles << "" << "" << ""
+                  << "" << "" << "" << "";
 }
 
 Session::Session(const QString &sessionFileName) :
@@ -47,6 +49,8 @@ Session::Session(const QString &sessionFileName) :
                   << "" << "" << "" << "";
     _linestyles << "" << "" << ""
                 << "" << "" << "" << "";
+    _symbolstyles << "" << "" << ""
+                  << "" << "" << "" << "";
 
     QFile file(sessionFileName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
@@ -188,6 +192,17 @@ Session::Session(const QString &sessionFileName) :
                 linestyle.chop(1);
             }
             _linestyles.replace(lsId-1,linestyle);
+        } else if ( line.contains(QRegExp("[Ss][1-7]:")) ) {
+            int i = line.indexOf(QRegExp("[Ss][1-7]:"),0);
+            int ssId = QString(line.at(i+1)).toInt(); // 1-7
+            QString symbolstyle = line.mid(i+3).trimmed();
+            if ( symbolstyle.startsWith("\"") ) {
+                symbolstyle = symbolstyle.mid(1);
+            }
+            if ( symbolstyle.endsWith("\"") ) {
+                symbolstyle.chop(1);
+            }
+            _symbolstyles.replace(ssId-1,symbolstyle);
         } else if ( line.contains(QRegExp("[Ff][Gg]:")) ) {
             int i = line.indexOf(QRegExp("[Ff][Gg]:"),0);
             QString color = line.mid(i+3).trimmed();

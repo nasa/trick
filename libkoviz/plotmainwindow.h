@@ -53,6 +53,7 @@ public:
                              const QStringList& legends,
                              const QStringList& colors,
                              const QStringList& linestyles,
+                             const QStringList& symbolstyles,
                              const QString& orient,
                              bool isLegend,
                              const QString& foreground,

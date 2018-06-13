@@ -118,6 +118,13 @@ class SnapOptions : public Options
     QString linestyle5;
     QString linestyle6;
     QString linestyle7;
+    QString symbolstyle1;
+    QString symbolstyle2;
+    QString symbolstyle3;
+    QString symbolstyle4;
+    QString symbolstyle5;
+    QString symbolstyle6;
+    QString symbolstyle7;
 };
 
 SnapOptions opts;
@@ -197,6 +204,13 @@ int main(int argc, char *argv[])
     opts.add("-ls5",&opts.linestyle5,"","Line style 5");
     opts.add("-ls6",&opts.linestyle6,"","Line style 6");
     opts.add("-ls7",&opts.linestyle7,"","Line style 7");
+    opts.add("-s1",&opts.symbolstyle1,"","Symbol style 1");
+    opts.add("-s2",&opts.symbolstyle2,"","Symbol style 2");
+    opts.add("-s3",&opts.symbolstyle3,"","Symbol style 3");
+    opts.add("-s4",&opts.symbolstyle4,"","Symbol style 4");
+    opts.add("-s5",&opts.symbolstyle5,"","Symbol style 5");
+    opts.add("-s6",&opts.symbolstyle6,"","Symbol style 6");
+    opts.add("-s7",&opts.symbolstyle7,"","Symbol style 7");
     opts.add("-orient",&opts.orient,"",
              "PDF page orientation - landscape or portrait",
              presetOrientation);
@@ -627,6 +641,40 @@ int main(int argc, char *argv[])
                        << opts.linestyle7;
         }
 
+        // Make a list of user given symbolstyles
+        QStringList symbolstyles;
+        if ( session ) {
+            symbolstyles << session->symbolstyle1() << session->symbolstyle2()
+                         << session->symbolstyle3() << session->symbolstyle4()
+                         << session->symbolstyle5() << session->symbolstyle6()
+                         << session->symbolstyle7();
+            if ( !opts.symbolstyle1.isEmpty() ) {
+                symbolstyles.replace(0,opts.symbolstyle1);
+            }
+            if ( !opts.symbolstyle2.isEmpty() ) {
+                symbolstyles.replace(1,opts.symbolstyle2);
+            }
+            if ( !opts.symbolstyle3.isEmpty() ) {
+                symbolstyles.replace(2,opts.symbolstyle3);
+            }
+            if ( !opts.symbolstyle4.isEmpty() ) {
+                symbolstyles.replace(3,opts.symbolstyle4);
+            }
+            if ( !opts.symbolstyle5.isEmpty() ) {
+                symbolstyles.replace(4,opts.symbolstyle5);
+            }
+            if ( !opts.symbolstyle6.isEmpty() ) {
+                symbolstyles.replace(5,opts.symbolstyle6);
+            }
+            if ( !opts.symbolstyle7.isEmpty() ) {
+                symbolstyles.replace(6,opts.symbolstyle7);
+            }
+        } else {
+            symbolstyles << opts.symbolstyle1 << opts.symbolstyle2
+                         << opts.symbolstyle3 << opts.symbolstyle4
+                         << opts.symbolstyle5 << opts.symbolstyle6
+                         << opts.symbolstyle7;
+        }
 
         // Time match tolerance
         double tolerance = 0.000001;
@@ -724,6 +772,7 @@ int main(int argc, char *argv[])
                              shifts,
                              presentation, QString(), dps, titles,
                              legends, colors, linestyles,
+                             symbolstyles,
                              orient, isLegend,
                              fg, bg,
                              isShowTables,
@@ -842,6 +891,7 @@ int main(int argc, char *argv[])
                                  shifts,
                                  presentation, ".", dps, titles,
                                  legends, colors, linestyles,
+                                 symbolstyles,
                                  orient, isLegend,
                                  fg, bg,
                                  isShowTables,
@@ -861,6 +911,7 @@ int main(int argc, char *argv[])
                                  shifts,
                                  presentation, runDirs.at(0), QStringList(),
                                  titles, legends, colors, linestyles,
+                                 symbolstyles,
                                  orient, isLegend,
                                  fg, bg,
                                  isShowTables,

@@ -391,7 +391,19 @@ void VarsWidget::_addCurves(QModelIndex curvesIdx, const QString &yName)
             _addChild(curveItem, "CurveLineStyle", style);
         }
 
-        _addChild(curveItem, "CurveSymbolStyle", "");
+        QString symbolStyle = "none";
+        if ( nCurves <= 7 ) {
+            QModelIndex ssIdx = _plotModel->getIndex(QModelIndex(),
+                                                     "Symbolstyles","");
+            QString ssTag = QString("Symbolstyle%1").arg(nCurves);
+            QString ss = _plotModel->getDataString(ssIdx,ssTag,"Symbolstyles");
+            if ( !ss.isEmpty() ) {
+                // Use symbolstyle from commandline
+                symbolStyle = ss;
+            }
+        }
+        _addChild(curveItem, "CurveSymbolStyle", symbolStyle);
+
         _addChild(curveItem, "CurveSymbolSize", "");
         _addChild(curveItem, "CurveYLabel", "");
         _addChild(curveItem, "CurveXMinRange", -DBL_MAX);

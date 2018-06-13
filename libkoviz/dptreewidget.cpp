@@ -739,11 +739,27 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     _addChild(curveItem, "CurveYMaxRange",   y->maxRange());
     _addChild(curveItem, "CurveYScale",      y->scaleFactor());
     _addChild(curveItem, "CurveYBias",       y->bias());
-    _addChild(curveItem, "CurveSymbolStyle", y->symbolStyle());
     _addChild(curveItem, "CurveSymbolSize",  y->symbolSize());
 
-    QString lineStyle = y->lineStyle() ; // DP linestyle
     int row = _bookModel->indexFromItem(curveItem).row();
+
+    QString symbolStyle = y->symbolStyle() ; // DP symbol style
+    if ( row < 7 ) {
+        QModelIndex ssIdx = _bookModel->getIndex(QModelIndex(),
+                                                 "Symbolstyles","");
+        QString ssTag = QString("Symbolstyle%1").arg(row+1);
+        QString ss = _bookModel->getDataString(ssIdx,ssTag,"Symbolstyles");
+        if ( !ss.isEmpty() ) {
+            // Use symbolstyle from commandline
+            symbolStyle = ss;
+        }
+    }
+    if ( symbolStyle.isEmpty() ) {
+        symbolStyle = "none";
+    }
+    _addChild(curveItem, "CurveSymbolStyle", symbolStyle);
+
+    QString lineStyle = y->lineStyle() ; // DP linestyle
     if ( row < 7 ) {
         QModelIndex lsIdx = _bookModel->getIndex(QModelIndex(),"Linestyles","");
         QString lsTag = QString("Linestyle%1").arg(row+1);

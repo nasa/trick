@@ -26,6 +26,7 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
         const QStringList& titles,
         const QStringList &legends, const QStringList &colors,
         const QStringList &linestyles,
+        const QStringList &symbolstyles,
         const QString &orient, bool isLegend,
         const QString &foreground, const QString &background,
         bool isShowTables,
@@ -134,6 +135,18 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
         _bookModel->addChild(citem, "Linestyle5",linestyles.at(4));
         _bookModel->addChild(citem, "Linestyle6",linestyles.at(5));
         _bookModel->addChild(citem, "Linestyle7",linestyles.at(6));
+    }
+    if ( symbolstyles.size() == 7 ) {
+        QStandardItem *rootItem = _bookModel->invisibleRootItem();
+        QStandardItem *citem;
+        citem = _bookModel->addChild(rootItem, "Symbolstyles","");
+        _bookModel->addChild(citem, "Symbolstyle1",symbolstyles.at(0));
+        _bookModel->addChild(citem, "Symbolstyle2",symbolstyles.at(1));
+        _bookModel->addChild(citem, "Symbolstyle3",symbolstyles.at(2));
+        _bookModel->addChild(citem, "Symbolstyle4",symbolstyles.at(3));
+        _bookModel->addChild(citem, "Symbolstyle5",symbolstyles.at(4));
+        _bookModel->addChild(citem, "Symbolstyle6",symbolstyles.at(5));
+        _bookModel->addChild(citem, "Symbolstyle7",symbolstyles.at(6));
     }
 
     // Create Plot Tabbed Notebook View Widget
@@ -890,6 +903,30 @@ void PlotMainWindow::_saveSession()
         out << "ls5: \"" << ls5 << "\"\n" ;
         out << "ls6: \"" << ls6 << "\"\n" ;
         out << "ls7: \"" << ls7 << "\"\n" ;
+
+        // Symbolstyles
+        QModelIndex ssIdx = _bookModel->getIndex(QModelIndex(),"Symbolstyles");
+        QString s1 =_bookModel->getDataString(ssIdx,"Symbolstyle1",
+                                                    "Symbolstyles");
+        QString s2 =_bookModel->getDataString(ssIdx,"Symbolstyle2",
+                                                    "Symbolstyles");
+        QString s3 =_bookModel->getDataString(ssIdx,"Symbolstyle3",
+                                                    "Symbolstyles");
+        QString s4 =_bookModel->getDataString(ssIdx,"Symbolstyle4",
+                                                    "Symbolstyles");
+        QString s5 =_bookModel->getDataString(ssIdx,"Symbolstyle5",
+                                                    "Symbolstyles");
+        QString s6 =_bookModel->getDataString(ssIdx,"Symbolstyle6",
+                                                    "Symbolstyles");
+        QString s7 =_bookModel->getDataString(ssIdx,"Symbolstyle7",
+                                                    "Symbolstyles");
+        out << "s1: \"" << s1 << "\"\n" ;
+        out << "s2: \"" << s2 << "\"\n" ;
+        out << "s3: \"" << s3 << "\"\n" ;
+        out << "s4: \"" << s4 << "\"\n" ;
+        out << "s5: \"" << s5 << "\"\n" ;
+        out << "s6: \"" << s6 << "\"\n" ;
+        out << "s7: \"" << s7 << "\"\n" ;
 
         // Show Legend
         QString isLegend = _bookModel->getDataString(QModelIndex(),"IsLegend");
