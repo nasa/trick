@@ -30,9 +30,9 @@ public:
                          const QVariant &value, int role=Qt::EditRole);
 
 public:
-    double xScale(const QModelIndex& curveIdx) const;
+    double xScale(const QModelIndex& curveIdx,CurveModel* curveModelIn=0) const;
     double yScale(const QModelIndex& curveIdx) const;
-    double xBias(const QModelIndex& curveIdx) const;
+    double xBias(const QModelIndex& curveIdx, CurveModel* curveModelIn=0) const;
     double yBias(const QModelIndex& curveIdx) const;
     QRectF calcCurvesBBox(const QModelIndex& curvesIdx) const;
 

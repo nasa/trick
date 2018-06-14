@@ -58,7 +58,12 @@ bool PlotBookModel::setData(const QModelIndex &idx,
                 }
                 double start = getDataDouble(QModelIndex(),"StartTime");
                 double stop = getDataDouble(QModelIndex(),"StopTime");
-                QPainterPath* path = _createPainterPath(curveModel,start,stop);
+                QModelIndex curveIdx = idx.parent();
+                double xb = xBias(curveIdx,curveModel);
+                double xs = xScale(curveIdx,curveModel);
+                QPainterPath* path = _createPainterPath(curveModel,
+                                                        (start-xb)/xs,
+                                                        (stop-xb)/xs);
                 _curve2path.insert(curveModel,path);
             }
         } else if ( tag == "StartTime" || tag == "StopTime") {
@@ -103,8 +108,12 @@ bool PlotBookModel::setData(const QModelIndex &idx,
                             delete currPath;
                             _curve2path.remove(curveModel);
                         }
+
+                        double xb = xBias(curveIdx,curveModel);
+                        double xs = xScale(curveIdx,curveModel);
                         QPainterPath* path = _createPainterPath(curveModel,
-                                                                start,stop);
+                                                                (start-xb)/xs,
+                                                                (stop-xb)/xs);
                         _curve2path.insert(curveModel,path);
                     }
                 }
@@ -773,7 +782,8 @@ bool PlotBookModel::isChildIndex(const QModelIndex &pidx,
     return isChild;
 }
 
-double PlotBookModel::xScale(const QModelIndex& curveIdx) const
+double PlotBookModel::xScale(const QModelIndex& curveIdx,
+                             CurveModel *curveModelIn) const
 {
     double xs = 1.0;
 
@@ -786,7 +796,10 @@ double PlotBookModel::xScale(const QModelIndex& curveIdx) const
         exit(-1);
     }
 
-    CurveModel* curveModel = getCurveModel(curveIdx);
+    CurveModel* curveModel = curveModelIn;
+    if ( !curveModel ) {
+        curveModel = getCurveModel(curveIdx);
+    }
     if ( !curveModel ) {
         xs = 0.0;
         return xs;
@@ -846,7 +859,8 @@ double PlotBookModel::yScale(const QModelIndex& curveIdx) const
     return ys;
 }
 
-double PlotBookModel::xBias(const QModelIndex &curveIdx) const
+double PlotBookModel::xBias(const QModelIndex &curveIdx,
+                            CurveModel *curveModelIn) const
 {
     double xb = 0.0;
 
@@ -859,7 +873,10 @@ double PlotBookModel::xBias(const QModelIndex &curveIdx) const
         exit(-1);
     }
 
-    CurveModel* curveModel = getCurveModel(curveIdx);
+    CurveModel* curveModel = curveModelIn;
+    if ( !curveModel ) {
+        curveModel = getCurveModel(curveIdx);
+    }
     if ( !curveModel ) {
         xb = 0.0;
         return xb;
@@ -987,7 +1004,7 @@ QRectF PlotBookModel::calcCurvesBBox(const QModelIndex &curvesIdx) const
     return bbox;
 }
 
-// Note: No scaling, the path is straight from the logged data
+// Note: No scaling or bias
 QPainterPath* PlotBookModel::_createPainterPath(CurveModel *curveModel,
                                                double startTime,double stopTime)
 {
