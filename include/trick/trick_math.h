@@ -11,6 +11,10 @@
 #define M_ABS(x) ((x) < 0 ? -(x) : (x))
 #endif
 
+#ifndef M_SIGN
+#define M_SIGN(x) (((x) > 0) - ((x) < 0))
+#endif
+
 #if ( __ghs )
 #ifndef M_PI
 #define M_PI     3.141592653589793238460
