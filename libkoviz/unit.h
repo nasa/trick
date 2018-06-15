@@ -23,7 +23,8 @@ class Unit {
 
     QString name() const;
     void setName(const QString& name);
-    bool canConvert(const Unit& to) const;
+
+    static bool canConvert(const QString& from,const QString& to);
     static bool isUnit(const QString& name);
     static double scale(const QString& from, const QString& to);
     static double bias(const QString& from, const QString& to);

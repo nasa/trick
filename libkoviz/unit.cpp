@@ -32,12 +32,12 @@ void Unit::setName(const QString& name )
     _name = name ;
 }
 
-bool Unit::canConvert(const Unit &to) const
+bool Unit::canConvert(const QString& from, const QString &to)
 {
     bool can = false;
 
-    QString fam1 = _family(this->name());
-    QString fam2 = _family(to.name());
+    QString fam1 = _family(from);
+    QString fam2 = _family(to);
 
     if ( fam1 == fam2 ) {
         can = true;

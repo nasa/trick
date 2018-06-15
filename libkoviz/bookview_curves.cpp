@@ -1939,9 +1939,9 @@ void CurvesView::_keyPressSpace()
     }
     if ( dpYUnit0 != dpYUnit1 && !dpYUnit0.isEmpty() && !dpYUnit1.isEmpty() ) {
         // Make dp units the same (if in same family)
-        Unit u0(dpYUnit0.toLatin1().constData());
-        Unit u1(dpYUnit1.toLatin1().constData());
-        if ( u0.canConvert(u1) ) {
+        QString u0(dpYUnit0);
+        QString u1(dpYUnit1);
+        if ( Unit::canConvert(u0,u1) ) {
             QModelIndex unitIdx1 = _bookModel()->getDataIndex(idx1,
                                                          "CurveYUnit", "Curve");
             model()->setData(unitIdx1,dpYUnit0);
