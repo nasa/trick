@@ -318,6 +318,8 @@ void VarsWidget::_addCurves(QModelIndex curvesIdx, const QString &yName)
     timer.start();
 #endif
 
+    QString u0;
+    QString r0;
     for ( int r = 0; r < rc; ++r) {
 
         // Update progress dialog
@@ -355,6 +357,26 @@ void VarsWidget::_addCurves(QModelIndex curvesIdx, const QString &yName)
         _addChild(curveItem, "CurveXUnit", curveModel->t()->unit()); // yes,t
         _addChild(curveItem, "CurveYName", yName);
         _addChild(curveItem, "CurveYUnit", curveModel->y()->unit());
+        if ( r == 0 ) {
+            u0 = curveModel->y()->unit();
+            r0 = QFileInfo(curveModel->fileName()).dir().dirName();
+        } else {
+            QString u1 = curveModel->y()->unit();
+            QString r1 = QFileInfo(curveModel->fileName()).dir().dirName();
+            if ( !Unit::canConvert(u0,u1) ) {
+                fprintf(stderr, "koviz [error]: Unit mismatch for param=%s "
+                                "between the following RUNs:\n"
+                                "        %s {%s}\n"
+                                "        %s {%s}\n",
+                        yName.toLatin1().constData(),
+                        r0.toLatin1().constData(),
+                        u0.toLatin1().constData(),
+                        r1.toLatin1().constData(),
+                        u1.toLatin1().constData());
+                exit(-1);
+            }
+        }
+
         QString runDirName = QFileInfo(curveModel->fileName()).dir().dirName();
         bool ok;
         int runId = runDirName.mid(4).toInt(&ok);

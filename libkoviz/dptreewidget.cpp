@@ -379,6 +379,9 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                     style = styles.at(0);
                 }
 
+                QString ux0;
+                QString uy0;
+                QString r0;
                 for ( int r = 0; r < rc; ++r) {
 
                     QString color = colors.at(r).name();
@@ -386,8 +389,48 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                         color = colors.at(i).name();
                     }
 
-                    _addCurve(curvesItem,dpcurve,dpprogram,_runDirs,r,
-                              color,style);
+                    CurveModel* curveModel = _addCurve(curvesItem,dpcurve,
+                                                       dpprogram,_runDirs,r,
+                                                       color,style);
+
+                    if ( r == 0 ) {
+                        ux0 = curveModel->x()->unit();
+                        uy0 = curveModel->y()->unit();
+                        r0 = QFileInfo(curveModel->fileName()).dir().dirName();
+                    } else {
+                        QString ux1 = curveModel->x()->unit();
+                        QString uy1 = curveModel->y()->unit();
+                        QString r1 = QFileInfo(curveModel->fileName()).
+                                     dir().dirName();
+                        if ( !Unit::canConvert(ux0,ux1) ) {
+                            fprintf(stderr,
+                                 "koviz [error]: Unit mismatch for param=%s "
+                                 "between the following RUNs:\n"
+                                 "        %s {%s}\n"
+                                 "        %s {%s}\n",
+                                 curveModel->x()->name().toLatin1().constData(),
+                                 r0.toLatin1().constData(),
+                                 ux0.toLatin1().constData(),
+                                 r1.toLatin1().constData(),
+                                 ux1.toLatin1().constData());
+                            exit(-1);
+                        }
+                        if ( !Unit::canConvert(uy0,uy1) ) {
+                            fprintf(stderr,
+                                 "koviz [error]: Unit mismatch for param=%s "
+                                 "between the following RUNs:\n"
+                                 "        %s {%s}\n"
+                                 "        %s {%s}\n",
+                                 curveModel->y()->name().toLatin1().constData(),
+                                 r0.toLatin1().constData(),
+                                 uy0.toLatin1().constData(),
+                                 r1.toLatin1().constData(),
+                                 uy1.toLatin1().constData());
+                            exit(-1);
+                        }
+                    }
+
+
 #ifdef __linux
                     int secs = qRound(timer.stop()/1000000.0);
                     div_t d = div(secs,60);
@@ -574,7 +617,7 @@ QStandardItem *DPTreeWidget::_addChild(QStandardItem *parentItem,
     return(_bookModel->addChild(parentItem,childTitle,childValue));
 }
 
-void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
+CurveModel* DPTreeWidget::_addCurve(QStandardItem *curvesItem,
                              DPCurve *dpcurve,
                              DPProgram *dpprogram,
                              const QStringList& runDirs,
@@ -784,6 +827,8 @@ void DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     // Finally, add actual curve model data with signals turned on
     QVariant v = PtrToQVariant<CurveModel>::convert(curveModel);
     _addChild(curveItem, "CurveData", v);
+
+    return curveModel;
 }
 
 bool DPTreeWidget::_isDP(const QString &fp)

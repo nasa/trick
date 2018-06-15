@@ -80,10 +80,11 @@ private:
     QStandardItem* _addChild(QStandardItem* parentItem,
                    const QString& childTitle,
                    const QVariant &childValue=QVariant());
-    void _addCurve(QStandardItem* curvesItem, DPCurve* dpcurve, DPProgram *dpprogram,
-                   const QStringList &runDirs, int runId,
-                   const QString &defaultColor,
-                   const QString &defaultLineStyle);
+    CurveModel* _addCurve(QStandardItem* curvesItem, DPCurve* dpcurve,
+                          DPProgram *dpprogram,
+                          const QStringList &runDirs, int runId,
+                          const QString &defaultColor,
+                          const QString &defaultLineStyle);
     bool _isDP(const QString& fp);
     QString _descrPlotTitle(DPPlot* plot);
 
