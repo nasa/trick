@@ -356,7 +356,6 @@ void VarsWidget::_addCurves(QModelIndex curvesIdx, const QString &yName)
         _addChild(curveItem, "CurveXName", _timeName);
         _addChild(curveItem, "CurveXUnit", curveModel->t()->unit()); // yes,t
         _addChild(curveItem, "CurveYName", yName);
-        _addChild(curveItem, "CurveYUnit", curveModel->y()->unit());
         if ( r == 0 ) {
             u0 = curveModel->y()->unit();
             r0 = QFileInfo(curveModel->fileName()).dir().dirName();
@@ -376,6 +375,7 @@ void VarsWidget::_addCurves(QModelIndex curvesIdx, const QString &yName)
                 exit(-1);
             }
         }
+        _addChild(curveItem, "CurveYUnit", u0);
 
         QString runDirName = QFileInfo(curveModel->fileName()).dir().dirName();
         bool ok;
