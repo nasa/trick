@@ -176,7 +176,7 @@ foreach ( @all_compile_libs ) {
 # sort and weed out duplicate files
 foreach my $directory ( keys %files_by_dir ) {
     my %temp_hash ;
-    foreach my $extension ( keys $files_by_dir{$directory} ) {
+    foreach my $extension ( keys %{$files_by_dir{$directory}} ) {
         undef %temp_hash ;
         @{$files_by_dir{$directory}{$extension}} = sort grep ++$temp_hash{$_} < 2, @{$files_by_dir{$directory}{$extension}} ;
     }
@@ -249,7 +249,7 @@ open MODEL_LINK_LIST, ">build/model_link_list" or die "Could not open build/mode
 
 my %files_by_extension ;
 foreach my $directory ( keys %files_by_dir ) {
-    foreach my $extension ( grep { /^\.(c|cc|C|cxx|cpp|c\+\+)$/ } keys $files_by_dir{$directory} ) {
+    foreach my $extension ( grep { /^\.(c|cc|C|cxx|cpp|c\+\+)$/ } keys %{$files_by_dir{$directory}} ) {
         foreach my $file ( @{$files_by_dir{$directory}{$extension}} ) {
             push @{$files_by_extension{$extension}} , "build$directory$file.o" ;
         }
