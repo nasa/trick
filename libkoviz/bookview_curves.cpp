@@ -691,6 +691,38 @@ void CurvesView::_paintMarkers(QPainter &painter)
         } else {
             i = _idxAtTimeBinarySearch(path,0,high,marker->time());
         }
+        if ( tag == "Curve" ) {
+            // If x is not time (e.g. ball xy orbit), i is calculated from
+            // the curve model instead of the path
+            QModelIndex curveIdx = marker->idx();
+            CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
+            curveModel->map();
+            QModelIndex plotIdx = marker->idx().parent().parent();
+            if ( !_bookModel()->isXTime(plotIdx) ) {
+                // e.g. ball xy curve where x is position[0]
+                double f = _bookModel()->getDataDouble(QModelIndex(),
+                                                       "Frequency");
+                if ( f != 0.0 ) {
+                    // If frequency != 0.0, the path and curveModel iterator
+                    // are not aligned in time and 'i' cannot easily be solved
+                    fprintf(stderr, "koviz [todo]: support live coord "
+                                    "for xy curve where x is not time "
+                                    "and frequency is not zero.\n");
+                    exit(-1);
+                }
+                double start = _bookModel()->getDataDouble(QModelIndex(),
+                                                           "StartTime");
+                i = curveModel->indexAtTime(marker->time());
+                int j = curveModel->indexAtTime(start);
+                i = i - j;
+                if ( i < 0 ) {
+                    // This can happen when liveCoord is unset (0.0) initially
+                    curveModel->unmap();
+                    continue;
+                }
+            }
+            curveModel->unmap();
+        }
 
         // Element/coord at live time
         QPainterPath::Element el = path->elementAt(i);
