@@ -224,6 +224,28 @@ void LabeledRulerView::dataChanged(const QModelIndex &topLeft,
     }
 }
 
+void LabeledRulerView::wheelEvent(QWheelEvent *e)
+{
+    QString from ;
+    QModelIndex scaleIdx;
+    if ( _alignment == Qt::AlignBottom ) {
+        from = _bookModel()->getDataString(rootIndex(),"PlotXScale","Plot");
+        scaleIdx = _bookModel()->getDataIndex(rootIndex(),"PlotXScale","Plot");
+    } else if ( _alignment == Qt::AlignLeft ) {
+        from = _bookModel()->getDataString(rootIndex(),"PlotYScale","Plot");
+        scaleIdx = _bookModel()->getDataIndex(rootIndex(),"PlotYScale","Plot");
+    }
+
+    QString to;
+    if ( from == "linear" ) {
+        to = "log";
+    } else if ( from == "log" ) {
+        to = "linear";
+    }
+
+    _bookModel()->setData(scaleIdx,to);
+}
+
 // Do boxes fit in W with minGap between each box in boxes?
 bool LabeledRulerView::_isFits(const QList<LabelBox> &boxes,
                            const QRectF &W, double minGap,

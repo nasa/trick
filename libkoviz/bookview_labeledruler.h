@@ -26,6 +26,7 @@ protected:
     virtual QSize sizeHint() const;
     virtual void dataChanged(const QModelIndex &topLeft,
                              const QModelIndex &bottomRight);
+    virtual void wheelEvent(QWheelEvent *e);
 
 private:
     Qt::Alignment _alignment;
