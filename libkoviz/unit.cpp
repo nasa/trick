@@ -369,6 +369,7 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     // Miscellaneous
     map.insert(QPair<QString,QString>("rad2/s2","rad2/s2"), 1.0);
     map.insert(QPair<QString,QString>("m2/s2","m2/s2"), 1.0);
+    map.insert(QPair<QString,QString>("kg*m2","kg*m2"), 1.0);
 
     return map;
 }
