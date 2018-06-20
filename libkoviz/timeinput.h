@@ -13,14 +13,14 @@
 class StartDoubleValidator : public QDoubleValidator
 {
   public:
-    StartDoubleValidator(QObject *parent = Q_NULLPTR);
+    StartDoubleValidator(QObject *parent = 0);
     virtual void fixup(QString &input) const;
 };
 
 class StopDoubleValidator : public QDoubleValidator
 {
   public:
-    StopDoubleValidator(QObject *parent = Q_NULLPTR);
+    StopDoubleValidator(QObject *parent = 0);
     virtual void fixup(QString &input) const;
 };
 
