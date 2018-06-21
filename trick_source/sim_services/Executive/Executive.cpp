@@ -398,4 +398,3 @@ int Trick::Executive::set_current_version(std::string version) {
     this->current_version = version ;
     return(0) ;
 }
-

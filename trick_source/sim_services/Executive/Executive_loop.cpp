@@ -1,7 +1,5 @@
-
 #include <stdlib.h>
 
-#include <exception>
 #include "trick/Executive.hh"
 #include "trick/ExecutiveException.hh"
 

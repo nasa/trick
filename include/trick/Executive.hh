@@ -283,6 +283,17 @@ namespace Trick {
 
             ~Executive() ;
 
+            /**
+             * Print a demangled stack backtrace of the caller function to FILE* out.
+             *
+             * @param out the file to print to
+             * @param max_frames the maximum numbers of frames to trace
+             */
+            static void print_stack_trace(FILE *out = stderr, unsigned int max_frames = 63);
+
+            /** prints a stack trace to a file named termination_stack_trace in the output directory */
+            static void print_stack_trace_file();
+
             // GET and SET FUNCTIONS
 
             /**
