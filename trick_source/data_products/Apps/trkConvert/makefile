@@ -5,7 +5,7 @@ CXXFLAGS =
 
 MAIN     = trkConvert
 
-OBJECTS = CSV_Formatter.o Varlist_Formatter.o trkConvert.o
+OBJECTS = CSV_Formatter.o Varlist_Formatter.o ParamDescription.o TRK_DataLog.o trkConvert.o
 
 .c.o:
 	${CC} ${CFLAGS} ${INCDIRS} -c $<
