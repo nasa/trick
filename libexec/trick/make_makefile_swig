@@ -169,12 +169,12 @@ sub write_makefile_swig() {
     print PY_LINK_LIST "build/init_swig_modules.o\n" ;
     print PY_LINK_LIST "build/top.o\n" ;
 
-    print MAKEFILE "SWIG_CFLAGS := -I../include \${PYTHON_INCLUDES} -Wno-shadow -Wno-missing-field-initializers
+    print MAKEFILE "TRICK_SYSTEM_SWIG_CFLAGS := -I../include \${PYTHON_INCLUDES} -Wno-shadow -Wno-missing-field-initializers
 
 ifeq (\$(IS_CC_CLANG), 1)
-    SWIG_CFLAGS += -Wno-self-assign -Wno-sometimes-uninitialized -Wno-deprecated-register
+    TRICK_SYSTEM_SWIG_CFLAGS += -Wno-self-assign -Wno-sometimes-uninitialized -Wno-deprecated-register
 else
-    SWIG_CFLAGS += -Wno-unused-but-set-variable
+    TRICK_SYSTEM_SWIG_CFLAGS += -Wno-unused-but-set-variable
 endif
 
 ifndef TRICK_VERBOSE_BUILD
@@ -231,8 +231,8 @@ SWIG_SRC = \$(subst .i,.cpp,\$(SWIG_I)) $swig_src_dir/top.cpp
 
 \$(SWIG_SRC) : %.cpp: %.i | \$(SWIG_I)
 \t\$(PRINT_SWIG)
-\t\@echo \$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -outdir trick -o \$@ \$< >> \$(MAKE_OUT)
-\t\$(ECHO_CMD)\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -outdir trick -o \$@ \$< 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
+\t\@echo \$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) \$(TRICK_SYSTEM_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -outdir trick -o \$@ \$< >> \$(MAKE_OUT)
+\t\$(ECHO_CMD)\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) \$(TRICK_SYSTEM_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -outdir trick -o \$@ \$< 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
 
 # SWIG_OBJECTS =================================================================
 
@@ -240,8 +240,8 @@ SWIG_OBJECTS = \$(subst .cpp,.o,\$(SWIG_SRC)) $swig_src_dir/init_swig_modules.o
 
 \$(SWIG_OBJECTS): %.o: %.cpp
 \t\$(PRINT_COMPILE_SWIG)
-\t\@echo \$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) \$(SWIG_CFLAGS) -Wno-unused-parameter -c -o \$@ \$< >> \$(MAKE_OUT)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) \$(SWIG_CFLAGS) -Wno-unused-parameter -c -o \$@ \$< 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
+\t\@echo \$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) \$(TRICK_SWIG_CFLAGS) \$(TRICK_SYSTEM_SWIG_CFLAGS) \$-Wno-unused-parameter -c -o \$@ \$< >> \$(MAKE_OUT)
+\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) \$(TRICK_SWIG_CFLAGS) \$(TRICK_SYSTEM_SWIG_CFLAGS) -Wno-unused-parameter -c -o \$@ \$< 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
 
 \$(S_MAIN): \$(SWIG_OBJECTS)
 
