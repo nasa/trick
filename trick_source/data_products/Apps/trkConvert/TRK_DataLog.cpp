@@ -183,9 +183,10 @@ void TRK_DataLog::formattedWrite(FILE* out_fp, LogFormatter* formatter) {
     formatter->writeHeader(out_fp, version, endianness);
     formatter->writeColumnLabel(out_fp, paramDescriptions[0]->parameterName, paramDescriptions[0]->unitsName); 
     for (int ii = 1; ii < (int)N_params ; ii++) {
-        if (paramSelected[ii])
+        if (paramSelected[ii]) {
             formatter->writeColumnLabelSeparator(out_fp);
             formatter->writeColumnLabel(out_fp, paramDescriptions[ii]->parameterName, paramDescriptions[ii]->unitsName); 
+        }
     }
 
     if ( fsetpos(in_fp, &dataPosition) != 0 ) {
