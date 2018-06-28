@@ -33,20 +33,7 @@ private:
 
     const int _margin5;
 
-    bool _isFits(const QList<LabelBox>& boxes,
-                 const QRectF& W,
-                 double minGap, Qt::Alignment alignment);
-
     QString _format(double tic) const;
-
-    QList<LabelBox> _moveCurrBoxToFit(const QList<LabelBox>& boxes,
-                         int currBoxIdx,
-                         int lastBoxIdx,
-                         const QRectF& W,
-                         double minGap);
-
-    QList<LabelBox> _halfBoxSet(const QList<LabelBox>& boxes,
-                                Qt::Alignment alignment);
 
     QSize _sizeHintLeft() const;
     QSize _sizeHintBottom() const;
