@@ -1,5 +1,7 @@
 #include "TRK_DataLog.hh"
 #include <iostream>
+#include <cstring>
+#include <cstdlib>
 
 typedef enum {
     TRICK_VOID               =   0, /* No type */
