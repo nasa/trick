@@ -13,6 +13,8 @@ class DocWindow : public QMainWindow {
     DocWindow(const QString &name);
     ~DocWindow(){};
 
+   void formattedSave(LogFormatter &formatter);
+
   private slots:
       void load();
       void saveAsCSV();

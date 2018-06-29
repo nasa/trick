@@ -82,19 +82,17 @@ void DocWindow::load() {
     }
 }
 
-void DocWindow::saveAsCSV() {
+void DocWindow::formattedSave(LogFormatter &formatter) {
      
-    QTextStream out(stdout);
-
-    CSV_Formatter csv_formatter;
-
     QFileInfo trkFileInfo( trkFileName);
 
-    QString csvFileName = trkFileInfo.canonicalPath();
-    csvFileName += "/";
-    csvFileName += trkFileInfo.completeBaseName();
-    csvFileName += csv_formatter.extension();
-    out << "csvFileName = \"" << csvFileName << "\"" << endl;
+    QString outFileName = trkFileInfo.canonicalPath();
+    outFileName += "/";
+    outFileName += trkFileInfo.completeBaseName();
+    outFileName += formatter.extension();
+
+    QTextStream out(stdout);
+    out << "outFileName = \"" << outFileName << "\"" << endl;
 
     int count = varTable->recordCount();
     for (int index=0 ; index<count ; index++) {
@@ -107,38 +105,22 @@ void DocWindow::saveAsCSV() {
     }
 
     FILE *fp;
-    if (( fp = fopen(csvFileName.toStdString().c_str(), "w") ) != NULL) {
-        datalog->formattedWrite(fp, &csv_formatter);
+    if (( fp = fopen(outFileName.toStdString().c_str(), "w") ) != NULL) {
+        datalog->formattedWrite(fp, &formatter);
     }
+}
+
+
+void DocWindow::saveAsCSV() {
+     
+    CSV_Formatter csv_formatter;
+    formattedWrite(csv_formatter);
 }
 
 void DocWindow::saveAsVarList() {
 
-    QTextStream out(stdout);
-
     Varlist_Formatter varlist_formatter;
-
-    QFileInfo trkFileInfo( trkFileName);
-
-    QString varListFileName = trkFileInfo.canonicalPath();
-    varListFileName += "/";
-    varListFileName += trkFileInfo.completeBaseName();
-    varListFileName += varlist_formatter.extension();
-    out << "varListFileName = \"" << varListFileName << "\"" << endl;
-
-    int count = varTable->recordCount();
-    for (int index=0 ; index<count ; index++) {
-        if (varTable->isChecked(index)) {
-            datalog->selectParameter(index);
-        } else {
-            datalog->deselectParameter(index);
-        }         
-    }
-
-    FILE *fp;
-    if (( fp = fopen(varListFileName.toStdString().c_str(), "w") ) != NULL) {
-        datalog->formattedWrite(fp, &varlist_formatter);
-    }
+    formattedWrite(varlist_formatter);
 }
 
 void DocWindow::checkAll() {
