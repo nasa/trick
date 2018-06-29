@@ -231,8 +231,8 @@ SWIG_SRC = \$(subst .i,.cpp,\$(SWIG_I)) $swig_src_dir/top.cpp
 
 \$(SWIG_SRC) : %.cpp: %.i | \$(SWIG_I)
 \t\$(PRINT_SWIG)
-\t\@echo \$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) \$(TRICK_SYSTEM_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -outdir trick -o \$@ \$< >> \$(MAKE_OUT)
-\t\$(ECHO_CMD)\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) \$(TRICK_SYSTEM_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -outdir trick -o \$@ \$< 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
+\t\@echo \$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -outdir trick -o \$@ \$< >> \$(MAKE_OUT)
+\t\$(ECHO_CMD)\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -outdir trick -o \$@ \$< 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
 
 # SWIG_OBJECTS =================================================================
 
