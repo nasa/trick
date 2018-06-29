@@ -16,6 +16,7 @@ class DocWindow : public QMainWindow {
   private slots:
       void load();
       void saveAsCSV();
+      void saveAsVarList();
       void checkAll();
       void unCheckAll();
 

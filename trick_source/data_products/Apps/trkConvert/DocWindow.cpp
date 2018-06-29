@@ -11,6 +11,11 @@
 #include "DocWindow.h"
 #include "VarTableWidget.h"
 #include "CSV_Formatter.hh"
+#include "Varlist_Formatter.hh"
+
+// Notes:
+// Need to be able to search for a variable by pattern.
+// Use a QLineEdit widget for the text box.
 
 DocWindow::DocWindow(const QString &name)
     : QMainWindow( 0, 0) {
@@ -22,14 +27,18 @@ DocWindow::DocWindow(const QString &name)
   fileLoadAction->setShortcut(tr("CTRL+O"));
   connect( fileLoadAction, &QAction::triggered , this, &DocWindow::load );
 
-  QAction * fileSaveAction = new QAction( "&Export as CSV...", this );
-  connect( fileSaveAction, &QAction::triggered, this, &DocWindow::saveAsCSV );
+  QAction * csvSaveAction = new QAction( "&Export as CSV...", this );
+  connect( csvSaveAction, &QAction::triggered, this, &DocWindow::saveAsCSV );
+
+  QAction * varListSaveAction = new QAction( "&Export as Variable List...", this );
+  connect( varListSaveAction, &QAction::triggered, this, &DocWindow::saveAsVarList );
 
   QMenu *fileMenu = menuBar()->addMenu("&File");
 
   fileMenu->addAction(fileLoadAction);
   fileMenu->addSeparator();
-  fileMenu->addAction(fileSaveAction);
+  fileMenu->addAction(csvSaveAction);
+  fileMenu->addAction(varListSaveAction);
 
   QAction * editSelectAction = new QAction( "&Select All", this );
   editSelectAction->setShortcut(tr("CTRL+A"));
@@ -42,7 +51,6 @@ DocWindow::DocWindow(const QString &name)
 
   editMenu->addAction(editSelectAction);
   editMenu->addAction(editClearAction);
-
 
   // Build the Table Widget that displays the variable names, types, and units.
   varTable = new VarTableWidget(this);
@@ -92,14 +100,45 @@ void DocWindow::saveAsCSV() {
     for (int index=0 ; index<count ; index++) {
         if (varTable->isChecked(index)) {
             datalog->selectParameter(index);
-        }
+        } else {
+            datalog->deselectParameter(index);
+        }         
+
     }
 
     FILE *fp;
     if (( fp = fopen(csvFileName.toStdString().c_str(), "w") ) != NULL) {
         datalog->formattedWrite(fp, &csv_formatter);
     }
+}
 
+void DocWindow::saveAsVarList() {
+
+    QTextStream out(stdout);
+
+    Varlist_Formatter varlist_formatter;
+
+    QFileInfo trkFileInfo( trkFileName);
+
+    QString varListFileName = trkFileInfo.canonicalPath();
+    varListFileName += "/";
+    varListFileName += trkFileInfo.completeBaseName();
+    varListFileName += varlist_formatter.extension();
+    out << "varListFileName = \"" << varListFileName << "\"" << endl;
+
+    int count = varTable->recordCount();
+    for (int index=0 ; index<count ; index++) {
+        if (varTable->isChecked(index)) {
+            datalog->selectParameter(index);
+        } else {
+            datalog->deselectParameter(index);
+        }         
+    }
+
+    FILE *fp;
+    if (( fp = fopen(varListFileName.toStdString().c_str(), "w") ) != NULL) {
+        datalog->formattedWrite(fp, &varlist_formatter);
+    }
 }
 
 void DocWindow::checkAll() {
