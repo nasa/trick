@@ -101,7 +101,6 @@ void DocWindow::formattedSave(LogFormatter &formatter) {
         } else {
             datalog->deselectParameter(index);
         }         
-
     }
 
     FILE *fp;
@@ -110,15 +109,12 @@ void DocWindow::formattedSave(LogFormatter &formatter) {
     }
 }
 
-
 void DocWindow::saveAsCSV() {
-     
     CSV_Formatter csv_formatter;
     formattedWrite(csv_formatter);
 }
 
 void DocWindow::saveAsVarList() {
-
     Varlist_Formatter varlist_formatter;
     formattedWrite(varlist_formatter);
 }
