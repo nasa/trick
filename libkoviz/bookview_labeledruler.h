@@ -38,6 +38,9 @@ private:
     QSize _sizeHintLeft() const;
     QSize _sizeHintBottom() const;
 
+    QRect _boundingRect(const QString& strVal) const;
+    void _paint10Exponent(const LabelBox &box) const;
+
 signals:
 
 public slots:

@@ -127,15 +127,28 @@ void YAxisLabelView::wheelEvent(QWheelEvent *e)
         }
         model()->blockSignals(block);
 
+        // Get plot scale (log or linear)
+        QString plotXScale = _bookModel()->getDataString(rootIndex(),
+                                                         "PlotXScale",
+                                                         "Plot");
+        QString plotYScale = _bookModel()->getDataString(rootIndex(),
+                                                         "PlotYScale",
+                                                         "Plot");
+
         // Recalculate and update bounding box (since unit change)
-        double scale = Unit::scale(fromUnit,toUnit);
-        double bias = Unit::bias(fromUnit,toUnit);
-        QModelIndex plotMathRectIdx = _bookModel()->getDataIndex(rootIndex(),
-                                                   "PlotMathRect","Plot");
-        QRectF R = model()->data(plotMathRectIdx).toRectF();
-        R.moveTop(R.y()*scale+bias);  // bias for temperature
-        R.setHeight(R.height()*scale);
-        _bookModel()->setPlotMathRect(R,rootIndex());
+        if ( plotXScale == "linear" && plotYScale == "linear" ) {
+            double scale = Unit::scale(fromUnit,toUnit);
+            double bias = Unit::bias(fromUnit,toUnit);
+            QModelIndex plotMathRectIdx = _bookModel()->getDataIndex(rootIndex(),
+                                                       "PlotMathRect","Plot");
+            QRectF R = model()->data(plotMathRectIdx).toRectF();
+            R.moveTop(R.y()*scale+bias);  // bias for temperature
+            R.setHeight(R.height()*scale);
+            _bookModel()->setPlotMathRect(R,rootIndex());
+        } else {
+            QRectF bbox = _bookModel()->calcCurvesBBox(curvesIdx);
+            _bookModel()->setPlotMathRect(bbox,rootIndex());
+        }
 
         viewport()->update();
     }

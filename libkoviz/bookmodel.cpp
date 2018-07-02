@@ -50,22 +50,11 @@ bool PlotBookModel::setData(const QModelIndex &idx,
         QString tag = data(tagIdx).toString();
         if ( tag == "CurveData" ) {
             CurveModel* curveModel = QVariantToPtr<CurveModel>::convert(value);
-            if ( curveModel ) {
-                if ( _curve2path.contains(curveModel) ) {
-                    QPainterPath* currPath = _curve2path.value(curveModel);
-                    delete currPath;
-                    _curve2path.remove(curveModel);
-                }
-                double start = getDataDouble(QModelIndex(),"StartTime");
-                double stop = getDataDouble(QModelIndex(),"StopTime");
-                QModelIndex curveIdx = idx.parent();
-                double xb = xBias(curveIdx,curveModel);
-                double xs = xScale(curveIdx,curveModel);
-                QPainterPath* path = _createPainterPath(curveModel,
-                                                        (start-xb)/xs,
-                                                        (stop-xb)/xs);
-                _curve2path.insert(curveModel,path);
-            }
+            QModelIndex curveIdx = idx.parent();
+            _createPainterPath(curveIdx,
+                               false,0,false,0,false,0,
+                               false,0,false,0,false,0,
+                               "","","","",curveModel);
         } else if ( tag == "StartTime" || tag == "StopTime") {
             double start = -DBL_MAX;
             double stop = DBL_MAX;
@@ -101,22 +90,51 @@ bool PlotBookModel::setData(const QModelIndex &idx,
                 foreach ( QModelIndex plotIdx, plotIdxs(pageIdx) ) {
                     QModelIndex curvesIdx = getIndex(plotIdx,"Curves","Plot");
                     foreach ( QModelIndex curveIdx, curveIdxs(curvesIdx) ) {
-                        CurveModel* curveModel = getCurveModel(curveIdx);
-                        if ( _curve2path.contains(curveModel) ) {
-                            QPainterPath* currPath = _curve2path.value(
-                                                                    curveModel);
-                            delete currPath;
-                            _curve2path.remove(curveModel);
-                        }
-
-                        double xb = xBias(curveIdx,curveModel);
-                        double xs = xScale(curveIdx,curveModel);
-                        QPainterPath* path = _createPainterPath(curveModel,
-                                                                (start-xb)/xs,
-                                                                (stop-xb)/xs);
-                        _curve2path.insert(curveModel,path);
+                        _createPainterPath(curveIdx,
+                                           true,start,true,stop,
+                                           false,0,false,0,false,0,false,0);
                     }
                 }
+            }
+        } else if ( tag == "PlotXScale" || tag == "PlotYScale" ) {
+            QString plotXScale = "linear";
+            QString plotYScale = "linear";
+            QModelIndex plotIdx = idx.parent();
+            if ( isChildIndex(plotIdx,"Plot","Curves") ) {
+                QModelIndex curvesIdx = getIndex(plotIdx,"Curves","Plot");
+                if ( tag == "PlotXScale" ) {
+                    plotXScale = value.toString();
+                    if ( isChildIndex(plotIdx,"Plot","PlotYScale") ) {
+                        plotYScale = getDataString(plotIdx,"PlotYScale","Plot");
+                    }
+                } else if ( tag == "PlotYScale" ) {
+                    plotYScale = value.toString();
+                    if ( isChildIndex(plotIdx,"Plot","PlotXScale" ) ) {
+                        plotXScale = getDataString(plotIdx,"PlotXScale","Plot");
+                    }
+                } else {
+                    fprintf(stderr, "koviz [bad scoobs]: "
+                                    "PlotBookModel::setData()\n");
+                    exit(-1);
+                }
+                foreach ( QModelIndex curveIdx, curveIdxs(curvesIdx) ) {
+                    _createPainterPath(curveIdx,
+                                       false,0,false,0,false,0,
+                                       false,0,false,0,false,0,
+                                       "","",plotXScale,plotYScale);
+                }
+            }
+        } else if ( tag == "CurveYUnit" ) {
+            QModelIndex curveIdx = idx.parent();
+            QModelIndex plotIdx = idx.parent().parent().parent();
+            QString plotXScale = getDataString(plotIdx,"PlotXScale","Plot");
+            QString plotYScale = getDataString(plotIdx,"PlotYScale","Plot");
+            if ( plotXScale == "log" || plotYScale == "log" ) {
+                QString yUnit = value.toString();
+                _createPainterPath(curveIdx,
+                                   false,0,false,0,false,0,
+                                   false,0,false,0,false,0,
+                                   "",yUnit,plotXScale,plotYScale);
             }
         }
     }
@@ -938,16 +956,26 @@ QRectF PlotBookModel::calcCurvesBBox(const QModelIndex &curvesIdx) const
     QRectF bbox;
 
     QModelIndex plotIdx = curvesIdx.parent();
+    QString plotXScale = getDataString(plotIdx,"PlotXScale","Plot");
+    QString plotYScale = getDataString(plotIdx,"PlotYScale","Plot");
     QString presentation = getDataString(plotIdx,"PlotPresentation","Plot");
     if ( presentation == "compare" || presentation == "error+compare" ) {
         int rc = rowCount(curvesIdx);
         for (int i = 0; i < rc; ++i) {
             QModelIndex curveIdx = index(i,0,curvesIdx);
             QPainterPath* path = getCurvePainterPath(curveIdx);
-            double xs = xScale(curveIdx);
-            double ys = yScale(curveIdx);
-            double xb = xBias(curveIdx);
-            double yb = yBias(curveIdx);
+            double xb = 0.0;
+            double yb = 0.0;
+            double xs = 1.0;
+            double ys = 1.0;
+            if ( plotXScale == "linear" ) {
+                xb = xBias(curveIdx);
+                xs = xScale(curveIdx);
+            }
+            if ( plotYScale == "linear" ) {
+                yb = yBias(curveIdx);
+                ys = yScale(curveIdx);
+            }
             QRectF pathBox = path->boundingRect();
             double w = pathBox.width();
             double h = pathBox.height();
@@ -989,30 +1017,63 @@ QRectF PlotBookModel::calcCurvesBBox(const QModelIndex &curvesIdx) const
     double plotYMinRange = getDataDouble(plotIdx,"PlotYMinRange","Plot");
     double plotYMaxRange = getDataDouble(plotIdx,"PlotYMaxRange","Plot");
     if ( plotXMinRange != -DBL_MAX ) {
-        bbox.setLeft(plotXMinRange);
+        if ( plotXScale == "log" ) {
+            if ( plotXMinRange > 0 ) {
+                bbox.setLeft(log10(plotXMinRange));
+            }
+        } else {
+            bbox.setLeft(plotXMinRange);
+        }
     }
     if ( plotXMaxRange != DBL_MAX ) {
-        bbox.setRight(plotXMaxRange);
+        if ( plotXScale == "log" ) {
+            if ( plotXMaxRange > 0 ) {
+                bbox.setRight(log10(plotXMaxRange));
+            }
+        } else {
+            bbox.setRight(plotXMaxRange);
+        }
     }
     if ( plotYMaxRange != DBL_MAX ) {
-        bbox.setTop(plotYMaxRange);
+        if ( plotYScale == "log" ) {
+            if ( plotYMaxRange > 0 ) {
+                bbox.setTop(log10(plotYMaxRange));
+            }
+        } else {
+            bbox.setTop(plotYMaxRange);
+        }
     }
     if ( plotYMinRange != -DBL_MAX ) {
-        bbox.setBottom(plotYMinRange);
+        if ( plotYScale == "log" ) {
+            if ( plotYMinRange > 0 ) {
+                bbox.setBottom(log10(plotYMinRange));
+            }
+        } else {
+            bbox.setBottom(plotYMinRange);
+        }
     }
 
     return bbox;
 }
 
-// Note: No scaling or bias
-QPainterPath* PlotBookModel::_createPainterPath(CurveModel *curveModel,
-                                               double startTime,double stopTime)
+// Note:
+//   No scaling or bias is done linear plot scale since it is done
+//   via the paint transform. For log scale, the path is scaled/biased.
+QPainterPath* PlotBookModel::__createPainterPath(CurveModel *curveModel,
+                                               double startTime,double stopTime,
+                                               double xs, double xb,
+                                               double ys, double yb,
+                                               const QString &plotXScale,
+                                               const QString &plotYScale)
 {
     QPainterPath* path = new QPainterPath;
 
     curveModel->map();
 
     ModelIterator* it = curveModel->begin();
+
+    bool isXLogScale = ( plotXScale == "log" ) ? true : false;
+    bool isYLogScale = ( plotYScale == "log" ) ? true : false;
 
     double f = getDataDouble(QModelIndex(),"Frequency");
     bool isFirst = true;
@@ -1024,20 +1085,193 @@ QPainterPath* PlotBookModel::_createPainterPath(CurveModel *curveModel,
                 continue;
             }
         }
-        if ( t >= startTime && t <= stopTime ) {
-            if ( isFirst ) {
-                path->moveTo(it->x(),it->y());
-                isFirst = false;
-            } else {
-                path->lineTo(it->x(),it->y());
+        if ( t < startTime || t > stopTime ) {
+            it->next();
+            continue;
+        }
+
+        double x = it->x();
+        double y = it->y();
+
+        if ( isXLogScale ) {
+            x = x*xs + xb;
+            if ( x > 0 ) {
+                x = log10(x);
+            } else if ( x < 0 ) {
+                x = log10(-x);
+            } else if ( x == 0 ) {
+                it->next();
+                continue; // skip log(0) since -inf
             }
         }
+
+        if ( isYLogScale ) {
+            y = y*ys + yb;
+            if ( y > 0 ) {
+                y = log10(y);
+            } else if ( y < 0 ) {
+                y = log10(-y);
+            } else if ( y == 0 ) {
+                it->next();
+                continue; // skip log(0) since -inf
+            }
+        }
+
+        if ( isFirst ) {
+            path->moveTo(x,y);
+            isFirst = false;
+        } else {
+            path->lineTo(x,y);
+        }
+
         it->next();
     }
     delete it;
     curveModel->unmap();
 
     return path;
+}
+
+void PlotBookModel::_createPainterPath(const QModelIndex &curveIdx,
+                                      bool isUseStartTimeIn, double startTimeIn,
+                                      bool isUseStopTimeIn, double stopTimeIn,
+                                      bool isUseXScaleIn, double xScaleIn,
+                                      bool isUseYScaleIn, double yScaleIn,
+                                      bool isUseXBiasIn, double xBiasIn,
+                                      bool isUseYBiasIn, double yBiasIn,
+                                      const QString &xUnitIn,
+                                      const QString &yUnitIn,
+                                      const QString &plotXScaleIn,
+                                      const QString &plotYScaleIn,
+                                      CurveModel *curveModelIn)
+{
+    QModelIndex plotIdx = curveIdx.parent().parent();
+
+    // Get curve model
+    CurveModel* curveModel = curveModelIn;
+    if ( !curveModel ) {
+        curveModel = getCurveModel(curveIdx);
+    }
+    if ( !curveModel ) {
+        fprintf(stderr, "koviz [scoobs]:1: Book::_createPainterPath()\n");
+        exit(-1);
+    }
+
+    // Get plot scale
+    QString plotXScale = plotXScaleIn;
+    QString plotYScale = plotYScaleIn;
+    if ( plotXScale.isEmpty() ) {
+        if ( isChildIndex(plotIdx,"Plot","PlotXScale") ) {
+            plotXScale = getDataString(plotIdx,"PlotXScale","Plot");
+        } else {
+            fprintf(stderr, "koviz [scoobs]:2: Book::_createPainterPath()\n");
+            exit(-1);
+        }
+    }
+    if ( plotYScale.isEmpty() ) {
+        if ( isChildIndex(plotIdx,"Plot","PlotYScale") ) {
+            plotYScale = getDataString(plotIdx,"PlotYScale","Plot");
+        } else {
+            fprintf(stderr, "koviz [scoobs]:3: Book::_createPainterPath()\n");
+            exit(-1);
+        }
+    }
+
+    // Get time shift (and scale)
+    double tb = 0.0;
+    double ts = 1.0;
+    if ( isXTime(plotIdx) ) {
+        tb = xBias(curveIdx,curveModel);
+        ts = xScale(curveIdx,curveModel);
+    }
+
+    // X Curve Scale/bias
+    double xs = 1.0;
+    double xb = 0.0;
+    QString bookXUnit = xUnitIn;
+    if ( bookXUnit.isEmpty() ) {
+        QModelIndex curveXUnitIdx = getDataIndex(curveIdx,"CurveXUnit","Curve");
+        bookXUnit = data(curveXUnitIdx).toString();
+    }
+    if ( !bookXUnit.isEmpty() && bookXUnit != "--" ) {
+        QString loggedXUnit = curveModel->x()->unit();
+        xs = Unit::scale(loggedXUnit, bookXUnit);
+        xb = Unit::bias(loggedXUnit, bookXUnit);
+    }
+    double j = xScaleIn;
+    if ( !isUseXScaleIn ) {
+        j = getDataDouble(curveIdx,"CurveXScale","Curve");
+    }
+    if ( j != 1.0 ) {
+        xs *= j;
+    }
+    double a = xBiasIn;
+    if ( !isUseXBiasIn ) {
+        a = getDataDouble(curveIdx,"CurveXBias","Curve");
+    }
+    if ( a != 0.0 ) {
+        xb += a;
+    }
+
+    // Y Curve Scale/Bias
+    double ys = 1.0;
+    double yb = 0.0;
+    QString bookYUnit = yUnitIn;
+    if ( bookYUnit.isEmpty() ) {
+        QModelIndex curveYUnitIdx = getDataIndex(curveIdx,"CurveYUnit","Curve");
+        bookYUnit = data(curveYUnitIdx).toString();
+    }
+    if ( !bookYUnit.isEmpty() && bookYUnit != "--" ) {
+        QString loggedYUnit = curveModel->y()->unit();
+        ys = Unit::scale(loggedYUnit, bookYUnit);
+        yb = Unit::bias(loggedYUnit, bookYUnit);
+    }
+    double k = yScaleIn;
+    if ( !isUseYScaleIn ) {
+        k = getDataDouble(curveIdx,"CurveYScale","Curve");
+    }
+    if ( k != 1.0 ) {
+        ys *= k;
+    }
+    double b = yBiasIn;
+    if ( !isUseYBiasIn ) {
+        b = getDataDouble(curveIdx,"CurveYBias","Curve");
+    }
+    if ( b != 0.0 ) {
+        yb += b;
+    }
+
+    // Get start/stop time
+    double start = startTimeIn;
+    double stop = stopTimeIn;
+    if ( !isUseStartTimeIn ) {
+        if ( isChildIndex(QModelIndex(),"","StartTime") ) {
+            start = getDataDouble(QModelIndex(),"StartTime");
+        } else {
+            fprintf(stderr, "koviz [scoobs]:4: Book::_createPainterPath()\n");
+            exit(-1);
+        }
+    }
+    if ( !isUseStopTimeIn ) {
+        if ( isChildIndex(QModelIndex(),"","StopTime") ) {
+            stop = getDataDouble(QModelIndex(),"StopTime");
+        } else {
+            fprintf(stderr, "koviz [scoobs]:5: Book::_createPainterPath()\n");
+            exit(-1);
+        }
+    }
+
+    // Create path and cache it
+    if ( _curve2path.contains(curveModel) ) {
+        QPainterPath* currPath = _curve2path.value(curveModel);
+        delete currPath;
+        _curve2path.remove(curveModel);
+    }
+    QPainterPath* path = __createPainterPath(curveModel,
+                                            (start-tb)/ts,(stop-tb)/ts,
+                                             xs, xb, ys, yb,
+                                            plotXScale, plotYScale);
+    _curve2path.insert(curveModel,path);
 }
 
 // curveIdx0/1 are child indices of "Curves" with tagname "Curve"

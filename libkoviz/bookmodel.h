@@ -132,8 +132,24 @@ private:
                         const QString &expectedStartIdxText=QString()) const;
 
     QHash<CurveModel*,QPainterPath*> _curve2path;
-    QPainterPath* _createPainterPath(CurveModel *curveModel,
-                                     double startTime, double stopTime);
+    void _createPainterPath(const QModelIndex& curveIdx,
+                            bool isUseStartTimeIn, double startTimeIn,
+                            bool isUseStopTimeIn, double stopTimeIn,
+                            bool isUseXScaleIn, double xScaleIn,
+                            bool isUseYScaleIn, double yScaleIn,
+                            bool isUseXBiasIn, double xBiasIn,
+                            bool isUseYBiasIn, double yBiasIn,
+                            const QString &xUnitIn=QString(""),
+                            const QString& yUnitIn=QString(""),
+                            const QString& plotXScaleIn=QString(""),
+                            const QString& plotYScaleIn=QString(""),
+                            CurveModel* curveModelIn=0);
+    QPainterPath* __createPainterPath(CurveModel *curveModel,
+                                      double startTime, double stopTime,
+                                      double xs, double xb,
+                                      double ys, double yb,
+                                      const QString& plotXScale,
+                                      const QString& plotYScale);
     QPainterPath* _createCurvesErrorPath(const QModelIndex& curvesIdx) const;
 
     QString _commonRootName(const QStringList& names, const QString& sep) const;

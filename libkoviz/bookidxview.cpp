@@ -122,7 +122,9 @@ QList<double> BookIdxView::_minorXTics() const
     QRectF r = _plotMathRect(rootIndex());
     double a = r.left();
     double b = r.right();
-    X = _calcMinorTicSet(a,b);
+    QString plotScale = _bookModel()->getDataString(rootIndex(),
+                                                    "PlotXScale","Plot");
+    X = _calcMinorTicSet(a,b,plotScale);
     return X;
 }
 
@@ -142,26 +144,48 @@ QList<double> BookIdxView::_minorYTics() const
     QRectF r = _plotMathRect(rootIndex());
     double a = r.bottom();
     double b = r.top();
-    Y = _calcMinorTicSet(a,b);
+    QString plotScale = _bookModel()->getDataString(rootIndex(),
+                                                    "PlotYScale","Plot");
+    Y = _calcMinorTicSet(a,b,plotScale);
     return Y;
 }
 
-QList<double> BookIdxView::_calcMinorTicSet(double a, double b) const
+QList<double> BookIdxView::_calcMinorTicSet(double a, double b,
+                                            const QString &plotScale) const
 {
     QList<double> Minors;
 
     QList<double> Majors = _calcTicSet(a,b,1.0,10.0);
 
     if ( Majors.size() >= 2 ) {
-        double d = (Majors.at(1)-Majors.at(0))/4.0;
-        double x = Majors.at(0);
-        if ( x-d-d-d >= a ) Minors << x-d-d-d;
-        if ( x-d-d >= a )   Minors << x-d-d;
-        if ( x-d >= a )     Minors << x-d;
-        foreach (double x, Majors) {
-            if ( x+d <= b )     Minors << x+d;
-            if ( x+d+d <= b )   Minors << x+d+d;
-            if ( x+d+d+d <= b ) Minors << x+d+d+d;
+        if ( plotScale == "linear" ) {
+            double d = (Majors.at(1)-Majors.at(0))/4.0;
+            double x = Majors.at(0);
+            if ( x-d-d-d >= a ) Minors << x-d-d-d;
+            if ( x-d-d >= a )   Minors << x-d-d;
+            if ( x-d >= a )     Minors << x-d;
+            foreach (double x, Majors) {
+                if ( x+d <= b )     Minors << x+d;
+                if ( x+d+d <= b )   Minors << x+d+d;
+                if ( x+d+d+d <= b ) Minors << x+d+d+d;
+            }
+        } else if ( plotScale == "log" ) {
+            double d = Majors.at(1)-Majors.at(0);
+            QList<double> majors;
+            majors << Majors.at(0)-d;
+            majors.append(Majors);
+            for ( int i = 0; i < majors.size(); ++i ) {
+                double m = majors.at(i);
+                for (int j = 2; j <= 9; ++j) {
+                    double tic = m+log10(j)*d;
+                    if ( tic >= a && tic <= b ) {
+                        Minors << tic;
+                    }
+                }
+            }
+        } else {
+            fprintf(stderr, "koviz [bad scoobs]: _calcMinorTicSet()\n");
+            exit(-1);
         }
     }
 
@@ -1392,8 +1416,21 @@ void BookIdxView::_paintGrid(QPainter &painter, const QModelIndex& plotIdx)
         return;
     }
 
+    QString plotXScale = _bookModel()->getDataString(plotIdx,
+                                                     "PlotXScale","Plot");
+    QString plotYScale = _bookModel()->getDataString(plotIdx,
+                                                     "PlotYScale","Plot");
+    bool isXLogScale = ( plotXScale == "log" ) ? true : false;
+    bool isYLogScale = ( plotYScale == "log" ) ? true : false;
+
     QList<double> xtics = _majorXTics(plotIdx);
+    if ( isXLogScale ) {
+        xtics.append(_minorXTics());
+    }
     QList<double> ytics = _majorYTics(plotIdx);
+    if ( isYLogScale ) {
+        ytics.append(_minorYTics());
+    }
 
     QVector<QPointF> vLines;
     QVector<QPointF> hLines;
@@ -1417,7 +1454,11 @@ void BookIdxView::_paintGrid(QPainter &painter, const QModelIndex& plotIdx)
     // Pen
     QVector<qreal> dashes;
     qreal space = 4;
-    dashes << 4 << space ;
+    if ( isXLogScale || isYLogScale ) {
+        dashes << 1 << 1 ;
+    } else {
+        dashes << 4 << space ;
+    }
 
     //
     // Draw!

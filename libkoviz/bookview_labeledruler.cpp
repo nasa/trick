@@ -15,7 +15,6 @@ void LabeledRulerView::paintEvent(QPaintEvent *event)
 
     if ( !model() ) return;
 
-
     QRect W = viewport()->rect();
     if ( W.width() == 0.0 || W.height() == 0.0 ) {
         return;
@@ -55,8 +54,7 @@ void LabeledRulerView::paintEvent(QPaintEvent *event)
         }
 
         QString strVal = _format(tic);
-        QFontMetrics fm = viewport()->fontMetrics();
-        QRectF bb = fm.boundingRect(strVal);
+        QRectF bb = _boundingRect(strVal);
         bb.moveCenter(center);
         if ( bb.right() > W.right() ) {
             bb.translate(W.right()-bb.right(),0.0);  // move bb inside W
@@ -73,19 +71,90 @@ void LabeledRulerView::paintEvent(QPaintEvent *event)
         boxes << box;
     }
 
-    // Draw!
+    // Create painter
     QPainter painter(viewport());
+
+    // Get plot scale
+    QString plotXScale = _bookModel()->getDataString(rootIndex(),
+                                                     "PlotXScale","Plot");
+    QString plotYScale = _bookModel()->getDataString(rootIndex(),
+                                                     "PlotYScale","Plot");
+    // Draw!
     painter.save();
     foreach ( LabelBox box, boxes ) {
         if ( _alignment == Qt::AlignLeft ) {
-            painter.drawText(box.bb,Qt::AlignRight|Qt::AlignVCenter,box.strVal);
-        } else {
-            painter.drawText(box.bb,Qt::AlignCenter,box.strVal);
+            if ( plotYScale == "linear" ) {
+                painter.drawText(box.bb,Qt::AlignRight|Qt::AlignVCenter,
+                                 box.strVal);
+            } else if ( plotYScale == "log" ) {
+                _paint10Exponent(box);
+            }
+        } else if ( _alignment == Qt::AlignBottom ) {
+            if ( plotXScale == "linear" ) {
+                painter.drawText(box.bb,Qt::AlignCenter,box.strVal);
+            } else if ( plotXScale == "log" ) {
+                _paint10Exponent(box);
+            }
         }
     }
     painter.restore();
     painter.end();
+}
 
+void LabeledRulerView::_paint10Exponent(const LabelBox& box) const
+{
+    QPainter painter(viewport());
+
+    QFont fontOrig = painter.font();
+    QFontMetrics fm(painter.font());
+    QFont font8 = painter.font();
+    font8.setPointSizeF(8);
+    QFontMetrics fm8(font8);
+    QRectF B = _boundingRect(box.strVal); // strVal is exponent
+    B.moveCenter(box.bb.center());
+    B.moveRight(box.bb.right());
+
+    painter.setFont(fontOrig);
+    QRectF box10 = fm.boundingRect("10 ");
+    box10.moveBottomLeft(B.bottomLeft());
+    painter.drawText(B,Qt::AlignLeft|Qt::AlignBottom,"10");
+
+    painter.setFont(font8);
+    QRectF boxExponent = fm8.boundingRect(box.strVal);
+    boxExponent.moveTopRight(B.topRight());
+    boxExponent.translate(-fm8.averageCharWidth()/2.0,0);
+    boxExponent.setRight(B.right());
+    painter.drawText(boxExponent,box.strVal);
+}
+
+// If plot is in logscale, return bounding box for 10^strVal
+QRect LabeledRulerView::_boundingRect(const QString &strVal) const
+{
+    QRect bb;
+
+    QFontMetrics fm = viewport()->fontMetrics();
+
+    QString plotXScale = _bookModel()->getDataString(rootIndex(),
+                                                     "PlotXScale","Plot");
+    QString plotYScale = _bookModel()->getDataString(rootIndex(),
+                                                     "PlotYScale","Plot");
+    if ( (_alignment == Qt::AlignBottom && plotXScale == "log") ||
+         (_alignment == Qt::AlignLeft && plotYScale == "log") ) {
+        QRect box10 = fm.boundingRect("10");
+        QFont font8 = viewport()->font();
+        font8.setPointSizeF(8);
+        QFontMetrics fm8(font8);
+        QRect boxExponent = fm8.boundingRect(strVal);
+        QPoint p;
+        p.setX(box10.right()+fm8.averageCharWidth());
+        p.setY(box10.top()+fm8.height()/2.0);
+        boxExponent.moveTo(p);
+        bb = box10.united(boxExponent);
+    } else {
+        bb = fm.boundingRect(strVal);
+    }
+
+    return bb;
 }
 
 QSize LabeledRulerView::minimumSizeHint() const
@@ -121,14 +190,13 @@ QSize LabeledRulerView::_sizeHintLeft() const
     QModelIndex pageIdx = _bookModel()->getIndex(rootIndex(),"Plot").
                           parent().parent();
     QModelIndexList plotIdxs = _bookModel()->plotIdxs(pageIdx);
-    QFontMetrics fm = viewport()->fontMetrics();
     double w = 0;
     double h = 0;
     foreach ( QModelIndex plotIdx, plotIdxs ) {
         QList<double> modelTics = _majorYTics(plotIdx);
         foreach ( double tic, modelTics ) {
             QString strVal = _format(tic);
-            QRectF bb = fm.boundingRect(strVal);
+            QRectF bb = _boundingRect(strVal);
             if ( bb.width() > w )  w = bb.width();
             if ( bb.height() > h ) h = bb.height();
         }
@@ -149,10 +217,9 @@ QSize LabeledRulerView::_sizeHintBottom() const
 
     double w = 0;
     double h = 0;
-    QFontMetrics fm = viewport()->fontMetrics();
     foreach ( double tic, modelTics ) {
         QString strVal = _format(tic);
-        QRectF bb = fm.boundingRect(strVal);
+        QRectF bb = _boundingRect(strVal);
         if ( bb.width() > w )  w = bb.width();
         if ( bb.height() > h ) h = bb.height();
     }

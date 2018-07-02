@@ -544,11 +544,27 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
         // Get painter path
         QPainterPath* path = _bookModel()->getCurvePainterPath(curveIdx);
 
+        // Get plot scale
+        QModelIndex plotIdx = curveIdx.parent().parent();
+        QString plotXScale = _bookModel()->getDataString(plotIdx,
+                                                         "PlotXScale","Plot");
+        QString plotYScale = _bookModel()->getDataString(plotIdx,
+                                                         "PlotYScale","Plot");
+
         // Scale transform (e.g. for unit axis scaling)
-        double xs = _bookModel()->xScale(curveIdx);
-        double ys = _bookModel()->yScale(curveIdx);
-        double xb = _bookModel()->xBias(curveIdx);
-        double yb = _bookModel()->yBias(curveIdx);
+        // If logscale, scale/bias done in _createPainterPath
+        double xs = 1.0;
+        double ys = 1.0;
+        double xb = 0.0;
+        double yb = 0.0;
+        if ( plotXScale == "linear" ) {
+            xs = _bookModel()->xScale(curveIdx);
+            xb = _bookModel()->xBias(curveIdx);
+        }
+        if ( plotYScale == "linear" ) {
+            ys = _bookModel()->yScale(curveIdx);
+            yb = _bookModel()->yBias(curveIdx);
+        }
         QTransform Tscaled(T);
         Tscaled = Tscaled.scale(xs,ys);
         Tscaled = Tscaled.translate(xb/xs,yb/ys);
@@ -558,8 +574,6 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
         QRectF cbox = path->boundingRect();
         if ( cbox.height() == 0.0 ) {
             QString yval;
-            double ys = _bookModel()->yScale(curveIdx);
-            double yb = _bookModel()->yBias(curveIdx);
             yval = QString("Flatline=%1").arg(_format(cbox.y()*ys+yb));
             QRectF tbox = Tscaled.mapRect(cbox);
             QTransform I;
@@ -679,6 +693,9 @@ void CurvesView::_paintMarkers(QPainter &painter)
             QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,
                                                            "Curves","Plot");
             path = _bookModel()->getCurvesErrorPath(curvesIdx);
+        }
+        if ( path->elementCount() == 0 ) {
+            continue;
         }
 
         // Get element index (i) for live time
@@ -1048,6 +1065,17 @@ void CurvesView::dataChanged(const QModelIndex &topLeft,
             }
             _pixmap = _createLivePixmap();
         }
+    } else if ( topLeft.parent() == rootIndex() ) {
+        if ( tag == "PlotXScale" || tag == "PlotYScale" ) {
+            if ( _pixmap ) {
+                delete _pixmap;
+            }
+            _pixmap = _createLivePixmap();
+            QModelIndex curvesIdx = _bookModel()->getIndex(rootIndex(),
+                                                           "Curves","Plot");
+            QRectF bbox = _bookModel()->calcCurvesBBox(curvesIdx);
+            _bookModel()->setPlotMathRect(bbox,rootIndex());
+        }
     }
 
     viewport()->update();
@@ -1065,10 +1093,9 @@ QPixmap* CurvesView::_createLivePixmap()
     QColor bg = _bookModel()->pageBackgroundColor(pageIdx);
     painter.fillRect(viewport()->rect(),bg);
 
-    QTransform T = _coordToPixelTransform();
-
     _paintGrid(painter, rootIndex());
 
+    QTransform T = _coordToPixelTransform();
     QModelIndex curvesIdx = _bookModel()->getIndex(rootIndex(),"Curves","Plot");
     int rc = model()->rowCount(curvesIdx);
     for ( int i = 0; i < rc; ++i ) {
