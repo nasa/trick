@@ -3,6 +3,7 @@
 #include <QMenuBar>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QLineEdit>
 #include <QWidget>
 #include <iostream>
 
@@ -19,6 +20,8 @@
 
 DocWindow::DocWindow(const QString &name)
     : QMainWindow( 0, 0) {
+
+  QTextStream out(stdout);
 
   trkFileName = name;
 
@@ -40,6 +43,7 @@ DocWindow::DocWindow(const QString &name)
   fileMenu->addAction(csvSaveAction);
   fileMenu->addAction(varListSaveAction);
 
+
   QAction * editSelectAction = new QAction( "&Select All", this );
   editSelectAction->setShortcut(tr("CTRL+A"));
   connect( editSelectAction, &QAction::triggered, this, &DocWindow::checkAll );
@@ -51,6 +55,24 @@ DocWindow::DocWindow(const QString &name)
 
   editMenu->addAction(editSelectAction);
   editMenu->addAction(editClearAction);
+
+  QHBoxLayout *hbox = new QHBoxLayout();
+
+  QPushButton *backward = new QPushButton(QChar(0x25C0), this);
+  connect( backward, &QPushButton::released, this, &DocWindow::searchBackward);
+
+  QPushButton *forward  = new QPushButton(QChar(0x25B6), this);
+  connect( forward, &QPushButton::released, this, &DocWindow::searchForward);
+
+  searchLineEdit = new QLineEdit;
+  searchLineEdit->setPlaceholderText("Search Text");
+  connect(searchLineEdit, SIGNAL(returnPressed()), this, SLOT(textSearch()));
+
+  hbox->addWidget(backward);
+  hbox->addWidget(forward);
+  hbox->addWidget(searchLineEdit);
+
+  QVBoxLayout *vbox = new QVBoxLayout();
 
   // Build the Table Widget that displays the variable names, types, and units.
   varTable = new VarTableWidget(this);
@@ -64,7 +86,13 @@ DocWindow::DocWindow(const QString &name)
                            datalog->parameterUnits(ii));
   }
 
-  setCentralWidget(varTable);
+  vbox->addWidget(varTable);
+  vbox->addLayout(hbox);
+
+  QWidget *window = new QWidget;
+  window->setLayout(vbox);
+
+  setCentralWidget(window);
 }
 
 void DocWindow::load() {
@@ -111,12 +139,12 @@ void DocWindow::formattedSave(LogFormatter &formatter) {
 
 void DocWindow::saveAsCSV() {
     CSV_Formatter csv_formatter;
-    formattedWrite(csv_formatter);
+    formattedSave(csv_formatter);
 }
 
 void DocWindow::saveAsVarList() {
     Varlist_Formatter varlist_formatter;
-    formattedWrite(varlist_formatter);
+    formattedSave(varlist_formatter);
 }
 
 void DocWindow::checkAll() {
@@ -125,4 +153,26 @@ void DocWindow::checkAll() {
 
 void DocWindow::unCheckAll() {
     varTable->unCheckAll();
+}
+
+void DocWindow::searchForward() {
+    QTextStream out(stdout);
+    out << "<<searchForward>>" << endl;
+}
+
+void DocWindow::searchBackward() {
+    QTextStream out(stdout);
+    out << "<<searchBackward>>" << endl;
+}
+
+void DocWindow::textSearch() {
+    QTextStream out(stdout);
+    QString s = searchLineEdit->text();
+    out << "<<textSearch = \"" << s << "\" >>" << endl;
+
+//    int count = varTable->recordCount();
+//    for (int index=0 ; index<count ; index++) {
+//        if ( dataLog->parameterName(index)) {
+//        }
+//    }
 }

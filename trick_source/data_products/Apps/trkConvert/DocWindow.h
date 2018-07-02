@@ -21,9 +21,13 @@ class DocWindow : public QMainWindow {
       void saveAsVarList();
       void checkAll();
       void unCheckAll();
+      void searchForward();
+      void searchBackward();
+      void textSearch();
 
   private:
     QString trkFileName;
+    QLineEdit* searchLineEdit;
     VarTableWidget* varTable;
     TRK_DataLog* datalog;
 };
