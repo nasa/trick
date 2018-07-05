@@ -701,8 +701,7 @@ CurveModel *PlotBookModel::getCurveModel(const QModelIndex &curveIdx) const
     return curveModel;
 }
 
-QPainterPath* PlotBookModel::getCurvePainterPath(
-                                              const QModelIndex &curveIdx) const
+QPainterPath* PlotBookModel::getPainterPath(const QModelIndex &curveIdx) const
 {
     QPainterPath* path;
 
@@ -963,7 +962,7 @@ QRectF PlotBookModel::calcCurvesBBox(const QModelIndex &curvesIdx) const
         int rc = rowCount(curvesIdx);
         for (int i = 0; i < rc; ++i) {
             QModelIndex curveIdx = index(i,0,curvesIdx);
-            QPainterPath* path = getCurvePainterPath(curveIdx);
+            QPainterPath* path = getPainterPath(curveIdx);
             double xb = 0.0;
             double yb = 0.0;
             double xs = 1.0;

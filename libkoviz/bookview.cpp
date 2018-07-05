@@ -851,7 +851,7 @@ void BookView::_printCurves(const QRect& R,
         int nElements = 0;
         for ( int i = 0; i < nCurves; ++i ) {
             QModelIndex curveIdx = _bookModel()->index(i,0,curvesIdx);
-            QPainterPath* path = _bookModel()->getCurvePainterPath(curveIdx);
+            QPainterPath* path = _bookModel()->getPainterPath(curveIdx);
             nElements += path->elementCount();
         }
 
@@ -883,7 +883,7 @@ void BookView::_printCurves(const QRect& R,
 
             for ( int i = 0; i < nCurves; ++i ) {
                 QModelIndex curveIdx = model()->index(i,0,curvesIdx);
-                QPainterPath* path =_bookModel()->getCurvePainterPath(curveIdx);
+                QPainterPath* path =_bookModel()->getPainterPath(curveIdx);
                 if ( path ) {
                     // Line color
                     QColor color(_bookModel()->getDataString(curveIdx,

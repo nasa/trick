@@ -542,7 +542,7 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
         painter.setPen(pen);
 
         // Get painter path
-        QPainterPath* path = _bookModel()->getCurvePainterPath(curveIdx);
+        QPainterPath* path = _bookModel()->getPainterPath(curveIdx);
 
         // Get plot scale
         QModelIndex plotIdx = curveIdx.parent().parent();
@@ -712,7 +712,7 @@ void CurvesView::_paintMarkers(QPainter &painter)
         QPainterPath* path = 0;
         if ( tag == "Curve" ) {
             QModelIndex curveIdx = marker->idx();
-            path = _bookModel()->getCurvePainterPath(curveIdx);
+            path = _bookModel()->getPainterPath(curveIdx);
         } else if ( tag == "Plot" ) {
             QModelIndex plotIdx = marker->idx();
             QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,
@@ -1372,7 +1372,7 @@ QModelIndex CurvesView::_chooseCurveNearMousePoint(const QPoint &pt)
 
         // Get underlying path that goes with curve
         QModelIndex curveIdx = model()->index(i,0,curvesIdx);
-        QPainterPath* path = _bookModel()->getCurvePainterPath(curveIdx);
+        QPainterPath* path = _bookModel()->getPainterPath(curveIdx);
         if ( !path ) {
             continue;
         }
@@ -1486,7 +1486,7 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                                                                  QModelIndex(),
                                                                "LiveCoordTime");
 
-                QPainterPath* path = _bookModel()->getCurvePainterPath(curveIdx);
+                QPainterPath* path = _bookModel()->getPainterPath(curveIdx);
                 int rc = path->elementCount();
 
                 QString plotXScale = _bookModel()->getDataString(plotIdx,

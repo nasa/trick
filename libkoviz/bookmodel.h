@@ -77,7 +77,7 @@ public:
     CurveModel* getCurveModel(const QModelIndex& curvesIdx, int i) const;
     CurveModel* getCurveModel(const QModelIndex& curveIdx) const;
 
-    QPainterPath* getCurvePainterPath(const QModelIndex& curveIdx) const;
+    QPainterPath* getPainterPath(const QModelIndex& curveIdx) const;
     QPainterPath* getCurvesErrorPath(const QModelIndex& curvesIdx);
     QString getCurvesXUnit(const QModelIndex& curvesIdx);
     QString getCurvesYUnit(const QModelIndex& curvesIdx);
