@@ -573,20 +573,23 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
         // Draw "Flatline=#" label if curve is flat (constant)
         QRectF cbox = path->boundingRect();
         if ( cbox.height() == 0.0 ) {
-            QString yval;
-            yval = QString("Flatline=%1").arg(_format(cbox.y()*ys+yb));
+            double y = cbox.y()*ys+yb;
+            if (plotYScale=="log") {
+                y = exp10(y) ;
+            }
+            QString yString = QString("Flatline=%1").arg(y);
             QRectF tbox = Tscaled.mapRect(cbox);
             QTransform I;
             painter.setTransform(I);
             double top = tbox.y()-fontMetrics().ascent();
             if ( top >= 0 ) {
                 // Draw flatline label over curve
-                painter.drawText(tbox.topLeft()-QPointF(0,5),yval);
+                painter.drawText(tbox.topLeft()-QPointF(0,5),yString);
             } else {
                 // Draw flatline label under curve since it would drawn off page
                 painter.drawText(tbox.topLeft()+
                                  QPointF(0,fontMetrics().ascent())
-                                 +QPointF(0,5),yval);
+                                 +QPointF(0,5),yString);
             }
             painter.setTransform(Tscaled);
         }
@@ -670,6 +673,23 @@ void CurvesView::_paintMarkers(QPainter &painter)
         // Tag is either "Curve" or "Plot"
         QString tag = _bookModel()->data(marker->idx()).toString();
 
+        // Get plot x/y scale (log or linear)
+        QModelIndex plotIdx;
+        if ( tag == "Curve" ) {
+            QModelIndex curveIdx = marker->idx();
+            plotIdx = curveIdx.parent().parent();
+        } else if ( tag == "Plot" ) {
+            plotIdx = marker->idx();
+        } else {
+            // bad scoobs
+        }
+        QString plotXScale = _bookModel()->getDataString(plotIdx,
+                                                         "PlotXScale","Plot");
+        QString plotYScale = _bookModel()->getDataString(plotIdx,
+                                                         "PlotYScale","Plot");
+        bool isXLogScale = (plotXScale=="log") ? true : false;
+        bool isYLogScale = (plotYScale=="log") ? true : false;
+
         // Scale and bias
         double xs = 1.0;
         double ys = 1.0;
@@ -677,10 +697,15 @@ void CurvesView::_paintMarkers(QPainter &painter)
         double yb = 0.0;
         if ( tag == "Curve") {
             QModelIndex curveIdx = marker->idx();
-            xs = _bookModel()->xScale(curveIdx);
-            ys = _bookModel()->yScale(curveIdx);
-            xb = _bookModel()->xBias(curveIdx);
-            yb = _bookModel()->yBias(curveIdx);
+            if ( !isXLogScale ) {
+                // With logscale, scale/bias already done foreach path element
+                xs = _bookModel()->xScale(curveIdx);
+                xb = _bookModel()->xBias(curveIdx);
+            }
+            if ( !isYLogScale ) {
+                ys = _bookModel()->yScale(curveIdx);
+                yb = _bookModel()->yBias(curveIdx);
+            }
         }
 
         // Get path
@@ -698,16 +723,22 @@ void CurvesView::_paintMarkers(QPainter &painter)
             continue;
         }
 
-        // Get element index (i) for live time
-        int high = path->elementCount()-1;
-        int i = 0;
+        // Get time (t)
+        double t;
         if ( xb != 0.0 || xs != 1.0 ) {
-            double t = (marker->time()-xb)/xs;
+            t = (marker->time()-xb)/xs;
             ROUNDOFF(t,t);
-            i = _idxAtTimeBinarySearch(path,0,high,t);
         } else {
-            i = _idxAtTimeBinarySearch(path,0,high,marker->time());
+            t = marker->time();
+            if ( isXLogScale ) {
+                t = log10(t);
+            }
         }
+
+        // Get element index (i) for time (t)
+        int high = path->elementCount()-1;
+        int i = _idxAtTimeBinarySearch(path,0,high,t);
+
         if ( tag == "Curve" ) {
             // If x is not time (e.g. ball xy orbit), i is calculated from
             // the curve model instead of the path
@@ -750,19 +781,19 @@ void CurvesView::_paintMarkers(QPainter &painter)
         arrow.coord = coord;
 
         // Set arrow text (special syntax for extremums)
-        QString x = _format(coord.x());
-        QString y = _format(coord.y());
+        QString x= isXLogScale ? _format(exp10(coord.x())) : _format(coord.x());
+        QString y= isYLogScale ? _format(exp10(coord.y())) : _format(coord.y());
         int rc = path->elementCount();
         if ( i > 0 && i < rc-1) {
             // First and last point not considered
-            double y1 = path->elementAt(i-1).y*ys+yb;
-            double y  = path->elementAt(i).y*ys+yb;
-            double y2 = path->elementAt(i+1).y*ys+yb;
-            if ( (y>y1 && y>y2) || (y<y1 && y<y2) ) {
+            double yPrev = path->elementAt(i-1).y*ys+yb;
+            double yi = path->elementAt(i).y*ys+yb;
+            double yNext = path->elementAt(i+1).y*ys+yb;
+            if ( (yi>yPrev && yi>yNext) || (yi<yPrev && yi<yNext) ) {
                 arrow.txt = QString("<%1, %2>").arg(x).arg(y);
-            } else if ( y1 == y && y != y2 ) {
+            } else if ( yPrev == yi && yi != yNext ) {
                 arrow.txt = QString("(%1, %2]").arg(x).arg(y);
-            } else if ( y1 != y && y == y2 ) {
+            } else if ( yPrev != yi && yi == yNext ) {
                 arrow.txt = QString("[%1, %2)").arg(x).arg(y);
             } else {
                 arrow.txt = QString("(%1, %2)").arg(x).arg(y);
@@ -1327,6 +1358,11 @@ QModelIndex CurvesView::_chooseCurveNearMousePoint(const QPoint &pt)
                   0,    b, /*+*/ c,    d);
     M = U.mapRect(R);
 
+    QString plotXScale = _bookModel()->getDataString(rootIndex(),
+                                                     "PlotXScale","Plot");
+    QString plotYScale = _bookModel()->getDataString(rootIndex(),
+                                                     "PlotYScale","Plot");
+
     QModelIndex curvesIdx = _bookModel()->getIndex(rootIndex(),"Curves","Plot");
     int rc = model()->rowCount(curvesIdx);
     for ( int i = rc-1; i >= 0; --i ) {  // check curves from top to bottom
@@ -1341,11 +1377,19 @@ QModelIndex CurvesView::_chooseCurveNearMousePoint(const QPoint &pt)
             continue;
         }
 
-        // Curve can be scaled by unit or scale factor
-        double xs = _bookModel()->xScale(curveIdx);
-        double ys = _bookModel()->yScale(curveIdx);
-        double xb = _bookModel()->xBias(curveIdx);
-        double yb = _bookModel()->yBias(curveIdx);
+        // Get xy scale/bias (logscale path is already biased/scaled)
+        double xs = 1.0;
+        double xb = 0.0;
+        double ys = 1.0;
+        double yb = 0.0;
+        if ( plotXScale == "linear" ) {
+            xs = _bookModel()->xScale(curveIdx);
+            xb = _bookModel()->xBias(curveIdx);
+        }
+        if ( plotYScale == "linear" ) {
+            ys = _bookModel()->yScale(curveIdx);
+            yb = _bookModel()->yBias(curveIdx);
+        }
         QTransform Tscaled(T);
         Tscaled = Tscaled.scale(xs,ys);
         Tscaled = Tscaled.translate(xb/xs,yb/ys);
@@ -1436,16 +1480,32 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                                     _bookModel()->getCurveModel(currentIndex());
             if ( curveModel ) {
 
-                curveModel->map();
-                ModelIterator* it = curveModel->begin();
-                double xs = _bookModel()->xScale(currentIndex());
-                double ys = _bookModel()->yScale(currentIndex());
-                double xb = _bookModel()->xBias(currentIndex());
-                double yb = _bookModel()->yBias(currentIndex());
-                int rc = curveModel->rowCount() ;
+                QModelIndex curveIdx = currentIndex();
+                QModelIndex plotIdx = curveIdx.parent().parent();
                 QModelIndex liveTimeIdx = _bookModel()->getDataIndex(
-                            QModelIndex(),
-                            "LiveCoordTime");
+                                                                 QModelIndex(),
+                                                               "LiveCoordTime");
+
+                QPainterPath* path = _bookModel()->getCurvePainterPath(curveIdx);
+                int rc = path->elementCount();
+
+                QString plotXScale = _bookModel()->getDataString(plotIdx,
+                                                           "PlotXScale","Plot");
+                QString plotYScale = _bookModel()->getDataString(plotIdx,
+                                                           "PlotYScale","Plot");
+                double xs = 1.0;
+                double ys = 1.0;
+                double xb = 0.0;
+                double yb = 0.0;
+                if ( plotXScale == "linear" ) {
+                    xb = _bookModel()->xBias(currentIndex());
+                    xs = _bookModel()->xScale(currentIndex());
+                }
+                if ( plotYScale == "linear" ) {
+                    yb = _bookModel()->yBias(currentIndex());
+                    ys = _bookModel()->yScale(currentIndex());
+                }
+
 
                 QString timeName = _bookModel()->getDataString(currentIndex(),
                                                                "CurveTimeName",
@@ -1461,11 +1521,14 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
 
                     } else if ( rc == 1 ) {
 
-                        liveCoord = QPointF(it->x()*xs+xb,it->y()*ys+yb);
+                        QPainterPath::Element el = path->elementAt(0);
+                        liveCoord = QPointF(el.x,el.y);
 
                     } else if ( rc == 2 ) {
-                        QPointF p0(it->at(0)->x()*xs+xb,it->at(0)->y()*ys+yb);
-                        QPointF p1(it->at(1)->x()*xs+xb,it->at(1)->y()*ys+yb);
+                        QPainterPath::Element el0 = path->elementAt(0);
+                        QPainterPath::Element el1 = path->elementAt(1);
+                        QPointF p0(el0.x*xs+xb,el0.y*ys+yb);
+                        QPointF p1(el1.x*xs+xb,el1.y*ys+yb);
                         QLineF l0(p0,mPt);
                         QLineF l1(p1,mPt);
                         if ( l0.length() < l1.length() ) {
@@ -1476,8 +1539,10 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
 
                     } else if ( rc >= 3 ) {
 
-                        int i = curveModel->indexAtTime((mPt.x()-xb)/xs);
-                        QPointF p(it->at(i)->x()*xs+xb,it->at(i)->y()*ys+yb);
+                        int i =  _idxAtTimeBinarySearch(path,0,rc-1,
+                                                        (mPt.x()-xb)/xs);
+                        QPainterPath::Element el = path->elementAt(i);
+                        QPointF p(el.x*xs+xb,el.y*ys+yb);
 
                         //
                         // Find dt between p and prev or next point
@@ -1485,9 +1550,9 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                         double dt = 0.0;
                         if ( i == 0 ) {
                             // Start point
-                            dt = it->at(1)->x()*xs+xb - p.x();
+                            dt = path->elementAt(1).x*xs+xb - p.x();
                         } else if ( i > 0 ) {
-                            dt = p.x() - (it->at(i-1)->x()*xs+xb);
+                            dt = p.x() - (path->elementAt(i-1).x*xs+xb);
                         } else {
                             fprintf(stderr,"koviz [bad scoobs]:1: "
                                            "CurvesView::mouseMoveEvent()\n");
@@ -1521,12 +1586,12 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                         QList<QPointF> localMins;
                         QList<QPointF> flatChangePOIs;
                         for (int m = j; m <= k; ++m ) {
-                            QPointF pt(it->at(m)->x()*xs+xb,
-                                       it->at(m)->y()*ys+yb);
+                            QPointF pt(path->elementAt(m).x*xs+xb,
+                                       path->elementAt(m).y*ys+yb);
                             if ( m > 0 && m < k ) {
-                                double yPrev = it->at(m-1)->y()*ys+yb;
-                                double y  = it->at(m)->y()*ys+yb;
-                                double yNext = it->at(m+1)->y()*ys+yb;
+                                double yPrev = path->elementAt(m-1).y*ys+yb;
+                                double y  = path->elementAt(m).y*ys+yb;
+                                double yNext = path->elementAt(m+1).y*ys+yb;
                                 if ( y > yPrev && y > yNext ) {
                                     if ( localMaxs.isEmpty() ) {
                                         localMaxs << pt;
@@ -1568,13 +1633,13 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                         if ( j == 0 || wPt.x()/W.width() < 0.02 ) {
                             // Mouse near curve start or left 2% of window,
                             // set to start pt
-                            liveCoord = QPointF(it->at(0)->x()*xs+xb,
-                                                it->at(0)->y()*ys+yb);
+                            liveCoord = QPointF(path->elementAt(0).x*xs+xb,
+                                                path->elementAt(0).y*ys+yb);
                         } else if ( k == rc-1 || wPt.x()/W.width() > 0.98 ) {
                             // Mouse near curve end or right 2% of window,
                             // set to last pt
-                            liveCoord = QPointF(it->at(k)->x()*xs+xb,
-                                                it->at(k)->y()*ys+yb);
+                            liveCoord = QPointF(path->elementAt(k).x*xs+xb,
+                                                path->elementAt(k).y*ys+yb);
                         } else {
                             bool isMaxs = localMaxs.isEmpty() ? false : true;
                             bool isMins = localMins.isEmpty() ? false : true;
@@ -1613,20 +1678,63 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                                                                "StartTime");
                     double stop = _bookModel()->getDataDouble(QModelIndex(),
                                                 "StopTime");
-                    if ( liveCoord.x() <= start ) {
+                    double time = liveCoord.x();
+                    if ( plotXScale == "log" ) {
+                        time = exp10(time);
+                    }
+                    if ( time <= start ) {
                         model()->setData(liveTimeIdx,start);
-                    } else if ( liveCoord.x() >= stop ) {
+                    } else if ( time >= stop ) {
                         model()->setData(liveTimeIdx,stop);
                     } else {
-                        model()->setData(liveTimeIdx,liveCoord.x());
+                        model()->setData(liveTimeIdx,time);
                     }
 
                 } else {  // Curve x is not time e.g. ball xy-position
 
+                    double xb = _bookModel()->xBias(currentIndex());
+                    double xs = _bookModel()->xScale(currentIndex());
+                    double yb = _bookModel()->yBias(currentIndex());
+                    double ys = _bookModel()->yScale(currentIndex());
+                    bool isXLogScale = (plotXScale=="log") ? true : false;
+                    bool isYLogScale = (plotYScale=="log") ? true : false;
                     double liveTime = DBL_MAX;
                     double dMin = DBL_MAX;
-                    while ( !it->isDone() ) { // find closest point on curve to mouse
-                        QPointF p(it->x()*xs+xb,it->y()*ys+yb);
+                    curveModel->map();
+                    ModelIterator* it = curveModel->begin();
+                    while ( !it->isDone() ) {
+                        // find closest point on curve to mouse
+                        double x = it->x()*xs+xb;
+                        if ( isXLogScale ) {
+                            if ( x > 0 ) {
+                                x = log10(x);
+                            } else if ( x < 0 ) {
+                                x = log10(-x);
+                            } else if ( x == 0 ) {
+                                it->next();
+                                continue; // skip since log(0) -inf
+                            } else {
+                                // bad scoobs
+                                it->next();
+                                continue;
+                            }
+                        }
+                        double y = it->y()*ys+yb;
+                        if ( isYLogScale ) {
+                            if ( y > 0 ) {
+                                y = log10(y);
+                            } else if ( y < 0 ) {
+                                y = log10(-y);
+                            } else if ( y == 0 ) {
+                                it->next();
+                                continue; // skip since log(0) -inf
+                            } else {
+                                // bad scoobs
+                                it->next();
+                                continue;
+                            }
+                        }
+                        QPointF p(x,y);
                         double d = QLineF(mPt,p).length();
                         if ( d < dMin ) {
                             dMin = d;
@@ -1634,6 +1742,8 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                         }
                         it->next();
                     }
+                    delete it;
+                    curveModel->unmap();
 
                     // Set live coord in model
                     double start = _bookModel()->getDataDouble(QModelIndex(),
@@ -1649,8 +1759,6 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                     }
                 }
 
-                delete it;
-                curveModel->unmap();
                 viewport()->update();
             }
 
