@@ -1,1 +1,0 @@
-cxx_objects: TRICK_CXX_FLAGS += -Wall
