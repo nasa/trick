@@ -323,8 +323,8 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             _addChild(plotItem, "PlotName", _descrPlotTitle(plot));
             _addChild(plotItem, "PlotTitle",      plot->title());
             _addChild(plotItem, "PlotMathRect", QRectF());
-            _addChild(plotItem, "PlotXScale", "linear");
-            _addChild(plotItem, "PlotYScale", "linear");
+            _addChild(plotItem, "PlotXScale", plot->plotXScale());
+            _addChild(plotItem, "PlotYScale", plot->plotYScale());
             _addChild(plotItem, "PlotXMinRange",  plot->xMinRange());
             _addChild(plotItem, "PlotXMaxRange",  plot->xMaxRange());
             _addChild(plotItem, "PlotYMinRange",  plot->yMinRange());

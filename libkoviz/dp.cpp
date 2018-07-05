@@ -425,7 +425,9 @@ DPPlot::DPPlot(const char *title) :
     _gridColor("#E1E1E1"),
     _backgroundColor("#FFFFFF"),
     _foregroundColor("#000000"),
-    _font("")
+    _font(""),
+    _plotXScale("linear"),
+    _plotYScale("linear")
 {
 }
 
@@ -524,6 +526,16 @@ QString DPPlot::font()
     return _font;
 }
 
+QString DPPlot::plotXScale() const
+{
+    return _plotXScale;
+}
+
+QString DPPlot::plotYScale() const
+{
+    return _plotYScale;
+}
+
 void DPPlot::setXMinRange(double xMin)
 {
     _xMinRange = xMin;
@@ -582,6 +594,16 @@ void DPPlot::setForegroundColor(const QString &color)
 void DPPlot::setFont(const QString &fnt)
 {
     _font = fnt;
+}
+
+void DPPlot::setPlotXScale(const QString &plotXScale)
+{
+    _plotXScale = plotXScale;
+}
+
+void DPPlot::setPlotYScale(const QString &plotYScale)
+{
+    _plotYScale = plotYScale;
 }
 
 DPCurve *DPPlot::addCurve()

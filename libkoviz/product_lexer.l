@@ -32,8 +32,10 @@ MAX_RANGE                     [Mm][Aa][Xx]_[Rr][Aa][Nn][Gg][Ee]
 OUT                           [Oo][Uu][Tt] 
 PAGE                          [Pp][Aa][Gg][Ee]
 PLOT                          [Pp][Ll][Oo][Tt]
-PLOTS                         [Pp][Ll][Oo][Tt][Ss] 
-PROGRAM                       [Pp][Rr][Oo][Gg][Rr][Aa][Mm] 
+PLOTS                         [Pp][Ll][Oo][Tt][Ss]
+PLOT_X_SCALE                  [Pp][Ll][Oo][Tt]_[Xx]_[Ss][Cc][Aa][Ll][Ee]
+PLOT_Y_SCALE                  [Pp][Ll][Oo][Tt]_[Yy]_[Ss][Cc][Aa][Ll][Ee]
+PROGRAM                       [Pp][Rr][Oo][Gg][Rr][Aa][Mm]
 SCALE_FACTOR                  [Ss][Cc][Aa][Ll][Ee]_[Ff][Aa][Cc][Tt][Oo][Rr] 
 START                         [Ss][Tt][Aa][Rr][Tt]
 STOP                          [Ss][Tt][Oo][Pp]
@@ -48,14 +50,12 @@ VARIABLE                      [Vv][Aa][Rr][Ii][Aa][Bb][Ll][Ee]
 X_AXIS_LABEL                  [Xx]_[Aa][Xx][Ii][Ss]_[Ll][Aa][Bb][Ee][Ll]
 X_MIN_RANGE                   [Xx]_[Mm][Ii][Nn]_[Rr][Aa][Nn][Gg][Ee] 
 X_MAX_RANGE                   [Xx]_[Mm][Aa][Xx]_[Rr][Aa][Nn][Gg][Ee] 
-X_SCALE                       [Xx]_[Ss][Cc][Aa][Ll][Ee] 
 X_VARIABLE                    [Xx]_[Vv][Aa][Rr][Ii][Aa][Bb][Ll][Ee]
 XY_PAIR                       [Xx][Yy]_[Pp][Aa][Ii][Rr]
 Y_AXIS_LABEL                  [Yy]_[Aa][Xx][Ii][Ss]_[Ll][Aa][Bb][Ee][Ll]
 Y_AXIS_FORMAT                 [Yy]_[Aa][Xx][Ii][Ss]_[Ff][Oo][Rr][Mm][Aa][Tt]
 Y_MIN_RANGE                   [Yy]_[Mm][Ii][Nn]_[Rr][Aa][Nn][Gg][Ee] 
 Y_MAX_RANGE                   [Yy]_[Mm][Aa][Xx]_[Rr][Aa][Nn][Gg][Ee] 
-Y_SCALE                       [Yy]_[Ss][Cc][Aa][Ll][Ee] 
 Y_VARIABLE                    [Yy]_[Vv][Aa][Rr][Ii][Aa][Bb][Ll][Ee]
 
 QSTR                          \"[^"\n]*["\n] 
@@ -93,6 +93,8 @@ W                             [ \t]+
 {PAGE}                     { return(DP_PAGE); }
 {PLOTS}                    { return(DP_PLOTS); }
 {PLOT}                     { return(DP_PLOT); }
+{PLOT_X_SCALE}             { return(DP_PLOT_X_SCALE); }
+{PLOT_Y_SCALE}             { return(DP_PLOT_Y_SCALE); }
 {PROGRAM}                  { return(DP_PROGRAM); }
 {SCALE_FACTOR}             { return(DP_SCALE_FACTOR); }
 {START}                    { return(DP_START); }
@@ -108,14 +110,12 @@ W                             [ \t]+
 {X_AXIS_LABEL}             { return(DP_X_AXIS_LABEL); }
 {X_MAX_RANGE}              { return(DP_X_MAX_RANGE); }
 {X_MIN_RANGE}              { return(DP_X_MIN_RANGE); }
-{X_SCALE}                  { return(DP_X_SCALE); }
 {X_VARIABLE}               { return(DP_X_VARIABLE); }
 {XY_PAIR}                  { return(DP_XY_PAIR); }
 {Y_AXIS_FORMAT}            { return(DP_Y_AXIS_FORMAT); }
 {Y_AXIS_LABEL}             { return(DP_Y_AXIS_LABEL); }
 {Y_MAX_RANGE}              { return(DP_Y_MAX_RANGE); }
 {Y_MIN_RANGE}              { return(DP_Y_MIN_RANGE); }
-{Y_SCALE}                  { return(DP_Y_SCALE); }
 {Y_VARIABLE}               { return(DP_Y_VARIABLE); }
 
 {QSTR}  { 

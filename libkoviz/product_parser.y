@@ -79,7 +79,6 @@ QString dpFileName() {
 %token DP_CURVE DP_XY_PAIR
 %token DP_FONT DP_GRID DP_GRID_COLOR
 %token DP_X_AXIS_LABEL DP_Y_AXIS_LABEL DP_Y_AXIS_FORMAT
-%token DP_X_SCALE DP_Y_SCALE
 %token DP_X_MIN_RANGE DP_X_MAX_RANGE DP_Y_MIN_RANGE DP_Y_MAX_RANGE
 %token DP_X_VARIABLE DP_Y_VARIABLE DP_VARIABLE DP_LABEL DP_UNITS
 %token DP_TIME_NAME DP_TIME_UNITS
@@ -90,6 +89,7 @@ QString dpFileName() {
 %token DP_GNUPLOT_PLOT_RATIO DP_GNUPLOT_FUNCTION_STYLE 
 %token DP_GNUPLOT_LINE_STYLE
 %token DP_GNUPLOT_PAGE_ORIENTATION DP_GNUPLOT_OBJECT
+%token DP_PLOT_X_SCALE DP_PLOT_Y_SCALE
 
 %token <sval> DP_STR
 %token <dval> DP_FLOAT
@@ -190,9 +190,8 @@ plot: DP_PLOT DP_FLOAT ':' DP_STR {
         | plot DP_X_AXIS_LABEL ':' DP_STR {
                 currPlot->setXAxisLabel($4);
         }
-        | plot DP_X_SCALE ':' DP_STR {
-                msg("PLOT.X_SCALE not supported.  "
-                    "Use X_VARIABLE.SCALE_FACTOR instead.");
+        | plot DP_PLOT_X_SCALE ':' DP_STR {
+                currPlot->setPlotXScale($4);
         }
         | plot DP_X_MIN_RANGE ':' DP_FLOAT {
                 currPlot->setXMinRange($4);
@@ -203,9 +202,8 @@ plot: DP_PLOT DP_FLOAT ':' DP_STR {
         | plot DP_Y_AXIS_LABEL ':' DP_STR {
                 currPlot->setYAxisLabel($4);
         }
-        | plot DP_Y_SCALE ':' DP_STR {
-                msg("PLOT.Y_SCALE not supported.  "
-                    "Use Y_VARIABLE.SCALE_FACTOR instead.");
+        | plot DP_PLOT_Y_SCALE ':' DP_STR {
+                currPlot->setPlotYScale($4);
         }
         | plot DP_Y_AXIS_FORMAT ':' DP_STR {
                 msg("PLOT.Y_AXIS_FORMAT not supported");

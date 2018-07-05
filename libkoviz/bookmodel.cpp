@@ -126,15 +126,17 @@ bool PlotBookModel::setData(const QModelIndex &idx,
             }
         } else if ( tag == "CurveYUnit" ) {
             QModelIndex curveIdx = idx.parent();
-            QModelIndex plotIdx = idx.parent().parent().parent();
-            QString plotXScale = getDataString(plotIdx,"PlotXScale","Plot");
-            QString plotYScale = getDataString(plotIdx,"PlotYScale","Plot");
-            if ( plotXScale == "log" || plotYScale == "log" ) {
-                QString yUnit = value.toString();
-                _createPainterPath(curveIdx,
-                                   false,0,false,0,false,0,
-                                   false,0,false,0,false,0,
-                                   "",yUnit,plotXScale,plotYScale);
+            if ( isChildIndex(curveIdx,"Curve","CurveData" ) ) {
+                QModelIndex plotIdx = idx.parent().parent().parent();
+                QString plotXScale = getDataString(plotIdx,"PlotXScale","Plot");
+                QString plotYScale = getDataString(plotIdx,"PlotYScale","Plot");
+                if ( plotXScale == "log" || plotYScale == "log" ) {
+                    QString yUnit = value.toString();
+                    _createPainterPath(curveIdx,
+                                       false,0,false,0,false,0,
+                                       false,0,false,0,false,0,
+                                       "",yUnit,plotXScale,plotYScale);
+                }
             }
         }
     }
