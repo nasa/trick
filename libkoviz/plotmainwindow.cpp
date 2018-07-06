@@ -522,6 +522,19 @@ void PlotMainWindow::_saveDP()
                 out << i3 << "foreground_color: \"" << plotFG << "\"\n";
             }
 
+            QString plotXScale = _bookModel->getDataString(plotIdx,
+                                                           "PlotXScale",
+                                                           "Plot");
+            if ( plotXScale != "linear" ) {
+                out << i3 << "plot_x_scale: \"" << plotXScale << "\"\n";
+            }
+
+            QString plotYScale = _bookModel->getDataString(plotIdx,
+                                                           "PlotYScale",
+                                                           "Plot");
+            if ( plotYScale != "linear" ) {
+                out << i3 << "plot_y_scale: \"" << plotYScale << "\"\n";
+            }
 
             QModelIndex curvesIdx = _bookModel->getIndex(plotIdx,
                                                          "Curves","Plot");
