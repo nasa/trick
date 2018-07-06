@@ -21,78 +21,80 @@
 DocWindow::DocWindow(const QString &name)
     : QMainWindow( 0, 0) {
 
-  QTextStream out(stdout);
+    QTextStream out(stdout);
 
-  trkFileName = name;
+    foundItemIndex = 0;
 
-  // Build the Menus
-  QAction * fileLoadAction = new QAction( "&Open File...", this );
-  fileLoadAction->setShortcut(tr("CTRL+O"));
-  connect( fileLoadAction, &QAction::triggered , this, &DocWindow::load );
+    trkFileName = name;
 
-  QAction * csvSaveAction = new QAction( "&Export as CSV...", this );
-  connect( csvSaveAction, &QAction::triggered, this, &DocWindow::saveAsCSV );
+    // Build the Menus
+    QAction * fileLoadAction = new QAction( "&Open File...", this );
+    fileLoadAction->setShortcut(tr("CTRL+O"));
+    connect( fileLoadAction, &QAction::triggered , this, &DocWindow::load );
 
-  QAction * varListSaveAction = new QAction( "&Export as Variable List...", this );
-  connect( varListSaveAction, &QAction::triggered, this, &DocWindow::saveAsVarList );
+    QAction * csvSaveAction = new QAction( "&Export as CSV...", this );
+    connect( csvSaveAction, &QAction::triggered, this, &DocWindow::saveAsCSV );
 
-  QMenu *fileMenu = menuBar()->addMenu("&File");
+    QAction * varListSaveAction = new QAction( "&Export as Variable List...", this );
+    connect( varListSaveAction, &QAction::triggered, this, &DocWindow::saveAsVarList );
 
-  fileMenu->addAction(fileLoadAction);
-  fileMenu->addSeparator();
-  fileMenu->addAction(csvSaveAction);
-  fileMenu->addAction(varListSaveAction);
+    QMenu *fileMenu = menuBar()->addMenu("&File");
+
+    fileMenu->addAction(fileLoadAction);
+    fileMenu->addSeparator();
+    fileMenu->addAction(csvSaveAction);
+    fileMenu->addAction(varListSaveAction);
 
 
-  QAction * editSelectAction = new QAction( "&Select All", this );
-  editSelectAction->setShortcut(tr("CTRL+A"));
-  connect( editSelectAction, &QAction::triggered, this, &DocWindow::checkAll );
+    QAction * editSelectAction = new QAction( "&Select All", this );
+    editSelectAction->setShortcut(tr("CTRL+A"));
+    connect( editSelectAction, &QAction::triggered, this, &DocWindow::checkAll );
 
-  QAction * editClearAction = new QAction( "&Clear All", this );
-  connect( editClearAction, &QAction::triggered, this, &DocWindow::unCheckAll );
+    QAction * editClearAction = new QAction( "&Clear All", this );
+    connect( editClearAction, &QAction::triggered, this, &DocWindow::unCheckAll );
 
-  QMenu *editMenu = menuBar()->addMenu("&Edit");
+    QMenu *editMenu = menuBar()->addMenu("&Edit");
 
-  editMenu->addAction(editSelectAction);
-  editMenu->addAction(editClearAction);
+    editMenu->addAction(editSelectAction);
+    editMenu->addAction(editClearAction);
 
-  QHBoxLayout *hbox = new QHBoxLayout();
+    QHBoxLayout *hbox = new QHBoxLayout();
 
-  QPushButton *backward = new QPushButton(QChar(0x25C0), this);
-  connect( backward, &QPushButton::released, this, &DocWindow::searchBackward);
+    QPushButton *backward = new QPushButton(QChar(0x25C0), this);
+    connect( backward, &QPushButton::released, this, &DocWindow::findAgainBackward);
 
-  QPushButton *forward  = new QPushButton(QChar(0x25B6), this);
-  connect( forward, &QPushButton::released, this, &DocWindow::searchForward);
+    QPushButton *forward  = new QPushButton(QChar(0x25B6), this);
+    connect( forward, &QPushButton::released, this, &DocWindow::findAgainForward);
 
-  searchLineEdit = new QLineEdit;
-  searchLineEdit->setPlaceholderText("Search Text");
-  connect(searchLineEdit, SIGNAL(returnPressed()), this, SLOT(textSearch()));
+    searchLineEdit = new QLineEdit;
+    searchLineEdit->setPlaceholderText("Search Pattern");
+    connect(searchLineEdit, SIGNAL(returnPressed()), this, SLOT(find()));
 
-  hbox->addWidget(backward);
-  hbox->addWidget(forward);
-  hbox->addWidget(searchLineEdit);
+    hbox->addWidget(backward);
+    hbox->addWidget(forward);
+    hbox->addWidget(searchLineEdit);
 
-  QVBoxLayout *vbox = new QVBoxLayout();
+    QVBoxLayout *vbox = new QVBoxLayout();
 
-  // Build the Table Widget that displays the variable names, types, and units.
-  varTable = new VarTableWidget(this);
+    // Build the Table Widget that displays the variable names, types, and units.
+    varTable = new VarTableWidget(this);
 
-  datalog = new TRK_DataLog( trkFileName.toStdString().c_str() );
-  int recordCount = datalog->parameterCount();
-  for (int ii = 0; ii < recordCount; ii++) {
-      varTable->addRecord( Qt::Checked, 
-                           datalog->parameterName(ii),
-                           datalog->parameterType(ii),
-                           datalog->parameterUnits(ii));
-  }
+    datalog = new TRK_DataLog( trkFileName.toStdString().c_str() );
+    int recordCount = datalog->parameterCount();
+    for (int ii = 0; ii < recordCount; ii++) {
+        varTable->addRecord( Qt::Checked, 
+                             datalog->parameterName(ii),
+                             datalog->parameterType(ii),
+                             datalog->parameterUnits(ii));
+    }
 
-  vbox->addWidget(varTable);
-  vbox->addLayout(hbox);
+    vbox->addWidget(varTable);
+    vbox->addLayout(hbox);
 
-  QWidget *window = new QWidget;
-  window->setLayout(vbox);
+    QWidget *window = new QWidget;
+    window->setLayout(vbox);
 
-  setCentralWidget(window);
+    setCentralWidget(window);
 }
 
 void DocWindow::load() {
@@ -155,24 +157,49 @@ void DocWindow::unCheckAll() {
     varTable->unCheckAll();
 }
 
-void DocWindow::searchForward() {
-    QTextStream out(stdout);
-    out << "<<searchForward>>" << endl;
+void DocWindow::findAgain(int direction) {
+    if (foundItemIndex >= 0) {
+        varTable->unHighLightRecord(foundItemIndex);      
+        int count = varTable->recordCount();
+        int startIndex = (count + foundItemIndex + direction) % count;
+        if ((foundItemIndex = textSearch(searchPattern, startIndex, direction)) >= 0) {
+            varTable->scrollToRecord(foundItemIndex);      
+            varTable->highLightRecord(foundItemIndex);      
+        }
+    }
 }
 
-void DocWindow::searchBackward() {
-    QTextStream out(stdout);
-    out << "<<searchBackward>>" << endl;
+void DocWindow::findAgainForward() {
+    findAgain(1);
 }
 
-void DocWindow::textSearch() {
-    QTextStream out(stdout);
-    QString s = searchLineEdit->text();
-    out << "<<textSearch = \"" << s << "\" >>" << endl;
+void DocWindow::findAgainBackward() {
+    findAgain(-1);
+}
 
-//    int count = varTable->recordCount();
-//    for (int index=0 ; index<count ; index++) {
-//        if ( dataLog->parameterName(index)) {
-//        }
-//    }
+void DocWindow::find() {
+    searchPattern = searchLineEdit->text();
+
+    if (foundItemIndex >= 0) {
+        varTable->unHighLightRecord(foundItemIndex);      
+    }
+    if ((foundItemIndex = textSearch(searchPattern, 0, 1)) >= 0) {
+        varTable->scrollToRecord(foundItemIndex);      
+        varTable->highLightRecord(foundItemIndex);      
+    }
+}
+
+int DocWindow::textSearch(QString pattern, int startIndex, int direction) {
+
+    QRegExp rx(pattern);
+    int count = varTable->recordCount();
+    int foundIx = -1;
+    for (int i=0 ; i<count ; i++) {
+        int index = (count + startIndex + direction * i) % count;
+        if ((rx.indexIn(datalog->parameterName(index),0)) >= 0) {
+            foundIx = index;
+            break;
+        }
+    }
+    return foundIx;
 }

@@ -14,6 +14,9 @@ class DocWindow : public QMainWindow {
     ~DocWindow(){};
 
    void formattedSave(LogFormatter &formatter);
+   void textSearch();
+   int textSearch(QString searchText, int startIndex, int direction);
+   void findAgain(int direction);
 
   private slots:
       void load();
@@ -21,11 +24,14 @@ class DocWindow : public QMainWindow {
       void saveAsVarList();
       void checkAll();
       void unCheckAll();
-      void searchForward();
-      void searchBackward();
-      void textSearch();
+      void find();
+
+      void findAgainForward();
+      void findAgainBackward();
 
   private:
+    QString searchPattern;
+    int foundItemIndex;
     QString trkFileName;
     QLineEdit* searchLineEdit;
     VarTableWidget* varTable;
