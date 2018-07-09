@@ -116,13 +116,13 @@ QList<double> BookIdxView::_majorXTics(const QModelIndex& plotIdx) const
     return X;
 }
 
-QList<double> BookIdxView::_minorXTics() const
+QList<double> BookIdxView::_minorXTics(const QModelIndex &plotIdx) const
 {
     QList<double> X;
-    QRectF r = _plotMathRect(rootIndex());
+    QRectF r = _plotMathRect(plotIdx);
     double a = r.left();
     double b = r.right();
-    QString plotScale = _bookModel()->getDataString(rootIndex(),
+    QString plotScale = _bookModel()->getDataString(plotIdx,
                                                     "PlotXScale","Plot");
     X = _calcMinorTicSet(a,b,plotScale);
     return X;
@@ -138,13 +138,13 @@ QList<double> BookIdxView::_majorYTics(const QModelIndex &plotIdx) const
     return Y;
 }
 
-QList<double> BookIdxView::_minorYTics() const
+QList<double> BookIdxView::_minorYTics(const QModelIndex &plotIdx) const
 {
     QList<double> Y;
-    QRectF r = _plotMathRect(rootIndex());
+    QRectF r = _plotMathRect(plotIdx);
     double a = r.bottom();
     double b = r.top();
-    QString plotScale = _bookModel()->getDataString(rootIndex(),
+    QString plotScale = _bookModel()->getDataString(plotIdx,
                                                     "PlotYScale","Plot");
     Y = _calcMinorTicSet(a,b,plotScale);
     return Y;
@@ -1425,11 +1425,11 @@ void BookIdxView::_paintGrid(QPainter &painter, const QModelIndex& plotIdx)
 
     QList<double> xtics = _majorXTics(plotIdx);
     if ( isXLogScale ) {
-        xtics.append(_minorXTics());
+        xtics.append(_minorXTics(plotIdx));
     }
     QList<double> ytics = _majorYTics(plotIdx);
     if ( isYLogScale ) {
-        ytics.append(_minorYTics());
+        ytics.append(_minorYTics(plotIdx));
     }
 
     QVector<QPointF> vLines;

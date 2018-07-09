@@ -56,7 +56,7 @@ void LinedRulerView::paintEvent(QPaintEvent *event)
     if ( _alignment == Qt::AlignTop ) {
         axis << QPointF(x0,y0) << QPointF(x1,y0);
         majors = _majorXTics(plotIdx);
-        minors = _minorXTics();
+        minors = _minorXTics(plotIdx);
         foreach ( double m, majors ) {
             majorTics << QPointF(m,M.top()) << QPointF(m,M.bottom());
         }
@@ -66,7 +66,7 @@ void LinedRulerView::paintEvent(QPaintEvent *event)
     } else if ( _alignment == Qt::AlignBottom ) {
         axis << QPointF(x0,y1) << QPointF(x1,y1);
         majors = _majorXTics(plotIdx);
-        minors = _minorXTics();
+        minors = _minorXTics(plotIdx);
         foreach ( double m, majors ) {
             majorTics << QPointF(m,M.bottom()) << QPointF(m,M.top());
         }
@@ -76,7 +76,7 @@ void LinedRulerView::paintEvent(QPaintEvent *event)
     } else if ( _alignment == Qt::AlignLeft ) {
         axis << QPointF(x0,y0) << QPointF(x0,y1);
         majors = _majorYTics(plotIdx);
-        minors = _minorYTics();
+        minors = _minorYTics(plotIdx);
         foreach ( double m, majors ) {
             majorTics << QPointF(M.left(),m) << QPointF(M.right(),m);
         }
@@ -86,7 +86,7 @@ void LinedRulerView::paintEvent(QPaintEvent *event)
     } else if ( _alignment == Qt::AlignRight ) {
         axis << QPointF(x1,y0) << QPointF(x1,y1);
         majors = _majorYTics(plotIdx);
-        minors = _minorYTics();
+        minors = _minorYTics(plotIdx);
         foreach ( double m, majors ) {
             majorTics << QPointF(M.right(),m) << QPointF(M.left(),m);
         }

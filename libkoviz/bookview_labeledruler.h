@@ -7,13 +7,6 @@
 #include <QFontInfo>
 #include "bookidxview.h"
 
-struct LabelBox
-{
-    QPointF center; // preferred center
-    QString strVal;
-    QRectF  bb;     // actual center is center of bb
-};
-
 class LabeledRulerView : public BookIdxView
 {
     Q_OBJECT

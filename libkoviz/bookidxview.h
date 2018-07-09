@@ -10,6 +10,13 @@
 #include "bookmodel.h"
 #include "unit.h"
 
+struct LabelBox
+{
+    QPointF center; // preferred center
+    QString strVal;
+    QRectF  bb;     // actual center is center of bb
+};
+
 class BookIdxView : public QAbstractItemView
 {
     Q_OBJECT
@@ -44,9 +51,9 @@ public:
     QModelIndex _plotMathRectIdx(const QModelIndex& plotIdx) const;
 
     QList<double> _majorXTics(const QModelIndex &plotIdx) const;
-    QList<double> _minorXTics() const;
+    QList<double> _minorXTics(const QModelIndex &plotIdx) const;
     QList<double> _majorYTics(const QModelIndex &plotIdx) const;
-    QList<double> _minorYTics() const;
+    QList<double> _minorYTics(const QModelIndex &plotIdx) const;
     QList<double> _calcTicSet(double aIn, double bIn,
                               double u, double n) const;
     QList<double> _calcMinorTicSet(double a, double b,

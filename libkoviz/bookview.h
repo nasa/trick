@@ -76,6 +76,9 @@ private:
                           const QModelIndex& plotIdx, const QRectF &curvesRect);
     void _printYTicLabels(const QRect &R, QPainter *painter,
                           const QModelIndex& plotIdx, const QRectF &curvesRect);
+    void _printTicLabel(QPainter *painter, const QModelIndex &plotIdx,
+                        const LabelBox &box,
+                        const Qt::Alignment& alignment) const;
     void _printXTicsBottom(const QRect &R, QPainter *painter,
                            const QModelIndex& plotIdx, const QRect &curvesRect);
     void _printXTicsTop(const QRect &R, QPainter *painter,
@@ -96,6 +99,10 @@ private:
                                 const QModelIndex& plotIdx);
     void _printGrid(const QRect &R, QPainter *painter,
                     const QModelIndex& plotIdx, const QRect &curvesRect);
+
+    QRect _boundingRectTicLabel(QPainter *painter, const QModelIndex &plotIdx,
+                                 const QString& strVal,
+                                 const Qt::Alignment &alignment) const;
 
 signals:
 

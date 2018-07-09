@@ -688,7 +688,6 @@ void BookView::_printPlot(const QRect &R,
     QFont fontAxisLabel(origFont);fontAxisLabel.setPointSize(axisLabelFontSize);
 
     QFontMetrics fmTitle(fontTitle);
-    QFontMetrics fmTics(fontTics);
     QFontMetrics fmAxisLabel(fontAxisLabel);
 
     QString title = _bookModel()->getDataString(plotIdx,
@@ -702,12 +701,16 @@ void BookView::_printPlot(const QRect &R,
     int titleh = fmTitle.boundingRect(title).height();
     int xalh = fmAxisLabel.boundingRect(xAxisLabel).height();
     int yalh = fmAxisLabel.boundingRect(yAxisLabel).height();
-    int tlh = fmTics.xHeight();
+    painter->setFont(fontTics);
+    int tlh = _boundingRectTicLabel(painter,plotIdx,
+                                    "3.14159",Qt::AlignBottom).height();
+    painter->setFont(origFont);
 
     // Calculate y-tic-label width (~200)
     // All plots on the page should be vertically aligned.
     // The easy way to do this is to make the y-tic-label width
     // the max y-tic-label width of all formatted tic labels on the entire page
+    painter->setFont(fontTics);
     int ytlw = 0;
     QModelIndex pageIdx = plotIdx.parent().parent();
     QModelIndexList plotIdxs = _bookModel()->plotIdxs(pageIdx);
@@ -715,12 +718,14 @@ void BookView::_printPlot(const QRect &R,
         QList<double> modelTics = _majorYTics(plotIdx);
         foreach ( double tic, modelTics ) {
             QString strVal = _format(tic);
-            QRectF bb = fmTics.boundingRect(strVal);
+            QRectF bb = _boundingRectTicLabel(painter,plotIdx,
+                                              strVal,Qt::AlignLeft);
             if ( bb.width() > ytlw ) {
                 ytlw = bb.width();
             }
         }
     }
+    painter->setFont(origFont);
 
 
     //
@@ -1070,6 +1075,13 @@ void BookView::_printCoplot(const QRect& R,
     double start = _bookModel()->getDataDouble(QModelIndex(),"StartTime");
     double stop = _bookModel()->getDataDouble(QModelIndex(),"StopTime");
 
+    QString plotXScale = _bookModel()->getDataString(plotIdx,
+                                                     "PlotXScale","Plot");
+    QString plotYScale = _bookModel()->getDataString(plotIdx,
+                                                     "PlotYScale","Plot");
+    bool isXLogScale = ( plotXScale == "log" ) ? true : false;
+    bool isYLogScale = ( plotYScale == "log" ) ? true : false;
+
     QList<QPainterPath*> paths;
     QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
     int rc = model()->rowCount(curvesIdx);
@@ -1102,7 +1114,11 @@ void BookView::_printCoplot(const QRect& R,
                     continue;
                 }
 
-                QPointF p(it->x()*xs+xb,it->y()*ys+yb);
+                double x = it->x()*xs+xb;
+                double y = it->y()*ys+yb;
+                if ( isXLogScale ) x = log10(x);
+                if ( isYLogScale ) y = log10(y);
+                QPointF p(x,y);
                 p = T.map(p);
 
                 if ( isFirst ) {
@@ -1347,21 +1363,22 @@ void BookView::_printXTicLabels(const QRect &R, QPainter *painter,
         center = T.map(center);
         center.setY(R.center().y());
 
-        QString strVal = _format(tic);
-        QRectF bb = painter->fontMetrics().boundingRect(strVal);
+        QString str = _format(tic);
+        QRectF bb = _boundingRectTicLabel(painter,plotIdx,str,Qt::AlignBottom);
         bb.moveCenter(center);
+        bb.moveTop(R.top());
 
         LabelBox box;
         box.center = center;
         box.bb = bb;
-        box.strVal = strVal;
+        box.strVal = str;
         boxes << box;
     }
 
     // Draw!
     painter->save();
     foreach ( LabelBox box, boxes ) {
-        painter->drawText(box.bb,Qt::AlignHCenter|Qt::AlignVCenter,box.strVal);
+        _printTicLabel(painter,plotIdx,box,Qt::AlignBottom);
     }
     painter->restore();
 }
@@ -1382,7 +1399,7 @@ void BookView::_printYTicLabels(const QRect &R, QPainter *painter,
         center.setX(R.center().x());
 
         QString strVal = _format(tic);
-        QRectF bb = painter->fontMetrics().boundingRect(strVal);
+        QRectF bb = _boundingRectTicLabel(painter,plotIdx,strVal,Qt::AlignLeft);
         bb.moveCenter(center);
 
         LabelBox box;
@@ -1395,9 +1412,97 @@ void BookView::_printYTicLabels(const QRect &R, QPainter *painter,
     // Draw!
     painter->save();
     foreach ( LabelBox box, boxes ) {
-        painter->drawText(box.bb,Qt::AlignHCenter|Qt::AlignVCenter,box.strVal);
+        _printTicLabel(painter,plotIdx,box,Qt::AlignLeft);
     }
     painter->restore();
+}
+
+void BookView::_printTicLabel(QPainter* painter,
+                              const QModelIndex& plotIdx,
+                              const LabelBox& box,
+                              const Qt::Alignment &alignment) const
+{
+    QString plotXScale = _bookModel()->getDataString(plotIdx,
+                                                     "PlotXScale","Plot");
+    QString plotYScale = _bookModel()->getDataString(plotIdx,
+                                                     "PlotYScale","Plot");
+
+    if ( (alignment == Qt::AlignBottom && plotXScale == "log") ||
+         (alignment == Qt::AlignLeft && plotYScale == "log") ) {
+
+        QFont fontOrig = painter->font();
+
+        QFont font7 = painter->font();
+        font7.setPointSizeF(7);
+        QFontMetrics fm7(font7);
+
+        QFont font9 = painter->font();
+        font9.setPointSizeF(9);
+        QFontMetrics fm9(font9);
+
+        QRectF B = _boundingRectTicLabel(painter,plotIdx,box.strVal,alignment);
+        B.moveCenter(box.bb.center());
+        B.moveRight(box.bb.right());
+
+        painter->setFont(font9);
+        QRectF box10 = fm9.boundingRect("10");
+        box10.moveBottomLeft(B.bottomLeft());
+        painter->drawText(B,Qt::AlignLeft|Qt::AlignBottom,"10");
+
+        painter->setFont(font7);
+        QRectF boxExponent = fm7.boundingRect(box.strVal);
+        boxExponent.moveTopRight(B.topRight());
+        boxExponent.translate(-fm7.averageCharWidth()/2.0,0);
+        boxExponent.setRight(B.right());
+        painter->drawText(boxExponent,box.strVal);
+
+        painter->setFont(fontOrig);
+
+    } else {
+        painter->drawText(box.bb,Qt::AlignCenter,box.strVal);
+    }
+}
+
+// If plot is in logscale, return bounding box for 10^strVal
+QRect BookView::_boundingRectTicLabel(QPainter* painter,
+                                       const QModelIndex& plotIdx,
+                                       const QString &strVal,
+                                       const Qt::Alignment& alignment) const
+{
+    QRect bb;
+
+    QString plotXScale = _bookModel()->getDataString(plotIdx,
+                                                     "PlotXScale","Plot");
+    QString plotYScale = _bookModel()->getDataString(plotIdx,
+                                                     "PlotYScale","Plot");
+
+    if ( (alignment == Qt::AlignBottom && plotXScale == "log") ||
+         (alignment == Qt::AlignLeft && plotYScale == "log") ) {
+
+        QFont fontOrig = painter->font();
+
+        QFont font9 = painter->font();
+        font9.setPointSizeF(9);
+        QFontMetrics fm9(font9);
+        QRect box10 = fm9.boundingRect("10");
+
+        QFont font7 = painter->font();
+        font7.setPointSizeF(7);
+        QFontMetrics fm7(font7);
+        QRect boxExponent = fm7.boundingRect(strVal);
+
+        QPoint p;
+        p.setX(box10.right()+fm7.averageCharWidth());
+        p.setY(box10.top()+fm7.height()/2.0);
+        boxExponent.moveTo(p);
+        bb = box10.united(boxExponent);
+
+        painter->setFont(fontOrig);
+    } else {
+        bb = painter->fontMetrics().boundingRect(strVal);
+    }
+
+    return bb;
 }
 
 QString BookView::_format(double tic) const
@@ -1433,6 +1538,9 @@ void BookView::_printXTicsBottom(const QRect &R,
     painter->setPen(pen);
     QTransform T = _coordToDotTransform(curvesRect,plotIdx);
     QList<double> xtics = _majorXTics(plotIdx);
+    if ( _bookModel()->getDataString(plotIdx,"PlotXScale","Plot") == "log" ) {
+        xtics.append(_minorXTics(plotIdx));
+    }
     foreach ( double x, xtics ) {
         QPointF a = T.map(QPointF(x,0));
         a.setY(R.top()+q/2);
@@ -1466,6 +1574,9 @@ void BookView::_printXTicsTop(const QRect &R, QPainter *painter,
     painter->setPen(pen);
     QTransform T = _coordToDotTransform(curvesRect,plotIdx);
     QList<double> xtics = _majorXTics(plotIdx);
+    if ( _bookModel()->getDataString(plotIdx,"PlotXScale","Plot") == "log" ) {
+        xtics.append(_minorXTics(plotIdx));
+    }
     foreach ( double x, xtics ) {
         QPointF a = T.map(QPointF(x,0));
         QPointF b(a);
@@ -1498,6 +1609,9 @@ void BookView::_printYTicsLeft(const QRect &R,
     painter->setPen(pen);
     QTransform T = _coordToDotTransform(curvesRect,plotIdx);
     QList<double> ytics = _majorYTics(plotIdx);
+    if ( _bookModel()->getDataString(plotIdx,"PlotYScale","Plot") == "log" ) {
+        ytics.append(_minorYTics(plotIdx));
+    }
     foreach ( double y, ytics ) {
         QPointF pt1 = T.map(QPointF(0,y));
         QPointF pt2(pt1);
@@ -1529,6 +1643,9 @@ void BookView::_printYTicsRight(const QRect &R,
     painter->setPen(pen);
     QTransform T = _coordToDotTransform(curvesRect,plotIdx);
     QList<double> ytics = _majorYTics(plotIdx);
+    if ( _bookModel()->getDataString(plotIdx,"PlotYScale","Plot") == "log" ) {
+        ytics.append(_minorYTics(plotIdx));
+    }
     foreach ( double y, ytics ) {
         QPointF a = T.map(QPointF(0,y));
         a.setX(R.right()-q/2);
@@ -1655,16 +1772,28 @@ void BookView::_printGrid(const QRect &R, QPainter *painter,
     QPen pen = painter->pen();
     pen.setWidth(q/2);
 
+    // Plot XY Scale
+    QString plotXScale = _bookModel()->getDataString(plotIdx,
+                                                     "PlotXScale","Plot");
+    QString plotYScale = _bookModel()->getDataString(plotIdx,
+                                                     "PlotYScale","Plot");
+    bool isXLogScale = ( plotXScale == "log" ) ? true : false;
+    bool isYLogScale = ( plotYScale == "log" ) ? true : false;
+
     // Pen color
     QModelIndex pageIdx = _bookModel()->getIndex(plotIdx,"Page","Plot");
     QColor color = _bookModel()->pageForegroundColor(pageIdx);
-    color.setAlpha(60);
+    color.setAlpha(75);
     pen.setColor(color);
 
     // Pen dash pattern
     QVector<qreal> dashes;
     qreal space = 4;
-    dashes << 4 << space ;
+    if ( isXLogScale || isYLogScale ) {
+        dashes << 2.5 << 2.5 ;
+    } else {
+        dashes << 4 << space ;
+    }
     pen.setDashPattern(dashes);
 
     // Set Pen
@@ -1675,6 +1804,9 @@ void BookView::_printGrid(const QRect &R, QPainter *painter,
 
     // Vertical lines
     QList<double> xtics = _majorXTics(plotIdx);
+    if ( isXLogScale ) {
+        xtics.append(_minorXTics(plotIdx));
+    }
     foreach ( double x, xtics ) {
         QPointF a = T.map(QPointF(x,0));
         a.setY(R.top()+q/2);
@@ -1685,6 +1817,9 @@ void BookView::_printGrid(const QRect &R, QPainter *painter,
 
     // Horizontal lines
     QList<double> ytics = _majorYTics(plotIdx);
+    if ( isYLogScale ) {
+        ytics.append(_minorYTics(plotIdx));
+    }
     foreach ( double y, ytics ) {
         QPointF pt1 = T.map(QPointF(0,y));
         QPointF pt2(pt1);
