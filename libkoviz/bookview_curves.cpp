@@ -1066,6 +1066,24 @@ void CurvesView::dataChanged(const QModelIndex &topLeft,
             QModelIndex plotRectIdx = _bookModel()->getDataIndex(rootIndex(),
                                                          "PlotMathRect","Plot");
             QRectF R = model()->data(plotRectIdx).toRectF();
+
+            QString R_PlotXScale = _bookModel()->getDataString(rootIndex(),
+                                                               "PlotXScale",
+                                                               "Plot");
+            QString M_PlotXScale = _bookModel()->getDataString(topLeft.parent(),
+                                                               "PlotXScale",
+                                                               "Plot");
+            if ( M_PlotXScale == "log" && R_PlotXScale == "linear" ) {
+                M.setLeft(exp10(M.left()));
+                M.setRight(exp10(M.right()));
+            } else if ( M_PlotXScale == "linear" && R_PlotXScale == "log") {
+                if ( M.left() != 0.0 ) {
+                    M.setLeft(log10(M.left()));
+                }
+                if ( M.right() != 0.0 ) {
+                    M.setRight(log10(M.right()));
+                }
+            }
             if ( M.left() != R.left() || M.right() != R.right() ) {
                 R.setLeft(M.left());
                 R.setRight(M.right());
