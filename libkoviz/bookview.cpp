@@ -766,8 +766,6 @@ void BookView::_printPlot(const QRect &R,
     //
     // Paint!
     //
-    QRect gridRect = titleRect.united(curvesRect) ;
-    _printGrid(gridRect,painter,plotIdx,curvesRect);
     _printPlotTitle(titleRect,painter,plotIdx);
 
     // Curves
@@ -781,6 +779,10 @@ void BookView::_printPlot(const QRect &R,
     _printCurves(curvesRect,painter,plotIdx);
     painter->setPen(origPen);
     painter->restore();
+
+    // Grid
+    QRect gridRect = titleRect.united(curvesRect) ;
+    _printGrid(gridRect,painter,plotIdx,curvesRect);
 
     // Paint axis lines, corners and tics
     painter->setPen(pena);
