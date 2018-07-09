@@ -286,15 +286,18 @@ void Trick::DataRecordGroup::remove_variable( std::string in_name ) {
 
 void Trick::DataRecordGroup::remove_all_variables() {
     // remove all but the first variable, which is sim time
-    for (auto i = rec_buffer.begin() + 1; i != rec_buffer.end(); ++i) {
-        delete *i;
+    if(!rec_buffer.empty()) {
+        for (auto i = rec_buffer.begin() + 1; i != rec_buffer.end(); ++i) {
+            delete *i;
+        }
+        rec_buffer.erase(rec_buffer.begin() + 1, rec_buffer.end());
     }
-    rec_buffer.erase(rec_buffer.begin() + 1, rec_buffer.end());
 
     // remove everything
     for (auto variable : change_buffer) {
         delete variable;
     }
+
     change_buffer.clear();
 }
 
@@ -716,8 +719,10 @@ int Trick::DataRecordGroup::shutdown() {
     remove_all_variables();
 
     // remove_all_variables does not remove sim time
-    delete rec_buffer[0];
-    rec_buffer.clear();
+    if(!rec_buffer.empty()){
+        delete rec_buffer[0];
+        rec_buffer.clear();
+    }
 
     if ( writer_buff ) {
         free(writer_buff) ;
