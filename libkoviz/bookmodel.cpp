@@ -1362,6 +1362,13 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
     // Frequency of data to show (f=0.0, the default, is all data)
     double f = getDataDouble(QModelIndex(),"Frequency");
 
+    // Plot X/Y Scale (log/linear)
+    QModelIndex plotIdx = curvesIdx.parent();
+    QString plotXScale = getDataString(plotIdx,"PlotXScale","Plot");
+    QString plotYScale = getDataString(plotIdx,"PlotYScale","Plot");
+    bool isXLogScale = ( plotXScale == "log" ) ? true : false;
+    bool isYLogScale = ( plotYScale == "log" ) ? true : false;
+
     c0->map();
     c1->map();
     ModelIterator* i0 = c0->begin();
@@ -1381,7 +1388,18 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
                 }
             }
             double d = (ys0*i0->y()+yb0) - (ys1*i1->y()+yb1);
+            if ( isYLogScale ) {
+                d = log10(d);
+            }
             if ( t0 >= start && t0 <= stop ) {
+                if ( isXLogScale && t0 == 0.0 ) {
+                    i0->next();
+                    i1->next();
+                    continue;
+                }
+                if ( isXLogScale ) {
+                    t0 = log10(t0);
+                }
                 if ( isFirst ) {
                     path->moveTo(t0,d);
                     isFirst = false;

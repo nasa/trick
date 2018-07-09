@@ -1941,12 +1941,19 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                                                        "StartTime");
             double stop = _bookModel()->getDataDouble(QModelIndex(),
                                                       "StopTime");
-            if ( mPt.x() <= start ) {
+            QString plotXScale = _bookModel()->getDataString(rootIndex(),
+                                                           "PlotXScale","Plot");
+
+            double time = mPt.x();
+            if ( plotXScale == "log" ) {
+                time = exp10(time);
+            }
+            if ( time <= start ) {
                 model()->setData(liveTimeIdx,start);
-            } else if ( mPt.x() >= stop ) {
+            } else if ( time >= stop ) {
                 model()->setData(liveTimeIdx,stop);
             } else {
-                model()->setData(liveTimeIdx,liveCoord.x());
+                model()->setData(liveTimeIdx,time);
             }
 
             viewport()->update();
