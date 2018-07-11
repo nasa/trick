@@ -347,7 +347,9 @@ DPPlot::DPPlot(const QDomElement &e) :
     _gridColor("#E1E1E1"),
     _backgroundColor("#FFFFFF"),
     _foregroundColor("#000000"),
-    _font("")
+    _font(""),
+    _plotXScale("linear"),
+    _plotYScale("linear")
 {
     QDomElement el = e;
 
