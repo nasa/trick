@@ -121,6 +121,15 @@ AC_DEFUN([AX_GTEST_HOME],[
                 [AC_CHECK_HEADER(gtest/gtest.h, [GTEST_HOME="/usr"], [GTEST_HOME=""])]
                )
     AC_SUBST([GTEST_HOME])
+])	
+
+AC_DEFUN([AX_SWIG_HOME],[
+    AC_ARG_WITH([swig],
+                AS_HELP_STRING([--with-swig@<:@=DIR@:>@], [SWIG root directory]),    
+                SWIG_HOME="$withval",
+                SWIG_HOME=/bin:/usr/bin:/usr/local/bin:/sw/bin
+               )
+    AC_SUBST([SWIG_HOME])
 ])
 
 AC_DEFUN([AX_UDUNITS_HOME],[
@@ -244,13 +253,12 @@ AC_PATH_PROG(PERL, perl, noperl)
 AS_IF([test "$ac_cv_path_PERL" = "noperl"],AC_MSG_ERROR([could not find perl]),[])
 AC_PATH_PROG(PYTHON, python${PYTHON_VERSION}, nopython)
 AS_IF([test "$ac_cv_path_PYTHON" = "nopython"],AC_MSG_ERROR([could not find python]),[])
-AC_PATH_PROG(SWIG, swig, noswig, "/bin:/usr/bin:/usr/local/bin:/sw/bin")
-AS_IF([test "$ac_cv_path_SWIG" = "noswig"],AC_MSG_ERROR([could not find swig]),[])
 AC_PATH_PROG(GNUPLOT, gnuplot, nognuplot)
 AS_IF([test "$ac_cv_path_GNUPLOT" = "nognuplot"],AC_MSG_NOTICE([could not find gnuplot]),[])
-
+AX_SWIG_HOME([])
+AC_PATH_PROG(SWIG, swig, noswig, $SWIG_HOME)
+AS_IF([test "$ac_cv_path_SWIG" = "noswig"],AC_MSG_ERROR([could not find swig]),[])
 AX_JAVA
-
 dnl look for libraries and headers we need to compile
 AC_PATH_X
 AS_IF([test "$no_x" = "yes"],AC_MSG_ERROR([could not find Xwindows development libraries and/or headers]),[])
