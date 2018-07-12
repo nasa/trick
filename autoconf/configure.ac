@@ -256,9 +256,6 @@ AS_IF([test "$ac_cv_path_PYTHON" = "nopython"],AC_MSG_ERROR([could not find pyth
 AC_PATH_PROG(GNUPLOT, gnuplot, nognuplot)
 AS_IF([test "$ac_cv_path_GNUPLOT" = "nognuplot"],AC_MSG_NOTICE([could not find gnuplot]),[])
 AX_SWIG_BIN([])
-echo $SWIG_BIN
-echo
-echo
 AC_PATH_PROG(SWIG, swig, noswig, $SWIG_BIN)
 echo $SWIG
 AS_IF([test "$ac_cv_path_SWIG" = "noswig"],AC_MSG_ERROR([could not find swig]),[])
