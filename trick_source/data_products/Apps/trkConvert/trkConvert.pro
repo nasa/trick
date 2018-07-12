@@ -32,4 +32,8 @@ SOURCES += CSV_Formatter.cpp \
            TRK_DataLog.cpp \
            Varlist_Formatter.cpp \
            VarTableWidget.cpp
+
 QT += widgets
+
+# Inhibit creation of an Mac OS X App bundle.
+CONFIG -= app_bundle
