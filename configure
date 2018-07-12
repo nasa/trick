@@ -661,7 +661,7 @@ JAVA_CC_FLAGS
 JAVA_CC
 USE_JAVA
 SWIG
-SWIG_HOME
+SWIG_BIN
 GNUPLOT
 PYTHON
 PERL
@@ -1387,7 +1387,7 @@ Optional Features:
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-swig[=DIR]       SWIG root directory
+  --with-swig[=DIR]       path of directory containing the SWIG executable.
   --with-x                use the X Window System
   --with-llvm[=DIR]       LLVM root directory
   --with-zlib=DIR         root directory path of zlib installation [defaults to
@@ -4136,14 +4136,17 @@ fi
 
 # Check whether --with-swig was given.
 if test "${with_swig+set}" = set; then :
-  withval=$with_swig; SWIG_HOME="$withval"
+  withval=$with_swig; SWIG_BIN="$withval"
 else
-  SWIG_HOME=/bin:/usr/bin:/usr/local/bin:/sw/bin
+  SWIG_BIN=/bin:/usr/bin:/usr/local/bin:/sw/bin
 
 fi
 
 
 
+echo $SWIG_BIN
+echo
+echo
 # Extract the first word of "swig", so it can be a program name with args.
 set dummy swig; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
@@ -4157,7 +4160,7 @@ else
   ;;
   *)
   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $SWIG_HOME
+for as_dir in $SWIG_BIN
 do
   IFS=$as_save_IFS
   test -z "$as_dir" && as_dir=.
