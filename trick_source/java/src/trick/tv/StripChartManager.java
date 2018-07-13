@@ -239,7 +239,7 @@ public class StripChartManager {
          * updates the log by adding the most recent value
          */
         public void update() {
-            values.add(new Double(variable.getValue().toVariableServer()));
+            values.add(Double.valueOf(variable.getValue().toVariableServer()));
         }
 
         /**

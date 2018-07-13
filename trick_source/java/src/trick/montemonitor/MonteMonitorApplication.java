@@ -319,7 +319,7 @@ public class MonteMonitorApplication extends RunTimeTrickApplication {
     protected JComponent createMainPanel() {
         return new JXPanel(new BorderLayout()) {
 
-            Integer noRunNumber = new Integer(-1);
+            Integer noRunNumber = -1;
 
             {
             progressBar = new JProgressBar() {{
@@ -583,12 +583,12 @@ public class MonteMonitorApplication extends RunTimeTrickApplication {
                     }
                     slave.name = data[dataIndex++];
                     if (data[dataIndex++].equals("BAD_REF")) {
-                        slave.currentRun = new Integer(-1);
+                        slave.currentRun = -1;
                     }
                     else {
-                        slave.currentRun = new Integer(data[dataIndex - 1]);
+                        slave.currentRun = Integer.valueOf(data[dataIndex - 1]);
                     }
-                    slave.numResults = new Integer(data[dataIndex++]);
+                    slave.numResults = Integer.valueOf(data[dataIndex++]);
                 }
 
                 for (int i = slaves.size() - 1; i >= 0; --i) {
