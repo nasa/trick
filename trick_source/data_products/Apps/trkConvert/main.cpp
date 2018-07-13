@@ -13,14 +13,9 @@ static const char *usage_doc[] = {
 " trkConvert -                                                               ",
 "                                                                            ",
 " USAGE:  trkConvert -help                                                   ",
-"         trkConvert [-csv|-varlist] [-o <outfile>] <trk_file_name>          ",
+"         trkConvert <trk_file_name>                                         ",
 " Options:                                                                   ",
-"     -help                Print this message and exit.                      ",
-"     -csv  (the default)  Generates a comma-separated value (CSV) file from ",
-"                          a Trick binary data file. CSV files are a common  ",
-"                          means of sharing data between applications.       ",
-"     -varlist             Generates a list of the names of the variables    ",
-"                          the are recorded in the  Trick binary data file.  ",
+"     -help    Print this message and exit.                                  ",
 "----------------------------------------------------------------------------"};
 #define N_USAGE_LINES (sizeof(usage_doc)/sizeof(usage_doc[0]))
 
@@ -56,20 +51,6 @@ int main(int argc, char *argv[]) {
              (QString::compare(arg, "--help") == 0) ) {
             usage();
             exit(0);
-        } else if ((QString::compare(arg, "-csv") == 0)) {
-            out << "CSV selected." << endl;
-        } else if ((QString::compare(arg, "-varlist") == 0)) {
-            out << "Varlist selected." << endl;
-        } else if ((QString::compare(arg, "-o") == 0)) {
-            i++;
-            if (i < argc) { 
-                arg = args.at(i);
-                outputName = arg;
-            } else {
-                out << programName << ": -o option requires a filename." << endl;
-                usage(); 
-                exit(1);
-            }
         } else if ((QString::compare(arg.right(4), ".trk") == 0)) {
             trkFilePath = arg;
         } else {
@@ -80,7 +61,6 @@ int main(int argc, char *argv[]) {
         i++;
     }
 
-    // If a .trk file has been specified
     if (trkFilePath.isEmpty()) {
         trkFilePath = QFileDialog::getOpenFileName(0, "Open Data File", ".", "Data Files (*.trk)");
     }
@@ -94,6 +74,5 @@ int main(int argc, char *argv[]) {
         w1->show();
 
         return app.exec();
-
     }
 }

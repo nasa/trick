@@ -14,6 +14,9 @@ class VarTableWidget : public QTableWidget {
     void addRecord( Qt::CheckState checkState, std::string name, std::string type, std::string units );  
     bool isChecked(int index);
     int recordCount();
+    void scrollToRecord(int index);
+    void highLightRecord(int index);
+    void unHighLightRecord(int index);
 
     public slots:
     void checkAll();

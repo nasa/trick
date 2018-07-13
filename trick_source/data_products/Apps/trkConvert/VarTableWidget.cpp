@@ -66,6 +66,20 @@ void VarTableWidget::addRecord( Qt::CheckState checkState,
 
 }
 
+void VarTableWidget::highLightRecord(int index) {
+    QBrush brush(Qt::yellow);
+    item(index, 1)->setBackground(brush); 
+}
+
+void VarTableWidget::unHighLightRecord(int index) {
+    QBrush brush(Qt::white);
+    item(index, 1)->setBackground(brush); 
+}
+
+void VarTableWidget::scrollToRecord(int index) {
+    scrollToItem(item(index, 0));
+}
+
 bool VarTableWidget::isChecked(int index) {
     return (item(index, 0)->checkState() == Qt::Checked) ? true : false;
 }
