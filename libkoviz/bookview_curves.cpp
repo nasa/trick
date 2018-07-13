@@ -768,6 +768,9 @@ void CurvesView::_paintMarkers(QPainter &painter)
                     curveModel->unmap();
                     continue;
                 }
+                if ( i > high ) {
+                    i = high;
+                }
             }
             curveModel->unmap();
         }
