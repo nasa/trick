@@ -108,7 +108,7 @@ public class FontChooser extends JDialog implements ActionListener, ListSelectio
 		currentFont = font;
 		if (font != null) {
 			fontList.setSelectedValue(font.getName(), true);
-			sizeList.setSelectedValue(new Integer(font.getSize()), true);
+			sizeList.setSelectedValue(font.getSize(), true);
 			if (font.getStyle() == Font.PLAIN) {
 				boldBox.setSelected(false);
 				italicBox.setSelected(false);

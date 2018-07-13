@@ -355,7 +355,7 @@ public class MtvView extends FrameView {
                 if (eventname.length > 1) {
                     // put grouped events on their own tab
                     if (!tabmap.containsKey(eventname[0])) {
-                        tabmap.put(eventname[0], new Integer(tabcount));
+                        tabmap.put(eventname[0], tabcount);
                         tabs[tabcount] = new Tab();
                         tabs[tabcount].panel = new JPanel();
                         tabs[tabcount].panel.setName(eventname[0]);

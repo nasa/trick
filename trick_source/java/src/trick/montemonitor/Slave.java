@@ -56,10 +56,10 @@ public class Slave {
     public String name;
 
     /** current run number */
-    public Integer currentRun = new Integer(-1);
+    public Integer currentRun = -1;
 
     /** number or results returned */
-    public Integer numResults = new Integer(0);
+    public Integer numResults = 0;
 
     /**
      * constructs a new Slave whose initial state is UNKNOWN
