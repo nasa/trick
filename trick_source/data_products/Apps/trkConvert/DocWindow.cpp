@@ -14,18 +14,13 @@
 #include "CSV_Formatter.hh"
 #include "Varlist_Formatter.hh"
 
-// Notes:
-// Need to be able to search for a variable by pattern.
-// Use a QLineEdit widget for the text box.
-
-DocWindow::DocWindow(const QString &name)
+DocWindow::DocWindow(TRK_DataLog* data_log )
     : QMainWindow( 0, 0) {
 
     QTextStream out(stdout);
 
     foundItemIndex = 0;
-
-    trkFileName = name;
+    datalog = data_log;
 
     // Build the Menus
     QAction * fileLoadAction = new QAction( "&Open File...", this );
@@ -79,7 +74,6 @@ DocWindow::DocWindow(const QString &name)
     // Build the Table Widget that displays the variable names, types, and units.
     varTable = new VarTableWidget(this);
 
-    datalog = new TRK_DataLog( trkFileName.toStdString().c_str() );
     int recordCount = datalog->parameterCount();
     for (int ii = 0; ii < recordCount; ii++) {
         varTable->addRecord( Qt::Checked, 
@@ -104,8 +98,11 @@ void DocWindow::load() {
     newFileName = QFileDialog::getOpenFileName(this,
     tr("Open Data File"), ".", tr("Data Files (*.trk)"));
 
+    QFileInfo trkFileInfo( newFileName);
+    TRK_DataLog* newdatalog = new TRK_DataLog( trkFileInfo.absoluteFilePath().toStdString());
+
     if (!newFileName.isEmpty()) {
-        DocWindow* w = new DocWindow(newFileName);
+        DocWindow* w = new DocWindow(newdatalog);
         w->setWindowTitle(newFileName);
         w->resize(800, 500);
         w->show();
@@ -114,7 +111,7 @@ void DocWindow::load() {
 
 void DocWindow::formattedSave(LogFormatter &formatter) {
      
-    QFileInfo trkFileInfo( trkFileName);
+    QFileInfo trkFileInfo( datalog->getFileName().c_str());
 
     QString outFileName = trkFileInfo.canonicalPath();
     outFileName += "/";

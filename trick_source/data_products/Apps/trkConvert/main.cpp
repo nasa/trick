@@ -68,7 +68,10 @@ int main(int argc, char *argv[]) {
     if (!trkFilePath.isEmpty()) {
         QFileInfo trkFileInfo( trkFilePath);
 
-        DocWindow* w1 = new DocWindow( trkFileInfo.absoluteFilePath()); 
+        TRK_DataLog* datalog =
+            new TRK_DataLog( trkFileInfo.absoluteFilePath().toStdString().c_str() );
+
+        DocWindow* w1 = new DocWindow(datalog); 
         w1->setWindowTitle( trkFileInfo.fileName());
         w1->resize(800, 500);
         w1->show();
