@@ -1389,7 +1389,15 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
             }
             double d = (ys0*i0->y()+yb0) - (ys1*i1->y()+yb1);
             if ( isYLogScale ) {
-                d = log10(d);
+                if ( d > 0 ) {
+                    d = log10(d);
+                } else if ( d < 0 ) {
+                    d = log10(-d);
+                } else if ( d == 0 ) {
+                    i0->next();
+                    i1->next();
+                    continue; // skip log(0) since -inf
+                }
             }
             if ( t0 >= start && t0 <= stop ) {
                 if ( isXLogScale && t0 == 0.0 ) {
