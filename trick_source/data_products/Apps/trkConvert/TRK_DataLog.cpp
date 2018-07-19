@@ -1,5 +1,6 @@
 #include "TRK_DataLog.hh"
 #include <iostream>
+#include <string.h>
 #include <cstring>
 #include <cstdlib>
 
@@ -63,10 +64,10 @@ const char* TypeName[] = {
 const int TRK_DataLog::LittleEndian = 1;
 const int TRK_DataLog::BigEndian    = 2;
 
-TRK_DataLog::TRK_DataLog(const char* file_name) {
+TRK_DataLog::TRK_DataLog(std::string file_name) {
 
     fileName = file_name;
-    in_fp = fopen(fileName, "rb");
+    in_fp = fopen(fileName.c_str(), "rb");
 
     if (in_fp != NULL) {
 
@@ -122,25 +123,29 @@ TRK_DataLog::TRK_DataLog(const char* file_name) {
     }
 }
 
+std::string TRK_DataLog::getFileName() const {
+    return fileName;
+}
+
 int TRK_DataLog::parameterCount() const {
     return (int)N_params;
 }
 
-const char* TRK_DataLog::parameterName(unsigned int n) {
+const char* TRK_DataLog::parameterName(unsigned int n) const {
     if (n < N_params) 
         return paramDescriptions[n]->parameterName;
     else
         return "BadIndex";
 }
 
-const char* TRK_DataLog::parameterUnits(unsigned int n) {
+const char* TRK_DataLog::parameterUnits(unsigned int n) const {
     if (n < N_params) 
         return paramDescriptions[n]->unitsName;
     else
         return "BadIndex";
 }
 
-const char* TRK_DataLog::parameterType(unsigned int n) {
+const char* TRK_DataLog::parameterType(unsigned int n) const {
     if (n < N_params) 
         return TypeName[ paramDescriptions[n]->dataType ];
     else
