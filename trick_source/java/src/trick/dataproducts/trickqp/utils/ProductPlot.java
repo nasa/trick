@@ -346,7 +346,7 @@ public class ProductPlot extends CommonProduct {
      * @param xmin	The minimum value for X variable.
      */
     public void setXMin(double xmin) {
-    	this.xmin = new Double(xmin);
+    	this.xmin = xmin;
     }    
     
     /**
@@ -356,7 +356,7 @@ public class ProductPlot extends CommonProduct {
      */
     public void setXMin(String xminStr) {
     	try {
-			xmin = new Double(xminStr);
+			xmin = Double.valueOf(xminStr);
 		} catch (NumberFormatException e) {
 			xmin = null;
 		} catch (NullPointerException e) {
@@ -379,7 +379,7 @@ public class ProductPlot extends CommonProduct {
      * @param xmax	The maximum value for X variable.
      */
     public void setXMax(double xmax) {
-    	this.xmax = new Double(xmax);
+    	this.xmax = xmax;
     }    
     
     /**
@@ -389,7 +389,7 @@ public class ProductPlot extends CommonProduct {
      */
     public void setXMax(String xmaxStr) {
     	try {
-			xmax = new Double(xmaxStr);
+			xmax = Double.valueOf(xmaxStr);
 		} catch (NumberFormatException e) {
 			xmax = null;
 		} catch (NullPointerException e) {
@@ -403,7 +403,7 @@ public class ProductPlot extends CommonProduct {
      * @param ymin	The minimum value for Y variable.
      */
     public void setYMin(double ymin) {
-    	this.ymin = new Double(ymin);
+    	this.ymin = ymin;
     }    
     
     /**
@@ -413,7 +413,7 @@ public class ProductPlot extends CommonProduct {
      */
     public void setYMin(String yminStr) {
     	try {
-			ymin = new Double(yminStr);
+			ymin = Double.valueOf(yminStr);
 		} catch (NumberFormatException e) {
 			ymin = null;
 		} catch (NullPointerException e) {
@@ -435,7 +435,7 @@ public class ProductPlot extends CommonProduct {
      * @param ymax	The maximum value for Y variable.
      */
     public void setYMax(double ymax) {
-    	this.ymax = new Double(ymax);
+    	this.ymax = ymax;
     }    
     
     /**
@@ -445,7 +445,7 @@ public class ProductPlot extends CommonProduct {
      */
     public void setYMax(String ymaxStr) {
     	try {
-			ymax = new Double(ymaxStr);
+			ymax = Double.valueOf(ymaxStr);
 		} catch (NumberFormatException e) {
 			ymax = null;
 		} catch (NullPointerException e) {
