@@ -19,7 +19,7 @@ void Trick::MonteCarlo::spawn_slaves() {
         /** <ul><li> If the slave is in the UNINITIALZED state, then
           * set up the command string for starting the slave.
           */
-        if (slaves[i]->state == MonteSlave::UNINITIALIZED) {
+        if (slaves[i]->state == MonteSlave::MC_UNINITIALIZED) {
             initialize_slave(slaves[i]) ;
         }
     }
@@ -64,12 +64,12 @@ void Trick::MonteCarlo::initialize_slave(Trick::MonteSlave* slave_to_init) {
         buffer += std::string("' &");
     }
 
-    if (verbosity >= INFORMATIONAL) {
+    if (verbosity >= MC_INFORMATIONAL) {
         message_publish(MSG_INFO, "Monte: Spawning Slave %s:%d :\n%s\n",
                         slave_to_init->machine_name.c_str(), slave_to_init->id, buffer.c_str()) ;
     }
-    /** <li> Set the slave's state to INITIALIZING. */
-    slave_to_init->state = MonteSlave::INITIALIZING;
+    /** <li> Set the slave's state to MC_INITIALIZING. */
+    slave_to_init->state = MonteSlave::MC_INITIALIZING;
     /** <li> Make the system call to execute the shell. */
     system(buffer.c_str());
 }
@@ -89,7 +89,7 @@ void Trick::MonteCarlo::default_slave_dispatch_pre_text(Trick::MonteSlave* slave
             case TRICK_USER_REMOTE_SH:
                 if (slave_to_init->user_remote_shell.empty()) {
                     slave_to_init->user_remote_shell = unix_ssh;
-                    if (verbosity >= ERROR) {
+                    if (verbosity >= MC_ERROR) {
                         message_publish(MSG_WARNING, "Monte: TRICK_USER_REMOTE_SH specified for Slave %s:%d, but no shell given.\n"
                                                      "Defaulting to %s.\n",
                                         machine_name.c_str(), slave_to_init->id, slave_to_init->user_remote_shell.c_str()) ;

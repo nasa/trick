@@ -15,7 +15,7 @@ int Trick::MonteCarlo::slave_init() {
 
     if (access(run_directory.c_str(), F_OK) != 0) {
         if (mkdir(run_directory.c_str(), 0775) == -1) {
-            if (verbosity >= ERROR) {
+            if (verbosity >= MC_ERROR) {
                 message_publish(MSG_ERROR, "Monte [%s:%d] Unable to create directory %s.\nTerminating.\n",
                             run_directory.c_str(), machine_name.c_str(), slave_id) ;
             }
@@ -35,14 +35,14 @@ int Trick::MonteCarlo::slave_init() {
     /** <li> Connect to the master and write the port over which we are listening for new runs. */
     connection_device.port = master_port;
     if (tc_connect(&connection_device) != TC_SUCCESS) {
-        if (verbosity >= ERROR) {
+        if (verbosity >= MC_ERROR) {
             message_publish(MSG_ERROR, "Monte [%s:%d] Failed to initialize communication sockets.\nTerminating.\n",
                             machine_name.c_str(), slave_id) ;
         }
         exit(-1);
     }
 
-    if (verbosity >= ALL) {
+    if (verbosity >= MC_ALL) {
         message_publish(MSG_INFO, "Monte [%s:%d] Making initial connection with Master.\n",
                         machine_name.c_str(), slave_id) ;
     }

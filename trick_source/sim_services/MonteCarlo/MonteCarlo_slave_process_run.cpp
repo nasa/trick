@@ -16,7 +16,7 @@ int Trick::MonteCarlo::slave_process_run() {
     int size;
     /** <ul><li> Read the length of the incoming message. */
     if (tc_read(&connection_device, (char *)&size, (int)sizeof(size)) != (int)sizeof(size) || (size = ntohl(size)) < 0) {
-        if (verbosity >= ERROR) {
+        if (verbosity >= MC_ERROR) {
             message_publish(MSG_ERROR, "Monte [%s:%d] Lost connection to Master while receiving new run.\nShutting down.\n",
                             machine_name.c_str(), slave_id) ;
         }
@@ -25,7 +25,7 @@ int Trick::MonteCarlo::slave_process_run() {
     char *input = new char[size + 1];
     /** <li> Read the incoming message. */
     if (tc_read(&connection_device, input, size) != size) {
-        if (verbosity >= ERROR) {
+        if (verbosity >= MC_ERROR) {
             message_publish(MSG_ERROR, "Monte [%s:%d] Lost connection to Master while receiving new run.\nShutting down.\n",
                             machine_name.c_str(), slave_id) ;
         }
@@ -40,7 +40,7 @@ int Trick::MonteCarlo::slave_process_run() {
      */
     pid_t pid = fork();
     if (pid == -1) {
-        if (verbosity >= ERROR) {
+        if (verbosity >= MC_ERROR) {
             message_publish(MSG_ERROR, "Monte [%s:%d] Unable to fork new process for run.\nShutting down.\n",
                             machine_name.c_str(), slave_id) ;
         }
@@ -52,7 +52,7 @@ int Trick::MonteCarlo::slave_process_run() {
         if (waitpid(pid, &return_value, 0) == -1) {
             /* (Alex) On the Mac this check gives a lot of false positives.  I've commented out the code for now. */
             /*
-            if (verbosity >= ERROR) {
+            if (verbosity >= MC_ERROR) {
                 message_publish(MSG_ERROR, "Monte [%s:%d] Error while waiting for run to finish.\nShutting down.\n",
                                 machine_name.c_str(), slave_id) ;
             }
@@ -71,19 +71,19 @@ int Trick::MonteCarlo::slave_process_run() {
         int signal = WTERMSIG(return_value);
         /** <li> Extract the exit status of the child. */
         MonteRun::ExitStatus exit_status = signal == SIGALRM ? MonteRun::MC_RUN_TIMED_OUT : MonteRun::MC_RUN_DUMPED_CORE;
-        if (verbosity >= ERROR) {
+        if (verbosity >= MC_ERROR) {
             message_publish(MSG_ERROR, "Monte [%s:%d] Run killed by signal %d: %s\n",
                             machine_name.c_str(), slave_id, signal, strsignal(signal)) ;
         }
         connection_device.port = master_port;
         if (tc_connect(&connection_device) != TC_SUCCESS) {
-            if (verbosity >= ERROR) {
+            if (verbosity >= MC_ERROR) {
                 message_publish(MSG_ERROR, "Monte [%s:%d] Lost connection to Master before results could be returned.\nShutting down.\n",
                                 machine_name.c_str(), slave_id) ;
             }
             slave_shutdown();
         }
-        if (verbosity >= ALL) {
+        if (verbosity >= MC_ALL) {
             message_publish(MSG_INFO, "Monte [%s:%d] Sending run exit status to master %d.\n",
                             machine_name.c_str(), slave_id, exit_status) ;
         }

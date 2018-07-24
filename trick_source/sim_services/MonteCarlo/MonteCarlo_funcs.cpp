@@ -201,38 +201,38 @@ void Trick::MonteCarlo::add_slave(Trick::MonteSlave *in_slave) {
 
 /**
  * @par Detailed Design:
- * This function has an effect only if the slave exists and is in the STOPPING, UNRESPONSIVE_STOPPING, or STOPPED state.
+ * This function has an effect only if the slave exists and is in the MC_STOPPING, MC_UNRESPONSIVE_STOPPING, or MC_STOPPED state.
  */
 void Trick::MonteCarlo::start_slave(unsigned int id) {
     if (MonteSlave *slave = get_slave(id)) {
-        if (verbosity >= ALL) {
+        if (verbosity >= MC_ALL) {
             message_publish(MSG_INFO, "Monte [Master] Starting %s:%d.\n", slave->machine_name.c_str(), slave->id) ;
         }
-        if (slave->state == Trick::MonteSlave::STOPPING) {
-            slave->state = Trick::MonteSlave::RUNNING;
-        } else if (slave->state == Trick::MonteSlave::UNRESPONSIVE_STOPPING) {
-            slave->state = Trick::MonteSlave::UNRESPONSIVE_RUNNING;
-        } else if (slave->state == Trick::MonteSlave::STOPPED) {
-            slave->state = Trick::MonteSlave::READY;
+        if (slave->state == Trick::MonteSlave::MC_STOPPING) {
+            slave->state = Trick::MonteSlave::MC_RUNNING;
+        } else if (slave->state == Trick::MonteSlave::MC_UNRESPONSIVE_STOPPING) {
+            slave->state = Trick::MonteSlave::MC_UNRESPONSIVE_RUNNING;
+        } else if (slave->state == Trick::MonteSlave::MC_STOPPED) {
+            slave->state = Trick::MonteSlave::MC_READY;
         }
     }
 }
 
 /**
  * @par Detailed Design:
- * This function has an effect only if the slave exists and is in the READY, RUNNING, or UNRESPONSIVE_RUNNING state.
+ * This function has an effect only if the slave exists and is in the MC_READY, MC_RUNNING, or MC_UNRESPONSIVE_RUNNING state.
  */
 void Trick::MonteCarlo::stop_slave(unsigned int id) {
     if (MonteSlave *slave = get_slave(id)) {
-        if (verbosity >= ALL) {
+        if (verbosity >= MC_ALL) {
             message_publish(MSG_INFO, "Monte [Master] Stopping %s:%d.\n", slave->machine_name.c_str(), slave->id) ;
         }
-        if (slave->state == Trick::MonteSlave::READY) {
-            slave->state = Trick::MonteSlave::STOPPED;
-        } else if (slave->state == Trick::MonteSlave::RUNNING) {
-            slave->state = Trick::MonteSlave::STOPPING;
-        } else if (slave->state == Trick::MonteSlave::UNRESPONSIVE_RUNNING) {
-            slave->state = Trick::MonteSlave::UNRESPONSIVE_STOPPING;
+        if (slave->state == Trick::MonteSlave::MC_READY) {
+            slave->state = Trick::MonteSlave::MC_STOPPED;
+        } else if (slave->state == Trick::MonteSlave::MC_RUNNING) {
+            slave->state = Trick::MonteSlave::MC_STOPPING;
+        } else if (slave->state == Trick::MonteSlave::MC_UNRESPONSIVE_RUNNING) {
+            slave->state = Trick::MonteSlave::MC_UNRESPONSIVE_STOPPING;
         }
     }
 }
@@ -245,9 +245,9 @@ void Trick::MonteCarlo::disable_slave(std::string name, bool disabled){
     for (std::vector<MonteSlave *>::size_type i = 0; i < slaves.size(); ++i) {
         if (equals_ignore_case(slaves[i]->machine_name, name)) {
             if (disabled) {
-                slaves[i]->state = Trick::MonteSlave::STOPPED;
+                slaves[i]->state = Trick::MonteSlave::MC_STOPPED;
             } else {
-                slaves[i]->state = Trick::MonteSlave::UNINITIALIZED;
+                slaves[i]->state = Trick::MonteSlave::MC_UNINITIALIZED;
             }
             return;
         }
@@ -279,7 +279,7 @@ int Trick::MonteCarlo::shutdown() {
         connection_device.port = master_port;
         if (tc_connect(&connection_device) == TC_SUCCESS) {
             int exit_status = MonteRun::MC_RUN_COMPLETE;
-            if (verbosity >= ALL) {
+            if (verbosity >= MC_ALL) {
                 message_publish(MSG_INFO, "Monte [%s:%d] Sending run exit status to master: %d\n",
                                 machine_name.c_str(), slave_id, exit_status) ;
             }
@@ -290,7 +290,7 @@ int Trick::MonteCarlo::shutdown() {
             run_queue(&slave_post_queue, "in slave_post queue");
             tc_disconnect(&connection_device);
         } else {
-            if (verbosity >= ERROR)
+            if (verbosity >= MC_ERROR)
                 message_publish(
                   MSG_ERROR,
                   "Monte [%s:%d] Failed to connect to master.\n",
@@ -303,12 +303,12 @@ int Trick::MonteCarlo::shutdown() {
 void Trick::MonteCarlo::handle_retry(MonteSlave& slave, MonteRun::ExitStatus exit_status) {
     if (max_tries <= 0 || slave.current_run->num_tries < max_tries) {
         // Add the run to the retry queue.
-        if (verbosity >= ERROR) {
+        if (verbosity >= MC_ERROR) {
             message_publish(MSG_ERROR, "Monte [Master] Queueing run %d for retry.\n", slave.current_run->id) ;
         }
         runs.push_back(slave.current_run);
     } else {
-        if (verbosity >= ERROR) {
+        if (verbosity >= MC_ERROR) {
             message_publish(MSG_ERROR, "Monte [Master] Run %d has reached its maximum allowed tries and has been skipped.\n",
                             slave.current_run->id) ;
         }
@@ -333,7 +333,7 @@ void Trick::MonteCarlo::resolve_run(MonteSlave& slave, MonteRun::ExitStatus exit
 
     ++num_results;
 
-    if (verbosity >= ALL) {
+    if (verbosity >= MC_ALL) {
         message_publish(MSG_INFO, "Monte [Master] Run %d has been resolved as: %d.\n",slave.current_run->id, exit_status) ;
     }
 }
@@ -345,7 +345,7 @@ void Trick::MonteCarlo::check_timeouts() {
     /** <ul><li> For every slave: */
     for (std::vector<Trick::MonteSlave *>::size_type i = 0; i < slaves.size(); ++i) {
         /** <ul><li> If the slave has timed out: */
-        if ((slaves[i]->state == MonteSlave::RUNNING || slaves[i]->state == MonteSlave::STOPPING) &&
+        if ((slaves[i]->state == MonteSlave::MC_RUNNING || slaves[i]->state == MonteSlave::MC_STOPPING) &&
           (time_val.tv_sec + (double)time_val.tv_usec / 1000000 - slaves[i]->current_run->start_time) *
           slaves[i]->multiplier > timeout) {
             /**
@@ -353,22 +353,22 @@ void Trick::MonteCarlo::check_timeouts() {
              * data later. Only process this timeout if the run hasn't been resolved yet.
              */
             if (slaves[i]->current_run->exit_status == MonteRun::MC_RUN_INCOMPLETE) {
-                if (verbosity >= ERROR) {
+                if (verbosity >= MC_ERROR) {
                     message_publish(MSG_ERROR, "Monte [Master] %s:%d has not responded for run %d.\n",
                                     slaves[i]->machine_name.c_str(), slaves[i]->id, slaves[i]->current_run->id) ;
                 }
                 handle_retry(*slaves[i], MonteRun::MC_RUN_TIMED_OUT);
             }
             /** </ul><li> Update the slave's state. */
-            slaves[i]->state = slaves[i]->state == MonteSlave::RUNNING ?
-               MonteSlave::UNRESPONSIVE_RUNNING : MonteSlave::UNRESPONSIVE_STOPPING;
+            slaves[i]->state = slaves[i]->state == MonteSlave::MC_RUNNING ?
+               MonteSlave::MC_UNRESPONSIVE_RUNNING : MonteSlave::MC_UNRESPONSIVE_STOPPING;
         }
     }
 }
 
 Trick::MonteSlave * Trick::MonteCarlo::get_ready_slave() {
     for (std::vector<Trick::MonteSlave>::size_type i = 0; i < slaves.size(); ++i) {
-        if (slaves[i]->state == Trick::MonteSlave::READY) {
+        if (slaves[i]->state == Trick::MonteSlave::MC_READY) {
             return slaves[i];
         }
     }
@@ -402,7 +402,7 @@ Trick::MonteRun *Trick::MonteCarlo::get_next_dispatch() {
             return curr_run;
         /** <li> Otherwise, run the pre run jobs and dequeue it. */
         } else {
-            if (verbosity >= ALL) {
+            if (verbosity >= MC_ALL) {
                 message_publish(MSG_WARNING, "Monte [Master] Run %d is out of range and has been skipped.\n", curr_run->id) ;
             }
             prepare_run(curr_run);
@@ -422,7 +422,7 @@ int  Trick::MonteCarlo::prepare_run(MonteRun *curr_run) {
         for (std::vector<std::string>::size_type i = 0; i < variables.size(); ++i) {
             curr_run->variables.push_back(variables[i]->get_next_value());
             if (curr_run->variables.back() == "EOF") {
-                if (verbosity >= ALL) {
+                if (verbosity >= MC_ALL) {
                     message_publish(MSG_WARNING, "Monte [Master] File variable '%s' reached end-of-file. Reducing number of runs to %d.\n",
                                     variables[i]->name.c_str(), curr_run->id) ;
                 }
@@ -484,7 +484,7 @@ void Trick::MonteCarlo::update_actual_num_runs() {
     }
     /** <li> Add one for every currently dispatched run. */
     for (std::vector<MonteSlave *>::size_type i = 0; i < slaves.size(); ++i) {
-        if (slaves[i]->state == MonteSlave::RUNNING || slaves[i]->state == MonteSlave::STOPPING) {
+        if (slaves[i]->state == MonteSlave::MC_RUNNING || slaves[i]->state == MonteSlave::MC_STOPPING) {
             ++actual_num_runs;
         }
     }
