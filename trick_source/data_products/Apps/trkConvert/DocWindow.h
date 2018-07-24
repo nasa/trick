@@ -10,7 +10,7 @@ class DocWindow : public QMainWindow {
   Q_OBJECT
 
   public:
-    DocWindow(const QString &name);
+    DocWindow(TRK_DataLog* data_log );
     ~DocWindow(){};
 
    void formattedSave(LogFormatter &formatter);
@@ -30,9 +30,8 @@ class DocWindow : public QMainWindow {
       void findAgainBackward();
 
   private:
-    QString searchPattern;
     int foundItemIndex;
-    QString trkFileName;
+    QString searchPattern;
     QLineEdit* searchLineEdit;
     VarTableWidget* varTable;
     TRK_DataLog* datalog;
