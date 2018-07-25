@@ -93,23 +93,23 @@ namespace Trick {
         public:
         /** Operational state. */
         enum State {
-            UNINITIALIZED,         /**< newly created */
-            INITIALIZING,          /**< starting up */
-            READY,                 /**< awaiting new run */
-            RUNNING,               /**< processing a run */
-            STOPPING,              /**< stopping after current run */
-            STOPPED,               /**< not accepting new runs */
-            FINISHED,              /**< completed all runs */
-            UNRESPONSIVE_RUNNING,  /**< timed out and in a running state */
-            UNRESPONSIVE_STOPPING, /**< timed out and in a stopping state */
-            DISCONNECTED           /**< lost connection */
+            MC_UNINITIALIZED,         /**< newly created */
+            MC_INITIALIZING,          /**< starting up */
+            MC_READY,                 /**< awaiting new run */
+            MC_RUNNING,               /**< processing a run */
+            MC_STOPPING,              /**< stopping after current run */
+            MC_STOPPED,               /**< not accepting new runs */
+            MC_FINISHED,              /**< completed all runs */
+            MC_UNRESPONSIVE_RUNNING,  /**< timed out and in a running state */
+            MC_UNRESPONSIVE_STOPPING, /**< timed out and in a stopping state */
+            MC_DISCONNECTED           /**< lost connection */
         };
 
         /** Master-to-slave commands. */
         enum Command {
-            PROCESS_RUN, /**< process a new run */
-            SHUTDOWN,    /**< kill any executing run, call shutdown jobs, and shutdown cleanly */
-            DIE          /**< kill any executing run, do not call shutdown jobs, and exit */
+            MC_PROCESS_RUN, /**< process a new run */
+            MC_SHUTDOWN,    /**< kill any executing run, call shutdown jobs, and shutdown cleanly */
+            MC_DIE          /**< kill any executing run, do not call shutdown jobs, and exit */
         };
 
         /** Unique identifier assigned by the master. */
@@ -166,7 +166,7 @@ namespace Trick {
          */
         MonteSlave(std::string name = "localhost") :
             id(0),
-            state(UNINITIALIZED),
+            state(MC_UNINITIALIZED),
             port(0),
             current_run(NULL),
             num_dispatches(0),
@@ -248,10 +248,10 @@ namespace Trick {
         public:
         /** Verbosity of message reporting. */
         enum Verbosity {
-            NONE,          /**< report no messages */
-            ERROR,         /**< report error messages */
-            INFORMATIONAL, /**< report error and informational messages, no warning messages */
-            ALL            /**< report all messages (error, informational & warning) */
+            MC_NONE,          /**< report no messages */
+            MC_ERROR,         /**< report error messages */
+            MC_INFORMATIONAL, /**< report error and informational messages, no warning messages */
+            MC_ALL            /**< report all messages (error, informational & warning) */
         };
 
         /** Options to be passed to the slave sim. */

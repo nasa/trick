@@ -17,7 +17,7 @@ int Trick::MonteCarlo::initialize_sockets() {
     /** <ul><li> Initialize the sockets for communication with slaves. */
     int return_value = tc_init(&listen_device);
     if (return_value != TC_SUCCESS) {
-        if (verbosity >= ERROR) {
+        if (verbosity >= MC_ERROR) {
             message_publish(MSG_ERROR, "Monte [Master] Failed to initialize status communication socket.\n") ;
         }
         return return_value;
@@ -26,7 +26,7 @@ int Trick::MonteCarlo::initialize_sockets() {
 
     /** <li> If no slaves were specified, add one on localhost. */
     if (slaves.empty()) {
-        if (verbosity >= ALL) {
+        if (verbosity >= MC_ALL) {
             message_publish(MSG_WARNING, "Monte [Master] No slaves specified. Adding localhost as the sole slave.\n") ;
         }
         add_slave(new MonteSlave());
