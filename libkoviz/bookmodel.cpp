@@ -1321,11 +1321,13 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
 
     QString curveXName0 = getDataString(idx0,"CurveXName","Curve");
     QString curveXUnit0 = getDataString(idx0,"CurveXUnit","Curve");
-    QString curveYName0 = getDataString(idx0,"CurveYName","Curve");
+    QString curveYUnit0 = getDataString(idx0,"CurveYUnit","Curve");
 
     QString curveXName1 = getDataString(idx1,"CurveXName","Curve");
     QString curveXUnit1 = getDataString(idx1,"CurveXUnit","Curve");
-    QString curveYName1 = getDataString(idx1,"CurveYName","Curve");
+    QString curveYUnit1 = getDataString(idx1,"CurveYUnit","Curve");
+
+    bool canConvert = Unit::canConvert(curveYUnit0,curveYUnit1);
 
     if (!_timeNames.contains(curveXName0)) {
         // TODO: error plot when x is not time e.g. x/y position
@@ -1334,10 +1336,14 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
                        "Aborting!\n");
         exit(-1);
     }
-    if ( curveXName0 != curveXName1 || curveXUnit0 != curveXUnit1 ||
-         curveYName0 != curveYName1 ) {
+    if ( curveXName0 != curveXName1 || curveXUnit0 != curveXUnit1 ) {
         fprintf(stderr,"koviz [todo]: Handle error plot when xynames or xunits "
                        "are different.\n  Aborting!\n");
+        exit(-1);
+    }
+    if ( !canConvert ) {
+        fprintf(stderr,"koviz [error]: Attempting to error plot two variables "
+                       "with incompatible units.\n");
         exit(-1);
     }
 
