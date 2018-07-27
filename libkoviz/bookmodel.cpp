@@ -1322,10 +1322,22 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
     QString curveXName0 = getDataString(idx0,"CurveXName","Curve");
     QString curveXUnit0 = getDataString(idx0,"CurveXUnit","Curve");
     QString curveYUnit0 = getDataString(idx0,"CurveYUnit","Curve");
+    if ( curveXUnit0.isEmpty() || curveXUnit0 == "--" ) {
+        curveXUnit0 = c0->x()->unit();
+    }
+    if ( curveYUnit0.isEmpty() || curveYUnit0 == "--" ) {
+        curveYUnit0 = c0->y()->unit();
+    }
 
     QString curveXName1 = getDataString(idx1,"CurveXName","Curve");
     QString curveXUnit1 = getDataString(idx1,"CurveXUnit","Curve");
     QString curveYUnit1 = getDataString(idx1,"CurveYUnit","Curve");
+    if ( curveXUnit1.isEmpty() || curveXUnit1 == "--" ) {
+        curveXUnit1 = c1->x()->unit();
+    }
+    if ( curveYUnit1.isEmpty() || curveYUnit1 == "--" ) {
+        curveYUnit1 = c1->y()->unit();
+    }
 
     bool canConvert = Unit::canConvert(curveYUnit0,curveYUnit1);
 
@@ -1486,7 +1498,7 @@ QString PlotBookModel::getCurvesXUnit(const QModelIndex &curvesIdx)
 QString PlotBookModel::getCurvesYUnit(const QModelIndex &curvesIdx)
 {
 
-    QString yunit;
+    QString yunit("--");
 
     if ( !isIndex(curvesIdx,"Curves") ) {
         fprintf(stderr,"koviz [bad scoobs] PlotBookModel::_getCurvesYUnit()\n");
@@ -1495,8 +1507,7 @@ QString PlotBookModel::getCurvesYUnit(const QModelIndex &curvesIdx)
 
     int rc = rowCount(curvesIdx);
 
-    if ( rc == 1 || rc > 2 ) {
-        // Normal case
+    if ( rc > 0 ) {
         QModelIndex curve0Idx = index(0,0,curvesIdx);
         QString yunit0 = getDataString(curve0Idx,"CurveYUnit","Curve");
         if ( yunit0 == "--" || yunit0.isEmpty() ) {
@@ -1514,15 +1525,6 @@ QString PlotBookModel::getCurvesYUnit(const QModelIndex &curvesIdx)
                 break;
             }
         }
-    } else if ( rc == 2 ) {
-        // Error/Compare plot case (use units from first curve)
-        QModelIndex idx0 = index(0,0,curvesIdx);
-        yunit = getDataString(idx0,"CurveYUnit","Curve");
-        if ( yunit == "--" || yunit.isEmpty() ) {
-            yunit = getCurveModel(idx0)->y()->unit();
-        }
-    } else {
-        yunit = "--";
     }
 
     return yunit;

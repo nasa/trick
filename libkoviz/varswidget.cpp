@@ -358,11 +358,27 @@ void VarsWidget::_addCurves(QModelIndex curvesIdx, const QString &yName)
         _addChild(curveItem, "CurveXName", _timeName);
         _addChild(curveItem, "CurveXUnit", curveModel->t()->unit()); // yes,t
         _addChild(curveItem, "CurveYName", yName);
+        QString yunit;
         if ( r == 0 ) {
-            u0 = curveModel->y()->unit();
+            if ( _plotModel->rowCount(curvesIdx) > 1 ) {
+                // Multiple vars on plot with single run
+                QModelIndex curveIdx0 = _plotModel->getIndex(curvesIdx,"Curve",
+                                                             "Curves");
+                u0 = _plotModel->getDataString(curveIdx0,"CurveYUnit","Curve");
+                QString u1 = curveModel->y()->unit();
+                if ( Unit::canConvert(u0,u1) ) {
+                    yunit = u0;
+                } else {
+                    yunit = u1;
+                }
+            } else {
+                u0 = curveModel->y()->unit();
+                yunit = u0;
+            }
             r0 = QFileInfo(curveModel->fileName()).dir().dirName();
         } else {
-            QString u1 = curveModel->y()->unit();
+            yunit = curveModel->y()->unit();
+            QString u1 = yunit;
             QString r1 = QFileInfo(curveModel->fileName()).dir().dirName();
             if ( !Unit::canConvert(u0,u1) ) {
                 fprintf(stderr, "koviz [error]: Unit mismatch for param=%s "
@@ -377,7 +393,7 @@ void VarsWidget::_addCurves(QModelIndex curvesIdx, const QString &yName)
                 exit(-1);
             }
         }
-        _addChild(curveItem, "CurveYUnit", u0);
+        _addChild(curveItem, "CurveYUnit", yunit);
 
         QString runDirName = QFileInfo(curveModel->fileName()).dir().dirName();
         bool ok;
