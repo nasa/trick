@@ -29,3 +29,7 @@ class CannonSimObject : public Trick::SimObject {
 CannonSimObject dyn ;
 
 IntegLoop dyn_integloop (0.01) dyn;
+
+void create_connections() {
+    dyn_integloop.getIntegrator(Runge_Kutta_4, 5);
+}

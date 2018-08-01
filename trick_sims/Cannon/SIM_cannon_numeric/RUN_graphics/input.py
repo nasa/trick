@@ -1,7 +1,5 @@
 execfile("Modified_data/realtime.py")
 
-dyn_integloop.getIntegrator(trick.Runge_Kutta_4, 5)
-
 #==========================================
 # Start the Cannonball Graphics Client
 #==========================================
