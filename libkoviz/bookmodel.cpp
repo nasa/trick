@@ -999,13 +999,26 @@ QRectF PlotBookModel::calcCurvesBBox(const QModelIndex &curvesIdx) const
         exit(-1);
     }
 
-    // If bbox is flat (e.g. zero error plot) make box around flat curve
+    // Margin around box
+    double mw = bbox.width()*0.02;
+    double left = bbox.left()-mw;
+    double right = bbox.right()+mw;
+    double top;
+    double bot;
     if ( bbox.height() == 0.0 ) {
-        double top = bbox.y()+1.0;
-        double bot = bbox.y()-1.0;
-        bbox.setY(top);
-        bbox.setBottom(bot);
+        // Curve is flat
+        top = bbox.y()+1.0;
+        bot = bbox.y()-1.0;
+    } else {
+        // Add 2% margin
+        double mh = bbox.height()*0.02;
+        top = bbox.top()-mh;
+        bot = bbox.bottom()+mh;
     }
+    bbox.setTop(top);
+    bbox.setBottom(bot);
+    bbox.setLeft(left);
+    bbox.setRight(right);
 
     // Flip if y-axis not directed "up" (this happens with bboxes)
     if ( bbox.top() < bbox.bottom() ) {
