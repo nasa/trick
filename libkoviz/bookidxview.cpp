@@ -13,24 +13,19 @@ QTransform BookIdxView::_coordToPixelTransform()
 
     QRectF M = _mathRect();
 
-    // Window coords (topleft,bottomright)
+    // Window coords (topleft)
     double u0 = 0.0;
     double v0 = 0.0;
-    double u1 = viewport()->rect().bottomRight().x();
-    double v1 = viewport()->rect().bottomRight().y();
 
-    // Math coords
+    // Math coords (topleft)
     double x0 = M.topLeft().x();
     double y0 = M.topLeft().y();
-    double x1 = M.bottomRight().x();
-    double y1 = M.bottomRight().y();
 
-    // Transform (TODO: check that x0-x1 > 0 etc)
     // TODO: if x0=-DBL_MAX and x1=+DBL_MAX etc
-    double du = u0-u1;
-    double dv = v0-v1;
-    double dx = x0-x1;
-    double dy = y0-y1;
+    double du = viewport()->rect().width();
+    double dv = viewport()->rect().height();
+    double dx = M.width();
+    double dy = M.height();
     double a = du/dx;
     double b = dv/dy;
     double c = u0-a*x0;
