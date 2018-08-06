@@ -1365,7 +1365,8 @@ void BookIdxView::__paintSymbol(const QPointF& p,
         painter.drawLine(a,b);
         painter.drawLine(b,c);
         painter.drawLine(c,a);
-    } else if ( symbol.startsWith("number_") && symbol.size() == 8 ) {
+    } else if ( symbol.startsWith("number_",Qt::CaseInsensitive) &&
+                symbol.size() == 8 ) {
 
         QFont origFont = painter.font();
         QBrush origBrush = painter.brush();
