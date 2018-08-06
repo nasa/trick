@@ -883,3 +883,8 @@ QString DPTreeWidget::_descrPlotTitle(DPPlot *plot)
 
     return plotTitle;
 }
+
+void DPTreeWidget::clearSelection()
+{
+    _dpTreeView->selectionModel()->clear();
+}

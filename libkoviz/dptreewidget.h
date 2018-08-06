@@ -91,6 +91,9 @@ private:
     static QString _err_string;
     static QTextStream _err_stream;
 
+public slots:
+    void clearSelection();
+
 private slots:
     void _searchBoxTextChanged(const QString &rx);
      void _dpTreeViewCurrentChanged(const QModelIndex &currIdx,
