@@ -1121,6 +1121,9 @@ void BookIdxView::__paintCurvesLegend(const QRect& R,
 
         // Draw line segment
         QPen* pen = pens.at(i);
+        if ( painter.paintEngine()->type() == QPaintEngine::Pdf) {
+            pen->setWidth(16);
+        }
         painter.setPen(*pen);
         QPoint p1(bb.left(),bb.center().y());
         QPoint p2(bb.left()+l,bb.center().y());

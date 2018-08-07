@@ -4,6 +4,7 @@
 #include <QAbstractItemView>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QPaintEngine>
 #include <QPen>
 #include <qmath.h>
 #include <cmath>
