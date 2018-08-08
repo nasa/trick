@@ -245,7 +245,7 @@ TEST_F(MonteCarloTest , TestDefaultValues) {
     EXPECT_EQ(exec.get_custom_slave_dispatch(), false) ;
     EXPECT_EQ(exec.get_timeout(), 120) ;
     EXPECT_EQ(exec.get_max_tries(), 2) ;
-    EXPECT_EQ(exec.get_verbosity(), exec.INFORMATIONAL) ;
+    EXPECT_EQ(exec.get_verbosity(), exec.MC_INFORMATIONAL) ;
     EXPECT_EQ(exec.get_num_runs(), 0) ;
     EXPECT_EQ(exec.get_slave_id(), 0) ;
     EXPECT_EQ(exec.actual_num_runs, 0) ;
@@ -268,14 +268,14 @@ TEST_F(MonteCarloTest, TestSettingValues) {
     EXPECT_EQ(exec.get_timeout(), 60) ;
     exec.set_max_tries(4) ;
     EXPECT_EQ(exec.get_max_tries(), 4) ;
-    exec.set_verbosity(exec.NONE) ;
-    EXPECT_EQ(exec.get_verbosity(), exec.NONE) ;
-    exec.set_verbosity(exec.ERROR) ;
-    EXPECT_EQ(exec.get_verbosity(), exec.ERROR) ;
-    exec.set_verbosity(exec.INFORMATIONAL) ;
-    EXPECT_EQ(exec.get_verbosity(), exec.INFORMATIONAL) ;
-    exec.set_verbosity(exec.ALL) ;
-    EXPECT_EQ(exec.get_verbosity(), exec.ALL) ;
+    exec.set_verbosity(exec.MC_NONE) ;
+    EXPECT_EQ(exec.get_verbosity(), exec.MC_NONE) ;
+    exec.set_verbosity(exec.MC_ERROR) ;
+    EXPECT_EQ(exec.get_verbosity(), exec.MC_ERROR) ;
+    exec.set_verbosity(exec.MC_INFORMATIONAL) ;
+    EXPECT_EQ(exec.get_verbosity(), exec.MC_INFORMATIONAL) ;
+    exec.set_verbosity(exec.MC_ALL) ;
+    EXPECT_EQ(exec.get_verbosity(), exec.MC_ALL) ;
 
 }
 
@@ -307,13 +307,13 @@ TEST_F(MonteCarloTest, TestSlaves) {
     EXPECT_EQ(slave1.id, 2) ;
     EXPECT_EQ(exec.get_slave_index(1), 0) ;
     EXPECT_EQ(exec.get_slave_index(2), 1) ;
-    EXPECT_EQ(slave0.state, Trick::MonteSlave::UNINITIALIZED) ;
-    EXPECT_EQ(slave1.state, Trick::MonteSlave::UNINITIALIZED) ;
+    EXPECT_EQ(slave0.state, Trick::MonteSlave::MC_UNINITIALIZED) ;
+    EXPECT_EQ(slave1.state, Trick::MonteSlave::MC_UNINITIALIZED) ;
     exec.disable_slave("WonderWoman", true) ;
-    EXPECT_EQ(slave1.state, Trick::MonteSlave::STOPPED) ;
+    EXPECT_EQ(slave1.state, Trick::MonteSlave::MC_STOPPED) ;
     EXPECT_EQ(exec.slaves.size(), 2) ;
     exec.disable_slave("WonderWoman", false) ;
-    EXPECT_EQ(slave1.state, Trick::MonteSlave::UNINITIALIZED) ;
+    EXPECT_EQ(slave1.state, Trick::MonteSlave::MC_UNINITIALIZED) ;
     EXPECT_EQ(slave0.machine_name, "localhost") ;
     EXPECT_EQ(slave1.machine_name, "WonderWoman") ;
 }
