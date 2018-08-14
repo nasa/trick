@@ -3,6 +3,7 @@
 #include <string.h>
 #include <cstring>
 #include <cstdlib>
+#include <stdexcept>
 
 typedef enum {
     TRICK_VOID               =   0, /* No type */
