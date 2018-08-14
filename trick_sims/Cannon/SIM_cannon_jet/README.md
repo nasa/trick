@@ -1,4 +1,4 @@
-#SIM\_cannon\_jet
+# SIM\_cannon\_jet
 
 This simulation is described in the Trick Tutorial, Section 9.
 
