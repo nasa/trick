@@ -379,7 +379,9 @@ void PlotMainWindow::_bookModelRowsAboutToBeRemoved(const QModelIndex &pidx,
     Q_UNUSED(start);
     Q_UNUSED(end);
     _varsWidget->clearSelection();
-    _dpTreeWidget->clearSelection();
+    if ( _dpTreeWidget ) {
+        _dpTreeWidget->clearSelection();
+    }
 }
 
 bool PlotMainWindow::_isRUN(const QString &fp)
