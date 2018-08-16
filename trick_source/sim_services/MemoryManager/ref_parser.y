@@ -21,6 +21,8 @@
 #include "trick/var.h"
 #include "ref_parser.tab.h"
 
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
     using namespace std;
 
     int REF_lex( YYSTYPE* lvalp, YYLTYPE* llocp, void* scanner );

@@ -21,6 +21,8 @@
 #include "trick/ADefParseContext.hh"
 #include "adef_parser.tab.h"
 
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
     using namespace std;
 
     int ADEF_lex( YYSTYPE* lvalp, YYLTYPE* llocp, void* scanner );
