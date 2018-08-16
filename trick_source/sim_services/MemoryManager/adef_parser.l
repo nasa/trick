@@ -18,6 +18,10 @@
 #include "trick/ADefParseContext.hh"
 #include "adef_parser.tab.h"
 
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#pragma GCC diagnostic ignored "-Wunused-function"
+
 #define YY_EXTRA_TYPE Trick::ADefParseContext*
 
 #define YY_USER_ACTION yylloc->first_line = yylineno;
