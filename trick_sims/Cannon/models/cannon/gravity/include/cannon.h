@@ -14,6 +14,7 @@ typedef struct {
     double pos0[2] ;    /* *i m Init position of cannonball */
     double init_speed ; /* *i m/s Init barrel speed */
     double init_angle ; /* *i rad Angle of cannon */
+    double g ;          /* *i m/s2 acceleration of gravity  */
 
     double acc[2] ;     /* m/s2 xy-acceleration  */
     double vel[2] ;     /* m/s xy-velocity */
