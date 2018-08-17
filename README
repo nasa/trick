@@ -1,3 +1,5 @@
+% git clone git@esgl-gitlab.jsc.nasa.gov:koviz/koviz.git
+% cd koviz
 % qmake-qt5  
 % make
 % bin/koviz                    ; # for usage
