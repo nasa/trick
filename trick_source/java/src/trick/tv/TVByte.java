@@ -37,7 +37,8 @@ public class TVByte extends VSByte implements TrickViewFluent<TVByte.Format> {
 
         Binary {
             public String format(byte value, boolean unsigned) {
-                return Integer.toBinaryString(value & 0xFF);
+                String result = Integer.toBinaryString(value & 0xFF);
+                return "00000000".substring(result.length()) + result;
             }
 
             public byte parse(String value) {

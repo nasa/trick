@@ -22,7 +22,9 @@ public class TVLong extends VSLong implements TrickViewFluent<TVLong.Format> {
 
         Binary {
             public String format(long value, boolean unsigned) {
-                return Long.toBinaryString(value);
+                String result = Long.toBinaryString(value);
+                return "0000000000000000000000000000000000000000000000000000000000000000"
+                    .substring(result.length()) + result;
             }
 
             public long parse(String value) {

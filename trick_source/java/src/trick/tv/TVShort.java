@@ -22,7 +22,8 @@ public class TVShort extends VSShort implements TrickViewFluent<TVShort.Format> 
 
         Binary {
             public String format(short value, boolean unsigned) {
-                return Integer.toBinaryString(value & 0xFFFF);
+                String result = Integer.toBinaryString(value & 0xFFFF);
+                return "0000000000000000".substring(result.length()) + result;
             }
 
             public short parse(String value) {
