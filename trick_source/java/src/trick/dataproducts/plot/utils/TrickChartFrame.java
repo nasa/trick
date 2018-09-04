@@ -8,6 +8,7 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -21,15 +22,16 @@ import javax.swing.JSeparator;
 
 import org.jfree.chart.ChartPanel;
 
-import com.lowagie.text.Document;
-import com.lowagie.text.DocumentException;
-import com.lowagie.text.PageSize;
-import com.lowagie.text.pdf.BaseFont;
-import com.lowagie.text.pdf.DefaultFontMapper;
-import com.lowagie.text.pdf.FontMapper;
-import com.lowagie.text.pdf.PdfContentByte;
-import com.lowagie.text.pdf.PdfTemplate;
-import com.lowagie.text.pdf.PdfWriter;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.graphics.image.JPEGFactory;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+
+import org.jfree.chart.JFreeChart;
 
 import trick.common.TrickApplication;
 import trick.common.ui.UIUtils;
@@ -38,7 +40,7 @@ import trick.dataproducts.trickqp.utils.ProductPage;
 
 public class TrickChartFrame extends TrickFrame {
 
-	//========================================
+    //========================================
     //    Public data
     //========================================
     
@@ -95,7 +97,7 @@ public class TrickChartFrame extends TrickFrame {
     }
     
 
-	//========================================
+    //========================================
     //   Methods
     //========================================
     /**
@@ -179,100 +181,89 @@ public class TrickChartFrame extends TrickFrame {
      */
     public void saveChartsAsPDF() throws IOException {
     	File file = UIUtils.chooseSaveFile(null, "plot_", "pdf", this);
-        if (file == null) {
-        	return;
-        }
-        Document document = new Document(PageSize.A4);
-        PdfWriter writer = null;
-        PdfContentByte pdfContent = null;
-		try {
-			writer = PdfWriter.getInstance(document, new FileOutputStream(file));
-			document.open();
-			pdfContent = writer.getDirectContent();
-		} catch (DocumentException e) {								
-			e.printStackTrace();
-		}
-        writePDFPage(pdfContent, new DefaultFontMapper());
-        
-        if (document != null) {
-        	document.close();
-        }   
+        if (file != null) {
+            PDDocument document = new PDDocument(); // Default Paper size is US Letter.
+            writePDFPage(document);
+            document.save(file);
 	}
+    }
     
     
     /**
      * Writes all plots shown to one page of PDF.
      * 
-     * @param pdfContent 	an object containing the user positioned text and graphic contents of a page.
-     * @param mapper		mapping between AWT fonts and PDF fonts.
+     * @param  doc         An Apache-PDFBox PDDocument object.
      * @throws IOException IOException
      */
-    public void writePDFPage(PdfContentByte pdfContent, FontMapper mapper) throws IOException {
-    	if (pdfContent == null) {
-    		return;
-    	}
-    	Document document = pdfContent.getPdfDocument();
-    	int chartLocOffset = 30;
-        try {       	
-            int pageWidth = (int)document.getPageSize().getWidth();
-            int pageHeight = (int)document.getPageSize().getHeight();
-            document.newPage();
+    public void writePDFPage(PDDocument doc) throws IOException {
+   
+        PDPage pdfPage = new PDPage(); // Default page size is 'US Letter' (8.5x11 inches).
             
-            BaseFont pageTitleFont = BaseFont.createFont(BaseFont.HELVETICA_BOLD, "Cp1252", false);
+        // This is the size of the page in PDF 'points'. One point = 1/72 inch.
+        PDRectangle mediaBox = pdfPage.getMediaBox();
+
+        float inches = 72F; // Conversion from inches to points.
             
-            // show page title text
-            pdfContent.beginText();
-            pdfContent.setFontAndSize(pageTitleFont, 12);            
-            pdfContent.showTextAligned(PdfContentByte.ALIGN_CENTER, getChartTitle(), pageWidth / 2 , pageHeight - chartLocOffset / 2, 0);
-            pdfContent.endText();
+        float topMargin    = 0.5F  * inches;
+        float bottomMargin = 0.75F * inches;
+        float leftMargin   = 0.75F * inches;
+        float rightMargin  = 0.5F  * inches;
             
-            // draw all plots
-            PdfTemplate pdfTemplate = pdfContent.createTemplate(pageWidth, pageHeight);
-            Graphics2D g2 = pdfTemplate.createGraphics(pageWidth, pageHeight, mapper);
-            int rows = 1;
-			int columns = 1;
-			
-			if (getContentPane().getLayout() instanceof GridLayout) {
-				rows = ((GridLayout)getContentPane().getLayout()).getRows();
-				columns = ((GridLayout)getContentPane().getLayout()).getColumns();
-			}
-			
-			int eachChartWidth = pageWidth;
-			int eachChartHeight = pageHeight - chartLocOffset;
-			if (columns != 0) {
-				eachChartWidth = pageWidth / columns;
-			}
-			if (rows != 0) {
-				eachChartHeight = (pageHeight - chartLocOffset) / rows;
-			}
-			
-			int xLoc = 0;
-			int yLoc = chartLocOffset;
-			for (int i = 0; i < rows; i++) {
-				for (int j = 0; j < columns; j++) {
-					int index = i * columns + j;
-					if (index >= getChartSize()) {
-						break;
-					}
-					TrickChartControlPanel eachPanel = (TrickChartControlPanel)getContentPane().getComponent(index);
-					if (eachPanel.getTheChart() != null) {
-						Rectangle2D r2D = new Rectangle2D.Double(xLoc, yLoc, eachChartWidth, eachChartHeight);
-						eachPanel.getTheChart().draw(g2, r2D);
-					}
-					xLoc = xLoc + eachChartWidth;
-				}
-				xLoc = 0;
-				yLoc = yLoc + eachChartHeight;
-				
-			}			
-            g2.dispose();
-            pdfContent.addTemplate(pdfTemplate, 0, 0);    
-        }
-        catch (DocumentException de) {
-            de.printStackTrace();
-        }
+        doc.addPage(pdfPage);
+            
+        try (PDPageContentStream content = new PDPageContentStream(doc, pdfPage)) {
+                
+            int fontSize = 12;
+            PDFont font = PDType1Font.TIMES_ROMAN;
+                 
+            String chartTitle = getChartTitle();
+            float chartTitleWidth  = font.getStringWidth(chartTitle) / 1000F * fontSize;
+            float chartTitleHeight = font.getFontDescriptor().getFontBoundingBox().getHeight() / 1000F * fontSize;
+            float chartTitleLowerLeftX = (mediaBox.getWidth() + leftMargin - rightMargin - chartTitleWidth) / 2F ;
+            float chartTitleLowerLeftY = mediaBox.getHeight() - topMargin - chartTitleHeight;
+                
+            content.beginText();
+            content.setFont(font, fontSize);
+            content.newLineAtOffset(chartTitleLowerLeftX, chartTitleLowerLeftY);
+            content.showText(chartTitle);
+            content.endText();
+                
+            // Define the box into which the chart(s) will go.
+            // The top of the box is 1/2 inch below the top margin.
+            // The rest is bounded by the left, right and bottom margins.
+            float chartBoxLowerLeftX = leftMargin;
+            float chartBoxLowerLeftY = bottomMargin;
+            float chartBoxUpperRightX = mediaBox.getUpperRightX() - rightMargin;
+            float chartBoxUpperRightY = mediaBox.getUpperRightY() - topMargin - 0.5F * inches;
+            float chartBoxWidth  = chartBoxUpperRightX - chartBoxLowerLeftX;
+            float chartBoxHeight = chartBoxUpperRightY - chartBoxLowerLeftY;
+                
+            int rows = 1; int cols = 1; // If we're plotting one plot on this page, otherwise ...
+            if ( getContentPane().getLayout() instanceof GridLayout) {
+                rows = ((GridLayout)getContentPane().getLayout()).getRows();
+                cols = ((GridLayout)getContentPane().getLayout()).getColumns();
+            }
+
+            // Calculate the size of the cells, into which each plot will be dawn.
+            int cellWidth  = (int)chartBoxWidth / cols;
+            int cellHeight = (int)chartBoxHeight/ rows; 
+                
+            for (int i = 0 ; i < rows ; ++i) {
+                int cellLowerLeftY = (int)chartBoxUpperRightY - (i+1) * cellHeight;
+                
+                for (int j = 0 ; j < cols ; ++j) {
+                    int cellLowerLeftX = (int)chartBoxLowerLeftX + j * cellWidth;
+                    
+                    int whichPanel = i * cols + j; 
+                    TrickChartControlPanel panel = (TrickChartControlPanel)getContentPane().getComponent(whichPanel);
+                    JFreeChart thechart = panel.getTheChart();
+                    BufferedImage bufferedImage = thechart.createBufferedImage((int)chartBoxWidth, (int)chartBoxHeight);
+                    PDImageXObject image = JPEGFactory.createFromImage(doc, bufferedImage);
+                    content.drawImage(image, cellLowerLeftX, cellLowerLeftY, cellWidth, cellHeight);
+                }
+            }       
+        }   
     }
-	
 	   
     /**
      * Sets this frame invisible.
