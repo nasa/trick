@@ -112,6 +112,11 @@ public class TrickXYPlot extends XYPlot {
             maxY = Math.max(maxY, dataset.getSeries(i).getMaxY());
         }
         guiXAxis.setRange(minX, maxX);
+
+        if (minY == maxY) {
+            minY -= 1.0;
+            maxY += 1.0;
+        }
         guiYAxis.setRange(minY, maxY);
     }
 
