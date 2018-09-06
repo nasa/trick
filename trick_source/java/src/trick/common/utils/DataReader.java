@@ -323,7 +323,8 @@ public abstract class DataReader {
 			varData = varData + theVar.getBias().doubleValue();
 		}
 		
-		if (theVar.getUnits() != null) {
+                String theUnits = theVar.getUnits();
+		if ((theUnits != null) && (theUnits != "")) {
 			varData = convertUnits(varData, getLogVar(theVar.getName()), theVar);
 		}
     	
