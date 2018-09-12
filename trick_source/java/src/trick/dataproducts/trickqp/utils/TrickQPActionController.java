@@ -1676,7 +1676,6 @@ public class TrickQPActionController {
 
         // also need to add this newly generated output var to var list
         LogVar newOutVar = new LogVar(var.getName());
-        newOutVar.setUnits("--");
         application.varList.addData(newOutVar);
     }
 
