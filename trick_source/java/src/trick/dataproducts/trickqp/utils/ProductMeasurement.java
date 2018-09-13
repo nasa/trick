@@ -32,6 +32,9 @@ public class ProductMeasurement {
     //  Private Data
     //========================================
     private String name;
+    // The <units> element is OPTIONAL. It specifies the units
+    // to which the user wants the recorded data to be converted.
+    // The default value of units should be null, NOT "--".
     private String units;
 
     private static final int UNITS_INDEX = 0;
@@ -47,7 +50,7 @@ public class ProductMeasurement {
      */
     public ProductMeasurement(String name) {
         this.name = name;
-        this.setUnits( "--" );
+        this.setUnits(null);
     }
 
     //========================================

@@ -163,8 +163,13 @@ public class ProductXMLCreator extends XMLCreator {
 			    Element measurementElem = dom.createElement("measurement");
 				// <var>...</var>
 				createChildElement(measurementElem, "var", eachOutput.getName());
-				// <units> ... </units>
-				createChildElement(measurementElem, "units", eachOutput.getUnits());
+
+                                // The units element is OPTIONAL and can be null,
+                                // indicating that the user doesn't want units conversion.
+                                String outPutUnits  = eachOutput.getUnits();
+                                if (outPutUnits != null)  {
+				    createChildElement(measurementElem, "units", outPutUnits);
+                                }
 				outputsElem.appendChild(measurementElem);
 			}
 		}
@@ -440,7 +445,13 @@ public class ProductXMLCreator extends XMLCreator {
 	private Element createColumnElement(ProductColumn column) {
 		Element columnElem = dom.createElement("column");
 		createChildElement(columnElem, "label", column.getLabel());
-		createChildElement(columnElem, "units", column.getUnits());
+                
+                // The units element is OPTIONAL and can be null,
+                // indicating that the user doesn't want units conversion.
+                String columnUnits = column.getUnits();
+                if (columnUnits != null) {
+		    createChildElement(columnElem, "units", columnUnits);
+                }
 		
 		columnElem.appendChild(createVarElement(column.getVar()));
 		
