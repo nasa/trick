@@ -120,13 +120,12 @@ int euler321(
                 }
                 /* Error: Out of normal range & beyond tolerance for asin func*/
                 else {
-                        double zero = 0.0;
                         ret = TM_ANG_NAN;
                         if ( error_flag[4] == 0 ) {
                             tm_print_error(ret);
                             error_flag[4]=1;
                         }
-                        angle[0] = angle[1] = angle[2] = 0.0 / zero;
+                        angle[0] = angle[1] = angle[2] = NAN;
                 }
 #undef TOLERANCE
         } else if (method == 2) {
