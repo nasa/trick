@@ -6,7 +6,7 @@
 
 extern Trick::UnitTest * the_unit_test_output ;
 
-extern "C" int trick_test_enable() {
+extern "C" int trick_test_enable(void) {
     the_unit_test_output->enable() ;
     return(0) ;
 }
@@ -36,7 +36,7 @@ extern "C" int trick_test_add_parent(const char * in_test_suite_name, const char
 }
 
 
-extern "C" int call_write_output() {
+extern "C" int call_write_output(void) {
     the_unit_test_output->write_output() ;
     return(0) ;
 }
