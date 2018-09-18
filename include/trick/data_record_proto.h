@@ -8,14 +8,14 @@
 extern "C" {
 #endif
 
-int dr_remove_files() ;
-int dr_enable() ;
-int dr_disable() ;
+int dr_remove_files(void) ;
+int dr_enable(void) ;
+int dr_disable(void) ;
 int dr_enable_group( const char * in_name ) ;
 int dr_disable_group( const char * in_name ) ;
 int dr_record_now_group( const char * in_name ) ;
 int dr_set_max_file_size ( uint64_t bytes ) ;
-void remove_all_data_record_groups() ;
+void remove_all_data_record_groups(void) ;
 int set_max_size_record_group (const char * in_name, uint64_t bytes ) ;
 
 
