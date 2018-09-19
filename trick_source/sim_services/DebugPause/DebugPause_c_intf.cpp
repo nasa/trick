@@ -13,7 +13,7 @@ extern Trick::DebugPause * the_debug_pause ;
  * @copydoc Trick::DebugPause::debug_pause_on
  * C wrapper for Trick::DebugPause::debug_pause_on
  */
-extern "C" int debug_pause_on() {
+extern "C" int debug_pause_on(void) {
     if (the_debug_pause != NULL) {
         return the_debug_pause->debug_pause_on() ;
     }
@@ -25,14 +25,14 @@ extern "C" int debug_pause_on() {
  * @copydoc Trick::DebugPause::debug_pause_off
  * C wrapper for Trick::DebugPause::debug_pause_off
  */
-extern "C" int debug_pause_off() {
+extern "C" int debug_pause_off(void) {
     if (the_debug_pause != NULL) {
         return the_debug_pause->debug_pause_off() ;
     }
     return(0) ;
 }
 
-extern "C" int debug_signal() {
+extern "C" int debug_signal(void) {
     if (the_debug_pause != NULL) {
         return the_debug_pause->debug_signal() ;
     }

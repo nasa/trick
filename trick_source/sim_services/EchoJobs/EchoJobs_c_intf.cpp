@@ -13,7 +13,7 @@ extern Trick::EchoJobs * the_ej ;
  * @copydoc Trick::EchoJobs::echojobs_on
  * C wrapper for Trick::EchoJobs::echojobs_on
  */
-extern "C" int echo_jobs_on() {
+extern "C" int echo_jobs_on(void) {
     if (the_ej != NULL) {
         return the_ej->echojobs_on() ;
     }
@@ -25,7 +25,7 @@ extern "C" int echo_jobs_on() {
  * @copydoc Trick::EchoJobs::echojobs_off
  * C wrapper for Trick::EchoJobs::echojobs_off
  */
-extern "C" int echo_jobs_off() {
+extern "C" int echo_jobs_off(void) {
     if (the_ej != NULL) {
         return the_ej->echojobs_off() ;
     }

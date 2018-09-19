@@ -392,7 +392,7 @@ Trick::VariableServer * var_server_get_var_server() {
  * @copydoc Trick::VariableServer::get_hostname
  * C wrapper Trick::VariableServer::get_hostname
  */
-extern "C" const char * var_server_get_hostname() {
+extern "C" const char * var_server_get_hostname(void) {
     return(the_vs->get_hostname()) ;
 }
 
@@ -401,7 +401,7 @@ extern "C" const char * var_server_get_hostname() {
  * @copydoc Trick::VariableServer::get_port
  * C wrapper Trick::VariableServer::get_port
  */
-extern "C" unsigned short var_server_get_port() {
+extern "C" unsigned short var_server_get_port(void) {
     return(the_vs->get_listen_thread().get_port()) ;
 }
 
@@ -428,7 +428,7 @@ extern "C" void var_server_set_source_address(const char * source_address) {
  * @copydoc Trick::VariableServer::get_user_tag
  * C wrapper Trick::VariableServer::get_user_tag
  */
-extern "C" const char * var_server_get_user_tag() {
+extern "C" const char * var_server_get_user_tag(void) {
     return(the_vs->get_listen_thread().get_user_tag().c_str()) ;
 }
 
@@ -446,7 +446,7 @@ extern "C" void var_server_set_user_tag(const char * in_tag) {
  * @copydoc Trick::VariableServer::get_enabled
  * C wrapper Trick::VariableServer::get_enabled
  */
-extern "C" int var_server_get_enabled() {
+extern "C" int var_server_get_enabled(void) {
     return(the_vs->get_enabled()) ;
 }
 

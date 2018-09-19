@@ -16,10 +16,10 @@ extern "C" {
 #endif
 
 #if __Lynx__
-int wcs_to_ncs_len ();
-int ncs_to_wcs_len ();
-int wcs_to_ncs ();
-int ncs_to_wcs();
+int wcs_to_ncs_len (void);
+int ncs_to_wcs_len (void);
+int wcs_to_ncs (void);
+int ncs_to_wcs(void);
 #else
 #include <stddef.h>
 #include <wchar.h>
