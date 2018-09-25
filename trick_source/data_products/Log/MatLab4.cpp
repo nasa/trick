@@ -20,7 +20,7 @@ MatLab4::MatLab4(char * file_name , char * param_name , char * time_name ) {
         int temp ;
         int endian ;
         int mat_size ;
-        int type , size ;
+        int type, size = 0;
         int mat_type ;
         int my_byte_order ;
         div_t div_result ;

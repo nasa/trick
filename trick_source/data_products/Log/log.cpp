@@ -329,7 +329,6 @@ int LogData::countNumBinaryFiles(char *pathToBinaryData)
                 fprintf(stderr, "Couldn't open \"%s\" for reading. \n",
                         pathToBinaryData);
                 fprintf(stderr, "Maybe LogGroup Constructor not called.\n");
-                closedir(dirp);
                 exit(-1);
         }
 
@@ -1471,7 +1470,6 @@ int LogGroup::getHeaders()
                 fprintf(stderr, "ERROR: Couldn't open \"%s\" for reading. \n",
                         pathToBinaryData_);
                 fprintf(stderr, "Maybe LogGroup constructer wasn't done. \n");
-                closedir(dirp);
                 exit(-1);
         }
         // Count num headers, and max file name length in RUN dir

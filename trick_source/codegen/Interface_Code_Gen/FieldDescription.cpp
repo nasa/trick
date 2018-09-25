@@ -85,7 +85,7 @@ std::string FieldDescription::get_regex_field(std::string input , const char * e
     regex_t reg_expr ;
     regmatch_t pmatch[10] ;
     memset(pmatch , 0 , sizeof(pmatch)) ;
-    ret = regcomp( &reg_expr , expr , REG_EXTENDED ) ;
+    regcomp( &reg_expr , expr , REG_EXTENDED ) ;
     //std::cout << "regcomp ret = " << ret << std::endl ;
     ret = regexec( &reg_expr , input.c_str() , 10 , pmatch , 0 ) ;
     //std::cout << "regexec ret = " << ret << std::endl ;
