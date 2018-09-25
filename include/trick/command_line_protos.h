@@ -22,17 +22,17 @@ extern "C" {
 
 int command_line_args_process_sim_args(int argc , char ** argv) ;
 
-int command_line_args_get_argc() ;
-char ** command_line_args_get_argv() ;
-const char * command_line_args_get_output_dir() ;
-const char * command_line_args_get_user_output_dir() ;
-const char * command_line_args_get_input_file() ;
+int command_line_args_get_argc(void) ;
+char ** command_line_args_get_argv(void) ;
+const char * command_line_args_get_output_dir(void) ;
+const char * command_line_args_get_user_output_dir(void) ;
+const char * command_line_args_get_input_file(void) ;
 
-const char * command_line_args_get_default_dir() ;
-const char * command_line_args_get_cmdline_name() ;
+const char * command_line_args_get_default_dir(void) ;
+const char * command_line_args_get_cmdline_name(void) ;
 
-int output_dir_timestamped_on() ;
-int output_dir_timestamped_off() ;
+int output_dir_timestamped_on(void) ;
+int output_dir_timestamped_off(void) ;
 
 void set_output_dir(const char* output_directory);
 
@@ -42,7 +42,7 @@ void set_output_dir(const char* output_directory);
 
 #ifdef __cplusplus
 #include <string>
-std::string & command_line_args_get_input_file_ref() ;
+std::string & command_line_args_get_input_file_ref(void) ;
 #endif
 
 #endif

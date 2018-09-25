@@ -286,7 +286,9 @@ public class ProductVar {
     private String name;
     // The label of the variable
     private String label;
-    // The units of the variable
+    // The <units> element is OPTIONAL. It specifies the units
+    // to which the user wants the recorded data to be converted.
+    // The default value of units should be null, NOT "--".
     private String units;
     // The units from which needs to be converted.
     // Only needed when the data recording data doesn't provide the units for this variable.
@@ -323,7 +325,7 @@ public class ProductVar {
         // If the label is entered by a user from GUI, that entered text
         // will be displayed and fxplot will not show the default label.
         //this.setLabel( name );
-        setUnits("--");
+        setUnits(null);
         
     }
 

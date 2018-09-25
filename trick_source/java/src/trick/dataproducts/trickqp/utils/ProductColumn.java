@@ -34,6 +34,9 @@ public class ProductColumn {
     private static final int FORMAT_INDEX                 = 0;
 
     private String label;
+    // The <units> element is OPTIONAL. It specifies the units
+    // to which the user wants the recorded data to be converted.
+    // The default value of units should be null, NOT "--".
     private String units;
     private ProductVar var;
     private String format;
@@ -46,7 +49,7 @@ public class ProductColumn {
      */
     public ProductColumn() {
         this.setLabel( "Column" );
-        this.setUnits( "--" );
+        this.setUnits(null);
         this.dataReader = null;
     }
 
@@ -58,7 +61,7 @@ public class ProductColumn {
      */
     public ProductColumn(ProductVar var) {
         this.setLabel( "Column" );
-        this.setUnits( "--" );
+        this.setUnits(null);
         this.setVar( var );
         this.dataReader = null;
     }
