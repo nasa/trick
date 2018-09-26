@@ -64,16 +64,19 @@ bool isInUserOrTrickCode( clang::CompilerInstance & ci , clang::SourceLocation s
 
 std::string getFileName( clang::CompilerInstance & ci , clang::SourceLocation sl , HeaderSearchDirs & hsd ) {
     clang::FileID fid = ci.getSourceManager().getFileID(sl) ;
+    std::string file_name;
+    char* resolved_path;
     if ( ! fid.isInvalid() ) {
         const clang::FileEntry * fe = ci.getSourceManager().getFileEntryForID(fid) ;
         if ( fe != NULL ) {
             char * resolved_path = almostRealPath( fe->getName() ) ;
             if ( resolved_path != NULL  and hsd.isPathInUserDir(resolved_path)) {
-                return std::string(resolved_path) ;
+                file_name.append(resolved_path);
             }
+            free(resolved_path);
         }
     }
-    return std::string() ;
+    return file_name;
 }
 
 #include <iostream>
