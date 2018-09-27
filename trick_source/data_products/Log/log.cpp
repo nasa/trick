@@ -1312,8 +1312,11 @@ int LogGroup::getValueAtTime( const char *paramName,
         // Get the value at time
         rr = log[yLogIdx]->getValueAtTime(tIdx, time,
                                           yIdx, &vv) ;
-        *value = vv ;
-
+        //  If value with timestamp found
+        if(rr > 0){
+            *value = vv ;
+        }
+        
         return(rr);
 
 }
