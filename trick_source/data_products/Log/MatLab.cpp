@@ -233,11 +233,11 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
                             strcpy(name, variable_name);
                             field_found = true;
                             delete [] field_name;
-                            delete variable_name;
+                            delete [] variable_name;
                             break;
                         }
-                        delete field_name;
-                        delete variable_name;
+                        delete [] field_name;
+                        delete [] variable_name;
                     }
 
                     if (field_found) {
@@ -342,7 +342,7 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
                             // Everythig else we skip
                             temp_ptr = new char[field_bytes];
                             fread(temp_ptr, field_bytes, 1, fp_) ;
-                            delete temp_ptr;
+                            delete [] temp_ptr;
                         }
                     } else {
                         real_bytes = 0;
@@ -516,15 +516,15 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
                 }
 
                 if ( !found) {
-                    delete dims;
+                    delete [] dims;
                 }
-                delete name;
+                delete [] name;
 
             } else {
                 // Everythig else we skip
                 temp_ptr = new char[bytes];
                 fread(temp_ptr, bytes, 1, fp_) ;
-                delete temp_ptr;
+                delete [] temp_ptr;
             }
         }
     }
@@ -814,12 +814,12 @@ int MatLabLocateParam(char * file_name, char * param_name, char * time_name) {
                             name = new char[strlen(variable_name)];
                             strcpy(name, variable_name);
                             field_found = true;
-                            delete field_name;
-                            delete variable_name;
+                            delete [] field_name;
+                            delete [] variable_name;
                             break;
                         }
-                        delete field_name;
-                        delete variable_name;
+                        delete [] field_name;
+                        delete [] variable_name;
                     }
 
                     if (field_found) {
@@ -880,8 +880,8 @@ int MatLabLocateParam(char * file_name, char * param_name, char * time_name) {
                     }
 
                 }
-                delete name;
-                delete dims;
+                delete [] name;
+                delete [] dims;
 
                 if (param_found && time_found) {
                     fclose(fp);
@@ -921,7 +921,7 @@ int MatLabLocateParam(char * file_name, char * param_name, char * time_name) {
                 // Everythig else we skip
                 temp_ptr = new char[bytes];
                 fread(temp_ptr, bytes, 1, fp) ;
-                delete temp_ptr;
+                delete [] temp_ptr;
             }
         }
     }
