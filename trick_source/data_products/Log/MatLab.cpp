@@ -232,7 +232,7 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
                             name = new char[strlen(variable_name)];
                             strcpy(name, variable_name);
                             field_found = true;
-                            delete field_name;
+                            delete [] field_name;
                             delete variable_name;
                             break;
                         }
