@@ -390,9 +390,10 @@ int LogData::openCurrBinaryFile()
 
         // Do sanity check on file
         if (access(file, F_OK | R_OK) == -1) {
-                printf("ERROR: Search for parameter exhausted."
+                fprintf(stderr, "ERROR: Search for parameter exhausted."
                        "       Or \"%s\" is not readable or doesn't exist. \n",
                        file);
+                delete [] file;
                 return(-1);
         }
         // Close previous binary file if not first file to open
@@ -508,7 +509,10 @@ int LogData::getSizeRecord()
         for (i = 0; i < nVars_; i++) {
                 sizeRec = sizeRec + vars[i]->getSize();
         }
-
+        if(sizeRec <= 0) {
+            std::cerr << "ERROR: LogData::getSizeRecord() is zero or negative, may cause divide-by-zero. Exiting." << std::endl;
+            exit(-1);
+        }
         return (sizeRec);
 }
 
@@ -570,7 +574,7 @@ char *LogData::getNextRecord()
                 if (currBinExtension_ < nBinFiles_) {
                         // Open up next bin file, and get first rec
                         openCurrBinaryFile();
-                        ret = fread(currRecord_, sr, 1, fp_);
+                        fread(currRecord_, sr, 1, fp_);
                         return (currRecord_);
                 } else {
                         // We are at end of log data (no more recs)
