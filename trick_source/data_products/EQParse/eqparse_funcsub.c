@@ -106,7 +106,6 @@ void funcsub(char *str)
                         start = start + offset;
                         temp[tstart] = '(';
                         tstart++;
-                        ch1 = equation[start];
                         while (ch1 != ',') {
                                 if (ch1 == '\0') {
                                         /* No second argument found */
