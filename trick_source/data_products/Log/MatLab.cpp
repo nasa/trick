@@ -57,7 +57,7 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
     short version;
     short magic;
     int data_type, bytes, field_data_type, field_bytes;
-    int size, type;
+    int size = 0, type = 0;
     int array_type, array_bytes, array_flags[2];
     int array_complex, array_class ;
     int dim_type, dim_bytes, num_dims;
