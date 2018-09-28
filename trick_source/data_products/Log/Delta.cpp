@@ -66,7 +66,7 @@ int Delta::peek( double * time , double * value )
         int ret ;
         double val1, val2 ;
 
-        ret = dsg_.getLastRead(dataStream1_, time, &val1);
+        dsg_.getLastRead(dataStream1_, time, &val1);
         ret = dsg_.getLastRead(dataStream2_, time, &val2);
 
         *value = val1 - val2 ;
