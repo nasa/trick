@@ -61,7 +61,7 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
     int array_type, array_bytes, array_flags[2];
     int array_complex, array_class ;
     int dim_type, dim_bytes, num_dims;
-    int * dims;
+    int * dims = nullptr;
     int name_bytes;
     char * name, * field_name, * variable_name;
     int real_type, real_bytes;
@@ -111,7 +111,7 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
             swap_ = 0;
         } else if (magic == 0x494d) {
             swap_ = 1;
-        }
+        } 
 
         param_found = time_found = false;
         while ( (!param_found || !time_found) && !feof(fp_)) {
@@ -166,7 +166,10 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
                 }
 
                 num_dims = dim_bytes / 4;
-
+                // delete dangling pointer
+                if(dims) {
+                    delete [] dims;
+                }
                 dims = new int[num_dims];
                 for (ii = 0; ii < num_dims; ii++) {
                     fread(&dims[ii], 4, 1, fp_) ;
@@ -300,7 +303,10 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
                             }
 
                             num_dims = dim_bytes / 4;
-
+                            // delete dangling pointer
+                            if(dims) {
+                                delete [] dims;
+                            }
                             dims = new int[num_dims];
                             for (ii = 0; ii < num_dims; ii++) {
                                 fread(&dims[ii], 4, 1, fp_) ;
@@ -697,6 +703,9 @@ int MatLabLocateParam(char * file_name, char * param_name, char * time_name) {
             swap = 0;
         } else if (magic == 0x494d) {
             swap = 1;
+        } else {
+            std::cerr << "ERROR: MatLab.cpp swap magic is invalid, default to byte swap == false" << std::endl;
+            swap = 0;
         }
 
         param_found = time_found = false;
@@ -749,7 +758,10 @@ int MatLabLocateParam(char * file_name, char * param_name, char * time_name) {
                 }
 
                 num_dims = dim_bytes / 4;
-
+                // delete dangling pointer
+                if(dims) {
+                    delete [] dims;
+                }
                 dims = new int[num_dims];
                 for (ii = 0; ii < num_dims; ii++) {
                     fread(&dims[ii], 4, 1, fp) ;
