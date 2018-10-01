@@ -97,12 +97,12 @@ std::string Trick::MonteVarFile::get_next_value() {
             ss << name << " = " << token;
         else
             ss << name << " = " << "trick.attach_units(\"" << unit << "\", " << token << ")";
-
-        return ss.str();
         if(temp_str) {
             free(temp_str);
             temp_str = nullptr;
         }
+        return ss.str();
+
     }
     char string[100];
     sprintf(string, "Trick:MonteVarFile the input file \"%s\" is not open for reading", file_name.c_str());
