@@ -131,7 +131,7 @@ int Trick::IPPython::init() {
 
     /* Read and parse the input file. */
     if ( verify_input ) {
-        ret = PyRun_SimpleString("sys.settrace(trick.traceit)") ;
+        PyRun_SimpleString("sys.settrace(trick.traceit)") ;
     }
 
     if ( (ret = PyRun_SimpleFile(input_fp, input_file.c_str())) !=  0 ) {
