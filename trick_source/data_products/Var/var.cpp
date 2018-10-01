@@ -466,6 +466,7 @@ int Var::getDimOffset( const char* param ) {
                if ( offset < 0 ) {
                        fprintf(stderr, "ERROR: Integer overflow "
                                        "calculating offset!\n");
+                       VAR_DELETE;
                        return(-1);
                }
        }
@@ -661,7 +662,6 @@ int Var::calcNumDimensions() {
 
                 if ( varName_[i] == '[' ) {
 
-                       j = 0;
                        while ( varName_[i] != ']' ) {
 
                               i++ ;
@@ -746,6 +746,8 @@ int Var::calcNumDimensions() {
                                cerr << "ERROR: Bad syntax in dimension "
                                     << "specification for "
                                     << varName_ << endl ;
+                               delete[] dim1 ;
+                               delete[] dim2 ;
                                return( -1 );
                        }
 
