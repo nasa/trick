@@ -175,11 +175,9 @@ int LogGroup::parseLogHeaders()
                                 }
                         }
                 }
-
-                shutdown(fp_, strs, headerName);
-
+        shutdown(fp_, strs, headerName);
         }
-
+        delete[] strs;
         return 1;
 }
 
@@ -188,6 +186,5 @@ void shutdown (FILE* fp_, char** strs, char* headerName) {
         for(int i = 0; i < NUM_STR; i++) {
                 delete[] strs[i];
         }
-        delete[] strs;
         delete[] headerName;
 }
