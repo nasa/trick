@@ -162,7 +162,7 @@ MatLab4::MatLab4(char * file_name , char * param_name , char * time_name ) {
                         time_found = true ;
                 }
 
-                delete temp_ptr ;
+                delete [] temp_ptr ;
 
                 // skip to next parameter
                 fseek( fp_ ,  row * column * size * ( 1 + imaginary ) , SEEK_CUR ) ;
@@ -395,11 +395,11 @@ int MatLab4LocateParam( char *file_name , char *param_name , char *time_name ) {
 
                 if ( param_found && time_found ) {
                         fclose(fp) ;
-                        delete temp_ptr ;
+                        delete[] temp_ptr ;
                         return(1) ;
                 }
 
-                delete temp_ptr ;
+                delete[] temp_ptr ;
 
                 // skip to next parameter
                 fseek( fp ,  row * column * size * ( 1 + imaginary ) , SEEK_CUR ) ;
