@@ -653,7 +653,7 @@ int MatLabLocateParam(char * file_name, char * param_name, char * time_name) {
     int array_type, array_bytes, array_flags[2];
     int array_complex, array_class;
     int dim_type, dim_bytes, num_dims;
-    int * dims;
+    int * dims = nullptr;
     int name_bytes;
     char * name, * field_name, * variable_name;
     int real_type, real_bytes;
