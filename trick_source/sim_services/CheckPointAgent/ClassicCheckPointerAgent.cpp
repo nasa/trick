@@ -259,6 +259,10 @@ static char *getCompositeSubReference(
                 // Calculate the array indices for the right-side.
                 for (j = num_fixed_dims - 1; j >= 0; j--) {
                     size *= A[i].index[j].size;
+                    if(!size) {
+                      std::cerr "Checkpoint Agent " << __FUNCTION__ << " ERROR: divide by zero during array indices calculation" << std::endl;
+                      return NULL;
+                    }
                     my_index[j] = (int) ((offset % size) / last_size);
                     offset -= last_size * my_index[j];
                     last_size = size;
@@ -613,8 +617,9 @@ void Trick::ClassicCheckPointAgent::write_singleton( std::ostream& chkpnt_os, vo
                     src_addr = (char*)address + offset * sizeof(short);
                     value =  *(short*)src_addr;
                 } else {
-                    std::cerr << __FUNCTION__ << " enumeration size error." << std::endl;
+                    std::cerr << __FUNCTION__ << ": enumeration size error." << std::endl;
                     std::cerr.flush();
+                    value = -1;
                 }
 
                 enum_attr = (ENUM_ATTR*)attr->attr;
