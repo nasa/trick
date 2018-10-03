@@ -63,6 +63,7 @@ int LogGroup::parseLogHeaders()
                         fprintf(stderr,
                                 "\nERROR:\nCouldn't open file \"%s\" \n",
                                 headerName);
+                        delete[] strs;
                         delete[] headerName;
                         return (-1);
                 }
