@@ -260,7 +260,7 @@ static char *getCompositeSubReference(
                 for (j = num_fixed_dims - 1; j >= 0; j--) {
                     size *= A[i].index[j].size;
                     if(!size) {
-                      std::cerr "Checkpoint Agent " << __FUNCTION__ << " ERROR: divide by zero during array indices calculation" << std::endl;
+                      std::cerr << "Checkpoint Agent " << __FUNCTION__ << " ERROR: divide by zero during array indices calculation" << std::endl;
                       return NULL;
                     }
                     my_index[j] = (int) ((offset % size) / last_size);
