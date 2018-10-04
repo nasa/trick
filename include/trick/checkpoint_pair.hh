@@ -34,7 +34,13 @@ int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name
     SECOND * second = nullptr ;
     std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
 
-    std::string type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*first).name(), 0, 0, &status )) ;
+    std::string type_string ;
+    try {
+        type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*first).name(), 0, 0, &status )) ;
+    } catch (const std::bad_typeid& e) {
+        message_publish(1, "Error, having difficulty checkpointing %s.%s\n", object_name.c_str(), var_name.c_str()) ;
+        return 0 ;
+    }
     var_declare << type_string << " "
      << object_name << "_" << var_name << "_first[1]" ;
     first = (FIRST *)TMM_declare_var_s(var_declare.str().c_str()) ;
@@ -44,7 +50,12 @@ int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name
 
         var_declare.str("") ;
         var_declare.clear() ;
-        type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*second).name(), 0, 0, &status )) ;
+        try {
+            type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*second).name(), 0, 0, &status )) ;
+        } catch (const std::bad_typeid& e) {
+            message_publish(1, "Error, having difficulty checkpointing %s.%s\n", object_name.c_str(), var_name.c_str()) ;
+            return 0 ;
+        }
         var_declare << type_string << " "
          << object_name << "_" << var_name << "_second[1]" ;
         second = (SECOND *)TMM_declare_var_s(var_declare.str().c_str()) ;
@@ -68,8 +79,13 @@ int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name
     FIRST * first = nullptr ;
     std::string * second = nullptr ;
     std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
-
-    std::string type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*first).name(), 0, 0, &status )) ;
+    std::string type_string;
+    try {
+    type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*first).name(), 0, 0, &status )) ;
+    } catch (const std::bad_typeid& e) {
+        message_publish(1, "Error, having difficulty checkpointing %s.%s\n", object_name.c_str(), var_name.c_str()) ;
+        return 0 ;
+    }
     var_declare << type_string << " "
      << object_name << "_" << var_name << "_first[1]" ;
     first = (FIRST *)TMM_declare_var_s(var_declare.str().c_str()) ;
@@ -111,7 +127,13 @@ int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name
 
     var_declare.str("") ;
     var_declare.clear() ;
-    std::string type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*second).name(), 0, 0, &status )) ;
+    std::string type_string;
+    try {
+    type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*second).name(), 0, 0, &status )) ;
+    } catch (const std::bad_typeid& e) {
+        message_publish(1, "Error, having difficulty checkpointing %s.%s\n", object_name.c_str(), var_name.c_str()) ;
+        return 0 ;
+    }
     var_declare << type_string << " "
      << object_name << "_" << var_name << "_second[1]" ;
     second = (SECOND *)TMM_declare_var_s(var_declare.str().c_str()) ;
