@@ -28,8 +28,6 @@ void Satellite::get_force_of_gravity ( double* gForceV) {
 void Satellite::get_Force_and_Torque() {
 
    double gforcev[3];
-   double thruster_force[3];
-   double thruster_torque[3];
 
    // Zero force.
    for (int ii=0; ii<3; ii++) { force[ii] = 0.0; }
