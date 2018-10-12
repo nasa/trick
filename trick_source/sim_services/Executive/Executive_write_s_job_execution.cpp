@@ -76,7 +76,7 @@ int Trick::Executive::write_s_job_execution(FILE *fp) {
     fprintf(fp, "\n===================================================================================================\n") ;
     fprintf(fp, "Scheduled Loop:\n\n") ;
     for ( ii = 0 ; ii < threads.size() ; ii++ ) {
-        fprintf(fp, "Thread %d:\n", ii) ;
+        fprintf(fp, "Thread %u:\n", ii) ;
         threads[ii]->job_queue.write_sched_queue(fp) ;
         fprintf(fp, "\n") ;
     }
@@ -87,7 +87,7 @@ int Trick::Executive::write_s_job_execution(FILE *fp) {
     fprintf(fp, "Thread 0:\n");
     top_of_frame_queue.write_sched_queue(fp) ;
     for ( ii = 1 ; ii < threads.size() ; ii++ ) {
-        fprintf(fp, "Thread %d:\n", ii) ;
+        fprintf(fp, "Thread %u:\n", ii) ;
         threads[ii]->top_of_frame_queue.write_sched_queue(fp) ;
         fprintf(fp, "\n") ;
     }
@@ -98,7 +98,7 @@ int Trick::Executive::write_s_job_execution(FILE *fp) {
     fprintf(fp, "Thread 0:\n");
     end_of_frame_queue.write_sched_queue(fp) ;
     for ( ii = 1 ; ii < threads.size() ; ii++ ) {
-        fprintf(fp, "Thread %d:\n", ii) ;
+        fprintf(fp, "Thread %u:\n", ii) ;
         threads[ii]->end_of_frame_queue.write_sched_queue(fp) ;
         fprintf(fp, "\n") ;
     }

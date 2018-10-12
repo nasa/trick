@@ -424,7 +424,7 @@ int Trick::VariableServerThread::transmit_file(std::string sie_file) {
     fseek(fp , 0L, SEEK_END) ;
     file_size = ftell(fp) ;
 
-    sprintf(buffer, "%d\t%d\n" , VS_SIE_RESOURCE, file_size) ;
+    sprintf(buffer, "%d\t%u\n" , VS_SIE_RESOURCE, file_size) ;
     tc_write(&connection , buffer , strlen(buffer)) ;
     rewind(fp) ;
 

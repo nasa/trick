@@ -57,7 +57,7 @@ int filterPostScriptColor( const char *psName, GPViewPageNode* gp_view_page_node
     string next_lt ;
     string new_buf_ptr ;
     string line_color ;
-    int red , blue , green ;
+    unsigned int red , blue , green ;
     int number_of_plots = (int)gp_view_page_node->plot_node_list.size();
 
     //! Populate buf with file content.
