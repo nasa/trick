@@ -111,7 +111,7 @@ $(TRICKIFY_OBJECT_NAME): $(SWIG_OBJECTS) $(IO_OBJECTS) | $(dir $(TRICKIFY_OBJECT
 	$(info $(call COLOR,Linking)    $@)
 	@ld -r -o $@ $^
 
-$(dir $(TRICKIFY_OBJECT_NAME)) $(TRICKIFY_PYTHON_DIR):
+$(dir $(TRICKIFY_OBJECT_NAME)) $(TRICKIFY_PYTHON_DIR) build:
 	@mkdir -p $@
 
 $(IO_OBJECTS): %.o: %.cpp
@@ -169,7 +169,7 @@ $(foreach EXTENSION,$(EXTENSIONS),$(eval $(call create_convert_swig_rule,$(EXTEN
 # dependency list. The method is laid out in more detail here:
 # http://make.mad-scientist.net/papers/advanced-auto-dependency-generation/
 
-build/S_source.d:
+build/S_source.d: | $(dir $@)
 	@$(TRICK_HOME)/bin/trick-ICG $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(TRICK_ICGFLAGS) S_source.hh
 	@$(TRICK_HOME)/$(LIBEXEC)/trick/make_makefile_swig
 	@$(TRICK_CC) -MM -MP -MT $@ -MF $@ $(TRICKIFY_CXX_FLAGS) S_source.hh
