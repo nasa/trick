@@ -95,7 +95,6 @@ void GPViewPlotNode::finalize() {
     std::string       plot_data_src_label;
     std::string       plot_title;
     std::string       plot_x_label;
-    std::string       plot_x_units;
     std::string       plot_x_scale;
     std::string       plot_x_min_rng;
     std::string       plot_x_max_rng;

@@ -101,7 +101,7 @@ if (os.path.isfile(SunDisplay_path)) :
     os.system( SunDisplay_cmd);
 else :
     print('==================================================================================')
-    print('SunDisplay needs to be built. Please \"cd\" into models/Graphics and type \"make\".')
+    print('SunDisplay needs to be built. Please \"cd\" into models/graphics and type \"make\".')
     print('==================================================================================')
 
 trick.stop(86400.0)

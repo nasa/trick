@@ -237,7 +237,6 @@ bool FieldVisitor::VisitFieldDecl( clang::FieldDecl *field ) {
     if ( !qt.isCanonical() ) {
         fdes->setNonCanonicalTypeName(qt.getAsString()) ;
         clang::QualType ct = qt.getCanonicalType() ;
-        std::string tst_string = ct.getAsString() ;
         if ( debug_level >= 3 ) {
             std::cout << "\033[33mFieldVisitor VisitFieldDecl: Processing canonical type\033[00m" << std::endl ;
             ct.dump() ;
@@ -270,8 +269,6 @@ bool FieldVisitor::ProcessTemplate(std::string in_name , clang::CXXRecordDecl * 
         fdes->setIO(0) ;
         return false ;
     }
-
-    size_t pos ;
 
     // Check to see if we've processed this template before
     // If not we need to create attributes for this template

@@ -35,8 +35,6 @@ GLuint MakeTexture(GLubyte* data , int width, int height) {
 
 void Satellite_initialize(void) {
 
-  FILE fp;
-
    capsuleTextureID = MakeTexture(Capsule_texture, CAPSULE_TEXTURE_WIDTH, CAPSULE_TEXTURE_HEIGHT);
    nozzleTextureID = MakeTexture(Nozzle_texture, NOZZLE_TEXTURE_WIDTH, NOZZLE_TEXTURE_HEIGHT);
 
