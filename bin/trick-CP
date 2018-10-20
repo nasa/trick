@@ -6,6 +6,8 @@
 use File::Basename ;
 use Cwd ;
 use Cwd 'abs_path';
+use Pod::Usage ;
+use Pod::Text ;
 
 $trick_bin = dirname(abs_path($0)) ;
 $trick_home = dirname($trick_bin) ;
@@ -21,6 +23,8 @@ foreach $argnum (0 .. $#ARGV) {
         $makefileAddArgs = $makefileAddArgs . " debug ";
     } elsif ($arg =~ /-t/ ) {
         $makefileAddArgs = $makefileAddArgs . " test ";
+    } elsif($arg=~ /-h/ ) {
+    	pod2usage(-sections => "NAME|SYNOPSIS|DESCRIPTION|OPTIONS|FILES", -verbose => 99) ;
     } else {
         $ENV{TRICK_CPFLAGS} .= " $arg" ;
     }
@@ -45,6 +49,81 @@ if ( -f "S_define" ) {
     print "S_define does not exist" ;
     exit 1 ;
 }
+
+# trick-CP help message
+
+=pod
+
+=head1 NAME
+
+trick-CP - Trick Configuration Processor
+
+=head1 SYNOPSIS
+
+trick-CP [OPTION]...
+
+=head1 DESCRIPTION
+
+trick-CP  is  the  Trick environment Configuration Processor.  trick-CP
+parses the simulation definition file,  S_define,  searching  for  math
+models to include in the simulation.  trick-CP will search for the math
+models  within  the  search  paths   included   in   TRICK_CFLAGS   and
+TRICK_CXXFLAGS  environment  variables.  trick-CP will generate code to
+call math models listed in the S_define file and will generate a  make‐
+file to build these math models.
+
+=head1 OPTIONS
+   
+=over 8
+
+=item B<-g> | B<--debug>
+
+Print  the  S_define file as it is processed by trick-CP.  (This
+may help the user find problems with his/her simulation configu‐
+ration).
+
+=item B<-h> | B<--help>
+
+Print the trick-CP help message (this message)
+
+=item B<-o> | B<--outfile> I<FILE_NAME>
+
+Send CP output to FILE_NAME
+
+=item B<-p> | B<--no-python>
+
+Exclude python input processor from simulation.
+
+=item B<-t>
+
+Create a unit test simulation where TRICK_UNIT_TEST is defined during compilation
+
+=item B<-v> | B<--verbose>
+
+Set the verbose level. Valid entries are 0-3
+
+=back
+
+=head1 FILES
+
+=over 8
+
+=item B<build/S_source.cpp>
+
+The simulation-specific executive source code file.
+
+=item B<build/S_library_list>
+              
+The simulation-specific object code link list file.
+
+=item B<S_default.dat>
+
+The simulation-specific default initialization data file.
+
+=back
+
+=cut
+
 __END__
 # CP found at SUB_TRICK_BIN
 
@@ -196,4 +275,3 @@ distclean: clean
 
 apocalypse: clean
 	@echo "[31mI love the smell of napalm in the morning[0m"
-
