@@ -366,7 +366,8 @@ int MatLab4LocateParam( char *file_name , char *param_name , char *time_name ) {
                                 break ;
                         default :
                                 std::cerr << "Matlab4 " << __FUNCTION__ << "ERROR: invalid matrix size" << std::endl;
-                                size = -1; 
+                                size = -1 ; 
+                                break ;
                 }
 
                 fread( &row , 4 , 1 , fp ) ;

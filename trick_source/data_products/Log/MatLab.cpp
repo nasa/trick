@@ -111,7 +111,7 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
             swap_ = 0;
         } else if (magic == 0x494d) {
             swap_ = 1;
-        } 
+        }
 
         param_found = time_found = false;
         while ( (!param_found || !time_found) && !feof(fp_)) {
