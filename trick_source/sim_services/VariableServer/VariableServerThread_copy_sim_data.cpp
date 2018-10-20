@@ -86,8 +86,9 @@ int Trick::VariableServerThread::copy_sim_data() {
                     curr_var->size = wcslen((wchar_t *)curr_var->address) * sizeof(wchar_t);
                 }
             }
-
-            memcpy( curr_var->buffer_in , curr_var->address , curr_var->size ) ;
+            if(curr_var->address != NULL) {
+                memcpy( curr_var->buffer_in , curr_var->address , curr_var->size ) ;
+            }
         }
 
         // Indicate that sim data has been written and is now ready in the buffer_in's of the vars variable list.

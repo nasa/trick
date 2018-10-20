@@ -17,6 +17,19 @@
 #include "trick/units_conv.h"
 #include "trick/map_trick_units_to_udunits.hh"
 
+// index labels for char arrays
+enum strIndex {
+        LINE,
+        STR1,
+        STR2,
+        STR3,
+        STR4,
+        NUM_STR
+};
+
+// helper function to free memory before successful or unsuccessful return
+void shutdown(FILE*, char**, char*);
+
 /* A private function for parsing log header files.
  * This is responsible for initialize the Log classes as well
  */
@@ -25,17 +38,13 @@ int LogGroup::parseLogHeaders()
 
         int nVars;
         int lineNum;
-        char *line;
-        char *str1;
-        char *str2;
-        char *str3;
-        char *str4;
+        char** strs = new char*[NUM_STR];
         char *headerName;
         int i;
         int headerSize;
         int len;
 
-        LogData *currLogData;
+        LogData *currLogData = 0;
         Var *currVar;
 
 
@@ -54,6 +63,8 @@ int LogGroup::parseLogHeaders()
                         fprintf(stderr,
                                 "\nERROR:\nCouldn't open file \"%s\" \n",
                                 headerName);
+                        delete[] strs;
+                        delete[] headerName;
                         return (-1);
                 }
                 // Allocate strings, we know that buffers can't be
@@ -63,15 +74,13 @@ int LogGroup::parseLogHeaders()
                 fseek(fp_, 0, SEEK_END);
                 headerSize = ftell(fp_);
                 ::rewind(fp_);
-                line = new char[headerSize + 1];        // Not sure about +1 :)
-                str1 = new char[headerSize + 1];
-                str2 = new char[headerSize + 1];
-                str3 = new char[headerSize + 1];
-                str4 = new char[headerSize + 1];
+                for(int i = 0; i < NUM_STR; i++){
+                        strs[i] = new char[headerSize + 1]; // Not sure about +1 :)
+                }
 
                 // Parse rest of file
                 lineNum = 0;
-                while (fgets(line, headerSize, fp_) != NULL) {
+                while (fgets(strs[LINE], headerSize, fp_) != NULL) {
 
                         lineNum++;
 
@@ -79,10 +88,10 @@ int LogGroup::parseLogHeaders()
                            or
                            <log_file_name>  byte_order    is   [lit|big]_endian
                          */
-                        if ( sscanf(line, "%s %s %s %s", str1, str2, str3, str4) == 4 ) {
+                        if ( sscanf(strs[LINE], "%s %s %s %s", strs[STR1], strs[STR2], strs[STR3], strs[STR4]) == 4 ) {
 
                                 // Byte order statement and top of a log group?
-                                if (!strcmp(str2, "byte_order")) {
+                                if (!strcmp(strs[STR2], "byte_order")) {
 
                                         LogData *ld = new LogData;
                                         log.push_back(ld);
@@ -90,10 +99,10 @@ int LogGroup::parseLogHeaders()
                                         nGroups_++;
 
                                         // New binary file
-                                        currLogData->setBinaryFileName(str1);
+                                        currLogData->setBinaryFileName(strs[STR1]);
 
                                         // Set byte order
-                                        if (!strcmp(str4, "big_endian")) {
+                                        if (!strcmp(strs[STR4], "big_endian")) {
                                                 currLogData->dataByteOrder = 1;
                                         } else {
                                                 currLogData->dataByteOrder = 0;
@@ -102,7 +111,7 @@ int LogGroup::parseLogHeaders()
                                         continue;
                                 }
                                 // Check for binary file name mismatches
-                                if (strcmp(str1, currLogData->getBinaryFileName())) {
+                                if (currLogData && strcmp(strs[STR1], currLogData->getBinaryFileName())) {
                                         printf("ERROR: Parsing log header \"%s\".\n"
                                                "       Line %d. Binary file name "
                                                "mismatch with \"%s\".\n"
@@ -110,6 +119,7 @@ int LogGroup::parseLogHeaders()
                                                "specification.\n\n",
                                                headerName, lineNum,
                                                currLogData->getBinaryFileName());
+                                        shutdown(fp_, strs, headerName);
                                         return (-1);
                                 }
                                 // New variable
@@ -121,11 +131,12 @@ int LogGroup::parseLogHeaders()
                                 currLogData->setNumVars(nVars);
 
                                 // Set Type
-                                if (currVar->setType(str2) < 0) {
+                                if (currVar->setType(strs[STR2]) < 0) {
                                         printf("ERROR: In log header \"%s\".\n"
                                                "       Line %d. Type \"%s\" is "
                                                "not supported.\n",
-                                               headerName, lineNum, str2);
+                                               headerName, lineNum, strs[STR2]);
+                                        shutdown(fp_, strs, headerName);
                                         return (-1);
                                 }
 
@@ -134,43 +145,47 @@ int LogGroup::parseLogHeaders()
                                 {
                                         char new_units_spec[100];
                                         new_units_spec[0] = 0;
-                                        if ( convert_units_spec (str3, new_units_spec) != 0 ) {
-                                                printf (" ERROR: Attempt to convert old units-spec, \"%s\" failed.\n\n",str3);
+                                        if ( convert_units_spec (strs[STR3], new_units_spec) != 0 ) {
+                                                printf (" ERROR: Attempt to convert old units-spec, \"%s\" failed.\n\n",strs[STR3]);
+                                                shutdown(fp_, strs, headerName);
+
                                                 return (-1);
                                         }
-                                        delete [] str3;
+                                        delete [] strs[STR3];
                                         len = strlen(new_units_spec);
-                                        str3 = new char[len + 1] ;
-                                        strcpy(str3, new_units_spec);
+                                        strs[STR3] = new char[len + 1] ;
+                                        strcpy(strs[STR3], new_units_spec);
                                 }
 
                                 // Initialize Unit class
-                                if ( ! strcmp(str3,"--")) {
-                                    currVar->setUnit(str3);
+                                if ( ! strcmp(strs[STR3],"--")) {
+                                    currVar->setUnit(strs[STR3]);
                                 } else {
-                                    currVar->setUnit(map_trick_units_to_udunits(str3));
+                                    currVar->setUnit(map_trick_units_to_udunits(strs[STR3]));
                                 }
 
                                 // Set Var Name
-                                currVar->setVarName(str4) ;
+                                currVar->setVarName(strs[STR4]) ;
                                 if (currVar->getSize() < 0) {
                                         printf("ERROR: In log header \"%s\".\n"
                                                "       Line %d. Problem with var "
                                                "name \"%s\" . \n",
-                                               headerName, lineNum, str4);
+                                               headerName, lineNum, strs[STR4]);
+                                        shutdown(fp_, strs, headerName);
                                         return (-1);
                                 }
                         }
                 }
-
-                fclose(fp_);
-                delete[]line;
-                delete[]str1;
-                delete[]str2;
-                delete[]str3;
-                delete[]str4;
-                delete[]headerName;
+        shutdown(fp_, strs, headerName);
         }
-
+        delete[] strs;
         return 1;
+}
+
+void shutdown (FILE* fp_, char** strs, char* headerName) {
+        fclose(fp_);
+        for(int i = 0; i < NUM_STR; i++) {
+                delete[] strs[i];
+        }
+        delete[] headerName;
 }

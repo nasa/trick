@@ -315,6 +315,7 @@ RK2MidpointGeneralizedStepSecondOrderODEIntegrator::integrate (
       step_factor = 1.0;
       break;
 
+   default:
       step_factor = 1.0;
       break;
    }
