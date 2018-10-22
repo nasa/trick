@@ -20,7 +20,7 @@ MatLab4::MatLab4(char * file_name , char * param_name , char * time_name ) {
         int temp ;
         int endian ;
         int mat_size ;
-        int type = 0, size = 0;
+        int type , size ;
         int mat_type ;
         int my_byte_order ;
         div_t div_result ;
@@ -162,7 +162,7 @@ MatLab4::MatLab4(char * file_name , char * param_name , char * time_name ) {
                         time_found = true ;
                 }
 
-                delete [] temp_ptr ;
+                delete temp_ptr ;
 
                 // skip to next parameter
                 fseek( fp_ ,  row * column * size * ( 1 + imaginary ) , SEEK_CUR ) ;
@@ -364,10 +364,6 @@ int MatLab4LocateParam( char *file_name , char *param_name , char *time_name ) {
                         case 5:
                                 size = 1 ;
                                 break ;
-                        default :
-                                std::cerr << "Matlab4 " << __FUNCTION__ << "ERROR: invalid matrix size" << std::endl;
-                                size = -1 ; 
-                                break ;
                 }
 
                 fread( &row , 4 , 1 , fp ) ;
@@ -399,11 +395,11 @@ int MatLab4LocateParam( char *file_name , char *param_name , char *time_name ) {
 
                 if ( param_found && time_found ) {
                         fclose(fp) ;
-                        delete[] temp_ptr ;
+                        delete temp_ptr ;
                         return(1) ;
                 }
 
-                delete[] temp_ptr ;
+                delete temp_ptr ;
 
                 // skip to next parameter
                 fseek( fp ,  row * column * size * ( 1 + imaginary ) , SEEK_CUR ) ;

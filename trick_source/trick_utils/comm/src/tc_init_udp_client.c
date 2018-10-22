@@ -37,7 +37,7 @@ int tc_init_udp_client(TCDevice * udp_client_device)
     memset(&sockin, 0 , sizeof(struct sockaddr_in)) ;
 
     if (!udp_client_device) {
-        trick_error_report(NULL,
+        trick_error_report(udp_client_device->error_handler,
                            TRICK_ERROR_ALERT, __FILE__, __LINE__, "UDP device is null.");
         return (-1);
     }

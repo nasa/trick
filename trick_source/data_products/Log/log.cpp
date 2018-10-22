@@ -329,6 +329,7 @@ int LogData::countNumBinaryFiles(char *pathToBinaryData)
                 fprintf(stderr, "Couldn't open \"%s\" for reading. \n",
                         pathToBinaryData);
                 fprintf(stderr, "Maybe LogGroup Constructor not called.\n");
+                closedir(dirp);
                 exit(-1);
         }
 
@@ -390,10 +391,9 @@ int LogData::openCurrBinaryFile()
 
         // Do sanity check on file
         if (access(file, F_OK | R_OK) == -1) {
-                fprintf(stderr, "ERROR: Search for parameter exhausted."
+                printf("ERROR: Search for parameter exhausted."
                        "       Or \"%s\" is not readable or doesn't exist. \n",
                        file);
-                delete [] file;
                 return(-1);
         }
         // Close previous binary file if not first file to open
@@ -509,10 +509,7 @@ int LogData::getSizeRecord()
         for (i = 0; i < nVars_; i++) {
                 sizeRec = sizeRec + vars[i]->getSize();
         }
-        if(sizeRec <= 0) {
-            std::cerr << "ERROR: LogData::getSizeRecord() is zero or negative, may cause divide-by-zero. Exiting." << std::endl;
-            exit(-1);
-        }
+
         return (sizeRec);
 }
 
@@ -574,7 +571,7 @@ char *LogData::getNextRecord()
                 if (currBinExtension_ < nBinFiles_) {
                         // Open up next bin file, and get first rec
                         openCurrBinaryFile();
-                        fread(currRecord_, sr, 1, fp_);
+                        ret = fread(currRecord_, sr, 1, fp_);
                         return (currRecord_);
                 } else {
                         // We are at end of log data (no more recs)
@@ -1316,11 +1313,8 @@ int LogGroup::getValueAtTime( const char *paramName,
         // Get the value at time
         rr = log[yLogIdx]->getValueAtTime(tIdx, time,
                                           yIdx, &vv) ;
-        //  If value with timestamp found
-        if(rr > 0){
-            *value = vv ;
-        }
-        
+        *value = vv ;
+
         return(rr);
 
 }
@@ -1477,6 +1471,7 @@ int LogGroup::getHeaders()
                 fprintf(stderr, "ERROR: Couldn't open \"%s\" for reading. \n",
                         pathToBinaryData_);
                 fprintf(stderr, "Maybe LogGroup constructer wasn't done. \n");
+                closedir(dirp);
                 exit(-1);
         }
         // Count num headers, and max file name length in RUN dir

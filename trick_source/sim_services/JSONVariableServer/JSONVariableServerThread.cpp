@@ -34,6 +34,7 @@ Trick::JSONVariableServerThread::JSONVariableServerThread(TCDevice * listen_dev)
 */
 Trick::JSONVariableServerThread::~JSONVariableServerThread() {
     delete [] incoming_msg ;
+    delete this ;
 }
 
 /*

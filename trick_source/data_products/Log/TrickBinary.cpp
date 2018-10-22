@@ -158,7 +158,7 @@ TrickBinary::TrickBinary(char * file_name , char * param_name ) {
 
                                 if ( ! strcmp( name_ptr , param_name )) {
                                         if ( !strcmp(units_ptr,"--") ) {
-                                            unitStr_ = units_ptr ;
+                                            unitStr_ = strdup(units_ptr) ;
                                         } else {
                                             unitStr_ = map_trick_units_to_udunits(units_ptr) ;
                                         }
@@ -374,7 +374,7 @@ int TrickBinaryReadByteOrder( FILE* fp ) {
         const int file_type_len = 10 ;
         char file_type[file_type_len + 1] ;
         int my_byte_order ;
-        int swap = 0;
+        int swap ;
 
         memset(file_type, 0 , 10 ) ;
         fread(file_type , file_type_len , 1 , fp ) ;
@@ -581,6 +581,6 @@ int TrickBinaryLocateParam( const char * file_name , const char * param_name ) {
         for ( ii = 0 ; ii < num_vars ; ii++ ) {
                 delete[] var_names[ii] ;
         }
-        delete[] var_names;
+
         return(found) ;
 }

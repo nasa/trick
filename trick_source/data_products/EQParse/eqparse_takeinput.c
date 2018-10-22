@@ -32,6 +32,7 @@ stack takeinput(stack stk, char *equation, double value)
         if (eqp_errno) {
                 return (NULL);
         }
+        i = 0;
         len = strlen(equation);
         for (i = 0; i < len; i++) {
                 ch = equation[i];

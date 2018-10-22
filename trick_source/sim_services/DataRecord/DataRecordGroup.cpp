@@ -393,7 +393,7 @@ int Trick::DataRecordGroup::init() {
         drb->ref_searched = true ;
     }
 
-    write_header() ;
+    ret = write_header() ;
 
     // call format specific initialization to open destination and write header
     ret = format_specific_init() ;

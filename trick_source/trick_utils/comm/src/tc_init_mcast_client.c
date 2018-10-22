@@ -23,7 +23,7 @@
 int tc_init_mcast_client(TCDevice * mcast_client_device)
 {
     if (!mcast_client_device) {
-        trick_error_report(NULL,
+        trick_error_report(mcast_client_device->error_handler,
                            TRICK_ERROR_ALERT, __FILE__, __LINE__, "mcast device is null.");
         return (-1);
     }

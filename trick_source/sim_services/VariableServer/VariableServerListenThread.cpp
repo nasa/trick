@@ -116,7 +116,7 @@ void * Trick::VariableServerListenThread::thread_body() {
     std::string version;
     char * user_name ;
 
-    int mcast_socket = 0;
+    int mcast_socket ;
     struct sockaddr_in mcast_addr ;
     struct sockaddr_in mcast_addr_legacy ;
 
@@ -177,14 +177,17 @@ void * Trick::VariableServerListenThread::thread_body() {
             vst->create_thread() ;
             vst->wait_for_accept() ;
             pthread_mutex_unlock(&restart_pause) ;
-        } else if ( broadcast ) {
-            sprintf(buf1 , "%s\t%hu\t%s\t%d\t%s\t%s\t%s\t%s\t%s\t%hu\n" , listen_dev.hostname , (unsigned short)listen_dev.port ,
-             user_name , (int)getpid() , command_line_args_get_default_dir() , command_line_args_get_cmdline_name() ,
-             command_line_args_get_input_file() , version.c_str() , user_tag.c_str(), (unsigned short)listen_dev.port ) ;
+        } else {
+            if ( broadcast ) {
+                sprintf(buf1 , "%s\t%hu\t%s\t%d\t%s\t%s\t%s\t%s\t%s\t%hu\n" , listen_dev.hostname , (unsigned short)listen_dev.port ,
+                 user_name , (int)getpid() , command_line_args_get_default_dir() , command_line_args_get_cmdline_name() ,
+                 command_line_args_get_input_file() , version.c_str() , user_tag.c_str(), (unsigned short)listen_dev.port ) ;
 
-            sendto(mcast_socket , buf1 , strlen(buf1) , 0 , (struct sockaddr *)&mcast_addr , (socklen_t)sizeof(mcast_addr)) ;
-            sendto(mcast_socket , buf1 , strlen(buf1) , 0 , (struct sockaddr *)&mcast_addr_legacy , (socklen_t)sizeof(mcast_addr)) ;
+                sendto(mcast_socket , buf1 , strlen(buf1) , 0 , (struct sockaddr *)&mcast_addr , (socklen_t)sizeof(mcast_addr)) ;
+                sendto(mcast_socket , buf1 , strlen(buf1) , 0 , (struct sockaddr *)&mcast_addr_legacy , (socklen_t)sizeof(mcast_addr)) ;
+            }
         }
+
     }
 
     return NULL ;

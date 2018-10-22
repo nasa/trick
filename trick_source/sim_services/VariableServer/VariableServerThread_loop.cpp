@@ -36,7 +36,7 @@ void * Trick::VariableServerThread::thread_body() {
     vs->add_vst( pthread_self() , this ) ;
 
     if ( listen_dev->socket_type == SOCK_STREAM ) {
-        tc_accept(listen_dev, &connection);
+        ret = tc_accept(listen_dev, &connection);
         tc_blockio(&connection, TC_COMM_ALL_OR_NOTHING);
     }
     connection_accepted = true ;
@@ -141,7 +141,7 @@ void * Trick::VariableServerThread::thread_body() {
             }
 
             if ( copy_mode == VS_COPY_ASYNC ) {
-                copy_sim_data() ;
+                ret = copy_sim_data() ;
             }
 
             if ( (write_mode == VS_WRITE_ASYNC) or

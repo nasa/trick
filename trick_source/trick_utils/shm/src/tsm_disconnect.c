@@ -10,6 +10,8 @@ int tsm_disconnect(TSMDevice * shm_device)
 {
     int ret;
 
+    ret = TSM_SUCCESS;
+
     // if we had a read/write lock, destroy it first
     if (shm_device->rwlock_addr != NULL) {
         ret = pthread_rwlockattr_destroy(&shm_device->rwlattr);

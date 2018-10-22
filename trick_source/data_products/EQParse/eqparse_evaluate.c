@@ -20,7 +20,7 @@ double eval(stack * stk, stack1 * no)
 {
 
         stack1 nos = NULL;
-        double x = 0.0, y = 0.0, z = 0.0;
+        double x, y, z;
         char ch;
         ldiv_t ldivt;
         while (!empty(*stk)) {
@@ -224,7 +224,7 @@ double eval(stack * stk, stack1 * no)
                         nos = push1(nos, z);
                 }
         }
-        pop1(nos, &z);
+        nos = pop1(nos, &z);
 #ifdef DEBUG
         printf("\n%lf", z);
 #endif

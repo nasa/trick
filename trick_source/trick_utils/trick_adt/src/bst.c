@@ -11,12 +11,8 @@ bstNode *bstFind(void *info, BST * bst)
 {
     bstNode *current;
 
-    if (bst == NULL) {
-        fprintf(stderr, "bst is not allocated");
-        return NULL;
-    }
-    if (info == NULL) {
-        fprintf(stderr, "info is invalid pointer");
+    if (bst == NULL && info == NULL) {
+        fprintf(stderr, "Queue is empty");
         return NULL;
     }
 
@@ -101,12 +97,8 @@ void *bstDelete(bstNode * node, BST * bst)
     bstNode **parentspointer;
 
 
-    if (bst == NULL) {
-        fprintf(stderr, "bst is not allocated");
-        return NULL;
-    }
-    if (node == NULL) {
-        fprintf(stderr, "node is invalid pointer");
+    if (node == NULL && bst == NULL) {
+        fprintf(stderr, "Queue is empty");
         return NULL;
     }
 
@@ -115,7 +107,7 @@ void *bstDelete(bstNode * node, BST * bst)
         return (node);
     }
     bst->nodes--;                      /* decrement the node counter */
-    if (node && node->parent != NULL) {        /* if node is not the root, *//* then get the address of the parent's pointer to node */
+    if (node->parent != NULL) {        /* if node is not the root, *//* then get the address of the parent's pointer to node */
         if (node->parent->left == node)
             parentspointer = &(node->parent->left);
         else
@@ -209,16 +201,12 @@ bstNode *bstInsert(void *info, BST * bst)
     int done = 0;
 
 
-    if (bst == NULL) {
-        fprintf(stderr, "bst is not allocated");
-        return NULL;
-    }
-    if (info == NULL) {
-        fprintf(stderr, "info is invalid pointer");
+    if (bst == NULL && info == NULL) {
+        fprintf(stderr, "Queue is empty");
         return NULL;
     }
 
-    if (bst && !bst->init) {
+    if (!bst->init) {
         bstInit(bst);
     }
     newNode = (bstNode *) malloc(sizeof(bstNode));      /* allocate memory for the node */

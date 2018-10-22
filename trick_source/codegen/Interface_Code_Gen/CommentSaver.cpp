@@ -126,7 +126,7 @@ void CommentSaver::getICGField( std::string file_name ) {
                so much easier in perl! */
 
             /* find the ICG field */
-            regcomp( &reg_expr , "(ICG:)" , REG_EXTENDED | REG_ICASE ) ;
+            ret = regcomp( &reg_expr , "(ICG:)" , REG_EXTENDED | REG_ICASE ) ;
             ret = regexec( &reg_expr , th_str.c_str() , 10 , pmatch , 0 ) ;
             regfree(&reg_expr) ;
             if ( ret != 0 ) {
@@ -136,7 +136,7 @@ void CommentSaver::getICGField( std::string file_name ) {
 
             /* find the end of the ICG field */
             memset(pmatch , 0 , sizeof(pmatch)) ;
-            regcomp( &reg_expr , "(\\))" , REG_EXTENDED ) ;
+            ret = regcomp( &reg_expr , "(\\))" , REG_EXTENDED ) ;
             ret = regexec( &reg_expr , th_str.c_str() , 10 , pmatch , 0 ) ;
             regfree(&reg_expr) ;
 
@@ -147,7 +147,7 @@ void CommentSaver::getICGField( std::string file_name ) {
 
             /* test for NoComment */
             memset(pmatch , 0 , sizeof(pmatch)) ;
-            regcomp( &reg_expr , "(NOCOMMENT)$" , REG_EXTENDED ) ;
+            ret = regcomp( &reg_expr , "(NOCOMMENT)$" , REG_EXTENDED ) ;
             ret = regexec( &reg_expr , th_str.c_str() , 10 , pmatch , 0 ) ;
             regfree(&reg_expr) ;
 
@@ -157,7 +157,7 @@ void CommentSaver::getICGField( std::string file_name ) {
 
             /* test for No */
             memset(pmatch , 0 , sizeof(pmatch)) ;
-            regcomp( &reg_expr , "(NO)$" , REG_EXTENDED ) ;
+            ret = regcomp( &reg_expr , "(NO)$" , REG_EXTENDED ) ;
             ret = regexec( &reg_expr , th_str.c_str() , 10 , pmatch , 0 ) ;
             regfree(&reg_expr) ;
 
@@ -208,7 +208,7 @@ std::set< std::string > CommentSaver::getIgnoreTypes( std::string file_name ) {
             start += strlen("trick_exclude_typename") ;
             std::string temp_str = th_str.substr(start) ;
             memset(pmatch , 0 , sizeof(pmatch)) ;
-            regcomp( &reg_expr , "^\\s*\\{\\s*(\\S+)\\s*\\}" , REG_EXTENDED ) ;
+            ret = regcomp( &reg_expr , "^\\s*\\{\\s*(\\S+)\\s*\\}" , REG_EXTENDED ) ;
             ret = regexec( &reg_expr , temp_str.c_str() , 10 , pmatch , 0 ) ;
             regfree(&reg_expr) ;
             if ( ret == 0 ) {
@@ -230,7 +230,7 @@ std::set< std::string > CommentSaver::getIgnoreTypes( std::string file_name ) {
            so much easier in perl! */
 
         /* find the start of the ICG_IGNORE_TYPES field */
-        regcomp( &reg_expr , "(ICG[ _]IGNORE[ _]TYPE(S)?:)" , REG_EXTENDED | REG_ICASE ) ;
+        ret = regcomp( &reg_expr , "(ICG[ _]IGNORE[ _]TYPE(S)?:)" , REG_EXTENDED | REG_ICASE ) ;
         ret = regexec( &reg_expr , th_str.c_str() , 10 , pmatch , 0 ) ;
         regfree(&reg_expr) ;
         if ( ret != 0 ) {
@@ -240,7 +240,7 @@ std::set< std::string > CommentSaver::getIgnoreTypes( std::string file_name ) {
 
         /* find the end of the ICG_IGNORE_TYPES field */
         memset(pmatch , 0 , sizeof(pmatch)) ;
-        regcomp( &reg_expr , "(\\)\\s*\\))" , REG_EXTENDED ) ;
+        ret = regcomp( &reg_expr , "(\\)\\s*\\))" , REG_EXTENDED ) ;
         ret = regexec( &reg_expr , th_str.c_str() , 10 , pmatch , 0 ) ;
         regfree(&reg_expr) ;
         if ( ret != 0 ) {

@@ -121,7 +121,6 @@ void Trick::PythonPrint::write_singleton( std::ostream& chkpnt_os, void* address
                 } else {
                     std::cerr << __FUNCTION__ << " enumeration size error." << std::endl;
                     std::cerr.flush();
-                    value = -1;
                 }
 
                 enum_attr = (ENUM_ATTR*)attr->attr;

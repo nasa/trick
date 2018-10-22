@@ -26,7 +26,7 @@ int tc_init_mcast_server(TCDevice * mcast_server_device)
     const unsigned int yes = 1;
 
     if (!mcast_server_device) {
-        trick_error_report(NULL,
+        trick_error_report(mcast_server_device->error_handler,
                            TRICK_ERROR_ALERT, __FILE__, __LINE__, "mcast device is null.");
         return (-1);
     }
