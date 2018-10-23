@@ -67,7 +67,6 @@ int checkpoint_map_ik_id(STL & in_map , std::string object_name , std::string va
 
             var_declare.str("") ;
             var_declare.clear() ;
-            std::string type_string ;
             try {
                 type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*items).name(), 0, 0, &status )) ;
             } catch (const std::bad_typeid& e) {
