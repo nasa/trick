@@ -64,7 +64,7 @@ public abstract class CommonProduct {
      * @param tstart	The start time of the related data.
      */
     public void setTStart(double tstart) {
-    	this.tstart = new Double(tstart);
+    	this.tstart = tstart;
     }
     
     /**
@@ -74,7 +74,7 @@ public abstract class CommonProduct {
      */
     public void setTStart(String tstartStr) {
     	try {
-			tstart = new Double(tstartStr);
+			tstart = Double.valueOf(tstartStr);
 		} catch (NumberFormatException e) {
 			tstart = null;
 		} catch (NullPointerException e) {
@@ -97,7 +97,7 @@ public abstract class CommonProduct {
      * @param tstop		The stop time of the related data.
      */
     public void setTStop(double tstop) {
-    	this.tstop = new Double(tstop);
+    	this.tstop = tstop;
     }
     
     /**
@@ -107,7 +107,7 @@ public abstract class CommonProduct {
      */
     public void setTStop(String tstopStr) {
     	try {
-			tstop = new Double(tstopStr);
+			tstop = Double.valueOf(tstopStr);
 		} catch (NumberFormatException e) {
 			tstop = null;
 		} catch (NullPointerException e) {
@@ -130,7 +130,7 @@ public abstract class CommonProduct {
      * @param freq	The frequency of the related data.
      */
     public void setFrequency(double freq) {
-    	frequency = new Double(freq);
+    	frequency = freq;
     }
     
     /**
@@ -140,7 +140,7 @@ public abstract class CommonProduct {
      */
     public void setFrequency(String freqStr) {
     	try {
-			frequency = new Double(freqStr);
+			frequency = Double.valueOf(freqStr);
 		} catch (NumberFormatException e) {
 			frequency = null;
 		} catch (NullPointerException e) {

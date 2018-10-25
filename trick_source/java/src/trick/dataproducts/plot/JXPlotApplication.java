@@ -40,12 +40,14 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.xml.sax.SAXException;
 
-import com.lowagie.text.Document;
-import com.lowagie.text.DocumentException;
-import com.lowagie.text.PageSize;
-import com.lowagie.text.pdf.DefaultFontMapper;
-import com.lowagie.text.pdf.PdfContentByte;
-import com.lowagie.text.pdf.PdfWriter;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.graphics.image.JPEGFactory;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
 import trick.common.TrickApplication;
 import trick.common.ui.UIUtils;
@@ -115,17 +117,7 @@ public class JXPlotApplication extends TrickApplication {
         try {
             int dpFileCount = productTreeRoot.getChildCount();
             if (dpFileCount > 0) {
-                Document document = new Document(PageSize.A4);
-                PdfWriter writer = null;
-                PdfContentByte pdfContent = null;
-                try {
-                    writer = PdfWriter.getInstance(document, new FileOutputStream(file));
-                    document.open();
-                    // this object can be reused which is used to write each page to the same PDF file
-                    pdfContent = writer.getDirectContent();
-                } catch (DocumentException e) {
-                    e.printStackTrace();
-                }
+                PDDocument document = new PDDocument();
                 for (int i = 0; i < dpFileCount; i++) {
                     DefaultMutableTreeNode eachDPFile = (DefaultMutableTreeNode)productTree.getModel().getChild(productTreeRoot, i);
                     int pageCount = eachDPFile.getChildCount();
@@ -133,14 +125,12 @@ public class JXPlotApplication extends TrickApplication {
                         DefaultMutableTreeNode eachPage = (DefaultMutableTreeNode)productTree.getModel().getChild(eachDPFile, j);
                         if (eachPage.getUserObject() instanceof TrickChartFrame) {
                             TrickChartFrame theFrame = (TrickChartFrame)eachPage.getUserObject();
-                            theFrame.writePDFPage(pdfContent, new DefaultFontMapper());
+                            theFrame.writePDFPage(document);
                         }
                     }
                 }
                 // document needs to be closed after the PDF file is saved
-                if (document != null) {
-                    document.close();
-                }
+                document.save(file);
             }
         } catch (IOException e) {
             e.printStackTrace();

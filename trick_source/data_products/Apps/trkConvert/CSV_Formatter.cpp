@@ -17,8 +17,8 @@ void CSV_Formatter::writeDatum(FILE* out_fp, int16_t datum)  { fprintf(out_fp,"%
 void CSV_Formatter::writeDatum(FILE* out_fp, uint16_t datum) { fprintf(out_fp,"%u", datum); }
 void CSV_Formatter::writeDatum(FILE* out_fp, int32_t datum)  { fprintf(out_fp,"%d", datum); }
 void CSV_Formatter::writeDatum(FILE* out_fp, uint32_t datum) { fprintf(out_fp,"%u", datum); }
-void CSV_Formatter::writeDatum(FILE* out_fp, int64_t datum)  { fprintf(out_fp,"%lld", datum); }
-void CSV_Formatter::writeDatum(FILE* out_fp, uint64_t datum) { fprintf(out_fp,"%lld", datum); }
+void CSV_Formatter::writeDatum(FILE* out_fp, int64_t datum)  { fprintf(out_fp,"%ld", datum); }
+void CSV_Formatter::writeDatum(FILE* out_fp, uint64_t datum) { fprintf(out_fp,"%lu", datum); }
 void CSV_Formatter::writeDatum(FILE* out_fp, float datum)    { fprintf(out_fp,"%.7f", datum); }
 void CSV_Formatter::writeDatum(FILE* out_fp, double datum)   { fprintf(out_fp,"%.15g", datum); }
 const char* CSV_Formatter::extension() { return ".csv"; };

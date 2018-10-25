@@ -82,7 +82,7 @@ void FindTrickICG::ElIf(clang::SourceLocation Loc, clang::SourceRange ConditionR
     If(Loc,ConditionRange,ConditionValue) ;
 }
 
-#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
+#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 7))
 void FindTrickICG::Ifdef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDefinition &MD)
 #else
 void FindTrickICG::Ifdef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDirective *MD)
@@ -109,7 +109,7 @@ void FindTrickICG::Ifdef(clang::SourceLocation Loc, const clang::Token &MacroNam
 
 }
 
-#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
+#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 7))
 void FindTrickICG::Ifndef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDefinition &MD)
 #else
 void FindTrickICG::Ifndef(clang::SourceLocation Loc, const clang::Token &MacroNameTok, const clang::MacroDirective *MD)

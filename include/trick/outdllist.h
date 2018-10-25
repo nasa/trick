@@ -32,7 +32,7 @@ typedef struct _DLLIST {
 }DLLIST;
 
 
-DLLIST* DLL_Create();
+DLLIST* DLL_Create(void);
 
 void DLL_Delete(DLLIST*);
 

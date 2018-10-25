@@ -70,7 +70,6 @@
 #
 # For more information, see:
 # github.com/nasa/trick/wiki/Trickified-Project-Libraries
-
 ifndef TRICKIFY_CXX_FLAGS
     $(error TRICKIFY_CXX_FLAGS must be set)
 endif
@@ -80,7 +79,7 @@ TRICKIFY_PYTHON_DIR ?= python
 TRICK_HOME := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/../../..)
 
 ifneq ($(wildcard build),)
-    SWIG_OBJECTS := $(shell tail -n +2  build/S_library_swig)
+    SWIG_OBJECTS := $(shell cat build/S_library_swig)
     SWIG_OBJECTS := $(addprefix build,$(addsuffix _py.o,$(basename $(SWIG_OBJECTS))))
     IO_OBJECTS := $(shell find build -name "io_*.cpp")
     IO_OBJECTS := $(IO_OBJECTS:.cpp=.o)
@@ -111,7 +110,7 @@ $(TRICKIFY_OBJECT_NAME): $(SWIG_OBJECTS) $(IO_OBJECTS) | $(dir $(TRICKIFY_OBJECT
 	$(info $(call COLOR,Linking)    $@)
 	@ld -r -o $@ $^
 
-$(dir $(TRICKIFY_OBJECT_NAME)) $(TRICKIFY_PYTHON_DIR):
+$(dir $(TRICKIFY_OBJECT_NAME)) $(TRICKIFY_PYTHON_DIR) build:
 	@mkdir -p $@
 
 $(IO_OBJECTS): %.o: %.cpp
@@ -128,10 +127,11 @@ $(SWIG_OBJECTS): %.o: %.cpp
 
 $(SWIG_OBJECTS:.o=.cpp): %.cpp: %.i | $(TRICKIFY_PYTHON_DIR) $(SWIG_OBJECTS:.o=.i)
 	$(info $(call COLOR,SWIGing)    $<)
-	@$(SWIG) $(TRICK_INCLUDE) $(TRICK_DEFINES) $(TRICK_VERSIONS) $(SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -outdir $(TRICKIFY_PYTHON_DIR) -o $@ $<
+	@$(SWIG) $(TRICK_INCLUDE) $(TRICK_DEFINES) $(TRICK_VERSIONS) $(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -outdir $(TRICKIFY_PYTHON_DIR) -o $@ $<
 
 define create_convert_swig_rule
 build/%_py.i: /%.$1
+	$$(info $$(call COLOR,Converting) $$<)
 	${TRICK_HOME}/$(LIBEXEC)/trick/convert_swig ${TRICK_CONVERT_SWIG_FLAGS} $$<
 endef
 
@@ -169,7 +169,7 @@ $(foreach EXTENSION,$(EXTENSIONS),$(eval $(call create_convert_swig_rule,$(EXTEN
 # dependency list. The method is laid out in more detail here:
 # http://make.mad-scientist.net/papers/advanced-auto-dependency-generation/
 
-build/S_source.d:
+build/S_source.d: | $(dir $@)
 	@$(TRICK_HOME)/bin/trick-ICG $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(TRICK_ICGFLAGS) S_source.hh
 	@$(TRICK_HOME)/$(LIBEXEC)/trick/make_makefile_swig
 	@$(TRICK_CC) -MM -MP -MT $@ -MF $@ $(TRICKIFY_CXX_FLAGS) S_source.hh

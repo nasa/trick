@@ -1,7 +1,6 @@
 
 /*
   PURPOSE: (link list)
-  ICG:     (No)
 */
 
 /*********** doubly linked list types *************/

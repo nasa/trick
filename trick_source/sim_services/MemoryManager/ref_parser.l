@@ -19,6 +19,10 @@
 #include "trick/RefParseContext.hh"
 #include "ref_parser.tab.h"
 
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#pragma GCC diagnostic ignored "-Wunused-function"
+
 #define YY_EXTRA_TYPE RefParseContext*
 
 #define YY_USER_ACTION yylloc->first_line = yylineno;

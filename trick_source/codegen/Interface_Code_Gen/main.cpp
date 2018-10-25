@@ -97,6 +97,9 @@ int main(int argc, char * argv[]) {
     ci.getLangOpts().CPlusPlus = true ;
     ci.getLangOpts().CPlusPlus11 = true ;
     ci.getLangOpts().CXXOperatorNames = true ;
+#if (LIBCLANG_MAJOR >= 6)
+    ci.getLangOpts().DoubleSquareBracketAttributes = true ;
+#endif
 
     // Create all of the necessary managers.
     ci.createFileManager();

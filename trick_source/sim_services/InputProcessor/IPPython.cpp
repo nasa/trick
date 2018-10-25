@@ -79,8 +79,6 @@ int Trick::IPPython::init() {
     /** @par Detailed Design: */
 
     FILE *input_fp ;
-    std::string shortcut ;
-    std::string verify_command ;
     int ret ;
     std::string error_message ;
     pthread_mutexattr_t m_attr ;

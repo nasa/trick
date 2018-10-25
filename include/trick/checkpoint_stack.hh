@@ -40,7 +40,13 @@ int checkpoint_stl(std::stack<ITEM_TYPE,_Sequence> & in_stl , std::string object
     std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
 
     if ( cont_size > 0 ) {
-        std::string type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*items).name(), 0, 0, &status )) ;
+        std::string type_string;
+        try {
+            type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*items).name(), 0, 0, &status )) ;
+        } catch (const std::bad_typeid& e) {
+            message_publish(1, "Error, having difficulty checkpointing %s.%s\n", object_name.c_str(), var_name.c_str()) ;
+            return 0 ;
+        }
         var_declare << type_string << " "
          << object_name << "_" << var_name << "[" << cont_size << "]" ;
         items = (ITEM_TYPE *)TMM_declare_var_s(var_declare.str().c_str()) ;

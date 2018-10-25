@@ -47,16 +47,16 @@ void Trick::MonteCarlo::master_shutdown() {
 
 void Trick::MonteCarlo::shutdown_slaves() {
 
-    if (verbosity >= INFORMATIONAL) {
+    if (verbosity >= MC_INFORMATIONAL) {
         message_publish(MSG_INFO, "Monte [Master] Simulation complete. Shutting down slaves.\n\n") ;
     }
 
     for (std::vector<MonteSlave *>::size_type i = 0; i < slaves.size() ; ++i) {
-        slaves[i]->state = MonteSlave::FINISHED;
+        slaves[i]->state = MonteSlave::MC_FINISHED;
         connection_device.hostname = (char*)slaves[i]->machine_name.c_str();
         connection_device.port = slaves[i]->port;
         if (tc_connect(&connection_device) == TC_SUCCESS) {
-            int command = htonl(MonteSlave::SHUTDOWN);
+            int command = htonl(MonteSlave::MC_SHUTDOWN);
             tc_write(&connection_device, (char*)&command, sizeof(command));
         }
     }

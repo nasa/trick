@@ -251,7 +251,7 @@ public abstract class TrickApplication extends SingleFrameApplication implements
     @Override
     public Object getSessionState(Component component) {
         if (component instanceof JToggleButton) {
-            return new Boolean(((JToggleButton)component).isSelected());
+            return ((JToggleButton) component).isSelected();
         }
         return null;
     }
@@ -362,10 +362,9 @@ public abstract class TrickApplication extends SingleFrameApplication implements
      */
     @Override
     protected void startup() {
-        // Add this exit listener if the sub class likes the confirmation dialog
-        String defaultValue       = Boolean.toString(true);
-        boolean savedExitProperty = new Boolean(trickProperties.getProperty(
-                "confirmExit", defaultValue)).booleanValue();
+        String defaultValue       = Boolean.toString(false);
+        boolean savedExitProperty = Boolean.valueOf(trickProperties.getProperty(
+                "confirmExit", defaultValue));
         if (( savedExitProperty == true ) && (getExitListeners().length==0)) {
             // initialize gets called again if you reconnect, so don't add another exitlistener
             addExitListener(exitListener);

@@ -10,7 +10,7 @@ Trick::MonteCarlo::MonteCarlo() :
     custom_slave_dispatch(false),
     timeout(120),
     max_tries(2),
-    verbosity(INFORMATIONAL),
+    verbosity(MC_INFORMATIONAL),
     num_runs(0),
     actual_num_runs(0),
     num_results(0),

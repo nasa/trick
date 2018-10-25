@@ -45,8 +45,8 @@ public class ProductPage extends CommonProduct {
     //========================================
 
 	private List<ProductPlot> plotList;
-	private Integer hcells = new Integer(0); // default to 0
-	private Integer vcells = new Integer(0); // default to 0
+	private Integer hcells = 0; // default to 0
+	private Integer vcells = 0; // default to 0
 	
     //========================================
     //  Constructors
@@ -69,7 +69,7 @@ public class ProductPage extends CommonProduct {
      */
     public void setHcells(String hcellsStr) {
     	try {
-			hcells = new Integer(hcellsStr);
+			hcells = Integer.valueOf(hcellsStr);
 		} catch (NumberFormatException e) {
 			hcells = null;
 		} catch (NullPointerException e) {
@@ -83,7 +83,7 @@ public class ProductPage extends CommonProduct {
      */
     public void setVcells(String vcellsStr) {
     	try {
-			vcells = new Integer(vcellsStr);
+			vcells = Integer.valueOf(vcellsStr);
 		} catch (NumberFormatException e) {
 			vcells = null;
 		} catch (NullPointerException e) {

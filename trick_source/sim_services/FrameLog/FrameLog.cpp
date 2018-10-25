@@ -782,7 +782,7 @@ int Trick::FrameLog::create_DP_job_files() {
         fprintf(fpx, "    <page>\n");
         for ( ii = 0 ; ii < 8 and (page_count * 8 + ii + 1) < drg_users.size() ; ii++ ) {
             fprintf(fpx, "        <plot grid=\"yes\">\n");
-            fprintf(fpx, "            <title>Child thread %d Frame Scheduled Jobs</title>\n", (page_count * 8 + ii + 1));
+            fprintf(fpx, "            <title>Child thread %u Frame Scheduled Jobs</title>\n", (page_count * 8 + ii + 1));
             fprintf(fpx, "            <xaxis> <label>Time</label> <units>s</units> </xaxis>\n");
             fprintf(fpx, "            <yaxis> <label>Frame Scheduled Jobs Time</label> </yaxis>\n");
             fprintf(fpx, "            <curve>\n");

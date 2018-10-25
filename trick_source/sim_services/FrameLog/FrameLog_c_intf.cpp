@@ -13,7 +13,7 @@ extern Trick::FrameLog * the_fl ;
  * @copydoc Trick::FrameLog::framelog_on
  * C wrapper for Trick::FrameLog::framelog_on
  */
-extern "C" int frame_log_on() {
+extern "C" int frame_log_on(void) {
     if (the_fl != NULL) {
         return the_fl->framelog_on() ;
     }
@@ -25,7 +25,7 @@ extern "C" int frame_log_on() {
  * @copydoc Trick::FrameLog::framelog_off
  * C wrapper for Trick::FrameLog::framelog_off
  */
-extern "C" int frame_log_off() {
+extern "C" int frame_log_off(void) {
     if (the_fl != NULL) {
         return the_fl->framelog_off() ;
     }

@@ -9,8 +9,8 @@ PURPOSE: ( Numeric integration for SIM_cannon_numeric )
 int cannon_deriv( CANNON* C ) {
 
       if (!C->impact) {
-          C->acc[0] =  0.00 ;
-          C->acc[1] = -9.81 ;
+          C->acc[0] =  0.0;
+          C->acc[1] = -C->g;
           C->timeRate = 1.00;
       }
       return 0 ; 

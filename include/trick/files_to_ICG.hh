@@ -93,4 +93,7 @@
 #include "trick/rand_generator.h"
 #include "trick/units_conv.h"
 
+#include "trick/lqueue.h"
+#include "trick/lstack.h"
+
 #endif

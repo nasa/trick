@@ -42,7 +42,6 @@ GPViewCurveNode::GPViewCurveNode( Widget          Toplevel,
     std::string       curve_symbol_style;
     std::string       curve_symbol_size;
     std::string       tmp_string;
-    std::stringstream tmp_stream;
 
     toplevel = Toplevel;
     dpc_curve = Curve;

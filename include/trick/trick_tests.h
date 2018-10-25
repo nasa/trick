@@ -81,7 +81,7 @@
 extern "C" {
 #endif
 
-int trick_test_enable() ;
+int trick_test_enable(void) ;
 
 int trick_test_set_file_name( const char * in_file_name ) ;
 
@@ -94,7 +94,7 @@ int trick_test_add_parent(const char * in_test_suite_name,
 int add_test_result( const char * in_test_suite_name ,
                      const char * in_test_case ,
                      const char * in_failure_string ) ;
-int call_write_output() ;
+int call_write_output(void) ;
 
 #ifdef __cplusplus
 }

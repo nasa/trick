@@ -106,27 +106,27 @@ extern "C" void stripchart_set_enabled(int enabled) {
     }
 }
 
-extern "C" int sim_control_panel_get_enabled() {
+extern "C" int sim_control_panel_get_enabled(void) {
     //printDeprecationMessage(__FILE__, __LINE__, __FUNCTION__);
     return getFirstInstanceOfType(typeid(Trick::SimControlPanel)) != NULL;
 }
 
-extern "C" int trick_view_get_enabled() {
+extern "C" int trick_view_get_enabled(void) {
     //printDeprecationMessage(__FILE__, __LINE__, __FUNCTION__);
     return getFirstInstanceOfType(typeid(Trick::TrickView)) != NULL;
 }
 
-extern "C" int malfunctions_trick_view_get_enabled() {
+extern "C" int malfunctions_trick_view_get_enabled(void) {
     //printDeprecationMessage(__FILE__, __LINE__, __FUNCTION__);
     return getFirstInstanceOfType(typeid(Trick::MalfunctionsTrickView)) != NULL;
 }
 
-extern "C" int monte_monitor_get_enabled() {
+extern "C" int monte_monitor_get_enabled(void) {
     //printDeprecationMessage(__FILE__, __LINE__, __FUNCTION__);
     return getFirstInstanceOfType(typeid(Trick::MonteMonitor)) != NULL;
 }
 
-extern "C" int stripchart_get_enabled() {
+extern "C" int stripchart_get_enabled(void) {
     //printDeprecationMessage(__FILE__, __LINE__, __FUNCTION__);
     return getFirstInstanceOfType(typeid(Trick::StripChart)) != NULL;
 }
@@ -196,7 +196,7 @@ extern "C" void stripchart_set_startup_command(const char *startup_command) {
     externalApplication->set_startup_command(startup_command ? std::string(startup_command) : "");
 }
 
-extern "C" const char *sim_control_panel_get_startup_command() {
+extern "C" const char *sim_control_panel_get_startup_command(void) {
     //printDeprecationMessage(__FILE__, __LINE__, __FUNCTION__);
 
     Trick::SimControlPanel *externalApplication = (Trick::SimControlPanel *)getFirstInstanceOfType(typeid(Trick::SimControlPanel));
@@ -209,7 +209,7 @@ extern "C" const char *sim_control_panel_get_startup_command() {
     return externalApplication->get_startup_command().c_str();
 }
 
-extern "C" const char *trick_view_get_startup_command() {
+extern "C" const char *trick_view_get_startup_command(void) {
     //printDeprecationMessage(__FILE__, __LINE__, __FUNCTION__);
 
     Trick::TrickView *externalApplication = (Trick::TrickView *)getFirstInstanceOfType(typeid(Trick::TrickView));
@@ -222,7 +222,7 @@ extern "C" const char *trick_view_get_startup_command() {
     return externalApplication->get_startup_command().c_str();
 }
 
-extern "C" const char *malfunctions_trick_view_get_startup_command() {
+extern "C" const char *malfunctions_trick_view_get_startup_command(void) {
     //printDeprecationMessage(__FILE__, __LINE__, __FUNCTION__);
 
     Trick::MalfunctionsTrickView *externalApplication = (Trick::MalfunctionsTrickView *)getFirstInstanceOfType(typeid(Trick::MalfunctionsTrickView));
@@ -235,7 +235,7 @@ extern "C" const char *malfunctions_trick_view_get_startup_command() {
     return externalApplication->get_startup_command().c_str();
 }
 
-extern "C" const char *monte_monitor_get_startup_command() {
+extern "C" const char *monte_monitor_get_startup_command(void) {
     //printDeprecationMessage(__FILE__, __LINE__, __FUNCTION__);
 
     Trick::MonteMonitor *externalApplication = (Trick::MonteMonitor *)getFirstInstanceOfType(typeid(Trick::MonteMonitor));
@@ -248,7 +248,7 @@ extern "C" const char *monte_monitor_get_startup_command() {
     return externalApplication->get_startup_command().c_str();
 }
 
-extern "C" const char *stripchart_get_startup_command() {
+extern "C" const char *stripchart_get_startup_command(void) {
     //printDeprecationMessage(__FILE__, __LINE__, __FUNCTION__);
 
     Trick::StripChart *externalApplication = (Trick::StripChart *)getFirstInstanceOfType(typeid(Trick::StripChart));
@@ -261,7 +261,7 @@ extern "C" const char *stripchart_get_startup_command() {
     return externalApplication->get_startup_command().c_str();
 }
 
-extern "C" void sim_control_panel_launch() {
+extern "C" void sim_control_panel_launch(void) {
     //printDeprecationMessage(__FILE__, __LINE__, __FUNCTION__);
 
     Trick::SimControlPanel *externalApplication = (Trick::SimControlPanel *)getFirstInstanceOfType(typeid(Trick::SimControlPanel));
@@ -271,7 +271,7 @@ extern "C" void sim_control_panel_launch() {
     }
 }
 
-extern "C" void trick_view_launch() {
+extern "C" void trick_view_launch(void) {
     //printDeprecationMessage(__FILE__, __LINE__, __FUNCTION__);
 
     Trick::TrickView *externalApplication = (Trick::TrickView *)getFirstInstanceOfType(typeid(Trick::TrickView));
@@ -281,7 +281,7 @@ extern "C" void trick_view_launch() {
     }
 }
 
-extern "C" void malfunctions_trick_view_launch() {
+extern "C" void malfunctions_trick_view_launch(void) {
     //printDeprecationMessage(__FILE__, __LINE__, __FUNCTION__);
 
     Trick::MalfunctionsTrickView *externalApplication = (Trick::MalfunctionsTrickView *)getFirstInstanceOfType(typeid(Trick::MalfunctionsTrickView));
@@ -291,7 +291,7 @@ extern "C" void malfunctions_trick_view_launch() {
     }
 }
 
-extern "C" void monte_monitor_launch() {
+extern "C" void monte_monitor_launch(void) {
     //printDeprecationMessage(__FILE__, __LINE__, __FUNCTION__);
 
     Trick::MonteMonitor *externalApplication = (Trick::MonteMonitor *)getFirstInstanceOfType(typeid(Trick::MonteMonitor));
@@ -301,7 +301,7 @@ extern "C" void monte_monitor_launch() {
     }
 }
 
-extern "C" void stripchart_launch() {
+extern "C" void stripchart_launch(void) {
     //printDeprecationMessage(__FILE__, __LINE__, __FUNCTION__);
 
     Trick::StripChart *externalApplication = (Trick::StripChart *)getFirstInstanceOfType(typeid(Trick::StripChart));

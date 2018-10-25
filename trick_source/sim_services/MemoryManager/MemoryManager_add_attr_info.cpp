@@ -21,14 +21,12 @@ int Trick::MemoryManager::add_attr_info( const std::string & user_type_string , 
     std::string sub_attr_init_name ;
     std::string size_func_name ;
     size_t spos ;
-    std::string::iterator pos ;
     ATTRIBUTES* sub_attr = NULL ;
     ENUM_ATTR* enum_attr = NULL ;
     void (*init_sub_attr)(void) = NULL ;
     size_t (*size_func)(void) = NULL ;
     unsigned int ii ;
     std::set<std::string>::iterator it ;
-    std::map<std::string,std::string>::iterator mit;
 
     /** @par Design Details: */
 

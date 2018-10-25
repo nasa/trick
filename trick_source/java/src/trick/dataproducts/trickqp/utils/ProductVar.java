@@ -286,7 +286,9 @@ public class ProductVar {
     private String name;
     // The label of the variable
     private String label;
-    // The units of the variable
+    // The <units> element is OPTIONAL. It specifies the units
+    // to which the user wants the recorded data to be converted.
+    // The default value of units should be null, NOT "--".
     private String units;
     // The units from which needs to be converted.
     // Only needed when the data recording data doesn't provide the units for this variable.
@@ -323,7 +325,7 @@ public class ProductVar {
         // If the label is entered by a user from GUI, that entered text
         // will be displayed and fxplot will not show the default label.
         //this.setLabel( name );
-        setUnits("--");
+        setUnits(null);
         
     }
 
@@ -515,7 +517,7 @@ public class ProductVar {
      * @param bias        The var bias.
      */
     public void setBias(double bias) {
-        this.bias = new Double(bias);
+        this.bias = bias;
     }
 
     /**
@@ -525,7 +527,7 @@ public class ProductVar {
      */
     public void setBias(String biasStr) {
         try {
-            bias = new Double(biasStr);
+            bias = Double.valueOf(biasStr);
         } catch (NumberFormatException e) {
             bias = null;
         } catch (NullPointerException e) {
@@ -539,7 +541,7 @@ public class ProductVar {
      * @param scale        The var scale.
      */
     public void setScale(double scale) {
-        this.scale = new Double(scale);
+        this.scale = scale;
     }
 
     /**
@@ -549,7 +551,7 @@ public class ProductVar {
      */
     public void setScale(String scaleStr) {
         try {
-            scale = new Double(scaleStr);
+            scale = Double.valueOf(scaleStr);
         } catch (NumberFormatException e) {
             scale = null;
         } catch (NullPointerException e) {
@@ -563,7 +565,7 @@ public class ProductVar {
      * @param max        The var max.
      */
     public void setMax(double max) {
-        this.max = new Double(max);
+        this.max = max;
     }
 
     /**
@@ -573,7 +575,7 @@ public class ProductVar {
      */
     public void setMax(String maxStr) {
         try {
-            max = new Double(maxStr);
+            max = Double.valueOf(maxStr);
         } catch (NumberFormatException e) {
             max = null;
         } catch (NullPointerException e) {

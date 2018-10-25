@@ -32,12 +32,14 @@ public class TVInteger extends VSInteger implements TrickViewFluent<TVInteger.Fo
 
         Decimal {
             public String format(int value, boolean unsigned) {
+                String result;
                 if (unsigned && value < 0) {
-                    return Long.toString(value + 4294967296L);
+                    result = Long.toString(value + 4294967296L);
                 }
                 else {
-                    return Integer.toString(value);
+                    result = Integer.toString(value);
                 }
+                return "00000000000000000000000000000000".substring(result.length()) + result;
             }
 
             public int parse(String value) {

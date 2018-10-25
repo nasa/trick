@@ -1,4 +1,6 @@
-/***************** queue functions ***************/
+/*
+    PURPOSE: (queue functions)
+*/
 
 #ifndef LQUEUE_H
 #define LQUEUE_H
@@ -13,7 +15,7 @@ extern "C" {
 
 typedef struct _LQUEUE
 {
-    DLLIST list;        /* implementing queue using a linked-list */
+    DLLIST list;        /* -- implementing queue using a linked-list */
 }LQUEUE;
 
 

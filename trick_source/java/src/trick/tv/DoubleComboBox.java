@@ -33,8 +33,8 @@ public class DoubleComboBox extends JXPanel {
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
         for (int i = 0; i < count; i++) {
-            minimumBox.addItem(new Integer(i));
-            maximumBox.addItem(new Integer(i));
+            minimumBox.addItem(i);
+            maximumBox.addItem(i);
         }
 
         minimumBox.setSelectedIndex(0);
@@ -43,12 +43,12 @@ public class DoubleComboBox extends JXPanel {
         minimumBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                int min = ((Integer)minimumBox.getSelectedItem());
+                int min = (int)minimumBox.getSelectedItem();
                 for (int i = ((Integer)maximumBox.getItemAt(0)); i < min; ++i) {
                     maximumBox.removeItemAt(0);
                 }
                 for (int i = ((Integer)maximumBox.getItemAt(0)); i > min; ) {
-                    maximumBox.insertItemAt(new Integer(--i), 0);
+                    maximumBox.insertItemAt(--i, 0);
                 }
             }
         });
@@ -56,12 +56,12 @@ public class DoubleComboBox extends JXPanel {
         maximumBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                int max = ((Integer)maximumBox.getSelectedItem());
+                int max = (int)maximumBox.getSelectedItem();
                 for (int i = ((Integer)minimumBox.getItemAt(minimumBox.getItemCount() - 1)); i > max; --i) {
                     minimumBox.removeItemAt(minimumBox.getItemCount() - 1);
                 }
                 for (int i = ((Integer)minimumBox.getItemAt(minimumBox.getItemCount() - 1)); i < max; ) {
-                    minimumBox.addItem(new Integer(++i));
+                    minimumBox.addItem(++i);
                 }
             }
         });
