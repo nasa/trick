@@ -8,6 +8,7 @@
 #include "trick/CommandLineArguments.hh"
 #include "trick/DMTCP.hh"
 #include "trick/Executive.hh"
+#include "trick/ExecutiveException.hh"
 #include "trick/Environment.hh"
 #include "trick/Event.hh"
 #include "trick/EventProcessor.hh"
