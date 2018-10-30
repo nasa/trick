@@ -61,6 +61,7 @@
 #include "trick/Environment.hh"
 #include "trick/env_proto.h"
 #include "trick/Executive.hh"
+#include "trick/ExecutiveException.hh"
 #include "trick/exec_proto.h"
 #include "trick/exec_proto.hh"
 #include "trick/MalfunctionsTrickView.hh"
