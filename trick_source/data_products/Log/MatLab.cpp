@@ -895,6 +895,7 @@ int MatLabLocateParam(char * file_name, char * param_name, char * time_name) {
                 }
                 delete [] name;
                 delete [] dims;
+                dims = NULL;
 
                 if (param_found && time_found) {
                     fclose(fp);
