@@ -466,6 +466,7 @@ int Var::getDimOffset( const char* param ) {
                if ( offset < 0 ) {
                        fprintf(stderr, "ERROR: Integer overflow "
                                        "calculating offset!\n");
+                       VAR_DELETE;
                        return(-1);
                }
        }
@@ -656,12 +657,13 @@ int Var::calcNumDimensions() {
                 if ( varName_[i] == ']' ) {
                                cerr << "ERROR: Missing open bracket in"
                                     << varName_ << endl ;
+                               delete[] dim1 ;
+                               delete[] dim2 ;
                                return( -1 );
                 }
 
                 if ( varName_[i] == '[' ) {
 
-                       j = 0;
                        while ( varName_[i] != ']' ) {
 
                               i++ ;
@@ -670,6 +672,8 @@ int Var::calcNumDimensions() {
                               if ( i == stringLen ) {
                                        cerr << "ERROR: Missing close bracket in"
                                             << varName_ << endl ;
+                                       delete[] dim1 ;
+                                       delete[] dim2 ;
                                        return( -1 ) ;
                               }
 
@@ -686,11 +690,15 @@ int Var::calcNumDimensions() {
                                               cerr << "ERROR: Missing close "
                                                    << "bracket in "
                                                    << varName_ << endl ;
+                                              delete[] dim1 ;
+                                              delete[] dim2 ;
                                               return( -1 ) ;
                                        }
                                        if ( j > 7 ) {
                                               printf("ERROR: Dimension spec "
                                                      "too long.\n");
+                                              delete[] dim1 ;
+                                              delete[] dim2 ;
                                               return( -1 ) ;
                                        }
                               }
@@ -715,6 +723,8 @@ int Var::calcNumDimensions() {
                                                             << " in "
                                                             << varName_
                                                             << endl ;
+                                                       delete[] dim1 ;
+                                                       delete[] dim2 ;
                                                        return( -1 ) ;
                                                }
                                                if ( j > 7 ) {
@@ -723,6 +733,8 @@ int Var::calcNumDimensions() {
                                                             << "in "
                                                             << varName_
                                                             << endl ;
+                                                       delete[] dim1 ;
+                                                       delete[] dim2 ;
                                                        return( -1 ) ;
                                                }
 
@@ -738,6 +750,8 @@ int Var::calcNumDimensions() {
                                        cerr << "ERROR: Dimension has syntax "
                                             << "error with "
                                             << varName_ << endl ;
+                                       delete[] dim1 ;
+                                       delete[] dim2 ;
                                        return( -1 ) ;
                                }
                        }
@@ -746,6 +760,8 @@ int Var::calcNumDimensions() {
                                cerr << "ERROR: Bad syntax in dimension "
                                     << "specification for "
                                     << varName_ << endl ;
+                               delete[] dim1 ;
+                               delete[] dim2 ;
                                return( -1 );
                        }
 

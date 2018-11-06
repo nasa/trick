@@ -30,7 +30,7 @@ int tc_init_udp_server(         /* RETURN: -- 0 for success */
     unsigned int yes = 1;
 
     if (!udp_server_device) {
-        trick_error_report(udp_server_device->error_handler,
+        trick_error_report(NULL,
                            TRICK_ERROR_ALERT, __FILE__, __LINE__, "UDP device is null.");
         return (-1);
     }

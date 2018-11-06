@@ -207,12 +207,13 @@ int Trick::JITInputFile::run(std::string file_name , std::string run_function ) 
     if ( call_me == NULL ) {
         std::string error_message = "JITInputfile could not find function " + run_function ;
         exec_terminate_with_return(-1 , __FILE__ , __LINE__ , error_message.c_str() ) ;
-    }
-
+    } else {
     // We found the function, call it!
     ret = (*call_me)() ;
 
     return ret ;
+
+    }
 }
 
 /**
