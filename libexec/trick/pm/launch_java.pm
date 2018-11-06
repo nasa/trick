@@ -27,10 +27,6 @@ sub launch_java($$) {
     }
     $java_dir = "$ENV{TRICK_HOME}/$lib_dir/trick/java" ;
     
-    $javac_version = `javac -version 2>&1` ;
-    $javac_version =~  /(\d+)/ ;
-    $javac_version = $1 ;
-
     $host_cpu = gte("TRICK_HOST_CPU") ;
     chomp($host_cpu) ;
     $ENV{TRICK_HOST_CPU} = $host_cpu ;
@@ -43,10 +39,7 @@ sub launch_java($$) {
     } else {
         $command = "java -cp $java_dir/dist/*:$java_dir/lib/*:$java_dir/lib/ \\" ;
     }
-    if ( ($javac_version eq "9") or ($javac_version eq "10") ) {
-        $command .= "
-             --add-modules java.se.ee \\" ;
-    }
+
     $command .= "
              $application" ;
 
