@@ -166,10 +166,6 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
                 }
 
                 num_dims = dim_bytes / 4;
-                // delete dangling pointer
-                if(dims) {
-                    delete [] dims;
-                }
                 dims = new int[num_dims];
                 for (ii = 0; ii < num_dims; ii++) {
                     fread(&dims[ii], 4, 1, fp_) ;
@@ -303,10 +299,6 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
                             }
 
                             num_dims = dim_bytes / 4;
-                            // delete dangling pointer
-                            if(dims) {
-                                delete [] dims;
-                            }
                             dims = new int[num_dims];
                             for (ii = 0; ii < num_dims; ii++) {
                                 fread(&dims[ii], 4, 1, fp_) ;
@@ -759,10 +751,6 @@ int MatLabLocateParam(char * file_name, char * param_name, char * time_name) {
                 }
 
                 num_dims = dim_bytes / 4;
-                // delete dangling pointer
-                if(dims) {
-                    delete [] dims;
-                }
                 dims = new int[num_dims];
                 for (ii = 0; ii < num_dims; ii++) {
                     fread(&dims[ii], 4, 1, fp) ;
@@ -894,7 +882,7 @@ int MatLabLocateParam(char * file_name, char * param_name, char * time_name) {
 
                 }
                 delete [] name;
-                delete [] dims;
+                // delete [] dims;
                 dims = NULL;
 
                 if (param_found && time_found) {
