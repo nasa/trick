@@ -52,8 +52,8 @@ void funcsub(char *str)
 #ifdef DEBUG
         printf("\n%s", equation);
 #endif
-        len = strlen(equation);
         comp = 0;
+        len = strlen(equation);
         for (test = 0; test < (len - 1); test++) {
                 if ((isalpha(equation[test])) &&
                     ((isalpha(equation[test + 1]))
@@ -65,7 +65,6 @@ void funcsub(char *str)
         while (comp == 1) {
                 start = 0;
                 comp = 0;
-                len = strlen(equation);
                 i = 0;
                 while (i == 0) {
                         if ((isalpha(equation[start])) &&
@@ -107,7 +106,6 @@ void funcsub(char *str)
                         start = start + offset;
                         temp[tstart] = '(';
                         tstart++;
-                        ch1 = equation[start];
                         while (ch1 != ',') {
                                 if (ch1 == '\0') {
                                         /* No second argument found */

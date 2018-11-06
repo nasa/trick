@@ -26,13 +26,14 @@ void DeleteTblEntry(TBLENTRY * entry)
 /* create an iterator */
 StrMapIterator *SMI_Create(MapStrToPtr * pTable)
 {
-    StrMapIterator *pIter = (StrMapIterator *) malloc(sizeof(StrMapIterator));
-
+    StrMapIterator *pIter;
 
     if (pTable == NULL) {
         fprintf(stderr, "Table is NULL");
         return NULL;
     }
+
+    pIter = (StrMapIterator *) malloc(sizeof(StrMapIterator));
 
     pIter->m_pTable = pTable;
     pIter->m_Index = 0;                /* set the current index of the list array to 0 */

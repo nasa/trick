@@ -57,11 +57,11 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
     short version;
     short magic;
     int data_type, bytes, field_data_type, field_bytes;
-    int size, type;
+    int size = 0, type = 0;
     int array_type, array_bytes, array_flags[2];
     int array_complex, array_class ;
     int dim_type, dim_bytes, num_dims;
-    int * dims;
+    int * dims = nullptr;
     int name_bytes;
     char * name, * field_name, * variable_name;
     int real_type, real_bytes;
@@ -166,7 +166,10 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
                 }
 
                 num_dims = dim_bytes / 4;
-
+                // delete dangling pointer
+                if(dims) {
+                    delete [] dims;
+                }
                 dims = new int[num_dims];
                 for (ii = 0; ii < num_dims; ii++) {
                     fread(&dims[ii], 4, 1, fp_) ;
@@ -232,12 +235,12 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
                             name = new char[strlen(variable_name)];
                             strcpy(name, variable_name);
                             field_found = true;
-                            delete field_name;
-                            delete variable_name;
+                            delete [] field_name;
+                            delete [] variable_name;
                             break;
                         }
-                        delete field_name;
-                        delete variable_name;
+                        delete [] field_name;
+                        delete [] variable_name;
                     }
 
                     if (field_found) {
@@ -300,7 +303,10 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
                             }
 
                             num_dims = dim_bytes / 4;
-
+                            // delete dangling pointer
+                            if(dims) {
+                                delete [] dims;
+                            }
                             dims = new int[num_dims];
                             for (ii = 0; ii < num_dims; ii++) {
                                 fread(&dims[ii], 4, 1, fp_) ;
@@ -342,7 +348,7 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
                             // Everythig else we skip
                             temp_ptr = new char[field_bytes];
                             fread(temp_ptr, field_bytes, 1, fp_) ;
-                            delete temp_ptr;
+                            delete [] temp_ptr;
                         }
                     } else {
                         real_bytes = 0;
@@ -516,15 +522,15 @@ MatLab::MatLab(char * file_name, char * param_name, char * time_name) {
                 }
 
                 if ( !found) {
-                    delete dims;
+                    delete [] dims;
                 }
-                delete name;
+                delete [] name;
 
             } else {
                 // Everythig else we skip
                 temp_ptr = new char[bytes];
                 fread(temp_ptr, bytes, 1, fp_) ;
-                delete temp_ptr;
+                delete [] temp_ptr;
             }
         }
     }
@@ -647,7 +653,7 @@ int MatLabLocateParam(char * file_name, char * param_name, char * time_name) {
     int array_type, array_bytes, array_flags[2];
     int array_complex, array_class;
     int dim_type, dim_bytes, num_dims;
-    int * dims;
+    int * dims = nullptr;
     int name_bytes;
     char * name, * field_name, * variable_name;
     int real_type, real_bytes;
@@ -697,6 +703,9 @@ int MatLabLocateParam(char * file_name, char * param_name, char * time_name) {
             swap = 0;
         } else if (magic == 0x494d) {
             swap = 1;
+        } else {
+            std::cerr << "ERROR: MatLab.cpp swap magic is invalid, default to byte swap == false" << std::endl;
+            swap = 0;
         }
 
         param_found = time_found = false;
@@ -749,7 +758,10 @@ int MatLabLocateParam(char * file_name, char * param_name, char * time_name) {
                 }
 
                 num_dims = dim_bytes / 4;
-
+                // delete dangling pointer
+                if(dims) {
+                    delete [] dims;
+                }
                 dims = new int[num_dims];
                 for (ii = 0; ii < num_dims; ii++) {
                     fread(&dims[ii], 4, 1, fp) ;
@@ -814,12 +826,12 @@ int MatLabLocateParam(char * file_name, char * param_name, char * time_name) {
                             name = new char[strlen(variable_name)];
                             strcpy(name, variable_name);
                             field_found = true;
-                            delete field_name;
-                            delete variable_name;
+                            delete [] field_name;
+                            delete [] variable_name;
                             break;
                         }
-                        delete field_name;
-                        delete variable_name;
+                        delete [] field_name;
+                        delete [] variable_name;
                     }
 
                     if (field_found) {
@@ -880,8 +892,8 @@ int MatLabLocateParam(char * file_name, char * param_name, char * time_name) {
                     }
 
                 }
-                delete name;
-                delete dims;
+                delete [] name;
+                delete [] dims;
 
                 if (param_found && time_found) {
                     fclose(fp);
@@ -921,7 +933,7 @@ int MatLabLocateParam(char * file_name, char * param_name, char * time_name) {
                 // Everythig else we skip
                 temp_ptr = new char[bytes];
                 fread(temp_ptr, bytes, 1, fp) ;
-                delete temp_ptr;
+                delete [] temp_ptr;
             }
         }
     }
