@@ -276,9 +276,9 @@ int Trick::DataRecordDispatcher::dmtcp_restart() {
 int Trick::DataRecordDispatcher::shutdown() {
 
     if ( drd_writer_thread.get_pthread_id() != 0 ) {
-        // TODO: we could lock up here on the trylock.
-        while (pthread_mutex_trylock(&drd_mutexes.dr_go_mutex));
-        pthread_cancel(drd_writer_thread.get_pthread_id()) ;
+        pthread_mutex_lock( &drd_mutexes.dr_go_mutex);
+        pthread_cancel( drd_writer_thread.get_pthread_id()) ;
+        pthread_mutex_unlock( &drd_mutexes.dr_go_mutex);
     }
 
     return(0) ;
