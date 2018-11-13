@@ -25,6 +25,18 @@ int mc_get_enabled(void);
 
 /**
  * @relates Trick::MonteCarlo
+ * @copydoc MonteCarlo::set_processing_input_for_MC
+ */
+void mc_set_processing_input_for_MC (int processing);
+
+/**
+ * @relates Trick::MonteCarlo
+ * @copydoc get_processing_input_for_MC
+ */
+int mc_get_processing_input_for_MC();
+
+/**
+ * @relates Trick::MonteCarlo
  * @copydoc set_dry_run
  */
 void mc_set_dry_run(int dry_run);

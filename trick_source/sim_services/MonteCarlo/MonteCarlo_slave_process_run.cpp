@@ -120,6 +120,7 @@ int Trick::MonteCarlo::slave_process_run() {
         fprintf(fp, "if (sys.version_info > (3, 0)):\n");
         fprintf(fp, "    exec(open(\"%s\").read())\n", command_line_args_get_input_file());
         fprintf(fp, "else:\n");
+        fprintf(fp, "trick.mc_set_processing_input_for_MC(1)\n");
         fprintf(fp, "    execfile(\"%s\")\n\n", command_line_args_get_input_file());
         fprintf(fp, "trick.mc_set_enabled(0)\n");
         fprintf(fp, "%s" , input);

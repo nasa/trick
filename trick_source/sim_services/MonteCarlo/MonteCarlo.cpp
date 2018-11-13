@@ -5,6 +5,7 @@ Trick::MonteCarlo * the_mc ;
 
 Trick::MonteCarlo::MonteCarlo() :
     enabled(false),
+    processing_input_for_MC(false),
     dry_run(false),
     localhost_as_remote(false),
     custom_slave_dispatch(false),

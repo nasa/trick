@@ -19,6 +19,19 @@ extern "C" int mc_get_enabled(void) {
     return 0 ; 
 }
 
+extern "C" void mc_set_processing_input_for_MC(int processing_input_for_MC) {
+    if ( the_mc != NULL ) {
+        the_mc->set_processing_input_for_MC(processing_input_for_MC);
+    }
+}
+
+extern "C" int mc_get_processing_input_for_MC() {
+    if ( the_mc != NULL ) {
+        return the_mc->get_processing_input_for_MC();
+    }
+    return 0 ;
+}
+
 extern "C" void mc_set_dry_run(int dry_run) {
     if ( the_mc != NULL ) {
         the_mc->set_dry_run(dry_run);

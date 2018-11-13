@@ -16,7 +16,7 @@
 
 #ifdef SWIG
 // This instructs SWIG to use dynamic_cast and return one of the derived type for the get_variable function.
-%factory(Trick::MonteVar * Trick::MonteCarlo::get_variable, Trick::MonteVarCalculated, Trick::MonteVarFile, Trick::MonteVarFixed, Trick::MonteVarRandom) ;
+%factory(Trick::MonteVar * Trick::MonteCarlo::get_variable, Trick::MonteVarCalculated, Trick::MonteVarFile, Trick::MonteVarFixed, Trick::MonteVarRandom, Trick::MonteVarExecCode) ;
 #endif
 
 namespace Trick {
@@ -282,7 +282,12 @@ namespace Trick {
         /** Indicates whether or not this is a Monte Carlo simulation. */
         bool enabled;                                    /**< \n trick_units(--) */
 
-        /**
+         /** Indicates whether or not MC is running; this flag may be used to
+         * control access to input-file instructions intended only for MC runs
+         * and re-runs.*/
+        bool processing_input_for_MC;                   /**< \n trick_units(--) */
+
+         /**
          * Indicates whether or not this is a dry run. A dry run executes pre run jobs only. Post run jobs and the runs
          * themselves are not executed.
          */
@@ -448,6 +453,20 @@ namespace Trick {
          * @see @ref MonteCarloEnabling "Enabling Monte Carlo"
          */
         bool get_enabled();
+
+        /**
+         * Sets #processing_input_for_MC.
+         *
+         * @see @ref MonteCarloEnabling "Enabling Monte Carlo"
+         */
+        void set_processing_input_for_MC(bool processing);
+
+        /**
+         * Gets #processing_input_for_MC.
+         *
+         * @see @ref MonteCarloEnabling "Enabling Monte Carlo"
+         */
+        bool get_processing_input_for_MC();
 
         /**
          * Sets #dry_run.

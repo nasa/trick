@@ -11,10 +11,21 @@
 
 void Trick::MonteCarlo::set_enabled(bool in_enabled) {
     this->enabled = in_enabled;
+    if (in_enabled) {
+      set_processing_input_for_MC( true);
+    }
 }
 
 bool Trick::MonteCarlo::get_enabled() {
     return enabled;
+}
+
+void Trick::MonteCarlo::set_processing_input_for_MC(bool in_processing) {
+    this->processing_input_for_MC = in_processing;
+}
+
+bool Trick::MonteCarlo::get_processing_input_for_MC() {
+    return processing_input_for_MC;
 }
 
 void Trick::MonteCarlo::set_dry_run(bool in_dry_run) {
