@@ -96,6 +96,10 @@ namespace Trick {
 
         StlRandomGenerator* stlGenPtr; /**< trick_units(**) STL pseudo-random number generator */
 
+        /** Supports casting random number to an integer */
+        bool cast_to_int; /**< \n trick_units(--) */
+
+
         public:
         /**
          * Constructs a MonteVarRandom with the given name, distribution, and units.
@@ -187,6 +191,13 @@ namespace Trick {
 
         // Describes the properties of this variable.
         std::string describe_variable();
+
+        /**
+         * Instructs the get_next_value method to generate an integer.
+         *
+         * @param cast flag to indicate whether to apply the cast to integer
+         */
+        void cast_to_integer( bool cast);
 
         protected:
         virtual std::string get_next_value();

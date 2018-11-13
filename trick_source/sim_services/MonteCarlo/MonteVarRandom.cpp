@@ -151,6 +151,10 @@ void Trick::MonteVarRandom::set_uniform_generator(uniform_generator uniform) {
     randist.uniform = uniform;
 }
 
+void Trick::MonteVarRandom::cast_to_integer(bool cast) {
+    cast_to_int = cast;
+}
+
 std::string Trick::MonteVarRandom::get_next_value() {
     TRICK_GSL_RETURN_TYPE return_value;
     char buffer[128];
@@ -203,7 +207,11 @@ std::string Trick::MonteVarRandom::get_next_value() {
         case TRICK_GSL_GAUSS:
         case TRICK_GSL_FLAT:
         default:
-            sprintf(buffer, "%.15g", return_value.d);
+            if (cast_to_int) {
+                sprintf(buffer, " %i", static_cast<int>(return_value.d));
+            } else {
+                sprintf(buffer, "%.15g", return_value.d);
+            }
             value = buffer;
             break;
     }
