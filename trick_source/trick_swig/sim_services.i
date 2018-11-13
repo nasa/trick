@@ -127,6 +127,7 @@
 #include "trick/MonteCarlo.hh"
 #include "trick/montecarlo_c_intf.h"
 #include "trick/MonteVarCalculated.hh"
+#include "trick/MonteVarExecCode.hh"
 #include "trick/MonteVarFile.hh"
 #include "trick/MonteVarFixed.hh"
 #include "trick/MonteVarRandom.hh"

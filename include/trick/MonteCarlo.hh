@@ -16,7 +16,7 @@
 
 #ifdef SWIG
 // This instructs SWIG to use dynamic_cast and return one of the derived type for the get_variable function.
-%factory(Trick::MonteVar * Trick::MonteCarlo::get_variable, Trick::MonteVarCalculated, Trick::MonteVarFile, Trick::MonteVarFixed, Trick::MonteVarRandom) ;
+%factory(Trick::MonteVar * Trick::MonteCarlo::get_variable, Trick::MonteVarCalculated, Trick::MonteVarFile, Trick::MonteVarFixed, Trick::MonteVarRandom, Trick::MonteVarExecCode) ;
 #endif
 
 namespace Trick {
