@@ -24,6 +24,7 @@ void CsvModel::_init()
         throw std::runtime_error(_err_string.toLatin1().constData());
     }
     QTextStream in(&file);
+    in.setCodec("UTF-8");
 
     QString line0 = in.readLine();
     QStringList items = line0.split(',',QString::SkipEmptyParts);
