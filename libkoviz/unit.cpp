@@ -366,6 +366,10 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     map.insert(QPair<QString,QString>("--","one"), 1.0);
     map.insert(QPair<QString,QString>("--","1"),   1.0);
 
+    // Micro-gravity
+    map.insert(QPair<QString,QString>("micro-g","micro-g"), 1.0);
+    map.insert(QPair<QString,QString>("micro-g","μg"), 1.0);
+
     // Miscellaneous
     map.insert(QPair<QString,QString>("rad2/s2","rad2/s2"), 1.0);
     map.insert(QPair<QString,QString>("m2/s2","m2/s2"), 1.0);
