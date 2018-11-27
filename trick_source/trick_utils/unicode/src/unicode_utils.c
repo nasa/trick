@@ -6,7 +6,9 @@
 #include <stdint.h>
 #include "trick/unicode_utils.h"
 
-/* Maintainer: John M. Penn */
+/* Author: John M. Penn */
+
+#define ERROR_STATE 99
 
 size_t ucodepoint_to_utf32(unsigned int codePoint, int32_t *out) {
 
@@ -69,24 +71,20 @@ size_t ucodepoint_to_utf8(unsigned int codePoint, char (*out)[4]) {
     return 0;
 }
 
-size_t utf8_to_printable_ascii(const char *in, char *out, size_t outSize) {
-
-    int state = 0;
+size_t escape_to_ascii(const char *in, char *out, size_t outSize) {
     unsigned int codePoint;
-    char wks[11];
-
-    if (out == NULL) {
-        fprintf(stderr,"%s:ERROR: ASCII char pointer (out) is NULL. No conversion performed.\n", __FUNCTION__);
-        return 0;
-    }
-    out[0] = 0;
+    size_t out_len = 0;
+    int state = 0;
+    char ascii_elements[11];
 
     if (in == NULL) {
         fprintf(stderr,"%s:ERROR: UTF8 char-pointer (in) is NULL. No conversion performed.\n", __FUNCTION__);
         return 0;
     }
 
-    while (*in != 0) {
+    if (out != NULL) out[out_len] = 0;
+
+    while ((*in != 0) && (state != ERROR_STATE)) {
         unsigned char ch = *in;
         switch (state) {
             case 0: {
@@ -101,55 +99,61 @@ size_t utf8_to_printable_ascii(const char *in, char *out, size_t outSize) {
                     state = 1;
                 } else if (ch >= 0x80) {   // We should never find a continuation byte in isolation.
                     fprintf(stderr,"%s:ERROR: UTF8 string (in) appears to be corrupted.\n", __FUNCTION__);
-                    state = 99;
+                    state = ERROR_STATE;
                 } else {                   // ASCII        
                     if (ch == '\a') {
-                        sprintf(wks,"\\a");
+                        sprintf(ascii_elements, "\\a");
                     } else if (ch == '\b') {
-                        sprintf(wks,"\\b");
+                        sprintf(ascii_elements, "\\b");
                     } else if (ch == '\f') {
-                        sprintf(wks,"\\f");
+                        sprintf(ascii_elements, "\\f");
                     } else if (ch == '\n') {
-                        sprintf(wks,"\\n");
+                        sprintf(ascii_elements, "\\n");
                     } else if (ch == '\r') {
-                        sprintf(wks,"\\r");
+                        sprintf(ascii_elements, "\\r");
                     } else if (ch == '\t') {
-                        sprintf(wks,"\\t");
+                        sprintf(ascii_elements, "\\t");
                     } else if (ch == '\v') {
-                        sprintf(wks,"\\v");
+                        sprintf(ascii_elements, "\\v");
                     } else if (isprint(ch)) {
-                        sprintf(wks,"%c",ch);
+                        sprintf(ascii_elements, "%c",ch);
                     } else {
-                        sprintf(wks,"\\x%02x",ch);
+                        sprintf(ascii_elements, "\\x%02x",ch);
                     }
-                    if ((strlen(out)+strlen(wks)) < outSize-1) {
-                        strcat(out, wks);
-                    } else {
-                        fprintf(stderr,"%s:ERROR: Insufficient room in (out) array.\n", __FUNCTION__);
-                        state = 99;
+                    size_t n_elements = strlen(ascii_elements);
+                    if (out != NULL) {
+                        if ((out_len + n_elements) < outSize) {
+                            strcat(out, ascii_elements);
+                        } else {
+                            fprintf(stderr,"%s:ERROR: Insufficient room in (out) array.\n", __FUNCTION__);
+                            state = ERROR_STATE;
+                        }
                     }
+                    out_len += n_elements;
                 }
             } break;
             case 1: { // Expecting one continuation byte.
                 if ((ch & 0xc0) == 0x80) { // If the next char is a continuation byte ..
                     codePoint = (codePoint << 6) | (ch & 0x3f); // Extract low 6 bits
                     state = 0;
-
                     if (codePoint <= 0xffff) {
-                        sprintf(wks,"\\u%04x", codePoint); 
+                        sprintf(ascii_elements, "\\u%04x", codePoint); 
                     } else {
-                        sprintf(wks,"\\U%08x", codePoint); 
+                        sprintf(ascii_elements, "\\U%08x", codePoint); 
                     }
-                    if ((strlen(out)+strlen(wks)) < outSize-1) {
-                        strcat(out, wks);
-                    } else {
-                        fprintf(stderr,"%s:ERROR: Insufficient room in (out) array.\n", __FUNCTION__);
-                        state = 99;
+                    size_t n_elements = strlen(ascii_elements);
+                    if (out != NULL) {
+                        if ((out_len + n_elements) < outSize) {
+                            strcat(out, ascii_elements);
+                        } else {
+                            fprintf(stderr,"%s:ERROR: Insufficient room in (out) array.\n", __FUNCTION__);
+                            state = ERROR_STATE;
+                        }
                     }
-
+                    out_len += n_elements;
                 } else {
                     fprintf(stderr,"%s:ERROR: UTF8 string appears to be corrupted.\n", __FUNCTION__);
-                    state = 99;
+                    state = ERROR_STATE;
                 }
             } break;
             case 2: { /* Expecting two continuation bytes. */
@@ -158,7 +162,7 @@ size_t utf8_to_printable_ascii(const char *in, char *out, size_t outSize) {
                     state = 1;
                 } else {
                     fprintf(stderr,"%s:ERROR: UTF8 string appears to be corrupted.\n", __FUNCTION__);
-                    state = 99;
+                    state = ERROR_STATE;
                 }
             } break;
             case 3: { /* Expecting three continuation bytes. */
@@ -167,60 +171,60 @@ size_t utf8_to_printable_ascii(const char *in, char *out, size_t outSize) {
                     state = 2;
                 } else {
                     fprintf(stderr,"%s:ERROR: UTF8 string appears to be corrupted.\n", __FUNCTION__);
-                    state = 99;
+                    state = ERROR_STATE;
                 }
             } break;
             default: { 
-                out[0] = 0;
-                return 0;
+                state = ERROR_STATE;
             } break;
         }
         in ++;
     }
+    /* If we didn't finished in state 0, then we had an error. */
+    if (state != 0) {
+        out_len = 0;
+    } 
+    if (out != NULL) out[out_len] = 0; /* NULL termination of string. */
+    return out_len;
+}
 
-    /* If we finished in state 0, then we're good. Just
-       terminate the string, otherwise we had an error. */
-    if (state == 0) {
-        return strlen(out);
-    } else {
-        out[0] = 0;
-        return 0;
-    }
+size_t escape_to_ascii_len(const char *in) {
+    return escape_to_ascii( in, NULL, (size_t)0);
 }
 
 /* Un-escapes ASCII and Unicode escape sequences, and encodes them into UTF-8. */
-size_t ascii_to_utf8(const char *in, char *out, size_t outSize) {
+size_t unescape_to_utf8(const char *in, char *out, size_t outSize) {
 
     unsigned int codePoint = 0;
-    size_t len = 0;
+    size_t out_len = 0;
     int state = 0;
     int digitsExpected = 0;
 
-    if (out == NULL) {
-        fprintf(stderr,"%s:ERROR: ASCII char pointer (out) is NULL. No conversion performed.\n", __FUNCTION__);
-        return 0;
-    }
-    out[0] = 0;
-
     if (in == NULL) {
-        fprintf(stderr,"%s:ERROR: UTF8 char-pointer (in) is NULL. No conversion performed.\n", __FUNCTION__);
+        fprintf(stderr,"%s:ERROR: char-pointer (in) is NULL. No conversion performed.\n", __FUNCTION__);
         return 0;
     }
 
-    while (*in != 0) {
+    if (out != NULL) out[out_len] = 0;
+
+    while ((*in != 0) && (state != ERROR_STATE )) {
         unsigned char ch = *in;
-        if (ch > 0x7f) { /* All input characters must be ASCII. */
-            fprintf(stderr,"%s:ERROR: ASCII string (in) contains non-ASCII values.\n", __FUNCTION__);
-            out[0] = 0; 
-            return 0;
-        }
-        /* All escaped characters will be un-escaped. */
         switch(state) {
             case 0: { // Normal State
-                if (ch =='\\') {
+                if (ch >= 0xf0) {        // Start of a 4-byte UTF-8 sequence.
+                    if (out != NULL) out[out_len] = ch; out_len++; state = 3;
+                } else if (ch >= 0xe0) { // Start of a 3-byte UTF-8 sequence.
+                    if (out != NULL) out[out_len] = ch; out_len++; state = 4;
+                } else if (ch >= 0xc0) { // Start of a 2-byte UTF-8 sequence.
+                    if (out != NULL) out[out_len] = ch; out_len++; state = 5;
+                } else if (ch >= 0x80) { // We should never find a UTF-8 continuation byte in isolation.
+                    fprintf(stderr,"%s:ERROR: Input string (in) appears to be corrupted.\n", __FUNCTION__);
+                    state = ERROR_STATE;
+                } else if (ch =='\\') {
                     state = 1;
                 } else {
-                    out[len++] = ch;
+                    if (out != NULL) out[out_len] = ch;
+                    out_len++;
                 }
             } break;
             case 1: { // Escaped State ( that is: we've found a '\' character.)
@@ -228,26 +232,24 @@ size_t ascii_to_utf8(const char *in, char *out, size_t outSize) {
                     case '\'':
                     case '\"':
                     case '\?':
-                    case '\\': {
-                        out[len++] = ch; state = 0;
-                    } break;
-
-                    case 'a': { out[len++] = '\a';  state = 0; } break;
-                    case 'b': { out[len++] = '\b';  state = 0; } break;
-                    case 'f': { out[len++] = '\f';  state = 0; } break;
-                    case 'n': { out[len++] = '\n';  state = 0; } break;
-                    case 'r': { out[len++] = '\r';  state = 0; } break;
-                    case 't': { out[len++] = '\t';  state = 0; } break;
-                    case 'v': { out[len++] = '\b';  state = 0; } break;
+                    case '\\': { if (out != NULL) out[out_len] = ch; out_len++; state = 0; } break;
+                    case 'a': { if (out != NULL) out[out_len] = '\a'; out_len++; state = 0; } break;
+                    case 'b': { if (out != NULL) out[out_len] = '\b'; out_len++; state = 0; } break;
+                    case 'f': { if (out != NULL) out[out_len] = '\f'; out_len++; state = 0; } break;
+                    case 'n': { if (out != NULL) out[out_len] = '\n'; out_len++; state = 0; } break;
+                    case 'r': { if (out != NULL) out[out_len] = '\r'; out_len++; state = 0; } break;
+                    case 't': { if (out != NULL) out[out_len] = '\t'; out_len++; state = 0; } break;
+                    case 'v': { if (out != NULL) out[out_len] = '\b'; out_len++; state = 0; } break;
                     case 'x': { digitsExpected = 2; state = 2; } break;
                     case 'u': { digitsExpected = 4; state = 2; } break;
                     case 'U': { digitsExpected = 8; state = 2; } break;
                     default : {
+                        state = ERROR_STATE;
                     }
                 } // switch ch
             } break;
             case 2: { // Escaped Unicode ( that is: we've found '\x', '\u' or '\U'.)
-                 int digit = 0;
+                 int digit = -1;
                  if (ch >= '0' && ch <= '9') {
                      digit = ch - (int)'0';
                  } else if (ch >= 'A' && ch <= 'F') {
@@ -257,108 +259,161 @@ size_t ascii_to_utf8(const char *in, char *out, size_t outSize) {
                  } else {
                      fprintf(stderr,"%s:ERROR: Insufficient hexidecimal digits following"
                                     " \\x, \\u, or \\U escape code in char string (in).\n", __FUNCTION__);
-                     out[0] = 0;
-                     return 0;
+                     state = ERROR_STATE;
                  }
-                 codePoint = codePoint * 16 + digit;
-                 digitsExpected -- ;
-                 if ( digitsExpected == 0 ) {
-                    char temp[4];
-                    size_t count = ucodepoint_to_utf8(codePoint, &temp);
-                    if (count < (outSize-len)) {
-                        memcpy( &out[len], temp, sizeof(char) * count );
-                        len += count;
+                 if (digit >= 0) { 
+                     codePoint = codePoint * 16 + digit;
+                     digitsExpected -- ;
+                     if ( digitsExpected == 0 ) {
+                        char utf8_bytes[4];
+                        size_t n_elements = ucodepoint_to_utf8(codePoint, &utf8_bytes);
                         state = 0;
-                    } else {
-                        fprintf(stderr,"%s:ERROR: Insufficient room in char array (out).\n", __FUNCTION__);
-                        out[0] = 0;
-                        return 0;
-                    }
-                    codePoint = 0;
+                        if (out != NULL) { 
+                            if (out_len + n_elements < outSize) {
+                                memcpy( &out[out_len], utf8_bytes, sizeof(char) * n_elements );
+                            } else {
+                                fprintf(stderr,"%s:ERROR: Insufficient room in char array (out).\n", __FUNCTION__);
+                                state = ERROR_STATE;
+                            }
+                        }
+                        out_len += n_elements;
+                        codePoint = 0;
+                     }
                  }
             } break;
+
+            case 3: { /* Expecting 3 UTF-8 continuation bytes. */
+                if ((ch & 0xc0) == 0x80) {
+                    if (out != NULL) out[out_len] = ch; out_len++; state = 4;
+                } else {
+                    fprintf(stderr,"%s:ERROR: Input (in) appears to be corrupted.\n", __FUNCTION__);
+                    state = ERROR_STATE;
+                }
+            } break;
+
+            case 4: { /* Expecting 2 UTF-8 continuation bytes. */
+                if ((ch & 0xc0) == 0x80) {
+                    if (out != NULL) out[out_len] = ch; out_len++; state = 5;
+                } else {
+                    fprintf(stderr,"%s:ERROR: Input (in) appears to be corrupted.\n", __FUNCTION__);
+                    state = ERROR_STATE;
+                }
+            } break;
+
+            case 5: { /* Expecting 1 UTF-8 continuation byte. */
+                if ((ch & 0xc0) == 0x80) {
+                    if (out != NULL) out[out_len] = ch; out_len++; state = 0;
+                } else {
+                    fprintf(stderr,"%s:ERROR: Input (in) appears to be corrupted.\n", __FUNCTION__);
+                    state = ERROR_STATE;
+                }
+            } break;
+
             default: { 
-                out[0] = 0;
-                return 0;
+                state = ERROR_STATE;
             } break;
         } 
         in ++;
     }
-    out[len] = 0; /* NULL termination of string. */
-    return len;
+    if (state != 0) { /* If we didn't finished in state 0, then we had an error. */
+        out_len = 0;
+    } 
+    if (out != NULL) out[out_len] = 0; /* NULL termination of string. */
+    return out_len;
+}
+
+size_t unescape_to_utf8_len(const char *in) {
+    return unescape_to_utf8( in, NULL, (size_t)0); 
 }
 
 size_t utf8_to_wchar(const char *in, wchar_t *out, size_t outSize) {
 
     unsigned int codePoint = 0;
-    size_t len = 0;
+    size_t out_len = 0;
     int state = 0;
 
-    while (*in != 0) {
+    if (in == NULL) {
+        fprintf(stderr,"%s:ERROR: UTF8 char-pointer (in) is NULL. No conversion performed.\n", __FUNCTION__);
+        return 0;
+    }
+
+    if (out != NULL) out[out_len] = 0;
+
+    while ((*in != 0) && (state != ERROR_STATE)) {
         unsigned char ch = *in;
         switch (state) {
             case 0: {
-                if (ch >= 0xf0) {          // Start of a 4-byte sequence.
+                if (ch >= 0xf0) {          // Start of a 4-byte UTF-8 sequence.
                     codePoint = ch & 0x07; // Extract low 3 bits
                     state = 3;
-                } else if (ch >= 0xe0) {   // Start of a 3-byte sequence.
+                } else if (ch >= 0xe0) {   // Start of a 3-byte UTF-8 sequence.
                     codePoint = ch & 0x0f; // Extract low 4 bits
                     state = 2;
-                } else if (ch >= 0xc0) {   // Start of a 2-byte sequence.
+                } else if (ch >= 0xc0) {   // Start of a 2-byte UTF-8 sequence.
                     codePoint = ch & 0x1f; // Extract low 5 bits
                     state = 1;
-                } else if (ch >= 0x80) {   // We should never find a continuation byte in isolation.
+                } else if (ch >= 0x80) {   // We should never find a UTF-8 continuation byte in isolation.
                     fprintf(stderr,"%s:ERROR: UTF8 string (in) appears to be corrupted.\n", __FUNCTION__);
-                    state = 99;
+                    state = ERROR_STATE;
                 } else {
                     codePoint = ch;        // ASCII        
-                    if ((outSize-len) > 1) {
-                        out[len++] = (wchar_t)codePoint;
-                    } else {
-                        fprintf(stderr,"%s:ERROR: Insufficient room in wchar_t array (out).\n", __FUNCTION__);
-                        state = 99;
+                    if (out != NULL) { 
+                        if ((out_len + 1) < outSize) {
+                            out[out_len] = (wchar_t)codePoint;
+                        } else {
+                            fprintf(stderr,"%s:ERROR: Insufficient room in wchar_t array (out).\n", __FUNCTION__);
+                            state = ERROR_STATE;
+                        }
                     }
+                    out_len++;
                 }
             } break;
-            case 1: { // Expecting one continuation byte.
-                if ((ch & 0xc0) == 0x80) { // If the next char is a continuation byte ..
+            case 1: { /* Expecting one continuation byte. */
+                if ((ch & 0xc0) == 0x80) {
                     codePoint = (codePoint << 6) | (ch & 0x3f); // Extract lower 6 bits 
                     state = 0;
 
                     if (sizeof(wchar_t) == 4) { // wchar_t is UTF-32
-                        int32_t temp;
-                        if ( ucodepoint_to_utf32(codePoint, &temp) > 0) {
-                            if ((outSize-len) > 1) {
-                                out[len++] = (wchar_t)temp;
-                            } else {
-                                fprintf(stderr,"%s:ERROR: Insufficient room in wchar_t array (out).\n", __FUNCTION__);
-                                state = 99;
+                        int32_t utf32_element;
+                        if ( ucodepoint_to_utf32(codePoint, &utf32_element) > 0) {
+                            if (out != NULL) {
+                                if ((out_len + 1) < outSize) {
+                                    out[out_len] = (wchar_t)utf32_element;
+                                } else {
+                                    fprintf(stderr,"%s:ERROR: Insufficient room in wchar_t array (out).\n", __FUNCTION__);
+                                    state = ERROR_STATE;
+                                }
                             }
+                            out_len++;
                         } else {
-                            state = 99;
+                            /* ucodepoint_to_utf32() will have, in this case produced an error message. */  
+                            state = ERROR_STATE;
                         }
-
                     } else if (sizeof(wchar_t) == 2) { // wchar_t is UTF-16
-                        int16_t temp[2];
-                        size_t count;
-                        if (( count = ucodepoint_to_utf16(codePoint, &temp)) > 0) {
-                            if (count < (outSize-len)) {
-                                memcpy( &out[len], temp, sizeof(int16_t) * count );
-                                len += count;
-                            } else {
-                                fprintf(stderr,"%s:ERROR: Insufficient room in wchar_t array (out).\n", __FUNCTION__);
-                                state = 99;
+                        int16_t utf16_elements[2];
+                        size_t n_elements;
+                        if (( n_elements = ucodepoint_to_utf16(codePoint, &utf16_elements)) > 0) {
+                            if (out != NULL) {
+                                if ((out_len + n_elements) < outSize) {
+                                    memcpy( &out[out_len], utf16_elements, sizeof(int16_t) * n_elements);
+                                } else {
+                                    fprintf(stderr,"%s:ERROR: Insufficient room in wchar_t array (out).\n", __FUNCTION__);
+                                    state = ERROR_STATE;
+                                }
                             }
+                            out_len += n_elements;
+                        } else {
+                            /* ucodepoint_to_utf16() will have, in this case produced an error message. */  
+                            state = ERROR_STATE;
                         }
-
                     } else {
                         fprintf(stderr,"%s:ERROR: Unsupported wchar_t size.\n", __FUNCTION__);
-                        state = 99;
+                        state = ERROR_STATE;
                     }
 
                 } else {
                     fprintf(stderr,"%s:ERROR: UTF8 string appears to be corrupted.\n", __FUNCTION__);
-                    state = 99;
+                    state = ERROR_STATE;
                 }
             } break;
             case 2: { /* Expecting two continuation bytes. */
@@ -367,7 +422,7 @@ size_t utf8_to_wchar(const char *in, wchar_t *out, size_t outSize) {
                     state = 1;
                 } else {
                     fprintf(stderr,"%s:ERROR: UTF8 string appears to be corrupted.\n", __FUNCTION__);
-                    state = 99;
+                    state = ERROR_STATE;
                 }
             } break;
             case 3: { /* Expecting three continuation bytes. */
@@ -376,35 +431,38 @@ size_t utf8_to_wchar(const char *in, wchar_t *out, size_t outSize) {
                     state = 2;
                 } else {
                     fprintf(stderr,"%s:ERROR: UTF8 string appears to be corrupted.\n", __FUNCTION__);
-                    state = 99;
+                    state = ERROR_STATE;
                 }
             } break;
-            default: { /* Error State. */
-                out[0] = 0;
-                return 0;
+            default: {
+                state = ERROR_STATE;
             } break;
         }
         in ++;
     }
+    if (state != 0) { /* If we didn't finish in state 0, it's an error. */
+        out_len = 0;
+    } 
+    if (out != NULL) out[out_len] = 0; /* NULL termination of string. */
+    return out_len;
+}
 
-    /* If we finished in state 0, then we're good. Just
-       terminate the string, otherwise we had an error. */
-    if (state == 0) {
-        out[len] = 0;
-        return len;
-    } else {
-        out[0] = 0;
-        return 0;
-    }
-    return len;
+size_t utf8_to_wchar_len(const char *in) {
+    return utf8_to_wchar( in, NULL, (size_t)0);
 }
 
 size_t wchar_to_utf8(const wchar_t *in, char *out, size_t outSize ) {
 
     unsigned int codePoint = 0;
-    size_t len = 0;
+    size_t out_len = 0;
+    int state = 0;
 
-    while ( *in != 0 ) {
+    if (in == NULL) {
+        fprintf(stderr,"%s:ERROR: wchar_t-pointer (in) is NULL. No conversion performed.\n", __FUNCTION__);
+        return 0;
+    }
+
+    while ((*in != 0) && (state != ERROR_STATE)) {
         if (*in >= 0xd800 && *in <= 0xdbff)         /* If High-surrogate. */
             codePoint = ((*in - 0xd800) << 10) + 0x10000;
         else {
@@ -414,24 +472,33 @@ size_t wchar_to_utf8(const wchar_t *in, char *out, size_t outSize ) {
                 codePoint = *in;
             } else {
                 fprintf(stderr,"%s:ERROR: Invalid Unicode value.\n", __FUNCTION__);
-                out[0] = 0;
-                return 0;
+                state = ERROR_STATE;
             }
 
-            char temp[4];
-            size_t count = ucodepoint_to_utf8(codePoint, &temp);
-            if (count < (outSize-len)) {
-                memcpy( &out[len], temp, sizeof(char) * count );
-                len += count;
-            } else {
-                fprintf(stderr,"%s:ERROR: Insufficient room in char array (out).\n", __FUNCTION__);
-                out[0] = 0;
-                return 0;
+            if (state != ERROR_STATE) {
+                char utf8_elements[4];
+                size_t n_elements = ucodepoint_to_utf8(codePoint, &utf8_elements);
+                if (out != NULL) {
+                    if ((out_len + n_elements) < outSize) {
+                        memcpy( &out[out_len], utf8_elements, sizeof(char) * n_elements );
+                    } else {
+                        fprintf(stderr,"%s:ERROR: Insufficient room in char array (out).\n", __FUNCTION__);
+                        state = ERROR_STATE;
+                    }
+                }
+                out_len += n_elements;
+                codePoint = 0;
             }
-            codePoint = 0;
         }
         in++;
     }
-    out[len] = L'\0'; /* NULL termination of string. */
-    return len;
+    if (state != 0) { /* If we didn't finish in state 0, it's an error. */
+        out_len = 0;
+    } 
+    if (out != NULL) out[out_len] = 0; /* NULL termination of string. */
+    return out_len;
+}
+
+size_t wchar_to_utf8_len(const wchar_t *in) {
+    return wchar_to_utf8( in, NULL, (size_t)0);
 }

@@ -5,6 +5,11 @@
 #include <gtest/gtest.h>
 #include "trick/unicode_utils.h"
 
+int main(int argc, char **argv) {
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+}
+
 const char* ISO_6429_Restore_Default   = "\x1b[00m";
 const char* ISO_6429_Bold              = "\x1b[01m";
 const char* ISO_6429_Underline         = "\x1b[04m";
@@ -30,6 +35,12 @@ void Error_Message_Expected() {
     printf("An error message is expected from this test.");
     printf("%s\n", ISO_6429_Restore_Default );
 }
+
+/* The following are the utf-8 encodings of four unicode characters used in the following tests. */
+// Greek Phi Symbol => U+03d5 => 0xcf 0x95                      // see: https://www.compart.com/en/unicode/U+03D5
+// Superscript Latin Small Letter I => U+2071 => 0xe2 0x81 0xb1 // see: https://www.compart.com/en/unicode/U+2071
+// Modifier Letter Small Greek Phi  => U+1D60 => 0xe1 0xb5 0xa0 // see: https://www.compart.com/en/unicode/U+1D60
+// Aegean Number Ten => U+10110 => 0xf0 0x90 0x84 0x90          // see: https://www.compart.com/en/unicode/U+10110
 
 // -------------------------------------------------------
 // Test suite for ucodepoint_to_utf32()
@@ -134,38 +145,39 @@ TEST(ucodepoint_to_utf8, ascii ) {
 }
 
 // -------------------------------------------------------
-// Test suite for utf8_to_printable_ascii()
+// Test suite for escape_to_ascii()
 // -------------------------------------------------------
-TEST(utf8_to_printable_ascii, null_input ) {
+TEST(escape_to_ascii, null_input ) {
     /* Should generate error message if input character pointer is NULL. */
-    char resultant_ascii_s[128];
+    char output[128];
     char* null_ptr = (char*)0;
     Error_Message_Expected();
-    size_t size = utf8_to_printable_ascii( null_ptr, resultant_ascii_s, sizeof(resultant_ascii_s));
+    size_t size = escape_to_ascii( null_ptr, output, sizeof(output));
     EXPECT_EQ(0, size);
 }
 
-TEST(utf8_to_printable_ascii, null_output ) {
-    /* Should generate error message if output character pointer is NULL. */
+TEST(escape_to_ascii, null_output ) {
+    /* If output character pointer is NULL, still determine the length. */
     char* null_ptr = (char*)0;
-    const char* input = "e\u2071\u1d60 = cos(\u03d5) + i*sin(\u03d5)";
-    Error_Message_Expected();
-    size_t size = utf8_to_printable_ascii( input, null_ptr, size_t(5));
-    EXPECT_EQ(0, size);
+    const char* input = "e\u2071\u1d60 = cos(\u03d5) + i*sin(\u03d5)\n";
+    size_t expected_size = strlen ("e\\u2071\\u1d60 = cos(\\u03d5) + i*sin(\\u03d5)\\n");
+    size_t size = escape_to_ascii( input, null_ptr, size_t(5));
+    EXPECT_EQ(expected_size, size);
 }
 
-TEST(utf8_to_printable_ascii, normal_1  ) {
-    char resultant_ascii_s[128];
-    /* utf8_to_printable_ascii() should escape all Unicode and non-printable ASCII characters. */
+TEST(escape_to_ascii, normal_1  ) {
+    char output[128];
+    /* escape_to_ascii() should escape all Unicode and non-printable ASCII characters. */
     const char* utf8_s = "e\u2071\u1d60 = cos(\u03d5) + i*sin(\u03d5)\n";
     const char* expected_ascii_s = "e\\u2071\\u1d60 = cos(\\u03d5) + i*sin(\\u03d5)\\n";
-    (void) utf8_to_printable_ascii( utf8_s, resultant_ascii_s, sizeof(resultant_ascii_s));
-    EXPECT_STREQ(expected_ascii_s, resultant_ascii_s);
+    size_t size = escape_to_ascii( utf8_s, output, sizeof(output));
+    EXPECT_EQ( strlen(expected_ascii_s), size);
+    EXPECT_STREQ(expected_ascii_s, output);
 }
 
-TEST(utf8_to_printable_ascii, normal_2  ) {
-    char resultant_ascii_s[256];
-    /* utf8_to_printable_ascii() should escape all Unicode and non-printable ASCII characters. */
+TEST(escape_to_ascii, normal_2  ) {
+    char output[256];
+    /* escape_to_ascii() should escape all Unicode and non-printable ASCII characters. */
     const char ascii[128] = {       '\x01','\x02','\x03','\x04','\x05','\x06','\x07','\x08','\x09','\x0a','\x0b','\x0c','\x0d','\x0e','\x0f',
                              '\x10','\x11','\x12','\x13','\x14','\x15','\x16','\x17','\x18','\x19','\x1a','\x1b','\x1c','\x1d','\x1e','\x1f',
                              '\x20','\x21','\x22','\x23','\x24','\x25','\x26','\x27','\x28','\x29','\x2a','\x2b','\x2c','\x2d','\x2e','\x2f',
@@ -181,133 +193,147 @@ TEST(utf8_to_printable_ascii, normal_2  ) {
                                    "\\r\\x0e\\x0f\\x10\\x11\\x12\\x13\\x14\\x15\\x16\\x17\\x18\\x19\\x1a\\x1b\\x1c\\x1d\\x1e\\x1f"
                                    " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\\x7f";
 
-    size_t size = utf8_to_printable_ascii( ascii, resultant_ascii_s, sizeof(resultant_ascii_s));
-    EXPECT_EQ(209, size);
-    EXPECT_STREQ(expected_ascii_s, resultant_ascii_s);
+    size_t size = escape_to_ascii( ascii, output, sizeof(output));
+    EXPECT_EQ(strlen(expected_ascii_s), size);
+    EXPECT_STREQ(expected_ascii_s, output);
 }
 
-/* The following are the utf-8 encodings of four unicode characters used in the following tests. */
-// Greek Phi Symbol => U+03d5 => 0xcf 0x95                      // see: https://www.compart.com/en/unicode/U+03D5
-// Superscript Latin Small Letter I => U+2071 => 0xe2 0x81 0xb1 // see: https://www.compart.com/en/unicode/U+2071
-// Modifier Letter Small Greek Phi  => U+1D60 => 0xe1 0xb5 0xa0 // see: https://www.compart.com/en/unicode/U+1D60
-// Aegean Number Ten => U+10110 => 0xf0 0x90 0x84 0x90          // see: https://www.compart.com/en/unicode/U+10110
+TEST(escape_to_ascii, demotest ) {
+    char output[128];
 
-TEST(utf8_to_printable_ascii, demotest ) {
-    char resultant_ascii_s[128];
+    /* This test simply demonstrates that the following UTF-8 string (utf8_s),
+       used in subsequent tests, is a well formed UTF-8 string. */
 
     const char utf8_s[11] = {'P','h','i',' ','=',' ','\xcf','\x95','\0'};
     const char* expected_ascii_s = "Phi = \\u03d5";
-    (void) utf8_to_printable_ascii( utf8_s, resultant_ascii_s, sizeof(resultant_ascii_s));
-    EXPECT_STREQ(expected_ascii_s, resultant_ascii_s);
+
+    size_t size = escape_to_ascii( utf8_s, output, sizeof(output));
+
+    EXPECT_STREQ(expected_ascii_s, output);
+    EXPECT_EQ(strlen(expected_ascii_s), size);
 }
 
-TEST(utf8_to_printable_ascii, detect_corruption_1 ) {
-    char resultant_ascii_s[128];
-    /* The following string is deliberately corrupted with a spurious
-       continuation character (in corrupted_utf8_s[6]).*/
-    const char corrupted_utf8_s[11] = {'P','h','i',' ','=',' ','\x80','\x95','\0'};
+TEST(escape_to_ascii, detect_corruption_1 ) {
+    char output[128];
+
+    /* The input string is deliberately corrupted with a spurious
+       continuation character.*/
+
+    char utf8_s[11] = {'P','h','i',' ','=',' ','\xcf','\x95','\0'};
+    utf8_s[6] = '\x80'; /* Deliberately corrupt the UTF-8 string. */
+
     Error_Message_Expected();
-    size_t size = utf8_to_printable_ascii( corrupted_utf8_s, resultant_ascii_s, sizeof(resultant_ascii_s));
+    size_t size = escape_to_ascii( utf8_s, output, sizeof(output));
+
     EXPECT_EQ(0, size);
 }
 
-TEST(utf8_to_printable_ascii, detect_corruption_2 ) {
-    char resultant_ascii_s[128];
+TEST(escape_to_ascii, detect_corruption_2 ) {
+    char output[128];
+
     /* The following string is deliberately corrupted: 0xcf is a header
        for a two-byte sequence, it should be followed by a continuation
        byte (most significant 2 bits are 10). 0x75 starts with 01 */
-    const char corrupted_utf8_s[11] = {'P','h','i',' ','=',' ','\xcf','\x75','\0'};
+
+    char utf8_s[11] = {'P','h','i',' ','=',' ','\xcf','\x95','\0'};
+    utf8_s[7] = '\x75'; /* Deliberately corrupt the UTF-8 string. */
+
     Error_Message_Expected();
-    size_t size = utf8_to_printable_ascii( corrupted_utf8_s, resultant_ascii_s, sizeof(resultant_ascii_s));
+    size_t size = escape_to_ascii( utf8_s, output, sizeof(output));
+
     EXPECT_EQ(0, size);
 }
 
-TEST(utf8_to_printable_ascii, insufficient_result_array_size ) {
-    /* The result array must be of sufficient size. Here it is not. */
-    char resultant_ascii_s[16];
+TEST(escape_to_ascii, insufficient_result_array_size ) {
+    char output[16];
+
+    /* If the output array pointer is not NULL, it must be of sufficient size. Here it is not. */
     const char* utf8_s = "e\u2071\u1d60 = cos(\u03d5) + i*sin(\u03d5)\n";
     Error_Message_Expected();
-    size_t size = utf8_to_printable_ascii( utf8_s, resultant_ascii_s, sizeof(resultant_ascii_s));
+    size_t size = escape_to_ascii( utf8_s, output, sizeof(output));
     EXPECT_EQ(0, size);
 }
 
 // -------------------------------------------------------
-// Test suite for ascii_to_utf8()
+// Test suite for unescape_to_utf8()
 // -------------------------------------------------------
 
-TEST(ascii_to_utf8, null_input ) {
+TEST(unescape_to_utf8, null_input ) {
     /* Should generate error message if input character pointer is NULL. */
-    char resultant_ascii_s[128];
+    char output[128];
     char* null_ptr = (char*)0;
     Error_Message_Expected();
-    size_t size = ascii_to_utf8( null_ptr, resultant_ascii_s, sizeof(resultant_ascii_s));
+    size_t size = unescape_to_utf8( null_ptr, output, sizeof(output));
     EXPECT_EQ(0, size);
 }
 
-TEST(ascii_to_utf8, null_output ) {
-    /* Should generate error message if output character pointer is NULL. */
+TEST(unescape_to_utf8, null_output ) {
+    /* Should return the length of the string that would have been produced. */
     char* null_ptr = (char*)0;
-    const char* input = "e\u2071\u1d60 = cos(\u03d5) + i*sin(\u03d5)";
-
-    Error_Message_Expected();
-    size_t size = ascii_to_utf8( input, null_ptr, size_t(5));
-    EXPECT_EQ(0, size);
+    const char* input = "e\\u2071\\u1d60 = cos(\\u03d5) + i*sin(\\u03d5)\\n";
+    size_t expected_size = strlen("e\u2071\u1d60 = cos(\u03d5) + i*sin(\u03d5)\n");
+    size_t size = unescape_to_utf8( input, null_ptr, size_t(5));
+    EXPECT_EQ(expected_size, size);
 }
 
-TEST(ascii_to_utf8, normal_1) {
-    /* ascii_to_utf8() should un-escape all escaped ASCII and escaped unicode.
-     */
-    char actual_output[256];
+TEST(unescape_to_utf8, normal_1) {
+    /* unescape_to_utf8() should un-escape all escaped ASCII and escaped unicode,
+       producing a utf8 character string. It should also return the length of
+       that string. */
+    char actual_output[128];
     const char* input = "e\\u2071\\u1d60 = cos(\\u03d5) + i*sin(\\u03d5)\\n";
     const char* expected_output = "e\u2071\u1d60 = cos(\u03d5) + i*sin(\u03d5)\n";
 
-    size_t size = ascii_to_utf8(input, actual_output, sizeof(actual_output));
-    EXPECT_EQ(30, size);
+    size_t size = unescape_to_utf8(input, actual_output, sizeof(actual_output));
+
+    EXPECT_EQ( strlen(expected_output), size);
     EXPECT_STREQ(expected_output, actual_output);
 }
 
-TEST(ascii_to_utf8, non_ascii_chars) {
-    char actual_output[256];
-    /* The input string should only contain ASCII characters, that is,
-       each element should have a value < 128. That isn't the case in the 
-       following string. Therefore, an error message should be emitted.
+TEST(unescape_to_utf8, non_ascii_chars) {
+    char actual_output[128];
+    /* 
+???
      */
-    const char* input = "eⁱᵠ = cos(ϕ) + i*sin(ϕ)";
+    const char* input = "eⁱᵠ = cos(ϕ) + i*sin(\\u03d5)\\n";
 
     Error_Message_Expected();
-    size_t size = ascii_to_utf8(input, actual_output, sizeof(actual_output));
-    EXPECT_EQ(0, size);
+    size_t size = unescape_to_utf8(input, actual_output, sizeof(actual_output));
+
+    EXPECT_EQ(30, size);
 }
 
-TEST(ascii_to_utf8, insufficient_hex_digits_1) {
+TEST(unescape_to_utf8, insufficient_hex_digits_1) {
     /* The \U escape code expects exactly 8 hexidecimal digits to follow.
        If fewer than 8 are present, then an error message should result.
        Note: "\U10110" will fail in a C/C++ literal at compile time too,
        because it is incomplete. It should be "\U00010110".
      */
-    char actual_output[256];
+    char actual_output[128];
     const char* input = "Aegean Number Ten = \\U10110\n";
 
     Error_Message_Expected();
-    size_t size = ascii_to_utf8(input, actual_output, sizeof(actual_output));
+    size_t size = unescape_to_utf8(input, actual_output, sizeof(actual_output));
+
     EXPECT_EQ(0, size);
 }
 
-TEST(ascii_to_utf8, insufficient_hex_digits_2) {
+TEST(unescape_to_utf8, insufficient_hex_digits_2) {
     /* The \u escape code expects exactly 4 hexidecimal digits to follow.
        If fewer than 4 are present, then an error message should result.
        Note: "\u3d5" will fail in a C/C++ literal at compile time too,
        because it is incomplete. It should be "\u03d5".
      */
-    char actual_output[256];
+    char actual_output[128];
     const char* input = "Phi = \\u3d5\n";
 
     Error_Message_Expected();
-    size_t size = ascii_to_utf8(input, actual_output, sizeof(actual_output));
+    size_t size = unescape_to_utf8(input, actual_output, sizeof(actual_output));
+
     EXPECT_EQ(0, size);
 }
 
-TEST(ascii_to_utf8, insufficient_result_array_size) {
+TEST(unescape_to_utf8, insufficient_result_array_size) {
     /* The result array must be of sufficient size. If it isn't, then an error
        message should be emitted.
      */
@@ -315,13 +341,31 @@ TEST(ascii_to_utf8, insufficient_result_array_size) {
     const char* input = "e\\u2071\\u1d60 = cos(\\u03d5) + i*sin(\\u03d5)\\n";
 
     Error_Message_Expected();
-    size_t size = ascii_to_utf8(input, actual_output, sizeof(actual_output));
+    size_t size = unescape_to_utf8(input, actual_output, sizeof(actual_output));
+
     EXPECT_EQ(0, size);
 }
 
 // -------------------------------------------------------
 // Test suite for utf8_to_wchar()
 // -------------------------------------------------------
+TEST(utf8_to_wchar, null_input ) {
+    /* Should generate error message if input character pointer is NULL. */
+    wchar_t output[128];
+    char* null_ptr = (char*)0;
+    Error_Message_Expected();
+    size_t size = utf8_to_wchar( null_ptr, output, sizeof(output)/sizeof(wchar_t)); 
+    EXPECT_EQ(0, size);
+}
+
+TEST(utf8_to_wchar, null_output ) {
+    /* Should return the length of the string that would have been produced. */
+    wchar_t* null_ptr = (wchar_t*)0;
+    const char* input = "e\u2071\u1d60 = cos(\u03d5) + i*sin(\u03d5)";
+    size_t expected_size = wcslen(L"eⁱᵠ = cos(ϕ) + i*sin(ϕ)");
+    size_t size = utf8_to_wchar( input, null_ptr, size_t(0));
+    EXPECT_EQ(expected_size, size);
+}
 
 /* The following three tests demonstrate three different ways to
    create the same input string. */
@@ -348,7 +392,7 @@ TEST(utf8_to_wchar, test2) {
 
 TEST(utf8_to_wchar, test3) {
     wchar_t resultant_wchar_s[128];
-    const char input[30] = {'e','\xe2','\x81','\xb1','\xe1', '\xb5','\xa0',' ','=',' ',
+    const char input[30] = {'e','\xe2','\x81','\xb1','\xe1','\xb5','\xa0',' ','=',' ',
                             'c','o','s','(','\xcf','\x95',')',' ','+',' ','i','*','s',
                             'i','n','(','\xcf','\x95',')','\0'};
     const wchar_t* expected_wide_s = L"eⁱᵠ = cos(ϕ) + i*sin(ϕ)";
@@ -369,7 +413,7 @@ TEST(utf8_to_wchar, insufficient_result_array_size) {
 
 TEST(utf8_to_wchar, corrupted_input) {
     wchar_t resultant_wchar_s[128];
-    char input[30] = {'e','\xe2','\x81','\xb1','\xe1', '\xb5','\xa0',' ','=',' ',
+    char input[30] = {'e','\xe2','\x81','\xb1','\xe1','\xb5','\xa0',' ','=',' ',
                       'c','o','s','(','\xcf','\x95',')',' ','+',' ','i','*','s',
                       'i','n','(','\xcf','\x95',')','\0'};
 
@@ -384,8 +428,26 @@ TEST(utf8_to_wchar, corrupted_input) {
 // -------------------------------------------------------
 // Test suite for wchar_to_utf8()
 // -------------------------------------------------------
-TEST(wchar_to_utf8, test1) {
+TEST(wchar_to_utf8, null_input ) {
+    /* Should generate error message if input character pointer is NULL. */
+    wchar_t* null_ptr = (wchar_t*)0;
+    char output[128];
+    Error_Message_Expected();
+    size_t size = wchar_to_utf8( null_ptr, output, sizeof(output)/sizeof(wchar_t)); 
+    EXPECT_EQ(0, size);
+}
 
+TEST(wchar_to_utf8, null_output ) {
+    /* If output is NULL, still generate the length of the array that would have been produced. */
+    const wchar_t* input = L"eⁱᵠ = cos(ϕ) + i*sin(ϕ)";
+    char* null_ptr = (char*)0;
+    size_t expected_size = strlen("eⁱᵠ = cos(ϕ) + i*sin(ϕ)");
+    size_t size = wchar_to_utf8( input, null_ptr, (size_t)0); 
+    EXPECT_EQ(expected_size, size);
+}
+
+TEST(wchar_to_utf8, test1) {
+    /* Should convert wchar_t array to a UTF-8 array. */
     char resultant_utf8_s[128];
     const wchar_t* wide_s = L"eⁱᵠ = cos(ϕ) + i*sin(ϕ)";
     const char* expected_utf8_s = "eⁱᵠ = cos(ϕ) + i*sin(ϕ)";
@@ -393,6 +455,29 @@ TEST(wchar_to_utf8, test1) {
     wchar_to_utf8(wide_s, resultant_utf8_s, sizeof(resultant_utf8_s)/sizeof(char)); 
     bool test_result = (strcmp(expected_utf8_s, resultant_utf8_s) == 0);
     EXPECT_EQ(true, test_result);
+}
+
+TEST(wchar_to_utf8, test2) {
+    /* Same test as above, but input is a constrained array. A variant fo this is used below.*/
+    char resultant_utf8_s[128];
+    wchar_t wide_s[32] = { L'e', L'ⁱ', L'ᵠ', L' ', L'=', L' ', L'c', L'o', L's', L'(', L'ϕ', L')',
+                           L' ', L'+', L' ', L'i', L'*', L's', L'i', L'n', L'(', L'ϕ', L')' };
+    const char* expected_utf8_s = "eⁱᵠ = cos(ϕ) + i*sin(ϕ)";
+
+    wchar_to_utf8(wide_s, resultant_utf8_s, sizeof(resultant_utf8_s)/sizeof(char)); 
+    bool test_result = (strcmp(expected_utf8_s, resultant_utf8_s) == 0);
+    EXPECT_EQ(true, test_result);
+}
+
+TEST(wchar_to_utf8, invalid_unicode) {
+    /* Should detect an invalid unicode codepoint. */
+    char resultant_utf8_s[128];
+    wchar_t wide_s[32] = { L'e', L'ⁱ', L'ᵠ', L' ', L'=', L' ', L'c', L'o', L's', L'(', L'ϕ', L')',
+                           L' ', L'+', L' ', L'i', L'*', L's', L'i', L'n', L'(', L'ϕ', L')' };
+    wide_s[14] = (wchar_t)0x110000;
+    Error_Message_Expected();
+    size_t size = wchar_to_utf8(wide_s, resultant_utf8_s, sizeof(resultant_utf8_s)/sizeof(char)); 
+    EXPECT_EQ(0, size);
 }
 
 TEST(wchar_to_utf8, insufficient_result_array_size) {
