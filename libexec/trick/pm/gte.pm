@@ -81,6 +81,7 @@ sub gte (@) {
     $def{"TRICK_CONVERT_SWIG_FLAGS"} = "" ;
     $def{"TRICK_CFLAGS"} = "" ;
     $def{"TRICK_CXXFLAGS"} = "" ;
+    $def{"TRICK_CPFLAGS"} = "" ;
     $def{"TRICK_CPPC"} = "c++" ;
     $def{"TRICK_DEBUG"} = "0" ;
     $def{"TRICK_EDITOR"} = "" ;
