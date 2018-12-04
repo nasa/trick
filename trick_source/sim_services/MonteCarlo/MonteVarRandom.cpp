@@ -240,3 +240,7 @@ Trick::MonteVarRandom::updateStlRandom() {
         }
     }
 }
+
+const TRICK_GSL_RANDIST& Trick::MonteVarRandom::get_random_distribution() {
+    return randist;
+}
