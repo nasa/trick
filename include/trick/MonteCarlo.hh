@@ -17,6 +17,8 @@
 #ifdef SWIG
 // This instructs SWIG to use dynamic_cast and return one of the derived type for the get_variable function.
 %factory(Trick::MonteVar * Trick::MonteCarlo::get_variable, Trick::MonteVarCalculated, Trick::MonteVarFile, Trick::MonteVarFixed, Trick::MonteVarRandom) ;
+// This, paired with get_variables, allows access to the variables from the input file.
+%template(MonteVarVector) std::vector<Trick::MonteVar*>;
 #endif
 
 namespace Trick {
@@ -624,6 +626,13 @@ namespace Trick {
          * @param variable name to get
          */
         Trick::MonteVar * get_variable(std::string variable_name);
+
+        /**
+         * Gets the list of added variables.
+         *
+         * @return the current list of variables
+         */
+        const std::vector<Trick::MonteVar*>& get_variables();
 
         /**
          * Adds a new slave with the specified machine name.

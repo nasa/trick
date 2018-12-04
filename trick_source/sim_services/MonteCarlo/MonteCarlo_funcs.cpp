@@ -178,6 +178,10 @@ Trick::MonteVar * Trick::MonteCarlo::get_variable(std::string variable_name) {
     return (NULL);
 }
 
+const std::vector<Trick::MonteVar*>& Trick::MonteCarlo::get_variables() {
+    return variables;
+}
+
 void Trick::MonteCarlo::add_slave(std::string in_machine_name) {
     add_slave(new MonteSlave(in_machine_name));
 }
