@@ -185,6 +185,13 @@ namespace Trick {
          */
         double get_absolute_max() const { return (randist.rel_max) ? (randist.mu + randist.max) : randist.max; }
 
+        /**
+         * gets the random distribution
+         *
+         * @return the random distribution
+         */
+        const TRICK_GSL_RANDIST& get_random_distribution();
+
         // Describes the properties of this variable.
         std::string describe_variable();
 
