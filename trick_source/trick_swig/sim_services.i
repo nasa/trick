@@ -36,6 +36,7 @@
 #include "trick/rand_generator.h"
 #include "trick/wave_form.h"
 #include "trick/integrator_c_intf.h"
+#include "trick/units_conv.h"
 
 #include "trick/GetTimeOfDayClock.hh"
 #include "trick/BC635Clock.hh"
@@ -135,6 +136,7 @@
 #include "trick/RtiExec.hh"
 #include "trick/RtiStager.hh"
 #include "trick/ITimer.hh"
+#include "trick/Unit.hh"
 #include "trick/UnitTest.hh"
 #include "trick/trick_tests.h"
 #include "trick/VariableServer.hh"

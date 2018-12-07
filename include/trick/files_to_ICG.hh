@@ -87,6 +87,7 @@
 #include "trick/RtiStager.hh"
 #include "trick/RtiExec.hh"
 #include "trick/UdUnits.hh"
+#include "trick/Unit.hh"
 #include "trick/UnitsMap.hh"
 #include "trick/Zeroconf.hh"
 #include "trick/Flag.h"
