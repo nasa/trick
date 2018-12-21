@@ -9,5 +9,8 @@ PROGRAMMERS:
 
 /* initialization job */
 int MSD::init() {
+    x = x_0;
+    v = v_0;
+    a = (F - b*v - k*x)/m;
     return 0;
 }
