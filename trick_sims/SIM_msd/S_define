@@ -3,29 +3,30 @@ PURPOSE:
     (This S_define works with the RUN_numeric input file)
 LIBRARY DEPENDENCIES:
     (
-      (msd/src/msd_init.cpp)
-      (msd/src/msd_numeric.cpp)
-      (msd/src/msd_shutdown.cpp)
       (msd/src/msd.cpp)
+      (msd/src/msd_default_data.cpp)
       (msd/src/msd_deriv.cpp)
+      (msd/src/msd_init.cpp)
       (msd/src/msd_integ.cpp)
+      (msd/src/msd_shutdown.cpp)
     )
 *************************************************************/
 
 #include "sim_objects/default_trick_sys.sm"
-##include "msd/include/msd_numeric.hh"
+##include "msd/include/msd.hh"
 
 
 class MSDSimObject : public Trick::SimObject {
 
     public:
-        MSD msd;
+        MSD msd ;
 
         MSDSimObject() {
-            ("default_data") msd_default_data( msd ) ;
-            ("initialization") msd_init( msd ) ;
-            ("derivative") msd.state_deriv();
-            ("integration") trick_ret= msd.state_integ();
+            ("default_data") MSD::default_data( msd ) ;
+            ("initialization") msd.init() ;
+            ("derivative") msd.state_deriv() ;
+            ("integration") trick_ret= msd.state_integ() ;
+            ("shutdown") msd.shutdown() ;
         }
 } ;
 

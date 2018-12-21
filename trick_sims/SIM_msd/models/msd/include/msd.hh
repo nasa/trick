@@ -22,27 +22,20 @@ public:
     double k;           /* N/m spring constant */
     double F;           /* N force constant */
 
+    MSD(double _m, double _k, double _b, double _F,
+        double _v_0, double _x_0);
+    
+    static int default_data(MSD &);
+    int init();
+    int shutdown();
+    int state_deriv(void);
+    int state_integ(void);
 
 
     MSD(void); /* not used */
 
-    MSD(double _m, double _k, double _b, double _F,
-        double _v_0, double _x_0);
-
-     int state_deriv(void);
-     int state_integ(void);
-
  };
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-int msd_default_data(MSD &);
-int msd_init(MSD &);
-int msd_shutdown(const MSD &);
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* MSD_H */

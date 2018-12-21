@@ -3,7 +3,6 @@
   PROGRAMMERS:
     (((Scott P. Fennell) (CACI International Inc.) (January 2018) (Trick Learning Project)))
 *************************************************************/
-#include "../include/msd_numeric.hh"
 #include "msd.hh"
 #include "trick/Integrator.hh"
 #include "trick/integrator_c_intf.h"
@@ -24,8 +23,9 @@ int MSD::state_integ(void) {
 	    ipass = integrate();
 
 	    unload_state(
-	    &x,
-	    &v,	
-		NULL);
+	    	&x,
+	    	&v,	
+			NULL);
+
     return(ipass);
 }
