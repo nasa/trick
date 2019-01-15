@@ -1,0 +1,26 @@
+/************************************************************
+PURPOSE:
+    ( Simulate a model rocket. )
+LIBRARY DEPENDENCIES:
+    ((rocket/src/Rocket.cpp))
+*************************************************************/
+#include "sim_objects/default_trick_sys.sm"
+##include "rocket/include/Rocket.hh"
+class ModelRocketSimObject : public Trick::SimObject {
+    public:
+    Rocket rocket;
+    ModelRocketSimObject() {
+        ("default_data")     rocket.default_data() ;
+        ("initialization")   rocket.state_init() ;
+        ("derivative")       rocket.state_deriv() ;
+        ("integration") trick_ret = rocket.state_integ() ;
+    }
+};
+
+ModelRocketSimObject dyn;
+
+IntegLoop dyn_integloop (0.01) dyn;
+
+void create_connections() {
+    dyn_integloop.getIntegrator(Runge_Kutta_4, 6);
+}
