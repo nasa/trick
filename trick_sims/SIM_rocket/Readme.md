@@ -97,6 +97,7 @@ motor contains all of its propellant mass. When it burns out, it contains no pro
 | rocket.velocity        | m/s       | Numerical integration of rocket.acceleration.|
 | rocket.position        | m/s&#xB2; | Numerical integration of rocket.velocity.    |
 
+
 ##Results with Default Parameterization
 
 ![Forces](images/Forces.png)
