@@ -29,7 +29,7 @@ The drag on the model rocket will be calculated using the drag equation shown be
 | v      | rocket.velocity               |   m/s      | Initially 0.0, Updated by integration of rocket-acceleration over time.|
 
 
-###Gravitation Force
+### Gravitation Force
 
 ![ForceOfGravity](images/F_grav_eqn.png)
 
