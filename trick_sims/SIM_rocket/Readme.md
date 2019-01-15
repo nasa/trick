@@ -3,7 +3,7 @@
 The following describes a Trick-based simulation of a model rocket under the forces of thrust,
 gravity and drag, using the parameters and equations shown below. 
 
-###Thrust Force
+### Thrust Force
 
 In our model rocket simulation, we use an Estes E9 motor by default.  It's thrust profile is shown below.
 
@@ -16,7 +16,7 @@ In our model rocket simulation, we use an Estes E9 motor by default.  It's thrus
 | rocket.motor.thrust\_sample\_count  |    --      |   29         |
     
 
-###Drag Force
+### Drag Force
 The drag on the model rocket will be calculated using the drag equation shown below:
 
 ![ForceDrag](images/F_drag_eqn.png)
@@ -38,7 +38,7 @@ The drag on the model rocket will be calculated using the drag equation shown be
 | g      | rocket.env.gravity          | m/s&#xB2; | -9.81      |
 | m      | rocket.total\_mass          | kg        | Initially [Eq#2]. Updated by integration of rocket-mass-rate. |
 
-###Mass
+### Mass
 As the rocket motor burns, it expels mass, at high speed. Initially the rocket
 motor contains all of its propellant mass. When it burns out, it contains no propellant mass.
 
@@ -49,7 +49,7 @@ motor contains all of its propellant mass. When it burns out, it contains no pro
 | rocket.motor.propellant\_mass | kg    | 0.0358 |
 
 
-##Initialization
+## Initialization
 
 | Name                         | Units | Value |
 |------------------------------|-------|-------|
@@ -65,7 +65,7 @@ motor contains all of its propellant mass. When it burns out, it contains no pro
 [Eq#2] **rocket.total\_mass (@t=0)** = rocket.empty\_mass + rocket.motor.total\_mass (@t=0).
 
 
-##State Derivatives
+## State Derivatives
 
 | Name                        | Units | Value  |
 |-----------------------------|-------|--------|
@@ -88,7 +88,7 @@ motor contains all of its propellant mass. When it burns out, it contains no pro
 [Eq#7] **rocket.acceleration** = rocket.total\_force  / rocket.total\_mass
 
 
-##State Integration
+## State Integration
 
 | Name                   | Units     | Value                                                      |
 |------------------------|-----------|------------------------------------------------------------|
@@ -98,7 +98,7 @@ motor contains all of its propellant mass. When it burns out, it contains no pro
 | rocket.position        | m/s&#xB2; | Numerical integration of rocket.velocity.    |
 
 
-##Results with Default Parameterization
+## Results with Default Parameterization
 
 ![Forces](images/Forces.png)
 
