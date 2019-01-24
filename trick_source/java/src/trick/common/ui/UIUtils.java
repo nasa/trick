@@ -283,8 +283,7 @@ public class UIUtils {
 	 */
 	public static boolean isRightMouseClick(MouseEvent e) {
 		boolean	rval = false;
-
-		if( (e.getModifiersEx()&MouseEvent.BUTTON3_DOWN_MASK)==MouseEvent.BUTTON3_DOWN_MASK ) {
+		if(e.getButton() == 3) {
 			rval = true;
 		}
 
