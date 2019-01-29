@@ -14,11 +14,13 @@ MemMgr::MemMgr() {
    reducedCheckpoint = true;
    hexfloatCheckpoint = false;
    compactArraysCheckpoint = true;
+   
    defaultCheckPointAgent = new ClassicChkPtAgent( std::cout );
    defaultCheckPointAgent->setDebugLevel( debugLevel);
    defaultCheckPointAgent->setReducedCheckpoint( reducedCheckpoint);
    defaultCheckPointAgent->setHexfloatCheckpoint( hexfloatCheckpoint);
    defaultCheckPointAgent->setMakeCompactArrays( compactArraysCheckpoint );
+   
    currentCheckPointAgent = defaultCheckPointAgent;
 
    typeDictionary = new TypeDictionary();
