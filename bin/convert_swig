@@ -374,7 +374,8 @@ sub process_file($$) {
 
             if ( /^(\s*\#\s*include\s+)([^\n]+)/ ) {
                 my ( $include ) = $1 ;
-                my ( $file_name ) = $2 ;
+                ( my $file_name = $2 ) =~ s/^\s+|\s+$//g ; # Strip leading & trailing whitespace
+
                 if ( $file_name !~ /\</ ) {
                     if ( $file_name !~ /\"sim_services/ and $file_name !~ /\"trick_utils/ )  {
                         my $exclude = 0 ;
