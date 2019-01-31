@@ -124,6 +124,8 @@ IterOverLogGroups::IterOverLogGroups( LogMultiGroup* lmg,
         LogGroup* key ;
         vector < int > val ;
         map < LogGroup*, set< int > >::const_iterator ll;
+        listLogGroupIterators_.reserve(listLogGroupIterators_.size()
+                                       + lg2log.size());
         for (ll = lg2log.begin(); ll != lg2log.end(); ll++) {
 
                 key = (*ll).first ;
