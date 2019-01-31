@@ -29,7 +29,6 @@ int tc_init_udp_client(TCDevice * udp_client_device)
 
     int debug = 1;
 
-    int on = 1;
     struct hostent *h;
     int the_socket;
     struct sockaddr_in sockin;
@@ -59,10 +58,6 @@ int tc_init_udp_client(TCDevice * udp_client_device)
 
         return (TC_COULD_NOT_OPEN_SOCKET);
     }
-
-    /* Turn off data buffering. This causes data to be sent immediately rather than queuing it up until the transmit
-       buffer is filled. */
-    setsockopt(the_socket, IPPROTO_TCP, TCP_NODELAY, (const char *) &on, (socklen_t) sizeof(on));
 
     sockin.sin_family = TRICKCOMM_SOCKET_FAMILY;
     sockin.sin_addr.s_addr = htonl(INADDR_ANY);

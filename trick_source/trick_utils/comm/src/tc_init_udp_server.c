@@ -59,12 +59,6 @@ int tc_init_udp_server(         /* RETURN: -- 0 for success */
         return (-1);
     }
 
-
-    /* Turn off data buffering. This causes data to be written immediately to the receiving socket rather than queing
-       it up until the transmit buffer is filled. */
-    setsockopt(udp_server_device->socket, IPPROTO_TCP, TCP_NODELAY, (const char *) &yes, (socklen_t) sizeof(yes));
-
-
     sockin.sin_addr.s_addr = INADDR_ANY;
     sockin.sin_family = TRICKCOMM_SOCKET_FAMILY;
     sockin.sin_port = htons((short) (udp_server_device->port));
