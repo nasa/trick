@@ -1,4 +1,5 @@
 
+#include <iostream>
 #include <stdlib.h>
 #include "trick/VariableServerThread.hh"
 #include "trick/exec_proto.h"
@@ -61,6 +62,35 @@ Trick::VariableServerThread::VariableServerThread(TCDevice * in_listen_dev) :
 Trick::VariableServerThread::~VariableServerThread() {
     free( incoming_msg ) ;
     free( stripped_msg ) ;
+}
+
+
+std::ostream& Trick::operator<< (std::ostream& s, Trick::VariableServerThread& vst) {
+
+    std::vector <Trick::VariableReference *>::iterator it;
+
+    s << "  \"connection\":{" << std::endl;
+    if (vst.binary_data) {
+        s << "    \"format\":\"BINARY\",";
+    } else {
+        s << "    \"format\":\"ASCII\",";
+    }
+    s << std::endl;
+    s << "    \"updaterate\":" << vst.update_rate << "," << std::endl;
+
+    s << "    \"variables\":[" << std::endl;
+
+    int n_vars = (int)vst.vars.size();
+    for (int i=0 ; i<n_vars ; i++) {
+        s << *(vst.vars[i]);
+        if ((n_vars-i)>1) {
+            s << "," ;
+        }
+        s << std::endl;
+    }
+    s << "    ]" << std::endl;
+    s << "  }" << std::endl;
+    return s;
 }
 
 void Trick::VariableServerThread::set_vs_ptr(Trick::VariableServer * in_vs) {

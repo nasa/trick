@@ -387,6 +387,10 @@ Trick::VariableServer * var_server_get_var_server() {
     return the_vs ;
 }
 
+extern "C" void var_server_list_connections(void) {
+    std::cout << *the_vs << std::endl;
+}
+
 /**
  * @relates Trick::VariableServer
  * @copydoc Trick::VariableServer::get_hostname

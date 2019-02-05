@@ -63,6 +63,16 @@ Trick::VariableReference::VariableReference(REF2 * in_ref ) {
 
 }
 
+std::ostream& Trick::operator<< (std::ostream& s, const Trick::VariableReference& vref) {
+
+    if (vref.ref->reference != NULL) {
+        s << "      \"" << vref.ref->reference << "\"";
+    } else {
+        s<< "      null";
+    }
+    return s;
+}
+
 Trick::VariableReference::~VariableReference() {
     free(ref) ;
     free(buffer_in) ;

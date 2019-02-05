@@ -6,6 +6,7 @@
 #ifndef VARIABLESERVERREFERENCE_HH
 #define VARIABLESERVERREFERENCE_HH
 
+#include <iostream>
 #include "trick/reference.h"
 
 union cv_converter ;
@@ -23,6 +24,8 @@ namespace Trick {
         public:
             VariableReference(REF2 * in_ref) ;
             ~VariableReference() ;
+
+            friend std::ostream& operator<< (std::ostream& s, const Trick::VariableReference& vref);
 
             /** Pointer to trick variable reference structure.\n */
             REF2 * ref ;
