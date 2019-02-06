@@ -21,7 +21,7 @@ Trick::VariableServer::~VariableServer() {
 std::ostream& Trick::operator<< (std::ostream& s, Trick::VariableServer& vs) {
     std::map < pthread_t , VariableServerThread * >::iterator it ;
 
-    std::cout << "{\"variable_server_connections\":[" << std::endl;
+    std::cout << "{\"variable-server-connections\":[" << std::endl;
     int count = 0;
     int n_connections = (int)vs.var_server_threads.size();
     for ( it = vs.var_server_threads.begin() ; it != vs.var_server_threads.end() ; it++ ) {
