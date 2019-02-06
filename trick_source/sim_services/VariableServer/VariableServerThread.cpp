@@ -70,13 +70,15 @@ std::ostream& Trick::operator<< (std::ostream& s, Trick::VariableServerThread& v
     std::vector <Trick::VariableReference *>::iterator it;
 
     s << "  \"connection\":{" << std::endl;
+    s << "    \"client-tag\":\"" << vst.connection.client_tag << "\",";
+    s << std::endl;
     if (vst.binary_data) {
         s << "    \"format\":\"BINARY\",";
     } else {
         s << "    \"format\":\"ASCII\",";
     }
     s << std::endl;
-    s << "    \"updaterate\":" << vst.update_rate << "," << std::endl;
+    s << "    \"update-rate\":" << vst.update_rate << "," << std::endl;
 
     s << "    \"variables\":[" << std::endl;
 
