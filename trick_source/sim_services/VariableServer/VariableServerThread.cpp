@@ -78,11 +78,11 @@ std::ostream& Trick::operator<< (std::ostream& s, Trick::VariableServerThread& v
     int err = getpeername(vst.connection.socket, (struct sockaddr*)&otherside, &len);
 
     if (err == 0) {
-        std::cout << "    \"client-IP-address\":\"" << inet_ntoa(otherside.sin_addr) << "\"," << std::endl;
-        std::cout << "    \"client-port\":\"" << ntohs(otherside.sin_port) << "\"," << std::endl;
+        s << "    \"client-IP-address\":\"" << inet_ntoa(otherside.sin_addr) << "\"," << std::endl;
+        s << "    \"client-port\":\"" << ntohs(otherside.sin_port) << "\"," << std::endl;
     } else {
-        std::cout << "    \"client-IP-address\":\"unknown\"," << std::endl;
-        std::cout << "    \"client-port\":\"unknown\"," << std::endl;
+        s << "    \"client-IP-address\":\"unknown\"," << std::endl;
+        s << "    \"client-port\":\"unknown\"," << std::endl;
     }
 
     if (vst.binary_data) {
