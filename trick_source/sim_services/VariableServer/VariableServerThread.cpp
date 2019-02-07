@@ -69,9 +69,22 @@ std::ostream& Trick::operator<< (std::ostream& s, Trick::VariableServerThread& v
 
     std::vector <Trick::VariableReference *>::iterator it;
 
+    struct sockaddr_in otherside;
+    socklen_t len = (socklen_t)sizeof(otherside);
+
     s << "  \"connection\":{" << std::endl;
-    s << "    \"client-tag\":\"" << vst.connection.client_tag << "\",";
-    s << std::endl;
+    s << "    \"client-tag\":\"" << vst.connection.client_tag << "\"," << std::endl;
+
+    int err = getpeername(vst.connection.socket, (struct sockaddr*)&otherside, &len);
+
+    if (err == 0) {
+        std::cout << "    \"client-IP-address\":\"" << inet_ntoa(otherside.sin_addr) << "\"," << std::endl;
+        std::cout << "    \"client-port\":\"" << ntohs(otherside.sin_port) << "\"," << std::endl;
+    } else {
+        std::cout << "    \"client-IP-address\":\"unknown\"," << std::endl;
+        std::cout << "    \"client-port\":\"unknown\"," << std::endl;
+    }
+
     if (vst.binary_data) {
         s << "    \"format\":\"BINARY\",";
     } else {
