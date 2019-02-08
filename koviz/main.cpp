@@ -69,6 +69,7 @@ Option::FPresetQString presetOrientation;
 class SnapOptions : public Options
 {
   public:
+    bool isHelp;
     QStringList rundps;
     double start;
     double stop;
@@ -135,6 +136,7 @@ int main(int argc, char *argv[])
     bool ok;
     int ret = -1;
 
+    opts.add("-h:{0,1}",&opts.isHelp,false, "print usage");
     opts.add("[RUNs and DPs:{0,2000}]",
              &opts.rundps, QStringList(),
              "List of RUN dirs and DP files",
@@ -222,8 +224,12 @@ int main(int argc, char *argv[])
 
     opts.parse(argc,argv, QString("koviz"), &ok);
 
-    if ( !ok ) {
+    if ( opts.isHelp ) {
         fprintf(stderr,"%s\n",opts.usage().toLatin1().constData());
+        return 0;
+    }
+
+    if ( !ok ) {
         return -1;
     }
 
@@ -257,8 +263,7 @@ int main(int argc, char *argv[])
 
     if ( opts.rundps.isEmpty() && opts.sessionFile.isEmpty() ) {
         if ( opts.trk2csvFile.isEmpty() && opts.csv2trkFile.isEmpty() ) {
-            fprintf(stderr,"koviz [error] : no RUNs specified\n");
-            fprintf(stderr,"%s\n",opts.usage().toLatin1().constData());
+            fprintf(stderr,"koviz [error] : no RUNs specified.\n");
             exit(-1);
         }
     }
@@ -326,7 +331,6 @@ int main(int argc, char *argv[])
             ret = convert2csv(timeNames,opts.trk2csvFile, csvOutFile);
         } catch (std::exception &e) {
             fprintf(stderr,"\n%s\n",e.what());
-            fprintf(stderr,"%s\n",opts.usage().toLatin1().constData());
             exit(-1);
         }
         if ( !ret )  {
@@ -363,7 +367,6 @@ int main(int argc, char *argv[])
         }
     } catch (std::exception &e) {
         fprintf(stderr,"\n%s\n",e.what());
-        fprintf(stderr,"%s\n",opts.usage().toLatin1().constData());
         exit(-1);
     }
 
@@ -931,7 +934,6 @@ int main(int argc, char *argv[])
 
     } catch (std::exception &e) {
         fprintf(stderr,"\n%s\n",e.what());
-        fprintf(stderr,"%s\n",opts.usage().toLatin1().constData());
         exit(-1);
     }
 
@@ -946,9 +948,16 @@ void presetRunsDPs(QStringList* defRunDirs,
     foreach ( QString f, rundps ) {
         QFileInfo fi(f);
         if ( !fi.exists() ) {
-            fprintf(stderr,
-                    "koviz [error] : couldn't find file/directory: \"%s\".\n",
-                    f.toLatin1().constData());
+            if (f.startsWith('-')) {
+                fprintf(stderr,
+                      "koviz [error] : option: \"%s\" does not exist.  "
+                      "Try koviz -h to see options.\n",
+                      f.toLatin1().constData());
+            } else {
+                fprintf(stderr,
+                      "koviz [error] : couldn't find file/directory: \"%s\".\n",
+                      f.toLatin1().constData());
+            }
             *ok = false;
             return;
         }
