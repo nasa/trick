@@ -32,6 +32,7 @@ public:
     ~VarsWidget();
 
     void clearSelection();
+    void selectAllVars();
 
 
 signals:

@@ -274,6 +274,7 @@ void PlotMainWindow::createMenu()
     _showLiveCoordAction = _optsMenu->addAction(tr("ShowLiveCoord"));
     _clearPlotsAction  = _optsMenu->addAction(tr("ClearPlots"));
     _clearTablesAction = _optsMenu->addAction(tr("ClearTables"));
+    _plotAllVarsAction = _optsMenu->addAction(tr("PlotAllVars"));
     _showLiveCoordAction->setCheckable(true);
     _showLiveCoordAction->setChecked(true);
     _menuBar->addMenu(_fileMenu);
@@ -288,6 +289,8 @@ void PlotMainWindow::createMenu()
             this, SLOT(_clearPlots()));
     connect(_clearTablesAction, SIGNAL(triggered()),
             this, SLOT(_clearTables()));
+    connect(_plotAllVarsAction, SIGNAL(triggered()),
+            this, SLOT(_plotAllVars()));
     setMenuWidget(_menuBar);
 }
 
@@ -1048,6 +1051,11 @@ void PlotMainWindow::_clearTables()
     for (int i = nTables-1; i >= 0; --i) {
         _bookModel->removeRow(i,tablesIdx);
     }
+}
+
+void PlotMainWindow::_plotAllVars()
+{
+    _varsWidget->selectAllVars();
 }
 
 void PlotMainWindow::_startTimeChanged(double startTime)

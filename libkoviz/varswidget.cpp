@@ -173,6 +173,11 @@ void VarsWidget::clearSelection()
     _varsSelectModel->clear();
 }
 
+void VarsWidget::selectAllVars()
+{
+    _listView->selectAll();
+}
+
 QStandardItem* VarsWidget::_createPageItem()
 {
     QModelIndex pagesIdx = _plotModel->getIndex(QModelIndex(), "Pages");

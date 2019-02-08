@@ -107,6 +107,7 @@ private:
     QAction *_showLiveCoordAction;
     QAction *_clearPlotsAction;
     QAction *_clearTablesAction;
+    QAction *_plotAllVarsAction;
 
     QTabWidget* _nbDPVars;
     VarsWidget* _varsWidget;
@@ -133,6 +134,7 @@ private slots:
      void _toggleShowLiveCoord();
      void _clearPlots();
      void _clearTables();
+     void _plotAllVars();
 
      void _startTimeChanged(double startTime);
      void _liveTimeChanged(double liveTime);
