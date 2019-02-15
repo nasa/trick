@@ -11,7 +11,7 @@ TimeInput::TimeInput(QWidget *parent) :
     _startTimeInput->setPlaceholderText("Start Time");
     _startTimeInput->setValidator(&_startValidator);
 #endif
-    _liveTimeInput = new QLineEdit(this);
+    _liveTimeInput = new TimeInputLineEdit(this);
     _liveTimeInput->setAlignment(Qt::AlignRight);
 #if QT_VERSION >= QT_VERSION_CHECK(4,8,0)
     _liveTimeInput->setPlaceholderText("Live Time");
@@ -28,6 +28,10 @@ TimeInput::TimeInput(QWidget *parent) :
             this, SLOT(_slotStartTimeChanged()));
     connect(_liveTimeInput, SIGNAL(editingFinished()),
             this, SLOT(_slotLiveTimeChanged()));
+    connect(_liveTimeInput, SIGNAL(nextTime()),
+            this, SLOT(_slotLiveTimeNext()));
+    connect(_liveTimeInput, SIGNAL(prevTime()),
+            this, SLOT(_slotLiveTimePrev()));
     connect(_stopTimeInput, SIGNAL(editingFinished()),
             this, SLOT(_slotStopTimeChanged()));
 
@@ -72,6 +76,16 @@ void TimeInput::_slotLiveTimeChanged()
 {
     double liveTime = _liveTimeInput->text().toDouble();
     emit liveTimeChanged(liveTime);
+}
+
+void TimeInput::_slotLiveTimeNext()
+{
+    emit liveTimeNext();
+}
+
+void TimeInput::_slotLiveTimePrev()
+{
+    emit liveTimePrev();
 }
 
 void TimeInput::_slotStopTimeChanged()
@@ -139,4 +153,20 @@ void StopDoubleValidator::fixup(QString &input) const
     if ( input.isEmpty() ) {
         input = QString("%1").arg(DBL_MAX);
     }
+}
+
+TimeInputLineEdit::TimeInputLineEdit(QWidget *parent) :
+    QLineEdit(parent)
+{
+}
+
+void TimeInputLineEdit::keyPressEvent(QKeyEvent *event)
+{
+    Qt::KeyboardModifiers keymods = event->modifiers();
+    if ( event->key() == Qt::Key_Right && (keymods & Qt::AltModifier) ) {
+        emit nextTime();
+    } else if ( event->key() == Qt::Key_Left && (keymods & Qt::AltModifier) ) {
+        emit prevTime();
+    }
+    QLineEdit::keyPressEvent(event);
 }

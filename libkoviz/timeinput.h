@@ -6,8 +6,25 @@
 #include <QHBoxLayout>
 #include <QDoubleValidator>
 #include <QModelIndex>
+#include <QKeyEvent>
 #include <qglobal.h>
 #include <float.h>
+
+class TimeInputLineEdit : public QLineEdit
+{
+  Q_OBJECT
+
+  public:
+    TimeInputLineEdit(QWidget* parent = 0);
+
+signals:
+    void nextTime();
+    void prevTime();
+
+  protected:
+    virtual void keyPressEvent(QKeyEvent *event);
+
+};
 
 // Need empty string to be valid
 class StartDoubleValidator : public QDoubleValidator
@@ -34,6 +51,8 @@ public:
 signals:
     void startTimeChanged(double start);
     void liveTimeChanged(double liveTime);
+    void liveTimeNext();
+    void liveTimePrev();
     void stopTimeChanged(double stop);
 
 public slots:
@@ -44,6 +63,8 @@ public slots:
 private slots:
     void _slotStartTimeChanged();
     void _slotLiveTimeChanged();
+    void _slotLiveTimeNext();
+    void _slotLiveTimePrev();
     void _slotStopTimeChanged();
     void _slotDataChanged(const QModelIndex &topLeft,
                           const QModelIndex &bottomRight,
@@ -52,7 +73,7 @@ private slots:
 private:
     QHBoxLayout* _layout;
     QLineEdit* _startTimeInput;
-    QLineEdit* _liveTimeInput;
+    TimeInputLineEdit* _liveTimeInput;
     QLineEdit* _stopTimeInput;
     QString _format(double d);
 #if QT_VERSION >= QT_VERSION_CHECK(4,8,0)

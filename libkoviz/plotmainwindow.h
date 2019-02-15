@@ -124,6 +124,8 @@ private:
     void _readSettings();
     void _writeSettings();
 
+    QModelIndex _currCurveIdx();
+
 private slots:
      void _nbCurrentChanged(int i);
      void _bookModelRowsAboutToBeRemoved(const QModelIndex& pidx,
@@ -139,6 +141,8 @@ private slots:
      void _startTimeChanged(double startTime);
      void _liveTimeChanged(double liveTime);
      void _stopTimeChanged(double stopTime);
+     void _liveTimeNext();
+     void _liveTimePrev();
      void _monteInputsHeaderViewClicked(int section);
      void _monteInputsViewCurrentChanged(const QModelIndex& currIdx,
                                          const QModelIndex& prevIdx);
