@@ -10,6 +10,7 @@
 #include <queue>
 #include <vector>
 #include <string>
+#include <iostream>
 #include <pthread.h>
 #include "trick/tc.h"
 #include "trick/reference.h"
@@ -38,6 +39,11 @@ namespace Trick {
              @brief Destructor.
             */
             ~VariableServer() ;
+
+            /**
+             @brief Write a JSON encoded list of Variable Server Connections to the given stream.
+            */
+            friend std::ostream& operator<< (std::ostream& s, Trick::VariableServer& vs);
 
             /**
              @brief Set up the listen port during default_data so it is available at the start of initialization.
