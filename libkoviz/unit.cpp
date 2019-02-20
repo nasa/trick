@@ -274,8 +274,9 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     // Angular velocity
     map.insert(QPair<QString,QString>("r/s","r/s"),     1.0);
     map.insert(QPair<QString,QString>("r/s","rad/s"),   1.0);
-    map.insert(QPair<QString,QString>("r/s","d/s"),     0.0174532925199433);
-    map.insert(QPair<QString,QString>("r/s","rev/s"),   6.28318530717958647);
+    map.insert(QPair<QString,QString>("r/s","d/s"),      0.0174532925199433);
+    map.insert(QPair<QString,QString>("r/s","degrees/s"),0.0174532925199433);
+    map.insert(QPair<QString,QString>("r/s","rev/s"), 6.28318530717958647);
     map.insert(QPair<QString,QString>("r/s","rpm"), 6.28318530717958647/60.0);
     map.insert(QPair<QString,QString>("r/s","rev/min"),
                                                     6.28318530717958647/60.0);
@@ -288,8 +289,10 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
 
     // Mass
     map.insert(QPair<QString,QString>("kg","kg"),      1.0);
-    map.insert(QPair<QString,QString>("kg","sl"),     14.59390293000000);
+    map.insert(QPair<QString,QString>("kg","sl"),     14.59390293000000);//Trk17
+    //map.insert(QPair<QString,QString>("kg","sl"),   14.5939029372064); //Trk07
     map.insert(QPair<QString,QString>("kg","lbm"),     0.4535923697760192);
+    map.insert(QPair<QString,QString>("kg","lb"),      0.4535923697760192);
     map.insert(QPair<QString,QString>("kg","g"),       0.001);
     map.insert(QPair<QString,QString>("kg","mt"),   1000.0);
 
@@ -304,15 +307,36 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     map.insert(QPair<QString,QString>("N*m","N*M"),      1.0);
     map.insert(QPair<QString,QString>("N*m","Nm"),       1.0);
     map.insert(QPair<QString,QString>("N*m","lbf*ft"),   1.35581795);
-    map.insert(QPair<QString,QString>("N*m","lbf*in"),   0.112984829);
+    map.insert(QPair<QString,QString>("N*m","lbf*in"),   4.4482216152605*0.0254);
     map.insert(QPair<QString,QString>("N*m","oz*in"),    0.00706155195);
+    map.insert(QPair<QString,QString>("N*m","N*cm"),     0.01);
 
     // Pressure
     map.insert(QPair<QString,QString>("N/m2","N/m2"),      1.0);
     map.insert(QPair<QString,QString>("N/m2","Pa"),        1.0);
     map.insert(QPair<QString,QString>("N/m2","kPa"),    1000.0);
-    map.insert(QPair<QString,QString>("N/m2","psi"),    6894.75719);
+    map.insert(QPair<QString,QString>("N/m2","psi"),     6894.75719);
+    map.insert(QPair<QString,QString>("N/m2","lbf/in2"), 6894.75719);
     map.insert(QPair<QString,QString>("N/m2","oz/in2"),  430.922332);
+
+    // Stiffness
+    map.insert(QPair<QString,QString>("N/m","N/m"),      1.0);
+    map.insert(QPair<QString,QString>("N/m","N/mm"),  1000.0);
+    map.insert(QPair<QString,QString>("N/m","lbf/ft"),  4.4482216152605/0.3048);
+
+    // Torsional spring stiffness
+    map.insert(QPair<QString,QString>("N*m/r","N*m/r"), 1.0);
+    map.insert(QPair<QString,QString>("N*m/r","N*m/d"), 1.0/0.0174532925199433);
+
+    // Friction constant
+    map.insert(QPair<QString,QString>("N*s/m","N*s/m"), 1.0);
+    map.insert(QPair<QString,QString>("N*s/m","N*s/mm"), 1000.0);
+    map.insert(QPair<QString,QString>("N*s/m","lbf*s/ft"), 4.4482216152605/0.3048);
+
+    // Torsional friction
+    map.insert(QPair<QString,QString>("N*m*s/r","N*m*s/r"), 1.0);
+    map.insert(QPair<QString,QString>("N*m*s/r","N*cm*min/rev"), 60.0/(100.0*6.28318530717958647));
+    map.insert(QPair<QString,QString>("N*m*s/r","N*m*s/d"), 1.0/0.0174532925199433);
 
     // Density
     map.insert(QPair<QString,QString>("kg/m3","kg/m3"),     1.0);
@@ -322,6 +346,7 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
 
     // Voltage
     map.insert(QPair<QString,QString>("v","v"),      1.0);
+    map.insert(QPair<QString,QString>("v","V"),      1.0);
     map.insert(QPair<QString,QString>("v","kv"),  1000.0);
 
     // Current
@@ -347,8 +372,9 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     map.insert(QPair<QString,QString>("C","K"),  1.0);
     map.insert(QPair<QString,QString>("C","R"),  5.0/9.0);
     map.insert(QPair<QString,QString>("C","F"),  5.0/9.0);
+    map.insert(QPair<QString,QString>("C","degF"),  5.0/9.0);
 
-    // Power (uses bias)
+    // Power
     map.insert(QPair<QString,QString>("W","W"),  1.0);
 
     // Volume rate
@@ -356,6 +382,8 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
 
     // Mass rate
     map.insert(QPair<QString,QString>("kg/s","kg/s"),  1.0);
+    map.insert(QPair<QString,QString>("kg/s","lbm/s"), 0.4535923697760192);
+    map.insert(QPair<QString,QString>("kg/s","lb/s"),  0.4535923697760192);
 
     // Area
     map.insert(QPair<QString,QString>("m2","m2"), 1.0);
@@ -370,12 +398,19 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     map.insert(QPair<QString,QString>("micro-g","micro-g"), 1.0);
     map.insert(QPair<QString,QString>("micro-g","μg"), 1.0);
 
+    // 1/angle
+    map.insert(QPair<QString,QString>("1/r","1/r"),   1.0);
+    map.insert(QPair<QString,QString>("1/r","one/r"), 1.0);
+    map.insert(QPair<QString,QString>("1/r","1/d"),   1.0/0.0174532925199433);
+    map.insert(QPair<QString,QString>("1/r","one/d"), 1.0/0.0174532925199433);
+
     // Miscellaneous
     map.insert(QPair<QString,QString>("rad2/s2","rad2/s2"), 1.0);
     map.insert(QPair<QString,QString>("m2/s2","m2/s2"), 1.0);
     map.insert(QPair<QString,QString>("kg*m2","kg*m2"), 1.0);
     map.insert(QPair<QString,QString>("m2/s3","m2/s3"), 1.0);
     map.insert(QPair<QString,QString>("Hz","Hz"), 1.0);
+    map.insert(QPair<QString,QString>("N*s/m2","N*s/m2"), 1.0);
 
     return map;
 }
@@ -389,7 +424,8 @@ QHash<QPair<QString, QString>, double> Unit::_initBiases()
     map.insert(QPair<QString,QString>("C","C"),    0.0);
     map.insert(QPair<QString,QString>("C","R"), -273.15);
     map.insert(QPair<QString,QString>("C","K"), -273.15);
-    map.insert(QPair<QString,QString>("C","F"),  -17.777777778);
+    map.insert(QPair<QString,QString>("C","F"),    -17.777777778);
+    map.insert(QPair<QString,QString>("C","degF"), -17.777777778);
 
     return map;
 }
