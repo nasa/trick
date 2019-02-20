@@ -214,6 +214,7 @@ class TrickModel : public DataModel
                 return (double) *((float*)(addr));
             }
             case TRICK_10_INTEGER:
+            case TRICK_10_ENUMERATED:
             {
                 return (double) *((int*)(addr));
             }
@@ -244,6 +245,10 @@ class TrickModel : public DataModel
             case TRICK_10_BITFIELD:
             {
                 return (double) *((int *)(addr));
+            }
+            case TRICK_10_CHARACTER:
+            {
+                return (double) *((char *)(addr));
             }
             default:
             {
