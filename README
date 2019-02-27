@@ -5,5 +5,5 @@
         redhat> sudo yum install qt5-qtbase-devel
         ubuntu> sudo apt-get install qtbase5-dev
 % make
-% bin/koviz                    ; # for usage
+% bin/koviz -h                 ; # for usage
 % bin/koviz RUN_dir|MONTE_dir  ; # View trick run or monte carlo data
