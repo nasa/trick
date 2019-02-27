@@ -73,6 +73,7 @@ Trick::DataRecordGroup::DataRecordGroup( std::string in_name ) :
  writer_num(0),
  max_file_size(1<<30), // 1 GB
  total_bytes_written(0),
+ max_size_warning(false),
  writer_buff(NULL),
  single_prec_only(false),
  buffer_type(DR_Buffer),
@@ -692,6 +693,14 @@ int Trick::DataRecordGroup::write_data(bool must_write) {
             writer_num++ ;
 
         }
+
+        if(!max_size_warning && (total_bytes_written > max_file_size)) {
+            std::cerr << "WARNING: Data record max file size " << (max_file_size>>10) << "KB reached. Contact Derek Bankieris regarding any concerns.\n"
+            "https://github.com/nasa/trick/wiki/Data-Record#changing-the-max-file-size-of-a-data-record-group-ascii-and-binary-only" 
+            << std::endl;
+            max_size_warning = true;
+        }
+
         pthread_mutex_unlock(&buffer_mutex) ;
 
     }
