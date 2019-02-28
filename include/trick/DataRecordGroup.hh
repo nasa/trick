@@ -121,6 +121,9 @@ namespace Trick {
             /** Current file size for data record file in bytes.\n */
             uint64_t total_bytes_written;    /**< trick_io(**) trick_units(--) */
 
+            /** Bool to signify that the warning for reaching max filesize has been printed */
+            bool max_size_warning;
+
             /** Buffer to hold formatted data ready for disk or other destination.\n */
             char * writer_buff ;        /**< trick_io(**) trick_units(--) */
 
