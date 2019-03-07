@@ -73,16 +73,16 @@ std::ostream& Trick::operator<< (std::ostream& s, Trick::VariableServerThread& v
     socklen_t len = (socklen_t)sizeof(otherside);
 
     s << "  \"connection\":{" << std::endl;
-    s << "    \"client-tag\":\"" << vst.connection.client_tag << "\"," << std::endl;
+    s << "    \"client_tag\":\"" << vst.connection.client_tag << "\"," << std::endl;
 
     int err = getpeername(vst.connection.socket, (struct sockaddr*)&otherside, &len);
 
     if (err == 0) {
-        s << "    \"client-IP-address\":\"" << inet_ntoa(otherside.sin_addr) << "\"," << std::endl;
-        s << "    \"client-port\":\"" << ntohs(otherside.sin_port) << "\"," << std::endl;
+        s << "    \"client_IP_address\":\"" << inet_ntoa(otherside.sin_addr) << "\"," << std::endl;
+        s << "    \"client_port\":\"" << ntohs(otherside.sin_port) << "\"," << std::endl;
     } else {
-        s << "    \"client-IP-address\":\"unknown\"," << std::endl;
-        s << "    \"client-port\":\"unknown\"," << std::endl;
+        s << "    \"client_IP_address\":\"unknown\"," << std::endl;
+        s << "    \"client_port\":\"unknown\"," << std::endl;
     }
 
     if (vst.binary_data) {
@@ -91,7 +91,7 @@ std::ostream& Trick::operator<< (std::ostream& s, Trick::VariableServerThread& v
         s << "    \"format\":\"ASCII\",";
     }
     s << std::endl;
-    s << "    \"update-rate\":" << vst.update_rate << "," << std::endl;
+    s << "    \"update_rate\":" << vst.update_rate << "," << std::endl;
 
     s << "    \"variables\":[" << std::endl;
 
