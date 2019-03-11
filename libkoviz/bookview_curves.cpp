@@ -720,6 +720,9 @@ void CurvesView::_paintMarkers(QPainter &painter)
             path = _bookModel()->getCurvesErrorPath(curvesIdx);
         }
         if ( path->elementCount() == 0 ) {
+            if ( tag == "Plot" ) {
+                delete path; // error path created on the fly!
+            }
             continue;
         }
 
@@ -840,6 +843,10 @@ void CurvesView::_paintMarkers(QPainter &painter)
             arrow.paintMe(painter,T,fg,bg);
         } else if ( marker->idx() == currentIndex() ) {
             arrow.paintMeCenter(painter,T,viewport()->rect(),fg,bg);
+        }
+
+        if ( tag == "Plot" ) {
+            delete path; // error path created on the fly, so it must be freed
         }
     }
 
