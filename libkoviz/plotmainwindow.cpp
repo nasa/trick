@@ -350,7 +350,15 @@ void PlotMainWindow::_bookViewCurrentChanged(const QModelIndex &currIdx,
             _bookView->setCurrentCurveRunID(-1);
         }
     } else {
+        bool isShowLiveTime = false;
         if ( _bookModel->isIndex(currIdx,"Curve") ) {
+            isShowLiveTime = true;
+        } else if ( _bookModel->isIndex(currIdx,"Plot") ) {
+            if (_bookModel->getDataString(currIdx,"PlotPresentation")=="error"){
+                isShowLiveTime = true;
+            }
+        }
+        if ( isShowLiveTime ) {
             _timeInput->showLiveTime();
         }
     }

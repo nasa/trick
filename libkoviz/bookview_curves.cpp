@@ -2028,7 +2028,7 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
             QString plotXScale = _bookModel()->getDataString(rootIndex(),
                                                            "PlotXScale","Plot");
 
-            double time = mPt.x();
+            double time = liveCoord.x();
             if ( plotXScale == "log" ) {
                 time = exp10(time);
             }
