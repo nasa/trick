@@ -159,6 +159,7 @@ private:
     void _paintMarkers(QPainter& painter);
 
     QModelIndex _chooseCurveNearMousePoint(const QPoint& pt);
+    bool _isErrorCurveNearMousePoint(const QPoint& pt);
 
     QPixmap* _pixmap;
     QRectF _lastM;

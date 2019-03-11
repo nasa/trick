@@ -1328,16 +1328,27 @@ void CurvesView::mouseReleaseEvent(QMouseEvent *event)
                 event->ignore(); // pass event to page view
             }
         } else if ( d < 10 && presentation == "error" ) {
-            if ( currentIndex().isValid() ) {
+            bool isMouseNearCurve = _isErrorCurveNearMousePoint(event->pos());
+            if ( currentIndex().isValid() && isMouseNearCurve ) {
                 setCurrentIndex(QModelIndex());  // toggle to deselect
-            } else {
+            } else if ( !currentIndex().isValid() && isMouseNearCurve ) {
                 QModelIndex plotIdx = rootIndex();
                 if ( !_bookModel()->isIndex(plotIdx,"Plot") ) {
                     fprintf(stderr, "koviz [bad scoobs]: "
-                                    "CurvesView::mouseReleaseEvent()\n");
+                                    "CurvesView::mouseReleaseEvent():1\n");
                     exit(-1);
                 }
-                setCurrentIndex(plotIdx);
+                setCurrentIndex(plotIdx);  // Select curve
+            } else if ( currentIndex().isValid() && !isMouseNearCurve ) {
+                // click off curves when curve selected -> deselect
+                setCurrentIndex(QModelIndex());  // toggle to deselect
+            } else if ( !currentIndex().isValid() && !isMouseNearCurve ) {
+                // click off curves when nothing selected -> toggle single/multi
+                event->ignore(); // pass event to page
+            } else {
+                fprintf(stderr, "koviz [bad scoobs]: "
+                                 "CurvesView::mouseReleaseEvent():2\n");
+                exit(-1);
             }
         } else {
             //event->ignore(); // pass event to parent view for stretch,zoom etc
@@ -1458,6 +1469,76 @@ QModelIndex CurvesView::_chooseCurveNearMousePoint(const QPoint &pt)
     }
 
     return idx;
+}
+
+bool CurvesView::_isErrorCurveNearMousePoint(const QPoint &pt)
+{
+    bool isNear = false;
+
+    QImage img(viewport()->rect().size(),QImage::Format_Mono);
+
+    QPainter painter(&img);
+    QPen penBlack(img.colorTable().at(0));
+    penBlack.setWidth(0);
+    painter.setPen(penBlack);
+
+    QTransform T = _coordToPixelTransform();  // _paintCurve sets painter tform
+
+    int s = 12; // side length of small square around mouse click
+    QRectF R(pt.x()-s/2,pt.y()-s/2,s,s);
+
+    // Speed up test by drawing clipped to small square
+    painter.setClipRect(R);
+
+    QRectF W = viewport()->rect();
+    QRectF M = _mathRect();
+    double a = M.width()/W.width();
+    double b = M.height()/W.height();
+    double c = M.x() - a*W.x();
+    double d = M.y() - b*W.y();
+    QTransform U( a,    0,
+                  0,    b, /*+*/ c,    d);
+    M = U.mapRect(R);
+
+    QModelIndex curvesIdx = _bookModel()->getIndex(rootIndex(),"Curves","Plot");
+    QPainterPath* path = _bookModel()->getCurvesErrorPath(curvesIdx);
+    if ( path ) {
+
+        // fill image with white (see help for QImage::fill(int))
+        img.fill(1);
+
+        painter.setTransform(T);
+
+        if ( path->intersects(M) ) {
+
+            // Draw curve onto monochrome image (clipped to small square)
+            painter.drawPath(*path);
+
+            // Check, pixel by pixel, to see if the curve
+            // is in small rectangle around mouse click
+            for ( int x = pt.x()-s/2; x < pt.x()+s/2; ++x ) {
+                if ( x < 0 || x >= img.width() ) {
+                    continue;
+                }
+                for ( int y = pt.y()-s/2; y < pt.y()+s/2; ++y ) {
+                    if ( y < 0 || y >= img.height() ) {
+                        continue;
+                    }
+                    QRgb pix = img.pixel(x,y);
+                    if ( qRed(pix) == 0 ) {
+                        // qRed(pix) is arbitrary. Pen is black and has no red.
+                        isNear = true;
+                        break;
+                    }
+                }
+                if ( isNear ) break;
+            }
+        }
+
+        delete path;
+    }
+
+    return isNear;
 }
 
 void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
