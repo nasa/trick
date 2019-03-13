@@ -658,15 +658,42 @@ void CurvesView::_paintMarkers(QPainter &painter)
 
     TimeAndIndex* liveMarker = 0;
     QList<TimeAndIndex*> markers;
+    QString pres = _bookModel()->getDataString(rootIndex(),
+                                               "PlotPresentation","Plot");
     QString tag = model()->data(currentIndex()).toString();
     QModelIndex liveIdx = _bookModel()->getDataIndex(QModelIndex(),
                                                      "LiveCoordTime");
     double liveTime = model()->data(liveIdx).toDouble();
     if ( currentIndex().isValid() && (tag == "Curve" || tag == "Plot") ) {
-        TimeAndIndex* liveMarker = new TimeAndIndex(liveTime,currentIndex());
-        markers << liveMarker;
+        TimeAndIndex* liveMarker = 0;
+        if ( tag == "Plot" ) {
+            if ( pres == "error" || pres == "error+compare") {
+                liveMarker = new TimeAndIndex(liveTime,currentIndex());
+            }
+        } else if ( tag == "Curve" ) {
+            if ( pres == "compare" || pres == "error+compare" ) {
+                liveMarker = new TimeAndIndex(liveTime,currentIndex());
+            } else if ( pres == "error" ) {
+                QModelIndex plotIdx = currentIndex().parent().parent();
+                liveMarker = new TimeAndIndex(liveTime,plotIdx);
+            }
+        } else {
+            // bad scoobs
+            fprintf(stderr, "koviz [bad scoobs]:1 CurvesView::_paintMarkers\n");
+            exit(-1);
+        }
+        if ( liveMarker ) {
+            markers << liveMarker;
+        }
     }
-    markers << _markers;
+    foreach ( TimeAndIndex* marker, _markers ) {
+        QString markerTag = model()->data(marker->idx()).toString();
+        if ( markerTag == "Curve" && pres == "compare" ) {
+            markers << marker;
+        } else if ( markerTag == "Plot" && pres == "error" ) {
+            markers << marker;
+        }
+    }
 
     foreach ( TimeAndIndex* marker, markers ) {
 
