@@ -55,6 +55,9 @@ sub extract_trick_header($$$$) {
         # save doxygen style trick_lib_dependency fields in field = liblist.
         $header{liblist} = [@lib_list] ;
     }
+    if ( $contents =~ /(?:@|\\)python_module\s*{\s*(.*?)\s*}/) {
+        $header{python_module} = $1;
+    }
 
     $header{language} = "CPP" if ( $header{language} =~ /c[p\+]+/i ) ;
 

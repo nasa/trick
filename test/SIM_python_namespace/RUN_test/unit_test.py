@@ -12,6 +12,7 @@ def main():
     ball.foo_food.print_me()
     ball.foo_inner_food.print_me()
     ball.bar_food.print_me()
+    ball.foo_yummyfood.print_me()
     print
 
     # new class from Foo.Food
@@ -34,6 +35,13 @@ def main():
     TRICK_EXPECT_EQ( bar.fast , 2, test_suite , "another first level python namespace" )
     bar.fast = trick.Bar.Burger
     TRICK_EXPECT_EQ( bar.fast , 1, test_suite , "another first level python namespace" )
+
+    # new class from Foo.Food.Inner
+    yummy = trick.Foo.YummyFood()
+    yummy.print_me()
+    TRICK_EXPECT_EQ( yummy.yummy , 1, test_suite , "additional file in same namespace" )
+    yummy.yummy = trick.Foo.Doughnuts
+    TRICK_EXPECT_EQ( yummy.yummy , 2, test_suite , "additional file in same namespace" )
 
 if __name__ == "__main__":
     main()
