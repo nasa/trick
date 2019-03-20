@@ -12,6 +12,11 @@ use Pod::Text ;
 $trick_bin = dirname(abs_path($0)) ;
 $trick_home = dirname($trick_bin) ;
 
+### Set TRICK_VERBOSE_BUILD if VERBOSE is defined (synonyms) ###
+if(defined $ENV{'VERBOSE'}) {
+    $ENV{'TRICK_VERBOSE_BUILD'} = 1;
+}
+
 #### Handle arguments ####
 $numArgs = $#ARGV + 1;
 $makefileAddArgs = ' ';
