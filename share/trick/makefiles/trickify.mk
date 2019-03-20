@@ -92,6 +92,15 @@ TRICK_CXXFLAGS += $(TRICKIFY_CXX_FLAGS)
 # Ensure we can process all headers
 TRICK_EXT_LIB_DIRS :=
 
+# Trick library build type, defaulted to PLO
+# PLO - Partially-linked object library
+# STATIC - Static library
+# SHARED - Dynamic shared library
+TRICK_LIB_BUILD_TYPE ?= PLO
+
+# Add project source objects to trickified library.
+SRC_OBJS ?=
+
 # When given a library, the linker will only link in objects that are known to
 # be needed at link time. However, Trick uses dlsym to dynamically load the
 # objects we'll be creating here. It cannot be known which objects will be
@@ -106,9 +115,15 @@ TRICK_EXT_LIB_DIRS :=
 # change infrequently. Moreover, the methods for force-linking a library differ
 # between Linux and Mac, so obviating the need for it simplifies a Trickified
 # project's user-facing makefile.
-$(TRICKIFY_OBJECT_NAME): $(SWIG_OBJECTS) $(IO_OBJECTS) | $(dir $(TRICKIFY_OBJECT_NAME))
+$(TRICKIFY_OBJECT_NAME): $(SWIG_OBJECTS) $(IO_OBJECTS) $(SRC_OBJS) | $(dir $(TRICKIFY_OBJECT_NAME))
 	$(info $(call COLOR,Linking)    $@)
+ifeq ($(TRICK_LIB_BUILD_TYPE),PLO)
 	@ld -r -o $@ $^
+else ifeq ($(TRICK_LIB_BUILD_TYPE),SHARED)
+	@c++ -shared -o $@ $^ 2> $@.log
+else ifeq ($(TRICK_LIB_BUILD_TYPE),STATIC)
+	@ar rcs $@ $^ 2> $@.log
+endif
 
 $(dir $(TRICKIFY_OBJECT_NAME)) $(TRICKIFY_PYTHON_DIR) build:
 	@mkdir -p $@
