@@ -18,7 +18,7 @@ my @ext_lib_paths ;
 my @files_to_process ;
 my @ext_lib_files ;
 my %md5s ;
-my $verbose_build = exists($ENV{'TRICK_VERBOSE_BUILD'}) ;
+my $verbose_build = (exists($ENV{'TRICK_VERBOSE_BUILD'}) or exists($ENV{'VERBOSE'}));
 
 sub get_paths {
     my @paths = split /:/ , $ENV{$_[0]} ;
@@ -175,6 +175,10 @@ ifeq (\$(IS_CC_CLANG), 1)
     TRICK_SYSTEM_SWIG_CFLAGS += -Wno-self-assign -Wno-sometimes-uninitialized -Wno-deprecated-register
 else
     TRICK_SYSTEM_SWIG_CFLAGS += -Wno-unused-but-set-variable
+endif
+
+ifdef VERBOSE 
+    TRICK_VERBOSE_BUILD=1
 endif
 
 ifndef TRICK_VERBOSE_BUILD

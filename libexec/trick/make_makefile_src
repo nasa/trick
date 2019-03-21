@@ -57,7 +57,7 @@ sub read_lib_deps($@) {
                     read_lib_deps($indent + 1 , @resolved_files) ;
                 }
             }
-        } elsif ( exists $ENV{TRICK_VERBOSE_BUILD} ) {
+        } elsif ( exists( $ENV{TRICK_VERBOSE_BUILD} ) or exists( $ENV{VERBOSE} ) ) {
             print "[34mSkipping[0m   Previously processed file \"$l\"\n" ;
         }
     }
@@ -213,6 +213,10 @@ print MAKEFILE
 #    Date:   $dt
 #
 ################################################################################
+
+ifdef VERBOSE 
+    TRICK_VERBOSE_BUILD=1
+endif
 
 ifndef TRICK_VERBOSE_BUILD
     PRINT_COMPILE    = \$(info \$(call COLOR,Compiling)  \$<)

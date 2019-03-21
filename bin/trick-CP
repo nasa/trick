@@ -242,7 +242,7 @@ print-%:
 help:
 	@echo -e "\
 Simulation make options:\n\
-    make [debug] [TRICK_VERBOSE_BUILD=1] - Makes everything: S_main and S_sie.resource\n\
+    make [debug] [TRICK_VERBOSE_BUILD=1] [VERBOSE=1] - Makes everything: S_main and S_sie.resource\n\
     make sie                     - Builds the S_sie.resource file.\n\
     make clean                   - Removes all object files in simulation directory\n\
     make spotless                - Performs a clean\n\
