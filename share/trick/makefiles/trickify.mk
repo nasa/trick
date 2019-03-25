@@ -114,10 +114,10 @@ TRICK_EXT_LIB_DIRS :=
 $(TRICKIFY_OBJECT_NAME): $(SWIG_OBJECTS) $(IO_OBJECTS) | $(dir $(TRICKIFY_OBJECT_NAME))
 	$(info $(call COLOR,Linking)    $@)
 ifeq ($(TRICKIFY_BUILD_TYPE),PLO)
-	@echo ld -r -o $@ $^ >> $(MAKE_OUT)
+	@echo $(LD) $(LD_PARTIAL) -o $@ $^ >> $(MAKE_OUT)
 	$(ECHO_CMD)ld -r -o $@ $^ 2>&1 | $(TEE) -a $(MAKE_OUT); exit $${PIPESTATUS[0]}
 else ifeq ($(TRICKIFY_BUILD_TYPE),SHARED)
-	@echo c++ -shared -o $@ $^ >> $(MAKE_OUT)
+	@echo $(TRICK_CPPC) -shared -o $@ $^ >> $(MAKE_OUT)
 	$(ECHO_CMD)c++ -shared -o $@ $^ 2>&1 | $(TEE) -a $(MAKE_OUT); exit $${PIPESTATUS[0]}
 else ifeq ($(TRICKIFY_BUILD_TYPE),STATIC)
 	@echo ar rcs $@ $^ >> $(MAKE_OUT)
