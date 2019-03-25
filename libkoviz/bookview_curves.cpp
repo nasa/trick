@@ -1011,6 +1011,13 @@ void CurvesView::_keyPressArrow(const Qt::ArrowType& arrow)
         }
         delete it;
 
+        double start = _bookModel()->getDataDouble(QModelIndex(), "StartTime");
+        double stop = _bookModel()->getDataDouble(QModelIndex(), "StopTime");
+        if ( timeStamp < start ) {
+            timeStamp = start;
+        } else if ( timeStamp > stop ) {
+            timeStamp = stop;
+        }
         _bookModel()->setData(liveIdx,timeStamp);
 
         curveModel->unmap();
@@ -1828,6 +1835,10 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
 
                 } else {  // Curve x is not time e.g. ball xy-position
 
+                    double start = _bookModel()->getDataDouble(QModelIndex(),
+                                                             "StartTime");
+                    double stop = _bookModel()->getDataDouble(QModelIndex(),
+                                                            "StopTime");
                     double xb = _bookModel()->xBias(currentIndex());
                     double xs = _bookModel()->xScale(currentIndex());
                     double yb = _bookModel()->yBias(currentIndex());
@@ -1836,6 +1847,7 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                     bool isYLogScale = (plotYScale=="log") ? true : false;
                     double liveTime = DBL_MAX;
                     double dMin = DBL_MAX;
+                    QTransform T = _coordToPixelTransform();
                     curveModel->map();
                     ModelIterator* it = curveModel->begin();
                     while ( !it->isDone() ) {
@@ -1871,8 +1883,9 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                             }
                         }
                         QPointF p(x,y);
-                        double d = QLineF(mPt,p).length();
-                        if ( d < dMin ) {
+                        QPointF q = T.map(p);
+                        double d = QLineF(wPt,q).length();
+                        if ( d < dMin && start <= it->t() && it->t() <= stop ) {
                             dMin = d;
                             liveTime = it->t();
                         }
@@ -1882,10 +1895,6 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                     curveModel->unmap();
 
                     // Set live coord in model
-                    double start = _bookModel()->getDataDouble(QModelIndex(),
-                                                             "StartTime");
-                    double stop = _bookModel()->getDataDouble(QModelIndex(),
-                                                            "StopTime");
                     if ( liveTime <= start ) {
                         model()->setData(liveTimeIdx,start);
                     } else if ( liveTime >= stop ) {
