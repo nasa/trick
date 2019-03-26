@@ -40,46 +40,56 @@ bool TranslationUnitVisitor::TraverseDecl(clang::Decl *d) {
         break ;
         case clang::Decl::CXXRecord : {
             clang::CXXRecordDecl * crd = static_cast<clang::CXXRecordDecl *>(d) ;
+            clang::RecordDecl * rd = crd->getDefinition() ;
+            bool is_forward_declaration = false;
+
             /* The definition of the record must exist before we can process it.  The definition is
                NULL when this is only a forward declaration of a class */
+            if ( rd == NULL ) {
+                is_forward_declaration = true;
+            }
             /* Sometimes rd is not NULL when we still only have a forward declaration because
                the file that defines the class is included before processing this fwd declare.
                In this case the CXXRecordDecl file name will not match the current file name, and is
                in fact empty */
-            clang::RecordDecl * rd = crd->getDefinition() ;
-            if ( rd != NULL ) {
+            else {
                 std::string rd_file = getFileName(ci , rd->RBRACELOC(), hsd) ;
                 std::string crd_file = getFileName(ci , crd->RBRACELOC(), hsd) ;
-                if (!crd_file.empty() and !crd_file.compare(rd_file)) {
-                    //crd->dump() ; std::cout << std::endl ;
-                    if ( isInUserCode(ci , crd->RBRACELOC(), hsd) ) {
-                        CXXRecordVisitor cvis(ci , cs, hsd , pa, true) ;
-
-                        cvis.TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(d)) ;
-                        pa.printClass(cvis.get_class_data()) ;
-
-                        /* Check to see if the struct/class is forward declared in the same file.
-                           If it is, then remove the notation that it is forward declared.  This
-                           is to allow C structs to be forward declared and typedeffed and io_src
-                           code will be generated for both the original structure name and typedeffed
-                           name.
-
-                           struct Astruct ;
-                           typedef struct Astruct {} Bstruct ;
-                        */
-                        std::set< std::string >::iterator it ;
-                        std::string file_name = getFileName(ci , d->GETLOCEND(), hsd) ;
-                        std::string source_type = cvis.get_class_data()->getName() ;
-                        it = fwd_declared_classes[file_name].find(source_type) ;
-                        if ( it != fwd_declared_classes[file_name].end() ) {
-                            fwd_declared_classes[file_name].erase(it) ;
-                        }
-                    }
+                if (crd_file.empty() || crd_file.compare(rd_file)) {
+                    is_forward_declaration = true;
                 }
-            } else {
+            }
+
+            if (is_forward_declaration) {
                 // These are forward declarations.  Insert this into the set of fwd declares keyed by the current file.
                 if ( ! crd->getNameAsString().empty() ) {
                     fwd_declared_classes[getFileName(ci , d->GETLOCEND(), hsd)].insert(crd->getNameAsString()) ;
+                }
+            }
+            else {
+                //crd->dump() ; std::cout << std::endl ;
+                if ( isInUserCode(ci , crd->RBRACELOC(), hsd) ) {
+                    CXXRecordVisitor cvis(ci , cs, hsd , pa, true) ;
+
+                    cvis.TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(d)) ;
+                    pa.printClass(cvis.get_class_data()) ;
+
+                    /* Check to see if the struct/class is forward declared in the same file.
+                       If it is, then remove the notation that it is forward declared.  This
+                       is to allow C structs to be forward declared and typedeffed and io_src
+                       code will be generated for both the original structure name and typedeffed
+                       name.
+
+                       struct Astruct ;
+                       typedef struct Astruct {} Bstruct ;
+                    */
+                    std::set< std::string >::iterator it ;
+                    std::string file_name = getFileName(ci , d->GETLOCEND(), hsd) ;
+                    std::string source_type = cvis.get_class_data()->getName() ;
+                    it = fwd_declared_classes[file_name].find(source_type) ;
+                    if ( it != fwd_declared_classes[file_name].end() ) {
+                        fwd_declared_classes[file_name].erase(it) ;
+                    }
                 }
             }
         }

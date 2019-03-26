@@ -112,27 +112,6 @@ static void _mkdir(const char *dir) {
     }
 }
 
-// this is a subset of tests on the header file to determine if this file is not excluded for any reason.
-bool PrintAttributes::isFileIncluded(std::string header_file_name) {
-    // several tests require the real path of the header file.
-    char * realPath = almostRealPath(header_file_name.c_str()) ;
-
-    if ( realPath != NULL ) {
-        // Only include user directories (not system dirs like /usr/include)
-        if ( hsd.isPathInUserDir(realPath) ) {
-            // Don't process files in excluded directories
-            if ( (hsd.isPathInExclude(realPath) == false) and (hsd.isPathInICGExclude(realPath) == false) ) {
-                // Only include files that do not have ICG: (No)
-                // hasICGNo uses original header name, not the real path
-                if ( ! cs.hasICGNo(header_file_name) ) {
-                    return true ;
-                }
-            }
-        }
-    }
-    return false ;
-}
-
 bool PrintAttributes::openIOFile(const std::string& header_file_name) {
     /**
      * There are a lot of conditions to be met in order to open an IO file.  We store the headers
@@ -258,18 +237,9 @@ void PrintAttributes::printClass( ClassValues * cv ) {
         outfile.close();
     }
 
-    if (!isHeaderExcluded(fileName)) {
+    if (!isHeaderExcluded(fileName, false)) {
          printer->printClassMap(class_map_outfile, cv);
     }
-/*
-    char* realPath = almostRealPath(fileName.c_str());
-    if (realPath) {
-        if (isFileIncluded(fileName) or hsd.isPathInExtLib(realPath)) {
-             printer->printClassMap(class_map_outfile, cv);
-        }
-        free(realPath);
-    }
-*/
 }
 
 void PrintAttributes::printEnum(EnumValues* ev) {
@@ -293,14 +263,9 @@ void PrintAttributes::printEnum(EnumValues* ev) {
         outfile.close() ;
     }
 
-    if (!isHeaderExcluded(fileName)) {
+    if (!isHeaderExcluded(fileName), false) {
          printer->printEnumMap(enum_map_outfile, ev);
     }
-/*
-    if (isFileIncluded(fileName)) {
-         printer->printEnumMap(enum_map_outfile, ev) ;
-    }
-*/
 }
 
 void PrintAttributes::createMapFiles() {

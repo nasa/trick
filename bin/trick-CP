@@ -15,10 +15,19 @@ $trick_home = dirname($trick_bin) ;
 #### Handle arguments ####
 $numArgs = $#ARGV + 1;
 $makefileAddArgs = ' ';
+$sdefine_dir = ".";
+$sdefine = "S_define";
+$makefile = "makefile";
 foreach $argnum (0 .. $#ARGV) {
     $arg = $ARGV[$argnum];
     if ($arg =~ /(\w+)=(\w+)/ ) {
         $makefileAddArgs = $makefileAddArgs . $1 . "=" . $2 . " ";
+    } elsif ($arg eq "-C" || $arg eq "--directory" ) {
+        $sdefine_dir = abs_path($ARGV[$argnum + 1]);
+        $makefileAddArgs = $makefileAddArgs . " -C $sdefine_dir ";
+        $sdefine = $sdefine_dir . "/${sdefine}";
+        $makefile = $sdefine_dir . "/${makefile}";
+        shift
     } elsif ($arg =~ /-d/ ) {
         $makefileAddArgs = $makefileAddArgs . " debug ";
     } elsif ($arg =~ /-t/ ) {
@@ -30,17 +39,17 @@ foreach $argnum (0 .. $#ARGV) {
     }
 }
 
-if ( -f "S_define" ) {
-    if ( not -w "." ) {
-        print getcwd() , " is not writable\n" ;
-        print "CP aborted\n" ;
+if ( -f $sdefine ) {
+    if ( not -w $sdefine_dir ) {
+        print $sdefine_dir , " is not writable\n" ;
+        print "trick-CP aborted\n" ;
         exit 1 ;
     }
-    unlink "build/Makefile_sim", "makefile" ;
+    unlink "build/Makefile_sim", $makefile ;
     $makefile_text = do { local $/; <main::DATA> } ;
     $makefile_text =~ s/SUB_TRICK_HOME/$trick_home/ ;
     $makefile_text =~ s/SUB_TRICK_BIN/$trick_bin/ ;
-    open MAKEFILE, ">makefile" ;
+    open MAKEFILE, ">$makefile" ;
     print MAKEFILE $makefile_text ;
     close MAKEFILE ;
     system("make -f makefile " . $makefileAddArgs) ;
@@ -89,6 +98,11 @@ Print the trick-CP help message (this message)
 =item B<-o> | B<--outfile> I<FILE_NAME>
 
 Send CP output to FILE_NAME
+
+=item B<-C> | B<--directory> I<SIM_DIRECTORY_NAME>
+
+Build a simulation located in a different directory than the current
+working directory.
 
 =item B<-p> | B<--no-python>
 

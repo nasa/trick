@@ -101,7 +101,6 @@ class PrintAttributes {
 
         bool openIOFile(const std::string& header_file_name) ;
 
-        bool isFileIncluded(std::string header_file_name) ;
         bool isIOFileOutOfDate(std::string header_file_name, std::string io_file_name ) ;
         bool hasBeenProcessed(EnumValues& enumValues);
         bool hasBeenProcessed(ClassValues& classValues);

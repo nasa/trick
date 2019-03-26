@@ -6,6 +6,7 @@
 extern "C" {
 #endif
 
+void var_server_list_connections(void);
 const char * var_server_get_hostname(void) ;
 
 unsigned short var_server_get_port(void) ;
