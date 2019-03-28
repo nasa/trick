@@ -77,12 +77,6 @@ DPTreeWidget::DPTreeWidget(const QString& timeName,
             SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this, SLOT(_dpTreeViewCurrentChanged(QModelIndex,QModelIndex)));
 
-    for ( int col = 1; col < _dpModel->columnCount(); ++col) {
-        _dpTreeView->hideColumn(col);
-    }
-    _dpTreeView->expandAll();
-    _dpTreeView->resizeColumnToContents(0);
-
     foreach (QString dp, dpFiles ) {
         _createDP(dp);
     }

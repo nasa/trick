@@ -42,7 +42,7 @@ bool DPFilterProxyModel::filterAcceptsColumn(int col,
     }
 
     if ( col > 0 ) {
-        return true;
+        return false;
     }
 
     bool isAccept = false;
