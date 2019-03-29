@@ -31,6 +31,7 @@ $(OBJDIR)/trk2ascii.o: trk2ascii.cpp | $(OBJDIR)
 clean:
 	rm -f trk2ascii
 	rm -rf $(OBJDIR)
+	rm -rf $(ASCII_MAIN)
 
 real_clean: clean
 
