@@ -1,0 +1,28 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (blah blah blah)
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "FooFood.hh"
+##include "FooInnerFood.hh"
+##include "BarFood.hh"
+##include "FooYummyFood.hh"
+
+class SimObj : public Trick::SimObject {
+
+    public:
+        Foo::Food foo_food ;
+        Foo::Inner::Food foo_inner_food ;
+        Bar::Food bar_food ;
+        Foo::YummyFood foo_yummyfood ;
+
+        /** Constructor to add the jobs */
+        SimObj() {
+        }
+} ;
+
+// Instantiations
+SimObj ball ;
+

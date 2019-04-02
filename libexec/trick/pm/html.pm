@@ -31,7 +31,7 @@ sub extract_trick_header($$$$) {
     $header{icg_ignore} = $2 if $trick_header =~  /ICG[ _]IGNORE[ _]TYPE(S)?:[^(]*(.*?)\)([A-Z _\t\n\r]+:|[ \t\n\r]*$)/si ;
     $header{swig}       = $1 if $trick_header =~                       /SWIG:[^(]*\((.*?)\)([A-Z _\t\n\r]+:|[ \t\n\r]*$)/si ;
     $header{default_data} = $1 if $trick_header =~          /DEFAULT[ _]DATA:[^(]*(.*?)\)([A-Z _\t\n\r]+:|[ \t\n\r]*$)/si ;
-    $header{python_module} = $1 if $trick_header =~        /PYTHON[ _]MODULE:[^(]*(.*?)\)([A-Z _\t\n\r]+:|[ \t\n\r]*$)/si ;
+    $header{python_module} = $1 if $trick_header =~        /PYTHON[ _]MODULE:[^(]*\((.*?)\)([A-Z _\t\n\r]+:|[ \t\n\r]*$)/si ;
     $header{programmers} = $1 if $trick_header =~               /PROGRAMMERS:[^(]*(.*?)\)([A-Z _\t\n\r]+:|[ \t\n\r]*$)/si ;
     $header{language}  = $1 if $trick_header =~                    /LANGUAGE:[^(]*(.*?)\)([A-Z _\t\n\r]+:|[ \t\n\r]*$)/si ;
 
@@ -54,6 +54,9 @@ sub extract_trick_header($$$$) {
         @lib_list = ($contents =~ m/(?:@|\\)trick_li(?:nk|b)_dependency\s*{\s*(.*?)\s*}/gs) ;
         # save doxygen style trick_lib_dependency fields in field = liblist.
         $header{liblist} = [@lib_list] ;
+    }
+    if ( $contents =~ /(?:@|\\)python_module\s*{\s*(.*?)\s*}/) {
+        $header{python_module} = $1;
     }
 
     $header{language} = "CPP" if ( $header{language} =~ /c[p\+]+/i ) ;

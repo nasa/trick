@@ -63,7 +63,7 @@ bool TranslationUnitVisitor::TraverseDecl(clang::Decl *d) {
             if (is_forward_declaration) {
                 // These are forward declarations.  Insert this into the set of fwd declares keyed by the current file.
                 if ( ! crd->getNameAsString().empty() ) {
-                    fwd_declared_classes[getFileName(ci , d->getLocEnd(), hsd)].insert(crd->getNameAsString()) ;
+                    fwd_declared_classes[getFileName(ci , d->GETLOCEND(), hsd)].insert(crd->getNameAsString()) ;
                 }
             }
             else {
@@ -84,7 +84,7 @@ bool TranslationUnitVisitor::TraverseDecl(clang::Decl *d) {
                        typedef struct Astruct {} Bstruct ;
                     */
                     std::set< std::string >::iterator it ;
-                    std::string file_name = getFileName(ci , d->getLocEnd(), hsd) ;
+                    std::string file_name = getFileName(ci , d->GETLOCEND(), hsd) ;
                     std::string source_type = cvis.get_class_data()->getName() ;
                     it = fwd_declared_classes[file_name].find(source_type) ;
                     if ( it != fwd_declared_classes[file_name].end() ) {
@@ -126,14 +126,14 @@ bool TranslationUnitVisitor::TraverseDecl(clang::Decl *d) {
         case clang::Decl::Typedef : {
             clang::TypedefDecl * td = static_cast<clang::TypedefDecl *>(d) ;
             if ( isInUserCode(ci, td->getSourceRange().getBegin(), hsd) ) {
-                TypedefVisitor tv(ci , cs, hsd, pa, fwd_declared_classes[getFileName(ci , d->getLocEnd(), hsd)]) ;
+                TypedefVisitor tv(ci , cs, hsd, pa, fwd_declared_classes[getFileName(ci , d->GETLOCEND(), hsd)]) ;
                 tv.TraverseDecl(d) ;
             }
         }
         break ;
         case clang::Decl::Var : {
             if ( isInUserCode(ci, d->getSourceRange().getBegin(), hsd) ) {
-                VariableVisitor tv(ci , cs, hsd, pa, fwd_declared_classes[getFileName(ci , d->getLocEnd(), hsd)]) ;
+                VariableVisitor tv(ci , cs, hsd, pa, fwd_declared_classes[getFileName(ci , d->GETLOCEND(), hsd)]) ;
                 tv.TraverseDecl(d) ;
             }
         }

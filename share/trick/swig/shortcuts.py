@@ -18,6 +18,10 @@ if hasattr(top.cvar, 'trick_sys'):
     # from monte carlo
         mc_add_range = top.cvar.trick_sys.sched.add_range
 
+# from Monte Carlo
+if hasattr(top.cvar, 'trick_mc'):
+    mc_add_variable = top.cvar.trick_mc.mc.add_variable
+
 # from the memory manager wrapper
 if hasattr(top.cvar, 'trick_mm'):
     read_checkpoint_from_string = top.cvar.trick_mm.mm.read_checkpoint_from_string
