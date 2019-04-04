@@ -7,6 +7,7 @@
 #include <QPainterPath>
 #include <QPen>
 #include <QVector>
+#include <QPaintEngine>
 #include "runs.h"
 #include "unit.h"
 #include "utils.h"
@@ -109,7 +110,8 @@ public:
     QStringList legendColors(const QModelIndex &plotIdx) const ;
     QStringList legendLinestyles(const QModelIndex &plotIdx) const ;
     QStringList legendLabels(const QModelIndex &plotIdx) const ;
-    QList<QPen*> legendPens(const QModelIndex &plotIdx) const ;
+    QList<QPen*> legendPens(const QModelIndex &plotIdx,
+                            QPaintEngine::Type painterType) const ;
     bool isPageLegend(const QModelIndex& pageIdx) const ;
     bool isPlotLegendsSame(const QModelIndex& pageIdx) const ;
 

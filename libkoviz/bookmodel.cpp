@@ -599,7 +599,7 @@ QHash<QString,QVariant> PlotBookModel::getDataHash(const QModelIndex &startIdx,
     return hash;
 }
 
-// no_line, thick_line and x_thick_line currently unsupported
+// no_line currently unsupported
 QVector<qreal> PlotBookModel::getLineStylePattern(
                                              const QModelIndex &curveIdx) const
 {
@@ -628,6 +628,8 @@ QVector<qreal> PlotBookModel::getLineStylePattern(
         pattern << 12 << 3 << 1 << 2 << 1 << 2 << 1 << 3;
     } else if ( s == "4_dot_dash" ) {
         pattern << 16 << 3 << 1 << 2 << 1 << 2 << 1 << 2 << 1 << 3;
+    } else if ( s == "thick_line" || s == "x_thick_line" ) {
+        // No pattern for thick lines
     } else {
         fprintf(stderr,"koviz [error]: PlotBookModel::getLineStylePattern(): "
                        " Unsupported line style \"%s\" given.",
@@ -1720,7 +1722,8 @@ QStringList PlotBookModel::legendLabels(const QModelIndex &plotIdx) const
     return labels;
 }
 
-QList<QPen*> PlotBookModel::legendPens(const QModelIndex &plotIdx) const
+QList<QPen*> PlotBookModel::legendPens(const QModelIndex &plotIdx,
+                                    enum QPaintEngine::Type painterType) const
 {
     QList<QPen*> pens;
 
@@ -1732,6 +1735,25 @@ QList<QPen*> PlotBookModel::legendPens(const QModelIndex &plotIdx) const
         QPen* pen = new QPen(penColor);
         QVector<qreal> pat = getLineStylePattern(curveIdx);
         pen->setDashPattern(pat);
+        QString style = getDataString(curveIdx,"CurveLineStyle","Curve");
+        style = style.toLower();
+        if ( style == "thick_line" ) {
+            if ( painterType == QPaintEngine::Pdf) {
+                pen->setWidthF(32.0);
+            } else {
+                pen->setWidthF(3.0);
+            }
+        } else if ( style == "x_thick_line" ) {
+            if ( painterType == QPaintEngine::Pdf) {
+                pen->setWidthF(48.0);
+            } else {
+                pen->setWidthF(5.0);
+            }
+        } else {
+            if ( painterType == QPaintEngine::Pdf ) {
+                pen->setWidthF(16.0);
+            }
+        }
         pens << pen;
     }
 

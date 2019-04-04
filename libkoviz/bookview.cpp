@@ -908,8 +908,44 @@ void BookView::_printCurves(const QRect& R,
                     Tscaled = Tscaled.translate(xb/xs,yb/ys);
                     pixmapPainter.setTransform(Tscaled);
 
+                    // Line style
+                    QString lineStyle = _bookModel()->getDataString(curveIdx,
+                                                      "CurveLineStyle","Curve");
+                    lineStyle = lineStyle.toLower();
+
                     // Draw curve!
-                    pixmapPainter.drawPath(*path);
+                    if ( lineStyle == "thick_line" ||
+                         lineStyle == "x_thick_line" ) {
+                        // The transform cannot be used when drawing thick lines
+                        QTransform I;
+                        pixmapPainter.setTransform(I);
+                        double w = pen.widthF();
+                        if ( lineStyle == "thick_line" ) {
+                            pen.setWidth(5.0);
+                        } else if ( lineStyle == "x_thick_line" ) {
+                            pen.setWidthF(9.0);
+                        } else {
+                            fprintf(stderr, "koviz [bad scoobs]: "
+                                    "BookView::_paintCurve: bad linestyle\n");
+                            exit(-1);
+                        }
+                        pixmapPainter.setPen(pen);
+                        QPointF pLast;
+                        for ( int i = 0; i < path->elementCount(); ++i ) {
+                            QPainterPath::Element el = path->elementAt(i);
+                            QPointF p(el.x,el.y);
+                            p = Tscaled.map(p);
+                            if  ( i > 0 ) {
+                                pixmapPainter.drawLine(pLast,p);
+                            }
+                            pLast = p;
+                        }
+                        pen.setWidthF(w);
+                        pixmapPainter.setPen(pen);
+                        pixmapPainter.setTransform(Tscaled);
+                    } else {
+                        pixmapPainter.drawPath(*path);
+                    }
                 }
             }
             QRectF S(pixmap.rect());
@@ -1183,8 +1219,20 @@ void BookView::_printCoplot(const QRect& R,
                                                   "CurveColor","Curve"));
         pen.setColor(color);
         pen.setDashPattern(_bookModel()->getLineStylePattern(curveIdx));
+
+        // Handle thick_line and x_thick_line styles
+        QString style = _bookModel()->getDataString(curveIdx,
+                                                    "CurveLineStyle","Curve");
+        style = style.toLower();
+        double penWidthOrig = pen.widthF();
+        if ( style == "thick_line" ) {
+            pen.setWidth(pen.widthF()*3.0);
+        } else if ( style == "x_thick_line" ) {
+            pen.setWidthF(pen.widthF()*5.0);
+        }
         painter->setPen(pen);
         painter->drawPath(*path);
+        pen.setWidthF(penWidthOrig);
 
         // Draw symbols
         QString symbolStyle = _bookModel()->getDataString(curveIdx,

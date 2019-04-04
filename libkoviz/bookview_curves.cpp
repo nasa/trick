@@ -534,7 +534,7 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
         }
         pen.setColor(color);
 
-        // Line style
+        // Line style pattern
         QVector<qreal> pattern = _bookModel()->getLineStylePattern(curveIdx);
         pen.setDashPattern(pattern);
 
@@ -594,8 +594,43 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
             painter.setTransform(Tscaled);
         }
 
+        // Line style
+        QString lineStyle = _bookModel()->getDataString(curveIdx,
+                                                      "CurveLineStyle","Curve");
+        lineStyle = lineStyle.toLower();
+
         // Draw curve!
-        painter.drawPath(*path);
+        if ( lineStyle == "thick_line" || lineStyle == "x_thick_line" ) {
+            // The transform cannot be used when drawing thick lines
+            QTransform I;
+            painter.setTransform(I);
+            double w = pen.widthF();
+            if ( lineStyle == "thick_line" ) {
+                pen.setWidth(3.0);
+            } else if ( lineStyle == "x_thick_line" ) {
+                pen.setWidthF(5.0);
+            } else {
+                fprintf(stderr, "koviz [bad scoobs]: "
+                                "CurvesView::_paintCurve: bad linestyle\n");
+                exit(-1);
+            }
+            painter.setPen(pen);
+            QPointF pLast;
+            for ( int i = 0; i < path->elementCount(); ++i ) {
+                QPainterPath::Element el = path->elementAt(i);
+                QPointF p(el.x,el.y);
+                p = Tscaled.map(p);
+                if  ( i > 0 ) {
+                    painter.drawLine(pLast,p);
+                }
+                pLast = p;
+            }
+            pen.setWidthF(w);
+            painter.setPen(pen);
+            painter.setTransform(Tscaled);
+        } else {
+            painter.drawPath(*path);
+        }
 
         // Draw symbols on curve (if there are any)
         QString symbolStyle = _bookModel()->getDataString(curveIdx,
