@@ -970,6 +970,8 @@ void BookView::__paintSymbol(const QPointF &p,
 {
     QPen origPen = painter.pen();
     QPen pen = painter.pen();
+    pen.setStyle(Qt::SolidLine);
+    painter.setPen(pen);
 
     if ( symbol == "circle" ) {
         painter.drawEllipse(p,36,36);
@@ -1100,9 +1102,9 @@ void BookView::__paintSymbol(const QPointF &p,
 
         painter.setFont(origFont);
         painter.setBrush(origBrush);
-
-        painter.setPen(origPen);
     }
+
+    painter.setPen(origPen);
 }
 
 void BookView::_printCoplot(const QRect& R,

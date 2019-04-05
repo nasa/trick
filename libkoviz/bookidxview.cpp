@@ -1281,6 +1281,8 @@ void BookIdxView::__paintSymbol(const QPointF& p,
 
     QPen origPen = painter.pen();
     QPen pen = painter.pen();
+    pen.setStyle(Qt::SolidLine);
+    painter.setPen(pen);
 
     if ( symbol == "circle" ) {
         painter.drawEllipse(p,2,2);
