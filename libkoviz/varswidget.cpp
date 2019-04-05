@@ -86,6 +86,12 @@ void VarsWidget::_varsSelectModelSelectionChanged(
             QString yName = _varsFilterModel->data(varIdx).toString();
             _addCurves(curvesIdx,yName);
         }
+
+        // Set y axis label to empty string when adding multivars to plot
+        QModelIndex yAxisLabelIdx = _plotModel->getDataIndex(plotIdx,
+                                                     "PlotYAxisLabel","Plot");
+        _plotModel->setData(yAxisLabelIdx, "");
+
     } else {
 
         // Add variable to a new plot

@@ -169,7 +169,9 @@ QString YAxisLabelView::_yAxisLabelText() const
     QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
     QString unit = _bookModel()->getCurvesYUnit(curvesIdx);
 
-    label = label + " {" + unit + "}";
+    if ( !label.isEmpty() ) {
+        label = label + " {" + unit + "}";
+    }
 
     return label;
 }
