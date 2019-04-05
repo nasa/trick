@@ -72,49 +72,6 @@ QRectF CoordArrow::boundingBox(const QPainter& painter,
     return bbox;
 }
 
-// T is coordToPix transform
-QRectF CoordArrow::txtBoundingBox(const QPainter& painter,
-                                  const QTransform& T) const
-{
-    QRectF bbox;
-
-    // Map math coord to window pt
-    QPointF pt = T.map(coord);
-
-    // Text bbox width and height
-    double tw = painter.fontMetrics().boundingRect(txt).width();
-    double th = painter.fontMetrics().boundingRect(txt).height();
-
-    QPointF tl;
-    if ( angle > 0.0 && angle < M_PI/2.0 ) {
-        // Quadrant I
-        tl.setX(pt.x() + (r+h+a)*cos(angle) + b + m);
-        tl.setY(pt.y() - (r+h+a)*sin(angle) - th/2.0);
-    } else if ( angle > M_PI/2.0 && angle < M_PI ) {
-        // Quadrant II
-        tl.setX(pt.x() + (r+h+a)*cos(angle) - b - m - tw);
-        tl.setY(pt.y() - (r+h+a)*sin(angle) - th/2.0);
-    } else if ( angle > M_PI && angle < 3*(M_PI/2.0) ) {
-        // Quadrant III
-        tl.setX(pt.x() + (r+h+a)*cos(angle) - b - m - tw);
-        tl.setY(pt.y() - (r+h+a)*sin(angle) - th/2.0);
-    } else if ( angle > 3*(M_PI/2.0) && angle < 2*M_PI ) {
-        // Quadrant IV
-        tl.setX(pt.x() + (r+h+a)*cos(angle) + b + m);
-        tl.setY(pt.y() - (r+h+a)*sin(angle) - th/2.0);
-    } else {
-        fprintf(stderr,"koviz [bad scoobs]: CoorArrow::txtBBox(): "
-                       "arrow angle <=0,==90,==270 or >=360. "
-                       "May want to support it.  Bailing!!!\n");
-        exit(-1);
-    }
-
-    bbox.setTopLeft(tl);
-    bbox.setSize(QSize(tw,th));
-
-    return bbox;
-}
-
 void CoordArrow::paintMe(QPainter &painter, const QTransform &T,
                          const QColor& fg, const QColor& bg) const
 {

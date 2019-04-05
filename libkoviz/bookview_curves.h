@@ -101,7 +101,6 @@ class CoordArrow
     double tipAngle; // tip of arrow angle (22.5)
 
     QRectF boundingBox(const QPainter &painter, const QTransform &T) const;
-    QRectF txtBoundingBox(const QPainter &painter, const QTransform &T) const;
     void paintMe(QPainter &painter, const QTransform &T,
                  const QColor &fg, const QColor &bg) const;
     void paintMeCenter(QPainter &painter, const QTransform &T,
