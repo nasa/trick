@@ -138,10 +138,6 @@ private:
     QPainterPath _sinPath();
     QPainterPath _stepPath();
 
-    QList<QColor> _colorBandsNormal;
-    QList<QColor> _colorBandsRainbow;
-    QList<QColor> _createColorBands(int nBands, bool isRainbow);
-
     QRectF _mousePressMathRect;
     QPoint _mousePressPos;
     QPointF _mousePressMathTopLeft;

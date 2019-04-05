@@ -320,8 +320,6 @@ CurvesView::CurvesView(QWidget *parent) :
 {
     setFocusPolicy(Qt::StrongFocus);
     setFrameShape(QFrame::NoFrame);
-    _colorBandsNormal = _createColorBands(9,false);
-    _colorBandsRainbow = _createColorBands(10,true);
 
     // Set mouse tracking to receive mouse move events when button not pressed
     setMouseTracking(true);
@@ -1255,53 +1253,6 @@ QPainterPath CurvesView::_stepPath()
     }
     return path;
 }
-
-QList<QColor> CurvesView::_createColorBands(int nBands, bool isRainbow)
-{
-    QList<QColor> colorBands;
-
-    QColor blue(48,85,200);
-    QColor red(200,30,30);
-    QColor green(60,180,45);
-    QColor magenta(130,15,120);
-    QColor orange(183,120,71);
-    QColor burntorange(177,79,0);
-    QColor yellow(222,222,10);
-    QColor pink(255,192,255);
-    QColor gray(145,170,192);
-    QColor medblue(49,140,250);
-    QColor black(0,0,0);
-
-    if ( isRainbow && nBands >= 10 ) {
-
-        // This is for "rainbow banding" many monte carlo curves
-
-        int hBeg = 10; int hEnd = 230;
-        int dh = qRound((double)(hEnd-hBeg)/(nBands-1.0));
-        int s = qRound(0.75*255);
-        int v = qRound(0.87*255);
-        for ( int h = hBeg; h <= hEnd; h+=dh) {
-            // Rainbow
-            colorBands << QColor::fromHsv(h,s,v);
-        }
-        colorBands.removeFirst();
-        colorBands.prepend(burntorange);
-
-    } else {
-
-        // Handpicked band of colors for smaller number of curves
-        colorBands << blue << red << magenta
-                   << green << orange << black
-                   << gray << pink << medblue;
-
-        for ( int i = 0 ; i < nBands-10; ++i ) {
-            colorBands.removeLast();
-        }
-    }
-
-    return colorBands;
-}
-
 
 void CurvesView::mousePressEvent(QMouseEvent *event)
 {
