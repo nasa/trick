@@ -37,7 +37,8 @@ bool writeTrk(const QString& ftrk, const QString &timeName,
               double start, double stop, double timeShift,
               QStringList& paramList, Runs* runs);
 bool writeCsv(const QString& fcsv, const QStringList& timeNames,
-              DPTable* dpTable, const QString &runDir);
+              DPTable* dpTable, const QString &runDir,
+              double startTime, double stopTime, double tolerance);
 bool convert2csv(const QStringList& timeNames,
                  const QString& ftrk, const QString& fcsv);
 bool convert2trk(const QString& csvFileName, const QString &trkFileName);
@@ -865,7 +866,8 @@ int main(int argc, char *argv[])
                         ++i;
                     }
 
-                    bool r = writeCsv(fname,timeNames,dpTable,runDirs.at(0));
+                    bool r = writeCsv(fname,timeNames,dpTable,runDirs.at(0),
+                                      startTime, stopTime, tolerance);
                     if ( r ) {
                         ret = 0;
                     } else {
@@ -1246,7 +1248,8 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
 }
 
 bool writeCsv(const QString& fcsv, const QStringList& timeNames,
-              DPTable* dpTable, const QString& runDir)
+              DPTable* dpTable, const QString& runDir,
+              double startTime, double stopTime, double tolerance)
 {
     QFileInfo fcsvi(fcsv);
     if ( fcsvi.exists() ) {
@@ -1255,7 +1258,7 @@ bool writeCsv(const QString& fcsv, const QStringList& timeNames,
         return false;
     }
 
-    // Open trk file for writing
+    // Open csv file for writing
     QFile csv(fcsv);
     if (!csv.open(QIODevice::WriteOnly)) {
         fprintf(stderr,"koviz: [error] could not open %s\n",
@@ -1280,7 +1283,7 @@ bool writeCsv(const QString& fcsv, const QStringList& timeNames,
     }
     header.chop(1);
     out << header;
-    out << "\n\n";
+    out << "\n";
 
     // Csv body
     QStringList params;
@@ -1292,10 +1295,18 @@ bool writeCsv(const QString& fcsv, const QStringList& timeNames,
     TrickTableModel ttm(timeNames, runDir, params);
     int rc = ttm.rowCount();
     int cc = ttm.columnCount();
+    double epsilon = tolerance/2.0;
     for ( int r = 0 ; r < rc; ++r ) {
+        bool isWriteRecord = true;
         for ( int c = 0 ; c < cc; ++c ) {
             QModelIndex idx = ttm.index(r,c);
             double v = ttm.data(idx).toDouble();
+            if ( c == 0 ) {
+                if ( v < startTime-epsilon || v > stopTime+epsilon ) {
+                    isWriteRecord = false;
+                    break;
+                }
+            }
             out << v;
             if ( c < cc-1 ) {
                 int fw = out.fieldWidth();
@@ -1304,7 +1315,7 @@ bool writeCsv(const QString& fcsv, const QStringList& timeNames,
                 out.setFieldWidth(fw);
             }
         }
-        if ( r < rc-1 ) {
+        if ( isWriteRecord && r < rc-1 ) {
             out << "\n";
         }
     }
