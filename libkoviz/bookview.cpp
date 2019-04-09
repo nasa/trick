@@ -1295,6 +1295,8 @@ void BookView::_printErrorplot(const QRect& R,
     // Make list of scaled (e.g. unit) data points
     double start = _bookModel()->getDataDouble(QModelIndex(),"StartTime");
     double stop = _bookModel()->getDataDouble(QModelIndex(),"StopTime");
+    double tolerance = _bookModel()->getDataDouble(QModelIndex(),
+                                                   "TimeMatchTolerance");
     QList<QPointF> pts;
     double k0 = _bookModel()->getDataDouble(curveIdx0,"CurveYScale","Curve");
     double k1 = _bookModel()->getDataDouble(curveIdx1,"CurveYScale","Curve");
@@ -1307,7 +1309,7 @@ void BookView::_printErrorplot(const QRect& R,
     while ( !i0->isDone() && !i1->isDone() ) {
         double t0 = i0->t();
         double t1 = i1->t();
-        if ( qAbs(t1-t0) < 0.000001 ) {
+        if ( qAbs(t1-t0) < tolerance ) {
             if ( t0 >= start && t0 <= stop ) {
                 double d = ys0*i0->y() - ys1*i1->y();
                 pts << QPointF(t0,d);
