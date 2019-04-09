@@ -9,6 +9,10 @@ export TRICK_HOME := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))../../..)
 
 COLOR   = [34m$(1)[0m
 
+ifdef VERBOSE 
+    TRICK_VERBOSE_BUILD=1
+endif
+
 ifndef TRICK_VERBOSE_BUILD
     ECHO_CMD = @
 endif

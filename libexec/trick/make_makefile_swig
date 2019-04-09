@@ -18,7 +18,11 @@ my @ext_lib_paths ;
 my @files_to_process ;
 my @ext_lib_files ;
 my %md5s ;
-my $verbose_build = exists($ENV{'TRICK_VERBOSE_BUILD'}) ;
+
+my $verbose_build = (exists($ENV{'TRICK_VERBOSE_BUILD'}) or exists($ENV{'VERBOSE'})) ;
+my %trick_headers ;
+my %python_modules ;
+my %python_module_dirs ;
 
 sub get_paths {
     my @paths = split /:/ , $ENV{$_[0]} ;
@@ -140,9 +144,21 @@ sub write_makefile_swig_deps() {
     close DEPENDENCIES_FILE ;
 }
 
+sub get_trick_headers() {
+    foreach my $f ( @files_to_process, @ext_lib_files) {
+        my %trick_header = extract_trick_header( $f, do { local( @ARGV, $/ ) = $f ; <> }, 0, 0 ) ;
+        if ( exists $trick_header{python_module} ) {
+            $trick_headers{$f}{python_module} = $trick_header{python_module};
+            ($trick_headers{$f}{python_module_dir} = $trick_header{python_module}) =~ s/\./\//g;
+            $python_modules{$trick_headers{$f}{python_module}} = 1;
+            $python_module_dirs{$trick_headers{$f}{python_module_dir}} = 1;
+        }
+        $trick_headers{$f}{swig} = $trick_header{swig} if ( exists $trick_header{swig} );
+    }
+}
+
 sub has_swig_no($) {
-    my %trick_header = extract_trick_header( $_[0], do { local( @ARGV, $/ ) = $_[0] ; <> }, 0, 0 ) ;
-    my $result = $trick_header{swig} =~ /^NO$/i ;
+    my $result = $trick_headers{$_[0]}{swig} =~ /^NO$/i ;
     print "[95mSWIG Skip[39m  SWIG: (NO): $_[0]\n" if $verbose_build and $result ;
     return $result ;
 }
@@ -177,6 +193,10 @@ else
     TRICK_SYSTEM_SWIG_CFLAGS += -Wno-unused-but-set-variable
 endif
 
+ifdef VERBOSE 
+    TRICK_VERBOSE_BUILD=1
+endif
+
 ifndef TRICK_VERBOSE_BUILD
     PRINT_SWIG          = \$(info \$(call COLOR,SWIGing)    \$<)
     PRINT_COMPILE_SWIG  = \$(info \$(call COLOR,Compiling)  \$<)
@@ -204,10 +224,25 @@ all: \$(TRICK_FIXED_PYTHON)
 SWIG_I =" ;
 
     foreach my $file ( @files_to_process ) {
-        (my $swig_file = $file) =~ s/\.[^.]*$/_py.i/ ;
-        print MAKEFILE " \\\n    build$swig_file" ;
-        $swig_file =~ s/i$/o/ ;
-        print PY_LINK_LIST "build$swig_file\n" ;
+        if ( !exists $trick_headers{$file}{python_module_dir} ) {
+            (my $swig_file = $file) =~ s/\.[^.]*$/_py.i/ ;
+            print MAKEFILE " \\\n    build$swig_file" ;
+            $swig_file =~ s/i$/o/ ;
+            print PY_LINK_LIST "build$swig_file\n" ;
+        }
+    }
+
+    print MAKEFILE "
+
+SWIG_I_CUSTOM_OUTDIR =" ;
+
+    foreach my $file ( @files_to_process ) {
+        if ( exists $trick_headers{$file}{python_module_dir} ) {
+            (my $swig_file = $file) =~ s/\.[^.]*$/_py.i/ ;
+            print MAKEFILE " \\\n    build$swig_file" ;
+            $swig_file =~ s/i$/o/ ;
+            print PY_LINK_LIST "build$swig_file\n" ;
+        }
     }
 
     print MAKEFILE "
@@ -234,9 +269,24 @@ SWIG_SRC = \$(subst .i,.cpp,\$(SWIG_I)) $swig_src_dir/top.cpp
 \t\@echo \$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -outdir trick -o \$@ \$< >> \$(MAKE_OUT)
 \t\$(ECHO_CMD)\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -outdir trick -o \$@ \$< 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
 
+SWIG_SRC_CUSTOM_OUTDIR = \$(subst .i,.cpp,\$(SWIG_I_CUSTOM_OUTDIR))\n" ;
+
+    foreach my $file ( @files_to_process ) {
+        if ( exists $trick_headers{$file}{python_module_dir} ) {
+            (my $swig_file = $file) =~ s/\.[^.]*$/_py.i/ ;
+            (my $cpp_file = $file) =~ s/\.[^.]*$/_py.cpp/ ;
+            print MAKEFILE "
+build$cpp_file : build$swig_file | trick/$trick_headers{$file}{python_module_dir}
+\t\$(PRINT_SWIG)
+\t\@echo \$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -outdir trick/$trick_headers{$file}{python_module_dir} -o \$@ \$< >> \$(MAKE_OUT)
+\t\$(ECHO_CMD)\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -outdir trick/$trick_headers{$file}{python_module_dir} -o \$@ \$< 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}\n";
+        }
+    }
+
+    print MAKEFILE "
 # SWIG_OBJECTS =================================================================
 
-SWIG_OBJECTS = \$(subst .cpp,.o,\$(SWIG_SRC)) $swig_src_dir/init_swig_modules.o
+SWIG_OBJECTS = \$(subst .cpp,.o,\$(SWIG_SRC)) \$(subst .cpp,.o,\$(SWIG_SRC_CUSTOM_OUTDIR)) $swig_src_dir/init_swig_modules.o
 
 \$(SWIG_OBJECTS): %.o: %.cpp
 \t\$(PRINT_COMPILE_SWIG)
@@ -323,6 +373,9 @@ LINK_LISTS += \$(LD_FILELIST)build/py_link_list
     print INITFILE "import sys\n" ;
     print INITFILE "import os\n" ;
     print INITFILE "sys.path.append(os.getcwd() + \"/trick\")\n" ;
+    foreach my $dir ( keys %python_module_dirs ) {
+       print INITFILE "sys.path.append(os.getcwd() + \"/trick/$dir\")\n" ;
+    }
 
     print INITFILE "\n" ;
     print INITFILE "import _sim_services\n" ;
@@ -335,12 +388,16 @@ LINK_LISTS += \$(LD_FILELIST)build/py_link_list
 
     foreach $f ( @files_to_process, @ext_lib_files ) {
         print INITFILE "# $f\n" ;
-        print INITFILE "import _m$md5s{$f}\n" ;
         print INITFILE "from m$md5s{$f} import *\n" ;
         print INITFILE "combine_cvars(all_cvars, cvar)\n" ;
         print INITFILE "cvar = None\n\n" ;
     }
 
+    foreach my $mod ( keys %python_modules ) {
+        print INITFILE "import trick.$mod\n" ;
+    }
+
+    print INITFILE "\n" ;
     print INITFILE "# S_source.hh\n" ;
     print INITFILE "import _m${s_source_md5}\n" ;
     print INITFILE "from m${s_source_md5} import *\n\n" ;
@@ -357,6 +414,17 @@ LINK_LISTS += \$(LD_FILELIST)build/py_link_list
     print INITFILE "cvar = all_cvars\n\n" ;
     close INITFILE ;
 
+    foreach my $dir ( keys %python_module_dirs ) {
+        system("mkdir -p trick/$dir");
+        open MODULE_INITFILE, ">trick/$dir/__init__.py";
+        foreach my $file ( @files_to_process ) {
+            if ( exists $trick_headers{$file}{python_module_dir} and $trick_headers{$file}{python_module_dir} eq $dir ) {
+                print MODULE_INITFILE "from m$md5s{$file} import *\n" ;
+            }
+        }
+        close MODULE_INITFILE;
+    }
+
     return ;
 }
 
@@ -366,6 +434,7 @@ LINK_LISTS += \$(LD_FILELIST)build/py_link_list
 read_files_to_process() ;
 write_makefile_swig_deps() ;
 
+get_trick_headers() ;
 # Remove SWIG: (NO) files, but not before they're written to the dependency file.
 # If SWIG: (NO) is removed, Makefile_swig needs to be regenerated.
 purge_swig_no_files() ;
