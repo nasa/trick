@@ -11,6 +11,7 @@ use Digest::MD5 qw(md5_hex) ;
 use trick_version ;
 use html ;
 use verbose_build ;
+use get_paths ;
 use strict ;
 
 my @exclude_paths ;
@@ -23,21 +24,6 @@ my $verbose_build = verbose_build() ;
 my %trick_headers ;
 my %python_modules ;
 my %python_module_dirs ;
-
-sub get_paths {
-    my @paths = split /:/ , $ENV{$_[0]} ;
-    if (scalar @paths) {
-        @paths = sort(@paths ) ;
-        # trim whitespace
-        @paths = map { s/(^\s+|\s+$)//g ; $_ } @paths ;
-        # Remove empty elements. Sort forced all blank names to the front.
-        while ( scalar @paths and not length @paths[0] ) {
-            shift @paths ;
-        }
-        @paths = map { (-e $_) ? abs_path($_) : $_ } @paths ;
-    }
-    return @paths ;
-}
 
 sub read_files_to_process() {
     my @include_paths ;
