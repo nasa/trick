@@ -14,6 +14,7 @@ use trick_version ;
 use Digest::MD5 qw(md5_hex) ;
 use File::Path qw(make_path) ;
 use html ;
+use get_paths ;
 
 ##
 ## ================================================================================
@@ -127,10 +128,6 @@ if ( $help ) {
 
 @include_dirs = $ENV{"TRICK_CFLAGS"} =~ /-I\s*(\S+)/g ; # get include paths from TRICK_CFLAGS
 
-# Get environment variables, split on colons, strip leading/trailing whitespace, remove empty elements, get absolute paths then remove more empty elements
-sub get_paths {
-    return grep { $_ ne ''} map abs_path($_), grep { $_ ne '' } map { s/(^\s+|\s+$)//g ; $_ } split /:/, $ENV{$_[0]} ;
-}
 @exclude_paths      = get_paths( "TRICK_EXCLUDE") ;
 @swig_exclude_paths = get_paths( "TRICK_SWIG_EXCLUDE") ;
 @ext_lib_paths      = get_paths( "TRICK_EXT_LIB_DIRS") ;
