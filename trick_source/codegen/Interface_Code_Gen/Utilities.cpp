@@ -116,7 +116,7 @@ char * almostRealPath( const char * in_path ) {
 static const std::string escapeSequence = "[";
 static const std::string defaultForegroundColorSequence = escapeSequence + "39m";
 static const std::string boldSequence = escapeSequence + "1m";
-static const std::string noBoldSequence = escapeSequence + "21m";
+static const std::string noBoldSequence = escapeSequence + "22m";
 static const std::string underlineSequence = escapeSequence + "4m";
 static const std::string noUnderlineSequence = escapeSequence + "24m";
 
