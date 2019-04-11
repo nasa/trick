@@ -70,6 +70,7 @@ sub read_files_to_process() {
 
             # skip duplicate files
             next if (exists($md5s{$word})) ;
+            $md5s{$word} = md5_hex($word) ;
 
             # skip system headers that are missed by the compiler -MM flag
             next if ( $word =~ /^\/usr\/include/ ) ;
@@ -81,11 +82,7 @@ sub read_files_to_process() {
 
             # skip paths in TRICK_EXCLUDE
             foreach my $path ( @exclude_paths ) {
-                if ( $word =~ /^\Q$path\E(.*)/ ) {
-                    print "[95mSWIG Skip[39m  TRICK_EXCLUDE: [4m$path[24m$1\n" if $verbose_build ;
-                    next outer ;
-                }
-                if ( abs_path($word) =~ /^\Q$path\E(.*)/ ) {
+                if ( $word =~ /^\Q$path\E(.*)/ or abs_path($word) =~ /^\Q$path\E(.*)/ ) {
                     print "[95mSWIG Skip[39m  TRICK_EXCLUDE: [4m$path[24m$1\n" if $verbose_build ;
                     next outer ;
                 }
@@ -93,22 +90,15 @@ sub read_files_to_process() {
 
             # skip paths in TRICK_SWIG_EXCLUDE
             foreach my $path ( @swig_exclude_paths ) {
-                if ( $word =~ /^\Q$path\E(.*)/ ) {
-                    print "[95mSWIG Skip[39m  TRICK_SWIG_EXCLUDE: [4m$path[24m$1\n" if $verbose_build ;
-                    next outer ;
-                }
-                if ( abs_path($word) =~ /^\Q$path\E(.*)/ ) {
+                if ( $word =~ /^\Q$path\E(.*)/ or abs_path($word) =~ /^\Q$path\E(.*)/ ) {
                     print "[95mSWIG Skip[39m  TRICK_SWIG_EXCLUDE: [4m$path[24m$1\n" if $verbose_build ;
                     next outer ;
                 }
             }
 
-            # we'll be needing this later
-            $md5s{$word} = md5_hex($word) ;
-
             # separate paths in TRICK_EXT_LIB_DIRS
             foreach my $path ( @ext_lib_paths ) {
-                if ( $word =~ /^\Q$path\E(.*)/ ) {
+                if ( $word =~ /^\Q$path\E(.*)/ or abs_path($word) =~ /^\Q$path\E(.*)/ ) {
                     print "[95mSWIG Skip[39m  TRICK_EXT_LIB_DIRS: [4m$path[24m$1\n" if $verbose_build ;
                     $ext_libs{$word} = 1 ;
                     next outer ;
