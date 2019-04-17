@@ -29,6 +29,7 @@ const char* trickTypeCharString( TRICK_TYPE type, const char* name) {
        case TRICK_ENUMERATED:         type_spec = name; break;
        case TRICK_STRUCTURED:         type_spec = name; break;
        case TRICK_OPAQUE_TYPE:        type_spec = name;  break;
+       case TRICK_STL:                type_spec = name;  break;
        default:                       type_spec = "UNKNOWN_TYPE"; break;
     }
     return (type_spec);
