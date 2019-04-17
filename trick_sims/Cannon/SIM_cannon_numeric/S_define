@@ -5,11 +5,25 @@ LIBRARY DEPENDENCIES:
     (
      (cannon/gravity/src/cannon_init.c)
      (cannon/gravity/src/cannon_numeric.c)
+     (mongoose_httpd/src/http_server.cpp)
     )
 *************************************************************/
 
 #include "sim_objects/default_trick_sys.sm"
 ##include "cannon/gravity/include/cannon_numeric.h"
+##include "mongoose_httpd/include/http_server.h"
+
+class HttpSimObject : public Trick::SimObject {
+
+    public:
+        HTTP_Server http_server ;
+
+        HttpSimObject() {
+            ("default_data") http_default_data( &http_server ) ;
+            ("initialization") http_init( &http_server ) ;
+            ("shutdown") http_shutdown( &http_server ) ;
+        }
+} ;
 
 class CannonSimObject : public Trick::SimObject {
 
@@ -27,6 +41,7 @@ class CannonSimObject : public Trick::SimObject {
 
 // Instantiations
 CannonSimObject dyn ;
+HttpSimObject http ;
 
 IntegLoop dyn_integloop (0.01) dyn;
 
