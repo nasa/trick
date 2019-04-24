@@ -860,7 +860,7 @@ class VariableServer(object):
           self.Channel.BOTH: [self._synchronous_socket,
                               self._asynchronous_socket]
         }[channel]:
-            channel.sendall(command)
+            channel.sendall(command.encode())
 
     def readline(self, synchronous_channel=True):
         """
