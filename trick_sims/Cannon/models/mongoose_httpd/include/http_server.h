@@ -1,5 +1,7 @@
 /*************************************************************************
 PURPOSE: (Represent the state and initial conditions of an http server)
+LIBRARY DEPENDENCIES:
+    ( (../src/http_server.cpp))
 **************************************************************************/
 #ifndef HTTP_SERVER_H
 #define HTTP_SERVER_H
