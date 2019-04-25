@@ -22,7 +22,8 @@ public class TVInteger extends VSInteger implements TrickViewFluent<TVInteger.Fo
 
         Binary {
             public String format(int value, boolean unsigned) {
-                return Integer.toBinaryString(value);
+                String result = Integer.toBinaryString(value);
+                return "00000000000000000000000000000000".substring(result.length()) + result;
             }
 
             public int parse(String value) {
@@ -32,14 +33,12 @@ public class TVInteger extends VSInteger implements TrickViewFluent<TVInteger.Fo
 
         Decimal {
             public String format(int value, boolean unsigned) {
-                String result;
                 if (unsigned && value < 0) {
-                    result = Long.toString(value + 4294967296L);
+                    return Long.toString(value + 4294967296L);
                 }
                 else {
-                    result = Integer.toString(value);
+                    return Integer.toString(value);
                 }
-                return "00000000000000000000000000000000".substring(result.length()) + result;
             }
 
             public int parse(String value) {
