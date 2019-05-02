@@ -5,6 +5,7 @@ export TRICK_HOST_CPU := $(shell $(TRICK_HOME)/bin/trick-gte TRICK_HOST_CPU)
 COMPILE_DIRS = \
 	SIM_demo_sdefine \
 	SIM_events \
+	SIM_parse_s_define \
 	SIM_python_namespace \
 	SIM_rti \
 	SIM_stls \

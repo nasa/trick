@@ -1,0 +1,207 @@
+#include "sim_objects/default_trick_sys.sm"
+##include "Classes.hh"
+
+// not sim objects, no namespace
+class A : public Normal {
+};
+class B : public Template1<int> {};
+class C : public Template2<int, Template1<Normal> > {};
+
+// no namespace, sim object last
+class D : public Normal, public Trick::SimObject {
+    public:
+    D() {
+        ("initialization") foo();
+    }
+};
+class DerivedFromD : public D {
+    public:
+    DerivedFromD() {
+        ("initialization") foo();
+    }
+};
+class E : public Template1<int>, public Trick::SimObject {
+    public:
+    E() {
+        ("initialization") foo();
+    }
+};
+class DerivedFromE : public E {
+    public:
+    DerivedFromE() {
+        ("initialization") foo();
+    }
+};
+class F : public Template2<int, Template1<Normal> >, public Trick::SimObject {
+    public:
+    F() {
+        ("initialization") foo();
+    }
+};
+class DerivedFromF : public F {
+    public:
+    DerivedFromF() {
+        ("initialization") foo();
+    }
+};
+
+// no namespace, sim object first
+class G : public Trick::SimObject, public Normal {
+    public:
+    G() {
+        ("initialization") foo();
+    }
+};
+class DerivedFromG : public G {
+    public:
+    DerivedFromG() {
+        ("initialization") foo();
+    }
+};
+class H : public Trick::SimObject, public Template1<int> {
+    public:
+    H() {
+        ("initialization") foo();
+    }
+};
+class DerivedFromH : public H {
+    public:
+    DerivedFromH() {
+        ("initialization") foo();
+    }
+};
+class I : public Trick::SimObject, public Template2<int, Template1<Normal> > {
+    public:
+    I() {
+        ("initialization") foo();
+    }
+};
+class DerivedFromI : public I {
+    public:
+    DerivedFromI() {
+        ("initialization") foo();
+    }
+};
+
+// not sim objects, namespace
+class J : public Foo::FooNormal {};
+class K : public Foo::FooTemplate1<int> {};
+class L : public Foo::FooTemplate2<int, Foo::FooTemplate1<Foo::FooNormal> > {};
+
+// namespace, sim object last
+class M : public Foo::FooNormal, public Trick::SimObject {
+    public:
+    M() {
+        ("initialization") foo();
+    }
+};
+class DerivedFromM : public M {
+    public:
+    DerivedFromM() {
+        ("initialization") foo();
+    }
+};
+class N : public Foo::FooTemplate1<int>, public Trick::SimObject {
+    public:
+    N() {
+        ("initialization") foo();
+    }
+};
+class DerivedFromN : public N {
+    public:
+    DerivedFromN() {
+        ("initialization") foo();
+    }
+};
+class O : public Foo::FooTemplate2<int, Foo::FooTemplate1<Foo::FooNormal> >, public Trick::SimObject {
+    public:
+    O() {
+        ("initialization") foo();
+    }
+};
+class DerivedFromO : public O {
+    public:
+    DerivedFromO() {
+        ("initialization") foo();
+    }
+};
+
+// namespace, sim object first
+class P : public Trick::SimObject, public Foo::FooNormal {
+    public:
+    P() {
+        ("initialization") foo();
+    }
+};
+class DerivedFromP : public P {
+    public:
+    DerivedFromP() {
+        ("initialization") foo();
+    }
+};
+class Q : public Trick::SimObject, public Foo::FooTemplate1<int> {
+    public:
+    Q() {
+        ("initialization") foo();
+    }
+};
+class DerivedFromQ : public Q {
+    public:
+    DerivedFromQ() {
+        ("initialization") foo();
+    }
+};
+class R : public Trick::SimObject, public Foo::FooTemplate2<int, Foo::FooTemplate1<Foo::FooNormal> > {
+    public:
+    R() {
+        ("initialization") foo();
+    }
+};
+class DerivedFromR : public R {
+    public:
+    DerivedFromR() {
+        ("initialization") foo();
+    }
+};
+
+// SimObject templates!
+template <class T>
+class S : public Trick::SimObject {
+    public:
+    S() {
+        ("initialization") foo();
+    }
+};
+class DerivedFromS : public S<int> {
+    public:
+    DerivedFromS() {
+        ("initialization") foo();
+    }
+};
+template <class U, class V>
+class T : public S<int> {
+    public:
+    T() {
+        ("initialization") foo();
+    }
+};
+class DerivedFromT : public T<int, Foo::FooTemplate1<Foo::FooNormal> > {
+    public:
+    DerivedFromT() {
+        ("initialization") foo();
+    }
+};
+
+// crazy stuff
+class Crazy1 : Foo::FooNormal, virtual Normal, private Template1<short*>, protected virtual Template2<Normal, Foo::FooTemplate2<int, char&> >, public Trick::SimObject, virtual public Foo::FooTemplate1<Foo::FooNormal> {
+    public:
+    Crazy1() {
+        ("initialization") foo();
+    }
+};
+class DerivedFromCrazy1 : public Crazy1 {
+    public:
+    DerivedFromCrazy1() {
+        ("initialization") foo();
+    }
+};

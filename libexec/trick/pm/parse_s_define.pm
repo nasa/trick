@@ -504,7 +504,7 @@ sub handle_sim_class ($$$$) {
     my ($s, $file_contents, $sim_ref, $comments_ref) = @_;
     my ($full_template_args, $template_args) ;
     my ($class_contents , $constructor_contents) ;
-    my ($class_name , $inherit_class, $inherit_constructor) ;
+    my ($class_name , $base_clause) ;
     my $final_contents ;
     my $int_call_functions ;
     my $double_call_functions ;
@@ -518,7 +518,7 @@ sub handle_sim_class ($$$$) {
     $s =~ s/ZZZYYYXXX(\d+)ZZZYYYXXX//esg ;
 
     # grab the class name and the name of the class we are inheriting from
-    ($full_template_args, $class_name, $inherit_class) = $s =~ /(?:\s*template\s*<\s*([^>]+?)\s*>)?\s*class\s+(\w+)\s*(?::\s*public\s+(.+?)\s*)?$/ ;
+    ($full_template_args, $class_name, $base_clause) = $s =~ /(?:\s*template\s*<\s*([^>]+?)\s*>)?\s*class\s+(\w+)\s*(?::\s*(.+?)\s*)?$/ ;
 
     $template_args = $full_template_args ;
     $template_args =~ s/class|typename//g ;
@@ -535,10 +535,35 @@ sub handle_sim_class ($$$$) {
     #final_contents contains the processed class.  Start if off with the incoming class name
     $final_contents = $s ;
 
-    my ($unparameterized_name) = $inherit_class =~ /([^<]+)/ ;
+    # remove all whitespace from the base-clause to simplify regex patterns
+    $base_clause =~ s/\s//g;
+
+    # This is the full regex for matching (I hope) any valid string following the ':' in a class
+    # declaration. (?1) is the syntax for recursive matching, which handles arbitrarily deeply
+    # nested template brackets. There are only two capture groups (the other groups are non-
+    # capturing). Because a class can inherit from any number of parents, the second group is
+    # repeated wth the * operator. Unfortunately, only the final capture is retained (until
+    # Perl 6), so we can't actually use this regex to capture all the parents. We could use it
+    # to validate the string, but the compiler is going to do that anyway.
+    #my @parents = $base_clause =~ /^(?:private|protected|public|virtual)*([\w:]+(?:<(?:[^<>]|(?1))*>)?)(?:,(?:private|protected|public)?((?1)))*$/;
+
+    # This regex is less strict and will accept some invalid strings, but it will capture all
+    # of the parents. Since the compiler will eventually flag any syntax errors, I think it's
+    # ok if we let them pass here.
+    my @parents = $base_clause =~ /\G,?(?:private|protected|public|virtual)*([\w:]+(?:<(?:[^<>]|(?1))*>)?)/g;
+
+    my $sim_object_parent;
+    foreach (@parents) {
+        # remove template arguments
+        ($_) = $_ =~ /([^<]+)/;
+        if (exists $$sim_ref{sim_class_index}{$_}) {
+            $sim_object_parent = $_;
+            last;
+        }
+    }
 
     # if this class is not a SimObject pass it whole to S_Source.cpp
-    if ( $inherit_class eq "" or !exists $$sim_ref{sim_class_index}{$unparameterized_name} ) {
+    if ( !$sim_object_parent ) {
         $class_contents =~ s/ZZZYYYXXX(\d+)ZZZYYYXXX/@$comments_ref[$1]/g ;
         $final_contents .= "$class_contents ;\n\n" ;
         $$sim_ref{sim_class_code} .= $final_contents ;
@@ -564,7 +589,7 @@ sub handle_sim_class ($$$$) {
     $double_call_functions .= "    if ( curr_job->disabled ) return (trick_ret) ;\n\n" ;
     $double_call_functions .= "    switch ( curr_job->id ) {\n" ;
 
-    $$sim_ref{sim_class_index}{$class_name} = $$sim_ref{sim_class_index}{$unparameterized_name} ;
+    $$sim_ref{sim_class_index}{$class_name} = $$sim_ref{sim_class_index}{$sim_object_parent} ;
 
     # look for constructor
     while ( $class_contents =~ /^(.*?)$class_name\s*\([^;]*{/s ) {
@@ -633,12 +658,12 @@ sub handle_sim_class ($$$$) {
     if ( $constructor_found == 1 ) {
 
         # if there is an inherited base class then the job id may reside in the base class
-        if ( $inherit_class eq "Trick::SimObject" or $inherit_class eq "SimObject" ) {
+        if ( $sim_object_parent eq "Trick::SimObject" or $sim_object_parent eq "SimObject" ) {
             $int_call_functions .= "        default:\n            trick_ret = -1 ;\n            break ;\n" ;
             $double_call_functions .= "        default:\n            trick_ret = 0.0 ;\n            break ;\n" ;
         } else {
-            $int_call_functions .= "        default:\n            trick_ret = ${inherit_class}::call_function( curr_job ) ;\n            break ;\n" ;
-            $double_call_functions .= "        default:\n            trick_ret = ${inherit_class}::call_function_double( curr_job ) ;\n            break ;\n" ;
+            $int_call_functions .= "        default:\n            trick_ret = ${sim_object_parent}::call_function( curr_job ) ;\n            break ;\n" ;
+            $double_call_functions .= "        default:\n            trick_ret = ${sim_object_parent}::call_function_double( curr_job ) ;\n            break ;\n" ;
         }
 
         $int_call_functions .= "    }\n\n    return(trick_ret) ;\n}\n\n" ;
