@@ -383,9 +383,14 @@ LINK_LISTS += \$(LD_FILELIST)build/py_link_list
 
     foreach $f ( @files_to_process, @ext_lib_files ) {
         print INITFILE "# $f\n" ;
-        print INITFILE "from m$md5s{$f} import *\n" ;
+        print INITFILE "import _m$md5s{$f}\n" ;
         print INITFILE "combine_cvars(all_cvars, cvar)\n" ;
         print INITFILE "cvar = None\n\n" ;
+    }
+
+    foreach $f ( @files_to_process, @ext_lib_files ) {
+        print INITFILE "# $f\n" ;
+        print INITFILE "from m$md5s{$f} import *\n" ;
     }
 
     foreach my $mod ( keys %python_modules ) {
