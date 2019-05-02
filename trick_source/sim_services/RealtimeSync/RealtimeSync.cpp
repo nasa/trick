@@ -228,9 +228,6 @@ int Trick::RealtimeSync::start_realtime(double in_frame_time , long long ref_tim
             /* Reset the clock reference time to the desired reference time */
             rt_clock->clock_reset(ref_time) ;
 
-            /* Set top of frame time for 1st frame (used in frame logging). */
-            last_clock_time = rt_clock->clock_time() ;
-
             /* Start the sleep timer hardware */
             start_sleep_timer();
 
@@ -246,6 +243,9 @@ int Trick::RealtimeSync::start_realtime(double in_frame_time , long long ref_tim
         }
 
     }
+
+    /* Set top of frame time for 1st frame (used in frame logging). */
+    last_clock_time = rt_clock->clock_time() ;
 
     return(0) ;
 }
@@ -283,6 +283,12 @@ int Trick::RealtimeSync::rt_monitor(long long sim_time_tics) {
     long long curr_clock_time ;
     char buf[512];
 
+    /* calculate the current underrun/overrun */
+    curr_clock_time = rt_clock->clock_time() ;
+    frame_sched_time = curr_clock_time - last_clock_time ;
+    /* Set the next frame overrun/underrun reference time to the current time */
+    last_clock_time = curr_clock_time ;
+
     /* determine if the state of real-time has changed this frame */
     if ( ! active ) {
         if ( enable_flag ) {
@@ -303,10 +309,6 @@ int Trick::RealtimeSync::rt_monitor(long long sim_time_tics) {
         disable_flag = false ;
     }
 
-    /* calculate the current underrun/overrun */
-    curr_clock_time = rt_clock->clock_time() ;
-    frame_overrun_time = 0 ;
-    frame_sched_time = curr_clock_time - last_clock_time ;
     frame_overrun_time = curr_clock_time - sim_time_tics ;
 
     /* If the wall clock time is greater than the sim time an overrun occurred. */
@@ -362,9 +364,6 @@ int Trick::RealtimeSync::rt_monitor(long long sim_time_tics) {
         sleep_timer->reset(exec_get_software_frame() / rt_clock->get_rt_clock_ratio()) ;
 
     }
-
-    /* Set the next frame overrun/underrun reference time to the current time */
-    last_clock_time = curr_clock_time ;
 
     return(0) ;
 }
@@ -456,13 +455,13 @@ int Trick::RealtimeSync::unfreeze(long long sim_time_tics, double software_frame
         /* Adjust the real-time clock reference by the amount of time we were frozen */
         rt_clock->adjust_ref_time(freeze_time_tics - sim_time_tics) ;
 
-        /* Set top of frame time for 1st frame (used in frame logging). */
-        last_clock_time = rt_clock->clock_time() ;
-
         /* Start the sleep timer with the software frame expiration */
         sleep_timer->start(software_frame_sec / rt_clock->get_rt_clock_ratio()) ;
 
     }
+
+    /* Set top of frame time for 1st frame (used in frame logging). */
+    last_clock_time = rt_clock->clock_time() ;
 
     return(0) ;
 }
