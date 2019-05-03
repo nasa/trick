@@ -658,6 +658,9 @@ namespace Trick {
             static void emitError( std::string s);
             static void emitWarning( std::string s);
 
+            void write_JSON_alloc_info( std::ostream& s, ALLOC_INFO *alloc_info) ;
+            void write_JSON_alloc_list( std::ostream& s, int start_ix, int num) ;
+
         private:
 
             static int instance_count;          /**< -- Number of instances of MemoryManager. Not allowed to exceed 1.*/

@@ -9,8 +9,11 @@ LIBRARY DEPENDENCIES:
 *************************************************************/
 
 #include "sim_objects/default_trick_sys.sm"
-##include "cannon/gravity/include/cannon_numeric.h"
 
+// Uncomment to get a webserver. Also uncomment lines in S_overrise.mk to link in mongoose lib.
+// #include "mongoose_httpd/mongoose_httpd.sm"
+
+##include "cannon/gravity/include/cannon_numeric.h"
 class CannonSimObject : public Trick::SimObject {
 
     public:
@@ -24,8 +27,6 @@ class CannonSimObject : public Trick::SimObject {
             ("dynamic_event") cannon_impact( &cannon) ;
         }
 } ;
-
-// Instantiations
 CannonSimObject dyn ;
 
 IntegLoop dyn_integloop (0.01) dyn;

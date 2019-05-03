@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>WS Experiments</title>
+  </head>
+  <style>
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 8px; }
+    tr:nth-child(even){background-color: #f2f2f2}
+    th { background-color: #562399; color: white; }
+  </style>
+  <body>
+      <header>
+      </header>
+      <section>
+      </section>
+      <script type="text/javascript">
+
+          var ws = new WebSocket("ws://localhost:8888", "myProtocol");
+          // Event handler for the WebSocket connection opening
+          ws.onopen = function(e) {
+             console.log("Connection established");
+          };
+          // Event handler for receiving text messages
+          ws.onmessage = function(e) {
+                console.log("Message received", e, e.data);
+          };
+          // Event handler for errors in the WebSocket object
+          ws.onerror = function(e) {
+             console.log("WebSocket Error: " , e);
+             //Custom function for handling errors
+             handleErrors(e);
+          };
+          // Event handler for closed connections
+          ws.onclose = function(e) {
+             console.log("Connection closed", e);
+          };
+
+      </script>
+  </body>
+</html>
