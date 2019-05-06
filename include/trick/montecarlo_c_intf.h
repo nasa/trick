@@ -103,6 +103,12 @@ void mc_set_slave_sim_options(const char *slave_sim_options);
 
 /**
  * @relates Trick::MonteCarlo
+ * set #Trick::MonteCarlo::slave_output_directory
+ */
+void mc_set_slave_output_directory(const char *slave_output_directory);
+
+/**
+ * @relates Trick::MonteCarlo
  * get #Trick::MonteCarlo::slave_sim_options
  */
 const char *mc_get_slave_sim_options(void);
