@@ -157,6 +157,7 @@ public:
     QString font();
     QString plotXScale() const;
     QString plotYScale() const;
+    QString plotRatio() const;
 
     void setXAxisLabel(const char* label) { _xAxisLabel = label ; }
     void setYAxisLabel(const char* label) { _yAxisLabel = label ; }
@@ -173,6 +174,7 @@ public:
     void setFont(const QString& fnt);
     void setPlotXScale(const QString& plotXScale);
     void setPlotYScale(const QString& plotYScale);
+    void setPlotRatio(const QString& plotRatio);
 
     QList<DPCurve*> curves() { return _curves; }
     DPCurve* addCurve();
@@ -196,6 +198,7 @@ private:
     QString _font;
     QString _plotXScale;
     QString _plotYScale;
+    QString _plotRatio;
 };
 
 class DPPage

@@ -35,6 +35,7 @@ PLOT                          [Pp][Ll][Oo][Tt]
 PLOTS                         [Pp][Ll][Oo][Tt][Ss]
 PLOT_X_SCALE                  [Pp][Ll][Oo][Tt]_[Xx]_[Ss][Cc][Aa][Ll][Ee]
 PLOT_Y_SCALE                  [Pp][Ll][Oo][Tt]_[Yy]_[Ss][Cc][Aa][Ll][Ee]
+PLOT_RATIO                    [Pp][Ll][Oo][Tt]_[Rr][Aa][Tt][Ii][Oo]
 PROGRAM                       [Pp][Rr][Oo][Gg][Rr][Aa][Mm]
 SCALE_FACTOR                  [Ss][Cc][Aa][Ll][Ee]_[Ff][Aa][Cc][Tt][Oo][Rr] 
 START                         [Ss][Tt][Aa][Rr][Tt]
@@ -95,6 +96,7 @@ W                             [ \t]+
 {PLOT}                     { return(DP_PLOT); }
 {PLOT_X_SCALE}             { return(DP_PLOT_X_SCALE); }
 {PLOT_Y_SCALE}             { return(DP_PLOT_Y_SCALE); }
+{PLOT_RATIO}               { return(DP_PLOT_RATIO); }
 {PROGRAM}                  { return(DP_PROGRAM); }
 {SCALE_FACTOR}             { return(DP_SCALE_FACTOR); }
 {START}                    { return(DP_START); }

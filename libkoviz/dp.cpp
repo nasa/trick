@@ -538,6 +538,11 @@ QString DPPlot::plotYScale() const
     return _plotYScale;
 }
 
+QString DPPlot::plotRatio() const
+{
+    return _plotRatio;
+}
+
 void DPPlot::setXMinRange(double xMin)
 {
     _xMinRange = xMin;
@@ -606,6 +611,11 @@ void DPPlot::setPlotXScale(const QString &plotXScale)
 void DPPlot::setPlotYScale(const QString &plotYScale)
 {
     _plotYScale = plotYScale;
+}
+
+void DPPlot::setPlotRatio(const QString &plotRatio)
+{
+    _plotRatio = plotRatio;
 }
 
 DPCurve *DPPlot::addCurve()

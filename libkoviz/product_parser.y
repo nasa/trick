@@ -90,6 +90,7 @@ QString dpFileName() {
 %token DP_GNUPLOT_LINE_STYLE
 %token DP_GNUPLOT_PAGE_ORIENTATION DP_GNUPLOT_OBJECT
 %token DP_PLOT_X_SCALE DP_PLOT_Y_SCALE
+%token DP_PLOT_RATIO
 
 %token <sval> DP_STR
 %token <dval> DP_FLOAT
@@ -204,6 +205,9 @@ plot: DP_PLOT DP_FLOAT ':' DP_STR {
         }
         | plot DP_PLOT_Y_SCALE ':' DP_STR {
                 currPlot->setPlotYScale($4);
+        }
+        | plot DP_PLOT_RATIO ':' DP_STR {
+                currPlot->setPlotRatio($4);
         }
         | plot DP_Y_AXIS_FORMAT ':' DP_STR {
                 msg("PLOT.Y_AXIS_FORMAT not supported");
