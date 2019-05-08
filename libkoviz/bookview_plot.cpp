@@ -177,18 +177,18 @@ PlotView::PlotView(QWidget *parent) :
     _grid->addWidget(_xTicLabels,4,1,1,5);
     _grid->addWidget(_xAxisLabel,5,1,1,5);
 
-    _grid->setRowStretch(0,1);
-    _grid->setRowStretch(1,1);
-    _grid->setRowStretch(2,100);
-    _grid->setRowStretch(3,1);
-    _grid->setRowStretch(4,1);
-    _grid->setRowStretch(5,1);
+    _grid->setRowStretch(0,0);
+    _grid->setRowStretch(1,0);
+    _grid->setRowStretch(2,0);
+    _grid->setRowStretch(3,0);
+    _grid->setRowStretch(4,0);
+    _grid->setRowStretch(5,0);
 
-    _grid->setColumnStretch(0,1);
-    _grid->setColumnStretch(1,1);
-    _grid->setColumnStretch(2,1);
-    _grid->setColumnStretch(3,100);
-    _grid->setColumnStretch(4,1);
+    _grid->setColumnStretch(0,0);
+    _grid->setColumnStretch(1,0);
+    _grid->setColumnStretch(2,0);
+    _grid->setColumnStretch(3,0);
+    _grid->setColumnStretch(4,0);
 
     _childViews << _titleView
                 << _xAxisLabel

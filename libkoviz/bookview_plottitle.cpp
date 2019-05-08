@@ -4,6 +4,7 @@ PlotTitleView::PlotTitleView(QWidget *parent) :
     BookIdxView(parent)
 {
     setFrameShape(QFrame::NoFrame);
+    this->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Fixed);
 }
 
 // TODO: For now and only handle single item changes

@@ -4,6 +4,7 @@ CornerView::CornerView(Qt::Corner corner, QWidget *parent) :
     BookIdxView(parent), _corner(corner)
 {
     setFrameShape(QFrame::NoFrame);
+    this->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
 }
 
 void CornerView::setModel(QAbstractItemModel *model)
@@ -74,10 +75,10 @@ void CornerView::paintEvent(QPaintEvent *event)
 
 QSize CornerView::minimumSizeHint() const
 {
-    return QSize(8,8);
+    return QSize(12,12);
 }
 
 QSize CornerView::sizeHint() const
 {
-    return QSize(8,8);
+    return QSize(12,12);
 }

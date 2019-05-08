@@ -5,6 +5,11 @@ LinedRulerView::LinedRulerView(Qt::Alignment alignment, QWidget *parent) :
     _alignment(alignment)
 {
     setFrameShape(QFrame::NoFrame);
+    if ( _alignment == Qt::AlignTop || _alignment == Qt::AlignBottom ) {
+        this->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Fixed);
+    } else {
+        this->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::MinimumExpanding);
+    }
 }
 
 void LinedRulerView::setModel(QAbstractItemModel* model)
@@ -120,11 +125,11 @@ QSize LinedRulerView::minimumSizeHint() const
     QSize s(0,0);
     if ( _alignment == Qt::AlignTop ||
          _alignment == Qt::AlignBottom ) {
-        s.setWidth(50);
-        s.setHeight(8);  // TODO: ptSize for axis??? 8+_pointSize()
+        s.setWidth(0);
+        s.setHeight(12); // 12 matches corners
     } else {
-        s.setWidth(8);  // TODO: ptSize for axis
-        s.setHeight(50);
+        s.setWidth(12);
+        s.setHeight(0);
     }
     return s;
 }
@@ -134,11 +139,11 @@ QSize LinedRulerView::sizeHint() const
     QSize s(0,0);
     if ( _alignment == Qt::AlignTop ||
          _alignment == Qt::AlignBottom ) {
-        s.setWidth(50);
-        s.setHeight(8);  // TODO:??? ptSize for axis
+        s.setWidth(5);
+        s.setHeight(8);
     } else {
-        s.setWidth(8);  // TODO:??? ptSize for axis
-        s.setHeight(50);
+        s.setWidth(8);
+        s.setHeight(5);
     }
     return s;
 }

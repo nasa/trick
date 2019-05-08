@@ -7,6 +7,14 @@ LabeledRulerView::LabeledRulerView(Qt::Alignment alignment,
     _margin5(5)
 {
     setFrameShape(QFrame::NoFrame);
+    if ( _alignment == Qt::AlignBottom ) {
+        this->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Fixed);
+    } else if ( _alignment == Qt::AlignLeft ) {
+        this->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::MinimumExpanding);
+    } else {
+        // No support (yet) for right and top axes
+        return;
+    }
 }
 
 void LabeledRulerView::paintEvent(QPaintEvent *event)

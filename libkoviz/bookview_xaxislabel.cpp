@@ -4,6 +4,7 @@ XAxisLabelView::XAxisLabelView(QWidget *parent) :
     BookIdxView(parent)
 {
     setFrameShape(QFrame::NoFrame);
+    this->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Fixed);
 }
 
 void XAxisLabelView::_update()

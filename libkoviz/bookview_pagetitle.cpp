@@ -5,8 +5,7 @@ PageTitleView::PageTitleView(QWidget *parent) :
 {
     setFrameShape(QFrame::NoFrame);
 
-    setSizePolicy(QSizePolicy(QSizePolicy::Expanding,
-                              QSizePolicy::Maximum));
+    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 }
 
 void PageTitleView::paintEvent(QPaintEvent *event)
