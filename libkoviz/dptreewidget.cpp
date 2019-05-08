@@ -470,7 +470,9 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                     }
                 }
             }
-            _bookModel->setData(plotMathRectIdx,bbox);
+            if ( bbox.width() > 0.0 ) {
+                _bookModel->setData(plotMathRectIdx,bbox);
+            }
 
             // Reset monte carlo input view current idx to signal curr changed
             int currRunId = -1;
