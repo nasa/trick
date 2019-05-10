@@ -56,6 +56,7 @@ export TRICK_LIBS := ${RPATH} -L${TRICK_LIB_DIR} -ltrick -ltrick_pyip -ltrick_co
 export TRICK_SYSTEM_LDFLAGS := $(TRICK_SYSTEM_LDFLAGS)
 export TRICK_SWIG_FLAGS := $(TRICK_SWIG_FLAGS)
 export TRICK_SWIG_CFLAGS := $(TRICK_SWIG_CFLAGS)
+export TRICK_CONVERT_SWIG_FLAGS := $(TRICK_CONVERT_SWIG_FLAGS)
 
 IO_SRC_DIR       := io_src/
 OBJ_DIR          := object_${TRICK_HOST_CPU}
