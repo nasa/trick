@@ -82,7 +82,7 @@ bool ClassicChkPtAgent:: writeDeclaration( std::ostream& out_s, std::string name
     bool errorCondition = false;
     if (dataType != NULL) {
         out_s << dataType->makeDeclaration(name, true);
-        out_s << ";" << std::endl;
+        out_s << ";\n";
     } else {
         errorCondition = true;
     }
@@ -98,12 +98,12 @@ bool ClassicChkPtAgent::writeVariable( std::ostream& out_s, MemMgr* memMgr, void
         std::stringstream rightHandSide;
         dataType->printValue( rightHandSide, address );
         writeAssignment( out_s, rightHandSide.str() );
-        out_s << std::endl;
+        out_s << "\n";
     } else if ( typeClass == TypeClass::POINTER ) {
         std::stringstream pointerName;
         errorCondition |= writePointerValue( pointerName, memMgr, address, (const PointerDataType*) dataType);
         writeAssignment(out_s, pointerName.str());
-        out_s << std::endl;
+        out_s << "\n";
     } else if ( typeClass == TypeClass::COMPOSITE ) {
         errorCondition |= writeCompositeAssignments( out_s, memMgr, address, (const CompositeDataType*)dataType);
     } else if ( typeClass == TypeClass::ARRAY ) {
@@ -167,7 +167,7 @@ bool ClassicChkPtAgent:: writeArrayAssignments( std::ostream& out_s, MemMgr* mem
         }
         rightHandSide << "}";
         writeAssignment( out_s, rightHandSide.str() );
-        out_s << std::endl;
+        out_s << "\n";
     } else {
         for (int ii=0; ii < elementCount; ii++) {
             void * elementAddress = (char*) address + (ii * elementTypeSize );
@@ -200,7 +200,7 @@ bool ClassicChkPtAgent::writeCompositeAssignments( std::ostream& out_s, MemMgr* 
                 std::stringstream rightHandSide;
                 structMember->printValue( rightHandSide, address );
                 writeAssignment( out_s, rightHandSide.str() );
-                out_s << std::endl;
+                out_s << "\n";
             } else {
                 char* memberAddress;
                 const DataType* memberDataType;

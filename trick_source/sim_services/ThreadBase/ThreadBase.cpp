@@ -322,10 +322,10 @@ void * Trick::ThreadBase::thread_helper( void * context ) {
 }
 
 void Trick::ThreadBase::dump( std::ostream & oss ) {
-    oss << "    from Trick::ThreadBase" << std::endl ;
-    oss << "    pthread_id = " << pthread_id << std::endl ;
-    oss << "    process_id = " << pid << std::endl ;
-    oss << "    rt_priority = " << rt_priority << std::endl ;
+    oss << "    from Trick::ThreadBase\n";
+    oss << "    pthread_id = " << pthread_id << "\n";
+    oss << "    process_id = " << pid << "\n";
+    oss << "    rt_priority = " << rt_priority << "\n";
 #if __linux
     oss << "    cpus = " ;
     bool first_print = true ;
