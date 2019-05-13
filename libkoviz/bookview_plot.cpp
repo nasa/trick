@@ -28,9 +28,9 @@
 //  +------------------------------------------+
 //  |                 X Tic Labels             |   4
 //  +------------------------------------------+
-//  +------------------------------------------+
-//  |                 X Axis Label             |   5
-//  +------------------------------------------+
+//  +--------++--------------------------------+
+//  | Nothing||         X Axis Label           |   5
+//  +--------++--------------------------------+
 //
 //
 //==================================================
@@ -143,9 +143,7 @@ PlotView::PlotView(QWidget *parent) :
 {
     setFrameShape(QFrame::NoFrame);
 
-    _grid = new QGridLayout;
-    _grid->setContentsMargins(0, 0, 0, 0);
-    _grid->setSpacing(0);
+    _grid = new PlotLayout;
 
     _titleView  = new PlotTitleView(this);
     _xAxisLabel = new XAxisLabelView(this);
@@ -162,33 +160,20 @@ PlotView::PlotView(QWidget *parent) :
     _yTicLabels = new LabeledRulerView(Qt::AlignLeft,this);
     _curvesView = new CurvesView(this);
 
-    _grid->addWidget(_yAxisLabel,0,0,4,1);
-    _grid->addWidget(_yTicLabels,0,1,4,1);
-    _grid->addWidget(  _tlCorner,0,2,1,1);
-    _grid->addWidget(     _tTics,0,3,1,1);
-    _grid->addWidget(  _trCorner,0,4,1,1);
-    _grid->addWidget(     _lTics,1,2,2,1);
-    _grid->addWidget( _titleView,1,3,1,1);
-    _grid->addWidget(     _rTics,1,4,2,1);
-    _grid->addWidget(_curvesView,2,3,1,1);
-    _grid->addWidget(  _blCorner,3,2,1,1);
-    _grid->addWidget(     _bTics,3,3,1,1);
-    _grid->addWidget(  _brCorner,3,4,1,1);
-    _grid->addWidget(_xTicLabels,4,1,1,5);
-    _grid->addWidget(_xAxisLabel,5,1,1,5);
-
-    _grid->setRowStretch(0,0);
-    _grid->setRowStretch(1,0);
-    _grid->setRowStretch(2,0);
-    _grid->setRowStretch(3,0);
-    _grid->setRowStretch(4,0);
-    _grid->setRowStretch(5,0);
-
-    _grid->setColumnStretch(0,0);
-    _grid->setColumnStretch(1,0);
-    _grid->setColumnStretch(2,0);
-    _grid->setColumnStretch(3,0);
-    _grid->setColumnStretch(4,0);
+    _titleView->setWhatsThis("titleView");
+    _xAxisLabel->setWhatsThis("xAxisLabel");
+    _yAxisLabel->setWhatsThis("yAxisLabel");
+    _tlCorner->setWhatsThis("tlCorner");
+    _trCorner->setWhatsThis("trCorner");
+    _blCorner->setWhatsThis("blCorner");
+    _brCorner->setWhatsThis("brCorner");
+    _tTics->setWhatsThis("tTics");
+    _bTics->setWhatsThis("bTics");
+    _rTics->setWhatsThis("rTics");
+    _lTics->setWhatsThis("lTics");
+    _xTicLabels->setWhatsThis("xTicLabels");
+    _yTicLabels->setWhatsThis("yTicLabels");
+    _curvesView->setWhatsThis("curvesView");
 
     _childViews << _titleView
                 << _xAxisLabel
@@ -198,8 +183,8 @@ PlotView::PlotView(QWidget *parent) :
                 << _xTicLabels << _yTicLabels
                 << _curvesView;
 
-
     foreach ( QWidget* widget, _childViews ) {
+        _grid->addWidget(widget);
         widget->installEventFilter(this);
     }
 

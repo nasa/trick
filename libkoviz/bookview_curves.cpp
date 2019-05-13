@@ -1056,13 +1056,13 @@ void CurvesView::_paintErrorplot(const QTransform &T,
 
 QSize CurvesView::minimumSizeHint() const
 {
-    QSize s(50,50);
+    QSize s;
     return s;
 }
 
 QSize CurvesView::sizeHint() const
 {
-    QSize s(200,200);
+    QSize s;
     return s;
 }
 

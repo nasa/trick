@@ -77,7 +77,8 @@ SOURCES += bookmodel.cpp \
            curvemodel.cpp \
            csvmodel.cpp \
            programmodel.cpp \
-           session.cpp
+           session.cpp \
+           plotlayout.cpp
 
 HEADERS  += bookmodel.h \
             bookidxview.h \
@@ -130,7 +131,8 @@ HEADERS  += bookmodel.h \
             curvemodel.h \
             csvmodel.h \
             programmodel.h \
-            session.h
+            session.h \
+            plotlayout.h
 
 FLEXSOURCES = product_lexer.l
 BISONSOURCES = product_parser.y

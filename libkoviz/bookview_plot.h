@@ -18,6 +18,7 @@
 #include "bookview_curves.h"
 #include "bookview_xaxislabel.h"
 #include "bookview_yaxislabel.h"
+#include "plotlayout.h"
 
 class PlotView : public BookIdxView
 {
@@ -35,7 +36,7 @@ protected:
     virtual QSize sizeHint() const;
 
 private:
-    QGridLayout* _grid;
+    PlotLayout* _grid;
     PlotTitleView* _titleView ;
     XAxisLabelView* _xAxisLabel;
     YAxisLabelView* _yAxisLabel;
