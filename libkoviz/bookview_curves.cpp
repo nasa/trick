@@ -1169,6 +1169,12 @@ QPixmap* CurvesView::_createLivePixmap()
 {
     QPixmap* livePixmap = new QPixmap(viewport()->rect().size());
 
+    if ( viewport()->rect().size().width() == 0 ||
+         viewport()->rect().size().height() == 0 ) {
+        delete livePixmap;
+        return 0;
+    }
+
     QPainter painter(livePixmap);
     painter.setRenderHint(QPainter::Antialiasing);
 
