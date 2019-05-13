@@ -26,15 +26,15 @@ void Trick::MonteCarlo::dryrun() {
             of.open(std::string(buffer_stream.str() + "/monte_input").c_str()) ;
             of << "# This run can be executed in stand alone (non-Monte Carlo) mode by running\n"
              "# the S_main executable with this file specified as the input file.\n\n" ;
-            of << "if (sys.version_info > (3, 0)):" << std::endl ;
-            of << "    exec(open(\"" << command_line_args_get_input_file() << "\").read())" << std::endl ;
-            of << "else:" << std::endl ;
-            of << "    execfile(\"" << command_line_args_get_input_file() << "\")" << std::endl << std::endl ;
-            of << "trick.mc_set_enabled(0)" << std::endl ;
+            of << "if (sys.version_info > (3, 0)):\n";
+            of << "    exec(open(\"" << command_line_args_get_input_file() << "\").read())\n";
+            of << "else:\n";
+            of << "    execfile(\"" << command_line_args_get_input_file() << "\")\n\n";
+            of << "trick.mc_set_enabled(0)\n";
             for (std::vector<std::string>::size_type j = 0; j < curr_run->variables.size(); ++j) {
-                of << curr_run->variables[j] << std::endl ;
+                of << curr_run->variables[j] << "\n";
             }
-            of << "trick.set_output_dir(\"" << buffer_stream.str() << "\")" << std::endl ;
+            of << "trick.set_output_dir(\"" << buffer_stream.str() << "\")\n";
             of << "trick.mc_set_current_run(" << curr_run->id << ")" << std::endl ;
             of.close() ;
         }
