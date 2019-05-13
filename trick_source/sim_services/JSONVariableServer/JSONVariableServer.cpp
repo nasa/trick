@@ -183,10 +183,10 @@ int Trick::JSONVariableServer::restart() {
 }
 
 void Trick::JSONVariableServer::dump( std::ostream & oss ) {
-    oss << "Trick::JSONVariableServer (" << name << ")" << std::endl ;
-    oss << "    enabled = " << enabled << std::endl ;
-    oss << "    source_address = " << source_address << std::endl ;
-    oss << "    port = " << port << std::endl ;
+    oss << "Trick::JSONVariableServer (" << name << ")\n";
+    oss << "    enabled = " << enabled << "\n";
+    oss << "    source_address = " << source_address << "\n";
+    oss << "    port = " << port << "\n";
     oss << "    user_port_requested = " << user_port_requested << std::endl ;
     Trick::ThreadBase::dump(oss) ;
 }
