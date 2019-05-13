@@ -116,7 +116,7 @@ void Trick::ClassicCheckPointAgent::write_decl(std::ostream& chkpnt_os, ALLOC_IN
 
     if ( info->num_index == 0 ) {
 
-        chkpnt_os << type_spec << " " << info->name << ";" << std::endl;
+        chkpnt_os << type_spec << " " << info->name << ";\n";
 
     } else if ((info->num_index > 0) && (info->num_index <= TRICK_MAX_INDEX)) {
         int ii;
@@ -978,7 +978,7 @@ void Trick::ClassicCheckPointAgent::write_rvalue( std::ostream& chkpnt_os, void*
 
                     array_len = attr->index[curr_dim].size ;
 
-                    chkpnt_os << std::endl;
+                    chkpnt_os << "\n";
 
                     for (ii=0 ; ii < curr_dim+1 ; ii++) {
                         chkpnt_os << "    ";
@@ -993,7 +993,7 @@ void Trick::ClassicCheckPointAgent::write_rvalue( std::ostream& chkpnt_os, void*
                             // Conditionally line-break and indent.
                             if (( (ii+1) % array_elements_per_line[attr->type]) == 0 ) {
                                 // Line-break.
-                                chkpnt_os << std::endl;
+                                chkpnt_os << "\n";
                                 // Indent.
                                 for (jj=0 ; jj < curr_dim+1 ; jj++) {
                                     chkpnt_os << "    ";
@@ -1011,7 +1011,7 @@ void Trick::ClassicCheckPointAgent::write_rvalue( std::ostream& chkpnt_os, void*
 
                 int ii;
 
-                chkpnt_os << std::endl;
+                chkpnt_os << "\n";
                 for (ii=0 ; ii < curr_dim+1 ; ii++) {
                     chkpnt_os << "    ";
                 }
@@ -1024,7 +1024,7 @@ void Trick::ClassicCheckPointAgent::write_rvalue( std::ostream& chkpnt_os, void*
                     write_rvalue( chkpnt_os, address, attr, curr_dim + 1, offset * attr->index[curr_dim].size + ii);
                 }
 
-                chkpnt_os << std::endl;
+                chkpnt_os << "\n";
 
                 for (ii=0 ; ii < curr_dim+1 ; ii++) {
                     chkpnt_os << "    " ;
