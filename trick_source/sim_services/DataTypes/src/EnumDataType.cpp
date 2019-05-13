@@ -161,14 +161,14 @@ void EnumDataType::printValue(std::ostream &s, void *address) const {
 std::string EnumDataType::toString() const {
     std::stringstream ss;
     int enum_count = enum_list.size() ;
-    ss << "enum {" << std::endl;
+    ss << "enum {\n";
     for (int ii=0; ii < enum_count ; ii++) {
         if (ii) {
-            ss << "," << std::endl;
+            ss << ",\n";
         }
         ss << enum_list[ii]->toString();
     }
-    ss << "}" << std::endl;
+    ss << "}\n";
     return ss.str();
 }
 

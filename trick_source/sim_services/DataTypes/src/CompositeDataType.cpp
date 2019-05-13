@@ -216,12 +216,12 @@ void CompositeDataType::printValue(std::ostream &s, void *address) const {
 std::string CompositeDataType::toString() const {
    std::stringstream ss;
    int memberCount = memberList.size() ;
-   ss << "composite {" << std::endl;
+   ss << "composite {\n";
    for (int ii=0; ii < memberCount ; ii++) {
        ss << memberList[ii]->toString();
-       ss << ";" << std::endl;
+       ss << ";\n";
    }
-   ss << "}" << std::endl;
+   ss << "}\n";
    return ss.str();
 }
 
