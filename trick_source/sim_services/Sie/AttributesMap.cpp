@@ -64,15 +64,15 @@ void Trick::AttributesMap::print_xml(std::ofstream & sie_out ) {
         ATTRIBUTES * attr = (*it).second ;
         std::string class_name = (*it).first;
         std::replace(class_name.begin(), class_name.end(), ':', '_');
-        sie_out << "  <class name=\"" <<  class_name << "\">" << std::endl ;
+        sie_out << "  <class name=\"" <<  class_name << "\">\n" ;
         while ( attr->name[0] != '\0' and (attr->type_name != NULL)) {
             sie_out << "    <member" ;
-            sie_out << std::endl << "      name=\"" << attr->name << "\"" ;
+            sie_out << "\n      name=\"" << attr->name << "\"" ;
             std::string type_name = attr->type_name;
             std::replace(type_name.begin(), type_name.end(), ':', '_');
-            sie_out << std::endl << "      type=\"" << type_remove_dims(type_name) << "\"" ;
-            sie_out << std::endl << "      io_attributes=\"" << attr->io << "\"" ;
-            sie_out << std::endl << "      units=\"" ;
+            sie_out << "\n      type=\"" << type_remove_dims(type_name) << "\"" ;
+            sie_out << "\n      io_attributes=\"" << attr->io << "\"" ;
+            sie_out << "\n      units=\"" ;
             // If the mods bit is set for using -- as the units
             if ( attr->mods & TRICK_MODS_UNITSDASHDASH ) {
                 sie_out << "--" ;
@@ -83,18 +83,18 @@ void Trick::AttributesMap::print_xml(std::ofstream & sie_out ) {
 
             std::string description = attr->des;
             if ( ! description.empty() ) {
-                sie_out << std::endl << "      description=\"" << replace_special_chars(description) << "\"" ;
+                sie_out << "\n      description=\"" << replace_special_chars(description) << "\"" ;
             }
-            sie_out << ">" << std::endl ;
+            sie_out << ">\n" ;
             if ( attr->num_index > 0 ) {
                 for (jj = 0; jj < attr->num_index; jj++) {
-                    sie_out << "      <dimension>" << attr->index[jj].size << "</dimension>" << std::endl ;
+                    sie_out << "      <dimension>" << attr->index[jj].size << "</dimension>\n" ;
                 }
             }
-            sie_out << "    </member>" << std::endl ;
+            sie_out << "    </member>\n" ;
             attr++ ;
         }
-        sie_out << "  </class>" << std::endl << std::endl ;
+        sie_out << "  </class>\n\n" ;
     }
 }
 
