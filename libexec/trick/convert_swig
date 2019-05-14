@@ -60,6 +60,7 @@ my %sim ;
 my %out_of_date ;
 my ($version, $thread, $year) ;
 my %processed_templates ;
+my $global_template_typedefs ;
 
 my $typedef_def = qr/typedef\s+                            # the word typedef
                (?:[_A-Za-z][\s\w]*\s*)                     # resolved type
@@ -336,6 +337,7 @@ sub process_file() {
         }
         print OUT "\n$new_contents" ;
         print OUT "$contents\n" ;
+        print OUT $global_template_typedefs ;
         # Add a trick_cast_as macro line for each class parsed in the file.  These lines must appear at the bottom of the
         # file to ensure they are not in a namespace directive and they are after the #define statements they depend on.
         undef %class_typemap_printed ;
@@ -638,13 +640,27 @@ sub process_class($$$$$) {
 
                     my ($template_type_no_sp) = $template_full_type ;
                     $template_type_no_sp =~ s/\s//g ;
+
+                    # If the type is qualified, assume it's fully qualified and put the
+                    # %template directive in the global namespace.
+                    # See https://github.com/nasa/trick/issues/768
+                    my $qualified = $template_type_no_sp =~ /^\w+(::)\w+</ ;
                     #print "*** template_type_no_sp = $template_type_no_sp ***\n" ;
                     if ( ! exists $processed_templates{$template_type_no_sp} ) {
+
                         $$new_contents_ref .= "\n#define TRICK_SWIG_TEMPLATE_$class_name${var_name}_template\n" ;
-                        $template_typedefs .= "\n#ifdef TRICK_SWIG_TEMPLATE_$class_name${var_name}_template\n" ;
-                        $template_typedefs .= "\%template ($class_name${var_name}_template) $template_full_type ;\n" ;
-                        $template_typedefs .= "#undef TRICK_SWIG_TEMPLATE_$class_name${var_name}_template\n" ;
-                        $template_typedefs .= "#endif\n" ;
+
+                        my $typedef = "\n#ifdef TRICK_SWIG_TEMPLATE_$class_name${var_name}_template\n" ;
+                        $typedef .= "\%template($class_name${var_name}_template) $template_full_type;\n" ;
+                        $typedef .= "#undef TRICK_SWIG_TEMPLATE_$class_name${var_name}_template\n" ;
+                        $typedef .= "#endif\n" ;
+
+                        if ($qualified) {
+                            $global_template_typedefs .= $typedef
+                        } else {
+                            $template_typedefs .= $typedef
+                        }
+
                         $processed_templates{$template_type_no_sp} = 1 ;
                     }
                 }
