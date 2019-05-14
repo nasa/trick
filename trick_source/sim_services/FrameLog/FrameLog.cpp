@@ -19,15 +19,22 @@
 Trick::FrameLog * the_fl = NULL ;
 
 //Constructor.
-Trick::FrameLog::FrameLog(Trick::Clock & in_clock) : clock(in_clock) {
-    frame_log_flag = false ;
-    drg_trick = NULL ;
-    drg_frame = NULL ;
-    log_init_start = false;
-    log_init_end = false;
-    fp_time_main = NULL;
-    fp_time_other = NULL;
-    tl_max_samples = 100000; // default maximum # of jobs we can timeline
+Trick::FrameLog::FrameLog(Trick::Clock & in_clock) : 
+ frame_log_flag(false),
+ drg_trick(NULL),
+ drg_frame(NULL),
+ plots_per_page(6),
+ timeline(NULL),
+ timeline_other(NULL),
+ num_threads(1),
+ tl_max_samples(100000),
+ tl_count(NULL),
+ tl_other_count(NULL),
+ log_init_start(false),
+ log_init_end(false),
+ fp_time_main(NULL),
+ fp_time_other(NULL),
+ clock(in_clock) {
 
     time_value_attr.type = TRICK_LONG_LONG ;
     time_value_attr.size = sizeof(long long) ;
@@ -765,30 +772,30 @@ int Trick::FrameLog::create_DP_job_files() {
     fprintf(fpx, "        </plot>\n");
     fprintf(fpx, "    </page>\n");
 
-    //unsigned int total_pages = (unsigned int)(drg_users.size() / 8) + 1 ;
+    //unsigned int total_pages = (unsigned int)(drg_users.size() / plots_per_page) + 1 ;
     unsigned int total_pages ;
     if ( drg_users.size() <= 1 ) {
         total_pages = 1 ;
     } else {
-        total_pages = (unsigned int)((drg_users.size() - 2)/ 8) + 1 ;
+        total_pages = (unsigned int)((drg_users.size() - 2)/ plots_per_page) + 1 ;
     }
     unsigned int page_count ;
     for ( page_count = 0 ; page_count < total_pages ; page_count++ ) {
         unsigned int ii = 0 ;
         // this check is to avoid empty page creation
-        if ((page_count * 8 + ii + 1) >= drg_users.size()) {
+        if ((page_count * plots_per_page + ii + 1) >= drg_users.size()) {
         	continue;
         }
         fprintf(fpx, "    <page>\n");
-        for ( ii = 0 ; ii < 8 and (page_count * 8 + ii + 1) < drg_users.size() ; ii++ ) {
+        for ( ii = 0 ; ii < plots_per_page and (page_count * plots_per_page + ii + 1) < drg_users.size() ; ii++ ) {
             fprintf(fpx, "        <plot grid=\"yes\">\n");
-            fprintf(fpx, "            <title>Child thread %u Frame Scheduled Jobs</title>\n", (page_count * 8 + ii + 1));
+            fprintf(fpx, "            <title>Child thread %u Frame Scheduled Jobs</title>\n", (page_count * plots_per_page + ii + 1));
             fprintf(fpx, "            <xaxis> <label>Time</label> <units>s</units> </xaxis>\n");
             fprintf(fpx, "            <yaxis> <label>Frame Scheduled Jobs Time</label> </yaxis>\n");
             fprintf(fpx, "            <curve>\n");
             fprintf(fpx, "                <var>sys.exec.out.time</var>\n");
             std::ostringstream group_name ;
-            group_name << "trick_frame_userjobs_C" << (page_count * 8 + ii + 1) ;
+            group_name << "trick_frame_userjobs_C" << (page_count * plots_per_page + ii + 1) ;
             fprintf(fpx, "                <var scale=\"%g\" line_color=\"red\" label=\"Frame Sched Time\">%s.frame_sched_time</var>\n",
                          time_scale,group_name.str().c_str());
             fprintf(fpx, "            </curve>\n");
@@ -840,10 +847,10 @@ int Trick::FrameLog::create_DP_job_files() {
         bg_color = (char *)"cornsilk2";
         for ( drb_it = drg_users[ii]->rec_buffer.begin() + 1 ; drb_it != drg_users[ii]->rec_buffer.end() ; drb_it++ ) {
             if ( ! (*drb_it)->name.compare(0, 5, "frame") ) continue ;
-            // 8 job plots per page
-            if ((plots == 0) || (plots > 8)) {
+            // plots_per_page job plots per page
+            if ((plots == 0) || (plots > plots_per_page)) {
                 pages++;
-                vcells = (total_plots/pages > 8) * 4;
+                vcells = (total_plots/pages > plots_per_page) * 4;
                 if (pages > 1) {
                     fprintf(fpx, "    </page>\n");
                 }
@@ -898,10 +905,10 @@ int Trick::FrameLog::create_DP_job_files() {
         }
         //other good colors in case you need more:
             //bg_color = "khaki3";
-        // 8 job plots per page
-        if ((plots == 0) || (plots > 8)) {
+        // plots_per_page job plots per page
+        if ((plots == 0) || (plots > plots_per_page)) {
             pages++;
-            vcells = (total_plots/pages > 8) * 4;
+            vcells = (total_plots/pages > plots_per_page) * 4;
             if (pages > 1) {
                 fprintf(fpx, "    </page>\n");
             }
