@@ -20,13 +20,13 @@ void Trick::EnumAttributesMap::print_xml(std::ofstream & sie_out ) {
         if ( enum_attr != NULL ) {
             std::string name = it->first;
             std::replace(name.begin(), name.end(), ':', '_');
-            sie_out << "  <enumeration name=\"" << name << "\">" << std::endl ;
+            sie_out << "  <enumeration name=\"" << name << "\">\n" ;
             while ( enum_attr->label[0] != '\0' ) {
                 sie_out << "      <pair label=\"" << enum_attr->label << "\"" ;
-                sie_out << " value=\"" << enum_attr->value << "\"/>" << std::endl ;
+                sie_out << " value=\"" << enum_attr->value << "\"/>\n" ;
                 enum_attr++ ;
             }
-            sie_out << "  </enumeration>" << std::endl << std::endl ;
+            sie_out << "  </enumeration>\n\n" ;
         }
     }
 }

@@ -34,7 +34,7 @@ The Trick Simulation Environment, developed at the NASA Johnson Space Center, is
         <tr>
             <th><a href="https://github.com/nasa/trick/wiki/Related-Projects">Related Projects</a></th>
             <th><a href="https://github.com/nasa/trick/wiki/FAQ">Frequently Asked Questions</a></th>
-            <th><a href="https://github.com/nasa/trick/wiki/How-To-Home">How-To Guides</a></th>
+            <th><a href="https://github.com/nasa/trick/wiki/How‐To-Guides">How-To Guides</a></th>
         </tr>
     </thead>
     <tbody>

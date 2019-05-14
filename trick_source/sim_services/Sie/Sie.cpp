@@ -56,19 +56,19 @@ void Trick::Sie::top_level_objects_print(std::ofstream & sie_out) {
 
         if ( alloc_info != NULL ) {
             sie_out << "  <top_level_object" ;
-            sie_out << std::endl << "   name=\"" << vit->first << "\"" ;
-            sie_out << std::endl << "   type=\"" ;
+            sie_out << "\n   name=\"" << vit->first << "\"" ;
+            sie_out << "\n   type=\"" ;
             std::string type = trickTypeCharString(alloc_info->type, alloc_info->user_type_name );
             std::replace(type.begin(), type.end(), ':', '_');
-            sie_out <<  type << "\"" << std::endl ;
+            sie_out <<  type << "\"\n" ;
             sie_out << "   alloc_memory_init=\"" << alloc_info->alloced_in_memory_init << "\"";
-            sie_out << ">" << std::endl ;
+            sie_out << ">\n" ;
             if ( alloc_info->num_index > 0 ) {
                 for (jj = 0; jj < alloc_info->num_index; jj++) {
-                    sie_out << "        <dimension>" << alloc_info->index[jj] << "</dimension>" << std::endl ;
+                    sie_out << "        <dimension>" << alloc_info->index[jj] << "</dimension>\n" ;
                 }
             }
-            sie_out << "  </top_level_object>" << std::endl << std::endl ;
+            sie_out << "  </top_level_object>\n\n" ;
         }
     }
 }
@@ -77,12 +77,12 @@ void Trick::Sie::sie_print_xml() {
     std::ofstream sie_out ;
     std::string file_name = std::string(command_line_args_get_default_dir()) + "/" + "S_sie.resource" ;
     sie_out.open(file_name.c_str()) ;
-    sie_out << "<?xml version=\"1.0\"?>" << std::endl << std::endl ;
-    sie_out << "<sie>" << std::endl << std::endl ;
+    sie_out << "<?xml version=\"1.0\"?>\n\n" ;
+    sie_out << "<sie>\n\n" ;
     class_attr_map->print_xml(sie_out) ;
     enum_attr_map->print_xml(sie_out) ;
     top_level_objects_print(sie_out) ;
-    sie_out << "</sie>" << std::endl ;
+    sie_out << "</sie>\n" ;
     sie_out.close() ;
 }
 
@@ -90,10 +90,10 @@ void Trick::Sie::class_attr_map_print_xml() {
     std::ofstream sie_out ;
     std::string file_name = std::string(command_line_args_get_default_dir()) + "/" + "S_sie_class.xml" ;
     sie_out.open(file_name.c_str()) ;
-    sie_out << "<?xml version=\"1.0\"?>" << std::endl << std::endl ;
-    sie_out << "<sie>" << std::endl ;
+    sie_out << "<?xml version=\"1.0\"?>\n\n" ;
+    sie_out << "<sie>\n" ;
     class_attr_map->print_xml(sie_out) ;
-    sie_out << "</sie>" << std::endl ;
+    sie_out << "</sie>\n" ;
     sie_out.close() ;
 }
 
@@ -101,10 +101,10 @@ void Trick::Sie::enum_attr_map_print_xml() {
     std::ofstream sie_out ;
     std::string file_name = std::string(command_line_args_get_default_dir()) + "/" + "S_sie_enum.xml" ;
     sie_out.open(file_name.c_str()) ;
-    sie_out << "<?xml version=\"1.0\"?>" << std::endl << std::endl ;
-    sie_out << "<sie>" << std::endl ;
+    sie_out << "<?xml version=\"1.0\"?>\n\n" ;
+    sie_out << "<sie>\n" ;
     enum_attr_map->print_xml(sie_out) ;
-    sie_out << "</sie>" << std::endl ;
+    sie_out << "</sie>\n" ;
     sie_out.close() ;
 }
 
@@ -112,10 +112,10 @@ void Trick::Sie::top_level_objects_print_xml() {
     std::ofstream sie_out ;
     std::string file_name = std::string(command_line_args_get_default_dir()) + "/" + "S_sie_top_level_objects.xml" ;
     sie_out.open(file_name.c_str()) ;
-    sie_out << "<?xml version=\"1.0\"?>" << std::endl << std::endl ;
-    sie_out << "<sie>" << std::endl ;
+    sie_out << "<?xml version=\"1.0\"?>\n\n" ;
+    sie_out << "<sie>\n" ;
     top_level_objects_print(sie_out) ;
-    sie_out << "</sie>" << std::endl ;
+    sie_out << "</sie>\n" ;
     sie_out.close() ;
 }
 

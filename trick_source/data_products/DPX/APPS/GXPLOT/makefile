@@ -83,6 +83,7 @@ ${LIBDIR}/libDPV.a:
 
 clean:
 	${RM} $(OBJDIR)
+	${RM} ${TRICK_HOME}/bin/trick-gxplot
 
 spotless: clean
 

@@ -91,7 +91,7 @@ void * Trick::MessageTCDeviceListenThread::thread_body() {
 }
 
 void Trick::MessageTCDeviceListenThread::dump( std::ostream & oss ) {
-    oss << "Trick::MessageTCDeviceListenThread (" << name << ")" << std::endl ;
+    oss << "Trick::MessageTCDeviceListenThread (" << name << ")\n";
     oss << "    port = " << get_port() << std::endl ;
     Trick::ThreadBase::dump(oss) ;
 }
