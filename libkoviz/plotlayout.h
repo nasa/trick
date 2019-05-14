@@ -17,7 +17,7 @@ public:
 
     virtual void addItem(QLayoutItem *item);
     virtual void addWidget(QWidget *widget);
-    virtual int count() const override;
+    virtual int count() const;
     virtual QLayoutItem *itemAt(int index) const;
     virtual void setGeometry(const QRect &rect);
     virtual QSize sizeHint() const;
