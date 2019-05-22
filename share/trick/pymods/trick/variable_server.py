@@ -6,13 +6,25 @@ a tutorial and examples.
 """
 
 from collections import namedtuple
-import itertools
 import os
 import re
 import socket
 import struct
 import threading
 import time
+
+# In Python 2, basestring is the parent for both str (ASCII) and unicode.
+# In Python 3, str and unicode were unified into str, and basestring is gone.
+try:
+    basestring
+except NameError:
+    basestring = str
+
+# In Python 3, itertools.izip became zip.
+try:
+    from itertools import izip as zip
+except ImportError:
+    pass
 
 class VariableServerError(Exception):
     '''
@@ -248,7 +260,7 @@ class VariableServer(object):
                     # Besides, it would be corrected with the next
                     # message.
                     if len(values) <= len(self._variables):
-                        for variable, value in itertools.izip(
+                        for variable, value in zip(
                           self._variables, values):
                             variable.value, variable.units = \
                               _parse_value(value)
@@ -460,7 +472,7 @@ class VariableServer(object):
         _assert_value_count(len(variables), len(values))
 
         # update each Variable, checking units conversions
-        for variable, entry in itertools.izip(variables, values):
+        for variable, entry in zip(variables, values):
             value, units = _parse_value(entry)
             if variable.units is not None:
                 _assert_units_conversion(variable.name, variable.units, units)
@@ -752,7 +764,7 @@ class VariableServer(object):
             False to send values asynchronously on an independent
             thread.
         """
-        self.send('trick.var_set_copy_mode({0})'.format(bool(enable)),
+        self.send('trick.var_set_write_mode({0})'.format(bool(enable)),
                   self.Channel.ASYNC)
 
     def validate_addresses(self, validate=True, channel=Channel.BOTH):
@@ -869,13 +881,16 @@ class VariableServer(object):
         send and expect a response from the variable server. The newline
         character is stripped.
 
+        Parameters
+        ----------
+        synchronous_channel : bool
+            True to read from the synchronous channel.
+            False to read from the asynchronous channel.
+
         Returns
         -------
         Message
             The next available message.
-        synchronous_channel : bool
-            True to read from the synchronous channel.
-            False to read from the asynchronous channel.
 
         Raises
         ------
@@ -977,11 +992,15 @@ class VariableServer(object):
         called after this one. A new connection can be established only
         by creating a new instance.
         """
+        # In Python 3, self._asynchronous_file_interface.close() hangs if
+        # shutdown isn't called first. Something to do with self._thread
+        # always blocking on a read from the asynchronous_socket. I suspect
+        # Python 3's new io module.
         self._open = False
-        self._synchronous_file_interface.close()
-        self._asynchronous_file_interface.close()
         self._synchronous_socket.shutdown(socket.SHUT_RDWR)
         self._asynchronous_socket.shutdown(socket.SHUT_RDWR)
+        self._synchronous_file_interface.close()
+        self._asynchronous_file_interface.close()
         self._synchronous_socket.close()
         self._asynchronous_socket.close()
         self._thread.join()
