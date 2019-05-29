@@ -73,11 +73,6 @@ inline void Job::_do_stats()
             rt =  0.0;
         }
 
-        if ( time < 1.0 && rt > 2000000.0 ) {
-            // Throw out bad points at start of sim
-            continue;
-        }
-
         if ( cnt > 0 && rt > 0 ) {
             freq = round_10((long)(time*1000000.0) - last_nonzero_timestamp);
             long freq_cnt ;
