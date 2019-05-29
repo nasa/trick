@@ -62,15 +62,15 @@ AC_DEFUN([AX_DMTCP_HOME],[
 AC_DEFUN([AX_TPRO_HOME],[
     AC_ARG_WITH([tpro],
                 AS_HELP_STRING([--with-tpro@<:@=DIR@:>@], [TPRO root directory]),
-                [TPROCTE_HOME="$withval"
+                [TPRO_HOME="$withval"
                  AC_CHECK_FILE([$TPRO_HOME/h/tpro.h],
                                [],
                                AC_MSG_ERROR([could not find $TPRO_HOME/h/tpro.h])
                               )
                 ],
-                [TPROCTE_HOME=""]
+                [TPRO_HOME=""]
                )
-    AC_SUBST([TPROCTE_HOME])
+    AC_SUBST([TPRO_HOME])
 ])
 
 AC_DEFUN([AX_BC635_HOME],[

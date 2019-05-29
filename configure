@@ -624,7 +624,7 @@ USE_ER7_UTILS
 GTEST_HOME
 GSL_HOME
 BC635_HOME
-TPROCTE_HOME
+TPRO_HOME
 DMTCP_HOME
 HDF5_HOME
 UDUNITS_EXCLUDE
@@ -7076,7 +7076,7 @@ fi
 
 # Check whether --with-tpro was given.
 if test "${with_tpro+set}" = set; then :
-  withval=$with_tpro; TPROCTE_HOME="$withval"
+  withval=$with_tpro; TPRO_HOME="$withval"
                  as_ac_File=`$as_echo "ac_cv_file_$TPRO_HOME/h/tpro.h" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $TPRO_HOME/h/tpro.h" >&5
 $as_echo_n "checking for $TPRO_HOME/h/tpro.h... " >&6; }
@@ -7103,7 +7103,7 @@ fi
 
 
 else
-  TPROCTE_HOME=""
+  TPRO_HOME=""
 
 fi
 
