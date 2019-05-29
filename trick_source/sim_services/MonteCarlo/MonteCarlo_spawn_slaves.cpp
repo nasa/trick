@@ -49,7 +49,7 @@ void Trick::MonteCarlo::initialize_slave(Trick::MonteSlave* slave_to_init) {
        << " --monte_host " << machine_name
        << " --monte_sync_port " << listen_device.port
        << " --monte_client_id " << slave_to_init->id
-       << " -O " << run_directory;
+       << " -O " << slave_output_directory;
     buffer += ss.str();
 
     /** <li> Append user sim options. */

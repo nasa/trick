@@ -19,7 +19,7 @@ void Trick::MonteCarlo::dispatch_run_to_slave(MonteRun *run, MonteSlave *slave) 
         connection_device.port = slave->port;
         if (tc_connect(&connection_device) == TC_SUCCESS) {
             std::stringstream buffer_stream;
-            buffer_stream << run_directory << "/RUN_" << std::setw(5) << std::setfill('0') << run->id;
+            buffer_stream << slave_output_directory << "/RUN_" << std::setw(5) << std::setfill('0') << run->id;
             std::string buffer = "";
             for (std::vector<std::string>::size_type j = 0; j < run->variables.size(); ++j) {
                 buffer += run->variables[j] + "\n";

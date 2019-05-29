@@ -34,6 +34,12 @@ int Trick::MonteCarlo::construct_run_directory() {
             return -1;
         }
         run_directory = run_base_directory + "MONTE_" + run_directory;
+
+        // If the user hasn't set an output directory for slaves, default to
+        // the same location as the master's output.
+        if (slave_output_directory.empty()) {
+            slave_output_directory = run_directory;
+        }
     }
 
     if  (access(run_directory.c_str(), F_OK) != 0) {

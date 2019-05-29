@@ -259,6 +259,9 @@ namespace Trick {
         /** Options to be passed to the slave sim. */
         std::string slave_sim_options;
 
+        /** Base output directory for slaves. */
+        std::string slave_output_directory;
+
         private:
         int run_queue(Trick::ScheduledJobQueue* queue, std::string in_string) ;
 

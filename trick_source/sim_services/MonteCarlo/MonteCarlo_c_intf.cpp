@@ -110,6 +110,12 @@ extern "C" void mc_set_slave_sim_options(const char *slave_sim_options) {
     }
 }
 
+extern "C" void mc_set_slave_output_directory(const char *slave_output_directory) {
+    if ( the_mc != NULL ) {
+        the_mc->slave_output_directory = std::string(slave_output_directory ? slave_output_directory : "");
+    }
+}
+
 extern "C" const char *mc_get_slave_sim_options(void) {
     if ( the_mc != NULL ) {
         return the_mc->slave_sim_options.c_str();
