@@ -933,17 +933,17 @@ QString SnapReport::report()
 
 void Snap::_setLogFileNames()
 {
-    if ( TrickVersion(_rundir).versionNumber() < VersionNumber("13.4.dev-0") ) {
-        _fileNameTrickJobs = _rundir + "/log_trickjobs.trk";
-    } else {
+    _fileNameTrickJobs = _rundir + "/log_trickjobs.trk";
+    if ( !QFileInfo(_fileNameTrickJobs).exists() ) {
         _fileNameTrickJobs = _rundir + "/log_frame_trickjobs.trk";
     }
 
     if ( !QFileInfo(_fileNameTrickJobs).exists() ) {
         _fileNameTrickJobs = _rundir + "/log_snap_trickjobs.trk";
         if ( !QFileInfo(_fileNameTrickJobs).exists() ) {
-            _err_stream << "koviz [error]: cannot find " << _fileNameTrickJobs
-                        << " or log_snap_trickjobs.trk files in "
+            _err_stream << "koviz [error]: cannot find log_trickjobs.trk, "
+                        << "log_frame_trickjobs.trk "
+                        << "or log_snap_trickjobs.trk files in "
                         << "directory " << _rundir;
             throw std::invalid_argument(_err_string.toLatin1().constData());
         }
@@ -970,7 +970,7 @@ void Snap::_setLogFileNames()
         _fileNameLogFrame = _rundir + "/log_snap_frame.trk";
         if ( !QFileInfo(_fileNameLogFrame).exists() ) {
             _err_stream << "koviz [error]: cannot find log_frame.trk or "
-                        << "log_snap_frame.trk files n "
+                        << "log_snap_frame.trk files in "
                         << "directory " << _rundir;
             throw std::invalid_argument(_err_string.toLatin1().constData());
         }
