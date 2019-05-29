@@ -259,10 +259,14 @@ build/top.i: build/CP_instances
 
 SWIG_SRC = \$(subst .i,.cpp,\$(SWIG_I)) $swig_src_dir/top.cpp
 
-\$(SWIG_SRC) : %.cpp: %.i | \$(SWIG_I)
+\$(SWIG_SRC) : %.cpp: %.i %.d | \$(SWIG_I)
 \t\$(PRINT_SWIG)
 \t\@echo \$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -outdir trick -o \$@ \$< >> \$(MAKE_OUT)
-\t\$(ECHO_CMD)\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -outdir trick -o \$@ \$< 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
+\t\$(ECHO_CMD)\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -MMD -MP -outdir trick -o \$@ \$< 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
+
+\$(SWIG_SRC:.cpp=.d): ;
+
+-include \$(SWIG_SRC:.cpp=.d)
 
 SWIG_SRC_CUSTOM_OUTDIR = \$(subst .i,.cpp,\$(SWIG_I_CUSTOM_OUTDIR))\n" ;
 
