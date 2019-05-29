@@ -264,6 +264,7 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     // Angle
     map.insert(QPair<QString,QString>("r","r"),      1.0);
     map.insert(QPair<QString,QString>("r","rad"),    1.0);
+    map.insert(QPair<QString,QString>("r","radian"),    1.0);
     map.insert(QPair<QString,QString>("r","d"),      0.0174532925199433);
     map.insert(QPair<QString,QString>("r","degree"), 0.0174532925199433);
     map.insert(QPair<QString,QString>("r","as"),     4.848136811095362e-06);
