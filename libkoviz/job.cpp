@@ -67,7 +67,7 @@ inline void Job::_do_stats()
     while ( !it->isDone() ) {
 
         double time = it->t();
-        long rt = (long)it->x();
+        long rt = (long)it->y();
 
         if ( rt < 0 ) {
             rt =  0.0;
