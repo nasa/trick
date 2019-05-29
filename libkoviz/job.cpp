@@ -182,7 +182,9 @@ void Job::_parseJobId(const QString &jobId)
     _job_num = name.mid(idx5+1,idx1-idx5-1);
 
     _isFrameTimerJob = false;
-    if ( (jobId.startsWith("frame_userjobs_C") ||
+    if ( (
+         jobId.startsWith("trick_frame_userjobs_C") ||
+         jobId.startsWith("frame_userjobs_C") ||
          jobId.startsWith("snap_userjobs_C")) &&
          jobId.endsWith("frame_sched_time") ) {
         _isFrameTimerJob = true;
@@ -201,8 +203,12 @@ void Job::_parseJobId(const QString &jobId)
         QString strThreadId;
         if ( _job_name.startsWith("snap") ) {
              strThreadId = name.remove(QString("snap_userjobs_C"));
-        } else {
+        } else if ( _job_name.startsWith("frame") ) {
+            // Trick13
              strThreadId = name.remove(QString("frame_userjobs_C"));
+        } else if ( _job_name.startsWith("trick") ) {
+            // Trick17
+            strThreadId = name.remove(QString("trick_frame_userjobs_C"));
         }
         bool ok = false;
         _thread_id = strThreadId.toDouble(&ok);
