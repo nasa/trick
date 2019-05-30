@@ -360,9 +360,6 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     map.insert(QPair<QString,QString>("ohm","ohm"),   1.0);
     map.insert(QPair<QString,QString>("ohm","mohm"),  0.001);
 
-    // Sound
-    map.insert(QPair<QString,QString>("dB","dB"),   1.0);
-
     // Energy
     map.insert(QPair<QString,QString>("J","J"),        1.0);
     map.insert(QPair<QString,QString>("J","mJ"),       0.001);
@@ -396,6 +393,7 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     map.insert(QPair<QString,QString>("--","cnt"), 1.0);
     map.insert(QPair<QString,QString>("--","one"), 1.0);
     map.insert(QPair<QString,QString>("--","1"),   1.0);
+    map.insert(QPair<QString,QString>("--","dB"),   1.0);
 
     // Micro-gravity
     map.insert(QPair<QString,QString>("micro-g","micro-g"), 1.0);
