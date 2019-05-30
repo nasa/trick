@@ -127,6 +127,7 @@ class SnapOptions : public Options
     QString symbolstyle5;
     QString symbolstyle6;
     QString symbolstyle7;
+    bool isPlotAllVars;
 };
 
 SnapOptions opts;
@@ -222,6 +223,7 @@ int main(int argc, char *argv[])
     opts.add("-fg",&opts.foreground,"","Page foreground <#rrggbb|colorName>");
     opts.add("-bg",&opts.background,"","Page background <#rrggbb|colorName>");
     opts.add("-showTables",&opts.showTables,"","Show DP tables");
+    opts.add("-a:{0,1}",&opts.isPlotAllVars,false,"Plot all variables");
 
     opts.parse(argc,argv, QString("koviz"), &ok);
 
@@ -771,6 +773,7 @@ int main(int argc, char *argv[])
 
         if ( isPdf ) {
             PlotMainWindow w(opts.isDebug,
+                             opts.isPlotAllVars,
                              timeNames, startTime, stopTime,
                              tolerance, frequency,
                              shifts,
@@ -890,6 +893,7 @@ int main(int argc, char *argv[])
                 timer.start();
 #endif
                 PlotMainWindow w(opts.isDebug,
+                                 opts.isPlotAllVars,
                                  timeNames,
                                  startTime, stopTime,
                                  tolerance, frequency,
@@ -910,6 +914,7 @@ int main(int argc, char *argv[])
             } else {
 
                 PlotMainWindow w(opts.isDebug,
+                                 opts.isPlotAllVars,
                                  timeNames,
                                  startTime, stopTime,
                                  tolerance, frequency,

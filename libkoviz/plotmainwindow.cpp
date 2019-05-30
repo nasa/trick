@@ -15,6 +15,7 @@
 #include "plotmainwindow.h"
 
 PlotMainWindow::PlotMainWindow(bool isDebug,
+                               bool isPlotAllVars,
         const QStringList &timeNames,
         double startTime, double stopTime,
         double timeMatchTolerance,
@@ -201,6 +202,10 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
                                  _runs->runDirs(), _bookModel,
                                  _bookView->selectionModel(), _monteInputsView,
                                  varsFrame);
+    if ( isPlotAllVars ) {
+        _varsWidget->selectAllVars();
+        _varsWidget->clearSelection();
+    }
     _nbDPVars->addTab(varsFrame,"Vars");
 
     // DP Tab
@@ -1068,6 +1073,7 @@ void PlotMainWindow::_clearTables()
 void PlotMainWindow::_plotAllVars()
 {
     _varsWidget->selectAllVars();
+    _varsWidget->clearSelection();
 }
 
 void PlotMainWindow::_startTimeChanged(double startTime)

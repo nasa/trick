@@ -40,6 +40,7 @@ class PlotMainWindow : public QMainWindow
 
 public:
     explicit PlotMainWindow( bool isDebug,
+                             bool isPlotAllVars,
                              const QStringList& timeNames,
                              double startTime,
                              double stopTime,

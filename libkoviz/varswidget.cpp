@@ -125,7 +125,21 @@ void VarsWidget::_varsSelectModelSelectionChanged(
             }
             QStandardItem* pageItem = _plotModel->itemFromIndex(pageIdx);
             QModelIndexList currVarIdxs = currVarSelection.indexes();
+            int rc = currVarIdxs.size();
+            QProgressDialog progress("Loading curves...", "Abort", 0, rc, this);
+            progress.setWindowModality(Qt::WindowModal);
+            progress.setMinimumDuration(500);
+#ifdef __linux
+            TimeItLinux timer;
+            timer.start();
+#endif
+            int r = 0;
             while ( ! currVarIdxs.isEmpty() ) {
+                // Update progress dialog
+                progress.setValue(r++);
+                if (progress.wasCanceled()) {
+                    break;
+                }
                 QModelIndex varIdx = currVarIdxs.takeFirst();
                 int nPlots = _plotModel->plotIdxs(pageIdx).size();
                 if ( nPlots == 6 ) {
@@ -136,7 +150,15 @@ void VarsWidget::_varsSelectModelSelectionChanged(
                 _plotSelectModel->setCurrentIndex(pageIdx,
                                                   QItemSelectionModel::Current);
                 //_selectCurrentRunOnPageItem(pageItem);
+#ifdef __linux
+                int secs = qRound(timer.stop()/1000000.0);
+                div_t d = div(secs,60);
+                QString msg = QString("Loaded %1 of %2 curves (%3 min %4 sec)")
+                             .arg(r+1).arg(rc).arg(d.quot).arg(d.rem);
+                progress.setLabelText(msg);
+#endif
             }
+            progress.setValue(rc);
         }
     }
 }
