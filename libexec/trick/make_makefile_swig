@@ -259,7 +259,7 @@ build/top.i: build/CP_instances
 
 SWIG_SRC = \$(subst .i,.cpp,\$(SWIG_I)) $swig_src_dir/top.cpp
 
-\$(SWIG_SRC) : %.cpp: %.i %.d | \$(SWIG_I)
+\$(SWIG_SRC) : %.cpp: %.i | %.d \$(SWIG_I)
 \t\$(PRINT_SWIG)
 \t\@echo \$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -MMD -MP -outdir trick -o \$@ \$< >> \$(MAKE_OUT)
 \t\$(ECHO_CMD)\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -MMD -MP -outdir trick -o \$@ \$< 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
@@ -274,11 +274,14 @@ SWIG_SRC_CUSTOM_OUTDIR = \$(subst .i,.cpp,\$(SWIG_I_CUSTOM_OUTDIR))\n" ;
         if ( exists $trick_headers{$file}{python_module_dir} ) {
             (my $swig_file = $file) =~ s/\.[^.]*$/_py.i/ ;
             (my $cpp_file = $file) =~ s/\.[^.]*$/_py.cpp/ ;
+            (my $dependency_file = $file) =~ s/\.[^.]*$/_py.d/ ;
             print MAKEFILE "
-build$cpp_file : build$swig_file | trick/$trick_headers{$file}{python_module_dir}
+build$cpp_file : build$swig_file | build$dependency_file trick/$trick_headers{$file}{python_module_dir}
 \t\$(PRINT_SWIG)
-\t\@echo \$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -outdir trick/$trick_headers{$file}{python_module_dir} -o \$@ \$< >> \$(MAKE_OUT)
-\t\$(ECHO_CMD)\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -outdir trick/$trick_headers{$file}{python_module_dir} -o \$@ \$< 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}\n";
+\t\@echo \$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -MMD -MP  -outdir trick/$trick_headers{$file}{python_module_dir} -o \$@ \$< >> \$(MAKE_OUT)
+\t\$(ECHO_CMD)\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -MMD -MP  -outdir trick/$trick_headers{$file}{python_module_dir} -o \$@ \$< 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
+build$dependency_file: ;
+-include build$dependency_file\n";
         }
     }
 
