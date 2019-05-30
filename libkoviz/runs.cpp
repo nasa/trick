@@ -342,7 +342,7 @@ CurveModel* Runs::curveModel(int row,
     return new CurveModel(tm,tcol,xcol,ycol);
 }
 
-// Example:
+// Example1:
 //
 //     names:
 //        "/the/rain/in/spain/falls/on/the/plain/good/grief",
@@ -354,6 +354,16 @@ CurveModel* Runs::curveModel(int row,
 //         "spokane/falls/on/the/hills",
 //         "space/falls/on/houston"
 //
+// Example2:
+//
+//     names:
+//        "fhw/sensors/GPSR_model/verif/SIM_gpsr_model/RUN_test"
+//        "fhw/sensors/GPSR_model/verif/SIM_gpsr_model/verif/RUN_test"
+//
+//     returns:
+//        "RUN_test"
+//        "verif/RUN_test"
+//
 QStringList Runs::abbreviateRunNames(const QStringList &runNames)
 {
     QStringList names;
@@ -361,16 +371,36 @@ QStringList Runs::abbreviateRunNames(const QStringList &runNames)
     QString prefix = Runs::commonPrefix(runNames,"/");
     QString suffix = Runs::commonSuffix(runNames,"/");
 
+    // Would a run name be empty if we removed the common suffix and prefix?
+    bool isEmpty = false;
     foreach ( QString s, runNames ) {
-
         s = s.remove(prefix);
         if ( s.startsWith("/") ) {
             s = s.mid(1); // remove prepended '/'
         }
-
         s = s.remove(suffix);
         if ( s.endsWith("/") ) {
             s.chop(1);
+        }
+        if ( s.isEmpty() ) {
+            isEmpty = true;
+        }
+    }
+
+    foreach ( QString s, runNames ) {
+
+        if ( !isEmpty || (isEmpty && prefix.length() > suffix.length()) ) {
+            s = s.remove(prefix);
+            if ( s.startsWith("/") ) {
+                s = s.mid(1); // remove prepended '/'
+            }
+        }
+
+        if ( !isEmpty || (isEmpty && suffix.length() > prefix.length()) ) {
+            s = s.remove(suffix);
+            if ( s.endsWith("/") ) {
+                s.chop(1);
+            }
         }
 
         names << s;
