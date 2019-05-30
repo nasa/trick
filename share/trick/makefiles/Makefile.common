@@ -1,22 +1,28 @@
-SHELL := /bin/bash
-CD    := cd
-MV    := /bin/mv
-RM    := /bin/rm
-CP    := /bin/cp
-PWD   = $(shell /bin/pwd)
+SHELL    := /bin/bash
+CD       := cd
+MV       := /bin/mv
+RM       := /bin/rm
+CP       := /bin/cp
+MAKE_OUT := build/MAKE_out
 
-export TRICK_HOME := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))../../..)
+PWD       = $(shell /bin/pwd)
+COLOR     = [34m$(1)[0m
 
-COLOR   = [34m$(1)[0m
-
-ifdef VERBOSE 
-    TRICK_VERBOSE_BUILD=1
+ifdef VERBOSE
+    TRICK_VERBOSE_BUILD := 1
 endif
 
-ifndef TRICK_VERBOSE_BUILD
-    ECHO_CMD = @
+ifdef TRICK_VERBOSE_BUILD
+    ECHO_TO_TERMINAL = @echo $1
 endif
 
+define ECHO_AND_LOG
+$(call ECHO_TO_TERMINAL, $1)
+@echo $1 >> $(MAKE_OUT)
+@$1 2>&1 | $(TEE) -a $(MAKE_OUT) ; exit $${PIPESTATUS[0]}
+endef
+
+export TRICK_HOME      := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))../../..)
 export TRICK_HOST_TYPE := $(shell  $(TRICK_HOME)/bin/trick-gte TRICK_HOST_TYPE)
 export TRICK_VERSION   := $(shell  $(TRICK_HOME)/bin/trick-version -v)
 export TRICK_MAJOR     := $(shell  $(TRICK_HOME)/bin/trick-version -y)

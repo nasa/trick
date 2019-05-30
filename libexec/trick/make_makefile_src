@@ -9,6 +9,7 @@ use Cwd ;
 use Cwd 'abs_path';
 use trick_version ;
 use get_lib_deps ;
+use verbose_build ;
 
 my %processed_files ;
 my %non_lib_processed_files ;
@@ -57,7 +58,7 @@ sub read_lib_deps($@) {
                     read_lib_deps($indent + 1 , @resolved_files) ;
                 }
             }
-        } elsif ( exists( $ENV{TRICK_VERBOSE_BUILD} ) or exists( $ENV{VERBOSE} ) ) {
+        } elsif ( verbose_build() ) {
             print "[34mSkipping[0m   Previously processed file \"$l\"\n" ;
         }
     }
@@ -214,7 +215,7 @@ print MAKEFILE
 #
 ################################################################################
 
-ifdef VERBOSE 
+ifdef VERBOSE
     TRICK_VERBOSE_BUILD=1
 endif
 
@@ -236,8 +237,7 @@ S_OBJECTS = build/S_source.o
 
 build/S_source.o: build/S_source.cpp | build/S_source.d
 \t\$(PRINT_COMPILE)
-\t\@echo \$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c -o \$\@ \$\< >> \$(MAKE_OUT)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c -o \$\@ \$\< 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
+\t\$(call ECHO_AND_LOG,\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c -o \$\@ \$\<)
 
 build/S_source.d: ;
 
@@ -293,8 +293,7 @@ foreach my $extension ( keys %files_by_extension ) {
 
 \${MODEL_OBJECTS$extension} : build/%.o : /%$extension | build/%.d \$\$(dir \$\$\@)
 \t\$(PRINT_COMPILE)
-\t\@echo $command >> \$(MAKE_OUT)
-\t\$(ECHO_CMD)$command 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}" ;
+\t\$(call ECHO_AND_LOG,$command)" ;
 }
 
 print MAKEFILE "
@@ -324,8 +323,7 @@ all: \$(S_MAIN) S_sie.resource
 
 \$(S_MAIN): S_source.hh \$(TRICK_STATIC_LIB) \$(S_OBJECTS) \$(MODEL_OBJECTS)
 \t\$(PRINT_EXE_LINK)
-\t\@echo \$(TRICK_CPPC) -o \$@ \$(TRICK_SYSTEM_LDFLAGS) \$(S_OBJECTS) \$(LINK_LISTS) \$(TRICK_LDFLAGS) \$(TRICK_USER_LINK_LIBS) \$(READ_ONLY_LIBS) \$(LD_WHOLE_ARCHIVE) \$(TRICK_LIBS) \$(LD_NO_WHOLE_ARCHIVE) \$(TRICK_EXEC_LINK_LIBS) >> \$(MAKE_OUT)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) -o \$@ \$(TRICK_SYSTEM_LDFLAGS) \$(S_OBJECTS) \$(LINK_LISTS) \$(TRICK_LDFLAGS) \$(TRICK_USER_LINK_LIBS) \$(READ_ONLY_LIBS) \$(LD_WHOLE_ARCHIVE) \$(TRICK_LIBS) \$(LD_NO_WHOLE_ARCHIVE) \$(TRICK_EXEC_LINK_LIBS) 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
+\t\$(call ECHO_AND_LOG,\$(TRICK_CPPC) -o \$@ \$(TRICK_SYSTEM_LDFLAGS) \$(S_OBJECTS) \$(LINK_LISTS) \$(TRICK_LDFLAGS) \$(TRICK_USER_LINK_LIBS) \$(READ_ONLY_LIBS) \$(LD_WHOLE_ARCHIVE) \$(TRICK_LIBS) \$(LD_NO_WHOLE_ARCHIVE) \$(TRICK_EXEC_LINK_LIBS))
 
 # SIE ==========================================================================
 
@@ -333,8 +331,7 @@ sie: S_sie.resource
 
 S_sie.resource: \$(S_MAIN)
 \t\$(PRINT_SIE)
-\t\@echo ./\$(S_MAIN) sie
-\t\$(ECHO_CMD)./\$(S_MAIN) sie 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}\n" ;
+\t\$(call ECHO_AND_LOG,./\$(S_MAIN) sie)\n" ;
 
 # write out the override files we have read in
 open MAKEFILEOVER, ">build/Makefile_overrides" or die "Could not open build/Makefile_overrides" ;

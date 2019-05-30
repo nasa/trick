@@ -10,6 +10,7 @@ use gte ;
 use Digest::MD5 qw(md5_hex) ;
 use trick_version ;
 use html ;
+use verbose_build ;
 use strict ;
 
 my @exclude_paths ;
@@ -18,7 +19,7 @@ my @ext_lib_paths ;
 my @files_to_process ;
 my @ext_lib_files ;
 my %md5s ;
-my $verbose_build = exists($ENV{'TRICK_VERBOSE_BUILD'}) ;
+my $verbose_build = verbose_build() ;
 my %trick_headers ;
 my %python_modules ;
 my %python_module_dirs ;
@@ -209,8 +210,7 @@ TRICK_FIXED_PYTHON = \\
     $swig_sim_dir/exception.py
 
 \$(TRICK_FIXED_PYTHON): $swig_sim_dir/\% : \${TRICK_HOME}/share/trick/swig/\%
-\t\@echo /bin/cp -f \$< \$@ >> \$(MAKE_OUT)
-\t\$(ECHO_CMD)/bin/cp -f \$< \$@ 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
+\t\$(call ECHO_AND_LOG,/bin/cp -f \$< \$@)
 
 all: \$(TRICK_FIXED_PYTHON)
 
@@ -244,16 +244,13 @@ SWIG_I_CUSTOM_OUTDIR =" ;
 
 define create_convert_swig_rule
 build/%_py.i: /%.\$1
-\t\@echo \${TRICK_HOME}/\$(LIBEXEC)/trick/convert_swig \$\${TRICK_CONVERT_SWIG_FLAGS} \$\$< >> \$(MAKE_OUT)
-\t\$(ECHO_CMD)\${TRICK_HOME}/\$(LIBEXEC)/trick/convert_swig \$\${TRICK_CONVERT_SWIG_FLAGS} \$\$< 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
+\t\$\$(call ECHO_AND_LOG,\${TRICK_HOME}/\$(LIBEXEC)/trick/convert_swig \$\${TRICK_CONVERT_SWIG_FLAGS} \$\$<)
 endef
 
-EXTENSIONS := H h hh hxx h++ hpp
-\$(foreach EXTENSION,\$(EXTENSIONS),\$(eval \$(call create_convert_swig_rule,\$(EXTENSION))))
+\$(foreach EXTENSION,H h hh hxx h++ hpp,\$(eval \$(call create_convert_swig_rule,\$(EXTENSION))))
 
 build/top.i: build/CP_instances
-\t\@echo \${TRICK_HOME}/\${LIBEXEC}/trick/create_top_dot_i >> \$(MAKE_OUT)
-\t\${ECHO_CMD}\${TRICK_HOME}/\${LIBEXEC}/trick/create_top_dot_i 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
+\t\$(call ECHO_AND_LOG,\${TRICK_HOME}/\${LIBEXEC}/trick/create_top_dot_i)
 
 # SWIG_SRC =====================================================================
 
@@ -261,8 +258,7 @@ SWIG_SRC = \$(subst .i,.cpp,\$(SWIG_I)) $swig_src_dir/top.cpp
 
 \$(SWIG_SRC) : %.cpp: %.i | %.d \$(SWIG_I)
 \t\$(PRINT_SWIG)
-\t\@echo \$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -MMD -MP -outdir trick -o \$@ \$< >> \$(MAKE_OUT)
-\t\$(ECHO_CMD)\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -MMD -MP -outdir trick -o \$@ \$< 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
+\t\$(call ECHO_AND_LOG,\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201 -w303 -w325 -w362 -w389 -w401 -w451 -MMD -MP -outdir trick -o \$@ \$<)
 
 \$(SWIG_SRC:.cpp=.d): ;
 
@@ -278,8 +274,7 @@ SWIG_SRC_CUSTOM_OUTDIR = \$(subst .i,.cpp,\$(SWIG_I_CUSTOM_OUTDIR))\n" ;
             print MAKEFILE "
 build$cpp_file : build$swig_file | build$dependency_file trick/$trick_headers{$file}{python_module_dir}
 \t\$(PRINT_SWIG)
-\t\@echo \$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -MMD -MP  -outdir trick/$trick_headers{$file}{python_module_dir} -o \$@ \$< >> \$(MAKE_OUT)
-\t\$(ECHO_CMD)\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -MMD -MP  -outdir trick/$trick_headers{$file}{python_module_dir} -o \$@ \$< 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
+\t\$(call ECHO_AND_LOG,\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201 -w303 -w325 -w362 -w389 -w401 -w451 -MMD -MP  -outdir trick/$trick_headers{$file}{python_module_dir} -o \$@ \$<)
 build$dependency_file: ;
 -include build$dependency_file\n";
         }
@@ -292,8 +287,7 @@ SWIG_OBJECTS = \$(subst .cpp,.o,\$(SWIG_SRC)) \$(subst .cpp,.o,\$(SWIG_SRC_CUSTO
 
 \$(SWIG_OBJECTS): %.o: %.cpp
 \t\$(PRINT_COMPILE_SWIG)
-\t\@echo \$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) \$(TRICK_SWIG_CFLAGS) \$(TRICK_SYSTEM_SWIG_CFLAGS) \$-Wno-unused-parameter -c -o \$@ \$< >> \$(MAKE_OUT)
-\t\$(ECHO_CMD)\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) \$(TRICK_SWIG_CFLAGS) \$(TRICK_SYSTEM_SWIG_CFLAGS) -Wno-unused-parameter -c -o \$@ \$< 2>&1 | \$(TEE) -a \$(MAKE_OUT) ; exit \$\${PIPESTATUS[0]}
+\t\$(call ECHO_AND_LOG,\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) \$(TRICK_SWIG_CFLAGS) \$(TRICK_SYSTEM_SWIG_CFLAGS) -Wno-unused-parameter -c -o \$@ \$<)
 
 \$(S_MAIN): \$(SWIG_OBJECTS)
 
