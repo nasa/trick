@@ -9,6 +9,8 @@
 #include <QHash>
 #include <QList>
 
+#include <stdio.h>
+
 class PlotLayout : public QLayout
 {
 public:
