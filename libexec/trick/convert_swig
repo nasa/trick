@@ -15,6 +15,7 @@ use Digest::MD5 qw(md5_hex) ;
 use File::Path qw(make_path) ;
 use html ;
 use get_paths ;
+use verbose_build ;
 
 ##
 ## ================================================================================
@@ -353,7 +354,7 @@ sub process_file() {
         }
         close OUT ;
 
-        print "[34mWriting[0m    $out_file\n" ;
+        print "[34mWriting[0m    $out_file\n" if not verbose_build() ;
     }
 
 }

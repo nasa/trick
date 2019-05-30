@@ -87,6 +87,7 @@
 #
 # For more information, see:
 # github.com/nasa/trick/wiki/Trickified-Project-Libraries
+
 ifndef TRICKIFY_CXX_FLAGS
     $(error TRICKIFY_CXX_FLAGS must be set)
 endif
@@ -94,17 +95,16 @@ endif
 TRICKIFY_BUILD_TYPE ?= PLO
 TRICKIFY_OBJECT_NAME ?= trickified.o
 TRICKIFY_PYTHON_DIR ?= python
-TRICK_HOME := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/../../..)
-MAKE_OUT ?= build/MAKE_out
+include $(dir $(lastword $(MAKEFILE_LIST)))Makefile.common
 
-ifneq ($(wildcard build),)
-    SWIG_OBJECTS := $(shell cat build/S_library_swig)
-    SWIG_OBJECTS := $(addprefix build,$(addsuffix _py.o,$(basename $(SWIG_OBJECTS))))
-    IO_OBJECTS := $(shell find build -name "io_*.cpp")
+BUILD_DIR := $(dir $(MAKE_OUT))
+ifneq ($(wildcard $(BUILD_DIR)),)
+    SWIG_OBJECTS := $(shell cat $(BUILD_DIR)S_library_swig)
+    SWIG_OBJECTS := $(addprefix $(BUILD_DIR),$(addsuffix _py.o,$(basename $(SWIG_OBJECTS))))
+    IO_OBJECTS := $(shell find $(BUILD_DIR) -name "io_*.cpp")
     IO_OBJECTS := $(IO_OBJECTS:.cpp=.o)
 endif
 
-include $(TRICK_HOME)/share/trick/makefiles/Makefile.common
 TRICK_CFLAGS   += $(TRICKIFY_CXX_FLAGS)
 TRICK_CXXFLAGS += $(TRICKIFY_CXX_FLAGS)
 
@@ -114,23 +114,19 @@ TRICK_EXT_LIB_DIRS :=
 $(TRICKIFY_OBJECT_NAME): $(SWIG_OBJECTS) $(IO_OBJECTS) | $(dir $(TRICKIFY_OBJECT_NAME))
 	$(info $(call COLOR,Linking)    $@)
 ifeq ($(TRICKIFY_BUILD_TYPE),PLO)
-	@echo $(LD) $(LD_PARTIAL) -o $@ $^ >> $(MAKE_OUT)
-	$(ECHO_CMD)ld -r -o $@ $^ 2>&1 | $(TEE) -a $(MAKE_OUT); exit $${PIPESTATUS[0]}
+	$(call ECHO_AND_LOG,$(LD) $(LD_PARTIAL) -o $@ $^)
 else ifeq ($(TRICKIFY_BUILD_TYPE),SHARED)
-	@echo $(TRICK_CPPC) -shared -o $@ $^ >> $(MAKE_OUT)
-	$(ECHO_CMD)c++ -shared -o $@ $^ 2>&1 | $(TEE) -a $(MAKE_OUT); exit $${PIPESTATUS[0]}
+	$(call ECHO_AND_LOG,$(TRICK_CPPC) -shared -o $@ $^)
 else ifeq ($(TRICKIFY_BUILD_TYPE),STATIC)
-	@echo ar rcs $@ $^ >> $(MAKE_OUT)
-	$(ECHO_CMD)ar rcs $@ $^ 2>&1 | $(TEE) -a $(MAKE_OUT); exit $${PIPESTATUS[0]}
+	$(call ECHO_AND_LOG,ar rcs $@ $^)
 endif
 
-$(dir $(TRICKIFY_OBJECT_NAME)) $(TRICKIFY_PYTHON_DIR) build:
+$(dir $(TRICKIFY_OBJECT_NAME)) $(TRICKIFY_PYTHON_DIR) $(BUILD_DIR):
 	@mkdir -p $@
 
 $(IO_OBJECTS): %.o: %.cpp
 	$(info $(call COLOR,Compiling)  $<)
-	@echo $(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -std=c++11 -Wno-invalid-offsetof -MMD -MP -c -o $@ $< >> $(MAKE_OUT)
-	$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -std=c++11 -Wno-invalid-offsetof -MMD -MP -c -o $@ $< 2>&1 | $(TEE) -a $(MAKE_OUT) ; exit $${PIPESTATUS[0]}
+	$(call ECHO_AND_LOG,$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -std=c++11 -Wno-invalid-offsetof -MMD -MP -c -o $@ $<)
 
 $(IO_OBJECTS:.o=.d): %.d: ;
 
@@ -138,27 +134,22 @@ $(IO_OBJECTS:.o=.d): %.d: ;
 
 $(SWIG_OBJECTS): %.o: %.cpp
 	$(info $(call COLOR,Compiling)  $<)
-	@echo $(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(PYTHON_INCLUDES) -Wno-unused-parameter -Wno-shadow -c -o $@ $< >> $(MAKE_OUT)
-	$(ECHO_CMD)$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(PYTHON_INCLUDES) -Wno-unused-parameter -Wno-shadow -c -o $@ $< 2>&1 | $(TEE) -a $(MAKE_OUT) ; exit $${PIPESTATUS[0]}
+	$(call ECHO_AND_LOG,$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(PYTHON_INCLUDES) -Wno-unused-parameter -Wno-shadow -c -o $@ $<)
 
 $(SWIG_OBJECTS:.o=.cpp): %.cpp: %.i | %.d $(TRICKIFY_PYTHON_DIR) $(SWIG_OBJECTS:.o=.i)
 	$(info $(call COLOR,SWIGing)    $<)
-	@echo $(SWIG) $(TRICK_INCLUDE) $(TRICK_DEFINES) $(TRICK_VERSIONS) $(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -MMD -MP -outdir $(TRICKIFY_PYTHON_DIR) -o $@ $< >> $(MAKE_OUT)
-	$(ECHO_CMD)$(SWIG) $(TRICK_INCLUDE) $(TRICK_DEFINES) $(TRICK_VERSIONS) $(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201,303,325,362,389,401,451 -MMD -MP -outdir $(TRICKIFY_PYTHON_DIR) -o $@ $< 2>&1 | $(TEE) -a $(MAKE_OUT) ; exit $${PIPESTATUS[0]}
+	$(call ECHO_AND_LOG,$(SWIG) $(TRICK_INCLUDE) $(TRICK_DEFINES) $(TRICK_VERSIONS) $(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201 -w303 -w325 -w362 -w389 -w401 -w451 -MMD -MP -outdir $(TRICKIFY_PYTHON_DIR) -o $@ $<)
 
 $(SWIG_OBJECTS:.o=.d): ;
 
 -include $(SWIG_OBJECTS:.o=.d)
 
 define create_convert_swig_rule
-build/%_py.i: /%.$1
-	$$(info $$(call COLOR,Converting) $$<)
-	@echo ${TRICK_HOME}/$(LIBEXEC)/trick/convert_swig ${TRICK_CONVERT_SWIG_FLAGS} $$< >> $(MAKE_OUT)
-	$(ECHO_CMD)${TRICK_HOME}/$(LIBEXEC)/trick/convert_swig ${TRICK_CONVERT_SWIG_FLAGS} $$< 2>&1 | $(TEE) -a $(MAKE_OUT) ; exit $$${PIPESTATUS[0]}
+$(BUILD_DIR)/%_py.i: /%.$1
+	$$(call ECHO_AND_LOG,${TRICK_HOME}/$(LIBEXEC)/trick/convert_swig $${TRICK_CONVERT_SWIG_FLAGS} $$<)
 endef
 
-EXTENSIONS := H h hh hxx h++ hpp
-$(foreach EXTENSION,$(EXTENSIONS),$(eval $(call create_convert_swig_rule,$(EXTENSION))))
+$(foreach EXTENSION,H h hh hxx h++ hpp,$(eval $(call create_convert_swig_rule,$(EXTENSION))))
 
 # SWIG_OBJECTS and IO_OBJECTS are meant to contain all of the *_py and io_*
 # object file names, respectively, by looking at products of ICG and
@@ -191,10 +182,9 @@ $(foreach EXTENSION,$(EXTENSIONS),$(eval $(call create_convert_swig_rule,$(EXTEN
 # dependency list. The method is laid out in more detail here:
 # http://make.mad-scientist.net/papers/advanced-auto-dependency-generation/
 
-build/S_source.d: | $(dir $@)
-	$(ECHO_CMD)$(TRICK_HOME)/bin/trick-ICG $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(TRICK_ICGFLAGS) S_source.hh
-	$(ECHO_CMD)$(TRICK_HOME)/$(LIBEXEC)/trick/make_makefile_swig 2>&1 | $(TEE) -a $(MAKE_OUT) ; exit $${PIPESTATUS[0]}
-	@echo $(TRICK_CC) -MM -MP -MT $@ -MF $@ $(TRICKIFY_CXX_FLAGS) S_source.hh >> $(MAKE_OUT)
-	$(ECHO_CMD) $(TRICK_CC) -MM -MP -MT $@ -MF $@ $(TRICKIFY_CXX_FLAGS) S_source.hh 2>&1 | $(TEE) -a $(MAKE_OUT) ; exit $${PIPESTATUS[0]}
+$(BUILD_DIR)S_source.d: | $(BUILD_DIR)
+	$(call ECHO_AND_LOG,$(TRICK_HOME)/bin/trick-ICG $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(TRICK_ICGFLAGS) S_source.hh)
+	$(call ECHO_AND_LOG,$(TRICK_HOME)/$(LIBEXEC)/trick/make_makefile_swig)
+	$(call ECHO_AND_LOG,$(TRICK_CC) -MM -MP -MT $@ -MF $@ $(TRICKIFY_CXX_FLAGS) S_source.hh)
 
--include build/S_source.d
+-include $(BUILD_DIR)S_source.d
