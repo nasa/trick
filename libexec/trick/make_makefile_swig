@@ -63,8 +63,7 @@ sub read_files_to_process() {
 
     # get the list of header files from the compiler
     open FILE_LIST, "$cc -MM @include_paths @defines S_source.hh |" ;
-    my $dir ;
-    $dir = dirname(abs_path("S_source.hh")) ;
+    my $dir = dirname(abs_path("S_source.hh")) ;
     my %files ;
     my %ext_libs ;
     while ( <FILE_LIST> ) {
@@ -136,7 +135,7 @@ sub read_files_to_process() {
 }
 
 sub write_makefile_swig_deps() {
-    open DEPENDENCIES_FILE , ">build/Makefile_swig_deps" or return ;
+    open DEPENDENCIES_FILE , ">build/Makefile_swig_deps" or die "Could not open build/Makefile_swig_deps for writing" ;
     print DEPENDENCIES_FILE "build/Makefile_swig:" ;
     foreach my $file ( @files_to_process, @ext_lib_files ) {
         print DEPENDENCIES_FILE " \\\n    " . $file ;
@@ -157,7 +156,7 @@ sub get_trick_headers() {
     }
 }
 
-sub has_swig_no($) {
+sub has_swig_no {
     my $result = $trick_headers{$_[0]}{swig} =~ /^NO$/i ;
     print "[95mSWIG Skip[39m  SWIG: (NO): $_[0]\n" if $verbose_build and $result ;
     return $result ;
@@ -169,19 +168,12 @@ sub purge_swig_no_files() {
 }
 
 sub write_makefile_swig() {
-
-    my ($n , $f , $k , $m);
-    my %temp_hash ;
-    my ($ii) ;
-    my ($swig_sim_dir, $swig_src_dir) ;
-    my (%py_module_map) ;
     my $s_source_md5 = md5_hex(abs_path("S_source.hh")) ;
+    my $swig_sim_dir = "trick" ;
+    my $swig_src_dir = "build" ;
 
-    $swig_sim_dir = "trick" ;
-    $swig_src_dir = "build" ;
-
-    open MAKEFILE , ">build/Makefile_swig" or return ;
-    open PY_LINK_LIST , ">build/py_link_list" or return ;
+    open MAKEFILE , ">build/Makefile_swig" or die "Could not open build/Makefile_swig for writing" ;
+    open PY_LINK_LIST , ">build/py_link_list" or die "Could not open build/py_link_list for writing" ;
     print PY_LINK_LIST "build/init_swig_modules.o\n" ;
     print PY_LINK_LIST "build/top.o\n" ;
 
@@ -297,19 +289,19 @@ LINK_LISTS += \$(LD_FILELIST)build/py_link_list
     close MAKEFILE ;
     close PY_LINK_LIST ;
 
-    open SWIGLIB , ">build/S_library_swig" or return ;
-    foreach my $f ( @files_to_process ) {
-        print SWIGLIB "$f\n" ;
+    open SWIGLIB , ">build/S_library_swig" or die "Could not open build/S_library_swig for writing" ;
+    foreach my $file ( @files_to_process ) {
+        print SWIGLIB "$file\n" ;
     }
     close SWIGLIB ;
 
-    open INITSWIGFILE , ">build/init_swig_modules.cpp" or return ;
+    open INITSWIGFILE , ">build/init_swig_modules.cpp" or die "Could not open build/init_swig_modules.cpp for writing" ;
     print INITSWIGFILE "#include <Python.h>\n" ;
     print INITSWIGFILE "#if PY_VERSION_HEX >= 0x03000000\n" ;
     print INITSWIGFILE "extern \"C\" {\n\n" ;
 
-    foreach $f ( @files_to_process, @ext_lib_files ) {
-        print INITSWIGFILE "PyObject * PyInit__m$md5s{$f}(void) ; /* $f */\n" ;
+    foreach my $file ( @files_to_process, @ext_lib_files ) {
+        print INITSWIGFILE "PyObject * PyInit__m$md5s{$file}(void) ; /* $file */\n" ;
     }
 
     print INITSWIGFILE "PyObject * PyInit__sim_services(void) ;\n" ;
@@ -319,9 +311,9 @@ LINK_LISTS += \$(LD_FILELIST)build/py_link_list
     print INITSWIGFILE "PyObject * PyInit__swig_ref(void) ;\n" ;
 
     print INITSWIGFILE "\nvoid init_swig_modules(void) {\n\n" ;
-    foreach $f ( @files_to_process, @ext_lib_files ) {
-        next if ( $f =~ /S_source.hh/ ) ;
-        print INITSWIGFILE "    PyImport_AppendInittab(\"_m$md5s{$f}\", PyInit__m$md5s{$f}) ;\n" ;
+    foreach my $file ( @files_to_process, @ext_lib_files ) {
+        next if ( $file =~ /S_source.hh/ ) ;
+        print INITSWIGFILE "    PyImport_AppendInittab(\"_m$md5s{$file}\", PyInit__m$md5s{$file}) ;\n" ;
     }
     print INITSWIGFILE "    PyImport_AppendInittab(\"_m${s_source_md5}\", PyInit__m${s_source_md5}) ;\n" ;
     print INITSWIGFILE "    PyImport_AppendInittab(\"_sim_services\", PyInit__sim_services) ;\n" ;
@@ -334,8 +326,8 @@ LINK_LISTS += \$(LD_FILELIST)build/py_link_list
 
     print INITSWIGFILE "extern \"C\" {\n\n" ;
 
-    foreach $f ( @files_to_process, @ext_lib_files ) {
-        print INITSWIGFILE "void init_m$md5s{$f}(void) ; /* $f */\n" ;
+    foreach my $file ( @files_to_process, @ext_lib_files ) {
+        print INITSWIGFILE "void init_m$md5s{$file}(void) ; /* $file */\n" ;
     }
 
     print INITSWIGFILE "void init_sim_services(void) ;\n" ;
@@ -345,9 +337,9 @@ LINK_LISTS += \$(LD_FILELIST)build/py_link_list
     print INITSWIGFILE "void init_swig_ref(void) ;\n" ;
 
     print INITSWIGFILE "\nvoid init_swig_modules(void) {\n\n" ;
-    foreach $f ( @files_to_process, @ext_lib_files) {
-        next if ( $f =~ /S_source.hh/ ) ;
-        print INITSWIGFILE "    init_m$md5s{$f}() ;\n" ;
+    foreach my $file ( @files_to_process, @ext_lib_files) {
+        next if ( $file =~ /S_source.hh/ ) ;
+        print INITSWIGFILE "    init_m$md5s{$file}() ;\n" ;
     }
     print INITSWIGFILE "    init_m${s_source_md5}() ;\n" ;
     print INITSWIGFILE "    init_sim_services() ;\n" ;
@@ -362,7 +354,7 @@ LINK_LISTS += \$(LD_FILELIST)build/py_link_list
     if ( ! -e "trick") {
         mkdir "trick" ;
     }
-    open INITFILE , ">trick/__init__.py" or return ;
+    open INITFILE , ">trick/__init__.py" or die "Could not open trick/__init__.py for writing" ;
 
     print INITFILE "from pkgutil import extend_path\n" ;
     print INITFILE "__path__ = extend_path(__path__, __name__)\n" ;
@@ -382,16 +374,16 @@ LINK_LISTS += \$(LD_FILELIST)build/py_link_list
     print INITFILE "combine_cvars(all_cvars, cvar)\n" ;
     print INITFILE "cvar = None\n\n" ;
 
-    foreach $f ( @files_to_process, @ext_lib_files ) {
-        print INITFILE "# $f\n" ;
-        print INITFILE "import _m$md5s{$f}\n" ;
+    foreach my $file ( @files_to_process, @ext_lib_files ) {
+        print INITFILE "# $file\n" ;
+        print INITFILE "import _m$md5s{$file}\n" ;
         print INITFILE "combine_cvars(all_cvars, cvar)\n" ;
         print INITFILE "cvar = None\n\n" ;
     }
 
-    foreach $f ( @files_to_process, @ext_lib_files ) {
-        print INITFILE "# $f\n" ;
-        print INITFILE "from m$md5s{$f} import *\n" ;
+    foreach my $file ( @files_to_process, @ext_lib_files ) {
+        print INITFILE "# $file\n" ;
+        print INITFILE "from m$md5s{$file} import *\n" ;
     }
 
     foreach my $mod ( keys %python_modules ) {
