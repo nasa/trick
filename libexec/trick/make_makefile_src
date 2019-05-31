@@ -319,7 +319,7 @@ foreach ( @all_read_only_libs ) {
 
 print MAKEFILE "
 
-all: \$(S_MAIN) S_sie.resource
+all: S_sie.resource
 
 \$(S_MAIN): S_source.hh \$(TRICK_STATIC_LIB) \$(S_OBJECTS) \$(MODEL_OBJECTS)
 \t\$(PRINT_EXE_LINK)
