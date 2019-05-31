@@ -74,7 +74,7 @@ void MonteInputsView::_viewHeaderSectionClicked(int section)
 
     QModelIndexList selIdxs = _selectModel->selectedIndexes();
     if ( selIdxs.size() > 0 ) {
-        QModelIndex idx = selIdxs.at(0);
+        QModelIndex idx = selIdxs.at(section);
         scrollTo(idx, QAbstractItemView::PositionAtCenter);
     }
 }
