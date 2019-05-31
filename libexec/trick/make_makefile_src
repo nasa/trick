@@ -327,8 +327,6 @@ all: \$(S_MAIN) S_sie.resource
 
 # SIE ==========================================================================
 
-sie: S_sie.resource
-
 S_sie.resource: \$(S_MAIN)
 \t\$(PRINT_SIE)
 \t\$(call ECHO_AND_LOG,./\$(S_MAIN) sie)\n" ;
