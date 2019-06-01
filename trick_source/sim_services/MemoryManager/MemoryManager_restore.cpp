@@ -7,7 +7,7 @@
 #include "trick/MemoryManager.hh"
 #include "trick/ClassicCheckPointAgent.hh"
 
-int Trick::MemoryManager::read_checkpoint( std::istream *is) {
+int Trick::MemoryManager::read_checkpoint( std::istream *is, bool do_restore_stls /* default is true */) {
 
     ALLOC_INFO_MAP::iterator pos;
     ALLOC_INFO* alloc_info;
@@ -22,7 +22,7 @@ int Trick::MemoryManager::read_checkpoint( std::istream *is) {
     }
 
     // Search for stls and restore them
-    for ( pos=alloc_info_map.begin() ; pos!=alloc_info_map.end() ; pos++ ) {
+    for ( pos=alloc_info_map.begin() ; do_restore_stls && pos!=alloc_info_map.end() ; pos++ ) {
         restore_stls(pos->second) ;
     }
 
@@ -60,12 +60,17 @@ int Trick::MemoryManager::read_checkpoint(const char* filename ) {
 
     // Create a stream from the named file.
     std::ifstream infile(filename , std::ios::in);
-
     if (infile.is_open()) {
-        return ( read_checkpoint( &infile ));
+
+        // If the file extention is .dat, we will tell read_checkpoint not to
+        // restore stls. It is not necessary and time consuming. 
+        bool do_restore_stls = 
+        (std::string(filename).find(".dat") != std::string::npos);
+
+        return ( read_checkpoint( &infile, do_restore_stls )) ;
     } else {
         std::stringstream message;
-        message << "Couldn't open \"" << filename << "\".";
+        message << "Couldn't open \"" << filename << "\"." ;
         emitError(message.str());
     }
     return 1;
