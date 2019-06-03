@@ -11,6 +11,7 @@ use Digest::MD5 qw(md5_hex) ;
 use trick_version ;
 use html ;
 use verbose_build ;
+use get_paths ;
 use strict ;
 
 my @exclude_paths ;
@@ -23,21 +24,6 @@ my $verbose_build = verbose_build() ;
 my %trick_headers ;
 my %python_modules ;
 my %python_module_dirs ;
-
-sub get_paths {
-    my @paths = split /:/ , $ENV{$_[0]} ;
-    if (scalar @paths) {
-        @paths = sort(@paths ) ;
-        # trim whitespace
-        @paths = map { s/(^\s+|\s+$)//g ; $_ } @paths ;
-        # Remove empty elements. Sort forced all blank names to the front.
-        while ( scalar @paths and not length @paths[0] ) {
-            shift @paths ;
-        }
-        @paths = map { (-e $_) ? abs_path($_) : $_ } @paths ;
-    }
-    return @paths ;
-}
 
 sub read_files_to_process() {
     my @include_paths ;
@@ -83,6 +69,7 @@ sub read_files_to_process() {
 
             # skip duplicate files
             next if (exists($md5s{$word})) ;
+            $md5s{$word} = md5_hex($word) ;
 
             # skip system headers that are missed by the compiler -MM flag
             next if ( $word =~ /^\/usr\/include/ ) ;
@@ -94,11 +81,7 @@ sub read_files_to_process() {
 
             # skip paths in TRICK_EXCLUDE
             foreach my $path ( @exclude_paths ) {
-                if ( $word =~ /^\Q$path\E(.*)/ ) {
-                    print "[95mSWIG Skip[39m  TRICK_EXCLUDE: [4m$path[24m$1\n" if $verbose_build ;
-                    next outer ;
-                }
-                if ( abs_path($word) =~ /^\Q$path\E(.*)/ ) {
+                if ( $word =~ /^\Q$path\E(.*)/ or abs_path($word) =~ /^\Q$path\E(.*)/ ) {
                     print "[95mSWIG Skip[39m  TRICK_EXCLUDE: [4m$path[24m$1\n" if $verbose_build ;
                     next outer ;
                 }
@@ -106,22 +89,15 @@ sub read_files_to_process() {
 
             # skip paths in TRICK_SWIG_EXCLUDE
             foreach my $path ( @swig_exclude_paths ) {
-                if ( $word =~ /^\Q$path\E(.*)/ ) {
-                    print "[95mSWIG Skip[39m  TRICK_SWIG_EXCLUDE: [4m$path[24m$1\n" if $verbose_build ;
-                    next outer ;
-                }
-                if ( abs_path($word) =~ /^\Q$path\E(.*)/ ) {
+                if ( $word =~ /^\Q$path\E(.*)/ or abs_path($word) =~ /^\Q$path\E(.*)/ ) {
                     print "[95mSWIG Skip[39m  TRICK_SWIG_EXCLUDE: [4m$path[24m$1\n" if $verbose_build ;
                     next outer ;
                 }
             }
 
-            # we'll be needing this later
-            $md5s{$word} = md5_hex($word) ;
-
             # separate paths in TRICK_EXT_LIB_DIRS
             foreach my $path ( @ext_lib_paths ) {
-                if ( $word =~ /^\Q$path\E(.*)/ ) {
+                if ( $word =~ /^\Q$path\E(.*)/ or abs_path($word) =~ /^\Q$path\E(.*)/ ) {
                     print "[95mSWIG Skip[39m  TRICK_EXT_LIB_DIRS: [4m$path[24m$1\n" if $verbose_build ;
                     $ext_libs{$word} = 1 ;
                     next outer ;
