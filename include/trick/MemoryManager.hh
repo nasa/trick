@@ -370,7 +370,7 @@ namespace Trick {
              Restore a checkpoint from the given stream.
              @param in_s - input stream.
              */
-            int read_checkpoint( std::istream* in_s, bool do_restore_stls=true);
+            int read_checkpoint( std::istream* in_s, bool do_restore_stls=false);
 
             /**
              Read a checkpoint from the file of the given name.

@@ -7,7 +7,7 @@
 #include "trick/MemoryManager.hh"
 #include "trick/ClassicCheckPointAgent.hh"
 
-int Trick::MemoryManager::read_checkpoint( std::istream *is, bool do_restore_stls /* default is true */) {
+int Trick::MemoryManager::read_checkpoint( std::istream *is, bool do_restore_stls /* default is false */) {
 
     ALLOC_INFO_MAP::iterator pos;
     ALLOC_INFO* alloc_info;
@@ -22,8 +22,10 @@ int Trick::MemoryManager::read_checkpoint( std::istream *is, bool do_restore_stl
     }
 
     // Search for stls and restore them
-    for ( pos=alloc_info_map.begin() ; do_restore_stls && pos!=alloc_info_map.end() ; pos++ ) {
-        restore_stls(pos->second) ;
+    if(do_restore_stls) {
+        for ( pos=alloc_info_map.begin() ; pos!=alloc_info_map.end() ; pos++ ) {
+            restore_stls(pos->second) ;
+        }
     }
 
     // Go through all of the allocations that have been created looking
@@ -62,10 +64,10 @@ int Trick::MemoryManager::read_checkpoint(const char* filename ) {
     std::ifstream infile(filename , std::ios::in);
     if (infile.is_open()) {
 
-        // If the file extention is .dat, we will tell read_checkpoint not to
-        // restore stls. It is not necessary and time consuming. 
+        // If the filename is not S_default.dat, we will tell read_checkpoint to
+        // restore stls.
         bool do_restore_stls = 
-        (std::string(filename).find(".dat") != std::string::npos);
+        (std::string(filename).find("S_default.dat") == std::string::npos);
 
         return ( read_checkpoint( &infile, do_restore_stls )) ;
     } else {
