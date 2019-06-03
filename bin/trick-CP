@@ -149,6 +149,8 @@ __END__
 # Disable built-in implicit rules to increase build speed.
 .SUFFIXES:
 
+.PHONY: all
+
 ifndef TRICK_HOME
     export TRICK_HOME := SUB_TRICK_HOME
 endif
@@ -165,7 +167,6 @@ endif
 
 all:
 	$(info [32mTrick Build Process Complete[00m)
-
 
 test: TRICK_SYSTEM_CFLAGS += -DTRICK_UNIT_TEST
 test: TRICK_SYSTEM_CXXFLAGS += -DTRICK_UNIT_TEST
