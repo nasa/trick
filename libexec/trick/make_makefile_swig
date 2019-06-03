@@ -187,25 +187,9 @@ all: \$(TRICK_FIXED_PYTHON)
 SWIG_I =" ;
 
     foreach my $file ( @files_to_process ) {
-        if ( !exists $trick_headers{$file}{python_module_dir} ) {
-            (my $swig_file = $file) =~ s/\.[^.]*$/_py.i/ ;
-            print MAKEFILE " \\\n    build$swig_file" ;
-            $swig_file =~ s/i$/o/ ;
-            print PY_LINK_LIST "build$swig_file\n" ;
-        }
-    }
-
-    print MAKEFILE "
-
-SWIG_I_CUSTOM_OUTDIR =" ;
-
-    foreach my $file ( @files_to_process ) {
-        if ( exists $trick_headers{$file}{python_module_dir} ) {
-            (my $swig_file = $file) =~ s/\.[^.]*$/_py.i/ ;
-            print MAKEFILE " \\\n    build$swig_file" ;
-            $swig_file =~ s/i$/o/ ;
-            print PY_LINK_LIST "build$swig_file\n" ;
-        }
+        (my $swig_file = $file) =~ s/(\.[^.]*)?$/_py/ ;
+        print MAKEFILE " \\\n    build$swig_file.i" ;
+        print PY_LINK_LIST "build$swig_file.o\n" ;
     }
 
     print MAKEFILE "
@@ -232,26 +216,9 @@ SWIG_SRC = \$(subst .i,.cpp,\$(SWIG_I)) $swig_src_dir/top.cpp
 
 -include \$(SWIG_SRC:.cpp=.d)
 
-SWIG_SRC_CUSTOM_OUTDIR = \$(subst .i,.cpp,\$(SWIG_I_CUSTOM_OUTDIR))\n" ;
-
-    foreach my $file ( @files_to_process ) {
-        if ( exists $trick_headers{$file}{python_module_dir} ) {
-            (my $swig_file = $file) =~ s/\.[^.]*$/_py.i/ ;
-            (my $cpp_file = $file) =~ s/\.[^.]*$/_py.cpp/ ;
-            (my $dependency_file = $file) =~ s/\.[^.]*$/_py.d/ ;
-            print MAKEFILE "
-build$cpp_file : build$swig_file | build$dependency_file trick/$trick_headers{$file}{python_module_dir}
-\t\$(PRINT_SWIG)
-\t\$(call ECHO_AND_LOG,\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201 -w303 -w325 -w362 -w389 -w401 -w451 -MMD -MP  -outdir trick/$trick_headers{$file}{python_module_dir} -o \$@ \$<)
-build$dependency_file: ;
--include build$dependency_file\n";
-        }
-    }
-
-    print MAKEFILE "
 # SWIG_OBJECTS =================================================================
 
-SWIG_OBJECTS = \$(subst .cpp,.o,\$(SWIG_SRC)) \$(subst .cpp,.o,\$(SWIG_SRC_CUSTOM_OUTDIR)) $swig_src_dir/init_swig_modules.o
+SWIG_OBJECTS = \$(subst .cpp,.o,\$(SWIG_SRC)) $swig_src_dir/init_swig_modules.o
 
 \$(SWIG_OBJECTS): %.o: %.cpp
 \t\$(PRINT_COMPILE_SWIG)

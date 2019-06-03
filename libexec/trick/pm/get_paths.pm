@@ -7,7 +7,7 @@ use Cwd 'abs_path' ;
 
 use strict ;
 
-# Get environment variables, split on colons, strip leading/trailing whitespace, remove empty elements, get absolute paths then remove more empty elements
+# Get environment variable, split on colons, strip leading/trailing whitespace, remove empty elements, get absolute paths, remove more empty elements
 sub get_paths {
     return grep { $_ ne ''} map abs_path($_), grep { $_ ne '' } map { s/(^\s+|\s+$)//g ; $_ } split /:/, $ENV{$_[0]} ;
 }
