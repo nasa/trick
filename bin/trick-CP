@@ -146,6 +146,8 @@ The simulation-specific default initialization data file.
 __END__
 # CP found at SUB_TRICK_BIN
 
+-include S_pre.mk
+
 # Disable built-in implicit rules to increase build speed.
 .SUFFIXES:
 
@@ -258,6 +260,7 @@ ifeq ($(findstring ${MAKECMDGOALS},$(CLEAN_TARGETS)),)
 endif
 -include build/Makefile_overrides
 -include S_overrides.mk
+-include S_post.mk
 
 ifndef MAKE_RESTARTS
 REMOVE_MAKE_OUT := $(shell rm -f $(MAKE_OUT))
