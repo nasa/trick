@@ -2479,7 +2479,7 @@ case $host_os in *\ *) host_os=`echo "$host_os" | sed 's/ /-/g'`;; esac
 
 
 
-PATH="/opt/rh/devtoolset-3/root/usr/bin:${PATH}"
+PATH="/opt/rh/devtoolset-3/root/usr/bin:/usr/local/bin:${PATH}"
 XTRAINCPATHS="-I/usr/include/libxml2/ -I/usr/X11/include"
 CFLAGS="$CFLAGS $XTRAINCPATHS"
 CPPFLAGS="$CPPFLAGS $XTRAINCPATHS"
@@ -4041,7 +4041,6 @@ $as_echo "no" >&6; }
 fi
 
 
-#AS_IF([test "$ac_cv_path_PERL" = "noperl"],AC_MSG_ERROR([could not find perl]),[])
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for a sed that does not truncate output" >&5
 $as_echo_n "checking for a sed that does not truncate output... " >&6; }
 if ${ac_cv_path_SED+:} false; then :
@@ -4235,7 +4234,7 @@ x$ax_compare_version_B" | sed 's/^ *//' | sort | sed "s/x${ax_compare_version_A}
 
     else
 	    :
-            as_fn_error $? "Trick requires Perl version >= 5.14.0" "$LINENO" 5
+            as_fn_error $? "Trick requires perl version >= 5.14.0" "$LINENO" 5
 
   fi
 
@@ -4244,7 +4243,7 @@ else
 
         { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: could not find the perl interpreter" >&5
 $as_echo "$as_me: WARNING: could not find the perl interpreter" >&2;}
-        as_fn_error $? "Trick requires Perl version >= 5.14.0" "$LINENO" 5
+        as_fn_error $? "Trick requires perl version >= 5.14.0" "$LINENO" 5
 
 fi
 

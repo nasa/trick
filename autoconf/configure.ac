@@ -205,7 +205,7 @@ dnl get the host_os.
 AC_CANONICAL_HOST
 
 dnl add extra paths to find gcc on RHEL 6 systems
-PATH="/opt/rh/devtoolset-3/root/usr/bin:${PATH}"
+PATH="/opt/rh/devtoolset-3/root/usr/bin:/usr/local/bin:${PATH}"
 dnl add extra paths to find xml headers and X headers on the mac.
 XTRAINCPATHS="-I/usr/include/libxml2/ -I/usr/X11/include"
 CFLAGS="$CFLAGS $XTRAINCPATHS"
