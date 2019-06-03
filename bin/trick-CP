@@ -155,6 +155,8 @@ ifndef TRICK_HOME
     export TRICK_HOME := SUB_TRICK_HOME
 endif
 
+-include S_pre.mk
+
 ifneq ($(wildcard ${TRICK_HOME}/share/trick/makefiles/Makefile.common),)
 include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
@@ -258,6 +260,7 @@ include build/Makefile_swig_deps
 endif
 -include build/Makefile_overrides
 -include S_overrides.mk
+-include S_post.mk
 
 ifndef MAKE_RESTARTS
 REMOVE_MAKE_OUT := $(shell rm -f $(MAKE_OUT))
