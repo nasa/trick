@@ -146,7 +146,6 @@ The simulation-specific default initialization data file.
 __END__
 # CP found at SUB_TRICK_BIN
 
-
 # Disable built-in implicit rules to increase build speed.
 .SUFFIXES:
 
