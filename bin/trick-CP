@@ -146,7 +146,6 @@ The simulation-specific default initialization data file.
 __END__
 # CP found at SUB_TRICK_BIN
 
--include S_pre.mk
 
 # Disable built-in implicit rules to increase build speed.
 .SUFFIXES:
@@ -154,6 +153,8 @@ __END__
 ifndef TRICK_HOME
     export TRICK_HOME := SUB_TRICK_HOME
 endif
+
+-include S_pre.mk
 
 ifneq ($(wildcard ${TRICK_HOME}/share/trick/makefiles/Makefile.common),)
 include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
