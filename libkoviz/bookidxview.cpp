@@ -80,7 +80,9 @@ QRectF BookIdxView::_plotMathRect(const QModelIndex& plotIdx) const
 {
     QRectF M;
     if ( !model() ) return M;
-
+    if ( !_bookModel()->isChildIndex(plotIdx,"Plot","PlotMathRect") ) {
+        return M;
+    }
     QModelIndex plotMathRectIdx = _plotMathRectIdx(plotIdx);
     plotMathRectIdx = plotMathRectIdx.sibling(plotMathRectIdx.row(),1);
     M = model()->data(plotMathRectIdx).toRectF();

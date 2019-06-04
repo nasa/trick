@@ -2,7 +2,6 @@
 #define PAGEVIEW_H
 
 #include <QAbstractItemView>
-#include <QGridLayout>
 #include <QList>
 #include <QItemSelectionModel>
 #include <QEvent>
@@ -12,6 +11,7 @@
 #include "bookidxview.h"
 #include "bookview_pagetitle.h"
 #include "bookview_plot.h"
+#include "pagelayout.h"
 
 class PageView : public BookIdxView
 {
@@ -26,7 +26,7 @@ protected:
     virtual bool eventFilter(QObject *obj, QEvent *event);
 
 private:
-    QGridLayout* _grid;
+    PageLayout* _grid;
     bool _toggleSingleView;
     bool _isMouseDoubleClick;
     QModelIndex _mouseIdx1;

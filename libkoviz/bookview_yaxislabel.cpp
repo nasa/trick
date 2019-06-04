@@ -164,6 +164,9 @@ QString YAxisLabelView::_yAxisLabelText() const
     if ( !plotIdx.isValid() ) return label;
     QString plotTag = model()->data(plotIdx).toString();
     if ( plotTag != "Plot" ) return label;
+    if ( !_bookModel()->isChildIndex(plotIdx,"Plot","PlotYAxisLabel")) {
+        return label;
+    }
 
     label = _bookModel()->getDataString(plotIdx,"PlotYAxisLabel");
 

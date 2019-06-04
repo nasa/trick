@@ -139,6 +139,10 @@ void LabeledRulerView::_paint10Exponent(const LabelBox& box) const
 QRect LabeledRulerView::_boundingRect(const QString &strVal) const
 {
     QRect bb;
+    if ( !_bookModel()->isChildIndex(rootIndex(),"Plot","PlotXScale") ||
+         !_bookModel()->isChildIndex(rootIndex(),"Plot","PlotYScale") ) {
+        return bb;
+    }
 
     QFontMetrics fm = viewport()->fontMetrics();
 

@@ -1764,7 +1764,17 @@ bool PlotBookModel::isPageLegend(const QModelIndex &pageIdx) const
 {
     bool isLegend = false;
 
-    if ( isPlotLegendsSame(pageIdx) ) {
+    // Check to make sure CurvesIdx exists before calculating
+    bool isCurves = true;
+    QModelIndexList plotIdxs = this->plotIdxs(pageIdx);
+    foreach ( QModelIndex plotIdx, plotIdxs ) {
+        if ( !isChildIndex(plotIdx,"Plot","Curves") ) {
+            isCurves = false;
+            break;
+        }
+    }
+
+    if ( isCurves && isPlotLegendsSame(pageIdx) ) {
         int maxCurves = 0;
         QModelIndexList plotIdxs = this->plotIdxs(pageIdx);
         foreach ( QModelIndex plotIdx, plotIdxs ) {
