@@ -6,6 +6,7 @@
 #include <QWidgetItem>
 #include <QLayoutItem>
 #include <QString>
+#include <stdio.h>
 
 class PageLayout : public QLayout
 {
