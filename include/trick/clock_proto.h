@@ -13,6 +13,7 @@ int clock_spin(long long ref) ;
 int clock_set_reference(long long ref) ;
 double clock_get_rt_clock_ratio(void) ;
 int clock_set_rt_clock_ratio(double in_rt_clock_ratio) ;
+unsigned long long clock_tics_per_sec(void) ;
 
 #ifdef __cplusplus
 }
