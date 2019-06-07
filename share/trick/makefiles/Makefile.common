@@ -4,6 +4,7 @@ MV       := /bin/mv
 RM       := /bin/rm
 CP       := /bin/cp
 MAKE_OUT := build/MAKE_out
+MAKE_ERR := build/MAKE_err
 
 PWD       = $(shell /bin/pwd)
 COLOR     = [34m$(1)[0m
@@ -19,7 +20,7 @@ endif
 define ECHO_AND_LOG
 $(call ECHO_TO_TERMINAL, $1)
 @echo $1 >> $(MAKE_OUT)
-@$1 2>&1 | $(TEE) -a $(MAKE_OUT) ; exit $${PIPESTATUS[0]}
+@$1 > >($(TEE) -a $(MAKE_OUT)) 2> >($(TEE) -a $(MAKE_ERR) >&2)
 endef
 
 export TRICK_HOME      := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))../../..)
