@@ -121,11 +121,11 @@ AC_DEFUN([AX_GTEST_HOME],[
                 [AC_CHECK_HEADER(gtest/gtest.h, [GTEST_HOME="/usr"], [GTEST_HOME=""])]
                )
     AC_SUBST([GTEST_HOME])
-])	
+])
 
 AC_DEFUN([AX_SWIG_BIN],[
     AC_ARG_WITH([swig],
-                AS_HELP_STRING([--with-swig@<:@=DIR@:>@], [path of directory containing the SWIG executable.]),    
+                AS_HELP_STRING([--with-swig@<:@=DIR@:>@], [path of directory containing the SWIG executable.]),
                 PATH="$withval:${PATH}"
                )
     AC_SUBST([SWIG_BIN])
@@ -204,10 +204,30 @@ AC_DEFUN([AX_GCC_VERSION], [
 dnl get the host_os.
 AC_CANONICAL_HOST
 
+dnl AC_CANONICAL_HOST provides platform.  MacOSX is diverging... have to do special things
+ON_MAC=no
+case "${host_os}" in
+    darwin*)
+        ON_MAC=yes
+        ;;
+    *)
+        ;;
+esac
+
 dnl add extra paths to find gcc on RHEL 6 systems
 PATH="/opt/rh/devtoolset-3/root/usr/bin:/usr/local/bin:${PATH}"
+
 dnl add extra paths to find xml headers and X headers on the mac.
-XTRAINCPATHS="-I/usr/include/libxml2/ -I/usr/X11/include"
+AS_IF([test "$ON_MAC" = "yes"],
+[
+ AC_PATH_PROG(XCRUN, xcrun, noxcrun)
+ AS_IF([test "$ac_cv_path_XCRUN" = "norun"],AC_MSG_ERROR([could not find xcrun - install Xcode command line tools]),[])
+ XCODE_SDK_PATH=`$XCRUN --show-sdk-path`
+ XTRAINCPATHS="-I/usr/X11/include -I${XCODE_SDK_PATH}/usr/include -I${XCODE_SDK_PATH}/usr/include/libxml2"
+],
+[
+ XTRAINCPATHS="-I/usr/include/libxml2/"
+])
 CFLAGS="$CFLAGS $XTRAINCPATHS"
 CPPFLAGS="$CPPFLAGS $XTRAINCPATHS"
 
@@ -217,15 +237,7 @@ AC_PROG_CC
 AC_PROG_CXX
 
 dnl do not test gcc version on mac.  clang as gcc will return version and it's not >= 4.8
-TEST_GCC=yes
-case "${host_os}" in
-    darwin*)
-        TEST_GCC=no
-        ;;
-    *)
-        ;;
-esac
-AS_IF([test "$TEST_GCC" = "yes"],[AX_GCC_VERSION],[])
+AS_IF([test "$ON_MAC" = "no"],[AX_GCC_VERSION],[])
 dnl if the compiler is gcc, test for gcc >= 4.8
 AS_IF([test "x$GCC_VERSION" = "x"],[],
  [AC_MSG_CHECKING([gcc version >= 4.8])

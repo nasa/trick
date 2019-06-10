@@ -38,6 +38,8 @@ ifeq ($(TRICK_HOST_TYPE), Linux)
 endif
 
 ifeq ($(TRICK_HOST_TYPE), Darwin)
+ SDK_DIR = $(shell xcrun --show-sdk-path)
+ INCLUDE_DIRS += -I${SDK_DIR}/usr/include/libxml2
 endif
 
 #############################################################################
