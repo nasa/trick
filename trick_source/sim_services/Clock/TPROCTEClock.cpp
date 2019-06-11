@@ -17,7 +17,7 @@ PROGRAMMERS:
 -# Calls the base Clock constructor
 -# Sets the default device name
 */
-Trick::TPROCTEClock::TPROCTEClock() : Clock(1000000, "TPROCTE") , dev_name("/dev/tpropci0") { }
+Trick::TPROCTEClock::TPROCTEClock() : Clock(1000000, "TPROCTE") , dev_name("/dev/tsyncpci0") { }
 
 /**
 @details
@@ -102,7 +102,7 @@ long long Trick::TPROCTEClock::wall_clock_time() {
 */
 long long Trick::TPROCTEClock::clock_spin(long long req_time) {
 #ifdef _TPRO_CTE
-    Trick::Clock::clock_spin(req_time) ;
+    return Trick::Clock::clock_spin(req_time) ;
 #else
     message_publish(MSG_ERROR, "TPRO CTE card was not enabled at compile time\n");
     return req_time ;

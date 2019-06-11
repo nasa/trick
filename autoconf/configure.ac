@@ -63,9 +63,9 @@ AC_DEFUN([AX_TPRO_HOME],[
     AC_ARG_WITH([tpro],
                 AS_HELP_STRING([--with-tpro@<:@=DIR@:>@], [TPRO root directory]),
                 [TPRO_HOME="$withval"
-                 AC_CHECK_FILE([$TPRO_HOME/h/tpro.h],
+                 AC_CHECK_FILE([$TPRO_HOME/linux/h/tpro.h],
                                [],
-                               AC_MSG_ERROR([could not find $TPRO_HOME/h/tpro.h])
+                               AC_MSG_ERROR([could not find $TPRO_HOME/linux/h/tpro.h])
                               )
                 ],
                 [TPRO_HOME=""]

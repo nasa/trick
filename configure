@@ -7221,15 +7221,15 @@ fi
 # Check whether --with-tpro was given.
 if test "${with_tpro+set}" = set; then :
   withval=$with_tpro; TPRO_HOME="$withval"
-                 as_ac_File=`$as_echo "ac_cv_file_$TPRO_HOME/h/tpro.h" | $as_tr_sh`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $TPRO_HOME/h/tpro.h" >&5
-$as_echo_n "checking for $TPRO_HOME/h/tpro.h... " >&6; }
+                 as_ac_File=`$as_echo "ac_cv_file_$TPRO_HOME/linux/h/tpro.h" | $as_tr_sh`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $TPRO_HOME/linux/h/tpro.h" >&5
+$as_echo_n "checking for $TPRO_HOME/linux/h/tpro.h... " >&6; }
 if eval \${$as_ac_File+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   test "$cross_compiling" = yes &&
   as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
-if test -r "$TPRO_HOME/h/tpro.h"; then
+if test -r "$TPRO_HOME/linux/h/tpro.h"; then
   eval "$as_ac_File=yes"
 else
   eval "$as_ac_File=no"
@@ -7241,7 +7241,7 @@ $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_File"\" = x"yes"; then :
 
 else
-  as_fn_error $? "could not find $TPRO_HOME/h/tpro.h" "$LINENO" 5
+  as_fn_error $? "could not find $TPRO_HOME/linux/h/tpro.h" "$LINENO" 5
 
 fi
 
