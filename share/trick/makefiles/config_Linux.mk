@@ -35,7 +35,7 @@ PLATFORM_LIBS += -L$(DMTCP)/dmtcpaware -ldmtcpaware
 endif
 
 ifneq ($(TPROCTE),)
-TRICK_ADDITIONAL_CXXFLAGS += -D_TPRO_CTE -I$(TPROCTE)/linux/h -I$(TPROCTE)/common/h
+TRICK_ADDITIONAL_CXXFLAGS += -D_TPRO_CTE -I$(TPROCTE)/linux/h -I$(TPROCTE)/linux/tsync/h -I$(TPROCTE)/common/h -I$(TPROCTE)/common/tsync/h
 PLATFORM_LIBS += $(TPROCTE)/linux/tsync/lib/libtsync.a $(TPROCTE)/linux/lib/libtpro.a
 TRICK_EXCLUDE += :$(TPROCTE)
 endif

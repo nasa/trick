@@ -7,6 +7,7 @@ PROGRAMMERS:
 
 #include <stdio.h>
 
+#include "tsync.h"
 #include "trick/TPROCTEClock.hh"
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
@@ -67,26 +68,17 @@ Please run ${TRICK_HOME}/configure --with-tpro=<directory holding CTE>, and reco
 */
 long long Trick::TPROCTEClock::wall_clock_time() {
 #ifdef _TPRO_CTE
-    unsigned char  rv;
-    TPRO_TimeObj   tproTime;
-    long long curr_time ;
+    TSYNC_HWTimeSecondsObj hwTime;
 
-    /* Get the TPRO/TSAT current time */
-    rv = TPRO_getTime(pBoard, &tproTime);
+    /* Send Get Seconds Time message */
+    TSYNC_ERROR err = TSYNC_HW_getTimeSec(pBoard, &hwTime);
 
-    /* If unable to get the TPRO/TSAT current time... */
-    if (rv != TPRO_SUCCESS) {
-        printf (" Could not retrieve time from '%s'!! [%d]\n", dev_name.c_str(), rv);
-        return 0 ;
-    } else {
-        curr_time = (long long)(tproTime.days * 86400LL * 1000000LL) ;
-        curr_time += (long long)(tproTime.hours * 3600LL * 1000000LL) ;
-        curr_time += (long long)(tproTime.minutes * 60LL * 1000000LL) ;
-        curr_time += (long long)(tproTime.seconds * 1000000LL) ;
-        curr_time += (long long)((tproTime.secsDouble - tproTime.seconds) * 1000000LL) ;
+    if (err != TSYNC_SUCCESS) {
+        printf("  Error: %s.\n", tsync_strerror(err));
+        return 0;
     }
+    return hwTime.time.seconds * 1000000LL + (hwTime.time.ns /1000);
 
-    return (curr_time);
 #else
     message_publish(MSG_ERROR, "TPRO CTE card was not enabled at compile time\n");
     return 0 ;
