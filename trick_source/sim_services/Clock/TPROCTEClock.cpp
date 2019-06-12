@@ -7,7 +7,6 @@ PROGRAMMERS:
 
 #include <stdio.h>
 
-#include "tsync.h"
 #include "trick/TPROCTEClock.hh"
 #include "trick/message_proto.h"
 #include "trick/message_type.h"

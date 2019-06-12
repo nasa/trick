@@ -15,6 +15,7 @@ PROGRAMMERS:
 #ifdef _TPRO_CTE
 extern "C" {
 #include "tpro.h"
+#include "tsync.h"
 }
 #endif
 
