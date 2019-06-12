@@ -155,6 +155,7 @@ class TrickModel : public DataModel
             }
             case TRICK_07_INTEGER:
             case TRICK_07_ENUMERATED:
+            case TRICK_07_UNSIGNED_BITFIELD:
             {
                 return (double) *((int*)(addr));
             }
@@ -215,6 +216,7 @@ class TrickModel : public DataModel
             }
             case TRICK_10_INTEGER:
             case TRICK_10_ENUMERATED:
+            case TRICK_10_UNSIGNED_BITFIELD:
             {
                 return (double) *((int*)(addr));
             }
