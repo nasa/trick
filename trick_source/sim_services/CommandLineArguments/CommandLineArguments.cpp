@@ -31,6 +31,9 @@ Trick::CommandLineArguments::CommandLineArguments() {
 
     output_dir = std::string(".") ;
     default_dir = std::string(".") ;
+
+    argc = 0;
+    argv = NULL;
 }
 
 int Trick::CommandLineArguments::get_argc() {

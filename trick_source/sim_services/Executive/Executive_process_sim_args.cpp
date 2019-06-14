@@ -69,4 +69,3 @@ int Trick::Executive::process_sim_args() {
 
     return(0) ;
 }
-

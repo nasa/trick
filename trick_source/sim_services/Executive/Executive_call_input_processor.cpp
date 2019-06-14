@@ -1,9 +1,11 @@
 
 #include <iostream>
 #include <sys/resource.h>
+#include<fstream>
 
 #include "trick/Executive.hh"
 #include "trick/ExecutiveException.hh"
+#include "trick/clock_proto.h"
 
 /**
 @details
@@ -13,7 +15,7 @@
       returned from Trick::Executive::init().
 -# If no execption is thrown return 0
 */
-int Trick::Executive::call_input_processor() {
+int Trick::Executive::call_input_processor(std::ofstream& init_log_stream) {
 
     int ret = 0 ;
 
@@ -25,7 +27,12 @@ int Trick::Executive::call_input_processor() {
        So we test for the restart_called flag and break out of the loop if we restart_called is set. */
     input_processor_queue.reset_curr_index() ;
     while ( !restart_called and (curr_job = input_processor_queue.get_next_job()) != NULL ) {
+        long long start = clock_wall_time();
         ret = curr_job->call() ;
+        long long end = clock_wall_time();
+        if(init_log_stream) {
+          init_log_stream << "input_processor," << curr_job->name << ',' << (double)(end-start)/clock_tics_per_sec() << '\n';
+        }
         if ( ret != 0 ) {
             throw Trick::ExecutiveException(ret , curr_job->name.c_str() , 0 , "input_processor job did not return 0") ;
         }

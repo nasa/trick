@@ -832,21 +832,27 @@ namespace Trick {
 
             /**
              * Calls the default_data jobs.
+             * @param open file stream for a log to record the elapsed 
+             * time of each job.
              * @return 0 for no errors or throws exception otherwise.
              */
-            virtual int call_default_data() ;
+            virtual int call_default_data(std::ofstream& init_log_stream) ;
 
             /**
              * Calls the input_processor jobs.
+             * @param open file stream for a log to record the elapsed 
+             * time of each job.
              * @return 0 for no errors or throws exception otherwise.
              */
-            virtual int call_input_processor() ;
+            virtual int call_input_processor(std::ofstream& init_log_stream) ;
 
             /**
              * Calls the initialization jobs.
+             * @param open file stream for a log to record the elapsed 
+             * time of each job.
              * @return 0 for no errors or throws exception otherwise.
              */
-            virtual int call_initialization() ;
+            virtual int call_initialization(std::ofstream& init_log_stream) ;
 
             /**
              * This job copies the job information from the executive to a checkpointable form.
