@@ -44,7 +44,7 @@ namespace Trick {
 
         private:
 #ifdef _TPRO_CTE
-            TPRO_BoardObj *pBoard ;
+            TPRO_BoardObj *pBoard ;  /* ** board handle */
 #endif
 
     } ;
