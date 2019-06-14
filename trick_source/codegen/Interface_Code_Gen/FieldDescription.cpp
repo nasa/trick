@@ -145,6 +145,14 @@ void FieldDescription::parseComment(std::string comment) {
         comment = get_regex_field(comment , "(.*)@?trick_chkpnt_io[\\({]([^\\)}]+)[\\)}]" , 1) +
          get_regex_field(comment , "@?trick_chkpnt_io[\\({]([^\\)}]+)[\\)}](.*)" , 2) ;
     }
+    ret_str = get_regex_field(comment , "@?cio[\\({]([^\\)}]+)[\\)}]" , 1) ;
+    if ( ! ret_str.empty()) {
+        chkpnt_io = io_map[ret_str] ;
+        if(debug_level >= 4) std::cout << "go for cio " <<  io << std::endl ;
+        chkpnt_io_found = true ;
+        comment = get_regex_field(comment , "(.*)@?cio[\\({]([^\\)}]+)[\\)}]" , 1) +
+         get_regex_field(comment , "@?cio[\\({]([^\\)}]+)[\\)}](.*)" , 2) ;
+    }
 
     ret_str = get_regex_field(comment , "@?trick_io[\\({]([^\\)}]+)[\\)}]" , 1) ;
     if ( ! ret_str.empty()) {
@@ -153,6 +161,14 @@ void FieldDescription::parseComment(std::string comment) {
         io_found = true ;
         comment = get_regex_field(comment , "(.*)@?trick_io[\\({]([^\\)}]+)[\\)}]" , 1) +
          get_regex_field(comment , "@?trick_io[\\({]([^\\)}]+)[\\)}](.*)" , 2) ;
+    }
+    ret_str = get_regex_field(comment , "@?io[\\({]([^\\)}]+)[\\)}]" , 1) ;
+    if ( ! ret_str.empty()) {
+        io = io_map[ret_str] ;
+        if(debug_level >= 4) std::cout << "go for io " <<  io << std::endl ;
+        io_found = true ;
+        comment = get_regex_field(comment , "(.*)@?io[\\({]([^\\)}]+)[\\)}]" , 1) +
+         get_regex_field(comment , "@?io[\\({]([^\\)}]+)[\\)}](.*)" , 2) ;
     }
 
     /*
