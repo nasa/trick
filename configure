@@ -647,8 +647,9 @@ PTHREAD_CC
 ax_pthread_config
 CPP
 LIBXML
-MOTIF_HOME
 X_LIB_DIR
+USE_X_WINDOWS
+MOTIF_HOME
 EGREP
 CXXCPP
 XMKMF
@@ -5006,9 +5007,6 @@ else
 $as_echo "libraries $x_libraries, headers $x_includes" >&6; }
 fi
 
-if test "$no_x" = "yes"; then :
-  as_fn_error $? "could not find Xwindows development libraries and/or headers" "$LINENO" 5
-fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for egrep" >&5
 $as_echo_n "checking for egrep... " >&6; }
 if ${ac_cv_path_EGREP+:} false; then :
@@ -5205,19 +5203,30 @@ fi
 done
 
 
-ac_fn_cxx_check_header_mongrel "$LINENO" "X11/Intrinsic.h" "ac_cv_header_X11_Intrinsic_h" "$ac_includes_default"
+if test "$no_x" = "yes"; then :
+
+    USE_X_WINDOWS=0
+
+else
+
+    USE_X_WINDOWS=1
+    if test "x$x_includes" = "x"; then :
+
+else
+  X_INCLUDE_DIR=-I$x_includes
+fi
+    if test "x$x_libraries" = "x"; then :
+
+else
+  X_LIB_DIR=-L$x_libraries
+fi
+    ac_fn_cxx_check_header_mongrel "$LINENO" "X11/Intrinsic.h" "ac_cv_header_X11_Intrinsic_h" "$ac_includes_default"
 if test "x$ac_cv_header_X11_Intrinsic_h" = xyes; then :
 
 else
   as_fn_error $? "could not find libxt development headers" "$LINENO" 5
 fi
 
-
-if test "x$x_libraries" = "x"; then :
-  X_LIB_DIR=
-else
-  X_LIB_DIR=-L$x_libraries
-fi
 
 
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for trick_source/data_products/fermi-ware" >&5
@@ -5292,6 +5301,13 @@ else
 
 
 fi
+
+
+
+
+
+fi
+
 
 
 

@@ -259,12 +259,24 @@ AX_PKG_SWIG(2.0, [], [AC_MSG_ERROR([Trick requires SWIG version >= 2.0])])
 AX_JAVA
 dnl look for libraries and headers we need to compile
 AC_PATH_X
-AS_IF([test "$no_x" = "yes"],AC_MSG_ERROR([could not find Xwindows development libraries and/or headers]),[])
-AC_CHECK_HEADER([X11/Intrinsic.h],[],AC_MSG_ERROR([could not find libxt development headers]))
-AS_IF([test "x$x_libraries" = "x"],[X_LIB_DIR=],[X_LIB_DIR=-L$x_libraries])
+AS_IF([test "$no_x" = "yes"],
+  [
+    USE_X_WINDOWS=0
+  ],
+  [
+    USE_X_WINDOWS=1
+    AS_IF([test "x$x_includes" = "x"],[],[X_INCLUDE_DIR=-I$x_includes])
+    AS_IF([test "x$x_libraries" = "x"],[],[X_LIB_DIR=-L$x_libraries])
+    AC_CHECK_HEADER([X11/Intrinsic.h],[],AC_MSG_ERROR([could not find libxt development headers]))
+    AX_JSC_DIRS([])
+  ]
+)
+dnl AS_IF([test "x$x_libraries" = "x"],[X_LIB_DIR=],[X_LIB_DIR=-L$x_libraries])
 dnl X_LIBRARIES=$x_libraries
+AC_SUBST([USE_X_WINDOWS])
 AC_SUBST([X_LIB_DIR])
-AX_JSC_DIRS([])
+
+
 AC_CHECK_LIB(xml2, main,
     [LIBXML=-lxml2
      AC_SUBST([LIBXML])]
