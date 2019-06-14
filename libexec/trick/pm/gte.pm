@@ -65,7 +65,7 @@ sub gte (@) {
         else {
             $ret = `gcc -dumpversion` ;
         }
-        ($gcc_version) = $ret =~ /(\d+\.\d+)/ ;
+        ($gcc_version) = $ret =~ /(\d+(?:\.\d+)?)/ ;
 
         if ( $system_type eq "Linux" ) {
             $def{"TRICK_HOST_CPU"} = $system_type . "_" . $gcc_version ;
