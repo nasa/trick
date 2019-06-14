@@ -88,6 +88,7 @@ namespace Trick {
             int restart() ;
 
         protected :
+            /** TODO: remove units_conversion_msgs in 2021 */
             /** false = see units conversion messages, true = head in sand */
             bool units_conversion_msgs ;
 

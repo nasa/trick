@@ -256,10 +256,8 @@ void FieldDescription::parseComment(std::string comment) {
             // map old unit names to new names
             std::string new_units = map_trick_units_to_udunits(units) ;
             if ( units.compare(new_units) ) {
-                if ( ! units_truth_is_scary ) {
-                    std::cout << bold(color(WARNING, "Warning    ") + file_name + ":" + std::to_string(line_no)) << std::endl
-                        << "           Units converted from " << quote(units) << " to " << quote(new_units) << std::endl;
-                }
+                std::cout << bold(color(WARNING, "Warning    ") + file_name + ":" + std::to_string(line_no)) << std::endl
+                    << "           Units converted from " << quote(units) << " to " << quote(new_units) << std::endl;
                 units = new_units ;
             }
             ut_unit * test_units = ut_parse(u_system, units.c_str() , UT_ASCII) ;

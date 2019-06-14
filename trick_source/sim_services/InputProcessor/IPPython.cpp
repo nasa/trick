@@ -21,6 +21,7 @@
 #include "trick/MemoryManager.hh"
 #include "trick/exec_proto.hh"
 #include "trick/exec_proto.h"
+#include "trick/message_proto.h"
 
 Trick::IPPython * the_pip ;
 
@@ -71,7 +72,9 @@ bool Trick::IPPython::get_units_conversion_msgs() {
 }
 
 void Trick::IPPython::shoot_the_units_conversion_messenger(bool onoff) {
-    units_conversion_msgs = !onoff ;
+    if ( onoff ) {
+        message_publish(MSG_WARNING, "Units conversion messages can no longer be suppressed.\n") ;
+    }
 }
 
 //Initialize and run the Python input processor on the user input file.
@@ -198,14 +201,19 @@ int Trick::IPPython::shutdown() {
     return(0) ;
 }
 
+//TODO: remove units conversion messenger routines in 2021
 void shoot_the_units_conversion_messenger() {
+    message_publish(MSG_WARNING, "shoot_the_units_conversion_messenger() is deprecated\n") ;
     the_pip->shoot_the_units_conversion_messenger(true) ;
 }
 
 void revive_the_units_conversion_messenger() {
+    message_publish(MSG_WARNING, "revive_the_units_conversion_messenger() is deprecated\n") ;
     the_pip->shoot_the_units_conversion_messenger(false) ;
 }
 
 int check_units_conversion_messenger_for_signs_of_life() {
+    message_publish(MSG_WARNING, "check_units_conversion_messenger_for_signs_of_life() is deprecated\n") ;
     return the_pip->get_units_conversion_msgs() ;
 }
+//END TODO:
