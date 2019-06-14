@@ -36,8 +36,14 @@ ifndef TRICK_CC
     export TRICK_CC := $(CC)
 endif
 
-ifndef TRICK_CPPC
-    export TRICK_CPPC := $(CXX)
+# TODO: Remove support for TRICK_CPPC in 2021
+ifdef TRICK_CPPC
+    $(warning TRICK_CPPC is deprecated, use TRICK_CXX instead)
+    export TRICK_CXX := $(TRICK_CPPC)
+endif
+
+ifndef TRICK_CXX
+    export TRICK_CXX := $(CXX)
 endif
 
 ifndef TRICK_LD
@@ -112,7 +118,7 @@ ifeq ($(TRICK_FORCE_32BIT), 1)
    LD_PARTIAL            += -melf_i386
 endif
 
-IS_CC_CLANG = $(shell ${TRICK_CPPC} -xc /dev/null -dM -E | grep -c __clang__)
+IS_CC_CLANG = $(shell ${TRICK_CXX} -xc /dev/null -dM -E | grep -c __clang__)
 ifeq ($(IS_CC_CLANG), 1)
    TRICK_SYSTEM_CXXFLAGS += -fcolor-diagnostics
 else

@@ -107,7 +107,7 @@ ifeq ($(IS_CC_CLANG), 0)
 endif
 
 $(IO_CPP_OBJS): $(OBJ_DIR)/%.o : $(IO_SRC_DIR)%.cpp | $(OBJ_DIR)
-	$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c $< -o $@
+	$(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c $< -o $@
 
 #
 #
@@ -122,19 +122,19 @@ $(C_OBJS): $(OBJ_DIR)/%.o : $(SRC_DIR)%.c | $(OBJ_DIR)
 #
 
 $(CPP_C_OBJS): $(OBJ_DIR)/%.o : $(SRC_DIR)%.C | $(OBJ_DIR)
-	$(CD_CMD) $(TRICK_CPPC) $(TRICK_CFLAGS) $(TRICK_SYSTEM_CFLAGS) -c ${<F} -o $(UP_DIR)$@
+	$(CD_CMD) $(TRICK_CXX) $(TRICK_CFLAGS) $(TRICK_SYSTEM_CFLAGS) -c ${<F} -o $(UP_DIR)$@
 
 $(CPP_CC_OBJS): $(OBJ_DIR)/%.o : $(SRC_DIR)%.cc | $(OBJ_DIR)
-	$(CD_CMD) $(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
+	$(CD_CMD) $(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
 
 $(CPP_CPP_OBJS): $(OBJ_DIR)/%.o : $(SRC_DIR)%.cpp | $(OBJ_DIR)
-	$(CD_CMD) $(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
+	$(CD_CMD) $(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
 
 $(CPP_CXX_OBJS): $(OBJ_DIR)/%.o : $(SRC_DIR)%.cxx | $(OBJ_DIR)
-	$(CD_CMD) $(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
+	$(CD_CMD) $(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
 
 $(CPP_CPLUS_OBJS): $(OBJ_DIR)/%.o : $(SRC_DIR)%.c++ | $(OBJ_DIR)
-	$(CD_CMD) $(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
+	$(CD_CMD) $(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
 
 #
 # LEX/YACC SOURCE
@@ -155,10 +155,10 @@ $(Y_C_PREMADE) : $(SRC_DIR)%.tab.c_premade : $(SRC_DIR)%.y
 	$(YACC) -d -o $@ $<
 
 $(L_OBJS) : $(OBJ_DIR)/%.lex.o : $(SRC_DIR)%.lex.c $(SRC_DIR)%.tab.h  | $(OBJ_DIR)
-	$(CD_CMD) $(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
+	$(CD_CMD) $(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
 
 $(Y_OBJS) : $(OBJ_DIR)/%.tab.o : $(SRC_DIR)%.tab.c  | $(OBJ_DIR)
-	$(CD_CMD) $(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
+	$(CD_CMD) $(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
 
 
 #
@@ -166,7 +166,7 @@ $(Y_OBJS) : $(OBJ_DIR)/%.tab.o : $(SRC_DIR)%.tab.c  | $(OBJ_DIR)
 #
 
 depend:
-	@ $(TRICK_CPPC) -MM $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(C_SRC) $(CPP_SRC) >> $(DEPTEMPFILE)
+	@ $(TRICK_CXX) -MM $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(C_SRC) $(CPP_SRC) >> $(DEPTEMPFILE)
 	@ $(PERL) ${TRICK_HOME}/$(LIBEXEC)/trick/depend_cp $(DEPTEMPFILE) > $(DEPFILE)
 	@ $(RM) $(DEPTEMPFILE)
 	@ echo "Created dependency file $(DEPFILE)"

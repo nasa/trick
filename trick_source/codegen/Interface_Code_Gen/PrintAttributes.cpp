@@ -377,7 +377,7 @@ void PrintAttributes::printIOMakefile() {
         << std::endl
         << "$(IO_OBJECTS): \%.o : \%.cpp | \%.d" << std::endl
         << "\t$(PRINT_COMPILE)" << std::endl
-        << "\t$(call ECHO_AND_LOG,$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(TRICK_IO_CXXFLAGS) -MMD -MP -c -o $@ $<)" << std::endl
+        << "\t$(call ECHO_AND_LOG,$(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(TRICK_IO_CXXFLAGS) -MMD -MP -c -o $@ $<)" << std::endl
         << std::endl
         << "$(IO_OBJECTS:.o=.d): ;" << std::endl
         << std::endl

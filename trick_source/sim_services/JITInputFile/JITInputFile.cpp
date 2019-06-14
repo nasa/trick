@@ -133,10 +133,10 @@ int Trick::JITInputFile::compile(std::string file_name) {
     outfile << std::endl << std::endl ;
     // rule to link shared library
     outfile << library_fullpath_name << ": " << object_fullpath_name << std::endl ;
-    outfile << "\t" << get_trick_env((char *)"TRICK_CPPC") << " -shared -o $@ $<" << std::endl << std::endl ;
+    outfile << "\t" << get_trick_env((char *)"TRICK_CXX") << " -shared -o $@ $<" << std::endl << std::endl ;
     // rule to compile cpp file
     outfile << object_fullpath_name << ": " << file_name << std::endl ;
-    outfile << "\t" << get_trick_env((char *)"TRICK_CPPC") << " " << get_trick_env((char *)"TRICK_CXXFLAGS") ;
+    outfile << "\t" << get_trick_env((char *)"TRICK_CXX") << " " << get_trick_env((char *)"TRICK_CXXFLAGS") ;
     outfile << " " << get_trick_env((char *)"TRICK_SYSTEM_CXXFLAGS") ;
     outfile << " -MMD -c -fPIC -o $@ $<" << std::endl << std::endl ;
     // rule to clean

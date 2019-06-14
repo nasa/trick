@@ -29,8 +29,8 @@ clean :
 	rm -f *.o
 	rm -rf XMLtestReports
 UnitTestEulerQuat.o : UnitTestEulerQuat.cpp
-	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c $<
+	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c $<
 
 UnitTestEulerQuat : UnitTestEulerQuat.o
 	@echo 'Building UnitTestEulerQuat'
-	$(TRICK_CPPC) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)

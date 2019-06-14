@@ -70,10 +70,10 @@ swig_${TRICK_HOST_CPU}:
 	mkdir $@
 
 $(SWIG_OBJECT_FILES): $(OBJ_DIR)/%.o : swig_${TRICK_HOST_CPU}/%.cpp
-	$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c $< -o $@
+	$(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c $< -o $@
 
 $(OBJECT_FILES): $(OBJ_DIR)/%.o : %.cpp
-	$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c $< -o $@
+	$(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c $< -o $@
 
 $(SWIG_SRC_FILES): swig_${TRICK_HOST_CPU}/%_wrap.cpp : %.i
 	 $(SWIG) $(SWIG_DEFS) -I${TRICK_HOME}/trick_source -I${TRICK_HOME}/include -I${TRICK_HOME} -c++ -python -includeall -ignoremissing -w201,362,389,451 -o $@ -outdir ${TRICK_HOME}/share/trick/swig $<

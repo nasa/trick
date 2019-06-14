@@ -8,7 +8,7 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.tricklib
 #trick: $(TRICK_LIB_DIR)/master.o
 #
 #$(OBJ_DIR)/master.o : master.cpp | $(OBJ_DIR)
-#	$(TRICK_CPPC) $(TRICK_CXXFLAGS) -c $< -o $@
+#	$(TRICK_CXX) $(TRICK_CXXFLAGS) -c $< -o $@
 #
 #$(TRICK_LIB_DIR)/master.o : $(OBJ_DIR)/master.o | $(TRICK_LIB_DIR)
 #	$(CP) $< $@
@@ -22,7 +22,7 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.tricklib
 #real_clean: clean
 #
 #depend:
-#	@ $(TRICK_CPPC) -MM $(TRICK_CXXFLAGS) master.cpp >> $(DEPTEMPFILE)
+#	@ $(TRICK_CXX) -MM $(TRICK_CXXFLAGS) master.cpp >> $(DEPTEMPFILE)
 #	@ $(PERL) ${TRICK_HOME}/bin/depend_cp $(DEPTEMPFILE) > $(DEPFILE)
 #	@ $(RM) $(DEPTEMPFILE)
 #	@ echo "Created dependency file $(DEPFILE)"

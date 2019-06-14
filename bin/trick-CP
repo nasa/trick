@@ -191,7 +191,7 @@ S_source.hh: S_define | build
 
 build/Makefile_S_define: S_source.hh
 	$(PRINT_S_DEF_DEPS)
-	$(call ECHO_AND_LOG,$(TRICK_CPPC) $(TRICK_SFLAGS) $(TRICK_SYSTEM_SFLAGS) -MM -MT S_source.hh -MF build/Makefile_S_define -x c++ S_define)
+	$(call ECHO_AND_LOG,$(TRICK_CXX) $(TRICK_SFLAGS) $(TRICK_SYSTEM_SFLAGS) -MM -MT S_source.hh -MF build/Makefile_S_define -x c++ S_define)
 
 # Automatic and manual ICG rules
 ICG:

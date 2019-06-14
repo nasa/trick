@@ -31,7 +31,7 @@ top:
 	@ if [ "${TRICK_HOME}" != "" ] ; then  \
 	      $(MAKE) -e all                   \
 	      "CC =  `trick-gte TRICK_CC` "          \
-	      "CPP = `trick-gte TRICK_CPPC` ";       \
+	      "CPP = `trick-gte TRICK_CXX` ";       \
 	else                                   \
  	      $(MAKE) all                      \
 	      "TRICK_HOST_TYPE = `uname -s` "  \

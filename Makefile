@@ -406,7 +406,7 @@ ICG: $(ICG_EXE)
 
 # This builds a tricklib share library.
 trick_lib: $(SIM_SERV_DIRS) $(UTILS_DIRS) | $(TRICK_LIB_DIR)
-	${TRICK_CPPC} $(SHARED_LIB_OPT) -o ${TRICK_LIB_DIR}/libtrick.so $(SIM_SERV_OBJS) $(UTILS_OBJS)
+	${TRICK_CXX} $(SHARED_LIB_OPT) -o ${TRICK_LIB_DIR}/libtrick.so $(SIM_SERV_OBJS) $(UTILS_OBJS)
 
 # For NASA/JSC developers include optional rules
 -include Makefile_jsc_dirs

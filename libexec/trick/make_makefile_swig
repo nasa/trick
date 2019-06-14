@@ -222,7 +222,7 @@ SWIG_OBJECTS = \$(subst .cpp,.o,\$(SWIG_SRC)) $swig_src_dir/init_swig_modules.o
 
 \$(SWIG_OBJECTS): %.o: %.cpp
 \t\$(PRINT_COMPILE_SWIG)
-\t\$(call ECHO_AND_LOG,\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) \$(TRICK_SWIG_CFLAGS) \$(TRICK_SYSTEM_SWIG_CFLAGS) -Wno-unused-parameter -c -o \$@ \$<)
+\t\$(call ECHO_AND_LOG,\$(TRICK_CXX) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) \$(TRICK_SWIG_CFLAGS) \$(TRICK_SYSTEM_SWIG_CFLAGS) -Wno-unused-parameter -c -o \$@ \$<)
 
 \$(S_MAIN): \$(SWIG_OBJECTS)
 
