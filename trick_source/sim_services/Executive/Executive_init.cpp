@@ -2,13 +2,9 @@
 #include <iostream>
 #include <stdlib.h>
 #include <sys/resource.h>
-#include <cstring>
-#include <cerrno>
-
 #include "trick/Executive.hh"
 #include "trick/ExecutiveException.hh"
 #include "trick/exec_proto.h"
-#include "trick/command_line_protos.h"
 
 /**
 @details
