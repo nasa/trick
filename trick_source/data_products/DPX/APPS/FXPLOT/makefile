@@ -23,6 +23,8 @@ endif
 ifeq ($(TRICK_HOST_TYPE), Darwin)
      INCDIRS += -I/usr/X11/include
      XLIBS = -L${MOTIF_HOME}/lib -lXm -L/usr/X11R6/lib ${X_LIB_DIR} -lXt -lX11 -lc++abi
+     SDK_DIR = $(shell xcrun --show-sdk-path)
+     INCDIRS += -I${SDK_DIR}/usr/include/libxml2
 else
      ifneq (${MOTIF_HOME},/usr)
          XLIBS = -L${MOTIF_HOME}/lib64 -L${MOTIF_HOME}/lib
