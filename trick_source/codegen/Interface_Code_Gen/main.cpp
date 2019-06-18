@@ -30,7 +30,8 @@
 /* Command line arguments.  These work better as globals, as suggested in llvm/CommandLine documentation */
 llvm::cl::list<std::string> include_dirs("I", llvm::cl::Prefix, llvm::cl::desc("Include directory"), llvm::cl::value_desc("directory"));
 llvm::cl::list<std::string> defines("D", llvm::cl::Prefix, llvm::cl::desc("Defines"), llvm::cl::value_desc("define"));
-llvm::cl::opt<bool> units_truth_is_scary("units-truth-is-scary", llvm::cl::desc("Don't print units conversion messages"));
+// TODO: remove units_truth_is_scary in 2021.
+llvm::cl::opt<bool> units_truth_is_scary("units-truth-is-scary", llvm::cl::desc("DEPRECATED: Don't print units conversion messages"));
 llvm::cl::opt<bool> sim_services_flag("s", llvm::cl::desc("Gernerate io_src for Trick core headers"));
 llvm::cl::opt<bool> force("f", llvm::cl::desc("Force all io_src files to be generated"));
 llvm::cl::opt<int> attr_version("v", llvm::cl::desc("Select version of attributes to produce.  10 and 13 are valid"), llvm::cl::init(10));
