@@ -130,8 +130,6 @@ class SysSimObject : public Trick::SimObject {
 
         SysSimObject() {
 
-            {TRK} P0 ("default_data") sched.process_sim_args() ;
-
             {TRK} ("default_data") sched.get_freeze_job(name + ".sched") ;
 
             {TRK} P65534 ("initialization") exec_collect_init() ;

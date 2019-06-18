@@ -2,7 +2,6 @@
 #include <iostream>
 #include <stdlib.h>
 #include <sys/resource.h>
-#include <fstream>
 #include <cstring>
 #include <cerrno>
 
@@ -38,26 +37,16 @@ int Trick::Executive::init() {
         struct rusage cpu_usage_buf ;
         getrusage(RUSAGE_SELF, &cpu_usage_buf);
         cpu_start =   ((double) cpu_usage_buf.ru_utime.tv_sec) + ((double) cpu_usage_buf.ru_utime.tv_usec / 1000000.0);
-        std::ofstream init_log_stream;
+        
+        /* command line args */
+        process_sim_args();
 
-        /* First parse command line to see if trick is in Sie generation mode. 
-           If not, create the init_log file and record the elapsed time of
-           default_data, input_processor, and init jobs */ 
-        int argc ;
-        char ** argv ;
-        argc = command_line_args_get_argc() ;
-        argv = command_line_args_get_argv() ;
-        if (argc < 2 || strcmp(argv[1], "sie")) {
-            init_log_stream.open((std::string(command_line_args_get_output_dir()) + std::string("/init_log.csv")).c_str(), std::ofstream::out);
-            init_log_stream << "class,job,duration (s)\n";
-        }
-
-        call_default_data(init_log_stream) ;
-        call_input_processor(init_log_stream) ;
+        call_default_data() ;
+        call_input_processor() ;
 
         // If we are starting from a checkpoint, restart_called will be true.  Skip init routines in this case.
         if ( ! restart_called ) {
-            call_initialization(init_log_stream) ;
+            call_initialization() ;
         }
 
         init_log_stream.close();

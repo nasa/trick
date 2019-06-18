@@ -25,6 +25,7 @@
       simulation and exit.
    -# If the argument is "help" print out a help message about the possible command line
       arguments and exit.
+   -# If the argument is "sie" then disable init_log which records data on some job queues.
 */
 int Trick::Executive::process_sim_args() {
 
@@ -53,7 +54,7 @@ int Trick::Executive::process_sim_args() {
             "     trick_version       Print which version of Trick is being used\n"
             "                         to the screen.\n" ) ;
 
-    /* If there are arguments to main... */
+    bool open_stream = true;
     if (argc > 1) {
 
         if (!strcmp(argv[1], "trick_version")) {
@@ -64,7 +65,16 @@ int Trick::Executive::process_sim_args() {
                    !strcmp(argv[1], "-h")     || !strcmp(argv[1], "help") ) {
             /* Try and help the user */
             exit(0);
+        } else if (!strcmp(argv[1], "sie")) {
+            /* do not create init_log.csv if we are generating sie */
+            open_stream = false;
         }
+    }
+
+    /* create a log if we are not generating an sie file (usually during trick-CP) */
+    if(open_stream) {
+        init_log_stream.open((std::string(command_line_args_get_output_dir()) + std::string("/_init_log.csv")).c_str(), std::ofstream::out);
+        init_log_stream << "class,job,duration (s)\n";
     }
 
     return(0) ;

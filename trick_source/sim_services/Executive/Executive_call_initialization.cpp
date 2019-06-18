@@ -1,6 +1,5 @@
 
 #include <iostream>
-#include<fstream>
 #include <sys/resource.h>
 #include "trick/Executive.hh"
 #include "trick/ExecutiveException.hh"
@@ -14,7 +13,7 @@
       returned from Trick::Executive::init().
 -# If no execption is thrown return 0
 */
-int Trick::Executive::call_initialization(std::ofstream& init_log_stream) {
+int Trick::Executive::call_initialization() {
 
     int ret = 0 ;
 
@@ -26,7 +25,7 @@ int Trick::Executive::call_initialization(std::ofstream& init_log_stream) {
         long long start = clock_wall_time();
         ret = curr_job->call() ;
         long long end = clock_wall_time();
-        if(init_log_stream) {
+        if(init_log_stream.is_open()) {
             init_log_stream << "init," << curr_job->name << ',' << (double)(end-start)/clock_tics_per_sec() << '\n';
         }
         if ( ret != 0 ) {
