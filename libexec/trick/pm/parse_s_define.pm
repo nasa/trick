@@ -11,7 +11,6 @@ use strict ;
 use Cwd 'abs_path';
 use IPC::Open3 ;
 
-use lib $ENV{"TRICK_HOME"} . "/bin/pm" ;
 use edit ;
 use find_module ;
 use gte ;
@@ -19,6 +18,7 @@ use trick_print ;
 use trick_version ;
 use Text::Balanced qw(extract_bracketed);
 use html ;
+use get_paths ;
 
 my ($integ_loop_def , $collect_def , $vcollect_def);
 my ($job_class_order_def ) ;
@@ -172,15 +172,12 @@ sub parse_s_define ($) {
     my ($CC, $contents) ;
     my (@prescan_job_class_order) ;
     my ($version, $thread, $year) ;
-    my @defines ;
     my @comments ;
 
     my @preprocess_output;
 
-    # Get Include Paths From $TRICK_CFLAGS
-    @{$$sim_ref{inc_paths}} = "$ENV{TRICK_CFLAGS} $ENV{TRICK_SYSTEM_CFLAGS}" =~ /-I\s*(\S+)/g ;
+    @{$$sim_ref{inc_paths}} = (get_include_paths(), $ENV{TRICK_SYSTEM_CFLAGS} =~ /-I(\S+)/g, "$ENV{TRICK_HOME}/trick_source" , "../include") ;
 
-    push @{$$sim_ref{inc_paths}} , ("$ENV{TRICK_HOME}/trick_source" , "../include") ;
     my @valid_inc_paths ;
     foreach (@{$$sim_ref{inc_paths}}) {
 

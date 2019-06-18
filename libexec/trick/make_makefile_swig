@@ -26,26 +26,13 @@ my %python_modules ;
 my %python_module_dirs ;
 
 sub read_files_to_process() {
-    my @include_paths ;
-    my $cc ;
-    my @defines ;
-    my ($version, $thread, $year) ;
+    my $version, my $thread = get_trick_version() ;
+    my $year = $version =~ /^(\d+)/ ;
+    (my $cc = gte("TRICK_CC")) =~ s/\n// ;
 
-    ($version, $thread) = get_trick_version() ;
-    ($year) = $version =~ /^(\d+)/ ;
-    ($cc = gte("TRICK_CC")) =~ s/\n// ;
-
-    # add -I paths and #defines
-    foreach my $value ( "TRICK_CFLAGS", "TRICK_CXXFLAGS" ) {
-        push @include_paths, $ENV{$value} =~ /(-I\s*\S+)/g ;
-        push @defines, $ENV{$value} =~ /(-D\S+)/g ;
-    }
-    push @include_paths , ("-I".$ENV{"TRICK_HOME"}."/include") ;
-    push @include_paths , ("-I".$ENV{"TRICK_HOME"}."/include/trick/compat") ;
-    push @include_paths , ("-I".$ENV{"TRICK_HOME"}."/trick_source" , "-I../include") ;
-    push @defines , "-DTRICK_VER=$year" ;
-    push @defines , "-DSWIG" ;
-    push @defines , "-std=c++11" ;
+    # Prepend -I to each include path before we pass them to the compiler
+    my @include_paths = map("-I$_", (get_include_paths(), "$ENV{TRICK_HOME}/include", "$ENV{TRICK_HOME}/include/trick/compat", "$ENV{TRICK_HOME}/trick_source", "../include")) ;
+    my @defines = (get_defines(), "-DTRICK_VER=$year", "-DSWIG", "-std=c++11") ;
 
     # get the list of header files from the compiler
     open FILE_LIST, "$cc -MM @include_paths @defines S_source.hh |" ;

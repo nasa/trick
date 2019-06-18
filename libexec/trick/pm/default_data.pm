@@ -9,6 +9,7 @@ use strict ;
 use lib $ENV{"TRICK_HOME"} . "/bin/pm" ;
 use gte ;
 use trick_print ;
+use get_paths ;
 
 #--------------------------------------------------------------
 # Make Default Data
@@ -53,7 +54,7 @@ sub make_default_data($) {
 // USER:  $user\n\n" ;
 
     my @default_data_list ;
-    @include_paths = $ENV{"TRICK_CFLAGS"} =~ /-I\s*(\S+)/g ; # get include paths from TRICK_CFLAGS
+    @include_paths = get_include_paths() ;
 
     foreach my $dd_comment ( @{$$sim_ref{default_data}} ) {
         $dd_comment =~ s/\(\s*\(/\(/sg ;
