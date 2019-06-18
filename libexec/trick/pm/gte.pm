@@ -82,7 +82,7 @@ sub gte (@) {
     $def{"TRICK_CFLAGS"} = "" ;
     $def{"TRICK_CXXFLAGS"} = "" ;
     $def{"TRICK_CPFLAGS"} = "" ;
-    $def{"TRICK_CPPC"} = "c++" ;
+    $def{"TRICK_CXX"} = "c++" ;
     $def{"TRICK_DEBUG"} = "0" ;
     $def{"TRICK_EDITOR"} = "" ;
     $def{"TRICK_EXEC_LINK_LIBS"} = "" ;

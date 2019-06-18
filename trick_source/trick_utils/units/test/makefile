@@ -33,23 +33,23 @@ clean :
 	rm -rf XMLtestReports
 
 UnitTestSuite.o : UnitTestSuite.cpp
-	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c $<
+	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c $<
 
 UnitTestSuite : UnitTestSuite.o
 	@echo 'Building UnitTestSuite'
-	$(TRICK_CPPC) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 UnitConvTestSuite.o : UnitConvTestSuite.cpp
-	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c $<
+	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c $<
 
 UnitConvTestSuite : UnitConvTestSuite.o
 	@echo 'Building UnitConvTestSuite'
-	$(TRICK_CPPC) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 #TestSuite3.o : UnitTestSuite3.cpp
-#	$(TRICK_CPPC) $(TRICK_CPPFLAGS) -c $<
+#	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c $<
 
 #UnitTestSuite3 : UnitTestSuite3.o
 #	echo "GTEST_HOME  = " ${GTEST_HOME}
-#	$(TRICK_CPPC) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+#	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 

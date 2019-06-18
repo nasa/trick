@@ -130,7 +130,7 @@ class HeaderSearchDirs {
         /** ${TRICK_HOME}/include/trick resolved */
         std::string trick_include_dir ;
 
-        /** Adds all of the built-in system paths contained in the TRICK_CPPC compiler */
+        /** Adds all of the built-in system paths contained in the TRICK_CXX compiler */
         void AddCompilerBuiltInSearchDirs () ;
 
         /** Adds all of the paths specified on the command line */

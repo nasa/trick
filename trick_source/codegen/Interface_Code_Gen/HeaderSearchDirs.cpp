@@ -50,13 +50,13 @@ void HeaderSearchDirs::AddCompilerBuiltInSearchDirs () {
     }
 #endif
 
-    fp = popen("${TRICK_HOME}/bin/trick-gte TRICK_CPPC" , "r") ;
+    fp = popen("${TRICK_HOME}/bin/trick-gte TRICK_CXX" , "r") ;
     fgets(line , sizeof(line) , fp) ;
     pclose(fp) ;
     std::string trick_cppc = std::string(line) ;
     std::string command ;
     trick_cppc.erase(trick_cppc.find_last_not_of(" \n\r\t")+1) ;
-    //std::cout << "TRICK_CPPC = " << trick_cppc << std::endl ;
+    //std::cout << "TRICK_CXX = " << trick_cppc << std::endl ;
     command = std::string("echo | ") + trick_cppc + std::string(" -v -xc++ -E - 2>&1") ;
     //std::cout << "command = " << command << std::endl ;
 

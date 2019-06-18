@@ -116,7 +116,7 @@ $(TRICKIFY_OBJECT_NAME): $(SWIG_OBJECTS) $(IO_OBJECTS) | $(dir $(TRICKIFY_OBJECT
 ifeq ($(TRICKIFY_BUILD_TYPE),PLO)
 	$(call ECHO_AND_LOG,$(LD) $(LD_PARTIAL) -o $@ $^)
 else ifeq ($(TRICKIFY_BUILD_TYPE),SHARED)
-	$(call ECHO_AND_LOG,$(TRICK_CPPC) -shared -o $@ $^)
+	$(call ECHO_AND_LOG,$(TRICK_CXX) -shared -o $@ $^)
 else ifeq ($(TRICKIFY_BUILD_TYPE),STATIC)
 	$(call ECHO_AND_LOG,ar rcs $@ $^)
 endif
@@ -126,7 +126,7 @@ $(dir $(TRICKIFY_OBJECT_NAME)) $(TRICKIFY_PYTHON_DIR) $(BUILD_DIR):
 
 $(IO_OBJECTS): %.o: %.cpp
 	$(info $(call COLOR,Compiling)  $<)
-	$(call ECHO_AND_LOG,$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -std=c++11 -Wno-invalid-offsetof -MMD -MP -c -o $@ $<)
+	$(call ECHO_AND_LOG,$(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -std=c++11 -Wno-invalid-offsetof -MMD -MP -c -o $@ $<)
 
 $(IO_OBJECTS:.o=.d): %.d: ;
 
@@ -134,7 +134,7 @@ $(IO_OBJECTS:.o=.d): %.d: ;
 
 $(SWIG_OBJECTS): %.o: %.cpp
 	$(info $(call COLOR,Compiling)  $<)
-	$(call ECHO_AND_LOG,$(TRICK_CPPC) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(PYTHON_INCLUDES) -Wno-unused-parameter -Wno-shadow -c -o $@ $<)
+	$(call ECHO_AND_LOG,$(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(PYTHON_INCLUDES) -Wno-unused-parameter -Wno-shadow -c -o $@ $<)
 
 $(SWIG_OBJECTS:.o=.cpp): %.cpp: %.i | %.d $(TRICKIFY_PYTHON_DIR) $(SWIG_OBJECTS:.o=.i)
 	$(info $(call COLOR,SWIGing)    $<)

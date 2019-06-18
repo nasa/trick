@@ -26,7 +26,7 @@ INCLUDES = -I${TRICK_HOME}/include
 top:
 	@ if [ "${TRICK_HOME}" != "" ] ; then  \
 	      $(MAKE) -e all                   \
-	      "CPP = `${TRICK_HOME}/bin/trick-gte TRICK_CPPC` ";       \
+	      "CPP = `${TRICK_HOME}/bin/trick-gte TRICK_CXX` ";       \
 	else                                   \
  	      $(MAKE) all                      \
 	      "TRICK_HOST_TYPE = `uname -s` "  \

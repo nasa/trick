@@ -237,7 +237,7 @@ S_OBJECTS = build/S_source.o
 
 build/S_source.o: build/S_source.cpp | build/S_source.d
 \t\$(PRINT_COMPILE)
-\t\$(call ECHO_AND_LOG,\$(TRICK_CPPC) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c -o \$\@ \$\<)
+\t\$(call ECHO_AND_LOG,\$(TRICK_CXX) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c -o \$\@ \$\<)
 
 build/S_source.d: ;
 
@@ -286,7 +286,7 @@ print MAKEFILE "
 .SECONDEXPANSION:" ;
 
 foreach my $extension ( keys %files_by_extension ) {
-    my $compiler = "TRICK_" . ($extension eq ".c" ? "CC" : "CPPC") ;
+    my $compiler = "TRICK_" . ($extension eq ".c" ? "CC" : "CXX") ;
     my $flags = $extension eq ".c" ? "C" : "CXX" ;
     my $command = "\$($compiler) \$(TRICK_${flags}FLAGS) \$(TRICK_SYSTEM_${flags}FLAGS) -I\$(<D)/../include -MMD -MP -c -o \$\@ \$<" ;
     print MAKEFILE "
@@ -323,7 +323,7 @@ all: S_sie.resource
 
 \$(S_MAIN): S_source.hh \$(TRICK_STATIC_LIB) \$(S_OBJECTS) \$(MODEL_OBJECTS)
 \t\$(PRINT_EXE_LINK)
-\t\$(call ECHO_AND_LOG,\$(TRICK_CPPC) -o \$@ \$(TRICK_SYSTEM_LDFLAGS) \$(S_OBJECTS) \$(LINK_LISTS) \$(TRICK_LDFLAGS) \$(TRICK_USER_LINK_LIBS) \$(READ_ONLY_LIBS) \$(LD_WHOLE_ARCHIVE) \$(TRICK_LIBS) \$(LD_NO_WHOLE_ARCHIVE) \$(TRICK_EXEC_LINK_LIBS))
+\t\$(call ECHO_AND_LOG,\$(TRICK_CXX) -o \$@ \$(TRICK_SYSTEM_LDFLAGS) \$(S_OBJECTS) \$(LINK_LISTS) \$(TRICK_LDFLAGS) \$(TRICK_USER_LINK_LIBS) \$(READ_ONLY_LIBS) \$(LD_WHOLE_ARCHIVE) \$(TRICK_LIBS) \$(LD_NO_WHOLE_ARCHIVE) \$(TRICK_EXEC_LINK_LIBS))
 
 # SIE ==========================================================================
 
