@@ -7,6 +7,7 @@
 #define EXECUTIVE_HH
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <map>
 #include <vector>
@@ -42,7 +43,6 @@ namespace Trick {
      */
 
     class Executive : public Trick::Scheduler {
-
         protected:
             /** Attempts to attach a debugger in the event a signal shuts down the simulation.\n */
             bool attach_debugger;            /**< trick_units(--) */
@@ -154,6 +154,10 @@ namespace Trick {
 
             /** Next scheduled jobs call time.\n */
             long long job_call_time_tics;   /**< trick_units(--) */
+
+            /** stream to record elapsed time of default_data, 
+                input_processor, and initialization queues \n */
+            std::ofstream init_log_stream; /**< trick_units(--) */
 
             /** Queue to hold default data jobs.\n */
             Trick::ScheduledJobQueue default_data_queue ;     /**< trick_io(**) */
@@ -1264,6 +1268,12 @@ namespace Trick {
              @return always 0
             */
             virtual int exec_terminate(const char *file_name, const char *error);
+            
+            /* deleted functions  */
+      private:
+            /* SWIG doesn't like the Executive assignment operator because of ofstream init_log_stream */
+            Executive& operator=(const Executive&); /* = delete; '= delete' is not compatible with SWIG 2.0.
+                                                                  stick to 'private' for now */
 
     } ;
 

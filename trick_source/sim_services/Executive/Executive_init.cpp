@@ -2,7 +2,6 @@
 #include <iostream>
 #include <stdlib.h>
 #include <sys/resource.h>
-
 #include "trick/Executive.hh"
 #include "trick/ExecutiveException.hh"
 #include "trick/exec_proto.h"
@@ -25,6 +24,7 @@ int Trick::Executive::init() {
 
     double cpu_time ;
 
+
     try {
 
         mode = Initialization ;
@@ -33,15 +33,19 @@ int Trick::Executive::init() {
         struct rusage cpu_usage_buf ;
         getrusage(RUSAGE_SELF, &cpu_usage_buf);
         cpu_start =   ((double) cpu_usage_buf.ru_utime.tv_sec) + ((double) cpu_usage_buf.ru_utime.tv_usec / 1000000.0);
+        
+        /* command line args */
+        process_sim_args();
 
         call_default_data() ;
-
         call_input_processor() ;
 
         // If we are starting from a checkpoint, restart_called will be true.  Skip init routines in this case.
         if ( ! restart_called ) {
             call_initialization() ;
         }
+
+        init_log_stream.close();
 
         /* Set the initial values for the scheduler times. */
         next_frame_check_tics = software_frame_tics + time_tics ;

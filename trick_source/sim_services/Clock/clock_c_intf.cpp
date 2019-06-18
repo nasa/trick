@@ -32,3 +32,6 @@ extern "C" int clock_set_rt_clock_ratio(double in_clock_ratio) {
     return the_clock->set_rt_clock_ratio(in_clock_ratio) ;
 }
 
+extern "C" unsigned long long clock_tics_per_sec(void) {
+	return the_clock->clock_tics_per_sec;
+}

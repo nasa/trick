@@ -5,6 +5,7 @@ S_run_summary
 send_hs
 varserver_log
 log_*
+*init_log.csv*
 chkpnt_*
 MONTE_RUN_*
 .S_library*

@@ -4,6 +4,7 @@
 
 #include "trick/Executive.hh"
 #include "trick/ExecutiveException.hh"
+#include "trick/clock_proto.h"
 
 /**
 @details
@@ -24,7 +25,12 @@ int Trick::Executive::call_default_data() {
     /* Call the default data jobs. */
     default_data_queue.reset_curr_index() ;
     while ( (curr_job = default_data_queue.get_next_job()) != NULL ) {
+        long long start = clock_wall_time();
         ret = curr_job->call() ;
+        long long end = clock_wall_time();
+        if(init_log_stream.is_open()) {
+          init_log_stream << "default_data," << curr_job->name << ',' << (double)(end-start)/clock_tics_per_sec() << '\n';
+        }
         if ( ret != 0 ) {
             throw Trick::ExecutiveException(ret , curr_job->name.c_str() , 0 , "default_data job did not return 0") ;
         }
