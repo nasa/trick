@@ -1270,9 +1270,10 @@ namespace Trick {
             virtual int exec_terminate(const char *file_name, const char *error);
             
             /* deleted functions  */
-
+      private:
             /* SWIG doesn't like the Executive assignment operator because of ofstream init_log_stream */
-            Executive& operator=(const Executive&) = delete;
+            Executive& operator=(const Executive&); /* = delete; '= delete' is not compatible with SWIG 2.0.
+                                                                  stick to 'private' for now */
 
     } ;
 
