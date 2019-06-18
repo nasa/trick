@@ -15,8 +15,10 @@ LIBDIRS = Var \
     EQParse \
     units
 
+ifeq ($(USE_X_WINDOWS),1)
 ifneq ("$(wildcard fermi-ware)","")
 LIBDIRS += fermi-ware
+endif
 endif
 
 APPDIRS = DPX \
