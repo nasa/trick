@@ -53,10 +53,6 @@ Examples:
 my $help = '';  # option variable with default value (false)
 my $stls = 0;  # option variable with default value (false)
 
-my ( @include_dirs , @defines) ;
-my @exclude_paths ;
-my @swig_exclude_paths ;
-my @ext_lib_paths ;
 my %sim ;
 my %out_of_date ;
 my ($version, $thread, $year) ;
@@ -128,14 +124,13 @@ if ( $help ) {
 ($version, $thread) = get_trick_version() ;
 ($year) = $version =~ /^(\d+)/ ;
 
-@include_dirs = $ENV{"TRICK_CFLAGS"} =~ /-I\s*(\S+)/g ; # get include paths from TRICK_CFLAGS
+my @include_dirs       = get_include_paths() ;
+my @defines            = get_defines() ;
+my @exclude_paths      = get_paths("TRICK_EXCLUDE") ;
+my @swig_exclude_paths = get_paths("TRICK_SWIG_EXCLUDE") ;
+my @ext_lib_paths      = get_paths("TRICK_EXT_LIB_DIRS") ;
 
-@exclude_paths      = get_paths( "TRICK_EXCLUDE") ;
-@swig_exclude_paths = get_paths( "TRICK_SWIG_EXCLUDE") ;
-@ext_lib_paths      = get_paths( "TRICK_EXT_LIB_DIRS") ;
-
-@defines = $ENV{"TRICK_CFLAGS"} =~ /(-D\S+)/g ;       # get defines from TRICK_CFLAGS
-if ( $ENV{"TRICK_CFLAGS"} !~ /DTRICK_VER=/ ) {
+if ( "$ENV{'TRICK_CFLAGS'} $ENV{'TRICK_CXXFLAGS'}" !~ /DTRICK_VER=/ ) {
     push @defines , "-DTRICK_VER=$year" ;
 }
 

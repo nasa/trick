@@ -5,6 +5,7 @@ use Cwd 'abs_path';
 use File::Path qw(make_path) ;
 use Exporter ();
 use gte ;
+use get_paths ;
 @ISA = qw(Exporter);
 @EXPORT = qw(get_lib_deps write_lib_deps);
 
@@ -29,7 +30,7 @@ sub get_lib_deps ($$) {
         # if there is preprocessor directive in the library dependencies, run the text through cpp.
         if ( $r =~ /#/ ) {
             (my $cc = gte("TRICK_CC")) =~ s/\n// ;
-            my @defines = $ENV{"TRICK_CFLAGS"} =~ /(-D\S+)/g ;
+            my @defines = get_defines() ;
             my $temp ;
             open FILE, "echo \"$r\" | cpp -P @defines |" ;
             while ( <FILE> ) {
@@ -40,7 +41,7 @@ sub get_lib_deps ($$) {
         push @lib_list , (split /\)[ \t\n\r\*]*\(/ , $r)  ;
     }
 
-    @inc_paths = $ENV{"TRICK_CFLAGS"} =~ /-I\s*(\S+)/g ;     # get include paths from TRICK_CFLAGS
+    @inc_paths = get_include_paths() ;
     # Get only the include paths that exist
     my @valid_inc_paths ;
     foreach (@inc_paths) {
