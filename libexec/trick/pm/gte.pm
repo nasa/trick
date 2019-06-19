@@ -13,7 +13,7 @@ sub gte (@) {
     my $ret ;
     my ( $system_type , $version , $major_ver , $gcc_version , $glibc_version ) ;
     my ( $machine_hardware ) ;
-    my (%gte , %def );
+    my (%gte , %def , %deprecated);
     my @externals ;
     my $search ;
     my $e ;
@@ -119,6 +119,9 @@ sub gte (@) {
         $gte{$_} = ( exists $ENV{$_} ) ? $ENV{$_} : $def{$_} ;
     }
  
+    #deprecated
+    $deprecated{"TRICK_CPPC"} =  $gte{"TRICK_CXX"};
+
     $gte{"TRICK_HOST_CPU"} .= $gte{"TRICK_HOST_CPU_USER_SUFFIX"} ;
 
     # Flip -g/-O in TRICK_CFLAGS according to TRICK_DEBUG if we are not asking for whole list
@@ -204,19 +207,27 @@ sub gte (@) {
                 if (exists $gte{$e}) {
                     $ret .= $gte{$e} . "\n" ;
                 }
+                elsif (exists $deprecated{$e}) {
+                    if ( $e eq "TRICK_CPPC" ) {
+                        warn "trick-gte warning: $e is deprecated, use TRICK_CXX\n";
+                    } else {
+                        warn "trick-gte warning: $e is deprecated\n";
+                    }
+                    $ret .= $deprecated{$e} . "\n" ;
+                }
                 elsif (exists $ENV{$e}) {
                     # print variable from environment if not a trick variable
                     $ret .= $ENV{$e} . "\n" ;
                 }
             }
         }
-        
+
         if ( $args[0] =~ /^-e(.*)/ ) {
             $search = $1 ;
             if ($search eq "") {
                 $search = $args[1] ;
             }
-                
+
             # print all variables in gte that match
             foreach $e (sort keys %gte) {
                 if ( $e =~ /$search/ ) {
@@ -230,8 +241,12 @@ sub gte (@) {
         foreach $e (sort keys %gte) {
             $ret .= $e . "=" . $gte{$e} . "\n" ;
         }
+        $ret .= "\nDeprecated\n" ;
+        foreach $e (sort keys %deprecated) {
+            $ret .= $e . "=" . $deprecated{$e} . "\n" ;
+        }
     }
- 
+
     return $ret ;
 }
 
