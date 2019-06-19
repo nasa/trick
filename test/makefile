@@ -8,6 +8,7 @@ COMPILE_DIRS = \
 	SIM_python_namespace \
 	SIM_rti \
 	SIM_stls \
+	SIM_target_specific_variables \
 	SIM_test_dp \
 	SIM_test_dr \
 	SIM_test_io \
