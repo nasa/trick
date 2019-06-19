@@ -395,12 +395,10 @@ ut_system * Trick::MemoryManager::get_unit_system() {
     return Trick::UdUnits::get_u_system() ;
 #else
     /* Initialize the udunits-2 library */
-    ut_set_error_message_handler(ut_ignore) ;
     if( (u_system = ut_read_xml( NULL )) == NULL ) {
         std::cerr << "Error initializing udunits-2 unit system" << std::endl ;
         return -1 ;
     }
-    ut_set_error_message_handler(ut_write_to_stderr) ;
     return u_system ;
 #endif
 }

@@ -130,7 +130,7 @@ my @exclude_paths      = get_paths("TRICK_EXCLUDE") ;
 my @swig_exclude_paths = get_paths("TRICK_SWIG_EXCLUDE") ;
 my @ext_lib_paths      = get_paths("TRICK_EXT_LIB_DIRS") ;
 
-if ( "$ENV{'TRICK_CFLAGS'} $ENV{'TRICK_CXXFLAGS'}" !~ /DTRICK_VER=/ ) {
+if ( "$ENV{TRICK_CFLAGS} $ENV{TRICK_CXXFLAGS}" !~ /DTRICK_VER=/ ) {
     push @defines , "-DTRICK_VER=$year" ;
 }
 
