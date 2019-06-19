@@ -3,27 +3,38 @@
   <head>
     <title>WS Experiments</title>
   </head>
-  <style>
-    table { border-collapse: collapse; width: 100%; }
-    th, td { text-align: left; padding: 8px; }
-    tr:nth-child(even){background-color: #f2f2f2}
-    th { background-color: #562399; color: white; }
-  </style>
   <body>
       <header>
       </header>
       <section>
       </section>
+
+      <div id="output"></div>
       <script type="text/javascript">
 
+          function sendMessage(msg) {
+              ws.send(msg);
+              log("Message sent");
+          }
+
+          function log(s) {  
+              var p = document.createElement("p");  
+              p.style.wordWrap = "break-word";  
+              p.textContent = s;  
+              output.appendChild(p);
+              //console.log(s);
+          }
+
           var ws = new WebSocket("ws://localhost:8888", "myProtocol");
+
           // Event handler for the WebSocket connection opening
           ws.onopen = function(e) {
-             console.log("Connection established");
+              log("Connection established");
+              sendMessage("Hello WebSocket Server from Browser Client!");
           };
           // Event handler for receiving text messages
           ws.onmessage = function(e) {
-                console.log("Message received", e, e.data);
+             log(e.data);
           };
           // Event handler for errors in the WebSocket object
           ws.onerror = function(e) {
