@@ -26,8 +26,8 @@ my %python_modules ;
 my %python_module_dirs ;
 
 sub read_files_to_process() {
-    my $version, my $thread = get_trick_version() ;
-    my $year = $version =~ /^(\d+)/ ;
+    (my $version, my $thread) = get_trick_version() ;
+    (my $year) = $version =~ /^(\d+)/ ;
     (my $cc = gte("TRICK_CC")) =~ s/\n// ;
 
     # Prepend -I to each include path before we pass them to the compiler
