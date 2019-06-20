@@ -1,0 +1,11 @@
+#include "sim_objects/default_trick_sys.sm"
+
+##include "one/1.hh"
+##include "many/a.hh"
+##include "many/b.hh"
+##include "many/c.hh"
+##include "nested/x.hh"
+##include "nested/y/y.hh"
+##include "nested/z/z.hh"
+
+class Sandbox : public Trick::SimObject {};

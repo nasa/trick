@@ -245,6 +245,11 @@ build/S_source.d: ;
 
 # MODEL_OBJECTS ================================================================
 
+# This function allows users to specify target-specific variables for individual
+# or groups of source files. For example:
+# \$(call FIND_MODEL_OBJECTS, /path/to/file /path/to/directory \$(LIST_OF_PATHS)): TRICK_CXXFLAGS += -Werror
+FIND_MODEL_OBJECTS = \$(foreach PATH, \$1, \$(filter \$(addprefix build, \$(addsuffix %, \$(PATH))), \$(MODEL_OBJECTS)))
+
 " ;
 
 # List out all of the object files and put the list in a file that we can pass to the linker.
