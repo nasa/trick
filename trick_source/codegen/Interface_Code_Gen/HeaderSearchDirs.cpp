@@ -106,10 +106,22 @@ void HeaderSearchDirs::AddUserSearchDirs ( std::vector<std::string> & include_di
         if ( resolved_path != NULL ) {
             //std::cout << "adding resolved_path = " << resolved_path << std::endl ;
             hso.AddPath(resolved_path , clang::frontend::Angled, false, true);
-            // Add the path as a system path as well for those included files that are erroneously in <>
         }
     }
+}
 
+void HeaderSearchDirs::AddSystemSearchDirs ( std::vector<std::string> & isystem_dirs ) {
+    //std::cout << "num isystem dirs " << isystem_dirs.size() << std::endl ;
+    int ii ;
+
+    for  ( ii = 0 ; ii < isystem_dirs.size() ; ii++ ) {
+        //std::cout << "isystem dirs " << isystem_dirs[ii] << std::endl ;
+        char * resolved_path = almostRealPath(isystem_dirs[ii].c_str()) ;
+        if ( resolved_path != NULL ) {
+            //std::cout << "adding resolved_path = " << resolved_path << std::endl ;
+            hso.AddPath(resolved_path , clang::frontend::System, false, true);
+        }
+    }
 }
 
 void HeaderSearchDirs::AddTrickSearchDirs () {
@@ -186,8 +198,10 @@ void HeaderSearchDirs::ApplyHeaderSearchOptions () {
 */
 }
 
-void HeaderSearchDirs::addSearchDirs ( std::vector<std::string> & include_dirs ) {
+void HeaderSearchDirs::addSearchDirs ( std::vector<std::string> & include_dirs,
+                                       std::vector<std::string> & isystem_dirs) {
     AddUserSearchDirs( include_dirs ) ;
+    AddSystemSearchDirs( isystem_dirs ) ;
     AddTrickSearchDirs() ;
     AddCompilerBuiltInSearchDirs() ;
     ApplyHeaderSearchOptions() ;
