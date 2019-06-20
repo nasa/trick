@@ -38,8 +38,14 @@ AC_DEFUN([AX_HDF5_HOME],[
                                 )
                   )
                 )],
-                [AC_CHECK_HEADER(hdf5.h, [HDF5_HOME="/usr"], [HDF5_HOME=""])]
+                 [
+                   AC_CHECK_HEADER(hdf5.h, [HDF5_HOME="/usr"], [HDF5_HOME=""])
+                 ]
                )
+    AS_IF([test "$HDF5_HOME" != ""],
+      [AC_CHECK_LIB(hdf5, main, [],AC_MSG_ERROR([could not find libhdf5]))]
+      []
+    )
     AC_SUBST([HDF5_HOME])
 ])
 
@@ -102,6 +108,10 @@ AC_DEFUN([AX_GSL_HOME],[
                 )],
                 [AC_CHECK_HEADER(gsl/gsl_rng.h, [GSL_HOME="/usr"], [GSL_HOME=""])]
                )
+    AS_IF([test "$GSL_HOME" != ""],
+      [AC_CHECK_LIB(gsl, main, [],AC_MSG_ERROR([could not find libgsl]))]
+      []
+    )
     AC_SUBST([GSL_HOME])
 ])
 
@@ -201,8 +211,9 @@ AC_DEFUN([AX_GCC_VERSION], [
   AC_SUBST([GCC_VERSION])
 ])
 
-dnl get the host_os.
+dnl get the host and build.
 AC_CANONICAL_HOST
+AC_CANONICAL_BUILD
 
 dnl AC_CANONICAL_HOST provides platform.  MacOSX is diverging... have to do special things
 ON_MAC=no
@@ -214,8 +225,9 @@ case "${host_os}" in
         ;;
 esac
 
-dnl add extra paths to find gcc on RHEL 6 systems
-PATH="/opt/rh/devtoolset-3/root/usr/bin:/usr/local/bin:${PATH}"
+
+dnl add extra paths to find programs
+PATH="/usr/local/bin:${PATH}"
 
 dnl add extra paths to find xml headers and X headers on the mac.
 AS_IF([test "$ON_MAC" = "yes"],
@@ -230,6 +242,46 @@ AS_IF([test "$ON_MAC" = "yes"],
 ])
 CFLAGS="$CFLAGS $XTRAINCPATHS"
 CPPFLAGS="$CPPFLAGS $XTRAINCPATHS"
+
+dnl look for X windows libraries and headers we need to compile
+dnl these checks must be done before we force 32bit mode.
+AC_PATH_X
+AS_IF([test "$no_x" = "yes"],
+  [
+    USE_X_WINDOWS=0
+  ],
+  [
+    USE_X_WINDOWS=1
+    AS_IF([test "x$x_includes" = "x"],[],[X_INCLUDE_DIR=-I$x_includes])
+    AS_IF([test "x$x_libraries" = "x"],[],[X_LIB_DIR=-L$x_libraries])
+    AC_CHECK_HEADER([X11/Intrinsic.h],[],AC_MSG_ERROR([could not find libxt development headers]))
+    AX_JSC_DIRS([])
+  ]
+)
+AC_SUBST([USE_X_WINDOWS])
+AC_SUBST([X_LIB_DIR])
+
+dnl TODO Need to check 64bit only!
+AC_CHECK_LIB(xml2, main,
+    [LIBXML=-lxml2
+     AC_SUBST([LIBXML])]
+)
+AC_CHECK_HEADER([libxml/tree.h],[],AC_MSG_ERROR([could not find libxml development headers]))
+
+# If 32bit is specified, set some compilation flags.
+AC_ARG_ENABLE([32bit],
+  AS_HELP_STRING([--enable-32bit], [Force Trick and sims to compile 32bit]),
+  AS_IF([test "x$enable_32bit" = xyes],
+  [
+   TRICK_FORCE_32BIT=1
+   CFLAGS="${CFLAGS} -m32"
+   CXXFLAGS="${CXXFLAGS} -m32"
+   LDFLAGS="${LDFLAGS} -m32"
+   ARCH="i686"
+  ], [TRICK_FORCE_32BIT=0]),
+  [TRICK_FORCE_32BIT=0]
+)
+AC_SUBST([TRICK_FORCE_32BIT])
 
 dnl look for programs we need to compile and run
 AC_PROG_AWK
@@ -269,31 +321,7 @@ AS_IF([test "$ac_cv_path_GNUPLOT" = "nognuplot"],AC_MSG_NOTICE([could not find g
 AX_SWIG_BIN([])
 AX_PKG_SWIG(2.0, [], [AC_MSG_ERROR([Trick requires SWIG version >= 2.0])])
 AX_JAVA
-dnl look for libraries and headers we need to compile
-AC_PATH_X
-AS_IF([test "$no_x" = "yes"],
-  [
-    USE_X_WINDOWS=0
-  ],
-  [
-    USE_X_WINDOWS=1
-    AS_IF([test "x$x_includes" = "x"],[],[X_INCLUDE_DIR=-I$x_includes])
-    AS_IF([test "x$x_libraries" = "x"],[],[X_LIB_DIR=-L$x_libraries])
-    AC_CHECK_HEADER([X11/Intrinsic.h],[],AC_MSG_ERROR([could not find libxt development headers]))
-    AX_JSC_DIRS([])
-  ]
-)
-dnl AS_IF([test "x$x_libraries" = "x"],[X_LIB_DIR=],[X_LIB_DIR=-L$x_libraries])
-dnl X_LIBRARIES=$x_libraries
-AC_SUBST([USE_X_WINDOWS])
-AC_SUBST([X_LIB_DIR])
 
-
-AC_CHECK_LIB(xml2, main,
-    [LIBXML=-lxml2
-     AC_SUBST([LIBXML])]
-)
-AC_CHECK_HEADER([libxml/tree.h],[],AC_MSG_ERROR([could not find libxml development headers]))
 AX_PTHREAD()
 AX_PYTHON_DEVEL([>='2.5'])
 AX_PROG_PERL_MODULES( Text::Balanced ,[],AC_MSG_ERROR([could not find perl modules Text::Balanced]))
@@ -338,8 +366,10 @@ dnl look for udunits in /usr/include and /usr/include/udunits2
 AX_UDUNITS_HOME([])
 AS_IF([test "$UDUNITS_HOME" = ""],
  [
-  AC_CHECK_HEADER([udunits2.h], [UDUNITS_INCLUDES=],
-   AC_CHECK_HEADER([udunits2/udunits2.h],[UDUNITS_INCLUDES=-I/usr/include/udunits2],AC_MSG_ERROR([could not find udunits development headers])))
+  AC_CHECK_HEADER([udunits2.h],
+   [UDUNITS_INCLUDES=],
+   [AC_CHECK_HEADER([udunits2/udunits2.h],[UDUNITS_INCLUDES=-I/usr/include/udunits2],AC_MSG_ERROR([could not find udunits development headers]))]
+  )
   UDUNITS_LDFLAGS=-ludunits2
  ],
  [
@@ -355,8 +385,11 @@ AS_IF([test "$UDUNITS_HOME" = ""],
     AC_MSG_ERROR([could not find udunits2]))
    ]
   )
+  CFLAGS="${CFLAGS} ${UDUNITS_INCLUDES}"
+  LDFLAGS="${LDFLAGS} ${UDUNITS_LDFLAGS}"
  ]
 )
+AC_CHECK_LIB(udunits2, main, [],AC_MSG_ERROR([could not find libudunits]))
 AC_SUBST([UDUNITS_INCLUDES])
 AC_SUBST([UDUNITS_LDFLAGS])
 AC_SUBST([UDUNITS_EXCLUDE])
