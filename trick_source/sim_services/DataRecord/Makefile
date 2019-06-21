@@ -1,8 +1,8 @@
-TRICK_CXXFLAGS += -std=c++11
-
-include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
+include $(dir $(lastword $(MAKEFILE_LIST)))../../../share/trick/makefiles/Makefile.common
 include ${TRICK_HOME}/share/trick/makefiles/Makefile.tricklib
 -include Makefile_deps
+
+TRICK_CXXFLAGS += -std=c++11
 
 ifneq ($(HDF5),)
 ifneq ($(HDF5),/usr)
@@ -15,4 +15,3 @@ endif
 ifneq ($(DMTCP),)
 TRICK_CXXFLAGS += -D_DMTCP -I$(DMTCP)/dmtcpaware
 endif
-

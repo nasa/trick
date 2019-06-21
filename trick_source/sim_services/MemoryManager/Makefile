@@ -1,7 +1,7 @@
 # set CONFIG_MK to allow compilation without running configure
 CONFIG_MK = 1
 
-include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
+include $(dir $(lastword $(MAKEFILE_LIST)))../../../share/trick/makefiles/Makefile.common
 # set the TRICK_LIB variable to create a separate library for the Memory Manager.
 TRICK_LIB := $(TRICK_LIB_DIR)/libtrick_mm.a
 include ${TRICK_HOME}/share/trick/makefiles/Makefile.tricklib
