@@ -177,18 +177,8 @@ $(UTILS_DIRS): icg_sim_serv
 # 1.1.1.3 Compile the objects in the specified er7_utils directories.
 .PHONY: $(ER7_UTILS_DIRS)
 $(ER7_UTILS_DIRS): TRICK_CXXFLAGS += -Wno-unused-parameter
-$(ER7_UTILS_DIRS): make_er7_makefiles icg_sim_serv
+$(ER7_UTILS_DIRS): icg_sim_serv
 	@ $(MAKE) -C $@ trick
-
-.PHONY: make_er7_makefiles
-make_er7_makefiles:
-	@for i in $(ER7_UTILS_DIRS) ; do \
-	   $(CP) ${TRICK_HOME}/trick_source/sim_services/Executive/Makefile $$i; \
-	done
-
-ifeq ($(USE_ER7_UTILS), 1)
-icg_sim_serv: | make_er7_makefiles
-endif
 
 # 1.1.1.4 Generate interface code (using ICG) for the specified sim_services
 # header files.
@@ -285,10 +275,9 @@ clean_sim_serv:
 	done
 	@ $(MAKE) -C ${TRICK_HOME}/trick_source/sim_services/mains real_clean
 
-clean_er7_utils: make_er7_makefiles
+clean_er7_utils: 
 	@for i in $(ER7_UTILS_DIRS) ; do \
 	   $(MAKE) -C $$i real_clean ; \
-	   rm $$i/Makefile; \
 	done
 
 clean_utils:
@@ -300,10 +289,6 @@ clean_swig:
 	@for i in $(SWIG_DIRS) ; do \
 	   $(MAKE) -C $$i real_clean ; \
 	done
-
-ifeq ($(USE_ER7_UTILS), 1)
-clean_swig: make_er7_makefiles
-endif
 
 clean_ICG :
 	$(MAKE) -C ${TRICK_HOME}/trick_source/codegen/Interface_Code_Gen  clean

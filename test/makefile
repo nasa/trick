@@ -8,7 +8,6 @@ COMPILE_DIRS = \
 	SIM_python_namespace \
 	SIM_rti \
 	SIM_stls \
-	SIM_target_specific_variables \
 	SIM_test_dp \
 	SIM_test_dr \
 	SIM_test_io \
@@ -22,6 +21,7 @@ SIMS_NEEDING_TEST = \
 	SIM_demo_inputfile \
 	SIM_measurement_units \
 	SIM_parse_s_define \
+	SIM_target_specific_variables \
 	SIM_test_abstract \
 	SIM_test_inherit \
 	SIM_test_ip2 \
