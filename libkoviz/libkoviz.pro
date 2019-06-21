@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui network
 QT       += xml
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -79,7 +79,8 @@ SOURCES += bookmodel.cpp \
            programmodel.cpp \
            session.cpp \
            plotlayout.cpp \
-           pagelayout.cpp
+           pagelayout.cpp \
+    bviscom.cpp
 
 HEADERS  += bookmodel.h \
             bookidxview.h \
@@ -134,7 +135,8 @@ HEADERS  += bookmodel.h \
             programmodel.h \
             session.h \
             plotlayout.h \
-            pagelayout.h
+            pagelayout.h \
+    bviscom.h
 
 FLEXSOURCES = product_lexer.l
 BISONSOURCES = product_parser.y

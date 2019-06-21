@@ -9,6 +9,7 @@
 #include <QKeyEvent>
 #include <qglobal.h>
 #include <float.h>
+#include "bviscom.h"
 
 class TimeInputLineEdit : public QLineEdit
 {
@@ -55,6 +56,8 @@ signals:
     void liveTimePrev();
     void stopTimeChanged(double stop);
 
+    void bvisTimeChanged(double liveTime);
+
 public slots:
     void setLiveTime(double t);
     void showLiveTime();
@@ -81,6 +84,7 @@ private:
     StopDoubleValidator _stopValidator;
     QDoubleValidator _liveValidator;
 #endif
+
 
 };
 

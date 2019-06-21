@@ -255,6 +255,24 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
             _timeInput,
             SLOT(_slotDataChanged(QModelIndex,QModelIndex,QVector<int>)));
 
+
+    // creating bviscom to send commands to bvis
+    bviscom = new BvisCom(this);
+
+    // setting up the send time command signal slot pair for bvis
+    // send a time com to Bvis when the time changes
+    connect(_timeInput, SIGNAL(bvisTimeChanged(double)),
+            bviscom,SLOT(sendTime2Bvis(double)));
+
+    // sending run command if there is only one run
+    if ( _monteInputsModel->rowCount() == 1 ) {
+        QString sendRun = QString("%1/").arg(
+                    QDir::current().absoluteFilePath(
+                        _runs->runDirs().at(0)));
+        bviscom->sendFirstRun(sendRun);
+    }
+
+
     // Size main window
     QList<int> sizes;
     sizes << 420 << 1180;
@@ -1103,6 +1121,11 @@ void PlotMainWindow::_startTimeChanged(double startTime)
 
 void PlotMainWindow::_liveTimeChanged(double liveTime)
 {
+    // bvis
+//    bviscom.sendTime2Bvis(liveTime);
+//    printf("Time: %f\n",liveTime);
+    //
+
     QModelIndex curveIdx = _currCurveIdx();
     CurveModel* curveModel = _bookModel->getCurveModel(curveIdx);
 
@@ -1335,7 +1358,8 @@ void PlotMainWindow::_monteInputsHeaderViewClicked(int section)
 void PlotMainWindow::_monteInputsViewCurrentChanged(const QModelIndex &currIdx,
                                                     const QModelIndex &prevIdx)
 {
-    Q_UNUSED(prevIdx);
+//    Q_UNUSED(prevIdx);
+
 
     if ( currIdx.isValid() ) {
         // set all curves in bookview with runID to current
@@ -1344,6 +1368,16 @@ void PlotMainWindow::_monteInputsViewCurrentChanged(const QModelIndex &currIdx,
                                                                   0,currIdx);
         int runID = _monteInputsView->model()->data(runIDIdx).toInt();
         _bookView->setCurrentCurveRunID(runID);
+        if (currIdx.row() != prevIdx.row())
+        {
+            QString sendRun = QString("%1/").arg(
+                        QDir::current().absoluteFilePath(
+                            _runs->runDirs().at(runID)));
+//                QString("%1/%2").arg(QDir.absoluteFilePath().arg(
+//        _runs->runDirs().at(runID))
+            bviscom->sendRun2Bvis(sendRun);
+//            printf("run=%s\n",sendRun.toLatin1().constData());
+        }
     }
 }
 

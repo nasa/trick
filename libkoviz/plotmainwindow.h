@@ -33,6 +33,7 @@
 #include "timeinput.h"
 #include "bookview.h"
 #include "runs.h"
+#include "bviscom.h"
 
 class PlotMainWindow : public QMainWindow
 {
@@ -126,6 +127,8 @@ private:
     void _writeSettings();
 
     QModelIndex _currCurveIdx();
+
+    BvisCom* bviscom;
 
 private slots:
      void _nbCurrentChanged(int i);
