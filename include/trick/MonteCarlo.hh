@@ -39,11 +39,12 @@ namespace Trick {
         /** Details the manner in which this run exited. */
         enum ExitStatus {
             MC_RUN_INCOMPLETE,          /**< not completed */
-            MC_RUN_COMPLETE,            /**< completed with no errors */
+            MC_RUN_COMPLETE,            /**< process completed with exit status zero */
+            MC_RUN_FAILED,              /**< process completed with non-zero exit status */
             MC_RUN_DUMPED_CORE,         /**< core dumped */
             MC_RUN_TIMED_OUT,           /**< timed out */
             MC_CANT_CREATE_OUTPUT_DIR,  /**< could not write output files */
-            MC_PROBLEM_PARSING_INPUT,   /**< problem parseing monte carlo input */
+            MC_PROBLEM_PARSING_INPUT,   /**< problem parsing monte carlo input */
             MC_UNRECOGNIZED_RETURN_CODE /**< unrecognized return code */
         };
 
@@ -338,8 +339,11 @@ namespace Trick {
         /** Runs to be dispatched. */
         std::deque <Trick::MonteRun *> runs;                 /**< \n trick_io(**) trick_units(--) */
 
-        /** Failed runs. */
+        /** Runs whose slave child process completed with a non-zero exit status. */
         std::deque <Trick::MonteRun *> failed_runs;          /**< \n trick_io(**) trick_units(--) */
+
+        /** Runs whose slave child process terminated with an error. */
+        std::deque <Trick::MonteRun *> error_runs;           /**< \n trick_io(**) trick_units(--) */
 
         /** Valid ranges. */
         std::vector <Trick::MonteRange *> run_ranges;        /**< \n trick_io(**) trick_units(--) */

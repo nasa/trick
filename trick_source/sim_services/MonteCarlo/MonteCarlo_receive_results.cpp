@@ -119,7 +119,8 @@ void Trick::MonteCarlo::handle_run_data(Trick::MonteSlave& slave) {
     switch (exit_status) {
 
         case MonteRun::MC_RUN_COMPLETE:
-            resolve_run(slave, MonteRun::MC_RUN_COMPLETE);
+        case MonteRun::MC_RUN_FAILED:
+            resolve_run(slave, static_cast<MonteRun::ExitStatus>(exit_status));
             run_queue(&master_post_queue, "in master_post queue") ;
             break;
 
@@ -154,7 +155,7 @@ void Trick::MonteCarlo::handle_run_data(Trick::MonteSlave& slave) {
             break;
 
         /**
-         * <li> Timeouts and are redispatched. However, we must first check to
+         * <li> Timeouts are redispatched. However, we must first check to
          * see if this run has already been processed in #check_timeouts, which
          * can occur when the master determines that a slave has timed out, and
          * then that slave itself reports a timeout. </ul>

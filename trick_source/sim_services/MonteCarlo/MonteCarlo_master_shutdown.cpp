@@ -1,4 +1,3 @@
-
 #include <sys/time.h>
 
 #include "trick/MonteCarlo.hh"
@@ -67,9 +66,9 @@ void Trick::MonteCarlo::print_statistics(FILE** fp) {
        "No Permission to Output Directory", "Bad Input" } ;
 
     fprintf(*fp,
-      "\nMonte Carlo complete: %u runs (%zu successful) (%zu errors) (%u out of range)\n",
-      num_runs, num_results - failed_runs.size(), failed_runs.size(),
-      num_runs - num_results);
+      "\nMonte Carlo complete: %u runs (%zu successful) (%zu non-zero exit status) (%zu errors) (%u out of range)\n",
+      num_runs, num_results - failed_runs.size() - error_runs.size(), failed_runs.size(),
+      error_runs.size(), num_runs - num_results);
 
     fprintf(*fp, "\nMachine work unit breakdown:\n");
     fprintf(*fp, "----------------------------------------------------------------------\n");
@@ -100,10 +99,17 @@ void Trick::MonteCarlo::print_statistics(FILE** fp) {
     fprintf(*fp, "Efficency (speedup / num slaves): %.2lf%%\n", efficency);
 
     if (failed_runs.size()) {
-        fprintf(*fp, "\nError Summary\n");
-        for (std::vector<MonteRun *>::size_type j = 0; j < failed_runs.size(); ++j) {
-            fprintf(*fp, "RUN_%05d exit status = %s (%d)\n", failed_runs[j]->id,
-              exit_status_string[failed_runs[j]->exit_status], failed_runs[j]->exit_status);
+        fprintf(*fp, "\nThe following runs completed with a non-zero process exit status:\n");
+        for (const MonteRun* run : failed_runs) {
+            fprintf(*fp, "RUN_%05d\n", run->id);
+        }
+    }
+
+    if (error_runs.size()) {
+        fprintf(*fp, "\nThe following runs failed to complete:\n");
+        for (const MonteRun* run : error_runs) {
+            fprintf(*fp, "RUN_%05d MonteRun::ExitStatus = %s (%d)\n", run->id,
+              exit_status_string[run->exit_status], run->exit_status);
         }
     }
 }

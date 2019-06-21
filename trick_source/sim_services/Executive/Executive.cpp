@@ -399,3 +399,6 @@ int Trick::Executive::set_current_version(std::string version) {
     return(0) ;
 }
 
+int Trick::Executive::get_except_return() const {
+    return except_return;
+}
