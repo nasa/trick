@@ -9,6 +9,8 @@
 #include "trick/message_type.h"
 #include "trick/exec_proto.h"
 
+extern Trick::Executive * the_exec ;
+
 void Trick::MonteCarlo::set_enabled(bool in_enabled) {
     this->enabled = in_enabled;
 }
@@ -282,7 +284,7 @@ int Trick::MonteCarlo::shutdown() {
     if (enabled && is_slave()) {
         connection_device.port = master_port;
         if (tc_connect(&connection_device) == TC_SUCCESS) {
-            int exit_status = MonteRun::MC_RUN_COMPLETE;
+            int exit_status = the_exec->get_except_return() ? MonteRun::MC_RUN_FAILED : MonteRun::MC_RUN_COMPLETE;
             if (verbosity >= MC_ALL) {
                 message_publish(MSG_INFO, "Monte [%s:%d] Sending run exit status to master: %d\n",
                                 machine_name.c_str(), slave_id, exit_status) ;
@@ -322,8 +324,11 @@ void Trick::MonteCarlo::handle_retry(MonteSlave& slave, MonteRun::ExitStatus exi
 
 /** @par Detailed Design: */
 void Trick::MonteCarlo::resolve_run(MonteSlave& slave, MonteRun::ExitStatus exit_status) {
-    if (exit_status != MonteRun::MC_RUN_COMPLETE) {
+    if (exit_status == MonteRun::MC_RUN_FAILED) {
         failed_runs.push_back(slave.current_run);
+    }
+    else if (exit_status != MonteRun::MC_RUN_COMPLETE) {
+        error_runs.push_back(slave.current_run);
     }
 
     /** <li> Update the bookkeeping. */
