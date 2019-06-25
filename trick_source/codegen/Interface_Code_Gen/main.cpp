@@ -29,6 +29,7 @@
 
 /* Command line arguments.  These work better as globals, as suggested in llvm/CommandLine documentation */
 llvm::cl::list<std::string> include_dirs("I", llvm::cl::Prefix, llvm::cl::desc("Include directory"), llvm::cl::value_desc("directory"));
+llvm::cl::list<std::string> isystem_dirs("isystem", llvm::cl::Prefix, llvm::cl::desc("Include directory, suppress all warnings"), llvm::cl::value_desc("directory"));
 llvm::cl::list<std::string> defines("D", llvm::cl::Prefix, llvm::cl::desc("Defines"), llvm::cl::value_desc("define"));
 // TODO: remove units_truth_is_scary in 2021.
 llvm::cl::opt<bool> units_truth_is_scary("units-truth-is-scary", llvm::cl::desc("DEPRECATED: Don't print units conversion messages"));
@@ -74,10 +75,6 @@ int main(int argc, char * argv[]) {
      * All other arguments will be ignored.
      */
     llvm::cl::ParseCommandLineOptions(argc, argv);
-
-    /*if (!validAttributesVersion(attr_version)) {
-        return -1;
-    }*/
 
     if (input_file_names.empty()) {
         std::cerr << "No header file specified" << std::endl;
@@ -149,7 +146,7 @@ int main(int argc, char * argv[]) {
 
     // Add all of the include directories to the preprocessor
     HeaderSearchDirs hsd(ci.getPreprocessor().getHeaderSearchInfo(), ci.getHeaderSearchOpts(), pp, sim_services_flag);
-    hsd.addSearchDirs(include_dirs);
+    hsd.addSearchDirs(include_dirs, isystem_dirs);
 
     // Add a preprocessor callback to search for TRICK_ICG
 #if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 6))

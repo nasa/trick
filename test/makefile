@@ -19,6 +19,7 @@ COMPILE_DIRS = \
 SIMS_NEEDING_TEST = \
 	SIM_alloc_test \
 	SIM_demo_inputfile \
+	SIM_isystem \
 	SIM_measurement_units \
 	SIM_parse_s_define \
 	SIM_target_specific_variables \

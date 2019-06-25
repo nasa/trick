@@ -13,7 +13,7 @@ sub get_paths {
 }
 
 sub get_include_paths {
-    return "$ENV{TRICK_CFLAGS} $ENV{TRICK_CXXFLAGS}" =~ /-I(\S+)/g
+    return "$ENV{TRICK_CFLAGS} $ENV{TRICK_CXXFLAGS}" =~ /-(?:I|isystem)(\S+)/g
 }
 
 sub get_defines {
