@@ -1,4 +1,6 @@
 
+TRICK_FORCE_32BIT = @TRICK_FORCE_32BIT@
+
 CC     = @CC@
 CXX    = @CXX@
 LD     = @LD@
