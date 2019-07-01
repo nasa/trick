@@ -36,7 +36,7 @@ int Trick::InputProcessor::process_sim_args() {
     input_file = command_line_args_get_input_file() ;
 
     /* Process all other calling arguments */
-    for (i = 2; i < argc; i++) {
+    for (i = 1; i < argc; i++) {
 
         /*
          * If there are more than 2 calling arguments
