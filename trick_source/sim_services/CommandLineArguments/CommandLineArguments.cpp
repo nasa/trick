@@ -158,14 +158,19 @@ int Trick::CommandLineArguments::process_sim_args(int nargs , char **args) {
 
     if ( argc > 1 ) {
 
-        /* First occurnance of "RUN_*" is the input file name: '<Run_dir>/<file_name>' */
-      for(int ii = 1; ii < argc; ii++) {
-        if(std::string(argv[ii]).find("RUN_") != std::string::npos) {
-          input_file = argv[ii];
-          run_dir = argv[ii];
-          break;
+    /* First occurnance of "RUN_*" is the input file name: '<Run_dir>/<file_name>'. 
+       If not found, defaults to first argument */
+        
+        input_file = argv[1];
+        run_dir = argv[1];
+
+        for(int ii = 1; ii < argc; ii++) {
+            if(std::string(argv[ii]).find("RUN_") != std::string::npos) {
+              input_file = argv[ii];
+              run_dir = argv[ii];
+              break;
+            }
         }
-      }
 
         found = run_dir.find_last_of("/") ;
         if ( found != std::string::npos ) {
