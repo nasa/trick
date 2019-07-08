@@ -77,7 +77,7 @@ int Trick::MSSocket::process_sim_args() {
     /** @par Detailed Design */
 
     /** @li search for the "-p" argument.  If found get the master identifier as the next argument */
-    for (ii = 2; ii < argc; ii++) {
+    for (ii = 1; ii < argc; ii++) {
         if (!strncmp("-p", argv[ii], (size_t) 2)) {
             if (argc >= ii + 1) {
                 sync_port_tag = argv[ii+1] ;
