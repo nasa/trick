@@ -63,13 +63,7 @@ int Trick::MemoryManager::read_checkpoint(const char* filename ) {
     // Create a stream from the named file.
     std::ifstream infile(filename , std::ios::in);
     if (infile.is_open()) {
-
-        // If the filename is not S_default.dat, we will tell read_checkpoint to
-        // restore stls.
-        bool do_restore_stls = 
-        (std::string(filename).find("S_default.dat") == std::string::npos);
-
-        return ( read_checkpoint( &infile, do_restore_stls )) ;
+        return ( read_checkpoint( &infile, true )) ;
     } else {
         std::stringstream message;
         message << "Couldn't open \"" << filename << "\"." ;

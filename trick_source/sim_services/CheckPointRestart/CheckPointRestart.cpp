@@ -443,12 +443,6 @@ int Trick::CheckPointRestart::load_checkpoint_job() {
     return(0) ;
 }
 
-int Trick::CheckPointRestart::load_default_data() {
-
-    trick_MM->read_checkpoint("S_default.dat") ;
-    return(0) ;
-}
-
 int Trick::CheckPointRestart::write_s_job_execution(FILE *fp) {
 
     if ( fp == NULL ) {

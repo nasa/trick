@@ -14,7 +14,6 @@ use lib "$RealBin/pm" ;
 use parse_s_define ;
 use gte ;
 use s_source ;
-use default_data ;
 use trick_print ;
 use trick_version ;
 
@@ -81,13 +80,9 @@ trick_print($sim{fh}, "S_source.c\n", "title_white", $sim{args}{v});
 s_source( \%sim ) ;
 
 #--------------------------------------------------------------
-# Make Default Data
+# close
 
 chdir ($cwd) ;
-trick_print($sim{fh}, "Writing    ", "title_blue" , $sim{args}{v}) ;
-trick_print($sim{fh}, "Default_data\n", "title_white" , $sim{args}{v}) ;
-make_default_data( \%sim ) ;
-
 close OUTFILE ;
 
 #--------------------------------------------------------------
@@ -123,10 +118,6 @@ See the Trick User's guide for B<CP>
 =head1 OPTIONS
    
 =over 8
-
-=item B<-d>
-
-S_default.dat and Default_data (Default data files)
 
 =item B<-e>
 
