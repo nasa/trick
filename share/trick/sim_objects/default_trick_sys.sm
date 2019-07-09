@@ -214,8 +214,6 @@ class CheckPointRestartSimObject : public Trick::SimObject {
             exec_register_scheduler(&cpr) ;
 
             {TRK} P0 ("default_data") cpr.find_write_checkpoint_jobs(name + ".cpr") ;
-
-            {TRK} P0 ("default_data") cpr.load_default_data() ;
             {TRK} P1 ("initialization") cpr.write_pre_init_checkpoint() ;
             {TRK} P65535 ("initialization") cpr.write_post_init_checkpoint() ;
             {TRK} P0 ("system_checkpoint") cpr.write_checkpoint() ;

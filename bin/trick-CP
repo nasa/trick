@@ -135,10 +135,6 @@ The simulation-specific executive source code file.
 
 The simulation-specific object code link list file.
 
-=item B<S_default.dat>
-
-The simulation-specific default initialization data file.
-
 =back
 
 =cut
@@ -280,7 +276,6 @@ tidy:
 	-rm -f S_source.hh S_sie.resource
 	-rm -f S_main* T_main*
 	-rm -f build/Makefile_*
-	-rm -f S_default.dat
 
 clean: tidy
 	-rm -f DP_Product/DP_rt_frame DP_Product/DP_rt_itimer

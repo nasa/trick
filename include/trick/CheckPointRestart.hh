@@ -326,12 +326,6 @@ namespace Trick {
              */
             virtual int load_checkpoint_job() ;
 
-            /**
-             * Calls the MemoryManager restore_managed_memory method with S_default.dat
-             * @return always 0
-             */
-            virtual int load_default_data() ;
-
             // Removed all doxygen documents for functions that have documents in the parent class since
             // Doxygen inherits the documents from the parent class automatically.
 

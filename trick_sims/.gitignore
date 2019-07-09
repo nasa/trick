@@ -14,7 +14,6 @@ CP_out
 MAKE_out
 Makefile_sim
 Makefile_swig
-S_default.dat
 S_document.xml
 S_library_list
 S_main_*
