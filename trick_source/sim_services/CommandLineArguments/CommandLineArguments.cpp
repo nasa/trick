@@ -176,7 +176,8 @@ int Trick::CommandLineArguments::process_sim_args(int nargs , char **args) {
           input_file = "";
             if(strcmp(argv[1], "trick_version") && strcmp(argv[1], "sie") && strcmp(argv[1], "-help")  && strcmp(argv[1], "--help") &&
                 strcmp(argv[1], "-h") && strcmp(argv[1], "help")) {
-                std::cerr << "\nWARNING: No valid input file detected in command line arguments" << std::endl;
+                std::cerr << "\nERROR: Invalid input file or command line argument." << std::endl;
+                exit(1);
             }
         }
 
