@@ -64,6 +64,7 @@ int Trick::Executive::process_sim_args() {
         } else if (!strcmp(argv[1], "-help")  || !strcmp(argv[1], "--help") ||
                    !strcmp(argv[1], "-h")     || !strcmp(argv[1], "help") ) {
             /* Try and help the user */
+          printf("%s", buf);
             exit(0);
         } else if (!strcmp(argv[1], "sie")) {
             /* do not create init_log.csv if we are generating sie */

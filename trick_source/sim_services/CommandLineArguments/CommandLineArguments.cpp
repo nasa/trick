@@ -172,6 +172,14 @@ int Trick::CommandLineArguments::process_sim_args(int nargs , char **args) {
             }
         }
 
+        if (access(input_file.c_str(), F_OK) != 0) {
+          input_file = "";
+            if(strcmp(argv[1], "trick_version") && strcmp(argv[1], "sie") && strcmp(argv[1], "-help")  && strcmp(argv[1], "--help") &&
+                strcmp(argv[1], "-h") && strcmp(argv[1], "help")) {
+                std::cerr << "\nWARNING: No valid input file detected in command line arguments" << std::endl;
+            }
+        }
+
         found = run_dir.find_last_of("/") ;
         if ( found != std::string::npos ) {
             run_dir.erase(found) ;
