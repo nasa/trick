@@ -26,6 +26,7 @@
 #include "unit.h"
 #include "curvemodel.h"
 #include "roundoff.h"
+#include "layoutitem_curves.h"
 
 class TimeAndIndex
 {

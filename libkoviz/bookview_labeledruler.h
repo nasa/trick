@@ -6,6 +6,8 @@
 #include <QFontMetrics>
 #include <QFontInfo>
 #include "bookidxview.h"
+#include "layoutitem_ticlabels.h"
+
 
 class LabeledRulerView : public BookIdxView
 {
@@ -23,21 +25,6 @@ protected:
 
 private:
     Qt::Alignment _alignment;
-
-    const int _margin5;
-
-    QString _format(double tic) const;
-
-    QSize _sizeHintLeft() const;
-    QSize _sizeHintBottom() const;
-
-    QRect _boundingRect(const QString& strVal) const;
-    void _paint10Exponent(const LabelBox &box) const;
-
-signals:
-
-public slots:
-
 };
 
 #endif // LABELEDRULERVIEW_H

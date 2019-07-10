@@ -79,7 +79,16 @@ SOURCES += bookmodel.cpp \
            programmodel.cpp \
            session.cpp \
            plotlayout.cpp \
-           pagelayout.cpp
+           pagelayout.cpp \
+           layoutitem_pagetitle.cpp \
+           layoutitem_yaxislabel.cpp \
+           layoutitem_plotcorner.cpp \
+           layoutitem_plottitle.cpp \
+           layoutitem_ticlabels.cpp \
+           layoutitem_xaxislabel.cpp \
+           layoutitem_curves.cpp \
+           layoutitem_plottics.cpp \
+           layoutitem_paintable.cpp
 
 HEADERS  += bookmodel.h \
             bookidxview.h \
@@ -134,7 +143,16 @@ HEADERS  += bookmodel.h \
             programmodel.h \
             session.h \
             plotlayout.h \
-            pagelayout.h
+            pagelayout.h \
+            layoutitem_pagetitle.h \
+            layoutitem_yaxislabel.h \
+            layoutitem_plotcorner.h \
+            layoutitem_plottitle.h \
+            layoutitem_ticlabels.h \
+            layoutitem_xaxislabel.h \
+            layoutitem_curves.h \
+            layoutitem_plottics.h \
+            layoutitem_paintable.h
 
 FLEXSOURCES = product_lexer.l
 BISONSOURCES = product_parser.y

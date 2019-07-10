@@ -379,10 +379,12 @@ QColor PlotBookModel::flatLineColor() const
     return green;
 }
 
-QRectF PlotBookModel::getPlotMathRect(const QModelIndex &plotIdx)
+QRectF PlotBookModel::getPlotMathRect(const QModelIndex &plotIdx) const
 {
     QRectF M;
-
+    if ( !isChildIndex(plotIdx,"Plot","PlotMathRect") ) {
+        return M;
+    }
     QModelIndex plotMathRectIdx = getDataIndex(plotIdx, "PlotMathRect","Plot");
     plotMathRectIdx = plotMathRectIdx.sibling(plotMathRectIdx.row(),1);
     M = data(plotMathRectIdx).toRectF();
@@ -1866,4 +1868,406 @@ QColor PlotBookModel::pageForegroundColor(const QModelIndex &pageIdx) const
     }
 
     return QColor(fgName);
+}
+
+QList<double> PlotBookModel::majorXTics(const QModelIndex& plotIdx) const
+{
+    QList<double> X;
+    QRectF r = getPlotMathRect(plotIdx);
+    double a = r.left();
+    double b = r.right();
+    X = _calcTicSet(a,b,1.0,10.0);
+    return X;
+}
+
+QList<double> PlotBookModel::minorXTics(const QModelIndex &plotIdx) const
+{
+    QList<double> X;
+    QRectF r = getPlotMathRect(plotIdx);
+    double a = r.left();
+    double b = r.right();
+    QString plotScale = getDataString(plotIdx,"PlotXScale","Plot");
+    X = _calcMinorTicSet(a,b,plotScale);
+    return X;
+}
+
+QList<double> PlotBookModel::majorYTics(const QModelIndex &plotIdx) const
+{
+    QList<double> Y;
+    QRectF r = getPlotMathRect(plotIdx);
+    double a = r.bottom();
+    double b = r.top();
+    Y = _calcTicSet(a,b,1.0,10.0);
+    return Y;
+}
+
+QList<double> PlotBookModel::minorYTics(const QModelIndex &plotIdx) const
+{
+    QList<double> Y;
+    QRectF r = getPlotMathRect(plotIdx);
+    double a = r.bottom();
+    double b = r.top();
+    QString plotScale = getDataString(plotIdx,"PlotYScale","Plot");
+    Y = _calcMinorTicSet(a,b,plotScale);
+    return Y;
+}
+
+//
+// Return set X which is smallest tic set between [a,b] for n,u.
+//
+// Given [a,b],n,u:
+// Return X = {x: x=i*n^k*u in [a,b]
+//                i is some ordered list of ints
+//                and k minimizes size of X}
+//
+//
+// TODO: test n==2, n==e.  At this point, n==10 is the only tested value
+// TODO: Need to bail if n not 2,10 or e
+// TODO: Haven't tested u > 1 or u < 0
+QList<double> PlotBookModel::_calcTicSet(double aIn, double bIn,
+                                       double u, double n) const
+{
+    QList<double> X;
+
+    // Make sure inputs are finite
+    if ( !std::isfinite(aIn) || !std::isfinite(bIn) ||
+         !std::isfinite(n)   || !std::isfinite(u) ) {
+        return X;
+    }
+
+    // If [a,b] is a singleton, return {aIn}
+    if ( aIn == bIn ) {
+        X << aIn;
+        return X;
+    }
+
+    // Ensure a <= b
+    double a = aIn;
+    double b = bIn;
+    if ( bIn < aIn ) {
+        a = bIn;
+        b = aIn;
+    }
+
+    // k in i*n^k*u is power of n for making set X
+    double k;
+    if ( n == 10.0 ) {
+        k = qMax(  floor(log10(qAbs(a))), floor(log10(qAbs(b))) );
+    } else if ( n == 2.0 ) {
+        k = qMax(  floor(log2(qAbs(a))), floor(log2(qAbs(b))) );
+    } else if ( qAbs(n-exp(1)) < 1.0e-9 ) {
+        k = qMax(  floor(log(qAbs(a))), floor(log(qAbs(b))) );
+    } else {
+        // bad scoobs
+        return X;
+    }
+
+    double d = pow(n,k);
+
+    //
+    // Given d = n^k, find x0 such that x0*d <= a
+    //
+    double x0 = 0.0;
+    double x = x0;
+    if ( _isEqual(a,0) ) {
+        // if (a == 0) then x0 = 0, because 0*d == 0 <= a == 0
+    } else if ( x < a ) {
+        while ( 1 ) {
+            if ( _isEqual(x,a) ) {
+                break;
+            } else if ( x < a ) {
+                // keep going
+                x0 = x;
+                x += d;
+                if ( std::fpclassify(x) == FP_INFINITE ) {
+                    break;
+                }
+            } else if ( x > a ) {
+                break;
+            } else {
+                X.clear(); return X; // bad scoobs
+            }
+        }
+    } else if ( x > a ) {
+        while ( 1 ) {
+            if ( _isEqual(x,a) ) {
+                break;
+            } else if ( x < a ) {
+                break;
+            } else if ( x > a ) {
+                // keep going
+                x -= d;
+                if ( std::fpclassify(x) == FP_INFINITE ) {
+                    break;
+                }
+                x0 = x;
+            } else {
+                X.clear(); return X; // bad scoobs
+            }
+        }
+    } else {
+        X.clear(); return X; // bad scoobs
+    }
+
+    // From last block, x0 <= a
+    //
+    // Find set X = {x: x in [a,b] and x = q*n^k for q in Z (ints)}
+    // |X| > 0, and smallest of all such sets
+    //
+    // This algorithm (possibly returning from the *rabbithole):
+    //
+    //       bunny starts at x0 (x0 stays <= a)
+    //       Hops the distance d (or d*u) until it either
+    //
+    //       Lands in [a,b]
+    //       OR
+    //       Hops OVER [a,b]
+    //
+    //       If hop inside  [a,b]:
+    //              Add hop spot to a list
+    //              Keep hopping and appending hop spots to the list
+    //              until I hop past b or hit infinity
+    //
+    //       If hops is OVER [a,b]
+    //              Hop back to x0!
+    //              Refine hop distance scale from n^k to (n^(k-1))
+    //              Try again (go back to x0 (rabbithole))
+    //
+    while ( X.size() < 2 ) {  // |X| >= 2 (unless a problem occurs)
+
+        X.clear();
+        double x = x0;  // Start search x <= a (keeps X ordered)
+        d = pow(n,k);
+
+        while ( 1 ) {
+            if ( _isEqual(x,a) ) {
+                X << x;
+                x += d*u;
+                if ( std::fpclassify(x) == FP_INFINITE ) break; else continue;
+            } else if ( x < a ) { // x not in [a,b]... continue search
+                x0 = x;
+                double xu = x+d*u;
+                if ( _isEqual(xu,a) ) {
+                    x += d*u;
+                } else if ( xu > a && xu < b ) {
+                    double xd = x+d;
+                    if ( _isEqual(xd,a) ) {
+                        x += d;
+                    } else if ( xd > a && xd < b ) {
+                        if ( xd < xu ) {
+                            x += d;
+                        } else {
+                            x += d*u;
+                        }
+                    } else {
+                        x += d;
+                    }
+                } else {
+                    x += d;
+                }
+                if ( std::fpclassify(x) == FP_INFINITE ) break; else continue;
+            } else if ( _isEqual(x,b) ) { // x in [a,b]... and no more
+                X << x;
+                break;
+            } else if ( x < b ) { // x in [a,b]... try to find another
+                X << x;
+                x += d*u;
+                if ( std::fpclassify(x) == FP_INFINITE ) break; else continue;
+                continue;
+            } else if ( x > b ) { // x > [a,b]
+                break;
+            } else {
+                // this should not happen
+                X.clear(); return X; // bad scoobs
+            }
+        }
+
+        k -= 1.0;   // smaller d = n^(k), n^(k-1), n^(k-2)...
+    }
+
+    // Clean up the set by removing any points not strictly within [a,b]
+    for ( int i = X.size()-1; i >= 0; --i ) {
+        double x = X.at(i);
+        if ( x < a || x > b ) {
+            X.removeAt(i);
+        }
+    }
+
+    // Shrink tic set until |X| <=7
+    // Tics are removed in favor of keeping tics "even" in order
+    // to keep them the same while panning
+    while ( X.size() > 7 ) {
+        double x = X.at(0);
+        QString s;
+        s = s.sprintf("%g",x);
+        if ( s.contains('e') ) {
+            int n = s.indexOf('e');
+            s = s.left(n);
+        }
+        bool isEven = false;
+        if ( s.endsWith('0') || s.endsWith('2') || s.endsWith('4') ||
+             s.endsWith('6') || s.endsWith('8') ) {
+            isEven = true;
+        }
+
+        for ( int i = X.size()-1; i >= 0; --i ) {
+            if ( isEven ) {
+                if ( i%2 != 0 ) {
+                    X.removeAt(i);
+                }
+            } else {
+                if ( i%2 == 0 ) {
+                    X.removeAt(i);
+                }
+            }
+        }
+    }
+
+    if ( X.isEmpty() ) {
+        X << a;
+    }
+
+    return X;
+}
+
+// I read "if two floating-point numbers in the same format are ordered
+// , then they are ordered the same way when their bits are reinterpreted
+// as Sign-Magnitude integers."
+// This means, I think,
+// for double x, y;
+//
+// if x > 0, y > 0 and (x < y)
+// then *(ulong)&x < *(ulong)&y
+//
+// if we let i=*(ulong)&x and j=*(ulong)&y
+// let d = qAbs(j-i)
+// d is, I think,the number of "neighbors" in (i,j] for i
+// A neighbor doesn't include itself, so if i==j, the number is 0
+//
+// Equality is then defined as:
+//      if ( numNeighborsIn (a,b] < maxD ) return true; else return false;
+bool PlotBookModel::_isEqual(double a, double b, ulong maxD,
+                           bool isNeighborMethod) const
+{
+    bool ok = false;
+
+    if ( a == b ) return true;
+
+    if ( isNeighborMethod && sizeof(double) == sizeof(ulong)) {
+        ulong n = maxD;
+        if ( a == 0 ) {
+            if ( b > 0 ) {
+                n = (*(ulong*)&b);
+            } else if ( b < 0 ) {
+                double bb = qAbs(b);
+                n = *(ulong*)&bb;
+            }
+        } else if ( a > 0 ) {
+            if ( b == 0 ) {
+                n = (*(ulong*)&a);
+            } else if ( b > 0 ) {
+                if ( b > a ) {
+                    n = (*(ulong*)&b - *(ulong*)&a);
+                } else {
+                    n = (*(ulong*)&a - *(ulong*)&b);
+                }
+            } else if ( b < 0 ) {
+                double bb = qAbs(b);
+                n = (*(ulong*)&a + *(ulong*)&bb);
+            }
+        } else if ( a < 0 ) {
+            if ( b == 0 ) {
+                n = (*(ulong*)&a);
+            } else if ( b > 0 ) {
+                double aa = qAbs(a);
+                n = (*(ulong*)&aa + *(ulong*)&b);
+            } else if ( b < 0 ) {
+                double aa = qAbs(a);
+                double bb = qAbs(b);
+                if ( bb > aa ) {
+                    n = (*(ulong*)&bb - *(ulong*)&aa);
+                } else {
+                    n = (*(ulong*)&aa - *(ulong*)&bb);
+                }
+            }
+        } else {
+            // bad scoobies
+            fprintf(stderr, "koviz [bad scoobs] in _isEqual(a,b)\n");
+            return false;
+        }
+
+        if ( n < maxD ) {
+            ok = true;
+        }
+    } else {
+
+        // Assuming a != b from above
+
+        double k;
+        if ( a != 0.0 && b != 0.0 ) {
+            k = qMax(log2(qAbs(a)),log2(qAbs(b)));
+        } else if ( a == 0 ) {
+            k = log2(qAbs(b));
+        } else if ( b == 0 ) {
+            k = log2(qAbs(a));
+        } else {
+            // bad scoobs
+            fprintf(stderr, "koviz [bad scoobs] in _isEqual(a,b)\n");
+            return false;
+        }
+        k = floor(k);
+
+        double e;
+        if ( k >= -1074 + 32 ) {
+            e = pow(2.0,k-2*32);
+        } else {
+            e = pow(2.0,-1074);
+        }
+
+        ok = (qAbs(a-b) < e) ? true : false  ;
+    }
+
+    return ok;
+}
+
+QList<double> PlotBookModel::_calcMinorTicSet(double a, double b,
+                                              const QString &plotScale) const
+{
+    QList<double> Minors;
+
+    QList<double> Majors = _calcTicSet(a,b,1.0,10.0);
+
+    if ( Majors.size() >= 2 ) {
+        if ( plotScale == "linear" ) {
+            double d = (Majors.at(1)-Majors.at(0))/4.0;
+            double x = Majors.at(0);
+            if ( x-d-d-d >= a ) Minors << x-d-d-d;
+            if ( x-d-d >= a )   Minors << x-d-d;
+            if ( x-d >= a )     Minors << x-d;
+            foreach (double x, Majors) {
+                if ( x+d <= b )     Minors << x+d;
+                if ( x+d+d <= b )   Minors << x+d+d;
+                if ( x+d+d+d <= b ) Minors << x+d+d+d;
+            }
+        } else if ( plotScale == "log" ) {
+            double d = Majors.at(1)-Majors.at(0);
+            QList<double> majors;
+            majors << Majors.at(0)-d;
+            majors.append(Majors);
+            for ( int i = 0; i < majors.size(); ++i ) {
+                double m = majors.at(i);
+                for (int j = 2; j <= 9; ++j) {
+                    double tic = m+log10(j)*d;
+                    if ( tic >= a && tic <= b ) {
+                        Minors << tic;
+                    }
+                }
+            }
+        } else {
+            fprintf(stderr, "koviz [bad scoobs]: _calcMinorTicSet()\n");
+            exit(-1);
+        }
+    }
+
+    return Minors;
 }

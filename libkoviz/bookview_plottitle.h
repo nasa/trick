@@ -6,6 +6,7 @@
 #include <QFontMetrics>
 #include <QFontInfo>
 #include "bookidxview.h"
+#include "layoutitem_plottitle.h"
 
 class PlotTitleView : public BookIdxView
 {

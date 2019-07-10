@@ -7,29 +7,21 @@ XAxisLabelView::XAxisLabelView(QWidget *parent) :
     this->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Fixed);
 }
 
-void XAxisLabelView::_update()
-{
-}
-
 void XAxisLabelView::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
 
     if ( !model() ) return;
 
-    int vw = viewport()->width();
-    QFontMetrics fm = viewport()->fontMetrics();
-    QString txt = fm.elidedText(_xAxisLabelText(), Qt::ElideLeft, vw);
-    QRect bb = fm.tightBoundingRect(txt);
-    int bw = bb.width();
-    int bh = bb.height();
-
-    // Draw!
+    QRect R = viewport()->rect();
+    QRect RG =  R;
+    RG.moveTo(viewport()->mapToGlobal(RG.topLeft()));
+    QRect  C = _curvesView->viewport()->rect();
+    C.moveTo(_curvesView->viewport()->mapToGlobal(C.topLeft()));
+    QRectF M = _bookModel()->getPlotMathRect(rootIndex());
     QPainter painter(viewport());
-    painter.save();
-    painter.translate((vw-bw)/2, bh);
-    painter.drawText(0,0, txt);
-    painter.restore();
+    XAxisLabelLayoutItem layoutItem(fontMetrics(),_bookModel(),rootIndex());
+    layoutItem.paint(&painter,R,RG,C,M);
 }
 
 QSize XAxisLabelView::minimumSizeHint() const
@@ -40,11 +32,8 @@ QSize XAxisLabelView::minimumSizeHint() const
 QSize XAxisLabelView::sizeHint() const
 {
     QSize s;
-
-    QFontMetrics fm = viewport()->fontMetrics();
-    QRect bb = fm.boundingRect(_xAxisLabelText());
-    s.setWidth(bb.width());
-    s.setHeight(2*bb.height()); // 2 is arbitrary
+    XAxisLabelLayoutItem layoutItem(fontMetrics(),_bookModel(),rootIndex());
+    s = layoutItem.sizeHint();
     return s;
 }
 
@@ -53,29 +42,6 @@ void XAxisLabelView::wheelEvent(QWheelEvent *e)
 {
     Q_UNUSED(e);
     return;
-}
-
-QString XAxisLabelView::_xAxisLabelText() const
-{
-    QString label;
-
-    if ( !model() ) return label;
-    QModelIndex plotIdx = rootIndex();
-    if ( !plotIdx.isValid() ) return label;
-    QString plotTag = model()->data(plotIdx).toString();
-    if ( plotTag != "Plot" ) return label;
-    if ( !_bookModel()->isChildIndex(plotIdx,"Plot","PlotXAxisLabel")) {
-        return label;
-    }
-
-    label = _bookModel()->getDataString(plotIdx,"PlotXAxisLabel");
-
-    QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
-    QString unit = _bookModel()->getCurvesXUnit(curvesIdx);
-
-    label = label + " {" + unit + "}";
-
-    return label;
 }
 
 void XAxisLabelView::dataChanged(const QModelIndex &topLeft,

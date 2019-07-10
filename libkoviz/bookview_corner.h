@@ -3,6 +3,7 @@
 
 #include <QPainter>
 #include "bookidxview.h"
+#include "layoutitem_plotcorner.h"
 
 class CornerView : public BookIdxView
 {
@@ -18,18 +19,6 @@ protected:
 
 private:
     Qt::Corner _corner;
-
-protected slots:
-    /*
-    virtual void dataChanged(const QModelIndex &topLeft,
-                             const QModelIndex &bottomRight);
-    virtual void rowsInserted(const QModelIndex &parent, int start, int end);
-    */
-
-signals:
-    
-public slots:
-    
 };
 
 #endif // CORNERVIEW_H

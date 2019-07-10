@@ -7,31 +7,21 @@ YAxisLabelView::YAxisLabelView(QWidget *parent) :
     this->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::MinimumExpanding);
 }
 
-void YAxisLabelView::_update()
-{
-}
-
 void YAxisLabelView::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
 
     if ( !model() ) return;
 
-    int vw = viewport()->width();
-    int vh = viewport()->height();
-    QFontMetrics fm = viewport()->fontMetrics();
-    QString txt = fm.elidedText(_yAxisLabelText(), Qt::ElideLeft, vh);
-    QRect bb = fm.tightBoundingRect(txt);
-    int bw = bb.width();
-    int bh = bb.height();
-
-    // Draw!
+    QRect R = viewport()->rect();
+    QRect RG =  R;
+    RG.moveTo(viewport()->mapToGlobal(RG.topLeft()));
+    QRect  C = _curvesView->viewport()->rect();
+    C.moveTo(_curvesView->viewport()->mapToGlobal(C.topLeft()));
+    QRectF M = _bookModel()->getPlotMathRect(rootIndex());
     QPainter painter(viewport());
-    painter.save();
-    painter.translate(vw/2+bh-1,(vh+bw)/2);
-    painter.rotate(270);
-    painter.drawText(0,0,txt);
-    painter.restore();
+    YAxisLabelLayoutItem layoutItem(fontMetrics(),_bookModel(),rootIndex());
+    layoutItem.paint(&painter,R,RG,C,M);
 }
 
 QSize YAxisLabelView::minimumSizeHint() const
@@ -39,14 +29,11 @@ QSize YAxisLabelView::minimumSizeHint() const
     return sizeHint();
 }
 
-// Note: this accounts for 270 degree rotation
 QSize YAxisLabelView::sizeHint() const
 {
     QSize s;
-    QFontMetrics fm = viewport()->fontMetrics();
-    QRect bb = fm.boundingRect(_yAxisLabelText());
-    s.setWidth(2*bb.height());  // 2 is arbitrary
-    s.setHeight(bb.width());
+    YAxisLabelLayoutItem layoutItem(fontMetrics(),_bookModel(),rootIndex());
+    s = layoutItem.sizeHint();
     return s;
 }
 
@@ -75,8 +62,6 @@ void YAxisLabelView::dataChanged(const QModelIndex &topLeft,
             }
         }
 
-        //_yAxisLabelText = label + '{' + unit + '}';
-
         viewport()->update();
     }
 }
@@ -90,9 +75,6 @@ void YAxisLabelView::rowsInserted(const QModelIndex &pidx, int start, int end)
     for ( int i = start; i <= end; ++i ) {
         QModelIndex idx = model()->index(i,0,pidx);
         if ( model()->data(idx).toString() == "PlotYAxisLabel" ) {
-            // TODOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO   if curve y unit changes, must change
-            //idx = model()->sibling(i,1,idx);
-            //_yAxisLabelText = model()->data(idx).toString();
             viewport()->update();
             break;
         }
@@ -153,29 +135,4 @@ void YAxisLabelView::wheelEvent(QWheelEvent *e)
 
         viewport()->update();
     }
-}
-
-QString YAxisLabelView::_yAxisLabelText() const
-{
-    QString label;
-
-    if ( !model() ) return label;
-    QModelIndex plotIdx = rootIndex();
-    if ( !plotIdx.isValid() ) return label;
-    QString plotTag = model()->data(plotIdx).toString();
-    if ( plotTag != "Plot" ) return label;
-    if ( !_bookModel()->isChildIndex(plotIdx,"Plot","PlotYAxisLabel")) {
-        return label;
-    }
-
-    label = _bookModel()->getDataString(plotIdx,"PlotYAxisLabel");
-
-    QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
-    QString unit = _bookModel()->getCurvesYUnit(curvesIdx);
-
-    if ( !label.isEmpty() ) {
-        label = label + " {" + unit + "}";
-    }
-
-    return label;
 }

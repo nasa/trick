@@ -4,6 +4,7 @@
 #include <QPainter>
 
 #include "bookidxview.h"
+#include "layoutitem_plottics.h"
 
 class LinedRulerView : public BookIdxView
 {
