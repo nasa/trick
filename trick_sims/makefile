@@ -6,7 +6,6 @@ COMPILE_DIRS = \
     Ball/SIM_ball_L1 \
     Ball/SIM_ball_L2 \
     Ball/SIM_ball_L3 \
-    Ball/SIM_ball_default_data \
     Cannon/SIM_amoeba \
     Cannon/SIM_cannon_aero \
     Cannon/SIM_cannon_analytic \
@@ -24,7 +23,6 @@ TEST_DIRS = \
     Ball/SIM_ball_L1 \
     Ball/SIM_ball_L2 \
     Ball/SIM_ball_L3 \
-    Ball/SIM_ball_default_data \
     Cannon/SIM_amoeba \
     Cannon/SIM_cannon_aero \
     Cannon/SIM_cannon_analytic \
