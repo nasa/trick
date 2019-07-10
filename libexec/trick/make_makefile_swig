@@ -60,6 +60,7 @@ sub read_files_to_process() {
 
             # skip system headers that are missed by the compiler -MM flag
             next if ( $word =~ /^\/usr\/include/ ) ;
+            next if ( $word =~ /^\/usr\/local\/include/ ) ;
 
             # skip Trick headers
             my $trick_home = $ENV{'TRICK_HOME'} ;
