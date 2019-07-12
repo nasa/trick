@@ -63,20 +63,41 @@ void PlotLayout::setGeometry(const QRect &rect)
     int h5 = _name2item.value("xAxisLabel")->sizeHint().height();
     int h2 = h-(h0+h1+h3+h4+h5);
 
-    _name2item.value("yAxisLabel")->setGeometry(QRect(0,0,w0,h-(h4+h5)));
-    _name2item.value("yTicLabels")->setGeometry(QRect(w0,0,w1,h-(h4+h5)));
-    _name2item.value("titleView")->setGeometry(QRect(w0+w1+w2,h0,w3,h1));
-    _name2item.value("curvesView")->setGeometry(QRect(w0+w1+w2,h0+h1,w3,h2));
-    _name2item.value("tlCorner")->setGeometry(QRect(w0+w1,0,w2,h0));
-    _name2item.value("trCorner")->setGeometry(QRect(w-w4,0,w4,h0));
-    _name2item.value("brCorner")->setGeometry(QRect(w-w4,h0+h1+h2,w4,h3));
-    _name2item.value("blCorner")->setGeometry(QRect(w0+w1,h0+h1+h2,w2,h3));
-    _name2item.value("lTics")->setGeometry(QRect(w0+w1,h0,w2,h1+h2));
-    _name2item.value("tTics")->setGeometry(QRect(w0+w1+w2,0,w3,h0));
-    _name2item.value("rTics")->setGeometry(QRect(w0+w1+w2+w3,h0,w4,h1+h2));
-    _name2item.value("bTics")->setGeometry(QRect(w0+w1+w2,h0+h1+h2,w3,h3));
-    _name2item.value("xTicLabels")->setGeometry(QRect(0,h0+h1+h2+h3,w,h4));
-    _name2item.value("xAxisLabel")->setGeometry(QRect(w0+w1,h-h5,w-(w0+w1),h5));
+    int mx = 0;
+    int my = 0;
+    if ( _plotRatio == "square" ) {
+        if ( w3 > h2 ) {
+            w3 = h2;
+            mx = (w-(w0+w1+w2+w3+w4))/2;
+        } else {
+            h2 = w3;
+            my = (h-(h0+h1+h2+h3+h4+h5))/2;
+        }
+    }
+
+    _name2item.value("yAxisLabel")->setGeometry(QRect(mx,0,my+w0,h-(h4+h5)));
+    _name2item.value("yTicLabels")->setGeometry(QRect(mx+w0,my, w1,h-(h4+h5)));
+    _name2item.value("titleView")->setGeometry(QRect(mx+w0+w1+w2,my+h0,w3,h1));
+    _name2item.value("curvesView")->setGeometry(QRect(mx+w0+w1+w2,my+h0+h1,
+                                                      w3,h2));
+    _name2item.value("tlCorner")->setGeometry(QRect(mx+w0+w1,my,w2,h0));
+    _name2item.value("trCorner")->setGeometry(QRect(mx+w0+w1+w2+w3,my,w4,h0));
+    _name2item.value("brCorner")->setGeometry(QRect(mx+w0+w1+w2+w3,
+                                                    my+h0+h1+h2,
+                                                    w4,h3));
+    _name2item.value("blCorner")->setGeometry(QRect(mx+w0+w1,my+h0+h1+h2,
+                                                    w2,h3));
+    _name2item.value("lTics")->setGeometry(QRect(mx+w0+w1,my+h0,w2,h1+h2));
+    _name2item.value("tTics")->setGeometry(QRect(mx+w0+w1+w2,my,w3,h0));
+    _name2item.value("rTics")->setGeometry(QRect(mx+w0+w1+w2+w3,my+h0,
+                                                 w4,h1+h2));
+    _name2item.value("bTics")->setGeometry(QRect(mx+w0+w1+w2,my+h0+h1+h2,
+                                                 w3,h3));
+    _name2item.value("xTicLabels")->setGeometry(QRect(mx,my+h0+h1+h2+h3,
+                                                      w-2*mx,h4));
+    _name2item.value("xAxisLabel")->setGeometry(QRect(mx+w0+w1,
+                                                      my+h0+h1+h2+h3+h4,
+                                                      w-w0-w1-2*mx,h5));
 
     _rect = rect;
 }
@@ -138,4 +159,14 @@ QLayoutItem *PlotLayout::takeAt(int index)
 QLayout *PlotLayout::layout()
 {
     return this;
+}
+
+void PlotLayout::setPlotRatio(const QString &plotRatio)
+{
+    _plotRatio = plotRatio;
+}
+
+QString PlotLayout::plotRatio() const
+{
+    return _plotRatio;
 }

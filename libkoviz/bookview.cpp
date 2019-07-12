@@ -221,6 +221,9 @@ void BookView::_printPage(QPainter *painter, const QModelIndex& pageIdx)
 
         // PlotLayout expects items to be added in a specific order!!!
         QModelIndex plotIdx = plotIdxs.at(i);
+        QString plotRatio = _bookModel()->getDataString(plotIdx,
+                                                        "PlotRatio","Plot");
+        plotLayout->setPlotRatio(plotRatio);
         QRectF M = _bookModel()->getPlotMathRect(plotIdx);
         plotlayout2mathrect.insert(plotLayout,M);
         QLayoutItem* item = new YAxisLabelLayoutItem(fm,_bookModel(),plotIdx);

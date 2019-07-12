@@ -226,6 +226,25 @@ QSize PlotView::sizeHint() const
     return s;
 }
 
+void PlotView::dataChanged(const QModelIndex &topLeft,
+                           const QModelIndex &bottomRight,
+                           const QVector<int> &roles)
+{
+    Q_UNUSED(roles);
+    if ( !model()) return;
+    if ( topLeft.column() != 1 ) return;
+    if ( topLeft != bottomRight ) return;
+    if ( topLeft.parent() != rootIndex() ) return;
+
+    QModelIndex tagIdx = model()->index(topLeft.row(),0,topLeft.parent());
+    QString tag = model()->data(tagIdx).toString();
+    if ( tag == "PlotRatio" ) {
+        QString plotRatio = _bookModel()->getDataString(topLeft.parent(),
+                                                        "PlotRatio","Plot");
+        _grid->setPlotRatio(plotRatio);
+    }
+}
+
 void PlotView::rowsInserted(const QModelIndex &pidx, int start, int end)
 {
     Q_UNUSED(pidx);

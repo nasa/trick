@@ -312,6 +312,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
 
             // Plot
             QStandardItem *plotItem = _addChild(plotsItem, "Plot");
+            QModelIndex plotIdx = plotItem->index();
 
             // Some plot children
             _addChild(plotItem, "PlotName", _descrPlotTitle(plot));
@@ -319,7 +320,10 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             _addChild(plotItem, "PlotMathRect", QRectF());
             _addChild(plotItem, "PlotXScale", plot->plotXScale());
             _addChild(plotItem, "PlotYScale", plot->plotYScale());
-            _addChild(plotItem, "PlotRatio", plot->plotRatio());
+            _addChild(plotItem, "PlotRatio", "");
+            QModelIndex plotRatioIdx = _bookModel->getDataIndex(plotIdx,
+                                                            "PlotRatio","Plot");
+            _bookModel->setData(plotRatioIdx,plot->plotRatio());// why set 2x?
             _addChild(plotItem, "PlotXMinRange",  plot->xMinRange());
             _addChild(plotItem, "PlotXMaxRange",  plot->xMaxRange());
             _addChild(plotItem, "PlotYMinRange",  plot->yMinRange());
@@ -454,7 +458,6 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             // Initialize plot math rect
             QModelIndex curvesIdx = curvesItem->index();
             QRectF bbox = _bookModel->calcCurvesBBox(curvesIdx);
-            QModelIndex plotIdx = plotItem->index();
             QModelIndex plotMathRectIdx = _bookModel->getDataIndex(plotIdx,
                                                                  "PlotMathRect",
                                                                  "Plot");

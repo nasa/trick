@@ -27,10 +27,14 @@ public:
     virtual QLayoutItem *takeAt(int index);
     virtual QLayout* layout() ;
 
+    void setPlotRatio(const QString& plotRatio);
+    QString plotRatio() const ;
+
 private:
     QHash<QString,QLayoutItem*> _name2item;
     QList<QLayoutItem*> _items;
     QRect _rect;
+    QString _plotRatio;
 };
 
 #endif // PLOTLAYOUT_H
