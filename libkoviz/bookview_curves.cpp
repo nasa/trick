@@ -2105,6 +2105,8 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
             if ( rightRect.contains(_mousePressPos) ) {
                 if ( tx < 0 ) {
                     M.setRight(M.right()+kx*(B.right()-M.right()));
+                } else if ( tx > 0 ) {
+                    M.setRight(M.right()-kx*(B.right()-M.right()));
                 }
                 if ( ty > 0 ) {
                     M.setTop(M.top()+ky*(B.top()-M.top()));
@@ -2114,6 +2116,8 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
             } else if ( leftRect.contains(_mousePressPos) ) {
                 if ( tx > 0 ) {
                     M.setLeft(M.left()-kx*(M.left()-B.left()));
+                } else if ( tx < 0 ) {
+                    M.setLeft(M.left()+kx*(M.left()-B.left()));
                 }
                 if ( ty > 0 ) {
                     M.setTop(M.top()+ky*(B.top()-M.top()));
@@ -2123,6 +2127,8 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
             } else if ( topRect.contains(_mousePressPos) ) {
                 if ( ty > 0 ) {
                     M.setTop(M.top()+ky*(B.top()-M.top()));
+                } else if ( ty < 0 ) {
+                    M.setTop(M.top()-ky*(B.top()-M.top()));
                 }
                 if ( tx < 0 ) {
                     M.setRight(M.right()+kx*(B.right()-M.right()));
@@ -2132,6 +2138,8 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
             } else if ( botRect.contains(_mousePressPos) ) {
                 if ( ty < 0 ) {
                     M.setBottom(M.bottom()+ky*(B.bottom()-M.bottom()));
+                } else if ( ty > 0 ) {
+                    M.setBottom(M.bottom()-ky*(B.bottom()-M.bottom()));
                 }
                 if ( tx < 0 ) {
                     M.setRight(M.right()+kx*(B.right()-M.right()));
