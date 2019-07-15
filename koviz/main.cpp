@@ -128,6 +128,7 @@ class SnapOptions : public Options
     QString symbolstyle6;
     QString symbolstyle7;
     bool isPlotAllVars;
+    QString userDefinedScript;
 };
 
 SnapOptions opts;
@@ -224,6 +225,8 @@ int main(int argc, char *argv[])
     opts.add("-bg",&opts.background,"","Page background <#rrggbb|colorName>");
     opts.add("-showTables",&opts.showTables,"","Show DP tables");
     opts.add("-a:{0,1}",&opts.isPlotAllVars,false,"Plot all variables");
+    opts.add("-script",&opts.userDefinedScript,"",
+             "User defined script to launch off options menu");
 
     opts.parse(argc,argv, QString("koviz"), &ok);
 
@@ -772,7 +775,8 @@ int main(int argc, char *argv[])
         }
 
         if ( isPdf ) {
-            PlotMainWindow w(opts.isDebug,
+            PlotMainWindow w(opts.userDefinedScript,
+                             opts.isDebug,
                              opts.isPlotAllVars,
                              timeNames, startTime, stopTime,
                              tolerance, frequency,
@@ -892,7 +896,8 @@ int main(int argc, char *argv[])
                 TimeItLinux timer;
                 timer.start();
 #endif
-                PlotMainWindow w(opts.isDebug,
+                PlotMainWindow w(opts.userDefinedScript,
+                                 opts.isDebug,
                                  opts.isPlotAllVars,
                                  timeNames,
                                  startTime, stopTime,
@@ -913,7 +918,8 @@ int main(int argc, char *argv[])
                 ret = a.exec();
             } else {
 
-                PlotMainWindow w(opts.isDebug,
+                PlotMainWindow w(opts.userDefinedScript,
+                                 opts.isDebug,
                                  opts.isPlotAllVars,
                                  timeNames,
                                  startTime, stopTime,

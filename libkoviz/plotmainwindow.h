@@ -23,6 +23,7 @@
 #include <QTextStream>
 #include <QDate>
 #include <QSettings>
+#include <QProcess>
 
 #include "monte.h"
 #include "dp.h"
@@ -39,7 +40,8 @@ class PlotMainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit PlotMainWindow( bool isDebug,
+    explicit PlotMainWindow( const QString& userDefinedScript,
+                             bool isDebug,
                              bool isPlotAllVars,
                              const QStringList& timeNames,
                              double startTime,
@@ -76,6 +78,7 @@ protected:
 
 
 private:
+    QString _userDefinedScript;
     bool _isDebug;
     QStringList _timeNames;
     QString _presentation;
@@ -108,6 +111,7 @@ private:
     QAction *_showLiveCoordAction;
     QAction *_clearPlotsAction;
     QAction *_clearTablesAction;
+    QAction *_launchScriptAction;
     QAction *_plotAllVarsAction;
 
     QTabWidget* _nbDPVars;
@@ -137,6 +141,7 @@ private slots:
      void _toggleShowLiveCoord();
      void _clearPlots();
      void _clearTables();
+     void _launchScript();
      void _plotAllVars();
 
      void _startTimeChanged(double startTime);
@@ -150,6 +155,7 @@ private slots:
      void _bookViewCurrentChanged(const QModelIndex& currIdx,
                                   const QModelIndex& prevIdx);
      void _bookModelRowsInserted(const QModelIndex& pidx, int start, int end);
+     void _scriptError(QProcess::ProcessError error);
 };
 
 #endif // PLOTMAINWINDOW_H

@@ -14,8 +14,10 @@
 
 #include "plotmainwindow.h"
 
-PlotMainWindow::PlotMainWindow(bool isDebug,
-                               bool isPlotAllVars,
+PlotMainWindow::PlotMainWindow(
+        const QString& userDefinedScript,
+        bool isDebug,
+        bool isPlotAllVars,
         const QStringList &timeNames,
         double startTime, double stopTime,
         double timeMatchTolerance,
@@ -37,6 +39,7 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
         QStandardItemModel *monteInputsModel,
         QWidget *parent) :
     QMainWindow(parent),
+    _userDefinedScript(userDefinedScript),
     _isDebug(isDebug),
     _timeNames(timeNames),
     _presentation(presentation),
@@ -283,6 +286,7 @@ void PlotMainWindow::createMenu()
     _showLiveCoordAction = _optsMenu->addAction(tr("ShowLiveCoord"));
     _clearPlotsAction  = _optsMenu->addAction(tr("ClearPlots"));
     _clearTablesAction = _optsMenu->addAction(tr("ClearTables"));
+    _launchScriptAction = _optsMenu->addAction(tr("LaunchScript"));
     _plotAllVarsAction = _optsMenu->addAction(tr("PlotAllVars"));
     _showLiveCoordAction->setCheckable(true);
     _showLiveCoordAction->setChecked(true);
@@ -298,6 +302,8 @@ void PlotMainWindow::createMenu()
             this, SLOT(_clearPlots()));
     connect(_clearTablesAction, SIGNAL(triggered()),
             this, SLOT(_clearTables()));
+    connect(_launchScriptAction, SIGNAL(triggered()),
+            this, SLOT(_launchScript()));
     connect(_plotAllVarsAction, SIGNAL(triggered()),
             this, SLOT(_plotAllVars()));
     setMenuWidget(_menuBar);
@@ -390,6 +396,14 @@ void PlotMainWindow::_bookModelRowsInserted(const QModelIndex &pidx,
             }
         }
     }
+}
+
+void PlotMainWindow::_scriptError(QProcess::ProcessError error)
+{
+    QMessageBox msgBox;
+    QString msg = QString("Error with script \"%1\"").arg("kovi");
+    msgBox.setText(msg);
+    msgBox.exec();
 }
 
 void PlotMainWindow::_bookModelRowsAboutToBeRemoved(const QModelIndex &pidx,
@@ -1067,6 +1081,37 @@ void PlotMainWindow::_clearTables()
     int nTables = _bookModel->rowCount(tablesIdx);
     for (int i = nTables-1; i >= 0; --i) {
         _bookModel->removeRow(i,tablesIdx);
+    }
+}
+
+void PlotMainWindow::_launchScript()
+{
+    int i = _monteInputsView->currentRun();
+    QString rundir;
+    if ( i >= 0 ) {
+        rundir = _runs->runDirs().at(i);
+    } else {
+        if ( _runs->runDirs().size() == 1 ) {
+            rundir = _runs->runDirs().at(0);
+        } else {
+            QMessageBox msgBox;
+            msgBox.setText("Please select a run before launching your script.");
+            msgBox.exec();
+        }
+    }
+    if ( !rundir.isEmpty() ) {
+        QStringList fields = _userDefinedScript.split(' ',
+                                                      QString::SkipEmptyParts);
+        QString program = fields.takeAt(0);
+        QStringList arguments;
+        arguments << rundir;
+        foreach ( QString field, fields ) {
+            arguments << field;
+        }
+        QProcess *proc = new QProcess(this);
+        connect(proc,SIGNAL(errorOccurred(QProcess::ProcessError)),
+                this,SLOT(_scriptError(QProcess::ProcessError)));
+        proc->start(program, arguments);
     }
 }
 
