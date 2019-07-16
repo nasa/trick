@@ -8,12 +8,12 @@
 #include <QString>
 #include <QThread>
 
-class BvisCom : public QWidget
+class TimeCom : public QWidget
 {
     Q_OBJECT
 public:
-    explicit BvisCom(QWidget *parent = 0);
-    ~BvisCom();
+    explicit TimeCom(QWidget *parent = 0);
+    ~TimeCom();
 
 //    QTcpSocket *socket;
 
@@ -30,12 +30,15 @@ public:
 
 private slots:
     int sendTime2Bvis(double liveTime);
+//    void readTime4Koviz();
 
 private:
     QTcpSocket *socket;
     QString currentRun;
     QString currentTime = QString("t=0");
     bool firstRunSent = false;
+    const int BvisPort = 64052;
+    const int TimeComPort = BvisPort + 1;
 };
 
 #endif // BVISCOM_H

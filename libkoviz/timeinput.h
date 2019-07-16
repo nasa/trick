@@ -9,7 +9,7 @@
 #include <QKeyEvent>
 #include <qglobal.h>
 #include <float.h>
-#include "bviscom.h"
+#include "timecom.h"
 
 class TimeInputLineEdit : public QLineEdit
 {

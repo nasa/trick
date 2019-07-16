@@ -1,14 +1,15 @@
-#include "bviscom.h"
+#include "timecom.h"
 
-BvisCom::BvisCom(QWidget *parent) : QWidget(parent)
+TimeCom::TimeCom(QWidget *parent) : QWidget(parent)
 {
     socket = new QTcpSocket();
     currentRun = QString("");
     printf("Created BvisCom instance!\n");
+//    connect(socket,SIGNAL(readyRead()),this,SLOT(readTime4Koviz()));
     connect2Bvis();
 }
 
-BvisCom::~BvisCom()
+TimeCom::~TimeCom()
 {
     socket->close();
     delete socket;
@@ -18,10 +19,9 @@ BvisCom::~BvisCom()
 
 
 
-int BvisCom::connect2Bvis()
+int TimeCom::connect2Bvis()
 {
     const QString localhost = "127.0.0.1";
-    const int BvisPort = 64052;
     socket->connectToHost(localhost,BvisPort);
     if (socket->waitForConnected(500))
     {
@@ -36,8 +36,14 @@ int BvisCom::connect2Bvis()
     return 0;
 }
 
-int BvisCom::sendCom2Bvis(QString com)
+int TimeCom::sendCom2Bvis(QString com)
 {
+    /* I believe I had it like this because sending a run command immediately
+     * followed by a time stamp command seems to make them both be ignored by
+     * bvis
+    // overwritting the com so that the run command is successfully sent
+    // sending a time stamp command at the same time as a run command seems to
+    // make them both fail.*/
     if (firstRunSent == false)
         com = QString("run=%1").arg(currentRun);
 
@@ -58,9 +64,40 @@ int BvisCom::sendCom2Bvis(QString com)
         firstRunSent = true;
 
     return 0;
+
+/*
+    if (socket->state() != QTcpSocket::ConnectedState)
+    {
+        if(connect2Bvis() != 0)
+        {
+            return 1;
+        }
+    }
+
+    if (firstRunSent == false)
+    {
+        QString firstRunCom = QString("run=%1").arg(currentRun);
+
+        qint64 bytesWritten = socket->write(
+                    (const char *) firstRunCom.toLocal8Bit().data());
+        printf("\nSending to Bvis: %s\nBytes written: %d\n\n",
+               (const char *) firstRunCom.toLocal8Bit().data(), bytesWritten);
+
+        if (firstRunSent == false && bytesWritten > 0)
+            firstRunSent = true;
+
+    }
+
+    qint64 bytesWritten = socket->write(
+                (const char *) com.toLocal8Bit().data());
+    printf("\nSending to Bvis: %s\nBytes written: %d\n\n",
+           (const char *) com.toLocal8Bit().data(), bytesWritten);
+
+
+    return 0; */
 }
 
-int BvisCom::sendTime2Bvis(double liveTime)
+int TimeCom::sendTime2Bvis(double liveTime)
 {
 //    sendCom2Bvis();
     currentTime = QString("t=%1").arg(liveTime);
@@ -69,7 +106,7 @@ int BvisCom::sendTime2Bvis(double liveTime)
     return sendCom2Bvis(currentTime);
 }
 
-int BvisCom::sendRun2Bvis(QString runDir)
+int TimeCom::sendRun2Bvis(QString runDir)
 {
 //    if (QString::compare(runDir,currentRun) != 0)
 //        return 0;
@@ -85,12 +122,12 @@ int BvisCom::sendRun2Bvis(QString runDir)
     return ret;
 }
 
-int BvisCom::resendCurTime2Bvis()
+int TimeCom::resendCurTime2Bvis()
 {
     return sendCom2Bvis(currentTime);
 }
 
-int BvisCom::sendFirstRun(QString firstRun)
+int TimeCom::sendFirstRun(QString firstRun)
 {
     currentRun = firstRun;
     printf("");
@@ -101,3 +138,9 @@ int BvisCom::sendFirstRun(QString firstRun)
     }
     return 1;
 }
+
+//void TimeCom::readTime4Koviz()
+//{
+//    printf(socket->readAll());
+//    printf("\n");
+//}

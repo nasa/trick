@@ -64,6 +64,8 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
 
     createMenu();
 
+    printf("Hello world!\n");
+
     // Central Widget and main layout
     QSplitter* msplit = new QSplitter;
     setCentralWidget(msplit);
@@ -257,7 +259,7 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
 
 
     // creating bviscom to send commands to bvis
-    bviscom = new BvisCom(this);
+    bviscom = new TimeCom(this);
 
     // setting up the send time command signal slot pair for bvis
     // send a time com to Bvis when the time changes
