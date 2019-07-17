@@ -59,6 +59,9 @@ void Runs::_init()
         if ( lfiles.contains("log_timeline_init.csv") ) {
             lfiles.removeAll("log_timeline_init.csv");
         }
+        if ( lfiles.contains("_init_log.csv") ) {
+            lfiles.removeAll("_init_log.csv");
+        }
         if ( !excludeRgx.isEmpty() ) {
             QStringList excludeFiles = lfiles.filter(excludeRgx);
             foreach (QString excludeFile, excludeFiles) {
