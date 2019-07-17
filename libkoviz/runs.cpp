@@ -13,10 +13,12 @@ Runs::Runs() :
 Runs::Runs(const QStringList &timeNames,
            const QStringList &runDirs,
            const QHash<QString,QStringList>& varMap,
+           const QString &excludePattern,
            bool isShowProgress) :
     _timeNames(timeNames),
     _runDirs(runDirs),
     _varMap(varMap),
+    _excludePattern(excludePattern),
     _isShowProgress(isShowProgress)
 {
     if ( runDirs.isEmpty() ) {
@@ -42,6 +44,7 @@ void Runs::_init()
     QStringList files;
     QHash<QString,QStringList> runToFiles;
     QHash<QString,QString> fileToRun;
+    QRegExp excludeRgx(_excludePattern);
     foreach ( QString run, _runDirs ) {
         if ( ! QFileInfo(run).exists() ) {
             _err_stream << "koviz [error]: couldn't find run directory: "
@@ -55,6 +58,12 @@ void Runs::_init()
         }
         if ( lfiles.contains("log_timeline_init.csv") ) {
             lfiles.removeAll("log_timeline_init.csv");
+        }
+        if ( !excludeRgx.isEmpty() ) {
+            QStringList excludeFiles = lfiles.filter(excludeRgx);
+            foreach (QString excludeFile, excludeFiles) {
+                lfiles.removeAll(excludeFile);
+            }
         }
 
         if ( lfiles.empty() ) {

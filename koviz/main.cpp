@@ -54,7 +54,9 @@ QStandardItemModel* monteInputModelTrick07(const QString &monteInputFile,
                                            const QStringList &runs);
 QStandardItemModel* monteInputModelTrick17(const QString &monteInputFile,
                                            const QStringList &runs);
-QStringList runsSubset(const QStringList& runsList, uint beginRun, uint endRun);
+QStringList runsSubset(const QStringList& runsList,
+                       const QString& excludePattern,
+                       uint beginRun, uint endRun);
 
 Option::FPresetQString presetExistsFile;
 Option::FPresetDouble preset_start;
@@ -129,6 +131,7 @@ class SnapOptions : public Options
     QString symbolstyle7;
     bool isPlotAllVars;
     QString userDefinedScript;
+    QString excludePattern;
 };
 
 SnapOptions opts;
@@ -227,6 +230,8 @@ int main(int argc, char *argv[])
     opts.add("-a:{0,1}",&opts.isPlotAllVars,false,"Plot all variables");
     opts.add("-script",&opts.userDefinedScript,"",
              "User defined script to launch off options menu");
+    opts.add("-exclude",&opts.excludePattern,"",
+             "exclude pattern to filter out RUNs and/or data files");
 
     opts.parse(argc,argv, QString("koviz"), &ok);
 
@@ -480,20 +485,22 @@ int main(int argc, char *argv[])
                 exit(-1);
             }
 
-            QStringList runsList = runsSubset(monteRuns,
+            QStringList runsList = runsSubset(monteRuns,opts.excludePattern,
                                               opts.beginRun,opts.endRun);
             QStringList monteRunsList;
             foreach ( QString run, runsList ) {
                 monteRunsList << runDirs.at(0) + "/" + run;
             }
 
-            runs = new Runs(timeNames,monteRunsList,varMap,isShowProgress);
+            runs = new Runs(timeNames,monteRunsList,varMap,
+                            opts.excludePattern,isShowProgress);
             monteInputsModel = monteInputModel(monteDir.absolutePath(),
                                                runsList);
         } else {
-            QStringList runsList = runsSubset(runDirs,
+            QStringList runsList = runsSubset(runDirs,opts.excludePattern,
                                               opts.beginRun,opts.endRun);
-            runs = new Runs(timeNames,runsList,varMap,isShowProgress);
+            runs = new Runs(timeNames,runsList,varMap,
+                            opts.excludePattern,isShowProgress);
             monteInputsModel = runsInputModel(runsList);
         }
         varsModel = createVarsModel(runs);
@@ -2149,9 +2156,13 @@ QStandardItemModel* runsInputModel(const QStringList &runs)
 }
 
 // Make subset of runs based on beginRun and endRun option
-QStringList runsSubset(const QStringList& runsList, uint beginRun, uint endRun)
+QStringList runsSubset(const QStringList& runsList,
+                       const QString& excludePattern,
+                       uint beginRun, uint endRun)
 {
     QStringList subset;
+
+    QRegExp rgx(excludePattern);
 
     foreach ( QString run, runsList ) {
         bool ok = false;
@@ -2160,11 +2171,16 @@ QStringList runsSubset(const QStringList& runsList, uint beginRun, uint endRun)
         if ( ok && (runId < beginRun || runId > endRun) ) {
             continue;
         }
+        if (!rgx.isEmpty() && QFileInfo(run).absoluteFilePath().contains(rgx)) {
+            continue;
+        }
         subset.append(run);
     }
     if ( subset.empty() ) {
         fprintf(stderr,"koviz [error]: main::runsSubset() is empty.  "
-                       "-beginRun -endRun options may be at fault.\n"
+                       "Two possible reasons:\n"
+                       "   1) -beginRun -endRun options excluding all runs\n"
+                       "   2) -exclude <pattern> option excluding all runs\n"
                        "Aborting!!!");
         exit(-1);
     }
