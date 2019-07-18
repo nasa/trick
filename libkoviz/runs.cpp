@@ -13,11 +13,13 @@ Runs::Runs() :
 Runs::Runs(const QStringList &timeNames,
            const QStringList &runDirs,
            const QHash<QString,QStringList>& varMap,
+           const QString &filterPattern,
            const QString &excludePattern,
            bool isShowProgress) :
     _timeNames(timeNames),
     _runDirs(runDirs),
     _varMap(varMap),
+    _filterPattern(filterPattern),
     _excludePattern(excludePattern),
     _isShowProgress(isShowProgress)
 {
@@ -44,6 +46,7 @@ void Runs::_init()
     QStringList files;
     QHash<QString,QStringList> runToFiles;
     QHash<QString,QString> fileToRun;
+    QRegExp filterRgx(_filterPattern);
     QRegExp excludeRgx(_excludePattern);
     foreach ( QString run, _runDirs ) {
         if ( ! QFileInfo(run).exists() ) {
@@ -68,12 +71,22 @@ void Runs::_init()
                 lfiles.removeAll(excludeFile);
             }
         }
+        if ( !filterRgx.isEmpty() ) {
+            QStringList filterFiles = lfiles.filter(filterRgx);
+            if ( !filterFiles.isEmpty() ) {
+                // If the filter has found a match, use filter,
+                // otherwise do not
+                lfiles = filterFiles;
+            }
+        }
 
         if ( lfiles.empty() ) {
-            _err_stream << "koviz [error]: no *.trk/csv files in run dir: "
-                        << run << "\n";
+            _err_stream << "koviz [error]: Either no *.trk/csv files "
+                           "in run dir: " << run << "\n"
+                        << "               or log files were filtered out.\n";
             throw std::invalid_argument(_err_string.toLatin1().constData());
         }
+
         QStringList fullPathFiles;
         foreach (QString file, lfiles) {
             QString ffile = run + '/' + file;

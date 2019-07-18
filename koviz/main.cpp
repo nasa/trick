@@ -54,7 +54,7 @@ QStandardItemModel* monteInputModelTrick07(const QString &monteInputFile,
                                            const QStringList &runs);
 QStandardItemModel* monteInputModelTrick17(const QString &monteInputFile,
                                            const QStringList &runs);
-QStringList runsSubset(const QStringList& runsList,
+QStringList runsSubset(const QStringList& runsList, const QString &filterPattern,
                        const QString& excludePattern,
                        uint beginRun, uint endRun);
 
@@ -132,6 +132,7 @@ class SnapOptions : public Options
     bool isPlotAllVars;
     QString userDefinedScript;
     QString excludePattern;
+    QString filterPattern;
 };
 
 SnapOptions opts;
@@ -231,7 +232,9 @@ int main(int argc, char *argv[])
     opts.add("-script",&opts.userDefinedScript,"",
              "User defined script to launch off options menu");
     opts.add("-exclude",&opts.excludePattern,"",
-             "exclude pattern to filter out RUNs and/or data files");
+             "exclude pattern to filter out RUNs and/or log files");
+    opts.add("-filter",&opts.filterPattern,"",
+             "filter pattern to filter for RUNs and/or log files");
 
     opts.parse(argc,argv, QString("koviz"), &ok);
 
@@ -485,7 +488,9 @@ int main(int argc, char *argv[])
                 exit(-1);
             }
 
-            QStringList runsList = runsSubset(monteRuns,opts.excludePattern,
+            QStringList runsList = runsSubset(monteRuns,
+                                              opts.filterPattern,
+                                              opts.excludePattern,
                                               opts.beginRun,opts.endRun);
             QStringList monteRunsList;
             foreach ( QString run, runsList ) {
@@ -493,14 +498,20 @@ int main(int argc, char *argv[])
             }
 
             runs = new Runs(timeNames,monteRunsList,varMap,
-                            opts.excludePattern,isShowProgress);
+                            opts.filterPattern,
+                            opts.excludePattern,
+                            isShowProgress);
             monteInputsModel = monteInputModel(monteDir.absolutePath(),
                                                runsList);
         } else {
-            QStringList runsList = runsSubset(runDirs,opts.excludePattern,
+            QStringList runsList = runsSubset(runDirs,
+                                              opts.filterPattern,
+                                              opts.excludePattern,
                                               opts.beginRun,opts.endRun);
             runs = new Runs(timeNames,runsList,varMap,
-                            opts.excludePattern,isShowProgress);
+                            opts.filterPattern,
+                            opts.excludePattern,
+                            isShowProgress);
             monteInputsModel = runsInputModel(runsList);
         }
         varsModel = createVarsModel(runs);
@@ -2157,21 +2168,34 @@ QStandardItemModel* runsInputModel(const QStringList &runs)
 
 // Make subset of runs based on beginRun and endRun option
 QStringList runsSubset(const QStringList& runsList,
+                       const QString& filterPattern,
                        const QString& excludePattern,
                        uint beginRun, uint endRun)
 {
     QStringList subset;
 
-    QRegExp rgx(excludePattern);
+    QRegExp frgx(filterPattern);
+    QRegExp ergx(excludePattern);
 
-    foreach ( QString run, runsList ) {
+    QStringList filteredRunsList = runsList;
+    if ( !frgx.isEmpty() ) {
+        filteredRunsList = runsList.filter(frgx);
+        if ( filteredRunsList.isEmpty() ) {
+            // If the filter did not find a match,
+            // do not use filter
+            filteredRunsList = runsList;
+        }
+    }
+
+    foreach ( QString run, filteredRunsList ) {
         bool ok = false;
         QString runName = QFileInfo(run).fileName();
         unsigned int runId = runName.mid(4).toInt(&ok);
         if ( ok && (runId < beginRun || runId > endRun) ) {
             continue;
         }
-        if (!rgx.isEmpty() && QFileInfo(run).absoluteFilePath().contains(rgx)) {
+        if (!ergx.isEmpty() &&
+             QFileInfo(run).absoluteFilePath().contains(ergx)) {
             continue;
         }
         subset.append(run);
