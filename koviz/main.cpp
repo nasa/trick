@@ -1913,17 +1913,11 @@ QStandardItemModel* monteInputModelTrick07(const QString &monteInputFile,
         runName = runName.rightJustified(5, '0');
         runName.prepend("RUN_");
         if ( ! runs.contains(runName) ) {
-            fprintf(stderr,
-                    "koviz [error]: error parsing monte carlo "
-                    "input file. RunID for Run=%s"
-                    " is in the monte carlo input file, but "
-                    " can't find the RUN_ directory. "
-                    "Look in file:"
-                    "\n\n"
-                    "File:%s\n",
-                    runName.toLatin1().constData(),
-                    monteInputFile.toLatin1().constData());
-            exit(-1);
+            // Run is in the monte carlo input file,
+            // but it is not in the runs list.
+            // Assume that RUN was excluded intentionally,
+            // and not missing.
+            continue;
         }
         int c = 0;
         QString runIdString ;
@@ -2076,6 +2070,17 @@ QStandardItemModel* monteInputModelTrick17(const QString &monteInputFile,
 
         int runId = vals.at(0).toInt();
         if ( runId < beginRun || runId > endRun ) {
+            continue;
+        }
+
+        QString runName= QString("%0").arg(runId);
+        runName = runName.rightJustified(5, '0');
+        runName.prepend("RUN_");
+        if ( ! runs.contains(runName) ) {
+            // Run is in the monte carlo input file,
+            // but it is not in the runs list.
+            // Assume that RUN was excluded intentionally,
+            // and not missing.
             continue;
         }
 
