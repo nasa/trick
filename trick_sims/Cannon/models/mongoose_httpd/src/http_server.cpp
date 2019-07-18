@@ -1,7 +1,11 @@
 /************************************************************************
 PURPOSE: (Represent the state and initial conditions of an http server)
 LIBRARY DEPENDENCIES:
-    ((WSSession.o))
+    (
+    (WSSession.o)
+    (WSSessionVariable.o)
+    (simpleJSON.o)
+    )
 **************************************************************************/
 /*
 Messages sent from Client to Server
@@ -26,20 +30,16 @@ Messages sent from Server to Client
 { "msg_type" : "var_list"
   "values" : []
 }
-
-LEXEMES:
-    {
-    }
-    "[^""]"
-    :
-    ,
-    [0-9]+
-}
 */
-#include "../include/http_server.h"
+
 #include <sstream>
 #include <unistd.h>
+#include <string.h>
+//#include <glib.h>
+//#include <json-glib/json-glib.h>
+#include "../include/http_server.h"
 #include "../include/WSSession.hh"
+#include "../include/simpleJSON.hh"
 
 #include "trick/VariableServer.hh"
 extern Trick::VariableServer * the_vs ;
@@ -92,7 +92,55 @@ void handle_HTTP_GET_alloc_info(struct mg_connection *nc, struct http_message *h
 }
 
 // =============================================================================
+int handle_JSON_var_server_msg (WSsession* session, const char* client_msg) {
 
+     int status = 0;
+     std::vector<Member*> members = parseJSON(client_msg);
+     std::vector<Member*>::iterator it;
+     const char *cmd;
+     const char *var_name;
+     int period;
+
+     for (it = members.begin(); it != members.end(); it++ ) {
+         if (strcmp((*it)->key, "cmd") == 0) {
+             cmd = (*it)->valText;
+         } else if (strcmp((*it)->key, "var_name") == 0) {
+             var_name = (*it)->valText;
+         } else if (strcmp((*it)->key, "period") == 0) {
+             period = atoi((*it)->valText);
+         }
+     }
+
+     if (cmd == NULL) {
+         printf ("No \"cmd\" member found in client message.\n");
+         status = 1;
+     } else if (strcmp(cmd, "var_add") == 0) {
+         //const gchar* var_name = json_object_get_string_member( object, "var_name");
+         session->addVariable( strdup(var_name) );
+         printf("session->addVariable(\"%s\")\n", var_name);
+     } else if ( strcmp(cmd, "var_cycle") == 0 ) {
+         //int period = json_object_get_int_member( object, "period");
+         session->setTimeInterval(period);
+         printf("session->setTimeInterval(%d)\n", period);
+     } else if ( strcmp(cmd, "var_pause") == 0 ) {
+         session->pause();
+         printf("session->pause()\n");
+     } else if ( strcmp(cmd, "var_unpause") == 0 ) {
+         session->unpause();
+         printf("session->unpause()\n");
+     } else if ( strcmp(cmd, "var_send") == 0 ) {
+         //TODO
+     } else if ( strcmp(cmd, "var_clear") == 0 ) {
+         //TODO
+     } else if ( strcmp(cmd, "var_exit") == 0 ) {
+         //TODO
+     } else {
+         printf ("Unknown Command \"%s\".\n", cmd);
+         status = 1;
+     }         
+     return status;
+}
+#define DEBUG
 static struct mg_serve_http_opts http_server_options;
 std::map<mg_connection*, WSsession*> wsSessionMap;
 
@@ -102,26 +150,30 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 
     switch(ev) {
         case MG_EV_WEBSOCKET_HANDSHAKE_DONE: {
+
 #ifdef DEBUG
             printf("DEBUG: Event MG_EV_WEBSOCKET_HANDSHAKE_DONE. nc = %p.\n", nc);
+            char * s = strndup(hm->uri.p, hm->uri.len);
+            printf("DEBUG: WS URI = \"%s\"\n", s);
 #endif
             WSsession* session = new WSsession(nc);
-
-            session->setTimeInterval(500);            // TEMPORARY for development
-            session->addVariable("dyn.cannon.pos[0]");// TEMPORARY for development
-            session->addVariable("dyn.cannon.pos[1]");// TEMPORARY for development
-            session->unpause();                       // TEMPORARY for development
-
             wsSessionMap.insert( std::pair<mg_connection*, WSsession*>(nc, session) );
+
         } break;
         case MG_EV_WEBSOCKET_FRAME: {
+            printf("DEBUG: Event MG_EV_WEBSOCKET_FRAME. nc = %p.\n", nc);
             // Process messages recieved from the (web browser) client.
             struct websocket_message *wm = (struct websocket_message *) ev_data;
-
             char* msg = strndup((char*)wm->data, wm->size);
-#ifdef DEBUG
-            printf("DEBUG: Even t MG_EV_WEBSOCKET_FRAME: nc = %p message = %s\n", nc, msg);
-#endif
+            if (nc->flags & MG_F_IS_WEBSOCKET) {
+                std::map<mg_connection*, WSsession*>::iterator iter;
+                // Find the session that goes with this connection.
+                iter = wsSessionMap.find(nc);
+                if (iter != wsSessionMap.end()) {
+                    WSsession* session = iter->second;
+                    handle_JSON_var_server_msg(session, msg);
+                }
+            }
             free(msg);
 
         } break;
@@ -145,9 +197,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             }
         } break;
         case MG_EV_POLL: {
-#ifdef DEBUG
-           printf("DEBUG: Event MG_EV_POLL. nc = %p.\n", nc);
-#endif
            if (nc->flags & MG_F_IS_WEBSOCKET) {
                std::map<mg_connection*, WSsession*>::iterator iter;
                // Find the session that goes with this connection.
@@ -161,12 +210,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         case MG_EV_HTTP_REQUEST: {
 #ifdef DEBUG
             printf("DEBUG: Event MG_EV_HTTP_REQUEST.\n");
-#endif
             char * s = strndup(hm->uri.p, hm->uri.len);
-#ifdef DEBUG
             printf("DEBUG: URI = \"%s\"\n", s);
-#endif
             free(s);
+#endif
             if (has_prefix(&hm->uri, &api_prefix)) {
                 struct mg_str key;
                 key.p = hm->uri.p + api_prefix.len;
@@ -202,7 +249,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 void* service_connections (void* arg) {
     HTTP_Server *S = (HTTP_Server*)arg;
     while (!S->shutting_down) {
-        mg_mgr_poll(&S->mgr, 1000);
+        mg_mgr_poll(&S->mgr, 50);
         struct timespec nap, t2;
         nap.tv_sec  = 0;
         nap.tv_nsec = 100000000L;

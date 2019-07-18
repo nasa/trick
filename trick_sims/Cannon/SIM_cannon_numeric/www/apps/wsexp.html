@@ -4,45 +4,85 @@
     <title>WS Experiments</title>
   </head>
   <body>
+      <style>
+          table { border-collapse: collapse; width: 100%; }
+          th, td { text-align: left; padding: 8px; }
+          tr:nth-child(even){background-color: #f2f2f2}
+          th { background-color: #562399; color: white; }
+      </style>
       <header>
       </header>
-      <section>
-      </section>
+
+      <div class="variableDisplay"></div>
+      <table class="variables">
+          <tr>
+              <th>Variable</th>
+              <th>Value</th>
+          </tr>
+      </table>
 
       <div id="output"></div>
       <script type="text/javascript">
 
+          function log(s) {
+              var p = document.createElement("p");
+              p.style.wordWrap = "break-word";
+              p.textContent = s;
+              output.appendChild(p);
+          }
           function sendMessage(msg) {
               ws.send(msg);
-              log("Message sent");
+              //log("Sent : " + msg);
           }
 
-          function log(s) {  
-              var p = document.createElement("p");  
-              p.style.wordWrap = "break-word";  
-              p.textContent = s;  
-              output.appendChild(p);
-              //console.log(s);
+          // Interface to Trick WebSocket Variable Server
+          function setPeriod(period) {
+              sendMessage(`{ "cmd" : "var_cycle", "period" : "${period}" }`);
+          }
+          function addVariable(v) {
+              sendMessage(`{ "cmd" : "var_add", "var_name" : "${v}" }`);
+
+              // create a row in the table that contains two <td>s, one for the var_name and one for its value.
+              let tr = document.createElement('tr');
+              let td1 = document.createElement('td');
+              td1.textContent = `${v}`;
+              let td2 = document.createElement('td');
+              td2.textContent = "";
+              td2.className = "values";
+              tr.appendChild(td1);
+              tr.appendChild(td2);
+              varTable.appendChild(tr);
           }
 
+          var varTable = document.querySelector('table.variables');
           var ws = new WebSocket("ws://localhost:8888", "myProtocol");
 
-          // Event handler for the WebSocket connection opening
+          // WebSocket Event Handlers
           ws.onopen = function(e) {
               log("Connection established");
-              sendMessage("Hello WebSocket Server from Browser Client!");
+              setPeriod(100);
+              addVariable("dyn.cannon.pos[0]");
+              addVariable("dyn.cannon.pos[1]");
+              addVariable("dyn.cannon.vel[0]");
+              addVariable("dyn.cannon.vel[1]");
+              addVariable("I.dont.exist");
+              sendMessage("{ \"cmd\" : \"var_unpause\" }");
           };
-          // Event handler for receiving text messages
           ws.onmessage = function(e) {
-             log(e.data);
+             //log("Recieved : " + e.data);
+             let msg = JSON.parse(e.data);
+             if (msg.msg_type == "values") {
+                 let valueNodes = varTable.getElementsByClassName("values");
+                 for (let i = 0; i < msg.values.length; i++ ) {
+                     valueNodes[i].textContent = msg.values[i];
+                 }
+             }
+
           };
-          // Event handler for errors in the WebSocket object
           ws.onerror = function(e) {
              console.log("WebSocket Error: " , e);
-             //Custom function for handling errors
              handleErrors(e);
           };
-          // Event handler for closed connections
           ws.onclose = function(e) {
              console.log("Connection closed", e);
           };
