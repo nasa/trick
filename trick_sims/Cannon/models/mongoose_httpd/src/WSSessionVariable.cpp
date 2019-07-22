@@ -3,8 +3,6 @@
 #include <math.h> // for fpclassify
 #include <iomanip> // for setprecision
 
-
-
 WSsessionVariable::WSsessionVariable(REF2 * ref ) {
     varInfo = ref;
     address = varInfo->address;
@@ -36,21 +34,13 @@ WSsessionVariable::WSsessionVariable(REF2 * ref ) {
             size *= get_size((char*)address) ;
         }
     }
-
     // handle strings: set a max buffer size, the copy size may vary so will be set in copy_sim_data
     if (( string_type == TRICK_STRING ) || ( string_type == TRICK_WSTRING )) {
         size = MAX_ARRAY_LENGTH ;
     }
-
-    buffer_in  = calloc( size, 1 ) ;
-    buffer_out = calloc( size, 1 ) ;
-
 }
 
 WSsessionVariable::~WSsessionVariable() {
-
-    if (buffer_in != NULL) free( buffer_in );
-    if (buffer_out != NULL) free( buffer_out );
     if (varInfo != NULL) free( varInfo );
 }
 

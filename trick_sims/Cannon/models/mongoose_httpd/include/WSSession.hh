@@ -25,6 +25,8 @@ public:
     void synchSend(); // This must be called at a frequency greater than or equal to the interval.
     void pause();
     void unpause();
+    void clear();
+    void exit();
     int emitError(const char* fmt, ... );
 
     static int bad_ref_int ;

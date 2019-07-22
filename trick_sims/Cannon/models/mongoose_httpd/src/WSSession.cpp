@@ -99,6 +99,8 @@ void WSsession::addVariable(char* vname){
     }
 
     if ( new_ref != NULL ) {
+        // This REF2 object will "belong" to the WSsessionVariable, so it has
+        // the right and responsibility to free() it in its destructor.
         WSsessionVariable *sessionVariable = new WSsessionVariable( new_ref ) ;
         sessionVariables.push_back( sessionVariable ) ;
     }
@@ -131,3 +133,12 @@ void WSsession::synchSend() { // This must be called at a frequency greater than
 }
 void WSsession::pause()   { enabled = false;}
 void WSsession::unpause() { enabled = true; }
+void WSsession::clear() {
+        std::vector<WSsessionVariable*>::iterator it;
+        it = sessionVariables.begin();
+        while (it != sessionVariables.end()) {
+            delete *it;
+            it = sessionVariables.erase(it);
+        }
+}
+void WSsession::exit() {}

@@ -115,7 +115,6 @@ int handle_JSON_var_server_msg (WSsession* session, const char* client_msg) {
          printf ("No \"cmd\" member found in client message.\n");
          status = 1;
      } else if (strcmp(cmd, "var_add") == 0) {
-         //const gchar* var_name = json_object_get_string_member( object, "var_name");
          session->addVariable( strdup(var_name) );
          printf("session->addVariable(\"%s\")\n", var_name);
      } else if ( strcmp(cmd, "var_cycle") == 0 ) {
@@ -129,15 +128,15 @@ int handle_JSON_var_server_msg (WSsession* session, const char* client_msg) {
          session->unpause();
          printf("session->unpause()\n");
      } else if ( strcmp(cmd, "var_send") == 0 ) {
-         //TODO
+         session->sendValues();
      } else if ( strcmp(cmd, "var_clear") == 0 ) {
-         //TODO
+         session->clear();
      } else if ( strcmp(cmd, "var_exit") == 0 ) {
          //TODO
      } else {
          printf ("Unknown Command \"%s\".\n", cmd);
          status = 1;
-     }         
+     }
      return status;
 }
 #define DEBUG

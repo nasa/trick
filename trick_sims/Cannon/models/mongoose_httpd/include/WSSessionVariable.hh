@@ -28,8 +28,6 @@ private:
     REF2 *varInfo;
     void *address;
     int   size;
-    void *buffer_in;
-    void *buffer_out;
     bool  deref;
 };
 #endif
