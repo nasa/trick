@@ -252,6 +252,7 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
     _addChild(plotItem, "PlotStartTime", -DBL_MAX);
     _addChild(plotItem, "PlotStopTime",   DBL_MAX);
     _addChild(plotItem, "PlotGrid", true);
+    _addChild(plotItem, "PlotRatio", "");
     _addChild(plotItem, "PlotXScale", "linear");
     _addChild(plotItem, "PlotYScale", "linear");
     _addChild(plotItem, "PlotXMinRange", -DBL_MAX);
