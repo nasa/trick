@@ -101,7 +101,8 @@ int LexicalAnalyzer::next_lexeme() {
          case 2 : { // Integer literal accumulation state.
              while ((ch != 0 ) && (isdigit(ch)))
                 ch = getch();
-             vlen = p-vs-1;
+             ungetch();
+             vlen = p-vs;
              return INTEGER ;
          } break;
          default:
