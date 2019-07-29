@@ -377,8 +377,17 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     // Power
     map.insert(QPair<QString,QString>("W","W"),  1.0);
 
+    // Volume
+    map.insert(QPair<QString,QString>("m3","m3"),   1.0);
+    map.insert(QPair<QString,QString>("m3","cm3"),  0.01*0.01*0.01);
+    map.insert(QPair<QString,QString>("m3","ft3"),  0.3048*0.3048*0.3048);
+    map.insert(QPair<QString,QString>("m3","in3"),  0.0254*0.0254*0.0254);
+
     // Volume rate
     map.insert(QPair<QString,QString>("m3/s","m3/s"),  1.0);
+    map.insert(QPair<QString,QString>("m3/s","cm3/s"), 0.01*0.01*0.01);
+    map.insert(QPair<QString,QString>("m3/s","ft3/s"), 0.3048*0.3048*0.3048);
+    map.insert(QPair<QString,QString>("m3/s","in3/s"), 0.0254*0.0254*0.0254);
 
     // Mass rate
     map.insert(QPair<QString,QString>("kg/s","kg/s"),  1.0);
