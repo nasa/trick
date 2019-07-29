@@ -82,7 +82,6 @@ double Unit::scale(const QString &from, const QString &to)
 
     QString fam1 = _family(from);
     QString fam2 = _family(to);
-    QString family = fam1 = fam2;
 
     if ( fam1 != fam2 ) {
         fprintf(stderr,"koviz [error]: Attempting to convert "
@@ -92,6 +91,7 @@ double Unit::scale(const QString &from, const QString &to)
         exit(-1);
     }
 
+    QString family = fam1 = fam2;
     double scale1 = _scales.value(qMakePair(family,from));
     double scale2 = _scales.value(qMakePair(family,to));
     double sf = scale1/scale2;
