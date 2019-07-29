@@ -935,3 +935,33 @@ DPVar *DPTable::addVar(const char *title)
     _vars.append(var);
     return var;
 }
+
+DPProgram::~DPProgram()
+{
+}
+
+QList<Parameter> DPProgram::inputParams() const
+{
+    return _inputParams;
+}
+
+QList<Parameter> DPProgram::outputParams() const
+{
+    return _outputParams;
+}
+
+void DPProgram::addInput(const QString &input)
+{
+    _inputs << input;
+
+    Parameter inputParam(input);
+    _inputParams << inputParam;
+}
+
+void DPProgram::addOutput(const QString &output)
+{
+    _outputs << output;
+
+    Parameter outputParam(output);
+    _outputParams << outputParam;
+}

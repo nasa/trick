@@ -655,8 +655,8 @@ CurveModel* DPTreeWidget::_addCurve(QStandardItem *curvesItem,
         if ( !curveModel ) {
 
             QString outputCurveName;
-            foreach ( QString out, dpprogram->outputs() ) {
-                if ( out == yName ) {
+            foreach ( Parameter outputParam, dpprogram->outputParams() ) {
+                if ( outputParam.name() == yName ) {
                     outputCurveName = yName;
                     break;
                 }
@@ -664,32 +664,33 @@ CurveModel* DPTreeWidget::_addCurve(QStandardItem *curvesItem,
 
             if ( !outputCurveName.isEmpty() ) {
 
-                bool isInput = true;
                 QList<CurveModel*> inputCurves;
-                foreach ( QString inputName, dpprogram->inputs() ) {
+                foreach ( Parameter inputParam, dpprogram->inputParams() ) {
                     CurveModel* inputCurve = _bookModel->createCurve(runId,
-                                                                     _timeName,
-                                                                     _timeName,
-                                                                     inputName);
+                                                             _timeName,
+                                                             _timeName,
+                                                             inputParam.name());
                     if ( inputCurve ) {
                         inputCurves << inputCurve;
                     } else {
-                        isInput = false;
-                        break;
+                        fprintf(stderr, "koviz [error]: DP Program input "
+                                "variable not found:\n"
+                                "    DPProgramInputName=%s\n",
+                                inputParam.name().toLatin1().constData());
+                        exit(-1);
                     }
                 }
 
-                if ( isInput ) {
-                    QStringList timeNames;
-                    timeNames << _timeName;
-                    ProgramModel* programModel = new ProgramModel(inputCurves,
-                                                         dpprogram->outputs(),
-                                                         timeNames,
-                                                         dpprogram->fileName());
-                    _programModels << programModel;
-                    int ycol = programModel->paramColumn(outputCurveName);
-                    curveModel = new CurveModel(programModel,0,0,ycol);
-                }
+                QStringList timeNames;
+                timeNames << _timeName;
+                ProgramModel* programModel = new ProgramModel(inputCurves,
+                                                       dpprogram->inputParams(),
+                                                       dpprogram->outputs(),
+                                                       timeNames,
+                                                       dpprogram->fileName());
+                _programModels << programModel;
+                int ycol = programModel->paramColumn(outputCurveName);
+                curveModel = new CurveModel(programModel,0,0,ycol);
             }
         }
 

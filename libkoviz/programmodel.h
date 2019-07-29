@@ -33,6 +33,7 @@ class ProgramModel : public DataModel
   public:
 
     explicit ProgramModel(const QList<CurveModel*>& inputCurves,
+                          const QList<Parameter>& inputParams,
                           const QStringList& outputNames,
                           const QStringList &timeNames,
                           const QString &programfile,
@@ -75,6 +76,7 @@ class ProgramModel : public DataModel
     static QTextStream _err_stream;
 
     void _init(const QList<CurveModel *> &inputCurves,
+               const QList<Parameter> &inputParams,
                const QStringList &outputNames);
     int _idxAtTimeBinarySearch (ProgramModelIterator *it,
                                int low, int high, double time);

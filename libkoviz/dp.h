@@ -15,26 +15,34 @@
 #include <float.h>
 #include <limits.h>
 
+#include "parameter.h"
+
 #include "product_lexer.h"
 #include "product_parser.h"
 extern int yyparse(void);
+
 
 class DPProgram
 {
   public:
     DPProgram() {}
+    ~DPProgram();
     QString fileName() const {return _fileName; }
     QStringList inputs() const {return _inputs; }
     QStringList outputs() const {return _outputs; }
+    QList<Parameter> inputParams() const ;
+    QList<Parameter> outputParams() const ;
 
     void setFileName(const QString& fileName) { _fileName = fileName; }
-    void addInput(const QString& input) { _inputs << input;}
-    void addOutput(const QString& output) { _outputs << output; }
+    void addInput(const QString& input);
+    void addOutput(const QString& output);
 
   private:
     QString _fileName;
     QStringList _inputs;
     QStringList _outputs;
+    QList<Parameter> _inputParams;
+    QList<Parameter> _outputParams;
 };
 
 class DPVar
