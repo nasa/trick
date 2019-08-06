@@ -1377,18 +1377,22 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
     }
 
     QString dpUnits0 = getDataString(idx0,"CurveYUnit","Curve");
-    double ys0 = 1.0;
-    double ys1 = 1.0;
-    double yb0 = 0.0; // bias for temperature
-    double yb1 = 0.0;
+    double ys0 = getDataDouble(idx0,"CurveYScale","Curve");
+    double ys1 = getDataDouble(idx1,"CurveYScale","Curve");
+    double yb0 = getDataDouble(idx0,"CurveYBias","Curve");
+    double yb1 = getDataDouble(idx1,"CurveYBias","Curve");
+    double xb0 = getDataDouble(idx0,"CurveXBias","Curve");
+    double xb1 = getDataDouble(idx1,"CurveXBias","Curve");
+    double xs0 = getDataDouble(idx0,"CurveXScale","Curve");
+    double xs1 = getDataDouble(idx1,"CurveXScale","Curve");
     if ( !dpUnits0.isEmpty() ) {
-        ys0 = Unit::scale(c0->y()->unit(),dpUnits0);
-        yb0  = Unit::bias(c0->y()->unit(),dpUnits0);
-        ys1 = Unit::scale(c1->y()->unit(),dpUnits0);
-        yb1  = Unit::bias(c1->y()->unit(),dpUnits0);
+        ys0 *= Unit::scale(c0->y()->unit(),dpUnits0);
+        yb0 += Unit::bias(c0->y()->unit(),dpUnits0);
+        ys1 *= Unit::scale(c1->y()->unit(),dpUnits0);
+        yb1 += Unit::bias(c1->y()->unit(),dpUnits0);
     } else {
-        ys1 = Unit::scale(c1->y()->unit(),c0->y()->unit());
-        yb1  = Unit::bias(c1->y()->unit(),c0->y()->unit());
+        ys1 *= Unit::scale(c1->y()->unit(),c0->y()->unit());
+        yb1 += Unit::bias(c1->y()->unit(),c0->y()->unit());
     }
 
     // By default the tolerance is 0.000001
@@ -1412,8 +1416,8 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
     double stop = getDataDouble(QModelIndex(),"StopTime");
     bool isFirst = true;
     while ( !i0->isDone() && !i1->isDone() ) {
-        double t0 = i0->t();
-        double t1 = i1->t();
+        double t0 = xs0*i0->t()+xb0;
+        double t1 = xs1*i1->t()+xb1;
         if ( qAbs(t1-t0) < tolerance ) {
             if ( f > 0.0 ) {
                 if (fabs(t0-round(t0/f)*f) > 1.0e-9) { // t0 not divisible by f?
