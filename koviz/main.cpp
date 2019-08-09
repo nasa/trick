@@ -333,6 +333,16 @@ int main(int argc, char *argv[])
     }
     QStringList timeNames = getTimeNames(timeName);
 
+    // Exclude and Filter patterns
+    QString excludePattern = opts.excludePattern;
+    if ( excludePattern.isEmpty() && session ) {
+        excludePattern = session->excludePattern();
+    }
+    QString filterPattern = opts.filterPattern;
+    if ( filterPattern.isEmpty() && session ) {
+        filterPattern = session->filterPattern();
+    }
+
     if ( !opts.trk2csvFile.isEmpty() ) {
         QString csvOutFile = opts.outputFileName;
         if ( csvOutFile.isEmpty() ) {
@@ -489,8 +499,8 @@ int main(int argc, char *argv[])
             }
 
             QStringList runsList = runsSubset(monteRuns,
-                                              opts.filterPattern,
-                                              opts.excludePattern,
+                                              filterPattern,
+                                              excludePattern,
                                               opts.beginRun,opts.endRun);
             QStringList monteRunsList;
             foreach ( QString run, runsList ) {
@@ -498,19 +508,19 @@ int main(int argc, char *argv[])
             }
 
             runs = new Runs(timeNames,monteRunsList,varMap,
-                            opts.filterPattern,
-                            opts.excludePattern,
+                            filterPattern,
+                            excludePattern,
                             isShowProgress);
             monteInputsModel = monteInputModel(monteDir.absolutePath(),
                                                runsList);
         } else {
             QStringList runsList = runsSubset(runDirs,
-                                              opts.filterPattern,
-                                              opts.excludePattern,
+                                              filterPattern,
+                                              excludePattern,
                                               opts.beginRun,opts.endRun);
             runs = new Runs(timeNames,runsList,varMap,
-                            opts.filterPattern,
-                            opts.excludePattern,
+                            filterPattern,
+                            excludePattern,
                             isShowProgress);
             monteInputsModel = runsInputModel(runsList);
         }
@@ -793,7 +803,9 @@ int main(int argc, char *argv[])
         }
 
         if ( isPdf ) {
-            PlotMainWindow w(opts.userDefinedScript,
+            PlotMainWindow w(excludePattern,
+                             filterPattern,
+                             opts.userDefinedScript,
                              opts.isDebug,
                              opts.isPlotAllVars,
                              timeNames, startTime, stopTime,
@@ -914,7 +926,9 @@ int main(int argc, char *argv[])
                 TimeItLinux timer;
                 timer.start();
 #endif
-                PlotMainWindow w(opts.userDefinedScript,
+                PlotMainWindow w(excludePattern,
+                                 filterPattern,
+                                 opts.userDefinedScript,
                                  opts.isDebug,
                                  opts.isPlotAllVars,
                                  timeNames,
@@ -936,7 +950,9 @@ int main(int argc, char *argv[])
                 ret = a.exec();
             } else {
 
-                PlotMainWindow w(opts.userDefinedScript,
+                PlotMainWindow w(excludePattern,
+                                 filterPattern,
+                                 opts.userDefinedScript,
                                  opts.isDebug,
                                  opts.isPlotAllVars,
                                  timeNames,

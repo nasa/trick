@@ -65,6 +65,8 @@ public:
     QString mapFile() const { return _mapFile; }
     bool isLegend() const { return _isLegend; }
     QString showTables() const { return _showTables; }
+    QString excludePattern() const { return _excludePattern; }
+    QString filterPattern() const { return _filterPattern; }
 
 private:
     Session();
@@ -91,6 +93,8 @@ private:
     QString _mapFile;
     bool _isLegend;
     QString _showTables; // should be empty or a boolean (poor man's troolean)
+    QString _excludePattern;
+    QString _filterPattern;
 };
 
 #endif // SESSION_H

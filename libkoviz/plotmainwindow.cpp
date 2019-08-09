@@ -15,6 +15,8 @@
 #include "plotmainwindow.h"
 
 PlotMainWindow::PlotMainWindow(
+        const QString& excludePattern,
+        const QString& filterPattern,
         const QString& userDefinedScript,
         bool isDebug,
         bool isPlotAllVars,
@@ -39,6 +41,8 @@ PlotMainWindow::PlotMainWindow(
         QStandardItemModel *monteInputsModel,
         QWidget *parent) :
     QMainWindow(parent),
+    _excludePattern(excludePattern),
+    _filterPattern(filterPattern),
     _userDefinedScript(userDefinedScript),
     _isDebug(isDebug),
     _timeNames(timeNames),
@@ -900,6 +904,14 @@ void PlotMainWindow::_saveSession()
         // Background
         if ( !_background.isEmpty() ) {
              out << "bg: " << _background << "\n";
+        }
+
+        // RUN/log Exclude and Filter patterns
+        if ( !_excludePattern.isEmpty() ) {
+            out << "exclude:" << _excludePattern << "\n";
+        }
+        if ( !_filterPattern.isEmpty() ) {
+            out << "filter:" << _filterPattern << "\n";
         }
 
         // Legend/Curve Colors

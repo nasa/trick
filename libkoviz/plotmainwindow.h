@@ -40,7 +40,9 @@ class PlotMainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit PlotMainWindow( const QString& userDefinedScript,
+    explicit PlotMainWindow( const QString& excludePattern,
+                             const QString& filterPattern,
+                             const QString& userDefinedScript,
                              bool isDebug,
                              bool isPlotAllVars,
                              const QStringList& timeNames,
@@ -78,6 +80,8 @@ protected:
 
 
 private:
+    QString _excludePattern;
+    QString _filterPattern;
     QString _userDefinedScript;
     bool _isDebug;
     QStringList _timeNames;
