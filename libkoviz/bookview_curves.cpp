@@ -1617,10 +1617,7 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                 }
 
 
-                QString timeName = _bookModel()->getDataString(currentIndex(),
-                                                               "CurveTimeName",
-                                                               "Curve");
-                if ( curveModel->x()->name() == timeName ) {
+                if ( curveModel->x()->name() == curveModel->t()->name() ) {
 
                     QPointF liveCoord(DBL_MAX,DBL_MAX);
 
