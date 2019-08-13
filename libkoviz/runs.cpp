@@ -309,13 +309,13 @@ CurveModel* Runs::curveModel(int row,
                         }
                     }
                 } else {
-                tcol = tm->paramColumn(tval);
-                if ( tcol >= 0 ) {
-                    t = tval;
-                    break;
+                    tcol = tm->paramColumn(tval);
+                    if ( tcol >= 0 ) {
+                        t = tval;
+                        break;
+                    }
                 }
             }
-        }
         }
         if ( tcol < 0 ) {
             foreach (QString timeName, _timeNames ) {
