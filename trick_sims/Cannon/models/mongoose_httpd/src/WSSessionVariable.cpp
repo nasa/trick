@@ -38,6 +38,7 @@ WSsessionVariable::WSsessionVariable(REF2 * ref ) {
     if (( string_type == TRICK_STRING ) || ( string_type == TRICK_WSTRING )) {
         size = MAX_ARRAY_LENGTH ;
     }
+    stageBuffer = calloc(size, 1) ;
 }
 
 WSsessionVariable::~WSsessionVariable() {
@@ -65,65 +66,81 @@ static void write_quoted_str( std::ostream& os, const char* s) {
     os << "\"" ;
 }
 
-void WSsessionVariable::write_value( std::ostream& outs ) {
+void WSsessionVariable::stageValue() {
+    // Copy <size> bytes from <address> to staging_point.
+
+    if ( varInfo->attr->type == TRICK_STRING ) {
+        if (address == NULL) {
+            size = 0 ;
+        } else {
+            size = strlen((char*)varInfo->address) + 1 ;
+        }
+    }
+
+    if (address != NULL) {
+         memcpy(stageBuffer, address, size);
+    }
+}
+
+void WSsessionVariable::writeValue( std::ostream& outs ) {
 
     switch(varInfo->attr->type) {
         case TRICK_UNSIGNED_CHARACTER:
-            outs << std::dec << (int)*(unsigned char*)address ;
+            outs << std::dec << (int)*(unsigned char*)stageBuffer ;
         break;
         case TRICK_BOOLEAN:
-            if (*(bool*)address) {
+            if (*(bool*)stageBuffer) {
                 outs << "\"true\"" ;
             } else {
                 outs << "\"false\"" ;
             }
         break;
         case TRICK_CHARACTER:
-            if (isprint( *(char*)address) ) {
-                outs << "'" << *(char*)address << "'" ;
+            if (isprint( *(char*)stageBuffer) ) {
+                outs << "'" << *(char*)stageBuffer << "'" ;
             } else {
-                unsigned int ch = *(unsigned char*)address;
+                unsigned int ch = *(unsigned char*)stageBuffer;
                   outs << "'\\x" << std::hex << ch << "'" ;
             }
         break;
         case TRICK_WCHAR:
-            outs << std::dec << *(wchar_t*)address;
+            outs << std::dec << *(wchar_t*)stageBuffer;
             break;
         case TRICK_SHORT:
-            outs << std::dec << *(short*)address;
+            outs << std::dec << *(short*)stageBuffer;
             break;
         case TRICK_UNSIGNED_SHORT:
-            outs << std::dec << *(unsigned short*)address;
+            outs << std::dec << *(unsigned short*)stageBuffer;
             break;
         case TRICK_INTEGER:
-            outs << std::dec << *(int*)address;
+            outs << std::dec << *(int*)stageBuffer;
             break;
         case TRICK_UNSIGNED_INTEGER:
-            outs << std::dec << *(unsigned int*)address;
+            outs << std::dec << *(unsigned int*)stageBuffer;
             break;
         case TRICK_LONG:
-            outs << std::dec << *(long*)address;
+            outs << std::dec << *(long*)stageBuffer;
             break;
         case TRICK_UNSIGNED_LONG:
-            outs << std::dec << *(unsigned long*)address;
+            outs << std::dec << *(unsigned long*)stageBuffer;
             break;
         case TRICK_FLOAT:
-            if (fpclassify( *(float*)address) != FP_NAN) {
-                outs << std::setprecision(8) << *(float*)address;
+            if (fpclassify( *(float*)stageBuffer) != FP_NAN) {
+                outs << std::setprecision(8) << *(float*)stageBuffer;
             } else {
                 outs << "NAN";
             }
             break;
         case TRICK_DOUBLE:
-            if (fpclassify( *(double*)address) != FP_NAN) {
-                outs << std::setprecision(16) << *(double*)address;
+            if (fpclassify( *(double*)stageBuffer) != FP_NAN) {
+                outs << std::setprecision(16) << *(double*)stageBuffer;
             } else {
                 outs << "NAN";
             }
             break;
 //        case TRICK_BITFIELD: {
 //                int sbf = 0;
-//                src_addr = (char*)address + offset * (size_t)attr->size;
+//                src_addr = (char*)stageBuffer + offset * (size_t)attr->size;
 //                if (attr->size == sizeof(int)) {
 //                     sbf = extract_bitfield_any( *(int*)src_addr, attr->size, attr->index[0].start, attr->index[0].size);
 //                } else if (attr->size == sizeof(short)) {
@@ -138,7 +155,7 @@ void WSsessionVariable::write_value( std::ostream& outs ) {
 //            } break;
 //        case TRICK_UNSIGNED_BITFIELD: {
 //                int bf = 0;
-//                src_addr = (char*)address + offset * (size_t)attr->size;
+//                src_addr = (char*)stageBuffer + offset * (size_t)attr->size;
 //                if (attr->size == sizeof(int)) {
 //                     bf = extract_unsigned_bitfield_any( *(unsigned int*)src_addr, attr->size, attr->index[0].start, attr->index[0].size);
 //                } else if (attr->size == sizeof(short)) {
@@ -152,13 +169,13 @@ void WSsessionVariable::write_value( std::ostream& outs ) {
 //                outs << std::dec << bf;
 //            } break;
         case TRICK_LONG_LONG:
-            outs << std::dec << *(long long*)address;
+            outs << std::dec << *(long long*)stageBuffer;
             break;
         case TRICK_UNSIGNED_LONG_LONG:
-            outs << std::dec << *(unsigned long long*)address;
+            outs << std::dec << *(unsigned long long*)stageBuffer;
             break;
         case TRICK_STRING:
-            write_quoted_str(outs, (*(std::string*)address).c_str());
+            write_quoted_str(outs, (*(std::string*)stageBuffer).c_str());
             break;
         default:
             outs << "\"Error\""; // ERROR

@@ -21,7 +21,7 @@ public:
 
     LexicalAnalyzer(const char*);
     int next_lexeme();
-    char* getLexText();
+    char* getTokenText();
 
 private:
     const char * s;
@@ -50,7 +50,7 @@ void LexicalAnalyzer::ungetch() {
     if (p > s) { p--; }
 }
 
-char* LexicalAnalyzer::getLexText() {
+char* LexicalAnalyzer::getTokenText() {
     if (vlen > 0) {
         return strndup(vs, vlen);
     } else {
@@ -112,7 +112,7 @@ int LexicalAnalyzer::next_lexeme() {
      return END_OF_INPUT;
 }
 
-const char *token_text(int token) {
+const char *token_description(int token) {
     const char *text;
     switch (token) {
         case LexicalAnalyzer::END_OF_INPUT         : text = "END_OF_INPUT";         break;
@@ -145,25 +145,25 @@ Member* parseJSON_member(LexicalAnalyzer &lexan) {
     int token;
     token = lexan.next_lexeme();
     if ( token == LexicalAnalyzer::STRING ) {
-        key = lexan.getLexText();
+        key = lexan.getTokenText();
     } else {
-        std::cout << "ERROR: Expected STRING. Found \"" << token_text(token) << "\"." << std::endl;
+        std::cout << "ERROR: Expected STRING. Found \"" << token_description(token) << "\"." << std::endl;
         return NULL;
     }
     token = lexan.next_lexeme();
     if ( token != LexicalAnalyzer::COLON ) {
-        std::cout << "ERROR: Expected COLON. Found \"" << token_text(token) << "\"." << std::endl;
-        token_text(token);
+        std::cout << "ERROR: Expected COLON. Found \"" << token_description(token) << "\"." << std::endl;
+        token_description(token);
         delete key;
         return NULL;
     }
     token = lexan.next_lexeme();
     if (( token == LexicalAnalyzer::STRING) || ( token == LexicalAnalyzer::INTEGER )) {
-        valText = lexan.getLexText();
+        valText = lexan.getTokenText();
         type = token;
     } else {
-        std::cout << "ERROR: Expected STRING or INTEGER. Found \"" << token_text(token) << "." << std::endl;
-        token_text(token);
+        std::cout << "ERROR: Expected STRING or INTEGER. Found \"" << token_description(token) << "." << std::endl;
+        token_description(token);
         return NULL;
     }
     Member *member = new Member(key, valText, type);
@@ -196,12 +196,12 @@ std::vector<Member*> parseJSON( const char *json_s) {
             okiedokey = false;
         }
         if ( token != LexicalAnalyzer::RIGHT_BRACE ) {
-            std::cout << "ERROR: Expected RIGHT_BRACE. Found \"" << token_text(token) << "\"." << std::endl;
-            token_text(token);
+            std::cout << "ERROR: Expected RIGHT_BRACE. Found \"" << token_description(token) << "\"." << std::endl;
+            token_description(token);
             okiedokey = false;
         }
     } else {
-        std::cout << "ERROR: Expected LEFT_BRACE. Found \"" << token_text(token) << "\"." << std::endl;
+        std::cout << "ERROR: Expected LEFT_BRACE. Found \"" << token_description(token) << "\"." << std::endl;
         okiedokey = false;
     }
     if (okiedokey == false) {

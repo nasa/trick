@@ -4,9 +4,9 @@ LIBRARY DEPENDENCIES:
     (
     (WSSession.o)
     (WSSessionVariable.o)
-    (simpleJSON.o)
     )
 **************************************************************************/
+
 /*
 Messages sent from Client to Server
 ================================
@@ -28,6 +28,7 @@ Messages sent from Server to Client
   "error_text" : <str>
 }
 { "msg_type" : "var_list"
+  "time" : <double>
   "values" : []
 }
 */
@@ -35,11 +36,10 @@ Messages sent from Server to Client
 #include <sstream>
 #include <unistd.h>
 #include <string.h>
-//#include <glib.h>
-//#include <json-glib/json-glib.h>
+#include <pthread.h>
 #include "../include/http_server.h"
 #include "../include/WSSession.hh"
-#include "../include/simpleJSON.hh"
+#include "trick/exec_proto.h"
 
 #include "trick/VariableServer.hh"
 extern Trick::VariableServer * the_vs ;
@@ -48,14 +48,21 @@ extern Trick::MemoryManager* trick_MM;
 
 static const struct mg_str s_get_method = MG_MK_STR("GET");
 static const struct mg_str s_put_method = MG_MK_STR("PUT");
-static const struct mg_str s_delele_method = MG_MK_STR("DELETE");
+static const struct mg_str s_delete_method = MG_MK_STR("DELETE");
+static const struct mg_str api_prefix = MG_MK_STR("/api/v1");
 
-static int is_equal(const struct mg_str *s1, const struct mg_str *s2) {
-  return s1->len == s2->len && memcmp(s1->p, s2->p, s2->len) == 0;
-}
+// ============================================================================
+// HTTP GET Handlers
+// ============================================================================
 
-static int has_prefix(const struct mg_str *uri, const struct mg_str *prefix) {
-  return uri->len > prefix->len && memcmp(uri->p, prefix->p, prefix->len) == 0;
+// Respond to HTTP GET method with URI="/api/v1/vs_connections".
+void handle_HTTP_GET_vs_connections(struct mg_connection *nc, struct http_message *hm) {
+    mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
+    std::stringstream ss;
+    ss << *the_vs << std::endl;
+    std::string tmp = ss.str();
+    mg_printf_http_chunk(nc, "%s", tmp.c_str());
+    mg_send_http_chunk(nc, "", 0);
 }
 
 int getIntegerQueryValue(struct http_message *hm, const char* key, int defaultVal) {
@@ -67,19 +74,7 @@ int getIntegerQueryValue(struct http_message *hm, const char* key, int defaultVa
     }
 }
 
-static const struct mg_str api_prefix = MG_MK_STR("/api/v1");
-
-// Respond to HTTP GET with URI="/api/v1/vs_connections".
-void handle_HTTP_GET_vs_connections(struct mg_connection *nc, struct http_message *hm) {
-    mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
-    std::stringstream ss;
-    ss << *the_vs << std::endl;
-    std::string tmp = ss.str();
-    mg_printf_http_chunk(nc, "%s", tmp.c_str());
-    mg_send_http_chunk(nc, "", 0);
-}
-
-// Respond to HTTP GET with URI="/api/v1/alloc_info".
+// Respond to HTTP GET method with URI="/api/v1/alloc_info".
 void handle_HTTP_GET_alloc_info(struct mg_connection *nc, struct http_message *hm) {
     int start = getIntegerQueryValue(hm, "start", 0);
     int count = getIntegerQueryValue(hm, "count", 10);
@@ -91,57 +86,11 @@ void handle_HTTP_GET_alloc_info(struct mg_connection *nc, struct http_message *h
     mg_send_http_chunk(nc, "", 0);
 }
 
-// =============================================================================
-int handle_JSON_var_server_msg (WSsession* session, const char* client_msg) {
-
-     int status = 0;
-     std::vector<Member*> members = parseJSON(client_msg);
-     std::vector<Member*>::iterator it;
-     const char *cmd;
-     const char *var_name;
-     int period;
-
-     for (it = members.begin(); it != members.end(); it++ ) {
-         if (strcmp((*it)->key, "cmd") == 0) {
-             cmd = (*it)->valText;
-         } else if (strcmp((*it)->key, "var_name") == 0) {
-             var_name = (*it)->valText;
-         } else if (strcmp((*it)->key, "period") == 0) {
-             period = atoi((*it)->valText);
-         }
-     }
-
-     if (cmd == NULL) {
-         printf ("No \"cmd\" member found in client message.\n");
-         status = 1;
-     } else if (strcmp(cmd, "var_add") == 0) {
-         session->addVariable( strdup(var_name) );
-         printf("session->addVariable(\"%s\")\n", var_name);
-     } else if ( strcmp(cmd, "var_cycle") == 0 ) {
-         //int period = json_object_get_int_member( object, "period");
-         session->setTimeInterval(period);
-         printf("session->setTimeInterval(%d)\n", period);
-     } else if ( strcmp(cmd, "var_pause") == 0 ) {
-         session->pause();
-         printf("session->pause()\n");
-     } else if ( strcmp(cmd, "var_unpause") == 0 ) {
-         session->unpause();
-         printf("session->unpause()\n");
-     } else if ( strcmp(cmd, "var_send") == 0 ) {
-         session->sendValues();
-     } else if ( strcmp(cmd, "var_clear") == 0 ) {
-         session->clear();
-     } else if ( strcmp(cmd, "var_exit") == 0 ) {
-         //TODO
-     } else {
-         printf ("Unknown Command \"%s\".\n", cmd);
-         status = 1;
-     }
-     return status;
-}
 #define DEBUG
 static struct mg_serve_http_opts http_server_options;
-std::map<mg_connection*, WSsession*> wsSessionMap;
+std::map<mg_connection*, WSsession*> sessionMap;
+pthread_mutex_t sessionMapLock;
+pthread_cond_t serviceConnections;
 
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 
@@ -151,92 +100,98 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         case MG_EV_WEBSOCKET_HANDSHAKE_DONE: {
 
 #ifdef DEBUG
-            printf("DEBUG: Event MG_EV_WEBSOCKET_HANDSHAKE_DONE. nc = %p.\n", nc);
             char * s = strndup(hm->uri.p, hm->uri.len);
-            printf("DEBUG: WS URI = \"%s\"\n", s);
+            printf("WEBSOCKET[%p] OPENED. URI=\"%s\"\n", nc, s);
+            free(s);
 #endif
+            // Create a session object to store information about this web-socket connection.
             WSsession* session = new WSsession(nc);
-            wsSessionMap.insert( std::pair<mg_connection*, WSsession*>(nc, session) );
+
+            pthread_mutex_lock(&sessionMapLock);
+            sessionMap.insert( std::pair<mg_connection*, WSsession*>(nc, session) );
+            pthread_mutex_unlock(&sessionMapLock);
 
         } break;
+
         case MG_EV_WEBSOCKET_FRAME: {
-            printf("DEBUG: Event MG_EV_WEBSOCKET_FRAME. nc = %p.\n", nc);
-            // Process messages recieved from the (web browser) client.
+            // --------------------------------------------------------
+            // Process websocket messages from the client (web browser).
+            // --------------------------------------------------------
             struct websocket_message *wm = (struct websocket_message *) ev_data;
             char* msg = strndup((char*)wm->data, wm->size);
+
+#ifdef DEBUG
+            printf("WEBSOCKET[%p] RECIEVED: %s\n", nc, msg);
+#endif
             if (nc->flags & MG_F_IS_WEBSOCKET) {
-                std::map<mg_connection*, WSsession*>::iterator iter;
                 // Find the session that goes with this connection.
-                iter = wsSessionMap.find(nc);
-                if (iter != wsSessionMap.end()) {
+                std::map<mg_connection*, WSsession*>::iterator iter;
+                iter = sessionMap.find(nc);
+                if (iter != sessionMap.end()) {
                     WSsession* session = iter->second;
-                    handle_JSON_var_server_msg(session, msg);
+                    session->handle_msg(msg);
                 }
             }
             free(msg);
-
-        } break;
-        case MG_EV_CONNECT: {
-#ifdef DEBUG
-            printf("DEBUG: Event MG_EV_CONNECT. nc = %p.\n", nc);
-#endif
         } break;
         case MG_EV_CLOSE: {
-#ifdef DEBUG
-            printf("DEBUG: Event MG_EV_CLOSE. nc = %p.\n", nc);
-#endif
             if (nc->flags & MG_F_IS_WEBSOCKET) {
                 std::map<mg_connection*, WSsession*>::iterator iter;
-                iter = wsSessionMap.find(nc);
-                if (iter != wsSessionMap.end()) {
+                iter = sessionMap.find(nc);
+                if (iter != sessionMap.end()) {
                     WSsession* session = iter->second;
                     delete session;
-                    wsSessionMap.erase(iter);
+                    sessionMap.erase(iter);
                 }
+#ifdef DEBUG
+                printf("WEBSOCKET[%p] CLOSED.\n", nc);
+#endif
             }
         } break;
         case MG_EV_POLL: {
+           // The MG_EV_POLL event is sent to all connections for each invocation of mg_mgr_poll().
+           // The threaded function connectionAttendant() [below] periodically calls mg_mgr_poll().
+
+           // Send websocket messages to the client (web browser).
            if (nc->flags & MG_F_IS_WEBSOCKET) {
+
+               // Find the session that goes with the given websocket connection,
+               // and tell it to send its values to the client (web browser).
                std::map<mg_connection*, WSsession*>::iterator iter;
-               // Find the session that goes with this connection.
-               iter = wsSessionMap.find(nc);
-               if (iter != wsSessionMap.end()) {
+               iter = sessionMap.find(nc);
+               if (iter != sessionMap.end()) {
                    WSsession* session = iter->second;
-                   session->synchSend();
+                   session->sendValues();
                }
            }
         } break;
         case MG_EV_HTTP_REQUEST: {
+
 #ifdef DEBUG
-            printf("DEBUG: Event MG_EV_HTTP_REQUEST.\n");
             char * s = strndup(hm->uri.p, hm->uri.len);
-            printf("DEBUG: URI = \"%s\"\n", s);
+            printf("HTTP_REQUEST: URI = \"%s\"\n", s);
             free(s);
 #endif
-            if (has_prefix(&hm->uri, &api_prefix)) {
+            if (mg_str_starts_with(hm->uri, api_prefix)) {
                 struct mg_str key;
                 key.p = hm->uri.p + api_prefix.len;
                 key.len = hm->uri.len - api_prefix.len;
 
-                if (is_equal(&hm->method, &s_get_method)) {
-#ifdef DEBUG
-                    printf("DEBUG: HTTP GET method.\n");
-#endif
+                if (mg_strcmp(hm->method, s_get_method)==0) {
                     if (mg_vcmp(&key, "/vs_connections") == 0) {
                         handle_HTTP_GET_vs_connections(nc, hm);
                     } else if (mg_vcmp(&key, "/alloc_info") == 0) {
                         handle_HTTP_GET_alloc_info(nc, hm);
+                    } else {
+                        mg_http_send_error(nc, 404, "No such API.");
                     }
-                } else if (is_equal(&hm->method, &s_put_method)) {
-#ifdef DEBUG
-                    printf("DEBUG: HTTP PUT method.\n");
-#endif
-                } else if (is_equal(&hm->method, &s_delele_method)) {
-#ifdef DEBUG
-                    printf("DEBUG: HTTP DELETE method.\n");
-#endif
+                } else if (mg_strcmp(hm->method, s_put_method)==0) {
+                    mg_http_send_error(nc, 405, "PUT method not allowed.");
+                } else if (mg_strcmp(hm->method, s_delete_method)==0) {
+                    mg_http_send_error(nc, 405, "DELETE method not allowed.");
                 }
             } else {
+               // Serve the files in the document-root directory, as specified by the URI.
                mg_serve_http(nc, (struct http_message *) ev_data, http_server_options);
             }
         } break;
@@ -245,44 +200,89 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     }
 }
 
-void* service_connections (void* arg) {
-    HTTP_Server *S = (HTTP_Server*)arg;
-    while (!S->shutting_down) {
-        mg_mgr_poll(&S->mgr, 50);
-        struct timespec nap, t2;
-        nap.tv_sec  = 0;
-        nap.tv_nsec = 100000000L;
-        if ( nanosleep(&nap, &t2) < 0) {
-            // Error
-        };
+// =========================================================================
+// This function runs in its own pthread to operate the webserver.
+// =========================================================================
+void* connectionAttendant (void* arg) {
+   HTTP_Server *S = (HTTP_Server*)arg;
+   while(1) {
+        pthread_mutex_lock(&sessionMapLock);
+        // Wait here until the serviceConnections condition is signaled by the top_of_frame job.
+        pthread_cond_wait(&serviceConnections, &sessionMapLock);
+        if (S->shutting_down) {
+            pthread_mutex_unlock(&sessionMapLock);
+            return NULL;
+        } else {
+            mg_mgr_poll(&S->mgr, 50);
+        }
+        pthread_mutex_unlock(&sessionMapLock);
     }
     return NULL;
 }
 
+// =========================================================================
+// Trick Sim Interface Functions
+// =========================================================================
+
 int http_default_data(HTTP_Server *S) {
     S->port = "8888";
     S->shutting_down = false;
+    S->document_root = "www";
     return 0;
 }
 
 int http_init(HTTP_Server *S) {
-    http_server_options.document_root = "www";
+
+    http_server_options.document_root = S->document_root;
     http_server_options.enable_directory_listing = "yes";
+
     mg_mgr_init(&S->mgr, NULL);
-    printf("Starting web server on port %s\n", S->port);
+
+    std::cout << "Trick Webserver: Starting, and listening on port " << S->port << ".\n"
+              << "Trick Webserver: Document root = \"" << S->document_root << "\""
+              << std::endl;
+
     S->nc = mg_bind(&S->mgr, S->port, ev_handler);
     if (S->nc == NULL) {
-      printf("Failed to create listener.\n");
+      std::cerr << "Trick Webserver: ERROR: Failed to create listener.\n"
+                << "Perhaps another program is already using port " << S->port << "."
+                << std::endl;
       return 1;
     }
     mg_set_protocol_http_websocket(S->nc);
-    pthread_create( &S->server_thread, NULL, service_connections, (void*)S);
+
+    pthread_cond_init(&serviceConnections, NULL);
+    pthread_create( &S->server_thread, NULL, connectionAttendant, (void*)S);
+    return 0;
+}
+
+int http_top_of_frame(HTTP_Server * S) {
+    if (S->nc != NULL) {
+
+        // Have all of the sessions stage their data. We do this here, in a
+        // top_of_frame job, so that all of the data is time-homogeneous.
+        std::map<mg_connection*, WSsession*>::iterator iter;
+        pthread_mutex_lock(&sessionMapLock);
+        for (iter = sessionMap.begin(); iter != sessionMap.end(); iter++ ) {
+            WSsession* session = iter->second;
+            session->stageValuesSynchronously();
+        }
+        pthread_mutex_unlock(&sessionMapLock);
+
+        // Signal the server thread to construct and send the values-message to the client.
+        pthread_cond_signal( &serviceConnections );
+    }
     return 0;
 }
 
 int http_shutdown(HTTP_Server *S) {
-    printf("Shutting down web server on port %s\n", S->port);
-    S->shutting_down = true;
-    pthread_join(S->server_thread, NULL);
+    if (S->nc != NULL) {
+        std::cout << "Trick Webserver: Shutting down on port " << S->port << "." << std::endl;
+        S->shutting_down = true;
+
+        // Send the serviceConnections signal one last time so the connectionAttendant thread can quit.
+        pthread_cond_signal( &serviceConnections );
+        pthread_join(S->server_thread, NULL);
+    }
     return 0;
 }

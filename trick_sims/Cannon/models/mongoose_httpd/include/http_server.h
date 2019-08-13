@@ -17,6 +17,7 @@ typedef struct {
     struct mg_mgr mgr;         /* ** mongoose */
     struct mg_connection *nc;  /* ** mongoose */
     const char* port;
+    const char* document_root;
     pthread_t server_thread;   /* ** */
     bool shutting_down;
 
@@ -27,6 +28,7 @@ extern "C" {
 #endif
     int http_default_data(HTTP_Server * S) ;
     int http_init(HTTP_Server * S) ;
+    int http_top_of_frame(HTTP_Server * S) ;
     int http_shutdown(HTTP_Server * S) ;
 #ifdef __cplusplus
 }

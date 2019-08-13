@@ -18,15 +18,17 @@ inline uint64_t to_nanoseconds(struct timespec* t) {
 class WSsession {
 
 public:
-    WSsession( struct mg_connection *c );
+    WSsession( struct mg_connection *nc);
     void setTimeInterval(unsigned int milliseconds);
     void addVariable(char* vname);
+    void stageValuesSynchronously();
+    void stageValues();
     void sendValues();
-    void synchSend(); // This must be called at a frequency greater than or equal to the interval.
     void pause();
     void unpause();
     void clear();
     void exit();
+    int handle_msg (const char* client_msg);
     int emitError(const char* fmt, ... );
 
     static int bad_ref_int ;
@@ -36,9 +38,12 @@ private:
     REF2* make_error_ref(const char* in_name);
     struct mg_connection* connection;
     std::vector<WSsessionVariable*> sessionVariables;
-    struct timespec lastTime;
-    struct timespec interval;
-    bool enabled;
+    bool cyclicSendEnabled;
+    double stageTime;
+    bool valuesStaged;
+    long long nextTime;
+    long long intervalTimeTics;
+
 
 };
 #endif

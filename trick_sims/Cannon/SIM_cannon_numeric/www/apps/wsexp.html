@@ -37,21 +37,23 @@
 
           // Interface to Trick WebSocket Variable Server
           function setPeriod(period) {
-              sendMessage(`{ "cmd" : "var_cycle", "period" : "${period}" }`);
+              sendMessage(`{"cmd":"var_cycle","period":${period}}`);
           }
-          function addVariable(v) {
-              sendMessage(`{ "cmd" : "var_add", "var_name" : "${v}" }`);
-
+          function addVarTableRow(name, value) {
               // create a row in the table that contains two <td>s, one for the var_name and one for its value.
               let tr = document.createElement('tr');
               let td1 = document.createElement('td');
-              td1.textContent = `${v}`;
+              td1.textContent = `${name}`;
               let td2 = document.createElement('td');
-              td2.textContent = "";
+              td2.textContent = `${value}`;
               td2.className = "values";
               tr.appendChild(td1);
               tr.appendChild(td2);
               varTable.appendChild(tr);
+          }
+          function addVariable(name, value) {
+              sendMessage(`{"cmd":"var_add","var_name": "${name}"}`);
+              addVarTableRow(name, value);
           }
 
           var varTable = document.querySelector('table.variables');
@@ -59,25 +61,26 @@
 
           // WebSocket Event Handlers
           ws.onopen = function(e) {
-              log("Connection established");
+              //log("Connection established");
               setPeriod(100);
-              addVariable("dyn.cannon.pos[0]");
-              addVariable("dyn.cannon.pos[1]");
-              addVariable("dyn.cannon.vel[0]");
-              addVariable("dyn.cannon.vel[1]");
-              addVariable("I.dont.exist");
-              sendMessage("{ \"cmd\" : \"var_unpause\" }");
+              addVarTableRow("Time", 0.0);
+              addVariable("dyn.cannon.pos[0]", 0.0);
+              addVariable("dyn.cannon.pos[1]", 0.0);
+              addVariable("dyn.cannon.vel[0]", 0.0);
+              addVariable("dyn.cannon.vel[1]", 0.0);
+              addVariable("I.dont.exist", 0.0);
+              sendMessage("{\"cmd\":\"var_unpause\"}");
           };
           ws.onmessage = function(e) {
              //log("Recieved : " + e.data);
              let msg = JSON.parse(e.data);
              if (msg.msg_type == "values") {
                  let valueNodes = varTable.getElementsByClassName("values");
+                 valueNodes[0].textContent = msg.time;
                  for (let i = 0; i < msg.values.length; i++ ) {
-                     valueNodes[i].textContent = msg.values[i];
+                     valueNodes[i+1].textContent = msg.values[i];
                  }
              }
-
           };
           ws.onerror = function(e) {
              console.log("WebSocket Error: " , e);

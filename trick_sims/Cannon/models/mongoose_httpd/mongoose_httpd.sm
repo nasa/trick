@@ -14,6 +14,7 @@ class HttpSimObject : public Trick::SimObject {
         HttpSimObject() {
             ("default_data") http_default_data( &http_server ) ;
             ("initialization") http_init( &http_server ) ;
+            ("top_of_frame") http_top_of_frame( &http_server ) ;
             ("shutdown") http_shutdown( &http_server ) ;
         }
 };

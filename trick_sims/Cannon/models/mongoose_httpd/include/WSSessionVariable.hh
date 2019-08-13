@@ -20,7 +20,8 @@ public:
     WSsessionVariable( REF2* variableType);
    ~WSsessionVariable();
     const char* getName();
-    void write_value( std::ostream& chkpnt_os );
+    void stageValue();
+    void writeValue( std::ostream& chkpnt_os );
 
 
 private:
@@ -28,6 +29,7 @@ private:
     REF2 *varInfo;
     void *address;
     int   size;
+    void *stageBuffer;
     bool  deref;
 };
 #endif
