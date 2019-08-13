@@ -321,6 +321,12 @@ int main(int argc, char *argv[])
                     key.toLatin1().constData());
             exit(-1);
         }
+        if ( key.contains('{') || key.contains('(')) {
+            fprintf(stderr, "koviz [error]: bad mapkey=\"%s\". "
+                            "Keys cannot contain units, scales or bias.\n",
+                    key.toLatin1().constData());
+            exit(-1);
+        }
     }
 
     // Time Name
