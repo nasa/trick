@@ -19,11 +19,11 @@
 %}
 
 
-%typemap(in) char , unsigned char ,
-             short , unsigned short ,
-             int , unsigned int ,
-             long , unsigned long ,
-             long long , unsigned long long ,
+%typemap(in) char , unsigned char , signed char ,
+             short , unsigned short , signed short ,
+             int , unsigned int , signed int ,
+             long , unsigned long , signed long ,
+             long long , unsigned long long , signed long long ,
              enum SWIGTYPE , bool ,
              double , float {
     int ret ;
@@ -33,11 +33,11 @@
     }
 }
 
-%typemap(out) char , unsigned char ,
-              short , unsigned short ,
-              int , unsigned int ,
-              long , unsigned long ,
-              long long , unsigned long long ,
+%typemap(out) char , unsigned char , signed char ,
+              short , unsigned short , signed short ,
+              int , unsigned int , signed int ,
+              long , unsigned long , signed long ,
+              long long , unsigned long long , signed long long ,
               enum SWIGTYPE , bool {
     // INT OUT
     std::string temp_name ;
@@ -64,11 +64,11 @@
     $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_double"), SWIG_POINTER_OWN);
 }
 
-%typemap(in) char [] , unsigned char [] ,
-             short [] , unsigned short [] ,
-             int [] , unsigned int [] ,
-             long [] , unsigned long [] ,
-             long long [] , unsigned long long [] ,
+%typemap(in) char [] , unsigned char [] , signed char [] ,
+             short [] , unsigned short [] , signed short [] ,
+             int [] , unsigned int [] , signed int [] ,
+             long [] , unsigned long [] , signed long [] ,
+             long long [] , unsigned long long [] , signed long long [] ,
              enum SWIGTYPE [] , bool [] ,
              double [] , float [] {
     //ARRAY[] IN
@@ -79,20 +79,20 @@
     }
 }
 
-%typemap(freearg) char [] , unsigned char [] ,
-                   short [] , unsigned short [] ,
-                   int [] , unsigned int [] ,
-                   long [] , unsigned long [] ,
-                   long long [] , unsigned long long [] ,
+%typemap(freearg) char [] , unsigned char [] , signed char [] ,
+                   short [] , unsigned short [] , signed short [] ,
+                   int [] , unsigned int [] , signed int [] ,
+                   long [] , unsigned long [] , signed long [] ,
+                   long long [] , unsigned long long [] , signed long long [] ,
                    enum SWIGTYPE [] , bool [] ,
                    double [] , float [] {
 }
 
-%typemap(in) char [ANY] , unsigned char [ANY] ,
-             short [ANY] , unsigned short [ANY] ,
-             int [ANY] , unsigned int [ANY] ,
-             long [ANY] , unsigned long [ANY] ,
-             long long [ANY] , unsigned long long [ANY] ,
+%typemap(in) char [ANY] , unsigned char [ANY] , signed char [ANY] ,
+             short [ANY] , unsigned short [ANY] , signed short [ANY] ,
+             int [ANY] , unsigned int [ANY] , signed int [ANY] ,
+             long [ANY] , unsigned long [ANY] , signed long [ANY] ,
+             long long [ANY] , unsigned long long [ANY] , signed long long [ANY] ,
              enum SWIGTYPE [ANY] , bool [ANY] ,
              double [ANY] , float [ANY] {
     //ARRAY[ANY] IN
@@ -102,21 +102,21 @@
     }
 }
 
-%typemap(freearg) char [ANY] , unsigned char [ANY] ,
-                   short [ANY] , unsigned short [ANY] ,
-                   int [ANY] , unsigned int [ANY] ,
-                   long [ANY] , unsigned long [ANY] ,
-                   long long [ANY] , unsigned long long [ANY] ,
+%typemap(freearg) char [ANY] , unsigned char [ANY] , signed char [ANY] ,
+                   short [ANY] , unsigned short [ANY] , signed short [ANY] ,
+                   int [ANY] , unsigned int [ANY] , signed int [ANY] ,
+                   long [ANY] , unsigned long [ANY] , signed long [ANY] ,
+                   long long [ANY] , unsigned long long [ANY] , signed long long [ANY] ,
                    enum SWIGTYPE [ANY] , bool [ANY] ,
                    double [ANY] , float [ANY] {
     free($1) ;
 }
 
-%typemap(out) char [ANY] , unsigned char [ANY] ,
-              short [ANY] , unsigned short [ANY] ,
-              int [ANY] , unsigned int [ANY] ,
-              long [ANY] , unsigned long [ANY] ,
-              long long [ANY] , unsigned long long [ANY] ,
+%typemap(out) char [ANY] , unsigned char [ANY] , signed char [ANY] ,
+              short [ANY] , unsigned short [ANY] , signed short [ANY] ,
+              int [ANY] , unsigned int [ANY] , signed int [ANY] ,
+              long [ANY] , unsigned long [ANY] , signed long [ANY] ,
+              long long [ANY] , unsigned long long [ANY] , signed long long [ANY] ,
               enum SWIGTYPE [ANY] , bool [ANY] ,
               double [ANY] , float [ANY] {
     std::string temp_name ;
@@ -157,11 +157,11 @@
     $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_ref"), SWIG_POINTER_OWN);
 }
 
-%typemap(in) char * , unsigned char * ,
-             short * , unsigned short * ,
-             int * , unsigned int * ,
-             long * , unsigned long * ,
-             long long * , unsigned long long * ,
+%typemap(in) char * , unsigned char * , signed char * ,
+             short * , unsigned short * , signed short * ,
+             int * , unsigned int * , signed int * ,
+             long * , unsigned long * , signed long * ,
+             long long * , unsigned long long * , signed long long * ,
              enum SWIGTYPE * , bool * ,
              double * , float * {
     int ret ;
@@ -183,11 +183,11 @@
     $result = PyString_FromString($1) ;
 }
 
-%typemap(out) char * , unsigned char * ,
-              short * , unsigned short * ,
-              int * , unsigned int * ,
-              long * , unsigned long * ,
-              long long * , unsigned long long * ,
+%typemap(out) char * , unsigned char * , signed char * ,
+              short * , unsigned short * , signed short * ,
+              int * , unsigned int * , signed int * ,
+              long * , unsigned long * , signed long * ,
+              long long * , unsigned long long * , signed long long * ,
               enum SWIGTYPE * , bool * ,
               double * , float * {
     std::string temp_name ;
@@ -229,11 +229,11 @@
     $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_ref"), SWIG_POINTER_OWN);
 }
 
-%typemap(in) char [ANY][ANY] , unsigned char [ANY][ANY] ,
-             short [ANY][ANY] , unsigned short [ANY][ANY] ,
-             int [ANY][ANY] , unsigned int [ANY][ANY] ,
-             long [ANY][ANY] , unsigned long [ANY][ANY] ,
-             long long [ANY][ANY] , unsigned long long [ANY][ANY] ,
+%typemap(in) char [ANY][ANY] , unsigned char [ANY][ANY] , signed char [ANY][ANY] ,
+             short [ANY][ANY] , unsigned short [ANY][ANY] , signed short [ANY][ANY] ,
+             int [ANY][ANY] , unsigned int [ANY][ANY] , signed int [ANY][ANY] ,
+             long [ANY][ANY] , unsigned long [ANY][ANY] , signed long [ANY][ANY] ,
+             long long [ANY][ANY] , unsigned long long [ANY][ANY] , signed long long [ANY][ANY] ,
              enum SWIGTYPE [ANY][ANY] , bool [ANY][ANY] ,
              double [ANY][ANY] , float [ANY][ANY] {
 
@@ -252,11 +252,11 @@
 // SWIG does not allow us to use "ANY" for the array dimension for this typemap.
 %define %int_pointer_to_array(DIM_SIZE)
 
-%typemap(in) char (*)[DIM_SIZE] , unsigned char (*)[DIM_SIZE] ,
-             short (*)[DIM_SIZE] , unsigned short (*)[DIM_SIZE] ,
-             int (*)[DIM_SIZE] , unsigned int (*)[DIM_SIZE] ,
-             long (*)[DIM_SIZE] , unsigned long (*)[DIM_SIZE] ,
-             long long (*)[DIM_SIZE] , unsigned long long (*)[DIM_SIZE] ,
+%typemap(in) char (*)[DIM_SIZE] , unsigned char (*)[DIM_SIZE] , signed char (*)[DIM_SIZE] ,
+             short (*)[DIM_SIZE] , unsigned short (*)[DIM_SIZE] , signed short (*)[DIM_SIZE] ,
+             int (*)[DIM_SIZE] , unsigned int (*)[DIM_SIZE] , signed int (*)[DIM_SIZE] ,
+             long (*)[DIM_SIZE] , unsigned long (*)[DIM_SIZE] , signed long (*)[DIM_SIZE] ,
+             long long (*)[DIM_SIZE] , unsigned long long (*)[DIM_SIZE] , signed long long (*)[DIM_SIZE] ,
              enum SWIGTYPE (*)[DIM_SIZE] , bool (*)[DIM_SIZE] ,
              double (*)[DIM_SIZE] , float (*)[DIM_SIZE] {
     //ARRAY(*)[DIM_SIZE] IN
@@ -270,7 +270,7 @@
             $1 = ($1_basetype (*)[DIM_SIZE])temp_swig_ref->ref.address ;
         }
     } else if ( SWIG_IsOK(SWIG_ConvertPtr($input, &argp2,SWIG_TypeQuery("_p_void"), 0)) ) {
-        // We have an address coming in, we don't have to do any translation
+        // We have an address coming in, we do not have to do any translation
         $1 = reinterpret_cast< $1_basetype (*)[DIM_SIZE] >(argp2) ;
     }
 }
@@ -283,21 +283,21 @@
 %int_pointer_to_array(4) ;
 
 
-%typemap(freearg) char [ANY][ANY] , unsigned char [ANY][ANY] ,
-             short [ANY][ANY] , unsigned short [ANY][ANY] ,
-             int [ANY][ANY] , unsigned int [ANY][ANY] ,
-             long [ANY][ANY] , unsigned long [ANY][ANY] ,
-             long long [ANY][ANY] , unsigned long long [ANY][ANY] ,
+%typemap(freearg) char [ANY][ANY] , unsigned char [ANY][ANY] , signed char [ANY][ANY] ,
+             short [ANY][ANY] , unsigned short [ANY][ANY] , signed short [ANY][ANY] ,
+             int [ANY][ANY] , unsigned int [ANY][ANY] , signed int [ANY][ANY] ,
+             long [ANY][ANY] , unsigned long [ANY][ANY] , signed long [ANY][ANY] ,
+             long long [ANY][ANY] , unsigned long long [ANY][ANY] , signed long long [ANY][ANY] ,
              enum SWIGTYPE [ANY][ANY] , bool [ANY][ANY] ,
              double [ANY][ANY] , float [ANY][ANY] {
     free($1) ;
 }
 
-%typemap(out) char [ANY][ANY] , unsigned char [ANY][ANY] ,
-              short [ANY][ANY] , unsigned short [ANY][ANY] ,
-              int [ANY][ANY] , unsigned int [ANY][ANY] ,
-              long [ANY][ANY] , unsigned long [ANY][ANY] ,
-              long long [ANY][ANY] , unsigned long long [ANY][ANY] ,
+%typemap(out) char [ANY][ANY] , unsigned char [ANY][ANY] , signed char [ANY][ANY] ,
+              short [ANY][ANY] , unsigned short [ANY][ANY] , signed short [ANY][ANY] ,
+              int [ANY][ANY] , unsigned int [ANY][ANY] , signed int [ANY][ANY] ,
+              long [ANY][ANY] , unsigned long [ANY][ANY] , signed long [ANY][ANY] ,
+              long long [ANY][ANY] , unsigned long long [ANY][ANY] , signed long long [ANY][ANY] ,
               enum SWIGTYPE [ANY][ANY] , bool [ANY][ANY] ,
               double [ANY][ANY] , float [ANY][ANY] {
 
@@ -343,11 +343,11 @@
 }
 
 
-%typemap(out) char * [ANY] , unsigned char * [ANY] ,
-              short * [ANY] , unsigned short * [ANY] ,
-              int * [ANY] , unsigned int * [ANY] ,
-              long * [ANY] , unsigned long * [ANY] ,
-              long long * [ANY] , unsigned long long * [ANY] ,
+%typemap(out) char * [ANY] , unsigned char * [ANY] , signed char * [ANY] ,
+              short * [ANY] , unsigned short * [ANY] , signed short * [ANY] ,
+              int * [ANY] , unsigned int * [ANY] , signed int * [ANY] ,
+              long * [ANY] , unsigned long * [ANY] , signed long * [ANY] ,
+              long long * [ANY] , unsigned long long * [ANY] , signed long long * [ANY] ,
               enum SWIGTYPE * [ANY] , bool * [ANY] ,
               double * [ANY] , float * [ANY] {
 
@@ -397,11 +397,11 @@
 
 }
 
-%typemap(in) char ** , unsigned char ** ,
-             short ** , unsigned short ** ,
-             int ** , unsigned int ** ,
-             long ** , unsigned long ** ,
-             long long ** , unsigned long long ** ,
+%typemap(in) char ** , unsigned char ** , signed char ** ,
+             short ** , unsigned short ** , signed short ** ,
+             int ** , unsigned int ** , signed int ** ,
+             long ** , unsigned long ** , signed long ** ,
+             long long ** , unsigned long long ** , signed long long ** ,
              enum SWIGTYPE ** , bool ** ,
              double ** , float ** {
 
@@ -430,11 +430,11 @@
     }
 }
 
-%typemap(out) char ** , unsigned char ** ,
-              short ** , unsigned short ** ,
-              int ** , unsigned int ** ,
-              long ** , unsigned long ** ,
-              long long ** , unsigned long long ** ,
+%typemap(out) char ** , unsigned char ** , signed char ** ,
+              short ** , unsigned short ** , signed short ** ,
+              int ** , unsigned int ** , signed int ** ,
+              long ** , unsigned long ** , signed long ** ,
+              long long ** , unsigned long long ** , signed long long ** ,
               enum SWIGTYPE ** , bool ** ,
               double ** , float ** {
 
@@ -484,11 +484,11 @@
     std::cout << "Cannot assign directly to $1_type\n" << std::endl ;
 }
 
-%typemap(out) char [ANY][ANY][ANY] , unsigned char [ANY][ANY][ANY] ,
-              short [ANY][ANY][ANY] , unsigned short [ANY][ANY][ANY] ,
-              int [ANY][ANY][ANY] , unsigned int [ANY][ANY][ANY] ,
-              long [ANY][ANY][ANY] , unsigned long [ANY][ANY][ANY] ,
-              long long [ANY][ANY][ANY] , unsigned long long [ANY][ANY][ANY] ,
+%typemap(out) char [ANY][ANY][ANY] , unsigned char [ANY][ANY][ANY] , signed char [ANY][ANY][ANY] ,
+              short [ANY][ANY][ANY] , unsigned short [ANY][ANY][ANY] , signed short [ANY][ANY][ANY] ,
+              int [ANY][ANY][ANY] , unsigned int [ANY][ANY][ANY] , signed int [ANY][ANY][ANY] ,
+              long [ANY][ANY][ANY] , unsigned long [ANY][ANY][ANY] , signed long [ANY][ANY][ANY] ,
+              long long [ANY][ANY][ANY] , unsigned long long [ANY][ANY][ANY] , signed long long [ANY][ANY][ANY] ,
               enum SWIGTYPE [ANY][ANY][ANY] , bool [ANY][ANY][ANY] ,
               double [ANY][ANY][ANY] , float [ANY][ANY][ANY] {
 
