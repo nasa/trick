@@ -68,9 +68,6 @@ Trick::VariableServerThread::~VariableServerThread() {
 std::ostream& Trick::operator<< (std::ostream& s, Trick::VariableServerThread& vst) {
 
     // Write a JSON representation of a Trick::VariableServerThread to an ostream.
-
-    std::vector <Trick::VariableReference *>::iterator it;
-
     struct sockaddr_in otherside;
     socklen_t len = (socklen_t)sizeof(otherside);
 
