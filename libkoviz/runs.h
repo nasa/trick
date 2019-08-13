@@ -18,6 +18,7 @@
 #include "datamodel.h"
 #include "curvemodel.h"
 #include "numsortitem.h"
+#include "mapvalue.h"
 
 class Runs
 {

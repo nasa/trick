@@ -425,6 +425,9 @@ void VarsWidget::_addCurves(QModelIndex curvesIdx, const QString &yName)
                         r1.toLatin1().constData(),
                         u1.toLatin1().constData());
                 exit(-1);
+            } else {
+                // Use unit of first curve
+                yunit = u0;
             }
         }
         _addChild(curveItem, "CurveYUnit", yunit);
@@ -436,7 +439,7 @@ void VarsWidget::_addCurves(QModelIndex curvesIdx, const QString &yName)
             runId = r;
         }
         _addChild(curveItem, "CurveRunID", runId);
-        _addChild(curveItem, "CurveXScale", 1.0);
+        _addChild(curveItem, "CurveXScale", curveModel->x()->scale());
         QHash<QString,QVariant> shifts = _plotModel->getDataHash(QModelIndex(),
                                                               "RunToShiftHash");
         QString curveRunDir = QFileInfo(curveModel->fileName()).absolutePath();
@@ -444,10 +447,11 @@ void VarsWidget::_addCurves(QModelIndex curvesIdx, const QString &yName)
             double shiftVal = shifts.value(curveRunDir).toDouble();
             _addChild(curveItem, "CurveXBias", shiftVal);
         } else {
-            _addChild(curveItem, "CurveXBias", 0.0);
+            // x bias can be set in a mapfile
+            _addChild(curveItem, "CurveXBias", curveModel->x()->bias());
         }
-        _addChild(curveItem, "CurveYScale", 1.0);
-        _addChild(curveItem, "CurveYBias", 0.0);
+        _addChild(curveItem, "CurveYScale", curveModel->y()->scale());
+        _addChild(curveItem, "CurveYBias", curveModel->y()->bias());
 
         // Curve color and linestyle
         QStringList styles = _plotModel->lineStyles();

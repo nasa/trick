@@ -7,8 +7,24 @@ CurveModel::CurveModel(DataModel *datamodel,
     _datamodel(datamodel),
     _tcol(tcol),
     _xcol(xcol),
-    _ycol(ycol)
+    _ycol(ycol),
+    _t(new CurveModelParameter),
+    _x(new CurveModelParameter),
+    _y(new CurveModelParameter)
 {
+    _t->setName(_datamodel->param(_tcol)->name());
+    _t->setUnit(_datamodel->param(_tcol)->unit());
+    _x->setName(_datamodel->param(_xcol)->name());
+    _x->setUnit(_datamodel->param(_xcol)->unit());
+    _y->setName(_datamodel->param(_ycol)->name());
+    _y->setUnit(_datamodel->param(_ycol)->unit());
+}
+
+CurveModel::~CurveModel()
+{
+    delete _t;
+    delete _x;
+    delete _y;
 }
 
 int CurveModel::rowCount(const QModelIndex &pidx) const

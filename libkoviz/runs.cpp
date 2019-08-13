@@ -137,12 +137,17 @@ void Runs::_init()
                 }
                 QString runDir = QFileInfo(fname).absolutePath();
                 QStringList vals = _varMap.value(key);
-                if ( vals.contains(p) ) {
+                QStringList names;
+                foreach ( QString val, vals ) {
+                    MapValue mapval(val);
+                    names.append(mapval.name());
+                }
+                if ( names.contains(p) ) {
                     p = key;
                     break;
                 } else {
                     bool isFound = false;
-                    foreach ( QString val, vals ) {
+                    foreach (QString val, vals) {
                         if ( val.contains(':') ) {
                             QStringList l = val.split(':');
                             QString run = QFileInfo(l.at(0).trimmed()).
@@ -213,6 +218,8 @@ CurveModel* Runs::curveModel(int row,
                         const QString &xName,
                         const QString &yName) const
 {
+    CurveModel* curveModel = 0;
+
     QString runDir = QFileInfo(_runDirs.at(row)).absoluteFilePath();
 
     QString t = tName;
@@ -247,7 +254,12 @@ CurveModel* Runs::curveModel(int row,
         if ( _varMap.contains(y) ) {
             QList<DataModel*>* mdls = _paramToModels.value(y);
             if ( mdls ) {
-                foreach ( QString yval, _varMap.value(y) ) {
+                QStringList names;
+                foreach (QString val, _varMap.value(y)) {
+                    MapValue mapval(val);
+                    names.append(mapval.name());
+                }
+                foreach ( QString yval, names ) {
                     if ( yval.contains(':') ) {
                         QStringList l = yval.split(':');
                         QString run = QFileInfo(l.at(0).trimmed()).
@@ -297,13 +309,13 @@ CurveModel* Runs::curveModel(int row,
                         }
                     }
                 } else {
-                    tcol = tm->paramColumn(tval);
-                    if ( tcol >= 0 ) {
-                        t = tval;
-                        break;
-                    }
+                tcol = tm->paramColumn(tval);
+                if ( tcol >= 0 ) {
+                    t = tval;
+                    break;
                 }
             }
+        }
         }
         if ( tcol < 0 ) {
             foreach (QString timeName, _timeNames ) {
@@ -331,7 +343,12 @@ CurveModel* Runs::curveModel(int row,
     int xcol = tm->paramColumn(xp) ;
     if ( xcol < 0 ) {
         if ( _varMap.contains(xp) ) {
-            foreach ( QString xval, _varMap.value(xp) ) {
+            QStringList names;
+            foreach (QString val, _varMap.value(xp)) {
+                MapValue mapval(val);
+                names.append(mapval.name());
+            }
+            foreach ( QString xval, names ) {
                 if ( xval.contains(':') ) {
                     QStringList l = xval.split(':');
                     QString run=QFileInfo(l.at(0).trimmed()).absoluteFilePath();
@@ -344,6 +361,7 @@ CurveModel* Runs::curveModel(int row,
                 } else {
                     xcol = tm->paramColumn(xval);
                     if ( xcol >= 0 ) {
+                        xp = xval;
                         break;
                     }
                 }
@@ -364,7 +382,37 @@ CurveModel* Runs::curveModel(int row,
         }
     }
 
-    return new CurveModel(tm,tcol,xcol,ycol);
+    curveModel = new CurveModel(tm,tcol,xcol,ycol);
+
+    // Mapfile unit, bias and scales
+    foreach (QString key, _varMap.keys() ) {
+        foreach (QString val, _varMap.value(key)) {
+            MapValue mapval(val);
+            if ( mapval.name() == xp ) {
+                if ( !mapval.unit().isEmpty() ) {
+                    curveModel->x()->setUnit(mapval.unit());
+                }
+                if ( mapval.bias() != 0.0 ) {
+                    curveModel->x()->setBias(mapval.bias());
+                }
+                if ( mapval.scale() != 1.0 ) {
+                    curveModel->x()->setScale(mapval.scale());
+                }
+
+            } else if ( mapval.name() == y ) {
+                if ( !mapval.unit().isEmpty() ) {
+                    curveModel->y()->setUnit(mapval.unit());
+                }
+                if ( mapval.bias() != 0.0 ) {
+                    curveModel->y()->setBias(mapval.bias());
+                }
+                if ( mapval.scale() != 1.0 ) {
+                    curveModel->y()->setScale(mapval.scale());
+                }
+            }
+        }
+    }
+    return curveModel;
 }
 
 // Example1:
