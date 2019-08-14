@@ -247,6 +247,7 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
 
     // Speed
     map.insert(QPair<QString,QString>("m/s","m/s"),       1.0);
+    map.insert(QPair<QString,QString>("m/s","M/s"),       1.0);
     map.insert(QPair<QString,QString>("m/s","cm/s"),      0.01);
     map.insert(QPair<QString,QString>("m/s","mm/s"),      0.001);
     map.insert(QPair<QString,QString>("m/s","in/s"),      0.0254);
@@ -257,6 +258,7 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
 
     // Acceleration
     map.insert(QPair<QString,QString>("m/s2","m/s2"),       1.0);
+    map.insert(QPair<QString,QString>("m/s2","M/s2"),       1.0);
     map.insert(QPair<QString,QString>("m/s2","cm/s2"),      0.01);
     map.insert(QPair<QString,QString>("m/s2","in/s2"),      0.0254);
     map.insert(QPair<QString,QString>("m/s2","ft/s2"),      0.3048);
