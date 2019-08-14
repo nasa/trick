@@ -17,7 +17,7 @@
 PlotMainWindow::PlotMainWindow(
         const QString& excludePattern,
         const QString& filterPattern,
-        const QString& userDefinedScript,
+        const QString& scripts,
         bool isDebug,
         bool isPlotAllVars,
         const QStringList &timeNames,
@@ -43,7 +43,7 @@ PlotMainWindow::PlotMainWindow(
     QMainWindow(parent),
     _excludePattern(excludePattern),
     _filterPattern(filterPattern),
-    _userDefinedScript(userDefinedScript),
+    _scripts(scripts),
     _isDebug(isDebug),
     _timeNames(timeNames),
     _presentation(presentation),
@@ -290,12 +290,22 @@ void PlotMainWindow::createMenu()
     _showLiveCoordAction = _optsMenu->addAction(tr("ShowLiveCoord"));
     _clearPlotsAction  = _optsMenu->addAction(tr("ClearPlots"));
     _clearTablesAction = _optsMenu->addAction(tr("ClearTables"));
-    _launchScriptAction = _optsMenu->addAction(tr("LaunchScript"));
     _plotAllVarsAction = _optsMenu->addAction(tr("PlotAllVars"));
     _showLiveCoordAction->setCheckable(true);
     _showLiveCoordAction->setChecked(true);
     _menuBar->addMenu(_fileMenu);
     _menuBar->addMenu(_optsMenu);
+    if ( !_scripts.isEmpty() ) {
+        _scriptsMenu = new QMenu(tr("&Scripts"), this);
+        QStringList scripts = _scripts.split(',',QString::SkipEmptyParts);
+        foreach ( QString script, scripts ) {
+            QAction* action = _scriptsMenu->addAction(script);
+            Q_UNUSED(action);
+        }
+        connect(_scriptsMenu,SIGNAL(triggered(QAction*)),
+                this,SLOT(_launchScript(QAction*)));
+        _menuBar->addMenu(_scriptsMenu);
+    }
     connect(_dpAction, SIGNAL(triggered()),this, SLOT(_saveDP()));
     connect(_pdfAction, SIGNAL(triggered()),this, SLOT(_savePdf()));
     connect(_sessionAction, SIGNAL(triggered()),this, SLOT(_saveSession()));
@@ -306,8 +316,7 @@ void PlotMainWindow::createMenu()
             this, SLOT(_clearPlots()));
     connect(_clearTablesAction, SIGNAL(triggered()),
             this, SLOT(_clearTables()));
-    connect(_launchScriptAction, SIGNAL(triggered()),
-            this, SLOT(_launchScript()));
+
     connect(_plotAllVarsAction, SIGNAL(triggered()),
             this, SLOT(_plotAllVars()));
     setMenuWidget(_menuBar);
@@ -404,8 +413,9 @@ void PlotMainWindow::_bookModelRowsInserted(const QModelIndex &pidx,
 
 void PlotMainWindow::_scriptError(QProcess::ProcessError error)
 {
+    Q_UNUSED(error);
     QMessageBox msgBox;
-    QString msg = QString("Error with script \"%1\"").arg("kovi");
+    QString msg = QString("Error launching user script!");
     msgBox.setText(msg);
     msgBox.exec();
 }
@@ -1096,7 +1106,7 @@ void PlotMainWindow::_clearTables()
     }
 }
 
-void PlotMainWindow::_launchScript()
+void PlotMainWindow::_launchScript(QAction* action)
 {
     int i = _monteInputsView->currentRun();
     QString rundir;
@@ -1112,9 +1122,10 @@ void PlotMainWindow::_launchScript()
         }
     }
     if ( !rundir.isEmpty() ) {
-        QStringList fields = _userDefinedScript.split(' ',
-                                                      QString::SkipEmptyParts);
+        QStringList fields = action->text().split(' ',
+                                                  QString::SkipEmptyParts);
         QString program = fields.takeAt(0);
+        program = program.remove('&');
         QStringList arguments;
         arguments << rundir;
         foreach ( QString field, fields ) {

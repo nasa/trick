@@ -42,7 +42,7 @@ class PlotMainWindow : public QMainWindow
 public:
     explicit PlotMainWindow( const QString& excludePattern,
                              const QString& filterPattern,
-                             const QString& userDefinedScript,
+                             const QString& scripts,
                              bool isDebug,
                              bool isPlotAllVars,
                              const QStringList& timeNames,
@@ -82,7 +82,7 @@ protected:
 private:
     QString _excludePattern;
     QString _filterPattern;
-    QString _userDefinedScript;
+    QString _scripts;
     bool _isDebug;
     QStringList _timeNames;
     QString _presentation;
@@ -108,6 +108,7 @@ private:
     QMenuBar* _menuBar;
     QMenu *_fileMenu;
     QMenu *_optsMenu;
+    QMenu *_scriptsMenu;
     QAction *_dpAction;
     QAction *_pdfAction;
     QAction *_sessionAction;
@@ -115,7 +116,6 @@ private:
     QAction *_showLiveCoordAction;
     QAction *_clearPlotsAction;
     QAction *_clearTablesAction;
-    QAction *_launchScriptAction;
     QAction *_plotAllVarsAction;
 
     QTabWidget* _nbDPVars;
@@ -145,7 +145,7 @@ private slots:
      void _toggleShowLiveCoord();
      void _clearPlots();
      void _clearTables();
-     void _launchScript();
+     void _launchScript(QAction *action);
      void _plotAllVars();
 
      void _startTimeChanged(double startTime);

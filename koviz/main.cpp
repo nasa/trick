@@ -130,7 +130,7 @@ class SnapOptions : public Options
     QString symbolstyle6;
     QString symbolstyle7;
     bool isPlotAllVars;
-    QString userDefinedScript;
+    QString scripts;
     QString excludePattern;
     QString filterPattern;
 };
@@ -229,8 +229,8 @@ int main(int argc, char *argv[])
     opts.add("-bg",&opts.background,"","Page background <#rrggbb|colorName>");
     opts.add("-showTables",&opts.showTables,"","Show DP tables");
     opts.add("-a:{0,1}",&opts.isPlotAllVars,false,"Plot all variables");
-    opts.add("-script",&opts.userDefinedScript,"",
-             "User defined script to launch off options menu");
+    opts.add("-script",&opts.scripts,"",
+             "List of user scripts e.g. -script \"&myscript1 arg1 arg2, &helloworld\"");
     opts.add("-exclude",&opts.excludePattern,"",
              "exclude pattern to filter out RUNs and/or log files");
     opts.add("-filter",&opts.filterPattern,"",
@@ -811,7 +811,7 @@ int main(int argc, char *argv[])
         if ( isPdf ) {
             PlotMainWindow w(excludePattern,
                              filterPattern,
-                             opts.userDefinedScript,
+                             opts.scripts,
                              opts.isDebug,
                              opts.isPlotAllVars,
                              timeNames, startTime, stopTime,
@@ -934,7 +934,7 @@ int main(int argc, char *argv[])
 #endif
                 PlotMainWindow w(excludePattern,
                                  filterPattern,
-                                 opts.userDefinedScript,
+                                 opts.scripts,
                                  opts.isDebug,
                                  opts.isPlotAllVars,
                                  timeNames,
@@ -958,7 +958,7 @@ int main(int argc, char *argv[])
 
                 PlotMainWindow w(excludePattern,
                                  filterPattern,
-                                 opts.userDefinedScript,
+                                 opts.scripts,
                                  opts.isDebug,
                                  opts.isPlotAllVars,
                                  timeNames,
