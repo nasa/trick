@@ -64,8 +64,6 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
 
     createMenu();
 
-    printf("Hello world!\n");
-
     // Central Widget and main layout
     QSplitter* msplit = new QSplitter;
     setCentralWidget(msplit);

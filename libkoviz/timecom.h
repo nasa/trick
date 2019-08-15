@@ -36,7 +36,7 @@ private:
     QTcpSocket *socket;
     QString currentRun;
     QString currentTime = QString("t=0");
-    bool firstRunSent = false;
+    bool firstRunSent = true;
     const int BvisPort = 64052;
     const int TimeComPort = BvisPort + 1;
 };

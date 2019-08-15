@@ -38,6 +38,9 @@ int TimeCom::connect2Bvis()
 
 int TimeCom::sendCom2Bvis(QString com)
 {
+    // good debugging statment
+    // printf("\nWould send: %s\n\n",(const char *) com.toLocal8Bit().data());
+
     /* I believe I had it like this because sending a run command immediately
      * followed by a time stamp command seems to make them both be ignored by
      * bvis
