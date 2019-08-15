@@ -1,6 +1,8 @@
 #ifndef CURVEMODELPARAMETER_H
 #define CURVEMODELPARAMETER_H
 
+#include <stdio.h>
+#include <stdlib.h>
 #include "parameter.h"
 
 class CurveModelParameter : public Parameter
