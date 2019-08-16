@@ -34,6 +34,7 @@
 #include "bookview.h"
 #include "runs.h"
 #include "timecom.h"
+#include "videowindow.h"
 
 class PlotMainWindow : public QMainWindow
 {
@@ -130,6 +131,8 @@ private:
 
     TimeCom* bviscom;
 
+    VideoWindow* vidView;
+
 private slots:
      void _nbCurrentChanged(int i);
      void _bookModelRowsAboutToBeRemoved(const QModelIndex& pidx,
@@ -153,6 +156,8 @@ private slots:
      void _bookViewCurrentChanged(const QModelIndex& currIdx,
                                   const QModelIndex& prevIdx);
      void _bookModelRowsInserted(const QModelIndex& pidx, int start, int end);
+
+     void setTimeFromVideo(double time);
 };
 
 #endif // PLOTMAINWINDOW_H

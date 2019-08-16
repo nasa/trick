@@ -80,7 +80,8 @@ SOURCES += bookmodel.cpp \
            session.cpp \
            plotlayout.cpp \
            pagelayout.cpp \
-    timecom.cpp
+    timecom.cpp \
+    videowindow.cpp
 
 HEADERS  += bookmodel.h \
             bookidxview.h \
@@ -136,7 +137,8 @@ HEADERS  += bookmodel.h \
             session.h \
             plotlayout.h \
             pagelayout.h \
-    timecom.h
+    timecom.h \
+    videowindow.h
 
 FLEXSOURCES = product_lexer.l
 BISONSOURCES = product_parser.y

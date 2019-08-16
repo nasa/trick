@@ -273,6 +273,21 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
     }
 
 
+    // creating a test videowindow
+//    std::setlocale(LC_NUMERIC, "C");
+    vidView = new VideoWindow(this);
+//    VideoWindow vidView(this);
+    vidView->show();
+
+    this->setFocusPolicy(Qt::StrongFocus);
+
+    connect(_timeInput, SIGNAL(bvisTimeChanged(double)),
+            vidView,SLOT(seek_time(double)));
+    connect(vidView,SIGNAL(timechangedByMpv(double)),
+                           this, SLOT(setTimeFromVideo(double)));
+
+
+
     // Size main window
     QList<int> sizes;
     sizes << 420 << 1180;
@@ -282,6 +297,14 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
 
     // Read "INI" (may resize window)
     _readSettings();
+}
+
+void PlotMainWindow::setTimeFromVideo(double time) {
+    if(vidView->hasFocus()){
+        QModelIndex liveIdx = _bookModel->getDataIndex(QModelIndex(),
+                                                     "LiveCoordTime");
+        _bookModel->setData(liveIdx,time);
+    }
 }
 
 PlotMainWindow::~PlotMainWindow()
