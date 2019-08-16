@@ -16,20 +16,19 @@ LIBRARY DEPENDENCIES:
 
 class WSsessionVariable {
 
-public:
-    WSsessionVariable( REF2* variableType);
-   ~WSsessionVariable();
-    const char* getName();
-    void stageValue();
-    void writeValue( std::ostream& chkpnt_os );
+    public:
+        WSsessionVariable( REF2* variableType);
+       ~WSsessionVariable();
+        const char* getName();
+        void stageValue();
+        void writeValue( std::ostream& chkpnt_os );
 
-
-private:
-    WSsessionVariable() {}
-    REF2 *varInfo;
-    void *address;
-    int   size;
-    void *stageBuffer;
-    bool  deref;
-};
+    private:
+        WSsessionVariable() {}
+        REF2 *varInfo;
+        void *address;
+        int   size;
+        void *stageBuffer;
+        bool  deref;
+    };
 #endif

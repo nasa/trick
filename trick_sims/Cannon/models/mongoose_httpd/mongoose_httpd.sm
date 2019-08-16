@@ -9,13 +9,13 @@ LIBRARY DEPENDENCIES:
 class HttpSimObject : public Trick::SimObject {
 
     public:
-        HTTP_Server http_server ;
+        HTTP_Server server ;
 
         HttpSimObject() {
-            ("default_data") http_default_data( &http_server ) ;
-            ("initialization") http_init( &http_server ) ;
-            ("top_of_frame") http_top_of_frame( &http_server ) ;
-            ("shutdown") http_shutdown( &http_server ) ;
+            ("default_data") server.http_default_data() ;
+            ("initialization") server.http_init() ;
+            ("top_of_frame") server.http_top_of_frame() ;
+            ("shutdown") server.http_shutdown() ;
         }
 };
 

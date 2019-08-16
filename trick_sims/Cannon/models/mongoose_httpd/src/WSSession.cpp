@@ -3,12 +3,12 @@ PURPOSE: (Represent the state and initial conditions of an http server)
 LIBRARY DEPENDENCIES:
     ((simpleJSON.o))
 **************************************************************************/
+#include <sstream>
+#include <iomanip> // for setprecision
 #include "trick/memorymanager_c_intf.h"
 #include "trick/exec_proto.h"
 #include "../include/WSSession.hh"
 #include "../include/simpleJSON.hh"
-#include <sstream>
-#include <iomanip> // for setprecision
 
 WSsession::WSsession( struct mg_connection *nc ) {
     connection = nc;
@@ -141,10 +141,10 @@ void WSsession::clear() {
 
 void WSsession::exit() {}
 
-int WSsession::handle_msg (const char* client_msg) {
+int WSsession::handle_msg (std::string client_msg) {
 
      int status = 0;
-     std::vector<Member*> members = parseJSON(client_msg);
+     std::vector<Member*> members = parseJSON(client_msg.c_str());
      std::vector<Member*>::iterator it;
      const char *cmd;
      const char *var_name;
