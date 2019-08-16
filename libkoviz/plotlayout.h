@@ -22,12 +22,19 @@ public:
     virtual int count() const;
     virtual QLayoutItem *itemAt(int index) const;
     virtual void setGeometry(const QRect &rect);
+    virtual QRect geometry() const;
     virtual QSize sizeHint() const;
     virtual QLayoutItem *takeAt(int index);
+    virtual QLayout* layout() ;
+
+    void setPlotRatio(const QString& plotRatio);
+    QString plotRatio() const ;
 
 private:
-    QHash<QString,QWidget*> _name2widget;
-    QList<QWidgetItem*> _items;
+    QHash<QString,QLayoutItem*> _name2item;
+    QList<QLayoutItem*> _items;
+    QRect _rect;
+    QString _plotRatio;
 };
 
 #endif // PLOTLAYOUT_H

@@ -82,7 +82,6 @@ double Unit::scale(const QString &from, const QString &to)
 
     QString fam1 = _family(from);
     QString fam2 = _family(to);
-    QString family = fam1 = fam2;
 
     if ( fam1 != fam2 ) {
         fprintf(stderr,"koviz [error]: Attempting to convert "
@@ -92,6 +91,7 @@ double Unit::scale(const QString &from, const QString &to)
         exit(-1);
     }
 
+    QString family = fam1 = fam2;
     double scale1 = _scales.value(qMakePair(family,from));
     double scale2 = _scales.value(qMakePair(family,to));
     double sf = scale1/scale2;
@@ -247,6 +247,7 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
 
     // Speed
     map.insert(QPair<QString,QString>("m/s","m/s"),       1.0);
+    map.insert(QPair<QString,QString>("m/s","M/s"),       1.0);
     map.insert(QPair<QString,QString>("m/s","cm/s"),      0.01);
     map.insert(QPair<QString,QString>("m/s","mm/s"),      0.001);
     map.insert(QPair<QString,QString>("m/s","in/s"),      0.0254);
@@ -257,6 +258,7 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
 
     // Acceleration
     map.insert(QPair<QString,QString>("m/s2","m/s2"),       1.0);
+    map.insert(QPair<QString,QString>("m/s2","M/s2"),       1.0);
     map.insert(QPair<QString,QString>("m/s2","cm/s2"),      0.01);
     map.insert(QPair<QString,QString>("m/s2","in/s2"),      0.0254);
     map.insert(QPair<QString,QString>("m/s2","ft/s2"),      0.3048);
@@ -377,8 +379,17 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     // Power
     map.insert(QPair<QString,QString>("W","W"),  1.0);
 
+    // Volume
+    map.insert(QPair<QString,QString>("m3","m3"),   1.0);
+    map.insert(QPair<QString,QString>("m3","cm3"),  0.01*0.01*0.01);
+    map.insert(QPair<QString,QString>("m3","ft3"),  0.3048*0.3048*0.3048);
+    map.insert(QPair<QString,QString>("m3","in3"),  0.0254*0.0254*0.0254);
+
     // Volume rate
     map.insert(QPair<QString,QString>("m3/s","m3/s"),  1.0);
+    map.insert(QPair<QString,QString>("m3/s","cm3/s"), 0.01*0.01*0.01);
+    map.insert(QPair<QString,QString>("m3/s","ft3/s"), 0.3048*0.3048*0.3048);
+    map.insert(QPair<QString,QString>("m3/s","in3/s"), 0.0254*0.0254*0.0254);
 
     // Mass rate
     map.insert(QPair<QString,QString>("kg/s","kg/s"),  1.0);

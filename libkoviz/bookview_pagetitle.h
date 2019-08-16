@@ -7,6 +7,7 @@
 #include <QSize>
 #include <QSizePolicy>
 
+#include "layoutitem_pagetitle.h"
 #include "bookidxview.h"
 
 class PageTitleView : public BookIdxView
@@ -23,8 +24,6 @@ protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,
                              const QModelIndex &bottomRight,
                              const QVector<int> &roles = QVector<int>());
-private:
-    QSize _sizeLegend() const;
 };
 
 #endif // PAGETITLEVIEW_H

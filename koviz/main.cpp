@@ -54,7 +54,9 @@ QStandardItemModel* monteInputModelTrick07(const QString &monteInputFile,
                                            const QStringList &runs);
 QStandardItemModel* monteInputModelTrick17(const QString &monteInputFile,
                                            const QStringList &runs);
-QStringList runsSubset(const QStringList& runsList, uint beginRun, uint endRun);
+QStringList runsSubset(const QStringList& runsList, const QString &filterPattern,
+                       const QString& excludePattern,
+                       uint beginRun, uint endRun);
 
 Option::FPresetQString presetExistsFile;
 Option::FPresetDouble preset_start;
@@ -128,6 +130,9 @@ class SnapOptions : public Options
     QString symbolstyle6;
     QString symbolstyle7;
     bool isPlotAllVars;
+    QString scripts;
+    QString excludePattern;
+    QString filterPattern;
 };
 
 SnapOptions opts;
@@ -224,6 +229,12 @@ int main(int argc, char *argv[])
     opts.add("-bg",&opts.background,"","Page background <#rrggbb|colorName>");
     opts.add("-showTables",&opts.showTables,"","Show DP tables");
     opts.add("-a:{0,1}",&opts.isPlotAllVars,false,"Plot all variables");
+    opts.add("-script",&opts.scripts,"",
+             "List of user scripts e.g. -script \"&myscript1 arg1 arg2, &helloworld\"");
+    opts.add("-exclude",&opts.excludePattern,"",
+             "exclude pattern to filter out RUNs and/or log files");
+    opts.add("-filter",&opts.filterPattern,"",
+             "filter pattern to filter for RUNs and/or log files");
 
     opts.parse(argc,argv, QString("koviz"), &ok);
 
@@ -310,6 +321,12 @@ int main(int argc, char *argv[])
                     key.toLatin1().constData());
             exit(-1);
         }
+        if ( key.contains('{') || key.contains('(')) {
+            fprintf(stderr, "koviz [error]: bad mapkey=\"%s\". "
+                            "Keys cannot contain units, scales or bias.\n",
+                    key.toLatin1().constData());
+            exit(-1);
+        }
     }
 
     // Time Name
@@ -321,6 +338,16 @@ int main(int argc, char *argv[])
         timeName = "sys.exec.out.time";
     }
     QStringList timeNames = getTimeNames(timeName);
+
+    // Exclude and Filter patterns
+    QString excludePattern = opts.excludePattern;
+    if ( excludePattern.isEmpty() && session ) {
+        excludePattern = session->excludePattern();
+    }
+    QString filterPattern = opts.filterPattern;
+    if ( filterPattern.isEmpty() && session ) {
+        filterPattern = session->filterPattern();
+    }
 
     if ( !opts.trk2csvFile.isEmpty() ) {
         QString csvOutFile = opts.outputFileName;
@@ -478,19 +505,29 @@ int main(int argc, char *argv[])
             }
 
             QStringList runsList = runsSubset(monteRuns,
+                                              filterPattern,
+                                              excludePattern,
                                               opts.beginRun,opts.endRun);
             QStringList monteRunsList;
             foreach ( QString run, runsList ) {
                 monteRunsList << runDirs.at(0) + "/" + run;
             }
 
-            runs = new Runs(timeNames,monteRunsList,varMap,isShowProgress);
+            runs = new Runs(timeNames,monteRunsList,varMap,
+                            filterPattern,
+                            excludePattern,
+                            isShowProgress);
             monteInputsModel = monteInputModel(monteDir.absolutePath(),
                                                runsList);
         } else {
             QStringList runsList = runsSubset(runDirs,
+                                              filterPattern,
+                                              excludePattern,
                                               opts.beginRun,opts.endRun);
-            runs = new Runs(timeNames,runsList,varMap,isShowProgress);
+            runs = new Runs(timeNames,runsList,varMap,
+                            filterPattern,
+                            excludePattern,
+                            isShowProgress);
             monteInputsModel = runsInputModel(runsList);
         }
         varsModel = createVarsModel(runs);
@@ -772,7 +809,10 @@ int main(int argc, char *argv[])
         }
 
         if ( isPdf ) {
-            PlotMainWindow w(opts.isDebug,
+            PlotMainWindow w(excludePattern,
+                             filterPattern,
+                             opts.scripts,
+                             opts.isDebug,
                              opts.isPlotAllVars,
                              timeNames, startTime, stopTime,
                              tolerance, frequency,
@@ -892,7 +932,10 @@ int main(int argc, char *argv[])
                 TimeItLinux timer;
                 timer.start();
 #endif
-                PlotMainWindow w(opts.isDebug,
+                PlotMainWindow w(excludePattern,
+                                 filterPattern,
+                                 opts.scripts,
+                                 opts.isDebug,
                                  opts.isPlotAllVars,
                                  timeNames,
                                  startTime, stopTime,
@@ -913,7 +956,10 @@ int main(int argc, char *argv[])
                 ret = a.exec();
             } else {
 
-                PlotMainWindow w(opts.isDebug,
+                PlotMainWindow w(excludePattern,
+                                 filterPattern,
+                                 opts.scripts,
+                                 opts.isDebug,
                                  opts.isPlotAllVars,
                                  timeNames,
                                  startTime, stopTime,
@@ -1889,17 +1935,11 @@ QStandardItemModel* monteInputModelTrick07(const QString &monteInputFile,
         runName = runName.rightJustified(5, '0');
         runName.prepend("RUN_");
         if ( ! runs.contains(runName) ) {
-            fprintf(stderr,
-                    "koviz [error]: error parsing monte carlo "
-                    "input file. RunID for Run=%s"
-                    " is in the monte carlo input file, but "
-                    " can't find the RUN_ directory. "
-                    "Look in file:"
-                    "\n\n"
-                    "File:%s\n",
-                    runName.toLatin1().constData(),
-                    monteInputFile.toLatin1().constData());
-            exit(-1);
+            // Run is in the monte carlo input file,
+            // but it is not in the runs list.
+            // Assume that RUN was excluded intentionally,
+            // and not missing.
+            continue;
         }
         int c = 0;
         QString runIdString ;
@@ -2055,6 +2095,17 @@ QStandardItemModel* monteInputModelTrick17(const QString &monteInputFile,
             continue;
         }
 
+        QString runName= QString("%0").arg(runId);
+        runName = runName.rightJustified(5, '0');
+        runName.prepend("RUN_");
+        if ( ! runs.contains(runName) ) {
+            // Run is in the monte carlo input file,
+            // but it is not in the runs list.
+            // Assume that RUN was excluded intentionally,
+            // and not missing.
+            continue;
+        }
+
         int nv = vals.size();
         for ( int c = 0; c < nv; ++c) {
             QString val = vals.at(c) ;
@@ -2143,22 +2194,44 @@ QStandardItemModel* runsInputModel(const QStringList &runs)
 }
 
 // Make subset of runs based on beginRun and endRun option
-QStringList runsSubset(const QStringList& runsList, uint beginRun, uint endRun)
+QStringList runsSubset(const QStringList& runsList,
+                       const QString& filterPattern,
+                       const QString& excludePattern,
+                       uint beginRun, uint endRun)
 {
     QStringList subset;
 
-    foreach ( QString run, runsList ) {
+    QRegExp frgx(filterPattern);
+    QRegExp ergx(excludePattern);
+
+    QStringList filteredRunsList = runsList;
+    if ( !frgx.isEmpty() ) {
+        filteredRunsList = runsList.filter(frgx);
+        if ( filteredRunsList.isEmpty() ) {
+            // If the filter did not find a match,
+            // do not use filter
+            filteredRunsList = runsList;
+        }
+    }
+
+    foreach ( QString run, filteredRunsList ) {
         bool ok = false;
         QString runName = QFileInfo(run).fileName();
         unsigned int runId = runName.mid(4).toInt(&ok);
         if ( ok && (runId < beginRun || runId > endRun) ) {
             continue;
         }
+        if (!ergx.isEmpty() &&
+             QFileInfo(run).absoluteFilePath().contains(ergx)) {
+            continue;
+        }
         subset.append(run);
     }
     if ( subset.empty() ) {
         fprintf(stderr,"koviz [error]: main::runsSubset() is empty.  "
-                       "-beginRun -endRun options may be at fault.\n"
+                       "Two possible reasons:\n"
+                       "   1) -beginRun -endRun options excluding all runs\n"
+                       "   2) -exclude <pattern> option excluding all runs\n"
                        "Aborting!!!");
         exit(-1);
     }

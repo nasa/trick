@@ -13,10 +13,12 @@
 #include <QList>
 #include <QStandardItemModel>
 #include <QProgressDialog>
+#include <QRegExp>
 #include <stdexcept>
 #include "datamodel.h"
 #include "curvemodel.h"
 #include "numsortitem.h"
+#include "mapvalue.h"
 
 class Runs
 {
@@ -25,6 +27,8 @@ class Runs
     Runs(const QStringList& timeNames,
          const QStringList &runDirs,
          const QHash<QString,QStringList> &varMap,
+         const QString& filterPattern,
+         const QString& excludePattern,
          bool isShowProgress);
     virtual ~Runs();
     virtual QStringList params() const { return _params; }
@@ -46,6 +50,8 @@ class Runs
     QStringList _timeNames;
     QStringList _runDirs;
     QHash<QString,QStringList> _varMap;
+    QString _filterPattern;
+    QString _excludePattern;
     bool _isShowProgress;
     QStringList _params;
     QHash<QString,QList<DataModel*>* > _paramToModels;

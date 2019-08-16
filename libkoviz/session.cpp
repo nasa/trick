@@ -336,6 +336,24 @@ Session::Session(const QString &sessionFileName) :
             } else {
                 _showTables = "false";
             }
+        } else if ( line.contains("exclude:",Qt::CaseInsensitive) ) {
+            int i = line.indexOf("exclude:",0,Qt::CaseInsensitive);
+            _excludePattern = line.mid(i+8).trimmed();
+            if ( _excludePattern.startsWith("\"") ) {
+                _excludePattern = _excludePattern.mid(1);
+            }
+            if ( _excludePattern.endsWith("\"") ) {
+                _excludePattern.chop(1);
+            }
+        } else if ( line.contains("filter:",Qt::CaseInsensitive) ) {
+            int i = line.indexOf("filter:",0,Qt::CaseInsensitive);
+            _filterPattern = line.mid(i+7).trimmed();
+            if ( _filterPattern.startsWith("\"") ) {
+                _filterPattern = _filterPattern.mid(1);
+            }
+            if ( _filterPattern.endsWith("\"") ) {
+                _filterPattern.chop(1);
+            }
         }
     }
 

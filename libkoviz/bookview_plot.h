@@ -56,10 +56,9 @@ private:
     QRubberBand* _rubberBand;
 
 protected slots:
-    /*
     virtual void dataChanged(const QModelIndex &topLeft,
-                             const QModelIndex &bottomRight);
-    */
+                             const QModelIndex &bottomRight,
+                             const QVector<int> &roles = QVector<int>());
     virtual void rowsInserted(const QModelIndex &parent, int start, int end);
     //virtual void rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end);
     //virtual void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);

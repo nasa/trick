@@ -80,8 +80,19 @@ SOURCES += bookmodel.cpp \
            session.cpp \
            plotlayout.cpp \
            pagelayout.cpp \
-    timecom.cpp \
-    videowindow.cpp
+           timecom.cpp \
+           videowindow.cpp \
+           layoutitem_pagetitle.cpp \
+           layoutitem_yaxislabel.cpp \
+           layoutitem_plotcorner.cpp \
+           layoutitem_plottitle.cpp \
+           layoutitem_ticlabels.cpp \
+           layoutitem_xaxislabel.cpp \
+           layoutitem_curves.cpp \
+           layoutitem_plottics.cpp \
+           layoutitem_paintable.cpp \
+           mapvalue.cpp \
+           curvemodelparameter.cpp
 
 HEADERS  += bookmodel.h \
             bookidxview.h \
@@ -137,8 +148,19 @@ HEADERS  += bookmodel.h \
             session.h \
             plotlayout.h \
             pagelayout.h \
-    timecom.h \
-    videowindow.h
+            timecom.h \
+            videowindow.h \
+            layoutitem_pagetitle.h \
+            layoutitem_yaxislabel.h \
+            layoutitem_plotcorner.h \
+            layoutitem_plottitle.h \
+            layoutitem_ticlabels.h \
+            layoutitem_xaxislabel.h \
+            layoutitem_curves.h \
+            layoutitem_plottics.h \
+            layoutitem_paintable.h \
+            mapvalue.h \
+            curvemodelparameter.h
 
 FLEXSOURCES = product_lexer.l
 BISONSOURCES = product_parser.y

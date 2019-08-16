@@ -23,7 +23,7 @@ public:
     virtual QLayoutItem *takeAt(int index);
 
 private:
-    QList<QWidgetItem*> _items;
+    QList<QLayoutItem*> _items;
 };
 
 #endif // PAGELAYOUT_H

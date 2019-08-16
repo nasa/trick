@@ -15,7 +15,7 @@
 
 #include <QList>
 #include <QColor>
-#include <math.h>
+#include <cmath>
 
 class PlotBookModel : public QStandardItemModel
 {
@@ -99,8 +99,14 @@ public:
     QColor flatLineColor() const;
 
     // Convenience wrappers for get/setting PlotMathRect
-    QRectF getPlotMathRect(const QModelIndex &plotIdx);
+    QRectF getPlotMathRect(const QModelIndex &plotIdx) const;
     void setPlotMathRect(const QRectF& mathRect, const QModelIndex &plotIdx);
+
+    // Consolodating things views use
+    QList<double> majorXTics(const QModelIndex& plotIdx) const;
+    QList<double> minorXTics(const QModelIndex& plotIdx) const;
+    QList<double> majorYTics(const QModelIndex& plotIdx) const;
+    QList<double> minorYTics(const QModelIndex& plotIdx) const;
 
     // Utility for abbreviating a list of run:var names
     QStringList abbreviateLabels(const QStringList &labels) const;
@@ -157,6 +163,13 @@ private:
     QString _commonRootName(const QStringList& names, const QString& sep) const;
     QString __commonRootName(const QString& a, const QString& b,
                              const QString& sep) const;
+
+    QList<double> _calcMinorTicSet(double a, double b,
+                                   const QString& plotScale) const;
+    QList<double> _calcTicSet(double aIn, double bIn,
+                              double u, double n) const;
+    bool _isEqual(double a, double b, ulong maxD=10,
+                  bool isNeighborMethod=true) const;
 
 };
 

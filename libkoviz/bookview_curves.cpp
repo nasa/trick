@@ -366,6 +366,23 @@ void CurvesView::setCurrentCurveRunID(int runID)
 
 void CurvesView::paintEvent(QPaintEvent *event)
 {
+#if 0
+    Q_UNUSED(event);
+
+    if ( !model() ) return;
+
+    QRect R = viewport()->rect();
+    QRect RG =  R;
+    RG.moveTo(viewport()->mapToGlobal(RG.topLeft()));
+    QRect  C = _curvesView->viewport()->rect();
+    C.moveTo(_curvesView->viewport()->mapToGlobal(C.topLeft()));
+    QRectF M = _bookModel()->getPlotMathRect(rootIndex());
+    QPainter painter(viewport());
+    CurvesLayoutItem layoutItem(_bookModel(),rootIndex(),0);
+    layoutItem.paint(&painter,R,RG,C,M);
+#endif
+
+#if 1
     Q_UNUSED(event);
 
     if ( !model() ) return;
@@ -425,6 +442,7 @@ void CurvesView::paintEvent(QPaintEvent *event)
 
     // Draw markers
     _paintMarkers(painter);
+#endif
 }
 
 
@@ -1599,10 +1617,7 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                 }
 
 
-                QString timeName = _bookModel()->getDataString(currentIndex(),
-                                                               "CurveTimeName",
-                                                               "Curve");
-                if ( curveModel->x()->name() == timeName ) {
+                if ( curveModel->x()->name() == curveModel->t()->name() ) {
 
                     QPointF liveCoord(DBL_MAX,DBL_MAX);
 
@@ -1660,7 +1675,7 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                         //
                         // Make "neighborhood" around mouse point
                         //
-                        QRectF M = _plotMathRect(rootIndex());
+                        QRectF M = _bookModel()->getPlotMathRect(rootIndex());
                         QRectF W = viewport()->rect();
                         double Wr = 2.0*fontMetrics().xHeight(); // near mouse
                         double Mr = Wr*(M.width()/W.width());
@@ -1928,7 +1943,7 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                 //
                 // Make "neighborhood" around mouse point
                 //
-                QRectF M = _plotMathRect(rootIndex());
+                QRectF M = _bookModel()->getPlotMathRect(rootIndex());
                 QRectF W = viewport()->rect();
                 double Wr = 2.0*fontMetrics().xHeight(); // near mouse
                 double Mr = Wr*(M.width()/W.width());
@@ -2087,6 +2102,8 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
             if ( rightRect.contains(_mousePressPos) ) {
                 if ( tx < 0 ) {
                     M.setRight(M.right()+kx*(B.right()-M.right()));
+                } else if ( tx > 0 ) {
+                    M.setRight(M.right()-kx*(B.right()-M.right()));
                 }
                 if ( ty > 0 ) {
                     M.setTop(M.top()+ky*(B.top()-M.top()));
@@ -2096,6 +2113,8 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
             } else if ( leftRect.contains(_mousePressPos) ) {
                 if ( tx > 0 ) {
                     M.setLeft(M.left()-kx*(M.left()-B.left()));
+                } else if ( tx < 0 ) {
+                    M.setLeft(M.left()+kx*(M.left()-B.left()));
                 }
                 if ( ty > 0 ) {
                     M.setTop(M.top()+ky*(B.top()-M.top()));
@@ -2105,6 +2124,8 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
             } else if ( topRect.contains(_mousePressPos) ) {
                 if ( ty > 0 ) {
                     M.setTop(M.top()+ky*(B.top()-M.top()));
+                } else if ( ty < 0 ) {
+                    M.setTop(M.top()-ky*(B.top()-M.top()));
                 }
                 if ( tx < 0 ) {
                     M.setRight(M.right()+kx*(B.right()-M.right()));
@@ -2114,6 +2135,8 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
             } else if ( botRect.contains(_mousePressPos) ) {
                 if ( ty < 0 ) {
                     M.setBottom(M.bottom()+ky*(B.bottom()-M.bottom()));
+                } else if ( ty > 0 ) {
+                    M.setBottom(M.bottom()-ky*(B.bottom()-M.bottom()));
                 }
                 if ( tx < 0 ) {
                     M.setRight(M.right()+kx*(B.right()-M.right()));
@@ -2156,7 +2179,7 @@ void CurvesView::currentChanged(const QModelIndex &current,
 
 void CurvesView::resizeEvent(QResizeEvent *event)
 {
-    QRectF M = _plotMathRect(rootIndex());
+    QRectF M = _bookModel()->getPlotMathRect(rootIndex());
 
     if ( M.size().width() > 0 && M.size().height() != 0 ) {
         if ( _pixmap ) {
@@ -2224,7 +2247,7 @@ void CurvesView::_keyPressSpace()
 
     // Recalculate plot math rect to contain curves in toggled presentation
     QRectF bbox = _bookModel()->calcCurvesBBox(curvesIdx);
-    QRectF plotMathRect = _plotMathRect(rootIndex());
+    QRectF plotMathRect = _bookModel()->getPlotMathRect(rootIndex());
     double x0 = plotMathRect.left();
     double y0 = bbox.top();
     double w = plotMathRect.width();

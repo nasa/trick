@@ -14,8 +14,12 @@
 
 #include "plotmainwindow.h"
 
-PlotMainWindow::PlotMainWindow(bool isDebug,
-                               bool isPlotAllVars,
+PlotMainWindow::PlotMainWindow(
+        const QString& excludePattern,
+        const QString& filterPattern,
+        const QString& scripts,
+        bool isDebug,
+        bool isPlotAllVars,
         const QStringList &timeNames,
         double startTime, double stopTime,
         double timeMatchTolerance,
@@ -37,6 +41,9 @@ PlotMainWindow::PlotMainWindow(bool isDebug,
         QStandardItemModel *monteInputsModel,
         QWidget *parent) :
     QMainWindow(parent),
+    _excludePattern(excludePattern),
+    _filterPattern(filterPattern),
+    _scripts(scripts),
     _isDebug(isDebug),
     _timeNames(timeNames),
     _presentation(presentation),
@@ -329,6 +336,17 @@ void PlotMainWindow::createMenu()
     _showLiveCoordAction->setChecked(true);
     _menuBar->addMenu(_fileMenu);
     _menuBar->addMenu(_optsMenu);
+    if ( !_scripts.isEmpty() ) {
+        _scriptsMenu = new QMenu(tr("&Scripts"), this);
+        QStringList scripts = _scripts.split(',',QString::SkipEmptyParts);
+        foreach ( QString script, scripts ) {
+            QAction* action = _scriptsMenu->addAction(script);
+            Q_UNUSED(action);
+        }
+        connect(_scriptsMenu,SIGNAL(triggered(QAction*)),
+                this,SLOT(_launchScript(QAction*)));
+        _menuBar->addMenu(_scriptsMenu);
+    }
     connect(_dpAction, SIGNAL(triggered()),this, SLOT(_saveDP()));
     connect(_pdfAction, SIGNAL(triggered()),this, SLOT(_savePdf()));
     connect(_sessionAction, SIGNAL(triggered()),this, SLOT(_saveSession()));
@@ -339,6 +357,7 @@ void PlotMainWindow::createMenu()
             this, SLOT(_clearPlots()));
     connect(_clearTablesAction, SIGNAL(triggered()),
             this, SLOT(_clearTables()));
+
     connect(_plotAllVarsAction, SIGNAL(triggered()),
             this, SLOT(_plotAllVars()));
     setMenuWidget(_menuBar);
@@ -431,6 +450,15 @@ void PlotMainWindow::_bookModelRowsInserted(const QModelIndex &pidx,
             }
         }
     }
+}
+
+void PlotMainWindow::_scriptError(QProcess::ProcessError error)
+{
+    Q_UNUSED(error);
+    QMessageBox msgBox;
+    QString msg = QString("Error launching user script!");
+    msgBox.setText(msg);
+    msgBox.exec();
 }
 
 void PlotMainWindow::_bookModelRowsAboutToBeRemoved(const QModelIndex &pidx,
@@ -929,6 +957,14 @@ void PlotMainWindow::_saveSession()
              out << "bg: " << _background << "\n";
         }
 
+        // RUN/log Exclude and Filter patterns
+        if ( !_excludePattern.isEmpty() ) {
+            out << "exclude:" << _excludePattern << "\n";
+        }
+        if ( !_filterPattern.isEmpty() ) {
+            out << "filter:" << _filterPattern << "\n";
+        }
+
         // Legend/Curve Colors
         QModelIndex clrIdx = _bookModel->getIndex(QModelIndex(),
                                                   "LegendColors","");
@@ -1108,6 +1144,38 @@ void PlotMainWindow::_clearTables()
     int nTables = _bookModel->rowCount(tablesIdx);
     for (int i = nTables-1; i >= 0; --i) {
         _bookModel->removeRow(i,tablesIdx);
+    }
+}
+
+void PlotMainWindow::_launchScript(QAction* action)
+{
+    int i = _monteInputsView->currentRun();
+    QString rundir;
+    if ( i >= 0 ) {
+        rundir = _runs->runDirs().at(i);
+    } else {
+        if ( _runs->runDirs().size() == 1 ) {
+            rundir = _runs->runDirs().at(0);
+        } else {
+            QMessageBox msgBox;
+            msgBox.setText("Please select a run before launching your script.");
+            msgBox.exec();
+        }
+    }
+    if ( !rundir.isEmpty() ) {
+        QStringList fields = action->text().split(' ',
+                                                  QString::SkipEmptyParts);
+        QString program = fields.takeAt(0);
+        program = program.remove('&');
+        QStringList arguments;
+        arguments << rundir;
+        foreach ( QString field, fields ) {
+            arguments << field;
+        }
+        QProcess *proc = new QProcess(this);
+        connect(proc,SIGNAL(errorOccurred(QProcess::ProcessError)),
+                this,SLOT(_scriptError(QProcess::ProcessError)));
+        proc->start(program, arguments);
     }
 }
 

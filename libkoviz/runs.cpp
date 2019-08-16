@@ -13,10 +13,14 @@ Runs::Runs() :
 Runs::Runs(const QStringList &timeNames,
            const QStringList &runDirs,
            const QHash<QString,QStringList>& varMap,
+           const QString &filterPattern,
+           const QString &excludePattern,
            bool isShowProgress) :
     _timeNames(timeNames),
     _runDirs(runDirs),
     _varMap(varMap),
+    _filterPattern(filterPattern),
+    _excludePattern(excludePattern),
     _isShowProgress(isShowProgress)
 {
     if ( runDirs.isEmpty() ) {
@@ -42,6 +46,8 @@ void Runs::_init()
     QStringList files;
     QHash<QString,QStringList> runToFiles;
     QHash<QString,QString> fileToRun;
+    QRegExp filterRgx(_filterPattern);
+    QRegExp excludeRgx(_excludePattern);
     foreach ( QString run, _runDirs ) {
         if ( ! QFileInfo(run).exists() ) {
             _err_stream << "koviz [error]: couldn't find run directory: "
@@ -56,12 +62,31 @@ void Runs::_init()
         if ( lfiles.contains("log_timeline_init.csv") ) {
             lfiles.removeAll("log_timeline_init.csv");
         }
+        if ( lfiles.contains("_init_log.csv") ) {
+            lfiles.removeAll("_init_log.csv");
+        }
+        if ( !excludeRgx.isEmpty() ) {
+            QStringList excludeFiles = lfiles.filter(excludeRgx);
+            foreach (QString excludeFile, excludeFiles) {
+                lfiles.removeAll(excludeFile);
+            }
+        }
+        if ( !filterRgx.isEmpty() ) {
+            QStringList filterFiles = lfiles.filter(filterRgx);
+            if ( !filterFiles.isEmpty() ) {
+                // If the filter has found a match, use filter,
+                // otherwise do not
+                lfiles = filterFiles;
+            }
+        }
 
         if ( lfiles.empty() ) {
-            _err_stream << "koviz [error]: no *.trk/csv files in run dir: "
-                        << run << "\n";
+            _err_stream << "koviz [error]: Either no *.trk/csv files "
+                           "in run dir: " << run << "\n"
+                        << "               or log files were filtered out.\n";
             throw std::invalid_argument(_err_string.toLatin1().constData());
         }
+
         QStringList fullPathFiles;
         foreach (QString file, lfiles) {
             QString ffile = run + '/' + file;
@@ -112,12 +137,17 @@ void Runs::_init()
                 }
                 QString runDir = QFileInfo(fname).absolutePath();
                 QStringList vals = _varMap.value(key);
-                if ( vals.contains(p) ) {
+                QStringList names;
+                foreach ( QString val, vals ) {
+                    MapValue mapval(val);
+                    names.append(mapval.name());
+                }
+                if ( names.contains(p) ) {
                     p = key;
                     break;
                 } else {
                     bool isFound = false;
-                    foreach ( QString val, vals ) {
+                    foreach (QString val, vals) {
                         if ( val.contains(':') ) {
                             QStringList l = val.split(':');
                             QString run = QFileInfo(l.at(0).trimmed()).
@@ -188,6 +218,8 @@ CurveModel* Runs::curveModel(int row,
                         const QString &xName,
                         const QString &yName) const
 {
+    CurveModel* curveModel = 0;
+
     QString runDir = QFileInfo(_runDirs.at(row)).absoluteFilePath();
 
     QString t = tName;
@@ -222,7 +254,12 @@ CurveModel* Runs::curveModel(int row,
         if ( _varMap.contains(y) ) {
             QList<DataModel*>* mdls = _paramToModels.value(y);
             if ( mdls ) {
-                foreach ( QString yval, _varMap.value(y) ) {
+                QStringList names;
+                foreach (QString val, _varMap.value(y)) {
+                    MapValue mapval(val);
+                    names.append(mapval.name());
+                }
+                foreach ( QString yval, names ) {
                     if ( yval.contains(':') ) {
                         QStringList l = yval.split(':');
                         QString run = QFileInfo(l.at(0).trimmed()).
@@ -306,7 +343,12 @@ CurveModel* Runs::curveModel(int row,
     int xcol = tm->paramColumn(xp) ;
     if ( xcol < 0 ) {
         if ( _varMap.contains(xp) ) {
-            foreach ( QString xval, _varMap.value(xp) ) {
+            QStringList names;
+            foreach (QString val, _varMap.value(xp)) {
+                MapValue mapval(val);
+                names.append(mapval.name());
+            }
+            foreach ( QString xval, names ) {
                 if ( xval.contains(':') ) {
                     QStringList l = xval.split(':');
                     QString run=QFileInfo(l.at(0).trimmed()).absoluteFilePath();
@@ -319,6 +361,7 @@ CurveModel* Runs::curveModel(int row,
                 } else {
                     xcol = tm->paramColumn(xval);
                     if ( xcol >= 0 ) {
+                        xp = xval;
                         break;
                     }
                 }
@@ -339,7 +382,37 @@ CurveModel* Runs::curveModel(int row,
         }
     }
 
-    return new CurveModel(tm,tcol,xcol,ycol);
+    curveModel = new CurveModel(tm,tcol,xcol,ycol);
+
+    // Mapfile unit, bias and scales
+    foreach (QString key, _varMap.keys() ) {
+        foreach (QString val, _varMap.value(key)) {
+            MapValue mapval(val);
+            if ( mapval.name() == xp ) {
+                if ( !mapval.unit().isEmpty() ) {
+                    curveModel->x()->setUnit(mapval.unit());
+                }
+                if ( mapval.bias() != 0.0 ) {
+                    curveModel->x()->setBias(mapval.bias());
+                }
+                if ( mapval.scale() != 1.0 ) {
+                    curveModel->x()->setScale(mapval.scale());
+                }
+
+            } else if ( mapval.name() == y ) {
+                if ( !mapval.unit().isEmpty() ) {
+                    curveModel->y()->setUnit(mapval.unit());
+                }
+                if ( mapval.bias() != 0.0 ) {
+                    curveModel->y()->setBias(mapval.bias());
+                }
+                if ( mapval.scale() != 1.0 ) {
+                    curveModel->y()->setScale(mapval.scale());
+                }
+            }
+        }
+    }
+    return curveModel;
 }
 
 // Example1:

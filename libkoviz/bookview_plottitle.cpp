@@ -37,16 +37,10 @@ QSize PlotTitleView::minimumSizeHint() const
 
 QSize PlotTitleView::sizeHint() const
 {
-    QSize sz;
-
-    if ( _bookModel()->isChildIndex(rootIndex(),"Plot","PlotTitle") ) {
-        QFontMetrics fm = fontMetrics();
-        QString s = _bookModel()->getDataString(rootIndex(),"PlotTitle","Plot");
-        QRect bb = fm.boundingRect(s);
-        sz = bb.size();
-    }
-
-    return sz;
+    QSize s;
+    PlotTitleLayoutItem layoutItem(fontMetrics(),_bookModel(),rootIndex());
+    s = layoutItem.sizeHint();
+    return s;
 }
 
 void PlotTitleView::paintEvent(QPaintEvent *event)
@@ -55,25 +49,13 @@ void PlotTitleView::paintEvent(QPaintEvent *event)
 
     if ( !model() ) return;
 
+    QRect R = viewport()->rect();
+    QRect RG =  R;
+    RG.moveTo(viewport()->mapToGlobal(RG.topLeft()));
+    QRect  C = _curvesView->viewport()->rect();
+    C.moveTo(_curvesView->viewport()->mapToGlobal(C.topLeft()));
+    QRectF M = _bookModel()->getPlotMathRect(rootIndex());
     QPainter painter(viewport());
-
-    _paintGrid(painter,rootIndex());
-
-    painter.save();
-    painter.setRenderHint(QPainter::Antialiasing);
-
-    QFont origFont = painter.font();
-    QPaintDevice* paintDevice = painter.device();
-    QRect R(0,0,paintDevice->width(),paintDevice->height());
-
-    QString s = _bookModel()->getDataString(rootIndex(),"PlotTitle","Plot");
-    QFontMetrics fm = painter.fontMetrics();
-    QRect bbox = fm.boundingRect(s);
-    int x = R.x() + R.width()/2 - bbox.width()/2;
-    int q = (R.height()-bbox.height())/2;
-    int y = R.y() + q + fm.ascent() - 1;
-    painter.drawText(x,y,s);
-
-    painter.setFont(origFont);
-    painter.restore();
+    PlotTitleLayoutItem layoutItem(fontMetrics(),_bookModel(),rootIndex());
+    layoutItem.paint(&painter,R,RG,C,M);
 }

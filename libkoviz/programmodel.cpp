@@ -4,6 +4,7 @@ QString ProgramModel::_err_string;
 QTextStream ProgramModel::_err_stream(&ProgramModel::_err_string);
 
 ProgramModel::ProgramModel(const QList<CurveModel *> &inputCurves,
+                           const QList<Parameter> &inputParams,
                            const QStringList& outputNames,
                            const QStringList& timeNames,
                            const QString& programfile,
@@ -13,10 +14,11 @@ ProgramModel::ProgramModel(const QList<CurveModel *> &inputCurves,
     _nrows(0), _ncols(0),_iteratorTimeIndex(0),
     _data(0), _library(0)
 {
-    _init(inputCurves,outputNames);
+    _init(inputCurves,inputParams,outputNames);
 }
 
 void ProgramModel::_init(const QList<CurveModel*>& inputCurves,
+                         const QList<Parameter> &inputParams,
                          const QStringList& outputNames)
 {
     const int nOutputs = outputNames.size();
@@ -75,11 +77,9 @@ void ProgramModel::_init(const QList<CurveModel*>& inputCurves,
 
     // Make param foreach output
     foreach ( QString name, outputNames ) {
-        Parameter* param = new Parameter;
-        param->setName(name);
-        param->setUnit("--");
+        Parameter* param = new Parameter(name);
         _col2param.insert(col,param);
-        _paramName2col.insert(name,col);
+        _paramName2col.insert(param->name(),col);
         ++col;
     }
 
@@ -135,6 +135,24 @@ void ProgramModel::_init(const QList<CurveModel*>& inputCurves,
     row = 0;
     col = 0;
     foreach ( CurveModel* curveModel, inputCurves ) {
+        Parameter inputParam = inputParams.at(col);
+        double sf = 1.0;
+        double bias = 0.0;
+        if ( inputParam.unit() != "--" ) {
+            if ( !Unit::canConvert(curveModel->y()->unit(),inputParam.unit())) {
+                fprintf(stderr, "koviz [error]: DP program input cannot be "
+                                "converted from logged units:\n"
+                                "    DPProgramInputName=%s\n"
+                                "    DPProgramInputUnit=%s\n"
+                                "    LoggedUnit=%s\n",
+                        inputParam.name().toLatin1().constData(),
+                        inputParam.unit().toLatin1().constData(),
+                        curveModel->y()->unit().toLatin1().constData());
+                exit(-1);
+            }
+            sf = Unit::scale(curveModel->y()->unit(), inputParam.unit());
+            bias = Unit::bias(curveModel->y()->unit(), inputParam.unit());
+        }
         curveModel->map();
         ModelIterator* it = curveModel->begin();
         row = 0;
@@ -145,7 +163,7 @@ void ProgramModel::_init(const QList<CurveModel*>& inputCurves,
             double t = it->t();
 
             if ( t == timeStamp ) {
-                input_data[row*nInputs+col] = it->y();
+                input_data[row*nInputs+col] = it->y()*sf+bias;
             } else if ( timeStamp < t ) {
                 // Interpolate
             } else {

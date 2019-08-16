@@ -48,19 +48,7 @@ public:
     QTransform _coordToPixelTransform() ;
 
     QRectF _mathRect() ;
-    QRectF _plotMathRect(const QModelIndex &plotIdx) const ;
     QModelIndex _plotMathRectIdx(const QModelIndex& plotIdx) const;
-
-    QList<double> _majorXTics(const QModelIndex &plotIdx) const;
-    QList<double> _minorXTics(const QModelIndex &plotIdx) const;
-    QList<double> _majorYTics(const QModelIndex &plotIdx) const;
-    QList<double> _minorYTics(const QModelIndex &plotIdx) const;
-    QList<double> _calcTicSet(double aIn, double bIn,
-                              double u, double n) const;
-    QList<double> _calcMinorTicSet(double a, double b,
-                                   const QString& plotScale) const;
-    bool _isEqual(double a, double b, ulong maxD=10,
-                  bool isNeighborMethod=true) const;
 
 protected:
     virtual QModelIndex moveCursor(CursorAction cursorAction,
@@ -81,10 +69,6 @@ protected:
     QString _curvesUnit(const QModelIndex& plotIdx, QChar axis) const;
 
 protected:
-    QStringList _pageTitles(const QModelIndex& titleIdx) const;
-    QRect _paintPageTitle(const QModelIndex &pageIdx, QPainter &painter);
-    QRect _paintPageLegend(const QRect& R,
-                           const QModelIndex& curvesIdx, QPainter &painter);
     void _paintCurvesLegend(const QRect &R,
                             const QModelIndex& curvesIdx, QPainter &painter);
     void __paintCurvesLegend(const QRect &R,
@@ -93,23 +77,9 @@ protected:
                              const QStringList& symbols,
                              const QStringList& labels,
                              QPainter& painter);
-    void _paintLegendEntry(const QRect &R,
-                           int l, // line width
-                           int s, // space between line and label
-                           const QPen& pen,
-                           const QString& symbol,
-                           const QString& label,
-                           QPainter& painter);
     virtual void __paintSymbol(const QPointF &p, const QString& symbol,
                                QPainter& painter);
     void _paintGrid(QPainter& painter, const QModelIndex &plotIdx);
-
-private:
-    QRect __paintPageLegend(const QRect& R,
-                       const QList<QPen*>& pens,
-                       const QStringList& symbols,
-                       const QStringList& labels,
-                       QPainter& painter);
 
 protected:
     QList<QAbstractItemView*> _childViews;

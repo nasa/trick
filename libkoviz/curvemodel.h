@@ -5,6 +5,7 @@
 #include <QString>
 #include "parameter.h"
 #include "datamodel.h"
+#include "curvemodelparameter.h"
 
 class CurveModel : public QAbstractTableModel
 {
@@ -16,13 +17,13 @@ class CurveModel : public QAbstractTableModel
                         int tcol, int xcol, int ycol,
                         QObject *parent = 0);
 
-    ~CurveModel() {}
+    ~CurveModel();
+
+    CurveModelParameter* t() { return _t; }
+    CurveModelParameter* x() { return _x; }
+    CurveModelParameter* y() { return _y; }
 
     QString fileName() const { return _datamodel->fileName(); }
-
-    const Parameter* t() const { return _datamodel->param(_tcol); }
-    const Parameter* x() const { return _datamodel->param(_xcol); }
-    const Parameter* y() const { return _datamodel->param(_ycol); }
 
     void map() { _datamodel->map(); }
     void unmap() { _datamodel->unmap(); }
@@ -40,6 +41,10 @@ class CurveModel : public QAbstractTableModel
     int _tcol;
     int _xcol;
     int _ycol;
+    CurveModelParameter* _t;
+    CurveModelParameter* _x;
+    CurveModelParameter* _y;
+
 };
 
 #endif // CURVE_MODEL_H

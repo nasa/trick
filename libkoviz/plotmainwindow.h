@@ -23,6 +23,7 @@
 #include <QTextStream>
 #include <QDate>
 #include <QSettings>
+#include <QProcess>
 
 #include "monte.h"
 #include "dp.h"
@@ -41,7 +42,10 @@ class PlotMainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit PlotMainWindow( bool isDebug,
+    explicit PlotMainWindow( const QString& excludePattern,
+                             const QString& filterPattern,
+                             const QString& scripts,
+                             bool isDebug,
                              bool isPlotAllVars,
                              const QStringList& timeNames,
                              double startTime,
@@ -78,6 +82,9 @@ protected:
 
 
 private:
+    QString _excludePattern;
+    QString _filterPattern;
+    QString _scripts;
     bool _isDebug;
     QStringList _timeNames;
     QString _presentation;
@@ -103,6 +110,7 @@ private:
     QMenuBar* _menuBar;
     QMenu *_fileMenu;
     QMenu *_optsMenu;
+    QMenu *_scriptsMenu;
     QAction *_dpAction;
     QAction *_pdfAction;
     QAction *_sessionAction;
@@ -143,6 +151,7 @@ private slots:
      void _toggleShowLiveCoord();
      void _clearPlots();
      void _clearTables();
+     void _launchScript(QAction *action);
      void _plotAllVars();
 
      void _startTimeChanged(double startTime);
@@ -158,6 +167,7 @@ private slots:
      void _bookModelRowsInserted(const QModelIndex& pidx, int start, int end);
 
      void setTimeFromVideo(double time);
+     void _scriptError(QProcess::ProcessError error);
 };
 
 #endif // PLOTMAINWINDOW_H

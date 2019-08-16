@@ -6,6 +6,7 @@
 #include <QWheelEvent>
 #include <QList>
 #include "bookidxview.h"
+#include "layoutitem_xaxislabel.h"
 
 class XAxisLabelView : public BookIdxView
 {
@@ -14,16 +15,10 @@ public:
     explicit XAxisLabelView(QWidget *parent = 0);
 
 protected:
-    virtual void _update();
-
-protected:
     virtual void paintEvent(QPaintEvent * event);
     virtual QSize minimumSizeHint() const;
     virtual QSize sizeHint() const;
     virtual void wheelEvent(QWheelEvent* e);
-
-private:
-    QString _xAxisLabelText() const;
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,

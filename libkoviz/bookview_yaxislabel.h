@@ -5,6 +5,7 @@
 #include <QString>
 #include <QWheelEvent>
 #include "bookidxview.h"
+#include "layoutitem_yaxislabel.h"
 
 class YAxisLabelView : public BookIdxView
 {
@@ -13,16 +14,10 @@ public:
     explicit YAxisLabelView(QWidget *parent = 0);
 
 protected:
-    virtual void _update();
-
-protected:
     virtual void paintEvent(QPaintEvent * event);
     virtual QSize minimumSizeHint() const;
     virtual QSize sizeHint() const;
     void wheelEvent(QWheelEvent *e);
-
-private:
-    QString _yAxisLabelText() const;
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,
