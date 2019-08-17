@@ -40,7 +40,7 @@ class HTTP_Server {
         int http_top_of_frame();
         int http_shutdown();
 
-        void sendSessionValues(struct mg_connection *nc);
+        void sendSessionMessages(struct mg_connection *nc);
         void handleClientMessage(struct mg_connection *nc, std::string msg);
         void addSession(struct mg_connection *nc, WSsession* session);
         void deleteSession(struct mg_connection *nc);

@@ -12,7 +12,6 @@ LIBRARY DEPENDENCIES:
 
 WSsession::WSsession( struct mg_connection *nc ) {
     connection = nc;
-    valuesStaged = false;
     intervalTimeTics = exec_get_time_tic_value(); // Default time interval is one second.
     nextTime = LLONG_MAX;
     cyclicSendEnabled = false;
@@ -88,42 +87,38 @@ void WSsession::addVariable(char* vname){
     }
 }
 
-void WSsession::stageValues() {
+void WSsession::stageVariableValues() {
     stageTime = (double)exec_get_time_tics() / exec_get_time_tic_value();
     std::vector<WSsessionVariable*>::iterator it;
     for (it = sessionVariables.begin(); it != sessionVariables.end(); it++ ) {
         (*it)->stageValue();
     }
-    valuesStaged = true;
 }
 
-void WSsession::stageValuesSynchronously() {
+void WSsession::stageData() {
     long long simulation_time_tics = exec_get_time_tics();
     if ( cyclicSendEnabled && ( simulation_time_tics >= nextTime )) {
-        stageValues();
+        stageVariableValues();
     }
     nextTime = (simulation_time_tics - (simulation_time_tics % intervalTimeTics) + intervalTimeTics);
 }
 
-void WSsession::sendValues() {
-    if ( valuesStaged ) {
-        std::vector<WSsessionVariable*>::iterator it;
-        std::stringstream ss;
+void WSsession::sendMessage() {
+    std::vector<WSsessionVariable*>::iterator it;
+    std::stringstream ss;
 
-        ss << "{ \"msg_type\" : \"values\",\n";
-        ss << "  \"time\" : " << std::setprecision(16) << stageTime << ",\n";
-        ss << "  \"values\" : [\n";
+    ss << "{ \"msg_type\" : \"values\",\n";
+    ss << "  \"time\" : " << std::setprecision(16) << stageTime << ",\n";
+    ss << "  \"values\" : [\n";
 
-        for (it = sessionVariables.begin(); it != sessionVariables.end(); it++ ) {
-            if (it != sessionVariables.begin()) ss << ",\n";
-            (*it)->writeValue(ss);
-         }
-         ss << "]}" << std::endl;
-        std::string tmp = ss.str();
-        const char * message = tmp.c_str();
-        mg_send_websocket_frame(connection, WEBSOCKET_OP_TEXT, message, strlen(message));
-        valuesStaged = false;
-    }
+    for (it = sessionVariables.begin(); it != sessionVariables.end(); it++ ) {
+        if (it != sessionVariables.begin()) ss << ",\n";
+        (*it)->writeValue(ss);
+     }
+     ss << "]}" << std::endl;
+    std::string tmp = ss.str();
+    const char * message = tmp.c_str();
+    mg_send_websocket_frame(connection, WEBSOCKET_OP_TEXT, message, strlen(message));
 }
 
 void WSsession::pause()   { cyclicSendEnabled = false; }
@@ -141,7 +136,7 @@ void WSsession::clear() {
 
 void WSsession::exit() {}
 
-int WSsession::handle_msg (std::string client_msg) {
+int WSsession::handleMessage(std::string client_msg) {
 
      int status = 0;
      std::vector<Member*> members = parseJSON(client_msg.c_str());
@@ -172,8 +167,8 @@ int WSsession::handle_msg (std::string client_msg) {
      } else if ( strcmp(cmd, "var_unpause") == 0 ) {
          unpause();
      } else if ( strcmp(cmd, "var_send") == 0 ) {
-         stageValues();
-         sendValues();
+         stageVariableValues();
+         sendMessage();
      } else if ( strcmp(cmd, "var_clear") == 0 ) {
          clear();
      } else if ( strcmp(cmd, "var_exit") == 0 ) {

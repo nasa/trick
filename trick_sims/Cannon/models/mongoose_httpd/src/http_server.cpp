@@ -76,7 +76,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
            // called periodically by the threaded function connectionAttendant() [below].
            // Send websocket messages to the client (web browser).
            if (nc->flags & MG_F_IS_WEBSOCKET) {
-               hs->sendSessionValues(nc);
+               hs->sendSessionMessages(nc);
            }
         } break;
         case MG_EV_HTTP_REQUEST: {
@@ -138,14 +138,14 @@ void HTTP_Server::handle_API_GET_request(struct mg_connection *nc, http_message 
     }
 }
 
-void HTTP_Server::sendSessionValues(struct mg_connection *nc) {
+void HTTP_Server::sendSessionMessages(struct mg_connection *nc) {
     // Find the session that goes with the given websocket connection,
     // and tell it to send its values to the client (web browser).
     std::map<mg_connection*, WSsession*>::iterator iter;
     iter = sessionMap.find(nc);
     if (iter != sessionMap.end()) {
         WSsession* session = iter->second;
-        session->sendValues();
+        session->sendMessage();
     }
 }
 
@@ -163,7 +163,7 @@ void HTTP_Server::handleClientMessage(struct mg_connection *nc, std::string msg)
     iter = sessionMap.find(nc);
     if (iter != sessionMap.end()) {
         WSsession* session = iter->second;
-        session->handle_msg(msg);
+        session->handleMessage(msg);
     }
 }
 
@@ -222,7 +222,7 @@ int HTTP_Server::http_top_of_frame() {
         pthread_mutex_lock(&sessionMapLock);
         for (iter = sessionMap.begin(); iter != sessionMap.end(); iter++ ) {
             WSsession* session = iter->second;
-            session->stageValuesSynchronously();
+            session->stageData();
         }
         pthread_mutex_unlock(&sessionMapLock);
         // Signal the server thread to construct and send the values-message to the client.

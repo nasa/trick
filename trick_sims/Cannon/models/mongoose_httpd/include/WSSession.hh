@@ -13,30 +13,34 @@ LIBRARY DEPENDENCIES:
 
 class WSsession {
     public:
-        WSsession( struct mg_connection *nc);
-        void setTimeInterval(unsigned int milliseconds);
-        void addVariable(char* vname);
-        void stageValuesSynchronously();
-        void stageValues();
-        void sendValues();
-        void pause();
-        void unpause();
-        void clear();
-        void exit();
-        int handle_msg (std::string);
+        WSsession(struct mg_connection *nc);
+
+        void stageData();                                    /* -- virtual Base */
+        void sendMessage();                                  /* -- virtual Base */
+        int  handleMessage (std::string);                    /* -- virtual Base */
+
+        void setTimeInterval(unsigned int milliseconds); /* -- VariableServerSession specific */
+        void addVariable(char* vname);                   /* -- VariableServerSession specific */
+        void stageVariableValues();                              /* -- VariableServerSession specific */
+        void pause();                                    /* -- VariableServerSession specific */
+        void unpause();                                  /* -- VariableServerSession specific */
+        void clear();                                    /* -- VariableServerSession specific */
+        void exit();                                     /* -- VariableServerSession specific */
+
         int emitError(const char* fmt, ... );
 
         static int bad_ref_int ;
 
     private:
         WSsession() {}
-        REF2* make_error_ref(const char* in_name);
-        struct mg_connection* connection;
-        std::vector<WSsessionVariable*> sessionVariables;
-        bool cyclicSendEnabled;
-        double stageTime;
-        bool valuesStaged;
-        long long nextTime;
-        long long intervalTimeTics;
+
+        struct mg_connection* connection;                 /* -- Base */
+        
+        REF2* make_error_ref(const char* in_name);        /* -- VariableServerSession specific */
+        double stageTime;                                 /* -- VariableServerSession specific */
+        std::vector<WSsessionVariable*> sessionVariables; /* -- VariableServerSession specific */
+        bool cyclicSendEnabled;                           /* -- VariableServerSession specific */
+        long long nextTime;                               /* -- VariableServerSession specific */
+        long long intervalTimeTics;                       /* -- VariableServerSession specific */
 };
 #endif
