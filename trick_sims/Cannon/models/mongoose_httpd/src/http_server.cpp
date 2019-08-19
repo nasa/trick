@@ -2,7 +2,7 @@
 PURPOSE: (Represent the state and initial conditions of an http server)
 LIBRARY DEPENDENCIES:
     (
-    (WSSession.o)
+    (VariableServerSession.o)
     (WSSessionVariable.o)
     (http_GET_handlers.o)
     )
@@ -35,7 +35,7 @@ Messages sent from Server to Client
 */
 
 #include "../include/http_server.hh"
-#include "../include/WSSession.hh"
+#include "../include/VariableServerSession.hh"
 #include "../include/http_GET_handlers.hh"
 
 static const struct mg_str s_get_method = MG_MK_STR("GET");

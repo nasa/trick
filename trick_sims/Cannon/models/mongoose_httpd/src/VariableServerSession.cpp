@@ -7,7 +7,7 @@ LIBRARY DEPENDENCIES:
 #include <iomanip> // for setprecision
 #include "trick/memorymanager_c_intf.h"
 #include "trick/exec_proto.h"
-#include "../include/WSSession.hh"
+#include "../include/VariableServerSession.hh"
 #include "../include/simpleJSON.hh"
 
 VariableServerSession::VariableServerSession( struct mg_connection *nc ) : WebSocketSession(nc) {
