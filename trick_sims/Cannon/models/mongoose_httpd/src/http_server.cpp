@@ -34,7 +34,7 @@ Messages sent from Server to Client
 }
 */
 
-#include "../include/http_server.h"
+#include "../include/http_server.hh"
 #include "../include/WSSession.hh"
 #include "../include/http_GET_handlers.hh"
 

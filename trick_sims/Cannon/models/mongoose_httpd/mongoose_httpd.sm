@@ -4,7 +4,7 @@ PURPOSE:
 LIBRARY DEPENDENCIES:
     ((src/http_server.cpp))
 *************************************************************/
-##include "mongoose_httpd/include/http_server.h"
+##include "mongoose_httpd/include/http_server.hh"
 
 class HttpSimObject : public Trick::SimObject {
 
