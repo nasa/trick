@@ -10,19 +10,19 @@ LIBRARY DEPENDENCIES:
 #include "../include/WSSession.hh"
 #include "../include/simpleJSON.hh"
 
-WSsession::WSsession( struct mg_connection *nc ) : WebSocketSession(nc) {
+VariableServerSession::VariableServerSession( struct mg_connection *nc ) : WebSocketSession(nc) {
     intervalTimeTics = exec_get_time_tic_value(); // Default time interval is one second.
     nextTime = LLONG_MAX;
     cyclicSendEnabled = false;
 }
 
-void WSsession::setTimeInterval(unsigned int milliseconds) {
+void VariableServerSession::setTimeInterval(unsigned int milliseconds) {
     intervalTimeTics = exec_get_time_tic_value() * milliseconds / 1000;
 }
 
-int WSsession::bad_ref_int = 0 ;
+int VariableServerSession::bad_ref_int = 0 ;
 
-REF2* WSsession::make_error_ref(const char* in_name) {
+REF2* VariableServerSession::make_error_ref(const char* in_name) {
     REF2* new_ref;
     new_ref = (REF2*)calloc(1, sizeof(REF2));
     new_ref->reference = strdup(in_name) ;
@@ -36,7 +36,7 @@ REF2* WSsession::make_error_ref(const char* in_name) {
 }
 
 #define MAX_MSG_SIZE 4096
-int WSsession::sendErrorMessage(const char* fmt, ... ) {
+int VariableServerSession::sendErrorMessage(const char* fmt, ... ) {
     char errText[MAX_MSG_SIZE];
     char msgText[MAX_MSG_SIZE];
     va_list args;
@@ -55,7 +55,7 @@ int WSsession::sendErrorMessage(const char* fmt, ... ) {
     return (0);
 }
 
-void WSsession::addVariable(char* vname){
+void VariableServerSession::addVariable(char* vname){
     REF2 * new_ref ;
     new_ref = ref_attributes(vname);
     if ( new_ref == NULL ) {
@@ -79,14 +79,14 @@ void WSsession::addVariable(char* vname){
     }
 
     if ( new_ref != NULL ) {
-        // This REF2 object will "belong" to the WSsessionVariable, so it has
+        // This REF2 object will "belong" to the VariableServerSessionVariable, so it has
         // the right and responsibility to free() it in its destructor.
         WSsessionVariable *sessionVariable = new WSsessionVariable( new_ref ) ;
         sessionVariables.push_back( sessionVariable ) ;
     }
 }
 
-void WSsession::stageVariableValues() {
+void VariableServerSession::stageVariableValues() {
     stageTime = (double)exec_get_time_tics() / exec_get_time_tic_value();
     std::vector<WSsessionVariable*>::iterator it;
     for (it = sessionVariables.begin(); it != sessionVariables.end(); it++ ) {
@@ -94,7 +94,7 @@ void WSsession::stageVariableValues() {
     }
 }
 
-void WSsession::stageData() {
+void VariableServerSession::stageData() {
     long long simulation_time_tics = exec_get_time_tics();
     if ( cyclicSendEnabled && ( simulation_time_tics >= nextTime )) {
         stageVariableValues();
@@ -102,7 +102,7 @@ void WSsession::stageData() {
     nextTime = (simulation_time_tics - (simulation_time_tics % intervalTimeTics) + intervalTimeTics);
 }
 
-void WSsession::sendMessage() {
+void VariableServerSession::sendMessage() {
     std::vector<WSsessionVariable*>::iterator it;
     std::stringstream ss;
 
@@ -120,11 +120,11 @@ void WSsession::sendMessage() {
     mg_send_websocket_frame(connection, WEBSOCKET_OP_TEXT, message, strlen(message));
 }
 
-void WSsession::pause()   { cyclicSendEnabled = false; }
+void VariableServerSession::pause()   { cyclicSendEnabled = false; }
 
-void WSsession::unpause() { cyclicSendEnabled = true;  }
+void VariableServerSession::unpause() { cyclicSendEnabled = true;  }
 
-void WSsession::clear() {
+void VariableServerSession::clear() {
         std::vector<WSsessionVariable*>::iterator it;
         it = sessionVariables.begin();
         while (it != sessionVariables.end()) {
@@ -133,9 +133,9 @@ void WSsession::clear() {
         }
 }
 
-void WSsession::exit() {}
+void VariableServerSession::exit() {}
 
-int WSsession::handleMessage(std::string client_msg) {
+int VariableServerSession::handleMessage(std::string client_msg) {
 
      int status = 0;
      std::vector<Member*> members = parseJSON(client_msg.c_str());

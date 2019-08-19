@@ -12,9 +12,9 @@ LIBRARY DEPENDENCIES:
 #include "WebSocketSession.hh"
 #include "WSSessionVariable.hh"
 
-class WSsession : public WebSocketSession {
+class VariableServerSession : public WebSocketSession {
     public:
-        WSsession(struct mg_connection *nc);
+        VariableServerSession(struct mg_connection *nc);
 
         void stageData();                                /* -- virtual base */
         void sendMessage();                              /* -- virtual base */

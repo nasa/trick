@@ -53,7 +53,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             std::string uri(hm->uri.p, hm->uri.len);
             std::cout << "WEBSOCKET[" << (void*)nc << "] OPENED. URI=\"" << uri << "\"." << std::endl;
             // Create a session object to store information about this web-socket connection.
-            WebSocketSession* session = new WSsession(nc);
+            WebSocketSession* session = new VariableServerSession(nc);
             hs->addSession(nc, session);
         } break;
 
