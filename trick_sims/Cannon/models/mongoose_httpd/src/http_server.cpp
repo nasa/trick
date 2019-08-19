@@ -53,7 +53,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             std::string uri(hm->uri.p, hm->uri.len);
             std::cout << "WEBSOCKET[" << (void*)nc << "] OPENED. URI=\"" << uri << "\"." << std::endl;
             // Create a session object to store information about this web-socket connection.
-            WSsession* session = new WSsession(nc);
+            WebSocketSession* session = new WSsession(nc);
             hs->addSession(nc, session);
         } break;
 
@@ -141,35 +141,35 @@ void HTTP_Server::handle_API_GET_request(struct mg_connection *nc, http_message 
 void HTTP_Server::sendSessionMessages(struct mg_connection *nc) {
     // Find the session that goes with the given websocket connection,
     // and tell it to send its values to the client (web browser).
-    std::map<mg_connection*, WSsession*>::iterator iter;
+    std::map<mg_connection*, WebSocketSession*>::iterator iter;
     iter = sessionMap.find(nc);
     if (iter != sessionMap.end()) {
-        WSsession* session = iter->second;
+        WebSocketSession* session = iter->second;
         session->sendMessage();
     }
 }
 
 void HTTP_Server::deleteSession(struct mg_connection *nc) {
-    std::map<mg_connection*, WSsession*>::iterator iter;
+    std::map<mg_connection*, WebSocketSession*>::iterator iter;
     iter = sessionMap.find(nc);
     if (iter != sessionMap.end()) {
-        WSsession* session = iter->second;
+        WebSocketSession* session = iter->second;
         delete session;
         sessionMap.erase(iter);
     }
 }
 void HTTP_Server::handleClientMessage(struct mg_connection *nc, std::string msg) {
-    std::map<mg_connection*, WSsession*>::iterator iter;
+    std::map<mg_connection*, WebSocketSession*>::iterator iter;
     iter = sessionMap.find(nc);
     if (iter != sessionMap.end()) {
-        WSsession* session = iter->second;
+        WebSocketSession* session = iter->second;
         session->handleMessage(msg);
     }
 }
 
-void HTTP_Server::addSession(struct mg_connection *nc, WSsession* session) {
+void HTTP_Server::addSession(struct mg_connection *nc, WebSocketSession* session) {
     pthread_mutex_lock(&sessionMapLock);
-    sessionMap.insert( std::pair<mg_connection*, WSsession*>(nc, session) );
+    sessionMap.insert( std::pair<mg_connection*, WebSocketSession*>(nc, session) );
     pthread_mutex_unlock(&sessionMapLock);
 }
 
@@ -218,10 +218,10 @@ int HTTP_Server::http_top_of_frame() {
     if (listener != NULL) {
         // Have all of the sessions stage their data. We do this here, in a
         // top_of_frame job, so that all of the data is time-homogeneous.
-        std::map<mg_connection*, WSsession*>::iterator iter;
+        std::map<mg_connection*, WebSocketSession*>::iterator iter;
         pthread_mutex_lock(&sessionMapLock);
         for (iter = sessionMap.begin(); iter != sessionMap.end(); iter++ ) {
-            WSsession* session = iter->second;
+            WebSocketSession* session = iter->second;
             session->stageData();
         }
         pthread_mutex_unlock(&sessionMapLock);

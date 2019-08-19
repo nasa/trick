@@ -13,7 +13,7 @@ LIBRARY DEPENDENCIES:
 #include <pthread.h>
 #include <string>
 #include <map>
-#include "../include/WSSession.hh"
+#include "../include/WebSocketSession.hh"
 
 typedef void (*httpMethodHandler)(struct mg_connection *, struct http_message *);
 
@@ -28,7 +28,7 @@ class HTTP_Server {
 
         std::map< std::string, httpMethodHandler> httpMethodHandlerMap;  /* ** */
         pthread_mutex_t APIMapLock;                                      /* ** */
-        std::map<mg_connection*, WSsession*> sessionMap;                 /* ** */
+        std::map<mg_connection*, WebSocketSession*> sessionMap;                 /* ** */
         pthread_mutex_t sessionMapLock;                                  /* ** */
         struct mg_serve_http_opts http_server_options;                   /* ** mongoose*/
         struct mg_bind_opts bind_opts;                                   /* ** mongoose*/
@@ -42,7 +42,7 @@ class HTTP_Server {
 
         void sendSessionMessages(struct mg_connection *nc);
         void handleClientMessage(struct mg_connection *nc, std::string msg);
-        void addSession(struct mg_connection *nc, WSsession* session);
+        void addSession(struct mg_connection *nc, WebSocketSession* session);
         void deleteSession(struct mg_connection *nc);
         void install_API_GET_handler(std::string APIname, httpMethodHandler handler);
         void handle_API_GET_request(struct mg_connection *nc, http_message *hm, std::string handlerName);

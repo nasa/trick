@@ -10,8 +10,7 @@ LIBRARY DEPENDENCIES:
 #include "../include/WSSession.hh"
 #include "../include/simpleJSON.hh"
 
-WSsession::WSsession( struct mg_connection *nc ) {
-    connection = nc;
+WSsession::WSsession( struct mg_connection *nc ) : WebSocketSession(nc) {
     intervalTimeTics = exec_get_time_tic_value(); // Default time interval is one second.
     nextTime = LLONG_MAX;
     cyclicSendEnabled = false;
@@ -37,7 +36,7 @@ REF2* WSsession::make_error_ref(const char* in_name) {
 }
 
 #define MAX_MSG_SIZE 4096
-int WSsession::emitError(const char* fmt, ... ) {
+int WSsession::sendErrorMessage(const char* fmt, ... ) {
     char errText[MAX_MSG_SIZE];
     char msgText[MAX_MSG_SIZE];
     va_list args;
@@ -60,21 +59,21 @@ void WSsession::addVariable(char* vname){
     REF2 * new_ref ;
     new_ref = ref_attributes(vname);
     if ( new_ref == NULL ) {
-        emitError("Variable Server could not find variable %s.\n", vname);
+        sendErrorMessage("Variable Server could not find variable %s.\n", vname);
         new_ref = make_error_ref(vname);
     } else if ( new_ref->attr ) {
         if ( new_ref->attr->type == TRICK_STRUCTURED ) {
-            emitError("Variable Server: var_add cant add \"%s\" because its a composite variable.\n", vname);
+            sendErrorMessage("Variable Server: var_add cant add \"%s\" because its a composite variable.\n", vname);
             free(new_ref);
             new_ref = make_error_ref(vname);
 
         } else if ( new_ref->attr->type == TRICK_STL ) {
-            emitError("Variable Server: var_add cant add \"%s\" because its an STL variable.\n", vname);
+            sendErrorMessage("Variable Server: var_add cant add \"%s\" because its an STL variable.\n", vname);
             free(new_ref);
             new_ref = make_error_ref(vname);
         }
     } else {
-        emitError("Variable Server: BAD MOJO - Missing ATTRIBUTES.");
+        sendErrorMessage("Variable Server: BAD MOJO - Missing ATTRIBUTES.");
         free(new_ref);
         new_ref = make_error_ref(vname);
     }
@@ -174,7 +173,7 @@ int WSsession::handleMessage(std::string client_msg) {
      } else if ( strcmp(cmd, "var_exit") == 0 ) {
          //TODO
      } else {
-         emitError("Unknown Command: \"%s\".\n", cmd);
+         sendErrorMessage("Unknown Command: \"%s\".\n", cmd);
          status = 1;
      }
      return status;
