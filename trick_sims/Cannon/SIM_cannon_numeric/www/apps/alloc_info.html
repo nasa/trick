@@ -107,7 +107,7 @@ function updatePage(start, count) {
             updateHeader(allocData);
         }
     }
-    xhr.open('GET', `/api/v1/alloc_info?start=${start}&count=${count}`);
+    xhr.open('GET', `/api/http/alloc_info?start=${start}&count=${count}`);
     xhr.send(null);
 }
 
@@ -148,7 +148,7 @@ xhr.onreadystatechange = function() {
         updateHeader(allocData);
     }
 }
-xhr.open('GET', '/api/v1/alloc_info?start=0&count=10');
+xhr.open('GET', '/api/http/alloc_info?start=0&count=10');
 xhr.send(null);
 
 </script>

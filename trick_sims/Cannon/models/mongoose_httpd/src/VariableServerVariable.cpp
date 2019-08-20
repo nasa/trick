@@ -1,9 +1,9 @@
 #include "trick/memorymanager_c_intf.h" // for get_size.
-#include "../include/WSSessionVariable.hh"
+#include "../include/VariableServerVariable.hh"
 #include <math.h> // for fpclassify
 #include <iomanip> // for setprecision
 
-WSsessionVariable::WSsessionVariable(REF2 * ref ) {
+VariableServerVariable::VariableServerVariable(REF2 * ref ) {
     varInfo = ref;
     address = varInfo->address;
     size = varInfo->attr->size ;
@@ -41,12 +41,12 @@ WSsessionVariable::WSsessionVariable(REF2 * ref ) {
     stageBuffer = calloc(size, 1) ;
 }
 
-WSsessionVariable::~WSsessionVariable() {
+VariableServerVariable::~VariableServerVariable() {
     if (varInfo != NULL) free( varInfo );
 }
 
 
-const char* WSsessionVariable::getName() {
+const char* VariableServerVariable::getName() {
     return varInfo->reference;
 }
 
@@ -66,7 +66,7 @@ static void write_quoted_str( std::ostream& os, const char* s) {
     os << "\"" ;
 }
 
-void WSsessionVariable::stageValue() {
+void VariableServerVariable::stageValue() {
     // Copy <size> bytes from <address> to staging_point.
 
     if ( varInfo->attr->type == TRICK_STRING ) {
@@ -82,7 +82,7 @@ void WSsessionVariable::stageValue() {
     }
 }
 
-void WSsessionVariable::writeValue( std::ostream& outs ) {
+void VariableServerVariable::writeValue( std::ostream& outs ) {
 
     switch(varInfo->attr->type) {
         case TRICK_UNSIGNED_CHARACTER:

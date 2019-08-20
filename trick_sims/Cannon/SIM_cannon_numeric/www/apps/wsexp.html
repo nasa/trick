@@ -57,7 +57,7 @@
           }
 
           var varTable = document.querySelector('table.variables');
-          var ws = new WebSocket("ws://localhost:8888", "myProtocol");
+          var ws = new WebSocket("ws://localhost:8888/api/ws/VariableServer", "myProtocol");
 
           // WebSocket Event Handlers
           ws.onopen = function(e) {

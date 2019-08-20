@@ -1,7 +1,5 @@
 /*************************************************************************
-PURPOSE: (Represent Websocket variable server connection.)
-LIBRARY DEPENDENCIES:
-    ( (../src/WSSession.o))
+PURPOSE: (Represent Websocket connection.)
 **************************************************************************/
 #ifndef WEB_SOCKET_SESSION_HH
 #define WEB_SOCKET_SESSION_HH

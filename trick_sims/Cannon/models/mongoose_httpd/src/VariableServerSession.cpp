@@ -1,7 +1,9 @@
 /************************************************************************
 PURPOSE: (Represent the state and initial conditions of an http server)
 LIBRARY DEPENDENCIES:
-    ((simpleJSON.o))
+    ((simpleJSON.o)
+     (VariableServerVariable.o)
+    )
 **************************************************************************/
 #include <sstream>
 #include <iomanip> // for setprecision
@@ -81,14 +83,14 @@ void VariableServerSession::addVariable(char* vname){
     if ( new_ref != NULL ) {
         // This REF2 object will "belong" to the VariableServerSessionVariable, so it has
         // the right and responsibility to free() it in its destructor.
-        WSsessionVariable *sessionVariable = new WSsessionVariable( new_ref ) ;
+        VariableServerVariable *sessionVariable = new VariableServerVariable( new_ref ) ;
         sessionVariables.push_back( sessionVariable ) ;
     }
 }
 
 void VariableServerSession::stageVariableValues() {
     stageTime = (double)exec_get_time_tics() / exec_get_time_tic_value();
-    std::vector<WSsessionVariable*>::iterator it;
+    std::vector<VariableServerVariable*>::iterator it;
     for (it = sessionVariables.begin(); it != sessionVariables.end(); it++ ) {
         (*it)->stageValue();
     }
@@ -103,7 +105,7 @@ void VariableServerSession::stageData() {
 }
 
 void VariableServerSession::sendMessage() {
-    std::vector<WSsessionVariable*>::iterator it;
+    std::vector<VariableServerVariable*>::iterator it;
     std::stringstream ss;
 
     ss << "{ \"msg_type\" : \"values\",\n";
@@ -125,7 +127,7 @@ void VariableServerSession::pause()   { cyclicSendEnabled = false; }
 void VariableServerSession::unpause() { cyclicSendEnabled = true;  }
 
 void VariableServerSession::clear() {
-        std::vector<WSsessionVariable*>::iterator it;
+        std::vector<VariableServerVariable*>::iterator it;
         it = sessionVariables.begin();
         while (it != sessionVariables.end()) {
             delete *it;

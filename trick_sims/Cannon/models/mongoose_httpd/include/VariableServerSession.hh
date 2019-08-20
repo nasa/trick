@@ -1,7 +1,32 @@
 /*************************************************************************
 PURPOSE: (Represent Websocket variable server connection.)
 LIBRARY DEPENDENCIES:
-    ( (../src/WSSession.o))
+    ( (../src/VariableServerSession.o))
+
+
+    Messages sent from Client to Server
+    ================================
+    { "cmd" : "var_add",
+      "var_name" : <str>
+    }
+    { "cmd" : "var_pause" }
+    { "cmd" : "var_unpause" }
+    { "cmd" : "var_send" }
+    { "cmd" : "var_clear" }
+    { "cmd" : "var_exit" }
+    { "cmd" : "var_cycle",
+      "period" : <int>
+    }
+
+    Messages sent from Server to Client
+    =================================
+    { "msg_type" : "error",
+      "error_text" : <str>
+    }
+    { "msg_type" : "var_list"
+      "time" : <double>
+      "values" : []
+    }
 **************************************************************************/
 #ifndef WSSESSION_HH
 #define WSSESSION_HH
@@ -10,36 +35,32 @@ LIBRARY DEPENDENCIES:
 #include <string>
 #include <mongoose.h>
 #include "WebSocketSession.hh"
-#include "WSSessionVariable.hh"
+#include "VariableServerVariable.hh"
 
 class VariableServerSession : public WebSocketSession {
     public:
         VariableServerSession(struct mg_connection *nc);
+        void stageData();                                /* -- base */
+        void sendMessage();                              /* -- base */
+        int  handleMessage(std::string);                 /* -- base */
 
-        void stageData();                                /* -- virtual base */
-        void sendMessage();                              /* -- virtual base */
-        int  handleMessage(std::string);                 /* -- virtual base */
-
-        void setTimeInterval(unsigned int milliseconds); /* -- VariableServerSession specific */
-        void addVariable(char* vname);                   /* -- VariableServerSession specific */
-        void stageVariableValues();                      /* -- VariableServerSession specific */
-        void pause();                                    /* -- VariableServerSession specific */
-        void unpause();                                  /* -- VariableServerSession specific */
-        void clear();                                    /* -- VariableServerSession specific */
-        void exit();                                     /* -- VariableServerSession specific */
+        void setTimeInterval(unsigned int milliseconds);
+        void addVariable(char* vname);
+        void stageVariableValues();
+        void pause();
+        void unpause();
+        void clear();
+        void exit();
 
         static int bad_ref_int ;
 
     private:
         int sendErrorMessage(const char* fmt, ... );
-
-        //struct mg_connection* connection;                 /* -- Base */
-
-        REF2* make_error_ref(const char* in_name);        /* -- VariableServerSession specific */
-        double stageTime;                                 /* -- VariableServerSession specific */
-        std::vector<WSsessionVariable*> sessionVariables; /* -- VariableServerSession specific */
-        bool cyclicSendEnabled;                           /* -- VariableServerSession specific */
-        long long nextTime;                               /* -- VariableServerSession specific */
-        long long intervalTimeTics;                       /* -- VariableServerSession specific */
+        REF2* make_error_ref(const char* in_name);
+        double stageTime;
+        std::vector<VariableServerVariable*> sessionVariables;
+        bool cyclicSendEnabled;
+        long long nextTime;
+        long long intervalTimeTics;
 };
 #endif

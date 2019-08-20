@@ -1,10 +1,10 @@
 /*************************************************************************
 PURPOSE: (Represent Websocket variable server variable.)
 LIBRARY DEPENDENCIES:
-    ( (../src/WSSessionVariable.o))
+    ( (../src/VariableServerVariable.o))
 **************************************************************************/
-#ifndef WSSESSIONVARIABLE_HH
-#define WSSESSIONVARIABLE_HH
+#ifndef VARIABLE_SERVER_VARIABLE_HH
+#define VARIABLE_SERVER_VARIABLE_HH
 
 #include <time.h>
 #include <vector>
@@ -14,17 +14,17 @@ LIBRARY DEPENDENCIES:
 
 #define MAX_ARRAY_LENGTH 4096
 
-class WSsessionVariable {
+class VariableServerVariable {
 
     public:
-        WSsessionVariable( REF2* variableType);
-       ~WSsessionVariable();
+        VariableServerVariable( REF2* variableType);
+       ~VariableServerVariable();
         const char* getName();
         void stageValue();
         void writeValue( std::ostream& chkpnt_os );
 
     private:
-        WSsessionVariable() {}
+        VariableServerVariable() {}
         REF2 *varInfo;
         void *address;
         int   size;
