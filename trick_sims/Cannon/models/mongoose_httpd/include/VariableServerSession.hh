@@ -1,8 +1,5 @@
 /*************************************************************************
 PURPOSE: (Represent Websocket variable server connection.)
-LIBRARY DEPENDENCIES:
-    ( (../src/VariableServerSession.o))
-
 
     Messages sent from Client to Server
     ================================
@@ -16,6 +13,9 @@ LIBRARY DEPENDENCIES:
     { "cmd" : "var_exit" }
     { "cmd" : "var_cycle",
       "period" : <int>
+    }
+    { "cmd" : "python",
+      "pycode" : <str>
     }
 
     Messages sent from Server to Client

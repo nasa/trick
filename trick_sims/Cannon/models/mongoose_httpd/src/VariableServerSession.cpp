@@ -5,12 +5,15 @@ LIBRARY DEPENDENCIES:
      (VariableServerVariable.o)
     )
 **************************************************************************/
+#include <string>
 #include <sstream>
 #include <iomanip> // for setprecision
 #include "trick/memorymanager_c_intf.h"
+#include "trick/input_processor_proto.h"
 #include "trick/exec_proto.h"
 #include "../include/VariableServerSession.hh"
 #include "../include/simpleJSON.hh"
+
 
 // CONSTRUCTOR
 VariableServerSession::VariableServerSession( struct mg_connection *nc ) : WebSocketSession(nc) {
@@ -58,8 +61,9 @@ int VariableServerSession::handleMessage(std::string client_msg) {
      int status = 0;
      std::vector<Member*> members = parseJSON(client_msg.c_str());
      std::vector<Member*>::iterator it;
-     const char *cmd;
-     const char *var_name;
+     std::string cmd;
+     std::string var_name;
+     std::string pycode;
      int period;
 
      for (it = members.begin(); it != members.end(); it++ ) {
@@ -69,50 +73,41 @@ int VariableServerSession::handleMessage(std::string client_msg) {
              var_name = (*it)->valText;
          } else if (strcmp((*it)->key, "period") == 0) {
              period = atoi((*it)->valText);
+         } else if (strcmp((*it)->key, "pycode") == 0) {
+             pycode = (*it)->valText;
          }
      }
 
-     if (cmd == NULL) {
+     if (cmd.empty()) {
          printf ("No \"cmd\" member found in client message.\n");
          status = 1;
-     } else if (strcmp(cmd, "var_add") == 0) {
-         addVariable( strdup(var_name) );
-     } else if ( strcmp(cmd, "var_cycle") == 0 ) {
+     } else if (cmd == "var_add") {
+         addVariable( strdup( var_name.c_str()));
+     } else if (cmd == "var_cycle") {
          setTimeInterval(period);
-     } else if ( strcmp(cmd, "var_pause") == 0 ) {
+     } else if (cmd == "var_pause") {
          pause();
-     } else if ( strcmp(cmd, "var_unpause") == 0 ) {
+     } else if (cmd == "var_unpause") {
          unpause();
-     } else if ( strcmp(cmd, "var_send") == 0 ) {
+     } else if (cmd == "var_send") {
          stageVariableValues();
          sendMessage();
-     } else if ( strcmp(cmd, "var_clear") == 0 ) {
+     } else if (cmd == "var_clear") {
          clear();
-     } else if ( strcmp(cmd, "var_exit") == 0 ) {
+     } else if (cmd == "var_exit") {
          //TODO
          // nc->flags |= MG_F_SEND_AND_CLOSE;
+     } else if (cmd == "python") {
+         // Remove carriage-returns from pycode.
+         pycode.erase(std::remove(pycode.begin(), pycode.end(), '\r'), pycode.end());
+         // Call the Trick input processor.
+         ip_parse(pycode.c_str());
      } else {
-         sendErrorMessage("Unknown Command: \"%s\".\n", cmd);
+         sendErrorMessage("Unknown Command: \"%s\".\n", cmd.c_str());
          status = 1;
      }
      return status;
 }
-
-// #include "trick/input_processor_proto.h"
-// for( ii = 0 , jj = 0 ; ii <= msg_len ; ii++ ) {
-//     if ( incoming_msg[ii] != '\r' ) {
-//         stripped_msg[jj++] = incoming_msg[ii] ;
-//     }
-// }
-//
-// ip_parse(stripped_msg); /* returns 0 if no parsing error */
-
-
-// Remove characters from a string
-// str.erase(std::remove(str.begin(), str.end(), '\r'), str.end());
-
-
-
 
 void VariableServerSession::setTimeInterval(unsigned int milliseconds) {
     intervalTimeTics = exec_get_time_tic_value() * milliseconds / 1000;
