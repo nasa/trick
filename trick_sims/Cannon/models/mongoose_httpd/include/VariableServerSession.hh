@@ -28,6 +28,7 @@ LIBRARY DEPENDENCIES:
       "values" : []
     }
 **************************************************************************/
+
 #ifndef WSSESSION_HH
 #define WSSESSION_HH
 
@@ -40,6 +41,7 @@ LIBRARY DEPENDENCIES:
 class VariableServerSession : public WebSocketSession {
     public:
         VariableServerSession(struct mg_connection *nc);
+        ~VariableServerSession();
         void stageData();                                /* -- base */
         void sendMessage();                              /* -- base */
         int  handleMessage(std::string);                 /* -- base */

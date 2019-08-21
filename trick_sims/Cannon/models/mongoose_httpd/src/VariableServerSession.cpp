@@ -12,49 +12,110 @@ LIBRARY DEPENDENCIES:
 #include "../include/VariableServerSession.hh"
 #include "../include/simpleJSON.hh"
 
+// CONSTRUCTOR
 VariableServerSession::VariableServerSession( struct mg_connection *nc ) : WebSocketSession(nc) {
     intervalTimeTics = exec_get_time_tic_value(); // Default time interval is one second.
     nextTime = LLONG_MAX;
     cyclicSendEnabled = false;
 }
 
+// DESTRUCTOR
+VariableServerSession::~VariableServerSession() {
+    clear();
+}
+
+// Base class virtual function.
+void VariableServerSession::stageData() {
+    long long simulation_time_tics = exec_get_time_tics();
+    if ( cyclicSendEnabled && ( simulation_time_tics >= nextTime )) {
+        stageVariableValues();
+    }
+    nextTime = (simulation_time_tics - (simulation_time_tics % intervalTimeTics) + intervalTimeTics);
+}
+
+// Base class virtual function.
+void VariableServerSession::sendMessage() {
+    std::vector<VariableServerVariable*>::iterator it;
+    std::stringstream ss;
+
+    ss << "{ \"msg_type\" : \"values\",\n";
+    ss << "  \"time\" : " << std::setprecision(16) << stageTime << ",\n";
+    ss << "  \"values\" : [\n";
+
+    for (it = sessionVariables.begin(); it != sessionVariables.end(); it++ ) {
+        if (it != sessionVariables.begin()) ss << ",\n";
+        (*it)->writeValue(ss);
+     }
+     ss << "]}" << std::endl;
+    std::string tmp = ss.str();
+    const char * message = tmp.c_str();
+    mg_send_websocket_frame(connection, WEBSOCKET_OP_TEXT, message, strlen(message));
+}
+
+// Base class virtual function.
+int VariableServerSession::handleMessage(std::string client_msg) {
+
+     int status = 0;
+     std::vector<Member*> members = parseJSON(client_msg.c_str());
+     std::vector<Member*>::iterator it;
+     const char *cmd;
+     const char *var_name;
+     int period;
+
+     for (it = members.begin(); it != members.end(); it++ ) {
+         if (strcmp((*it)->key, "cmd") == 0) {
+             cmd = (*it)->valText;
+         } else if (strcmp((*it)->key, "var_name") == 0) {
+             var_name = (*it)->valText;
+         } else if (strcmp((*it)->key, "period") == 0) {
+             period = atoi((*it)->valText);
+         }
+     }
+
+     if (cmd == NULL) {
+         printf ("No \"cmd\" member found in client message.\n");
+         status = 1;
+     } else if (strcmp(cmd, "var_add") == 0) {
+         addVariable( strdup(var_name) );
+     } else if ( strcmp(cmd, "var_cycle") == 0 ) {
+         setTimeInterval(period);
+     } else if ( strcmp(cmd, "var_pause") == 0 ) {
+         pause();
+     } else if ( strcmp(cmd, "var_unpause") == 0 ) {
+         unpause();
+     } else if ( strcmp(cmd, "var_send") == 0 ) {
+         stageVariableValues();
+         sendMessage();
+     } else if ( strcmp(cmd, "var_clear") == 0 ) {
+         clear();
+     } else if ( strcmp(cmd, "var_exit") == 0 ) {
+         //TODO
+         // nc->flags |= MG_F_SEND_AND_CLOSE;
+     } else {
+         sendErrorMessage("Unknown Command: \"%s\".\n", cmd);
+         status = 1;
+     }
+     return status;
+}
+
+// #include "trick/input_processor_proto.h"
+// for( ii = 0 , jj = 0 ; ii <= msg_len ; ii++ ) {
+//     if ( incoming_msg[ii] != '\r' ) {
+//         stripped_msg[jj++] = incoming_msg[ii] ;
+//     }
+// }
+//
+// ip_parse(stripped_msg); /* returns 0 if no parsing error */
+
+
+// Remove characters from a string
+// str.erase(std::remove(str.begin(), str.end(), '\r'), str.end());
+
+
+
+
 void VariableServerSession::setTimeInterval(unsigned int milliseconds) {
     intervalTimeTics = exec_get_time_tic_value() * milliseconds / 1000;
-}
-
-int VariableServerSession::bad_ref_int = 0 ;
-
-REF2* VariableServerSession::make_error_ref(const char* in_name) {
-    REF2* new_ref;
-    new_ref = (REF2*)calloc(1, sizeof(REF2));
-    new_ref->reference = strdup(in_name) ;
-    new_ref->units = NULL ;
-    new_ref->address = (char *)&bad_ref_int ;
-    new_ref->attr = (ATTRIBUTES*)calloc(1, sizeof(ATTRIBUTES)) ;
-    new_ref->attr->type = TRICK_NUMBER_OF_TYPES ;
-    new_ref->attr->units = (char *)"--" ;
-    new_ref->attr->size = sizeof(int) ;
-    return new_ref;
-}
-
-#define MAX_MSG_SIZE 4096
-int VariableServerSession::sendErrorMessage(const char* fmt, ... ) {
-    char errText[MAX_MSG_SIZE];
-    char msgText[MAX_MSG_SIZE];
-    va_list args;
-
-    errText[0]=0;
-    msgText[0]=0;
-
-    va_start(args, fmt);
-    (void) vsnprintf(errText, MAX_MSG_SIZE, fmt, args);
-    va_end(args);
-
-    sprintf(msgText, "{ \"msg_type\" : \"error\",\n"
-                     "  \"error\" : \"%s\"}\n", errText);
-
-    mg_send_websocket_frame(connection, WEBSOCKET_OP_TEXT, msgText, strlen(msgText));
-    return (0);
 }
 
 void VariableServerSession::addVariable(char* vname){
@@ -96,32 +157,6 @@ void VariableServerSession::stageVariableValues() {
     }
 }
 
-void VariableServerSession::stageData() {
-    long long simulation_time_tics = exec_get_time_tics();
-    if ( cyclicSendEnabled && ( simulation_time_tics >= nextTime )) {
-        stageVariableValues();
-    }
-    nextTime = (simulation_time_tics - (simulation_time_tics % intervalTimeTics) + intervalTimeTics);
-}
-
-void VariableServerSession::sendMessage() {
-    std::vector<VariableServerVariable*>::iterator it;
-    std::stringstream ss;
-
-    ss << "{ \"msg_type\" : \"values\",\n";
-    ss << "  \"time\" : " << std::setprecision(16) << stageTime << ",\n";
-    ss << "  \"values\" : [\n";
-
-    for (it = sessionVariables.begin(); it != sessionVariables.end(); it++ ) {
-        if (it != sessionVariables.begin()) ss << ",\n";
-        (*it)->writeValue(ss);
-     }
-     ss << "]}" << std::endl;
-    std::string tmp = ss.str();
-    const char * message = tmp.c_str();
-    mg_send_websocket_frame(connection, WEBSOCKET_OP_TEXT, message, strlen(message));
-}
-
 void VariableServerSession::pause()   { cyclicSendEnabled = false; }
 
 void VariableServerSession::unpause() { cyclicSendEnabled = true;  }
@@ -137,46 +172,37 @@ void VariableServerSession::clear() {
 
 void VariableServerSession::exit() {}
 
-int VariableServerSession::handleMessage(std::string client_msg) {
+int VariableServerSession::bad_ref_int = 0 ;
 
-     int status = 0;
-     std::vector<Member*> members = parseJSON(client_msg.c_str());
-     std::vector<Member*>::iterator it;
-     const char *cmd;
-     const char *var_name;
-     int period;
+#define MAX_MSG_SIZE 4096
+int VariableServerSession::sendErrorMessage(const char* fmt, ... ) {
+    char errText[MAX_MSG_SIZE];
+    char msgText[MAX_MSG_SIZE];
+    va_list args;
 
-     for (it = members.begin(); it != members.end(); it++ ) {
-         if (strcmp((*it)->key, "cmd") == 0) {
-             cmd = (*it)->valText;
-         } else if (strcmp((*it)->key, "var_name") == 0) {
-             var_name = (*it)->valText;
-         } else if (strcmp((*it)->key, "period") == 0) {
-             period = atoi((*it)->valText);
-         }
-     }
+    errText[0]=0;
+    msgText[0]=0;
 
-     if (cmd == NULL) {
-         printf ("No \"cmd\" member found in client message.\n");
-         status = 1;
-     } else if (strcmp(cmd, "var_add") == 0) {
-         addVariable( strdup(var_name) );
-     } else if ( strcmp(cmd, "var_cycle") == 0 ) {
-         setTimeInterval(period);
-     } else if ( strcmp(cmd, "var_pause") == 0 ) {
-         pause();
-     } else if ( strcmp(cmd, "var_unpause") == 0 ) {
-         unpause();
-     } else if ( strcmp(cmd, "var_send") == 0 ) {
-         stageVariableValues();
-         sendMessage();
-     } else if ( strcmp(cmd, "var_clear") == 0 ) {
-         clear();
-     } else if ( strcmp(cmd, "var_exit") == 0 ) {
-         //TODO
-     } else {
-         sendErrorMessage("Unknown Command: \"%s\".\n", cmd);
-         status = 1;
-     }
-     return status;
+    va_start(args, fmt);
+    (void) vsnprintf(errText, MAX_MSG_SIZE, fmt, args);
+    va_end(args);
+
+    sprintf(msgText, "{ \"msg_type\" : \"error\",\n"
+                     "  \"error\" : \"%s\"}\n", errText);
+
+    mg_send_websocket_frame(connection, WEBSOCKET_OP_TEXT, msgText, strlen(msgText));
+    return (0);
+}
+
+REF2* VariableServerSession::make_error_ref(const char* in_name) {
+    REF2* new_ref;
+    new_ref = (REF2*)calloc(1, sizeof(REF2));
+    new_ref->reference = strdup(in_name) ;
+    new_ref->units = NULL ;
+    new_ref->address = (char *)&bad_ref_int ;
+    new_ref->attr = (ATTRIBUTES*)calloc(1, sizeof(ATTRIBUTES)) ;
+    new_ref->attr->type = TRICK_NUMBER_OF_TYPES ;
+    new_ref->attr->units = (char *)"--" ;
+    new_ref->attr->size = sizeof(int) ;
+    return new_ref;
 }

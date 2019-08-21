@@ -14,6 +14,7 @@ static const struct mg_str s_put_method = MG_MK_STR("PUT");
 static const struct mg_str s_delete_method = MG_MK_STR("DELETE");
 static const struct mg_str http_api_prefix = MG_MK_STR("/api/http/");
 static const struct mg_str ws_api_prefix = MG_MK_STR("/api/ws/");
+
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 
     http_message *hm = (struct http_message *)ev_data;
@@ -51,8 +52,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         } break;
         case MG_EV_POLL: {
            // The MG_EV_POLL event is sent to all connections for each invocation of mg_mgr_poll(),
-           // called periodically by the threaded function connectionAttendant() [below].
-           // Send websocket messages to the client (web browser).
+           // called periodically by the threaded function connectionAttendant() [below] when it is
+           // signaled (serviceConnections) from the http_top_of_frame job.
+           // This is when we send websocket messages to the client (web browser).
            if (nc->flags & MG_F_IS_WEBSOCKET) {
                httpServer->sendWebSocketSessionMessages(nc);
            }
@@ -99,12 +101,15 @@ static void* connectionAttendant (void* arg) {
     return NULL;
 }
 
+// Install a WebSocketSessionMaker with a name (key) by which it can be retrieved.
 void HTTP_Server::installWebSocketSessionMaker(std::string name, WebSocketSessionMaker maker) {
     pthread_mutex_lock(&WebSocketSessionMakerMapLock);
     WebSocketSessionMakerMap.insert(std::pair<std::string, WebSocketSessionMaker>(name, maker));
     pthread_mutex_unlock(&WebSocketSessionMakerMapLock);
 }
 
+// Lookup and call the WebSocketSessionMaker function by name, end execute it to create and return
+// (a pointer to) a WebSocketSession.
 WebSocketSession* HTTP_Server::makeWebSocketSession(struct mg_connection *nc, std::string name) {
     std::map<std::string, WebSocketSessionMaker>::iterator iter;
     iter = WebSocketSessionMakerMap.find(name);
@@ -117,12 +122,15 @@ WebSocketSession* HTTP_Server::makeWebSocketSession(struct mg_connection *nc, st
     }
 }
 
-void HTTP_Server::installHTTPGEThandler(std::string APIname, httpMethodHandler handler) {
+// Install an httpMethodHandler with a name (key) by which it can be retrieved.
+void HTTP_Server::installHTTPGEThandler(std::string handlerName, httpMethodHandler handler) {
     pthread_mutex_lock(&httpGETHandlerMapLock);
-    httpGETHandlerMap.insert(std::pair<std::string, httpMethodHandler>(APIname, handler));
+    httpGETHandlerMap.insert(std::pair<std::string, httpMethodHandler>(handlerName, handler));
     pthread_mutex_unlock(&httpGETHandlerMapLock);
 }
 
+// Lookup the appropriate httpMethodHandler by name, and execute it for the given connection
+// and http_message.
 void HTTP_Server::handleHTTPGETrequest(struct mg_connection *nc, http_message *hm, std::string handlerName) {
     std::map<std::string, httpMethodHandler>::iterator iter;
     iter = httpGETHandlerMap.find(handlerName);
@@ -134,9 +142,9 @@ void HTTP_Server::handleHTTPGETrequest(struct mg_connection *nc, http_message *h
     }
 }
 
+// Find the session that goes with the given websocket connection,
+// and tell it to send its values to the client (web browser).
 void HTTP_Server::sendWebSocketSessionMessages(struct mg_connection *nc) {
-    // Find the session that goes with the given websocket connection,
-    // and tell it to send its values to the client (web browser).
     std::map<mg_connection*, WebSocketSession*>::iterator iter;
     iter = sessionMap.find(nc);
     if (iter != sessionMap.end()) {
@@ -145,6 +153,8 @@ void HTTP_Server::sendWebSocketSessionMessages(struct mg_connection *nc) {
     }
 }
 
+// Delete the WebSocketSession associated with the given connection-pointer, and
+// erase its pointer from the sessionMap.
 void HTTP_Server::deleteWebSocketSession(struct mg_connection *nc) {
     std::map<mg_connection*, WebSocketSession*>::iterator iter;
     iter = sessionMap.find(nc);
@@ -154,6 +164,9 @@ void HTTP_Server::deleteWebSocketSession(struct mg_connection *nc) {
         sessionMap.erase(iter);
     }
 }
+
+// Lookup the WebSocketSession associated with the given connection-pointer, and pass
+// the given message to it.
 void HTTP_Server::handleWebSocketClientMessage(struct mg_connection *nc, std::string msg) {
     std::map<mg_connection*, WebSocketSession*>::iterator iter;
     iter = sessionMap.find(nc);
@@ -163,36 +176,40 @@ void HTTP_Server::handleWebSocketClientMessage(struct mg_connection *nc, std::st
     }
 }
 
+// Install a WebSocketSession with a connection-pointer (key) by which it can be retrieved.
 void HTTP_Server::addWebSocketSession(struct mg_connection *nc, WebSocketSession* session) {
     pthread_mutex_lock(&sessionMapLock);
     sessionMap.insert( std::pair<mg_connection*, WebSocketSession*>(nc, session) );
     pthread_mutex_unlock(&sessionMapLock);
 }
 
-// =========================================================================
-// Trick Sim Interface Functions
-// =========================================================================
-
-int HTTP_Server::http_default_data() {
-    port = "8888";
-    document_root = "www";
-    shutting_down = false;
-    return 0;
-}
-
+// WebSocketSessionMaker function for a VariableServerSession.
 static WebSocketSession* makeVariableServerSession( struct mg_connection *nc ) {
     return new VariableServerSession(nc);
 }
 
-int HTTP_Server::http_init() {
+// =========================================================================
+// Trick Sim Interface Functions
+// =========================================================================
 
-    http_server_options.document_root = document_root;
-    http_server_options.enable_directory_listing = "yes";
+// Trick "default_data" job.
+int HTTP_Server::http_default_data() {
+    port = "8888";
+    document_root = "www";
+    shutting_down = false;
 
     installHTTPGEThandler("vs_connections", &handle_HTTP_GET_vs_connections);
     installHTTPGEThandler("alloc_info", &handle_HTTP_GET_alloc_info);
     installWebSocketSessionMaker("VariableServer", &makeVariableServerSession);
     //installWebSocketSessionMaker("VariableServer", [](struct mg_connection *nc) -> WebSocketSession* { return new VariableServerSession(nc); } );
+    return 0;
+}
+
+// Trick "initialization" job.
+int HTTP_Server::http_init() {
+
+    http_server_options.document_root = document_root;
+    http_server_options.enable_directory_listing = "yes";
 
     mg_mgr_init( &mgr, NULL );
 
