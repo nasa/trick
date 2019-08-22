@@ -34,6 +34,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     nc->flags |= MG_F_SEND_AND_CLOSE;
                     std::cout << "ERROR: No such web socket interface: \"" << uri << "\"." << std::endl;
                 }
+            } else {
+                std::cout << "ERROR: WEBSOCKET_REQUEST URI does not start with API prefix."  << std::endl;
             }
         } break;
         case MG_EV_WEBSOCKET_FRAME: { // Process websocket messages from the client (web browser).
@@ -87,16 +89,17 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 static void* connectionAttendant (void* arg) {
    HTTP_Server *S = (HTTP_Server*)arg;
    while(1) {
-        pthread_mutex_lock(&S->sessionMapLock);
+        pthread_mutex_lock(&S->serviceLock);
         // Wait here until the serviceConnections condition is signaled by the top_of_frame job.
-        pthread_cond_wait(&S->serviceConnections, &S->sessionMapLock);
+        pthread_cond_wait(&S->serviceConnections, &S->serviceLock);
+
         if (S->shutting_down) {
-            pthread_mutex_unlock(&S->sessionMapLock);
+            pthread_mutex_unlock(&S->serviceLock);
             return NULL;
         } else {
             mg_mgr_poll(&S->mgr, 50);
         }
-        pthread_mutex_unlock(&S->sessionMapLock);
+        pthread_mutex_unlock(&S->serviceLock);
     }
     return NULL;
 }
@@ -180,6 +183,7 @@ void HTTP_Server::handleWebSocketClientMessage(struct mg_connection *nc, std::st
 void HTTP_Server::addWebSocketSession(struct mg_connection *nc, WebSocketSession* session) {
     pthread_mutex_lock(&sessionMapLock);
     sessionMap.insert( std::pair<mg_connection*, WebSocketSession*>(nc, session) );
+
     pthread_mutex_unlock(&sessionMapLock);
 }
 

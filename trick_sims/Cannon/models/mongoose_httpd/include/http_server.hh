@@ -30,6 +30,7 @@ class HTTP_Server {
         pthread_mutex_t WebSocketSessionMakerMapLock;                           /* ** */
         std::map<mg_connection*, WebSocketSession*> sessionMap;          /* ** */
         pthread_mutex_t sessionMapLock;                                  /* ** */
+        pthread_mutex_t serviceLock;                                     /* ** */
         struct mg_serve_http_opts http_server_options;                   /* ** mongoose*/
         struct mg_bind_opts bind_opts;                                   /* ** mongoose*/
         pthread_cond_t serviceConnections;                               /* ** */

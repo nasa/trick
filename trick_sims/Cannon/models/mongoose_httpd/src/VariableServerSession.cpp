@@ -8,6 +8,7 @@ LIBRARY DEPENDENCIES:
 #include <string>
 #include <sstream>
 #include <iomanip> // for setprecision
+#include <algorithm>
 #include "trick/memorymanager_c_intf.h"
 #include "trick/input_processor_proto.h"
 #include "trick/exec_proto.h"
