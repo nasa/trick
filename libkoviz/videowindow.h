@@ -1,11 +1,21 @@
 #ifndef VIDEOWINDOW_H
 #define VIDEOWINDOW_H
 
+#include <sstream>
+#include <stdexcept>
+
 #include <QMainWindow>
+#include <QtGlobal>
+#include <QFileDialog>
+#include <QStatusBar>
+#include <QMenuBar>
+#include <QMenu>
+#include <QGridLayout>
+#include <QApplication>
+#include <QTextEdit>
 
+#include <mpv/qthelper.hpp>
 #include <mpv/client.h>
-
-class QTextEdit;
 
 class VideoWindow : public QMainWindow
 {
@@ -18,7 +28,6 @@ public:
 
 private slots:
     void on_file_open();
-    void on_new_window();
     void on_mpv_events();
     void seek_time(double time);
 
@@ -29,9 +38,6 @@ signals:
 private:
     QWidget *mpv_container;
     mpv_handle *mpv;
-    QTextEdit *log;
-
-    void append_log(const QString &text);
 
     void create_player();
     void handle_mpv_event(mpv_event *event);
