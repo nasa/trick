@@ -35,7 +35,7 @@ VideoWindow::VideoWindow(QWidget *parent) :
     this->setFocusPolicy(Qt::StrongFocus);
     std::printf("Entering VideoWindow Constructor!\n");
     std::setlocale(LC_NUMERIC, "C");
-    setWindowTitle("Qt embedding demo Spoon Bill");
+    setWindowTitle("Koviz And MPV Video");
     setMinimumSize(640, 480);
 
     QMenu *menu = menuBar()->addMenu(tr("&File"));
@@ -45,12 +45,15 @@ VideoWindow::VideoWindow(QWidget *parent) :
     connect(on_open, &QAction::triggered, this, &VideoWindow::on_file_open);
     menu->addAction(on_open);
 
+    /*
     QAction *on_new = new QAction(tr("&New window"), this);
     connect(on_new, &QAction::triggered, this, &VideoWindow::on_new_window);
     menu->addAction(on_new);
+    */
 
     statusBar();
 
+    /*
     QMainWindow *log_window = new QMainWindow(this);
     log = new QTextEdit(log_window);
     log->setReadOnly(true);
@@ -58,6 +61,7 @@ VideoWindow::VideoWindow(QWidget *parent) :
     log_window->setWindowTitle("mpv log window EKS DEEEEEEE Spoonbill");
     log_window->setMinimumSize(500, 50);
     log_window->show();
+    */
 
     mpv = mpv_create();
     if (!mpv)
@@ -218,10 +222,12 @@ void VideoWindow::on_new_window()
 
 void VideoWindow::append_log(const QString &text)
 {
+    /*
     QTextCursor cursor = log->textCursor();
     cursor.movePosition(QTextCursor::End);
     cursor.insertText(text);
     log->setTextCursor(cursor);
+    */
 }
 
 VideoWindow::~VideoWindow()
