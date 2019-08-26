@@ -24,16 +24,16 @@ class HTTP_Server {
         pthread_t server_thread;         /* ** */
         bool shutting_down;
 
-        std::map< std::string, httpMethodHandler> httpGETHandlerMap;     /* ** */
-        pthread_mutex_t httpGETHandlerMapLock;                           /* ** */
+        std::map< std::string, httpMethodHandler> httpGETHandlerMap;            /* ** */
+        pthread_mutex_t httpGETHandlerMapLock;                                  /* ** */
         std::map< std::string, WebSocketSessionMaker> WebSocketSessionMakerMap; /* ** */
         pthread_mutex_t WebSocketSessionMakerMapLock;                           /* ** */
-        std::map<mg_connection*, WebSocketSession*> sessionMap;          /* ** */
-        pthread_mutex_t sessionMapLock;                                  /* ** */
-        pthread_mutex_t serviceLock;                                     /* ** */
-        struct mg_serve_http_opts http_server_options;                   /* ** mongoose*/
-        struct mg_bind_opts bind_opts;                                   /* ** mongoose*/
-        pthread_cond_t serviceConnections;                               /* ** */
+        std::map<mg_connection*, WebSocketSession*> sessionMap;                 /* ** */
+        pthread_mutex_t sessionMapLock;                                         /* ** */
+        pthread_mutex_t serviceLock;                                            /* ** */
+        struct mg_serve_http_opts http_server_options;                          /* ** mongoose*/
+        struct mg_bind_opts bind_opts;                                          /* ** mongoose*/
+        pthread_cond_t serviceConnections;                                      /* ** */
 
         // Trick Job-functions
         int http_default_data();
@@ -41,10 +41,10 @@ class HTTP_Server {
         int http_top_of_frame();
         int http_shutdown();
 
-        void installWebSocketSessionMaker(std::string name, WebSocketSessionMaker creater);
-        void installHTTPGEThandler(std::string APIname, httpMethodHandler handler);
+        void installWebSocketSessionMaker(std::string name, WebSocketSessionMaker maker);
+        void installHTTPGEThandler(std::string handlerName, httpMethodHandler handler);
 
-        // These are internals and should be considered public. They are not private only
+        // These are internals, and should be considered public. They are not private only
         // because they need to be callable from the servers event handler.
         void sendWebSocketSessionMessages(struct mg_connection *nc);
         void handleWebSocketClientMessage(struct mg_connection *nc, std::string msg);

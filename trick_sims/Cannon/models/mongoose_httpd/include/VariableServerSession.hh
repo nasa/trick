@@ -1,5 +1,5 @@
 /*************************************************************************
-PURPOSE: (Represent Websocket variable server connection.)
+PURPOSE: (Represent the state of a variable server websocket connection.)
 
     Messages sent from Client to Server
     ================================

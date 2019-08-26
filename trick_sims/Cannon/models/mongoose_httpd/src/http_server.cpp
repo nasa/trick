@@ -125,7 +125,7 @@ WebSocketSession* HTTP_Server::makeWebSocketSession(struct mg_connection *nc, st
     }
 }
 
-// Install an httpMethodHandler with a name (key) by which it can be retrieved.
+// Install an httpMethodHandler with a name, the key by which it can be retrieved.
 void HTTP_Server::installHTTPGEThandler(std::string handlerName, httpMethodHandler handler) {
     pthread_mutex_lock(&httpGETHandlerMapLock);
     httpGETHandlerMap.insert(std::pair<std::string, httpMethodHandler>(handlerName, handler));
@@ -179,7 +179,7 @@ void HTTP_Server::handleWebSocketClientMessage(struct mg_connection *nc, std::st
     }
 }
 
-// Install a WebSocketSession with a connection-pointer (key) by which it can be retrieved.
+// Install a WebSocketSession with a connection-pointer, the key by which it can be retrieved.
 void HTTP_Server::addWebSocketSession(struct mg_connection *nc, WebSocketSession* session) {
     pthread_mutex_lock(&sessionMapLock);
     sessionMap.insert( std::pair<mg_connection*, WebSocketSession*>(nc, session) );
