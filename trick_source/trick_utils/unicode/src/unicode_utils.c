@@ -212,11 +212,11 @@ size_t unescape_to_utf8(const char *in, char *out, size_t outSize) {
         switch(state) {
             case 0: { // Normal State
                 if (ch >= 0xf0) {        // Start of a 4-byte UTF-8 sequence.
-                    if (out != NULL) out[out_len] = ch; out_len++; state = 3;
+                    if (out != NULL) { out[out_len] = ch; } out_len++; state = 3;
                 } else if (ch >= 0xe0) { // Start of a 3-byte UTF-8 sequence.
-                    if (out != NULL) out[out_len] = ch; out_len++; state = 4;
+                    if (out != NULL) { out[out_len] = ch; } out_len++; state = 4;
                 } else if (ch >= 0xc0) { // Start of a 2-byte UTF-8 sequence.
-                    if (out != NULL) out[out_len] = ch; out_len++; state = 5;
+                    if (out != NULL) { out[out_len] = ch; } out_len++; state = 5;
                 } else if (ch >= 0x80) { // We should never find a UTF-8 continuation byte in isolation.
                     fprintf(stderr,"%s:ERROR: Input string (in) appears to be corrupted.\n", __FUNCTION__);
                     state = ERROR_STATE;
@@ -232,14 +232,14 @@ size_t unescape_to_utf8(const char *in, char *out, size_t outSize) {
                     case '\'':
                     case '\"':
                     case '\?':
-                    case '\\': { if (out != NULL) out[out_len] = ch; out_len++; state = 0; } break;
-                    case 'a': { if (out != NULL) out[out_len] = '\a'; out_len++; state = 0; } break;
-                    case 'b': { if (out != NULL) out[out_len] = '\b'; out_len++; state = 0; } break;
-                    case 'f': { if (out != NULL) out[out_len] = '\f'; out_len++; state = 0; } break;
-                    case 'n': { if (out != NULL) out[out_len] = '\n'; out_len++; state = 0; } break;
-                    case 'r': { if (out != NULL) out[out_len] = '\r'; out_len++; state = 0; } break;
-                    case 't': { if (out != NULL) out[out_len] = '\t'; out_len++; state = 0; } break;
-                    case 'v': { if (out != NULL) out[out_len] = '\b'; out_len++; state = 0; } break;
+                    case '\\': { if (out != NULL) { out[out_len] = ch; } out_len++; state = 0; } break;
+                    case 'a': { if (out != NULL) { out[out_len] = '\a'; } out_len++; state = 0; } break;
+                    case 'b': { if (out != NULL) { out[out_len] = '\b'; } out_len++; state = 0; } break;
+                    case 'f': { if (out != NULL) { out[out_len] = '\f'; } out_len++; state = 0; } break;
+                    case 'n': { if (out != NULL) { out[out_len] = '\n'; } out_len++; state = 0; } break;
+                    case 'r': { if (out != NULL) { out[out_len] = '\r'; } out_len++; state = 0; } break;
+                    case 't': { if (out != NULL) { out[out_len] = '\t'; } out_len++; state = 0; } break;
+                    case 'v': { if (out != NULL) { out[out_len] = '\b'; } out_len++; state = 0; } break;
                     case 'x': { digitsExpected = 2; state = 2; } break;
                     case 'u': { digitsExpected = 4; state = 2; } break;
                     case 'U': { digitsExpected = 8; state = 2; } break;
@@ -284,7 +284,7 @@ size_t unescape_to_utf8(const char *in, char *out, size_t outSize) {
 
             case 3: { /* Expecting 3 UTF-8 continuation bytes. */
                 if ((ch & 0xc0) == 0x80) {
-                    if (out != NULL) out[out_len] = ch; out_len++; state = 4;
+                    if (out != NULL) { out[out_len] = ch; } out_len++; state = 4;
                 } else {
                     fprintf(stderr,"%s:ERROR: Input (in) appears to be corrupted.\n", __FUNCTION__);
                     state = ERROR_STATE;
@@ -293,7 +293,7 @@ size_t unescape_to_utf8(const char *in, char *out, size_t outSize) {
 
             case 4: { /* Expecting 2 UTF-8 continuation bytes. */
                 if ((ch & 0xc0) == 0x80) {
-                    if (out != NULL) out[out_len] = ch; out_len++; state = 5;
+                    if (out != NULL) { out[out_len] = ch; } out_len++; state = 5;
                 } else {
                     fprintf(stderr,"%s:ERROR: Input (in) appears to be corrupted.\n", __FUNCTION__);
                     state = ERROR_STATE;
@@ -302,7 +302,7 @@ size_t unescape_to_utf8(const char *in, char *out, size_t outSize) {
 
             case 5: { /* Expecting 1 UTF-8 continuation byte. */
                 if ((ch & 0xc0) == 0x80) {
-                    if (out != NULL) out[out_len] = ch; out_len++; state = 0;
+                    if (out != NULL) { out[out_len] = ch; } out_len++; state = 0;
                 } else {
                     fprintf(stderr,"%s:ERROR: Input (in) appears to be corrupted.\n", __FUNCTION__);
                     state = ERROR_STATE;
