@@ -316,6 +316,17 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     map.insert(QPair<QString,QString>("N*m","oz*in"),    0.00706155195);
     map.insert(QPair<QString,QString>("N*m","N*cm"),     0.01);
 
+    // Linear Impulse
+    map.insert(QPair<QString,QString>("N*s","N*s"),     1.0);
+    map.insert(QPair<QString,QString>("N*s","kg*m/s"),  1.0);
+    map.insert(QPair<QString,QString>("N*s","kg*M/s"),  1.0);
+
+    // Angular Impulse
+    map.insert(QPair<QString,QString>("N*m*s","N*m*s"),    1.0);
+    map.insert(QPair<QString,QString>("N*m*s","N*M*s"),    1.0);
+    map.insert(QPair<QString,QString>("N*m*s","kg*m2/s"),  1.0);
+    map.insert(QPair<QString,QString>("N*m*s","kg*M2/s"),  1.0);
+
     // Pressure
     map.insert(QPair<QString,QString>("N/m2","N/m2"),      1.0);
     map.insert(QPair<QString,QString>("N/m2","Pa"),        1.0);
