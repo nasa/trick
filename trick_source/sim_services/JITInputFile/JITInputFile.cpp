@@ -157,8 +157,8 @@ int Trick::JITInputFile::compile(std::string file_name) {
 
     // If the compilation was unsuccessful, exec_terminate
     if ( ret != 0 ) {
-        std::string error_message = "JITInputfile shared library creation failed" ;
-        exec_terminate_with_return(-1 , __FILE__ , __LINE__ , error_message.c_str() ) ;
+        std::string error_message = "JITInputfile shared library creation failed. ret:" + std::to_string(ret) + " errno:"+ strerror(errno);
+        exec_terminate_with_return(-1 , __FILE__ , __LINE__ , error_message.c_str()) ;
     }
 
     // The library compile successfully.  Add library name to map
