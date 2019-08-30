@@ -97,7 +97,7 @@ static void* connectionAttendant (void* arg) {
             pthread_mutex_unlock(&S->serviceLock);
             return NULL;
         } else {
-            mg_mgr_poll(&S->mgr, 50);
+            while(mg_mgr_poll(&S->mgr, 50));
         }
         pthread_mutex_unlock(&S->serviceLock);
     }
