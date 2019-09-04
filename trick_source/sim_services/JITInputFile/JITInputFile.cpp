@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cstring>
 #include <string>
 
 #include <string.h>
@@ -157,8 +158,9 @@ int Trick::JITInputFile::compile(std::string file_name) {
 
     // If the compilation was unsuccessful, exec_terminate
     if ( ret != 0 ) {
-        std::string error_message = "JITInputfile shared library creation failed. ret:" + std::to_string(ret) + " errno:"+ strerror(errno);
-        exec_terminate_with_return(-1 , __FILE__ , __LINE__ , error_message.c_str()) ;
+        std::string error_message = std::string("JITInputFile shared library creation failed: ")
+                                  + std::strerror(errno);
+        exec_terminate_with_return(-1 , __FILE__ , __LINE__ , error_message.c_str());
     }
 
     // The library compile successfully.  Add library name to map
@@ -181,9 +183,6 @@ int Trick::JITInputFile::compile(std::string file_name) {
 -# Call the function
 */
 int Trick::JITInputFile::run(std::string file_name , std::string run_function ) {
-    int (*call_me)(void) = NULL ;
-    int ret = 0 ;
-
     // Check if we have compiled this library yet.
     if ( file_to_libinfo_map.find(file_name) == file_to_libinfo_map.end() ) {
         // If we have not compiled the library then exec_terminate
@@ -203,16 +202,13 @@ int Trick::JITInputFile::run(std::string file_name , std::string run_function ) 
     }
 
     // Look up the symbol name
-    call_me = (int (*)(void))dlsym( li.handle , run_function.c_str()) ;
+    int (*call_me)(void) = (int (*)(void))dlsym( li.handle , run_function.c_str()) ;
     if ( call_me == NULL ) {
         std::string error_message = "JITInputfile could not find function " + run_function ;
-        exec_terminate_with_return(-1 , __FILE__ , __LINE__ , error_message.c_str() ) ;
+        return exec_terminate_with_return(-1 , __FILE__ , __LINE__ , error_message.c_str() ) ;
     } else {
-    // We found the function, call it!
-    ret = (*call_me)() ;
-
-    return ret ;
-
+        // We found the function, call it!
+        return (*call_me)() ;
     }
 }
 
