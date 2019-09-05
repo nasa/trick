@@ -965,6 +965,11 @@ void PlotMainWindow::_saveSession()
             out << "filter:" << _filterPattern << "\n";
         }
 
+        // Time match tolerance
+        double tmt = _bookModel->getDataDouble(QModelIndex(),
+                                               "TimeMatchTolerance","");
+        out << "time_match_tolerance:" << tmt << "\n";
+
         // Legend/Curve Colors
         QModelIndex clrIdx = _bookModel->getIndex(QModelIndex(),
                                                   "LegendColors","");

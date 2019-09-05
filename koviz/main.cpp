@@ -133,6 +133,7 @@ class SnapOptions : public Options
     QString scripts;
     QString excludePattern;
     QString filterPattern;
+    double  timeMatchTolerance;
 };
 
 SnapOptions opts;
@@ -235,6 +236,8 @@ int main(int argc, char *argv[])
              "exclude pattern to filter out RUNs and/or log files");
     opts.add("-filter",&opts.filterPattern,"",
              "filter pattern to filter for RUNs and/or log files");
+    opts.add("-tmt", &opts.timeMatchTolerance, DBL_MAX,
+             "time match tolerance for error plots");
 
     opts.parse(argc,argv, QString("koviz"), &ok);
 
@@ -720,9 +723,13 @@ int main(int argc, char *argv[])
         }
 
         // Time match tolerance
-        double tolerance = 0.000001;
-        if ( session ) {
-            tolerance = session->timeMatchTolerance();
+        double tolerance = opts.timeMatchTolerance;
+        if ( tolerance == DBL_MAX ) {
+            if ( session ) {
+                tolerance = session->timeMatchTolerance();
+            } else {
+                tolerance = 0.0000001;  // 10th of a microsecond
+            }
         }
 
         // Frequency

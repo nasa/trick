@@ -37,6 +37,10 @@ class Runs
                       const QString& tName,
                       const QString& xName,
                       const QString& yName) const;
+    CurveModel* curveModel(const QString& rundir,
+                      const QString& tName,
+                      const QString& xName,
+                      const QString& yName) const;
 
     static QStringList abbreviateRunNames(const QStringList& runNames);
     static QString commonPrefix(const QStringList &names, const QString &sep);
@@ -56,8 +60,11 @@ class Runs
     QStringList _params;
     QHash<QString,QList<DataModel*>* > _paramToModels;
     QList<DataModel*> _models;
+    QHash<QString,int> _rundir2row;
 
     void _init();
+    DataModel* _paramModel(const QString& param, const QString &run) const;
+    int _paramColumn(DataModel* model, const QString& param) const;
 
     static QString _err_string;
     static QTextStream _err_stream;
