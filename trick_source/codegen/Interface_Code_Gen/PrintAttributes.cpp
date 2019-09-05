@@ -262,8 +262,8 @@ void PrintAttributes::printEnum(EnumValues* ev) {
         printer->printEnum(outfile, ev) ;
         outfile.close() ;
     }
-
-    if (!isHeaderExcluded(fileName), false) {
+    
+    if (!isHeaderExcluded(fileName, false)) {
          printer->printEnumMap(enum_map_outfile, ev);
     }
 }
