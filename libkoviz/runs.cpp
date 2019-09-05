@@ -211,6 +211,13 @@ void Runs::_init()
             _paramToModels.value(p)->append(m);
         }
     }
+    int row = 0;
+    foreach ( QString run, _runDirs ) {
+        QDir rundir(run);
+        QString fullrundir = rundir.absolutePath();
+        _rundir2row.insert(fullrundir,row);
+        ++row;
+    }
 }
 
 CurveModel* Runs::curveModel(int row,
@@ -218,177 +225,28 @@ CurveModel* Runs::curveModel(int row,
                         const QString &xName,
                         const QString &yName) const
 {
+    return curveModel(_runDirs.at(row),tName,xName,yName);
+}
+
+CurveModel* Runs::curveModel(const QString& rundir,
+                        const QString &t,
+                        const QString &x,
+                        const QString &y) const
+{
     CurveModel* curveModel = 0;
 
-    QString runDir = QFileInfo(_runDirs.at(row)).absoluteFilePath();
+    DataModel* model = _paramModel(y,rundir);
+    int tcol = _paramColumn(model,t) ;
+    int xcol = _paramColumn(model,x) ;
+    int ycol = _paramColumn(model,y) ;
 
-    QString t = tName;
-    QString x = xName;
-    QString y = yName;
-
-    QList<DataModel*>* models = 0;
-
-    if ( tName.contains(':') || xName.contains(':') || yName.contains(':') ) {
-        QString varName;
-        if ( tName.contains(':') ) {
-            varName = tName;
-        } else if ( xName.contains(':') ) {
-            varName = xName;
-        } else {
-            varName = yName;
-        }
-        fprintf(stderr, "koviz [error]: var=%s contains a colon.\n"
-                "The RUN:var syntax has been superceded by use of koviz maps.  "
-                "See the \"Maps\" section of the User's Guide for info.\n",
-                varName.toLatin1().constData());
-        exit(-1);
-    }
-
-    if ( _paramToModels.value(y) ) {
-        if ( _paramToModels.value(y)->at(row)->paramColumn(y) >= 0 ) {
-            models = _paramToModels.value(y);
-        }
-    }
-
-    if ( models == 0 ) {
-        if ( _varMap.contains(y) ) {
-            QList<DataModel*>* mdls = _paramToModels.value(y);
-            if ( mdls ) {
-                QStringList names;
-                foreach (QString val, _varMap.value(y)) {
-                    MapValue mapval(val);
-                    names.append(mapval.name());
-                }
-                foreach ( QString yval, names ) {
-                    if ( yval.contains(':') ) {
-                        QStringList l = yval.split(':');
-                        QString run = QFileInfo(l.at(0).trimmed()).
-                                                        absoluteFilePath();
-                        if ( run == runDir ) {
-                            int ycol = mdls->at(row)->
-                                             paramColumn(l.at(1).trimmed());
-                            if ( ycol >= 0 ) {
-                                models = mdls;
-                                y = l.at(1).trimmed();
-                                break;
-                            }
-                        }
-                    } else {
-                        if ( mdls->at(row)->paramColumn(yval) >= 0 ) {
-                            models = mdls;
-                            y = yval;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    if ( models == 0 ) {
-        return 0;
-    }
-
-    DataModel* tm = models->at(row);
-    if ( !tm ) {
-        return 0;
-    }
-
-    int tcol = tm->paramColumn(t) ;
-    if ( tcol < 0 ) {
-        if ( _varMap.contains(t) ) {
-            foreach ( QString tval, _varMap.value(t) ) {
-                if ( tval.contains(':') ) {
-                    QStringList l = tval.split(':');
-                    QString run=QFileInfo(l.at(0).trimmed()).absoluteFilePath();
-                    if ( run == runDir ) {
-                        tcol = tm->paramColumn(l.at(1).trimmed());
-                        if ( tcol >= 0 ) {
-                            t = l.at(1).trimmed();
-                            break;
-                        }
-                    }
-                } else {
-                    tcol = tm->paramColumn(tval);
-                    if ( tcol >= 0 ) {
-                        t = tval;
-                        break;
-                    }
-                }
-            }
-        }
-        if ( tcol < 0 ) {
-            foreach (QString timeName, _timeNames ) {
-                tcol = tm->paramColumn(timeName);
-                if ( tcol >= 0 ) {
-                    t = timeName;
-                    break;
-                }
-            }
-            if ( tcol < 0 ) {
-                return 0;
-            }
-        }
-    }
-
-    int ycol = tm->paramColumn(y) ;
-    if ( ycol < 0 ) {
-        return 0;
-    }
-
-    QString xp = x;
-    if ( xp.isEmpty() ) {
-        xp = t;
-    }
-    int xcol = tm->paramColumn(xp) ;
-    if ( xcol < 0 ) {
-        if ( _varMap.contains(xp) ) {
-            QStringList names;
-            foreach (QString val, _varMap.value(xp)) {
-                MapValue mapval(val);
-                names.append(mapval.name());
-            }
-            foreach ( QString xval, names ) {
-                if ( xval.contains(':') ) {
-                    QStringList l = xval.split(':');
-                    QString run=QFileInfo(l.at(0).trimmed()).absoluteFilePath();
-                    if ( run == runDir ) {
-                        xcol = tm->paramColumn(l.at(1).trimmed());
-                        if ( xcol >= 0 ) {
-                            break;
-                        }
-                    }
-                } else {
-                    xcol = tm->paramColumn(xval);
-                    if ( xcol >= 0 ) {
-                        xp = xval;
-                        break;
-                    }
-                }
-            }
-        }
-        if ( xcol < 0 ) {
-            if ( _timeNames.contains(xp) ) {
-                foreach ( QString timeName, _timeNames ) {
-                    xcol = tm->paramColumn(timeName);
-                    if ( xcol >= 0 ) {
-                        break;
-                    }
-                }
-            }
-            if ( xcol < 0 ) {
-                return 0;
-            }
-        }
-    }
-
-    curveModel = new CurveModel(tm,tcol,xcol,ycol);
+    curveModel = new CurveModel(model,tcol,xcol,ycol);
 
     // Mapfile unit, bias and scales
     foreach (QString key, _varMap.keys() ) {
         foreach (QString val, _varMap.value(key)) {
             MapValue mapval(val);
-            if ( mapval.name() == xp ) {
+            if ( mapval.name() == curveModel->x()->name() ) {
                 if ( !mapval.unit().isEmpty() ) {
                     curveModel->x()->setUnit(mapval.unit());
                 }
@@ -399,20 +257,106 @@ CurveModel* Runs::curveModel(int row,
                     curveModel->x()->setScale(mapval.scale());
                 }
 
-            } else if ( mapval.name() == y ) {
+            } else if ( mapval.name() == curveModel->y()->name() ) {
                 if ( !mapval.unit().isEmpty() ) {
                     curveModel->y()->setUnit(mapval.unit());
                 }
                 if ( mapval.bias() != 0.0 ) {
                     curveModel->y()->setBias(mapval.bias());
                 }
+
                 if ( mapval.scale() != 1.0 ) {
                     curveModel->y()->setScale(mapval.scale());
                 }
             }
         }
     }
+
     return curveModel;
+}
+
+DataModel* Runs::_paramModel(const QString &param, const QString& run) const
+{
+    DataModel* model = 0;
+    QDir rundir(run);
+    QString frundir = rundir.absolutePath();
+    int row = _rundir2row.value(frundir);
+    QList<DataModel*>* models = _paramToModels.value(param);
+    if ( !models ) {
+        // Look in varmap for param (case when DP does not use map key for var)
+        foreach (QString key, _varMap.keys()) {
+            QStringList names;
+            foreach (QString val, _varMap.value(key)) {
+                MapValue mapval(val);
+                names.append(mapval.name());
+            }
+            if ( names.contains(param) ) {
+                models = _paramToModels.value(key);
+                break;
+            }
+        }
+    }
+    if ( !models ) {
+        fprintf(stderr, "koviz [error]: Problem with var=%s.\n"
+                "  Possible reasons:\n"
+                "   1. The var dne in run=%s\n"
+                "   2. The var is being coplotted and dne in all the runs "
+                "and therefore needs to be mapped\n"
+                "   3. The var is not mapped properly\n",
+                param.toLatin1().constData(),
+                frundir.toLatin1().constData());
+        exit(-1);
+    }
+    model = models->at(row);
+    return model;
+}
+
+
+int Runs::_paramColumn(DataModel* model, const QString &param) const
+{
+    int col = -1;
+    col = model->paramColumn(param) ;
+    if ( col < 0 ) {
+        // Search for param in _varMap keys and values
+        foreach (QString key, _varMap.keys()) {
+            QStringList names;
+            names.append(key);
+            foreach (QString val, _varMap.value(key)) {
+                MapValue mapval(val);
+                names.append(mapval.name());
+            }
+            if ( names.contains(param) ) {
+                foreach (QString name, names ) {
+                    col = model->paramColumn(name);
+                    if ( col >= 0 ) {
+                        break;
+                    }
+                }
+                if ( col >= 0 ) {
+                    break;
+                }
+            }
+        }
+    }
+    if ( col < 0 ) {
+        // Search for param in timeNames
+        foreach (QString timeName, _timeNames ) {
+            col = model->paramColumn(timeName);
+            if ( col >= 0 ) {
+                break;
+            }
+        }
+    }
+    if ( col < 0 ) {
+        fprintf(stderr, "koviz [error]: Could not find:\n"
+                        "         variable=%s\n"
+                        "         in file=%s\n",
+                param.toLatin1().constData(),
+                model->fileName().toLatin1().constData());
+        exit(-1);
+    }
+
+    return col;
 }
 
 // Example1:
