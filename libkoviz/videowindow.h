@@ -26,7 +26,7 @@ public:
     ~VideoWindow();
     bool focussed;
 
-private slots:
+public slots:
     void on_file_open();
     void on_mpv_events();
     void seek_time(double time);

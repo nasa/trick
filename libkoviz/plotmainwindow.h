@@ -24,6 +24,7 @@
 #include <QDate>
 #include <QSettings>
 #include <QProcess>
+#include <QTcpSocket>
 
 #include "monte.h"
 #include "dp.h"
@@ -140,6 +141,8 @@ private:
     TimeCom* bviscom;
 
     VideoWindow* vidView;
+    QTcpSocket* _vsSocket ;
+
 
 private slots:
      void _nbCurrentChanged(int i);
@@ -168,6 +171,7 @@ private slots:
 
      void setTimeFromVideo(double time);
      void _scriptError(QProcess::ProcessError error);
+     void _vsRead();
 };
 
 #endif // PLOTMAINWINDOW_H

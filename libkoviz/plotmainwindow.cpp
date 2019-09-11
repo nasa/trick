@@ -262,6 +262,24 @@ PlotMainWindow::PlotMainWindow(
             _timeInput,
             SLOT(_slotDataChanged(QModelIndex,QModelIndex,QVector<int>)));
 
+    /*
+     * Keith, uncomment out the cleanup code in ~PlotMainWindow too
+     * Also, the port is hard-coded to 7777, so fix that
+     * To run with the ball2 sim, add the following to the input file:
+     * trick.var_server_set_port(7777)
+     *
+    _vsSocket = new QTcpSocket();
+    connect(_vsSocket,SIGNAL(readyRead()),
+            this,SLOT(_vsRead()));
+    _vsSocket->connectToHost("127.0.0.1",7777);
+    if (_vsSocket->waitForConnected(500)) {
+        fprintf(stderr,"Connected To The Trick Variable Server!\n");
+    } else {
+        fprintf(stderr, "TimedOut\n");
+        exit(-1);
+    }
+    _vsSocket->write("trick.var_add(\"trick_sys.sched.time_tics\")\n");
+    */
 
     // creating bviscom to send commands to bvis
     bviscom = new TimeCom(0);
@@ -317,6 +335,10 @@ void PlotMainWindow::setTimeFromVideo(double time) {
 PlotMainWindow::~PlotMainWindow()
 {
     delete _bookModel;
+    /*
+    _vsSocket->close();
+    delete _vsSocket;
+    */
 }
 
 void PlotMainWindow::createMenu()
@@ -1581,4 +1603,19 @@ QModelIndex PlotMainWindow::_currCurveIdx()
     }
 
     return curveIdx;
+}
+
+void PlotMainWindow::_vsRead()
+{
+    QByteArray bytes = _vsSocket->readLine();
+    QString msg(bytes);
+    QStringList fields = msg.split('\t');
+    double time = fields.at(1).toDouble()/1.0e6;
+    fprintf(stderr, "msg=\"%s\" time=%g\n", msg.toLatin1().constData(), time);
+
+    static double lasttime = -1.0;
+    if ( time != lasttime ) {
+        vidView->seek_time(time);
+        lasttime = time;
+    }
 }
