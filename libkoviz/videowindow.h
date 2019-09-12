@@ -1,6 +1,7 @@
 #ifndef VIDEOWINDOW_H
 #define VIDEOWINDOW_H
 
+#include <clocale>
 #include <sstream>
 #include <stdexcept>
 

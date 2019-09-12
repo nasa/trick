@@ -9,6 +9,7 @@ static void wakeup(void *ctx)
 VideoWindow::VideoWindow(QWidget *parent) :
     QMainWindow(parent)
 {
+    std::setlocale(LC_NUMERIC, "C");
     setFocusPolicy(Qt::StrongFocus);
     setWindowTitle("Koviz MPV");
     setMinimumSize(640, 480);
