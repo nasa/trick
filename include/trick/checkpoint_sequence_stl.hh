@@ -43,7 +43,7 @@ int checkpoint_sequence_i(STL & in_stl , std::string object_name , std::string v
     //message_publish(1, "%s\n", __PRETTY_FUNCTION__) ;
 
     cont_size = in_stl.size() ;
-    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     if ( cont_size > 0 ) {
         std::string type_string;
@@ -84,7 +84,7 @@ int checkpoint_sequence_s(STL & in_stl , std::string object_name , std::string v
 
 
     cont_size = in_stl.size() ;
-    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     //message_publish(1, "%s\n", __PRETTY_FUNCTION__) ;
 
@@ -214,7 +214,7 @@ int checkpoint_stl(std::multiset<ITEM_TYPE,_Alloc> & in_stl , std::string object
 
 template <class STL>
 int delete_sequence_alloc(STL & in_stl __attribute__ ((unused)), std::string object_name , std::string var_name ) {
-    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
     REF2 * items_ref ;
     items_ref = ref_attributes((char *)(object_name + std::string("_") + var_name).c_str()) ;
     if ( items_ref != NULL ) {
@@ -270,7 +270,7 @@ int restore_sequence_i(STL & in_stl , std::string object_name , std::string var_
 
     REF2 * items_ref ;
     typename STL::value_type * items ;
-    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     //message_publish(1, "RESTORE_SEQUENCE_STL %s_%s\n", object_name.c_str() , var_name.c_str()) ;
 
@@ -298,7 +298,7 @@ int restore_sequence_s(STL & in_stl , std::string object_name , std::string var_
 
     REF2 * items_ref ;
     std::string * items ;
-    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     //message_publish(1, "%s\n", __PRETTY_FUNCTION__) ;
 
@@ -334,7 +334,7 @@ int restore_stl(std::array<ITEM_TYPE,N> & in_stl , std::string object_name , std
 
     REF2 * items_ref ;
     std::string * items ;
-    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     //message_publish(1, "%s\n", __PRETTY_FUNCTION__) ;
 
@@ -366,7 +366,7 @@ int restore_stl(std::array<ITEM_TYPE,N> & in_stl , std::string object_name , std
 
     REF2 * items_ref ;
     typename std::array<ITEM_TYPE,N>::value_type * items ;
-    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     //message_publish(1, "RESTORE_SEQUENCE_STL %s_%s\n", object_name.c_str() , var_name.c_str()) ;
 
