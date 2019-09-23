@@ -37,7 +37,7 @@ int checkpoint_stl(std::stack<ITEM_TYPE,_Sequence> & in_stl , std::string object
     std::stack<ITEM_TYPE,_Sequence> temp_stack(in_stl) ;
 
     cont_size = temp_stack.size() ;
-    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     if ( cont_size > 0 ) {
         std::string type_string;
@@ -77,7 +77,7 @@ int checkpoint_stl(std::stack<ITEM_TYPE,_Sequence> & in_stl , std::string object
     std::stack<ITEM_TYPE,_Sequence> temp_stack(in_stl) ;
 
     cont_size = temp_stack.size() ;
-    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     if ( cont_size > 0 ) {
         var_declare << "std::string "
@@ -127,7 +127,7 @@ int restore_stl(std::stack<ITEM_TYPE,_Sequence> & in_stl , std::string object_na
 
     REF2 * items_ref ;
     ITEM_TYPE * items = nullptr ;
-    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     //message_publish(1, "RESTORE_STL_STACK %s_%s\n", object_name.c_str() , var_name.c_str()) ;
 
@@ -158,7 +158,7 @@ int restore_stl(std::stack<ITEM_TYPE,_Sequence> & in_stl , std::string object_na
 
     REF2 * items_ref ;
     std::string * items = nullptr ;
-    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     //message_publish(1, "RESTORE_STL_STACK %s_%s\n", object_name.c_str() , var_name.c_str()) ;
 
