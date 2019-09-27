@@ -7,7 +7,7 @@ use Exporter ();
 use strict ;
 
 sub verbose_build {
-    return exists($ENV{'TRICK_VERBOSE_BUILD'}) or exists($ENV{'VERBOSE'});
+    return (exists($ENV{'TRICK_VERBOSE_BUILD'}) or exists($ENV{'VERBOSE'}));
 }
 
 1;
