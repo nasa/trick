@@ -34,13 +34,12 @@ llvm::cl::list<std::string> isystem_dirs("isystem", llvm::cl::Prefix, llvm::cl::
 llvm::cl::list<std::string> defines("D", llvm::cl::Prefix, llvm::cl::desc("Defines"), llvm::cl::value_desc("define"));
 // TODO: remove units_truth_is_scary in 2021.
 llvm::cl::opt<bool> units_truth_is_scary("units-truth-is-scary", llvm::cl::desc("DEPRECATED: Don't print units conversion messages"));
-llvm::cl::opt<bool> sim_services_flag("s", llvm::cl::desc("Gernerate io_src for Trick core headers"));
+llvm::cl::opt<bool> sim_services_flag("sim_services", llvm::cl::desc("Gernerate io_src for Trick core headers"));
 llvm::cl::opt<bool> force("force", llvm::cl::desc("Force all io_src files to be generated"));
 llvm::cl::opt<int> attr_version("v", llvm::cl::desc("Select version of attributes to produce.  10 and 13 are valid"), llvm::cl::init(10));
 llvm::cl::opt<int> debug_level("d", llvm::cl::desc("Set debug level"), llvm::cl::init(0), llvm::cl::ZeroOrMore);
 llvm::cl::opt<bool> create_map("m", llvm::cl::desc("Create map files"), llvm::cl::init(false));
 llvm::cl::opt<std::string> output_dir("o", llvm::cl::desc("Output directory"));
-llvm::cl::alias ssf_alias("sim_services" , llvm::cl::desc("Alias for -s") , llvm::cl::aliasopt(sim_services_flag));
 llvm::cl::list<std::string> input_file_names(llvm::cl::Positional, llvm::cl::desc("<input_file>"), llvm::cl::ZeroOrMore);
 llvm::cl::list<std::string> sink(llvm::cl::Sink, llvm::cl::ZeroOrMore);
 llvm::cl::list<std::string> pre_compiled_headers("include", llvm::cl::Prefix, llvm::cl::desc("pre-compiled headers"), llvm::cl::value_desc("pre_compiled_headers"));
