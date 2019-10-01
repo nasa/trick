@@ -9,7 +9,7 @@ EnumDataType::EnumDataType( EnumDictionary * enumDictionary,
                             std::string name,
                             size_t enumSize) {
 
-    if ((enumSize == sizeof(int)) || (enumSize == sizeof(short))) {
+    if ((enumSize == sizeof(int)) || (enumSize == sizeof(short) || (enumSize == sizeof(char))) {
         this->enumSize = enumSize;
     } // FIXME: else throw?
 
@@ -107,6 +107,8 @@ void EnumDataType::clearValue(void * address) const {
        *(int*)address = 0;
    } else if (enumSize == sizeof(short)) {
        *(short*)address = 0;
+   } else if (enumSize == sizeof(char)) {
+       *(char*)address = 0;
    } else {
        std::cerr << "ERROR: Enumeration of size " << enumSize << "is not supported.";
    }
@@ -121,6 +123,8 @@ void EnumDataType::assignValue(void * address, Value * value) const {
            *(int*)address =  numeric_value_p->getIntegerValue();
        } else if (enumSize == sizeof(short)) {
            *(short*)address =  numeric_value_p->getIntegerValue();
+       } else if (enumSize == sizeof(char)) {
+           *(char*)address =  numeric_value_p->getIntegerValue();
        } else {
            std::cerr << "ERROR: Enumeration of size " << enumSize << "is not supported.";
        }
@@ -137,6 +141,8 @@ void EnumDataType::printValue(std::ostream &s, void *address) const {
         value = *(int*)address;
     } else if (enumSize == sizeof(short)) {
         value = *(short*)address;
+    } else if (enumSize == sizeof(char)) {
+        value = *(char*)address;
     } else {
         std::cerr << "ERROR: Enumeration of size " << enumSize << "is not supported.";
     }
