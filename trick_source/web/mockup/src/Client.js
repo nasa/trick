@@ -47,6 +47,7 @@ export default class Client extends React.Component {
       data: [],
       unit: [],
       time: 0.0,
+      sie: {},
     };
     console.log('Client created');
     this.ws = new WebSocket(
@@ -60,10 +61,16 @@ export default class Client extends React.Component {
       console.log('opened');
     };
     this.ws.onmessage = e => {
-      console.log('Message received');
+      //console.log('Message received');
       let message = JSON.parse(e.data);
-      console.log(message);
-      this.setState({ time: message.time, data: message.values });
+      
+      if(message.msg_type === "values") {
+        this.setState({ time: message.time, data: message.values });
+      }
+      if(message.msg_type === "sie") {
+        console.log(message);
+        this.setState({ sie: message.data });
+      }
     };
   }
 
@@ -133,6 +140,12 @@ export default class Client extends React.Component {
   sim_shutdown = () => {
     this.input_processor('trick.stop()');
   };
+  request_sie = () => {
+    let msg = {
+      cmd: 'sie',
+    };
+    this.send_msg(msg);
+  }
   sim_step = () => {
     /* TODO handle debug stepping mode
     this.input_processor('trick.debug_pause_on()');
@@ -250,7 +263,7 @@ export default class Client extends React.Component {
                       <this.BoxButton text="data record on" />
                       <this.BoxButton text="realtime on" />
                       <this.BoxButton text="dump checkpoint" />
-                      <this.BoxButton text="load checkpoint" />
+                      <this.BoxButton text="load checkpoint" onClick={this.request_sie} />
                     </Flex>
                   </Flex>
                   <Flex

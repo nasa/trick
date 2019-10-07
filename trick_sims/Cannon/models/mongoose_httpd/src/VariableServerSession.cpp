@@ -8,6 +8,7 @@ LIBRARY DEPENDENCIES:
 #include <string>
 #include <sstream>
 #include <iomanip> // for setprecision
+#include <fstream>
 #include <algorithm>
 #include "trick/memorymanager_c_intf.h"
 #include "trick/input_processor_proto.h"
@@ -21,6 +22,7 @@ VariableServerSession::VariableServerSession( struct mg_connection *nc ) : WebSo
     intervalTimeTics = exec_get_time_tic_value(); // Default time interval is one second.
     nextTime = LLONG_MAX;
     cyclicSendEnabled = false;
+    this->sendSieMessage();
 }
 
 // DESTRUCTOR
@@ -103,6 +105,9 @@ int VariableServerSession::handleMessage(std::string client_msg) {
          pycode.erase(std::remove(pycode.begin(), pycode.end(), '\r'), pycode.end());
          // Call the Trick input processor.
          ip_parse(pycode.c_str());
+     } else if (cmd == "sie") {
+          // send S_sie.json
+          sendSieMessage();
      } else {
          sendErrorMessage("Unknown Command: \"%s\".\n", cmd.c_str());
          status = 1;
@@ -201,4 +206,17 @@ REF2* VariableServerSession::make_error_ref(const char* in_name) {
     new_ref->attr->units = (char *)"--" ;
     new_ref->attr->size = sizeof(int) ;
     return new_ref;
+}
+
+int VariableServerSession::sendSieMessage(void) {
+    std::ifstream file("./S_sie.json");
+    std::stringstream ss;
+    ss << "{ \"msg_type\": \"sie\", \"data\": ";
+    ss << file.rdbuf();
+    file.close();
+    ss << "}";
+    std::string tmp = ss.str();
+    const char* message = tmp.c_str();
+    mg_send_websocket_frame(connection, WEBSOCKET_OP_TEXT, message, strlen(message));
+    return 0;
 }
