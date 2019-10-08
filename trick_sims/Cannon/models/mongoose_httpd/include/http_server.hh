@@ -26,14 +26,20 @@ class HTTP_Server {
 
         std::map< std::string, httpMethodHandler> httpGETHandlerMap;            /* ** */
         pthread_mutex_t httpGETHandlerMapLock;                                  /* ** */
+
         std::map< std::string, WebSocketSessionMaker> WebSocketSessionMakerMap; /* ** */
         pthread_mutex_t WebSocketSessionMakerMapLock;                           /* ** */
-        std::map<mg_connection*, WebSocketSession*> sessionMap;                 /* ** */
-        pthread_mutex_t sessionMapLock;                                         /* ** */
+
+        std::map<mg_connection*, WebSocketSession*> webSocketSessionMap;        /* ** */
+        pthread_mutex_t webSocketSessionMapLock;                                /* ** */
+
         pthread_mutex_t serviceLock;                                            /* ** */
-        struct mg_serve_http_opts http_server_options;                          /* ** mongoose*/
-        struct mg_bind_opts bind_opts;                                          /* ** mongoose*/
+        struct mg_serve_http_opts http_server_options;                          /* ** */
+        struct mg_bind_opts bind_opts;                                          /* ** */
         pthread_cond_t serviceConnections;                                      /* ** */
+        bool service_websocket;
+        bool time_homogeneous;
+        bool sessionDataMarshalled;
 
         // Trick Job-functions
         int http_default_data();
@@ -44,7 +50,7 @@ class HTTP_Server {
         void installWebSocketSessionMaker(std::string name, WebSocketSessionMaker maker);
         void installHTTPGEThandler(std::string handlerName, httpMethodHandler handler);
 
-        // These are internals, and should be considered public. They are not private only
+        // These are internals, and should not be considered public. They are not private only
         // because they need to be callable from the servers event handler.
         void sendWebSocketSessionMessages(struct mg_connection *nc);
         void handleWebSocketClientMessage(struct mg_connection *nc, std::string msg);
@@ -52,5 +58,6 @@ class HTTP_Server {
         void deleteWebSocketSession(struct mg_connection *nc);
         WebSocketSession* makeWebSocketSession(struct mg_connection *nc, std::string name);
         void handleHTTPGETrequest(struct mg_connection *nc, http_message *hm, std::string handlerName);
+        void marshallWebSocketSessionData();
 };
 #endif

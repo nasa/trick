@@ -6,6 +6,7 @@ LIBRARY DEPENDENCIES:
     )
 **************************************************************************/
 #include <string>
+#include <iostream>
 #include <sstream>
 #include <iomanip> // for setprecision
 #include <algorithm>
@@ -15,11 +16,10 @@ LIBRARY DEPENDENCIES:
 #include "../include/VariableServerSession.hh"
 #include "../include/simpleJSON.hh"
 
-
 // CONSTRUCTOR
 VariableServerSession::VariableServerSession( struct mg_connection *nc ) : WebSocketSession(nc) {
     intervalTimeTics = exec_get_time_tic_value(); // Default time interval is one second.
-    nextTime = LLONG_MAX;
+    nextTime = 0;
     cyclicSendEnabled = false;
 }
 
@@ -28,32 +28,45 @@ VariableServerSession::~VariableServerSession() {
     clear();
 }
 
-// Base class virtual function.
-void VariableServerSession::stageData() {
+/* Base class virtual function: marshallData
+   When HTTP_Server::time_homogeneous is set, WebSocketSession::marshallData() is
+   called from the main sim thread in a "top_of_frame" job, to ensure that all of
+   the data is staged at the same sim-time, in other words that it's time-homogeneous.
+*/
+/* VariableServerSession::marshallData() conditionally stages message data when
+   sim_time has reached the next integer multiple of intervalTimeTics
+   (The specified period between messages).
+*/
+void VariableServerSession::marshallData() {
     long long simulation_time_tics = exec_get_time_tics();
     if ( cyclicSendEnabled && ( simulation_time_tics >= nextTime )) {
-        stageVariableValues();
+        stageValues();
+        nextTime = (simulation_time_tics - (simulation_time_tics % intervalTimeTics) + intervalTimeTics);
     }
-    nextTime = (simulation_time_tics - (simulation_time_tics % intervalTimeTics) + intervalTimeTics);
 }
 
-// Base class virtual function.
+/* Base class virtual function: sendMessage
+   if data is staged/marshalled, then compose and send a message containing that data.
+ */
 void VariableServerSession::sendMessage() {
     std::vector<VariableServerVariable*>::iterator it;
     std::stringstream ss;
 
-    ss << "{ \"msg_type\" : \"values\",\n";
-    ss << "  \"time\" : " << std::setprecision(16) << stageTime << ",\n";
-    ss << "  \"values\" : [\n";
+    if (dataStaged) {
+        ss << "{ \"msg_type\" : \"values\",\n";
+        ss << "  \"time\" : " << std::setprecision(16) << stageTime << ",\n";
+        ss << "  \"values\" : [\n";
 
-    for (it = sessionVariables.begin(); it != sessionVariables.end(); it++ ) {
-        if (it != sessionVariables.begin()) ss << ",\n";
-        (*it)->writeValue(ss);
-     }
-     ss << "]}" << std::endl;
-    std::string tmp = ss.str();
-    const char * message = tmp.c_str();
-    mg_send_websocket_frame(connection, WEBSOCKET_OP_TEXT, message, strlen(message));
+        for (it = sessionVariables.begin(); it != sessionVariables.end(); it++ ) {
+            if (it != sessionVariables.begin()) ss << ",\n";
+            (*it)->writeValue(ss);
+         }
+         ss << "]}" << std::endl;
+        std::string tmp = ss.str();
+        const char * message = tmp.c_str();
+        mg_send_websocket_frame(connection, WEBSOCKET_OP_TEXT, message, strlen(message));
+        dataStaged = false;
+    }
 }
 
 // Base class virtual function.
@@ -91,7 +104,8 @@ int VariableServerSession::handleMessage(std::string client_msg) {
      } else if (cmd == "var_unpause") {
          unpause();
      } else if (cmd == "var_send") {
-         stageVariableValues();
+         // var_send responses are not guarenteed to be time-consistent.
+         stageValues();
          sendMessage();
      } else if (cmd == "var_clear") {
          clear();
@@ -111,6 +125,7 @@ int VariableServerSession::handleMessage(std::string client_msg) {
 }
 
 void VariableServerSession::setTimeInterval(unsigned int milliseconds) {
+    // CONSIDER: should we compare this with the realtime frame, and limit accordingly.
     intervalTimeTics = exec_get_time_tic_value() * milliseconds / 1000;
 }
 
@@ -145,12 +160,13 @@ void VariableServerSession::addVariable(char* vname){
     }
 }
 
-void VariableServerSession::stageVariableValues() {
+void VariableServerSession::stageValues() {
     stageTime = (double)exec_get_time_tics() / exec_get_time_tic_value();
     std::vector<VariableServerVariable*>::iterator it;
     for (it = sessionVariables.begin(); it != sessionVariables.end(); it++ ) {
         (*it)->stageValue();
     }
+    dataStaged = true;
 }
 
 void VariableServerSession::pause()   { cyclicSendEnabled = false; }
@@ -201,4 +217,9 @@ REF2* VariableServerSession::make_error_ref(const char* in_name) {
     new_ref->attr->units = (char *)"--" ;
     new_ref->attr->size = sizeof(int) ;
     return new_ref;
+}
+
+// WebSocketSessionMaker function for a VariableServerSession.
+WebSocketSession* makeVariableServerSession( struct mg_connection *nc ) {
+    return new VariableServerSession(nc);
 }
