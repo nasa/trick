@@ -47,7 +47,8 @@ export default class Client extends React.Component {
       data: [],
       unit: [],
       time: 0.0,
-      sie: {},
+      sie: { top_level_objects: [] },
+      children: {},
     };
     console.log('Client created');
     this.ws = new WebSocket(
@@ -63,11 +64,11 @@ export default class Client extends React.Component {
     this.ws.onmessage = e => {
       //console.log('Message received');
       let message = JSON.parse(e.data);
-      
-      if(message.msg_type === "values") {
+
+      if (message.msg_type === 'values') {
         this.setState({ time: message.time, data: message.values });
       }
-      if(message.msg_type === "sie") {
+      if (message.msg_type === 'sie') {
         console.log(message);
         this.setState({ sie: message.data });
       }
@@ -145,7 +146,7 @@ export default class Client extends React.Component {
       cmd: 'sie',
     };
     this.send_msg(msg);
-  }
+  };
   sim_step = () => {
     /* TODO handle debug stepping mode
     this.input_processor('trick.debug_pause_on()');
@@ -167,6 +168,40 @@ export default class Client extends React.Component {
       </Button>
     </Box>
   );
+
+  mapTreeItems = members =>
+    members.map((object, index) => {
+      return (
+        <TreeItem
+          nodeId={object.name}
+          label={object.name}
+          onClick={() => {
+            console.log(object.name + ' ' + object.type);
+            if (typeof this.state.children[object.name] === 'undefined') {
+              console.log(object.name + 'calling constructMembers');
+              this.setState({
+                children: {
+                  ...this.state.children,
+                  [object.name]: this.constructMembers(object.type),
+                },
+              });
+            }
+          }}
+        >
+          {this.state.children[object.name]}
+        </TreeItem>
+      );
+    });
+
+  constructMembers = nodeId => {
+    let varClass = this.state.sie.classes.find(
+      element => element.name === nodeId,
+    );
+    if(typeof varClass !== "undefined" && typeof varClass.members !== "undefined") {
+      return this.mapTreeItems(varClass.members);
+    }
+    return null;
+  };
 
   render() {
     const { classes } = this.props;
@@ -263,7 +298,10 @@ export default class Client extends React.Component {
                       <this.BoxButton text="data record on" />
                       <this.BoxButton text="realtime on" />
                       <this.BoxButton text="dump checkpoint" />
-                      <this.BoxButton text="load checkpoint" onClick={this.request_sie} />
+                      <this.BoxButton
+                        text="load checkpoint"
+                        onClick={this.request_sie}
+                      />
                     </Flex>
                   </Flex>
                   <Flex
@@ -356,75 +394,7 @@ export default class Client extends React.Component {
                       defaultCollapseIcon={<ExpandMoreIcon />}
                       defaultExpandIcon={<ChevronRightIcon />}
                     >
-                      <TreeItem nodeId="1" label="Trick Variables">
-                        <TreeItem nodeId="2" label="trick_cmd_args">
-                          <TreeItem nodeId="3" label="dummy data" />
-                        </TreeItem>
-                        <TreeItem nodeId="4" label="trick_sys">
-                          <TreeItem nodeId="5" label="dummy data" />
-                        </TreeItem>
-                        <TreeItem nodeId="6" label="trick_ip">
-                          <TreeItem nodeId="7" label="dummy data" />
-                        </TreeItem>
-                        <TreeItem nodeId="8" label="trick_vs">
-                          <TreeItem nodeId="9" label="dummy data" />
-                        </TreeItem>
-                      </TreeItem>
-                      <TreeItem nodeId="10" label="Dynamic Allocations">
-                        <TreeItem nodeId="11" label="dyn_integloop">
-                          <TreeItem nodeId="12" label="name" />
-                          <TreeItem nodeId="13" label="id" />
-                          <TreeItem nodeId="14" label="integ_sched">
-                            <TreeItem nodeId="15" label="dummy data" />
-                          </TreeItem>
-                        </TreeItem>
-                      </TreeItem>
-                      <TreeItem nodeId="16" label="dyn">
-                        <TreeItem nodeId="17" label="name" />
-                        <TreeItem nodeId="18" label="id" />
-                        <TreeItem nodeId="19" label="cannon">
-                          <TreeItem nodeId="20" label="vel0[2]" />
-                          <TreeItem nodeId="21" label="pos0[2]" />
-                          <TreeItem nodeId="22" label="init_speed" />
-                          <TreeItem nodeId="23" label="init_angle" />
-                          <TreeItem nodeId="24" label="g" />
-                          <TreeItem nodeId="25" label="acc[2]" />
-                          <TreeItem nodeId="26" label="vel[2]" />
-                          <TreeItem nodeId="27" label="pos[2]" />
-                          <TreeItem nodeId="28" label="time" />
-                          <TreeItem nodeId="29" label="timeRate" />
-                          <TreeItem nodeId="30" label="impact" />
-                          <TreeItem nodeId="31" label="impactTime" />
-                          <TreeItem nodeId="32" label="rf">
-                            <TreeItem nodeId="33" label="dummy data" />
-                          </TreeItem>
-                          <TreeItem nodeId="34" label="connection">
-                            <TreeItem nodeId="36" label="connection">
-                              <TreeItem nodeId="37" label="connection">
-                                <TreeItem nodeId="38" label="connection">
-                                  <TreeItem nodeId="39" label="connection">
-                                    <TreeItem nodeId="40" label="connection">
-                                      <TreeItem nodeId="41" label="connection">
-                                        <TreeItem
-                                          nodeId="35"
-                                          label="dummy data"
-                                        />
-                                      </TreeItem>
-                                    </TreeItem>
-                                  </TreeItem>
-                                </TreeItem>
-                              </TreeItem>
-                            </TreeItem>
-                          </TreeItem>
-                        </TreeItem>
-                        <TreeItem nodeId="36" label="http">
-                          <TreeItem nodeId="37" label="name" />
-                          <TreeItem nodeId="38" label="id" />
-                          <TreeItem nodeId="39" label="http_server">
-                            <TreeItem nodeId="40" label="dummy data" />
-                          </TreeItem>
-                        </TreeItem>
-                      </TreeItem>
+                      {this.mapTreeItems(this.state.sie.top_level_objects)}
                     </TreeView>
                   </Flex>
                   <Flex flexDirection="column">
@@ -507,8 +477,9 @@ export default class Client extends React.Component {
             <Box>
               <Paper className={classes.mockup}>
                 <Typography variant="h6" color="textPrimary">
-                  This web application mostly serves as a mockup for now. Most of the elements are not
-                  functional. The following buttons and fields are currently functional: START, FREEZE, SHUTDOWN, Add
+                  This web application mostly serves as a mockup for now. Most
+                  of the elements are not functional. The following buttons and
+                  fields are currently functional: START, FREEZE, SHUTDOWN, Add
                   Variable, and CLEAR
                 </Typography>
               </Paper>
