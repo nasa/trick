@@ -43,13 +43,9 @@ void FindTrickICG::If(clang::SourceLocation Loc, clang::SourceRange ConditionRan
 {
     if ( ConditionRange.isValid() ) {
         // Get the full text of the if statement into a string
-        clang::FullSourceLoc fsl_begin(ConditionRange.getBegin() , ci.getSourceManager()) ;
-        clang::FullSourceLoc fsl_end(ConditionRange.getEnd() , ci.getSourceManager()) ;
-        std::string if_text( fsl_begin.getCharacterData() ,
-         (size_t)(fsl_end.getCharacterData() - fsl_begin.getCharacterData())) ;
-
+        llvm::StringRef ref = clang::Lexer::getSourceText(clang::CharSourceRange::getCharRange(ConditionRange), ci.getSourceManager(), clang::LangOptions());
         // if the if statement contains TRICK_ICG we need to mark it.
-        if ( if_text.find("TRICK_ICG") != std::string::npos ) {
+        if ( ref.str().find("TRICK_ICG") != std::string::npos ) {
             // for each header in the stack, mark them as being exposed to TRICK_ICG
             std::vector<std::string>::iterator it ;
             for ( it = included_files.begin() ; it != included_files.end() ; it++ ) {

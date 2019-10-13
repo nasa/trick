@@ -40,7 +40,7 @@ int checkpoint_stl(std::queue<ITEM_TYPE,_Sequence> & in_stl , std::string object
     std::queue<ITEM_TYPE,_Sequence> temp_queue(in_stl) ;
 
     cont_size = temp_queue.size() ;
-    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     if ( cont_size > 0 ) {
         std::string type_string;
@@ -80,7 +80,7 @@ int checkpoint_stl(std::queue<ITEM_TYPE,_Sequence> & in_stl , std::string object
     std::queue<ITEM_TYPE,_Sequence> temp_queue(in_stl) ;
 
     cont_size = temp_queue.size() ;
-    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     if ( cont_size > 0 ) {
         var_declare << "std::string "
@@ -119,7 +119,7 @@ int checkpoint_stl(std::priority_queue<ITEM_TYPE, _Container, _Compare> & in_stl
     std::priority_queue<ITEM_TYPE,_Container,_Compare> temp_queue(in_stl) ;
 
     cont_size = temp_queue.size() ;
-    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     if ( cont_size > 0 ) {
         std::string type_string;
@@ -160,7 +160,7 @@ int checkpoint_stl(std::priority_queue<ITEM_TYPE, _Container, _Compare> & in_stl
     std::priority_queue<ITEM_TYPE,_Container,_Compare> temp_queue(in_stl) ;
 
     cont_size = temp_queue.size() ;
-    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     if ( cont_size > 0 ) {
         var_declare << "std::string "
@@ -218,7 +218,7 @@ int restore_stl(std::queue<ITEM_TYPE,_Sequence> & in_stl , std::string object_na
 
     REF2 * items_ref ;
     ITEM_TYPE * items ;
-    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     //message_publish(1, "RESTORE_STL_queue %s_%s\n", object_name.c_str() , var_name.c_str()) ;
 
@@ -250,7 +250,7 @@ int restore_stl(std::queue<ITEM_TYPE,_Sequence> & in_stl , std::string object_na
 
     REF2 * items_ref ;
     std::string * items ;
-    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     //message_publish(1, "RESTORE_STL_queue %s_%s\n", object_name.c_str() , var_name.c_str()) ;
 
@@ -287,7 +287,7 @@ int restore_stl(std::priority_queue<ITEM_TYPE,_Container,_Compare> & in_stl ,
 
     REF2 * items_ref ;
     ITEM_TYPE * items ;
-    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     //message_publish(1, "RESTORE_STL_queue %s_%s\n", object_name.c_str() , var_name.c_str()) ;
 
@@ -320,7 +320,7 @@ int restore_stl(std::priority_queue<ITEM_TYPE,_Container,_Compare> & in_stl ,
 
     REF2 * items_ref ;
     std::string * items ;
-    std::replace_if(object_name.begin(), object_name.end(), std::ptr_fun<int,int>(&std::ispunct), '_');
+    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     //message_publish(1, "RESTORE_STL_queue %s_%s\n", object_name.c_str() , var_name.c_str()) ;
 

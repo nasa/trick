@@ -197,7 +197,7 @@ ICG:
 
 force_ICG:
 	$(PRINT_ICG)
-	$(call ECHO_AND_LOG,${TRICK_HOME}/bin/trick-ICG -f -m ${TRICK_ICGFLAGS} ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} S_source.hh)
+	$(call ECHO_AND_LOG,${TRICK_HOME}/bin/trick-ICG -force -m ${TRICK_ICGFLAGS} ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} S_source.hh)
 
 # Create makefile for IO code
 build/Makefile_io_src: S_source.hh | build
