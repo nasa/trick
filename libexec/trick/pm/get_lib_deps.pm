@@ -6,10 +6,14 @@ use File::Path qw(make_path) ;
 use Exporter ();
 use gte ;
 use get_paths ;
+use verbose_build ;
 @ISA = qw(Exporter);
 @EXPORT = qw(get_lib_deps write_lib_deps);
 
 use strict ;
+
+my $verbose_build = verbose_build() ;
+my @ext_lib_paths = get_paths( "TRICK_EXT_LIB_DIRS" ) ;
 
 sub get_lib_deps ($$) {
     my ($contents, $source_file_name) = @_ ;
@@ -153,7 +157,16 @@ sub get_lib_deps ($$) {
             }
         }
     }
-    return (grep { !is_path_in($_, "TRICK_EXT_LIB_DIRS") } @ordered_resolved_files) ;
+
+    my @included_ordered_resolved_files;
+    foreach (@ordered_resolved_files) {
+        if ( my $exclude_path = get_containing_path( $_, @ext_lib_paths ) ) {
+            print "[95mDep Skip[39m   TRICK_EXT_LIB_DIRS: [4m$exclude_path[24m" . substr($_, length $exclude_path) . "\n" if $verbose_build ;
+            next ;
+        }
+        push @included_ordered_resolved_files, $_ ;
+    }
+    return @included_ordered_resolved_files ;
 }
 
 sub write_lib_deps($) {
