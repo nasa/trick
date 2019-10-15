@@ -134,6 +134,9 @@ class SnapOptions : public Options
     QString excludePattern;
     QString filterPattern;
     double  timeMatchTolerance;
+    QString trickhost;
+    uint trickport;
+    double trickoffset;
 };
 
 SnapOptions opts;
@@ -238,6 +241,12 @@ int main(int argc, char *argv[])
              "filter pattern to filter for RUNs and/or log files");
     opts.add("-tmt", &opts.timeMatchTolerance, DBL_MAX,
              "time match tolerance for error plots");
+    opts.add("-trickhost", &opts.trickhost, "127.0.0.1",
+             "trick var server host");
+    opts.add("-trickport", &opts.trickport, 7777,
+             "trick var server port");
+    opts.add("-trickoffset", &opts.trickoffset, 0.0,
+             "trick var server time sync offset");
 
     opts.parse(argc,argv, QString("koviz"), &ok);
 
@@ -816,7 +825,10 @@ int main(int argc, char *argv[])
         }
 
         if ( isPdf ) {
-            PlotMainWindow w(excludePattern,
+            PlotMainWindow w(opts.trickhost,
+                             opts.trickport,
+                             opts.trickoffset,
+                             excludePattern,
                              filterPattern,
                              opts.scripts,
                              opts.isDebug,
@@ -939,7 +951,10 @@ int main(int argc, char *argv[])
                 TimeItLinux timer;
                 timer.start();
 #endif
-                PlotMainWindow w(excludePattern,
+                PlotMainWindow w(opts.trickhost,
+                                 opts.trickport,
+                                 opts.trickoffset,
+                                 excludePattern,
                                  filterPattern,
                                  opts.scripts,
                                  opts.isDebug,
@@ -963,7 +978,10 @@ int main(int argc, char *argv[])
                 ret = a.exec();
             } else {
 
-                PlotMainWindow w(excludePattern,
+                PlotMainWindow w(opts.trickhost,
+                                 opts.trickport,
+                                 opts.trickoffset,
+                                 excludePattern,
                                  filterPattern,
                                  opts.scripts,
                                  opts.isDebug,

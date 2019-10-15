@@ -15,6 +15,9 @@
 #include "plotmainwindow.h"
 
 PlotMainWindow::PlotMainWindow(
+        const QString& trickhost,
+        uint trickport,
+        double trickoffset,
         const QString& excludePattern,
         const QString& filterPattern,
         const QString& scripts,
@@ -41,6 +44,9 @@ PlotMainWindow::PlotMainWindow(
         QStandardItemModel *monteInputsModel,
         QWidget *parent) :
     QMainWindow(parent),
+    _trickhost(trickhost),
+    _trickport(trickport),
+    _trickoffset(trickoffset),
     _excludePattern(excludePattern),
     _filterPattern(filterPattern),
     _scripts(scripts),
@@ -263,23 +269,21 @@ PlotMainWindow::PlotMainWindow(
             SLOT(_slotDataChanged(QModelIndex,QModelIndex,QVector<int>)));
 
     /*
-     * Keith, uncomment out the cleanup code in ~PlotMainWindow too
-     * Also, the port is hard-coded to 7777, so fix that
      * To run with the ball2 sim, add the following to the input file:
-     * trick.var_server_set_port(7777)
-     *
+     * trick.var_server_set_port(<_trickport>)
+     */
     _vsSocket = new QTcpSocket();
     connect(_vsSocket,SIGNAL(readyRead()),
             this,SLOT(_vsRead()));
-    _vsSocket->connectToHost("127.0.0.1",7777);
+    _vsSocket->connectToHost(_trickhost,_trickport);
     if (_vsSocket->waitForConnected(500)) {
         fprintf(stderr,"Connected To The Trick Variable Server!\n");
+        _vsSocket->write("trick.var_add(\"trick_sys.sched.time_tics\")\n");
     } else {
-        fprintf(stderr, "TimedOut\n");
-        exit(-1);
+        fprintf(stderr, "koviz [todo]: Timed out waiting "
+                                      "on Trick var server\n");
     }
-    _vsSocket->write("trick.var_add(\"trick_sys.sched.time_tics\")\n");
-    */
+
 
     // creating bviscom to send commands to bvis
     bviscom = new TimeCom(0);
@@ -335,10 +339,8 @@ void PlotMainWindow::setTimeFromVideo(double time) {
 PlotMainWindow::~PlotMainWindow()
 {
     delete _bookModel;
-    /*
     _vsSocket->close();
     delete _vsSocket;
-    */
 }
 
 void PlotMainWindow::createMenu()
@@ -1611,11 +1613,10 @@ void PlotMainWindow::_vsRead()
     QString msg(bytes);
     QStringList fields = msg.split('\t');
     double time = fields.at(1).toDouble()/1.0e6;
-    fprintf(stderr, "msg=\"%s\" time=%g\n", msg.toLatin1().constData(), time);
 
     static double lasttime = -1.0;
     if ( time != lasttime ) {
-        vidView->seek_time(time);
+        vidView->seek_time(time+_trickoffset);
         lasttime = time;
     }
 }

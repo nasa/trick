@@ -43,7 +43,10 @@ class PlotMainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit PlotMainWindow( const QString& excludePattern,
+    explicit PlotMainWindow( const QString& trickhost,
+                             uint trickport,
+                             double trickoffset,
+                             const QString& excludePattern,
                              const QString& filterPattern,
                              const QString& scripts,
                              bool isDebug,
@@ -83,6 +86,9 @@ protected:
 
 
 private:
+    const QString& _trickhost;
+    uint _trickport;
+    double _trickoffset;
     QString _excludePattern;
     QString _filterPattern;
     QString _scripts;
