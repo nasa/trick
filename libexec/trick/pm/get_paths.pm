@@ -3,7 +3,7 @@ package get_paths ;
 use Exporter ();
 use Cwd 'abs_path' ;
 @ISA = qw(Exporter);
-@EXPORT = qw(get_paths get_include_paths get_defines is_path_in);
+@EXPORT = qw(get_paths get_include_paths get_defines get_containing_path);
 
 use strict ;
 
@@ -20,10 +20,11 @@ sub get_defines {
     return "$ENV{TRICK_CFLAGS} $ENV{TRICK_CXXFLAGS}" =~ /-D\S+/g
 }
 
-sub is_path_in {
-    foreach my $path (get_paths($_[1])) {
-        if ( $_[0] =~ /^\Q$path\E(.*)/ or abs_path($_[0]) =~ /^\Q$path\E(.*)/ ) {
-            return 1 ;
+sub get_containing_path {
+    my $path = shift;
+    foreach my $exclude_path (@_) {
+        if ( $path =~ /^\Q$exclude_path\E(.*)/ or abs_path($path) =~ /^\Q$exclude_path\E(.*)/ ) {
+            return $exclude_path ;
         }
     }
     return 0 ;
