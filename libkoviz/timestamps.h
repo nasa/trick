@@ -13,6 +13,8 @@ public:
     static QList<double> merge(const QList<double>& listA,
                                const QList<double>& listB);
 
+    static double epsilon;
+
 private:
     TimeStamps() {}
     static int _lastIdx ;
