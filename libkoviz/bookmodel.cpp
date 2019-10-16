@@ -1139,7 +1139,22 @@ QPainterPath* PlotBookModel::__createPainterPath(CurveModel *curveModel,
             path->moveTo(x,y);
             isFirst = false;
         } else {
+            int m = path->elementCount();
             path->lineTo(x,y);
+            int n = path->elementCount();
+            if ( m == n ) {
+                /* When points are very close to one another,
+                 * it looks like Qt will skip adding a lineTo(x,y).
+                 * This bit of code tries to force Qt to add the
+                 * lineTo(x,y) no matter how close the two points
+                 * are to one another.
+                 */
+                path->lineTo(x+1.0,y+1.0);
+                int o = path->elementCount();
+                if ( o > m ) {
+                    path->setElementPositionAt(o-1,x,y);
+                }
+            }
         }
 
         it->next();
