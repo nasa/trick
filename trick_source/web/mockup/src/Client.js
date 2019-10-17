@@ -1,43 +1,43 @@
-import React from 'react';
-import AppBar from '@material-ui/core/AppBar';
-import MuiBox from '@material-ui/core/Box';
-import Toolbar from '@material-ui/core/Toolbar';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
-import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { Flex, Box } from 'reflexbox';
-import TreeView from '@material-ui/lab/TreeView';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import TreeItem from '@material-ui/lab/TreeItem';
-import SearchIcon from '@material-ui/icons/Search';
-import InputBase from '@material-ui/core/InputBase';
+import React, { useState } from "react";
+import AppBar from "@material-ui/core/AppBar";
+import MuiBox from "@material-ui/core/Box";
+import Toolbar from "@material-ui/core/Toolbar";
+import Table from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableCell from "@material-ui/core/TableCell";
+import TableHead from "@material-ui/core/TableHead";
+import TableRow from "@material-ui/core/TableRow";
+import Paper from "@material-ui/core/Paper";
+import TextField from "@material-ui/core/TextField";
+import Typography from "@material-ui/core/Typography";
+import Button from "@material-ui/core/Button";
+import ExpansionPanel from "@material-ui/core/ExpansionPanel";
+import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
+import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import { Flex, Box } from "reflexbox";
+import TreeView from "@material-ui/lab/TreeView";
+import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+import TreeItem from "@material-ui/lab/TreeItem";
+import SearchIcon from "@material-ui/icons/Search";
+import InputBase from "@material-ui/core/InputBase";
 
-import Drawer from '@material-ui/core/Drawer';
+import Drawer from "@material-ui/core/Drawer";
 
-import List from '@material-ui/core/List';
+import List from "@material-ui/core/List";
 
-import Divider from '@material-ui/core/Divider';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
-import MailIcon from '@material-ui/icons/Mail';
+import Divider from "@material-ui/core/Divider";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
+import ListItemText from "@material-ui/core/ListItemText";
+import InboxIcon from "@material-ui/icons/MoveToInbox";
+import MailIcon from "@material-ui/icons/Mail";
 
-import OutlinedInput from '@material-ui/core/OutlinedInput';
+//import OutlinedInput from '@material-ui/core/OutlinedInput';
 
-import MenuItem from '@material-ui/core/MenuItem';
+//import MenuItem from '@material-ui/core/MenuItem';
 
-import Select from '@material-ui/core/Select';
+//import Select from '@material-ui/core/Select';
 
 export default class Client extends React.Component {
   constructor(props) {
@@ -50,25 +50,25 @@ export default class Client extends React.Component {
       sie: { top_level_objects: [] },
       children: {},
     };
-    console.log('Client created');
+    console.log("Client created");
     this.ws = new WebSocket(
-      'ws://localhost:8888/api/ws/VariableServer',
-      'myProtocol',
+      "ws://localhost:8888/api/ws/VariableServer",
+      "myProtocol",
     );
     this.ws.onopen = e => {
       this.var_cycle(100);
       this.var_unpause();
       //this.var_add("trick_sys.sched.time_tics");
-      console.log('opened');
+      console.log("opened");
     };
     this.ws.onmessage = e => {
       //console.log('Message received');
       let message = JSON.parse(e.data);
 
-      if (message.msg_type === 'values') {
+      if (message.msg_type === "values") {
         this.setState({ time: message.time, data: message.values });
       }
-      if (message.msg_type === 'sie') {
+      if (message.msg_type === "sie") {
         console.log(message);
         this.setState({ sie: message.data });
       }
@@ -82,7 +82,7 @@ export default class Client extends React.Component {
 
   var_add = v => {
     let msg = {
-      cmd: 'var_add',
+      cmd: "var_add",
       var_name: v,
     };
     this.send_msg(msg);
@@ -90,14 +90,14 @@ export default class Client extends React.Component {
 
   var_unpause = () => {
     let msg = {
-      cmd: 'var_unpause',
+      cmd: "var_unpause",
     };
     this.send_msg(msg);
   };
 
   var_cycle = p => {
     let msg = {
-      cmd: 'var_cycle',
+      cmd: "var_cycle",
       period: p,
     };
     this.send_msg(msg);
@@ -105,7 +105,7 @@ export default class Client extends React.Component {
 
   var_clear = () => {
     let msg = {
-      cmd: 'var_clear',
+      cmd: "var_clear",
     };
     this.send_msg(msg);
   };
@@ -125,25 +125,25 @@ export default class Client extends React.Component {
 
   input_processor = cmd => {
     let msg = {
-      cmd: 'python',
+      cmd: "python",
       pycode: cmd,
     };
     this.send_msg(msg);
   };
 
   sim_start = () => {
-    this.input_processor('trick.exec_run()');
+    this.input_processor("trick.exec_run()");
   };
 
   sim_freeze = () => {
-    this.input_processor('trick.exec_freeze()');
+    this.input_processor("trick.exec_freeze()");
   };
   sim_shutdown = () => {
-    this.input_processor('trick.stop()');
+    this.input_processor("trick.stop()");
   };
   request_sie = () => {
     let msg = {
-      cmd: 'sie',
+      cmd: "sie",
     };
     this.send_msg(msg);
   };
@@ -154,7 +154,7 @@ export default class Client extends React.Component {
       */
   };
 
-  BoxButton = ({ text, color = 'primary', fullWidth = true, onClick }) => (
+  BoxButton = ({ text, color = "primary", fullWidth = true, onClick }) => (
     <Box flexGrow={1} flexShrink={1}>
       <Button
         className={this.props.classes.button}
@@ -169,37 +169,53 @@ export default class Client extends React.Component {
     </Box>
   );
 
-  mapTreeItems = members =>
-    members.map((object, index) => {
-      return (
-        <TreeItem
-          nodeId={object.name}
-          label={object.name}
-          onClick={() => {
-            console.log(object.name + ' ' + object.type);
-            if (typeof this.state.children[object.name] === 'undefined') {
-              console.log(object.name + 'calling constructMembers');
-              this.setState({
-                children: {
-                  ...this.state.children,
-                  [object.name]: this.constructMembers(object.type),
-                },
-              });
-            }
-          }}
-        >
-          {this.state.children[object.name]}
-        </TreeItem>
-      );
-    });
-
-  constructMembers = nodeId => {
-    let varClass = this.state.sie.classes.find(
-      element => element.name === nodeId,
-    );
-    if(typeof varClass !== "undefined" && typeof varClass.members !== "undefined") {
-      return this.mapTreeItems(varClass.members);
+  TVTreeItem = ({ name, path, type, dims = [] }) => {
+    const [expanded, setExpanded] = useState(true);
+    const members = this.getMembers(type);
+    let dimensionString = "";
+    for (let dim of dims) {
+      if (dim === "0") {
+        dimensionString += "[*]";
+      } else {
+        dimensionString += "[" + dim + "]";
+      }
     }
+    path = path + dimensionString;
+    // console.log("name: " + name + " path: " + path + " type: " + type);
+    return (
+      <TreeItem
+        nodeId={path ? path : ""}
+        label={name + dimensionString}
+        onDoubleClick={e => {
+          e.stopPropagation();
+          this.addVariable(path);
+        }}
+      >
+        {members
+          ? members &&
+            members.map(member => {
+              return (
+                <this.TVTreeItem
+                  name={member.name}
+                  path={[path, member.name].join(".")}
+                  type={member.type}
+                  dims={member.dimensions}
+                />
+              );
+            })
+          : null}
+      </TreeItem>
+    );
+  };
+
+  getMembers = type => {
+    let varClass = this.state.sie.classes.find(
+      element => element.name === type,
+    );
+    if (varClass !== undefined && varClass.members !== undefined) {
+      return varClass.members;
+    }
+    // console.log("returning null");
     return null;
   };
 
@@ -212,7 +228,7 @@ export default class Client extends React.Component {
           <Toolbar className={classes.toolbar}>
             <Flex alignItems="center" flexGrow={1}>
               <Box>
-                <img src="TrickLogoSmall.png" height={45} />
+                <img src="TrickLogoSmall.png" alt="trick logo" height={45} />
               </Box>
               <Box>
                 <Typography variant="h5" className={classes.appbartitle}>
@@ -222,9 +238,9 @@ export default class Client extends React.Component {
               <Box flexGrow={1} />
               <Box flexDirection="column">
                 <Typography variant="h6">
-                  SIM_cannon_numeric{'\u00A0'}
-                  {'\u00A0'}
-                  {'\u00A0'}
+                  SIM_cannon_numeric{"\u00A0"}
+                  {"\u00A0"}
+                  {"\u00A0"}
                 </Typography>
               </Box>
               <Box>
@@ -246,7 +262,7 @@ export default class Client extends React.Component {
               <div className={classes.toolbar} />
               <Divider />
               <List>
-                {['Home', 'Wiki', 'Data Recording', 'Strip Chart'].map(
+                {["Home", "Wiki", "Data Recording", "Strip Chart"].map(
                   (text, index) => (
                     <ListItem button key={text}>
                       <ListItemIcon>
@@ -259,7 +275,7 @@ export default class Client extends React.Component {
               </List>
               <Divider />
               <List>
-                {['Sniffer', 'Environment', 'Settings'].map((text, index) => (
+                {["Sniffer", "Environment", "Settings"].map((text, index) => (
                   <ListItem button key={text}>
                     <ListItemIcon>
                       {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
@@ -337,29 +353,29 @@ export default class Client extends React.Component {
                     <Typography>
                       <MuiBox bgcolor="black" padding={1}>
                         {
-                          '|L   1|2019/08/06,09:29:13|thanos| |T 0|1.500000| Freeze OFF.'
+                          "|L   1|2019/08/06,09:29:13|thanos| |T 0|1.500000| Freeze OFF."
                         }
                         <br />
                         {
-                          '|L  10|2019/08/06,09:29:14|thanos| |T 0|3.200000| 0x7f6950000fd0 tag=<SimControl> var_server received: trick.exec_freeze()'
-                        }
-                        <br />
-                        <br />
-                        {
-                          '|L   1|2019/08/06,09:29:14|thanos| |T 0|3.300000| Freeze ON. Simulation time holding at 3.300000 seconds.'
-                        }
-                        <br />
-                        {
-                          '|L  10|2019/08/06,09:29:21|thanos| |T 0|3.300000| 0x7f6950000fd0 tag=<SimControl> var_server received: trick.exec_run()'
+                          "|L  10|2019/08/06,09:29:14|thanos| |T 0|3.200000| 0x7f6950000fd0 tag=<SimControl> var_server received: trick.exec_freeze()"
                         }
                         <br />
                         <br />
                         {
-                          '|L   1|2019/08/06,09:29:21|thanos| |T 0|3.300000| Freeze OFF.'
+                          "|L   1|2019/08/06,09:29:14|thanos| |T 0|3.300000| Freeze ON. Simulation time holding at 3.300000 seconds."
                         }
                         <br />
                         {
-                          '|L  10|2019/08/06,09:29:23|thanos| |T 0|4.600000| 0x7f6950000fd0 tag=<SimControl> var_server received: trick.exec_freeze()'
+                          "|L  10|2019/08/06,09:29:21|thanos| |T 0|3.300000| 0x7f6950000fd0 tag=<SimControl> var_server received: trick.exec_run()"
+                        }
+                        <br />
+                        <br />
+                        {
+                          "|L   1|2019/08/06,09:29:21|thanos| |T 0|3.300000| Freeze OFF."
+                        }
+                        <br />
+                        {
+                          "|L  10|2019/08/06,09:29:23|thanos| |T 0|4.600000| 0x7f6950000fd0 tag=<SimControl> var_server received: trick.exec_freeze()"
                         }
                       </MuiBox>
                     </Typography>
@@ -383,7 +399,7 @@ export default class Client extends React.Component {
                         root: classes.inputRoot,
                         input: classes.inputInput,
                       }}
-                      inputProps={{ 'aria-label': 'search' }}
+                      inputProps={{ "aria-label": "search" }}
                     />
                   </div>
                 </Toolbar>
@@ -394,7 +410,13 @@ export default class Client extends React.Component {
                       defaultCollapseIcon={<ExpandMoreIcon />}
                       defaultExpandIcon={<ChevronRightIcon />}
                     >
-                      {this.mapTreeItems(this.state.sie.top_level_objects)}
+                      {this.state.sie.top_level_objects.map(member => (
+                        <this.TVTreeItem
+                          name={member.name}
+                          path={member.name}
+                          type={member.type}
+                        />
+                      ))}
                     </TreeView>
                   </Flex>
                   <Flex flexDirection="column">
@@ -454,10 +476,10 @@ export default class Client extends React.Component {
                           variant="outlined"
                           label="Add Variable"
                           onKeyPress={ev => {
-                            if (ev.key === 'Enter') {
-                              if (ev.target.value !== '') {
+                            if (ev.key === "Enter") {
+                              if (ev.target.value !== "") {
                                 this.addVariable(ev.target.value);
-                                ev.target.value = '';
+                                ev.target.value = "";
                               }
                               ev.preventDefault();
                             }
