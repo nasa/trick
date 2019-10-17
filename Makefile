@@ -140,7 +140,7 @@ ICG_EXE := ${TRICK_HOME}/bin/trick-ICG
 ################################################################################
 # DEFAULT TARGET
 # 1 Build Trick-core and Trick Data-products.
-all: no_dp dp
+all: no_dp webserver dp
 	@ echo ; echo "[32mTrick compilation complete:[00m" ; date
 
 ifeq ($(USE_JAVA), 1)
@@ -207,6 +207,12 @@ $(SWIG_DIRS): icg_sim_serv $(TRICK_LIB_DIR)
 .PHONY: dp
 dp: ${TRICK_HOME}/trick_source/trick_utils/units
 	@ $(MAKE) -C ${TRICK_HOME}/trick_source/data_products
+
+#-------------------------------------------------------------------------------
+#
+.PHONY: webserver
+webserver:
+	@ $(MAKE) -C ${TRICK_HOME}/trick_source/web/HttpServer
 
 #-------------------------------------------------------------------------------
 # 1.3 Build Trick's Java Tools
