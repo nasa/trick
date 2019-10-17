@@ -153,7 +153,7 @@ sub get_lib_deps ($$) {
             }
         }
     }
-    return (@ordered_resolved_files) ;
+    return (grep { !is_path_in($_, "TRICK_EXT_LIB_DIRS") } @ordered_resolved_files) ;
 }
 
 sub write_lib_deps($) {

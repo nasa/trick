@@ -2,7 +2,7 @@ package trick.sie.utils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlID;
@@ -29,7 +29,7 @@ public class SieEnumeration implements Comparable<SieEnumeration>, Serializable 
     public ArrayList<String> enumVals;
 
     /** maps the labels to their corresponding values */
-    public final HashMap<String, String> pairs;
+    public final LinkedHashMap<String, String> pairs;
 
     /** most recently parsed label */
     private String nextLabel;
@@ -52,7 +52,7 @@ public class SieEnumeration implements Comparable<SieEnumeration>, Serializable 
     public SieEnumeration(String name) {
         this.name = name;
         enumVals = new ArrayList<String>();
-        pairs = new HashMap<String, String>();
+        pairs = new LinkedHashMap<String, String>();
     }
 
     /**
