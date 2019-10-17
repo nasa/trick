@@ -47,7 +47,7 @@ static const char * index_html =
         "<div class=\"header\">\n"
             "<table>\n"
                 "<th><img src=\"images/trick_icon.png\" height=\"64\" width=\"64\"></th>\n"
-                "<th><h1>SIM_cannon_numeric</h1></th>\n"
+                "<th><h1>Trick Simulation</h1></th>\n"
             "</table>\n"
         "</div>\n"
     "</head>\n"
@@ -65,7 +65,7 @@ static const char * index_html =
       "</ul>\n"
     "</div>\n"
     "</body>\n"
-    "</html>n";
+    "</html>";
 
 static int confirmDocumentRoot ( std::string documentRoot ) {
 
