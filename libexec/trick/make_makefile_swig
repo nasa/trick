@@ -190,7 +190,7 @@ endef
 \$(foreach EXTENSION,H h hh hxx h++ hpp,\$(eval \$(call create_convert_swig_rule,\$(EXTENSION))))
 
 build/top.i: build/CP_instances
-\t\$(call ECHO_AND_LOG,\${TRICK_HOME}/\${LIBEXEC}/trick/create_top_dot_i)
+\t\$(call ECHO_AND_LOG,\${PYTHON} \${TRICK_HOME}/\${LIBEXEC}/trick/create_top_dot_i)
 
 # SWIG_SRC =====================================================================
 
