@@ -52,10 +52,10 @@ build_libs: ${LIBDIR}/${LIB_TRICK_HTTP} ${LIBDIR}/libmongoose.a
 
 # Build Mongoose Library
 mongoose.h:
-	$(CURL) -o mongoose.h https://raw.githubusercontent.com/cesanta/mongoose/master/mongoose.h
+	$(CURL) --retry 4 -o mongoose.h https://raw.githubusercontent.com/cesanta/mongoose/master/mongoose.h
 
 mongoose.c:
-	$(CURL) -o mongoose.c https://raw.githubusercontent.com/cesanta/mongoose/master/mongoose.c
+	$(CURL) --retry 4 -o mongoose.c https://raw.githubusercontent.com/cesanta/mongoose/master/mongoose.c
 
 ${MONGOOSE_OBJS}: mongoose.h mongoose.c | $(OBJDIR)
 	$(CC) $(CFLAGS) -c -o ${MONGOOSE_OBJS} mongoose.c
