@@ -1,4 +1,4 @@
-/************************TRICK HEADER*************************
+/***********************TRICK HEADER*************************
 PURPOSE:
     (Cannon Numeric)
 LIBRARY DEPENDENCIES:
@@ -9,12 +9,9 @@ LIBRARY DEPENDENCIES:
 *************************************************************/
 
 #include "sim_objects/default_trick_sys.sm"
-
-#ifdef TRICK_HTTP
-#include "mongoose_httpd/mongoose_httpd.sm"
-#endif
-
+#include "sim_objects/WebServer.sm"
 ##include "cannon/gravity/include/cannon_numeric.h"
+
 class CannonSimObject : public Trick::SimObject {
 
     public:
