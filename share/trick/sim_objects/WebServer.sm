@@ -1,12 +1,12 @@
 /************************TRICK HEADER*************************
 PURPOSE: (Trick HTTP Server)
 *************************************************************/
-##include "trick/http_server.hh"
+##include "trick/webserver.hh"
 
-class HttpSimObject : public Trick::SimObject {
+class WebServerSimObject : public Trick::SimObject {
 
     public:
-        HTTP_Server server ;
+        WebServer server ;
 
         HttpSimObject() {
             ("default_data") server.http_default_data() ;
@@ -17,4 +17,4 @@ class HttpSimObject : public Trick::SimObject {
         }
 };
 
-HttpSimObject http ;
+WebServerSimObject web;

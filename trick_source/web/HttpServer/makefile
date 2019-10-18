@@ -25,7 +25,7 @@ TRICK_HTTP_OBJS = \
        ${OBJDIR}/VariableServerSession.o \
        ${OBJDIR}/VariableServerVariable.o \
        ${OBJDIR}/http_GET_handlers.o \
-       ${OBJDIR}/http_server.o \
+       ${OBJDIR}/WebServer.o \
        ${OBJDIR}/simpleJSON.o
 
 #############################################################################
@@ -40,7 +40,7 @@ install: build_libs | ${MONGOOSE_INCDIR}
 	# 
 	$(MV) mongoose.h                  ${TRICK_INCDIR}/mongoose/mongoose.h
 	# 
-	#$(CP) include/http_server.hh      ${TRICK_INCDIR}/trick/http_server.hh
+	#$(CP) include/WebServer.hh      ${TRICK_INCDIR}/trick/WebServer.hh
 	#$(CP) include/WebSocketSession.hh ${TRICK_INCDIR}/trick/WebSocketSession.hh
 	#
 	#$(CP) HttpServer.sm               ${TRICK_HOME}/share/trick/sim_objects/HttpServer.sm

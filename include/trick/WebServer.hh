@@ -1,8 +1,8 @@
 /*************************************************************************
 PURPOSE: (Represent the state and initial conditions of an http server.)
 **************************************************************************/
-#ifndef HTTP_SERVER_H
-#define HTTP_SERVER_H
+#ifndef WEB_SERVER_H
+#define WEB_SERVER_H
 
 #include <string>
 #include <map>
@@ -13,7 +13,7 @@ PURPOSE: (Represent the state and initial conditions of an http server.)
 typedef void (*httpMethodHandler)(struct mg_connection *, struct http_message *);
 typedef WebSocketSession* (*WebSocketSessionMaker)(struct mg_connection *nc);
 
-class HTTP_Server {
+class WebServer {
     public:
         const char* port;
         const char* document_root;

@@ -1,8 +1,5 @@
 /************************************************************************
 PURPOSE: (Represent the state and initial conditions of an http server)
-LIBRARY DEPENDENCIES:
-    ((VariableServerSession.o)
-    (http_GET_handlers.o))
 **************************************************************************/
 #include <sys/stat.h> // for mkdir()
 #include <unistd.h>   // for symlink(), access()
@@ -10,7 +7,7 @@ LIBRARY DEPENDENCIES:
 #include <dirent.h>   // for opendir(), readdir()
 #include <iostream>
 #include <fstream>
-#include "trick/http_server.hh"
+#include "trick/WebServer.hh"
 #include "../include/http_GET_handlers.hh"
 #include "../include/VariableServerSession.hh"
 #include <string.h>
@@ -144,7 +141,7 @@ static int confirmDocumentRoot ( std::string documentRoot ) {
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 
     http_message *hm = (struct http_message *)ev_data;
-    HTTP_Server* httpServer = (HTTP_Server *)nc->user_data;
+    WebServer* httpServer = (WebServer *)nc->user_data;
 
     switch(ev) {
         case MG_EV_WEBSOCKET_HANDSHAKE_DONE: { // Process new websocket connection.
@@ -213,7 +210,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 // This function runs in its own pthread to operate the webserver.
 // =========================================================================
 static void* connectionAttendant (void* arg) {
-   HTTP_Server *S = (HTTP_Server*)arg;
+   WebServer *S = (WebServer*)arg;
    while(1) {
         pthread_mutex_lock(&S->serviceLock);
         // Wait here until the serviceConnections condition is signaled by the top_of_frame job.
@@ -237,7 +234,7 @@ static void* connectionAttendant (void* arg) {
 }
 
 // Install a WebSocketSessionMaker with a name (key) by which it can be retrieved.
-void HTTP_Server::installWebSocketSessionMaker(std::string name, WebSocketSessionMaker maker) {
+void WebServer::installWebSocketSessionMaker(std::string name, WebSocketSessionMaker maker) {
     pthread_mutex_lock(&WebSocketSessionMakerMapLock);
     WebSocketSessionMakerMap.insert(std::pair<std::string, WebSocketSessionMaker>(name, maker));
     pthread_mutex_unlock(&WebSocketSessionMakerMapLock);
@@ -245,7 +242,7 @@ void HTTP_Server::installWebSocketSessionMaker(std::string name, WebSocketSessio
 
 // Lookup and call the WebSocketSessionMaker function by name, end execute it to create and return
 // (a pointer to) a WebSocketSession.
-WebSocketSession* HTTP_Server::makeWebSocketSession(struct mg_connection *nc, std::string name) {
+WebSocketSession* WebServer::makeWebSocketSession(struct mg_connection *nc, std::string name) {
     std::map<std::string, WebSocketSessionMaker>::iterator iter;
     iter = WebSocketSessionMakerMap.find(name);
     if (iter != WebSocketSessionMakerMap.end()) {
@@ -258,7 +255,7 @@ WebSocketSession* HTTP_Server::makeWebSocketSession(struct mg_connection *nc, st
 }
 
 // Install an httpMethodHandler with a name, the key by which it can be retrieved.
-void HTTP_Server::installHTTPGEThandler(std::string handlerName, httpMethodHandler handler) {
+void WebServer::installHTTPGEThandler(std::string handlerName, httpMethodHandler handler) {
     pthread_mutex_lock(&httpGETHandlerMapLock);
     httpGETHandlerMap.insert(std::pair<std::string, httpMethodHandler>(handlerName, handler));
     pthread_mutex_unlock(&httpGETHandlerMapLock);
@@ -266,7 +263,7 @@ void HTTP_Server::installHTTPGEThandler(std::string handlerName, httpMethodHandl
 
 /* Lookup the appropriate httpMethodHandler by name, and execute it for the
    given connection and http_message. */
-void HTTP_Server::handleHTTPGETrequest(struct mg_connection *nc, http_message *hm, std::string handlerName) {
+void WebServer::handleHTTPGETrequest(struct mg_connection *nc, http_message *hm, std::string handlerName) {
     std::map<std::string, httpMethodHandler>::iterator iter;
     iter = httpGETHandlerMap.find(handlerName);
     if (iter != httpGETHandlerMap.end()) {
@@ -278,7 +275,7 @@ void HTTP_Server::handleHTTPGETrequest(struct mg_connection *nc, http_message *h
 }
 
 /* Tell each of the sessions to marshall any data that they have to send. */
-void HTTP_Server::marshallWebSocketSessionData() {
+void WebServer::marshallWebSocketSessionData() {
     std::map<mg_connection*, WebSocketSession*>::iterator iter;
     pthread_mutex_lock(&webSocketSessionMapLock);
     for (iter = webSocketSessionMap.begin(); iter != webSocketSessionMap.end(); iter++ ) {
@@ -291,7 +288,7 @@ void HTTP_Server::marshallWebSocketSessionData() {
 
 // Find the session that goes with the given websocket connection,
 // and tell it to send any messages it may have, to the client (web browser).
-void HTTP_Server::sendWebSocketSessionMessages(struct mg_connection *nc) {
+void WebServer::sendWebSocketSessionMessages(struct mg_connection *nc) {
 
     std::map<mg_connection*, WebSocketSession*>::iterator iter;
     pthread_mutex_lock(&webSocketSessionMapLock);
@@ -306,7 +303,7 @@ void HTTP_Server::sendWebSocketSessionMessages(struct mg_connection *nc) {
 
 /* Delete the WebSocketSession associated with the given connection-pointer,
    and erase its pointer from the webSocketSessionMap. */
-void HTTP_Server::deleteWebSocketSession(struct mg_connection *nc) {
+void WebServer::deleteWebSocketSession(struct mg_connection *nc) {
     std::map<mg_connection*, WebSocketSession*>::iterator iter;
     iter = webSocketSessionMap.find(nc);
     if (iter != webSocketSessionMap.end()) {
@@ -318,7 +315,7 @@ void HTTP_Server::deleteWebSocketSession(struct mg_connection *nc) {
 
 // Lookup the WebSocketSession associated with the given connection-pointer, and pass
 // the given message to it.
-void HTTP_Server::handleWebSocketClientMessage(struct mg_connection *nc, std::string msg) {
+void WebServer::handleWebSocketClientMessage(struct mg_connection *nc, std::string msg) {
     std::map<mg_connection*, WebSocketSession*>::iterator iter;
     iter = webSocketSessionMap.find(nc);
     if (iter != webSocketSessionMap.end()) {
@@ -328,7 +325,7 @@ void HTTP_Server::handleWebSocketClientMessage(struct mg_connection *nc, std::st
 }
 
 // Install a WebSocketSession with a connection-pointer, the key by which it can be retrieved.
-void HTTP_Server::addWebSocketSession(struct mg_connection *nc, WebSocketSession* session) {
+void WebServer::addWebSocketSession(struct mg_connection *nc, WebSocketSession* session) {
     pthread_mutex_lock(&webSocketSessionMapLock);
     webSocketSessionMap.insert( std::pair<mg_connection*, WebSocketSession*>(nc, session) );
     pthread_mutex_unlock(&webSocketSessionMapLock);
@@ -339,7 +336,7 @@ void HTTP_Server::addWebSocketSession(struct mg_connection *nc, WebSocketSession
 // =========================================================================
 
 // Trick "default_data" job.
-int HTTP_Server::http_default_data() {
+int WebServer::http_default_data() {
     port = "8888";
     //port = "0";
     document_root = "www";
@@ -356,7 +353,7 @@ int HTTP_Server::http_default_data() {
 }
 
 // Trick "initialization" job.
-int HTTP_Server::http_init() {
+int WebServer::http_init() {
     http_server_options.document_root = document_root;
     http_server_options.enable_directory_listing = "yes";
 
@@ -391,7 +388,7 @@ int HTTP_Server::http_init() {
     return 0;
 }
 
-int HTTP_Server::http_top_of_frame() {
+int WebServer::http_top_of_frame() {
     if (listener != NULL) {
         if (time_homogeneous) {
             /* Have all of the sessions stage their data in a top_of_frame job, so
@@ -405,7 +402,7 @@ int HTTP_Server::http_top_of_frame() {
     return 0;
 }
 
-int HTTP_Server::http_shutdown() {
+int WebServer::http_shutdown() {
     if (listener != NULL) {
         std::cout << "Trick Webserver: Shutting down on port " << port << "." << std::endl;
         shutting_down = true;
