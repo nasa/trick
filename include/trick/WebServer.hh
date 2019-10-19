@@ -7,7 +7,7 @@ PURPOSE: (Represent the state and initial conditions of an http server.)
 #include <string>
 #include <map>
 #include <pthread.h>
-#include <mongoose.h>
+#include "mongoose/mongoose.h"
 #include "trick/WebSocketSession.hh"
 
 typedef void (*httpMethodHandler)(struct mg_connection *, struct http_message *);

@@ -34,28 +34,27 @@ TRICK_HTTP_OBJS = \
 
 all: install
 
-install: build_libs | ${MONGOOSE_INCDIR}
+
+install_mongoose: ${LIBDIR}/${LIB_MONGOOSE} | ${MONGOOSE_INCDIR}
 	$(MV) ${LIBDIR}/libmongoose.a     ${TRICK_LIBDIR}/libmongoose.a
-	$(MV) ${LIBDIR}/libtrickHTTP.a    ${TRICK_LIBDIR}/libtrickHTTP.a
-	# 
 	$(MV) mongoose.h                  ${TRICK_INCDIR}/mongoose/mongoose.h
-	# 
-	#$(CP) include/WebServer.hh      ${TRICK_INCDIR}/trick/WebServer.hh
-	#$(CP) include/WebSocketSession.hh ${TRICK_INCDIR}/trick/WebSocketSession.hh
-	#
-	#$(CP) HttpServer.sm               ${TRICK_HOME}/share/trick/sim_objects/HttpServer.sm
+
+install_trickHTTP: ${LIBDIR}/${LIB_TRICK_HTTP}
+	$(MV) ${LIBDIR}/libtrickHTTP.a    ${TRICK_LIBDIR}/libtrickHTTP.a
+
+install: install_mongoose install_trickHTTP
 
 ${MONGOOSE_INCDIR}: 
 	$(MKDIR) -p ${MONGOOSE_INCDIR}
 
-build_libs: ${LIBDIR}/${LIB_TRICK_HTTP} ${LIBDIR}/libmongoose.a
+build_libs: ${LIBDIR}/libmongoose.a ${LIBDIR}/${LIB_TRICK_HTTP}
 
 # Build Mongoose Library
 mongoose.h:
-	$(CURL) --retry 4 -O http://raw.githubusercontent.com/cesanta/mongoose/master/mongoose.h
+	$(CURL) --retry 4 -O https://raw.githubusercontent.com/cesanta/mongoose/master/mongoose.h
 
 mongoose.c:
-	$(CURL) --retry 4 -O http://raw.githubusercontent.com/cesanta/mongoose/master/mongoose.c
+	$(CURL) --retry 4 -O https://raw.githubusercontent.com/cesanta/mongoose/master/mongoose.c
 
 ${MONGOOSE_OBJS}: mongoose.h mongoose.c | $(OBJDIR)
 	$(CC) $(CFLAGS) -c -o ${MONGOOSE_OBJS} mongoose.c

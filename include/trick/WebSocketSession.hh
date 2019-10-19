@@ -5,7 +5,7 @@ PURPOSE: (Represent Websocket connection.)
 #define WEB_SOCKET_SESSION_HH
 
 #include <string>
-#include <mongoose.h>
+#include "mongoose/mongoose.h"
 
 class WebSocketSession {
     public:
