@@ -1,7 +1,7 @@
 /************************TRICK HEADER*************************
 PURPOSE: (Trick HTTP Server)
 *************************************************************/
-##include "trick/webserver.hh"
+##include "trick/WebServer.hh"
 
 class WebServerSimObject : public Trick::SimObject {
 
