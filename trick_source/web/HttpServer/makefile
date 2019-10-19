@@ -34,15 +34,16 @@ TRICK_HTTP_OBJS = \
 
 all: install
 
+install: install_mongoose install_trickHTTP
 
-install_mongoose: ${LIBDIR}/${LIB_MONGOOSE} | ${MONGOOSE_INCDIR}
+install_mongoose: ${LIBDIR}/${LIB_MONGOOSE} ${MONGOOSE_INCDIR}/mongoose.h
 	$(MV) ${LIBDIR}/libmongoose.a     ${TRICK_LIBDIR}/libmongoose.a
-	$(MV) mongoose.h                  ${TRICK_INCDIR}/mongoose/mongoose.h
 
 install_trickHTTP: ${LIBDIR}/${LIB_TRICK_HTTP}
 	$(MV) ${LIBDIR}/libtrickHTTP.a    ${TRICK_LIBDIR}/libtrickHTTP.a
 
-install: install_mongoose install_trickHTTP
+${MONGOOSE_INCDIR}/mongoose.h: mongoose.h | ${MONGOOSE_INCDIR}
+	$(CP) mongoose.h ${MONGOOSE_INCDIR}/mongoose.h
 
 ${MONGOOSE_INCDIR}: 
 	$(MKDIR) -p ${MONGOOSE_INCDIR}
@@ -64,7 +65,7 @@ ${LIBDIR}/${LIB_MONGOOSE}: ${MONGOOSE_OBJS} | ${LIBDIR}
 
 
 # Build Trick HTTP Server Library
-$(TRICK_HTTP_OBJS): $(OBJDIR)/%.o : src/%.cpp | $(OBJDIR)
+$(TRICK_HTTP_OBJS): $(OBJDIR)/%.o : src/%.cpp ${MONGOOSE_INCDIR}/mongoose.h | $(OBJDIR)
 	$(CPP) $(CFLAGS) ${INCLUDE_DIRS} -c $< -o $@
 
 ${LIBDIR}/${LIB_TRICK_HTTP}: ${TRICK_HTTP_OBJS} | ${LIBDIR}
