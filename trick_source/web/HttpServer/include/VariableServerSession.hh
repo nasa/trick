@@ -7,7 +7,7 @@ PURPOSE: (Represent the state of a variable server websocket connection.)
 
 #include <vector>
 #include <string>
-#include <mongoose.h>
+#include "mongoose/mongoose.h"
 #include "trick/WebSocketSession.hh"
 #include "VariableServerVariable.hh"
 

@@ -6,7 +6,7 @@ LIBRARY DEPENDENCIES:
 #ifndef HANDLE_HTTP_GET_HANDLERS_HH
 #define HANDLE_HTTP_GET_HANDLERS_HH
 
-#include <mongoose.h>
+#include "mongoose/mongoose.h"
 
 void handle_HTTP_GET_vs_connections(struct mg_connection *nc, struct http_message *hm);
 void handle_HTTP_GET_alloc_info(struct mg_connection *nc, struct http_message *hm);

@@ -8,7 +8,7 @@ LIBRARY DEPENDENCIES:
 
 #include <time.h>
 #include <vector>
-#include <mongoose/mongoose.h>
+#include "mongoose/mongoose.h"
 #include <iostream>
 #include <trick/reference.h>
 
