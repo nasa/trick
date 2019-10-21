@@ -34,23 +34,19 @@ TRICK_HTTP_OBJS = \
 ##                            MODEL TARGETS                                ##
 #############################################################################
 
-all: install
+all: ${TRICK_LIBDIR}/libmongoose.a ${TRICK_LIBDIR}/libtrickHTTP.a
 
-install: ${TRICK_LIBDIR}/libmongoose.a ${TRICK_LIBDIR}/libtrickHTTP.a
+${TRICK_LIBDIR}/libmongoose.a: ${LIBDIR}/libmongoose.a ${MONGOOSE_INCDIR}/mongoose.h
+	$(MV) ${LIBDIR}/libmongoose.a ${TRICK_LIBDIR}
 
-${TRICK_LIBDIR}/libmongoose.a: ${LIBDIR}/${LIB_MONGOOSE} ${MONGOOSE_INCDIR}/mongoose.h
-	$(MV) ${LIBDIR}/libmongoose.a     ${TRICK_LIBDIR}/libmongoose.a
-
-${TRICK_LIBDIR}/libtrickHTTP.a: ${LIBDIR}/${LIB_TRICK_HTTP}
-	$(MV) ${LIBDIR}/libtrickHTTP.a    ${TRICK_LIBDIR}/libtrickHTTP.a
+${TRICK_LIBDIR}/libtrickHTTP.a: ${LIBDIR}/libtrickHTTP.a
+	$(MV) ${LIBDIR}/libtrickHTTP.a ${TRICK_LIBDIR}
 
 ${MONGOOSE_INCDIR}/mongoose.h: mongoose.h | ${MONGOOSE_INCDIR}
 	$(CP) mongoose.h ${MONGOOSE_INCDIR}/mongoose.h
 
 ${MONGOOSE_INCDIR}: 
 	$(MKDIR) -p ${MONGOOSE_INCDIR}
-
-build_libs: ${LIBDIR}/libmongoose.a ${LIBDIR}/${LIB_TRICK_HTTP}
 
 # Build Mongoose Library
 mongoose.h:
