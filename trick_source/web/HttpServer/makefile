@@ -36,12 +36,12 @@ TRICK_HTTP_OBJS = \
 
 all: install
 
-install: install_mongoose install_trickHTTP
+install: ${TRICK_LIBDIR}/libmongoose.a ${TRICK_LIBDIR}/libtrickHTTP.a
 
-install_mongoose: ${LIBDIR}/${LIB_MONGOOSE} ${MONGOOSE_INCDIR}/mongoose.h
+${TRICK_LIBDIR}/libmongoose.a: ${LIBDIR}/${LIB_MONGOOSE} ${MONGOOSE_INCDIR}/mongoose.h
 	$(MV) ${LIBDIR}/libmongoose.a     ${TRICK_LIBDIR}/libmongoose.a
 
-install_trickHTTP: ${LIBDIR}/${LIB_TRICK_HTTP}
+${TRICK_LIBDIR}/libtrickHTTP.a: ${LIBDIR}/${LIB_TRICK_HTTP}
 	$(MV) ${LIBDIR}/libtrickHTTP.a    ${TRICK_LIBDIR}/libtrickHTTP.a
 
 ${MONGOOSE_INCDIR}/mongoose.h: mongoose.h | ${MONGOOSE_INCDIR}
