@@ -7,6 +7,8 @@ CP = cp
 MKDIR = mkdir
 
 CFLAGS = -g -Wall
+CPPFLAGS = -g -Wall -std=c++11
+
 INCLUDE_DIRS = -Iinclude -I${TRICK_HOME}/include
 
 OBJDIR = obj
@@ -66,7 +68,7 @@ ${LIBDIR}/${LIB_MONGOOSE}: ${MONGOOSE_OBJS} | ${LIBDIR}
 
 # Build Trick HTTP Server Library
 $(TRICK_HTTP_OBJS): $(OBJDIR)/%.o : src/%.cpp ${MONGOOSE_INCDIR}/mongoose.h | $(OBJDIR)
-	$(CPP) $(CFLAGS) ${INCLUDE_DIRS} -c $< -o $@
+	$(CPP) $(CPPFLAGS) ${INCLUDE_DIRS} -c $< -o $@
 
 ${LIBDIR}/${LIB_TRICK_HTTP}: ${TRICK_HTTP_OBJS} | ${LIBDIR}
 	ar crs $@ ${TRICK_HTTP_OBJS}
