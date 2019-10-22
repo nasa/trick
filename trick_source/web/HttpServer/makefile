@@ -1,3 +1,5 @@
+include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
+
 RM = rm -rf
 CC = cc
 CPP = c++
@@ -15,14 +17,11 @@ OBJDIR = obj
 LIBDIR = lib
 INCDIR = include
 
-TRICK_LIBDIR = ${TRICK_HOME}/lib
-TRICK_INCDIR = ${TRICK_HOME}/include
+#TRICK_LIB_DIR comes from Makefile.common
 
 MONGOOSE_OBJS = ${OBJDIR}/mongoose.o
-LIB_MONGOOSE = libmongoose.a 
-MONGOOSE_INCDIR = ${TRICK_INCDIR}/mongoose
+MONGOOSE_INCDIR = ${TRICK_HOME}/include/mongoose
 
-LIB_TRICK_HTTP = libtrickHTTP.a
 TRICK_HTTP_OBJS = \
        ${OBJDIR}/VariableServerSession.o \
        ${OBJDIR}/VariableServerVariable.o \
@@ -34,13 +33,15 @@ TRICK_HTTP_OBJS = \
 ##                            MODEL TARGETS                                ##
 #############################################################################
 
-all: ${TRICK_LIBDIR}/libmongoose.a ${TRICK_LIBDIR}/libtrickHTTP.a
+all: build_libs
 
-${TRICK_LIBDIR}/libmongoose.a: ${LIBDIR}/libmongoose.a ${MONGOOSE_INCDIR}/mongoose.h
-	$(MV) ${LIBDIR}/libmongoose.a ${TRICK_LIBDIR}
+build_libs: ${TRICK_LIB_DIR}/libmongoose.a ${TRICK_LIB_DIR}/libtrickHTTP.a
 
-${TRICK_LIBDIR}/libtrickHTTP.a: ${LIBDIR}/libtrickHTTP.a
-	$(MV) ${LIBDIR}/libtrickHTTP.a ${TRICK_LIBDIR}
+${TRICK_LIB_DIR}/libmongoose.a: ${LIBDIR}/libmongoose.a ${MONGOOSE_INCDIR}/mongoose.h
+	$(MV) ${LIBDIR}/libmongoose.a ${TRICK_LIB_DIR}
+
+${TRICK_LIB_DIR}/libtrickHTTP.a: ${LIBDIR}/libtrickHTTP.a
+	$(MV) ${LIBDIR}/libtrickHTTP.a ${TRICK_LIB_DIR}
 
 ${MONGOOSE_INCDIR}/mongoose.h: mongoose.h | ${MONGOOSE_INCDIR}
 	$(CP) mongoose.h ${MONGOOSE_INCDIR}/mongoose.h
@@ -58,7 +59,7 @@ mongoose.c:
 ${MONGOOSE_OBJS}: mongoose.h mongoose.c | $(OBJDIR)
 	$(CC) $(CFLAGS) -c -o ${MONGOOSE_OBJS} mongoose.c
 
-${LIBDIR}/${LIB_MONGOOSE}: ${MONGOOSE_OBJS} | ${LIBDIR}
+${LIBDIR}/libmongoose.a: ${MONGOOSE_OBJS} | ${LIBDIR}
 	ar crs $@ ${MONGOOSE_OBJS}
 
 
@@ -66,7 +67,7 @@ ${LIBDIR}/${LIB_MONGOOSE}: ${MONGOOSE_OBJS} | ${LIBDIR}
 $(TRICK_HTTP_OBJS): $(OBJDIR)/%.o : src/%.cpp ${MONGOOSE_INCDIR}/mongoose.h | $(OBJDIR)
 	$(CPP) $(CPPFLAGS) ${INCLUDE_DIRS} -c $< -o $@
 
-${LIBDIR}/${LIB_TRICK_HTTP}: ${TRICK_HTTP_OBJS} | ${LIBDIR}
+${LIBDIR}/libtrickHTTP.a: ${TRICK_HTTP_OBJS} | ${LIBDIR}
 	ar crs $@ ${TRICK_HTTP_OBJS}
 
 # ---------------------------------
@@ -82,6 +83,6 @@ clean:
 	${RM} ${OBJDIR}
 
 spotless: clean
-	${RM} ${LIBDIR}/${LIB_TRICK_HTTP}
-
+	${RM} ${LIBDIR}
+	${RM} mongoose.h mongoose.c
 
