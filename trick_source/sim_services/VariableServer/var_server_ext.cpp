@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include <string.h>
 
 #include "trick/VariableServer.hh"
 #include "trick/exec_proto.h"
@@ -7,6 +8,7 @@
 #include "trick/message_type.h"
 #include "trick/memorymanager_c_intf.h"
 #include "trick/map_trick_units_to_udunits.hh"
+
 
 extern Trick::VariableServer * the_vs ;
 
@@ -530,11 +532,14 @@ int var_set_base( const char  * var , T value , const char * units ) {
             v_tree.v_data = &v_data ;
             var_set_value( v_data , value) ;
             if ( units != NULL ) {
-                ref->units = (char *)(map_trick_units_to_udunits(units).c_str()) ;
+                ref->units = strdup(map_trick_units_to_udunits(units).c_str()) ;
             } else {
-                ref->units = (char *)units ;
+                ref->units = NULL ;
             }
             ref_assignment(ref , &v_tree) ;
+            if(ref->units != NULL) {
+                free(ref->units) ;
+            }
             free(ref) ;
         } else {
             message_publish(MSG_WARNING,"Cannot assign to %s because io_spec does not allow input\n", var) ;
