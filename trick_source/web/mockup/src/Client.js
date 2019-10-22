@@ -188,7 +188,11 @@ export default class Client extends React.Component {
         label={name + dimensionString}
         onDoubleClick={e => {
           e.stopPropagation();
-          this.addVariable(path);
+          if(dims.length === 0) {
+            this.addVariable(path);
+            return;
+          }
+          
         }}
       >
         {members
