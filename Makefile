@@ -218,10 +218,10 @@ webserver: ${TRICK_LIB_DIR}/libmongoose.a ${TRICK_HOME}/include/mongoose/mongoos
 TRICK_ICG_EXCLUDE += ${TRICK_HOME}/include/mongoose
 
 mongoose.h:
-	curl --retry 4 -O https://raw.githubusercontent.com/cesanta/mongoose/6.7.1/mongoose.h
+	curl --retry 4 -O https://raw.githubusercontent.com/cesanta/mongoose/6.16/mongoose.h
 
 mongoose.c:
-	curl --retry 4 -O https://raw.githubusercontent.com/cesanta/mongoose/6.7.1/mongoose.c
+	curl --retry 4 -O https://raw.githubusercontent.com/cesanta/mongoose/6.16/mongoose.c
 
 mongoose.o: mongoose.h mongoose.c
 	$(CC) $(TRICK_CFLAGS) -c -o mongoose.o mongoose.c
