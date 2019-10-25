@@ -19,9 +19,6 @@ INCDIR = include
 
 #TRICK_LIB_DIR comes from Makefile.common
 
-MONGOOSE_OBJS = ${OBJDIR}/mongoose.o
-MONGOOSE_INCDIR = ${TRICK_HOME}/include/mongoose
-
 TRICK_HTTP_OBJS = \
        ${OBJDIR}/VariableServerSession.o \
        ${OBJDIR}/VariableServerVariable.o \
@@ -33,56 +30,19 @@ TRICK_HTTP_OBJS = \
 ##                            MODEL TARGETS                                ##
 #############################################################################
 
-all: build_libs
+all: ${TRICK_LIB_DIR}/libtrickHTTP.a
 
-build_libs: ${TRICK_LIB_DIR}/libmongoose.a ${TRICK_LIB_DIR}/libtrickHTTP.a
-
-${TRICK_LIB_DIR}/libmongoose.a: ${LIBDIR}/libmongoose.a ${MONGOOSE_INCDIR}/mongoose.h
-	$(MV) ${LIBDIR}/libmongoose.a ${TRICK_LIB_DIR}
-
-${TRICK_LIB_DIR}/libtrickHTTP.a: ${LIBDIR}/libtrickHTTP.a
-	$(MV) ${LIBDIR}/libtrickHTTP.a ${TRICK_LIB_DIR}
-
-${MONGOOSE_INCDIR}/mongoose.h: mongoose.h | ${MONGOOSE_INCDIR}
-	$(CP) mongoose.h ${MONGOOSE_INCDIR}/mongoose.h
-
-${MONGOOSE_INCDIR}: 
-	$(MKDIR) -p ${MONGOOSE_INCDIR}
-
-# Build Mongoose Library
-mongoose.h:
-	$(CURL) --retry 4 -O https://raw.githubusercontent.com/cesanta/mongoose/master/mongoose.h
-
-mongoose.c:
-	$(CURL) --retry 4 -O https://raw.githubusercontent.com/cesanta/mongoose/master/mongoose.c
-
-${MONGOOSE_OBJS}: mongoose.h mongoose.c | $(OBJDIR)
-	$(CC) $(CFLAGS) -c -o ${MONGOOSE_OBJS} mongoose.c
-
-${LIBDIR}/libmongoose.a: ${MONGOOSE_OBJS} | ${LIBDIR}
-	ar crs $@ ${MONGOOSE_OBJS}
-
-
-# Build Trick HTTP Server Library
-$(TRICK_HTTP_OBJS): $(OBJDIR)/%.o : src/%.cpp ${MONGOOSE_INCDIR}/mongoose.h | $(OBJDIR)
+$(TRICK_HTTP_OBJS): $(OBJDIR)/%.o : src/%.cpp | $(OBJDIR)
 	$(CPP) $(CPPFLAGS) ${INCLUDE_DIRS} -c $< -o $@
 
-${LIBDIR}/libtrickHTTP.a: ${TRICK_HTTP_OBJS} | ${LIBDIR}
+${TRICK_LIB_DIR}/libtrickHTTP.a: ${TRICK_HTTP_OBJS}
 	ar crs $@ ${TRICK_HTTP_OBJS}
 
-# ---------------------------------
+# ---------------------------------------------------------------------------
 
 ${OBJDIR}:
 	mkdir -p ${OBJDIR}
 
-${LIBDIR}:
-	mkdir -p ${LIBDIR}
-
 clean:
 	${RM} *~
 	${RM} ${OBJDIR}
-
-spotless: clean
-	${RM} ${LIBDIR}
-	${RM} mongoose.h mongoose.c
-
