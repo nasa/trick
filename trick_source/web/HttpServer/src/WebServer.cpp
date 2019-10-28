@@ -344,6 +344,8 @@ int WebServer::http_default_data() {
     service_websocket = false;
     shutting_down = false;
     sessionDataMarshalled = false;
+    listener = NULL;
+    enable = false;
 
     installHTTPGEThandler("vs_connections", &handle_HTTP_GET_vs_connections);
     installHTTPGEThandler("alloc_info", &handle_HTTP_GET_alloc_info);
@@ -354,37 +356,43 @@ int WebServer::http_default_data() {
 
 // Trick "initialization" job.
 int WebServer::http_init() {
-    http_server_options.document_root = document_root;
-    http_server_options.enable_directory_listing = "yes";
 
-    confirmDocumentRoot( std::string(document_root));
+    if (enable) {
+        http_server_options.document_root = document_root;
+        http_server_options.enable_directory_listing = "yes";
 
-    mg_mgr_init( &mgr, NULL );
+        confirmDocumentRoot( std::string(document_root));
 
-    memset(&bind_opts, 0, sizeof(bind_opts));
-    bind_opts.user_data = this;
-    listener = mg_bind_opt( &mgr, port, ev_handler, bind_opts);
+        mg_mgr_init( &mgr, NULL );
 
-    // Determine the ACTUAL listen port as opposed to the requested port.
-    // Note that if we specify port = "0" in the mg_bind_opt() call, then
-    // a port number will be chosen for us, and we have to find out what it actually is.
-    char buf[32];
-    mg_conn_addr_to_str( listener, buf, 32, MG_SOCK_STRINGIFY_PORT);
-    port = strdup(buf);
+        memset(&bind_opts, 0, sizeof(bind_opts));
+        bind_opts.user_data = this;
+        listener = mg_bind_opt( &mgr, port, ev_handler, bind_opts);
 
-    if (listener != NULL) {
-        std::cout << "Trick Webserver: Listening on port = " << port << ".\n"
-                  << "Trick Webserver: Document root = \"" << document_root << "\""
-                  << std::endl;
+        // Determine the ACTUAL listen port as opposed to the requested port.
+        // Note that if we specify port = "0" in the mg_bind_opt() call, then
+        // a port number will be chosen for us, and we have to find out what it actually is.
+        char buf[32];
+        mg_conn_addr_to_str( listener, buf, 32, MG_SOCK_STRINGIFY_PORT);
+        port = strdup(buf);
+
+        if (listener != NULL) {
+            std::cout << "Trick Webserver: Listening on port = " << port << ".\n"
+                      << "Trick Webserver: Document root = \"" << document_root << "\""
+                      << std::endl;
+        } else {
+            std::cerr << "Trick Webserver: ERROR: Failed to create listener.\n"
+                      << "Perhaps another program is already using port " << port << "."
+                      << std::endl;
+            return 1;
+        }
+        mg_set_protocol_http_websocket( listener );
+        pthread_cond_init(&serviceConnections, NULL);
+        pthread_create( &server_thread, NULL, connectionAttendant, (void*)this );
     } else {
-        std::cerr << "Trick Webserver: ERROR: Failed to create listener.\n"
-                  << "Perhaps another program is already using port " << port << "."
+        std::cout << "Trick Webserver: Disabled."
                   << std::endl;
-        return 1;
     }
-    mg_set_protocol_http_websocket( listener );
-    pthread_cond_init(&serviceConnections, NULL);
-    pthread_create( &server_thread, NULL, connectionAttendant, (void*)this );
     return 0;
 }
 
@@ -392,7 +400,7 @@ int WebServer::http_top_of_frame() {
     if (listener != NULL) {
         if (time_homogeneous) {
             /* Have all of the sessions stage their data in a top_of_frame job, so
-               that it's time-homogeneous. */
+    ``           that it's time-homogeneous. */
             marshallWebSocketSessionData();
         }
         // Signal the server thread to construct and send the values-message to the client.
