@@ -23,6 +23,7 @@ class WebServer {
         struct mg_connection *listener;  /* ** mongoose */
         pthread_t server_thread;         /* ** */
         bool shutting_down;
+        bool enable;
 
         std::map< std::string, httpMethodHandler> httpGETHandlerMap;            /* ** */
         pthread_mutex_t httpGETHandlerMapLock;                                  /* ** */
