@@ -24,6 +24,7 @@ class WebServer {
         pthread_t server_thread;         /* ** */
         bool shutting_down;
         bool enable;
+        bool debug;
 
         std::map< std::string, httpMethodHandler> httpGETHandlerMap;            /* ** */
         pthread_mutex_t httpGETHandlerMapLock;                                  /* ** */
