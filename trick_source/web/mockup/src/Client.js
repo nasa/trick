@@ -33,6 +33,8 @@ import ListItemText from "@material-ui/core/ListItemText";
 import InboxIcon from "@material-ui/icons/MoveToInbox";
 import MailIcon from "@material-ui/icons/Mail";
 
+import Dialog from "@material-ui/core/Dialog";
+import DialogTitle from "@material-ui/core/DialogTitle";
 //import OutlinedInput from '@material-ui/core/OutlinedInput';
 
 //import MenuItem from '@material-ui/core/MenuItem';
@@ -45,10 +47,17 @@ export default class Client extends React.Component {
     this.state = {
       variables: [],
       data: [],
-      unit: [],
+      units: [],
       time: 0.0,
       sie: { top_level_objects: [] },
       children: {},
+      addVariable: "",
+      dialogOpen: false,
+      dialogText: "",
+      dialogDims: [],
+      dialogElems: [],
+      dialogStart: [],
+      selectedVar: "",
     };
     console.log("Client created");
     this.ws = new WebSocket(
@@ -64,13 +73,26 @@ export default class Client extends React.Component {
     this.ws.onmessage = e => {
       //console.log('Message received');
       let message = JSON.parse(e.data);
-
+      if (message.msg_type === "error") {
+        console.log(message.error);
+      }
       if (message.msg_type === "values") {
         this.setState({ time: message.time, data: message.values });
       }
       if (message.msg_type === "sie") {
         console.log(message);
         this.setState({ sie: message.data });
+      }
+      if (message.msg_type === "units") {
+        console.log(message);
+        let i = this.state.variables.indexOf(message.var_name);
+        this.setState({
+          units: [
+            ...this.state.units.slice(0, i),
+            message.data,
+            ...this.state.units.slice(i + 1),
+          ],
+        });
       }
     };
   }
@@ -110,12 +132,16 @@ export default class Client extends React.Component {
     this.send_msg(msg);
   };
 
-  addVariable = v => {
-    this.setState({
-      variables: [...this.state.variables, v],
-      data: [...this.state.data, 0.0],
+  addVariable = (path, units = "--") => {
+    console.log("in add var");
+    this.setState(prev => {
+      return {
+        variables: [...prev.variables, path],
+        data: [...prev.data, 0.0],
+        units: [...prev.units, units],
+      };
     });
-    this.var_add(v);
+    this.var_add(path);
   };
 
   clearVariables = () => {
@@ -147,6 +173,15 @@ export default class Client extends React.Component {
     };
     this.send_msg(msg);
   };
+
+  request_units = var_name => {
+    let msg = {
+      cmd: "units",
+      var_name: var_name,
+    };
+    this.send_msg(msg);
+  };
+
   sim_step = () => {
     /* TODO handle debug stepping mode
     this.input_processor('trick.debug_pause_on()');
@@ -169,30 +204,57 @@ export default class Client extends React.Component {
     </Box>
   );
 
-  TVTreeItem = ({ name, path, type, dims = [] }) => {
+  count = str => {
+    const re = /\[.*?\]/g;
+    return ((str || "").match(re) || []).length;
+  };
+
+  TVTreeItem = ({ name, path, type, dims = [], units = "--" }) => {
     const [expanded, setExpanded] = useState(true);
     const members = this.getMembers(type);
     let dimensionString = "";
     for (let dim of dims) {
-      if (dim === "0") {
-        dimensionString += "[*]";
-      } else {
-        dimensionString += "[" + dim + "]";
-      }
+      dimensionString += "[" + dim + "]";
     }
-    path = path + dimensionString;
+
+    let pathdims = path + dimensionString;
     // console.log("name: " + name + " path: " + path + " type: " + type);
     return (
       <TreeItem
-        nodeId={path ? path : ""}
+        nodeId={pathdims ? pathdims : ""}
         label={name + dimensionString}
         onDoubleClick={e => {
           e.stopPropagation();
-          if(dims.length === 0) {
-            this.addVariable(path);
+          this.setState({ selectedVar: path });
+          if (dims.length === 0) {
+            this.addVariable(pathdims, units);
             return;
+          } else {
+            this.setState({
+              addVariable: pathdims.replace(/\[.*?\]/g, "[<index>]"),
+            });
+            console.log(String(pathdims.match(/\[(.*?)\]/g)));
+            console.log(
+              String(pathdims.match(/\[(.*?)\]/g))
+                .replace(/\[|\]/g, "")
+                .replace(/,/g, " "),
+            );
+            console.log(String(pathdims.match(/\[(.*?)\]/g)).match(/\d+/g));
+            let Dims = String(pathdims.match(/\[(.*?)\]/g)).match(/\d+/g);
+            let Elems = [];
+            let Start = [];
+            Dims.map((elem, index) => {
+              Elems[index] = elem > 0 ? elem - 1 : 0;
+              Start[index] = 0;
+            });
+            this.setState({
+              dialogText: "Select elements to add to TV",
+              dialogDims: Dims, //   String(this.count(pathdims)),
+              dialogElems: Elems,
+              dialogStart: Start,
+              dialogOpen: true,
+            });
           }
-          
         }}
       >
         {members
@@ -204,6 +266,8 @@ export default class Client extends React.Component {
                   path={[path, member.name].join(".")}
                   type={member.type}
                   dims={member.dimensions}
+                  units={member.units}
+                  key={[path, member.name].join(".")}
                 />
               );
             })
@@ -221,6 +285,25 @@ export default class Client extends React.Component {
     }
     // console.log("returning null");
     return null;
+  };
+
+  recurse = (path, arr1, arr2) => {
+    if (arr1.length === 0) {
+      console.log("add variable " + path);
+      this.addVariable(path);
+    } else {
+      for (let i = arr1[0]; i <= arr2[0]; i++) {
+        let s = path + "[" + i + "]";
+        this.recurse(s, arr1.slice(1), arr2.slice(1));
+      }
+    }
+  };
+
+  addArrayVariables = () => {
+    let path = this.state.selectedVar;
+    let arr1 = this.state.dialogStart;
+    let arr2 = this.state.dialogElems;
+    this.recurse(path, arr1, arr2);
   };
 
   render() {
@@ -356,31 +439,7 @@ export default class Client extends React.Component {
                   <ExpansionPanelDetails>
                     <Typography>
                       <MuiBox bgcolor="black" padding={1}>
-                        {
-                          "|L   1|2019/08/06,09:29:13|thanos| |T 0|1.500000| Freeze OFF."
-                        }
-                        <br />
-                        {
-                          "|L  10|2019/08/06,09:29:14|thanos| |T 0|3.200000| 0x7f6950000fd0 tag=<SimControl> var_server received: trick.exec_freeze()"
-                        }
-                        <br />
-                        <br />
-                        {
-                          "|L   1|2019/08/06,09:29:14|thanos| |T 0|3.300000| Freeze ON. Simulation time holding at 3.300000 seconds."
-                        }
-                        <br />
-                        {
-                          "|L  10|2019/08/06,09:29:21|thanos| |T 0|3.300000| 0x7f6950000fd0 tag=<SimControl> var_server received: trick.exec_run()"
-                        }
-                        <br />
-                        <br />
-                        {
-                          "|L   1|2019/08/06,09:29:21|thanos| |T 0|3.300000| Freeze OFF."
-                        }
-                        <br />
-                        {
-                          "|L  10|2019/08/06,09:29:23|thanos| |T 0|4.600000| 0x7f6950000fd0 tag=<SimControl> var_server received: trick.exec_freeze()"
-                        }
+                        {"Coming Soon"}
                       </MuiBox>
                     </Typography>
                   </ExpansionPanelDetails>
@@ -419,6 +478,7 @@ export default class Client extends React.Component {
                           name={member.name}
                           path={member.name}
                           type={member.type}
+                          key={member.name}
                         />
                       ))}
                     </TreeView>
@@ -435,7 +495,7 @@ export default class Client extends React.Component {
                           <TableRow hover={true}>
                             <TableCell>Variable</TableCell>
                             <TableCell align="right">Value</TableCell>
-                            <TableCell align="right">Unit</TableCell>
+                            <TableCell align="right">Units</TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
@@ -456,15 +516,16 @@ export default class Client extends React.Component {
                                     ]}
                               </TableCell>
                               <TableCell align="right">
-                                {this.state.unit[
+                                {this.state.units[
                                   this.state.variables.indexOf(v)
                                 ] &&
-                                this.state.unit[this.state.variables.indexOf(v)]
-                                  .toFixed
-                                  ? this.state.unit[
+                                this.state.units[
+                                  this.state.variables.indexOf(v)
+                                ].toFixed
+                                  ? this.state.units[
                                       this.state.variables.indexOf(v)
                                     ].toFixed(3)
-                                  : this.state.unit[
+                                  : this.state.units[
                                       this.state.variables.indexOf(v)
                                     ]}
                               </TableCell>
@@ -479,11 +540,16 @@ export default class Client extends React.Component {
                           className={classes.textfield}
                           variant="outlined"
                           label="Add Variable"
+                          value={this.state.addVariable}
+                          onChange={ev => {
+                            this.setState({ addVariable: ev.target.value });
+                          }}
                           onKeyPress={ev => {
                             if (ev.key === "Enter") {
                               if (ev.target.value !== "") {
                                 this.addVariable(ev.target.value);
-                                ev.target.value = "";
+                                this.request_units(ev.target.value);
+                                this.setState({ addVariable: "" });
                               }
                               ev.preventDefault();
                             }
@@ -512,6 +578,57 @@ export default class Client extends React.Component {
             </Box>
           </Flex>
         </Flex>
+        <Dialog open={this.state.dialogOpen}>
+          <DialogTitle>Select Dimensions</DialogTitle>
+          {this.state.dialogText}
+          {this.state.dialogElems.map((elem, index) => {
+            return (
+              <div>
+                Dim {index}
+                <TextField
+                  className={classes.textfield}
+                  label="start"
+                  variant="outlined"
+                  value={this.state.dialogStart[index]}
+                  onChange={e => {
+                    this.setState({
+                      dialogStart: [
+                        ...this.state.dialogStart.slice(0, index),
+                        e.target.value,
+                        ...this.state.dialogStart.slice(index + 1),
+                      ],
+                    });
+                  }}
+                />
+                <TextField
+                  label="end"
+                  variant="outlined"
+                  value={elem}
+                  onChange={e => {
+                    this.setState({
+                      dialogElems: [
+                        ...this.state.dialogElems.slice(0, index),
+                        e.target.value,
+                        ...this.state.dialogElems.slice(index + 1),
+                      ],
+                    });
+                  }}
+                />
+              </div>
+            );
+          })}
+          <Button
+            onClick={() => {
+              this.addArrayVariables();
+              this.setState({ dialogOpen: false });
+            }}
+          >
+            Add Variables
+          </Button>
+          <Button onClick={() => this.setState({ dialogOpen: false })}>
+            Cancel
+          </Button>
+        </Dialog>
       </div>
     );
   }

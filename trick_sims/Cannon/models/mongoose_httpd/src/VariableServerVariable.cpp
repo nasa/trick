@@ -2,6 +2,7 @@
 #include "../include/VariableServerVariable.hh"
 #include <math.h> // for fpclassify
 #include <iomanip> // for setprecision
+#include <iostream>
 
 VariableServerVariable::VariableServerVariable(REF2 * ref ) {
     varInfo = ref;
@@ -51,6 +52,7 @@ const char* VariableServerVariable::getName() {
 }
 
 static void write_quoted_str( std::ostream& os, const char* s) {
+    std::cout << s << std::endl;
     int ii;
     int len = strlen(s);
     os << "\"" ;
@@ -80,6 +82,7 @@ void VariableServerVariable::stageValue() {
     if (address != NULL) {
          memcpy(stageBuffer, address, size);
     }
+    std::cout << "\n\nHELLO" << address << "HELLO\n\n" << std::endl;
 }
 
 void VariableServerVariable::writeValue( std::ostream& outs ) {
@@ -181,4 +184,8 @@ void VariableServerVariable::writeValue( std::ostream& outs ) {
             outs << "\"Error\""; // ERROR
             break;
     }
+}
+
+const char* VariableServerVariable::getUnits() {
+    return varInfo->attr->units;
 }

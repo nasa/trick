@@ -20,6 +20,7 @@ class VariableServerVariable {
         VariableServerVariable( REF2* variableType);
         ~VariableServerVariable();
         const char* getName();
+        const char* getUnits();
         void stageValue();
         void writeValue( std::ostream& chkpnt_os );
 

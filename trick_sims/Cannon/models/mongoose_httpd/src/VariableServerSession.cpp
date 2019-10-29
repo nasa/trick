@@ -22,7 +22,6 @@ VariableServerSession::VariableServerSession( struct mg_connection *nc ) : WebSo
     intervalTimeTics = exec_get_time_tic_value(); // Default time interval is one second.
     nextTime = LLONG_MAX;
     cyclicSendEnabled = false;
-    this->sendSieMessage();
 }
 
 // DESTRUCTOR
@@ -108,6 +107,9 @@ int VariableServerSession::handleMessage(std::string client_msg) {
      } else if (cmd == "sie") {
           // send S_sie.json
           sendSieMessage();
+     } else if (cmd == "units") {
+          // send S_sie.json
+          sendUnitsMessage(var_name.c_str());
      } else {
          sendErrorMessage("Unknown Command: \"%s\".\n", cmd.c_str());
          status = 1;
@@ -218,5 +220,30 @@ int VariableServerSession::sendSieMessage(void) {
     std::string tmp = ss.str();
     const char* message = tmp.c_str();
     mg_send_websocket_frame(connection, WEBSOCKET_OP_TEXT, message, strlen(message));
+    return 0;
+}
+
+int VariableServerSession::sendUnitsMessage(const char* vname) {
+    std::vector<VariableServerVariable*>::iterator it;
+    std::stringstream ss;
+    ss << "{ \"msg_type\": \"units\", \"var_name\": \"" << vname << "\", \"data\": \"";
+    for (it = sessionVariables.begin(); it != sessionVariables.end(); it++ ) {
+        if(!strcmp((*it)->getName(), vname)) {
+            ss << (
+                (
+                    (
+                        (*it)->getUnits() != NULL
+                    ) && 
+                    (
+                        (*it)->getUnits()[0] != '\0'
+                    )
+                ) ? (*it)->getUnits() : "--") << "\"}";
+            std::string tmp = ss.str();
+            const char* message = tmp.c_str();
+            mg_send_websocket_frame(connection, WEBSOCKET_OP_TEXT, message, strlen(message));
+            return 0;
+        }
+    }
+    sendErrorMessage("Variable Server: var_units cannot get units for \"%s\" because it must be added to the variable server first\n", vname);
     return 0;
 }
