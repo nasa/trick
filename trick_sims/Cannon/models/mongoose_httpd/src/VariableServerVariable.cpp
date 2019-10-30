@@ -52,7 +52,6 @@ const char* VariableServerVariable::getName() {
 }
 
 static void write_quoted_str( std::ostream& os, const char* s) {
-    std::cout << s << std::endl;
     int ii;
     int len = strlen(s);
     os << "\"" ;
@@ -82,7 +81,6 @@ void VariableServerVariable::stageValue() {
     if (address != NULL) {
          memcpy(stageBuffer, address, size);
     }
-    std::cout << "\n\nHELLO" << address << "HELLO\n\n" << std::endl;
 }
 
 void VariableServerVariable::writeValue( std::ostream& outs ) {
