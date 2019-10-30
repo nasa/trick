@@ -35,6 +35,12 @@ import MailIcon from "@material-ui/icons/Mail";
 
 import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
+import Radio from "@material-ui/core/Radio";
+import RadioGroup from "@material-ui/core/RadioGroup";
+import FormHelperText from "@material-ui/core/FormHelperText";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import FormControl from "@material-ui/core/FormControl";
+import FormLabel from "@material-ui/core/FormLabel";
 //import OutlinedInput from '@material-ui/core/OutlinedInput';
 
 //import MenuItem from '@material-ui/core/MenuItem';
@@ -58,6 +64,10 @@ export default class Client extends React.Component {
       dialogElems: [],
       dialogStart: [],
       selectedVar: "",
+      data_record: false,
+      data_record_text: "Enable Data Record" /* TODO get dr info from sim */,
+      realtime: true,
+      realtime_text: "Realtime Enabled" /* TODO get dr info from sim */,
     };
     console.log("Client created");
     this.ws = new WebSocket(
@@ -69,6 +79,7 @@ export default class Client extends React.Component {
       this.var_unpause();
       //this.var_add("trick_sys.sched.time_tics");
       console.log("opened");
+      this.request_sie();
     };
     this.ws.onmessage = e => {
       //console.log('Message received');
@@ -167,6 +178,33 @@ export default class Client extends React.Component {
   sim_shutdown = () => {
     this.input_processor("trick.stop()");
   };
+
+  sim_data_record_toggle = () => {
+    /* TODO get dr info from sim */
+    this.setState(prev => {
+      if (!prev.data_record) {
+        this.input_processor("trick.dr_enable()");
+        return { data_record: true, data_record_text: "Data Record On" };
+      } else {
+        this.input_processor("trick.dr_disable()");
+        return { data_record: false, data_record_text: "Data Record Off" };
+      }
+    });
+  };
+
+  sim_realtime_toggle = () => {
+    /* TODO get dr info from sim */
+    this.setState(prev => {
+      if (!prev.realtime) {
+        this.input_processor("trick.real_time_enable()");
+        return { realtime: true, realtime_text: "Realtime On" };
+      } else {
+        this.input_processor("trick.real_time_disable()");
+        return { realtime: false, realtime_text: "Realtime Off" };
+      }
+    });
+  };
+
   request_sie = () => {
     let msg = {
       cmd: "sie",
@@ -204,6 +242,24 @@ export default class Client extends React.Component {
     </Box>
   );
 
+  BoxRadio = ({ className, color = "primary", fullWidth = true, onClick }) => (
+    <Box flexGrow={1} flexShrink={1}>
+      <FormControl component="fieldset">
+        <FormLabel component="legend">Gender</FormLabel>
+        <RadioGroup aria-label="gender" name="gender1" value={3}>
+          <FormControlLabel value="female" control={<Radio />} label="Female" />
+          <FormControlLabel value="male" control={<Radio />} label="Male" />
+          <FormControlLabel value="other" control={<Radio />} label="Other" />
+          <FormControlLabel
+            value="disabled"
+            disabled
+            control={<Radio />}
+            label="(Disabled option)"
+          />
+        </RadioGroup>
+      </FormControl>
+    </Box>
+  );
   count = str => {
     const re = /\[.*?\]/g;
     return ((str || "").match(re) || []).length;
@@ -230,9 +286,6 @@ export default class Client extends React.Component {
             this.addVariable(pathdims, units);
             return;
           } else {
-            this.setState({
-              addVariable: pathdims.replace(/\[.*?\]/g, "[<index>]"),
-            });
             console.log(String(pathdims.match(/\[(.*?)\]/g)));
             console.log(
               String(pathdims.match(/\[(.*?)\]/g))
@@ -253,6 +306,7 @@ export default class Client extends React.Component {
               dialogElems: Elems,
               dialogStart: Start,
               dialogOpen: true,
+              dialogUnits: units,
             });
           }
         }}
@@ -290,7 +344,7 @@ export default class Client extends React.Component {
   recurse = (path, arr1, arr2) => {
     if (arr1.length === 0) {
       console.log("add variable " + path);
-      this.addVariable(path);
+      this.addVariable(path, this.state.dialogUnits);
     } else {
       for (let i = arr1[0]; i <= arr2[0]; i++) {
         let s = path + "[" + i + "]";
@@ -398,13 +452,85 @@ export default class Client extends React.Component {
                       />
                     </Flex>
                     <Flex flexDirection="column">
-                      <this.BoxButton text="data record on" />
-                      <this.BoxButton text="realtime on" />
-                      <this.BoxButton text="dump checkpoint" />
+                      <Box flexGrow={1} flexShrink={1}>
+                        <FormControl
+                          component="fieldset"
+                          fullWidth={true}
+                          className={this.props.classes.button}
+                        >
+                          <FormLabel component="legend">Data Record</FormLabel>
+                          <RadioGroup
+                            key="radio1"
+                            aria-label="datarecord"
+                            name="datarecord"
+                            value={this.state.data_record}
+                            onChange={event => {
+                              let data_record = event.target.value === "true";
+                              if (data_record) {
+                                this.input_processor("trick.dr_enable()");
+                              } else {
+                                this.input_processor("trick.dr_disable()");
+                              }
+                              this.setState({
+                                data_record: data_record,
+                              });
+                            }}
+                          >
+                            <FormControlLabel
+                              value={true}
+                              control={<Radio />}
+                              label="Enabled"
+                            />
+                            <FormControlLabel
+                              value={false}
+                              control={<Radio />}
+                              label="Disabled"
+                            />
+                          </RadioGroup>
+                        </FormControl>
+                      </Box>
+                      <Box flexGrow={1} flexShrink={1}>
+                        <FormControl
+                          component="fieldset"
+                          fullWidth={true}
+                          className={this.props.classes.button}
+                        >
+                          <FormLabel component="legend">Realtime</FormLabel>
+                          <RadioGroup
+                            key="radio2"
+                            aria-label="realtime"
+                            name="realtime"
+                            value={this.state.realtime}
+                            onChange={event => {
+                              let realtime = event.target.value === "true";
+                              if (realtime) {
+                                this.input_processor("trick.real_time_enable()");
+                              } else {
+                                this.input_processor("trick.real_time_disable()");
+                              }
+                              this.setState({
+                                realtime: realtime,
+                              });
+                            }}
+                          >
+                            <FormControlLabel
+                              value={true}
+                              control={<Radio />}
+                              label="Enabled"
+                            />
+                            <FormControlLabel
+                              value={false}
+                              control={<Radio />}
+                              label="Disabled"
+                            />
+                          </RadioGroup>
+                        </FormControl>
+                      </Box>
+                      {/*<this.BoxButton text="dump checkpoint" />
                       <this.BoxButton
                         text="load checkpoint"
                         onClick={this.request_sie}
-                      />
+                      />*/}
                     </Flex>
                   </Flex>
                   <Flex
@@ -566,7 +692,7 @@ export default class Client extends React.Component {
                 </Flex>
               </Paper>
             </Box>
-            <Box>
+            {/*<Box>
               <Paper className={classes.mockup}>
                 <Typography variant="h6" color="textPrimary">
                   This web application mostly serves as a mockup for now. Most
@@ -575,9 +701,11 @@ export default class Client extends React.Component {
                   Variable, and CLEAR
                 </Typography>
               </Paper>
-            </Box>
+            </Box> */}
           </Flex>
         </Flex>
+        <Flex margin={2} padding={2}>
+        <Box margin={2} padding={2}>
         <Dialog open={this.state.dialogOpen}>
           <DialogTitle>Select Dimensions</DialogTitle>
           {this.state.dialogText}
@@ -629,6 +757,8 @@ export default class Client extends React.Component {
             Cancel
           </Button>
         </Dialog>
+        </Box>
+        </Flex>
       </div>
     );
   }
