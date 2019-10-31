@@ -9,6 +9,7 @@ LIBRARY DEPENDENCIES:
 #include <iostream>
 #include <sstream>
 #include <iomanip> // for setprecision
+#include <fstream>
 #include <algorithm>
 #include "trick/memorymanager_c_intf.h"
 #include "trick/input_processor_proto.h"
@@ -117,6 +118,12 @@ int VariableServerSession::handleMessage(std::string client_msg) {
          pycode.erase(std::remove(pycode.begin(), pycode.end(), '\r'), pycode.end());
          // Call the Trick input processor.
          ip_parse(pycode.c_str());
+     } else if (cmd == "sie") {
+          // send S_sie.json
+          sendSieMessage();
+     } else if (cmd == "units") {
+          // send S_sie.json
+          sendUnitsMessage(var_name.c_str());
      } else {
          sendErrorMessage("Unknown Command: \"%s\".\n", cmd.c_str());
          status = 1;
@@ -222,4 +229,43 @@ REF2* VariableServerSession::make_error_ref(const char* in_name) {
 // WebSocketSessionMaker function for a VariableServerSession.
 WebSocketSession* makeVariableServerSession( struct mg_connection *nc ) {
     return new VariableServerSession(nc);
+}
+
+
+int VariableServerSession::sendSieMessage(void) {
+    std::ifstream file("./S_sie.json");
+    std::stringstream ss;
+    ss << "{ \"msg_type\": \"sie\", \"data\": ";
+    ss << file.rdbuf();
+    file.close();
+    ss << "}";
+    std::string tmp = ss.str();
+    const char* message = tmp.c_str();
+    mg_send_websocket_frame(connection, WEBSOCKET_OP_TEXT, message, strlen(message));
+    return 0;
+}
+
+int VariableServerSession::sendUnitsMessage(const char* vname) {
+    std::vector<VariableServerVariable*>::iterator it;
+    std::stringstream ss;
+    ss << "{ \"msg_type\": \"units\", \"var_name\": \"" << vname << "\", \"data\": \"";
+    for (it = sessionVariables.begin(); it != sessionVariables.end(); it++ ) {
+        if(!strcmp((*it)->getName(), vname)) {
+            ss << (
+                (
+                    (
+                        (*it)->getUnits() != NULL
+                    ) && 
+                    (
+                        (*it)->getUnits()[0] != '\0'
+                    )
+                ) ? (*it)->getUnits() : "--") << "\"}";
+            std::string tmp = ss.str();
+            const char* message = tmp.c_str();
+            mg_send_websocket_frame(connection, WEBSOCKET_OP_TEXT, message, strlen(message));
+            return 0;
+        }
+    }
+    sendErrorMessage("Variable Server: var_units cannot get units for \"%s\" because it must be added to the variable server first\n", vname);
+    return 0;
 }
