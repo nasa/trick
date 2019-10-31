@@ -50,6 +50,10 @@ const char* VariableServerVariable::getName() {
     return varInfo->reference;
 }
 
+const char* VariableServerVariable::getUnits() {
+    return varInfo->attr->units;
+}
+
 static void write_quoted_str( std::ostream& os, const char* s) {
     int ii;
     int len = strlen(s);
