@@ -12,6 +12,9 @@ PURPOSE: (Represent the state and initial conditions of an http server)
 #include "../include/VariableServerSession.hh"
 #include <string.h>
 #include <string>
+#include "trick/message_proto.h"
+#include "trick/message_type.h"
+
 static const struct mg_str s_get_method = MG_MK_STR("GET");
 static const struct mg_str s_put_method = MG_MK_STR("PUT");
 static const struct mg_str s_delete_method = MG_MK_STR("DELETE");
@@ -67,12 +70,9 @@ static const char * index_html =
 static int confirmDocumentRoot ( std::string documentRoot ) {
 
     if ( access( documentRoot.c_str(), F_OK ) != -1 ) {
-        std::cout << "Trick Webserver: Document root \"" << documentRoot
-                  << "\" already exists." << std::endl;
+        message_publish(MSG_INFO, "Trick Webserver: Document root \"%s\" exists.\n", documentRoot.c_str());
     } else {
-        std::cout << "Trick Webserver: Document root \"" << documentRoot
-                  << "\" doesn't exist so, we'll create it."
-                  << std::endl;
+        message_publish(MSG_INFO, "Trick Webserver: Document root \"%s\" doesn't exist, so we'll create it.\n", documentRoot.c_str());
 
     	char* trick_home = getenv("TRICK_HOME");
         std::string trickHome = std::string(trick_home);
@@ -99,7 +99,7 @@ static int confirmDocumentRoot ( std::string documentRoot ) {
                          }
                      }
                  } else {
-                     std::cout << "Failed to create \"" << appsDirPath << "\"." << std::endl;
+                     message_publish(MSG_ERROR, "Trick Webserver: Failed to create \"%s\".\n", appsDirPath.c_str());
                      return 1;
                  }
 
@@ -117,7 +117,7 @@ static int confirmDocumentRoot ( std::string documentRoot ) {
                          }
                      }
                  } else {
-                     std::cout << "Failed to create \"" << imagesDirPath << "\"." << std::endl;
+                     message_publish(MSG_ERROR, "Trick Webserver: Failed to create \"%s\".\n", imagesDirPath.c_str());
                      return 1;
                  }
 
@@ -127,11 +127,11 @@ static int confirmDocumentRoot ( std::string documentRoot ) {
                  index_fs.close();
 
              } else {
-                 std::cout << "Failed to create documentRoot." << std::endl;
+                 message_publish(MSG_ERROR, "Trick Webserver: Failed to create \"%s\".\n", documentRoot.c_str());
                  return 1;
              }
         } else {
-             std::cout << "TRICK_HOME is not set.\n" << std::endl;
+             message_publish(MSG_ERROR, "Trick Webserver: TRICK_HOME is not set.\n");
              return 1;
         }
     }
@@ -142,29 +142,32 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 
     http_message *hm = (struct http_message *)ev_data;
     WebServer* httpServer = (WebServer *)nc->user_data;
+    bool debug = httpServer->debug;
 
     switch(ev) {
         case MG_EV_WEBSOCKET_HANDSHAKE_DONE: { // Process new websocket connection.
             std::string uri(hm->uri.p, hm->uri.len);
-            std::cout << "WEBSOCKET_REQUEST: URI = \"" << uri << "\"" << std::endl;
+            if (debug) { message_publish(MSG_INFO,"Trick Webserver: WEBSOCKET_REQUEST: URI = \"%s\".\n", uri.c_str()); }
             if (mg_str_starts_with(hm->uri, ws_api_prefix)) {
                 std::string wsType (hm->uri.p + ws_api_prefix.len, hm->uri.len - ws_api_prefix.len);
                 WebSocketSession* session = httpServer->makeWebSocketSession(nc, wsType);
                 if (session != NULL) {
                     httpServer->addWebSocketSession(nc, session);
-                    std::cout << "WEBSOCKET[" << (void*)nc << "] OPENED. URI=\"" << uri << "\"." << std::endl;
+
+                    if (debug) { message_publish(MSG_INFO, "Trick Webserver: WEBSOCKET[%p] OPENED. URI=\"%s\".\n", (void*)nc, uri.c_str()); }
+
                 } else {
                     nc->flags |= MG_F_SEND_AND_CLOSE;
-                    std::cout << "ERROR: No such web socket interface: \"" << uri << "\"." << std::endl;
+                   message_publish(MSG_ERROR, "Trick Webserver: No such web socket interface: \"%s\".\n", uri.c_str()); 
                 }
             } else {
-                std::cout << "ERROR: WEBSOCKET_REQUEST URI does not start with API prefix."  << std::endl;
+                message_publish(MSG_ERROR, "Trick Webserver: WEBSOCKET_REQUEST: URI does not start with API prefix.\n");
             }
         } break;
         case MG_EV_WEBSOCKET_FRAME: { // Process websocket messages from the client (web browser).
             struct websocket_message *wm = (struct websocket_message *) ev_data;
             std::string msg ((char*)wm->data, wm->size);
-            std::cout << "WEBSOCKET[" << (void*)nc << "] RECIEVED: " << msg << std::endl;
+            if (debug) { message_publish(MSG_INFO, "Trick Webserver: WEBSOCKET[%p] RECIEVED: \"%s\".\n", (void*)nc, msg.c_str()); }
             if (nc->flags & MG_F_IS_WEBSOCKET) {
                 httpServer->handleWebSocketClientMessage(nc, msg);
             }
@@ -172,7 +175,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         case MG_EV_CLOSE: { // Process closed websocket connection.
             if (nc->flags & MG_F_IS_WEBSOCKET) {
                 httpServer->deleteWebSocketSession(nc);
-                std::cout << "WEBSOCKET[" << (void*)nc << "] CLOSED." << std::endl;
+                if (debug) { message_publish(MSG_INFO,"Trick Webserver: WEBSOCKET[%p] CLOSED.\n", (void*)nc); }
             }
         } break;
         case MG_EV_POLL: {
@@ -186,7 +189,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         } break;
         case MG_EV_HTTP_REQUEST: { // Process HTTP requests.
             std::string uri(hm->uri.p, hm->uri.len);
-            std::cout << "HTTP_REQUEST: URI = \"" << uri << "\"" << std::endl;
+            if (debug) { message_publish(MSG_INFO, "Trick Webserver: HTTP_REQUEST: URI = \"%s\".\n", uri.c_str()); }
             if (mg_str_starts_with(hm->uri, http_api_prefix)) {
                 if (mg_strcmp(hm->method, s_get_method)==0) {
                     std::string handlerName (hm->uri.p + http_api_prefix.len, hm->uri.len - http_api_prefix.len);
@@ -344,6 +347,9 @@ int WebServer::http_default_data() {
     service_websocket = false;
     shutting_down = false;
     sessionDataMarshalled = false;
+    listener = NULL;
+    enable = false;
+    debug = false;
 
     installHTTPGEThandler("vs_connections", &handle_HTTP_GET_vs_connections);
     installHTTPGEThandler("alloc_info", &handle_HTTP_GET_alloc_info);
@@ -354,37 +360,41 @@ int WebServer::http_default_data() {
 
 // Trick "initialization" job.
 int WebServer::http_init() {
-    http_server_options.document_root = document_root;
-    http_server_options.enable_directory_listing = "yes";
 
-    confirmDocumentRoot( std::string(document_root));
+    if (enable) {
+        http_server_options.document_root = document_root;
+        http_server_options.enable_directory_listing = "yes";
 
-    mg_mgr_init( &mgr, NULL );
+        confirmDocumentRoot( std::string(document_root));
 
-    memset(&bind_opts, 0, sizeof(bind_opts));
-    bind_opts.user_data = this;
-    listener = mg_bind_opt( &mgr, port, ev_handler, bind_opts);
+        mg_mgr_init( &mgr, NULL );
 
-    // Determine the ACTUAL listen port as opposed to the requested port.
-    // Note that if we specify port = "0" in the mg_bind_opt() call, then
-    // a port number will be chosen for us, and we have to find out what it actually is.
-    char buf[32];
-    mg_conn_addr_to_str( listener, buf, 32, MG_SOCK_STRINGIFY_PORT);
-    port = strdup(buf);
+        memset(&bind_opts, 0, sizeof(bind_opts));
+        bind_opts.user_data = this;
+        listener = mg_bind_opt( &mgr, port, ev_handler, bind_opts);
 
-    if (listener != NULL) {
-        std::cout << "Trick Webserver: Listening on port = " << port << ".\n"
-                  << "Trick Webserver: Document root = \"" << document_root << "\""
-                  << std::endl;
+        // Determine the ACTUAL listen port as opposed to the requested port.
+        // Note that if we specify port = "0" in the mg_bind_opt() call, then
+        // a port number will be chosen for us, and we have to find out what it actually is.
+        char buf[32];
+        mg_conn_addr_to_str( listener, buf, 32, MG_SOCK_STRINGIFY_PORT);
+        port = strdup(buf);
+
+        if (listener != NULL) {
+            message_publish(MSG_INFO,"Trick Webserver: Listening on port %s.\n", port);
+            message_publish(MSG_INFO,"Trick Webserver: Document root = \"%s\"\n.", document_root);
+        } else {
+            message_publish(MSG_ERROR, "Trick Webserver: Failed to create listener.\n"
+                            "Perhaps another program is already using port %s.\n", port);
+            return 1;
+        }
+        mg_set_protocol_http_websocket( listener );
+        pthread_cond_init(&serviceConnections, NULL);
+        pthread_create( &server_thread, NULL, connectionAttendant, (void*)this );
     } else {
-        std::cerr << "Trick Webserver: ERROR: Failed to create listener.\n"
-                  << "Perhaps another program is already using port " << port << "."
-                  << std::endl;
-        return 1;
+        message_publish(MSG_INFO, "Trick Webserver: DISABLED. To enable, add "
+                                  "\"web.server.enable = True\" to your input file.\n");
     }
-    mg_set_protocol_http_websocket( listener );
-    pthread_cond_init(&serviceConnections, NULL);
-    pthread_create( &server_thread, NULL, connectionAttendant, (void*)this );
     return 0;
 }
 
@@ -404,7 +414,7 @@ int WebServer::http_top_of_frame() {
 
 int WebServer::http_shutdown() {
     if (listener != NULL) {
-        std::cout << "Trick Webserver: Shutting down on port " << port << "." << std::endl;
+        message_publish(MSG_INFO,"Trick Webserver: Shutting down on port %s.\n", port);
         shutting_down = true;
 
         // Send the serviceConnections signal one last time so the connectionAttendant thread can quit.
