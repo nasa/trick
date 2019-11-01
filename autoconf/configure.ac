@@ -109,7 +109,7 @@ AC_DEFUN([AX_GSL_HOME],[
                 [AC_CHECK_HEADER(gsl/gsl_rng.h, [GSL_HOME="/usr"], [GSL_HOME=""])]
                )
     AS_IF([test "$GSL_HOME" != ""],
-      [AC_CHECK_LIB(gsl, main, [],AC_MSG_ERROR([could not find libgsl]))]
+      [AC_CHECK_LIB(gsl, main, [],AC_MSG_ERROR([could not find libgsl]),[-lgslcblas])],
       []
     )
     AC_SUBST([GSL_HOME])

@@ -7859,7 +7859,7 @@ if ${ac_cv_lib_gsl_main+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lgsl  $LIBS"
+LIBS="-lgsl -lgslcblas $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -7893,8 +7893,6 @@ _ACEOF
 else
   as_fn_error $? "could not find libgsl" "$LINENO" 5
 fi
-
-
 
 fi
 
