@@ -829,6 +829,30 @@ class VariableServer(object):
         self.send('trick.exec_{0}()'
                   .format('freeze' if bool(freeze) else 'run'))
 
+    def checkpoint(self, filename):
+        """
+        Dump a checkpoint.
+
+        Parameters
+        ----------
+        filename : str
+            The checkpoint file name. The checkpoint will be saved in the
+            directory containing the sim's input file.
+        """
+        self.send('trick.checkpoint("' + filename + '")')
+
+    def load_checkpoint(self, filename):
+        """
+        Load a checkpoint. The path is relative to the directory containing
+        the sim's S_main executable.
+
+        Parameters
+        ----------
+        filename : str
+            The checkpoint file name.
+        """
+        self.send('trick.load_checkpoint("' + filename + '")')
+
     def enable_real_time(self, enable=True):
         """
         Toggle real-time execution.
