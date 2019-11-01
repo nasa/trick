@@ -18,6 +18,7 @@ S_document.xml
 S_library_list
 S_main_*
 S_sie.resource
+S_sie.json
 S_source.cpp
 S_source.hh
 T_main_*

@@ -63,6 +63,7 @@ namespace Trick {
 #endif
 
             void print_xml( std::ofstream & outfile ) ;
+            void print_json(std::ofstream & sie_out ) ;
 
         private:
             std::map<std::string, ATTRIBUTES *> name_to_attr_map ;

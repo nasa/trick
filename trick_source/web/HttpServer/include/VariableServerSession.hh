@@ -31,6 +31,8 @@ class VariableServerSession : public WebSocketSession {
 
     private:
         int sendErrorMessage(const char* fmt, ... );
+        int sendSieMessage(void);
+        int sendUnitsMessage(const char* vname);
         REF2* make_error_ref(const char* in_name);
         double stageTime;
         bool dataStaged;
