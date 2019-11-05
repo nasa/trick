@@ -1073,7 +1073,7 @@ def find_simulation(host=None, port=None, user=None, pid=None,
     Returns
     -------
     VariableServer
-        A VariableServer connected to the sim matcthing the specified
+        A VariableServer connected to the sim matching the specified
         parameters.
 
     Raises
