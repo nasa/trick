@@ -1037,7 +1037,7 @@ def find_simulation(host=None, port=None, user=None, pid=None,
                    input_file=None, tag=None, timeout=None):
     """
     Listen for simulations on the multicast channel over which all sims broadcast
-    their existance. Connect to the one that matches the provided arguments that
+    their existence. Connect to the one that matches the provided arguments that
     are not None.
 
     If there are multiple matches, connect to the first one we happen to find.
@@ -1061,7 +1061,7 @@ def find_simulation(host=None, port=None, user=None, pid=None,
         SIM_* directory. If this starts with /, it will be considered an
         absolute path.
     s_main : str
-        Filename of the S_main* executeable. Not an absolute path.
+        Filename of the S_main* executable. Not an absolute path.
     input_file : str
         Path to the input file relative to the simDirectory.
     tag : str
