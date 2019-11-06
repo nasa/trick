@@ -14,17 +14,22 @@ include(UseJava)
 find_package(Java REQUIRED)
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
-find_package(SWIG REQUIRED)
+find_package(LLVM 3.4 REQUIRED)
+find_package(Perl REQUIRED)
 find_package(PythonInterp REQUIRED)
 find_package(PythonLibs REQUIRED)
+find_package(SWIG REQUIRED)
+find_package(Tee REQUIRED)
 find_package(UDUNITS2 REQUIRED)
-find_package(LLVM REQUIRED)
 find_package(HDF5)
 find_package(GSL)
 
-set(ENV{TRICK_ICG_EXCLUDE} ${CMAKE_CURRENT_BINARY_DIR}/include/mongoose)
 add_definitions( -DTRICK_VER=${TRICK_MAJOR} )
 add_definitions( -DUSE_ER7_UTILS_INTEGRATORS)
+
+if(GSL_FOUND)
+    add_definitions( -D_HAVE_GSL)
+endif()
 
 file(COPY bin DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY include DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
@@ -36,6 +41,8 @@ file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/java)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lex_yacc)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/mongoose)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/swig)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/share/trick/makefiles/config_user.mk.in ${CMAKE_CURRENT_BINARY_DIR}/share/trick/makefiles/config_user.mk)
 
 file(GLOB_RECURSE ER7_UTIL_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/er7_utils ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/er7_utils/*.hh)
 foreach ( infile ${ER7_UTIL_HEADERS} )
@@ -91,7 +98,7 @@ set ( ICG_SRC
 )
 
 add_definitions( -g -DTRICK_VERSION="${TRICK_MAJOR}.${TRICK_MINOR}.${TRICK_TINY}" -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS)
-#add_definitions( -DLIBCLANG_MAJOR=${LLVM_FIND_VERSION_MAJOR} -DLIBCLANG_MINOR=${LLVM_FIND_VERSION_MINOR})
+add_definitions( -DLIBCLANG_MAJOR=${LLVM_VERSION_MAJOR} -DLIBCLANG_MINOR=${LLVM_VERSION_MINOR})
 add_definitions( -DLIBCLANG_MAJOR=7 -DLIBCLANG_MINOR=0)
 
 add_executable( trick-ICG ${ICG_SRC} )
@@ -102,7 +109,7 @@ set_property(SOURCE trick-ICG APPEND PROPERTY OBJECT_DEPENDS ${CMAKE_CURRENT_BIN
 
 target_link_libraries( trick-ICG
     ${LLVM_LDFLAGS}
-    ${LLVM_MODULE_LIBS}
+    ${LLVM_LIBRARIES}
     -lclangFrontend
     -lclangDriver
     -lclangSerialization
@@ -572,13 +579,6 @@ set( TRICK_UTILS_SRC
   ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/units/src/units_conv
 )
 
-set( SWIG_SRC
-  ${CMAKE_CURRENT_BINARY_DIR}/swig/sim_services_wrap
-  ${CMAKE_CURRENT_BINARY_DIR}/swig/swig_double_wrap
-  ${CMAKE_CURRENT_BINARY_DIR}/swig/swig_int_wrap
-  ${CMAKE_CURRENT_BINARY_DIR}/swig//swig_ref_wrap
-)
-
 set( IO_SRC
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/class_map.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_ABM_Integrator.cpp
@@ -683,41 +683,19 @@ set( IO_SRC
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_WebServer.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_WebSocketSession.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Zeroconf.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_attributes.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_dllist.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_io_alloc.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_lqueue.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_lstack.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_message_type.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_mm_error.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_ms_sim_mode.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_parameter_types.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rand_generator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_reference.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_reference_frame.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_regula_falsi.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_sim_mode.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_tc.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_time_offset.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_trick_error_hndlr.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_tsm.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_units_conv.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_value.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_var.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_variable_server_sync_types.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_wave_form.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_abm4_first_order_ode_integrator.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_abm4_integrator_constructor.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_abm4_second_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_attributes.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_base_integration_group.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_beeman_integrator_constructor.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_beeman_second_order_ode_integrator.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_bogus_integration_controls.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_deletable.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_dllist.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_euler_first_order_ode_integrator.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_euler_integrator_constructor.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_euler_second_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_first_order_ode_integrator.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_first_order_ode_integrator.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_generalized_position_derivative.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_integrable_object.cpp
@@ -730,19 +708,30 @@ set( IO_SRC
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_integrator_result.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_integrator_result_merger.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_integrator_result_merger_container.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_io_alloc.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_left_quaternion_functions.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_lqueue.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_lstack.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_message_type.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_mm4_integrator_constructor.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_mm4_second_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_mm_error.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_ms_sim_mode.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_n_choose_m.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_nl2_integrator_constructor.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_nl2_second_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_parameter_types.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_position_verlet_integrator_constructor.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_position_verlet_second_order_ode_integrator.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_priming_first_order_ode_integrator.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_priming_integration_controls.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_priming_integrator_constructor.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_priming_second_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rand_generator.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_ratio128.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_reference.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_reference_frame.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_regula_falsi.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rk2_heun_first_order_ode_integrator.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rk2_heun_integrator_constructor.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rk2_heun_second_order_ode_integrator.cpp
@@ -763,17 +752,28 @@ set( IO_SRC
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rkg4_integrator_constructor.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rkg4_second_order_ode_integrator.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_second_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_second_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_sim_mode.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_single_cycle_integration_controls.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_standard_integration_controls.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_state_integrator.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_symplectic_euler_integrator_constructor.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_symplectic_euler_second_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_tc.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_time_interface.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_time_offset.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_trick_error_hndlr.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_trick_first_order_ode_integrator.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_trick_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_trick_second_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_tsm.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_uint128.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_units_conv.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_value.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_var.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_variable_server_sync_types.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_velocity_verlet_integrator_constructor.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_velocity_verlet_second_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_wave_form.cpp
 )
 
 set( ER7_UTILS_SRC
@@ -845,12 +845,34 @@ set( ER7_UTILS_SRC
   trick_source/er7_utils/trick/integration/src/trick_integrator
 )
 
-set(ENV{TRICK_HOME} ${CMAKE_CURRENT_SOURCE_DIR}/../include)
+set(ENV{TRICK_ICG_EXCLUDE} ${CMAKE_CURRENT_BINARY_DIR}/include/mongoose)
 set(ICG_FLAGS -I${CMAKE_CURRENT_BINARY_DIR}/include -I${CMAKE_CURRENT_BINARY_DIR}/include/trick/compat -I${UDUNITS2_INCLUDES} -DTRICK_VER=${TRICK_MAJOR} -DUSE_ER7_UTILS_INTEGRATORS)
 add_custom_command(OUTPUT ${IO_SRC}
-  COMMAND ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/trick-ICG -force -sim_services -m -n -o ${CMAKE_CURRENT_BINARY_DIR}/io_src ${ICG_FLAGS} ${CMAKE_CURRENT_BINARY_DIR}/include/trick/files_to_ICG.hh
+  COMMAND TRICK_ICG_EXCLUDE=${CMAKE_CURRENT_BINARY_DIR}/include/mongoose ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/trick-ICG -force -sim_services -m -n -o ${CMAKE_CURRENT_BINARY_DIR}/io_src ${ICG_FLAGS} ${CMAKE_CURRENT_BINARY_DIR}/include/trick/files_to_ICG.hh
   DEPENDS trick-ICG
 )
+
+set( SWIG_SRC
+  ${CMAKE_CURRENT_BINARY_DIR}/swig/sim_services_wrap
+  ${CMAKE_CURRENT_BINARY_DIR}/swig/swig_double_wrap
+  ${CMAKE_CURRENT_BINARY_DIR}/swig/swig_int_wrap
+  ${CMAKE_CURRENT_BINARY_DIR}/swig//swig_ref_wrap
+)
+
+set( SWIG_SRC_BASENAME
+  sim_services
+  swig_double
+  swig_int
+  swig_ref
+)
+
+set(SWIG_FLAGS -DUSE_ER7_UTILS_INTEGRATORS -D_HAVE_GSL)
+foreach ( infile ${SWIG_SRC_BASENAME} )
+    add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/swig/${infile}_wrap.cpp
+      COMMAND ${SWIG_EXECUTABLE} ${SWIG_FLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/trick_source -I${CMAKE_CURRENT_SOURCE_DIR}/include -I${CMAKE_CURRENT_SOURCE_DIR} -c++ -python -includeall -ignoremissing -w201,362,389,451 -o $@ -outdir ${CMAKE_CURRENT_BINARY_DIR}/swig ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_swig/${infile}.i
+    )
+endforeach(infile)
+
 
 add_library( trick STATIC ${SS_SRC} ${LEX_YACC_SRC} ${TRICK_UTILS_SRC} ${IO_SRC} ${ER7_UTILS_SRC} ${SWIG_SRC})
 
@@ -881,19 +903,6 @@ target_include_directories( trick PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/trick_sourc
 target_include_directories( trick PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/trick_source/er7_utils/math/include)
 target_include_directories( trick PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/trick_source/er7_utils/trick/include)
 target_include_directories( trick PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/trick_source/er7_utils/trick/integration/include)
-
-set( SWIG_SRC_BASENAME
-  sim_services
-  swig_double
-  swig_int
-  swig_ref
-)
-
-foreach ( infile ${SWIG_SRC_BASENAME} )
-    add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/swig/${infile}_wrap.cpp
-      COMMAND ${SWIG_EXECUTABLE} -DUSE_ER7_UTILS_INTEGRATORS -I${CMAKE_CURRENT_SOURCE_DIR}/trick_source -I${CMAKE_CURRENT_SOURCE_DIR}/include -I${CMAKE_CURRENT_SOURCE_DIR} -c++ -python -includeall -ignoremissing -w201,362,389,451 -o $@ -outdir ${CMAKE_CURRENT_BINARY_DIR}/swig ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_swig/${infile}.i
-    )
-endforeach(infile)
 
 ###############################################################
 # Java libraries

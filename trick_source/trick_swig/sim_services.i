@@ -150,8 +150,8 @@
 #include "er7_utils/integration/core/include/integrator_constructor_factory.hh"
 #include "er7_utils/integration/core/include/integrable_object.hh"
 #include "er7_utils/integration/core/include/base_integration_group.hh"
-#include "er7_utils/trick/integration/include/first_order_ode_integrator.hh"
-#include "er7_utils/trick/integration/include/second_order_ode_integrator.hh"
+#include "er7_utils/trick/integration/include/trick_first_order_ode_integrator.hh"
+#include "er7_utils/trick/integration/include/trick_second_order_ode_integrator.hh"
 #endif
 
 %}
