@@ -19,7 +19,7 @@
 #include "trick/value.h"
 #include "trick/var.h"
 #include "trick/ADefParseContext.hh"
-#include "adef_parser.tab.h"
+#include "adef_parser.tab.hpp"
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 

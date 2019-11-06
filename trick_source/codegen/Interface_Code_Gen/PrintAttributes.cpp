@@ -274,7 +274,7 @@ void PrintAttributes::createMapFiles() {
     std::string enum_map_function_name ;
 
     if ( sim_services_flag ) {
-        map_dir = "trick_source/sim_services/include/io_src" ;
+        map_dir = output_dir ;
         class_map_function_name = "populate_sim_services_class_map" ;
         enum_map_function_name = "populate_sim_services_enum_map" ;
     } else {
