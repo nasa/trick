@@ -20,7 +20,9 @@ find_package(PythonInterp REQUIRED)
 find_package(PythonLibs REQUIRED)
 find_package(SWIG REQUIRED)
 find_package(Tee REQUIRED)
+find_package(Threads REQUIRED)
 find_package(UDUNITS2 REQUIRED)
+find_package(LibXml2 REQUIRED)
 find_package(HDF5)
 find_package(GSL)
 
@@ -60,6 +62,7 @@ add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/mongoose/mongoose.c
   COMMAND curl --retry 4 -O https://raw.githubusercontent.com/cesanta/mongoose/6.16/mongoose.c
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/mongoose
+  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/include/mongoose/mongoose.h
 )
 
 ###############################################################
@@ -869,7 +872,7 @@ set( SWIG_SRC_BASENAME
 set(SWIG_FLAGS -DUSE_ER7_UTILS_INTEGRATORS -D_HAVE_GSL)
 foreach ( infile ${SWIG_SRC_BASENAME} )
     add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/swig/${infile}_wrap.cpp
-      COMMAND ${SWIG_EXECUTABLE} ${SWIG_FLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/trick_source -I${CMAKE_CURRENT_SOURCE_DIR}/include -I${CMAKE_CURRENT_SOURCE_DIR} -c++ -python -includeall -ignoremissing -w201,362,389,451 -o $@ -outdir ${CMAKE_CURRENT_BINARY_DIR}/swig ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_swig/${infile}.i
+      COMMAND ${SWIG_EXECUTABLE} ${SWIG_FLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/trick_source -I${CMAKE_CURRENT_SOURCE_DIR}/include -I${CMAKE_CURRENT_SOURCE_DIR} -c++ -python -includeall -ignoremissing -w201,362,389,451 -o $@ -outdir ${CMAKE_CURRENT_BINARY_DIR}/share/trick/swig ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_swig/${infile}.i
     )
 endforeach(infile)
 

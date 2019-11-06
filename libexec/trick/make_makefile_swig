@@ -141,7 +141,7 @@ sub write_makefile_swig() {
     print PY_LINK_LIST "build/init_swig_modules.o\n" ;
     print PY_LINK_LIST "build/top.o\n" ;
 
-    print MAKEFILE "TRICK_SYSTEM_SWIG_CFLAGS := -I../include \${PYTHON_INCLUDES} -Wno-shadow -Wno-missing-field-initializers
+    print MAKEFILE "TRICK_SYSTEM_SWIG_CFLAGS := -I../include \${PYTHON_INCLUDES} -Wno-shadow -Wno-missing-field-initializers -Wno-cast-function-type
 
 ifeq (\$(IS_CC_CLANG), 1)
     TRICK_SYSTEM_SWIG_CFLAGS += -Wno-self-assign -Wno-sometimes-uninitialized -Wno-deprecated-register
