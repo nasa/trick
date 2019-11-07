@@ -474,36 +474,38 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
             idx = index(2,0);
         } else if ( searchItemText == "LiveCoordTime" ) {
             idx = index(3,0);
-        } else if ( searchItemText == "StartTime" ) {
+        } else if ( searchItemText == "LiveCoordTimeIndex" ) {
             idx = index(4,0);
-        } else if ( searchItemText == "StopTime" ) {
+        } else if ( searchItemText == "StartTime" ) {
             idx = index(5,0);
-        } else if ( searchItemText == "Presentation" ) {
+        } else if ( searchItemText == "StopTime" ) {
             idx = index(6,0);
-        } else if ( searchItemText == "IsShowLiveCoord" ) {
+        } else if ( searchItemText == "Presentation" ) {
             idx = index(7,0);
-        } else if ( searchItemText == "RunToShiftHash" ) {
+        } else if ( searchItemText == "IsShowLiveCoord" ) {
             idx = index(8,0);
-        } else if ( searchItemText == "LegendLabels" ) {
+        } else if ( searchItemText == "RunToShiftHash" ) {
             idx = index(9,0);
-        } else if ( searchItemText == "Orientation" ) {
+        } else if ( searchItemText == "LegendLabels" ) {
             idx = index(10,0);
-        } else if ( searchItemText == "TimeMatchTolerance" ) {
+        } else if ( searchItemText == "Orientation" ) {
             idx = index(11,0);
-        } else if ( searchItemText == "Frequency" ) {
+        } else if ( searchItemText == "TimeMatchTolerance" ) {
             idx = index(12,0);
-        } else if ( searchItemText == "IsLegend" ) {
+        } else if ( searchItemText == "Frequency" ) {
             idx = index(13,0);
-        } else if ( searchItemText == "LegendColors" ) {
+        } else if ( searchItemText == "IsLegend" ) {
             idx = index(14,0);
-        } else if ( searchItemText == "ForegroundColor" ) {
+        } else if ( searchItemText == "LegendColors" ) {
             idx = index(15,0);
-        } else if ( searchItemText == "BackgroundColor" ) {
+        } else if ( searchItemText == "ForegroundColor" ) {
             idx = index(16,0);
-        } else if ( searchItemText == "Linestyles" ) {
+        } else if ( searchItemText == "BackgroundColor" ) {
             idx = index(17,0);
-        } else if ( searchItemText == "Symbolstyles" ) {
+        } else if ( searchItemText == "Linestyles" ) {
             idx = index(18,0);
+        } else if ( searchItemText == "Symbolstyles" ) {
+            idx = index(19,0);
         } else {
             fprintf(stderr,"koviz [bad scoobs]:3: getIndex() received "
                            "root as a startIdx and had bad child "
