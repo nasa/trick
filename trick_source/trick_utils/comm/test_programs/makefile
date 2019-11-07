@@ -28,7 +28,7 @@ else
  LIBS = -lrt
 endif
 
-ifeq ($(TRICK_FORCE_32BIT), 1)
+ifeq ($(TRICK_FORCE_32BIT),ON)
  FLAGS += -m32
 endif
 

@@ -70,7 +70,7 @@ sub gte (@) {
         if ( $system_type eq "Linux" ) {
             $def{"TRICK_HOST_CPU"} = $system_type . "_" . $gcc_version ;
             $machine_hardware = `uname -m` ;
-            if ( (! exists $ENV{"TRICK_FORCE_32BIT"} or $ENV{"TRICK_FORCE_32BIT"} == 0) and $machine_hardware eq "x86_64\n") {
+            if ( (! exists $ENV{"TRICK_FORCE_32BIT"} or $ENV{"TRICK_FORCE_32BIT"} == "OFF") and $machine_hardware eq "x86_64\n") {
                 $def{"TRICK_HOST_CPU"} .= "_x86_64" ;
             }
         }
@@ -86,7 +86,7 @@ sub gte (@) {
     $def{"TRICK_DEBUG"} = "0" ;
     $def{"TRICK_EDITOR"} = "" ;
     $def{"TRICK_EXEC_LINK_LIBS"} = "" ;
-    $def{"TRICK_FORCE_32BIT"} = "0" ;
+    $def{"TRICK_FORCE_32BIT"} = "OFF" ;
     $def{"TRICK_GTE_EXT"} = "" ;
     $def{"TRICK_HOME"} = "$trick_home" ;
     $def{"TRICK_HOST_CPU_USER_SUFFIX"} = "" ;

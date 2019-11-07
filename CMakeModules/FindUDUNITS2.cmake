@@ -5,6 +5,7 @@
 #  UDUNITS2_LIBRARIES   - libraries to link with
 #  UDUNITS2_FOUND       - True if UDUNITS2 was found.
 
+message(STATUS "UDUNITS2_ROOT = ${UDUNITS2_ROOT}")
 if (UDUNITS2_INCLUDES)
   # Already in cache, be silent
   set (UDUNITS2_FIND_QUIETLY TRUE)
@@ -67,7 +68,7 @@ set(CMAKE_REQUIRED_LIBRARIES ${UDUNITS2_LIBRARIES})
 check_c_source_runs("${UDUNITS2_TEST_SRC}" UDUNITS2_WORKS_WITHOUT_EXPAT)
 
 if(${UDUNITS2_WORKS_WITHOUT_EXPAT})
-  message(STATUS "UDUNITS-2 does not require expat")
+  #message(STATUS "UDUNITS-2 does not require expat")
 else()
   find_package(EXPAT REQUIRED)
 
@@ -79,7 +80,7 @@ else()
     message(FATAL_ERROR "UDUNITS-2 does not seem to work with or without expat")
   endif()
 
-  message(STATUS "UDUNITS-2 requires EXPAT")
+  #message(STATUS "UDUNITS-2 requires EXPAT")
   set (UDUNITS2_LIBRARIES "${UDUNITS2_LIBRARIES};${EXPAT_LIBRARIES}" CACHE STRING "" FORCE)
 endif()
 

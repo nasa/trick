@@ -4,12 +4,18 @@ set(TRICK_MAJOR 19)
 set(TRICK_MINOR 1)
 set(TRICK_TINY dev)
 
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules)
+set(TRICK_FORCE_32BIT OFF CACHE BOOL "Set Trick to compile in 32bit mode")
+#set(USE_JAVA ON CACHE BOOL "Use java")
+set(USE_ER7_UTILS ON CACHE BOOL "Use er7_utils")
+set(UDUNITS2_ROOT "" CACHE STRING "UDUNITS home directory")
+
+message("UDUNITS2_ROOT = ${UDUNITS2_ROOT}")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib64)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib64)
 
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules)
 include(UseJava)
 find_package(Java REQUIRED)
 find_package(BISON REQUIRED)
@@ -27,7 +33,10 @@ find_package(HDF5)
 find_package(GSL)
 
 add_definitions( -DTRICK_VER=${TRICK_MAJOR} )
-add_definitions( -DUSE_ER7_UTILS_INTEGRATORS)
+
+if(USE_ER7_UTILS)
+    add_definitions( -DUSE_ER7_UTILS_INTEGRATORS)
+endif()
 
 if(GSL_FOUND)
     add_definitions( -D_HAVE_GSL)
@@ -44,13 +53,17 @@ file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lex_yacc)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/mongoose)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/swig)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/share/trick/makefiles/config_user.mk.in ${CMAKE_CURRENT_BINARY_DIR}/share/trick/makefiles/config_user.mk)
-
 file(GLOB_RECURSE ER7_UTIL_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/er7_utils ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/er7_utils/*.hh)
 foreach ( infile ${ER7_UTIL_HEADERS} )
     get_filename_component(dir ${infile} DIRECTORY)
     file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/er7_utils/${infile} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/include/er7_utils/${dir}")
 endforeach(infile)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/share/trick/makefiles/config_user.mk.in ${CMAKE_CURRENT_BINARY_DIR}/share/trick/makefiles/config_user.mk)
+
+###############################################################
+# mongoose lib
+###############################################################
 
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/include/mongoose/mongoose.h
@@ -64,10 +77,6 @@ add_custom_command(
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/mongoose
   DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/include/mongoose/mongoose.h
 )
-
-###############################################################
-# mongoose lib
-###############################################################
 
 add_library(mongoose STATIC ${CMAKE_CURRENT_BINARY_DIR}/mongoose/mongoose.c)
 target_include_directories( mongoose PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include/mongoose )
@@ -100,11 +109,10 @@ set ( ICG_SRC
   trick_source/sim_services/UdUnits/map_trick_units_to_udunits
 )
 
-add_definitions( -g -DTRICK_VERSION="${TRICK_MAJOR}.${TRICK_MINOR}.${TRICK_TINY}" -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS)
-add_definitions( -DLIBCLANG_MAJOR=${LLVM_VERSION_MAJOR} -DLIBCLANG_MINOR=${LLVM_VERSION_MINOR})
-add_definitions( -DLIBCLANG_MAJOR=7 -DLIBCLANG_MINOR=0)
 
 add_executable( trick-ICG ${ICG_SRC} )
+target_compile_options( trick-ICG PUBLIC -g -DTRICK_VERSION="${TRICK_MAJOR}.${TRICK_MINOR}.${TRICK_TINY}" -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS)
+target_compile_options( trick-ICG PUBLIC -DLIBCLANG_MAJOR=${LLVM_VERSION_MAJOR} -DLIBCLANG_MINOR=${LLVM_VERSION_MINOR})
 target_include_directories( trick-ICG PUBLIC ${UDUNITS2_INCLUDES} )
 target_include_directories( trick-ICG PUBLIC ${LLVM_INCLUDE_DIR} )
 target_include_directories( trick-ICG PUBLIC include )
