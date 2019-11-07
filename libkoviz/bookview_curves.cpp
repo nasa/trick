@@ -791,7 +791,7 @@ void CurvesView::_paintMarkers(QPainter &painter)
         }
 
         // If timestamps identical, it may be necessary to add LiveCoordTimeidx
-        ii = marker->timeIdx();
+        int ii = marker->timeIdx();
         i = i+ii;  // LiveCoordTimeIndex is normally 0
 
         if ( tag == "Curve" ) {
