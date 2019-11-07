@@ -672,18 +672,21 @@ void CurvesView::_paintMarkers(QPainter &painter)
     QModelIndex liveIdx = _bookModel()->getDataIndex(QModelIndex(),
                                                      "LiveCoordTime");
     double liveTime = model()->data(liveIdx).toDouble();
+    QModelIndex liveTimeIdxIdx = _bookModel()->getDataIndex(QModelIndex(),
+                                                     "LiveCoordTimeIndex");
+    int timeIdx = model()->data(liveTimeIdxIdx).toInt();
     if ( currentIndex().isValid() && (tag == "Curve" || tag == "Plot") ) {
         TimeAndIndex* liveMarker = 0;
         if ( tag == "Plot" ) {
             if ( pres == "error" || pres == "error+compare") {
-                liveMarker = new TimeAndIndex(liveTime,currentIndex());
+                liveMarker = new TimeAndIndex(liveTime,timeIdx,currentIndex());
             }
         } else if ( tag == "Curve" ) {
             if ( pres == "compare" || pres == "error+compare" ) {
-                liveMarker = new TimeAndIndex(liveTime,currentIndex());
+                liveMarker = new TimeAndIndex(liveTime,timeIdx,currentIndex());
             } else if ( pres == "error" ) {
                 QModelIndex plotIdx = currentIndex().parent().parent();
-                liveMarker = new TimeAndIndex(liveTime,plotIdx);
+                liveMarker = new TimeAndIndex(liveTime,0,plotIdx);
             }
         } else {
             // bad scoobs
@@ -695,7 +698,7 @@ void CurvesView::_paintMarkers(QPainter &painter)
         }
     }
     foreach ( TimeAndIndex* marker, _markers ) {
-        QString markerTag = model()->data(marker->idx()).toString();
+        QString markerTag = model()->data(marker->modelIdx()).toString();
         if ( markerTag == "Curve" && pres == "compare" ) {
             markers << marker;
         } else if ( markerTag == "Plot" && pres == "error" ) {
@@ -706,15 +709,15 @@ void CurvesView::_paintMarkers(QPainter &painter)
     foreach ( TimeAndIndex* marker, markers ) {
 
         // Tag is either "Curve" or "Plot"
-        QString tag = _bookModel()->data(marker->idx()).toString();
+        QString tag = _bookModel()->data(marker->modelIdx()).toString();
 
         // Get plot x/y scale (log or linear)
         QModelIndex plotIdx;
         if ( tag == "Curve" ) {
-            QModelIndex curveIdx = marker->idx();
+            QModelIndex curveIdx = marker->modelIdx();
             plotIdx = curveIdx.parent().parent();
         } else if ( tag == "Plot" ) {
-            plotIdx = marker->idx();
+            plotIdx = marker->modelIdx();
         } else {
             // bad scoobs
         }
@@ -731,7 +734,7 @@ void CurvesView::_paintMarkers(QPainter &painter)
         double xb = 0.0;
         double yb = 0.0;
         if ( tag == "Curve") {
-            QModelIndex curveIdx = marker->idx();
+            QModelIndex curveIdx = marker->modelIdx();
             if ( !isXLogScale ) {
                 // With logscale, scale/bias already done foreach path element
                 xs = _bookModel()->xScale(curveIdx);
@@ -746,10 +749,10 @@ void CurvesView::_paintMarkers(QPainter &painter)
         // Get path
         QPainterPath* path = 0;
         if ( tag == "Curve" ) {
-            QModelIndex curveIdx = marker->idx();
+            QModelIndex curveIdx = marker->modelIdx();
             path = _bookModel()->getPainterPath(curveIdx);
         } else if ( tag == "Plot" ) {
-            QModelIndex plotIdx = marker->idx();
+            QModelIndex plotIdx = marker->modelIdx();
             QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,
                                                            "Curves","Plot");
             path = _bookModel()->getCurvesErrorPath(curvesIdx);
@@ -788,18 +791,16 @@ void CurvesView::_paintMarkers(QPainter &painter)
         }
 
         // If timestamps identical, it may be necessary to add LiveCoordTimeidx
-        int ii = _bookModel()->getDataInt(QModelIndex(),
-                                          "LiveCoordTimeIndex","");
+        ii = marker->timeIdx();
         i = i+ii;  // LiveCoordTimeIndex is normally 0
-
 
         if ( tag == "Curve" ) {
             // If x is not time (e.g. ball xy orbit), i is calculated from
             // the curve model instead of the path
-            QModelIndex curveIdx = marker->idx();
+            QModelIndex curveIdx = marker->modelIdx();
             CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
             curveModel->map();
-            QModelIndex plotIdx = marker->idx().parent().parent();
+            QModelIndex plotIdx = marker->modelIdx().parent().parent();
             if ( !_bookModel()->isXTime(plotIdx) ) {
                 // e.g. ball xy curve where x is position[0]
                 double f = _bookModel()->getDataDouble(QModelIndex(),
@@ -877,7 +878,7 @@ void CurvesView::_paintMarkers(QPainter &painter)
 
         // Prepend RunID to live text if more than 5 runs
         if ( tag == "Curve") {
-            QModelIndex curveIdx = marker->idx();
+            QModelIndex curveIdx = marker->modelIdx();
             if ( model()->rowCount(curveIdx.parent()) > 5 ) {
                 int id = _bookModel()->getDataInt(curveIdx,"CurveRunID","Curve");
                 QString runID = QString("RUN_%1: ").arg(id);
@@ -903,7 +904,7 @@ void CurvesView::_paintMarkers(QPainter &painter)
 
         if ( isFits ) {
             arrow.paintMe(painter,T,fg,bg);
-        } else if ( marker->idx() == currentIndex() ) {
+        } else if ( marker->modelIdx() == currentIndex() ) {
             arrow.paintMeCenter(painter,T,viewport()->rect(),fg,bg);
         }
 
@@ -2418,12 +2419,17 @@ void CurvesView::_keyPressComma()
                                                      "LiveCoordTime");
     double liveTime = model()->data(liveIdx).toDouble();
 
+    QModelIndex liveTimeIdxIdx = _bookModel()->getDataIndex(QModelIndex(),
+                                                     "LiveCoordTimeIndex");
+    int timeIdx = model()->data(liveTimeIdxIdx).toInt();
+
     // Add (or remove) marker based on presentation
     if ( tag == "Curve" || tag == "Plot" ) {
         bool isRemoved = false;
         foreach (TimeAndIndex* marker, _markers ) {
             if ( liveTime == marker->time() &&
-                 marker->idx().row() == currentIndex().row() ) {
+                 timeIdx == marker->timeIdx() &&
+                 marker->modelIdx().row() == currentIndex().row() ) {
                 // Remove marker if same time and same curve (eg toggle off/on)
                 _markers.removeOne(marker);
                 delete marker;
@@ -2434,15 +2440,16 @@ void CurvesView::_keyPressComma()
 
         if ( !isRemoved ) {
             QModelIndex idx = currentIndex();
-            TimeAndIndex* timeAndIdx = new TimeAndIndex(liveTime,idx);
+            TimeAndIndex* timeAndIdx = new TimeAndIndex(liveTime,timeIdx,idx);
             _markers << timeAndIdx;
         }
     }
 }
 
-TimeAndIndex::TimeAndIndex(double time, const QModelIndex &idx) :
+TimeAndIndex::TimeAndIndex(double time, int timeIdx, const QModelIndex &idx) :
     _time(time),
-    _idx(idx)
+    _timeIdx(timeIdx),
+    _modelIdx(idx)
 {
 }
 
@@ -2451,7 +2458,12 @@ double TimeAndIndex::time() const
     return _time;
 }
 
-QModelIndex TimeAndIndex::idx() const
+int TimeAndIndex::timeIdx() const
 {
-    return _idx;
+    return _timeIdx;
+}
+
+QModelIndex TimeAndIndex::modelIdx() const
+{
+    return _modelIdx;
 }
