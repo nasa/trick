@@ -1,43 +1,51 @@
-import React from 'react';
-import AppBar from '@material-ui/core/AppBar';
-import MuiBox from '@material-ui/core/Box';
-import Toolbar from '@material-ui/core/Toolbar';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
-import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { Flex, Box } from 'reflexbox';
-import TreeView from '@material-ui/lab/TreeView';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import TreeItem from '@material-ui/lab/TreeItem';
-import SearchIcon from '@material-ui/icons/Search';
-import InputBase from '@material-ui/core/InputBase';
+import React, { useState } from "react";
+import AppBar from "@material-ui/core/AppBar";
+import MuiBox from "@material-ui/core/Box";
+import Toolbar from "@material-ui/core/Toolbar";
+import Table from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableCell from "@material-ui/core/TableCell";
+import TableHead from "@material-ui/core/TableHead";
+import TableRow from "@material-ui/core/TableRow";
+import Paper from "@material-ui/core/Paper";
+import TextField from "@material-ui/core/TextField";
+import Typography from "@material-ui/core/Typography";
+import Button from "@material-ui/core/Button";
+import ExpansionPanel from "@material-ui/core/ExpansionPanel";
+import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
+import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import { Flex, Box } from "reflexbox";
+import TreeView from "@material-ui/lab/TreeView";
+import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+import TreeItem from "@material-ui/lab/TreeItem";
+import SearchIcon from "@material-ui/icons/Search";
+import InputBase from "@material-ui/core/InputBase";
 
-import Drawer from '@material-ui/core/Drawer';
+import Drawer from "@material-ui/core/Drawer";
 
-import List from '@material-ui/core/List';
+import List from "@material-ui/core/List";
 
-import Divider from '@material-ui/core/Divider';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
-import MailIcon from '@material-ui/icons/Mail';
+import Divider from "@material-ui/core/Divider";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
+import ListItemText from "@material-ui/core/ListItemText";
+import InboxIcon from "@material-ui/icons/MoveToInbox";
+import MailIcon from "@material-ui/icons/Mail";
 
-import OutlinedInput from '@material-ui/core/OutlinedInput';
+import Dialog from "@material-ui/core/Dialog";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import Radio from "@material-ui/core/Radio";
+import RadioGroup from "@material-ui/core/RadioGroup";
+import FormHelperText from "@material-ui/core/FormHelperText";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import FormControl from "@material-ui/core/FormControl";
+import FormLabel from "@material-ui/core/FormLabel";
+//import OutlinedInput from '@material-ui/core/OutlinedInput';
 
-import MenuItem from '@material-ui/core/MenuItem';
+//import MenuItem from '@material-ui/core/MenuItem';
 
-import Select from '@material-ui/core/Select';
+//import Select from '@material-ui/core/Select';
 
 export default class Client extends React.Component {
   constructor(props) {
@@ -45,25 +53,58 @@ export default class Client extends React.Component {
     this.state = {
       variables: [],
       data: [],
-      unit: [],
+      units: [],
       time: 0.0,
+      sie: { top_level_objects: [] },
+      children: {},
+      addVariable: "",
+      dialogOpen: false,
+      dialogText: "",
+      dialogDims: [],
+      dialogElems: [],
+      dialogStart: [],
+      selectedVar: "",
+      data_record: false,
+      data_record_text: "Enable Data Record" /* TODO get dr info from sim */,
+      realtime: true,
+      realtime_text: "Realtime Enabled" /* TODO get dr info from sim */,
     };
-    console.log('Client created');
+    console.log("Client created");
     this.ws = new WebSocket(
-      'ws://localhost:8888/api/ws/VariableServer',
-      'myProtocol',
+      "ws://localhost:8888/api/ws/VariableServer",
+      "myProtocol",
     );
     this.ws.onopen = e => {
       this.var_cycle(100);
       this.var_unpause();
       //this.var_add("trick_sys.sched.time_tics");
-      console.log('opened');
+      console.log("opened");
+      this.request_sie();
     };
     this.ws.onmessage = e => {
-      console.log('Message received');
+      //console.log('Message received');
       let message = JSON.parse(e.data);
-      console.log(message);
-      this.setState({ time: message.time, data: message.values });
+      if (message.msg_type === "error") {
+        console.log(message.error);
+      }
+      if (message.msg_type === "values") {
+        this.setState({ time: message.time, data: message.values });
+      }
+      if (message.msg_type === "sie") {
+        console.log(message);
+        this.setState({ sie: message.data });
+      }
+      if (message.msg_type === "units") {
+        console.log(message);
+        let i = this.state.variables.indexOf(message.var_name);
+        this.setState({
+          units: [
+            ...this.state.units.slice(0, i),
+            message.data,
+            ...this.state.units.slice(i + 1),
+          ],
+        });
+      }
     };
   }
 
@@ -74,7 +115,7 @@ export default class Client extends React.Component {
 
   var_add = v => {
     let msg = {
-      cmd: 'var_add',
+      cmd: "var_add",
       var_name: v,
     };
     this.send_msg(msg);
@@ -82,14 +123,14 @@ export default class Client extends React.Component {
 
   var_unpause = () => {
     let msg = {
-      cmd: 'var_unpause',
+      cmd: "var_unpause",
     };
     this.send_msg(msg);
   };
 
   var_cycle = p => {
     let msg = {
-      cmd: 'var_cycle',
+      cmd: "var_cycle",
       period: p,
     };
     this.send_msg(msg);
@@ -97,17 +138,21 @@ export default class Client extends React.Component {
 
   var_clear = () => {
     let msg = {
-      cmd: 'var_clear',
+      cmd: "var_clear",
     };
     this.send_msg(msg);
   };
 
-  addVariable = v => {
-    this.setState({
-      variables: [...this.state.variables, v],
-      data: [...this.state.data, 0.0],
+  addVariable = (path, units = "--") => {
+    console.log("in add var");
+    this.setState(prev => {
+      return {
+        variables: [...prev.variables, path],
+        data: [...prev.data, 0.0],
+        units: [...prev.units, units],
+      };
     });
-    this.var_add(v);
+    this.var_add(path);
   };
 
   clearVariables = () => {
@@ -117,22 +162,64 @@ export default class Client extends React.Component {
 
   input_processor = cmd => {
     let msg = {
-      cmd: 'python',
+      cmd: "python",
       pycode: cmd,
     };
     this.send_msg(msg);
   };
 
   sim_start = () => {
-    this.input_processor('trick.exec_run()');
+    this.input_processor("trick.exec_run()");
   };
 
   sim_freeze = () => {
-    this.input_processor('trick.exec_freeze()');
+    this.input_processor("trick.exec_freeze()");
   };
   sim_shutdown = () => {
-    this.input_processor('trick.stop()');
+    this.input_processor("trick.stop()");
   };
+
+  sim_data_record_toggle = () => {
+    /* TODO get dr info from sim */
+    this.setState(prev => {
+      if (!prev.data_record) {
+        this.input_processor("trick.dr_enable()");
+        return { data_record: true, data_record_text: "Data Record On" };
+      } else {
+        this.input_processor("trick.dr_disable()");
+        return { data_record: false, data_record_text: "Data Record Off" };
+      }
+    });
+  };
+
+  sim_realtime_toggle = () => {
+    /* TODO get dr info from sim */
+    this.setState(prev => {
+      if (!prev.realtime) {
+        this.input_processor("trick.real_time_enable()");
+        return { realtime: true, realtime_text: "Realtime On" };
+      } else {
+        this.input_processor("trick.real_time_disable()");
+        return { realtime: false, realtime_text: "Realtime Off" };
+      }
+    });
+  };
+
+  request_sie = () => {
+    let msg = {
+      cmd: "sie",
+    };
+    this.send_msg(msg);
+  };
+
+  request_units = var_name => {
+    let msg = {
+      cmd: "units",
+      var_name: var_name,
+    };
+    this.send_msg(msg);
+  };
+
   sim_step = () => {
     /* TODO handle debug stepping mode
     this.input_processor('trick.debug_pause_on()');
@@ -140,7 +227,7 @@ export default class Client extends React.Component {
       */
   };
 
-  BoxButton = ({ text, color = 'primary', fullWidth = true, onClick }) => (
+  BoxButton = ({ text, color = "primary", fullWidth = true, onClick }) => (
     <Box flexGrow={1} flexShrink={1}>
       <Button
         className={this.props.classes.button}
@@ -155,6 +242,124 @@ export default class Client extends React.Component {
     </Box>
   );
 
+  BoxRadio = ({ className, color = "primary", fullWidth = true, onClick }) => (
+    <Box flexGrow={1} flexShrink={1}>
+      <FormControl component="fieldset">
+        <FormLabel component="legend">Gender</FormLabel>
+        <RadioGroup aria-label="gender" name="gender1" value={3}>
+          <FormControlLabel value="female" control={<Radio />} label="Female" />
+          <FormControlLabel value="male" control={<Radio />} label="Male" />
+          <FormControlLabel value="other" control={<Radio />} label="Other" />
+          <FormControlLabel
+            value="disabled"
+            disabled
+            control={<Radio />}
+            label="(Disabled option)"
+          />
+        </RadioGroup>
+      </FormControl>
+    </Box>
+  );
+  count = str => {
+    const re = /\[.*?\]/g;
+    return ((str || "").match(re) || []).length;
+  };
+
+  TVTreeItem = ({ name, path, type, dims = [], units = "--" }) => {
+    const [expanded, setExpanded] = useState(true);
+    const members = this.getMembers(type);
+    let dimensionString = "";
+    for (let dim of dims) {
+      dimensionString += "[" + dim + "]";
+    }
+
+    let pathdims = path + dimensionString;
+    // console.log("name: " + name + " path: " + path + " type: " + type);
+    return (
+      <TreeItem
+        nodeId={pathdims ? pathdims : ""}
+        label={name + dimensionString}
+        onDoubleClick={e => {
+          e.stopPropagation();
+          this.setState({ selectedVar: path });
+          if (dims.length === 0) {
+            this.addVariable(pathdims, units);
+            return;
+          } else {
+            console.log(String(pathdims.match(/\[(.*?)\]/g)));
+            console.log(
+              String(pathdims.match(/\[(.*?)\]/g))
+                .replace(/\[|\]/g, "")
+                .replace(/,/g, " "),
+            );
+            console.log(String(pathdims.match(/\[(.*?)\]/g)).match(/\d+/g));
+            let Dims = String(pathdims.match(/\[(.*?)\]/g)).match(/\d+/g);
+            let Elems = [];
+            let Start = [];
+            Dims.map((elem, index) => {
+              Elems[index] = elem > 0 ? elem - 1 : 0;
+              Start[index] = 0;
+            });
+            this.setState({
+              dialogText: "Select elements to add to TV",
+              dialogDims: Dims, //   String(this.count(pathdims)),
+              dialogElems: Elems,
+              dialogStart: Start,
+              dialogOpen: true,
+              dialogUnits: units,
+            });
+          }
+        }}
+      >
+        {members
+          ? members &&
+            members.map(member => {
+              return (
+                <this.TVTreeItem
+                  name={member.name}
+                  path={[path, member.name].join(".")}
+                  type={member.type}
+                  dims={member.dimensions}
+                  units={member.units}
+                  key={[path, member.name].join(".")}
+                />
+              );
+            })
+          : null}
+      </TreeItem>
+    );
+  };
+
+  getMembers = type => {
+    let varClass = this.state.sie.classes.find(
+      element => element.name === type,
+    );
+    if (varClass !== undefined && varClass.members !== undefined) {
+      return varClass.members;
+    }
+    // console.log("returning null");
+    return null;
+  };
+
+  recurse = (path, arr1, arr2) => {
+    if (arr1.length === 0) {
+      console.log("add variable " + path);
+      this.addVariable(path, this.state.dialogUnits);
+    } else {
+      for (let i = arr1[0]; i <= arr2[0]; i++) {
+        let s = path + "[" + i + "]";
+        this.recurse(s, arr1.slice(1), arr2.slice(1));
+      }
+    }
+  };
+
+  addArrayVariables = () => {
+    let path = this.state.selectedVar;
+    let arr1 = this.state.dialogStart;
+    let arr2 = this.state.dialogElems;
+    this.recurse(path, arr1, arr2);
+  };
+
   render() {
     const { classes } = this.props;
     //console.log(classes);
@@ -164,7 +369,7 @@ export default class Client extends React.Component {
           <Toolbar className={classes.toolbar}>
             <Flex alignItems="center" flexGrow={1}>
               <Box>
-                <img src="TrickLogoSmall.png" height={45} />
+                <img src="TrickLogoSmall.png" alt="trick logo" height={45} />
               </Box>
               <Box>
                 <Typography variant="h5" className={classes.appbartitle}>
@@ -174,9 +379,9 @@ export default class Client extends React.Component {
               <Box flexGrow={1} />
               <Box flexDirection="column">
                 <Typography variant="h6">
-                  SIM_cannon_numeric{'\u00A0'}
-                  {'\u00A0'}
-                  {'\u00A0'}
+                  SIM_cannon_numeric{"\u00A0"}
+                  {"\u00A0"}
+                  {"\u00A0"}
                 </Typography>
               </Box>
               <Box>
@@ -198,7 +403,7 @@ export default class Client extends React.Component {
               <div className={classes.toolbar} />
               <Divider />
               <List>
-                {['Home', 'Wiki', 'Data Recording', 'Strip Chart'].map(
+                {["Home", "Wiki", "Data Recording", "Strip Chart"].map(
                   (text, index) => (
                     <ListItem button key={text}>
                       <ListItemIcon>
@@ -211,7 +416,7 @@ export default class Client extends React.Component {
               </List>
               <Divider />
               <List>
-                {['Sniffer', 'Environment', 'Settings'].map((text, index) => (
+                {["Sniffer", "Environment", "Settings"].map((text, index) => (
                   <ListItem button key={text}>
                     <ListItemIcon>
                       {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
@@ -247,10 +452,85 @@ export default class Client extends React.Component {
                       />
                     </Flex>
                     <Flex flexDirection="column">
-                      <this.BoxButton text="data record on" />
-                      <this.BoxButton text="realtime on" />
-                      <this.BoxButton text="dump checkpoint" />
-                      <this.BoxButton text="load checkpoint" />
+                      <Box flexGrow={1} flexShrink={1}>
+                        <FormControl
+                          component="fieldset"
+                          fullWidth={true}
+                          className={this.props.classes.button}
+                        >
+                          <FormLabel component="legend">Data Record</FormLabel>
+                          <RadioGroup
+                            key="radio1"
+                            aria-label="datarecord"
+                            name="datarecord"
+                            value={this.state.data_record}
+                            onChange={event => {
+                              let data_record = event.target.value === "true";
+                              if (data_record) {
+                                this.input_processor("trick.dr_enable()");
+                              } else {
+                                this.input_processor("trick.dr_disable()");
+                              }
+                              this.setState({
+                                data_record: data_record,
+                              });
+                            }}
+                          >
+                            <FormControlLabel
+                              value={true}
+                              control={<Radio />}
+                              label="Enabled"
+                            />
+                            <FormControlLabel
+                              value={false}
+                              control={<Radio />}
+                              label="Disabled"
+                            />
+                          </RadioGroup>
+                        </FormControl>
+                      </Box>
+                      <Box flexGrow={1} flexShrink={1}>
+                        <FormControl
+                          component="fieldset"
+                          fullWidth={true}
+                          className={this.props.classes.button}
+                        >
+                          <FormLabel component="legend">Realtime</FormLabel>
+                          <RadioGroup
+                            key="radio2"
+                            aria-label="realtime"
+                            name="realtime"
+                            value={this.state.realtime}
+                            onChange={event => {
+                              let realtime = event.target.value === "true";
+                              if (realtime) {
+                                this.input_processor("trick.real_time_enable()");
+                              } else {
+                                this.input_processor("trick.real_time_disable()");
+                              }
+                              this.setState({
+                                realtime: realtime,
+                              });
+                            }}
+                          >
+                            <FormControlLabel
+                              value={true}
+                              control={<Radio />}
+                              label="Enabled"
+                            />
+                            <FormControlLabel
+                              value={false}
+                              control={<Radio />}
+                              label="Disabled"
+                            />
+                          </RadioGroup>
+                        </FormControl>
+                      </Box>
+                      {/*<this.BoxButton text="dump checkpoint" />
+                      <this.BoxButton
+                        text="load checkpoint"
+                        onClick={this.request_sie}
+                      />*/}
                     </Flex>
                   </Flex>
                   <Flex
@@ -285,31 +565,7 @@ export default class Client extends React.Component {
                   <ExpansionPanelDetails>
                     <Typography>
                       <MuiBox bgcolor="black" padding={1}>
-                        {
-                          '|L   1|2019/08/06,09:29:13|thanos| |T 0|1.500000| Freeze OFF.'
-                        }
-                        <br />
-                        {
-                          '|L  10|2019/08/06,09:29:14|thanos| |T 0|3.200000| 0x7f6950000fd0 tag=<SimControl> var_server received: trick.exec_freeze()'
-                        }
-                        <br />
-                        <br />
-                        {
-                          '|L   1|2019/08/06,09:29:14|thanos| |T 0|3.300000| Freeze ON. Simulation time holding at 3.300000 seconds.'
-                        }
-                        <br />
-                        {
-                          '|L  10|2019/08/06,09:29:21|thanos| |T 0|3.300000| 0x7f6950000fd0 tag=<SimControl> var_server received: trick.exec_run()'
-                        }
-                        <br />
-                        <br />
-                        {
-                          '|L   1|2019/08/06,09:29:21|thanos| |T 0|3.300000| Freeze OFF.'
-                        }
-                        <br />
-                        {
-                          '|L  10|2019/08/06,09:29:23|thanos| |T 0|4.600000| 0x7f6950000fd0 tag=<SimControl> var_server received: trick.exec_freeze()'
-                        }
+                        {"Coming Soon"}
                       </MuiBox>
                     </Typography>
                   </ExpansionPanelDetails>
@@ -332,7 +588,7 @@ export default class Client extends React.Component {
                         root: classes.inputRoot,
                         input: classes.inputInput,
                       }}
-                      inputProps={{ 'aria-label': 'search' }}
+                      inputProps={{ "aria-label": "search" }}
                     />
                   </div>
                 </Toolbar>
@@ -343,75 +599,14 @@ export default class Client extends React.Component {
                       defaultCollapseIcon={<ExpandMoreIcon />}
                       defaultExpandIcon={<ChevronRightIcon />}
                     >
-                      <TreeItem nodeId="1" label="Trick Variables">
-                        <TreeItem nodeId="2" label="trick_cmd_args">
-                          <TreeItem nodeId="3" label="dummy data" />
-                        </TreeItem>
-                        <TreeItem nodeId="4" label="trick_sys">
-                          <TreeItem nodeId="5" label="dummy data" />
-                        </TreeItem>
-                        <TreeItem nodeId="6" label="trick_ip">
-                          <TreeItem nodeId="7" label="dummy data" />
-                        </TreeItem>
-                        <TreeItem nodeId="8" label="trick_vs">
-                          <TreeItem nodeId="9" label="dummy data" />
-                        </TreeItem>
-                      </TreeItem>
-                      <TreeItem nodeId="10" label="Dynamic Allocations">
-                        <TreeItem nodeId="11" label="dyn_integloop">
-                          <TreeItem nodeId="12" label="name" />
-                          <TreeItem nodeId="13" label="id" />
-                          <TreeItem nodeId="14" label="integ_sched">
-                            <TreeItem nodeId="15" label="dummy data" />
-                          </TreeItem>
-                        </TreeItem>
-                      </TreeItem>
-                      <TreeItem nodeId="16" label="dyn">
-                        <TreeItem nodeId="17" label="name" />
-                        <TreeItem nodeId="18" label="id" />
-                        <TreeItem nodeId="19" label="cannon">
-                          <TreeItem nodeId="20" label="vel0[2]" />
-                          <TreeItem nodeId="21" label="pos0[2]" />
-                          <TreeItem nodeId="22" label="init_speed" />
-                          <TreeItem nodeId="23" label="init_angle" />
-                          <TreeItem nodeId="24" label="g" />
-                          <TreeItem nodeId="25" label="acc[2]" />
-                          <TreeItem nodeId="26" label="vel[2]" />
-                          <TreeItem nodeId="27" label="pos[2]" />
-                          <TreeItem nodeId="28" label="time" />
-                          <TreeItem nodeId="29" label="timeRate" />
-                          <TreeItem nodeId="30" label="impact" />
-                          <TreeItem nodeId="31" label="impactTime" />
-                          <TreeItem nodeId="32" label="rf">
-                            <TreeItem nodeId="33" label="dummy data" />
-                          </TreeItem>
-                          <TreeItem nodeId="34" label="connection">
-                            <TreeItem nodeId="36" label="connection">
-                              <TreeItem nodeId="37" label="connection">
-                                <TreeItem nodeId="38" label="connection">
-                                  <TreeItem nodeId="39" label="connection">
-                                    <TreeItem nodeId="40" label="connection">
-                                      <TreeItem nodeId="41" label="connection">
-                                        <TreeItem
-                                          nodeId="35"
-                                          label="dummy data"
-                                        />
-                                      </TreeItem>
-                                    </TreeItem>
-                                  </TreeItem>
-                                </TreeItem>
-                              </TreeItem>
-                            </TreeItem>
-                          </TreeItem>
-                        </TreeItem>
-                        <TreeItem nodeId="36" label="http">
-                          <TreeItem nodeId="37" label="name" />
-                          <TreeItem nodeId="38" label="id" />
-                          <TreeItem nodeId="39" label="http_server">
-                            <TreeItem nodeId="40" label="dummy data" />
-                          </TreeItem>
-                        </TreeItem>
-                      </TreeItem>
+                      {this.state.sie.top_level_objects.map(member => (
+                        <this.TVTreeItem
+                          name={member.name}
+                          path={member.name}
+                          type={member.type}
+                          key={member.name}
+                        />
+                      ))}
                     </TreeView>
                   </Flex>
                   <Flex flexDirection="column">
@@ -426,7 +621,7 @@ export default class Client extends React.Component {
                           <TableRow hover={true}>
                             <TableCell>Variable</TableCell>
                             <TableCell align="right">Value</TableCell>
-                            <TableCell align="right">Unit</TableCell>
+                            <TableCell align="right">Units</TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
@@ -447,15 +642,16 @@ export default class Client extends React.Component {
                                     ]}
                               </TableCell>
                               <TableCell align="right">
-                                {this.state.unit[
+                                {this.state.units[
                                   this.state.variables.indexOf(v)
                                 ] &&
-                                this.state.unit[this.state.variables.indexOf(v)]
-                                  .toFixed
-                                  ? this.state.unit[
+                                this.state.units[
+                                  this.state.variables.indexOf(v)
+                                ].toFixed
+                                  ? this.state.units[
                                       this.state.variables.indexOf(v)
                                     ].toFixed(3)
-                                  : this.state.unit[
+                                  : this.state.units[
                                       this.state.variables.indexOf(v)
                                     ]}
                               </TableCell>
@@ -470,11 +666,16 @@ export default class Client extends React.Component {
                           className={classes.textfield}
                           variant="outlined"
                           label="Add Variable"
+                          value={this.state.addVariable}
+                          onChange={ev => {
+                            this.setState({ addVariable: ev.target.value });
+                          }}
                           onKeyPress={ev => {
-                            if (ev.key === 'Enter') {
-                              if (ev.target.value !== '') {
+                            if (ev.key === "Enter") {
+                              if (ev.target.value !== "") {
                                 this.addVariable(ev.target.value);
-                                ev.target.value = '';
+                                this.request_units(ev.target.value);
+                                this.setState({ addVariable: "" });
                               }
                               ev.preventDefault();
                             }
@@ -491,16 +692,72 @@ export default class Client extends React.Component {
                 </Flex>
               </Paper>
             </Box>
-            <Box>
+            {/*<Box>
               <Paper className={classes.mockup}>
                 <Typography variant="h6" color="textPrimary">
-                  This web application mostly serves as a mockup for now. Most of the elements are not
-                  functional. The following buttons and fields are currently functional: START, FREEZE, SHUTDOWN, Add
+                  This web application mostly serves as a mockup for now. Most
+                  of the elements are not functional. The following buttons and
+                  fields are currently functional: START, FREEZE, SHUTDOWN, Add
                   Variable, and CLEAR
                 </Typography>
               </Paper>
-            </Box>
+            </Box> */}
           </Flex>
+        </Flex>
+        <Flex margin={2} padding={2}>
+        <Box margin={2} padding={2}>
+        <Dialog open={this.state.dialogOpen}>
+          <DialogTitle>Select Dimensions</DialogTitle>
+          {this.state.dialogText}
+          {this.state.dialogElems.map((elem, index) => {
+            return (
+              <div>
+                Dim {index}
+                <TextField
+                  className={classes.textfield}
+                  label="start"
+                  variant="outlined"
+                  value={this.state.dialogStart[index]}
+                  onChange={e => {
+                    this.setState({
+                      dialogStart: [
+                        ...this.state.dialogStart.slice(0, index),
+                        e.target.value,
+                        ...this.state.dialogStart.slice(index + 1),
+                      ],
+                    });
+                  }}
+                />
+                <TextField
+                  label="end"
+                  variant="outlined"
+                  value={elem}
+                  onChange={e => {
+                    this.setState({
+                      dialogElems: [
+                        ...this.state.dialogElems.slice(0, index),
+                        e.target.value,
+                        ...this.state.dialogElems.slice(index + 1),
+                      ],
+                    });
+                  }}
+                />
+              </div>
+            );
+          })}
+          <Button
+            onClick={() => {
+              this.addArrayVariables();
+              this.setState({ dialogOpen: false });
+            }}
+          >
+            Add Variables
+          </Button>
+          <Button onClick={() => this.setState({ dialogOpen: false })}>
+            Cancel
+          </Button>
+        </Dialog>
+        </Box>
         </Flex>
       </div>
     );

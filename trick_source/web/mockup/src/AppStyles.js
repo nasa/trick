@@ -8,9 +8,9 @@ export default theme => ({
     display: 'flex',
   },
 
-  toolbar: {},
+  //toolbar: {},
 
-  appbar: { width: `calc(100% - ${drawerWidth}px)`, marginLeft: drawerWidth },
+ // appbar: { width: `calc(100% - ${drawerWidth}px)`, marginLeft: drawerWidth },
 
   paper: {
     margin: '0 auto',

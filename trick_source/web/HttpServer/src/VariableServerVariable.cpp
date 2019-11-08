@@ -3,6 +3,7 @@
 #include <math.h> // for fpclassify
 #include <iomanip> // for setprecision
 
+
 VariableServerVariable::VariableServerVariable(REF2 * ref ) {
     varInfo = ref;
     address = varInfo->address;
