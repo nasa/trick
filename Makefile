@@ -140,7 +140,7 @@ ICG_EXE := ${TRICK_HOME}/bin/trick-ICG
 ################################################################################
 # DEFAULT TARGET
 # 1 Build Trick-core and Trick Data-products.
-all: no_dp dp
+all: no_dp webserver dp
 	@ echo ; echo "[32mTrick compilation complete:[00m" ; date
 
 ifeq ($(USE_JAVA), 1)
@@ -183,8 +183,8 @@ $(ER7_UTILS_DIRS): icg_sim_serv
 # 1.1.1.4 Generate interface code (using ICG) for the specified sim_services
 # header files.
 .PHONY: icg_sim_serv
-icg_sim_serv: $(ICG_EXE)
-	${TRICK_HOME}/bin/trick-ICG -sim_services -m ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_HOME}/include/trick/files_to_ICG.hh
+icg_sim_serv: $(ICG_EXE) ${TRICK_HOME}/include/mongoose/mongoose.h
+	${ICG_EXE} -sim_services -m ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_HOME}/include/trick/files_to_ICG.hh
 
 # 1.1.1.4.1 Build the Interface Code Generator (ICG) executable.
 $(ICG_EXE) :
@@ -207,6 +207,37 @@ $(SWIG_DIRS): icg_sim_serv $(TRICK_LIB_DIR)
 .PHONY: dp
 dp: ${TRICK_HOME}/trick_source/trick_utils/units
 	@ $(MAKE) -C ${TRICK_HOME}/trick_source/data_products
+
+#-------------------------------------------------------------------------------
+#
+.PHONY: webserver
+webserver: ${TRICK_LIB_DIR}/libmongoose.a ${TRICK_HOME}/include/mongoose/mongoose.h
+	@ $(MAKE) -C ${TRICK_HOME}/trick_source/web/HttpServer
+
+#-------------------------------------------------------------------------------
+TRICK_ICG_EXCLUDE += ${TRICK_HOME}/include/mongoose
+
+mongoose.h:
+	curl --retry 4 -O https://raw.githubusercontent.com/cesanta/mongoose/6.16/mongoose.h
+
+mongoose.c:
+	curl --retry 4 -O https://raw.githubusercontent.com/cesanta/mongoose/6.16/mongoose.c
+
+mongoose.o: mongoose.h mongoose.c
+	$(CC) $(TRICK_CFLAGS) -c -o mongoose.o mongoose.c
+	rm mongoose.c
+
+${TRICK_LIB_DIR}/libmongoose.a: mongoose.o ${TRICK_HOME}/include/mongoose/mongoose.h | $(TRICK_LIB_DIR)
+	ar crs $@ mongoose.o
+	rm mongoose.o
+	rm mongoose.h
+	@ echo ; echo "Mongoose library compiled:" ; date
+
+${TRICK_HOME}/include/mongoose/mongoose.h: mongoose.h | ${TRICK_HOME}/include/mongoose
+	@ cp mongoose.h $@
+
+${TRICK_HOME}/include/mongoose: 
+	@ mkdir $@
 
 #-------------------------------------------------------------------------------
 # 1.3 Build Trick's Java Tools
@@ -386,8 +417,8 @@ uninstall:
 ################################################################################
 # ICG all sim_services files (for testing and debugging ICG).
 # The -f flag forces io_src files to be regenerated whether or not they need to be.
-ICG: $(ICG_EXE)
-	${TRICK_HOME}/bin/trick-ICG -f -s -m -n ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_HOME}/include/trick/files_to_ICG.hh
+ICG: $(ICG_EXE) ${TRICK_HOME}/include/mongoose/mongoose.h
+	$(ICG_EXE) -f -s -m -n ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_HOME}/include/trick/files_to_ICG.hh
 
 # This builds a tricklib share library.
 trick_lib: $(SIM_SERV_DIRS) $(UTILS_DIRS) | $(TRICK_LIB_DIR)

@@ -14,6 +14,7 @@ use verbose_build ;
 my %processed_files ;
 my %non_lib_processed_files ;
 my $any_deps_changed = 0 ;
+my $verbose_build = verbose_build() ;
 
 sub exist_lib_deps(@) {
     my (@files_to_process) = @_ ;
@@ -24,8 +25,8 @@ sub exist_lib_deps(@) {
         my ( $file, $dir, $suffix) = fileparse($l, qr/\.[^.]*/) ;
         my ($lib_dep_file_name) = "build$dir${file}${suffix}.lib_deps" ;
         if ( ! -e $lib_dep_file_name ) {
-            $any_deps_changed =1 ;
-            print "[34mNewDep[0m     $l\n" ;
+            $any_deps_changed = 1 ;
+            print "[34mNew Dep[0m    $l\n" ;
             return 1 ;
         }
     }
@@ -58,7 +59,7 @@ sub read_lib_deps($@) {
                     read_lib_deps($indent + 1 , @resolved_files) ;
                 }
             }
-        } elsif ( verbose_build() ) {
+        } elsif ( $verbose_build ) {
             print "[34mSkipping[0m   Previously processed file \"$l\"\n" ;
         }
     }
@@ -125,21 +126,6 @@ my @all_read_only_libs ;
 my @all_compile_libs ;
 my %files_by_dir ;
 
-my @exclude_dirs ;
-@exclude_dirs = split /:/ , "$ENV{TRICK_EXCLUDE}:$ENV{TRICK_EXT_LIB_DIRS}";
-# See if there are any elements in the exclude_dirs array
-if (scalar @exclude_dirs) {
-    @exclude_dirs = sort(@exclude_dirs );
-    # Error check - delete any element that is null
-    # (note: sort forced all blank names to front of array
-    @exclude_dirs = map { s/(^\s+|\s+$)//g ; $_ } @exclude_dirs ;
-    while ( scalar @exclude_dirs and not length @exclude_dirs[0] ) {
-        # Delete an element from the left side of an array (element zero)
-        shift @exclude_dirs ;
-    }
-    @exclude_dirs = map { (-e $_) ? abs_path($_) : $_ } @exclude_dirs ;
-}
-
 @all_cfly_files = keys %processed_files ;
 @all_read_only_libs = sort (grep /^-/ , @all_cfly_files) ;
 @all_compile_libs = grep /\.a$/ , @all_cfly_files ;
@@ -180,17 +166,6 @@ foreach my $directory ( keys %files_by_dir ) {
     foreach my $extension ( keys %{$files_by_dir{$directory}} ) {
         undef %temp_hash ;
         @{$files_by_dir{$directory}{$extension}} = sort grep ++$temp_hash{$_} < 2, @{$files_by_dir{$directory}{$extension}} ;
-    }
-}
-
-foreach $k ( sort keys %files_by_dir ) {
-    foreach my $ie ( @exclude_dirs ) {
-        # if file location begins with $ie (an exclude dir)
-        if ( $k =~ /^\Q$ie/ ) {
-            delete $files_by_dir{$k} ;
-            print "[33mexcluding $k from build[00m\n" ;
-            last ;  # break out of loop
-        }
     }
 }
 
