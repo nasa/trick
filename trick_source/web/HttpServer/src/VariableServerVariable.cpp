@@ -2,7 +2,7 @@
 #include "../include/VariableServerVariable.hh"
 #include <math.h> // for fpclassify
 #include <iomanip> // for setprecision
-#include <iostream>
+
 
 VariableServerVariable::VariableServerVariable(REF2 * ref ) {
     varInfo = ref;
