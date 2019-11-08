@@ -135,9 +135,221 @@ target_link_libraries( trick-ICG
 )
 
 ###############################################################
-# Trick source
+# io_src files
 ###############################################################
 
+set( IO_SRC
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/class_map.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_ABM_Integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_AttributesMap.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_BC635Clock.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_CheckPointAgent.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_CheckPointRestart.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Clock.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_CommandLineArguments.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_DMTCP.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_DRAscii.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_DRBinary.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_DRHDF5.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_DataRecordDispatcher.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_DataRecordGroup.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_DebugPause.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_EchoJobs.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_EnumAttributesMap.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Environment.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Euler_Cromer_Integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Euler_Integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Event.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_EventInstrument.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_EventManager.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_EventProcessor.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Executive.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_ExecutiveException.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_ExternalApplication.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Flag.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_FrameDataRecordGroup.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_FrameLog.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_GetTimeOfDayClock.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_IPPython.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_IPPythonEvent.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_ITimer.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_InputProcessor.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_InstrumentBase.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_IntegLoopManager.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_IntegLoopScheduler.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_IntegLoopSimObject.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_JITEvent.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_JITInputFile.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_JSONVariableServer.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_JSONVariableServerThread.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_JobData.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MM4_Integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MSConnect.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MSSharedMem.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MSSocket.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MTV.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MalfunctionsTrickView.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Master.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MemoryManager.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MessageCout.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MessageFile.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MessageLCout.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MessagePublisher.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MessageSubscriber.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MessageTCDevice.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MessageThreadedCout.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MonteCarlo.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MonteMonitor.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MonteVar.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_NL2_Integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_PlaybackFile.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_RK2_Integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_RK4_Integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_RKF45_Integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_RKF78_Integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_RKG4_Integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_RealtimeSync.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_RemoteShell.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_RtiEvent.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_RtiExec.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_RtiList.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_RtiStager.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_STLInterface.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_ScheduledJobQueue.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Scheduler.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Sie.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_SimControlPanel.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_SimObject.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_SimTime.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Slave.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_StripChart.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_TPROCTEClock.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_ThreadBase.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_ThreadTrigger.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Threads.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Timer.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_TrickView.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_UCFn.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_UdUnits.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Unit.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_UnitTest.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_UnitsMap.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_VariableServer.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_VariableServerListenThread.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_VariableServerReference.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_VariableServerThread.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_WebServer.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_WebSocketSession.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Zeroconf.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_attributes.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_dllist.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_io_alloc.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_lqueue.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_lstack.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_message_type.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_mm_error.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_ms_sim_mode.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_n_choose_m.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_parameter_types.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rand_generator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_reference.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_reference_frame.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_regula_falsi.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_sim_mode.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_tc.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_time_offset.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_trick_error_hndlr.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_tsm.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_units_conv.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_value.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_var.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_variable_server_sync_types.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_wave_form.cpp
+)
+
+set( ER7_UTILS_IO_SRC
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_abm4_first_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_abm4_integrator_constructor.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_abm4_second_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_base_integration_group.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_beeman_integrator_constructor.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_beeman_second_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_bogus_integration_controls.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_deletable.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_euler_first_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_euler_integrator_constructor.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_euler_second_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_first_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_generalized_position_derivative.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_integrable_object.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_integration_controls.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_integration_messages.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_integration_technique.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_integrator_constructor.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_integrator_constructor_factory.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_integrator_interface.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_integrator_result.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_integrator_result_merger.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_integrator_result_merger_container.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_left_quaternion_functions.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_mm4_integrator_constructor.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_mm4_second_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_nl2_integrator_constructor.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_nl2_second_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_position_verlet_integrator_constructor.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_position_verlet_second_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_priming_first_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_priming_integration_controls.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_priming_integrator_constructor.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_priming_second_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_ratio128.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rk2_heun_first_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rk2_heun_integrator_constructor.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rk2_heun_second_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rk2_midpoint_first_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rk2_midpoint_integrator_constructor.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rk2_midpoint_second_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rk4_first_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rk4_integrator_constructor.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rk4_second_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rk4_second_order_ode_integrator_base.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rkf45_first_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rkf45_integrator_constructor.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rkf45_second_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rkf78_first_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rkf78_integrator_constructor.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rkf78_second_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rkg4_first_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rkg4_integrator_constructor.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rkg4_second_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_second_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_single_cycle_integration_controls.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_standard_integration_controls.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_state_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_symplectic_euler_integrator_constructor.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_symplectic_euler_second_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_time_interface.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_trick_first_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_trick_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_trick_second_order_ode_integrator.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_uint128.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_velocity_verlet_integrator_constructor.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_velocity_verlet_second_order_ode_integrator.cpp
+)
+
+set(ENV{TRICK_ICG_EXCLUDE} ${CMAKE_CURRENT_BINARY_DIR}/include/mongoose)
+set(ICG_FLAGS -I${CMAKE_CURRENT_BINARY_DIR}/include -I${CMAKE_CURRENT_BINARY_DIR}/include/trick/compat -I${UDUNITS2_INCLUDES} -DTRICK_VER=${TRICK_MAJOR} -DUSE_ER7_UTILS_INTEGRATORS)
+add_custom_command(OUTPUT ${IO_SRC} ${ER7_UTILS_IO_SRC}
+  COMMAND TRICK_ICG_EXCLUDE=${CMAKE_CURRENT_BINARY_DIR}/include/mongoose ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/trick-ICG -force -sim_services -m -n -o ${CMAKE_CURRENT_BINARY_DIR}/io_src ${ICG_FLAGS} ${CMAKE_CURRENT_BINARY_DIR}/include/trick/files_to_ICG.hh
+  DEPENDS trick-ICG
+)
+
+###############################################################
+# libtrick.a
+###############################################################
+
+# Sim services C/C++ files
 set( SS_SRC
   trick_source/sim_services/CheckPointAgent/CheckPointAgent
   trick_source/sim_services/CheckPointAgent/ChkPtParseContext
@@ -251,12 +463,6 @@ set( SS_SRC
   trick_source/sim_services/FrameLog/FrameDataRecordGroup
   trick_source/sim_services/FrameLog/FrameLog
   trick_source/sim_services/FrameLog/FrameLog_c_intf
-  trick_source/sim_services/InputProcessor/IPPython
-  trick_source/sim_services/InputProcessor/IPPythonEvent
-  trick_source/sim_services/InputProcessor/InputProcessor
-  trick_source/sim_services/InputProcessor/MTV
-  trick_source/sim_services/InputProcessor/MTV_c_intf
-  trick_source/sim_services/InputProcessor/input_processor_ext
   trick_source/sim_services/Integrator/src/IntegLoopManager
   trick_source/sim_services/Integrator/src/IntegLoopScheduler
   trick_source/sim_services/Integrator/src/IntegLoopSimObject
@@ -274,56 +480,6 @@ set( SS_SRC
   trick_source/sim_services/MasterSlave/MSSocket
   trick_source/sim_services/MasterSlave/Master
   trick_source/sim_services/MasterSlave/Slave
-  trick_source/sim_services/MemoryManager/ADefParseContext
-  trick_source/sim_services/MemoryManager/MemoryManager
-  trick_source/sim_services/MemoryManager/MemoryManager_C_Intf
-  trick_source/sim_services/MemoryManager/MemoryManager_JSON_Intf
-  trick_source/sim_services/MemoryManager/MemoryManager_add_attr_info
-  trick_source/sim_services/MemoryManager/MemoryManager_add_checkpoint_alloc_dependency
-  trick_source/sim_services/MemoryManager/MemoryManager_add_shared_library_symbols
-  trick_source/sim_services/MemoryManager/MemoryManager_add_template_name_trans
-  trick_source/sim_services/MemoryManager/MemoryManager_add_var
-  trick_source/sim_services/MemoryManager/MemoryManager_alloc_depends
-  trick_source/sim_services/MemoryManager/MemoryManager_alloc_info_map
-  trick_source/sim_services/MemoryManager/MemoryManager_clear_memory
-  trick_source/sim_services/MemoryManager/MemoryManager_declare_var
-  trick_source/sim_services/MemoryManager/MemoryManager_delete_var
-  trick_source/sim_services/MemoryManager/MemoryManager_get_enumerated
-  trick_source/sim_services/MemoryManager/MemoryManager_get_size
-  trick_source/sim_services/MemoryManager/MemoryManager_get_stl_dependencies
-  trick_source/sim_services/MemoryManager/MemoryManager_get_type_attributes
-  trick_source/sim_services/MemoryManager/MemoryManager_io_src_intf
-  trick_source/sim_services/MemoryManager/MemoryManager_is_alloced
-  trick_source/sim_services/MemoryManager/MemoryManager_make_declaration
-  trick_source/sim_services/MemoryManager/MemoryManager_make_reference_attr
-  trick_source/sim_services/MemoryManager/MemoryManager_map_external_object
-  trick_source/sim_services/MemoryManager/MemoryManager_realloc
-  trick_source/sim_services/MemoryManager/MemoryManager_ref_allocate
-  trick_source/sim_services/MemoryManager/MemoryManager_ref_assignment
-  trick_source/sim_services/MemoryManager/MemoryManager_ref_attributes
-  trick_source/sim_services/MemoryManager/MemoryManager_ref_dim
-  trick_source/sim_services/MemoryManager/MemoryManager_ref_name
-  trick_source/sim_services/MemoryManager/MemoryManager_ref_name_from_address
-  trick_source/sim_services/MemoryManager/MemoryManager_ref_var
-  trick_source/sim_services/MemoryManager/MemoryManager_restore
-  trick_source/sim_services/MemoryManager/MemoryManager_restore_stls
-  trick_source/sim_services/MemoryManager/MemoryManager_set_checkpointagent
-  trick_source/sim_services/MemoryManager/MemoryManager_set_debug_level
-  trick_source/sim_services/MemoryManager/MemoryManager_strdup
-  trick_source/sim_services/MemoryManager/MemoryManager_write_checkpoint
-  trick_source/sim_services/MemoryManager/MemoryManager_write_var
-  trick_source/sim_services/MemoryManager/RefParseContext
-  trick_source/sim_services/MemoryManager/addr_bitfield
-  trick_source/sim_services/MemoryManager/extract_bitfield
-  trick_source/sim_services/MemoryManager/extract_unsigned_bitfield
-  trick_source/sim_services/MemoryManager/follow_address_path
-  trick_source/sim_services/MemoryManager/insert_bitfield
-  trick_source/sim_services/MemoryManager/parameter_types
-  trick_source/sim_services/MemoryManager/ref_free
-  trick_source/sim_services/MemoryManager/ref_to_value
-  trick_source/sim_services/MemoryManager/trickTypeCharString
-  trick_source/sim_services/MemoryManager/vval
-  trick_source/sim_services/MemoryManager/wcs_ext
   trick_source/sim_services/Message/MessageCout
   trick_source/sim_services/Message/MessageFile
   trick_source/sim_services/Message/MessageLCout
@@ -414,16 +570,9 @@ set( SS_SRC
   trick_source/sim_services/VariableServer/vs_format_ascii
   trick_source/sim_services/Zeroconf/Zeroconf
   trick_source/sim_services/mains/master
-  trick_source/trick_swig/PrimitiveAttributesMap
-  trick_source/trick_swig/swig_convert_units
-  trick_source/trick_swig/swig_global_vars
-  trick_source/web/HttpServer/src/VariableServerSession
-  trick_source/web/HttpServer/src/VariableServerVariable
-  trick_source/web/HttpServer/src/WebServer
-  trick_source/web/HttpServer/src/http_GET_handlers
-  trick_source/web/HttpServer/src/simpleJSON
 )
 
+# Sim services Lex/Yacc files
 set( LEX_YACC_SRC
   ${CMAKE_CURRENT_BINARY_DIR}/lex_yacc/adef_parser.lex
   ${CMAKE_CURRENT_BINARY_DIR}/lex_yacc/adef_parser.tab
@@ -458,7 +607,235 @@ add_custom_command( OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/lex_yacc/ref_parser.tab.c
  MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/sim_services/MemoryManager/ref_parser.y
 )
 
+# Trick utils files
 set( TRICK_UTILS_SRC
+  ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/interpolator/src/Interpolator.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/shm/src/tsm_disconnect
+  ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/shm/src/tsm_init
+  ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/shm/src/tsm_init_with_lock
+  ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/shm/src/tsm_reconnect
+  ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/trick_adt/src/MapStrToPtr
+  ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/trick_adt/src/bst
+  ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/trick_adt/src/bubble_sort
+  ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/trick_adt/src/dllist
+  ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/trick_adt/src/lqueue
+  ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/trick_adt/src/lstack
+  ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/trick_adt/src/record_array
+  ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/unicode/src/unicode_utils
+)
+
+add_library( trick STATIC ${SS_SRC} ${LEX_YACC_SRC} ${TRICK_UTILS_SRC} ${IO_SRC})
+target_include_directories( trick PUBLIC ${PYTHON_INCLUDE_DIRS} )
+target_include_directories( trick PUBLIC ${UDUNITS2_INCLUDES} )
+target_include_directories( trick PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include)
+target_include_directories( trick PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include/trick/compat)
+
+###############################################################
+# libtrick_mm.a
+###############################################################
+
+set( TRICK_MM_SRC
+  trick_source/sim_services/MemoryManager/ADefParseContext
+  trick_source/sim_services/MemoryManager/MemoryManager
+  trick_source/sim_services/MemoryManager/MemoryManager_C_Intf
+  trick_source/sim_services/MemoryManager/MemoryManager_JSON_Intf
+  trick_source/sim_services/MemoryManager/MemoryManager_add_attr_info
+  trick_source/sim_services/MemoryManager/MemoryManager_add_checkpoint_alloc_dependency
+  trick_source/sim_services/MemoryManager/MemoryManager_add_shared_library_symbols
+  trick_source/sim_services/MemoryManager/MemoryManager_add_template_name_trans
+  trick_source/sim_services/MemoryManager/MemoryManager_add_var
+  trick_source/sim_services/MemoryManager/MemoryManager_alloc_depends
+  trick_source/sim_services/MemoryManager/MemoryManager_alloc_info_map
+  trick_source/sim_services/MemoryManager/MemoryManager_clear_memory
+  trick_source/sim_services/MemoryManager/MemoryManager_declare_var
+  trick_source/sim_services/MemoryManager/MemoryManager_delete_var
+  trick_source/sim_services/MemoryManager/MemoryManager_get_enumerated
+  trick_source/sim_services/MemoryManager/MemoryManager_get_size
+  trick_source/sim_services/MemoryManager/MemoryManager_get_stl_dependencies
+  trick_source/sim_services/MemoryManager/MemoryManager_get_type_attributes
+  trick_source/sim_services/MemoryManager/MemoryManager_io_src_intf
+  trick_source/sim_services/MemoryManager/MemoryManager_is_alloced
+  trick_source/sim_services/MemoryManager/MemoryManager_make_declaration
+  trick_source/sim_services/MemoryManager/MemoryManager_make_reference_attr
+  trick_source/sim_services/MemoryManager/MemoryManager_map_external_object
+  trick_source/sim_services/MemoryManager/MemoryManager_realloc
+  trick_source/sim_services/MemoryManager/MemoryManager_ref_allocate
+  trick_source/sim_services/MemoryManager/MemoryManager_ref_assignment
+  trick_source/sim_services/MemoryManager/MemoryManager_ref_attributes
+  trick_source/sim_services/MemoryManager/MemoryManager_ref_dim
+  trick_source/sim_services/MemoryManager/MemoryManager_ref_name
+  trick_source/sim_services/MemoryManager/MemoryManager_ref_name_from_address
+  trick_source/sim_services/MemoryManager/MemoryManager_ref_var
+  trick_source/sim_services/MemoryManager/MemoryManager_restore
+  trick_source/sim_services/MemoryManager/MemoryManager_restore_stls
+  trick_source/sim_services/MemoryManager/MemoryManager_set_checkpointagent
+  trick_source/sim_services/MemoryManager/MemoryManager_set_debug_level
+  trick_source/sim_services/MemoryManager/MemoryManager_strdup
+  trick_source/sim_services/MemoryManager/MemoryManager_write_checkpoint
+  trick_source/sim_services/MemoryManager/MemoryManager_write_var
+  trick_source/sim_services/MemoryManager/RefParseContext
+  trick_source/sim_services/MemoryManager/addr_bitfield
+  trick_source/sim_services/MemoryManager/extract_bitfield
+  trick_source/sim_services/MemoryManager/extract_unsigned_bitfield
+  trick_source/sim_services/MemoryManager/follow_address_path
+  trick_source/sim_services/MemoryManager/insert_bitfield
+  trick_source/sim_services/MemoryManager/parameter_types
+  trick_source/sim_services/MemoryManager/ref_free
+  trick_source/sim_services/MemoryManager/ref_to_value
+  trick_source/sim_services/MemoryManager/trickTypeCharString
+  trick_source/sim_services/MemoryManager/vval
+  trick_source/sim_services/MemoryManager/wcs_ext
+)
+
+add_library( trick_mm STATIC ${TRICK_MM_SRC})
+target_include_directories( trick_mm PUBLIC ${UDUNITS2_INCLUDES} )
+target_include_directories( trick_mm PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include)
+
+###############################################################
+# liber7_utils.a
+###############################################################
+
+set( ER7_UTILS_SRC
+  trick_source/er7_utils/integration/abm4/src/abm4_first_order_ode_integrator
+  trick_source/er7_utils/integration/abm4/src/abm4_integrator_constructor
+  trick_source/er7_utils/integration/abm4/src/abm4_second_order_ode_integrator
+  trick_source/er7_utils/integration/beeman/src/beeman_integrator_constructor
+  trick_source/er7_utils/integration/beeman/src/beeman_second_order_ode_integrator
+  trick_source/er7_utils/integration/core/src/base_integration_group
+  trick_source/er7_utils/integration/core/src/bogus_integration_controls
+  trick_source/er7_utils/integration/core/src/first_order_ode_integrator
+  trick_source/er7_utils/integration/core/src/integration_controls
+  trick_source/er7_utils/integration/core/src/integration_messages
+  trick_source/er7_utils/integration/core/src/integrator_constructor
+  trick_source/er7_utils/integration/core/src/integrator_constructor_factory
+  trick_source/er7_utils/integration/core/src/integrator_result_merger
+  trick_source/er7_utils/integration/core/src/integrator_result_merger_container
+  trick_source/er7_utils/integration/core/src/left_quaternion_functions
+  trick_source/er7_utils/integration/core/src/priming_first_order_ode_integrator
+  trick_source/er7_utils/integration/core/src/priming_integration_controls
+  trick_source/er7_utils/integration/core/src/priming_integrator_constructor
+  trick_source/er7_utils/integration/core/src/priming_second_order_ode_integrator
+  trick_source/er7_utils/integration/core/src/second_order_ode_integrator
+  trick_source/er7_utils/integration/core/src/single_cycle_integration_controls
+  trick_source/er7_utils/integration/core/src/standard_integration_controls
+  trick_source/er7_utils/integration/euler/src/euler_first_order_ode_integrator
+  trick_source/er7_utils/integration/euler/src/euler_integrator_constructor
+  trick_source/er7_utils/integration/euler/src/euler_second_order_ode_integrator
+  trick_source/er7_utils/integration/mm4/src/mm4_integrator_constructor
+  trick_source/er7_utils/integration/mm4/src/mm4_second_order_ode_integrator
+  trick_source/er7_utils/integration/nl2/src/nl2_integrator_constructor
+  trick_source/er7_utils/integration/nl2/src/nl2_second_order_ode_integrator
+  trick_source/er7_utils/integration/position_verlet/src/position_verlet_integrator_constructor
+  trick_source/er7_utils/integration/position_verlet/src/position_verlet_second_order_ode_integrator
+  trick_source/er7_utils/integration/rk2_heun/src/rk2_heun_first_order_ode_integrator
+  trick_source/er7_utils/integration/rk2_heun/src/rk2_heun_integrator_constructor
+  trick_source/er7_utils/integration/rk2_heun/src/rk2_heun_second_order_ode_integrator
+  trick_source/er7_utils/integration/rk2_midpoint/src/rk2_midpoint_first_order_ode_integrator
+  trick_source/er7_utils/integration/rk2_midpoint/src/rk2_midpoint_integrator_constructor
+  trick_source/er7_utils/integration/rk2_midpoint/src/rk2_midpoint_second_order_ode_integrator
+  trick_source/er7_utils/integration/rk4/src/rk4_first_order_ode_integrator
+  trick_source/er7_utils/integration/rk4/src/rk4_integrator_constructor
+  trick_source/er7_utils/integration/rk4/src/rk4_second_order_ode_integrator
+  trick_source/er7_utils/integration/rk4/src/rk4_second_order_ode_integrator_base
+  trick_source/er7_utils/integration/rkf45/src/rkf45_butcher_tableau
+  trick_source/er7_utils/integration/rkf45/src/rkf45_first_order_ode_integrator
+  trick_source/er7_utils/integration/rkf45/src/rkf45_integrator_constructor
+  trick_source/er7_utils/integration/rkf45/src/rkf45_second_order_ode_integrator
+  trick_source/er7_utils/integration/rkf78/src/rkf78_butcher_tableau
+  trick_source/er7_utils/integration/rkf78/src/rkf78_first_order_ode_integrator
+  trick_source/er7_utils/integration/rkf78/src/rkf78_integrator_constructor
+  trick_source/er7_utils/integration/rkf78/src/rkf78_second_order_ode_integrator
+  trick_source/er7_utils/integration/rkg4/src/rkg4_butcher_tableau
+  trick_source/er7_utils/integration/rkg4/src/rkg4_first_order_ode_integrator
+  trick_source/er7_utils/integration/rkg4/src/rkg4_integrator_constructor
+  trick_source/er7_utils/integration/rkg4/src/rkg4_second_order_ode_integrator
+  trick_source/er7_utils/integration/rkn4/src/rkn4_integrator_constructor
+  trick_source/er7_utils/integration/rkn4/src/rkn4_second_order_ode_integrator
+  trick_source/er7_utils/integration/symplectic_euler/src/symplectic_euler_integrator_constructor
+  trick_source/er7_utils/integration/symplectic_euler/src/symplectic_euler_second_order_ode_integrator
+  trick_source/er7_utils/integration/velocity_verlet/src/velocity_verlet_integrator_constructor
+  trick_source/er7_utils/integration/velocity_verlet/src/velocity_verlet_second_order_ode_integrator
+  trick_source/er7_utils/interface/src/alloc
+  trick_source/er7_utils/interface/src/deletable
+  trick_source/er7_utils/interface/src/message_handler
+  trick_source/er7_utils/math/src/n_choose_m
+  trick_source/er7_utils/math/src/ratio128
+  trick_source/er7_utils/math/src/uint128
+  trick_source/er7_utils/trick/integration/src/trick_integrator
+)
+
+add_library( er7_utils STATIC ${ER7_UTILS_SRC} ${ER7_UTILS_IO_SRC})
+target_include_directories( er7_utils PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include)
+target_include_directories( er7_utils PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include/trick/compat)
+# dependency to avoid double ICG
+add_dependencies(er7_utils trick)
+
+###############################################################
+# libtrick_pyip.a
+###############################################################
+
+set( TRICKPYIP_SRC
+  trick_source/sim_services/InputProcessor/IPPython
+  trick_source/sim_services/InputProcessor/IPPythonEvent
+  trick_source/sim_services/InputProcessor/InputProcessor
+  trick_source/sim_services/InputProcessor/MTV
+  trick_source/sim_services/InputProcessor/MTV_c_intf
+  trick_source/sim_services/InputProcessor/input_processor_ext
+  trick_source/trick_swig/PrimitiveAttributesMap
+  trick_source/trick_swig/swig_convert_units
+  trick_source/trick_swig/swig_global_vars
+)
+
+# Generated SWIG files
+set( SWIG_SRC
+  ${CMAKE_CURRENT_BINARY_DIR}/swig/sim_services_wrap
+  ${CMAKE_CURRENT_BINARY_DIR}/swig/swig_double_wrap
+  ${CMAKE_CURRENT_BINARY_DIR}/swig/swig_int_wrap
+  ${CMAKE_CURRENT_BINARY_DIR}/swig//swig_ref_wrap
+)
+
+set( SWIG_SRC_BASENAME
+  sim_services
+  swig_double
+  swig_int
+  swig_ref
+)
+
+set(SWIG_FLAGS -DUSE_ER7_UTILS_INTEGRATORS -D_HAVE_GSL)
+foreach ( infile ${SWIG_SRC_BASENAME} )
+    add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/swig/${infile}_wrap.cpp
+      COMMAND ${SWIG_EXECUTABLE} ${SWIG_FLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/trick_source -I${CMAKE_CURRENT_SOURCE_DIR}/include -I${CMAKE_CURRENT_SOURCE_DIR} -c++ -python -includeall -ignoremissing -w201,362,389,451 -o $@ -outdir ${CMAKE_CURRENT_BINARY_DIR}/share/trick/swig ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_swig/${infile}.i
+    )
+endforeach(infile)
+
+add_library( trick_pyip STATIC ${TRICKPYIP_SRC} ${SWIG_SRC})
+target_include_directories( trick_pyip PUBLIC ${PYTHON_INCLUDE_DIRS} )
+target_include_directories( trick_pyip PUBLIC ${UDUNITS2_INCLUDES} )
+target_include_directories( trick_pyip PUBLIC trick_source )
+target_include_directories( trick_pyip PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include)
+target_include_directories( trick_pyip PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include/trick/compat)
+
+###############################################################
+# libtrickHTTP.a
+###############################################################
+
+set( TRICKHTTP_SRC
+  trick_source/web/HttpServer/src/VariableServerSession
+  trick_source/web/HttpServer/src/VariableServerVariable
+  trick_source/web/HttpServer/src/WebServer
+  trick_source/web/HttpServer/src/http_GET_handlers
+  trick_source/web/HttpServer/src/simpleJSON
+)
+
+add_library( trickHTTP STATIC ${TRICKHTTP_SRC})
+target_include_directories( trickHTTP PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include)
+add_dependencies( trickHTTP mongoose)
+
+###############################################################
+# libtrick_comm.a
+###############################################################
+
+set( TRICKCOMM_SRC
   ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/comm/src/tc_accept
   ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/comm/src/tc_blockio
   ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/comm/src/tc_broadcast_conninfo
@@ -485,7 +862,16 @@ set( TRICK_UTILS_SRC
   ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/comm/src/trick_bswap_buffer
   ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/comm/src/trick_byteswap
   ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/comm/src/trick_error_hndlr
-  ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/interpolator/src/Interpolator.cpp
+)
+
+add_library( trick_comm STATIC ${TRICKCOMM_SRC})
+target_include_directories( trick_comm PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include)
+
+###############################################################
+# libtrick_math.a
+###############################################################
+
+set( TRICKMATH_SRC
   ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/math/src/LUD_inv
   ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/math/src/LUT_inv
   ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/math/src/LU_bksb
@@ -573,347 +959,23 @@ set( TRICK_UTILS_SRC
   ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/math/src/uniform_rnd_triple
   ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/math/src/vec_print
   ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/math/src/wave_form
-  ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/shm/src/tsm_disconnect
-  ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/shm/src/tsm_init
-  ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/shm/src/tsm_init_with_lock
-  ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/shm/src/tsm_reconnect
-  ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/trick_adt/src/MapStrToPtr
-  ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/trick_adt/src/bst
-  ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/trick_adt/src/bubble_sort
-  ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/trick_adt/src/dllist
-  ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/trick_adt/src/lqueue
-  ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/trick_adt/src/lstack
-  ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/trick_adt/src/record_array
-  ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/unicode/src/unicode_utils
+)
+
+add_library( trick_math STATIC ${TRICKMATH_SRC})
+target_include_directories( trick_math PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include)
+
+###############################################################
+# libtrick_units.a
+###############################################################
+
+set( TRICK_UNITS_SRC
   ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/units/src/UCFn.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/units/src/Unit.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_utils/units/src/units_conv
 )
 
-set( IO_SRC
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/class_map.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_ABM_Integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_AttributesMap.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_BC635Clock.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_CheckPointAgent.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_CheckPointRestart.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Clock.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_CommandLineArguments.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_DMTCP.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_DRAscii.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_DRBinary.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_DRHDF5.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_DataRecordDispatcher.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_DataRecordGroup.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_DebugPause.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_EchoJobs.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_EnumAttributesMap.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Environment.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Euler_Cromer_Integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Euler_Integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Event.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_EventInstrument.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_EventManager.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_EventProcessor.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Executive.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_ExecutiveException.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_ExternalApplication.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Flag.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_FrameDataRecordGroup.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_FrameLog.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_GetTimeOfDayClock.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_IPPython.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_IPPythonEvent.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_ITimer.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_InputProcessor.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_InstrumentBase.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_IntegLoopManager.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_IntegLoopScheduler.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_IntegLoopSimObject.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_JITEvent.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_JITInputFile.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_JSONVariableServer.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_JSONVariableServerThread.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_JobData.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MM4_Integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MSConnect.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MSSharedMem.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MSSocket.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MTV.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MalfunctionsTrickView.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Master.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MemoryManager.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MessageCout.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MessageFile.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MessageLCout.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MessagePublisher.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MessageSubscriber.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MessageTCDevice.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MessageThreadedCout.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MonteCarlo.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MonteMonitor.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_MonteVar.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_NL2_Integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_PlaybackFile.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_RK2_Integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_RK4_Integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_RKF45_Integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_RKF78_Integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_RKG4_Integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_RealtimeSync.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_RemoteShell.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_RtiEvent.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_RtiExec.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_RtiList.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_RtiStager.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_STLInterface.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_ScheduledJobQueue.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Scheduler.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Sie.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_SimControlPanel.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_SimObject.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_SimTime.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Slave.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_StripChart.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_TPROCTEClock.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_ThreadBase.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_ThreadTrigger.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Threads.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Timer.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_TrickView.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_UCFn.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_UdUnits.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Unit.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_UnitTest.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_UnitsMap.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_VariableServer.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_VariableServerListenThread.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_VariableServerReference.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_VariableServerThread.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_WebServer.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_WebSocketSession.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_Zeroconf.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_abm4_first_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_abm4_integrator_constructor.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_abm4_second_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_attributes.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_base_integration_group.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_beeman_integrator_constructor.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_beeman_second_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_bogus_integration_controls.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_deletable.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_dllist.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_euler_first_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_euler_integrator_constructor.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_euler_second_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_first_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_generalized_position_derivative.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_integrable_object.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_integration_controls.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_integration_messages.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_integration_technique.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_integrator_constructor.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_integrator_constructor_factory.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_integrator_interface.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_integrator_result.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_integrator_result_merger.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_integrator_result_merger_container.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_io_alloc.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_left_quaternion_functions.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_lqueue.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_lstack.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_message_type.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_mm4_integrator_constructor.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_mm4_second_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_mm_error.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_ms_sim_mode.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_n_choose_m.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_nl2_integrator_constructor.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_nl2_second_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_parameter_types.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_position_verlet_integrator_constructor.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_position_verlet_second_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_priming_first_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_priming_integration_controls.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_priming_integrator_constructor.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_priming_second_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rand_generator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_ratio128.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_reference.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_reference_frame.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_regula_falsi.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rk2_heun_first_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rk2_heun_integrator_constructor.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rk2_heun_second_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rk2_midpoint_first_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rk2_midpoint_integrator_constructor.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rk2_midpoint_second_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rk4_first_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rk4_integrator_constructor.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rk4_second_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rk4_second_order_ode_integrator_base.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rkf45_first_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rkf45_integrator_constructor.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rkf45_second_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rkf78_first_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rkf78_integrator_constructor.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rkf78_second_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rkg4_first_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rkg4_integrator_constructor.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_rkg4_second_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_second_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_sim_mode.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_single_cycle_integration_controls.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_standard_integration_controls.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_state_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_symplectic_euler_integrator_constructor.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_symplectic_euler_second_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_tc.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_time_interface.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_time_offset.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_trick_error_hndlr.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_trick_first_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_trick_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_trick_second_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_tsm.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_uint128.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_units_conv.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_value.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_var.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_variable_server_sync_types.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_velocity_verlet_integrator_constructor.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_velocity_verlet_second_order_ode_integrator.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/io_src/io_wave_form.cpp
-)
-
-set( ER7_UTILS_SRC
-  trick_source/er7_utils/integration/abm4/src/abm4_first_order_ode_integrator
-  trick_source/er7_utils/integration/abm4/src/abm4_integrator_constructor
-  trick_source/er7_utils/integration/abm4/src/abm4_second_order_ode_integrator
-  trick_source/er7_utils/integration/beeman/src/beeman_integrator_constructor
-  trick_source/er7_utils/integration/beeman/src/beeman_second_order_ode_integrator
-  trick_source/er7_utils/integration/core/src/base_integration_group
-  trick_source/er7_utils/integration/core/src/bogus_integration_controls
-  trick_source/er7_utils/integration/core/src/first_order_ode_integrator
-  trick_source/er7_utils/integration/core/src/integration_controls
-  trick_source/er7_utils/integration/core/src/integration_messages
-  trick_source/er7_utils/integration/core/src/integrator_constructor
-  trick_source/er7_utils/integration/core/src/integrator_constructor_factory
-  trick_source/er7_utils/integration/core/src/integrator_result_merger
-  trick_source/er7_utils/integration/core/src/integrator_result_merger_container
-  trick_source/er7_utils/integration/core/src/left_quaternion_functions
-  trick_source/er7_utils/integration/core/src/priming_first_order_ode_integrator
-  trick_source/er7_utils/integration/core/src/priming_integration_controls
-  trick_source/er7_utils/integration/core/src/priming_integrator_constructor
-  trick_source/er7_utils/integration/core/src/priming_second_order_ode_integrator
-  trick_source/er7_utils/integration/core/src/second_order_ode_integrator
-  trick_source/er7_utils/integration/core/src/single_cycle_integration_controls
-  trick_source/er7_utils/integration/core/src/standard_integration_controls
-  trick_source/er7_utils/integration/euler/src/euler_first_order_ode_integrator
-  trick_source/er7_utils/integration/euler/src/euler_integrator_constructor
-  trick_source/er7_utils/integration/euler/src/euler_second_order_ode_integrator
-  trick_source/er7_utils/integration/mm4/src/mm4_integrator_constructor
-  trick_source/er7_utils/integration/mm4/src/mm4_second_order_ode_integrator
-  trick_source/er7_utils/integration/nl2/src/nl2_integrator_constructor
-  trick_source/er7_utils/integration/nl2/src/nl2_second_order_ode_integrator
-  trick_source/er7_utils/integration/position_verlet/src/position_verlet_integrator_constructor
-  trick_source/er7_utils/integration/position_verlet/src/position_verlet_second_order_ode_integrator
-  trick_source/er7_utils/integration/rk2_heun/src/rk2_heun_first_order_ode_integrator
-  trick_source/er7_utils/integration/rk2_heun/src/rk2_heun_integrator_constructor
-  trick_source/er7_utils/integration/rk2_heun/src/rk2_heun_second_order_ode_integrator
-  trick_source/er7_utils/integration/rk2_midpoint/src/rk2_midpoint_first_order_ode_integrator
-  trick_source/er7_utils/integration/rk2_midpoint/src/rk2_midpoint_integrator_constructor
-  trick_source/er7_utils/integration/rk2_midpoint/src/rk2_midpoint_second_order_ode_integrator
-  trick_source/er7_utils/integration/rk4/src/rk4_first_order_ode_integrator
-  trick_source/er7_utils/integration/rk4/src/rk4_integrator_constructor
-  trick_source/er7_utils/integration/rk4/src/rk4_second_order_ode_integrator
-  trick_source/er7_utils/integration/rk4/src/rk4_second_order_ode_integrator_base
-  trick_source/er7_utils/integration/rkf45/src/rkf45_butcher_tableau
-  trick_source/er7_utils/integration/rkf45/src/rkf45_first_order_ode_integrator
-  trick_source/er7_utils/integration/rkf45/src/rkf45_integrator_constructor
-  trick_source/er7_utils/integration/rkf45/src/rkf45_second_order_ode_integrator
-  trick_source/er7_utils/integration/rkf78/src/rkf78_butcher_tableau
-  trick_source/er7_utils/integration/rkf78/src/rkf78_first_order_ode_integrator
-  trick_source/er7_utils/integration/rkf78/src/rkf78_integrator_constructor
-  trick_source/er7_utils/integration/rkf78/src/rkf78_second_order_ode_integrator
-  trick_source/er7_utils/integration/rkg4/src/rkg4_butcher_tableau
-  trick_source/er7_utils/integration/rkg4/src/rkg4_first_order_ode_integrator
-  trick_source/er7_utils/integration/rkg4/src/rkg4_integrator_constructor
-  trick_source/er7_utils/integration/rkg4/src/rkg4_second_order_ode_integrator
-  trick_source/er7_utils/integration/rkn4/src/rkn4_integrator_constructor
-  trick_source/er7_utils/integration/rkn4/src/rkn4_second_order_ode_integrator
-  trick_source/er7_utils/integration/symplectic_euler/src/symplectic_euler_integrator_constructor
-  trick_source/er7_utils/integration/symplectic_euler/src/symplectic_euler_second_order_ode_integrator
-  trick_source/er7_utils/integration/velocity_verlet/src/velocity_verlet_integrator_constructor
-  trick_source/er7_utils/integration/velocity_verlet/src/velocity_verlet_second_order_ode_integrator
-  trick_source/er7_utils/interface/src/alloc
-  trick_source/er7_utils/interface/src/deletable
-  trick_source/er7_utils/interface/src/message_handler
-  trick_source/er7_utils/math/src/n_choose_m
-  trick_source/er7_utils/math/src/ratio128
-  trick_source/er7_utils/math/src/uint128
-  trick_source/er7_utils/trick/integration/src/trick_integrator
-)
-
-set(ENV{TRICK_ICG_EXCLUDE} ${CMAKE_CURRENT_BINARY_DIR}/include/mongoose)
-set(ICG_FLAGS -I${CMAKE_CURRENT_BINARY_DIR}/include -I${CMAKE_CURRENT_BINARY_DIR}/include/trick/compat -I${UDUNITS2_INCLUDES} -DTRICK_VER=${TRICK_MAJOR} -DUSE_ER7_UTILS_INTEGRATORS)
-add_custom_command(OUTPUT ${IO_SRC}
-  COMMAND TRICK_ICG_EXCLUDE=${CMAKE_CURRENT_BINARY_DIR}/include/mongoose ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/trick-ICG -force -sim_services -m -n -o ${CMAKE_CURRENT_BINARY_DIR}/io_src ${ICG_FLAGS} ${CMAKE_CURRENT_BINARY_DIR}/include/trick/files_to_ICG.hh
-  DEPENDS trick-ICG
-)
-
-set( SWIG_SRC
-  ${CMAKE_CURRENT_BINARY_DIR}/swig/sim_services_wrap
-  ${CMAKE_CURRENT_BINARY_DIR}/swig/swig_double_wrap
-  ${CMAKE_CURRENT_BINARY_DIR}/swig/swig_int_wrap
-  ${CMAKE_CURRENT_BINARY_DIR}/swig//swig_ref_wrap
-)
-
-set( SWIG_SRC_BASENAME
-  sim_services
-  swig_double
-  swig_int
-  swig_ref
-)
-
-set(SWIG_FLAGS -DUSE_ER7_UTILS_INTEGRATORS -D_HAVE_GSL)
-foreach ( infile ${SWIG_SRC_BASENAME} )
-    add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/swig/${infile}_wrap.cpp
-      COMMAND ${SWIG_EXECUTABLE} ${SWIG_FLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/trick_source -I${CMAKE_CURRENT_SOURCE_DIR}/include -I${CMAKE_CURRENT_SOURCE_DIR} -c++ -python -includeall -ignoremissing -w201,362,389,451 -o $@ -outdir ${CMAKE_CURRENT_BINARY_DIR}/share/trick/swig ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_swig/${infile}.i
-    )
-endforeach(infile)
-
-
-add_library( trick STATIC ${SS_SRC} ${LEX_YACC_SRC} ${TRICK_UTILS_SRC} ${IO_SRC} ${ER7_UTILS_SRC} ${SWIG_SRC})
-
-target_include_directories( trick PUBLIC ${PYTHON_INCLUDE_DIRS} )
-target_include_directories( trick PUBLIC ${UDUNITS2_INCLUDES} )
-target_include_directories( trick PUBLIC include )
-target_include_directories( trick PUBLIC trick_source )
-target_include_directories( trick PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
-target_include_directories( trick PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include)
-target_include_directories( trick PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include/trick/compat)
-target_include_directories( trick PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/trick_source/er7_utils/integration/abm4/include)
-target_include_directories( trick PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/trick_source/er7_utils/integration/beeman/include)
-target_include_directories( trick PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/trick_source/er7_utils/integration/core/include)
-target_include_directories( trick PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/trick_source/er7_utils/integration/euler/include)
-target_include_directories( trick PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/trick_source/er7_utils/integration/mm4/include)
-target_include_directories( trick PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/trick_source/er7_utils/integration/nl2/include)
-target_include_directories( trick PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/trick_source/er7_utils/integration/position_verlet/include)
-target_include_directories( trick PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/trick_source/er7_utils/integration/rk2_heun/include)
-target_include_directories( trick PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/trick_source/er7_utils/integration/rk2_midpoint/include)
-target_include_directories( trick PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/trick_source/er7_utils/integration/rk4/include)
-target_include_directories( trick PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/trick_source/er7_utils/integration/rkf45/include)
-target_include_directories( trick PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/trick_source/er7_utils/integration/rkf78/include)
-target_include_directories( trick PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/trick_source/er7_utils/integration/rkg4/include)
-target_include_directories( trick PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/trick_source/er7_utils/integration/rkn4/include)
-target_include_directories( trick PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/trick_source/er7_utils/integration/symplectic_euler/include)
-target_include_directories( trick PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/trick_source/er7_utils/integration/velocity_verlet/include)
-target_include_directories( trick PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/trick_source/er7_utils/interface/include)
-target_include_directories( trick PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/trick_source/er7_utils/math/include)
-target_include_directories( trick PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/trick_source/er7_utils/trick/include)
-target_include_directories( trick PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/trick_source/er7_utils/trick/integration/include)
+add_library( trick_units STATIC ${TRICK_UNITS_SRC})
+target_include_directories( trick_units PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include)
 
 ###############################################################
 # Java libraries
