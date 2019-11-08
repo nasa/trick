@@ -187,7 +187,3 @@ void VariableServerVariable::writeValue( std::ostream& outs ) {
             break;
     }
 }
-
-const char* VariableServerVariable::getUnits() {
-    return varInfo->attr->units;
-}
