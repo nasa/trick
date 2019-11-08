@@ -2,6 +2,7 @@
 #include "../include/VariableServerVariable.hh"
 #include <math.h> // for fpclassify
 #include <iomanip> // for setprecision
+#include <iostream>
 
 VariableServerVariable::VariableServerVariable(REF2 * ref ) {
     varInfo = ref;
@@ -185,4 +186,8 @@ void VariableServerVariable::writeValue( std::ostream& outs ) {
             outs << "\"Error\""; // ERROR
             break;
     }
+}
+
+const char* VariableServerVariable::getUnits() {
+    return varInfo->attr->units;
 }
