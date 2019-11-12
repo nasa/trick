@@ -524,7 +524,7 @@ bool PrintAttributes::isHeaderExcluded(const std::string& header, bool exclude_e
         return true;
     }
 
-    temp = almostRealPath(header.c_str());
+    temp = realpath(header.c_str(), NULL);
     if ( temp ) {
         const std::string real_path = std::string(temp);
         free(temp) ;

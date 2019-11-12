@@ -114,6 +114,14 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
                                      << " = " << *(short*)assign_addr << ";" << std::endl;
                            std::cout.flush();
                        }
+                   } else if ((size_t)attr->size == sizeof(char)) {
+                       assign_addr = (char*)base_addr + offset * sizeof(char);
+                       *(char *)assign_addr = vval_char(v_tree->v_data);
+                       if (debug_level) {
+                           std::cout << std::endl << "Assignment (Enum): *(char*)" << (void*)assign_addr
+                                     << " = " << *(char*)assign_addr << ";" << std::endl;
+                           std::cout.flush();
+                       }
                    } else {
                        std::stringstream message;
                        message << "Enumeration of size " << attr->size << " is not supported.";

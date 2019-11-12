@@ -37,6 +37,7 @@ int Trick::Sie::process_sim_args() {
             /* If main is being invoked by the configuration processor (cp) to generate the sie resource file... */
             /* Generate the sie resource file */
             sie_print_xml();
+            sie_print_json();
 
             // Silently exit the sim without printing the termination message
             exit(0) ;
@@ -73,6 +74,42 @@ void Trick::Sie::top_level_objects_print(std::ofstream & sie_out) {
     }
 }
 
+void Trick::Sie::top_level_objects_json(std::ofstream & sie_out) {
+    Trick::VARIABLE_MAP_ITER vit ;
+    int jj ;
+    sie_out << "  \"top_level_objects\": [\n";
+    for ( vit = trick_MM->variable_map_begin() ; vit != trick_MM->variable_map_end() ; vit++ ) {
+        ALLOC_INFO * alloc_info = (*vit).second ;
+
+        if ( alloc_info != NULL ) {
+            sie_out << "    {\n" ;
+            sie_out << "      \"name\": \"" << vit->first << "\",\n" ;
+            sie_out << "      \"type\": \"" ;
+            std::string type = trickTypeCharString(alloc_info->type, alloc_info->user_type_name );
+            std::replace(type.begin(), type.end(), ':', '_') ;
+            sie_out <<  type << "\",\n" ;
+            sie_out << "      \"alloc_memory_init\": \"" << alloc_info->alloced_in_memory_init << "\"";
+            if ( alloc_info->num_index > 0 ) {
+                sie_out << ",\n        \"dimensions\": [" ;
+                for (jj = 0; jj < alloc_info->num_index - 1; jj++) {
+                    sie_out << " \"" << alloc_info->index[jj] << "\"," ;
+                }
+                sie_out << " \"" << alloc_info->index[alloc_info->num_index - 1] << "\" " ;
+                sie_out << "]\n" ;
+                } else {
+                    sie_out << '\n' ;
+                }
+            sie_out << "    }" ;
+            if(std::next(vit, 1) != trick_MM->variable_map_end()) {
+                sie_out << ',' ;
+            }
+            sie_out << '\n';
+        }
+    }
+    sie_out << "  ]\n";
+}
+
+
 void Trick::Sie::sie_print_xml() {
     std::ofstream sie_out ;
     std::string file_name = std::string(command_line_args_get_default_dir()) + "/" + "S_sie.resource" ;
@@ -85,6 +122,19 @@ void Trick::Sie::sie_print_xml() {
     sie_out << "</sie>\n" ;
     sie_out.close() ;
 }
+
+void Trick::Sie::sie_print_json() {
+    std::ofstream sie_out ;
+    std::string file_name = std::string(command_line_args_get_default_dir()) + "/" + "S_sie.json" ;
+    sie_out.open(file_name.c_str()) ;
+    sie_out << "{\n" ;
+    class_attr_map->print_json(sie_out) ;
+    enum_attr_map->print_json(sie_out) ;
+    top_level_objects_json(sie_out) ;
+    sie_out << "}\n" ;
+    sie_out.close() ;
+}
+
 
 void Trick::Sie::class_attr_map_print_xml() {
     std::ofstream sie_out ;

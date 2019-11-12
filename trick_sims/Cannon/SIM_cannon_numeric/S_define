@@ -1,4 +1,4 @@
-/************************TRICK HEADER*************************
+/***********************TRICK HEADER*************************
 PURPOSE:
     (Cannon Numeric)
 LIBRARY DEPENDENCIES:
@@ -9,16 +9,14 @@ LIBRARY DEPENDENCIES:
 *************************************************************/
 
 #include "sim_objects/default_trick_sys.sm"
-
-// Uncomment to get a webserver. Also uncomment lines in S_overrise.mk to link in mongoose lib.
-// #include "mongoose_httpd/mongoose_httpd.sm"
-
+#include "sim_objects/WebServer.sm"
 ##include "cannon/gravity/include/cannon_numeric.h"
+
 class CannonSimObject : public Trick::SimObject {
 
     public:
         CANNON      cannon ;
-
+        int foo;
         CannonSimObject() {
             ("default_data") cannon_default_data( &cannon ) ;
             ("initialization") cannon_init( &cannon ) ;

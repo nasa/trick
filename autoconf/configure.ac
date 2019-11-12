@@ -109,7 +109,7 @@ AC_DEFUN([AX_GSL_HOME],[
                 [AC_CHECK_HEADER(gsl/gsl_rng.h, [GSL_HOME="/usr"], [GSL_HOME=""])]
                )
     AS_IF([test "$GSL_HOME" != ""],
-      [AC_CHECK_LIB(gsl, main, [],AC_MSG_ERROR([could not find libgsl]))]
+      [AC_CHECK_LIB(gsl, main, [],AC_MSG_ERROR([could not find libgsl]),[-lgslcblas])],
       []
     )
     AC_SUBST([GSL_HOME])
@@ -314,8 +314,23 @@ AC_PATH_PROG(CURL, curl, nocurl)
 AS_IF([test "$ac_cv_path_CURL" = "nocurl"],AC_MSG_ERROR([could not find curl]),[])
 AC_PATH_PROG(PERL, perl)
 AX_PROG_PERL_VERSION([5.14.0], [], [AC_MSG_ERROR([Trick requires perl version >= 5.14.0])])
+
 AC_PATH_PROG(PYTHON, python${PYTHON_VERSION}, nopython)
-AS_IF([test "$ac_cv_path_PYTHON" = "nopython"],AC_MSG_ERROR([could not find python]),[])
+AS_IF([test "$ac_cv_path_PYTHON" = "nopython"],
+  [
+    AC_PATH_PROG(PYTHON3, python3, nopython3)
+    AS_IF([test "$ac_cv_path_PYTHON3" = "nopython3"],
+      AC_MSG_ERROR([could not find python or python3]),
+      [
+        PYTHON_CPPFLAGS=`${PYTHON3}-config --includes`
+        PYTHON_LIBS=`${PYTHON3}-config --libs`
+        PYTHON=$PYTHON3
+      ]
+    )
+  ],
+  [AX_PYTHON_DEVEL([>='2.5'])]
+)
+
 AC_PATH_PROG(GNUPLOT, gnuplot, nognuplot)
 AS_IF([test "$ac_cv_path_GNUPLOT" = "nognuplot"],AC_MSG_NOTICE([could not find gnuplot]),[])
 AX_SWIG_BIN([])
@@ -323,7 +338,6 @@ AX_PKG_SWIG(2.0, [], [AC_MSG_ERROR([Trick requires SWIG version >= 2.0])])
 AX_JAVA
 
 AX_PTHREAD()
-AX_PYTHON_DEVEL([>='2.5'])
 AX_PROG_PERL_MODULES( Text::Balanced ,[],AC_MSG_ERROR([could not find perl modules Text::Balanced]))
 AX_PROG_PERL_MODULES( Digest::MD5,[],AC_MSG_ERROR([could not find perl module Digest::MD5]))
 
