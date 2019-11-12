@@ -16,7 +16,7 @@ Programmers:
 #include <cstring>
 
 #include "er7_utils/integration/symplectic_euler/include/symplectic_euler_integrator_constructor.hh"
-#include "er7_utils/trick/integration/include/second_order_ode_integrator.hh"
+#include "er7_utils/trick/integration/include/trick_second_order_ode_integrator.hh"
 
 
 namespace Trick {

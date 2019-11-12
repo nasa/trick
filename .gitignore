@@ -9,8 +9,8 @@ lib64
 lib_Linux_*
 lib_Darwin_*
 *.lex.c
-*.tab.c
-*.tab.h
+*.tab.cpp
+*.tab.hpp
 *.swp
 *.dox
 *.pyc
