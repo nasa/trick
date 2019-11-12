@@ -66,7 +66,6 @@ jobs:
     
     - name: Install dependencies
       run: |
-        xcode-select --install
         sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
         brew cask install xquartz
         brew install llvm swig udunits openmotif
