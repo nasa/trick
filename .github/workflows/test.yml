@@ -45,4 +45,12 @@ jobs:
         make
     - name: Run tests
       run: make test
-    
+  test-dockerhub-centos7:
+    runs-on: ubuntu-18.04
+    container: docker://nasatrick/trick_centos7:17.5.0
+    steps:
+      - name: run tests
+        run |
+          cd /trick-17.5.0
+          make test -j2
+          
