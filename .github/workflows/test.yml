@@ -114,7 +114,9 @@ jobs:
         make
     
     - name: Run tests
-      run: make test
+      run: |
+        export MAKEFLAGS=-j4
+        make test
         
   centos-7:
     runs-on: ubuntu-18.04
