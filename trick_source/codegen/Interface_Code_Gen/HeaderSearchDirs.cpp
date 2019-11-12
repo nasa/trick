@@ -36,7 +36,7 @@ void HeaderSearchDirs::AddCompilerBuiltInSearchDirs () {
     // Add clang specific include directory first.  Only required on linux systems. :(
     // This is so that ICG will find clang friendly headers first.  gcc headers cause
     // all kinds of problems.  On macs all headers are clang friendly.
-#if 0
+#ifndef EXTERNAL_BUILD
 #if __linux
     std::stringstream icg_dir ;
     icg_dir << LLVM_HOME << "/lib/clang/" ;
