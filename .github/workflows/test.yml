@@ -52,5 +52,5 @@ jobs:
       - name: run tests
         run: |
           cd /trick-17.5.0
-          make test -j2
+          make test
           
