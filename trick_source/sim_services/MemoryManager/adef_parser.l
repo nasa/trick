@@ -16,7 +16,7 @@
 #include <ctype.h>
 #include "trick/mm_error.h"
 #include "trick/ADefParseContext.hh"
-#include "adef_parser.tab.h"
+#include "adef_parser.tab.hpp"
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #pragma GCC diagnostic ignored "-Wsign-compare"

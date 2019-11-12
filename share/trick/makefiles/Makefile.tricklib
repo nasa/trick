@@ -30,9 +30,9 @@ L_C_PREMADE = $(subst .l,.lex.c_premade,$(L_SRC))
 L_OBJS = $(addprefix $(OBJ_DIR)/,$(notdir $(subst .l,.lex.o,$(L_SRC))))
 
 Y_SRC  = $(wildcard $(SRC_DIR)*.y)
-Y_C    = $(subst .y,.tab.c,$(Y_SRC))
+Y_C    = $(subst .y,.tab.cpp,$(Y_SRC))
 Y_C_PREMADE = $(subst .y,.tab.c_premade,$(Y_SRC))
-Y_H    = $(subst .y,.tab.h,$(Y_SRC))
+Y_H    = $(subst .y,.tab.hpp,$(Y_SRC))
 Y_OBJS = $(addprefix $(OBJ_DIR)/,$(notdir $(subst .y,.tab.o,$(Y_SRC))))
 
 C_SRC = $(filter-out $(Y_C) $(L_C), $(wildcard $(SRC_DIR)*.c))
@@ -146,18 +146,18 @@ $(L_C) : $(SRC_DIR)%.lex.c : $(SRC_DIR)%.l
 $(L_C_PREMADE) : $(SRC_DIR)%.lex.c_premade : $(SRC_DIR)%.l
 	$(LEX) -o $@ $<
 
-$(Y_H) : $(SRC_DIR)%.tab.h : $(SRC_DIR)%.tab.c
+$(Y_H) : $(SRC_DIR)%.tab.hpp : $(SRC_DIR)%.tab.cpp
 
-$(Y_C) : $(SRC_DIR)%.tab.c : $(SRC_DIR)%.y
+$(Y_C) : $(SRC_DIR)%.tab.cpp : $(SRC_DIR)%.y
 	$(YACC) -d -o $@ $< || ( $(CD_CMD) ln -s ${@F}_premade ${@F} ; ln -s ${@F:.c=.h}_premade ${@F:.c=.h}) 
 
 $(Y_C_PREMADE) : $(SRC_DIR)%.tab.c_premade : $(SRC_DIR)%.y
 	$(YACC) -d -o $@ $<
 
-$(L_OBJS) : $(OBJ_DIR)/%.lex.o : $(SRC_DIR)%.lex.c $(SRC_DIR)%.tab.h  | $(OBJ_DIR)
+$(L_OBJS) : $(OBJ_DIR)/%.lex.o : $(SRC_DIR)%.lex.c $(SRC_DIR)%.tab.hpp  | $(OBJ_DIR)
 	$(CD_CMD) $(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
 
-$(Y_OBJS) : $(OBJ_DIR)/%.tab.o : $(SRC_DIR)%.tab.c  | $(OBJ_DIR)
+$(Y_OBJS) : $(OBJ_DIR)/%.tab.o : $(SRC_DIR)%.tab.cpp  | $(OBJ_DIR)
 	$(CD_CMD) $(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
 
 
