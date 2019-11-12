@@ -69,7 +69,14 @@ jobs:
         # sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.15.pkg -target /
         brew cask install xquartz
         brew install llvm swig udunits openmotif
-        
+    - name: Install gtest
+      run: |
+        wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz
+        tar xzvf googletest-release-1.8.0
+        cd googletest-release-1.8.0/googletest
+        cmake .
+        make
+        make install
     - name: Build Trick
       run: |
         export MAKEFLAGS=-j4
