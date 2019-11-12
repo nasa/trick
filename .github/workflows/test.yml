@@ -3,6 +3,34 @@ name: Trick CI
 on: [push]
 
 jobs:
+  ubuntu-1604:
+    runs-on: ubuntu-18.04
+    container: docker://ubuntu:16.04
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@master
+    
+    - name: update apt
+      run: apt-get update
+   
+    - name: Install dependencies
+      run: >
+        apt-get install -y git bison curl flex g++ libx11-dev libxml2-dev libxt-dev
+        libmotif-common libmotif-dev make openjdk-8-jdk python2.7-dev swig
+        zlib1g-dev llvm llvm-dev clang libclang-dev libudunits2-dev
+        libgtest-dev cmake
+        
+    - name: Build gtest
+      run: cd /usr/src/gtest && cmake . && make && cp libgtest* /usr/lib/
+
+    - name: Build Trick
+      run: |
+        export MAKEFLAGS=-j4
+        ./configure
+        make
+    - name: Run tests
+      run: make test  
+
   ubuntu-1804:
     runs-on: ubuntu-18.04
     container: docker://ubuntu:18.04
@@ -30,6 +58,7 @@ jobs:
         make
     - name: Run tests
       run: make test
+      
   ubuntu-1904:
     runs-on: ubuntu-18.04
     container: docker://ubuntu:19.04
