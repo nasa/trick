@@ -110,8 +110,25 @@ ifeq ($(USE_ER7_UTILS),ON)
         TRICK_SYSTEM_CXXFLAGS += -DUSE_ER7_UTILS_CHECKPOINTHELPER
    endif
 endif
+# older test, remove when cmake is only build system
+ifeq ($(USE_ER7_UTILS), 1)
+    ER7_UTILS_HOME := $(TRICK_HOME)/trick_source/er7_utils
+    TRICK_SYSTEM_CXXFLAGS += -DUSE_ER7_UTILS_INTEGRATORS
+    TRICK_LIBS += -ler7_utils
+    ifneq ($(wildcard ${ER7_UTILS_HOME}/CheckpointHelper),)
+        USE_ER7_UTILS_CHECKPOINTHELPER = 1
+        TRICK_SYSTEM_CXXFLAGS += -DUSE_ER7_UTILS_CHECKPOINTHELPER
+   endif
+endif
 
 ifeq ($(TRICK_FORCE_32BIT),ON)
+   TRICK_ICGFLAGS += -m32
+   TRICK_SYSTEM_CXXFLAGS += -m32
+   TRICK_SYSTEM_LDFLAGS  += -m32
+   LD_PARTIAL            += -melf_i386
+endif
+# older test, remove when cmake is only build system
+ifeq ($(TRICK_FORCE_32BIT), 1)
    TRICK_ICGFLAGS += -m32
    TRICK_SYSTEM_CXXFLAGS += -m32
    TRICK_SYSTEM_LDFLAGS  += -m32

@@ -72,7 +72,7 @@ foreach ( infile ${ER7_UTIL_HEADERS} )
     file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/er7_utils/${infile} DESTINATION "${CMAKE_BINARY_DIR}/include/er7_utils/${dir}")
 endforeach(infile)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/share/trick/makefiles/config_user.mk.in ${CMAKE_BINARY_DIR}/share/trick/makefiles/config_user.mk)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/share/trick/makefiles/config_user_cmake.mk.in ${CMAKE_BINARY_DIR}/share/trick/makefiles/config_user.mk)
 
 ###############################################################
 # mongoose lib
