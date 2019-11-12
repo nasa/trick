@@ -30,7 +30,56 @@ jobs:
         make
     - name: Run tests
       run: make test
-      
+  ubuntu-1904:
+    runs-on: ubuntu-18.04
+    container: docker://ubuntu:19.04
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@master
+    
+    - name: update apt
+      run: apt-get update
+   
+    - name: Install dependencies
+      run: >
+        apt-get install -y git bison curl flex g++ libx11-dev libxml2-dev libxt-dev
+        libmotif-common libmotif-dev make openjdk-8-jdk python2.7-dev swig
+        zlib1g-dev llvm llvm-dev clang libclang-dev libudunits2-dev
+        libgtest-dev cmake
+        
+    - name: Build gtest
+      run: cd /usr/src/gtest && cmake . && make && cp libgtest* /usr/lib/
+
+    - name: Build Trick
+      run: |
+        export MAKEFLAGS=-j4
+        ./configure
+        make
+    - name: Run tests
+      run: make test
+  
+  macOS:
+    runs-on: macOS-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@master
+    
+    - name: Install dependencies
+      run: |
+        xcode-select --install
+        sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
+        brew cask install xquartz
+        brew install llvm swig udunits openmotif
+        
+    - name: Build Trick
+      run: |
+        export MAKEFLAGS=-j4
+        ./configure
+        make
+    
+    - name: Run tests
+      run: make test
+        
   centos-7:
     runs-on: ubuntu-18.04
     container: docker://centos:7
