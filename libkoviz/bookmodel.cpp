@@ -1548,13 +1548,13 @@ QString PlotBookModel::getCurvesYUnit(const QModelIndex &curvesIdx)
     if ( rc > 0 ) {
         QModelIndex curve0Idx = index(0,0,curvesIdx);
         QString yunit0 = getDataString(curve0Idx,"CurveYUnit","Curve");
-        if ( yunit0 == "--" || yunit0.isEmpty() ) {
+        if ( yunit0.isEmpty() ) {
             yunit0 = getCurveModel(curve0Idx)->y()->unit();
         }
         for (int i = 0; i < rc; ++i) {
             QModelIndex curveIdx = index(i,0,curvesIdx);
             yunit = getDataString(curveIdx,"CurveYUnit","Curve");
-            if ( yunit == "--" || yunit.isEmpty() ) {
+            if ( yunit.isEmpty() ) {
                 CurveModel* curveModel = getCurveModel(curveIdx);
                 yunit = curveModel->y()->unit();
             }
