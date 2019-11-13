@@ -4,6 +4,9 @@ set(TRICK_MAJOR 19)
 set(TRICK_MINOR 1)
 set(TRICK_TINY dev)
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 set(TRICK_FORCE_32BIT OFF CACHE BOOL "Set Trick to compile in 32bit mode")
 #set(USE_JAVA ON CACHE BOOL "Use java")
 set(USE_ER7_UTILS ON CACHE BOOL "Use er7_utils")
@@ -42,6 +45,9 @@ find_package(UDUNITS2 REQUIRED)
 find_package(LibXml2 REQUIRED)
 find_package(HDF5)
 find_package(GSL)
+
+find_package(X11)
+find_package(Motif)
 
 add_definitions( -DTRICK_VER=${TRICK_MAJOR} )
 
@@ -338,7 +344,10 @@ set( SWIG_SRC_BASENAME
   swig_ref
 )
 
-set(SWIG_FLAGS -DUSE_ER7_UTILS_INTEGRATORS -D_HAVE_GSL)
+set(SWIG_FLAGS -DUSE_ER7_UTILS_INTEGRATORS)
+if(GSL_FOUND)
+    string( APPEND SWIG_FLAGS -D_HAVE_GSL )
+endif()
 foreach ( infile ${SWIG_SRC_BASENAME} )
     add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/temp_src/swig/${infile}_wrap.cpp
       COMMAND ${SWIG_EXECUTABLE} ${SWIG_FLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/trick_source -I${CMAKE_CURRENT_SOURCE_DIR}/include -I${CMAKE_CURRENT_SOURCE_DIR} -c++ -python -includeall -ignoremissing -w201,362,389,451 -o $@ -outdir ${CMAKE_BINARY_DIR}/share/trick/swig ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_swig/${infile}.i
@@ -348,6 +357,9 @@ endforeach(infile)
 add_library( trick_pyip STATIC $<TARGET_OBJECTS:input_processor_objs> ${TRICK_SWIG_SRC} ${SWIG_SRC})
 target_include_directories( trick_pyip PUBLIC ${PYTHON_INCLUDE_DIRS} )
 target_include_directories( trick_pyip PUBLIC ${UDUNITS2_INCLUDES} )
+if(GSL_FOUND)
+    target_include_directories( trick_pyip PUBLIC ${GSL_INCLUDE_DIRS} )
+endif()
 target_include_directories( trick_pyip PUBLIC trick_source )
 
 ###############################################################

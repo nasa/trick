@@ -12,10 +12,11 @@ set( GXPLOT_SRC
 )
 
 add_executable( trick-gxplot ${GXPLOT_SRC})
+target_include_directories( trick-gxplot PUBLIC ${X11_X11_INCLUDE_PATH} )
 target_include_directories( trick-gxplot PUBLIC ${LIBXML2_INCLUDE_DIR} )
 target_include_directories( trick-gxplot PUBLIC ../.. )
 target_link_libraries( trick-gxplot DPC DPM dp_log dp_var dpv_utils dp_eqparse dp_units
  -ldl
- -L/usr/X11R6/lib64 -L/usr/X11R6/lib -lXt -lX11
+ ${X11_Xt_LIB} ${X11_X11_LIB}
  ${UDUNITS2_LIBRARIES} ${LIBXML2_LIBRARIES})
 
