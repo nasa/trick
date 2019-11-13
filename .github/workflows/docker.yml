@@ -1,0 +1,6 @@
+name: Test Docker Hub Images
+
+on: 
+  schedule:
+    # Run once a week at midnight on Sunday morning
+    - cron '0 0 * * 0'
