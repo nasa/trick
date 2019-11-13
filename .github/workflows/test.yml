@@ -180,3 +180,12 @@ jobs:
           cd /trick-17.5.0
           make test
           
+   dockerhub-ubuntu1804:
+    runs-on: ubuntu-18.04
+    container: docker://nasatrick/trick_ubuntu1804:17.5.0
+    steps:
+      - name: run tests
+        run: |
+          cd /trick-17.5.0
+          make test
+          
