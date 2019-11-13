@@ -346,7 +346,7 @@ set( SWIG_SRC_BASENAME
 
 set(SWIG_FLAGS -DUSE_ER7_UTILS_INTEGRATORS)
 if(GSL_FOUND)
-    string( APPEND SWIG_FLAGS -D_HAVE_GSL )
+    list( APPEND SWIG_FLAGS -D_HAVE_GSL )
 endif()
 foreach ( infile ${SWIG_SRC_BASENAME} )
     add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/temp_src/swig/${infile}_wrap.cpp
