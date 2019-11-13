@@ -135,7 +135,6 @@ jobs:
         ncurses-devel openmotif openmotif-devel perl perl-Digest-MD5 
         python-devel swig zlib-devel udunits2 udunits2-devel 
         java-1.8.0-openjdk-devel gtest-devel
-
     - name: Build Trick
       run: |
         export MAKEFLAGS=-j4
@@ -170,22 +169,3 @@ jobs:
     
     - name: Run tests
       run: make test
-      
-  dockerhub-centos7:
-    runs-on: ubuntu-18.04
-    container: docker://nasatrick/trick_centos7:17.5.0
-    steps:
-      - name: run tests
-        run: |
-          cd /trick-17.5.0
-          make test
-          
-   dockerhub-ubuntu1804:
-    runs-on: ubuntu-18.04
-    container: docker://nasatrick/trick_ubuntu1804:17.5.0
-    steps:
-      - name: run tests
-        run: |
-          cd /trick-17.5.0
-          make test
-          
