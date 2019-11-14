@@ -1,5 +1,5 @@
 dyn_integloop.getIntegrator(trick.Runge_Kutta_4, 4)
-execfile("Modified_data/realtime.py")
+exec(open("Modified_data/realtime.py").read())
 
 dyn.msd.b = 0
 

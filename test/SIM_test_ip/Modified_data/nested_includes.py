@@ -1,2 +1,2 @@
 
-execfile("Modified_data/next_level.py")
+exec(open("Modified_data/next_level.py").read())

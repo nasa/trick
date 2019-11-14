@@ -1,6 +1,6 @@
 
-execfile("Modified_data/cannon_aero.dr")
-execfile("Modified_data/amoeba.py")
+exec(open("Modified_data/cannon_aero.dr").read())
+exec(open("Modified_data/amoeba.py").read())
 
 trick.mc_set_enabled(1)
 trick.mc_set_num_runs(70)

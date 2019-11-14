@@ -1,5 +1,5 @@
-execfile("Modified_data/realtime.py")
-execfile("Modified_data/vehicleState.dr")
+exec(open("Modified_data/realtime.py").read())
+exec(open("Modified_data/vehicleState.dr").read())
 
 trick.TMM_reduced_checkpoint(0)
 

@@ -1,5 +1,5 @@
 
-execfile("Modified_data/cannon_aero.dr")
+exec(open("Modified_data/cannon_aero.dr").read())
 
 trick.mc_set_enabled(1)
 #trick.mc_set_dry_run(1)
