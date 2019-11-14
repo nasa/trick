@@ -7,15 +7,15 @@ trick.add_external_application(simControlPanel)
 
 RECORD_DATA = True
 if RECORD_DATA:
-    execfile("Modified_data/helios.dr")
+    exec(open("Modified_data/helios.dr").read())
 
 REALTIME = True
 if REALTIME:
-    execfile("Modified_data/realtime.py")
+    exec(open("Modified_data/realtime.py").read())
 
 JAPANESE = False
 if JAPANESE:
-    execfile("Modified_data/Japanese_labels_alt.py")
+    exec(open("Modified_data/Japanese_labels_alt.py").read())
 
 STRIPCHART = False
 if STRIPCHART:

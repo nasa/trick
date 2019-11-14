@@ -1,7 +1,7 @@
 
 # This one of several ways to include files from the input file
-execfile("Modified_data/auto_test.dr")
-execfile("Modified_data/data_record.dr")
+exec(open("Modified_data/auto_test.dr").read())
+exec(open("Modified_data/data_record.dr").read())
 
 #my_integ_loop.integ_sched.integ_ptr = trick.getIntegrator( trick.Runge_Kutta_2, 4, 1.0);
 my_integ_loop.getIntegrator(trick.Runge_Kutta_2, 4)

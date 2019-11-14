@@ -1,5 +1,5 @@
 
-execfile("RUN_test/input.py")
+exec(open("RUN_test/input.py").read())
 
 # Disable real-time (if applicable)
 trick.real_time_disable()
