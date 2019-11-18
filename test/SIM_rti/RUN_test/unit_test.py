@@ -409,7 +409,7 @@ def main():
     trick.rti_fire()
     trick_inject.rtis.GetRtiExecutor(0).Exec()
 
-    print os.uname()[4]
+    print(os.uname()[4])
     # The raspberry pi has a bug and returns bitfields in unsigned format.
     if os.uname()[4] == 'armv6l':
         TRICK_EXPECT_EQ( test_so.obj.cbit_0 , 3 , test_suite , "char bitfield" )
