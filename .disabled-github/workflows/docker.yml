@@ -1,25 +1,31 @@
 name: Test Docker Hub Images
 
-on: 
-  schedule:
-    # Run once a week at midnight on Sunday morning
-    - cron: '0 0 * * 0'
+on: [push]
   
 jobs:
-  centos7-17.5.0:
+  centos7:
     runs-on: ubuntu-18.04
-    container: docker://nasatrick/trick_centos7:17.5.0
+    container: docker://nasatrick/trick_centos7:latest
     steps:
       - name: run tests
         run: |
-          cd /trick-17.5.0
+          cd /trick*
+          make test
+  
+  centos8:
+    runs-on: ubuntu-18.04
+    container: docker://nasatrick/trick_centos8:latest
+    steps:
+      - name: run tests
+        run: |
+          cd /trick*
           make test
                    
-  ubuntu1804-17.5.0:
+  ubuntu1804:
     runs-on: ubuntu-18.04
-    container: docker://nasatrick/trick_ubuntu1804:17.5.0
+    container: docker://nasatrick/trick_ubuntu1804:latest
     steps:
       - name: run tests
         run: |
-          cd /trick-17.5.0
-          make test
+          cd /trick*
+          make test  
