@@ -26,7 +26,7 @@ def main():
     trick.var_set("test_io.dp", trick.get_address("test_io.d13"))
     TRICK_EXPECT_EQ( str(test_io.dp) , "[113]", test_suite , "var set address" )
 
-    print test_io
+    print(test_io)
 
 if __name__ == "__main__":
     main()
