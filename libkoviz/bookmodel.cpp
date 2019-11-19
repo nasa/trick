@@ -1417,6 +1417,11 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
 
     // Frequency of data to show (f=0.0, the default, is all data)
     double f = getDataDouble(QModelIndex(),"Frequency");
+    if ( f != 0.0 ) {
+        fprintf(stderr, "koviz [error]: Frequency spec unsupported with "
+                        "error plots.\n");
+        exit(-1);
+    }
 
     // Plot X/Y Scale (log/linear)
     QModelIndex plotIdx = curvesIdx.parent();
@@ -1435,53 +1440,67 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
     while ( !i0->isDone() && !i1->isDone() ) {
         double t0 = xs0*i0->t()+xb0;
         double t1 = xs1*i1->t()+xb1;
-        if ( qAbs(t1-t0) < tolerance ) {
-            if ( f > 0.0 ) {
-                if (fabs(t0-round(t0/f)*f) > 1.0e-9) { // t0 not divisible by f?
+        double yy = (ys0*i0->y()+yb0) - (ys1*i1->y()+yb1);
+        // Match timestamps as close as possible (freq not used)
+        if ( t0 == t1 ) {
+            i0->next();
+            i1->next();
+        } else if ( t0 < t1 ) {
+            i0->next();
+            while ( !i0->isDone() ) {
+                double t00 = xs0*i0->t()+xb0;
+                double dtt = qAbs(t1-t00);
+                if ( dtt < qAbs(t0-t1) ) {
+                    t0 = t00;
+                    yy = (ys0*i0->y()+yb0) - (ys1*i1->y()+yb1);
                     i0->next();
-                    i1->next();
-                    continue;
+                } else {
+                    break;
                 }
             }
-            double d = (ys0*i0->y()+yb0) - (ys1*i1->y()+yb1);
-            if ( isYLogScale ) {
-                if ( d > 0 ) {
-                    d = log10(d);
-                } else if ( d < 0 ) {
-                    d = log10(-d);
-                } else if ( d == 0 ) {
-                    i0->next();
+            i1->next();
+        } else if ( t0 > t1 ) {
+            i1->next();
+            while ( !i1->isDone() ) {
+                double t11 = xs1*i1->t()+xb1;
+                double dtt = qAbs(t0-t11);
+                if ( dtt < qAbs(t1-t0) ) {
+                    t1 = t11;
+                    yy = (ys0*i0->y()+yb0) - (ys1*i1->y()+yb1);
                     i1->next();
+                } else {
+                    break;
+                }
+            }
+            i0->next();
+        } else {
+            // bad scoobs, but step to avoid inf loop
+            i0->next();
+            i1->next();
+        }
+        if ( qAbs(t1-t0) <= tolerance ) {
+            if ( isYLogScale ) {
+                if ( yy > 0 ) {
+                    yy = log10(yy);
+                } else if ( yy < 0 ) {
+                    yy = log10(-yy);
+                } else if ( yy == 0 ) {
                     continue; // skip log(0) since -inf
                 }
             }
             if ( t0 >= start && t0 <= stop ) {
                 if ( isXLogScale && t0 == 0.0 ) {
-                    i0->next();
-                    i1->next();
                     continue;
                 }
                 if ( isXLogScale ) {
                     t0 = log10(t0);
                 }
                 if ( isFirst ) {
-                    path->moveTo(t0,d);
+                    path->moveTo(t0,yy);
                     isFirst = false;
                 } else {
-                    path->lineTo(t0,d);
+                    path->lineTo(t0,yy);
                 }
-            }
-            i0->next();
-            i1->next();
-        } else {
-            if ( t0 < t1 ) {
-                i0->next();
-            } else if ( t1 < t0 ) {
-                i1->next();
-            } else {
-                fprintf(stderr,"koviz [bad scoobs]:5: "
-                               "PlotBookModel::_createErrorPath()\n");
-                exit(-1);
             }
         }
     }
