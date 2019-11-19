@@ -1,3 +1,29 @@
+## Trick Dashboard
+Trick Dashboard is a simple web app with a sim control panel and a basic version of Trick TV
+## Install
+To install Trick Dashboard you will need to use npm to build the app and then copy it to your www directory in your sim directory.
+
+- Install npm from [nodejs.org](nodejs.org)
+
+- Install your depedencies (from this directory)
+##### `npm i`
+- Build the app
+##### `npm build`
+- Copy the contents of the build directory to the www directory of your sim
+##### `cp -r build/* <path_to_sim>/SIM_*/www`
+- Enable the web server for your sim
+
+in S_define:
+```
+#include "sim_objects/WebServer.sm"
+```
+in input file:
+```
+web.server.enable=True
+```
+
+## Information about Create React App
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
