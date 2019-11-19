@@ -368,6 +368,7 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     // Current
     map.insert(QPair<QString,QString>("amp","amp"),   1.0);
     map.insert(QPair<QString,QString>("amp","mamp"),  0.001);
+    map.insert(QPair<QString,QString>("amp","mA"),    0.001);
 
     // Resistance
     map.insert(QPair<QString,QString>("ohm","ohm"),   1.0);
