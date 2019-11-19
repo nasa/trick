@@ -379,7 +379,7 @@ export default class Client extends React.Component {
               <Box flexGrow={1} />
               <Box flexDirection="column">
                 <Typography variant="h6">
-                  SIM_cannon_numeric{"\u00A0"}
+                  {"\u00A0"}
                   {"\u00A0"}
                   {"\u00A0"}
                 </Typography>
@@ -403,9 +403,12 @@ export default class Client extends React.Component {
               <div className={classes.toolbar} />
               <Divider />
               <List>
+              <ListItem key ="coming soon">
+              <ListItemText primary="Other apps below coming soon!"/>
+              </ListItem>
                 {["Home", "Wiki", "Data Recording", "Strip Chart"].map(
                   (text, index) => (
-                    <ListItem button key={text}>
+                    <ListItem button key={text} disabled={true}>
                       <ListItemIcon>
                         {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
                       </ListItemIcon>
@@ -417,7 +420,7 @@ export default class Client extends React.Component {
               <Divider />
               <List>
                 {["Sniffer", "Environment", "Settings"].map((text, index) => (
-                  <ListItem button key={text}>
+                  <ListItem button key={text} disabled={true}>
                     <ListItemIcon>
                       {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
                     </ListItemIcon>
@@ -552,8 +555,9 @@ export default class Client extends React.Component {
                       <TextField
                         variant="outlined"
                         label="playback speed"
-                        value="1.0"
+                        value="not yet available"
                         className={classes.timer}
+                        disabled={true}
                       />
                     </Box>
                   </Flex>
@@ -583,7 +587,8 @@ export default class Client extends React.Component {
                       <SearchIcon />
                     </div>
                     <InputBase
-                      placeholder="Search…"
+                      placeholder="Search… [coming soon]"
+                      disabled={true}
                       classes={{
                         root: classes.inputRoot,
                         input: classes.inputInput,
