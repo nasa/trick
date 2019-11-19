@@ -97,6 +97,7 @@ PlotMainWindow::PlotMainWindow(
         _bookModel->addChild(citem, "Title3",titles.at(2));
         _bookModel->addChild(citem, "Title4",titles.at(3));
         _bookModel->addChild(rootItem, "LiveCoordTime","");
+        _bookModel->addChild(rootItem, "LiveCoordTimeIndex",0);
         _bookModel->addChild(rootItem, "StartTime",startTime);
         _bookModel->addChild(rootItem, "StopTime",stopTime);
         if ( shifts.isEmpty() ) {
@@ -1319,6 +1320,8 @@ void PlotMainWindow::_liveTimeNext()
 
         curveModel->map();
 
+        ModelIterator* it = curveModel->begin();
+
         // Calculate curve time index
         int i = 0;
         double xs = _bookModel->xScale(curveIdx);
@@ -1334,17 +1337,43 @@ void PlotMainWindow::_liveTimeNext()
             i = curveModel->indexAtTime(liveTime);
         }
 
+        /* Timestamps may duplicate, go to first in series */
+        double itTime = it->at(i)->t();
+        while ( i > 0 ) {
+            if ( it->at(i-1)->t() == itTime ) {
+                --i;
+            } else {
+                break;
+            }
+        }
+
+
+        QModelIndex lctIdx = _bookModel->getDataIndex(QModelIndex(),
+                                                      "LiveCoordTimeIndex","");
+        int ii = _bookModel->getDataInt(QModelIndex(),
+                                          "LiveCoordTimeIndex","");
+
         // Calculate nextTime after liveTime
         double nextTime = liveTime;
-        ModelIterator* it = curveModel->begin();
-        it = it->at(i+1);
+        it = it->at(i+1+ii);
         while ( !it->isDone() ) {
             if ( isXTime ) {
                 nextTime = it->x()*xs+xb;
             } else {
                 nextTime = it->t();
             }
-            if ( qAbs(nextTime-liveTime) > 1.0e-16 ) {
+            double dt = qAbs(nextTime-liveTime);
+            if ( dt == 0.0 ) {
+                // Multiple points for same timestamp,
+                // move to next point on this curve for this same timestamp
+                _bookModel->setData(lctIdx,++ii);
+                break;
+            } else {
+                if ( ii != 0 ) {
+                    _bookModel->setData(lctIdx,0);
+                }
+            }
+            if ( dt > 1.0e-16 ) {
                 break;
             }
             it->next();
@@ -1386,17 +1415,54 @@ void PlotMainWindow::_liveTimePrev()
             i = curveModel->indexAtTime(liveTime);
         }
 
-        // Calculate nextTime after liveTime
         double prevTime = liveTime;
         ModelIterator* it = curveModel->begin();
-        while ( i >= 0 ) {
-            it = it->at(i);
+
+        /* Timestamps may be identical, set i to first duplicate */
+        double itTime = it->at(i)->t();
+        while ( i >= 1 ) {
+            if ( it->at(i-1)->t() == itTime ) {
+                --i;
+            } else {
+                break;
+            }
+        }
+
+        /* Get current index for possible duplicate timestamps (ii) */
+        QModelIndex idx = _bookModel->getDataIndex(QModelIndex(),
+                                                   "LiveCoordTimeIndex","");
+        int ii = _bookModel->getDataInt(QModelIndex(),
+                                        "LiveCoordTimeIndex","");
+
+
+        while ( i+ii > 0 ) {
+            it = it->at(i+ii-1);
             if ( isXTime ) {
                 prevTime = it->x()*xs+xb;
             } else {
                 prevTime = it->t();
             }
-            if ( qAbs(prevTime-liveTime) > 1.0e-16 ) {
+            double dt = qAbs(liveTime-prevTime);
+            if ( dt == 0 ) {
+                // Multiple points for same timestamp,
+                // move to prev point on this curve for this same timestamp
+                _bookModel->setData(idx,--ii);
+                break;
+            } else {
+                int jj = 0;  // Last index of possible duplicate timestamps
+                int j = i-1;
+                double jTime = it->at(j+ii)->t();
+                while ( j+ii-1 >= 0 ) {
+                    if ( it->at(j+ii-1)->t() == jTime ) {
+                        ++jj;
+                        --j;
+                    } else {
+                        break;
+                    }
+                }
+                _bookModel->setData(idx,jj);
+            }
+            if ( dt > 1.0e-16 ) {
                 break;
             }
             --i;

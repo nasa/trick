@@ -31,14 +31,16 @@
 class TimeAndIndex
 {
   public:
-    TimeAndIndex(double time, const QModelIndex& idx);
+    TimeAndIndex(double time, int timeIdx, const QModelIndex& modelIdx);
     double time() const;
-    QModelIndex idx() const;
+    int timeIdx() const;
+    QModelIndex modelIdx() const;
 
   private:
     TimeAndIndex() {}
     double _time;
-    QModelIndex _idx;
+    int _timeIdx;  // Index for duplicate timestamps
+    QModelIndex _modelIdx;
 };
 
 // ---------------------------------------------------------

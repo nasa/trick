@@ -672,18 +672,21 @@ void CurvesView::_paintMarkers(QPainter &painter)
     QModelIndex liveIdx = _bookModel()->getDataIndex(QModelIndex(),
                                                      "LiveCoordTime");
     double liveTime = model()->data(liveIdx).toDouble();
+    QModelIndex liveTimeIdxIdx = _bookModel()->getDataIndex(QModelIndex(),
+                                                     "LiveCoordTimeIndex");
+    int timeIdx = model()->data(liveTimeIdxIdx).toInt();
     if ( currentIndex().isValid() && (tag == "Curve" || tag == "Plot") ) {
         TimeAndIndex* liveMarker = 0;
         if ( tag == "Plot" ) {
             if ( pres == "error" || pres == "error+compare") {
-                liveMarker = new TimeAndIndex(liveTime,currentIndex());
+                liveMarker = new TimeAndIndex(liveTime,timeIdx,currentIndex());
             }
         } else if ( tag == "Curve" ) {
             if ( pres == "compare" || pres == "error+compare" ) {
-                liveMarker = new TimeAndIndex(liveTime,currentIndex());
+                liveMarker = new TimeAndIndex(liveTime,timeIdx,currentIndex());
             } else if ( pres == "error" ) {
                 QModelIndex plotIdx = currentIndex().parent().parent();
-                liveMarker = new TimeAndIndex(liveTime,plotIdx);
+                liveMarker = new TimeAndIndex(liveTime,0,plotIdx);
             }
         } else {
             // bad scoobs
@@ -695,7 +698,7 @@ void CurvesView::_paintMarkers(QPainter &painter)
         }
     }
     foreach ( TimeAndIndex* marker, _markers ) {
-        QString markerTag = model()->data(marker->idx()).toString();
+        QString markerTag = model()->data(marker->modelIdx()).toString();
         if ( markerTag == "Curve" && pres == "compare" ) {
             markers << marker;
         } else if ( markerTag == "Plot" && pres == "error" ) {
@@ -706,15 +709,15 @@ void CurvesView::_paintMarkers(QPainter &painter)
     foreach ( TimeAndIndex* marker, markers ) {
 
         // Tag is either "Curve" or "Plot"
-        QString tag = _bookModel()->data(marker->idx()).toString();
+        QString tag = _bookModel()->data(marker->modelIdx()).toString();
 
         // Get plot x/y scale (log or linear)
         QModelIndex plotIdx;
         if ( tag == "Curve" ) {
-            QModelIndex curveIdx = marker->idx();
+            QModelIndex curveIdx = marker->modelIdx();
             plotIdx = curveIdx.parent().parent();
         } else if ( tag == "Plot" ) {
-            plotIdx = marker->idx();
+            plotIdx = marker->modelIdx();
         } else {
             // bad scoobs
         }
@@ -731,7 +734,7 @@ void CurvesView::_paintMarkers(QPainter &painter)
         double xb = 0.0;
         double yb = 0.0;
         if ( tag == "Curve") {
-            QModelIndex curveIdx = marker->idx();
+            QModelIndex curveIdx = marker->modelIdx();
             if ( !isXLogScale ) {
                 // With logscale, scale/bias already done foreach path element
                 xs = _bookModel()->xScale(curveIdx);
@@ -746,10 +749,10 @@ void CurvesView::_paintMarkers(QPainter &painter)
         // Get path
         QPainterPath* path = 0;
         if ( tag == "Curve" ) {
-            QModelIndex curveIdx = marker->idx();
+            QModelIndex curveIdx = marker->modelIdx();
             path = _bookModel()->getPainterPath(curveIdx);
         } else if ( tag == "Plot" ) {
-            QModelIndex plotIdx = marker->idx();
+            QModelIndex plotIdx = marker->modelIdx();
             QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,
                                                            "Curves","Plot");
             path = _bookModel()->getCurvesErrorPath(curvesIdx);
@@ -777,13 +780,27 @@ void CurvesView::_paintMarkers(QPainter &painter)
         int high = path->elementCount()-1;
         int i = _idxAtTimeBinarySearch(path,0,high,t);
 
+        /* There may be duplicate timestamps in sequence - go to first */
+        double elementTime = path->elementAt(i).x;
+        while ( i > 0 ) {
+            if ( path->elementAt(i-1).x == elementTime ) {
+                --i;
+            } else {
+                break;
+            }
+        }
+
+        // If timestamps identical, it may be necessary to add LiveCoordTimeidx
+        int ii = marker->timeIdx();
+        i = i+ii;  // LiveCoordTimeIndex is normally 0
+
         if ( tag == "Curve" ) {
             // If x is not time (e.g. ball xy orbit), i is calculated from
             // the curve model instead of the path
-            QModelIndex curveIdx = marker->idx();
+            QModelIndex curveIdx = marker->modelIdx();
             CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
             curveModel->map();
-            QModelIndex plotIdx = marker->idx().parent().parent();
+            QModelIndex plotIdx = marker->modelIdx().parent().parent();
             if ( !_bookModel()->isXTime(plotIdx) ) {
                 // e.g. ball xy curve where x is position[0]
                 double f = _bookModel()->getDataDouble(QModelIndex(),
@@ -799,6 +816,17 @@ void CurvesView::_paintMarkers(QPainter &painter)
                 double start = _bookModel()->getDataDouble(QModelIndex(),
                                                            "StartTime");
                 i = curveModel->indexAtTime(marker->time());
+                /* There may be duplicate timestamps in sequence - goto first */
+                ModelIterator* it = curveModel->begin();
+                double iTime = it->at(i)->t();
+                while ( i > 0 ) {
+                    if ( it->at(i-1)->t() == iTime ) {
+                        --i;
+                    } else {
+                        break;
+                    }
+                }
+                i = i + ii;
                 int j = curveModel->indexAtTime(start);
                 i = i - j;
                 if ( i < 0 ) {
@@ -850,7 +878,7 @@ void CurvesView::_paintMarkers(QPainter &painter)
 
         // Prepend RunID to live text if more than 5 runs
         if ( tag == "Curve") {
-            QModelIndex curveIdx = marker->idx();
+            QModelIndex curveIdx = marker->modelIdx();
             if ( model()->rowCount(curveIdx.parent()) > 5 ) {
                 int id = _bookModel()->getDataInt(curveIdx,"CurveRunID","Curve");
                 QString runID = QString("RUN_%1: ").arg(id);
@@ -876,7 +904,7 @@ void CurvesView::_paintMarkers(QPainter &painter)
 
         if ( isFits ) {
             arrow.paintMe(painter,T,fg,bg);
-        } else if ( marker->idx() == currentIndex() ) {
+        } else if ( marker->modelIdx() == currentIndex() ) {
             arrow.paintMeCenter(painter,T,viewport()->rect(),fg,bg);
         }
 
@@ -990,28 +1018,77 @@ void CurvesView::_keyPressArrow(const Qt::ArrowType& arrow)
 
         double timeStamp = liveTime;
         ModelIterator* it = curveModel->begin();
+
+        /* Timestamps may be identical, set i to first duplicate */
+        double itTime = it->at(i)->t();
+        while ( i > 0 ) {
+            if ( it->at(i-1)->t() == itTime ) {
+                --i;
+            } else {
+                break;
+            }
+        }
+
+        /* Get current index for possible duplicate timestamps (ii) */
+        QModelIndex idx = _bookModel()->getDataIndex(QModelIndex(),
+                                                     "LiveCoordTimeIndex","");
+        int ii = _bookModel()->getDataInt(QModelIndex(),
+                                          "LiveCoordTimeIndex","");
+
         if ( arrow == Qt::LeftArrow ) {
-            while ( i >= 0 ) {
-                it = it->at(i);
+            while ( i+ii > 0 ) {
+                it = it->at(i+ii-1);
                 if ( isXTime ) {
                     timeStamp = it->x()*xs+xb;
                 } else {
                     timeStamp = it->t();
                 }
-                if ( qAbs(timeStamp-liveTime) > 1.0e-16 ) {
+                double dt = qAbs(timeStamp-liveTime);
+                if ( dt == 0 ) {
+                    // Multiple points for same timestamp,
+                    // move to prev point on this curve for this same timestamp
+                    _bookModel()->setData(idx,--ii);
+                    break;
+                } else {
+                    int jj = 0;  // Last index of possible duplicate timestamps
+                    int j = i-1;
+                    double jTime = it->at(j+ii)->t();
+                    while ( j+ii-1 >= 0 ) {
+                        if ( it->at(j+ii-1)->t() == jTime ) {
+                            ++jj;
+                            --j;
+                        } else {
+                            break;
+                        }
+                    }
+                    _bookModel()->setData(idx,jj);
+                }
+                if ( dt > 1.0e-16 ) {
                     break;
                 }
                 --i;
             }
+
         } else if ( arrow == Qt::RightArrow ) {
-            it = it->at(i+1);
+            it = it->at(i+1+ii);
             while ( !it->isDone() ) {
                 if ( isXTime ) {
                     timeStamp = it->x()*xs+xb;
                 } else {
                     timeStamp = it->t();
                 }
-                if ( qAbs(timeStamp-liveTime) > 1.0e-16 ) {
+                double dt = qAbs(timeStamp-liveTime);
+                if ( dt == 0 ) {
+                    // Multiple points for same timestamp,
+                    // move to next point on this curve for this same timestamp
+                    _bookModel()->setData(idx,++ii);
+                    break;
+                } else {
+                    if ( ii != 0 ) {
+                        _bookModel()->setData(idx,0);
+                    }
+                }
+                if ( qAbs(timeStamp-liveTime) > 1.0e-16  ) {
                     break;
                 }
                 it->next();
@@ -1652,27 +1729,6 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                         QPointF p(el.x*xs+xb,el.y*ys+yb);
 
                         //
-                        // Find dt between p and prev or next point
-                        //
-                        double dt = 0.0;
-                        if ( i == 0 ) {
-                            // Start point
-                            dt = path->elementAt(1).x*xs+xb - p.x();
-                        } else if ( i > 0 ) {
-                            dt = p.x() - (path->elementAt(i-1).x*xs+xb);
-                        } else {
-                            fprintf(stderr,"koviz [bad scoobs]:1: "
-                                           "CurvesView::mouseMoveEvent()\n");
-                            exit(-1);
-                        }
-                        if ( dt < 1.0e-9 ) {
-                            fprintf(stderr,"koviz [bad scoobs]:2: "
-                                           "CurvesView::mouseMoveEvent() "
-                                           "dt < 1.0e-9 \n");
-                            exit(-1);
-                        }
-
-                        //
                         // Make "neighborhood" around mouse point
                         //
                         QRectF M = _bookModel()->getPlotMathRect(rootIndex());
@@ -1680,11 +1736,29 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                         double Wr = 2.0*fontMetrics().xHeight(); // near mouse
                         double Mr = Wr*(M.width()/W.width());
 
-                        int di = qFloor(Mr/dt);
-                        int j = i-di;
-                        j = (j < 0) ? 0 : j;
-                        int k = i+di;
-                        k = (k >= rc) ? rc-1 : k;
+                        // Set j/k for finding min/maxs in next block of code
+                        int j = i;
+                        int k = i;
+                        int nels = path->elementCount();
+                        double iTime = path->elementAt(i).x;
+                        double startTime = iTime - Mr;
+                        double endTime = iTime + Mr;
+                        for ( int l = i ; l >= 0; --l ) {
+                            double lTime = path->elementAt(l).x;
+                            if ( lTime > startTime ) {
+                                j = l;
+                            } else {
+                                break;
+                            }
+                        }
+                        for ( int l = i ; l < nels; ++l ) {
+                            double lTime = path->elementAt(l).x;
+                            if ( lTime < endTime ) {
+                                k = l;
+                            } else {
+                                break;
+                            }
+                        }
 
                         //
                         // Find local min/maxs in neighborhood
@@ -1790,13 +1864,63 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                         time = exp10(time);
                     }
                     if ( time <= start ) {
-                        model()->setData(liveTimeIdx,start);
+                        time = start;
                     } else if ( time >= stop ) {
-                        model()->setData(liveTimeIdx,stop);
-                    } else {
-                        model()->setData(liveTimeIdx,time);
+                        time = stop;
                     }
+                    model()->setData(liveTimeIdx,time);
 
+                    // If timestamps are identical, set liveTimeIndex so
+                    // that livecoord is set to max y value
+                    if ( plotXScale == "log") {
+                        time = log10(time);
+                    }
+                    int i =  _idxAtTimeBinarySearch(path,0,rc-1,(time-xb)/xs);
+                    double iTime = path->elementAt(i).x;
+                    int j = i;  // j is start index of identical timestamps
+                    for ( int l = i; l >= 0; --l ) {
+                        double lTime = path->elementAt(l).x;
+                        if ( iTime != lTime ) {
+                            break;
+                        } else {
+                            j = l;
+                        }
+                    }
+                    int nels = path->elementCount();
+                    int k = j; // k is last index of identical timestamps
+                    for (int l = j; l < nels; ++l) {
+                        double lTime = path->elementAt(l).x;
+                        if ( iTime != lTime ) {
+                            break;
+                        } else {
+                            k = l;
+                        }
+                    }
+                    int liveCoordTimeIdx = 0;
+                    if ( k - j > 1 ) {
+                        // Find index of max y of identical timestamps
+                        // Note: min is not used even if mouse below curve.
+                        //       This is because I simply didn't want any
+                        //       more code
+                        double maxY = -DBL_MAX;
+                        int m = 0 ;
+                        for (int l = j; l <= k; ++l) {
+                            double x = path->elementAt(l).x;
+                            double y = path->elementAt(l).y;
+                            if ( y > maxY ) {
+                                maxY = y;
+                                liveCoordTimeIdx = m;
+                            }
+                            if ( x != iTime ) {
+                                break;
+                            }
+                            ++m;
+                        }
+                    }
+                    QModelIndex idx = _bookModel()->getDataIndex(
+                                                       QModelIndex(),
+                                                       "LiveCoordTimeIndex","");
+                    _bookModel()->setData(idx,liveCoordTimeIdx);
                 } else {  // Curve x is not time e.g. ball xy-position
 
                     double start = _bookModel()->getDataDouble(QModelIndex(),
@@ -1919,28 +2043,6 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                 QPointF p(el.x,el.y);
 
                 //
-                // Find dt between p and prev or next point
-                //
-                double dt = 0.0;
-                if ( i == 0 ) {
-                    // Start point
-                    dt = path->elementAt(1).x - p.x();
-                } else if ( i > 0 ) {
-                    dt = p.x() - path->elementAt(i-1).x;
-                } else {
-                    fprintf(stderr,"koviz [bad scoobs]:4: "
-                                   "CurvesView::mouseMoveEvent()\n");
-                    exit(-1);
-                }
-                if ( dt < 1.0e-9 ) {
-                    fprintf(stderr,"koviz [bad scoobs]:5: "
-                                   "CurvesView::mouseMoveEvent() "
-                                   "dt < 1.0e-9 \n");
-                    exit(-1);
-                }
-
-
-                //
                 // Make "neighborhood" around mouse point
                 //
                 QRectF M = _bookModel()->getPlotMathRect(rootIndex());
@@ -1948,11 +2050,29 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                 double Wr = 2.0*fontMetrics().xHeight(); // near mouse
                 double Mr = Wr*(M.width()/W.width());
 
-                int di = qFloor(Mr/dt);
-                int j = i-di;
-                j = (j < 0) ? 0 : j;
-                int k = i+di;
-                k = (k >= rc) ? rc-1 : k;
+                // Set j and k for finding min/maxs
+                int j = i;
+                int k = i;
+                int nels = path->elementCount();
+                double iTime = path->elementAt(i).x;
+                double startTime = iTime - Mr;
+                double endTime = iTime + Mr;
+                for ( int l = i ; l >= 0; --l ) {
+                    double lTime = path->elementAt(l).x;
+                    if ( lTime > startTime ) {
+                        j = l;
+                    } else {
+                        break;
+                    }
+                }
+                for ( int l = i ; l < nels; ++l ) {
+                    double lTime = path->elementAt(l).x;
+                    if ( lTime < endTime ) {
+                        k = l;
+                    } else {
+                        break;
+                    }
+                }
 
                 //
                 // Find local min/maxs in neighborhood
@@ -2299,12 +2419,17 @@ void CurvesView::_keyPressComma()
                                                      "LiveCoordTime");
     double liveTime = model()->data(liveIdx).toDouble();
 
+    QModelIndex liveTimeIdxIdx = _bookModel()->getDataIndex(QModelIndex(),
+                                                     "LiveCoordTimeIndex");
+    int timeIdx = model()->data(liveTimeIdxIdx).toInt();
+
     // Add (or remove) marker based on presentation
     if ( tag == "Curve" || tag == "Plot" ) {
         bool isRemoved = false;
         foreach (TimeAndIndex* marker, _markers ) {
             if ( liveTime == marker->time() &&
-                 marker->idx().row() == currentIndex().row() ) {
+                 timeIdx == marker->timeIdx() &&
+                 marker->modelIdx().row() == currentIndex().row() ) {
                 // Remove marker if same time and same curve (eg toggle off/on)
                 _markers.removeOne(marker);
                 delete marker;
@@ -2315,15 +2440,16 @@ void CurvesView::_keyPressComma()
 
         if ( !isRemoved ) {
             QModelIndex idx = currentIndex();
-            TimeAndIndex* timeAndIdx = new TimeAndIndex(liveTime,idx);
+            TimeAndIndex* timeAndIdx = new TimeAndIndex(liveTime,timeIdx,idx);
             _markers << timeAndIdx;
         }
     }
 }
 
-TimeAndIndex::TimeAndIndex(double time, const QModelIndex &idx) :
+TimeAndIndex::TimeAndIndex(double time, int timeIdx, const QModelIndex &idx) :
     _time(time),
-    _idx(idx)
+    _timeIdx(timeIdx),
+    _modelIdx(idx)
 {
 }
 
@@ -2332,7 +2458,12 @@ double TimeAndIndex::time() const
     return _time;
 }
 
-QModelIndex TimeAndIndex::idx() const
+int TimeAndIndex::timeIdx() const
 {
-    return _idx;
+    return _timeIdx;
+}
+
+QModelIndex TimeAndIndex::modelIdx() const
+{
+    return _modelIdx;
 }

@@ -368,6 +368,7 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     // Current
     map.insert(QPair<QString,QString>("amp","amp"),   1.0);
     map.insert(QPair<QString,QString>("amp","mamp"),  0.001);
+    map.insert(QPair<QString,QString>("amp","mA"),    0.001);
 
     // Resistance
     map.insert(QPair<QString,QString>("ohm","ohm"),   1.0);
@@ -415,7 +416,8 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     map.insert(QPair<QString,QString>("--","cnt"), 1.0);
     map.insert(QPair<QString,QString>("--","one"), 1.0);
     map.insert(QPair<QString,QString>("--","1"),   1.0);
-    map.insert(QPair<QString,QString>("--","dB"),   1.0);
+    map.insert(QPair<QString,QString>("--","dB"),  1.0);
+    map.insert(QPair<QString,QString>("--","*"),   1.0);
 
     // Micro-gravity
     map.insert(QPair<QString,QString>("micro-g","micro-g"), 1.0);
@@ -427,6 +429,12 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     map.insert(QPair<QString,QString>("1/r","1/d"),   1.0/0.0174532925199433);
     map.insert(QPair<QString,QString>("1/r","one/d"), 1.0/0.0174532925199433);
 
+    // Q-Bar-Alpha (has to do with dynamic pressure and angle of attack)
+    map.insert(QPair<QString,QString>("N*r/m2","N*r/m2"), 1.0);
+    map.insert(QPair<QString,QString>("N*r/m2","N*rad/m2"), 1.0);
+    map.insert(QPair<QString,QString>("N*r/m2","lbf*degree/ft2"), 
+                            4.4482216152605*0.0174532925199433/(0.3048*0.3048));
+
     // Miscellaneous
     map.insert(QPair<QString,QString>("rad2/s2","rad2/s2"), 1.0);
     map.insert(QPair<QString,QString>("m2/s2","m2/s2"), 1.0);
@@ -435,9 +443,7 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     map.insert(QPair<QString,QString>("Hz","Hz"), 1.0);
     map.insert(QPair<QString,QString>("N*s/m2","N*s/m2"), 1.0);
     map.insert(QPair<QString,QString>("s/s","s/s"), 1.0);
-    map.insert(QPair<QString,QString>("lbf*degree/ft2","lbf*degree/ft2"), 1.0);
-    map.insert(QPair<QString,QString>("N*rad/m2","N*rad/m2"), 1.0);
-    map.insert(QPair<QString,QString>("N*r/m2","N*r/m2"), 1.0);
+    map.insert(QPair<QString,QString>("s/s2","s/s2"), 1.0);
 
     return map;
 }

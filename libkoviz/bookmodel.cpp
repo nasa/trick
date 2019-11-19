@@ -474,36 +474,38 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
             idx = index(2,0);
         } else if ( searchItemText == "LiveCoordTime" ) {
             idx = index(3,0);
-        } else if ( searchItemText == "StartTime" ) {
+        } else if ( searchItemText == "LiveCoordTimeIndex" ) {
             idx = index(4,0);
-        } else if ( searchItemText == "StopTime" ) {
+        } else if ( searchItemText == "StartTime" ) {
             idx = index(5,0);
-        } else if ( searchItemText == "Presentation" ) {
+        } else if ( searchItemText == "StopTime" ) {
             idx = index(6,0);
-        } else if ( searchItemText == "IsShowLiveCoord" ) {
+        } else if ( searchItemText == "Presentation" ) {
             idx = index(7,0);
-        } else if ( searchItemText == "RunToShiftHash" ) {
+        } else if ( searchItemText == "IsShowLiveCoord" ) {
             idx = index(8,0);
-        } else if ( searchItemText == "LegendLabels" ) {
+        } else if ( searchItemText == "RunToShiftHash" ) {
             idx = index(9,0);
-        } else if ( searchItemText == "Orientation" ) {
+        } else if ( searchItemText == "LegendLabels" ) {
             idx = index(10,0);
-        } else if ( searchItemText == "TimeMatchTolerance" ) {
+        } else if ( searchItemText == "Orientation" ) {
             idx = index(11,0);
-        } else if ( searchItemText == "Frequency" ) {
+        } else if ( searchItemText == "TimeMatchTolerance" ) {
             idx = index(12,0);
-        } else if ( searchItemText == "IsLegend" ) {
+        } else if ( searchItemText == "Frequency" ) {
             idx = index(13,0);
-        } else if ( searchItemText == "LegendColors" ) {
+        } else if ( searchItemText == "IsLegend" ) {
             idx = index(14,0);
-        } else if ( searchItemText == "ForegroundColor" ) {
+        } else if ( searchItemText == "LegendColors" ) {
             idx = index(15,0);
-        } else if ( searchItemText == "BackgroundColor" ) {
+        } else if ( searchItemText == "ForegroundColor" ) {
             idx = index(16,0);
-        } else if ( searchItemText == "Linestyles" ) {
+        } else if ( searchItemText == "BackgroundColor" ) {
             idx = index(17,0);
-        } else if ( searchItemText == "Symbolstyles" ) {
+        } else if ( searchItemText == "Linestyles" ) {
             idx = index(18,0);
+        } else if ( searchItemText == "Symbolstyles" ) {
+            idx = index(19,0);
         } else {
             fprintf(stderr,"koviz [bad scoobs]:3: getIndex() received "
                            "root as a startIdx and had bad child "
@@ -1139,7 +1141,22 @@ QPainterPath* PlotBookModel::__createPainterPath(CurveModel *curveModel,
             path->moveTo(x,y);
             isFirst = false;
         } else {
+            int m = path->elementCount();
             path->lineTo(x,y);
+            int n = path->elementCount();
+            if ( m == n ) {
+                /* When points are very close to one another,
+                 * it looks like Qt will skip adding a lineTo(x,y).
+                 * This bit of code tries to force Qt to add the
+                 * lineTo(x,y) no matter how close the two points
+                 * are to one another.
+                 */
+                path->lineTo(x+1.0,y+1.0);
+                int o = path->elementCount();
+                if ( o > m ) {
+                    path->setElementPositionAt(o-1,x,y);
+                }
+            }
         }
 
         it->next();
@@ -1400,6 +1417,11 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
 
     // Frequency of data to show (f=0.0, the default, is all data)
     double f = getDataDouble(QModelIndex(),"Frequency");
+    if ( f != 0.0 ) {
+        fprintf(stderr, "koviz [error]: Frequency spec unsupported with "
+                        "error plots.\n");
+        exit(-1);
+    }
 
     // Plot X/Y Scale (log/linear)
     QModelIndex plotIdx = curvesIdx.parent();
@@ -1418,53 +1440,67 @@ QPainterPath* PlotBookModel::_createCurvesErrorPath(
     while ( !i0->isDone() && !i1->isDone() ) {
         double t0 = xs0*i0->t()+xb0;
         double t1 = xs1*i1->t()+xb1;
-        if ( qAbs(t1-t0) < tolerance ) {
-            if ( f > 0.0 ) {
-                if (fabs(t0-round(t0/f)*f) > 1.0e-9) { // t0 not divisible by f?
+        double yy = (ys0*i0->y()+yb0) - (ys1*i1->y()+yb1);
+        // Match timestamps as close as possible (freq not used)
+        if ( t0 == t1 ) {
+            i0->next();
+            i1->next();
+        } else if ( t0 < t1 ) {
+            i0->next();
+            while ( !i0->isDone() ) {
+                double t00 = xs0*i0->t()+xb0;
+                double dtt = qAbs(t1-t00);
+                if ( dtt < qAbs(t0-t1) ) {
+                    t0 = t00;
+                    yy = (ys0*i0->y()+yb0) - (ys1*i1->y()+yb1);
                     i0->next();
-                    i1->next();
-                    continue;
+                } else {
+                    break;
                 }
             }
-            double d = (ys0*i0->y()+yb0) - (ys1*i1->y()+yb1);
-            if ( isYLogScale ) {
-                if ( d > 0 ) {
-                    d = log10(d);
-                } else if ( d < 0 ) {
-                    d = log10(-d);
-                } else if ( d == 0 ) {
-                    i0->next();
+            i1->next();
+        } else if ( t0 > t1 ) {
+            i1->next();
+            while ( !i1->isDone() ) {
+                double t11 = xs1*i1->t()+xb1;
+                double dtt = qAbs(t0-t11);
+                if ( dtt < qAbs(t1-t0) ) {
+                    t1 = t11;
+                    yy = (ys0*i0->y()+yb0) - (ys1*i1->y()+yb1);
                     i1->next();
+                } else {
+                    break;
+                }
+            }
+            i0->next();
+        } else {
+            // bad scoobs, but step to avoid inf loop
+            i0->next();
+            i1->next();
+        }
+        if ( qAbs(t1-t0) <= tolerance ) {
+            if ( isYLogScale ) {
+                if ( yy > 0 ) {
+                    yy = log10(yy);
+                } else if ( yy < 0 ) {
+                    yy = log10(-yy);
+                } else if ( yy == 0 ) {
                     continue; // skip log(0) since -inf
                 }
             }
             if ( t0 >= start && t0 <= stop ) {
                 if ( isXLogScale && t0 == 0.0 ) {
-                    i0->next();
-                    i1->next();
                     continue;
                 }
                 if ( isXLogScale ) {
                     t0 = log10(t0);
                 }
                 if ( isFirst ) {
-                    path->moveTo(t0,d);
+                    path->moveTo(t0,yy);
                     isFirst = false;
                 } else {
-                    path->lineTo(t0,d);
+                    path->lineTo(t0,yy);
                 }
-            }
-            i0->next();
-            i1->next();
-        } else {
-            if ( t0 < t1 ) {
-                i0->next();
-            } else if ( t1 < t0 ) {
-                i1->next();
-            } else {
-                fprintf(stderr,"koviz [bad scoobs]:5: "
-                               "PlotBookModel::_createErrorPath()\n");
-                exit(-1);
             }
         }
     }
@@ -1531,13 +1567,13 @@ QString PlotBookModel::getCurvesYUnit(const QModelIndex &curvesIdx)
     if ( rc > 0 ) {
         QModelIndex curve0Idx = index(0,0,curvesIdx);
         QString yunit0 = getDataString(curve0Idx,"CurveYUnit","Curve");
-        if ( yunit0 == "--" || yunit0.isEmpty() ) {
+        if ( yunit0.isEmpty() ) {
             yunit0 = getCurveModel(curve0Idx)->y()->unit();
         }
         for (int i = 0; i < rc; ++i) {
             QModelIndex curveIdx = index(i,0,curvesIdx);
             yunit = getDataString(curveIdx,"CurveYUnit","Curve");
-            if ( yunit == "--" || yunit.isEmpty() ) {
+            if ( yunit.isEmpty() ) {
                 CurveModel* curveModel = getCurveModel(curveIdx);
                 yunit = curveModel->y()->unit();
             }

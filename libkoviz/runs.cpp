@@ -340,10 +340,18 @@ int Runs::_paramColumn(DataModel* model, const QString &param) const
     }
     if ( col < 0 ) {
         // Search for param in timeNames
+        bool isParamTime = false;
         foreach (QString timeName, _timeNames ) {
-            col = model->paramColumn(timeName);
-            if ( col >= 0 ) {
-                break;
+            if ( timeName == param ) {
+                isParamTime = true;
+            }
+        }
+        if ( isParamTime ) {
+            foreach (QString timeName, _timeNames ) {
+                col = model->paramColumn(timeName);
+                if ( col >= 0 ) {
+                    break;
+                }
             }
         }
     }
